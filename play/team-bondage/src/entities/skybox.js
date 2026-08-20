@@ -64,14 +64,16 @@ function paint(canvas, t) {
   //   1.0 - 1.4s  IMPACT:   collide + big POW + dust
   //   1.4 - 3.0s  RECOVER:  bounce apart, small wobble, then next cycle
   // Bryan 2026-08-20: "the sky box animals aren't fighting as I asked".
-  // Move brawl to HORIZON strip (mid-height of equirect map) so players see
-  // the fight in their normal forward gaze — no more staring straight up.
-  // Also 3x larger so it's unmissable.
+  // Brawl lives at the TOP of the equirect strip (near the zenith) so it's
+  // OVERHEAD when you look up — never blocks the horizon view of the map
+  // or enemies. Bryan 2026-08-21 asked to move it back to the top.
+  // Kept the 3x bigger size + 12 fps + 2.2 s cycle from the previous
+  // rework so it's still unmissable when you glance up.
   const brawlCX = W / 2;
-  const brawlCY = H * 0.48;
-  const brawlR  = H * 0.22;
-  const restX   = brawlR * 2.0;         // rest distance from centre
-  const CYCLE   = 2.2;                   // faster cycle — more collisions/min
+  const brawlCY = H * 0.14;
+  const brawlR  = H * 0.20;
+  const restX   = brawlR * 2.0;
+  const CYCLE   = 2.2;
   const phase   = (t % CYCLE) / CYCLE;  // 0..1
 
   let sepFrac, impactFlash, rockBull, rockHorse, bounceBull, bounceHorse;

@@ -27,22 +27,21 @@ export class RemotePlayer {
     this.headBone = built.headBone;
     scene.add(this.group);
 
-    // Team-awareness halo: a slightly inflated inverted-hull "shell" behind
-    // the character. Rendered flat-colour, back-side, additive-y blend so
-    // it reads as a coloured RIM around the model, not a solid duplicate.
-    const halo = new THREE.Mesh(
-      new THREE.SphereGeometry(0.95, 20, 12),
-      new THREE.MeshBasicMaterial({
-        color: haloHex,
-        side: THREE.BackSide,
-        transparent: true,
-        opacity: 0.55,
-        depthWrite: false,
-      }),
-    );
-    halo.position.set(0, 1.0, 0);
-    halo.scale.set(0.85, 1.35, 0.85);   // taller than wide, matches upright silhouette
-    halo.renderOrder = -1;              // draw before the character
+    // Team-awareness halo — a camera-facing SPRITE that sits ON the
+    // character, not a big offset shell that read as "detached square".
+    // Bryan 2026-08-21: "floating red and blue squares … seem to be
+    // detached, fix that". A sprite with a radial-gradient texture always
+    // faces the camera + is centred on the character's body, so it can't
+    // separate visually. Larger + fainter → reads as a soft rim.
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeHaloTexture(haloHex),
+      transparent: true,
+      opacity: 0.85,
+      depthWrite: false,
+    }));
+    halo.position.set(0, 0.85, 0);      // over the body/torso, on-model
+    halo.scale.set(2.2, 2.6, 1);        // covers head + body silhouette
+    halo.renderOrder = -1;              // draw BEFORE the character
     this.group.add(halo);
     this.halo = halo;
 
@@ -83,6 +82,33 @@ export class RemotePlayer {
   }
 
   destroy(scene) { scene.remove(this.group); }
+}
+
+// Build a radial-gradient halo texture in the given team colour. Cached
+// per colour so N remote players share the same 128×128 canvas.
+const _haloCache = new Map();
+function makeHaloTexture(hex) {
+  if (_haloCache.has(hex)) return _haloCache.get(hex);
+  const c = document.createElement('canvas');
+  c.width = 128; c.height = 128;
+  const ctx = c.getContext('2d');
+  const cx = 64, cy = 64;
+  const r = 62;
+  const rgb = [(hex >> 16) & 0xff, (hex >> 8) & 0xff, hex & 0xff];
+  const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  // Transparent core (so the character reads through the halo) with a
+  // bright coloured rim that fades to fully transparent at the edge.
+  grd.addColorStop(0.00, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.00)`);
+  grd.addColorStop(0.55, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.00)`);
+  grd.addColorStop(0.75, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.55)`);
+  grd.addColorStop(0.90, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.35)`);
+  grd.addColorStop(1.00, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.00)`);
+  ctx.fillStyle = grd;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+  const tex = new THREE.CanvasTexture(c);
+  tex.needsUpdate = true;
+  _haloCache.set(hex, tex);
+  return tex;
 }
 
 function shortestAngleDelta(from, to) {
