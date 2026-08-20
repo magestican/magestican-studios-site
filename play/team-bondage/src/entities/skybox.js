@@ -13,7 +13,7 @@ import * as THREE from 'three';
 
 const W = 2048;   // equirectangular width; height = W/2
 const H = 1024;
-const ANIMATE_FPS = 6;
+const ANIMATE_FPS = 12;   // was 6 — Bryan 2026-08-20 "the sky box animals still aren't fighting"; smoother = more visibly in motion.
 
 // Try the Blender-rendered PNG first. If it fails to load, fall back to
 // the animated canvas painting (which at least ensures something is on
@@ -64,11 +64,14 @@ function paint(canvas, t) {
   //   1.0 - 1.4s  IMPACT:   collide + big POW + dust
   //   1.4 - 3.0s  RECOVER:  bounce apart, small wobble, then next cycle
   // Bryan 2026-08-20: "the sky box animals aren't fighting as I asked".
+  // Move brawl to HORIZON strip (mid-height of equirect map) so players see
+  // the fight in their normal forward gaze — no more staring straight up.
+  // Also 3x larger so it's unmissable.
   const brawlCX = W / 2;
-  const brawlCY = H * 0.14;
-  const brawlR  = H * 0.10;
-  const restX   = brawlR * 2.4;         // rest distance from centre
-  const CYCLE   = 3.0;
+  const brawlCY = H * 0.48;
+  const brawlR  = H * 0.22;
+  const restX   = brawlR * 2.0;         // rest distance from centre
+  const CYCLE   = 2.2;                   // faster cycle — more collisions/min
   const phase   = (t % CYCLE) / CYCLE;  // 0..1
 
   let sepFrac, impactFlash, rockBull, rockHorse, bounceBull, bounceHorse;

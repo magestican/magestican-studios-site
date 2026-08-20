@@ -103,6 +103,9 @@ $('nameInput').addEventListener('input', (e) => {
   localStorage.setItem('tb.name', state.name);
 });
 
+// (SSO block removed 2026-08-20 — Bryan clarified he meant SEO, not SSO.
+// The game stays account-free; no third-party script loaded here.)
+
 // Also auto-pick a random team so first-time players can just tap Host.
 const initialTeam = Math.random() < 0.5 ? 'red' : 'blue';
 state.team = initialTeam;
