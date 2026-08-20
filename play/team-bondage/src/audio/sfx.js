@@ -133,6 +133,41 @@ export function whoosh() {
   noise.start(t); noise.stop(t + 1.9);
 }
 
+// Gore-mode joke SFX: a wet, descending fart. Played on every player
+// weapon fire when GORE mode is on. Kept short (~180ms) so it doesn't
+// step on the pew/splat/boom chain.
+export function fart(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  // Descending buzzy sawtooth "brrrrrpt"
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(180, t);
+  osc.frequency.exponentialRampToValueAtTime(70, t + 0.18);
+  // LFO wobble to make it splutter.
+  const lfo = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+  lfo.type = 'square'; lfo.frequency.value = 26;
+  lfoGain.gain.value = 40;
+  lfo.connect(lfoGain).connect(osc.frequency);
+  lfo.start(t); lfo.stop(t + 0.22);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.22 * loudness, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+  osc.connect(g).connect(_master);
+  osc.start(t); osc.stop(t + 0.22);
+  // Wet noise plosion at the end.
+  const noise = whiteNoise(ctx, 0.08);
+  const nFilt = ctx.createBiquadFilter();
+  nFilt.type = 'bandpass'; nFilt.frequency.value = 220; nFilt.Q.value = 4;
+  const nG = ctx.createGain();
+  nG.gain.setValueAtTime(0.14 * loudness, t + 0.12);
+  nG.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+  noise.connect(nFilt).connect(nG).connect(_master);
+  noise.start(t + 0.12); noise.stop(t + 0.22);
+}
+
 export function snorkel() {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;

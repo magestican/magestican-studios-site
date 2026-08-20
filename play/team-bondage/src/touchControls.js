@@ -38,9 +38,15 @@ export class TouchControls {
       <div id="tc-joystick-knob"></div>
       <div id="tc-debug"></div>
       <div id="tc-buttons">
-        <button class="tc-btn tc-weapon" data-w="0" aria-label="Pistol">1</button>
-        <button class="tc-btn tc-weapon" data-w="1" aria-label="Shotgun">2</button>
-        <button class="tc-btn tc-weapon" data-w="2" aria-label="Rocket">3</button>
+        <button class="tc-btn tc-weapon" data-w="0" aria-label="Shovel">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M14 3l7 7-3 3-2-2-7 7-3-3 7-7-2-2z" fill="#c99a63" stroke="#402208" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="18" r="2.2" fill="#6b3d16"/></svg>
+          <span class="tc-key">1</span></button>
+        <button class="tc-btn tc-weapon" data-w="1" aria-label="Shotgun">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3" y="10" width="13" height="4" rx="1" fill="#3d2a1e" stroke="#0f0e0c" stroke-width="1"/><rect x="15" y="7" width="6" height="10" rx="1.2" fill="#7a5233" stroke="#0f0e0c" stroke-width="1"/></svg>
+          <span class="tc-key">2</span></button>
+        <button class="tc-btn tc-weapon" data-w="2" aria-label="Rocket">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 2c3 3 4 7 4 10v6l-4 3-4-3v-6c0-3 1-7 4-10z" fill="#e8d9a0" stroke="#402208" stroke-width="1.2"/><circle cx="12" cy="10" r="1.7" fill="#7fa8d4"/></svg>
+          <span class="tc-key">3</span></button>
         <button class="tc-btn tc-jump"   aria-label="Jump">JUMP</button>
         <button class="tc-btn tc-fire"   aria-label="Fire">FIRE</button>
       </div>
@@ -271,6 +277,9 @@ const TOUCH_CSS = `
   transition: background 0.08s ease;
 }
 .tc-btn.tc-flash { background: rgba(244,201,93,0.7); }
+.tc-btn.tc-weapon { display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 2px; padding: 4px; }
+.tc-btn.tc-weapon .tc-key { font-size: 10px; opacity: 0.8; letter-spacing: 0.05em; }
 .tc-btn.tc-weapon[data-w="0"] { grid-area: w1; }
 .tc-btn.tc-weapon[data-w="1"] { grid-area: w2; }
 .tc-btn.tc-weapon[data-w="2"] { grid-area: w3; }

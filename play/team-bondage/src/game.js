@@ -294,6 +294,12 @@ export class Game {
     };
     this.flagState = { red: 'home', blue: 'home' };  // 'home' | 'carried' | 'dropped'
     this.flagPos   = { red: { ...world.flags.red }, blue: { ...world.flags.blue } };
+    // Scatter snow-farm props (snowmen, barrels, hay bales, fence posts,
+    // crates, tractor). Async — the empty group is added immediately and
+    // meshes stream in as the GLBs load. Feature: docs/features/map-props.md
+    import('./entities/mapProps.js')
+      .then(({ scatterMapProps }) => scatterMapProps(this.scene, world))
+      .catch((err) => console.warn('[mapProps] scatter failed:', err));
   }
 
   _buildFlagMesh(pos, color) {
@@ -366,6 +372,14 @@ export class Game {
         onJump: () => this.input.setSynthetic('jump', true),
         onWeapon: (i) => this._switchWeapon(i),
       });
+    }
+
+    // Desktop HUD weapon slots (top row) are clickable too. Slot 4 (chicken)
+    // is wired lazily on pickup — see _grantChicken.
+    for (const el of document.querySelectorAll('#weaponbar .wpn:not(.chicken)')) {
+      const idx = Number(el.dataset.w);
+      if (!Number.isFinite(idx)) continue;
+      el.addEventListener('click', (e) => { e.preventDefault(); this._switchWeapon(idx); });
     }
   }
 
@@ -679,13 +693,85 @@ export class Game {
     return arr;
   }
 
-  // Grant a chicken shot to a peer. If it's us, show the slot 4 button.
+  // Grant a chicken shot to a peer. If it's us, light up slot 4, auto-switch
+  // to it, splash a big "SLINGSHOT READY" banner, play the pickup pling, and
+  // wire a click handler on the slot chip so tapping it selects it again if
+  // the player switched away.
   _grantChicken(peerId) {
     if (peerId === this.myId) {
       this.chickenAmmo = 1;
       const slot = document.querySelector('.wpn.chicken');
-      if (slot) slot.style.display = '';
+      if (slot) {
+        slot.style.display = '';
+        // Idempotent: only wire the click handler once.
+        if (!slot.dataset.wired) {
+          slot.dataset.wired = '1';
+          const pick = (e) => { e?.preventDefault?.(); this._switchWeapon(3); };
+          slot.addEventListener('click', pick);
+          slot.addEventListener('touchstart', pick, { passive: false });
+        }
+      }
+      // Auto-switch so pressing FIRE just works, no matter what platform.
+      this._switchWeapon(3);
+      // POWER GET FX
+      this._showPowerGet('☢  SLINGSHOT READY  ☢', 'Press FIRE to launch');
+      try { SFX.chirp(); SFX.boom(0.4); } catch (_) {}
     }
+  }
+
+  // Big centre-screen splash + screen flash for "you got the super weapon".
+  // Adds once, animates via CSS. Removed after 2.2s.
+  _showPowerGet(title, subtitle) {
+    let root = document.getElementById('power-get');
+    if (root) root.remove();
+    root = document.createElement('div');
+    root.id = 'power-get';
+    root.innerHTML = `
+      <div class="pg-flash"></div>
+      <div class="pg-ring"></div>
+      <div class="pg-text">
+        <div class="pg-title">${title}</div>
+        <div class="pg-sub">${subtitle || ''}</div>
+      </div>
+    `;
+    document.body.appendChild(root);
+    if (!document.getElementById('power-get-styles')) {
+      const s = document.createElement('style');
+      s.id = 'power-get-styles';
+      s.textContent = `
+        #power-get { position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+          display: flex; align-items: center; justify-content: center; }
+        #power-get .pg-flash { position: absolute; inset: 0;
+          background: radial-gradient(circle at center, rgba(255,240,140,0.85) 0%,
+                                                       rgba(255,180,40,0.55) 30%,
+                                                       rgba(0,0,0,0) 70%);
+          animation: pgFlash 0.55s ease-out forwards; }
+        #power-get .pg-ring { position: absolute; width: 30vmin; height: 30vmin;
+          border: 6px solid #f4c95d; border-radius: 50%;
+          box-shadow: 0 0 40px 20px rgba(244,201,93,0.75), inset 0 0 40px 5px rgba(244,201,93,0.55);
+          animation: pgRing 1.1s ease-out forwards; }
+        #power-get .pg-text { position: relative; text-align: center;
+          animation: pgText 2.2s ease-out forwards; }
+        #power-get .pg-title { font: 900 min(9vw,64px)/1 system-ui, sans-serif;
+          color: #fff2b0; letter-spacing: 0.05em;
+          text-shadow: 0 0 24px #f4c95d, 0 3px 0 #7a4a10, 0 6px 0 #402208,
+                       0 0 60px rgba(244,201,93,0.85); }
+        #power-get .pg-sub { margin-top: 10px; font: 800 min(3.6vw,20px)/1 system-ui, sans-serif;
+          color: #fff; text-shadow: 0 2px 4px #000, 0 0 12px rgba(0,0,0,0.85);
+          letter-spacing: 0.15em; }
+        @keyframes pgFlash { 0% { opacity: 1 } 100% { opacity: 0 } }
+        @keyframes pgRing  { 0% { transform: scale(0.2); opacity: 0.95 }
+                             80% { transform: scale(2.4); opacity: 0.2 }
+                             100% { transform: scale(2.9); opacity: 0 } }
+        @keyframes pgText  { 0% { transform: scale(0.5); opacity: 0 }
+                             15% { transform: scale(1.15); opacity: 1 }
+                             25% { transform: scale(1); opacity: 1 }
+                             80% { transform: scale(1); opacity: 1 }
+                             100% { transform: scale(1.05); opacity: 0 } }
+      `;
+      document.head.appendChild(s);
+    }
+    setTimeout(() => root.remove(), 2200);
   }
 
   // Toggle the hay-peek overlays + hiding label based on whether the local
@@ -1176,7 +1262,13 @@ export class Game {
       return;
     }
     const shots = this.weapons.tryFire(origin, dir, this.rngShots, this.myId);
-    if (shots.length > 0) { SFX.pew(); this.viewmodel?.kick(); }
+    if (shots.length > 0) {
+      SFX.pew();
+      this.viewmodel?.kick();
+      // Gore-mode joke SFX: layer a fart on every shot. Farm animals shoot
+      // farm-animal ordnance, after all. Docs: docs/features/gore-fart-sfx.md
+      if (this.mature) SFX.fart(0.7);
+    }
     for (const s of shots) {
       this._broadcast({ t: MSG.SHOT, s });
       this._applyLocalShot(s);

@@ -286,15 +286,60 @@
     .wpn.chicken { border-color: #f4c95d; background: rgba(80,60,20,0.85); animation: pulseChicken 1.5s ease-in-out infinite; }
     @keyframes pulseChicken { 0%,100% { box-shadow: 0 0 0 rgba(244,201,93,0); } 50% { box-shadow: 0 0 12px rgba(244,201,93,0.8); } }
 
-    /* Mobile HUD tweaks: HP moves top-left below score, weaponbar hides
-       because touch controls provide their own weapon buttons. */
+    /* Mobile HUD redesign: strict "safe grid" so nothing overlaps on a
+       phone. Layout:
+         top-left   : settings button (⚙)
+         top-center : compact score PILL (red X · blue Y)
+         top-right  : GORE / mute buttons stacked
+         under score, centre : slim compass (arrow + distance only)
+         top-right column, below buttons : kill-feed (narrow, right-aligned)
+         bottom-left : HP corn bar (never in the joystick zone)
+         bottom-center : ammo
+         weaponbar   : hidden (touch controls own weapon switching + chicken
+                       auto-selects on pickup + slot chip is tappable)
+       Everything sits above safe-area insets so notches don't clip. */
     @media (max-width: 700px), (pointer: coarse) {
-      #topbar { top: max(10px, env(safe-area-inset-top)); font-size: 17px; gap: 12px; }
-      #bottombar { position: absolute; left: 16px; top: 44px; bottom: auto; font-size: 13px; }
-      #health-bar { width: 130px; }
+      #topbar { top: max(8px, env(safe-area-inset-top)); font-size: 15px; gap: 8px;
+        background: rgba(0,0,0,0.55); padding: 3px 12px; border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.15);
+        max-width: calc(100% - 220px); }   /* keep clear of settings + right buttons */
+      /* Compact compass: hide the flag emoji + shrink the distance pill.  */
+      #compass { top: 44px; gap: 6px; }
+      .compass-pill { padding: 2px 8px 2px 6px; font-size: 12px; border-width: 1.5px; }
+      .compass-flag { display: none; }
+      .compass-arrow-lg { width: 18px; height: 18px; }
+      .compass-dist { min-width: 26px; font-size: 11px; }
+      /* HP bar moves to bottom-LEFT above the joystick area (joystick uses
+         the lower-left QUADRANT — we sit safely above it). */
+      #bottombar { position: fixed; left: max(12px, env(safe-area-inset-left));
+        bottom: calc(140px + env(safe-area-inset-bottom)); top: auto;
+        font-size: 12px; background: rgba(0,0,0,0.55); padding: 4px 10px;
+        border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); }
+      #health-bar { width: 116px; }
+      /* Ammo counter pinned to the bottom-center chin, above the FIRE btn */
+      #ammo { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom));
+        transform: translateX(-50%); font-size: 14px; font-weight: 700;
+        background: rgba(0,0,0,0.55); padding: 3px 10px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.15); }
+      /* Kill-feed narrows + moves lower so it can't sit behind the right buttons. */
+      #kill-feed { top: calc(max(8px, env(safe-area-inset-top)) + 100px);
+        right: 10px; max-width: 44vw; font-size: 11px; }
+      .kill-line { padding: 3px 6px; }
       #weaponbar { display: none; }
       #flagStatus { top: 74px; font-size: 12px; padding: 0 12px; }
       #crosshair { transform: translate(-50%, -50%) scale(0.7); }
+      /* Right-column top buttons: mute + gore stacked in a strict column so
+         they cannot collide with the score pill or kill-feed. */
+      #mute-btn { right: max(10px, env(safe-area-inset-right)); top: max(8px, env(safe-area-inset-top));
+        height: 40px; width: 40px; padding: 0; }
+      #mature-btn { right: max(10px, env(safe-area-inset-right));
+        top: calc(max(8px, env(safe-area-inset-top)) + 48px); height: 40px;
+        padding: 0 10px; font-size: 12px; }
+      #add-bot-btn { right: max(10px, env(safe-area-inset-right));
+        top: calc(max(8px, env(safe-area-inset-top)) + 96px); height: 40px;
+        padding: 0 10px; font-size: 12px; }
+      #settings-btn { left: max(8px, env(safe-area-inset-left));
+        top: max(8px, env(safe-area-inset-top)); width: 40px; height: 40px; font-size: 20px; }
     }
     #flagStatus { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #f4c95d; }
     #kill-feed { position: absolute; right: 20px; top: 60px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #cbd3e1; }
@@ -528,10 +573,10 @@
       &nbsp;&middot;&nbsp; <span id="ammo">&infin;</span>
     </div>
     <div id="weaponbar">
-      <div class="wpn active" data-w="0"><span class="wpn-icon">💩</span><span class="wpn-key">1</span><span class="wpn-name">Shovel</span></div>
-      <div class="wpn"        data-w="1"><span class="wpn-icon">🎯</span><span class="wpn-key">2</span><span class="wpn-name">Shotgun</span></div>
-      <div class="wpn"        data-w="2"><span class="wpn-icon">🚀</span><span class="wpn-key">3</span><span class="wpn-name">Rocket</span></div>
-      <div class="wpn chicken" data-w="3" style="display:none;"><span class="wpn-icon">🐔</span><span class="wpn-key">4</span><span class="wpn-name">Slingshot</span></div>
+      <div class="wpn active" data-w="0"><span class="wpn-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M14 3l7 7-3 3-2-2-7 7-3-3 7-7-2-2z" fill="#c99a63" stroke="#402208" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="18" r="2.2" fill="#6b3d16" stroke="#2a1608" stroke-width="1"/><circle cx="3.5" cy="20" r="1.4" fill="#6b3d16" stroke="#2a1608" stroke-width="0.9"/></svg></span><span class="wpn-key">1</span><span class="wpn-name">Shovel</span></div>
+      <div class="wpn"        data-w="1"><span class="wpn-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3" y="10" width="13" height="4" rx="1" fill="#3d2a1e" stroke="#0f0e0c" stroke-width="1"/><rect x="15" y="7" width="6" height="10" rx="1.2" fill="#7a5233" stroke="#0f0e0c" stroke-width="1"/><rect x="2" y="14" width="4" height="4" rx="0.6" fill="#7a5233" stroke="#0f0e0c" stroke-width="1"/></svg></span><span class="wpn-key">2</span><span class="wpn-name">Shotgun</span></div>
+      <div class="wpn"        data-w="2"><span class="wpn-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2c3 3 4 7 4 10v6l-4 3-4-3v-6c0-3 1-7 4-10z" fill="#e8d9a0" stroke="#402208" stroke-width="1.2"/><circle cx="12" cy="10" r="1.7" fill="#7fa8d4" stroke="#0f0e0c" stroke-width="0.9"/><path d="M8 20l-3 3 4-1M16 20l3 3-4-1" stroke="#ff7b3b" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span><span class="wpn-key">3</span><span class="wpn-name">Rocket</span></div>
+      <div class="wpn chicken" data-w="3" style="display:none;"><span class="wpn-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><ellipse cx="12" cy="16" rx="6" ry="5" fill="#ffffff" stroke="#0f0e0c" stroke-width="1"/><circle cx="12" cy="9" r="3.6" fill="#ffffff" stroke="#0f0e0c" stroke-width="1"/><path d="M12 5c1-2 3-2 3 0h-3z" fill="#b73a2a" stroke="#0f0e0c" stroke-width="0.8"/><path d="M15 9l3 -0.5-3 2z" fill="#f4c95d" stroke="#0f0e0c" stroke-width="0.8"/><circle cx="14" cy="8.6" r="0.55" fill="#0f0e0c"/></svg></span><span class="wpn-key">4</span><span class="wpn-name">Slingshot</span></div>
     </div>
   </div>
   <!-- Mute button + lobby banner + admin controls live OUTSIDE the

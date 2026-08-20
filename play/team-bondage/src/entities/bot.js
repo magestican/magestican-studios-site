@@ -10,6 +10,7 @@
 
 import * as THREE from 'three';
 import { hasLineOfSight } from '../../../../web-engine/physics/lineOfSight.js';
+import { stepBot }        from '../../../../web-engine/ai/botStep.js';
 
 const NAMES = [
   'Bot-Buttercup', 'Bot-Hoof', 'Bot-Cluck', 'Bot-Trotter',
@@ -18,8 +19,6 @@ const NAMES = [
 ];
 const CHARACTERS = ['cow', 'chicken', 'pig', 'sheep'];
 
-const MOVE_SPEED = 4.8;
-const TURN_RATE = 3.5;                // rad/s
 const RANGE_SEE_ENEMY = 22;
 const RANGE_FIRE_ENEMY = 18;
 const FIRE_COOLDOWN = 0.9;
@@ -48,8 +47,8 @@ export class Bot {
     this.alive = true;
     this.hasEnemyFlag = false;
     this._fireCd = FIRE_COOLDOWN + Math.random();
-    this._wanderTimer = 0;
-    this._wanderDir = new THREE.Vector3(1, 0, 0);
+    // Path state shared with the pure web-engine/ai/botStep module.
+    this._path = { pos: this.pos, yaw: this.yaw, wanderDir: { x: 1, z: 0 }, wanderT: 0 };
   }
 
   respawn() {
@@ -82,45 +81,12 @@ export class Bot {
       goal = new THREE.Vector3(fp.x, this.pos.y, fp.z);
     }
 
-    const toGoal = goal.clone().sub(this.pos);
-    toGoal.y = 0;
-    const dist = toGoal.length();
-
-    // Face + step toward goal (with slight wander to look less robotic).
-    this._wanderTimer -= dt;
-    if (this._wanderTimer <= 0) {
-      this._wanderTimer = 0.6 + Math.random() * 0.7;
-      const ang = (Math.random() - 0.5) * 0.8;
-      const cos = Math.cos(ang), sin = Math.sin(ang);
-      this._wanderDir.set(
-        toGoal.x * cos - toGoal.z * sin,
-        0,
-        toGoal.x * sin + toGoal.z * cos,
-      );
-      if (this._wanderDir.lengthSq() > 0) this._wanderDir.normalize();
-    }
-    const step = this._wanderDir.clone().multiplyScalar(MOVE_SPEED * dt);
-    const nextX = this.pos.x + step.x;
-    const nextZ = this.pos.z + step.z;
-    // Very light collision: if the cell above ground is solid, bounce off.
-    const groundY = 1;
-    if (!ctx.grid.isSolid(nextX, groundY + 0.5, nextZ)) {
-      this.pos.x = nextX;
-      this.pos.z = nextZ;
-    } else {
-      // Random turn.
-      const angRand = (Math.random() - 0.5) * Math.PI;
-      const s = Math.sin(angRand), c = Math.cos(angRand);
-      const nx = this._wanderDir.x * c - this._wanderDir.z * s;
-      const nz = this._wanderDir.x * s + this._wanderDir.z * c;
-      this._wanderDir.set(nx, 0, nz).normalize();
-    }
-    // Keep y anchored above ground.
-    this.pos.y = groundY + 0.5;
-    // Smooth turn yaw toward wander dir.
-    const targetYaw = Math.atan2(this._wanderDir.x, this._wanderDir.z);
-    const delta = shortestAngle(this.yaw, targetYaw);
-    this.yaw += Math.sign(delta) * Math.min(Math.abs(delta), TURN_RATE * dt);
+    // Movement + collision + turn: delegated to pure web-engine/ai/botStep
+    // so it's node-testable without three.js. See docs/features/bot-pathing.md.
+    this._path.yaw = this.yaw;
+    stepBot(this._path, dt, ctx.grid, { x: goal.x, z: goal.z });
+    this.yaw = this._path.yaw;
+    // pos was mutated in-place by stepBot (same Vector3 reference).
 
     // Flag pickup / capture: host-side, delegate to game.
     if (!this.hasEnemyFlag && ctx.flagState[enemyColor] !== 'carried') {
@@ -191,9 +157,3 @@ function pickClosestEnemy(from, enemies, maxDist) {
   return best;
 }
 
-function shortestAngle(a, b) {
-  let d = (b - a) % (Math.PI * 2);
-  if (d >  Math.PI) d -= Math.PI * 2;
-  if (d < -Math.PI) d += Math.PI * 2;
-  return d;
-}
