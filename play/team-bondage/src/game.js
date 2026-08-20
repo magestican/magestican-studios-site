@@ -90,7 +90,19 @@ export class Game {
 
     this._initThree();
     this._buildWorld(this.seed);
-    await this._initPlayer();
+    // Kick off render loop IMMEDIATELY so the user sees the world while
+    // rapier's WASM downloads (~1 MB). Physics-dependent code guards on
+    // `this.physics` being ready.
+    this._lastFrame = performance.now();
+    requestAnimationFrame((now) => this._frame(now));
+
+    try {
+      await this._initPlayer();
+    } catch (err) {
+      console.error('[boot] physics init failed', err);
+      alert('Physics engine failed to load: ' + err.message + '\n\nCheck your network and refresh.');
+      throw err;
+    }
     this._initInput();
 
     // Send our HELLO to whoever's out there.
@@ -100,6 +112,7 @@ export class Game {
     if (this.isHost && this.initialBotCount > 0) {
       for (let i = 0; i < this.initialBotCount; i++) this.addBot();
     }
+    // Wire mute button. iOS Safari needs touchstart in addition to click:
 
     // Wire mute button. iOS Safari needs touchstart in addition to click:
     // click sometimes doesn't dispatch on button elements inside a
@@ -185,9 +198,7 @@ export class Game {
 
     // On next frame:
     this.opts.onReady && this.opts.onReady();
-
-    this._lastFrame = performance.now();
-    requestAnimationFrame((now) => this._frame(now));
+    // (frame loop already started above right after _buildWorld)
   }
 
   // ---- three.js scene -----------------------------------------------------
@@ -798,7 +809,15 @@ export class Game {
   _frame(now) {
     const dt = Math.min(0.05, (now - this._lastFrame) / 1000);
     this._lastFrame = now;
-    if (!this.gameOver) this._tick(dt);
+    if (!this.gameOver) {
+      try { this._tick(dt); }
+      catch (err) {
+        // Don't let a per-tick error kill the render loop - surface it in
+        // the debug HUD so we can see what broke.
+        console.error('[tick error]', err);
+        window.__tbDebug = { ...(window.__tbDebug || {}), tickError: String(err.message || err) };
+      }
+    }
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame((t) => this._frame(t));
   }
@@ -823,10 +842,10 @@ export class Game {
     // (practice mode), but no damage is dealt and flags don't count.
     if (this.matchState !== 'playing' && this.matchState !== 'ended') {
       this._updateLobbyBanner();
-      // Allow movement + camera in the lobby so a solo host can explore.
-      if (this.player.alive) this.player.update(dt, this.input);
+      // Physics might not be loaded yet (rapier WASM is async). Guard.
+      if (this.player?.alive && this.physics) this.player.update(dt, this.input);
       if (this.physics) this.physics.step(dt);
-      this.weapons.update(dt);
+      this.weapons?.update(dt);
       this.viewmodel?.update(dt);
       for (const rp of this.remotePlayers.values()) rp.update(dt);
       // Weapon-switch still works so people can preview.
@@ -880,10 +899,10 @@ export class Game {
     this.tracers.update(dt, performance.now() / 1000);
     this.viewmodel?.update(dt);
 
-    // Movement + physics
-    if (this.player.alive) this.player.update(dt, this.input);
+    // Movement + physics (guarded on physics-loaded)
+    if (this.player?.alive && this.physics) this.player.update(dt, this.input);
     if (this.physics) this.physics.step(dt);
-    this.weapons.update(dt);
+    this.weapons?.update(dt);
 
     // Remote players
     for (const rp of this.remotePlayers.values()) rp.update(dt);

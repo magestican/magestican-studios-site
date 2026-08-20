@@ -73,16 +73,21 @@ export class Player {
 
   update(dt, input) {
     // -- Read input into a horizontal wish direction --
+    // Camera looks in +dir where dir = (sin(yaw), 0, cos(yaw)). moveForward
+    // means "toward the direction the camera looks", so forward = +wish.
     const wish = new THREE.Vector3();
-    if (input.isDown('moveForward')) wish.z -= 1;
-    if (input.isDown('moveBack'))    wish.z += 1;
-    if (input.isDown('moveLeft'))    wish.x -= 1;
+    if (input.isDown('moveForward')) wish.z += 1;
+    if (input.isDown('moveBack'))    wish.z -= 1;
     if (input.isDown('moveRight'))   wish.x += 1;
+    if (input.isDown('moveLeft'))    wish.x -= 1;
     if (wish.lengthSq() > 0) wish.normalize();
-    // Rotate wish by yaw
+    // Rotate wish by yaw so +z (local forward) becomes the camera's forward.
+    // Camera forward vector at yaw=0 is (0,0,1). At yaw=Y it's
+    // (sin Y, 0, cos Y). So world = (sin Y * localZ + cos Y * localX,
+    // 0, cos Y * localZ - sin Y * localX). Standard "left-handed" rotation.
     const cosY = Math.cos(this.yaw), sinY = Math.sin(this.yaw);
-    const wx = wish.x * cosY - wish.z * sinY;
-    const wz = wish.x * sinY + wish.z * cosY;
+    const wx = wish.z * sinY + wish.x * cosY;
+    const wz = wish.z * cosY - wish.x * sinY;
 
     // -- Horizontal accel + ice-drift friction + speed cap --
     const accel = this._grounded ? MOVE_ACCEL_GROUND : MOVE_ACCEL_AIR;
