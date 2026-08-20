@@ -56,10 +56,12 @@ function paint(canvas, t) {
   const bullX   = brawlCX - brawlR * 1.7;
   const horseX  = brawlCX + brawlR * 1.7;
 
-  // Wrestling shake (smaller distances now that scene is smaller)
-  const shake = Math.sin(t * 4.0) * 8;
-  const rockBull  = Math.sin(t * 3.2) * 0.10;
-  const rockHorse = Math.cos(t * 3.4) * 0.14;
+  // Wrestling shake - bigger amplitudes so the fight is actually visible.
+  const shake = Math.sin(t * 4.0) * 22;
+  const rockBull  = Math.sin(t * 3.2) * 0.22;
+  const rockHorse = Math.cos(t * 3.4) * 0.28;
+  const bounceBull  = Math.sin(t * 5.0) * 12;
+  const bounceHorse = Math.cos(t * 5.5) * 14;
 
   // Ring rope (small oval).
   g.save();
@@ -71,8 +73,8 @@ function paint(canvas, t) {
   g.stroke();
   g.restore();
 
-  drawBull(g,  bullX + shake, brawlCY + Math.sin(t*2.7)*3, brawlR, rockBull);
-  drawHorse(g, horseX - shake, brawlCY + Math.cos(t*2.9)*3, brawlR, rockHorse);
+  drawBull(g,  bullX + shake, brawlCY + bounceBull, brawlR, rockBull);
+  drawHorse(g, horseX - shake, brawlCY + bounceHorse, brawlR, rockHorse);
 
   // Small "VS" between them.
   g.save();
@@ -89,18 +91,17 @@ function paint(canvas, t) {
   // Small ka-pow puff.
   paintDustPuff(g, brawlCX, brawlCY + brawlR * 0.9, 30 + Math.sin(t*6)*8);
 
-  // Banner underneath - modest size so it doesn't dominate.
+  // Banner underneath - no more studio credit up here; that lives in the
+  // settings menu now.
   g.save();
   g.translate(brawlCX, brawlCY + brawlR * 2.4);
   g.font = 'italic bold 44px Georgia, serif';
   g.textAlign = 'center'; g.textBaseline = 'middle';
   g.fillStyle = 'rgba(255,255,255,0.75)';
-  const textW = g.measureText('THE SKY BRAWL OF THE CENTURY').width;
-  g.fillRect(-textW / 2 - 20, -35, textW + 40, 70);
+  const textW = g.measureText('THE SKY BRAWL').width;
+  g.fillRect(-textW / 2 - 20, -25, textW + 40, 50);
   g.fillStyle = '#1c1a17';
-  g.fillText('THE SKY BRAWL OF THE CENTURY', 0, -8);
-  g.font = 'bold 20px "Segoe UI", sans-serif';
-  g.fillText('Magestican Studios', 0, 18);
+  g.fillText('THE SKY BRAWL', 0, 0);
   g.restore();
 }
 

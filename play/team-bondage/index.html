@@ -191,6 +191,50 @@
     }
     #mature-btn.on { background: #b73a2a !important; color: #fff; }
     #mature-btn:active { background: #26221c !important; }
+    #settings-btn { position: fixed;
+      top: max(10px, env(safe-area-inset-top));
+      left: max(10px, env(safe-area-inset-left));
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.35) !important;
+      background: rgba(0,0,0,0.55) !important; color: white;
+      font-size: 22px;
+      pointer-events: auto !important;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      z-index: 8;
+    }
+    #settings-btn:active { background: rgba(244,201,93,0.7) !important; }
+    /* Settings modal - open via ⚙ button or Escape */
+    #settings-modal {
+      position: fixed; inset: 0; z-index: 90;
+      background: rgba(6,10,16,0.85);
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    #settings-modal.visible { display: flex; }
+    .settings-card {
+      background: linear-gradient(180deg, #201814 0%, #100a08 100%);
+      border: 2px solid #f4c95d;
+      border-radius: 12px;
+      padding: 26px 32px;
+      max-width: 420px; width: 100%;
+      color: #e8ecf1;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .settings-card h2 { font-family: Georgia, serif; font-size: 22px; color: #f4c95d; margin: 0 0 4px; }
+    .settings-card .credit { color: #cbd3e1; font-size: 13px; margin: 0 0 20px; }
+    .settings-card .setting { display: flex; align-items: center; gap: 12px; margin: 12px 0; font-size: 15px; }
+    .settings-card .setting.checkbox { gap: 8px; }
+    .settings-card input[type=range] { flex: 1 1 auto; }
+    #volume-value { font-family: monospace; min-width: 30px; text-align: right; color: #f4c95d; }
+    .settings-card .hint { color: #6b7387; font-size: 12px; margin: 16px 0 12px; }
+    .settings-card #settings-close {
+      background: #2a3446; color: #e8ecf1; border: 1px solid #3a475e;
+      padding: 10px 22px; border-radius: 8px; cursor: pointer;
+      font: 600 14px inherit;
+    }
     /* Compass ring: shows arrows to both flags. Sits under the score. */
     #compass { position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
       width: 130px; height: 40px;

@@ -163,6 +163,41 @@ export class Game {
     matureBtn.addEventListener('click', onMatureToggle);
     matureBtn.addEventListener('touchstart', onMatureToggle, { passive: false });
 
+    // Settings modal (opens with the gear button or Escape).
+    const settingsBtn   = document.getElementById('settings-btn');
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsClose = document.getElementById('settings-close');
+    const volSlider     = document.getElementById('volume-slider');
+    const volValue      = document.getElementById('volume-value');
+    const muteCheck     = document.getElementById('music-mute');
+    const savedVol = parseInt(localStorage.getItem('tb.vol') || '35', 10);
+    volSlider.value = String(savedVol); volValue.textContent = String(savedVol);
+    muteCheck.checked = this.audio.muted;
+    const applyVolume = () => {
+      const v = parseInt(volSlider.value, 10);
+      volValue.textContent = String(v);
+      localStorage.setItem('tb.vol', String(v));
+      // Both audio paths (HTMLAudio + Web Audio fallback) get scaled.
+      if (this.audio._audio) this.audio._audio.volume = (this.audio.muted ? 0 : v / 100);
+      if (this.audio.master) this.audio.master.gain.value = (this.audio.muted ? 0 : v / 200);
+    };
+    applyVolume();
+    volSlider.addEventListener('input', applyVolume);
+    muteCheck.addEventListener('change', () => {
+      this.audio.setMuted(muteCheck.checked);
+      paintMute();
+      applyVolume();
+    });
+    const openSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.add('visible'); };
+    const closeSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.remove('visible'); };
+    settingsBtn.addEventListener('click', openSettings);
+    settingsBtn.addEventListener('touchstart', openSettings, { passive: false });
+    settingsClose.addEventListener('click', closeSettings);
+    settingsClose.addEventListener('touchstart', closeSettings, { passive: false });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSettings();
+    });
+
     // Audio startup - iOS Safari refuses to unlock without a user gesture,
     // and quiet gestures during the initial menu can be lost. Approach:
     //   1. Try to start on ANY gesture that reaches window.
