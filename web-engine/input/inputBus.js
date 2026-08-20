@@ -59,7 +59,20 @@ export class InputBus {
     this.target.removeEventListener('mouseup', this._onMouseUp);
   }
 
+  // Synthetic (virtual) action state - set by touch controls to feed the
+  // same action names as physical inputs.
+  _synth = new Set();
+  _synthPressedThisFrame = new Set();
+  _synthReleasedThisFrame = new Set();
+
+  setSynthetic(action, isDown) {
+    const was = this._synth.has(action);
+    if (isDown && !was) { this._synth.add(action); this._synthPressedThisFrame.add(action); }
+    else if (!isDown && was) { this._synth.delete(action); this._synthReleasedThisFrame.add(action); }
+  }
+
   isDown(action) {
+    if (this._synth.has(action)) return true;
     const codes = this.bindings[action];
     if (!codes) return false;
     for (const c of codes) if (this.pressed.has(c)) return true;
@@ -67,6 +80,7 @@ export class InputBus {
   }
 
   wasPressed(action) {
+    if (this._synthPressedThisFrame.has(action)) return true;
     const codes = this.bindings[action];
     if (!codes) return false;
     for (const c of codes) if (this._pressedThisFrame.has(c)) return true;
@@ -74,6 +88,7 @@ export class InputBus {
   }
 
   wasReleased(action) {
+    if (this._synthReleasedThisFrame.has(action)) return true;
     const codes = this.bindings[action];
     if (!codes) return false;
     for (const c of codes) if (this._releasedThisFrame.has(c)) return true;
@@ -85,5 +100,7 @@ export class InputBus {
   endFrame() {
     this._pressedThisFrame.clear();
     this._releasedThisFrame.clear();
+    this._synthPressedThisFrame.clear();
+    this._synthReleasedThisFrame.clear();
   }
 }

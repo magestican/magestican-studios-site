@@ -13,6 +13,7 @@ import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
 import { RemotePlayer }     from './entities/remotePlayer.js';
 import { MSG }              from './net/protocol.js';
 import { pickWord, scramble } from './util/anagram.js';
+import { TouchControls }     from './touchControls.js';
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
 const FLAG_HOME_RADIUS = 2.0;   // steps within this of your own flag stand = capture
@@ -165,22 +166,35 @@ export class Game {
   _initInput() {
     this.input = new InputBus(window);
 
-    // Pointer lock + mouse look
+    // Detect touch device: no pointer-lock on iOS Safari; use touch UI instead.
+    this.isTouch = ('ontouchstart' in window)
+      || (navigator.maxTouchPoints > 0)
+      || window.matchMedia?.('(pointer: coarse)').matches;
+
+    // Desktop: mouse look via pointer-lock movement events.
     document.addEventListener('mousemove', (e) => {
       if (document.pointerLockElement !== this.renderer.domElement) return;
       this.player.addMouseLook(e.movementX, e.movementY);
     });
-    document.addEventListener('pointerlockchange', () => {
-      // no-op
-    });
+
+    // Touch: virtual joystick + look pad + button cluster overlay.
+    if (this.isTouch) {
+      this.touch = new TouchControls(this.opts.canvasParent, this.input, {
+        onLook: (dx, dy) => this.player.addMouseLook(dx, dy, 0.006),
+        onFire: () => {},                       // handled via synthetic 'fire' action
+        onJump: () => this.input.setSynthetic('jump', true),
+        onWeapon: (i) => this._switchWeapon(i),
+      });
+    }
   }
 
   pointerLock() {
-    // Called from main.js after menu dismisses.
-    this.renderer.domElement.requestPointerLock().catch(() => {});
+    // Desktop only. On touch, controls appear immediately with no lock needed.
+    if (this.isTouch) return;
+    this.renderer.domElement.requestPointerLock?.().catch(() => {});
     this.renderer.domElement.addEventListener('click', () => {
       if (document.pointerLockElement !== this.renderer.domElement) {
-        this.renderer.domElement.requestPointerLock().catch(() => {});
+        this.renderer.domElement.requestPointerLock?.().catch(() => {});
       }
     });
   }
@@ -329,8 +343,11 @@ export class Game {
     if (this.input.wasPressed('weapon2')) this._switchWeapon(1);
     if (this.input.wasPressed('weapon3')) this._switchWeapon(2);
 
-    // Fire
-    if (this.input.isDown('fire') && document.pointerLockElement === this.renderer.domElement) {
+    // Fire - on desktop require pointer-lock to avoid firing while the user
+    // is interacting with menu/HUD; on touch, the FIRE button drives it.
+    const canFire = this.isTouch
+      || document.pointerLockElement === this.renderer.domElement;
+    if (this.input.isDown('fire') && canFire) {
       this._tryFire();
     }
 

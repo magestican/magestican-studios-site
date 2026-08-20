@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Team Bondage</title>
   <meta name="description" content="Team Bondage - a browser FPS with ice-drift movement, farm-animal characters, seeded voxel maps, and P2P multiplayer. No server, no download. Made by Magestican Studios.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a17'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='20' text-anchor='middle' fill='%23f6f1e6'%3ET%3C/text%3E%3C/svg%3E">
@@ -12,8 +15,11 @@
     html, body { height: 100%; overflow: hidden; background: #0a0d12; color: #e8ecf1;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       user-select: none; -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: none;
+      overscroll-behavior: none;
     }
-    canvas { display: block; }
+    canvas { display: block; touch-action: none; -webkit-user-select: none; }
     #app { position: fixed; inset: 0; }
 
     /* Menu overlay */
@@ -23,8 +29,19 @@
       padding: 20px; overflow: auto;
     }
     .menu-card { background: rgba(24,30,42,0.9); border: 1px solid #2b3648; border-radius: 12px;
-      padding: 32px 36px; max-width: 720px; width: 100%;
+      padding: 24px 24px; max-width: 720px; width: 100%;
       box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+    @media (max-width: 480px) {
+      .menu-card { padding: 18px 16px; border-radius: 10px; }
+      .menu-card h1 { font-size: 26px; }
+      .menu-card .sub { font-size: 14px; margin-bottom: 16px; }
+      .menu-card h2 { font-size: 17px; margin: 14px 0 8px; }
+      .anim-btn { min-width: 90px; padding: 10px 8px; }
+      .anim-btn .emoji { font-size: 22px; }
+      button { padding: 8px 12px; font-size: 14px; }
+      input[type=text] { max-width: 100%; }
+      #joinRow { flex-direction: column; align-items: stretch; width: 100%; }
     }
     .menu-card h1 { font-family: Georgia,serif; font-size: 34px; margin-bottom: 6px; letter-spacing: 0.02em; }
     .menu-card h1 .accent { color: #f4c95d; }
@@ -86,6 +103,17 @@
       border-radius: 6px; font-size: 14px;
     }
     .wpn.active { background: #f4c95d; color: #1c1a17; border-color: #f4c95d; }
+
+    /* Mobile HUD tweaks: HP moves top-left below score, weaponbar hides
+       because touch controls provide their own weapon buttons. */
+    @media (max-width: 700px), (pointer: coarse) {
+      #topbar { top: max(10px, env(safe-area-inset-top)); font-size: 17px; gap: 12px; }
+      #bottombar { position: absolute; left: 16px; top: 44px; bottom: auto; font-size: 13px; }
+      #health-bar { width: 130px; }
+      #weaponbar { display: none; }
+      #flagStatus { top: 74px; font-size: 12px; padding: 0 12px; }
+      #crosshair { transform: translate(-50%, -50%) scale(0.7); }
+    }
     #flagStatus { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #f4c95d; }
     #kill-feed { position: absolute; right: 20px; top: 60px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #cbd3e1; }
     .kill-line { background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 4px; }
