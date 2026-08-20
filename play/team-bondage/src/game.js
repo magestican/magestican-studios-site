@@ -26,6 +26,8 @@ import { createPhysicsWorld } from 'arbelo/physics';
 import { SnowSystem }         from './entities/snow.js';
 import { ChickenPickup }      from './entities/chickenPickup.js';
 import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js';
+import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
+import { GoreSystem }         from './entities/gore.js';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -321,6 +323,7 @@ export class Game {
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
     this.snow    = new SnowSystem(this.scene, this.player.pos);
+    this.gore    = new GoreSystem(this.scene);
     // Camera child = first-person weapon viewmodel. Also attach the camera
     // to the scene so its children (the viewmodel) render.
     this.scene.add(this.camera);
@@ -647,11 +650,7 @@ export class Game {
     const bot = this.bots.get(byId);
     if (bot) attackerPos = bot.pos;
     if (attackerPos) {
-      const dx = attackerPos.x - this.player.pos.x;
-      const dz = attackerPos.z - this.player.pos.z;
-      const bearing = Math.atan2(dx, dz);
-      const rel = bearing - this.player.yaw;
-      const deg = (rel * 180 / Math.PI + 540) % 360 - 180;
+      const deg = hitBearingDeg(attackerPos, this.player.pos, this.player.yaw);
       dirEl.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
       dirEl.classList.add('visible');
       setTimeout(() => dirEl.classList.remove('visible'), 1200);
@@ -1056,10 +1055,11 @@ export class Game {
       this._tryFire();
     }
 
-    // Age out tracers + animate viewmodel + snowfall + chicken pickup.
+    // Age out tracers + animate viewmodel + snowfall + gore + chicken.
     this.tracers.update(dt, performance.now() / 1000);
     this.viewmodel?.update(dt);
     this.snow?.update(dt);
+    this.gore?.update(dt);
     // Chicken pickup: host authority. Assemble candidate positions from
     // local + bots + remote players (remote pos comes from RemotePlayer group).
     if (this.chickenPickup) {
@@ -1246,6 +1246,15 @@ export class Game {
         this._broadcast({ t: MSG.HIT, target: hit.peerId, dmg: s.damage, by: this.myId, weapon: s.weaponId });
         this._flashHitmarker();
         SFX.splat();
+        // In GORE mode, spatter voxel blood at the hit location.
+        if (this.mature) {
+          const rp = this.remotePlayers.get(hit.peerId);
+          if (rp) {
+            const hitPos = rp.group.position.clone().add(new THREE.Vector3(0, 1, 0));
+            const awayDir = new THREE.Vector3().fromArray(s.dir).multiplyScalar(-1);
+            this.gore.spatterAt(hitPos, awayDir);
+          }
+        }
       }
     } else if (s.kind === 'projectile') {
       this.weapons.spawnProjectileMesh(s);

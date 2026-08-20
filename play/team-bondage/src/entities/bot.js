@@ -9,6 +9,7 @@
 //   * Shoot at any enemy player within cone-of-vision + range.
 
 import * as THREE from 'three';
+import { hasLineOfSight } from '../../../../web-engine/physics/lineOfSight.js';
 
 const NAMES = [
   'Bot-Buttercup', 'Bot-Hoof', 'Bot-Cluck', 'Bot-Trotter',
@@ -138,18 +139,23 @@ export class Bot {
       }
     }
 
-    // Shooting: look for closest enemy inside vision/range.
+    // Shooting: look for closest enemy inside vision/range AND with a
+    // clear line of sight through the voxel grid. Bots no longer shoot
+    // through walls.
     this._fireCd -= dt;
     if (this._fireCd <= 0 && !this.hasEnemyFlag) {
       const enemy = pickClosestEnemy(this.pos, ctx.enemyPlayers, RANGE_SEE_ENEMY);
       if (enemy) {
         const d = enemy.pos.distanceTo(this.pos);
         if (d < RANGE_FIRE_ENEMY) {
-          // Aim toward enemy.
-          const aim = enemy.pos.clone().sub(this.pos).normalize();
-          this.yaw = Math.atan2(aim.x, aim.z);
-          ctx.onShoot(this.peerId, this.pos.clone().add(new THREE.Vector3(0, 1.2, 0)), aim);
-          this._fireCd = FIRE_COOLDOWN + Math.random() * 0.4;
+          const eyeFrom = { x: this.pos.x, y: this.pos.y + 1.2, z: this.pos.z };
+          const eyeTo   = { x: enemy.pos.x, y: enemy.pos.y + 1.0, z: enemy.pos.z };
+          if (hasLineOfSight(ctx.grid, eyeFrom, eyeTo)) {
+            const aim = enemy.pos.clone().sub(this.pos).normalize();
+            this.yaw = Math.atan2(aim.x, aim.z);
+            ctx.onShoot(this.peerId, this.pos.clone().add(new THREE.Vector3(0, 1.2, 0)), aim);
+            this._fireCd = FIRE_COOLDOWN + Math.random() * 0.4;
+          }
         }
       }
     }

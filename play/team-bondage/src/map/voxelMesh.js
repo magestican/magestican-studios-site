@@ -23,13 +23,19 @@ function getTextures() {
   return TEX;
 }
 
-// Mature-mode variant: blood-tinted versions of every voxel texture.
+// Mature-mode variant: blood-tinted versions of ONLY the vertical geometry
+// (walls, hay). Ground (grass/ice/hill) stays snow-white - blood on the
+// floor was never asked for.
 let TEX_BLOOD = null;
 function getBloodTextures() {
   if (TEX_BLOOD) return TEX_BLOOD;
   const base = getTextures();
+  const BLOOD_TARGETS = new Set([VOX.WOOD, VOX.STONE, VOX.HAY]);
   TEX_BLOOD = {};
-  for (const k in base) TEX_BLOOD[k] = makeBloodTinted(base[k]);
+  for (const k in base) {
+    if (BLOOD_TARGETS.has(Number(k))) TEX_BLOOD[k] = makeBloodTinted(base[k]);
+    else TEX_BLOOD[k] = base[k];
+  }
   return TEX_BLOOD;
 }
 

@@ -116,41 +116,44 @@ export function generateWorld(seed) {
 }
 
 function buildBase(grid, ox, oz, baseVox, standVox) {
-  // Barn floor (dirt-coloured planks - baseVox is red or blue).
+  // Barn floor (red/blue plank floor).
   grid.fillBox(ox, 1, oz, ox + BASE_SIZE.x - 1, 1, oz + BASE_SIZE.z - 1, baseVox);
-  // Half-height perimeter walls (just y=2, only 1 voxel tall) so the player
-  // can see over them and the base doesn't feel claustrophobic.
+  // Full-height painted-wood walls (y=2 through y=3). Doorway on inward side.
   for (let x = ox; x < ox + BASE_SIZE.x; x++) {
-    grid.set(x, 2, oz, baseVox);
-    grid.set(x, 2, oz + BASE_SIZE.z - 1, baseVox);
+    for (let y = 2; y <= 3; y++) {
+      grid.set(x, y, oz, baseVox);
+      grid.set(x, y, oz + BASE_SIZE.z - 1, baseVox);
+    }
   }
   for (let z = oz; z < oz + BASE_SIZE.z; z++) {
-    grid.set(ox, 2, z, baseVox);
-    grid.set(ox + BASE_SIZE.x - 1, 2, z, baseVox);
+    for (let y = 2; y <= 3; y++) {
+      grid.set(ox, y, z, baseVox);
+      grid.set(ox + BASE_SIZE.x - 1, y, z, baseVox);
+    }
   }
-  // Doorway on the inward side.
+  // Big barn doorway on the inward side - 3 wide x 2 tall.
   const midZ = oz + Math.floor(BASE_SIZE.z / 2);
   const wallX = (ox < 10) ? ox + BASE_SIZE.x - 1 : ox;
   for (let z = midZ - 1; z <= midZ + 1; z++) {
     grid.set(wallX, 2, z, VOX.AIR);
+    grid.set(wallX, 3, z, VOX.AIR);
   }
-  // BARN CORNER POSTS - taller, 3 voxels, at each corner for silhouette.
-  for (const [px, pz] of [
-    [ox,                    oz],
-    [ox + BASE_SIZE.x - 1,  oz],
-    [ox,                    oz + BASE_SIZE.z - 1],
-    [ox + BASE_SIZE.x - 1,  oz + BASE_SIZE.z - 1],
-  ]) {
-    grid.fillBox(px, 3, pz, px, 4, pz, baseVox);
-  }
-  // GABLE RIDGE - single thin row of voxels along centre-line at y=5, so
-  // from outside the barn has a peaked-roof silhouette but from inside
-  // there's still a wide-open sky.
+  // PITCHED ROOF - stepped voxel triangle running along the long axis.
+  // Only the ridge voxels are placed (thin gable) so inside stays airy.
   const midX = ox + Math.floor(BASE_SIZE.x / 2);
+  const halfWidth = Math.floor(BASE_SIZE.x / 2);
   for (let z = oz; z < oz + BASE_SIZE.z; z++) {
-    grid.set(midX, 5, z, baseVox);
+    // Two symmetric roof edges rising toward the ridge.
+    for (let step = 0; step < halfWidth; step++) {
+      const y = 4 + step;
+      if (y > 6) break;   // cap at y=6 so we don't get silly-tall barns
+      grid.set(midX - halfWidth + step, y, z, VOX.WOOD);
+      grid.set(midX + halfWidth - step, y, z, VOX.WOOD);
+    }
+    // Ridge
+    grid.set(midX, 4 + halfWidth, z, VOX.WOOD);
   }
-  // Small flag stand (1 tall) so it doesn't block spawn.
+  // Small flag stand (1 tall).
   const cx = ox + Math.floor(BASE_SIZE.x / 2);
   const cz = oz + Math.floor(BASE_SIZE.z / 2);
   grid.set(cx, 2, cz, standVox);
