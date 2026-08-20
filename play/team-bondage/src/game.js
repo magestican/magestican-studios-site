@@ -520,7 +520,7 @@ export class Game {
     // Locally add a RemotePlayer so the host sees it too.
     if (!this.remotePlayers.has(bot.peerId)) {
       this.remotePlayers.set(bot.peerId, new RemotePlayer(this.scene, bot.peerId,
-        { name: bot.name, character: bot.character, team: bot.team }));
+        { name: bot.name, character: bot.character, team: bot.team, localTeam: this.team }));
     }
     this._updateLobbyBanner();
     // Adding a bot bumps the lobby count - potentially trigger the countdown.
@@ -961,7 +961,7 @@ export class Game {
         // Spawn remote player.
         if (!this.remotePlayers.has(from)) {
           this.remotePlayers.set(from, new RemotePlayer(this.scene, from,
-            { name: msg.name, character: msg.character, team: msg.team }));
+            { name: msg.name, character: msg.character, team: msg.team, localTeam: this.team }));
         }
         // If we're host, welcome this new peer to catch them up, then trigger
         // team-balance + potentially start the countdown.
@@ -1303,33 +1303,68 @@ export class Game {
     }
   }
 
-  // Visual: a small white voxel chicken flying from origin along dir until it
-  // hits SOMETHING (a player or 40m max), then a POW explosion.
+  // Visual: a small white voxel chicken flying from origin along dir. STOPS
+  // at the first solid voxel it hits (walls now block it — no more bypass),
+  // then a POW explosion. See docs/features/chicken-collision.md.
   _spawnChickenProjectile(msg) {
     const origin = new THREE.Vector3().fromArray(msg.origin);
     const dir = new THREE.Vector3().fromArray(msg.dir);
-    // Reuse weapon projectile system for the mesh + physics-lite fall.
+    const landing = this._chickenLandingPoint(origin, dir);
+    const start = origin.clone().addScaledVector(dir, 0.7);
+    const flightDist = start.distanceTo(landing);
+    const SPEED = 28;
     const shot = {
       kind: 'projectile', color: 0xffffff,
-      origin: origin.clone().addScaledVector(dir, 0.7).toArray(),
-      vel: dir.clone().multiplyScalar(28).toArray(),
+      origin: start.toArray(),
+      vel: dir.clone().multiplyScalar(SPEED).toArray(),
       damage: 100,
+      maxAge: flightDist / SPEED,   // die exactly on impact
     };
     this.weapons.spawnProjectileMesh(shot);
+    // Big visual boom + audible thump at the landing point on ALL clients.
+    setTimeout(() => this._spawnChickenExplosion(landing), (flightDist / SPEED) * 1000);
   }
 
-  // Host: find the closest player to where the chicken lands, insta-kill.
+  // Raymarch up to 40m; return the first solid-cell centre (or the ray's
+  // 40m endpoint). Uses the same grid the physics does — walls / cover /
+  // hay bales all count as hits. See docs/features/chicken-collision.md.
+  _chickenLandingPoint(origin, dir) {
+    for (let t = 0.5; t < 40; t += 0.35) {
+      const p = origin.clone().addScaledVector(dir, t);
+      if (this.grid.isSolid(p.x, p.y, p.z)) return p;
+    }
+    return origin.clone().addScaledVector(dir, 40);
+  }
+
+  // Explosive kaboom mesh + SFX at the landing point. Cheap: expanding
+  // yellow sphere + a puff of orange particles, both fading over 0.5s.
+  _spawnChickenExplosion(pos) {
+    try { SFX.boom(1.0); } catch (_) {}
+    const geo = new THREE.SphereGeometry(0.5, 12, 8);
+    const mat = new THREE.MeshBasicMaterial({ color: 0xfff2b0, transparent: true, opacity: 0.9 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.copy(pos);
+    this.scene.add(mesh);
+    const start = performance.now();
+    const tick = () => {
+      const age = (performance.now() - start) / 1000;
+      const life = 0.55;
+      if (age >= life) { this.scene.remove(mesh); return; }
+      mesh.scale.setScalar(1 + age / life * 5);
+      mat.opacity = 0.9 * (1 - age / life);
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // Host: find where the chicken lands (SAME raymarch as the visual, so
+  // both stop at exactly the same voxel), then insta-kill the closest
+  // player within blast radius.
   _resolveChickenShot(msg) {
     if (!this.isHost) return;
     const origin = new THREE.Vector3().fromArray(msg.origin);
     const dir = new THREE.Vector3().fromArray(msg.dir);
-    // Simple raycast up to 40m with 0.5m step, check for player within 3m of ray endpoint.
-    let landing = null;
-    for (let t = 0.5; t < 40; t += 0.5) {
-      const p = origin.clone().addScaledVector(dir, t);
-      if (this.grid.isSolid(p.x, p.y, p.z)) { landing = p; break; }
-    }
-    if (!landing) landing = origin.clone().addScaledVector(dir, 40);
+    const landing = this._chickenLandingPoint(origin, dir);
     // Closest player within 4m of landing.
     let victim = null, best = 4.0;
     for (const p of this._allPlayerRefs()) {

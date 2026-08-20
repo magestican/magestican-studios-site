@@ -570,7 +570,9 @@
     <div id="kill-feed"></div>
     <div id="bottombar">
       HP <span id="health-bar"><span id="health-fill"></span></span>
-      &nbsp;&middot;&nbsp; <span id="ammo">&infin;</span>
+      <!-- Ammo counter removed 2026-08-20 — ammo is always infinite in this
+           game so the ∞ pill was meaningless clutter. -->
+      <span id="ammo" style="display:none;"></span>
     </div>
     <div id="weaponbar">
       <div class="wpn active" data-w="0"><span class="wpn-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M14 3l7 7-3 3-2-2-7 7-3-3 7-7-2-2z" fill="#c99a63" stroke="#402208" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="18" r="2.2" fill="#6b3d16" stroke="#2a1608" stroke-width="1"/><circle cx="3.5" cy="20" r="1.4" fill="#6b3d16" stroke="#2a1608" stroke-width="0.9"/></svg></span><span class="wpn-key">1</span><span class="wpn-name">Shovel</span></div>

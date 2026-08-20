@@ -4,18 +4,47 @@ import * as THREE from 'three';
 import { buildCharacter } from './character.js';
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
+// Vivid outline colour per team — used for the halo behind each remote
+// player so Bryan can instantly tell friend from foe at range.
+// docs/features/team-outline.md.
+const OUTLINE_HEX = { red: 0xff2a1a, blue: 0x2a7cff };
 
 export class RemotePlayer {
-  constructor(scene, peerId, { character, team, name }) {
+  constructor(scene, peerId, { character, team, name, localTeam }) {
     this.peerId = peerId;
     this.team = team;
     this.name = name;
     this.character = character;
+    // Colour of MY awareness halo for this player: red if they're on the
+    // opposing team, blue if they're an ally. If localTeam is unknown we
+    // fall back to the player's own team tint.
+    const isEnemy = localTeam && team && team !== localTeam;
+    const haloTeam = isEnemy ? 'red' : (localTeam ? 'blue' : team);
+    const haloHex = OUTLINE_HEX[haloTeam] || OUTLINE_HEX.red;
 
     const built = buildCharacter(character, TEAM_HEX[team] || 0xffffff);
     this.group = built.group;
     this.headBone = built.headBone;
     scene.add(this.group);
+
+    // Team-awareness halo: a slightly inflated inverted-hull "shell" behind
+    // the character. Rendered flat-colour, back-side, additive-y blend so
+    // it reads as a coloured RIM around the model, not a solid duplicate.
+    const halo = new THREE.Mesh(
+      new THREE.SphereGeometry(0.95, 20, 12),
+      new THREE.MeshBasicMaterial({
+        color: haloHex,
+        side: THREE.BackSide,
+        transparent: true,
+        opacity: 0.55,
+        depthWrite: false,
+      }),
+    );
+    halo.position.set(0, 1.0, 0);
+    halo.scale.set(0.85, 1.35, 0.85);   // taller than wide, matches upright silhouette
+    halo.renderOrder = -1;              // draw before the character
+    this.group.add(halo);
+    this.halo = halo;
 
     // Nameplate: sprite billboard with the player's name.
     const canvas = document.createElement('canvas');

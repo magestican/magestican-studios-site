@@ -59,22 +59,50 @@ function paint(canvas, t) {
   g.fillStyle = grad; g.fillRect(0, 0, W, H);
   paintClouds(g, 22, 0.5);
 
-  // Sky-brawl - compact overhead feature. Equirectangular textures near the
-  // top of the strip get stretched horizontally as they wrap to the pole,
-  // so a small drawing here reads as a modest-sized thing directly above
-  // you (not a canvas-filling monstrosity).
+  // Sky-brawl — they actually FIGHT now. 3-second cycle:
+  //   0.0 - 1.0s  APPROACH: both charge toward centre
+  //   1.0 - 1.4s  IMPACT:   collide + big POW + dust
+  //   1.4 - 3.0s  RECOVER:  bounce apart, small wobble, then next cycle
+  // Bryan 2026-08-20: "the sky box animals aren't fighting as I asked".
   const brawlCX = W / 2;
-  const brawlCY = H * 0.14;             // near top -> nearly overhead
-  const brawlR  = H * 0.10;             // small so it reads as a real object
-  const bullX   = brawlCX - brawlR * 1.7;
-  const horseX  = brawlCX + brawlR * 1.7;
+  const brawlCY = H * 0.14;
+  const brawlR  = H * 0.10;
+  const restX   = brawlR * 2.4;         // rest distance from centre
+  const CYCLE   = 3.0;
+  const phase   = (t % CYCLE) / CYCLE;  // 0..1
 
-  // Wrestling shake - bigger amplitudes so the fight is actually visible.
-  const shake = Math.sin(t * 4.0) * 22;
-  const rockBull  = Math.sin(t * 3.2) * 0.22;
-  const rockHorse = Math.cos(t * 3.4) * 0.28;
-  const bounceBull  = Math.sin(t * 5.0) * 12;
-  const bounceHorse = Math.cos(t * 5.5) * 14;
+  let sepFrac, impactFlash, rockBull, rockHorse, bounceBull, bounceHorse;
+  if (phase < 0.33) {
+    // APPROACH: slide inward.
+    const p = phase / 0.33;
+    sepFrac = 1.0 - p * 0.95;           // 1.0 -> 0.05 (nearly touching)
+    impactFlash = 0;
+    rockBull  = -0.06 * p;
+    rockHorse =  0.06 * p;
+    bounceBull  = -8 * p;
+    bounceHorse = -8 * p;
+  } else if (phase < 0.47) {
+    // IMPACT: overlap + shake + big POW.
+    const p = (phase - 0.33) / 0.14;
+    sepFrac = 0.05 + Math.sin(p * Math.PI * 4) * 0.05;
+    impactFlash = 1 - Math.abs(p * 2 - 1);
+    const shk = Math.sin(p * 40) * 0.4;
+    rockBull  = -0.30 + shk;
+    rockHorse =  0.30 - shk;
+    bounceBull  = -14 + Math.sin(p * 30) * 10;
+    bounceHorse = -14 - Math.sin(p * 30) * 10;
+  } else {
+    // RECOVER: bounce outward then wobble.
+    const p = (phase - 0.47) / 0.53;
+    sepFrac = 0.15 + p * 0.85;          // separate back out
+    impactFlash = 0;
+    rockBull  = Math.sin(t * 3) * 0.10 * (1 - p * 0.6);
+    rockHorse = Math.cos(t * 3) * 0.10 * (1 - p * 0.6);
+    bounceBull  = Math.sin(t * 5) * 6 * (1 - p * 0.7);
+    bounceHorse = Math.cos(t * 5) * 6 * (1 - p * 0.7);
+  }
+  const bullX  = brawlCX - restX * sepFrac;
+  const horseX = brawlCX + restX * sepFrac;
 
   // Ring rope (small oval).
   g.save();
@@ -86,23 +114,46 @@ function paint(canvas, t) {
   g.stroke();
   g.restore();
 
-  drawBull(g,  bullX + shake, brawlCY + bounceBull, brawlR, rockBull);
-  drawHorse(g, horseX - shake, brawlCY + bounceHorse, brawlR, rockHorse);
+  drawBull(g,  bullX, brawlCY + bounceBull, brawlR, rockBull);
+  drawHorse(g, horseX, brawlCY + bounceHorse, brawlR, rockHorse);
 
-  // Small "VS" between them.
-  g.save();
-  g.translate(brawlCX, brawlCY);
-  g.rotate(-0.06 + Math.sin(t*2.4) * 0.03);
-  g.font = 'bold 100px Georgia, serif';
-  g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillStyle = 'rgba(28, 26, 23, 0.18)';
-  g.fillText('VS', 3, 3);
-  g.fillStyle = '#b73a2a';
-  g.fillText('VS', 0, 0);
-  g.restore();
+  // Impact flash: bright ring + explicit POW/BAM speech bubble at centre.
+  if (impactFlash > 0.02) {
+    g.save();
+    g.translate(brawlCX, brawlCY);
+    // Radial flash
+    const rad = brawlR * (0.6 + impactFlash * 1.8);
+    const grd = g.createRadialGradient(0, 0, 0, 0, 0, rad);
+    grd.addColorStop(0.0, `rgba(255, 240, 140, ${0.65 * impactFlash})`);
+    grd.addColorStop(0.6, `rgba(255, 160, 50,  ${0.35 * impactFlash})`);
+    grd.addColorStop(1.0, 'rgba(255, 100, 0, 0)');
+    g.fillStyle = grd;
+    g.beginPath(); g.arc(0, 0, rad, 0, Math.PI * 2); g.fill();
+    // Word-burst
+    g.rotate(-0.10 + Math.sin(t * 40) * 0.05);
+    const word = ((t / CYCLE) | 0) % 3 === 0 ? 'POW!'
+               : ((t / CYCLE) | 0) % 3 === 1 ? 'BAM!' : 'THUNK!';
+    g.font = `bold ${Math.round(90 + impactFlash * 40)}px "Comic Sans MS", "Segoe UI", sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = '#1c1a17'; g.fillText(word, 5, 5);
+    g.fillStyle = '#f4c95d'; g.fillText(word, 0, 0);
+    g.restore();
+  } else {
+    // Idle "VS" between them when not colliding.
+    g.save();
+    g.translate(brawlCX, brawlCY);
+    g.rotate(-0.06 + Math.sin(t*2.4) * 0.03);
+    g.font = 'bold 100px Georgia, serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = 'rgba(28, 26, 23, 0.18)'; g.fillText('VS', 3, 3);
+    g.fillStyle = '#b73a2a'; g.fillText('VS', 0, 0);
+    g.restore();
+  }
 
-  // Small ka-pow puff.
-  paintDustPuff(g, brawlCX, brawlCY + brawlR * 0.9, 30 + Math.sin(t*6)*8);
+  // Dust puff kicked up during impact.
+  if (impactFlash > 0.05) {
+    paintDustPuff(g, brawlCX, brawlCY + brawlR * 1.05, 40 + impactFlash * 25);
+  }
 
   // Banner underneath - no more studio credit up here; that lives in the
   // settings menu now.
@@ -296,14 +347,6 @@ function paintDustPuff(g, cx, cy, size) {
     g.ellipse(cx + dx, cy + dy, size * 0.5, size * 0.28, 0, 0, Math.PI * 2);
     g.fill();
   }
-  g.save();
-  g.translate(cx, cy);
-  g.rotate(-0.15);
-  g.font = 'bold 90px "Comic Sans MS", "Segoe UI", sans-serif';
-  g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillStyle = '#1c1a17';
-  g.fillText('POW!', 5, 5);
-  g.fillStyle = '#f4c95d';
-  g.fillText('POW!', 0, 0);
-  g.restore();
+  // (word-burst now drawn separately during IMPACT phase in paint() so we
+  // don't stamp POW twice on the dust puff.)
 }
