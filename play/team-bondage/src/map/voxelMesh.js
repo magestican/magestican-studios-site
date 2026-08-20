@@ -4,8 +4,22 @@
 
 import * as THREE from 'three';
 import { VOX, VOX_COLOR } from 'arbelo/voxel';
+import { makeGrassTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture } from './textures.js';
 
 const CUBE_GEO = new THREE.BoxGeometry(1, 1, 1);
+
+// Lazily built texture cache - built the first time buildWorldMeshes runs.
+let TEX = null;
+function getTextures() {
+  if (TEX) return TEX;
+  TEX = {
+    [VOX.GRASS]: makeGrassTexture(),
+    [VOX.WOOD]:  makeWoodTexture(),
+    [VOX.STONE]: makeStoneTexture(),
+    [VOX.DIRT]:  makeDirtTexture(),
+  };
+  return TEX;
+}
 
 export function buildWorldMeshes(grid) {
   // Group instances by voxel type.
@@ -27,12 +41,15 @@ export function buildWorldMeshes(grid) {
   parent.name = 'voxelWorld';
   const dummy = new THREE.Object3D();
 
+  const textures = getTextures();
   for (const [v, cells] of groups.entries()) {
     const [r, g, b] = VOX_COLOR[v];
-    const material = new THREE.MeshLambertMaterial({
+    const materialOpts = {
       color: new THREE.Color(r / 255, g / 255, b / 255),
       flatShading: true,
-    });
+    };
+    if (textures[v]) materialOpts.map = textures[v];
+    const material = new THREE.MeshLambertMaterial(materialOpts);
     const inst = new THREE.InstancedMesh(CUBE_GEO, material, cells.length);
     inst.castShadow = false;
     inst.receiveShadow = false;

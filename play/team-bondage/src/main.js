@@ -44,6 +44,7 @@ const state = {
   team: null,             // 'red' | 'blue'
   name: '',
   mode: null,             // 'host' | 'join'
+  initialBots: 0,         // number of AI bots the host wants at start
 };
 
 // Highlight the selected character/team button.
@@ -73,6 +74,17 @@ for (const btn of $('teamRow').querySelectorAll('button')) {
     selectFrom('teamRow', 'team', state.team, btn);
   });
 }
+
+// AI bot count buttons (0..4).
+document.querySelectorAll('button[data-bots]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    state.initialBots = parseInt(btn.dataset.bots, 10);
+    for (const b of document.querySelectorAll('button[data-bots]')) b.classList.remove('selected');
+    btn.classList.add('selected');
+  });
+});
+// Default: 0 bots selected.
+document.querySelector('button[data-bots="0"]')?.classList.add('selected');
 
 // Persist + prefill name. If nothing saved, generate a random one so people
 // can just tap Host without typing.
@@ -203,6 +215,7 @@ async function startGame(hostIdToJoin) {
     name: state.name,
     isHost: state.mode === 'host',
     seed,
+    initialBots: state.mode === 'host' ? state.initialBots : 0,
     canvasParent: $('app'),
     onReady: goInGame,
   });

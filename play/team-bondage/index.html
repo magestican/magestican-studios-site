@@ -112,6 +112,20 @@
       display: flex; align-items: center; justify-content: center;
     }
     #mute-btn:active { background: rgba(244,201,93,0.7) !important; }
+    #add-bot-btn { position: fixed;
+      top: max(10px, env(safe-area-inset-top));
+      right: calc(max(10px, env(safe-area-inset-right)) + 56px);
+      height: 44px; padding: 0 14px; border-radius: 22px;
+      border: 1px solid #f4c95d !important;
+      background: #1c1a17 !important; color: #f4c95d;
+      font: 600 14px inherit;
+      pointer-events: auto !important;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      z-index: 8;
+    }
+    #add-bot-btn:active { background: #26221c !important; }
     #lobby-banner { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
       text-align: center; background: rgba(6,10,16,0.7); padding: 22px 32px; border-radius: 12px;
       border: 1px solid rgba(244,201,93,0.5); min-width: 240px; display: none;
@@ -213,6 +227,15 @@
         <input type="text" id="nameInput" maxlength="16" placeholder="e.g. Bryan">
       </div>
 
+      <h2>AI bots to start with</h2>
+      <div class="row">
+        <button data-bots="0">0</button>
+        <button data-bots="1">1</button>
+        <button data-bots="2">2</button>
+        <button data-bots="3">3</button>
+        <button data-bots="4">4</button>
+      </div>
+
       <h2>Play</h2>
       <div class="row">
         <button class="primary" id="hostBtn">Host a new game</button>
@@ -256,9 +279,10 @@
       <div class="wpn"        data-w="2">3 Rocket</div>
     </div>
   </div>
-  <!-- Mute button + lobby banner live OUTSIDE the pointer-events:none HUD so
-       taps always land on them. -->
+  <!-- Mute button + lobby banner + admin controls live OUTSIDE the
+       pointer-events:none HUD so taps always land on them. -->
   <button id="mute-btn" aria-label="Toggle music">🔊</button>
+  <button id="add-bot-btn" aria-label="Add AI bot" style="display:none;">+ Bot</button>
   <div id="lobby-banner">
     <h2 id="lobby-title">Waiting for players…</h2>
     <div class="count" id="lobby-count">1</div>

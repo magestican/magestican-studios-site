@@ -16,6 +16,8 @@ import { pickWord, scramble } from './util/anagram.js';
 import { TouchControls }     from './touchControls.js';
 import { Chiptune }           from './audio/chiptune.js';
 import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
+import { buildSkybox }        from './entities/skybox.js';
+import { Bot }                from './entities/bot.js';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -54,6 +56,9 @@ export class Game {
     this._lastRespawnAt = 0;
     this._killFeed = [];                 // recent kill lines
     this.audio = new Chiptune();
+    // Bots: host-only. Simulated locally, broadcast as fake peers.
+    this.bots = new Map();               // peerId -> Bot
+    this.initialBotCount = opts.initialBots || 0;
   }
 
   // -------------------------------------------------------------------------
@@ -85,6 +90,11 @@ export class Game {
     // Send our HELLO to whoever's out there.
     this._broadcast({ t: MSG.HELLO, name: this.name, character: this.character, team: this.team });
 
+    // Add any initial bots the host requested at match creation.
+    if (this.isHost && this.initialBotCount > 0) {
+      for (let i = 0; i < this.initialBotCount; i++) this.addBot();
+    }
+
     // Wire mute button. iOS Safari needs touchstart in addition to click:
     // click sometimes doesn't dispatch on button elements inside a
     // pointer-events:none HUD without a real tap chain.
@@ -101,6 +111,15 @@ export class Game {
     };
     muteBtn.addEventListener('click', handleMuteToggle);
     muteBtn.addEventListener('touchstart', handleMuteToggle, { passive: false });
+
+    // Host-only admin control: +Bot button, live-in-session.
+    const addBotBtn = document.getElementById('add-bot-btn');
+    if (this.isHost) {
+      addBotBtn.style.display = 'block';
+      const onAddBot = (e) => { if (e) e.preventDefault(); this.addBot(); };
+      addBotBtn.addEventListener('click', onAddBot);
+      addBotBtn.addEventListener('touchstart', onAddBot, { passive: false });
+    }
 
     // Kick off audio. iOS Safari requires the AudioContext to be created
     // AND resumed inside a user-gesture callback; a stale "once: true" that
@@ -145,7 +164,10 @@ export class Game {
     window.addEventListener('resize', () => this._onResize());
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0x8ec5ff, 30, 90);
+    this.scene.fog = new THREE.Fog(0x8ec5ff, 40, 120);
+    // Silly skybox: giant bull vs horse on the top face - look straight up
+    // in-game to catch the sky brawl. See entities/skybox.js.
+    this.scene.background = buildSkybox();
 
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
     this.camera.rotation.order = 'YXZ';
@@ -355,6 +377,156 @@ export class Game {
     }, LOBBY_COUNTDOWN_SECONDS * 1000);
   }
 
+  // Host-only: add an AI bot. Team is chosen to balance current sides.
+  addBot(preferredTeam) {
+    if (!this.isHost) return null;
+    // Count current team sizes (real players + existing bots).
+    let r = 0, b = 0;
+    for (const meta of this.playerMeta.values()) {
+      if (meta.team === 'red') r++; else b++;
+    }
+    const team = preferredTeam || (r <= b ? 'red' : 'blue');
+    const bot = Bot.make({ team, world: this.world, seed: this.seed });
+    this.bots.set(bot.peerId, bot);
+    // Register meta so all peers render it via RemotePlayer.
+    this.playerMeta.set(bot.peerId, {
+      name: bot.name, character: bot.character, team: bot.team, bot: true,
+    });
+    // Announce HELLO for the bot to all peers.
+    const helloMsg = { t: MSG.HELLO, name: bot.name, character: bot.character, team: bot.team, from: bot.peerId };
+    this._broadcast({ ...helloMsg });
+    // Locally add a RemotePlayer so the host sees it too.
+    if (!this.remotePlayers.has(bot.peerId)) {
+      this.remotePlayers.set(bot.peerId, new RemotePlayer(this.scene, bot.peerId,
+        { name: bot.name, character: bot.character, team: bot.team }));
+    }
+    this._updateLobbyBanner();
+    // Adding a bot bumps the lobby count - potentially trigger the countdown.
+    this._maybeStartCountdown();
+    return bot;
+  }
+
+  _updateBots(dt) {
+    // Prepare AI ctx once per tick.
+    const enemyPlayersByTeam = { red: [], blue: [] };
+    for (const [pid, rp] of this.remotePlayers.entries()) {
+      const meta = this.playerMeta.get(pid);
+      if (!meta) continue;
+      enemyPlayersByTeam[meta.team === 'red' ? 'blue' : 'red'].push({
+        peerId: pid, pos: rp.group.position, team: meta.team,
+      });
+    }
+    // Self is an enemy of the opposing team.
+    const meMeta = { team: this.team };
+    enemyPlayersByTeam[meMeta.team === 'red' ? 'blue' : 'red'].push({
+      peerId: this.myId, pos: this.player.pos, team: meMeta.team,
+    });
+
+    for (const bot of this.bots.values()) {
+      const enemyColor = bot.team === 'red' ? 'blue' : 'red';
+      const ctx = {
+        grid: this.grid,
+        world: this.world,
+        flagPos: this.flagPos,
+        flagState: this.flagState,
+        enemyPlayers: enemyPlayersByTeam[bot.team],
+        onShoot: (bid, origin, dir) => {
+          if (this.matchState !== 'playing') return;
+          const shot = { kind: 'hitscan', origin: origin.toArray(), dir: dir.toArray(),
+            damage: 2, weaponId: 'pistol', ownerId: bid };
+          this._broadcast({ t: MSG.SHOT, s: shot });
+          this._resolveShotAgainstAll(shot);
+        },
+        onFlagPickup: (bid, color) => {
+          if (this.matchState !== 'playing') return;
+          this.flagCarrier[color] = bid;
+          this.flagState[color] = 'carried';
+          this._broadcast({ t: MSG.FLAG_PICK, by: bid, color });
+        },
+        onFlagCapture: (bid, color) => {
+          if (this.matchState !== 'playing') return;
+          const scoringTeam = color === 'red' ? 'blue' : 'red';
+          this.scores[scoringTeam]++;
+          this._returnFlag(color);
+          this._broadcast({ t: MSG.FLAG_CAP, by: bid, color });
+          this._broadcast({ t: MSG.SCORE, scores: this.scores });
+          this._updateScoreUi();
+          this._killFeedPush(`${bot.name} captured the ${color} flag!`);
+          this._maybeTriggerAnagram();
+        },
+      };
+      bot.update(dt, ctx);
+
+      // Sync local RemotePlayer position for immediate rendering (no lerp
+      // needed because we set both target and current at the same time).
+      const rp = this.remotePlayers.get(bot.peerId);
+      if (rp) {
+        rp.setNet([bot.pos.x, bot.pos.y, bot.pos.z], bot.yaw, bot.pitch, bot.hp);
+        rp.group.position.set(bot.pos.x, bot.pos.y, bot.pos.z);
+        rp.group.rotation.y = bot.yaw;
+      }
+
+      // Broadcast bot state at 20Hz (piggy-backed on tick, so 60Hz => downscale).
+      if (!bot._netAccum) bot._netAccum = 0;
+      bot._netAccum += dt;
+      if (bot._netAccum >= 1 / 20) {
+        bot._netAccum = 0;
+        this._broadcast({ ...bot.statePacket(), from: bot.peerId });
+      }
+    }
+  }
+
+  // Host-side helper: apply a hitscan shot to all real players + bots and
+  // report HITs (for real players) or apply directly (for bots).
+  _resolveShotAgainstAll(s) {
+    const origin = new THREE.Vector3().fromArray(s.origin);
+    const dir    = new THREE.Vector3().fromArray(s.dir);
+    let best = null, bestT = Infinity;
+    // vs remote players
+    for (const [pid, rp] of this.remotePlayers.entries()) {
+      if (pid === s.ownerId) continue;
+      const target = rp.group.position.clone().add(new THREE.Vector3(0, 1, 0));
+      const t = target.clone().sub(origin).dot(dir);
+      if (t < 0.5 || t > 60) continue;
+      const closest = origin.clone().addScaledVector(dir, t);
+      if (target.distanceTo(closest) < 0.7 && t < bestT) { bestT = t; best = { kind: 'remote', pid }; }
+    }
+    // vs local player (host might shoot self? unlikely)
+    if (s.ownerId !== this.myId && this.player.alive) {
+      const target = this.player.pos.clone().add(new THREE.Vector3(0, 1, 0));
+      const t = target.clone().sub(origin).dot(dir);
+      if (t >= 0.5 && t <= 60) {
+        const closest = origin.clone().addScaledVector(dir, t);
+        if (target.distanceTo(closest) < 0.7 && t < bestT) { bestT = t; best = { kind: 'self' }; }
+      }
+    }
+    if (!best) return;
+    if (best.kind === 'self') this._takeDamage(s.damage, s.ownerId, s.weaponId);
+    else if (best.kind === 'remote') {
+      // If it's a bot, apply damage locally on host.
+      const bot = this.bots.get(best.pid);
+      if (bot) {
+        const died = bot.takeDamage(s.damage);
+        if (died) {
+          this._broadcast({ t: MSG.DEATH, victim: bot.peerId, killer: s.ownerId, weapon: s.weaponId });
+          if (bot.hasEnemyFlag) {
+            const enemyColor = bot.team === 'red' ? 'blue' : 'red';
+            this._broadcast({ t: MSG.FLAG_DROP, by: bot.peerId, color: enemyColor,
+              at: [bot.pos.x, bot.pos.y, bot.pos.z] });
+            this.flagState[enemyColor] = 'dropped';
+            this.flagCarrier[enemyColor] = null;
+            this.flagPos[enemyColor] = { x: bot.pos.x, y: bot.pos.y, z: bot.pos.z };
+            this._syncFlagMesh(enemyColor);
+          }
+          setTimeout(() => { bot.respawn(); }, 500);
+        }
+      } else {
+        // Real player: tell them.
+        this._broadcast({ t: MSG.HIT, target: best.pid, dmg: s.damage, by: s.ownerId, weapon: s.weaponId });
+      }
+    }
+  }
+
   _updateLobbyBanner() {
     const el = document.getElementById('lobby-banner');
     const title = document.getElementById('lobby-title');
@@ -380,8 +552,11 @@ export class Game {
 
   _broadcast(msg) { this.mesh.broadcast(msg); }
 
-  _onMessage(from, msg) {
+  _onMessage(fromTransport, msg) {
     if (!msg || !msg.t) return;
+    // Bots are relayed by the host; the sender's peerId is the host's, but
+    // the actual originator is msg.from (a bot peerId).
+    const from = msg.from || fromTransport;
     switch (msg.t) {
       case MSG.WELCOME:
         this.seed = msg.seed;
@@ -515,13 +690,22 @@ export class Game {
   }
 
   _tick(dt) {
-    // Lobby / countdown state -- update banner, freeze gameplay input.
+    // Lobby / countdown state -- player can still walk around and look
+    // (practice mode), but no damage is dealt and flags don't count.
     if (this.matchState !== 'playing' && this.matchState !== 'ended') {
       this._updateLobbyBanner();
+      // Allow movement + camera in the lobby so a solo host can explore.
+      if (this.player.alive) this.player.update(dt, this.input);
+      this.weapons.update(dt);
       for (const rp of this.remotePlayers.values()) rp.update(dt);
-      // Still send our state so peers can see the character standing at spawn.
+      // Weapon-switch still works so people can preview.
+      if (this.input.wasPressed('weapon1')) this._switchWeapon(0);
+      if (this.input.wasPressed('weapon2')) this._switchWeapon(1);
+      if (this.input.wasPressed('weapon3')) this._switchWeapon(2);
+      // Broadcast our position at 10Hz so any other lobby-watchers see us
+      // wandering around.
       this._netAccum += dt;
-      if (this._netAccum >= 1 / 5) {
+      if (this._netAccum >= 1 / 10) {
         this._netAccum = 0;
         this._broadcast({
           t: MSG.STATE,
@@ -553,6 +737,8 @@ export class Game {
 
     // Fire - on desktop require pointer-lock to avoid firing while the user
     // is interacting with menu/HUD; on touch, the FIRE button drives it.
+    // Firing is allowed in the lobby (visual/practice) but no damage sticks
+    // (see _takeDamage).
     const canFire = this.isTouch
       || document.pointerLockElement === this.renderer.domElement;
     if (this.input.isDown('fire') && canFire) {
@@ -565,6 +751,9 @@ export class Game {
 
     // Remote players
     for (const rp of this.remotePlayers.values()) rp.update(dt);
+
+    // Bots (host only) - simulate + broadcast as fake peers.
+    if (this.isHost && this.bots.size) this._updateBots(dt);
 
     // Hazard rain (eggs + milk pints)
     const nowMs = performance.now();
@@ -682,6 +871,8 @@ export class Game {
 
   _takeDamage(dmg, byId, weaponId) {
     if (!this.player.alive) return;
+    // Solo / lobby / countdown = practice mode, no damage.
+    if (this.matchState !== 'playing') return;
     this.player.hp -= dmg;
     if (this.player.hp <= 0) {
       this.player.hp = 0;
