@@ -34,7 +34,7 @@ export class TouchControls {
     const el = document.createElement('div');
     el.id = 'touch-controls';
     el.innerHTML = `
-      <div id="tc-joystick-base"></div>
+      <div id="tc-joystick-base"><span id="tc-joystick-hint">DRAG →</span></div>
       <div id="tc-joystick-knob"></div>
       <div id="tc-debug"></div>
       <div id="tc-buttons">
@@ -222,9 +222,15 @@ const TOUCH_CSS = `
 }
 #tc-joystick-base {
   position: absolute; width: 120px; height: 120px;
-  border: 2px solid rgba(255,255,255,0.35);
+  border: 2px solid rgba(244,201,93,0.7);
   border-radius: 50%;
-  background: rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.25);
+  display: flex; align-items: center; justify-content: center;
+}
+#tc-joystick-hint {
+  font: 700 12px -apple-system, "Segoe UI", sans-serif;
+  color: #f4c95d;
+  pointer-events: none;
 }
 #tc-joystick-knob {
   position: absolute; width: 50px; height: 50px;

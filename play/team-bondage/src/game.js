@@ -814,6 +814,9 @@ export class Game {
       pos: this.player ? `${this.player.pos.x.toFixed(1)},${this.player.pos.y.toFixed(1)},${this.player.pos.z.toFixed(1)}` : '?',
       vel: this.player ? `${this.player.vel.x.toFixed(1)},${this.player.vel.y.toFixed(1)},${this.player.vel.z.toFixed(1)}` : '?',
     };
+    // Repaint the touch-debug HUD every frame so we see live pos/vel/actions
+    // without needing another touch to trigger the repaint.
+    if (this.touch) this.touch._paintDebug();
     // Lobby / countdown state -- player can still walk around and look
     // (practice mode), but no damage is dealt and flags don't count.
     if (this.matchState !== 'playing' && this.matchState !== 'ended') {
