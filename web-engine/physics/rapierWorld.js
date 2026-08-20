@@ -41,7 +41,11 @@ export async function createPhysicsWorld({ grid }) {
   // Character controller (shared across all characters on this client).
   const characterCtrl = world.createCharacterController(0.02);
   characterCtrl.setUp({ x: 0, y: 1, z: 0 });
-  characterCtrl.enableAutostep(0.9, 0.35, true);         // climb single voxel (1m) ledges without jumping
+  // 1.15 clears the full 1.0 m voxel step — the barn floor sits one voxel
+  // above the outside ground, and at 0.9 players had to JUMP to enter their
+  // own base (Bryan 2026-08-21: "too complicated"). Min-width 0.3 keeps the
+  // step check permissive enough for the doorway threshold.
+  characterCtrl.enableAutostep(1.15, 0.3, true);
   characterCtrl.enableSnapToGround(0.60);                // stick to slopes down
   characterCtrl.setApplyImpulsesToDynamicBodies(true);   // rockets shove crates
   characterCtrl.setMaxSlopeClimbAngle(60 * Math.PI / 180);

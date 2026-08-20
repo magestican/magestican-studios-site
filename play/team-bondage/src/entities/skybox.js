@@ -59,57 +59,20 @@ function paint(canvas, t) {
   g.fillStyle = grad; g.fillRect(0, 0, W, H);
   paintClouds(g, 22, 0.5);
 
-  // Sky-brawl — they actually FIGHT now. 3-second cycle:
-  //   0.0 - 1.0s  APPROACH: both charge toward centre
-  //   1.0 - 1.4s  IMPACT:   collide + big POW + dust
-  //   1.4 - 3.0s  RECOVER:  bounce apart, small wobble, then next cycle
-  // Bryan 2026-08-20: "the sky box animals aren't fighting as I asked".
-  // Brawl lives at the TOP of the equirect strip (near the zenith) so it's
-  // OVERHEAD when you look up — never blocks the horizon view of the map
-  // or enemies. Bryan 2026-08-21 asked to move it back to the top.
-  // Kept the 3x bigger size + 12 fps + 2.2 s cycle from the previous
-  // rework so it's still unmissable when you glance up.
+  // Sky-brawl V3 (2026-08-21): classic cartoon fight language so the fight
+  // is UNDENIABLE. Lives at the top of the strip — look up to see it.
+  //   0-20%   APPROACH — both charge inward with speed lines.
+  //   20-75%  FIGHT CLOUD — animals vanish inside a rolling dust ball with
+  //           limbs + horns + stars flying out and POW/BAM/THUNK bursts.
+  //   75-100% SEPARATE — both stagger out dazed, stars circling heads.
   const brawlCX = W / 2;
   const brawlCY = H * 0.14;
   const brawlR  = H * 0.20;
   const restX   = brawlR * 2.0;
-  const CYCLE   = 2.2;
+  const CYCLE   = 3.2;
   const phase   = (t % CYCLE) / CYCLE;  // 0..1
 
-  let sepFrac, impactFlash, rockBull, rockHorse, bounceBull, bounceHorse;
-  if (phase < 0.33) {
-    // APPROACH: slide inward.
-    const p = phase / 0.33;
-    sepFrac = 1.0 - p * 0.95;           // 1.0 -> 0.05 (nearly touching)
-    impactFlash = 0;
-    rockBull  = -0.06 * p;
-    rockHorse =  0.06 * p;
-    bounceBull  = -8 * p;
-    bounceHorse = -8 * p;
-  } else if (phase < 0.47) {
-    // IMPACT: overlap + shake + big POW.
-    const p = (phase - 0.33) / 0.14;
-    sepFrac = 0.05 + Math.sin(p * Math.PI * 4) * 0.05;
-    impactFlash = 1 - Math.abs(p * 2 - 1);
-    const shk = Math.sin(p * 40) * 0.4;
-    rockBull  = -0.30 + shk;
-    rockHorse =  0.30 - shk;
-    bounceBull  = -14 + Math.sin(p * 30) * 10;
-    bounceHorse = -14 - Math.sin(p * 30) * 10;
-  } else {
-    // RECOVER: bounce outward then wobble.
-    const p = (phase - 0.47) / 0.53;
-    sepFrac = 0.15 + p * 0.85;          // separate back out
-    impactFlash = 0;
-    rockBull  = Math.sin(t * 3) * 0.10 * (1 - p * 0.6);
-    rockHorse = Math.cos(t * 3) * 0.10 * (1 - p * 0.6);
-    bounceBull  = Math.sin(t * 5) * 6 * (1 - p * 0.7);
-    bounceHorse = Math.cos(t * 5) * 6 * (1 - p * 0.7);
-  }
-  const bullX  = brawlCX - restX * sepFrac;
-  const horseX = brawlCX + restX * sepFrac;
-
-  // Ring rope (small oval).
+  // Ring rope (behind everything).
   g.save();
   g.translate(brawlCX, brawlCY);
   g.strokeStyle = 'rgba(183,58,42,0.55)';
@@ -119,45 +82,65 @@ function paint(canvas, t) {
   g.stroke();
   g.restore();
 
-  drawBull(g,  bullX, brawlCY + bounceBull, brawlR, rockBull);
-  drawHorse(g, horseX, brawlCY + bounceHorse, brawlR, rockHorse);
-
-  // Impact flash: bright ring + explicit POW/BAM speech bubble at centre.
-  if (impactFlash > 0.02) {
-    g.save();
-    g.translate(brawlCX, brawlCY);
-    // Radial flash
-    const rad = brawlR * (0.6 + impactFlash * 1.8);
-    const grd = g.createRadialGradient(0, 0, 0, 0, 0, rad);
-    grd.addColorStop(0.0, `rgba(255, 240, 140, ${0.65 * impactFlash})`);
-    grd.addColorStop(0.6, `rgba(255, 160, 50,  ${0.35 * impactFlash})`);
-    grd.addColorStop(1.0, 'rgba(255, 100, 0, 0)');
-    g.fillStyle = grd;
-    g.beginPath(); g.arc(0, 0, rad, 0, Math.PI * 2); g.fill();
-    // Word-burst
-    g.rotate(-0.10 + Math.sin(t * 40) * 0.05);
-    const word = ((t / CYCLE) | 0) % 3 === 0 ? 'POW!'
-               : ((t / CYCLE) | 0) % 3 === 1 ? 'BAM!' : 'THUNK!';
-    g.font = `bold ${Math.round(90 + impactFlash * 40)}px "Comic Sans MS", "Segoe UI", sans-serif`;
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillStyle = '#1c1a17'; g.fillText(word, 5, 5);
-    g.fillStyle = '#f4c95d'; g.fillText(word, 0, 0);
-    g.restore();
+  if (phase < 0.20) {
+    // -- APPROACH: charge with speed lines. --
+    const p = phase / 0.20;
+    const ease = p * p;                          // accelerate into the hit
+    const sep = 1.0 - ease * 0.9;
+    const bullX  = brawlCX - restX * sep;
+    const horseX = brawlCX + restX * sep;
+    g.strokeStyle = 'rgba(255,255,255,0.5)';
+    g.lineWidth = 4;
+    for (let i = 0; i < 4; i++) {
+      const ly = brawlCY + (i - 1.5) * brawlR * 0.35;
+      g.beginPath(); g.moveTo(bullX - brawlR * (1.6 + i * 0.3), ly);
+      g.lineTo(bullX - brawlR * 1.1, ly); g.stroke();
+      g.beginPath(); g.moveTo(horseX + brawlR * (1.6 + i * 0.3), ly);
+      g.lineTo(horseX + brawlR * 1.1, ly); g.stroke();
+    }
+    drawBull(g,  bullX, brawlCY, brawlR, -0.15 * ease);
+    drawHorse(g, horseX, brawlCY, brawlR, 0.15 * ease);
+  } else if (phase < 0.75) {
+    // -- FIGHT CLOUD: the animals are INSIDE the ball. --
+    drawFightCloud(g, brawlCX, brawlCY, brawlR * 1.6, t);
+    // Word burst every ~0.45s, thrown to golden-angle scattered offsets.
+    const burstIdx = Math.floor(t / 0.45);
+    const burstPhase = (t % 0.45) / 0.45;
+    if (burstPhase < 0.6) {
+      const words = ['POW!', 'BAM!', 'THUNK!', 'BOK!', 'WHAM!'];
+      const word = words[burstIdx % words.length];
+      const ang = (burstIdx * 2.399) % (Math.PI * 2);
+      const bx = brawlCX + Math.cos(ang) * brawlR * 1.4;
+      const by = brawlCY + Math.sin(ang) * brawlR * 0.8;
+      const pop = Math.sin(burstPhase * Math.PI);   // grow then shrink
+      g.save();
+      g.translate(bx, by);
+      g.rotate((burstIdx % 2 ? 1 : -1) * 0.15);
+      g.font = `bold ${Math.round(60 + pop * 50)}px "Comic Sans MS", "Segoe UI", sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillStyle = '#1c1a17'; g.fillText(word, 4, 4);
+      g.fillStyle = burstIdx % 2 ? '#f4c95d' : '#ff7b5a';
+      g.fillText(word, 0, 0);
+      g.restore();
+    }
   } else {
-    // Idle "VS" between them when not colliding.
-    g.save();
-    g.translate(brawlCX, brawlCY);
-    g.rotate(-0.06 + Math.sin(t*2.4) * 0.03);
-    g.font = 'bold 100px Georgia, serif';
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillStyle = 'rgba(28, 26, 23, 0.18)'; g.fillText('VS', 3, 3);
-    g.fillStyle = '#b73a2a'; g.fillText('VS', 0, 0);
-    g.restore();
-  }
-
-  // Dust puff kicked up during impact.
-  if (impactFlash > 0.05) {
-    paintDustPuff(g, brawlCX, brawlCY + brawlR * 1.05, 40 + impactFlash * 25);
+    // -- SEPARATE: stagger out, dazed, stars over heads. --
+    const p = (phase - 0.75) / 0.25;
+    const sep = 0.15 + p * 0.85;
+    const wobble = (1 - p) * 0.25;
+    const bullX  = brawlCX - restX * sep;
+    const horseX = brawlCX + restX * sep;
+    drawBull(g,  bullX, brawlCY + Math.sin(t * 9) * 6 * (1 - p), brawlR, Math.sin(t * 7) * wobble);
+    drawHorse(g, horseX, brawlCY + Math.cos(t * 9) * 6 * (1 - p), brawlR, Math.cos(t * 7) * wobble);
+    // Dazed stars circling each head.
+    for (const [hx, hy] of [[bullX + brawlR * 0.9, brawlCY - brawlR * 0.5],
+                            [horseX - brawlR * 0.9, brawlCY - brawlR * 0.6]]) {
+      for (let s = 0; s < 3; s++) {
+        const a = t * 4 + s * (Math.PI * 2 / 3);
+        drawStar(g, hx + Math.cos(a) * brawlR * 0.4,
+                    hy + Math.sin(a) * brawlR * 0.15, 9, '#f4c95d');
+      }
+    }
   }
 
   // Banner underneath - no more studio credit up here; that lives in the
@@ -175,6 +158,82 @@ function paint(canvas, t) {
 }
 
 // -- Painting helpers ------------------------------------------------------
+
+// Classic cartoon fight ball: rolling dust cloud with limbs, a horn and
+// stars flying out. `t` drives the rotation so the whole thing tumbles.
+function drawFightCloud(g, cx, cy, r, t) {
+  g.save();
+  g.translate(cx, cy);
+  const spin = t * 3.0;
+  // Protruding limbs FIRST (so cloud lumps overlap their bases).
+  const limbs = [
+    { a: 0.4,  len: 1.25, w: 0.16, color: '#3d2a1e' },   // bull leg
+    { a: 1.9,  len: 1.15, w: 0.13, color: '#7a4d2b' },   // horse leg
+    { a: 3.3,  len: 1.30, w: 0.15, color: '#3d2a1e' },   // bull leg 2
+    { a: 4.6,  len: 1.10, w: 0.12, color: '#7a4d2b' },   // horse leg 2
+  ];
+  for (const L of limbs) {
+    const a = L.a + spin;
+    g.save();
+    g.rotate(a);
+    g.fillStyle = L.color;
+    g.fillRect(r * 0.45, -r * L.w / 2, r * (L.len - 0.45), r * L.w);
+    // Hoof cap.
+    g.fillStyle = '#1a1512';
+    g.fillRect(r * (L.len - 0.12), -r * L.w * 0.6, r * 0.12, r * L.w * 1.2);
+    g.restore();
+  }
+  // A horn poking out (bull's).
+  g.save();
+  g.rotate(2.6 + spin);
+  g.fillStyle = '#f6f1e6';
+  g.beginPath();
+  g.moveTo(r * 0.5, -r * 0.06);
+  g.lineTo(r * 0.95, -r * 0.22);
+  g.lineTo(r * 0.55, r * 0.08);
+  g.closePath(); g.fill();
+  g.restore();
+  // The dust ball itself: two rings of overlapping puffs, counter-rotating.
+  for (const [count, rr, size, tint, dir] of [
+    [9, 0.72, 0.42, 'rgba(226,216,200,0.95)',  1],
+    [7, 0.40, 0.50, 'rgba(240,233,220,0.95)', -1],
+  ]) {
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2 + spin * dir * 0.5;
+      const px = Math.cos(a) * r * rr;
+      const py = Math.sin(a) * r * rr * 0.75;
+      g.fillStyle = tint;
+      g.beginPath();
+      g.ellipse(px, py, r * size, r * size * 0.8, a, 0, Math.PI * 2);
+      g.fill();
+    }
+  }
+  // Core.
+  g.fillStyle = 'rgba(235,227,212,0.98)';
+  g.beginPath(); g.ellipse(0, 0, r * 0.55, r * 0.45, 0, 0, Math.PI * 2); g.fill();
+  // Stars ejected from the tumble.
+  for (let s = 0; s < 5; s++) {
+    const a = spin * 1.4 + s * (Math.PI * 2 / 5);
+    const d = r * (1.05 + 0.18 * Math.sin(t * 5 + s));
+    drawStar(g, Math.cos(a) * d, Math.sin(a) * d * 0.8, r * 0.10, s % 2 ? '#f4c95d' : '#ffffff');
+  }
+  g.restore();
+}
+
+// 4-point cartoon star.
+function drawStar(g, x, y, size, color) {
+  g.save();
+  g.translate(x, y);
+  g.fillStyle = color;
+  g.beginPath();
+  g.moveTo(0, -size);
+  g.quadraticCurveTo(size * 0.15, -size * 0.15, size, 0);
+  g.quadraticCurveTo(size * 0.15, size * 0.15, 0, size);
+  g.quadraticCurveTo(-size * 0.15, size * 0.15, -size, 0);
+  g.quadraticCurveTo(-size * 0.15, -size * 0.15, 0, -size);
+  g.closePath(); g.fill();
+  g.restore();
+}
 
 function drawBull(g, cx, cy, scale, rock) {
   g.save();

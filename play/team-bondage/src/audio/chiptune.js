@@ -14,72 +14,99 @@
 // foreground.
 
 const NOTE = {
-  A2: 110.00, C3: 130.81, D3: 146.83, E3: 164.81, G3: 196.00,
-  A3: 220.00, C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,
-  G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99,
+  F2: 87.31, G2: 98.00, A2: 110.00, C3: 130.81, D3: 146.83, E3: 164.81,
+  F3: 174.61, G3: 196.00, A3: 220.00, C4: 261.63, D4: 293.66, E4: 329.63,
+  F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33,
+  E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00,
 };
 
-const BPM = 168;
+const BPM = 150;
 const BEAT = 60 / BPM;
 
-// Melody = 16 bars (2 verses + bridge + outro) at 168 BPM = ~23 seconds.
+// Chiptune V2 (2026-08-21): 20-bar song at 150 BPM (~32 s loop).
+// Structure: 2-bar drum/bass intro → 8-bar verse → 8-bar hook (lead climbs
+// the octave + harmony arps join) → 2-bar turnaround. Progression is the
+// classic Am–F–C–G so the loop resolves cleanly every 4 bars.
+
+// Lead melody. Verse: mid-register call-and-answer riff. Hook: same energy
+// an octave up with sixteenth pickups.
 function melody() {
-  const verse = [
-    // A minor riff
-    [NOTE.A4, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5],
-    [NOTE.B4, 0.5], [NOTE.D5, 0.5], [NOTE.A4, 0.5], [NOTE.C5, 0.5],
-    [NOTE.A4, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.G5, 0.5],
-    [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 1.0],
-    // sixteenths climb
-    [NOTE.A4, 0.25], [NOTE.B4, 0.25], [NOTE.C5, 0.25], [NOTE.D5, 0.25],
-    [NOTE.E5, 0.5],  [NOTE.D5, 0.5],  [NOTE.C5, 0.5],  [NOTE.B4, 0.5],
-    [NOTE.E5, 0.5], [NOTE.D5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 0.5],
-    [NOTE.G4, 0.5], [NOTE.A4, 0.5], [NOTE.E4, 1.0],
+  const rest2bars = [[null, 4], [null, 4]];
+  const verse4 = [
+    // Am
+    [NOTE.A4, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5],
+    [NOTE.A4, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 1.0],
+    // F
+    [NOTE.F4, 0.5], [NOTE.A4, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 0.5],
+    [NOTE.F4, 0.5], [NOTE.A4, 0.5], [NOTE.C5, 1.0],
+    // C
+    [NOTE.E5, 0.5], [NOTE.D5, 0.5], [NOTE.C5, 0.5], [NOTE.D5, 0.5],
+    [NOTE.E5, 0.5], [NOTE.G5, 0.5], [NOTE.E5, 1.0],
+    // G
+    [NOTE.D5, 0.5], [NOTE.B4, 0.5], [NOTE.G4, 0.5], [NOTE.B4, 0.5],
+    [NOTE.D5, 0.5], [NOTE.B4, 0.5], [NOTE.D5, 1.0],
   ];
-  const bridge = [
-    // Chord stabs + gaps for the guitar to take over
-    [NOTE.C5, 0.5], [null, 0.5], [NOTE.E5, 0.5], [null, 0.5],
-    [NOTE.G5, 0.5], [null, 0.5], [NOTE.E5, 1.0],
-    [NOTE.D5, 0.5], [null, 0.5], [NOTE.B4, 0.5], [null, 0.5],
-    [NOTE.G4, 0.5], [null, 0.5], [NOTE.A4, 1.0],
+  const hook4 = [
+    // Am — octave leap announcement
+    [NOTE.E5, 0.25], [NOTE.E5, 0.25], [NOTE.E5, 0.5], [NOTE.C5, 0.5],
+    [NOTE.E5, 0.5], [NOTE.A5, 1.0], [NOTE.G5, 0.5], [NOTE.E5, 0.5],
+    // F
+    [NOTE.F5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 0.5],
+    [NOTE.F5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 1.0],
+    // C
+    [NOTE.G5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5],
+    [NOTE.G5, 0.5], [NOTE.A5, 0.5], [NOTE.G5, 1.0],
+    // G — sixteenth run home
+    [NOTE.B4, 0.25], [NOTE.C5, 0.25], [NOTE.D5, 0.5], [NOTE.G5, 0.5],
+    [NOTE.F5, 0.5], [NOTE.D5, 0.5], [NOTE.B4, 0.5], [NOTE.G4, 1.0],
   ];
-  return [...verse, ...verse, ...bridge];
+  const outro = [
+    [NOTE.A4, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5], [NOTE.A5, 0.5],
+    [NOTE.G5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 0.5],
+    [NOTE.A4, 2.0], [null, 2.0],
+  ];
+  return [...rest2bars, ...verse4, ...verse4, ...hook4, ...hook4, ...outro];
 }
 
+// Chord chart, one entry per bar: [root, octave, fifth].
+const CHORDS = {
+  Am: [NOTE.A2, NOTE.A3, NOTE.E3],
+  F:  [NOTE.F2, NOTE.F3, NOTE.C3],
+  C:  [NOTE.C3, NOTE.C4, NOTE.G3],
+  G:  [NOTE.G2, NOTE.G3, NOTE.D3],
+};
+const PROG = ['Am', 'F', 'C', 'G'];
+function chordAtBar(bar) {
+  if (bar < 2 || bar >= 18) return CHORDS.Am;     // intro + outro sit on Am
+  return CHORDS[PROG[(bar - 2) % 4]];
+}
+
+// Bass: driving eighths with an octave pop — R R oct R · R R oct 5th.
 function bass() {
-  // Distorted-guitar-style bass: driving eighths on the root + fifth.
-  const roots = [
-    [NOTE.A2, NOTE.E3],  // Am
-    [NOTE.C3, NOTE.G3],  // C
-    [NOTE.G3, NOTE.D4],  // G  (one octave up so it cuts)
-    [NOTE.E3, NOTE.B4],  // Em
-  ];
   const out = [];
-  for (let bar = 0; bar < 20; bar++) {   // pad to at least melody length
-    const [root, fifth] = roots[bar % 4];
-    // Riff pattern: R R R 5th, R R 5th R  (chunky palm-mute feel)
-    const pat = [root, root, root, fifth, root, root, fifth, root];
+  for (let bar = 0; bar < 20; bar++) {
+    const [root, oct, fifth] = chordAtBar(bar);
+    const pat = [root, root, oct, root, root, root, oct, fifth];
     for (const n of pat) out.push([n, 0.5]);
   }
   return out;
 }
 
-// Distorted-guitar lead: plays chord-arpeggios on the bridge only, silent
-// during verses so it feels like the guitarist comes in for the hook.
-function guitar() {
-  // Silent during verse 1 + verse 2 (32 beats each? actually 16 beats each).
-  // Melody: verse 16 beats * 2 + bridge 12 beats = 44 beats. Let me put
-  // guitar during bridge (beats 32-43).
-  const silent = new Array(32).fill([null, 1]);
-  const bridge = [
-    [NOTE.A4, 0.25], [NOTE.C5, 0.25], [NOTE.E5, 0.25], [NOTE.A5 || NOTE.G5, 0.25],
-    [NOTE.E5, 0.25], [NOTE.C5, 0.25], [NOTE.A4, 0.5],
-    [NOTE.G4, 0.25], [NOTE.B4, 0.25], [NOTE.D5, 0.25], [NOTE.G5, 0.25],
-    [NOTE.D5, 0.25], [NOTE.B4, 0.25], [NOTE.G4, 0.5],
-    [NOTE.A4, 0.25], [NOTE.C5, 0.25], [NOTE.E5, 0.25], [NOTE.G5, 0.25],
-    [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 1.0],
-  ];
-  return [...silent, ...bridge];
+// Harmony arps: silent through intro + verse, sixteenth arpeggios through
+// the hook (bars 10-17), silent on the outro. Feels like a second player
+// joining for the chorus.
+function harmony() {
+  const out = [];
+  for (let bar = 0; bar < 20; bar++) {
+    if (bar < 10 || bar >= 18) { out.push([null, 4]); continue; }
+    const [, oct] = chordAtBar(bar);
+    const third = oct * Math.pow(2, 3 / 12);   // minor-ish third above octave root
+    const fifth = oct * Math.pow(2, 7 / 12);
+    const top   = oct * 2;
+    const arp = [oct, third, fifth, top, fifth, third, oct, fifth];
+    for (const n of arp) out.push([n, 0.5]);
+  }
+  return out;
 }
 
 const totalBeats = (seq) => seq.reduce((s, [, b]) => s + b, 0);
@@ -142,7 +169,7 @@ export class Chiptune {
       // Play one bar (4 beats) at _fallbackNextAt, then advance.
       if (!this._barIdx) this._barIdx = 0;
       const bar = this._barIdx++;
-      const roots = [NOTE.A2, NOTE.C3, NOTE.G3, NOTE.E3];
+      const roots = [NOTE.A2, NOTE.F2, NOTE.C3, NOTE.G2];   // Am F C G
       const root = roots[bar % 4];
       for (let e = 0; e < 8; e++) {
         this._fbNote(root, this._fallbackNextAt + e * (BEAT / 2), (BEAT / 2) * 0.92, 'sawtooth', 0.20);
@@ -175,23 +202,33 @@ export class Chiptune {
   }
 
   async _render() {
-    const mel = melody(); const bs = bass(); const gtr = guitar();
-    const dur = Math.max(totalBeats(mel), totalBeats(bs), totalBeats(gtr)) * BEAT + 0.4;
+    const mel = melody(); const bs = bass(); const harm = harmony();
+    const BARS = 20;
+    const dur = BARS * 4 * BEAT + 0.4;
     const sampleRate = 44100;
     const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     if (!Offline) throw new Error('no OfflineAudioContext');
     const ctx = new Offline(2, Math.ceil(dur * sampleRate), sampleRate);
     const master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
-    // Distortion + low-pass "guitar amp" bus for the bass + guitar voices.
+    // Distortion + low-pass "guitar amp" bus for the bass.
     const ampBus = ctx.createGain(); ampBus.gain.value = 1.0;
     const shaper = ctx.createWaveShaper(); shaper.curve = _distortionCurve(50);
     const lowpass = ctx.createBiquadFilter();
     lowpass.type = 'lowpass'; lowpass.frequency.value = 2200; lowpass.Q.value = 0.7;
     ampBus.connect(shaper).connect(lowpass).connect(master);
+    // Lead bus with classic chip echo: dotted-eighth delay, light feedback.
+    const leadBus = ctx.createGain(); leadBus.gain.value = 1.0;
+    leadBus.connect(master);
+    const delay = ctx.createDelay(1.0); delay.delayTime.value = BEAT * 0.75;
+    const fb = ctx.createGain(); fb.gain.value = 0.28;
+    const wet = ctx.createGain(); wet.gain.value = 0.25;
+    leadBus.connect(delay); delay.connect(fb).connect(delay);
+    delay.connect(wet).connect(master);
 
-    _scheduleVoice(ctx, master, mel, 'square',   0.16);   // lead melody (chip)
-    _scheduleVoice(ctx, ampBus, bs,  'sawtooth', 0.22);   // driving bass (through amp)
-    _scheduleVoice(ctx, ampBus, gtr, 'square',   0.18);   // guitar riff (through amp)
+    _scheduleVoice(ctx, leadBus, mel,  'square',   0.16);   // lead melody + echo
+    _scheduleVoice(ctx, ampBus,  bs,   'sawtooth', 0.22);   // driving bass (through amp)
+    _scheduleVoice(ctx, master,  harm, 'triangle', 0.12);   // hook arps (clean, soft)
+    _scheduleDrums(ctx, master, BARS);
     const buffer = await ctx.startRendering();
     const wav = _bufferToWav(buffer);
     const blob = new Blob([wav], { type: 'audio/wav' });
@@ -217,6 +254,50 @@ export class Chiptune {
   get isPlaying() {
     if (this._audio) return !this._audio.paused;
     return this._fallbackPlaying;
+  }
+}
+
+// Drum kit for the offline render: kick (sine pitch-drop), snare (band-pass
+// noise burst), closed hats (high-pass noise ticks). Pattern per bar:
+// kick 1 & 3 (+ an eighth pickup before 1 every 4th bar), snare 2 & 4,
+// hats on every eighth. Intro bars get kick+hats only so the song "starts".
+function _scheduleDrums(ctx, dest, bars) {
+  const noiseBuf = (() => {
+    const b = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.3), ctx.sampleRate);
+    const d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return b;
+  })();
+  const noise = (when, dur, filterType, freq, gainPeak) => {
+    const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+    const f = ctx.createBiquadFilter(); f.type = filterType; f.frequency.value = freq;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(gainPeak, when);
+    g.gain.exponentialRampToValueAtTime(0.001, when + dur);
+    src.connect(f).connect(g).connect(dest);
+    src.start(when); src.stop(when + dur + 0.02);
+  };
+  const kick = (when) => {
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(130, when);
+    osc.frequency.exponentialRampToValueAtTime(45, when + 0.11);
+    g.gain.setValueAtTime(0.5, when);
+    g.gain.exponentialRampToValueAtTime(0.001, when + 0.13);
+    osc.connect(g).connect(dest);
+    osc.start(when); osc.stop(when + 0.15);
+  };
+  for (let bar = 0; bar < bars; bar++) {
+    const t0 = bar * 4 * BEAT;
+    kick(t0); kick(t0 + 2 * BEAT);
+    if (bar % 4 === 3) kick(t0 + 3.5 * BEAT);            // pickup into next bar
+    if (bar >= 1) {                                        // snare joins bar 2
+      noise(t0 + 1 * BEAT, 0.10, 'bandpass', 1800, 0.30); // snare
+      noise(t0 + 3 * BEAT, 0.10, 'bandpass', 1800, 0.30);
+    }
+    for (let e = 0; e < 8; e++) {                          // hats on eighths
+      noise(t0 + e * BEAT * 0.5, 0.03, 'highpass', 7000, e % 2 ? 0.10 : 0.15);
+    }
   }
 }
 

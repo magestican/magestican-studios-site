@@ -131,12 +131,30 @@ function buildBase(grid, ox, oz, baseVox, standVox) {
       grid.set(ox + BASE_SIZE.x - 1, y, z, baseVox);
     }
   }
-  // Big barn doorway on the inward side - 3 wide x 2 tall.
+  // Big barn doorway on the inward side - 3 wide x 2 tall, with a WOOD
+  // frame (jamb posts either side + lintel above) so it reads as a real
+  // barn entrance instead of a hole punched in a painted box.
   const midZ = oz + Math.floor(BASE_SIZE.z / 2);
   const wallX = (ox < 10) ? ox + BASE_SIZE.x - 1 : ox;
   for (let z = midZ - 1; z <= midZ + 1; z++) {
     grid.set(wallX, 2, z, VOX.AIR);
     grid.set(wallX, 3, z, VOX.AIR);
+  }
+  for (const jz of [midZ - 2, midZ + 2]) {          // jamb posts
+    grid.set(wallX, 2, jz, VOX.WOOD);
+    grid.set(wallX, 3, jz, VOX.WOOD);
+  }
+  for (let z = midZ - 2; z <= midZ + 2; z++) {       // lintel beam
+    grid.set(wallX, 4, z, VOX.WOOD);
+  }
+
+  // WOOD corner posts on all four corners (y=2..3) — breaks up the flat
+  // painted walls and frames the silhouette (GRAPHICS_QUALITY_LOOP item 2).
+  for (let y = 2; y <= 3; y++) {
+    grid.set(ox, y, oz, VOX.WOOD);
+    grid.set(ox + BASE_SIZE.x - 1, y, oz, VOX.WOOD);
+    grid.set(ox, y, oz + BASE_SIZE.z - 1, VOX.WOOD);
+    grid.set(ox + BASE_SIZE.x - 1, y, oz + BASE_SIZE.z - 1, VOX.WOOD);
   }
   // PITCHED ROOF — WOOD frame (edges) with a translucent GLASS fill inside
   // the triangle, so the barn is closed to bodies + bullets but you can
@@ -159,6 +177,13 @@ function buildBase(grid, ox, oz, baseVox, standVox) {
     }
     // Ridge wood beam at the top.
     grid.set(midX, 4 + halfWidth, z, VOX.WOOD);
+  }
+  // Hay loft: stuff the bottom row of both gable ends with hay so the
+  // barn reads as a working farm building, not an empty painted shell.
+  for (const gz of [oz, oz + BASE_SIZE.z - 1]) {
+    for (let hx = midX - 1; hx <= midX + 1; hx++) {
+      grid.set(hx, 4, gz, VOX.HAY);
+    }
   }
   // Small flag stand (1 tall).
   const cx = ox + Math.floor(BASE_SIZE.x / 2);

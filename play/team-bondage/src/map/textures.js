@@ -126,28 +126,66 @@ export function makeHayTexture() {
   return toTexture(c);
 }
 
-// -- Blood-tinted variant of any base texture: overlays translucent red -----
+// -- Blood-splattered variant of any base texture ---------------------------
+// V2 (2026-08-21): the old version washed the WHOLE texture 55% red, which
+// read as "someone put a red filter on the game", not gore. Now the base
+// texture stays fully visible and blood sits ON it: a few big impact
+// splats with radiating droplets + long gravity drips, and one smeared
+// handprint-ish streak. Deliberately uneven — most of the surface is clean.
 export function makeBloodTinted(baseTexture) {
-  // baseTexture must have an underlying canvas via image property.
   const src = baseTexture.image;
   const c = makeCanvas(); const g = c.getContext('2d');
   g.drawImage(src, 0, 0, SIZE, SIZE);
-  // Red wash
-  g.fillStyle = 'rgba(140, 20, 20, 0.55)';
-  g.fillRect(0, 0, SIZE, SIZE);
-  // Blood splatters
   const rng = seedRng(89);
-  for (let i = 0; i < 12; i++) {
-    const x = rng() * SIZE, y = rng() * SIZE;
-    const r = 2 + rng() * 6;
-    g.fillStyle = `rgba(80,10,10,${0.6 + rng() * 0.3})`;
-    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
-    // Drips
-    g.fillStyle = 'rgba(60,5,5,0.55)';
-    for (let d = 0; d < 3; d++) {
-      const dy = r + rng() * 6;
-      g.beginPath(); g.arc(x + (rng() - 0.5) * 2, y + dy, r * 0.5, 0, Math.PI * 2); g.fill();
+
+  const BLOOD_DARK  = (a) => `rgba(96, 8, 8, ${a})`;
+  const BLOOD_FRESH = (a) => `rgba(150, 18, 14, ${a})`;
+
+  // 3 major impact splats.
+  for (let i = 0; i < 3; i++) {
+    const x = rng() * SIZE, y = rng() * SIZE * 0.7;   // impacts hit high, drips run low
+    const r = 5 + rng() * 8;
+    // Core blot — irregular, built from overlapping circles.
+    for (let b = 0; b < 5; b++) {
+      g.fillStyle = BLOOD_FRESH(0.75 + rng() * 0.2);
+      g.beginPath();
+      g.arc(x + (rng() - 0.5) * r, y + (rng() - 0.5) * r * 0.7, r * (0.45 + rng() * 0.4), 0, Math.PI * 2);
+      g.fill();
     }
+    // Radiating droplets — direction-biased so the splat has energy.
+    const dir = rng() * Math.PI * 2;
+    for (let d = 0; d < 9; d++) {
+      const a = dir + (rng() - 0.5) * 1.6;
+      const dist = r + rng() * r * 2.2;
+      g.fillStyle = BLOOD_FRESH(0.5 + rng() * 0.4);
+      g.beginPath();
+      g.arc(x + Math.cos(a) * dist, y + Math.sin(a) * dist, 0.8 + rng() * 2.0, 0, Math.PI * 2);
+      g.fill();
+    }
+    // Gravity drips: 2-3 long thin runs downward with a bead at the end.
+    for (let d = 0; d < 2 + Math.floor(rng() * 2); d++) {
+      const dx = x + (rng() - 0.5) * r * 1.5;
+      const len = 8 + rng() * 18;
+      g.strokeStyle = BLOOD_DARK(0.7);
+      g.lineWidth = 1.2 + rng() * 1.2;
+      g.beginPath(); g.moveTo(dx, y + r * 0.4); g.lineTo(dx + (rng() - 0.5) * 2, y + r * 0.4 + len); g.stroke();
+      g.fillStyle = BLOOD_DARK(0.8);
+      g.beginPath(); g.arc(dx, y + r * 0.4 + len, 1.6 + rng(), 0, Math.PI * 2); g.fill();
+    }
+  }
+
+  // One dragged smear (diagonal streak, fading).
+  {
+    const x = rng() * SIZE * 0.6 + SIZE * 0.2, y = rng() * SIZE * 0.5 + SIZE * 0.2;
+    const ang = -0.4 + rng() * 0.8;
+    g.save();
+    g.translate(x, y); g.rotate(ang);
+    const grad = g.createLinearGradient(0, 0, 26, 0);
+    grad.addColorStop(0, BLOOD_DARK(0.6));
+    grad.addColorStop(1, BLOOD_DARK(0.0));
+    g.fillStyle = grad;
+    g.fillRect(0, -3, 26, 6);
+    g.restore();
   }
   return toTexture(c);
 }
