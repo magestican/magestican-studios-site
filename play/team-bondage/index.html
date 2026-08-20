@@ -341,6 +341,42 @@
     }
     #hitmarker.visible { opacity: 1; transition-duration: 0.02s; }
 
+    /* Peeking-through-hay overlays (visible only when player is INSIDE a
+       hay bale). Two vertical strands of translucent yellow "straw"
+       framing the left and right edges of the view. */
+    .hay-peek { position: fixed; top: 0; bottom: 0; width: 20vw;
+      pointer-events: none; z-index: 6; opacity: 0;
+      transition: opacity 0.25s ease-in-out;
+    }
+    .hay-peek.visible { opacity: 1; }
+    .hay-peek.left  { left: 0;
+      background-image:
+        repeating-linear-gradient(6deg,
+          rgba(215, 184, 61, 0.55) 0px 4px,
+          rgba(240, 220, 120, 0.55) 4px 8px,
+          rgba(150, 110, 30, 0.4) 8px 11px,
+          transparent 11px 22px);
+      mask-image: linear-gradient(to right, black 0%, black 40%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, black 0%, black 40%, transparent 100%);
+    }
+    .hay-peek.right { right: 0;
+      background-image:
+        repeating-linear-gradient(-6deg,
+          rgba(215, 184, 61, 0.55) 0px 4px,
+          rgba(240, 220, 120, 0.55) 4px 8px,
+          rgba(150, 110, 30, 0.4) 8px 11px,
+          transparent 11px 22px);
+      mask-image: linear-gradient(to left, black 0%, black 40%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to left, black 0%, black 40%, transparent 100%);
+    }
+    #hiding-label { position: fixed; left: 50%; top: 76%; transform: translateX(-50%);
+      color: #d7b83d; font: 700 15px inherit; text-shadow: 0 2px 3px rgba(0,0,0,0.7);
+      background: rgba(20,15,5,0.65); padding: 4px 12px; border-radius: 6px;
+      pointer-events: none; z-index: 6; opacity: 0;
+      transition: opacity 0.2s ease-out;
+    }
+    #hiding-label.visible { opacity: 1; }
+
     /* Anagram overlay */
     #anagramWrap { position: fixed; inset: 0; z-index: 20; background: rgba(6,10,16,0.92);
       display: none; align-items: center; justify-content: center;
@@ -454,6 +490,11 @@
   <div id="hit-flash"></div>
   <div id="hit-direction"></div>
   <div id="hitmarker">×</div>
+  <!-- Peeking-through-hay overlays: two side straw strips shown when
+       the player is inside a hay bale. -->
+  <div class="hay-peek left"  id="hayPeekLeft"></div>
+  <div class="hay-peek right" id="hayPeekRight"></div>
+  <div id="hiding-label">🌾 hiding in hay</div>
 
   <!-- HUD -->
   <div id="hud" style="display: none;">

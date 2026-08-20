@@ -81,8 +81,16 @@ export async function createPhysicsWorld({ grid }) {
 // Build one cuboid collider per exposed (has AIR neighbour) solid voxel.
 // Merges same-material 1x1 cuboids into strips on the X axis for a ~2-3x
 // perf win. Rapier is happy with ~5000 colliders on a fixed body.
+//
+// SPECIAL CASE: hay (voxel type 10) is deliberately NOT collided - players
+// can walk INTO hay bales to hide. Detection of "am I inside hay?" lives in
+// game.js and uses the same VoxelGrid.
 function addVoxelColliders(RAPIER, world, body, grid) {
-  const solid = (x, y, z) => grid.get(x, y, z) !== 0;   // 0 = AIR
+  const HAY = 10;
+  const solid = (x, y, z) => {
+    const v = grid.get(x, y, z);
+    return v !== 0 && v !== HAY;   // AIR and HAY are non-colliding
+  };
   const exposed = (x, y, z) =>
     !solid(x + 1, y, z) || !solid(x - 1, y, z) ||
     !solid(x, y + 1, z) || !solid(x, y - 1, z) ||

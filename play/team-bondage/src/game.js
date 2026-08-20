@@ -25,6 +25,7 @@ import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
 import { createPhysicsWorld } from 'arbelo/physics';
 import { SnowSystem }         from './entities/snow.js';
 import { ChickenPickup }      from './entities/chickenPickup.js';
+import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -687,6 +688,18 @@ export class Game {
     }
   }
 
+  // Toggle the hay-peek overlays + hiding label based on whether the local
+  // player's torso is currently inside a hay voxel.
+  _paintHayHide() {
+    if (!this.player || !this.grid) return;
+    const inside = isInsideHay(this.grid, this.player.pos.x, this.player.pos.y, this.player.pos.z);
+    if (inside === this._insideHay) return;
+    this._insideHay = inside;
+    document.getElementById('hayPeekLeft')?.classList.toggle('visible', inside);
+    document.getElementById('hayPeekRight')?.classList.toggle('visible', inside);
+    document.getElementById('hiding-label')?.classList.toggle('visible', inside);
+  }
+
   // Rotate the compass arrows so they always point at each team's flag from
   // the player's current position + heading.
   _paintCompass() {
@@ -1054,6 +1067,7 @@ export class Game {
       this.chickenPickup.update(dt, hostPlayers);
     }
     this._paintCompass();
+    this._paintHayHide();
 
     // Movement + physics (guarded on physics-loaded)
     if (this.player?.alive && this.physics) this.player.update(dt, this.input);
