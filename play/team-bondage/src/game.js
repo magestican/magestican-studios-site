@@ -22,6 +22,7 @@ import { buildSkybox }        from './entities/skybox.js';
 import { Bot }                from './entities/bot.js';
 import { TracerSystem }       from './entities/tracer.js';
 import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
+import { createPhysicsWorld } from 'arbelo/physics';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -89,7 +90,7 @@ export class Game {
 
     this._initThree();
     this._buildWorld(this.seed);
-    this._initPlayer();
+    await this._initPlayer();
     this._initInput();
 
     // Send our HELLO to whoever's out there.
@@ -264,9 +265,10 @@ export class Game {
 
   // ---- player -------------------------------------------------------------
 
-  _initPlayer() {
+  async _initPlayer() {
     const spawn = this.world.spawns[this.team];
-    this.player = new Player(this.camera, this.grid, spawn, this.team);
+    this.physics = await createPhysicsWorld({ grid: this.grid });
+    this.player = new Player(this.camera, this.physics, spawn, this.team);
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
     // Camera child = first-person weapon viewmodel. Also attach the camera
@@ -823,6 +825,7 @@ export class Game {
       this._updateLobbyBanner();
       // Allow movement + camera in the lobby so a solo host can explore.
       if (this.player.alive) this.player.update(dt, this.input);
+      if (this.physics) this.physics.step(dt);
       this.weapons.update(dt);
       this.viewmodel?.update(dt);
       for (const rp of this.remotePlayers.values()) rp.update(dt);
@@ -877,8 +880,9 @@ export class Game {
     this.tracers.update(dt, performance.now() / 1000);
     this.viewmodel?.update(dt);
 
-    // Movement
+    // Movement + physics
     if (this.player.alive) this.player.update(dt, this.input);
+    if (this.physics) this.physics.step(dt);
     this.weapons.update(dt);
 
     // Remote players
