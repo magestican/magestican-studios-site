@@ -325,7 +325,18 @@
       #kill-feed { top: calc(max(8px, env(safe-area-inset-top)) + 100px);
         right: 10px; max-width: 44vw; font-size: 11px; }
       .kill-line { padding: 3px 6px; }
-      #weaponbar { display: none; }
+      /* Hide only the normal weapon slots on mobile (touch buttons cover
+         those). Keep the CHICKEN slot visible — that's the pickup indicator
+         + 30 s countdown chip. Bryan 2026-08-20 "I still don't see the
+         timer when I take the super weapon in its place". */
+      #weaponbar { display: block; background: transparent; border: 0; padding: 0; }
+      #weaponbar .wpn:not(.chicken) { display: none; }
+      #weaponbar .wpn.chicken {
+        position: fixed;
+        top: calc(max(8px, env(safe-area-inset-top)) + 78px);
+        left: 50%; transform: translateX(-50%);
+        z-index: 20;
+      }
       #flagStatus { top: 74px; font-size: 12px; padding: 0 12px; }
       #crosshair { transform: translate(-50%, -50%) scale(0.7); }
       /* Right-column top buttons: mute + gore stacked in a strict column so
