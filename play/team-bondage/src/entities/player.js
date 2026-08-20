@@ -105,11 +105,23 @@ export class Player {
       this.vel.x *= s; this.vel.z *= s;
     }
 
-    // -- Jump --
-    if (this._grounded && (input.wasPressed('jump') || (input.isDown('jump') && !this._jumpingDown))) {
-      this.vel.y = JUMP_SPEED;
-      this._jumpingDown = true;
-      this.jumpCount++;
+    // -- Jump (with DOUBLE JUMP: one grounded jump + one mid-air jump). --
+    if (this._grounded) this._airJumpsLeft = 1;   // reset the mid-air budget each landing
+    const jumpPressed = input.wasPressed('jump')
+      || (input.isDown('jump') && !this._jumpingDown);
+    if (jumpPressed) {
+      if (this._grounded) {
+        this.vel.y = JUMP_SPEED;
+        this._jumpingDown = true;
+        this.jumpCount++;
+      } else if (this._airJumpsLeft > 0) {
+        // Double jump: overwrite vertical velocity (feels snappier than
+        // adding to it — you always get a fresh boost).
+        this.vel.y = JUMP_SPEED * 0.95;
+        this._airJumpsLeft--;
+        this._jumpingDown = true;
+        this.jumpCount++;
+      }
     }
     if (!input.isDown('jump')) this._jumpingDown = false;
 

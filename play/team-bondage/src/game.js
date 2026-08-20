@@ -316,7 +316,11 @@ export class Game {
     );
     fabric.position.set(0.5, 1.9, 0);
     group.add(fabric);
-    group.position.set(pos.x + 0.5, pos.y - 1, pos.z + 0.5);
+    // Sit the pole ON TOP of the barn floor voxel (which fills y in [1,2)),
+    // not below it. Previous `pos.y - 1` buried 90 % of the pole in the
+    // floor so only the flag fabric poked out — Bryan called that "flags
+    // somewhere off the map".
+    group.position.set(pos.x + 0.5, pos.y, pos.z + 0.5);
     this.scene.add(group);
     return group;
   }
