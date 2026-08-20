@@ -19,4 +19,5 @@ export const MSG = Object.freeze({
   CHAT:       'chat',        // {t, from, text}
   MATCH_STATE:  'matchState', // {t, state:'lobby'|'countdown'|'playing'|'ended', endsAt?:number}
   TEAM_ASSIGN:  'teamAssign', // {t, assignments:{[peerId]:'red'|'blue'}} - host authority
+  HAZARD_SPAWN: 'hazard',     // {t, items:[{kind,x,z,spawnAt,landAt}, ...]} - host authority
 });

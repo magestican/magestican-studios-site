@@ -15,6 +15,8 @@ import { MSG }              from './net/protocol.js';
 import { pickWord, scramble } from './util/anagram.js';
 import { TouchControls }     from './touchControls.js';
 import { Chiptune }           from './audio/chiptune.js';
+import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
+import { WORLD_SIZE }         from 'arbelo/procgen';
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
 const FLAG_HOME_RADIUS = 2.0;   // steps within this of your own flag stand = capture
@@ -83,20 +85,40 @@ export class Game {
     // Send our HELLO to whoever's out there.
     this._broadcast({ t: MSG.HELLO, name: this.name, character: this.character, team: this.team });
 
-    // Wire mute button (works on both desktop and mobile).
+    // Wire mute button. iOS Safari needs touchstart in addition to click:
+    // click sometimes doesn't dispatch on button elements inside a
+    // pointer-events:none HUD without a real tap chain.
     const muteBtn = document.getElementById('mute-btn');
     const paintMute = () => { muteBtn.textContent = this.audio.muted ? '🔇' : '🔊'; };
     paintMute();
-    muteBtn.addEventListener('click', () => { this.audio.toggleMuted(); paintMute(); });
-
-    // Kick off audio on first pointer/touch gesture (iOS autoplay policy).
-    const startAudioOnce = () => {
-      this.audio.start();
-      window.removeEventListener('pointerdown', startAudioOnce);
-      window.removeEventListener('touchstart', startAudioOnce);
+    const handleMuteToggle = (e) => {
+      if (e) e.preventDefault();
+      this.audio.toggleMuted();
+      paintMute();
+      // Also try to (re)start audio in this same gesture - in case iOS Safari
+      // never accepted our earlier autoplay attempt.
+      tryStartAudio();
     };
-    window.addEventListener('pointerdown', startAudioOnce, { once: true });
-    window.addEventListener('touchstart', startAudioOnce, { once: true, passive: true });
+    muteBtn.addEventListener('click', handleMuteToggle);
+    muteBtn.addEventListener('touchstart', handleMuteToggle, { passive: false });
+
+    // Kick off audio. iOS Safari requires the AudioContext to be created
+    // AND resumed inside a user-gesture callback; a stale "once: true" that
+    // failed silently would then never retry. Instead, retry on every
+    // touch/click until we hear playback start.
+    let audioStarted = false;
+    const tryStartAudio = () => {
+      if (audioStarted) return;
+      this.audio.ensureContext();
+      const ctx = this.audio.ctx;
+      if (!ctx) return;
+      const finish = () => { if (!audioStarted) { this.audio.start(); audioStarted = true; } };
+      if (ctx.state === 'suspended') ctx.resume().then(finish, () => {});
+      else finish();
+    };
+    window.addEventListener('pointerdown', tryStartAudio);
+    window.addEventListener('touchstart', tryStartAudio, { passive: true });
+    window.addEventListener('click', tryStartAudio);
 
     // Show the lobby banner. Solo host: waits for 2+ players; countdown then
     // starts and match transitions to 'playing'. Joiners get the current
@@ -187,7 +209,9 @@ export class Game {
     const spawn = this.world.spawns[this.team];
     this.player = new Player(this.camera, this.grid, spawn, this.team);
     this.weapons = new WeaponSystem(this.scene);
-    // Local character model is invisible from first-person; render nothing.
+    this.hazards = new HazardSystem(this.scene, this.grid);
+    this._hazardRngHost = this.isHost ? new SeededRng((this.seed ^ 0x51a9a7d1) >>> 0) : null;
+    this._nextHazardAt = performance.now() + 4000;   // first wave 4s after boot
   }
 
   _initInput() {
@@ -412,6 +436,10 @@ export class Game {
         this._updateLobbyBanner();
         break;
 
+      case MSG.HAZARD_SPAWN:
+        if (this.hazards) for (const item of msg.items) this.hazards.spawn(item);
+        break;
+
       case MSG.STATE: {
         const rp = this.remotePlayers.get(from);
         if (rp) rp.setNet(msg.p, msg.y, msg.x, msg.h);
@@ -537,6 +565,23 @@ export class Game {
 
     // Remote players
     for (const rp of this.remotePlayers.values()) rp.update(dt);
+
+    // Hazard rain (eggs + milk pints)
+    const nowMs = performance.now();
+    this.hazards.update(dt, nowMs);
+    if (this.isHost && nowMs >= this._nextHazardAt) {
+      const items = makeHostSchedule(WORLD_SIZE, this._hazardRngHost, nowMs);
+      for (const item of items) this.hazards.spawn(item);
+      this._broadcast({ t: MSG.HAZARD_SPAWN, items });
+      // Reschedule 3-6 seconds later.
+      this._nextHazardAt = nowMs + this._hazardRngHost.rangeI(3000, 6000);
+    }
+    // Local player damage from hazards that just landed.
+    if (this.player.alive) {
+      for (const dmg of this.hazards.consumeHitsFor(this.player.pos)) {
+        this._takeDamage(dmg, this.myId, 'hazard');
+      }
+    }
 
     // Flag interaction
     this._updateFlags();
