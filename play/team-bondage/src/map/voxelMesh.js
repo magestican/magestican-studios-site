@@ -67,12 +67,14 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
       flatShading: true,
     };
     if (textures[v]) materialOpts.map = textures[v];
-    // HAY (v=10) is see-through so players hiding inside can see out and
-    // enemies looking at the bale can see through it a little bit.
+    // HAY (v=10) is see-through so players hiding inside can see out.
+    // Higher opacity + emissive-y bright yellow so bales are unmistakably
+    // recognisable from a distance.
     if (v === VOX.HAY) {
       materialOpts.transparent = true;
-      materialOpts.opacity = 0.55;
+      materialOpts.opacity = 0.72;
       materialOpts.side = THREE.DoubleSide;
+      materialOpts.emissive = new THREE.Color(0x5a4a15);
     }
     const material = new THREE.MeshLambertMaterial(materialOpts);
     const inst = new THREE.InstancedMesh(CUBE_GEO, material, cells.length);

@@ -40,7 +40,7 @@ export const VOX_COLOR = Object.freeze({
   [VOX.BASE_BLUE]:      [0x33, 0x6b, 0xbf],
   [VOX.FLAG_STAND_RED]: [0xd0, 0x50, 0x3e],
   [VOX.FLAG_STAND_BLUE]:[0x4f, 0x8a, 0xdb],
-  [VOX.HAY]:            [0xd7, 0xb8, 0x3d],
+  [VOX.HAY]:            [0xf5, 0xd5, 0x3a],   // brighter saturated yellow so hay bales are unmistakably distinct from grey/brown cover
   [VOX.HILL]:           [0x6a, 0x54, 0x38],
 });
 

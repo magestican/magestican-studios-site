@@ -164,19 +164,14 @@ function insideBase(x, z, base) {
       && z >= base.z - 1 && z <= base.z + BASE_SIZE.z;
 }
 
-// Small round-ish hay bale (voxel-stepped cylinder). 2x2 footprint, cap on
-// top. Fits between snow drifts without dominating.
+// Small round-ish hay bale. 2x2 footprint, 2 voxels tall, pure hay all the
+// way through so it looks unmistakably yellow (no more grey ice caps on
+// top). Non-colliding — see-through + walk-through — see rapierWorld.js.
 function _buildHayBale(grid, ox, oz) {
-  // Layer 1: 2x2 solid.
-  for (let dx = 0; dx < 2; dx++)
-    for (let dz = 0; dz < 2; dz++)
+  for (let dx = 0; dx < 2; dx++) {
+    for (let dz = 0; dz < 2; dz++) {
       grid.set(ox + dx, 1, oz + dz, VOX.HAY);
-  // Layer 2: 2x2 solid (slightly taller than one voxel because these are
-  // small - overall footprint 2x2x2).
-  for (let dx = 0; dx < 2; dx++)
-    for (let dz = 0; dz < 2; dz++)
       grid.set(ox + dx, 2, oz + dz, VOX.HAY);
-  // Snow cap on top - a single ICE voxel centered.
-  grid.set(ox, 3, oz, VOX.ICE);
-  grid.set(ox + 1, 3, oz + 1, VOX.ICE);
+    }
+  }
 }
