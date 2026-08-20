@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team Bondage</title>
+  <meta name="description" content="Team Bondage - a browser FPS with ice-drift movement, farm-animal characters, seeded voxel maps, and P2P multiplayer. No server, no download. Made by Magestican Studios.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a17'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='20' text-anchor='middle' fill='%23f6f1e6'%3ET%3C/text%3E%3C/svg%3E">
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; background: #0a0d12; color: #e8ecf1;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none; -webkit-user-select: none;
+    }
+    canvas { display: block; }
+    #app { position: fixed; inset: 0; }
+
+    /* Menu overlay */
+    #menu { position: fixed; inset: 0; z-index: 10;
+      background: radial-gradient(circle at 50% 40%, #16202c 0%, #0a0d12 100%);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; overflow: auto;
+    }
+    .menu-card { background: rgba(24,30,42,0.9); border: 1px solid #2b3648; border-radius: 12px;
+      padding: 32px 36px; max-width: 720px; width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+    .menu-card h1 { font-family: Georgia,serif; font-size: 34px; margin-bottom: 6px; letter-spacing: 0.02em; }
+    .menu-card h1 .accent { color: #f4c95d; }
+    .menu-card .sub { color: #9aa5b8; font-size: 15px; margin-bottom: 24px; }
+    .menu-card h2 { font-family: Georgia,serif; font-size: 20px; margin: 22px 0 12px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    button { font: inherit; background: #2a3446; color: #e8ecf1;
+      border: 1px solid #3a475e; border-radius: 8px;
+      padding: 10px 16px; cursor: pointer; transition: background .15s ease;
+    }
+    button:hover { background: #364358; }
+    button.primary { background: #4b7bd6; border-color: #6a95e5; }
+    button.primary:hover { background: #5a8ce8; }
+    button.team-red   { background: #b73a2a; border-color: #d0503e; }
+    button.team-blue  { background: #336bbf; border-color: #4f8adb; }
+    button.selected { outline: 3px solid #f4c95d; outline-offset: 2px; }
+    input[type=text] { font: inherit; background: #16202c; color: #e8ecf1;
+      border: 1px solid #3a475e; border-radius: 8px; padding: 10px 12px; width: 100%; max-width: 260px;
+    }
+    label { display: block; font-size: 13px; color: #9aa5b8; margin-bottom: 4px; }
+    .anim-btn { padding: 12px 14px; min-width: 130px; text-align: center; }
+    .anim-btn .emoji { font-size: 28px; display: block; margin-bottom: 4px; }
+    .anim-btn .lbl { font-size: 13px; color: #cbd3e1; }
+    .footer-note { color: #6b7387; font-size: 12px; margin-top: 20px; line-height: 1.5; }
+    .footer-note a { color: #9dc6ff; }
+    #linkOut { background: #10161f; padding: 10px 12px; border-radius: 6px; word-break: break-all;
+      font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; color: #9dc6ff;
+      border: 1px dashed #3a475e; margin-top: 8px;
+    }
+    .warn { color: #f4c95d; font-size: 13px; margin-top: 6px; }
+
+    /* HUD */
+    #hud { position: fixed; inset: 0; z-index: 5; pointer-events: none;
+      color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+    #crosshair { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px;
+      transform: translate(-50%, -50%); pointer-events: none;
+    }
+    #crosshair::before, #crosshair::after {
+      content: ''; position: absolute; background: rgba(255,255,255,0.85);
+    }
+    #crosshair::before { left: 8px; top: 0; width: 2px; height: 18px; }
+    #crosshair::after  { left: 0; top: 8px; width: 18px; height: 2px; }
+    #topbar { position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 24px; align-items: center; font-size: 20px; font-weight: 700;
+    }
+    .score-red  { color: #ff7b6a; }
+    .score-blue { color: #7cb0ff; }
+    .score-sep  { color: #8894a6; font-weight: 400; font-size: 16px; }
+    #bottombar { position: absolute; left: 20px; bottom: 20px; font-size: 15px; }
+    #health-bar { display: inline-block; width: 200px; height: 10px; background: rgba(255,255,255,0.15);
+      border-radius: 5px; overflow: hidden; vertical-align: middle; margin-left: 8px;
+    }
+    #health-fill { height: 100%; background: linear-gradient(90deg, #ff5c4a, #f4c95d 60%, #7ce07a);
+      transition: width 0.15s ease-out;
+    }
+    #weaponbar { position: absolute; right: 20px; bottom: 20px; display: flex; gap: 6px; }
+    .wpn { padding: 6px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; font-size: 14px;
+    }
+    .wpn.active { background: #f4c95d; color: #1c1a17; border-color: #f4c95d; }
+    #flagStatus { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #f4c95d; }
+    #kill-feed { position: absolute; right: 20px; top: 60px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #cbd3e1; }
+    .kill-line { background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 4px; }
+
+    /* Anagram overlay */
+    #anagramWrap { position: fixed; inset: 0; z-index: 20; background: rgba(6,10,16,0.92);
+      display: none; align-items: center; justify-content: center;
+    }
+    #anagramWrap.visible { display: flex; }
+    #anagramBox { max-width: 520px; padding: 32px; text-align: center;
+      background: #1a2330; border: 2px solid #f4c95d; border-radius: 14px;
+    }
+    #anagramBox h2 { font-family: Georgia,serif; font-size: 26px; margin-bottom: 8px; }
+    #anagramTimer { font-size: 40px; font-weight: 700; color: #f4c95d; margin: 12px 0; font-variant-numeric: tabular-nums; }
+    #scrambled { font-family: 'SF Mono', Menlo, Consolas, monospace;
+      font-size: 40px; letter-spacing: 0.4em; margin: 20px 0; color: #7cb0ff;
+    }
+    #anagramInput { font: inherit; text-align: center; font-size: 22px;
+      padding: 12px; width: 260px; text-transform: uppercase;
+      background: #10161f; color: #e8ecf1; border: 1px solid #3a475e; border-radius: 8px;
+    }
+    #anagramInput:focus { border-color: #f4c95d; outline: none; }
+    #anagramMsg { margin-top: 12px; font-size: 15px; color: #9aa5b8; min-height: 20px; }
+    .spectator { opacity: 0.7; }
+
+    /* Loading */
+    #loading { position: fixed; inset: 0; background: #0a0d12; z-index: 30;
+      display: flex; align-items: center; justify-content: center;
+      color: #9aa5b8; font-family: Georgia,serif; font-size: 18px;
+    }
+    #loading.done { display: none; }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/",
+      "arbelo/rng":         "../../web-engine/rng/seededRng.js",
+      "arbelo/voxel":       "../../web-engine/voxel/voxelGrid.js",
+      "arbelo/procgen":     "../../web-engine/procgen/voxelWorldGen.js",
+      "arbelo/net":         "../../web-engine/net/peerMesh.js",
+      "arbelo/input":       "../../web-engine/input/inputBus.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="loading">Loading Team Bondage...</div>
+
+  <!-- Main menu (character + host/join) -->
+  <div id="menu">
+    <div class="menu-card">
+      <h1>Team <span class="accent">Bondage</span></h1>
+      <p class="sub">A P2P browser FPS with ice-drift movement and farm-animal soldiers. First team to 5 flags wins &mdash; unless the losing team can solve an anagram in 10 seconds.</p>
+
+      <h2>Pick your character</h2>
+      <div class="row" id="characterRow">
+        <button class="anim-btn" data-char="cow"><span class="emoji">🐄</span><span class="lbl">Cow</span></button>
+        <button class="anim-btn" data-char="chicken"><span class="emoji">🐓</span><span class="lbl">Chicken</span></button>
+        <button class="anim-btn" data-char="pig"><span class="emoji">🐖</span><span class="lbl">Pig</span></button>
+        <button class="anim-btn" data-char="sheep"><span class="emoji">🐑</span><span class="lbl">Sheep</span></button>
+      </div>
+
+      <h2>Pick your team</h2>
+      <div class="row" id="teamRow">
+        <button class="team-red"  data-team="red">🚩 Red team</button>
+        <button class="team-blue" data-team="blue">🚩 Blue team</button>
+      </div>
+
+      <h2>Player name</h2>
+      <div class="row">
+        <input type="text" id="nameInput" maxlength="16" placeholder="e.g. Bryan">
+      </div>
+
+      <h2>Play</h2>
+      <div class="row">
+        <button class="primary" id="hostBtn">Host a new game</button>
+        <div id="joinRow" style="display: flex; gap: 8px; align-items: center;">
+          <input type="text" id="joinIdInput" placeholder="Room code (e.g. TB-xxxxxx)">
+          <button id="joinBtn">Join</button>
+        </div>
+      </div>
+
+      <div id="linkOutWrap" style="display: none;">
+        <label>Share this link with friends. Anyone who opens it joins your room:</label>
+        <div id="linkOut"></div>
+        <div id="playerList" class="warn"></div>
+      </div>
+
+      <p class="footer-note">
+        A <a href="https://magesticanstudios.com">Magestican Studios</a> game.
+        Runs entirely in your browser via WebRTC &mdash; no server, no download.
+        Original Zelakas In Space team credit: Bryan Arbelo, Gonzalo, Christian.
+      </p>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" style="display: none;">
+    <div id="crosshair"></div>
+    <div id="topbar">
+      <span class="score-red"  id="scoreRed">0</span>
+      <span class="score-sep">&middot; first to 5 &middot;</span>
+      <span class="score-blue" id="scoreBlue">0</span>
+    </div>
+    <div id="flagStatus"></div>
+    <div id="kill-feed"></div>
+    <div id="bottombar">
+      HP <span id="health-bar"><span id="health-fill" style="width:100%"></span></span>
+      &nbsp;&middot;&nbsp; <span id="ammo">&infin;</span>
+    </div>
+    <div id="weaponbar">
+      <div class="wpn active" data-w="0">1 Pistol</div>
+      <div class="wpn"        data-w="1">2 Shotgun</div>
+      <div class="wpn"        data-w="2">3 Rocket</div>
+    </div>
+  </div>
+
+  <!-- Anagram tiebreaker -->
+  <div id="anagramWrap">
+    <div id="anagramBox">
+      <h2 id="anagramTitle">One shot to steal it</h2>
+      <div id="anagramTimer">10</div>
+      <div id="scrambled">------</div>
+      <input type="text" id="anagramInput" placeholder="TYPE THE WORD" autocomplete="off" spellcheck="false" maxlength="12">
+      <div id="anagramMsg">Unscramble to steal the win.</div>
+    </div>
+  </div>
+
+  <!-- PeerJS via CDN, global window.Peer -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
