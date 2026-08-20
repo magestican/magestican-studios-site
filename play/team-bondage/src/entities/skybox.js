@@ -15,6 +15,11 @@ const W = 2048;   // equirectangular width; height = W/2
 const H = 1024;
 const ANIMATE_FPS = 6;
 
+// Try the Blender-rendered PNG first. If it fails to load, fall back to
+// the animated canvas painting (which at least ensures something is on
+// the sky). See docs/features/rendered-skybox.md.
+const RENDERED_PNG = '/play/team-bondage/assets/hand-drawn/sky/panorama.png';
+
 export function buildSkybox() {
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
@@ -23,12 +28,29 @@ export function buildSkybox() {
   tex.mapping = THREE.EquirectangularReflectionMapping;
   tex.colorSpace = THREE.SRGBColorSpace ?? tex.colorSpace;
 
+  // Animated canvas fallback: repaint the wrestling scene every 166ms.
   const start = performance.now();
-  setInterval(() => {
+  const interval = setInterval(() => {
     const t = (performance.now() - start) / 1000;
     paint(canvas, t);
     tex.needsUpdate = true;
   }, 1000 / ANIMATE_FPS);
+
+  // Try to hot-swap in the Blender-rendered PNG.
+  const loader = new THREE.TextureLoader();
+  loader.load(RENDERED_PNG, (loaded) => {
+    loaded.mapping = THREE.EquirectangularReflectionMapping;
+    loaded.colorSpace = THREE.SRGBColorSpace ?? loaded.colorSpace;
+    // Stop the canvas animation - we've got a real render now.
+    clearInterval(interval);
+    // Overwrite the returned texture reference's fields so consumers who
+    // stored `scene.background = tex` see the new pixels without needing
+    // us to reassign. Simplest: dispose canvas + replace image + flip needsUpdate.
+    tex.image = loaded.image;
+    tex.needsUpdate = true;
+  }, undefined, () => {
+    // 404 or parse error - keep the canvas fallback going. No console noise.
+  });
 
   return tex;
 }
