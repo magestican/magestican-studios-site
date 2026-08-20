@@ -14,7 +14,9 @@
 //   * On a wall bounce we commit to the new heading for 1.4-2.2s so we
 //     escape the wall before snapping back toward the goal.
 
-export const WALK_Y     = 2.5;   // sample height above the barn floor
+export const SAMPLE_Y   = 2.5;   // collision sample height (chest-in-air)
+export const GROUND_Y   = 2.0;   // anchor: feet sit on TOP of the floor voxel
+export const WALK_Y     = SAMPLE_Y;   // legacy alias kept for tests
 export const MOVE_SPEED = 4.8;   // m/s
 export const TURN_RATE  = 3.5;   // rad/s
 export const COMMIT_MIN = 1.4;   // sec, min wander commit after a bounce
@@ -41,7 +43,7 @@ export function stepBot(state, dt, grid, goal, rng = Math.random) {
   const nextX = state.pos.x + wd.x * MOVE_SPEED * dt;
   const nextZ = state.pos.z + wd.z * MOVE_SPEED * dt;
 
-  if (!grid.isSolid(nextX, WALK_Y, nextZ)) {
+  if (!grid.isSolid(nextX, SAMPLE_Y, nextZ)) {
     state.pos.x = nextX;
     state.pos.z = nextZ;
   } else {
@@ -57,7 +59,10 @@ export function stepBot(state, dt, grid, goal, rng = Math.random) {
     if (l > 0) { state.wanderDir.x /= l; state.wanderDir.z /= l; }
     state.wanderT = COMMIT_MIN + rng() * (COMMIT_MAX - COMMIT_MIN);
   }
-  state.pos.y = WALK_Y;
+  // Anchor at the TOP of the floor voxel so the model's feet sit on the
+  // ground instead of floating at collision-sample height. See
+  // docs/features/bot-ground-anchor.md.
+  state.pos.y = GROUND_Y;
 
   // Smooth turn.
   const targetYaw = Math.atan2(state.wanderDir.x, state.wanderDir.z);

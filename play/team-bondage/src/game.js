@@ -693,30 +693,53 @@ export class Game {
     return arr;
   }
 
-  // Grant a chicken shot to a peer. If it's us, light up slot 4, auto-switch
-  // to it, splash a big "SLINGSHOT READY" banner, play the pickup pling, and
-  // wire a click handler on the slot chip so tapping it selects it again if
-  // the player switched away.
+  // Grant a chicken shot to a peer. If it's us, splash "SLINGSHOT READY",
+  // tag the chip to show it's armed, and let the NEXT fire (from any slot)
+  // consume it. No slot selection needed — see docs/features/chicken-auto-fire.md.
   _grantChicken(peerId) {
     if (peerId === this.myId) {
       this.chickenAmmo = 1;
       const slot = document.querySelector('.wpn.chicken');
       if (slot) {
         slot.style.display = '';
-        // Idempotent: only wire the click handler once.
-        if (!slot.dataset.wired) {
-          slot.dataset.wired = '1';
-          const pick = (e) => { e?.preventDefault?.(); this._switchWeapon(3); };
-          slot.addEventListener('click', pick);
-          slot.addEventListener('touchstart', pick, { passive: false });
-        }
+        slot.classList.remove('cooldown');
+        slot.innerHTML =
+          '<span class="wpn-icon">🐔</span><span class="wpn-key">GO</span><span class="wpn-name">READY</span>';
       }
-      // Auto-switch so pressing FIRE just works, no matter what platform.
-      this._switchWeapon(3);
+      // Cancel any previous countdown interval.
+      if (this._chickenCdTimer) { clearInterval(this._chickenCdTimer); this._chickenCdTimer = null; }
       // POWER GET FX
-      this._showPowerGet('☢  SLINGSHOT READY  ☢', 'Press FIRE to launch');
+      this._showPowerGet('☢  SLINGSHOT READY  ☢', 'Any weapon — your next shot fires the chicken');
       try { SFX.chirp(); SFX.boom(0.4); } catch (_) {}
     }
+  }
+
+  // After the local player fires their chicken shot, replace the chip with
+  // a live 30s countdown showing when the pickup respawns on the hill.
+  // Ticks every 500ms so the visible seconds don't drift more than 1s.
+  _startChickenCooldownChip() {
+    const slot = document.querySelector('.wpn.chicken');
+    if (!slot || !this.chickenPickup) return;
+    slot.style.display = '';
+    slot.classList.add('cooldown');
+    const paint = () => {
+      const now = performance.now();
+      const secsLeft = Math.max(0, Math.ceil((this.chickenPickup._nextSpawnAt - now) / 1000));
+      if (secsLeft <= 0) {
+        // Pickup is available on the hill again; hide the countdown chip
+        // (it'll reappear as READY when someone grabs it).
+        slot.style.display = 'none';
+        slot.classList.remove('cooldown');
+        clearInterval(this._chickenCdTimer);
+        this._chickenCdTimer = null;
+        return;
+      }
+      slot.innerHTML =
+        `<span class="wpn-icon">🐔</span><span class="wpn-key">${secsLeft}s</span><span class="wpn-name">respawn</span>`;
+    };
+    paint();
+    if (this._chickenCdTimer) clearInterval(this._chickenCdTimer);
+    this._chickenCdTimer = setInterval(paint, 500);
   }
 
   // Big centre-screen splash + screen flash for "you got the super weapon".
@@ -1247,18 +1270,18 @@ export class Game {
     const dir = new THREE.Vector3();
     this.camera.getWorldDirection(dir);
     const origin = this.camera.position.clone();
-    // Chicken shot short-circuits the weapon system: fire one super shot,
-    // consume the chicken ammo, hide the slot chip.
-    if (this.weapons.slot === 3 && this.chickenAmmo > 0) {
+    // Chicken shot short-circuits the weapon system: whenever the local
+    // player has a chicken ready, the NEXT fire — from ANY slot — launches
+    // the super shot instead. No slot selection required. Chip then flips
+    // to a 30s respawn countdown. See docs/features/chicken-auto-fire.md.
+    if (this.chickenAmmo > 0) {
       this.chickenAmmo = 0;
-      const slot = document.querySelector('.wpn.chicken');
-      if (slot) slot.style.display = 'none';
-      this._switchWeapon(0);
       const msg = { t: MSG.CHICKEN_SHOT, origin: origin.toArray(), dir: dir.toArray(), by: this.myId };
       this._broadcast(msg);
       this._spawnChickenProjectile(msg);
       if (this.isHost) this._resolveChickenShot(msg);
       SFX.snorkel();
+      this._startChickenCooldownChip();
       return;
     }
     const shots = this.weapons.tryFire(origin, dir, this.rngShots, this.myId);
@@ -1267,7 +1290,7 @@ export class Game {
       this.viewmodel?.kick();
       // Gore-mode joke SFX: layer a fart on every shot. Farm animals shoot
       // farm-animal ordnance, after all. Docs: docs/features/gore-fart-sfx.md
-      if (this.mature) SFX.fart(0.7);
+      if (this.mature) SFX.fart(1.6);
     }
     for (const s of shots) {
       this._broadcast({ t: MSG.SHOT, s });

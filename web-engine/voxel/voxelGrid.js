@@ -25,6 +25,7 @@ export const VOX = Object.freeze({
   FLAG_STAND_BLUE: 9,
   HAY: 10,
   HILL: 11,   // centre-map elevated tile where the chicken slingshot spawns
+  GLASS: 12,  // see-through, solid to bodies + bullets; used to close barn roofs
 });
 
 // Base RGB palette for each voxel type. Actual final colouring in the game
@@ -42,6 +43,7 @@ export const VOX_COLOR = Object.freeze({
   [VOX.FLAG_STAND_BLUE]:[0x4f, 0x8a, 0xdb],
   [VOX.HAY]:            [0xf5, 0xd5, 0x3a],   // brighter saturated yellow so hay bales are unmistakably distinct from grey/brown cover
   [VOX.HILL]:           [0x6a, 0x54, 0x38],
+  [VOX.GLASS]:          [0xa8, 0xd8, 0xf0],   // pale ice-blue; rendered with alpha in voxelMesh.js
 });
 
 export class VoxelGrid {

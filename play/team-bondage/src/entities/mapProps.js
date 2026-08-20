@@ -29,13 +29,35 @@ const SCATTER = {
   tractor:     2,
 };
 
+// Bright pink cube fallback so props are STILL VISIBLE even if a GLB fails
+// to load or is missing. Bryan should never see nothing.
+function makeFallback(id) {
+  const g = new THREE.Group();
+  const box = new THREE.Mesh(
+    new THREE.BoxGeometry(0.8, 1.4, 0.8),
+    new THREE.MeshLambertMaterial({ color: 0xff44dd, flatShading: true }),
+  );
+  box.position.y = 0.7;
+  g.add(box);
+  g.userData.propId = id;
+  g.userData.fallback = true;
+  return g;
+}
+
 // Cache GLBs so N instances share geometry/material.
 const _cache = new Map();
 async function loadProp(id) {
   if (_cache.has(id)) return _cache.get(id);
   const url = GLB_BASE + id + '.glb';
   const p = new Promise((resolve) => {
-    _loader.load(url, (gltf) => resolve(gltf.scene), undefined, () => resolve(null));
+    _loader.load(url,
+      (gltf) => resolve(gltf.scene),
+      undefined,
+      (err) => {
+        console.warn(`[mapProps] failed to load ${url}, using fallback`, err?.message || err);
+        resolve(makeFallback(id));
+      },
+    );
   });
   _cache.set(id, p);
   return p;
@@ -53,14 +75,17 @@ export async function scatterMapProps(scene, world) {
   const group = new THREE.Group();
   group.name = 'mapProps';
   scene.add(group);
+  console.log('[mapProps] scattering props for seed', world.seed);
 
-  const rng = new SeededRng((world.seed ^ 0x51e_e_dpr) >>> 0);
+  // XOR-safe seed derivation (`_` is invalid in a numeric literal).
+  const rng = new SeededRng((world.seed ^ 0x51EED91E) >>> 0);
   const { x: W, z: D } = { x: 64, z: 64 };   // matches WORLD_SIZE
 
   // Load all props once.
   const loaded = {};
   for (const id of Object.keys(SCATTER)) loaded[id] = await loadProp(id);
 
+  let placed = 0;
   for (const [id, count] of Object.entries(SCATTER)) {
     const base = loaded[id];
     if (!base) continue;
@@ -80,9 +105,11 @@ export async function scatterMapProps(scene, world) {
         const s = 0.85 + rng.rangeF(0, 0.35);
         inst.scale.setScalar(s);
         group.add(inst);
+        placed++;
         break;
       }
     }
   }
+  console.log(`[mapProps] placed ${placed} instances across ${Object.keys(SCATTER).length} kinds`);
   return group;
 }

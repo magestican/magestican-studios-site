@@ -36,7 +36,6 @@ export class TouchControls {
     el.innerHTML = `
       <div id="tc-joystick-base"><span id="tc-joystick-hint">DRAG →</span></div>
       <div id="tc-joystick-knob"></div>
-      <div id="tc-debug"></div>
       <div id="tc-buttons">
         <button class="tc-btn tc-weapon" data-w="0" aria-label="Shovel">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M14 3l7 7-3 3-2-2-7 7-3-3 7-7-2-2z" fill="#c99a63" stroke="#402208" stroke-width="1.4" stroke-linejoin="round"/><circle cx="6" cy="18" r="2.2" fill="#6b3d16"/></svg>

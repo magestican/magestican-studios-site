@@ -7,7 +7,9 @@
 export function hasLineOfSight(grid, from, to, opts = {}) {
   const step = opts.stepSize ?? 0.5;
   const skipHay = opts.skipHay ?? true;   // hay is see-through-shootable
+  const skipGlass = opts.skipGlass ?? true; // glass roofs — visible through, but block bodies
   const HAY = 10;
+  const GLASS = 12;
   const dx = to.x - from.x, dy = to.y - from.y, dz = to.z - from.z;
   const dist = Math.hypot(dx, dy, dz);
   if (dist < 1e-6) return true;
@@ -20,6 +22,7 @@ export function hasLineOfSight(grid, from, to, opts = {}) {
     const cell = grid.get(x | 0, y | 0, z | 0);
     if (cell === 0) continue;                // AIR
     if (skipHay && cell === HAY) continue;   // hay doesn't block sightlines
+    if (skipGlass && cell === GLASS) continue; // glass is see-through for sight/bullets
     return false;
   }
   return true;

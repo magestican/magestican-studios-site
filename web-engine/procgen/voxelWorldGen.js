@@ -138,19 +138,26 @@ function buildBase(grid, ox, oz, baseVox, standVox) {
     grid.set(wallX, 2, z, VOX.AIR);
     grid.set(wallX, 3, z, VOX.AIR);
   }
-  // PITCHED ROOF - stepped voxel triangle running along the long axis.
-  // Only the ridge voxels are placed (thin gable) so inside stays airy.
+  // PITCHED ROOF — WOOD frame (edges) with a translucent GLASS fill inside
+  // the triangle, so the barn is closed to bodies + bullets but you can
+  // still see the sky through it. Bryan 2026-08-20: "close up the barns
+  // by creating some glass voxel models". See docs/features/barn-glass-roofs.md.
   const midX = ox + Math.floor(BASE_SIZE.x / 2);
   const halfWidth = Math.floor(BASE_SIZE.x / 2);
   for (let z = oz; z < oz + BASE_SIZE.z; z++) {
-    // Two symmetric roof edges rising toward the ridge.
     for (let step = 0; step < halfWidth; step++) {
       const y = 4 + step;
-      if (y > 6) break;   // cap at y=6 so we don't get silly-tall barns
+      if (y > 6) break;
+      // Frame edges (wood).
       grid.set(midX - halfWidth + step, y, z, VOX.WOOD);
       grid.set(midX + halfWidth - step, y, z, VOX.WOOD);
+      // Fill everything BETWEEN the two frame edges at this row with glass
+      // (leaves the wood edges as visible rafters).
+      for (let fx = midX - halfWidth + step + 1; fx <= midX + halfWidth - step - 1; fx++) {
+        grid.set(fx, y, z, VOX.GLASS);
+      }
     }
-    // Ridge
+    // Ridge wood beam at the top.
     grid.set(midX, 4 + halfWidth, z, VOX.WOOD);
   }
   // Small flag stand (1 tall).

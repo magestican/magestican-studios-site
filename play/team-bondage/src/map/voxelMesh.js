@@ -79,6 +79,16 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
       materialOpts.side = THREE.DoubleSide;
       materialOpts.emissive = new THREE.Color(0x5a4a15);
     }
+    // Glass: see-through panels used to close up barn roofs. Solid for
+    // collision (bots + players can't fly out), transparent for vision.
+    // See docs/features/barn-glass-roofs.md.
+    if (v === VOX.GLASS) {
+      materialOpts.transparent = true;
+      materialOpts.opacity = 0.30;
+      materialOpts.side = THREE.DoubleSide;
+      // Slight emissive so glass reads even in shadow.
+      materialOpts.emissive = new THREE.Color(0x203040);
+    }
     const material = new THREE.MeshLambertMaterial(materialOpts);
     materialsByType[v] = material;
     const inst = new THREE.InstancedMesh(CUBE_GEO, material, cells.length);

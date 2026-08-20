@@ -28,10 +28,11 @@ export class WeaponSystem {
 
   update(dt) {
     if (this.cooldown > 0) this.cooldown -= dt;
-    // Advance projectiles (gravity + drag).
+    // Advance projectiles — STRAIGHT-LINE flight, no gravity, so bullets
+    // don't curve down. Bryan 2026-08-20: "I already asked for bullets to
+    // go on a straight trajectory and not curve".
     for (const p of this.projectiles) {
       p.age += dt;
-      p.vel.y -= 9.8 * dt;
       p.pos.addScaledVector(p.vel, dt);
       p.mesh.position.copy(p.pos);
     }

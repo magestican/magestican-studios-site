@@ -136,36 +136,47 @@ export function whoosh() {
 // Gore-mode joke SFX: a wet, descending fart. Played on every player
 // weapon fire when GORE mode is on. Kept short (~180ms) so it doesn't
 // step on the pew/splat/boom chain.
+// LOUD fart. Bryan complained he couldn't hear it, so this is boosted:
+// longer duration (~300ms), higher gain, wet plosion at the front AND end.
 export function fart(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
-  // Descending buzzy sawtooth "brrrrrpt"
+  // Descending buzzy sawtooth "brrrrrpt" — 300ms so it's clearly audible.
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
   osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(180, t);
-  osc.frequency.exponentialRampToValueAtTime(70, t + 0.18);
-  // LFO wobble to make it splutter.
+  osc.frequency.setValueAtTime(220, t);
+  osc.frequency.exponentialRampToValueAtTime(55, t + 0.30);
+  // Deep splutter LFO.
   const lfo = ctx.createOscillator();
   const lfoGain = ctx.createGain();
-  lfo.type = 'square'; lfo.frequency.value = 26;
-  lfoGain.gain.value = 40;
+  lfo.type = 'square'; lfo.frequency.value = 22;
+  lfoGain.gain.value = 60;
   lfo.connect(lfoGain).connect(osc.frequency);
-  lfo.start(t); lfo.stop(t + 0.22);
+  lfo.start(t); lfo.stop(t + 0.35);
   g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(0.22 * loudness, t + 0.02);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+  g.gain.linearRampToValueAtTime(0.55 * loudness, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
   osc.connect(g).connect(_master);
-  osc.start(t); osc.stop(t + 0.22);
-  // Wet noise plosion at the end.
-  const noise = whiteNoise(ctx, 0.08);
-  const nFilt = ctx.createBiquadFilter();
-  nFilt.type = 'bandpass'; nFilt.frequency.value = 220; nFilt.Q.value = 4;
-  const nG = ctx.createGain();
-  nG.gain.setValueAtTime(0.14 * loudness, t + 0.12);
-  nG.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
-  noise.connect(nFilt).connect(nG).connect(_master);
-  noise.start(t + 0.12); noise.stop(t + 0.22);
+  osc.start(t); osc.stop(t + 0.35);
+  // Front-end wet plosion so the fart CUTS THROUGH the pew.
+  const n1 = whiteNoise(ctx, 0.06);
+  const f1 = ctx.createBiquadFilter();
+  f1.type = 'bandpass'; f1.frequency.value = 260; f1.Q.value = 3.5;
+  const gn1 = ctx.createGain();
+  gn1.gain.setValueAtTime(0.35 * loudness, t);
+  gn1.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  n1.connect(f1).connect(gn1).connect(_master);
+  n1.start(t); n1.stop(t + 0.08);
+  // Trailing wet plosion at the end.
+  const n2 = whiteNoise(ctx, 0.10);
+  const f2 = ctx.createBiquadFilter();
+  f2.type = 'bandpass'; f2.frequency.value = 180; f2.Q.value = 4;
+  const gn2 = ctx.createGain();
+  gn2.gain.setValueAtTime(0.30 * loudness, t + 0.20);
+  gn2.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+  n2.connect(f2).connect(gn2).connect(_master);
+  n2.start(t + 0.20); n2.stop(t + 0.32);
 }
 
 export function snorkel() {

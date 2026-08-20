@@ -36,21 +36,12 @@ export function buildSkybox() {
     tex.needsUpdate = true;
   }, 1000 / ANIMATE_FPS);
 
-  // Try to hot-swap in the Blender-rendered PNG.
-  const loader = new THREE.TextureLoader();
-  loader.load(RENDERED_PNG, (loaded) => {
-    loaded.mapping = THREE.EquirectangularReflectionMapping;
-    loaded.colorSpace = THREE.SRGBColorSpace ?? loaded.colorSpace;
-    // Stop the canvas animation - we've got a real render now.
-    clearInterval(interval);
-    // Overwrite the returned texture reference's fields so consumers who
-    // stored `scene.background = tex` see the new pixels without needing
-    // us to reassign. Simplest: dispose canvas + replace image + flip needsUpdate.
-    tex.image = loaded.image;
-    tex.needsUpdate = true;
-  }, undefined, () => {
-    // 404 or parse error - keep the canvas fallback going. No console noise.
-  });
+  // The Blender-rendered PNG hot-swap was disabled 2026-08-20 — Bryan
+  // said "the skybox still isn't fitting". The canvas-painted equirect
+  // sky is now the authoritative background: it's designed for the
+  // projection, matches the game palette, and has the animated brawl.
+  // Leaving the RENDERED_PNG constant as a reference for future re-enable.
+  void RENDERED_PNG;
 
   return tex;
 }
