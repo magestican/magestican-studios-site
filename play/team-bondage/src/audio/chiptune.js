@@ -129,22 +129,41 @@ export class Chiptune {
     this.started = false;
   }
 
+  // RETRY-ABLE start (2026-08-21). The old version latched `started=true`
+  // on the FIRST gesture, then awaited the offline render — by the time the
+  // WAV was ready the user-activation had expired, `a.play()` rejected, and
+  // the Web Audio fallback context was ALSO created without a live gesture
+  // (suspended forever). `isPlaying` then returned true, so every later tap
+  // bailed out early → permanent silence. Now every gesture retries until
+  // audio is CONFIRMED running.
   async start() {
-    if (this.started) return;
-    this.started = true;
-    const url = await this._renderPromise;
-    if (url) {
+    // 1. A suspended fallback ctx just needs this gesture to resume.
+    if (this._fallbackCtx && this._fallbackCtx.state === 'suspended') {
+      try { await this._fallbackCtx.resume(); } catch (_) {}
+      if (this._fallbackCtx.state === 'running') return;
+    }
+    if (this.isPlaying) return;
+    // 2. A previously-refused HTMLAudio can be retried synchronously now
+    //    that we have a fresh gesture + the URL is ready.
+    if (this._audio) {
+      try { await this._audio.play(); return; } catch (_) {}
+    }
+    // 3. First successful path: build the <audio> once the WAV exists.
+    //    NOTE: if the render hasn't finished, this await eats the gesture —
+    //    that's fine now, because the NEXT tap lands in branch 2 above.
+    const url = this._url || await this._renderPromise;
+    if (url && !this._audio) {
       const a = new Audio(url);
       a.loop = true;
       a.setAttribute('playsinline', '');
       a.volume = this.muted ? 0 : 0.35;
       this._audio = a;
       try { await a.play(); return; } catch (err) {
-        console.warn('HTMLAudio play refused:', err);
+        console.warn('HTMLAudio play refused (will retry on next tap):', err);
+        return;   // keep this._audio for the branch-2 retry; do NOT latch
       }
     }
-    // Fallback: Web Audio scheduling.
-    this._startFallback();
+    if (!url && !this._fallbackCtx) this._startFallback();
   }
 
   _startFallback() {
@@ -250,10 +269,14 @@ export class Chiptune {
 
   toggleMuted() { this.setMuted(!this.muted); return this.muted; }
 
-  // Public status used by "Tap to enable sound" UI in game.js.
+  // Public status used by "Tap to enable sound" UI in game.js. Must only
+  // report true for audio that is AUDIBLY running — a suspended fallback
+  // context is not playing, whatever its scheduler thinks.
   get isPlaying() {
-    if (this._audio) return !this._audio.paused;
-    return this._fallbackPlaying;
+    if (this._audio && !this._audio.paused) return true;
+    return this._fallbackPlaying
+      && !!this._fallbackCtx
+      && this._fallbackCtx.state === 'running';
   }
 }
 

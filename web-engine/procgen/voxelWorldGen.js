@@ -102,55 +102,61 @@ export function generateWorld(seed) {
   // Spawn point per team = 2 tiles offset from the flag stand (which is at
   // base centre and is a SOLID voxel - spawning on top of it made the player
   // instantly clip and be unable to move on any axis).
+  // Barn floors are at ground level since 2026-08-21, so spawn + flag
+  // heights dropped one voxel with them (floor top is y=1 everywhere now).
   const spawns = {
-    red:  { x: redBase.x  + 2, y: 2, z: redBase.z  + Math.floor(BASE_SIZE.z / 2) },
-    blue: { x: blueBase.x + BASE_SIZE.x - 3, y: 2, z: blueBase.z + Math.floor(BASE_SIZE.z / 2) },
+    red:  { x: redBase.x  + 2, y: 1, z: redBase.z  + Math.floor(BASE_SIZE.z / 2) },
+    blue: { x: blueBase.x + BASE_SIZE.x - 3, y: 1, z: blueBase.z + Math.floor(BASE_SIZE.z / 2) },
   };
 
   const flags = {
-    red:  { x: redBase.x  + BASE_SIZE.x / 2, y: 2, z: redBase.z  + BASE_SIZE.z / 2 },
-    blue: { x: blueBase.x + BASE_SIZE.x / 2, y: 2, z: blueBase.z + BASE_SIZE.z / 2 },
+    red:  { x: redBase.x  + BASE_SIZE.x / 2, y: 1, z: redBase.z  + BASE_SIZE.z / 2 },
+    blue: { x: blueBase.x + BASE_SIZE.x / 2, y: 1, z: blueBase.z + BASE_SIZE.z / 2 },
   };
 
   return { seed, grid, spawns, flags, redBase, blueBase, hillSpawn, hayStacks };
 }
 
 function buildBase(grid, ox, oz, baseVox, standVox) {
-  // Barn floor (red/blue plank floor).
-  grid.fillBox(ox, 1, oz, ox + BASE_SIZE.x - 1, 1, oz + BASE_SIZE.z - 1, baseVox);
-  // Full-height painted-wood walls (y=2 through y=3). Doorway on inward side.
+  // Barn floor AT GROUND LEVEL (2026-08-21): the painted plank floor
+  // REPLACES the y=0 ground voxel instead of stacking on top of it. The
+  // old raised floor (y=1) made a 1.0 m step at the doorway that autostep
+  // handled inconsistently — Bryan: "I still can't auto climb". Now the
+  // barn threshold is dead flat with the outside snow; entering is just
+  // walking. Walls grow one voxel taller (y=1..3) to keep interior height.
+  grid.fillBox(ox, 0, oz, ox + BASE_SIZE.x - 1, 0, oz + BASE_SIZE.z - 1, baseVox);
+  // Full-height painted-wood walls (y=1 through y=3). Doorway on inward side.
   for (let x = ox; x < ox + BASE_SIZE.x; x++) {
-    for (let y = 2; y <= 3; y++) {
+    for (let y = 1; y <= 3; y++) {
       grid.set(x, y, oz, baseVox);
       grid.set(x, y, oz + BASE_SIZE.z - 1, baseVox);
     }
   }
   for (let z = oz; z < oz + BASE_SIZE.z; z++) {
-    for (let y = 2; y <= 3; y++) {
+    for (let y = 1; y <= 3; y++) {
       grid.set(ox, y, z, baseVox);
       grid.set(ox + BASE_SIZE.x - 1, y, z, baseVox);
     }
   }
-  // Big barn doorway on the inward side - 3 wide x 2 tall, with a WOOD
-  // frame (jamb posts either side + lintel above) so it reads as a real
-  // barn entrance instead of a hole punched in a painted box.
+  // Big barn doorway on the inward side - 3 wide x 2 tall AT GROUND LEVEL,
+  // with a WOOD frame (jamb posts either side + lintel above).
   const midZ = oz + Math.floor(BASE_SIZE.z / 2);
   const wallX = (ox < 10) ? ox + BASE_SIZE.x - 1 : ox;
   for (let z = midZ - 1; z <= midZ + 1; z++) {
+    grid.set(wallX, 1, z, VOX.AIR);
     grid.set(wallX, 2, z, VOX.AIR);
-    grid.set(wallX, 3, z, VOX.AIR);
   }
   for (const jz of [midZ - 2, midZ + 2]) {          // jamb posts
+    grid.set(wallX, 1, jz, VOX.WOOD);
     grid.set(wallX, 2, jz, VOX.WOOD);
-    grid.set(wallX, 3, jz, VOX.WOOD);
   }
   for (let z = midZ - 2; z <= midZ + 2; z++) {       // lintel beam
-    grid.set(wallX, 4, z, VOX.WOOD);
+    grid.set(wallX, 3, z, VOX.WOOD);
   }
 
-  // WOOD corner posts on all four corners (y=2..3) — breaks up the flat
+  // WOOD corner posts on all four corners (y=1..3) — breaks up the flat
   // painted walls and frames the silhouette (GRAPHICS_QUALITY_LOOP item 2).
-  for (let y = 2; y <= 3; y++) {
+  for (let y = 1; y <= 3; y++) {
     grid.set(ox, y, oz, VOX.WOOD);
     grid.set(ox + BASE_SIZE.x - 1, y, oz, VOX.WOOD);
     grid.set(ox, y, oz + BASE_SIZE.z - 1, VOX.WOOD);
@@ -188,7 +194,7 @@ function buildBase(grid, ox, oz, baseVox, standVox) {
   // Small flag stand (1 tall).
   const cx = ox + Math.floor(BASE_SIZE.x / 2);
   const cz = oz + Math.floor(BASE_SIZE.z / 2);
-  grid.set(cx, 2, cz, standVox);
+  grid.set(cx, 1, cz, standVox);   // sits on the (now ground-level) floor
 }
 
 function insideBase(x, z, base) {

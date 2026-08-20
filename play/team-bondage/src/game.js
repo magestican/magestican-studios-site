@@ -1540,7 +1540,7 @@ export class Game {
           setTimeout(() => bot.respawn(), 500);
         }
       } else if (victimId === this.myId) {
-        this._takeDamage(2, byId, 'steak');
+        this._takeDamage(3, byId, 'steak');
         if (this.player.hp <= 0) {
           this._broadcast({ t: MSG.STEAK_DEATH, victim: victimId, killer: byId });
           this._announceSteakAnnihilation(victimId, byId);

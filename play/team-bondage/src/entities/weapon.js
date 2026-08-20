@@ -18,9 +18,12 @@ export const WEAPON_DEFS = [
   // Design pass 2026-08-21: shotgun kept 8 dmg/pellet per Bryan's ask, but
   // pellets trimmed 7 → 5. At point-blank a full connect is 40 (2.5 shots
   // to kill), not 56 (near-instant delete). Full TTK table: docs/GAME_DESIGN.md.
-  { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 8,  pellets: 1, spread: 0.003, kind: 'hitscan', projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
-  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 8,  pellets: 5, spread: 0.10,  kind: 'hitscan', tracerColor: 0xf4c95d },
-  { id: 'rocket',  name: 'Rocket',   cooldown: 1.10, damage: 60, splash: 30, splashRadius: 3.0, projectileSpeed: 20, kind: 'projectile' },
+  // Bryan 2026-08-21: +50% damage across the board. 8→12, 60→90, 30→45.
+  // The shotgun's full 5-pellet connect is now 60 — still not a one-shot, so
+  // the "only the chicken may one-shot" rule in GAME_DESIGN.md holds.
+  { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 12, pellets: 1, spread: 0.003, kind: 'hitscan', projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
+  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 12, pellets: 5, spread: 0.10,  kind: 'hitscan', tracerColor: 0xf4c95d },
+  { id: 'rocket',  name: 'Rocket',   cooldown: 1.10, damage: 90, splash: 45, splashRadius: 3.0, projectileSpeed: 20, kind: 'projectile' },
 ];
 
 export class WeaponSystem {
