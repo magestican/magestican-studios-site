@@ -24,6 +24,7 @@ import { TracerSystem }       from './entities/tracer.js';
 import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
 import { createPhysicsWorld } from 'arbelo/physics';
 import { SnowSystem }         from './entities/snow.js';
+import { ChickenPickup }      from './entities/chickenPickup.js';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -324,6 +325,16 @@ export class Game {
     this.scene.add(this.camera);
     this.viewmodel = new FirstPersonWeapon(this.camera);
     this.hazards = new HazardSystem(this.scene, this.grid);
+    // Chicken slingshot pickup on the centre hill (host-authoritative).
+    this.chickenPickup = new ChickenPickup(this.scene, this.world.hillSpawn, {
+      onPickup: (peerId) => {
+        // Host: broadcast the pickup + give the pickup to whoever it was.
+        this._broadcast({ t: MSG.CHICKEN_PICK, by: peerId, respawnAt: Date.now() + 30000 });
+        this._grantChicken(peerId);
+      },
+    });
+    // Local per-player "have a chicken shot ready" flag.
+    this.chickenAmmo = 0;
     this._hazardRngHost = this.isHost ? new SeededRng((this.seed ^ 0x51a9a7d1) >>> 0) : null;
     this._nextHazardAt = performance.now() + 4000;   // first wave 4s after boot
   }
@@ -655,6 +666,27 @@ export class Game {
     setTimeout(() => el.classList.remove('visible'), 130);
   }
 
+  // Return a list of {peerId, pos} for every player + bot on this client.
+  _allPlayerRefs() {
+    const arr = [{ peerId: this.myId, pos: this.player.pos }];
+    for (const [pid, rp] of this.remotePlayers.entries()) {
+      arr.push({ peerId: pid, pos: rp.group.position });
+    }
+    for (const bot of this.bots.values()) {
+      arr.push({ peerId: bot.peerId, pos: bot.pos });
+    }
+    return arr;
+  }
+
+  // Grant a chicken shot to a peer. If it's us, show the slot 4 button.
+  _grantChicken(peerId) {
+    if (peerId === this.myId) {
+      this.chickenAmmo = 1;
+      const slot = document.querySelector('.wpn.chicken');
+      if (slot) slot.style.display = '';
+    }
+  }
+
   // Rotate the compass arrows so they always point at each team's flag from
   // the player's current position + heading.
   _paintCompass() {
@@ -833,7 +865,26 @@ export class Game {
         break;
 
       case MSG.HAZARD_SPAWN:
-        if (this.hazards) for (const item of msg.items) this.hazards.spawn(item);
+        if (this.hazards) {
+          for (const item of msg.items) this.hazards.spawn(item);
+          SFX.whoosh();
+        }
+        break;
+
+      case MSG.CHICKEN_PICK:
+        // Any peer receiving this hides the pickup + starts the respawn timer.
+        if (this.chickenPickup) {
+          this.chickenPickup.available = false;
+          this.chickenPickup.mesh.visible = false;
+          this.chickenPickup._nextSpawnAt = msg.respawnAt - Date.now() + performance.now();
+        }
+        this._grantChicken(msg.by);
+        break;
+
+      case MSG.CHICKEN_SHOT:
+        // Visual only: a chicken projectile flying + explosion at first collision.
+        // Damage is host-authoritative (see _resolveChickenShot).
+        this._spawnChickenProjectile(msg);
         break;
 
       case MSG.STATE: {
@@ -976,10 +1027,11 @@ export class Game {
       return;
     }
 
-    // Weapon switch
+    // Weapon switch (1-3 normal, 4 super chicken if you've picked one up)
     if (this.input.wasPressed('weapon1')) this._switchWeapon(0);
     if (this.input.wasPressed('weapon2')) this._switchWeapon(1);
     if (this.input.wasPressed('weapon3')) this._switchWeapon(2);
+    if (this.chickenAmmo > 0 && this.input.wasPressed('weapon4' /* unbound, use touch */)) this._switchWeapon(3);
 
     // Fire - on desktop require pointer-lock to avoid firing while the user
     // is interacting with menu/HUD; on touch, the FIRE button drives it.
@@ -991,10 +1043,16 @@ export class Game {
       this._tryFire();
     }
 
-    // Age out tracers + animate viewmodel + snowfall.
+    // Age out tracers + animate viewmodel + snowfall + chicken pickup.
     this.tracers.update(dt, performance.now() / 1000);
     this.viewmodel?.update(dt);
     this.snow?.update(dt);
+    // Chicken pickup: host authority. Assemble candidate positions from
+    // local + bots + remote players (remote pos comes from RemotePlayer group).
+    if (this.chickenPickup) {
+      const hostPlayers = this.isHost ? this._allPlayerRefs() : null;
+      this.chickenPickup.update(dt, hostPlayers);
+    }
     this._paintCompass();
 
     // Movement + physics (guarded on physics-loaded)
@@ -1015,6 +1073,7 @@ export class Game {
       const items = makeHostSchedule(WORLD_SIZE, this._hazardRngHost, nowMs);
       for (const item of items) this.hazards.spawn(item);
       this._broadcast({ t: MSG.HAZARD_SPAWN, items });
+      SFX.whoosh();
       // Reschedule 3-6 seconds later.
       this._nextHazardAt = nowMs + this._hazardRngHost.rangeI(3000, 6000);
     }
@@ -1079,6 +1138,20 @@ export class Game {
     const dir = new THREE.Vector3();
     this.camera.getWorldDirection(dir);
     const origin = this.camera.position.clone();
+    // Chicken shot short-circuits the weapon system: fire one super shot,
+    // consume the chicken ammo, hide the slot chip.
+    if (this.weapons.slot === 3 && this.chickenAmmo > 0) {
+      this.chickenAmmo = 0;
+      const slot = document.querySelector('.wpn.chicken');
+      if (slot) slot.style.display = 'none';
+      this._switchWeapon(0);
+      const msg = { t: MSG.CHICKEN_SHOT, origin: origin.toArray(), dir: dir.toArray(), by: this.myId };
+      this._broadcast(msg);
+      this._spawnChickenProjectile(msg);
+      if (this.isHost) this._resolveChickenShot(msg);
+      SFX.snorkel();
+      return;
+    }
     const shots = this.weapons.tryFire(origin, dir, this.rngShots, this.myId);
     if (shots.length > 0) { SFX.pew(); this.viewmodel?.kick(); }
     for (const s of shots) {
@@ -1089,6 +1162,55 @@ export class Game {
         this._addTracerForShot(s);
         this.weapons.spawnMuzzleFx(s);
       }
+    }
+  }
+
+  // Visual: a small white voxel chicken flying from origin along dir until it
+  // hits SOMETHING (a player or 40m max), then a POW explosion.
+  _spawnChickenProjectile(msg) {
+    const origin = new THREE.Vector3().fromArray(msg.origin);
+    const dir = new THREE.Vector3().fromArray(msg.dir);
+    // Reuse weapon projectile system for the mesh + physics-lite fall.
+    const shot = {
+      kind: 'projectile', color: 0xffffff,
+      origin: origin.clone().addScaledVector(dir, 0.7).toArray(),
+      vel: dir.clone().multiplyScalar(28).toArray(),
+      damage: 100,
+    };
+    this.weapons.spawnProjectileMesh(shot);
+  }
+
+  // Host: find the closest player to where the chicken lands, insta-kill.
+  _resolveChickenShot(msg) {
+    if (!this.isHost) return;
+    const origin = new THREE.Vector3().fromArray(msg.origin);
+    const dir = new THREE.Vector3().fromArray(msg.dir);
+    // Simple raycast up to 40m with 0.5m step, check for player within 3m of ray endpoint.
+    let landing = null;
+    for (let t = 0.5; t < 40; t += 0.5) {
+      const p = origin.clone().addScaledVector(dir, t);
+      if (this.grid.isSolid(p.x, p.y, p.z)) { landing = p; break; }
+    }
+    if (!landing) landing = origin.clone().addScaledVector(dir, 40);
+    // Closest player within 4m of landing.
+    let victim = null, best = 4.0;
+    for (const p of this._allPlayerRefs()) {
+      if (p.peerId === msg.by) continue;   // don't blow up yourself
+      const d = p.pos.distanceTo(landing);
+      if (d < best) { best = d; victim = p; }
+    }
+    if (victim) {
+      const bot = this.bots.get(victim.peerId);
+      if (bot) {
+        bot.takeDamage(100);
+        this._broadcast({ t: MSG.DEATH, victim: victim.peerId, killer: msg.by, weapon: 'chicken' });
+        setTimeout(() => bot.respawn(), 500);
+      } else if (victim.peerId === this.myId) {
+        this._takeDamage(100, msg.by, 'chicken');
+      } else {
+        this._broadcast({ t: MSG.HIT, target: victim.peerId, dmg: 100, by: msg.by, weapon: 'chicken' });
+      }
+      this._killFeedPush(`${this._name(msg.by)} obliterated ${this._name(victim.peerId)} with a chicken!`);
     }
   }
 

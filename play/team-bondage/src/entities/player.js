@@ -65,18 +65,12 @@ export class Player {
   }
 
   addMouseLook(dx, dy, sensitivity = 0.002) {
-    // Standard FPS: dragging RIGHT turns the view RIGHT.
-    // With camera dir = (sin yaw, 0, cos yaw), "turn right" means the new
-    // forward vector is slightly clockwise (looking from above), which in
-    // THIS yaw convention is yaw DECREASING (because at yaw=0 looking +Z,
-    // yaw=-0.02 gives dir (-0.02, 0, ~1) i.e. slightly toward -X = west =
-    // wait no, that's left. Sigh - covered by unit tests: see
-    // web-engine/input/movementMath.test.js which locks the convention.
-    // Empirically the convention that makes drag-right feel right on-screen
-    // when you're staring down +Z is: `yaw += dx * sensitivity` (because
-    // Three.js's lookAt-to-+Z has flipped the local X axis, and my rotation
-    // formula compensates accordingly).
-    this.yaw   += dx * sensitivity;
+    // Empirical convention (Bryan on iOS Safari, 2026-08-20):
+    //   drag RIGHT -> view rotates RIGHT (world -X comes into view when
+    //     starting from looking +Z), which under my yaw formula
+    //     dir = (sin yaw, 0, cos yaw) means yaw DECREASES.
+    //   drag DOWN -> look DOWN (pitch decreases).
+    this.yaw   -= dx * sensitivity;
     this.pitch -= dy * sensitivity;
     const lim = Math.PI / 2 - 0.05;
     if (this.pitch >  lim) this.pitch =  lim;

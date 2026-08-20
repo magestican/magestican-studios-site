@@ -37,10 +37,16 @@ export function cameraHorizontalAxes(camera, THREE) {
   forward.y = 0;
   if (forward.lengthSq() < 1e-6) forward.set(0, 0, 1);  // fallback if looking straight up/down
   forward.normalize();
-  // right = up x forward.
-  //   For up = (0,1,0) and forward = (0,0,1): right = (1,0,0) - screen right +X. ✓
-  //   For up = (0,1,0) and forward = (1,0,0): right = (0,0,-1) - screen right -Z. ✓
+  // right = forward x up.
+  // THREE.js's Matrix4.makeLookAt computes camera's local +X axis as
+  // (up x -viewDir), i.e. the camera's local right in world coords ends up
+  // as -(up x forward) = forward x up. Matching that convention here means
+  // pressing D moves the player in the direction that visually LOOKS like
+  // screen-right on the rendered image, which is what a user expects.
+  //
+  // Empirically verified 2026-08-20 by Bryan: "pressing forward takes me
+  // to the right" was the symptom of using the OTHER cross-product order.
   // Locked in by movementMath.test.js.
-  const right = new THREE.Vector3().crossVectors(camera.up, forward).normalize();
+  const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
   return { forward, right };
 }

@@ -104,6 +104,35 @@ export function chirp() {
   }
 }
 
+// Long descending whoosh for falling hazards ("WOOOOSHHH").
+export function whoosh() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  // Descending sine + noise band that opens up.
+  const osc = ctx.createOscillator();
+  const oscGain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(880, t);
+  osc.frequency.exponentialRampToValueAtTime(140, t + 1.8);
+  oscGain.gain.setValueAtTime(0, t);
+  oscGain.gain.linearRampToValueAtTime(0.10, t + 0.2);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, t + 1.8);
+  osc.connect(oscGain).connect(_master);
+  osc.start(t); osc.stop(t + 1.9);
+  // Noise bed
+  const noise = whiteNoise(ctx, 1.9);
+  const filt = ctx.createBiquadFilter();
+  filt.type = 'bandpass'; filt.frequency.setValueAtTime(1800, t);
+  filt.frequency.exponentialRampToValueAtTime(300, t + 1.8);
+  filt.Q.value = 2;
+  const nGain = ctx.createGain();
+  nGain.gain.setValueAtTime(0, t);
+  nGain.gain.linearRampToValueAtTime(0.14, t + 0.2);
+  nGain.gain.exponentialRampToValueAtTime(0.001, t + 1.8);
+  noise.connect(filt).connect(nGain).connect(_master);
+  noise.start(t); noise.stop(t + 1.9);
+}
+
 export function snorkel() {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;

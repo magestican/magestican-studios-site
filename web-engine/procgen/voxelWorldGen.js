@@ -116,31 +116,44 @@ export function generateWorld(seed) {
 }
 
 function buildBase(grid, ox, oz, baseVox, standVox) {
-  // Floor
+  // Barn floor (dirt-coloured planks - baseVox is red or blue).
   grid.fillBox(ox, 1, oz, ox + BASE_SIZE.x - 1, 1, oz + BASE_SIZE.z - 1, baseVox);
-  // Perimeter walls (3 high) with a gap on the inward side.
+  // Half-height perimeter walls (just y=2, only 1 voxel tall) so the player
+  // can see over them and the base doesn't feel claustrophobic.
   for (let x = ox; x < ox + BASE_SIZE.x; x++) {
-    grid.fillBox(x, 2, oz,                   x, 3, oz,                   baseVox);
-    grid.fillBox(x, 2, oz + BASE_SIZE.z - 1, x, 3, oz + BASE_SIZE.z - 1, baseVox);
+    grid.set(x, 2, oz, baseVox);
+    grid.set(x, 2, oz + BASE_SIZE.z - 1, baseVox);
   }
   for (let z = oz; z < oz + BASE_SIZE.z; z++) {
-    grid.fillBox(ox,                   2, z, ox,                   3, z, baseVox);
-    grid.fillBox(ox + BASE_SIZE.x - 1, 2, z, ox + BASE_SIZE.x - 1, 3, z, baseVox);
+    grid.set(ox, 2, z, baseVox);
+    grid.set(ox + BASE_SIZE.x - 1, 2, z, baseVox);
   }
-  // Cut a doorway on the inward side (large opening in the wall).
+  // Doorway on the inward side.
   const midZ = oz + Math.floor(BASE_SIZE.z / 2);
+  const wallX = (ox < 10) ? ox + BASE_SIZE.x - 1 : ox;
   for (let z = midZ - 1; z <= midZ + 1; z++) {
-    for (let y = 2; y <= 3; y++) {
-      // Open the wall closest to the map centre.
-      const wallX = (ox < 10) ? ox + BASE_SIZE.x - 1 : ox;
-      grid.set(wallX, y, z, VOX.AIR);
-    }
+    grid.set(wallX, 2, z, VOX.AIR);
   }
-  // Flag stand: a 1x1 pillar (2 high) at base centre.
+  // BARN CORNER POSTS - taller, 3 voxels, at each corner for silhouette.
+  for (const [px, pz] of [
+    [ox,                    oz],
+    [ox + BASE_SIZE.x - 1,  oz],
+    [ox,                    oz + BASE_SIZE.z - 1],
+    [ox + BASE_SIZE.x - 1,  oz + BASE_SIZE.z - 1],
+  ]) {
+    grid.fillBox(px, 3, pz, px, 4, pz, baseVox);
+  }
+  // GABLE RIDGE - single thin row of voxels along centre-line at y=5, so
+  // from outside the barn has a peaked-roof silhouette but from inside
+  // there's still a wide-open sky.
+  const midX = ox + Math.floor(BASE_SIZE.x / 2);
+  for (let z = oz; z < oz + BASE_SIZE.z; z++) {
+    grid.set(midX, 5, z, baseVox);
+  }
+  // Small flag stand (1 tall) so it doesn't block spawn.
   const cx = ox + Math.floor(BASE_SIZE.x / 2);
   const cz = oz + Math.floor(BASE_SIZE.z / 2);
   grid.set(cx, 2, cz, standVox);
-  grid.set(cx, 3, cz, standVox);
 }
 
 function insideBase(x, z, base) {

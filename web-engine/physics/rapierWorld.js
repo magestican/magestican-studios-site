@@ -41,9 +41,11 @@ export async function createPhysicsWorld({ grid }) {
   // Character controller (shared across all characters on this client).
   const characterCtrl = world.createCharacterController(0.02);
   characterCtrl.setUp({ x: 0, y: 1, z: 0 });
-  characterCtrl.enableAutostep(0.35, 0.15, true);       // climb 0.35m ledges
-  characterCtrl.enableSnapToGround(0.30);                // stick to slopes down
+  characterCtrl.enableAutostep(0.9, 0.35, true);         // climb single voxel (1m) ledges without jumping
+  characterCtrl.enableSnapToGround(0.60);                // stick to slopes down
   characterCtrl.setApplyImpulsesToDynamicBodies(true);   // rockets shove crates
+  characterCtrl.setMaxSlopeClimbAngle(60 * Math.PI / 180);
+  characterCtrl.setMinSlopeSlideAngle(70 * Math.PI / 180);
 
   function addCharacter({ position, halfHeight = 0.8, radius = 0.32 }) {
     const bodyDesc = RAPIER.RigidBodyDesc.kinematicPositionBased()

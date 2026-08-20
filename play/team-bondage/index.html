@@ -235,28 +235,36 @@
       padding: 10px 22px; border-radius: 8px; cursor: pointer;
       font: 600 14px inherit;
     }
-    /* Compass ring: shows arrows to both flags. Sits under the score. */
-    #compass { position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
-      width: 130px; height: 40px;
-      background: linear-gradient(180deg, #4a3020 0%, #6a4a2a 55%, #4a3020 100%);
-      border: 2px solid #2a1c12; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center; gap: 12px;
+    /* Big-arrow flag compass. Two labelled arrow-pills below the score,
+       one per team. Each shows: colored flag, arrow rotated toward the
+       flag, distance in metres. Much clearer than the tiny triangles. */
+    #compass { position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 10px;
       pointer-events: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.45);
     }
-    #compass::before, #compass::after {
-      /* wooden plank grain */
-      content: ''; position: absolute; left: 8px; right: 8px; height: 1px;
-      background: rgba(0,0,0,0.25);
+    .compass-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(20, 15, 10, 0.85);
+      border: 2px solid; border-radius: 22px;
+      padding: 4px 12px 4px 10px;
+      font: 700 14px -apple-system, "Segoe UI", sans-serif;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
     }
-    #compass::before { top: 30%; } #compass::after { top: 70%; }
-    .compass-arrow {
-      display: inline-block; width: 0; height: 0; line-height: 0;
-      font-size: 0; z-index: 2;
+    .compass-pill.red  { border-color: #ff7b6a; background: rgba(140, 30, 22, 0.85); }
+    .compass-pill.blue { border-color: #7cb0ff; background: rgba(25, 60, 130, 0.85); }
+    .compass-flag { font-size: 18px; line-height: 1; }
+    .compass-arrow-lg {
+      display: inline-block;
+      width: 24px; height: 24px;
+      background-repeat: no-repeat; background-position: center;
+      background-size: contain;
     }
-    .compass-arrow.red  { border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 16px solid #ff7b6a; }
-    .compass-arrow.blue { border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 16px solid #7cb0ff; }
-    .compass-label { color: #f4c95d; font: 700 11px inherit; z-index: 2; }
+    .compass-arrow-lg.red  { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 L20 20 L12 15 L4 20 Z' fill='%23ff7b6a' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/></svg>"); }
+    .compass-arrow-lg.blue { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 L20 20 L12 15 L4 20 Z' fill='%237cb0ff' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/></svg>"); }
+    .compass-dist { min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+    .compass-flag.pickup { color: #f4c95d; }
     #lobby-banner { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
       text-align: center; background: rgba(6,10,16,0.7); padding: 22px 32px; border-radius: 12px;
       border: 1px solid rgba(244,201,93,0.5); min-width: 240px; display: none;
@@ -265,10 +273,18 @@
     #lobby-banner h2 { font-family: Georgia,serif; font-size: 22px; margin: 0 0 8px; }
     #lobby-banner .count { font-size: 42px; font-weight: 700; color: #f4c95d; font-variant-numeric: tabular-nums; margin: 4px 0; }
     #lobby-banner .hint { font-size: 13px; color: #cbd3e1; }
-    .wpn { padding: 6px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15);
+    .wpn { display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px 6px 8px; background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.15);
       border-radius: 6px; font-size: 14px;
     }
+    .wpn-icon { font-size: 20px; line-height: 1; }
+    .wpn-key { font: 700 12px monospace; color: #f4c95d; padding: 0 4px;
+      border: 1px solid rgba(244,201,93,0.45); border-radius: 3px; }
     .wpn.active { background: #f4c95d; color: #1c1a17; border-color: #f4c95d; }
+    .wpn.active .wpn-key { color: #1c1a17; border-color: #1c1a17; }
+    .wpn.chicken { border-color: #f4c95d; background: rgba(80,60,20,0.85); animation: pulseChicken 1.5s ease-in-out infinite; }
+    @keyframes pulseChicken { 0%,100% { box-shadow: 0 0 0 rgba(244,201,93,0); } 50% { box-shadow: 0 0 12px rgba(244,201,93,0.8); } }
 
     /* Mobile HUD tweaks: HP moves top-left below score, weaponbar hides
        because touch controls provide their own weapon buttons. */
@@ -448,10 +464,21 @@
       <span class="score-blue" id="scoreBlue">0</span>
     </div>
     <div id="compass">
-      <span class="compass-label" id="compassRedDist">-</span>
-      <span class="compass-arrow red" id="compassRed" title="Red flag"></span>
-      <span class="compass-arrow blue" id="compassBlue" title="Blue flag"></span>
-      <span class="compass-label" id="compassBlueDist">-</span>
+      <div class="compass-pill red" id="compassRedPill">
+        <span class="compass-flag">🚩</span>
+        <span class="compass-arrow-lg red" id="compassRed"></span>
+        <span class="compass-dist" id="compassRedDist">--m</span>
+      </div>
+      <div class="compass-pill blue" id="compassBluePill">
+        <span class="compass-flag">🚩</span>
+        <span class="compass-arrow-lg blue" id="compassBlue"></span>
+        <span class="compass-dist" id="compassBlueDist">--m</span>
+      </div>
+      <div class="compass-pill" id="compassPickup" style="display:none; border-color:#f4c95d; background:rgba(80, 60, 20, 0.85);">
+        <span class="compass-flag pickup">🐔</span>
+        <span class="compass-arrow-lg" id="compassChickenArrow" style="background-image:url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 L20 20 L12 15 L4 20 Z' fill='%23f4c95d' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/></svg>&quot;);"></span>
+        <span class="compass-dist" id="compassChickenDist">--m</span>
+      </div>
     </div>
     <div id="flagStatus"></div>
     <div id="kill-feed"></div>
@@ -460,9 +487,10 @@
       &nbsp;&middot;&nbsp; <span id="ammo">&infin;</span>
     </div>
     <div id="weaponbar">
-      <div class="wpn active" data-w="0">1 Shovel</div>
-      <div class="wpn"        data-w="1">2 Shotgun</div>
-      <div class="wpn"        data-w="2">3 Rocket</div>
+      <div class="wpn active" data-w="0"><span class="wpn-icon">💩</span><span class="wpn-key">1</span><span class="wpn-name">Shovel</span></div>
+      <div class="wpn"        data-w="1"><span class="wpn-icon">🎯</span><span class="wpn-key">2</span><span class="wpn-name">Shotgun</span></div>
+      <div class="wpn"        data-w="2"><span class="wpn-icon">🚀</span><span class="wpn-key">3</span><span class="wpn-name">Rocket</span></div>
+      <div class="wpn chicken" data-w="3" style="display:none;"><span class="wpn-icon">🐔</span><span class="wpn-key">4</span><span class="wpn-name">Slingshot</span></div>
     </div>
   </div>
   <!-- Mute button + lobby banner + admin controls live OUTSIDE the
