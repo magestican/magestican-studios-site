@@ -108,11 +108,8 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
   return parent;
 }
 
-// State-machine helper that both the game and the unit tests use so the
-// same rule ("inside a bale => hay ~= invisible") is enforced everywhere.
-export function hayOpacityFor(insideHay) {
-  return insideHay ? 0.04 : 0.72;
-}
+// re-export the standalone state machine so the game keeps its old import.
+export { hayOpacityFor } from '../../../../web-engine/render/hayVisibility.js';
 
 // A voxel is fully occluded if all 6 neighbours are also solid (not AIR).
 function isFullyOccluded(grid, x, y, z) {
