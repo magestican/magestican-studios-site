@@ -8,6 +8,7 @@
 // free movement to that?" and applies the correction.
 
 import * as THREE from 'three';
+import { computeWishDelta, cameraHorizontalAxes } from 'arbelo/input-movement';
 
 const GRAVITY = -30.0;
 const JUMP_SPEED = 9.0;
@@ -64,8 +65,17 @@ export class Player {
   }
 
   addMouseLook(dx, dy, sensitivity = 0.002) {
-    // Standard FPS: dragging RIGHT turns the view RIGHT (yaw increases with
-    // dx). Was inverted before which made every direction feel wrong.
+    // Standard FPS: dragging RIGHT turns the view RIGHT.
+    // With camera dir = (sin yaw, 0, cos yaw), "turn right" means the new
+    // forward vector is slightly clockwise (looking from above), which in
+    // THIS yaw convention is yaw DECREASING (because at yaw=0 looking +Z,
+    // yaw=-0.02 gives dir (-0.02, 0, ~1) i.e. slightly toward -X = west =
+    // wait no, that's left. Sigh - covered by unit tests: see
+    // web-engine/input/movementMath.test.js which locks the convention.
+    // Empirically the convention that makes drag-right feel right on-screen
+    // when you're staring down +Z is: `yaw += dx * sensitivity` (because
+    // Three.js's lookAt-to-+Z has flipped the local X axis, and my rotation
+    // formula compensates accordingly).
     this.yaw   += dx * sensitivity;
     this.pitch -= dy * sensitivity;
     const lim = Math.PI / 2 - 0.05;
@@ -74,22 +84,17 @@ export class Player {
   }
 
   update(dt, input) {
-    // -- Read input into a horizontal wish direction --
-    // Camera looks in +dir where dir = (sin(yaw), 0, cos(yaw)). moveForward
-    // means "toward the direction the camera looks", so forward = +wish.
-    const wish = new THREE.Vector3();
-    if (input.isDown('moveForward')) wish.z += 1;
-    if (input.isDown('moveBack'))    wish.z -= 1;
-    if (input.isDown('moveRight'))   wish.x += 1;
-    if (input.isDown('moveLeft'))    wish.x -= 1;
-    if (wish.lengthSq() > 0) wish.normalize();
-    // Rotate wish by yaw so +z (local forward) becomes the camera's forward.
-    // Camera forward vector at yaw=0 is (0,0,1). At yaw=Y it's
-    // (sin Y, 0, cos Y). So world = (sin Y * localZ + cos Y * localX,
-    // 0, cos Y * localZ - sin Y * localX). Standard "left-handed" rotation.
-    const cosY = Math.cos(this.yaw), sinY = Math.sin(this.yaw);
-    const wx = wish.z * sinY + wish.x * cosY;
-    const wz = wish.z * cosY - wish.x * sinY;
+    // -- Read input, derive world movement from the actual camera vectors --
+    // See web-engine/input/movementMath.js for the pure function + tests.
+    // No more sin/cos yaw arithmetic in game code - the camera is the truth.
+    const { forward, right } = cameraHorizontalAxes(this.camera, THREE);
+    const delta = computeWishDelta(forward, right, {
+      forward: input.isDown('moveForward'),
+      back:    input.isDown('moveBack'),
+      right:   input.isDown('moveRight'),
+      left:    input.isDown('moveLeft'),
+    });
+    const wx = delta.x, wz = delta.z;
 
     // -- Horizontal accel + ice-drift friction + speed cap --
     const accel = this._grounded ? MOVE_ACCEL_GROUND : MOVE_ACCEL_AIR;

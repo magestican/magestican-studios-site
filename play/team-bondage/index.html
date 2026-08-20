@@ -284,6 +284,47 @@
     #kill-feed { position: absolute; right: 20px; top: 60px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #cbd3e1; }
     .kill-line { background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 4px; }
 
+    /* Hit indicator - red vignette flash when local player takes damage */
+    #hit-flash {
+      position: fixed; inset: 0; z-index: 4;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 45%, rgba(200, 30, 30, 0.75) 100%);
+      opacity: 0;
+      transition: opacity 0.35s ease-out;
+    }
+    #hit-flash.visible { opacity: 1; transition-duration: 0.02s; }
+    /* Directional hit marker: arrow around the crosshair pointing at
+       the source of damage. Fades over 1.5s. */
+    #hit-direction {
+      position: fixed; left: 50%; top: 50%; z-index: 6;
+      width: 300px; height: 300px; transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease-out;
+    }
+    #hit-direction.visible { opacity: 1; transition-duration: 0.05s; }
+    #hit-direction::before {
+      content: '';
+      position: absolute; left: 50%; top: 8px;
+      transform: translateX(-50%);
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-bottom: 22px solid rgba(255, 60, 40, 0.85);
+      filter: drop-shadow(0 0 4px rgba(255,0,0,0.8));
+    }
+    /* Crosshair blip when YOU hit an enemy */
+    #hitmarker {
+      position: fixed; left: 50%; top: 50%; z-index: 5;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      color: rgba(255,255,255,0.95);
+      font: 700 34px monospace;
+      opacity: 0;
+      transition: opacity 0.18s ease-out;
+      text-shadow: 0 0 4px black;
+    }
+    #hitmarker.visible { opacity: 1; transition-duration: 0.02s; }
+
     /* Anagram overlay */
     #anagramWrap { position: fixed; inset: 0; z-index: 20; background: rgba(6,10,16,0.92);
       display: none; align-items: center; justify-content: center;
@@ -326,6 +367,7 @@
       "arbelo/updater":     "../../web-engine/updater/versionChecker.js",
       "arbelo/qr":          "../../web-engine/ui/deviceQr.js",
       "arbelo/physics":     "../../web-engine/physics/rapierWorld.js",
+      "arbelo/input-movement": "../../web-engine/input/movementMath.js",
       "three/addons/loaders/GLTFLoader.js": "https://unpkg.com/three@0.161.0/examples/jsm/loaders/GLTFLoader.js"
     }
   }
@@ -391,6 +433,11 @@
       </p>
     </div>
   </div>
+
+  <!-- Hit FX overlays (outside HUD so pointer-events don't need overriding) -->
+  <div id="hit-flash"></div>
+  <div id="hit-direction"></div>
+  <div id="hitmarker">×</div>
 
   <!-- HUD -->
   <div id="hud" style="display: none;">

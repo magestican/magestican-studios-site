@@ -619,6 +619,42 @@ export class Game {
     }
   }
 
+  // Red vignette flash + directional arrow pointing at the attacker.
+  _flashHit(byId) {
+    const flash = document.getElementById('hit-flash');
+    const dirEl = document.getElementById('hit-direction');
+    if (!flash || !dirEl) return;
+    flash.classList.add('visible');
+    setTimeout(() => flash.classList.remove('visible'), 40);
+
+    // Directional arrow: figure out where the attacker is relative to my yaw.
+    let attackerPos = null;
+    if (byId === this.myId) attackerPos = null;   // self-damage (hazard)
+    const rp = this.remotePlayers.get(byId);
+    if (rp) attackerPos = rp.group.position;
+    const bot = this.bots.get(byId);
+    if (bot) attackerPos = bot.pos;
+    if (attackerPos) {
+      const dx = attackerPos.x - this.player.pos.x;
+      const dz = attackerPos.z - this.player.pos.z;
+      const bearing = Math.atan2(dx, dz);
+      const rel = bearing - this.player.yaw;
+      const deg = (rel * 180 / Math.PI + 540) % 360 - 180;
+      dirEl.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
+      dirEl.classList.add('visible');
+      setTimeout(() => dirEl.classList.remove('visible'), 1200);
+    }
+  }
+
+  // Brief hitmarker "x" when YOUR shot lands on a target. Called from
+  // _applyLocalShot after a HIT is broadcast.
+  _flashHitmarker() {
+    const el = document.getElementById('hitmarker');
+    if (!el) return;
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 130);
+  }
+
   // Rotate the compass arrows so they always point at each team's flag from
   // the player's current position + heading.
   _paintCompass() {
@@ -1072,6 +1108,8 @@ export class Game {
                                        new THREE.Vector3().fromArray(s.dir));
       if (hit) {
         this._broadcast({ t: MSG.HIT, target: hit.peerId, dmg: s.damage, by: this.myId, weapon: s.weaponId });
+        this._flashHitmarker();
+        SFX.splat();
       }
     } else if (s.kind === 'projectile') {
       this.weapons.spawnProjectileMesh(s);
@@ -1132,6 +1170,9 @@ export class Game {
     this.player.hp -= dmg;
     // Corn kernels fly off the health bar for every point of damage.
     this._spawnCornFly(Math.min(Math.ceil(dmg / 2), 25));
+    // Visual + directional hit feedback so you SEE getting shot.
+    this._flashHit(byId);
+    SFX.splat();
     if (this.player.hp <= 0) {
       this.player.hp = 0;
       this.player.alive = false;

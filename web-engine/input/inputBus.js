@@ -59,7 +59,8 @@ export class InputBus {
     this.target.removeEventListener('mouseup', this._onMouseUp);
   }
 
-  // Synthetic (virtual) action state - set by touch controls to feed the
+  // (Movement math lives in ./movementMath.js so it can be unit-tested.)
+// Synthetic (virtual) action state - set by touch controls to feed the
   // same action names as physical inputs.
   _synth = new Set();
   _synthPressedThisFrame = new Set();
