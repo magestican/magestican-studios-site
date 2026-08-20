@@ -59,6 +59,10 @@
     <code>games/zelakas-in-space/</code> in this repo.
   </footer>
 
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    startVersionChecker({ label: 'A new version of Zelakas In Space is available.' });
+  </script>
   <script>
     window.addEventListener("load", () => {
       // Ruffle exposes itself via window.RufflePlayer once the script has loaded.

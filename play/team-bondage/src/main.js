@@ -4,6 +4,11 @@
 import { Game } from './game.js';
 import { PeerMesh } from 'arbelo/net';
 import { SeededRng, seedToCode, codeToSeed } from 'arbelo/rng';
+import { startVersionChecker } from 'arbelo/updater';
+
+// Cache-busting: polls /version.json every 60s and shows a Refresh banner
+// when the deployed build id changes.
+startVersionChecker({ label: 'A new version of Team Bondage is available.' });
 
 const $ = (id) => document.getElementById(id);
 
