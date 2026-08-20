@@ -60,6 +60,7 @@ export class Game {
     this._lastRespawnAt = 0;
     this._killFeed = [];                 // recent kill lines
     this.audio = new Chiptune();
+    this._buildCornBar();
     // Bots: host-only. Simulated locally, broadcast as fake peers.
     this.bots = new Map();               // peerId -> Bot
     this.initialBotCount = opts.initialBots || 0;
@@ -568,30 +569,63 @@ export class Game {
     }
   }
 
-  // Spawn N corn kernel divs on top of the health bar and fling them off.
-  _spawnCornFly(n) {
-    const bar = document.getElementById('health-bar');
-    if (!bar) return;
-    const rect = bar.getBoundingClientRect();
-    for (let i = 0; i < n; i++) {
-      const k = document.createElement('div');
-      k.className = 'corn-fly';
-      const startX = rect.right - Math.random() * (rect.width * 0.35) - 6;
-      const startY = rect.top + Math.random() * rect.height;
-      const dx = 20 + Math.random() * 80;
-      const dy = -40 - Math.random() * 100;
-      k.style.left = startX + 'px';
-      k.style.top  = startY + 'px';
-      k.style.transform = 'translate(0,0) rotate(0deg)';
-      k.style.transition = 'transform 0.7s ease-out, opacity 0.7s ease-out';
-      document.body.appendChild(k);
-      // Kick off animation on next frame.
-      requestAnimationFrame(() => {
-        k.style.transform = `translate(${dx}px, ${dy}px) rotate(${(Math.random() - 0.5) * 720}deg)`;
-        k.style.opacity = '0';
-      });
-      setTimeout(() => k.remove(), 800);
+  // Build the 50-kernel HP bar (100 HP / 2 HP per kernel = 50 kernels).
+  _buildCornBar() {
+    const fill = document.getElementById('health-fill');
+    if (!fill) return;
+    fill.innerHTML = '';
+    for (let i = 0; i < 50; i++) {
+      const k = document.createElement('span');
+      k.className = 'kernel';
+      k.dataset.i = String(i);
+      fill.appendChild(k);
     }
+    this._paintCornBar();
+  }
+
+  // Sync visible kernels to player.hp. HP 100 = all 50 visible;
+  // HP 1..99 = pop the trailing (100-hp)/2 kernels away.
+  _paintCornBar() {
+    const fill = document.getElementById('health-fill');
+    if (!fill || !this.player) return;
+    const hp = Math.max(0, this.player.hp);
+    const remaining = Math.max(0, Math.ceil(hp / 2));   // 50..0
+    const kernels = fill.querySelectorAll('.kernel');
+    for (let i = 0; i < kernels.length; i++) {
+      kernels[i].classList.toggle('gone', i >= remaining);
+    }
+  }
+
+  // On damage, fly the "just-gone" kernels off the bar as physical
+  // particles. `n` is the number of kernels to fling.
+  _spawnCornFly(n) {
+    const fill = document.getElementById('health-fill');
+    if (!fill || !this.player) return;
+    const hpBefore = Math.max(0, Math.ceil((this.player.hp + n * 2) / 2));
+    const kernels = fill.querySelectorAll('.kernel');
+    // Fling the highest-index kernels that are about to vanish.
+    for (let i = 0; i < n; i++) {
+      const idx = Math.min(hpBefore - 1 - i, kernels.length - 1);
+      const src = kernels[idx];
+      if (!src) continue;
+      const r = src.getBoundingClientRect();
+      const fly = document.createElement('div');
+      fly.className = 'corn-fly';
+      fly.style.left = r.left + 'px';
+      fly.style.top  = r.top + 'px';
+      fly.style.transform = 'translate(0,0) rotate(0deg)';
+      fly.style.transition = 'transform 0.7s ease-out, opacity 0.7s ease-out';
+      document.body.appendChild(fly);
+      const dx = 20 + Math.random() * 100;
+      const dy = -50 - Math.random() * 120;
+      requestAnimationFrame(() => {
+        fly.style.transform =
+          `translate(${dx}px, ${dy}px) rotate(${(Math.random() - 0.5) * 900}deg)`;
+        fly.style.opacity = '0';
+      });
+      setTimeout(() => fly.remove(), 800);
+    }
+    this._paintCornBar();
   }
 
   // Toggle blood-tinted textures on the world + character re-tints.
@@ -1007,10 +1041,9 @@ export class Game {
     if (!this.player.alive) return;
     // Solo / lobby / countdown = practice mode, no damage.
     if (this.matchState !== 'playing') return;
-    const oldHp = this.player.hp;
     this.player.hp -= dmg;
     // Corn kernels fly off the health bar for every point of damage.
-    this._spawnCornFly(Math.min(dmg, 12));
+    this._spawnCornFly(Math.min(Math.ceil(dmg / 2), 25));
     if (this.player.hp <= 0) {
       this.player.hp = 0;
       this.player.alive = false;
@@ -1171,7 +1204,7 @@ export class Game {
   _updateHud() {
     document.getElementById('scoreRed').textContent  = this.scores.red;
     document.getElementById('scoreBlue').textContent = this.scores.blue;
-    document.getElementById('health-fill').style.width = (this.player.hp) + '%';
+    this._paintCornBar();
     const flagStatus = [];
     if (this.player.hasEnemyFlag)  flagStatus.push('🚩 You have the enemy flag - run home!');
     for (const c of ['red', 'blue']) {
