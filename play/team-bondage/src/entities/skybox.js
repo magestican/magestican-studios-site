@@ -46,60 +46,61 @@ function paint(canvas, t) {
   g.fillStyle = grad; g.fillRect(0, 0, W, H);
   paintClouds(g, 22, 0.5);
 
-  // Sky-brawl - HUGE, centred horizontally, in the top third of the strip
-  // (which projects to the upper cap of the sphere).
+  // Sky-brawl - compact overhead feature. Equirectangular textures near the
+  // top of the strip get stretched horizontally as they wrap to the pole,
+  // so a small drawing here reads as a modest-sized thing directly above
+  // you (not a canvas-filling monstrosity).
   const brawlCX = W / 2;
-  const brawlCY = H * 0.28;
-  const brawlR  = H * 0.32;
+  const brawlCY = H * 0.14;             // near top -> nearly overhead
+  const brawlR  = H * 0.10;             // small so it reads as a real object
+  const bullX   = brawlCX - brawlR * 1.7;
+  const horseX  = brawlCX + brawlR * 1.7;
 
-  // Wrestling shake
-  const shake = Math.sin(t * 4.0) * 24;
+  // Wrestling shake (smaller distances now that scene is smaller)
+  const shake = Math.sin(t * 4.0) * 8;
   const rockBull  = Math.sin(t * 3.2) * 0.10;
   const rockHorse = Math.cos(t * 3.4) * 0.14;
 
-  // Wrestling ring rope (oval outline).
+  // Ring rope (small oval).
   g.save();
   g.translate(brawlCX, brawlCY);
   g.strokeStyle = 'rgba(183,58,42,0.55)';
-  g.lineWidth = 24;
+  g.lineWidth = 8;
   g.beginPath();
-  g.ellipse(0, 0, brawlR * 2.4, brawlR * 1.5, 0, 0, Math.PI * 2);
+  g.ellipse(0, 0, brawlR * 3.0, brawlR * 1.6, 0, 0, Math.PI * 2);
   g.stroke();
   g.restore();
 
-  drawBull(g,  brawlCX - brawlR * 1.3 + shake, brawlCY + Math.sin(t*2.7)*10,
-    brawlR, rockBull);
-  drawHorse(g, brawlCX + brawlR * 1.3 - shake, brawlCY + Math.cos(t*2.9)*8,
-    brawlR, rockHorse);
+  drawBull(g,  bullX + shake, brawlCY + Math.sin(t*2.7)*3, brawlR, rockBull);
+  drawHorse(g, horseX - shake, brawlCY + Math.cos(t*2.9)*3, brawlR, rockHorse);
 
-  // GIANT "VS" between them.
+  // Small "VS" between them.
   g.save();
   g.translate(brawlCX, brawlCY);
   g.rotate(-0.06 + Math.sin(t*2.4) * 0.03);
-  g.font = 'bold 380px Georgia, serif';
+  g.font = 'bold 100px Georgia, serif';
   g.textAlign = 'center'; g.textBaseline = 'middle';
   g.fillStyle = 'rgba(28, 26, 23, 0.18)';
-  g.fillText('VS', 12, 12);
+  g.fillText('VS', 3, 3);
   g.fillStyle = '#b73a2a';
   g.fillText('VS', 0, 0);
   g.restore();
 
-  // Ka-pow puff between them.
-  paintDustPuff(g, brawlCX, brawlCY + brawlR * 0.65, 100 + Math.sin(t*6)*20);
+  // Small ka-pow puff.
+  paintDustPuff(g, brawlCX, brawlCY + brawlR * 0.9, 30 + Math.sin(t*6)*8);
 
-  // GIANT title banner underneath.
+  // Banner underneath - modest size so it doesn't dominate.
   g.save();
-  g.translate(brawlCX, brawlCY + brawlR * 1.35);
-  g.font = 'italic bold 140px Georgia, serif';
+  g.translate(brawlCX, brawlCY + brawlR * 2.4);
+  g.font = 'italic bold 44px Georgia, serif';
   g.textAlign = 'center'; g.textBaseline = 'middle';
-  // Cream drop-shadow rectangle behind
-  g.fillStyle = 'rgba(255,255,255,0.7)';
+  g.fillStyle = 'rgba(255,255,255,0.75)';
   const textW = g.measureText('THE SKY BRAWL OF THE CENTURY').width;
-  g.fillRect(-textW / 2 - 40, -100, textW + 80, 200);
+  g.fillRect(-textW / 2 - 20, -35, textW + 40, 70);
   g.fillStyle = '#1c1a17';
-  g.fillText('THE SKY BRAWL OF THE CENTURY', 0, -20);
-  g.font = 'bold 62px "Segoe UI", sans-serif';
-  g.fillText('brought to you by Magestican Studios', 0, 50);
+  g.fillText('THE SKY BRAWL OF THE CENTURY', 0, -8);
+  g.font = 'bold 20px "Segoe UI", sans-serif';
+  g.fillText('Magestican Studios', 0, 18);
   g.restore();
 }
 
