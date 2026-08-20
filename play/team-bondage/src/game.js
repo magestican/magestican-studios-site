@@ -124,6 +124,23 @@ export class Game {
       addBotBtn.addEventListener('touchstart', onAddBot, { passive: false });
     }
 
+    // Mature-mode toggle. Persists in localStorage. Toggles blood textures
+    // on the world + character armbands + turns on the announcer.
+    this.mature = localStorage.getItem('tb.mature') === '1';
+    const matureBtn = document.getElementById('mature-btn');
+    const paintMature = () => { matureBtn.classList.toggle('on', this.mature); };
+    paintMature();
+    if (this.mature) this._applyMature(true);
+    const onMatureToggle = (e) => {
+      if (e) e.preventDefault();
+      this.mature = !this.mature;
+      localStorage.setItem('tb.mature', this.mature ? '1' : '0');
+      paintMature();
+      this._applyMature(this.mature);
+    };
+    matureBtn.addEventListener('click', onMatureToggle);
+    matureBtn.addEventListener('touchstart', onMatureToggle, { passive: false });
+
     // Kick off audio. iOS Safari requires the AudioContext to be created
     // AND resumed inside a user-gesture callback; a stale "once: true" that
     // failed silently would then never retry. Instead, retry on every
@@ -531,6 +548,43 @@ export class Game {
     }
   }
 
+  // Spawn N corn kernel divs on top of the health bar and fling them off.
+  _spawnCornFly(n) {
+    const bar = document.getElementById('health-bar');
+    if (!bar) return;
+    const rect = bar.getBoundingClientRect();
+    for (let i = 0; i < n; i++) {
+      const k = document.createElement('div');
+      k.className = 'corn-fly';
+      const startX = rect.right - Math.random() * (rect.width * 0.35) - 6;
+      const startY = rect.top + Math.random() * rect.height;
+      const dx = 20 + Math.random() * 80;
+      const dy = -40 - Math.random() * 100;
+      k.style.left = startX + 'px';
+      k.style.top  = startY + 'px';
+      k.style.transform = 'translate(0,0) rotate(0deg)';
+      k.style.transition = 'transform 0.7s ease-out, opacity 0.7s ease-out';
+      document.body.appendChild(k);
+      // Kick off animation on next frame.
+      requestAnimationFrame(() => {
+        k.style.transform = `translate(${dx}px, ${dy}px) rotate(${(Math.random() - 0.5) * 720}deg)`;
+        k.style.opacity = '0';
+      });
+      setTimeout(() => k.remove(), 800);
+    }
+  }
+
+  // Toggle blood-tinted textures on the world + character re-tints.
+  _applyMature(on) {
+    // Re-render the world meshes with the mature flag.
+    const oldMesh = this.scene.getObjectByName('voxelWorld');
+    if (oldMesh) this.scene.remove(oldMesh);
+    this.scene.add(buildWorldMeshes(this.grid, { mature: on }));
+    // Body colour: swap the sky background for a bloody tint too.
+    if (this.scene.fog) this.scene.fog.color.setHex(on ? 0xa03a34 : 0x8ec5ff);
+    this.renderer.setClearColor(on ? 0xa03a34 : 0x8ec5ff);
+  }
+
   _updateLobbyBanner() {
     const el = document.getElementById('lobby-banner');
     const title = document.getElementById('lobby-title');
@@ -914,7 +968,10 @@ export class Game {
     if (!this.player.alive) return;
     // Solo / lobby / countdown = practice mode, no damage.
     if (this.matchState !== 'playing') return;
+    const oldHp = this.player.hp;
     this.player.hp -= dmg;
+    // Corn kernels fly off the health bar for every point of damage.
+    this._spawnCornFly(Math.min(dmg, 12));
     if (this.player.hp <= 0) {
       this.player.hp = 0;
       this.player.alive = false;

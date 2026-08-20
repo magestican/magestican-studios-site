@@ -92,11 +92,26 @@
     .score-blue { color: #7cb0ff; }
     .score-sep  { color: #8894a6; font-weight: 400; font-size: 16px; }
     #bottombar { position: absolute; left: 20px; bottom: 20px; font-size: 15px; }
-    #health-bar { display: inline-block; width: 200px; height: 10px; background: rgba(255,255,255,0.15);
-      border-radius: 5px; overflow: hidden; vertical-align: middle; margin-left: 8px;
+    /* Corn-filled health bar: chunky yellow kernels shrink as you take
+       damage. Kernel particles fly away via .corn-fly (see game.js). */
+    #health-bar { display: inline-block; width: 240px; height: 22px;
+      background: rgba(0,0,0,0.35);
+      border: 2px solid #b3862a; border-radius: 6px;
+      overflow: hidden; vertical-align: middle; margin-left: 8px; position: relative;
     }
-    #health-fill { height: 100%; background: linear-gradient(90deg, #ff5c4a, #f4c95d 60%, #7ce07a);
-      transition: width 0.15s ease-out;
+    #health-fill { height: 100%;
+      background:
+        repeating-linear-gradient(90deg,
+          #f6c744 0 6px,
+          #d99f2b 6px 12px,
+          #f6c744 12px 18px,
+          #b3862a 18px 22px);
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,0.25);
+      transition: width 0.18s ease-out;
+    }
+    .corn-fly { position: fixed; width: 6px; height: 8px; border-radius: 2px;
+      background: #f6c744; box-shadow: inset 0 -1px 0 rgba(0,0,0,0.3);
+      pointer-events: none; z-index: 40;
     }
     #weaponbar { position: absolute; right: 20px; bottom: 20px; display: flex; gap: 6px; }
     #mute-btn { position: absolute; top: max(10px, env(safe-area-inset-top));
@@ -126,6 +141,22 @@
       z-index: 8;
     }
     #add-bot-btn:active { background: #26221c !important; }
+    /* Mature-mode toggle (blood, announcer, spatter). Persists in localStorage. */
+    #mature-btn { position: fixed;
+      top: max(10px, env(safe-area-inset-top));
+      right: calc(max(10px, env(safe-area-inset-right)) + 108px);
+      height: 44px; padding: 0 12px; border-radius: 22px;
+      border: 1px solid #b73a2a !important;
+      background: #1c1a17 !important; color: #ff9080;
+      font: 600 13px inherit;
+      pointer-events: auto !important;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      z-index: 8;
+    }
+    #mature-btn.on { background: #b73a2a !important; color: #fff; }
+    #mature-btn:active { background: #26221c !important; }
     #lobby-banner { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
       text-align: center; background: rgba(6,10,16,0.7); padding: 22px 32px; border-radius: 12px;
       border: 1px solid rgba(244,201,93,0.5); min-width: 240px; display: none;
@@ -282,6 +313,7 @@
   <!-- Mute button + lobby banner + admin controls live OUTSIDE the
        pointer-events:none HUD so taps always land on them. -->
   <button id="mute-btn" aria-label="Toggle music">🔊</button>
+  <button id="mature-btn" aria-label="Toggle mature mode">MATURE</button>
   <button id="add-bot-btn" aria-label="Add AI bot" style="display:none;">+ Bot</button>
   <div id="lobby-banner">
     <h2 id="lobby-title">Waiting for players…</h2>

@@ -92,16 +92,31 @@ export class TouchControls {
     }, { passive: false });
     fire.addEventListener('touchcancel', () => this.input.setSynthetic('fire', false));
 
-    // Window-level touch listeners so we get events regardless of what
-    // element the touch landed on (canvas, container, HUD - all pass-through
-    // when pointer-events:none is set on some layers).
-    window.addEventListener('touchstart', (e) => this._onTouchStart(e), { passive: false });
-    window.addEventListener('touchmove',  (e) => this._onTouchMove(e),  { passive: false });
-    window.addEventListener('touchend',   (e) => this._onTouchEnd(e),   { passive: false });
-    window.addEventListener('touchcancel',(e) => this._onTouchEnd(e),   { passive: false });
+    // Attach to BOTH window and document to maximise coverage (some Safari
+    // versions deliver touch events to only one).
+    for (const target of [window, document]) {
+      target.addEventListener('touchstart', (e) => this._onTouchStart(e), { passive: false });
+      target.addEventListener('touchmove',  (e) => this._onTouchMove(e),  { passive: false });
+      target.addEventListener('touchend',   (e) => this._onTouchEnd(e),   { passive: false });
+      target.addEventListener('touchcancel',(e) => this._onTouchEnd(e),   { passive: false });
+    }
+    // Debug counter of events received so user can prove input is (or isn't)
+    // reaching our handlers.
+    this._touchCount = 0;
+    this._paintDebug();
+  }
+
+  _paintDebug() {
+    if (!this._debug) return;
+    const actions = ['moveForward','moveBack','moveLeft','moveRight','fire','jump']
+      .filter((a) => this.input.isDown(a)).join(',') || '(none)';
+    this._debug.textContent =
+      `touches: ${this._touchCount}  active: ${this._joystickTouch ? 'J' : '-'}${this._lookTouch ? 'L' : '-'}\n` +
+      `actions: ${actions}`;
   }
 
   _onTouchStart(e) {
+    this._touchCount++;
     for (const t of e.changedTouches) {
       // If touch landed on a button, let the button handler own it.
       if (t.target && t.target.closest && t.target.closest('#tc-buttons')) continue;
@@ -120,6 +135,7 @@ export class TouchControls {
         e.preventDefault();
       }
     }
+    this._paintDebug();
   }
 
   _onTouchMove(e) {
@@ -140,12 +156,7 @@ export class TouchControls {
         this.input.setSynthetic('moveRight',   nx >  DZ);
         this.input.setSynthetic('moveForward', ny < -DZ);
         this.input.setSynthetic('moveBack',    ny >  DZ);
-        // Live debug so we can see the joystick actually feeding the input bus.
-        if (this._debug) {
-          this._debug.textContent = `JS  x=${nx.toFixed(2)}  y=${ny.toFixed(2)}  ` +
-            `[${['moveLeft','moveRight','moveForward','moveBack']
-              .filter((a) => this.input.isDown(a)).join(',') || '-'}]`;
-        }
+        this._paintDebug();
         e.preventDefault();
       } else if (this._lookTouch && t.identifier === this._lookTouch.id) {
         const dx = t.clientX - this._lookTouch.lastX;
@@ -173,6 +184,7 @@ export class TouchControls {
         this._lookTouch = null;
       }
     }
+    this._paintDebug();
   }
 
   _markActive(btn) {
@@ -194,10 +206,11 @@ const TOUCH_CSS = `
 }
 #tc-debug {
   position: absolute; left: 12px; top: 100px;
-  font: 11px "SF Mono", Menlo, Consolas, monospace;
-  color: #f4c95d; background: rgba(0,0,0,0.5);
-  padding: 3px 6px; border-radius: 4px;
+  font: 12px "SF Mono", Menlo, Consolas, monospace;
+  color: #7ce07a; background: rgba(0,0,0,0.7);
+  padding: 5px 8px; border-radius: 4px;
   pointer-events: none;
+  max-width: 90vw; white-space: pre; line-height: 1.3;
 }
 #tc-joystick-base {
   position: absolute; width: 120px; height: 120px;
