@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zelakas In Space</title>
+  <meta name="description" content="Zelakas In Space — the 2014 Flash game by Bryan Arbelo, Gonzalo, and Christian, running in modern browsers via Ruffle.">
+  <!--
+    Ruffle self-hosted from unpkg. This lets the original 2014 ZelakasInSpace.swf
+    run in any modern browser (Flash Player was end-of-lifed in 2020).
+    For production, mirror the Ruffle build locally under /vendor/ruffle/ and
+    swap the <script src> below to that path.
+  -->
+  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+  <style>
+    :root { color-scheme: dark; }
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background: #05060a;
+      color: #d8dde8;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    body {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px 16px;
+      gap: 16px;
+    }
+    header { text-align: center; }
+    h1 {
+      margin: 0 0 4px 0; font-size: 28px; letter-spacing: 0.02em;
+    }
+    header p { margin: 0; opacity: 0.7; font-size: 14px; }
+    #stage-wrap {
+      width: 100%; max-width: 1360px; aspect-ratio: 1360 / 768;
+      background: #000;
+      border: 1px solid #1a1e28;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    #stage { width: 100%; height: 100%; }
+    footer { font-size: 12px; opacity: 0.55; text-align: center; max-width: 900px; }
+    footer a { color: #9dc6ff; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Zelakas In Space</h1>
+    <p>Original 2014 Flash build · Bryan Arbelo · Gonzalo · Christian · running in-browser via Ruffle</p>
+  </header>
+
+  <div id="stage-wrap"><div id="stage"></div></div>
+
+  <footer>
+    Flash Player was end-of-lifed in 2020. This page loads the original
+    <code>ZelakasInSpace.swf</code> through
+    <a href="https://ruffle.rs/">Ruffle</a>, an open-source Flash emulator written in Rust.
+    A native Godot 4 port of the game lives under
+    <code>games/zelakas-in-space/</code> in this repo.
+  </footer>
+
+  <script>
+    window.addEventListener("load", () => {
+      // Ruffle exposes itself via window.RufflePlayer once the script has loaded.
+      const ruffle = window.RufflePlayer.newest();
+      const player = ruffle.createPlayer();
+      const stage = document.getElementById("stage");
+      stage.appendChild(player);
+      player.style.width = "100%";
+      player.style.height = "100%";
+      player.load({
+        url: "./ZelakasInSpace.swf",
+        autoplay: "on",
+        unmuteOverlay: "hidden",
+        splashScreen: false,
+        // The original SWF is 1360x768; Ruffle will letterbox to fit the container.
+      }).catch(err => {
+        stage.innerHTML =
+          "<div style='padding:32px;color:#f8a;font-family:monospace'>" +
+          "Failed to load ZelakasInSpace.swf<br><br>" +
+          err + "<br><br>" +
+          "Make sure ZelakasInSpace.swf sits next to this index.html and " +
+          "you're serving the folder over http:// (browsers block file:// SWF loads)." +
+          "</div>";
+      });
+    });
+  </script>
+</body>
+</html>

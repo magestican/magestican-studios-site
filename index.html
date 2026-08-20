@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magestican Studios</title>
+  <meta name="description" content="Magestican Studios — small hand-drawn games with procedurally generated worlds. Published by Ultra Task Pty Ltd, Australia.">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <header class="site-header">
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="./#games">Games</a>
+      <a href="./about.html">About</a>
+      <a href="./privacy.html">Privacy</a>
+      <a href="./terms.html">Terms</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Procedural worlds,<br><span class="hand-underline">hand-drawn hearts.</span></h1>
+      <p class="tagline">Small games made by hand, from a seed. Every world different, every line drawn.</p>
+      <figure class="hero-figure">
+        <img src="./assets/aracstory-hero.png" alt="A seeded Aracstory world tile — rooms, corridors, a yellow player at the spawn, and two glowing exit portals connecting to neighbouring tiles">
+        <figcaption>One tile of an Aracstory world, generated from seed <code>42</code> — <em>the same seed always builds the same world</em>.</figcaption>
+      </figure>
+    </section>
+
+    <section id="games" class="games">
+      <h2>Games</h2>
+
+      <article class="game-card game-aracstory">
+        <div class="game-art">
+          <img src="./assets/aracstory-preview.png" alt="A generated Aracstory world tile — coloured cells of rooms and corridors laid out from a seed" onerror="this.style.display='none'">
+          <div class="game-art-fallback" aria-hidden="true">A</div>
+        </div>
+        <div class="game-copy">
+          <h3>Aracstory</h3>
+          <p class="game-meta">2D adventure · seeded multi-tile worlds · WASD</p>
+          <p>An adventure across five connected worlds, all generated from a single seed. Same seed, same world; new seed, new run. Originally started in Unity in 2013 with Nikhil V; being remade in Godot 4.</p>
+          <p class="game-status"><span class="dot dot-yellow"></span> In development</p>
+        </div>
+      </article>
+
+      <article class="game-card game-zelakas">
+        <div class="game-art">
+          <img src="./assets/zelakas-preview.png" alt="Zelakas In Space — a 2D arcade shooter with a small ship dodging asteroids and drones" onerror="this.style.display='none'">
+          <div class="game-art-fallback" aria-hidden="true">Z</div>
+        </div>
+        <div class="game-copy">
+          <h3>Zelakas In Space</h3>
+          <p class="game-meta">2D arcade shooter · three endings · keyboard</p>
+          <p>Dodge asteroids, blackholes, and drones. Three endings by how much you clear. Made in 2014 with Gonzalo and Christian in ActionScript 3; playable today in a modern browser via Ruffle, and being remade in Godot 4.</p>
+          <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/zelakas/">Play now →</a></p>
+        </div>
+      </article>
+    </section>
+
+    <section class="about-short">
+      <h2>Who we are</h2>
+      <p>Magestican Studios is the imprint Bryan Arbelo uses to sign small games with big procgen and hand-drawn art. Every graphic in every game is drawn by a human hand — the engine deals the cards from a seeded deck, but a person paints every card.</p>
+      <p><a href="./about.html" class="more-link">Read the longer version →</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Copyright © 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      Site is static · No trackers · <a href="https://github.com/magestican/arbelo-games">Source on GitHub</a>
+    </p>
+  </footer>
+</body>
+</html>
