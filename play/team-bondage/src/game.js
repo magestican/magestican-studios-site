@@ -1064,6 +1064,10 @@ export class Game {
       }
       case MSG.DEATH:
         this._killFeedPush(`${this._name(msg.killer)} ➜ ${this._name(msg.victim)} (${msg.weapon})`);
+        // Death ends any steak poison on the victim — dying of ANY cause
+        // clears the DOT, so respawned players never carry stale poison.
+        this._steakPoisonBy.delete(msg.victim);
+        if (msg.victim === this.myId) this._hidePoisonHint();
         // Animal death voice. Any peer plays the victim's character sound.
         try {
           const meta = this.playerMeta.get(msg.victim);
@@ -1103,6 +1107,8 @@ export class Game {
         if (msg.victim === this.myId) this._takeDamage(msg.dmg, this._steakPoisonBy?.get(this.myId), 'steak');
         break;
       case MSG.STEAK_DEATH:
+        this._steakPoisonBy.delete(msg.victim);
+        if (msg.victim === this.myId) this._hidePoisonHint();
         this._announceSteakAnnihilation(msg.victim, msg.killer);
         break;
       case MSG.FLAG_CAP: {
@@ -1586,7 +1592,13 @@ export class Game {
       document.head.appendChild(s);
     }
     el.style.display = 'block';
-    // Clear the hint on death/respawn (checked next _takeDamage tick).
+  }
+
+  // Hide the poison pill. Called on any death of the local player and when
+  // a STEAK_DEATH names them — previously the pill stayed up forever (bug).
+  _hidePoisonHint() {
+    const el = document.getElementById('poison-hint');
+    if (el) el.style.display = 'none';
   }
 
   // HUD chip: reuse the chicken chip slot. Shows 🥩 3/5 while collecting,
@@ -1595,7 +1607,10 @@ export class Game {
   _updateSteakChip() {
     let slot = document.querySelector('.wpn.chicken');
     if (!slot) return;
-    if (this.chickenAmmo > 0) return;   // chicken has priority display
+    // Chicken owns the chip while READY *or* while its 30 s respawn
+    // countdown is repainting it every 500 ms — writing steak state on top
+    // of the ticking countdown made the chip flicker between the two.
+    if (this.chickenAmmo > 0 || this._chickenCdTimer) return;
     if (this.steakAmmo > 0) {
       slot.style.display = '';
       slot.innerHTML = '<span class="wpn-icon">🥩</span><span class="wpn-key">GO</span><span class="wpn-name">STEAK</span>';
@@ -1704,6 +1719,9 @@ export class Game {
     if (!this.player.alive) return;
     // Solo / lobby / countdown = practice mode, no damage.
     if (this.matchState !== 'playing') return;
+    // Respawn protection: 2 s of invulnerability after a death so spawn
+    // camping can't chain-kill. Design pass 2026-08-21 (docs/GAME_DESIGN.md).
+    if (performance.now() < (this._invulnUntil || 0)) return;
     this.player.hp -= dmg;
     // Corn kernels fly off the health bar for every point of damage.
     this._spawnCornFly(Math.min(Math.ceil(dmg / 2), 25));
@@ -1726,8 +1744,12 @@ export class Game {
       // Local animal death voice (broadcast doesn't loop back to me).
       try { SFX.animalVoice(this.character, 1.0); } catch (_) {}
       this._killFeedPush(`${this._name(byId)} ➜ ${this._name(this.myId)} (${weaponId})`);
-      // Immediate respawn per spec.
+      // Death clears any steak poison + its HUD hint.
+      this._steakPoisonBy.delete(this.myId);
+      this._hidePoisonHint();
+      // Immediate respawn per spec, with 2 s spawn protection.
       this.player.respawn();
+      this._invulnUntil = performance.now() + 2000;
     }
   }
 

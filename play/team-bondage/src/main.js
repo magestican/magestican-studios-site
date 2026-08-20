@@ -106,6 +106,25 @@ $('nameInput').addEventListener('input', (e) => {
 // (SSO block removed 2026-08-20 — Bryan clarified he meant SEO, not SSO.
 // The game stays account-free; no third-party script loaded here.)
 
+// -----------------------------------------------------------------------------
+// First-run "How to play" overlay. Shows once per browser; a returning
+// player never sees it again (localStorage tb.howto). Remote-team players
+// usually arrive cold from a pasted room code — this is their 15-second
+// orientation. docs/GAME_DESIGN.md § Onboarding.
+// -----------------------------------------------------------------------------
+(function howtoOnboarding() {
+  const overlay = document.getElementById('howto-overlay');
+  const close = document.getElementById('howto-close');
+  if (!overlay || !close) return;
+  if (!localStorage.getItem('tb.howto')) {
+    overlay.style.display = 'flex';
+  }
+  close.addEventListener('click', () => {
+    localStorage.setItem('tb.howto', '1');
+    overlay.style.display = 'none';
+  });
+})();
+
 // Also auto-pick a random team so first-time players can just tap Host.
 const initialTeam = Math.random() < 0.5 ? 'red' : 'blue';
 state.team = initialTeam;

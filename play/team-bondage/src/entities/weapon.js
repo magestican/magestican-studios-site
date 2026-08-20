@@ -13,10 +13,13 @@ export const WEAPON_DEFS = [
   // The pistol is themed as a "shovel that flings poo pellets" - identical
   // stats to a plain pistol, but the projectile visual is a brown ball with
   // a bullet-sound pew.
-  // Bryan 2026-08-20: hits now do 8 damage (up from 2). ~13 hits to kill
-  // a 100-HP player — feels punchy without being one-shot.
+  // Bryan 2026-08-20: hits do 8 damage (up from 2). ~13 shovel hits to kill
+  // a 100-HP player — punchy without being one-shot.
+  // Design pass 2026-08-21: shotgun kept 8 dmg/pellet per Bryan's ask, but
+  // pellets trimmed 7 → 5. At point-blank a full connect is 40 (2.5 shots
+  // to kill), not 56 (near-instant delete). Full TTK table: docs/GAME_DESIGN.md.
   { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 8,  pellets: 1, spread: 0.003, kind: 'hitscan', projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
-  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 8,  pellets: 7, spread: 0.10,  kind: 'hitscan', tracerColor: 0xf4c95d },
+  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 8,  pellets: 5, spread: 0.10,  kind: 'hitscan', tracerColor: 0xf4c95d },
   { id: 'rocket',  name: 'Rocket',   cooldown: 1.10, damage: 60, splash: 30, splashRadius: 3.0, projectileSpeed: 20, kind: 'projectile' },
 ];
 

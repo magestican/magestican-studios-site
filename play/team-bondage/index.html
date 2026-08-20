@@ -337,7 +337,11 @@
         left: 50%; transform: translateX(-50%);
         z-index: 20;
       }
-      #flagStatus { top: 74px; font-size: 12px; padding: 0 12px; }
+      /* 108px — below the mobile chicken/steak chip (fixed at +78, ~26px
+         tall). 74px sat directly under the chip and overprinted it. The
+         full mobile top-center ladder is now: compass 44 → chip 78 →
+         flagStatus 108 → carry banner 130 → poison hint 170. */
+      #flagStatus { top: 108px; font-size: 12px; padding: 0 12px; }
       #crosshair { transform: translate(-50%, -50%) scale(0.7); }
       /* Right-column top buttons: mute + gore stacked in a strict column so
          they cannot collide with the score pill or kill-feed. */
@@ -352,7 +356,9 @@
       #settings-btn { left: max(8px, env(safe-area-inset-left));
         top: max(8px, env(safe-area-inset-top)); width: 40px; height: 40px; font-size: 20px; }
     }
-    #flagStatus { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #f4c95d; }
+    /* 96px — below the compass pills (which sit at top:60). Sharing top:60
+       with the compass made the two overprint whenever a flag was carried. */
+    #flagStatus { position: absolute; top: 96px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #f4c95d; }
     #kill-feed { position: absolute; right: 20px; top: 60px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #cbd3e1; }
     .kill-line { background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 4px; }
 
@@ -597,6 +603,31 @@
   <button id="mute-btn" aria-label="Toggle music">🔊</button>
   <button id="mature-btn" aria-label="Toggle gore mode">GORE</button>
   <button id="enable-sound" aria-label="Enable sound">🔊 Tap to enable sound</button>
+
+  <!-- First-run "How to play" overlay. Shown once (localStorage tb.howto),
+       and again any time via the ❓ in settings. Remote-team onboarding:
+       most players arrive from a pasted room code having never seen the
+       game. docs/GAME_DESIGN.md § Onboarding. -->
+  <div id="howto-overlay" style="display:none; position:fixed; inset:0; z-index:95;
+       background:rgba(6,10,16,0.92); align-items:center; justify-content:center; padding:20px;">
+    <div style="background:linear-gradient(180deg,#201814 0%,#100a08 100%); border:2px solid #f4c95d;
+         border-radius:12px; padding:24px 28px; max-width:460px; width:100%; color:#e8ecf1;
+         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+      <h2 style="font-family:Georgia,serif; font-size:22px; color:#f4c95d; margin:0 0 4px;">How to play</h2>
+      <p style="color:#cbd3e1; font-size:13px; margin:0 0 16px;">First team to capture 5 flags wins. Ties go to a 10-second anagram duel.</p>
+      <ul style="line-height:1.75; font-size:14px; color:#e8ecf1; margin:0 0 16px; padding-left:20px;">
+        <li><b>Move</b> — WASD + mouse (desktop) · left thumb joystick + right thumb look (mobile)</li>
+        <li><b>Jump</b> — Space / JUMP button. Press again mid-air to <b>double-jump</b> (your animal yells!)</li>
+        <li><b>Shoot</b> — click / FIRE. Keys 1-3 or tap to switch weapons</li>
+        <li><b>🚩 Grab the enemy flag</b>, run it back to your barn while it glows blue over your head</li>
+        <li><b>🐔 Chicken slingshot</b> — grab it on the centre hill; your next shot obliterates someone</li>
+        <li><b>🥩 Steaks</b> — shoot the 4 floating steaks at the map edges; collect 5 to throw a poison steak</li>
+        <li><b>🌾 Hay bales</b> — walk inside one to hide; you can see out, they can't see in</li>
+      </ul>
+      <button id="howto-close" style="width:100%; padding:12px; border-radius:8px; border:0;
+           background:#f4c95d; color:#1c1a17; font:800 15px inherit; cursor:pointer;">Got it — let's play</button>
+    </div>
+  </div>
   <button id="add-bot-btn" aria-label="Add AI bot" style="display:none;">+ Bot</button>
   <button id="settings-btn" aria-label="Open settings">⚙</button>
   <div id="settings-modal">
