@@ -330,7 +330,7 @@ export class Game {
   async _initPlayer() {
     const spawn = this.world.spawns[this.team];
     this.physics = await createPhysicsWorld({ grid: this.grid });
-    this.player = new Player(this.camera, this.physics, spawn, this.team);
+    this.player = new Player(this.camera, this.physics, spawn, this.team, this.character);
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
     this.snow    = new SnowSystem(this.scene, this.player.pos);
@@ -1047,6 +1047,15 @@ export class Game {
       }
       case MSG.DEATH:
         this._killFeedPush(`${this._name(msg.killer)} ➜ ${this._name(msg.victim)} (${msg.weapon})`);
+        // Animal death voice. Any peer plays the victim's character sound.
+        try {
+          const meta = this.playerMeta.get(msg.victim);
+          const bot = this.bots.get(msg.victim);
+          const character = meta?.character
+            || bot?.character
+            || (msg.victim === this.myId ? this.character : 'cow');
+          SFX.animalVoice(character, 1.0);
+        } catch (_) {}
         break;
       case MSG.FLAG_PICK:
         this.flagCarrier[msg.color] = msg.by;
@@ -1496,6 +1505,8 @@ export class Game {
         this._syncFlagMesh(enemyColor);
       }
       this._broadcast({ t: MSG.DEATH, victim: this.myId, killer: byId, weapon: weaponId });
+      // Local animal death voice (broadcast doesn't loop back to me).
+      try { SFX.animalVoice(this.character, 1.0); } catch (_) {}
       this._killFeedPush(`${this._name(byId)} ➜ ${this._name(this.myId)} (${weaponId})`);
       // Immediate respawn per spec.
       this.player.respawn();

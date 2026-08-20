@@ -9,6 +9,7 @@
 
 import * as THREE from 'three';
 import { computeWishDelta, cameraHorizontalAxes } from 'arbelo/input-movement';
+import * as SFX from '../audio/sfx.js';
 
 const GRAVITY = -30.0;
 const JUMP_SPEED = 9.0;
@@ -23,10 +24,11 @@ const CAPSULE_RADIUS      = 0.32;
 const EYE_HEIGHT_OFFSET   = 0.55;   // camera above body centre
 
 export class Player {
-  constructor(camera, physics, spawn, team) {
+  constructor(camera, physics, spawn, team, character = 'cow') {
     this.camera = camera;
     this.physics = physics;
     this.team = team;
+    this.character = character;
     this.spawn = { ...spawn };
 
     // rapier body + collider handles
@@ -116,11 +118,13 @@ export class Player {
         this.jumpCount++;
       } else if (this._airJumpsLeft > 0) {
         // Double jump: overwrite vertical velocity (feels snappier than
-        // adding to it — you always get a fresh boost).
+        // adding to it — you always get a fresh boost). Also play the
+        // player's animal voice — moo/oink/bheee/cluck. Bryan 2026-08-20.
         this.vel.y = JUMP_SPEED * 0.95;
         this._airJumpsLeft--;
         this._jumpingDown = true;
         this.jumpCount++;
+        try { SFX.animalVoice(this.character, 1.0); } catch (_) {}
       }
     }
     if (!input.isDown('jump')) this._jumpingDown = false;

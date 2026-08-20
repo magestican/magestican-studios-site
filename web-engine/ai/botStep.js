@@ -19,11 +19,18 @@ export const GROUND_Y   = 2.0;   // legacy const kept for tests; barn-floor case
 export const WALK_Y     = SAMPLE_Y;
 export const GROUND_SEARCH_MAX_Y = 8;   // top of stack we bother to scan
 
-// Return the world-y at which the bot's feet should sit — i.e. one above
-// the tallest SOLID voxel at (x, z). Falls back to GROUND_Y if nothing
-// solid is found (empty world / out of bounds).
-export function groundHeightAt(grid, x, z) {
-  for (let y = GROUND_SEARCH_MAX_Y; y >= 0; y--) {
+// Return the world-y at which the bot's feet should sit at (x, z).
+//
+// Scans DOWNWARD from just above the bot's current head — so a barn glass
+// roof at y=6 doesn't get mistaken for "ground" and lift the bot onto the
+// roof. The barn floor is y=1 (top=2); outdoor grass is y=0 (top=1); this
+// finds whichever is directly under the bot's feet.
+//
+// `fromY` = current pos.y; we look from fromY+1 (head height cap) down.
+// If nothing solid is found in that column, fall back to GROUND_Y (2.0).
+export function groundHeightAt(grid, x, z, fromY = GROUND_Y) {
+  const startY = Math.min(GROUND_SEARCH_MAX_Y, Math.max(1, Math.floor(fromY + 1)));
+  for (let y = startY; y >= 0; y--) {
     if (grid.isSolid(x, y + 0.5, z)) return y + 1;
   }
   return GROUND_Y;
@@ -73,7 +80,10 @@ export function stepBot(state, dt, grid, goal, rng = Math.random) {
   // Anchor to the ground UNDER the bot's current xz — not a fixed y — so
   // bots don't float 1m above the grass when they leave the barn. Inside
   // a barn: floor voxel top = y=2. Outside on grass: ground top = y=1.
-  state.pos.y = groundHeightAt(grid, state.pos.x, state.pos.z);
+  // Pass state.pos.y so we search from ABOVE it downward — the glass roof
+  // above the bot doesn't get counted as "ground" (which would teleport
+  // the bot onto the roof).
+  state.pos.y = groundHeightAt(grid, state.pos.x, state.pos.z, state.pos.y);
 
   // Smooth turn.
   const targetYaw = Math.atan2(state.wanderDir.x, state.wanderDir.z);

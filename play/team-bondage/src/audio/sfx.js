@@ -192,6 +192,106 @@ export function snorkel() {
   noise.start(t); noise.stop(t + 0.25);
 }
 
+// -- Animal voices ---------------------------------------------------------
+// Simple synthesised farm-animal sounds. Each takes an optional `loudness`.
+// Played on double-jump + on death (see game.js). Every one is short (~350-
+// 500ms) so it doesn't step on gunfire.
+
+function _envOsc(ctx, dur, type, f0, f1, gain) {
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(f0, t);
+  osc.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(gain, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  osc.connect(g).connect(_master);
+  osc.start(t); osc.stop(t + dur + 0.05);
+}
+
+// Cow "MOOoooo" — low sustained sine descending.
+export function moo(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  _envOsc(ctx, 0.55, 'sawtooth', 220, 110, 0.30 * loudness);
+  _envOsc(ctx, 0.55, 'sine',     110, 60,  0.20 * loudness);
+}
+
+// Pig "OINK oink" — two short throaty grunts.
+export function oink(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t0 = ctx.currentTime;
+  for (const [start, dur, f0, f1] of [[0.00, 0.13, 380, 180], [0.18, 0.11, 340, 160]]) {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(f0, t0 + start);
+    osc.frequency.exponentialRampToValueAtTime(f1, t0 + start + dur);
+    g.gain.setValueAtTime(0, t0 + start);
+    g.gain.linearRampToValueAtTime(0.30 * loudness, t0 + start + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + start + dur);
+    osc.connect(g).connect(_master);
+    osc.start(t0 + start); osc.stop(t0 + start + dur + 0.05);
+  }
+}
+
+// Sheep "BHEEEEEE" — wavering triangle with vibrato around 500 Hz.
+export function bheee(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime, dur = 0.50;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(520, t);
+  // Vibrato
+  const lfo = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+  lfo.type = 'sine'; lfo.frequency.value = 14;
+  lfoGain.gain.value = 40;
+  lfo.connect(lfoGain).connect(osc.frequency);
+  lfo.start(t); lfo.stop(t + dur + 0.05);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.28 * loudness, t + 0.03);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  osc.connect(g).connect(_master);
+  osc.start(t); osc.stop(t + dur + 0.05);
+}
+
+// Chicken "BAWK bawk bawk" — three fast rising squawks.
+export function cluck(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t0 = ctx.currentTime;
+  const parts = [
+    [0.00, 0.10, 880, 1500],
+    [0.14, 0.07, 780, 1200],
+    [0.24, 0.07, 760, 1150],
+  ];
+  for (const [start, dur, f0, f1] of parts) {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(f0, t0 + start);
+    osc.frequency.exponentialRampToValueAtTime(f1, t0 + start + dur);
+    g.gain.setValueAtTime(0, t0 + start);
+    g.gain.linearRampToValueAtTime(0.22 * loudness, t0 + start + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + start + dur);
+    osc.connect(g).connect(_master);
+    osc.start(t0 + start); osc.stop(t0 + start + dur + 0.05);
+  }
+}
+
+// Dispatch: play the right voice for a given character kind.
+export function animalVoice(character, loudness = 1.0) {
+  switch (character) {
+    case 'cow':     return moo(loudness);
+    case 'pig':     return oink(loudness);
+    case 'sheep':   return bheee(loudness);
+    case 'chicken': return cluck(loudness);
+    default:        return moo(loudness);
+  }
+}
+
 function whiteNoise(ctx, dur) {
   const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate);
   const d = buf.getChannelData(0);
