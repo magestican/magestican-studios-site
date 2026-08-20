@@ -70,19 +70,20 @@ export function generateWorld(seed) {
     }
   }
 
-  // Scatter hay stacks (2x2x2 blocks of hay) - cover you can hide behind.
+  // Scatter hay bales - voxel-stepped cylinders that approximate a round
+  // bale silhouette from any angle. Each bale is 3x3 at the base, 3x3 in
+  // the middle course, and 2x2 on top, capped by a 1x1 tuft.
   const hayRng = rng.child('hay');
   const hayCount = hayRng.rangeI(8, 12);
   const hayStacks = [];
   for (let i = 0; i < hayCount; i++) {
-    const hx = hayRng.rangeI(6, WORLD_SIZE.x - 8);
-    const hz = hayRng.rangeI(6, WORLD_SIZE.z - 8);
+    const hx = hayRng.rangeI(6, WORLD_SIZE.x - 9);
+    const hz = hayRng.rangeI(6, WORLD_SIZE.z - 9);
     if (insideBase(hx, hz, redBase) || insideBase(hx, hz, blueBase)) continue;
     // Don't stack ON the central hill.
     if (Math.abs(hx - cx) < 4 && Math.abs(hz - cz) < 4) continue;
-    const h = hayRng.chance(0.5) ? 2 : 3;
-    grid.fillBox(hx, 1, hz, hx + 1, h, hz + 1, VOX.HAY);
-    hayStacks.push({ x: hx, z: hz, h });
+    _buildHayBale(grid, hx, hz);
+    hayStacks.push({ x: hx, z: hz });
   }
 
   // Hill spawn point for the chicken slingshot pickup.
@@ -133,4 +134,25 @@ function buildBase(grid, ox, oz, baseVox, standVox) {
 function insideBase(x, z, base) {
   return x >= base.x - 1 && x <= base.x + BASE_SIZE.x
       && z >= base.z - 1 && z <= base.z + BASE_SIZE.z;
+}
+
+// Round-ish hay bale (voxel-stepped cylinder). ox,oz is the front-left
+// corner of the 3x3 footprint.
+function _buildHayBale(grid, ox, oz) {
+  // Layer 1 (base): 3x3 solid.
+  for (let dx = 0; dx < 3; dx++)
+    for (let dz = 0; dz < 3; dz++)
+      grid.set(ox + dx, 1, oz + dz, VOX.HAY);
+  // Layer 2: 3x3 minus the 4 corners = plus/octagon shape.
+  const octagon = (dx, dz) => !((dx === 0 || dx === 2) && (dz === 0 || dz === 2));
+  for (let dx = 0; dx < 3; dx++)
+    for (let dz = 0; dz < 3; dz++)
+      if (octagon(dx, dz)) grid.set(ox + dx, 2, oz + dz, VOX.HAY);
+  // Layer 3 (top): 2x2 centred (offset so it hovers over the middle).
+  grid.set(ox + 1, 3, oz + 1, VOX.HAY);
+  grid.set(ox + 1, 3, oz + 2, VOX.HAY);
+  grid.set(ox + 2, 3, oz + 1, VOX.HAY);
+  grid.set(ox + 2, 3, oz + 2, VOX.HAY);
+  // Tuft on top (a single cube).
+  grid.set(ox + 1, 4, oz + 1, VOX.HAY);
 }

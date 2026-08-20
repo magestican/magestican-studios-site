@@ -73,17 +73,22 @@ function paintBullVsHorse(canvas, t) {
   const rockBull  = Math.sin(t * 3.2) * 0.10;
   const rockHorse = Math.cos(t * 3.4) * 0.14;
 
-  // BULL: buffed, on left, pushing right.
+  // Wrestling ring outline (thick red rope around the arena).
+  g.strokeStyle = 'rgba(183,58,42,0.55)';
+  g.lineWidth = 18;
+  g.strokeRect(60, 60, FACE_SIZE - 120, FACE_SIZE - 120 - 120);   // leaves room for banner
+
+  // BULL: buffed, on FAR LEFT so it doesn't overlap the horse.
   drawBull(g,
-    FACE_SIZE * 0.30 + shake,
-    FACE_SIZE * 0.58 + Math.sin(t * 2.7) * 8,
-    FACE_SIZE * 0.32,
+    FACE_SIZE * 0.22 + shake,
+    FACE_SIZE * 0.55 + Math.sin(t * 2.7) * 8,
+    FACE_SIZE * 0.26,
     rockBull);
-  // HORSE: rearing, on right, pushing left.
+  // HORSE: rearing, on FAR RIGHT.
   drawHorse(g,
-    FACE_SIZE * 0.70 - shake,
-    FACE_SIZE * 0.55 + Math.cos(t * 2.9) * 6,
-    FACE_SIZE * 0.30,
+    FACE_SIZE * 0.78 - shake,
+    FACE_SIZE * 0.50 + Math.cos(t * 2.9) * 6,
+    FACE_SIZE * 0.26,
     rockHorse);
 
   // BIG "VS" between them.
