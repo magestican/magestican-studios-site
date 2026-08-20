@@ -90,11 +90,13 @@ export class TouchControls {
     }, { passive: false });
     fire.addEventListener('touchcancel', () => this.input.setSynthetic('fire', false));
 
-    // Global touchstart/move/end for joystick + look drag.
-    this.container.addEventListener('touchstart', (e) => this._onTouchStart(e), { passive: false });
-    this.container.addEventListener('touchmove',  (e) => this._onTouchMove(e),  { passive: false });
-    this.container.addEventListener('touchend',   (e) => this._onTouchEnd(e),   { passive: false });
-    this.container.addEventListener('touchcancel',(e) => this._onTouchEnd(e),   { passive: false });
+    // Window-level touch listeners so we get events regardless of what
+    // element the touch landed on (canvas, container, HUD - all pass-through
+    // when pointer-events:none is set on some layers).
+    window.addEventListener('touchstart', (e) => this._onTouchStart(e), { passive: false });
+    window.addEventListener('touchmove',  (e) => this._onTouchMove(e),  { passive: false });
+    window.addEventListener('touchend',   (e) => this._onTouchEnd(e),   { passive: false });
+    window.addEventListener('touchcancel',(e) => this._onTouchEnd(e),   { passive: false });
   }
 
   _onTouchStart(e) {
@@ -176,10 +178,10 @@ export class TouchControls {
 const TOUCH_CSS = `
 #touch-controls {
   position: fixed; inset: 0; z-index: 6;
-  pointer-events: none;
+  /* No pointer-events:none -- we want touches on the joystick area to be
+     consumed by the overlay, not slip through to the canvas underneath. */
   touch-action: none;
 }
-#touch-controls * { pointer-events: auto; }
 #tc-joystick-base {
   position: absolute; width: 120px; height: 120px;
   border: 2px solid rgba(255,255,255,0.35);

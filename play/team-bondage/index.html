@@ -99,6 +99,21 @@
       transition: width 0.15s ease-out;
     }
     #weaponbar { position: absolute; right: 20px; bottom: 20px; display: flex; gap: 6px; }
+    #mute-btn { position: absolute; top: max(10px, env(safe-area-inset-top));
+      right: max(10px, env(safe-area-inset-right));
+      width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.4); color: white; font-size: 20px; cursor: pointer;
+      pointer-events: auto;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #lobby-banner { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; background: rgba(6,10,16,0.7); padding: 22px 32px; border-radius: 12px;
+      border: 1px solid rgba(244,201,93,0.5); min-width: 240px; display: none;
+    }
+    #lobby-banner.visible { display: block; }
+    #lobby-banner h2 { font-family: Georgia,serif; font-size: 22px; margin: 0 0 8px; }
+    #lobby-banner .count { font-size: 42px; font-weight: 700; color: #f4c95d; font-variant-numeric: tabular-nums; margin: 4px 0; }
+    #lobby-banner .hint { font-size: 13px; color: #cbd3e1; }
     .wpn { padding: 6px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15);
       border-radius: 6px; font-size: 14px;
     }
@@ -231,6 +246,12 @@
       <div class="wpn active" data-w="0">1 Pistol</div>
       <div class="wpn"        data-w="1">2 Shotgun</div>
       <div class="wpn"        data-w="2">3 Rocket</div>
+    </div>
+    <button id="mute-btn" aria-label="Toggle music">🔊</button>
+    <div id="lobby-banner">
+      <h2 id="lobby-title">Waiting for players…</h2>
+      <div class="count" id="lobby-count">1</div>
+      <div class="hint" id="lobby-hint">Share the room link to invite. Match starts when 2+ are here.</div>
     </div>
   </div>
 

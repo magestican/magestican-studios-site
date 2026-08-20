@@ -17,4 +17,6 @@ export const MSG = Object.freeze({
   ANAGRAM_START: 'anaStart', // {t, word, scrambled, losingTeam, endsAt}
   ANAGRAM_WIN:   'anaWin',   // {t, winner:'red'|'blue', by:<peerId>}
   CHAT:       'chat',        // {t, from, text}
+  MATCH_STATE:  'matchState', // {t, state:'lobby'|'countdown'|'playing'|'ended', endsAt?:number}
+  TEAM_ASSIGN:  'teamAssign', // {t, assignments:{[peerId]:'red'|'blue'}} - host authority
 });

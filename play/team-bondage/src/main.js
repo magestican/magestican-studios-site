@@ -63,12 +63,27 @@ for (const btn of $('teamRow').querySelectorAll('button')) {
   });
 }
 
-// Persist + prefill name.
-$('nameInput').value = localStorage.getItem('tb.name') || '';
+// Persist + prefill name. If nothing saved, generate a random one so people
+// can just tap Host without typing.
+const ADJ = ['Fierce','Swift','Cunning','Salty','Wooly','Cranky','Feral','Nimble','Bumpy','Rowdy','Sleepy','Grumpy','Merry','Quiet','Rustic','Muddy','Fuzzy','Crimson','Cobalt','Stormy'];
+const NOUN = ['Cow','Chicken','Pig','Sheep','Bandit','Ranger','Farmer','Scout','Sniper','Buccaneer','Cadet','Marshal','Wanderer'];
+function randomName() {
+  const a = ADJ[Math.floor(Math.random() * ADJ.length)];
+  const n = NOUN[Math.floor(Math.random() * NOUN.length)];
+  const num = Math.floor(Math.random() * 90 + 10);
+  return `${a}${n}${num}`;
+}
+$('nameInput').value = localStorage.getItem('tb.name') || randomName();
+state.name = $('nameInput').value.trim();
 $('nameInput').addEventListener('input', (e) => {
   state.name = e.target.value.trim();
   localStorage.setItem('tb.name', state.name);
 });
+
+// Also auto-pick a random team so first-time players can just tap Host.
+const initialTeam = Math.random() < 0.5 ? 'red' : 'blue';
+state.team = initialTeam;
+selectFrom('teamRow', 'team', initialTeam);
 
 // -----------------------------------------------------------------------------
 // Auto-join from URL: ?join=<peerId>
@@ -99,10 +114,14 @@ $('joinBtn').addEventListener('click', async () => {
 });
 
 function validate() {
-  const name = $('nameInput').value.trim();
+  const name = $('nameInput').value.trim() || randomName();
   state.name = name;
-  if (!name) { alert('Enter a player name first.'); return false; }
-  if (!state.team) { alert('Pick a team (red or blue).'); return false; }
+  $('nameInput').value = name;
+  localStorage.setItem('tb.name', name);
+  if (!state.team) {
+    state.team = Math.random() < 0.5 ? 'red' : 'blue';
+    selectFrom('teamRow', 'team', state.team);
+  }
   return true;
 }
 

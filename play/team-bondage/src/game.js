@@ -14,6 +14,7 @@ import { RemotePlayer }     from './entities/remotePlayer.js';
 import { MSG }              from './net/protocol.js';
 import { pickWord, scramble } from './util/anagram.js';
 import { TouchControls }     from './touchControls.js';
+import { Chiptune }           from './audio/chiptune.js';
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
 const FLAG_HOME_RADIUS = 2.0;   // steps within this of your own flag stand = capture
@@ -21,6 +22,8 @@ const WIN_SCORE = 5;
 const NET_TICK_HZ = 20;
 const RESPAWN_DELAY = 0.0;      // "immediate" per spec
 const ANAGRAM_SECONDS = 10;
+const LOBBY_MIN_PLAYERS = 2;
+const LOBBY_COUNTDOWN_SECONDS = 10;
 
 export class Game {
   constructor(opts) {
@@ -35,6 +38,8 @@ export class Game {
 
     this.scores = { red: 0, blue: 0 };
     this.gameOver = false;
+    this.matchState = 'lobby';           // lobby -> countdown -> playing -> ended
+    this._matchEndsAt = 0;               // for countdown / anagram timers
     this.remotePlayers = new Map();      // peerId -> RemotePlayer
     this.playerMeta = new Map();         // peerId -> {name, character, team}
     this.playerMeta.set(this.myId, {
@@ -46,6 +51,7 @@ export class Game {
     this._anagram = null;                // { word, scrambled, endsAt, losingTeam }
     this._lastRespawnAt = 0;
     this._killFeed = [];                 // recent kill lines
+    this.audio = new Chiptune();
   }
 
   // -------------------------------------------------------------------------
@@ -76,6 +82,27 @@ export class Game {
 
     // Send our HELLO to whoever's out there.
     this._broadcast({ t: MSG.HELLO, name: this.name, character: this.character, team: this.team });
+
+    // Wire mute button (works on both desktop and mobile).
+    const muteBtn = document.getElementById('mute-btn');
+    const paintMute = () => { muteBtn.textContent = this.audio.muted ? '🔇' : '🔊'; };
+    paintMute();
+    muteBtn.addEventListener('click', () => { this.audio.toggleMuted(); paintMute(); });
+
+    // Kick off audio on first pointer/touch gesture (iOS autoplay policy).
+    const startAudioOnce = () => {
+      this.audio.start();
+      window.removeEventListener('pointerdown', startAudioOnce);
+      window.removeEventListener('touchstart', startAudioOnce);
+    };
+    window.addEventListener('pointerdown', startAudioOnce, { once: true });
+    window.addEventListener('touchstart', startAudioOnce, { once: true, passive: true });
+
+    // Show the lobby banner. Solo host: waits for 2+ players; countdown then
+    // starts and match transitions to 'playing'. Joiners get the current
+    // matchState via WELCOME.
+    this._updateLobbyBanner();
+    if (this.isHost) this._maybeStartCountdown();
 
     // On next frame:
     this.opts.onReady && this.opts.onReady();
@@ -221,7 +248,110 @@ export class Game {
     this.mesh.send(peerId, {
       t: MSG.WELCOME, seed: this.seed, scores: this.scores,
       playersMeta: [...this.playerMeta.entries()],
+      matchState: this.matchState,
+      matchEndsAt: this._matchEndsAt,
     });
+  }
+
+  // Host-only: recount teams across all known peers (including self) and
+  // reassign anyone breaking balance. Broadcasts a TEAM_ASSIGN with the
+  // resulting map so every client sees the same assignments.
+  _rebalanceTeams() {
+    if (!this.isHost) return;
+    const peers = [...this.playerMeta.entries()];
+    const assignments = {};
+    for (const [pid, meta] of peers) assignments[pid] = meta.team;
+    // Count
+    const count = () => {
+      let r = 0, b = 0;
+      for (const pid in assignments) {
+        if (assignments[pid] === 'red') r++; else b++;
+      }
+      return { r, b };
+    };
+    // Reassign peers newest-first until |r-b| <= 1. Deterministic order by
+    // peerId sort so every peer arrives at the same result if they replay it.
+    const orderedIds = Object.keys(assignments).sort();
+    let safety = 20;
+    while (safety-- > 0) {
+      const { r, b } = count();
+      if (Math.abs(r - b) <= 1) break;
+      const overflowTeam = r > b ? 'red' : 'blue';
+      const underTeam    = r > b ? 'blue' : 'red';
+      // Move the LAST peer on the overflow team (newest joiner) to under.
+      let moved = false;
+      for (let i = orderedIds.length - 1; i >= 0; i--) {
+        const pid = orderedIds[i];
+        if (assignments[pid] === overflowTeam) {
+          assignments[pid] = underTeam;
+          moved = true;
+          break;
+        }
+      }
+      if (!moved) break;
+    }
+    // Apply locally + broadcast.
+    for (const pid in assignments) {
+      const meta = this.playerMeta.get(pid);
+      if (meta && meta.team !== assignments[pid]) {
+        meta.team = assignments[pid];
+        if (pid === this.myId) {
+          this.team = assignments[pid];
+          this.player.team = this.team;
+          this.player.spawn = { ...this.world.spawns[this.team] };
+        }
+        // Update remote player visual (armband colour would need rebuild;
+        // simplification: just log for now, respawn will use new spawn).
+      }
+    }
+    this._broadcast({ t: MSG.TEAM_ASSIGN, assignments });
+  }
+
+  _maybeStartCountdown() {
+    if (!this.isHost) return;
+    if (this.matchState !== 'lobby') return;
+    const nPlayers = this.playerMeta.size;
+    if (nPlayers < LOBBY_MIN_PLAYERS) return;
+    // Rebalance first.
+    this._rebalanceTeams();
+    // Start countdown.
+    const endsAt = Date.now() + LOBBY_COUNTDOWN_SECONDS * 1000;
+    this.matchState = 'countdown';
+    this._matchEndsAt = endsAt;
+    this._broadcast({ t: MSG.MATCH_STATE, state: 'countdown', endsAt });
+    // Also send SCORES + CURRENT playerMeta again for good measure.
+    this._updateLobbyBanner();
+    // Timer to flip to 'playing'.
+    setTimeout(() => {
+      if (this.matchState === 'countdown') {
+        this.matchState = 'playing';
+        this._broadcast({ t: MSG.MATCH_STATE, state: 'playing' });
+        this._updateLobbyBanner();
+      }
+    }, LOBBY_COUNTDOWN_SECONDS * 1000);
+  }
+
+  _updateLobbyBanner() {
+    const el = document.getElementById('lobby-banner');
+    const title = document.getElementById('lobby-title');
+    const count = document.getElementById('lobby-count');
+    const hint = document.getElementById('lobby-hint');
+    if (this.matchState === 'lobby') {
+      el.classList.add('visible');
+      title.textContent = 'Waiting for players…';
+      count.textContent = this.playerMeta.size + ' / ' + LOBBY_MIN_PLAYERS;
+      hint.textContent = this.isHost
+        ? 'Share the room link. Countdown starts when 2 are here.'
+        : 'Waiting for the host to have 2+ players before the match starts.';
+    } else if (this.matchState === 'countdown') {
+      el.classList.add('visible');
+      title.textContent = 'Match starting…';
+      const remain = Math.max(0, Math.ceil((this._matchEndsAt - Date.now()) / 1000));
+      count.textContent = remain;
+      hint.textContent = `You are on ${this.team.toUpperCase()} team, playing as ${this.character}.`;
+    } else {
+      el.classList.remove('visible');
+    }
   }
 
   _broadcast(msg) { this.mesh.broadcast(msg); }
@@ -236,7 +366,12 @@ export class Game {
           if (pid === this.myId) continue;
           this.playerMeta.set(pid, meta);
         }
+        if (msg.matchState) {
+          this.matchState = msg.matchState;
+          this._matchEndsAt = msg.matchEndsAt || 0;
+        }
         this._updateScoreUi();
+        this._updateLobbyBanner();
         break;
 
       case MSG.HELLO:
@@ -246,8 +381,35 @@ export class Game {
           this.remotePlayers.set(from, new RemotePlayer(this.scene, from,
             { name: msg.name, character: msg.character, team: msg.team }));
         }
-        // If we're host, welcome this new peer to catch them up.
-        if (this.isHost) this._sendWelcome(from);
+        // If we're host, welcome this new peer to catch them up, then trigger
+        // team-balance + potentially start the countdown.
+        if (this.isHost) {
+          this._sendWelcome(from);
+          this._rebalanceTeams();
+          this._maybeStartCountdown();
+        }
+        this._updateLobbyBanner();
+        break;
+
+      case MSG.TEAM_ASSIGN: {
+        for (const pid in msg.assignments) {
+          const meta = this.playerMeta.get(pid);
+          if (!meta) continue;
+          meta.team = msg.assignments[pid];
+          if (pid === this.myId && this.team !== msg.assignments[pid]) {
+            this.team = msg.assignments[pid];
+            this.player.team = this.team;
+            this.player.spawn = { ...this.world.spawns[this.team] };
+            this.player.respawn();
+          }
+        }
+        break;
+      }
+
+      case MSG.MATCH_STATE:
+        this.matchState = msg.state;
+        this._matchEndsAt = msg.endsAt || 0;
+        this._updateLobbyBanner();
         break;
 
       case MSG.STATE: {
@@ -325,6 +487,24 @@ export class Game {
   }
 
   _tick(dt) {
+    // Lobby / countdown state -- update banner, freeze gameplay input.
+    if (this.matchState !== 'playing' && this.matchState !== 'ended') {
+      this._updateLobbyBanner();
+      for (const rp of this.remotePlayers.values()) rp.update(dt);
+      // Still send our state so peers can see the character standing at spawn.
+      this._netAccum += dt;
+      if (this._netAccum >= 1 / 5) {
+        this._netAccum = 0;
+        this._broadcast({
+          t: MSG.STATE,
+          p: [this.player.pos.x, this.player.pos.y, this.player.pos.z],
+          y: this.player.yaw, x: this.player.pitch, h: this.player.hp,
+          c: this.character, tm: this.team, hf: false,
+        });
+      }
+      this.input.endFrame();
+      return;
+    }
     if (this._anagram && !this._anagram.spectator) {
       // Local player is on the losing team during an anagram - freeze the FPS
       // world (they still see it but can't move) so their focus goes to the
