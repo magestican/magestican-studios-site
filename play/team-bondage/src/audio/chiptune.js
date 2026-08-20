@@ -22,27 +22,66 @@ const NOTE = {
 const BPM = 168;
 const BEAT = 60 / BPM;
 
+// Melody = 16 bars (2 verses + bridge + outro) at 168 BPM = ~23 seconds.
 function melody() {
-  return [
+  const verse = [
+    // A minor riff
     [NOTE.A4, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5],
     [NOTE.B4, 0.5], [NOTE.D5, 0.5], [NOTE.A4, 0.5], [NOTE.C5, 0.5],
     [NOTE.A4, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.G5, 0.5],
     [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 1.0],
+    // sixteenths climb
     [NOTE.A4, 0.25], [NOTE.B4, 0.25], [NOTE.C5, 0.25], [NOTE.D5, 0.25],
     [NOTE.E5, 0.5],  [NOTE.D5, 0.5],  [NOTE.C5, 0.5],  [NOTE.B4, 0.5],
     [NOTE.E5, 0.5], [NOTE.D5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 0.5],
     [NOTE.G4, 0.5], [NOTE.A4, 0.5], [NOTE.E4, 1.0],
   ];
+  const bridge = [
+    // Chord stabs + gaps for the guitar to take over
+    [NOTE.C5, 0.5], [null, 0.5], [NOTE.E5, 0.5], [null, 0.5],
+    [NOTE.G5, 0.5], [null, 0.5], [NOTE.E5, 1.0],
+    [NOTE.D5, 0.5], [null, 0.5], [NOTE.B4, 0.5], [null, 0.5],
+    [NOTE.G4, 0.5], [null, 0.5], [NOTE.A4, 1.0],
+  ];
+  return [...verse, ...verse, ...bridge];
 }
+
 function bass() {
-  const roots = [NOTE.A2, NOTE.C3, NOTE.G3, NOTE.E3];
+  // Distorted-guitar-style bass: driving eighths on the root + fifth.
+  const roots = [
+    [NOTE.A2, NOTE.E3],  // Am
+    [NOTE.C3, NOTE.G3],  // C
+    [NOTE.G3, NOTE.D4],  // G  (one octave up so it cuts)
+    [NOTE.E3, NOTE.B4],  // Em
+  ];
   const out = [];
-  for (let bar = 0; bar < 8; bar++) {
-    const r = roots[bar % 4];
-    for (let e = 0; e < 8; e++) out.push([r, 0.5]);
+  for (let bar = 0; bar < 20; bar++) {   // pad to at least melody length
+    const [root, fifth] = roots[bar % 4];
+    // Riff pattern: R R R 5th, R R 5th R  (chunky palm-mute feel)
+    const pat = [root, root, root, fifth, root, root, fifth, root];
+    for (const n of pat) out.push([n, 0.5]);
   }
   return out;
 }
+
+// Distorted-guitar lead: plays chord-arpeggios on the bridge only, silent
+// during verses so it feels like the guitarist comes in for the hook.
+function guitar() {
+  // Silent during verse 1 + verse 2 (32 beats each? actually 16 beats each).
+  // Melody: verse 16 beats * 2 + bridge 12 beats = 44 beats. Let me put
+  // guitar during bridge (beats 32-43).
+  const silent = new Array(32).fill([null, 1]);
+  const bridge = [
+    [NOTE.A4, 0.25], [NOTE.C5, 0.25], [NOTE.E5, 0.25], [NOTE.A5 || NOTE.G5, 0.25],
+    [NOTE.E5, 0.25], [NOTE.C5, 0.25], [NOTE.A4, 0.5],
+    [NOTE.G4, 0.25], [NOTE.B4, 0.25], [NOTE.D5, 0.25], [NOTE.G5, 0.25],
+    [NOTE.D5, 0.25], [NOTE.B4, 0.25], [NOTE.G4, 0.5],
+    [NOTE.A4, 0.25], [NOTE.C5, 0.25], [NOTE.E5, 0.25], [NOTE.G5, 0.25],
+    [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 1.0],
+  ];
+  return [...silent, ...bridge];
+}
+
 const totalBeats = (seq) => seq.reduce((s, [, b]) => s + b, 0);
 
 export class Chiptune {
@@ -136,15 +175,23 @@ export class Chiptune {
   }
 
   async _render() {
-    const mel = melody(); const bs = bass();
-    const dur = Math.max(totalBeats(mel), totalBeats(bs)) * BEAT + 0.2;
+    const mel = melody(); const bs = bass(); const gtr = guitar();
+    const dur = Math.max(totalBeats(mel), totalBeats(bs), totalBeats(gtr)) * BEAT + 0.4;
     const sampleRate = 44100;
     const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     if (!Offline) throw new Error('no OfflineAudioContext');
     const ctx = new Offline(2, Math.ceil(dur * sampleRate), sampleRate);
     const master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
-    _scheduleVoice(ctx, master, mel, 'square', 0.16);
-    _scheduleVoice(ctx, master, bs,  'sawtooth', 0.22);
+    // Distortion + low-pass "guitar amp" bus for the bass + guitar voices.
+    const ampBus = ctx.createGain(); ampBus.gain.value = 1.0;
+    const shaper = ctx.createWaveShaper(); shaper.curve = _distortionCurve(50);
+    const lowpass = ctx.createBiquadFilter();
+    lowpass.type = 'lowpass'; lowpass.frequency.value = 2200; lowpass.Q.value = 0.7;
+    ampBus.connect(shaper).connect(lowpass).connect(master);
+
+    _scheduleVoice(ctx, master, mel, 'square',   0.16);   // lead melody (chip)
+    _scheduleVoice(ctx, ampBus, bs,  'sawtooth', 0.22);   // driving bass (through amp)
+    _scheduleVoice(ctx, ampBus, gtr, 'square',   0.18);   // guitar riff (through amp)
     const buffer = await ctx.startRendering();
     const wav = _bufferToWav(buffer);
     const blob = new Blob([wav], { type: 'audio/wav' });
@@ -171,6 +218,19 @@ export class Chiptune {
     if (this._audio) return !this._audio.paused;
     return this._fallbackPlaying;
   }
+}
+
+// Symmetric soft-clip curve for distortion effect (guitar amp fake).
+function _distortionCurve(amount) {
+  const n = 4096;
+  const curve = new Float32Array(n);
+  const k = amount;
+  const deg = Math.PI / 180;
+  for (let i = 0; i < n; i++) {
+    const x = i * 2 / n - 1;
+    curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+  }
+  return curve;
 }
 
 function _scheduleVoice(ctx, dest, seq, type, peakGain) {

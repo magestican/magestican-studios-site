@@ -30,7 +30,7 @@ const NET_TICK_HZ = 20;
 const RESPAWN_DELAY = 0.0;      // "immediate" per spec
 const ANAGRAM_SECONDS = 10;
 const LOBBY_MIN_PLAYERS = 2;
-const LOBBY_COUNTDOWN_SECONDS = 10;
+const LOBBY_COUNTDOWN_SECONDS = 5;
 
 export class Game {
   constructor(opts) {
@@ -763,6 +763,16 @@ export class Game {
   }
 
   _tick(dt) {
+    // Publish a small debug snapshot so the touch-debug HUD can show what
+    // the game actually thinks is happening (why isn't the player moving?).
+    this._tickCount = (this._tickCount || 0) + 1;
+    window.__tbDebug = {
+      match: this.matchState,
+      alive: this.player?.alive,
+      ticks: this._tickCount,
+      pos: this.player ? `${this.player.pos.x.toFixed(1)},${this.player.pos.y.toFixed(1)},${this.player.pos.z.toFixed(1)}` : '?',
+      vel: this.player ? `${this.player.vel.x.toFixed(1)},${this.player.vel.y.toFixed(1)},${this.player.vel.z.toFixed(1)}` : '?',
+    };
     // Lobby / countdown state -- player can still walk around and look
     // (practice mode), but no damage is dealt and flags don't count.
     if (this.matchState !== 'playing' && this.matchState !== 'ended') {

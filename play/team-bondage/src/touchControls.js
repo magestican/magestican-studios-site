@@ -110,9 +110,16 @@ export class TouchControls {
     if (!this._debug) return;
     const actions = ['moveForward','moveBack','moveLeft','moveRight','fire','jump']
       .filter((a) => this.input.isDown(a)).join(',') || '(none)';
+    // The optional game snapshot is set every frame by game.js._tick so we
+    // can see WHY movement isn't happening on the phone (position, velocity,
+    // match state, alive, tick count).
+    const gs = window.__tbDebug || {};
     this._debug.textContent =
       `touches: ${this._touchCount}  active: ${this._joystickTouch ? 'J' : '-'}${this._lookTouch ? 'L' : '-'}\n` +
-      `actions: ${actions}`;
+      `actions: ${actions}\n` +
+      `state:   ${gs.match || '?'}   alive: ${gs.alive === undefined ? '?' : gs.alive}   ticks: ${gs.ticks ?? 0}\n` +
+      `pos:     ${gs.pos || '?'}\n` +
+      `vel:     ${gs.vel || '?'}`;
   }
 
   _onTouchStart(e) {
