@@ -424,6 +424,27 @@
   <button id="mature-btn" aria-label="Toggle gore mode">GORE</button>
   <button id="enable-sound" aria-label="Enable sound">🔊 Tap to enable sound</button>
   <button id="add-bot-btn" aria-label="Add AI bot" style="display:none;">+ Bot</button>
+  <button id="settings-btn" aria-label="Open settings">⚙</button>
+  <div id="settings-modal">
+    <div class="settings-card">
+      <h2>A Magestican Studios game</h2>
+      <p class="credit">Team Bondage &middot; ice-drift CTF for the browser</p>
+
+      <label class="setting">
+        <span>Music volume</span>
+        <input id="volume-slider" type="range" min="0" max="100" value="35">
+        <span id="volume-value">35</span>
+      </label>
+
+      <label class="setting checkbox">
+        <input id="music-mute" type="checkbox">
+        <span>Mute music</span>
+      </label>
+
+      <p class="hint">Esc closes this dialog.</p>
+      <button id="settings-close">Close</button>
+    </div>
+  </div>
   <div id="lobby-banner">
     <h2 id="lobby-title">Waiting for players…</h2>
     <div class="count" id="lobby-count">1</div>
