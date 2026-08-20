@@ -26,6 +26,8 @@ import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
 import { createPhysicsWorld } from 'arbelo/physics';
 import { SnowSystem }         from './entities/snow.js';
 import { ChickenPickup }      from './entities/chickenPickup.js';
+import { SteakPickups, SIDES as STEAK_SIDES } from './entities/steakPickups.js';
+import { computeFlagAction }  from '../../../../web-engine/ctf/flagLogic.js';
 import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js';
 import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
 import { GoreSystem }         from './entities/gore.js';
@@ -354,6 +356,17 @@ export class Game {
     });
     // Local per-player "have a chicken shot ready" flag.
     this.chickenAmmo = 0;
+    // Steak system: 4 floating breakable steaks (one per edge). Count how
+    // many the local player has broken. At 5, next fire launches a
+    // sticky-poison steak. See docs/features/steak-weapon.md.
+    this.steakPickups = new SteakPickups(this.scene, {});
+    this.steakScore = 0;                // local counter, 0..5
+    this.steakAmmo = 0;                 // 0 or 1 charged throws
+    this._steakPoisonBy = new Map();    // victimId -> attackerId
+    if (this.isHost) {
+      // Host-side poison DOT: 2 dmg/sec to every poisoned player.
+      this._steakPoisonTimer = setInterval(() => this._steakPoisonTick(), 1000);
+    }
     this._hazardRngHost = this.isHost ? new SeededRng((this.seed ^ 0x51a9a7d1) >>> 0) : null;
     this._nextHazardAt = performance.now() + 4000;   // first wave 4s after boot
   }
@@ -1071,6 +1084,27 @@ export class Game {
         this.flagPos[msg.color] = { x: msg.at[0], y: msg.at[1], z: msg.at[2] };
         this._syncFlagMesh(msg.color);
         break;
+      case MSG.FLAG_RETURN:
+        // Someone died carrying this flag — snap it back to its home
+        // stand. Bryan 2026-08-20: "when I die with the flag, the flag
+        // should go back to its initial location".
+        this._returnFlag(msg.color);
+        break;
+      case MSG.STEAK_BREAK:
+        this._steakBreakRemote(msg.at, msg.by);
+        break;
+      case MSG.STEAK_THROW:
+        this._spawnSteakProjectile(msg);
+        break;
+      case MSG.STEAK_ATTACH:
+        this._applySteakAttach(msg.victim, msg.by);
+        break;
+      case MSG.STEAK_TICK:
+        if (msg.victim === this.myId) this._takeDamage(msg.dmg, this._steakPoisonBy?.get(this.myId), 'steak');
+        break;
+      case MSG.STEAK_DEATH:
+        this._announceSteakAnnihilation(msg.victim, msg.killer);
+        break;
       case MSG.FLAG_CAP: {
         // host-authoritative: increment scoring team's score
         const scoringTeam = msg.color === 'red' ? 'blue' : 'red';
@@ -1201,6 +1235,7 @@ export class Game {
       const hostPlayers = this.isHost ? this._allPlayerRefs() : null;
       this.chickenPickup.update(dt, hostPlayers);
     }
+    this.steakPickups?.update(dt);
     this._paintCompass();
     this._paintHayHide();
 
@@ -1287,6 +1322,21 @@ export class Game {
     const dir = new THREE.Vector3();
     this.camera.getWorldDirection(dir);
     const origin = this.camera.position.clone();
+    // STEAK weapon: if the local player has a charged steak (collected 5),
+    // the NEXT fire throws it as a sticky-poison projectile. Priority: if
+    // player also has a chicken ready, chicken fires first (bigger + rarer).
+    // See docs/features/steak-weapon.md.
+    if (this.steakAmmo > 0 && this.chickenAmmo === 0) {
+      this.steakAmmo = 0;
+      this.steakScore = 0;   // reset so you have to earn 5 more
+      const msg = { t: MSG.STEAK_THROW, origin: origin.toArray(), dir: dir.toArray(), by: this.myId };
+      this._broadcast(msg);
+      this._spawnSteakProjectile(msg);
+      if (this.isHost) this._resolveSteakThrow(msg);
+      SFX.pew();
+      this._updateSteakChip();
+      return;
+    }
     // Chicken shot short-circuits the weapon system: whenever the local
     // player has a chicken ready, the NEXT fire — from ANY slot — launches
     // the super shot instead. No slot selection required. Chip then flips
@@ -1404,6 +1454,159 @@ export class Game {
     }
   }
 
+  // -- Steak system ------------------------------------------------------
+  // Every method here is a small, focused helper. See docs/features/steak-weapon.md.
+
+  // Someone else broke a steak — update our local pickup visibility. Their
+  // score doesn't affect ours; we only pop the pickup so the world looks
+  // right.
+  _steakBreakRemote(side, byId) {
+    void byId;
+    this.steakPickups?.markBroken(side);
+  }
+
+  // Fire a sticky-poison steak. Straight projectile at 22 m/s, dies at
+  // impact or 30 m. See docs/features/bullets-straight.md — no gravity.
+  _spawnSteakProjectile(msg) {
+    const origin = new THREE.Vector3().fromArray(msg.origin);
+    const dir = new THREE.Vector3().fromArray(msg.dir);
+    this.weapons.spawnProjectileMesh({
+      kind: 'projectile', color: 0xa02020,
+      origin: origin.clone().addScaledVector(dir, 0.6).toArray(),
+      vel: dir.clone().multiplyScalar(22).toArray(),
+      damage: 0, maxAge: 30 / 22,
+    });
+  }
+
+  // Host: find the closest enemy along the ray and attach poison. Also
+  // covers self-shooters (chunky friendly-fire) if the ray happens to
+  // pass through anyone but the thrower first.
+  _resolveSteakThrow(msg) {
+    if (!this.isHost) return;
+    const origin = new THREE.Vector3().fromArray(msg.origin);
+    const dir = new THREE.Vector3().fromArray(msg.dir);
+    let victim = null, bestT = 30;
+    for (const p of this._allPlayerRefs()) {
+      if (p.peerId === msg.by) continue;
+      const toP = p.pos.clone().sub(origin);
+      const t = toP.dot(dir);
+      if (t < 0 || t > 30) continue;
+      const closest = origin.clone().addScaledVector(dir, t);
+      const d = closest.distanceTo(p.pos);
+      if (d < 1.1 && t < bestT) { bestT = t; victim = p; }
+    }
+    if (victim) {
+      this._broadcast({ t: MSG.STEAK_ATTACH, victim: victim.peerId, by: msg.by });
+      this._applySteakAttach(victim.peerId, msg.by);
+    }
+  }
+
+  // Attach poison to the victim. Every peer tracks who's poisoned so their
+  // HUD + death-cause read correctly.
+  _applySteakAttach(victimId, byId) {
+    this._steakPoisonBy.set(victimId, byId);
+    if (victimId === this.myId) {
+      this._showPoisonHint();
+    }
+  }
+
+  // Host: 1 Hz tick — apply 2 dmg to every poisoned player. If the victim
+  // is the local host, apply direct damage; else broadcast a HIT + track
+  // for the death announcer.
+  _steakPoisonTick() {
+    if (!this.isHost) return;
+    if (this.matchState !== 'playing') return;
+    for (const [victimId, byId] of this._steakPoisonBy) {
+      const victim = this._allPlayerRefs().find((p) => p.peerId === victimId);
+      if (!victim) { this._steakPoisonBy.delete(victimId); continue; }
+      const bot = this.bots.get(victimId);
+      if (bot) {
+        const died = bot.takeDamage(2);
+        if (died) {
+          this._broadcast({ t: MSG.STEAK_DEATH, victim: victimId, killer: byId });
+          this._announceSteakAnnihilation(victimId, byId);
+          this._steakPoisonBy.delete(victimId);
+          setTimeout(() => bot.respawn(), 500);
+        }
+      } else if (victimId === this.myId) {
+        this._takeDamage(2, byId, 'steak');
+        if (this.player.hp <= 0) {
+          this._broadcast({ t: MSG.STEAK_DEATH, victim: victimId, killer: byId });
+          this._announceSteakAnnihilation(victimId, byId);
+          this._steakPoisonBy.delete(victimId);
+        }
+      } else {
+        this._broadcast({ t: MSG.HIT, target: victimId, dmg: 2, by: byId, weapon: 'steak' });
+        this._broadcast({ t: MSG.STEAK_TICK, victim: victimId, dmg: 2 });
+      }
+    }
+  }
+
+  // Big red STEAK ANIHILATION overlay + Unreal-Tournament-style announcer.
+  _announceSteakAnnihilation(victimId, killerId) {
+    void victimId; void killerId;
+    try { SFX.announcer('STEAK ANIHILATION'); } catch (_) {}
+    const el = document.createElement('div');
+    el.textContent = 'STEAK-ANIHILATION!';
+    Object.assign(el.style, {
+      position: 'fixed', left: '50%', top: '20%',
+      transform: 'translateX(-50%) scale(0.4)',
+      color: '#ff2a1a', font: '900 min(11vw, 88px)/1 "Georgia", serif',
+      letterSpacing: '0.06em',
+      textShadow: '0 0 20px #ff0, 0 4px 0 #440000, 0 8px 20px rgba(0,0,0,0.9)',
+      pointerEvents: 'none', zIndex: '9999',
+      transition: 'transform 0.35s cubic-bezier(0.2,1.6,0.3,1), opacity 0.6s ease-out 1.6s',
+      opacity: '1',
+    });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => { el.style.transform = 'translateX(-50%) scale(1)'; });
+    setTimeout(() => { el.style.opacity = '0'; }, 1600);
+    setTimeout(() => { el.remove(); }, 2400);
+  }
+
+  // Small HUD hint for the poisoned player.
+  _showPoisonHint() {
+    let el = document.getElementById('poison-hint');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'poison-hint';
+      Object.assign(el.style, {
+        position: 'fixed', left: '50%', top: 'calc(max(8px, env(safe-area-inset-top)) + 170px)',
+        transform: 'translateX(-50%)', padding: '6px 14px',
+        background: 'rgba(90,10,10,0.85)', color: '#ffb0a0',
+        font: '800 14px system-ui, sans-serif', borderRadius: '999px',
+        border: '1px solid #ff5a3a', boxShadow: '0 0 18px rgba(255,60,20,0.7)',
+        pointerEvents: 'none', zIndex: '30',
+        animation: 'poisonPulse 0.8s ease-in-out infinite',
+      });
+      el.textContent = '☠  dying from steak poisoning';
+      document.body.appendChild(el);
+      const s = document.createElement('style');
+      s.textContent = '@keyframes poisonPulse { 0%,100% { opacity: 0.85; } 50% { opacity: 1; box-shadow: 0 0 30px rgba(255,60,20,1); } }';
+      document.head.appendChild(s);
+    }
+    el.style.display = 'block';
+    // Clear the hint on death/respawn (checked next _takeDamage tick).
+  }
+
+  // HUD chip: reuse the chicken chip slot. Shows 🥩 3/5 while collecting,
+  // then 🥩 READY on 5, then vanishes on throw (chicken chip takes over
+  // its own state).
+  _updateSteakChip() {
+    let slot = document.querySelector('.wpn.chicken');
+    if (!slot) return;
+    if (this.chickenAmmo > 0) return;   // chicken has priority display
+    if (this.steakAmmo > 0) {
+      slot.style.display = '';
+      slot.innerHTML = '<span class="wpn-icon">🥩</span><span class="wpn-key">GO</span><span class="wpn-name">STEAK</span>';
+    } else if (this.steakScore > 0) {
+      slot.style.display = '';
+      slot.innerHTML = `<span class="wpn-icon">🥩</span><span class="wpn-key">${this.steakScore}/5</span><span class="wpn-name">steaks</span>`;
+    } else {
+      slot.style.display = 'none';
+    }
+  }
+
   _addTracerForShot(s) {
     const def = WEAPON_DEFS.find((d) => d.id === s.weaponId);
     const color = def && def.tracerColor ? def.tracerColor : 0xf4c95d;
@@ -1416,8 +1619,21 @@ export class Game {
   // report HITs to the target.
   _applyLocalShot(s) {
     if (s.kind === 'hitscan') {
-      const hit = this._raycastPlayers(new THREE.Vector3().fromArray(s.origin),
-                                       new THREE.Vector3().fromArray(s.dir));
+      const origin = new THREE.Vector3().fromArray(s.origin);
+      const dir = new THREE.Vector3().fromArray(s.dir);
+      // STEAK pickup detection: if the ray hits a floating steak before a
+      // player, count it. Steaks respawn 2 s later. At 5, next fire = steak throw.
+      const steakSide = this.steakPickups?.raycastHit(origin, dir, 60);
+      if (steakSide) {
+        this.steakPickups.markBroken(steakSide);
+        this._broadcast({ t: MSG.STEAK_BREAK, at: steakSide, by: this.myId });
+        this.steakScore = Math.min(5, this.steakScore + 1);
+        if (this.steakScore >= 5) { this.steakAmmo = 1; }
+        this._updateSteakChip();
+        SFX.splat();
+        return;   // steak absorbs the shot
+      }
+      const hit = this._raycastPlayers(origin, dir);
       if (hit) {
         this._broadcast({ t: MSG.HIT, target: hit.peerId, dmg: s.damage, by: this.myId, weapon: s.weaponId });
         this._flashHitmarker();
@@ -1497,16 +1713,14 @@ export class Game {
     if (this.player.hp <= 0) {
       this.player.hp = 0;
       this.player.alive = false;
-      // If carrying a flag, drop it.
+      // If carrying a flag, RETURN it to its home stand (Bryan 2026-08-20:
+      // "when I die with the flag, the flag should go back to its initial
+      // location"). Broadcast so peers do the same server-authoritatively.
       if (this.player.hasEnemyFlag) {
         const enemyColor = this.team === 'red' ? 'blue' : 'red';
         this.player.hasEnemyFlag = false;
-        this._broadcast({ t: MSG.FLAG_DROP, by: this.myId, color: enemyColor,
-          at: [this.player.pos.x, this.player.pos.y, this.player.pos.z] });
-        this.flagState[enemyColor] = 'dropped';
-        this.flagCarrier[enemyColor] = null;
-        this.flagPos[enemyColor] = { x: this.player.pos.x, y: this.player.pos.y, z: this.player.pos.z };
-        this._syncFlagMesh(enemyColor);
+        this._returnFlag(enemyColor);
+        this._broadcast({ t: MSG.FLAG_RETURN, by: this.myId, color: enemyColor });
       }
       this._broadcast({ t: MSG.DEATH, victim: this.myId, killer: byId, weapon: weaponId });
       // Local animal death voice (broadcast doesn't loop back to me).
@@ -1524,35 +1738,32 @@ export class Game {
     const enemyColor = this.team === 'red' ? 'blue' : 'red';
     const myColor    = this.team;
 
-    // Pickup enemy flag if standing on it and it's at home or dropped.
-    if (!this.player.hasEnemyFlag && this.flagState[enemyColor] !== 'carried') {
-      const fp = this.flagPos[enemyColor];
-      const d = Math.hypot(this.player.pos.x - fp.x - 0.5, this.player.pos.z - fp.z - 0.5);
-      if (d < 1.2) {
-        this.player.hasEnemyFlag = true;
-        this.flagState[enemyColor] = 'carried';
-        this.flagCarrier[enemyColor] = this.myId;
-        this._broadcast({ t: MSG.FLAG_PICK, by: this.myId, color: enemyColor });
-      }
-    }
-
-    // Capture: if carrying enemy flag AND my own flag is at home AND I'm near
-    // my own flag stand.
-    if (this.player.hasEnemyFlag && this.flagState[myColor] === 'home') {
-      const myFlagPos = this.world.flags[myColor];
-      const d = Math.hypot(this.player.pos.x - myFlagPos.x - 0.5, this.player.pos.z - myFlagPos.z - 0.5);
-      if (d < FLAG_HOME_RADIUS) {
-        // Capture!
-        this.player.hasEnemyFlag = false;
-        this.scores[myColor]++;
-        this._broadcast({ t: MSG.FLAG_CAP, by: this.myId, color: enemyColor });
-        // Also broadcast the authoritative score.
-        this._broadcast({ t: MSG.SCORE, scores: this.scores });
-        this._returnFlag(enemyColor);
-        this._updateScoreUi();
-        this._killFeedPush(`${this._name(this.myId)} captured the ${enemyColor} flag!`);
-        this._maybeTriggerAnagram();
-      }
+    // Pickup + capture logic is delegated to web-engine/ctf/flagLogic so
+    // it's node-testable. See flagLogic.test.js + docs/features/carried-flag-visibility.md.
+    const action = computeFlagAction({
+      playerPos: { x: this.player.pos.x, z: this.player.pos.z },
+      playerTeam: this.team,
+      hasEnemyFlag: this.player.hasEnemyFlag,
+      flagState: this.flagState,
+      flagPos: {
+        red:  { x: this.world.flags.red.x,  z: this.world.flags.red.z  },
+        blue: { x: this.world.flags.blue.x, z: this.world.flags.blue.z },
+      },
+    });
+    if (action === 'pickup') {
+      this.player.hasEnemyFlag = true;
+      this.flagState[enemyColor] = 'carried';
+      this.flagCarrier[enemyColor] = this.myId;
+      this._broadcast({ t: MSG.FLAG_PICK, by: this.myId, color: enemyColor });
+    } else if (action === 'capture') {
+      this.player.hasEnemyFlag = false;
+      this.scores[myColor]++;
+      this._broadcast({ t: MSG.FLAG_CAP, by: this.myId, color: enemyColor });
+      this._broadcast({ t: MSG.SCORE, scores: this.scores });
+      this._returnFlag(enemyColor);
+      this._updateScoreUi();
+      this._killFeedPush(`${this._name(this.myId)} captured the ${enemyColor} flag!`);
+      this._maybeTriggerAnagram();
     }
 
     // Sync flag position visually if I'm carrying it — LIFT it above my

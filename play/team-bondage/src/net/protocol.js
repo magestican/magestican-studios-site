@@ -22,4 +22,11 @@ export const MSG = Object.freeze({
   HAZARD_SPAWN: 'hazard',     // {t, items:[{kind,x,z,spawnAt,landAt}, ...]} - host authority
   CHICKEN_PICK: 'chickPick',  // {t, by:<peerId>, respawnAt:number} - host-only
   CHICKEN_SHOT: 'chickShot',  // {t, origin:[x,y,z], dir:[x,y,z], by:<peerId>}
+  FLAG_RETURN:  'flagRet',    // {t, by:<peerId>, color} - flag home-return (on death carrying it)
+  STEAK_BREAK:  'steakBreak', // {t, at:'N'|'S'|'E'|'W', by:<peerId>} - one of 4 edge steaks was shot
+  STEAK_STATE:  'steakState', // {t, statuses:{[side]:{alive, respawnAt}}} - host broadcast on join
+  STEAK_THROW:  'steakThrow', // {t, origin:[x,y,z], dir:[x,y,z], by:<peerId>}
+  STEAK_ATTACH: 'steakAtt',   // {t, victim:<peerId>, by:<peerId>} - poison starts
+  STEAK_TICK:   'steakTick',  // {t, victim:<peerId>, dmg:number} - poison DOT tick
+  STEAK_DEATH:  'steakDeath', // {t, victim, killer} - "STEAK ANIHILATION"
 });

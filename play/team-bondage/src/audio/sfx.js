@@ -192,6 +192,40 @@ export function snorkel() {
   noise.start(t); noise.stop(t + 0.25);
 }
 
+// Unreal-Tournament-style deep boomy announcer for the STEAK-ANIHILATION
+// death. Filters a low sawtooth stack through a resonant low-pass to fake
+// a growled male voice, then rings out with a reverb-y tail. Long (~1.2s).
+export function announcer(text = '') {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  void text;   // one canned pattern for now; text is future-proofing
+  // Two detuned saws for chorusing depth.
+  for (const detune of [-8, +8]) {
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    const filt = ctx.createBiquadFilter();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(80, t);
+    osc.frequency.linearRampToValueAtTime(65, t + 1.2);
+    osc.detune.value = detune;
+    filt.type = 'lowpass'; filt.frequency.value = 900; filt.Q.value = 6;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.38, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 1.4);
+    osc.connect(filt).connect(g).connect(_master);
+    osc.start(t); osc.stop(t + 1.5);
+  }
+  // Rough noise growl on top so it doesn't sound like a synth beep.
+  const n = whiteNoise(ctx, 1.2);
+  const nf = ctx.createBiquadFilter();
+  nf.type = 'bandpass'; nf.frequency.value = 700; nf.Q.value = 2;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.14, t);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+  n.connect(nf).connect(ng).connect(_master);
+  n.start(t); n.stop(t + 1.3);
+}
+
 // -- Animal voices ---------------------------------------------------------
 // Simple synthesised farm-animal sounds. Each takes an optional `loudness`.
 // Played on double-jump + on death (see game.js). Every one is short (~350-
