@@ -5,10 +5,16 @@ import { Game } from './game.js';
 import { PeerMesh } from 'arbelo/net';
 import { SeededRng, seedToCode, codeToSeed } from 'arbelo/rng';
 import { startVersionChecker } from 'arbelo/updater';
+import { mountDeviceQr }       from 'arbelo/qr';
 
 // Cache-busting: polls /version.json every 60s and shows a Refresh banner
 // when the deployed build id changes.
 startVersionChecker({ label: 'A new version of Team Bondage is available.' });
+
+// Desktop-only helper: shows a QR code so the person watching on their laptop
+// can point their phone camera at it and open the exact same page (including
+// the ?join=xxx room code if they're mid-lobby).
+mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Team Bondage (and any join code) on your phone.' });
 
 const $ = (id) => document.getElementById(id);
 

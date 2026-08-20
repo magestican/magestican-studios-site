@@ -16,7 +16,7 @@ import { pickWord, scramble } from './util/anagram.js';
 import { TouchControls }     from './touchControls.js';
 import { Chiptune }           from './audio/chiptune.js';
 import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
-import { WORLD_SIZE }         from 'arbelo/procgen';
+// WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
 const FLAG_HOME_RADIUS = 2.0;   // steps within this of your own flag stand = capture

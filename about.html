@@ -64,7 +64,9 @@
 
   <script type="module">
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
     startVersionChecker();
+    mountDeviceQr({ label: 'Open this page on your phone' });
   </script>
 </body>
 </html>
