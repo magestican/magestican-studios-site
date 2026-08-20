@@ -141,6 +141,23 @@
       z-index: 8;
     }
     #add-bot-btn:active { background: #26221c !important; }
+    /* Big obvious "Tap to enable sound" prompt shown until audio starts. */
+    #enable-sound {
+      position: fixed; z-index: 60;
+      left: 50%; top: 30%; transform: translate(-50%, -50%);
+      background: #1c1a17; color: #f4c95d;
+      border: 2px solid #f4c95d; border-radius: 12px;
+      padding: 14px 22px;
+      font: 700 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      cursor: pointer;
+      pointer-events: auto;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.4);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      display: none;
+    }
+    #enable-sound.visible { display: block; animation: pulseSound 1.4s ease-in-out infinite; }
+    @keyframes pulseSound { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.05); } }
     /* Mature-mode toggle (blood, announcer, spatter). Persists in localStorage. */
     #mature-btn { position: fixed;
       top: max(10px, env(safe-area-inset-top));
@@ -314,6 +331,7 @@
        pointer-events:none HUD so taps always land on them. -->
   <button id="mute-btn" aria-label="Toggle music">🔊</button>
   <button id="mature-btn" aria-label="Toggle mature mode">MATURE</button>
+  <button id="enable-sound" aria-label="Enable sound">🔊 Tap to enable sound</button>
   <button id="add-bot-btn" aria-label="Add AI bot" style="display:none;">+ Bot</button>
   <div id="lobby-banner">
     <h2 id="lobby-title">Waiting for players…</h2>

@@ -106,11 +106,16 @@ export class Game {
     paintMute();
     const handleMuteToggle = (e) => {
       if (e) e.preventDefault();
-      this.audio.toggleMuted();
-      paintMute();
-      // Also try to (re)start audio in this same gesture - in case iOS Safari
-      // never accepted our earlier autoplay attempt.
-      tryStartAudio();
+      // If audio isn't started yet, the button acts as an ENABLE (not a
+      // toggle to muted). Otherwise, plain mute/unmute.
+      if (!this.audio.isPlaying) {
+        this.audio.setMuted(false);
+        paintMute();
+        this._tryStartAudio();
+      } else {
+        this.audio.toggleMuted();
+        paintMute();
+      }
     };
     muteBtn.addEventListener('click', handleMuteToggle);
     muteBtn.addEventListener('touchstart', handleMuteToggle, { passive: false });
@@ -141,23 +146,33 @@ export class Game {
     matureBtn.addEventListener('click', onMatureToggle);
     matureBtn.addEventListener('touchstart', onMatureToggle, { passive: false });
 
-    // Kick off audio. iOS Safari requires the AudioContext to be created
-    // AND resumed inside a user-gesture callback; a stale "once: true" that
-    // failed silently would then never retry. Instead, retry on every
-    // touch/click until we hear playback start.
-    let audioStarted = false;
-    const tryStartAudio = () => {
-      if (audioStarted) return;
-      this.audio.ensureContext();
-      const ctx = this.audio.ctx;
-      if (!ctx) return;
-      const finish = () => { if (!audioStarted) { this.audio.start(); audioStarted = true; } };
-      if (ctx.state === 'suspended') ctx.resume().then(finish, () => {});
-      else finish();
+    // Audio startup - iOS Safari refuses to unlock without a user gesture,
+    // and quiet gestures during the initial menu can be lost. Approach:
+    //   1. Try to start on ANY gesture that reaches window.
+    //   2. Also try again on any tap of the mute button.
+    //   3. If audio still isn't playing after ~2s, show a big "Tap to enable
+    //      sound" prompt so the user has an unambiguous target.
+    const enablePrompt = document.getElementById('enable-sound');
+    const tryStartAudio = async () => {
+      if (this.audio.isPlaying) return;
+      await this.audio.start();
+      if (this.audio.isPlaying) {
+        enablePrompt.classList.remove('visible');
+      }
     };
     window.addEventListener('pointerdown', tryStartAudio);
     window.addEventListener('touchstart', tryStartAudio, { passive: true });
     window.addEventListener('click', tryStartAudio);
+    // The big "tap to enable sound" pill.
+    const onEnable = (e) => { if (e) e.preventDefault(); tryStartAudio(); };
+    enablePrompt.addEventListener('click', onEnable);
+    enablePrompt.addEventListener('touchstart', onEnable, { passive: false });
+    // Show the prompt if audio hasn't started after 2 seconds.
+    setTimeout(() => {
+      if (!this.audio.isPlaying) enablePrompt.classList.add('visible');
+    }, 2000);
+    // Also try to unlock inside the caller of pointerLock() (desktop path).
+    this._tryStartAudio = tryStartAudio;
 
     // Show the lobby banner. Solo host: waits for 2+ players; countdown then
     // starts and match transitions to 'playing'. Joiners get the current
