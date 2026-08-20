@@ -8,8 +8,10 @@
 import * as THREE from 'three';
 
 export const WEAPON_DEFS = [
-  { id: 'pistol',  name: 'Pistol',   cooldown: 0.20, damage: 25, pellets: 1, spread: 0.003, kind: 'hitscan' },
-  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 10, pellets: 7, spread: 0.10,  kind: 'hitscan' },
+  // Bullets do 2 damage per hit (100 HP; kills take 50 hits). Rocket is not a
+  // bullet - it's explosive, so it keeps its larger damage numbers.
+  { id: 'pistol',  name: 'Pistol',   cooldown: 0.20, damage: 2,  pellets: 1, spread: 0.003, kind: 'hitscan' },
+  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 2,  pellets: 7, spread: 0.10,  kind: 'hitscan' },
   { id: 'rocket',  name: 'Rocket',   cooldown: 1.10, damage: 60, splash: 30, splashRadius: 3.0, projectileSpeed: 20, kind: 'projectile' },
 ];
 

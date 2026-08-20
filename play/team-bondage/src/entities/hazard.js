@@ -13,7 +13,8 @@ const SPAWN_HEIGHT = 22;      // y where items appear
 const GROUND_Y = 1;           // top of the ground layer
 const FALL_TIME = 2.0;        // seconds from spawn to impact
 const SPLASH_RADIUS = 2.2;    // metres
-const SPLASH_DAMAGE = 40;
+const SPLASH_DAMAGE = 20;
+const EXPLOSION_LIFE_SEC = 0.65;
 
 export class HazardSystem {
   constructor(scene, grid, opts = {}) {
@@ -42,10 +43,65 @@ export class HazardSystem {
         h.done = true;
         h.impactPoint = new THREE.Vector3(h.x, GROUND_Y, h.z);
         this._splashDecal(h);
+        this._spawnExplosion(h);
         setTimeout(() => this._despawn(h), 800);
       }
     }
+    // Update explosions (independent lifetime from hazard tiles).
+    const nowSec = nowMs / 1000;
+    this._explosions = (this._explosions || []).filter((ex) => {
+      const t = (nowSec - ex.bornAt) / EXPLOSION_LIFE_SEC;
+      if (t >= 1) { this.scene.remove(ex.mesh); return false; }
+      if (ex.shard) {
+        // Ballistic shard with gravity.
+        const d = ex.mesh.userData;
+        ex.mesh.position.x += d.vx * dt;
+        ex.mesh.position.z += d.vz * dt;
+        d.vy -= 9.8 * dt;
+        ex.mesh.position.y += d.vy * dt;
+        ex.mesh.material.opacity = (1 - t) * 0.9;
+      } else {
+        // Grow outward + fade (sphere)
+        const s = 0.4 + t * 3.4;
+        ex.mesh.scale.set(s, s, s);
+        ex.mesh.material.opacity = (1 - t) * 0.85;
+      }
+      return true;
+    });
     this.active = this.active.filter((h) => h.mesh.parent !== null || !h.done);
+  }
+
+  _spawnExplosion(h) {
+    // Bright expanding sphere + a ring on the ground.
+    const color = h.kind === 'egg' ? 0xf5e9c5 : 0xffe6ec;
+    const geo = new THREE.SphereGeometry(0.4, 12, 10);
+    const mat = new THREE.MeshBasicMaterial({
+      color, transparent: true, opacity: 0.85,
+      depthWrite: false,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(h.x, GROUND_Y + 0.3, h.z);
+    this.scene.add(mesh);
+    if (!this._explosions) this._explosions = [];
+    this._explosions.push({ mesh, bornAt: performance.now() / 1000 });
+
+    // A dozen ejecta shards for a chunkier feel.
+    for (let i = 0; i < 10; i++) {
+      const shard = new THREE.Mesh(
+        new THREE.BoxGeometry(0.10, 0.10, 0.10),
+        new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9 }),
+      );
+      shard.position.set(h.x, GROUND_Y + 0.2, h.z);
+      const ang = (i / 10) * Math.PI * 2;
+      shard.userData = {
+        vx: Math.cos(ang) * (2 + Math.random() * 2),
+        vy: 3 + Math.random() * 2,
+        vz: Math.sin(ang) * (2 + Math.random() * 2),
+        bornAt: performance.now() / 1000,
+      };
+      this.scene.add(shard);
+      this._explosions.push({ mesh: shard, bornAt: performance.now() / 1000, shard: true });
+    }
   }
 
   // Locally check: did any active-and-just-landed hazard hit `playerPos`?
