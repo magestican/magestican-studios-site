@@ -6,7 +6,8 @@ import { SeededRng } from 'arbelo/rng';
 import { VOX } from 'arbelo/voxel';
 import { generateWorld, WORLD_SIZE } from 'arbelo/procgen';
 
-import { buildWorldMeshes } from './map/voxelMesh.js';
+import { buildWorldMeshes, hayOpacityFor } from './map/voxelMesh.js';
+import { VOX as _VOX } from 'arbelo/voxel';
 import { buildCharacter }   from './entities/character.js';
 import { Player }           from './entities/player.js';
 import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
@@ -688,7 +689,11 @@ export class Game {
   }
 
   // Toggle the hay-peek overlays + hiding label based on whether the local
-  // player's torso is currently inside a hay voxel.
+  // player's torso is currently inside a hay voxel. Also dim the hay mesh
+  // to near-invisible so the player has a clear view outside.
+  //
+  // Per docs/features/hay-hiding.md acceptance criterion #5.
+  // Enforced by web-engine tests + map/hayVisibility.test.js.
   _paintHayHide() {
     if (!this.player || !this.grid) return;
     const inside = isInsideHay(this.grid, this.player.pos.x, this.player.pos.y, this.player.pos.z);
@@ -697,6 +702,10 @@ export class Game {
     document.getElementById('hayPeekLeft')?.classList.toggle('visible', inside);
     document.getElementById('hayPeekRight')?.classList.toggle('visible', inside);
     document.getElementById('hiding-label')?.classList.toggle('visible', inside);
+    // Dim the hay material on this client only.
+    const worldMesh = this.scene.getObjectByName('voxelWorld');
+    const hayMat = worldMesh?.userData?.materialsByType?.[_VOX.HAY];
+    if (hayMat) hayMat.opacity = hayOpacityFor(inside);
   }
 
   // Rotate the compass arrows so they always point at each team's flag from

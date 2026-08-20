@@ -39,6 +39,8 @@ function getBloodTextures() {
   return TEX_BLOOD;
 }
 
+// Also returns a `materials` map so the game can dynamically toggle hay
+// visibility when the local player steps inside a bale.
 export function buildWorldMeshes(grid, { mature = false } = {}) {
   // Group instances by voxel type.
   const groups = new Map();  // vType -> Array<{x,y,z}>
@@ -58,6 +60,7 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
   const parent = new THREE.Group();
   parent.name = 'voxelWorld';
   const dummy = new THREE.Object3D();
+  const materialsByType = {};   // voxel type id -> THREE.Material
 
   const textures = mature ? getBloodTextures() : getTextures();
   for (const [v, cells] of groups.entries()) {
@@ -77,6 +80,7 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
       materialOpts.emissive = new THREE.Color(0x5a4a15);
     }
     const material = new THREE.MeshLambertMaterial(materialOpts);
+    materialsByType[v] = material;
     const inst = new THREE.InstancedMesh(CUBE_GEO, material, cells.length);
     inst.castShadow = false;
     inst.receiveShadow = false;
@@ -100,7 +104,14 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
     parent.add(inst);
   }
 
+  parent.userData.materialsByType = materialsByType;
   return parent;
+}
+
+// State-machine helper that both the game and the unit tests use so the
+// same rule ("inside a bale => hay ~= invisible") is enforced everywhere.
+export function hayOpacityFor(insideHay) {
+  return insideHay ? 0.04 : 0.72;
 }
 
 // A voxel is fully occluded if all 6 neighbours are also solid (not AIR).
