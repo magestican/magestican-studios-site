@@ -20,8 +20,18 @@ export function generateWorld(seed) {
   const rng = new SeededRng(seed);
   const grid = new VoxelGrid(WORLD_SIZE.x, WORLD_SIZE.y, WORLD_SIZE.z);
 
-  // Ground: one layer of grass at y=0.
+  // Ground: one layer of snow-covered ice at y=0. GRASS is repurposed as
+  // "snow" in this theme (see voxelGrid.js palette).
   grid.fillBox(0, 0, 0, WORLD_SIZE.x - 1, 0, WORLD_SIZE.z - 1, VOX.GRASS);
+  // Sprinkle patches of exposed pale-blue ice for visual texture.
+  const iceRng = rng.child('ice-patch');
+  for (let i = 0; i < 24; i++) {
+    const px = iceRng.rangeI(4, WORLD_SIZE.x - 6);
+    const pz = iceRng.rangeI(4, WORLD_SIZE.z - 6);
+    const w = iceRng.rangeI(2, 4);
+    const h = iceRng.rangeI(2, 4);
+    grid.fillBox(px, 0, pz, px + w, 0, pz + h, VOX.ICE);
+  }
 
   // Centre hill (chicken slingshot spawn spot). Small 5x5 knoll rising 2
   // blocks from the middle of the map.
@@ -138,23 +148,19 @@ function insideBase(x, z, base) {
       && z >= base.z - 1 && z <= base.z + BASE_SIZE.z;
 }
 
-// Round-ish hay bale (voxel-stepped cylinder). ox,oz is the front-left
-// corner of the 3x3 footprint.
+// Small round-ish hay bale (voxel-stepped cylinder). 2x2 footprint, cap on
+// top. Fits between snow drifts without dominating.
 function _buildHayBale(grid, ox, oz) {
-  // Layer 1 (base): 3x3 solid.
-  for (let dx = 0; dx < 3; dx++)
-    for (let dz = 0; dz < 3; dz++)
+  // Layer 1: 2x2 solid.
+  for (let dx = 0; dx < 2; dx++)
+    for (let dz = 0; dz < 2; dz++)
       grid.set(ox + dx, 1, oz + dz, VOX.HAY);
-  // Layer 2: 3x3 minus the 4 corners = plus/octagon shape.
-  const octagon = (dx, dz) => !((dx === 0 || dx === 2) && (dz === 0 || dz === 2));
-  for (let dx = 0; dx < 3; dx++)
-    for (let dz = 0; dz < 3; dz++)
-      if (octagon(dx, dz)) grid.set(ox + dx, 2, oz + dz, VOX.HAY);
-  // Layer 3 (top): 2x2 centred (offset so it hovers over the middle).
-  grid.set(ox + 1, 3, oz + 1, VOX.HAY);
-  grid.set(ox + 1, 3, oz + 2, VOX.HAY);
-  grid.set(ox + 2, 3, oz + 1, VOX.HAY);
-  grid.set(ox + 2, 3, oz + 2, VOX.HAY);
-  // Tuft on top (a single cube).
-  grid.set(ox + 1, 4, oz + 1, VOX.HAY);
+  // Layer 2: 2x2 solid (slightly taller than one voxel because these are
+  // small - overall footprint 2x2x2).
+  for (let dx = 0; dx < 2; dx++)
+    for (let dz = 0; dz < 2; dz++)
+      grid.set(ox + dx, 2, oz + dz, VOX.HAY);
+  // Snow cap on top - a single ICE voxel centered.
+  grid.set(ox, 3, oz, VOX.ICE);
+  grid.set(ox + 1, 3, oz + 1, VOX.ICE);
 }

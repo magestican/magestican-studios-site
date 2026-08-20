@@ -31,7 +31,7 @@ export const VOX = Object.freeze({
 // slightly perturbs these per-instance for a hand-drawn feel.
 export const VOX_COLOR = Object.freeze({
   [VOX.AIR]:            [0, 0, 0],
-  [VOX.GRASS]:          [0x5a, 0xa6, 0x4b],
+  [VOX.GRASS]:          [0xe8, 0xf3, 0xff],   // snowy ground (was green grass)
   [VOX.STONE]:          [0x6d, 0x70, 0x76],
   [VOX.DIRT]:           [0x7a, 0x5c, 0x3d],
   [VOX.ICE]:            [0xb8, 0xe0, 0xef],

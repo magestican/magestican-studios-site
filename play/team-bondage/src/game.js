@@ -23,6 +23,7 @@ import { Bot }                from './entities/bot.js';
 import { TracerSystem }       from './entities/tracer.js';
 import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
 import { createPhysicsWorld } from 'arbelo/physics';
+import { SnowSystem }         from './entities/snow.js';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -282,6 +283,7 @@ export class Game {
     this.player = new Player(this.camera, this.physics, spawn, this.team);
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
+    this.snow    = new SnowSystem(this.scene, this.player.pos);
     // Camera child = first-person weapon viewmodel. Also attach the camera
     // to the scene so its children (the viewmodel) render.
     this.scene.add(this.camera);
@@ -579,6 +581,29 @@ export class Game {
         // Real player: tell them.
         this._broadcast({ t: MSG.HIT, target: best.pid, dmg: s.damage, by: s.ownerId, weapon: s.weaponId });
       }
+    }
+  }
+
+  // Rotate the compass arrows so they always point at each team's flag from
+  // the player's current position + heading.
+  _paintCompass() {
+    if (!this.player || !this.flagPos) return;
+    const yaw = this.player.yaw;
+    for (const color of ['red', 'blue']) {
+      const el = document.getElementById(color === 'red' ? 'compassRed' : 'compassBlue');
+      const distEl = document.getElementById(color === 'red' ? 'compassRedDist' : 'compassBlueDist');
+      if (!el || !distEl) continue;
+      const f = this.flagPos[color];
+      const dx = f.x + 0.5 - this.player.pos.x;
+      const dz = f.z + 0.5 - this.player.pos.z;
+      // Angle relative to the player's forward direction (yaw). yaw=0 looks +Z.
+      // atan2 returns bearing from +Z axis measured toward +X (rotation around -Y).
+      const bearing = Math.atan2(dx, dz);
+      const rel = bearing - yaw;
+      // Convert to degrees, normalise
+      let deg = (rel * 180 / Math.PI + 540) % 360 - 180;
+      el.style.transform = `rotate(${deg}deg)`;
+      distEl.textContent = Math.round(Math.hypot(dx, dz)) + 'm';
     }
   }
 
@@ -895,9 +920,11 @@ export class Game {
       this._tryFire();
     }
 
-    // Age out tracers + animate viewmodel.
+    // Age out tracers + animate viewmodel + snowfall.
     this.tracers.update(dt, performance.now() / 1000);
     this.viewmodel?.update(dt);
+    this.snow?.update(dt);
+    this._paintCompass();
 
     // Movement + physics (guarded on physics-loaded)
     if (this.player?.alive && this.physics) this.player.update(dt, this.input);

@@ -64,7 +64,9 @@ export class Player {
   }
 
   addMouseLook(dx, dy, sensitivity = 0.002) {
-    this.yaw   -= dx * sensitivity;
+    // Standard FPS: dragging RIGHT turns the view RIGHT (yaw increases with
+    // dx). Was inverted before which made every direction feel wrong.
+    this.yaw   += dx * sensitivity;
     this.pitch -= dy * sensitivity;
     const lim = Math.PI / 2 - 0.05;
     if (this.pitch >  lim) this.pitch =  lim;
