@@ -207,4 +207,42 @@ export function makeDirtTexture() {
   return toTexture(c);
 }
 
+// -- Metal: grey with scratch wear + a couple of dents ----------------------
+// Used by the first-person viewmodels (art/knowledge/craft/
+// silhouette-readability.md: wear marks are what separate a "tool a farmer
+// has swung a thousand times" from a grey box).
+export function makeMetalTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rng = seedRng(71);
+  const base = { r: 0xa6, g: 0xac, b: 0xb8 };
+  const img = g.createImageData(SIZE, SIZE);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const j = (rng() - 0.5) * 26;
+    img.data[i]   = clamp(base.r + j);
+    img.data[i+1] = clamp(base.g + j);
+    img.data[i+2] = clamp(base.b + j * 1.1);
+    img.data[i+3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  // Long scratches along the tool's length -- bright, thin, uneven.
+  g.lineWidth = 1;
+  for (let i = 0; i < 14; i++) {
+    const y = Math.floor(rng() * SIZE);
+    const len = 8 + Math.floor(rng() * 34);
+    const x = Math.floor(rng() * (SIZE - len));
+    g.strokeStyle = rng() > 0.45 ? 'rgba(240,246,255,0.42)' : 'rgba(38,42,50,0.38)';
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + len, y + (rng() > 0.5 ? 1 : 0)); g.stroke();
+  }
+  // Dents: small dark blotches with a bright top edge (a dent catches light).
+  for (let i = 0; i < 5; i++) {
+    const x = 4 + rng() * (SIZE - 8), y = 4 + rng() * (SIZE - 8);
+    const r = 2 + rng() * 3;
+    g.fillStyle = 'rgba(46,50,58,0.40)';
+    g.beginPath(); g.ellipse(x, y, r, r * 0.7, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = 'rgba(236,243,255,0.32)';
+    g.beginPath(); g.ellipse(x, y - r * 0.6, r * 0.8, r * 0.28, 0, 0, Math.PI * 2); g.fill();
+  }
+  return toTexture(c);
+}
+
 function clamp(v) { return Math.max(0, Math.min(255, v | 0)); }

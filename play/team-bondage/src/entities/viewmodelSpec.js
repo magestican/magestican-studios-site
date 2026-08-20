@@ -28,9 +28,22 @@ export const VM_PALETTE = {
 
 // Which materials get a canvas texture (the rest stay flat graphic colour,
 // per hand-drawn.md "dead-flat colour only for deliberate graphic elements").
+//
+// `tint` is NOT the palette colour: a canvas texture already carries its own
+// hue (makeWoodTexture paints #8a5a2b, makeMetalTexture paints #a6acb8) and
+// three multiplies map x color, so tinting with the palette hex would square
+// the colour and ship near-black wood. Each tint below is
+// palette / texture-average, clamped to white; where the target is BRIGHTER
+// than the texture (metalLite, the polished cutting edge) the shortfall is
+// made up with `emissive` instead, because multiply can only darken.
+// This is the same class of bug as the sRGB/linear doubling recorded in
+// GRAPHICS_QUALITY_LOOP.md -- see art/knowledge/craft/color.md.
 export const VM_TEXTURED = {
-  wood: 'wood', woodDark: 'wood',
-  metal: 'metal', metalDark: 'metal', metalLite: 'metal',
+  wood:      { tex: 'wood',  tint: 0xffffff },
+  woodDark:  { tex: 'wood',  tint: 0xaca49b },
+  metal:     { tex: 'metal', tint: 0xd5d8e0 },
+  metalDark: { tex: 'metal', tint: 0x5b5c5f },
+  metalLite: { tex: 'metal', tint: 0xffffff, emissive: 0x2a2c30 },
 };
 
 const box  = (mat, size, pos, rot) => ({ kind: 'box', mat, size, pos, rot });
@@ -45,22 +58,30 @@ const SHOVEL = [
   box('woodDark',  [0.030, 0.13, 0.030], [0.052, 0.435, 0]),       // D-grip right
   box('woodDark',  [0.155, 0.036, 0.042], [0, 0.508, 0]),          // D-grip top
   box('metalDark', [0.078, 0.11, 0.070], [0, -0.29, 0]),           // ferrule collar
-  box('metal',     [0.215, 0.26, 0.042], [0, -0.45, 0]),           // spade blade
-  box('metalDark', [0.052, 0.24, 0.056], [0, -0.45, 0]),           // blade spine
-  box('metalLite', [0.195, 0.05, 0.052], [0, -0.575, 0]),          // worn cutting lip
-  box('metalDark', [0.038, 0.032, 0.058], [-0.072, -0.556, 0]),    // chipped nick (wear)
-  box('muck',      [0.115, 0.085, 0.012], [0.030, -0.41, 0.027]),  // dirt smear
-  blob('muck',     0.058, [0, -0.34, 0.058]),                      // poo pellet (ammo)
+  // Spade in three stepped widths -- a voxel taper reads as a POINTED spade,
+  // where the single slab it replaced read as a snow paddle (loop pass 3).
+  box('metal',     [0.200, 0.200, 0.036], [0, -0.415, 0]),         // spade shoulder
+  box('metal',     [0.185, 0.120, 0.036], [0, -0.575, 0]),         // spade waist
+  box('metal',     [0.140, 0.100, 0.036], [0, -0.685, 0]),         // spade point
+  box('metalLite', [0.125, 0.034, 0.044], [0, -0.742, 0]),         // worn cutting lip
+  box('metalDark', [0.038, 0.300, 0.026], [0, -0.520, -0.028]),    // spine (BACK face only)
+  box('metalDark', [0.032, 0.030, 0.046], [-0.050, -0.720, 0]),    // chipped nick (wear)
+  // The dirt is a STREAK, not a patch: an earlier pass put a 0.12x0.10 muck
+  // rectangle on the spade face and it read as a hole punched through the
+  // blade -- silhouette-readability.md rule 1, texture never beats shape.
+  box('muck',      [0.090, 0.032, 0.008], [0.016, -0.620, 0.022]), // dirt streak
+  blob('muck',     0.040, [-0.045, -0.360, 0.045]),                // poo pellet (ammo)
 ];
 
 // -- SHOTGUN ----------------------------------------------------------------
 // Signature: TWO barrels side by side (never confusable with the rocket's
 // single fat tube at a glance) + brass breech.
 const SHOTGUN = [
-  box('metalDark', [0.052, 0.055, 0.62], [-0.030, 0.005, -0.24]),  // barrel left
-  box('metalDark', [0.052, 0.055, 0.62], [0.030, 0.005, -0.24]),   // barrel right
-  box('metalLite', [0.060, 0.062, 0.05], [-0.030, 0.005, -0.53]),  // worn muzzle L
-  box('metalLite', [0.060, 0.062, 0.05], [0.030, 0.005, -0.53]),   // worn muzzle R
+  box('metalDark', [0.052, 0.055, 0.62], [-0.038, 0.005, -0.24]),  // barrel left
+  box('metalDark', [0.052, 0.055, 0.62], [0.038, 0.005, -0.24]),   // barrel right
+  box('metalLite', [0.020, 0.016, 0.56], [0, 0.034, -0.24]),       // top rib (splits the pair)
+  box('metalLite', [0.060, 0.062, 0.05], [-0.038, 0.005, -0.53]),  // worn muzzle L
+  box('metalLite', [0.060, 0.062, 0.05], [0.038, 0.005, -0.53]),   // worn muzzle R
   box('brass',     [0.078, 0.070, 0.04], [0, 0.005, -0.34]),       // barrel band
   box('wood',      [0.082, 0.070, 0.22], [0, -0.045, -0.20]),      // fore-grip
   box('metal',     [0.086, 0.105, 0.20], [0, -0.020, 0.03]),       // receiver
@@ -81,11 +102,11 @@ const ROCKET = [
   box('brass',     [0.158, 0.158, 0.045], [0, 0, -0.34]),          // hazard band front
   box('brass',     [0.158, 0.158, 0.045], [0, 0, -0.06]),          // hazard band rear
   box('metalDark', [0.154, 0.052, 0.12], [0, 0.030, -0.20]),       // scuffed dent band (wear)
-  box('red',       [0.130, 0.130, 0.070], [0, 0, -0.535]),         // warhead step 1
-  box('red',       [0.096, 0.096, 0.060], [0, 0, -0.595]),         // warhead step 2
-  box('red',       [0.058, 0.058, 0.050], [0, 0, -0.648]),         // warhead step 3
-  box('metalLite', [0.028, 0.028, 0.035], [0, 0, -0.685]),         // fuse tip
-  box('metalDark', [0.185, 0.185, 0.060], [0, 0, 0.115]),          // exhaust bell
+  box('red',       [0.150, 0.150, 0.090], [0, 0, -0.540]),         // warhead step 1
+  box('red',       [0.110, 0.110, 0.070], [0, 0, -0.615]),         // warhead step 2
+  box('red',       [0.070, 0.070, 0.055], [0, 0, -0.672]),         // warhead step 3
+  box('metalLite', [0.030, 0.030, 0.035], [0, 0, -0.708]),         // fuse tip
+  box('metal',     [0.165, 0.165, 0.060], [0, 0, 0.115]),          // exhaust bell
   box('metalDark', [0.014, 0.110, 0.130], [-0.086, 0, 0.020]),     // fin left
   box('metalDark', [0.014, 0.110, 0.130], [0.086, 0, 0.020]),      // fin right
   box('metalDark', [0.110, 0.014, 0.130], [0, 0.086, 0.020]),      // fin top
@@ -99,19 +120,24 @@ const ROCKET = [
 // authored numbers human-readable (shovel is ~1.1 long in weapon space).
 export const VIEWMODELS = {
   shovel: {
+    // Blade UP-LEFT, handle down-right off the frame edge: the classic melee
+    // hold, and the only one that keeps the spade (the signature) fully
+    // on screen instead of clipped by the bottom edge.
     signature: 'wide spade blade + D-handle',
     parts: SHOVEL,
-    pose: { pos: [-0.06, 0.10, 0.02], rot: [0.30, 0.34, -0.62], scale: 0.62 },
+    pose: { pos: [0.25, -0.02, -0.08], rot: [-0.16, 0.18, -2.05], scale: 0.66 },
   },
   shotgun: {
     signature: 'double barrel',
     parts: SHOTGUN,
-    pose: { pos: [0, 0, 0], rot: [0.02, 0.06, 0.02], scale: 1 },
+    pose: { pos: [0, -0.01, -0.20], rot: [0.02, 0.16, 0.03], scale: 1 },
   },
   rocket: {
+    // Yawed across the frame so the red warhead is IN shot -- pointed straight
+    // down -Z the player only ever sees the exhaust bell.
     signature: 'stepped red warhead + fins',
     parts: ROCKET,
-    pose: { pos: [0, -0.02, 0.02], rot: [0.01, 0.05, 0.03], scale: 1 },
+    pose: { pos: [0.02, -0.02, -0.16], rot: [0.02, 0.42, 0.05], scale: 1 },
   },
 };
 
