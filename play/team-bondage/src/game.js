@@ -21,6 +21,7 @@ import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
 import { buildSkybox }        from './entities/skybox.js';
 import { Bot }                from './entities/bot.js';
 import { TracerSystem }       from './entities/tracer.js';
+import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -267,6 +268,10 @@ export class Game {
     this.player = new Player(this.camera, this.grid, spawn, this.team);
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
+    // Camera child = first-person weapon viewmodel. Also attach the camera
+    // to the scene so its children (the viewmodel) render.
+    this.scene.add(this.camera);
+    this.viewmodel = new FirstPersonWeapon(this.camera);
     this.hazards = new HazardSystem(this.scene, this.grid);
     this._hazardRngHost = this.isHost ? new SeededRng((this.seed ^ 0x51a9a7d1) >>> 0) : null;
     this._nextHazardAt = performance.now() + 4000;   // first wave 4s after boot
@@ -770,6 +775,8 @@ export class Game {
       match: this.matchState,
       alive: this.player?.alive,
       ticks: this._tickCount,
+      grounded: this.player?._grounded,
+      jumps: this.player?.jumpCount ?? 0,
       pos: this.player ? `${this.player.pos.x.toFixed(1)},${this.player.pos.y.toFixed(1)},${this.player.pos.z.toFixed(1)}` : '?',
       vel: this.player ? `${this.player.vel.x.toFixed(1)},${this.player.vel.y.toFixed(1)},${this.player.vel.z.toFixed(1)}` : '?',
     };
@@ -780,6 +787,7 @@ export class Game {
       // Allow movement + camera in the lobby so a solo host can explore.
       if (this.player.alive) this.player.update(dt, this.input);
       this.weapons.update(dt);
+      this.viewmodel?.update(dt);
       for (const rp of this.remotePlayers.values()) rp.update(dt);
       // Weapon-switch still works so people can preview.
       if (this.input.wasPressed('weapon1')) this._switchWeapon(0);
@@ -828,8 +836,9 @@ export class Game {
       this._tryFire();
     }
 
-    // Age out tracers.
+    // Age out tracers + animate viewmodel.
     this.tracers.update(dt, performance.now() / 1000);
+    this.viewmodel?.update(dt);
 
     // Movement
     if (this.player.alive) this.player.update(dt, this.input);
@@ -901,6 +910,11 @@ export class Game {
     document.querySelectorAll('#weaponbar .wpn').forEach((el, idx) => {
       el.classList.toggle('active', idx === i);
     });
+    if (this.viewmodel) {
+      const id = this.weapons.currentDef().id;
+      this.viewmodel.setWeapon(id === 'shovel' ? 'shovel'
+        : id === 'shotgun' ? 'shotgun' : 'rocket');
+    }
   }
 
   _tryFire() {
@@ -908,7 +922,7 @@ export class Game {
     this.camera.getWorldDirection(dir);
     const origin = this.camera.position.clone();
     const shots = this.weapons.tryFire(origin, dir, this.rngShots, this.myId);
-    if (shots.length > 0) SFX.pew();
+    if (shots.length > 0) { SFX.pew(); this.viewmodel?.kick(); }
     for (const s of shots) {
       this._broadcast({ t: MSG.SHOT, s });
       this._applyLocalShot(s);

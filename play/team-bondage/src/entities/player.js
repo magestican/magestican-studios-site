@@ -105,7 +105,18 @@ export class Player {
     // ---- Jump -----------------------------------------------------------
     if (grounded && input.wasPressed('jump')) {
       this.vel.y = JUMP_SPEED;
+      this.jumpCount = (this.jumpCount || 0) + 1;
     }
+    // Also allow a synthetic jump held-down burst so the touch button's
+    // one-shot works reliably even if wasPressed's per-frame gating misses
+    // it (setSynthetic runs between frames).
+    if (grounded && input.isDown('jump') && this.vel.y < 0.1 && !this._jumpingDown) {
+      this._jumpingDown = true;
+      this.vel.y = JUMP_SPEED;
+      this.jumpCount = (this.jumpCount || 0) + 1;
+    }
+    if (!input.isDown('jump')) this._jumpingDown = false;
+    this._grounded = grounded;
 
     // ---- Gravity --------------------------------------------------------
     this.vel.y += GRAVITY * dt;

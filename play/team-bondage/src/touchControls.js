@@ -118,6 +118,7 @@ export class TouchControls {
       `touches: ${this._touchCount}  active: ${this._joystickTouch ? 'J' : '-'}${this._lookTouch ? 'L' : '-'}\n` +
       `actions: ${actions}\n` +
       `state:   ${gs.match || '?'}   alive: ${gs.alive === undefined ? '?' : gs.alive}   ticks: ${gs.ticks ?? 0}\n` +
+      `grounded:${gs.grounded === undefined ? '?' : gs.grounded}   jumps: ${gs.jumps ?? 0}\n` +
       `pos:     ${gs.pos || '?'}\n` +
       `vel:     ${gs.vel || '?'}`;
   }
