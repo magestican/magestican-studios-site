@@ -32,7 +32,11 @@ import { GoreSystem }         from './entities/gore.js';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
-const FLAG_HOME_RADIUS = 2.0;   // steps within this of your own flag stand = capture
+const FLAG_HOME_RADIUS = 3.5;   // steps within this of your own flag stand = capture
+// Bumped from 2.0 → 3.5 on 2026-08-20: the flag stand voxel blocks the
+// player from standing directly on top of it, so we can't require an exact
+// centre-touch — the whole 3-tile radius around the base centre counts as
+// "delivered". Bryan: "when I deliver the flag to my base nothing happens".
 const WIN_SCORE = 5;
 const NET_TICK_HZ = 20;
 const RESPAWN_DELAY = 0.0;      // "immediate" per spec
@@ -1551,11 +1555,53 @@ export class Game {
       }
     }
 
-    // Sync flag position visually if I'm carrying it.
+    // Sync flag position visually if I'm carrying it — LIFT it above my
+    // head so I can actually see the fabric in my first-person view, and
+    // set a bright HUD banner so I know I'm carrying. See
+    // docs/features/carried-flag-visibility.md.
     if (this.player.hasEnemyFlag) {
-      this.flagPos[enemyColor] = { x: this.player.pos.x, y: this.player.pos.y, z: this.player.pos.z };
+      this.flagPos[enemyColor] = {
+        x: this.player.pos.x,
+        y: this.player.pos.y + 1.8,   // above my head, visible in FPV
+        z: this.player.pos.z,
+      };
       this._syncFlagMesh(enemyColor);
     }
+    this._paintCarryBanner();
+  }
+
+  // Big pulsing HUD banner shown ONLY while the local player carries a flag.
+  // "🚩 YOU HAVE THE FLAG — RUN HOME!" — reads on mobile too.
+  _paintCarryBanner() {
+    let el = document.getElementById('carry-banner');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'carry-banner';
+      el.innerHTML = '🚩 YOU HAVE THE ENEMY FLAG — RUN HOME!';
+      Object.assign(el.style, {
+        position: 'fixed',
+        left: '50%',
+        top: 'calc(max(8px, env(safe-area-inset-top)) + 130px)',
+        transform: 'translateX(-50%)',
+        padding: '8px 16px',
+        background: 'linear-gradient(90deg,#3a7cff,#7cb0ff,#3a7cff)',
+        color: '#fff',
+        font: '900 15px system-ui, sans-serif',
+        letterSpacing: '0.03em',
+        borderRadius: '999px',
+        border: '2px solid #fff2b0',
+        boxShadow: '0 0 24px rgba(58,124,255,0.85)',
+        zIndex: '30',
+        pointerEvents: 'none',
+        display: 'none',
+        animation: 'carryPulse 1.1s ease-in-out infinite',
+      });
+      document.body.appendChild(el);
+      const style = document.createElement('style');
+      style.textContent = '@keyframes carryPulse { 0%,100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.08); box-shadow: 0 0 44px rgba(58,124,255,1); } }';
+      document.head.appendChild(style);
+    }
+    el.style.display = this.player?.hasEnemyFlag ? 'block' : 'none';
   }
 
   _returnFlag(color) {
@@ -1568,7 +1614,17 @@ export class Game {
   _syncFlagMesh(color) {
     const p = this.flagPos[color];
     const m = this.flagMeshes[color];
-    m.position.set(p.x + 0.5, p.y - 1, p.z + 0.5);
+    // Match _buildFlagMesh — sit ON TOP of the floor voxel, not buried
+    // inside it. Bryan 2026-08-20: "flags somewhere off the map".
+    m.position.set(p.x + 0.5, p.y, p.z + 0.5);
+    // Make the carried flag GLOW so it's obvious it's the one you have.
+    // Uses the fabric material's emissive; safe to toggle every sync.
+    const fabric = m.children[1];
+    if (fabric && fabric.material && 'emissive' in fabric.material) {
+      const carried = this.flagState[color] === 'carried' && this.flagCarrier[color] === this.myId;
+      fabric.material.emissive.setHex(carried ? 0x3a7cff : 0x000000);
+      fabric.material.emissiveIntensity = carried ? 1.2 : 0;
+    }
   }
 
   // ---- anagram tiebreaker ---------------------------------------------
