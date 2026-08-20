@@ -153,8 +153,9 @@ main {
   font-family: Georgia, serif; font-weight: 700;
   font-size: 88px; color: var(--paper);
 }
-.game-aracstory .game-art { background: var(--accent-a); }
-.game-zelakas   .game-art { background: var(--accent-z); }
+.game-aracstory   .game-art { background: var(--accent-a); }
+.game-zelakas     .game-art { background: var(--accent-z); }
+.game-teambondage .game-art { background: #1a2330; }
 
 .game-copy h3 { font-size: 26px; margin: 4px 0 4px; }
 .game-meta {
