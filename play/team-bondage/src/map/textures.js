@@ -105,6 +105,53 @@ export function makeStoneTexture() {
   return toTexture(c);
 }
 
+// -- Hay: yellow straw with darker straws -----------------------------------
+export function makeHayTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rng = seedRng(71);
+  g.fillStyle = '#d7b83d';
+  g.fillRect(0, 0, SIZE, SIZE);
+  // Random straw lines
+  g.lineWidth = 1;
+  for (let i = 0; i < 60; i++) {
+    const x = Math.floor(rng() * SIZE);
+    const y = Math.floor(rng() * SIZE);
+    const len = 6 + Math.floor(rng() * 12);
+    const angle = rng() * Math.PI;
+    const dx = Math.cos(angle) * len;
+    const dy = Math.sin(angle) * len;
+    g.strokeStyle = rng() < 0.5 ? 'rgba(150,110,30,0.7)' : 'rgba(240,220,120,0.8)';
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + dx, y + dy); g.stroke();
+  }
+  return toTexture(c);
+}
+
+// -- Blood-tinted variant of any base texture: overlays translucent red -----
+export function makeBloodTinted(baseTexture) {
+  // baseTexture must have an underlying canvas via image property.
+  const src = baseTexture.image;
+  const c = makeCanvas(); const g = c.getContext('2d');
+  g.drawImage(src, 0, 0, SIZE, SIZE);
+  // Red wash
+  g.fillStyle = 'rgba(140, 20, 20, 0.55)';
+  g.fillRect(0, 0, SIZE, SIZE);
+  // Blood splatters
+  const rng = seedRng(89);
+  for (let i = 0; i < 12; i++) {
+    const x = rng() * SIZE, y = rng() * SIZE;
+    const r = 2 + rng() * 6;
+    g.fillStyle = `rgba(80,10,10,${0.6 + rng() * 0.3})`;
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    // Drips
+    g.fillStyle = 'rgba(60,5,5,0.55)';
+    for (let d = 0; d < 3; d++) {
+      const dy = r + rng() * 6;
+      g.beginPath(); g.arc(x + (rng() - 0.5) * 2, y + dy, r * 0.5, 0, Math.PI * 2); g.fill();
+    }
+  }
+  return toTexture(c);
+}
+
 // -- Dirt: warm brown noise -------------------------------------------------
 export function makeDirtTexture() {
   const c = makeCanvas(); const g = c.getContext('2d');

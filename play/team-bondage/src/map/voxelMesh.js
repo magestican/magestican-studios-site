@@ -4,7 +4,7 @@
 
 import * as THREE from 'three';
 import { VOX, VOX_COLOR } from 'arbelo/voxel';
-import { makeGrassTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture } from './textures.js';
+import { makeGrassTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture, makeHayTexture, makeBloodTinted } from './textures.js';
 
 const CUBE_GEO = new THREE.BoxGeometry(1, 1, 1);
 
@@ -17,11 +17,23 @@ function getTextures() {
     [VOX.WOOD]:  makeWoodTexture(),
     [VOX.STONE]: makeStoneTexture(),
     [VOX.DIRT]:  makeDirtTexture(),
+    [VOX.HAY]:   makeHayTexture(),
+    [VOX.HILL]:  makeDirtTexture(),
   };
   return TEX;
 }
 
-export function buildWorldMeshes(grid) {
+// Mature-mode variant: blood-tinted versions of every voxel texture.
+let TEX_BLOOD = null;
+function getBloodTextures() {
+  if (TEX_BLOOD) return TEX_BLOOD;
+  const base = getTextures();
+  TEX_BLOOD = {};
+  for (const k in base) TEX_BLOOD[k] = makeBloodTinted(base[k]);
+  return TEX_BLOOD;
+}
+
+export function buildWorldMeshes(grid, { mature = false } = {}) {
   // Group instances by voxel type.
   const groups = new Map();  // vType -> Array<{x,y,z}>
   for (let z = 0; z < grid.sz; z++) {
@@ -41,7 +53,7 @@ export function buildWorldMeshes(grid) {
   parent.name = 'voxelWorld';
   const dummy = new THREE.Object3D();
 
-  const textures = getTextures();
+  const textures = mature ? getBloodTextures() : getTextures();
   for (const [v, cells] of groups.entries()) {
     const [r, g, b] = VOX_COLOR[v];
     const materialOpts = {

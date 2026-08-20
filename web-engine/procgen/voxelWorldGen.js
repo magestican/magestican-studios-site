@@ -23,6 +23,13 @@ export function generateWorld(seed) {
   // Ground: one layer of grass at y=0.
   grid.fillBox(0, 0, 0, WORLD_SIZE.x - 1, 0, WORLD_SIZE.z - 1, VOX.GRASS);
 
+  // Centre hill (chicken slingshot spawn spot). Small 5x5 knoll rising 2
+  // blocks from the middle of the map.
+  const cx = Math.floor(WORLD_SIZE.x / 2);
+  const cz = Math.floor(WORLD_SIZE.z / 2);
+  grid.fillBox(cx - 2, 1, cz - 2, cx + 2, 1, cz + 2, VOX.HILL);
+  grid.fillBox(cx - 1, 2, cz - 1, cx + 1, 2, cz + 1, VOX.HILL);
+
   // Two bases at opposite corners.
   const redBase = { x: 2,                       z: 2 };
   const blueBase = { x: WORLD_SIZE.x - BASE_SIZE.x - 2,
@@ -63,6 +70,24 @@ export function generateWorld(seed) {
     }
   }
 
+  // Scatter hay stacks (2x2x2 blocks of hay) - cover you can hide behind.
+  const hayRng = rng.child('hay');
+  const hayCount = hayRng.rangeI(8, 12);
+  const hayStacks = [];
+  for (let i = 0; i < hayCount; i++) {
+    const hx = hayRng.rangeI(6, WORLD_SIZE.x - 8);
+    const hz = hayRng.rangeI(6, WORLD_SIZE.z - 8);
+    if (insideBase(hx, hz, redBase) || insideBase(hx, hz, blueBase)) continue;
+    // Don't stack ON the central hill.
+    if (Math.abs(hx - cx) < 4 && Math.abs(hz - cz) < 4) continue;
+    const h = hayRng.chance(0.5) ? 2 : 3;
+    grid.fillBox(hx, 1, hz, hx + 1, h, hz + 1, VOX.HAY);
+    hayStacks.push({ x: hx, z: hz, h });
+  }
+
+  // Hill spawn point for the chicken slingshot pickup.
+  const hillSpawn = { x: cx + 0.5, y: 3.5, z: cz + 0.5 };
+
   // Spawn point per team = centre of that base at y=1 (on top of the floor).
   const spawns = {
     red:  { x: redBase.x  + BASE_SIZE.x / 2, y: 2, z: redBase.z  + BASE_SIZE.z / 2 },
@@ -74,7 +99,7 @@ export function generateWorld(seed) {
     blue: { x: blueBase.x + BASE_SIZE.x / 2, y: 2, z: blueBase.z + BASE_SIZE.z / 2 },
   };
 
-  return { seed, grid, spawns, flags, redBase, blueBase };
+  return { seed, grid, spawns, flags, redBase, blueBase, hillSpawn, hayStacks };
 }
 
 function buildBase(grid, ox, oz, baseVox, standVox) {

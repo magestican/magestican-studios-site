@@ -23,6 +23,8 @@ export const VOX = Object.freeze({
   BASE_BLUE: 7,
   FLAG_STAND_RED: 8,
   FLAG_STAND_BLUE: 9,
+  HAY: 10,
+  HILL: 11,   // centre-map elevated tile where the chicken slingshot spawns
 });
 
 // Base RGB palette for each voxel type. Actual final colouring in the game
@@ -38,6 +40,8 @@ export const VOX_COLOR = Object.freeze({
   [VOX.BASE_BLUE]:      [0x33, 0x6b, 0xbf],
   [VOX.FLAG_STAND_RED]: [0xd0, 0x50, 0x3e],
   [VOX.FLAG_STAND_BLUE]:[0x4f, 0x8a, 0xdb],
+  [VOX.HAY]:            [0xd7, 0xb85, 0x3d].map((v) => v) && [0xd7, 0xb8, 0x3d],
+  [VOX.HILL]:           [0x6a, 0x54, 0x38],
 });
 
 export class VoxelGrid {

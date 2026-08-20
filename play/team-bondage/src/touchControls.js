@@ -36,6 +36,7 @@ export class TouchControls {
     el.innerHTML = `
       <div id="tc-joystick-base"></div>
       <div id="tc-joystick-knob"></div>
+      <div id="tc-debug"></div>
       <div id="tc-buttons">
         <button class="tc-btn tc-weapon" data-w="0" aria-label="Pistol">1</button>
         <button class="tc-btn tc-weapon" data-w="1" aria-label="Shotgun">2</button>
@@ -45,6 +46,7 @@ export class TouchControls {
       </div>
     `;
     this._el = el;
+    this._debug = el.querySelector('#tc-debug');
     this._joystickBase = el.querySelector('#tc-joystick-base');
     this._joystickKnob = el.querySelector('#tc-joystick-knob');
     this._joystickBase.style.display = 'none';
@@ -133,11 +135,17 @@ export class TouchControls {
         this._joystickKnob.style.top  = (cy + dy - 25) + 'px';
         // Convert stick to WASD synthetic actions with a small dead-zone.
         const nx = dx / R, ny = dy / R;
-        const DZ = 0.22;
+        const DZ = 0.10;   // small dead zone so tiny thumb drift still moves
         this.input.setSynthetic('moveLeft',    nx < -DZ);
         this.input.setSynthetic('moveRight',   nx >  DZ);
         this.input.setSynthetic('moveForward', ny < -DZ);
         this.input.setSynthetic('moveBack',    ny >  DZ);
+        // Live debug so we can see the joystick actually feeding the input bus.
+        if (this._debug) {
+          this._debug.textContent = `JS  x=${nx.toFixed(2)}  y=${ny.toFixed(2)}  ` +
+            `[${['moveLeft','moveRight','moveForward','moveBack']
+              .filter((a) => this.input.isDown(a)).join(',') || '-'}]`;
+        }
         e.preventDefault();
       } else if (this._lookTouch && t.identifier === this._lookTouch.id) {
         const dx = t.clientX - this._lookTouch.lastX;
@@ -181,6 +189,15 @@ const TOUCH_CSS = `
   /* No pointer-events:none -- we want touches on the joystick area to be
      consumed by the overlay, not slip through to the canvas underneath. */
   touch-action: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+#tc-debug {
+  position: absolute; left: 12px; top: 100px;
+  font: 11px "SF Mono", Menlo, Consolas, monospace;
+  color: #f4c95d; background: rgba(0,0,0,0.5);
+  padding: 3px 6px; border-radius: 4px;
+  pointer-events: none;
 }
 #tc-joystick-base {
   position: absolute; width: 120px; height: 120px;

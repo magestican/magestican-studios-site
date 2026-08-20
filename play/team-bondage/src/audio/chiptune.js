@@ -1,156 +1,162 @@
-// Tiny chiptune loop synthesised at runtime via Web Audio - no assets.
+// Fast, addictive chiptune loop.
 //
-// Two voices:
-//   * Lead:  square-wave melody (classic Game Boy tone)
-//   * Bass:  sawtooth root on beat 1 of each bar
+// Rendered ONCE via an OfflineAudioContext into a WAV buffer, then handed to
+// an <audio> element with loop=true. This lets iOS Safari keep playing when
+// the tab is backgrounded (Web Audio's AudioContext is suspended in the
+// background, but an <audio> element with real audio data can continue).
 //
-// The whole tune is exactly 60 seconds and loops seamlessly. Muteable via
-// setMuted(). AudioContext creation is deferred until the first user gesture
-// so iOS Safari's autoplay policy accepts it.
+// The tune itself: 168 BPM, driving 8th- and 16th-note melody over
+// straight-eighth bass. Loop is ~11 seconds so the hook keeps returning
+// before it gets stale.
 
-// A minor scale note frequencies (Hz)
 const NOTE = {
   A2: 110.00, C3: 130.81, D3: 146.83, E3: 164.81, G3: 196.00,
   A3: 220.00, C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,
-  G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25,
+  G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, G5: 783.99,
 };
 
-// 60-second tune at 120 BPM (0.5s per beat). 120 beats total.
-// Melody is 8 phrases of 4 bars each; each bar = 4 beats. 8 phrases x 4 bars
-// x 4 beats x 0.5s = 64s. We'll trim to 60s and hold last note.
+const BPM = 168;
+const BEAT = 60 / BPM;
 
-const BPM = 120;
-const BEAT = 60 / BPM;   // 0.5s
+function melody() {
+  return [
+    // hookA
+    [NOTE.A4, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5],
+    [NOTE.B4, 0.5], [NOTE.D5, 0.5], [NOTE.A4, 0.5], [NOTE.C5, 0.5],
+    // hookA'
+    [NOTE.A4, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.G5, 0.5],
+    [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 1.0],
+    // hookB: 16ths climb
+    [NOTE.A4, 0.25], [NOTE.B4, 0.25], [NOTE.C5, 0.25], [NOTE.D5, 0.25],
+    [NOTE.E5, 0.5],  [NOTE.D5, 0.5],  [NOTE.C5, 0.5],  [NOTE.B4, 0.5],
+    // hookC: descent
+    [NOTE.E5, 0.5], [NOTE.D5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 0.5],
+    [NOTE.G4, 0.5], [NOTE.A4, 0.5], [NOTE.E4, 1.0],
+  ];
+}
 
-// Melody: array of [note, beats]. null note = rest.
-// One phrase = 8 beats. 15 phrases = 120 beats = 60s.
-const MELODY = flatten([
-  phraseA(), phraseB(), phraseA(), phraseC(),
-  phraseA(), phraseB(), phraseA(), phraseC(),
-  phraseD(), phraseD(), phraseE(), phraseE(),
-  phraseA(), phraseB(), phraseF(),
-]);
-
-const BASS = flatten([
-  // 60s of bass on beat 1 of each bar (bar = 4 beats, so bass every 2s)
-  ...Array.from({ length: 30 }, (_, i) => bassBarFor(i)),
-]);
-
-function flatten(arrays) { return arrays.flat(); }
-
-function phraseA() {  // 8 beats
-  return [
-    [NOTE.A4, 1], [NOTE.C5, 1], [NOTE.E5, 1], [NOTE.D5, 1],
-    [NOTE.C5, 1], [NOTE.B4, 1], [NOTE.A4, 2],
-  ];
-}
-function phraseB() {
-  return [
-    [NOTE.G4, 1], [NOTE.A4, 1], [NOTE.C5, 1], [NOTE.B4, 1],
-    [NOTE.A4, 1], [NOTE.G4, 1], [NOTE.E4, 2],
-  ];
-}
-function phraseC() {
-  return [
-    [NOTE.E4, 0.5], [NOTE.F4, 0.5], [NOTE.G4, 1], [NOTE.A4, 1], [NOTE.C5, 1],
-    [NOTE.B4, 0.5], [NOTE.A4, 0.5], [NOTE.G4, 1], [null, 2],
-  ];
-}
-function phraseD() {
-  return [
-    [NOTE.D5, 1], [NOTE.C5, 1], [NOTE.B4, 1], [NOTE.A4, 1],
-    [NOTE.G4, 1], [NOTE.A4, 1], [NOTE.C5, 2],
-  ];
-}
-function phraseE() {
-  return [
-    [NOTE.A4, 0.5], [NOTE.B4, 0.5], [NOTE.C5, 0.5], [NOTE.D5, 0.5],
-    [NOTE.E5, 1], [NOTE.D5, 1], [NOTE.C5, 1], [NOTE.A4, 2],
-  ];
-}
-function phraseF() {
-  return [
-    [NOTE.A4, 1], [NOTE.C5, 1], [NOTE.E5, 1], [NOTE.A4, 1],
-    [NOTE.C5, 1], [NOTE.B4, 1], [NOTE.A4, 2],
-  ];
-}
-function bassBarFor(barIdx) {
-  // Rotate through A / F / G / E for a familiar Am-F-G-Em progression.
+function bass() {
   const roots = [NOTE.A2, NOTE.C3, NOTE.G3, NOTE.E3];
-  const root = roots[barIdx % 4];
-  return [[root, 2], [null, 2]];   // 2 beats bass, 2 beats rest, per bar
+  const out = [];
+  for (let bar = 0; bar < 8; bar++) {
+    const r = roots[bar % 4];
+    for (let e = 0; e < 4; e++) out.push([r, 0.5]);
+  }
+  return out;
 }
+
+function totalBeats(seq) { return seq.reduce((s, [, b]) => s + b, 0); }
 
 export class Chiptune {
   constructor() {
-    this.ctx = null;
-    this.master = null;
     this.muted = localStorage.getItem('tb.muted') === '1';
-    this._playing = false;
-    this._loopTimer = null;
+    this._audio = null;
+    this._rendering = null;
   }
 
-  ensureContext() {
-    if (this.ctx) return;
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return;
-    this.ctx = new Ctx();
-    this.master = this.ctx.createGain();
-    this.master.gain.value = this.muted ? 0 : 0.12;
-    this.master.connect(this.ctx.destination);
-  }
+  ensureContext() { /* kept for API parity with earlier version */ }
 
-  start() {
-    this.ensureContext();
-    if (!this.ctx || this._playing) return;
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-    this._playing = true;
-    this._scheduleLoop();
-  }
-
-  _scheduleLoop() {
-    if (!this._playing) return;
-    const startAt = this.ctx.currentTime + 0.05;
-    // Melody voice (square)
-    let t = startAt;
-    for (const [note, beats] of MELODY) {
-      if (note != null) this._playNote(note, t, beats * BEAT * 0.95, 'square', 0.10);
-      t += beats * BEAT;
+  async start() {
+    if (this._audio && !this._audio.paused) return;
+    if (!this._audio) {
+      if (!this._rendering) this._rendering = renderLoopWav();
+      const url = await this._rendering;
+      const a = new Audio(url);
+      a.loop = true;
+      a.volume = this.muted ? 0 : 0.28;
+      a.setAttribute('playsinline', '');
+      a.crossOrigin = 'anonymous';
+      this._audio = a;
     }
-    // Bass voice (saw)
-    t = startAt;
-    for (const [note, beats] of BASS) {
-      if (note != null) this._playNote(note, t, beats * BEAT * 0.95, 'sawtooth', 0.14);
-      t += beats * BEAT;
-    }
-    // Loop after 60 seconds
-    this._loopTimer = setTimeout(() => this._scheduleLoop(), 60 * 1000);
+    try { await this._audio.play(); } catch { /* browser refused: needs another gesture */ }
   }
 
-  _playNote(freq, when, dur, type, peakGain) {
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
-    gain.gain.value = 0;
-    gain.gain.setValueAtTime(0, when);
-    gain.gain.linearRampToValueAtTime(peakGain, when + 0.005);
-    gain.gain.exponentialRampToValueAtTime(0.0001, when + dur);
-    osc.connect(gain).connect(this.master);
-    osc.start(when);
-    osc.stop(when + dur + 0.05);
-  }
-
-  stop() {
-    this._playing = false;
-    if (this._loopTimer) { clearTimeout(this._loopTimer); this._loopTimer = null; }
-  }
+  stop() { if (this._audio) this._audio.pause(); }
 
   setMuted(muted) {
     this.muted = muted;
     localStorage.setItem('tb.muted', muted ? '1' : '0');
-    if (this.master) this.master.gain.value = muted ? 0 : 0.12;
+    if (this._audio) this._audio.volume = muted ? 0 : 0.28;
   }
 
   toggleMuted() { this.setMuted(!this.muted); return this.muted; }
+
+  // Legacy `ctx` accessor - the game.js audio-start dance touches it. Keep
+  // it as `null`ish so the code paths still short-circuit safely.
+  get ctx() { return this._audio ? { state: this._audio.paused ? 'suspended' : 'running', resume: () => this._audio.play() } : null; }
+}
+
+// -- Offline render ---------------------------------------------------------
+
+async function renderLoopWav() {
+  const mel = melody();
+  const bs  = bass();
+  const dur = Math.max(totalBeats(mel), totalBeats(bs)) * BEAT + 0.15;
+  const sampleRate = 44100;
+  const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  const ctx = new Offline(2, Math.ceil(dur * sampleRate), sampleRate);
+  const master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
+  scheduleVoice(ctx, master, mel, 'square', 0.15);
+  scheduleVoice(ctx, master, bs,  'sawtooth', 0.20);
+  const buffer = await ctx.startRendering();
+  const wav = bufferToWav(buffer);
+  const blob = new Blob([wav], { type: 'audio/wav' });
+  return URL.createObjectURL(blob);
+}
+
+function scheduleVoice(ctx, dest, seq, type, peakGain) {
+  let t = 0;
+  for (const [note, beats] of seq) {
+    if (note != null) {
+      const dur = beats * BEAT * 0.92;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = note;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(peakGain, t + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(gain).connect(dest);
+      osc.start(t);
+      osc.stop(t + dur + 0.05);
+    }
+    t += beats * BEAT;
+  }
+}
+
+// Convert AudioBuffer -> 16-bit PCM WAV as Uint8Array.
+function bufferToWav(buffer) {
+  const numCh = buffer.numberOfChannels;
+  const sr = buffer.sampleRate;
+  const samples = buffer.length;
+  const bytesPerSample = 2;
+  const dataSize = samples * numCh * bytesPerSample;
+  const bufLen = 44 + dataSize;
+  const out = new ArrayBuffer(bufLen);
+  const view = new DataView(out);
+  const writeStr = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+  writeStr(0, 'RIFF');
+  view.setUint32(4, bufLen - 8, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);       // fmt chunk size
+  view.setUint16(20, 1, true);        // PCM
+  view.setUint16(22, numCh, true);
+  view.setUint32(24, sr, true);
+  view.setUint32(28, sr * numCh * bytesPerSample, true);
+  view.setUint16(32, numCh * bytesPerSample, true);
+  view.setUint16(34, 16, true);       // bits per sample
+  writeStr(36, 'data');
+  view.setUint32(40, dataSize, true);
+  let offset = 44;
+  const chans = [];
+  for (let c = 0; c < numCh; c++) chans.push(buffer.getChannelData(c));
+  for (let i = 0; i < samples; i++) {
+    for (let c = 0; c < numCh; c++) {
+      let s = Math.max(-1, Math.min(1, chans[c][i]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+      offset += 2;
+    }
+  }
+  return new Uint8Array(out);
 }
