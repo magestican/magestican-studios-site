@@ -126,8 +126,21 @@ export class TouchControls {
   _onTouchStart(e) {
     this._touchCount++;
     for (const t of e.changedTouches) {
-      // If touch landed on a button, let the button handler own it.
-      if (t.target && t.target.closest && t.target.closest('#tc-buttons')) continue;
+      // If touch landed on any BUTTON or interactive overlay (refresh banner,
+      // mute, mature, add-bot, enable-sound, lobby banner, anagram input),
+      // let the browser fire its normal click - do NOT consume the event or
+      // it'll get swallowed by preventDefault below.
+      if (t.target && t.target.closest && (
+        t.target.closest('#tc-buttons') ||
+        t.target.closest('button') ||
+        t.target.closest('input') ||
+        t.target.closest('.vc-banner') ||
+        t.target.closest('#lobby-banner') ||
+        t.target.closest('#anagramWrap') ||
+        t.target.closest('#enable-sound') ||
+        t.target.closest('#tc-debug') ||
+        t.target.closest('.device-qr-card')
+      )) continue;
       const isLeft = t.clientX < window.innerWidth / 2;
       if (isLeft && !this._joystickTouch) {
         this._joystickTouch = { id: t.identifier, cx: t.clientX, cy: t.clientY };
