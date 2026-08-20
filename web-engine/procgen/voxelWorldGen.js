@@ -89,10 +89,12 @@ export function generateWorld(seed) {
   // Hill spawn point for the chicken slingshot pickup.
   const hillSpawn = { x: cx + 0.5, y: 3.5, z: cz + 0.5 };
 
-  // Spawn point per team = centre of that base at y=1 (on top of the floor).
+  // Spawn point per team = 2 tiles offset from the flag stand (which is at
+  // base centre and is a SOLID voxel - spawning on top of it made the player
+  // instantly clip and be unable to move on any axis).
   const spawns = {
-    red:  { x: redBase.x  + BASE_SIZE.x / 2, y: 2, z: redBase.z  + BASE_SIZE.z / 2 },
-    blue: { x: blueBase.x + BASE_SIZE.x / 2, y: 2, z: blueBase.z + BASE_SIZE.z / 2 },
+    red:  { x: redBase.x  + 2, y: 2, z: redBase.z  + Math.floor(BASE_SIZE.z / 2) },
+    blue: { x: blueBase.x + BASE_SIZE.x - 3, y: 2, z: blueBase.z + Math.floor(BASE_SIZE.z / 2) },
   };
 
   const flags = {
