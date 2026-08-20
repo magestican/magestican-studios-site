@@ -1157,6 +1157,11 @@ export class Game {
   }
 
   _tick(dt) {
+    // Boot race guard: the render loop starts BEFORE _initPlayer/_initInput
+    // finish (deliberate — the world shows while rapier WASM downloads).
+    // Until input exists there is nothing to simulate; without this, every
+    // frame during physics load threw "[tick error] … wasPressed" in prod.
+    if (!this.input) return;
     // Publish a small debug snapshot so the touch-debug HUD can show what
     // the game actually thinks is happening (why isn't the player moving?).
     this._tickCount = (this._tickCount || 0) + 1;
