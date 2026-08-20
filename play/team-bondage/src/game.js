@@ -10,14 +10,17 @@ import { buildWorldMeshes } from './map/voxelMesh.js';
 import { buildCharacter }   from './entities/character.js';
 import { Player }           from './entities/player.js';
 import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
+// (WEAPON_DEFS used in _addTracerForShot)
 import { RemotePlayer }     from './entities/remotePlayer.js';
 import { MSG }              from './net/protocol.js';
 import { pickWord, scramble } from './util/anagram.js';
 import { TouchControls }     from './touchControls.js';
 import { Chiptune }           from './audio/chiptune.js';
+import * as SFX               from './audio/sfx.js';
 import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
 import { buildSkybox }        from './entities/skybox.js';
 import { Bot }                from './entities/bot.js';
+import { TracerSystem }       from './entities/tracer.js';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -231,6 +234,7 @@ export class Game {
     const spawn = this.world.spawns[this.team];
     this.player = new Player(this.camera, this.grid, spawn, this.team);
     this.weapons = new WeaponSystem(this.scene);
+    this.tracers = new TracerSystem(this.scene);
     this.hazards = new HazardSystem(this.scene, this.grid);
     this._hazardRngHost = this.isHost ? new SeededRng((this.seed ^ 0x51a9a7d1) >>> 0) : null;
     this._nextHazardAt = performance.now() + 4000;   // first wave 4s after boot
@@ -745,6 +749,9 @@ export class Game {
       this._tryFire();
     }
 
+    // Age out tracers.
+    this.tracers.update(dt, performance.now() / 1000);
+
     // Movement
     if (this.player.alive) this.player.update(dt, this.input);
     this.weapons.update(dt);
@@ -765,10 +772,24 @@ export class Game {
       // Reschedule 3-6 seconds later.
       this._nextHazardAt = nowMs + this._hazardRngHost.rangeI(3000, 6000);
     }
-    // Local player damage from hazards that just landed.
+    // Local player damage from hazards that just landed. Loud boom if we
+    // took a splash; quieter one if a hazard landed nearby but missed.
     if (this.player.alive) {
-      for (const dmg of this.hazards.consumeHitsFor(this.player.pos)) {
+      const hits = this.hazards.consumeHitsFor(this.player.pos);
+      for (const dmg of hits) {
         this._takeDamage(dmg, this.myId, 'hazard');
+        SFX.boom(1.0);
+      }
+      // Even if we weren't hit, play a softer boom if a hazard exploded
+      // within earshot in the last tick.
+      if (!hits.length) {
+        for (const h of (this.hazards._explosions || [])) {
+          if (h.shard) continue;
+          const age = performance.now() / 1000 - h.bornAt;
+          if (age > 0.05) continue;   // only brand-new
+          const d = this.player.pos.distanceTo(h.mesh.position);
+          if (d < 12) SFX.boom(Math.max(0.15, 1 - d / 12));
+        }
       }
     }
 
@@ -808,10 +829,24 @@ export class Game {
     this.camera.getWorldDirection(dir);
     const origin = this.camera.position.clone();
     const shots = this.weapons.tryFire(origin, dir, this.rngShots, this.myId);
+    if (shots.length > 0) SFX.pew();
     for (const s of shots) {
       this._broadcast({ t: MSG.SHOT, s });
       this._applyLocalShot(s);
+      // Local tracer + muzzle poo for THIS shooter.
+      if (s.kind === 'hitscan') {
+        this._addTracerForShot(s);
+        this.weapons.spawnMuzzleFx(s);
+      }
     }
+  }
+
+  _addTracerForShot(s) {
+    const def = WEAPON_DEFS.find((d) => d.id === s.weaponId);
+    const color = def && def.tracerColor ? def.tracerColor : 0xf4c95d;
+    const origin = new THREE.Vector3().fromArray(s.origin);
+    const dir    = new THREE.Vector3().fromArray(s.dir);
+    this.tracers.addHitscan(origin, dir, 50, color);
   }
 
   // Resolve a shot fired by us: check hitscan vs remote players + world;
@@ -830,6 +865,12 @@ export class Game {
 
   _applyRemoteShot(s) {
     if (s.kind === 'projectile') this.weapons.spawnProjectileMesh(s);
+    if (s.kind === 'hitscan') {
+      // Show tracer + muzzle FX for shots fired by other players.
+      this._addTracerForShot(s);
+      this.weapons.spawnMuzzleFx(s);
+      SFX.pew();
+    }
     // We don't need to hitscan for others; each shooter reports HIT for their
     // own shots.
   }

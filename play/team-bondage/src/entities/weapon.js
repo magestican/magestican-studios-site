@@ -10,8 +10,11 @@ import * as THREE from 'three';
 export const WEAPON_DEFS = [
   // Bullets do 2 damage per hit (100 HP; kills take 50 hits). Rocket is not a
   // bullet - it's explosive, so it keeps its larger damage numbers.
-  { id: 'pistol',  name: 'Pistol',   cooldown: 0.20, damage: 2,  pellets: 1, spread: 0.003, kind: 'hitscan' },
-  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 2,  pellets: 7, spread: 0.10,  kind: 'hitscan' },
+  // The pistol is themed as a "shovel that flings poo pellets" - identical
+  // stats to a plain pistol, but the projectile visual is a brown ball with
+  // a bullet-sound pew.
+  { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 2,  pellets: 1, spread: 0.003, kind: 'hitscan', projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
+  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 2,  pellets: 7, spread: 0.10,  kind: 'hitscan', tracerColor: 0xf4c95d },
   { id: 'rocket',  name: 'Rocket',   cooldown: 1.10, damage: 60, splash: 30, splashRadius: 3.0, projectileSpeed: 20, kind: 'projectile' },
 ];
 
@@ -34,7 +37,8 @@ export class WeaponSystem {
     }
     // Cull expired.
     this.projectiles = this.projectiles.filter((p) => {
-      if (p.age > 5) { this.scene.remove(p.mesh); return false; }
+      const maxAge = p.maxAge || 5;
+      if (p.age > maxAge) { this.scene.remove(p.mesh); return false; }
       return true;
     });
   }
@@ -91,7 +95,7 @@ export class WeaponSystem {
   // resolved in game.js).
   spawnProjectileMesh(shot) {
     const geo = new THREE.SphereGeometry(0.15, 8, 8);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xffcc44 });
+    const mat = new THREE.MeshBasicMaterial({ color: shot.color || 0xffcc44 });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.fromArray(shot.origin);
     this.scene.add(mesh);
@@ -100,6 +104,30 @@ export class WeaponSystem {
       pos: new THREE.Vector3().fromArray(shot.origin),
       vel: new THREE.Vector3().fromArray(shot.vel),
       shot, age: 0,
+    });
+  }
+
+  // Spawn a small, fast-flying visual for a hitscan shot's origin - just so
+  // the shooter sees a puff at the muzzle. Poo pellets get a brown sphere
+  // that flies straight for ~0.3s along the shot direction, then vanishes.
+  spawnMuzzleFx(shot) {
+    if (shot.kind !== 'hitscan') return;
+    const def = WEAPON_DEFS.find((d) => d.id === shot.weaponId);
+    if (!def || !def.projectileColor) return;
+    const geo = new THREE.SphereGeometry(0.08, 6, 6);
+    const mat = new THREE.MeshBasicMaterial({ color: def.projectileColor });
+    const mesh = new THREE.Mesh(geo, mat);
+    const origin = new THREE.Vector3().fromArray(shot.origin);
+    const dir    = new THREE.Vector3().fromArray(shot.dir);
+    mesh.position.copy(origin).addScaledVector(dir, 0.5);
+    this.scene.add(mesh);
+    this.projectiles.push({
+      mesh,
+      pos: new THREE.Vector3().copy(mesh.position),
+      vel: dir.clone().multiplyScalar(30),   // fly forward fast
+      shot: { ...shot, cosmetic: true },
+      age: 0,
+      maxAge: 0.35,
     });
   }
 }
