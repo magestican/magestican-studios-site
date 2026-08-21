@@ -525,6 +525,149 @@ export function makeBarnPaintTexture(team) {
   return toTexture(c);
 }
 
+// -- Eggshell: warm cream with hen freckles --------------------------------
+// The falling-egg hazard's shell (entities/hazardSpec.js). Its whole job is
+// to stop the egg reading as a flat cream blob: the freckles are the value
+// pattern, and per silhouette-readability.md value pattern is what carries
+// identity once texture has stopped resolving. They are drawn BIG for a
+// 64^2 tile (2-4 px) because per-pixel noise is gone by the second mip.
+export function makeEggshellTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rng = seedRng(419);
+
+  // Base + a broad warm mottle, so the shell has a lit side even before the
+  // light hits it (hand-drawn.md: never dead-flat except for graphic elements).
+  //
+  // The base is painted WARMER than the shell's palette colour (#efe3c4) on
+  // purpose. Measured through the game's own rig, a surface comes back with
+  // its blue channel about 14 % stronger relative to its red than it was
+  // painted, because the rig's hemisphere light is sky-blue (0x9fd7ff) and
+  // there is no tone mapping to pull it back. Paint the palette hex and the
+  // egg renders hue-NEUTRAL — grey concrete with freckles. Pre-warping by the
+  // measured amount is what makes it land on cream.
+  g.fillStyle = '#f2e0ab';
+  g.fillRect(0, 0, SIZE, SIZE);
+  for (let i = 0; i < 14; i++) {
+    const x = rng() * SIZE, y = rng() * SIZE, r = 6 + rng() * 12;
+    g.fillStyle = rng() > 0.5 ? 'rgba(255,247,222,0.32)' : 'rgba(188,158,110,0.26)';
+    g.beginPath(); g.ellipse(x, y, r, r * 0.75, rng() * 3, 0, Math.PI * 2); g.fill();
+  }
+  // Hen freckles: two sizes, warm brown, never grey (color.md warm shadows).
+  for (let i = 0; i < 46; i++) {
+    const x = rng() * SIZE, y = rng() * SIZE;
+    const big = rng() > 0.72;
+    g.fillStyle = big ? 'rgba(128,90,50,0.62)' : 'rgba(150,112,68,0.44)';
+    g.beginPath();
+    g.ellipse(x, y, big ? 2.4 : 1.3, big ? 1.9 : 1.1, rng() * 3, 0, Math.PI * 2);
+    g.fill();
+  }
+  return toTexture(c);
+}
+
+// -- Bottle glass: near-flat with ONE vertical highlight --------------------
+// Wrapped once around the pint's 8-facet body, so the bright stripe lands on
+// a single facet and reads as the highlight running down a glass bottle —
+// which is how a viewer identifies glass at all. Two faint mould seams sit
+// opposite it, the tell that the bottle was pressed rather than blown.
+export function makeBottleGlassTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rng = seedRng(523);
+  g.fillStyle = '#f4f0dc';                 // milk seen THROUGH glass, not white
+  g.fillRect(0, 0, SIZE, SIZE);
+  // Shaded flank away from the highlight.
+  const grad = g.createLinearGradient(0, 0, SIZE, 0);
+  grad.addColorStop(0.00, 'rgba(150,152,148,0.24)');
+  grad.addColorStop(0.30, 'rgba(255,255,255,0.00)');
+  grad.addColorStop(0.62, 'rgba(255,255,255,0.00)');
+  grad.addColorStop(1.00, 'rgba(150,152,148,0.22)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, SIZE, SIZE);
+  // The highlight itself — one facet wide (SIZE/8), soft-edged.
+  const hi = g.createLinearGradient(SIZE * 0.34, 0, SIZE * 0.50, 0);
+  hi.addColorStop(0, 'rgba(255,255,255,0.00)');
+  hi.addColorStop(0.5, 'rgba(255,255,255,0.72)');
+  hi.addColorStop(1, 'rgba(255,255,255,0.00)');
+  g.fillStyle = hi;
+  g.fillRect(SIZE * 0.34, 0, SIZE * 0.16, SIZE);
+  // Mould seams + a few surface scuffs (a farm pint has been round before).
+  g.strokeStyle = 'rgba(126,132,128,0.30)'; g.lineWidth = 1;
+  for (const x of [SIZE * 0.02, SIZE * 0.74]) {
+    g.beginPath(); g.moveTo(x, 0); g.lineTo(x, SIZE); g.stroke();
+  }
+  for (let i = 0; i < 7; i++) {
+    const y = rng() * SIZE, w = 4 + rng() * 10;
+    g.strokeStyle = 'rgba(255,255,255,0.28)';
+    g.beginPath(); g.moveTo(rng() * SIZE, y); g.lineTo(rng() * SIZE + w, y + 1); g.stroke();
+  }
+  return toTexture(c);
+}
+
+// -- The MILK band on the pint ---------------------------------------------
+// `repeat` copies of the word are painted across the width. The band is an
+// 8-facet prism whose UVs wrap 0..1 once around, so 4 copies puts a whole
+// word every 90 degrees and the pint stays legible at any tumble yaw. Text
+// needs the smooth filter, so this one does not go through `toTexture`.
+export function makeMilkLabelTexture(repeat = 4) {
+  const W = 512, H = 96;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const rng = seedRng(607);
+  const cell = W / repeat;
+
+  g.fillStyle = '#b73a2a';                 // barn red ground
+  g.fillRect(0, 0, W, H);
+  // Paint texture so the band is not a dead-flat sticker.
+  for (let i = 0; i < 60; i++) {
+    g.fillStyle = rng() > 0.5 ? 'rgba(255,220,200,0.10)' : 'rgba(80,24,16,0.14)';
+    g.fillRect(rng() * W, rng() * H, 2 + rng() * 20, 1 + rng() * 3);
+  }
+  // Cream rules top and bottom, hand-wobbled along their length.
+  g.strokeStyle = '#f2e7cd'; g.lineWidth = 3;
+  for (const y0 of [9, H - 9]) {
+    g.beginPath(); g.moveTo(0, y0);
+    for (let x = 0; x <= W; x += 24) g.lineTo(x, y0 + Math.sin(x * 0.02 + y0) * 1.4);
+    g.stroke();
+  }
+
+  // 34px, not 46px: at 46 a "MILK" fills its whole 128 px cell edge to edge,
+  // so the four copies ran together into MILKMILKMILKMILK with no red between
+  // them and the word stopped reading as a word. Each copy now takes about
+  // two thirds of its cell, which leaves the gap that separates them.
+  g.font = 'bold 34px Georgia, "Times New Roman", serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  for (let k = 0; k < repeat; k++) {
+    const cx = cell * (k + 0.5);
+    // A Holstein spot beside each word — the farm tell, and it breaks up the
+    // red so the band never reads as a plain stripe from the side.
+    g.fillStyle = 'rgba(242,231,205,0.85)';
+    g.beginPath();
+    g.ellipse(cx - cell * 0.40, H * 0.52, 7, 10, 0.4, 0, Math.PI * 2);
+    g.fill();
+    // Per-letter rotation wobble, same as the BARN plate.
+    const word = 'MILK';
+    const widths = [...word].map((ch) => g.measureText(ch).width + 3);
+    const total = widths.reduce((a, b) => a + b, 0);
+    let x = cx - total / 2 + cell * 0.08;
+    for (let i = 0; i < word.length; i++) {
+      g.save();
+      g.translate(x + widths[i] / 2, H / 2 + 2);
+      g.rotate((rng() - 0.5) * 0.10);
+      g.fillStyle = 'rgba(70,20,14,0.45)';       // painted-on shadow
+      g.fillText(word[i], 2, 2.5);
+      g.fillStyle = '#f6f1e6';
+      g.fillText(word[i], 0, 0);
+      g.restore();
+      x += widths[i];
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = THREE.RepeatWrapping;              // wraps around the prism
+  t.wrapT = THREE.ClampToEdgeWrapping;
+  return t;
+}
+
 // -- Barn name-plate: the painted "BARN" sign hung over each doorway -------
 // Not tiled — one plank read head-on, so it clamps instead of repeating and
 // keeps NearestFilter off (text needs the smooth filter to stay legible).
