@@ -4,6 +4,7 @@
 
 import * as THREE from 'three';
 import { BARN_PAINT, BARN_PALETTE } from './barnPaintSpec.js';
+import { GROUND_PAINT, GROUND_PALETTE } from './groundPaintSpec.js';
 
 const SIZE = 64;
 
@@ -30,28 +31,211 @@ function seedRng(seed) {
   };
 }
 
-// -- Grass: green noise + a few paler blades --------------------------------
-export function makeGrassTexture() {
+// -- Snow: wind-packed sastrugi, blue hollows, crystal glint ---------------
+// This tile is the single largest surface in the game — it is under the
+// player in every frame — and until 2026-08-21 it painted an actual GREEN
+// FIELD (`makeGrassTexture`, #5aa64b). The theme became a snow farm; the
+// texture never did. See groundPaintSpec.js for why setting the palette
+// entry to snow-white didn't fix it (a tint darkens a hue, it can't replace
+// one) and why these tiles are tinted WHITE by voxelMesh.js.
+//
+// Reading at 10 m is entirely about the BIG features. Per-pixel noise is
+// gone by the second mip level; what survives is the ripple bands, the
+// scoured hollows and the lit edge crest, so those carry the whole read.
+export function makeSnowTexture() {
+  const spec = GROUND_PAINT.snow;
   const c = makeCanvas(); const g = c.getContext('2d');
-  const rng = seedRng(11);
-  const base = { r: 0x5a, g: 0xa6, b: 0x4b };
+  const rng = seedRng(spec.seed);
+  const field = hexRgb(spec.field);
+
+  // Field + per-pixel jitter. Snow's shade is BLUE, so the blue channel
+  // jitters least — a darker pixel lands cooler, never grey (color.md).
   const img = g.createImageData(SIZE, SIZE);
   for (let i = 0; i < img.data.length; i += 4) {
-    const j = (rng() - 0.5) * 30;
-    img.data[i]   = clamp(base.r + j);
-    img.data[i+1] = clamp(base.g + j * 1.2);
-    img.data[i+2] = clamp(base.b + j * 0.7);
+    const j = (rng() - 0.5) * spec.noise;
+    img.data[i]   = clamp(field.r + j);
+    img.data[i+1] = clamp(field.g + j * 0.8);
+    img.data[i+2] = clamp(field.b + j * 0.45);
     img.data[i+3] = 255;
   }
   g.putImageData(img, 0, 0);
-  // Scatter a few brighter blade strokes.
-  g.strokeStyle = 'rgba(180, 220, 130, 0.65)';
-  g.lineWidth = 1;
-  for (let i = 0; i < 18; i++) {
-    const x = Math.floor(rng() * SIZE), y = Math.floor(rng() * SIZE);
-    g.beginPath(); g.moveTo(x, y); g.lineTo(x, y - 2 - Math.floor(rng() * 3)); g.stroke();
+
+  // Scoured hollows FIRST (broad soft dishes of blue shade) so the ripples
+  // and glints above them still read inside a hollow.
+  for (let i = 0; i < spec.hollows; i++) {
+    const x = rng() * SIZE, y = rng() * SIZE;
+    const r = SIZE * (0.10 + rng() * 0.16);
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, rgba(spec.hollow, spec.hollowAlpha));
+    grad.addColorStop(1, rgba(spec.hollow, 0));
+    g.fillStyle = grad;
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
   }
+
+  // Sastrugi: wind-carved ripple bands. Each is a LIT crest with a cool
+  // shadow tucked under its lower edge — one-sided highlights read as
+  // lighting, a symmetric band reads as a stripe.
+  for (let i = 0; i < spec.ripples; i++) {
+    const y = rng() * SIZE;
+    const rows = spec.rippleRows * (0.7 + rng() * 0.7);
+    const phase = rng() * 6.28;
+    const wander = (x) => Math.sin(x * 0.11 + phase) * spec.rippleWander
+                        + Math.sin(x * 0.31 + phase * 2) * (spec.rippleWander * 0.4);
+    for (let x = 0; x < SIZE; x++) {
+      const yy = y + wander(x);
+      g.fillStyle = rgba(spec.crest, 0.42 + rng() * 0.18);
+      g.fillRect(x, Math.round(yy), 1, Math.max(1, Math.round(rows * 0.55)));
+      g.fillStyle = rgba(spec.hollow, 0.26 + rng() * 0.12);
+      g.fillRect(x, Math.round(yy + rows * 0.55), 1, Math.max(1, Math.round(rows * 0.45)));
+    }
+  }
+
+  // Trodden-in grit — a working farm, not a ski postcard. Also the cheapest
+  // insurance against the tile averaging out to pure white.
+  for (let i = 0; i < spec.grit; i++) {
+    g.fillStyle = rgba(GROUND_PALETTE.grit, 0.18 + rng() * 0.22);
+    g.beginPath();
+    g.arc(rng() * SIZE, rng() * SIZE, 0.6 + rng() * 1.4, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  // Crystal glint: single bright pixels. Close-range life only — these are
+  // gone by the first mip and that is fine.
+  for (let i = 0; i < spec.glints; i++) {
+    g.fillStyle = rgba(GROUND_PALETTE.glint, 0.55 + rng() * 0.45);
+    g.fillRect(Math.floor(rng() * SIZE), Math.floor(rng() * SIZE), 1, 1);
+  }
+
+  drawEdgeCrest(g, rng, spec);
   return toTexture(c);
+}
+
+// -- Ice: a cracked, wind-polished pan -------------------------------------
+// The exposed-ice patches scattered through the snow had NO texture entry at
+// all, so they rendered as a flat pale-blue rectangle — the one thing on the
+// ground plane that was literally a solid colour. Ice doesn't ripple, it
+// CRACKS, and that different signature is what stops the ground reading as
+// one undifferentiated pale mush (silhouette-readability.md).
+export function makeIceTexture() {
+  const spec = GROUND_PAINT.ice;
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rng = seedRng(spec.seed);
+  const field = hexRgb(spec.field);
+
+  const img = g.createImageData(SIZE, SIZE);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const j = (rng() - 0.5) * spec.noise;
+    img.data[i]   = clamp(field.r + j);
+    img.data[i+1] = clamp(field.g + j * 0.9);
+    img.data[i+2] = clamp(field.b + j * 0.6);
+    img.data[i+3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+
+  // Wind-polished lanes: soft bright bands sweeping across the pan.
+  for (let i = 0; i < spec.sheens; i++) {
+    const x = rng() * SIZE, y = rng() * SIZE;
+    const ang = rng() * Math.PI;
+    g.save();
+    g.translate(x, y); g.rotate(ang);
+    const w = SIZE * 1.6, h = 4 + rng() * 9;
+    const grad = g.createLinearGradient(0, -h / 2, 0, h / 2);
+    grad.addColorStop(0,   rgba(spec.crest, 0));
+    grad.addColorStop(0.5, rgba(spec.crest, spec.sheenAlpha));
+    grad.addColorStop(1,   rgba(spec.crest, 0));
+    g.fillStyle = grad;
+    g.fillRect(-w / 2, -h / 2, w, h);
+    g.restore();
+  }
+
+  // Frozen bubbles: a dark ring with a lit top edge, so each reads as a
+  // sphere trapped under the surface rather than a dot painted on it.
+  for (let i = 0; i < spec.bubbles; i++) {
+    const x = 2 + rng() * (SIZE - 4), y = 2 + rng() * (SIZE - 4);
+    const r = 0.8 + rng() * 2.2;
+    g.strokeStyle = rgba(spec.hollow, 0.45);
+    g.lineWidth = 1;
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = rgba(spec.crest, 0.5);
+    g.fillRect(Math.round(x - r * 0.3), Math.round(y - r), 1, 1);
+  }
+
+  // Cracks: branching fractures, drawn dark with a bright shoulder on one
+  // side — the shoulder is what makes a crack read as depth at distance
+  // instead of as a scratch.
+  for (let i = 0; i < spec.cracks; i++) {
+    // Start OUTSIDE the tile and run right across it: a fracture that ends
+    // in mid-air reads as a doodle, one that leaves the frame reads as part
+    // of a bigger break in the pan.
+    const ang = rng() * Math.PI * 2;
+    const cxr = SIZE / 2 + Math.cos(ang + Math.PI) * SIZE * 0.8;
+    const cyr = SIZE / 2 + Math.sin(ang + Math.PI) * SIZE * 0.8;
+    const spine = drawCrack(g, rng, spec, cxr, cyr, ang, SIZE * 1.6);
+    // Branches leave the spine part-way along, at a shallow angle.
+    for (let b = 0; b < spec.crackBranches; b++) {
+      const at = spine[Math.floor(rng() * spine.length)];
+      const lean = (rng() < 0.5 ? -1 : 1) * (0.35 + rng() * 0.5);
+      drawCrack(g, rng, spec, at[0], at[1], ang + lean, 8 + rng() * 16);
+    }
+  }
+
+  drawEdgeCrest(g, rng, spec);
+  return toTexture(c);
+}
+
+// A crack walks in short straight segments with a kink at each joint — a
+// smooth curve reads as a hair, an angular polyline reads as a fracture.
+function drawCrack(g, rng, spec, x, y, ang, len) {
+  const pts = [[x, y]];
+  const steps = Math.max(2, Math.round(len / 5));
+  for (let i = 0; i < steps; i++) {
+    ang += (rng() - 0.5) * spec.crackWander;
+    x += Math.cos(ang) * (len / steps);
+    y += Math.sin(ang) * (len / steps);
+    pts.push([x, y]);
+  }
+  // Bright shoulder, offset one pixel, drawn first so the dark line sits on it.
+  g.strokeStyle = rgba(spec.crest, spec.crackAlpha * 0.55);
+  g.lineWidth = 1;
+  g.beginPath(); g.moveTo(pts[0][0] + 1, pts[0][1] + 1);
+  for (const [px, py] of pts.slice(1)) g.lineTo(px + 1, py + 1);
+  g.stroke();
+  g.strokeStyle = rgba(spec.hollow, spec.crackAlpha);
+  g.lineWidth = 1;
+  g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+  for (const [px, py] of pts.slice(1)) g.lineTo(px, py);
+  g.stroke();
+  return pts;
+}
+
+// Every cube face maps the FULL 0-1 UV, so one tile == one 1 m voxel top.
+// A lit lip right on the tile edge with a cool line just inside turns each
+// seam into a raised drift ridge — this is what makes the ground read as
+// blocks at 10 m instead of as wallpaper. Kept low-alpha and 1 px: crank it
+// and the map turns into graph paper.
+function drawEdgeCrest(g, rng, spec) {
+  const E = SIZE - 1;
+  // Walk an edge in alternating drawn/skipped runs so no seam is a solid
+  // rule. `edgeBreakup` is the fraction of the edge that gets drawn.
+  const dash = (x, y, horiz, len, style) => {
+    g.fillStyle = style;
+    let i = 0;
+    while (i < len) {
+      const run = 3 + Math.floor(rng() * 9);
+      if (rng() < spec.edgeBreakup) {
+        const n = Math.min(run, len - i);
+        if (horiz) g.fillRect(x + i, y, n, 1);
+        else       g.fillRect(x, y + i, 1, n);
+      }
+      i += run;
+    }
+  };
+  const crest = rgba(spec.crest, spec.edgeCrest);
+  const hollow = rgba(spec.hollow, spec.edgeHollow);
+  dash(0, 0, true,  SIZE, crest);  dash(0, E, true,  SIZE, crest);
+  dash(0, 0, false, SIZE, crest);  dash(E, 0, false, SIZE, crest);
+  dash(1, 1, true,  SIZE - 2, hollow);  dash(1, E - 1, true,  SIZE - 2, hollow);
+  dash(1, 1, false, SIZE - 2, hollow);  dash(E - 1, 1, false, SIZE - 2, hollow);
 }
 
 // -- Wood: brown base + horizontal grain lines ------------------------------
@@ -397,6 +581,11 @@ export function makeBarnSignTexture(accentHex) {
   t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
   return t;   // no colorSpace override — every other texture here is untagged too
 
+}
+
+function rgba(hex, a) {
+  const { r, g, b } = hexRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
 function hexRgb(hex) {

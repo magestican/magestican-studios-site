@@ -4,7 +4,7 @@
 
 import * as THREE from 'three';
 import { VOX, VOX_COLOR } from 'arbelo/voxel';
-import { makeGrassTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture, makeHayTexture, makeBloodTinted, makeBarnPaintTexture } from './textures.js';
+import { makeSnowTexture, makeIceTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture, makeHayTexture, makeBloodTinted, makeBarnPaintTexture } from './textures.js';
 
 const CUBE_GEO = new THREE.BoxGeometry(1, 1, 1);
 // Every cube vertex is plain white so `vertexColors: true` is safe: with the
@@ -18,7 +18,10 @@ let TEX = null;
 function getTextures() {
   if (TEX) return TEX;
   TEX = {
-    [VOX.GRASS]: makeGrassTexture(),
+    // GRASS is repurposed as SNOW in this theme (voxelWorldGen.js); ICE is
+    // the exposed pan scattered through it. Both paint their own hue.
+    [VOX.GRASS]: makeSnowTexture(),
+    [VOX.ICE]:   makeIceTexture(),
     [VOX.WOOD]:  makeWoodTexture(),
     [VOX.STONE]: makeStoneTexture(),
     [VOX.DIRT]:  makeDirtTexture(),
@@ -36,7 +39,14 @@ function getTextures() {
 // and ship near-black planks — the tint trap in art/knowledge/craft/color.md.
 // They get a white tint; every other type keeps its VOX_COLOR tint over a
 // value-only texture.
-const SELF_COLOURED = new Set([VOX.BASE_RED, VOX.BASE_BLUE]);
+const SELF_COLOURED = new Set([
+  VOX.BASE_RED, VOX.BASE_BLUE,
+  // The ground joined this set on 2026-08-21. It used to be a GREEN grass
+  // texture under a near-white snow tint, and a tint cannot replace a hue —
+  // the map rendered green for months. Snow and ice now paint their final
+  // colour and nothing multiplies it afterwards.
+  VOX.GRASS, VOX.ICE,
+]);
 
 // Mature-mode variant: blood-tinted versions of ONLY the vertical geometry
 // (walls, hay). Ground (grass/ice/hill) stays snow-white - blood on the
