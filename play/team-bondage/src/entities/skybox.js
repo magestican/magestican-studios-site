@@ -7,12 +7,24 @@
 // The animation ticks the whole canvas 6x/sec: fighters shake, VS wobbles,
 // dust puffs pulse.
 //
+// The clouds are three PARALLAX BANKS baked once into their own strips and
+// scrolled at their own rates (far barely moves, near overtakes it). All the
+// numbers live in map/skyPaintSpec.js as pure data so the art rules are
+// asserted by tests; see that file's header for what the old field got wrong.
+//
 // # PLACEHOLDER ART - to be replaced with a hand-drawn 4096x2048 panorama.
 
 import * as THREE from 'three';
+import {
+  STRIP, HORIZON, SKY_GRADIENT, CLOUD_LAYERS, CLOUD_FORM,
+  cloudField, layerOffset,
+} from '../map/skyPaintSpec.js';
 
-const W = 2048;   // equirectangular width; height = W/2
-const H = 1024;
+const W = STRIP.W;   // equirectangular width; height = W/2
+const H = STRIP.H;
+// Baked cloud strips only need the sky half — everything below the horizon
+// row is behind the map, so blitting it is 500 rows of wasted fill per frame.
+const LAYER_H = Math.ceil(HORIZON * H) + 4;
 const ANIMATE_FPS = 12;   // was 6 — Bryan 2026-08-20 "the sky box animals still aren't fighting"; smoother = more visibly in motion.
 
 // Try the Blender-rendered PNG first. If it fails to load, fall back to
@@ -20,10 +32,23 @@ const ANIMATE_FPS = 12;   // was 6 — Bryan 2026-08-20 "the sky box animals sti
 // the sky). See docs/features/rendered-skybox.md.
 const RENDERED_PNG = '/play/team-bondage/assets/hand-drawn/sky/panorama.png';
 
+// The cloud banks, baked ONCE and kept. The old field re-rolled every puff
+// position inside the repaint, which runs 12x a second, so the sky was white
+// noise rather than weather; baking is what makes drift possible at all.
+let BANKS = null;
+const banks = () => (BANKS ??= CLOUD_LAYERS.map((layer) => ({ layer, strip: bakeCloudBank(layer) })));
+
+// Paint the whole equirectangular panorama at time `t` (seconds). Exported so
+// art/preview/sky.html can render the sky at chosen times — which is how the
+// drift and the parallax get LOOKED at before they ship.
+export function paintSkyPanorama(canvas, t) {
+  paint(canvas, t, banks());
+}
+
 export function buildSkybox() {
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
-  paint(canvas, 0);
+  paintSkyPanorama(canvas, 0);
   const tex = new THREE.CanvasTexture(canvas);
   tex.mapping = THREE.EquirectangularReflectionMapping;
   tex.colorSpace = THREE.SRGBColorSpace ?? tex.colorSpace;
@@ -32,7 +57,7 @@ export function buildSkybox() {
   const start = performance.now();
   const interval = setInterval(() => {
     const t = (performance.now() - start) / 1000;
-    paint(canvas, t);
+    paintSkyPanorama(canvas, t);
     tex.needsUpdate = true;
   }, 1000 / ANIMATE_FPS);
 
@@ -46,18 +71,14 @@ export function buildSkybox() {
   return tex;
 }
 
-function paint(canvas, t) {
+function paint(canvas, t, banks) {
   const g = canvas.getContext('2d');
   // Sky gradient across the equirectangular strip: top row = sky zenith
   // (blue), middle = horizon (cream/blue), bottom = ground haze.
   const grad = g.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0.00, '#a8c4e0');
-  grad.addColorStop(0.35, '#c8dcf5');
-  grad.addColorStop(0.55, '#e6ecf5');
-  grad.addColorStop(0.75, '#8ec5ff');
-  grad.addColorStop(1.00, '#3a5a89');
+  for (const stop of SKY_GRADIENT) grad.addColorStop(stop.at, stop.hex);
   g.fillStyle = grad; g.fillRect(0, 0, W, H);
-  paintClouds(g, 22, 0.5);
+  scrollCloudBanks(g, t, banks);
 
   // Sky-brawl V3 (2026-08-21): classic cartoon fight language so the fight
   // is UNDENIABLE. Lives at the top of the strip — look up to see it.
@@ -383,21 +404,84 @@ function drawHorse(g, cx, cy, scale, rock) {
   g.restore();
 }
 
-function paintClouds(g, count, alpha) {
-  g.fillStyle = `rgba(255,255,255,${alpha})`;
-  for (let i = 0; i < count; i++) {
-    const x = Math.random() * W;
-    const y = H * 0.35 + Math.random() * H * 0.3;
-    const r = 50 + Math.random() * 150;
-    g.beginPath();
-    g.ellipse(x, y, r, r * 0.5, 0, 0, Math.PI * 2);
-    g.fill();
-    g.beginPath();
-    g.ellipse(x + r * 0.5, y - r * 0.1, r * 0.7, r * 0.4, 0, 0, Math.PI * 2);
-    g.fill();
-    g.beginPath();
-    g.ellipse(x - r * 0.5, y + r * 0.1, r * 0.6, r * 0.35, 0, 0, Math.PI * 2);
-    g.fill();
+// -- Clouds: three parallax banks -----------------------------------------
+// All the numbers are in map/skyPaintSpec.js. Here we only bake and scroll.
+
+// Bake one bank into its own transparent strip. Called once per layer at
+// startup, never inside the repaint — that is the whole point.
+function bakeCloudBank(layer) {
+  const c = document.createElement('canvas');
+  c.width = W; c.height = LAYER_H;
+  const g = c.getContext('2d');
+  for (const cloud of cloudField(layer)) {
+    // Draw a wrapped copy of anything near an edge so the strip tiles
+    // seamlessly when it scrolls past its own join.
+    for (const wrap of [-W, 0, W]) {
+      const x = cloud.x + wrap;
+      if (x < -cloud.w * 1.5 || x > W + cloud.w * 1.5) continue;
+      drawCloud(g, cloud, layer, x);
+    }
+  }
+  if (layer.hazeFade) {
+    // The far bank dissolves into the horizon haze instead of stopping on a
+    // line — distance is the reason it is pale, so it should also be the
+    // reason it disappears.
+    g.globalCompositeOperation = 'destination-in';
+    const fade = g.createLinearGradient(0, layer.band[0] * H, 0, HORIZON * H);
+    fade.addColorStop(0, 'rgba(255,255,255,1)');
+    fade.addColorStop(1, `rgba(255,255,255,${layer.hazeFade})`);
+    g.fillStyle = fade;
+    g.fillRect(0, 0, W, LAYER_H);
+    g.globalCompositeOperation = 'source-over';
+  }
+  return c;
+}
+
+// One cumulus: a flat base with billows piled on it, in three tones.
+// A single flat tone has no form (craft/color.md, "value before hue") — the
+// shade slab and the sun-side crown are what turn a cluster of ellipses into
+// something with a lit top and a heavy underside.
+function drawCloud(g, cloud, layer, x) {
+  const { baseY, w, h, lit, puffs } = cloud;
+  g.save();
+  g.translate(x, baseY);
+  // Clip to the base line: a cumulus sits FLAT on its condensation level,
+  // and that hard bottom edge against a soft top is most of the silhouette.
+  g.beginPath();
+  g.rect(-w * 1.2, -h * 2.6, w * 2.4, h * 2.6);
+  g.clip();
+
+  const pass = (ox, oy, scale, fill) => {
+    g.fillStyle = fill;
+    for (const p of puffs) {
+      g.save();
+      g.translate(p.dx + ox, p.dy + oy);
+      g.rotate(p.rot);
+      g.beginPath();
+      g.ellipse(0, 0, p.rx * scale, p.ry * scale, 0, 0, Math.PI * 2);
+      g.fill();
+      g.restore();
+    }
+  };
+  // Away-from-sun and mostly DOWN: the shaded flank and the heavy base.
+  pass(-lit * h * CLOUD_FORM.shadeOffset, h * CLOUD_FORM.shadeDrop, 1.0, layer.tone.shade);
+  pass(0, 0, 1.0, layer.tone.body);
+  // Toward the sun and up, slightly shrunk: the lit crown. Kept close enough
+  // to stay one continuous cap over the billows.
+  pass(lit * h * CLOUD_FORM.crownOffset, -h * 0.12, CLOUD_FORM.crownShrink, layer.tone.crown);
+  g.restore();
+}
+
+// Scroll every bank across the strip. Each is blitted twice (offset - W and
+// offset) so its wrap join is always off the edge of the sky.
+function scrollCloudBanks(g, t, banks) {
+  if (!banks) return;
+  for (const { layer, strip } of banks) {
+    const off = layerOffset(layer, t);
+    g.globalAlpha = layer.alpha;
+    g.drawImage(strip, off - W, 0);
+    g.drawImage(strip, off, 0);
+    g.globalAlpha = 1;
   }
 }
 
