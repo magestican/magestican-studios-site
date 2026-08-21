@@ -1290,6 +1290,12 @@ export class Game {
       this.weapons?.update(dt);
       this.viewmodel?.update(dt);
       for (const rp of this.remotePlayers.values()) rp.update(dt);
+      // The wildlife is alive in the lobby too. It was not, and that is the
+      // one place it matters most: waiting for a second player is exactly when
+      // somebody stands still and looks at the scenery. Without this the
+      // colony is a set of frozen statues until the match starts — and a solo
+      // host testing the map never sees it move at all.
+      this.critters?.update(dt, this.camera.position);
       // Weapon-switch still works so people can preview.
       if (this.input.wasPressed('weapon1')) this._switchWeapon(0);
       if (this.input.wasPressed('weapon2')) this._switchWeapon(1);
