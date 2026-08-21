@@ -343,7 +343,7 @@ export class Game {
     this.player = new Player(this.camera, this.physics, spawn, this.team, this.character);
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
-    this.snow    = new SnowSystem(this.scene, this.player.pos);
+    this.snow    = new SnowSystem(this.scene, this.player.pos, this.grid);
     this.gore    = new GoreSystem(this.scene);
     // Camera child = first-person weapon viewmodel. Also attach the camera
     // to the scene so its children (the viewmodel) render.
