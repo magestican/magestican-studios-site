@@ -114,7 +114,13 @@ export function generateWorld(seed) {
     blue: { x: blueBase.x + BASE_SIZE.x / 2, y: 1, z: blueBase.z + BASE_SIZE.z / 2 },
   };
 
-  return { seed, grid, spawns, flags, redBase, blueBase, hillSpawn, hayStacks };
+  // Where each barn's "BARN" name-plate hangs (entities/barnSign.js).
+  const barnSigns = {
+    red:  barnSignAnchor(redBase.x,  redBase.z),
+    blue: barnSignAnchor(blueBase.x, blueBase.z),
+  };
+
+  return { seed, grid, spawns, flags, redBase, blueBase, hillSpawn, hayStacks, barnSigns };
 }
 
 function buildBase(grid, ox, oz, baseVox, standVox) {
@@ -140,8 +146,7 @@ function buildBase(grid, ox, oz, baseVox, standVox) {
   }
   // Big barn doorway on the inward side - 3 wide x 2 tall AT GROUND LEVEL,
   // with a WOOD frame (jamb posts either side + lintel above).
-  const midZ = oz + Math.floor(BASE_SIZE.z / 2);
-  const wallX = (ox < 10) ? ox + BASE_SIZE.x - 1 : ox;
+  const { wallX, midZ } = barnDoorway(ox, oz);
   for (let z = midZ - 1; z <= midZ + 1; z++) {
     grid.set(wallX, 1, z, VOX.AIR);
     grid.set(wallX, 2, z, VOX.AIR);
@@ -166,12 +171,18 @@ function buildBase(grid, ox, oz, baseVox, standVox) {
   // the triangle, so the barn is closed to bodies + bullets but you can
   // still see the sky through it. Bryan 2026-08-20: "close up the barns
   // by creating some glass voxel models". See docs/features/barn-glass-roofs.md.
+  //
+  // 2026-08-21: the courses used to stop dead at `y > 6` while the ridge beam
+  // was still laid at `4 + halfWidth` (= y 9), so each barn shipped a flat
+  // glass lid with a 10-long WOOD stick FLOATING three voxels above it. The
+  // cap is gone — the triangle now closes on the ridge the way it was always
+  // written to, which is also three voxels more barn silhouette on the
+  // skyline. Roof apex y=9 is well inside WORLD_SIZE.y (12).
   const midX = ox + Math.floor(BASE_SIZE.x / 2);
   const halfWidth = Math.floor(BASE_SIZE.x / 2);
   for (let z = oz; z < oz + BASE_SIZE.z; z++) {
     for (let step = 0; step < halfWidth; step++) {
       const y = 4 + step;
-      if (y > 6) break;
       // Frame edges (wood).
       grid.set(midX - halfWidth + step, y, z, VOX.WOOD);
       grid.set(midX + halfWidth - step, y, z, VOX.WOOD);
@@ -195,6 +206,40 @@ function buildBase(grid, ox, oz, baseVox, standVox) {
   const cx = ox + Math.floor(BASE_SIZE.x / 2);
   const cz = oz + Math.floor(BASE_SIZE.z / 2);
   grid.set(cx, 1, cz, standVox);   // sits on the (now ground-level) floor
+}
+
+// Where a barn's doorway is, in one place, so the generator and whatever
+// hangs things on the front of the barn can never drift apart. Pure maths on
+// the base origin — no grid, so tests can assert it directly.
+//
+//   wallX  — the voxel column the doorway is cut through
+//   midZ   — the doorway's centre column
+//   nx     — +1 / -1: which way the doorway faces (always toward mid-map)
+//   faceX  — world X of the wall's OUTER face (voxel v spans [v, v+1])
+export function barnDoorway(ox, oz) {
+  const midZ = oz + Math.floor(BASE_SIZE.z / 2);
+  const facesPlusX = ox < 10;
+  const wallX = facesPlusX ? ox + BASE_SIZE.x - 1 : ox;
+  return {
+    wallX, midZ,
+    nx: facesPlusX ? 1 : -1,
+    faceX: facesPlusX ? wallX + 1 : wallX,
+  };
+}
+
+// Where the "BARN" name-plate hangs: dead centre over the doorway, sitting on
+// the lintel beam (the lintel is voxel row y=3, i.e. world y in [3, 4)), a
+// few centimetres proud of the wall so it never z-fights the siding.
+// `yaw` turns a +Z-facing plane to face outward along nx.
+export function barnSignAnchor(ox, oz) {
+  const { faceX, midZ, nx } = barnDoorway(ox, oz);
+  return {
+    x: faceX + nx * 0.06,
+    y: 3.5,
+    z: midZ + 0.5,
+    yaw: nx > 0 ? Math.PI / 2 : -Math.PI / 2,
+    nx,
+  };
 }
 
 function insideBase(x, z, base) {

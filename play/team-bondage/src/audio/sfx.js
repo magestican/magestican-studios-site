@@ -4,17 +4,38 @@
 // backgrounding, but SFX are transient and don't need to survive tab-switch.
 //
 // Sounds:
+//   weaponFire(id)  per-weapon gunshot (shovel fling / shotgun blast /
+//                   rocket launch) -- see the SFX V2 pass below
+//   explode(o)      layered explosion: crack + sub drop + body + debris + tail
 //   pew()      short square-wave pew for a poo bullet leaving the shovel
 //   splat()    quick noise burst for a hit
-//   boom(vol)  low sine + noise for hazard explosions - louder if near
+//   boom(vol)  legacy alias -> explode(); kept for existing call sites
 //   snorkel()  bull-like "SNORTS" for chicken projectile whoosh
 //   chirp()    pickup pling when the chicken slingshot lands
+//   announce(k) UT-style announcer (formant synth, announcerVoice.js)
+//
+// SFX V2 (Bryan 2026-08-21: "better explosions and sfx sounds for everything
+// from guns to explosions to unreal tournament type announcements"). The old
+// sounds were single oscillators; real weapon audio is LAYERED, and each
+// layer does one job:
+//   transient  a 5-10 ms click/crack -- this is what makes a gun sound loud
+//   body       the pitched thump you actually identify the weapon by
+//   air        filtered noise sweeping down -- the blast leaving the barrel
+//   tail       reverb -- tells you the size of the space you're standing in
+// Distance is modelled the way air actually behaves: far-away sounds lose
+// treble first (lowpass), then level. That's why a distant rocket is a
+// *thud* and a close one is a *crack*.
 //
 // AudioContext is lazily created on first call, and each call resumes it
 // (needed on iOS Safari after backgrounding).
 
+import { speakInto, PHRASES } from './announcerVoice.js';
+
 let _ctx = null;
 let _master = null;
+let _limiter = null;
+let _verb = null;
+let _verbSend = null;
 let _muted = () => localStorage.getItem('tb.muted') === '1';
 
 function ensureCtx() {
@@ -24,7 +45,24 @@ function ensureCtx() {
     _ctx = new Ctx();
     _master = _ctx.createGain();
     _master.gain.value = 0.55;
-    _master.connect(_ctx.destination);
+    // A limiter so a rocket landing next to three hazards can't clip the
+    // output into a crunchy mess.
+    _limiter = _ctx.createDynamicsCompressor();
+    _limiter.threshold.value = -8;
+    _limiter.knee.value = 6;
+    _limiter.ratio.value = 12;
+    _limiter.attack.value = 0.002;
+    _limiter.release.value = 0.15;
+    _master.connect(_limiter).connect(_ctx.destination);
+    // Shared arena reverb. Explosions and the announcer send to it; small
+    // sounds (pew, chirp) stay dry so the mix doesn't turn to soup.
+    _verb = _ctx.createConvolver();
+    _verb.buffer = impulseResponse(_ctx, 1.9, 2.6);
+    _verbSend = _ctx.createGain();
+    _verbSend.gain.value = 1.0;
+    const verbOut = _ctx.createGain();
+    verbOut.gain.value = 0.55;
+    _verbSend.connect(_verb).connect(verbOut).connect(_limiter);
   }
   if (_ctx.state === 'suspended') _ctx.resume().catch(() => {});
   return _ctx;
@@ -65,28 +103,315 @@ export function splat() {
   noise.start(t); noise.stop(t + 0.1);
 }
 
-export function boom(loudness = 1.0) {
+// -- EXPLOSIONS ------------------------------------------------------------
+// Four layers. Removing any one of them makes it sound like a toy:
+//   1. crack   6 ms of highpassed noise -- perceived LOUDNESS lives here
+//   2. sub     130 Hz -> 24 Hz sine drop -- the punch you feel
+//   3. body    lowpass-swept noise, 2.6 kHz -> 180 Hz -- the fireball
+//   4. debris  a handful of short grains over 400 ms -- falling bits
+// `distance` (metres) rolls off treble BEFORE level, which is what actually
+// makes a far-off explosion read as far off rather than just quiet.
+export function explode({ loudness = 1.0, distance = 0, size = 1.0 } = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
-  // Sub sine sweep
+  const dist = Math.max(0, distance);
+  const level = loudness / (1 + dist * 0.10);
+  if (level < 0.02) return;
+  // Air absorption: 20 m of air is already audibly duller than 2 m.
+  const airCut = Math.max(700, 16000 / (1 + dist * 0.55));
+
+  const out = ctx.createGain();
+  const air = ctx.createBiquadFilter();
+  air.type = 'lowpass'; air.frequency.value = airCut;
+  out.connect(air).connect(_master);
+  // Distant explosions are MORE reverberant -- you hear the room, not the bang.
+  const send = ctx.createGain();
+  send.gain.value = 0.30 + Math.min(0.35, dist * 0.02);
+  air.connect(send).connect(_verbSend);
+
+  // 1. crack
+  const crack = whiteNoise(ctx, 0.05);
+  const cf = ctx.createBiquadFilter();
+  cf.type = 'highpass'; cf.frequency.value = 1800;
+  const cg = ctx.createGain();
+  cg.gain.setValueAtTime(0.85 * level, t);
+  cg.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+  crack.connect(cf).connect(cg).connect(out);
+  crack.start(t); crack.stop(t + 0.06);
+
+  // 2. sub drop
   const sub = ctx.createOscillator();
-  const subGain = ctx.createGain();
+  const sg = ctx.createGain();
   sub.type = 'sine';
-  sub.frequency.setValueAtTime(90, t);
-  sub.frequency.exponentialRampToValueAtTime(30, t + 0.5);
-  subGain.gain.setValueAtTime(0.35 * loudness, t);
-  subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-  sub.connect(subGain).connect(_master);
-  sub.start(t); sub.stop(t + 0.65);
-  // Noise crack
-  const noise = whiteNoise(ctx, 0.4);
-  const nFilt = ctx.createBiquadFilter();
-  nFilt.type = 'lowpass'; nFilt.frequency.value = 1200;
-  const nGain = ctx.createGain();
-  nGain.gain.setValueAtTime(0.28 * loudness, t);
-  nGain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-  noise.connect(nFilt).connect(nGain).connect(_master);
-  noise.start(t); noise.stop(t + 0.4);
+  sub.frequency.setValueAtTime(130 * size, t);
+  sub.frequency.exponentialRampToValueAtTime(24, t + 0.75 * size);
+  sg.gain.setValueAtTime(0, t);
+  sg.gain.linearRampToValueAtTime(0.75 * level, t + 0.012);
+  sg.gain.exponentialRampToValueAtTime(0.001, t + 0.85 * size);
+  sub.connect(sg).connect(out);
+  sub.start(t); sub.stop(t + 0.9 * size);
+
+  // A detuned octave-up thickens the punch without adding mud.
+  const sub2 = ctx.createOscillator();
+  const s2g = ctx.createGain();
+  sub2.type = 'triangle';
+  sub2.frequency.setValueAtTime(210 * size, t);
+  sub2.frequency.exponentialRampToValueAtTime(52, t + 0.45);
+  s2g.gain.setValueAtTime(0.32 * level, t + 0.004);
+  s2g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+  sub2.connect(s2g).connect(out);
+  sub2.start(t); sub2.stop(t + 0.55);
+
+  // 3. body
+  const body = whiteNoise(ctx, 1.0 * size);
+  const bf = ctx.createBiquadFilter();
+  bf.type = 'lowpass';
+  bf.frequency.setValueAtTime(2600, t);
+  bf.frequency.exponentialRampToValueAtTime(180, t + 0.7 * size);
+  bf.Q.value = 1.4;
+  const bg = ctx.createGain();
+  bg.gain.setValueAtTime(0, t);
+  bg.gain.linearRampToValueAtTime(0.60 * level, t + 0.02);
+  bg.gain.exponentialRampToValueAtTime(0.001, t + 0.85 * size);
+  body.connect(bf).connect(bg).connect(out);
+  body.start(t); body.stop(t + 1.0 * size);
+
+  // 4. debris grains
+  const grains = 6 + Math.floor(Math.random() * 4);
+  for (let i = 0; i < grains; i++) {
+    const at = t + 0.09 + Math.random() * 0.45;
+    const g = whiteNoise(ctx, 0.05);
+    const gf = ctx.createBiquadFilter();
+    gf.type = 'bandpass';
+    gf.frequency.value = 700 + Math.random() * 2600;
+    gf.Q.value = 3;
+    const gg = ctx.createGain();
+    gg.gain.setValueAtTime(0.20 * level * (0.4 + Math.random() * 0.6), at);
+    gg.gain.exponentialRampToValueAtTime(0.001, at + 0.06);
+    g.connect(gf).connect(gg).connect(out);
+    g.start(at); g.stop(at + 0.07);
+  }
+}
+
+// Legacy name kept so existing call sites (hazards, chicken) keep working.
+export function boom(loudness = 1.0) {
+  explode({ loudness, size: 0.85 });
+}
+
+// -- WEAPONS ---------------------------------------------------------------
+
+// Dispatch a gunshot for a weapon id. Falls back to the shovel fling.
+export function weaponFire(id, opts = {}) {
+  switch (id) {
+    case 'shotgun': return shotgunBlast(opts);
+    case 'rocket':  return rocketLaunch(opts);
+    case 'shovel':
+    default:        return shovelFling(opts);
+  }
+}
+
+// Shovel: it FLINGS a pellet of muck. Wet flick + the clang of the spade,
+// not a laser pew.
+export function shovelFling({ loudness = 1.0 } = {}) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  // Wet flick.
+  const flick = whiteNoise(ctx, 0.07);
+  const ff = ctx.createBiquadFilter();
+  ff.type = 'bandpass';
+  ff.frequency.setValueAtTime(1400, t);
+  ff.frequency.exponentialRampToValueAtTime(420, t + 0.07);
+  ff.Q.value = 2.2;
+  const fg = ctx.createGain();
+  fg.gain.setValueAtTime(0.34 * loudness, t);
+  fg.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  flick.connect(ff).connect(fg).connect(_master);
+  flick.start(t); flick.stop(t + 0.09);
+  // Spade clang -- two struck partials, very short.
+  for (const [f, a] of [[1180, 0.10], [1790, 0.06]]) {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(f, t);
+    o.frequency.exponentialRampToValueAtTime(f * 0.86, t + 0.12);
+    g.gain.setValueAtTime(a * loudness, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+    o.connect(g).connect(_master);
+    o.start(t); o.stop(t + 0.16);
+  }
+  // Descending body so it still reads as "a shot was fired".
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(520, t);
+  o.frequency.exponentialRampToValueAtTime(150, t + 0.09);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.13 * loudness, t + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+  o.connect(g).connect(_master);
+  o.start(t); o.stop(t + 0.13);
+}
+
+// Shotgun: crack + chest thump + airy tail, then the pump.
+export function shotgunBlast({ loudness = 1.0 } = {}) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.connect(_master);
+  const send = ctx.createGain(); send.gain.value = 0.22;
+  out.connect(send).connect(_verbSend);
+
+  const crack = whiteNoise(ctx, 0.04);
+  const cf = ctx.createBiquadFilter();
+  cf.type = 'highpass'; cf.frequency.value = 2400;
+  const cg = ctx.createGain();
+  cg.gain.setValueAtTime(0.80 * loudness, t);
+  cg.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+  crack.connect(cf).connect(cg).connect(out);
+  crack.start(t); crack.stop(t + 0.05);
+
+  const thump = ctx.createOscillator();
+  const tg = ctx.createGain();
+  thump.type = 'sine';
+  thump.frequency.setValueAtTime(180, t);
+  thump.frequency.exponentialRampToValueAtTime(46, t + 0.22);
+  tg.gain.setValueAtTime(0, t);
+  tg.gain.linearRampToValueAtTime(0.62 * loudness, t + 0.008);
+  tg.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+  thump.connect(tg).connect(out);
+  thump.start(t); thump.stop(t + 0.3);
+
+  const body = whiteNoise(ctx, 0.35);
+  const bf = ctx.createBiquadFilter();
+  bf.type = 'lowpass';
+  bf.frequency.setValueAtTime(5200, t);
+  bf.frequency.exponentialRampToValueAtTime(420, t + 0.26);
+  const bg = ctx.createGain();
+  bg.gain.setValueAtTime(0.50 * loudness, t + 0.004);
+  bg.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
+  body.connect(bf).connect(bg).connect(out);
+  body.start(t); body.stop(t + 0.35);
+
+  // Pump action, 260 ms later: cha-chk.
+  for (const [at, f] of [[0.26, 2100], [0.36, 1500]]) {
+    const n = whiteNoise(ctx, 0.05);
+    const nf = ctx.createBiquadFilter();
+    nf.type = 'bandpass'; nf.frequency.value = f; nf.Q.value = 4;
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.16 * loudness, t + at);
+    ng.gain.exponentialRampToValueAtTime(0.001, t + at + 0.05);
+    n.connect(nf).connect(ng).connect(_master);
+    n.start(t + at); n.stop(t + at + 0.06);
+  }
+}
+
+// Rocket: ignition thump, then a jet of noise climbing away from you.
+export function rocketLaunch({ loudness = 1.0 } = {}) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.connect(_master);
+  const send = ctx.createGain(); send.gain.value = 0.25;
+  out.connect(send).connect(_verbSend);
+
+  const ig = ctx.createOscillator();
+  const igg = ctx.createGain();
+  ig.type = 'sine';
+  ig.frequency.setValueAtTime(150, t);
+  ig.frequency.exponentialRampToValueAtTime(40, t + 0.3);
+  igg.gain.setValueAtTime(0, t);
+  igg.gain.linearRampToValueAtTime(0.55 * loudness, t + 0.01);
+  igg.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+  ig.connect(igg).connect(out);
+  ig.start(t); ig.stop(t + 0.4);
+
+  const jet = whiteNoise(ctx, 0.9);
+  const jf = ctx.createBiquadFilter();
+  jf.type = 'bandpass';
+  jf.frequency.setValueAtTime(300, t);
+  jf.frequency.exponentialRampToValueAtTime(2400, t + 0.55);
+  jf.Q.value = 1.1;
+  const jg = ctx.createGain();
+  jg.gain.setValueAtTime(0, t);
+  jg.gain.linearRampToValueAtTime(0.45 * loudness, t + 0.05);
+  jg.gain.exponentialRampToValueAtTime(0.001, t + 0.85);
+  jet.connect(jf).connect(jg).connect(out);
+  jet.start(t); jet.stop(t + 0.9);
+
+  const clank = whiteNoise(ctx, 0.04);
+  const kf = ctx.createBiquadFilter();
+  kf.type = 'bandpass'; kf.frequency.value = 900; kf.Q.value = 5;
+  const kg = ctx.createGain();
+  kg.gain.setValueAtTime(0.22 * loudness, t);
+  kg.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+  clank.connect(kf).connect(kg).connect(out);
+  clank.start(t); clank.stop(t + 0.06);
+}
+
+// Confirmation ping when YOUR shot lands. Short, bright, unmistakable.
+export function hitmarker({ loudness = 1.0 } = {}) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  for (const [f, at] of [[2100, 0], [3150, 0.035]]) {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(f, t + at);
+    g.gain.setValueAtTime(0.10 * loudness, t + at);
+    g.gain.exponentialRampToValueAtTime(0.001, t + at + 0.05);
+    o.connect(g).connect(_master);
+    o.start(t + at); o.stop(t + at + 0.06);
+  }
+}
+
+// Mechanical clack when you change weapon.
+export function weaponSwitch() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  for (const [at, f] of [[0, 1700], [0.07, 1150]]) {
+    const n = whiteNoise(ctx, 0.04);
+    const nf = ctx.createBiquadFilter();
+    nf.type = 'bandpass'; nf.frequency.value = f; nf.Q.value = 5;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.13, t + at);
+    g.gain.exponentialRampToValueAtTime(0.001, t + at + 0.045);
+    n.connect(nf).connect(g).connect(_master);
+    n.start(t + at); n.stop(t + at + 0.05);
+  }
+}
+
+// -- ANNOUNCER -------------------------------------------------------------
+
+// Speak one of announcerVoice.js's PHRASES. Queued: two announcements landing
+// in the same frame would otherwise talk over each other, which is the single
+// fastest way to make an announcer sound cheap.
+let _announceFreeAt = 0;
+
+export function announce(key, opts = {}) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return 0;
+  if (!PHRASES[key]) return 0;
+  const now = ctx.currentTime;
+  // Drop rather than pile up if we're already more than one phrase behind.
+  if (_announceFreeAt - now > 1.6) return 0;
+  const wait = Math.max(0, _announceFreeAt - now);
+  const fire = () => speakInto(
+    { ctx, dest: _master, verbSend: _verbSend, noiseBuffer: (d) => noiseBuffer(ctx, d) },
+    key, opts,
+  );
+  let dur;
+  if (wait < 0.01) {
+    dur = fire();
+  } else {
+    dur = 0.9;   // estimate; the real length is measured when it fires
+    setTimeout(fire, wait * 1000);
+  }
+  _announceFreeAt = Math.max(now, _announceFreeAt) + dur + 0.28;
+  return dur;
+}
+
+// Back-compat: the old single-growl announcer(text) call site.
+export function announcer(text = '') {
+  return announce(text === 'STEAK ANIHILATION' ? 'HUMILIATION' : 'FIGHT');
 }
 
 export function chirp() {
@@ -192,40 +517,6 @@ export function snorkel() {
   noise.start(t); noise.stop(t + 0.25);
 }
 
-// Unreal-Tournament-style deep boomy announcer for the STEAK-ANIHILATION
-// death. Filters a low sawtooth stack through a resonant low-pass to fake
-// a growled male voice, then rings out with a reverb-y tail. Long (~1.2s).
-export function announcer(text = '') {
-  const ctx = ensureCtx(); if (!ctx || _muted()) return;
-  const t = ctx.currentTime;
-  void text;   // one canned pattern for now; text is future-proofing
-  // Two detuned saws for chorusing depth.
-  for (const detune of [-8, +8]) {
-    const osc = ctx.createOscillator();
-    const g   = ctx.createGain();
-    const filt = ctx.createBiquadFilter();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(80, t);
-    osc.frequency.linearRampToValueAtTime(65, t + 1.2);
-    osc.detune.value = detune;
-    filt.type = 'lowpass'; filt.frequency.value = 900; filt.Q.value = 6;
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.38, t + 0.05);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 1.4);
-    osc.connect(filt).connect(g).connect(_master);
-    osc.start(t); osc.stop(t + 1.5);
-  }
-  // Rough noise growl on top so it doesn't sound like a synth beep.
-  const n = whiteNoise(ctx, 1.2);
-  const nf = ctx.createBiquadFilter();
-  nf.type = 'bandpass'; nf.frequency.value = 700; nf.Q.value = 2;
-  const ng = ctx.createGain();
-  ng.gain.setValueAtTime(0.14, t);
-  ng.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
-  n.connect(nf).connect(ng).connect(_master);
-  n.start(t); n.stop(t + 1.3);
-}
-
 // -- Animal voices ---------------------------------------------------------
 // Simple synthesised farm-animal sounds. Each takes an optional `loudness`.
 // Played on double-jump + on death (see game.js). Every one is short (~350-
@@ -326,11 +617,39 @@ export function animalVoice(character, loudness = 1.0) {
   }
 }
 
-function whiteNoise(ctx, dur) {
+function noiseBuffer(ctx, dur) {
   const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate);
   const d = buf.getChannelData(0);
   for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return buf;
+}
+
+function whiteNoise(ctx, dur) {
   const src = ctx.createBufferSource();
-  src.buffer = buf;
+  src.buffer = noiseBuffer(ctx, dur);
   return src;
+}
+
+// Procedural reverb: exponentially-decaying noise is a perfectly good
+// impulse response, and it costs us no download (GAME_DESIGN.md constraint).
+// Stereo with independent channels so the tail widens instead of sitting in
+// the middle of the head.
+function impulseResponse(ctx, seconds, decay) {
+  const n = Math.ceil(ctx.sampleRate * seconds);
+  const buf = ctx.createBuffer(2, n, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < n; i++) {
+      // A short pre-delay + early reflections make it read as a space
+      // rather than a wash.
+      const t = i / n;
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, decay);
+    }
+    // Two early reflections.
+    for (const [ms, amp] of [[17, 0.35], [29, 0.22]]) {
+      const off = Math.floor(ctx.sampleRate * ms / 1000);
+      if (off < n) d[off] += amp;
+    }
+  }
+  return buf;
 }

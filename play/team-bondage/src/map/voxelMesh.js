@@ -4,9 +4,14 @@
 
 import * as THREE from 'three';
 import { VOX, VOX_COLOR } from 'arbelo/voxel';
-import { makeGrassTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture, makeHayTexture, makeBloodTinted } from './textures.js';
+import { makeGrassTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture, makeHayTexture, makeBloodTinted, makeBarnPaintTexture } from './textures.js';
 
 const CUBE_GEO = new THREE.BoxGeometry(1, 1, 1);
+// Every cube vertex is plain white so `vertexColors: true` is safe: with the
+// flag on and NO `color` attribute bound, WebGL feeds the shader the generic
+// attribute default (0,0,0) and the entire world renders BLACK.
+CUBE_GEO.setAttribute('color', new THREE.BufferAttribute(
+  new Float32Array(CUBE_GEO.attributes.position.count * 3).fill(1), 3));
 
 // Lazily built texture cache - built the first time buildWorldMeshes runs.
 let TEX = null;
@@ -19,9 +24,19 @@ function getTextures() {
     [VOX.DIRT]:  makeDirtTexture(),
     [VOX.HAY]:   makeHayTexture(),
     [VOX.HILL]:  makeDirtTexture(),
+    // Barn siding — board-and-batten planks, weathered differently per team.
+    [VOX.BASE_RED]:  makeBarnPaintTexture('red'),
+    [VOX.BASE_BLUE]: makeBarnPaintTexture('blue'),
   };
   return TEX;
 }
+
+// Textures that carry their OWN hue (the barn siding paints its own red /
+// blue). Tinting those with the palette hex on top would square the colour
+// and ship near-black planks — the tint trap in art/knowledge/craft/color.md.
+// They get a white tint; every other type keeps its VOX_COLOR tint over a
+// value-only texture.
+const SELF_COLOURED = new Set([VOX.BASE_RED, VOX.BASE_BLUE]);
 
 // Mature-mode variant: blood-tinted versions of ONLY the vertical geometry
 // (walls, hay). Ground (grass/ice/hill) stays snow-white - blood on the
@@ -65,9 +80,15 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
   const textures = mature ? getBloodTextures() : getTextures();
   for (const [v, cells] of groups.entries()) {
     const [r, g, b] = VOX_COLOR[v];
+    const selfColoured = SELF_COLOURED.has(v);
     const materialOpts = {
-      color: new THREE.Color(r / 255, g / 255, b / 255),
+      color: selfColoured
+        ? new THREE.Color(1, 1, 1)
+        : new THREE.Color(r / 255, g / 255, b / 255),
       flatShading: true,
+      // Required for the per-instance jitter below to reach the fragment
+      // shader at all — see the comment on the jitter loop.
+      vertexColors: true,
     };
     if (textures[v]) materialOpts.map = textures[v];
     // HAY (v=10) is see-through so players hiding inside can see out.
@@ -94,7 +115,20 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
     const inst = new THREE.InstancedMesh(CUBE_GEO, material, cells.length);
     inst.castShadow = false;
     inst.receiveShadow = false;
-    // Slight per-instance colour jitter for a hand-drawn feel.
+    // Slight per-instance VALUE jitter for a hand-drawn feel (the wobble
+    // hierarchy, art/knowledge/styles/hand-drawn.md).
+    //
+    // This was dead code until 2026-08-21 and shipped nothing for months.
+    // Two bugs, both now fixed above:
+    //   1. three r161's `color_fragment` only multiplies `vColor` into the
+    //      diffuse under `#ifdef USE_COLOR` — i.e. only when the material
+    //      sets `vertexColors: true`. `USE_INSTANCING_COLOR` alone declares
+    //      the varying in the VERTEX shader and the fragment shader never
+    //      reads it, so every voxel of a type rendered dead identical.
+    //   2. The jitter multiplied VOX_COLOR again, so switching (1) on with
+    //      it unchanged would have shipped `map x colour^2` — every surface
+    //      crushed toward black. The jitter is greyscale now; hue comes
+    //      from the material tint only.
     const jitterColor = new THREE.Color();
     if (!inst.instanceColor) {
       inst.instanceColor = new THREE.InstancedBufferAttribute(
@@ -106,7 +140,7 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
       dummy.updateMatrix();
       inst.setMatrixAt(i, dummy.matrix);
       const j = 1 - Math.random() * 0.08;
-      jitterColor.setRGB((r / 255) * j, (g / 255) * j, (b / 255) * j);
+      jitterColor.setRGB(j, j, j);
       inst.setColorAt(i, jitterColor);
     }
     inst.instanceMatrix.needsUpdate = true;

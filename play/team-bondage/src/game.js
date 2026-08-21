@@ -20,6 +20,7 @@ import { Chiptune }           from './audio/chiptune.js';
 import * as SFX               from './audio/sfx.js';
 import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
 import { buildSkybox }        from './entities/skybox.js';
+import { addBarnSigns }       from './entities/barnSign.js';
 import { Bot }                from './entities/bot.js';
 import { TracerSystem }       from './entities/tracer.js';
 import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
@@ -300,6 +301,9 @@ export class Game {
     };
     this.flagState = { red: 'home', blue: 'home' };  // 'home' | 'carried' | 'dropped'
     this.flagPos   = { red: { ...world.flags.red }, blue: { ...world.flags.blue } };
+    // Hand-painted "BARN" name-plate over each barn doorway.
+    addBarnSigns(this.scene, world);
+
     // Scatter snow-farm props (snowmen, barrels, hay bales, fence posts,
     // crates, tractor). Async — the empty group is added immediately and
     // meshes stream in as the GLBs load. Feature: docs/features/map-props.md

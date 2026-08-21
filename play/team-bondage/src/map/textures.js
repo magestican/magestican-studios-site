@@ -3,6 +3,7 @@
 // no external art assets. Marked `# PLACEHOLDER ART` per DESIGN_PRINCIPLES.md.
 
 import * as THREE from 'three';
+import { BARN_PAINT, BARN_PALETTE } from './barnPaintSpec.js';
 
 const SIZE = 64;
 
@@ -243,6 +244,164 @@ export function makeMetalTexture() {
     g.beginPath(); g.ellipse(x, y - r * 0.6, r * 0.8, r * 0.28, 0, 0, Math.PI * 2); g.fill();
   }
   return toTexture(c);
+}
+
+// -- Barn siding: board-and-batten painted planks, weathered per team -------
+// The barn walls were FLAT COLOUR until 2026-08-21 — the biggest man-made
+// surfaces in the game with no pattern at all. Design notes:
+//
+//  * One tile = one 1 m voxel face, so the horizontal rhythm is per-course:
+//    a pale frost cap along the tile's top edge and a dark damp band along
+//    its bottom edge turn every voxel row into a readable board course.
+//    That, not the grain, is what makes the wall read at 10 m.
+//  * Vertical boards each get their own value (per-element wobble,
+//    art/knowledge/styles/hand-drawn.md) — no two boards match.
+//  * These tiles carry their own HUE, so voxelMesh.js tints them WHITE.
+//    Multiplying a red texture by the red palette hex ships near-black
+//    planks (the tint trap, art/knowledge/craft/color.md).
+//  * The red and blue barns weather DIFFERENTLY — see barnPaintSpec.js.
+export function makeBarnPaintTexture(team) {
+  const spec = BARN_PAINT[team];
+  if (!spec) throw new Error(`makeBarnPaintTexture: unknown team "${team}"`);
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rng = seedRng(spec.seed);
+
+  const paint = hexRgb(spec.paint);
+  g.fillStyle = spec.paint;
+  g.fillRect(0, 0, SIZE, SIZE);
+
+  // Vertical boards, each faded by its own amount.
+  const bw = SIZE / spec.boards;
+  for (let b = 0; b < spec.boards; b++) {
+    // Centred on 1.0: some boards bleached lighter, some weathered darker.
+    // A one-sided `1 - rng()*spread` dragged the WHOLE wall below its
+    // palette hue and the barn stopped reading as barn red.
+    const v = 1 + (rng() - 0.5) * spec.boardValueSpread;
+    g.fillStyle = `rgb(${clamp(paint.r * v)}, ${clamp(paint.g * v)}, ${clamp(paint.b * v)})`;
+    g.fillRect(Math.round(b * bw), 0, Math.ceil(bw), SIZE);
+    // Batten seam between boards: a dark line with a lit right edge, so the
+    // seam reads as a raised strip rather than a scratch.
+    const sx = Math.round(b * bw);
+    g.fillStyle = 'rgba(28,26,23,0.38)';
+    g.fillRect(sx, 0, 1, SIZE);
+    g.fillStyle = 'rgba(246,241,230,0.16)';
+    g.fillRect(sx + 1, 0, 1, SIZE);
+  }
+
+  // Grain: faint vertical streaks that wander a pixel or two.
+  g.lineWidth = 1;
+  for (let i = 0; i < spec.grainStreaks; i++) {
+    const x = Math.floor(rng() * SIZE);
+    g.strokeStyle = rng() > 0.5 ? 'rgba(28,26,23,0.22)' : 'rgba(246,241,230,0.13)';
+    g.beginPath(); g.moveTo(x, 0);
+    for (let y = 0; y < SIZE; y += 8) g.lineTo(x + Math.sin(y * 0.22 + i) * 1.4, y);
+    g.stroke();
+  }
+
+  // Peels: paint gone, bare sun-bleached board underneath, with a darker
+  // lip on the lower edge where the paint curled.
+  const peelR = Math.sqrt((spec.peelCoverage * SIZE * SIZE) / (Math.PI * Math.max(1, spec.peels)));
+  for (let i = 0; i < spec.peels; i++) {
+    const px = rng() * SIZE, py = rng() * SIZE;
+    const rx = peelR * (0.7 + rng() * 0.7), ry = peelR * (0.7 + rng() * 0.7);
+    g.fillStyle = BARN_PALETTE.bareShadow;
+    g.beginPath(); g.ellipse(px, py + 1, rx, ry, rng() * 0.6, 0, Math.PI * 2); g.fill();
+    g.fillStyle = BARN_PALETTE.bareWood;
+    g.beginPath(); g.ellipse(px, py, rx * 0.88, ry * 0.85, rng() * 0.6, 0, Math.PI * 2); g.fill();
+  }
+
+  // Damp/rot band along the bottom of the course.
+  const damp = g.createLinearGradient(0, SIZE - spec.dampRows, 0, SIZE);
+  damp.addColorStop(0, 'rgba(67,48,42,0)');
+  damp.addColorStop(1, 'rgba(67,48,42,0.42)');
+  g.fillStyle = damp;
+  g.fillRect(0, SIZE - spec.dampRows, SIZE, spec.dampRows);
+
+  // Frost crust along the top of the course + a few drips down the boards.
+  const rime = g.createLinearGradient(0, 0, 0, spec.rimeRows);
+  rime.addColorStop(0, 'rgba(219,234,246,0.62)');
+  rime.addColorStop(1, 'rgba(219,234,246,0)');
+  g.fillStyle = rime;
+  g.fillRect(0, 0, SIZE, spec.rimeRows);
+  const drips = Math.round(spec.rimeRows / 3);
+  for (let i = 0; i < drips; i++) {
+    const x = Math.floor(rng() * SIZE);
+    const len = spec.rimeRows + Math.floor(rng() * spec.rimeRows * 2);
+    g.fillStyle = 'rgba(219,234,246,0.30)';
+    g.fillRect(x, 0, 1, len);
+  }
+
+  // Nail heads on the rails, one per board, top and bottom.
+  g.fillStyle = BARN_PALETTE.nail;
+  for (let b = 0; b < spec.boards; b++) {
+    const x = Math.round((b + 0.5) * bw);
+    g.fillRect(x, 3 + spec.rimeRows, 2, 2);
+    g.fillRect(x, SIZE - 5 - Math.round(spec.dampRows / 3), 2, 2);
+  }
+  return toTexture(c);
+}
+
+// -- Barn name-plate: the painted "BARN" sign hung over each doorway -------
+// Not tiled — one plank read head-on, so it clamps instead of repeating and
+// keeps NearestFilter off (text needs the smooth filter to stay legible).
+export function makeBarnSignTexture(accentHex) {
+  const W = 256, H = 64;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const rng = seedRng(311);
+
+  // Cream plank — never pure white (hand-drawn.md).
+  g.fillStyle = '#e8dcc0';
+  g.fillRect(0, 0, W, H);
+  for (let i = 0; i < 22; i++) {                    // wood grain
+    const y = Math.floor(rng() * H);
+    g.strokeStyle = rng() > 0.55 ? 'rgba(120,92,56,0.22)' : 'rgba(255,250,235,0.35)';
+    g.lineWidth = 1;
+    g.beginPath(); g.moveTo(0, y);
+    for (let x = 0; x <= W; x += 8) g.lineTo(x, y + Math.sin(x * 0.05 + i) * 1.6);
+    g.stroke();
+  }
+  // Team-colour end blocks, so a glance at the sign also reads the team.
+  g.fillStyle = accentHex;
+  g.fillRect(0, 0, 20, H);
+  g.fillRect(W - 20, 0, 20, H);
+  // Hand-wobbled dark border.
+  g.strokeStyle = '#1c1a17';
+  g.lineWidth = 3;
+  g.beginPath();
+  g.moveTo(4, 5); g.lineTo(W - 5, 3.5); g.lineTo(W - 3.5, H - 4); g.lineTo(5, H - 3); g.closePath();
+  g.stroke();
+
+  // "BARN" — per-letter rotation wobble so it reads hand-painted.
+  const word = 'BARN';
+  g.font = 'bold 42px Georgia, "Times New Roman", serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  const widths = [...word].map((ch) => g.measureText(ch).width + 6);
+  const total = widths.reduce((a, b) => a + b, 0);
+  let x = W / 2 - total / 2;
+  for (let i = 0; i < word.length; i++) {
+    const cx = x + widths[i] / 2;
+    g.save();
+    g.translate(cx, H / 2 + 2);
+    g.rotate((rng() - 0.5) * 0.10);
+    g.fillStyle = 'rgba(28,26,23,0.30)';          // painted-on shadow
+    g.fillText(word[i], 1.5, 2);
+    g.fillStyle = '#1c1a17';
+    g.fillText(word[i], 0, 0);
+    g.restore();
+    x += widths[i];
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  return t;   // no colorSpace override — every other texture here is untagged too
+
+}
+
+function hexRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
 
 function clamp(v) { return Math.max(0, Math.min(255, v | 0)); }
