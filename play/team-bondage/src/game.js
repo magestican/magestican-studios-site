@@ -7,6 +7,7 @@ import { VOX } from 'arbelo/voxel';
 import { generateWorld, WORLD_SIZE } from 'arbelo/procgen';
 
 import { buildWorldMeshes, hayOpacityFor } from './map/voxelMesh.js';
+import { buildLightRig } from './lightRig.js';
 import { VOX as _VOX } from 'arbelo/voxel';
 import { buildCharacter }   from './entities/character.js';
 import { Player }           from './entities/player.js';
@@ -269,15 +270,10 @@ export class Game {
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
     this.camera.rotation.order = 'YXZ';
 
-    // Lights
-    const sun = new THREE.DirectionalLight(0xffffff, 1.05);
-    sun.position.set(0.6, 1.0, 0.4);
-    this.scene.add(sun);
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-
-    // Sky-blue hemisphere for depth
-    const hemi = new THREE.HemisphereLight(0x9fd7ff, 0x2a4a24, 0.55);
-    this.scene.add(hemi);
+    // Lights. Every number lives in lightRigSpec.js — it is the same rig the
+    // art/preview/*.html pages hang, and the one art/preview/lightrig.mjs
+    // measures, so "measured through the game's own rig" stays true.
+    this.scene.add(buildLightRig());
   }
 
   _onResize() {

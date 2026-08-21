@@ -129,11 +129,15 @@ export const WIND = Object.freeze({
 // darkens what it lands on is not snow, it is dirt on the lens, and that is
 // exactly what it looked like: grey specks over a pale sky.
 //
-// The cause is the light rig. game.js hangs a HemisphereLight(sky 0x9fd7ff,
-// GROUND 0x2a4a24, 0.55) over the map — that ground colour is a dark green
-// left over from when this was a grass map — and a particle above eye level
-// is seen from BELOW, so every flake in the sky was showing the face the
-// hemisphere paints with a dead lawn.
+// The cause was the light rig. game.js hung a HemisphereLight whose GROUND
+// colour was 0x2a4a24 — a dark green left over from when this was a grass map
+// — and a particle above eye level is seen from BELOW, so every flake in the
+// sky was showing the face the hemisphere paints with a dead lawn. That ground
+// colour has since been replaced with a snow bounce (lightRigSpec.js), but the
+// conclusion below is UNCHANGED and the flake stays unlit: a lit flake is
+// shaded by whatever is under it, and a flake seen from below still cannot be
+// guaranteed to sit brighter than the sky behind it. The fix here was never
+// "make the bounce nicer", it was "stop asking the rig to light a particle".
 //
 // So a flake is not lit any more: it is PAINTED, unlit, three tones baked
 // into its faces, exactly the way the ground tiles are painted (crest /
