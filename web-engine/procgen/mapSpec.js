@@ -138,7 +138,11 @@ export const MAPS = Object.freeze({
     kit: { trough: 5, 'milk-churn': 6, 'log-pile': 4, 'chopping-block': 3,
            wheelbarrow: 3, 'feed-sack': 7, scarecrow: 2, 'weather-vane': 2,
            'oil-drum': 4, kennel: 2, 'sandbag-wall': 6, 'ammo-crate': 5 },
-    ambient: null,
+    // A gaggle of geese on the field. Every farm has them, they are the one
+    // farm bird that is not already a playable character, and they are the
+    // reason the default map has a crowd at all: the cheer is wasted if the
+    // map most people load has nobody in it to do the cheering.
+    ambient: { kind: 'goose', count: 22, clusters: 5 },
   },
 
   'icy-mountain': {

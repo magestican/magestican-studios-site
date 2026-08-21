@@ -769,6 +769,16 @@ export class Game {
   // Hill has to know WHOSE feet are on the hill and whether they are alive,
   // the refs carry team and liveness as well as a position — the hill tick is
   // the only caller that reads them and the others ignore the extra fields.
+  // Where a peer is right now, or null if we have never heard of them. Used by
+  // the crowd so a cheer starts at the thing that caused it rather than at the
+  // map centre. Falls back to the map centre so a cheer is never LOST — a
+  // missing position should cost the wave its origin, not the reaction.
+  _posOf(peerId) {
+    const ref = this._allPlayerRefs().find((p) => p.peerId === peerId);
+    if (ref) return ref.pos;
+    return this.world?.hillSpawn ?? null;
+  }
+
   _allPlayerRefs() {
     const arr = [{
       peerId: this.myId, pos: this.player.pos,
@@ -1156,6 +1166,10 @@ export class Game {
             || (msg.victim === this.myId ? this.character : 'cow');
           SFX.animalVoice(character, 1.0);
         } catch (_) {}
+        // Crowd reacts at the victim. Chicken obliterations get their own,
+        // louder tier — the slingshot is the rarest thing on the map.
+        this.critters?.cheer(this._posOf(msg.victim),
+          msg.weapon === 'chicken' ? 'chicken' : 'kill');
         break;
       case MSG.FLAG_PICK:
         this.flagCarrier[msg.color] = msg.by;
@@ -1197,6 +1211,9 @@ export class Game {
         this._returnFlag(msg.color);
         this._updateScoreUi();
         this._killFeedPush(`${this._name(msg.by)} captured the ${msg.color} flag!`);
+        // The crowd reacts to a remote capture too — cheer at the home stand
+        // of the team that scored, which is where the flag was just delivered.
+        this.critters?.cheer(this.world.flags[scoringTeam], 'capture');
         this._maybeTriggerAnagram();
         break;
       }
@@ -1641,8 +1658,9 @@ export class Game {
 
   // Big red STEAK ANIHILATION overlay + Unreal-Tournament-style announcer.
   _announceSteakAnnihilation(victimId, killerId) {
-    void victimId; void killerId;
+    void killerId;
     try { SFX.announcer('STEAK ANIHILATION'); } catch (_) {}
+    this.critters?.cheer(this._posOf(victimId), 'annihilation');
     const el = document.createElement('div');
     el.textContent = 'STEAK-ANIHILATION!';
     Object.assign(el.style, {
@@ -1869,6 +1887,7 @@ export class Game {
       this.flagState[enemyColor] = 'carried';
       this.flagCarrier[enemyColor] = this.myId;
       this._broadcast({ t: MSG.FLAG_PICK, by: this.myId, color: enemyColor });
+      this.critters?.cheer(this.player.pos, 'pickup');
     } else if (action === 'capture') {
       this.player.hasEnemyFlag = false;
       this.scores[myColor]++;
@@ -1877,6 +1896,7 @@ export class Game {
       this._returnFlag(enemyColor);
       this._updateScoreUi();
       this._killFeedPush(`${this._name(this.myId)} captured the ${enemyColor} flag!`);
+      this.critters?.cheer(this.player.pos, 'capture');
       this._maybeTriggerAnagram();
     }
 
