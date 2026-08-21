@@ -26,7 +26,23 @@ export const VOX = Object.freeze({
   HAY: 10,
   HILL: 11,   // centre-map elevated tile where the chicken slingshot spawns
   GLASS: 12,  // see-through, solid to bodies + bullets; used to close barn roofs
+  // -- ground WEAR (2026-08-21). The map is a working snow farm and until
+  // now nothing on it showed that anyone had ever walked across it. These
+  // three are ground-layer variants of GRASS/"snow": they sit at y=0, are
+  // solid exactly like the snow they replace, and differ only in paint.
+  TRODDEN:   13,  // churned packed snow + boot prints (path/apron variant A)
+  TRODDEN_B: 14,  // ...variant B. Two tiles, because a recognisable feature
+                  // repeated on a grid reads as wallpaper, and a boot print
+                  // is the most recognisable feature we have ever painted.
+  RUT:       15,  // one tractor tyre rut, running along +X
 });
+
+// The ground layer. Anything in here is a flat y=0 surface tile that ground
+// wear is allowed to paint over — and, just as importantly, everything NOT
+// in here (barn floors, hill, cover) is off limits to it.
+export const GROUND_VOX = Object.freeze([
+  VOX.GRASS, VOX.ICE, VOX.TRODDEN, VOX.TRODDEN_B, VOX.RUT,
+]);
 
 // Base RGB palette for each voxel type. Actual final colouring in the game
 // slightly perturbs these per-instance for a hand-drawn feel.
@@ -44,6 +60,11 @@ export const VOX_COLOR = Object.freeze({
   [VOX.HAY]:            [0xf5, 0xd5, 0x3a],   // brighter saturated yellow so hay bales are unmistakably distinct from grey/brown cover
   [VOX.HILL]:           [0x6a, 0x54, 0x38],
   [VOX.GLASS]:          [0xa8, 0xd8, 0xf0],   // pale ice-blue; rendered with alpha in voxelMesh.js
+  // Wear tiles paint their own hue (they are in voxelMesh's SELF_COLOURED),
+  // so these are reference values only — the renderer tints them white.
+  [VOX.TRODDEN]:        [0xc2, 0xcd, 0xda],
+  [VOX.TRODDEN_B]:      [0xc2, 0xcd, 0xda],
+  [VOX.RUT]:            [0xb3, 0xc0, 0xcf],
 });
 
 export class VoxelGrid {

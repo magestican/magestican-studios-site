@@ -11,7 +11,7 @@
 // P2P mesh generates the same map given the same seed.
 
 import { SeededRng } from '../rng/seededRng.js';
-import { VoxelGrid, VOX } from '../voxel/voxelGrid.js';
+import { VoxelGrid, VOX, GROUND_VOX } from '../voxel/voxelGrid.js';
 
 export const WORLD_SIZE = { x: 64, y: 12, z: 64 };
 export const BASE_SIZE  = { x: 10, y: 4,  z: 10 };
@@ -96,6 +96,12 @@ export function generateWorld(seed) {
     hayStacks.push({ x: hx, z: hz });
   }
 
+  // Ground WEAR — footpaths, barn aprons and the tractor lane. Runs LAST so
+  // it only ever paints over ground that is still bare snow or ice, and
+  // never over a barn floor, the hill, or anything that got built on top.
+  const wear = applyGroundWear(grid, rng.child('wear'),
+                               { redBase, blueBase, hillX: cx, hillZ: cz });
+
   // Hill spawn point for the chicken slingshot pickup.
   const hillSpawn = { x: cx + 0.5, y: 3.5, z: cz + 0.5 };
 
@@ -120,7 +126,251 @@ export function generateWorld(seed) {
     blue: barnSignAnchor(blueBase.x, blueBase.z),
   };
 
-  return { seed, grid, spawns, flags, redBase, blueBase, hillSpawn, hayStacks, barnSigns };
+  return { seed, grid, spawns, flags, redBase, blueBase, hillSpawn, hayStacks,
+           barnSigns, tractorParking: wear.tractorParking };
+}
+
+// ---------------------------------------------------------------------------
+// Ground wear
+// ---------------------------------------------------------------------------
+// Until 2026-08-21 the map was 4096 tiles of pristine, wind-carved snow —
+// including the three metres immediately outside a barn door that an entire
+// team sprints through every thirty seconds. Nothing on the ground recorded
+// that anyone had ever been here, and a place nobody has ever walked across
+// does not read as a farm; it reads as a render.
+//
+// So: paths where players actually go (barn doorway -> centre hill), a
+// churned apron at each doorway, a scuffed ring around the hill everyone
+// fights over, and a tractor lane with two real wheel ruts running the width
+// of the map. All of it is a pure function of the world seed, because every
+// peer in the P2P mesh generates its own copy of the map and they have to
+// agree tile for tile.
+//
+// Hard rule: wear only ever overwrites tiles that are STILL GROUND. Barn
+// floors, the hill, cover and anything built on top are off limits — hence
+// GROUND_VOX rather than "y === 0".
+export const WEAR = Object.freeze({
+  apronDepth: 6,        // tiles the churned apron reaches out from a doorway
+  apronHalfWidth: 4,    // ...and how wide it fans at its far end
+  pathHalfWidth: 1,     // core half-width; the ragged edge adds up to 1 more
+  pathWander: 0.42,     // rad of heading wobble per step — a footpath is not
+                        // a ruled line, it drifts around whatever was in the
+                        // way that day
+  pathFray: 0.45,       // chance a tile just outside the core also gets worn
+  hillRingInner: 3,     // the ring of scuffed ground around the centre hill
+  hillRingOuter: 5,     // (everyone fights over the chicken slingshot there)
+  hillRingFray: 0.72,
+  // The tractor lane. Two rut rows one tile apart, with a trodden row down
+  // the middle where the axle drags — that is what turns 1 m tiles into a
+  // vehicle-width track. It runs along +X because the rut texture's tread
+  // does (a tile's texture-x maps to world +X on a top face), so a lane on
+  // any other heading would ship tyre marks running sideways to the track.
+  trackZ: 25,
+  trackX0: 4,
+  trackX1: 59,
+  trackWander: 1.4,     // tiles of slow drift in Z across the map's width
+  trackWanderRate: 0.055,
+  parkingX: Object.freeze([12, 47]),   // where the two tractors sit on it
+  parkingApron: 2,      // churned turn-around radius around a parked tractor
+  holeFill: 6,          // neighbours needed to swallow a bare tile stranded
+                        // inside a path (see closeWearHoles)
+  scuffs: 14,           // loose scuffed patches out in the open ground
+  scuffRadius: 2,
+});
+
+// Two trodden tiles exist so a boot print is not stamped identically across
+// a 1 m grid (see makeTroddenTexture). Which one a tile gets is a hash of its
+// position, NOT a draw from the rng: that keeps the choice independent of the
+// ORDER wear happens to be painted in, so re-ordering a pass later can never
+// silently reshuffle the whole map.
+function troddenAt(x, z) {
+  // lowbias32 finaliser. The naive version (one xor-shift) leaked the parity
+  // of x^z straight into bit 0 and shipped a 60/40 split with a checkerboard
+  // in it — which is the exact structure this hash exists to destroy.
+  let h = (Math.imul(x, 0x9e3779b1) ^ Math.imul(z, 0x85ebca77)) >>> 0;
+  h ^= h >>> 16; h = Math.imul(h, 0x7feb352d);
+  h ^= h >>> 15; h = Math.imul(h, 0x846ca68b);
+  h ^= h >>> 16;
+  return (h & 1) ? VOX.TRODDEN_B : VOX.TRODDEN;
+}
+
+const GROUND_SET = new Set(GROUND_VOX);
+
+// Paint one ground tile, if it is still ground.
+//
+// A RUT is never overwritten by anything but another rut. The lane is the
+// only LINEAR feature on the ground plane and an unbroken pair of parallel
+// lines is its entire read — one gap and it stops being a wheel track and
+// becomes two smudges. Three things wanted to punch holes in it: the
+// tractor's own turn-around apron (a 7-tile hole at each parking spot in the
+// first render), a footpath crossing it, and a loose scuff landing on it.
+// In the real world a boot crossing a rut does not fill the rut in, so the
+// rule is a physical one, not a rendering hack.
+function wearTile(grid, x, z, vox) {
+  if (!grid.inBounds(x, 0, z)) return false;
+  const cur = grid.get(x, 0, z);
+  if (!GROUND_SET.has(cur)) return false;
+  const paint = vox === undefined ? troddenAt(x, z) : vox;
+  if (cur === VOX.RUT && paint !== VOX.RUT) return false;
+  grid.set(x, 0, z, paint);
+  return true;
+}
+
+function wearDisc(grid, rng, x0, z0, r, fray = 0) {
+  for (let dz = -r; dz <= r; dz++) {
+    for (let dx = -r; dx <= r; dx++) {
+      const d = Math.hypot(dx, dz);
+      if (d > r) continue;
+      // Soften the rim: a disc with a clean edge reads as a stamped circle.
+      if (d > r - 1 && rng.rangeF(0, 1) > fray) continue;
+      wearTile(grid, x0 + dx, z0 + dz);
+    }
+  }
+}
+
+export function applyGroundWear(grid, rng, { redBase, blueBase, hillX, hillZ }) {
+  // 1. The apron outside each barn door, fanning wider as it gets further
+  //    from the threshold — that spread is the shape of people scattering
+  //    once they are through the gap.
+  for (const base of [redBase, blueBase]) {
+    const { faceX, midZ, nx } = barnDoorway(base.x, base.z);
+    const x0 = nx > 0 ? faceX : faceX - 1;
+    for (let d = 0; d < WEAR.apronDepth; d++) {
+      const t = d / (WEAR.apronDepth - 1);
+      const halfW = 1 + Math.round(t * (WEAR.apronHalfWidth - 1));
+      for (let dz = -halfW; dz <= halfW; dz++) {
+        // Fray the outer lip so the apron fades into the snow instead of
+        // ending on a hard rectangle.
+        if (Math.abs(dz) === halfW && rng.rangeF(0, 1) > 0.6) continue;
+        if (d === WEAR.apronDepth - 1 && rng.rangeF(0, 1) > 0.55) continue;
+        wearTile(grid, x0 + nx * d, midZ + dz);
+      }
+    }
+  }
+
+  // 2. A footpath from each barn door to the centre hill. Walked, not ruled:
+  //    the heading wobbles, and the edge frays a tile at a time.
+  for (const base of [redBase, blueBase]) {
+    const { faceX, midZ, nx } = barnDoorway(base.x, base.z);
+    walkPath(grid, rng, faceX + nx * WEAR.apronDepth, midZ, hillX, hillZ);
+  }
+
+  // 3. The scuffed ring around the hill. The chicken slingshot spawns on top
+  //    of it, so this is the single most fought-over patch on the map — and
+  //    it looked exactly as untouched as the far corners.
+  for (let dz = -WEAR.hillRingOuter; dz <= WEAR.hillRingOuter; dz++) {
+    for (let dx = -WEAR.hillRingOuter; dx <= WEAR.hillRingOuter; dx++) {
+      const d = Math.hypot(dx, dz);
+      if (d < WEAR.hillRingInner || d > WEAR.hillRingOuter) continue;
+      if (rng.rangeF(0, 1) > WEAR.hillRingFray) continue;
+      wearTile(grid, hillX + dx, hillZ + dz);
+    }
+  }
+
+  // 4. The tractor lane: rut / churn / rut, drifting slowly in Z so it reads
+  //    as a lane someone drives rather than a line someone drew.
+  const phase = rng.rangeF(0, 6.28);
+  const laneZ = (x) => WEAR.trackZ
+    + Math.round(Math.sin(x * WEAR.trackWanderRate + phase) * WEAR.trackWander);
+  for (let x = WEAR.trackX0; x <= WEAR.trackX1; x++) {
+    const z = laneZ(x);
+    // Where the lane drifts a tile sideways, lay BOTH z positions in the
+    // transition column so the two ruts overlap into a short dogleg. Without
+    // it each rut simply stopped and restarted one tile over, and a wheel
+    // track with a clean break in it stops reading as a wheel track.
+    const zs = new Set([z, laneZ(x - 1)]);
+    for (const lz of zs) {
+      wearTile(grid, x, lz,     VOX.RUT);
+      wearTile(grid, x, lz + 1, troddenAt(x, lz + 1));
+      wearTile(grid, x, lz + 2, VOX.RUT);
+    }
+  }
+
+  // 5. Where the two tractors park, with the churned ground they turned on.
+  //    Handing these back means the tractor prop stands in its OWN ruts
+  //    instead of being scattered to a random tile that has never been
+  //    driven over — the detail that makes the lane read as caused by
+  //    something rather than decorative.
+  const tractorParking = [];
+  for (const px of WEAR.parkingX) {
+    const pz = laneZ(px) + 1;
+    wearDisc(grid, rng, px, pz, WEAR.parkingApron + 1, 0.5);
+    // Clear anything cover-generation dropped on the spot, or the prop
+    // scatterer will reject it and the lane will have no tractor on it.
+    for (let dz = -1; dz <= 1; dz++)
+      for (let dx = -1; dx <= 1; dx++)
+        grid.fillBox(px + dx, 1, pz + dz, px + dx, 3, pz + dz, VOX.AIR);
+    tractorParking.push({ x: px, z: pz, yaw: px < 32 ? Math.PI / 2 : -Math.PI / 2 });
+  }
+
+  // 6. Loose scuffed patches out in the open — the skirmishes that did not
+  //    happen on a path. Without these every worn tile sits on a route and
+  //    the wear reads as painted-on level design.
+  for (let i = 0; i < WEAR.scuffs; i++) {
+    const x = rng.rangeI(6, 57), z = rng.rangeI(6, 57);
+    wearDisc(grid, rng, x, z, rng.rangeI(1, WEAR.scuffRadius), 0.35);
+  }
+
+  // 7. Close the pinholes. The frayed path edges leave the odd single
+  //    untouched tile surrounded by worn ones, and at a grazing angle that
+  //    is a hard-edged, uniformly bright 1 m parallelogram sitting in the
+  //    middle of a dark path — it reads as a sheet of paper dropped on the
+  //    ground, not as a patch of snow. Nobody walks around a one-metre
+  //    island, so nor does the wear.
+  closeWearHoles(grid);
+
+  return { tractorParking };
+}
+
+// Any bare tile with `WEAR.holeFill` or more of its eight neighbours worn
+// gets worn too. One pass over a snapshot, not in place, so filling one hole
+// cannot cascade across the whole map.
+function closeWearHoles(grid) {
+  const worn = new Set([VOX.TRODDEN, VOX.TRODDEN_B, VOX.RUT]);
+  const before = grid.data.slice();
+  const at = (x, z) => worn.has(before[grid.idx(x, 0, z)]);
+  for (let z = 1; z < WORLD_SIZE.z - 1; z++) {
+    for (let x = 1; x < WORLD_SIZE.x - 1; x++) {
+      if (at(x, z)) continue;
+      let n = 0;
+      for (let dz = -1; dz <= 1; dz++)
+        for (let dx = -1; dx <= 1; dx++)
+          if ((dx || dz) && at(x + dx, z + dz)) n++;
+      if (n >= WEAR.holeFill) wearTile(grid, x, z);
+    }
+  }
+}
+
+// A footpath: step toward the target with a wobble on the heading, laying a
+// core of trodden tiles and fraying the edge. Bounded step count so a bad
+// seed can never spin here.
+function walkPath(grid, rng, x0, z0, tx, tz) {
+  let x = x0, z = z0;
+  let ang = Math.atan2(tz - z0, tx - x0);
+  const maxSteps = (WORLD_SIZE.x + WORLD_SIZE.z) * 2;
+  for (let i = 0; i < maxSteps; i++) {
+    const toTarget = Math.atan2(tz - z, tx - x);
+    // Steer back toward the hill every step, then wobble. Pure wobble
+    // wanders off; pure steering draws a ruled line.
+    let d = toTarget - ang;
+    while (d > Math.PI) d -= Math.PI * 2;
+    while (d < -Math.PI) d += Math.PI * 2;
+    ang += d * 0.35 + rng.rangeF(-WEAR.pathWander, WEAR.pathWander);
+    x += Math.cos(ang);
+    z += Math.sin(ang);
+    const ix = Math.round(x), iz = Math.round(z);
+    const nx = -Math.sin(ang), nz = Math.cos(ang);
+    for (let o = -WEAR.pathHalfWidth; o <= WEAR.pathHalfWidth; o++) {
+      wearTile(grid, Math.round(x + nx * o), Math.round(z + nz * o));
+    }
+    // Fray: one more tile out, sometimes, on one side or the other.
+    if (rng.rangeF(0, 1) < WEAR.pathFray) {
+      const side = rng.rangeF(0, 1) < 0.5 ? -1 : 1;
+      const o = side * (WEAR.pathHalfWidth + 1);
+      wearTile(grid, Math.round(x + nx * o), Math.round(z + nz * o));
+    }
+    if (Math.hypot(tx - ix, tz - iz) <= WEAR.hillRingOuter) break;
+  }
 }
 
 function buildBase(grid, ox, oz, baseVox, standVox) {

@@ -4,7 +4,7 @@
 
 import * as THREE from 'three';
 import { BARN_PAINT, BARN_PALETTE } from './barnPaintSpec.js';
-import { GROUND_PAINT, GROUND_PALETTE } from './groundPaintSpec.js';
+import { GROUND_PAINT, GROUND_PALETTE, TILE_SUN } from './groundPaintSpec.js';
 
 const SIZE = 64;
 
@@ -20,6 +20,17 @@ function toTexture(canvas) {
   t.magFilter = THREE.NearestFilter;   // keep the pixel look
   t.minFilter = THREE.LinearMipMapNearestFilter;
   return t;
+}
+
+// Draw one feature up to four times so anything crossing a tile edge
+// continues on the opposite edge. Every ground tile is the SAME image
+// repeated, so a print cut off at x=64 does meet its other half at x=0 of
+// the tile next door — but only if the other half was drawn. Without this a
+// path's footprints all stop dead on the 1 m grid lines.
+function wrapDraw(x, y, fn) {
+  const dxs = x < SIZE / 2 ? [0, SIZE] : [0, -SIZE];
+  const dys = y < SIZE / 2 ? [0, SIZE] : [0, -SIZE];
+  for (const dx of dxs) for (const dy of dys) fn(x + dx, y + dy);
 }
 
 // Deterministic PRNG so textures are stable across builds.
@@ -233,9 +244,274 @@ function drawEdgeCrest(g, rng, spec) {
   const crest = rgba(spec.crest, spec.edgeCrest);
   const hollow = rgba(spec.hollow, spec.edgeHollow);
   dash(0, 0, true,  SIZE, crest);  dash(0, E, true,  SIZE, crest);
-  dash(0, 0, false, SIZE, crest);  dash(E, 0, false, SIZE, crest);
   dash(1, 1, true,  SIZE - 2, hollow);  dash(1, E - 1, true,  SIZE - 2, hollow);
+  // A tile whose whole feature RUNS ACROSS the boundary — the tractor rut,
+  // which is continuous along +X — must not get a lit lip on the edges that
+  // cut it, or one wheel track ships as a row of 1 m dashes. It still gets
+  // the two edges that run parallel to the track.
+  if (spec.edgeOnly === 'horizontal') return;
+  dash(0, 0, false, SIZE, crest);  dash(E, 0, false, SIZE, crest);
   dash(1, 1, false, SIZE - 2, hollow);  dash(E - 1, 1, false, SIZE - 2, hollow);
+}
+
+// -- Trodden snow: the map finally shows that someone lives on it ----------
+// Every one of the 4096 ground tiles was pristine wind-carved sastrugi,
+// including the three metres outside a barn door that a whole team sprints
+// through every thirty seconds. Wear is what makes terrain read as a PLACE:
+// it is a record of where people go, and a player reads it without ever
+// being told to.
+//
+// What carries at 10 m is NOT the boot prints — a print is ~17 px of a
+// 64 px tile and is gone by the second mip. It is that the whole tile is a
+// value step DOWN from the snow around it and that its churn arcs are big.
+// The prints are the close-range payoff for looking at your own feet.
+//
+// `variant` picks one of two independently-scattered layouts. One tile would
+// put an identical, highly recognisable boot pattern on a 1 m grid — the
+// graph-paper failure from silhouette-readability.md, except a footprint is
+// far more legible than a 1 px lip, so it would be far worse.
+export function makeTroddenTexture(variant = 0) {
+  const spec = GROUND_PAINT.trodden;
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rng = seedRng(spec.variantSeeds[variant % spec.variantSeeds.length]);
+  const field = hexRgb(spec.field);
+
+  // Base + jitter. Crushed snow still shades BLUE, same rule as the field.
+  const img = g.createImageData(SIZE, SIZE);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const j = (rng() - 0.5) * spec.noise;
+    img.data[i]   = clamp(field.r + j);
+    img.data[i+1] = clamp(field.g + j * 0.8);
+    img.data[i+2] = clamp(field.b + j * 0.45);
+    img.data[i+3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+
+  // Churn: broad scuff arcs where a foot slid instead of stepping. Drawn
+  // FIRST and wide, because these are the only wear feature big enough to
+  // survive the mip chain and still say "path" at range.
+  for (let i = 0; i < spec.churn; i++) {
+    const x = rng() * SIZE, y = rng() * SIZE;
+    const r = SIZE * (0.06 + rng() * 0.14);
+    const a0 = rng() * 6.28;
+    g.strokeStyle = rgba(spec.hollow, spec.churnAlpha * (0.5 + rng() * 0.7));
+    g.lineWidth = 2 + rng() * 4;
+    g.beginPath();
+    g.arc(x, y, r, a0, a0 + 0.8 + rng() * 1.4);
+    g.stroke();
+  }
+
+  // Bare dirt showing through where the snow has been kicked off entirely.
+  // Irregular (three overlapping ellipses, not one clean oval) — a clean
+  // oval of brown on snow reads as a decal stuck on top, which is the
+  // muck-patch failure in silhouette-readability.md.
+  //
+  // These were the loudest thing on the first cut of this tile by a mile:
+  // four saturated 8 px brown blobs on pale blue, which at any distance read
+  // as litter dropped on the snow rather than as ground showing through it.
+  // They are the 10 % accent — small, soft, and dulled well toward the snow.
+  for (let i = 0; i < spec.mudPatches; i++) {
+    const x = rng() * SIZE, y = rng() * SIZE;
+    const r = spec.mudRadius * (0.6 + rng() * 0.8);
+    wrapDraw(x, y, (ox, oy) => {
+      g.fillStyle = rgba(GROUND_PALETTE.mud, spec.mudAlpha * (0.55 + rng() * 0.5));
+      for (let k = 0; k < 3; k++) {
+        g.beginPath();
+        g.ellipse(ox + (rng() - 0.5) * r, oy + (rng() - 0.5) * r,
+                  r * (0.5 + rng() * 0.6), r * (0.4 + rng() * 0.5),
+                  rng() * 3.14, 0, Math.PI * 2);
+        g.fill();
+      }
+      // Lit crumb of snow on the sun side of the hole's rim, so the patch
+      // reads as ground showing through a dip and not as a sticker.
+      g.fillStyle = rgba(spec.crest, 0.35);
+      g.fillRect(Math.round(ox + TILE_SUN.x * r), Math.round(oy + TILE_SUN.y * r), 2, 1);
+    });
+  }
+
+  // Bedding straw dragged out of the barn and trodden flat. Short warm
+  // strokes, clustered rather than evenly sprinkled — straw falls in wisps.
+  for (let i = 0; i < spec.straws; i++) {
+    const sx = rng() * SIZE, sy = rng() * SIZE;
+    const n = 1 + Math.floor(rng() * 3);
+    for (let k = 0; k < n; k++) {
+      const a = rng() * 3.14;
+      const len = 2.5 + rng() * 4;
+      const x = sx + (rng() - 0.5) * 7, y = sy + (rng() - 0.5) * 7;
+      const alpha = 0.32 + rng() * 0.35;
+      wrapDraw(x, y, (ox, oy) => {
+        g.strokeStyle = rgba(GROUND_PALETTE.straw, alpha);
+        g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(ox, oy);
+        g.lineTo(ox + Math.cos(a) * len, oy + Math.sin(a) * len);
+        g.stroke();
+      });
+    }
+  }
+
+  // Boot prints, in left/right pairs walking a heading. Each print is a
+  // dark sole+heel with a LIT rim on the sun side — the ice-crack lesson: a
+  // dark shape alone is a scratch, a dark shape with a bright shoulder down
+  // one side is a depression.
+  for (let i = 0; i < spec.printPairs; i++) {
+    const heading = rng() * Math.PI * 2;
+    const px = rng() * SIZE, py = rng() * SIZE;
+    const nx = -Math.sin(heading), ny = Math.cos(heading);
+    // Each pair at its own strength: a path carries prints of every age at
+    // once, and equal-weight prints read as a stencil.
+    const age = spec.printFade + (1 - spec.printFade) * (i / spec.printPairs);
+    for (const foot of [-0.5, 0.5]) {
+      const step = foot * spec.printStride;
+      const side = foot * spec.printSpread;
+      drawBootPrint(g, spec,
+        px + Math.cos(heading) * step + nx * side,
+        py + Math.sin(heading) * step + ny * side,
+        heading + (rng() - 0.5) * 0.3, age);
+    }
+  }
+
+  drawEdgeCrest(g, rng, spec);
+  return toTexture(c);
+}
+
+// One boot print. Three things had to change from the first cut, and all
+// three came out of looking at the tile at 4x:
+//
+//   1. It was TWO RECTANGLES. A sole slab plus a heel slab, drawn square,
+//      read as a grey brick — and six bricks per tile read as rubble
+//      scattered on the snow, not as somebody having walked past. A foot is
+//      round-ended: two overlapping rounded lozenges, ball and heel.
+//   2. Dark alone is a dent. The lug GAPS are what make a print say boot,
+//      so the sole gets `printLugs` lit bars across it. That is the same
+//      lesson as the shotgun's bright top rib — a feature made of two parts
+//      only reads as two if something bright splits them.
+//   3. The lit rim was a filled slab offset behind the print, which is the
+//      drop-shadow failure from the clouds wearing a different hat. It is a
+//      thin stroke that stays IN CONTACT with the print's own outline.
+function drawBootPrint(g, spec, x, y, ang, age = 1) {
+  const L = spec.printLen, W = spec.printWide;
+  const sole = (gg) => {
+    gg.beginPath();
+    gg.ellipse(-L * 0.20, 0, L * 0.30, W * 0.50, 0, 0, Math.PI * 2);
+    gg.ellipse(L * 0.26, 0, L * 0.17, W * 0.40, 0, 0, Math.PI * 2);
+  };
+  wrapDraw(x, y, (ox, oy) => {
+    g.save();
+    g.translate(ox, oy);
+    g.rotate(ang);
+    // Lit rim: the print's own outline, nudged a pixel and a half toward
+    // the sun, so the bright edge hugs one side of the depression.
+    g.save();
+    g.translate(TILE_SUN.x * 1.5, TILE_SUN.y * 1.5);
+    g.strokeStyle = rgba(spec.crest, spec.printRim * age);
+    g.lineWidth = 1.5;
+    sole(g);
+    g.stroke();
+    g.restore();
+    // The hole.
+    g.fillStyle = rgba(spec.hollow, spec.printAlpha * age);
+    sole(g);
+    g.fill();
+    // Lug gaps across the ball of the foot.
+    g.save();
+    sole(g);
+    g.clip();
+    g.fillStyle = rgba(spec.crest, spec.printAlpha * age * 0.7);
+    for (let k = 0; k < spec.printLugs; k++) {
+      const bx = -L * 0.44 + (k + 0.7) * (L * 0.48 / spec.printLugs);
+      g.fillRect(bx, -W, 1, W * 2);
+    }
+    g.restore();
+    g.restore();
+  });
+}
+
+// -- Tractor rut: one wheel track, running along world +X ------------------
+// Laid as two rows a tile apart with a trodden row between them, so 1 m
+// tiles add up to a tractor-width farm lane. The lane is the second half of
+// "someone lives here": footpaths say where people walk, ruts say the place
+// has WORK done on it.
+export function makeRutTexture() {
+  const spec = GROUND_PAINT.rut;
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rng = seedRng(spec.seed);
+  const field = hexRgb(spec.field);
+
+  const img = g.createImageData(SIZE, SIZE);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const j = (rng() - 0.5) * spec.noise;
+    img.data[i]   = clamp(field.r + j);
+    img.data[i+1] = clamp(field.g + j * 0.8);
+    img.data[i+2] = clamp(field.b + j * 0.45);
+    img.data[i+3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+
+  const half = (SIZE * spec.rutWidth) / 2;
+  const midY = SIZE / 2;
+
+  // The depression: a soft-shouldered gradient, not a flat stripe. A rut is
+  // a curved trough, so its darkest line is its centre and it fades out into
+  // the snow either side — a hard-edged band reads as tape stuck down.
+  const trough = g.createLinearGradient(0, midY - half, 0, midY + half);
+  trough.addColorStop(0,    rgba(spec.hollow, 0));
+  trough.addColorStop(0.35, rgba(spec.hollow, 0.55));
+  trough.addColorStop(0.55, rgba(spec.hollow, 0.72));
+  trough.addColorStop(1,    rgba(spec.hollow, 0));
+  g.fillStyle = trough;
+  g.fillRect(0, midY - half, SIZE, half * 2);
+
+  // Shouldered-aside snow: a bright lip just OUTSIDE the trough on each side.
+  //
+  // The first cut drew this as straight bright dashes at a fixed height and
+  // the tile came back reading as a ROAD — dashed white lane markings on
+  // grey tarmac, which is about the worst thing a snow farm could
+  // accidentally say. Two fixes, and it is the FIRST that matters: the lip
+  // WANDERS (a ridge of thrown snow is not a ruled line), and its thickness
+  // and alpha vary column by column so it never holds one weight for long.
+  for (const sgn of [-1, 1]) {
+    const phase = rng() * 6.28;
+    const base = midY + sgn * half;
+    for (let x = 0; x < SIZE; x++) {
+      const wander = Math.sin(x * 0.13 + phase) * spec.lipWander
+                   + Math.sin(x * 0.37 + phase * 2) * (spec.lipWander * 0.4);
+      const rows = Math.max(1, Math.round(spec.lipRows * (0.45 + rng() * 0.9)));
+      const ly = Math.round(base + wander) - (sgn < 0 ? rows : 0);
+      g.fillStyle = rgba(spec.crest, spec.lipAlpha * (0.35 + rng() * 0.85));
+      g.fillRect(x, ly, 1, rows);
+    }
+  }
+
+  // Lugs. A tractor tyre is a herringbone of big angled bars, and they are
+  // the ONLY thing that tells a rut from a ditch at any distance. All lean
+  // the same way — alternating them makes a zip fastener, not a tyre.
+  const gap = SIZE / spec.treads;
+  for (let i = 0; i < spec.treads; i++) {
+    const x = i * gap + rng() * 1.5;
+    g.save();
+    g.translate(x, midY);
+    g.rotate(spec.treadLean);
+    g.fillStyle = rgba(spec.hollow, spec.treadAlpha * (0.7 + rng() * 0.5));
+    g.fillRect(-1.5, -half * 0.92, 3, half * 1.84);
+    // Lit edge down the sun side of every bar, so the lugs read as ridges
+    // of packed snow between the bites, not as painted stripes.
+    g.fillStyle = rgba(spec.crest, spec.treadAlpha * 0.55);
+    g.fillRect(1.5, -half * 0.92, 1, half * 1.84);
+    g.restore();
+  }
+
+  // Mud the tyre has dragged up out of the ground, along the rut floor.
+  for (let i = 0; i < spec.mudSpecks; i++) {
+    g.fillStyle = rgba(GROUND_PALETTE.mud, spec.mudAlpha * (0.5 + rng() * 0.6));
+    g.beginPath();
+    g.arc(rng() * SIZE, midY + (rng() - 0.5) * half * 1.5,
+          0.6 + rng() * 1.8, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  drawEdgeCrest(g, rng, spec);
+  return toTexture(c);
 }
 
 // -- Wood: brown base + horizontal grain lines ------------------------------

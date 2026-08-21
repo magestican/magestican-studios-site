@@ -26,8 +26,15 @@ const SCATTER = {
   'hay-bale':  6,
   barrel:      7,
   crate:       9,
-  tractor:     2,
+  // NOT scattered: the tractors are PARKED, on the wheel ruts they cut.
+  // See PARKED below and applyGroundWear() in voxelWorldGen.js.
 };
+
+// Props that are placed by worldgen rather than scattered at random.
+// A tractor dropped on an untouched corner of the map is a prop; a tractor
+// standing in its own tyre tracks is a piece of evidence, and the ruts stop
+// being decoration the moment something is sitting in them.
+const PARKED = { tractor: (world) => world.tractorParking ?? [] };
 
 // Bright pink cube fallback so props are STILL VISIBLE even if a GLB fails
 // to load or is missing. Bryan should never see nothing.
@@ -83,7 +90,26 @@ export async function scatterMapProps(scene, world) {
 
   // Load all props once.
   const loaded = {};
-  for (const id of Object.keys(SCATTER)) loaded[id] = await loadProp(id);
+  for (const id of [...Object.keys(SCATTER), ...Object.keys(PARKED)]) {
+    loaded[id] = await loadProp(id);
+  }
+
+  let parked = 0;
+  for (const [id, spotsOf] of Object.entries(PARKED)) {
+    const base = loaded[id];
+    if (!base) continue;
+    for (const spot of spotsOf(world)) {
+      const inst = base.clone(true);
+      inst.position.set(spot.x + 0.5, 1.0, spot.z + 0.5);
+      // Parked square ON the lane — the yaw comes from worldgen so the
+      // machine faces along its own ruts. A random yaw here would have it
+      // standing sideways across the track it cut.
+      inst.rotation.y = spot.yaw;
+      inst.scale.setScalar(1.0);
+      group.add(inst);
+      parked++;
+    }
+  }
 
   let placed = 0;
   for (const [id, count] of Object.entries(SCATTER)) {
@@ -110,6 +136,6 @@ export async function scatterMapProps(scene, world) {
       }
     }
   }
-  console.log(`[mapProps] placed ${placed} instances across ${Object.keys(SCATTER).length} kinds`);
+  console.log(`[mapProps] placed ${placed} scattered + ${parked} parked instances`);
   return group;
 }

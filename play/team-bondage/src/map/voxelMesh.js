@@ -4,7 +4,7 @@
 
 import * as THREE from 'three';
 import { VOX, VOX_COLOR } from 'arbelo/voxel';
-import { makeSnowTexture, makeIceTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture, makeHayTexture, makeBloodTinted, makeBarnPaintTexture } from './textures.js';
+import { makeSnowTexture, makeIceTexture, makeTroddenTexture, makeRutTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture, makeHayTexture, makeBloodTinted, makeBarnPaintTexture } from './textures.js';
 
 const CUBE_GEO = new THREE.BoxGeometry(1, 1, 1);
 // Every cube vertex is plain white so `vertexColors: true` is safe: with the
@@ -22,6 +22,12 @@ function getTextures() {
     // the exposed pan scattered through it. Both paint their own hue.
     [VOX.GRASS]: makeSnowTexture(),
     [VOX.ICE]:   makeIceTexture(),
+    // Ground WEAR — where the map has been walked and driven on. Two
+    // trodden variants, because a boot print repeated identically on a 1 m
+    // grid is wallpaper (see makeTroddenTexture).
+    [VOX.TRODDEN]:   makeTroddenTexture(0),
+    [VOX.TRODDEN_B]: makeTroddenTexture(1),
+    [VOX.RUT]:       makeRutTexture(),
     [VOX.WOOD]:  makeWoodTexture(),
     [VOX.STONE]: makeStoneTexture(),
     [VOX.DIRT]:  makeDirtTexture(),
@@ -46,6 +52,9 @@ const SELF_COLOURED = new Set([
   // the map rendered green for months. Snow and ice now paint their final
   // colour and nothing multiplies it afterwards.
   VOX.GRASS, VOX.ICE,
+  // ...and so did the wear tiles that get laid over them: same rule, same
+  // reason. A trodden tile's grey and a rut's mud are IN the texture.
+  VOX.TRODDEN, VOX.TRODDEN_B, VOX.RUT,
 ]);
 
 // Mature-mode variant: blood-tinted versions of ONLY the vertical geometry

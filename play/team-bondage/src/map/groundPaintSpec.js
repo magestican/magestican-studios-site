@@ -40,12 +40,47 @@ export const GROUND_PALETTE = Object.freeze({
   iceDeep:    '#6fa3bd',   // the dark of a crack seen edge-on
   iceSheen:   '#dcf3fb',   // polished wind-swept lane across a pan
   grit:       '#8d9aa6',   // trodden dirt/straw ground into the snow
+
+  // -- ground WEAR ---------------------------------------------------------
+  // Snow that has been WALKED ON is not darker snow, it is a different
+  // material: the crystal structure is crushed, so it stops scattering and
+  // starts reading closer to wet ice — lower value, and the value RANGE
+  // opens up rather than closing, because a boot leaves a hole with a lit
+  // rim. That widening range is the whole reason a path reads at 10 m.
+  //
+  // These hexes look far too dark on a swatch and that is deliberate. Two
+  // things sit between the tile and the screen and BOTH compress the step:
+  //   1. three's sRGB output transform. A tile painted 79 % of the snow's
+  //      value comes back at 86 % of it on screen — the encode curve pulls
+  //      everything in the top half of the range together. Getting a 20 %
+  //      step in the RENDER costs a ~35 % step in the paint.
+  //   2. voxelMesh gives every voxel instance a random value jitter of up
+  //      to 8 %, so anything under about a 15 % step is inside the noise and
+  //      the edge of the path dissolves into the field.
+  // Measured through the game's own rig with `window.__probe` in
+  // art/preview/ground.html — the first two cuts of this pass were picked by
+  // eye off the swatch and both shipped a path you could not see.
+  trodden:     '#8a9cb2',  // packed, crushed snow of a walked lane
+  troddenRim:  '#eaf2fb',  // snow shoved up around a footfall, catching sun
+  troddenDeep: '#5a6e85',  // the compressed shadowed floor of a print
+  straw:       '#c1a45e',  // bedding straw dragged out of the barn and
+                           // trodden flat — dulled well below HAY's #f5d53a,
+                           // which would read as a fresh bale on the ground
+  mud:         '#7d6a55',  // dirt showing through where the snow is gone.
+                           // The one WARM note on the entire ground plane —
+                           // it is the 10 % accent that says "farm", so it
+                           // stays small (see 60-30-10 in color.md)
+  rutSnow:     '#7f93ab',  // churned snow of the tractor lane — darker than a
+                           // footpath: a tyre compacts harder than a boot and
+                           // drags ground up with it
+  rutLip:      '#f0f6fd',  // the ridge a tyre shoulders aside
+  rutFloor:    '#4e647c',  // the shadowed bottom of the rut itself
 });
 
 // One entry per ground material. Fields are the *surface story*, not
 // generic knobs: snow is wind-packed and takes a footfall; ice is a hard
 // pan that cracks and polishes.
-export const GROUND_PAINT = Object.freeze({
+const GROUND_PAINT_VIRGIN = {
   snow: Object.freeze({
     name: 'snow',
     field: GROUND_PALETTE.snow,
@@ -104,8 +139,125 @@ export const GROUND_PAINT = Object.freeze({
     edgeBreakup: 0.5,
     seed: 613,
   }),
+};
+
+// -- Ground WEAR -----------------------------------------------------------
+// The map had no sign that anyone had ever set foot on it. Every one of the
+// 4096 ground tiles was pristine wind-carved snow, including the three
+// metres directly outside a barn door that a whole team runs through every
+// thirty seconds. Wear is what turns a terrain into a PLACE: it records
+// where people go.
+//
+// Two tiles, not one. A boot print is the most recognisable shape we have
+// ever painted onto a 64 px tile, and anything recognisable repeated on a
+// 1 m grid reads as wallpaper (the graph-paper failure in
+// silhouette-readability.md, one step up in severity because this feature is
+// high-contrast). `variantSeeds` gives two independently-scattered prints
+// tiles, which worldgen alternates by a hash of the tile position.
+
+// The game's sun is at (0.6, 1.0, 0.4); on a ground tile texture-x runs
+// along world +X and texture-y along world +Z, so in TILE space the light
+// comes from this direction. Every wear feature that has a lit side puts it
+// here, so the whole ground plane agrees about where the sun is.
+export const TILE_SUN = Object.freeze({ x: 0.83, y: 0.55 });
+
+export const GROUND_PAINT_WEAR = Object.freeze({
+  trodden: Object.freeze({
+    name: 'trodden',
+    field: GROUND_PALETTE.trodden,
+    crest: GROUND_PALETTE.troddenRim,
+    hollow: GROUND_PALETTE.troddenDeep,
+    // Boot prints, in left/right PAIRS along a heading — a scatter of
+    // single prints reads as dents, a pair with a stride reads as someone
+    // having walked here. One tile is 1 m and a boot is ~0.30 m, so ~2
+    // pairs per tile is the honest density for a well-used path.
+    // Three pairs, each at its own alpha, deliberately OVERLAPPING. The
+    // first cut drew two crisp, isolated, full-strength prints per tile and
+    // they read as grey bricks scattered on the snow — fresh prints in
+    // untouched powder, which is the opposite of a path. A used path is
+    // mostly PARTIAL prints on top of each other.
+    printPairs: 3,
+    printLen: 17,           // px of a 64 px tile => ~0.27 m boot
+    printWide: 7,
+    printStride: 20,        // px between the two prints of a pair
+    printSpread: 6,         // px sideways between left and right foot
+    printAlpha: 0.46,
+    printFade: 0.45,        // how faint the faintest pair gets — traffic
+                            // means prints of every age at once
+    printLugs: 3,           // lit bars across the sole. A plain dark blob is
+                            // a dent; the lug gaps are what say BOOT
+    printRim: 0.42,         // alpha of the lit rim on the sun side
+    // Churn: broad scuff arcs from feet that slid rather than stepped.
+    // These are the BIG features — they are what still reads once the
+    // prints have mipped away at range.
+    churn: 16,
+    churnAlpha: 0.24,
+    // Bedding straw + bare dirt showing through. Small: warm accents on a
+    // cool plane draw the eye far harder than their coverage suggests, and
+    // the first cut proved it — three 8 px saturated brown blobs per tile
+    // read as litter dropped on the snow and were the ONLY thing the tile
+    // said at any distance.
+    straws: 11,
+    mudPatches: 4,
+    mudRadius: 3.2,
+    mudAlpha: 0.34,
+    noise: 18,
+    edgeCrest: 0.16,        // lower than virgin snow: a path is packed FLAT,
+    edgeHollow: 0.12,       // it has lost the drift lip between blocks
+    edgeBreakup: 0.42,
+    variantSeeds: Object.freeze([727, 941]),
+  }),
+  rut: Object.freeze({
+    name: 'rut',
+    field: GROUND_PALETTE.rutSnow,
+    crest: GROUND_PALETTE.rutLip,
+    hollow: GROUND_PALETTE.rutFloor,
+    // ONE rut per tile, running the length of the tile along world +X.
+    // Worldgen lays two parallel rows of these with a trodden row between,
+    // which is what makes a tractor-width TRACK out of a 1 m tile.
+    rutWidth: 0.40,         // fraction of the tile the depression spans
+    // Angled lugs across the rut. A plain trench is a trench; the lug bars
+    // are the only thing that says TYRE.
+    treads: 9,
+    treadLean: 0.42,        // rad from perpendicular — tractor lugs are a
+                            // herringbone, never square across
+    treadAlpha: 0.46,
+    lipRows: 3,             // px of shouldered-aside snow either side
+    lipAlpha: 0.4,
+    lipWander: 1.6,         // px of sine wander along the lip. Without it the
+                            // lip is a straight bright dashed line at a fixed
+                            // height and the tile reads as a ROAD MARKING —
+                            // which is the single worst thing a snow farm
+                            // could accidentally say
+    // Mud the tyre has dragged up out of the ground.
+    mudSpecks: 16,
+    mudAlpha: 0.4,
+    noise: 14,
+    edgeCrest: 0.12,
+    edgeHollow: 0.1,
+    edgeBreakup: 0.3,
+    // The rut runs THROUGH the tile boundary along X, so a lit lip on the
+    // left/right edges would chop a continuous wheel track into 1 m
+    // segments. Only the edges that run parallel to the track get one.
+    edgeOnly: 'horizontal',
+    seed: 1153,
+  }),
 });
 
 // The rule that keeps "snow and ice are different surfaces" honest: if a
 // future pass makes the ground one undifferentiated pale mush, this fails.
-export const GROUND_MATERIALS = Object.freeze(['snow', 'ice']);
+export const GROUND_MATERIALS = Object.freeze(['snow', 'ice', 'trodden', 'rut']);
+
+// One signature per ground material, never shared with a neighbour
+// (silhouette-readability.md). Asserted by a test, so a later pass cannot
+// quietly give two of them the same treatment.
+export const GROUND_SIGNATURE = Object.freeze({
+  snow: 'ripples', ice: 'cracks', trodden: 'printPairs', rut: 'treads',
+});
+
+// Every ground material in one place. Virgin snow/ice first, then the wear
+// tiles that get painted over them where the map has been used.
+export const GROUND_PAINT = Object.freeze({
+  ...GROUND_PAINT_VIRGIN,
+  ...GROUND_PAINT_WEAR,
+});
