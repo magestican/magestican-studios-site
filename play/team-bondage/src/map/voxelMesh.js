@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { VOX, VOX_COLOR } from 'arbelo/voxel';
 import { makeSnowTexture, makeIceTexture, makeTroddenTexture, makeRutTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture, makeHayTexture, makeBloodTinted, makeBarnPaintTexture } from './textures.js';
+import { makeRockTexture, makeRinkTexture, makeBoardsTexture, makePineTexture, makePaverTexture, makeIglooTexture } from './textures.js';
 
 const CUBE_GEO = new THREE.BoxGeometry(1, 1, 1);
 // Every cube vertex is plain white so `vertexColors: true` is safe: with the
@@ -36,6 +37,15 @@ function getTextures() {
     // Barn siding — board-and-batten planks, weathered differently per team.
     [VOX.BASE_RED]:  makeBarnPaintTexture('red'),
     [VOX.BASE_BLUE]: makeBarnPaintTexture('blue'),
+    // The other maps' materials. Built eagerly with the rest: six 128px
+    // canvases is ~400 KB and one-off, where lazy per-map building would put
+    // a hitch in the first frame of every map change.
+    [VOX.ROCK]:   makeRockTexture(),
+    [VOX.RINK]:   makeRinkTexture(),
+    [VOX.BOARDS]: makeBoardsTexture(),
+    [VOX.PINE]:   makePineTexture(),
+    [VOX.PAVER]:  makePaverTexture(),
+    [VOX.IGLOO]:  makeIglooTexture(),
   };
   return TEX;
 }
@@ -55,6 +65,10 @@ const SELF_COLOURED = new Set([
   // ...and so did the wear tiles that get laid over them: same rule, same
   // reason. A trodden tile's grey and a rut's mud are IN the texture.
   VOX.TRODDEN, VOX.TRODDEN_B, VOX.RUT,
+  // Every non-farm material paints its final hue too — same rule, and the
+  // rink's blue line and the boards' yellow kickplate are the clearest case
+  // for it: a palette tint over either would multiply the marking away.
+  VOX.ROCK, VOX.RINK, VOX.BOARDS, VOX.PINE, VOX.PAVER, VOX.IGLOO,
 ]);
 
 // Mature-mode variant: blood-tinted versions of ONLY the vertical geometry
@@ -64,7 +78,7 @@ let TEX_BLOOD = null;
 function getBloodTextures() {
   if (TEX_BLOOD) return TEX_BLOOD;
   const base = getTextures();
-  const BLOOD_TARGETS = new Set([VOX.WOOD, VOX.STONE, VOX.HAY]);
+  const BLOOD_TARGETS = new Set([VOX.WOOD, VOX.STONE, VOX.HAY, VOX.ROCK, VOX.BOARDS]);
   TEX_BLOOD = {};
   for (const k in base) {
     if (BLOOD_TARGETS.has(Number(k))) TEX_BLOOD[k] = makeBloodTinted(base[k]);

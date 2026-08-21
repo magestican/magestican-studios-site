@@ -46,6 +46,10 @@ export const HORIZON = 0.5;
 // Cool blue overhead, pale at the horizon (the haze band every cloud has to
 // read against), then the sub-horizon rows nobody sees because the map is
 // in front of them.
+// The FARM's gradient. Since 2026-08-21 every map brings its own (mapSpec.js
+// SKIES), and these five stops are farm-day's — kept here because this file is
+// the sky's spec and a test asserts the two copies have not drifted. The
+// painter takes a gradient as an argument now; this is only the default.
 export const SKY_GRADIENT = Object.freeze([
   Object.freeze({ at: 0.00, hex: '#a8c4e0' }),   // zenith
   Object.freeze({ at: 0.35, hex: '#c8dcf5' }),

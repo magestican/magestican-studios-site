@@ -12,104 +12,99 @@
 
 import { SeededRng } from '../rng/seededRng.js';
 import { VoxelGrid, VOX, GROUND_VOX } from '../voxel/voxelGrid.js';
+import { getMap, DEFAULT_MAP } from './mapSpec.js';
 
 export const WORLD_SIZE = { x: 64, y: 12, z: 64 };
 export const BASE_SIZE  = { x: 10, y: 4,  z: 10 };
 
-export function generateWorld(seed) {
+export function generateWorld(seed, mapId = DEFAULT_MAP) {
+  const map = getMap(mapId);
   const rng = new SeededRng(seed);
   const grid = new VoxelGrid(WORLD_SIZE.x, WORLD_SIZE.y, WORLD_SIZE.z);
 
-  // Ground: one layer of snow-covered ice at y=0. GRASS is repurposed as
-  // "snow" in this theme (see voxelGrid.js palette).
-  grid.fillBox(0, 0, 0, WORLD_SIZE.x - 1, 0, WORLD_SIZE.z - 1, VOX.GRASS);
-  // Sprinkle patches of exposed pale-blue ice for visual texture.
-  const iceRng = rng.child('ice-patch');
-  for (let i = 0; i < 24; i++) {
-    const px = iceRng.rangeI(4, WORLD_SIZE.x - 6);
-    const pz = iceRng.rangeI(4, WORLD_SIZE.z - 6);
-    const w = iceRng.rangeI(2, 4);
-    const h = iceRng.rangeI(2, 4);
-    grid.fillBox(px, 0, pz, px + w, 0, pz + h, VOX.ICE);
+  // Ground: one layer of the map's own floor material at y=0.
+  grid.fillBox(0, 0, 0, WORLD_SIZE.x - 1, 0, WORLD_SIZE.z - 1, map.ground);
+  // Patches of a second ground material for visual texture — exposed ice on
+  // the farm, wind-blown snow over the rink's pavers, snow over the floe.
+  const patchRng = rng.child('ice-patch');
+  for (let i = 0; i < map.patch.count; i++) {
+    const px = patchRng.rangeI(4, WORLD_SIZE.x - 6);
+    const pz = patchRng.rangeI(4, WORLD_SIZE.z - 6);
+    const w = patchRng.rangeI(map.patch.size[0], map.patch.size[1]);
+    const h = patchRng.rangeI(map.patch.size[0], map.patch.size[1]);
+    grid.fillBox(px, 0, pz, px + w, 0, pz + h, map.patch.vox);
   }
 
-  // Centre hill (chicken slingshot spawn spot). Small 5x5 knoll rising 2
-  // blocks from the middle of the map.
   const cx = Math.floor(WORLD_SIZE.x / 2);
   const cz = Math.floor(WORLD_SIZE.z / 2);
-  grid.fillBox(cx - 2, 1, cz - 2, cx + 2, 1, cz + 2, VOX.HILL);
-  grid.fillBox(cx - 1, 2, cz - 1, cx + 1, 2, cz + 1, VOX.HILL);
 
-  // Two bases at opposite corners.
+  // Two bases at opposite corners. Their footprints are decided BEFORE the
+  // terrain runs so the terrain pass can keep its hands off the ground they
+  // stand on — a base half-buried in a terrace is a base with no door.
   const redBase = { x: 2,                       z: 2 };
   const blueBase = { x: WORLD_SIZE.x - BASE_SIZE.x - 2,
                      z: WORLD_SIZE.z - BASE_SIZE.z - 2 };
 
-  buildBase(grid, redBase.x,  redBase.z,  VOX.BASE_RED,  VOX.FLAG_STAND_RED);
-  buildBase(grid, blueBase.x, blueBase.z, VOX.BASE_BLUE, VOX.FLAG_STAND_BLUE);
+  // Terrain shape. Everything here steps ONE voxel at a time: autostep is
+  // 1.15 m and a jump apex is ~1.5 m, so a single course is walkable and two
+  // is a wall. A mountain built out of 3-voxel cliffs is a mountain nobody can
+  // climb.
+  buildTerrain(grid, rng.child('terrain'), map, { redBase, blueBase, cx, cz });
 
-  // Scatter cover (stone pillars + wood crate stacks) between the bases.
+  // Centre feature — where the chicken slingshot spawns. Every map raises
+  // something here; only the material and the profile change.
+  const centreTop = buildCentre(grid, map, cx, cz);
+
+  buildBase(grid, redBase.x,  redBase.z,  VOX.BASE_RED,  VOX.FLAG_STAND_RED,  map);
+  buildBase(grid, blueBase.x, blueBase.z, VOX.BASE_BLUE, VOX.FLAG_STAND_BLUE, map);
+
+  // Cover, drawn from the map's own vocabulary.
   const coverRng = rng.child('cover');
   const coverCount = coverRng.rangeI(20, 32);
   for (let i = 0; i < coverCount; i++) {
-    const cx = coverRng.rangeI(12, WORLD_SIZE.x - 13);
-    const cz = coverRng.rangeI(12, WORLD_SIZE.z - 13);
-    // Keep clear of the middle line to reward crossing.
-    // Also keep out of both bases.
-    if (insideBase(cx, cz, redBase) || insideBase(cx, cz, blueBase)) continue;
-    const kind = coverRng.pick(['pillar', 'crate', 'wall']);
-    switch (kind) {
-      case 'pillar': {
-        const h = coverRng.rangeI(2, 4);
-        grid.fillBox(cx, 1, cz, cx, h, cz, VOX.STONE);
-        break;
-      }
-      case 'crate': {
-        // 2x2 base, 1-2 stacks
-        const stacks = coverRng.rangeI(1, 2);
-        grid.fillBox(cx, 1, cz, cx + 1, stacks, cz + 1, VOX.WOOD);
-        break;
-      }
-      case 'wall': {
-        const len = coverRng.rangeI(3, 5);
-        const dir = coverRng.pick(['x', 'z']);
-        if (dir === 'x') grid.fillBox(cx, 1, cz, cx + len, 2, cz, VOX.STONE);
-        else             grid.fillBox(cx, 1, cz, cx, 2, cz + len, VOX.STONE);
-        break;
-      }
+    const px = coverRng.rangeI(12, WORLD_SIZE.x - 13);
+    const pz = coverRng.rangeI(12, WORLD_SIZE.z - 13);
+    if (insideBase(px, pz, redBase) || insideBase(px, pz, blueBase)) continue;
+    // Never drop cover onto something already standing there. Until this
+    // guard the rink's dasher boards were being punched through by benches
+    // and stone walls — the boards generate first, cover picks a free tile at
+    // random, and "free" had only ever meant "not in a base". Also stops
+    // cover stacking on cover and on pressure ridges.
+    if (occupied(grid, px, pz, 3)) continue;
+    buildCover(grid, coverRng, coverRng.pick(map.cover), px, pz);
+  }
+
+  // Hay bales — walk-through hiding cover. A farm thing; the other maps get
+  // their hiding places from their own cover vocabulary instead.
+  const hayStacks = [];
+  if (map.hay) {
+    const hayRng = rng.child('hay');
+    const hayCount = hayRng.rangeI(8, 12);
+    for (let i = 0; i < hayCount; i++) {
+      const hx = hayRng.rangeI(6, WORLD_SIZE.x - 9);
+      const hz = hayRng.rangeI(6, WORLD_SIZE.z - 9);
+      if (insideBase(hx, hz, redBase) || insideBase(hx, hz, blueBase)) continue;
+      if (Math.abs(hx - cx) < 4 && Math.abs(hz - cz) < 4) continue;
+      _buildHayBale(grid, hx, hz);
+      hayStacks.push({ x: hx, z: hz });
     }
   }
 
-  // Scatter hay bales - voxel-stepped cylinders that approximate a round
-  // bale silhouette from any angle. Each bale is 3x3 at the base, 3x3 in
-  // the middle course, and 2x2 on top, capped by a 1x1 tuft.
-  const hayRng = rng.child('hay');
-  const hayCount = hayRng.rangeI(8, 12);
-  const hayStacks = [];
-  for (let i = 0; i < hayCount; i++) {
-    const hx = hayRng.rangeI(6, WORLD_SIZE.x - 9);
-    const hz = hayRng.rangeI(6, WORLD_SIZE.z - 9);
-    if (insideBase(hx, hz, redBase) || insideBase(hx, hz, blueBase)) continue;
-    // Don't stack ON the central hill.
-    if (Math.abs(hx - cx) < 4 && Math.abs(hz - cz) < 4) continue;
-    _buildHayBale(grid, hx, hz);
-    hayStacks.push({ x: hx, z: hz });
-  }
+  // Ground WEAR — footpaths, door aprons and the tractor lane. Runs LAST so it
+  // only ever paints over ground that is still bare, and never over a floor,
+  // the centre, or anything built on top. Farm-only: a rink that is swept
+  // every hour and a floe that re-freezes every night do not keep footprints.
+  const wear = map.wear
+    ? applyGroundWear(grid, rng.child('wear'), { redBase, blueBase, hillX: cx, hillZ: cz })
+    : { tractorParking: [] };
 
-  // Ground WEAR — footpaths, barn aprons and the tractor lane. Runs LAST so
-  // it only ever paints over ground that is still bare snow or ice, and
-  // never over a barn floor, the hill, or anything that got built on top.
-  const wear = applyGroundWear(grid, rng.child('wear'),
-                               { redBase, blueBase, hillX: cx, hillZ: cz });
+  const ambientSpots = placeAmbient(grid, rng.child('ambient'), map, { redBase, blueBase });
 
-  // Hill spawn point for the chicken slingshot pickup.
-  const hillSpawn = { x: cx + 0.5, y: 3.5, z: cz + 0.5 };
+  const hillSpawn = { x: cx + 0.5, y: centreTop + 0.5, z: cz + 0.5 };
 
   // Spawn point per team = 2 tiles offset from the flag stand (which is at
-  // base centre and is a SOLID voxel - spawning on top of it made the player
+  // base centre and is a SOLID voxel — spawning on top of it made the player
   // instantly clip and be unable to move on any axis).
-  // Barn floors are at ground level since 2026-08-21, so spawn + flag
-  // heights dropped one voxel with them (floor top is y=1 everywhere now).
   const spawns = {
     red:  { x: redBase.x  + 2, y: 1, z: redBase.z  + Math.floor(BASE_SIZE.z / 2) },
     blue: { x: blueBase.x + BASE_SIZE.x - 3, y: 1, z: blueBase.z + Math.floor(BASE_SIZE.z / 2) },
@@ -120,14 +115,258 @@ export function generateWorld(seed) {
     blue: { x: blueBase.x + BASE_SIZE.x / 2, y: 1, z: blueBase.z + BASE_SIZE.z / 2 },
   };
 
-  // Where each barn's "BARN" name-plate hangs (entities/barnSign.js).
   const barnSigns = {
     red:  barnSignAnchor(redBase.x,  redBase.z),
     blue: barnSignAnchor(blueBase.x, blueBase.z),
   };
 
-  return { seed, grid, spawns, flags, redBase, blueBase, hillSpawn, hayStacks,
-           barnSigns, tractorParking: wear.tractorParking };
+  return { seed, mapId: map.id, map, grid, spawns, flags, redBase, blueBase,
+           hillSpawn, hayStacks, barnSigns,
+           tractorParking: wear.tractorParking,
+           ambientSpots };
+}
+
+// ---------------------------------------------------------------------------
+// Terrain
+// ---------------------------------------------------------------------------
+
+function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
+  const ambientSpots = [];
+  // A STANDOFF, not just the footprint. `insideBase` covers the building and
+  // one tile of margin, which was enough while the ground was flat — the first
+  // mountain grew a four-course terrace six metres from the red door, so the
+  // opening shot of the map was a wall of rock and the spawn had one exit.
+  // Every base now gets a clear apron to fight out of.
+  const STANDOFF = 9;
+  const nearBase = (x, z, b) =>
+    x > b.x - STANDOFF && x < b.x + BASE_SIZE.x + STANDOFF
+    && z > b.z - STANDOFF && z < b.z + BASE_SIZE.z + STANDOFF;
+  const clearOfBases = (x, z) =>
+    !nearBase(x, z, redBase) && !nearBase(x, z, blueBase);
+
+  if (map.terrain === 'terraces') {
+    // A mountain saddle: two RIDGE LINES, and the height at any tile steps down
+    // with its distance from the nearer line. The first cut measured distance
+    // to two POINTS, and from above that is two circular mesas — a pair of
+    // donuts, not a mountain, because a point falls away equally in every
+    // direction and a ridge does not. The floor of the division is what makes
+    // the fall-off terraced rather than smooth, and terraced is what makes it
+    // climbable at all.
+    //
+    // Both lines are laid ACROSS the red-to-blue diagonal rather than along
+    // it, so the mountain is something the attack has to cross instead of a
+    // wall down the middle of the route.
+    const ridges = [
+      { ax: rng.rangeI(6, 16),  az: rng.rangeI(30, 42),
+        bx: rng.rangeI(30, 42), bz: rng.rangeI(4, 14) },
+      { ax: rng.rangeI(22, 34), az: rng.rangeI(50, 60),
+        bx: rng.rangeI(50, 60), bz: rng.rangeI(22, 34) },
+    ];
+    const distToSeg = (px, pz, s) => {
+      const vx = s.bx - s.ax, vz = s.bz - s.az;
+      const len2 = vx * vx + vz * vz || 1;
+      const t = Math.max(0, Math.min(1, ((px - s.ax) * vx + (pz - s.az) * vz) / len2));
+      return Math.hypot(px - (s.ax + t * vx), pz - (s.az + t * vz));
+    };
+    for (let x = 0; x < WORLD_SIZE.x; x++) {
+      for (let z = 0; z < WORLD_SIZE.z; z++) {
+        if (!clearOfBases(x, z)) continue;
+        if (Math.abs(x - cx) < 6 && Math.abs(z - cz) < 6) continue;  // keep the summit approach open
+        const d = Math.min(...ridges.map((s) => distToSeg(x, z, s)));
+        const h = Math.max(0, 4 - Math.floor(d / 3.2));
+        for (let y = 1; y <= h; y++) grid.set(x, y, z, VOX.ROCK);
+        if (h >= 3) grid.set(x, h, z, VOX.ICE);   // ice glazes the high terraces
+      }
+    }
+
+  } else if (map.terrain === 'rink') {
+    // One rectangular rink pad in the middle of a park, ringed by dasher
+    // boards two courses high, with a gate in each of the four sides — a pad
+    // you cannot leave is a pen, and the flag has to be able to cross it.
+    const pad = { x0: 14, z0: 14, x1: WORLD_SIZE.x - 15, z1: WORLD_SIZE.z - 15 };
+    grid.fillBox(pad.x0, 0, pad.z0, pad.x1, 0, pad.z1, VOX.RINK);
+    const gateX = Math.floor((pad.x0 + pad.x1) / 2);
+    const gateZ = Math.floor((pad.z0 + pad.z1) / 2);
+    const isGate = (x, z) =>
+      (Math.abs(x - gateX) <= 2 && (z === pad.z0 || z === pad.z1))
+      || (Math.abs(z - gateZ) <= 2 && (x === pad.x0 || x === pad.x1));
+    for (let x = pad.x0; x <= pad.x1; x++) {
+      for (const z of [pad.z0, pad.z1]) {
+        if (isGate(x, z)) continue;
+        grid.set(x, 1, z, VOX.BOARDS); grid.set(x, 2, z, VOX.BOARDS);
+      }
+    }
+    for (let z = pad.z0; z <= pad.z1; z++) {
+      for (const x of [pad.x0, pad.x1]) {
+        if (isGate(x, z)) continue;
+        grid.set(x, 1, z, VOX.BOARDS); grid.set(x, 2, z, VOX.BOARDS);
+      }
+    }
+
+  } else if (map.terrain === 'floes') {
+    // Pressure ridges: lines of ice forced up where two floes have driven into
+    // each other. One course along most of their length with the occasional
+    // second block, so they read as broken rather than as walls.
+    const ridges = rng.rangeI(5, 8);
+    for (let r = 0; r < ridges; r++) {
+      let x = rng.rangeI(8, WORLD_SIZE.x - 9);
+      let z = rng.rangeI(8, WORLD_SIZE.z - 9);
+      const alongX = rng.rangeF(0, 1) < 0.5;
+      const len = rng.rangeI(10, 22);
+      for (let i = 0; i < len; i++) {
+        if (clearOfBases(x, z) && !(Math.abs(x - cx) < 5 && Math.abs(z - cz) < 5)) {
+          // IGLOO, not ICE. A pressure ridge made of the same smooth blue pan
+          // it is pushed up out of has no silhouette against it — the first
+          // arctic render was a flat pale field with faint pale lumps on it.
+          // Block-ice is whiter, and its sawn-block texture gives the ridge an
+          // edge to catch the low sun on.
+          grid.set(x, 1, z, VOX.IGLOO);
+          if (rng.rangeF(0, 1) < 0.35) grid.set(x, 2, z, VOX.ICE);
+        }
+        if (alongX) { x += 1; z += rng.rangeI(-1, 1); }
+        else        { z += 1; x += rng.rangeI(-1, 1); }
+        if (x < 3 || z < 3 || x >= WORLD_SIZE.x - 3 || z >= WORLD_SIZE.z - 3) break;
+      }
+    }
+  }
+
+  return { ambientSpots };
+}
+
+// Where ambient life stands. Runs at the very END of generateWorld, not inside
+// buildTerrain: the first cut placed penguins against the terrain alone, and
+// then cover, the centre and the bases were built on top of them, so a
+// colony's worth of birds ended up standing inside stone walls. "Is this tile
+// free" is only answerable once the world is finished.
+function placeAmbient(grid, rng, map, { redBase, blueBase }) {
+  const spots = [];
+  if (!map.ambient) return spots;
+  const per = Math.ceil(map.ambient.count / map.ambient.clusters);
+  for (let c = 0; c < map.ambient.clusters; c++) {
+    // Try several anchors per cluster — a colony centred on the middle of a
+    // pressure ridge would otherwise place nothing at all and quietly halve
+    // the population.
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const hx = rng.rangeI(8, WORLD_SIZE.x - 9);
+      const hz = rng.rangeI(8, WORLD_SIZE.z - 9);
+      const got = [];
+      for (let i = 0; i < per * 3 && got.length < per; i++) {
+        const x = hx + rng.rangeI(-4, 4);
+        const z = hz + rng.rangeI(-4, 4);
+        if (x < 2 || z < 2 || x >= WORLD_SIZE.x - 2 || z >= WORLD_SIZE.z - 2) continue;
+        if (insideBase(x, z, redBase) || insideBase(x, z, blueBase)) continue;
+        if (occupied(grid, x, z, 3)) continue;
+        if (got.some((g) => g.x === x + 0.5 && g.z === z + 0.5)) continue;
+        got.push({ x: x + 0.5, y: 1, z: z + 0.5 });
+      }
+      if (got.length) { spots.push(...got); break; }
+    }
+  }
+  return spots;
+}
+
+// Is anything standing on this tile above ground level?
+function occupied(grid, x, z, upTo = 3) {
+  for (let y = 1; y <= upTo; y++) if (grid.get(x, y, z) !== VOX.AIR) return true;
+  return false;
+}
+
+// The centre feature, and the Y its top surface sits at (the slingshot spawn
+// rides on the returned value, so a map that changes its profile cannot leave
+// the pickup floating or buried).
+function buildCentre(grid, map, cx, cz) {
+  const vox = map.centre.vox;
+  switch (map.centre.style) {
+    case 'summit':
+      // A rock summit, a course taller than the farm's knoll — this is a map
+      // about high ground, so the high ground should be worth taking.
+      grid.fillBox(cx - 3, 1, cz - 3, cx + 3, 1, cz + 3, vox);
+      grid.fillBox(cx - 2, 2, cz - 2, cx + 2, 2, cz + 2, vox);
+      grid.fillBox(cx - 1, 3, cz - 1, cx + 1, 3, cz + 1, VOX.ICE);
+      return 4;
+    case 'faceoff':
+      // Centre ice. Dead flat — you do not put a hill in the middle of a rink
+      // — so the slingshot sits on the face-off dot itself.
+      grid.fillBox(cx - 3, 0, cz - 3, cx + 3, 0, cz + 3, vox);
+      return 1;
+    case 'berg':
+      // A grounded berg: a stepped block of snow-ice with a flat top.
+      grid.fillBox(cx - 2, 1, cz - 2, cx + 2, 1, cz + 2, vox);
+      grid.fillBox(cx - 2, 2, cz - 1, cx + 1, 2, cz + 2, vox);
+      grid.fillBox(cx - 1, 3, cz - 1, cx, 3, cz, VOX.ICE);
+      return 4;
+    default:
+      grid.fillBox(cx - 2, 1, cz - 2, cx + 2, 1, cz + 2, vox);
+      grid.fillBox(cx - 1, 2, cz - 1, cx + 1, 2, cz + 1, vox);
+      return 3;
+  }
+}
+
+function buildCover(grid, rng, kind, x, z) {
+  switch (kind) {
+    case 'pillar': {
+      const h = rng.rangeI(2, 4);
+      grid.fillBox(x, 1, z, x, h, z, VOX.STONE);
+      break;
+    }
+    case 'crate': {
+      const stacks = rng.rangeI(1, 2);
+      grid.fillBox(x, 1, z, x + 1, stacks, z + 1, VOX.WOOD);
+      break;
+    }
+    case 'wall': {
+      const len = rng.rangeI(3, 5);
+      if (rng.pick(['x', 'z']) === 'x') grid.fillBox(x, 1, z, x + len, 2, z, VOX.STONE);
+      else                              grid.fillBox(x, 1, z, x, 2, z + len, VOX.STONE);
+      break;
+    }
+    case 'spire': {
+      // A rock finger: tall, one tile square, tipped with ice.
+      const h = rng.rangeI(3, 6);
+      grid.fillBox(x, 1, z, x, h - 1, z, VOX.ROCK);
+      grid.set(x, h, z, VOX.ICE);
+      break;
+    }
+    case 'iceWall': {
+      // A serac wall — head height, and translucent, so it is cover you can
+      // half see through and half trust.
+      const len = rng.rangeI(3, 6);
+      if (rng.pick(['x', 'z']) === 'x') grid.fillBox(x, 1, z, x + len, 2, z, VOX.ICE);
+      else                              grid.fillBox(x, 1, z, x, 2, z + len, VOX.ICE);
+      break;
+    }
+    case 'boulder': {
+      grid.fillBox(x, 1, z, x + 1, 1, z + 1, VOX.ROCK);
+      grid.set(x, 2, z, VOX.ROCK);
+      break;
+    }
+    case 'berg': {
+      const w = rng.rangeI(2, 3);
+      grid.fillBox(x, 1, z, x + w, 1, z + w, VOX.IGLOO);
+      grid.fillBox(x, 2, z, x + w - 1, 2, z + w - 1, VOX.ICE);
+      break;
+    }
+    case 'ridge': {
+      const len = rng.rangeI(4, 8);
+      for (let i = 0; i < len; i++) grid.set(x + i, 1, z + (i % 2), VOX.ICE);
+      break;
+    }
+    case 'bench': {
+      const len = rng.rangeI(3, 5);
+      const alongX = rng.pick(['x', 'z']) === 'x';
+      for (let i = 0; i < len; i++) {
+        grid.set(alongX ? x + i : x, 1, alongX ? z : z + i, VOX.WOOD);
+      }
+      break;
+    }
+    case 'planter': {
+      // A stone planter with a conifer in it — the park's answer to a crate.
+      grid.fillBox(x, 1, z, x + 1, 1, z + 1, VOX.STONE);
+      grid.set(x, 2, z, VOX.PINE);
+      grid.set(x + 1, 2, z + 1, VOX.PINE);
+      break;
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -373,89 +612,253 @@ function walkPath(grid, rng, x0, z0, tx, tz) {
   }
 }
 
-function buildBase(grid, ox, oz, baseVox, standVox) {
-  // Barn floor AT GROUND LEVEL (2026-08-21): the painted plank floor
-  // REPLACES the y=0 ground voxel instead of stacking on top of it. The
-  // old raised floor (y=1) made a 1.0 m step at the doorway that autostep
-  // handled inconsistently — Bryan: "I still can't auto climb". Now the
-  // barn threshold is dead flat with the outside snow; entering is just
-  // walking. Walls grow one voxel taller (y=1..3) to keep interior height.
-  grid.fillBox(ox, 0, oz, ox + BASE_SIZE.x - 1, 0, oz + BASE_SIZE.z - 1, baseVox);
-  // Full-height painted-wood walls (y=1 through y=3). Doorway on inward side.
-  for (let x = ox; x < ox + BASE_SIZE.x; x++) {
-    for (let y = 1; y <= 3; y++) {
-      grid.set(x, y, oz, baseVox);
-      grid.set(x, y, oz + BASE_SIZE.z - 1, baseVox);
-    }
-  }
-  for (let z = oz; z < oz + BASE_SIZE.z; z++) {
-    for (let y = 1; y <= 3; y++) {
-      grid.set(ox, y, z, baseVox);
-      grid.set(ox + BASE_SIZE.x - 1, y, z, baseVox);
-    }
-  }
-  // Big barn doorway on the inward side - 3 wide x 2 tall AT GROUND LEVEL,
-  // with a WOOD frame (jamb posts either side + lintel above).
+// ---------------------------------------------------------------------------
+// Bases
+// ---------------------------------------------------------------------------
+// Four architectures, one contract. Whatever a base looks like it must:
+//   * have its floor at y=0, flush with the ground outside, so walking in is
+//     walking (the 1.0 m threshold step is what made Bryan say "I still can't
+//     auto climb", and raising the floor is how it came back every time);
+//   * put its doorway exactly where barnDoorway() says, facing mid-map, at
+//     least 3 wide and 2 tall;
+//   * put a flag stand on the floor at the centre of its footprint;
+//   * be closed overhead, so nobody can drop into a base from above.
+// Everything else — material, roof, silhouette — belongs to the map.
+function buildBase(grid, ox, oz, baseVox, standVox, map) {
+  const style = map?.base?.style ?? 'barn';
+  if (style === 'cabin')         buildCabin(grid, ox, oz, baseVox);
+  else if (style === 'pavilion') buildPavilion(grid, ox, oz, baseVox);
+  else if (style === 'igloo')    buildIgloo(grid, ox, oz, baseVox);
+  else                           buildBarn(grid, ox, oz, baseVox);
+
+  // Flag stand, on the floor at the centre of the footprint. Shared by every
+  // style, because the CTF rules measure from it.
+  const cx = ox + Math.floor(BASE_SIZE.x / 2);
+  const cz = oz + Math.floor(BASE_SIZE.z / 2);
+  grid.set(cx, 1, cz, standVox);
+}
+
+// Cut the doorway (and its frame) through whichever wall faces mid-map.
+// Shared, so no style can put its door somewhere the sign and the pathing
+// do not expect.
+function cutDoorway(grid, ox, oz, frameVox) {
   const { wallX, midZ } = barnDoorway(ox, oz);
   for (let z = midZ - 1; z <= midZ + 1; z++) {
     grid.set(wallX, 1, z, VOX.AIR);
     grid.set(wallX, 2, z, VOX.AIR);
   }
-  for (const jz of [midZ - 2, midZ + 2]) {          // jamb posts
-    grid.set(wallX, 1, jz, VOX.WOOD);
-    grid.set(wallX, 2, jz, VOX.WOOD);
+  if (frameVox == null) return;
+  for (const jz of [midZ - 2, midZ + 2]) {
+    grid.set(wallX, 1, jz, frameVox);
+    grid.set(wallX, 2, jz, frameVox);
   }
-  for (let z = midZ - 2; z <= midZ + 2; z++) {       // lintel beam
-    grid.set(wallX, 3, z, VOX.WOOD);
-  }
+  for (let z = midZ - 2; z <= midZ + 2; z++) grid.set(wallX, 3, z, frameVox);
+}
 
-  // WOOD corner posts on all four corners (y=1..3) — breaks up the flat
-  // painted walls and frames the silhouette (GRAPHICS_QUALITY_LOOP item 2).
+// Four walls, y=1..3, on the footprint's perimeter.
+function boxWalls(grid, ox, oz, vox, top = 3) {
+  for (let x = ox; x < ox + BASE_SIZE.x; x++) {
+    for (let y = 1; y <= top; y++) {
+      grid.set(x, y, oz, vox);
+      grid.set(x, y, oz + BASE_SIZE.z - 1, vox);
+    }
+  }
+  for (let z = oz; z < oz + BASE_SIZE.z; z++) {
+    for (let y = 1; y <= top; y++) {
+      grid.set(ox, y, z, vox);
+      grid.set(ox + BASE_SIZE.x - 1, y, z, vox);
+    }
+  }
+}
+
+// -- Barn (snow-farm) -------------------------------------------------------
+function buildBarn(grid, ox, oz, baseVox) {
+  // Painted plank floor REPLACES the y=0 ground voxel rather than stacking on
+  // it, so the threshold is dead flat with the snow outside.
+  grid.fillBox(ox, 0, oz, ox + BASE_SIZE.x - 1, 0, oz + BASE_SIZE.z - 1, baseVox);
+  boxWalls(grid, ox, oz, baseVox);
+  cutDoorway(grid, ox, oz, VOX.WOOD);
+
+  // WOOD corner posts — breaks up the flat painted walls and frames the
+  // silhouette.
   for (let y = 1; y <= 3; y++) {
     grid.set(ox, y, oz, VOX.WOOD);
     grid.set(ox + BASE_SIZE.x - 1, y, oz, VOX.WOOD);
     grid.set(ox, y, oz + BASE_SIZE.z - 1, VOX.WOOD);
     grid.set(ox + BASE_SIZE.x - 1, y, oz + BASE_SIZE.z - 1, VOX.WOOD);
   }
-  // PITCHED ROOF — WOOD frame (edges) with a translucent GLASS fill inside
-  // the triangle, so the barn is closed to bodies + bullets but you can
-  // still see the sky through it. Bryan 2026-08-20: "close up the barns
-  // by creating some glass voxel models". See docs/features/barn-glass-roofs.md.
-  //
-  // 2026-08-21: the courses used to stop dead at `y > 6` while the ridge beam
-  // was still laid at `4 + halfWidth` (= y 9), so each barn shipped a flat
-  // glass lid with a 10-long WOOD stick FLOATING three voxels above it. The
-  // cap is gone — the triangle now closes on the ridge the way it was always
-  // written to, which is also three voxels more barn silhouette on the
-  // skyline. Roof apex y=9 is well inside WORLD_SIZE.y (12).
+  // PITCHED ROOF — WOOD rafters with translucent GLASS between, so the barn
+  // is closed to bodies and bullets but you can still see the sky through it.
   const midX = ox + Math.floor(BASE_SIZE.x / 2);
   const halfWidth = Math.floor(BASE_SIZE.x / 2);
   for (let z = oz; z < oz + BASE_SIZE.z; z++) {
     for (let step = 0; step < halfWidth; step++) {
       const y = 4 + step;
-      // Frame edges (wood).
       grid.set(midX - halfWidth + step, y, z, VOX.WOOD);
       grid.set(midX + halfWidth - step, y, z, VOX.WOOD);
-      // Fill everything BETWEEN the two frame edges at this row with glass
-      // (leaves the wood edges as visible rafters).
       for (let fx = midX - halfWidth + step + 1; fx <= midX + halfWidth - step - 1; fx++) {
         grid.set(fx, y, z, VOX.GLASS);
       }
     }
-    // Ridge wood beam at the top.
     grid.set(midX, 4 + halfWidth, z, VOX.WOOD);
   }
-  // Hay loft: stuff the bottom row of both gable ends with hay so the
-  // barn reads as a working farm building, not an empty painted shell.
+  // Hay loft in both gable ends, so the barn reads as a working farm building
+  // rather than an empty painted shell.
   for (const gz of [oz, oz + BASE_SIZE.z - 1]) {
-    for (let hx = midX - 1; hx <= midX + 1; hx++) {
-      grid.set(hx, 4, gz, VOX.HAY);
+    for (let hx = midX - 1; hx <= midX + 1; hx++) grid.set(hx, 4, gz, VOX.HAY);
+  }
+}
+
+// -- Cabin (icy-mountain) ---------------------------------------------------
+// A climbers' hut: log walls, a shallow snow-loaded roof, and a stone chimney.
+// Deliberately squatter than the barn — at altitude you build low.
+function buildCabin(grid, ox, oz, baseVox) {
+  grid.fillBox(ox, 0, oz, ox + BASE_SIZE.x - 1, 0, oz + BASE_SIZE.z - 1, VOX.WOOD);
+  boxWalls(grid, ox, oz, VOX.WOOD);
+  // Team colour banded through the log courses rather than painted over all
+  // of them: a solid team-coloured cabin stops reading as timber.
+  for (let x = ox; x < ox + BASE_SIZE.x; x++) {
+    grid.set(x, 2, oz, baseVox);
+    grid.set(x, 2, oz + BASE_SIZE.z - 1, baseVox);
+  }
+  for (let z = oz; z < oz + BASE_SIZE.z; z++) {
+    grid.set(ox, 2, z, baseVox);
+    grid.set(ox + BASE_SIZE.x - 1, 2, z, baseVox);
+  }
+  cutDoorway(grid, ox, oz, VOX.ROCK);
+
+  // Shallow pitched roof, two courses, snow-capped. Lower than the barn's, so
+  // the two buildings are different shapes on the skyline and not one shape in
+  // two colours.
+  const midX = ox + Math.floor(BASE_SIZE.x / 2);
+  const half = Math.floor(BASE_SIZE.x / 2);
+  for (let z = oz; z < oz + BASE_SIZE.z; z++) {
+    for (let step = 0; step < half; step += 2) {
+      const y = 4 + step / 2;
+      for (let fx = midX - half + step; fx <= midX + half - step; fx++) {
+        grid.set(fx, y, z, fx === midX - half + step || fx === midX + half - step
+          ? VOX.WOOD : VOX.GLASS);
+      }
+    }
+    grid.set(midX, 4 + Math.ceil(half / 2), z, VOX.ICE);   // snow along the ridge
+  }
+  // Stone chimney up one gable end.
+  const chx = ox + 1, chz = oz + 1;
+  for (let y = 1; y <= 6; y++) grid.set(chx, y, chz, VOX.ROCK);
+}
+
+// -- Pavilion (central-park-rink) -------------------------------------------
+// A rink-side team box: dasher boards for walls, a bench along the back, and
+// a glass roof so the dusk sky is still overhead while you are in it.
+function buildPavilion(grid, ox, oz, baseVox) {
+  grid.fillBox(ox, 0, oz, ox + BASE_SIZE.x - 1, 0, oz + BASE_SIZE.z - 1, VOX.PAVER);
+  boxWalls(grid, ox, oz, VOX.BOARDS);
+  // Team colour as the kickplate course, which is exactly where a real rink
+  // puts its one band of colour.
+  for (let x = ox; x < ox + BASE_SIZE.x; x++) {
+    grid.set(x, 1, oz, baseVox);
+    grid.set(x, 1, oz + BASE_SIZE.z - 1, baseVox);
+  }
+  for (let z = oz; z < oz + BASE_SIZE.z; z++) {
+    grid.set(ox, 1, z, baseVox);
+    grid.set(ox + BASE_SIZE.x - 1, 1, z, baseVox);
+  }
+  cutDoorway(grid, ox, oz, VOX.BOARDS);
+  // Players' bench along the far wall.
+  const benchZ = oz + BASE_SIZE.z - 2;
+  for (let x = ox + 2; x < ox + BASE_SIZE.x - 2; x++) grid.set(x, 1, benchZ, VOX.WOOD);
+  // Flat glass canopy on a board frame.
+  for (let x = ox; x < ox + BASE_SIZE.x; x++) {
+    for (let z = oz; z < oz + BASE_SIZE.z; z++) {
+      const edge = x === ox || z === oz
+        || x === ox + BASE_SIZE.x - 1 || z === oz + BASE_SIZE.z - 1;
+      grid.set(x, 4, z, edge ? VOX.BOARDS : VOX.GLASS);
     }
   }
-  // Small flag stand (1 tall).
-  const cx = ox + Math.floor(BASE_SIZE.x / 2);
-  const cz = oz + Math.floor(BASE_SIZE.z / 2);
-  grid.set(cx, 1, cz, standVox);   // sits on the (now ground-level) floor
+  // Two lamp standards on the front corners.
+  for (const lx of [ox, ox + BASE_SIZE.x - 1]) {
+    for (let y = 5; y <= 6; y++) grid.set(lx, y, oz, VOX.STONE);
+  }
+}
+
+// -- Igloo (arctic) ---------------------------------------------------------
+// A dome of cut snow block with an entrance tunnel. The only base that is
+// round, which is the whole point: at 40 m across a snow field it is
+// unmistakable, and nothing else on any map has that outline.
+function buildIgloo(grid, ox, oz, baseVox) {
+  grid.fillBox(ox, 0, oz, ox + BASE_SIZE.x - 1, 0, oz + BASE_SIZE.z - 1, VOX.IGLOO);
+
+  const cx = ox + (BASE_SIZE.x - 1) / 2;
+  const cz = oz + (BASE_SIZE.z - 1) / 2;
+  // R is deliberately a little WIDER than the footprint's half-width (4.5).
+  // The first cut used exactly 4.5 and the dome fell inside its own equator
+  // the moment it started tapering, so by the second course there was no wall
+  // at the middle of any side — a ring of open doorways with a lid on top.
+  const R = 4.9;
+  const H = 5.6;
+  const SHELL = 0.78;   // ~1.1 voxels thick at the equator
+
+  // One ellipsoid test decides everything, which is what keeps the shell and
+  // the cavity consistent. The previous version computed a per-course radius
+  // for the shell and a single flat radius for the hollow-out, and the two
+  // disagreed above the third course: the hollow pass ate its own roof.
+  const e = (x, y, z) => Math.hypot((x - cx) / R, (z - cz) / R, (y - 1) / H);
+
+  for (let y = 1; y <= Math.ceil(H); y++) {
+    for (let x = ox - 1; x <= ox + BASE_SIZE.x; x++) {
+      for (let z = oz - 1; z <= oz + BASE_SIZE.z; z++) {
+        const d = e(x, y, z);
+        if (d > 1.0) continue;
+        if (d > SHELL) {
+          // Every third block of the second course is dyed — an igloo has no
+          // natural place to take a team colour, so it gets a band of coloured
+          // blocks rather than a coat of paint over the whole dome.
+          grid.set(x, y, z, (y === 2 && (x + z) % 3 === 0) ? baseVox : VOX.IGLOO);
+        } else {
+          grid.set(x, y, z, VOX.AIR);   // the room
+        }
+      }
+    }
+  }
+  // Close the crown. The ellipsoid's top course is a single tile wide and
+  // leaves a hole you could drop a rocket through.
+  for (let x = Math.floor(cx) - 1; x <= Math.ceil(cx) + 1; x++) {
+    for (let z = Math.floor(cz) - 1; z <= Math.ceil(cz) + 1; z++) {
+      grid.set(x, Math.ceil(H) + 1, z, VOX.IGLOO);
+    }
+  }
+
+  // Entrance tunnel: a low passage driven THROUGH the shell and out toward
+  // mid-map, roofed in block. It is most of what an igloo looks like, and it
+  // is also the only way in, so it is cut last and nothing may overwrite it.
+  const { wallX, midZ, nx } = barnDoorway(ox, oz);
+  const innerX = Math.round(cx - nx * (R - 1.6));   // start inside the room
+  for (let step = -1; step <= 4; step++) {
+    const x = wallX + nx * step;
+    if (nx > 0 ? x < innerX : x > innerX) continue;
+    for (let z = midZ - 1; z <= midZ + 1; z++) {
+      grid.set(x, 0, z, VOX.IGLOO);
+      grid.set(x, 1, z, VOX.AIR);
+      grid.set(x, 2, z, VOX.AIR);
+      if (step >= 0) grid.set(x, 3, z, VOX.IGLOO);
+    }
+    if (step >= 0) {
+      for (const jz of [midZ - 2, midZ + 2]) {
+        grid.set(x, 1, jz, VOX.IGLOO);
+        grid.set(x, 2, jz, VOX.IGLOO);
+      }
+    }
+  }
+  // Clear the run from the tunnel mouth to the flag stand, so the shell's
+  // inner face cannot leave a block standing in the doorway of the room.
+  const standX = ox + Math.floor(BASE_SIZE.x / 2);
+  const lo = Math.min(standX, innerX), hi = Math.max(standX, innerX);
+  for (let x = lo; x <= hi; x++) {
+    for (let z = midZ - 1; z <= midZ + 1; z++) {
+      grid.set(x, 1, z, VOX.AIR);
+      grid.set(x, 2, z, VOX.AIR);
+    }
+  }
 }
 
 // Where a barn's doorway is, in one place, so the generator and whatever

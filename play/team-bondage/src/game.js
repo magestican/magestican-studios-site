@@ -5,9 +5,13 @@ import { InputBus } from 'arbelo/input';
 import { SeededRng } from 'arbelo/rng';
 import { VOX } from 'arbelo/voxel';
 import { generateWorld, WORLD_SIZE } from 'arbelo/procgen';
+import { getMap, getSky, frictionFor, DEFAULT_MAP } from 'arbelo/mapspec';
+import { getMode, DEFAULT_MODE, killScores, hillOwner, onHill, winner as modeWinner,
+         anagramDue } from 'arbelo/modes';
 
 import { buildWorldMeshes, hayOpacityFor } from './map/voxelMesh.js';
 import { buildLightRig } from './lightRig.js';
+import { rigFromSky } from './lightRigSpec.js';
 import { VOX as _VOX } from 'arbelo/voxel';
 import { buildCharacter }   from './entities/character.js';
 import { Player }           from './entities/player.js';
@@ -21,6 +25,8 @@ import { Chiptune }           from './audio/chiptune.js';
 import * as SFX               from './audio/sfx.js';
 import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
 import { buildSkybox }        from './entities/skybox.js';
+import { SkyBrawl }           from './entities/skyBrawl.js';
+import { CAMERA_FAR }         from './entities/skyBrawlSpec.js';
 import { addBarnSigns }       from './entities/barnSign.js';
 import { Bot }                from './entities/bot.js';
 import { TracerSystem }       from './entities/tracer.js';
@@ -33,6 +39,7 @@ import { computeFlagAction }  from '../../../../web-engine/ctf/flagLogic.js';
 import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js';
 import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
 import { GoreSystem }         from './entities/gore.js';
+import { AmbientCritters }    from './entities/ambientCritters.js';
 // WORLD_SIZE is already imported above alongside WorldMapGenerator.
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -41,7 +48,9 @@ const FLAG_HOME_RADIUS = 3.5;   // steps within this of your own flag stand = ca
 // player from standing directly on top of it, so we can't require an exact
 // centre-touch — the whole 3-tile radius around the base centre counts as
 // "delivered". Bryan: "when I deliver the flag to my base nothing happens".
-const WIN_SCORE = 5;
+// (WIN_SCORE used to live here as a constant. It is now the MODE's — 5
+// captures, 30 kills or 90 seconds of held hill — see web-engine/modes/
+// gameModes.js and modeWinner()/anagramDue().)
 const NET_TICK_HZ = 20;
 const RESPAWN_DELAY = 0.0;      // "immediate" per spec
 const ANAGRAM_SECONDS = 10;
@@ -58,6 +67,18 @@ export class Game {
     this.team = opts.team;
     this.name = opts.name;
     this.seed = opts.seed;               // null on joiner until welcome
+    // The map and the mode are HOST-CHOSEN and arrive with the seed in the
+    // WELCOME. A joiner that generated a different map from the host would be
+    // walking around a world nobody else can see — same failure mode as a
+    // seed mismatch, and the same fix: only the host decides.
+    this.mapId = opts.mapId || DEFAULT_MAP;
+    this.map = getMap(this.mapId);
+    this.sky = getSky(this.mapId);
+    this.modeId = opts.mode || DEFAULT_MODE;
+    this.mode = getMode(this.modeId);
+    // KOTH accumulates a fraction of a point per frame; the score on the HUD
+    // is the whole part of it, so a 1 Hz tick does not make the number jump.
+    this._hold = { red: 0, blue: 0 };
 
     this.scores = { red: 0, blue: 0 };
     this.gameOver = false;
@@ -95,6 +116,11 @@ export class Game {
         };
         check();
       });
+      // The WELCOME carries the map and the mode too; re-read both before
+      // anything is built off them.
+      this.map = getMap(this.mapId);
+      this.sky = getSky(this.mapId);
+      this.mode = getMode(this.modeId);
     } else {
       // Host: broadcast welcome to all newcomers as they join.
       this.mesh.addEventListener('peer-joined', (e) => {
@@ -256,24 +282,30 @@ export class Game {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.setClearColor(new THREE.Color(0x8ec5ff));   // sky
+    this.renderer.setClearColor(new THREE.Color(this.sky.fog));
     this.opts.canvasParent.appendChild(this.renderer.domElement);
 
     window.addEventListener('resize', () => this._onResize());
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.Fog(0x8ec5ff, 40, 120);
-    // Silly skybox: giant bull vs horse on the top face - look straight up
-    // in-game to catch the sky brawl. See entities/skybox.js.
-    this.scene.background = buildSkybox();
+    // Fog, sky and light rig all come from the map's own entry in mapSpec.js
+    // SKIES. Time of day is the cheapest way to make four maps feel like four
+    // places, and the fog colour has to be the sky's own 0.75 stop or the map
+    // ends in a visible band where the ground stops.
+    this.scene.fog = new THREE.Fog(this.sky.fog, this.sky.fogNear, this.sky.fogFar);
+    this.scene.background = buildSkybox(this.sky);
+    // The brawl itself is real geometry hung 140 m out at 30 degrees of
+    // elevation — look north and up. It used to be painted into the texture
+    // above; entities/skyBrawlSpec.js records why that could never fight.
+    this.skyBrawl = new SkyBrawl(this.scene);
 
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, CAMERA_FAR);
     this.camera.rotation.order = 'YXZ';
 
     // Lights. Every number lives in lightRigSpec.js — it is the same rig the
     // art/preview/*.html pages hang, and the one art/preview/lightrig.mjs
     // measures, so "measured through the game's own rig" stays true.
-    this.scene.add(buildLightRig());
+    this.scene.add(buildLightRig(rigFromSky(this.sky)));
   }
 
   _onResize() {
@@ -285,18 +317,30 @@ export class Game {
   // ---- world --------------------------------------------------------------
 
   _buildWorld(seed) {
-    const world = generateWorld(seed);
+    const world = generateWorld(seed, this.mapId);
     this.world = world;
     this.grid = world.grid;
     this.scene.add(buildWorldMeshes(world.grid));
 
-    // Flag meshes (visible pole + fabric on top of each flag stand)
-    this.flagMeshes = {
-      red:  this._buildFlagMesh(world.flags.red,  0xff5c4a),
-      blue: this._buildFlagMesh(world.flags.blue, 0x7cb0ff),
-    };
+    // Flags, if the mode has any. 'both' is CTF's flag-per-base; 'neutral' is
+    // One Flag's single flag at the centre, which both teams want and which
+    // scores by being carried into the ENEMY base; 'none' is TDM and KOTH.
     this.flagState = { red: 'home', blue: 'home' };  // 'home' | 'carried' | 'dropped'
     this.flagPos   = { red: { ...world.flags.red }, blue: { ...world.flags.blue } };
+    this.flagMeshes = {};
+    if (this.mode.flags === 'both') {
+      this.flagMeshes.red  = this._buildFlagMesh(world.flags.red,  0xff5c4a);
+      this.flagMeshes.blue = this._buildFlagMesh(world.flags.blue, 0x7cb0ff);
+    } else if (this.mode.flags === 'neutral') {
+      // One flag, on the centre feature. It is stored under BOTH keys so the
+      // rest of the flag machinery — pickup, drop, carry banner, return —
+      // keeps working untouched, and only the capture rule differs.
+      const c = { x: world.hillSpawn.x - 0.5, y: Math.floor(world.hillSpawn.y),
+                  z: world.hillSpawn.z - 0.5 };
+      this.flagPos = { red: { ...c }, blue: { ...c } };
+      this.flagMeshes.red = this._buildFlagMesh(c, 0xf0e6d2);
+      this.neutralFlag = true;
+    }
     // Hand-painted "BARN" name-plate over each barn doorway.
     addBarnSigns(this.scene, world);
 
@@ -306,6 +350,19 @@ export class Game {
     import('./entities/mapProps.js')
       .then(({ scatterMapProps }) => scatterMapProps(this.scene, world))
       .catch((err) => console.warn('[mapProps] scatter failed:', err));
+
+    // The procedural prop kit — the map's own `kit` block. Separate from the
+    // GLB props above because it is synchronous and needs no network: the
+    // GLBs stream in, these are up on the first frame.
+    import('./entities/propKit.js')
+      .then(({ scatterPropKit }) => scatterPropKit(this.scene, world))
+      .catch((err) => console.warn('[propKit] scatter failed:', err));
+
+    // Ambient life — the arctic's penguins. They stand still and turn to watch
+    // whoever is nearest. No other map has any (worldgen returns no spots).
+    if (world.ambientSpots?.length) {
+      this.critters = new AmbientCritters(this.scene, world.ambientSpots, this.map.ambient);
+    }
   }
 
   _buildFlagMesh(pos, color) {
@@ -336,7 +393,11 @@ export class Game {
   async _initPlayer() {
     const spawn = this.world.spawns[this.team];
     this.physics = await createPhysicsWorld({ grid: this.grid });
-    this.player = new Player(this.camera, this.physics, spawn, this.team, this.character);
+    // Ice-drift is the game's identity so no map turns it off, but a swept
+    // rink is not the same surface as a snow field. frictionFor() is the one
+    // number that differs.
+    this.player = new Player(this.camera, this.physics, spawn, this.team, this.character,
+                             { friction: frictionFor(this.mapId) });
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
     this.snow    = new SnowSystem(this.scene, this.player.pos, this.grid);
@@ -435,7 +496,8 @@ export class Game {
 
   _sendWelcome(peerId) {
     this.mesh.send(peerId, {
-      t: MSG.WELCOME, seed: this.seed, scores: this.scores,
+      t: MSG.WELCOME, seed: this.seed, mapId: this.mapId, mode: this.modeId,
+      scores: this.scores,
       playersMeta: [...this.playerMeta.entries()],
       matchState: this.matchState,
       matchEndsAt: this._matchEndsAt,
@@ -703,13 +765,27 @@ export class Game {
   }
 
   // Return a list of {peerId, pos} for every player + bot on this client.
+  // Every body on the map: me, every remote peer, every bot. Since King of the
+  // Hill has to know WHOSE feet are on the hill and whether they are alive,
+  // the refs carry team and liveness as well as a position — the hill tick is
+  // the only caller that reads them and the others ignore the extra fields.
   _allPlayerRefs() {
-    const arr = [{ peerId: this.myId, pos: this.player.pos }];
+    const arr = [{
+      peerId: this.myId, pos: this.player.pos,
+      team: this.team, alive: this.player.alive !== false,
+    }];
     for (const [pid, rp] of this.remotePlayers.entries()) {
-      arr.push({ peerId: pid, pos: rp.group.position });
+      arr.push({
+        peerId: pid, pos: rp.group.position,
+        team: this.playerMeta.get(pid)?.team ?? null,
+        alive: rp.hp == null ? true : rp.hp > 0,
+      });
     }
     for (const bot of this.bots.values()) {
-      arr.push({ peerId: bot.peerId, pos: bot.pos });
+      arr.push({
+        peerId: bot.peerId, pos: bot.pos,
+        team: bot.team, alive: bot.alive !== false,
+      });
     }
     return arr;
   }
@@ -964,6 +1040,8 @@ export class Game {
     switch (msg.t) {
       case MSG.WELCOME:
         this.seed = msg.seed;
+        if (msg.mapId) this.mapId = msg.mapId;
+        if (msg.mode) { this.modeId = msg.mode; this.mode = getMode(msg.mode); }
         this.scores = msg.scores || this.scores;
         for (const [pid, meta] of msg.playersMeta || []) {
           if (pid === this.myId) continue;
@@ -1064,6 +1142,7 @@ export class Game {
       }
       case MSG.DEATH:
         this._killFeedPush(`${this._name(msg.killer)} ➜ ${this._name(msg.victim)} (${msg.weapon})`);
+        this._creditKill(msg.killer, msg.victim);
         // Death ends any steak poison on the victim — dying of ANY cause
         // clears the DOT, so respawned players never carry stale poison.
         this._steakPoisonBy.delete(msg.victim);
@@ -1152,6 +1231,13 @@ export class Game {
         window.__tbDebug = { ...(window.__tbDebug || {}), tickError: String(err.message || err) };
       }
     }
+    // Outside the _tick try/catch and outside its "no input yet" early
+    // return: the sky is scenery, not simulation. It should keep fighting
+    // while rapier's WASM downloads and while the match is over, and a
+    // gameplay tick that throws should not freeze it mid-punch.
+    this.skyBrawl?.update(dt, this.camera.position);
+    this.critters?.update(dt, this.camera.position);
+    if (!this.gameOver) { try { this._tickHill(dt); } catch (_) {} }
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame((t) => this._frame(t));
   }
@@ -1761,6 +1847,7 @@ export class Game {
   // ---- flags -----------------------------------------------------------
 
   _updateFlags() {
+    if (this.mode.flags === 'none') return;
     if (!this.player.alive) return;
     const enemyColor = this.team === 'red' ? 'blue' : 'red';
     const myColor    = this.team;
@@ -1865,14 +1952,94 @@ export class Game {
     }
   }
 
+  // ---- mode scoring -----------------------------------------------------
+
+  // Host-authoritative. A kill is worth a point only in a kill mode, and
+  // never for a suicide or a team-kill — see killScores() in gameModes.js.
+  _creditKill(killerId, victimId) {
+    if (!this.isHost || this.gameOver) return;
+    const team = (id) => this.playerMeta.get(id)?.team
+      || this.bots.get(id)?.team
+      || (id === this.myId ? this.team : null);
+    const scoring = killScores(this.mode, team(killerId), team(victimId));
+    if (!scoring) return;
+    this.scores[scoring]++;
+    this._broadcast({ t: MSG.SCORE, scores: this.scores });
+    this._updateScoreUi();
+    this._maybeTriggerAnagram();
+  }
+
+  // Host-authoritative, called once per frame in KOTH. Accumulates real
+  // seconds of SOLE possession — one enemy on the hill stops the clock for
+  // everyone, which is what stops the mode being a camp.
+  _tickHill(dt) {
+    if (!this.isHost || this.gameOver) return;
+    if (this.mode.scoring !== 'hold' || !this.world || !this.player) return;
+    const centre = this.world.hillSpawn;
+    const occupants = [];
+    for (const ref of this._allPlayerRefs()) {
+      if (ref.alive === false) continue;
+      if (onHill(this.mode, ref.pos, centre)) occupants.push(ref.team);
+    }
+    const owner = hillOwner(this.mode, occupants);
+    // Broadcast the contested/held state so every client's HUD agrees; the
+    // banner is the only feedback the mode has and it has to be immediate.
+    if (owner !== this._hillOwner) {
+      this._hillOwner = owner;
+      this._paintHillBanner(owner, occupants.length);
+    }
+    if (!owner) return;
+    this._hold[owner] += dt;
+    const whole = Math.floor(this._hold[owner]);
+    if (whole > this.scores[owner]) {
+      this.scores[owner] = whole;
+      this._broadcast({ t: MSG.SCORE, scores: this.scores });
+      this._updateScoreUi();
+      this._maybeTriggerAnagram();
+    }
+  }
+
+  // Its own element, deliberately. `flagStatus` is shared by the compass and
+  // the power-up chip and has already caused one overprinting bug; a mode
+  // banner that fights the compass for the same node would be the second.
+  _paintHillBanner(owner, count) {
+    if (this.mode.scoring !== 'hold') return;
+    let el = document.getElementById('hill-banner');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'hill-banner';
+      Object.assign(el.style, {
+        position: 'fixed', left: '50%',
+        top: 'calc(max(8px, env(safe-area-inset-top)) + 96px)',
+        transform: 'translateX(-50%)',
+        padding: '6px 14px', borderRadius: '999px',
+        font: '900 14px system-ui, sans-serif', letterSpacing: '0.03em',
+        background: 'rgba(16,18,24,0.72)', border: '2px solid rgba(255,255,255,0.25)',
+        color: '#fff', zIndex: '30', pointerEvents: 'none',
+      });
+      document.body.appendChild(el);
+    }
+    if (owner) {
+      el.textContent = owner === this.team ? '👑 HOLDING THE HILL' : `👑 ${owner.toUpperCase()} HOLDS THE HILL`;
+      el.style.color = owner === 'red' ? '#ff8a7a' : '#9cc4ff';
+    } else if (count > 0) {
+      el.textContent = '⚔️ HILL CONTESTED — clear them off';
+      el.style.color = '#f4c95d';
+    } else {
+      el.textContent = '👑 HILL IS OPEN';
+      el.style.color = '#e8f3ff';
+    }
+  }
+
   // ---- anagram tiebreaker ---------------------------------------------
 
   _maybeTriggerAnagram() {
     if (this.gameOver) return;
     const { red, blue } = this.scores;
-    if (Math.max(red, blue) < WIN_SCORE) return;
-    if (red === blue) return;
-    const winning = red > blue ? 'red' : 'blue';
+    // The target is the MODE's, not a constant: 5 captures, 30 kills or 90
+    // seconds of held hill all mean "somebody won".
+    const winning = modeWinner(this.mode, this.scores);
+    if (!winning || !anagramDue(this.mode, this.scores)) return;
     const losing  = winning === 'red' ? 'blue' : 'red';
     this.gameOver = true;
     // Host picks the word and broadcasts.

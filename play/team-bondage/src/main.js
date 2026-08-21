@@ -2,6 +2,8 @@
 // Wires the character-select / host-join menu, then hands off to Game.
 
 import { Game } from './game.js';
+import { MAPS, MAP_IDS, DEFAULT_MAP } from 'arbelo/mapspec';
+import { MODES, MODE_IDS, DEFAULT_MODE } from 'arbelo/modes';
 import { PeerMesh } from 'arbelo/net';
 import { SeededRng, seedToCode, codeToSeed } from 'arbelo/rng';
 import { startVersionChecker } from 'arbelo/updater';
@@ -45,6 +47,11 @@ const state = {
   name: '',
   mode: null,             // 'host' | 'join'
   initialBots: 0,         // number of AI bots the host wants at start
+  // Host-chosen and sent to joiners in the WELCOME. A joiner's own picks are
+  // ignored on purpose: two peers on different maps is the same failure as
+  // two peers on different seeds.
+  mapId: localStorage.getItem('tb.map') || DEFAULT_MAP,
+  gameMode: localStorage.getItem('tb.mode') || DEFAULT_MODE,
 };
 
 // Highlight the selected character/team button.
@@ -58,6 +65,39 @@ function selectFrom(rowId, dataAttr, value, target) {
     }
   }
 }
+
+// -----------------------------------------------------------------------------
+// Map + mode pickers, built from the registries so adding a map or a mode is a
+// data change and never a markup change.
+// -----------------------------------------------------------------------------
+function buildPicker(rowId, blurbId, entries, dataAttr, initial, onPick) {
+  const row = document.getElementById(rowId);
+  const blurb = document.getElementById(blurbId);
+  if (!row) return;
+  for (const e of entries) {
+    const btn = document.createElement('button');
+    btn.dataset[dataAttr] = e.id;
+    btn.innerHTML = `<span class="emoji">${e.emoji}</span><span class="lbl">${e.short || e.name}</span>`;
+    btn.title = e.blurb;
+    btn.addEventListener('click', () => {
+      onPick(e.id);
+      for (const b of row.querySelectorAll('button')) b.classList.remove('selected');
+      btn.classList.add('selected');
+      if (blurb) blurb.textContent = e.blurb;
+    });
+    row.appendChild(btn);
+  }
+  const chosen = entries.find((e) => e.id === initial) || entries[0];
+  onPick(chosen.id);
+  const btn = row.querySelector(`button[data-${dataAttr.toLowerCase()}="${chosen.id}"]`);
+  if (btn) btn.classList.add('selected');
+  if (blurb) blurb.textContent = chosen.blurb;
+}
+
+buildPicker('mapRow', 'mapBlurb', MAP_IDS.map((id) => MAPS[id]), 'map', state.mapId,
+  (id) => { state.mapId = id; localStorage.setItem('tb.map', id); });
+buildPicker('modeRow', 'modeBlurb', MODE_IDS.map((id) => MODES[id]), 'gmode', state.gameMode,
+  (id) => { state.gameMode = id; localStorage.setItem('tb.mode', id); });
 
 // Default character = cow.
 selectFrom('characterRow', 'char', 'cow');
@@ -237,6 +277,9 @@ async function startGame(hostIdToJoin) {
     name: state.name,
     isHost: state.mode === 'host',
     seed,
+    // Only the host's picks matter; a joiner's are overwritten by the WELCOME.
+    mapId: state.mapId,
+    mode: state.gameMode,
     initialBots: state.mode === 'host' ? state.initialBots : 0,
     canvasParent: $('app'),
     onReady: goInGame,

@@ -17,6 +17,10 @@ const MOVE_ACCEL_GROUND = 55.0;
 const MOVE_ACCEL_AIR = 12.0;
 const MAX_GROUND_SPEED = 8.5;
 const MAX_AIR_SPEED = 10.5;
+// The FARM's ground friction, and the default. Since 2026-08-21 each map
+// brings its own (mapSpec.js FRICTION) — every map keeps ice-drift, but a
+// swept rink is faster than a snow field and a wind-scoured rock terrace has
+// grip. Every tuning note in the README refers to this number.
 const ICE_FRICTION_GROUND = 0.96;
 const ICE_FRICTION_AIR    = 0.995;
 const CAPSULE_HALF_HEIGHT = 0.65;   // straight part of the capsule
@@ -24,12 +28,13 @@ const CAPSULE_RADIUS      = 0.32;
 const EYE_HEIGHT_OFFSET   = 0.55;   // camera above body centre
 
 export class Player {
-  constructor(camera, physics, spawn, team, character = 'cow') {
+  constructor(camera, physics, spawn, team, character = 'cow', opts = {}) {
     this.camera = camera;
     this.physics = physics;
     this.team = team;
     this.character = character;
     this.spawn = { ...spawn };
+    this.groundFriction = opts.friction ?? ICE_FRICTION_GROUND;
 
     // rapier body + collider handles
     const { body, collider } = physics.addCharacter({
@@ -96,7 +101,7 @@ export class Player {
     const accel = this._grounded ? MOVE_ACCEL_GROUND : MOVE_ACCEL_AIR;
     this.vel.x += wx * accel * dt;
     this.vel.z += wz * accel * dt;
-    const fricBase = this._grounded ? ICE_FRICTION_GROUND : ICE_FRICTION_AIR;
+    const fricBase = this._grounded ? this.groundFriction : ICE_FRICTION_AIR;
     const fric = Math.pow(fricBase, dt * 60);
     this.vel.x *= fric;
     this.vel.z *= fric;

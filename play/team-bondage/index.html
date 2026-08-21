@@ -503,6 +503,16 @@
       color: #9aa5b8; font-family: Georgia,serif; font-size: 18px;
     }
     #loading.done { display: none; }
+    /* The line under the map / mode pickers. Four maps that play differently
+       is the point; a row of unlabelled buttons does not communicate that, so
+       the selected one explains itself. */
+    .pick-blurb {
+      margin: 6px 2px 2px; min-height: 2.4em;
+      font-size: 13px; line-height: 1.35; opacity: 0.78;
+    }
+    #mapRow button, #modeRow button { display: flex; flex-direction: column;
+      align-items: center; gap: 2px; min-width: 92px; }
+    #mapRow .emoji, #modeRow .emoji { font-size: 20px; line-height: 1.1; }
   </style>
 
   <script type="importmap">
@@ -513,6 +523,8 @@
       "arbelo/rng":         "../../web-engine/rng/seededRng.js",
       "arbelo/voxel":       "../../web-engine/voxel/voxelGrid.js",
       "arbelo/procgen":     "../../web-engine/procgen/voxelWorldGen.js",
+      "arbelo/mapspec":     "../../web-engine/procgen/mapSpec.js",
+      "arbelo/modes":       "../../web-engine/modes/gameModes.js",
       "arbelo/net":         "../../web-engine/net/peerMesh.js",
       "arbelo/input":       "../../web-engine/input/inputBus.js",
       "arbelo/updater":     "../../web-engine/updater/versionChecker.js",
@@ -541,6 +553,14 @@
         <button class="anim-btn" data-char="pig"><span class="emoji">🐖</span><span class="lbl">Pig</span></button>
         <button class="anim-btn" data-char="sheep"><span class="emoji">🐑</span><span class="lbl">Sheep</span></button>
       </div>
+
+      <h2>Pick a map</h2>
+      <div class="row" id="mapRow"></div>
+      <p class="pick-blurb" id="mapBlurb"></p>
+
+      <h2>Pick a mode</h2>
+      <div class="row" id="modeRow"></div>
+      <p class="pick-blurb" id="modeBlurb"></p>
 
       <h2>Pick your team</h2>
       <div class="row" id="teamRow">

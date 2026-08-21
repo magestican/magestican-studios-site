@@ -35,6 +35,15 @@ export const VOX = Object.freeze({
                   // repeated on a grid reads as wallpaper, and a boot print
                   // is the most recognisable feature we have ever painted.
   RUT:       15,  // one tractor tyre rut, running along +X
+  // -- Materials the non-farm maps are made of (2026-08-21). Team Bondage
+  // had exactly one map, so every voxel type in this list was a farm noun.
+  // See web-engine/procgen/mapSpec.js.
+  ROCK:      16,  // dark mountain granite — icy-mountain terraces and spires
+  RINK:      17,  // polished rink ice, with the blue line and the face-off dot
+  BOARDS:    18,  // rink dasher boards: white ply over a team kickplate
+  PINE:      19,  // conifer needles, snow-laden
+  PAVER:     20,  // Central Park hexagonal paver path
+  IGLOO:     21,  // cut and stacked snow block
 });
 
 // The ground layer. Anything in here is a flat y=0 surface tile that ground
@@ -42,6 +51,10 @@ export const VOX = Object.freeze({
 // in here (barn floors, hill, cover) is off limits to it.
 export const GROUND_VOX = Object.freeze([
   VOX.GRASS, VOX.ICE, VOX.TRODDEN, VOX.TRODDEN_B, VOX.RUT,
+  // The other maps' ground tiles. Membership here is what makes a tile
+  // eligible for ground wear and for prop scatter, so a new map's floor has
+  // to join or nothing will ever be placed on it.
+  VOX.RINK, VOX.PAVER,
 ]);
 
 // Base RGB palette for each voxel type. Actual final colouring in the game
@@ -65,6 +78,14 @@ export const VOX_COLOR = Object.freeze({
   [VOX.TRODDEN]:        [0xc2, 0xcd, 0xda],
   [VOX.TRODDEN_B]:      [0xc2, 0xcd, 0xda],
   [VOX.RUT]:            [0xb3, 0xc0, 0xcf],
+  // Non-farm materials. All of these paint their own hue (they are in
+  // voxelMesh's SELF_COLOURED), so these are reference values only.
+  [VOX.ROCK]:           [0x4c, 0x4f, 0x57],
+  [VOX.RINK]:           [0xdf, 0xf0, 0xfa],
+  [VOX.BOARDS]:         [0xf0, 0xef, 0xe8],
+  [VOX.PINE]:           [0x24, 0x4b, 0x38],
+  [VOX.PAVER]:          [0x9b, 0x94, 0x88],
+  [VOX.IGLOO]:          [0xe4, 0xee, 0xf6],
 });
 
 export class VoxelGrid {

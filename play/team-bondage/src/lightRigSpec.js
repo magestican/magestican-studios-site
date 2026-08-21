@@ -87,6 +87,40 @@ export const LIGHT_RIG = Object.freeze({
 // The previous rig, kept so the tests can assert the change is an improvement
 // against something real rather than against hard-coded numbers, and so a
 // future pass can re-measure the trade instead of re-deriving it.
+// Per-map rig. Every number that was MEASURED by the 2026-08-21 pass —
+// intensities, the ground bounce's relationship to the sky half, the ambient
+// fraction — is kept; only the two hues and the sun's strength move, and they
+// move with the map's own sky (mapSpec.js SKIES). That is deliberate: the
+// measurements above are what stop a naive relight from putting the
+// grey-concrete egg back, so a new map gets a new TIME OF DAY, not a new rig.
+//
+// Takes the sky OBJECT rather than a map id on purpose. This file is imported
+// directly by node tests, which cannot resolve the browser's bare 'arbelo/*'
+// specifiers, and a relative path up into web-engine resolves to a different
+// directory in the deploy layout than it does locally (see the two different
+// depths game.js already uses for web-engine imports). Staying import-free
+// sidesteps both and keeps this file what its header says it is: pure data.
+//
+// rigFromSky(SKIES['farm-day']) is LIGHT_RIG exactly — farm-day's sky carries the
+// measured values verbatim, and a test asserts it, so adding per-map skies
+// could not have changed how the original map looks.
+export function rigFromSky(sky) {
+  if (!sky) return LIGHT_RIG;
+  return Object.freeze({
+    sun: Object.freeze({
+      color: sky.sunTint ?? LIGHT_RIG.sun.color,
+      intensity: sky.sunIntensity ?? LIGHT_RIG.sun.intensity,
+      dir: LIGHT_RIG.sun.dir,
+    }),
+    ambient: LIGHT_RIG.ambient,
+    hemi: Object.freeze({
+      sky: sky.hemiSky ?? LIGHT_RIG.hemi.sky,
+      ground: sky.hemiGround ?? LIGHT_RIG.hemi.ground,
+      intensity: LIGHT_RIG.hemi.intensity,
+    }),
+  });
+}
+
 export const PREVIOUS_RIG = Object.freeze({
   sun: Object.freeze({ color: 0xffffff, intensity: 1.05, dir: Object.freeze([0.6, 1.0, 0.4]) }),
   ambient: Object.freeze({ color: 0xffffff, intensity: 0.55 }),

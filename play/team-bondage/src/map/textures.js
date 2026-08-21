@@ -1013,3 +1013,256 @@ function hexRgb(hex) {
 }
 
 function clamp(v) { return Math.max(0, Math.min(255, v | 0)); }
+
+// ===========================================================================
+// The other maps' materials (2026-08-21)
+// ===========================================================================
+// Team Bondage had one map, so every texture above this line is a farm noun.
+// These six are what the icy mountain, the Central Park rink and the arctic
+// floe are made of. They follow the rules the snow and ice passes established
+// the hard way and which are written up in art/knowledge/craft/:
+//
+//   * BIG features only. Per-pixel noise is gone by mip level 2; at 10 m the
+//     only thing left of a tile is its largest three or four shapes.
+//   * Paint the FINAL hue. Every one of these joins SELF_COLOURED, because a
+//     palette tint over a differently-hued texture multiplies rather than
+//     replaces (the green-ground bug that shipped for months).
+//   * The sRGB output transform eats about a third of any value step, so a
+//     step you can just see in the paint is invisible in the render.
+//   * Anything crossing a tile edge must be drawn again at the wrap offsets
+//     or it stops dead on the 1 m grid.
+
+// -- Mountain granite: bedded, frost-shattered, snow caught in the joints ---
+export function makeRockTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rnd = seedRng(0x1204);
+  g.fillStyle = '#4c4f57'; g.fillRect(0, 0, SIZE, SIZE);
+  // Bedding planes: near-horizontal bands, the thing that says "rock" rather
+  // than "grey concrete" at any distance.
+  let y = 0;
+  while (y < SIZE) {
+    const h = 8 + rnd() * 16;
+    const v = 0.80 + rnd() * 0.42;
+    g.fillStyle = 'rgb(' + Math.round(76 * v) + ',' + Math.round(79 * v) + ',' + Math.round(87 * v) + ')';
+    g.beginPath();
+    g.moveTo(0, y);
+    for (let x = 0; x <= SIZE; x += 16) g.lineTo(x, y + (rnd() - 0.5) * 5);
+    g.lineTo(SIZE, y + h); g.lineTo(0, y + h); g.closePath(); g.fill();
+    // A lit lip on the top of the bed, broken into runs. A continuous lip on
+    // every band lines up in perspective into graph paper across the whole
+    // map — the finding the ground-wear pass recorded.
+    if (rnd() < 0.7) {
+      g.strokeStyle = 'rgba(190,198,210,0.5)'; g.lineWidth = 2;
+      let lx = rnd() * 30;
+      while (lx < SIZE) {
+        const run = 14 + rnd() * 34;
+        g.beginPath(); g.moveTo(lx, y + 1); g.lineTo(Math.min(SIZE, lx + run), y + 1); g.stroke();
+        lx += run + 10 + rnd() * 30;
+      }
+    }
+    y += h;
+  }
+  // Frost-shatter cracks with snow packed into them: on a winter mountain the
+  // joints are the only WHITE on the rock, and they are what makes it read as
+  // cold rather than as a quarry.
+  for (let i = 0; i < 7; i++) {
+    const x0 = rnd() * SIZE, y0 = rnd() * SIZE;
+    wrapDraw(x0, y0, (x, y) => {
+      let cx = x, cy = y;
+      const pts = [[x, y]];
+      for (let s = 0; s < 4; s++) {
+        cx += (rnd() - 0.5) * 34; cy += (rnd() - 0.3) * 30;
+        pts.push([cx, cy]);
+      }
+      const stroke = (style, width) => {
+        g.strokeStyle = style; g.lineWidth = width;
+        g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+        for (const pt of pts.slice(1)) g.lineTo(pt[0], pt[1]);
+        g.stroke();
+      };
+      stroke('rgba(28,30,34,0.75)', 2.6);
+      stroke('rgba(226,236,246,0.55)', 1.3);
+    });
+  }
+  return toTexture(c);
+}
+
+// -- Rink ice: swept, scored by skates, with the blue line and a face-off dot
+export function makeRinkTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rnd = seedRng(0x2c1e);
+  g.fillStyle = '#dff0fa'; g.fillRect(0, 0, SIZE, SIZE);
+  // Zamboni sweep: broad, faint arcs all running one way. This is the only
+  // thing separating a rink from a frozen pond, so it has to be BIG.
+  for (let i = 0; i < 5; i++) {
+    g.strokeStyle = 'rgba(255,255,255,' + (0.35 + rnd() * 0.3).toFixed(2) + ')';
+    g.lineWidth = 6 + rnd() * 7;
+    const y0 = rnd() * SIZE;
+    g.beginPath(); g.moveTo(-10, y0);
+    g.bezierCurveTo(SIZE * 0.3, y0 - 12, SIZE * 0.7, y0 + 12, SIZE + 10, y0);
+    g.stroke();
+  }
+  // Skate scoring: short, sharp, crossing. Individually below the mip floor —
+  // what survives is a slight overall tooth, which is the point.
+  for (let i = 0; i < 40; i++) {
+    const x = rnd() * SIZE, y = rnd() * SIZE, a = rnd() * Math.PI;
+    const len = 6 + rnd() * 20;
+    const alpha = (0.25 + rnd() * 0.3).toFixed(2);
+    wrapDraw(x, y, (px, py) => {
+      g.strokeStyle = 'rgba(160,196,220,' + alpha + ')';
+      g.lineWidth = 1;
+      g.beginPath();
+      g.moveTo(px, py);
+      g.lineTo(px + Math.cos(a) * len, py + Math.sin(a) * len);
+      g.stroke();
+    });
+  }
+  // Markings painted under the ice. One tile carries the line, so a run of
+  // them draws a continuous stripe across the pad.
+  g.fillStyle = 'rgba(56,104,178,0.55)';
+  g.fillRect(0, SIZE * 0.42, SIZE, SIZE * 0.09);
+  g.fillStyle = 'rgba(178,56,48,0.35)';
+  g.beginPath(); g.arc(SIZE * 0.76, SIZE * 0.78, SIZE * 0.09, 0, Math.PI * 2); g.fill();
+  return toTexture(c);
+}
+
+// -- Dasher boards: white ply, scuffed, over a yellow kickplate -------------
+export function makeBoardsTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rnd = seedRng(0x3a77);
+  g.fillStyle = '#f0efe8'; g.fillRect(0, 0, SIZE, SIZE);
+  // Panel joints, vertical, one per board width.
+  for (let x = 0; x < SIZE; x += SIZE / 2) {
+    g.fillStyle = 'rgba(150,152,150,0.55)'; g.fillRect(x, 0, 2, SIZE);
+    g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(x + 2, 0, 2, SIZE);
+  }
+  // The kickplate: the yellow band every rink in the world has along the
+  // bottom, and the one feature that identifies these boards at 10 m.
+  g.fillStyle = '#e2b53c'; g.fillRect(0, SIZE * 0.80, SIZE, SIZE * 0.20);
+  g.fillStyle = 'rgba(0,0,0,0.22)'; g.fillRect(0, SIZE * 0.80, SIZE, 3);
+  // Puck marks: black smears clustered low, where pucks actually hit.
+  for (let i = 0; i < 14; i++) {
+    const x = rnd() * SIZE, y = SIZE * (0.45 + rnd() * 0.45);
+    const alpha = (0.14 + rnd() * 0.26).toFixed(2);
+    const rx = 3 + rnd() * 7, ry = 2 + rnd() * 3, rot = rnd();
+    wrapDraw(x, y, (px, py) => {
+      g.fillStyle = 'rgba(30,28,26,' + alpha + ')';
+      g.beginPath();
+      g.ellipse(px, py, rx, ry, rot, 0, Math.PI * 2);
+      g.fill();
+    });
+  }
+  return toTexture(c);
+}
+
+// -- Conifer needles under snow --------------------------------------------
+export function makePineTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rnd = seedRng(0x4f19);
+  g.fillStyle = '#1d3d2d'; g.fillRect(0, 0, SIZE, SIZE);
+  // Sprays of needles as short paired strokes. Value range does the work: a
+  // flat green block is a hedge, not a fir.
+  for (let i = 0; i < 90; i++) {
+    const x = rnd() * SIZE, y = rnd() * SIZE;
+    const v = rnd();
+    const col = v < 0.35 ? 'rgba(20,44,32,0.95)'
+              : v < 0.80 ? 'rgba(44,86,62,0.90)'
+                         : 'rgba(74,124,90,0.90)';
+    const a = Math.PI * 0.35 + rnd() * Math.PI * 0.3;
+    wrapDraw(x, y, (px, py) => {
+      g.strokeStyle = col; g.lineWidth = 1.6;
+      for (const s of [-1, 1]) {
+        g.beginPath(); g.moveTo(px, py);
+        g.lineTo(px + Math.cos(a) * 7 * s, py + Math.sin(a) * 7);
+        g.stroke();
+      }
+    });
+  }
+  // Snow caught on the upper sprays — the reason this is a WINTER tree.
+  for (let i = 0; i < 16; i++) {
+    const x = rnd() * SIZE, y = rnd() * SIZE;
+    const alpha = (0.5 + rnd() * 0.4).toFixed(2);
+    const rx = 4 + rnd() * 8, ry = 2 + rnd() * 4;
+    wrapDraw(x, y, (px, py) => {
+      g.fillStyle = 'rgba(232,242,250,' + alpha + ')';
+      g.beginPath();
+      g.ellipse(px, py, rx, ry, 0, 0, Math.PI * 2);
+      g.fill();
+    });
+  }
+  return toTexture(c);
+}
+
+// -- Central Park hexagonal pavers, gritted, snow in the joints -------------
+export function makePaverTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rnd = seedRng(0x5b30);
+  g.fillStyle = '#8f887c'; g.fillRect(0, 0, SIZE, SIZE);
+  // The hexagon grid. Central Park's paths are hex pavers and nothing else
+  // looks like them, so this is the whole identity of the tile.
+  const R = SIZE / 6;
+  const hexAt = (cx, cy) => {
+    const tone = 0.86 + rnd() * 0.30;
+    g.fillStyle = 'rgb(' + Math.round(155 * tone) + ',' + Math.round(148 * tone)
+      + ',' + Math.round(136 * tone) + ')';
+    g.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const a = (k / 6) * Math.PI * 2 + Math.PI / 6;
+      const px = cx + Math.cos(a) * R * 0.92, py = cy + Math.sin(a) * R * 0.92;
+      if (k) g.lineTo(px, py); else g.moveTo(px, py);
+    }
+    g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(226,236,246,0.45)'; g.lineWidth = 1.6; g.stroke();
+  };
+  const dx = R * Math.sqrt(3), dy = R * 1.5;
+  for (let row = -1; row * dy < SIZE + R; row++) {
+    for (let col = -1; col * dx < SIZE + dx; col++) {
+      hexAt(col * dx + (row % 2 ? dx / 2 : 0), row * dy);
+    }
+  }
+  // Grit and a couple of trodden slush patches.
+  for (let i = 0; i < 5; i++) {
+    const x = rnd() * SIZE, y = rnd() * SIZE;
+    const alpha = (0.12 + rnd() * 0.14).toFixed(2);
+    const rx = 10 + rnd() * 16, ry = 7 + rnd() * 11, rot = rnd();
+    wrapDraw(x, y, (px, py) => {
+      g.fillStyle = 'rgba(90,88,84,' + alpha + ')';
+      g.beginPath(); g.ellipse(px, py, rx, ry, rot, 0, Math.PI * 2); g.fill();
+    });
+  }
+  return toTexture(c);
+}
+
+// -- Igloo: sawn snow blocks, laid in a running bond -----------------------
+export function makeIglooTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rnd = seedRng(0x6d42);
+  g.fillStyle = '#e4eef6'; g.fillRect(0, 0, SIZE, SIZE);
+  // Two courses per tile, offset half a block. A running bond is what makes
+  // stacked snow read as CUT blocks rather than as a smooth drift.
+  const rows = 2, cols = 3;
+  const bh = SIZE / rows, bw = SIZE / cols;
+  for (let r = 0; r < rows; r++) {
+    for (let cIdx = -1; cIdx <= cols; cIdx++) {
+      const x = cIdx * bw + (r % 2 ? bw / 2 : 0);
+      const y = r * bh;
+      const tone = 0.93 + rnd() * 0.12;
+      g.fillStyle = 'rgb(' + Math.round(228 * tone) + ',' + Math.round(238 * tone)
+        + ',' + Math.round(246 * tone) + ')';
+      g.fillRect(x + 2, y + 2, bw - 4, bh - 4);
+      // Shadowed joint below, lit lip above — the block's own form.
+      g.fillStyle = 'rgba(140,164,190,0.55)';
+      g.fillRect(x + 2, y + bh - 4, bw - 4, 3);
+      g.fillStyle = 'rgba(255,255,255,0.8)';
+      g.fillRect(x + 2, y + 2, bw - 4, 2);
+    }
+  }
+  // Saw marks across the faces.
+  for (let i = 0; i < 12; i++) {
+    const x = rnd() * SIZE, y = rnd() * SIZE;
+    g.strokeStyle = 'rgba(176,198,218,' + (0.2 + rnd() * 0.25).toFixed(2) + ')';
+    g.lineWidth = 1;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + 10 + rnd() * 20, y + (rnd() - 0.5) * 3); g.stroke();
+  }
+  return toTexture(c);
+}
