@@ -60,6 +60,24 @@ export async function createPhysicsWorld({ grid }) {
     return { body, collider };
   }
 
+  // Reshape a character's capsule in place — the protein shake and the cheese
+  // wheel both resize the player mid-match (see entities/powerUpSpec.js).
+  // Swapping the SHAPE rather than destroying and recreating the collider is
+  // what keeps the body handle, and therefore the character controller's
+  // notion of "am I grounded", continuous across the change.
+  //
+  // Returns false if this build of rapier will not do it, so the caller can
+  // keep running at the old size instead of losing its collider.
+  function setCharacterSize(collider, halfHeight, radius) {
+    try {
+      collider.setShape(new RAPIER.Capsule(halfHeight, radius));
+      return true;
+    } catch (err) {
+      console.warn('[physics] capsule resize not supported:', err?.message || err);
+      return false;
+    }
+  }
+
   // Dynamic rigid body (for projectiles, hazards, etc). Position + optional
   // initial linvel.
   function addDynamic({ position, radius = 0.15, restitution = 0.6, gravityScale = 1.0, linvel }) {
@@ -79,7 +97,7 @@ export async function createPhysicsWorld({ grid }) {
     world.step();
   }
 
-  return { world, characterCtrl, addCharacter, addDynamic, step, RAPIER };
+  return { world, characterCtrl, addCharacter, setCharacterSize, addDynamic, step, RAPIER };
 }
 
 // Build one cuboid collider per exposed (has AIR neighbour) solid voxel.

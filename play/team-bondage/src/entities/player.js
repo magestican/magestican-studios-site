@@ -10,6 +10,10 @@
 import * as THREE from 'three';
 import { computeWishDelta, cameraHorizontalAxes } from 'arbelo/input-movement';
 import * as SFX from '../audio/sfx.js';
+import {
+  CAPSULE_HALF_HEIGHT, CAPSULE_RADIUS, EYE_OFFSET as EYE_HEIGHT_OFFSET,
+  capsuleFor, centreKeepingFeet, eyeHeightFor,
+} from './powerUpSpec.js';
 
 const GRAVITY = -30.0;
 const JUMP_SPEED = 9.0;
@@ -23,9 +27,11 @@ const MAX_AIR_SPEED = 10.5;
 // grip. Every tuning note in the README refers to this number.
 const ICE_FRICTION_GROUND = 0.96;
 const ICE_FRICTION_AIR    = 0.995;
-const CAPSULE_HALF_HEIGHT = 0.65;   // straight part of the capsule
-const CAPSULE_RADIUS      = 0.32;
-const EYE_HEIGHT_OFFSET   = 0.55;   // camera above body centre
+// The capsule and the eye offset now live in powerUpSpec.js, imported above.
+// They moved because the power-ups do arithmetic ON them (a giant's collider
+// is derived from the doorway clearance and the standing player's height), and
+// two files owning the same three numbers is how that arithmetic goes quietly
+// wrong. The VALUES are unchanged: 0.65 / 0.32 / 0.55.
 
 export class Player {
   constructor(camera, physics, spawn, team, character = 'cow', opts = {}) {
@@ -35,6 +41,9 @@ export class Player {
     this.character = character;
     this.spawn = { ...spawn };
     this.groundFriction = opts.friction ?? ICE_FRICTION_GROUND;
+    // The voxel grid, for the headroom probe the giant's camera needs. Optional
+    // — without it the eye simply never ducks.
+    this.grid = opts.grid ?? null;
 
     // rapier body + collider handles
     const { body, collider } = physics.addCharacter({
@@ -44,6 +53,12 @@ export class Player {
     });
     this.body = body;
     this.collider = collider;
+
+    // Power-up size. 1 = the shipped player; 2 = protein shake; 0.2 = cheese
+    // wheel. `capsule` is what physics is actually using right now, which is
+    // NOT simply the scale times the base capsule — see capsuleFor().
+    this.sizeScale = 1;
+    this.capsule = capsuleFor(1);
 
     this.vel = new THREE.Vector3();
     this.yaw = team === 'red' ? Math.PI / 4 : Math.PI + Math.PI / 4;
@@ -61,7 +76,47 @@ export class Player {
     this.jumpCount = 0;
   }
 
+  // Grow or shrink the player. Idempotent, so game.js can call it every frame
+  // from the power-up state without churning rapier.
+  setSizeScale(scale) {
+    if (Math.abs(scale - this.sizeScale) < 1e-6) return;
+    const next = capsuleFor(scale);
+    // Feet stay planted. Rapier positions a body by its CENTRE, so growing a
+    // capsule about its centre buries half the growth in the floor — a giant
+    // born a metre underground, a mouse born hovering.
+    const t = this.body.translation();
+    const y = centreKeepingFeet(t.y, this.capsule.total, next.total);
+    const ok = this.physics.setCharacterSize?.(this.collider, next.halfHeight, next.radius);
+    if (ok === false) return;         // rapier refused: stay exactly as we were
+    this.body.setNextKinematicTranslation({ x: t.x, y, z: t.z });
+    this.pos.y = y;
+    this.sizeScale = scale;
+    this.capsule = next;
+  }
+
+  // The clear air above the player's head, in metres, or Infinity under open
+  // sky. Only a player BIGGER than normal can ever be limited by it, so the
+  // probe is skipped entirely at 1x and below — this runs every frame.
+  headroom() {
+    if (!this.grid || this.sizeScale <= 1) return Infinity;
+    const feet = this.pos.y - this.capsule.total / 2;
+    const x = this.pos.x, z = this.pos.z;
+    for (let y = Math.floor(feet) + 1; y < feet + 7; y++) {
+      // inBounds FIRST: voxelGrid.get() answers STONE outside the array, so an
+      // unguarded probe finds a ceiling directly above every player standing
+      // under the open sky at the top of the world (styles/voxel.md).
+      if (!this.grid.inBounds(x | 0, y, z | 0)) return Infinity;
+      if (this.grid.isSolid(x, y + 0.5, z)) return y - feet;
+    }
+    return Infinity;
+  }
+
   respawn() {
+    // Back to normal size FIRST — the spawn Y below assumes a normal capsule,
+    // and a giant respawning at a giant's height drops a metre on arrival.
+    // (game.js also drops the power-up on death; this is the belt to its
+    // braces, because respawn() is reachable from the out-of-world guard too.)
+    this.setSizeScale(1);
     const t = { x: this.spawn.x, y: this.spawn.y + 1.0, z: this.spawn.z };
     // HARD teleport, not just a kinematic target.
     //
@@ -170,7 +225,14 @@ export class Player {
     this.pos.set(next.x, next.y, next.z);
 
     // -- Move the camera --
-    this.camera.position.set(next.x, next.y + EYE_HEIGHT_OFFSET, next.z);
+    // At 1x this is exactly the old `next.y + EYE_HEIGHT_OFFSET`. Above 1x the
+    // eye rises with the player and then DUCKS under whatever is over his head
+    // — a three-metre eye inside a two-metre barn would put the camera inside
+    // a roof voxel, where it sees straight through the world.
+    const eye = this.sizeScale === 1
+      ? EYE_HEIGHT_OFFSET + this.capsule.total / 2
+      : eyeHeightFor(this.sizeScale, this.headroom());
+    this.camera.position.set(next.x, next.y - this.capsule.total / 2 + eye, next.z);
     const dir = new THREE.Vector3(
       Math.cos(this.pitch) * Math.sin(this.yaw),
       Math.sin(this.pitch),

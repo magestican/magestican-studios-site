@@ -81,11 +81,31 @@ export class RemotePlayer {
     sprite.scale.set(1.4, 0.35, 1);
     sprite.position.y = 2.0;
     this.group.add(sprite);
+    this.nameplate = sprite;
+    this.bodyScale = 1;
 
     // Interpolation buffers
     this._targetPos = new THREE.Vector3();
     this._targetYaw = 0;
     this._targetPitch = 0;
+  }
+
+  // Power-up size, arriving on every STATE packet as `sc` (1 / 2 / 0.2).
+  //
+  // The BODY scales; the awareness furniture does not shrink with it. A halo,
+  // a ground ring and a nameplate at 0.2x on a knee-high enemy would take the
+  // one feature that exists so you can find people and make it invisible
+  // exactly when you most need it. So they counter-scale on the way DOWN and
+  // ride along on the way UP: a giant should have a giant's halo.
+  setBodyScale(scale) {
+    const s = Number.isFinite(scale) && scale > 0 ? scale : 1;
+    if (Math.abs(s - this.bodyScale) < 1e-6) return;
+    this.bodyScale = s;
+    this.group.scale.setScalar(s);
+    const counter = s < 1 ? 1 / s : 1;
+    if (this.halo)      this.halo.scale.set(2.2 * counter, 2.6 * counter, 1);
+    if (this.ring)      this.ring.scale.setScalar(counter);
+    if (this.nameplate) this.nameplate.scale.set(1.4 * counter, 0.35 * counter, 1);
   }
 
   setNet(pos, yaw, pitch, hp) {

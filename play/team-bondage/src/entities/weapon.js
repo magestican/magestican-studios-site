@@ -32,6 +32,10 @@ export class WeaponSystem {
     this.slot = 0;
     this.cooldown = 0;
     this.projectiles = [];
+    // Multiplier on every weapon's cooldown. 1 normally; the cheese wheel sets
+    // it to 1/1.4 for its 20 seconds ("fire 40% faster" is a rate, so the gap
+    // between shots is divided, not multiplied — powerUpSpec.js).
+    this.cooldownScale = 1;
   }
 
   update(dt) {
@@ -63,7 +67,7 @@ export class WeaponSystem {
   tryFire(originPos, dirVec, rng, ownerId) {
     if (this.cooldown > 0) return [];
     const def = this.currentDef();
-    this.cooldown = def.cooldown;
+    this.cooldown = def.cooldown * this.cooldownScale;
     const shots = [];
 
     if (def.kind === 'hitscan') {

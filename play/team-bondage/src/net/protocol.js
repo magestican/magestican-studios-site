@@ -6,7 +6,10 @@
 export const MSG = Object.freeze({
   HELLO:      'hello',       // {t, name, character, team}
   WELCOME:    'welcome',     // {t, seed, scores, playersMeta} - host only
-  STATE:      'state',       // {t, p:[x,y,z], y:yaw, x:pitch, h:hp, c:char, tm:team, hf: hasEnemyFlag}
+  // `sc` is the sender's power-up size (1 normally, 2 giant, 0.2 mini). It
+  // rides on STATE rather than getting its own message because a joiner who
+  // misses a POWERUP_PICK still has to see the right-sized body 50 ms later.
+  STATE:      'state',       // {t, p:[x,y,z], y:yaw, x:pitch, h:hp, c:char, tm:team, hf: hasEnemyFlag, sc: sizeScale}
   SHOT:       'shot',        // {t, s:<serialized WeaponSystem shot>}
   HIT:        'hit',         // {t, target:<peerId>, dmg, by, weapon}
   DEATH:      'death',       // {t, victim, killer, weapon}
@@ -30,4 +33,5 @@ export const MSG = Object.freeze({
   STEAK_ATTACH: 'steakAtt',   // {t, victim:<peerId>, by:<peerId>} - poison starts
   STEAK_TICK:   'steakTick',  // {t, victim:<peerId>, dmg:number} - poison DOT tick
   STEAK_DEATH:  'steakDeath', // {t, victim, killer} - "STEAK ANIHILATION"
+  POWERUP_PICK: 'powerPick',  // {t, id:'protein-shake'|'cheese-wheel', by:<peerId>, respawnAt:number} - host authority
 });

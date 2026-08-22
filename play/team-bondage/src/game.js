@@ -38,6 +38,11 @@ import { createPhysicsWorld } from 'arbelo/physics';
 import { SnowSystem }         from './entities/snow.js';
 import { ChickenPickup }      from './entities/chickenPickup.js';
 import { SteakPickups, SIDES as STEAK_SIDES } from './entities/steakPickups.js';
+import { PowerUpPickups }   from './entities/powerUps.js';
+import {
+  POWER_UPS, emptyPowerUpState, applyPowerUp, expirePowerUp, clearOnDeath,
+  remainingSeconds, activeDef, scaleFor, cooldownScaleFor, hitRadiusFor,
+} from './entities/powerUpSpec.js';
 import { computeFlagAction }  from '../../../../web-engine/ctf/flagLogic.js';
 import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js';
 import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
@@ -67,6 +72,13 @@ export const MAX_BOTS = MATCH_CAP - 1;   // a host is always one of the sixteen
 // (WIN_SCORE used to live here as a constant. It is now the MODE's — 5
 // captures, 30 kills or 90 seconds of held hill — see web-engine/modes/
 // gameModes.js and modeWinner()/anagramDue().)
+// How far a hitscan shot reaches, and how far a tracer is drawn.
+//
+// This was a hard-coded 60 (and a 50 for tracers) chosen when the map was 64
+// tiles across. At 80x80 the bases are ~96 m apart and the fog now clears to
+// 150 m, so a 60 m gun could not reach a target the player could plainly see
+// — the shot simply did nothing, which is the worst kind of miss.
+const SHOT_RANGE = 80;
 const NET_TICK_HZ = 20;
 const RESPAWN_DELAY = 0.0;      // "immediate" per spec
 const ANAGRAM_SECONDS = 10;
@@ -442,7 +454,7 @@ export class Game {
     // rink is not the same surface as a snow field. frictionFor() is the one
     // number that differs.
     this.player = new Player(this.camera, this.physics, spawn, this.team, this.character,
-                             { friction: frictionFor(this.mapId) });
+                             { friction: frictionFor(this.mapId), grid: this.grid });
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
     this.snow    = new SnowSystem(this.scene, this.player.pos, this.grid);
@@ -469,6 +481,20 @@ export class Game {
     this.steakScore = 0;                // local counter, 0..5
     this.steakAmmo = 0;                 // 0 or 1 charged throws
     this._steakPoisonBy = new Map();    // victimId -> attackerId
+    // Power-ups: a protein shake on the gym deck, a cheese wheel on the dairy
+    // deck. Both are 20-second effects on ONE local slot — see
+    // docs/features/power-ups.md and entities/powerUpSpec.js.
+    this.powerUpPickups = new PowerUpPickups(this.scene, this.world.powerUpSpawns, {
+      onPickup: (id, peerId) => {
+        this._broadcast({ t: MSG.POWERUP_PICK, id, by: peerId,
+                          respawnAt: Date.now() + 30000 });
+        this._grantPowerUp(id, peerId);
+      },
+    });
+    this.powerUpState = emptyPowerUpState();
+    // Every other player's current size, so a shot at a giant is a shot at a
+    // giant-sized target (see _raycastPlayers).
+    this._peerScale = new Map();        // peerId -> sizeScale
     if (this.isHost) {
       // Host-side poison DOT: 2 dmg/sec to every poisoned player.
       this._steakPoisonTimer = setInterval(() => this._steakPoisonTick(), 1000);
@@ -1349,6 +1375,10 @@ export class Game {
       case MSG.STATE: {
         const rp = this.remotePlayers.get(from);
         if (rp) rp.setNet(msg.p, msg.y, msg.x, msg.h);
+        // Power-up size. Older peers don't send `sc`; they are normal-sized.
+        const sc = Number.isFinite(msg.sc) && msg.sc > 0 ? msg.sc : 1;
+        this._peerScale.set(from, sc);
+        if (rp) rp.setBodyScale(sc);
         // If they were carrying a flag, sync flag position.
         if (msg.hf) {
           const c = msg.tm === 'red' ? 'blue' : 'red';
@@ -1429,6 +1459,15 @@ export class Game {
         break;
       case MSG.STEAK_BREAK:
         this._steakBreakRemote(msg.at, msg.by);
+        break;
+      case MSG.POWERUP_PICK:
+        // Host authority: hide the pickup for everyone, start the effect for
+        // whoever took it (a no-op on every client but theirs). The respawn
+        // instant arrives as a Date.now() stamp and has to be rebased onto
+        // this peer's performance.now() clock, which starts at page load.
+        this.powerUpPickups?.markTaken(
+          msg.id, (msg.respawnAt - Date.now()) + performance.now());
+        this._grantPowerUp(msg.id, msg.by);
         break;
       case MSG.STEAK_THROW:
         this._spawnSteakProjectile(msg);
@@ -1550,6 +1589,7 @@ export class Game {
           p: [this.player.pos.x, this.player.pos.y, this.player.pos.z],
           y: this.player.yaw, x: this.player.pitch, h: this.player.hp,
           c: this.character, tm: this.team, hf: false,
+          sc: this.player.sizeScale,
         });
       }
       this.input.endFrame();
@@ -1596,6 +1636,10 @@ export class Game {
       this.chickenPickup.update(dt, hostPlayers);
     }
     this.steakPickups?.update(dt);
+    if (this.powerUpPickups) {
+      this.powerUpPickups.update(dt, this.isHost ? this._allPlayerRefs() : null);
+    }
+    this._updatePowerUpEffect();
     this._paintCompass();
     this._paintHayHide();
 
@@ -1676,6 +1720,7 @@ export class Game {
         c: this.character,
         tm: this.team,
         hf: this.player.hasEnemyFlag,
+        sc: this.player.sizeScale,
       });
     }
 
@@ -2107,12 +2152,72 @@ export class Game {
     }
   }
 
+  // ---- power-ups ---------------------------------------------------------
+  // docs/features/power-ups.md. The pickup is host-authoritative (like the
+  // chicken); the EFFECT is entirely local — every client runs its own
+  // 20-second clock on its own player and tells the world its size on the
+  // normal 20 Hz STATE packet.
+
+  _grantPowerUp(id, peerId) {
+    if (peerId !== this.myId) return;
+    const def = POWER_UPS[id];
+    if (!def) return;
+    // applyPowerUp REPLACES rather than stacks: you cannot be a giant and a
+    // mouse, and re-drinking what you already have refreshes the full 20 s.
+    this.powerUpState = applyPowerUp(this.powerUpState, id, performance.now());
+    this._updatePowerUpEffect();
+    this._showPowerGet(`${def.emoji}  ${def.name}  ${def.emoji}`, def.blurb);
+    try { SFX.chirp(); SFX.boom(0.35); } catch (_) {}
+  }
+
+  // Runs every frame: expire the clock, push the current size at the player
+  // and the weapon, repaint the pill. Every call is idempotent, so this is
+  // safe to run from the frame loop AND from the moment of pickup.
+  _updatePowerUpEffect() {
+    if (!this.player) return;
+    const now = performance.now();
+    const { state, expired } = expirePowerUp(this.powerUpState, now);
+    this.powerUpState = state;
+    if (expired) { try { SFX.splat(); } catch (_) {} }
+    const scale = scaleFor(state);
+    this.player.setSizeScale(scale);
+    if (this.weapons) this.weapons.cooldownScale = cooldownScaleFor(state);
+    this._paintPowerUpPill(now);
+  }
+
+  // HUD rung 200 — the first free one under the poison hint. See the ladder in
+  // docs/GAME_DESIGN.md: every element gets its own rung and nothing shares.
+  _paintPowerUpPill(now) {
+    const def = activeDef(this.powerUpState);
+    let el = document.getElementById('powerup-pill');
+    if (!def) { if (el) el.style.display = 'none'; return; }
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'powerup-pill';
+      Object.assign(el.style, {
+        position: 'fixed', left: '50%',
+        top: 'calc(max(8px, env(safe-area-inset-top)) + 200px)',
+        transform: 'translateX(-50%)', padding: '6px 14px',
+        font: '800 14px system-ui, sans-serif', borderRadius: '999px',
+        pointerEvents: 'none', zIndex: '30', whiteSpace: 'nowrap',
+      });
+      document.body.appendChild(el);
+    }
+    const hex = `#${def.tint.toString(16).padStart(6, '0')}`;
+    el.style.display = 'block';
+    el.style.color = hex;
+    el.style.background = 'rgba(12,16,26,0.85)';
+    el.style.border = `1px solid ${hex}`;
+    el.style.boxShadow = `0 0 16px ${hex}66`;
+    el.textContent = `${def.emoji}  ${def.hud}  ${remainingSeconds(this.powerUpState, now)}s`;
+  }
+
   _addTracerForShot(s) {
     const def = WEAPON_DEFS.find((d) => d.id === s.weaponId);
     const color = def && def.tracerColor ? def.tracerColor : 0xf4c95d;
     const origin = new THREE.Vector3().fromArray(s.origin);
     const dir    = new THREE.Vector3().fromArray(s.dir);
-    this.tracers.addHitscan(origin, dir, 50, color);
+    this.tracers.addHitscan(origin, dir, SHOT_RANGE * 0.8, color);
   }
 
   // Resolve a shot fired by us: check hitscan vs remote players + world;
@@ -2123,7 +2228,7 @@ export class Game {
       const dir = new THREE.Vector3().fromArray(s.dir);
       // STEAK pickup detection: if the ray hits a floating steak before a
       // player, count it. Steaks respawn 2 s later. At 5, next fire = steak throw.
-      const steakSide = this.steakPickups?.raycastHit(origin, dir, 60);
+      const steakSide = this.steakPickups?.raycastHit(origin, dir, SHOT_RANGE);
       if (steakSide) {
         this.steakPickups.markBroken(steakSide);
         this._broadcast({ t: MSG.STEAK_BREAK, at: steakSide, by: this.myId });
@@ -2181,16 +2286,24 @@ export class Game {
   }
 
   _raycastPlayers(origin, dir) {
-    // Simple: sphere test against each remote player at 1.4m radius.
+    // Sphere test against each remote player, centred on their chest.
+    //
+    // Both the chest offset and the sphere SCALE with the target's power-up
+    // size: a giant is a chest-high aim point 2 m up and a 1.4 m sphere, a
+    // mouse is one 0.2 m up and a 0.42 m sphere. hitRadiusFor() floors the
+    // shrunk case so the cheese wheel makes you a harder target, never an
+    // impossible one (powerUpSpec.js).
     let best = null;
     let bestT = Infinity;
     for (const [pid, rp] of this.remotePlayers.entries()) {
-      const to = rp.group.position.clone().add(new THREE.Vector3(0, 1, 0)).sub(origin);
+      const sc = this._peerScale.get(pid) ?? 1;
+      const chest = rp.group.position.clone().add(new THREE.Vector3(0, 1 * sc, 0));
+      const to = chest.clone().sub(origin);
       const projT = to.dot(dir);
-      if (projT < 0.5 || projT > 60) continue;
+      if (projT < 0.5 || projT > SHOT_RANGE) continue;
       const closest = origin.clone().addScaledVector(dir, projT);
-      const perp = rp.group.position.clone().add(new THREE.Vector3(0, 1, 0)).distanceTo(closest);
-      if (perp < 0.7 && projT < bestT) {
+      const perp = chest.distanceTo(closest);
+      if (perp < hitRadiusFor(sc) && projT < bestT) {
         bestT = projT;
         best = { peerId: pid };
       }
@@ -2204,7 +2317,7 @@ export class Game {
 
   _rayHitsWall(origin, dir, tMax) {
     const step = 0.25;
-    const iters = Math.min(300, Math.ceil(tMax / step));
+    const iters = Math.min(Math.ceil(SHOT_RANGE / step) + 4, Math.ceil(tMax / step));
     for (let i = 0; i < iters; i++) {
       const t = i * step;
       const p = origin.clone().addScaledVector(dir, t);
@@ -2252,6 +2365,11 @@ export class Game {
       // Death clears any steak poison + its HUD hint.
       this._steakPoisonBy.delete(this.myId);
       this._hidePoisonHint();
+      // ...and any power-up. A buff that survives death is a buff the player
+      // can no longer see the source of, and respawning giant would also drop
+      // them a metre into their own barn floor (Player.respawn).
+      this.powerUpState = clearOnDeath();
+      this._updatePowerUpEffect();
       // Immediate respawn per spec, with 2 s spawn protection.
       this.player.respawn();
       this._invulnUntil = performance.now() + 2000;
