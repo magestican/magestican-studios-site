@@ -53,6 +53,8 @@ import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js'
 import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
 import { GoreSystem }         from './entities/gore.js';
 import { AmbientCritters }    from './entities/ambientCritters.js';
+import { emptyTally, tallyKill, scoreboardRows, teamTotals, resultCopy,
+         captureFanfare }     from '../../../web-engine/match/matchFlow.js';
 
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
@@ -109,9 +111,25 @@ function shotDirection(shot) {
   if (shot.vel) return new THREE.Vector3().fromArray(shot.vel).normalize();
   return new THREE.Vector3(0, 0, 1);
 }
+
+
+
+
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 const NET_TICK_HZ = 20;
 const RESPAWN_DELAY = 0.0;      
 const ANAGRAM_SECONDS = 10;
+
+
+
+
+const RESULT_DELAY_MS = 1900;
+const RESULT_HOLD_MS  = 3000;
 const LOBBY_MIN_PLAYERS = 2;
 const LOBBY_COUNTDOWN_SECONDS = 5;
 
@@ -153,6 +171,11 @@ export class Game {
     this._anagram = null;                
     this._lastRespawnAt = 0;
     this._killFeed = [];                 
+    
+    
+    
+    this._tally = emptyTally();
+    this._scoreboardOpen = false;
     this.audio = new Chiptune();
     this._buildCornBar();
     
@@ -590,6 +613,47 @@ export class Game {
       if (!Number.isFinite(idx)) continue;
       el.addEventListener('click', (e) => { e.preventDefault(); this._switchWeapon(idx); });
     }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const isScoreboardKey = (e) =>
+      (this.input.bindings.scoreboard || []).includes(e.code);
+    const typing = () => {
+      const t = document.activeElement?.tagName;
+      return t === 'INPUT' || t === 'TEXTAREA';
+    };
+    window.addEventListener('keydown', (e) => {
+      if (!isScoreboardKey(e) || typing()) return;
+      e.preventDefault();
+      if (!this._scoreboardOpen) this._paintScoreboard(true);
+    });
+    window.addEventListener('keyup', (e) => {
+      if (!isScoreboardKey(e) || typing()) return;
+      e.preventDefault();
+      this._paintScoreboard(false);
+    });
+    
+    
+    
+    
+    const pill = document.getElementById('topbar');
+    if (pill) {
+      pill.style.pointerEvents = 'auto';
+      pill.style.cursor = 'pointer';
+      const toggle = (e) => { if (e) e.preventDefault();
+        this._paintScoreboard(!this._scoreboardOpen); };
+      pill.addEventListener('click', toggle);
+      pill.addEventListener('touchstart', toggle, { passive: false });
+    }
   }
 
   pointerLock() {
@@ -720,6 +784,27 @@ export class Game {
       ? groundHeightAt(this.grid, pos.x, pos.z, pos.y)
       : pos.y;
     this.cornDrops.drop(pos, ground);
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _localDeath(killer, victim, weapon, pos) {
+    this._announceKill(killer, victim, weapon);
+    this._dropCorn(pos || this._posOf(victim));
   }
 
   
@@ -903,7 +988,16 @@ export class Game {
       if (meta.team === 'red') r++; else b++;
     }
     const team = preferredTeam || (r <= b ? 'red' : 'blue');
-    const bot = Bot.make({ team, world: this.world, seed: this.seed });
+    
+    
+    
+    
+    
+    
+    const taken = [...this.bots.values()]
+      .filter((b) => b.team === team)
+      .map((b) => b.spawnSlot);
+    const bot = Bot.make({ team, world: this.world, seed: this.seed, taken });
     this.bots.set(bot.peerId, bot);
     
     this.playerMeta.set(bot.peerId, {
@@ -983,6 +1077,7 @@ export class Game {
           this._broadcast({ t: MSG.SCORE, scores: this.scores });
           this._updateScoreUi();
           this._killFeedPush(`${bot.name} captured the ${color} flag!`);
+          this._captureMoment(scoringTeam, color, bot.name, false);
           this._maybeTriggerAnagram();
         },
       };
@@ -1040,6 +1135,10 @@ export class Game {
         const died = bot.takeDamage(s.damage);
         if (died) {
           this._broadcast({ t: MSG.DEATH, victim: bot.peerId, killer: s.ownerId, weapon: s.weaponId });
+          
+          
+          this._tallyKill(s.ownerId, bot.peerId);
+          this._localDeath(s.ownerId, bot.peerId, s.weaponId, bot.pos.clone());
           if (bot.hasEnemyFlag) {
             const enemyColor = bot.team === 'red' ? 'blue' : 'red';
             this._broadcast({ t: MSG.FLAG_DROP, by: bot.peerId, color: enemyColor,
@@ -1277,6 +1376,180 @@ export class Game {
       document.head.appendChild(s);
     }
     setTimeout(() => root.remove(), 2200);
+  }
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _captureMoment(scoringTeam, capturedColor, capturerName, isMe) {
+    this._showCaptureFanfare({
+      scoringTeam, capturerName, isMe,
+      capturedColor: this.mode.flags === 'neutral' ? 'neutral' : capturedColor,
+    });
+  }
+
+  _showCaptureFanfare({ scoringTeam, capturedColor, capturerName, isMe }) {
+    const f = captureFanfare({
+      scoringTeam, myTeam: this.team, capturedColor, capturerName, isMe,
+      scores: this.scores, winScore: this.mode.winScore,
+    });
+    try { SFX.announce(f.phrase); } catch (_) {}
+    
+    
+    if (f.tone === 'scored') { try { SFX.boom(0.55); } catch (_) {} }
+
+    document.getElementById('capture-fanfare')?.remove();
+    const root = document.createElement('div');
+    root.id = 'capture-fanfare';
+    root.className = `cf-${f.tone}`;
+    root.innerHTML = `
+      <div class="cf-sweep"></div>
+      <div class="cf-body">
+        <div class="cf-title">${f.tone === 'scored' ? '🚩' : '🚨'} ${escapeHtml(f.title)}</div>
+        <div class="cf-score">
+          <span class="cf-red">${this.scores.red}</span>
+          <span class="cf-dash">—</span>
+          <span class="cf-blue">${this.scores.blue}</span>
+        </div>
+        <div class="cf-sub">${escapeHtml(f.subtitle)}</div>
+        ${f.matchPointLine ? `<div class="cf-mp">${escapeHtml(f.matchPointLine)}</div>` : ''}
+      </div>`;
+    document.body.appendChild(root);
+    this._injectMatchMomentStyles();
+    setTimeout(() => root.remove(), 2600);
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  _showRoundResult(anagramComing) {
+    if (this._roundResultShown) return;
+    this._roundResultShown = true;
+    this.matchState = 'ended';
+    const r = resultCopy({ scores: this.scores, myTeam: this.team,
+                           anagramDue: !!anagramComing });
+    try { SFX.announce(r.outcome === 'win' ? 'CAPTURE' : 'CONCEDED'); } catch (_) {}
+    document.getElementById('round-result')?.remove();
+    const root = document.createElement('div');
+    root.id = 'round-result';
+    root.className = `rr-${r.outcome}`;
+    root.innerHTML = `
+      <div class="rr-body">
+        <div class="rr-title" style="color:${r.accent}">${r.title}</div>
+        <div class="rr-score">
+          <span class="rr-team rr-red ${r.winner === 'red' ? 'won' : ''}">RED <b>${r.red}</b></span>
+          <span class="rr-dash">—</span>
+          <span class="rr-team rr-blue ${r.winner === 'blue' ? 'won' : ''}"><b>${r.blue}</b> BLUE</span>
+        </div>
+        <div class="rr-sub">${escapeHtml(r.sub)}</div>
+        <div class="rr-hint">hold TAB for the scoreboard</div>
+      </div>`;
+    document.body.appendChild(root);
+    this._injectMatchMomentStyles();
+  }
+
+  _hideRoundResult() { document.getElementById('round-result')?.remove(); }
+
+  _injectMatchMomentStyles() {
+    if (document.getElementById('match-moment-styles')) return;
+    const s = document.createElement('style');
+    s.id = 'match-moment-styles';
+    
+    
+    
+    
+    
+    
+    s.textContent = `
+      #capture-fanfare { position: fixed; inset: 0; z-index: 9997;
+        pointer-events: none; display: flex; align-items: center;
+        justify-content: center; font-family: system-ui, sans-serif; }
+      #capture-fanfare .cf-sweep { position: absolute; left: 0; right: 0;
+        top: 34%; height: 32%; animation: cfSweep 2.6s ease-out forwards; }
+      #capture-fanfare.cf-scored .cf-sweep {
+        background: linear-gradient(90deg, rgba(0,0,0,0) 0%,
+          rgba(255,205,90,0.34) 25%, rgba(255,235,150,0.42) 50%,
+          rgba(255,205,90,0.34) 75%, rgba(0,0,0,0) 100%); }
+      #capture-fanfare.cf-conceded .cf-sweep {
+        background: linear-gradient(90deg, rgba(0,0,0,0) 0%,
+          rgba(190,40,25,0.36) 25%, rgba(255,70,50,0.44) 50%,
+          rgba(190,40,25,0.36) 75%, rgba(0,0,0,0) 100%); }
+      #capture-fanfare .cf-body { position: relative; text-align: center;
+        animation: cfBody 2.6s cubic-bezier(.2,1.5,.3,1) forwards; }
+      #capture-fanfare .cf-title { font: 900 min(8.5vw,60px)/1 system-ui, sans-serif;
+        letter-spacing: 0.05em; }
+      #capture-fanfare.cf-scored .cf-title { color: #fff3bc;
+        text-shadow: 0 0 26px #f4c95d, 0 3px 0 #7a4a10, 0 8px 26px rgba(0,0,0,.9); }
+      #capture-fanfare.cf-conceded .cf-title { color: #ffd0c6;
+        text-shadow: 0 0 26px #ff3a1a, 0 3px 0 #5a0d05, 0 8px 26px rgba(0,0,0,.9); }
+      #capture-fanfare .cf-score { margin-top: 6px;
+        font: 900 min(6vw,38px)/1 system-ui, sans-serif; letter-spacing: 0.08em;
+        text-shadow: 0 3px 10px rgba(0,0,0,.95); }
+      #capture-fanfare .cf-red { color: #ff8a7a; }
+      #capture-fanfare .cf-blue { color: #9cc4ff; }
+      #capture-fanfare .cf-dash { color: #e8f3ff; margin: 0 10px; }
+      #capture-fanfare .cf-sub { margin-top: 8px; color: #fff;
+        font: 800 min(3.4vw,17px)/1.3 system-ui, sans-serif; letter-spacing: 0.1em;
+        text-shadow: 0 2px 6px #000; }
+      #capture-fanfare .cf-mp { margin-top: 8px; display: inline-block;
+        padding: 4px 12px; border-radius: 999px; background: rgba(0,0,0,0.6);
+        border: 2px solid #f4c95d; color: #ffe9a8;
+        font: 900 min(3.2vw,15px)/1 system-ui, sans-serif; letter-spacing: 0.12em; }
+      @keyframes cfSweep { 0% { opacity: 0; transform: scaleX(0.2) }
+                           18% { opacity: 1; transform: scaleX(1) }
+                           70% { opacity: 1 } 100% { opacity: 0 } }
+      @keyframes cfBody  { 0% { transform: scale(0.55); opacity: 0 }
+                           14% { transform: scale(1.1); opacity: 1 }
+                           22% { transform: scale(1); opacity: 1 }
+                           82% { transform: scale(1); opacity: 1 }
+                           100% { transform: scale(1.04); opacity: 0 } }
+
+      #round-result { position: fixed; inset: 0; z-index: 9996;
+        pointer-events: none; display: flex; align-items: center;
+        justify-content: center; font-family: system-ui, sans-serif;
+        background: radial-gradient(circle at center,
+          rgba(6,10,16,0.72) 0%, rgba(6,10,16,0.94) 75%);
+        animation: rrFade 0.5s ease-out forwards; }
+      #round-result .rr-body { text-align: center; padding: 0 16px;
+        animation: rrBody 0.75s cubic-bezier(.2,1.5,.3,1) forwards; }
+      #round-result .rr-title { font: 900 min(14vw,110px)/1 Georgia, serif;
+        letter-spacing: 0.05em;
+        text-shadow: 0 0 40px rgba(0,0,0,0.9), 0 6px 0 rgba(0,0,0,0.55); }
+      #round-result .rr-score { margin-top: 14px; color: #7d8da0;
+        font: 900 min(7vw,44px)/1 system-ui, sans-serif; letter-spacing: 0.06em; }
+      #round-result .rr-team { opacity: 0.55; }
+      #round-result .rr-team.won { opacity: 1; }
+      #round-result .rr-red  { color: #ff8a7a; }
+      #round-result .rr-blue { color: #9cc4ff; }
+      #round-result .rr-dash { color: #55627a; margin: 0 14px; }
+      #round-result .rr-sub { margin-top: 16px; color: #e8f3ff;
+        font: 800 min(3.8vw,19px)/1.4 system-ui, sans-serif; letter-spacing: 0.1em; }
+      #round-result .rr-hint { margin-top: 10px; color: #6f7d90;
+        font: 700 12px system-ui, sans-serif; letter-spacing: 0.14em; }
+      @keyframes rrFade { 0% { opacity: 0 } 100% { opacity: 1 } }
+      @keyframes rrBody { 0% { transform: scale(0.7); opacity: 0 }
+                          70% { transform: scale(1.04); opacity: 1 }
+                          100% { transform: scale(1); opacity: 1 } }
+    `;
+    document.head.appendChild(s);
   }
 
   
@@ -1565,9 +1838,10 @@ export class Game {
         
         this.critters?.cheer(this._posOf(msg.victim),
           msg.weapon === 'chicken' ? 'chicken' : 'kill');
-        this._announceKill(msg.killer, msg.victim, msg.weapon);
         
-        this._dropCorn(this._posOf(msg.victim));
+        
+        
+        this._localDeath(msg.killer, msg.victim, msg.weapon);
         
         
         
@@ -1629,6 +1903,10 @@ export class Game {
       case MSG.STEAK_DEATH:
         this._steakPoisonBy.delete(msg.victim);
         if (msg.victim === this.myId) this._hidePoisonHint();
+        
+        
+        
+        this._tallyKill(msg.killer, msg.victim);
         this._announceSteakAnnihilation(msg.victim, msg.killer);
         break;
       case MSG.FLAG_CAP: {
@@ -1641,6 +1919,7 @@ export class Game {
         
         
         this.critters?.cheer(this.world.flags[scoringTeam], 'capture');
+        this._captureMoment(scoringTeam, msg.color, this._name(msg.by), false);
         this._maybeTriggerAnagram();
         break;
       }
@@ -2152,6 +2431,8 @@ export class Game {
       if (bot) {
         bot.takeDamage(100);
         this._broadcast({ t: MSG.DEATH, victim: victim.peerId, killer: msg.by, weapon: 'chicken' });
+        this._tallyKill(msg.by, victim.peerId);
+        this._localDeath(msg.by, victim.peerId, 'chicken', bot.pos.clone());
         setTimeout(() => bot.respawn(), 500);
       } else if (victim.peerId === this.myId) {
         this._takeDamage(100, msg.by, 'chicken');
@@ -2232,6 +2513,7 @@ export class Game {
         const died = bot.takeDamage(2);
         if (died) {
           this._broadcast({ t: MSG.STEAK_DEATH, victim: victimId, killer: byId });
+          this._tallyKill(byId, victimId);
           this._announceSteakAnnihilation(victimId, byId);
           this._steakPoisonBy.delete(victimId);
           setTimeout(() => bot.respawn(), 500);
@@ -2240,6 +2522,7 @@ export class Game {
         this._takeDamage(3, byId, 'steak');
         if (this.player.hp <= 0) {
           this._broadcast({ t: MSG.STEAK_DEATH, victim: victimId, killer: byId });
+          this._tallyKill(byId, victimId);
           this._announceSteakAnnihilation(victimId, byId);
           this._steakPoisonBy.delete(victimId);
         }
@@ -2565,6 +2848,10 @@ export class Game {
         this._creditKill(this.myId, peerId);
         this._killFeedPush(`${this._name(this.myId)} ➜ ${bot.name} (${shot.weaponId})`);
         this.critters?.cheer(this._posOf(peerId), 'kill');
+        
+        
+        
+        this._localDeath(this.myId, peerId, shot.weaponId, bot.pos.clone());
         setTimeout(() => bot.respawn(), 500);
       }
     }
@@ -2640,11 +2927,13 @@ export class Game {
       }
       this._broadcast({ t: MSG.DEATH, victim: this.myId, killer: byId, weapon: weaponId });
       
+      
+      this._tallyKill(byId, this.myId);
+      
       try { SFX.animalVoice(this.character, 1.0); } catch (_) {}
       
       
-      this._announceKill(byId, this.myId, weaponId);
-      this._dropCorn(this.player.pos.clone());
+      this._localDeath(byId, this.myId, weaponId, this.player.pos.clone());
       
       
       
@@ -2700,6 +2989,7 @@ export class Game {
       this._updateScoreUi();
       this._killFeedPush(`${this._name(this.myId)} captured the ${enemyColor} flag!`);
       this.critters?.cheer(this.player.pos, 'capture');
+      this._captureMoment(myColor, enemyColor, this._name(this.myId), true);
       
       for (const bot of this.bots.values()) {
         this._botTaunt(bot.peerId, bot.team === myColor ? 'capture' : 'conceded');
@@ -2783,7 +3073,138 @@ export class Game {
 
   
   
+  
+  
+  
+  
+  
+  _tallyKill(killerId, victimId) {
+    tallyKill(this._tally, killerId, victimId);
+    if (this._scoreboardOpen) this._paintScoreboard(true);   
+  }
+
+  
+  
+  
+  _scoreboardPlayers() {
+    return [...this.playerMeta.entries()].map(([id, m]) => ({
+      id,
+      name: m.name,
+      team: m.team ?? this.bots.get(id)?.team ?? null,
+      bot: !!(m.bot || this.bots.has(id)),
+    }));
+  }
+
+  
+  
+  
+  _paintScoreboard(show) {
+    this._scoreboardOpen = !!show;
+    let root = document.getElementById('scoreboard');
+    if (!show) { root?.remove(); return; }
+    if (!root) {
+      root = document.createElement('div');
+      root.id = 'scoreboard';
+      document.body.appendChild(root);
+      this._injectScoreboardStyles();
+    }
+    const rows = scoreboardRows({
+      players: this._scoreboardPlayers(), tally: this._tally, myId: this.myId,
+    });
+    const column = (team) => {
+      const totals = teamTotals(rows[team]);
+      const body = rows[team].map((r) => `
+        <tr class="${r.isMe ? 'me' : ''}">
+          <td class="sb-name">${escapeHtml(r.name)}${r.bot ? '<span class="sb-bot">BOT</span>' : ''}</td>
+          <td class="sb-num">${r.kills}</td>
+          <td class="sb-num">${r.deaths}</td>
+        </tr>`).join('');
+      return `
+        <div class="sb-col sb-${team}">
+          <div class="sb-head">
+            <span class="sb-team">${team.toUpperCase()}</span>
+            <span class="sb-score">${this.scores[team]}</span>
+          </div>
+          <table>
+            <tr class="sb-labels"><th>PLAYER</th><th>K</th><th>D</th></tr>
+            ${body || '<tr><td class="sb-empty" colspan="3">nobody yet</td></tr>'}
+          </table>
+          <div class="sb-total">team ${totals.kills} kills · ${totals.deaths} deaths</div>
+        </div>`;
+    };
+    root.innerHTML = `
+      <div class="sb-card">
+        <div class="sb-title">${this.mode.emoji} ${this.mode.name.toUpperCase()}
+          <span class="sb-target">first to ${this.mode.winScore} ${this.mode.scoreLabel.toLowerCase()}</span></div>
+        <div class="sb-cols">${column('red')}${column('blue')}</div>
+      </div>`;
+  }
+
+  _injectScoreboardStyles() {
+    if (document.getElementById('scoreboard-styles')) return;
+    const s = document.createElement('style');
+    s.id = 'scoreboard-styles';
+    
+    
+    
+    s.textContent = `
+      #scoreboard { position: fixed; inset: 0; z-index: 19; pointer-events: none;
+        display: flex; align-items: center; justify-content: center;
+        font-family: system-ui, sans-serif; }
+      #scoreboard .sb-card { background: rgba(8,11,17,0.93);
+        border: 2px solid rgba(255,255,255,0.18); border-radius: 14px;
+        padding: 14px 16px 12px; box-shadow: 0 18px 60px rgba(0,0,0,0.75);
+        max-width: min(760px, 94vw); width: 100%; }
+      #scoreboard .sb-title { text-align: center; color: #f4c95d;
+        font: 900 15px/1.2 system-ui, sans-serif; letter-spacing: 0.08em;
+        margin-bottom: 10px; }
+      #scoreboard .sb-target { display: block; color: #9fb0c8; font: 700 11px/1.4 system-ui;
+        letter-spacing: 0.12em; margin-top: 2px; }
+      #scoreboard .sb-cols { display: flex; gap: 12px; }
+      #scoreboard .sb-col { flex: 1 1 0; min-width: 0;
+        border-radius: 10px; padding: 8px 10px 6px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); }
+      #scoreboard .sb-red  { border-color: rgba(208,80,62,0.55); }
+      #scoreboard .sb-blue { border-color: rgba(79,138,219,0.55); }
+      #scoreboard .sb-head { display: flex; justify-content: space-between;
+        align-items: baseline; margin-bottom: 6px; }
+      #scoreboard .sb-team { font: 900 14px system-ui; letter-spacing: 0.12em; }
+      #scoreboard .sb-red .sb-team, #scoreboard .sb-red .sb-score  { color: #ff8a7a; }
+      #scoreboard .sb-blue .sb-team, #scoreboard .sb-blue .sb-score { color: #9cc4ff; }
+      #scoreboard .sb-score { font: 900 24px system-ui; }
+      #scoreboard table { width: 100%; border-collapse: collapse; }
+      #scoreboard th, #scoreboard td { padding: 3px 2px; text-align: left; }
+      #scoreboard .sb-labels th { color: #7d8da0;
+        font: 800 10px system-ui; letter-spacing: 0.14em;
+        border-bottom: 1px solid rgba(255,255,255,0.12); }
+      #scoreboard .sb-labels th:not(:first-child), #scoreboard .sb-num { text-align: right; width: 34px; }
+      #scoreboard .sb-name { color: #e8f3ff; font: 700 13px system-ui;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
+      #scoreboard .sb-num { color: #cfe3ff; font: 800 13px system-ui; }
+      #scoreboard tr.me .sb-name, #scoreboard tr.me .sb-num { color: #ffe9a8; }
+      #scoreboard .sb-bot { margin-left: 6px; padding: 0 4px; border-radius: 4px;
+        background: rgba(255,255,255,0.12); color: #9fb0c8;
+        font: 800 9px system-ui; letter-spacing: 0.08em; vertical-align: 1px; }
+      #scoreboard .sb-empty { color: #6f7d90; font: 700 12px system-ui; padding: 6px 0; }
+      #scoreboard .sb-total { margin-top: 6px; padding-top: 5px;
+        border-top: 1px solid rgba(255,255,255,0.10);
+        color: #8fa0b6; font: 700 10px system-ui; letter-spacing: 0.06em; }
+      @media (max-width: 520px) {
+        #scoreboard .sb-cols { flex-direction: column; }
+        #scoreboard .sb-card { max-height: 82vh; overflow-y: auto; pointer-events: auto; }
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  
+
+  
+  
   _creditKill(killerId, victimId) {
+    
+    
+    this._tallyKill(killerId, victimId);
     if (!this.isHost || this.gameOver) return;
     
     if (this.bots.has(killerId)) this._botTaunt(killerId, 'kill');
@@ -2869,22 +3290,49 @@ export class Game {
     
     
     const winning = modeWinner(this.mode, this.scores);
-    if (!winning || !anagramDue(this.mode, this.scores)) return;
+    if (!winning) return;
     const losing  = winning === 'red' ? 'blue' : 'red';
     this.gameOver = true;
+    
+    
+    
+    const steal = anagramDue(this.mode, this.scores);
+    
+    
+    
+    setTimeout(() => this._showRoundResult(steal), RESULT_DELAY_MS);
+    if (!steal) return;
     
     if (this.isHost) {
       const wordSeed = (this.seed ^ (red * 73856093) ^ (blue * 19349663)) >>> 0;
       const word = pickWord(wordSeed);
       const scrambled = scramble(word, wordSeed);
-      const endsAt = Date.now() + ANAGRAM_SECONDS * 1000;
+      
+      
+      
+      const endsAt = Date.now() + RESULT_DELAY_MS + RESULT_HOLD_MS
+                   + ANAGRAM_SECONDS * 1000;
       this._broadcast({ t: MSG.ANAGRAM_START, word, scrambled, losingTeam: losing, endsAt });
       this._startAnagram(word, scrambled, losing, endsAt);
     }
     
   }
 
+  
+  
+  
+  
   _startAnagram(word, scrambled, losingTeam, endsAt) {
+    setTimeout(() => this._showRoundResult(true), RESULT_DELAY_MS);
+    const openAt = endsAt - ANAGRAM_SECONDS * 1000;
+    setTimeout(() => this._openAnagram(word, scrambled, losingTeam, endsAt),
+               Math.max(0, openAt - Date.now()));
+  }
+
+  _openAnagram(word, scrambled, losingTeam, endsAt) {
+    
+    
+    this._hideRoundResult();
     this._anagram = { word, scrambled, losingTeam, endsAt,
       spectator: (this.team !== losingTeam) };
     const wrap = document.getElementById('anagramWrap');

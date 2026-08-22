@@ -14,6 +14,8 @@
 import * as THREE from 'three';
 import { hasLineOfSight } from '../../../../web-engine/physics/lineOfSight.js';
 import { stepBot }        from '../../../../web-engine/ai/botStep.js';
+import { spawnOffset, pickSpawnSlot }
+  from '../../../../web-engine/movement/spawnScatter.js';
 
 const NAMES = [
   'Bot-Buttercup', 'Bot-Hoof', 'Bot-Cluck', 'Bot-Trotter',
@@ -29,14 +31,18 @@ const FIRE_COOLDOWN = 0.9;
 let _botId = 0;
 
 export class Bot {
-  static make({ team, world, seed }) {
+  
+  
+  
+  
+  static make({ team, world, seed, taken = [] }) {
     const id = `bot-${(seed ^ (++_botId << 5)).toString(36).slice(-6)}`;
     const character = CHARACTERS[(_botId + (team === 'red' ? 0 : 2)) % CHARACTERS.length];
     const name = NAMES[_botId % NAMES.length];
-    return new Bot({ id, name, team, character, world });
+    return new Bot({ id, name, team, character, world, slot: pickSpawnSlot(taken) });
   }
 
-  constructor({ id, name, team, character, world }) {
+  constructor({ id, name, team, character, world, slot = null }) {
     this.peerId = id;
     this.name = name;
     this.team = team;
@@ -44,6 +50,9 @@ export class Bot {
     this.world = world;
     const spawn = world.spawns[team];
     this.peerId = id;                      
+    
+    
+    this.spawnSlot = Number.isInteger(slot) ? slot : pickSpawnSlot([]);
     const off = this._spawnOffset();
     this.pos   = new THREE.Vector3(spawn.x + off.x, spawn.y, spawn.z + off.z);
     this.yaw   = team === 'red' ? Math.PI / 4 : Math.PI + Math.PI / 4;
@@ -159,16 +168,16 @@ export class Bot {
   
   
   
+  
+  
+  
+  
+  
+  
+  
   _spawnOffset() {
     if (this._spawnOff) return this._spawnOff;
-    let h = 0;
-    for (let i = 0; i < this.peerId.length; i++) {
-      h = (h * 31 + this.peerId.charCodeAt(i)) >>> 0;
-    }
-    const idx = h % 12;
-    const ang = idx * 2.39996;                 
-    const rad = 0.9 + (idx % 3) * 0.65;        
-    this._spawnOff = { x: Math.cos(ang) * rad, z: Math.sin(ang) * rad };
+    this._spawnOff = spawnOffset(this.spawnSlot);
     return this._spawnOff;
   }
 

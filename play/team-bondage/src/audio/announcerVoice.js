@@ -88,6 +88,11 @@ export const PHRASES = {
   
   
   LOSER:        { text: 'LOOOOSERRR',   ph: 'L UW UW UW Z ER ER' },
+  
+  
+  
+  CAPTURE:      { text: 'FLAG CAPTURED', ph: 'F L AE G . K AE P CH ER D' },
+  CONCEDED:     { text: 'FLAG LOST',     ph: 'F L AE G . L AO S T' },
 };
 
 
