@@ -210,6 +210,25 @@
     .kernel:nth-child(7n)  { filter: brightness(0.93); }
     .kernel:nth-child(11n) { filter: brightness(1.12) hue-rotate(-6deg); }
     .kernel.gone { opacity: 0 !important; }
+    
+
+
+
+    #health-bar.critical {
+      background: linear-gradient(180deg, #b34a2a 0%, #8a2a1c 60%, #5e1a12 100%);
+      border-color: #ff5a3a;
+      animation: hpCritical 0.75s ease-in-out infinite;
+    }
+    #health-bar.critical .kernel {
+      background: radial-gradient(circle at 38% 28%, #ffb08f 0%, #ff5f43 48%, #c22d1c 85%, #8e1f12 100%);
+    }
+    #health-bar.critical::before, #health-bar.critical::after {
+      background: linear-gradient(105deg, #8a5a2a 0%, #6b3f1e 60%, #4d2c14 100%);
+    }
+    @keyframes hpCritical {
+      0%, 100% { box-shadow: 0 0 0 rgba(255, 60, 40, 0); }
+      50%      { box-shadow: 0 0 18px 3px rgba(255, 60, 40, 0.85); }
+    }
     .corn-fly { position: fixed; width: 8px; height: 10px; border-radius: 50%;
       background: radial-gradient(circle at 35% 30%, #ffea88, #f6c744 60%, #b3862a);
       pointer-events: none; z-index: 40;
@@ -821,6 +840,21 @@
       </label>
 
       <p class="hint">Esc closes this dialog.</p>
+      
+      <div id="share-wrap" style="display:none; margin:16px 0 0;">
+        <div style="font-size:13px;color:#cbd3e1;margin-bottom:6px;">
+          Invite link — share this and they drop straight into your match:
+        </div>
+        <div style="display:flex; gap:8px;">
+          <input id="share-url" type="text" readonly
+                 style="flex:1 1 auto; min-width:0; background:rgba(6,10,16,.9); color:#f4c95d;
+                        border:1px solid #f4c95d; border-radius:6px; padding:7px 10px;
+                        font:600 12px monospace;">
+          <button id="share-copy"
+                  style="background:#f4c95d; color:#1c1a17; border:0; border-radius:6px;
+                         padding:7px 14px; font:700 13px inherit; cursor:pointer;">Copy</button>
+        </div>
+      </div>
       <p id="support-slot" style="margin:14px 0 0;font-size:13px;color:#7f8798;"></p>
       <button id="settings-close">Close</button>
     </div>

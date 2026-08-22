@@ -19,6 +19,9 @@ import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
 import { computeAimAssist } from 'arbelo/aim-assist';
 import { stepProjectile } from '../../../web-engine/combat/projectileHit.js';
 import { Chat } from './ui/chat.js';
+import { KillAnnouncer, shouldHear } from './audio/killAnnouncer.js';
+import { CornDrops, CORN } from './entities/cornDrop.js';
+import { groundHeightAt } from '../../../web-engine/ai/botStep.js';
 import { considerTaunt, newTauntState } from './entities/botTaunts.js';
 
 import { RemotePlayer }     from './entities/remotePlayer.js';
@@ -80,6 +83,21 @@ export const MAX_BOTS = MATCH_CAP - 1;
 
 
 const SHOT_RANGE = 80;
+
+
+
+
+
+const LOW_HP = 30;
+
+const ANNOUNCE_TEXT = Object.freeze({
+  FIRST_BLOOD: 'FIRST BLOOD', DOUBLE_KILL: 'DOUBLE KILL',
+  MULTI_KILL: 'MULTI KILL', ULTRA_KILL: 'ULTRA KILL',
+  MONSTER_KILL: 'MONSTER KILL', KILLING_SPREE: 'KILLING SPREE',
+  RAMPAGE: 'RAMPAGE', DOMINATING: 'DOMINATING',
+  UNSTOPPABLE: 'UNSTOPPABLE', GODLIKE: 'GODLIKE',
+  HUMILIATION: 'HUMILIATION', REVENGE: 'REVENGE', DENIED: 'DENIED',
+});
 
 
 
@@ -172,6 +190,20 @@ export class Game {
     
     
     
+    
+    
+    
+    const canvas = this.renderer.domElement;
+    canvas.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      this._contextLost = true;
+      console.warn('[gfx] WebGL context lost — skipping draws until it returns');
+    });
+    canvas.addEventListener('webglcontextrestored', () => {
+      this._contextLost = false;
+      console.warn('[gfx] WebGL context restored');
+    });
+
     this._lastFrame = performance.now();
     requestAnimationFrame((now) => this._frame(now));
 
@@ -277,6 +309,13 @@ export class Game {
       },
     });
     this._taunts = newTauntState();
+    
+    
+    
+    
+    
+    this._killAnnouncer = new KillAnnouncer();
+    this.cornDrops = new CornDrops(this.scene);
 
     
     
@@ -665,6 +704,79 @@ export class Game {
   }
 
   
+  
+  
+  
+  
+  _dropCorn(pos) {
+    if (!pos || !this.cornDrops) return;
+    const ground = this.grid
+      ? groundHeightAt(this.grid, pos.x, pos.z, pos.y)
+      : pos.y;
+    this.cornDrops.drop(pos, ground);
+  }
+
+  
+  _tickCornDrops(dt) {
+    if (!this.cornDrops) return;
+    this.cornDrops.update(dt);
+    if (!this.player?.alive || this.matchState !== 'playing') return;
+    if (this.player.hp >= 100) return;      
+    const heal = this.cornDrops.collect(this.player.pos);
+    if (heal > 0) {
+      this.player.hp = Math.min(100, this.player.hp + heal);
+      this._paintCornBar();
+      this._showPowerGet('🌽  +' + heal + ' HP  🌽', 'Corn restored');
+      try { SFX.chirp(); } catch (_) {}
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  _announceKill(killer, victim, weapon) {
+    if (!this._killAnnouncer) return;
+    let keys = [];
+    try {
+      keys = this._killAnnouncer.registerKill({
+        killer, victim, weapon, atMs: performance.now(),
+      }) || [];
+    } catch (_) { return; }
+    for (const key of keys) {
+      if (!shouldHear(key, { killer, victim, listener: this.myId })) continue;
+      try { SFX.announce(key); } catch (_) {}
+      this._showAnnounceBanner(key);
+    }
+  }
+
+  
+  
+  _showAnnounceBanner(key) {
+    const text = ANNOUNCE_TEXT[key] || key.replace(/_/g, ' ');
+    const el = document.createElement('div');
+    el.textContent = text;
+    Object.assign(el.style, {
+      position: 'fixed', left: '50%', top: '26%',
+      transform: 'translate(-50%,-50%) scale(0.55)',
+      color: '#ffe9a8', font: '900 min(9vw, 74px)/1 Georgia, serif',
+      letterSpacing: '0.06em', whiteSpace: 'nowrap',
+      textShadow: '0 0 26px #f4c95d, 0 4px 0 #5a3a05, 0 9px 24px rgba(0,0,0,.9)',
+      pointerEvents: 'none', zIndex: '9998', opacity: '1',
+      transition: 'transform .34s cubic-bezier(.2,1.7,.3,1), opacity .5s ease-out 1.2s',
+    });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => {
+      el.style.transform = 'translate(-50%,-50%) scale(1)';
+    });
+    setTimeout(() => { el.style.opacity = '0'; }, 1200);
+    setTimeout(() => el.remove(), 1900);
+  }
+
   
   
   
@@ -1229,6 +1341,13 @@ export class Game {
     for (let i = 0; i < kernels.length; i++) {
       kernels[i].classList.toggle('gone', i >= remaining);
     }
+    
+    
+    
+    
+    
+    document.getElementById('health-bar')
+      ?.classList.toggle('critical', hp > 0 && hp < LOW_HP);
   }
 
   
@@ -1440,6 +1559,9 @@ export class Game {
         
         this.critters?.cheer(this._posOf(msg.victim),
           msg.weapon === 'chicken' ? 'chicken' : 'kill');
+        this._announceKill(msg.killer, msg.victim, msg.weapon);
+        
+        this._dropCorn(this._posOf(msg.victim));
         
         
         
@@ -1551,11 +1673,36 @@ export class Game {
     
     
     
-    this.skyBrawl?.update(dt, this.camera.position);
-    this.critters?.update(dt, this.camera.position);
-    if (!this.gameOver) { try { this._tickHill(dt); } catch (_) {} }
-    this.renderer.render(this.scene, this.camera);
-    requestAnimationFrame((t) => this._frame(t));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    try {
+      this.skyBrawl?.update(dt, this.camera.position);
+      this.critters?.update(dt, this.camera.position);
+      if (!this.gameOver) this._tickHill(dt);
+      if (!this._contextLost) this.renderer.render(this.scene, this.camera);
+    } catch (err) {
+      
+      const key = String(err?.message || err);
+      if (key !== this._lastFrameErr) {
+        this._lastFrameErr = key;
+        console.error('[frame error]', err);
+      }
+    } finally {
+      requestAnimationFrame((t) => this._frame(t));
+    }
   }
 
   _tick(dt) {
@@ -1688,6 +1835,7 @@ export class Game {
     
     
     this._resolveOwnProjectiles();
+    this._tickCornDrops(dt);
 
     
     for (const rp of this.remotePlayers.values()) rp.update(dt);
@@ -2482,6 +2630,10 @@ export class Game {
       this._broadcast({ t: MSG.DEATH, victim: this.myId, killer: byId, weapon: weaponId });
       
       try { SFX.animalVoice(this.character, 1.0); } catch (_) {}
+      
+      
+      this._announceKill(byId, this.myId, weaponId);
+      this._dropCorn(this.player.pos.clone());
       
       
       

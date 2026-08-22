@@ -513,6 +513,10 @@ export function generateBackdrop(mapId, seed = 1) {
 
   return {
     mapId, id: spec.id,
+    
+    
+    
+    dropped: em.dropped,
     skirt: {
       inner: { x0: 0, z0: 0, x1: WORLD_SIZE.x, z1: WORLD_SIZE.z },
       outer: BACKDROP.SKIRT_OUTER,

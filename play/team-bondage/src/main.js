@@ -264,6 +264,40 @@ async function startGame(hostIdToJoin) {
       navigator.clipboard.writeText(link.toString());
       $('linkOut').textContent = link.toString() + '  (copied!)';
     });
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    try { history.replaceState({}, '', link.toString()); } catch (_) {}
+
+    const shareWrap = document.getElementById('share-wrap');
+    const shareUrl = document.getElementById('share-url');
+    const shareCopy = document.getElementById('share-copy');
+    if (shareWrap && shareUrl) {
+      shareWrap.style.display = 'block';
+      shareUrl.value = link.toString();
+      shareUrl.addEventListener('focus', () => shareUrl.select());
+      shareCopy?.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(link.toString());
+          shareCopy.textContent = 'Copied!';
+        } catch (_) {
+          
+          
+          shareUrl.select();
+          shareCopy.textContent = 'Press Ctrl+C';
+        }
+        setTimeout(() => { shareCopy.textContent = 'Copy'; }, 1800);
+      });
+    }
   } else {
     mesh.connectTo(hostIdToJoin);
   }

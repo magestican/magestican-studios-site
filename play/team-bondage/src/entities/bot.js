@@ -43,7 +43,9 @@ export class Bot {
     this.character = character;
     this.world = world;
     const spawn = world.spawns[team];
-    this.pos   = new THREE.Vector3(spawn.x, spawn.y, spawn.z);
+    this.peerId = id;                      
+    const off = this._spawnOffset();
+    this.pos   = new THREE.Vector3(spawn.x + off.x, spawn.y, spawn.z + off.z);
     this.yaw   = team === 'red' ? Math.PI / 4 : Math.PI + Math.PI / 4;
     this.pitch = 0;
     this.hp    = 100;
@@ -58,7 +60,19 @@ export class Bot {
 
   respawn() {
     const spawn = this.world.spawns[this.team];
-    this.pos.set(spawn.x, spawn.y, spawn.z);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const spread = this._spawnOffset();
+    this.pos.set(spawn.x + spread.x, spawn.y, spawn.z + spread.z);
     this.hp = 100; this.alive = true; this.hasEnemyFlag = false;
     this._fireCd = FIRE_COOLDOWN;
     
@@ -140,6 +154,22 @@ export class Bot {
         }
       }
     }
+  }
+
+  
+  
+  
+  _spawnOffset() {
+    if (this._spawnOff) return this._spawnOff;
+    let h = 0;
+    for (let i = 0; i < this.peerId.length; i++) {
+      h = (h * 31 + this.peerId.charCodeAt(i)) >>> 0;
+    }
+    const idx = h % 12;
+    const ang = idx * 2.39996;                 
+    const rad = 0.9 + (idx % 3) * 0.65;        
+    this._spawnOff = { x: Math.cos(ang) * rad, z: Math.sin(ang) * rad };
+    return this._spawnOff;
   }
 
   
