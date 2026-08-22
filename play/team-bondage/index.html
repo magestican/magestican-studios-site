@@ -676,6 +676,8 @@
        input has to be typeable. Log is always visible (fading old lines);
        the input only appears while composing, so ENTER is a mode switch and
        WASD never eats your message. See docs/features/chat.md. -->
+  <!-- Touch has no Enter key, so it gets an explicit target. Desktop hides it. -->
+  <button id="chat-btn" aria-label="Open chat">💬</button>
   <div id="chat">
     <div id="chat-log"></div>
     <form id="chat-form" autocomplete="off">

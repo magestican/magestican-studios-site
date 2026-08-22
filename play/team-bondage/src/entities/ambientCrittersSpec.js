@@ -106,8 +106,15 @@ export const GOOSE = Object.freeze({
     { p: [-0.225, 0.56, 0.04, 0.02, 0.20, 0.54], hex: GOOSE_PALE },
     // LEGS — bridging body to feet. Orange, like the feet, so the eye reads
     // leg-and-foot as one limb.
-    { p: [ 0.11, 0.29, 0.12, 0.075, 0.36, 0.075], hex: GOOSE_FOOT },
-    { p: [-0.11, 0.29, 0.12, 0.075, 0.36, 0.075], hex: GOOSE_FOOT },
+    //
+    // These reach 0.09, not 0.11. The pass that added them was fixing a 0.24
+    // gap between the body and the feet and closed it to 0.01 — still a gap,
+    // and the connectivity test in ambientSpecies.test.mjs (written for the
+    // goat, run against everything) found it on its first execution. The rule
+    // it enforces is the rule this comment was already about; the difference is
+    // that a machine measures the number and an eye does not.
+    { p: [ 0.11, 0.28, 0.12, 0.075, 0.38, 0.075], hex: GOOSE_FOOT },
+    { p: [-0.11, 0.28, 0.12, 0.075, 0.38, 0.075], hex: GOOSE_FOOT },
     // Neck: the signature. Tall, thin, black, set FORWARD of the body so the
     // bird has a length as well as a height.
     { p: [0, 1.04, 0.32,   0.17, 0.52, 0.17], hex: GOOSE_BLACK },
@@ -252,9 +259,9 @@ export const GOAT = Object.freeze({
     // the neck. Consecutive segments overlap in both Y and Z: a horn drawn as
     // separate blocks is the egg-crack failure again, where a feature made of
     // parts that do not touch reads as debris rather than as one form.
-    { p: [ 0.105, 1.72, 0.94, 0.12, 0.26, 0.13], hex: GOAT_HORN,
+    { p: [ 0.105, 1.70, 0.94, 0.12, 0.30, 0.13], hex: GOAT_HORN,
       role: 'head', pivot: [0, 1.48, 0.50] },
-    { p: [-0.105, 1.72, 0.94, 0.12, 0.26, 0.13], hex: GOAT_HORN,
+    { p: [-0.105, 1.70, 0.94, 0.12, 0.30, 0.13], hex: GOAT_HORN,
       role: 'head', pivot: [0, 1.48, 0.50] },
     { p: [ 0.11, 1.94, 0.82, 0.115, 0.22, 0.15], hex: GOAT_HORN,
       role: 'head', pivot: [0, 1.48, 0.50] },
@@ -265,9 +272,9 @@ export const GOAT = Object.freeze({
     // vague dark lump on the head — at 10 m the horn was not a shape, it was
     // more head. A sweep only reads as a sweep if the far end of it clears
     // the outline of the thing it grows out of.
-    { p: [ 0.115, 2.06, 0.62, 0.11, 0.15, 0.26], hex: GOAT_HORN,
+    { p: [ 0.115, 2.06, 0.64, 0.11, 0.15, 0.28], hex: GOAT_HORN,
       role: 'head', pivot: [0, 1.48, 0.50] },
-    { p: [-0.115, 2.06, 0.62, 0.11, 0.15, 0.26], hex: GOAT_HORN,
+    { p: [-0.115, 2.06, 0.64, 0.11, 0.15, 0.28], hex: GOAT_HORN,
       role: 'head', pivot: [0, 1.48, 0.50] },
     // Tail: a short dark stub. proportions.md — the tail is personality,
     // never skip it. Curly = pig, tufted = cow, stub = goat.

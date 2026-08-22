@@ -1,4 +1,7 @@
-// Ambient life. Right now that means the arctic map's penguins.
+// Ambient life: the crowd each map keeps, because its name promised one.
+// Penguins on the floe, Canada geese on the farm, mountain goats up the icy
+// mountain's terraces. One runtime, one spec file, one cheer — a new species
+// is a parts list in ambientCrittersSpec.js and an `ambient` block on the map.
 //
 // Bryan asked for "another set in the artic with penguins looking at you", and
 // the *looking at you* is the whole feature. They do not patrol, they are not
@@ -9,7 +12,8 @@
 //
 // They are placed by voxelWorldGen's placeAmbient(), which runs after the
 // whole world is built, so a penguin is never standing inside a pressure ridge
-// or an igloo wall.
+// or an igloo wall — and which knows the height of the ground it is placing
+// them on, so a goat stands on top of a terrace rather than inside it.
 //
 // # PLACEHOLDER ART — procedural boxes, due a hand-drawn pass.
 
