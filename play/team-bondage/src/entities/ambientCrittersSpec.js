@@ -141,10 +141,152 @@ export const GOOSE = Object.freeze({
   ]),
 });
 
+// A mountain goat, for Icy Mountain. The first NON-BIRD in the roster, and it
+// is here because the map's name makes a promise about altitude and nothing
+// keeps that promise like the animal that lives on the one ledge you cannot
+// reach.
+//
+// Three decisions worth writing down, because each one is a rule from
+// art/knowledge/ pulling against the obvious choice:
+//
+// 1. NOT pure white. A mountain goat is famously white, and the queue asked
+//    for a white body "so it reads against granite" — true while it is stood
+//    on rock, and a disaster the moment it steps onto the snow field or is
+//    seen against the alpine sky's near-white haze band (#e4eef6), which is
+//    exactly how a goat on a terrace edge is seen from below. That is the
+//    goose note above, run in reverse. So the goat is cream on TOP and dark
+//    underneath — legs, belly skirt, muzzle, beard, horns, hooves — which is
+//    snow.js's opposite-face tone pairing applied to an animal: whichever
+//    background it is against, one half of it contrasts.
+// 2. Longer legs than the farm animals. proportions.md says legs shorter than
+//    body depth is our register, and that is right for the cow and the sheep;
+//    for a goat it is wrong, because leg length is most of what separates a
+//    goat from a sheep at 30 m and a short-legged goat IS a sheep. Legs run
+//    about 1.3x body depth here, deliberately against the house rule.
+// 3. Horns curving BACK over the neck, in three stepped segments. This is the
+//    silhouette signature and nothing else in the game has one — see the
+//    per-asset signature table in silhouette-readability.md.
+const GOAT_COAT = 0xe4dbc8;   // cream shaggy topcoat, painted UNDER white so
+                              // the alpine rig's 1.18 sun has somewhere to go
+const GOAT_DARK = 0x4a4239;   // legs, belly skirt, muzzle, beard
+const GOAT_HORN = 0x241f1b;   // horn + hoof — the darkest value on the model
+const GOAT_EYE  = 0x14120f;
+
+export const GOAT = Object.freeze({
+  scale: 0.58,
+  // The rear-up. A goat has no wings, so its cheer cannot be the flipper throw
+  // every bird uses: it rocks back onto its hind legs and throws its head.
+  // That is a BODY pitch, and it has to pivot at the rear hooves — a pitch
+  // about the model origin lifts the front and drives the back legs through
+  // the rock. `pivotZ` is that hoof line; the runtime lifts the whole animal
+  // by |pivotZ| * sin(angle) to keep it planted on it.
+  rearUp: Object.freeze({ pivotZ: -0.44 }),
+  parts: Object.freeze([
+    // --- legs (dark, hooves darker still: proportions.md) -------------------
+    // Listed BEFORE the body so the barrel overlaps their tops — a limb that
+    // stops short of the mass it hangs off is the goose's floating-crate
+    // failure, one map along.
+    { p: [ 0.20, 0.44,  0.40, 0.15, 0.88, 0.17], hex: GOAT_DARK,
+      role: 'foreleg', side:  1, pivot: [ 0.20, 0.86, 0.40] },
+    { p: [-0.20, 0.44,  0.40, 0.15, 0.88, 0.17], hex: GOAT_DARK,
+      role: 'foreleg', side: -1, pivot: [-0.20, 0.86, 0.40] },
+    // The hind legs are a role too, and they are the reason the rear-up reads
+    // as a rear-up. Pitching the body alone tips the hind legs back with it,
+    // so at 0.6 rad the animal's whole long axis is on a slant with nothing
+    // vertical anywhere in it and the render came back looking like a goat
+    // being knocked over. A rearing animal keeps its hind legs UNDER itself;
+    // the runtime counters most of the body pitch on this pivot to put them
+    // back there.
+    { p: [ 0.21, 0.44, -0.44, 0.16, 0.88, 0.18], hex: GOAT_DARK,
+      role: 'hindleg', side:  1, pivot: [ 0.21, 0.86, -0.44] },
+    { p: [-0.21, 0.44, -0.44, 0.16, 0.88, 0.18], hex: GOAT_DARK,
+      role: 'hindleg', side: -1, pivot: [-0.21, 0.86, -0.44] },
+    { p: [ 0.20, 0.05,  0.40, 0.19, 0.11, 0.21], hex: GOAT_HORN,
+      role: 'foreleg', side:  1, pivot: [ 0.20, 0.86, 0.40] },
+    { p: [-0.20, 0.05,  0.40, 0.19, 0.11, 0.21], hex: GOAT_HORN,
+      role: 'foreleg', side: -1, pivot: [-0.20, 0.86, 0.40] },
+    { p: [ 0.21, 0.05, -0.44, 0.20, 0.11, 0.22], hex: GOAT_HORN,
+      role: 'hindleg', side:  1, pivot: [ 0.21, 0.86, -0.44] },
+    { p: [-0.21, 0.05, -0.44, 0.20, 0.11, 0.22], hex: GOAT_HORN,
+      role: 'hindleg', side: -1, pivot: [-0.21, 0.86, -0.44] },
+    // --- body ---------------------------------------------------------------
+    // Barrel: 1.28 long by 0.68 deep, ~1.9x longer than tall, which is the
+    // quadruped band in proportions.md.
+    { p: [0, 1.20, -0.04, 0.60, 0.68, 1.28], hex: GOAT_COAT },
+    // The withers hump, high and FORWARD of the barrel. Second silhouette
+    // signature after the horns, and the reason the animal reads as built for
+    // climbing rather than for grazing.
+    { p: [0, 1.56,  0.24, 0.54, 0.30, 0.60], hex: GOAT_COAT },
+    // Rump, lower and shorter, so the back line falls away behind the hump.
+    { p: [0, 1.16, -0.62, 0.50, 0.54, 0.28], hex: GOAT_COAT },
+    // The belly skirt — the shaggy dark underline. Proud of the barrel by a
+    // hair in X so it survives a pure side view, and it is what keeps the
+    // animal off the snow when it is stood on the white field.
+    { p: [0, 0.92, -0.04, 0.62, 0.16, 1.16], hex: GOAT_DARK },
+    // --- head, on its own pivot so the cheer can throw it -------------------
+    // Neck, running forward and slightly down out of the hump. A goat does not
+    // carry its head up the way the goose does, and that difference is most of
+    // what stops the two species reading as one animal in silhouette.
+    { p: [0, 1.44, 0.66, 0.34, 0.44, 0.36], hex: GOAT_COAT,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    // Narrow face — 0.26 across against a 0.60 body.
+    { p: [0, 1.44, 0.96, 0.26, 0.30, 0.34], hex: GOAT_COAT,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    { p: [0, 1.36, 1.16, 0.20, 0.18, 0.16], hex: GOAT_DARK,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    // The beard. Cheap, and nothing else in the game has one.
+    { p: [0, 1.18, 1.06, 0.11, 0.26, 0.11], hex: GOAT_DARK,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    { p: [ 0.19, 1.54, 0.90, 0.14, 0.09, 0.17], hex: GOAT_COAT,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    { p: [-0.19, 1.54, 0.90, 0.14, 0.09, 0.17], hex: GOAT_COAT,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    // Eyes: a dark pupil straight onto the cream, no sclera ring. The ring on
+    // the penguin and the goose is there because a dark eye on a BLACK head is
+    // invisible; on a pale head the ring is the part that would disappear.
+    { p: [ 0.075, 1.49, 1.125, 0.07, 0.07, 0.03], hex: GOAT_EYE,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    { p: [-0.075, 1.49, 1.125, 0.07, 0.07, 0.03], hex: GOAT_EYE,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    // HORNS — three stepped segments each, rising and then sweeping BACK over
+    // the neck. Consecutive segments overlap in both Y and Z: a horn drawn as
+    // separate blocks is the egg-crack failure again, where a feature made of
+    // parts that do not touch reads as debris rather than as one form.
+    { p: [ 0.105, 1.72, 0.94, 0.12, 0.26, 0.13], hex: GOAT_HORN,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    { p: [-0.105, 1.72, 0.94, 0.12, 0.26, 0.13], hex: GOAT_HORN,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    { p: [ 0.11, 1.94, 0.82, 0.115, 0.22, 0.15], hex: GOAT_HORN,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    { p: [-0.11, 1.94, 0.82, 0.115, 0.22, 0.15], hex: GOAT_HORN,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    // The last segment is LONG IN Z, not another stub. First cut made all
+    // three the same chunky little block and the render came back with a
+    // vague dark lump on the head — at 10 m the horn was not a shape, it was
+    // more head. A sweep only reads as a sweep if the far end of it clears
+    // the outline of the thing it grows out of.
+    { p: [ 0.115, 2.06, 0.62, 0.11, 0.15, 0.26], hex: GOAT_HORN,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    { p: [-0.115, 2.06, 0.62, 0.11, 0.15, 0.26], hex: GOAT_HORN,
+      role: 'head', pivot: [0, 1.48, 0.50] },
+    // Tail: a short dark stub. proportions.md — the tail is personality,
+    // never skip it. Curly = pig, tufted = cow, stub = goat.
+    //
+    // It is SMALL, and it was not in the first cut. Held up proud of the back
+    // line at the size a tail wants to be, a dark stub on a pale rump is a
+    // second dark lump the same size as the head, and at 10 m the animal
+    // stopped having a front: you could not tell which end you were looking
+    // at. A quadruped's value pattern has to be directional or the silhouette
+    // is doing half its job.
+    { p: [0, 1.34, -0.74, 0.12, 0.14, 0.11], hex: GOAT_DARK },
+  ]),
+});
+
 // Every ambient species, keyed by the `ambient.kind` a map asks for.
 export const SPECIES = Object.freeze({
   penguin: PENGUIN,
   goose: GOOSE,
+  goat: GOAT,
 });
 
 export function speciesFor(kind) {
@@ -212,6 +354,30 @@ export const CHEER = Object.freeze({
   // Hop height in metres at full intensity, and how many hops per cheer.
   hopHeight: 0.19,
   hopHz: 2.6,
+  // --- the non-bird cheer ------------------------------------------------
+  // A goat has no wings, so `flipperSwing` says nothing about it. Its cheer is
+  // a REAR-UP: the body pitches back over the hind hooves, the forelegs paw,
+  // and the head throws. Three separate numbers because they are three
+  // separate reads and the first two are the ones visible at 30 m.
+  //
+  // The rear angle is the only one with a hard floor: under about 0.35 rad the
+  // front hooves are still scuffing the rock and the silhouette says
+  // "standing", which is what it says the rest of the time — the same argument
+  // `flipperSwing` makes for the birds. 0.62 rad lifts the front hooves about
+  // a quarter of a metre off the ground on this model.
+  rearUp: 0.62,
+  // The forelegs paw, and they paw in ANTIPHASE — both legs pumping together
+  // is a rabbit, and it is also the unison failure this whole block exists to
+  // avoid, at the scale of a single animal.
+  foreLegPaw: 1.05,
+  // The head throws back. Nose UP, so the horns sweep down behind the neck,
+  // which is what makes the horn silhouette move instead of just translate.
+  headToss: 0.5,
+  // How much of the body pitch the hind legs cancel out, so they stay under
+  // the animal instead of swinging out behind it. Not 1.0: a leg held dead
+  // vertical while the body above it rotates reads as a hinge, and the hock
+  // does bend back a little in a real rear.
+  hindLegBrace: 0.8,
   // A cheering bird straightens up out of its huddle lean and faces the event.
   // Radians per second — faster than TURN_RATE, because this is a reaction.
   turnRate: 3.4,

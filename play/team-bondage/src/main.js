@@ -115,16 +115,23 @@ for (const btn of $('teamRow').querySelectorAll('button')) {
   });
 }
 
-// AI bot count buttons (0..4).
-document.querySelectorAll('button[data-bots]').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    state.initialBots = parseInt(btn.dataset.bots, 10);
-    for (const b of document.querySelectorAll('button[data-bots]')) b.classList.remove('selected');
-    btn.classList.add('selected');
-  });
-});
-// Default: 0 bots selected.
-document.querySelector('button[data-bots="0"]')?.classList.add('selected');
+// AI bot count, 0..15. A match holds 16; bots fill the empty seats and are
+// displaced one-for-one as humans arrive (see MATCH_CAP in game.js).
+// Defaults to 5 rather than 0 because a solo host with no bots has no game to
+// look at, and "add a bot" was a thing you had to discover.
+const botSlider = document.getElementById('botSlider');
+const botCount  = document.getElementById('botCount');
+if (botSlider && botCount) {
+  const applyBots = () => {
+    state.initialBots = parseInt(botSlider.value, 10);
+    botCount.textContent = botSlider.value;
+    localStorage.setItem('tb.bots', botSlider.value);
+  };
+  const saved = parseInt(localStorage.getItem('tb.bots') ?? '5', 10);
+  botSlider.value = String(Number.isFinite(saved) ? Math.min(15, Math.max(0, saved)) : 5);
+  applyBots();
+  botSlider.addEventListener('input', applyBots);
+}
 
 // Persist + prefill name. If nothing saved, generate a random one so people
 // can just tap Host without typing.

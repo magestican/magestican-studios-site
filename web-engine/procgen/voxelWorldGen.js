@@ -241,23 +241,34 @@ function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
 function placeAmbient(grid, rng, map, { redBase, blueBase }) {
   const spots = [];
   if (!map.ambient) return spots;
+  // `prefer: 'high'` asks for a crowd that lives UP the map rather than on the
+  // flat. A goat standing on the one terrace nobody can reach is the whole
+  // joke of putting goats on a mountain, and it is also the only way the crowd
+  // says "altitude" rather than "some animals".
+  const wantsHigh = map.ambient.prefer === 'high';
   const per = Math.ceil(map.ambient.count / map.ambient.clusters);
   for (let c = 0; c < map.ambient.clusters; c++) {
     // Try several anchors per cluster — a colony centred on the middle of a
     // pressure ridge would otherwise place nothing at all and quietly halve
-    // the population.
-    for (let attempt = 0; attempt < 12; attempt++) {
+    // the population. The first two thirds of the attempts on a `high` map
+    // insist the anchor itself is up a terrace; the rest will take anything,
+    // because a cluster that places nobody is worse than a cluster on the flat.
+    for (let attempt = 0; attempt < 18; attempt++) {
       const hx = rng.rangeI(8, WORLD_SIZE.x - 9);
       const hz = rng.rangeI(8, WORLD_SIZE.z - 9);
+      const strict = wantsHigh && attempt < 12;
+      if (strict && standY(grid, hx, hz) < 2) continue;
       const got = [];
-      for (let i = 0; i < per * 3 && got.length < per; i++) {
+      for (let i = 0; i < per * 4 && got.length < per; i++) {
         const x = hx + rng.rangeI(-4, 4);
         const z = hz + rng.rangeI(-4, 4);
         if (x < 2 || z < 2 || x >= WORLD_SIZE.x - 2 || z >= WORLD_SIZE.z - 2) continue;
         if (insideBase(x, z, redBase) || insideBase(x, z, blueBase)) continue;
-        if (occupied(grid, x, z, 3)) continue;
+        const y = ledgeY(grid, x, z);
+        if (y < 0) continue;
+        if (strict && y < 2) continue;
         if (got.some((g) => g.x === x + 0.5 && g.z === z + 0.5)) continue;
-        got.push({ x: x + 0.5, y: 1, z: z + 0.5 });
+        got.push({ x: x + 0.5, y, z: z + 0.5 });
       }
       if (got.length) { spots.push(...got); break; }
     }
@@ -265,10 +276,46 @@ function placeAmbient(grid, rng, map, { redBase, blueBase }) {
   return spots;
 }
 
-// Is anything standing on this tile above ground level?
+// Is anything standing on this tile above ground level? Still the right
+// question for props, which want FLAT open ground and nothing else.
 function occupied(grid, x, z, upTo = 3) {
   for (let y = 1; y <= upTo; y++) if (grid.get(x, y, z) !== VOX.AIR) return true;
   return false;
+}
+
+// The Y a creature's feet sit at on this tile: one above the highest solid
+// voxel in the column.
+//
+// The old version of this was the constant 1, which is correct on a flat map
+// and wrong on every other kind. On the icy mountain the terrain IS stacked
+// voxels, so `y = 1` puts an animal inside the second course of a four-course
+// terrace, and the "is this tile free" check — anything solid between y=1 and
+// y=3 — rejected every terraced tile on the map. Between them those two lines
+// meant the mountain could only ever have had a crowd on its flat ground,
+// which is the one place a mountain crowd must not be.
+function standY(grid, x, z) {
+  for (let y = WORLD_SIZE.y - 1; y >= 1; y--) if (grid.get(x, y, z) !== VOX.AIR) return y + 1;
+  return 1;
+}
+
+// Where an animal can actually STAND: the surface Y of a tile that is a real
+// ledge, or -1 if it is not one.
+//
+// A ledge needs two things beyond a floor. Headroom, so nothing is placed in
+// the middle of a wall or under an overhang; and NEIGHBOURS at roughly its own
+// height, which is what separates a terrace from the top of a one-tile spire.
+// Without the second test a goat happily spawns balanced on a boulder — which
+// sounds charming and reads, at any distance, as a bug.
+function ledgeY(grid, x, z) {
+  const y = standY(grid, x, z);
+  if (y + 2 >= WORLD_SIZE.y) return -1;                       // no room to stand
+  for (let h = 0; h < 3; h++) if (grid.get(x, y + h, z) !== VOX.AIR) return -1;
+  for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    const nx = x + dx, nz = z + dz;
+    if (!grid.inBounds(nx, 0, nz)) return -1;
+    if (Math.abs(standY(grid, nx, nz) - y) > 1) return -1;    // a perch, not a ledge
+  }
+  return y;
 }
 
 // The centre feature, and the Y its top surface sits at (the slingshot spawn

@@ -45,6 +45,27 @@ export class RemotePlayer {
     this.group.add(halo);
     this.halo = halo;
 
+    // A ring on the ground at their feet, in the same colour. This is the
+    // convention every team shooter uses and it earns its place for a reason
+    // the halo alone cannot cover: a halo behind a body is competing with
+    // whatever is behind the body, but a ring is drawn flat on the snow, which
+    // is the most uniform surface in the game, so it survives at any distance
+    // and from any angle — including when the enemy is behind cover and only
+    // their feet show.
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.52, 0.72, 28),
+      new THREE.MeshBasicMaterial({
+        color: haloHex, transparent: true, opacity: 0.85,
+        side: THREE.DoubleSide, depthWrite: false,
+      }),
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.06;             // just off the ground, no z-fighting
+    this.group.add(ring);
+    this.ring = ring;
+    this.team = team;
+    this._localTeam = localTeam;
+
     // Nameplate: sprite billboard with the player's name.
     const canvas = document.createElement('canvas');
     canvas.width = 256; canvas.height = 64;
@@ -81,6 +102,20 @@ export class RemotePlayer {
     if (this.headBone) this.headBone.rotation.x = -this._targetPitch;
   }
 
+  // Recolour the aura when teams change. Team balance reassigns players AFTER
+  // their RemotePlayer exists, so a halo baked once at construction can end up
+  // telling you an enemy is a team-mate — the most expensive possible thing
+  // for this feature to get wrong.
+  setTeams(team, localTeam) {
+    if (team === this.team && localTeam === this._localTeam) return;
+    this.team = team ?? this.team;
+    this._localTeam = localTeam ?? this._localTeam;
+    const isEnemy = this._localTeam && this.team && this.team !== this._localTeam;
+    const hex = OUTLINE_HEX[isEnemy ? 'red' : 'blue'];
+    if (this.halo) this.halo.material.map = makeHaloTexture(hex);
+    if (this.ring) this.ring.material.color.setHex(hex);
+  }
+
   destroy(scene) { scene.remove(this.group); }
 }
 
@@ -96,12 +131,21 @@ function makeHaloTexture(hex) {
   const r = 62;
   const rgb = [(hex >> 16) & 0xff, (hex >> 8) & 0xff, hex & 0xff];
   const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-  // Transparent core (so the character reads through the halo) with a
-  // bright coloured rim that fades to fully transparent at the edge.
+  // Transparent core (so the character reads through the halo) with a bright
+  // coloured rim.
+  //
+  // The first cut peaked at 0.55 alpha and faded from 0.75 of the radius,
+  // which measured fine as a swatch and was INVISIBLE in the game: this map is
+  // a bright snow field under a pale sky, and a soft half-alpha gradient over
+  // pale ground has almost no contrast left to spend. Bryan reported the aura
+  // as simply missing. It is now near-opaque at the rim and the band is
+  // narrower, so it reads as a defined edge around the body rather than a
+  // haze — the same lesson as the ground pass, where a step that looked
+  // obviously too strong on the canvas was the one that survived the render.
   grd.addColorStop(0.00, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.00)`);
-  grd.addColorStop(0.55, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.00)`);
-  grd.addColorStop(0.75, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.55)`);
-  grd.addColorStop(0.90, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.35)`);
+  grd.addColorStop(0.62, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.00)`);
+  grd.addColorStop(0.78, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.95)`);
+  grd.addColorStop(0.88, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.80)`);
   grd.addColorStop(1.00, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.00)`);
   ctx.fillStyle = grd;
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();

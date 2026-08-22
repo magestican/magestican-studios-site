@@ -414,6 +414,70 @@ export function announcer(text = '') {
   return announce(text === 'STEAK ANIHILATION' ? 'HUMILIATION' : 'FIGHT');
 }
 
+// A real explosion, for the slingshot detonation. `boom()` is a ~0.6 s thump
+// that works for a falling egg and is far too small for the rarest and most
+// lethal thing on the map (Bryan: "a bigger explosion with a better explosion
+// sound").
+//
+// What separates an explosion from a thump is that it is several sounds with
+// DIFFERENT lifetimes stacked on each other:
+//   * a CRACK — a very short, very bright transient. This is what the ear
+//     actually uses to judge how violent something was, and boom() has none.
+//   * a BODY — filtered noise sweeping downward over ~1 s: the fireball.
+//   * a SUB — a sine falling to ~24 Hz, felt more than heard.
+//   * a TAIL — a long, quiet, dark bed for debris and echo, which is what
+//     gives the blast a SIZE rather than just a volume.
+export function explosion(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+
+  // 1. Crack: bright, ~90 ms, high-passed so it cuts through everything.
+  const crack = whiteNoise(ctx, 0.09);
+  const cHP = ctx.createBiquadFilter();
+  cHP.type = 'highpass'; cHP.frequency.value = 1900;
+  const cG = ctx.createGain();
+  cG.gain.setValueAtTime(0.95 * loudness, t);
+  cG.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+  crack.connect(cHP).connect(cG).connect(_master);
+  crack.start(t); crack.stop(t + 0.1);
+
+  // 2. Body: the fireball. Low-pass sweeping down as the gas cools.
+  const body = whiteNoise(ctx, 1.1);
+  const bLP = ctx.createBiquadFilter();
+  bLP.type = 'lowpass';
+  bLP.frequency.setValueAtTime(4200, t);
+  bLP.frequency.exponentialRampToValueAtTime(190, t + 0.95);
+  bLP.Q.value = 1.1;
+  const bG = ctx.createGain();
+  bG.gain.setValueAtTime(0, t);
+  bG.gain.linearRampToValueAtTime(0.85 * loudness, t + 0.02);
+  bG.gain.exponentialRampToValueAtTime(0.001, t + 1.05);
+  body.connect(bLP).connect(bG).connect(_master);
+  body.start(t); body.stop(t + 1.15);
+
+  // 3. Sub: the punch in the chest.
+  const sub = ctx.createOscillator();
+  const sG = ctx.createGain();
+  sub.type = 'sine';
+  sub.frequency.setValueAtTime(118, t);
+  sub.frequency.exponentialRampToValueAtTime(24, t + 0.85);
+  sG.gain.setValueAtTime(0.9 * loudness, t + 0.01);
+  sG.gain.exponentialRampToValueAtTime(0.001, t + 0.95);
+  sub.connect(sG).connect(_master);
+  sub.start(t); sub.stop(t + 1.0);
+
+  // 4. Tail: debris + echo, quiet and long so the blast has a size.
+  const tail = whiteNoise(ctx, 1.6);
+  const tBP = ctx.createBiquadFilter();
+  tBP.type = 'bandpass'; tBP.frequency.value = 420; tBP.Q.value = 0.7;
+  const tG = ctx.createGain();
+  tG.gain.setValueAtTime(0, t);
+  tG.gain.linearRampToValueAtTime(0.30 * loudness, t + 0.12);
+  tG.gain.exponentialRampToValueAtTime(0.001, t + 1.6);
+  tail.connect(tBP).connect(tG).connect(_master);
+  tail.start(t + 0.05); tail.stop(t + 1.7);
+}
+
 export function chirp() {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;

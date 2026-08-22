@@ -16,6 +16,9 @@ import { VOX as _VOX } from 'arbelo/voxel';
 import { buildCharacter }   from './entities/character.js';
 import { Player }           from './entities/player.js';
 import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
+import { computeAimAssist } from 'arbelo/aim-assist';
+import { Chat } from './ui/chat.js';
+import { considerTaunt, newTauntState } from './entities/botTaunts.js';
 // (WEAPON_DEFS used in _addTracerForShot)
 import { RemotePlayer }     from './entities/remotePlayer.js';
 import { MSG }              from './net/protocol.js';
@@ -44,6 +47,19 @@ import { AmbientCritters }    from './entities/ambientCritters.js';
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
 const FLAG_HOME_RADIUS = 3.5;   // steps within this of your own flag stand = capture
+
+// The meat weapon. Shoot STEAK_GOAL floating steaks to arm it, and it holds
+// STEAK_THROWS poison shots — Bryan asked for "at least 2". While it is armed
+// it is auto-selected and cannot be swapped away from (see _switchWeapon):
+// it is a commitment, not an option in a menu.
+const STEAK_GOAL = 5;
+const STEAK_THROWS = 2;
+
+// A match holds sixteen bodies in total — humans plus bots. Bots exist to fill
+// the seats humans have not taken, so every human who joins displaces one
+// (see _displaceBotFor) until all sixteen are real people.
+export const MATCH_CAP = 16;
+export const MAX_BOTS = MATCH_CAP - 1;   // a host is always one of the sixteen
 // Bumped from 2.0 → 3.5 on 2026-08-20: the flag stand voxel blocks the
 // player from standing directly on top of it, so we can't require an exact
 // centre-touch — the whole 3-tile radius around the base centre counts as
@@ -227,6 +243,29 @@ export class Game {
       paintMute();
       applyVolume();
     });
+    // Chat. Outgoing messages go to every peer AND straight into our own log,
+    // because _broadcast does not loop back to the sender.
+    this.chat = new Chat({
+      onSend: (text) => {
+        const msg = { t: MSG.CHAT, from: this.myId, name: this.name,
+                      team: this.team, text, kind: 'say' };
+        this._broadcast(msg);
+        this.chat.push(msg);
+      },
+    });
+    this._taunts = newTauntState();
+
+    // Aim assist, on by default and remembered. See web-engine/input/aimAssist.js
+    // for why it is a hard cone with falloff and a rate cap rather than a snap.
+    const aimCheck = document.getElementById('aim-assist');
+    if (aimCheck) {
+      this.aimAssist = localStorage.getItem('tb.aimassist') !== '0';
+      aimCheck.checked = this.aimAssist;
+      aimCheck.addEventListener('change', () => {
+        this.aimAssist = aimCheck.checked;
+        localStorage.setItem('tb.aimassist', this.aimAssist ? '1' : '0');
+      });
+    }
     const openSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.add('visible'); };
     const closeSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.remove('visible'); };
     settingsBtn.addEventListener('click', openSettings);
@@ -583,8 +622,95 @@ export class Game {
   }
 
   // Host-only: add an AI bot. Team is chosen to balance current sides.
+  // Re-colour every remote player's aura from the CURRENT teams.
+  _repaintAuras() {
+    for (const [pid, rp] of this.remotePlayers.entries()) {
+      const team = this.playerMeta.get(pid)?.team ?? this.bots.get(pid)?.team;
+      rp.setTeams?.(team, this.team);
+    }
+  }
+
+  // A bot says something in chat, if the pacing rules allow it. Host only —
+  // bots do not exist on other peers, so the host speaks for them and the line
+  // goes out over the wire like any other message.
+  //
+  // All the judgement lives in botTaunts.js (pure + tested); this just owns the
+  // clock and the socket. See docs/features/chat.md.
+  _botTaunt(botId, event) {
+    if (!this.isHost) return;
+    const bot = this.bots.get(botId);
+    if (!bot) return;
+    const decision = considerTaunt({
+      botId, event, state: this._taunts, now: performance.now() / 1000,
+    });
+    if (!decision) return;
+    setTimeout(() => {
+      // The bot may have been displaced by a joining human in the meantime.
+      if (!this.bots.has(botId)) return;
+      const msg = { t: MSG.CHAT, from: botId, name: bot.name, team: bot.team,
+                    text: decision.text, kind: 'taunt' };
+      this._broadcast(msg);
+      this.chat?.push(msg);
+    }, decision.delay * 1000);
+  }
+
+  // How many seats are filled right now: me, every human peer, every bot.
+  _occupancy() {
+    const humans = 1 + [...this.playerMeta.entries()]
+      .filter(([id, m]) => !m.bot && id !== this.myId).length;
+    return { humans, bots: this.bots.size, total: humans + this.bots.size };
+  }
+
+  // A human arrived. Give them a bot's seat rather than growing the match past
+  // MATCH_CAP. Bryan: "each person who jumps in the match, then replacing a
+  // bot until there's 16 real players."
+  //
+  // Prefers a bot on the JOINER'S OWN team so the swap is team-neutral — the
+  // alternative silently hands one side an extra body every time somebody
+  // joins, which is the opposite of what a backfill is for. Falls back to the
+  // largest team's bot if their own side has none.
+  _displaceBotFor(joinerTeam) {
+    if (!this.isHost) return null;
+    if (this._occupancy().total <= MATCH_CAP) return null;
+    const sameTeam = [...this.bots.values()].filter((b) => b.team === joinerTeam);
+    let victim = sameTeam[0];
+    if (!victim) {
+      const counts = { red: 0, blue: 0 };
+      for (const m of this.playerMeta.values()) counts[m.team === 'red' ? 'red' : 'blue']++;
+      const biggest = counts.red >= counts.blue ? 'red' : 'blue';
+      victim = [...this.bots.values()].find((b) => b.team === biggest)
+            ?? [...this.bots.values()][0];
+    }
+    if (!victim) return null;
+    this.removeBot(victim.peerId);
+    this._killFeedPush(`${victim.name} stepped aside for a human`);
+    return victim.peerId;
+  }
+
+  // Remove a bot everywhere: simulation, metadata, and every peer's scene.
+  removeBot(botId) {
+    if (!this.bots.has(botId)) return false;
+    this.bots.delete(botId);
+    this.playerMeta.delete(botId);
+    const rp = this.remotePlayers.get(botId);
+    if (rp) { rp.destroy(this.scene); this.remotePlayers.delete(botId); }
+    // Any flag it was carrying goes home rather than vanishing with it.
+    for (const c of ['red', 'blue']) {
+      if (this.flagCarrier[c] === botId) {
+        this._returnFlag(c);
+        this._broadcast({ t: MSG.FLAG_RETURN, by: botId, color: c });
+      }
+    }
+    this._broadcast({ t: MSG.BOT_LEAVE, id: botId });
+    this._updateLobbyBanner();
+    return true;
+  }
+
   addBot(preferredTeam) {
     if (!this.isHost) return null;
+    // A match holds MATCH_CAP bodies. Bots only ever fill seats humans are not
+    // using, so this cap is what makes the backfill meaningful.
+    if (this._occupancy().total >= MATCH_CAP) return null;
     // Count current team sizes (real players + existing bots).
     let r = 0, b = 0;
     for (const meta of this.playerMeta.values()) {
@@ -637,10 +763,24 @@ export class Game {
         enemyPlayers: enemyPlayersByTeam[bot.team],
         onShoot: (bid, origin, dir) => {
           if (this.matchState !== 'playing') return;
+          // Bots fire the shovel, like everyone else. This carried
+          // `damage: 2, weaponId: 'pistol'` for months, which was wrong twice
+          // over: 2 is the damage number from before the +50% pass (players do
+          // 12), so bots were SIX TIMES weaker than the design doc claims; and
+          // 'pistol' is not a weapon id that exists, so _addTracerForShot's
+          // WEAPON_DEFS lookup missed and every bot tracer fell back to the
+          // default gold instead of the shovel's brown.
+          const def = WEAPON_DEFS[0];
           const shot = { kind: 'hitscan', origin: origin.toArray(), dir: dir.toArray(),
-            damage: 2, weaponId: 'pistol', ownerId: bid };
+            damage: def.damage, weaponId: def.id, ownerId: bid };
           this._broadcast({ t: MSG.SHOT, s: shot });
           this._resolveShotAgainstAll(shot);
+          // ...and DRAW it here. _broadcast does not loop back to the sender,
+          // so on the host — which is every solo game against bots — a bot's
+          // shot was resolved for damage and never rendered. Bryan: "I still
+          // can't see the bullets of the enemies shooting at me." The bots
+          // were shooting him with invisible bullets the entire time.
+          this._applyRemoteShot(shot);
         },
         onFlagPickup: (bid, color) => {
           if (this.matchState !== 'playing') return;
@@ -757,11 +897,51 @@ export class Game {
 
   // Brief hitmarker "x" when YOUR shot lands on a target. Called from
   // _applyLocalShot after a HIT is broadcast.
-  _flashHitmarker() {
+  // Hit feedback. Bryan: "I also need some feedback when I hit someone."
+  // The old version flashed a 34 px "×" for 130 ms and nothing else — in a
+  // firefight that is indistinguishable from not having hit. Now a hit gives
+  // three things at once, on three different channels, because one channel is
+  // exactly what you miss when you are busy:
+  //   * a hitmarker that SNAPS in and scales down (motion beats opacity)
+  //   * a floating damage number that drifts up from the crosshair
+  //   * a rising pitch on the splat, so a kill sounds different from a graze
+  _flashHitmarker(dmg = 0, killed = false) {
     const el = document.getElementById('hitmarker');
-    if (!el) return;
-    el.classList.add('visible');
-    setTimeout(() => el.classList.remove('visible'), 130);
+    if (el) {
+      el.classList.remove('visible');
+      el.style.color = killed ? '#ff3a2a' : '#ffffff';
+      el.style.transform = 'translate(-50%,-50%) scale(1.9)';
+      // Force a reflow so the transform restart is not coalesced away.
+      void el.offsetWidth;
+      el.classList.add('visible');
+      el.style.transform = 'translate(-50%,-50%) scale(1)';
+      clearTimeout(this._hitmarkerT);
+      this._hitmarkerT = setTimeout(() => el.classList.remove('visible'), killed ? 420 : 220);
+    }
+    if (dmg > 0) this._floatDamage(dmg, killed);
+  }
+
+  // A damage number that floats up off the crosshair and fades.
+  _floatDamage(dmg, killed) {
+    const n = document.createElement('div');
+    n.textContent = killed ? 'KILL' : String(Math.round(dmg));
+    const dx = (Math.random() - 0.5) * 70;
+    Object.assign(n.style, {
+      position: 'fixed', left: `calc(50% + ${dx}px)`, top: '48%',
+      transform: 'translate(-50%,-50%)',
+      font: `900 ${killed ? 30 : 22}px system-ui, sans-serif`,
+      color: killed ? '#ff3a2a' : '#fff2b0',
+      textShadow: '0 2px 4px rgba(0,0,0,.85), 0 0 12px rgba(0,0,0,.6)',
+      pointerEvents: 'none', zIndex: '40',
+      transition: 'transform .75s cubic-bezier(.2,.8,.3,1), opacity .75s ease-out',
+      opacity: '1',
+    });
+    document.body.appendChild(n);
+    requestAnimationFrame(() => {
+      n.style.transform = `translate(-50%,-50%) translateY(-${killed ? 78 : 54}px)`;
+      n.style.opacity = '0';
+    });
+    setTimeout(() => n.remove(), 800);
   }
 
   // Return a list of {peerId, pos} for every player + bot on this client.
@@ -1076,8 +1256,13 @@ export class Game {
         // team-balance + potentially start the countdown.
         if (this.isHost) {
           this._sendWelcome(from);
+          // A human just took a seat. If that pushes us over MATCH_CAP, a bot
+          // gives up its place rather than the match growing — bots exist to
+          // fill seats humans are not using.
+          this._displaceBotFor(msg.team);
           this._rebalanceTeams();
           this._maybeStartCountdown();
+          this.chat?.system(`${msg.name} joined`);
         }
         this._updateLobbyBanner();
         break;
@@ -1094,6 +1279,10 @@ export class Game {
             this.player.respawn();
           }
         }
+        // Teams just moved, so every aura may now be lying about who is an
+        // enemy. Repaint them all — a halo baked at construction is the one
+        // way this feature fails dangerously.
+        this._repaintAuras();
         break;
       }
 
@@ -1181,6 +1370,21 @@ export class Game {
         this.flagPos[msg.color] = { x: msg.at[0], y: msg.at[1], z: msg.at[2] };
         this._syncFlagMesh(msg.color);
         break;
+      case MSG.CHAT:
+        // Untrusted text from a peer. Chat.push uses textContent, never
+        // innerHTML — see ui/chat.js.
+        this.chat?.push({ name: msg.name || this._name(msg.from), text: msg.text,
+                          team: msg.team, kind: msg.kind === 'taunt' ? 'taunt' : 'say' });
+        break;
+      case MSG.BOT_LEAVE: {
+        // Host says a bot gave up its seat to a human. Non-hosts do not
+        // simulate bots, they just render them, so this is purely a despawn.
+        const rp = this.remotePlayers.get(msg.id);
+        if (rp) { rp.destroy(this.scene); this.remotePlayers.delete(msg.id); }
+        this.playerMeta.delete(msg.id);
+        this._updateLobbyBanner();
+        break;
+      }
       case MSG.FLAG_RETURN:
         // Someone died carrying this flag — snap it back to its home
         // stand. Bryan 2026-08-20: "when I die with the flag, the flag
@@ -1359,6 +1563,23 @@ export class Game {
     this._paintCompass();
     this._paintHayHide();
 
+    // Aim assist, BEFORE the player update so the camera is built from the
+    // corrected angles in the same frame. Only living enemies are offered as
+    // targets — the module itself has no opinion about teams.
+    if (this.player?.alive && this.aimAssist !== false) {
+      const enemyTeam = this.team === 'red' ? 'blue' : 'red';
+      const targets = this._allPlayerRefs()
+        .filter((p) => p.peerId !== this.myId && p.team === enemyTeam && p.alive !== false)
+        // Aim at the chest, not the feet: pos is ground level.
+        .map((p) => ({ x: p.pos.x, y: p.pos.y + 1.0, z: p.pos.z }));
+      const nudge = computeAimAssist({
+        eye: this.camera.position, yaw: this.player.yaw, pitch: this.player.pitch,
+        targets, dt, enabled: true,
+      });
+      this.player.yaw += nudge.yaw;
+      this.player.pitch += nudge.pitch;
+    }
+
     // Movement + physics (guarded on physics-loaded)
     if (this.player?.alive && this.physics) this.player.update(dt, this.input);
     if (this.physics) this.physics.step(dt);
@@ -1427,6 +1648,11 @@ export class Game {
   }
 
   _switchWeapon(i) {
+    // The meat weapon is UNSWAPPABLE while armed. Bryan: "auto selected and
+    // unswappable". Without this the player can collect five steaks and then
+    // silently lose the weapon by brushing a number key, which is the worst
+    // possible outcome for something that took five pickups to earn.
+    if (this.steakAmmo > 0) { this._updateSteakChip(); return; }
     this.weapons.selectSlot(i);
     document.querySelectorAll('#weaponbar .wpn').forEach((el, idx) => {
       el.classList.toggle('active', idx === i);
@@ -1447,8 +1673,11 @@ export class Game {
     // player also has a chicken ready, chicken fires first (bigger + rarer).
     // See docs/features/steak-weapon.md.
     if (this.steakAmmo > 0 && this.chickenAmmo === 0) {
-      this.steakAmmo = 0;
-      this.steakScore = 0;   // reset so you have to earn 5 more
+      this.steakAmmo--;
+      // Only when the LAST throw is spent do you go back to normal weapons and
+      // have to earn another set. Bryan asked for at least two shots out of a
+      // set of five steaks.
+      if (this.steakAmmo <= 0) this.steakScore = 0;
       const msg = { t: MSG.STEAK_THROW, origin: origin.toArray(), dir: dir.toArray(), by: this.myId };
       this._broadcast(msg);
       this._spawnSteakProjectile(msg);
@@ -1525,20 +1754,115 @@ export class Game {
 
   // Explosive kaboom mesh + SFX at the landing point. Cheap: expanding
   // yellow sphere + a puff of orange particles, both fading over 0.5s.
+  // The slingshot detonation. Bryan asked for "a more powerful explosion, a
+  // bigger explosion with a better explosion sound".
+  //
+  // The old one was a single pale sphere scaling to 5× over half a second —
+  // at distance that is a soap bubble. A blast reads as a blast when several
+  // things happen on DIFFERENT timescales at once, which is what this does:
+  //   * a white-hot core that appears instantly and dies fast
+  //   * a slower orange fireball that swells and darkens as it goes
+  //   * an expanding shockwave RING, flat to the ground — the single most
+  //     legible part of any explosion at distance, because it is huge, thin,
+  //     and moving fast against a static world
+  //   * a debris burst of voxel chunks thrown outward on ballistic arcs
+  //   * a screen shake if you were close enough to be pushed around by it
   _spawnChickenExplosion(pos) {
-    try { SFX.boom(1.0); } catch (_) {}
-    const geo = new THREE.SphereGeometry(0.5, 12, 8);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xfff2b0, transparent: true, opacity: 0.9 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.copy(pos);
-    this.scene.add(mesh);
+    try { SFX.explosion(1.0); } catch (_) { try { SFX.boom(1.0); } catch (_) {} }
+
+    const grp = new THREE.Group();
+    grp.position.copy(pos);
+    this.scene.add(grp);
+
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(1.0, 16, 12),
+      new THREE.MeshBasicMaterial({ color: 0xfffbe6, transparent: true, opacity: 1 }));
+    const ball = new THREE.Mesh(
+      new THREE.SphereGeometry(1.0, 16, 12),
+      new THREE.MeshBasicMaterial({ color: 0xffa32a, transparent: true, opacity: 0.95 }));
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.75, 1.0, 40),
+      new THREE.MeshBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0.9,
+                                    side: THREE.DoubleSide, depthWrite: false }));
+    ring.rotation.x = -Math.PI / 2;
+    grp.add(ball, core, ring);
+
+    // Debris: voxel chunks on ballistic arcs, so the blast throws something.
+    const debris = [];
+    const dGeo = new THREE.BoxGeometry(0.26, 0.26, 0.26);
+    for (let i = 0; i < 16; i++) {
+      const m = new THREE.Mesh(dGeo, new THREE.MeshLambertMaterial({
+        color: i % 3 === 0 ? 0xf6f1e6 : (i % 3 === 1 ? 0xd8a23a : 0x8a5a2b),
+        flatShading: true,
+      }));
+      const a = Math.random() * Math.PI * 2;
+      const up = 5.5 + Math.random() * 6.5;
+      const out = 5 + Math.random() * 9;
+      m.userData.v = new THREE.Vector3(Math.cos(a) * out, up, Math.sin(a) * out);
+      m.userData.spin = new THREE.Vector3(Math.random() * 9, Math.random() * 9, Math.random() * 9);
+      grp.add(m); debris.push(m);
+    }
+
+    // Screen shake, scaled by how close you were.
+    const d = this.camera.position.distanceTo(pos);
+    if (d < 22) this._shakeCamera(Math.max(0.12, 0.85 * (1 - d / 22)), 0.5);
+
+    const LIFE = 1.25;
     const start = performance.now();
     const tick = () => {
       const age = (performance.now() - start) / 1000;
-      const life = 0.55;
-      if (age >= life) { this.scene.remove(mesh); return; }
-      mesh.scale.setScalar(1 + age / life * 5);
-      mat.opacity = 0.9 * (1 - age / life);
+      if (age >= LIFE) {
+        this.scene.remove(grp);
+        grp.traverse((o) => { o.geometry?.dispose?.(); o.material?.dispose?.(); });
+        return;
+      }
+      const f = age / LIFE;
+      // Core: fast and brief.
+      const cf = Math.min(1, age / 0.16);
+      core.scale.setScalar(0.6 + cf * 4.2);
+      core.material.opacity = Math.max(0, 1 - age / 0.22);
+      // Fireball: slower, swells further, cools to red as it dies.
+      const bf = 1 - Math.pow(1 - f, 2.2);
+      ball.scale.setScalar(0.9 + bf * 9.5);
+      ball.material.opacity = 0.95 * Math.pow(1 - f, 1.5);
+      ball.material.color.setRGB(1, 0.64 - 0.42 * f, 0.16 - 0.14 * f);
+      // Shockwave: outruns the fireball and stays thin.
+      const rf = 1 - Math.pow(1 - f, 3);
+      ring.scale.setScalar(1 + rf * 20);
+      ring.material.opacity = 0.9 * Math.pow(1 - f, 2);
+      // Debris.
+      const dt2 = 1 / 60;
+      for (const m of debris) {
+        m.userData.v.y -= 22 * dt2;
+        m.position.addScaledVector(m.userData.v, dt2);
+        m.rotation.x += m.userData.spin.x * dt2;
+        m.rotation.y += m.userData.spin.y * dt2;
+        m.material.opacity = 1;
+        m.visible = age < LIFE * 0.92;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // Brief positional camera shake. Restores the exact pre-shake position each
+  // frame before applying a fresh offset, so it can never drift the camera.
+  _shakeCamera(power = 0.4, secs = 0.4) {
+    if (this._shakeUntil && performance.now() < this._shakeUntil) {
+      this._shakePower = Math.max(this._shakePower, power);
+      return;
+    }
+    this._shakePower = power;
+    this._shakeUntil = performance.now() + secs * 1000;
+    const start = performance.now();
+    const tick = () => {
+      const now = performance.now();
+      if (now >= this._shakeUntil) { this._shakePower = 0; return; }
+      const left = 1 - (now - start) / (this._shakeUntil - start);
+      const p = this._shakePower * left * left;
+      this.camera.position.x += (Math.random() - 0.5) * p;
+      this.camera.position.y += (Math.random() - 0.5) * p;
+      this.camera.position.z += (Math.random() - 0.5) * p;
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -1722,16 +2046,26 @@ export class Game {
   _updateSteakChip() {
     let slot = document.querySelector('.wpn.chicken');
     if (!slot) return;
-    // Chicken owns the chip while READY *or* while its 30 s respawn
-    // countdown is repainting it every 500 ms — writing steak state on top
-    // of the ticking countdown made the chip flicker between the two.
-    if (this.chickenAmmo > 0 || this._chickenCdTimer) return;
+    // An ARMED meat weapon outranks everything, including the chicken's 30 s
+    // respawn countdown. The countdown used to suppress the steak chip
+    // entirely, so a player could collect all five steaks and get no UI at
+    // all — which is exactly what "I don't seem to get the meat weapon" looks
+    // like from the outside, whether or not the weapon was really armed.
     if (this.steakAmmo > 0) {
       slot.style.display = '';
-      slot.innerHTML = '<span class="wpn-icon">🥩</span><span class="wpn-key">GO</span><span class="wpn-name">STEAK</span>';
-    } else if (this.steakScore > 0) {
+      slot.classList.remove('cooldown');
+      slot.innerHTML = '<span class="wpn-icon">🥩</span>'
+        + `<span class="wpn-key">×${this.steakAmmo}</span>`
+        + '<span class="wpn-name">MEAT</span>';
+      return;
+    }
+    // Otherwise the chicken owns the chip while READY *or* while its countdown
+    // is repainting it every 500 ms — writing steak state on top of the
+    // ticking countdown made the chip flicker between the two.
+    if (this.chickenAmmo > 0 || this._chickenCdTimer) return;
+    if (this.steakScore > 0) {
       slot.style.display = '';
-      slot.innerHTML = `<span class="wpn-icon">🥩</span><span class="wpn-key">${this.steakScore}/5</span><span class="wpn-name">steaks</span>`;
+      slot.innerHTML = `<span class="wpn-icon">🥩</span><span class="wpn-key">${this.steakScore}/${STEAK_GOAL}</span><span class="wpn-name">steaks</span>`;
     } else {
       slot.style.display = 'none';
     }
@@ -1757,8 +2091,15 @@ export class Game {
       if (steakSide) {
         this.steakPickups.markBroken(steakSide);
         this._broadcast({ t: MSG.STEAK_BREAK, at: steakSide, by: this.myId });
-        this.steakScore = Math.min(5, this.steakScore + 1);
-        if (this.steakScore >= 5) { this.steakAmmo = 1; }
+        this.steakScore = Math.min(STEAK_GOAL, this.steakScore + 1);
+        if (this.steakScore >= STEAK_GOAL && this.steakAmmo === 0) {
+          // Collecting the set ARMS the meat weapon: two throws, auto-selected
+          // and locked in until they are spent (see _switchWeapon).
+          this.steakAmmo = STEAK_THROWS;
+          this._showPowerGet('🥩  MEAT WEAPON  🥩',
+            `${STEAK_THROWS} poison throws — FIRE to launch`);
+          try { SFX.chirp(); SFX.boom(0.35); } catch (_) {}
+        }
         this._updateSteakChip();
         SFX.splat();
         return;   // steak absorbs the shot
@@ -1766,7 +2107,15 @@ export class Game {
       const hit = this._raycastPlayers(origin, dir);
       if (hit) {
         this._broadcast({ t: MSG.HIT, target: hit.peerId, dmg: s.damage, by: this.myId, weapon: s.weaponId });
-        this._flashHitmarker();
+        // Did that finish them? Bots we can read directly; remote humans
+        // report their own death, so this is a local best guess for FEEL only
+        // — the kill feed remains the source of truth.
+        const bot = this.bots.get(hit.peerId);
+        const rp = this.remotePlayers.get(hit.peerId);
+        const hpLeft = bot ? bot.hp - s.damage
+                     : (rp && rp.hp != null ? rp.hp - s.damage : null);
+        const killed = hpLeft != null && hpLeft <= 0;
+        this._flashHitmarker(s.damage, killed);
         SFX.splat();
         // In GORE mode, spatter voxel blood at the hit location.
         if (this.mature) {
@@ -1903,6 +2252,10 @@ export class Game {
       this._updateScoreUi();
       this._killFeedPush(`${this._name(this.myId)} captured the ${enemyColor} flag!`);
       this.critters?.cheer(this.player.pos, 'capture');
+      // The bots have opinions about a human scoring on them.
+      for (const bot of this.bots.values()) {
+        this._botTaunt(bot.peerId, bot.team === myColor ? 'capture' : 'conceded');
+      }
       this._maybeTriggerAnagram();
     }
 
@@ -1984,6 +2337,9 @@ export class Game {
   // never for a suicide or a team-kill — see killScores() in gameModes.js.
   _creditKill(killerId, victimId) {
     if (!this.isHost || this.gameOver) return;
+    // Bots trash-talk about kills they were part of, either end of it.
+    if (this.bots.has(killerId)) this._botTaunt(killerId, 'kill');
+    if (this.bots.has(victimId)) this._botTaunt(victimId, 'death');
     const team = (id) => this.playerMeta.get(id)?.team
       || this.bots.get(id)?.team
       || (id === this.myId ? this.team : null);

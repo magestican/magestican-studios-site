@@ -166,7 +166,13 @@ export const MAPS = Object.freeze({
     props: { snowman: 3, barrel: 4, crate: 6 },
     kit: { pine: 16, cairn: 8, 'ski-pair': 5, 'oil-drum': 4, 'log-pile': 3,
            'ice-axe-rack': 3, sled: 3, 'sandbag-wall': 7, 'ammo-crate': 5 },
-    ambient: null,
+    // Mountain goats, and `prefer: 'high'` is the whole point of them: they
+    // are placed UP the terraces, not on the flat. The map's name promises
+    // altitude, and an animal standing on a ledge you have to climb three
+    // courses to reach says that before you have read a word of the HUD.
+    // Fewer than the farm's geese and in more clusters — goats stand in twos
+    // and threes on separate ledges, not in a gaggle.
+    ambient: { kind: 'goat', count: 18, clusters: 7, prefer: 'high' },
   },
 
   'central-park-rink': {

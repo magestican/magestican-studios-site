@@ -50,30 +50,53 @@ export class AmbientCritters {
     this.birds = [];
     for (const spot of spots) {
       const bird = new THREE.Group();
+      // The body sits INSIDE the yaw group. A rearing goat pitches about X,
+      // and three's default 'XYZ' Euler applies X outermost — so setting
+      // `bird.rotation.x` on a bird already yawed 90 degrees ROLLS it onto its
+      // side instead of tipping its nose up. On an inner group the pitch is in
+      // the animal's own frame, which is the only frame it means anything in.
+      // The huddle lean moved in here with it; Ry * Rz is what it was before.
+      const body = new THREE.Group();
+      bird.add(body);
       const scale = species.scale * (0.82 + rnd() * 0.36);   // adults and chicks
-      const flippers = [];
+      // Parts that share a role AND a pivot share ONE pivot group — a wing is
+      // one box and gets its own, but a head is a face, a muzzle, a beard, two
+      // ears, two eyes and six horn segments that all have to swing together.
+      const pivots = new Map();
+      const limbs = [];
       for (const part of species.parts) {
         const [x, y, z, w, h, d] = part.p;
         const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), matFor(part.hex));
-        if (part.role === 'flipper' && part.pivot) {
+        if (part.role && part.pivot) {
           // A box rotates about its own centre, so swinging the flipper mesh
           // directly pivots it through the middle of the flipper and drives
           // half of it into the bird's chest. Hang it off a pivot group at the
           // SHOULDER instead and rotate that, which is where an arm bends.
           const [px, py, pz] = part.pivot;
-          const pivot = new THREE.Group();
-          pivot.position.set(px, py, pz);
+          const key = `${part.role}|${part.side ?? 0}|${px},${py},${pz}`;
+          let limb = pivots.get(key);
+          if (!limb) {
+            const pivot = new THREE.Group();
+            pivot.position.set(px, py, pz);
+            body.add(pivot);
+            limb = { obj: pivot, role: part.role, side: part.side ?? 1,
+                     restZ: pivot.rotation.z, restX: pivot.rotation.x };
+            pivots.set(key, limb);
+            limbs.push(limb);
+          }
           mesh.position.set(x - px, y - py, z - pz);
           if (part.tilt) mesh.rotation.x = part.tilt;
-          pivot.add(mesh);
-          bird.add(pivot);
-          flippers.push({ obj: pivot, side: part.side ?? 1, restZ: pivot.rotation.z });
+          limb.obj.add(mesh);
           continue;
         }
         mesh.position.set(x, y, z);
         if (part.tilt) mesh.rotation.x = part.tilt;
-        bird.add(mesh);
+        body.add(mesh);
       }
+      const flippers = limbs.filter((l) => l.role === 'flipper');
+      const forelegs = limbs.filter((l) => l.role === 'foreleg');
+      const heads    = limbs.filter((l) => l.role === 'head');
+      const hindlegs = limbs.filter((l) => l.role === 'hindleg');
       bird.position.set(spot.x, spot.y, spot.z);
       bird.scale.setScalar(scale);
       // Start facing a random way. The turn toward the player is what should
@@ -82,12 +105,20 @@ export class AmbientCritters {
       this.group.add(bird);
       this.birds.push({
         obj: bird,
+        body,
+        scale,
+        // Set for a species that rears instead of flapping. Kept per-bird so
+        // the update loop never has to ask what species it is holding.
+        rearPivotZ: species.rearUp ? species.rearUp.pivotZ : 0,
         // Each bird bobs on its own phase — a colony breathing in unison is
         // one animation played twenty-six times.
         phase: rnd() * Math.PI * 2,
         baseY: spot.y,
         lean: (rnd() - 0.5) * HUDDLE_TILT,
         flippers,
+        forelegs,
+        heads,
+        hindlegs,
         // Cheer state. `cheerT` counts DOWN from duration once the wave
         // arrives; `cheerDelay` counts down until it does.
         cheerT: 0,
@@ -179,10 +210,30 @@ export class AmbientCritters {
         const amp = cheering * b.ampScale;
         // abs(sin) so the bird leaves the ground and lands, rather than
         // sinking below it on the trough of the wave.
-        const hop = Math.abs(Math.sin(this._t * CHEER.hopHz * Math.PI + b.phase))
-                  * CHEER.hopHeight * amp;
-        b.obj.position.y = b.baseY + hop;
-        b.obj.rotation.z = b.lean * (1 - cheering);
+        //
+        // A rearing animal does NOT also hop. The hop is a bird's whole
+        // vertical gesture; on a goat that is already up on its hind legs it
+        // reads as the thing bouncing, not celebrating.
+        const rock = 0.7 + 0.3 * Math.sin(this._t * CHEER.hopHz * Math.PI + b.phase);
+        const hop = b.rearPivotZ
+          ? 0
+          : Math.abs(Math.sin(this._t * CHEER.hopHz * Math.PI + b.phase))
+            * CHEER.hopHeight * amp;
+        // --- the rear-up -----------------------------------------------------
+        // Pitch NOSE-UP is a NEGATIVE rotation about +X (rotating a point at
+        // +Z about +X carries it downward), and it has to pivot at the hind
+        // hooves or the back legs go through the rock. Rotating the body about
+        // the model origin instead drops the hoof line by |pivotZ| * sin(rear),
+        // so the whole animal is lifted by exactly that much — in world metres,
+        // hence the scale.
+        let lift = 0;
+        if (b.rearPivotZ) {
+          const rear = Math.min(CHEER.rearUp * amp, CHEER.rearUp * 1.25) * rock;
+          b.body.rotation.x = -rear;
+          lift = Math.abs(b.rearPivotZ) * Math.sin(rear) * b.scale;
+        }
+        b.obj.position.y = b.baseY + hop + lift;
+        b.body.rotation.z = b.lean * (1 - cheering);
         // Flippers up. Both swing outward from the shoulder, mirrored, so the
         // silhouette is the arms-overhead shape that reads as celebration at
         // any distance.
@@ -196,10 +247,33 @@ export class AmbientCritters {
         const swing = (0.5 + 0.5 * Math.sin(this._t * b.flapHz * Math.PI * 2 + b.phase))
                     * CHEER.flipperSwing * amp;
         for (const f of b.flippers) f.obj.rotation.z = f.restZ + swing * f.side;
+        // Forelegs paw the air, in ANTIPHASE — the half-turn offset by side is
+        // the whole difference between a goat pawing and a rabbit begging. The
+        // hoof has to come FORWARD, which is again the negative direction
+        // about +X, and again a thing no assertion can check.
+        for (const f of b.forelegs) {
+          const paw = 0.5 + 0.5 * Math.sin(this._t * b.flapHz * Math.PI * 2
+                                           + b.phase + (f.side > 0 ? 0 : Math.PI));
+          f.obj.rotation.x = f.restX - paw * CHEER.foreLegPaw * amp;
+        }
+        // The head throws back on the same beat as the rear, not on the flap:
+        // the rear-up and the head-toss are ONE gesture and a head on its own
+        // rhythm reads as a separate animal wearing the goat's face.
+        for (const h of b.heads) h.obj.rotation.x = h.restX - CHEER.headToss * amp * rock;
+        // Hind legs brace: cancel most of the body's pitch so they stay under
+        // the animal. Positive here, because it is undoing a negative.
+        const brace = b.rearPivotZ
+          ? Math.min(CHEER.rearUp * amp, CHEER.rearUp * 1.25) * rock * CHEER.hindLegBrace
+          : 0;
+        for (const l of b.hindlegs) l.obj.rotation.x = l.restX + brace;
       } else {
         b.obj.position.y = b.baseY + bob;
-        b.obj.rotation.z = b.lean;
+        b.body.rotation.z = b.lean;
+        b.body.rotation.x = 0;
         for (const f of b.flippers) f.obj.rotation.z = f.restZ;
+        for (const f of b.forelegs) f.obj.rotation.x = f.restX;
+        for (const h of b.heads) h.obj.rotation.x = h.restX;
+        for (const l of b.hindlegs) l.obj.rotation.x = l.restX;
       }
     }
   }
