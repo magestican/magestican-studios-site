@@ -80,6 +80,16 @@ export const MAX_BOTS = MATCH_CAP - 1;   // a host is always one of the sixteen
 // 150 m, so a 60 m gun could not reach a target the player could plainly see
 // — the shot simply did nothing, which is the worst kind of miss.
 const SHOT_RANGE = 80;
+
+// The direction a shot is travelling. Hitscan shots carry `dir`; projectile
+// shots carry `vel` and no `dir` at all — which is what broke the first cut of
+// contact resolution, because the gore spatter reached for `shot.dir` on a
+// pellet that had never had one.
+function shotDirection(shot) {
+  if (shot.dir) return new THREE.Vector3().fromArray(shot.dir);
+  if (shot.vel) return new THREE.Vector3().fromArray(shot.vel).normalize();
+  return new THREE.Vector3(0, 0, 1);
+}
 const NET_TICK_HZ = 20;
 const RESPAWN_DELAY = 0.0;      // "immediate" per spec
 const ANAGRAM_SECONDS = 10;
@@ -2367,7 +2377,7 @@ export class Game {
         // A visible puff where it struck, so a miss reads as a miss.
         this.gore?.spatterAt?.(
           new THREE.Vector3(result.point.x, result.point.y, result.point.z),
-          new THREE.Vector3().fromArray(p.shot.dir).multiplyScalar(-1));
+          shotDirection(p.shot).multiplyScalar(-1));
       }
       this.weapons.despawnProjectile(p.rec);
       live.splice(i, 1);
@@ -2385,7 +2395,7 @@ export class Game {
     this._flashHitmarker(shot.damage, hpLeft != null && hpLeft <= 0);
     SFX.splat();
     if (this.mature) {
-      const away = new THREE.Vector3().fromArray(shot.dir).multiplyScalar(-1);
+      const away = shotDirection(shot).multiplyScalar(-1);
       this.gore?.spatterAt?.(new THREE.Vector3(point.x, point.y, point.z), away);
     }
     // Bots take damage locally on the host; humans apply their own from HIT.

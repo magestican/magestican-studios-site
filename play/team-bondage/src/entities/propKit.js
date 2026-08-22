@@ -11,6 +11,7 @@
 
 import * as THREE from 'three';
 import { PROPS, SCATTER_JITTER, FIXED_YAW } from './propKitSpec.js';
+import { addMapBackdrop } from './mapBackdrop.js';
 import { SeededRng } from '../../../../web-engine/rng/seededRng.js';
 import { WORLD_SIZE, perArea, insideZone } from '../../../../web-engine/procgen/voxelWorldGen.js';
 
@@ -69,6 +70,13 @@ export function propHeight(id) {
 
 // Scatter the map's kit. Returns the group (already added to the scene).
 export function scatterPropKit(scene, world) {
+  // The map's OUT-OF-BOUNDS scenery goes up in the same pass. Same category of
+  // thing — the map's own dressing, built from its own data, synchronous, and
+  // needed on the first frame rather than streamed — and the two want to stay
+  // together: the kit is what is near enough to touch, the backdrop is the
+  // same world carrying on past where you can reach.
+  addMapBackdrop(scene, world);
+
   const kit = world.map?.kit;
   const group = new THREE.Group();
   group.name = 'propKit';
