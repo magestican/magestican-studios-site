@@ -1,6 +1,6 @@
-// Bullet tracers - thin bright lines drawn for hitscan shots so you can see
-// something happened when you pull the trigger. Also used to visualise poo
-// projectiles' path (with a slight arc).
+
+
+
 
 import * as THREE from 'three';
 
@@ -9,7 +9,7 @@ const LIFE_SEC = 0.20;
 export class TracerSystem {
   constructor(scene) {
     this.scene = scene;
-    this._active = [];   // { line, bornAt, mat }
+    this._active = [];   
   }
 
   addHitscan(origin, dir, maxDist = 50, color = 0xf4c95d) {

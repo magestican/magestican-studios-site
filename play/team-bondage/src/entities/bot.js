@@ -1,12 +1,15 @@
-// Simple AI bot. Simulated locally by the host only; every other peer sees
-// bots as normal RemotePlayers via the standard HELLO + STATE messages.
-//
-// AI behaviour:
-//   * If not carrying a flag, path toward the enemy flag stand.
-//   * If carrying the enemy flag, path back to own team's flag stand.
-//   * When line-of-sight blocked, jitter direction slightly (no real
-//     path-finding - fine for a small open CTF map).
-//   * Shoot at any enemy player within cone-of-vision + range.
+
+
+
+
+
+
+
+
+
+
+
+
 
 import * as THREE from 'three';
 import { hasLineOfSight } from '../../../../web-engine/physics/lineOfSight.js';
@@ -47,7 +50,9 @@ export class Bot {
     this.alive = true;
     this.hasEnemyFlag = false;
     this._fireCd = FIRE_COOLDOWN + Math.random();
-    // Path state shared with the pure web-engine/ai/botStep module.
+    
+    
+    
     this._path = { pos: this.pos, yaw: this.yaw, wanderDir: { x: 1, z: 0 }, wanderT: 0 };
   }
 
@@ -56,22 +61,32 @@ export class Bot {
     this.pos.set(spawn.x, spawn.y, spawn.z);
     this.hp = 100; this.alive = true; this.hasEnemyFlag = false;
     this._fireCd = FIRE_COOLDOWN;
+    
+    
+    
+    
+    
+    this._path.waypoint = null;
+    this._path.repathT = 0;
+    this._path.wanderT = 0;
+    this._path.stuckRef = null;
+    this._path.stuckT = 0;
   }
 
-  // Called by host each frame. `game` provides:
-  //   - grid (for basic solid checks)
-  //   - flagPos { red, blue }, flagState
-  //   - enemyPlayers (Array<{peerId, pos, team}>)
-  //   - onShoot(botPeerId, origin, dir)  - report a shot
-  //   - onFlagPickup(botPeerId, color)
-  //   - onFlagCapture(botPeerId, color)
+  
+  
+  
+  
+  
+  
+  
   update(dt, ctx) {
     if (!this.alive) return;
 
     const enemyColor = this.team === 'red' ? 'blue' : 'red';
     const myColor    = this.team;
 
-    // Objective: pick up flag OR carry it home.
+    
     let goal;
     if (this.hasEnemyFlag) {
       const f = ctx.world.flags[myColor];
@@ -81,14 +96,14 @@ export class Bot {
       goal = new THREE.Vector3(fp.x, this.pos.y, fp.z);
     }
 
-    // Movement + collision + turn: delegated to pure web-engine/ai/botStep
-    // so it's node-testable without three.js. See docs/features/bot-pathing.md.
+    
+    
     this._path.yaw = this.yaw;
     stepBot(this._path, dt, ctx.grid, { x: goal.x, z: goal.z });
     this.yaw = this._path.yaw;
-    // pos was mutated in-place by stepBot (same Vector3 reference).
+    
 
-    // Flag pickup / capture: host-side, delegate to game.
+    
     if (!this.hasEnemyFlag && ctx.flagState[enemyColor] !== 'carried') {
       const fp = ctx.flagPos[enemyColor];
       const d = Math.hypot(this.pos.x - fp.x - 0.5, this.pos.z - fp.z - 0.5);
@@ -105,9 +120,9 @@ export class Bot {
       }
     }
 
-    // Shooting: look for closest enemy inside vision/range AND with a
-    // clear line of sight through the voxel grid. Bots no longer shoot
-    // through walls.
+    
+    
+    
     this._fireCd -= dt;
     if (this._fireCd <= 0 && !this.hasEnemyFlag) {
       const enemy = pickClosestEnemy(this.pos, ctx.enemyPlayers, RANGE_SEE_ENEMY);
@@ -127,11 +142,11 @@ export class Bot {
     }
   }
 
-  // Simulate taking damage locally on the host.
+  
   takeDamage(dmg) {
     if (!this.alive) return false;
     this.hp -= dmg;
-    if (this.hp <= 0) { this.alive = false; return true; }   // just died
+    if (this.hp <= 0) { this.alive = false; return true; }   
     return false;
   }
 

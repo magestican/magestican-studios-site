@@ -1,18 +1,18 @@
-// First-person weapon viewmodel - mounted to the camera as a child, so it
-// always renders at the bottom-right of the screen no matter where the
-// player looks.
-//
-// Graphics loop pass 3 (queue item 1, GRAPHICS_QUALITY_LOOP.md): the three
-// viewmodels used to be 2-3 untextured primitives each. They are now built
-// from the voxel part specs in viewmodelSpec.js -- wood grain + scratched
-// metal canvas textures, a worn/polished cutting edge, and one unmistakable
-// signature per weapon so you can tell what you're holding at 1/8th screen:
-//   shovel  = wide spade blade + D-handle + poo pellet on the face
-//   shotgun = TWO barrels + brass breech
-//   rocket  = stepped red warhead + fins
-//
-// Per hand-drawn.md, texture offsets are jittered per part (deterministically)
-// so no two wooden pieces show the same grain, and the rig breathes when idle.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import * as THREE from 'three';
 import { makeWoodTexture, makeMetalTexture } from '../map/textures.js';
@@ -24,7 +24,7 @@ export class FirstPersonWeapon {
   constructor(camera) {
     this.camera = camera;
     this.rig = new THREE.Group();
-    this.rig.position.set(0.35, -0.30, REST_Z);   // bottom-right of the frame
+    this.rig.position.set(0.35, -0.30, REST_Z);   
     this.camera.add(this.rig);
 
     const tex = buildTextureLibrary();
@@ -47,18 +47,18 @@ export class FirstPersonWeapon {
     this._current = this._models[key];
   }
 
-  // Play a small recoil kick (called from game.js when we fire).
+  
   kick() { this._recoilT = 0.15; }
 
   update(dt) {
     this._t += dt;
-    // Idle breath: the rig drifts a few millimetres so the weapon reads as
-    // held, not welded to the camera (silhouette-readability.md motion test).
+    
+    
     const bobY = Math.sin(this._t * 1.6) * 0.006;
     const bobX = Math.sin(this._t * 1.1) * 0.004;
     const sway = Math.sin(this._t * 0.9) * 0.012;
 
-    // Recoil back-and-forward: quick pull-back, slower return.
+    
     if (this._recoilT > 0) {
       this._recoilT -= dt;
       const k = Math.max(0, this._recoilT / 0.15);
@@ -74,18 +74,18 @@ export class FirstPersonWeapon {
   }
 }
 
-// -- Build -----------------------------------------------------------------
+
 
 function buildTextureLibrary() {
-  // Guard: the viewmodel is only ever constructed in the browser, but keep
-  // the module importable in node-ish contexts (tests import the spec, not
-  // this, but a stray import shouldn't explode).
+  
+  
+  
   if (typeof document === 'undefined') return {};
   return { wood: makeWoodTexture(), metal: makeMetalTexture() };
 }
 
-// Deterministic PRNG so a given part always gets the same grain offset --
-// the wobble is authored, not random-per-load.
+
+
 function seedRng(seed) {
   let s = seed >>> 0 || 1;
   return () => {
@@ -124,17 +124,17 @@ function buildMaterial(part, tex, rng) {
     return new THREE.MeshLambertMaterial({ color: VM_PALETTE[part.mat], flatShading: true });
   }
 
-  // Clone so each part can carry its own grain scale + offset (shared image,
-  // so this costs nothing on the GPU).
+  
+  
   const map = base.clone();
   map.needsUpdate = true;
   const longest = part.size ? Math.max(...part.size) : 0.1;
   const rep = Math.max(1, Math.round(longest / 0.12));
   map.repeat.set(rep, rep);
   map.offset.set(rng(), rng());
-  // `tint` multiplies the texture DOWN toward the palette colour; `emissive`
-  // lifts the one material (metalLite) that has to end up brighter than the
-  // texture itself. See the note on VM_TEXTURED in viewmodelSpec.js.
+  
+  
+  
   return new THREE.MeshLambertMaterial({
     map,
     color: skin.tint,

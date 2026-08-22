@@ -1,21 +1,21 @@
-// Chat. Log always visible, input only while composing.
-//
-// The one rule that shapes the whole thing: in a game where WASD moves you,
-// a text field that is always focusable will eat your movement keys. So the
-// input is a MODE — Enter opens it, Enter sends and closes it, Escape
-// abandons it — and while it is closed the field is display:none and cannot
-// take focus at all. `isComposing()` lets the game suppress input handling for
-// exactly as long as the field is open.
-//
-// Lines fade rather than disappear so the log never becomes a wall, but the
-// last few stay readable; opening the composer un-fades everything, because
-// the moment you decide to talk is the moment you want to read what was said.
+
+
+
+
+
+
+
+
+
+
+
+
 
 const MAX_LINES = 7;
 const FADE_AFTER_MS = 9000;
 
 export class Chat {
-  // onSend(text) is called with the trimmed, non-empty message.
+  
   constructor({ onSend } = {}) {
     this.root  = document.getElementById('chat');
     this.log   = document.getElementById('chat-log');
@@ -34,7 +34,7 @@ export class Chat {
       if (text) this.onSend(text);
     });
     this.input?.addEventListener('keydown', (e) => {
-      // Stop game keybinds from seeing anything typed here.
+      
       e.stopPropagation();
       if (e.key === 'Escape') { this.input.value = ''; this.close(); }
     });
@@ -42,7 +42,7 @@ export class Chat {
     this.btn?.addEventListener('touchstart', (e) => { e.preventDefault(); this.toggle(); },
       { passive: false });
 
-    // Enter opens the composer from anywhere in the game.
+    
     window.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' || this.isComposing()) return;
       if (document.activeElement && /input|textarea/i.test(document.activeElement.tagName)) return;
@@ -57,7 +57,7 @@ export class Chat {
   open() {
     if (!this.root) return;
     this.root.classList.add('composing');
-    // Release pointer lock so the player can actually see and type.
+    
     if (document.pointerLockElement) document.exitPointerLock?.();
     this.input?.focus();
   }
@@ -70,7 +70,7 @@ export class Chat {
 
   toggle() { this.isComposing() ? this.close() : this.open(); }
 
-  // kind: 'say' | 'taunt' | 'system'
+  
   push({ name, text, team, kind = 'say' }) {
     if (!this.log || !text) return;
     const el = document.createElement('div');
@@ -83,9 +83,9 @@ export class Chat {
       who.className = 'who';
       who.textContent = name + ':';
       el.appendChild(who);
-      // textContent, never innerHTML — chat is untrusted input from peers and
-      // this is the one place in the game where somebody else's string reaches
-      // the DOM.
+      
+      
+      
       el.appendChild(document.createTextNode(text));
     }
     el.dataset.at = String(Date.now());

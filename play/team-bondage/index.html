@@ -9,9 +9,9 @@
   <title>Play Team Bondage — free browser FPS, no download | Magestican Studios</title>
   <meta name="description" content="Play Team Bondage free in your browser: a capture-the-flag FPS with ice-drift movement, farm-animal soldiers, seeded voxel maps and peer-to-peer multiplayer. Four maps, four modes, AI bots. No download, no install, no account — just share a room code.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a17'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='20' text-anchor='middle' fill='%23f6f1e6'%3ET%3C/text%3E%3C/svg%3E">
-  <!-- The game page is the page people actually link to and share, so it
-       carries its own canonical + cards rather than leaning on the landing
-       page at /team-bondage.html. -->
+  
+
+
   <link rel="canonical" href="https://magesticanstudios.com/play/team-bondage/">
   <meta name="keywords" content="play team bondage, free browser fps, capture the flag browser game, no download multiplayer, farm animal shooter, webrtc p2p game, office friendly game">
   <meta property="og:type" content="website">
@@ -58,16 +58,16 @@
     canvas { display: block; touch-action: none; -webkit-user-select: none; }
     #app { position: fixed; inset: 0; }
 
-    /* Menu overlay */
-    /* NOTE the align-items here. This was `center`, which crops the TOP of the
-       card whenever the card is taller than the window: a centred flex item
-       that overflows its scroll container overflows in BOTH directions, and
-       the part above the container's scroll origin is unreachable — you can
-       scroll down to the bottom of the card but never up to its title. Bryan:
-       "I still can't see the full game creation screen, the top is cropped."
-       `flex-start` + `margin: auto` on the child gives the same centring when
-       the card FITS and degrades to top-aligned-and-scrollable when it does
-       not, which is the behaviour we actually wanted all along. */
+    
+    
+
+
+
+
+
+
+
+
     #menu { position: fixed; inset: 0; z-index: 10;
       background: radial-gradient(circle at 50% 40%, #16202c 0%, #0a0d12 100%);
       display: flex; align-items: flex-start; justify-content: center;
@@ -77,7 +77,7 @@
     .menu-card { background: rgba(24,30,42,0.9); border: 1px solid #2b3648; border-radius: 12px;
       padding: 24px 24px; max-width: 720px; width: 100%;
       box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-      margin: auto;   /* centres when it fits; never crops when it does not */
+      margin: auto;   
     }
     @media (max-width: 480px) {
       .menu-card { padding: 18px 16px; border-radius: 10px; }
@@ -120,7 +120,7 @@
     }
     .warn { color: #f4c95d; font-size: 13px; margin-top: 6px; }
 
-    /* HUD */
+    
     #hud { position: fixed; inset: 0; z-index: 5; pointer-events: none;
       color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     }
@@ -132,7 +132,7 @@
     }
     #crosshair::before { left: 8px; top: 0; width: 2px; height: 18px; }
     #crosshair::after  { left: 0; top: 8px; width: 18px; height: 2px; }
-    /* Farm-style score plaque: wooden-board look with rope-tie corners. */
+    
     #topbar { position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
       display: flex; gap: 24px; align-items: center;
       font: 800 22px Georgia, serif;
@@ -147,24 +147,24 @@
     .score-blue { color: #7cb0ff; }
     .score-sep  { color: #8894a6; font-weight: 400; font-size: 16px; }
     #bottombar { position: absolute; left: 20px; bottom: 20px; font-size: 15px; }
-    /* Corn-COB health bar V2 (2026-08-21): 50 kernels, 2 HP each, and it
-       actually reads as corn now —
-         · capsule-shaped cob with a dried-husk tan core
-         · kernels are tightly-packed rounded SQUARES (not dots), with the
-           2nd row offset half a kernel like a real cob
-         · per-kernel tone variation via nth-child so it isn't a flat grid
-         · green husk leaves peeling off the left end (the corn "tell")
-       Rendered as 50 span children of #health-fill (game.js._buildCornBar). */
+    
+
+
+
+
+
+
+
     #health-bar { display: inline-block;
       width: 260px; height: 28px;
       padding: 2px 6px;
       background: linear-gradient(180deg, #b98d3e 0%, #8a6526 60%, #6a4d1b 100%);
       border: 2px solid #4a3d10;
-      border-radius: 14px;              /* capsule cob ends */
+      border-radius: 14px;              
       vertical-align: middle; margin-left: 14px;
       position: relative;
     }
-    /* Husk leaves at the stalk end. Two long leaves + one wrapping the tip. */
+    
     #health-bar::before, #health-bar::after {
       content: '';
       position: absolute;
@@ -191,11 +191,11 @@
       gap: 1px;
       width: 100%; height: 100%;
       position: relative; z-index: 2;
-      overflow: hidden;           /* clip the offset row's protruding half-kernel */
+      overflow: hidden;           
       border-radius: 10px;
     }
     .kernel {
-      /* Kernel = plump rounded square, dimpled top, packed tight. */
+      
       background: radial-gradient(circle at 38% 28%, #ffe98f 0%, #f7c94a 48%, #cf9a2e 85%, #a87722 100%);
       border-radius: 34% 34% 42% 42%;
       box-shadow: inset 0 -2px 2px rgba(90, 60, 10, 0.45),
@@ -203,9 +203,9 @@
       opacity: 1;
       transition: opacity 0.15s ease-out;
     }
-    /* Bottom row offset half a kernel — corn rows interlock, grids don't. */
+    
     .kernel:nth-child(n+26) { transform: translateX(45%); }
-    /* Tone variation so the cob doesn't read as a printed grid. */
+    
     .kernel:nth-child(3n)  { filter: brightness(1.07) saturate(1.05); }
     .kernel:nth-child(7n)  { filter: brightness(0.93); }
     .kernel:nth-child(11n) { filter: brightness(1.12) hue-rotate(-6deg); }
@@ -224,7 +224,7 @@
       pointer-events: auto !important;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-      z-index: 8;   /* above HUD (5) and touch overlay (6) */
+      z-index: 8;   
       display: flex; align-items: center; justify-content: center;
     }
     #mute-btn:active { background: rgba(244,201,93,0.7) !important; }
@@ -242,7 +242,7 @@
       z-index: 8;
     }
     #add-bot-btn:active { background: #26221c !important; }
-    /* Big obvious "Tap to enable sound" prompt shown until audio starts. */
+    
     #enable-sound {
       position: fixed; z-index: 60;
       left: 50%; top: 30%; transform: translate(-50%, -50%);
@@ -259,7 +259,7 @@
     }
     #enable-sound.visible { display: block; animation: pulseSound 1.4s ease-in-out infinite; }
     @keyframes pulseSound { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.05); } }
-    /* Mature-mode toggle (blood, announcer, spatter). Persists in localStorage. */
+    
     #mature-btn { position: fixed;
       top: max(10px, env(safe-area-inset-top));
       right: calc(max(10px, env(safe-area-inset-right)) + 108px);
@@ -289,7 +289,7 @@
       z-index: 8;
     }
     #settings-btn:active { background: rgba(244,201,93,0.7) !important; }
-    /* Settings modal - open via ⚙ button or Escape */
+    
     #settings-modal {
       position: fixed; inset: 0; z-index: 90;
       background: rgba(6,10,16,0.85);
@@ -319,9 +319,9 @@
       padding: 10px 22px; border-radius: 8px; cursor: pointer;
       font: 600 14px inherit;
     }
-    /* Big-arrow flag compass. Two labelled arrow-pills below the score,
-       one per team. Each shows: colored flag, arrow rotated toward the
-       flag, distance in metres. Much clearer than the tiny triangles. */
+    
+
+
     #compass { position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
       display: flex; gap: 10px;
       pointer-events: none;
@@ -370,49 +370,49 @@
     .wpn.chicken { border-color: #f4c95d; background: rgba(80,60,20,0.85); animation: pulseChicken 1.5s ease-in-out infinite; }
     @keyframes pulseChicken { 0%,100% { box-shadow: 0 0 0 rgba(244,201,93,0); } 50% { box-shadow: 0 0 12px rgba(244,201,93,0.8); } }
 
-    /* Mobile HUD redesign: strict "safe grid" so nothing overlaps on a
-       phone. Layout:
-         top-left   : settings button (⚙)
-         top-center : compact score PILL (red X · blue Y)
-         top-right  : GORE / mute buttons stacked
-         under score, centre : slim compass (arrow + distance only)
-         top-right column, below buttons : kill-feed (narrow, right-aligned)
-         bottom-left : HP corn bar (never in the joystick zone)
-         bottom-center : ammo
-         weaponbar   : hidden (touch controls own weapon switching + chicken
-                       auto-selects on pickup + slot chip is tappable)
-       Everything sits above safe-area insets so notches don't clip. */
+    
+
+
+
+
+
+
+
+
+
+
+
     @media (max-width: 700px), (pointer: coarse) {
       #topbar { top: max(8px, env(safe-area-inset-top)); font-size: 15px; gap: 8px;
         background: rgba(0,0,0,0.55); padding: 3px 12px; border-radius: 999px;
         border: 1px solid rgba(255,255,255,0.15);
-        max-width: calc(100% - 220px); }   /* keep clear of settings + right buttons */
-      /* Compact compass: hide the flag emoji + shrink the distance pill.  */
+        max-width: calc(100% - 220px); }   
+      
       #compass { top: 44px; gap: 6px; }
       .compass-pill { padding: 2px 8px 2px 6px; font-size: 12px; border-width: 1.5px; }
       .compass-flag { display: none; }
       .compass-arrow-lg { width: 18px; height: 18px; }
       .compass-dist { min-width: 26px; font-size: 11px; }
-      /* HP bar moves to bottom-LEFT above the joystick area (joystick uses
-         the lower-left QUADRANT — we sit safely above it). */
+      
+
       #bottombar { position: fixed; left: max(12px, env(safe-area-inset-left));
         bottom: calc(140px + env(safe-area-inset-bottom)); top: auto;
         font-size: 12px; background: rgba(0,0,0,0.55); padding: 4px 10px;
         border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); }
       #health-bar { width: 116px; }
-      /* Ammo counter pinned to the bottom-center chin, above the FIRE btn */
+      
       #ammo { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom));
         transform: translateX(-50%); font-size: 14px; font-weight: 700;
         background: rgba(0,0,0,0.55); padding: 3px 10px; border-radius: 8px;
         border: 1px solid rgba(255,255,255,0.15); }
-      /* Kill-feed narrows + moves lower so it can't sit behind the right buttons. */
+      
       #kill-feed { top: calc(max(8px, env(safe-area-inset-top)) + 100px);
         right: 10px; max-width: 44vw; font-size: 11px; }
       .kill-line { padding: 3px 6px; }
-      /* Hide only the normal weapon slots on mobile (touch buttons cover
-         those). Keep the CHICKEN slot visible — that's the pickup indicator
-         + 30 s countdown chip. Bryan 2026-08-20 "I still don't see the
-         timer when I take the super weapon in its place". */
+      
+
+
+
       #weaponbar { display: block; background: transparent; border: 0; padding: 0; }
       #weaponbar .wpn:not(.chicken) { display: none; }
       #weaponbar .wpn.chicken {
@@ -421,14 +421,14 @@
         left: 50%; transform: translateX(-50%);
         z-index: 20;
       }
-      /* 108px — below the mobile chicken/steak chip (fixed at +78, ~26px
-         tall). 74px sat directly under the chip and overprinted it. The
-         full mobile top-center ladder is now: compass 44 → chip 78 →
-         flagStatus 108 → carry banner 130 → poison hint 170. */
+      
+
+
+
       #flagStatus { top: 108px; font-size: 12px; padding: 0 12px; }
       #crosshair { transform: translate(-50%, -50%) scale(0.7); }
-      /* Right-column top buttons: mute + gore stacked in a strict column so
-         they cannot collide with the score pill or kill-feed. */
+      
+
       #mute-btn { right: max(10px, env(safe-area-inset-right)); top: max(8px, env(safe-area-inset-top));
         height: 40px; width: 40px; padding: 0; }
       #mature-btn { right: max(10px, env(safe-area-inset-right));
@@ -440,13 +440,13 @@
       #settings-btn { left: max(8px, env(safe-area-inset-left));
         top: max(8px, env(safe-area-inset-top)); width: 40px; height: 40px; font-size: 20px; }
     }
-    /* 96px — below the compass pills (which sit at top:60). Sharing top:60
-       with the compass made the two overprint whenever a flag was carried. */
+    
+
     #flagStatus { position: absolute; top: 96px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #f4c95d; }
     #kill-feed { position: absolute; right: 20px; top: 60px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #cbd3e1; }
     .kill-line { background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 4px; }
 
-    /* Hit indicator - red vignette flash when local player takes damage */
+    
     #hit-flash {
       position: fixed; inset: 0; z-index: 4;
       pointer-events: none;
@@ -455,8 +455,8 @@
       transition: opacity 0.35s ease-out;
     }
     #hit-flash.visible { opacity: 1; transition-duration: 0.02s; }
-    /* Directional hit marker: arrow around the crosshair pointing at
-       the source of damage. Fades over 1.5s. */
+    
+
     #hit-direction {
       position: fixed; left: 50%; top: 50%; z-index: 6;
       width: 300px; height: 300px; transform: translate(-50%, -50%);
@@ -474,7 +474,7 @@
       border-bottom: 22px solid rgba(255, 60, 40, 0.85);
       filter: drop-shadow(0 0 4px rgba(255,0,0,0.8));
     }
-    /* Crosshair blip when YOU hit an enemy */
+    
     #hitmarker {
       position: fixed; left: 50%; top: 50%; z-index: 5;
       transform: translate(-50%, -50%);
@@ -487,7 +487,7 @@
     }
     #hitmarker.visible { opacity: 1; transition-duration: 0.02s; }
 
-    /* ---- Chat ---------------------------------------------------------- */
+    
     #chat { position: fixed; left: max(12px, env(safe-area-inset-left));
       bottom: calc(52px + env(safe-area-inset-bottom));
       width: min(420px, 46vw); z-index: 25; pointer-events: none;
@@ -504,8 +504,8 @@
     .chat-line.red   .who { color: #ff7b6a; }
     .chat-line.blue  { border-left-color: #7cb0ff; }
     .chat-line.blue  .who { color: #7cb0ff; }
-    /* A taunt is a bot talking trash — italic + gold so it never gets confused
-       with a human teammate trying to coordinate. */
+    
+
     .chat-line.taunt { font-style: italic; }
     .chat-line.taunt .who { color: #f4c95d; }
     .chat-line.system { border-left-color: #f4c95d; color: #f4c95d; font-style: italic; }
@@ -523,7 +523,7 @@
     @media (max-width: 700px), (pointer: coarse) {
       #chat { width: 62vw; bottom: calc(178px + env(safe-area-inset-bottom)); font-size: 12px; }
     }
-    /* Mobile chat button — desktop opens chat with ENTER, touch needs a target. */
+    
     #chat-btn { position: fixed; display: none;
       left: max(12px, env(safe-area-inset-left));
       bottom: calc(96px + env(safe-area-inset-bottom));
@@ -535,9 +535,9 @@
     }
     @media (max-width: 700px), (pointer: coarse) { #chat-btn { display: block; } }
 
-    /* Peeking-through-hay overlays (visible only when player is INSIDE a
-       hay bale). Two vertical strands of translucent yellow "straw"
-       framing the left and right edges of the view. */
+    
+
+
     .hay-peek { position: fixed; top: 0; bottom: 0; width: 20vw;
       pointer-events: none; z-index: 6; opacity: 0;
       transition: opacity 0.25s ease-in-out;
@@ -571,7 +571,7 @@
     }
     #hiding-label.visible { opacity: 1; }
 
-    /* Anagram overlay */
+    
     #anagramWrap { position: fixed; inset: 0; z-index: 20; background: rgba(6,10,16,0.92);
       display: none; align-items: center; justify-content: center;
     }
@@ -592,15 +592,15 @@
     #anagramMsg { margin-top: 12px; font-size: 15px; color: #9aa5b8; min-height: 20px; }
     .spectator { opacity: 0.7; }
 
-    /* Loading */
+    
     #loading { position: fixed; inset: 0; background: #0a0d12; z-index: 30;
       display: flex; align-items: center; justify-content: center;
       color: #9aa5b8; font-family: Georgia,serif; font-size: 18px;
     }
     #loading.done { display: none; }
-    /* The line under the map / mode pickers. Four maps that play differently
-       is the point; a row of unlabelled buttons does not communicate that, so
-       the selected one explains itself. */
+    
+
+
     .pick-blurb {
       margin: 6px 2px 2px; min-height: 2.4em;
       font-size: 13px; line-height: 1.35; opacity: 0.78;
@@ -638,7 +638,7 @@
   <div id="app"></div>
   <div id="loading">Loading Team Bondage...</div>
 
-  <!-- Main menu (character + host/join) -->
+  
   <div id="menu">
     <div class="menu-card">
       <h1>Team <span class="accent">Bondage</span></h1>
@@ -705,16 +705,16 @@
     </div>
   </div>
 
-  <!-- Hit FX overlays (outside HUD so pointer-events don't need overriding) -->
+  
   <div id="hit-flash"></div>
   <div id="hit-direction"></div>
   <div id="hitmarker">×</div>
 
-  <!-- Chat. Lives OUTSIDE #hud because #hud is pointer-events:none and the
-       input has to be typeable. Log is always visible (fading old lines);
-       the input only appears while composing, so ENTER is a mode switch and
-       WASD never eats your message. See docs/features/chat.md. -->
-  <!-- Touch has no Enter key, so it gets an explicit target. Desktop hides it. -->
+  
+
+
+
+  
   <button id="chat-btn" aria-label="Open chat">💬</button>
   <div id="chat">
     <div id="chat-log"></div>
@@ -722,13 +722,13 @@
       <input id="chat-input" type="text" maxlength="120" placeholder="say something…">
     </form>
   </div>
-  <!-- Peeking-through-hay overlays: two side straw strips shown when
-       the player is inside a hay bale. -->
+  
+
   <div class="hay-peek left"  id="hayPeekLeft"></div>
   <div class="hay-peek right" id="hayPeekRight"></div>
   <div id="hiding-label">🌾 hiding in hay</div>
 
-  <!-- HUD -->
+  
   <div id="hud" style="display: none;">
     <div id="crosshair"></div>
     <div id="topbar">
@@ -757,8 +757,8 @@
     <div id="kill-feed"></div>
     <div id="bottombar">
       HP <span id="health-bar"><span id="health-fill"></span></span>
-      <!-- Ammo counter removed 2026-08-20 — ammo is always infinite in this
-           game so the ∞ pill was meaningless clutter. -->
+      
+
       <span id="ammo" style="display:none;"></span>
     </div>
     <div id="weaponbar">
@@ -768,16 +768,16 @@
       <div class="wpn chicken" data-w="3" style="display:none;"><span class="wpn-icon"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><ellipse cx="12" cy="16" rx="6" ry="5" fill="#ffffff" stroke="#0f0e0c" stroke-width="1"/><circle cx="12" cy="9" r="3.6" fill="#ffffff" stroke="#0f0e0c" stroke-width="1"/><path d="M12 5c1-2 3-2 3 0h-3z" fill="#b73a2a" stroke="#0f0e0c" stroke-width="0.8"/><path d="M15 9l3 -0.5-3 2z" fill="#f4c95d" stroke="#0f0e0c" stroke-width="0.8"/><circle cx="14" cy="8.6" r="0.55" fill="#0f0e0c"/></svg></span><span class="wpn-key">4</span><span class="wpn-name">Slingshot</span></div>
     </div>
   </div>
-  <!-- Mute button + lobby banner + admin controls live OUTSIDE the
-       pointer-events:none HUD so taps always land on them. -->
+  
+
   <button id="mute-btn" aria-label="Toggle music">🔊</button>
   <button id="mature-btn" aria-label="Toggle gore mode">GORE</button>
   <button id="enable-sound" aria-label="Enable sound">🔊 Tap to enable sound</button>
 
-  <!-- First-run "How to play" overlay. Shown once (localStorage tb.howto),
-       and again any time via the ❓ in settings. Remote-team onboarding:
-       most players arrive from a pasted room code having never seen the
-       game. docs/GAME_DESIGN.md § Onboarding. -->
+  
+
+
+
   <div id="howto-overlay" style="display:none; position:fixed; inset:0; z-index:95;
        background:rgba(6,10,16,0.92); align-items:center; justify-content:center; padding:20px;">
     <div style="background:linear-gradient(180deg,#201814 0%,#100a08 100%); border:2px solid #f4c95d;
@@ -831,7 +831,7 @@
     <div class="hint" id="lobby-hint">Share the room link to invite. Match starts when 2+ are here.</div>
   </div>
 
-  <!-- Anagram tiebreaker -->
+  
   <div id="anagramWrap">
     <div id="anagramBox">
       <h2 id="anagramTitle">One shot to steal it</h2>
@@ -842,7 +842,7 @@
     </div>
   </div>
 
-  <!-- PeerJS via CDN, global window.Peer -->
+  
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <script type="module" src="./src/main.js"></script>
 </body>

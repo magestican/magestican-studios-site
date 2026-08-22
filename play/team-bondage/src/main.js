@@ -1,5 +1,5 @@
-// Team Bondage - entry.
-// Wires the character-select / host-join menu, then hands off to Game.
+
+
 
 import { Game } from './game.js';
 import { MAPS, MAP_IDS, DEFAULT_MAP } from 'arbelo/mapspec';
@@ -10,29 +10,29 @@ import { mountDeviceQr }       from 'arbelo/qr';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 import { gameStartParams, watchMatchEnd } from 'arbelo/game-events';
 
-// Cache-busting: polls /version.json every 60s and shows a Refresh banner
-// when the deployed build id changes.
+
+
 startVersionChecker({ label: 'A new version of Team Bondage is available.' });
 
-// Desktop-only helper: shows a QR code so the person watching on their laptop
-// can point their phone camera at it and open the exact same page (including
-// the ?join=xxx room code if they're mid-lobby).
+
+
+
 mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Team Bondage (and any join code) on your phone.' });
 
-// Anonymous, cookieless measurement. The measurement id lives in
-// web-engine/analytics/analytics.js and nowhere else; while it is still the
-// placeholder every call below is a no-op and no request is made.
-// docs/features/analytics.md
+
+
+
+
 initAnalytics({ page: 'team-bondage-game' });
 
 const $ = (id) => document.getElementById(id);
 
-// Modules loaded => hide the "Loading..." splash immediately so the menu is
-// visible. The splash is only re-shown briefly as the WebGL scene builds
-// (see startGame -> goInGame).
+
+
+
 $('loading').classList.add('done');
 
-// Surface any uncaught error so we can debug from a headless capture.
+
 window.addEventListener('error', (e) => {
   const msg = `Uncaught: ${e.message} @ ${e.filename}:${e.lineno}`;
   console.error(msg);
@@ -44,24 +44,24 @@ window.addEventListener('unhandledrejection', (e) => {
   document.title = `TB PROMISE ERROR: ${e.reason?.message || e.reason}`;
 });
 
-// -----------------------------------------------------------------------------
-// Menu state
-// -----------------------------------------------------------------------------
+
+
+
 
 const state = {
   character: 'cow',
-  team: null,             // 'red' | 'blue'
+  team: null,             
   name: '',
-  mode: null,             // 'host' | 'join'
-  initialBots: 0,         // number of AI bots the host wants at start
-  // Host-chosen and sent to joiners in the WELCOME. A joiner's own picks are
-  // ignored on purpose: two peers on different maps is the same failure as
-  // two peers on different seeds.
+  mode: null,             
+  initialBots: 0,         
+  
+  
+  
   mapId: localStorage.getItem('tb.map') || DEFAULT_MAP,
   gameMode: localStorage.getItem('tb.mode') || DEFAULT_MODE,
 };
 
-// Highlight the selected character/team button.
+
 function selectFrom(rowId, dataAttr, value, target) {
   const row = $(rowId);
   for (const btn of row.querySelectorAll('button')) btn.classList.remove('selected');
@@ -73,10 +73,10 @@ function selectFrom(rowId, dataAttr, value, target) {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Map + mode pickers, built from the registries so adding a map or a mode is a
-// data change and never a markup change.
-// -----------------------------------------------------------------------------
+
+
+
+
 function buildPicker(rowId, blurbId, entries, dataAttr, initial, onPick) {
   const row = document.getElementById(rowId);
   const blurb = document.getElementById(blurbId);
@@ -106,7 +106,7 @@ buildPicker('mapRow', 'mapBlurb', MAP_IDS.map((id) => MAPS[id]), 'map', state.ma
 buildPicker('modeRow', 'modeBlurb', MODE_IDS.map((id) => MODES[id]), 'gmode', state.gameMode,
   (id) => { state.gameMode = id; localStorage.setItem('tb.mode', id); });
 
-// Default character = cow.
+
 selectFrom('characterRow', 'char', 'cow');
 
 for (const btn of $('characterRow').querySelectorAll('button')) {
@@ -122,10 +122,10 @@ for (const btn of $('teamRow').querySelectorAll('button')) {
   });
 }
 
-// AI bot count, 0..15. A match holds 16; bots fill the empty seats and are
-// displaced one-for-one as humans arrive (see MATCH_CAP in game.js).
-// Defaults to 5 rather than 0 because a solo host with no bots has no game to
-// look at, and "add a bot" was a thing you had to discover.
+
+
+
+
 const botSlider = document.getElementById('botSlider');
 const botCount  = document.getElementById('botCount');
 if (botSlider && botCount) {
@@ -140,8 +140,8 @@ if (botSlider && botCount) {
   botSlider.addEventListener('input', applyBots);
 }
 
-// Persist + prefill name. If nothing saved, generate a random one so people
-// can just tap Host without typing.
+
+
 const ADJ = ['Fierce','Swift','Cunning','Salty','Wooly','Cranky','Feral','Nimble','Bumpy','Rowdy','Sleepy','Grumpy','Merry','Quiet','Rustic','Muddy','Fuzzy','Crimson','Cobalt','Stormy'];
 const NOUN = ['Cow','Chicken','Pig','Sheep','Bandit','Ranger','Farmer','Scout','Sniper','Buccaneer','Cadet','Marshal','Wanderer'];
 function randomName() {
@@ -157,15 +157,15 @@ $('nameInput').addEventListener('input', (e) => {
   localStorage.setItem('tb.name', state.name);
 });
 
-// (SSO block removed 2026-08-20 — Bryan clarified he meant SEO, not SSO.
-// The game stays account-free; no third-party script loaded here.)
 
-// -----------------------------------------------------------------------------
-// First-run "How to play" overlay. Shows once per browser; a returning
-// player never sees it again (localStorage tb.howto). Remote-team players
-// usually arrive cold from a pasted room code — this is their 15-second
-// orientation. docs/GAME_DESIGN.md § Onboarding.
-// -----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 (function howtoOnboarding() {
   const overlay = document.getElementById('howto-overlay');
   const close = document.getElementById('howto-close');
@@ -179,14 +179,14 @@ $('nameInput').addEventListener('input', (e) => {
   });
 })();
 
-// Also auto-pick a random team so first-time players can just tap Host.
+
 const initialTeam = Math.random() < 0.5 ? 'red' : 'blue';
 state.team = initialTeam;
 selectFrom('teamRow', 'team', initialTeam);
 
-// -----------------------------------------------------------------------------
-// Auto-join from URL: ?join=<peerId>
-// -----------------------------------------------------------------------------
+
+
+
 
 const url = new URL(location.href);
 const joinFromUrl = url.searchParams.get('join');
@@ -194,9 +194,9 @@ if (joinFromUrl) {
   $('joinIdInput').value = joinFromUrl;
 }
 
-// -----------------------------------------------------------------------------
-// Host / Join click handlers
-// -----------------------------------------------------------------------------
+
+
+
 
 $('hostBtn').addEventListener('click', async () => {
   if (!validate()) return;
@@ -224,24 +224,24 @@ function validate() {
   return true;
 }
 
-// -----------------------------------------------------------------------------
-// Start
-// -----------------------------------------------------------------------------
+
+
+
 
 async function startGame(hostIdToJoin) {
-  // Deterministic-ish room-id prefix so shared links look tidy.
+  
   const hostIdHint = state.mode === 'host'
     ? `tb-${Math.random().toString(36).slice(2, 8)}`
     : undefined;
 
   const mesh = new PeerMesh({ hostIdHint });
 
-  // Wait for our own peer id.
+  
   const myId = await new Promise((resolve, reject) => {
     mesh.addEventListener('open', (e) => resolve(e.detail.id), { once: true });
     mesh.addEventListener('error', (e) => {
-      // If a hosting hint collides, PeerJS emits 'unavailable-id' - retry with
-      // no hint so PeerJS assigns a fresh random id.
+      
+      
       if (String(e.detail.message).includes('unavailable-id')) {
         console.warn('room code taken - taking a random one');
       } else {
@@ -255,7 +255,7 @@ async function startGame(hostIdToJoin) {
 
   if (state.mode === 'host') {
     mesh.host();
-    // Show shareable link
+    
     const link = new URL(location.href);
     link.searchParams.set('join', myId);
     $('linkOutWrap').style.display = 'block';
@@ -268,14 +268,14 @@ async function startGame(hostIdToJoin) {
     mesh.connectTo(hostIdToJoin);
   }
 
-  // Give the host UI a chance to appear + let joiners connect before we hide
-  // the menu; the actual "in-game" transition happens when Game.start() is
-  // called by the user (space or auto after 1s for host).
+  
+  
+  
   const seed = state.mode === 'host'
     ? (Math.random() * 2 ** 32) >>> 0
-    : null;   // joiner gets the seed from the host on 'welcome'
+    : null;   
 
-  // Move to the loading screen.
+  
   const goInGame = () => {
     $('menu').style.display = 'none';
     $('hud').style.display = 'block';
@@ -291,7 +291,7 @@ async function startGame(hostIdToJoin) {
     name: state.name,
     isHost: state.mode === 'host',
     seed,
-    // Only the host's picks matter; a joiner's are overwritten by the WELCOME.
+    
     mapId: state.mapId,
     mode: state.gameMode,
     initialBots: state.mode === 'host' ? state.initialBots : 0,
@@ -299,15 +299,15 @@ async function startGame(hostIdToJoin) {
     onReady: goInGame,
   });
 
-  window.__tbGame = game;   // for debugging
+  window.__tbGame = game;   
 
   await game.boot();
 
-  // The two events that make traffic mean something: which map/mode/bot count
-  // people actually pick, and whether the match reached an end. Fired from
-  // here rather than from game.js so gameplay code carries no analytics — and
-  // AFTER boot(), because a joiner does not learn the host's map and mode
-  // until the WELCOME arrives inside boot().
+  
+  
+  
+  
+  
   trackEvent('game_start', gameStartParams(game, { role: state.mode }));
   watchMatchEnd(game, { onEnd: (params) => trackEvent('match_end', params) });
 }

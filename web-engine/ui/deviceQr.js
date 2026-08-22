@@ -1,15 +1,15 @@
-// Show a "scan on your phone" QR code overlay when the page is opened on a
-// desktop (non-touch) browser. Tapping the QR fades it out; a small button
-// re-summons it later.
-//
-// The QR is generated on the fly from `location.href` so it always points at
-// the exact page the desktop user is looking at - whether that's the studio
-// landing, the Team Bondage lobby with a `?join=` code, or the Zelakas play
-// page.
-//
-// QR encoding via qrcode (loaded on demand from esm.sh so we ship no assets).
 
-const DESKTOP_MIN_WIDTH = 900;   // px; below this we don't bother
+
+
+
+
+
+
+
+
+
+
+const DESKTOP_MIN_WIDTH = 900;   
 
 export async function mountDeviceQr(opts = {}) {
   const isTouch = ('ontouchstart' in window)
@@ -34,7 +34,7 @@ export async function mountDeviceQr(opts = {}) {
   `;
   document.body.appendChild(el);
 
-  // Tap-to-summon button (hidden until user closes the QR card).
+  
   const btn = document.createElement('button');
   btn.className = 'device-qr-summon';
   btn.textContent = '📱 QR';
@@ -66,7 +66,7 @@ export async function mountDeviceQr(opts = {}) {
     holder.appendChild(img);
   } catch (err) {
     console.error('QR generation failed', err);
-    // Graceful fallback: hide the whole card if the CDN import fails.
+    
     el.style.display = 'none';
   }
 

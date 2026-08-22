@@ -150,8 +150,8 @@
     </p>
   </footer>
 
-  <!-- Frontend cache-busting: polls /version.json and shows a Refresh banner
-       when the deployed buildId changes. Same pattern as ultra-code #41. -->
+  
+
   <script type="module">
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
     import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
@@ -159,11 +159,11 @@
     import { mountSupportLink } from '/web-engine/support/support.js';
     startVersionChecker();
     mountDeviceQr({ label: 'Open on your phone' });
-    // A plain Ko-fi anchor, and only once a username is configured — see
-    // web-engine/support/support.js for why it is never the Ko-fi widget.
+    
+    
     mountSupportLink(document.getElementById('support-slot'));
-    // Cookieless, anonymous page counts. No-op until the measurement id in
-    // /web-engine/analytics/analytics.js is real. docs/features/analytics.md
+    
+    
     initAnalytics({ page: 'home' });
     trackPlayClicks();
   </script>

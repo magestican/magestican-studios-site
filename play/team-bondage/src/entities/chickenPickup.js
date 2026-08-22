@@ -1,18 +1,18 @@
-// Chicken slingshot pickup on the centre hill.
-//
-// Host-authoritative:
-//   * every 30s a new chicken mesh spawns at the hill's spawn point
-//   * first player within 1.5m picks it up -> host broadcasts CHICKEN_PICKUP
-//   * pickup grants ONE chicken shot on weapon slot 4
-//   * fired chicken projectile explodes on impact, INSTA-KILLS the closest
-//     player within blast radius (only one target - "chicken bomb rules")
-//
-// Non-hosts see the visual only (the mesh is deterministic from the seed
-// used to spawn it; host broadcasts spawn events so joiners render in sync).
+
+
+
+
+
+
+
+
+
+
+
 
 import * as THREE from 'three';
 
-const RESPAWN_MS = 30_000;   // 30s between spawns
+const RESPAWN_MS = 30_000;   
 const PICKUP_RADIUS = 1.6;
 
 export class ChickenPickup {
@@ -26,11 +26,11 @@ export class ChickenPickup {
     this.mesh.visible = false;
     scene.add(this.mesh);
     this._bobT = 0;
-    this._nextSpawnAt = performance.now() + 3000;   // first spawn 3s after boot
+    this._nextSpawnAt = performance.now() + 3000;   
   }
 
   update(dt, hostPlayers) {
-    // Bob + spin animation.
+    
     if (this.mesh.visible) {
       this._bobT += dt;
       this.mesh.position.y = this.spawnAt.y + 1.2 + Math.sin(this._bobT * 3) * 0.2;
@@ -41,7 +41,7 @@ export class ChickenPickup {
       this.available = true;
       this.mesh.visible = true;
     }
-    // Host-side: check if any real player is close enough.
+    
     if (this.available && hostPlayers) {
       for (const p of hostPlayers) {
         const dx = p.pos.x - this.spawnAt.x;
@@ -63,35 +63,35 @@ export class ChickenPickup {
 
 function buildChickenMesh() {
   const g = new THREE.Group();
-  // Body (white cube)
+  
   const body = new THREE.Mesh(
     new THREE.BoxGeometry(0.6, 0.6, 0.8),
     new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true }),
   );
   body.position.set(0, 0.6, 0);
   g.add(body);
-  // Head
+  
   const head = new THREE.Mesh(
     new THREE.BoxGeometry(0.4, 0.4, 0.4),
     new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true }),
   );
   head.position.set(0, 1.15, 0.3);
   g.add(head);
-  // Comb (red)
+  
   const comb = new THREE.Mesh(
     new THREE.BoxGeometry(0.10, 0.20, 0.35),
     new THREE.MeshLambertMaterial({ color: 0xb73a2a, flatShading: true }),
   );
   comb.position.set(0, 1.45, 0.28);
   g.add(comb);
-  // Beak (yellow)
+  
   const beak = new THREE.Mesh(
     new THREE.BoxGeometry(0.10, 0.10, 0.25),
     new THREE.MeshLambertMaterial({ color: 0xf4c95d, flatShading: true }),
   );
   beak.position.set(0, 1.10, 0.58);
   g.add(beak);
-  // Legs (2 orange sticks)
+  
   for (const lx of [-0.12, 0.12]) {
     const leg = new THREE.Mesh(
       new THREE.BoxGeometry(0.08, 0.30, 0.08),
@@ -100,7 +100,7 @@ function buildChickenMesh() {
     leg.position.set(lx, 0.15, 0);
     g.add(leg);
   }
-  // Yellow glow ring at feet to signal "pickup"
+  
   const ring = new THREE.Mesh(
     new THREE.RingGeometry(0.8, 1.1, 24),
     new THREE.MeshBasicMaterial({ color: 0xf4c95d, transparent: true, opacity: 0.55, side: THREE.DoubleSide }),

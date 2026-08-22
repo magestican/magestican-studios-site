@@ -1,13 +1,13 @@
-// Builds and scatters the procedural prop kit (propKitSpec.js).
-//
-// The GLB props in mapProps.js still do what they always did — they are the
-// farm's six, they carry baked texture atlases, and they load asynchronously.
-// This is the other half: twenty-seven voxel props defined in data, built
-// synchronously, and scattered per map from the recipe's `kit` block.
-//
-// Placement is a pure function of the world seed, exactly like mapProps: every
-// peer scatters the same props on the same tiles, so the visible scene matches
-// without a single byte crossing the wire.
+
+
+
+
+
+
+
+
+
+
 
 import * as THREE from 'three';
 import { PROPS, SCATTER_JITTER, FIXED_YAW } from './propKitSpec.js';
@@ -15,15 +15,15 @@ import { addMapBackdrop } from './mapBackdrop.js';
 import { SeededRng } from '../../../../web-engine/rng/seededRng.js';
 import { WORLD_SIZE, perArea, insideZone } from '../../../../web-engine/procgen/voxelWorldGen.js';
 
-// The map's real size, not a copy of it. This was `{ x: 64, z: 64 }` with a
-// comment promising it matched WORLD_SIZE, and the day WORLD_SIZE became 80
-// the promise was worth nothing — every prop would have been crammed into the
-// original 64x64 corner with a bare L-shaped margin round two sides.
+
+
+
+
 const WORLD = WORLD_SIZE;
 
-// One material per hex, shared across every instance of every prop. Twenty-
-// seven props at ~8 boxes each, times up to 16 instances, is a few thousand
-// meshes; sharing takes the material count to about twenty.
+
+
+
 const _mats = new Map();
 function matFor(hex, glow) {
   const key = `${hex}:${glow || 0}`;
@@ -31,17 +31,17 @@ function matFor(hex, glow) {
     _mats.set(key, new THREE.MeshLambertMaterial({
       color: new THREE.Color(hex),
       flatShading: true,
-      // `glow` is emissive, not a light. A brazier or a lamp that actually lit
-      // the map would need a light per prop and there can be a dozen on screen;
-      // emissive gives the read at a tenth of the cost, and the light rig is a
-      // measured thing that a stray point light would quietly invalidate.
+      
+      
+      
+      
       ...(glow ? { emissive: new THREE.Color(hex), emissiveIntensity: glow } : {}),
     }));
   }
   return _mats.get(key);
 }
 
-// Build one prop as a THREE.Group at the origin, standing on y=0.
+
 export function buildProp(id) {
   const parts = PROPS[id];
   if (!parts) return null;
@@ -59,8 +59,8 @@ export function buildProp(id) {
   return g;
 }
 
-// The bounding height of a prop, from the spec alone. Used by the tests and by
-// the "does this fit under the ceiling" check.
+
+
 export function propHeight(id) {
   const parts = PROPS[id] || [];
   let top = 0;
@@ -68,13 +68,13 @@ export function propHeight(id) {
   return top;
 }
 
-// Scatter the map's kit. Returns the group (already added to the scene).
+
 export function scatterPropKit(scene, world) {
-  // The map's OUT-OF-BOUNDS scenery goes up in the same pass. Same category of
-  // thing — the map's own dressing, built from its own data, synchronous, and
-  // needed on the first frame rather than streamed — and the two want to stay
-  // together: the kit is what is near enough to touch, the backdrop is the
-  // same world carrying on past where you can reach.
+  
+  
+  
+  
+  
   addMapBackdrop(scene, world);
 
   const kit = world.map?.kit;
@@ -83,8 +83,8 @@ export function scatterPropKit(scene, world) {
   scene.add(group);
   if (!kit) return group;
 
-  // A stream of its own, so adding a prop to one map cannot shuffle the GLB
-  // props or the hazards on another.
+  
+  
   const rng = new SeededRng((world.seed ^ 0x7A9C31B5) >>> 0);
   const grid = world.grid;
 
@@ -93,9 +93,9 @@ export function scatterPropKit(scene, world) {
   const nearCentre = (x, z) =>
     Math.abs(x - WORLD.x / 2) < 5 && Math.abs(z - WORLD.z / 2) < 5;
 
-  // Remember what has been placed so two props never share a tile. Props are
-  // decoration and they do not collide, so an overlap is not a bug you can
-  // walk into — it is a lamp post growing out of a bench, which is worse.
+  
+  
+  
   const taken = new Set();
 
   let placed = 0, skipped = 0;
@@ -103,8 +103,8 @@ export function scatterPropKit(scene, world) {
     const base = buildProp(id);
     if (!base) { skipped += count; continue; }
     const tall = propHeight(id);
-    // mapSpec quotes every kit count per 64x64 tiles (see its header), so the
-    // number of pines on the mountain is a density and grows with the map.
+    
+    
     const want = perArea(count);
     for (let i = 0; i < want; i++) {
       let done = false;
@@ -114,16 +114,16 @@ export function scatterPropKit(scene, world) {
         if (taken.has(`${x},${z}`)) continue;
         if (insideBase(x, z, world.redBase) || insideBase(x, z, world.blueBase)) continue;
         if (nearCentre(x, z)) continue;
-        // The gym and the dairy are landmarks; a lamp post on the squat rack
-        // is the same failure as a bench through the rink's dasher boards.
+        
+        
         if (insideZone(x, z, world.powerUpZones)) continue;
-        // Find the ground. The mountain is terraced, so "y=1" is only right on
-        // the flat maps — a prop dropped at a fixed height on a terrace either
-        // floats or is buried to its roof.
+        
+        
+        
         const y = surfaceY(grid, x, z);
         if (y == null) continue;
-        // Don't stand a 3.5 m radio mast under the 12-voxel ceiling on top of
-        // a four-course terrace.
+        
+        
         if (y + tall > 11) continue;
 
         const inst = base.clone(true);
@@ -145,14 +145,14 @@ export function scatterPropKit(scene, world) {
   return group;
 }
 
-// The Y a prop should stand at: the top of the first solid column found from
-// the ground up, or null if this tile is already occupied by something above
-// ground level (cover, a ridge, a barn wall).
+
+
+
 function surfaceY(grid, x, z) {
   for (let y = 1; y < 11; y++) {
     if (!grid.isSolid(x + 0.5, y + 0.5, z + 0.5)) {
-      // y is the first free voxel. Anything above it must be free too, or the
-      // prop is standing in a gap under an overhang.
+      
+      
       if (grid.isSolid(x + 0.5, y + 1.5, z + 0.5)) return null;
       return y;
     }

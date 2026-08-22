@@ -1,38 +1,38 @@
-// Three weapons for Team Bondage:
-//   0 Pistol   - fast semi-auto, 1 shot per click, hitscan
-//   1 Shotgun  - 7-pellet cone spread, hitscan
-//   2 Rocket   - slow projectile, gravity, splash damage
-//
-// Ammo is infinite; each weapon has a fire-rate cooldown so spam is limited.
+
+
+
+
+
+
 
 import * as THREE from 'three';
 
 export const WEAPON_DEFS = [
-  // Bullets do 2 damage per hit (100 HP; kills take 50 hits). Rocket is not a
-  // bullet - it's explosive, so it keeps its larger damage numbers.
-  // The pistol is themed as a "shovel that flings poo pellets" - identical
-  // stats to a plain pistol, but the projectile visual is a brown ball with
-  // a bullet-sound pew.
-  // Bryan 2026-08-20: hits do 8 damage (up from 2). ~13 shovel hits to kill
-  // a 100-HP player — punchy without being one-shot.
-  // Design pass 2026-08-21: shotgun kept 8 dmg/pellet per Bryan's ask, but
-  // pellets trimmed 7 → 5. At point-blank a full connect is 40 (2.5 shots
-  // to kill), not 56 (near-instant delete). Full TTK table: docs/GAME_DESIGN.md.
-  // Bryan 2026-08-21: +50% damage across the board. 8→12, 60→90, 30→45.
-  // The shotgun's full 5-pellet connect is now 60 — still not a one-shot, so
-  // the "only the chicken may one-shot" rule in GAME_DESIGN.md holds.
-  // Bryan 2026-08-22: "bullets seem to insta hit enemies instead of hitting on
-  // contact." Both of these were `kind: 'hitscan'` — damage resolved by a
-  // raycast on the trigger frame, at infinite speed — while ALSO spawning a
-  // pellet that flew at 30 m/s. At 25 m the victim lost health about three
-  // quarters of a second before the thing that hit them arrived. They are
-  // real projectiles now: they travel, and they damage what they touch.
-  //
-  // Speeds are the whole feel of this change. Above ~150 m/s a projectile is
-  // indistinguishable from hitscan and the change buys nothing; below ~40 it
-  // is a lob and every fight becomes leading. The shovel throws a heavy lump
-  // of dung, so it is the slower of the two; shotgun pellets are lighter and
-  // spread, so they get more speed to stay useful at mid range.
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 12, pellets: 1, spread: 0.003, kind: 'projectile', projectileSpeed: 62, hitRadius: 0.95, projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
   { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 12, pellets: 5, spread: 0.10,  kind: 'projectile', projectileSpeed: 78, hitRadius: 0.85, projectileColor: 0xf4c95d, tracerColor: 0xf4c95d },
   { id: 'rocket',  name: 'Rocket',   cooldown: 1.10, damage: 90, splash: 45, splashRadius: 3.0, projectileSpeed: 20, kind: 'projectile' },
@@ -44,23 +44,23 @@ export class WeaponSystem {
     this.slot = 0;
     this.cooldown = 0;
     this.projectiles = [];
-    // Multiplier on every weapon's cooldown. 1 normally; the cheese wheel sets
-    // it to 1/1.4 for its 20 seconds ("fire 40% faster" is a rate, so the gap
-    // between shots is divided, not multiplied — powerUpSpec.js).
+    
+    
+    
     this.cooldownScale = 1;
   }
 
   update(dt) {
     if (this.cooldown > 0) this.cooldown -= dt;
-    // Advance projectiles — STRAIGHT-LINE flight, no gravity, so bullets
-    // don't curve down. Bryan 2026-08-20: "I already asked for bullets to
-    // go on a straight trajectory and not curve".
+    
+    
+    
     for (const p of this.projectiles) {
       p.age += dt;
       p.pos.addScaledVector(p.vel, dt);
       p.mesh.position.copy(p.pos);
     }
-    // Cull expired.
+    
     this.projectiles = this.projectiles.filter((p) => {
       const maxAge = p.maxAge || 5;
       if (p.age > maxAge) { this.scene.remove(p.mesh); return false; }
@@ -74,8 +74,8 @@ export class WeaponSystem {
 
   currentDef() { return WEAPON_DEFS[this.slot]; }
 
-  // Called on click. Returns an array of "shots" to broadcast to peers +
-  // apply locally (see game.js).
+  
+  
   tryFire(originPos, dirVec, rng, ownerId) {
     if (this.cooldown > 0) return [];
     const def = this.currentDef();
@@ -84,7 +84,7 @@ export class WeaponSystem {
 
     if (def.kind === 'hitscan') {
       for (let i = 0; i < def.pellets; i++) {
-        // Apply random spread cone.
+        
         const jx = (rng.next() - 0.5) * def.spread * 2;
         const jy = (rng.next() - 0.5) * def.spread * 2;
         const d = new THREE.Vector3().copy(dirVec);
@@ -116,8 +116,8 @@ export class WeaponSystem {
     return shots;
   }
 
-  // Add a projectile to the local scene (for visualisation only; damage is
-  // resolved in game.js).
+  
+  
   spawnProjectileMesh(shot) {
     const geo = new THREE.SphereGeometry(0.15, 8, 8);
     const mat = new THREE.MeshBasicMaterial({ color: shot.color || 0xffcc44 });
@@ -131,14 +131,14 @@ export class WeaponSystem {
       shot, age: 0,
     };
     this.projectiles.push(rec);
-    // Returned so the shooter's client can resolve CONTACT against it — see
-    // game.js _trackOwnProjectile. Peers still only ever see the visual.
+    
+    
     return rec;
   }
 
-  // Remove a projectile immediately (it hit something). Without this a pellet
-  // that has already dealt its damage carries on flying, which is the visual
-  // half of the same lie the hitscan weapons used to tell.
+  
+  
+  
   despawnProjectile(rec) {
     const i = this.projectiles.indexOf(rec);
     if (i >= 0) this.projectiles.splice(i, 1);
@@ -147,9 +147,9 @@ export class WeaponSystem {
     rec.mesh.material?.dispose?.();
   }
 
-  // Spawn a small, fast-flying visual for a hitscan shot's origin - just so
-  // the shooter sees a puff at the muzzle. Poo pellets get a brown sphere
-  // that flies straight for ~0.3s along the shot direction, then vanishes.
+  
+  
+  
   spawnMuzzleFx(shot) {
     if (shot.kind !== 'hitscan') return;
     const def = WEAPON_DEFS.find((d) => d.id === shot.weaponId);
@@ -164,7 +164,7 @@ export class WeaponSystem {
     this.projectiles.push({
       mesh,
       pos: new THREE.Vector3().copy(mesh.position),
-      vel: dir.clone().multiplyScalar(30),   // fly forward fast
+      vel: dir.clone().multiplyScalar(30),   
       shot: { ...shot, cosmetic: true },
       age: 0,
       maxAge: 0.35,

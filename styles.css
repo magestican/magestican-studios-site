@@ -1,16 +1,16 @@
-/* Magestican Studios — hand-drawn, warm-paper aesthetic.
-   Design principles: warm off-white background, deep ink body text,
-   one accent colour per game card, serif headings that read a little
-   handwritten, sans body for readability. See docs/BRAND.md.
-*/
+
+
+
+
+
 
 :root {
   --paper:      #f6f1e6;
   --ink:        #1c1a17;
   --ink-soft:   #4a463f;
   --line:       #d9d2c1;
-  --accent-a:   #2d5a2e;  /* Aracstory green */
-  --accent-z:   #b73a2a;  /* Zelakas red-orange */
+  --accent-a:   #2d5a2e;  
+  --accent-z:   #b73a2a;  
   --dot-yellow: #d99a29;
   --dot-green:  #4a8f2e;
   --max-width:  920px;
@@ -41,7 +41,7 @@ h1, h2, h3 {
 a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 a:hover { text-decoration-thickness: 2px; }
 
-/* --- Header --- */
+
 
 .site-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -65,7 +65,7 @@ a:hover { text-decoration-thickness: 2px; }
 .site-header nav a { text-decoration: none; color: var(--ink-soft); }
 .site-header nav a:hover { color: var(--ink); text-decoration: underline; }
 
-/* --- Main --- */
+
 
 main {
   max-width: var(--max-width);
@@ -73,7 +73,7 @@ main {
   padding: 40px 32px 80px;
 }
 
-/* --- Hero --- */
+
 
 .hero { margin: 40px 0 60px; }
 .hero h1 { font-size: clamp(36px, 6vw, 60px); margin: 0 0 20px; }
@@ -82,7 +82,7 @@ main {
   display: inline-block;
 }
 .hand-underline::after {
-  /* Hand-drawn wavy underline drawn in SVG */
+  
   content: "";
   position: absolute;
   left: -4px; right: -4px; bottom: -8px;
@@ -113,7 +113,7 @@ main {
 .play-link { color: var(--accent-z); text-decoration: none; font-weight: 500; }
 .play-link:hover { text-decoration: underline; }
 
-/* --- Games --- */
+
 
 .games h2 { font-size: 30px; margin-bottom: 24px; }
 
@@ -171,7 +171,7 @@ main {
 .dot-yellow { background: var(--dot-yellow); }
 .dot-green  { background: var(--dot-green); }
 
-/* --- About-short --- */
+
 
 .about-short { margin-top: 60px; padding-top: 40px; border-top: 1px dashed var(--line); }
 .about-short h2 { font-size: 26px; }
@@ -179,7 +179,7 @@ main {
 .more-link { color: var(--accent-z); text-decoration: none; font-weight: 500; }
 .more-link:hover { text-decoration: underline; }
 
-/* --- Footer --- */
+
 
 .site-footer {
   max-width: var(--max-width); margin: 0 auto;
@@ -191,7 +191,7 @@ main {
 .colophon { color: var(--ink-soft); }
 .colophon a { color: var(--ink-soft); }
 
-/* --- Content pages (about/privacy/terms) --- */
+
 
 .content-page main { max-width: 720px; }
 .content-page h1 { font-size: 40px; margin-bottom: 12px; }
@@ -201,8 +201,8 @@ main {
 .content-page li { margin-bottom: 6px; }
 .updated { color: var(--ink-soft); font-size: 14px; margin: 0 0 24px; }
 
-/* Ko-fi support link. Mounted by web-engine/support/support.js and ONLY once a
-   username is configured, so this styles an element that may not exist. */
+
+
 .support-link {
   display: inline-block; margin-left: 10px;
   padding: 3px 12px; border-radius: 999px;

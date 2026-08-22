@@ -1,30 +1,30 @@
-// Touch controls for iOS / Android. Rendered as an HTML overlay on top of
-// the canvas. Three regions:
-//
-//   * Left thumb: virtual analog stick -> feeds moveForward/Back/Left/Right
-//     into the shared InputBus as synthetic actions.
-//   * Right half of the screen (minus the button cluster): drag to look.
-//     Yaw/pitch delta is applied to the player each move.
-//   * Bottom-right cluster: FIRE (big), JUMP (medium), 1/2/3 weapon chips.
-//
-// The controls are transparent-until-touched; the joystick base only appears
-// on the initial finger-down so you can plant your thumb anywhere on the
-// left half.
+
+
+
+
+
+
+
+
+
+
+
+
 
 export class TouchControls {
-  /**
-   * @param {HTMLElement} container - the game's canvas parent
-   * @param {import('arbelo/input').InputBus} input
-   * @param {{onLook:(dx:number,dy:number)=>void, onFire:()=>void, onWeapon:(i:number)=>void, onJump:()=>void}} handlers
-   */
+  
+
+
+
+
   constructor(container, input, handlers) {
     this.container = container;
     this.input = input;
     this.handlers = handlers;
 
-    // Track active touches per region.
-    this._joystickTouch = null; // { id, cx, cy }
-    this._lookTouch = null;     // { id, lastX, lastY }
+    
+    this._joystickTouch = null; 
+    this._lookTouch = null;     
 
     this._buildDom();
     this._wireEvents();
@@ -51,11 +51,11 @@ export class TouchControls {
       </div>
     `;
     this._el = el;
-    // No #tc-debug element is built any more — the on-screen debug HUD was
-    // removed on 2026-08-20 (docs/BACKLOG.md, "Debug HUD overlay removed").
-    // `_paintDebug()` below is therefore a permanent no-op; it is kept only
-    // because game.js still calls it every tick. Deleting it means deleting
-    // that call and the `window.__tbDebug` snapshot it feeds at the same time.
+    
+    
+    
+    
+    
     this._debug = null;
     this._joystickBase = el.querySelector('#tc-joystick-base');
     this._joystickKnob = el.querySelector('#tc-joystick-knob');
@@ -63,7 +63,7 @@ export class TouchControls {
     this._joystickKnob.style.display = 'none';
     this.container.appendChild(el);
 
-    // Inject the CSS once.
+    
     if (!document.getElementById('tc-styles')) {
       const s = document.createElement('style');
       s.id = 'tc-styles';
@@ -73,7 +73,7 @@ export class TouchControls {
   }
 
   _wireEvents() {
-    // Button taps: fire, jump, weapon-switch
+    
     for (const btn of this._el.querySelectorAll('.tc-weapon')) {
       btn.addEventListener('touchstart', (e) => {
         e.preventDefault();
@@ -86,7 +86,7 @@ export class TouchControls {
       e.preventDefault();
       this.input.setSynthetic('jump', true);
       this._markActive(jump);
-      // Release next frame so it's a one-shot.
+      
       setTimeout(() => this.input.setSynthetic('jump', false), 80);
     }, { passive: false });
 
@@ -102,16 +102,16 @@ export class TouchControls {
     }, { passive: false });
     fire.addEventListener('touchcancel', () => this.input.setSynthetic('fire', false));
 
-    // Attach to BOTH window and document to maximise coverage (some Safari
-    // versions deliver touch events to only one).
+    
+    
     for (const target of [window, document]) {
       target.addEventListener('touchstart', (e) => this._onTouchStart(e), { passive: false });
       target.addEventListener('touchmove',  (e) => this._onTouchMove(e),  { passive: false });
       target.addEventListener('touchend',   (e) => this._onTouchEnd(e),   { passive: false });
       target.addEventListener('touchcancel',(e) => this._onTouchEnd(e),   { passive: false });
     }
-    // Debug counter of events received so user can prove input is (or isn't)
-    // reaching our handlers.
+    
+    
     this._touchCount = 0;
     this._paintDebug();
   }
@@ -120,9 +120,9 @@ export class TouchControls {
     if (!this._debug) return;
     const actions = ['moveForward','moveBack','moveLeft','moveRight','fire','jump']
       .filter((a) => this.input.isDown(a)).join(',') || '(none)';
-    // The optional game snapshot is set every frame by game.js._tick so we
-    // can see WHY movement isn't happening on the phone (position, velocity,
-    // match state, alive, tick count).
+    
+    
+    
     const gs = window.__tbDebug || {};
     this._debug.textContent =
       `touches: ${this._touchCount}  active: ${this._joystickTouch ? 'J' : '-'}${this._lookTouch ? 'L' : '-'}\n` +
@@ -136,10 +136,10 @@ export class TouchControls {
   _onTouchStart(e) {
     this._touchCount++;
     for (const t of e.changedTouches) {
-      // If touch landed on any BUTTON or interactive overlay (refresh banner,
-      // mute, mature, add-bot, enable-sound, lobby banner, anagram input),
-      // let the browser fire its normal click - do NOT consume the event or
-      // it'll get swallowed by preventDefault below.
+      
+      
+      
+      
       if (t.target && t.target.closest && (
         t.target.closest('#tc-buttons') ||
         t.target.closest('button') ||
@@ -179,9 +179,9 @@ export class TouchControls {
         if (len > R) { dx = dx * R / len; dy = dy * R / len; }
         this._joystickKnob.style.left = (cx + dx - 25) + 'px';
         this._joystickKnob.style.top  = (cy + dy - 25) + 'px';
-        // Convert stick to WASD synthetic actions with a small dead-zone.
+        
         const nx = dx / R, ny = dy / R;
-        const DZ = 0.10;   // small dead zone so tiny thumb drift still moves
+        const DZ = 0.10;   
         this.input.setSynthetic('moveLeft',    nx < -DZ);
         this.input.setSynthetic('moveRight',   nx >  DZ);
         this.input.setSynthetic('moveForward', ny < -DZ);

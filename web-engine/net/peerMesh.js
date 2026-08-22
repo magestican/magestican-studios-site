@@ -1,16 +1,16 @@
-// Full-mesh P2P over WebRTC via PeerJS.
-//
-// One peer is the HOST (creates a room, has a shareable id). Others are JOINERS
-// (open a URL with ?join=<host-id>). The joiner connects to the host, the host
-// tells the joiner about all existing peers, and the joiner opens direct data
-// channels to each of them. Every peer ends up directly connected to every
-// other peer -> no relay for gameplay data.
-//
-// The host also acts as authority for score + flag state (see ctf.js). All
-// other peers accept host-broadcast state as truth for those fields.
-//
-// PeerJS is loaded from a CDN in index.html as window.Peer; we don't import
-// it here so this module remains framework-free and testable in Node.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const IS_PEER_AVAILABLE = () => typeof window !== 'undefined' && !!window.Peer;
 
@@ -21,11 +21,11 @@ export class PeerMesh extends EventTarget {
     this.peer = new window.Peer(hostIdHint || undefined, {
       debug: 1,
     });
-    /** @type {Map<string, any>} peerId -> DataConnection */
+    
     this.connections = new Map();
     this.myId = null;
     this.isHost = false;
-    this._peers = new Set();  // known peer ids (including self)
+    this._peers = new Set();  
 
     this.peer.on('open', (id) => {
       this.myId = id;
@@ -50,9 +50,9 @@ export class PeerMesh extends EventTarget {
     this._wireConnection(conn);
   }
 
-  // Called by the host on each incoming connection, and by the joiner after
-  // its outgoing connection opens. Broadcasts the peer list so every joiner
-  // learns about every other joiner and can open direct channels to them.
+  
+  
+  
   _onIncoming(conn) {
     this._wireConnection(conn);
   }
@@ -62,8 +62,8 @@ export class PeerMesh extends EventTarget {
       this.connections.set(conn.peer, conn);
       this._peers.add(conn.peer);
       this._dispatch('peer-joined', { id: conn.peer });
-      // If we're the host, tell the new peer about everyone else, and tell
-      // everyone else about the new peer.
+      
+      
       if (this.isHost) {
         const existing = [...this._peers].filter(id => id !== conn.peer);
         conn.send({ t: 'peer-list', peers: existing });
@@ -82,7 +82,7 @@ export class PeerMesh extends EventTarget {
 
   _onData(fromId, msg) {
     if (msg && msg.t === 'peer-list') {
-      // From host on join: connect to every peer we don't already have.
+      
       for (const pid of msg.peers) {
         if (pid === this.myId || this.connections.has(pid)) continue;
         const c = this.peer.connect(pid, { reliable: true });
@@ -95,13 +95,13 @@ export class PeerMesh extends EventTarget {
 
   broadcast(msg) {
     for (const conn of this.connections.values()) {
-      try { conn.send(msg); } catch { /* drop */ }
+      try { conn.send(msg); } catch {  }
     }
   }
 
   send(peerId, msg) {
     const c = this.connections.get(peerId);
-    if (c) try { c.send(msg); } catch { /* drop */ }
+    if (c) try { c.send(msg); } catch {  }
   }
 
   _dispatch(type, detail) {

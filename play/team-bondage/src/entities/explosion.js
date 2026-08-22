@@ -1,33 +1,33 @@
-// Explosions V2 (Bryan 2026-08-21: "we need better explosions").
-//
-// The old explosion was ONE expanding translucent sphere. A real explosion
-// reads as a sequence of distinct events, and each of these layers is doing a
-// specific job for the player:
-//
-//   flash      1 frame of white-hot light   -> "something just went off"
-//   fireball   core + shell, white->gold->red -> where and how big
-//   shockwave  a ring racing out along the ground -> the blast RADIUS, which
-//              is gameplay information: it shows you what would have hit you
-//   smoke      dark puffs rising and swelling -> aftermath, sells the scale
-//   debris     ballistic voxel chunks with spin -> the chunky Minecraft feel
-//   sparks     fast bright specks             -> energy
-//   scorch     a dark ground disc that outlives everything -> it happened here
-//
-// Style per art/knowledge: boxes and flat-shaded icosahedra only (no smooth
-// spheres), palette colours only, and every layer must read at 10 m -- the
-// smoke puffs are 0.5 m cubes, not particles you'd need to squint at.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import * as THREE from 'three';
 
-// Palette (art/knowledge/styles/hand-drawn.md). No new bright colours.
-const HOT    = 0xfff6e0;   // white-hot core (the palette's warm ceiling)
-const GOLD   = 0xf4c95d;   // game gold
-const RED    = 0xb73a2a;   // barn red
-const SMOKE  = 0x4a4038;   // warm dark -- never grey, never pure black
+
+const HOT    = 0xfff6e0;   
+const GOLD   = 0xf4c95d;   
+const RED    = 0xb73a2a;   
+const SMOKE  = 0x4a4038;   
 const SCORCH = 0x2a241d;
 
-// Shared geometries: one explosion is ~35 meshes, and a rocket fight can put
-// three on screen at once on a Chromebook.
+
+
 const G_CHUNK  = new THREE.IcosahedronGeometry(1, 0);
 const G_BOX    = new THREE.BoxGeometry(1, 1, 1);
 const G_RING   = new THREE.RingGeometry(0.72, 1, 24, 1);
@@ -37,22 +37,22 @@ export class ExplosionField {
   constructor(scene) {
     this.scene = scene;
     this.parts = [];
-    // Camera shake the game loop reads each frame.
+    
     this.shake = 0;
   }
 
-  // pos: THREE.Vector3. radius: blast radius in metres (rocket = 3).
-  // groundY: y of the floor under the blast, for the ring + scorch.
+  
+  
   spawn(pos, { radius = 3, groundY = 1, kind = 'rocket' } = {}) {
     const R = radius;
     const big = kind !== 'hazard';
 
-    // 1. FLASH -- brief, additive, over in ~90 ms.
+    
     this._add(mesh(G_CHUNK, HOT, 1.0, true), pos, {
       life: 0.09, from: R * 0.35, to: R * 1.5, fade: 'linear',
     });
 
-    // 2. FIREBALL core + shell.
+    
     this._add(mesh(G_CHUNK, GOLD, 0.95), pos, {
       life: 0.34, from: R * 0.25, to: R * 0.95, spin: 1.6,
       colorTo: RED, colorFrom: HOT,
@@ -61,14 +61,14 @@ export class ExplosionField {
       life: 0.52, from: R * 0.4, to: R * 1.35, spin: -1.1,
     });
 
-    // 3. SHOCKWAVE ring on the ground -- shows the real blast radius.
+    
     const ring = mesh(G_RING, GOLD, 0.85);
     ring.rotation.x = -Math.PI / 2;
     this._add(ring, new THREE.Vector3(pos.x, groundY + 0.06, pos.z), {
       life: 0.42, from: R * 0.3, to: R * 1.9, flat: true,
     });
 
-    // 4. SMOKE -- rises, swells, outlives the fire.
+    
     const puffs = big ? 7 : 4;
     for (let i = 0; i < puffs; i++) {
       const a = (i / puffs) * Math.PI * 2 + Math.random() * 0.6;
@@ -82,7 +82,7 @@ export class ExplosionField {
       });
     }
 
-    // 5. DEBRIS -- ballistic voxel chunks.
+    
     const chunks = big ? 14 : 8;
     for (let i = 0; i < chunks; i++) {
       const a = (i / chunks) * Math.PI * 2 + Math.random() * 0.5;
@@ -96,7 +96,7 @@ export class ExplosionField {
       });
     }
 
-    // 6. SPARKS -- fast, bright, gone in a third of a second.
+    
     for (let i = 0; i < (big ? 12 : 6); i++) {
       const d = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.9, Math.random() - 0.5)
         .normalize().multiplyScalar(R * (2.2 + Math.random() * 2));
@@ -106,14 +106,14 @@ export class ExplosionField {
       });
     }
 
-    // 7. SCORCH -- the only part that's still there a second later.
+    
     const disc = mesh(G_DISC, SCORCH, 0.7);
     disc.rotation.x = -Math.PI / 2;
     this._add(disc, new THREE.Vector3(pos.x, groundY + 0.03, pos.z), {
       life: 3.4, from: R * 0.55, to: R * 0.7, flat: true, hold: 0.5,
     });
 
-    // Camera shake, strongest for a big blast.
+    
     this.shake = Math.max(this.shake, big ? 0.55 : 0.25);
   }
 
@@ -141,7 +141,7 @@ export class ExplosionField {
         p.m.material.dispose();
         return false;
       }
-      // Scale: ease out, so everything punches then settles.
+      
       const e = 1 - Math.pow(1 - t, 2.2);
       p.m.scale.setScalar(p.from + (p.to - p.from) * e);
 
@@ -149,7 +149,7 @@ export class ExplosionField {
         if (p.gravity) p.vel.y -= p.gravity * dt;
         if (p.drag) p.vel.multiplyScalar(Math.max(0, 1 - p.drag * dt));
         p.m.position.addScaledVector(p.vel, dt);
-        // Debris settles on the floor instead of sinking through it.
+        
         if (p.bounceY != null && p.m.position.y < p.bounceY + 0.08) {
           p.m.position.y = p.bounceY + 0.08;
           p.vel.y = Math.abs(p.vel.y) * 0.32;
@@ -162,14 +162,14 @@ export class ExplosionField {
       }
       if (p.cFrom && p.cTo) p.m.material.color.copy(p.cFrom).lerp(p.cTo, t);
 
-      // `hold` keeps a decal at full strength before it starts fading.
+      
       const ft = p.hold ? Math.max(0, (t - p.hold) / (1 - p.hold)) : t;
       p.m.material.opacity = p.baseOpacity * (p.fade === 'linear' ? 1 - ft : Math.pow(1 - ft, 1.5));
       return true;
     });
   }
 
-  // How much the camera should shake right now, in radians/metres.
+  
   shakeOffset() {
     if (this.shake <= 0) return null;
     const s = this.shake * this.shake * 0.09;

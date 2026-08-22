@@ -1,33 +1,33 @@
-// Procedural sound effects synthesised via Web Audio.
-//
-// One-shot sounds only - the music uses HTMLAudio (see chiptune.js) for
-// backgrounding, but SFX are transient and don't need to survive tab-switch.
-//
-// Sounds:
-//   weaponFire(id)  per-weapon gunshot (shovel fling / shotgun blast /
-//                   rocket launch) -- see the SFX V2 pass below
-//   explode(o)      layered explosion: crack + sub drop + body + debris + tail
-//   pew()      short square-wave pew for a poo bullet leaving the shovel
-//   splat()    quick noise burst for a hit
-//   boom(vol)  legacy alias -> explode(); kept for existing call sites
-//   snorkel()  bull-like "SNORTS" for chicken projectile whoosh
-//   chirp()    pickup pling when the chicken slingshot lands
-//   announce(k) UT-style announcer (formant synth, announcerVoice.js)
-//
-// SFX V2 (Bryan 2026-08-21: "better explosions and sfx sounds for everything
-// from guns to explosions to unreal tournament type announcements"). The old
-// sounds were single oscillators; real weapon audio is LAYERED, and each
-// layer does one job:
-//   transient  a 5-10 ms click/crack -- this is what makes a gun sound loud
-//   body       the pitched thump you actually identify the weapon by
-//   air        filtered noise sweeping down -- the blast leaving the barrel
-//   tail       reverb -- tells you the size of the space you're standing in
-// Distance is modelled the way air actually behaves: far-away sounds lose
-// treble first (lowpass), then level. That's why a distant rocket is a
-// *thud* and a close one is a *crack*.
-//
-// AudioContext is lazily created on first call, and each call resumes it
-// (needed on iOS Safari after backgrounding).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import { speakInto, PHRASES } from './announcerVoice.js';
 
@@ -45,8 +45,8 @@ function ensureCtx() {
     _ctx = new Ctx();
     _master = _ctx.createGain();
     _master.gain.value = 0.55;
-    // A limiter so a rocket landing next to three hazards can't clip the
-    // output into a crunchy mess.
+    
+    
     _limiter = _ctx.createDynamicsCompressor();
     _limiter.threshold.value = -8;
     _limiter.knee.value = 6;
@@ -54,8 +54,8 @@ function ensureCtx() {
     _limiter.attack.value = 0.002;
     _limiter.release.value = 0.15;
     _master.connect(_limiter).connect(_ctx.destination);
-    // Shared arena reverb. Explosions and the announcer send to it; small
-    // sounds (pew, chirp) stay dry so the mix doesn't turn to soup.
+    
+    
     _verb = _ctx.createConvolver();
     _verb.buffer = impulseResponse(_ctx, 1.9, 2.6);
     _verbSend = _ctx.createGain();
@@ -73,7 +73,7 @@ export function setSfxMuted(muted) {
   if (_master) _master.gain.value = muted ? 0 : 0.55;
 }
 
-// -- individual sounds -----------------------------------------------------
+
 
 export function pew() {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
@@ -103,33 +103,33 @@ export function splat() {
   noise.start(t); noise.stop(t + 0.1);
 }
 
-// -- EXPLOSIONS ------------------------------------------------------------
-// Four layers. Removing any one of them makes it sound like a toy:
-//   1. crack   6 ms of highpassed noise -- perceived LOUDNESS lives here
-//   2. sub     130 Hz -> 24 Hz sine drop -- the punch you feel
-//   3. body    lowpass-swept noise, 2.6 kHz -> 180 Hz -- the fireball
-//   4. debris  a handful of short grains over 400 ms -- falling bits
-// `distance` (metres) rolls off treble BEFORE level, which is what actually
-// makes a far-off explosion read as far off rather than just quiet.
+
+
+
+
+
+
+
+
 export function explode({ loudness = 1.0, distance = 0, size = 1.0 } = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
   const dist = Math.max(0, distance);
   const level = loudness / (1 + dist * 0.10);
   if (level < 0.02) return;
-  // Air absorption: 20 m of air is already audibly duller than 2 m.
+  
   const airCut = Math.max(700, 16000 / (1 + dist * 0.55));
 
   const out = ctx.createGain();
   const air = ctx.createBiquadFilter();
   air.type = 'lowpass'; air.frequency.value = airCut;
   out.connect(air).connect(_master);
-  // Distant explosions are MORE reverberant -- you hear the room, not the bang.
+  
   const send = ctx.createGain();
   send.gain.value = 0.30 + Math.min(0.35, dist * 0.02);
   air.connect(send).connect(_verbSend);
 
-  // 1. crack
+  
   const crack = whiteNoise(ctx, 0.05);
   const cf = ctx.createBiquadFilter();
   cf.type = 'highpass'; cf.frequency.value = 1800;
@@ -139,7 +139,7 @@ export function explode({ loudness = 1.0, distance = 0, size = 1.0 } = {}) {
   crack.connect(cf).connect(cg).connect(out);
   crack.start(t); crack.stop(t + 0.06);
 
-  // 2. sub drop
+  
   const sub = ctx.createOscillator();
   const sg = ctx.createGain();
   sub.type = 'sine';
@@ -151,7 +151,7 @@ export function explode({ loudness = 1.0, distance = 0, size = 1.0 } = {}) {
   sub.connect(sg).connect(out);
   sub.start(t); sub.stop(t + 0.9 * size);
 
-  // A detuned octave-up thickens the punch without adding mud.
+  
   const sub2 = ctx.createOscillator();
   const s2g = ctx.createGain();
   sub2.type = 'triangle';
@@ -162,7 +162,7 @@ export function explode({ loudness = 1.0, distance = 0, size = 1.0 } = {}) {
   sub2.connect(s2g).connect(out);
   sub2.start(t); sub2.stop(t + 0.55);
 
-  // 3. body
+  
   const body = whiteNoise(ctx, 1.0 * size);
   const bf = ctx.createBiquadFilter();
   bf.type = 'lowpass';
@@ -176,7 +176,7 @@ export function explode({ loudness = 1.0, distance = 0, size = 1.0 } = {}) {
   body.connect(bf).connect(bg).connect(out);
   body.start(t); body.stop(t + 1.0 * size);
 
-  // 4. debris grains
+  
   const grains = 6 + Math.floor(Math.random() * 4);
   for (let i = 0; i < grains; i++) {
     const at = t + 0.09 + Math.random() * 0.45;
@@ -193,14 +193,14 @@ export function explode({ loudness = 1.0, distance = 0, size = 1.0 } = {}) {
   }
 }
 
-// Legacy name kept so existing call sites (hazards, chicken) keep working.
+
 export function boom(loudness = 1.0) {
   explode({ loudness, size: 0.85 });
 }
 
-// -- WEAPONS ---------------------------------------------------------------
 
-// Dispatch a gunshot for a weapon id. Falls back to the shovel fling.
+
+
 export function weaponFire(id, opts = {}) {
   switch (id) {
     case 'shotgun': return shotgunBlast(opts);
@@ -210,12 +210,12 @@ export function weaponFire(id, opts = {}) {
   }
 }
 
-// Shovel: it FLINGS a pellet of muck. Wet flick + the clang of the spade,
-// not a laser pew.
+
+
 export function shovelFling({ loudness = 1.0 } = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
-  // Wet flick.
+  
   const flick = whiteNoise(ctx, 0.07);
   const ff = ctx.createBiquadFilter();
   ff.type = 'bandpass';
@@ -227,7 +227,7 @@ export function shovelFling({ loudness = 1.0 } = {}) {
   fg.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
   flick.connect(ff).connect(fg).connect(_master);
   flick.start(t); flick.stop(t + 0.09);
-  // Spade clang -- two struck partials, very short.
+  
   for (const [f, a] of [[1180, 0.10], [1790, 0.06]]) {
     const o = ctx.createOscillator();
     const g = ctx.createGain();
@@ -239,7 +239,7 @@ export function shovelFling({ loudness = 1.0 } = {}) {
     o.connect(g).connect(_master);
     o.start(t); o.stop(t + 0.16);
   }
-  // Descending body so it still reads as "a shot was fired".
+  
   const o = ctx.createOscillator();
   const g = ctx.createGain();
   o.type = 'square';
@@ -252,7 +252,7 @@ export function shovelFling({ loudness = 1.0 } = {}) {
   o.start(t); o.stop(t + 0.13);
 }
 
-// Shotgun: crack + chest thump + airy tail, then the pump.
+
 export function shotgunBlast({ loudness = 1.0 } = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
@@ -292,7 +292,7 @@ export function shotgunBlast({ loudness = 1.0 } = {}) {
   body.connect(bf).connect(bg).connect(out);
   body.start(t); body.stop(t + 0.35);
 
-  // Pump action, 260 ms later: cha-chk.
+  
   for (const [at, f] of [[0.26, 2100], [0.36, 1500]]) {
     const n = whiteNoise(ctx, 0.05);
     const nf = ctx.createBiquadFilter();
@@ -305,7 +305,7 @@ export function shotgunBlast({ loudness = 1.0 } = {}) {
   }
 }
 
-// Rocket: ignition thump, then a jet of noise climbing away from you.
+
 export function rocketLaunch({ loudness = 1.0 } = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
@@ -348,7 +348,7 @@ export function rocketLaunch({ loudness = 1.0 } = {}) {
   clank.start(t); clank.stop(t + 0.06);
 }
 
-// Confirmation ping when YOUR shot lands. Short, bright, unmistakable.
+
 export function hitmarker({ loudness = 1.0 } = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
@@ -364,7 +364,7 @@ export function hitmarker({ loudness = 1.0 } = {}) {
   }
 }
 
-// Mechanical clack when you change weapon.
+
 export function weaponSwitch() {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
@@ -380,18 +380,18 @@ export function weaponSwitch() {
   }
 }
 
-// -- ANNOUNCER -------------------------------------------------------------
 
-// Speak one of announcerVoice.js's PHRASES. Queued: two announcements landing
-// in the same frame would otherwise talk over each other, which is the single
-// fastest way to make an announcer sound cheap.
+
+
+
+
 let _announceFreeAt = 0;
 
 export function announce(key, opts = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return 0;
   if (!PHRASES[key]) return 0;
   const now = ctx.currentTime;
-  // Drop rather than pile up if we're already more than one phrase behind.
+  
   if (_announceFreeAt - now > 1.6) return 0;
   const wait = Math.max(0, _announceFreeAt - now);
   const fire = () => speakInto(
@@ -402,36 +402,36 @@ export function announce(key, opts = {}) {
   if (wait < 0.01) {
     dur = fire();
   } else {
-    dur = 0.9;   // estimate; the real length is measured when it fires
+    dur = 0.9;   
     setTimeout(fire, wait * 1000);
   }
   _announceFreeAt = Math.max(now, _announceFreeAt) + dur + 0.28;
   return dur;
 }
 
-// Back-compat: the old single-growl announcer(text) call site.
+
 export function announcer(text = '') {
   return announce(text === 'STEAK ANIHILATION' ? 'HUMILIATION' : 'FIGHT');
 }
 
-// A real explosion, for the slingshot detonation. `boom()` is a ~0.6 s thump
-// that works for a falling egg and is far too small for the rarest and most
-// lethal thing on the map (Bryan: "a bigger explosion with a better explosion
-// sound").
-//
-// What separates an explosion from a thump is that it is several sounds with
-// DIFFERENT lifetimes stacked on each other:
-//   * a CRACK — a very short, very bright transient. This is what the ear
-//     actually uses to judge how violent something was, and boom() has none.
-//   * a BODY — filtered noise sweeping downward over ~1 s: the fireball.
-//   * a SUB — a sine falling to ~24 Hz, felt more than heard.
-//   * a TAIL — a long, quiet, dark bed for debris and echo, which is what
-//     gives the blast a SIZE rather than just a volume.
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function explosion(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
 
-  // 1. Crack: bright, ~90 ms, high-passed so it cuts through everything.
+  
   const crack = whiteNoise(ctx, 0.09);
   const cHP = ctx.createBiquadFilter();
   cHP.type = 'highpass'; cHP.frequency.value = 1900;
@@ -441,7 +441,7 @@ export function explosion(loudness = 1.0) {
   crack.connect(cHP).connect(cG).connect(_master);
   crack.start(t); crack.stop(t + 0.1);
 
-  // 2. Body: the fireball. Low-pass sweeping down as the gas cools.
+  
   const body = whiteNoise(ctx, 1.1);
   const bLP = ctx.createBiquadFilter();
   bLP.type = 'lowpass';
@@ -455,7 +455,7 @@ export function explosion(loudness = 1.0) {
   body.connect(bLP).connect(bG).connect(_master);
   body.start(t); body.stop(t + 1.15);
 
-  // 3. Sub: the punch in the chest.
+  
   const sub = ctx.createOscillator();
   const sG = ctx.createGain();
   sub.type = 'sine';
@@ -466,7 +466,7 @@ export function explosion(loudness = 1.0) {
   sub.connect(sG).connect(_master);
   sub.start(t); sub.stop(t + 1.0);
 
-  // 4. Tail: debris + echo, quiet and long so the blast has a size.
+  
   const tail = whiteNoise(ctx, 1.6);
   const tBP = ctx.createBiquadFilter();
   tBP.type = 'bandpass'; tBP.frequency.value = 420; tBP.Q.value = 0.7;
@@ -493,11 +493,11 @@ export function chirp() {
   }
 }
 
-// Long descending whoosh for falling hazards ("WOOOOSHHH").
+
 export function whoosh() {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
-  // Descending sine + noise band that opens up.
+  
   const osc = ctx.createOscillator();
   const oscGain = ctx.createGain();
   osc.type = 'sine';
@@ -508,7 +508,7 @@ export function whoosh() {
   oscGain.gain.exponentialRampToValueAtTime(0.001, t + 1.8);
   osc.connect(oscGain).connect(_master);
   osc.start(t); osc.stop(t + 1.9);
-  // Noise bed
+  
   const noise = whiteNoise(ctx, 1.9);
   const filt = ctx.createBiquadFilter();
   filt.type = 'bandpass'; filt.frequency.setValueAtTime(1800, t);
@@ -522,21 +522,21 @@ export function whoosh() {
   noise.start(t); noise.stop(t + 1.9);
 }
 
-// Gore-mode joke SFX: a wet, descending fart. Played on every player
-// weapon fire when GORE mode is on. Kept short (~180ms) so it doesn't
-// step on the pew/splat/boom chain.
-// LOUD fart. Bryan complained he couldn't hear it, so this is boosted:
-// longer duration (~300ms), higher gain, wet plosion at the front AND end.
+
+
+
+
+
 export function fart(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
-  // Descending buzzy sawtooth "brrrrrpt" — 300ms so it's clearly audible.
+  
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
   osc.type = 'sawtooth';
   osc.frequency.setValueAtTime(220, t);
   osc.frequency.exponentialRampToValueAtTime(55, t + 0.30);
-  // Deep splutter LFO.
+  
   const lfo = ctx.createOscillator();
   const lfoGain = ctx.createGain();
   lfo.type = 'square'; lfo.frequency.value = 22;
@@ -548,7 +548,7 @@ export function fart(loudness = 1.0) {
   g.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
   osc.connect(g).connect(_master);
   osc.start(t); osc.stop(t + 0.35);
-  // Front-end wet plosion so the fart CUTS THROUGH the pew.
+  
   const n1 = whiteNoise(ctx, 0.06);
   const f1 = ctx.createBiquadFilter();
   f1.type = 'bandpass'; f1.frequency.value = 260; f1.Q.value = 3.5;
@@ -557,7 +557,7 @@ export function fart(loudness = 1.0) {
   gn1.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
   n1.connect(f1).connect(gn1).connect(_master);
   n1.start(t); n1.stop(t + 0.08);
-  // Trailing wet plosion at the end.
+  
   const n2 = whiteNoise(ctx, 0.10);
   const f2 = ctx.createBiquadFilter();
   f2.type = 'bandpass'; f2.frequency.value = 180; f2.Q.value = 4;
@@ -581,10 +581,10 @@ export function snorkel() {
   noise.start(t); noise.stop(t + 0.25);
 }
 
-// -- Animal voices ---------------------------------------------------------
-// Simple synthesised farm-animal sounds. Each takes an optional `loudness`.
-// Played on double-jump + on death (see game.js). Every one is short (~350-
-// 500ms) so it doesn't step on gunfire.
+
+
+
+
 
 function _envOsc(ctx, dur, type, f0, f1, gain) {
   const t = ctx.currentTime;
@@ -600,14 +600,14 @@ function _envOsc(ctx, dur, type, f0, f1, gain) {
   osc.start(t); osc.stop(t + dur + 0.05);
 }
 
-// Cow "MOOoooo" — low sustained sine descending.
+
 export function moo(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   _envOsc(ctx, 0.55, 'sawtooth', 220, 110, 0.30 * loudness);
   _envOsc(ctx, 0.55, 'sine',     110, 60,  0.20 * loudness);
 }
 
-// Pig "OINK oink" — two short throaty grunts.
+
 export function oink(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t0 = ctx.currentTime;
@@ -625,7 +625,7 @@ export function oink(loudness = 1.0) {
   }
 }
 
-// Sheep "BHEEEEEE" — wavering triangle with vibrato around 500 Hz.
+
 export function bheee(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime, dur = 0.50;
@@ -633,7 +633,7 @@ export function bheee(loudness = 1.0) {
   const g = ctx.createGain();
   osc.type = 'triangle';
   osc.frequency.setValueAtTime(520, t);
-  // Vibrato
+  
   const lfo = ctx.createOscillator();
   const lfoGain = ctx.createGain();
   lfo.type = 'sine'; lfo.frequency.value = 14;
@@ -647,7 +647,7 @@ export function bheee(loudness = 1.0) {
   osc.start(t); osc.stop(t + dur + 0.05);
 }
 
-// Chicken "BAWK bawk bawk" — three fast rising squawks.
+
 export function cluck(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t0 = ctx.currentTime;
@@ -670,7 +670,7 @@ export function cluck(loudness = 1.0) {
   }
 }
 
-// Dispatch: play the right voice for a given character kind.
+
 export function animalVoice(character, loudness = 1.0) {
   switch (character) {
     case 'cow':     return moo(loudness);
@@ -694,22 +694,22 @@ function whiteNoise(ctx, dur) {
   return src;
 }
 
-// Procedural reverb: exponentially-decaying noise is a perfectly good
-// impulse response, and it costs us no download (GAME_DESIGN.md constraint).
-// Stereo with independent channels so the tail widens instead of sitting in
-// the middle of the head.
+
+
+
+
 function impulseResponse(ctx, seconds, decay) {
   const n = Math.ceil(ctx.sampleRate * seconds);
   const buf = ctx.createBuffer(2, n, ctx.sampleRate);
   for (let ch = 0; ch < 2; ch++) {
     const d = buf.getChannelData(ch);
     for (let i = 0; i < n; i++) {
-      // A short pre-delay + early reflections make it read as a space
-      // rather than a wash.
+      
+      
       const t = i / n;
       d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, decay);
     }
-    // Two early reflections.
+    
     for (const [ms, amp] of [[17, 0.35], [29, 0.22]]) {
       const off = Math.floor(ctx.sampleRate * ms / 1000);
       if (off < n) d[off] += amp;

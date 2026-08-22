@@ -1,5 +1,5 @@
-// Named-actions input abstraction. JS twin of
-// addons/arbelo_engine/input/input_bus.gd.
+
+
 
 const DEFAULT_BINDINGS = {
   moveForward: ['KeyW', 'ArrowUp'],
@@ -59,9 +59,9 @@ export class InputBus {
     this.target.removeEventListener('mouseup', this._onMouseUp);
   }
 
-  // (Movement math lives in ./movementMath.js so it can be unit-tested.)
-// Synthetic (virtual) action state - set by touch controls to feed the
-  // same action names as physical inputs.
+  
+
+  
   _synth = new Set();
   _synthPressedThisFrame = new Set();
   _synthReleasedThisFrame = new Set();
@@ -96,8 +96,8 @@ export class InputBus {
     return false;
   }
 
-  // Call once per frame at the END of update, after all wasPressed/wasReleased
-  // queries.
+  
+  
   endFrame() {
     this._pressedThisFrame.clear();
     this._releasedThisFrame.clear();

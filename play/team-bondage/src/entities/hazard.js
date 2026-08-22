@@ -1,10 +1,10 @@
-// Egg + milk-pint rain hazards.
-//
-// Host-authoritative: only the host spawns hazards (using a shared seed so
-// same-seed worlds could later replay). Broadcasts one HAZARD_SPAWN event per
-// item with {kind, x, z, spawnAt, landAt}. All peers add the falling mesh +
-// ground shadow to their local scene and, on impact, deal splash damage to
-// any local player within SPLASH_RADIUS.
+
+
+
+
+
+
+
 
 import * as THREE from 'three';
 import {
@@ -17,10 +17,10 @@ import {
 import { BASELINE_SIZE } from '../../../../web-engine/procgen/voxelWorldGen.js';
 
 export const HAZARD_KINDS = ['egg', 'milk'];
-const SPAWN_HEIGHT = 22;      // y where items appear
-const GROUND_Y = 1;           // top of the ground layer
-const FALL_TIME = 2.0;        // seconds from spawn to impact
-const SPLASH_RADIUS = 2.2;    // metres
+const SPAWN_HEIGHT = 22;      
+const GROUND_Y = 1;           
+const FALL_TIME = 2.0;        
+const SPLASH_RADIUS = 2.2;    
 const SPLASH_DAMAGE = 20;
 const EXPLOSION_LIFE_SEC = 0.65;
 
@@ -28,7 +28,7 @@ export class HazardSystem {
   constructor(scene, grid, opts = {}) {
     this.scene = scene;
     this.grid = grid;
-    this.active = [];   // { kind, x, z, spawnAt, landAt, mesh, shadow, done }
+    this.active = [];   
     this.opts = { intervalMs: [3000, 6000], batch: [2, 3], ...opts };
     const tex = buildHazardTextures();
     this._egg  = buildHazardModel(HAZARDS.egg, tex);
@@ -42,13 +42,13 @@ export class HazardSystem {
       const t = Math.min(1, (nowMs - h.spawnAt) / (h.landAt - h.spawnAt));
       const y = SPAWN_HEIGHT + (GROUND_Y - SPAWN_HEIGHT) * t;
       h.mesh.position.set(h.x, y, h.z);
-      // Shadow grows + darkens as impact nears.
+      
       const s = 0.5 + t * 0.6;
       h.shadow.scale.set(s, s, s);
       h.shadow.material.opacity = 0.15 + t * 0.55;
-      // Tumble. Rate + starting attitude are per-item (hand-drawn.md's
-      // per-instance wobble), so a wave of three eggs never falls as three
-      // copies of one animation.
+      
+      
+      
       h.mesh.rotation.x = h.spin.x0 + t * h.spin.x;
       h.mesh.rotation.y = h.spin.y0 + t * h.spin.y;
       h.mesh.rotation.z = h.spin.z0 + t * h.spin.z;
@@ -60,13 +60,13 @@ export class HazardSystem {
         setTimeout(() => this._despawn(h), 800);
       }
     }
-    // Update explosions (independent lifetime from hazard tiles).
+    
     const nowSec = nowMs / 1000;
     this._explosions = (this._explosions || []).filter((ex) => {
       const t = (nowSec - ex.bornAt) / EXPLOSION_LIFE_SEC;
       if (t >= 1) { this.scene.remove(ex.mesh); return false; }
       if (ex.shard) {
-        // Ballistic shard with gravity.
+        
         const d = ex.mesh.userData;
         ex.mesh.position.x += d.vx * dt;
         ex.mesh.position.z += d.vz * dt;
@@ -74,7 +74,7 @@ export class HazardSystem {
         ex.mesh.position.y += d.vy * dt;
         ex.mesh.material.opacity = (1 - t) * 0.9;
       } else {
-        // Grow outward + fade (sphere)
+        
         const s = 0.4 + t * 3.4;
         ex.mesh.scale.set(s, s, s);
         ex.mesh.material.opacity = (1 - t) * 0.85;
@@ -85,11 +85,11 @@ export class HazardSystem {
   }
 
   _spawnExplosion(h) {
-    // Bright expanding sphere + a ring on the ground. The EJECTA is coloured
-    // separately from the flash: an egg throws gold yolk, a pint throws white
-    // milk, so the two hazards stay tellable apart at the moment of impact —
-    // which is the moment you are furthest away and most need to know which
-    // one just went off next to you.
+    
+    
+    
+    
+    
     const color = h.kind === 'egg' ? 0xf5e9c5 : 0xffe6ec;
     const ejecta = h.kind === 'egg' ? HZ_PALETTE.yolk : HZ_PALETTE.milk;
     const geo = new THREE.SphereGeometry(0.4, 12, 10);
@@ -103,7 +103,7 @@ export class HazardSystem {
     if (!this._explosions) this._explosions = [];
     this._explosions.push({ mesh, bornAt: performance.now() / 1000 });
 
-    // A dozen ejecta shards for a chunkier feel.
+    
     for (let i = 0; i < 10; i++) {
       const shard = new THREE.Mesh(
         new THREE.BoxGeometry(0.10, 0.10, 0.10),
@@ -122,8 +122,8 @@ export class HazardSystem {
     }
   }
 
-  // Locally check: did any active-and-just-landed hazard hit `playerPos`?
-  // Returns array of damage points (each a number).
+  
+  
   consumeHitsFor(playerPos) {
     const hits = [];
     for (const h of this.active) {
@@ -132,7 +132,7 @@ export class HazardSystem {
       const dz = playerPos.z - h.impactPoint.z;
       const dy = playerPos.y - h.impactPoint.y;
       if (dx * dx + dz * dz + dy * dy * 0.25 <= SPLASH_RADIUS * SPLASH_RADIUS) {
-        // Falloff: full at 0 distance, 30% at edge.
+        
         const d = Math.hypot(dx, dz);
         const falloff = 1 - Math.min(1, d / SPLASH_RADIUS) * 0.7;
         hits.push(Math.round(SPLASH_DAMAGE * falloff));
@@ -142,15 +142,15 @@ export class HazardSystem {
     return hits;
   }
 
-  // Called on a peer from HAZARD_SPAWN net message.
+  
   spawn({ kind, x, z, spawnAt, landAt }) {
     const proto = kind === 'milk' ? this._milk : this._egg;
     const mesh = proto.clone();
     mesh.position.set(x, SPAWN_HEIGHT, z);
     this.scene.add(mesh);
 
-    // Per-item tumble, seeded off the spawn so it is stable for this item but
-    // different from its neighbours in the same wave.
+    
+    
     const base = (HAZARDS[kind] || HAZARDS.egg).spin;
     const r = seedRng((Math.round(x * 71) ^ Math.round(z * 131) ^ (this._spawnSeq++ * 2654435761)) >>> 0);
     const spin = {
@@ -160,7 +160,7 @@ export class HazardSystem {
       z: base.z * (0.8 + r() * 0.45) * (r() > 0.5 ? 1 : -1),
     };
 
-    // Ground shadow: red circle so the player knows where the impact will be.
+    
     const shadow = new THREE.Mesh(
       new THREE.CircleGeometry(SPLASH_RADIUS, 24),
       new THREE.MeshBasicMaterial({
@@ -178,7 +178,7 @@ export class HazardSystem {
   }
 
   _splashDecal(h) {
-    // Replace shadow with a bright flash briefly
+    
     h.shadow.material.color.setHex(h.kind === 'egg' ? HZ_PALETTE.yolk : HZ_PALETTE.milk);
     h.shadow.material.opacity = 0.75;
   }
@@ -189,15 +189,15 @@ export class HazardSystem {
   }
 }
 
-// -- Meshes ----------------------------------------------------------------
-//
-// Built from the pure-data specs in hazardSpec.js. Everything here is flat
-// shaded and prisms are 8-faceted at most, so the hazards belong to the same
-// voxel world as the map instead of being the two smooth-shaded objects in
-// it (voxel.md: "curved/smooth GLBs dropped into the voxel map — clashes").
 
-// Deterministic PRNG (same one as textures.js / firstPersonWeapon.js) so a
-// given hazard always tumbles the same way rather than re-rolling per frame.
+
+
+
+
+
+
+
+
 function seedRng(seed) {
   let s = seed >>> 0 || 1;
   return () => {
@@ -207,9 +207,9 @@ function seedRng(seed) {
 }
 
 function buildHazardTextures() {
-  // The system is only ever constructed in the browser; keep the module
-  // importable elsewhere (the tests import the spec, but a stray import of
-  // this file shouldn't explode).
+  
+  
+  
   if (typeof document === 'undefined') return {};
   return {
     eggshell:  makeEggshellTexture(),
@@ -219,8 +219,8 @@ function buildHazardTextures() {
   };
 }
 
-// One-off build of a hazard mesh, for art/preview/hazard.html — the loop's
-// "never ship worse than what's live" rule needs eyes on the thing.
+
+
 export function buildHazardMesh(kind) {
   const spec = HAZARDS[kind] || HAZARDS.egg;
   return buildHazardModel(spec, buildHazardTextures());
@@ -255,19 +255,19 @@ function buildMaterial(part, tex, rng) {
   const map = base.clone();
   map.needsUpdate = true;
   if (skin.tex === 'milkLabel') {
-    // The word is already painted `LABEL_REPEAT` times across the image, so
-    // the band wraps it ONCE. The half-facet shift lands each word on a flat
-    // facet instead of folding it over an edge (see hazardSpec.js).
+    
+    
+    
     map.repeat.set(1, 1);
     map.offset.set(LABEL_UV_OFFSET, 0);
   } else if (part.kind === 'cyl') {
-    // One wrap around the prism: the glass highlight has to be a single
-    // stripe down the bottle, not a repeating corduroy.
+    
+    
     map.repeat.set(1, 1);
     map.offset.set(0, rng() * 0.2);
   } else {
-    // Per-element wobble: every shell box gets its own patch of freckles, so
-    // the seven tiers never line their speckle up into stripes.
+    
+    
     const longest = part.size ? Math.max(...part.size) : part.r * 2;
     const rep = Math.max(1, Math.round(longest / 0.2));
     map.repeat.set(rep, rep);
@@ -287,21 +287,21 @@ function hashString(s) {
   return h >>> 0;
 }
 
-// -- Host-side scheduler ---------------------------------------------------
 
-// The host runs this on a timer; returns an array of hazards ready to
-// broadcast. Each item = { kind, x, z, spawnAt, landAt }.
+
+
+
 export function makeHostSchedule(worldSize, rng, nowMs) {
-  // 2-3 items per wave was tuned on a 64x64 map, and a hazard is a chance of
-  // being rained on per second of standing still — i.e. a density. Dropping
-  // the same 2-3 eggs over 56% more ground would quietly halve the pressure
-  // the whole map's pacing was tuned around, so the wave scales with the area.
+  
+  
+  
+  
   const per64 = rng.rangeI(2, 3);
   const count = Math.max(1, Math.round(
     per64 * (worldSize.x * worldSize.z) / (BASELINE_SIZE * BASELINE_SIZE)));
   const items = [];
   for (let i = 0; i < count; i++) {
-    // Stagger spawn times over ~0.6s so a wave doesn't land in one instant.
+    
     const spawnAt = nowMs + rng.rangeI(0, 600);
     items.push({
       kind: rng.chance(0.5) ? 'egg' : 'milk',

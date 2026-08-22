@@ -1,4 +1,4 @@
-// Team Bondage - main game orchestrator.
+
 
 import * as THREE from 'three';
 import { InputBus } from 'arbelo/input';
@@ -20,7 +20,7 @@ import { computeAimAssist } from 'arbelo/aim-assist';
 import { stepProjectile } from '../../../web-engine/combat/projectileHit.js';
 import { Chat } from './ui/chat.js';
 import { considerTaunt, newTauntState } from './entities/botTaunts.js';
-// (WEAPON_DEFS used in _addTracerForShot)
+
 import { RemotePlayer }     from './entities/remotePlayer.js';
 import { MSG }              from './net/protocol.js';
 import { pickWord, scramble } from './util/anagram.js';
@@ -49,49 +49,49 @@ import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js'
 import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
 import { GoreSystem }         from './entities/gore.js';
 import { AmbientCritters }    from './entities/ambientCritters.js';
-// WORLD_SIZE is already imported above alongside WorldMapGenerator.
+
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
-const FLAG_HOME_RADIUS = 3.5;   // steps within this of your own flag stand = capture
+const FLAG_HOME_RADIUS = 3.5;   
 
-// The meat weapon. Shoot STEAK_GOAL floating steaks to arm it, and it holds
-// STEAK_THROWS poison shots — Bryan asked for "at least 2". While it is armed
-// it is auto-selected and cannot be swapped away from (see _switchWeapon):
-// it is a commitment, not an option in a menu.
+
+
+
+
 const STEAK_GOAL = 5;
 const STEAK_THROWS = 2;
 
-// A match holds sixteen bodies in total — humans plus bots. Bots exist to fill
-// the seats humans have not taken, so every human who joins displaces one
-// (see _displaceBotFor) until all sixteen are real people.
+
+
+
 export const MATCH_CAP = 16;
-export const MAX_BOTS = MATCH_CAP - 1;   // a host is always one of the sixteen
-// Bumped from 2.0 → 3.5 on 2026-08-20: the flag stand voxel blocks the
-// player from standing directly on top of it, so we can't require an exact
-// centre-touch — the whole 3-tile radius around the base centre counts as
-// "delivered". Bryan: "when I deliver the flag to my base nothing happens".
-// (WIN_SCORE used to live here as a constant. It is now the MODE's — 5
-// captures, 30 kills or 90 seconds of held hill — see web-engine/modes/
-// gameModes.js and modeWinner()/anagramDue().)
-// How far a hitscan shot reaches, and how far a tracer is drawn.
-//
-// This was a hard-coded 60 (and a 50 for tracers) chosen when the map was 64
-// tiles across. At 80x80 the bases are ~96 m apart and the fog now clears to
-// 150 m, so a 60 m gun could not reach a target the player could plainly see
-// — the shot simply did nothing, which is the worst kind of miss.
+export const MAX_BOTS = MATCH_CAP - 1;   
+
+
+
+
+
+
+
+
+
+
+
+
+
 const SHOT_RANGE = 80;
 
-// The direction a shot is travelling. Hitscan shots carry `dir`; projectile
-// shots carry `vel` and no `dir` at all — which is what broke the first cut of
-// contact resolution, because the gore spatter reached for `shot.dir` on a
-// pellet that had never had one.
+
+
+
+
 function shotDirection(shot) {
   if (shot.dir) return new THREE.Vector3().fromArray(shot.dir);
   if (shot.vel) return new THREE.Vector3().fromArray(shot.vel).normalize();
   return new THREE.Vector3(0, 0, 1);
 }
 const NET_TICK_HZ = 20;
-const RESPAWN_DELAY = 0.0;      // "immediate" per spec
+const RESPAWN_DELAY = 0.0;      
 const ANAGRAM_SECONDS = 10;
 const LOBBY_MIN_PLAYERS = 2;
 const LOBBY_COUNTDOWN_SECONDS = 5;
@@ -105,48 +105,48 @@ export class Game {
     this.character = opts.character;
     this.team = opts.team;
     this.name = opts.name;
-    this.seed = opts.seed;               // null on joiner until welcome
-    // The map and the mode are HOST-CHOSEN and arrive with the seed in the
-    // WELCOME. A joiner that generated a different map from the host would be
-    // walking around a world nobody else can see — same failure mode as a
-    // seed mismatch, and the same fix: only the host decides.
+    this.seed = opts.seed;               
+    
+    
+    
+    
     this.mapId = opts.mapId || DEFAULT_MAP;
     this.map = getMap(this.mapId);
     this.sky = getSky(this.mapId);
     this.modeId = opts.mode || DEFAULT_MODE;
     this.mode = getMode(this.modeId);
-    // KOTH accumulates a fraction of a point per frame; the score on the HUD
-    // is the whole part of it, so a 1 Hz tick does not make the number jump.
+    
+    
     this._hold = { red: 0, blue: 0 };
 
     this.scores = { red: 0, blue: 0 };
     this.gameOver = false;
-    this.matchState = 'lobby';           // lobby -> countdown -> playing -> ended
-    this._matchEndsAt = 0;               // for countdown / anagram timers
-    this.remotePlayers = new Map();      // peerId -> RemotePlayer
-    this.playerMeta = new Map();         // peerId -> {name, character, team}
+    this.matchState = 'lobby';           
+    this._matchEndsAt = 0;               
+    this.remotePlayers = new Map();      
+    this.playerMeta = new Map();         
     this.playerMeta.set(this.myId, {
       name: this.name, character: this.character, team: this.team,
     });
-    this.flagCarrier = { red: null, blue: null };  // peerId or null
+    this.flagCarrier = { red: null, blue: null };  
     this.rngShots = new SeededRng((Math.random() * 2 ** 32) >>> 0);
     this._netAccum = 0;
-    this._anagram = null;                // { word, scrambled, endsAt, losingTeam }
+    this._anagram = null;                
     this._lastRespawnAt = 0;
-    this._killFeed = [];                 // recent kill lines
+    this._killFeed = [];                 
     this.audio = new Chiptune();
     this._buildCornBar();
-    // Bots: host-only. Simulated locally, broadcast as fake peers.
-    this.bots = new Map();               // peerId -> Bot
+    
+    this.bots = new Map();               
     this.initialBotCount = opts.initialBots || 0;
   }
 
-  // -------------------------------------------------------------------------
+  
 
   async boot() {
     this._wireNet();
 
-    // On the joiner, we have to wait for the host's WELCOME to get the seed.
+    
     if (!this.isHost) {
       await new Promise((resolve) => {
         const check = () => {
@@ -155,13 +155,13 @@ export class Game {
         };
         check();
       });
-      // The WELCOME carries the map and the mode too; re-read both before
-      // anything is built off them.
+      
+      
       this.map = getMap(this.mapId);
       this.sky = getSky(this.mapId);
       this.mode = getMode(this.modeId);
     } else {
-      // Host: broadcast welcome to all newcomers as they join.
+      
       this.mesh.addEventListener('peer-joined', (e) => {
         this._sendWelcome(e.detail.id);
       });
@@ -169,9 +169,9 @@ export class Game {
 
     this._initThree();
     this._buildWorld(this.seed);
-    // Kick off render loop IMMEDIATELY so the user sees the world while
-    // rapier's WASM downloads (~1 MB). Physics-dependent code guards on
-    // `this.physics` being ready.
+    
+    
+    
     this._lastFrame = performance.now();
     requestAnimationFrame((now) => this._frame(now));
 
@@ -184,25 +184,25 @@ export class Game {
     }
     this._initInput();
 
-    // Send our HELLO to whoever's out there.
+    
     this._broadcast({ t: MSG.HELLO, name: this.name, character: this.character, team: this.team });
 
-    // Add any initial bots the host requested at match creation.
+    
     if (this.isHost && this.initialBotCount > 0) {
       for (let i = 0; i < this.initialBotCount; i++) this.addBot();
     }
-    // Wire mute button. iOS Safari needs touchstart in addition to click:
+    
 
-    // Wire mute button. iOS Safari needs touchstart in addition to click:
-    // click sometimes doesn't dispatch on button elements inside a
-    // pointer-events:none HUD without a real tap chain.
+    
+    
+    
     const muteBtn = document.getElementById('mute-btn');
     const paintMute = () => { muteBtn.textContent = this.audio.muted ? '🔇' : '🔊'; };
     paintMute();
     const handleMuteToggle = (e) => {
       if (e) e.preventDefault();
-      // If audio isn't started yet, the button acts as an ENABLE (not a
-      // toggle to muted). Otherwise, plain mute/unmute.
+      
+      
       if (!this.audio.isPlaying) {
         this.audio.setMuted(false);
         paintMute();
@@ -215,7 +215,7 @@ export class Game {
     muteBtn.addEventListener('click', handleMuteToggle);
     muteBtn.addEventListener('touchstart', handleMuteToggle, { passive: false });
 
-    // Host-only admin control: +Bot button, live-in-session.
+    
     const addBotBtn = document.getElementById('add-bot-btn');
     if (this.isHost) {
       addBotBtn.style.display = 'block';
@@ -224,8 +224,8 @@ export class Game {
       addBotBtn.addEventListener('touchstart', onAddBot, { passive: false });
     }
 
-    // Mature-mode toggle. Persists in localStorage. Toggles blood textures
-    // on the world + character armbands + turns on the announcer.
+    
+    
     this.mature = localStorage.getItem('tb.mature') === '1';
     const matureBtn = document.getElementById('mature-btn');
     const paintMature = () => { matureBtn.classList.toggle('on', this.mature); };
@@ -241,7 +241,7 @@ export class Game {
     matureBtn.addEventListener('click', onMatureToggle);
     matureBtn.addEventListener('touchstart', onMatureToggle, { passive: false });
 
-    // Settings modal (opens with the gear button or Escape).
+    
     const settingsBtn   = document.getElementById('settings-btn');
     const settingsModal = document.getElementById('settings-modal');
     const settingsClose = document.getElementById('settings-close');
@@ -255,7 +255,7 @@ export class Game {
       const v = parseInt(volSlider.value, 10);
       volValue.textContent = String(v);
       localStorage.setItem('tb.vol', String(v));
-      // Both audio paths (HTMLAudio + Web Audio fallback) get scaled.
+      
       if (this.audio._audio) this.audio._audio.volume = (this.audio.muted ? 0 : v / 100);
       if (this.audio.master) this.audio.master.gain.value = (this.audio.muted ? 0 : v / 200);
     };
@@ -266,8 +266,8 @@ export class Game {
       paintMute();
       applyVolume();
     });
-    // Chat. Outgoing messages go to every peer AND straight into our own log,
-    // because _broadcast does not loop back to the sender.
+    
+    
     this.chat = new Chat({
       onSend: (text) => {
         const msg = { t: MSG.CHAT, from: this.myId, name: this.name,
@@ -278,14 +278,14 @@ export class Game {
     });
     this._taunts = newTauntState();
 
-    // Ko-fi link in Settings. A plain anchor, and only if a username has been
-    // configured — see web-engine/support/support.js.
+    
+    
     import('../../../web-engine/support/support.js')
       .then(({ mountSupportLink }) => mountSupportLink(document.getElementById('support-slot')))
       .catch(() => {});
 
-    // Aim assist, on by default and remembered. See web-engine/input/aimAssist.js
-    // for why it is a hard cone with falloff and a rate cap rather than a snap.
+    
+    
     const aimCheck = document.getElementById('aim-assist');
     if (aimCheck) {
       this.aimAssist = localStorage.getItem('tb.aimassist') !== '0';
@@ -305,12 +305,12 @@ export class Game {
       if (e.key === 'Escape') closeSettings();
     });
 
-    // Audio startup - iOS Safari refuses to unlock without a user gesture,
-    // and quiet gestures during the initial menu can be lost. Approach:
-    //   1. Try to start on ANY gesture that reaches window.
-    //   2. Also try again on any tap of the mute button.
-    //   3. If audio still isn't playing after ~2s, show a big "Tap to enable
-    //      sound" prompt so the user has an unambiguous target.
+    
+    
+    
+    
+    
+    
     const enablePrompt = document.getElementById('enable-sound');
     const tryStartAudio = async () => {
       if (this.audio.isPlaying) return;
@@ -322,29 +322,29 @@ export class Game {
     window.addEventListener('pointerdown', tryStartAudio);
     window.addEventListener('touchstart', tryStartAudio, { passive: true });
     window.addEventListener('click', tryStartAudio);
-    // The big "tap to enable sound" pill.
+    
     const onEnable = (e) => { if (e) e.preventDefault(); tryStartAudio(); };
     enablePrompt.addEventListener('click', onEnable);
     enablePrompt.addEventListener('touchstart', onEnable, { passive: false });
-    // Show the prompt if audio hasn't started after 2 seconds.
+    
     setTimeout(() => {
       if (!this.audio.isPlaying) enablePrompt.classList.add('visible');
     }, 2000);
-    // Also try to unlock inside the caller of pointerLock() (desktop path).
+    
     this._tryStartAudio = tryStartAudio;
 
-    // Show the lobby banner. Solo host: waits for 2+ players; countdown then
-    // starts and match transitions to 'playing'. Joiners get the current
-    // matchState via WELCOME.
+    
+    
+    
     this._updateLobbyBanner();
     if (this.isHost) this._maybeStartCountdown();
 
-    // On next frame:
+    
     this.opts.onReady && this.opts.onReady();
-    // (frame loop already started above right after _buildWorld)
+    
   }
 
-  // ---- three.js scene -----------------------------------------------------
+  
 
   _initThree() {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -356,23 +356,23 @@ export class Game {
     window.addEventListener('resize', () => this._onResize());
 
     this.scene = new THREE.Scene();
-    // Fog, sky and light rig all come from the map's own entry in mapSpec.js
-    // SKIES. Time of day is the cheapest way to make four maps feel like four
-    // places, and the fog colour has to be the sky's own 0.75 stop or the map
-    // ends in a visible band where the ground stops.
+    
+    
+    
+    
     this.scene.fog = new THREE.Fog(this.sky.fog, this.sky.fogNear, this.sky.fogFar);
     this.scene.background = buildSkybox(this.sky);
-    // The brawl itself is real geometry hung 140 m out at 30 degrees of
-    // elevation — look north and up. It used to be painted into the texture
-    // above; entities/skyBrawlSpec.js records why that could never fight.
+    
+    
+    
     this.skyBrawl = new SkyBrawl(this.scene);
 
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, CAMERA_FAR);
     this.camera.rotation.order = 'YXZ';
 
-    // Lights. Every number lives in lightRigSpec.js — it is the same rig the
-    // art/preview/*.html pages hang, and the one art/preview/lightrig.mjs
-    // measures, so "measured through the game's own rig" stays true.
+    
+    
+    
     this.scene.add(buildLightRig(rigFromSky(this.sky)));
   }
 
@@ -382,7 +382,7 @@ export class Game {
     this.camera.updateProjectionMatrix();
   }
 
-  // ---- world --------------------------------------------------------------
+  
 
   _buildWorld(seed) {
     const world = generateWorld(seed, this.mapId);
@@ -390,44 +390,44 @@ export class Game {
     this.grid = world.grid;
     this.scene.add(buildWorldMeshes(world.grid));
 
-    // Flags, if the mode has any. 'both' is CTF's flag-per-base; 'neutral' is
-    // One Flag's single flag at the centre, which both teams want and which
-    // scores by being carried into the ENEMY base; 'none' is TDM and KOTH.
-    this.flagState = { red: 'home', blue: 'home' };  // 'home' | 'carried' | 'dropped'
+    
+    
+    
+    this.flagState = { red: 'home', blue: 'home' };  
     this.flagPos   = { red: { ...world.flags.red }, blue: { ...world.flags.blue } };
     this.flagMeshes = {};
     if (this.mode.flags === 'both') {
       this.flagMeshes.red  = this._buildFlagMesh(world.flags.red,  0xff5c4a);
       this.flagMeshes.blue = this._buildFlagMesh(world.flags.blue, 0x7cb0ff);
     } else if (this.mode.flags === 'neutral') {
-      // One flag, on the centre feature. It is stored under BOTH keys so the
-      // rest of the flag machinery — pickup, drop, carry banner, return —
-      // keeps working untouched, and only the capture rule differs.
+      
+      
+      
       const c = { x: world.hillSpawn.x - 0.5, y: Math.floor(world.hillSpawn.y),
                   z: world.hillSpawn.z - 0.5 };
       this.flagPos = { red: { ...c }, blue: { ...c } };
       this.flagMeshes.red = this._buildFlagMesh(c, 0xf0e6d2);
       this.neutralFlag = true;
     }
-    // Hand-painted "BARN" name-plate over each barn doorway.
+    
     addBarnSigns(this.scene, world);
 
-    // Scatter snow-farm props (snowmen, barrels, hay bales, fence posts,
-    // crates, tractor). Async — the empty group is added immediately and
-    // meshes stream in as the GLBs load. Feature: docs/features/map-props.md
+    
+    
+    
     import('./entities/mapProps.js')
       .then(({ scatterMapProps }) => scatterMapProps(this.scene, world))
       .catch((err) => console.warn('[mapProps] scatter failed:', err));
 
-    // The procedural prop kit — the map's own `kit` block. Separate from the
-    // GLB props above because it is synchronous and needs no network: the
-    // GLBs stream in, these are up on the first frame.
+    
+    
+    
     import('./entities/propKit.js')
       .then(({ scatterPropKit }) => scatterPropKit(this.scene, world))
       .catch((err) => console.warn('[propKit] scatter failed:', err));
 
-    // Ambient life — the arctic's penguins. They stand still and turn to watch
-    // whoever is nearest. No other map has any (worldgen returns no spots).
+    
+    
     if (world.ambientSpots?.length) {
       this.critters = new AmbientCritters(this.scene, world.ambientSpots, this.map.ambient);
     }
@@ -447,54 +447,54 @@ export class Game {
     );
     fabric.position.set(0.5, 1.9, 0);
     group.add(fabric);
-    // Sit the pole ON TOP of the barn floor voxel (which fills y in [1,2)),
-    // not below it. Previous `pos.y - 1` buried 90 % of the pole in the
-    // floor so only the flag fabric poked out — Bryan called that "flags
-    // somewhere off the map".
+    
+    
+    
+    
     group.position.set(pos.x + 0.5, pos.y, pos.z + 0.5);
     this.scene.add(group);
     return group;
   }
 
-  // ---- player -------------------------------------------------------------
+  
 
   async _initPlayer() {
     const spawn = this.world.spawns[this.team];
     this.physics = await createPhysicsWorld({ grid: this.grid });
-    // Ice-drift is the game's identity so no map turns it off, but a swept
-    // rink is not the same surface as a snow field. frictionFor() is the one
-    // number that differs.
+    
+    
+    
     this.player = new Player(this.camera, this.physics, spawn, this.team, this.character,
                              { friction: frictionFor(this.mapId), grid: this.grid });
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
     this.snow    = new SnowSystem(this.scene, this.player.pos, this.grid);
     this.gore    = new GoreSystem(this.scene);
-    // Camera child = first-person weapon viewmodel. Also attach the camera
-    // to the scene so its children (the viewmodel) render.
+    
+    
     this.scene.add(this.camera);
     this.viewmodel = new FirstPersonWeapon(this.camera);
     this.hazards = new HazardSystem(this.scene, this.grid);
-    // Chicken slingshot pickup on the centre hill (host-authoritative).
+    
     this.chickenPickup = new ChickenPickup(this.scene, this.world.hillSpawn, {
       onPickup: (peerId) => {
-        // Host: broadcast the pickup + give the pickup to whoever it was.
+        
         this._broadcast({ t: MSG.CHICKEN_PICK, by: peerId, respawnAt: Date.now() + 30000 });
         this._grantChicken(peerId);
       },
     });
-    // Local per-player "have a chicken shot ready" flag.
+    
     this.chickenAmmo = 0;
-    // Steak system: 4 floating breakable steaks (one per edge). Count how
-    // many the local player has broken. At 5, next fire launches a
-    // sticky-poison steak. See docs/features/steak-weapon.md.
+    
+    
+    
     this.steakPickups = new SteakPickups(this.scene, {});
-    this.steakScore = 0;                // local counter, 0..5
-    this.steakAmmo = 0;                 // 0 or 1 charged throws
-    this._steakPoisonBy = new Map();    // victimId -> attackerId
-    // Power-ups: a protein shake on the gym deck, a cheese wheel on the dairy
-    // deck. Both are 20-second effects on ONE local slot — see
-    // docs/features/power-ups.md and entities/powerUpSpec.js.
+    this.steakScore = 0;                
+    this.steakAmmo = 0;                 
+    this._steakPoisonBy = new Map();    
+    
+    
+    
     this.powerUpPickups = new PowerUpPickups(this.scene, this.world.powerUpSpawns, {
       onPickup: (id, peerId) => {
         this._broadcast({ t: MSG.POWERUP_PICK, id, by: peerId,
@@ -503,43 +503,43 @@ export class Game {
       },
     });
     this.powerUpState = emptyPowerUpState();
-    // Every other player's current size, so a shot at a giant is a shot at a
-    // giant-sized target (see _raycastPlayers).
-    this._peerScale = new Map();        // peerId -> sizeScale
+    
+    
+    this._peerScale = new Map();        
     if (this.isHost) {
-      // Host-side poison DOT: 2 dmg/sec to every poisoned player.
+      
       this._steakPoisonTimer = setInterval(() => this._steakPoisonTick(), 1000);
     }
     this._hazardRngHost = this.isHost ? new SeededRng((this.seed ^ 0x51a9a7d1) >>> 0) : null;
-    this._nextHazardAt = performance.now() + 4000;   // first wave 4s after boot
+    this._nextHazardAt = performance.now() + 4000;   
   }
 
   _initInput() {
     this.input = new InputBus(window);
 
-    // Detect touch device: no pointer-lock on iOS Safari; use touch UI instead.
+    
     this.isTouch = ('ontouchstart' in window)
       || (navigator.maxTouchPoints > 0)
       || window.matchMedia?.('(pointer: coarse)').matches;
 
-    // Desktop: mouse look via pointer-lock movement events.
+    
     document.addEventListener('mousemove', (e) => {
       if (document.pointerLockElement !== this.renderer.domElement) return;
       this.player.addMouseLook(e.movementX, e.movementY);
     });
 
-    // Touch: virtual joystick + look pad + button cluster overlay.
+    
     if (this.isTouch) {
       this.touch = new TouchControls(this.opts.canvasParent, this.input, {
         onLook: (dx, dy) => this.player.addMouseLook(dx, dy, 0.006),
-        onFire: () => {},                       // handled via synthetic 'fire' action
+        onFire: () => {},                       
         onJump: () => this.input.setSynthetic('jump', true),
         onWeapon: (i) => this._switchWeapon(i),
       });
     }
 
-    // Desktop HUD weapon slots (top row) are clickable too. Slot 4 (chicken)
-    // is wired lazily on pickup — see _grantChicken.
+    
+    
     for (const el of document.querySelectorAll('#weaponbar .wpn:not(.chicken)')) {
       const idx = Number(el.dataset.w);
       if (!Number.isFinite(idx)) continue;
@@ -548,7 +548,7 @@ export class Game {
   }
 
   pointerLock() {
-    // Desktop only. On touch, controls appear immediately with no lock needed.
+    
     if (this.isTouch) return;
     this.renderer.domElement.requestPointerLock?.().catch(() => {});
     this.renderer.domElement.addEventListener('click', () => {
@@ -558,7 +558,7 @@ export class Game {
     });
   }
 
-  // ---- net ----------------------------------------------------------------
+  
 
   _wireNet() {
     this.mesh.addEventListener('message', (e) => this._onMessage(e.detail.from, e.detail.message));
@@ -566,7 +566,7 @@ export class Game {
       const rp = this.remotePlayers.get(e.detail.id);
       if (rp) { rp.destroy(this.scene); this.remotePlayers.delete(e.detail.id); }
       this.playerMeta.delete(e.detail.id);
-      // If they were carrying a flag, drop it at home (simplification).
+      
       for (const c of ['red', 'blue']) {
         if (this.flagCarrier[c] === e.detail.id) {
           this._returnFlag(c);
@@ -586,15 +586,15 @@ export class Game {
     });
   }
 
-  // Host-only: recount teams across all known peers (including self) and
-  // reassign anyone breaking balance. Broadcasts a TEAM_ASSIGN with the
-  // resulting map so every client sees the same assignments.
+  
+  
+  
   _rebalanceTeams() {
     if (!this.isHost) return;
     const peers = [...this.playerMeta.entries()];
     const assignments = {};
     for (const [pid, meta] of peers) assignments[pid] = meta.team;
-    // Count
+    
     const count = () => {
       let r = 0, b = 0;
       for (const pid in assignments) {
@@ -602,8 +602,8 @@ export class Game {
       }
       return { r, b };
     };
-    // Reassign peers newest-first until |r-b| <= 1. Deterministic order by
-    // peerId sort so every peer arrives at the same result if they replay it.
+    
+    
     const orderedIds = Object.keys(assignments).sort();
     let safety = 20;
     while (safety-- > 0) {
@@ -611,7 +611,7 @@ export class Game {
       if (Math.abs(r - b) <= 1) break;
       const overflowTeam = r > b ? 'red' : 'blue';
       const underTeam    = r > b ? 'blue' : 'red';
-      // Move the LAST peer on the overflow team (newest joiner) to under.
+      
       let moved = false;
       for (let i = orderedIds.length - 1; i >= 0; i--) {
         const pid = orderedIds[i];
@@ -623,7 +623,7 @@ export class Game {
       }
       if (!moved) break;
     }
-    // Apply locally + broadcast.
+    
     for (const pid in assignments) {
       const meta = this.playerMeta.get(pid);
       if (meta && meta.team !== assignments[pid]) {
@@ -633,8 +633,8 @@ export class Game {
           this.player.team = this.team;
           this.player.spawn = { ...this.world.spawns[this.team] };
         }
-        // Update remote player visual (armband colour would need rebuild;
-        // simplification: just log for now, respawn will use new spawn).
+        
+        
       }
     }
     this._broadcast({ t: MSG.TEAM_ASSIGN, assignments });
@@ -645,16 +645,16 @@ export class Game {
     if (this.matchState !== 'lobby') return;
     const nPlayers = this.playerMeta.size;
     if (nPlayers < LOBBY_MIN_PLAYERS) return;
-    // Rebalance first.
+    
     this._rebalanceTeams();
-    // Start countdown.
+    
     const endsAt = Date.now() + LOBBY_COUNTDOWN_SECONDS * 1000;
     this.matchState = 'countdown';
     this._matchEndsAt = endsAt;
     this._broadcast({ t: MSG.MATCH_STATE, state: 'countdown', endsAt });
-    // Also send SCORES + CURRENT playerMeta again for good measure.
+    
     this._updateLobbyBanner();
-    // Timer to flip to 'playing'.
+    
     setTimeout(() => {
       if (this.matchState === 'countdown') {
         this.matchState = 'playing';
@@ -664,11 +664,11 @@ export class Game {
     }, LOBBY_COUNTDOWN_SECONDS * 1000);
   }
 
-  // Host-only: add an AI bot. Team is chosen to balance current sides.
-  // GORE mode: "LOOOOSERRR", to the player who just died. Voice + a big red
-  // banner, because the announcer can be muted and the insult should still
-  // land. Deliberately does NOT reuse the STEAK-ANIHILATION overlay — that one
-  // celebrates a kill for the room; this one is addressed to one person.
+  
+  
+  
+  
+  
   _announceLoser() {
     try { SFX.announce('LOSER'); } catch (_) {}
     const el = document.createElement('div');
@@ -690,7 +690,7 @@ export class Game {
     setTimeout(() => el.remove(), 2300);
   }
 
-  // Re-colour every remote player's aura from the CURRENT teams.
+  
   _repaintAuras() {
     for (const [pid, rp] of this.remotePlayers.entries()) {
       const team = this.playerMeta.get(pid)?.team ?? this.bots.get(pid)?.team;
@@ -698,12 +698,12 @@ export class Game {
     }
   }
 
-  // A bot says something in chat, if the pacing rules allow it. Host only —
-  // bots do not exist on other peers, so the host speaks for them and the line
-  // goes out over the wire like any other message.
-  //
-  // All the judgement lives in botTaunts.js (pure + tested); this just owns the
-  // clock and the socket. See docs/features/chat.md.
+  
+  
+  
+  
+  
+  
   _botTaunt(botId, event) {
     if (!this.isHost) return;
     const bot = this.bots.get(botId);
@@ -713,7 +713,7 @@ export class Game {
     });
     if (!decision) return;
     setTimeout(() => {
-      // The bot may have been displaced by a joining human in the meantime.
+      
       if (!this.bots.has(botId)) return;
       const msg = { t: MSG.CHAT, from: botId, name: bot.name, team: bot.team,
                     text: decision.text, kind: 'taunt' };
@@ -722,21 +722,21 @@ export class Game {
     }, decision.delay * 1000);
   }
 
-  // How many seats are filled right now: me, every human peer, every bot.
+  
   _occupancy() {
     const humans = 1 + [...this.playerMeta.entries()]
       .filter(([id, m]) => !m.bot && id !== this.myId).length;
     return { humans, bots: this.bots.size, total: humans + this.bots.size };
   }
 
-  // A human arrived. Give them a bot's seat rather than growing the match past
-  // MATCH_CAP. Bryan: "each person who jumps in the match, then replacing a
-  // bot until there's 16 real players."
-  //
-  // Prefers a bot on the JOINER'S OWN team so the swap is team-neutral — the
-  // alternative silently hands one side an extra body every time somebody
-  // joins, which is the opposite of what a backfill is for. Falls back to the
-  // largest team's bot if their own side has none.
+  
+  
+  
+  
+  
+  
+  
+  
   _displaceBotFor(joinerTeam) {
     if (!this.isHost) return null;
     if (this._occupancy().total <= MATCH_CAP) return null;
@@ -755,14 +755,14 @@ export class Game {
     return victim.peerId;
   }
 
-  // Remove a bot everywhere: simulation, metadata, and every peer's scene.
+  
   removeBot(botId) {
     if (!this.bots.has(botId)) return false;
     this.bots.delete(botId);
     this.playerMeta.delete(botId);
     const rp = this.remotePlayers.get(botId);
     if (rp) { rp.destroy(this.scene); this.remotePlayers.delete(botId); }
-    // Any flag it was carrying goes home rather than vanishing with it.
+    
     for (const c of ['red', 'blue']) {
       if (this.flagCarrier[c] === botId) {
         this._returnFlag(c);
@@ -776,10 +776,10 @@ export class Game {
 
   addBot(preferredTeam) {
     if (!this.isHost) return null;
-    // A match holds MATCH_CAP bodies. Bots only ever fill seats humans are not
-    // using, so this cap is what makes the backfill meaningful.
+    
+    
     if (this._occupancy().total >= MATCH_CAP) return null;
-    // Count current team sizes (real players + existing bots).
+    
     let r = 0, b = 0;
     for (const meta of this.playerMeta.values()) {
       if (meta.team === 'red') r++; else b++;
@@ -787,26 +787,26 @@ export class Game {
     const team = preferredTeam || (r <= b ? 'red' : 'blue');
     const bot = Bot.make({ team, world: this.world, seed: this.seed });
     this.bots.set(bot.peerId, bot);
-    // Register meta so all peers render it via RemotePlayer.
+    
     this.playerMeta.set(bot.peerId, {
       name: bot.name, character: bot.character, team: bot.team, bot: true,
     });
-    // Announce HELLO for the bot to all peers.
+    
     const helloMsg = { t: MSG.HELLO, name: bot.name, character: bot.character, team: bot.team, from: bot.peerId };
     this._broadcast({ ...helloMsg });
-    // Locally add a RemotePlayer so the host sees it too.
+    
     if (!this.remotePlayers.has(bot.peerId)) {
       this.remotePlayers.set(bot.peerId, new RemotePlayer(this.scene, bot.peerId,
         { name: bot.name, character: bot.character, team: bot.team, localTeam: this.team }));
     }
     this._updateLobbyBanner();
-    // Adding a bot bumps the lobby count - potentially trigger the countdown.
+    
     this._maybeStartCountdown();
     return bot;
   }
 
   _updateBots(dt) {
-    // Prepare AI ctx once per tick.
+    
     const enemyPlayersByTeam = { red: [], blue: [] };
     for (const [pid, rp] of this.remotePlayers.entries()) {
       const meta = this.playerMeta.get(pid);
@@ -815,7 +815,7 @@ export class Game {
         peerId: pid, pos: rp.group.position, team: meta.team,
       });
     }
-    // Self is an enemy of the opposing team.
+    
     const meMeta = { team: this.team };
     enemyPlayersByTeam[meMeta.team === 'red' ? 'blue' : 'red'].push({
       peerId: this.myId, pos: this.player.pos, team: meMeta.team,
@@ -831,23 +831,23 @@ export class Game {
         enemyPlayers: enemyPlayersByTeam[bot.team],
         onShoot: (bid, origin, dir) => {
           if (this.matchState !== 'playing') return;
-          // Bots fire the shovel, like everyone else. This carried
-          // `damage: 2, weaponId: 'pistol'` for months, which was wrong twice
-          // over: 2 is the damage number from before the +50% pass (players do
-          // 12), so bots were SIX TIMES weaker than the design doc claims; and
-          // 'pistol' is not a weapon id that exists, so _addTracerForShot's
-          // WEAPON_DEFS lookup missed and every bot tracer fell back to the
-          // default gold instead of the shovel's brown.
+          
+          
+          
+          
+          
+          
+          
           const def = WEAPON_DEFS[0];
           const shot = { kind: 'hitscan', origin: origin.toArray(), dir: dir.toArray(),
             damage: def.damage, weaponId: def.id, ownerId: bid };
           this._broadcast({ t: MSG.SHOT, s: shot });
           this._resolveShotAgainstAll(shot);
-          // ...and DRAW it here. _broadcast does not loop back to the sender,
-          // so on the host — which is every solo game against bots — a bot's
-          // shot was resolved for damage and never rendered. Bryan: "I still
-          // can't see the bullets of the enemies shooting at me." The bots
-          // were shooting him with invisible bullets the entire time.
+          
+          
+          
+          
+          
           this._applyRemoteShot(shot);
         },
         onFlagPickup: (bid, color) => {
@@ -870,8 +870,8 @@ export class Game {
       };
       bot.update(dt, ctx);
 
-      // Sync local RemotePlayer position for immediate rendering (no lerp
-      // needed because we set both target and current at the same time).
+      
+      
       const rp = this.remotePlayers.get(bot.peerId);
       if (rp) {
         rp.setNet([bot.pos.x, bot.pos.y, bot.pos.z], bot.yaw, bot.pitch, bot.hp);
@@ -879,7 +879,7 @@ export class Game {
         rp.group.rotation.y = bot.yaw;
       }
 
-      // Broadcast bot state at 20Hz (piggy-backed on tick, so 60Hz => downscale).
+      
       if (!bot._netAccum) bot._netAccum = 0;
       bot._netAccum += dt;
       if (bot._netAccum >= 1 / 20) {
@@ -889,13 +889,13 @@ export class Game {
     }
   }
 
-  // Host-side helper: apply a hitscan shot to all real players + bots and
-  // report HITs (for real players) or apply directly (for bots).
+  
+  
   _resolveShotAgainstAll(s) {
     const origin = new THREE.Vector3().fromArray(s.origin);
     const dir    = new THREE.Vector3().fromArray(s.dir);
     let best = null, bestT = Infinity;
-    // vs remote players
+    
     for (const [pid, rp] of this.remotePlayers.entries()) {
       if (pid === s.ownerId) continue;
       const target = rp.group.position.clone().add(new THREE.Vector3(0, 1, 0));
@@ -904,7 +904,7 @@ export class Game {
       const closest = origin.clone().addScaledVector(dir, t);
       if (target.distanceTo(closest) < 0.7 && t < bestT) { bestT = t; best = { kind: 'remote', pid }; }
     }
-    // vs local player (host might shoot self? unlikely)
+    
     if (s.ownerId !== this.myId && this.player.alive) {
       const target = this.player.pos.clone().add(new THREE.Vector3(0, 1, 0));
       const t = target.clone().sub(origin).dot(dir);
@@ -916,7 +916,7 @@ export class Game {
     if (!best) return;
     if (best.kind === 'self') this._takeDamage(s.damage, s.ownerId, s.weaponId);
     else if (best.kind === 'remote') {
-      // If it's a bot, apply damage locally on host.
+      
       const bot = this.bots.get(best.pid);
       if (bot) {
         const died = bot.takeDamage(s.damage);
@@ -934,13 +934,13 @@ export class Game {
           setTimeout(() => { bot.respawn(); }, 500);
         }
       } else {
-        // Real player: tell them.
+        
         this._broadcast({ t: MSG.HIT, target: best.pid, dmg: s.damage, by: s.ownerId, weapon: s.weaponId });
       }
     }
   }
 
-  // Red vignette flash + directional arrow pointing at the attacker.
+  
   _flashHit(byId) {
     const flash = document.getElementById('hit-flash');
     const dirEl = document.getElementById('hit-direction');
@@ -948,9 +948,9 @@ export class Game {
     flash.classList.add('visible');
     setTimeout(() => flash.classList.remove('visible'), 40);
 
-    // Directional arrow: figure out where the attacker is relative to my yaw.
+    
     let attackerPos = null;
-    if (byId === this.myId) attackerPos = null;   // self-damage (hazard)
+    if (byId === this.myId) attackerPos = null;   
     const rp = this.remotePlayers.get(byId);
     if (rp) attackerPos = rp.group.position;
     const bot = this.bots.get(byId);
@@ -963,23 +963,23 @@ export class Game {
     }
   }
 
-  // Brief hitmarker "x" when YOUR shot lands on a target. Called from
-  // _applyLocalShot after a HIT is broadcast.
-  // Hit feedback. Bryan: "I also need some feedback when I hit someone."
-  // The old version flashed a 34 px "×" for 130 ms and nothing else — in a
-  // firefight that is indistinguishable from not having hit. Now a hit gives
-  // three things at once, on three different channels, because one channel is
-  // exactly what you miss when you are busy:
-  //   * a hitmarker that SNAPS in and scales down (motion beats opacity)
-  //   * a floating damage number that drifts up from the crosshair
-  //   * a rising pitch on the splat, so a kill sounds different from a graze
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   _flashHitmarker(dmg = 0, killed = false) {
     const el = document.getElementById('hitmarker');
     if (el) {
       el.classList.remove('visible');
       el.style.color = killed ? '#ff3a2a' : '#ffffff';
       el.style.transform = 'translate(-50%,-50%) scale(1.9)';
-      // Force a reflow so the transform restart is not coalesced away.
+      
       void el.offsetWidth;
       el.classList.add('visible');
       el.style.transform = 'translate(-50%,-50%) scale(1)';
@@ -989,7 +989,7 @@ export class Game {
     if (dmg > 0) this._floatDamage(dmg, killed);
   }
 
-  // A damage number that floats up off the crosshair and fades.
+  
   _floatDamage(dmg, killed) {
     const n = document.createElement('div');
     n.textContent = killed ? 'KILL' : String(Math.round(dmg));
@@ -1012,15 +1012,15 @@ export class Game {
     setTimeout(() => n.remove(), 800);
   }
 
-  // Return a list of {peerId, pos} for every player + bot on this client.
-  // Every body on the map: me, every remote peer, every bot. Since King of the
-  // Hill has to know WHOSE feet are on the hill and whether they are alive,
-  // the refs carry team and liveness as well as a position — the hill tick is
-  // the only caller that reads them and the others ignore the extra fields.
-  // Where a peer is right now, or null if we have never heard of them. Used by
-  // the crowd so a cheer starts at the thing that caused it rather than at the
-  // map centre. Falls back to the map centre so a cheer is never LOST — a
-  // missing position should cost the wave its origin, not the reaction.
+  
+  
+  
+  
+  
+  
+  
+  
+  
   _posOf(peerId) {
     const ref = this._allPlayerRefs().find((p) => p.peerId === peerId);
     if (ref) return ref.pos;
@@ -1032,14 +1032,14 @@ export class Game {
       peerId: this.myId, pos: this.player.pos,
       team: this.team, alive: this.player.alive !== false,
     }];
-    // A bot exists TWICE on the host: once in `bots` (the simulation, which is
-    // authoritative for its position) and once in `remotePlayers` (its visual).
-    // Listing both put every bot in here twice, and the RemotePlayer copy
-    // reports the render group's position, which for a host-simulated bot lags
-    // its real one — so half the entries were phantom bodies, several of them
-    // parked at the world origin because their group had never been moved.
-    // Anything that hit-tests against this list (shots, splash, the hill, aim
-    // assist) was testing against ghosts. The simulation wins.
+    
+    
+    
+    
+    
+    
+    
+    
     for (const [pid, rp] of this.remotePlayers.entries()) {
       if (this.bots.has(pid)) continue;
       arr.push({
@@ -1057,9 +1057,9 @@ export class Game {
     return arr;
   }
 
-  // Grant a chicken shot to a peer. If it's us, splash "SLINGSHOT READY",
-  // tag the chip to show it's armed, and let the NEXT fire (from any slot)
-  // consume it. No slot selection needed — see docs/features/chicken-auto-fire.md.
+  
+  
+  
   _grantChicken(peerId) {
     if (peerId === this.myId) {
       this.chickenAmmo = 1;
@@ -1070,17 +1070,17 @@ export class Game {
         slot.innerHTML =
           '<span class="wpn-icon">🐔</span><span class="wpn-key">GO</span><span class="wpn-name">READY</span>';
       }
-      // Cancel any previous countdown interval.
+      
       if (this._chickenCdTimer) { clearInterval(this._chickenCdTimer); this._chickenCdTimer = null; }
-      // POWER GET FX
+      
       this._showPowerGet('☢  SLINGSHOT READY  ☢', 'Any weapon — your next shot fires the chicken');
       try { SFX.chirp(); SFX.boom(0.4); } catch (_) {}
     }
   }
 
-  // After the local player fires their chicken shot, replace the chip with
-  // a live 30s countdown showing when the pickup respawns on the hill.
-  // Ticks every 500ms so the visible seconds don't drift more than 1s.
+  
+  
+  
   _startChickenCooldownChip() {
     const slot = document.querySelector('.wpn.chicken');
     if (!slot || !this.chickenPickup) return;
@@ -1090,8 +1090,8 @@ export class Game {
       const now = performance.now();
       const secsLeft = Math.max(0, Math.ceil((this.chickenPickup._nextSpawnAt - now) / 1000));
       if (secsLeft <= 0) {
-        // Pickup is available on the hill again; hide the countdown chip
-        // (it'll reappear as READY when someone grabs it).
+        
+        
         slot.style.display = 'none';
         slot.classList.remove('cooldown');
         clearInterval(this._chickenCdTimer);
@@ -1106,8 +1106,8 @@ export class Game {
     this._chickenCdTimer = setInterval(paint, 500);
   }
 
-  // Big centre-screen splash + screen flash for "you got the super weapon".
-  // Adds once, animates via CSS. Removed after 2.2s.
+  
+  
   _showPowerGet(title, subtitle) {
     let root = document.getElementById('power-get');
     if (root) root.remove();
@@ -1161,12 +1161,12 @@ export class Game {
     setTimeout(() => root.remove(), 2200);
   }
 
-  // Toggle the hay-peek overlays + hiding label based on whether the local
-  // player's torso is currently inside a hay voxel. Also dim the hay mesh
-  // to near-invisible so the player has a clear view outside.
-  //
-  // Per docs/features/hay-hiding.md acceptance criterion #5.
-  // Enforced by web-engine tests + map/hayVisibility.test.js.
+  
+  
+  
+  
+  
+  
   _paintHayHide() {
     if (!this.player || !this.grid) return;
     const inside = isInsideHay(this.grid, this.player.pos.x, this.player.pos.y, this.player.pos.z);
@@ -1175,14 +1175,14 @@ export class Game {
     document.getElementById('hayPeekLeft')?.classList.toggle('visible', inside);
     document.getElementById('hayPeekRight')?.classList.toggle('visible', inside);
     document.getElementById('hiding-label')?.classList.toggle('visible', inside);
-    // Dim the hay material on this client only.
+    
     const worldMesh = this.scene.getObjectByName('voxelWorld');
     const hayMat = worldMesh?.userData?.materialsByType?.[_VOX.HAY];
     if (hayMat) hayMat.opacity = hayOpacityFor(inside);
   }
 
-  // Rotate the compass arrows so they always point at each team's flag from
-  // the player's current position + heading.
+  
+  
   _paintCompass() {
     if (!this.player || !this.flagPos) return;
     const yaw = this.player.yaw;
@@ -1193,18 +1193,18 @@ export class Game {
       const f = this.flagPos[color];
       const dx = f.x + 0.5 - this.player.pos.x;
       const dz = f.z + 0.5 - this.player.pos.z;
-      // Angle relative to the player's forward direction (yaw). yaw=0 looks +Z.
-      // atan2 returns bearing from +Z axis measured toward +X (rotation around -Y).
+      
+      
       const bearing = Math.atan2(dx, dz);
       const rel = bearing - yaw;
-      // Convert to degrees, normalise
+      
       let deg = (rel * 180 / Math.PI + 540) % 360 - 180;
       el.style.transform = `rotate(${deg}deg)`;
       distEl.textContent = Math.round(Math.hypot(dx, dz)) + 'm';
     }
   }
 
-  // Build the 50-kernel HP bar (100 HP / 2 HP per kernel = 50 kernels).
+  
   _buildCornBar() {
     const fill = document.getElementById('health-fill');
     if (!fill) return;
@@ -1218,27 +1218,27 @@ export class Game {
     this._paintCornBar();
   }
 
-  // Sync visible kernels to player.hp. HP 100 = all 50 visible;
-  // HP 1..99 = pop the trailing (100-hp)/2 kernels away.
+  
+  
   _paintCornBar() {
     const fill = document.getElementById('health-fill');
     if (!fill || !this.player) return;
     const hp = Math.max(0, this.player.hp);
-    const remaining = Math.max(0, Math.ceil(hp / 2));   // 50..0
+    const remaining = Math.max(0, Math.ceil(hp / 2));   
     const kernels = fill.querySelectorAll('.kernel');
     for (let i = 0; i < kernels.length; i++) {
       kernels[i].classList.toggle('gone', i >= remaining);
     }
   }
 
-  // On damage, fly the "just-gone" kernels off the bar as physical
-  // particles. `n` is the number of kernels to fling.
+  
+  
   _spawnCornFly(n) {
     const fill = document.getElementById('health-fill');
     if (!fill || !this.player) return;
     const hpBefore = Math.max(0, Math.ceil((this.player.hp + n * 2) / 2));
     const kernels = fill.querySelectorAll('.kernel');
-    // Fling the highest-index kernels that are about to vanish.
+    
     for (let i = 0; i < n; i++) {
       const idx = Math.min(hpBefore - 1 - i, kernels.length - 1);
       const src = kernels[idx];
@@ -1263,13 +1263,13 @@ export class Game {
     this._paintCornBar();
   }
 
-  // Toggle blood-tinted textures on the world + character re-tints.
+  
   _applyMature(on) {
-    // Re-render the world meshes with the mature flag.
+    
     const oldMesh = this.scene.getObjectByName('voxelWorld');
     if (oldMesh) this.scene.remove(oldMesh);
     this.scene.add(buildWorldMeshes(this.grid, { mature: on }));
-    // Body colour: swap the sky background for a bloody tint too.
+    
     if (this.scene.fog) this.scene.fog.color.setHex(on ? 0xa03a34 : 0x8ec5ff);
     this.renderer.setClearColor(on ? 0xa03a34 : 0x8ec5ff);
   }
@@ -1301,8 +1301,8 @@ export class Game {
 
   _onMessage(fromTransport, msg) {
     if (!msg || !msg.t) return;
-    // Bots are relayed by the host; the sender's peerId is the host's, but
-    // the actual originator is msg.from (a bot peerId).
+    
+    
     const from = msg.from || fromTransport;
     switch (msg.t) {
       case MSG.WELCOME:
@@ -1324,18 +1324,18 @@ export class Game {
 
       case MSG.HELLO:
         this.playerMeta.set(from, { name: msg.name, character: msg.character, team: msg.team });
-        // Spawn remote player.
+        
         if (!this.remotePlayers.has(from)) {
           this.remotePlayers.set(from, new RemotePlayer(this.scene, from,
             { name: msg.name, character: msg.character, team: msg.team, localTeam: this.team }));
         }
-        // If we're host, welcome this new peer to catch them up, then trigger
-        // team-balance + potentially start the countdown.
+        
+        
         if (this.isHost) {
           this._sendWelcome(from);
-          // A human just took a seat. If that pushes us over MATCH_CAP, a bot
-          // gives up its place rather than the match growing — bots exist to
-          // fill seats humans are not using.
+          
+          
+          
           this._displaceBotFor(msg.team);
           this._rebalanceTeams();
           this._maybeStartCountdown();
@@ -1356,9 +1356,9 @@ export class Game {
             this.player.respawn();
           }
         }
-        // Teams just moved, so every aura may now be lying about who is an
-        // enemy. Repaint them all — a halo baked at construction is the one
-        // way this feature fails dangerously.
+        
+        
+        
         this._repaintAuras();
         break;
       }
@@ -1377,7 +1377,7 @@ export class Game {
         break;
 
       case MSG.CHICKEN_PICK:
-        // Any peer receiving this hides the pickup + starts the respawn timer.
+        
         if (this.chickenPickup) {
           this.chickenPickup.available = false;
           this.chickenPickup.mesh.visible = false;
@@ -1387,19 +1387,19 @@ export class Game {
         break;
 
       case MSG.CHICKEN_SHOT:
-        // Visual only: a chicken projectile flying + explosion at first collision.
-        // Damage is host-authoritative (see _resolveChickenShot).
+        
+        
         this._spawnChickenProjectile(msg);
         break;
 
       case MSG.STATE: {
         const rp = this.remotePlayers.get(from);
         if (rp) rp.setNet(msg.p, msg.y, msg.x, msg.h);
-        // Power-up size. Older peers don't send `sc`; they are normal-sized.
+        
         const sc = Number.isFinite(msg.sc) && msg.sc > 0 ? msg.sc : 1;
         this._peerScale.set(from, sc);
         if (rp) rp.setBodyScale(sc);
-        // If they were carrying a flag, sync flag position.
+        
         if (msg.hf) {
           const c = msg.tm === 'red' ? 'blue' : 'red';
           this.flagCarrier[c] = from;
@@ -1411,8 +1411,8 @@ export class Game {
       }
 
       case MSG.SHOT: {
-        // Play visual for the shot; if hitscan, resolve locally (only apply
-        // damage to OUR own player).
+        
+        
         this._applyRemoteShot(msg.s);
         break;
       }
@@ -1423,11 +1423,11 @@ export class Game {
       case MSG.DEATH:
         this._killFeedPush(`${this._name(msg.killer)} ➜ ${this._name(msg.victim)} (${msg.weapon})`);
         this._creditKill(msg.killer, msg.victim);
-        // Death ends any steak poison on the victim — dying of ANY cause
-        // clears the DOT, so respawned players never carry stale poison.
+        
+        
         this._steakPoisonBy.delete(msg.victim);
         if (msg.victim === this.myId) this._hidePoisonHint();
-        // Animal death voice. Any peer plays the victim's character sound.
+        
         try {
           const meta = this.playerMeta.get(msg.victim);
           const bot = this.bots.get(msg.victim);
@@ -1436,14 +1436,14 @@ export class Game {
             || (msg.victim === this.myId ? this.character : 'cow');
           SFX.animalVoice(character, 1.0);
         } catch (_) {}
-        // Crowd reacts at the victim. Chicken obliterations get their own,
-        // louder tier — the slingshot is the rarest thing on the map.
+        
+        
         this.critters?.cheer(this._posOf(msg.victim),
           msg.weapon === 'chicken' ? 'chicken' : 'kill');
-        // GORE mode: the announcer calls the dead player a loser, and it is
-        // aimed AT them — only the victim's own client hears it and sees the
-        // banner. Shouting it at the room would be announcing someone else's
-        // death to them, which is neither the joke nor what was asked for.
+        
+        
+        
+        
         if (this.mature && msg.victim === this.myId) this._announceLoser();
         break;
       case MSG.FLAG_PICK:
@@ -1457,14 +1457,14 @@ export class Game {
         this._syncFlagMesh(msg.color);
         break;
       case MSG.CHAT:
-        // Untrusted text from a peer. Chat.push uses textContent, never
-        // innerHTML — see ui/chat.js.
+        
+        
         this.chat?.push({ name: msg.name || this._name(msg.from), text: msg.text,
                           team: msg.team, kind: msg.kind === 'taunt' ? 'taunt' : 'say' });
         break;
       case MSG.BOT_LEAVE: {
-        // Host says a bot gave up its seat to a human. Non-hosts do not
-        // simulate bots, they just render them, so this is purely a despawn.
+        
+        
         const rp = this.remotePlayers.get(msg.id);
         if (rp) { rp.destroy(this.scene); this.remotePlayers.delete(msg.id); }
         this.playerMeta.delete(msg.id);
@@ -1472,19 +1472,19 @@ export class Game {
         break;
       }
       case MSG.FLAG_RETURN:
-        // Someone died carrying this flag — snap it back to its home
-        // stand. Bryan 2026-08-20: "when I die with the flag, the flag
-        // should go back to its initial location".
+        
+        
+        
         this._returnFlag(msg.color);
         break;
       case MSG.STEAK_BREAK:
         this._steakBreakRemote(msg.at, msg.by);
         break;
       case MSG.POWERUP_PICK:
-        // Host authority: hide the pickup for everyone, start the effect for
-        // whoever took it (a no-op on every client but theirs). The respawn
-        // instant arrives as a Date.now() stamp and has to be rebased onto
-        // this peer's performance.now() clock, which starts at page load.
+        
+        
+        
+        
         this.powerUpPickups?.markTaken(
           msg.id, (msg.respawnAt - Date.now()) + performance.now());
         this._grantPowerUp(msg.id, msg.by);
@@ -1504,14 +1504,14 @@ export class Game {
         this._announceSteakAnnihilation(msg.victim, msg.killer);
         break;
       case MSG.FLAG_CAP: {
-        // host-authoritative: increment scoring team's score
+        
         const scoringTeam = msg.color === 'red' ? 'blue' : 'red';
         this.scores[scoringTeam]++;
         this._returnFlag(msg.color);
         this._updateScoreUi();
         this._killFeedPush(`${this._name(msg.by)} captured the ${msg.color} flag!`);
-        // The crowd reacts to a remote capture too — cheer at the home stand
-        // of the team that scored, which is where the flag was just delivered.
+        
+        
         this.critters?.cheer(this.world.flags[scoringTeam], 'capture');
         this._maybeTriggerAnagram();
         break;
@@ -1533,7 +1533,7 @@ export class Game {
     return this.playerMeta.get(peerId)?.name || peerId.slice(0, 6);
   }
 
-  // ---- frame loop --------------------------------------------------------
+  
 
   _frame(now) {
     const dt = Math.min(0.05, (now - this._lastFrame) / 1000);
@@ -1541,16 +1541,16 @@ export class Game {
     if (!this.gameOver) {
       try { this._tick(dt); }
       catch (err) {
-        // Don't let a per-tick error kill the render loop - surface it in
-        // the debug HUD so we can see what broke.
+        
+        
         console.error('[tick error]', err);
         window.__tbDebug = { ...(window.__tbDebug || {}), tickError: String(err.message || err) };
       }
     }
-    // Outside the _tick try/catch and outside its "no input yet" early
-    // return: the sky is scenery, not simulation. It should keep fighting
-    // while rapier's WASM downloads and while the match is over, and a
-    // gameplay tick that throws should not freeze it mid-punch.
+    
+    
+    
+    
     this.skyBrawl?.update(dt, this.camera.position);
     this.critters?.update(dt, this.camera.position);
     if (!this.gameOver) { try { this._tickHill(dt); } catch (_) {} }
@@ -1559,13 +1559,13 @@ export class Game {
   }
 
   _tick(dt) {
-    // Boot race guard: the render loop starts BEFORE _initPlayer/_initInput
-    // finish (deliberate — the world shows while rapier WASM downloads).
-    // Until input exists there is nothing to simulate; without this, every
-    // frame during physics load threw "[tick error] … wasPressed" in prod.
+    
+    
+    
+    
     if (!this.input) return;
-    // Publish a small debug snapshot so the touch-debug HUD can show what
-    // the game actually thinks is happening (why isn't the player moving?).
+    
+    
     this._tickCount = (this._tickCount || 0) + 1;
     window.__tbDebug = {
       match: this.matchState,
@@ -1576,31 +1576,31 @@ export class Game {
       pos: this.player ? `${this.player.pos.x.toFixed(1)},${this.player.pos.y.toFixed(1)},${this.player.pos.z.toFixed(1)}` : '?',
       vel: this.player ? `${this.player.vel.x.toFixed(1)},${this.player.vel.y.toFixed(1)},${this.player.vel.z.toFixed(1)}` : '?',
     };
-    // Repaint the touch-debug HUD every frame so we see live pos/vel/actions
-    // without needing another touch to trigger the repaint.
+    
+    
     if (this.touch) this.touch._paintDebug();
-    // Lobby / countdown state -- player can still walk around and look
-    // (practice mode), but no damage is dealt and flags don't count.
+    
+    
     if (this.matchState !== 'playing' && this.matchState !== 'ended') {
       this._updateLobbyBanner();
-      // Physics might not be loaded yet (rapier WASM is async). Guard.
+      
       if (this.player?.alive && this.physics) this.player.update(dt, this.input);
       if (this.physics) this.physics.step(dt);
       this.weapons?.update(dt);
       this.viewmodel?.update(dt);
       for (const rp of this.remotePlayers.values()) rp.update(dt);
-      // The wildlife is alive in the lobby too. It was not, and that is the
-      // one place it matters most: waiting for a second player is exactly when
-      // somebody stands still and looks at the scenery. Without this the
-      // colony is a set of frozen statues until the match starts — and a solo
-      // host testing the map never sees it move at all.
+      
+      
+      
+      
+      
       this.critters?.update(dt, this.camera.position);
-      // Weapon-switch still works so people can preview.
+      
       if (this.input.wasPressed('weapon1')) this._switchWeapon(0);
       if (this.input.wasPressed('weapon2')) this._switchWeapon(1);
       if (this.input.wasPressed('weapon3')) this._switchWeapon(2);
-      // Broadcast our position at 10Hz so any other lobby-watchers see us
-      // wandering around.
+      
+      
       this._netAccum += dt;
       if (this._netAccum >= 1 / 10) {
         this._netAccum = 0;
@@ -1616,41 +1616,41 @@ export class Game {
       return;
     }
     if (this._anagram && !this._anagram.spectator) {
-      // Local player is on the losing team during an anagram - freeze the FPS
-      // world (they still see it but can't move) so their focus goes to the
-      // typing overlay.
+      
+      
+      
       this.input.endFrame();
       return;
     }
     if (this._anagram && this._anagram.spectator) {
-      // Winning team spectates - freeze but keep rendering.
+      
       this.input.endFrame();
       return;
     }
 
-    // Weapon switch (1-3 normal, 4 super chicken if you've picked one up)
+    
     if (this.input.wasPressed('weapon1')) this._switchWeapon(0);
     if (this.input.wasPressed('weapon2')) this._switchWeapon(1);
     if (this.input.wasPressed('weapon3')) this._switchWeapon(2);
-    if (this.chickenAmmo > 0 && this.input.wasPressed('weapon4' /* unbound, use touch */)) this._switchWeapon(3);
+    if (this.chickenAmmo > 0 && this.input.wasPressed('weapon4' )) this._switchWeapon(3);
 
-    // Fire - on desktop require pointer-lock to avoid firing while the user
-    // is interacting with menu/HUD; on touch, the FIRE button drives it.
-    // Firing is allowed in the lobby (visual/practice) but no damage sticks
-    // (see _takeDamage).
+    
+    
+    
+    
     const canFire = this.isTouch
       || document.pointerLockElement === this.renderer.domElement;
     if (this.input.isDown('fire') && canFire) {
       this._tryFire();
     }
 
-    // Age out tracers + animate viewmodel + snowfall + gore + chicken.
+    
     this.tracers.update(dt, performance.now() / 1000);
     this.viewmodel?.update(dt);
     this.snow?.update(dt);
     this.gore?.update(dt);
-    // Chicken pickup: host authority. Assemble candidate positions from
-    // local + bots + remote players (remote pos comes from RemotePlayer group).
+    
+    
     if (this.chickenPickup) {
       const hostPlayers = this.isHost ? this._allPlayerRefs() : null;
       this.chickenPickup.update(dt, hostPlayers);
@@ -1663,14 +1663,14 @@ export class Game {
     this._paintCompass();
     this._paintHayHide();
 
-    // Aim assist, BEFORE the player update so the camera is built from the
-    // corrected angles in the same frame. Only living enemies are offered as
-    // targets — the module itself has no opinion about teams.
+    
+    
+    
     if (this.player?.alive && this.aimAssist !== false) {
       const enemyTeam = this.team === 'red' ? 'blue' : 'red';
       const targets = this._allPlayerRefs()
         .filter((p) => p.peerId !== this.myId && p.team === enemyTeam && p.alive !== false)
-        // Aim at the chest, not the feet: pos is ground level.
+        
         .map((p) => ({ x: p.pos.x, y: p.pos.y + 1.0, z: p.pos.z }));
       const nudge = computeAimAssist({
         eye: this.camera.position, yaw: this.player.yaw, pitch: this.player.pitch,
@@ -1680,22 +1680,22 @@ export class Game {
       this.player.pitch += nudge.pitch;
     }
 
-    // Movement + physics (guarded on physics-loaded)
+    
     if (this.player?.alive && this.physics) this.player.update(dt, this.input);
     if (this.physics) this.physics.step(dt);
     this.weapons?.update(dt);
-    // Immediately AFTER the projectiles move: what did mine just touch?
-    // Ordering matters — resolving before the move would test last frame's
-    // segment and put every hit one frame late.
+    
+    
+    
     this._resolveOwnProjectiles();
 
-    // Remote players
+    
     for (const rp of this.remotePlayers.values()) rp.update(dt);
 
-    // Bots (host only) - simulate + broadcast as fake peers.
+    
     if (this.isHost && this.bots.size) this._updateBots(dt);
 
-    // Hazard rain (eggs + milk pints)
+    
     const nowMs = performance.now();
     this.hazards.update(dt, nowMs);
     if (this.isHost && nowMs >= this._nextHazardAt) {
@@ -1703,34 +1703,34 @@ export class Game {
       for (const item of items) this.hazards.spawn(item);
       this._broadcast({ t: MSG.HAZARD_SPAWN, items });
       SFX.whoosh();
-      // Reschedule 3-6 seconds later.
+      
       this._nextHazardAt = nowMs + this._hazardRngHost.rangeI(3000, 6000);
     }
-    // Local player damage from hazards that just landed. Loud boom if we
-    // took a splash; quieter one if a hazard landed nearby but missed.
+    
+    
     if (this.player.alive) {
       const hits = this.hazards.consumeHitsFor(this.player.pos);
       for (const dmg of hits) {
         this._takeDamage(dmg, this.myId, 'hazard');
         SFX.boom(1.0);
       }
-      // Even if we weren't hit, play a softer boom if a hazard exploded
-      // within earshot in the last tick.
+      
+      
       if (!hits.length) {
         for (const h of (this.hazards._explosions || [])) {
           if (h.shard) continue;
           const age = performance.now() / 1000 - h.bornAt;
-          if (age > 0.05) continue;   // only brand-new
+          if (age > 0.05) continue;   
           const d = this.player.pos.distanceTo(h.mesh.position);
           if (d < 12) SFX.boom(Math.max(0.15, 1 - d / 12));
         }
       }
     }
 
-    // Flag interaction
+    
     this._updateFlags();
 
-    // Broadcast state at NET_TICK_HZ
+    
     this._netAccum += dt;
     const netStep = 1 / NET_TICK_HZ;
     if (this._netAccum >= netStep) {
@@ -1753,10 +1753,10 @@ export class Game {
   }
 
   _switchWeapon(i) {
-    // The meat weapon is UNSWAPPABLE while armed. Bryan: "auto selected and
-    // unswappable". Without this the player can collect five steaks and then
-    // silently lose the weapon by brushing a number key, which is the worst
-    // possible outcome for something that took five pickups to earn.
+    
+    
+    
+    
     if (this.steakAmmo > 0) { this._updateSteakChip(); return; }
     this.weapons.selectSlot(i);
     document.querySelectorAll('#weaponbar .wpn').forEach((el, idx) => {
@@ -1773,15 +1773,15 @@ export class Game {
     const dir = new THREE.Vector3();
     this.camera.getWorldDirection(dir);
     const origin = this.camera.position.clone();
-    // STEAK weapon: if the local player has a charged steak (collected 5),
-    // the NEXT fire throws it as a sticky-poison projectile. Priority: if
-    // player also has a chicken ready, chicken fires first (bigger + rarer).
-    // See docs/features/steak-weapon.md.
+    
+    
+    
+    
     if (this.steakAmmo > 0 && this.chickenAmmo === 0) {
       this.steakAmmo--;
-      // Only when the LAST throw is spent do you go back to normal weapons and
-      // have to earn another set. Bryan asked for at least two shots out of a
-      // set of five steaks.
+      
+      
+      
       if (this.steakAmmo <= 0) this.steakScore = 0;
       const msg = { t: MSG.STEAK_THROW, origin: origin.toArray(), dir: dir.toArray(), by: this.myId };
       this._broadcast(msg);
@@ -1791,10 +1791,10 @@ export class Game {
       this._updateSteakChip();
       return;
     }
-    // Chicken shot short-circuits the weapon system: whenever the local
-    // player has a chicken ready, the NEXT fire — from ANY slot — launches
-    // the super shot instead. No slot selection required. Chip then flips
-    // to a 30s respawn countdown. See docs/features/chicken-auto-fire.md.
+    
+    
+    
+    
     if (this.chickenAmmo > 0) {
       this.chickenAmmo = 0;
       const msg = { t: MSG.CHICKEN_SHOT, origin: origin.toArray(), dir: dir.toArray(), by: this.myId };
@@ -1809,14 +1809,14 @@ export class Game {
     if (shots.length > 0) {
       SFX.pew();
       this.viewmodel?.kick();
-      // Gore-mode joke SFX: layer a fart on every shot. Farm animals shoot
-      // farm-animal ordnance, after all. Docs: docs/features/gore-fart-sfx.md
+      
+      
       if (this.mature) SFX.fart(1.6);
     }
     for (const s of shots) {
       this._broadcast({ t: MSG.SHOT, s });
       this._applyLocalShot(s);
-      // Local tracer + muzzle poo for THIS shooter.
+      
       if (s.kind === 'hitscan') {
         this._addTracerForShot(s);
         this.weapons.spawnMuzzleFx(s);
@@ -1824,9 +1824,9 @@ export class Game {
     }
   }
 
-  // Visual: a small white voxel chicken flying from origin along dir. STOPS
-  // at the first solid voxel it hits (walls now block it — no more bypass),
-  // then a POW explosion. See docs/features/chicken-collision.md.
+  
+  
+  
   _spawnChickenProjectile(msg) {
     const origin = new THREE.Vector3().fromArray(msg.origin);
     const dir = new THREE.Vector3().fromArray(msg.dir);
@@ -1839,16 +1839,16 @@ export class Game {
       origin: start.toArray(),
       vel: dir.clone().multiplyScalar(SPEED).toArray(),
       damage: 100,
-      maxAge: flightDist / SPEED,   // die exactly on impact
+      maxAge: flightDist / SPEED,   
     };
     this.weapons.spawnProjectileMesh(shot);
-    // Big visual boom + audible thump at the landing point on ALL clients.
+    
     setTimeout(() => this._spawnChickenExplosion(landing), (flightDist / SPEED) * 1000);
   }
 
-  // Raymarch up to 40m; return the first solid-cell centre (or the ray's
-  // 40m endpoint). Uses the same grid the physics does — walls / cover /
-  // hay bales all count as hits. See docs/features/chicken-collision.md.
+  
+  
+  
   _chickenLandingPoint(origin, dir) {
     for (let t = 0.5; t < 40; t += 0.35) {
       const p = origin.clone().addScaledVector(dir, t);
@@ -1857,21 +1857,21 @@ export class Game {
     return origin.clone().addScaledVector(dir, 40);
   }
 
-  // Explosive kaboom mesh + SFX at the landing point. Cheap: expanding
-  // yellow sphere + a puff of orange particles, both fading over 0.5s.
-  // The slingshot detonation. Bryan asked for "a more powerful explosion, a
-  // bigger explosion with a better explosion sound".
-  //
-  // The old one was a single pale sphere scaling to 5× over half a second —
-  // at distance that is a soap bubble. A blast reads as a blast when several
-  // things happen on DIFFERENT timescales at once, which is what this does:
-  //   * a white-hot core that appears instantly and dies fast
-  //   * a slower orange fireball that swells and darkens as it goes
-  //   * an expanding shockwave RING, flat to the ground — the single most
-  //     legible part of any explosion at distance, because it is huge, thin,
-  //     and moving fast against a static world
-  //   * a debris burst of voxel chunks thrown outward on ballistic arcs
-  //   * a screen shake if you were close enough to be pushed around by it
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   _spawnChickenExplosion(pos) {
     try { SFX.explosion(1.0); } catch (_) { try { SFX.boom(1.0); } catch (_) {} }
 
@@ -1892,7 +1892,7 @@ export class Game {
     ring.rotation.x = -Math.PI / 2;
     grp.add(ball, core, ring);
 
-    // Debris: voxel chunks on ballistic arcs, so the blast throws something.
+    
     const debris = [];
     const dGeo = new THREE.BoxGeometry(0.26, 0.26, 0.26);
     for (let i = 0; i < 16; i++) {
@@ -1908,7 +1908,7 @@ export class Game {
       grp.add(m); debris.push(m);
     }
 
-    // Screen shake, scaled by how close you were.
+    
     const d = this.camera.position.distanceTo(pos);
     if (d < 22) this._shakeCamera(Math.max(0.12, 0.85 * (1 - d / 22)), 0.5);
 
@@ -1922,20 +1922,20 @@ export class Game {
         return;
       }
       const f = age / LIFE;
-      // Core: fast and brief.
+      
       const cf = Math.min(1, age / 0.16);
       core.scale.setScalar(0.6 + cf * 4.2);
       core.material.opacity = Math.max(0, 1 - age / 0.22);
-      // Fireball: slower, swells further, cools to red as it dies.
+      
       const bf = 1 - Math.pow(1 - f, 2.2);
       ball.scale.setScalar(0.9 + bf * 9.5);
       ball.material.opacity = 0.95 * Math.pow(1 - f, 1.5);
       ball.material.color.setRGB(1, 0.64 - 0.42 * f, 0.16 - 0.14 * f);
-      // Shockwave: outruns the fireball and stays thin.
+      
       const rf = 1 - Math.pow(1 - f, 3);
       ring.scale.setScalar(1 + rf * 20);
       ring.material.opacity = 0.9 * Math.pow(1 - f, 2);
-      // Debris.
+      
       const dt2 = 1 / 60;
       for (const m of debris) {
         m.userData.v.y -= 22 * dt2;
@@ -1950,8 +1950,8 @@ export class Game {
     requestAnimationFrame(tick);
   }
 
-  // Brief positional camera shake. Restores the exact pre-shake position each
-  // frame before applying a fresh offset, so it can never drift the camera.
+  
+  
   _shakeCamera(power = 0.4, secs = 0.4) {
     if (this._shakeUntil && performance.now() < this._shakeUntil) {
       this._shakePower = Math.max(this._shakePower, power);
@@ -1973,18 +1973,18 @@ export class Game {
     requestAnimationFrame(tick);
   }
 
-  // Host: find where the chicken lands (SAME raymarch as the visual, so
-  // both stop at exactly the same voxel), then insta-kill the closest
-  // player within blast radius.
+  
+  
+  
   _resolveChickenShot(msg) {
     if (!this.isHost) return;
     const origin = new THREE.Vector3().fromArray(msg.origin);
     const dir = new THREE.Vector3().fromArray(msg.dir);
     const landing = this._chickenLandingPoint(origin, dir);
-    // Closest player within 4m of landing.
+    
     let victim = null, best = 4.0;
     for (const p of this._allPlayerRefs()) {
-      if (p.peerId === msg.by) continue;   // don't blow up yourself
+      if (p.peerId === msg.by) continue;   
       const d = p.pos.distanceTo(landing);
       if (d < best) { best = d; victim = p; }
     }
@@ -2003,19 +2003,19 @@ export class Game {
     }
   }
 
-  // -- Steak system ------------------------------------------------------
-  // Every method here is a small, focused helper. See docs/features/steak-weapon.md.
+  
+  
 
-  // Someone else broke a steak — update our local pickup visibility. Their
-  // score doesn't affect ours; we only pop the pickup so the world looks
-  // right.
+  
+  
+  
   _steakBreakRemote(side, byId) {
     void byId;
     this.steakPickups?.markBroken(side);
   }
 
-  // Fire a sticky-poison steak. Straight projectile at 22 m/s, dies at
-  // impact or 30 m. See docs/features/bullets-straight.md — no gravity.
+  
+  
   _spawnSteakProjectile(msg) {
     const origin = new THREE.Vector3().fromArray(msg.origin);
     const dir = new THREE.Vector3().fromArray(msg.dir);
@@ -2027,9 +2027,9 @@ export class Game {
     });
   }
 
-  // Host: find the closest enemy along the ray and attach poison. Also
-  // covers self-shooters (chunky friendly-fire) if the ray happens to
-  // pass through anyone but the thrower first.
+  
+  
+  
   _resolveSteakThrow(msg) {
     if (!this.isHost) return;
     const origin = new THREE.Vector3().fromArray(msg.origin);
@@ -2050,8 +2050,8 @@ export class Game {
     }
   }
 
-  // Attach poison to the victim. Every peer tracks who's poisoned so their
-  // HUD + death-cause read correctly.
+  
+  
   _applySteakAttach(victimId, byId) {
     this._steakPoisonBy.set(victimId, byId);
     if (victimId === this.myId) {
@@ -2059,9 +2059,9 @@ export class Game {
     }
   }
 
-  // Host: 1 Hz tick — apply 2 dmg to every poisoned player. If the victim
-  // is the local host, apply direct damage; else broadcast a HIT + track
-  // for the death announcer.
+  
+  
+  
   _steakPoisonTick() {
     if (!this.isHost) return;
     if (this.matchState !== 'playing') return;
@@ -2091,7 +2091,7 @@ export class Game {
     }
   }
 
-  // Big red STEAK ANIHILATION overlay + Unreal-Tournament-style announcer.
+  
   _announceSteakAnnihilation(victimId, killerId) {
     void killerId;
     try { SFX.announcer('STEAK ANIHILATION'); } catch (_) {}
@@ -2114,7 +2114,7 @@ export class Game {
     setTimeout(() => { el.remove(); }, 2400);
   }
 
-  // Small HUD hint for the poisoned player.
+  
   _showPoisonHint() {
     let el = document.getElementById('poison-hint');
     if (!el) {
@@ -2138,24 +2138,24 @@ export class Game {
     el.style.display = 'block';
   }
 
-  // Hide the poison pill. Called on any death of the local player and when
-  // a STEAK_DEATH names them — previously the pill stayed up forever (bug).
+  
+  
   _hidePoisonHint() {
     const el = document.getElementById('poison-hint');
     if (el) el.style.display = 'none';
   }
 
-  // HUD chip: reuse the chicken chip slot. Shows 🥩 3/5 while collecting,
-  // then 🥩 READY on 5, then vanishes on throw (chicken chip takes over
-  // its own state).
+  
+  
+  
   _updateSteakChip() {
     let slot = document.querySelector('.wpn.chicken');
     if (!slot) return;
-    // An ARMED meat weapon outranks everything, including the chicken's 30 s
-    // respawn countdown. The countdown used to suppress the steak chip
-    // entirely, so a player could collect all five steaks and get no UI at
-    // all — which is exactly what "I don't seem to get the meat weapon" looks
-    // like from the outside, whether or not the weapon was really armed.
+    
+    
+    
+    
+    
     if (this.steakAmmo > 0) {
       slot.style.display = '';
       slot.classList.remove('cooldown');
@@ -2164,9 +2164,9 @@ export class Game {
         + '<span class="wpn-name">MEAT</span>';
       return;
     }
-    // Otherwise the chicken owns the chip while READY *or* while its countdown
-    // is repainting it every 500 ms — writing steak state on top of the
-    // ticking countdown made the chip flicker between the two.
+    
+    
+    
     if (this.chickenAmmo > 0 || this._chickenCdTimer) return;
     if (this.steakScore > 0) {
       slot.style.display = '';
@@ -2176,27 +2176,27 @@ export class Game {
     }
   }
 
-  // ---- power-ups ---------------------------------------------------------
-  // docs/features/power-ups.md. The pickup is host-authoritative (like the
-  // chicken); the EFFECT is entirely local — every client runs its own
-  // 20-second clock on its own player and tells the world its size on the
-  // normal 20 Hz STATE packet.
+  
+  
+  
+  
+  
 
   _grantPowerUp(id, peerId) {
     if (peerId !== this.myId) return;
     const def = POWER_UPS[id];
     if (!def) return;
-    // applyPowerUp REPLACES rather than stacks: you cannot be a giant and a
-    // mouse, and re-drinking what you already have refreshes the full 20 s.
+    
+    
     this.powerUpState = applyPowerUp(this.powerUpState, id, performance.now());
     this._updatePowerUpEffect();
     this._showPowerGet(`${def.emoji}  ${def.name}  ${def.emoji}`, def.blurb);
     try { SFX.chirp(); SFX.boom(0.35); } catch (_) {}
   }
 
-  // Runs every frame: expire the clock, push the current size at the player
-  // and the weapon, repaint the pill. Every call is idempotent, so this is
-  // safe to run from the frame loop AND from the moment of pickup.
+  
+  
+  
   _updatePowerUpEffect() {
     if (!this.player) return;
     const now = performance.now();
@@ -2209,8 +2209,8 @@ export class Game {
     this._paintPowerUpPill(now);
   }
 
-  // HUD rung 200 — the first free one under the poison hint. See the ladder in
-  // docs/GAME_DESIGN.md: every element gets its own rung and nothing shares.
+  
+  
   _paintPowerUpPill(now) {
     const def = activeDef(this.powerUpState);
     let el = document.getElementById('powerup-pill');
@@ -2244,22 +2244,22 @@ export class Game {
     this.tracers.addHitscan(origin, dir, SHOT_RANGE * 0.8, color);
   }
 
-  // Resolve a shot fired by us: check hitscan vs remote players + world;
-  // report HITs to the target.
+  
+  
   _applyLocalShot(s) {
     if (s.kind === 'hitscan') {
       const origin = new THREE.Vector3().fromArray(s.origin);
       const dir = new THREE.Vector3().fromArray(s.dir);
-      // STEAK pickup detection: if the ray hits a floating steak before a
-      // player, count it. Steaks respawn 2 s later. At 5, next fire = steak throw.
+      
+      
       const steakSide = this.steakPickups?.raycastHit(origin, dir, SHOT_RANGE);
       if (steakSide) {
         this.steakPickups.markBroken(steakSide);
         this._broadcast({ t: MSG.STEAK_BREAK, at: steakSide, by: this.myId });
         this.steakScore = Math.min(STEAK_GOAL, this.steakScore + 1);
         if (this.steakScore >= STEAK_GOAL && this.steakAmmo === 0) {
-          // Collecting the set ARMS the meat weapon: two throws, auto-selected
-          // and locked in until they are spent (see _switchWeapon).
+          
+          
           this.steakAmmo = STEAK_THROWS;
           this._showPowerGet('🥩  MEAT WEAPON  🥩',
             `${STEAK_THROWS} poison throws — FIRE to launch`);
@@ -2267,18 +2267,18 @@ export class Game {
         }
         this._updateSteakChip();
         SFX.splat();
-        return;   // steak absorbs the shot
+        return;   
       }
-      // NOTE: with the shovel and shotgun converted to real projectiles
-      // (weapon.js), nothing reaches this branch any more except a genuinely
-      // instant weapon, should one ever be added. Damage for the travelling
-      // weapons is resolved on CONTACT in _resolveOwnProjectiles.
+      
+      
+      
+      
       const hit = this._raycastPlayers(origin, dir);
       if (hit) {
         this._broadcast({ t: MSG.HIT, target: hit.peerId, dmg: s.damage, by: this.myId, weapon: s.weaponId });
-        // Did that finish them? Bots we can read directly; remote humans
-        // report their own death, so this is a local best guess for FEEL only
-        // — the kill feed remains the source of truth.
+        
+        
+        
         const bot = this.bots.get(hit.peerId);
         const rp = this.remotePlayers.get(hit.peerId);
         const hpLeft = bot ? bot.hp - s.damage
@@ -2286,7 +2286,7 @@ export class Game {
         const killed = hpLeft != null && hpLeft <= 0;
         this._flashHitmarker(s.damage, killed);
         SFX.splat();
-        // In GORE mode, spatter voxel blood at the hit location.
+        
         if (this.mature) {
           const rp = this.remotePlayers.get(hit.peerId);
           if (rp) {
@@ -2297,17 +2297,17 @@ export class Game {
         }
       }
     } else if (s.kind === 'projectile') {
-      // MY projectile: spawn it and follow it, because I am the client that
-      // decides what it hits. Authority is unchanged — each shooter has always
-      // resolved their own shots — only the moment moved, from the trigger
-      // frame to the frame the pellet arrives.
+      
+      
+      
+      
       this._trackOwnProjectile(this.weapons.spawnProjectileMesh(s), s);
     }
   }
 
   _applyRemoteShot(s) {
-    // Somebody else's shot: visual only. They resolve their own contacts, so
-    // this client must never damage anyone on their behalf.
+    
+    
     if (s.kind === 'projectile') this.weapons.spawnProjectileMesh(s);
     if (s.kind === 'hitscan') {
       this._addTracerForShot(s);
@@ -2316,7 +2316,7 @@ export class Game {
     SFX.pew();
   }
 
-  // Start following one of my own projectiles for contact resolution.
+  
   _trackOwnProjectile(rec, shot) {
     if (!rec) return;
     (this._ownProjectiles ??= []).push({
@@ -2326,23 +2326,23 @@ export class Game {
     });
   }
 
-  // Advance every projectile I own and resolve what it touched THIS FRAME.
-  // Called after weapons.update(dt), which is what actually moves them, so
-  // `prev -> rec.pos` is exactly the segment the pellet swept.
+  
+  
+  
   _resolveOwnProjectiles() {
     const live = this._ownProjectiles;
     if (!live || !live.length) return;
     const enemyTeam = this.team === 'red' ? 'blue' : 'red';
 
-    // ENEMIES ONLY. Bryan 2026-08-22: "i seem to be able to hit allies, which
-    // i dont want to have in the game." The old hitscan raycast walked every
-    // remote player irrespective of team, so a team-mate between you and your
-    // target ate the shot. Friendly fire is now impossible by construction:
-    // an ally is simply not in the list a pellet can collide with.
-    // Chest offset and hit radius both scale with the target's power-up size,
-    // exactly as the old raycast did — a giant is a bigger target and a mouse
-    // a smaller one, floored by hitRadiusFor() so the cheese wheel makes you
-    // hard to hit rather than impossible (powerUpSpec.js).
+    
+    
+    
+    
+    
+    
+    
+    
+    
     const targets = this._allPlayerRefs()
       .filter((p) => p.peerId !== this.myId && p.team === enemyTeam && p.alive !== false)
       .map((p) => {
@@ -2374,7 +2374,7 @@ export class Game {
       if (result.kind === 'player') {
         this._onProjectileHitPlayer(result.id, p.shot, result.point);
       } else if (result.kind === 'world') {
-        // A visible puff where it struck, so a miss reads as a miss.
+        
         this.gore?.spatterAt?.(
           new THREE.Vector3(result.point.x, result.point.y, result.point.z),
           shotDirection(p.shot).multiplyScalar(-1));
@@ -2384,7 +2384,7 @@ export class Game {
     }
   }
 
-  // My pellet touched an enemy. Same reporting as before — only later.
+  
   _onProjectileHitPlayer(peerId, shot, point) {
     this._broadcast({ t: MSG.HIT, target: peerId, dmg: shot.damage,
                       by: this.myId, weapon: shot.weaponId });
@@ -2398,7 +2398,7 @@ export class Game {
       const away = shotDirection(shot).multiplyScalar(-1);
       this.gore?.spatterAt?.(new THREE.Vector3(point.x, point.y, point.z), away);
     }
-    // Bots take damage locally on the host; humans apply their own from HIT.
+    
     if (bot && this.isHost) {
       const died = bot.takeDamage(shot.damage);
       if (died) {
@@ -2412,13 +2412,13 @@ export class Game {
   }
 
   _raycastPlayers(origin, dir) {
-    // Sphere test against each remote player, centred on their chest.
-    //
-    // Both the chest offset and the sphere SCALE with the target's power-up
-    // size: a giant is a chest-high aim point 2 m up and a 1.4 m sphere, a
-    // mouse is one 0.2 m up and a 0.42 m sphere. hitRadiusFor() floors the
-    // shrunk case so the cheese wheel makes you a harder target, never an
-    // impossible one (powerUpSpec.js).
+    
+    
+    
+    
+    
+    
+    
     let best = null;
     let bestT = Infinity;
     for (const [pid, rp] of this.remotePlayers.entries()) {
@@ -2434,7 +2434,7 @@ export class Game {
         best = { peerId: pid };
       }
     }
-    // Also check that we didn't shoot through a wall (voxel raymarch).
+    
     if (best) {
       if (this._rayHitsWall(origin, dir, bestT)) return null;
     }
@@ -2452,27 +2452,27 @@ export class Game {
     return false;
   }
 
-  // ---- damage / death ---------------------------------------------------
+  
 
   _takeDamage(dmg, byId, weaponId) {
     if (!this.player.alive) return;
-    // Solo / lobby / countdown = practice mode, no damage.
+    
     if (this.matchState !== 'playing') return;
-    // Respawn protection: 2 s of invulnerability after a death so spawn
-    // camping can't chain-kill. Design pass 2026-08-21 (docs/GAME_DESIGN.md).
+    
+    
     if (performance.now() < (this._invulnUntil || 0)) return;
     this.player.hp -= dmg;
-    // Corn kernels fly off the health bar for every point of damage.
+    
     this._spawnCornFly(Math.min(Math.ceil(dmg / 2), 25));
-    // Visual + directional hit feedback so you SEE getting shot.
+    
     this._flashHit(byId);
     SFX.splat();
     if (this.player.hp <= 0) {
       this.player.hp = 0;
       this.player.alive = false;
-      // If carrying a flag, RETURN it to its home stand (Bryan 2026-08-20:
-      // "when I die with the flag, the flag should go back to its initial
-      // location"). Broadcast so peers do the same server-authoritatively.
+      
+      
+      
       if (this.player.hasEnemyFlag) {
         const enemyColor = this.team === 'red' ? 'blue' : 'red';
         this.player.hasEnemyFlag = false;
@@ -2480,29 +2480,29 @@ export class Game {
         this._broadcast({ t: MSG.FLAG_RETURN, by: this.myId, color: enemyColor });
       }
       this._broadcast({ t: MSG.DEATH, victim: this.myId, killer: byId, weapon: weaponId });
-      // Local animal death voice (broadcast doesn't loop back to me).
+      
       try { SFX.animalVoice(this.character, 1.0); } catch (_) {}
-      // ...and in GORE mode the announcer rubs it in. Same reason as the
-      // animal voice above: my own DEATH broadcast never comes back to me, so
-      // the handler in _onMessage cannot cover the case where the dead player
-      // is me — which is the only case that matters for this taunt.
+      
+      
+      
+      
       if (this.mature) this._announceLoser();
       this._killFeedPush(`${this._name(byId)} ➜ ${this._name(this.myId)} (${weaponId})`);
-      // Death clears any steak poison + its HUD hint.
+      
       this._steakPoisonBy.delete(this.myId);
       this._hidePoisonHint();
-      // ...and any power-up. A buff that survives death is a buff the player
-      // can no longer see the source of, and respawning giant would also drop
-      // them a metre into their own barn floor (Player.respawn).
+      
+      
+      
       this.powerUpState = clearOnDeath();
       this._updatePowerUpEffect();
-      // Immediate respawn per spec, with 2 s spawn protection.
+      
       this.player.respawn();
       this._invulnUntil = performance.now() + 2000;
     }
   }
 
-  // ---- flags -----------------------------------------------------------
+  
 
   _updateFlags() {
     if (this.mode.flags === 'none') return;
@@ -2510,8 +2510,8 @@ export class Game {
     const enemyColor = this.team === 'red' ? 'blue' : 'red';
     const myColor    = this.team;
 
-    // Pickup + capture logic is delegated to web-engine/ctf/flagLogic so
-    // it's node-testable. See flagLogic.test.js + docs/features/carried-flag-visibility.md.
+    
+    
     const action = computeFlagAction({
       playerPos: { x: this.player.pos.x, z: this.player.pos.z },
       playerTeam: this.team,
@@ -2537,21 +2537,21 @@ export class Game {
       this._updateScoreUi();
       this._killFeedPush(`${this._name(this.myId)} captured the ${enemyColor} flag!`);
       this.critters?.cheer(this.player.pos, 'capture');
-      // The bots have opinions about a human scoring on them.
+      
       for (const bot of this.bots.values()) {
         this._botTaunt(bot.peerId, bot.team === myColor ? 'capture' : 'conceded');
       }
       this._maybeTriggerAnagram();
     }
 
-    // Sync flag position visually if I'm carrying it — LIFT it above my
-    // head so I can actually see the fabric in my first-person view, and
-    // set a bright HUD banner so I know I'm carrying. See
-    // docs/features/carried-flag-visibility.md.
+    
+    
+    
+    
     if (this.player.hasEnemyFlag) {
       this.flagPos[enemyColor] = {
         x: this.player.pos.x,
-        y: this.player.pos.y + 1.8,   // above my head, visible in FPV
+        y: this.player.pos.y + 1.8,   
         z: this.player.pos.z,
       };
       this._syncFlagMesh(enemyColor);
@@ -2559,8 +2559,8 @@ export class Game {
     this._paintCarryBanner();
   }
 
-  // Big pulsing HUD banner shown ONLY while the local player carries a flag.
-  // "🚩 YOU HAVE THE FLAG — RUN HOME!" — reads on mobile too.
+  
+  
   _paintCarryBanner() {
     let el = document.getElementById('carry-banner');
     if (!el) {
@@ -2603,11 +2603,11 @@ export class Game {
   _syncFlagMesh(color) {
     const p = this.flagPos[color];
     const m = this.flagMeshes[color];
-    // Match _buildFlagMesh — sit ON TOP of the floor voxel, not buried
-    // inside it. Bryan 2026-08-20: "flags somewhere off the map".
+    
+    
     m.position.set(p.x + 0.5, p.y, p.z + 0.5);
-    // Make the carried flag GLOW so it's obvious it's the one you have.
-    // Uses the fabric material's emissive; safe to toggle every sync.
+    
+    
     const fabric = m.children[1];
     if (fabric && fabric.material && 'emissive' in fabric.material) {
       const carried = this.flagState[color] === 'carried' && this.flagCarrier[color] === this.myId;
@@ -2616,13 +2616,13 @@ export class Game {
     }
   }
 
-  // ---- mode scoring -----------------------------------------------------
+  
 
-  // Host-authoritative. A kill is worth a point only in a kill mode, and
-  // never for a suicide or a team-kill — see killScores() in gameModes.js.
+  
+  
   _creditKill(killerId, victimId) {
     if (!this.isHost || this.gameOver) return;
-    // Bots trash-talk about kills they were part of, either end of it.
+    
     if (this.bots.has(killerId)) this._botTaunt(killerId, 'kill');
     if (this.bots.has(victimId)) this._botTaunt(victimId, 'death');
     const team = (id) => this.playerMeta.get(id)?.team
@@ -2636,9 +2636,9 @@ export class Game {
     this._maybeTriggerAnagram();
   }
 
-  // Host-authoritative, called once per frame in KOTH. Accumulates real
-  // seconds of SOLE possession — one enemy on the hill stops the clock for
-  // everyone, which is what stops the mode being a camp.
+  
+  
+  
   _tickHill(dt) {
     if (!this.isHost || this.gameOver) return;
     if (this.mode.scoring !== 'hold' || !this.world || !this.player) return;
@@ -2649,8 +2649,8 @@ export class Game {
       if (onHill(this.mode, ref.pos, centre)) occupants.push(ref.team);
     }
     const owner = hillOwner(this.mode, occupants);
-    // Broadcast the contested/held state so every client's HUD agrees; the
-    // banner is the only feedback the mode has and it has to be immediate.
+    
+    
     if (owner !== this._hillOwner) {
       this._hillOwner = owner;
       this._paintHillBanner(owner, occupants.length);
@@ -2666,9 +2666,9 @@ export class Game {
     }
   }
 
-  // Its own element, deliberately. `flagStatus` is shared by the compass and
-  // the power-up chip and has already caused one overprinting bug; a mode
-  // banner that fights the compass for the same node would be the second.
+  
+  
+  
   _paintHillBanner(owner, count) {
     if (this.mode.scoring !== 'hold') return;
     let el = document.getElementById('hill-banner');
@@ -2698,18 +2698,18 @@ export class Game {
     }
   }
 
-  // ---- anagram tiebreaker ---------------------------------------------
+  
 
   _maybeTriggerAnagram() {
     if (this.gameOver) return;
     const { red, blue } = this.scores;
-    // The target is the MODE's, not a constant: 5 captures, 30 kills or 90
-    // seconds of held hill all mean "somebody won".
+    
+    
     const winning = modeWinner(this.mode, this.scores);
     if (!winning || !anagramDue(this.mode, this.scores)) return;
     const losing  = winning === 'red' ? 'blue' : 'red';
     this.gameOver = true;
-    // Host picks the word and broadcasts.
+    
     if (this.isHost) {
       const wordSeed = (this.seed ^ (red * 73856093) ^ (blue * 19349663)) >>> 0;
       const word = pickWord(wordSeed);
@@ -2718,7 +2718,7 @@ export class Game {
       this._broadcast({ t: MSG.ANAGRAM_START, word, scrambled, losingTeam: losing, endsAt });
       this._startAnagram(word, scrambled, losing, endsAt);
     }
-    // Non-host waits for ANAGRAM_START.
+    
   }
 
   _startAnagram(word, scrambled, losingTeam, endsAt) {
@@ -2747,7 +2747,7 @@ export class Game {
     } else {
       input.oninput = null;
     }
-    // Countdown
+    
     const tick = () => {
       if (!this._anagram) return;
       const remain = Math.max(0, Math.ceil((this._anagram.endsAt - Date.now()) / 1000));
@@ -2771,11 +2771,11 @@ export class Game {
     timer.textContent = '★';
     if (by) msg.textContent = `${this._name(by)} solved "${this._anagram?.word}" and stole the win for ${winner}.`;
     else    msg.textContent = `Time's up. ${winner.toUpperCase()} team keeps the score-based win.`;
-    // Freeze; leave overlay up.
+    
     this._anagram = null;
   }
 
-  // ---- HUD --------------------------------------------------------------
+  
 
   _updateHud() {
     document.getElementById('scoreRed').textContent  = this.scores.red;
@@ -2809,7 +2809,7 @@ export class Game {
       d.textContent = k.text;
       el.appendChild(d);
     }
-    // Fade after 6s.
+    
     setTimeout(() => {
       this._killFeed = this._killFeed.filter(k => Date.now() - k.at < 6000);
       const el2 = document.getElementById('kill-feed');

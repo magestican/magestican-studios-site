@@ -1,23 +1,23 @@
-// Turns a map's BACKDROPS entry (mapSpec.js) into geometry, as pure data.
-//
-// Everything out of bounds is an axis-aligned BOX that has then been yawed to
-// face the arena — towers, tree wedges, mountain steps, pressure ridges,
-// fence rails, all of it. One primitive means the whole backdrop merges into a
-// single buffer and ships as ONE draw call (entities/mapBackdrop.js), which is
-// the only budget available: the target machine is a locked-down corporate
-// laptop and this is scenery, not gameplay.
-//
-// No THREE here, and no voxels. Boxes are emitted in world metres and never
-// touch the VoxelGrid, which is what makes the backdrop unreachable for free —
-// rapierWorld.js builds every collider in the game from the grid alone, so
-// there is no code path by which one of these can become solid.
-//
-// Two hard guarantees, both asserted in backdrop.test.js:
-//   * nothing intersects the playfield inflated by BACKDROP.PLAY_MARGIN, so a
-//     player at the map's corner is still metres clear of the nearest scenery;
-//   * nothing sits closer to mid-map than BACKDROP.MIN_RADIUS, which is well
-//     outside the corner distance, so the backdrop can never occlude the arena
-//     or an enemy standing in it.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import { SeededRng } from '../rng/seededRng.js';
 import { WORLD_SIZE } from './voxelWorldGen.js';
@@ -26,51 +26,51 @@ import { getBackdrop, getSky } from './mapSpec.js';
 const TAU = Math.PI * 2;
 
 export const BACKDROP = Object.freeze({
-  // Ground level. Voxel y=0 spans world [0, 1], so everything out here stands
-  // on y=1 exactly like a prop inside the map does.
+  
+  
   GROUND_Y: 1,
-  // The playfield's circumscribed radius is hypot(40, 40) = 56.6 m. 78 leaves
-  // ~21 m of clear air off the worst corner even before PLAY_MARGIN, which is
-  // what keeps the backdrop out of every sightline across the arena.
+  
+  
+  
   MIN_RADIUS: 78,
-  // Keep-out apron around the playable rectangle. The rectangle is the real
-  // bound (the map is square, not round); the radius above is the sightline
-  // bound. Both are enforced, and a box that fails either is dropped.
+  
+  
+  
   PLAY_MARGIN: 8,
-  // How far the ground skirt reaches. It is a SQUARE half-extent, not a
-  // radius, because the skirt is the playfield rectangle's own apron. It is
-  // fogged, so everything past the map's fogFar is already 100 % haze and the
-  // camera's far plane cuts it where nothing can be seen.
+  
+  
+  
+  
   SKIRT_OUTER: 300,
-  // ...but the SCENERY is unfogged, so its far plane cut WOULD be seen. The
-  // camera is 320 (entities/skyBrawlSpec.js CAMERA_FAR) and a player can stand
-  // 56.6 m off mid-map at the corner, so no backdrop vertex may sit further
-  // than this from the centre or the far range pops in and out as you walk.
+  
+  
+  
+  
   MAX_EXTENT: 250,
-  // Minimum value gap between ANY backdrop tone and its sky's horizon band.
-  // Below this a silhouette stops being a silhouette — see the note on the
-  // BACKDROPS table and the far-cloud-bank failure it is quoting.
+  
+  
+  
   MIN_SKY_GAP: 0.15,
-  // Where the sun is, copied from lightRigSpec.js's LIGHT_RIG.sun.dir. Faces
-  // are shaded against this ONCE, here, because nothing out of bounds is lit
-  // at runtime. lightRigSpec.js is deliberately import-free (it is loaded by
-  // node tests through several different path depths), so this file keeps its
-  // own copy and backdrop.test.js asserts the two agree.
+  
+  
+  
+  
+  
   SUN_DIR: Object.freeze([0.6, 1.0, 0.4]),
 });
 
-// ---------------------------------------------------------------------------
-// Colour
-// ---------------------------------------------------------------------------
+
+
+
 
 export function hexToRgb(hex) {
   const n = parseInt(String(hex).replace('#', ''), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-// Rec.709 luma on the sRGB values as authored. Not a photometric quantity —
-// it is the same ranking metric craft/color.md's cloud-bank numbers use, and
-// the point is that two tones can be compared, not that either is calibrated.
+
+
+
 export function luma(hex) {
   const [r, g, b] = hexToRgb(hex);
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
@@ -83,29 +83,29 @@ export function mixHex(a, b, t) {
   return [ar + (br - ar) * k, ag + (bg - ag) * k, ab + (bb - ab) * k];
 }
 
-// The 0.55 stop — the bright horizon band a player actually looks at, and the
-// thing every backdrop tone has to stay clear of.
+
+
 export function skyHorizonHex(mapId) {
   const stops = getSky(mapId).gradient;
   const at = stops.find((s) => s.at === 0.55) ?? stops[Math.floor(stops.length / 2)];
   return at.hex;
 }
 
-// ---------------------------------------------------------------------------
-// Placement helpers
-// ---------------------------------------------------------------------------
+
+
+
 
 const CENTRE = Object.freeze({ x: WORLD_SIZE.x / 2, z: WORLD_SIZE.z / 2 });
 
-// The yaw that turns a box's local +Z to point at mid-map. Every form is
-// authored facing the arena — windows go on local +Z, a barn's long wall faces
-// local +Z — so bearing is the only thing a placement has to decide.
+
+
+
 export function inwardYaw(theta) {
   return Math.atan2(-Math.cos(theta), -Math.sin(theta));
 }
 
-// World XZ half-extents of a yawed box. Used by the keep-out filter and by the
-// tests, so "outside the play area" means the same thing in both.
+
+
 export function boxAabb(b) {
   const ca = Math.abs(Math.cos(b.yaw));
   const sa = Math.abs(Math.sin(b.yaw));
@@ -114,7 +114,7 @@ export function boxAabb(b) {
   return { x0: b.x - hx, x1: b.x + hx, z0: b.z - hz, z1: b.z + hz };
 }
 
-// The rectangle nothing may touch: the playfield plus its apron.
+
 export function keepOut() {
   const m = BACKDROP.PLAY_MARGIN;
   return { x0: -m, z0: -m, x1: WORLD_SIZE.x + m, z1: WORLD_SIZE.z + m };
@@ -127,16 +127,16 @@ function allowed(box) {
   return Math.hypot(box.x - CENTRE.x, box.z - CENTRE.z) >= BACKDROP.MIN_RADIUS;
 }
 
-// ---------------------------------------------------------------------------
-// Generation
-// ---------------------------------------------------------------------------
 
-// Everything a form needs to place one box, so the forms stay small.
+
+
+
+
 class Emitter {
   constructor() { this.solids = []; this.lights = []; this.dropped = 0; }
 
-  // `lx` / `lz` are offsets in the anchor's own frame: +Z is toward mid-map.
-  // `y` is the box's BOTTOM, because every form builds upward from the ground.
+  
+  
   box(anchor, { lx = 0, y, lz = 0, w, h, d, lit, shade }) {
     const s = Math.sin(anchor.yaw), c = Math.cos(anchor.yaw);
     const box = {
@@ -149,8 +149,8 @@ class Emitter {
     return box;
   }
 
-  // A lit window: an upright quad standing a hair proud of a box's arena-
-  // facing face, so it never z-fights the wall it is on.
+  
+  
   light(anchor, { lx, y, lz, w, h, hex }) {
     const s = Math.sin(anchor.yaw), c = Math.cos(anchor.yaw);
     this.lights.push({
@@ -161,19 +161,25 @@ class Emitter {
   }
 }
 
-// Walk all the way round a ring, placing one form after another with a gap
-// between them. Count falls out of the circumference rather than being
-// authored: a band asked for "shoulder to shoulder" stays shoulder to shoulder
-// when its radius changes, where a hand-picked count would silently thin out.
-//
-// A NEGATIVE gap is legal and the mountains use it — peaks are supposed to
-// overlap and hide each other's feet, which is what makes a range read as
-// depth rather than as a row of pyramids.
+
+
+
+
+
+
+
+
 function ringWalk(rng, band, place) {
   const start = rng.rangeF(0, TAU);
   let a = 0;
   let guard = 0;
-  while (a < TAU && guard++ < 400) {
+  
+  
+  
+  
+  
+  let run = band.clump ? rng.rangeI(band.clump[0], band.clump[1]) : Infinity;
+  while (a < TAU && guard++ < 500) {
     const w = rng.rangeF(band.w[0], band.w[1]);
     const r = rng.rangeF(band.r[0], band.r[1]);
     const theta = start + a;
@@ -184,6 +190,10 @@ function ringWalk(rng, band, place) {
       yaw: inwardYaw(theta),
     });
     a += Math.max(w * 0.35, w + rng.rangeF(band.gap[0], band.gap[1])) / r;
+    if (band.clump && --run <= 0) {
+      a += rng.rangeF(band.clumpGap[0], band.clumpGap[1]) / r;
+      run = rng.rangeI(band.clump[0], band.clump[1]);
+    }
   }
 }
 
@@ -197,10 +207,10 @@ function anchorAt(turn, r) {
   };
 }
 
-// -- Forms ------------------------------------------------------------------
 
-// A tower: shaft, optional setbacks, a crown, and a grid of lit windows on the
-// face that looks at the arena.
+
+
+
 function tower(em, rng, band, spot, win) {
   const { lit, shade } = band;
   const g = BACKDROP.GROUND_Y;
@@ -209,9 +219,9 @@ function tower(em, rng, band, spot, win) {
   const shaft = em.box(spot, { y: g, w: spot.w, h, d, lit, shade });
   if (!shaft) return;
 
-  // Setbacks: the 1916 zoning law made every Manhattan tower step inward as it
-  // rose, and that stepped profile is the difference between a skyline and a
-  // bar chart.
+  
+  
+  
   let topY = g + h, tw = spot.w, td = d, off = 0;
   const steps = rng.chance(band.setback ?? 0) ? rng.rangeI(1, 2) : 0;
   for (let i = 0; i < steps; i++) {
@@ -225,7 +235,7 @@ function tower(em, rng, band, spot, win) {
 
   switch (rng.pick(band.crowns ?? ['flat'])) {
     case 'water-tower': {
-      // The single most New York rooftop object there is, and it is two boxes.
+      
       const tx = off + rng.rangeF(-1, 1) * tw * 0.22;
       em.box(spot, { lx: tx, y: topY, w: 1.0, h: 2.0, d: 1.0, lit, shade });
       em.box(spot, { lx: tx, y: topY + 2.0, w: 2.6, h: 3.2, d: 2.6, lit, shade });
@@ -255,12 +265,12 @@ function tower(em, rng, band, spot, win) {
   if (band.windows > 0 && win) towerWindows(em, rng, band, spot, win, h, d);
 }
 
-// The window grid. Four separate randomisations sit on top of a regular grid,
-// because a grid is a repeat and this project has shipped visible banding out
-// of a repeat twice: a per-building BIAS (whole towers that are mostly dark),
-// whole dark FLOORS, a hue drawn per window, and an occasional fully lit crown
-// band — which is what real offices look like at dusk and also breaks the last
-// bit of regularity at the top edge, where the eye is looking.
+
+
+
+
+
+
 function towerWindows(em, rng, band, spot, win, h, d) {
   const bias = rng.rangeF(win.bias[0], win.bias[1]);
   const p = Math.min(0.95, band.windows * bias);
@@ -288,18 +298,36 @@ function towerWindows(em, rng, band, spot, win, h, d) {
   }
 }
 
-// A conifer / bare-tree wedge: three stacked boxes, narrowing. A cone would
-// need its own geometry and would look wrong next to a world made of cubes.
+
+
+
+
+
 function conifer(em, rng, band, spot) {
   const { lit, shade } = band;
   const h = rng.rangeF(band.h[0], band.h[1]);
-  const seg = h / 3;
+  const seg = h / 4;
   let y = BACKDROP.GROUND_Y;
-  for (const k of [1.0, 0.68, 0.36]) {
-    em.box(spot, { y, w: spot.w * k, h: seg * rng.rangeF(0.9, 1.15),
+  for (const k of [1.0, 0.74, 0.5, 0.26]) {
+    em.box(spot, { y, w: spot.w * k, h: seg * rng.rangeF(0.92, 1.12),
                    d: spot.w * k, lit, shade });
     y += seg;
   }
+}
+
+
+
+
+function canopy(em, rng, band, spot) {
+  const { lit, shade } = band;
+  const h = rng.rangeF(band.h[0], band.h[1]);
+  em.box(spot, { y: BACKDROP.GROUND_Y, w: spot.w, h: h * 0.62,
+                 d: spot.w * rng.rangeF(0.7, 1.1), lit, shade });
+  em.box(spot, {
+    lx: rng.rangeF(-1, 1) * spot.w * 0.22, y: BACKDROP.GROUND_Y + h * 0.62,
+    w: spot.w * rng.rangeF(0.5, 0.85), h: h * 0.38,
+    d: spot.w * rng.rangeF(0.5, 0.85), lit, shade,
+  });
 }
 
 function shrub(em, rng, band, spot) {
@@ -309,19 +337,28 @@ function shrub(em, rng, band, spot) {
                  lit: band.lit, shade: band.shade });
 }
 
-// A peak: a stepped pyramid whose centre WANDERS as it rises. A symmetric
-// pyramid reads as a pyramid; the wander is what turns the same boxes into a
-// ridgeline with a summit off to one side.
+
+
+
 function peak(em, rng, band, spot) {
   const h = rng.rangeF(band.h[0], band.h[1]);
-  const steps = rng.rangeI(5, 8);
+  
+  
+  
+  
+  
+  const steps = rng.rangeI(9, 14);
   const capFrom = band.cap > 0 ? Math.ceil(steps * (1 - band.cap)) : steps + 1;
   let y = BACKDROP.GROUND_Y, off = 0;
   for (let i = 0; i < steps; i++) {
-    const k = Math.pow(1 - i / steps, 1.25);
+    
+    
+    const k = Math.pow(1 - i / steps, 1.35);
     const snow = i >= capFrom;
-    const w = spot.w * Math.max(0.08, k);
-    off += rng.rangeF(-1, 1) * spot.w * 0.055;
+    const w = spot.w * Math.max(0.06, k);
+    
+    
+    off += rng.rangeF(-1, 1) * spot.w * 0.03;
     em.box(spot, {
       lx: off, y, w, h: h / steps * rng.rangeF(0.92, 1.1),
       d: w * rng.rangeF(0.7, 1.05),
@@ -332,15 +369,15 @@ function peak(em, rng, band, spot) {
   }
 }
 
-// A pressure ridge: a broken run of low blocks along the ring's tangent. Same
-// silhouette rule as the in-map ridges (voxelWorldGen.js) — it has to read as
-// broken, or it is a wall.
+
+
+
 function ridge(em, rng, band, spot) {
   const { lit, shade } = band;
   const n = rng.rangeI(3, 7);
   const seg = spot.w / n;
   for (let i = 0; i < n; i++) {
-    if (rng.chance(0.18)) continue;               // the gaps are the point
+    if (rng.chance(0.18)) continue;               
     em.box(spot, {
       lx: -spot.w / 2 + seg * (i + 0.5), y: BACKDROP.GROUND_Y,
       w: seg * rng.rangeF(0.7, 1.0),
@@ -350,25 +387,43 @@ function ridge(em, rng, band, spot) {
   }
 }
 
-// A tabular berg: a flat slab, plus a thin warmer cap where the low polar sun
-// that never sets catches its top edge.
+
+
+
+
+
 function berg(em, rng, band, spot) {
+  const g = BACKDROP.GROUND_Y;
   const h = rng.rangeF(band.h[0], band.h[1]);
   const d = spot.w * rng.rangeF(0.5, 0.95);
-  em.box(spot, { y: BACKDROP.GROUND_Y, w: spot.w, h, d,
-                 lit: band.lit, shade: band.shade });
-  if (band.cap) {
-    em.box(spot, { y: BACKDROP.GROUND_Y + h, w: spot.w * 0.94, h: 0.9,
-                   d: d * 0.94, lit: band.cap, shade: band.shade });
+  const tier = rng.chance(0.66);
+  const mainW = tier ? spot.w * rng.rangeF(0.5, 0.7) : spot.w;
+  const side = rng.chance(0.5) ? -1 : 1;
+  const cap = (y, w, dd, lx) => {
+    if (!band.cap) return;
+    
+    em.box(spot, { lx, y, w: w * 0.96, h: Math.max(2.2, h * 0.13), d: dd * 0.96,
+                   lit: band.cap, shade: band.shade });
+  };
+  const mainX = tier ? side * (spot.w - mainW) / 2 : 0;
+  em.box(spot, { lx: mainX, y: g, w: mainW, h, d, lit: band.lit, shade: band.shade });
+  cap(g + h, mainW, d, mainX);
+  if (tier) {
+    const lowW = spot.w - mainW;
+    const lowH = h * rng.rangeF(0.3, 0.62);
+    const lowX = -side * mainW / 2;
+    em.box(spot, { lx: lowX, y: g, w: lowW, h: lowH, d: d * rng.rangeF(0.7, 1),
+                   lit: band.lit, shade: band.shade });
+    cap(g + lowH, lowW, d * 0.85, lowX);
   }
 }
 
-// -- Marks: fixed-bearing landmarks ----------------------------------------
+
 
 function silo(em, rng, mark, spot) {
   const { lit, shade } = mark;
   em.box(spot, { y: BACKDROP.GROUND_Y, w: mark.w, h: mark.h, d: mark.w, lit, shade });
-  // Domed cap, two courses, so a silo is never mistaken for a chimney.
+  
   em.box(spot, { y: BACKDROP.GROUND_Y + mark.h, w: mark.w * 0.92, h: mark.w * 0.32,
                  d: mark.w * 0.92, lit, shade });
   em.box(spot, { y: BACKDROP.GROUND_Y + mark.h + mark.w * 0.32, w: mark.w * 0.5,
@@ -378,8 +433,8 @@ function silo(em, rng, mark, spot) {
 function farBarn(em, rng, mark, spot) {
   const { lit, shade } = mark;
   em.box(spot, { y: BACKDROP.GROUND_Y, w: mark.w, h: mark.h, d: mark.d, lit, shade });
-  // Stepped gable — three courses is enough to say "pitched roof" at 120 m,
-  // and it matches how the in-map barn's roof is built.
+  
+  
   let y = BACKDROP.GROUND_Y + mark.h;
   for (const k of [0.86, 0.58, 0.28]) {
     em.box(spot, { y, w: mark.w * 0.99, h: mark.h * 0.16, d: mark.d * k, lit, shade });
@@ -387,18 +442,18 @@ function farBarn(em, rng, mark, spot) {
   }
 }
 
-// -- Lines: fence runs that leave the map ----------------------------------
 
-// A fence heading away from the arena, posts and a top rail. It is the only
-// straight line out there, and a line with a vanishing point in it does more
-// for "this field keeps going" than another hundred trees.
+
+
+
+
 function fenceLine(em, rng, line, fence) {
   const theta = line.turn * TAU;
   const n = Math.floor((line.to - line.from) / line.postPitch);
   for (let i = 0; i <= n; i++) {
     const r = line.from + i * line.postPitch;
-    // Drift the bearing as it recedes so the run is walked, not ruled — the
-    // same reason applyGroundWear's footpaths wobble.
+    
+    
     const a = theta + line.drift * (i / Math.max(1, n));
     const spot = {
       x: CENTRE.x + Math.cos(a) * r, z: CENTRE.z + Math.sin(a) * r,
@@ -407,29 +462,34 @@ function fenceLine(em, rng, line, fence) {
     em.box(spot, { y: BACKDROP.GROUND_Y, w: fence.postW, h: fence.postH,
                    d: fence.postW, lit: fence.lit, shade: fence.shade });
     if (i === n) continue;
-    // The rail is what actually reads: a 0.5 m post is sub-pixel at 150 m, a
-    // continuous horizontal line is not.
+    
+    
+    
+    
     const rMid = r + line.postPitch / 2;
     const aMid = theta + line.drift * ((i + 0.5) / Math.max(1, n));
-    em.box({
+    const anchor = {
       x: CENTRE.x + Math.cos(aMid) * rMid, z: CENTRE.z + Math.sin(aMid) * rMid,
       yaw: inwardYaw(aMid) + Math.PI / 2,
-    }, { y: BACKDROP.GROUND_Y + fence.railY, w: line.postPitch, h: fence.railH,
-         d: 0.22, lit: fence.lit, shade: fence.shade });
+    };
+    for (const ry of [fence.railY, fence.railY * 0.52]) {
+      em.box(anchor, { y: BACKDROP.GROUND_Y + ry, w: line.postPitch, h: fence.railH,
+                       d: 0.3, lit: fence.lit, shade: fence.shade });
+    }
   }
 }
 
-const FORMS = { tower, conifer, shrub, peak, ridge, berg };
+const FORMS = { tower, conifer, canopy, shrub, peak, ridge, berg };
 
-// ---------------------------------------------------------------------------
-// The entry point
-// ---------------------------------------------------------------------------
-// Pure function of (mapId, seed), exactly like generateWorld — every peer in
-// the P2P mesh builds the same skyline without a byte crossing the wire.
-//
-// Deliberately NOT called from generateWorld: the backdrop is render-only, and
-// keeping it out means a headless peer, a bot simulation and every worldgen
-// test pay nothing for scenery they will never draw.
+
+
+
+
+
+
+
+
+
 export function generateBackdrop(mapId, seed = 1) {
   const spec = getBackdrop(mapId);
   if (!spec) return null;
@@ -464,15 +524,15 @@ export function generateBackdrop(mapId, seed = 1) {
   };
 }
 
-// How lit a face is, from its world normal alone — 0 at the shade end of a
-// band's ramp, 1 at the lit end. Exported so the builder and the tests agree
-// on what "the sun-facing flank" means.
+
+
+
 export function faceShade(nx, ny, nz) {
   const [sx, sy, sz] = BACKDROP.SUN_DIR;
   const len = Math.hypot(sx, sy, sz);
   const d = (nx * sx + ny * sy + nz * sz) / len;
-  // Remapped rather than clamped: a face pointing straight away from the sun
-  // still gets the shade tone rather than black, because there is no such
-  // thing as an unlit surface under a sky.
+  
+  
+  
   return 0.5 + 0.5 * d;
 }

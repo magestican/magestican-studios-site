@@ -1,5 +1,5 @@
-// Voxel blood spatter FX. Small red cubes fly out from a hit position,
-// arc through gravity, fade after ~1s. Only spawned in mature/gore mode.
+
+
 
 import * as THREE from 'three';
 
@@ -9,7 +9,7 @@ const LIFETIME = 1.0;
 export class GoreSystem {
   constructor(scene) {
     this.scene = scene;
-    this._active = [];   // { mesh, vel, bornAt }
+    this._active = [];   
     this._geo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
     this._mat = new THREE.MeshBasicMaterial({ color: 0xb0100e, transparent: true, opacity: 0.95 });
   }

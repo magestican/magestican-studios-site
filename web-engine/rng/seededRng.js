@@ -1,12 +1,12 @@
-// Deterministic splittable RNG. JS twin of
-// addons/arbelo_engine/rng/seeded_rng.gd.
-//
-// Same seed => same stream. child(tag) forks a sub-stream so each subsystem
-// (map layout, spawn placement, weapon spread) can advance freely without
-// perturbing the others.
 
-// Mulberry32 - fast, tiny, well-distributed for game seeds.
-// Not a cryptographic PRNG; do NOT use for anything security-adjacent.
+
+
+
+
+
+
+
+
 function mulberry32(seed) {
   let a = seed >>> 0;
   return function next() {
@@ -18,8 +18,8 @@ function mulberry32(seed) {
   };
 }
 
-// Stable 32-bit hash of a string (DJB2-xor). Non-crypto, deterministic across
-// runs and browsers so peers deriving child seeds from the same tag agree.
+
+
 function hashString(s) {
   let h = 5381 >>> 0;
   for (let i = 0; i < s.length; i++) {
@@ -34,23 +34,23 @@ export class SeededRng {
     this._next = mulberry32(this.seed);
   }
 
-  // Derive a deterministic child stream by hashing (this.seed, tag).
+  
   child(tag) {
     const combined = `${this.seed}::${tag}`;
     return new SeededRng(hashString(combined) || 1);
   }
 
-  // -------- typed draws --------
+  
 
-  // Uniform in [0, 1).
+  
   next() { return this._next(); }
 
-  // Integer in [min, max] inclusive.
+  
   rangeI(min, max) {
     return Math.floor(this._next() * (max - min + 1)) + min;
   }
 
-  // Float in [min, max).
+  
   rangeF(min, max) {
     return this._next() * (max - min) + min;
   }
@@ -62,7 +62,7 @@ export class SeededRng {
     return arr[Math.floor(this._next() * arr.length)];
   }
 
-  // In-place Fisher-Yates shuffle. Returns the array for chaining.
+  
   shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(this._next() * (i + 1));
@@ -72,8 +72,8 @@ export class SeededRng {
   }
 }
 
-// Convenience: derive a short human-shareable code from a seed (5 chars,
-// base36). Not a hash — just a formatting; the seed itself is authoritative.
+
+
 export function seedToCode(seed) {
   return (seed >>> 0).toString(36).padStart(5, '0').slice(0, 5).toUpperCase();
 }

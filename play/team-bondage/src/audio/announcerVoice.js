@@ -1,43 +1,43 @@
-// UT-style announcer -- a formant speech synthesiser.
-//
-// We ship no audio assets (GAME_DESIGN.md: "no feature may require a
-// download"), and `speechSynthesis` sounds like a satnav, not an arena
-// shooter. So this synthesises the voice: a glottal buzz + a noise source
-// pushed through three swept bandpass "formant" filters, which is how vowels
-// are actually distinguished. Consonants are noise bursts through a fourth
-// filter. Words are hand-transcribed to phonemes in PHRASES below.
-//
-// The arena-announcer character comes from what's wrapped around it:
-//   * low pitch (~86 Hz) with a falling contour -- authority
-//   * three detuned glottal voices + a sub octave -- weight
-//   * a waveshaper drive -- growl
-//   * band-limited 180 Hz-3.6 kHz -- sounds like a PA horn, not a synth
-//   * a long reverb tail -- an arena, not a room
-//
-// Phoneme set is ARPAbet-ish. Formant values are the standard adult-male
-// measurements (Peterson & Barney-style); they are what makes IY read as
-// "ee" and UW as "oo", so don't round them off.
 
-// [F1, F2, F3, kind, seconds, amplitude]
-//   kind: 'v' voiced (vowels, glides)  'n' nasal  'f' fricative (noise)
-//         'p' plosive (silence then a burst)  'vp' voiced plosive  '.' pause
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const PH = {
-  //        F1    F2    F3   kind  dur    amp
-  AA:     [ 730, 1090, 2440, 'v', 0.150, 1.00],   // f_a_ther
-  AE:     [ 660, 1720, 2410, 'v', 0.150, 1.00],   // c_a_t
-  AH:     [ 640, 1190, 2390, 'v', 0.120, 0.95],   // b_u_t
-  AO:     [ 570,  840, 2410, 'v', 0.150, 1.00],   // th_ou_ght
-  EH:     [ 530, 1840, 2480, 'v', 0.135, 1.00],   // b_e_t
-  IH:     [ 390, 1990, 2550, 'v', 0.110, 0.95],   // b_i_t
-  IY:     [ 270, 2290, 3010, 'v', 0.150, 0.95],   // b_ea_t
-  OW:     [ 490,  910, 2450, 'v', 0.150, 1.00],   // b_oa_t
-  UW:     [ 300,  870, 2240, 'v', 0.140, 0.95],   // b_oo_t
-  ER:     [ 490, 1350, 1690, 'v', 0.150, 1.00],   // b_ir_d
-  // Diphthongs: the glide IS the identity, so each carries a second target.
-  EY:     [ 530, 1840, 2480, 'v', 0.170, 1.00, [ 350, 2100, 2750]],  // s_ay_
-  AY:     [ 730, 1090, 2440, 'v', 0.190, 1.00, [ 330, 2100, 2800]],  // f_igh_t
-  AW:     [ 730, 1090, 2440, 'v', 0.180, 1.00, [ 330,  900, 2300]],  // n_ow_
-  // Nasals + liquids + glides
+  
+  AA:     [ 730, 1090, 2440, 'v', 0.150, 1.00],   
+  AE:     [ 660, 1720, 2410, 'v', 0.150, 1.00],   
+  AH:     [ 640, 1190, 2390, 'v', 0.120, 0.95],   
+  AO:     [ 570,  840, 2410, 'v', 0.150, 1.00],   
+  EH:     [ 530, 1840, 2480, 'v', 0.135, 1.00],   
+  IH:     [ 390, 1990, 2550, 'v', 0.110, 0.95],   
+  IY:     [ 270, 2290, 3010, 'v', 0.150, 0.95],   
+  OW:     [ 490,  910, 2450, 'v', 0.150, 1.00],   
+  UW:     [ 300,  870, 2240, 'v', 0.140, 0.95],   
+  ER:     [ 490, 1350, 1690, 'v', 0.150, 1.00],   
+  
+  EY:     [ 530, 1840, 2480, 'v', 0.170, 1.00, [ 350, 2100, 2750]],  
+  AY:     [ 730, 1090, 2440, 'v', 0.190, 1.00, [ 330, 2100, 2800]],  
+  AW:     [ 730, 1090, 2440, 'v', 0.180, 1.00, [ 330,  900, 2300]],  
+  
   M:      [ 250, 1100, 2100, 'n', 0.075, 0.60],
   N:      [ 250, 1700, 2600, 'n', 0.070, 0.60],
   NG:     [ 250, 1400, 2300, 'n', 0.085, 0.55],
@@ -45,7 +45,7 @@ const PH = {
   R:      [ 350, 1050, 1600, 'v', 0.080, 0.80],
   W:      [ 300,  850, 2200, 'v', 0.070, 0.70],
   Y:      [ 300, 2200, 3000, 'v', 0.060, 0.70],
-  // Fricatives (noise). F2 doubles as the noise band centre.
+  
   S:      [   0, 6000,    0, 'f', 0.110, 0.55],
   SH:     [   0, 2600,    0, 'f', 0.115, 0.60],
   F:      [   0, 4200,    0, 'f', 0.100, 0.40],
@@ -53,7 +53,7 @@ const PH = {
   HH:     [   0, 1600,    0, 'f', 0.070, 0.30],
   V:      [ 350, 4000,    0, 'f', 0.075, 0.35],
   Z:      [ 300, 5200,    0, 'f', 0.095, 0.45],
-  // Plosives: a beat of closure, then a burst at F2.
+  
   P:      [   0,  900,    0, 'p', 0.075, 0.50],
   T:      [   0, 4000,    0, 'p', 0.070, 0.60],
   K:      [   0, 2000,    0, 'p', 0.080, 0.65],
@@ -62,10 +62,10 @@ const PH = {
   G:      [ 300, 1800,    0, 'vp', 0.075, 0.55],
   JH:     [ 300, 2400,    0, 'vp', 0.100, 0.55],
   CH:     [   0, 2800,    0, 'p', 0.105, 0.60],
-  '.':    [   0,    0,    0, '.', 0.075, 0.00],   // word gap
+  '.':    [   0,    0,    0, '.', 0.075, 0.00],   
 };
 
-// The announcement bank. `text` is what the HUD banner shows.
+
 export const PHRASES = {
   FIRST_BLOOD:  { text: 'FIRST BLOOD',  ph: 'F ER S T . B L AH D' },
   DOUBLE_KILL:  { text: 'DOUBLE KILL',  ph: 'D AH B AH L . K IH L' },
@@ -82,15 +82,15 @@ export const PHRASES = {
   FIGHT:        { text: 'FIGHT!',       ph: 'F AY T' },
   REVENGE:      { text: 'REVENGE',      ph: 'R IY V EH N JH' },
   DENIED:       { text: 'DENIED',       ph: 'D IH N AY D' },
-  // GORE mode only, and aimed at the person who just died rather than the
-  // room: the taunt has to be drawn out or it is just the word "loser". The
-  // repeated UW is what stretches the vowel into "loooooser" — the phrase
-  // planner gives every phoneme its own slot, so three of them in a row is
-  // three times the duration on that one vowel.
+  
+  
+  
+  
+  
   LOSER:        { text: 'LOOOOSERRR',   ph: 'L UW UW UW Z ER ER' },
 };
 
-// Pure helper (unit-tested): expand a phrase into timed phoneme slots.
+
 export function planPhrase(key, rate = 1) {
   const phrase = PHRASES[key];
   if (!phrase) return null;
@@ -107,10 +107,10 @@ export function planPhrase(key, rate = 1) {
   return { text: phrase.text, slots, total: t };
 }
 
-// -- synthesis --------------------------------------------------------------
 
-// `deps` is injected by sfx.js so this module owns no AudioContext of its own:
-//   { ctx, dest, verbSend, noiseBuffer(dur) }
+
+
+
 export function speakInto(deps, key, opts = {}) {
   const { ctx, dest, verbSend } = deps;
   const plan = planPhrase(key, opts.rate || 1);
@@ -119,7 +119,7 @@ export function speakInto(deps, key, opts = {}) {
   const pitch = opts.pitch || 86;
   const vol = opts.volume == null ? 1 : opts.volume;
 
-  // --- output chain: drive -> PA band-limit -> dry + reverb send ----------
+  
   const bus = ctx.createGain();
   bus.gain.value = 0.9 * vol;
 
@@ -131,7 +131,7 @@ export function speakInto(deps, key, opts = {}) {
   paLo.type = 'highpass'; paLo.frequency.value = 180;
   const paHi = ctx.createBiquadFilter();
   paHi.type = 'lowpass'; paHi.frequency.value = 3600;
-  // A presence bump so consonants cut through gunfire.
+  
   const presence = ctx.createBiquadFilter();
   presence.type = 'peaking'; presence.frequency.value = 2200;
   presence.Q.value = 1.2; presence.gain.value = 6;
@@ -144,11 +144,11 @@ export function speakInto(deps, key, opts = {}) {
     presence.connect(send).connect(verbSend);
   }
 
-  // --- sources ------------------------------------------------------------
+  
   const voiced = ctx.createGain(); voiced.gain.value = 0;
   const noisy  = ctx.createGain(); noisy.gain.value = 0;
 
-  // Three detuned saws + a sub sine = a chest, not a beep.
+  
   const oscs = [];
   for (const detune of [-7, 0, +7]) {
     const o = ctx.createOscillator();
@@ -170,9 +170,9 @@ export function speakInto(deps, key, opts = {}) {
   noiseSrc.buffer = deps.noiseBuffer(plan.total + 0.3);
   noiseSrc.connect(noisy);
 
-  // --- formant filters ----------------------------------------------------
-  // Three parallel bandpasses carry the voiced path; a fourth, wider one
-  // carries fricative/plosive noise.
+  
+  
+  
   const F = [];
   for (let i = 0; i < 3; i++) {
     const bp = ctx.createBiquadFilter();
@@ -188,7 +188,7 @@ export function speakInto(deps, key, opts = {}) {
   nBp.type = 'bandpass'; nBp.Q.value = 1.6; nBp.frequency.value = 3000;
   noisy.connect(nBp).connect(bus);
 
-  // --- automate the phoneme timeline --------------------------------------
+  
   const vg = voiced.gain, ng = noisy.gain;
   vg.setValueAtTime(0, t0);
   ng.setValueAtTime(0, t0);
@@ -201,7 +201,7 @@ export function speakInto(deps, key, opts = {}) {
     const voicedKind = s.kind === 'v' || s.kind === 'n' || s.kind === 'vp';
 
     if (s.f1) {
-      // Formants GLIDE into place: a step change buzzes, a ramp speaks.
+      
       const targets = [s.f1, s.f2, s.f3];
       for (let i = 0; i < 3; i++) {
         if (!targets[i]) continue;
@@ -216,7 +216,7 @@ export function speakInto(deps, key, opts = {}) {
       const peak = 0.36 * s.amp;
       vg.linearRampToValueAtTime(peak, a + Math.min(0.03, s.dur * 0.4));
       vg.linearRampToValueAtTime(peak * 0.85, b);
-      // Voiced plosives get a noise burst on top of the voicing.
+      
       if (s.kind === 'vp') burst(ng, nBp, a, s, 0.5);
       else ng.linearRampToValueAtTime(0, a + 0.02);
     } else if (s.kind === 'f') {
@@ -226,7 +226,7 @@ export function speakInto(deps, key, opts = {}) {
       ng.linearRampToValueAtTime(0.30 * s.amp, a + 0.02);
       ng.linearRampToValueAtTime(0.02, b);
     } else if (s.kind === 'p') {
-      // Closure (silence), then the burst.
+      
       vg.linearRampToValueAtTime(0, a + 0.01);
       ng.linearRampToValueAtTime(0, a + 0.01);
       burst(ng, nBp, a + s.dur * 0.55, s, 1.0);
@@ -253,8 +253,8 @@ function burst(ng, nBp, at, s, scale) {
   ng.linearRampToValueAtTime(0, at + 0.05);
 }
 
-// Falling pitch = authority. Rises slightly into the first syllable so it
-// lands rather than fades in.
+
+
 function contourPitch(param, t0, total, base) {
   param.setValueAtTime(base * 1.04, t0);
   param.linearRampToValueAtTime(base * 1.10, t0 + total * 0.18);

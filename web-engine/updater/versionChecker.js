@@ -1,28 +1,28 @@
-// Frontend cache-busting - JS twin of ultra-code's <VersionChecker>.
-// See ultra-code/packages/ui/src/components/VersionChecker.tsx.
-//
-// Every static-hosted site (GH Pages, GCS bucket, ...) has the same problem:
-// a browser tab that loaded the app before a deploy keeps running the old
-// bundle until the user hard-refreshes. This poller compares the deployed
-// /version.json against the buildId snapshot taken at page load, and when
-// the deployed id changes it shows a non-intrusive banner with a Refresh
-// button - never a surprise auto-reload that could interrupt gameplay.
-//
-// Usage in an HTML page:
-//   <script type="module">
-//     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
-//     startVersionChecker();  // that's it
-//   </script>
-//
-// Optional overrides: startVersionChecker({ versionUrl, intervalMs, label }).
-//
-// Deploy script must write /version.json = { "buildId": "<git-sha>", ... }.
-// The client fetches it with cache: 'no-store' + a Date.now() cachebust
-// query, so it always sees the newest.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const DEFAULTS = {
   versionUrl: '/version.json',
-  intervalMs: 60_000,      // 1 minute
+  intervalMs: 60_000,      
   label: 'A new version is available.',
   buttonLabel: 'Refresh',
 };
@@ -40,13 +40,13 @@ export function startVersionChecker(opts = {}) {
       const id = data && data.buildId;
       if (!id) return;
       if (currentBuildId === null) {
-        // First call: this is the snapshot for the running session.
+        
         currentBuildId = id;
         return;
       }
       if (id !== currentBuildId) showBanner(cfg);
     } catch {
-      // offline / transient - try again on next tick
+      
     }
   };
 
@@ -62,7 +62,7 @@ export function startVersionChecker(opts = {}) {
       <button type="button" class="vc-btn">${escapeHtml(cfg.buttonLabel)}</button>
     `;
     banner.querySelector('.vc-btn').addEventListener('click', () => {
-      // Full reload -- also bypasses browser cache for the current page.
+      
       location.reload();
     });
     document.body.appendChild(banner);
@@ -72,7 +72,7 @@ export function startVersionChecker(opts = {}) {
     if (document.visibilityState === 'visible') check();
   };
 
-  // Kick off + set up recurring/event triggers.
+  
   check();
   const id = setInterval(check, cfg.intervalMs);
   window.addEventListener('focus', check);

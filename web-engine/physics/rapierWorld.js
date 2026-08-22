@@ -1,18 +1,18 @@
-// Rapier3d physics world wrapper.
-//
-// Loads @dimforge/rapier3d-compat lazily from a CDN, initialises the WASM
-// module, and exposes:
-//
-//   createPhysicsWorld({ grid })  -> { world, characterCtrl, addCharacter,
-//                                       step, RAPIER }
-//
-// The voxel grid becomes a compound of fixed cuboid colliders (one per
-// exposed solid voxel) attached to a single fixed body. That's ~4-6k
-// colliders on our 64x12x64 CTF map — well within rapier's happy zone.
-//
-// The character is a kinematic-position-based body with a capsule collider,
-// driven by rapier's built-in `KinematicCharacterController` (slide-along-
-// walls, auto-step, snap-to-ground included).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import * as THREE from 'three';
 
@@ -34,20 +34,20 @@ export async function createPhysicsWorld({ grid }) {
   const RAPIER = await loadRapier();
   const world = new RAPIER.World({ x: 0.0, y: -30.0, z: 0.0 });
 
-  // Static terrain: one fixed body with many cuboid colliders.
+  
   const terrainBody = world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
   addVoxelColliders(RAPIER, world, terrainBody, grid);
 
-  // Character controller (shared across all characters on this client).
+  
   const characterCtrl = world.createCharacterController(0.02);
   characterCtrl.setUp({ x: 0, y: 1, z: 0 });
-  // 1.15 clears the full 1.0 m voxel step — the barn floor sits one voxel
-  // above the outside ground, and at 0.9 players had to JUMP to enter their
-  // own base (Bryan 2026-08-21: "too complicated"). Min-width 0.3 keeps the
-  // step check permissive enough for the doorway threshold.
+  
+  
+  
+  
   characterCtrl.enableAutostep(1.15, 0.3, true);
-  characterCtrl.enableSnapToGround(0.60);                // stick to slopes down
-  characterCtrl.setApplyImpulsesToDynamicBodies(true);   // rockets shove crates
+  characterCtrl.enableSnapToGround(0.60);                
+  characterCtrl.setApplyImpulsesToDynamicBodies(true);   
   characterCtrl.setMaxSlopeClimbAngle(60 * Math.PI / 180);
   characterCtrl.setMinSlopeSlideAngle(70 * Math.PI / 180);
 
@@ -60,14 +60,14 @@ export async function createPhysicsWorld({ grid }) {
     return { body, collider };
   }
 
-  // Reshape a character's capsule in place — the protein shake and the cheese
-  // wheel both resize the player mid-match (see entities/powerUpSpec.js).
-  // Swapping the SHAPE rather than destroying and recreating the collider is
-  // what keeps the body handle, and therefore the character controller's
-  // notion of "am I grounded", continuous across the change.
-  //
-  // Returns false if this build of rapier will not do it, so the caller can
-  // keep running at the old size instead of losing its collider.
+  
+  
+  
+  
+  
+  
+  
+  
   function setCharacterSize(collider, halfHeight, radius) {
     try {
       collider.setShape(new RAPIER.Capsule(halfHeight, radius));
@@ -78,13 +78,13 @@ export async function createPhysicsWorld({ grid }) {
     }
   }
 
-  // Dynamic rigid body (for projectiles, hazards, etc). Position + optional
-  // initial linvel.
+  
+  
   function addDynamic({ position, radius = 0.15, restitution = 0.6, gravityScale = 1.0, linvel }) {
     const bodyDesc = RAPIER.RigidBodyDesc.dynamic()
       .setTranslation(position.x, position.y, position.z)
       .setGravityScale(gravityScale)
-      .setCcdEnabled(true);   // continuous collision so fast bullets don't tunnel
+      .setCcdEnabled(true);   
     if (linvel) bodyDesc.setLinvel(linvel.x, linvel.y, linvel.z);
     const body = world.createRigidBody(bodyDesc);
     const colDesc = RAPIER.ColliderDesc.ball(radius).setRestitution(restitution);
@@ -100,18 +100,18 @@ export async function createPhysicsWorld({ grid }) {
   return { world, characterCtrl, addCharacter, setCharacterSize, addDynamic, step, RAPIER };
 }
 
-// Build one cuboid collider per exposed (has AIR neighbour) solid voxel.
-// Merges same-material 1x1 cuboids into strips on the X axis for a ~2-3x
-// perf win. Rapier is happy with ~5000 colliders on a fixed body.
-//
-// SPECIAL CASE: hay (voxel type 10) is deliberately NOT collided - players
-// can walk INTO hay bales to hide. Detection of "am I inside hay?" lives in
-// game.js and uses the same VoxelGrid.
+
+
+
+
+
+
+
 function addVoxelColliders(RAPIER, world, body, grid) {
   const HAY = 10;
   const solid = (x, y, z) => {
     const v = grid.get(x, y, z);
-    return v !== 0 && v !== HAY;   // AIR and HAY are non-colliding
+    return v !== 0 && v !== HAY;   
   };
   const exposed = (x, y, z) =>
     !solid(x + 1, y, z) || !solid(x - 1, y, z) ||
@@ -127,7 +127,7 @@ function addVoxelColliders(RAPIER, world, body, grid) {
         if (wantHere && runStart < 0) runStart = x;
         if (!wantHere && runStart >= 0) {
           const length = x - runStart;
-          // Cuboid half-extents: length/2 x 0.5 x 0.5, centred at (runStart+length/2, y+0.5, z+0.5).
+          
           const colDesc = RAPIER.ColliderDesc.cuboid(length / 2, 0.5, 0.5)
             .setTranslation(runStart + length / 2, y + 0.5, z + 0.5);
           world.createCollider(colDesc, body);
