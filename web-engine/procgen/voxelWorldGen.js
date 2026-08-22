@@ -94,7 +94,7 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
     const px = coverRng.rangeI(12, WORLD_SIZE.x - 13);
     const pz = coverRng.rangeI(12, WORLD_SIZE.z - 13);
     if (insideBase(px, pz, redBase) || insideBase(px, pz, blueBase)) continue;
-    if (insideZone(px, pz, powerUpZones)) continue;
+    if (insideZone(px, pz, powerUpZones, 6)) continue;   // 6 = the longest cover piece
     // Never drop cover onto something already standing there. Until this
     // guard the rink's dasher boards were being punched through by benches
     // and stone walls — the boards generate first, cover picks a free tile at
@@ -114,7 +114,7 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
       const hx = hayRng.rangeI(6, WORLD_SIZE.x - 9);
       const hz = hayRng.rangeI(6, WORLD_SIZE.z - 9);
       if (insideBase(hx, hz, redBase) || insideBase(hx, hz, blueBase)) continue;
-      if (insideZone(hx, hz, powerUpZones)) continue;
+      if (insideZone(hx, hz, powerUpZones, 2)) continue;   // a bale is 2x2
       if (Math.abs(hx - cx) < 4 && Math.abs(hz - cz) < 4) continue;
       _buildHayBale(grid, hx, hz);
       hayStacks.push({ x: hx, z: hz });
@@ -364,10 +364,16 @@ export function powerZoneCentres(size = WORLD_SIZE) {
   };
 }
 
-export function insideZone(x, z, zones) {
+// `margin` exists because most of what this guard rejects is an ORIGIN, not a
+// tile: buildCover() draws walls up to five tiles long from the point it is
+// handed, so a wall that starts one tile outside the zone still lands a stone
+// block against the gym's dais. Callers that place a single tile pass 0; ones
+// that place a shape pass its longest reach.
+export function insideZone(x, z, zones, margin = 0) {
   if (!zones) return false;
+  const r = ZONE_HALF + margin;
   for (const zn of Object.values(zones)) {
-    if (Math.abs(x - zn.x) <= ZONE_HALF && Math.abs(z - zn.z) <= ZONE_HALF) return true;
+    if (Math.abs(x - zn.x) <= r && Math.abs(z - zn.z) <= r) return true;
   }
   return false;
 }
@@ -406,11 +412,15 @@ function buildDais(grid, x, z, vox) {
 // silhouette alone, before any colour resolves.
 function buildGym(grid, x, z) {
   buildDais(grid, x, z, VOX.WOOD);
-  // Squat rack: two uprights three courses proud of the deck, joined by a bar.
+  // Squat rack: two uprights FOUR courses proud of the deck, joined by a bar
+  // across the top. Four and not three because three tops out level with the
+  // dairy's cheese stacks, and two landmarks with the same height are two
+  // landmarks you cannot tell apart at the range you need to (a test measures
+  // exactly this).
   for (const rz of [z - 2, z + 2]) {
-    for (let y = ZONE_DECK_TOP; y <= ZONE_DECK_TOP + 2; y++) grid.set(x - 2, y, rz, VOX.STONE);
+    for (let y = ZONE_DECK_TOP; y <= ZONE_DECK_TOP + 3; y++) grid.set(x - 2, y, rz, VOX.STONE);
   }
-  for (let bz = z - 2; bz <= z + 2; bz++) grid.set(x - 2, ZONE_DECK_TOP + 2, bz, VOX.STONE);
+  for (let bz = z - 2; bz <= z + 2; bz++) grid.set(x - 2, ZONE_DECK_TOP + 3, bz, VOX.STONE);
   // Loaded barbell lying on the far side of the deck: a bar with a plate
   // standing on each end. One voxel high, so you step over it, not around it.
   for (let bz = z - 1; bz <= z + 1; bz++) grid.set(x + 2, ZONE_DECK_TOP, bz, VOX.STONE);
@@ -426,8 +436,17 @@ function buildGym(grid, x, z) {
 // cheese from 40 m and can never trap the tiny player who came for it.
 function buildDairy(grid, x, z) {
   buildDais(grid, x, z, VOX.STONE);
-  // Wheels rolled up against the lower course, all the way round.
+  // Wheels rolled up against the lower course — but with a GATE in the middle
+  // of each of the four sides. An unbroken ring blocks the only one-voxel step
+  // onto the deck: the perimeter is the lower course, the middle is the upper
+  // one, so a solid ring leaves a player on the ground facing a two-voxel
+  // face with nothing to stand on in between. (Hay is walk-through in the
+  // physics, so in-game you would push past it — but a landmark that reads as
+  // walled and is not is worse than one with four honest doors, and the
+  // walkability test measures the grid, not the collider.) Same lesson as the
+  // rink's dasher boards: a pad you cannot leave is a pen.
   for (let d = -3; d <= 3; d++) {
+    if (d === 0) continue;   // the gate
     for (const [wx, wz] of [[x + d, z - 3], [x + d, z + 3], [x - 3, z + d], [x + 3, z + d]]) {
       grid.set(wx, 2, wz, VOX.HAY);
     }

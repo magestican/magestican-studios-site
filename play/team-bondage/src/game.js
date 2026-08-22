@@ -17,6 +17,7 @@ import { buildCharacter }   from './entities/character.js';
 import { Player }           from './entities/player.js';
 import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
 import { computeAimAssist } from 'arbelo/aim-assist';
+import { stepProjectile } from '../../../web-engine/combat/projectileHit.js';
 import { Chat } from './ui/chat.js';
 import { considerTaunt, newTauntState } from './entities/botTaunts.js';
 // (WEAPON_DEFS used in _addTracerForShot)
@@ -1664,6 +1665,10 @@ export class Game {
     if (this.player?.alive && this.physics) this.player.update(dt, this.input);
     if (this.physics) this.physics.step(dt);
     this.weapons?.update(dt);
+    // Immediately AFTER the projectiles move: what did mine just touch?
+    // Ordering matters — resolving before the move would test last frame's
+    // segment and put every hit one frame late.
+    this._resolveOwnProjectiles();
 
     // Remote players
     for (const rp of this.remotePlayers.values()) rp.update(dt);
@@ -2245,6 +2250,10 @@ export class Game {
         SFX.splat();
         return;   // steak absorbs the shot
       }
+      // NOTE: with the shovel and shotgun converted to real projectiles
+      // (weapon.js), nothing reaches this branch any more except a genuinely
+      // instant weapon, should one ever be added. Damage for the travelling
+      // weapons is resolved on CONTACT in _resolveOwnProjectiles.
       const hit = this._raycastPlayers(origin, dir);
       if (hit) {
         this._broadcast({ t: MSG.HIT, target: hit.peerId, dmg: s.damage, by: this.myId, weapon: s.weaponId });
@@ -2269,20 +2278,118 @@ export class Game {
         }
       }
     } else if (s.kind === 'projectile') {
-      this.weapons.spawnProjectileMesh(s);
+      // MY projectile: spawn it and follow it, because I am the client that
+      // decides what it hits. Authority is unchanged — each shooter has always
+      // resolved their own shots — only the moment moved, from the trigger
+      // frame to the frame the pellet arrives.
+      this._trackOwnProjectile(this.weapons.spawnProjectileMesh(s), s);
     }
   }
 
   _applyRemoteShot(s) {
+    // Somebody else's shot: visual only. They resolve their own contacts, so
+    // this client must never damage anyone on their behalf.
     if (s.kind === 'projectile') this.weapons.spawnProjectileMesh(s);
     if (s.kind === 'hitscan') {
-      // Show tracer + muzzle FX for shots fired by other players.
       this._addTracerForShot(s);
       this.weapons.spawnMuzzleFx(s);
-      SFX.pew();
     }
-    // We don't need to hitscan for others; each shooter reports HIT for their
-    // own shots.
+    SFX.pew();
+  }
+
+  // Start following one of my own projectiles for contact resolution.
+  _trackOwnProjectile(rec, shot) {
+    if (!rec) return;
+    (this._ownProjectiles ??= []).push({
+      rec, shot,
+      prev: rec.pos.clone(),
+      travelled: 0,
+    });
+  }
+
+  // Advance every projectile I own and resolve what it touched THIS FRAME.
+  // Called after weapons.update(dt), which is what actually moves them, so
+  // `prev -> rec.pos` is exactly the segment the pellet swept.
+  _resolveOwnProjectiles() {
+    const live = this._ownProjectiles;
+    if (!live || !live.length) return;
+    const enemyTeam = this.team === 'red' ? 'blue' : 'red';
+
+    // ENEMIES ONLY. Bryan 2026-08-22: "i seem to be able to hit allies, which
+    // i dont want to have in the game." The old hitscan raycast walked every
+    // remote player irrespective of team, so a team-mate between you and your
+    // target ate the shot. Friendly fire is now impossible by construction:
+    // an ally is simply not in the list a pellet can collide with.
+    // Chest offset and hit radius both scale with the target's power-up size,
+    // exactly as the old raycast did — a giant is a bigger target and a mouse
+    // a smaller one, floored by hitRadiusFor() so the cheese wheel makes you
+    // hard to hit rather than impossible (powerUpSpec.js).
+    const targets = this._allPlayerRefs()
+      .filter((p) => p.peerId !== this.myId && p.team === enemyTeam && p.alive !== false)
+      .map((p) => {
+        const sc = this._peerScale.get(p.peerId) ?? 1;
+        return {
+          id: p.peerId,
+          x: p.pos.x, y: p.pos.y + 1.0 * sc, z: p.pos.z,
+          radius: hitRadiusFor(sc),
+        };
+      });
+    const isSolid = (x, y, z) => this.grid.isSolid(x, y, z);
+
+    for (let i = live.length - 1; i >= 0; i--) {
+      const p = live[i];
+      const from = p.prev;
+      const to = p.rec.pos;
+      p.travelled += from.distanceTo(to);
+
+      const result = stepProjectile({
+        from: { x: from.x, y: from.y, z: from.z },
+        to:   { x: to.x,   y: to.y,   z: to.z },
+        targets, isSolid,
+        age: p.rec.age, maxAge: 4,
+        travelled: p.travelled, maxRange: SHOT_RANGE,
+      });
+
+      if (!result) { p.prev.copy(to); continue; }
+
+      if (result.kind === 'player') {
+        this._onProjectileHitPlayer(result.id, p.shot, result.point);
+      } else if (result.kind === 'world') {
+        // A visible puff where it struck, so a miss reads as a miss.
+        this.gore?.spatterAt?.(
+          new THREE.Vector3(result.point.x, result.point.y, result.point.z),
+          new THREE.Vector3().fromArray(p.shot.dir).multiplyScalar(-1));
+      }
+      this.weapons.despawnProjectile(p.rec);
+      live.splice(i, 1);
+    }
+  }
+
+  // My pellet touched an enemy. Same reporting as before — only later.
+  _onProjectileHitPlayer(peerId, shot, point) {
+    this._broadcast({ t: MSG.HIT, target: peerId, dmg: shot.damage,
+                      by: this.myId, weapon: shot.weaponId });
+    const bot = this.bots.get(peerId);
+    const rp = this.remotePlayers.get(peerId);
+    const hpLeft = bot ? bot.hp - shot.damage
+                 : (rp && rp.hp != null ? rp.hp - shot.damage : null);
+    this._flashHitmarker(shot.damage, hpLeft != null && hpLeft <= 0);
+    SFX.splat();
+    if (this.mature) {
+      const away = new THREE.Vector3().fromArray(shot.dir).multiplyScalar(-1);
+      this.gore?.spatterAt?.(new THREE.Vector3(point.x, point.y, point.z), away);
+    }
+    // Bots take damage locally on the host; humans apply their own from HIT.
+    if (bot && this.isHost) {
+      const died = bot.takeDamage(shot.damage);
+      if (died) {
+        this._broadcast({ t: MSG.DEATH, victim: peerId, killer: this.myId, weapon: shot.weaponId });
+        this._creditKill(this.myId, peerId);
+        this._killFeedPush(`${this._name(this.myId)} ➜ ${bot.name} (${shot.weaponId})`);
+        this.critters?.cheer(this._posOf(peerId), 'kill');
+        setTimeout(() => bot.respawn(), 500);
+      }
+    }
   }
 
   _raycastPlayers(origin, dir) {

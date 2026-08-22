@@ -21,8 +21,20 @@ export const WEAPON_DEFS = [
   // Bryan 2026-08-21: +50% damage across the board. 8→12, 60→90, 30→45.
   // The shotgun's full 5-pellet connect is now 60 — still not a one-shot, so
   // the "only the chicken may one-shot" rule in GAME_DESIGN.md holds.
-  { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 12, pellets: 1, spread: 0.003, kind: 'hitscan', projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
-  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 12, pellets: 5, spread: 0.10,  kind: 'hitscan', tracerColor: 0xf4c95d },
+  // Bryan 2026-08-22: "bullets seem to insta hit enemies instead of hitting on
+  // contact." Both of these were `kind: 'hitscan'` — damage resolved by a
+  // raycast on the trigger frame, at infinite speed — while ALSO spawning a
+  // pellet that flew at 30 m/s. At 25 m the victim lost health about three
+  // quarters of a second before the thing that hit them arrived. They are
+  // real projectiles now: they travel, and they damage what they touch.
+  //
+  // Speeds are the whole feel of this change. Above ~150 m/s a projectile is
+  // indistinguishable from hitscan and the change buys nothing; below ~40 it
+  // is a lob and every fight becomes leading. The shovel throws a heavy lump
+  // of dung, so it is the slower of the two; shotgun pellets are lighter and
+  // spread, so they get more speed to stay useful at mid range.
+  { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 12, pellets: 1, spread: 0.003, kind: 'projectile', projectileSpeed: 62, hitRadius: 0.95, projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
+  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 12, pellets: 5, spread: 0.10,  kind: 'projectile', projectileSpeed: 78, hitRadius: 0.85, projectileColor: 0xf4c95d, tracerColor: 0xf4c95d },
   { id: 'rocket',  name: 'Rocket',   cooldown: 1.10, damage: 90, splash: 45, splashRadius: 3.0, projectileSpeed: 20, kind: 'projectile' },
 ];
 
@@ -112,12 +124,27 @@ export class WeaponSystem {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.fromArray(shot.origin);
     this.scene.add(mesh);
-    this.projectiles.push({
+    const rec = {
       mesh,
       pos: new THREE.Vector3().fromArray(shot.origin),
       vel: new THREE.Vector3().fromArray(shot.vel),
       shot, age: 0,
-    });
+    };
+    this.projectiles.push(rec);
+    // Returned so the shooter's client can resolve CONTACT against it — see
+    // game.js _trackOwnProjectile. Peers still only ever see the visual.
+    return rec;
+  }
+
+  // Remove a projectile immediately (it hit something). Without this a pellet
+  // that has already dealt its damage carries on flying, which is the visual
+  // half of the same lie the hitscan weapons used to tell.
+  despawnProjectile(rec) {
+    const i = this.projectiles.indexOf(rec);
+    if (i >= 0) this.projectiles.splice(i, 1);
+    this.scene.remove(rec.mesh);
+    rec.mesh.geometry?.dispose?.();
+    rec.mesh.material?.dispose?.();
   }
 
   // Spawn a small, fast-flying visual for a hitscan shot's origin - just so
