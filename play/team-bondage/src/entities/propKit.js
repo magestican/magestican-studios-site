@@ -12,8 +12,13 @@
 import * as THREE from 'three';
 import { PROPS, SCATTER_JITTER, FIXED_YAW } from './propKitSpec.js';
 import { SeededRng } from '../../../../web-engine/rng/seededRng.js';
+import { WORLD_SIZE, perArea, insideZone } from '../../../../web-engine/procgen/voxelWorldGen.js';
 
-const WORLD = { x: 64, z: 64 };
+// The map's real size, not a copy of it. This was `{ x: 64, z: 64 }` with a
+// comment promising it matched WORLD_SIZE, and the day WORLD_SIZE became 80
+// the promise was worth nothing — every prop would have been crammed into the
+// original 64x64 corner with a bare L-shaped margin round two sides.
+const WORLD = WORLD_SIZE;
 
 // One material per hex, shared across every instance of every prop. Twenty-
 // seven props at ~8 boxes each, times up to 16 instances, is a few thousand
@@ -90,7 +95,10 @@ export function scatterPropKit(scene, world) {
     const base = buildProp(id);
     if (!base) { skipped += count; continue; }
     const tall = propHeight(id);
-    for (let i = 0; i < count; i++) {
+    // mapSpec quotes every kit count per 64x64 tiles (see its header), so the
+    // number of pines on the mountain is a density and grows with the map.
+    const want = perArea(count);
+    for (let i = 0; i < want; i++) {
       let done = false;
       for (let attempt = 0; attempt < 24 && !done; attempt++) {
         const x = rng.rangeI(3, WORLD.x - 4);
@@ -98,6 +106,9 @@ export function scatterPropKit(scene, world) {
         if (taken.has(`${x},${z}`)) continue;
         if (insideBase(x, z, world.redBase) || insideBase(x, z, world.blueBase)) continue;
         if (nearCentre(x, z)) continue;
+        // The gym and the dairy are landmarks; a lamp post on the squat rack
+        // is the same failure as a bench through the rink's dasher boards.
+        if (insideZone(x, z, world.powerUpZones)) continue;
         // Find the ground. The mountain is terraced, so "y=1" is only right on
         // the flat maps — a prop dropped at a fixed height on a terrace either
         // floats or is buried to its roof.

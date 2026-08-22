@@ -14,6 +14,7 @@ import {
   makeEggshellTexture, makeBottleGlassTexture, makeMilkLabelTexture,
   makeMetalTexture,
 } from '../map/textures.js';
+import { BASELINE_SIZE } from '../../../../web-engine/procgen/voxelWorldGen.js';
 
 export const HAZARD_KINDS = ['egg', 'milk'];
 const SPAWN_HEIGHT = 22;      // y where items appear
@@ -291,7 +292,13 @@ function hashString(s) {
 // The host runs this on a timer; returns an array of hazards ready to
 // broadcast. Each item = { kind, x, z, spawnAt, landAt }.
 export function makeHostSchedule(worldSize, rng, nowMs) {
-  const count = rng.rangeI(2, 3);
+  // 2-3 items per wave was tuned on a 64x64 map, and a hazard is a chance of
+  // being rained on per second of standing still — i.e. a density. Dropping
+  // the same 2-3 eggs over 56% more ground would quietly halve the pressure
+  // the whole map's pacing was tuned around, so the wave scales with the area.
+  const per64 = rng.rangeI(2, 3);
+  const count = Math.max(1, Math.round(
+    per64 * (worldSize.x * worldSize.z) / (BASELINE_SIZE * BASELINE_SIZE)));
   const items = [];
   for (let i = 0; i < count; i++) {
     // Stagger spawn times over ~0.6s so a wave doesn't land in one instant.

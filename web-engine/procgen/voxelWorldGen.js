@@ -617,16 +617,20 @@ export const WEAR = Object.freeze({
   // vehicle-width track. It runs along +X because the rut texture's tread
   // does (a tile's texture-x maps to world +X on a top face), so a lane on
   // any other heading would ship tyre marks running sideways to the track.
-  trackZ: 25,
+  // The lane's position is a FRACTION of the map, not a fixed metre count: on
+  // a 64-wide map it ran at z=25 from x=4 to x=59, which is "a bit north of
+  // centre, right across the field". Hard-coding 25 and 59 onto an 80-wide map
+  // would have left a lane that starts on time and stops 20 m short.
+  trackZ: atFraction(25, WORLD_SIZE.z),
   trackX0: 4,
-  trackX1: 59,
+  trackX1: WORLD_SIZE.x - 5,
   trackWander: 1.4,     // tiles of slow drift in Z across the map's width
   trackWanderRate: 0.055,
-  parkingX: Object.freeze([12, 47]),   // where the two tractors sit on it
+  parkingX: Object.freeze([atFraction(12), atFraction(47)]),  // where the two tractors sit on it
   parkingApron: 2,      // churned turn-around radius around a parked tractor
   holeFill: 6,          // neighbours needed to swallow a bare tile stranded
                         // inside a path (see closeWearHoles)
-  scuffs: 14,           // loose scuffed patches out in the open ground
+  scuffs: perArea(14),  // loose scuffed patches out in the open ground
   scuffRadius: 2,
 });
 
@@ -752,14 +756,15 @@ export function applyGroundWear(grid, rng, { redBase, blueBase, hillX, hillZ }) 
     for (let dz = -1; dz <= 1; dz++)
       for (let dx = -1; dx <= 1; dx++)
         grid.fillBox(px + dx, 1, pz + dz, px + dx, 3, pz + dz, VOX.AIR);
-    tractorParking.push({ x: px, z: pz, yaw: px < 32 ? Math.PI / 2 : -Math.PI / 2 });
+    tractorParking.push({ x: px, z: pz,
+      yaw: px < WORLD_SIZE.x / 2 ? Math.PI / 2 : -Math.PI / 2 });
   }
 
   // 6. Loose scuffed patches out in the open — the skirmishes that did not
   //    happen on a path. Without these every worn tile sits on a route and
   //    the wear reads as painted-on level design.
   for (let i = 0; i < WEAR.scuffs; i++) {
-    const x = rng.rangeI(6, 57), z = rng.rangeI(6, 57);
+    const x = rng.rangeI(6, WORLD_SIZE.x - 7), z = rng.rangeI(6, WORLD_SIZE.z - 7);
     wearDisc(grid, rng, x, z, rng.rangeI(1, WEAR.scuffRadius), 0.35);
   }
 

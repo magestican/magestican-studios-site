@@ -255,6 +255,12 @@ export class Game {
     });
     this._taunts = newTauntState();
 
+    // Ko-fi link in Settings. A plain anchor, and only if a username has been
+    // configured — see web-engine/support/support.js.
+    import('../../../web-engine/support/support.js')
+      .then(({ mountSupportLink }) => mountSupportLink(document.getElementById('support-slot')))
+      .catch(() => {});
+
     // Aim assist, on by default and remembered. See web-engine/input/aimAssist.js
     // for why it is a hard cone with falloff and a rate cap rather than a snap.
     const aimCheck = document.getElementById('aim-assist');
@@ -622,6 +628,31 @@ export class Game {
   }
 
   // Host-only: add an AI bot. Team is chosen to balance current sides.
+  // GORE mode: "LOOOOSERRR", to the player who just died. Voice + a big red
+  // banner, because the announcer can be muted and the insult should still
+  // land. Deliberately does NOT reuse the STEAK-ANIHILATION overlay — that one
+  // celebrates a kill for the room; this one is addressed to one person.
+  _announceLoser() {
+    try { SFX.announce('LOSER'); } catch (_) {}
+    const el = document.createElement('div');
+    el.textContent = 'LOOOOSERRR';
+    Object.assign(el.style, {
+      position: 'fixed', left: '50%', top: '34%',
+      transform: 'translate(-50%,-50%) scale(0.5) rotate(-4deg)',
+      color: '#ff2a1a', font: '900 min(13vw, 104px)/1 Georgia, serif',
+      letterSpacing: '0.04em',
+      textShadow: '0 0 24px #ff0, 0 5px 0 #4a0000, 0 10px 26px rgba(0,0,0,.9)',
+      pointerEvents: 'none', zIndex: '9999', opacity: '1',
+      transition: 'transform .4s cubic-bezier(.2,1.7,.3,1), opacity .5s ease-out 1.5s',
+    });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => {
+      el.style.transform = 'translate(-50%,-50%) scale(1) rotate(-4deg)';
+    });
+    setTimeout(() => { el.style.opacity = '0'; }, 1500);
+    setTimeout(() => el.remove(), 2300);
+  }
+
   // Re-colour every remote player's aura from the CURRENT teams.
   _repaintAuras() {
     for (const [pid, rp] of this.remotePlayers.entries()) {
@@ -1359,6 +1390,11 @@ export class Game {
         // louder tier — the slingshot is the rarest thing on the map.
         this.critters?.cheer(this._posOf(msg.victim),
           msg.weapon === 'chicken' ? 'chicken' : 'kill');
+        // GORE mode: the announcer calls the dead player a loser, and it is
+        // aimed AT them — only the victim's own client hears it and sees the
+        // banner. Shouting it at the room would be announcing someone else's
+        // death to them, which is neither the joke nor what was asked for.
+        if (this.mature && msg.victim === this.myId) this._announceLoser();
         break;
       case MSG.FLAG_PICK:
         this.flagCarrier[msg.color] = msg.by;
@@ -2207,6 +2243,11 @@ export class Game {
       this._broadcast({ t: MSG.DEATH, victim: this.myId, killer: byId, weapon: weaponId });
       // Local animal death voice (broadcast doesn't loop back to me).
       try { SFX.animalVoice(this.character, 1.0); } catch (_) {}
+      // ...and in GORE mode the announcer rubs it in. Same reason as the
+      // animal voice above: my own DEATH broadcast never comes back to me, so
+      // the handler in _onMessage cannot cover the case where the dead player
+      // is me — which is the only case that matters for this taunt.
+      if (this.mature) this._announceLoser();
       this._killFeedPush(`${this._name(byId)} ➜ ${this._name(this.myId)} (${weaponId})`);
       // Death clears any steak poison + its HUD hint.
       this._steakPoisonBy.delete(this.myId);

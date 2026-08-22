@@ -15,11 +15,14 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { SeededRng } from '../../../../web-engine/rng/seededRng.js';
+import { WORLD_SIZE, perArea, insideZone } from '../../../../web-engine/procgen/voxelWorldGen.js';
 
 const GLB_BASE = '/play/team-bondage/assets/hand-drawn/props/';
 const _loader = new GLTFLoader();
 
-// prop-id -> count of instances to scatter
+// prop-id -> instances to scatter PER 64x64 TILES. Like every other count in
+// the map data these are densities, not totals: `perArea()` turns them into
+// the number this map actually needs (see mapSpec.js's header).
 const SCATTER = {
   snowman:    8,
   'fence-post': 40,
@@ -86,7 +89,7 @@ export async function scatterMapProps(scene, world) {
 
   // XOR-safe seed derivation (`_` is invalid in a numeric literal).
   const rng = new SeededRng((world.seed ^ 0x51EED91E) >>> 0);
-  const { x: W, z: D } = { x: 64, z: 64 };   // matches WORLD_SIZE
+  const { x: W, z: D } = WORLD_SIZE;
 
   // Load all props once.
   const loaded = {};
@@ -115,12 +118,13 @@ export async function scatterMapProps(scene, world) {
   for (const [id, count] of Object.entries(SCATTER)) {
     const base = loaded[id];
     if (!base) continue;
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < perArea(count); i++) {
       // Try up to 20 candidates to find a legal tile.
       for (let attempt = 0; attempt < 20; attempt++) {
         const x = rng.rangeI(3, W - 4);
         const z = rng.rangeI(3, D - 4);
         if (isInsideBaseOrHill(x, z, world)) continue;
+        if (insideZone(x, z, world.powerUpZones)) continue;
         // Skip if the ground here is not standard (avoid stacking on cover).
         if (world.grid.isSolid(x + 0.5, 1.5, z + 0.5)) continue;
         const inst = base.clone(true);

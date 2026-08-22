@@ -146,7 +146,7 @@
       Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
     </p>
     <p class="colophon">
-      Site is static · No cookies, no accounts, anonymous counts only (<a href="./privacy.html">how</a>) · <a href="https://github.com/magestican/arbelo-games">Source on GitHub</a>
+      Site is static · No cookies, no accounts, anonymous counts only (<a href="./privacy.html">how</a>) · <a href="https://github.com/magestican/arbelo-games">Source on GitHub</a><span id="support-slot"></span>
     </p>
   </footer>
 
@@ -156,8 +156,12 @@
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
     import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    import { mountSupportLink } from '/web-engine/support/support.js';
     startVersionChecker();
     mountDeviceQr({ label: 'Open on your phone' });
+    // A plain Ko-fi anchor, and only once a username is configured — see
+    // web-engine/support/support.js for why it is never the Ko-fi widget.
+    mountSupportLink(document.getElementById('support-slot'));
     // Cookieless, anonymous page counts. No-op until the measurement id in
     // /web-engine/analytics/analytics.js is real. docs/features/analytics.md
     initAnalytics({ page: 'home' });

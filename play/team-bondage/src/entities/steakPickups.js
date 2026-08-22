@@ -9,15 +9,18 @@
 // See docs/features/steak-weapon.md.
 
 import * as THREE from 'three';
+import { WORLD_SIZE } from '../../../../web-engine/procgen/voxelWorldGen.js';
 
 const SIDES = ['N', 'S', 'E', 'W'];
 const RESPAWN_MS = 2_000;
 const HIT_RADIUS = 0.9;
 const FLOAT_Y = 4.5;
 
-// Positions computed from WORLD_SIZE = 64×64 so each steak floats at the
-// mid-edge of its own side.
-function sidePosition(side, worldSize = 64) {
+// Positions computed from WORLD_SIZE so each steak floats at the mid-edge of
+// its own side. The default is read from the generator rather than written
+// here as a number: the steaks are a MAP FEATURE, and a copy of the map's
+// width that has to be remembered is a copy that will go stale.
+function sidePosition(side, worldSize = WORLD_SIZE.x) {
   const mid = worldSize / 2;
   const edge = 4;
   switch (side) {
@@ -58,7 +61,7 @@ export class SteakPickups {
   constructor(scene, opts = {}) {
     this.scene = scene;
     this.onShotBroken = opts.onShotBroken || (() => {});
-    this.worldSize = opts.worldSize || 64;
+    this.worldSize = opts.worldSize || WORLD_SIZE.x;
     this.meshes = new Map();      // side -> Group
     this.status = new Map();      // side -> { alive:bool, respawnAt:number }
     this._bobT = 0;

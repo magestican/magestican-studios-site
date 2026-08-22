@@ -63,6 +63,17 @@ export class Player {
 
   respawn() {
     const t = { x: this.spawn.x, y: this.spawn.y + 1.0, z: this.spawn.z };
+    // HARD teleport, not just a kinematic target.
+    //
+    // `setNextKinematicTranslation` only takes effect on the next physics
+    // step — and `update()` runs BEFORE that step, reads `body.translation()`
+    // (still the place you died), adds this frame's movement to it and calls
+    // setNextKinematicTranslation again with the result. The respawn target
+    // was overwritten before it was ever applied, so you carried on standing
+    // where you were killed. `setTranslation` moves the body immediately, so
+    // the next update() reads the base. Bryan: "when I die and re-spawn, I
+    // should re-spawn at base."
+    this.body.setTranslation(t, true);
     this.body.setNextKinematicTranslation(t);
     this.pos.set(t.x, t.y, t.z);
     this.vel.set(0, 0, 0);

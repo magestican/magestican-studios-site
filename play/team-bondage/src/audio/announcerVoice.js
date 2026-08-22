@@ -82,6 +82,12 @@ export const PHRASES = {
   FIGHT:        { text: 'FIGHT!',       ph: 'F AY T' },
   REVENGE:      { text: 'REVENGE',      ph: 'R IY V EH N JH' },
   DENIED:       { text: 'DENIED',       ph: 'D IH N AY D' },
+  // GORE mode only, and aimed at the person who just died rather than the
+  // room: the taunt has to be drawn out or it is just the word "loser". The
+  // repeated UW is what stretches the vowel into "loooooser" — the phrase
+  // planner gives every phoneme its own slot, so three of them in a row is
+  // three times the duration on that one vowel.
+  LOSER:        { text: 'LOOOOSERRR',   ph: 'L UW UW UW Z ER ER' },
 };
 
 // Pure helper (unit-tested): expand a phrase into timed phoneme slots.

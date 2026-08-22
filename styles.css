@@ -200,3 +200,13 @@ main {
 .content-page ul { padding-left: 22px; }
 .content-page li { margin-bottom: 6px; }
 .updated { color: var(--ink-soft); font-size: 14px; margin: 0 0 24px; }
+
+/* Ko-fi support link. Mounted by web-engine/support/support.js and ONLY once a
+   username is configured, so this styles an element that may not exist. */
+.support-link {
+  display: inline-block; margin-left: 10px;
+  padding: 3px 12px; border-radius: 999px;
+  background: #f4c95d; color: #1c1a17;
+  font-weight: 700; text-decoration: none;
+}
+.support-link:hover { background: #ffd97a; }
