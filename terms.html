@@ -5,6 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Terms of Use — Magestican Studios</title>
   <meta name="description" content="Terms of use for the Magestican Studios website and games.">
+  <link rel="canonical" href="https://magesticanstudios.com/terms.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Terms of Use — Magestican Studios">
+  <meta property="og:description" content="Terms of use for the Magestican Studios website and games.">
+  <meta property="og:url" content="https://magesticanstudios.com/terms.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Terms of Use — Magestican Studios">
+  <meta name="twitter:description" content="Terms of use for the Magestican Studios website and games.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Terms of Use",
+    "url": "https://magesticanstudios.com/terms.html",
+    "isPartOf": { "@type": "WebSite", "name": "Magestican Studios",
+                  "url": "https://magesticanstudios.com" },
+    "about": "Terms governing use of the Magestican Studios website and games."
+  }
+  </script>
   <link rel="stylesheet" href="./styles.css">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 </head>
@@ -77,8 +99,11 @@
   <script type="module">
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
     import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
     startVersionChecker();
     mountDeviceQr({ label: 'Open this page on your phone' });
+    initAnalytics({ page: 'terms' });
+    trackPlayClicks();
   </script>
 </body>
 </html>

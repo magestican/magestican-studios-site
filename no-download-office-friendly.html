@@ -12,7 +12,40 @@
   <meta property="og:description" content="No installer, no admin rights, no signup. Runs in Chrome, Edge, Safari, Firefox on any managed device.">
   <meta property="og:url" content="https://magesticanstudios.com/no-download-office-friendly.html">
   <meta property="og:image" content="https://magesticanstudios.com/assets/tb-live-menu.png">
+  <meta property="og:site_name" content="Magestican Studios">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free browser FPS with no download — works on any office laptop">
+  <meta name="twitter:description" content="No installer, no admin rights, no signup. Runs in Chrome, Edge, Safari and Firefox on any managed device.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-live-menu.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Browser games with no download, for locked-down office computers",
+    "description": "Why Team Bondage runs on a managed work laptop with no installer, no admin rights and no plugin — and where it does not.",
+    "author": { "@type": "Organization", "name": "Magestican Studios" },
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "logo": { "@type": "ImageObject", "url": "https://magesticanstudios.com/favicon.svg" } },
+    "mainEntityOfPage": "https://magesticanstudios.com/no-download-office-friendly.html",
+    "image": "https://magesticanstudios.com/assets/tb-live-menu.png"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Can I play a multiplayer game on a work computer without installing anything?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Team Bondage runs entirely inside the browser tab using WebGL and WebRTC. There is no installer, no browser plugin and no admin rights involved, so a managed laptop with software installation blocked can still play it." } },
+      { "@type": "Question", "name": "Does it work on a Chromebook?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Chromebooks run Chrome, which supports both WebGL and WebRTC. So do managed Windows laptops, MacBooks, iPads and Android phones." } },
+      { "@type": "Question", "name": "Will my company firewall block it?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Usually not. The only networks that stop it are the rare ones that block all WebRTC traffic outright, typically high-security VPNs. Tethering to a phone is the workaround." } },
+      { "@type": "Question", "name": "Do I need an account to play?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. There is no signup and no game server. One person hosts, everyone else pastes a room code." } }
+    ]
+  }
+  </script>
   <link rel="stylesheet" href="./styles.css">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 </head>
@@ -22,6 +55,7 @@
     <nav>
       <a href="./#games">Games</a>
       <a href="./team-bondage.html">Team Bondage</a>
+      <a href="./zelakas-in-space.html">Zelakas</a>
       <a href="./for-remote-teams.html">For teams</a>
       <a href="./about.html">About</a>
     </nav>
@@ -73,5 +107,13 @@
     <p>© Magestican Studios · a trading name of Ultra Task Pty Ltd · Australia</p>
     <p><a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a></p>
   </footer>
+  <!-- Anonymous, cookieless traffic measurement. The measurement id lives in
+       /web-engine/analytics/analytics.js and nowhere else; while it is still
+       the placeholder this block does nothing at all. -->
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    initAnalytics({ page: 'no-download' });
+    trackPlayClicks();
+  </script>
 </body>
 </html>

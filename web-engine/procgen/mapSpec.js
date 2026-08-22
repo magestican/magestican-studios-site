@@ -9,10 +9,13 @@
 // arena" from "the things that make it a farm".
 //
 // What is INVARIANT across every map, because the game needs it:
-//   * 64 x 64 playable tiles, 12 tall.
+//   * WORLD_SIZE playable tiles (80 x 80 since 2026-08-22), 12 tall.
 //   * Two bases at opposite corners, mirrored, each with a flag stand at its
 //     centre and a doorway facing mid-map.
 //   * A raised centre feature where the chicken slingshot spawns.
+//   * Two POWER-UP ZONES on the other diagonal — the gym and the dairy — each
+//     a landmark you can name from across the map, each equidistant from both
+//     bases so neither team owns one.
 //   * A walkable floor at y=0 everywhere a player can stand.
 //   * Every step a player must climb is ONE voxel. Autostep is 1.15 m and a
 //     jump apex is ~1.5 m, so a two-voxel wall is cover, not terrain — the
@@ -21,6 +24,12 @@
 //
 // What each map gets to CHANGE: ground material, terrain shape, cover
 // vocabulary, base architecture, props, ambient life, and its sky.
+//
+// EVERY COUNT IN THIS FILE IS A DENSITY, quoted per 64 x 64 tiles — the size
+// the map was when these numbers were tuned. The generator multiplies them by
+// `perArea()` (voxelWorldGen.js) before it scatters anything, so growing the
+// world keeps the same props-per-hectare instead of stretching the same props
+// thinner. Author new numbers against 64 x 64 and let perArea do the rest.
 
 import { VOX } from '../voxel/voxelGrid.js';
 
@@ -57,7 +66,7 @@ export const SKIES = Object.freeze({
       { at: 0.75, hex: '#8ec5ff' },
       { at: 1.00, hex: '#3a5a89' },
     ],
-    fog: 0x8ec5ff, fogNear: 40, fogFar: 120,
+    fog: 0x8ec5ff, fogNear: 50, fogFar: 150,
     sunTint: 0xffffff, sunIntensity: 1.05,
     hemiSky: 0xc5dde5, hemiGround: 0x7e99b4,
     cloudAlpha: 1.0,
@@ -75,7 +84,7 @@ export const SKIES = Object.freeze({
       { at: 0.75, hex: '#c6dcec' },
       { at: 1.00, hex: '#6f8ba6' },
     ],
-    fog: 0xc6dcec, fogNear: 44, fogFar: 135,   // thin dry air: you can see FURTHER up here
+    fog: 0xc6dcec, fogNear: 55, fogFar: 169,   // thin dry air: you can see FURTHER up here
     sunTint: 0xffffff, sunIntensity: 1.18,   // thin air, nothing softening it
     hemiSky: 0xd3e6f2, hemiGround: 0x8fa8be,
     cloudAlpha: 0.7,                         // you are level with the weather
@@ -91,7 +100,7 @@ export const SKIES = Object.freeze({
       { at: 0.75, hex: '#e0b48a' },
       { at: 1.00, hex: '#6d5f56' },
     ],
-    fog: 0xe0b48a, fogNear: 34, fogFar: 112,   // city haze, low sun through it
+    fog: 0xe0b48a, fogNear: 43, fogFar: 140,   // city haze, low sun through it
     sunTint: 0xffcf96, sunIntensity: 0.92,   // low sun, and less of it
     hemiSky: 0xf0cfae, hemiGround: 0x9a8b7c, // bounce off grey pavers, not snow
     cloudAlpha: 1.0,
@@ -108,7 +117,7 @@ export const SKIES = Object.freeze({
       { at: 0.75, hex: '#c9c2d8' },
       { at: 1.00, hex: '#4e5a83' },
     ],
-    fog: 0xc9c2d8, fogNear: 38, fogFar: 122,   // ice blink softens the far end of the floe
+    fog: 0xc9c2d8, fogNear: 48, fogFar: 153,   // ice blink softens the far end of the floe
     sunTint: 0xffc2a6, sunIntensity: 0.86,
     hemiSky: 0xd8d2e6, hemiGround: 0x8ea0bd,
     cloudAlpha: 0.55,

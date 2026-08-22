@@ -5,6 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>About — Magestican Studios</title>
   <meta name="description" content="Magestican Studios is Bryan Arbelo's game imprint under Ultra Task Pty Ltd. Small hand-drawn games with procedurally generated worlds.">
+  <link rel="canonical" href="https://magesticanstudios.com/about.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="About Magestican Studios — hand-drawn games with procedural worlds">
+  <meta property="og:description" content="Magestican Studios is Bryan Arbelo's game imprint under Ultra Task Pty Ltd, Australia. Small hand-drawn games with procedurally generated worlds.">
+  <meta property="og:url" content="https://magesticanstudios.com/about.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About Magestican Studios — hand-drawn games with procedural worlds">
+  <meta name="twitter:description" content="Magestican Studios is Bryan Arbelo's game imprint under Ultra Task Pty Ltd, Australia. Small hand-drawn games with procedurally generated worlds.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "About Magestican Studios",
+    "url": "https://magesticanstudios.com/about.html",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "Magestican Studios",
+      "url": "https://magesticanstudios.com",
+      "logo": "https://magesticanstudios.com/favicon.svg",
+      "parentOrganization": { "@type": "Organization", "name": "Ultra Task Pty Ltd" },
+      "founder": { "@type": "Person", "name": "Bryan Arbelo" },
+      "areaServed": "Worldwide",
+      "description": "A small games imprint making hand-drawn browser games with procedurally generated worlds."
+    }
+  }
+  </script>
   <link rel="stylesheet" href="./styles.css">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 </head>
@@ -65,8 +94,11 @@
   <script type="module">
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
     import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
     startVersionChecker();
     mountDeviceQr({ label: 'Open this page on your phone' });
+    initAnalytics({ page: 'about' });
+    trackPlayClicks();
   </script>
 </body>
 </html>

@@ -6,9 +6,45 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Team Bondage</title>
-  <meta name="description" content="Team Bondage - a browser FPS with ice-drift movement, farm-animal characters, seeded voxel maps, and P2P multiplayer. No server, no download. Made by Magestican Studios.">
+  <title>Play Team Bondage — free browser FPS, no download | Magestican Studios</title>
+  <meta name="description" content="Play Team Bondage free in your browser: a capture-the-flag FPS with ice-drift movement, farm-animal soldiers, seeded voxel maps and peer-to-peer multiplayer. Four maps, four modes, AI bots. No download, no install, no account — just share a room code.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a17'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='20' text-anchor='middle' fill='%23f6f1e6'%3ET%3C/text%3E%3C/svg%3E">
+  <!-- The game page is the page people actually link to and share, so it
+       carries its own canonical + cards rather than leaning on the landing
+       page at /team-bondage.html. -->
+  <link rel="canonical" href="https://magesticanstudios.com/play/team-bondage/">
+  <meta name="keywords" content="play team bondage, free browser fps, capture the flag browser game, no download multiplayer, farm animal shooter, webrtc p2p game, office friendly game">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Team Bondage — free browser FPS, no download">
+  <meta property="og:description" content="Farm-animal capture-the-flag with ice-drift movement and P2P multiplayer. Share a room code and play in 30 seconds.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/team-bondage/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Team Bondage — free browser FPS, no download">
+  <meta name="twitter:description" content="Four maps, four modes, AI bots, and no installer. Just a room code.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Team Bondage",
+    "url": "https://magesticanstudios.com/play/team-bondage/",
+    "description": "A free browser-based capture-the-flag FPS with ice-drift movement, farm-animal soldiers, seeded voxel maps and peer-to-peer multiplayer. No download, no account.",
+    "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Multiplayer", "First-person shooter", "Capture the Flag"],
+    "gamePlatform": ["Web browser", "Mobile browser"],
+    "playMode": ["MultiPlayer", "SinglePlayer"],
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 16 },
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": "en",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
   <style>
     :root { color-scheme: dark; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -591,6 +627,8 @@
       "arbelo/physics":     "../../web-engine/physics/rapierWorld.js",
       "arbelo/input-movement": "../../web-engine/input/movementMath.js",
       "arbelo/aim-assist":  "../../web-engine/input/aimAssist.js",
+      "arbelo/analytics":   "../../web-engine/analytics/analytics.js",
+      "arbelo/game-events": "../../web-engine/analytics/gameEvents.js",
       "three/addons/loaders/GLTFLoader.js": "https://unpkg.com/three@0.161.0/examples/jsm/loaders/GLTFLoader.js"
     }
   }

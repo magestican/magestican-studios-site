@@ -49,21 +49,48 @@ export function buildCharacter(kind, teamTintHex) {
     kind === 'pig'     ? buildPig(teamTintHex) :
     kind === 'sheep'   ? buildSheep(teamTintHex) :
                          buildCow(teamTintHex);
-  // Async: replace the procedural inner mesh with the GLB scene if available.
+  // Everything built above is the PLACEHOLDER body. Tag it, so the hot-swap
+  // below can remove exactly the placeholder and nothing else. This used to be
+  // `proc.group.clear()`, which wiped every child — including things added by
+  // the CALLER after buildCharacter returned, namely the nameplate and the
+  // team aura. A remote player's aura was being deleted a few hundred
+  // milliseconds after it was created, which is most of why the red enemy
+  // outline kept being reported as missing.
+  for (const c of proc.group.children) {
+    if (!c.userData.armband) c.userData.placeholder = true;
+  }
+
+  // Async: replace the procedural body with the GLB once it arrives.
   loadGlbIfExists(kind).then((scene) => {
     if (!scene) return;
-    // Wipe the procedural body (keep armband + headBone reference).
-    const armband = proc.group.children.find((c) => c.geometry?.parameters?.height === 0.10);
-    proc.group.clear();
-    scene.rotation.y = Math.PI;  // GLB is authored facing +Y; face +Z in-game
-    proc.group.add(scene);
-    if (armband) proc.group.add(armband);
+    // CLONE per character. `_cache` hands every animal of the same kind the
+    // SAME Object3D, and in three.js `add()` removes an object from its
+    // previous parent — so each new cow was stealing the body off the last
+    // cow, leaving earlier ones as empty groups. That is the "some enemies
+    // are invisible / they spawn as floating rectangles" bug: the group still
+    // held the nameplate and aura sprites, so an emptied character rendered as
+    // a couple of floating flat quads with nothing between them. With N bots
+    // sharing four kinds, most of them ended up bodiless.
+    const body = scene.clone(true);
+    body.rotation.y = Math.PI;   // GLB is authored facing +Y; face +Z in-game
+    for (const c of [...proc.group.children]) {
+      if (c.userData.placeholder && c !== proc.headBone) proc.group.remove(c);
+    }
+    // The head bone is kept for mouse-look tilt but must not be drawn twice.
+    if (proc.headBone) proc.headBone.visible = false;
+    proc.group.add(body);
   });
   return proc;
 }
 
-// Small teammate armband so red/blue is instantly readable.
-function armband(hex) { return cube(0.55, 0.10, 0.55, hex); }
+// Small teammate armband so red/blue is instantly readable. Tagged at the
+// source: it has to SURVIVE the GLB hot-swap, and the old code found it by
+// looking for a mesh 0.10 units tall, which is a coincidence, not an identity.
+function armband(hex) {
+  const m = cube(0.55, 0.10, 0.55, hex);
+  m.userData.armband = true;
+  return m;
+}
 
 // ---- Cow -----------------------------------------------------------------
 

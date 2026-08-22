@@ -8,6 +8,8 @@ import { PeerMesh } from 'arbelo/net';
 import { SeededRng, seedToCode, codeToSeed } from 'arbelo/rng';
 import { startVersionChecker } from 'arbelo/updater';
 import { mountDeviceQr }       from 'arbelo/qr';
+import { initAnalytics, trackEvent } from 'arbelo/analytics';
+import { gameStartParams, watchMatchEnd } from 'arbelo/game-events';
 
 // Cache-busting: polls /version.json every 60s and shows a Refresh banner
 // when the deployed build id changes.
@@ -17,6 +19,12 @@ startVersionChecker({ label: 'A new version of Team Bondage is available.' });
 // can point their phone camera at it and open the exact same page (including
 // the ?join=xxx room code if they're mid-lobby).
 mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Team Bondage (and any join code) on your phone.' });
+
+// Anonymous, cookieless measurement. The measurement id lives in
+// web-engine/analytics/analytics.js and nowhere else; while it is still the
+// placeholder every call below is a no-op and no request is made.
+// docs/features/analytics.md
+initAnalytics({ page: 'team-bondage-game' });
 
 const $ = (id) => document.getElementById(id);
 
@@ -293,5 +301,14 @@ async function startGame(hostIdToJoin) {
   });
 
   window.__tbGame = game;   // for debugging
+
   await game.boot();
+
+  // The two events that make traffic mean something: which map/mode/bot count
+  // people actually pick, and whether the match reached an end. Fired from
+  // here rather than from game.js so gameplay code carries no analytics — and
+  // AFTER boot(), because a joiner does not learn the host's map and mode
+  // until the WELCOME arrives inside boot().
+  trackEvent('game_start', gameStartParams(game, { role: state.mode }));
+  watchMatchEnd(game, { onEnd: (params) => trackEvent('match_end', params) });
 }

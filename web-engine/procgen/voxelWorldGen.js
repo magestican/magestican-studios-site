@@ -14,8 +14,32 @@ import { SeededRng } from '../rng/seededRng.js';
 import { VoxelGrid, VOX, GROUND_VOX } from '../voxel/voxelGrid.js';
 import { getMap, DEFAULT_MAP } from './mapSpec.js';
 
-export const WORLD_SIZE = { x: 64, y: 12, z: 64 };
+// 2026-08-22 (Bryan: "make the map at least 50% bigger"): 64 -> 80 on both
+// horizontal axes. 80x80 = 6400 tiles against 64x64 = 4096, so the playable
+// area is +56%. The HEIGHT is deliberately unchanged: 12 courses is what the
+// one-voxel-step rule, the barn roofs and the hazard fall time are all tuned
+// against, and a taller world would only add sky.
+export const WORLD_SIZE = { x: 80, y: 12, z: 80 };
 export const BASE_SIZE  = { x: 10, y: 4,  z: 10 };
+
+// Everything the generator scatters is authored as a count, and a count is a
+// DENSITY only for the map size it was authored against. Growing the map
+// without growing the counts is how a bigger arena ends up feeling emptier
+// than the small one it replaced — the same 24 ice patches and 22 geese spread
+// over 56% more ground. BASELINE_SIZE records what the numbers in mapSpec.js
+// (and in the scatter tables in games/) were tuned on, and `perArea()` is the
+// one place that converts count-per-64x64 into count-per-actual-map.
+export const BASELINE_SIZE = 64;
+export const AREA_SCALE =
+  (WORLD_SIZE.x * WORLD_SIZE.z) / (BASELINE_SIZE * BASELINE_SIZE);
+export function perArea(count) {
+  return Math.max(1, Math.round(count * AREA_SCALE));
+}
+// The same idea for a coordinate: a landmark authored at x=25 on a 64-wide map
+// belongs at the same FRACTION of the width, not at the same metre.
+export function atFraction(v, axis = WORLD_SIZE.x) {
+  return Math.round((v / BASELINE_SIZE) * axis);
+}
 
 export function generateWorld(seed, mapId = DEFAULT_MAP) {
   const map = getMap(mapId);
@@ -27,7 +51,8 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   // Patches of a second ground material for visual texture — exposed ice on
   // the farm, wind-blown snow over the rink's pavers, snow over the floe.
   const patchRng = rng.child('ice-patch');
-  for (let i = 0; i < map.patch.count; i++) {
+  const patchCount = perArea(map.patch.count);
+  for (let i = 0; i < patchCount; i++) {
     const px = patchRng.rangeI(4, WORLD_SIZE.x - 6);
     const pz = patchRng.rangeI(4, WORLD_SIZE.z - 6);
     const w = patchRng.rangeI(map.patch.size[0], map.patch.size[1]);
@@ -58,13 +83,18 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   buildBase(grid, redBase.x,  redBase.z,  VOX.BASE_RED,  VOX.FLAG_STAND_RED,  map);
   buildBase(grid, blueBase.x, blueBase.z, VOX.BASE_BLUE, VOX.FLAG_STAND_BLUE, map);
 
+  // The two power-up zones, on the diagonal the bases do NOT occupy. See
+  // buildPowerZone() for why they are landmarks rather than scatter.
+  const powerUpZones = buildPowerZones(grid);
+
   // Cover, drawn from the map's own vocabulary.
   const coverRng = rng.child('cover');
-  const coverCount = coverRng.rangeI(20, 32);
+  const coverCount = perArea(coverRng.rangeI(20, 32));
   for (let i = 0; i < coverCount; i++) {
     const px = coverRng.rangeI(12, WORLD_SIZE.x - 13);
     const pz = coverRng.rangeI(12, WORLD_SIZE.z - 13);
     if (insideBase(px, pz, redBase) || insideBase(px, pz, blueBase)) continue;
+    if (insideZone(px, pz, powerUpZones)) continue;
     // Never drop cover onto something already standing there. Until this
     // guard the rink's dasher boards were being punched through by benches
     // and stone walls — the boards generate first, cover picks a free tile at
@@ -79,11 +109,12 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   const hayStacks = [];
   if (map.hay) {
     const hayRng = rng.child('hay');
-    const hayCount = hayRng.rangeI(8, 12);
+    const hayCount = perArea(hayRng.rangeI(8, 12));
     for (let i = 0; i < hayCount; i++) {
       const hx = hayRng.rangeI(6, WORLD_SIZE.x - 9);
       const hz = hayRng.rangeI(6, WORLD_SIZE.z - 9);
       if (insideBase(hx, hz, redBase) || insideBase(hx, hz, blueBase)) continue;
+      if (insideZone(hx, hz, powerUpZones)) continue;
       if (Math.abs(hx - cx) < 4 && Math.abs(hz - cz) < 4) continue;
       _buildHayBale(grid, hx, hz);
       hayStacks.push({ x: hx, z: hz });
@@ -123,6 +154,11 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   return { seed, mapId: map.id, map, grid, spawns, flags, redBase, blueBase,
            hillSpawn, hayStacks, barnSigns,
            tractorParking: wear.tractorParking,
+           powerUpZones,
+           powerUpSpawns: {
+             'protein-shake': zoneSpawn(powerUpZones.gym),
+             'cheese-wheel':  zoneSpawn(powerUpZones.dairy),
+           },
            ambientSpots };
 }
 
@@ -141,8 +177,15 @@ function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
   const nearBase = (x, z, b) =>
     x > b.x - STANDOFF && x < b.x + BASE_SIZE.x + STANDOFF
     && z > b.z - STANDOFF && z < b.z + BASE_SIZE.z + STANDOFF;
+  // The power-up zones get the same treatment as the bases, and for the same
+  // reason: the gym is a stepped deck, and a stepped deck built on top of a
+  // four-course terrace is a deck with a cliff on one side. Terrain keeps off
+  // their footprint plus an apron, so both zones always stand on flat ground.
+  const zones = Object.values(powerZoneCentres());
   const clearOfBases = (x, z) =>
-    !nearBase(x, z, redBase) && !nearBase(x, z, blueBase);
+    !nearBase(x, z, redBase) && !nearBase(x, z, blueBase)
+    && !zones.some((c) => Math.abs(x - c.x) <= ZONE_HALF + 5
+                       && Math.abs(z - c.z) <= ZONE_HALF + 5);
 
   if (map.terrain === 'terraces') {
     // A mountain saddle: two RIDGE LINES, and the height at any tile steps down
@@ -156,11 +199,15 @@ function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
     // Both lines are laid ACROSS the red-to-blue diagonal rather than along
     // it, so the mountain is something the attack has to cross instead of a
     // wall down the middle of the route.
+    // The endpoints are quoted in 64-tile coordinates (where they were drawn)
+    // and mapped onto the real map with atFraction — a ridge that ended at
+    // x=60 was meant to end near the far edge, not at a fixed 60 metres.
+    const F = (v) => atFraction(v);
     const ridges = [
-      { ax: rng.rangeI(6, 16),  az: rng.rangeI(30, 42),
-        bx: rng.rangeI(30, 42), bz: rng.rangeI(4, 14) },
-      { ax: rng.rangeI(22, 34), az: rng.rangeI(50, 60),
-        bx: rng.rangeI(50, 60), bz: rng.rangeI(22, 34) },
+      { ax: F(rng.rangeI(6, 16)),  az: F(rng.rangeI(30, 42)),
+        bx: F(rng.rangeI(30, 42)), bz: F(rng.rangeI(4, 14)) },
+      { ax: F(rng.rangeI(22, 34)), az: F(rng.rangeI(50, 60)),
+        bx: F(rng.rangeI(50, 60)), bz: F(rng.rangeI(22, 34)) },
     ];
     const distToSeg = (px, pz, s) => {
       const vx = s.bx - s.ax, vz = s.bz - s.az;
@@ -207,7 +254,7 @@ function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
     // Pressure ridges: lines of ice forced up where two floes have driven into
     // each other. One course along most of their length with the occasional
     // second block, so they read as broken rather than as walls.
-    const ridges = rng.rangeI(5, 8);
+    const ridges = perArea(rng.rangeI(5, 8));
     for (let r = 0; r < ridges; r++) {
       let x = rng.rangeI(8, WORLD_SIZE.x - 9);
       let z = rng.rangeI(8, WORLD_SIZE.z - 9);
@@ -246,8 +293,13 @@ function placeAmbient(grid, rng, map, { redBase, blueBase }) {
   // joke of putting goats on a mountain, and it is also the only way the crowd
   // says "altitude" rather than "some animals".
   const wantsHigh = map.ambient.prefer === 'high';
-  const per = Math.ceil(map.ambient.count / map.ambient.clusters);
-  for (let c = 0; c < map.ambient.clusters; c++) {
+  // Both numbers scale with the map. Scaling only the head-count would pack
+  // the same five gaggles tighter; scaling only the clusters would spread the
+  // same birds one to a field. A crowd is a density AND a distribution.
+  const total = perArea(map.ambient.count);
+  const clusters = perArea(map.ambient.clusters);
+  const per = Math.ceil(total / clusters);
+  for (let c = 0; c < clusters; c++) {
     // Try several anchors per cluster — a colony centred on the middle of a
     // pressure ridge would otherwise place nothing at all and quietly halve
     // the population. The first two thirds of the attempts on a `high` map
@@ -274,6 +326,120 @@ function placeAmbient(grid, rng, map, { redBase, blueBase }) {
     }
   }
   return spots;
+}
+
+// ---------------------------------------------------------------------------
+// Power-up zones
+// ---------------------------------------------------------------------------
+// Bryan asked that each power-up have "its own identifiable voxel area in the
+// map" — not a scatter. So each one gets a LANDMARK: a built place you can
+// name and point at from across the arena ("meet me at the gym"), the same job
+// the centre hill does for the chicken.
+//
+// Where: the two corners the bases do not use. Red and blue sit on one
+// diagonal, so the gym and the dairy take the other one, mirrored through the
+// same axis the bases are mirrored through. That is what makes them FAIR —
+// each zone is within a metre of the same distance from both bases, so
+// neither team spawns closer to a buff.
+//
+// Shape: both are the same two-course dais, because the step out of one has to
+// be the step out of the other — one voxel per course, exactly like every
+// other rise in the game (see the INVARIANTS note in mapSpec.js). What differs
+// is everything a player reads at 40 m: the gym is DARK and VERTICAL (a stone
+// squat rack and a loaded barbell), the dairy is BRIGHT and LOW (a ring of
+// yellow cheese wheels round a creamery floor). Silhouette first, colour
+// second — art/knowledge/craft/silhouette-readability.md.
+export const ZONE_HALF = 4;          // the dais + its apron: a 9x9 footprint
+export const ZONE_DECK_TOP = 3;      // world Y of the surface you stand on
+
+// Pure function of the map size so the terrain pass, the scatterers and the
+// tests can all ask where the zones are without generating a world.
+export function powerZoneCentres(size = WORLD_SIZE) {
+  // ~11.5% in from the corner: far enough that the dais never touches the
+  // edge fog, close enough that it is unmistakably "the far corner".
+  const inset = Math.round(size.x * 0.115);
+  return {
+    gym:   { x: size.x - 1 - inset, z: inset },
+    dairy: { x: inset,              z: size.z - 1 - inset },
+  };
+}
+
+export function insideZone(x, z, zones) {
+  if (!zones) return false;
+  for (const zn of Object.values(zones)) {
+    if (Math.abs(x - zn.x) <= ZONE_HALF && Math.abs(z - zn.z) <= ZONE_HALF) return true;
+  }
+  return false;
+}
+
+// Where the pickup floats: dead centre of the dais, half a metre proud of the
+// deck — the same offset the chicken uses over the centre hill, so the two
+// pickups read as the same KIND of thing.
+export function zoneSpawn(zone) {
+  return { x: zone.x + 0.5, y: ZONE_DECK_TOP + 0.5, z: zone.z + 0.5 };
+}
+
+function buildPowerZones(grid) {
+  const c = powerZoneCentres();
+  const gym   = { id: 'gym',   powerUp: 'protein-shake', name: 'THE GYM',   ...c.gym };
+  const dairy = { id: 'dairy', powerUp: 'cheese-wheel',  name: 'THE DAIRY', ...c.dairy };
+  buildGym(grid, gym.x, gym.z);
+  buildDairy(grid, dairy.x, dairy.z);
+  return { gym, dairy };
+}
+
+// The shared dais. Two courses, seven tiles then five, so you climb it a metre
+// at a time from any side and the top is a clean 5x5 platform.
+function buildDais(grid, x, z, vox) {
+  // Wipe the column first. Terrain keeps its distance, but cover, ridges and
+  // the odd patch can all still have landed here, and a barbell resting on a
+  // boulder is not a landmark, it is a mistake.
+  grid.fillBox(x - ZONE_HALF, 1, z - ZONE_HALF,
+               x + ZONE_HALF, WORLD_SIZE.y - 1, z + ZONE_HALF, VOX.AIR);
+  grid.fillBox(x - 3, 1, z - 3, x + 3, 1, z + 3, vox);
+  grid.fillBox(x - 2, 2, z - 2, x + 2, 2, z + 2, vox);
+}
+
+// THE GYM — protein shake. Wood platform, stone squat rack, loaded barbell.
+// The rack's two uprights are the only tall vertical pair anywhere outside a
+// base, which is the whole point: it is identifiable at range from its
+// silhouette alone, before any colour resolves.
+function buildGym(grid, x, z) {
+  buildDais(grid, x, z, VOX.WOOD);
+  // Squat rack: two uprights three courses proud of the deck, joined by a bar.
+  for (const rz of [z - 2, z + 2]) {
+    for (let y = ZONE_DECK_TOP; y <= ZONE_DECK_TOP + 2; y++) grid.set(x - 2, y, rz, VOX.STONE);
+  }
+  for (let bz = z - 2; bz <= z + 2; bz++) grid.set(x - 2, ZONE_DECK_TOP + 2, bz, VOX.STONE);
+  // Loaded barbell lying on the far side of the deck: a bar with a plate
+  // standing on each end. One voxel high, so you step over it, not around it.
+  for (let bz = z - 1; bz <= z + 1; bz++) grid.set(x + 2, ZONE_DECK_TOP, bz, VOX.STONE);
+  for (const pz of [z - 2, z + 2]) {
+    grid.set(x + 2, ZONE_DECK_TOP,     pz, VOX.STONE);
+    grid.set(x + 2, ZONE_DECK_TOP + 1, pz, VOX.STONE);
+  }
+}
+
+// THE DAIRY — cheese wheel. Stone creamery floor ringed with stacked wheels.
+// HAY is the brightest yellow in the palette AND it is the one voxel players
+// can walk through (rapierWorld.js), so a ring of it round the deck reads as
+// cheese from 40 m and can never trap the tiny player who came for it.
+function buildDairy(grid, x, z) {
+  buildDais(grid, x, z, VOX.STONE);
+  // Wheels rolled up against the lower course, all the way round.
+  for (let d = -3; d <= 3; d++) {
+    for (const [wx, wz] of [[x + d, z - 3], [x + d, z + 3], [x - 3, z + d], [x + 3, z + d]]) {
+      grid.set(wx, 2, wz, VOX.HAY);
+    }
+  }
+  // Four stacks two high on the deck corners — the vertical accent that stops
+  // the dairy reading as a bare plinth, without giving it the gym's outline.
+  for (const cx2 of [x - 2, x + 2]) {
+    for (const cz2 of [z - 2, z + 2]) {
+      grid.set(cx2, ZONE_DECK_TOP,     cz2, VOX.HAY);
+      grid.set(cx2, ZONE_DECK_TOP + 1, cz2, VOX.HAY);
+    }
+  }
 }
 
 // Is anything standing on this tile above ground level? Still the right

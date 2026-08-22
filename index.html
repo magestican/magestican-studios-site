@@ -28,6 +28,41 @@
     "description": "Small hand-drawn browser games for remote teams. Published by Ultra Task Pty Ltd, Australia."
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Magestican Studios games",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1,
+        "item": { "@type": "VideoGame", "name": "Team Bondage",
+          "url": "https://magesticanstudios.com/team-bondage.html",
+          "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+          "genre": ["Multiplayer", "First-person shooter", "Capture the Flag"],
+          "gamePlatform": ["Web browser", "Mobile browser"],
+          "playMode": "MultiPlayer",
+          "applicationCategory": "Game",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" } } },
+      { "@type": "ListItem", "position": 2,
+        "item": { "@type": "VideoGame", "name": "Zelakas In Space",
+          "url": "https://magesticanstudios.com/zelakas-in-space.html",
+          "image": "https://magesticanstudios.com/assets/zelakas-ingame.png",
+          "genre": ["Arcade", "Shoot 'em up"],
+          "gamePlatform": ["Web browser"],
+          "playMode": "SinglePlayer",
+          "applicationCategory": "Game",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" } } },
+      { "@type": "ListItem", "position": 3,
+        "item": { "@type": "VideoGame", "name": "Aracstory",
+          "url": "https://magesticanstudios.com/#games",
+          "image": "https://magesticanstudios.com/assets/aracstory-preview.png",
+          "genre": ["Adventure", "Roguelike"],
+          "gamePlatform": ["Web browser"],
+          "playMode": "SinglePlayer",
+          "applicationCategory": "Game" } }
+    ]
+  }
+  </script>
   <link rel="stylesheet" href="./styles.css">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 </head>
@@ -40,6 +75,7 @@
     <nav>
       <a href="./#games">Games</a>
       <a href="./team-bondage.html">Team Bondage</a>
+      <a href="./zelakas-in-space.html">Zelakas</a>
       <a href="./for-remote-teams.html">For teams</a>
       <a href="./about.html">About</a>
     </nav>
@@ -80,7 +116,7 @@
           <h3>Zelakas In Space</h3>
           <p class="game-meta">2D arcade shooter · three endings · keyboard</p>
           <p>Dodge asteroids, blackholes, and drones. Three endings by how much you clear. Made in 2014 with Gonzalo and Christian in ActionScript 3; playable today in a modern browser via Ruffle, and being remade in Godot 4.</p>
-          <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/zelakas/">Play now →</a></p>
+          <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/zelakas/">Play now →</a> · <a href="./zelakas-in-space.html">About this game</a></p>
         </div>
       </article>
 
@@ -92,7 +128,7 @@
           <h3>Team Bondage</h3>
           <p class="game-meta">3D voxel FPS · P2P multiplayer · WASD + mouse</p>
           <p>A browser FPS with ice-drift movement, farm-animal soldiers, seeded voxel maps, and P2P networking (no server). Capture 5 flags to win — unless the losing team can solve an anagram in 10 seconds. Cow, chicken, pig, or sheep?</p>
-          <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/team-bondage/">Play now →</a></p>
+          <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/team-bondage/">Play now →</a> · <a href="./team-bondage.html">About this game</a></p>
         </div>
       </article>
     </section>
@@ -110,7 +146,7 @@
       Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
     </p>
     <p class="colophon">
-      Site is static · No trackers · <a href="https://github.com/magestican/arbelo-games">Source on GitHub</a>
+      Site is static · No cookies, no accounts, anonymous counts only (<a href="./privacy.html">how</a>) · <a href="https://github.com/magestican/arbelo-games">Source on GitHub</a>
     </p>
   </footer>
 
@@ -119,8 +155,13 @@
   <script type="module">
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
     import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
     startVersionChecker();
     mountDeviceQr({ label: 'Open on your phone' });
+    // Cookieless, anonymous page counts. No-op until the measurement id in
+    // /web-engine/analytics/analytics.js is real. docs/features/analytics.md
+    initAnalytics({ page: 'home' });
+    trackPlayClicks();
   </script>
 </body>
 </html>
