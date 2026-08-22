@@ -37,10 +37,16 @@ export const BACKDROP = Object.freeze({
   // bound (the map is square, not round); the radius above is the sightline
   // bound. Both are enforced, and a box that fails either is dropped.
   PLAY_MARGIN: 8,
-  // How far the ground skirt reaches before it has finished dissolving into
-  // the sky's fog colour. Comfortably past the furthest band on any map and
-  // still inside CAMERA_FAR (320).
+  // How far the ground skirt reaches. It is a SQUARE half-extent, not a
+  // radius, because the skirt is the playfield rectangle's own apron. It is
+  // fogged, so everything past the map's fogFar is already 100 % haze and the
+  // camera's far plane cuts it where nothing can be seen.
   SKIRT_OUTER: 300,
+  // ...but the SCENERY is unfogged, so its far plane cut WOULD be seen. The
+  // camera is 320 (entities/skyBrawlSpec.js CAMERA_FAR) and a player can stand
+  // 56.6 m off mid-map at the corner, so no backdrop vertex may sit further
+  // than this from the centre or the far range pops in and out as you walk.
+  MAX_EXTENT: 250,
   // Minimum value gap between ANY backdrop tone and its sky's horizon band.
   // Below this a silhouette stops being a silhouette — see the note on the
   // BACKDROPS table and the far-cloud-bank failure it is quoting.

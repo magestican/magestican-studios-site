@@ -9,14 +9,16 @@
 
 import * as THREE from 'three';
 import { computeWishDelta, cameraHorizontalAxes } from 'arbelo/input-movement';
+import { stepJump, newJumpState } from '../../../../web-engine/movement/jump.js';
 import * as SFX from '../audio/sfx.js';
 import {
   CAPSULE_HALF_HEIGHT, CAPSULE_RADIUS, EYE_OFFSET as EYE_HEIGHT_OFFSET,
   capsuleFor, centreKeepingFeet, eyeHeightFor,
 } from './powerUpSpec.js';
 
-const GRAVITY = -30.0;
-const JUMP_SPEED = 9.0;
+// Gravity, jump impulse, air-jump budget and the fall clamp all moved to
+// web-engine/movement/jump.js — they are one state machine and splitting them
+// across two files is how gravity came to be applied twice per frame.
 const MOVE_ACCEL_GROUND = 55.0;
 const MOVE_ACCEL_AIR = 12.0;
 const MAX_GROUND_SPEED = 8.5;
@@ -74,6 +76,8 @@ export class Player {
     this.pos = new THREE.Vector3(spawn.x, spawn.y + 1.0, spawn.z);
     this._grounded = false;
     this.jumpCount = 0;
+    // All vertical state in one owned object (see web-engine/movement/jump.js).
+    this._jump = newJumpState();
   }
 
   // Grow or shrink the player. Idempotent, so game.js can call it every frame
@@ -132,6 +136,9 @@ export class Player {
     this.body.setNextKinematicTranslation(t);
     this.pos.set(t.x, t.y, t.z);
     this.vel.set(0, 0, 0);
+    // Respawn with a clean vertical state, or a player who died mid-jump comes
+    // back with the latch still set and their air jump already spent.
+    this._jump = newJumpState();
     this.hp = 100;
     this.alive = true;
     this.hasEnemyFlag = false;
@@ -178,31 +185,33 @@ export class Player {
       this.vel.x *= s; this.vel.z *= s;
     }
 
-    // -- Jump (with DOUBLE JUMP: one grounded jump + one mid-air jump). --
-    if (this._grounded) this._airJumpsLeft = 1;   // reset the mid-air budget each landing
-    const jumpPressed = input.wasPressed('jump')
-      || (input.isDown('jump') && !this._jumpingDown);
-    if (jumpPressed) {
-      if (this._grounded) {
-        this.vel.y = JUMP_SPEED;
-        this._jumpingDown = true;
-        this.jumpCount++;
-      } else if (this._airJumpsLeft > 0) {
-        // Double jump: overwrite vertical velocity (feels snappier than
-        // adding to it — you always get a fresh boost). Also play the
-        // player's animal voice — moo/oink/bheee/cluck. Bryan 2026-08-20.
-        this.vel.y = JUMP_SPEED * 0.95;
-        this._airJumpsLeft--;
-        this._jumpingDown = true;
-        this.jumpCount++;
+    // -- Jump + gravity: delegated to the ENGINE ----------------------------
+    // The rules (one ground jump per press, one air jump per landing, bounded
+    // velocity, clamped fall) live in web-engine/movement/jump.js as a pure
+    // state machine, so they can be tested without a browser. This file keeps
+    // only what genuinely needs rapier: reading `grounded` off the character
+    // controller, and applying the velocity it returns.
+    //
+    // Previously these rules were four loose fields mutated inline here, which
+    // is how a held key came to re-trigger a jump every tick.
+    const jres = stepJump(this._jump, {
+      velY: this.vel.y,
+      grounded: this._grounded,
+      jumpDown: input.isDown('jump'),
+      dt,
+    });
+    this.vel.y = jres.velY;
+    if (jres.jumped) {
+      this.jumpCount++;
+      // The double jump is the one that yells.
+      if (jres.jumped === 'air') {
         try { SFX.animalVoice(this.character, 1.0); } catch (_) {}
       }
     }
-    if (!input.isDown('jump')) this._jumpingDown = false;
 
-    // -- Gravity --
-    this.vel.y += GRAVITY * dt;
-    if (this.vel.y < -30) this.vel.y = -30;
+    // (Gravity and the terminal-velocity clamp are applied by stepJump above —
+    // they are part of the same vertical state machine, and having them here
+    // as well double-applied gravity on every frame.)
 
     // -- Ask rapier's character controller for the corrected movement --
     const desired = { x: this.vel.x * dt, y: this.vel.y * dt, z: this.vel.z * dt };
