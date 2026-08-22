@@ -125,6 +125,210 @@ export const SKIES = Object.freeze({
 });
 
 // ---------------------------------------------------------------------------
+// Backdrops — what is OUT OF BOUNDS
+// ---------------------------------------------------------------------------
+// Bryan 2026-08-22, about the rink: *"add some buildings outside of the map
+// area, in an unreachable part of the map, that still feels close enough to
+// feel like we are in new york, with lights on the buildings and all"* — and
+// then *"add similar things to my other maps"*.
+//
+// So every map now owns a ring of scenery beyond the 80x80 playfield. It is
+// the difference between an arena and a PLACE: the arena tells you what you
+// can do, the backdrop tells you where you are doing it. Nothing here is ever
+// reachable, collidable or shootable — backdropGen.js emits plain boxes in
+// world space, never voxels, and the physics world is built from the voxel
+// grid alone, so an out-of-bounds building cannot acquire a collider by
+// accident.
+//
+// The shape of an entry:
+//
+//   skirt   the ground BEYOND the playfield. A square annulus around the map
+//           whose inner edge is this colour and whose outer edge is the sky's
+//           own fog stop, so the land runs out into haze instead of ending on
+//           a line and leaving the backdrop standing on nothing.
+//   bands   concentric rings, nearest first. Each is walked all the way round
+//           and filled with one FORM at a radius/width/height/gap range.
+//   marks   named landmarks placed at fixed bearings rather than scattered,
+//           because a silo you can take a compass bearing off is worth more
+//           than three more silos in random places.
+//   lines   radial runs (the farm's fences) that leave the map and keep going.
+//
+// COLOUR IS THE DEPTH CUE, and it follows one rule from
+// art/knowledge/craft/color.md: *distance costs CONTRAST, not brightness, and
+// against a bright sky the far thing is DARKER*. Every one of these skies has
+// a bright horizon band (0.55 stop), so a band that recedes:
+//
+//   * KEEPS a hard value gap to that band (>= BACKDROP.MIN_SKY_GAP) or it
+//     dissolves into the haze and the horizon comes back empty — exactly the
+//     failure the far cloud bank shipped;
+//   * NARROWS its own lit-to-shade range with distance, which is the thing
+//     that actually reads as air between you and it;
+//   * lifts its MEAN value toward the sky as it goes back, but never past
+//     that gap.
+//
+// backdrop.test.js asserts all three on every band of every map, so a
+// prettier hex cannot quietly undo the depth.
+//
+// `lit` / `shade` are the two ends of a per-face ramp: a face is shaded by its
+// own world normal against the light rig's sun direction, once, at build time.
+// Nothing out here is lit at runtime — an unlit value is a number we chose,
+// which is the only way to promise a tower stays darker than the sky it is
+// standing against (color.md, "a thing that must always look bright should be
+// PAINTED, not lit").
+export const BACKDROPS = Object.freeze({
+
+  // -- Central Park Rink ----------------------------------------------------
+  // Manhattan at dusk, and it is built the way the real thing is built: the
+  // park is ringed by a fairly even pre-war apartment WALL, and the towers
+  // rise behind it. Getting that order right is most of why it reads as
+  // Central Park and not as a generic downtown — a skyline that starts at the
+  // treeline has no park in it.
+  'manhattan-skyline': {
+    id: 'manhattan-skyline',
+    skirt: '#4a3f45',
+    bands: [
+      // The park itself: bare winter trees, near-black, one continuous ragged
+      // mass. It is what the towers stand BEHIND, and it hides every base of
+      // every building so the city never looks like it is floating.
+      { id: 'park-trees', form: 'conifer', depth: 0,
+        r: [80, 92], gap: [0.5, 4], w: [3.5, 8], h: [7, 15],
+        lit: '#504957', shade: '#16151d' },
+
+      // Fifth Avenue / Central Park West. Shoulder to shoulder, roughly one
+      // height, and every window in the city that is close enough to read is
+      // in this row.
+      { id: 'park-wall', form: 'tower', depth: 1,
+        r: [96, 110], gap: [1, 6], w: [8, 15], d: [10, 18], h: [19, 33],
+        lit: '#5b5568', shade: '#262437',
+        setback: 0.25, crowns: ['flat', 'flat', 'flat', 'water-tower', 'penthouse'],
+        windows: 0.5 },
+
+      // Midtown. Setbacks and water towers — the 1920s zoning-law wedding-cake
+      // profile is the single most New York silhouette there is, and a row of
+      // equal boxes reads as a bar chart.
+      { id: 'midtown', form: 'tower', depth: 2,
+        r: [134, 156], gap: [6, 22], w: [10, 19], d: [11, 20], h: [34, 66],
+        lit: '#63617a', shade: '#3a3850',
+        setback: 0.8, crowns: ['step', 'step', 'water-tower', 'spire', 'flat'],
+        windows: 0.26 },
+
+      // The far towers. No windows at all: at this range a lit window is a
+      // sub-pixel sparkle that aliases, and the silhouette is doing the work.
+      { id: 'far-towers', form: 'tower', depth: 3,
+        r: [180, 208], gap: [22, 62], w: [13, 24], d: [14, 24], h: [46, 92],
+        lit: '#736f88', shade: '#56536c',
+        setback: 0.7, crowns: ['spire', 'step', 'twin-mast', 'flat'],
+        windows: 0 },
+    ],
+    // The window grid. A grid is a REPEATING pattern and this project has
+    // learned twice over that a repeat ships as banding, so four separate
+    // things break it up: a per-building lit BIAS (some towers are mostly
+    // dark), whole dark FLOORS, three warm hues plus the odd cold office
+    // white, and a lit crown band on a few buildings.
+    window: {
+      floorPitch: 3.4, colPitch: 2.9, w: 1.15, h: 1.75, margin: 1.8, sill: 5.5,
+      darkFloor: 0.18, bias: [0.45, 1.4], crownLit: 0.14,
+      warm: ['#ffd88c', '#ffc167', '#fff1c8'],
+      cool: '#c8dcff', coolMix: 0.12,
+    },
+  },
+
+  // -- Snow Farm ------------------------------------------------------------
+  // The farm keeps going past the fence. Hedgerow, then the shelter belt, then
+  // the woods — and two silos and a neighbour's barn far enough out that they
+  // are landmarks rather than props. No lit windows: farm-day is broad
+  // daylight, and a lamp on at noon is the fastest way to lose a time of day.
+  'farm-horizon': {
+    id: 'farm-horizon',
+    skirt: '#cfdcec',
+    bands: [
+      { id: 'hedgerow', form: 'shrub', depth: 0,
+        r: [86, 98], gap: [0.5, 6], w: [2.5, 7], h: [2.5, 5.5],
+        lit: '#6e7a80', shade: '#2f3b45' },
+      { id: 'shelter-belt', form: 'conifer', depth: 1,
+        r: [108, 134], gap: [1, 9], w: [4, 9], h: [9, 17],
+        lit: '#6f8189', shade: '#3d4d57' },
+      { id: 'far-woods', form: 'conifer', depth: 2,
+        r: [152, 192], gap: [0.5, 14], w: [6, 13], h: [8, 15],
+        lit: '#8b9aa4', shade: '#64737f' },
+    ],
+    marks: [
+      // Two silos and a neighbour's barn, at fixed bearings. Fixed, not
+      // seeded: a landmark you can steer by has to be in the same place every
+      // match or it is only scenery.
+      { form: 'silo',  turn: 0.13, r: 120, w: 5.5, h: 19, lit: '#a8b3bb', shade: '#6b7883' },
+      { form: 'silo',  turn: 0.155, r: 124, w: 5, h: 16, lit: '#a8b3bb', shade: '#6b7883' },
+      { form: 'barn',  turn: 0.20, r: 116, w: 20, d: 12, h: 9, lit: '#8a4b46', shade: '#4a2b2c' },
+      { form: 'barn',  turn: 0.64, r: 140, w: 16, d: 10, h: 8, lit: '#7d5a4a', shade: '#452f2b' },
+    ],
+    // Fence lines running off toward the horizon. They are the only straight
+    // lines out there and they all point AWAY, which is what sells the field
+    // as continuing rather than as a painted wall — perspective needs
+    // something with a vanishing point in it.
+    lines: [
+      { turn: 0.06, from: 62, to: 168, postPitch: 4.2, drift: 0.05 },
+      { turn: 0.42, from: 62, to: 150, postPitch: 4.6, drift: -0.07 },
+      { turn: 0.77, from: 62, to: 176, postPitch: 4.0, drift: 0.09 },
+    ],
+    fence: { postW: 0.5, postH: 1.7, railH: 0.32, railY: 1.15,
+             lit: '#7a7f84', shade: '#3f464e' },
+  },
+
+  // -- Icy Mountain ---------------------------------------------------------
+  // You are ON a mountain, in a RANGE. Three rings of stepped peaks, each ring
+  // taller AND further, so the far range subtends more of the sky than the
+  // near one — that inversion is what a real range does and it is the whole
+  // reason the map stops reading as a lone hill.
+  'alpine-range': {
+    id: 'alpine-range',
+    skirt: '#c3d3e4',
+    bands: [
+      { id: 'near-range', form: 'peak', depth: 0,
+        r: [88, 114], gap: [-14, 10], w: [26, 48], h: [26, 46],
+        lit: '#6c7688', shade: '#2f3745',
+        cap: 0.42, capLit: '#adc0d4', capShade: '#7d93ad' },
+      { id: 'mid-range', form: 'peak', depth: 1,
+        r: [142, 178], gap: [-18, 34], w: [44, 82], h: [46, 74],
+        lit: '#7b8698', shade: '#4b5566',
+        cap: 0.55, capLit: '#b3c5d8', capShade: '#93a7bd' },
+      // The far range is all snow and haze: one narrow value pair, no rock
+      // showing, because at that distance rock and snow have averaged out.
+      { id: 'far-range', form: 'peak', depth: 2,
+        r: [206, 246], gap: [-24, 46], w: [70, 124], h: [62, 106],
+        lit: '#9fadc0', shade: '#7e8da2', cap: 0 },
+    ],
+  },
+
+  // -- Arctic Floe ----------------------------------------------------------
+  // "Nothing for miles, and it is watching you." Emptiness IS the content, so
+  // this is the one backdrop that is mostly gap: a broken line of pressure
+  // ridges close in, then a handful of tabular bergs with a hundred metres of
+  // nothing between them. Each berg wears a warm cap where the low sun that
+  // never sets catches its top — a warm accent on a cool plane, budgeted at a
+  // fraction of the coverage it would get anywhere else (color.md).
+  'floe-horizon': {
+    id: 'floe-horizon',
+    skirt: '#c2ccdf',
+    bands: [
+      { id: 'pressure-ridges', form: 'ridge', depth: 0,
+        r: [84, 102], gap: [14, 58], w: [10, 26], h: [1.6, 4.2],
+        lit: '#8493ae', shade: '#3f4a66' },
+      { id: 'bergs', form: 'berg', depth: 1,
+        r: [128, 192], gap: [46, 150], w: [14, 34], h: [8, 22],
+        lit: '#93a0b8', shade: '#5b6884',
+        cap: '#b99a92' },
+      { id: 'far-bergs', form: 'berg', depth: 2,
+        r: [210, 252], gap: [90, 240], w: [22, 52], h: [12, 30],
+        lit: '#97a3b8', shade: '#79869e', cap: '#a2999b' },
+    ],
+  },
+});
+
+export function getBackdrop(mapId) {
+  return BACKDROPS[getMap(mapId).backdrop] ?? null;
+}
+
+// ---------------------------------------------------------------------------
 // The maps
 // ---------------------------------------------------------------------------
 export const MAPS = Object.freeze({
@@ -135,6 +339,7 @@ export const MAPS = Object.freeze({
     blurb: 'Two barns, a frozen field and a tractor lane. The original.',
     emoji: '🚜',
     sky: 'farm-day',
+    backdrop: 'farm-horizon',
     ground: VOX.GRASS,
     patch: { vox: VOX.ICE, count: 24, size: [2, 4] },
     terrain: 'flat',
@@ -161,6 +366,7 @@ export const MAPS = Object.freeze({
          + 'grow out of the rock. Height is the cover.',
     emoji: '⛰️',
     sky: 'alpine-thin-air',
+    backdrop: 'alpine-range',
     ground: VOX.GRASS,
     patch: { vox: VOX.ICE, count: 30, size: [3, 6] },
     // Terraces, not hills. See the invariant note at the top: every rise a
@@ -191,6 +397,7 @@ export const MAPS = Object.freeze({
          + 'hex-paver paths, bare trees and benches. The ice is the arena.',
     emoji: '⛸️',
     sky: 'manhattan-dusk',
+    backdrop: 'manhattan-skyline',
     ground: VOX.PAVER,
     patch: { vox: VOX.GRASS, count: 22, size: [3, 6] },
     // The rink is a single pad in the middle of a park. It is the fastest
@@ -216,6 +423,7 @@ export const MAPS = Object.freeze({
          + 'igloos — and penguins, standing very still, watching you.',
     emoji: '🐧',
     sky: 'polar-twilight',
+    backdrop: 'floe-horizon',
     ground: VOX.ICE,
     patch: { vox: VOX.GRASS, count: 28, size: [3, 7] },
     // Pack ice: mostly flat, broken by pressure ridges where two floes have

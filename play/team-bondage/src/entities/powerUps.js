@@ -112,7 +112,7 @@ function box(w, h, d, hex, x, y, z, emissive) {
 // A glow disc at the pickup's feet, in its own tint. Every pickup in the game
 // has one; it is what says "this is a thing you collect" before you can make
 // out what the thing is.
-function glowRing(hex) {
+function glowRing(hex, y) {
   const ring = new THREE.Mesh(
     new THREE.RingGeometry(0.8, 1.1, 24),
     new THREE.MeshBasicMaterial({
@@ -120,38 +120,51 @@ function glowRing(hex) {
     }),
   );
   ring.rotation.x = -Math.PI / 2;
-  ring.position.y = -0.55;
+  // At the model's OWN feet, which is a different number for a bottle standing
+  // on its base and a wheel standing on its rim. A ring floating in the gap
+  // under an object is the goose's "body that does not touch its own feet"
+  // failure with a halo instead of legs.
+  ring.position.y = y;
   return ring;
 }
 
 // THE PROTEIN SHAKE.
 //
-// 1.15 m tall, which is ~80 px at the 10 m readability bar (703/d px per metre
-// — see silhouette-readability.md). Read in order of what carries identity:
-//   silhouette — a tall column with a STEPPED shoulder and a cap nub sticking
-//     out one side. Nothing else in the game is a vertical column; the chicken
-//     is wide, the steak is flat, the cheese is round.
-//   value      — one dark band across the middle of a pale cup, so the shaker
-//     does not read as one continuous pale blob at distance.
-//   colour     — berry pink, the only pink in the palette.
-// The taper is three boxes each narrower than the last, not a cone: a smooth
-// cone reads as plastic (the shotgun-barrel lesson, same doc).
+// 1.14 m tall, which is ~80 px at the 10 m readability bar (703/d px per metre
+// — see silhouette-readability.md).
+//
+// The first cut of this model tapered from a narrow cup through two shoulder
+// steps to a small lid, and in silhouette it was a CHESS PAWN. A monotonic
+// taper is a pawn; what makes a bottle a bottle is the WAIST — a wide body,
+// then a step IN at the neck, then a step back OUT for the screw cap. So the
+// profile is body > neck < cap, and the flip spout on top of the cap is the
+// one asymmetric part, which is also what makes the spin read as a spin.
+//
+// Read in order of what carries identity:
+//   silhouette — wide-waisted bottle with a spout. Nothing else in the game is
+//     a vertical column at all; the chicken is wide, the steak is flat, the
+//     cheese is round.
+//   value      — a FILL LINE. The bottom two thirds are strawberry shake and
+//     the top third is the empty cup above it, which is a hard horizontal
+//     value break two thirds of the way up a column. The first cut used a
+//     dark grip band on an all-cream body and the whole shaker came back grey
+//     against a pale blue sky, with the cap doing all the work.
+//   colour     — berry pink, the only pink anywhere in the game.
 function buildProteinShakeMesh() {
   const g = new THREE.Group();
-  const CREAM = 0xefe6d2, CREAM_DK = 0xcfc2a6, BERRY = 0xff5fa2, BERRY_DK = 0xc93c78;
-  const BAND = 0x33405a;
+  const CREAM = 0xf7f0e0, CREAM_DK = 0xcdc0a4;
+  const SHAKE = 0xf2789f, BERRY = 0xff5fa2, BERRY_DK = 0xa8265c;
 
-  g.add(box(0.54, 0.10, 0.54, CREAM_DK, 0, 0.05, 0));      // wide foot: it STANDS
-  g.add(box(0.46, 0.52, 0.46, CREAM,    0, 0.36, 0));      // cup
-  g.add(box(0.50, 0.09, 0.50, BAND,     0, 0.44, 0));      // measuring band
-  g.add(box(0.40, 0.14, 0.40, CREAM,    0, 0.69, 0));      // shoulder, step 1
-  g.add(box(0.34, 0.10, 0.34, CREAM_DK, 0, 0.81, 0));      // shoulder, step 2
-  g.add(box(0.36, 0.18, 0.36, BERRY,    0, 0.95, 0));      // screw lid
-  // The signature: a flip cap standing proud of the lid on ONE side. It is the
-  // only asymmetric thing on the model, so it is also what makes the spin read
-  // as a spin rather than as a still object.
-  g.add(box(0.15, 0.12, 0.20, BERRY_DK, 0, 1.09, 0.13));
-  g.add(glowRing(BERRY));
+  g.add(box(0.60, 0.08, 0.60, BERRY_DK, 0, 0.04, 0));      // wide foot: it STANDS
+  g.add(box(0.56, 0.44, 0.56, SHAKE,    0, 0.30, 0));      // what is IN it
+  g.add(box(0.56, 0.24, 0.56, CREAM,    0, 0.64, 0));      // ...and the cup above it
+  g.add(box(0.42, 0.11, 0.42, CREAM_DK, 0, 0.81, 0));      // the WAIST — step IN
+  g.add(box(0.58, 0.20, 0.58, BERRY,    0, 0.97, 0));      // screw cap — step OUT
+  // The signature: a flip spout standing proud of the cap on ONE side. It is
+  // the only asymmetric part, so it is also what makes the spin read as a spin
+  // rather than as a still object.
+  g.add(box(0.20, 0.15, 0.24, BERRY_DK, 0, 1.12, 0.15));
+  g.add(glowRing(BERRY, 0.01));
   return g;
 }
 
@@ -170,7 +183,12 @@ function buildProteinShakeMesh() {
 function buildCheeseWheelMesh() {
   const g = new THREE.Group();
   const wheel = new THREE.Group();
-  const RIND = 0xe8a33d, PASTE = 0xf7e07a, HOLE = 0xb07d1f;
+  // The rind is pushed WARM and DARK and the paste PALE, because the first cut
+  // had them four values apart and at 10 m the wheel came back as one flat
+  // ochre disc with no rim on it. Value pattern is the second thing that
+  // carries identity after silhouette, and it is the only thing telling you
+  // this is a cheese and not a coin.
+  const RIND = 0xd4801f, PASTE = 0xffef9e, HOLE = 0x8a5c12;
 
   const SEG = 10;
   const CUT = Math.PI * 2 * 0.78;   // 78% of the circle: a 79-degree wedge gone
@@ -194,16 +212,16 @@ function buildCheeseWheelMesh() {
   // read as chipped paint. Three of them, at different sizes and off the
   // centre line: evenly spaced same-size holes read as a dial, not as cheese.
   for (const face of [1, -1]) {
-    for (const [hx, hz, r] of [[0.10, 0.14, 0.10], [-0.14, -0.04, 0.13], [0.06, -0.20, 0.08]]) {
+    for (const [hx, hz, r] of [[0.12, 0.16, 0.15], [-0.17, -0.05, 0.19], [0.07, -0.23, 0.12]]) {
       wheel.add(box(r, 0.06, r, HOLE, hx, face * 0.185, hz));
     }
   }
 
   // Stand it on edge (axis -> Z), then lean it back so it never goes flat-on.
   wheel.rotation.x = Math.PI / 2;
-  wheel.rotation.z = 0.22;
+  wheel.rotation.z = 0.34;
   g.add(wheel);
-  g.add(glowRing(RIND));
+  g.add(glowRing(RIND, -0.5));
   return g;
 }
 

@@ -5,7 +5,6 @@ import { Game } from './game.js';
 import { MAPS, MAP_IDS, DEFAULT_MAP } from 'arbelo/mapspec';
 import { MODES, MODE_IDS, DEFAULT_MODE } from 'arbelo/modes';
 import { PeerMesh } from 'arbelo/net';
-import { SeededRng, seedToCode, codeToSeed } from 'arbelo/rng';
 import { startVersionChecker } from 'arbelo/updater';
 import { mountDeviceQr }       from 'arbelo/qr';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';

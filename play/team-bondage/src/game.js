@@ -1022,7 +1022,16 @@ export class Game {
       peerId: this.myId, pos: this.player.pos,
       team: this.team, alive: this.player.alive !== false,
     }];
+    // A bot exists TWICE on the host: once in `bots` (the simulation, which is
+    // authoritative for its position) and once in `remotePlayers` (its visual).
+    // Listing both put every bot in here twice, and the RemotePlayer copy
+    // reports the render group's position, which for a host-simulated bot lags
+    // its real one — so half the entries were phantom bodies, several of them
+    // parked at the world origin because their group had never been moved.
+    // Anything that hit-tests against this list (shots, splash, the hill, aim
+    // assist) was testing against ghosts. The simulation wins.
     for (const [pid, rp] of this.remotePlayers.entries()) {
+      if (this.bots.has(pid)) continue;
       arr.push({
         peerId: pid, pos: rp.group.position,
         team: this.playerMeta.get(pid)?.team ?? null,

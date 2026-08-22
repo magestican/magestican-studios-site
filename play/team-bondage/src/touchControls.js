@@ -51,7 +51,12 @@ export class TouchControls {
       </div>
     `;
     this._el = el;
-    this._debug = el.querySelector('#tc-debug');
+    // No #tc-debug element is built any more — the on-screen debug HUD was
+    // removed on 2026-08-20 (docs/BACKLOG.md, "Debug HUD overlay removed").
+    // `_paintDebug()` below is therefore a permanent no-op; it is kept only
+    // because game.js still calls it every tick. Deleting it means deleting
+    // that call and the `window.__tbDebug` snapshot it feeds at the same time.
+    this._debug = null;
     this._joystickBase = el.querySelector('#tc-joystick-base');
     this._joystickKnob = el.querySelector('#tc-joystick-knob');
     this._joystickBase.style.display = 'none';
@@ -143,7 +148,6 @@ export class TouchControls {
         t.target.closest('#lobby-banner') ||
         t.target.closest('#anagramWrap') ||
         t.target.closest('#enable-sound') ||
-        t.target.closest('#tc-debug') ||
         t.target.closest('.device-qr-card')
       )) continue;
       const isLeft = t.clientX < window.innerWidth / 2;
@@ -229,14 +233,6 @@ const TOUCH_CSS = `
   touch-action: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-}
-#tc-debug {
-  position: absolute; left: 12px; top: 100px;
-  font: 12px "SF Mono", Menlo, Consolas, monospace;
-  color: #7ce07a; background: rgba(0,0,0,0.7);
-  padding: 5px 8px; border-radius: 4px;
-  pointer-events: none;
-  max-width: 90vw; white-space: pre; line-height: 1.3;
 }
 #tc-joystick-base {
   position: absolute; width: 120px; height: 120px;
