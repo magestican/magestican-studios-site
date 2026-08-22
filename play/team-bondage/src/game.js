@@ -22,6 +22,7 @@ import { Chat } from './ui/chat.js';
 import { KillAnnouncer, shouldHear } from './audio/killAnnouncer.js';
 import { CornDrops, CORN } from './entities/cornDrop.js';
 import { groundHeightAt } from '../../../web-engine/ai/botStep.js';
+import { TickSource } from '../../../web-engine/loop/tickSource.js';
 import { considerTaunt, newTauntState } from './entities/botTaunts.js';
 
 import { RemotePlayer }     from './entities/remotePlayer.js';
@@ -204,8 +205,13 @@ export class Game {
       console.warn('[gfx] WebGL context restored');
     });
 
-    this._lastFrame = performance.now();
-    requestAnimationFrame((now) => this._frame(now));
+    
+    
+    
+    this._loop = new TickSource({
+      onTick: (dt, opts) => this._frame(dt, opts),
+    });
+    this._loop.start();
 
     try {
       await this._initPlayer();
@@ -1657,9 +1663,13 @@ export class Game {
 
   
 
-  _frame(now) {
-    const dt = Math.min(0.05, (now - this._lastFrame) / 1000);
-    this._lastFrame = now;
+  
+  
+  
+  
+  
+  
+  _frame(dt, { render = true } = {}) {
     if (!this.gameOver) {
       try { this._tick(dt); }
       catch (err) {
@@ -1692,7 +1702,10 @@ export class Game {
       this.skyBrawl?.update(dt, this.camera.position);
       this.critters?.update(dt, this.camera.position);
       if (!this.gameOver) this._tickHill(dt);
-      if (!this._contextLost) this.renderer.render(this.scene, this.camera);
+      
+      
+      
+      if (render && !this._contextLost) this.renderer.render(this.scene, this.camera);
     } catch (err) {
       
       const key = String(err?.message || err);
@@ -1700,8 +1713,6 @@ export class Game {
         this._lastFrameErr = key;
         console.error('[frame error]', err);
       }
-    } finally {
-      requestAnimationFrame((t) => this._frame(t));
     }
   }
 
