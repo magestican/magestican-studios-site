@@ -33,8 +33,8 @@ export const WEAPON_DEFS = [
   
   
   
-  { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 12, pellets: 1, spread: 0.003, kind: 'projectile', projectileSpeed: 62, hitRadius: 0.95, projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
-  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 12, pellets: 5, spread: 0.10,  kind: 'projectile', projectileSpeed: 78, hitRadius: 0.85, projectileColor: 0xf4c95d, tracerColor: 0xf4c95d },
+  { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 12, pellets: 1, spread: 0.003, kind: 'projectile', projectileSpeed: 62, projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
+  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 12, pellets: 5, spread: 0.10,  kind: 'projectile', projectileSpeed: 78, projectileColor: 0xf4c95d, tracerColor: 0xf4c95d },
   { id: 'rocket',  name: 'Rocket',   cooldown: 1.10, damage: 90, splash: 45, splashRadius: 3.0, projectileSpeed: 20, kind: 'projectile' },
 ];
 

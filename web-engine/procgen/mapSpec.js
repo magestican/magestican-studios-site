@@ -190,9 +190,14 @@ export const BACKDROPS = Object.freeze({
       
       
       
+      
+      
+      
+      
+      
       { id: 'park-trees', form: 'canopy', depth: 0,
-        r: [80, 92], gap: [-1, 3], w: [4.5, 11], h: [7, 14],
-        lit: '#504957', shade: '#16151d' },
+        r: [78, 90], gap: [-1, 3], w: [4.5, 11], h: [10, 21],
+        lit: '#544748', shade: '#151112' },
 
       
       
