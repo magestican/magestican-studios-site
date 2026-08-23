@@ -264,6 +264,45 @@ export const BACKDROPS = Object.freeze({
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    marks: [
+      { form: 'suspension-bridge', turn: 0.39, r: 88,
+        towerGap: 96, approach: 26, deckY: 38, towerH: 68, pierW: 27,
+        
+        
+        
+        
+        lit: '#4a3a36', shade: '#1d1517',
+        
+        
+        
+        cableLit: '#8d7c6b', cableShade: '#5b4e45' },
+    ],
+    
+    
+    
+    
+    
     window: {
       floorPitch: 3.4, colPitch: 2.9, w: 1.15, h: 1.75, margin: 1.8, sill: 5.5,
       darkFloor: 0.18, bias: [0.45, 1.4], crownLit: 0.14,
@@ -296,6 +335,51 @@ export const BACKDROPS = Object.freeze({
         r: [152, 192], gap: [-3, 3], w: [5, 10], h: [12, 22],
         clump: [8, 26], clumpGap: [30, 150],
         lit: '#8b9a99', shade: '#65757a' },
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      { id: 'rolling-downs', form: 'downs', depth: 3,
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        r: [176, 194], gap: [-46, -12], w: [150, 230], h: [14, 46],
+        depthOfW: 0.12, cols: 11,
+        lit: '#b8bfc4', shade: '#95a0a9' },
     ],
     marks: [
       
@@ -305,15 +389,79 @@ export const BACKDROPS = Object.freeze({
       { form: 'silo',  turn: 0.155, r: 124, w: 5, h: 16, lit: '#a8b3bb', shade: '#6b7883' },
       { form: 'barn',  turn: 0.20, r: 116, w: 20, d: 12, h: 9, lit: '#8a4b46', shade: '#4a2b2c' },
       { form: 'barn',  turn: 0.64, r: 140, w: 16, d: 10, h: 8, lit: '#7d5a4a', shade: '#452f2b' },
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+      
+      
+      
+      { form: 'windmill', turn: 0.44, r: 128, w: 8, h: 17, sail: 13,
+        lit: '#9a7a5c', shade: '#54402f',
+        
+        
+        
+        capLit: '#4a3a2c', capShade: '#241b14' },
+
+      
+      
+      
+      { form: 'grain-elevator', turn: 0.88, r: 152, silos: 6, w: 6.5, h: 26,
+        lit: '#c2b49c', shade: '#7d7161' },
+
+      
+      
+      
+      
+      { form: 'barn',  turn: 0.315, r: 132, w: 22, d: 13, h: 10,
+        lit: '#96524a', shade: '#4f2d2b' },
+      { form: 'silo',  turn: 0.325, r: 136, w: 5.2, h: 21,
+        lit: '#b6a68d', shade: '#77685a' },
+      { form: 'barn',  turn: 0.335, r: 128, w: 12, d: 8, h: 6,
+        lit: '#7a6552', shade: '#41352b' },
+
+      
+      
+      { form: 'barn',  turn: 0.52, r: 178, w: 18, d: 11, h: 8,
+        lit: '#8d7565', shade: '#4d4038' },
+
+      
+      
+      { form: 'barn',  turn: 0.02, r: 112, w: 24, d: 14, h: 11,
+        lit: '#9c574c', shade: '#54302c' },
     ],
     
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     lines: [
-      { turn: 0.06, from: 74, to: 168, postPitch: 4.2, drift: 0.05 },
-      { turn: 0.42, from: 74, to: 150, postPitch: 4.6, drift: -0.07 },
-      { turn: 0.77, from: 74, to: 176, postPitch: 4.0, drift: 0.09 },
+      { turn: 0.06, from: 74, to: 168, postPitch: 5.4, drift: 0.05 },
+      { turn: 0.23, from: 74, to: 196, postPitch: 5.6, drift: -0.04 },
+      { turn: 0.42, from: 74, to: 150, postPitch: 5.4, drift: -0.07 },
+      { turn: 0.58, from: 74, to: 204, postPitch: 5.5, drift: 0.06 },
+      { turn: 0.77, from: 74, to: 176, postPitch: 5.4, drift: 0.09 },
     ],
     fence: { postW: 0.8, postH: 2.6, railH: 0.35, railY: 1.9,
              lit: '#6c7278', shade: '#333940' },

@@ -477,6 +477,353 @@ function farBarn(em, rng, mark, spot) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function brooklynBridge(em, rng, mark, spot) {
+  const {
+    lit, shade,
+    towerGap = 108,      
+    approach = 30,       
+    deckY = 44,          
+    towerH = 76,         
+    pierW = 30,          
+    deckH = 2.4,
+    deckD = 8,
+  } = mark;
+  const cableLit = mark.cableLit ?? lit;
+  const cableShade = mark.cableShade ?? shade;
+
+  const towerX = towerGap / 2;
+  const span = towerGap + approach * 2;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const VOID_OF_PIER = 0.24;
+  
+  
+  
+  
+  const VOID_ASPECT = 3.2;          
+
+  const voidW = pierW * VOID_OF_PIER;
+  const legW = (pierW - voidW * 2) / 3;
+  const openH = voidW * VOID_ASPECT;
+  const headH = openH * 0.38;       
+  const shaftH = openH - headH;     
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const DECK_STEPS = 30;
+  const deckStep = span / DECK_STEPS;
+  for (let i = 0; i < DECK_STEPS; i++) {
+    em.box(spot, {
+      lx: -span / 2 + (i + 0.5) * deckStep,
+      y: deckY,
+      
+      
+      w: deckStep * 1.04, h: deckH, d: deckD, lit, shade,
+    });
+  }
+
+  
+  for (const sx of [-1, 1]) {
+    const cx = sx * towerX;
+
+    
+    
+    
+    em.box(spot, { lx: cx, y: BACKDROP.GROUND_Y, w: pierW * 0.92,
+                   h: deckY - BACKDROP.GROUND_Y, d: deckD * 1.6, lit, shade });
+
+    const foot = deckY + deckH;
+    const D = deckD * 1.45;         
+
+    
+    for (const k of [-1, 0, 1]) {
+      em.box(spot, { lx: cx + k * (legW + voidW), y: foot,
+                     w: legW, h: shaftH, d: D, lit, shade });
+    }
+
+    
+    
+    
+    
+    const STEPS = 5;
+    for (const vx of [-0.5, 0.5]) {
+      for (let i = 0; i < STEPS; i++) {
+        const t = (i + 1) / STEPS;        
+        
+        
+        const inset = voidW * 0.5 * (1 - t);
+        const w = voidW * 0.5 * t + 0.15;
+        for (const side of [-1, 1]) {
+          em.box(spot, {
+            lx: cx + vx * (legW + voidW) + side * (inset + w / 2),
+            y: foot + shaftH + (headH / STEPS) * i,
+            w, h: headH / STEPS + 0.06, d: D, lit, shade,
+          });
+        }
+      }
+    }
+
+    
+    const capY = foot + openH;
+    if (towerH > capY) {
+      em.box(spot, { lx: cx, y: capY, w: pierW, h: towerH - capY, d: D, lit, shade });
+    }
+    
+    
+    
+    em.box(spot, { lx: cx, y: Math.max(towerH, capY), w: pierW * 1.03, h: 1.1,
+                   d: D * 1.06, lit, shade });
+  }
+
+  
+  
+  
+  
+  
+  const cableTop = Math.max(towerH, deckY + deckH + openH) - 1;
+  const SAG = (cableTop - deckY) * 0.66;
+  const STEPS_C = 34;
+  const stepW = span / STEPS_C;
+  const cableT = 1.0;
+
+  const cableYAt = (x) => cableTop - SAG * (1 - (x / towerX) * (x / towerX));
+
+  for (let i = 0; i < STEPS_C; i++) {
+    const x = -span / 2 + (i + 0.5) * stepW;
+    
+    
+    const y = Math.abs(x) <= towerX
+      ? cableYAt(x)
+      : cableTop - ((Math.abs(x) - towerX) / approach) * (cableTop - (deckY - 4));
+    em.box(spot, { lx: x, y, w: stepW * 1.08, h: cableT, d: cableT,
+                   lit: cableLit, shade: cableShade });
+  }
+
+  
+  
+  
+  for (let i = 1; i < STEPS_C; i++) {
+    const x = -span / 2 + i * stepW;
+    if (Math.abs(x) > towerX * 0.96) continue;
+    const top = cableYAt(x);
+    if (top <= deckY + deckH + 1.5) continue;
+    em.box(spot, { lx: x, y: deckY + deckH, w: 0.5, h: top - deckY - deckH,
+                   d: 0.5, lit: cableLit, shade: cableShade });
+  }
+
+  
+  
+  
+  
+  const FAN = 6;
+  for (const sx of [-1, 1]) {
+    const cx = sx * towerX;
+    for (let f = 1; f <= FAN; f++) {
+      const reach = (towerX * 0.9) * (f / FAN);
+      for (const dir of [-1, 1]) {
+        const endX = cx + dir * reach;
+        if (Math.abs(endX) > span / 2 - 1) continue;
+        const STAY_STEPS = 8;
+        for (let i = 0; i < STAY_STEPS; i++) {
+          const t = (i + 0.5) / STAY_STEPS;
+          em.box(spot, {
+            lx: cx + (endX - cx) * t,
+            y: cableTop - (cableTop - (deckY + deckH)) * t,
+            
+            
+            
+            w: (Math.abs(endX - cx) / STAY_STEPS) * 1.18,
+            h: 0.8, d: 0.8,
+            lit: cableLit, shade: cableShade,
+          });
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function windmill(em, rng, mark, spot) {
+  const { lit, shade } = mark;
+  const h = mark.h ?? 15;          
+  const w = mark.w ?? 7;           
+  const sail = mark.sail ?? 12;    
+  const capLit = mark.capLit ?? shade;
+  const capShade = mark.capShade ?? shade;
+
+  
+  
+  
+  const COURSES = 6;
+  for (let i = 0; i < COURSES; i++) {
+    const t = i / COURSES;
+    const cw = w * (1 - t * 0.34);
+    em.box(spot, { y: BACKDROP.GROUND_Y + (h / COURSES) * i,
+                   w: cw, h: h / COURSES + 0.1, d: cw, lit, shade });
+  }
+  
+  em.box(spot, { y: BACKDROP.GROUND_Y + h, w: w * 0.82, h: w * 0.42,
+                 d: w * 0.82, lit: capLit, shade: capShade });
+
+  
+  
+  
+  
+  const hubY = BACKDROP.GROUND_Y + h + w * 0.2;
+  const STEPS = 9;
+  const armT = Math.max(0.7, sail * 0.075);   
+  for (const [dx, dy] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+    for (let i = 1; i <= STEPS; i++) {
+      const t = i / STEPS;
+      em.box(spot, {
+        lx: dx * sail * 0.707 * t,
+        y: hubY + dy * sail * 0.707 * t,
+        lz: -w * 0.55,                 
+        w: (sail * 0.707 / STEPS) * 1.5,
+        h: armT, d: armT,
+        lit: capLit, shade: capShade,
+      });
+    }
+  }
+  
+  em.box(spot, { y: hubY - armT, lz: -w * 0.55, w: armT * 2.6, h: armT * 2.6,
+                 d: armT * 2, lit: capLit, shade: capShade });
+}
+
+
+
+
+
+function grainElevator(em, rng, mark, spot) {
+  const { lit, shade } = mark;
+  const n = mark.silos ?? 6;
+  const w = mark.w ?? 6;
+  const h = mark.h ?? 24;
+  const total = n * w;
+  for (let i = 0; i < n; i++) {
+    
+    
+    
+    const hh = h * rng.rangeF(0.97, 1.03);
+    em.box(spot, { lx: -total / 2 + w * (i + 0.5), y: BACKDROP.GROUND_Y,
+                   w: w * 1.02, h: hh, d: w, lit, shade });
+  }
+  
+  
+  em.box(spot, { y: BACKDROP.GROUND_Y + h, w: total * 0.34, h: h * 0.55,
+                 d: w * 1.25, lit, shade });
+  em.box(spot, { y: BACKDROP.GROUND_Y + h * 1.55, w: total * 0.38, h: h * 0.08,
+                 d: w * 1.4, lit, shade });
+}
+
+
+
+
+
+
 function fenceLine(em, rng, line, fence) {
   const theta = line.turn * TAU;
   const n = Math.floor((line.to - line.from) / line.postPitch);
@@ -512,7 +859,67 @@ function fenceLine(em, rng, line, fence) {
   }
 }
 
-const FORMS = { tower, conifer, canopy, shrub, peak, ridge, berg };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function downs(em, rng, band, spot) {
+  const { lit, shade } = band;
+  const h = rng.rangeF(band.h[0], band.h[1]);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const COLS = band.cols ?? 11;
+  const colW = spot.w / COLS;
+  const depth = spot.w * (band.depthOfW ?? 0.12);
+  for (let i = 0; i < COLS; i++) {
+    
+    const u = (i + 0.5) / COLS * 2 - 1;
+    const k = Math.sqrt(Math.max(0, 1 - u * u));
+    
+    
+    const ch = h * k * rng.rangeF(0.88, 1.12);
+    if (ch < 1.2) continue;                    
+    em.box(spot, {
+      lx: -spot.w / 2 + colW * (i + 0.5),
+      y: BACKDROP.GROUND_Y,
+      
+      
+      w: colW * 1.06, h: ch,
+      d: depth * Math.max(0.5, k),
+      lit, shade,
+    });
+  }
+}
+
+const FORMS = { tower, conifer, canopy, shrub, peak, ridge, berg, downs };
 
 
 
@@ -540,6 +947,9 @@ export function generateBackdrop(mapId, seed = 1) {
     const spot = { ...anchorAt(mark.turn, mark.r + RING_SHIFT), w: mark.w };
     if (mark.form === 'silo') silo(em, rng, mark, spot);
     else if (mark.form === 'barn') farBarn(em, rng, mark, spot);
+    else if (mark.form === 'suspension-bridge') brooklynBridge(em, rng, mark, spot);
+    else if (mark.form === 'windmill') windmill(em, rng, mark, spot);
+    else if (mark.form === 'grain-elevator') grainElevator(em, rng, mark, spot);
   }
 
   for (const line of spec.lines ?? []) fenceLine(em, rng, line, spec.fence);
