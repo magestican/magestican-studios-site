@@ -323,6 +323,9 @@ export class Game {
     this._buildWorld(this.seed);
     
     
+    this._materialiseRoster();
+    
+    
     
     
     
@@ -1030,6 +1033,48 @@ export class Game {
     }));
     this._announceKill(killer, victim, weapon);
     this._dropCorn(pos || this._posOf(victim));
+  }
+
+  
+  
+  
+  
+  
+  
+  _ensureRemoteBody(pid, meta) {
+    if (!pid || pid === this.myId || !meta) return null;
+    if (this.remotePlayers.has(pid)) return this.remotePlayers.get(pid);
+    if (!this.scene) return null;                 
+    const rp = new RemotePlayer(this.scene, pid, {
+      name: meta.name, character: meta.character, team: meta.team, localTeam: this.team,
+    });
+    if (meta.p) rp.placeAt(meta.p, meta.y);
+    this.remotePlayers.set(pid, rp);
+    return rp;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _materialiseRoster() {
+    if (!this.scene || !this.playerMeta) return 0;
+    let made = 0;
+    for (const [pid, meta] of this.playerMeta) {
+      if (this._ensureRemoteBody(pid, meta)) made++;
+    }
+    return made;
   }
 
   
@@ -2234,16 +2279,13 @@ export class Game {
       case MSG.HELLO:
         this.playerMeta.set(from, { name: msg.name, character: msg.character, team: msg.team });
         
-        if (!this.remotePlayers.has(from)) {
-          const rp = new RemotePlayer(this.scene, from,
-            { name: msg.name, character: msg.character, team: msg.team, localTeam: this.team });
-          
-          
-          
-          
-          if (msg.p) rp.placeAt(msg.p, msg.y);
-          this.remotePlayers.set(from, rp);
-        }
+        
+        
+        
+        
+        this._ensureRemoteBody(from, {
+          name: msg.name, character: msg.character, team: msg.team, p: msg.p, y: msg.y,
+        });
         
         
         if (this.isHost) {
