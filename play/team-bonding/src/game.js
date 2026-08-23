@@ -41,6 +41,13 @@ import { SkyBrawl }           from './entities/skyBrawl.js';
 import { CAMERA_FAR }         from './entities/skyBrawlSpec.js';
 import { addBarnSigns }       from './entities/barnSign.js';
 import { Bot }                from './entities/bot.js';
+
+
+
+
+
+import { dealRole }           from '../../../web-engine/ai/botRoles.js';
+import { pickSpawnSlot }      from '../../../web-engine/movement/spawnScatter.js';
 import { TracerSystem }       from './entities/tracer.js';
 import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
 import { activeViewmodel, isPickupViewmodel } from './entities/viewmodelSpec.js';
@@ -323,12 +330,20 @@ export class Game {
       this.map = getMap(this.mapId);
       this.sky = getSky(this.mapId);
       this.mode = getMode(this.modeId);
-    } else {
-      
-      this.mesh.addEventListener('peer-joined', (e) => {
-        this._sendWelcome(e.detail.id);
-      });
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this.mesh.addEventListener('peer-joined', (e) => {
+      if (this.isHost) this._sendWelcome(e.detail.id);
+    });
 
     this._initThree();
     this._buildWorld(this.seed);
@@ -371,6 +386,14 @@ export class Game {
 
     
     this._broadcast({ t: MSG.HELLO, name: this.name, character: this.character, team: this.team });
+
+    
+    
+    
+    
+    if (this._pendingHostTakeoverArmed) {
+      this._becomeHost(this._pendingHostTakeover);
+    }
 
     
     
@@ -854,6 +877,22 @@ export class Game {
 
   _wireNet() {
     this.mesh.addEventListener('message', (e) => this._onMessage(e.detail.from, e.detail.message));
+    
+    
+    
+    
+    this.mesh.addEventListener('host-changed', (e) => {
+      const { hostId, iAmHost, previousHost } = e.detail || {};
+      if (hostId == null) {
+        
+        
+        
+        this._killFeedPush('Everyone else left — the match has no host.');
+        return;
+      }
+      if (iAmHost && !this.isHost) this._becomeHost(previousHost);
+      else this._killFeedPush(`${this._name(hostId)} is hosting now.`);
+    });
     this.mesh.addEventListener('peer-left', (e) => {
       const rp = this.remotePlayers.get(e.detail.id);
       if (rp) { rp.destroy(this.scene); this.remotePlayers.delete(e.detail.id); }
@@ -866,6 +905,181 @@ export class Game {
         }
       }
     });
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _becomeHost(previousHost) {
+    if (this.isHost) return;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (!this.world || !this.player || this.seed == null) {
+      this._pendingHostTakeover = previousHost ?? null;
+      this._pendingHostTakeoverArmed = true;
+      console.warn('[net] elected host mid-boot — takeover deferred until the world exists');
+      return 0;
+    }
+    this._pendingHostTakeoverArmed = false;
+    this.isHost = true;
+
+    
+    const adopted = this._adoptBots();
+
+    
+    
+    
+    
+    if (!this._steakPoisonTimer) {
+      this._steakPoisonTimer = setInterval(() => this._steakPoisonTick(), 1000);
+    }
+
+    
+    
+    if (!this._hazardRngHost) {
+      this._hazardRngHost = new SeededRng((this.seed ^ 0x51a9a7d1) >>> 0);
+    }
+    this._nextHazardAt = performance.now() + 4000;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    this._hold = { red: this.scores.red || 0, blue: this.scores.blue || 0 };
+
+    
+    const addBotBtn = document.getElementById('add-bot-btn');
+    if (addBotBtn && !addBotBtn._tbHostWired) {
+      addBotBtn._tbHostWired = true;
+      addBotBtn.style.display = 'block';
+      const onAddBot = (e) => { if (e) e.preventDefault(); this.addBot(); };
+      addBotBtn.addEventListener('click', onAddBot);
+      addBotBtn.addEventListener('touchstart', onAddBot, { passive: false });
+    } else if (addBotBtn) {
+      addBotBtn.style.display = 'block';
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    if (this.matchState === 'lobby') this._maybeStartCountdown();
+    else if (this.matchState === 'ended') this._armRestartWatchdog(false);
+
+    
+    
+    this._rebalanceTeams();
+    this._updateLobbyBanner();
+
+    this._killFeedPush(previousHost
+      ? `${this._name(previousHost)} left — you are hosting now.`
+      : 'You are hosting now.');
+    this.chat?.system(`Host migrated. You are the host (${adopted} bots adopted).`);
+    return adopted;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _adoptBots() {
+    if (!this.world) return 0;
+    let adopted = 0;
+    for (const [pid, meta] of this.playerMeta) {
+      if (!meta || !meta.bot) continue;
+      if (this.bots.has(pid)) continue;
+      const team = meta.team === 'red' ? 'red' : 'blue';
+      const mates = [...this.bots.values()].filter((b) => b.team === team);
+      const bot = new Bot({
+        id: pid, name: meta.name, team, character: meta.character,
+        world: this.world,
+        slot: pickSpawnSlot(mates.map((b) => b.spawnSlot)),
+        role: dealRole(mates.map((b) => b.role)),
+      });
+      const rp = this.remotePlayers.get(pid);
+      if (rp) {
+        
+        
+        
+        
+        bot.pos.copy(rp.group.position);
+        bot.yaw = rp.group.rotation.y;
+        if (Number.isFinite(rp.hp)) bot.hp = rp.hp;
+      }
+      bot.sizeScale = this._peerScale.get(pid) ?? 1;
+      bot.hasEnemyFlag = this.flagCarrier.red === pid || this.flagCarrier.blue === pid;
+      bot.alive = bot.hp > 0;
+      if (!bot.alive) bot.respawn();
+      this.bots.set(pid, bot);
+      adopted++;
+    }
+    return adopted;
   }
 
   _sendWelcome(peerId) {
