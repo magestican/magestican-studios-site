@@ -66,7 +66,7 @@ import { GoreSystem }         from './entities/gore.js';
 import { AmbientCritters }    from './entities/ambientCritters.js';
 import { aimPointY, isHeadshot, damageFor, HEADSHOT_MULTIPLIER } from 'arbelo/hitzones';
 import { loadCareer, saveCareer, recordMatch, leaderboard } from 'arbelo/career';
-import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderboard';
+import { publishScores, fetchTopPlayers, isGlobalEnabled, countMatch } from 'arbelo/leaderboard';
 import { emptyTally, tallyKill, scoreboardRows, teamTotals, resultCopy,
          captureFanfare }     from '../../../web-engine/match/matchFlow.js';
 
@@ -1988,6 +1988,15 @@ export class Game {
       
       
       try { publishScores(leaderboard(next, { limit: 50 })); } catch (_) {}
+      
+      
+      
+      
+      
+      
+      
+      
+      if (this.isHost) { try { countMatch(); } catch (_) {} }
     } catch (_) {
       
     }

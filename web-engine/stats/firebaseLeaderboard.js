@@ -138,3 +138,63 @@ export function isGlobalEnabled(cfg = LEADERBOARD_CONFIG) {
 
 
 export function _resetForTests() { _state = null; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function countMatch(cfg = LEADERBOARD_CONFIG) {
+  const s = await ready(cfg);
+  if (!s) return false;
+  try {
+    const { doc, setDoc, increment } = s.store;
+    await setDoc(
+      doc(s.db, 'meta', 'totals'),
+      { matches: increment(1), updatedAt: Date.now() },
+      { merge: true },
+    );
+    return true;
+  } catch (err) {
+    
+    console.warn('[leaderboard] match count failed:', err?.message || err);
+    return false;
+  }
+}
+
+
+
+
+
+export async function fetchTotals(cfg = LEADERBOARD_CONFIG) {
+  const s = await ready(cfg);
+  if (!s) return null;
+  try {
+    const { doc, getDoc } = s.store;
+    const snap = await getDoc(doc(s.db, 'meta', 'totals'));
+    if (!snap.exists()) return { matches: 0 };
+    const n = snap.data()?.matches;
+    return { matches: Number.isFinite(n) ? n : 0 };
+  } catch (err) {
+    console.warn('[leaderboard] totals fetch failed:', err?.message || err);
+    return null;
+  }
+}
