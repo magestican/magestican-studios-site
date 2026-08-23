@@ -1328,10 +1328,14 @@ export class Game {
     
     
     
-    const taken = [...this.bots.values()]
-      .filter((b) => b.team === team)
-      .map((b) => b.spawnSlot);
-    const bot = Bot.make({ team, world: this.world, seed: this.seed, taken });
+    const mates = [...this.bots.values()].filter((b) => b.team === team);
+    const taken = mates.map((b) => b.spawnSlot);
+    
+    
+    
+    
+    const takenRoles = mates.map((b) => b.role);
+    const bot = Bot.make({ team, world: this.world, seed: this.seed, taken, takenRoles });
     this.bots.set(bot.peerId, bot);
     
     this.playerMeta.set(bot.peerId, {

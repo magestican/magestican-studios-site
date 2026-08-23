@@ -26,6 +26,8 @@ import { acquireTarget, emptyAcquisition }
   from '../../../../web-engine/ai/targetAcquisition.js';
 import { stepBot }        from '../../../../web-engine/ai/botStep.js';
 import { botGoalFor }    from '../../../../web-engine/modes/objective.js';
+import { dealRole, profileFor, closeDesire, offLeash, mayFire }
+  from '../../../../web-engine/ai/botRoles.js';
 import { chooseObjective, OBJECTIVE_POWER_UP }
   from '../../../../web-engine/ai/objective.js';
 import { spawnOffset, pickSpawnSlot }
@@ -53,14 +55,21 @@ export class Bot {
   
   
   
-  static make({ team, world, seed, taken = [] }) {
+  static make({ team, world, seed, taken = [], takenRoles = [] }) {
     const id = `bot-${(seed ^ (++_botId << 5)).toString(36).slice(-6)}`;
     const character = CHARACTERS[(_botId + (team === 'red' ? 0 : 2)) % CHARACTERS.length];
     const name = NAMES[_botId % NAMES.length];
-    return new Bot({ id, name, team, character, world, slot: pickSpawnSlot(taken) });
+    return new Bot({
+      id, name, team, character, world,
+      slot: pickSpawnSlot(taken),
+      
+      
+      
+      role: dealRole(takenRoles),
+    });
   }
 
-  constructor({ id, name, team, character, world, slot = null }) {
+  constructor({ id, name, team, character, world, slot = null, role = 'rusher' }) {
     this.peerId = id;
     this.name = name;
     this.team = team;
@@ -71,6 +80,12 @@ export class Bot {
     
     
     this.spawnSlot = Number.isInteger(slot) ? slot : pickSpawnSlot([]);
+    
+    
+    
+    
+    this.role = role;
+    this.roleProfile = profileFor(role);
     const off = this._spawnOffset();
     this.pos   = new THREE.Vector3(spawn.x + off.x, spawn.y, spawn.z + off.z);
     this.yaw   = team === 'red' ? Math.PI / 4 : Math.PI + Math.PI / 4;
@@ -201,7 +216,43 @@ export class Bot {
       allies: ctx.allies ?? [],
     });
 
-    const goal = new THREE.Vector3(this.objective.x, this.pos.y, this.objective.z);
+    
+    
+    
+    
+    
+    
+    
+    
+    let gx = this.objective.x, gz = this.objective.z;
+    const foe = this._aim?.targetPos || nearestPos(this.pos, ctx.enemyPlayers);
+    if (foe) {
+      const dEnemy = Math.hypot(foe.x - this.pos.x, foe.z - this.pos.z);
+      const desire = closeDesire(this.role, dEnemy);
+      if (desire < 0) {
+        
+        
+        const away = Math.hypot(this.pos.x - foe.x, this.pos.z - foe.z) || 1;
+        const step = 8 * -desire;
+        gx = this.pos.x + ((this.pos.x - foe.x) / away) * step;
+        gz = this.pos.z + ((this.pos.z - foe.z) / away) * step;
+      } else if (desire > 0 && this.roleProfile.engageRange > 8) {
+        
+        
+        const toward = Math.max(dEnemy - this.roleProfile.engageRange, 0);
+        const k = dEnemy ? toward / dEnemy : 0;
+        gx = this.pos.x + (foe.x - this.pos.x) * k;
+        gz = this.pos.z + (foe.z - this.pos.z) * k;
+      }
+    }
+    
+    
+    
+    if (offLeash(this.role, Math.hypot(this.objective.x - this.pos.x,
+                                       this.objective.z - this.pos.z))) {
+      gx = this.objective.x; gz = this.objective.z;
+    }
+    const goal = new THREE.Vector3(gx, this.pos.y, gz);
 
     
     
