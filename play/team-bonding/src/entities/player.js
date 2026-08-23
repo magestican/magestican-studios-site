@@ -10,8 +10,10 @@
 import * as THREE from 'three';
 import { computeWishDelta, cameraHorizontalAxes } from 'arbelo/input-movement';
 import { stepJump, newJumpState } from '../../../../web-engine/movement/jump.js';
-import { checkFloor, clampAboveFloor }
+import { checkFloor, clampAboveFloor, groundTopOrVoid, columnOnMap }
   from '../../../../web-engine/movement/floorRescue.js';
+import { stepFreeFly, flyWish } from '../../../../web-engine/movement/freeFly.js';
+import { isObserver } from '../../../../web-engine/match/observer.js';
 import { groundHeightAt } from '../../../../web-engine/ai/botStep.js';
 import * as SFX from '../audio/sfx.js';
 import {
@@ -38,6 +40,11 @@ const ICE_FRICTION_AIR    = 0.995;
 
 
 
+
+
+
+const OBSERVER_LIFT = 6.0;
+
 export class Player {
   constructor(camera, physics, spawn, team, character = 'cow', opts = {}) {
     this.camera = camera;
@@ -46,6 +53,9 @@ export class Player {
     this.character = character;
     this.spawn = { ...spawn };
     this.groundFriction = opts.friction ?? ICE_FRICTION_GROUND;
+    
+    
+    this.observer = isObserver(team);
     
     
     this.grid = opts.grid ?? null;
@@ -101,7 +111,14 @@ export class Player {
     
     
     if (this.grid) {
-      y = clampAboveFloor(y, next.total, groundHeightAt(this.grid, this.pos.x, this.pos.z, t.y));
+      
+      
+      
+      
+      y = clampAboveFloor(y, next.total, groundTopOrVoid(
+        columnOnMap(this.grid, this.pos.x, this.pos.z),
+        groundHeightAt(this.grid, this.pos.x, this.pos.z, t.y),
+      ));
     }
     const ok = this.physics.setCharacterSize?.(this.collider, next.halfHeight, next.radius);
     if (ok === false) return;         
@@ -174,10 +191,24 @@ export class Player {
   _rescueFromFloor() {
     if (!this.grid || !this.body) return false;
     const t = this.body.translation();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     const fix = checkFloor({
       centreY: t.y,
       capsuleTotal: this.capsule.total,
-      groundTop: groundHeightAt(this.grid, t.x, t.z, t.y),
+      groundTop: groundTopOrVoid(
+        columnOnMap(this.grid, t.x, t.z),
+        groundHeightAt(this.grid, t.x, t.z, t.y),
+      ),
     });
     if (!fix) return false;
     
@@ -193,7 +224,105 @@ export class Player {
     return true;
   }
 
+  
+  
+  
+  setObserver(on) {
+    const want = !!on;
+    if (this.observer === want) return;
+    this.observer = want;
+    if (want) {
+      
+      
+      
+      this.setSizeScale(1);
+      this.vel.set(0, 0, 0);
+      this.alive = true;      
+      this.hp = 100;
+      this.hasEnemyFlag = false;
+      
+      
+      
+      this.pos.y += OBSERVER_LIFT;
+      this.body.setTranslation({ x: this.pos.x, y: this.pos.y, z: this.pos.z }, true);
+    } else {
+      
+      
+      
+      this.vel.set(0, 0, 0);
+      this._jump = newJumpState();
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  _updateObserver(dt, input) {
+    const { forward, right } = cameraHorizontalAxes(this.camera, THREE);
+    
+    
+    
+    
+    
+    const look = {
+      x: Math.cos(this.pitch) * Math.sin(this.yaw),
+      y: Math.sin(this.pitch),
+      z: Math.cos(this.pitch) * Math.cos(this.yaw),
+    };
+    const wish = flyWish(look, right, {
+      forward: input.isDown('moveForward'),
+      back:    input.isDown('moveBack'),
+      left:    input.isDown('moveLeft'),
+      right:   input.isDown('moveRight'),
+      up:      input.isDown('jump'),
+      down:    input.isDown('crouch') || input.isDown('observerDown'),
+    });
+    const next = stepFreeFly({
+      pos: this.pos, vel: this.vel, wish, dt,
+      boost: input.isDown('sprint') || input.isDown('observerBoost'),
+      crawl: input.isDown('observerCrawl'),
+    });
+    this.pos.set(next.pos.x, next.pos.y, next.pos.z);
+    this.vel.set(next.vel.x, next.vel.y, next.vel.z);
+    
+    
+    
+    
+    this.body.setTranslation({ x: this.pos.x, y: this.pos.y, z: this.pos.z }, true);
+    this.body.setNextKinematicTranslation({ x: this.pos.x, y: this.pos.y, z: this.pos.z });
+
+    
+    
+    this.camera.position.set(this.pos.x, this.pos.y, this.pos.z);
+    const dir = new THREE.Vector3(
+      Math.cos(this.pitch) * Math.sin(this.yaw),
+      Math.sin(this.pitch),
+      Math.cos(this.pitch) * Math.cos(this.yaw),
+    );
+    this.camera.lookAt(this.camera.position.clone().add(dir));
+    
+    
+    
+  }
+
   update(dt, input) {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (this.observer) return this._updateObserver(dt, input);
+
     
     
     

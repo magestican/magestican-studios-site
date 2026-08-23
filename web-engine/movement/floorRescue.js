@@ -67,6 +67,52 @@ export const FALL_DEATH_Y = -20;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function groundTopOrVoid(onMap, probedTop) {
+  return onMap ? probedTop : NaN;
+}
+
+
+
+
+
+
+export function columnOnMap(grid, x, z) {
+  if (!grid?.inBounds) return true;      
+  return grid.inBounds(Math.floor(x), 0, Math.floor(z));
+}
+
+
+
+
+
+
+
 export function checkFloor({ centreY, capsuleTotal, groundTop }, {
   sinkTolerance = SINK_TOLERANCE,
   clearance = RESCUE_CLEARANCE,
