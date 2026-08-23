@@ -30,8 +30,46 @@ export const CAREER_KEY = 'tb.career.v1';
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+export const CHARACTERS = Object.freeze(['cow', 'chicken', 'pig', 'sheep']);
+
+
+export function normaliseCharacter(raw) {
+  
+  
+  
+  
+  if (typeof raw !== 'string') return null;
+  const s = raw.trim().toLowerCase();
+  return CHARACTERS.includes(s) ? s : null;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function emptyCareer() {
-  return { version: 1, matches: 0, firstAt: null, lastAt: null, players: {} };
+  return { version: 1, matches: 0, firstAt: null, lastAt: null, players: {}, characters: {} };
 }
 
 function blankPlayer(name) {
@@ -44,6 +82,10 @@ export function recordMatch(career, { players = [], winner = null, endedAt = 0 }
   const next = {
     ...emptyCareer(), ...career,
     players: { ...(career?.players ?? {}) },
+    
+    
+    
+    characters: { ...(career?.characters ?? {}) },
   };
   next.matches = (next.matches ?? 0) + 1;
   next.firstAt = next.firstAt ?? endedAt ?? null;
@@ -65,8 +107,44 @@ export function recordMatch(career, { players = [], winner = null, endedAt = 0 }
     row.deaths += Number(p.deaths) || 0;
     if (winner && p.team === winner) row.wins += 1;
     next.players[key] = row;
+    
+    
+    
+    
+    const character = normaliseCharacter(p?.character);
+    if (character) next.characters[key] = character;
   }
   return next;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function rememberCharacters(career, roster = []) {
+  const base = career ?? emptyCareer();
+  let changed = false;
+  const characters = { ...(base.characters ?? {}) };
+  for (const p of roster) {
+    const name = String(p?.name ?? '').trim();
+    if (!name) continue;
+    const character = normaliseCharacter(p?.character);
+    if (!character) continue;
+    const key = name.toLowerCase();
+    if (characters[key] === character) continue;
+    characters[key] = character;
+    changed = true;
+  }
+  if (!changed) return base;
+  return { ...emptyCareer(), ...base, players: { ...(base.players ?? {}) }, characters };
 }
 
 
@@ -76,8 +154,15 @@ export function ratio(row) {
 }
 
 
+
+
+
+
+
 export function leaderboard(career, { limit = 10, includeBots = false } = {}) {
-  const rows = Object.values(career?.players ?? {})
+  const characters = career?.characters ?? {};
+  const rows = Object.entries(career?.players ?? {})
+    .map(([key, r]) => ({ ...r, character: normaliseCharacter(characters[key] ?? r?.character) }))
     .filter((r) => includeBots || !r.bot);
   rows.sort((a, b) =>
     
@@ -101,7 +186,15 @@ export function loadCareer(storage) {
     if (!raw) return emptyCareer();
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object' || !parsed.players) return emptyCareer();
-    return { ...emptyCareer(), ...parsed, players: { ...parsed.players } };
+    
+    
+    
+    
+    return {
+      ...emptyCareer(), ...parsed,
+      players: { ...parsed.players },
+      characters: { ...(parsed.characters ?? {}) },
+    };
   } catch (_) {
     
     

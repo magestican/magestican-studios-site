@@ -812,6 +812,116 @@ function cutDoorway(grid, ox, oz, frameVox) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const ROOF = Object.freeze({
+  
+  
+  step: 2,
+  
+  
+  
+  
+  barn:  { eaveY: 4, treads: [1, 1, 2, 2] },
+  cabin: { eaveY: 4, treads: [2, 2, 2] },
+});
+
+
+
+
+export function roofLevels(profile) {
+  const out = [];
+  profile.treads.forEach((width, tread) => {
+    for (let k = 0; k < width; k++) out.push(profile.eaveY + tread * ROOF.step);
+  });
+  return out;
+}
+
+
+export function roofRidgeY(profile) {
+  return profile.eaveY + (profile.treads.length - 1) * ROOF.step;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildSteppedRoof(grid, ox, oz, profile, { frame, fill, cap }) {
+  const midZ = oz + Math.floor(BASE_SIZE.z / 2);
+  const halfSpan = Math.floor(BASE_SIZE.z / 2);
+  const level = roofLevels(profile);
+  const ridgeY = roofRidgeY(profile);
+  for (let x = ox; x < ox + BASE_SIZE.x; x++) {
+    for (let z = midZ - halfSpan; z <= midZ + halfSpan; z++) {
+      const d = halfSpan - Math.abs(z - midZ);
+      const top = level[d] ?? ridgeY;
+      const below = d > 0 ? (level[d - 1] ?? profile.eaveY) : profile.eaveY - 1;
+      for (let y = profile.eaveY; y <= top; y++) {
+        let vox;
+        if (y === top)      vox = top === ridgeY ? cap : (d === 0 ? frame : fill);
+        else if (y > below) vox = frame;    
+        else                vox = fill;     
+        grid.set(x, y, z, vox);
+      }
+    }
+  }
+}
+
+
 function boxWalls(grid, ox, oz, vox, top = 3) {
   for (let x = ox; x < ox + BASE_SIZE.x; x++) {
     for (let y = 1; y <= top; y++) {
@@ -845,23 +955,17 @@ function buildBarn(grid, ox, oz, baseVox) {
   }
   
   
-  const midX = ox + Math.floor(BASE_SIZE.x / 2);
-  const halfWidth = Math.floor(BASE_SIZE.x / 2);
-  for (let z = oz; z < oz + BASE_SIZE.z; z++) {
-    for (let step = 0; step < halfWidth; step++) {
-      const y = 4 + step;
-      grid.set(midX - halfWidth + step, y, z, VOX.WOOD);
-      grid.set(midX + halfWidth - step, y, z, VOX.WOOD);
-      for (let fx = midX - halfWidth + step + 1; fx <= midX + halfWidth - step - 1; fx++) {
-        grid.set(fx, y, z, VOX.GLASS);
-      }
-    }
-    grid.set(midX, 4 + halfWidth, z, VOX.WOOD);
-  }
+  
+  buildSteppedRoof(grid, ox, oz, ROOF.barn,
+                   { frame: VOX.WOOD, fill: VOX.GLASS, cap: VOX.WOOD });
   
   
-  for (const gz of [oz, oz + BASE_SIZE.z - 1]) {
-    for (let hx = midX - 1; hx <= midX + 1; hx++) grid.set(hx, 4, gz, VOX.HAY);
+  
+  
+  
+  const midZ = oz + Math.floor(BASE_SIZE.z / 2);
+  for (const gx of [ox, ox + BASE_SIZE.x - 1]) {
+    for (let hz = midZ - 1; hz <= midZ + 1; hz++) grid.set(gx, ROOF.barn.eaveY, hz, VOX.HAY);
   }
 }
 
@@ -886,18 +990,13 @@ function buildCabin(grid, ox, oz, baseVox) {
   
   
   
-  const midX = ox + Math.floor(BASE_SIZE.x / 2);
-  const half = Math.floor(BASE_SIZE.x / 2);
-  for (let z = oz; z < oz + BASE_SIZE.z; z++) {
-    for (let step = 0; step < half; step += 2) {
-      const y = 4 + step / 2;
-      for (let fx = midX - half + step; fx <= midX + half - step; fx++) {
-        grid.set(fx, y, z, fx === midX - half + step || fx === midX + half - step
-          ? VOX.WOOD : VOX.GLASS);
-      }
-    }
-    grid.set(midX, 4 + Math.ceil(half / 2), z, VOX.ICE);   
-  }
+  
+  
+  
+  
+  
+  buildSteppedRoof(grid, ox, oz, ROOF.cabin,
+                   { frame: VOX.WOOD, fill: VOX.GLASS, cap: VOX.ICE });
   
   const chx = ox + 1, chz = oz + 1;
   for (let y = 1; y <= 6; y++) grid.set(chx, y, chz, VOX.ROCK);
@@ -1060,6 +1159,10 @@ function insideBase(x, z, base) {
 
 
 
+function nearBase(x, z, base, margin) {
+  return x >= base.x - 1 - margin && x <= base.x + BASE_SIZE.x + margin
+      && z >= base.z - 1 - margin && z <= base.z + BASE_SIZE.z + margin;
+}
 
 
 
@@ -1097,58 +1200,92 @@ function insideBase(x, z, base) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const HAY_BASE_STANDOFF = 9;
 
 export const HAY_STACK = Object.freeze({
-  span: 5,             
-  half: 2,             
-  bodyCourses: [2, 3], 
-  minCourses: 4,       
+  span: 3,             
+  half: 1,             
+  courses: 3,          
+  spill: [1, 3],       
+  
+  
+  body: (dx, dz) => Math.abs(dx) <= 1 && Math.abs(dz) <= 1,
   
   
   
   
-  
-  base: (dx, dz) => Math.abs(dx) <= 2 && Math.abs(dz) <= 2,
-  body: (dx, dz) => Math.abs(dx) + Math.abs(dz) <= 3,
-  cap:  (dx, dz) => Math.abs(dx) + Math.abs(dz) <= 1,
-  
-  
-  isCore: (dx, dz) => Math.abs(dx) + Math.abs(dz) <= 1,
+  isCore: (dx, dz) => dx === 0 && dz === 0,
 });
 
 
 
 
-function hayCourses(rng) {
-  const [lo, hi] = HAY_STACK.bodyCourses;
-  return 1 + rng.rangeI(lo, hi) + 1;         
-}
 
 
 
 
 
-
-
-
-
-function buildHayStack(grid, ox, oz, y, courses) {
-  const { half, base, body, cap } = HAY_STACK;
-  let placed = 0;
+function buildHayStack(grid, rng, ox, oz, y) {
+  const { half, courses, body, spill } = HAY_STACK;
   for (let c = 0; c < courses; c++) {
-    const shape = c === 0 ? base : (c === courses - 1 ? cap : body);
     for (let dx = -half; dx <= half; dx++) {
       for (let dz = -half; dz <= half; dz++) {
-        if (!shape(dx, dz)) continue;
+        if (!body(dx, dz)) continue;
         const x = ox + dx, z = oz + dz, yy = y + c;
         if (!grid.inBounds(x, yy, z)) continue;
         if (grid.get(x, yy, z) !== VOX.AIR) continue;
         grid.set(x, yy, z, VOX.HAY);
-        placed++;
       }
     }
   }
-  return placed;
+  
+  
+  
+  const ring = [];
+  for (let dx = -half - 1; dx <= half + 1; dx++) {
+    for (let dz = -half - 1; dz <= half + 1; dz++) {
+      if (body(dx, dz)) continue;
+      if (Math.abs(dx) === half + 1 && Math.abs(dz) === half + 1) continue;  
+      ring.push([dx, dz]);
+    }
+  }
+  rng.shuffle(ring);
+  const want = rng.rangeI(spill[0], spill[1]);
+  for (let i = 0; i < want && i < ring.length; i++) {
+    const x = ox + ring[i][0], z = oz + ring[i][1];
+    if (!grid.inBounds(x, y, z)) continue;
+    if (grid.get(x, y, z) !== VOX.AIR) continue;
+    if (standY(grid, x, z) !== y) continue;      
+    grid.set(x, y, z, VOX.HAY);
+  }
 }
 
 
@@ -1161,8 +1298,8 @@ function buildHayStack(grid, ox, oz, y, courses) {
 
 
 
-function hayFootingAt(grid, ox, oz, courses) {
-  const { half } = HAY_STACK;
+function hayFootingAt(grid, ox, oz) {
+  const { half, courses } = HAY_STACK;
   const y = standY(grid, ox, oz);
   if (y + courses >= WORLD_SIZE.y) return -1;      
   for (let dx = -half; dx <= half; dx++) {
@@ -1188,7 +1325,7 @@ function placeHayStacks(grid, rng, map,
   
   
   
-  const want = perArea(rng.rangeI(map.hay.count - 2, map.hay.count + 2));
+  const want = perArea(rng.rangeI(map.hay.count - 1, map.hay.count + 1));
   
   
   
@@ -1198,31 +1335,39 @@ function placeHayStacks(grid, rng, map,
   
   const budget = want * 60;
   for (let n = 0; n < budget && stacks.length < want; n++) {
-    const courses = hayCourses(rng);
     const hx = rng.rangeI(half + 3, WORLD_SIZE.x - half - 4);
     const hz = rng.rangeI(half + 3, WORLD_SIZE.z - half - 4);
     
     
     
-    if (insideBase(hx - half, hz - half, redBase)  || insideBase(hx + half, hz + half, redBase)
-     || insideBase(hx - half, hz + half, redBase)  || insideBase(hx + half, hz - half, redBase)
-     || insideBase(hx - half, hz - half, blueBase) || insideBase(hx + half, hz + half, blueBase)
-     || insideBase(hx - half, hz + half, blueBase) || insideBase(hx + half, hz - half, blueBase)) continue;
-    if (insideZone(hx, hz, powerUpZones, half)) continue;
+    
+    
+    
+    
+    
+    
+    if (nearBase(hx, hz, redBase, half + HAY_BASE_STANDOFF)
+     || nearBase(hx, hz, blueBase, half + HAY_BASE_STANDOFF)) continue;
+    
+    
+    
+    
+    if (insideZone(hx, hz, powerUpZones, half + 2)) continue;
     if (Math.abs(hx - cx) < 4 + half && Math.abs(hz - cz) < 4 + half) continue;
     
     
     
     if (keepClear.some((k) => Math.abs(hx - k.x) <= half + 2 && Math.abs(hz - k.z) <= half + 2)) continue;
-    const y = hayFootingAt(grid, hx, hz, courses);
+    const y = hayFootingAt(grid, hx, hz);
     if (y < 0) continue;
-    buildHayStack(grid, hx, hz, y, courses);
+    buildHayStack(grid, rng, hx, hz, y);
     
     
     
     
     
-    stacks.push({ x: hx, z: hz, y, courses, top: y + courses, span });
+    stacks.push({ x: hx, z: hz, y, courses: HAY_STACK.courses,
+                  top: y + HAY_STACK.courses, span });
   }
   return stacks;
 }

@@ -178,8 +178,13 @@
 
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
     initAnalytics({ page: 'team-bonding-landing' });
     trackPlayClicks();
+    
+    
+    
+    mountLeaderboard({ place: 'site', showChip: true });
   </script>
 </body>
 </html>

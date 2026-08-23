@@ -61,7 +61,9 @@
 
 
 
-import { navGraphFor, navFieldFor, MAX_STEP_UP, MAX_DROP } from './navField.js';
+import {
+  navGraphFor, navFieldFor, MAX_STEP_UP, MAX_DROP, MIN_MAROON_DROP,
+} from './navField.js';
 import {
   neighbourhoodFor, separationPush, quarterTurn,
   SEP_GAIN, HEAD_ON_DOT, AVOID_RANGE, PERSONAL_SPACE,
@@ -97,7 +99,18 @@ function blocks(grid, tx, y, tz) {
 
 export function groundHeightAt(grid, x, z, fromY = GROUND_Y) {
   const tx = Math.floor(x), tz = Math.floor(z);
-  const startY = Math.min(GROUND_SEARCH_MAX_Y, Math.max(1, Math.floor(fromY + 1)));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const ceiling = Math.max(GROUND_SEARCH_MAX_Y, (grid.sy ?? 0) - 1);
+  const startY = Math.min(ceiling, Math.max(1, Math.floor(fromY + 1)));
   for (let y = startY; y >= 0; y--) {
     if (blocks(grid, tx, y, tz)) return y + 1;
   }
@@ -119,6 +132,18 @@ const ARRIVE_RADIUS = 2.5;
 const ARRIVE_CREEP = 0.18;       
                                  
                                  
+
+
+
+
+
+
+
+
+
+
+const FALL_ACCEL = 16.0;         
+const FALL_MAX_SPEED = 14.0;     
 
 
 
@@ -157,13 +182,180 @@ function commitEscape(state, rng) {
 }
 
 
+const DESCENT_DIRS = [
+  [1, 0], [-1, 0], [0, 1], [0, -1],
+  [0.71, 0.71], [0.71, -0.71], [-0.71, 0.71], [-0.71, -0.71],
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const DESCENT_PROBE_MAX = 12;
+
+
+
+
+const DESCENT_COMMIT = 1.1;      
+
+function roofDescent(grid, state, t) {
+  const here = state.pos.y;
+
+  
+  
+  
+  const held = state.descend;
+  if (held && t < held.until && here < held.fromY) {
+    return { x: state.pos.x + held.dx, z: state.pos.z + held.dz };
+  }
+
+  let best = null;
+  for (let i = 0; i < DESCENT_DIRS.length; i++) {
+    const [dx, dz] = DESCENT_DIRS[i];
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    let low = here, lowR = 0;
+    for (let r = 1; r <= DESCENT_PROBE_MAX; r++) {
+      const gy = groundHeightAt(grid, state.pos.x + dx * r, state.pos.z + dz * r, here);
+      if (gy > here + MAX_STEP_UP) break;           
+      if (gy < low) { low = gy; lowR = r; }
+    }
+    if (lowR === 0) continue;                       
+    if (!best || low < best.low || (low === best.low && lowR < best.r)) {
+      best = { dx, dz, low, r: lowR };
+    }
+  }
+  if (!best) { state.descend = null; return null; }
+  state.descend = { dx: best.dx, dz: best.dz, until: t + DESCENT_COMMIT, fromY: here };
+  
+  
+  
+  return { x: state.pos.x + best.dx, z: state.pos.z + best.dz };
+}
+
+
 
 
 function planWaypoint(graph, grid, state, goal, p, t) {
   const dGoal = Math.hypot(goal.x - state.pos.x, goal.z - state.pos.z);
+  const field = navFieldFor(grid, goal.x, goal.z);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  state.marooned = null;
+
+  const tileSurface = graph.surfaceAt(Math.floor(state.pos.x), Math.floor(state.pos.z));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (tileSurface < 0 || state.pos.y > tileSurface + MIN_MAROON_DROP) {
+    
+    
+    
+    
+    
+    const down = roofDescent(grid, state, t);
+    if (down) {
+      state.marooned = { x: down.x, z: down.z, kind: 'roof' };
+      return { x: down.x, z: down.z, escaping: true };
+    }
+  } else {
+    const escape = graph.escapeFromIsland(field, state.pos.x, state.pos.z);
+    if (escape) {
+      state.marooned = escape;
+      
+      
+      
+      
+      
+      
+      const atEdge = Math.hypot(escape.x - state.pos.x, escape.z - state.pos.z) < 0.85;
+      return atEdge
+        ? { x: escape.toX, z: escape.toZ, escaping: true }
+        : { x: escape.x, z: escape.z, escaping: true };
+    }
+  }
+
   if (dGoal <= ARRIVE_RADIUS) return { x: goal.x, z: goal.z };
 
-  const field = navFieldFor(grid, goal.x, goal.z);
   if (!field) return null;                       
   const wp = graph.waypoint(field, state.pos.x, state.pos.z, LOOKAHEAD);
   if (!wp) return null;                          
@@ -416,7 +608,10 @@ export function stepBot(state, dt, grid, goal, rng = Math.random, crowd = null) 
 
   
   
-  let brake = dGoal >= ARRIVE_RADIUS
+  
+  
+  
+  let brake = (dGoal >= ARRIVE_RADIUS || state.marooned)
     ? 1
     : Math.max(ARRIVE_CREEP, dGoal / ARRIVE_RADIUS);
   const dist = MOVE_SPEED * p.speed * brake * dt;
@@ -426,7 +621,18 @@ export function stepBot(state, dt, grid, goal, rng = Math.random, crowd = null) 
     const s = graph.surfaceAt(Math.floor(x), Math.floor(z));
     if (s < 0) return false;
     const rise = s - fromY;
-    return rise <= MAX_STEP_UP && -rise <= MAX_DROP;
+    if (rise > MAX_STEP_UP) return false;
+    
+    
+    
+    if (state.airborne) return true;
+    
+    
+    
+    
+    
+    if (state.marooned) return true;
+    return -rise <= MAX_DROP;
   };
 
   if (canGo(state.pos.x + stepX, state.pos.z + stepZ)) {
@@ -459,7 +665,28 @@ export function stepBot(state, dt, grid, goal, rng = Math.random, crowd = null) 
   
   
   
-  state.pos.y = groundHeightAt(grid, state.pos.x, state.pos.z, state.pos.y);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const groundY = groundHeightAt(grid, state.pos.x, state.pos.z, state.pos.y);
+  if (groundY < state.pos.y - 1e-4) {
+    state.fallV = Math.min(FALL_MAX_SPEED, (state.fallV ?? 0) + FALL_ACCEL * dt);
+    state.pos.y = Math.max(groundY, state.pos.y - state.fallV * dt);
+    state.airborne = state.pos.y > groundY + 1e-4;
+  } else {
+    state.pos.y = groundY;
+    state.fallV = 0;
+    state.airborne = false;
+  }
+
 
   
   
@@ -468,7 +695,13 @@ export function stepBot(state, dt, grid, goal, rng = Math.random, crowd = null) 
     const ref = state.stuckRef;
     
     
-    if (ref && dGoal > ARRIVE_RADIUS
+    
+    
+    
+    
+    
+    
+    if (ref && dGoal > ARRIVE_RADIUS && !state.marooned && !state.airborne
         && Math.hypot(state.pos.x - ref.x, state.pos.z - ref.z) < STUCK_MIN_MOVE) {
       commitEscape(state, rng);
       state.waypoint = null;

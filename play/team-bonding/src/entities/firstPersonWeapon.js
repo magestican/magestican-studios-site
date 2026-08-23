@@ -16,7 +16,7 @@
 
 import * as THREE from 'three';
 import { makeWoodTexture, makeMetalTexture } from '../map/textures.js';
-import { VIEWMODELS, VM_PALETTE, VM_TEXTURED } from './viewmodelSpec.js';
+import { VIEWMODELS, VM_PALETTE, VM_TEXTURED, VM_EMISSIVE, DEFAULT_VIEWMODEL } from './viewmodelSpec.js';
 
 const REST_Z = -0.55;
 
@@ -41,11 +41,26 @@ export class FirstPersonWeapon {
     this._t = 0;
   }
 
+  
+  
+  
+  
+  
+  
   setWeapon(id) {
-    const key = this._models[id] ? id : 'shovel';
+    let key = id;
+    if (!this._models[key]) {
+      console.warn(`[viewmodel] no model "${id}" -- showing the ${DEFAULT_VIEWMODEL}. `
+                 + `Known: ${Object.keys(this._models).join(', ')}.`);
+      key = DEFAULT_VIEWMODEL;
+    }
     for (const [k, m] of Object.entries(this._models)) m.visible = (k === key);
     this._current = this._models[key];
+    this._currentId = key;
   }
+
+  
+  currentWeapon() { return this._currentId; }
 
   
   kick() { this._recoilT = 0.15; }
@@ -121,7 +136,14 @@ function buildMaterial(part, tex, rng) {
   const skin = VM_TEXTURED[part.mat];
   const base = skin && tex[skin.tex];
   if (!base) {
-    return new THREE.MeshLambertMaterial({ color: VM_PALETTE[part.mat], flatShading: true });
+    
+    
+    
+    return new THREE.MeshLambertMaterial({
+      color: VM_PALETTE[part.mat],
+      emissive: VM_EMISSIVE[part.mat] || 0x000000,
+      flatShading: true,
+    });
   }
 
   

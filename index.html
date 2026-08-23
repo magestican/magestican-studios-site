@@ -157,6 +157,7 @@
     import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
     import { mountSupportLink } from '/web-engine/support/support.js';
+    import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
     startVersionChecker();
     mountDeviceQr({ label: 'Open on your phone' });
     
@@ -166,6 +167,13 @@
     
     initAnalytics({ page: 'home' });
     trackPlayClicks();
+    
+    
+    
+    
+    
+    
+    mountLeaderboard({ place: 'site', showChip: false });
   </script>
 </body>
 </html>

@@ -40,6 +40,7 @@ import { addBarnSigns }       from './entities/barnSign.js';
 import { Bot }                from './entities/bot.js';
 import { TracerSystem }       from './entities/tracer.js';
 import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
+import { activeViewmodel, isPickupViewmodel } from './entities/viewmodelSpec.js';
 import { createPhysicsWorld } from 'arbelo/physics';
 import { SnowSystem }         from './entities/snow.js';
 import { ChickenPickup }      from './entities/chickenPickup.js';
@@ -615,6 +616,21 @@ export class Game {
     
     
     this.steakPickups = new SteakPickups(this.scene, {});
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (this._pendingSteakState) {
+      const pending = this._pendingSteakState;
+      this._pendingSteakState = null;
+      this._applySteakState(pending);
+    }
     this.steakScore = 0;                
     this.steakAmmo = 0;                 
     this._steakPoisonBy = new Map();    
@@ -798,7 +814,10 @@ export class Game {
 
   
   _applySteakState(statuses) {
-    if (!this.steakPickups || !statuses) return;
+    if (!statuses) return;
+    
+    
+    if (!this.steakPickups) { this._pendingSteakState = statuses; return; }
     for (const side of STEAK_SIDES) {
       const incoming = statuses[side];
       const local = this.steakPickups.status.get(side);
@@ -1536,6 +1555,9 @@ export class Game {
       }
       
       if (this._chickenCdTimer) { clearInterval(this._chickenCdTimer); this._chickenCdTimer = null; }
+      
+      
+      this._refreshViewmodel();
       
       this._showPowerGet('☢  SLINGSHOT READY  ☢', 'Any weapon — your next shot fires the chicken');
       try { SFX.chirp(); SFX.boom(0.4); } catch (_) {}
@@ -2618,16 +2640,79 @@ export class Game {
     
     
     
-    if (this.steakAmmo > 0) { this._updateSteakChip(); return; }
+    if (this.steakAmmo > 0) { this._updateSteakChip(); this._refreshViewmodel(); return; }
     this.weapons.selectSlot(i);
-    document.querySelectorAll('#weaponbar .wpn').forEach((el, idx) => {
-      el.classList.toggle('active', idx === i);
+    
+    
+    
+    
+    this._refreshViewmodel();
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _refreshViewmodel() {
+    const held = activeViewmodel({
+      chickenAmmo: this.chickenAmmo,
+      steakAmmo: this.steakAmmo,
+      weaponId: this.weapons.currentDef().id,
     });
-    if (this.viewmodel) {
-      const id = this.weapons.currentDef().id;
-      this.viewmodel.setWeapon(id === 'shovel' ? 'shovel'
-        : id === 'shotgun' ? 'shotgun' : 'rocket');
-    }
+    this.viewmodel?.setWeapon(held);
+    
+    
+    
+    
+    
+    
+    
+    this._paintWeaponBar(held);
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  _paintWeaponBar(held) {
+    const slots = document.querySelectorAll('#weaponbar .wpn');
+    if (!slots.length) return;
+    const pickup = isPickupViewmodel(held);
+    slots.forEach((el, idx) => {
+      
+      
+      
+      
+      el.classList.toggle('active', el.classList.contains('chicken')
+        ? pickup
+        : (!pickup && idx === this.weapons.slot));
+    });
   }
 
   _tryFire() {
@@ -2650,6 +2735,11 @@ export class Game {
       if (this.isHost) this._resolveSteakThrow(msg);
       SFX.pew();
       this._updateSteakChip();
+      
+      
+      
+      this._refreshViewmodel();
+      this.viewmodel?.kick();
       return;
     }
     
@@ -2664,6 +2754,10 @@ export class Game {
       if (this.isHost) this._resolveChickenShot(msg);
       SFX.snorkel();
       this._startChickenCooldownChip();
+      
+      
+      this._refreshViewmodel();
+      this.viewmodel?.kick();
       return;
     }
     const shots = this.weapons.tryFire(origin, dir, this.rngShots, this.myId);
@@ -3285,6 +3379,13 @@ export class Game {
       
       
       this.steakAmmo = STEAK_THROWS;
+      
+      
+      
+      
+      
+      
+      this._refreshViewmodel();
       this._showPowerGet('MEAT WEAPON',
         `${STEAK_THROWS} poison throws — FIRE to launch`);
       try { SFX.chirp(); SFX.boom(0.35); } catch (_) {}

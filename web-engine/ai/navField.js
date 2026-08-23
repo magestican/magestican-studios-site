@@ -70,6 +70,15 @@ export const REUSE_RADIUS = 5;
 const SNAP_RADIUS = 8;
 export const MAX_FIELDS = 6;
 
+
+
+
+export const MIN_MAROON_DROP = 2;
+
+
+
+export const MAROON_SCAN_MAX = 512;
+
 const INF = 65535;          
 const COST_ORTH = 10;       
 const COST_DIAG = 14;       
@@ -346,6 +355,108 @@ export class NavGraph {
 
   reachable(field, x, z) {
     return this.anchorTile(field, x, z) >= 0;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  escapeFromIsland(field, x, z, { minDrop = MIN_MAROON_DROP, maxTiles = MAROON_SCAN_MAX } = {}) {
+    if (!field) return null;
+    const start = this.idx(Math.floor(x), Math.floor(z));
+    if (start < 0 || this.surface[start] < 0) return null;
+    if (field.dist[start] !== INF) return null;      
+
+    
+    
+    
+    
+    const depth = new Map([[start, 0]]);
+    const queue = [start];
+    let best = null, bestDepth = Infinity;
+    for (let qi = 0; qi < queue.length; qi++) {
+      const i = queue[qi];
+      const d = depth.get(i);
+      
+      
+      
+      if (d > bestDepth || depth.size > maxTiles) break;
+      const sx0 = i % this.sx, sz0 = (i / this.sx) | 0;
+      const si = this.surface[i];
+      for (let nb = 0; nb < NEIGHBOURS.length; nb++) {
+        const [dx, dz] = NEIGHBOURS[nb];
+        const j = this.idx(sx0 + dx, sz0 + dz);
+        if (j < 0) continue;
+        const sj = this.surface[j];
+        if (sj < 0) continue;
+        if (this._linked(i, j)) {
+          if (!depth.has(j)) { depth.set(j, d + 1); queue.push(j); }
+          continue;
+        }
+        
+        
+        
+        if (si - sj < minDrop) continue;
+        if (field.dist[j] === INF) continue;
+        if (!best || d < bestDepth
+            || (d === bestDepth && field.dist[j] < best.routeDist)) {
+          bestDepth = d;
+          best = {
+            x: sx0 + 0.5, z: sz0 + 0.5,           
+            toX: (j % this.sx) + 0.5,             
+            toZ: ((j / this.sx) | 0) + 0.5,
+            drop: si - sj, routeDist: field.dist[j], tiles: d,
+          };
+        }
+      }
+    }
+    return best;
   }
 }
 

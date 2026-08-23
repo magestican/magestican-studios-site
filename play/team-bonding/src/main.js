@@ -9,6 +9,9 @@ import { startVersionChecker } from 'arbelo/updater';
 import { mountDeviceQr }       from 'arbelo/qr';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 import { gameStartParams, watchMatchEnd } from 'arbelo/game-events';
+import { mountLeaderboard } from 'arbelo/leaderboard-ui';
+import { mountEscRouter } from 'arbelo/esc-router';
+import { loadCareer, saveCareer, rememberCharacters } from 'arbelo/career';
 
 
 
@@ -26,6 +29,25 @@ mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Team B
 initAnalytics({ page: 'team-bonding-game' });
 
 const $ = (id) => document.getElementById(id);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const leaderboardUi = mountLeaderboard({
+  place: 'game',
+  showChip: true,          
+  myName: localStorage.getItem('tb.name') || '',
+});
 
 
 
@@ -113,6 +135,7 @@ for (const btn of $('characterRow').querySelectorAll('button')) {
   btn.addEventListener('click', () => {
     state.character = btn.dataset.char;
     selectFrom('characterRow', 'char', state.character, btn);
+    rememberLocalCharacter();
   });
 }
 for (const btn of $('teamRow').querySelectorAll('button')) {
@@ -156,6 +179,23 @@ $('nameInput').addEventListener('input', (e) => {
   state.name = e.target.value.trim();
   localStorage.setItem('tb.name', state.name);
 });
+
+
+
+
+
+
+
+
+function rememberLocalCharacter() {
+  const name = ($('nameInput').value || '').trim();
+  if (!name) return;
+  const before = loadCareer(localStorage);
+  const after = rememberCharacters(before, [{ name, character: state.character }]);
+  
+  
+  if (after !== before) { saveCareer(localStorage, after); leaderboardUi?.refresh(); }
+}
 
 
 
@@ -314,6 +354,11 @@ async function startGame(hostIdToJoin) {
     $('menu').style.display = 'none';
     $('hud').style.display = 'block';
     $('loading').classList.add('done');
+    
+    
+    
+    
+    leaderboardUi?.setChipVisible(false);
     game.pointerLock();
   };
 
@@ -334,6 +379,61 @@ async function startGame(hostIdToJoin) {
   });
 
   window.__tbGame = game;   
+
+  rememberLocalCharacter();
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  mountEscRouter({
+    isAnagramOpen:    () => !!$('anagramWrap')?.classList.contains('visible'),
+    isChatOpen:       () => !!game.chat?.isComposing?.(),
+    isSettingsOpen:   () => !!$('settings-modal')?.classList.contains('visible'),
+    isCareerOpen:     () => !!leaderboardUi?.isOpen(),
+    isScoreboardOpen: () => !!game._scoreboardOpen,
+    
+    
+    isInMatch:        () => $('menu')?.style.display === 'none',
+    closeChat:        () => game.chat?.close?.(),
+    closeSettings:    () => $('settings-modal')?.classList.remove('visible'),
+    closeCareer:      () => leaderboardUi?.close(),
+    setScoreboard:    (on) => game._paintScoreboard(on),
+  });
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  setInterval(() => {
+    try {
+      const roster = [...(game.playerMeta?.values?.() ?? [])];
+      if (!roster.length) return;
+      const before = loadCareer(localStorage);
+      const after = rememberCharacters(before, roster);
+      if (after !== before) { saveCareer(localStorage, after); leaderboardUi?.refresh(); }
+    } catch (_) {  }
+  }, 10000);
 
   await game.boot();
 

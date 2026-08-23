@@ -36,9 +36,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 export const PUBLIC_FIELDS = Object.freeze([
-  'name', 'kills', 'deaths', 'wins', 'matches',
+  'name', 'kills', 'deaths', 'wins', 'matches', 'character',
 ]);
+
+
+
+
+export const VALID_CHARACTERS = Object.freeze(['cow', 'chicken', 'pig', 'sheep']);
+
+
+
+
+export function normaliseCharacter(raw) {
+  
+  
+  
+  
+  if (typeof raw !== 'string') return null;
+  const s = raw.trim().toLowerCase();
+  return VALID_CHARACTERS.includes(s) ? s : null;
+}
 
 
 
@@ -109,6 +138,11 @@ export function toPublicDto(row) {
     deaths: count(row.deaths),
     wins: count(row.wins),
     matches: count(row.matches),
+    
+    
+    
+    
+    character: normaliseCharacter(row.character),
   };
 }
 
@@ -128,6 +162,11 @@ export function fromPublicDto(doc) {
     deaths: count(doc.deaths),
     wins: count(doc.wins),
     matches: count(doc.matches),
+    
+    
+    
+    
+    character: normaliseCharacter(doc.character),
   };
 }
 
@@ -150,5 +189,9 @@ export function isPublishable(dto) {
     const v = dto[k];
     if (!Number.isInteger(v) || v < 0 || v > LIMITS.maxCount) return false;
   }
+  
+  
+  
+  if (!(dto.character === null || VALID_CHARACTERS.includes(dto.character))) return false;
   return true;
 }

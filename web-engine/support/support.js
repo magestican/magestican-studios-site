@@ -22,7 +22,7 @@
 
 
 
-export const KOFI_USERNAME = 'YOUR_KOFI_NAME';
+export const KOFI_USERNAME = 'magestican';
 
 export const PLACEHOLDER = 'YOUR_KOFI_NAME';
 
