@@ -33,6 +33,8 @@ import { pickWord, scramble } from './util/anagram.js';
 import { TouchControls }     from './touchControls.js';
 import { Chiptune }           from './audio/chiptune.js';
 import * as SFX               from './audio/sfx.js';
+import { callFor, shouldCall, loudnessFor, emptyVoiceState }
+  from '../../../web-engine/audio/animalVoice.js';
 import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
 import { buildSkybox }        from './entities/skybox.js';
 import { SkyBrawl }           from './entities/skyBrawl.js';
@@ -980,6 +982,9 @@ export class Game {
     setTimeout(() => {
       if (this.matchState === 'countdown') {
         this.matchState = 'playing';
+        
+        
+        this._animalCall('spawn');
         this._broadcast({ t: MSG.MATCH_STATE, state: 'playing' });
         this._updateLobbyBanner();
       }
@@ -1128,6 +1133,29 @@ export class Game {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _animalCall(moment) {
+    this._voice = this._voice || emptyVoiceState();
+    if (!shouldCall(this._voice, moment, performance.now())) return;
+    const meta = this.playerMeta?.get(this.myId);
+    const character = meta?.character || this.character;
+    
+    
+    
+    
+    
+    if (callFor(character)) SFX.animalVoice(character, loudnessFor(moment));
+  }
+
   _announceKill(killer, victim, weapon) {
     if (!this._killAnnouncer) return;
     let keys = [];
@@ -3912,6 +3940,12 @@ export class Game {
   
   
   _tallyKill(killerId, victimId) {
+    
+    
+    
+    if (killerId === this.myId) this._animalCall('kill');
+    if (victimId === this.myId) this._animalCall('death');
+
     tallyKill(this._tally, killerId, victimId);
     if (this._scoreboardOpen) this._paintScoreboard(true);   
   }
@@ -4615,6 +4649,9 @@ export class Game {
     } finally {
       
       this.matchState = 'playing';
+      
+      
+      this._animalCall('spawn');
       this._killFeedPush('New round - first to ' + this.mode.winScore + ' '
                          + this.mode.scoreLabel.toLowerCase());
     }
