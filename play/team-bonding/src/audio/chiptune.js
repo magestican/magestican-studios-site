@@ -33,8 +33,21 @@ import {
 
 
 
-const MUSIC_LEVEL_TAG = 0.35;
-const MUSIC_LEVEL_SYNTH = 0.20;
+
+
+
+
+
+
+
+
+
+
+
+
+
+const MUSIC_LEVEL_TAG = 0.52;
+const MUSIC_LEVEL_SYNTH = 0.34;
 
 
 

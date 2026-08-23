@@ -1,6 +1,11 @@
 
 
 
+
+
+
+import { installPointerLockPromise } from 'arbelo/pointer-lock-compat';
+
 import { Game } from './game.js';
 import { MAPS, MAP_IDS, DEFAULT_MAP } from 'arbelo/mapspec';
 import { MODES, MODE_IDS, DEFAULT_MODE } from 'arbelo/modes';
@@ -12,6 +17,42 @@ import { gameStartParams, watchMatchEnd } from 'arbelo/game-events';
 import { mountLeaderboard } from 'arbelo/leaderboard-ui';
 import { mountEscRouter } from 'arbelo/esc-router';
 import { loadCareer, saveCareer, rememberCharacters } from 'arbelo/career';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+installPointerLockPromise(window);
+
+
+
+
+
+
+
+window.__tbBooted = true;
 
 
 

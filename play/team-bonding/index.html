@@ -718,6 +718,53 @@
       color: #9aa5b8; font-family: Georgia,serif; font-size: 18px;
     }
     #loading.done { display: none; }
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+    #browser-gate { display: none; position: fixed; inset: 0; z-index: 99999;
+      background: #0a0d12; color: #e8ecf1;
+      overflow-y: auto;
+      padding: 24px 20px;
+      align-items: flex-start; justify-content: center;
+    }
+    #browser-gate.visible { display: flex; }
+    #browser-gate .gate-card { max-width: 560px; width: 100%; margin: auto;
+      background: rgba(24,30,42,0.9); border: 1px solid #2b3648; border-radius: 12px;
+      padding: 26px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+    #browser-gate h1 { font-family: Georgia,serif; font-size: 26px; margin-bottom: 10px; }
+    #browser-gate h1 .accent { color: #f4c95d; }
+    #browser-gate p { color: #c3ccdb; font-size: 15px; line-height: 1.5; margin-bottom: 12px; }
+    #browser-gate ul { margin: 0 0 14px 20px; color: #c3ccdb; font-size: 15px; line-height: 1.6; }
+    #browser-gate .why { color: #f4c95d; font-weight: 600; }
+    #browser-gate .versions { color: #9aa5b8; font-size: 14px; }
+    #browser-gate .gate-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    #browser-gate button, #browser-gate a.gate-btn {
+      font: inherit; background: #2a3446; color: #e8ecf1; text-decoration: none;
+      border: 1px solid #3a475e; border-radius: 8px; padding: 10px 16px; cursor: pointer;
+    }
+    #browser-gate button.primary { background: #4b7bd6; border-color: #6a95e5; }
     
 
 
@@ -729,6 +776,123 @@
       align-items: center; gap: 2px; min-width: 92px; }
     #mapRow .emoji, #modeRow .emoji { font-size: 20px; line-height: 1.1; }
   </style>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+  (function () {
+    'use strict';
+    var W = window, D = document;
+
+    
+
+    function probe(fn) { try { return !!fn(); } catch (e) { return false; } }
+
+    var has = {
+      modules: probe(function () { return 'noModule' in D.createElement('script'); }),
+      webgl: probe(function () {
+        var c = D.createElement('canvas');
+        return c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl');
+      }),
+      webrtc: probe(function () {
+        return W.RTCPeerConnection || W.webkitRTCPeerConnection || W.mozRTCPeerConnection;
+      }),
+      storage: probe(function () {
+        W.localStorage.setItem('tb.probe', '1');
+        W.localStorage.removeItem('tb.probe');
+        return true;
+      })
+    };
+
+    
+
+
+
+
+    var FLOOR = 'Team Bonding needs Chrome 89+, Edge 89+, Firefox 108+ or Safari 16.4+.';
+
+    var REASONS = {
+      modules: ['This browser cannot run JavaScript modules.', FLOOR],
+      importmap: ['This browser does not support import maps, so none of the game code can be located.', FLOOR],
+      webgl: ['WebGL is unavailable, so there is nothing to draw the 3D world with.',
+              'It is usually switched off in settings, or blocked by a driver. Try enabling hardware acceleration.'],
+      webrtc: ['WebRTC is unavailable, and the multiplayer runs peer-to-peer over it.',
+               'Some hardened or enterprise browser profiles disable it.'],
+      storage: ['Site data is blocked for this page, and the game stores your name and settings in it.',
+                'Allow cookies / site data for magesticanstudios.com, or leave private browsing.'],
+      slow: ['The game code did not finish loading.',
+             'This is usually a slow or blocked connection rather than your browser. Reloading normally fixes it.']
+    };
+
+    var shown = false;
+    function showGate(key) {
+      if (shown) return;
+      shown = true;
+      var gate = D.getElementById('browser-gate');
+      var loading = D.getElementById('loading');
+      if (loading) loading.className = 'done';
+      if (!gate) { W.alert(REASONS[key][0] + ' ' + REASONS[key][1]); return; }
+      var why = D.getElementById('gate-why');
+      var detail = D.getElementById('gate-detail');
+      if (why) why.appendChild(D.createTextNode(REASONS[key][0]));
+      if (detail) detail.appendChild(D.createTextNode(REASONS[key][1]));
+      gate.className = 'visible';
+      
+
+      D.title = 'TB UNSUPPORTED: ' + key;
+    }
+    W.__tbShowGate = showGate;
+
+    function checkNow() {
+      if (!has.modules) { showGate('modules'); return true; }
+      if (!has.webgl) { showGate('webgl'); return true; }
+      if (!has.webrtc) { showGate('webrtc'); return true; }
+      if (!has.storage) { showGate('storage'); return true; }
+      return false;
+    }
+
+    
+
+
+
+
+
+
+
+
+
+    var t0 = (new Date()).getTime();
+    var timer = W.setInterval(function () {
+      if (W.__tbBooted) { W.clearInterval(timer); return; }
+      var ms = (new Date()).getTime() - t0;
+      if (ms > 6000 && !W.__tbModules) { W.clearInterval(timer); showGate('modules'); return; }
+      if (ms > 6000 && !W.__tbImportMap) { W.clearInterval(timer); showGate('importmap'); return; }
+      if (ms > 25000) { W.clearInterval(timer); showGate('slow'); }
+    }, 500);
+
+    if (D.readyState === 'loading') {
+      D.addEventListener('DOMContentLoaded', checkNow);
+    } else {
+      checkNow();
+    }
+  }());
+  </script>
 
   <script type="importmap">
   {
@@ -742,6 +906,7 @@
       "arbelo/modes":       "../../web-engine/modes/gameModes.js",
       "arbelo/net":         "../../web-engine/net/peerMesh.js",
       "arbelo/input":       "../../web-engine/input/inputBus.js",
+      "arbelo/pointer-lock-compat": "../../web-engine/input/pointerLockCompat.js",
       "arbelo/updater":     "../../web-engine/updater/versionChecker.js",
       "arbelo/qr":          "../../web-engine/ui/deviceQr.js",
       "arbelo/physics":     "../../web-engine/physics/rapierWorld.js",
@@ -759,10 +924,50 @@
     }
   }
   </script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script type="module">
+    window.__tbModules = true;
+  </script>
+  <script type="module">
+    import 'arbelo/rng';
+    window.__tbImportMap = true;
+  </script>
 </head>
 <body>
   <div id="app"></div>
   <div id="loading">Loading Team Bonding...</div>
+
+  
+
+
+  <div id="browser-gate">
+    <div class="gate-card">
+      <h1>Team <span class="accent">Bonding</span> cannot start here</h1>
+      <p class="why" id="gate-why"></p>
+      <p id="gate-detail"></p>
+      <p class="versions">Everything else about the game is fine &mdash; it runs
+        entirely in the browser, with no download and no account, so a current
+        browser is the only requirement.</p>
+      <div class="gate-actions">
+        <button type="button" class="primary" onclick="location.reload()">Try again</button>
+        <a class="gate-btn" href="/team-bonding.html">About the game</a>
+      </div>
+    </div>
+  </div>
 
   
   <div id="menu">

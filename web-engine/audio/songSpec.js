@@ -72,7 +72,19 @@ export function midiToHz(midi) {
 
 
 export const PREVIOUS_BPM = 150;
-export const MIN_BPM = 170;
+
+
+
+
+
+
+
+
+
+
+
+
+export const MIN_BPM = 150;
 
 
 
@@ -249,11 +261,20 @@ const down8ve = (seq) => seq.map(([n, b]) => [n == null ? null : n - 12, b]);
 
 
 
+
+
+
+
+
+
+
+
+
 function bassBar(chord) {
-  const { root, oct, fifth } = CHORDS[chord];
+  const { root, fifth } = CHORDS[chord];
   return [
-    [root, 0.5], [root, 0.5], [root, 0.5], [oct, 0.5],
-    [root, 0.5], [root, 0.5], [fifth, 0.25], [fifth, 0.25], [oct, 0.5],
+    [root, 0.5], [root, 0.5], [root, 0.5], [fifth, 0.5],
+    [root, 0.5], [root, 0.5], [fifth, 0.25], [fifth, 0.25], [root, 0.5],
   ];
 }
 
@@ -264,7 +285,10 @@ function harmonyArpBar(chord) {
   const top = c.oct + 12;
   const shape = [c.oct, third, fifth, top, fifth, third, c.oct, third];
   
-  return [...shape, ...shape].map((n) => [n, 0.25]);
+  
+  
+  
+  return shape.map((n) => [n, 0.5]);
 }
 
 
@@ -453,10 +477,10 @@ export const DRUM_KINDS = Object.freeze(['kick', 'snare', 'hat', 'openhat', 'cra
 export const DEFAULT_MAP = 'snow-farm';
 
 export const MAP_FLAVOUR = Object.freeze({
-  'snow-farm':         Object.freeze({ bpm: 180, riff: 'pedal'  }),
-  'icy-mountain':      Object.freeze({ bpm: 190, riff: 'gallop' }),
-  'central-park-rink': Object.freeze({ bpm: 174, riff: 'climb'  }),
-  'arctic':            Object.freeze({ bpm: 186, riff: 'gallop' }),
+  'snow-farm':         Object.freeze({ bpm: 156, riff: 'pedal'  }),
+  'icy-mountain':      Object.freeze({ bpm: 162, riff: 'gallop' }),
+  'central-park-rink': Object.freeze({ bpm: 152, riff: 'climb'  }),
+  'arctic':            Object.freeze({ bpm: 158, riff: 'gallop' }),
 });
 
 export function flavourFor(map) {
