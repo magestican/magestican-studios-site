@@ -675,88 +675,161 @@ export function snorkel() {
 
 
 
-function _envOsc(ctx, dur, type, f0, f1, gain) {
-  const t = ctx.currentTime;
-  const osc = ctx.createOscillator();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function _formant(ctx, src, f, f2, q, gain, t0, dur, dest) {
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.setValueAtTime(f, t0);
+  if (f2 && f2 !== f) bp.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+  bp.Q.value = q;
   const g = ctx.createGain();
-  osc.type = type;
-  osc.frequency.setValueAtTime(f0, t);
-  osc.frequency.exponentialRampToValueAtTime(f1, t + dur);
-  g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(gain, t + 0.02);
-  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  osc.connect(g).connect(_master);
-  osc.start(t); osc.stop(t + dur + 0.05);
+  g.gain.value = gain;
+  src.connect(bp).connect(g).connect(dest);
+  return g;
 }
+
+
+function _voiceSource(ctx, t0, dur, f0, f1, peak, vibHz, vibDepth) {
+  const osc = ctx.createOscillator();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(f0, t0);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t0 + dur);
+  if (vibHz) {
+    const lfo = ctx.createOscillator();
+    const lg = ctx.createGain();
+    lfo.type = 'sine'; lfo.frequency.value = vibHz; lg.gain.value = vibDepth;
+    lfo.connect(lg).connect(osc.frequency);
+    lfo.start(t0); lfo.stop(t0 + dur + 0.05);
+  }
+  const amp = ctx.createGain();
+  amp.gain.setValueAtTime(0, t0);
+  amp.gain.linearRampToValueAtTime(peak, t0 + dur * 0.14);
+  amp.gain.setValueAtTime(peak, t0 + dur * 0.55);
+  amp.gain.exponentialRampToValueAtTime(0.0008, t0 + dur);
+  osc.connect(amp);
+  osc.start(t0); osc.stop(t0 + dur + 0.05);
+  return amp;
+}
+
+function _wetSend(ctx, amount) {
+  const g = ctx.createGain();
+  g.gain.value = amount;
+  if (_verbSend) g.connect(_verbSend);
+  return g;
+}
+
+
 
 
 export function moo(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
-  _envOsc(ctx, 0.55, 'sawtooth', 220, 110, 0.30 * loudness);
-  _envOsc(ctx, 0.55, 'sine',     110, 60,  0.20 * loudness);
+  const t = ctx.currentTime, dur = 1.15;
+  const src = _voiceSource(ctx, t, dur, 138, 96, 0.42 * loudness, 5.5, 3);
+  const out = ctx.createGain(); out.gain.value = 1;
+  _formant(ctx, src, 320, 620, 7, 1.00, t, dur, out);      
+  _formant(ctx, src, 780, 1010, 9, 0.55, t, dur, out);     
+  _formant(ctx, src, 2400, 2400, 14, 0.12, t, dur, out);   
+  out.connect(_master);
+  out.connect(_wetSend(ctx, 0.35 * loudness));
 }
+
+
 
 
 export function oink(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t0 = ctx.currentTime;
-  for (const [start, dur, f0, f1] of [[0.00, 0.13, 380, 180], [0.18, 0.11, 340, 160]]) {
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(f0, t0 + start);
-    osc.frequency.exponentialRampToValueAtTime(f1, t0 + start + dur);
-    g.gain.setValueAtTime(0, t0 + start);
-    g.gain.linearRampToValueAtTime(0.30 * loudness, t0 + start + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.001, t0 + start + dur);
-    osc.connect(g).connect(_master);
-    osc.start(t0 + start); osc.stop(t0 + start + dur + 0.05);
+  const grunts = [[0, 0.20, 260, 150, 0.40], [0.26, 0.15, 225, 130, 0.32]];
+  for (const [start, dur, f0, f1, amp] of grunts) {
+    const t = t0 + start;
+    const src = _voiceSource(ctx, t, dur, f0, f1, amp * loudness, 22, 12);
+    const n = ctx.createBufferSource();
+    n.buffer = noiseBuffer(ctx, dur);
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.10 * loudness, t);
+    ng.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    n.connect(ng);
+    n.start(t); n.stop(t + dur + 0.02);
+    const out = ctx.createGain(); out.gain.value = 1;
+    for (const s of [src, ng]) {
+      _formant(ctx, s, 520, 700, 5, 1.00, t, dur, out);
+      _formant(ctx, s, 1180, 950, 6, 0.60, t, dur, out);
+    }
+    out.connect(_master);
+    out.connect(_wetSend(ctx, 0.22 * loudness));
   }
 }
 
 
+
 export function bheee(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
-  const t = ctx.currentTime, dur = 0.50;
-  const osc = ctx.createOscillator();
-  const g = ctx.createGain();
-  osc.type = 'triangle';
-  osc.frequency.setValueAtTime(520, t);
-  
+  const t = ctx.currentTime, dur = 0.85;
+  const src = _voiceSource(ctx, t, dur, 430, 360, 0.34 * loudness, 8.5, 26);
+  const trem = ctx.createGain();
   const lfo = ctx.createOscillator();
-  const lfoGain = ctx.createGain();
-  lfo.type = 'sine'; lfo.frequency.value = 14;
-  lfoGain.gain.value = 40;
-  lfo.connect(lfoGain).connect(osc.frequency);
+  const lg = ctx.createGain();
+  lfo.type = 'sine'; lfo.frequency.value = 8.5; lg.gain.value = 0.45;
+  trem.gain.value = 0.55;
+  lfo.connect(lg).connect(trem.gain);
   lfo.start(t); lfo.stop(t + dur + 0.05);
-  g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(0.28 * loudness, t + 0.03);
-  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-  osc.connect(g).connect(_master);
-  osc.start(t); osc.stop(t + dur + 0.05);
+  src.connect(trem);
+  const out = ctx.createGain(); out.gain.value = 1;
+  _formant(ctx, trem, 650, 700, 8, 1.00, t, dur, out);     
+  _formant(ctx, trem, 1900, 1750, 10, 0.70, t, dur, out);  
+  _formant(ctx, trem, 2900, 2900, 12, 0.20, t, dur, out);
+  out.connect(_master);
+  out.connect(_wetSend(ctx, 0.28 * loudness));
 }
+
+
 
 
 export function cluck(loudness = 1.0) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t0 = ctx.currentTime;
-  const parts = [
-    [0.00, 0.10, 880, 1500],
-    [0.14, 0.07, 780, 1200],
-    [0.24, 0.07, 760, 1150],
-  ];
-  for (const [start, dur, f0, f1] of parts) {
-    const osc = ctx.createOscillator();
+  [0, 0.13, 0.26].forEach((start, i) => {
+    const t = t0 + start, dur = 0.07;
+    const n = ctx.createBufferSource();
+    n.buffer = noiseBuffer(ctx, dur);
     const g = ctx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(f0, t0 + start);
-    osc.frequency.exponentialRampToValueAtTime(f1, t0 + start + dur);
-    g.gain.setValueAtTime(0, t0 + start);
-    g.gain.linearRampToValueAtTime(0.22 * loudness, t0 + start + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.001, t0 + start + dur);
-    osc.connect(g).connect(_master);
-    osc.start(t0 + start); osc.stop(t0 + start + dur + 0.05);
-  }
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.30 * loudness, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    n.connect(g);
+    n.start(t); n.stop(t + dur + 0.02);
+    const out = ctx.createGain(); out.gain.value = 1;
+    _formant(ctx, g, 900 + i * 120, 1500 + i * 150, 4, 1.0, t, dur, out);
+    _formant(ctx, g, 2200, 2600, 6, 0.5, t, dur, out);
+    out.connect(_master);
+  });
+  const t = t0 + 0.40, dur = 0.30;
+  const src = _voiceSource(ctx, t, dur, 620, 900, 0.30 * loudness, 30, 40);
+  const out = ctx.createGain(); out.gain.value = 1;
+  _formant(ctx, src, 1100, 2100, 5, 1.00, t, dur, out);
+  _formant(ctx, src, 2600, 3200, 7, 0.55, t, dur, out);
+  out.connect(_master);
+  out.connect(_wetSend(ctx, 0.25 * loudness));
 }
 
 

@@ -13,15 +13,6 @@
 
 
 
-const NOTE = {
-  F2: 87.31, G2: 98.00, A2: 110.00, C3: 130.81, D3: 146.83, E3: 164.81,
-  F3: 174.61, G3: 196.00, A3: 220.00, C4: 261.63, D4: 293.66, E4: 329.63,
-  F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33,
-  E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00,
-};
-
-const BPM = 150;
-const BEAT = 60 / BPM;
 
 
 
@@ -30,86 +21,13 @@ const BEAT = 60 / BPM;
 
 
 
-function melody() {
-  const rest2bars = [[null, 4], [null, 4]];
-  const verse4 = [
-    
-    [NOTE.A4, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5],
-    [NOTE.A4, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 1.0],
-    
-    [NOTE.F4, 0.5], [NOTE.A4, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 0.5],
-    [NOTE.F4, 0.5], [NOTE.A4, 0.5], [NOTE.C5, 1.0],
-    
-    [NOTE.E5, 0.5], [NOTE.D5, 0.5], [NOTE.C5, 0.5], [NOTE.D5, 0.5],
-    [NOTE.E5, 0.5], [NOTE.G5, 0.5], [NOTE.E5, 1.0],
-    
-    [NOTE.D5, 0.5], [NOTE.B4, 0.5], [NOTE.G4, 0.5], [NOTE.B4, 0.5],
-    [NOTE.D5, 0.5], [NOTE.B4, 0.5], [NOTE.D5, 1.0],
-  ];
-  const hook4 = [
-    
-    [NOTE.E5, 0.25], [NOTE.E5, 0.25], [NOTE.E5, 0.5], [NOTE.C5, 0.5],
-    [NOTE.E5, 0.5], [NOTE.A5, 1.0], [NOTE.G5, 0.5], [NOTE.E5, 0.5],
-    
-    [NOTE.F5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 0.5],
-    [NOTE.F5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 1.0],
-    
-    [NOTE.G5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5],
-    [NOTE.G5, 0.5], [NOTE.A5, 0.5], [NOTE.G5, 1.0],
-    
-    [NOTE.B4, 0.25], [NOTE.C5, 0.25], [NOTE.D5, 0.5], [NOTE.G5, 0.5],
-    [NOTE.F5, 0.5], [NOTE.D5, 0.5], [NOTE.B4, 0.5], [NOTE.G4, 1.0],
-  ];
-  const outro = [
-    [NOTE.A4, 0.5], [NOTE.C5, 0.5], [NOTE.E5, 0.5], [NOTE.A5, 0.5],
-    [NOTE.G5, 0.5], [NOTE.E5, 0.5], [NOTE.C5, 0.5], [NOTE.A4, 0.5],
-    [NOTE.A4, 2.0], [null, 2.0],
-  ];
-  return [...rest2bars, ...verse4, ...verse4, ...hook4, ...hook4, ...outro];
-}
-
-
-const CHORDS = {
-  Am: [NOTE.A2, NOTE.A3, NOTE.E3],
-  F:  [NOTE.F2, NOTE.F3, NOTE.C3],
-  C:  [NOTE.C3, NOTE.C4, NOTE.G3],
-  G:  [NOTE.G2, NOTE.G3, NOTE.D3],
-};
-const PROG = ['Am', 'F', 'C', 'G'];
-function chordAtBar(bar) {
-  if (bar < 2 || bar >= 18) return CHORDS.Am;     
-  return CHORDS[PROG[(bar - 2) % 4]];
-}
-
-
-function bass() {
-  const out = [];
-  for (let bar = 0; bar < 20; bar++) {
-    const [root, oct, fifth] = chordAtBar(bar);
-    const pat = [root, root, oct, root, root, root, oct, fifth];
-    for (const n of pat) out.push([n, 0.5]);
-  }
-  return out;
-}
 
 
 
 
-function harmony() {
-  const out = [];
-  for (let bar = 0; bar < 20; bar++) {
-    if (bar < 10 || bar >= 18) { out.push([null, 4]); continue; }
-    const [, oct] = chordAtBar(bar);
-    const third = oct * Math.pow(2, 3 / 12);   
-    const fifth = oct * Math.pow(2, 7 / 12);
-    const top   = oct * 2;
-    const arp = [oct, third, fifth, top, fifth, third, oct, fifth];
-    for (const n of arp) out.push([n, 0.5]);
-  }
-  return out;
-}
-
-const totalBeats = (seq) => seq.reduce((s, [, b]) => s + b, 0);
+import {
+  buildSong, midiToHz, VOICES, VOICE_NAMES,
+} from '../../../../web-engine/audio/songSpec.js';
 
 
 
@@ -125,8 +43,16 @@ const DUCK_DEPTH = 0.28;
 const DUCK_RELEASE_MS = 320;
 
 export class Chiptune {
-  constructor() {
+  
+  
+  
+  
+  
+  
+  constructor({ seed = 0, map } = {}) {
     this.muted = localStorage.getItem('tb.muted') === '1';
+    this._songKey = `${map || ''}#${seed}`;
+    this.song = buildSong(map ? { seed, map } : { seed });
     this._audio = null;
     this._url = null;
     
@@ -140,6 +66,32 @@ export class Chiptune {
     this._fallbackMaster = null;
     this._fallbackPlaying = false;
     this.started = false;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  reseed({ seed = 0, map } = {}) {
+    const key = `${map || ''}#${seed}`;
+    if (key === this._songKey) return false;
+    this._songKey = key;
+    this.song = buildSong(map ? { seed, map } : { seed });
+    if (this.started) return false;          
+    this._renderPromise = this._render().catch((err) => {
+      console.warn('Chiptune re-render failed:', err);
+      return null;
+    });
+    return true;
   }
 
   
@@ -195,29 +147,33 @@ export class Chiptune {
     this._fallbackPump();
   }
 
+  
+  
+  
+  
+  
   _fallbackPump() {
     if (!this._fallbackPlaying || !this._fallbackCtx) return;
+    const beat = this.song.beatSec;
+    const riff = this.song.riff;
+    const riffBeats = riff.reduce((s, [, b]) => s + b, 0);
     while (this._fallbackNextAt < this._fallbackCtx.currentTime + 2.0) {
-      
-      if (!this._barIdx) this._barIdx = 0;
-      const bar = this._barIdx++;
-      const roots = [NOTE.A2, NOTE.F2, NOTE.C3, NOTE.G2];   
-      const root = roots[bar % 4];
-      for (let e = 0; e < 8; e++) {
-        this._fbNote(root, this._fallbackNextAt + e * (BEAT / 2), (BEAT / 2) * 0.92, 'sawtooth', 0.20);
-      }
-      const mel = melody();
       let t = this._fallbackNextAt;
-      let idxOff = (bar % 4) * 8;
-      let left = 4;
-      while (left > 0 && idxOff < mel.length) {
-        const [n, b] = mel[idxOff++];
-        if (b > left) break;
-        if (n) this._fbNote(n, t, b * BEAT * 0.9, 'square', 0.16);
-        t += b * BEAT;
-        left -= b;
+      for (const [midi, beats] of riff) {
+        if (midi != null) {
+          this._fbNote(midiToHz(midi), t, beats * beat * VOICES.guitar.gate,
+            VOICES.guitar.wave, VOICES.guitar.gain);
+          this._fbNote(midiToHz(midi - 12), t, beats * beat * VOICES.bass.gate,
+            VOICES.bass.wave, VOICES.bass.gain);
+        }
+        t += beats * beat;
       }
-      this._fallbackNextAt += 4 * BEAT;
+      
+      
+      for (let b = 0; b < riffBeats; b++) {
+        this._fbKick(this._fallbackNextAt + b * beat);
+      }
+      this._fallbackNextAt += riffBeats * beat;
     }
     setTimeout(() => this._fallbackPump(), 500);
   }
@@ -233,34 +189,55 @@ export class Chiptune {
     osc.start(when); osc.stop(when + dur + 0.05);
   }
 
+  _fbKick(when) {
+    const ctx = this._fallbackCtx;
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(140, when);
+    osc.frequency.exponentialRampToValueAtTime(42, when + 0.09);
+    g.gain.setValueAtTime(0.5, when);
+    g.gain.exponentialRampToValueAtTime(0.001, when + 0.12);
+    osc.connect(g).connect(this._fallbackMaster);
+    osc.start(when); osc.stop(when + 0.14);
+  }
+
   async _render() {
-    const mel = melody(); const bs = bass(); const harm = harmony();
-    const BARS = 20;
-    const dur = BARS * 4 * BEAT + 0.4;
+    const song = this.song;
+    const beat = song.beatSec;
+    const dur = song.durationSec + 0.4;
     const sampleRate = 44100;
     const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     if (!Offline) throw new Error('no OfflineAudioContext');
     const ctx = new Offline(2, Math.ceil(dur * sampleRate), sampleRate);
     const master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
+
+    
+    
+    
+    
     
     const ampBus = ctx.createGain(); ampBus.gain.value = 1.0;
-    const shaper = ctx.createWaveShaper(); shaper.curve = _distortionCurve(50);
+    const shaper = ctx.createWaveShaper(); shaper.curve = _distortionCurve(90);
     const lowpass = ctx.createBiquadFilter();
-    lowpass.type = 'lowpass'; lowpass.frequency.value = 2200; lowpass.Q.value = 0.7;
+    lowpass.type = 'lowpass'; lowpass.frequency.value = 2600; lowpass.Q.value = 0.7;
     ampBus.connect(shaper).connect(lowpass).connect(master);
+
     
     const leadBus = ctx.createGain(); leadBus.gain.value = 1.0;
     leadBus.connect(master);
-    const delay = ctx.createDelay(1.0); delay.delayTime.value = BEAT * 0.75;
+    const delay = ctx.createDelay(1.0); delay.delayTime.value = beat * 0.75;
     const fb = ctx.createGain(); fb.gain.value = 0.28;
     const wet = ctx.createGain(); wet.gain.value = 0.25;
     leadBus.connect(delay); delay.connect(fb).connect(delay);
     delay.connect(wet).connect(master);
 
-    _scheduleVoice(ctx, leadBus, mel,  'square',   0.16);   
-    _scheduleVoice(ctx, ampBus,  bs,   'sawtooth', 0.22);   
-    _scheduleVoice(ctx, master,  harm, 'triangle', 0.12);   
-    _scheduleDrums(ctx, master, BARS);
+    const buses = { amp: ampBus, lead: leadBus, clean: master };
+    for (const name of VOICE_NAMES) {
+      const voice = VOICES[name];
+      _scheduleVoice(ctx, buses[voice.bus], song.voices[name], voice, beat);
+    }
+    _scheduleDrums(ctx, master, song.drums, beat);
+
     const buffer = await ctx.startRendering();
     const wav = _bufferToWav(buffer);
     const blob = new Blob([wav], { type: 'audio/wav' });
@@ -344,9 +321,10 @@ export class Chiptune {
 
 
 
-function _scheduleDrums(ctx, dest, bars) {
+
+function _scheduleDrums(ctx, dest, events, beat) {
   const noiseBuf = (() => {
-    const b = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.3), ctx.sampleRate);
+    const b = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 1.2), ctx.sampleRate);
     const d = b.getChannelData(0);
     for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     return b;
@@ -360,26 +338,27 @@ function _scheduleDrums(ctx, dest, bars) {
     src.connect(f).connect(g).connect(dest);
     src.start(when); src.stop(when + dur + 0.02);
   };
-  const kick = (when) => {
+  const kick = (when, gain) => {
     const osc = ctx.createOscillator(); const g = ctx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(130, when);
-    osc.frequency.exponentialRampToValueAtTime(45, when + 0.11);
-    g.gain.setValueAtTime(0.5, when);
-    g.gain.exponentialRampToValueAtTime(0.001, when + 0.13);
+    
+    
+    osc.frequency.setValueAtTime(150, when);
+    osc.frequency.exponentialRampToValueAtTime(42, when + 0.095);
+    g.gain.setValueAtTime(gain, when);
+    g.gain.exponentialRampToValueAtTime(0.001, when + 0.12);
     osc.connect(g).connect(dest);
-    osc.start(when); osc.stop(when + 0.15);
+    osc.start(when); osc.stop(when + 0.14);
   };
-  for (let bar = 0; bar < bars; bar++) {
-    const t0 = bar * 4 * BEAT;
-    kick(t0); kick(t0 + 2 * BEAT);
-    if (bar % 4 === 3) kick(t0 + 3.5 * BEAT);            
-    if (bar >= 1) {                                        
-      noise(t0 + 1 * BEAT, 0.10, 'bandpass', 1800, 0.30); 
-      noise(t0 + 3 * BEAT, 0.10, 'bandpass', 1800, 0.30);
-    }
-    for (let e = 0; e < 8; e++) {                          
-      noise(t0 + e * BEAT * 0.5, 0.03, 'highpass', 7000, e % 2 ? 0.10 : 0.15);
+  for (const e of events) {
+    const when = e.beat * beat;
+    switch (e.drum) {
+      case 'kick':    kick(when, e.gain); break;
+      case 'snare':   noise(when, 0.09, 'bandpass', 1900, e.gain); break;
+      case 'hat':     noise(when, 0.025, 'highpass', 7500, e.gain); break;
+      case 'openhat': noise(when, 0.18, 'highpass', 6500, e.gain); break;
+      case 'crash':   noise(when, 0.90, 'highpass', 4200, e.gain); break;
+      default: break;
     }
   }
 }
@@ -397,21 +376,26 @@ function _distortionCurve(amount) {
   return curve;
 }
 
-function _scheduleVoice(ctx, dest, seq, type, peakGain) {
+
+
+
+
+
+function _scheduleVoice(ctx, dest, seq, voice, beat) {
   let t = 0;
-  for (const [note, beats] of seq) {
-    if (note != null) {
-      const dur = beats * BEAT * 0.92;
+  for (const [midi, beats] of seq) {
+    if (midi != null) {
+      const dur = beats * beat * voice.gate;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = type; osc.frequency.value = note;
+      osc.type = voice.wave; osc.frequency.value = midiToHz(midi);
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(peakGain, t + 0.005);
+      gain.gain.linearRampToValueAtTime(voice.gain, t + 0.004);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       osc.connect(gain).connect(dest);
       osc.start(t); osc.stop(t + dur + 0.05);
     }
-    t += beats * BEAT;
+    t += beats * beat;
   }
 }
 

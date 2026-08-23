@@ -121,7 +121,12 @@ export function speakInto(deps, key, opts = {}) {
   const plan = planPhrase(key, opts.rate || 1);
   if (!plan) return 0;
   const t0 = ctx.currentTime + 0.03;
-  const pitch = opts.pitch || 86;
+  
+  
+  
+  
+  
+  const pitch = opts.pitch || 62;
   const vol = opts.volume == null ? 1 : opts.volume;
 
   
@@ -151,8 +156,12 @@ export function speakInto(deps, key, opts = {}) {
   bus.connect(drive).connect(paLo).connect(paHi).connect(presence);
   presence.connect(dest);
   if (verbSend) {
+    
+    
+    
+    
     const send = ctx.createGain();
-    send.gain.value = 0.5;
+    send.gain.value = 0.85;
     presence.connect(send).connect(verbSend);
   }
 
@@ -174,7 +183,10 @@ export function speakInto(deps, key, opts = {}) {
   const sub = ctx.createOscillator();
   sub.type = 'sine';
   contourPitch(sub.frequency, t0, plan.total, pitch / 2);
-  const subG = ctx.createGain(); subG.gain.value = 0.45;
+  
+  
+  
+  const subG = ctx.createGain(); subG.gain.value = 0.62;
   sub.connect(subG).connect(voiced);
   oscs.push(sub);
 

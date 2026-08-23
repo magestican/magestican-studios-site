@@ -25,7 +25,7 @@ import { KillAnnouncer, shouldHear } from './audio/killAnnouncer.js';
 import { CornDrops, CORN } from './entities/cornDrop.js';
 import { groundHeightAt } from '../../../web-engine/ai/botStep.js';
 import { TickSource } from '../../../web-engine/loop/tickSource.js';
-import { considerTaunt, newTauntState, TAUNT_RULES } from './entities/botTaunts.js';
+import { considerTaunt, newTauntState, TAUNT_RULES, pickIdleEvent } from './entities/botTaunts.js';
 
 import { RemotePlayer }     from './entities/remotePlayer.js';
 import { MSG }              from './net/protocol.js';
@@ -282,7 +282,16 @@ export class Game {
     
     this._tally = emptyTally();
     this._scoreboardOpen = false;
-    this.audio = new Chiptune();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this.audio = new Chiptune({ map: this.mapId, seed: this.seed });
     
     
     
@@ -449,6 +458,15 @@ export class Game {
     
     
     this.chat = new Chat({
+      
+      
+      
+      
+      
+      
+      
+      getLocalTeam: () => this.team,
+      getLocalId:   () => this.myId,
       onSend: (text) => {
         const msg = { t: MSG.CHAT, from: this.myId, name: this.name,
                       team: this.team, text, kind: 'say' };
@@ -1251,7 +1269,13 @@ export class Game {
     const alive = [...this.bots.values()].filter((b) => b.alive !== false);
     if (!alive.length) return;
     const bot = alive[Math.floor(Math.random() * alive.length)];
-    this._botTaunt(bot.peerId, 'idle');
+    
+    
+    
+    
+    const mine  = this.scores?.[bot.team] ?? 0;
+    const yours = this.scores?.[bot.team === 'red' ? 'blue' : 'red'] ?? 0;
+    this._botTaunt(bot.peerId, pickIdleEvent({ myScore: mine, theirScore: yours }));
   }
 
   _botTaunt(botId, event) {
@@ -2296,6 +2320,11 @@ export class Game {
         if (msg.mapId) this.mapId = msg.mapId;
         if (msg.mode) { this.modeId = msg.mode; this.mode = getMode(msg.mode); }
         this.scores = msg.scores || this.scores;
+        
+        
+        
+        
+        this.audio?.reseed?.({ map: this.mapId, seed: this.seed });
         for (const [pid, meta] of msg.playersMeta || []) {
           if (pid === this.myId) continue;
           this.playerMeta.set(pid, meta);
