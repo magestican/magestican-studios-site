@@ -3,6 +3,13 @@
 import * as THREE from 'three';
 import { buildCharacter } from './character.js';
 import { idlePose, idlePhase, idleWeight } from './characterIdleSpec.js';
+import { isBodyConcealedFrom } from '../../../../web-engine/render/hayVisibility.js';
+import { emptyConcealment, stepConcealment, concealmentDraw }
+  from '../../../../web-engine/render/concealment.js';
+
+
+
+const _eyeTmp = new THREE.Vector3();
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
 
@@ -150,6 +157,74 @@ export class RemotePlayer {
     this._targetPos = new THREE.Vector3();
     this._targetYaw = 0;
     this._targetPitch = 0;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this._conceal = emptyConcealment();
+    this._baseOpacity = { halo: 0.85, ring: 0.85, nameplate: 1 };
+    this._scene = scene;
+    this._worldMesh = null;
+    this._camera = null;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  _view(view) {
+    if (view && view.grid && view.eye) return view;
+    if (!this._camera || this._camera.parent !== this._scene) {
+      this._camera = this._scene.children.find((o) => o.isCamera) || null;
+    }
+    if (!this._worldMesh || this._worldMesh.parent !== this._scene) {
+      this._worldMesh = this._scene.getObjectByName('voxelWorld') || null;
+    }
+    const grid = this._worldMesh?.userData?.grid || null;
+    if (!grid || !this._camera) return null;
+    return { grid, eye: this._camera.getWorldPosition(_eyeTmp) };
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  _paintConcealment(dt, view) {
+    const v = this._view(view);
+    const concealed = v
+      ? isBodyConcealedFrom(v.grid, v.eye, this.group.position)
+      : false;
+    this._conceal = stepConcealment(this._conceal, concealed, dt * 1000);
+    const draw = concealmentDraw(this._conceal);
+    paint(this.halo, this._baseOpacity.halo * draw.haloOpacity);
+    paint(this.ring, this._baseOpacity.ring * draw.ringOpacity);
+    paint(this.nameplate, this._baseOpacity.nameplate * draw.nameplateOpacity);
+    
+    
+    
+    
+    
+    
+    if (this.idlePivot) this.idlePivot.visible = draw.bodyVisible;
+    else this.group.visible = draw.bodyVisible;   
   }
 
   
@@ -211,7 +286,11 @@ export class RemotePlayer {
     this._lastPos.copy(this.group.position);
   }
 
-  update(dt) {
+  
+  
+  
+  
+  update(dt, view = null) {
     
     
     
@@ -255,6 +334,10 @@ export class RemotePlayer {
       this.idlePivot.scale.set(pose.scaleXZ, pose.scaleY, pose.scaleXZ);
       this.idlePivot.rotation.z = pose.rollRad;
     }
+
+    
+    
+    this._paintConcealment(dt, view);
   }
 
   
@@ -308,6 +391,15 @@ function makeHaloTexture(hex) {
   tex.needsUpdate = true;
   _haloCache.set(hex, tex);
   return tex;
+}
+
+
+
+
+function paint(obj, opacity) {
+  if (!obj) return;
+  obj.material.opacity = opacity;
+  obj.visible = opacity > 0;
 }
 
 function shortestAngleDelta(from, to) {

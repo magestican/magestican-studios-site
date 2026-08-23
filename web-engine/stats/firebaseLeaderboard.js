@@ -50,8 +50,16 @@ async function ready(cfg = LEADERBOARD_CONFIG) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
     appCheck.initializeAppCheck(app, {
-      provider: new appCheck.ReCaptchaV3Provider(cfg.appCheckSiteKey),
+      provider: new appCheck.ReCaptchaEnterpriseProvider(cfg.appCheckSiteKey),
       
       
       isTokenAutoRefreshEnabled: true,

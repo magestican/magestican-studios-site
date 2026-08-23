@@ -182,6 +182,17 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
   }
 
   parent.userData.materialsByType = materialsByType;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  parent.userData.grid = grid;
   return parent;
 }
 

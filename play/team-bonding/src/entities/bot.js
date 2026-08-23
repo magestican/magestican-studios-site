@@ -11,8 +11,19 @@
 
 
 
+
+
 import * as THREE from 'three';
-import { hasLineOfSight } from '../../../../web-engine/physics/lineOfSight.js';
+
+
+
+
+
+
+
+
+import { acquireTarget, emptyAcquisition }
+  from '../../../../web-engine/ai/targetAcquisition.js';
 import { stepBot }        from '../../../../web-engine/ai/botStep.js';
 import { chooseObjective, OBJECTIVE_POWER_UP }
   from '../../../../web-engine/ai/objective.js';
@@ -82,6 +93,11 @@ export class Bot {
     
     
     
+    
+    this._aim = emptyAcquisition();
+    
+    
+    
     this._path = { pos: this.pos, yaw: this.yaw, wanderDir: { x: 1, z: 0 }, wanderT: 0 };
   }
 
@@ -107,6 +123,9 @@ export class Bot {
     this.powerUp = clearOnDeath();
     this.sizeScale = 1;
     this._fireCd = FIRE_COOLDOWN;
+    
+    
+    this._aim = emptyAcquisition();
     
     
     
@@ -201,27 +220,45 @@ export class Bot {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     this._fireCd -= dt;
-    if (this._fireCd <= 0 && !this.hasEnemyFlag) {
-      const enemy = pickClosestEnemy(this.pos, ctx.enemyPlayers, RANGE_SEE_ENEMY);
-      if (enemy) {
-        const d = enemy.pos.distanceTo(this.pos);
-        if (d < RANGE_FIRE_ENEMY) {
-          const eyeFrom = { x: this.pos.x, y: this.pos.y + 1.2, z: this.pos.z };
-          const eyeTo   = { x: enemy.pos.x, y: enemy.pos.y + 1.0, z: enemy.pos.z };
-          if (hasLineOfSight(ctx.grid, eyeFrom, eyeTo)) {
-            const aim = enemy.pos.clone().sub(this.pos).normalize();
-            this.yaw = Math.atan2(aim.x, aim.z);
-            ctx.onShoot(this.peerId, this.pos.clone().add(new THREE.Vector3(0, 1.2, 0)), aim);
-            
-            
-            
-            
-            this._fireCd = (FIRE_COOLDOWN + Math.random() * 0.4)
-                         / fireRateMulFor(this.powerUp);
-          }
-        }
-      }
+    const acq = this.hasEnemyFlag
+      ? { state: emptyAcquisition(), target: null, fire: false }
+      : acquireTarget(this._aim, {
+          grid: ctx.grid,
+          self: this.pos,
+          enemies: ctx.enemyPlayers,
+          seeRange: RANGE_SEE_ENEMY,
+          fireRange: RANGE_FIRE_ENEMY,
+        });
+    this._aim = acq.state;
+
+    if (acq.fire && this._fireCd <= 0) {
+      const enemy = acq.target;
+      const aim = enemy.pos.clone().sub(this.pos).normalize();
+      this.yaw = Math.atan2(aim.x, aim.z);
+      ctx.onShoot(this.peerId, this.pos.clone().add(new THREE.Vector3(0, 1.2, 0)), aim);
+      
+      
+      
+      
+      this._fireCd = (FIRE_COOLDOWN + Math.random() * 0.4)
+                   / fireRateMulFor(this.powerUp);
     }
   }
 
@@ -293,12 +330,10 @@ export class Bot {
   }
 }
 
-function pickClosestEnemy(from, enemies, maxDist) {
-  let best = null, bestD = maxDist;
-  for (const e of enemies) {
-    const d = e.pos.distanceTo(from);
-    if (d < bestD) { bestD = d; best = e; }
-  }
-  return best;
-}
+
+
+
+
+
+
 

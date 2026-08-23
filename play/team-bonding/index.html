@@ -479,8 +479,15 @@
         background: rgba(0,0,0,0.55); padding: 3px 10px; border-radius: 8px;
         border: 1px solid rgba(255,255,255,0.15); }
       
-      #kill-feed { top: calc(max(8px, env(safe-area-inset-top)) + 100px);
-        right: 10px; max-width: 44vw; font-size: 11px; }
+
+
+
+
+
+
+
+      #kill-feed { top: calc(max(8px, env(safe-area-inset-top)) + 152px);
+        right: 10px; max-width: 52vw; font-size: 11px; }
       .kill-line { padding: 3px 6px; }
       
 
@@ -516,8 +523,22 @@
     
 
     #flagStatus { position: absolute; top: 96px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #f4c95d; }
-    #kill-feed { position: absolute; right: 20px; top: 60px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #cbd3e1; }
-    .kill-line { background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 4px; }
+    
+
+
+
+    #kill-feed { position: absolute; right: 20px; top: 60px; display: flex;
+      flex-direction: column; align-items: flex-end; gap: 4px;
+      max-width: 340px; font-size: 13px; color: #e8edf5; pointer-events: none; }
+    
+
+
+
+
+    .kill-line { background: rgba(8,12,20,0.78); padding: 4px 9px; border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.14);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+      max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     
     #hit-flash {
@@ -812,24 +833,36 @@
     <div id="crosshair"></div>
     <div id="topbar">
       <span class="score-red"  id="scoreRed">0</span>
-      <span class="score-sep">&middot; first to 5 &middot;</span>
+      
+
+
+      <span class="score-sep" id="scoreTarget">&middot; first to 5 &middot;</span>
       <span class="score-blue" id="scoreBlue">0</span>
     </div>
     <div id="compass">
+      
+
+
+
+
+
+
+
+
       <div class="compass-pill red" id="compassRedPill">
-        <span class="compass-flag">🚩</span>
+        <span class="compass-flag" id="compassRedEmoji">🚩</span>
         <span class="compass-arrow-lg red" id="compassRed"></span>
         <span class="compass-dist" id="compassRedDist">--m</span>
       </div>
       <div class="compass-pill blue" id="compassBluePill">
-        <span class="compass-flag">🚩</span>
+        <span class="compass-flag" id="compassBlueEmoji">🚩</span>
         <span class="compass-arrow-lg blue" id="compassBlue"></span>
         <span class="compass-dist" id="compassBlueDist">--m</span>
       </div>
-      <div class="compass-pill" id="compassPickup" style="display:none; border-color:#f4c95d; background:rgba(80, 60, 20, 0.85);">
-        <span class="compass-flag pickup">🐔</span>
-        <span class="compass-arrow-lg" id="compassChickenArrow" style="background-image:url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 L20 20 L12 15 L4 20 Z' fill='%23f4c95d' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/></svg>&quot;);"></span>
-        <span class="compass-dist" id="compassChickenDist">--m</span>
+      <div class="compass-pill" id="compassObjectivePill" style="display:none; border-color:#f4c95d; background:rgba(80, 60, 20, 0.85);">
+        <span class="compass-flag pickup" id="compassObjectiveEmoji">👑</span>
+        <span class="compass-arrow-lg" id="compassObjectiveArrow" style="background-image:url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 L20 20 L12 15 L4 20 Z' fill='%23f4c95d' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/></svg>&quot;);"></span>
+        <span class="compass-dist" id="compassObjectiveDist">--m</span>
       </div>
     </div>
     <div id="flagStatus"></div>

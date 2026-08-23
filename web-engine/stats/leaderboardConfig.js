@@ -35,13 +35,19 @@
 
 
 export const LEADERBOARD_CONFIG = Object.freeze({
-  apiKey: null,
-  authDomain: null,
-  projectId: null,
-  appId: null,
   
   
-  appCheckSiteKey: null,
+  
+  
+  apiKey: 'AIzaSyCdRSfrAw5haWnVIKyXPGwPdMQFGMBa4Lw',
+  authDomain: 'magestican-leaderboard.firebaseapp.com',
+  projectId: 'magestican-leaderboard',
+  appId: '1:280796746354:web:8958e688d58906883a68eb',
+  
+  
+  
+  
+  appCheckSiteKey: '6LftAJQtAAAAAPNGpVkH8JqvG7goGhu_RkENTGmH',
 });
 
 

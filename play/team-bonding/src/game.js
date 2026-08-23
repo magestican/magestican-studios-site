@@ -19,6 +19,7 @@ import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
 import { computeAimAssist } from 'arbelo/aim-assist';
 import { attachRightClickMove } from 'arbelo/rmb-move';
 import { stepProjectile } from '../../../web-engine/combat/projectileHit.js';
+import { shotSolid } from '../../../web-engine/combat/shotWorld.js';
 import { Chat } from './ui/chat.js';
 import { KillAnnouncer, shouldHear } from './audio/killAnnouncer.js';
 import { CornDrops, CORN } from './entities/cornDrop.js';
@@ -54,6 +55,9 @@ import {
 import { computeFlagAction }  from '../../../../web-engine/ctf/flagLogic.js';
 import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js';
 import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
+import { KillFeed, killFeedLine } from '../../../web-engine/ui/killFeed.js';
+import { flagKeysFor, hasFlags, flagHome, neutralFlagHome, objectiveMarkers,
+         OBJECTIVE_IDS } from '../../../web-engine/modes/objective.js';
 import { GoreSystem }         from './entities/gore.js';
 import { AmbientCritters }    from './entities/ambientCritters.js';
 import { aimPointY, isHeadshot, damageFor, HEADSHOT_MULTIPLIER } from 'arbelo/hitzones';
@@ -144,6 +148,32 @@ function escapeHtml(s) {
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+
+
+
+
+
+
+
+
+
+const COMPASS_PILL = Object.freeze({
+  red: 'compassRedPill', blue: 'compassBluePill',
+  neutral: 'compassObjectivePill', hill: 'compassObjectivePill',
+});
+const COMPASS_ARROW = Object.freeze({
+  red: 'compassRed', blue: 'compassBlue',
+  neutral: 'compassObjectiveArrow', hill: 'compassObjectiveArrow',
+});
+const COMPASS_DIST = Object.freeze({
+  red: 'compassRedDist', blue: 'compassBlueDist',
+  neutral: 'compassObjectiveDist', hill: 'compassObjectiveDist',
+});
+const COMPASS_EMOJI = Object.freeze({
+  red: 'compassRedEmoji', blue: 'compassBlueEmoji',
+  neutral: 'compassObjectiveEmoji', hill: 'compassObjectiveEmoji',
+});
+
 const NET_TICK_HZ = 20;
 const RESPAWN_DELAY = 0.0;      
 const ANAGRAM_SECONDS = 10;
@@ -165,6 +195,13 @@ const INTERMISSION_MS = 10000;
 
 
 const RESTART_DELAY_MS = 4000;
+
+
+
+
+
+
+const RESTART_WATCHDOG_SLACK_MS = 2000;
 const LOBBY_MIN_PLAYERS = 2;
 const LOBBY_COUNTDOWN_SECONDS = 5;
 
@@ -205,7 +242,10 @@ export class Game {
     this._netAccum = 0;
     this._anagram = null;                
     this._lastRespawnAt = 0;
-    this._killFeed = [];                 
+    
+    
+    
+    this._killFeed = new KillFeed();
     
     
     
@@ -530,8 +570,11 @@ export class Game {
       
       
       
-      const c = { x: world.hillSpawn.x - 0.5, y: Math.floor(world.hillSpawn.y),
-                  z: world.hillSpawn.z - 0.5 };
+      
+      
+      
+      
+      const c = neutralFlagHome(world.hillSpawn);
       this.flagPos = { red: { ...c }, blue: { ...c } };
       this.flagMeshes.red = this._buildFlagMesh(c, 0xf0e6d2);
       this.neutralFlag = true;
@@ -940,7 +983,22 @@ export class Game {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   _localDeath(killer, victim, weapon, pos) {
+    this._killFeedPush(killFeedLine({
+      killerName: killer ? this._name(killer) : null,
+      victimName: this._name(victim),
+      weapon,
+    }));
     this._announceKill(killer, victim, weapon);
     this._dropCorn(pos || this._posOf(victim));
   }
@@ -1933,16 +1991,43 @@ export class Game {
 
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   _paintCompass() {
-    if (!this.player || !this.flagPos) return;
+    if (!this.player) return;
+    const markers = objectiveMarkers(this.mode, {
+      flagPos: this.flagPos, hillSpawn: this.world?.hillSpawn,
+    });
+    
+    
+    
+    const strip = document.getElementById('compass');
+    if (strip) strip.style.display = markers.length ? '' : 'none';
+    const shown = new Set(markers.map((m) => m.id));
+    for (const id of OBJECTIVE_IDS) {
+      const pill = document.getElementById(COMPASS_PILL[id]);
+      if (pill) pill.style.display = shown.has(id) ? '' : 'none';
+    }
     const yaw = this.player.yaw;
-    for (const color of ['red', 'blue']) {
-      const el = document.getElementById(color === 'red' ? 'compassRed' : 'compassBlue');
-      const distEl = document.getElementById(color === 'red' ? 'compassRedDist' : 'compassBlueDist');
+    for (const m of markers) {
+      const el = document.getElementById(COMPASS_ARROW[m.id]);
+      const distEl = document.getElementById(COMPASS_DIST[m.id]);
       if (!el || !distEl) continue;
-      const f = this.flagPos[color];
-      const dx = f.x + 0.5 - this.player.pos.x;
-      const dz = f.z + 0.5 - this.player.pos.z;
+      const dx = m.pos.x + 0.5 - this.player.pos.x;
+      const dz = m.pos.z + 0.5 - this.player.pos.z;
       
       
       const bearing = Math.atan2(dx, dz);
@@ -1951,6 +2036,8 @@ export class Game {
       let deg = (rel * 180 / Math.PI + 540) % 360 - 180;
       el.style.transform = `rotate(${deg}deg)`;
       distEl.textContent = Math.round(Math.hypot(dx, dz)) + 'm';
+      const emojiEl = document.getElementById(COMPASS_EMOJI[m.id]);
+      if (emojiEl) emojiEl.textContent = m.emoji;
     }
   }
 
@@ -2184,7 +2271,9 @@ export class Game {
         break;
       }
       case MSG.DEATH:
-        this._killFeedPush(`${this._name(msg.killer)} ➜ ${this._name(msg.victim)} (${msg.weapon})`);
+        
+        
+        
         this._creditKill(msg.killer, msg.victim);
         
         
@@ -2272,6 +2361,11 @@ export class Game {
         if (msg.victim === this.myId) this._takeDamage(msg.dmg, this._steakPoisonBy?.get(this.myId), 'steak');
         break;
       case MSG.STEAK_DEATH:
+        
+        
+        
+        
+        
         this._steakPoisonBy.delete(msg.victim);
         if (msg.victim === this.myId) this._hidePoisonHint();
         
@@ -2316,8 +2410,12 @@ export class Game {
     }
   }
 
+  
+  
+  
   _name(peerId) {
-    return this.playerMeta.get(peerId)?.name || peerId.slice(0, 6);
+    if (!peerId) return 'someone';
+    return this.playerMeta.get(peerId)?.name || String(peerId).slice(0, 6);
   }
 
   
@@ -2956,7 +3054,12 @@ export class Game {
       } else {
         this._broadcast({ t: MSG.HIT, target: victim.peerId, dmg: 100, by: msg.by, weapon: 'chicken' });
       }
-      this._killFeedPush(`${this._name(msg.by)} obliterated ${this._name(victim.peerId)} with a chicken!`);
+      
+      
+      
+      
+      
+      
     }
   }
 
@@ -3029,8 +3132,15 @@ export class Game {
       if (bot) {
         const died = bot.takeDamage(2);
         if (died) {
+          
+          
+          
+          
+          
+          this._broadcast({ t: MSG.DEATH, victim: victimId, killer: byId, weapon: 'steak' });
           this._broadcast({ t: MSG.STEAK_DEATH, victim: victimId, killer: byId });
           this._tallyKill(byId, victimId);
+          this._localDeath(byId, victimId, 'steak', bot.pos.clone());
           this._announceSteakAnnihilation(victimId, byId);
           this._steakPoisonBy.delete(victimId);
           setTimeout(() => bot.respawn(), 500);
@@ -3038,8 +3148,12 @@ export class Game {
       } else if (victimId === this.myId) {
         this._takeDamage(3, byId, 'steak');
         if (this.player.hp <= 0) {
+          
+          
+          
+          
+          
           this._broadcast({ t: MSG.STEAK_DEATH, victim: victimId, killer: byId });
-          this._tallyKill(byId, victimId);
           this._announceSteakAnnihilation(victimId, byId);
           this._steakPoisonBy.delete(victimId);
         }
@@ -3316,7 +3430,15 @@ export class Game {
           radius: hitRadiusFor(sc),
         };
       });
-    const isSolid = (x, y, z) => this.grid.isSolid(x, y, z);
+    
+    
+    
+    
+    
+    
+    
+    
+    const isSolid = shotSolid(this.grid);
 
     for (let i = live.length - 1; i >= 0; i--) {
       const p = live[i];
@@ -3324,6 +3446,10 @@ export class Game {
       const to = p.rec.pos;
       p.travelled += from.distanceTo(to);
 
+      
+      
+      
+      
       
       
       
@@ -3422,7 +3548,6 @@ export class Game {
       if (died) {
         this._broadcast({ t: MSG.DEATH, victim: peerId, killer: this.myId, weapon: shot.weaponId });
         this._creditKill(this.myId, peerId);
-        this._killFeedPush(`${this._name(this.myId)} ➜ ${bot.name} (${shot.weaponId})`);
         this.critters?.cheer(this._posOf(peerId), 'kill');
         
         
@@ -3515,7 +3640,6 @@ export class Game {
       
       
       if (this.mature) this._announceLoser();
-      this._killFeedPush(`${this._name(byId)} ➜ ${this._name(this.myId)} (${weaponId})`);
       
       this._steakPoisonBy.delete(this.myId);
       this._hidePoisonHint();
@@ -3622,16 +3746,31 @@ export class Game {
     el.style.display = this.player?.hasEnemyFlag ? 'block' : 'none';
   }
 
+  
+  
+  
+  
   _returnFlag(color) {
     this.flagState[color] = 'home';
     this.flagCarrier[color] = null;
-    this.flagPos[color] = { ...this.world.flags[color] };
+    const home = flagHome(this.mode, color, this.world);
+    if (home) this.flagPos[color] = { ...home };
     this._syncFlagMesh(color);
   }
 
   _syncFlagMesh(color) {
     const p = this.flagPos[color];
     const m = this.flagMeshes[color];
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (!m || !p) return;
     
     
     m.position.set(p.x + 0.5, p.y, p.z + 0.5);
@@ -3874,6 +4013,8 @@ export class Game {
     
     const steal = anagramDue(this.mode, this.scores);
     
+    this._armRestartWatchdog(steal);
+    
     
     
     setTimeout(() => this._showRoundResult(steal), RESULT_DELAY_MS);
@@ -3952,10 +4093,15 @@ export class Game {
       input.oninput = null;
     }
     
+    
+    
+    
+    
     const tick = () => {
       if (!this._anagram) return;
       const remain = Math.max(0, Math.ceil((this._anagram.endsAt - Date.now()) / 1000));
-      document.getElementById('anagramTimer').textContent = remain;
+      const timerEl = document.getElementById('anagramTimer');
+      if (timerEl) timerEl.textContent = remain;
       if (remain <= 0) {
         const originalWinner = this.scores.red > this.scores.blue ? 'red' : 'blue';
         this._endAnagram({ winner: originalWinner, by: null });
@@ -3967,6 +4113,12 @@ export class Game {
   }
 
   _endAnagram({ winner, by }) {
+    
+    
+    
+    
+    
+    if (this.isHost) setTimeout(() => this._broadcastRestart(), RESTART_DELAY_MS);
     const wrap = document.getElementById('anagramWrap');
     const msg  = document.getElementById('anagramMsg');
     const timer = document.getElementById('anagramTimer');
@@ -3994,9 +4146,6 @@ export class Game {
     tickDown();
     if (msg) msg.textContent += '  Next round starting...';
     
-    
-    
-    if (this.isHost) setTimeout(() => this._broadcastRestart(), RESTART_DELAY_MS);
   }
 
   
@@ -4235,6 +4384,41 @@ export class Game {
 
   
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _armRestartWatchdog(steal) {
+    if (!this.isHost) return;
+    clearTimeout(this._restartWatchdog);
+    const sequence = steal
+      ? RESULT_DELAY_MS + INTERMISSION_MS + ANAGRAM_SECONDS * 1000 + RESTART_DELAY_MS
+      : RESULT_DELAY_MS + INTERMISSION_MS;
+    this._restartWatchdog = setTimeout(() => {
+      if (this.matchState !== 'ended') return;   
+      this._broadcastRestart();
+    }, sequence + RESTART_WATCHDOG_SLACK_MS);
+  }
+
   _broadcastRestart() {
     if (!this.isHost) return;
     if (this.matchState !== 'ended') return;   
@@ -4247,95 +4431,167 @@ export class Game {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   _applyRestart(scores) {
     if (this.matchState !== 'ended') return;   
+    clearTimeout(this._restartWatchdog);
+    try {
+      
+      
+      
+      this._hideRoundResult();
+      this._hideIntermission();
+      document.getElementById('anagramWrap')?.classList.remove('visible');
+      const input = document.getElementById('anagramInput');
+      if (input) { input.value = ''; input.oninput = null; input.blur(); }
+      this._anagram = null;
 
-    
-    
-    
-    this._hideRoundResult();
-    this._hideIntermission();
-    document.getElementById('anagramWrap')?.classList.remove('visible');
-    const input = document.getElementById('anagramInput');
-    if (input) { input.value = ''; input.oninput = null; input.blur(); }
-    this._anagram = null;
+      
+      
+      
+      
+      this.scores = scores ? { ...scores } : { red: 0, blue: 0 };
+      this.gameOver = false;
+      this._roundResultShown = false;
+      this._tally = emptyTally();
+      this._killFeed.clear();
+      this._updateScoreUi();
+      if (this._scoreboardOpen) this._paintScoreboard(true);
 
-    
-    
-    
-    
-    this.scores = scores ? { ...scores } : { red: 0, blue: 0 };
-    this.gameOver = false;
-    this._roundResultShown = false;
-    this._tally = emptyTally();
-    this._killFeed = [];
-    this._updateScoreUi();
-    if (this._scoreboardOpen) this._paintScoreboard(true);
+      
+      
+      for (const c of flagKeysFor(this.mode)) {
+        this.flagState[c] = 'home';
+        this.flagCarrier[c] = null;
+        this._returnFlag(c);
+      }
+      if (this.player) this.player.hasEnemyFlag = false;
 
-    
-    for (const c of ['red', 'blue']) {
-      this.flagState[c] = 'home';
-      this.flagCarrier[c] = null;
-      this._returnFlag(c);
+      
+      
+      try { this.player?.respawn(); } catch (_) {}
+      for (const bot of this.bots.values()) { try { bot.respawn(); } catch (_) {} }
+    } finally {
+      
+      this.matchState = 'playing';
+      this._killFeedPush('New round - first to ' + this.mode.winScore + ' '
+                         + this.mode.scoreLabel.toLowerCase());
     }
-    if (this.player) this.player.hasEnemyFlag = false;
-
-    
-    
-    try { this.player?.respawn(); } catch (_) {}
-    for (const bot of this.bots.values()) { try { bot.respawn(); } catch (_) {} }
-
-    
-    this.matchState = 'playing';
-    this._killFeedPush('New round - first to ' + this.mode.winScore + ' '
-                       + this.mode.scoreLabel.toLowerCase());
   }
 
   
 
   _updateHud() {
-    document.getElementById('scoreRed').textContent  = this.scores.red;
-    document.getElementById('scoreBlue').textContent = this.scores.blue;
+    
+    
+    
+    
+    this._updateScoreUi();
     this._paintCornBar();
+    
+    
+    
+    this._paintKillFeed();
+    
+    
+    
+    
+    
+    
+    
+    
     const flagStatus = [];
-    if (this.player.hasEnemyFlag)  flagStatus.push('🚩 You have the enemy flag - run home!');
-    for (const c of ['red', 'blue']) {
-      if (this.flagState[c] === 'carried' && this.flagCarrier[c] !== this.myId) {
-        flagStatus.push(`${c.toUpperCase()} flag: carried by ${this._name(this.flagCarrier[c])}`);
-      } else if (this.flagState[c] === 'dropped') {
-        flagStatus.push(`${c.toUpperCase()} flag: dropped`);
+    if (hasFlags(this.mode)) {
+      const neutral = this.mode.flags === 'neutral';
+      if (this.player.hasEnemyFlag) {
+        flagStatus.push(neutral
+          ? '🏴 You have the flag - run it into THEIR base!'
+          : '🚩 You have the enemy flag - run home!');
+      }
+      for (const c of flagKeysFor(this.mode)) {
+        const name = neutral ? 'The' : c.toUpperCase();
+        if (this.flagState[c] === 'carried' && this.flagCarrier[c] !== this.myId) {
+          flagStatus.push(`${name} flag: carried by ${this._name(this.flagCarrier[c])}`);
+        } else if (this.flagState[c] === 'dropped') {
+          flagStatus.push(`${name} flag: dropped`);
+        }
       }
     }
-    document.getElementById('flagStatus').textContent = flagStatus.join(' · ');
+    const flagEl = document.getElementById('flagStatus');
+    if (flagEl) flagEl.textContent = flagStatus.join(' · ');
   }
 
   _updateScoreUi() {
     document.getElementById('scoreRed').textContent  = this.scores.red;
     document.getElementById('scoreBlue').textContent = this.scores.blue;
+    
+    
+    
+    
+    const target = document.getElementById('scoreTarget');
+    if (target) {
+      target.textContent = `· first to ${this.mode.winScore} `
+        + `${this.mode.scoreLabel.toLowerCase()} ·`;
+    }
   }
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
   _killFeedPush(text) {
-    this._killFeed.push({ text, at: Date.now() });
-    if (this._killFeed.length > 5) this._killFeed.shift();
+    this._killFeed.push(text, Date.now());
+    this._paintKillFeed();
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  _paintKillFeed() {
     const el = document.getElementById('kill-feed');
+    if (!el) return;   
+    const lines = this._killFeed.lines(Date.now());
+    if (el.childElementCount === lines.length
+        && lines.every((t, i) => el.children[i].textContent === t)) return;
     el.innerHTML = '';
-    for (const k of this._killFeed) {
+    for (const text of lines) {
       const d = document.createElement('div');
       d.className = 'kill-line';
-      d.textContent = k.text;
+      d.textContent = text;
       el.appendChild(d);
     }
-    
-    setTimeout(() => {
-      this._killFeed = this._killFeed.filter(k => Date.now() - k.at < 6000);
-      const el2 = document.getElementById('kill-feed');
-      el2.innerHTML = '';
-      for (const k of this._killFeed) {
-        const d = document.createElement('div');
-        d.className = 'kill-line';
-        d.textContent = k.text;
-        el2.appendChild(d);
-      }
-    }, 6100);
   }
 }
