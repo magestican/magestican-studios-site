@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Zelakas In Space — free 2D arcade shooter in your browser</title>
+  <meta name="description" content="Zelakas In Space is a free 2D arcade shooter: dodge asteroids, blackholes and drones, and reach one of three endings. The original 2014 Flash build by Bryan Arbelo, Gonzalo and Christian, playable in any modern browser via Ruffle. No download, no account.">
+  <meta name="keywords" content="play zelakas in space, free browser arcade shooter, flash game in browser, ruffle flash emulator, 2d space shooter no download, asteroid dodging game">
+  <link rel="canonical" href="https://magesticanstudios.com/play/zelakas/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Zelakas In Space — free browser arcade shooter">
+  <meta property="og:description" content="Dodge asteroids, blackholes and drones. Three endings. The 2014 Flash original, running in a modern browser.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/zelakas/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/zelakas-ingame.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Zelakas In Space — free browser arcade shooter">
+  <meta name="twitter:description" content="Three endings, one ship, a lot of asteroids. No download.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/zelakas-ingame.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Zelakas In Space",
+    "url": "https://magesticanstudios.com/play/zelakas/",
+    "description": "A 2D arcade shooter: dodge asteroids, blackholes and drones across three endings. Originally released in 2014 in ActionScript 3, playable today in any browser via the Ruffle Flash emulator.",
+    "image": "https://magesticanstudios.com/assets/zelakas-ingame.png",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "author": [ { "@type": "Person", "name": "Bryan Arbelo" },
+                { "@type": "Person", "name": "Gonzalo" },
+                { "@type": "Person", "name": "Christian" } ],
+    "genre": ["Arcade", "Shoot 'em up", "Space"],
+    "gamePlatform": ["Web browser"],
+    "playMode": "SinglePlayer",
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": "en",
+    "datePublished": "2014",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+  
+
+
+
+
+
+  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+  <style>
+    :root { color-scheme: dark; }
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background: #05060a;
+      color: #d8dde8;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    body {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px 16px;
+      gap: 16px;
+    }
+    header { text-align: center; }
+    h1 {
+      margin: 0 0 4px 0; font-size: 28px; letter-spacing: 0.02em;
+    }
+    header p { margin: 0; opacity: 0.7; font-size: 14px; }
+    #stage-wrap {
+      width: 100%; max-width: 1360px; aspect-ratio: 1360 / 768;
+      background: #000;
+      border: 1px solid #1a1e28;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    #stage { width: 100%; height: 100%; }
+    footer { font-size: 12px; opacity: 0.55; text-align: center; max-width: 900px; }
+    footer a { color: #9dc6ff; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Zelakas In Space</h1>
+    <p>Original 2014 Flash build · Bryan Arbelo · Gonzalo · Christian · running in-browser via Ruffle</p>
+  </header>
+
+  <div id="stage-wrap"><div id="stage"></div></div>
+
+  <footer>
+    Flash Player was end-of-lifed in 2020. This page loads the original
+    <code>ZelakasInSpace.swf</code> through
+    <a href="https://ruffle.rs/">Ruffle</a>, an open-source Flash emulator written in Rust.
+    A native Godot 4 port of the game lives under
+    <code>games/zelakas-in-space/</code> in this repo.
+  </footer>
+
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
+    import { initAnalytics } from '/web-engine/analytics/analytics.js';
+    startVersionChecker({ label: 'A new version of Zelakas In Space is available.' });
+    mountDeviceQr({ label: 'Play on your phone' });
+    
+    
+    initAnalytics({ page: 'zelakas-game' });
+  </script>
+  <script>
+    window.addEventListener("load", () => {
+      
+      const ruffle = window.RufflePlayer.newest();
+      const player = ruffle.createPlayer();
+      const stage = document.getElementById("stage");
+      stage.appendChild(player);
+      player.style.width = "100%";
+      player.style.height = "100%";
+      player.load({
+        url: "./ZelakasInSpace.swf",
+        autoplay: "on",
+        unmuteOverlay: "hidden",
+        splashScreen: false,
+        
+      }).catch(err => {
+        stage.innerHTML =
+          "<div style='padding:32px;color:#f8a;font-family:monospace'>" +
+          "Failed to load ZelakasInSpace.swf<br><br>" +
+          err + "<br><br>" +
+          "Make sure ZelakasInSpace.swf sits next to this index.html and " +
+          "you're serving the folder over http:// (browsers block file:// SWF loads)." +
+          "</div>";
+      });
+    });
+  </script>
+</body>
+</html>

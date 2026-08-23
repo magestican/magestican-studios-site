@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zelakas In Space — free 2D arcade shooter in your browser | Magestican Studios</title>
+  <meta name="description" content="Zelakas In Space is a free browser arcade shooter: dodge asteroids, blackholes and drones and reach one of three endings. The original 2014 Flash game, running in any modern browser via Ruffle. No download, no plugin, no account.">
+  <meta name="keywords" content="zelakas in space, free browser arcade shooter, play flash games in browser, ruffle flash emulator, 2d space shooter no download, asteroid dodging game, old flash game playable, indie space shooter">
+  <link rel="canonical" href="https://magesticanstudios.com/zelakas-in-space.html">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Zelakas In Space — free browser arcade shooter">
+  <meta property="og:description" content="Dodge asteroids, blackholes and drones. Three endings. A 2014 Flash game, alive again in a modern browser.">
+  <meta property="og:url" content="https://magesticanstudios.com/zelakas-in-space.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/zelakas-ingame.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Zelakas In Space — free browser arcade shooter">
+  <meta name="twitter:description" content="Three endings, one ship, a lot of asteroids. Runs in your browser, no plugin.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/zelakas-ingame.png">
+  
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Zelakas In Space",
+    "description": "A 2D arcade shooter: dodge asteroids, blackholes and drones across three endings. Released in 2014 in ActionScript 3, playable today in any browser through the Ruffle Flash emulator.",
+    "url": "https://magesticanstudios.com/zelakas-in-space.html",
+    "image": "https://magesticanstudios.com/assets/zelakas-ingame.png",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "author": [ { "@type": "Person", "name": "Bryan Arbelo" },
+                { "@type": "Person", "name": "Gonzalo" },
+                { "@type": "Person", "name": "Christian" } ],
+    "genre": ["Arcade", "Shoot 'em up", "Space"],
+    "gamePlatform": ["Web browser"],
+    "playMode": "SinglePlayer",
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": "en",
+    "datePublished": "2014",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Do I need Flash Player to play Zelakas In Space?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. Flash Player was end-of-lifed in 2020. This page runs the original SWF through Ruffle, an open-source Flash emulator written in Rust that runs as WebAssembly inside your browser. Nothing installs." } },
+      { "@type": "Question", "name": "Is Zelakas In Space free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is free, has no ads, and needs no account. Open the page and play." } },
+      { "@type": "Question", "name": "How many endings does Zelakas In Space have?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Three. Which one you get depends on how much of the field you clear before the run ends." } },
+      { "@type": "Question", "name": "What are the controls?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Keyboard only: arrow keys to fly, and the fire key to shoot. It is a 2014 desktop Flash game, so a physical keyboard is required." } }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <style>
+    .landing-hero { padding: 44px 0 20px; }
+    .landing-hero h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.1; margin: 0 0 10px; }
+    .landing-hero p.tagline { font-size: 18px; color: #cbd3e1; max-width: 640px; }
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 22px 0 8px; }
+    .cta { display: inline-block; padding: 12px 22px; border-radius: 999px;
+      font: 700 15px system-ui, sans-serif; text-decoration: none; }
+    .cta-primary { background: #f4c95d; color: #1c1a17; }
+    .cta-primary:hover { background: #ffd97a; }
+    .cta-secondary { background: rgba(255,255,255,0.06); color: #e8ecf1; border: 1px solid rgba(255,255,255,0.20); }
+    .value-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 18px; margin: 30px 0; }
+    .value-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px; padding: 18px; }
+    .value-card h3 { font-size: 17px; margin: 0 0 6px; color: #f4c95d; }
+    .value-card p { font-size: 14px; color: #cbd3e1; line-height: 1.5; margin: 0; }
+    .faq h3 { margin: 20px 0 6px; font-size: 17px; color: #e8ecf1; }
+    .faq p { color: #cbd3e1; margin: 0 0 14px; }
+    .shot-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; margin: 22px 0; }
+    .shot-row img { width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.10); }
+    .breadcrumb { font-size: 13px; color: #7f8798; margin: 8px 0 20px; }
+    .breadcrumb a { color: #cbd3e1; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="./" class="brand"><span class="brand-mark">M</span><span class="brand-name">Magestican Studios</span></a>
+    <nav>
+      <a href="./#games">Games</a>
+      <a href="./team-bondage.html">Team Bondage</a>
+      <a href="./zelakas-in-space.html">Zelakas</a>
+      <a href="./for-remote-teams.html">For teams</a>
+      <a href="./about.html">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="breadcrumb"><a href="./">Magestican Studios</a> › Zelakas In Space</p>
+
+    <section class="landing-hero">
+      <h1>A 2014 Flash game that never died. Play Zelakas In Space in your browser.</h1>
+      <p class="tagline">Dodge asteroids, blackholes and drones in a free 2D arcade shooter. Three endings, decided by how much of the field you clear. No plugin, no download, no account — the original SWF runs inside a modern browser through the Ruffle emulator.</p>
+      <div class="cta-row">
+        <a class="cta cta-primary" href="/play/zelakas/">▶ Play Zelakas In Space (free)</a>
+        <a class="cta cta-secondary" href="./team-bondage.html">Try Team Bondage →</a>
+      </div>
+      <p style="font-size:13px;color:#7f8798;margin-top:6px;">Keyboard required. Desktop or laptop — this one predates touchscreens.</p>
+    </section>
+
+    <section class="value-grid">
+      <div class="value-card">
+        <h3>Three endings</h3>
+        <p>Clear enough of the field and the run ends differently. Most players see the first ending and never learn there are two more.</p>
+      </div>
+      <div class="value-card">
+        <h3>No Flash Player</h3>
+        <p>Flash died in 2020. Ruffle — an open-source Flash emulator compiled to WebAssembly — runs the original file safely, with no plugin to install.</p>
+      </div>
+      <div class="value-card">
+        <h3>Free, no account</h3>
+        <p>No signup, no ads, no launcher. Open the link and you are flying.</p>
+      </div>
+      <div class="value-card">
+        <h3>Made in 2014</h3>
+        <p>Built in ActionScript 3 by Bryan Arbelo with Gonzalo and Christian. It is preserved here exactly as it shipped, bugs and all.</p>
+      </div>
+      <div class="value-card">
+        <h3>A remake is coming</h3>
+        <p>A native Godot 4 port lives in the studio's open workshop repo. The Flash build stays up regardless — preservation first.</p>
+      </div>
+      <div class="value-card">
+        <h3>Hand-drawn</h3>
+        <p>Every ship, rock and drone was drawn by a person. That rule still holds across every Magestican Studios game.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>What it looks like</h2>
+      <div class="shot-row">
+        <img src="./assets/zelakas-ingame.png" alt="Zelakas In Space in-game — the player ship weaving between asteroids and enemy drones against a starfield">
+        <img src="./assets/zelakas-preview.png" alt="Zelakas In Space title art — a small ship against space debris">
+        <img src="./assets/live-zelakas-play.png" alt="Zelakas In Space running live in a browser tab through the Ruffle Flash emulator">
+      </div>
+    </section>
+
+    <section class="faq">
+      <h2>Frequently asked</h2>
+      <h3>Do I need Flash Player?</h3>
+      <p>No. Flash Player was end-of-lifed in 2020 and no browser will run it. This page loads the original <code>ZelakasInSpace.swf</code> through <a href="https://ruffle.rs/">Ruffle</a>, an open-source Flash emulator written in Rust and compiled to WebAssembly. It runs in the page's own sandbox; nothing installs.</p>
+      <h3>Is it free?</h3>
+      <p>Yes — free, no ads, no signup.</p>
+      <h3>How many endings are there?</h3>
+      <p>Three, decided by how much of the field you clear before the run ends.</p>
+      <h3>What are the controls?</h3>
+      <p>Keyboard only: arrows to fly, fire key to shoot. A 2014 desktop game gets 2014 desktop controls. If you want something that works on a phone, <a href="./team-bondage.html">Team Bondage</a> has touch controls built in.</p>
+      <h3>Will it work on my work laptop?</h3>
+      <p>If the browser opens, yes. There is no installer and no admin rights involved — see <a href="./no-download-office-friendly.html">games with no download for office computers</a>.</p>
+      <h3>Is my data collected?</h3>
+      <p>No account, no profile, no advertising. We count anonymous, cookieless page views so we know which games people find. See the <a href="./privacy.html">privacy policy</a>.</p>
+    </section>
+
+    <section style="margin:36px 0;">
+      <div style="background:#f4c95d;color:#1c1a17;padding:22px;border-radius:12px;text-align:center;">
+        <p style="font:800 20px system-ui,sans-serif;margin:0 0 12px;">One ship. A lot of asteroids. Three ways it ends.</p>
+        <a class="cta cta-primary" style="background:#1c1a17;color:#f4c95d;" href="/play/zelakas/">▶ Play Zelakas In Space now</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© Magestican Studios · a trading name of Ultra Task Pty Ltd · Australia</p>
+    <p><a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a></p>
+  </footer>
+  
+
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    initAnalytics({ page: 'zelakas-landing' });
+    trackPlayClicks();
+  </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en" class="content-page">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — Magestican Studios</title>
+  <meta name="description" content="Magestican Studios privacy policy. What data our website and games collect, and what we do with it.">
+  <link rel="canonical" href="https://magesticanstudios.com/privacy.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Privacy Policy — Magestican Studios">
+  <meta property="og:description" content="What the Magestican Studios website and games collect: no accounts, no cookies, anonymous page and match counts only.">
+  <meta property="og:url" content="https://magesticanstudios.com/privacy.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Privacy Policy — Magestican Studios">
+  <meta name="twitter:description" content="What the Magestican Studios website and games collect: no accounts, no cookies, anonymous page and match counts only.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Privacy Policy",
+    "url": "https://magesticanstudios.com/privacy.html",
+    "dateModified": "2026-08-22",
+    "isPartOf": { "@type": "WebSite", "name": "Magestican Studios",
+                  "url": "https://magesticanstudios.com" },
+    "about": "What the Magestican Studios website and games collect, and how the anonymous analytics are configured."
+  }
+  </script>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <header class="site-header">
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="./#games">Games</a>
+      <a href="./about.html">About</a>
+      <a href="./privacy.html">Privacy</a>
+      <a href="./terms.html">Terms</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: 22 August 2026 · <em>Applies to magesticanstudios.com.au and all Magestican Studios games.</em></p>
+
+    <p>This policy explains what personal information Magestican Studios (a trading name of Ultra Task Pty Ltd, ACN [to be inserted], hereafter "we" or "us") collects, why, and how you can exercise your rights over it. This policy is written to satisfy the Australian Privacy Act 1988 (Cth) and, where our audience overlaps, the EU General Data Protection Regulation (GDPR).</p>
+
+    <h2>Short version</h2>
+    <ul>
+      <li>This website (<code>magesticanstudios.com.au</code>) is static. It has no login, no comment box, and no server-side code. It sets no cookies.</li>
+      <li>We use <strong>Google Analytics 4</strong> to count visits, configured so that it stores nothing on your device and cannot identify you (details below). It is the only third-party script on the site.</li>
+      <li>Our games have no account and no game server. They report a small number of anonymous gameplay counts (which map and mode was chosen, how many AI bots, whether the match reached an end, phone or desktop) and nothing else.</li>
+      <li>The only personal information we hold about you is what you have voluntarily emailed us (e.g. a bug report, a press enquiry). We keep those emails only as long as needed to reply.</li>
+    </ul>
+
+    <h2>What we collect</h2>
+    <p><strong>On this website:</strong> nothing. The site is served as static files. Your browser makes a request; our host (a static file provider) receives the request and responds with a file. Our host may keep short-lived access logs (typically IP address, requested URL, user-agent, timestamp) for security and abuse-prevention purposes. We do not sell, rent, or share those logs, and we do not correlate them with any other information.</p>
+    <p><strong>In our games:</strong> no personal information. Game saves and settings (world seed, player name, preferences) are written to your own browser's storage and never leave it — we do not receive, upload, or read them. Team Bondage is peer-to-peer: the other players' browsers see the name you type, we do not. What we do receive are the anonymous match counts listed under "Analytics" below.</p>
+    <p><strong>When you email us:</strong> your email address and whatever you chose to send. We reply from the same address, retain the thread as long as needed to help you, and delete it afterwards.</p>
+
+    <h2>What we do with it</h2>
+    <ul>
+      <li>Emails: to reply to you.</li>
+      <li>Host access logs: to detect abuse or diagnose site outages.</li>
+      <li>Nothing else. We do not build profiles, we do not target ads.</li>
+    </ul>
+
+    <h2>Analytics</h2>
+    <p>We use Google Analytics 4 to answer one question: which games and pages people find, and on what kind of device. We deliberately run it in its weakest configuration, because a studio that advertises "no accounts, no tracking" and then fingerprints you is lying:</p>
+    <ul>
+      <li><strong>No cookies and no stored identifier.</strong> Analytics runs with <code>client_storage: 'none'</code>, so nothing is written to your browser and you are not recognised on a later visit. The trade-off is ours to wear: our "users" figure is really a "page opens" figure, and we would rather under-count you than identify you.</li>
+      <li><strong>IP anonymisation on.</strong> Google truncates your IP address before logging it. We never see it.</li>
+      <li><strong>Google Signals off, ad personalisation off.</strong> The data cannot be joined to an advertising profile and cannot be used to build an ad audience.</li>
+      <li><strong>No personal data in events.</strong> The measurement code refuses to send player names, room codes, peer ids, or email addresses — the filter is in the source at <code>web-engine/analytics/analytics.js</code> and is covered by an automated test.</li>
+    </ul>
+    <p>The events we record are: a page view; <code>play_click</code> (someone followed a link to a game); <code>game_start</code> (map, mode, bot count, host or joiner, phone or desktop); and <code>match_end</code> (map, mode, duration, score margin, and whether the reporting player's team won). None of them carries anything about you.</p>
+    <p>Analytics is loaded from Google's servers, so Google receives the request. Google's handling of it is covered by the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>. If you would rather send nothing at all, any content blocker or your browser's "Do Not Track"/tracking-protection setting will stop the script loading, and the site works exactly the same without it.</p>
+
+    <h2>Cookies and similar technologies</h2>
+    <p>This site sets no cookies of its own, and the analytics described above are configured not to set any either. Games store your settings (name, chosen map, volume) in your browser's own local storage; that never leaves your device and you can clear it at any time from your browser settings.</p>
+
+    <h2>Third parties</h2>
+    <p>Google (analytics, as described above) and the game-support services a browser game needs: a WebRTC signalling broker so two players' browsers can find each other, and a CDN that serves the 3D engine and the Flash emulator. None of them receives an account, a profile, or a name from us.</p>
+    <p>The site is hosted by a static-file provider (currently expected to be Cloudflare Pages or GitHub Pages) that operates under its own privacy policy. If you follow an external link from our site or games (for example, to a game's store page on itch.io or Steam) the destination site handles your data under its own policy.</p>
+
+    <h2>Children</h2>
+    <p>Our games are suitable for a general audience but we do not knowingly collect personal information from anyone under 13.</p>
+
+    <h2>Your rights</h2>
+    <p>You can ask us:</p>
+    <ul>
+      <li>what personal information we hold about you (typically: none, unless you have emailed us);</li>
+      <li>to delete any emails you have sent us;</li>
+      <li>to correct any information we hold about you.</li>
+    </ul>
+    <p>Send those requests to the contact address published on our website. If we ever store personal information subject to the GDPR, EU residents also have the rights to portability, restriction of processing, and to lodge a complaint with your national data protection authority.</p>
+
+    <h2>Contact</h2>
+    <p><strong>Ultra Task Pty Ltd</strong>, Australia — trading as <strong>Magestican Studios</strong>. Contact address and ACN will be added here once registration is complete.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>We will update this page if what we do with data changes, and bump the "Last updated" date at the top. Material changes (anything that broadens what we collect or how we share it) will also be flagged on the site's home page for a reasonable period.</p>
+
+    <p><em>This document is provided as-is and is not legal advice. Verify against a solicitor before relying on it for anything that would trigger a regulator.</em></p>
+
+    <p><a href="./" class="more-link">← back to the studio</a></p>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Copyright © 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+  </footer>
+
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    startVersionChecker();
+    mountDeviceQr({ label: 'Open this page on your phone' });
+    initAnalytics({ page: 'privacy' });
+    trackPlayClicks();
+  </script>
+</body>
+</html>
