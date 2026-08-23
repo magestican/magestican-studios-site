@@ -15,6 +15,7 @@ import { flockAnchors, planFlockFurniture, surfaceY } from './propKitPlacement.j
 import { addMapBackdrop } from './mapBackdrop.js';
 import { SeededRng } from '../../../../web-engine/rng/seededRng.js';
 import { WORLD_SIZE, perArea, insideZone } from '../../../../web-engine/procgen/voxelWorldGen.js';
+import { VOX } from '../../../../web-engine/voxel/voxelGrid.js';
 
 
 
@@ -118,6 +119,16 @@ export function scatterPropKit(scene, world) {
     
     const y = surfaceY(grid, x, z);
     if (y == null) return null;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (y > 1 && grid.get(x, y - 1, z) === VOX.HAY) return null;
     
     
     if (y + propHeight(id) > 11) return null;

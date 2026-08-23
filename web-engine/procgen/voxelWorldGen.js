@@ -110,21 +110,14 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
 
   
   
-  const hayStacks = [];
-  if (map.hay) {
-    const hayRng = rng.child('hay');
-    const hayCount = perArea(hayRng.rangeI(8, 12));
-    for (let i = 0; i < hayCount; i++) {
-      const hx = hayRng.rangeI(6, WORLD_SIZE.x - 9);
-      const hz = hayRng.rangeI(6, WORLD_SIZE.z - 9);
-      if (insideBase(hx, hz, redBase) || insideBase(hx, hz, blueBase)) continue;
-      if (insideZone(hx, hz, powerUpZones, 2)) continue;   
-      if (Math.abs(hx - cx) < 4 && Math.abs(hz - cz) < 4) continue;
-      _buildHayBale(grid, hx, hz);
-      hayStacks.push({ x: hx, z: hz });
-    }
-  }
-
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -132,6 +125,13 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   const wear = map.wear
     ? applyGroundWear(grid, rng.child('wear'), { redBase, blueBase, hillX: cx, hillZ: cz })
     : { tractorParking: [] };
+
+  
+  
+  
+  const hayStacks = placeHayStacks(grid, rng.child('hay'), map, {
+    redBase, blueBase, powerUpZones, cx, cz, keepClear: wear.tractorParking,
+  });
 
   const ambientSpots = placeAmbient(grid, rng.child('ambient'), map, { redBase, blueBase });
 
@@ -405,6 +405,14 @@ function standY(grid, x, z) {
 function ledgeY(grid, x, z) {
   const y = standY(grid, x, z);
   if (y + 2 >= WORLD_SIZE.y) return -1;                       
+  
+  
+  
+  
+  
+  
+  
+  if (y > 1 && grid.get(x, y - 1, z) === VOX.HAY) return -1;
   for (let h = 0; h < 3; h++) if (grid.get(x, y + h, z) !== VOX.AIR) return -1;
   for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
     const nx = x + dx, nz = z + dz;
@@ -1051,11 +1059,170 @@ function insideBase(x, z, base) {
 
 
 
-function _buildHayBale(grid, ox, oz) {
-  for (let dx = 0; dx < 2; dx++) {
-    for (let dz = 0; dz < 2; dz++) {
-      grid.set(ox + dx, 1, oz + dz, VOX.HAY);
-      grid.set(ox + dx, 2, oz + dz, VOX.HAY);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const HAY_STACK = Object.freeze({
+  span: 5,             
+  half: 2,             
+  bodyCourses: [2, 3], 
+  minCourses: 4,       
+  
+  
+  
+  
+  
+  base: (dx, dz) => Math.abs(dx) <= 2 && Math.abs(dz) <= 2,
+  body: (dx, dz) => Math.abs(dx) + Math.abs(dz) <= 3,
+  cap:  (dx, dz) => Math.abs(dx) + Math.abs(dz) <= 1,
+  
+  
+  isCore: (dx, dz) => Math.abs(dx) + Math.abs(dz) <= 1,
+});
+
+
+
+
+function hayCourses(rng) {
+  const [lo, hi] = HAY_STACK.bodyCourses;
+  return 1 + rng.rangeI(lo, hi) + 1;         
+}
+
+
+
+
+
+
+
+
+
+function buildHayStack(grid, ox, oz, y, courses) {
+  const { half, base, body, cap } = HAY_STACK;
+  let placed = 0;
+  for (let c = 0; c < courses; c++) {
+    const shape = c === 0 ? base : (c === courses - 1 ? cap : body);
+    for (let dx = -half; dx <= half; dx++) {
+      for (let dz = -half; dz <= half; dz++) {
+        if (!shape(dx, dz)) continue;
+        const x = ox + dx, z = oz + dz, yy = y + c;
+        if (!grid.inBounds(x, yy, z)) continue;
+        if (grid.get(x, yy, z) !== VOX.AIR) continue;
+        grid.set(x, yy, z, VOX.HAY);
+        placed++;
+      }
     }
   }
+  return placed;
+}
+
+
+
+
+
+
+
+
+
+
+
+function hayFootingAt(grid, ox, oz, courses) {
+  const { half } = HAY_STACK;
+  const y = standY(grid, ox, oz);
+  if (y + courses >= WORLD_SIZE.y) return -1;      
+  for (let dx = -half; dx <= half; dx++) {
+    for (let dz = -half; dz <= half; dz++) {
+      const x = ox + dx, z = oz + dz;
+      if (!grid.inBounds(x, 0, z)) return -1;
+      if (standY(grid, x, z) !== y) return -1;     
+      for (let c = 0; c < courses; c++) {
+        if (grid.get(x, y + c, z) !== VOX.AIR) return -1;
+      }
+    }
+  }
+  return y;
+}
+
+
+
+function placeHayStacks(grid, rng, map,
+                        { redBase, blueBase, powerUpZones, cx, cz, keepClear = [] }) {
+  const stacks = [];
+  if (!map.hay) return stacks;
+  const { half, span } = HAY_STACK;
+  
+  
+  
+  const want = perArea(rng.rangeI(map.hay.count - 2, map.hay.count + 2));
+  
+  
+  
+  
+  
+  
+  
+  const budget = want * 60;
+  for (let n = 0; n < budget && stacks.length < want; n++) {
+    const courses = hayCourses(rng);
+    const hx = rng.rangeI(half + 3, WORLD_SIZE.x - half - 4);
+    const hz = rng.rangeI(half + 3, WORLD_SIZE.z - half - 4);
+    
+    
+    
+    if (insideBase(hx - half, hz - half, redBase)  || insideBase(hx + half, hz + half, redBase)
+     || insideBase(hx - half, hz + half, redBase)  || insideBase(hx + half, hz - half, redBase)
+     || insideBase(hx - half, hz - half, blueBase) || insideBase(hx + half, hz + half, blueBase)
+     || insideBase(hx - half, hz + half, blueBase) || insideBase(hx + half, hz - half, blueBase)) continue;
+    if (insideZone(hx, hz, powerUpZones, half)) continue;
+    if (Math.abs(hx - cx) < 4 + half && Math.abs(hz - cz) < 4 + half) continue;
+    
+    
+    
+    if (keepClear.some((k) => Math.abs(hx - k.x) <= half + 2 && Math.abs(hz - k.z) <= half + 2)) continue;
+    const y = hayFootingAt(grid, hx, hz, courses);
+    if (y < 0) continue;
+    buildHayStack(grid, hx, hz, y, courses);
+    
+    
+    
+    
+    
+    stacks.push({ x: hx, z: hz, y, courses, top: y + courses, span });
+  }
+  return stacks;
 }

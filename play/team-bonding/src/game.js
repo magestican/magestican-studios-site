@@ -17,6 +17,7 @@ import { buildCharacter }   from './entities/character.js';
 import { Player }           from './entities/player.js';
 import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
 import { computeAimAssist } from 'arbelo/aim-assist';
+import { attachRightClickMove } from 'arbelo/rmb-move';
 import { stepProjectile } from '../../../web-engine/combat/projectileHit.js';
 import { Chat } from './ui/chat.js';
 import { KillAnnouncer, shouldHear } from './audio/killAnnouncer.js';
@@ -45,8 +46,9 @@ import { ChickenPickup }      from './entities/chickenPickup.js';
 import { SteakPickups, SIDES as STEAK_SIDES } from './entities/steakPickups.js';
 import { PowerUpPickups }   from './entities/powerUps.js';
 import {
-  POWER_UPS, emptyPowerUpState, applyPowerUp, expirePowerUp, clearOnDeath,
-  remainingSeconds, activeDef, scaleFor, cooldownScaleFor, hitRadiusFor,
+  POWER_UPS, POWER_UP_IDS, emptyPowerUpState, applyPowerUp, expirePowerUp,
+  clearOnDeath, remainingSeconds, activeDef, scaleFor, cooldownScaleFor,
+  hitRadiusFor,
 } from './entities/powerUpSpec.js';
 import { computeFlagAction }  from '../../../../web-engine/ctf/flagLogic.js';
 import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js';
@@ -405,6 +407,20 @@ export class Game {
         localStorage.setItem('tb.aimassist', this.aimAssist ? '1' : '0');
       });
     }
+    
+    
+    
+    
+    
+    const rmbCheck = document.getElementById('rmb-move');
+    if (rmbCheck) {
+      this.rmbMove = localStorage.getItem('tb.rmbmove') === '1';
+      rmbCheck.checked = this.rmbMove;
+      rmbCheck.addEventListener('change', () => {
+        this.rmbMove = rmbCheck.checked;
+        localStorage.setItem('tb.rmbmove', this.rmbMove ? '1' : '0');
+      });
+    }
     const openSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.add('visible'); };
     const closeSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.remove('visible'); };
     settingsBtn.addEventListener('click', openSettings);
@@ -637,6 +653,20 @@ export class Game {
       if (document.pointerLockElement !== this.renderer.domElement) return;
       this.player.addMouseLook(e.movementX, e.movementY);
     });
+
+    
+    
+    
+    
+    
+    
+    
+    if (!this.isTouch) {
+      this.rmbMoveCtl = attachRightClickMove(window, this.input, {
+        enabled: () => this.rmbMove === true,
+        isLocked: () => document.pointerLockElement === this.renderer.domElement,
+      });
+    }
 
     
     if (this.isTouch) {
@@ -1171,6 +1201,62 @@ export class Game {
       peerId: this.myId, pos: this.player.pos, team: meMeta.team,
     });
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const bodies = this._allPlayerRefs()
+      .filter((p) => p.alive !== false)
+      .map((p) => ({
+        peerId: p.peerId, x: p.pos.x, z: p.pos.z,
+        size: this.bots.get(p.peerId)?.sizeScale
+              ?? (p.peerId === this.myId ? (this.player?.sizeScale ?? 1)
+                                         : (this._peerScale.get(p.peerId) ?? 1)),
+      }));
+
+    
+    
+    
+    
+    
+    
+    
+    const pickups = this.powerUpPickups
+      ? POWER_UP_IDS.map((id) => {
+          const at = this.powerUpPickups.position(id);
+          if (!at) return null;
+          const def = POWER_UPS[id];
+          return {
+            id, x: at.x, z: at.z,
+            available: this.powerUpPickups.isAvailable(id),
+            sizeMul: def.visualScale, fireRateMul: def.fireRateMul,
+          };
+        }).filter(Boolean)
+      : [];
+    
+    
+    
+    const matesByTeam = { red: [], blue: [] };
+    for (const b of this.bots.values()) {
+      matesByTeam[b.team].push({
+        id: b.peerId, x: b.pos.x, z: b.pos.z, hp: b.hp,
+        alive: b.alive !== false, hasEnemyFlag: b.hasEnemyFlag,
+        powerUpId: b.powerUp?.id ?? null,
+      });
+    }
+    const nowMs = Date.now();
+
     for (const bot of this.bots.values()) {
       const enemyColor = bot.team === 'red' ? 'blue' : 'red';
       const ctx = {
@@ -1179,6 +1265,10 @@ export class Game {
         flagPos: this.flagPos,
         flagState: this.flagState,
         enemyPlayers: enemyPlayersByTeam[bot.team],
+        bodies,
+        powerUps: pickups,
+        allies: matesByTeam[bot.team],
+        now: nowMs,
         onShoot: (bid, origin, dir) => {
           if (this.matchState !== 'playing') return;
           
@@ -1232,6 +1322,17 @@ export class Game {
         
         
         rp.placeAt(bot.pos, bot.yaw);
+        
+        
+        
+        
+        
+        
+        
+        if ((this._peerScale.get(bot.peerId) ?? 1) !== bot.sizeScale) {
+          this._peerScale.set(bot.peerId, bot.sizeScale);
+          rp.setBodyScale(bot.sizeScale);
+        }
       }
 
       
@@ -2315,6 +2416,12 @@ export class Game {
     this._installDebugSnapshot();
     
     
+    
+    
+    
+    this.rmbMoveCtl?.poll();
+    
+    
     if (this.matchState !== 'playing' && this.matchState !== 'ended') {
       this._updateLobbyBanner();
       
@@ -2941,6 +3048,25 @@ export class Game {
   
 
   _grantPowerUp(id, peerId) {
+    
+    
+    
+    
+    
+    
+    const bot = this.bots.get(peerId);
+    if (bot) {
+      bot.grantPowerUp(id, Date.now());
+      
+      
+      
+      
+      
+      
+      this._peerScale.set(peerId, bot.sizeScale);
+      this.remotePlayers.get(peerId)?.setBodyScale(bot.sizeScale);
+      return;
+    }
     if (peerId !== this.myId) return;
     const def = POWER_UPS[id];
     if (!def) return;

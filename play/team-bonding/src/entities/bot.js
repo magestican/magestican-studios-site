@@ -14,8 +14,14 @@
 import * as THREE from 'three';
 import { hasLineOfSight } from '../../../../web-engine/physics/lineOfSight.js';
 import { stepBot }        from '../../../../web-engine/ai/botStep.js';
+import { chooseObjective, OBJECTIVE_POWER_UP }
+  from '../../../../web-engine/ai/objective.js';
 import { spawnOffset, pickSpawnSlot }
   from '../../../../web-engine/movement/spawnScatter.js';
+import {
+  POWER_UPS, POWER_UP_MS, applyPowerUp, expirePowerUp, clearOnDeath,
+  emptyPowerUpState, scaleFor, fireRateMulFor,
+} from './powerUpSpec.js';
 
 const NAMES = [
   'Bot-Buttercup', 'Bot-Hoof', 'Bot-Cluck', 'Bot-Trotter',
@@ -60,6 +66,18 @@ export class Bot {
     this.hp    = 100;
     this.alive = true;
     this.hasEnemyFlag = false;
+    
+    
+    
+    
+    this.sizeScale = 1;
+    
+    
+    
+    
+    
+    
+    this.powerUp = emptyPowerUpState();
     this._fireCd = FIRE_COOLDOWN + Math.random();
     
     
@@ -83,6 +101,11 @@ export class Bot {
     const spread = this._spawnOffset();
     this.pos.set(spawn.x + spread.x, spawn.y, spawn.z + spread.z);
     this.hp = 100; this.alive = true; this.hasEnemyFlag = false;
+    
+    
+    
+    this.powerUp = clearOnDeath();
+    this.sizeScale = 1;
     this._fireCd = FIRE_COOLDOWN;
     
     
@@ -110,19 +133,51 @@ export class Bot {
     const myColor    = this.team;
 
     
-    let goal;
-    if (this.hasEnemyFlag) {
-      const f = ctx.world.flags[myColor];
-      goal = new THREE.Vector3(f.x, this.pos.y, f.z);
-    } else {
-      const fp = ctx.flagPos[enemyColor];
-      goal = new THREE.Vector3(fp.x, this.pos.y, fp.z);
-    }
+    
+    this._tickPowerUp(ctx.now ?? Date.now());
+
+    
+    const flagTarget = this.hasEnemyFlag
+      ? ctx.world.flags[myColor]
+      : ctx.flagPos[enemyColor];
 
     
     
+    
+    
+    
+    
+    
+    
+    this.objective = chooseObjective({
+      self: {
+        id: this.peerId, x: this.pos.x, z: this.pos.z,
+        hp: this.hp, alive: this.alive,
+        hasEnemyFlag: this.hasEnemyFlag,
+        powerUpId: this.powerUp.id,
+      },
+      flag: { x: flagTarget.x, z: flagTarget.z },
+      powerUps: ctx.powerUps ?? [],
+      allies: ctx.allies ?? [],
+    });
+
+    const goal = new THREE.Vector3(this.objective.x, this.pos.y, this.objective.z);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     this._path.yaw = this.yaw;
-    stepBot(this._path, dt, ctx.grid, { x: goal.x, z: goal.z });
+    this._path.id = this.peerId;
+    this._path.sizeScale = this.sizeScale;
+    stepBot(this._path, dt, ctx.grid, { x: goal.x, z: goal.z },
+            Math.random, ctx.bodies ?? null);
     this.yaw = this._path.yaw;
     
 
@@ -158,11 +213,41 @@ export class Bot {
             const aim = enemy.pos.clone().sub(this.pos).normalize();
             this.yaw = Math.atan2(aim.x, aim.z);
             ctx.onShoot(this.peerId, this.pos.clone().add(new THREE.Vector3(0, 1.2, 0)), aim);
-            this._fireCd = FIRE_COOLDOWN + Math.random() * 0.4;
+            
+            
+            
+            
+            this._fireCd = (FIRE_COOLDOWN + Math.random() * 0.4)
+                         / fireRateMulFor(this.powerUp);
           }
         }
       }
     }
+  }
+
+  
+  
+  
+  
+  
+  grantPowerUp(id, nowMs = Date.now()) {
+    if (!POWER_UPS[id]) return false;
+    this.powerUp = applyPowerUp(this.powerUp, id, nowMs);
+    this.sizeScale = scaleFor(this.powerUp);
+    return true;
+  }
+
+  
+  
+  
+  _tickPowerUp(nowMs) {
+    const { state } = expirePowerUp(this.powerUp, nowMs);
+    this.powerUp = state;
+    this.sizeScale = scaleFor(state);
+  }
+
+  powerUpRemainingMs(nowMs = Date.now()) {
+    return this.powerUp.id ? Math.max(0, this.powerUp.endsAt - nowMs) : 0;
   }
 
   
@@ -198,6 +283,12 @@ export class Bot {
       p: [this.pos.x, this.pos.y, this.pos.z],
       y: this.yaw, x: this.pitch, h: this.hp,
       c: this.character, tm: this.team, hf: this.hasEnemyFlag,
+      
+      
+      
+      
+      
+      sc: this.sizeScale,
     };
   }
 }

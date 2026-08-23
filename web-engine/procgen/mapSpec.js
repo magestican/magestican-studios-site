@@ -31,6 +31,40 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { VOX } from '../voxel/voxelGrid.js';
 
 export const DEFAULT_MAP = 'snow-farm';
@@ -361,7 +395,9 @@ export const MAPS = Object.freeze({
     centre: { vox: VOX.HILL, style: 'knoll' },
     base: { style: 'barn', sign: 'BARN' },
     cover: ['pillar', 'crate', 'wall'],
-    hay: true,
+    
+    
+    hay: { count: 10 },
     wear: true,
     props: { snowman: 8, 'fence-post': 40, 'hay-bale': 6, barrel: 7, crate: 9 },
     kit: { trough: 5, 'milk-churn': 6, 'log-pile': 4, 'chopping-block': 3,
@@ -391,7 +427,10 @@ export const MAPS = Object.freeze({
     centre: { vox: VOX.ROCK, style: 'summit' },
     base: { style: 'cabin', sign: 'CAMP' },
     cover: ['spire', 'iceWall', 'boulder'],
-    hay: false,
+    
+    
+    
+    hay: { count: 7 },
     wear: false,
     props: { snowman: 3, barrel: 4, crate: 6 },
     kit: { pine: 16, cairn: 8, 'ski-pair': 5, 'oil-drum': 4, 'log-pile': 3,
@@ -422,7 +461,10 @@ export const MAPS = Object.freeze({
     centre: { vox: VOX.RINK, style: 'faceoff' },
     base: { style: 'pavilion', sign: 'BOX' },
     cover: ['bench', 'planter', 'wall'],
-    hay: false,
+    
+    
+    
+    hay: { count: 7 },
     wear: false,
     props: { crate: 5, barrel: 3, snowman: 4 },
     kit: { 'lamp-post': 12, bench: 10, 'bare-tree': 14, 'hot-dog-cart': 2,
@@ -456,7 +498,10 @@ export const MAPS = Object.freeze({
     centre: { vox: VOX.IGLOO, style: 'berg' },
     base: { style: 'igloo', sign: 'IGLOO' },
     cover: ['berg', 'ridge', 'boulder'],
-    hay: false,
+    
+    
+    
+    hay: { count: 7 },
     wear: false,
     props: { snowman: 5, crate: 4, barrel: 3 },
     kit: { 'ice-hole': 7, 'fish-crate': 6, 'ice-axe-rack': 2, sled: 5,
