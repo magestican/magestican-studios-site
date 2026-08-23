@@ -1,33 +1,76 @@
 
 
 
-import * as THREE from 'three';
 
-const SPATTER_COUNT = 14;
-const LIFETIME = 1.0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import * as THREE from 'three';
+import { debrisFor } from '../../../../web-engine/combat/impactDebris.js';
 
 export class GoreSystem {
   constructor(scene) {
     this.scene = scene;
     this._active = [];   
-    this._geo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
-    this._mat = new THREE.MeshBasicMaterial({ color: 0xb0100e, transparent: true, opacity: 0.95 });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this._cache = new Map();
   }
 
-  spatterAt(worldPos, awayDir = null) {
+  _kit(kind) {
+    let k = this._cache.get(kind);
+    if (!k) {
+      const spec = debrisFor(kind);
+      k = {
+        spec,
+        geo: new THREE.BoxGeometry(spec.size, spec.size, spec.size),
+        mat: new THREE.MeshBasicMaterial({ color: spec.color }),
+      };
+      this._cache.set(kind, k);
+    }
+    return k;
+  }
+
+  
+  
+  
+  
+  spatterAt(worldPos, awayDir = null, kind = 'flesh') {
+    const { spec, geo, mat } = this._kit(kind);
     const nowSec = performance.now() / 1000;
     const base = awayDir || new THREE.Vector3(0, 1, 0);
-    for (let i = 0; i < SPATTER_COUNT; i++) {
-      const m = new THREE.Mesh(this._geo, this._mat.clone());
+    const [upMin, upMax] = spec.up;
+    for (let i = 0; i < spec.count; i++) {
+      const m = new THREE.Mesh(geo, mat);
       m.position.copy(worldPos);
-      const spread = 4;
       const vel = new THREE.Vector3(
-        base.x * 2 + (Math.random() - 0.5) * spread,
-        1.5 + Math.random() * 3.0,
-        base.z * 2 + (Math.random() - 0.5) * spread,
+        base.x * spec.away + (Math.random() - 0.5) * spec.spread,
+        upMin + Math.random() * (upMax - upMin),
+        base.z * spec.away + (Math.random() - 0.5) * spec.spread,
       );
       this.scene.add(m);
-      this._active.push({ mesh: m, vel, bornAt: nowSec });
+      this._active.push({ mesh: m, vel, bornAt: nowSec, life: spec.lifetime });
     }
   }
 
@@ -35,10 +78,14 @@ export class GoreSystem {
     const nowSec = performance.now() / 1000;
     this._active = this._active.filter((p) => {
       const t = nowSec - p.bornAt;
-      if (t >= LIFETIME) { this.scene.remove(p.mesh); return false; }
+      if (t >= p.life) { this.scene.remove(p.mesh); return false; }
       p.vel.y -= 9.8 * dt;
       p.mesh.position.addScaledVector(p.vel, dt);
-      p.mesh.material.opacity = 0.95 * (1 - t / LIFETIME);
+      
+      
+      
+      const k = 1 - t / p.life;
+      p.mesh.scale.setScalar(k * k);
       p.mesh.rotation.x += dt * 6;
       p.mesh.rotation.z += dt * 5;
       return true;

@@ -88,6 +88,8 @@ import {
   OBSERVER_TEAM, isObserver, isPlaying, enemyOf, teamCounts, playingCount,
   seatChange, rejoinTeam,
 } from '../../../web-engine/match/observer.js';
+import { fovFor, detectTouch } from '../../../web-engine/render/cameraFov.js';
+import { kindForHit, shouldSpatter } from '../../../web-engine/combat/impactDebris.js';
 import { MATCH_CAP, MAX_BOTS, desiredBots, pickBotToDisplace, hasRoom }
                               from '../../../web-engine/scenarios/matchRoster.js';
 
@@ -247,6 +249,15 @@ export class Game {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    this.isTouch = detectTouch(typeof window !== 'undefined' ? window : null);
     this._peerScale = new Map();        
     this._steakPoisonBy = new Map();    
     this.opts = opts;
@@ -629,7 +640,24 @@ export class Game {
     
     this.skyBrawl = new SkyBrawl(this.scene);
 
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, CAMERA_FAR);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this.camera = new THREE.PerspectiveCamera(
+      fovFor(this.isTouch), window.innerWidth / window.innerHeight, 0.1, CAMERA_FAR);
     this.camera.rotation.order = 'YXZ';
 
     
@@ -641,6 +669,11 @@ export class Game {
   _onResize() {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.camera.aspect = window.innerWidth / window.innerHeight;
+    
+    
+    
+    
+    this.camera.fov = fovFor(this.isTouch);
     this.camera.updateProjectionMatrix();
   }
 
@@ -818,9 +851,10 @@ export class Game {
     this.input = new InputBus(window);
 
     
-    this.isTouch = ('ontouchstart' in window)
-      || (navigator.maxTouchPoints > 0)
-      || window.matchMedia?.('(pointer: coarse)').matches;
+    
+    
+    
+    this.isTouch = detectTouch(window);
 
     
     document.addEventListener('mousemove', (e) => {
@@ -3988,7 +4022,7 @@ export class Game {
           if (rp) {
             const hitPos = rp.group.position.clone().add(new THREE.Vector3(0, 1, 0));
             const awayDir = new THREE.Vector3().fromArray(s.dir).multiplyScalar(-1);
-            this.gore.spatterAt(hitPos, awayDir);
+            this.gore.spatterAt(hitPos, awayDir, 'flesh');
           }
         }
       }
@@ -4106,9 +4140,21 @@ export class Game {
         this._onProjectileHitPlayer(result.id, p.shot, result.point, head);
       } else if (result.kind === 'world') {
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         this.gore?.spatterAt?.(
           new THREE.Vector3(result.point.x, result.point.y, result.point.z),
-          shotDirection(p.shot).multiplyScalar(-1));
+          shotDirection(p.shot).multiplyScalar(-1),
+          kindForHit(result.kind));
       }
       this.weapons.despawnProjectile(p.rec);
       live.splice(i, 1);
@@ -4162,9 +4208,13 @@ export class Game {
     this._flashHitmarker(dmg, hpLeft != null && hpLeft <= 0, headshot);
     if (headshot) { try { SFX.chirp(); } catch (_) {} }
     SFX.splat();
-    if (this.mature) {
+    
+    
+    
+    
+    if (shouldSpatter('flesh', this.mature)) {
       const away = shotDirection(shot).multiplyScalar(-1);
-      this.gore?.spatterAt?.(new THREE.Vector3(point.x, point.y, point.z), away);
+      this.gore?.spatterAt?.(new THREE.Vector3(point.x, point.y, point.z), away, 'flesh');
     }
     
     if (bot && this.isHost) {
