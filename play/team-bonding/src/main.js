@@ -46,6 +46,11 @@ const $ = (id) => document.getElementById(id);
 const leaderboardUi = mountLeaderboard({
   place: 'game',
   showChip: true,          
+  
+  
+  
+  
+  mountInto: '#menu .menu-card',
   myName: localStorage.getItem('tb.name') || '',
 });
 

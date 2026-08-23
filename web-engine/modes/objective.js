@@ -125,3 +125,60 @@ export function objectiveMarkers(mode, world = {}) {
 
 
 export const OBJECTIVE_IDS = Object.freeze(['red', 'blue', 'neutral', 'hill']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function botGoalFor(mode, {
+  team = 'red',
+  hasEnemyFlag = false,
+  flagPos = null,        
+  worldFlags = null,     
+  hillSpawn = null,
+  nearestEnemyPos = null,
+} = {}) {
+  const enemyColor = team === 'red' ? 'blue' : 'red';
+  const at = (pos, kind) => (pos ? { kind, pos } : { kind: 'none', pos: null });
+
+  switch (mode?.flags) {
+    case 'both':
+      
+      return hasEnemyFlag
+        ? at(worldFlags?.[team], 'flag-home')
+        : at(flagPos?.[enemyColor], 'flag-take');
+
+    case 'neutral':
+      
+      
+      
+      return hasEnemyFlag
+        ? at(worldFlags?.[enemyColor], 'flag-deliver')
+        : at(flagPos?.red, 'flag-take');
+
+    default:
+      
+      if (mode?.scoring === 'hold') return at(hillSpawn, 'hill');
+      
+      
+      return at(nearestEnemyPos, 'hunt');
+  }
+}

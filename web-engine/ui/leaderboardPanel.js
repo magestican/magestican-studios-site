@@ -468,6 +468,14 @@ export const LEADERBOARD_STYLES = `
    measured at 1280px, a top-right chip lands on top of the page header (which
    ends at x=1092 while the chip starts at x=955) and covers the nav. */
 .tblb-chip-game { top: max(10px, env(safe-area-inset-top)); }
+/* In flow: no fixed positioning, no offsets, full width of its container. It
+   is a banner at the top of the lobby card, so it can never cover a control
+   however the card reflows. */
+.tblb-chip-inflow {
+  position: static; width: auto; right: auto; top: auto; bottom: auto;
+  margin: 0 0 14px; box-shadow: none;
+  background: rgba(8,11,17,0.6);
+}
 .tblb-chip-site { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 60px); }
 .tblb-chip-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .tblb-chip-title { font: 800 11px/1 system-ui, sans-serif; letter-spacing: 0.14em; color: #f4c95d; }
@@ -609,6 +617,9 @@ export function injectLeaderboardStyles(doc) {
 
 
 export function mountLeaderboard({
+  
+  
+  mountInto = null,
   doc = (typeof document !== 'undefined' ? document : null),
   place = 'site',
   showChip = true,
@@ -635,9 +646,32 @@ export function mountLeaderboard({
 
   const chipHost = doc.createElement('div');
   chipHost.setAttribute('class', 'tblb-chip-host');
-  const chipPlacement = place === 'game' ? 'tblb-chip-game' : 'tblb-chip-site';
   if (!showChip) chipHost.style.display = 'none';
-  doc.body.appendChild(chipHost);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const inflowHost = mountInto ? doc.querySelector(mountInto) : null;
+  const chipPlacement = inflowHost
+    ? 'tblb-chip-inflow'
+    : (place === 'game' ? 'tblb-chip-game' : 'tblb-chip-site');
+  if (inflowHost) inflowHost.insertBefore(chipHost, inflowHost.firstChild);
+  else doc.body.appendChild(chipHost);
 
   const overlay = doc.createElement('div');
   overlay.setAttribute('class', 'tblb-overlay');

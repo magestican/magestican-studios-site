@@ -1338,6 +1338,14 @@ export class Game {
       const enemyColor = bot.team === 'red' ? 'blue' : 'red';
       const ctx = {
         grid: this.grid,
+        
+        
+        
+        
+        
+        
+        
+        mode: this.mode,
         world: this.world,
         flagPos: this.flagPos,
         flagState: this.flagState,

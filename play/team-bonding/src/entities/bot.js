@@ -25,6 +25,7 @@ import * as THREE from 'three';
 import { acquireTarget, emptyAcquisition }
   from '../../../../web-engine/ai/targetAcquisition.js';
 import { stepBot }        from '../../../../web-engine/ai/botStep.js';
+import { botGoalFor }    from '../../../../web-engine/modes/objective.js';
 import { chooseObjective, OBJECTIVE_POWER_UP }
   from '../../../../web-engine/ai/objective.js';
 import { spawnOffset, pickSpawnSlot }
@@ -156,9 +157,29 @@ export class Bot {
     this._tickPowerUp(ctx.now ?? Date.now());
 
     
-    const flagTarget = this.hasEnemyFlag
-      ? ctx.world.flags[myColor]
-      : ctx.flagPos[enemyColor];
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const modeGoal = botGoalFor(ctx.mode, {
+      team: myColor,
+      hasEnemyFlag: this.hasEnemyFlag,
+      flagPos: ctx.flagPos,
+      worldFlags: ctx.world?.flags,
+      hillSpawn: ctx.world?.hillSpawn,
+      nearestEnemyPos: nearestPos(this.pos, ctx.enemyPlayers),
+    });
+    
+    
+    const flagTarget = modeGoal.pos || this.pos;
 
     
     
@@ -337,3 +358,14 @@ export class Bot {
 
 
 
+
+function nearestPos(from, enemies) {
+  let best = null, bestD = Infinity;
+  for (const e of enemies || []) {
+    if (!e?.pos) continue;
+    const d = e.pos.distanceTo ? e.pos.distanceTo(from)
+      : Math.hypot(e.pos.x - from.x, e.pos.z - from.z);
+    if (d < bestD) { bestD = d; best = e.pos; }
+  }
+  return best;
+}

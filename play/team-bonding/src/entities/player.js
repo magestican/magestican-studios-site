@@ -10,6 +10,9 @@
 import * as THREE from 'three';
 import { computeWishDelta, cameraHorizontalAxes } from 'arbelo/input-movement';
 import { stepJump, newJumpState } from '../../../../web-engine/movement/jump.js';
+import { checkFloor, clampAboveFloor }
+  from '../../../../web-engine/movement/floorRescue.js';
+import { groundHeightAt } from '../../../../web-engine/ai/botStep.js';
 import * as SFX from '../audio/sfx.js';
 import {
   CAPSULE_HALF_HEIGHT, CAPSULE_RADIUS, EYE_OFFSET as EYE_HEIGHT_OFFSET,
@@ -89,7 +92,17 @@ export class Player {
     
     
     const t = this.body.translation();
-    const y = centreKeepingFeet(t.y, this.capsule.total, next.total);
+    let y = centreKeepingFeet(t.y, this.capsule.total, next.total);
+    
+    
+    
+    
+    
+    
+    
+    if (this.grid) {
+      y = clampAboveFloor(y, next.total, groundHeightAt(this.grid, this.pos.x, this.pos.z, t.y));
+    }
     const ok = this.physics.setCharacterSize?.(this.collider, next.halfHeight, next.radius);
     if (ok === false) return;         
     this.body.setNextKinematicTranslation({ x: t.x, y, z: t.z });
@@ -157,7 +170,40 @@ export class Player {
     if (this.pitch < -lim) this.pitch = -lim;
   }
 
+  
+  _rescueFromFloor() {
+    if (!this.grid || !this.body) return false;
+    const t = this.body.translation();
+    const fix = checkFloor({
+      centreY: t.y,
+      capsuleTotal: this.capsule.total,
+      groundTop: groundHeightAt(this.grid, t.x, t.z, t.y),
+    });
+    if (!fix) return false;
+    
+    
+    
+    
+    
+    
+    this.body.setTranslation({ x: t.x, y: fix.y, z: t.z }, true);
+    this.pos.y = fix.y;
+    if (this.vel) this.vel.y = 0;      
+    console.warn(`[floor] rescued a body from below the floor (${fix.reason})`);
+    return true;
+  }
+
   update(dt, input) {
+    
+    
+    
+    
+    
+    
+    
+    
+    this._rescueFromFloor();
+
     
     
     
