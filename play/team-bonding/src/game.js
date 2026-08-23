@@ -84,6 +84,10 @@ import { emptyTally, tallyKill, scoreboardRows, teamTotals, resultCopy,
 
 
 
+import {
+  OBSERVER_TEAM, isObserver, isPlaying, enemyOf, teamCounts, playingCount,
+  seatChange, rejoinTeam,
+} from '../../../web-engine/match/observer.js';
 import { MATCH_CAP, MAX_BOTS, desiredBots, pickBotToDisplace, hasRoom }
                               from '../../../web-engine/scenarios/matchRoster.js';
 
@@ -355,6 +359,12 @@ export class Game {
     
     
     
+    this._paintObserverHud();
+    
+    
+    
+    
+    
     
     const canvas = this.renderer.domElement;
     canvas.addEventListener('webglcontextlost', (e) => {
@@ -399,8 +409,18 @@ export class Game {
     
     
     
-    if (this.isHost && this.initialBotCount > 0) {
-      const want = desiredBots(this._occupancy().humans, this.initialBotCount);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const watching = isObserver(this.team);
+    if (this.isHost && (this.initialBotCount > 0 || watching)) {
+      const want = desiredBots(this._occupancy().playing, this.initialBotCount + (watching ? 1 : 0));
       for (let i = 0; i < want; i++) this.addBot();
     }
     
@@ -704,7 +724,14 @@ export class Game {
   
 
   async _initPlayer() {
-    const spawn = this.world.spawns[this.team];
+    
+    
+    
+    
+    
+    const spawn = isObserver(this.team)
+      ? { ...(this.world.hillSpawn ?? this.world.spawns.red), y: (this.world.hillSpawn?.y ?? 0) + 8 }
+      : this.world.spawns[this.team];
     this.physics = await createPhysicsWorld({ grid: this.grid });
     
     
@@ -1280,6 +1307,15 @@ export class Game {
   
   _ensureRemoteBody(pid, meta) {
     if (!pid || pid === this.myId || !meta) return null;
+    
+    
+    
+    
+    
+    
+    
+    
+    if (isObserver(meta.team)) return null;
     if (this.remotePlayers.has(pid)) return this.remotePlayers.get(pid);
     if (!this.scene) return null;                 
     const rp = new RemotePlayer(this.scene, pid, {
@@ -1514,7 +1550,18 @@ export class Game {
   _occupancy() {
     const humans = 1 + [...this.playerMeta.entries()]
       .filter(([id, m]) => !m.bot && id !== this.myId).length;
-    return { humans, bots: this.bots.size, total: humans + this.bots.size };
+    
+    
+    
+    
+    
+    
+    const observers = [...this.playerMeta.values()].filter((m) => isObserver(m.team)).length;
+    const playing = Math.max(0, humans - observers);
+    return {
+      humans, playing, observers,
+      bots: this.bots.size, total: playing + this.bots.size,
+    };
   }
 
   
@@ -1539,8 +1586,10 @@ export class Game {
     if (this._occupancy().total <= MATCH_CAP) return null;
     
     
-    const counts = { red: 0, blue: 0 };
-    for (const m of this.playerMeta.values()) counts[m.team === 'red' ? 'red' : 'blue']++;
+    
+    
+    
+    const counts = teamCounts(this.playerMeta.values());
     
     
     const victimId = pickBotToDisplace([...this.bots.values()], joinerTeam, counts);
@@ -1570,6 +1619,119 @@ export class Game {
     return true;
   }
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  setObserverMode(on) {
+    const want = !!on;
+    if (want === isObserver(this.team)) return this.team;
+    const was = this.team;
+    
+    
+    
+    const next = want ? OBSERVER_TEAM : rejoinTeam(teamCounts(this.playerMeta.values()));
+
+    this.team = next;
+    const meta = this.playerMeta.get(this.myId) || {};
+    this.playerMeta.set(this.myId, { ...meta, team: next });
+
+    if (this.player) {
+      this.player.team = next;
+      this.player.setObserver(want);
+      if (!want) {
+        
+        
+        
+        this.player.spawn = { ...this.world.spawns[next] };
+        this.player.respawn();
+        this._invulnUntil = performance.now() + 2000;
+      }
+    }
+
+    
+    
+    this._broadcast({ t: MSG.OBSERVE, by: this.myId, team: next, was });
+    
+    
+    if (this.isHost) this._applySeatChange(was, next);
+
+    this._paintObserverHud();
+    this._updateLobbyBanner();
+    return next;
+  }
+
+  
+  
+  
+  
+  
+  
+  _applySeatChange(was, now) {
+    if (!this.isHost) return null;
+    const move = seatChange(was, now);
+    if (!move) return null;
+    if (move.addBotOn) {
+      const bot = this.addBot(move.addBotOn);
+      if (bot) this._killFeedPush(`a bot took over for the observer`);
+      return bot;
+    }
+    if (move.displace) return this._displaceBotFor(now);
+    return null;
+  }
+
+  
+  _applyPeerObserve(pid, team, was) {
+    if (!pid || pid === this.myId) return;
+    const meta = this.playerMeta.get(pid);
+    if (!meta) return;
+    this.playerMeta.set(pid, { ...meta, team });
+    if (isObserver(team)) {
+      
+      
+      
+      const rp = this.remotePlayers.get(pid);
+      if (rp) { rp.destroy(this.scene); this.remotePlayers.delete(pid); }
+      
+      for (const c of ['red', 'blue']) {
+        if (this.flagCarrier[c] === pid) {
+          this._returnFlag(c);
+          this._broadcast({ t: MSG.FLAG_RETURN, by: pid, color: c });
+        }
+      }
+    } else {
+      this._ensureRemoteBody(pid, { ...meta, team });
+    }
+    if (this.isHost) this._applySeatChange(was ?? meta.team, team);
+    this._updateLobbyBanner();
+  }
+
+  
+  
+  
+  _paintObserverHud() {
+    const el = document.getElementById('observer-banner');
+    if (!el) return;
+    const on = isObserver(this.team);
+    el.style.display = on ? 'block' : 'none';
+    const crosshair = document.getElementById('crosshair');
+    if (crosshair) crosshair.style.display = on ? 'none' : '';
+    const box = document.getElementById('observer-box');
+    if (box) box.checked = on;
+  }
+
   addBot(preferredTeam) {
     if (!this.isHost) return null;
     
@@ -1583,10 +1745,8 @@ export class Game {
     const { humans, bots } = this._occupancy();
     if (!hasRoom(humans, bots) || bots >= MAX_BOTS) return null;
     
-    let r = 0, b = 0;
-    for (const meta of this.playerMeta.values()) {
-      if (meta.team === 'red') r++; else b++;
-    }
+    
+    const { red: r, blue: b } = teamCounts(this.playerMeta.values());
     const team = preferredTeam || (r <= b ? 'red' : 'blue');
     
     
@@ -1636,19 +1796,30 @@ export class Game {
 
   _updateBots(dt) {
     
+    
+    
+    
+    
+    
+    
+    
     const enemyPlayersByTeam = { red: [], blue: [] };
     for (const [pid, rp] of this.remotePlayers.entries()) {
       const meta = this.playerMeta.get(pid);
       if (!meta) continue;
-      enemyPlayersByTeam[meta.team === 'red' ? 'blue' : 'red'].push({
+      const foe = enemyOf(meta.team);
+      if (!foe) continue;
+      enemyPlayersByTeam[foe].push({
         peerId: pid, pos: rp.group.position, team: meta.team,
       });
     }
     
-    const meMeta = { team: this.team };
-    enemyPlayersByTeam[meMeta.team === 'red' ? 'blue' : 'red'].push({
-      peerId: this.myId, pos: this.player.pos, team: meMeta.team,
-    });
+    const myFoe = enemyOf(this.team);
+    if (myFoe) {
+      enemyPlayersByTeam[myFoe].push({
+        peerId: this.myId, pos: this.player.pos, team: this.team,
+      });
+    }
 
     
     
@@ -1707,7 +1878,15 @@ export class Game {
     const nowMs = Date.now();
 
     for (const bot of this.bots.values()) {
-      const enemyColor = bot.team === 'red' ? 'blue' : 'red';
+      
+      
+      
+      
+      
+      
+      
+      
+      const enemyColor = enemyOf(bot.team);
       const ctx = {
         grid: this.grid,
         
@@ -2718,6 +2897,14 @@ export class Game {
         this._updateLobbyBanner();
         break;
       }
+      case MSG.OBSERVE: {
+        
+        
+        
+        
+        this._applyPeerObserve(msg.by, msg.team, msg.was);
+        break;
+      }
       case MSG.FLAG_RETURN:
         
         
@@ -2996,8 +3183,13 @@ export class Game {
     
     
     
-    const canFire = this.isTouch
-      || document.pointerLockElement === this.renderer.domElement;
+    
+    
+    
+    
+    
+    const canFire = !isObserver(this.team) && (this.isTouch
+      || document.pointerLockElement === this.renderer.domElement);
     if (this.input.isDown('fire') && canFire) {
       this._tryFire();
     }
@@ -3024,8 +3216,8 @@ export class Game {
     
     
     
-    if (this.player?.alive && this.aimAssist !== false) {
-      const enemyTeam = this.team === 'red' ? 'blue' : 'red';
+    if (this.player?.alive && this.aimAssist !== false && !isObserver(this.team)) {
+      const enemyTeam = enemyOf(this.team);
       const targets = this._allPlayerRefs()
         .filter((p) => p.peerId !== this.myId && p.team === enemyTeam && p.alive !== false)
         
@@ -3807,7 +3999,12 @@ export class Game {
   _resolveOwnProjectiles() {
     const live = this._ownProjectiles;
     if (!live || !live.length) return;
-    const enemyTeam = this.team === 'red' ? 'blue' : 'red';
+    
+    
+    
+    
+    const enemyTeam = enemyOf(this.team);
+    if (!enemyTeam) return;
 
     
     
@@ -4002,6 +4199,14 @@ export class Game {
   _takeDamage(dmg, byId, weaponId) {
     if (!this.player.alive) return;
     
+    
+    
+    
+    
+    
+    
+    if (isObserver(this.team)) return;
+    
     if (this.matchState !== 'playing') return;
     
     
@@ -4057,7 +4262,11 @@ export class Game {
   _updateFlags() {
     if (this.mode.flags === 'none') return;
     if (!this.player.alive) return;
-    const enemyColor = this.team === 'red' ? 'blue' : 'red';
+    
+    
+    
+    if (isObserver(this.team)) return;
+    const enemyColor = enemyOf(this.team);
     const myColor    = this.team;
 
     
@@ -4349,6 +4558,13 @@ export class Game {
     const occupants = [];
     for (const ref of this._allPlayerRefs()) {
       if (ref.alive === false) continue;
+      
+      
+      
+      
+      
+      
+      if (isObserver(ref.team)) continue;
       if (onHill(this.mode, ref.pos, centre)) occupants.push(ref.team);
     }
     const owner = hillOwner(this.mode, occupants);

@@ -266,6 +266,8 @@ function rememberLocalCharacter() {
 })();
 
 
+
+
 const initialTeam = Math.random() < 0.5 ? 'red' : 'blue';
 state.team = initialTeam;
 selectFrom('teamRow', 'team', initialTeam);
@@ -425,6 +427,22 @@ async function startGame(hostIdToJoin) {
   });
 
   window.__tbGame = game;   
+
+  
+  
+  
+  
+  
+  
+  
+  
+  const observerBox = document.getElementById('observer-box');
+  if (observerBox) {
+    observerBox.checked = state.team === 'observer';
+    observerBox.addEventListener('change', () => {
+      game.setObserverMode(observerBox.checked);
+    });
+  }
 
   rememberLocalCharacter();
 

@@ -59,5 +59,14 @@ export const MSG = Object.freeze({
   STEAK_ATTACH: 'steakAtt',   
   STEAK_TICK:   'steakTick',  
   STEAK_DEATH:  'steakDeath', 
+  
+  
+  
+  
+  
+  
+  
+  
+  OBSERVE:      'observe',    
   POWERUP_PICK: 'powerPick',  
 });

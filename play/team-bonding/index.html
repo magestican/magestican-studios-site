@@ -118,6 +118,10 @@
     button.primary:hover { background: #5a8ce8; }
     button.team-red   { background: #b73a2a; border-color: #d0503e; }
     button.team-blue  { background: #336bbf; border-color: #4f8adb; }
+    
+
+    button.team-watch { background: transparent; border-color: #7f8798; color: #cbd3e1; }
+    button.team-watch.selected { border-color: #f4c95d; color: #f4c95d; }
     button.selected { outline: 3px solid #f4c95d; outline-offset: 2px; }
     input[type=text] { font: inherit; background: #16202c; color: #e8ecf1;
       border: 1px solid #3a475e; border-radius: 8px; padding: 10px 12px; width: 100%; max-width: 260px;
@@ -324,6 +328,25 @@
     }
     #settings-btn:active { background: rgba(244,201,93,0.7) !important; }
     
+    
+
+
+    #observer-banner {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      z-index: 85; display: none; pointer-events: none;
+      background: rgba(6,10,16,0.78); border: 1px solid #f4c95d; border-radius: 999px;
+      color: #f4c95d; font: 700 13px/1 monospace; letter-spacing: .08em;
+      padding: 8px 16px; text-align: center; white-space: nowrap;
+      max-width: calc(100vw - 24px); overflow: hidden; text-overflow: ellipsis;
+    }
+    #observer-banner .obs-keys {
+      display: block; margin-top: 5px; color: #cbd3e1;
+      font: 600 11px/1 monospace; letter-spacing: .02em;
+    }
+    
+
+    @media (max-width: 640px) { #observer-banner .obs-keys { display: none; } }
+
     #settings-modal {
       position: fixed; inset: 0; z-index: 90;
       background: rgba(6,10,16,0.85);
@@ -1007,6 +1030,14 @@
   </div>
 
   
+
+
+  <div id="observer-banner">
+    👁 OBSERVING
+    <span class="obs-keys">WASD fly &middot; Space up &middot; C down &middot; Shift boost &middot; Alt slow</span>
+  </div>
+
+  
   <div id="menu">
     <div class="menu-card">
       <h1>Team <span class="accent">Bonding</span></h1>
@@ -1029,10 +1060,18 @@
       <p class="pick-blurb" id="modeBlurb"></p>
 
       <h2>Pick your team</h2>
+      
+
+
+
+
+
       <div class="row" id="teamRow">
         <button class="team-red"  data-team="red">🚩 Red team</button>
         <button class="team-blue" data-team="blue">🚩 Blue team</button>
+        <button class="team-watch" data-team="observer">👁 Watch</button>
       </div>
+      <p class="pick-blurb" id="teamBlurb">Watching: fly anywhere, through anything, and take no part. A bot takes your seat.</p>
 
       <h2>Player name</h2>
       <div class="row">
@@ -1201,6 +1240,15 @@
       <label class="setting checkbox">
         <input id="music-mute" type="checkbox">
         <span>Mute music</span>
+      </label>
+      
+
+
+
+
+      <label class="setting checkbox">
+        <input id="observer-box" type="checkbox">
+        <span>Observer mode <span style="opacity:.6;font-size:12px">&mdash; watch the match as a free-flying camera. A bot takes your place; you cannot shoot or be shot.</span></span>
       </label>
       <label class="setting checkbox">
         <input id="aim-assist" type="checkbox" checked>

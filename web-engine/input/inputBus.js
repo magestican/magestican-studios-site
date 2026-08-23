@@ -15,6 +15,16 @@ const DEFAULT_BINDINGS = {
   interact:    ['KeyE'],
   scoreboard:  ['Tab'],
   cancel:      ['Escape'],
+  
+  
+  
+  
+  
+  
+  
+  observerDown:  ['KeyC', 'ControlLeft', 'ShiftRight'],
+  observerBoost: ['ShiftLeft'],
+  observerCrawl: ['AltLeft', 'AltRight'],
 };
 
 export class InputBus {

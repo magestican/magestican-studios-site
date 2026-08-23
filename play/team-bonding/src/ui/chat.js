@@ -11,6 +11,8 @@
 
 
 
+import { isObserver } from '../../../../web-engine/match/observer.js';
+
 const MAX_LINES = 7;
 
 
@@ -42,6 +44,17 @@ const FADE_AFTER_MS = 14000;
 
 export function chatLineLabel({ team, localTeam, self = false } = {}) {
   if (self) return { relation: 'you', tag: '» ME' };
+  
+  
+  
+  
+  
+  
+  
+  
+  if (isObserver(team) || isObserver(localTeam)) {
+    return { relation: 'observer', tag: '👁 WATCHING' };
+  }
   if (team && localTeam) {
     return team === localTeam
       ? { relation: 'ally',  tag: '+ US' }
