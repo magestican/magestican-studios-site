@@ -207,6 +207,33 @@ const LOBBY_COUNTDOWN_SECONDS = 5;
 
 export class Game {
   constructor(opts) {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this._peerScale = new Map();        
+    this._steakPoisonBy = new Map();    
     this.opts = opts;
     this.mesh = opts.mesh;
     this.myId = opts.myId;
