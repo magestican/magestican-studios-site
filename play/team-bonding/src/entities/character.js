@@ -10,7 +10,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const GLB_BASE = '/play/team-bondage/assets/hand-drawn/characters/';
+const GLB_BASE = '/play/team-bonding/assets/hand-drawn/characters/';
 const _loader = new GLTFLoader();
 const _cache = new Map();   
 

@@ -18,7 +18,7 @@
 
 export function gameStartParams(game = {}, extra = {}) {
   return {
-    game: extra.game || 'team-bondage',
+    game: extra.game || 'team-bonding',
     map: String(game.mapId || 'unknown'),
     mode: String(game.modeId || 'unknown'),
     bots_count: countBots(game),
@@ -39,7 +39,7 @@ export function matchEndParams(game = {}, { durationSeconds } = {}) {
   const blue = num(game.scores?.blue);
   const winner = red === blue ? 'draw' : (red > blue ? 'red' : 'blue');
   return {
-    game: 'team-bondage',
+    game: 'team-bonding',
     map: String(game.mapId || 'unknown'),
     mode: String(game.modeId || 'unknown'),
     bots_count: countBots(game),

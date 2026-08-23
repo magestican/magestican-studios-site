@@ -12,18 +12,18 @@ import { gameStartParams, watchMatchEnd } from 'arbelo/game-events';
 
 
 
-startVersionChecker({ label: 'A new version of Team Bondage is available.' });
+startVersionChecker({ label: 'A new version of Team Bonding is available.' });
 
 
 
 
-mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Team Bondage (and any join code) on your phone.' });
+mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Team Bonding (and any join code) on your phone.' });
 
 
 
 
 
-initAnalytics({ page: 'team-bondage-game' });
+initAnalytics({ page: 'team-bonding-game' });
 
 const $ = (id) => document.getElementById(id);
 
