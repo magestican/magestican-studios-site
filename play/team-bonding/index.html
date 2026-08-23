@@ -836,8 +836,8 @@
                'Some hardened or enterprise browser profiles disable it.'],
       storage: ['Site data is blocked for this page, and the game stores your name and settings in it.',
                 'Allow cookies / site data for magesticanstudios.com, or leave private browsing.'],
-      slow: ['The game code did not finish loading.',
-             'This is usually a slow or blocked connection rather than your browser. Reloading normally fixes it.']
+      slow: ['The game code did not finish loading, and one automatic retry did not help either.',
+             'Nothing is wrong with your browser. A file failed to download - usually a hiccup at the CDN or a slow connection. Try again in a minute.']
     };
 
     var shown = false;
@@ -879,11 +879,48 @@
 
     var t0 = (new Date()).getTime();
     var timer = W.setInterval(function () {
-      if (W.__tbBooted) { W.clearInterval(timer); return; }
+      if (W.__tbBooted) {
+        W.clearInterval(timer);
+        
+        try { W.sessionStorage.removeItem('tb.bootRetry'); } catch (e) {}
+        return;
+      }
       var ms = (new Date()).getTime() - t0;
       if (ms > 6000 && !W.__tbModules) { W.clearInterval(timer); showGate('modules'); return; }
       if (ms > 6000 && !W.__tbImportMap) { W.clearInterval(timer); showGate('importmap'); return; }
-      if (ms > 25000) { W.clearInterval(timer); showGate('slow'); }
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      if (ms > 9000) {
+        W.clearInterval(timer);
+        var RETRY = 'tb.bootRetry';
+        var tried = '0';
+        try { tried = W.sessionStorage.getItem(RETRY) || '0'; } catch (e) {}
+        if (tried === '0') {
+          try { W.sessionStorage.setItem(RETRY, '1'); } catch (e) {}
+          W.location.reload();
+          return;
+        }
+        showGate('slow');
+      }
     }, 500);
 
     if (D.readyState === 'loading') {

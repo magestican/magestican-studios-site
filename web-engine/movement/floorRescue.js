@@ -45,7 +45,21 @@ export const RESCUE_CLEARANCE = 0.05;
 
 
 
-export const VOID_Y = -4;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const FALL_DEATH_Y = -20;      
 
 
 
@@ -56,7 +70,6 @@ export const VOID_Y = -4;
 export function checkFloor({ centreY, capsuleTotal, groundTop }, {
   sinkTolerance = SINK_TOLERANCE,
   clearance = RESCUE_CLEARANCE,
-  voidY = VOID_Y,
 } = {}) {
   if (!Number.isFinite(centreY) || !Number.isFinite(capsuleTotal)) return null;
 
@@ -65,13 +78,12 @@ export function checkFloor({ centreY, capsuleTotal, groundTop }, {
 
   
   
-  
-  if (centreY < voidY) {
-    const surface = Number.isFinite(groundTop) ? groundTop : 0;
-    return { y: surface + half + clearance, reason: 'void' };
-  }
-
   if (!Number.isFinite(groundTop)) return null;
+
+  
+  
+  
+  if (centreY - half > groundTop) return null;
 
   
   
