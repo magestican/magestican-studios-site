@@ -78,7 +78,7 @@
 
 
 import { loadCareer, leaderboard } from '../stats/careerStats.js';
-import { fetchTopPlayers, isGlobalEnabled } from '../stats/firebaseLeaderboard.js';
+import { fetchTopPlayers, fetchTotals, isGlobalEnabled } from '../stats/firebaseLeaderboard.js';
 
 
 
@@ -185,6 +185,20 @@ export function boardRow(row, index, { myName = '' } = {}) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function summaryModel({
   career = null, globalRows = null, globalMatches = null, globalEnabled = false,
 } = {}) {
@@ -228,7 +242,8 @@ export function summaryModel({
 
 
 export function boardModel({
-  career = null, globalRows = null, globalEnabled = false, myName = '', limit = BOARD_LIMIT,
+  career = null, globalRows = null, globalMatches = null, globalEnabled = false,
+  myName = '', limit = BOARD_LIMIT,
 } = {}) {
   const useGlobal = !!(globalEnabled && Array.isArray(globalRows) && globalRows.length);
   const source = useGlobal ? globalRows : leaderboard(career ?? {}, { limit });
@@ -239,7 +254,15 @@ export function boardModel({
     badge: copy.badge,
     note: copy.boardNote,
     title: 'ALL-TIME LEADERBOARD',
-    matchesLine: `${Number(career?.matches) || 0} ${scopeCopy('device').matchesLabel}`,
+    
+    
+    
+    
+    
+    
+    matchesLine: (globalEnabled && Number.isFinite(globalMatches))
+      ? `${globalMatches} ${scopeCopy('global').matchesLabel}`
+      : `${Number(career?.matches) || 0} ${scopeCopy('device').matchesLabel}`,
     rows: source.slice(0, limit).map((r, i) => boardRow(r, i, { myName })),
     
     
@@ -627,6 +650,7 @@ export function mountLeaderboard({
   storage = (typeof localStorage !== 'undefined' ? localStorage : null),
   globalEnabled = null,
   fetchTop = fetchTopPlayers,
+  fetchTotalsFn = fetchTotals,
   limit = BOARD_LIMIT,
 } = {}) {
   if (!doc || !doc.body) return null;
@@ -634,6 +658,7 @@ export function mountLeaderboard({
 
   const useGlobal = globalEnabled === null ? isGlobalEnabled() : !!globalEnabled;
   let globalRows = null;
+  let globalMatches = null;
   let open = false;
 
   const btn = doc.createElement('button');
@@ -681,7 +706,7 @@ export function mountLeaderboard({
 
   const paintChip = () => {
     const model = summaryModel({
-      career: career(), globalRows, globalMatches: null, globalEnabled: useGlobal,
+      career: career(), globalRows, globalMatches, globalEnabled: useGlobal,
     });
     chipHost.textContent = '';
     const el = renderTree(buildSummaryTree(model), doc);
@@ -697,7 +722,7 @@ export function mountLeaderboard({
 
   const paintPanel = () => {
     const model = boardModel({
-      career: career(), globalRows, globalEnabled: useGlobal, myName, limit,
+      career: career(), globalRows, globalMatches, globalEnabled: useGlobal, myName, limit,
     });
     overlay.textContent = '';
     const el = renderTree(buildPanelTree(model), doc);
@@ -715,11 +740,43 @@ export function mountLeaderboard({
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const loadGlobal = async () => {
-    if (!useGlobal || globalRows) return;
+    if (!useGlobal) return;
     try {
-      const rows = await fetchTop(limit);
-      if (rows && rows.length) { globalRows = rows; paintPanel(); paintChip(); }
+      
+      
+      
+      const [rows, totals] = await Promise.all([
+        globalRows ? Promise.resolve(globalRows) : fetchTop(limit),
+        Number.isFinite(globalMatches) ? Promise.resolve({ matches: globalMatches })
+                                       : fetchTotalsFn(),
+      ]);
+      let changed = false;
+      if (rows && rows.length && rows !== globalRows) { globalRows = rows; changed = true; }
+      
+      
+      
+      if (totals && Number.isFinite(totals.matches) && totals.matches !== globalMatches) {
+        globalMatches = totals.matches; changed = true;
+      }
+      if (changed) { paintChip(); if (open) paintPanel(); }
     } catch (_) {  }
   };
 
@@ -747,5 +804,9 @@ export function mountLeaderboard({
   };
 
   paintChip();
+  
+  
+  
+  loadGlobal();
   return api;
 }
