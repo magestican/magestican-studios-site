@@ -46,6 +46,8 @@ import { createPhysicsWorld } from 'arbelo/physics';
 import { SnowSystem }         from './entities/snow.js';
 import { ChickenPickup }      from './entities/chickenPickup.js';
 import { SteakPickups, SIDES as STEAK_SIDES } from './entities/steakPickups.js';
+import { POISON_DPS } from './entities/poisonSpec.js';
+import { PoisonCloud } from './entities/poisonCloud.js';
 import { PowerUpPickups }   from './entities/powerUps.js';
 import {
   POWER_UPS, POWER_UP_IDS, emptyPowerUpState, applyPowerUp, expirePowerUp,
@@ -1028,6 +1030,34 @@ export class Game {
     }));
     this._announceKill(killer, victim, weapon);
     this._dropCorn(pos || this._posOf(victim));
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  _pokePoisonCloud(peerId) {
+    if (!peerId) return;
+    this._poisonClouds = this._poisonClouds || new Map();
+    let cloud = this._poisonClouds.get(peerId);
+    if (!cloud) {
+      const anchor = peerId === this.myId
+        ? this.player?.group
+        : (this.remotePlayers.get(peerId)?.group || this.bots.get(peerId)?.rp?.group);
+      if (!anchor) return;                       
+      cloud = new PoisonCloud(anchor);
+      this._poisonClouds.set(peerId, cloud);
+    }
+    cloud.poke(performance.now());
+  }
+
+  _tickPoisonClouds(dt) {
+    if (!this._poisonClouds) return;
+    const now = performance.now();
+    for (const c of this._poisonClouds.values()) c.update(now, dt);
   }
 
   
@@ -2394,6 +2424,12 @@ export class Game {
         break;
       case MSG.STEAK_TICK:
         if (msg.victim === this.myId) this._takeDamage(msg.dmg, this._steakPoisonBy?.get(this.myId), 'steak');
+        
+        
+        
+        
+        
+        this._pokePoisonCloud(msg.victim);
         break;
       case MSG.STEAK_DEATH:
         
@@ -2698,6 +2734,7 @@ export class Game {
     
     this._resolveOwnProjectiles();
     this._tickCornDrops(dt);
+    this._tickPoisonClouds(dt);
 
     
     for (const rp of this.remotePlayers.values()) rp.update(dt);
@@ -3181,7 +3218,7 @@ export class Game {
           setTimeout(() => bot.respawn(), 500);
         }
       } else if (victimId === this.myId) {
-        this._takeDamage(3, byId, 'steak');
+        this._takeDamage(POISON_DPS, byId, 'steak');
         if (this.player.hp <= 0) {
           
           
@@ -3193,8 +3230,8 @@ export class Game {
           this._steakPoisonBy.delete(victimId);
         }
       } else {
-        this._broadcast({ t: MSG.HIT, target: victimId, dmg: 2, by: byId, weapon: 'steak' });
-        this._broadcast({ t: MSG.STEAK_TICK, victim: victimId, dmg: 2 });
+        this._broadcast({ t: MSG.HIT, target: victimId, dmg: POISON_DPS, by: byId, weapon: 'steak' });
+        this._broadcast({ t: MSG.STEAK_TICK, victim: victimId, dmg: POISON_DPS });
       }
     }
   }
