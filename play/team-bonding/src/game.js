@@ -729,9 +729,22 @@ export class Game {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     const spawn = isObserver(this.team)
       ? { ...(this.world.hillSpawn ?? this.world.spawns.red), y: (this.world.hillSpawn?.y ?? 0) + 8 }
-      : this.world.spawns[this.team];
+      : (this.world.spawns[this.team] ?? this.world.spawns.red);
     this.physics = await createPhysicsWorld({ grid: this.grid });
     
     
@@ -1579,11 +1592,24 @@ export class Game {
   
   
   
-  _displaceBotFor(joinerTeam) {
+  _displaceBotFor(joinerTeam, { reclaim = false } = {}) {
     if (!this.isHost) return null;
     
     
-    if (this._occupancy().total <= MATCH_CAP) return null;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (!reclaim && this._occupancy().total <= MATCH_CAP) return null;
     
     
     
@@ -1688,7 +1714,10 @@ export class Game {
       if (bot) this._killFeedPush(`a bot took over for the observer`);
       return bot;
     }
-    if (move.displace) return this._displaceBotFor(now);
+    
+    
+    
+    if (move.displace) return this._displaceBotFor(now, { reclaim: true });
     return null;
   }
 
