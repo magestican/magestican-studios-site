@@ -458,7 +458,13 @@ export const MAPS = Object.freeze({
     
     
     terrain: 'rink',
-    centre: { vox: VOX.RINK, style: 'faceoff' },
+    
+    
+    
+    
+    
+    
+    centre: { vox: VOX.WOOD, style: 'bandstand' },
     base: { style: 'pavilion', sign: 'BOX' },
     cover: ['bench', 'planter', 'wall'],
     

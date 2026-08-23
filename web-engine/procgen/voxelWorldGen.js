@@ -23,7 +23,33 @@ import {
 
 
 
-export const WORLD_SIZE = { x: 80, y: 12, z: 80 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const WORLD_SIZE = { x: 96, y: 12, z: 96 };
 export const BASE_SIZE  = { x: 10, y: 4,  z: 10 };
 
 
@@ -170,6 +196,26 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const RINK_MARGIN_FRACTION = 0.175;
+export function rinkPad(size = WORLD_SIZE) {
+  const mx = Math.round(size.x * RINK_MARGIN_FRACTION);
+  const mz = Math.round(size.z * RINK_MARGIN_FRACTION);
+  return { x0: mx, z0: mz, x1: size.x - 1 - mx, z1: size.z - 1 - mz };
+}
+
 function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
   const ambientSpots = [];
   
@@ -234,7 +280,7 @@ function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
     
     
     
-    const pad = { x0: 14, z0: 14, x1: WORLD_SIZE.x - 15, z1: WORLD_SIZE.z - 15 };
+    const pad = rinkPad(WORLD_SIZE);
     grid.fillBox(pad.x0, 0, pad.z0, pad.x1, 0, pad.z1, VOX.RINK);
     const gateX = Math.floor((pad.x0 + pad.x1) / 2);
     const gateZ = Math.floor((pad.z0 + pad.z1) / 2);
@@ -435,11 +481,81 @@ function buildCentre(grid, map, cx, cz) {
       grid.fillBox(cx - 2, 2, cz - 2, cx + 2, 2, cz + 2, vox);
       grid.fillBox(cx - 1, 3, cz - 1, cx + 1, 3, cz + 1, VOX.ICE);
       return 4;
-    case 'faceoff':
+    case 'bandstand': {
       
       
-      grid.fillBox(cx - 3, 0, cz - 3, cx + 3, 0, cz + 3, vox);
-      return 1;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const PLINTH = 3, DECK = 2;
+      grid.fillBox(cx - PLINTH, 1, cz - PLINTH, cx + PLINTH, 1, cz + PLINTH, VOX.PAVER);
+      grid.fillBox(cx - DECK, 2, cz - DECK, cx + DECK, 2, cz + DECK, vox);
+      for (const px of [cx - DECK, cx + DECK]) {
+        for (const pz of [cz - DECK, cz + DECK]) {
+          for (let y = 3; y <= 5; y++) grid.set(px, y, pz, vox);
+        }
+      }
+      
+      
+      
+      const ring = (y, r) => {
+        for (let d = -r; d <= r; d++) {
+          grid.set(cx + d, y, cz - r, vox); grid.set(cx + d, y, cz + r, vox);
+          grid.set(cx - r, y, cz + d, vox); grid.set(cx + r, y, cz + d, vox);
+        }
+      };
+      ring(6, PLINTH); ring(6, DECK);   
+      ring(7, DECK);                    
+      return 3;
+    }
     case 'berg':
       
       grid.fillBox(cx - 2, 1, cz - 2, cx + 2, 1, cz + 2, vox);

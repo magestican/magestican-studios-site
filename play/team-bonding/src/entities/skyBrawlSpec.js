@@ -46,18 +46,34 @@
 
 
 
-export const CAMERA_FAR = 320;
+
+
+
+
+
+
+export const CAMERA_FAR = 340;
 
 export const SKY = Object.freeze({
   
   
   
   
-  radius: 140,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  radius: 165,
   elevationDeg: 30,      
   azimuthDeg: 0,         
                          
-  modelScale: 14,        
+  modelScale: 16.5,      
   
   
   

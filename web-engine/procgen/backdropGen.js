@@ -25,6 +25,25 @@ import { getBackdrop, getSky } from './mapSpec.js';
 
 const TAU = Math.PI * 2;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const AUTHORED_CORNER = Math.hypot(40, 40);
+export const RING_SHIFT = Math.max(
+  0, Math.hypot(WORLD_SIZE.x / 2, WORLD_SIZE.z / 2) - AUTHORED_CORNER);
+
 export const BACKDROP = Object.freeze({
   
   
@@ -32,7 +51,10 @@ export const BACKDROP = Object.freeze({
   
   
   
-  MIN_RADIUS: 78,
+  
+  
+  MIN_RADIUS: 78 + RING_SHIFT,
+  RING_SHIFT,
   
   
   
@@ -46,7 +68,15 @@ export const BACKDROP = Object.freeze({
   
   
   
-  MAX_EXTENT: 250,
+  
+  
+  
+  
+  
+  
+  
+  
+  MAX_EXTENT: 250 + RING_SHIFT,
   
   
   
@@ -181,7 +211,7 @@ function ringWalk(rng, band, place) {
   let run = band.clump ? rng.rangeI(band.clump[0], band.clump[1]) : Infinity;
   while (a < TAU && guard++ < 500) {
     const w = rng.rangeF(band.w[0], band.w[1]);
-    const r = rng.rangeF(band.r[0], band.r[1]);
+    const r = rng.rangeF(band.r[0], band.r[1]) + RING_SHIFT;
     const theta = start + a;
     place({
       theta, r, w,
@@ -450,8 +480,11 @@ function farBarn(em, rng, mark, spot) {
 function fenceLine(em, rng, line, fence) {
   const theta = line.turn * TAU;
   const n = Math.floor((line.to - line.from) / line.postPitch);
+  
+  
+  const from = line.from + RING_SHIFT;
   for (let i = 0; i <= n; i++) {
-    const r = line.from + i * line.postPitch;
+    const r = from + i * line.postPitch;
     
     
     const a = theta + line.drift * (i / Math.max(1, n));
@@ -504,7 +537,7 @@ export function generateBackdrop(mapId, seed = 1) {
   }
 
   for (const mark of spec.marks ?? []) {
-    const spot = { ...anchorAt(mark.turn, mark.r), w: mark.w };
+    const spot = { ...anchorAt(mark.turn, mark.r + RING_SHIFT), w: mark.w };
     if (mark.form === 'silo') silo(em, rng, mark, spot);
     else if (mark.form === 'barn') farBarn(em, rng, mark, spot);
   }

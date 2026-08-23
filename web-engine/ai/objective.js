@@ -50,12 +50,30 @@
 
 
 
+
+
+
+
+import { WORLD_SIZE } from '../procgen/voxelWorldGen.js';
+
 export const OBJECTIVE_FLAG = 'flag';
 export const OBJECTIVE_POWER_UP = 'power-up';
 
 
 
-export const MAX_DETOUR_M = 45;
+
+
+
+
+
+
+
+
+
+
+
+export const DETOUR_FRACTION = 45 / 80;
+export const MAX_DETOUR_M = Math.round(WORLD_SIZE.x * DETOUR_FRACTION);
 
 
 

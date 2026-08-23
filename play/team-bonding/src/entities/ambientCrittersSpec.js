@@ -470,7 +470,17 @@ export const CHEER = Object.freeze({
   
   
   
-  waveSpeed: 45,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  waveSpeed: 54,
   
   
   flipperSwing: 2.15,
