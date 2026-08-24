@@ -14,9 +14,6 @@ const canvas = $('stage');
 const ctx = canvas.getContext('2d');
 
 
-ctx.imageSmoothingEnabled = false;
-
-
 
 const params = new URLSearchParams(globalThis.location.search);
 const seed = params.get('seed') || 'fighter-ex';
@@ -80,5 +77,21 @@ globalThis.addEventListener('keydown', (e) => {
 canvas.width = CANVAS.width;
 canvas.height = CANVAS.height;
 
+
+
+
+
+ctx.imageSmoothingEnabled = false;
+
 trackEvent('game_start', { game: '2d-fighter-ex', seed });
+
+
+
+
+
+
+
+
+renderFrame(ctx, cells, poseAt(0));
+
 requestAnimationFrame(tick);
