@@ -28,6 +28,12 @@ export const MSG = Object.freeze({
   
   
   
+  
+  
+  
+  
+  
+  
   MATCH_RESTART: 'matchRestart', 
   ANAGRAM_START: 'anaStart', 
   ANAGRAM_WIN:   'anaWin',   
@@ -69,4 +75,42 @@ export const MSG = Object.freeze({
   
   OBSERVE:      'observe',    
   POWERUP_PICK: 'powerPick',  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  VOTE_START:   'voteStart',  
+  VOTE_CAST:    'voteCast',   
+  VOTE_RESULT:  'voteResult', 
+  VOTE_STATE:   'voteState',  
 });

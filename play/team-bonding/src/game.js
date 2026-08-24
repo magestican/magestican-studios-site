@@ -5,9 +5,9 @@ import { InputBus } from 'arbelo/input';
 import { SeededRng } from 'arbelo/rng';
 import { VOX } from 'arbelo/voxel';
 import { generateWorld, WORLD_SIZE } from 'arbelo/procgen';
-import { getMap, getSky, frictionFor, DEFAULT_MAP } from 'arbelo/mapspec';
+import { getMap, getSky, frictionFor, DEFAULT_MAP, MAPS, MAP_IDS } from 'arbelo/mapspec';
 import { getMode, DEFAULT_MODE, killScores, hillOwner, onHill, winner as modeWinner,
-         anagramDue } from 'arbelo/modes';
+         anagramDue, MODES, MODE_IDS } from 'arbelo/modes';
 
 import { buildWorldMeshes, hayOpacityFor } from './map/voxelMesh.js';
 import { buildLightRig } from './lightRig.js';
@@ -76,6 +76,18 @@ import { loadCareer, saveCareer, recordMatch, leaderboard } from 'arbelo/career'
 import { publishScores, fetchTopPlayers, isGlobalEnabled, countMatch } from 'arbelo/leaderboard';
 import { emptyTally, tallyKill, scoreboardRows, teamTotals, resultCopy,
          captureFanfare }     from '../../../web-engine/match/matchFlow.js';
+
+
+
+
+
+
+import {
+  VOTE_SECONDS, VOTE_PHASE, VOTE_RESULT_MS,
+  emptyVotes, castVote, clearVote, canVote, eligibleVoters,
+  tally as tallyVotes, resolveVote, remainingSeconds as voteRemaining,
+  resultLine as voteResultLine, rows as voteRows, isRoundOver, rebaseDeadline,
+} from '../../../web-engine/match/mapVote.js';
 
 
 
@@ -283,8 +295,29 @@ export class Game {
 
     this.scores = { red: 0, blue: 0 };
     this.gameOver = false;
-    this.matchState = 'lobby';           
+    
+    
+    
+    
+    
+    
+    
+    
+    this.matchState = 'lobby';
     this._matchEndsAt = 0;               
+    
+    
+    
+    
+    
+    
+    this._votes = emptyVotes();
+    this._voteEndsAt = 0;                
+    this._voteTimer = null;              
+    this._voteResult = null;             
+    this._nextArena = null;              
+    this._arenaPrepFor = null;           
+    this._pendingRestart = null;         
     this.remotePlayers = new Map();      
     this.playerMeta = new Map();         
     this.playerMeta.set(this.myId, {
@@ -663,7 +696,10 @@ export class Game {
     
     
     
-    this.scene.add(buildLightRig(rigFromSky(this.sky)));
+    
+    
+    this._lightRig = buildLightRig(rigFromSky(this.sky));
+    this.scene.add(this._lightRig);
   }
 
   _onResize() {
@@ -679,11 +715,30 @@ export class Game {
 
   
 
-  _buildWorld(seed) {
-    const world = generateWorld(seed, this.mapId);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _buildWorld(seed, prebuilt = null) {
+    const world = prebuilt || generateWorld(seed, this.mapId);
     this.world = world;
     this.grid = world.grid;
-    this.scene.add(buildWorldMeshes(world.grid));
+    const arena = new THREE.Group();
+    arena.name = 'arena';
+    this._arena = arena;
+    this.scene.add(arena);
+    arena.add(buildWorldMeshes(world.grid));
 
     
     
@@ -708,27 +763,63 @@ export class Game {
       this.neutralFlag = true;
     }
     
-    addBarnSigns(this.scene, world);
+    addBarnSigns(arena, world);
 
     
     
     
+    
+    
+    
     import('./entities/mapProps.js')
-      .then(({ scatterMapProps }) => scatterMapProps(this.scene, world))
+      .then(({ scatterMapProps }) => {
+        if (arena === this._arena) scatterMapProps(arena, world);
+      })
       .catch((err) => console.warn('[mapProps] scatter failed:', err));
 
     
     
     
     import('./entities/propKit.js')
-      .then(({ scatterPropKit }) => scatterPropKit(this.scene, world))
+      .then(({ scatterPropKit }) => {
+        if (arena === this._arena) scatterPropKit(arena, world);
+      })
       .catch((err) => console.warn('[propKit] scatter failed:', err));
 
     
     
     if (world.ambientSpots?.length) {
-      this.critters = new AmbientCritters(this.scene, world.ambientSpots, this.map.ambient);
+      this.critters = new AmbientCritters(arena, world.ambientSpots, this.map.ambient);
+    } else {
+      
+      
+      
+      this.critters = null;
     }
+  }
+
+  
+  
+  
+  
+  _buildChickenPickup() {
+    return new ChickenPickup(this._arena || this.scene, this.world.hillSpawn, {
+      onPickup: (peerId) => {
+        
+        this._broadcast({ t: MSG.CHICKEN_PICK, by: peerId, respawnAt: Date.now() + 30000 });
+        this._grantChicken(peerId);
+      },
+    });
+  }
+
+  _buildPowerUpPickups() {
+    return new PowerUpPickups(this._arena || this.scene, this.world.powerUpSpawns, {
+      onPickup: (id, peerId) => {
+        this._broadcast({ t: MSG.POWERUP_PICK, id, by: peerId,
+                          respawnAt: Date.now() + 30000 });
+        this._grantPowerUp(id, peerId);
+      },
+    });
   }
 
   _buildFlagMesh(pos, color) {
@@ -750,7 +841,9 @@ export class Game {
     
     
     group.position.set(pos.x + 0.5, pos.y, pos.z + 0.5);
-    this.scene.add(group);
+    
+    
+    (this._arena || this.scene).add(group);
     return group;
   }
 
@@ -786,7 +879,15 @@ export class Game {
                              { friction: frictionFor(this.mapId), grid: this.grid });
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
-    this.snow    = new SnowSystem(this.scene, this.player.pos, this.grid);
+    
+    
+    
+    
+    
+    
+    
+    
+    this.snow    = new SnowSystem(this._arena || this.scene, this.player.pos, this.grid);
     this.gore    = new GoreSystem(this.scene);
     
     
@@ -794,13 +895,7 @@ export class Game {
     this.viewmodel = new FirstPersonWeapon(this.camera);
     this.hazards = new HazardSystem(this.scene, this.grid);
     
-    this.chickenPickup = new ChickenPickup(this.scene, this.world.hillSpawn, {
-      onPickup: (peerId) => {
-        
-        this._broadcast({ t: MSG.CHICKEN_PICK, by: peerId, respawnAt: Date.now() + 30000 });
-        this._grantChicken(peerId);
-      },
-    });
+    this.chickenPickup = this._buildChickenPickup();
     
     this.chickenAmmo = 0;
     
@@ -828,13 +923,7 @@ export class Game {
     
     
     
-    this.powerUpPickups = new PowerUpPickups(this.scene, this.world.powerUpSpawns, {
-      onPickup: (id, peerId) => {
-        this._broadcast({ t: MSG.POWERUP_PICK, id, by: peerId,
-                          respawnAt: Date.now() + 30000 });
-        this._grantPowerUp(id, peerId);
-      },
-    });
+    this.powerUpPickups = this._buildPowerUpPickups();
     this.powerUpState = emptyPowerUpState();
     
     
@@ -972,6 +1061,11 @@ export class Game {
       if (rp) { rp.destroy(this.scene); this.remotePlayers.delete(e.detail.id); }
       this.playerMeta.delete(e.detail.id);
       
+      
+      
+      clearVote(this._votes, e.detail.id);
+      if (this.matchState === VOTE_PHASE) this._paintVote();
+      
       for (const c of ['red', 'blue']) {
         if (this.flagCarrier[c] === e.detail.id) {
           this._returnFlag(c);
@@ -1075,6 +1169,26 @@ export class Game {
     
     if (this.matchState === 'lobby') this._maybeStartCountdown();
     else if (this.matchState === 'ended') this._armRestartWatchdog(false);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    else if (this.matchState === VOTE_PHASE) {
+      if (this._voteResult) this._broadcastRestart();
+      else this._armVoteClose(this._voteEndsAt);
+    }
 
     
     
@@ -1173,6 +1287,14 @@ export class Game {
     
     const steaks = this._steakStateMsg();
     if (steaks) this.mesh.send(peerId, steaks);
+    
+    
+    
+    
+    
+    
+    const vote = this._voteStateMsg();
+    if (vote) this.mesh.send(peerId, vote);
   }
 
   
@@ -2742,8 +2864,11 @@ export class Game {
   _applyMature(on) {
     
     const oldMesh = this.scene.getObjectByName('voxelWorld');
-    if (oldMesh) this.scene.remove(oldMesh);
-    this.scene.add(buildWorldMeshes(this.grid, { mature: on }));
+    if (oldMesh) oldMesh.parent?.remove(oldMesh);
+    
+    
+    
+    (this._arena || this.scene).add(buildWorldMeshes(this.grid, { mature: on }));
     
     if (this.scene.fog) this.scene.fog.color.setHex(on ? 0xa03a34 : 0x8ec5ff);
     this.renderer.setClearColor(on ? 0xa03a34 : 0x8ec5ff);
@@ -3052,10 +3177,42 @@ export class Game {
         
         
         
-        this._applyRestart(msg.scores);
+        
+        
+        
+        
+        this._applyRestart(msg.scores, { map: msg.mapId, mode: msg.mode });
+        break;
+
+      
+      case MSG.VOTE_START:
+        this._openVote(rebaseDeadline(msg.endsAt));
+        break;
+
+      case MSG.VOTE_CAST:
+        
+        
+        
+        this._applyVoteCast(msg.by || from, { map: msg.map, mode: msg.mode });
+        break;
+
+      case MSG.VOTE_RESULT:
+        this._applyVoteResult({
+          map: msg.map, mode: msg.mode,
+          mapWhy: msg.mapWhy, modeWhy: msg.modeWhy,
+          mapCounts: msg.mapCounts, modeCounts: msg.modeCounts,
+        });
+        break;
+
+      case MSG.VOTE_STATE:
+        
+        
+        
+        this._applyVoteState(msg);
         break;
     }
   }
+
 
   
   
@@ -3189,7 +3346,12 @@ export class Game {
     this.rmbMoveCtl?.poll();
     
     
-    if (this.matchState !== 'playing' && this.matchState !== 'ended') {
+    
+    
+    
+    
+    
+    if (this.matchState !== 'playing' && !isRoundOver(this.matchState)) {
       this._updateLobbyBanner();
       
       if (this.player?.alive && this.physics) this.player.update(dt, this.input);
@@ -4722,7 +4884,12 @@ export class Game {
       
       
       if (this.isHost) {
-        setTimeout(() => this._broadcastRestart(),
+        
+        
+        
+        
+        
+        setTimeout(() => this._startVote(),
                    RESULT_DELAY_MS + INTERMISSION_MS);
       }
       return;
@@ -4817,7 +4984,12 @@ export class Game {
     
     
     
-    if (this.isHost) setTimeout(() => this._broadcastRestart(), RESTART_DELAY_MS);
+    
+    
+    
+    
+    
+    if (this.isHost) setTimeout(() => this._startVote(), RESTART_DELAY_MS);
     const wrap = document.getElementById('anagramWrap');
     const msg  = document.getElementById('anagramMsg');
     const timer = document.getElementById('anagramTimer');
@@ -4845,6 +5017,570 @@ export class Game {
     tickDown();
     if (msg) msg.textContent += '  Next round starting...';
     
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  _startVote() {
+    if (!this.isHost) return;
+    if (!isRoundOver(this.matchState)) return;   
+    const endsAt = Date.now() + VOTE_SECONDS * 1000;
+    this._votes = emptyVotes();
+    this._voteResult = null;
+    this._broadcast({ t: MSG.VOTE_START, endsAt });
+    this._openVote(endsAt);
+    this._armVoteClose(endsAt);
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _armVoteClose(endsAt) {
+    clearTimeout(this._voteTimer);
+    this._voteTimer = setTimeout(() => this._closeVote(),
+                                 Math.max(0, endsAt - Date.now()));
+  }
+
+  
+  
+  _openVote(endsAt) {
+    if (!endsAt) return;
+    this.matchState = VOTE_PHASE;
+    this._voteEndsAt = endsAt;
+    
+    
+    
+    
+    
+    this._hideRoundResult();
+    this._hideIntermission();
+    document.getElementById('anagramWrap')?.classList.remove('visible');
+    this._anagram = null;
+    
+    
+    
+    
+    try { document.exitPointerLock?.(); } catch (_) {  }
+    this._buildVoteOverlay();
+    this._paintVote();
+    
+    
+    
+    
+    const tick = () => {
+      if (this.matchState !== VOTE_PHASE) return;
+      try {
+        const el = document.getElementById('vote-count');
+        if (el) el.textContent = String(voteRemaining(this._voteEndsAt));
+      } catch (_) {  }
+      setTimeout(tick, 200);
+    };
+    tick();
+  }
+
+  
+  
+  
+  
+  _castVote(axis, id) {
+    if (this.matchState !== VOTE_PHASE) return;
+    const mine = this._votes.get(this.myId) || { map: null, mode: null };
+    const ballot = { map: mine.map, mode: mine.mode, [axis]: id };
+    this._applyVoteCast(this.myId, ballot);
+    this._broadcast({ t: MSG.VOTE_CAST, by: this.myId, map: ballot.map, mode: ballot.mode });
+  }
+
+  
+  
+  
+  
+  _applyVoteCast(voterId, ballot) {
+    if (!voterId) return;
+    const meta = this.playerMeta.get(voterId);
+    
+    
+    if (meta && !canVote(meta)) return;
+    castVote(this._votes, voterId, ballot, { mapOptions: MAP_IDS, modeOptions: MODE_IDS });
+    this._paintVote();
+  }
+
+  
+  _closeVote() {
+    if (!this.isHost) return;
+    if (this.matchState !== VOTE_PHASE) return;   
+    
+    
+    
+    
+    
+    if (this._voteResult) return;
+    clearTimeout(this._voteTimer);
+    this._voteTimer = null;
+    
+    
+    
+    
+    
+    
+    const roll = (n) => Math.floor(this.rngShots.next() * n) % n;
+    const r = resolveVote({
+      votes: this._votes, mapOptions: MAP_IDS, modeOptions: MODE_IDS, roll,
+    });
+    const result = {
+      map: r.map.id, mode: r.mode.id,
+      mapWhy: r.map.reason, modeWhy: r.mode.reason,
+      mapCounts: r.map.counts, modeCounts: r.mode.counts,
+    };
+    this._broadcast({ t: MSG.VOTE_RESULT, ...result });
+    this._applyVoteResult(result);
+  }
+
+  
+  
+  _applyVoteResult(result) {
+    if (!result || !result.map || !result.mode) return;
+    this._voteResult = { map: result.map, mode: result.mode };
+    
+    
+    
+    
+    
+    this._prepareArena(result.map);
+    this._paintVoteResult(result);
+    if (this.isHost) setTimeout(() => this._broadcastRestart(), VOTE_RESULT_MS);
+  }
+
+  
+  _voteStateMsg() {
+    if (this.matchState !== VOTE_PHASE || !this._voteEndsAt) return null;
+    return {
+      t: MSG.VOTE_STATE,
+      endsAt: this._voteEndsAt,
+      votes: [...this._votes.entries()],
+    };
+  }
+
+  _applyVoteState(msg) {
+    if (!msg || !msg.endsAt) return;
+    
+    
+    for (const [pid, ballot] of msg.votes || []) this._applyVoteCast(pid, ballot);
+    this._openVote(rebaseDeadline(msg.endsAt));
+  }
+
+  _hideVote() {
+    clearTimeout(this._voteTimer);
+    this._voteTimer = null;
+    this._voteEndsAt = 0;
+    document.getElementById('vote-overlay')?.remove();
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  _buildVoteOverlay() {
+    document.getElementById('vote-overlay')?.remove();
+    const root = document.createElement('div');
+    root.id = 'vote-overlay';
+    root.innerHTML = `
+      <div class="vote-card">
+        <div class="vote-head">
+          <span class="vote-kicker">NEXT ROUND</span>
+          <span class="vote-count" id="vote-count">${VOTE_SECONDS}</span>
+        </div>
+        <div class="vote-lede" id="vote-lede">Vote for the next map and mode.</div>
+        <div class="vote-axis">
+          <div class="vote-axis-title">MAP</div>
+          <div class="vote-row" id="vote-map"></div>
+        </div>
+        <div class="vote-axis">
+          <div class="vote-axis-title">MODE</div>
+          <div class="vote-row" id="vote-mode"></div>
+        </div>
+        <div class="vote-foot" id="vote-foot"></div>
+      </div>`;
+    document.body.appendChild(root);
+    this._injectVoteStyles();
+    const fill = (rowId, axis, entries) => {
+      const row = root.querySelector(rowId);
+      if (!row) return;
+      for (const e of entries) {
+        const btn = document.createElement('button');
+        btn.className = 'vote-opt';
+        btn.dataset.axis = axis;
+        btn.dataset.id = e.id;
+        btn.title = e.blurb || e.name;
+        btn.innerHTML = `<span class="vo-emoji">${e.emoji || '·'}</span>`
+          + `<span class="vo-lbl">${escapeHtml(e.short || e.name || e.id)}</span>`
+          + `<span class="vo-n">0</span>`
+          + `<span class="vo-bar"><i></i></span>`;
+        
+        
+        
+        
+        const pick = (ev) => { if (ev) ev.preventDefault(); this._castVote(axis, e.id); };
+        btn.addEventListener('click', pick);
+        btn.addEventListener('touchstart', pick, { passive: false });
+        row.appendChild(btn);
+      }
+    };
+    fill('#vote-map', 'map', MAP_IDS.map((id) => MAPS[id]).filter(Boolean));
+    fill('#vote-mode', 'mode', MODE_IDS.map((id) => MODES[id]).filter(Boolean));
+  }
+
+  
+  
+  
+  _paintVote() {
+    const root = document.getElementById('vote-overlay');
+    if (!root) return;
+    const paint = (axis, options) => {
+      const counts = tallyVotes(this._votes, axis, options);
+      const mine = this._votes.get(this.myId)?.[axis] || null;
+      for (const r of voteRows(counts, options)) {
+        const btn = root.querySelector(`.vote-opt[data-axis="${axis}"][data-id="${r.id}"]`);
+        if (!btn) continue;
+        btn.classList.toggle('mine', r.id === mine);
+        const n = btn.querySelector('.vo-n');
+        if (n) n.textContent = String(r.votes);
+        const bar = btn.querySelector('.vo-bar > i');
+        if (bar) bar.style.width = `${Math.round(r.share * 100)}%`;
+      }
+    };
+    paint('map', MAP_IDS);
+    paint('mode', MODE_IDS);
+    const foot = document.getElementById('vote-foot');
+    if (foot) {
+      
+      
+      const eligible = eligibleVoters(this.playerMeta.values());
+      foot.textContent = `${this._votes.size} of ${eligible} voted`
+        + (this._votes.size === 0 ? ' - nobody has voted, so it will be random' : '');
+    }
+  }
+
+  
+  
+  
+  _paintVoteResult(result) {
+    const root = document.getElementById('vote-overlay');
+    if (!root) return;
+    this._paintVote();
+    for (const btn of root.querySelectorAll('.vote-opt')) {
+      btn.classList.toggle('won',
+        btn.dataset.id === (btn.dataset.axis === 'map' ? result.map : result.mode));
+      btn.disabled = true;
+    }
+    const mapName = MAPS[result.map]?.name || result.map;
+    const modeName = MODES[result.mode]?.name || result.mode;
+    const lede = document.getElementById('vote-lede');
+    if (lede) lede.textContent = `Next up: ${mapName} · ${modeName}`;
+    const foot = document.getElementById('vote-foot');
+    if (foot) {
+      foot.textContent =
+        `${voteResultLine({ id: result.map, reason: result.mapWhy,
+                            tied: result.mapTied || [], counts: result.mapCounts || {} }, 'map')}  `
+      + `${voteResultLine({ id: result.mode, reason: result.modeWhy,
+                            tied: result.modeTied || [], counts: result.modeCounts || {} }, 'mode')}`;
+    }
+    const count = document.getElementById('vote-count');
+    if (count) count.textContent = '★';
+  }
+
+  _injectVoteStyles() {
+    if (document.getElementById('vote-styles')) return;
+    const st = document.createElement('style');
+    st.id = 'vote-styles';
+    
+    
+    st.textContent = `
+      #vote-overlay { position:fixed; inset:0; z-index:9997; display:flex;
+        align-items:center; justify-content:center; padding:12px;
+        background:rgba(6,10,18,0.72); backdrop-filter:blur(2px);
+        font-family:system-ui,-apple-system,'Segoe UI',sans-serif; }
+      #vote-overlay .vote-card { width:min(560px,100%); max-height:92vh; overflow-y:auto;
+        background:#111a28; border:2px solid #2c3f5a; border-radius:14px;
+        padding:14px 14px 12px; color:#e8f3ff; box-shadow:0 18px 60px rgba(0,0,0,0.55); }
+      #vote-overlay .vote-head { display:flex; align-items:center;
+        justify-content:space-between; gap:10px; }
+      #vote-overlay .vote-kicker { font-size:12px; letter-spacing:2px; color:#8fb4e0; }
+      #vote-overlay .vote-count { font-size:30px; font-weight:800; color:#ffd76a;
+        min-width:46px; text-align:right; font-variant-numeric:tabular-nums; }
+      #vote-overlay .vote-lede { font-size:15px; margin:4px 0 10px; color:#cfe3ff; }
+      #vote-overlay .vote-axis-title { font-size:11px; letter-spacing:2px;
+        color:#7f9dc0; margin:8px 0 5px; }
+      #vote-overlay .vote-row { display:flex; flex-wrap:wrap; gap:6px; }
+      #vote-overlay .vote-opt { position:relative; flex:1 1 118px; min-width:104px;
+        min-height:52px; display:flex; align-items:center; gap:7px;
+        padding:8px 9px; border-radius:10px; cursor:pointer;
+        background:#18243a; color:#e8f3ff; border:2px solid #2b3d59;
+        font-size:13px; text-align:left; overflow:hidden; }
+      #vote-overlay .vote-opt .vo-emoji { font-size:19px; line-height:1; }
+      #vote-overlay .vote-opt .vo-lbl { flex:1 1 auto; font-weight:600; }
+      #vote-overlay .vote-opt .vo-n { font-weight:800; color:#ffd76a;
+        font-variant-numeric:tabular-nums; }
+      #vote-overlay .vote-opt .vo-bar { position:absolute; left:0; right:0; bottom:0;
+        height:3px; background:transparent; }
+      #vote-overlay .vote-opt .vo-bar > i { display:block; height:100%; width:0;
+        background:#4f8adb; transition:width 140ms linear; }
+      #vote-overlay .vote-opt.mine { border-color:#ffd76a; background:#1e2c44; }
+      #vote-overlay .vote-opt.won { border-color:#7fe0a0; background:#1b3327; }
+      #vote-overlay .vote-opt:disabled { cursor:default; }
+      #vote-overlay .vote-foot { margin-top:10px; font-size:12px; color:#9fb8d6;
+        min-height:16px; }`;
+    document.head.appendChild(st);
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _prepareArena(mapId) {
+    if (!mapId || mapId === this.mapId) {
+      
+      this._nextArena = { mapId: mapId || this.mapId, world: null, physics: null };
+      return;
+    }
+    if (this._nextArena?.mapId === mapId) return;      
+    if (this._arenaPrepFor === mapId) return;          
+    this._arenaPrepFor = mapId;
+    this._nextArena = null;
+    let world;
+    try {
+      
+      
+      
+      
+      world = generateWorld(this.seed, mapId);
+    } catch (err) {
+      console.error('[vote] could not generate', mapId, err);
+      this._arenaPrepFor = null;
+      this._drainPendingRestart(true);
+      return;
+    }
+    createPhysicsWorld({ grid: world.grid })
+      .then((physics) => {
+        this._arenaPrepFor = null;
+        this._nextArena = { mapId, world, physics };
+        this._drainPendingRestart(false);
+      })
+      .catch((err) => {
+        
+        
+        
+        
+        
+        console.error('[vote] could not build physics for', mapId, err);
+        this._arenaPrepFor = null;
+        this._drainPendingRestart(true);
+      });
+  }
+
+  
+  
+  _drainPendingRestart(giveUp) {
+    const parked = this._pendingRestart;
+    if (!parked) return;
+    this._pendingRestart = null;
+    if (giveUp) {
+      this._killFeedPush('Could not load the voted map - staying here.');
+      this._applyRestart(parked.scores, { map: this.mapId, mode: parked.next?.mode });
+      return;
+    }
+    this._applyRestart(parked.scores, parked.next);
+  }
+
+  
+  
+  _applyNextArena(next) {
+    if (!next) return;
+    
+    
+    
+    
+    const modeChanged = !!(next.mode && next.mode !== this.modeId && MODES[next.mode]);
+    if (modeChanged) {
+      this.modeId = next.mode;
+      this.mode = getMode(next.mode);
+      this._hold = { red: 0, blue: 0 };
+    }
+    const prepared = this._nextArena;
+    this._nextArena = null;
+    const mapChanged = !!(next.map && next.map !== this.mapId
+                          && prepared?.world && prepared?.physics
+                          && prepared.mapId === next.map);
+    if (!mapChanged) {
+      
+      
+      
+      if (modeChanged) {
+        this._rebuildArenaMeshes(this.world);
+        this._killFeedPush(`Next mode: ${MODES[this.modeId]?.name || this.modeId}`);
+      }
+      return;
+    }
+    const oldPhysics = this.physics;
+    this.mapId = prepared.mapId;
+    this.map = getMap(this.mapId);
+    this.sky = getSky(this.mapId);
+    
+    
+    
+    
+    try {
+      if (this.scene.fog) {
+        this.scene.fog.color.set(this.sky.fog);
+        this.scene.fog.near = this.sky.fogNear;
+        this.scene.fog.far = this.sky.fogFar;
+      }
+      this.scene.background = buildSkybox(this.sky);
+      this.renderer.setClearColor(new THREE.Color(this.sky.fog));
+      if (this._lightRig) this.scene.remove(this._lightRig);
+      this._lightRig = buildLightRig(rigFromSky(this.sky));
+      this.scene.add(this._lightRig);
+    } catch (err) { console.warn('[vote] sky swap failed', err); }
+    
+    this.physics = prepared.physics;
+    this._rebuildArenaMeshes(prepared.world);
+    
+    
+    
+    const spawn = isObserver(this.team)
+      ? { ...(this.world.hillSpawn ?? this.world.spawns.red),
+          y: (this.world.hillSpawn?.y ?? 0) + 8 }
+      : (this.world.spawns[this.team] ?? this.world.spawns.red);
+    this.player?.rebindWorld(this.physics, spawn,
+      { grid: this.grid, friction: frictionFor(this.mapId) });
+    
+    
+    
+    for (const bot of this.bots.values()) {
+      try {
+        bot.world = this.world;
+        bot.respawn();
+      } catch (_) {  }
+    }
+    
+    
+    try { if (this.hazards) this.hazards.grid = this.grid; } catch (_) {}
+    
+    
+    
+    
+    try { oldPhysics?.world?.free?.(); } catch (_) {}
+    
+    
+    
+    this.audio?.reseed?.({ map: this.mapId, seed: this.seed });
+    this._killFeedPush(`New arena: ${MAPS[this.mapId]?.name || this.mapId}`
+                       + ` - ${MODES[this.modeId]?.name || this.modeId}`);
+  }
+
+  
+  
+  
+  
+  
+  
+  _disposeArena() {
+    const arena = this._arena;
+    if (!arena) return;
+    this._arena = null;
+    this.scene.remove(arena);
+    arena.traverse((o) => {
+      try {
+        o.geometry?.dispose?.();
+        const m = o.material;
+        if (Array.isArray(m)) for (const one of m) one?.dispose?.();
+        else m?.dispose?.();
+      } catch (_) {  }
+    });
+    
+    
+    
+    
+    this.critters = null;
+    this.snow = null;
+    this.chickenPickup = null;
+    this.powerUpPickups = null;
+  }
+
+  
+  
+  _rebuildArenaMeshes(world) {
+    this._disposeArena();
+    this._buildWorld(this.seed, world);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (this.player) {
+      try {
+        this.snow = new SnowSystem(this._arena || this.scene, this.player.pos, this.grid);
+      } catch (err) { console.warn('[arena] snow rebuild failed', err); }
+    }
+    if (this.world?.hillSpawn) {
+      try { this.chickenPickup = this._buildChickenPickup(); }
+      catch (err) { console.warn('[arena] chicken rebuild failed', err); }
+    }
+    if (this.world?.powerUpSpawns) {
+      try { this.powerUpPickups = this._buildPowerUpPickups(); }
+      catch (err) { console.warn('[arena] power-up rebuild failed', err); }
+    }
   }
 
   
@@ -5109,21 +5845,41 @@ export class Game {
   _armRestartWatchdog(steal) {
     if (!this.isHost) return;
     clearTimeout(this._restartWatchdog);
+    
+    
+    
+    
+    
+    const vote = VOTE_SECONDS * 1000 + VOTE_RESULT_MS;
     const sequence = steal
-      ? RESULT_DELAY_MS + INTERMISSION_MS + ANAGRAM_SECONDS * 1000 + RESTART_DELAY_MS
-      : RESULT_DELAY_MS + INTERMISSION_MS;
+      ? RESULT_DELAY_MS + INTERMISSION_MS + ANAGRAM_SECONDS * 1000 + RESTART_DELAY_MS + vote
+      : RESULT_DELAY_MS + INTERMISSION_MS + vote;
     this._restartWatchdog = setTimeout(() => {
-      if (this.matchState !== 'ended') return;   
+      
+      
+      if (!isRoundOver(this.matchState)) return;   
       this._broadcastRestart();
     }, sequence + RESTART_WATCHDOG_SLACK_MS);
   }
 
   _broadcastRestart() {
     if (!this.isHost) return;
-    if (this.matchState !== 'ended') return;   
+    if (!isRoundOver(this.matchState)) return;   
     const scores = { red: 0, blue: 0 };
-    this._broadcast({ t: MSG.MATCH_RESTART, scores, startsAt: Date.now() });
-    this._applyRestart(scores);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const next = this._voteResult || { map: this.mapId, mode: this.modeId };
+    this._voteResult = null;
+    this._broadcast({ t: MSG.MATCH_RESTART, scores, startsAt: Date.now(),
+                      mapId: next.map, mode: next.mode });
+    this._applyRestart(scores, next);
   }
 
   
@@ -5154,10 +5910,51 @@ export class Game {
   
   
   
-  _applyRestart(scores) {
-    if (this.matchState !== 'ended') return;   
+  _applyRestart(scores, next = null) {
+    if (!isRoundOver(this.matchState)) return;   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const wantMap = next?.map || this.mapId;
+    if (wantMap !== this.mapId) {
+      if (this._nextArena?.mapId !== wantMap) {
+        this._pendingRestart = { scores, next };
+        this._prepareArena(wantMap);
+        return;
+      }
+    }
+    this._pendingRestart = null;
     clearTimeout(this._restartWatchdog);
     try {
+      
+      
+      
+      this._hideVote();
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (!this.isTouch) {
+        try { this.renderer?.domElement?.requestPointerLock?.()?.catch?.(() => {}); }
+        catch (_) {  }
+      }
+      this._applyNextArena(next);
       
       
       
@@ -5180,6 +5977,7 @@ export class Game {
       this._updateScoreUi();
       if (this._scoreboardOpen) this._paintScoreboard(true);
 
+      
       
       
       for (const c of flagKeysFor(this.mode)) {

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2D Fighter EX — an animation experiment you can play with</title>
+  <meta name="description" content="2D Fighter EX is a free browser experiment from Magestican Studios: a fight animation recovered frame by frame from a screen recording, then replayed with procedurally generated tile art. Scrub it, slow it down, reseed the forest. No download, no account.">
+  <meta name="keywords" content="2d fighter ex, animation experiment, browser animation, procedural tile art, free browser game, magestican studios, frame by frame animation recovery">
+  <link rel="canonical" href="https://magesticanstudios.com/2d-fighter-ex.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="2D Fighter EX — an animation experiment you can play with">
+  <meta property="og:description" content="A fight recovered frame by frame from a recording, replayed in procedurally generated tile art. Scrub it, slow it down, reseed the forest.">
+  <meta property="og:url" content="https://magesticanstudios.com/2d-fighter-ex.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/fighter-ex-preview.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="2D Fighter EX — an animation experiment you can play with">
+  <meta name="twitter:description" content="84 recovered frames, replayed in procedural tile art. Scrub it, slow it down, reseed the forest.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/fighter-ex-preview.png">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "2D Fighter EX",
+    "url": "https://magesticanstudios.com/2d-fighter-ex.html",
+    "description": "An animation experiment. A fight animation was recovered frame by frame from a screen recording, reduced to timing, camera and position data, and is replayed in the browser with procedurally generated tile art in the palette of Aracstory.",
+    "image": "https://magesticanstudios.com/assets/fighter-ex-preview.png",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Experimental", "Animation", "Fighting"],
+    "gamePlatform": ["Web browser"],
+    "playMode": "SinglePlayer",
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": "en",
+    "datePublished": "2026",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">Magestican Studios</a>
+    <nav>
+      <a href="team-bonding.html">Team Bonding</a>
+      <a href="zelakas-in-space.html">Zelakas In Space</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>2D Fighter EX</h1>
+      <p class="lede">EX is short for experiment. A fight animation, recovered
+        frame by frame from a screen recording, replayed by a browser that draws
+        it out of coloured rectangles.</p>
+      <p><a class="cta" href="play/2d-fighter-ex/">Open the experiment</a></p>
+      <img src="assets/fighter-ex-preview.png" width="1200" height="630"
+           alt="Two blocky fighters mid-exchange on a green tiled forest stage, a white impact square between them."
+           style="max-width:100%;height:auto">
+    </section>
+
+    <section>
+      <h2>What happened</h2>
+      <p>Someone made a fight animation in Pivot Animator. The project file is
+        gone — all that survived was a screen recording of it playing.</p>
+      <p>So it was rebuilt from the pixels. Every frame of the recording was
+        registered against the first one, the moving figures were separated from
+        the backdrop, and what came out the other side was the thing underneath
+        the video: <strong>84 frames</strong> of timing, a camera track that
+        pushes in to just over 2&times;, and where each fighter stood on every
+        one of them.</p>
+      <p>None of the original art could be kept — it was not ours to use. What
+        was worth keeping was the performance.</p>
+    </section>
+
+    <section>
+      <h2>Why it looks like this</h2>
+      <p>The art comes from <strong>Aracstory</strong>, another of our projects —
+        a seeded dungeon crawler that draws its entire world as flat coloured
+        rectangles on a grid. It has no character art at all, so there was
+        nothing to copy across. What it does have is a palette and a way of
+        drawing, and both of those transplant cleanly.</p>
+      <p>So the fighters are built out of rectangles in Aracstory's own colour
+        constants, and the forest is generated the way Aracstory generates a
+        dungeon: from a seed. Change the seed and you get a different forest with
+        the same fight in it.</p>
+      <p>Nothing here is hand-posed. Every position, every hold and every camera
+        move is the measurement taken off the original recording.</p>
+    </section>
+
+    <section>
+      <h2>Things to try</h2>
+      <ul>
+        <li>Slow it to 0.1&times; and watch the hold before the throw — it is the
+          longest frame in the piece, and it is the reason that beat lands.</li>
+        <li>Step through frame 53. That is the one the heavy hit connects on.</li>
+        <li>Hit <em>New forest</em> a few times. The fight never changes.</li>
+      </ul>
+      <p><a class="cta" href="play/2d-fighter-ex/">Open the experiment</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="/">Magestican Studios</a> &middot;
+       <a href="privacy.html">Privacy</a> &middot;
+       <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from './web-engine/analytics/analytics.js';
+    initAnalytics({ page: '2d-fighter-ex-landing' });
+    trackPlayClicks();
+  </script>
+</body>
+</html>

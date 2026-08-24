@@ -95,6 +95,48 @@ export class Player {
 
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  rebindWorld(physics, spawn, opts = {}) {
+    this.physics = physics;
+    this.spawn = { ...spawn };
+    
+    
+    
+    if (opts.grid !== undefined) this.grid = opts.grid;
+    
+    
+    if (opts.friction != null) this.groundFriction = opts.friction;
+    
+    
+    this.sizeScale = 1;
+    this.capsule = capsuleFor(1);
+    const { body, collider } = physics.addCharacter({
+      position: { x: spawn.x, y: spawn.y + 1.0, z: spawn.z },
+      halfHeight: this.capsule.halfHeight,
+      radius: this.capsule.radius,
+    });
+    
+    this.body = body;
+    this.collider = collider;
+    this.respawn();
+  }
+
+  
+  
   setSizeScale(scale) {
     if (Math.abs(scale - this.sizeScale) < 1e-6) return;
     const next = capsuleFor(scale);

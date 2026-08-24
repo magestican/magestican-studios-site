@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play 2D Fighter EX — a rebuilt fight in your browser</title>
+  <meta name="description" content="2D Fighter EX is a free browser experiment: a fight animation rebuilt frame by frame from a recovered recording, replayed with procedurally generated Aracstory tile art. Scrub it, slow it down, reseed the forest. No download, no account.">
+  <meta name="keywords" content="2d fighter ex, browser animation experiment, procedural pixel fighter, free browser game no download, aracstory tile art">
+  <link rel="canonical" href="https://magesticanstudios.com/play/2d-fighter-ex/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play 2D Fighter EX — a rebuilt fight in your browser">
+  <meta property="og:description" content="A fight animation recovered frame by frame and replayed in procedurally generated tile art. Scrub it, slow it down, reseed the forest.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/2d-fighter-ex/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/fighter-ex-preview.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play 2D Fighter EX — a rebuilt fight in your browser">
+  <meta name="twitter:description" content="84 recovered frames, replayed in procedural tile art. Scrub it, slow it down, reseed the forest.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/fighter-ex-preview.png">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="modulepreload" href="../../web-engine/analytics/analytics.js">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "2D Fighter EX",
+    "url": "https://magesticanstudios.com/play/2d-fighter-ex/",
+    "description": "An animation experiment. A fight was recovered frame by frame from a screen recording, reduced to timing, camera and position data, and is replayed here with procedurally generated tile art in the palette of Aracstory.",
+    "image": "https://magesticanstudios.com/assets/fighter-ex-preview.png",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Experimental", "Animation", "Fighting"],
+    "gamePlatform": ["Web browser"],
+    "playMode": "SinglePlayer",
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": "en",
+    "datePublished": "2026",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+  <style>
+    :root {
+      --bg: #14210f;
+      --panel: #1e2b1f;
+      --ink: #dfe8d6;
+      --muted: #9aab90;
+      --accent: #b7e56a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh; padding: 16px;
+    }
+    header { text-align: center; margin-bottom: 12px; }
+    h1 { font-size: 1.35rem; margin: 0 0 2px; letter-spacing: .06em; text-transform: uppercase; }
+    header p { margin: 0; color: var(--muted); font-size: .85rem; }
+    .frame {
+      border: 2px solid var(--panel); background: #000; line-height: 0;
+      max-width: 100%; overflow: hidden;
+    }
+    canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+    .controls {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      justify-content: center; margin-top: 12px; max-width: 760px;
+    }
+    button {
+      background: var(--panel); color: var(--ink); border: 1px solid #2f4030;
+      padding: 7px 14px; border-radius: 4px; cursor: pointer; font: inherit; font-size: .9rem;
+    }
+    button:hover { border-color: var(--accent); }
+    label { color: var(--muted); font-size: .85rem; display: flex; align-items: center; gap: 6px; }
+    .readout {
+      display: flex; gap: 18px; margin-top: 10px; color: var(--muted);
+      font-size: .8rem; font-variant-numeric: tabular-nums;
+    }
+    .readout b { color: var(--ink); font-weight: 600; }
+    footer { margin-top: 18px; font-size: .8rem; color: var(--muted); text-align: center; }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>2D Fighter EX</h1>
+    <p>EX is for experiment. 84 recovered frames, replayed in generated tile art.</p>
+  </header>
+
+  <div class="frame">
+    <canvas id="stage" width="502" height="271" aria-label="A two-fighter animation drawn in coloured blocks"></canvas>
+  </div>
+
+  <div class="controls">
+    <button id="playpause" aria-pressed="false">Pause</button>
+    <button id="step">Step</button>
+    <button id="reseed">New forest</button>
+    <label>Speed
+      <input id="speed" type="range" min="0.1" max="2" step="0.05" value="1">
+      <span id="speedout">1.00x</span>
+    </label>
+  </div>
+
+  <div class="readout">
+    <span>frame <b id="frame">1</b>/84</span>
+    <span><b id="clock">0.00s</b></span>
+    <span>beat <b id="beat">-</b></span>
+    <span>seed <b id="seed">-</b></span>
+  </div>
+
+  <footer>
+    <p>Space to play or pause. Arrow keys to step.<br>
+    <a href="../../2d-fighter-ex.html">What this is</a> &middot;
+    <a href="../../">Magestican Studios</a></p>
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
