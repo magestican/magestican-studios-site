@@ -64,6 +64,53 @@ export const MAX_STEP_UP = 1;
 export const MAX_DROP = 3;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const JUMP_UP = 2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const COST_JUMP = 90;
+
+
 const DEFAULT_SIZE = 80;
 const DEFAULT_HEIGHT = 12;
 
@@ -139,11 +186,16 @@ export function surfaceYAt(grid, x, z, maxY = DEFAULT_HEIGHT) {
 
 
 export class NavGraph {
-  constructor(grid) {
+  constructor(grid, opts = {}) {
     this.grid = grid;
     this.sx = grid.sx ?? DEFAULT_SIZE;
     this.sz = grid.sz ?? DEFAULT_SIZE;
     this.maxY = grid.sy ?? DEFAULT_HEIGHT;
+    
+    
+    
+    const j = opts.jump ?? grid.navJump ?? 0;
+    this.jumpUp = Number.isFinite(j) && j > MAX_STEP_UP ? Math.min(j, JUMP_UP) : 0;
     
     this.surface = new Int8Array(this.sx * this.sz);
     for (let z = 0; z < this.sz; z++) {
@@ -181,6 +233,27 @@ export class NavGraph {
     const a = this.surface[i], b = this.surface[j];
     return a >= 0 && b >= 0 && Math.abs(a - b) <= MAX_STEP_UP;
   }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _jumpLinked(i, j) {
+    if (!this.jumpUp) return false;
+    const a = this.surface[i], b = this.surface[j];
+    if (a < 0 || b < 0) return false;
+    const d = Math.abs(a - b);
+    return d > MAX_STEP_UP && d <= this.jumpUp;
+  }
+
+  
+  get jumps() { return this.jumpUp > 0; }
 
   
   fieldFor(goalX, goalZ) {
@@ -252,14 +325,23 @@ export class NavGraph {
           const [dx, dz, cost] = NEIGHBOURS[nb];
           const nx = x + dx, nz = z + dz;
           const j = this.idx(nx, nz);
-          if (j < 0 || !this._linked(i, j)) continue;
-          
-          
-          if (dx && dz) {
+          if (j < 0) continue;
+          let extra = 0;
+          if (!this._linked(i, j)) {
+            
+            
+            
+            
+            if (dx && dz) continue;
+            if (!this._jumpLinked(i, j)) continue;
+            extra = COST_JUMP;
+          } else if (dx && dz) {
+            
+            
             const a = this.idx(x + dx, z), b = this.idx(x, z + dz);
             if (a < 0 || b < 0 || !this._linked(i, a) || !this._linked(i, b)) continue;
           }
-          const nd = d + cost;
+          const nd = d + cost + extra;
           if (nd >= INF || nd >= dist[j]) continue;
           dist[j] = nd;
           (buckets[nd] ??= []).push(j);
@@ -280,14 +362,31 @@ export class NavGraph {
     for (let nb = 0; nb < NEIGHBOURS.length; nb++) {
       const [dx, dz] = NEIGHBOURS[nb];
       const j = this.idx(x + dx, z + dz);
-      if (j < 0 || !this._linked(i, j)) continue;
-      if (dx && dz) {
+      if (j < 0) continue;
+      if (!this._linked(i, j)) {
+        
+        
+        
+        if (dx && dz) continue;
+        if (!this._jumpLinked(i, j)) continue;
+      } else if (dx && dz) {
         const a = this.idx(x + dx, z), b = this.idx(x, z + dz);
         if (a < 0 || b < 0 || !this._linked(i, a) || !this._linked(i, b)) continue;
       }
       if (field.dist[j] < bestD) { bestD = field.dist[j]; best = j; }
     }
     return best;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  needsJump(i, j) {
+    return !this._linked(i, j) && this._jumpLinked(i, j);
   }
 
   
@@ -480,6 +579,16 @@ let graphBuilds = 0;
 
 export function navGraphFor(grid) {
   let g = GRAPHS.get(grid);
+  
+  
+  
+  
+  
+  
+  
+  
+  const want = grid?.navJump ?? 0;
+  if (g && (g.jumpUp > 0) !== (want > MAX_STEP_UP)) g = null;
   if (!g) { g = new NavGraph(grid); GRAPHS.set(grid, g); graphBuilds++; }
   return g;
 }

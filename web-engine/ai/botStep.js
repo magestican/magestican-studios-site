@@ -147,6 +147,44 @@ const FALL_MAX_SPEED = 14.0;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+const JUMP_RISE = 2.4;           
+
+
+
+
+export const JUMP_SPEED = Math.sqrt(2 * FALL_ACCEL * JUMP_RISE);
+
+
+
+
+
+const JUMP_COOLDOWN = 0.35;      
+
+
+
+
+
+
+
+
+
+const JUMP_ENTRY_MARGIN = 0.1;
+
+
+
 const STUCK_WINDOW = 1.0;        
 const STUCK_MIN_MOVE = 0.6;      
 
@@ -625,6 +663,11 @@ export function stepBot(state, dt, grid, goal, rng = Math.random, crowd = null) 
     
     
     
+    
+    if ((state.jumpV ?? 0) > 0 && fromY < s - JUMP_ENTRY_MARGIN) return false;
+    
+    
+    
     if (state.airborne) return true;
     
     
@@ -635,9 +678,31 @@ export function stepBot(state, dt, grid, goal, rng = Math.random, crowd = null) 
     return -rise <= MAX_DROP;
   };
 
+  
+  
+  
+  
+  
+  
+  
+  const wantsJump = () => {
+    if (!graph.jumps || (state.jumpV ?? 0) > 0 || state.airborne) return false;
+    if ((state.jumpCool ?? 0) > 0) return false;
+    const s = graph.surfaceAt(Math.floor(state.pos.x + stepX), Math.floor(state.pos.z + stepZ));
+    if (s < 0) return false;
+    const rise = s - fromY;
+    return rise > MAX_STEP_UP && rise <= JUMP_RISE;
+  };
+
   if (canGo(state.pos.x + stepX, state.pos.z + stepZ)) {
     state.pos.x += stepX;
     state.pos.z += stepZ;
+  } else if (wantsJump()) {
+    
+    
+    
+    state.jumpV = JUMP_SPEED;
+    state.airborne = true;
   } else if (Math.abs(stepX) > 1e-6 && canGo(state.pos.x + stepX, state.pos.z)) {
     
     
@@ -647,7 +712,19 @@ export function stepBot(state, dt, grid, goal, rng = Math.random, crowd = null) 
     state.pos.x += stepX;
   } else if (Math.abs(stepZ) > 1e-6 && canGo(state.pos.x, state.pos.z + stepZ)) {
     state.pos.z += stepZ;
-  } else {
+  } else if (!state.airborne && (state.jumpV ?? 0) <= 0) {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     commitEscape(state, rng);
     state.waypoint = null;
     state.repathT = 0;
@@ -676,15 +753,36 @@ export function stepBot(state, dt, grid, goal, rng = Math.random, crowd = null) 
   
   
   
-  const groundY = groundHeightAt(grid, state.pos.x, state.pos.z, state.pos.y);
-  if (groundY < state.pos.y - 1e-4) {
-    state.fallV = Math.min(FALL_MAX_SPEED, (state.fallV ?? 0) + FALL_ACCEL * dt);
-    state.pos.y = Math.max(groundY, state.pos.y - state.fallV * dt);
-    state.airborne = state.pos.y > groundY + 1e-4;
+  state.jumpCool = Math.max(0, (state.jumpCool ?? 0) - dt);
+
+  if ((state.jumpV ?? 0) > 0) {
+    
+    
+    
+    
+    
+    state.pos.y += state.jumpV * dt;
+    state.jumpV -= FALL_ACCEL * dt;
+    state.airborne = true;
+    
+    
+    
+    
+    if (state.jumpV <= 0) {
+      state.jumpV = 0;
+      state.jumpCool = JUMP_COOLDOWN;
+    }
   } else {
-    state.pos.y = groundY;
-    state.fallV = 0;
-    state.airborne = false;
+    const groundY = groundHeightAt(grid, state.pos.x, state.pos.z, state.pos.y);
+    if (groundY < state.pos.y - 1e-4) {
+      state.fallV = Math.min(FALL_MAX_SPEED, (state.fallV ?? 0) + FALL_ACCEL * dt);
+      state.pos.y = Math.max(groundY, state.pos.y - state.fallV * dt);
+      state.airborne = state.pos.y > groundY + 1e-4;
+    } else {
+      state.pos.y = groundY;
+      state.fallV = 0;
+      state.airborne = false;
+    }
   }
 
 

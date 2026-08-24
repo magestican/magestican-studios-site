@@ -80,23 +80,48 @@ export function zoneSpawn(zone) {
   return { x: zone.x + 0.5, y: ZONE_DECK_TOP + 0.5, z: zone.z + 0.5 };
 }
 
-export function buildPowerZones(grid, size) {
+export function buildPowerZones(grid, size, { onHedge = false } = {}) {
   const c = powerZoneCentres(size);
   const gym   = { id: 'gym',   powerUp: 'protein-shake', name: 'THE GYM',   ...c.gym };
   const dairy = { id: 'dairy', powerUp: 'cheese-wheel',  name: 'THE DAIRY', ...c.dairy };
-  buildGym(grid, gym.x, gym.z, size);
-  buildDairy(grid, dairy.x, dairy.z, size);
+  buildGym(grid, gym.x, gym.z, size, onHedge);
+  buildDairy(grid, dairy.x, dairy.z, size, onHedge);
   return { gym, dairy };
 }
 
 
 
-function buildDais(grid, x, z, vox, size) {
+function buildDais(grid, x, z, vox, size, onHedge = false) {
   
   
   
   grid.fillBox(x - ZONE_HALF, 1, z - ZONE_HALF,
                x + ZONE_HALF, size.y - 1, z + ZONE_HALF, VOX.AIR);
+
+  if (onHedge) {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    grid.fillBox(x - ZONE_HALF, 1, z - ZONE_HALF,
+                 x + ZONE_HALF, ZONE_DECK_TOP - 1, z + ZONE_HALF, VOX.HEDGE);
+    
+    
+    grid.fillBox(x - 3, ZONE_DECK_TOP - 1, z - 3, x + 3, ZONE_DECK_TOP - 1, z + 3, vox);
+    return;
+  }
+
   grid.fillBox(x - 3, 1, z - 3, x + 3, 1, z + 3, vox);
   grid.fillBox(x - 2, 2, z - 2, x + 2, 2, z + 2, vox);
 }
@@ -105,8 +130,8 @@ function buildDais(grid, x, z, vox, size) {
 
 
 
-function buildGym(grid, x, z, size) {
-  buildDais(grid, x, z, VOX.WOOD, size);
+function buildGym(grid, x, z, size, onHedge = false) {
+  buildDais(grid, x, z, VOX.WOOD, size, onHedge);
   
   
   
@@ -129,8 +154,8 @@ function buildGym(grid, x, z, size) {
 
 
 
-function buildDairy(grid, x, z, size) {
-  buildDais(grid, x, z, VOX.STONE, size);
+function buildDairy(grid, x, z, size, onHedge = false) {
+  buildDais(grid, x, z, VOX.STONE, size, onHedge);
   
   
   

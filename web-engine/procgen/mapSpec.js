@@ -665,6 +665,77 @@ export const MAPS = Object.freeze({
     
     ambient: { kind: 'penguin', count: 26, clusters: 6 },
   },
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  'farm-maze': {
+    id: 'farm-maze',
+    name: 'Farm Maze',
+    short: 'Farm Maze',
+    blurb: 'A corn maze you can only cross by double-jumping the hedges. '
+         + 'Power-ups sit on top. Something is in here with you.',
+    emoji: '🌽',
+    sky: 'farm-day',
+    backdrop: 'farm-horizon',
+    ground: VOX.GRASS,
+    
+    
+    
+    patch: { vox: VOX.ICE, count: 14, size: [2, 3] },
+    terrain: 'maze',
+    
+    
+    
+    
+    navJump: 2,
+    
+    
+    centre: { vox: VOX.HILL, style: 'knoll' },
+    base: { style: 'barn', sign: 'BARN' },
+    
+    
+    
+    
+    
+    
+    cover: [],
+    coverFromTerrain: true,
+    hay: { count: 4 },
+    
+    
+    
+    
+    wear: false,
+    props: { 'fence-post': 18, 'hay-bale': 8, barrel: 5, crate: 6 },
+    
+    
+    
+    
+    
+    
+    
+    kit: { minotaur: 2, medusa: 3, waymarker: 9, scarecrow: 5, 'log-pile': 3,
+           'chopping-block': 2, wheelbarrow: 2, 'feed-sack': 5,
+           'weather-vane': 2, 'sandbag-wall': 4, 'ammo-crate': 5 },
+    ambient: { kind: 'goose', count: 14, clusters: 4 },
+  },
 });
 
 export const MAP_IDS = Object.freeze(Object.keys(MAPS));
@@ -688,6 +759,12 @@ export const FRICTION = Object.freeze({
   'snow-farm': 0.96,
   'icy-mountain': 0.945,        
   'central-park-rink': 0.976,   
+  
+  
+  
+  
+  
+  'farm-maze': 0.93,
   arctic: 0.968,
 });
 

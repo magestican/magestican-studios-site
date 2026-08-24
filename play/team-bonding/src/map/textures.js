@@ -1266,3 +1266,96 @@ export function makeIglooTexture() {
   }
   return toTexture(c);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function makeHedgeTexture() {
+  const c = makeCanvas(); const g = c.getContext('2d');
+  const rnd = seedRng(0x4d41);
+
+  
+  g.fillStyle = '#26401f'; g.fillRect(0, 0, SIZE, SIZE);
+
+  
+  
+  const GREENS = ['#3c6b30', '#4a7d38', '#2f5527', '#588c40'];
+  for (let i = 0; i < 190; i++) {
+    const x = rnd() * SIZE, y = rnd() * SIZE;
+    
+    const lit = 1 - y / SIZE;
+    const hex = GREENS[Math.min(GREENS.length - 1, Math.floor(rnd() * 2 + lit * 2))];
+    g.strokeStyle = hex;
+    g.lineWidth = 2 + rnd() * 2.5;
+    g.lineCap = 'round';
+    const a = rnd() * Math.PI * 2, r = 3 + rnd() * 5;
+    g.beginPath();
+    g.arc(x, y, r, a, a + 1.1 + rnd() * 0.9);
+    g.stroke();
+  }
+
+  
+  
+  
+  const stalks = 4 + Math.floor(rnd() * 2);
+  for (let i = 0; i < stalks; i++) {
+    const x = (i + 0.25 + rnd() * 0.5) * (SIZE / stalks);
+    const top = 4 + rnd() * 16;
+    const lean = (rnd() - 0.5) * 7;
+    
+    g.strokeStyle = '#7d8a3a';
+    g.lineWidth = 2;
+    g.beginPath(); g.moveTo(x, SIZE); g.lineTo(x + lean, top); g.stroke();
+    
+    for (let b = 0; b < 3; b++) {
+      const by = top + (SIZE - top) * (0.25 + b * 0.24);
+      const dir = b % 2 ? 1 : -1;
+      g.strokeStyle = '#8d9a42';
+      g.lineWidth = 2;
+      g.beginPath();
+      g.moveTo(x + lean * 0.4, by);
+      g.quadraticCurveTo(x + dir * 9, by + 2, x + dir * 15, by + 8);
+      g.stroke();
+    }
+    
+    
+    
+    
+    const cy = top + 16 + rnd() * 22;
+    const cx = x + lean * 0.6;
+    g.fillStyle = '#c9982f';
+    g.beginPath(); g.ellipse(cx, cy, 3.4, 7.5, 0.12, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#e2b84e';
+    g.beginPath(); g.ellipse(cx - 1, cy - 1, 1.6, 5.4, 0.12, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#9aa84a'; g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(cx, cy - 7); g.lineTo(cx + 2, cy - 12); g.stroke();
+  }
+
+  
+  
+  
+  for (let i = 0; i < 14; i++) {
+    g.fillStyle = 'rgba(12,22,10,' + (0.3 + rnd() * 0.35).toFixed(2) + ')';
+    const x = rnd() * SIZE, y = rnd() * SIZE;
+    g.beginPath(); g.ellipse(x, y, 2 + rnd() * 4, 3 + rnd() * 6, rnd() * 3, 0, Math.PI * 2); g.fill();
+  }
+  return toTexture(c);
+}

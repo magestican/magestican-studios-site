@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { VOX, VOX_COLOR } from 'arbelo/voxel';
 import { makeSnowTexture, makeIceTexture, makeTroddenTexture, makeRutTexture, makeWoodTexture, makeStoneTexture, makeDirtTexture, makeHayTexture, makeBloodTinted, makeBarnPaintTexture } from './textures.js';
-import { makeRockTexture, makeRinkTexture, makeBoardsTexture, makePineTexture, makePaverTexture, makeIglooTexture } from './textures.js';
+import { makeRockTexture, makeRinkTexture, makeBoardsTexture, makePineTexture, makePaverTexture, makeIglooTexture, makeHedgeTexture } from './textures.js';
 
 const CUBE_GEO = new THREE.BoxGeometry(1, 1, 1);
 
@@ -46,6 +46,7 @@ function getTextures() {
     [VOX.PINE]:   makePineTexture(),
     [VOX.PAVER]:  makePaverTexture(),
     [VOX.IGLOO]:  makeIglooTexture(),
+    [VOX.HEDGE]:  makeHedgeTexture(),
   };
   return TEX;
 }
@@ -69,6 +70,10 @@ const SELF_COLOURED = new Set([
   
   
   VOX.ROCK, VOX.RINK, VOX.BOARDS, VOX.PINE, VOX.PAVER, VOX.IGLOO,
+  
+  
+  
+  VOX.HEDGE,
 ]);
 
 

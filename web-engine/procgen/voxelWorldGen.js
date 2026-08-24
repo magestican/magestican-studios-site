@@ -11,6 +11,7 @@
 
 
 import { SeededRng } from '../rng/seededRng.js';
+import { generateMaze, walkConnected, HEDGE_HEIGHT } from './mazeGen.js';
 import { VoxelGrid, VOX, GROUND_VOX } from '../voxel/voxelGrid.js';
 import { getMap, DEFAULT_MAP } from './mapSpec.js';
 import {
@@ -90,6 +91,12 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
     grid.fillBox(px, 0, pz, px + w, 0, pz + h, map.patch.vox);
   }
 
+  
+  
+  
+  
+  if (map.navJump) grid.navJump = map.navJump;
+
   const cx = Math.floor(WORLD_SIZE.x / 2);
   const cz = Math.floor(WORLD_SIZE.z / 2);
 
@@ -104,7 +111,7 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   
   
   
-  buildTerrain(grid, rng.child('terrain'), map, { redBase, blueBase, cx, cz });
+  const terrain = buildTerrain(grid, rng.child('terrain'), map, { redBase, blueBase, cx, cz });
 
   
   
@@ -115,11 +122,19 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
 
   
   
-  const powerUpZones = buildPowerZones(grid, WORLD_SIZE);
+  
+  
+  const powerUpZones = buildPowerZones(grid, WORLD_SIZE, { onHedge: map.terrain === 'maze' });
 
   
+  
+  
+  
+  
+  
+  
   const coverRng = rng.child('cover');
-  const coverCount = perArea(coverRng.rangeI(20, 32));
+  const coverCount = map.cover?.length ? perArea(coverRng.rangeI(20, 32)) : 0;
   for (let i = 0; i < coverCount; i++) {
     const px = coverRng.rangeI(12, WORLD_SIZE.x - 13);
     const pz = coverRng.rangeI(12, WORLD_SIZE.z - 13);
@@ -220,6 +235,9 @@ function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
   const ambientSpots = [];
   
   
+  let mazeInfo = null;
+  
+  
   
   
   
@@ -237,7 +255,58 @@ function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
     && !zones.some((c) => Math.abs(x - c.x) <= ZONE_HALF + 5
                        && Math.abs(z - c.z) <= ZONE_HALF + 5);
 
-  if (map.terrain === 'terraces') {
+  if (map.terrain === 'maze') {
+    
+    
+    
+    
+    
+    
+    
+    const MARGIN = 3;
+    const keepOut = [
+      { x0: redBase.x - MARGIN, z0: redBase.z - MARGIN,
+        x1: redBase.x + BASE_SIZE.x + MARGIN, z1: redBase.z + BASE_SIZE.z + MARGIN },
+      { x0: blueBase.x - MARGIN, z0: blueBase.z - MARGIN,
+        x1: blueBase.x + BASE_SIZE.x + MARGIN, z1: blueBase.z + BASE_SIZE.z + MARGIN },
+      
+      
+      
+      { x0: cx - 8, z0: cz - 8, x1: cx + 8, z1: cz + 8 },
+    ];
+
+    
+    
+    const INSET = 6;
+    const mz = generateMaze({
+      seed: rng.rangeI(0, 0x7fffffff),
+      ox: INSET, oz: INSET,
+      w: WORLD_SIZE.x - INSET * 2, h: WORLD_SIZE.z - INSET * 2,
+      keepOut,
+    });
+
+    
+    
+    
+    
+    
+    
+    const conn = walkConnected(mz);
+    if (!conn.connected) {
+      console.warn(`[maze] NOT CONNECTED: ${conn.reached}/${conn.total} tiles reachable`);
+    }
+
+    for (let z = 0; z < WORLD_SIZE.z; z++) {
+      for (let x = 0; x < WORLD_SIZE.x; x++) {
+        if (mz.open(x, z)) continue;
+        for (let y = 1; y <= HEDGE_HEIGHT; y++) grid.set(x, y, z, VOX.HEDGE);
+      }
+    }
+
+    
+    
+    mazeInfo = mz;
+  } else if (map.terrain === 'terraces') {
     
     
     
@@ -327,7 +396,7 @@ function buildTerrain(grid, rng, map, { redBase, blueBase, cx, cz }) {
     }
   }
 
-  return { ambientSpots };
+  return { ambientSpots, mazeInfo };
 }
 
 

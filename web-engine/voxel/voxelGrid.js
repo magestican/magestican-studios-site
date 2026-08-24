@@ -44,6 +44,13 @@ export const VOX = Object.freeze({
   PINE:      19,  
   PAVER:     20,  
   IGLOO:     21,  
+  
+  
+  
+  
+  
+  
+  HEDGE:     22,
 });
 
 
@@ -86,6 +93,10 @@ export const VOX_COLOR = Object.freeze({
   [VOX.PINE]:           [0x24, 0x4b, 0x38],
   [VOX.PAVER]:          [0x9b, 0x94, 0x88],
   [VOX.IGLOO]:          [0xe4, 0xee, 0xf6],
+  
+  
+  
+  [VOX.HEDGE]:          [0x33, 0x5c, 0x2e],
 });
 
 export class VoxelGrid {
