@@ -157,6 +157,54 @@ export function poseAt(i) {
 
 const MAX_TWEEN_MS = 110;
 
+
+
+
+
+
+
+
+
+
+
+
+
+const BIG_MOVE = 0.22;   
+const MAX_TWEEN_BIG_MS = 420;
+
+function poseTravel(cur, next) {
+  let worst = 0;
+  for (const who of ['a', 'b']) {
+    const p = cur[who];
+    const q = next[who];
+    if (!p || !q) continue;
+    const hgt = Math.max(1, p.feet - p.top);
+    const d = (ax, ay, bx, by) => Math.hypot(bx - ax, by - ay) / hgt;
+    worst = Math.max(worst, d(p.cx, p.feet, q.cx, q.feet));
+    for (let i = 0; i < 2; i += 1) {
+      if (p.hands[i] && q.hands[i]) {
+        worst = Math.max(worst, d(p.hands[i][0], p.hands[i][1], q.hands[i][0], q.hands[i][1]));
+      }
+      if (p.feetPts[i] && q.feetPts[i]) {
+        worst = Math.max(worst, d(p.feetPts[i][0], p.feetPts[i][1], q.feetPts[i][0], q.feetPts[i][1]));
+      }
+    }
+  }
+  return worst;
+}
+
+
+export function tweenWindow(i) {
+  const hold = FRAMES[i][HOLD];
+  const cur = poseAt(i);
+  const next = poseAt((i + 1) % FRAMES.length);
+  const travel = poseTravel(cur, next);
+  if (travel <= 0) return Math.min(hold, MAX_TWEEN_MS);
+  const k = Math.min(1, travel / BIG_MOVE);
+  const want = MAX_TWEEN_MS + (MAX_TWEEN_BIG_MS - MAX_TWEEN_MS) * k;
+  return Math.min(hold, want);
+}
+
 const lerp = (a, b, t) => a + (b - a) * t;
 
 const ease = (t) => t * t * (3 - 2 * t);
@@ -204,7 +252,7 @@ export function cursorAt(ms) {
 export function poseAtTime(ms) {
   const { index, into, hold } = cursorAt(ms);
   const cur = poseAt(index);
-  const tween = Math.min(hold, MAX_TWEEN_MS);
+  const tween = tweenWindow(index);
   const startAt = hold - tween;
   if (into <= startAt || tween <= 0) return { ...cur, tween: 0 };
 

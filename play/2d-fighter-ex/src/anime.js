@@ -17,322 +17,396 @@
 
 
 
+import { LINE, FX } from './palette.js';
+import { buildSkeleton } from './rig.js';
 
-import { ANIME, LINE, KITS } from './palette.js';
-
-const HEAD_RATIO = 0.30;   
-const IRIS_RATIO = 0.68;   
-
-const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+const V = (x, y) => [x, y];
 
 
+function boneQuad(a, b, wa, wb) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len;
+  const ny = dx / len;
+  return [
+    V(a[0] + nx * wa, a[1] + ny * wa),
+    V(b[0] + nx * wb, b[1] + ny * wb),
+    V(b[0] - nx * wb, b[1] - ny * wb),
+    V(a[0] - nx * wa, a[1] - ny * wa),
+  ];
+}
 
 
+function shadeBand(quad, tone, part) {
+  const [p0, p1, p2, p3] = quad;
+  const mid01 = V((p0[0] + p3[0]) / 2, (p0[1] + p3[1]) / 2);
+  const mid12 = V((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2);
+  return { t: 'poly', part, fill: tone.shade, line: null, pts: [mid01, mid12, p2, p3] };
+}
 
-
-
-export function buildAnimeFigure({
-  cx, feet, top, facing = 1, headX, hands, feetPts, kit, lookAt,
-}) {
-  const h = Math.max(24, feet - top);
-  const f = facing >= 0 ? 1 : -1;
+export function buildFighter(spec) {
+  const sk = buildSkeleton(spec);
+  const kit = spec.kit;
+  const { f, h, head } = sk;
   const out = [];
+  const W = sk.widths;
 
-  const headH = h * HEAD_RATIO;
-  const headW = headH * 0.86;
-  const headCx = headX === undefined ? cx : headX;
-  const headCy = top + headH * 0.5;
-
-  const neckY = top + headH * 0.92;
-  const hipY = top + headH + (h - headH) * 0.46;
-  const bodyW = h * 0.23;
-
-  const shoulderY = neckY + h * 0.04;
-  const shoulderL = cx - bodyW * 0.52;
-  const shoulderR = cx + bodyW * 0.52;
-  const hipL = cx - bodyW * 0.34;
-  const hipR = cx + bodyW * 0.34;
-
-  const limbW = Math.max(2.8, h * 0.060);
-  const legW = Math.max(3.0, h * 0.070);
-  const armMax = h * 0.42;
-  const legMax = h * 0.45;
-
-  const reach = (x0, y0, p, max) => {
-    let dx = p[0] - x0;
-    let dy = p[1] - y0;
-    const len = Math.hypot(dx, dy) || 1;
-    if (len > max) { dx *= max / len; dy *= max / len; }
-    return [x0 + dx, y0 + dy];
+  const limb = (bone, wa, wb, tone, part) => {
+    const q = boneQuad(bone[0], bone[1], wa, wb);
+    out.push({ t: 'poly', part, fill: tone.base, line: LINE, pts: q });
+    out.push(shadeBand(q, tone, part + 'Shade'));
   };
 
   
-  const far = shade(kit.limb, -0.18);
-  const fp = feetPts && feetPts.length ? feetPts : [[cx - legW, feet], [cx + legW, feet]];
-  const hp = hands && hands.length ? hands : [[cx - bodyW, hipY - h * 0.1], [cx + bodyW, hipY - h * 0.1]];
-
-  const legFar = reach(hipL, hipY, fp[0], legMax);
-  out.push(capsule(hipL, hipY, legFar[0], legFar[1], legW, far));
-  const armFar = reach(shoulderL, shoulderY, hp[0], armMax);
-  out.push(capsule(shoulderL, shoulderY, armFar[0], armFar[1], limbW, far));
-  out.push(circle(armFar[0], armFar[1], limbW * 0.62, shade(kit.skin, -0.15)));
+  for (const leg of sk.legs.filter((l) => l.side === 'far')) drawLeg(leg, true);
+  for (const arm of sk.arms.filter((a) => a.side === 'far')) drawArm(arm, true);
 
   
-  const torsoTop = neckY;
-  out.push({
-    t: 'poly', fill: kit.top, line: LINE,
-    pts: [
-      [cx - bodyW * 0.46, torsoTop],
-      [cx + bodyW * 0.46, torsoTop],
-      [cx + bodyW * 0.56, torsoTop + (hipY - torsoTop) * 0.55],
-      [cx + bodyW * 0.40, hipY],
-      [cx - bodyW * 0.40, hipY],
-      [cx - bodyW * 0.56, torsoTop + (hipY - torsoTop) * 0.55],
-    ],
-  });
+  
+  
+  
+  const P = (x, y) => sk.rot([x, y]);
+  const L = sk.local;
+  const shW = L.shoulderW;
+  const hipW = L.hipW;
+  const cx0 = L.chest[0];
+  const chestY = L.chest[1];
+  const hipY = L.hips[1];
+  const hemY = hipY + h * 0.085;
+
   
   
   out.push({
-    t: 'poly', fill: kit.topShade, line: null,
+    t: 'poly', part: 'jacket', fill: kit.jacket.base, line: LINE,
     pts: [
-      [cx - bodyW * 0.46, torsoTop],
-      [cx - bodyW * 0.10, torsoTop],
-      [cx - bodyW * 0.16, hipY],
-      [cx - bodyW * 0.40, hipY],
-      [cx - bodyW * 0.56, torsoTop + (hipY - torsoTop) * 0.55],
+      P(cx0 - shW * 0.52, chestY - h * 0.012),
+      P(cx0 + shW * 0.52, chestY - h * 0.012),
+      P(cx0 + shW * 0.46, hipY),
+      P(cx0 + hipW * 0.86, hemY),
+      P(cx0 - hipW * 0.86, hemY),
+      P(cx0 - shW * 0.46, hipY),
     ],
   });
-
   
   out.push({
-    t: 'poly', part: 'collar', fill: kit.trim, line: LINE,
+    t: 'poly', part: 'jacketShade', fill: kit.jacket.shade, line: null,
     pts: [
-      [cx - bodyW * 0.44, torsoTop],
-      [cx + bodyW * 0.44, torsoTop],
-      [cx + bodyW * 0.18, torsoTop + h * 0.05],
-      [cx, torsoTop + h * 0.085],
-      [cx - bodyW * 0.18, torsoTop + h * 0.05],
+      P(cx0 - shW * 0.52, chestY - h * 0.012),
+      P(cx0 - shW * 0.12, chestY - h * 0.012),
+      P(cx0 - hipW * 0.30, hemY),
+      P(cx0 - hipW * 0.86, hemY),
+      P(cx0 - shW * 0.46, hipY),
     ],
   });
   
-  for (const sx of [shoulderL, shoulderR]) {
+  out.push({
+    t: 'poly', part: 'shirt', fill: kit.shirt.base, line: null,
+    pts: [
+      P(cx0 - shW * 0.16, chestY),
+      P(cx0 + shW * 0.16, chestY),
+      P(cx0 + shW * 0.13, hipY + h * 0.01),
+      P(cx0 - shW * 0.13, hipY + h * 0.01),
+    ],
+  });
+  
+  for (const s of [-1, 1]) {
     out.push({
-      t: 'ellipse', part: 'sleeve', cx: sx, cy: shoulderY + h * 0.015,
-      rx: bodyW * 0.17, ry: h * 0.048, fill: kit.top, line: LINE,
+      t: 'poly', part: 'lapel', fill: kit.jacket.lit, line: LINE,
+      pts: [
+        P(cx0 + s * shW * 0.50, chestY - h * 0.012),
+        P(cx0 + s * shW * 0.10, chestY - h * 0.010),
+        P(cx0 + s * shW * 0.16, chestY + h * 0.085),
+        P(cx0 + s * shW * 0.44, chestY + h * 0.030),
+      ],
     });
   }
-
   
   out.push({
-    t: 'poly', part: 'belt', fill: kit.trim, line: null,
+    t: 'poly', part: 'belt', fill: kit.trim.base, line: LINE,
     pts: [
-      [cx - bodyW * 0.42, hipY - h * 0.028],
-      [cx + bodyW * 0.42, hipY - h * 0.028],
-      [cx + bodyW * 0.41, hipY + h * 0.004],
-      [cx - bodyW * 0.41, hipY + h * 0.004],
+      P(cx0 - shW * 0.44, hipY - h * 0.022),
+      P(cx0 + shW * 0.44, hipY - h * 0.022),
+      P(cx0 + shW * 0.43, hipY + h * 0.012),
+      P(cx0 - shW * 0.43, hipY + h * 0.012),
     ],
   });
   out.push({
-    t: 'poly', fill: kit.legs, line: LINE,
-    pts: [
-      [cx - bodyW * 0.42, hipY],
-      [cx + bodyW * 0.42, hipY],
-      [cx + bodyW * 0.38, hipY + h * 0.075],
-      [cx - bodyW * 0.38, hipY + h * 0.075],
-    ],
+    t: 'rect', part: 'buckle', fill: kit.trim.lit, line: LINE,
+    x: sk.chest[0] - h * 0.018, y: hipY - h * 0.020, w: h * 0.036, h: h * 0.030,
   });
 
   
-  const legNear = reach(hipR, hipY, fp[Math.min(1, fp.length - 1)], legMax);
-  out.push(capsule(hipR, hipY, legNear[0], legNear[1], legW, kit.legs));
-  out.push(capsule(legNear[0], legNear[1], legNear[0] + f * legW * 0.9, legNear[1], legW * 0.8, kit.shoe));
-  const armNear = reach(shoulderR, shoulderY, hp[Math.min(1, hp.length - 1)], armMax);
-  out.push(capsule(shoulderR, shoulderY, armNear[0], armNear[1], limbW, kit.limb));
-  out.push(circle(armNear[0], armNear[1], limbW * 0.68, kit.skin));
+  for (const leg of sk.legs.filter((l) => l.side === 'near')) drawLeg(leg, false);
+  for (const arm of sk.arms.filter((a) => a.side === 'near')) drawArm(arm, false);
 
   
-  
-  out.push({ t: 'ellipse', part: 'face', cx: headCx, cy: headCy, rx: headW * 0.5, ry: headH * 0.5, fill: kit.skin, line: LINE });
-
-  
-  
-  
-  
-  
-  const hw = headW * 0.5;
-  const hh = headH * 0.5;
-
-  
-  out.push({
-    t: 'poly', part: 'hairBack', fill: kit.hairDark, line: LINE,
-    pts: [
-      [headCx - hw * 1.16, headCy + hh * 0.72],
-      [headCx - hw * 1.10, headCy - hh * 0.52],
-      [headCx - hw * 0.40, headCy - hh * 1.18],
-      [headCx + hw * 0.40, headCy - hh * 1.18],
-      [headCx + hw * 1.10, headCy - hh * 0.52],
-      [headCx + hw * 1.16, headCy + hh * 0.72],
-      [headCx + hw * 0.86, headCy + hh * 0.34],
-      [headCx - hw * 0.86, headCy + hh * 0.34],
-    ],
-  });
-
-  
-  
-  
-  const fringe = [];
-  fringe.push([headCx - hw * 1.04, headCy - hh * 0.10]);
-  fringe.push([headCx - hw * 0.98, headCy - hh * 0.72]);
-  fringe.push([headCx - hw * 0.34, headCy - hh * 1.14]);
-  fringe.push([headCx + hw * 0.40, headCy - hh * 1.12]);
-  fringe.push([headCx + hw * 1.00, headCy - hh * 0.66]);
-  fringe.push([headCx + hw * 1.04, headCy - hh * 0.06]);
-  
-  const clumps = 4;
-  for (let k = 0; k <= clumps; k += 1) {
-    const t = k / clumps;
-    const x = headCx + hw * (1.02 - 2.04 * t);
-    const up = headCy - hh * 0.30;
-    const dn = headCy + hh * (k % 2 ? 0.30 : 0.10);
-    fringe.push([x + hw * 0.10, dn]);
-    fringe.push([x - hw * 0.06, up]);
-  }
-  out.push({ t: 'poly', part: 'hairFringe', fill: kit.hair, line: LINE, pts: fringe });
-
-  
-  out.push({
-    t: 'poly', part: 'hairLit', fill: kit.hairLit, line: null,
-    pts: [
-      [headCx - hw * 0.72, headCy - hh * 0.74],
-      [headCx - hw * 0.10, headCy - hh * 1.02],
-      [headCx + hw * 0.54, headCy - hh * 0.86],
-      [headCx + hw * 0.44, headCy - hh * 0.62],
-      [headCx - hw * 0.14, headCy - hh * 0.76],
-      [headCx - hw * 0.66, headCy - hh * 0.54],
-    ],
-  });
-
-  
-  const eyeY = headCy + headH * 0.10;
-  
-  
-  
-  
-  const eyeH = headH * 0.34;
-  const eyeW = eyeH * 0.87;
-  
-  
-  
-  const gap = eyeW * 0.79;
-  
-  const look = lookAt === undefined ? f : Math.sign(lookAt - cx) || f;
-
-  for (const side of [-1, 1]) {
-    const ex = headCx + side * gap * 0.5 + f * headW * 0.04;
-    
-    out.push({ t: 'ellipse', part: 'sclera', cx: ex, cy: eyeY, rx: eyeW * 0.5, ry: eyeH * 0.5, fill: ANIME.secondary, line: null });
-    
-    const irisR = eyeH * 0.5 * IRIS_RATIO;
-    const ix = ex + look * eyeW * 0.10;
-    out.push({ t: 'ellipse', part: 'iris', cx: ix, cy: eyeY + eyeH * 0.04, rx: irisR * 0.82, ry: irisR, fill: kit.iris, line: null });
-    out.push({ t: 'ellipse', part: 'pupil', cx: ix, cy: eyeY + eyeH * 0.08, rx: irisR * 0.42, ry: irisR * 0.52, fill: shade(kit.iris, -0.55), line: null });
-    
-    out.push({ ...circle(ix - irisR * 0.42, eyeY - irisR * 0.42, irisR * 0.40, ANIME.highlight), part: 'highlight' });
-    out.push({ ...circle(ix + irisR * 0.40, eyeY + irisR * 0.46, irisR * 0.17, ANIME.highlight), part: 'highlight' });
-    
-    out.push({
-      t: 'lid', part: 'upperLid', x: ex, y: eyeY - eyeH * 0.44, w: eyeW, thick: Math.max(1, eyeH * 0.16), fill: LINE,
-    });
-  }
-
-  
-  for (const side of [-1, 1]) {
-    const ex = headCx + side * gap * 0.5 + f * headW * 0.04;
-    out.push({
-      t: 'brow', x: ex, y: eyeY - eyeH * 0.86, w: eyeW * 0.9,
-      tilt: side * -0.30, thick: Math.max(1, eyeH * 0.13), fill: kit.hair,
-    });
-  }
-
-  
-  
-  
-  for (const side of [-1, 1]) {
-    const ex = headCx + side * gap * 0.62 + f * headW * 0.04;
-    out.push({
-      t: 'ellipse', part: 'blush', cx: ex, cy: eyeY + eyeH * 0.72,
-      rx: eyeW * 0.42, ry: eyeH * 0.22, fill: kit.blush, line: null,
-    });
-  }
-
-  
-  out.push({
-    t: 'lid', x: headCx + f * headW * 0.06, y: headCy + headH * 0.34,
-    w: headW * 0.16, thick: Math.max(1, headH * 0.045), fill: LINE,
-  });
+  drawHead();
 
   return out;
 
-  function capsule(x0, y0, x1, y1, w, fill) {
-    return { t: 'capsule', x0, y0, x1, y1, r: w * 0.5, fill, line: LINE };
+  
+
+  function drawLeg(leg, isFar) {
+    const tone = isFar ? darker(kit.trousers) : kit.trousers;
+    limb([leg.root, leg.knee], W.thigh, W.shin * 1.02, tone, 'thigh');
+    limb([leg.knee, leg.ankle], W.shin, W.shin * 0.78, tone, 'shin');
+    
+    const bt = isFar ? darker(kit.boot) : kit.boot;
+    const [ax, ay] = leg.ankle;
+    const toe = f;
+    out.push({
+      t: 'poly', part: 'boot', fill: bt.base, line: LINE,
+      pts: [
+        V(ax - W.shin * 0.95, ay - h * 0.030),
+        V(ax + W.shin * 0.95, ay - h * 0.030),
+        V(ax + W.shin * 0.85, ay + h * 0.018),
+        V(ax + toe * h * 0.055, ay + h * 0.022),
+        V(ax - toe * h * 0.012, ay + h * 0.028),
+        V(ax - W.shin * 1.05, ay + h * 0.020),
+      ],
+    });
+    
+    
+    out.push({
+      t: 'poly', part: 'sole', fill: bt.deep, line: LINE,
+      pts: [
+        V(ax - W.shin * 1.05, ay + h * 0.020),
+        V(ax - toe * h * 0.012, ay + h * 0.028),
+        V(ax + toe * h * 0.058, ay + h * 0.030),
+        V(ax + toe * h * 0.056, ay + h * 0.040),
+        V(ax - W.shin * 1.05, ay + h * 0.038),
+      ],
+    });
+    
+    out.push({
+      t: 'rect', part: 'heel', fill: bt.deep, line: LINE,
+      x: ax - W.shin * 1.05, y: ay + h * 0.030, w: W.shin * 0.6, h: h * 0.022,
+    });
   }
-  function circle(x, y, r, fill) {
-    return { t: 'ellipse', cx: x, cy: y, rx: r, ry: r, fill, line: null };
+
+  function drawArm(arm, isFar) {
+    const sleeve = isFar ? darker(kit.jacket) : kit.jacket;
+    const skin = isFar ? darker(kit.skin) : kit.skin;
+    
+    
+    limb([arm.root, arm.elbow], W.upperArm * 1.25, W.upperArm * 1.05, sleeve, 'sleeve');
+    
+    out.push({
+      t: 'poly', part: 'cuff', fill: (isFar ? darker(kit.trim) : kit.trim).base, line: LINE,
+      pts: boneQuad(arm.elbow, lerpPt(arm.elbow, arm.hand, 0.22), W.upperArm * 1.1, W.foreArm * 1.05),
+    });
+    limb([lerpPt(arm.elbow, arm.hand, 0.20), arm.hand], W.foreArm, W.foreArm * 0.85, skin, 'forearm');
+    drawHand(arm.hand, arm.elbow, skin, isFar);
+  }
+
+  function drawHand(p, from, skin, isFar) {
+    const dx = p[0] - from[0];
+    const dy = p[1] - from[1];
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len;
+    const uy = dy / len;
+    const r = W.foreArm * 1.15;
+    
+    
+    out.push({
+      t: 'poly', part: 'hand', fill: skin.base, line: LINE,
+      pts: [
+        V(p[0] - uy * r, p[1] + ux * r),
+        V(p[0] + ux * r * 1.25 - uy * r * 0.7, p[1] + uy * r * 1.25 + ux * r * 0.7),
+        V(p[0] + ux * r * 1.35, p[1] + uy * r * 1.35),
+        V(p[0] + ux * r * 1.25 + uy * r * 0.7, p[1] + uy * r * 1.25 - ux * r * 0.7),
+        V(p[0] + uy * r, p[1] - ux * r),
+      ],
+    });
+    if (!isFar) {
+      out.push({
+        t: 'poly', part: 'thumb', fill: skin.shade, line: null,
+        pts: [
+          V(p[0] + ux * r * 0.15 - uy * r * 0.75, p[1] + uy * r * 0.15 + ux * r * 0.75),
+          V(p[0] + ux * r * 1.05 - uy * r * 0.35, p[1] + uy * r * 1.05 + ux * r * 0.35),
+          V(p[0] + ux * r * 0.95 + uy * r * 0.05, p[1] + uy * r * 0.95 - ux * r * 0.05),
+          V(p[0] + ux * r * 0.05 - uy * r * 0.35, p[1] + uy * r * 0.05 + ux * r * 0.35),
+        ],
+      });
+    }
+  }
+
+  function drawHead() {
+    
+    
+    const hx = L.head[0];
+    const hy = L.head[1];
+    const hw = head.w * 0.5;
+    const hh = head.h * 0.5;
+
+    
+    out.push({
+      t: 'poly', part: 'neck', fill: kit.skin.shade, line: LINE,
+      pts: [
+        P(L.neck[0] - hw * 0.30, hy + hh * 0.55),
+        P(L.neck[0] + hw * 0.30, hy + hh * 0.55),
+        P(cx0 + hw * 0.34, sk.chest[1] - h * 0.006),
+        P(cx0 - hw * 0.34, sk.chest[1] - h * 0.006),
+      ],
+    });
+
+    
+    
+    out.push({
+      t: 'poly', part: 'face', fill: kit.skin.base, line: LINE,
+      pts: [
+        P(hx - hw * 0.96, hy - hh * 0.42),
+        P(hx - hw * 0.86, hy + hh * 0.18),
+        P(hx - hw * 0.40, hy + hh * 0.86),
+        P(hx + f * hw * 0.10, hy + hh * 1.00),
+        P(hx + hw * 0.46, hy + hh * 0.82),
+        P(hx + hw * 0.88, hy + hh * 0.14),
+        P(hx + hw * 0.96, hy - hh * 0.44),
+        P(hx, hy - hh * 0.98),
+      ],
+    });
+    
+    out.push({
+      t: 'poly', part: 'faceShade', fill: kit.skin.shade, line: null,
+      pts: [
+        P(hx - hw * 0.96, hy - hh * 0.42),
+        P(hx - hw * 0.34, hy - hh * 0.50),
+        P(hx - hw * 0.26, hy + hh * 0.70),
+        P(hx - hw * 0.40, hy + hh * 0.86),
+        P(hx - hw * 0.86, hy + hh * 0.18),
+      ],
+    });
+
+    
+    
+    
+    out.push({
+      t: 'poly', part: 'hairBack', fill: kit.hair.shade, line: LINE,
+      pts: [
+        P(hx - hw * 1.26, hy + hh * 0.92),
+        P(hx - hw * 1.18, hy - hh * 0.46),
+        P(hx - hw * 0.52, hy - hh * 1.30),
+        P(hx + hw * 0.46, hy - hh * 1.32),
+        P(hx + hw * 1.18, hy - hh * 0.44),
+        P(hx + hw * 1.28, hy + hh * 0.94),
+        P(hx + hw * 0.92, hy + hh * 0.34),
+        P(hx - hw * 0.92, hy + hh * 0.34),
+      ],
+    });
+    const fringe = [
+      P(hx - hw * 1.12, hy + hh * 0.06),
+      P(hx - hw * 1.06, hy - hh * 0.70),
+      P(hx - hw * 0.44, hy - hh * 1.24),
+      P(hx + hw * 0.44, hy - hh * 1.26),
+      P(hx + hw * 1.08, hy - hh * 0.64),
+      P(hx + hw * 1.12, hy + hh * 0.04),
+    ];
+    const clumps = 5;
+    for (let k = 0; k <= clumps; k += 1) {
+      const t = k / clumps;
+      const x = hx + hw * (1.10 - 2.20 * t);
+      fringe.push(V(x + hw * 0.13, hy + hh * (k % 2 ? 0.44 : 0.16)));
+      fringe.push(V(x - hw * 0.08, hy - hh * 0.34));
+    }
+    out.push({ t: 'poly', part: 'hairFringe', fill: kit.hair.base, line: LINE, pts: fringe });
+    out.push({
+      t: 'poly', part: 'hairLit', fill: kit.hair.lit, line: null,
+      pts: [
+        P(hx - hw * 0.80, hy - hh * 0.86),
+        P(hx - hw * 0.10, hy - hh * 1.16),
+        P(hx + hw * 0.58, hy - hh * 0.98),
+        P(hx + hw * 0.46, hy - hh * 0.70),
+        P(hx - hw * 0.14, hy - hh * 0.88),
+        P(hx - hw * 0.72, hy - hh * 0.64),
+      ],
+    });
+
+    
+    
+    const eyeW = head.w * 0.34;
+    const eyeH = eyeW * 1.15;
+    const eyeY = hy + hh * 0.16;
+    const gap = eyeW * 0.79;
+    const look = spec.lookAt === undefined ? f : Math.sign(spec.lookAt - head.cx) || f;
+    for (const s of [-1, 1]) {
+      const ex = hx + s * (gap + eyeW) * 0.5 + f * hw * 0.05;
+      out.push({ t: 'ellipse', part: 'sclera', cx: ex, cy: eyeY, rx: eyeW * 0.5, ry: eyeH * 0.5, fill: '#fffaf0', line: null });
+      const irisR = eyeH * 0.5 * 0.70;
+      const ix = ex + look * eyeW * 0.11;
+      out.push({ t: 'ellipse', part: 'iris', cx: ix, cy: eyeY + eyeH * 0.03, rx: irisR * 0.80, ry: irisR, fill: kit.iris.base, line: null });
+      out.push({ t: 'ellipse', part: 'pupil', cx: ix, cy: eyeY + eyeH * 0.06, rx: irisR * 0.40, ry: irisR * 0.52, fill: kit.iris.deep, line: null });
+      out.push({ t: 'ellipse', part: 'highlight', cx: ix - irisR * 0.44, cy: eyeY - irisR * 0.44, rx: irisR * 0.40, ry: irisR * 0.40, fill: '#ffffff', line: null });
+      out.push({ t: 'ellipse', part: 'highlight', cx: ix + irisR * 0.42, cy: eyeY + irisR * 0.48, rx: irisR * 0.16, ry: irisR * 0.16, fill: '#ffffff', line: null });
+      
+      out.push({
+        t: 'poly', part: 'upperLid', fill: LINE, line: null,
+        pts: [
+          P(ex - eyeW * 0.52, eyeY - eyeH * 0.30),
+          P(ex + eyeW * 0.52, eyeY - eyeH * 0.44),
+          P(ex + eyeW * 0.52, eyeY - eyeH * 0.62),
+          P(ex - eyeW * 0.52, eyeY - eyeH * 0.50),
+        ],
+      });
+      out.push({
+        t: 'poly', part: 'brow', fill: kit.hair.shade, line: null,
+        pts: [
+          P(ex - eyeW * 0.46, eyeY - eyeH * 0.86),
+          P(ex + eyeW * 0.46, eyeY - eyeH * 1.00),
+          P(ex + eyeW * 0.46, eyeY - eyeH * 0.84),
+          P(ex - eyeW * 0.46, eyeY - eyeH * 0.72),
+        ],
+      });
+    }
+    
+    out.push({
+      t: 'poly', part: 'nose', fill: kit.skin.deep, line: null,
+      pts: [
+        P(hx + f * hw * 0.16, hy + hh * 0.42),
+        P(hx + f * hw * 0.30, hy + hh * 0.52),
+        P(hx + f * hw * 0.14, hy + hh * 0.52),
+      ],
+    });
+    out.push({
+      t: 'rect', part: 'mouth', fill: LINE, line: null,
+      x: hx + f * hw * 0.06, y: hy + hh * 0.68, w: hw * 0.26, h: Math.max(1, hh * 0.06),
+    });
   }
 }
 
+function darker(tone) {
+  return { lit: tone.base, base: tone.shade, shade: tone.deep, deep: tone.deep };
+}
 
-export function shade(hex, amount) {
-  const n = parseInt(hex.slice(1), 16);
-  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
-    const v = amount >= 0 ? c + (255 - c) * amount : c * (1 + amount);
-    return clamp(Math.round(v), 0, 255);
-  });
-  return `#${ch.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+function lerpPt(a, b, t) {
+  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 }
 
 
-export function drawAnime(ctx, shapes, lineScale = 1) {
+export function drawFighter(ctx, shapes, lineW = 1) {
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   for (const s of shapes) {
-    if (s.t === 'capsule') {
-      ctx.strokeStyle = s.fill;
-      ctx.lineWidth = s.r * 2;
-      ctx.beginPath();
-      ctx.moveTo(s.x0, s.y0);
-      ctx.lineTo(s.x1, s.y1);
-      ctx.stroke();
-    } else if (s.t === 'ellipse') {
-      ctx.fillStyle = s.fill;
-      ctx.beginPath();
-      ctx.ellipse(s.cx, s.cy, Math.max(0.4, s.rx), Math.max(0.4, s.ry), 0, 0, Math.PI * 2);
-      ctx.fill();
-      if (s.line) { ctx.strokeStyle = s.line; ctx.lineWidth = lineScale; ctx.stroke(); }
-    } else if (s.t === 'poly') {
+    if (s.t === 'poly') {
       ctx.fillStyle = s.fill;
       ctx.beginPath();
       ctx.moveTo(s.pts[0][0], s.pts[0][1]);
       for (let i = 1; i < s.pts.length; i += 1) ctx.lineTo(s.pts[i][0], s.pts[i][1]);
       ctx.closePath();
       ctx.fill();
-      if (s.line) { ctx.strokeStyle = s.line; ctx.lineWidth = lineScale; ctx.stroke(); }
-    } else if (s.t === 'lid') {
-      ctx.strokeStyle = s.fill;
-      ctx.lineWidth = s.thick;
+      if (s.line) { ctx.strokeStyle = s.line; ctx.lineWidth = lineW; ctx.stroke(); }
+    } else if (s.t === 'ellipse') {
+      ctx.fillStyle = s.fill;
       ctx.beginPath();
-      ctx.moveTo(s.x - s.w * 0.5, s.y);
-      ctx.lineTo(s.x + s.w * 0.5, s.y);
-      ctx.stroke();
-    } else if (s.t === 'brow') {
-      ctx.strokeStyle = s.fill;
-      ctx.lineWidth = s.thick;
-      ctx.beginPath();
-      ctx.moveTo(s.x - s.w * 0.5, s.y - s.w * 0.5 * s.tilt);
-      ctx.lineTo(s.x + s.w * 0.5, s.y + s.w * 0.5 * s.tilt);
-      ctx.stroke();
+      ctx.ellipse(s.cx, s.cy, Math.max(0.4, s.rx), Math.max(0.4, s.ry), 0, 0, Math.PI * 2);
+      ctx.fill();
+      if (s.line) { ctx.strokeStyle = s.line; ctx.lineWidth = lineW; ctx.stroke(); }
+    } else if (s.t === 'rect') {
+      ctx.fillStyle = s.fill;
+      ctx.fillRect(s.x, s.y, s.w, s.h);
+      if (s.line) { ctx.strokeStyle = s.line; ctx.lineWidth = lineW; ctx.strokeRect(s.x, s.y, s.w, s.h); }
     }
   }
 }
 
-export { KITS };
+export { FX };
