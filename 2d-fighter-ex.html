@@ -79,17 +79,28 @@
 
     <section>
       <h2>Why it looks like this</h2>
-      <p>The stage comes from <strong>Aracstory</strong>, another of our projects —
-        a seeded dungeon crawler that draws its entire world as flat coloured
-        rectangles on a grid. The forest is generated the way Aracstory generates
-        a dungeon: from a seed, in Aracstory's own colour constants. Change the
-        seed and you get a different forest with the same fight in it.</p>
+      <p>The forest is generated the way <strong>Aracstory</strong> generates a
+        dungeon — from a seed. Change the seed and you get a different forest
+        with the same fight in it. What carried across from that project is the
+        idea, not the look: four layers of trees scroll at different speeds under
+        the recovered camera, which is what turns an eight-second pan into
+        somewhere with depth.</p>
+      <p>It is dusk on purpose. Our anime palette has five colours and none of
+        them is green — mixing its warm tan with its dusty blue passes through
+        grey, never through green — so a daylit forest is not expressible in it.
+        A blue hour is: cool canopy, warm earth, a cream glow at the horizon.</p>
       <p>The fighters are drawn to our own written anime recipe — the same one
         the studio's Blender pipeline reads. Large soft irises at two-thirds of
         the eye height, one big specular highlight top-left and a small one
         lower-right, a thick upper lash line and no lower one, a head deliberately
         oversized, and a line that is warm dark brown rather than black. The
-        pupils track whoever they are fighting.</p>
+        pupils track whoever they are fighting, and they are dressed — collar,
+        sleeves, belt — rather than left as mannequins.</p>
+      <p>The eye proportions are measured rather than guessed. We ran an
+        anime-face detector across nine renditions of one character by nine
+        different artists: an eye is about a third of the face wide, slightly
+        taller than it is wide, and the gap between the eyes is <em>narrower</em>
+        than one eye — the opposite of what our own style guide used to say.</p>
       <p>Nothing about the art is picked by eye: every colour on a fighter is a
         blend of two values from the studio's anime palette, and a test fails the
         build if that stops being true.</p>

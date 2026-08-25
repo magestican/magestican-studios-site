@@ -91,13 +91,54 @@ export function buildAnimeFigure({
     ],
   });
   
+  
+  out.push({
+    t: 'poly', fill: kit.topShade, line: null,
+    pts: [
+      [cx - bodyW * 0.46, torsoTop],
+      [cx - bodyW * 0.10, torsoTop],
+      [cx - bodyW * 0.16, hipY],
+      [cx - bodyW * 0.40, hipY],
+      [cx - bodyW * 0.56, torsoTop + (hipY - torsoTop) * 0.55],
+    ],
+  });
+
+  
+  out.push({
+    t: 'poly', part: 'collar', fill: kit.trim, line: LINE,
+    pts: [
+      [cx - bodyW * 0.44, torsoTop],
+      [cx + bodyW * 0.44, torsoTop],
+      [cx + bodyW * 0.18, torsoTop + h * 0.05],
+      [cx, torsoTop + h * 0.085],
+      [cx - bodyW * 0.18, torsoTop + h * 0.05],
+    ],
+  });
+  
+  for (const sx of [shoulderL, shoulderR]) {
+    out.push({
+      t: 'ellipse', part: 'sleeve', cx: sx, cy: shoulderY + h * 0.015,
+      rx: bodyW * 0.17, ry: h * 0.048, fill: kit.top, line: LINE,
+    });
+  }
+
+  
+  out.push({
+    t: 'poly', part: 'belt', fill: kit.trim, line: null,
+    pts: [
+      [cx - bodyW * 0.42, hipY - h * 0.028],
+      [cx + bodyW * 0.42, hipY - h * 0.028],
+      [cx + bodyW * 0.41, hipY + h * 0.004],
+      [cx - bodyW * 0.41, hipY + h * 0.004],
+    ],
+  });
   out.push({
     t: 'poly', fill: kit.legs, line: LINE,
     pts: [
-      [cx - bodyW * 0.42, hipY - h * 0.02],
-      [cx + bodyW * 0.42, hipY - h * 0.02],
-      [cx + bodyW * 0.38, hipY + h * 0.06],
-      [cx - bodyW * 0.38, hipY + h * 0.06],
+      [cx - bodyW * 0.42, hipY],
+      [cx + bodyW * 0.42, hipY],
+      [cx + bodyW * 0.38, hipY + h * 0.075],
+      [cx - bodyW * 0.38, hipY + h * 0.075],
     ],
   });
 
@@ -111,48 +152,96 @@ export function buildAnimeFigure({
 
   
   
-  out.push({ t: 'ellipse', cx: headCx, cy: headCy, rx: headW * 0.5, ry: headH * 0.5, fill: kit.skin, line: LINE });
+  out.push({ t: 'ellipse', part: 'face', cx: headCx, cy: headCy, rx: headW * 0.5, ry: headH * 0.5, fill: kit.skin, line: LINE });
+
+  
+  
+  
+  
+  
+  const hw = headW * 0.5;
+  const hh = headH * 0.5;
 
   
   out.push({
-    t: 'poly', fill: kit.hair, line: LINE,
+    t: 'poly', part: 'hairBack', fill: kit.hairDark, line: LINE,
     pts: [
-      [headCx - headW * 0.52, headCy + headH * 0.06],
-      [headCx - headW * 0.50, headCy - headH * 0.34],
-      [headCx - headW * 0.22, headCy - headH * 0.54],
-      [headCx + headW * 0.22, headCy - headH * 0.54],
-      [headCx + headW * 0.50, headCy - headH * 0.34],
-      [headCx + headW * 0.52, headCy + headH * 0.06],
-      [headCx + headW * 0.30, headCy - headH * 0.10],
-      [headCx + headW * 0.05, headCy - headH * 0.20],
-      [headCx - headW * 0.24, headCy - headH * 0.08],
+      [headCx - hw * 1.16, headCy + hh * 0.72],
+      [headCx - hw * 1.10, headCy - hh * 0.52],
+      [headCx - hw * 0.40, headCy - hh * 1.18],
+      [headCx + hw * 0.40, headCy - hh * 1.18],
+      [headCx + hw * 1.10, headCy - hh * 0.52],
+      [headCx + hw * 1.16, headCy + hh * 0.72],
+      [headCx + hw * 0.86, headCy + hh * 0.34],
+      [headCx - hw * 0.86, headCy + hh * 0.34],
+    ],
+  });
+
+  
+  
+  
+  const fringe = [];
+  fringe.push([headCx - hw * 1.04, headCy - hh * 0.10]);
+  fringe.push([headCx - hw * 0.98, headCy - hh * 0.72]);
+  fringe.push([headCx - hw * 0.34, headCy - hh * 1.14]);
+  fringe.push([headCx + hw * 0.40, headCy - hh * 1.12]);
+  fringe.push([headCx + hw * 1.00, headCy - hh * 0.66]);
+  fringe.push([headCx + hw * 1.04, headCy - hh * 0.06]);
+  
+  const clumps = 4;
+  for (let k = 0; k <= clumps; k += 1) {
+    const t = k / clumps;
+    const x = headCx + hw * (1.02 - 2.04 * t);
+    const up = headCy - hh * 0.30;
+    const dn = headCy + hh * (k % 2 ? 0.30 : 0.10);
+    fringe.push([x + hw * 0.10, dn]);
+    fringe.push([x - hw * 0.06, up]);
+  }
+  out.push({ t: 'poly', part: 'hairFringe', fill: kit.hair, line: LINE, pts: fringe });
+
+  
+  out.push({
+    t: 'poly', part: 'hairLit', fill: kit.hairLit, line: null,
+    pts: [
+      [headCx - hw * 0.72, headCy - hh * 0.74],
+      [headCx - hw * 0.10, headCy - hh * 1.02],
+      [headCx + hw * 0.54, headCy - hh * 0.86],
+      [headCx + hw * 0.44, headCy - hh * 0.62],
+      [headCx - hw * 0.14, headCy - hh * 0.76],
+      [headCx - hw * 0.66, headCy - hh * 0.54],
     ],
   });
 
   
   const eyeY = headCy + headH * 0.10;
-  const eyeH = headH * 0.30;
-  const eyeW = eyeH * 0.72;
   
-  const gap = eyeW * 1.15;
+  
+  
+  
+  const eyeH = headH * 0.34;
+  const eyeW = eyeH * 0.87;
+  
+  
+  
+  const gap = eyeW * 0.79;
   
   const look = lookAt === undefined ? f : Math.sign(lookAt - cx) || f;
 
   for (const side of [-1, 1]) {
     const ex = headCx + side * gap * 0.5 + f * headW * 0.04;
     
-    out.push({ t: 'ellipse', cx: ex, cy: eyeY, rx: eyeW * 0.5, ry: eyeH * 0.5, fill: ANIME.secondary, line: null });
+    out.push({ t: 'ellipse', part: 'sclera', cx: ex, cy: eyeY, rx: eyeW * 0.5, ry: eyeH * 0.5, fill: ANIME.secondary, line: null });
     
     const irisR = eyeH * 0.5 * IRIS_RATIO;
     const ix = ex + look * eyeW * 0.10;
-    out.push({ t: 'ellipse', cx: ix, cy: eyeY + eyeH * 0.04, rx: irisR * 0.82, ry: irisR, fill: kit.iris, line: null });
-    out.push({ t: 'ellipse', cx: ix, cy: eyeY + eyeH * 0.08, rx: irisR * 0.42, ry: irisR * 0.52, fill: shade(kit.iris, -0.55), line: null });
+    out.push({ t: 'ellipse', part: 'iris', cx: ix, cy: eyeY + eyeH * 0.04, rx: irisR * 0.82, ry: irisR, fill: kit.iris, line: null });
+    out.push({ t: 'ellipse', part: 'pupil', cx: ix, cy: eyeY + eyeH * 0.08, rx: irisR * 0.42, ry: irisR * 0.52, fill: shade(kit.iris, -0.55), line: null });
     
-    out.push(circle(ix - irisR * 0.42, eyeY - irisR * 0.42, irisR * 0.40, ANIME.highlight));
-    out.push(circle(ix + irisR * 0.40, eyeY + irisR * 0.46, irisR * 0.17, ANIME.highlight));
+    out.push({ ...circle(ix - irisR * 0.42, eyeY - irisR * 0.42, irisR * 0.40, ANIME.highlight), part: 'highlight' });
+    out.push({ ...circle(ix + irisR * 0.40, eyeY + irisR * 0.46, irisR * 0.17, ANIME.highlight), part: 'highlight' });
     
     out.push({
-      t: 'lid', x: ex, y: eyeY - eyeH * 0.44, w: eyeW, thick: Math.max(1, eyeH * 0.16), fill: LINE,
+      t: 'lid', part: 'upperLid', x: ex, y: eyeY - eyeH * 0.44, w: eyeW, thick: Math.max(1, eyeH * 0.16), fill: LINE,
     });
   }
 
@@ -171,7 +260,7 @@ export function buildAnimeFigure({
   for (const side of [-1, 1]) {
     const ex = headCx + side * gap * 0.62 + f * headW * 0.04;
     out.push({
-      t: 'ellipse', cx: ex, cy: eyeY + eyeH * 0.72,
+      t: 'ellipse', part: 'blush', cx: ex, cy: eyeY + eyeH * 0.72,
       rx: eyeW * 0.42, ry: eyeH * 0.22, fill: kit.blush, line: null,
     });
   }
