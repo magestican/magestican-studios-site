@@ -3,7 +3,7 @@
 import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
 import { CANVAS } from './choreography.js';
 import { buildStage } from './stage.js';
-import { frameAt, poseAt, TOTAL_MS } from './playback.js';
+import { cursorAt, poseAtTime, TOTAL_MS } from './playback.js';
 import { renderFrame } from './render.js';
 
 initAnalytics({ page: '2d-fighter-ex' });
@@ -31,11 +31,11 @@ function tick(now) {
   last = now;
   if (playing) elapsed += dt * speed;
 
-  const i = frameAt(elapsed);
-  const pose = poseAt(i);
+  const pose = poseAtTime(elapsed);
+
   renderFrame(ctx, cells, pose);
 
-  $('frame').textContent = String(i + 1);
+  $('frame').textContent = String(pose.index + 1);
   $('clock').textContent = `${(((elapsed % TOTAL_MS) / 1000)).toFixed(2)}s`;
   $('beat').textContent = pose.camera.closeup ? 'close-up' : (pose.fx || '-');
 
@@ -52,8 +52,10 @@ $('playpause').addEventListener('click', () => setPlaying(!playing));
 
 $('step').addEventListener('click', () => {
   setPlaying(false);
-  const i = frameAt(elapsed);
-  elapsed += poseAt(i).holdMs;
+  
+  
+  const c = cursorAt(elapsed);
+  elapsed += c.hold - c.into;
 });
 
 $('speed').addEventListener('input', (e) => {
@@ -70,7 +72,11 @@ $('reseed').addEventListener('click', () => {
 
 globalThis.addEventListener('keydown', (e) => {
   if (e.key === ' ') { e.preventDefault(); setPlaying(!playing); }
-  if (e.key === 'ArrowRight') { setPlaying(false); elapsed += poseAt(frameAt(elapsed)).holdMs; }
+  if (e.key === 'ArrowRight') {
+    setPlaying(false);
+    const c = cursorAt(elapsed);
+    elapsed += c.hold - c.into;
+  }
   if (e.key === 'ArrowLeft') { setPlaying(false); elapsed = Math.max(0, elapsed - 120); }
 });
 
@@ -92,6 +98,6 @@ trackEvent('game_start', { game: '2d-fighter-ex', seed });
 
 
 
-renderFrame(ctx, cells, poseAt(0));
+renderFrame(ctx, cells, poseAtTime(0));
 
 requestAnimationFrame(tick);

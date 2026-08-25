@@ -134,4 +134,96 @@ export function poseAt(i) {
   };
 }
 
-export { TOTAL_MS };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const MAX_TWEEN_MS = 110;
+
+const lerp = (a, b, t) => a + (b - a) * t;
+
+const ease = (t) => t * t * (3 - 2 * t);
+
+function lerpPts(a, b, t) {
+  if (!a || !b || a.length !== b.length) return a;
+  return a.map((p, i) => [lerp(p[0], b[i][0], t), lerp(p[1], b[i][1], t)]);
+}
+
+function lerpSpec(a, b, t) {
+  
+  
+  if (!a || !b) return a;
+  return {
+    cx: lerp(a.cx, b.cx, t),
+    feet: lerp(a.feet, b.feet, t),
+    top: lerp(a.top, b.top, t),
+    width: a.width,
+    facing: t < 0.5 ? a.facing : b.facing,
+    headX: lerp(a.headX, b.headX, t),
+    hands: lerpPts(a.hands, b.hands, t),
+    feetPts: lerpPts(a.feetPts, b.feetPts, t),
+  };
+}
+
+
+export function cursorAt(ms) {
+  const t = ((ms % TOTAL_MS) + TOTAL_MS) % TOTAL_MS;
+  let acc = 0;
+  for (let i = 0; i < FRAMES.length; i += 1) {
+    const hold = FRAMES[i][HOLD];
+    if (t < acc + hold) return { index: i, into: t - acc, hold };
+    acc += hold;
+  }
+  const last = FRAMES.length - 1;
+  return { index: last, into: FRAMES[last][HOLD], hold: FRAMES[last][HOLD] };
+}
+
+
+
+
+
+
+
+export function poseAtTime(ms) {
+  const { index, into, hold } = cursorAt(ms);
+  const cur = poseAt(index);
+  const tween = Math.min(hold, MAX_TWEEN_MS);
+  const startAt = hold - tween;
+  if (into <= startAt || tween <= 0) return { ...cur, tween: 0 };
+
+  const next = poseAt((index + 1) % FRAMES.length);
+  const t = ease(Math.min(1, (into - startAt) / tween));
+  return {
+    index,
+    holdMs: hold,
+    tween: t,
+    a: lerpSpec(cur.a, next.a, t),
+    b: lerpSpec(cur.b, next.b, t),
+    fx: cur.fx,
+    camera: {
+      zoom: lerp(cur.camera.zoom, next.camera.zoom, t),
+      x: lerp(cur.camera.x, next.camera.x, t),
+      y: lerp(cur.camera.y, next.camera.y, t),
+      closeup: cur.camera.closeup,
+    },
+  };
+}
+
+export { TOTAL_MS, MAX_TWEEN_MS };

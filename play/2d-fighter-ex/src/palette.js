@@ -72,6 +72,7 @@ export const KITS = Object.freeze({
     limb: ANIME.primary,
     shoe: mix(ANIME.secondary, ANIME.shadow, 0.20),
     iris: mix(ANIME.accent, ANIME.shadow, 0.30),
+    blush: mix(ANIME.primary, ANIME.secondary, 0.15),
   }),
   dark: Object.freeze({
     skin: mix(ANIME.primary, ANIME.secondary, 0.35),
@@ -81,6 +82,7 @@ export const KITS = Object.freeze({
     limb: mix(ANIME.primary, ANIME.secondary, 0.35),
     shoe: mix(ANIME.secondary, ANIME.shadow, 0.10),
     iris: mix(ANIME.accent, ANIME.shadow, 0.55),
+    blush: mix(ANIME.primary, ANIME.secondary, 0.05),
   }),
 });
 

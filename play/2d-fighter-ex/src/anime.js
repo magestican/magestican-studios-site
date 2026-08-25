@@ -166,6 +166,17 @@ export function buildAnimeFigure({
   }
 
   
+  
+  
+  for (const side of [-1, 1]) {
+    const ex = headCx + side * gap * 0.62 + f * headW * 0.04;
+    out.push({
+      t: 'ellipse', cx: ex, cy: eyeY + eyeH * 0.72,
+      rx: eyeW * 0.42, ry: eyeH * 0.22, fill: kit.blush, line: null,
+    });
+  }
+
+  
   out.push({
     t: 'lid', x: headCx + f * headW * 0.06, y: headCy + headH * 0.34,
     w: headW * 0.16, thick: Math.max(1, headH * 0.045), fill: LINE,
