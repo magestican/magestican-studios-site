@@ -8,8 +8,18 @@
 
 
 
-import { FRAMES, TOTAL_MS, HOLD, CAM, A, B, FX, CLOSEUP } from './choreography.js';
-import { GROUND_Y } from './stage.js';
+import {
+  FRAMES, TOTAL_MS, HOLD, CAM, A, B, FX, CLOSEUP,
+  CX, TOP, BOT, HEAD_X, HAND1, HAND2, FOOT1, FOOT2,
+} from './choreography.js';
+
+
+
+
+
+const MIN_H = 34;
+const MAX_H = 120;
+const FIGHTER_W = 26;
 
 
 export function frameAt(ms) {
@@ -38,7 +48,6 @@ function lastKnown(i, slot) {
 
 
 
-
 export function cameraAt(i) {
   const raw = lastKnown(i, CAM);
   const scale = raw ? 1 / raw[2] : 1;
@@ -52,28 +61,11 @@ export function cameraAt(i) {
 }
 
 
-
-
-
-
-
-
-
-export function reachAt(i, slot) {
-  if (FRAMES[i][FX] === 'burst') return 1;
-  const cur = FRAMES[i][slot];
-  if (!cur) return 0;
-  const restW = 26;
-  const spread = (cur[3] - restW) / restW;
-  return spread < 0 ? 0 : spread > 1 ? 1 : spread;
-}
-
-
 export function facingAt(i) {
   const a = lastKnown(i, A);
   const b = lastKnown(i, B);
   if (!a || !b) return { a: 1, b: -1 };
-  return a[0] <= b[0] ? { a: 1, b: -1 } : { a: -1, b: 1 };
+  return a[CX] <= b[CX] ? { a: 1, b: -1 } : { a: -1, b: 1 };
 }
 
 
@@ -81,11 +73,19 @@ export function facingAt(i) {
 
 
 
-const FIGHTER_W = 26;
-const MIN_H = 34;
-const MAX_H = 74;
 
 
+
+
+function limbPair(v, i1, i2, rest, cx) {
+  const p1 = v[i1] < 0 ? null : [v[i1], v[i1 + 1]];
+  const p2 = v[i2] < 0 ? null : [v[i2], v[i2 + 1]];
+  if (p1 && p2) return [p1, p2];
+  const found = p1 || p2;
+  if (!found) return rest;
+  const mirrored = [2 * cx - found[0], found[1]];
+  return found[0] <= cx ? [found, mirrored] : [mirrored, found];
+}
 
 
 
@@ -97,22 +97,33 @@ const MAX_H = 74;
 export function poseAt(i) {
   const f = FRAMES[i];
   const facing = facingAt(i);
+  const closeup = f[CLOSEUP] === 1;
+
   const build = (slot, side) => {
     
     
-    
-    
-    
-    const v = f[slot] || (FRAMES[i][CLOSEUP] === 1 ? lastKnown(i, slot) : null);
+    const v = f[slot] || (closeup ? lastKnown(i, slot) : null);
     if (!v) return null;
-    const raw = v[1] - v[2];
-    const height = raw < MIN_H ? MIN_H : raw > MAX_H ? MAX_H : raw;
-    const feet = Math.min(v[1], GROUND_Y + 8);
+    const rawH = v[BOT] - v[TOP];
+    const height = rawH < MIN_H ? MIN_H : rawH > MAX_H ? MAX_H : rawH;
+    const cx = v[CX];
+    const feet = v[TOP] + height;
+    const restHandY = v[TOP] + height * 0.45;
+    const restFootY = feet;
     return {
-      cx: v[0], feet, top: feet - height,
-      width: FIGHTER_W, facing: facing[side], reach: reachAt(i, slot),
+      cx,
+      feet,
+      top: v[TOP],
+      width: FIGHTER_W,
+      facing: facing[side],
+      headX: v[HEAD_X],
+      hands: limbPair(v, HAND1, HAND2,
+        [[cx - FIGHTER_W * 0.8, restHandY], [cx + FIGHTER_W * 0.8, restHandY]], cx),
+      feetPts: limbPair(v, FOOT1, FOOT2,
+        [[cx - FIGHTER_W * 0.35, restFootY], [cx + FIGHTER_W * 0.35, restFootY]], cx),
     };
   };
+
   return {
     index: i,
     holdMs: f[HOLD],

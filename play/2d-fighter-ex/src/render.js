@@ -2,7 +2,7 @@
 
 import { CANVAS } from './choreography.js';
 import { buildFigure, drawFigure } from './fighter.js';
-import { drawStage, STAGE_WIDTH, GROUND_Y } from './stage.js';
+import { drawStage, STAGE_WIDTH } from './stage.js';
 import { FIGHTERS, FX as FX_COLOURS, BIOMES, STAGE_BIOME } from './palette.js';
 
 
@@ -47,7 +47,11 @@ function drawEffect(ctx, pose) {
   const ax = a ? a.cx : b.cx;
   const bx = b ? b.cx : a.cx;
   const x = (ax + bx) / 2;
-  const y = GROUND_Y - 34;
+  
+  
+  
+  const mid = (s) => s.top + (s.feet - s.top) * 0.45;
+  const y = a && b ? (mid(a) + mid(b)) / 2 : mid(a || b);
 
   if (pose.fx === 'burst') {
     

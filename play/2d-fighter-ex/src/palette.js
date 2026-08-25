@@ -33,18 +33,23 @@ export const CELL_PX = 24;
 
 
 
+
+
+
+
+
 export const FIGHTERS = Object.freeze({
   light: Object.freeze({
+    head: BIOMES.desert.exit,     
     body: BIOMES.desert.floor,
     limb: BIOMES.desert.door,
-    head: BIOMES.desert.floor,
-    trim: BIOMES.forest.exit,
+    trim: BIOMES.forest.exit,     
     edge: BIOMES.desert.wall,
   }),
   dark: Object.freeze({
-    body: BIOMES.cave.wall,
+    head: BIOMES.cave.wall,       
+    body: BIOMES.ruins.wall,
     limb: BIOMES.ruins.floor,
-    head: BIOMES.cave.wall,
     trim: BIOMES.cave.exit,
     edge: BIOMES.ruins.wall,
   }),
