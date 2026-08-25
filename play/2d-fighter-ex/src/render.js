@@ -1,8 +1,9 @@
 
 
 import { CANVAS } from './choreography.js';
-import { CELL, BAKED_BODY_PX, HIP_FRAC, HEAD_FRAC, FRAMES_LIGHT, FRAMES_DARK } from './bakeManifest.js';
-import { drawSky, drawPlane, drawShafts, STAGE_WIDTH } from './stage.js';
+import { CELL, REF_BODY_PX, FEET_ROW, FRAMES_LIGHT, FRAMES_DARK } from './bakeManifest.js';
+import { FRAMES } from './choreography.js';
+import { drawSky, drawPlane, drawShafts, drawTrain, STAGE_WIDTH } from './stage.js';
 import { FX } from './palette.js';
 
 
@@ -21,6 +22,10 @@ export function renderFrame(ctx, stage, pose, mood = 'none') {
 
   drawSky(ctx, width, height);
   drawPlane(ctx, stage, 'far', view);
+  
+  
+  drawPlane(ctx, stage, 'rail', view);
+  drawTrain(ctx, (pose.index || 0) / FRAMES.length, view);
   drawShafts(ctx, stage, view);
   drawPlane(ctx, stage, 'mid', view);
   drawPlane(ctx, stage, 'ground', view);
@@ -44,20 +49,25 @@ export function renderFrame(ctx, stage, pose, mood = 'none') {
     if (!atlas || !frameIdx) return;
     const cellPos = frameIdx[index + 1];
     if (!cellPos) return;
+    
+    
+    
+    
     const h = spec.feet - spec.top;
-    const scale = h / BAKED_BODY_PX;
-    const headPx = h * HEAD_FRAC;
-    const hipY = spec.top + headPx + (h - headPx) * HIP_FRAC;
+    const scale = h / REF_BODY_PX;
+    const size = CELL * scale;
     ctx.save();
     if (alpha !== undefined) ctx.globalAlpha = alpha;
-    if (mood !== 'none') ctx.filter = MOOD_FILTERS[mood] || 'none';
     if (alpha !== undefined) ctx.filter = 'brightness(0.1)';
+    else if (mood !== 'none') ctx.filter = MOOD_FILTERS[mood] || 'none';
     ctx.imageSmoothingEnabled = true;
-    const size = CELL * scale;
-    ctx.translate(spec.cx, hipY);
+    
+    
+    
+    ctx.translate(spec.cx, spec.feet);
     if (spec.facing < 0) ctx.scale(-1, 1);
     ctx.drawImage(atlas, cellPos[0], cellPos[1], CELL, CELL,
-      -size / 2, -size / 2, size, size);
+      -size / 2, -FEET_ROW * scale, size, size);
     ctx.restore();
   };
 

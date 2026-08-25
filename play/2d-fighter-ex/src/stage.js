@@ -11,293 +11,461 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 import { SeededRng } from '../../../web-engine/rng/seededRng.js';
 import { CEL, mix } from './palette.js';
 import { roughen, seedOf, noise1 } from './handdrawn.js';
 
-export const STAGE_WIDTH = 1600;
-export const STAGE_HEIGHT = 271;
-export const GROUND_Y = 205;
 
-export const PARALLAX = Object.freeze({
-  sky: 0.0, far: 0.22, mid: 0.52, ground: 1.0, near: 1.32,
-});
-
-export const SKY = Object.freeze({
-  high: mix(CEL.navy, CEL.sky, 0.35),
-  mid: CEL.sky,
-  low: mix(CEL.sky, CEL.cream, 0.55),
-  glow: mix(CEL.cream, CEL.mustard, 0.35),
-  shaft: CEL.highlight,
-});
-
-export const FOLIAGE = Object.freeze({
-  
-  far: mix(CEL.moss, CEL.sky, 0.58),
-  midLit: mix(CEL.moss, CEL.mustard, 0.30),
-  mid: CEL.moss,
-  midShade: mix(CEL.moss, CEL.ink, 0.34),
-  near: mix(CEL.moss, CEL.ink, 0.62),
-});
-
-export const BARK = Object.freeze({
-  lit: mix(CEL.bark, CEL.mustard, 0.22),
-  base: CEL.bark,
-  shade: mix(CEL.bark, CEL.ink, 0.38),
-});
-
-export const GROUND = Object.freeze({
-  lit: mix(CEL.bark, CEL.mustard, 0.42),
-  base: mix(CEL.bark, CEL.mustard, 0.18),
-  path: mix(CEL.bark, CEL.ink, 0.18),
-  shade: mix(CEL.bark, CEL.ink, 0.42),
-  edge: mix(CEL.moss, CEL.ink, 0.30),
-});
 
 function seededFrom(seed) {
   if (typeof seed === 'number') return new SeededRng(seed || 1);
   return new SeededRng(1).child(String(seed));
 }
 
+export const STAGE_WIDTH = 1600;
+export const STAGE_HEIGHT = 271;
+export const GROUND_Y = 205;
 
-function tree(rng, x, baseY, scale, tone, barkTone) {
-  const shapes = [];
-  const th = 96 * scale;
-  const tw = 11 * scale;
-  const topY = baseY - th;
-
-  
-  const lean = rng.rangeF(-0.14, 0.14) * th;
-  shapes.push({
-    t: 'poly', fill: barkTone.base, line: null,
-    pts: [
-      [x - tw * 0.5, baseY], [x + tw * 0.5, baseY],
-      [x + lean + tw * 0.20, topY], [x + lean - tw * 0.20, topY],
-    ],
-  });
-  shapes.push({
-    t: 'poly', fill: barkTone.shade, line: null,
-    pts: [
-      [x - tw * 0.5, baseY], [x - tw * 0.12, baseY],
-      [x + lean - tw * 0.05, topY], [x + lean - tw * 0.20, topY],
-    ],
-  });
-  
-  shapes.push({
-    t: 'poly', fill: barkTone.shade, line: null,
-    pts: [
-      [x - tw * 1.15, baseY + 3 * scale], [x - tw * 0.5, baseY - 12 * scale],
-      [x + tw * 0.5, baseY - 12 * scale], [x + tw * 1.15, baseY + 3 * scale],
-    ],
-  });
-
-  
-  const branches = rng.rangeI(3, 5);
-  const clumps = [];
-  for (let i = 0; i < branches; i += 1) {
-    const t = 0.35 + (i / branches) * 0.6;
-    const bx = x + lean * t;
-    const by = baseY - th * t;
-    const dir = i % 2 === 0 ? -1 : 1;
-    const len = (26 + rng.rangeI(0, 22)) * scale;
-    const rise = (14 + rng.rangeI(0, 16)) * scale;
-    const ex = bx + dir * len;
-    const ey = by - rise;
-    const bw = tw * (0.34 - i * 0.04);
-    shapes.push({
-      t: 'poly', fill: barkTone.base, line: null,
-      pts: [
-        [bx, by + bw], [ex, ey + bw * 0.55],
-        [ex, ey - bw * 0.55], [bx, by - bw],
-      ],
-    });
-    clumps.push([ex, ey, (18 + rng.rangeI(0, 12)) * scale]);
-  }
-  clumps.push([x + lean, topY - 6 * scale, (24 + rng.rangeI(0, 12)) * scale]);
-
-  
-  for (const [cx0, cy0, r] of clumps) {
-    for (const [dx, dy, rr, fill] of [
-      [0, 0, r, tone.mid],
-      [-r * 0.35, -r * 0.30, r * 0.72, tone.midLit],
-      [r * 0.30, r * 0.22, r * 0.66, tone.midShade],
-    ]) {
-      const cx = cx0 + dx;
-      const cy = cy0 + dy;
-      const pts = [];
-      const lobes = 7;
-      for (let k = 0; k < lobes * 2; k += 1) {
-        const a = (k / (lobes * 2)) * Math.PI * 2 - Math.PI / 2;
-        const rad = rr * (k % 2 === 0 ? 1 : 0.74);
-        pts.push([cx + Math.cos(a) * rad, cy + Math.sin(a) * rad * 0.78]);
-      }
-      shapes.push({ t: 'poly', fill, line: null, pts });
-    }
-  }
-  return shapes;
-}
-
-export const EXTRA = Object.freeze({
-  mountain: mix(CEL.sky, CEL.navy, 0.45),
-  mountainSnow: mix(CEL.sky, CEL.highlight, 0.55),
-  cloud: mix(CEL.cream, CEL.highlight, 0.45),
-  cloudShade: mix(CEL.cream, CEL.sky, 0.35),
-  rock: mix(CEL.bark, CEL.navy, 0.35),
-  rockLit: mix(CEL.bark, CEL.cream, 0.30),
-  bush: mix(CEL.moss, CEL.ink, 0.18),
-  bushLit: mix(CEL.moss, CEL.mustard, 0.42),
-  leaf: mix(CEL.rust, CEL.mustard, 0.45),
+export const PARALLAX = Object.freeze({
+  sky: 0,
+  far: 0.18,
+  rail: 0.34,
+  mid: 0.56,
+  ground: 1.0,
+  near: 1.34,
 });
 
-export function buildStage(seed = 'fighter-ex') {
-  const rng = seededFrom(seed);
-  const planes = { far: [], mid: [], ground: [], near: [] };
+
+
+
+export const SKY = Object.freeze({
+  high: '#8FA8C8',
+  mid: '#AFC2DA',
+  low: '#D2DBEA',
+  glow: '#E4E0D6',
+  shaft: '#FFFFFF',
+});
+
+export const SNOW = Object.freeze({
+  lit: '#E6EAE7',
+  base: '#D3DBD8',
+  shade: '#95B3DF',
+  rock: '#6E7A88',
+});
+
+export const CONCRETE = Object.freeze({
+  lit: '#CFD4D9',
+  base: '#A8ADB2',
+  shade: '#6E7378',
+  deep: '#363330',
+  ink: '#2E2D2A',
+});
+
+export const CITY = Object.freeze({
+  vermilion: '#C7520D',
+  vermilionDeep: '#8E3A09',
+  sign: '#F2E6CF',
+  signInk: '#22201E',
+  steel: '#95A2B3',
+  steelDeep: '#5E6873',
+  glass: '#3E5468',
+  glassLit: '#C8A24A',
+  pine: '#3C5142',
+  pineLit: '#587A5C',
+  bamboo: '#7E8E52',
+});
+
+
+const HAZE = { far: 0.62, rail: 0.34, mid: 0.16, ground: 0, near: 0 };
+const haze = (hex, plane) => mix(hex, SKY.low, HAZE[plane] || 0);
+
+
+
+
+
+
+function danchi(rng, x, w, h, plane) {
+  const out = [];
+  const top = GROUND_Y - h;
+  const body = haze(CONCRETE.base, plane);
+  out.push({ t: 'poly', fill: body, pts: [[x, GROUND_Y], [x, top], [x + w, top], [x + w, GROUND_Y]] });
+  
+  
+  out.push({
+    t: 'poly', fill: haze(CONCRETE.lit, plane),
+    pts: [[x, GROUND_Y], [x, top], [x + w * 0.22, top], [x + w * 0.22, GROUND_Y]],
+  });
+  out.push({
+    t: 'poly', fill: haze(CONCRETE.shade, plane),
+    pts: [[x + w * 0.84, GROUND_Y], [x + w * 0.84, top], [x + w, top], [x + w, GROUND_Y]],
+  });
 
   
   
-  
-  for (const [off, tone, top] of [[0, EXTRA.mountain, 46], [420, mix(EXTRA.mountain, SKY.mid, 0.45), 62]]) {
-    const ridge = [[-260, STAGE_HEIGHT]];
-    let y = top + rng.rangeI(0, 14);
-    for (let x = -260; x <= STAGE_WIDTH + 260; x += 46) {
-      y = Math.max(top - 26, Math.min(top + 40, y + rng.rangeI(-16, 16)));
-      ridge.push([x + off % 46, y]);
-    }
-    ridge.push([STAGE_WIDTH + 260, STAGE_HEIGHT]);
-    planes.far.push({ t: 'poly', fill: tone, line: null, pts: ridge });
-    
-    const peaks = ridge.slice(1, -1).filter((p) => p[1] < top - 8).slice(0, 3);
-    for (const [px, py] of peaks) {
-      planes.far.push({
-        t: 'poly', fill: EXTRA.mountainSnow, line: null,
-        pts: [[px - 16, py + 10], [px, py - 2], [px + 16, py + 10], [px + 6, py + 8], [px - 6, py + 8]],
+  const floors = Math.max(3, Math.round(h / 13));
+  for (let f = 0; f < floors; f += 1) {
+    const fy = top + 5 + (f * (h - 8)) / floors;
+    out.push({ t: 'rect', fill: haze(CONCRETE.deep, plane), x: x + 2, y: fy, w: w - 4, h: 2.2 });
+    const bays = Math.max(2, Math.round(w / 15));
+    for (let b = 0; b < bays; b += 1) {
+      const bx = x + 3 + (b * (w - 6)) / bays;
+      const bw = (w - 6) / bays - 2.5;
+      if (bw < 2) continue;
+      
+      const lit = rng.rangeI(0, 100) < 16;
+      out.push({
+        t: 'rect', fill: haze(lit ? CITY.glassLit : CITY.glass, plane),
+        x: bx, y: fy - 4.2, w: bw, h: 4.0,
       });
     }
   }
+  
+  const tw = Math.min(14, w * 0.3);
+  out.push({ t: 'rect', fill: haze(CONCRETE.shade, plane), x: x + w * 0.18, y: top - 7, w: tw, h: 5 });
+  out.push({ t: 'rect', fill: haze(CONCRETE.deep, plane), x: x + w * 0.18 + 1, y: top - 2, w: 2, h: 2 });
+  out.push({ t: 'rect', fill: haze(CONCRETE.deep, plane), x: x + w * 0.18 + tw - 3, y: top - 2, w: 2, h: 2 });
+  out.push({ t: 'rect', fill: haze(CONCRETE.base, plane), x: x + w * 0.62, y: top - 5, w: w * 0.2, h: 5 });
+  return out;
+}
+
+
+function verticalSign(rng, x, y, h, plane) {
+  const out = [];
+  const w = 7;
+  const board = rng.rangeI(0, 100) < 45 ? CITY.vermilion : CITY.sign;
+  const glyph = board === CITY.vermilion ? CITY.sign : CITY.signInk;
+  out.push({ t: 'rect', fill: haze(CONCRETE.deep, plane), x: x - 1, y: y - 1, w: w + 2, h: h + 2 });
+  out.push({ t: 'rect', fill: haze(board, plane), x, y, w, h });
+  
+  
+  
+  const n = Math.max(2, Math.floor(h / 8));
+  for (let i = 0; i < n; i += 1) {
+    const gy = y + 2 + i * (h - 3) / n;
+    out.push({ t: 'rect', fill: haze(glyph, plane), x: x + 1.5, y: gy, w: w - 3, h: 1.4 });
+    out.push({ t: 'rect', fill: haze(glyph, plane), x: x + 2.6, y: gy + 1.8, w: 1.3, h: 2.6 });
+    if (i % 2 === 0) {
+      out.push({ t: 'rect', fill: haze(glyph, plane), x: x + 1.5, y: gy + 3.4, w: w - 3, h: 1.2 });
+    }
+  }
+  return out;
+}
+
+
+function pine(rng, x, base, h, plane) {
+  const out = [];
+  const trunkW = Math.max(2, h * 0.055);
+  out.push({
+    t: 'poly', fill: haze(mix(CONCRETE.deep, CITY.pine, 0.35), plane),
+    pts: [[x - trunkW, base], [x - trunkW * 0.5, base - h * 0.7],
+          [x + trunkW * 0.4, base - h * 0.7], [x + trunkW, base]],
+  });
+  
+  
+  const pads = rng.rangeI(3, 5);
+  for (let p = 0; p < pads; p += 1) {
+    const t = p / (pads - 1 || 1);
+    const py = base - h * (0.42 + t * 0.58);
+    const pw = h * (0.44 - t * 0.20);
+    const lean = noise1(p * 2.3 + x * 0.01, 21) * pw * 0.2;
+    const pts = [];
+    for (let i = 0; i <= 12; i += 1) {
+      const a = Math.PI + (i / 12) * Math.PI;
+      pts.push([x + lean + Math.cos(a) * pw, py + Math.sin(a) * pw * 0.30]);
+    }
+    pts.push([x + lean + pw * 0.8, py + 2.5], [x + lean - pw * 0.8, py + 2.5]);
+    out.push({ t: 'poly', fill: haze(p === pads - 1 ? CITY.pineLit : CITY.pine, plane), pts });
+  }
+  return out;
+}
+
+
+function torii(x, base, h, plane) {
+  const w = h * 0.85;
+  const postW = Math.max(2, h * 0.075);
+  const v = haze(CITY.vermilion, plane);
+  const vd = haze(CITY.vermilionDeep, plane);
+  return [
+    { t: 'poly', fill: v, pts: [[x - w / 2, base], [x - w / 2 + postW * 0.4, base - h], [x - w / 2 + postW * 1.2, base - h], [x - w / 2 + postW, base]] },
+    { t: 'poly', fill: v, pts: [[x + w / 2 - postW, base], [x + w / 2 - postW * 1.2, base - h], [x + w / 2 - postW * 0.4, base - h], [x + w / 2, base]] },
+    { t: 'poly', fill: vd, pts: [[x - w * 0.62, base - h], [x + w * 0.62, base - h], [x + w * 0.58, base - h + postW * 0.9], [x - w * 0.58, base - h + postW * 0.9]] },
+    { t: 'rect', fill: v, x: x - w * 0.42, y: base - h + postW * 1.8, w: w * 0.84, h: postW * 0.7 },
+  ];
+}
+
+
+function vending(rng, x, base, plane) {
+  const w = 11;
+  const h = 19;
+  const y = base - h;
+  const face = rng.rangeI(0, 100) < 50 ? CITY.vermilion : '#2F6EA8';
+  return [
+    { t: 'rect', fill: haze(CONCRETE.deep, plane), x: x - 1, y: y - 1, w: w + 2, h: h + 1 },
+    { t: 'rect', fill: haze(face, plane), x, y, w, h },
+    { t: 'rect', fill: haze(CITY.sign, plane), x: x + 1, y: y + 2, w: w - 2, h: 8 },
+    { t: 'rect', fill: haze(CITY.glassLit, plane), x: x + 1.5, y: y + 11, w: w - 3, h: 2 },
+    { t: 'rect', fill: haze(CONCRETE.ink, plane), x: x + 1.5, y: y + 14.5, w: w - 3, h: 2.5 },
+  ];
+}
+
+
+
+
+
+export const RAIL_Y = 108;          
+export const TRAIN_CARS = 5;
+export const CAR_W = 62;
+export const CAR_H = 22;
+
+
+
+
+
+
+
+
+export function trainX(progress) {
+  const len = TRAIN_CARS * CAR_W + 24;
+  const from = -len - 40;
+  const to = STAGE_WIDTH + 40;
+  const t = Math.max(0, Math.min(1, (progress - 0.12) / 0.76));
+  return from + (to - from) * t;
+}
+
+export function trainVisible(progress) {
+  const x = trainX(progress);
+  return x > -(TRAIN_CARS * CAR_W + 60) && x < STAGE_WIDTH + 60;
+}
+
+
+export function drawTrain(ctx, progress, { camX, camY, zoom, width, height, offsetX }) {
+  if (!trainVisible(progress)) return;
+  const rate = PARALLAX.rail;
+  ctx.save();
+  ctx.translate(width / 2, height / 2);
+  ctx.scale(zoom, zoom);
+  ctx.translate(-width / 2, -height / 2);
+  ctx.translate(-camX * rate, -camY * rate);
+  ctx.translate(-offsetX, 0);
+
+  const x0 = trainX(progress);
+  const y = RAIL_Y - CAR_H;
+  for (let c = 0; c < TRAIN_CARS; c += 1) {
+    const cx = x0 + c * (CAR_W + 3);
+    
+    ctx.fillStyle = haze(CITY.steel, 'rail');
+    ctx.fillRect(cx, y, CAR_W, CAR_H);
+    
+    
+    ctx.fillStyle = haze(CITY.steelDeep, 'rail');
+    ctx.fillRect(cx, y, CAR_W, 3);
+    ctx.fillRect(cx, y + CAR_H - 4, CAR_W, 4);
+    
+    ctx.fillStyle = haze(CITY.vermilion, 'rail');
+    ctx.fillRect(cx, y + CAR_H * 0.52, CAR_W, 3);
+    
+    ctx.fillStyle = haze(CITY.glass, 'rail');
+    for (let w = 0; w < 5; w += 1) {
+      const wx = cx + 5 + w * 11.5;
+      if (w === 2) continue;                       
+      ctx.fillRect(wx, y + 5, 8.5, 7);
+    }
+    ctx.fillStyle = haze(mix(CITY.glass, CITY.sign, 0.3), 'rail');
+    ctx.fillRect(cx + 27, y + 4.5, 7, 10);         
+    
+    ctx.fillStyle = haze(CONCRETE.ink, 'rail');
+    ctx.fillRect(cx + 8, y + CAR_H, 12, 3);
+    ctx.fillRect(cx + CAR_W - 20, y + CAR_H, 12, 3);
+  }
+  ctx.restore();
+}
+
+
+
+
+
+export function buildStage(seed = 'fighter-ex') {
+  const rng = seededFrom(seed);
+  const planes = { far: [], rail: [], mid: [], ground: [], near: [] };
 
   
-  for (let k = 0; k < 5; k += 1) {
-    const cx = rng.rangeI(-200, STAGE_WIDTH + 200);
-    const cy = rng.rangeI(18, 64);
-    const w = rng.rangeI(50, 110);
-    const lobes = [[0, 0, w * 0.5], [-w * 0.32, 4, w * 0.3], [w * 0.3, 3, w * 0.34], [0, -w * 0.16, w * 0.32]];
-    for (const [dx, dy, r] of lobes) {
-      const pts = [];
-      for (let i = 0; i <= 10; i += 1) {
-        const a = Math.PI + (i / 10) * Math.PI;
-        pts.push([cx + dx + Math.cos(a) * r, cy + dy + Math.sin(a) * r * 0.62]);
-      }
-      pts.push([cx + dx + r, cy + dy + 2], [cx + dx - r, cy + dy + 2]);
-      planes.far.push({ t: 'poly', fill: EXTRA.cloud, line: null, pts });
+  for (const [tone, top, snowY] of [
+    [haze(SNOW.rock, 'far'), 40, 58],
+    [haze(mix(SNOW.rock, SKY.mid, 0.4), 'far'), 58, 74],
+  ]) {
+    const ridge = [[-260, GROUND_Y]];
+    let y = top + rng.rangeI(0, 10);
+    for (let x = -260; x <= STAGE_WIDTH + 260; x += 44) {
+      y = Math.max(top - 22, Math.min(top + 34, y + rng.rangeI(-14, 14)));
+      ridge.push([x, y]);
     }
+    ridge.push([STAGE_WIDTH + 260, GROUND_Y]);
+    planes.far.push({ t: 'poly', fill: tone, pts: ridge });
+    
+    
+    for (let i = 1; i < ridge.length - 1; i += 1) {
+      const [px, py] = ridge[i];
+      if (py > snowY - 6) continue;
+      planes.far.push({
+        t: 'poly', fill: haze(SNOW.base, 'far'),
+        pts: [[px - 22, py + 14], [px, py - 1], [px + 22, py + 14], [px + 9, py + 11], [px - 9, py + 11]],
+      });
+      planes.far.push({
+        t: 'poly', fill: haze(SNOW.lit, 'far'),
+        pts: [[px - 8, py + 8], [px, py - 1], [px + 7, py + 8]],
+      });
+    }
+  }
+  
+  for (let x = -120; x < STAGE_WIDTH + 120; x += rng.rangeI(26, 70)) {
+    const h = rng.rangeI(26, 74);
+    const w = rng.rangeI(12, 30);
     planes.far.push({
-      t: 'poly', fill: EXTRA.cloudShade, line: null,
-      pts: [[cx - w * 0.55, cy + 4], [cx + w * 0.55, cy + 4], [cx + w * 0.44, cy + 9], [cx - w * 0.44, cy + 9]],
+      t: 'rect', fill: haze(CONCRETE.base, 'far'), x, y: GROUND_Y - h, w, h,
     });
-  }
-
-  
-  const farTop = 92;
-  const pts = [[-260, STAGE_HEIGHT]];
-  for (let x = -260; x <= STAGE_WIDTH + 260; x += 20) {
-    pts.push([x, farTop + Math.sin(x * 0.031) * 9 + rng.rangeI(-8, 10)]);
-  }
-  pts.push([STAGE_WIDTH + 260, STAGE_HEIGHT]);
-  planes.far.push({ t: 'poly', fill: FOLIAGE.far, line: null, pts });
-
-  
-  for (let x = -180; x < STAGE_WIDTH + 180; x += rng.rangeI(96, 168)) {
-    const scale = rng.rangeF(0.85, 1.25);
-    planes.mid.push(...tree(rng, x, GROUND_Y - rng.rangeI(0, 8), scale, FOLIAGE, BARK));
-  }
-
-  
-  planes.ground.push({ t: 'rect', fill: GROUND.lit, x: -260, y: GROUND_Y, w: STAGE_WIDTH + 520, h: 12 });
-  planes.ground.push({ t: 'rect', fill: GROUND.base, x: -260, y: GROUND_Y + 12, w: STAGE_WIDTH + 520, h: 16 });
-  planes.ground.push({ t: 'rect', fill: GROUND.path, x: -260, y: GROUND_Y + 28, w: STAGE_WIDTH + 520, h: 20 });
-  planes.ground.push({ t: 'rect', fill: GROUND.shade, x: -260, y: GROUND_Y + 48, w: STAGE_WIDTH + 520, h: STAGE_HEIGHT });
-  
-  for (let x = -200; x < STAGE_WIDTH + 200; x += rng.rangeI(12, 30)) {
-    const n = rng.rangeI(3, 5);
-    const bw = rng.rangeI(6, 13);
-    const bh = rng.rangeI(5, 11);
-    const blades = [];
-    for (let k = 0; k < n; k += 1) {
-      const bx = x + (k - n / 2) * (bw / n);
-      blades.push([[bx, GROUND_Y + 2], [bx + rng.rangeI(-3, 3), GROUND_Y - bh], [bx + 1.6, GROUND_Y + 2]]);
-    }
-    planes.ground.push({ t: 'blades', fill: GROUND.edge, blades });
-  }
-
-  
-  for (let x = -200; x < STAGE_WIDTH + 200; x += rng.rangeI(180, 340)) {
-    const w = rng.rangeI(14, 34);
-    const hR = rng.rangeI(8, 16);
-    const y = GROUND_Y + rng.rangeI(6, 22);
-    planes.ground.push({
-      t: 'poly', fill: EXTRA.rock, line: null,
-      pts: [[x - w * 0.5, y], [x - w * 0.34, y - hR], [x + w * 0.10, y - hR * 1.25],
-            [x + w * 0.42, y - hR * 0.6], [x + w * 0.5, y]],
-    });
-    planes.ground.push({
-      t: 'poly', fill: EXTRA.rockLit, line: null,
-      pts: [[x - w * 0.34, y - hR], [x + w * 0.10, y - hR * 1.25], [x + w * 0.16, y - hR * 0.8], [x - w * 0.2, y - hR * 0.72]],
-    });
-  }
-
-  
-  for (let x = -200; x < STAGE_WIDTH + 200; x += rng.rangeI(140, 300)) {
-    const w = rng.rangeI(26, 54);
-    const hB = rng.rangeI(10, 20);
-    const base = GROUND_Y + rng.rangeI(0, 4);
-    for (const [tone, k] of [[EXTRA.bush, 1], [EXTRA.bushLit, 0.66]]) {
-      const pts = [[x - w * 0.5 * k, base]];
-      const lobes = 5;
-      for (let i = 0; i <= lobes; i += 1) {
-        const t = i / lobes;
-        pts.push([x - w * 0.5 * k + w * k * t, base - Math.sin(t * Math.PI) * hB * k - (i % 2) * 3]);
-      }
-      pts.push([x + w * 0.5 * k, base]);
-      planes.ground.push({ t: 'poly', fill: tone, line: null, pts });
+    if (rng.rangeI(0, 100) < 30) {
+      planes.far.push({ t: 'rect', fill: haze(CONCRETE.shade, 'far'), x: x + w * 0.4, y: GROUND_Y - h - 8, w: 2, h: 8 });
     }
   }
 
   
+  planes.rail.push({
+    t: 'rect', fill: haze(CONCRETE.base, 'rail'),
+    x: -200, y: RAIL_Y, w: STAGE_WIDTH + 400, h: 9,
+  });
+  planes.rail.push({
+    t: 'rect', fill: haze(CONCRETE.shade, 'rail'),
+    x: -200, y: RAIL_Y + 9, w: STAGE_WIDTH + 400, h: 3,
+  });
   
-  for (let x = -180; x < STAGE_WIDTH + 180; x += rng.rangeI(26, 70)) {
-    const y = GROUND_Y + rng.rangeI(4, 40);
-    const r = rng.rangeF(1.6, 3.4);
-    const a = rng.rangeF(0, Math.PI);
+  
+  for (let x = -180; x < STAGE_WIDTH + 200; x += 96) {
+    planes.rail.push({ t: 'rect', fill: haze(CONCRETE.base, 'rail'), x, y: RAIL_Y + 12, w: 13, h: GROUND_Y - RAIL_Y - 12 });
+    planes.rail.push({ t: 'rect', fill: haze(CONCRETE.shade, 'rail'), x: x + 9, y: RAIL_Y + 12, w: 4, h: GROUND_Y - RAIL_Y - 12 });
+    planes.rail.push({ t: 'rect', fill: haze(CONCRETE.deep, 'rail'), x: x - 2, y: RAIL_Y + 12, w: 17, h: 3 });
+  }
+  
+  for (let x = -160; x < STAGE_WIDTH + 200; x += 64) {
+    planes.rail.push({ t: 'rect', fill: haze(CITY.steelDeep, 'rail'), x, y: RAIL_Y - 26, w: 1.6, h: 26 });
+    planes.rail.push({ t: 'rect', fill: haze(CITY.steelDeep, 'rail'), x, y: RAIL_Y - 26, w: 9, h: 1.4 });
+  }
+
+  
+  let x = -140;
+  while (x < STAGE_WIDTH + 140) {
+    const w = rng.rangeI(46, 96);
+    const h = rng.rangeI(52, 92);
+    planes.mid.push(...danchi(rng, x, w, h, 'mid'));
+    x += w + rng.rangeI(6, 22);
+  }
+  
+  for (let i = 0; i < 6; i += 1) {
+    planes.mid.push(...pine(rng, rng.rangeI(-100, STAGE_WIDTH + 100), GROUND_Y, rng.rangeI(34, 58), 'mid'));
+  }
+
+  
+  planes.ground.push({ t: 'rect', fill: CONCRETE.shade, x: -300, y: GROUND_Y, w: STAGE_WIDTH + 600, h: STAGE_HEIGHT });
+  planes.ground.push({ t: 'rect', fill: CONCRETE.base, x: -300, y: GROUND_Y, w: STAGE_WIDTH + 600, h: 9 });
+  planes.ground.push({ t: 'rect', fill: CONCRETE.lit, x: -300, y: GROUND_Y + 9, w: STAGE_WIDTH + 600, h: 2 });
+  
+  planes.ground.push({ t: 'rect', fill: CONCRETE.deep, x: -300, y: GROUND_Y + 11, w: STAGE_WIDTH + 600, h: 1.6 });
+  for (let sx = -280; sx < STAGE_WIDTH + 300; sx += 34) {
+    planes.ground.push({ t: 'rect', fill: mix(CITY.sign, CONCRETE.base, 0.35), x: sx, y: GROUND_Y + 34, w: 16, h: 2 });
+  }
+  
+  let sx = -160;
+  while (sx < STAGE_WIDTH + 160) {
+    const w = rng.rangeI(54, 104);
+    const h = rng.rangeI(30, 52);
+    const top = GROUND_Y - h;
+    planes.ground.push({ t: 'poly', fill: CONCRETE.base, pts: [[sx, GROUND_Y], [sx, top], [sx + w, top], [sx + w, GROUND_Y]] });
+    planes.ground.push({ t: 'rect', fill: CONCRETE.deep, x: sx, y: top, w, h: 3 });
+    
     planes.ground.push({
-      t: 'poly', fill: EXTRA.leaf, line: null,
-      pts: [[x - Math.cos(a) * r * 1.6, y - Math.sin(a) * r * 1.6],
-            [x + Math.sin(a) * r, y - Math.cos(a) * r],
-            [x + Math.cos(a) * r * 1.6, y + Math.sin(a) * r * 1.6],
-            [x - Math.sin(a) * r, y + Math.cos(a) * r]],
+      t: 'rect', fill: rng.rangeI(0, 100) < 40 ? CITY.steelDeep : CITY.glass,
+      x: sx + 4, y: GROUND_Y - h * 0.55, w: w - 8, h: h * 0.55,
+    });
+    
+    if (rng.rangeI(0, 100) < 42) {
+      planes.ground.push({
+        t: 'poly', fill: CITY.vermilion,
+        pts: [[sx + 2, GROUND_Y - h * 0.58], [sx + w - 2, GROUND_Y - h * 0.58],
+              [sx + w - 6, GROUND_Y - h * 0.58 + 7], [sx + 6, GROUND_Y - h * 0.58 + 7]],
+      });
+    }
+    
+    const signs = rng.rangeI(1, 3);
+    for (let i = 0; i < signs; i += 1) {
+      planes.ground.push(...verticalSign(rng, sx + 6 + i * 14, top + 4, rng.rangeI(18, 30), 'ground'));
+    }
+    if (rng.rangeI(0, 100) < 30) planes.ground.push(...vending(rng, sx + w - 16, GROUND_Y, 'ground'));
+    sx += w + rng.rangeI(10, 30);
+  }
+  
+  for (let i = 0; i < 5; i += 1) {
+    planes.ground.push(...pine(rng, rng.rangeI(-120, STAGE_WIDTH + 120), GROUND_Y + 4, rng.rangeI(30, 46), 'ground'));
+  }
+  planes.ground.push(...torii(rng.rangeI(200, STAGE_WIDTH - 200), GROUND_Y + 2, 46, 'ground'));
+  
+  
+  for (let bx = -280; bx < STAGE_WIDTH + 300; bx += rng.rangeI(40, 120)) {
+    const bw = rng.rangeI(26, 70);
+    planes.ground.push({
+      t: 'poly', fill: SNOW.base,
+      pts: [[bx, GROUND_Y + 12], [bx + bw * 0.2, GROUND_Y + 5], [bx + bw * 0.7, GROUND_Y + 4],
+            [bx + bw, GROUND_Y + 12]],
+    });
+    planes.ground.push({
+      t: 'poly', fill: SNOW.lit,
+      pts: [[bx + bw * 0.2, GROUND_Y + 6], [bx + bw * 0.55, GROUND_Y + 4.5], [bx + bw * 0.6, GROUND_Y + 7]],
     });
   }
 
   
-  for (let x = -260; x < STAGE_WIDTH + 260; x += rng.rangeI(120, 240)) {
-    const n = rng.rangeI(6, 10);
-    const blades = [];
-    for (let k = 0; k < n; k += 1) {
-      const bx = x + rng.rangeI(-40, 40);
-      const bh = rng.rangeI(20, 42);
-      blades.push([[bx, STAGE_HEIGHT + 6], [bx + rng.rangeI(-14, 14), STAGE_HEIGHT - bh], [bx + 5, STAGE_HEIGHT + 6]]);
+  for (let px = -100; px < STAGE_WIDTH + 200; px += rng.rangeI(300, 460)) {
+    const top = 6;
+    planes.near.push({ t: 'rect', fill: CONCRETE.shade, x: px, y: top, w: 3.4, h: STAGE_HEIGHT - top });
+    for (let a = 0; a < 3; a += 1) {
+      const ay = top + 10 + a * 13;
+      planes.near.push({ t: 'rect', fill: CONCRETE.deep, x: px - 8, y: ay, w: 20, h: 1.6 });
     }
-    planes.near.push({ t: 'blades', fill: FOLIAGE.near, blades });
+    
+    planes.near.push({ t: 'rect', fill: CITY.steelDeep, x: px + 4.5, y: top + 26, w: 6, h: 10 });
+  }
+  
+  for (let c = 0; c < 5; c += 1) {
+    const y0 = 14 + c * 6;
+    const pts = [];
+    for (let cx = -200; cx <= STAGE_WIDTH + 200; cx += 40) {
+      pts.push([cx, y0 + Math.sin(cx * 0.006 + c) * 3.5 + 2]);
+    }
+    const back = pts.slice().reverse().map(([bx, by]) => [bx, by + 1.4]);
+    planes.near.push({ t: 'poly', fill: CONCRETE.deep, pts: pts.concat(back) });
   }
 
+  
   const shafts = [];
-  for (let k = 0; k < 5; k += 1) {
-    shafts.push({ x: rng.rangeI(-120, STAGE_WIDTH), w: rng.rangeI(20, 56), lean: rng.rangeF(0.22, 0.46) });
+  for (let i = 0; i < 4; i += 1) {
+    shafts.push({ x: rng.rangeI(-100, STAGE_WIDTH), w: rng.rangeI(20, 54), lean: 0.34 });
   }
-  return { planes, shafts, seed: String(seed) };
+  return { planes, shafts };
 }
 
 export function stageColours() {
-  return [...Object.values(SKY), ...Object.values(FOLIAGE), ...Object.values(BARK), ...Object.values(GROUND), ...Object.values(EXTRA)];
+  return [
+    ...Object.values(SKY), ...Object.values(SNOW),
+    ...Object.values(CONCRETE), ...Object.values(CITY),
+  ];
 }
 
 function drawShapes(ctx, shapes) {
@@ -310,21 +478,12 @@ function drawShapes(ctx, shapes) {
       
       
       
-      const pts = roughen(s.pts, { amp: 1.6, step: 11, seed: seedOf(s.pts) });
+      const pts = roughen(s.pts, { amp: 0.55, step: 14, seed: seedOf(s.pts) });
       ctx.fillStyle = s.fill;
       ctx.beginPath();
       ctx.moveTo(pts[0][0], pts[0][1]);
       for (let i = 1; i < pts.length; i += 1) ctx.lineTo(pts[i][0], pts[i][1]);
       ctx.closePath();
-      ctx.fill();
-    } else if (s.t === 'blades') {
-      ctx.fillStyle = s.fill;
-      ctx.beginPath();
-      for (const b of s.blades) {
-        ctx.moveTo(b[0][0], b[0][1]);
-        ctx.quadraticCurveTo(b[1][0], b[1][1], b[2][0], b[2][1]);
-        ctx.closePath();
-      }
       ctx.fill();
     }
   }
@@ -354,7 +513,7 @@ export function drawPlane(ctx, stage, name, { camX, camY, zoom, width, height, o
 
 export function drawShafts(ctx, stage, { camX, width, height, offsetX }) {
   ctx.save();
-  ctx.globalAlpha = 0.09;
+  ctx.globalAlpha = 0.07;
   ctx.fillStyle = SKY.shaft;
   for (const s of stage.shafts) {
     const x = s.x - camX * PARALLAX.mid - offsetX;
