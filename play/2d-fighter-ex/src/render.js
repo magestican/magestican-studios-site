@@ -1,9 +1,16 @@
 
 
 import { CANVAS } from './choreography.js';
-import { buildFighter, drawFighter } from './anime.js';
+import { CELL, BAKED_BODY_PX, HIP_FRAC, HEAD_FRAC, FRAMES_LIGHT, FRAMES_DARK } from './bakeManifest.js';
 import { drawSky, drawPlane, drawShafts, STAGE_WIDTH } from './stage.js';
-import { KITS, FX, applyMood } from './palette.js';
+import { FX } from './palette.js';
+
+
+const MOOD_FILTERS = {
+  dark: 'brightness(0.72) saturate(0.85)',
+  juvenile: 'brightness(1.12) saturate(1.1)',
+  angry: 'saturate(1.3) hue-rotate(-12deg) contrast(1.08)',
+};
 
 export const STAGE_OFFSET_X = (STAGE_WIDTH - CANVAS.width) / 2;
 
@@ -26,34 +33,51 @@ export function renderFrame(ctx, stage, pose, mood = 'none') {
   
   
   
-  if (pose.ghost) {
+  
+  
+  
+  
+  
+  
+  
+  const drawSprite = (spec, atlas, index, frameIdx, alpha) => {
+    if (!atlas || !frameIdx) return;
+    const cellPos = frameIdx[index + 1];
+    if (!cellPos) return;
+    const h = spec.feet - spec.top;
+    const scale = h / BAKED_BODY_PX;
+    const headPx = h * HEAD_FRAC;
+    const hipY = spec.top + headPx + (h - headPx) * HIP_FRAC;
     ctx.save();
-    ctx.globalAlpha = pose.ghost.alpha;
-    for (const spec of [pose.ghost.a, pose.ghost.b]) {
-      if (!spec) continue;
-      const shapes = buildFighter({ ...spec, kit: KITS.light });
-      for (const sh of shapes) {
-        if (!sh.pts) continue;
-        ctx.fillStyle = FX.impactLine;
-        ctx.beginPath();
-        ctx.moveTo(sh.pts[0][0], sh.pts[0][1]);
-        for (let i = 1; i < sh.pts.length; i += 1) ctx.lineTo(sh.pts[i][0], sh.pts[i][1]);
-        ctx.closePath();
-        ctx.fill();
-      }
-    }
+    if (alpha !== undefined) ctx.globalAlpha = alpha;
+    if (mood !== 'none') ctx.filter = MOOD_FILTERS[mood] || 'none';
+    if (alpha !== undefined) ctx.filter = 'brightness(0.1)';
+    ctx.imageSmoothingEnabled = true;
+    const size = CELL * scale;
+    ctx.translate(spec.cx, hipY);
+    if (spec.facing < 0) ctx.scale(-1, 1);
+    ctx.drawImage(atlas, cellPos[0], cellPos[1], CELL, CELL,
+      -size / 2, -size / 2, size, size);
     ctx.restore();
+  };
+
+  const sprites = pose.sprites || {};
+  if (pose.ghost) {
+    if (pose.ghost.a) drawSprite(pose.ghost.a, sprites.light, pose.index, FRAMES_LIGHT, pose.ghost.alpha);
+    if (pose.ghost.b) drawSprite(pose.ghost.b, sprites.dark, pose.index, FRAMES_DARK, pose.ghost.alpha);
   }
 
-  const pair = [[pose.a, applyMood(KITS.light, mood), 0], [pose.b, applyMood(KITS.dark, mood), 1]].filter(([s]) => s);
+  
+  const pair = [
+    [pose.a, sprites.light, FRAMES_LIGHT, 0],
+    [pose.b, sprites.dark, FRAMES_DARK, 1],
+  ].filter(([s]) => s);
   pair.sort((p, q) => {
     const dh = (p[0].feet - p[0].top) - (q[0].feet - q[0].top);
-    return Math.abs(dh) > 0.5 ? dh : p[2] - q[2];
+    return Math.abs(dh) > 0.5 ? dh : p[3] - q[3];
   });
-  for (const [spec, kit] of pair) {
-    const other = pair.find((p) => p[0] !== spec);
-    const shapes = buildFighter({ ...spec, kit, mood, lookAt: other ? other[0].cx : undefined });
-    drawFighter(ctx, shapes, Math.max(0.7, (spec.feet - spec.top) / 110));
+  for (const [spec, atlas, frameIdx] of pair) {
+    drawSprite(spec, atlas, pose.index, frameIdx);
   }
 
   if (pose.fx) drawEffect(ctx, pose);

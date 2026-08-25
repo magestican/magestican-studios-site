@@ -32,6 +32,15 @@ const seed = params.get('seed') || 'fighter-ex';
 
 const mood = ['dark', 'juvenile', 'angry'].includes(params.get('mood')) ? params.get('mood') : 'none';
 let cells = buildStage(seed);
+
+
+
+const sprites = {};
+for (const [who, file] of [['light', 'fighter-light.png'], ['dark', 'fighter-dark.png']]) {
+  const img = new Image();
+  img.src = new URL(`../assets/${file}`, import.meta.url).href;
+  img.onload = () => { sprites[who] = img; };
+}
 $('seed').textContent = seed;
 
 let playing = true;
@@ -46,7 +55,7 @@ function tick(now) {
   if (playing) elapsed += dt * speed;
 
   const pose = poseAtTime(elapsed);
-
+  pose.sprites = sprites;
   renderFrame(ctx, cells, pose, mood);
 
   $('frame').textContent = String(pose.index + 1);
@@ -112,6 +121,6 @@ trackEvent('game_start', { game: '2d-fighter-ex', seed });
 
 
 
-renderFrame(ctx, cells, poseAtTime(0), mood);
+renderFrame(ctx, cells, { ...poseAtTime(0), sprites }, mood);
 
 requestAnimationFrame(tick);
