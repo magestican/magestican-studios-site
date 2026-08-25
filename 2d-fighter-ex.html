@@ -25,7 +25,7 @@
     "@type": "VideoGame",
     "name": "2D Fighter EX",
     "url": "https://magesticanstudios.com/2d-fighter-ex.html",
-    "description": "An animation experiment. A fight animation was recovered frame by frame from a screen recording, reduced to timing, camera and position data, and is replayed in the browser with procedurally generated tile art in the palette of Aracstory.",
+    "description": "An animation experiment. A fight animation was recovered frame by frame from a screen recording, reduced to timing, camera and position data, and is replayed in the browser with hand-specified anime-style characters over a procedurally generated tile stage.",
     "image": "https://magesticanstudios.com/assets/fighter-ex-preview.png",
     "publisher": { "@type": "Organization", "name": "Magestican Studios",
                    "url": "https://magesticanstudios.com" },
@@ -56,10 +56,10 @@
       <h1>2D Fighter EX</h1>
       <p class="lede">EX is short for experiment. A fight animation, recovered
         frame by frame from a screen recording, replayed by a browser that draws
-        it out of coloured rectangles.</p>
+        it as anime characters on a stage it generates from a seed.</p>
       <p><a class="cta" href="play/2d-fighter-ex/">Open the experiment</a></p>
       <img src="assets/fighter-ex-preview.png" width="1200" height="630"
-           alt="Two blocky fighters mid-exchange on a green tiled forest stage, a white impact square between them."
+           alt="Two anime-style fighters mid-exchange on a green tiled forest stage, a bright impact flash between them."
            style="max-width:100%;height:auto">
     </section>
 
@@ -79,15 +79,20 @@
 
     <section>
       <h2>Why it looks like this</h2>
-      <p>The art comes from <strong>Aracstory</strong>, another of our projects —
+      <p>The stage comes from <strong>Aracstory</strong>, another of our projects —
         a seeded dungeon crawler that draws its entire world as flat coloured
-        rectangles on a grid. It has no character art at all, so there was
-        nothing to copy across. What it does have is a palette and a way of
-        drawing, and both of those transplant cleanly.</p>
-      <p>So the fighters are built out of rectangles in Aracstory's own colour
-        constants, and the forest is generated the way Aracstory generates a
-        dungeon: from a seed. Change the seed and you get a different forest with
-        the same fight in it.</p>
+        rectangles on a grid. The forest is generated the way Aracstory generates
+        a dungeon: from a seed, in Aracstory's own colour constants. Change the
+        seed and you get a different forest with the same fight in it.</p>
+      <p>The fighters are drawn to our own written anime recipe — the same one
+        the studio's Blender pipeline reads. Large soft irises at two-thirds of
+        the eye height, one big specular highlight top-left and a small one
+        lower-right, a thick upper lash line and no lower one, a head deliberately
+        oversized, and a line that is warm dark brown rather than black. The
+        pupils track whoever they are fighting.</p>
+      <p>Nothing about the art is picked by eye: every colour on a fighter is a
+        blend of two values from the studio's anime palette, and a test fails the
+        build if that stops being true.</p>
       <p>Nothing here is hand-posed. Every position, every hold and every camera
         move is the measurement taken off the original recording.</p>
     </section>
