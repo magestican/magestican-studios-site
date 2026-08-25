@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { buildCharacter } from './character.js';
 import { idlePose, idlePhase, idleWeight } from './characterIdleSpec.js';
+import { applyRig } from './characterRig.js';
 import { isBodyConcealedFrom } from '../../../../web-engine/render/hayVisibility.js';
 import { emptyConcealment, stepConcealment, concealmentDraw }
   from '../../../../web-engine/render/concealment.js';
@@ -37,6 +38,15 @@ export class RemotePlayer {
     
     
     this.idlePivot = built.idlePivot || null;
+    
+    
+    
+    this._built = built;
+    this._gaitDist = 0;
+    this._lastGaitX = 0;
+    this._lastGaitZ = 0;
+    this._lastGaitY = 0;
+    this._airborne = false;
     
     
     
@@ -333,6 +343,47 @@ export class RemotePlayer {
                             idleWeight(this._speed));
       this.idlePivot.scale.set(pose.scaleXZ, pose.scaleY, pose.scaleXZ);
       this.idlePivot.rotation.z = pose.rollRad;
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const dy = this.group.position.y - this._lastGaitY;
+      this._lastGaitY = this.group.position.y;
+      const vy = dy / Math.max(dt, 1 / 240);
+      this._airborne = Math.abs(vy) > 1.6;
+
+      this._gaitDist += Math.hypot(
+        this.group.position.x - this._lastGaitX,
+        this.group.position.z - this._lastGaitZ);
+      this._lastGaitX = this.group.position.x;
+      this._lastGaitZ = this.group.position.z;
+      if (this._built && this._built.rig) {
+        applyRig(this._built.rig, {
+          distance: this._gaitDist,
+          speed: this._speed,
+          timeSec: this._idleT,
+          airborne: this._airborne,
+        });
+      }
     }
 
     

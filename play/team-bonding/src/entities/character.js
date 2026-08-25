@@ -8,6 +8,7 @@
 
 
 import * as THREE from 'three';
+import { buildRig } from './characterRig.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const GLB_BASE = '/play/team-bonding/assets/hand-drawn/characters/';
@@ -101,6 +102,22 @@ export function buildCharacter(kind, teamTintHex) {
     if (proc.headBone) proc.headBone.visible = false;
     body.userData.characterBody = true;
     pivot.add(body);
+    
+    
+    
+    
+    
+    
+    
+    
+    try {
+      proc.rig = buildRig(body, kind);
+    } catch (err) {
+      
+      
+      console.warn('[character] rig build failed for', kind, err?.message || err);
+      proc.rig = null;
+    }
   });
   return proc;
 }
