@@ -71,13 +71,13 @@ export function solveTwoBone(rx, ry, tx, ty, upper, lower, bend) {
 
 
 
-export function buildSkeleton({ cx, feet, top, facing = 1, headX, hands, feetPts }) {
+export function buildSkeleton({ cx, feet, top, facing = 1, headX, hands, feetPts, figure = {} }) {
   const h = Math.max(28, feet - top);
   const f = facing >= 0 ? 1 : -1;
 
   
   
-  const headH = h * 0.235;
+  const headH = h * 0.235 * (figure.headRatio || 1);
   const headW = headH * 0.82;
   const neckY = top + headH * 0.94;
   const chestY = neckY + h * 0.045;

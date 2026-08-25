@@ -254,14 +254,25 @@ export function poseAtTime(ms) {
   const cur = poseAt(index);
   const tween = tweenWindow(index);
   const startAt = hold - tween;
-  if (into <= startAt || tween <= 0) return { ...cur, tween: 0 };
+  if (into <= startAt || tween <= 0) return { ...cur, tween: 0, ghost: null };
 
   const next = poseAt((index + 1) % FRAMES.length);
   const t = ease(Math.min(1, (into - startAt) / tween));
+  
+  
+  
+  
+  
+  
+  const travel = poseTravel(cur, next);
+  const ghost = travel > BIG_MOVE * 2.2 && t > 0.05 && t < 0.95
+    ? { a: cur.a, b: cur.b, alpha: 0.38 * (1 - t) }
+    : null;
   return {
     index,
     holdMs: hold,
     tween: t,
+    ghost,
     a: lerpSpec(cur.a, next.a, t),
     b: lerpSpec(cur.b, next.b, t),
     fx: cur.fx,

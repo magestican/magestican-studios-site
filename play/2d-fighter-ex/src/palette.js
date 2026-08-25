@@ -100,3 +100,62 @@ export const FX = Object.freeze({
   slash: mix(CEL.rust, CEL.highlight, 0.25),
   impactLine: CEL.ink,
 });
+
+
+
+
+
+
+
+
+
+
+
+
+const mapTones = (kit, fn) => {
+  const out = {};
+  for (const [part, tone] of Object.entries(kit)) {
+    out[part] = Object.freeze({
+      lit: fn(tone.lit, part), base: fn(tone.base, part),
+      shade: fn(tone.shade, part), deep: fn(tone.deep, part),
+    });
+  }
+  return Object.freeze(out);
+};
+
+export const MOODS = Object.freeze({
+  
+  none: { label: 'as measured', figure: {} },
+  
+  
+  dark: {
+    label: 'darker',
+    tone: (c) => mix(c, CEL.ink, 0.30),
+    figure: { browTilt: 1.15, eyeScale: 0.94 },
+  },
+  
+  
+  juvenile: {
+    label: 'juvenile',
+    tone: (c) => mix(c, CEL.cream, 0.18),
+    figure: { headRatio: 1.18, eyeScale: 1.22, browTilt: 0.55 },
+  },
+  
+  angry: {
+    label: 'angry',
+    tone: (c) => mix(c, CEL.rust, 0.14),
+    figure: { browTilt: 1.9, eyeScale: 0.88 },
+  },
+});
+
+export function applyMood(kit, mood) {
+  const m = MOODS[mood] || MOODS.none;
+  if (!m.tone) return kit;
+  
+  
+  return mapTones(kit, (c, part) => (part === 'skin' ? mix(c, m.tone(c), 0.5) : m.tone(c)));
+}
+
+export function moodFigure(mood) {
+  return (MOODS[mood] || MOODS.none).figure || {};
+}

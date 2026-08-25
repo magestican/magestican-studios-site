@@ -13,6 +13,7 @@
 
 import { SeededRng } from '../../../web-engine/rng/seededRng.js';
 import { CEL, mix } from './palette.js';
+import { roughen, seedOf, noise1 } from './handdrawn.js';
 
 export const STAGE_WIDTH = 1600;
 export const STAGE_HEIGHT = 271;
@@ -136,9 +137,64 @@ function tree(rng, x, baseY, scale, tone, barkTone) {
   return shapes;
 }
 
+export const EXTRA = Object.freeze({
+  mountain: mix(CEL.sky, CEL.navy, 0.45),
+  mountainSnow: mix(CEL.sky, CEL.highlight, 0.55),
+  cloud: mix(CEL.cream, CEL.highlight, 0.45),
+  cloudShade: mix(CEL.cream, CEL.sky, 0.35),
+  rock: mix(CEL.bark, CEL.navy, 0.35),
+  rockLit: mix(CEL.bark, CEL.cream, 0.30),
+  bush: mix(CEL.moss, CEL.ink, 0.18),
+  bushLit: mix(CEL.moss, CEL.mustard, 0.42),
+  leaf: mix(CEL.rust, CEL.mustard, 0.45),
+});
+
 export function buildStage(seed = 'fighter-ex') {
   const rng = seededFrom(seed);
   const planes = { far: [], mid: [], ground: [], near: [] };
+
+  
+  
+  
+  for (const [off, tone, top] of [[0, EXTRA.mountain, 46], [420, mix(EXTRA.mountain, SKY.mid, 0.45), 62]]) {
+    const ridge = [[-260, STAGE_HEIGHT]];
+    let y = top + rng.rangeI(0, 14);
+    for (let x = -260; x <= STAGE_WIDTH + 260; x += 46) {
+      y = Math.max(top - 26, Math.min(top + 40, y + rng.rangeI(-16, 16)));
+      ridge.push([x + off % 46, y]);
+    }
+    ridge.push([STAGE_WIDTH + 260, STAGE_HEIGHT]);
+    planes.far.push({ t: 'poly', fill: tone, line: null, pts: ridge });
+    
+    const peaks = ridge.slice(1, -1).filter((p) => p[1] < top - 8).slice(0, 3);
+    for (const [px, py] of peaks) {
+      planes.far.push({
+        t: 'poly', fill: EXTRA.mountainSnow, line: null,
+        pts: [[px - 16, py + 10], [px, py - 2], [px + 16, py + 10], [px + 6, py + 8], [px - 6, py + 8]],
+      });
+    }
+  }
+
+  
+  for (let k = 0; k < 5; k += 1) {
+    const cx = rng.rangeI(-200, STAGE_WIDTH + 200);
+    const cy = rng.rangeI(18, 64);
+    const w = rng.rangeI(50, 110);
+    const lobes = [[0, 0, w * 0.5], [-w * 0.32, 4, w * 0.3], [w * 0.3, 3, w * 0.34], [0, -w * 0.16, w * 0.32]];
+    for (const [dx, dy, r] of lobes) {
+      const pts = [];
+      for (let i = 0; i <= 10; i += 1) {
+        const a = Math.PI + (i / 10) * Math.PI;
+        pts.push([cx + dx + Math.cos(a) * r, cy + dy + Math.sin(a) * r * 0.62]);
+      }
+      pts.push([cx + dx + r, cy + dy + 2], [cx + dx - r, cy + dy + 2]);
+      planes.far.push({ t: 'poly', fill: EXTRA.cloud, line: null, pts });
+    }
+    planes.far.push({
+      t: 'poly', fill: EXTRA.cloudShade, line: null,
+      pts: [[cx - w * 0.55, cy + 4], [cx + w * 0.55, cy + 4], [cx + w * 0.44, cy + 9], [cx - w * 0.44, cy + 9]],
+    });
+  }
 
   
   const farTop = 92;
@@ -174,6 +230,54 @@ export function buildStage(seed = 'fighter-ex') {
   }
 
   
+  for (let x = -200; x < STAGE_WIDTH + 200; x += rng.rangeI(180, 340)) {
+    const w = rng.rangeI(14, 34);
+    const hR = rng.rangeI(8, 16);
+    const y = GROUND_Y + rng.rangeI(6, 22);
+    planes.ground.push({
+      t: 'poly', fill: EXTRA.rock, line: null,
+      pts: [[x - w * 0.5, y], [x - w * 0.34, y - hR], [x + w * 0.10, y - hR * 1.25],
+            [x + w * 0.42, y - hR * 0.6], [x + w * 0.5, y]],
+    });
+    planes.ground.push({
+      t: 'poly', fill: EXTRA.rockLit, line: null,
+      pts: [[x - w * 0.34, y - hR], [x + w * 0.10, y - hR * 1.25], [x + w * 0.16, y - hR * 0.8], [x - w * 0.2, y - hR * 0.72]],
+    });
+  }
+
+  
+  for (let x = -200; x < STAGE_WIDTH + 200; x += rng.rangeI(140, 300)) {
+    const w = rng.rangeI(26, 54);
+    const hB = rng.rangeI(10, 20);
+    const base = GROUND_Y + rng.rangeI(0, 4);
+    for (const [tone, k] of [[EXTRA.bush, 1], [EXTRA.bushLit, 0.66]]) {
+      const pts = [[x - w * 0.5 * k, base]];
+      const lobes = 5;
+      for (let i = 0; i <= lobes; i += 1) {
+        const t = i / lobes;
+        pts.push([x - w * 0.5 * k + w * k * t, base - Math.sin(t * Math.PI) * hB * k - (i % 2) * 3]);
+      }
+      pts.push([x + w * 0.5 * k, base]);
+      planes.ground.push({ t: 'poly', fill: tone, line: null, pts });
+    }
+  }
+
+  
+  
+  for (let x = -180; x < STAGE_WIDTH + 180; x += rng.rangeI(26, 70)) {
+    const y = GROUND_Y + rng.rangeI(4, 40);
+    const r = rng.rangeF(1.6, 3.4);
+    const a = rng.rangeF(0, Math.PI);
+    planes.ground.push({
+      t: 'poly', fill: EXTRA.leaf, line: null,
+      pts: [[x - Math.cos(a) * r * 1.6, y - Math.sin(a) * r * 1.6],
+            [x + Math.sin(a) * r, y - Math.cos(a) * r],
+            [x + Math.cos(a) * r * 1.6, y + Math.sin(a) * r * 1.6],
+            [x - Math.sin(a) * r, y + Math.cos(a) * r]],
+    });
+  }
+
+  
   for (let x = -260; x < STAGE_WIDTH + 260; x += rng.rangeI(120, 240)) {
     const n = rng.rangeI(6, 10);
     const blades = [];
@@ -193,7 +297,7 @@ export function buildStage(seed = 'fighter-ex') {
 }
 
 export function stageColours() {
-  return [...Object.values(SKY), ...Object.values(FOLIAGE), ...Object.values(BARK), ...Object.values(GROUND)];
+  return [...Object.values(SKY), ...Object.values(FOLIAGE), ...Object.values(BARK), ...Object.values(GROUND), ...Object.values(EXTRA)];
 }
 
 function drawShapes(ctx, shapes) {
@@ -202,10 +306,15 @@ function drawShapes(ctx, shapes) {
       ctx.fillStyle = s.fill;
       ctx.fillRect(s.x, s.y, s.w, s.h);
     } else if (s.t === 'poly') {
+      
+      
+      
+      
+      const pts = roughen(s.pts, { amp: 1.6, step: 11, seed: seedOf(s.pts) });
       ctx.fillStyle = s.fill;
       ctx.beginPath();
-      ctx.moveTo(s.pts[0][0], s.pts[0][1]);
-      for (let i = 1; i < s.pts.length; i += 1) ctx.lineTo(s.pts[i][0], s.pts[i][1]);
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i += 1) ctx.lineTo(pts[i][0], pts[i][1]);
       ctx.closePath();
       ctx.fill();
     } else if (s.t === 'blades') {

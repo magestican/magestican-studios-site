@@ -3,11 +3,11 @@
 import { CANVAS } from './choreography.js';
 import { buildFighter, drawFighter } from './anime.js';
 import { drawSky, drawPlane, drawShafts, STAGE_WIDTH } from './stage.js';
-import { KITS, FX } from './palette.js';
+import { KITS, FX, applyMood } from './palette.js';
 
 export const STAGE_OFFSET_X = (STAGE_WIDTH - CANVAS.width) / 2;
 
-export function renderFrame(ctx, stage, pose) {
+export function renderFrame(ctx, stage, pose, mood = 'none') {
   const { width, height } = CANVAS;
   const cam = pose.camera;
   const view = { camX: cam.x, camY: cam.y, zoom: cam.zoom, width, height, offsetX: STAGE_OFFSET_X };
@@ -24,14 +24,35 @@ export function renderFrame(ctx, stage, pose) {
   
   
   
-  const pair = [[pose.a, KITS.light, 0], [pose.b, KITS.dark, 1]].filter(([s]) => s);
+  
+  
+  if (pose.ghost) {
+    ctx.save();
+    ctx.globalAlpha = pose.ghost.alpha;
+    for (const spec of [pose.ghost.a, pose.ghost.b]) {
+      if (!spec) continue;
+      const shapes = buildFighter({ ...spec, kit: KITS.light });
+      for (const sh of shapes) {
+        if (!sh.pts) continue;
+        ctx.fillStyle = FX.impactLine;
+        ctx.beginPath();
+        ctx.moveTo(sh.pts[0][0], sh.pts[0][1]);
+        for (let i = 1; i < sh.pts.length; i += 1) ctx.lineTo(sh.pts[i][0], sh.pts[i][1]);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  const pair = [[pose.a, applyMood(KITS.light, mood), 0], [pose.b, applyMood(KITS.dark, mood), 1]].filter(([s]) => s);
   pair.sort((p, q) => {
     const dh = (p[0].feet - p[0].top) - (q[0].feet - q[0].top);
     return Math.abs(dh) > 0.5 ? dh : p[2] - q[2];
   });
   for (const [spec, kit] of pair) {
     const other = pair.find((p) => p[0] !== spec);
-    const shapes = buildFighter({ ...spec, kit, lookAt: other ? other[0].cx : undefined });
+    const shapes = buildFighter({ ...spec, kit, mood, lookAt: other ? other[0].cx : undefined });
     drawFighter(ctx, shapes, Math.max(0.7, (spec.feet - spec.top) / 110));
   }
 

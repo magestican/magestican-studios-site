@@ -1,12 +1,23 @@
 
 
 import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
+import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { CANVAS } from './choreography.js';
 import { buildStage } from './stage.js';
 import { cursorAt, poseAtTime, TOTAL_MS } from './playback.js';
 import { renderFrame } from './render.js';
 
 initAnalytics({ page: '2d-fighter-ex' });
+
+
+
+
+
+
+startVersionChecker({
+  versionUrl: './version.json',
+  label: 'A new version of 2D Fighter EX is available.',
+});
 
 const $ = (id) => document.getElementById(id);
 
@@ -17,6 +28,9 @@ const ctx = canvas.getContext('2d');
 
 const params = new URLSearchParams(globalThis.location.search);
 const seed = params.get('seed') || 'fighter-ex';
+
+
+const mood = ['dark', 'juvenile', 'angry'].includes(params.get('mood')) ? params.get('mood') : 'none';
 let cells = buildStage(seed);
 $('seed').textContent = seed;
 
@@ -33,7 +47,7 @@ function tick(now) {
 
   const pose = poseAtTime(elapsed);
 
-  renderFrame(ctx, cells, pose);
+  renderFrame(ctx, cells, pose, mood);
 
   $('frame').textContent = String(pose.index + 1);
   $('clock').textContent = `${(((elapsed % TOTAL_MS) / 1000)).toFixed(2)}s`;
@@ -98,6 +112,6 @@ trackEvent('game_start', { game: '2d-fighter-ex', seed });
 
 
 
-renderFrame(ctx, cells, poseAtTime(0));
+renderFrame(ctx, cells, poseAtTime(0), mood);
 
 requestAnimationFrame(tick);

@@ -17,7 +17,8 @@
 
 
 
-import { LINE, FX } from './palette.js';
+import { LINE, FX, moodFigure } from './palette.js';
+import { drawHand, roughEllipse } from './handdrawn.js';
 import { buildSkeleton } from './rig.js';
 
 const V = (x, y) => [x, y];
@@ -46,7 +47,8 @@ function shadeBand(quad, tone, part) {
 }
 
 export function buildFighter(spec) {
-  const sk = buildSkeleton(spec);
+  const fig = { ...moodFigure(spec.mood), ...(spec.figure || {}) };
+  const sk = buildSkeleton({ ...spec, figure: fig });
   const kit = spec.kit;
   const { f, h, head } = sk;
   const out = [];
@@ -324,7 +326,7 @@ export function buildFighter(spec) {
 
     
     
-    const eyeW = head.w * 0.34;
+    const eyeW = head.w * 0.34 * (fig.eyeScale || 1);
     const eyeH = eyeW * 1.15;
     const eyeY = hy + hh * 0.16;
     const gap = eyeW * 0.79;
@@ -383,28 +385,27 @@ function lerpPt(a, b, t) {
 }
 
 
+
+
+
+
+
+
 export function drawFighter(ctx, shapes, lineW = 1) {
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
   for (const s of shapes) {
     if (s.t === 'poly') {
-      ctx.fillStyle = s.fill;
-      ctx.beginPath();
-      ctx.moveTo(s.pts[0][0], s.pts[0][1]);
-      for (let i = 1; i < s.pts.length; i += 1) ctx.lineTo(s.pts[i][0], s.pts[i][1]);
-      ctx.closePath();
-      ctx.fill();
-      if (s.line) { ctx.strokeStyle = s.line; ctx.lineWidth = lineW; ctx.stroke(); }
+      drawHand(ctx, s.pts, { fill: s.fill, line: s.line, ink: lineW * 1.25, amp: 1.0 });
     } else if (s.t === 'ellipse') {
-      ctx.fillStyle = s.fill;
-      ctx.beginPath();
-      ctx.ellipse(s.cx, s.cy, Math.max(0.4, s.rx), Math.max(0.4, s.ry), 0, 0, Math.PI * 2);
-      ctx.fill();
-      if (s.line) { ctx.strokeStyle = s.line; ctx.lineWidth = lineW; ctx.stroke(); }
+      const pts = roughEllipse(s.cx, s.cy, Math.max(0.5, s.rx), Math.max(0.5, s.ry), {
+        seed: ((s.cx * 13 + s.cy * 7) | 0) >>> 0,
+      });
+      
+      
+      const inked = s.line && Math.min(s.rx, s.ry) > 2.5 ? s.line : null;
+      drawHand(ctx, pts, { fill: s.fill, line: inked, ink: lineW, amp: 0.7 });
     } else if (s.t === 'rect') {
-      ctx.fillStyle = s.fill;
-      ctx.fillRect(s.x, s.y, s.w, s.h);
-      if (s.line) { ctx.strokeStyle = s.line; ctx.lineWidth = lineW; ctx.strokeRect(s.x, s.y, s.w, s.h); }
+      const pts = [[s.x, s.y], [s.x + s.w, s.y], [s.x + s.w, s.y + s.h], [s.x, s.y + s.h]];
+      drawHand(ctx, pts, { fill: s.fill, line: s.line, ink: lineW, amp: 0.8 });
     }
   }
 }
