@@ -15,20 +15,58 @@ const MOOD_FILTERS = {
 
 export const STAGE_OFFSET_X = (STAGE_WIDTH - CANVAS.width) / 2;
 
-export function renderFrame(ctx, stage, pose, mood = 'none') {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SCENERY = Object.freeze([
+  'sky', 'far', 'rail', 'train', 'shafts', 'mid', 'ground', 'near',
+]);
+export const CHARACTERS = 'fighters';
+export const OVERLAY = Object.freeze(['fx']);
+export const LAYERS = Object.freeze([...SCENERY, 'ghost', CHARACTERS, ...OVERLAY]);
+
+export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer } = {}) {
+  
+  
+  
+  const layer = (name) => { if (onLayer) onLayer(name); };
   const { width, height } = CANVAS;
   const cam = pose.camera;
   const view = { camX: cam.x, camY: cam.y, zoom: cam.zoom, width, height, offsetX: STAGE_OFFSET_X };
 
+  layer('sky');
   drawSky(ctx, width, height);
+  layer('far');
   drawPlane(ctx, stage, 'far', view);
   
   
+  layer('rail');
   drawPlane(ctx, stage, 'rail', view);
+  layer('train');
   drawTrain(ctx, (pose.index || 0) / FRAMES.length, view);
+  layer('shafts');
   drawShafts(ctx, stage, view);
+  layer('mid');
   drawPlane(ctx, stage, 'mid', view);
+  layer('ground');
   drawPlane(ctx, stage, 'ground', view);
+  
+  
+  
+  layer('near');
+  drawPlane(ctx, stage, 'near', view);
 
   
   
@@ -72,11 +110,13 @@ export function renderFrame(ctx, stage, pose, mood = 'none') {
   };
 
   const sprites = pose.sprites || {};
+  layer('ghost');
   if (pose.ghost) {
     if (pose.ghost.a) drawSprite(pose.ghost.a, sprites.light, pose.index, FRAMES_LIGHT, pose.ghost.alpha);
     if (pose.ghost.b) drawSprite(pose.ghost.b, sprites.dark, pose.index, FRAMES_DARK, pose.ghost.alpha);
   }
 
+  layer('fighters');
   
   const pair = [
     [pose.a, sprites.light, FRAMES_LIGHT, 0],
@@ -90,8 +130,9 @@ export function renderFrame(ctx, stage, pose, mood = 'none') {
     drawSprite(spec, atlas, pose.index, frameIdx);
   }
 
+  
+  layer('fx');
   if (pose.fx) drawEffect(ctx, pose);
-  drawPlane(ctx, stage, 'near', view);
 }
 
 
