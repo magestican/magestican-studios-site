@@ -116,6 +116,18 @@
       text-align: center; }
     button.primary { background: #4b7bd6; border-color: #6a95e5; }
     button.primary:hover { background: #5a8ce8; }
+    
+
+    button.quickplay {
+      display: block; width: 100%; margin: 4px 0 18px;
+      padding: 14px 18px; font-size: 19px; line-height: 1.25;
+      background: #f4c95d; color: #1c1a17; border-color: #ffe08a;
+    }
+    button.quickplay:hover { background: #ffd977; }
+    .qp-sub {
+      display: block; margin-top: 3px;
+      font: 600 12px/1.3 inherit; letter-spacing: .01em; opacity: .72;
+    }
     button.team-red   { background: #b73a2a; border-color: #d0503e; }
     button.team-blue  { background: #336bbf; border-color: #4f8adb; }
     
@@ -1042,6 +1054,17 @@
     <div class="menu-card">
       <h1>Team <span class="accent">Bonding</span></h1>
       <p class="sub">A P2P browser FPS with ice-drift movement and farm-animal soldiers. First team to 5 flags wins &mdash; unless the losing team can solve an anagram in 10 seconds.</p>
+
+      
+
+
+
+
+
+      <button class="primary quickplay" id="quickPlayBtn">
+        &#9654; Play now
+        <span class="qp-sub">random map, mode and animal &middot; a full 16-player match</span>
+      </button>
 
       <h2>Pick your character</h2>
       <div class="row" id="characterRow">

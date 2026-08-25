@@ -16,6 +16,7 @@ import { initAnalytics, trackEvent } from 'arbelo/analytics';
 import { gameStartParams, watchMatchEnd } from 'arbelo/game-events';
 import { mountLeaderboard } from 'arbelo/leaderboard-ui';
 import { mountEscRouter } from 'arbelo/esc-router';
+import { randomLoadout, assertPlayable } from '../../../web-engine/ui/quickPlay.js';
 import { loadCareer, saveCareer, rememberCharacters } from 'arbelo/career';
 
 
@@ -285,6 +286,54 @@ if (joinFromUrl) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$('quickPlayBtn')?.addEventListener('click', async () => {
+  const roll = assertPlayable(randomLoadout({
+    maps: MAP_IDS, modes: MODE_IDS,
+    
+    
+    
+    characters: [...document.querySelectorAll('#characterRow button')].map((b) => b.dataset.char),
+  }));
+
+  state.character = roll.character;
+  state.team = roll.team;
+  state.mapId = roll.mapId;
+  state.gameMode = roll.gameMode;
+  state.initialBots = roll.bots;
+  localStorage.setItem('tb.map', state.mapId);
+  localStorage.setItem('tb.mode', state.gameMode);
+
+  selectFrom('characterRow', 'char', state.character);
+  selectFrom('teamRow', 'team', state.team);
+  selectFrom('mapRow', 'map', state.mapId);
+  selectFrom('modeRow', 'gmode', state.gameMode);
+  const slider = document.getElementById('botSlider');
+  const count = document.getElementById('botCount');
+  if (slider) slider.value = String(roll.bots);
+  if (count) count.textContent = String(roll.bots);
+  rememberLocalCharacter();
+
+  if (!validate()) return;
+  state.mode = 'host';
+  await startGame(null);
+});
 
 $('hostBtn').addEventListener('click', async () => {
   if (!validate()) return;
