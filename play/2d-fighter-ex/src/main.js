@@ -57,9 +57,29 @@ let cells = buildStage(seed, season);
 
 
 const sprites = {};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const BUILD_TAG = new URL(import.meta.url).searchParams.get('v') || '';
+const bust = (u) => (BUILD_TAG ? `${u}?v=${encodeURIComponent(BUILD_TAG)}` : u);
+
 for (const [who, file] of [['light', 'fighter-light.png'], ['dark', 'fighter-dark.png']]) {
   const img = new Image();
-  img.src = new URL(`../assets/${file}`, import.meta.url).href;
+  img.src = bust(new URL(`../assets/${file}`, import.meta.url).href);
   img.onload = () => { sprites[who] = img; };
 }
 $('seed').textContent = seed;
