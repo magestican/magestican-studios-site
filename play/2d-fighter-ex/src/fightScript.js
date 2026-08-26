@@ -21,6 +21,50 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { MOVE_INDEX } from './moveManifest.js';
 
 export const FPS = 30;
@@ -157,14 +201,18 @@ class Fight {
 
 
 
+
+
+
+
 const ATTACKS = {
-  jab: { frames: [['guard', 2], ['jab', 3], ['guard', 3]], hitAt: 3, reach: 46, power: 0.5 },
-  cross: { frames: [['guard', 3], ['cross', 4], ['step-in', 4]], hitAt: 4, reach: 54, power: 1 },
-  hook: { frames: [['guard', 3], ['hook', 4], ['guard', 4]], hitAt: 4, reach: 44, power: 0.9 },
-  uppercut: { frames: [['crouch', 3], ['uppercut', 4], ['guard', 5]], hitAt: 4, reach: 38, power: 1 },
-  'kick-low': { frames: [['guard', 3], ['kick-low', 4], ['guard', 4]], hitAt: 4, reach: 58, power: 0.8 },
-  'kick-high': { frames: [['guard', 4], ['kick-high', 5], ['guard', 5]], hitAt: 5, reach: 62, power: 1 },
-  knee: { frames: [['step-in', 3], ['knee', 4], ['guard', 3]], hitAt: 4, reach: 32, power: 0.9 },
+  jab: { frames: [['guard', 1], ['jab', 2], ['guard', 2]], hitAt: 2, reach: 46, power: 0.5 },
+  cross: { frames: [['guard', 2], ['cross', 3], ['step-in', 2]], hitAt: 3, reach: 54, power: 1 },
+  hook: { frames: [['guard', 2], ['hook', 3], ['guard', 2]], hitAt: 3, reach: 44, power: 0.9 },
+  uppercut: { frames: [['crouch', 2], ['uppercut', 3], ['guard', 2]], hitAt: 3, reach: 38, power: 1 },
+  'kick-low': { frames: [['guard', 2], ['kick-low', 3], ['guard', 2]], hitAt: 3, reach: 58, power: 0.8 },
+  'kick-high': { frames: [['guard', 2], ['kick-high', 4], ['guard', 3]], hitAt: 4, reach: 62, power: 1 },
+  knee: { frames: [['step-in', 2], ['knee', 3], ['guard', 2]], hitAt: 3, reach: 32, power: 0.9 },
 };
 
 const DEFENCES = {
@@ -249,11 +297,88 @@ function playExchange(f, opts) {
 
 
 
+
+
+
+
+
+function dash(f, { lx, rx, leftChases, ticks = 10, reach = 46 }) {
+  const from = leftChases ? lx : rx;
+  const to = leftChases ? rx - reach : lx + reach;
+  const otherFrom = leftChases ? rx : lx;
+  const otherTo = leftChases ? rx + 18 : lx - 18;
+  f.push(ticks, (i, n, t) => {
+    const e = easeIn(t);
+    const cx = lerp(from, to, e);
+    const ox = lerp(otherFrom, otherTo, e);
+    const chaser = st(t < 0.15 ? 'crouch' : t > 0.8 ? 'knee' : 'step-in', cx, 0,
+      leftChases ? 1 : -1);
+    const fleeing = st(t > 0.8 ? 'block-mid' : 'step-back', ox, 0,
+      leftChases ? -1 : 1);
+    return leftChases ? { a: chaser, b: fleeing } : { a: fleeing, b: chaser };
+  });
+
+  
+  
+  
+  
+  
+  
+  
+  f.push(7, (i, n, t) => {
+    const e = easeOut(t);
+    return leftChases
+      ? { a: st(i < 3 ? 'block-mid' : 'guard', lerp(to, from, e), 0, 1),
+        b: st(i < 3 ? 'cross' : 'guard', lerp(otherTo, otherFrom, e), 0, -1),
+        hit: i === 3 ? { x: (to + otherTo) / 2, power: 0.7 } : null }
+      : { a: st(i < 3 ? 'cross' : 'guard', lerp(otherTo, otherFrom, e), 0, 1),
+        b: st(i < 3 ? 'block-mid' : 'guard', lerp(to, from, e), 0, -1),
+        hit: i === 3 ? { x: (to + otherTo) / 2, power: 0.7 } : null };
+  });
+}
+
+
+
+
+
+function sceneCorner(f, { tag, leftPressed, count = 10 }) {
+  f.mark(tag);
+  const wall = leftPressed ? 84 : 418;
+  const front = leftPressed ? wall + 104 : wall - 104;
+  
+  
+  
+  
+  
+  f.walkTo(14, leftPressed ? wall : front, leftPressed ? front : wall,
+    { pose: leftPressed ? 'step-back' : 'step-in' });
+  const menu = ['jab', 'jab', 'cross', 'hook', 'knee', 'uppercut', 'jab', 'kick-low'];
+  for (let k = 0; k < count; k += 1) {
+    playExchange(f, {
+      attack: menu[Math.floor(f.rand() * menu.length)],
+      leftAttacks: !leftPressed,
+      lx: leftPressed ? wall : front,
+      rx: leftPressed ? front : wall,
+      connects: f.rand() < 0.55,
+    });
+  }
+  
+  dash(f, { lx: leftPressed ? wall : front, rx: leftPressed ? front : wall,
+    leftChases: leftPressed, ticks: 12, reach: 60 });
+}
+
+
+
+
 function sceneApproach(f) {
   f.mark('approach');
   const START_L = 40;
   const START_R = 468;
-  f.push(150, (i, n, t) => {
+  
+  
+  
+  
+  f.push(90, (i, n, t) => {
     const e = easeInOut(t);
     
     const fade = i < 24 ? 1 - i / 24 : 0;
@@ -261,29 +386,16 @@ function sceneApproach(f) {
     const rx = lerp(START_R, RIGHT_HOME + 18, e);
     
     
-    const step = Math.floor(i / 5) % 2 ? 'step-in' : 'idle';
+    
+    const step = Math.floor(i / 3) % 2 ? 'step-in' : 'idle';
     return { a: st(step, lx, 0, 1), b: st(step, rx, 0, -1), fade };
   });
   
-  f.push(90, (i) => {
-    const p = Math.floor(i / 9) % 2 ? 'idle-breathe' : 'guard';
-    return { a: st(p, LEFT_HOME - 18, 0, 1), b: st(p, RIGHT_HOME + 18, 0, -1) };
-  });
-  
-  
-  f.push(150, (i, n, t) => {
-    const sway = Math.sin(t * Math.PI * 2) * 16;
-    const p = Math.floor(i / 7) % 2 ? 'guard' : 'step-back';
-    return {
-      a: st(p, LEFT_HOME - 18 + sway, 0, 1),
-      b: st(p, RIGHT_HOME + 18 - sway, 0, -1),
-    };
-  });
-  f.push(120, (i, n, t) => {
+  f.push(22, (i, n, t) => {
     const e = easeIn(t);
     return {
-      a: st(Math.floor(i / 6) % 2 ? 'step-in' : 'guard', lerp(LEFT_HOME - 18, LEFT_HOME, e), 0, 1),
-      b: st(Math.floor(i / 6) % 2 ? 'step-in' : 'guard', lerp(RIGHT_HOME + 18, RIGHT_HOME, e), 0, -1),
+      a: st(Math.floor(i / 3) % 2 ? 'step-in' : 'guard', lerp(LEFT_HOME - 18, LEFT_HOME, e), 0, 1),
+      b: st(Math.floor(i / 3) % 2 ? 'step-in' : 'guard', lerp(RIGHT_HOME + 18, RIGHT_HOME, e), 0, -1),
     };
   });
 }
@@ -291,8 +403,12 @@ function sceneApproach(f) {
 
 function sceneFeelOut(f) {
   f.mark('feel-out');
+  
+  
   const order = ['jab', 'jab', 'kick-low', 'jab', 'cross', 'hook', 'jab', 'kick-low',
-    'jab', 'cross', 'kick-high', 'jab', 'hook', 'knee', 'jab', 'kick-low'];
+    'jab', 'cross', 'kick-high', 'jab', 'hook', 'knee', 'jab', 'kick-low',
+    'cross', 'jab', 'hook', 'kick-low', 'jab', 'knee', 'cross', 'jab',
+    'kick-high', 'jab', 'hook', 'jab', 'kick-low', 'cross'];
   order.forEach((attack, k) => {
     playExchange(f, {
       attack,
@@ -306,9 +422,17 @@ function sceneFeelOut(f) {
     
     
     
-    f.push(24 + Math.floor(f.rand() * 16), (i) => {
-      const p = Math.floor(i / 8) % 2 ? 'guard' : 'idle-breathe';
-      return { a: st(p, LEFT_HOME, 0, 1), b: st(p, RIGHT_HOME, 0, -1) };
+    
+    
+    
+    
+    const gap = 3 + Math.floor(f.rand() * 4);
+    f.push(gap, (i, n, t) => {
+      const sway = Math.sin(t * Math.PI) * 7;
+      return {
+        a: st(i % 2 ? 'step-in' : 'guard', LEFT_HOME + sway, 0, 1),
+        b: st(i % 2 ? 'step-back' : 'guard', RIGHT_HOME + sway, 0, -1),
+      };
     });
   });
 }
@@ -327,9 +451,18 @@ function sceneFlurry(f, { seedTag, count, closeIn = 0 }) {
       rx,
       connects: f.rand() < 0.42,
     });
-    if (f.rand() < 0.3) {
-      f.hold(5, st('guard', lx, 0, 1), st('guard', rx, 0, -1));
+    
+    
+    
+    
+    if (f.rand() < 0.25) {
+      f.push(2, (i, n, t) => ({
+        a: st('step-in', lx + 4 * Math.sin(t * Math.PI), 0, 1),
+        b: st('step-back', rx - 4 * Math.sin(t * Math.PI), 0, -1),
+      }));
     }
+    
+    if (k % 8 === 7) dash(f, { lx, rx, leftChases: f.rand() < 0.5, ticks: 9 });
   }
 }
 
@@ -348,7 +481,8 @@ function sceneJump(f, { attacker = 'b', pose = 'air-kick', connects = true } = {
     : { a: other, b: jumper, rate: 1 });
 
   
-  for (let i = 0; i < 8; i += 1) {
+  
+  for (let i = 0; i < 5; i += 1) {
     put(st(i < 3 ? 'crouch' : 'jump-load', jx, 0, face),
       st('guard', ox, 0, -face));
   }
@@ -356,7 +490,7 @@ function sceneJump(f, { attacker = 'b', pose = 'air-kick', connects = true } = {
   
   
   
-  const AIR = 54;
+  const AIR = 32;
   const PEAK = 82;
   const land = ox - face * 52;
   for (let i = 0; i < AIR; i += 1) {
@@ -377,9 +511,11 @@ function sceneJump(f, { attacker = 'b', pose = 'air-kick', connects = true } = {
     if (hit) f.ticks[f.ticks.length - 1].hit = { x: (x + ox) / 2, power: 1 };
   }
   
-  for (let i = 0; i < 40; i += 1) {
-    put(st(i < 8 ? 'land' : i < 14 ? 'crouch' : 'guard', land, 0, face),
-      st(connects && i < 14 ? 'stagger' : connects && i < 22 ? 'hit-body' : 'guard', ox, 0, -face));
+  
+  
+  for (let i = 0; i < 14; i += 1) {
+    put(st(i < 4 ? 'land' : i < 7 ? 'crouch' : 'guard', land, 0, face),
+      st(connects && i < 6 ? 'stagger' : connects && i < 10 ? 'hit-body' : 'guard', ox, 0, -face));
     if (i === 0) f.ticks[f.ticks.length - 1].land = { x: land };
   }
 }
@@ -392,53 +528,61 @@ function sceneJump(f, { attacker = 'b', pose = 'air-kick', connects = true } = {
 
 
 
+
+
+
+
+
+
+
+
 export const DIALOGUE = [
-  { who: 'a', text: 'Not bad... for a kid.', ticks: 76 },
-  { who: 'b', text: 'You are slowing down, old man.', ticks: 84 },
-  { who: 'a', text: 'Slowing down?', ticks: 58 },
-  { who: 'b', text: 'Show me, then.', ticks: 66 },
+  { who: 'a', text: 'Not bad, kid.', ticks: 34 },
+  { who: 'b', text: 'You are slow.', ticks: 34 },
+  
+  
+  
+  { who: 'a', text: 'Slow?', ticks: 32 },
+  { who: 'b', text: 'Show me.', ticks: 30 },
 ];
 
 function sceneStandoff(f) {
   f.mark('standoff');
   
   
-  f.push(30, (i, n, t) => {
+  f.push(14, (i, n, t) => {
     const e = easeOut(t);
     return {
-      a: st(i < 10 ? 'step-back' : 'talk', lerp(LEFT_HOME, LEFT_HOME - 26, e), 0, 1),
-      b: st(i < 10 ? 'step-back' : 'talk', lerp(RIGHT_HOME, RIGHT_HOME + 26, e), 0, -1),
+      a: st(i < 6 ? 'step-back' : 'talk', lerp(LEFT_HOME, LEFT_HOME - 26, e), 0, 1),
+      b: st(i < 6 ? 'step-back' : 'talk', lerp(RIGHT_HOME, RIGHT_HOME + 26, e), 0, -1),
     };
   });
 
   const lx = LEFT_HOME - 26;
   const rx = RIGHT_HOME + 26;
   for (const line of DIALOGUE) {
-    f.push(line.ticks, (i) => {
+    f.push(line.ticks, (i, n, t) => {
       
       
-      const speaking = Math.floor(i / 11) % 2 ? 'talk-point' : 'talk';
+      
+      
+      
+      const speaking = Math.floor(i / 5) % 2 ? 'talk-point' : 'talk';
+      const sway = Math.sin(t * Math.PI * 2) * 5;
       return {
-        a: st(line.who === 'a' ? speaking : 'talk', lx, 0, 1),
-        b: st(line.who === 'b' ? speaking : 'talk', rx, 0, -1),
+        a: st(line.who === 'a' ? speaking : 'talk', lx + sway, 0, 1),
+        b: st(line.who === 'b' ? speaking : 'talk', rx - sway, 0, -1),
         say: { who: line.who, text: line.text, i, n: line.ticks },
       };
     });
   }
 
   
-  
-  f.push(54, (i) => ({
-    a: st(Math.floor(i / 18) % 2 ? 'talk' : 'idle', lx, 0, 1),
-    b: st(Math.floor(i / 18) % 2 ? 'idle' : 'talk', rx, 0, -1),
-  }));
-
-  
-  f.push(36, (i, n, t) => {
+  f.push(16, (i, n, t) => {
     const e = easeIn(t);
     return {
-      a: st(i < 12 ? 'talk' : 'guard', lerp(lx, LEFT_HOME, e), 0, 1),
-      b: st(i < 12 ? 'talk' : 'guard', lerp(rx, RIGHT_HOME, e), 0, -1),
+      a: st(i < 5 ? 'talk' : 'guard', lerp(lx, LEFT_HOME, e), 0, 1),
+      b: st(i < 5 ? 'talk' : 'guard', lerp(rx, RIGHT_HOME, e), 0, -1),
     };
   });
 }
@@ -446,25 +590,21 @@ function sceneStandoff(f) {
 
 function sceneSlowMo(f) {
   f.mark('slow-motion');
+  
+  
+  
+  
   playExchange(f, {
     attack: 'cross', leftAttacks: true, lx: LEFT_HOME, rx: RIGHT_HOME,
-    connects: true, slow: 6,
+    connects: true, slow: 4,
   });
   playExchange(f, {
     attack: 'uppercut', leftAttacks: false, lx: LEFT_HOME, rx: RIGHT_HOME,
-    connects: true, slow: 6,
+    connects: true, slow: 4,
   });
   playExchange(f, {
     attack: 'kick-high', leftAttacks: true, lx: LEFT_HOME, rx: RIGHT_HOME,
-    connects: false, slow: 4,
-  });
-  playExchange(f, {
-    attack: 'hook', leftAttacks: false, lx: LEFT_HOME, rx: RIGHT_HOME,
-    connects: true, slow: 7,
-  });
-  playExchange(f, {
-    attack: 'knee', leftAttacks: true, lx: LEFT_HOME + 14, rx: RIGHT_HOME - 14,
-    connects: true, slow: 5,
+    connects: true, slow: 3,
   });
 }
 
@@ -473,9 +613,9 @@ function sceneFlight(f) {
   f.mark('flight');
   
   
-  f.push(46, (i, n, t) => {
+  f.push(22, (i, n, t) => {
     const y = easeOut(Math.min(1, t * 1.6)) * 58;
-    const p = i < 5 ? 'jump-load' : i < 12 ? 'jump-launch' : 'hover';
+    const p = i < 3 ? 'jump-load' : i < 7 ? 'jump-launch' : 'hover';
     const e = easeOut(t);
     return {
       a: st(p, lerp(LEFT_HOME, FLY_LEFT, e), y, 1),
@@ -485,11 +625,13 @@ function sceneFlight(f) {
 
   
   
-  for (let pass = 0; pass < 6; pass += 1) {
+  
+  
+  for (let pass = 0; pass < 10; pass += 1) {
     const swap = pass % 2 === 1;
     const lFrom = swap ? FLY_RIGHT : FLY_LEFT;
     const lTo = swap ? FLY_LEFT : FLY_RIGHT;
-    f.push(30, (i, n, t) => {
+    f.push(17, (i, n, t) => {
       const e = easeInOut(t);
       const ax = lerp(lFrom, lTo, e);
       const bx = lerp(lTo, lFrom, e);
@@ -502,7 +644,7 @@ function sceneFlight(f) {
         hit: Math.abs(t - 0.5) < 0.02 ? { x: (ax + bx) / 2, power: 1, air: true } : null,
       };
     });
-    f.push(20, (i, n, t) => {
+    f.push(7, (i, n, t) => {
       const ax = swap ? FLY_LEFT : FLY_RIGHT;
       const bx = swap ? FLY_RIGHT : FLY_LEFT;
       return {
@@ -513,7 +655,7 @@ function sceneFlight(f) {
   }
 
   
-  f.push(30, (i, n, t) => {
+  f.push(16, (i, n, t) => {
     const y = lerp(58, 0, easeIn(t));
     const e = easeIn(t);
     
@@ -533,20 +675,32 @@ function sceneFinale(f) {
   f.mark('finale');
   
   
-  f.push(150, (i, n, t) => {
-    const p = t < 0.25 ? 'charge' : Math.floor(i / 7) % 2 ? 'charge-max' : 'charge';
+  
+  
+  
+  f.push(52, (i, n, t) => {
+    const p = t < 0.2 ? 'charge' : Math.floor(i / 3) % 2 ? 'charge-max' : 'charge';
+    
+    
+    
+    
+    
+    const jit = (1 + t * 3) * Math.sin(i * 2.7);
+    const lift = t * 3 * Math.abs(Math.sin(i * 1.9));
     return {
-      a: st(p, LEFT_HOME - 10, 0, 1),
-      b: st(p, RIGHT_HOME + 10, 0, -1),
+      a: st(p, LEFT_HOME - 10 + jit, lift, 1),
+      b: st(p, RIGHT_HOME + 10 - jit, lift, -1),
       charge: { level: Math.min(1, t * 1.4) },
     };
   });
 
   
   
-  f.push(40, () => ({
-    a: st('finish-wind', LEFT_HOME - 10, 0, 1),
-    b: st('finish-wind', RIGHT_HOME + 10, 0, -1),
+  
+  
+  f.push(18, (i) => ({
+    a: st('finish-wind', LEFT_HOME - 10 + 2.4 * Math.sin(i * 3.1), 0, 1),
+    b: st('finish-wind', RIGHT_HOME + 10 - 2.4 * Math.sin(i * 3.1), 0, -1),
     charge: { level: 1 },
   }));
 
@@ -587,10 +741,18 @@ function sceneFinale(f) {
   }));
 
   
-  f.push(130, (i, n, t) => ({
-    a: st(t < 0.25 ? 'idle' : 'victory', 224, 0, 1),
-    b: st('defeated', 428, 0, -1),
-  }));
+  
+  
+  
+  
+  f.push(56, (i, n, t) => {
+    const pose = t < 0.14 ? 'idle' : t < 0.72 ? 'victory'
+      : Math.floor(i / 6) % 2 ? 'idle-breathe' : 'idle';
+    return {
+      a: st(pose, 224 + (t < 0.72 ? 0 : (t - 0.72) * 26), 0, 1),
+      b: st('defeated', 428, 0, -1),
+    };
+  });
 
   
   
@@ -618,25 +780,36 @@ function sceneFinale(f) {
 
 export function buildFight() {
   const f = new Fight();
+  
+  
+  
+  
+  
+  
+  
+  
+  
   sceneApproach(f);
   sceneFeelOut(f);
-  sceneFlurry(f, { seedTag: 'flurry-1', count: 26 });
-  
-  
-  f.walkTo(20, LEFT_HOME, RIGHT_HOME);
+  sceneFlurry(f, { seedTag: 'flurry-1', count: 60 });
+  f.walkTo(12, LEFT_HOME, RIGHT_HOME);
   sceneJump(f, { attacker: 'b', pose: 'air-kick', connects: true });
-  f.walkTo(24, LEFT_HOME + 12, RIGHT_HOME - 12);
-  sceneFlurry(f, { seedTag: 'flurry-2', count: 24, closeIn: 12 });
-  f.walkTo(22, LEFT_HOME, RIGHT_HOME);
+  sceneFlurry(f, { seedTag: 'flurry-2', count: 56, closeIn: 12 });
+  sceneJump(f, { attacker: 'a', pose: 'air-kick', connects: false });
+  sceneCorner(f, { tag: 'corner-1', leftPressed: true, count: 24 });
+  f.walkTo(12, LEFT_HOME, RIGHT_HOME);
   sceneStandoff(f);
   sceneSlowMo(f);
-  f.walkTo(20, LEFT_HOME + 16, RIGHT_HOME - 16);
-  sceneFlurry(f, { seedTag: 'flurry-3', count: 34, closeIn: 16 });
-  f.walkTo(24, LEFT_HOME, RIGHT_HOME);
+  f.walkTo(10, LEFT_HOME + 16, RIGHT_HOME - 16);
+  sceneFlurry(f, { seedTag: 'flurry-3', count: 68, closeIn: 16 });
+  sceneJump(f, { attacker: 'b', pose: 'air-punch', connects: true });
+  sceneCorner(f, { tag: 'corner-2', leftPressed: false, count: 26 });
+  f.walkTo(12, LEFT_HOME, RIGHT_HOME);
+  sceneFlurry(f, { seedTag: 'flurry-4', count: 62, closeIn: 20 });
+  f.walkTo(14, LEFT_HOME, RIGHT_HOME);
   sceneJump(f, { attacker: 'a', pose: 'air-punch', connects: false });
-  f.walkTo(26, LEFT_HOME, RIGHT_HOME);
   sceneFlight(f);
-  f.walkTo(26, LEFT_HOME - 10, RIGHT_HOME + 10);
+  f.walkTo(14, LEFT_HOME - 10, RIGHT_HOME + 10);
   sceneFinale(f);
   return { ticks: f.ticks, marks: f.marks };
 }

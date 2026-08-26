@@ -22,7 +22,13 @@ const FONT = '9px system-ui, -apple-system, "Segoe UI", sans-serif';
 
 export function revealed(text, i, n) {
   
-  const t = Math.min(1, (i / Math.max(1, n)) / 0.55);
+  
+  
+  
+  
+  
+  
+  const t = Math.min(1, (i / Math.max(1, n)) / 0.30);
   return text.slice(0, Math.ceil(text.length * t));
 }
 
