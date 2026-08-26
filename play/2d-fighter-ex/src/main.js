@@ -4,7 +4,8 @@ import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analyti
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { CANVAS } from './choreography.js';
 import { buildStage } from './stage.js';
-import { cursorAt, poseAtTime, TOTAL_MS } from './playback.js';
+import { cursorAt, stateAt, totalMs, sceneAt } from './fightPlayback.js';
+import { FPS } from './fightScript.js';
 import { renderFrame } from './render.js';
 
 initAnalytics({ page: '2d-fighter-ex' });
@@ -63,6 +64,11 @@ for (const [who, file] of [['light', 'fighter-light.png'], ['dark', 'fighter-dar
 }
 $('seed').textContent = seed;
 
+
+
+
+if ($('frames')) $('frames').textContent = String(Math.round(totalMs() / (1000 / FPS)));
+
 let playing = true;
 let elapsed = 0;
 let last = null;
@@ -74,13 +80,28 @@ function tick(now) {
   last = now;
   if (playing) elapsed += dt * speed;
 
-  const pose = poseAtTime(elapsed);
+  const pose = stateAt(elapsed);
   pose.sprites = sprites;
-  renderFrame(ctx, cells, pose, moodNow, { season, timeMs: elapsed, fx: fxOn });
 
+  
+  
+  
+  
+  const shake = pose.shake || 0;
+  ctx.save();
+  if (shake > 0) {
+    const k = pose.index * 2.3994;
+    ctx.translate(Math.sin(k) * 5 * shake, Math.cos(k * 1.7) * 4 * shake);
+  }
+  renderFrame(ctx, cells, pose, moodNow, { season, timeMs: elapsed, fx: fxOn });
+  ctx.restore();
+
+  const total = totalMs();
   $('frame').textContent = String(pose.index + 1);
-  $('clock').textContent = `${(((elapsed % TOTAL_MS) / 1000)).toFixed(2)}s`;
-  $('beat').textContent = pose.camera.closeup ? 'close-up' : (pose.fx || '-');
+  $('clock').textContent = `${(((elapsed % total) / 1000)).toFixed(1)}s`;
+  
+  
+  $('beat').textContent = pose.scene || '-';
 
   requestAnimationFrame(tick);
 }
@@ -97,8 +118,9 @@ $('step').addEventListener('click', () => {
   setPlaying(false);
   
   
+  
   const c = cursorAt(elapsed);
-  elapsed += c.hold - c.into;
+  elapsed += (1 - c.into) * (1000 / FPS);
 });
 
 $('speed').addEventListener('input', (e) => {
@@ -118,9 +140,12 @@ globalThis.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') {
     setPlaying(false);
     const c = cursorAt(elapsed);
-    elapsed += c.hold - c.into;
+    elapsed += (1 - c.into) * (1000 / FPS);
   }
-  if (e.key === 'ArrowLeft') { setPlaying(false); elapsed = Math.max(0, elapsed - 120); }
+  if (e.key === 'ArrowLeft') {
+    setPlaying(false);
+    elapsed = Math.max(0, elapsed - 1000 / FPS);
+  }
 });
 
 canvas.width = CANVAS.width;
@@ -141,7 +166,7 @@ trackEvent('game_start', { game: '2d-fighter-ex', seed });
 
 
 
-renderFrame(ctx, cells, { ...poseAtTime(0), sprites }, moodNow, { season, timeMs: 0, fx: fxOn });
+renderFrame(ctx, cells, { ...stateAt(0), sprites }, moodNow, { season, timeMs: 0, fx: fxOn });
 
 requestAnimationFrame(tick);
 

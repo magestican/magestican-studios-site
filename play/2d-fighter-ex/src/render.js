@@ -1,18 +1,18 @@
 
 
 import { CANVAS } from './choreography.js';
-import { CELL, REF_BODY_PX, FEET_ROW, FRAMES_LIGHT, FRAMES_DARK } from './bakeManifest.js';
-import { FRAMES, TOTAL_MS } from './choreography.js';
+import { CELL, REF_BODY_PX, FEET_ROW, MOVE_INDEX, MOVE_ROT } from './moveManifest.js';
+import { FPS } from './fightScript.js';
 
-const choreoFrameMs = TOTAL_MS / FRAMES.length;
+const TICK_MS = 1000 / FPS;
 import {
   drawSky, drawPlane, drawShafts, drawTrain, drawFalling, drawShadow,
   STAGE_WIDTH, GROUND_Y, seasonOf,
 } from './stage.js';
 import {
-  takeoffs, chargeWindows, chargeAt, drawDust, drawCharge, drawClashExtras,
-  drawWord, WORDS, groundUnder,
+  drawDust, drawCharge, drawClashExtras, drawWord, WORDS,
 } from './fx.js';
+import { drawBubble } from './dialogue.js';
 import { FX } from './palette.js';
 
 
@@ -49,14 +49,23 @@ export const SCENERY = Object.freeze([
 export const GROUND_FX = Object.freeze(['shadow', 'dust', 'charge']);
 export const CHARACTERS = 'fighters';
 
-export const OVERLAY = Object.freeze(['fx', 'word']);
+
+
+
+
+
+
+
+export const OVERLAY = Object.freeze(['fx', 'word', 'speech']);
 export const BEHIND = Object.freeze([...SCENERY, ...GROUND_FX]);
 export const LAYERS = Object.freeze([...BEHIND, 'ghost', CHARACTERS, ...OVERLAY]);
 
 
-const TAKEOFFS = takeoffs();
-const CHARGES = chargeWindows();
-export { TAKEOFFS, CHARGES };
+
+
+
+
+
 
 export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season = 'spring', timeMs = 0, fx = {} } = {}) {
   
@@ -80,7 +89,7 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   layer('rail');
   drawPlane(ctx, stage, 'rail', view);
   layer('train');
-  drawTrain(ctx, (pose.index || 0) / FRAMES.length, view);
+  drawTrain(ctx, ((pose.index || 0) % 900) / 900, view);
   layer('shafts');
   drawShafts(ctx, stage, view, season);
   layer('mid');
@@ -115,20 +124,28 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   
   if (on('shadow')) {
     for (const [spec, who] of [[pose.a, 'light'], [pose.b, 'dark']]) {
-      if (spec) drawShadow(ctx, spec, groundUnder(who, pose.index || 0), FX.shadow);
+      
+      
+      
+      if (spec) drawShadow(ctx, spec, GROUND_Y, FX.shadow);
     }
   }
 
   
+  
+  
   layer('dust');
-  for (const puff of on('impact') ? TAKEOFFS : []) {
-    const age = (pose.index - puff.frame) * (choreoFrameMs || 103) / 1000;
-    if (age >= 0 && age < 0.6) drawDust(ctx, puff, age);
+  if (pose.land && on('impact')) {
+    drawDust(ctx, { x: pose.land.x, y: GROUND_Y, frame: pose.index }, 0.12);
   }
 
   
   layer('charge');
-  const charge = on('impact') ? chargeAt(pose.index, CHARGES) : null;
+  
+  
+  
+  const charge = on('impact') && pose.charge
+    ? { t: pose.charge.level, frames: 1 } : null;
   if (charge) {
     const phase = timeMs / 1000;
     for (const spec of [pose.a, pose.b]) drawCharge(ctx, spec, charge.t, phase);
@@ -149,9 +166,13 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   
   
   
-  const drawSprite = (spec, atlas, index, frameIdx, alpha) => {
-    if (!atlas || !frameIdx) return;
-    const cellPos = frameIdx[index + 1];
+  const drawSprite = (spec, atlas, alpha) => {
+    if (!atlas || !spec) return;
+    
+    
+    
+    
+    const cellPos = MOVE_INDEX[spec.pose];
     if (!cellPos) return;
     
     
@@ -170,48 +191,74 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
     
     ctx.translate(spec.cx, spec.feet);
     if (spec.facing < 0) ctx.scale(-1, 1);
+    
+    
+    
+    
+    const rot = spec.rot || MOVE_ROT[spec.pose] || 0;
+    if (rot) {
+      ctx.translate(0, -FEET_ROW * scale * 0.5);
+      ctx.rotate((Math.abs(rot) * Math.PI) / 180 * Math.sign(rot));
+      ctx.translate(0, FEET_ROW * scale * 0.5);
+    }
     ctx.drawImage(atlas, cellPos[0], cellPos[1], CELL, CELL,
       -size / 2, -FEET_ROW * scale, size, size);
     ctx.restore();
   };
 
   const sprites = pose.sprites || {};
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   layer('ghost');
-  if (pose.ghost) {
-    if (pose.ghost.a) drawSprite(pose.ghost.a, sprites.light, pose.index, FRAMES_LIGHT, pose.ghost.alpha);
-    if (pose.ghost.b) drawSprite(pose.ghost.b, sprites.dark, pose.index, FRAMES_DARK, pose.ghost.alpha);
+  for (const [spec, atlas] of [[pose.a, sprites.light], [pose.b, sprites.dark]]) {
+    if (!spec || !spec.ghosts) continue;
+    
+    for (let k = spec.ghosts.length - 1; k >= 0; k -= 1) {
+      drawSprite(spec.ghosts[k], atlas, spec.ghosts[k].alpha);
+    }
   }
 
   layer('fighters');
   
   const pair = [
-    [pose.a, sprites.light, FRAMES_LIGHT, 0],
-    [pose.b, sprites.dark, FRAMES_DARK, 1],
+    [pose.a, sprites.light, 0],
+    [pose.b, sprites.dark, 1],
   ].filter(([s]) => s);
   pair.sort((p, q) => {
     const dh = (p[0].feet - p[0].top) - (q[0].feet - q[0].top);
-    return Math.abs(dh) > 0.5 ? dh : p[3] - q[3];
+    return Math.abs(dh) > 0.5 ? dh : p[2] - q[2];
   });
-  for (const [spec, atlas, frameIdx] of pair) {
-    drawSprite(spec, atlas, pose.index, frameIdx);
+  for (const [spec, atlas] of pair) {
+    drawSprite(spec, atlas);
   }
 
   
   layer('fx');
-  if (pose.fx && on('impact')) {
+  if (pose.hit && on('impact')) {
     drawEffect(ctx, pose);
     
-    const mid = pose.a && pose.b
-      ? [(pose.a.cx + pose.b.cx) / 2, (pose.a.feet + pose.b.feet) / 2 - 28]
-      : [width / 2, height / 2];
-    drawClashExtras(ctx, mid[0], mid[1], 1, timeMs / 400);
+    
+    
+    
+    const mid = [pose.hit.x, (pose.a ? pose.a.top : height / 2) + 34];
+    drawClashExtras(ctx, mid[0], mid[1], Math.min(1.6, pose.hit.power || 1), timeMs / 400);
   }
 
   
   
   
   layer('word');
-  if (on('words') && (pose.fx || (charge && charge.t > 0.25))) {
+  if (on('words') && (pose.hit || (charge && charge.t > 0.25))) {
     
     
     
@@ -220,7 +267,7 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
     if (pair.length) {
       const mx = pair.reduce((t, p) => t + p.cx, 0) / pair.length;
       const top = Math.min(...pair.map((p) => p.top));
-      if (pose.fx) {
+      if (pose.hit) {
         drawWord(ctx, WORDS.impact, mx + 26, top - 14, 24,
           { fill: FX.wordFill, line: FX.wordInk, tilt: -0.16 });
       } else {
@@ -228,6 +275,26 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
           { fill: FX.wordFill, line: FX.wordInk, tilt: -0.08 });
       }
     }
+  }
+
+  
+  
+  
+  layer('speech');
+  if (pose.say) {
+    const speaker = pose.say.who === 'a' ? pose.a : pose.b;
+    drawBubble(ctx, speaker, pose.say);
+  }
+
+  
+  
+  
+  if (pose.fade > 0) {
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, pose.fade);
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
   }
 }
 
@@ -245,7 +312,7 @@ function drawEffect(ctx, pose) {
   const y = a && b ? (mid(a) + mid(b)) / 2 : mid(a || b);
   const k = (a ? a.feet - a.top : 90) / 90;
 
-  if (pose.fx === 'burst') {
+  if (pose.hit && pose.hit.big) {
     const r = 30 * k;
 
     ctx.save();

@@ -1,0 +1,669 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { MOVE_INDEX } from './moveManifest.js';
+
+export const FPS = 30;
+
+
+
+export const GROUND = 205;
+export const BODY_H = 96;          
+
+
+
+
+
+
+
+
+
+
+
+
+const LEFT_HOME = 196;
+const RIGHT_HOME = 306;
+
+
+const FLY_LEFT = 92;
+const FLY_RIGHT = 410;
+
+
+
+const lerp = (a, b, t) => a + (b - a) * t;
+const easeOut = (t) => 1 - (1 - t) * (1 - t);
+const easeIn = (t) => t * t;
+const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - ((-2 * t + 2) ** 2) / 2);
+
+
+
+
+
+const arc = (t) => 4 * t * (1 - t);
+
+
+
+
+
+
+
+
+function rng(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+
+const st = (pose, x, y = 0, facing = 1, extra = {}) => ({
+  pose, x, y, facing, rot: 0, ...extra,
+});
+
+
+
+class Fight {
+  constructor() {
+    this.ticks = [];
+    this.marks = [];
+    this.rand = rng(0x2df1a);
+  }
+
+  get n() { return this.ticks.length; }
+
+  mark(name) { this.marks.push({ name, at: this.n }); }
+
+  
+
+
+
+
+
+
+
+
+  push(count, fn, meta = {}) {
+    for (let i = 0; i < count; i += 1) {
+      const t = count === 1 ? 0 : i / (count - 1);
+      const tick = fn(i, count, t);
+      this.ticks.push({ rate: 1, ...meta, ...tick });
+    }
+    return this;
+  }
+
+  
+  hold(count, a, b, meta = {}) {
+    return this.push(count, () => ({ a: { ...a }, b: { ...b } }), meta);
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+  walkTo(count, ax, bx, { pose = 'guard', ay = 0, by = 0 } = {}) {
+    const last = this.ticks[this.ticks.length - 1];
+    const fromA = last ? last.a.x : ax;
+    const fromB = last ? last.b.x : bx;
+    const fromAy = last ? last.a.y : ay;
+    const fromBy = last ? last.b.y : by;
+    return this.push(count, (i, n, t) => {
+      const e = easeInOut(t);
+      const nax = lerp(fromA, ax, e);
+      const nbx = lerp(fromB, bx, e);
+      
+      
+      const moving = Math.abs(ax - fromA) + Math.abs(bx - fromB) > 8;
+      const p = moving && Math.floor(i / 5) % 2 ? 'step-in' : pose;
+      return {
+        a: st(p, nax, lerp(fromAy, ay, e), nax <= nbx ? 1 : -1),
+        b: st(p, nbx, lerp(fromBy, by, e), nbx < nax ? 1 : -1),
+      };
+    });
+  }
+}
+
+
+
+
+
+
+
+
+const ATTACKS = {
+  jab: { frames: [['guard', 2], ['jab', 3], ['guard', 3]], hitAt: 3, reach: 46, power: 0.5 },
+  cross: { frames: [['guard', 3], ['cross', 4], ['step-in', 4]], hitAt: 4, reach: 54, power: 1 },
+  hook: { frames: [['guard', 3], ['hook', 4], ['guard', 4]], hitAt: 4, reach: 44, power: 0.9 },
+  uppercut: { frames: [['crouch', 3], ['uppercut', 4], ['guard', 5]], hitAt: 4, reach: 38, power: 1 },
+  'kick-low': { frames: [['guard', 3], ['kick-low', 4], ['guard', 4]], hitAt: 4, reach: 58, power: 0.8 },
+  'kick-high': { frames: [['guard', 4], ['kick-high', 5], ['guard', 5]], hitAt: 5, reach: 62, power: 1 },
+  knee: { frames: [['step-in', 3], ['knee', 4], ['guard', 3]], hitAt: 4, reach: 32, power: 0.9 },
+};
+
+const DEFENCES = {
+  
+  
+  jab: 'parry',
+  cross: 'block-mid',
+  hook: 'block-high',
+  uppercut: 'step-back',
+  'kick-low': 'block-low',
+  'kick-high': 'block-high',
+  knee: 'block-low',
+};
+
+
+function expand(frames) {
+  const out = [];
+  for (const [pose, n] of frames) for (let i = 0; i < n; i += 1) out.push(pose);
+  return out;
+}
+
+
+
+
+
+
+
+
+
+function exchange({ attack, attX, defX, attFace, defFace, connects, slow = 1, react }) {
+  const spec = ATTACKS[attack];
+  const poses = expand(spec.frames);
+  const defPose = DEFENCES[attack];
+  const out = [];
+  const hitTick = spec.hitAt * slow;
+
+  for (let i = 0; i < poses.length * slow; i += 1) {
+    const p = poses[Math.floor(i / slow)];
+    
+    const committing = i >= (spec.frames[0][1] * slow) && i < hitTick + 3 * slow;
+    
+    
+    
+    const lean = committing ? spec.reach * 0.52 : 0;
+    const ax = attX + attFace * lean;
+
+    let dPose = defPose;
+    let dx = defX;
+    if (connects && i >= hitTick) {
+      
+      
+      const since = i - hitTick;
+      dPose = react || (spec.power >= 0.9 ? 'hit-head' : 'hit-body');
+      if (since > 3 * slow) dPose = 'stagger';
+      dx = defX + defFace * -Math.min(spec.power * 16, since * 2.2);
+    }
+    out.push({
+      a: st(p, ax, 0, attFace),
+      b: st(dPose, dx, 0, defFace),
+      hit: connects && i === hitTick ? { x: (ax + dx) / 2, power: spec.power } : null,
+      rate: 1 / slow,
+    });
+  }
+  return out;
+}
+
+
+function playExchange(f, opts) {
+  const { leftAttacks } = opts;
+  const rows = exchange({
+    ...opts,
+    attX: leftAttacks ? opts.lx : opts.rx,
+    defX: leftAttacks ? opts.rx : opts.lx,
+    attFace: leftAttacks ? 1 : -1,
+    defFace: leftAttacks ? -1 : 1,
+  });
+  for (const r of rows) {
+    f.ticks.push(leftAttacks ? r : { ...r, a: r.b, b: r.a });
+  }
+}
+
+
+
+
+function sceneApproach(f) {
+  f.mark('approach');
+  const START_L = 40;
+  const START_R = 468;
+  f.push(150, (i, n, t) => {
+    const e = easeInOut(t);
+    
+    const fade = i < 24 ? 1 - i / 24 : 0;
+    const lx = lerp(START_L, LEFT_HOME - 18, e);
+    const rx = lerp(START_R, RIGHT_HOME + 18, e);
+    
+    
+    const step = Math.floor(i / 5) % 2 ? 'step-in' : 'idle';
+    return { a: st(step, lx, 0, 1), b: st(step, rx, 0, -1), fade };
+  });
+  
+  f.push(90, (i) => {
+    const p = Math.floor(i / 9) % 2 ? 'idle-breathe' : 'guard';
+    return { a: st(p, LEFT_HOME - 18, 0, 1), b: st(p, RIGHT_HOME + 18, 0, -1) };
+  });
+  
+  
+  f.push(150, (i, n, t) => {
+    const sway = Math.sin(t * Math.PI * 2) * 16;
+    const p = Math.floor(i / 7) % 2 ? 'guard' : 'step-back';
+    return {
+      a: st(p, LEFT_HOME - 18 + sway, 0, 1),
+      b: st(p, RIGHT_HOME + 18 - sway, 0, -1),
+    };
+  });
+  f.push(120, (i, n, t) => {
+    const e = easeIn(t);
+    return {
+      a: st(Math.floor(i / 6) % 2 ? 'step-in' : 'guard', lerp(LEFT_HOME - 18, LEFT_HOME, e), 0, 1),
+      b: st(Math.floor(i / 6) % 2 ? 'step-in' : 'guard', lerp(RIGHT_HOME + 18, RIGHT_HOME, e), 0, -1),
+    };
+  });
+}
+
+
+function sceneFeelOut(f) {
+  f.mark('feel-out');
+  const order = ['jab', 'jab', 'kick-low', 'jab', 'cross', 'hook', 'jab', 'kick-low',
+    'jab', 'cross', 'kick-high', 'jab', 'hook', 'knee', 'jab', 'kick-low'];
+  order.forEach((attack, k) => {
+    playExchange(f, {
+      attack,
+      leftAttacks: k % 2 === 0,
+      lx: LEFT_HOME,
+      rx: RIGHT_HOME,
+      connects: k === 4 || k === 7,
+    });
+    
+    
+    
+    
+    
+    f.push(24 + Math.floor(f.rand() * 16), (i) => {
+      const p = Math.floor(i / 8) % 2 ? 'guard' : 'idle-breathe';
+      return { a: st(p, LEFT_HOME, 0, 1), b: st(p, RIGHT_HOME, 0, -1) };
+    });
+  });
+}
+
+
+function sceneFlurry(f, { seedTag, count, closeIn = 0 }) {
+  f.mark(seedTag);
+  const lx = LEFT_HOME + closeIn;
+  const rx = RIGHT_HOME - closeIn;
+  const menu = ['jab', 'jab', 'cross', 'hook', 'knee', 'jab', 'uppercut', 'kick-low', 'cross', 'kick-high'];
+  for (let k = 0; k < count; k += 1) {
+    playExchange(f, {
+      attack: menu[Math.floor(f.rand() * menu.length)],
+      leftAttacks: f.rand() < 0.5,
+      lx,
+      rx,
+      connects: f.rand() < 0.42,
+    });
+    if (f.rand() < 0.3) {
+      f.hold(5, st('guard', lx, 0, 1), st('guard', rx, 0, -1));
+    }
+  }
+}
+
+
+
+
+
+function sceneJump(f, { attacker = 'b', pose = 'air-kick', connects = true } = {}) {
+  f.mark('jump');
+  const leftJumps = attacker === 'a';
+  const jx = leftJumps ? LEFT_HOME : RIGHT_HOME;
+  const ox = leftJumps ? RIGHT_HOME : LEFT_HOME;
+  const face = leftJumps ? 1 : -1;
+  const put = (jumper, other) => f.ticks.push(leftJumps
+    ? { a: jumper, b: other, rate: 1 }
+    : { a: other, b: jumper, rate: 1 });
+
+  
+  for (let i = 0; i < 8; i += 1) {
+    put(st(i < 3 ? 'crouch' : 'jump-load', jx, 0, face),
+      st('guard', ox, 0, -face));
+  }
+  
+  
+  
+  
+  const AIR = 54;
+  const PEAK = 82;
+  const land = ox - face * 52;
+  for (let i = 0; i < AIR; i += 1) {
+    const t = i / (AIR - 1);
+    const y = arc(t) * PEAK;
+    const x = lerp(jx, land, easeOut(t));
+    let p = 'jump-rise';
+    if (i < 3) p = 'jump-launch';
+    
+    
+    
+    else if (t >= 0.30 && t < 0.40) p = 'jump-apex';
+    else if (t >= 0.40 && t < 0.72) p = pose;
+    else if (t >= 0.72) p = 'jump-fall';
+    const hit = t > 0.55 && t <= 0.58 && connects;
+    put(st(p, x, y, face),
+      st(connects && t > 0.55 ? 'hit-head' : 'block-high', ox, 0, -face));
+    if (hit) f.ticks[f.ticks.length - 1].hit = { x: (x + ox) / 2, power: 1 };
+  }
+  
+  for (let i = 0; i < 40; i += 1) {
+    put(st(i < 8 ? 'land' : i < 14 ? 'crouch' : 'guard', land, 0, face),
+      st(connects && i < 14 ? 'stagger' : connects && i < 22 ? 'hit-body' : 'guard', ox, 0, -face));
+    if (i === 0) f.ticks[f.ticks.length - 1].land = { x: land };
+  }
+}
+
+
+
+
+
+
+
+
+
+export const DIALOGUE = [
+  { who: 'a', text: 'Not bad... for a kid.', ticks: 76 },
+  { who: 'b', text: 'You are slowing down, old man.', ticks: 84 },
+  { who: 'a', text: 'Slowing down?', ticks: 58 },
+  { who: 'b', text: 'Show me, then.', ticks: 66 },
+];
+
+function sceneStandoff(f) {
+  f.mark('standoff');
+  
+  
+  f.push(30, (i, n, t) => {
+    const e = easeOut(t);
+    return {
+      a: st(i < 10 ? 'step-back' : 'talk', lerp(LEFT_HOME, LEFT_HOME - 26, e), 0, 1),
+      b: st(i < 10 ? 'step-back' : 'talk', lerp(RIGHT_HOME, RIGHT_HOME + 26, e), 0, -1),
+    };
+  });
+
+  const lx = LEFT_HOME - 26;
+  const rx = RIGHT_HOME + 26;
+  for (const line of DIALOGUE) {
+    f.push(line.ticks, (i) => {
+      
+      
+      const speaking = Math.floor(i / 11) % 2 ? 'talk-point' : 'talk';
+      return {
+        a: st(line.who === 'a' ? speaking : 'talk', lx, 0, 1),
+        b: st(line.who === 'b' ? speaking : 'talk', rx, 0, -1),
+        say: { who: line.who, text: line.text, i, n: line.ticks },
+      };
+    });
+  }
+
+  
+  
+  f.push(54, (i) => ({
+    a: st(Math.floor(i / 18) % 2 ? 'talk' : 'idle', lx, 0, 1),
+    b: st(Math.floor(i / 18) % 2 ? 'idle' : 'talk', rx, 0, -1),
+  }));
+
+  
+  f.push(36, (i, n, t) => {
+    const e = easeIn(t);
+    return {
+      a: st(i < 12 ? 'talk' : 'guard', lerp(lx, LEFT_HOME, e), 0, 1),
+      b: st(i < 12 ? 'talk' : 'guard', lerp(rx, RIGHT_HOME, e), 0, -1),
+    };
+  });
+}
+
+
+function sceneSlowMo(f) {
+  f.mark('slow-motion');
+  playExchange(f, {
+    attack: 'cross', leftAttacks: true, lx: LEFT_HOME, rx: RIGHT_HOME,
+    connects: true, slow: 6,
+  });
+  playExchange(f, {
+    attack: 'uppercut', leftAttacks: false, lx: LEFT_HOME, rx: RIGHT_HOME,
+    connects: true, slow: 6,
+  });
+  playExchange(f, {
+    attack: 'kick-high', leftAttacks: true, lx: LEFT_HOME, rx: RIGHT_HOME,
+    connects: false, slow: 4,
+  });
+  playExchange(f, {
+    attack: 'hook', leftAttacks: false, lx: LEFT_HOME, rx: RIGHT_HOME,
+    connects: true, slow: 7,
+  });
+  playExchange(f, {
+    attack: 'knee', leftAttacks: true, lx: LEFT_HOME + 14, rx: RIGHT_HOME - 14,
+    connects: true, slow: 5,
+  });
+}
+
+
+function sceneFlight(f) {
+  f.mark('flight');
+  
+  
+  f.push(46, (i, n, t) => {
+    const y = easeOut(Math.min(1, t * 1.6)) * 58;
+    const p = i < 5 ? 'jump-load' : i < 12 ? 'jump-launch' : 'hover';
+    const e = easeOut(t);
+    return {
+      a: st(p, lerp(LEFT_HOME, FLY_LEFT, e), y, 1),
+      b: st(p, lerp(RIGHT_HOME, FLY_RIGHT, e), y, -1),
+    };
+  });
+
+  
+  
+  for (let pass = 0; pass < 6; pass += 1) {
+    const swap = pass % 2 === 1;
+    const lFrom = swap ? FLY_RIGHT : FLY_LEFT;
+    const lTo = swap ? FLY_LEFT : FLY_RIGHT;
+    f.push(30, (i, n, t) => {
+      const e = easeInOut(t);
+      const ax = lerp(lFrom, lTo, e);
+      const bx = lerp(lTo, lFrom, e);
+      const streak = t > 0.15 && t < 0.85;
+      const y = 58 + Math.sin(t * Math.PI) * 14;
+      return {
+        a: st(streak ? 'fly-dash' : 'hover', ax, y, ax < bx ? 1 : -1),
+        b: st(streak ? 'fly-dash' : 'hover', bx, y, bx < ax ? 1 : -1),
+        
+        hit: Math.abs(t - 0.5) < 0.02 ? { x: (ax + bx) / 2, power: 1, air: true } : null,
+      };
+    });
+    f.push(20, (i, n, t) => {
+      const ax = swap ? FLY_LEFT : FLY_RIGHT;
+      const bx = swap ? FLY_RIGHT : FLY_LEFT;
+      return {
+        a: st('air-guard', ax, 58, ax < bx ? 1 : -1),
+        b: st('air-guard', bx, 58, bx < ax ? 1 : -1),
+      };
+    });
+  }
+
+  
+  f.push(30, (i, n, t) => {
+    const y = lerp(58, 0, easeIn(t));
+    const e = easeIn(t);
+    
+    
+    const ax = lerp(FLY_LEFT, LEFT_HOME, e);
+    const bx = lerp(FLY_RIGHT, RIGHT_HOME, e);
+    return {
+      a: st(t < 0.8 ? 'air-punch' : 'land', ax, y, 1),
+      b: st(t < 0.8 ? 'air-punch' : 'land', bx, y, -1),
+      land: t >= 0.8 && t < 0.85 ? { x: ax } : null,
+    };
+  });
+}
+
+
+function sceneFinale(f) {
+  f.mark('finale');
+  
+  
+  f.push(150, (i, n, t) => {
+    const p = t < 0.25 ? 'charge' : Math.floor(i / 7) % 2 ? 'charge-max' : 'charge';
+    return {
+      a: st(p, LEFT_HOME - 10, 0, 1),
+      b: st(p, RIGHT_HOME + 10, 0, -1),
+      charge: { level: Math.min(1, t * 1.4) },
+    };
+  });
+
+  
+  
+  f.push(40, () => ({
+    a: st('finish-wind', LEFT_HOME - 10, 0, 1),
+    b: st('finish-wind', RIGHT_HOME + 10, 0, -1),
+    charge: { level: 1 },
+  }));
+
+  
+  f.push(18, (i, n, t) => {
+    const e = easeIn(t);
+    return {
+      a: st('fly-dash', lerp(LEFT_HOME - 10, 224, e), lerp(0, 10, e), 1),
+      b: st('fly-dash', lerp(RIGHT_HOME + 10, 278, e), lerp(0, 10, e), -1),
+      rate: 1.4,
+    };
+  });
+
+  
+  
+  f.push(10, () => ({
+    a: st('finish-strike', 224, 6, 1),
+    b: st('finish-strike', 288, 6, -1),
+    hit: { x: 251, power: 1.6, big: true },
+    rate: 0.15,
+    shake: 1,
+  }));
+
+  
+  f.push(34, (i, n, t) => {
+    const e = easeOut(t);
+    return {
+      a: st('finish-strike', 224, lerp(6, 0, e), 1),
+      b: st('knockdown', lerp(278, 428, e), lerp(6, 34, arc(t) + 0.2), -1),
+      rate: 0.4,
+      shake: 1 - t,
+    };
+  });
+  f.push(20, (i, n, t) => ({
+    a: st('idle', 224, 0, 1),
+    b: st('defeated', 428, lerp(20, 0, easeIn(t)), -1),
+    land: t > 0.7 && t < 0.78 ? { x: 428 } : null,
+  }));
+
+  
+  f.push(130, (i, n, t) => ({
+    a: st(t < 0.25 ? 'idle' : 'victory', 224, 0, 1),
+    b: st('defeated', 428, 0, -1),
+  }));
+
+  
+  
+  
+  
+  
+  
+  
+  
+  f.push(36, (i, n, t) => ({
+    a: st('victory', 224, 0, 1),
+    b: st('defeated', 428, 0, -1),
+    fade: t,
+  }));
+}
+
+
+
+
+
+
+
+
+
+
+export function buildFight() {
+  const f = new Fight();
+  sceneApproach(f);
+  sceneFeelOut(f);
+  sceneFlurry(f, { seedTag: 'flurry-1', count: 26 });
+  
+  
+  f.walkTo(20, LEFT_HOME, RIGHT_HOME);
+  sceneJump(f, { attacker: 'b', pose: 'air-kick', connects: true });
+  f.walkTo(24, LEFT_HOME + 12, RIGHT_HOME - 12);
+  sceneFlurry(f, { seedTag: 'flurry-2', count: 24, closeIn: 12 });
+  f.walkTo(22, LEFT_HOME, RIGHT_HOME);
+  sceneStandoff(f);
+  sceneSlowMo(f);
+  f.walkTo(20, LEFT_HOME + 16, RIGHT_HOME - 16);
+  sceneFlurry(f, { seedTag: 'flurry-3', count: 34, closeIn: 16 });
+  f.walkTo(24, LEFT_HOME, RIGHT_HOME);
+  sceneJump(f, { attacker: 'a', pose: 'air-punch', connects: false });
+  f.walkTo(26, LEFT_HOME, RIGHT_HOME);
+  sceneFlight(f);
+  f.walkTo(26, LEFT_HOME - 10, RIGHT_HOME + 10);
+  sceneFinale(f);
+  return { ticks: f.ticks, marks: f.marks };
+}
+
+let cached = null;
+
+export function fight() {
+  if (!cached) cached = buildFight();
+  return cached;
+}
+
+
+export function durationMs() {
+  return (fight().ticks.length / FPS) * 1000;
+}
+
+
+export function posesUsed() {
+  const used = new Set();
+  for (const t of fight().ticks) {
+    if (t.a) used.add(t.a.pose);
+    if (t.b) used.add(t.b.pose);
+  }
+  return [...used];
+}
+
+
+export function unknownPoses() {
+  return posesUsed().filter((p) => MOVE_INDEX[p] === undefined);
+}
