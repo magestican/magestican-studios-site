@@ -34,7 +34,23 @@ const mood = ['dark', 'juvenile', 'angry'].includes(params.get('mood')) ? params
 
 
 
-const season = params.get('season') === 'winter' ? 'winter' : 'spring';
+let season = params.get('season') === 'winter' ? 'winter' : 'spring';
+let moodNow = mood;
+
+
+
+
+const fxOn = { shadow: true, weather: true, impact: true, words: true };
+
+
+function syncUrl() {
+  const u = new URL(window.location.href);
+  if (season === 'spring') u.searchParams.delete('season');
+  else u.searchParams.set('season', season);
+  if (moodNow === 'none') u.searchParams.delete('mood');
+  else u.searchParams.set('mood', moodNow);
+  window.history.replaceState({}, '', u);
+}
 let cells = buildStage(seed, season);
 
 
@@ -60,7 +76,7 @@ function tick(now) {
 
   const pose = poseAtTime(elapsed);
   pose.sprites = sprites;
-  renderFrame(ctx, cells, pose, mood, { season, timeMs: elapsed });
+  renderFrame(ctx, cells, pose, moodNow, { season, timeMs: elapsed, fx: fxOn });
 
   $('frame').textContent = String(pose.index + 1);
   $('clock').textContent = `${(((elapsed % TOTAL_MS) / 1000)).toFixed(2)}s`;
@@ -125,6 +141,40 @@ trackEvent('game_start', { game: '2d-fighter-ex', seed });
 
 
 
-renderFrame(ctx, cells, { ...poseAtTime(0), sprites }, mood, { season, timeMs: 0 });
+renderFrame(ctx, cells, { ...poseAtTime(0), sprites }, moodNow, { season, timeMs: 0, fx: fxOn });
 
 requestAnimationFrame(tick);
+
+
+
+
+const seasonSel = $('season');
+if (seasonSel) {
+  seasonSel.value = season;
+  seasonSel.addEventListener('change', () => {
+    season = seasonSel.value;
+    
+    
+    cells = buildStage(seed, season);
+    syncUrl();
+  });
+}
+
+const moodSel = $('mood');
+if (moodSel) {
+  moodSel.value = moodNow;
+  moodSel.addEventListener('change', () => {
+    moodNow = moodSel.value;
+    syncUrl();
+  });
+}
+
+for (const [id, key] of [['fxShadow', 'shadow'], ['fxWeather', 'weather'],
+                         ['fxImpact', 'impact'], ['fxWords', 'words']]) {
+  const box = $(id);
+  if (!box) continue;
+  box.checked = fxOn[key];
+  box.addEventListener('change', () => {
+    fxOn[key] = box.checked;
+  });
+}

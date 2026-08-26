@@ -570,9 +570,14 @@ export function drawFalling(ctx, season, timeMs, { width, height, camX, camY }) 
 
 
 
-export const SHADOW_DIR = 1;        
+
+
+
+
+export const SHADOW_DIR = 1;
+export const SHADOW_OFFSET = 0.012;   
 export function drawShadow(ctx, spec, groundY, fill) {
-  if (!spec) return;
+  if (!spec || groundY === null || groundY === undefined) return;
   const h = spec.feet - spec.top;
   const lift = Math.max(0, groundY - spec.feet);
   
@@ -581,7 +586,7 @@ export function drawShadow(ctx, spec, groundY, fill) {
   if (k <= 0.02) return;
   const rx = h * 0.23 * (0.55 + k * 0.45);
   const ry = rx * 0.30;
-  const cx = spec.cx + SHADOW_DIR * h * 0.06 + SHADOW_DIR * lift * 0.16;
+  const cx = spec.cx + SHADOW_DIR * h * SHADOW_OFFSET + SHADOW_DIR * lift * 0.04;
   ctx.save();
   ctx.globalAlpha = 0.42 * k;
   ctx.fillStyle = fill;

@@ -136,6 +136,33 @@ export function chargeAt(index, windows) {
 
 
 
+
+
+
+const GROUND_BY_WHO = { light: null, dark: null };
+
+export function groundUnder(who, index) {
+  if (!GROUND_BY_WHO[who]) {
+    const slot = who === 'light' ? A : B;
+    GROUND_BY_WHO[who] = rollingBaseline(FRAMES.map((f) => (f[slot] ? f[slot][2] : null)));
+  }
+  const series = GROUND_BY_WHO[who];
+  const v = series[Math.max(0, Math.min(series.length - 1, index))];
+  return v === null ? null : v;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 const GLYPHS = {
   
   'ド': [[[0.18, 0.10], [0.66, 0.10]], [[0.42, 0.10], [0.30, 0.86]],

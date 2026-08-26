@@ -11,7 +11,7 @@ import {
 } from './stage.js';
 import {
   takeoffs, chargeWindows, chargeAt, drawDust, drawCharge, drawClashExtras,
-  drawWord, WORDS,
+  drawWord, WORDS, groundUnder,
 } from './fx.js';
 import { FX } from './palette.js';
 
@@ -58,11 +58,15 @@ const TAKEOFFS = takeoffs();
 const CHARGES = chargeWindows();
 export { TAKEOFFS, CHARGES };
 
-export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season = 'spring', timeMs = 0 } = {}) {
+export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season = 'spring', timeMs = 0, fx = {} } = {}) {
   
   
   
   const layer = (name) => { if (onLayer) onLayer(name); };
+  
+  
+  
+  const on = (k) => fx[k] !== false;
   const { width, height } = CANVAS;
   const cam = pose.camera;
   const view = { camX: cam.x, camY: cam.y, zoom: cam.zoom, width, height, offsetX: STAGE_OFFSET_X };
@@ -91,7 +95,7 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
 
   
   layer('weather');
-  drawFalling(ctx, season, timeMs, { width, height, camX: cam.x, camY: cam.y });
+  if (on('weather')) drawFalling(ctx, season, timeMs, { width, height, camX: cam.x, camY: cam.y });
 
   
   
@@ -107,20 +111,24 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   
   
   
-  const groundOnScreen = (GROUND_Y - cam.y) * cam.zoom
-    + height / 2 * (1 - cam.zoom);
-  for (const spec of [pose.a, pose.b]) drawShadow(ctx, spec, groundOnScreen, FX.shadow);
+  
+  
+  if (on('shadow')) {
+    for (const [spec, who] of [[pose.a, 'light'], [pose.b, 'dark']]) {
+      if (spec) drawShadow(ctx, spec, groundUnder(who, pose.index || 0), FX.shadow);
+    }
+  }
 
   
   layer('dust');
-  for (const puff of TAKEOFFS) {
+  for (const puff of on('impact') ? TAKEOFFS : []) {
     const age = (pose.index - puff.frame) * (choreoFrameMs || 103) / 1000;
     if (age >= 0 && age < 0.6) drawDust(ctx, puff, age);
   }
 
   
   layer('charge');
-  const charge = chargeAt(pose.index, CHARGES);
+  const charge = on('impact') ? chargeAt(pose.index, CHARGES) : null;
   if (charge) {
     const phase = timeMs / 1000;
     for (const spec of [pose.a, pose.b]) drawCharge(ctx, spec, charge.t, phase);
@@ -190,7 +198,7 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
 
   
   layer('fx');
-  if (pose.fx) {
+  if (pose.fx && on('impact')) {
     drawEffect(ctx, pose);
     
     const mid = pose.a && pose.b
@@ -203,7 +211,7 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   
   
   layer('word');
-  if (pose.fx || (charge && charge.t > 0.25)) {
+  if (on('words') && (pose.fx || (charge && charge.t > 0.25))) {
     
     
     
