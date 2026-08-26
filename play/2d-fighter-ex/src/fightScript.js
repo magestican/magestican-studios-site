@@ -205,26 +205,63 @@ class Fight {
 
 
 
+
+
+
+
+
+
+
+
 const ATTACKS = {
-  jab: { frames: [['guard', 1], ['jab', 2], ['guard', 2]], hitAt: 2, reach: 46, power: 0.5 },
-  cross: { frames: [['guard', 2], ['cross', 3], ['step-in', 2]], hitAt: 3, reach: 54, power: 1 },
-  hook: { frames: [['guard', 2], ['hook', 3], ['guard', 2]], hitAt: 3, reach: 44, power: 0.9 },
-  uppercut: { frames: [['crouch', 2], ['uppercut', 3], ['guard', 2]], hitAt: 3, reach: 38, power: 1 },
-  'kick-low': { frames: [['guard', 2], ['kick-low', 3], ['guard', 2]], hitAt: 3, reach: 58, power: 0.8 },
-  'kick-high': { frames: [['guard', 2], ['kick-high', 4], ['guard', 3]], hitAt: 4, reach: 62, power: 1 },
-  knee: { frames: [['step-in', 2], ['knee', 3], ['guard', 2]], hitAt: 3, reach: 32, power: 0.9 },
+  jab: {
+    frames: [['guard', 1], ['jab-mid', 1], ['jab', 2], ['jab-mid', 1], ['guard', 1]],
+    hitAt: 2, reach: 46, power: 0.5,
+  },
+  cross: {
+    frames: [['guard', 1], ['cross-mid', 1], ['cross', 2], ['cross-out', 2],
+      ['step-in', 1], ['guard', 1]],
+    hitAt: 2, reach: 54, power: 1,
+  },
+  hook: {
+    frames: [['guard', 1], ['hook-mid', 1], ['hook', 2], ['hook-mid', 1], ['guard', 1]],
+    hitAt: 2, reach: 44, power: 0.9,
+  },
+  uppercut: {
+    frames: [['crouch', 1], ['upper-mid', 1], ['uppercut', 2], ['upper-mid', 1],
+      ['guard', 1]],
+    hitAt: 2, reach: 38, power: 1,
+  },
+  'kick-low': {
+    frames: [['guard', 1], ['klow-mid', 1], ['kick-low', 2], ['klow-mid', 1],
+      ['guard', 1]],
+    hitAt: 2, reach: 58, power: 0.8,
+  },
+  'kick-high': {
+    frames: [['guard', 1], ['khigh-mid', 1], ['kick-high', 3], ['khigh-mid', 1],
+      ['guard', 1]],
+    hitAt: 2, reach: 62, power: 1,
+  },
+  knee: {
+    frames: [['step-in', 1], ['knee-mid', 1], ['knee', 2], ['knee-mid', 1],
+      ['guard', 1]],
+    hitAt: 2, reach: 32, power: 0.9,
+  },
 };
+
+
+
 
 const DEFENCES = {
   
   
-  jab: 'parry',
-  cross: 'block-mid',
-  hook: 'block-high',
-  uppercut: 'step-back',
-  'kick-low': 'block-low',
-  'kick-high': 'block-high',
-  knee: 'block-low',
+  jab: ['guard', 'block-mid-in', 'parry', 'parry', 'block-mid-in'],
+  cross: ['guard', 'block-mid-in', 'block-mid', 'block-mid', 'block-mid-in'],
+  hook: ['guard', 'block-high-in', 'block-high', 'block-high', 'block-high-in'],
+  uppercut: ['guard', 'block-mid-in', 'step-back', 'step-back', 'guard'],
+  'kick-low': ['guard', 'block-mid-in', 'block-low', 'block-low', 'block-mid-in'],
+  'kick-high': ['guard', 'block-high-in', 'block-high', 'block-high', 'block-high-in'],
+  knee: ['guard', 'block-mid-in', 'block-low', 'block-low', 'block-mid-in'],
 };
 
 
@@ -245,29 +282,52 @@ function expand(frames) {
 function exchange({ attack, attX, defX, attFace, defFace, connects, slow = 1, react }) {
   const spec = ATTACKS[attack];
   const poses = expand(spec.frames);
-  const defPose = DEFENCES[attack];
+  const defSeq = DEFENCES[attack];
   const out = [];
   const hitTick = spec.hitAt * slow;
+
+  
+  
+  
+  const heavy = spec.power >= 0.9;
+  const reactSeq = react ? [react, react, react, react] : (heavy
+    ? ['hit-head-mid', 'hit-head', 'hit-head', 'stagger-mid', 'stagger', 'stagger']
+    : ['hit-body-mid', 'hit-body', 'hit-body', 'stagger-mid', 'stagger', 'stagger']);
 
   for (let i = 0; i < poses.length * slow; i += 1) {
     const p = poses[Math.floor(i / slow)];
     
-    const committing = i >= (spec.frames[0][1] * slow) && i < hitTick + 3 * slow;
     
     
     
-    const lean = committing ? spec.reach * 0.52 : 0;
+    
+    
+    
+    
+    
+    
+    const windEnd = spec.frames[0][1] * slow;
+    const holdEnd = hitTick + 3 * slow;
+    let ramp = 0;
+    if (i >= windEnd && i < holdEnd) {
+      ramp = Math.min(1, (i - windEnd + 1) / Math.max(1, hitTick - windEnd + 1));
+    } else if (i >= holdEnd) {
+      ramp = Math.max(0, 1 - (i - holdEnd + 1) / (3 * slow));
+    }
+    
+    
+    
+    const lean = spec.reach * 0.52 * easeOut(ramp);
     const ax = attX + attFace * lean;
 
-    let dPose = defPose;
+    let dPose = defSeq[Math.min(defSeq.length - 1, Math.floor(i / slow))];
     let dx = defX;
     if (connects && i >= hitTick) {
       
       
-      const since = i - hitTick;
-      dPose = react || (spec.power >= 0.9 ? 'hit-head' : 'hit-body');
-      if (since > 3 * slow) dPose = 'stagger';
-      dx = defX + defFace * -Math.min(spec.power * 16, since * 2.2);
+      const since = Math.floor((i - hitTick) / slow);
+      dPose = reactSeq[Math.min(reactSeq.length - 1, since)];
+      dx = defX + defFace * -Math.min(spec.power * 16, (i - hitTick) * 2.2);
     }
     out.push({
       a: st(p, ax, 0, attFace),

@@ -114,6 +114,79 @@ export function trailAt(ticks, index, side, rate) {
 
 
 
+
+
+
+
+
+
+
+
+const HIT_HOLD = 10;        
+const WORD_HOLD = 16;       
+const WORD_GAP = 45;        
+const WORD_POWER = 0.9;     
+
+let wordTrack = null;
+function words() {
+  if (wordTrack) return wordTrack;
+  const { ticks } = fight();
+  const out = [];
+  let last = -WORD_GAP;
+  for (let i = 0; i < ticks.length; i += 1) {
+    const h = ticks[i].hit;
+    if (!h) continue;
+    if ((h.power || 0) < WORD_POWER && !h.big) continue;
+    
+    
+    
+    if (i - last < (h.big ? WORD_HOLD : WORD_GAP)) continue;
+    last = i;
+    out.push({ at: i, x: h.x, power: h.power || 1, big: !!h.big });
+  }
+  wordTrack = out;
+  return out;
+}
+
+
+function impactAt(index) {
+  const { ticks } = fight();
+  for (let k = 0; k < HIT_HOLD; k += 1) {
+    const at = index - k;
+    if (at < 0) break;
+    const h = ticks[at].hit;
+    if (h) return { ...h, age: k / HIT_HOLD, fresh: k === 0 };
+  }
+  return null;
+}
+
+
+function wordAt(index) {
+  for (const w of words()) {
+    if (index >= w.at && index - w.at < WORD_HOLD) {
+      return { ...w, age: (index - w.at) / WORD_HOLD };
+    }
+  }
+  return null;
+}
+
+
+export function wordTimes() {
+  return words().map((w) => w.at);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 const SCENE_ZOOM = {
   approach: 0.96,
   'feel-out': 1.0,
@@ -210,7 +283,9 @@ export function stateAt(ms) {
     a: drawableOf(cur.a, next && next.a, into, 'a', ticks, index, rate),
     b: drawableOf(cur.b, next && next.b, into, 'b', ticks, index, rate),
     
-    hit: cur.hit || null,
+    
+    hit: impactAt(index),
+    word: wordAt(index),
     land: cur.land || null,
     charge: cur.charge || null,
     say: cur.say || null,

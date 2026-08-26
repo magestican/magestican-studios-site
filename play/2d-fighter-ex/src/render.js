@@ -245,20 +245,34 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   
   layer('fx');
   if (pose.hit && on('impact')) {
+    ctx.save();
+    ctx.globalAlpha = (1 - pose.hit.age) ** 1.6;
     drawEffect(ctx, pose);
+    ctx.restore();
+    
+    
+    
+    
+    
+    
     
     
     
     
     const mid = [pose.hit.x, (pose.a ? pose.a.top : height / 2) + 34];
-    drawClashExtras(ctx, mid[0], mid[1], Math.min(1.6, pose.hit.power || 1), timeMs / 400);
+    const decay = (1 - pose.hit.age) ** 1.6;
+    ctx.save();
+    ctx.globalAlpha = decay;
+    drawClashExtras(ctx, mid[0], mid[1],
+      Math.min(1.6, (pose.hit.power || 1) * (0.5 + 0.5 * decay)), timeMs / 400);
+    ctx.restore();
   }
 
   
   
   
   layer('word');
-  if (on('words') && (pose.hit || (charge && charge.t > 0.25))) {
+  if (on('words') && (pose.word || (charge && charge.t > 0.25))) {
     
     
     
@@ -267,9 +281,24 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
     if (pair.length) {
       const mx = pair.reduce((t, p) => t + p.cx, 0) / pair.length;
       const top = Math.min(...pair.map((p) => p.top));
-      if (pose.hit) {
-        drawWord(ctx, WORDS.impact, mx + 26, top - 14, 24,
+      if (pose.word) {
+        
+        
+        
+        
+        
+        
+        
+        
+        const a = pose.word.age;
+        const pop = a < 0.2 ? 0.6 + 0.4 * (a / 0.2) : 1;
+        const fade = a > 0.8 ? (1 - a) / 0.2 : 1;
+        ctx.save();
+        ctx.globalAlpha = fade;
+        drawWord(ctx, WORDS.impact, pose.word.x + 20, top - 12,
+          24 * pop * (pose.word.big ? 1.5 : 1),
           { fill: FX.wordFill, line: FX.wordInk, tilt: -0.16 });
+        ctx.restore();
       } else {
         drawWord(ctx, WORDS.charge, mx - 46, top - 20, 17,
           { fill: FX.wordFill, line: FX.wordInk, tilt: -0.08 });
