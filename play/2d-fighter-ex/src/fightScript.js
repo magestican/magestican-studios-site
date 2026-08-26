@@ -320,7 +320,16 @@ function exchange({ attack, attX, defX, attFace, defFace, connects, slow = 1, re
     const lean = spec.reach * 0.52 * easeOut(ramp);
     const ax = attX + attFace * lean;
 
-    let dPose = defSeq[Math.min(defSeq.length - 1, Math.floor(i / slow))];
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    let dPose = defSeq[Math.min(defSeq.length - 1, Math.floor(i / (2 * slow)))];
     let dx = defX;
     if (connects && i >= hitTick) {
       
@@ -337,6 +346,40 @@ function exchange({ attack, attX, defX, attFace, defFace, connects, slow = 1, re
     });
   }
   return out;
+}
+
+
+
+
+
+
+
+
+
+
+function whiffCounter(f, { lx, rx, leftAttacks }) {
+  const face = leftAttacks ? 1 : -1;
+  const put = (att, def) => f.ticks.push(leftAttacks
+    ? { a: att, b: def, rate: 1 } : { a: def, b: att, rate: 1 });
+  const ax = leftAttacks ? lx : rx;
+  const dx = leftAttacks ? rx : lx;
+
+  
+  for (let i = 0; i < 8; i += 1) {
+    const t = i / 7;
+    const p = i < 2 ? 'guard' : i < 4 ? 'cross-mid' : i < 6 ? 'cross' : 'cross-out';
+    put(st(p, ax + face * 30 * easeOut(t), 0, face),
+      st(i < 4 ? 'step-back' : 'crouch', dx + face * 26 * easeOut(t), 0, -face));
+  }
+  
+  for (let i = 0; i < 10; i += 1) {
+    const p = i < 4 ? 'stagger-mid' : i < 7 ? 'hit-body-mid' : 'hit-body';
+    const c = i < 3 ? 'crouch' : i < 5 ? 'upper-mid' : i < 8 ? 'uppercut' : 'guard';
+    put(st(p, ax + face * 26, 0, face), st(c, dx + face * 18, 0, -face));
+    if (i === 5) {
+      f.ticks[f.ticks.length - 1].hit = { x: (ax + dx) / 2 + face * 22, power: 1 };
+    }
+  }
 }
 
 
@@ -502,11 +545,22 @@ function sceneFlurry(f, { seedTag, count, closeIn = 0 }) {
   f.mark(seedTag);
   const lx = LEFT_HOME + closeIn;
   const rx = RIGHT_HOME - closeIn;
-  const menu = ['jab', 'jab', 'cross', 'hook', 'knee', 'jab', 'uppercut', 'kick-low', 'cross', 'kick-high'];
+  
+  
+  
+  
+  
+  
+  
+  const menu = ['kick-low', 'knee', 'jab', 'cross', 'hook', 'kick-high', 'uppercut'];
+  let pick = 2;
   for (let k = 0; k < count; k += 1) {
+    pick = Math.max(0, Math.min(menu.length - 1,
+      pick + Math.round((f.rand() - 0.5) * 4)));
+    const last = f.rand() < 0.5;
     playExchange(f, {
-      attack: menu[Math.floor(f.rand() * menu.length)],
-      leftAttacks: f.rand() < 0.5,
+      attack: menu[pick],
+      leftAttacks: last,
       lx,
       rx,
       connects: f.rand() < 0.42,
@@ -515,14 +569,43 @@ function sceneFlurry(f, { seedTag, count, closeIn = 0 }) {
     
     
     
-    if (f.rand() < 0.25) {
-      f.push(2, (i, n, t) => ({
-        a: st('step-in', lx + 4 * Math.sin(t * Math.PI), 0, 1),
-        b: st('step-back', rx - 4 * Math.sin(t * Math.PI), 0, -1),
-      }));
+    
+    
+    
+    
+    
+    
+    if (f.rand() < 0.30) {
+      const extra = 1 + Math.floor(f.rand() * 2);
+      for (let c = 0; c < extra; c += 1) {
+        pick = Math.max(0, Math.min(menu.length - 1, pick + (f.rand() < 0.5 ? 1 : -1)));
+        playExchange(f, {
+          attack: menu[pick],
+          leftAttacks: last,
+          lx,
+          rx,
+          connects: f.rand() < 0.55,
+        });
+      }
     }
+
+    
+    
+    
+    
+    
+    
+    
+    f.push(4, (i, n, t) => {
+      const sway = Math.sin(t * Math.PI) * 5;
+      return {
+        a: st(i < 2 ? 'guard' : 'step-in', lx + sway, 0, 1),
+        b: st(i < 2 ? 'guard' : 'step-back', rx - sway, 0, -1),
+      };
+    });
     
     if (k % 8 === 7) dash(f, { lx, rx, leftChases: f.rand() < 0.5, ticks: 9 });
+    if (k % 11 === 5) whiffCounter(f, { lx, rx, leftAttacks: f.rand() < 0.5 });
   }
 }
 
