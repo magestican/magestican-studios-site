@@ -99,6 +99,23 @@ export const FX = Object.freeze({
   speed: CEL.highlight,
   slash: mix(CEL.rust, CEL.highlight, 0.25),
   impactLine: CEL.ink,
+  
+  
+  
+  dust: mix(CEL.cream, CEL.bark, 0.30),
+  dustLit: mix(CEL.cream, CEL.highlight, 0.30),
+  dustInk: mix(CEL.bark, CEL.ink, 0.45),
+  
+  
+  charge: mix(CEL.sky, CEL.highlight, 0.45),
+  chargeCore: CEL.highlight,
+  
+  
+  wordFill: CEL.cream,
+  wordInk: CEL.ink,
+  
+  
+  shadow: mix(CEL.ink, CEL.navy, 0.35),
 });
 
 

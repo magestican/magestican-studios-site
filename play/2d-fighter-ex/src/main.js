@@ -31,7 +31,11 @@ const seed = params.get('seed') || 'fighter-ex';
 
 
 const mood = ['dark', 'juvenile', 'angry'].includes(params.get('mood')) ? params.get('mood') : 'none';
-let cells = buildStage(seed);
+
+
+
+const season = params.get('season') === 'winter' ? 'winter' : 'spring';
+let cells = buildStage(seed, season);
 
 
 
@@ -56,7 +60,7 @@ function tick(now) {
 
   const pose = poseAtTime(elapsed);
   pose.sprites = sprites;
-  renderFrame(ctx, cells, pose, mood);
+  renderFrame(ctx, cells, pose, mood, { season, timeMs: elapsed });
 
   $('frame').textContent = String(pose.index + 1);
   $('clock').textContent = `${(((elapsed % TOTAL_MS) / 1000)).toFixed(2)}s`;
@@ -121,6 +125,6 @@ trackEvent('game_start', { game: '2d-fighter-ex', seed });
 
 
 
-renderFrame(ctx, cells, { ...poseAtTime(0), sprites }, mood);
+renderFrame(ctx, cells, { ...poseAtTime(0), sprites }, mood, { season, timeMs: 0 });
 
 requestAnimationFrame(tick);

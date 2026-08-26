@@ -294,8 +294,9 @@ export function drawTrain(ctx, progress, { camX, camY, zoom, width, height, offs
 
 
 
-export function buildStage(seed = 'fighter-ex') {
+export function buildStage(seed = 'fighter-ex', season = 'spring') {
   const rng = seededFrom(seed);
+  const cfg = seasonOf(season);
   const planes = { far: [], rail: [], mid: [], ground: [], near: [] };
 
   
@@ -418,7 +419,7 @@ export function buildStage(seed = 'fighter-ex') {
   planes.ground.push(...torii(rng.rangeI(200, STAGE_WIDTH - 200), GROUND_Y + 2, 46, 'ground'));
   
   
-  for (let bx = -280; bx < STAGE_WIDTH + 300; bx += rng.rangeI(40, 120)) {
+  for (let bx = -280; cfg.kerbSnow && bx < STAGE_WIDTH + 300; bx += rng.rangeI(40, 120)) {
     const bw = rng.rangeI(26, 70);
     planes.ground.push({
       t: 'poly', fill: SNOW.base,
@@ -461,6 +462,135 @@ export function buildStage(seed = 'fighter-ex') {
   return { planes, shafts };
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SEASONS = Object.freeze({
+  spring: {
+    label: 'sakura',
+    particle: 'petal',
+    kerbSnow: false,
+    shaftAlpha: 0.10,
+    sky: { high: '#8FA8C8', mid: '#B9C7DA', low: '#DCDDE4', glow: '#F0E2DE' },
+    petal: '#E8B7C4',
+    petalDeep: '#C98CA0',
+  },
+  winter: {
+    label: 'snowfall',
+    particle: 'snow',
+    kerbSnow: true,
+    shaftAlpha: 0.07,
+    sky: { high: '#8FA8C8', mid: '#AFC2DA', low: '#D2DBEA', glow: '#E4E0D6' },
+    petal: '#E6EAE7',
+    petalDeep: '#C6D2DD',
+  },
+});
+
+export function seasonOf(name) {
+  return SEASONS[name] || SEASONS.spring;
+}
+
+
+
+
+
+
+
+
+
+export function drawFalling(ctx, season, timeMs, { width, height, camX, camY }) {
+  const cfg = seasonOf(season);
+  const t = timeMs / 1000;
+  const isPetal = cfg.particle === 'petal';
+  const count = isPetal ? 46 : 70;
+  ctx.save();
+  for (let i = 0; i < count; i += 1) {
+    const seed = i * 12.9898;
+    const rnd = (k) => {
+      const v = Math.sin(seed * (k + 1)) * 43758.5453;
+      return v - Math.floor(v);
+    };
+    const speed = (isPetal ? 22 : 34) * (0.55 + rnd(1) * 0.9);
+    const drift = isPetal ? 26 * (rnd(2) - 0.5) : 9 * (rnd(2) - 0.5);
+    const depth = 0.35 + rnd(5) * 0.9;         
+    const x0 = rnd(3) * (width + 120) - 60;
+    const y0 = rnd(4) * (height + 80);
+    const y = ((y0 + t * speed) % (height + 80)) - 40;
+    const sway = Math.sin(t * (isPetal ? 1.9 : 0.7) + i) * (isPetal ? 11 : 3);
+    const x = ((x0 + t * drift + sway - camX * 0.06 * depth) % (width + 120) + width + 120)
+      % (width + 120) - 60;
+    const size = (isPetal ? 3.1 : 1.9) * depth;
+    ctx.globalAlpha = 0.35 + depth * 0.5;
+    ctx.fillStyle = i % 3 === 0 ? cfg.petalDeep : cfg.petal;
+    if (isPetal) {
+      
+      const a = Math.sin(t * 2.3 + i) * 0.9;
+      ctx.save();
+      ctx.translate(x, y - camY * 0.04 * depth);
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.moveTo(-size, 0);
+      ctx.quadraticCurveTo(0, -size * 0.95, size, 0);
+      ctx.quadraticCurveTo(0, size * 0.5, -size, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    } else {
+      ctx.fillRect(x, y - camY * 0.04 * depth, size, size);
+    }
+  }
+  ctx.restore();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SHADOW_DIR = 1;        
+export function drawShadow(ctx, spec, groundY, fill) {
+  if (!spec) return;
+  const h = spec.feet - spec.top;
+  const lift = Math.max(0, groundY - spec.feet);
+  
+  
+  const k = Math.max(0, 1 - lift / (h * 1.5));
+  if (k <= 0.02) return;
+  const rx = h * 0.23 * (0.55 + k * 0.45);
+  const ry = rx * 0.30;
+  const cx = spec.cx + SHADOW_DIR * h * 0.06 + SHADOW_DIR * lift * 0.16;
+  ctx.save();
+  ctx.globalAlpha = 0.42 * k;
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.ellipse(cx, groundY + 2, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 export function stageColours() {
   return [
     ...Object.values(SKY), ...Object.values(SNOW),
@@ -489,12 +619,15 @@ function drawShapes(ctx, shapes) {
   }
 }
 
-export function drawSky(ctx, width, height) {
+export function drawSky(ctx, width, height, season = 'spring') {
+  
+  
+  const sky = seasonOf(season).sky;
   const g = ctx.createLinearGradient(0, 0, 0, height);
-  g.addColorStop(0, SKY.high);
-  g.addColorStop(0.45, SKY.mid);
-  g.addColorStop(0.78, SKY.low);
-  g.addColorStop(1, SKY.glow);
+  g.addColorStop(0, sky.high);
+  g.addColorStop(0.45, sky.mid);
+  g.addColorStop(0.78, sky.low);
+  g.addColorStop(1, sky.glow);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, width, height);
 }
@@ -511,9 +644,9 @@ export function drawPlane(ctx, stage, name, { camX, camY, zoom, width, height, o
   ctx.restore();
 }
 
-export function drawShafts(ctx, stage, { camX, width, height, offsetX }) {
+export function drawShafts(ctx, stage, { camX, width, height, offsetX }, season = 'spring') {
   ctx.save();
-  ctx.globalAlpha = 0.07;
+  ctx.globalAlpha = seasonOf(season).shaftAlpha;
   ctx.fillStyle = SKY.shaft;
   for (const s of stage.shafts) {
     const x = s.x - camX * PARALLAX.mid - offsetX;

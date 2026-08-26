@@ -2,8 +2,17 @@
 
 import { CANVAS } from './choreography.js';
 import { CELL, REF_BODY_PX, FEET_ROW, FRAMES_LIGHT, FRAMES_DARK } from './bakeManifest.js';
-import { FRAMES } from './choreography.js';
-import { drawSky, drawPlane, drawShafts, drawTrain, STAGE_WIDTH } from './stage.js';
+import { FRAMES, TOTAL_MS } from './choreography.js';
+
+const choreoFrameMs = TOTAL_MS / FRAMES.length;
+import {
+  drawSky, drawPlane, drawShafts, drawTrain, drawFalling, drawShadow,
+  STAGE_WIDTH, GROUND_Y, seasonOf,
+} from './stage.js';
+import {
+  takeoffs, chargeWindows, chargeAt, drawDust, drawCharge, drawClashExtras,
+  drawWord, WORDS,
+} from './fx.js';
 import { FX } from './palette.js';
 
 
@@ -31,13 +40,25 @@ export const STAGE_OFFSET_X = (STAGE_WIDTH - CANVAS.width) / 2;
 
 
 export const SCENERY = Object.freeze([
-  'sky', 'far', 'rail', 'train', 'shafts', 'mid', 'ground', 'near',
+  'sky', 'far', 'rail', 'train', 'shafts', 'mid', 'ground', 'near', 'weather',
 ]);
-export const CHARACTERS = 'fighters';
-export const OVERLAY = Object.freeze(['fx']);
-export const LAYERS = Object.freeze([...SCENERY, 'ghost', CHARACTERS, ...OVERLAY]);
 
-export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer } = {}) {
+
+
+
+export const GROUND_FX = Object.freeze(['shadow', 'dust', 'charge']);
+export const CHARACTERS = 'fighters';
+
+export const OVERLAY = Object.freeze(['fx', 'word']);
+export const BEHIND = Object.freeze([...SCENERY, ...GROUND_FX]);
+export const LAYERS = Object.freeze([...BEHIND, 'ghost', CHARACTERS, ...OVERLAY]);
+
+
+const TAKEOFFS = takeoffs();
+const CHARGES = chargeWindows();
+export { TAKEOFFS, CHARGES };
+
+export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season = 'spring', timeMs = 0 } = {}) {
   
   
   
@@ -47,7 +68,7 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer } = {}) {
   const view = { camX: cam.x, camY: cam.y, zoom: cam.zoom, width, height, offsetX: STAGE_OFFSET_X };
 
   layer('sky');
-  drawSky(ctx, width, height);
+  drawSky(ctx, width, height, season);
   layer('far');
   drawPlane(ctx, stage, 'far', view);
   
@@ -57,7 +78,7 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer } = {}) {
   layer('train');
   drawTrain(ctx, (pose.index || 0) / FRAMES.length, view);
   layer('shafts');
-  drawShafts(ctx, stage, view);
+  drawShafts(ctx, stage, view, season);
   layer('mid');
   drawPlane(ctx, stage, 'mid', view);
   layer('ground');
@@ -67,6 +88,43 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer } = {}) {
   
   layer('near');
   drawPlane(ctx, stage, 'near', view);
+
+  
+  layer('weather');
+  drawFalling(ctx, season, timeMs, { width, height, camX: cam.x, camY: cam.y });
+
+  
+  
+  
+  layer('shadow');
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const groundOnScreen = (GROUND_Y - cam.y) * cam.zoom
+    + height / 2 * (1 - cam.zoom);
+  for (const spec of [pose.a, pose.b]) drawShadow(ctx, spec, groundOnScreen, FX.shadow);
+
+  
+  layer('dust');
+  for (const puff of TAKEOFFS) {
+    const age = (pose.index - puff.frame) * (choreoFrameMs || 103) / 1000;
+    if (age >= 0 && age < 0.6) drawDust(ctx, puff, age);
+  }
+
+  
+  layer('charge');
+  const charge = chargeAt(pose.index, CHARGES);
+  if (charge) {
+    const phase = timeMs / 1000;
+    for (const spec of [pose.a, pose.b]) drawCharge(ctx, spec, charge.t, phase);
+  }
 
   
   
@@ -132,7 +190,37 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer } = {}) {
 
   
   layer('fx');
-  if (pose.fx) drawEffect(ctx, pose);
+  if (pose.fx) {
+    drawEffect(ctx, pose);
+    
+    const mid = pose.a && pose.b
+      ? [(pose.a.cx + pose.b.cx) / 2, (pose.a.feet + pose.b.feet) / 2 - 28]
+      : [width / 2, height / 2];
+    drawClashExtras(ctx, mid[0], mid[1], 1, timeMs / 400);
+  }
+
+  
+  
+  
+  layer('word');
+  if (pose.fx || (charge && charge.t > 0.25)) {
+    
+    
+    
+    
+    const pair = [pose.a, pose.b].filter(Boolean);
+    if (pair.length) {
+      const mx = pair.reduce((t, p) => t + p.cx, 0) / pair.length;
+      const top = Math.min(...pair.map((p) => p.top));
+      if (pose.fx) {
+        drawWord(ctx, WORDS.impact, mx + 26, top - 14, 24,
+          { fill: FX.wordFill, line: FX.wordInk, tilt: -0.16 });
+      } else {
+        drawWord(ctx, WORDS.charge, mx - 46, top - 20, 17,
+          { fill: FX.wordFill, line: FX.wordInk, tilt: -0.08 });
+      }
+    }
+  }
 }
 
 
