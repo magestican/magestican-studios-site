@@ -13,6 +13,14 @@ import {
   drawDust, drawCharge, drawClashExtras, drawWord, WORDS,
 } from './fx.js';
 import { drawBubble } from './dialogue.js';
+import { worldOf } from './worlds.js';
+
+
+
+const worldTrain = (world) => {
+  const w = worldOf(world);
+  return w ? w.train : true;
+};
 import { FX } from './palette.js';
 
 
@@ -67,7 +75,7 @@ export const LAYERS = Object.freeze([...BEHIND, 'ghost', CHARACTERS, ...OVERLAY]
 
 
 
-export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season = 'spring', timeMs = 0, fx = {} } = {}) {
+export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season = 'spring', world = null, timeMs = 0, fx = {} } = {}) {
   
   
   
@@ -81,17 +89,26 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   const view = { camX: cam.x, camY: cam.y, zoom: cam.zoom, width, height, offsetX: STAGE_OFFSET_X };
 
   layer('sky');
-  drawSky(ctx, width, height, season);
+  drawSky(ctx, width, height, season, world);
   layer('far');
   drawPlane(ctx, stage, 'far', view);
   
   
   layer('rail');
   drawPlane(ctx, stage, 'rail', view);
+  
+  
+  
+  
+  
+  
+  
+  
+  
   layer('train');
-  drawTrain(ctx, ((pose.index || 0) % 900) / 900, view);
+  if (worldTrain(world)) drawTrain(ctx, ((pose.index || 0) % 900) / 900, view);
   layer('shafts');
-  drawShafts(ctx, stage, view, season);
+  drawShafts(ctx, stage, view, season, world);
   layer('mid');
   drawPlane(ctx, stage, 'mid', view);
   layer('ground');
@@ -104,7 +121,7 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
 
   
   layer('weather');
-  if (on('weather')) drawFalling(ctx, season, timeMs, { width, height, camX: cam.x, camY: cam.y });
+  if (on('weather')) drawFalling(ctx, season, timeMs, { width, height, camX: cam.x, camY: cam.y }, world);
 
   
   

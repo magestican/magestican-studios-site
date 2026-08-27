@@ -24,6 +24,13 @@
 import { SeededRng } from '../../../web-engine/rng/seededRng.js';
 import { CEL, mix } from './palette.js';
 import { roughen, seedOf, noise1 } from './handdrawn.js';
+import { worldOf } from './worlds.js';
+
+
+
+
+
+const rgba = (c, a) => `rgba(${parseInt(c.slice(1, 3), 16)},${parseInt(c.slice(3, 5), 16)},${parseInt(c.slice(5, 7), 16)},${a})`;
 
 
 
@@ -294,10 +301,24 @@ export function drawTrain(ctx, progress, { camX, camY, zoom, width, height, offs
 
 
 
-export function buildStage(seed = 'fighter-ex', season = 'spring') {
+export function buildStage(seed = 'fighter-ex', season = 'spring', world = null) {
   const rng = seededFrom(seed);
   const cfg = seasonOf(season);
   const planes = { far: [], rail: [], mid: [], ground: [], near: [] };
+
+  
+  
+  
+  
+  
+  
+  
+  
+  const picked = worldOf(world);
+  if (picked) {
+    picked.build(rng, planes, { W: STAGE_WIDTH, G: GROUND_Y });
+    return { planes, shafts: makeShafts(rng), world: picked.id };
+  }
 
   
   for (const [tone, top, snowY] of [
@@ -454,12 +475,18 @@ export function buildStage(seed = 'fighter-ex', season = 'spring') {
     planes.near.push({ t: 'poly', fill: CONCRETE.deep, pts: pts.concat(back) });
   }
 
-  
+  return { planes, shafts: makeShafts(rng), world: null };
+}
+
+
+
+
+function makeShafts(rng) {
   const shafts = [];
   for (let i = 0; i < 4; i += 1) {
     shafts.push({ x: rng.rangeI(-100, STAGE_WIDTH), w: rng.rangeI(20, 54), lean: 0.34 });
   }
-  return { planes, shafts };
+  return shafts;
 }
 
 
@@ -512,11 +539,15 @@ export function seasonOf(name) {
 
 
 
-export function drawFalling(ctx, season, timeMs, { width, height, camX, camY }) {
-  const cfg = seasonOf(season);
+export function drawFalling(ctx, season, timeMs, { width, height, camX, camY }, world = null) {
+  const picked = worldOf(world);
+  const cfg = picked ? picked.weather : seasonOf(season);
   const t = timeMs / 1000;
   const isPetal = cfg.particle === 'petal';
-  const count = isPetal ? 46 : 70;
+  const isRain = cfg.particle === 'rain';
+  
+  
+  const count = isPetal ? 46 : (isRain ? 150 : 70);
   ctx.save();
   for (let i = 0; i < count; i += 1) {
     const seed = i * 12.9898;
@@ -549,6 +580,22 @@ export function drawFalling(ctx, season, timeMs, { width, height, camX, camY }) 
       ctx.closePath();
       ctx.fill();
       ctx.restore();
+    } else if (isRain) {
+      
+      
+      
+      
+      
+      const yy = y - camY * 0.04 * depth;
+      const len = 9 + depth * 13;
+      const lean = 2.2 + depth * 1.6;
+      ctx.beginPath();
+      ctx.moveTo(x, yy);
+      ctx.lineTo(x + size * 0.6, yy);
+      ctx.lineTo(x + size * 0.6 + lean, yy + len);
+      ctx.lineTo(x + lean, yy + len);
+      ctx.closePath();
+      ctx.fill();
     } else {
       ctx.fillRect(x, y - camY * 0.04 * depth, size, size);
     }
@@ -624,10 +671,13 @@ function drawShapes(ctx, shapes) {
   }
 }
 
-export function drawSky(ctx, width, height, season = 'spring') {
+export function drawSky(ctx, width, height, season = 'spring', world = null) {
   
   
-  const sky = seasonOf(season).sky;
+  
+  
+  const picked = worldOf(world);
+  const sky = picked ? picked.sky : seasonOf(season).sky;
   const g = ctx.createLinearGradient(0, 0, 0, height);
   g.addColorStop(0, sky.high);
   g.addColorStop(0.45, sky.mid);
@@ -635,6 +685,32 @@ export function drawSky(ctx, width, height, season = 'spring') {
   g.addColorStop(1, sky.glow);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, width, height);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (picked && picked.sun) {
+    const { x, y, r, fill, halo } = picked.sun;
+    const cx = width * x;
+    const cy = height * y;
+    ctx.save();
+    const h = ctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 3.4);
+    h.addColorStop(0, rgba(fill, halo));
+    h.addColorStop(1, rgba(fill, 0));
+    ctx.fillStyle = h;
+    ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
 }
 
 export function drawPlane(ctx, stage, name, { camX, camY, zoom, width, height, offsetX }) {
@@ -649,10 +725,15 @@ export function drawPlane(ctx, stage, name, { camX, camY, zoom, width, height, o
   ctx.restore();
 }
 
-export function drawShafts(ctx, stage, { camX, width, height, offsetX }, season = 'spring') {
+export function drawShafts(ctx, stage, { camX, width, height, offsetX }, season = 'spring', world = null) {
+  const picked = worldOf(world);
   ctx.save();
-  ctx.globalAlpha = seasonOf(season).shaftAlpha;
-  ctx.fillStyle = SKY.shaft;
+  ctx.globalAlpha = picked ? picked.shaftAlpha : seasonOf(season).shaftAlpha;
+  
+  
+  
+  
+  ctx.fillStyle = picked ? picked.sky.glow : SKY.shaft;
   for (const s of stage.shafts) {
     const x = s.x - camX * PARALLAX.mid - offsetX;
     ctx.beginPath();

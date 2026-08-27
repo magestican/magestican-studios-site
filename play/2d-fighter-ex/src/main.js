@@ -4,6 +4,7 @@ import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analyti
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { CANVAS } from './choreography.js';
 import { buildStage } from './stage.js';
+import { WORLD_IDS } from './worlds.js';
 import { cursorAt, stateAt, totalMs, sceneAt } from './fightPlayback.js';
 import { FPS } from './fightScript.js';
 import { renderFrame } from './render.js';
@@ -36,6 +37,17 @@ const mood = ['dark', 'juvenile', 'angry'].includes(params.get('mood')) ? params
 
 
 let season = params.get('season') === 'winter' ? 'winter' : 'spring';
+
+
+
+
+
+
+
+
+
+
+let world = WORLD_IDS.includes(params.get('world')) ? params.get('world') : '';
 let moodNow = mood;
 
 
@@ -46,13 +58,15 @@ const fxOn = { shadow: true, weather: true, impact: true, words: true };
 
 function syncUrl() {
   const u = new URL(window.location.href);
+  if (!world) u.searchParams.delete('world');
+  else u.searchParams.set('world', world);
   if (season === 'spring') u.searchParams.delete('season');
   else u.searchParams.set('season', season);
   if (moodNow === 'none') u.searchParams.delete('mood');
   else u.searchParams.set('mood', moodNow);
   window.history.replaceState({}, '', u);
 }
-let cells = buildStage(seed, season);
+let cells = buildStage(seed, season, world);
 
 
 
@@ -113,7 +127,7 @@ function tick(now) {
     const k = pose.index * 2.3994;
     ctx.translate(Math.sin(k) * 5 * shake, Math.cos(k * 1.7) * 4 * shake);
   }
-  renderFrame(ctx, cells, pose, moodNow, { season, timeMs: elapsed, fx: fxOn });
+  renderFrame(ctx, cells, pose, moodNow, { season, world, timeMs: elapsed, fx: fxOn });
   ctx.restore();
 
   const total = totalMs();
@@ -186,12 +200,24 @@ trackEvent('game_start', { game: '2d-fighter-ex', seed });
 
 
 
-renderFrame(ctx, cells, { ...stateAt(0), sprites }, moodNow, { season, timeMs: 0, fx: fxOn });
+renderFrame(ctx, cells, { ...stateAt(0), sprites }, moodNow, { season, world, timeMs: 0, fx: fxOn });
 
 requestAnimationFrame(tick);
 
 
 
+
+const worldSel = $('world');
+if (worldSel) {
+  worldSel.value = world;
+  worldSel.addEventListener('change', () => {
+    world = worldSel.value;
+    
+    
+    cells = buildStage(seed, season, world);
+    syncUrl();
+  });
+}
 
 const seasonSel = $('season');
 if (seasonSel) {
@@ -200,7 +226,7 @@ if (seasonSel) {
     season = seasonSel.value;
     
     
-    cells = buildStage(seed, season);
+    cells = buildStage(seed, season, world);
     syncUrl();
   });
 }
