@@ -5,38 +5,25 @@
 
 
 
-import * as THREE from 'three';
 
-export const WEAPON_DEFS = [
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  { id: 'shovel',  name: 'Shovel',   cooldown: 0.20, damage: 12, pellets: 1, spread: 0.003, kind: 'projectile', projectileSpeed: 62, projectileColor: 0x7a5c3d, tracerColor: 0x7a5c3d },
-  { id: 'shotgun', name: 'Shotgun',  cooldown: 0.75, damage: 12, pellets: 5, spread: 0.10,  kind: 'projectile', projectileSpeed: 78, projectileColor: 0xf4c95d, tracerColor: 0xf4c95d },
-  { id: 'rocket',  name: 'Rocket',   cooldown: 1.10, damage: 90, splash: 45, splashRadius: 3.0, projectileSpeed: 20, kind: 'projectile' },
-];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import * as THREE from 'three';
+import { WEAPON_DEFS } from '../../../../web-engine/combat/weaponSpec.js';
+export { WEAPON_DEFS };
 
 export class WeaponSystem {
   constructor(scene) {
