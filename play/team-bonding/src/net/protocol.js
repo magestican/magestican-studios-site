@@ -74,6 +74,16 @@ export const MSG = Object.freeze({
   
   
   OBSERVE:      'observe',    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  SPLASH:       'splash',
   POWERUP_PICK: 'powerPick',  
 
   

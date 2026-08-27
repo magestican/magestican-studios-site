@@ -102,6 +102,7 @@ import {
 } from '../../../web-engine/match/observer.js';
 import { fovFor, detectTouch } from '../../../web-engine/render/cameraFov.js';
 import { kindForHit, shouldSpatter } from '../../../web-engine/combat/impactDebris.js';
+import { resolveSplash, hasSplash } from '../../../web-engine/combat/splash.js';
 import { MATCH_CAP, MAX_BOTS, desiredBots, pickBotToDisplace, hasRoom }
                               from '../../../web-engine/scenarios/matchRoster.js';
 
@@ -3093,6 +3094,16 @@ export class Game {
         this._applyPeerObserve(msg.by, msg.team, msg.was);
         break;
       }
+      case MSG.SPLASH: {
+        
+        
+        
+        if (Array.isArray(msg.at) && msg.at.length === 3) {
+          this._applySplash({ x: msg.at[0], y: msg.at[1], z: msg.at[2] },
+                            msg.r, msg.dmg, msg.by, msg.weapon);
+        }
+        break;
+      }
       case MSG.FLAG_RETURN:
         
         
@@ -4317,6 +4328,10 @@ export class Game {
           new THREE.Vector3(result.point.x, result.point.y, result.point.z),
           shotDirection(p.shot).multiplyScalar(-1),
           kindForHit(result.kind));
+        
+        
+        
+        this._explode(result.point, p.shot);
       }
       this.weapons.despawnProjectile(p.rec);
       live.splice(i, 1);
@@ -4379,6 +4394,11 @@ export class Game {
       this.gore?.spatterAt?.(new THREE.Vector3(point.x, point.y, point.z), away, 'flesh');
     }
     
+    
+    
+    
+    this._explode(point, shot);
+    
     if (bot && this.isHost) {
       const died = bot.takeDamage(dmg);
       if (died) {
@@ -4436,6 +4456,76 @@ export class Game {
   }
 
   
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _explode(point, shot) {
+    if (!hasSplash(shot) || !point) return;
+    const centre = { x: point.x, y: point.y, z: point.z };
+    
+    
+    
+    this._broadcast({
+      t: MSG.SPLASH,
+      at: [centre.x, centre.y, centre.z],
+      r: shot.splashRadius, dmg: shot.splash,
+      by: this.myId, weapon: shot.weaponId,
+    });
+    this._applySplash(centre, shot.splashRadius, shot.splash, this.myId, shot.weaponId);
+  }
+
+  
+  
+  
+  
+  
+  
+  _applySplash(centre, radius, damage, shooterId, weaponId) {
+    const bodies = [{ id: this.myId, x: this.player.pos.x, y: this.player.pos.y, z: this.player.pos.z }];
+    if (this.isHost) {
+      for (const [bid, bot] of this.bots) {
+        bodies.push({ id: bid, x: bot.pos.x, y: bot.pos.y, z: bot.pos.z });
+      }
+    }
+    for (const hit of resolveSplash({ centre, bodies, damage, radius, shooterId })) {
+      if (hit.id === this.myId) {
+        
+        
+        
+        
+        
+        if (this.player?.vel) {
+          this.player.vel.x += hit.push.x;
+          this.player.vel.y += hit.push.y;
+          this.player.vel.z += hit.push.z;
+        }
+        if (hit.damage > 0) this._takeDamage(hit.damage, shooterId, weaponId || 'rocket');
+      } else if (this.isHost) {
+        const bot = this.bots.get(hit.id);
+        if (!bot || hit.damage <= 0) continue;
+        this._broadcast({ t: MSG.HIT, target: hit.id, dmg: hit.damage,
+                          by: shooterId, weapon: weaponId || 'rocket' });
+        if (bot.takeDamage(hit.damage)) {
+          this._broadcast({ t: MSG.DEATH, victim: hit.id, killer: shooterId, weapon: weaponId || 'rocket' });
+          this._creditKill(shooterId, hit.id);
+        }
+      }
+    }
+  }
 
   _takeDamage(dmg, byId, weaponId) {
     if (!this.player.alive) return;
