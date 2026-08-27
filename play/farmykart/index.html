@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Play Farmy Kart — free browser kart racer, no download | Magestican Studios</title>
+  <meta name="description" content="Play Farmy Kart free in your browser: a farm-animal kart racer with drift boosts, mini-turbos, weapons and power-ups, three circuits, AI opponents, a live minimap and saved best laps. Works on phone and desktop. No download, no install, no account.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a17'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23f4c95d'%3EF%3C/text%3E%3C/svg%3E">
+  <link rel="canonical" href="https://magesticanstudios.com/play/farmykart/">
+  <meta name="keywords" content="play farmy kart, free browser kart racer, mario kart style browser game, no download racing game, farm animal racing, drift boost kart game, mobile kart racer">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Farmy Kart — free browser kart racer, no download">
+  <meta property="og:description" content="Farm animals, karts, drift boosts and cowpats. Three circuits, eight-kart grids, phone and desktop. Racing in about five seconds.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/farmykart/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Farmy Kart — free browser kart racer, no download">
+  <meta name="twitter:description" content="Drift, boost, and throw a cowpat at a cow. Three circuits, no installer.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Farmy Kart",
+    "url": "https://magesticanstudios.com/play/farmykart/",
+    "description": "A free browser kart racer with farm-animal drivers, drift-charged mini-turbos, weapons and power-ups, three circuits, AI opponents and saved best lap times. No download, no account.",
+    "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Racing", "Kart racing", "Arcade"],
+    "gamePlatform": ["Web browser", "Mobile browser"],
+    "playMode": ["SinglePlayer"],
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": "en",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      
+
+
+
+
+      --night: #1c1a17;
+      --gold: #f4c95d;
+      --barn: #b73a2a;
+      --sky: #7cb0ff;
+      --cream: #f6f1e6;
+      --grass: #5f8b3f;
+      --panel: rgba(28, 26, 23, 0.82);
+      --edge: rgba(246, 241, 230, 0.16);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; overflow: hidden; background: var(--night); color: var(--cream);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+      touch-action: none; overscroll-behavior: none;
+    }
+    canvas { display: block; touch-action: none; }
+    #scene { position: fixed; inset: 0; width: 100%; height: 100%; }
+    .screen { position: fixed; inset: 0; z-index: 10; display: none; }
+    .screen.show { display: block; }
+
+    
+    
+    
+    #menu {
+      background: radial-gradient(circle at 50% 26%, #2c2a22 0%, #14120f 100%);
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    }
+    
+
+
+
+
+
+    #menu .wrap {
+      max-width: 940px; margin: auto; display: flex; flex-direction: column;
+      align-items: stretch; min-height: 100%; justify-content: flex-start;
+    }
+    .title { font-family: Georgia, serif; font-size: clamp(30px, 7vw, 46px); letter-spacing: 0.01em; margin: 10px 0 2px; }
+    .title em { font-style: normal; color: var(--gold); }
+    .sub { color: #a79f90; font-size: clamp(13px, 2.6vw, 16px); margin-bottom: 14px; }
+    h2 { font-family: Georgia, serif; font-size: 17px; margin: 18px 0 9px; color: #d9d0bd; font-weight: 600; }
+
+    .primary {
+      font: inherit; font-size: clamp(17px, 4vw, 21px); font-weight: 700;
+      background: var(--barn); color: var(--cream); border: 1px solid #d4553f;
+      border-radius: 11px; padding: 15px 22px; cursor: pointer; width: 100%;
+      margin: 18px 0 8px; letter-spacing: 0.02em;
+      box-shadow: 0 8px 24px rgba(183, 58, 42, 0.28);
+    }
+    .primary:hover { background: #cf4632; }
+    .chip {
+      font: inherit; font-size: 14px; background: #262320; color: #c9c0ae;
+      border: 1px solid #3a352e; border-radius: 999px; padding: 8px 15px;
+      cursor: pointer; min-height: 40px;
+    }
+    .chip.on { background: var(--gold); border-color: var(--gold); color: var(--night); font-weight: 700; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .grid { display: grid; gap: 10px; }
+    #char-grid { grid-template-columns: repeat(auto-fit, minmax(184px, 1fr)); }
+    #track-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+    .char-card, .track-card {
+      font: inherit; text-align: left; background: #221f1b; color: var(--cream);
+      border: 1px solid #3a352e; border-radius: 11px; padding: 12px; cursor: pointer;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .char-card.on, .track-card.on { border-color: var(--gold); background: #2b2721; }
+    .track-card.locked { opacity: 0.5; cursor: default; }
+    .char-swatch { width: 100%; height: 6px; border-radius: 3px; margin-bottom: 6px; }
+    .char-name { font-family: Georgia, serif; font-size: 18px; }
+    .char-species { font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; color: #8e8778; }
+    .char-blurb { font-size: 12px; color: #a79f90; line-height: 1.35; margin: 4px 0 6px; }
+    .stats { display: flex; flex-direction: column; gap: 3px; }
+    .stat { display: flex; align-items: center; gap: 6px; font-size: 10px; }
+    .stat i { font-style: normal; width: 42px; color: #8e8778; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat b { flex: 1; height: 5px; background: #33302a; border-radius: 3px; overflow: hidden; }
+    .stat u { display: block; height: 100%; background: var(--gold); text-decoration: none; }
+
+    .track-thumb { display: block; background: #1a1815; border-radius: 7px; margin-bottom: 7px; }
+    .track-thumb svg { display: block; width: 100%; height: auto; }
+    .track-thumb.theme-summer { background: #2e3a20; }
+    .track-thumb.theme-mud { background: #2b2620; }
+    .track-thumb.theme-snow { background: #26313b; }
+    .track-name { font-family: Georgia, serif; font-size: 17px; }
+    .track-name em { font-style: normal; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.09em; color: var(--gold); vertical-align: middle; }
+    .track-tag { font-size: 12px; color: #a79f90; line-height: 1.35; }
+    .track-rec { font-size: 11px; color: #7f786b; margin-top: 5px; }
+
+    #item-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 9px; background: #201d1a;
+      border: 1px solid #322e28; border-radius: 9px; padding: 8px; }
+    .legend-item canvas { width: 36px; height: 36px; flex: none; }
+    .legend-item b { display: block; font-size: 13px; }
+    .legend-item span { display: block; font-size: 11px; color: #8e8778; line-height: 1.3; }
+
+    .howto { font-size: 12.5px; color: #a79f90; line-height: 1.6; margin-top: 6px; }
+    .howto kbd { background: #302c26; border: 1px solid #443f37; border-radius: 4px;
+      padding: 1px 6px; font-family: inherit; font-size: 11px; color: var(--cream); }
+    .footer { margin-top: 22px; padding-top: 14px; border-top: 1px solid #2c2823;
+      display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: #7f786b; }
+    .footer a { color: #a79f90; }
+
+    
+    
+    
+    
+
+
+
+
+    #hud { pointer-events: none; z-index: 5; }
+    #hud.show { display: block; }
+    .hud-tl { position: absolute; top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); }
+    .hud-tr { position: absolute; top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); text-align: right; }
+    .hud-tc { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); text-align: center; }
+    .hud-bc { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); }
+    .hud-bl { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: max(10px, env(safe-area-inset-left)); }
+
+    .plate { background: var(--panel); border: 1px solid var(--edge); border-radius: 10px;
+      padding: 7px 11px; backdrop-filter: blur(3px); }
+    #hud-position { font-family: Georgia, serif; font-size: clamp(30px, 8vw, 46px); line-height: 0.95; color: var(--gold); }
+    #hud-position-suffix { font-size: 15px; color: #a79f90; vertical-align: super; }
+    .lap { font-size: 13px; color: #c9c0ae; letter-spacing: 0.04em; margin-top: 2px; }
+    .lap b { color: var(--cream); font-size: 16px; }
+    #hud-clock { font-family: Georgia, serif; font-size: clamp(17px, 4.4vw, 24px); }
+    .splits { font-size: 11px; color: #a79f90; margin-top: 1px; letter-spacing: 0.02em; }
+    #minimap { display: block; border-radius: 10px; background: var(--panel); border: 1px solid var(--edge); }
+    #hud-standings { list-style: none; margin-top: 7px; font-size: 11.5px; }
+    #hud-standings li { display: flex; align-items: center; gap: 5px; justify-content: flex-end;
+      padding: 1.5px 0; color: #a79f90; }
+    #hud-standings li.me { color: var(--cream); font-weight: 700; }
+    #hud-standings .pos { width: 15px; text-align: right; color: #7f786b; }
+    #hud-standings .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+    #hud-standings .gap { width: 40px; text-align: right; color: #7f786b; font-variant-numeric: tabular-nums; }
+
+    #hud-item { position: relative; width: 76px; height: 76px; }
+    #hud-item-canvas { width: 76px; height: 76px; background: var(--panel);
+      border: 2px solid var(--edge); border-radius: 14px; }
+    #hud-item.empty #hud-item-canvas { opacity: 0.4; }
+    #hud-item.rolling #hud-item-canvas { animation: roll 0.14s steps(2) infinite; }
+    @keyframes roll { 0% { transform: scale(1); } 50% { transform: scale(0.9) rotate(-6deg); } 100% { transform: scale(1); } }
+    #hud-item-count { position: absolute; right: -3px; bottom: -3px; background: var(--barn);
+      border-radius: 999px; padding: 1px 7px; font-size: 12px; font-weight: 700; }
+    
+
+
+    #hud-boost-ring { position: absolute; inset: -7px; border: 3px solid var(--cream);
+      border-radius: 19px; opacity: 0; transition: opacity 90ms linear, transform 90ms linear;
+      pointer-events: none; }
+    .speedo { text-align: center; font-size: 11px; color: #8e8778; margin-top: 5px; letter-spacing: 0.06em; }
+    .speedo b { font-family: Georgia, serif; font-size: 17px; color: var(--cream); }
+
+    .banner { position: absolute; top: 32%; left: 50%; transform: translate(-50%, -50%) scale(0.85);
+      font-family: Georgia, serif; font-size: clamp(34px, 11vw, 76px); font-weight: 700;
+      color: var(--cream); text-shadow: 0 5px 22px rgba(0, 0, 0, 0.65); opacity: 0;
+      transition: opacity 120ms ease, transform 160ms cubic-bezier(.2,1.6,.4,1); letter-spacing: 0.02em; }
+    .banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .banner.good { color: var(--gold); }
+    .banner.warn { color: var(--barn); }
+    .banner.count { color: var(--cream); font-size: clamp(52px, 18vw, 128px); }
+
+    #hud-wrongway { position: absolute; top: 46%; left: 50%; transform: translateX(-50%);
+      background: var(--barn); color: var(--cream); padding: 8px 18px; border-radius: 8px;
+      font-weight: 700; letter-spacing: 0.08em; font-size: 15px; opacity: 0;
+      transition: opacity 120ms linear; }
+    #hud-wrongway.show { opacity: 1; }
+
+    #pause-btn, #mute-btn {
+      pointer-events: auto; font: inherit; font-size: 12px; background: var(--panel);
+      color: #c9c0ae; border: 1px solid var(--edge); border-radius: 8px;
+      padding: 9px 13px; cursor: pointer; min-height: 40px;
+    }
+
+    
+
+
+    #touch-hints { z-index: 6; pointer-events: none; }
+    #touch-hints .zone { position: absolute; bottom: 0; height: 45%;
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: max(26px, env(safe-area-inset-bottom));
+      font-size: 12px; letter-spacing: 0.08em; color: rgba(246,241,230,0.5);
+      animation: fadeHint 5s ease forwards; }
+    #touch-hints .zone.left { left: 0; width: 42%; border-right: 1px dashed rgba(246,241,230,0.14); }
+    #touch-hints .zone.right { right: 0; width: 58%; }
+    #touch-hints .zone.drift { right: 0; width: 26%; height: 24%; align-items: center; }
+    @keyframes fadeHint { 0%, 55% { opacity: 1; } 100% { opacity: 0; } }
+
+    
+    
+    
+    #pause, #results { background: rgba(20, 18, 15, 0.9); z-index: 20;
+      display: none; align-items: center; justify-content: center; padding: 20px; }
+    #pause.show, #results.show { display: flex; }
+    .card { background: #221f1b; border: 1px solid #3a352e; border-radius: 14px;
+      padding: 22px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    .card h2 { margin-top: 0; }
+    #results-title { font-family: Georgia, serif; font-size: clamp(24px, 6vw, 34px); margin-bottom: 12px; }
+    #results-title.win { color: var(--gold); }
+    #results-title.podium { color: var(--sky); }
+    #results-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    #results-table td { padding: 6px 4px; border-bottom: 1px solid #2c2823; color: #a79f90; }
+    #results-table tr.me td { color: var(--cream); font-weight: 700; }
+    #results-table .pos { width: 26px; color: #7f786b; }
+    #results-table .time { text-align: right; font-variant-numeric: tabular-nums; }
+    #results-table .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; }
+    #results-notable { list-style: none; margin: 12px 0 0; font-size: 13px; }
+    #results-notable li.good { color: var(--gold); }
+    #results-unlock { display: block; color: var(--sky); font-size: 13px; margin-top: 8px; }
+    .card .row { margin-top: 16px; }
+    .card .row button { flex: 1; }
+
+    
+    
+    
+    
+
+
+
+    #boot-gate { position: fixed; inset: 0; z-index: 40; display: flex;
+      align-items: center; justify-content: center; padding: 24px; text-align: center;
+      background: var(--night); }
+    #boot-gate .msg { max-width: 460px; font-size: 14px; line-height: 1.6; color: #a79f90; }
+    #boot-gate h1 { font-family: Georgia, serif; font-size: 28px; color: var(--cream); margin-bottom: 10px; }
+    #boot-gate .gold { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <div id="boot-gate">
+    <div class="msg">
+      <h1>Farmy <span class="gold">Kart</span></h1>
+      <p id="boot-msg">Loading&hellip;</p>
+    </div>
+  </div>
+
+  
+  
+  
+  <div id="menu" class="screen">
+    <div class="wrap">
+      <h1 class="title">Farmy <em>Kart</em></h1>
+      <p class="sub">Farm animals, karts, and a great deal of dirt. Drift to charge a turbo, throw a cowpat at whoever is winning.</p>
+
+      <button id="start-btn" class="primary">Race</button>
+
+      <h2>Driver</h2>
+      <div id="char-grid" class="grid"></div>
+
+      <h2>Circuit</h2>
+      <div id="track-grid" class="grid"></div>
+
+      <h2>Opponents</h2>
+      <div id="difficulty-row" class="row"></div>
+
+      <h2>Distance</h2>
+      <div id="lap-row" class="row"></div>
+
+      <h2>Items</h2>
+      <div id="item-legend"></div>
+
+      <h2>Controls</h2>
+      <p class="howto">
+        <b>Keyboard</b> &mdash; <kbd>&uarr;</kbd> or <kbd>W</kbd> accelerate,
+        <kbd>&darr;</kbd> or <kbd>S</kbd> brake and reverse,
+        <kbd>&larr;</kbd><kbd>&rarr;</kbd> steer,
+        <kbd>Shift</kbd> drift, <kbd>Space</kbd> use item, <kbd>Q</kbd> look back,
+        <kbd>Esc</kbd> pause.<br>
+        <b>Gamepad</b> &mdash; right trigger accelerate, left stick steer, shoulder buttons drift, X or Y for items.<br>
+        <b>Touch</b> &mdash; hold anywhere on the right to accelerate, slide your left thumb to steer
+        (slide it down to brake), and the bottom-right corner drifts. The button left of it uses your item.
+      </p>
+
+      <div class="footer">
+        <button id="mute-btn" style="pointer-events:auto">Sound on</button>
+        <a href="/farmykart.html">About this game</a>
+        <a href="/">Magestican Studios</a>
+        <a href="/play/team-bonding/">Team Bonding</a>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  <div id="hud" class="screen">
+    <div class="hud-tl">
+      <div class="plate">
+        <div><span id="hud-position">8</span><span id="hud-position-suffix">th</span></div>
+        <div class="lap">LAP <b id="hud-lap">1</b>/<span id="hud-lap-total">3</span></div>
+      </div>
+    </div>
+
+    <div class="hud-tc">
+      <div class="plate">
+        <div id="hud-clock">0:00.00</div>
+        <div class="splits">LAST <span id="hud-lastlap">--:--.--</span> &middot; BEST <span id="hud-bestlap">--:--.--</span></div>
+      </div>
+    </div>
+
+    <div class="hud-tr">
+      <canvas id="minimap"></canvas>
+      <ol id="hud-standings"></ol>
+    </div>
+
+    <div class="hud-bc">
+      <div id="hud-item" class="empty">
+        <canvas id="hud-item-canvas" width="76" height="76"></canvas>
+        <div id="hud-boost-ring"></div>
+        <div id="hud-item-count"></div>
+      </div>
+      <div class="speedo"><b id="hud-speed">0</b> KM/H</div>
+    </div>
+
+    <div class="hud-bl">
+      <button id="pause-btn">Pause</button>
+    </div>
+
+    <div id="hud-banner" class="banner"></div>
+    <div id="hud-wrongway">WRONG WAY</div>
+  </div>
+
+  <div id="touch-hints" class="screen">
+    <div class="zone left">SLIDE TO STEER</div>
+    <div class="zone right">HOLD TO GO</div>
+    <div class="zone drift">DRIFT</div>
+  </div>
+
+  
+  
+  
+  <div id="pause" class="screen">
+    <div class="card">
+      <h2>Paused</h2>
+      <p class="howto">The race is stopped. Nothing moves until you come back.</p>
+      <div class="row">
+        <button id="pause-resume" class="chip on">Resume</button>
+        <button id="pause-quit" class="chip">Quit to menu</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="results" class="screen">
+    <div class="card">
+      <div id="results-title">Finished</div>
+      <table id="results-table"></table>
+      <ul id="results-notable"></ul>
+      <span id="results-unlock"></span>
+      <div class="row">
+        <button id="results-again" class="primary" style="margin:0">Race again</button>
+        <button id="results-menu" class="chip">Menu</button>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  
+
+
+
+
+
+  <script>
+  (function () {
+    var msg = document.getElementById('boot-msg');
+    var t0 = Date.now();
+    var timer = setInterval(function () {
+      if (window.__fkBooted) { clearInterval(timer); return; }
+      var ms = Date.now() - t0;
+      if (!window.__fkModules && ms > 1500) {
+        clearInterval(timer);
+        msg.innerHTML = 'This browser does not run JavaScript modules, so none of the game can load.'
+          + '<br><br>Try a current Chrome, Edge, Firefox or Safari.';
+        return;
+      }
+      if (!window.__fkImportMap && ms > 2500) {
+        clearInterval(timer);
+        msg.innerHTML = 'This browser does not support import maps, so the game engine cannot be located.'
+          + '<br><br>Try a current Chrome, Edge, Firefox or Safari.';
+        return;
+      }
+      if (ms > 12000) {
+        clearInterval(timer);
+        msg.innerHTML = 'The game files are taking an unusually long time to arrive.'
+          + '<br><br>Check the connection and reload.';
+      }
+    }, 400);
+  }());
+  </script>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/",
+      "three/addons/loaders/GLTFLoader.js": "https://unpkg.com/three@0.161.0/examples/jsm/loaders/GLTFLoader.js",
+      "arbelo/rng":           "../../web-engine/rng/seededRng.js",
+      "arbelo/tickPolicy":    "../../web-engine/loop/tickPolicy.js",
+      "arbelo/analytics":     "../../web-engine/analytics/analytics.js",
+      "arbelo/trackPath":     "../../web-engine/kart/trackPath.js",
+      "arbelo/racingLine":    "../../web-engine/kart/racingLine.js",
+      "arbelo/kartPhysics":   "../../web-engine/kart/kartPhysics.js",
+      "arbelo/kartTuning":    "../../web-engine/kart/kartTuning.js",
+      "arbelo/driftBoost":    "../../web-engine/kart/driftBoost.js",
+      "arbelo/kartAi":        "../../web-engine/kart/kartAi.js",
+      "arbelo/raceProgress":  "../../web-engine/kart/raceProgress.js",
+      "arbelo/raceFlow":      "../../web-engine/kart/raceFlow.js",
+      "arbelo/items":         "../../web-engine/kart/items.js",
+      "arbelo/itemRoulette":  "../../web-engine/kart/itemRoulette.js",
+      "arbelo/minimap":       "../../web-engine/kart/minimap.js",
+      "arbelo/raceStats":     "../../web-engine/kart/raceStats.js"
+    }
+  }
+  </script>
+
+  
+
+
+
+
+
+
+  <script type="module">
+    window.__fkModules = true;
+  </script>
+  <script type="module">
+    import 'arbelo/rng';
+    window.__fkImportMap = true;
+  </script>
+
+  <script type="module" src="./src/main.js?v=a89e6ed-20260827T232035Z"></script>
+</body>
+</html>
