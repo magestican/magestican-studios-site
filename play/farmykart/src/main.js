@@ -48,6 +48,15 @@ function boot() {
   buildDifficultyRow();
   buildLapRow();
   buildItemLegend();
+  
+  
+  
+  
+  
+  
+  
+  
+  syncSelection();
   syncMuteButton();
 
   $('start-btn').addEventListener('click', startRace);
@@ -108,7 +117,6 @@ function buildCharacterGrid() {
     });
     root.appendChild(el);
   }
-  syncSelection();
 }
 
 const bar = (label, v) => `<span class="stat"><i>${label}</i><b><u style="width:${Math.round(Math.max(0.06, v) * 100)}%"></u></b></span>`;
