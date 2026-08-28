@@ -166,8 +166,18 @@ export function updateHud(hud, view) {
   }
 
   if (el.wrongWay) {
-    const on = !!view.wrongWay;
+    
+    
+    
+    
+    
+    const on = !!view.wrongWay || !!view.recovering;
     if (el.wrongWay.classList.contains('show') !== on) el.wrongWay.classList.toggle('show', on);
+    if (on) {
+      const text = view.recovering ? 'Turning you round' : 'Wrong way';
+      if (el.wrongWay.textContent !== text) el.wrongWay.textContent = text;
+      el.wrongWay.classList.toggle('rescuing', !!view.recovering);
+    }
   }
 
   if (el.standings && view.standings) {

@@ -21,6 +21,7 @@ import { createKart, stepKart, respawnKart, resolveKartContact } from 'arbelo/ka
 import { resolveTuning, characterById, CHARACTERS } from 'arbelo/kartTuning';
 import { createDriver, driveBot, findThreats } from 'arbelo/kartAi';
 import { assistSteer } from 'arbelo/steerAssist';
+import { createRecovery, stepRecovery, isRecovering } from 'arbelo/recovery';
 import { createProgress, addRacer, updateRacer, standings } from 'arbelo/raceProgress';
 import { createFlow, stepFlow, canDrive, judgeLaunch, launchMeter, PHASE } from 'arbelo/raceFlow';
 import { drawItem, layoutItemBoxes } from 'arbelo/itemRoulette';
@@ -245,6 +246,11 @@ export function createRace(options) {
       
       
       driver: isPlayer ? null : createDriver(i, difficulty),
+      
+      
+      
+      
+      recovery: createRecovery(),
       seatName: seat?.name ?? null,
       wasHuman: false,
       s: 0,
@@ -458,6 +464,21 @@ export function createRace(options) {
         input = autoDrive(r, surf, input);
       }
 
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (driving) {
+        const rescue = stepRecovery(r.recovery, { kart: r.kart, surface: surf, dt });
+        if (rescue) input = { ...input, steer: rescue.steer, throttle: rescue.throttle, drift: false };
+      }
+
       const prevBoost = r.kart.boost;
       r.kart = stepKart(r.kart, input, { ...surf, groundY: surf.y }, dt);
 
@@ -466,7 +487,13 @@ export function createRace(options) {
         if (r.isPlayer) chase.shake = Math.min(1, 0.3 + r.kart.justBoosted.tier * 0.18);
       }
 
-      r.kart = respawnKart(r.kart, sampleAt(path, surf.s));
+      
+      
+      
+      
+      
+      
+      r.kart = respawnKart(r.kart, sampleAt(path, surf.s), { after: 5.5 });
       if (r.kart.respawned && r.isPlayer) {
         snapChase(chase, r.kart);
         showBanner(hud, 'BACK ON TRACK', { kind: 'warn', seconds: 1.1 });
@@ -976,6 +1003,7 @@ export function createRace(options) {
       driftTier: you.kart.driftTier ?? 0,
       launch: launchMeter(flow, controls.throttleHeld),
       wrongWay: !!me?.wrongWayShown,
+      recovering: isRecovering(you.recovery),
       
       
       lapScore: you.lapPoints ?? 0,
