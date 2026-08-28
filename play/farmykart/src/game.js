@@ -30,6 +30,12 @@ import { createProjection, projectRacers } from 'arbelo/minimap';
 import { SeededRng } from 'arbelo/rng';
 import { planTick } from 'arbelo/tickPolicy';
 
+
+
+
+
+import { lapPoints } from 'arbelo/raceScore';
+
 import { trackById, itemStopsFor } from './tracks/tracks.js';
 import { buildTrackMesh, buildFences, SHOULDER } from './render/trackMesh.js';
 import { buildScenery } from './render/props.js';
@@ -320,9 +326,27 @@ export function createRace(options) {
         r.finished = true;
         if (r.isPlayer) SFX.finish(audio);
       }
-      if (r.isPlayer && rec.lapTimes.length !== (r._lapCount ?? 0)) {
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (rec.lapTimes.length !== (r._lapCount ?? 0)) {
         r._lapCount = rec.lapTimes.length;
-        if (!rec.finished) {
+        r.lapPoints = (r.lapPoints ?? 0)
+          + lapPoints(posById.get(r.id) ?? racers.length, racers.length);
+        if (r.isPlayer && !rec.finished) {
           SFX.lap(audio);
           const isBest = rec.bestLap === rec.lapTimes[rec.lapTimes.length - 1];
           showBanner(hud, isBest && rec.lapTimes.length > 1 ? 'BEST LAP' : `LAP ${rec.lap + 1}`, {
@@ -569,6 +593,9 @@ export function createRace(options) {
       driftTier: you.kart.driftTier ?? 0,
       launch: launchMeter(flow, controls.throttleHeld),
       wrongWay: !!me?.wrongWayShown,
+      
+      
+      lapScore: you.lapPoints ?? 0,
       standings: table.slice(0, 8).map((t) => {
         const r = racers.find((x) => x.id === t.id);
         return {
@@ -629,14 +656,22 @@ export function createRace(options) {
         table: table.map((t) => {
           const r = racers.find((x) => x.id === t.id);
           return {
+            
+            
+            
+            
+            id: t.id,
             position: t.position,
             name: r?.displayName ?? r?.character.name ?? t.id,
             species: r?.character.species,
+            character: r?.character.id ?? null,
             tint: r?.character.tint,
             isPlayer: t.id === 'player',
             finished: t.finished,
             time: t.finishTime,
             bestLap: t.bestLap,
+            
+            lapPoints: r?.lapPoints ?? 0,
           };
         }),
       });

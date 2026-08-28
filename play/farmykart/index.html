@@ -262,8 +262,83 @@
     #results-notable { list-style: none; margin: 12px 0 0; font-size: 13px; }
     #results-notable li.good { color: var(--gold); }
     #results-unlock { display: block; color: var(--sky); font-size: 13px; margin-top: 8px; }
+    #results-table .pts { text-align: right; width: 46px; color: var(--cream);
+      font-variant-numeric: tabular-nums; }
+    #results-table .pts em { color: var(--gold); font-style: normal; font-size: 10px; }
+    #results-cup { display: block; color: #c9c0ae; font-size: 13px; margin: -6px 0 12px; }
+    #results-next { display: block; color: var(--gold); font-size: 13px; margin-top: 10px; }
     .card .row { margin-top: 16px; }
     .card .row button { flex: 1; }
+
+    
+    
+    
+    
+
+
+
+
+
+    #podium { margin-bottom: 14px; }
+    .podium-announce { font-family: Georgia, serif; font-size: clamp(22px, 5.6vw, 32px);
+      line-height: 1.1; margin-bottom: 12px; color: var(--cream); }
+    .podium-announce.win { color: var(--gold); }
+    .podium-announce.podium { color: var(--sky); }
+    .podium-steps { display: flex; align-items: flex-end; gap: 8px; }
+    .podium-step { flex: 1; background: #2b2721; border: 1px solid #3a352e;
+      border-radius: 10px 10px 0 0; padding: 10px 6px 12px; text-align: center;
+      min-width: 0; }
+    .podium-step.place-1 { padding-top: 26px; border-color: var(--gold); }
+    .podium-step.place-2 { padding-top: 18px; }
+    .podium-step.place-3 { padding-top: 10px; }
+    .podium-step.me { background: #35301f; }
+    .podium-place { font-family: Georgia, serif; font-size: 15px; color: #a79f90; }
+    .podium-step.place-1 .podium-place { color: var(--gold); font-size: 19px; }
+    .podium-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+      margin: 6px 0 4px; }
+    .podium-name { font-size: 13px; font-weight: 700; color: var(--cream);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .podium-points { font-size: 12px; color: #a79f90; font-variant-numeric: tabular-nums; }
+    .podium-fl { font-size: 10px; color: var(--gold); letter-spacing: 0.04em; margin-top: 2px; }
+
+    
+    
+    
+    #global-board { background: var(--panel); border: 1px solid var(--edge);
+      border-radius: 10px; padding: 12px 14px; }
+    .fkb-head { display: flex; align-items: baseline; gap: 8px; }
+    .fkb-title { font-family: Georgia, serif; font-size: 17px; color: var(--cream); }
+    
+
+
+    .fkb-badge { font-size: 10px; letter-spacing: 0.08em; padding: 2px 6px;
+      border-radius: 4px; border: 1px solid var(--edge); color: #a79f90; }
+    .fkb-badge.fkb-online { color: var(--gold); border-color: var(--gold); }
+    .fkb-device { font-size: 12px; color: #c9c0ae; margin-top: 6px; }
+    .fkb-rows { list-style: none; margin: 10px 0 0; font-size: 13px; }
+    .fkb-rows li { display: flex; align-items: center; gap: 8px; padding: 3px 0;
+      color: #a79f90; border-bottom: 1px solid #2c2823; }
+    .fkb-rows li.me { color: var(--cream); font-weight: 700; }
+    .fkb-rank { width: 18px; text-align: right; color: #7f786b;
+      font-variant-numeric: tabular-nums; }
+    .fkb-glyph { font-size: 16px; }
+    .fkb-name { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis;
+      white-space: nowrap; }
+    .fkb-wins { font-variant-numeric: tabular-nums; color: var(--cream); }
+    .fkb-note { font-size: 11.5px; color: #7f786b; margin-top: 8px; line-height: 1.45; }
+    #player-name { display: block; margin-top: 6px; width: 100%; max-width: 260px;
+      background: #14120f; color: var(--cream); border: 1px solid var(--edge);
+      border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 14px;
+      
+
+
+
+
+
+
+      pointer-events: auto; user-select: text; -webkit-user-select: text;
+      touch-action: auto; }
+    @media (pointer: coarse) { #player-name { font-size: 16px; } }
 
     
     
@@ -312,6 +387,19 @@
       <h2>Distance</h2>
       <div id="lap-row" class="row"></div>
 
+      <h2>Leaderboard</h2>
+      
+
+
+
+
+      <p class="howto">
+        <label for="player-name">Name for the board</label>
+        <input id="player-name" type="text" maxlength="16" autocomplete="off"
+               spellcheck="false" placeholder="Optional">
+      </p>
+      <div id="global-board"></div>
+
       <h2>Items</h2>
       <div id="item-legend"></div>
 
@@ -348,6 +436,10 @@
       <div class="plate">
         <div><span id="hud-position">8</span><span id="hud-position-suffix">th</span></div>
         <div class="lap">LAP <b id="hud-lap">1</b>/<span id="hud-lap-total">3</span></div>
+        
+
+
+        <div class="lap">SCORE <b id="hud-score">0</b></div>
       </div>
     </div>
 
@@ -402,12 +494,25 @@
 
   <div id="results" class="screen">
     <div class="card">
+      
+
+
+
+
+
+
+      <div id="podium"></div>
       <div id="results-title">Finished</div>
+      <span id="results-cup"></span>
       <table id="results-table"></table>
       <ul id="results-notable"></ul>
       <span id="results-unlock"></span>
+      
+
+
+      <span id="results-next"></span>
       <div class="row">
-        <button id="results-again" class="primary" style="margin:0">Race again</button>
+        <button id="results-again" class="primary" style="margin:0">Next race</button>
         <button id="results-menu" class="chip">Menu</button>
       </div>
     </div>
@@ -470,7 +575,12 @@
       "arbelo/items":         "../../web-engine/kart/items.js",
       "arbelo/itemRoulette":  "../../web-engine/kart/itemRoulette.js",
       "arbelo/minimap":       "../../web-engine/kart/minimap.js",
-      "arbelo/raceStats":     "../../web-engine/kart/raceStats.js"
+      "arbelo/raceStats":     "../../web-engine/kart/raceStats.js",
+      "arbelo/raceScore":     "../../web-engine/kart/raceScore.js",
+      "arbelo/trackRotation": "../../web-engine/kart/trackRotation.js",
+      "arbelo/kartLeaderboard": "../../web-engine/kart/kartLeaderboard.js",
+      "arbelo/leaderboard":   "../../web-engine/stats/firebaseLeaderboard.js",
+      "arbelo/updater":       "../../web-engine/updater/versionChecker.js"
     }
   }
   </script>
@@ -490,6 +600,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=0b45cfb-20260828T041826Z"></script>
+  <script type="module" src="./src/main.js?v=5963a87-20260828T042728Z"></script>
 </body>
 </html>

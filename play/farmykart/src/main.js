@@ -11,8 +11,24 @@ import { CHARACTERS, characterById, statBars, DEFAULT_CHARACTER } from 'arbelo/k
 import { DIFFICULTIES, DEFAULT_DIFFICULTY } from 'arbelo/kartAi';
 import { formatTime, ordinal } from 'arbelo/raceProgress';
 import {
-  loadProgress, saveProgress, recordRace, trackRecord, isLocked,
+  loadProgress, saveProgress, recordRace, trackRecord, isLocked, resetCup, lastCupTrack,
 } from 'arbelo/raceStats';
+
+
+
+
+
+import {
+  scoreRace, podium, winnerAnnouncement, cupStandings, formatPoints,
+} from 'arbelo/raceScore';
+import { pickNextTrack } from 'arbelo/trackRotation';
+import { kartPublishRows } from 'arbelo/kartLeaderboard';
+import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderboard';
+import { startVersionChecker } from 'arbelo/updater';
+import { SeededRng } from 'arbelo/rng';
+import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
+import { renderKartBoard } from './ui/kartBoard.js';
+
 import { TRACKS, DEFAULT_TRACK } from './tracks/tracks.js';
 import { createRace } from './game.js';
 import { drawItemIcon } from './render/itemMesh.js';
@@ -30,6 +46,23 @@ const state = {
   muted: false,
   race: null,
   progress: null,
+  
+  
+  
+  
+  
+  name: '',
+  
+  
+  
+  
+  nextTrack: null,
+  rotationRng: null,
+  
+  
+  
+  
+  boardRows: null,
 };
 
 function boot() {
@@ -42,6 +75,21 @@ function boot() {
   state.character = state.progress.lastCharacter ?? DEFAULT_CHARACTER;
   state.difficulty = state.progress.lastDifficulty ?? DEFAULT_DIFFICULTY;
   state.muted = localStorageGet('farmykart.muted') === '1';
+  state.name = localStorageGet('farmykart.name') ?? '';
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  startVersionChecker({ label: 'A new version of Farmy Kart is available.' });
 
   buildCharacterGrid();
   buildTrackGrid();
@@ -58,11 +106,32 @@ function boot() {
   
   syncSelection();
   syncMuteButton();
+  buildNameField();
+  refreshBoard();
 
-  $('start-btn').addEventListener('click', startRace);
+  
+  
+  
+  
+  $('start-btn').addEventListener('click', () => startRace({ newCup: true }));
   $('mute-btn').addEventListener('click', toggleMute);
-  $('results-again').addEventListener('click', () => { hide('results'); startRace(); });
-  $('results-menu').addEventListener('click', () => { hide('results'); show('menu'); });
+  $('results-again').addEventListener('click', () => {
+    hide('results');
+    
+    
+    
+    if (state.nextTrack) state.track = state.nextTrack.id;
+    startRace({ newCup: false });
+  });
+  $('results-menu').addEventListener('click', () => {
+    hide('results');
+    
+    
+    
+    
+    refreshBoard();
+    show('menu');
+  });
   $('pause-resume').addEventListener('click', resumeRace);
   $('pause-quit').addEventListener('click', quitRace);
   $('pause-btn').addEventListener('click', pauseRace);
@@ -136,7 +205,7 @@ function buildTrackGrid() {
       <span class="track-tag">${locked ? 'Finish on the podium on any track to open this one.' : t.tagline}</span>
       <span class="track-rec">${
   rec.races
-    ? `Best lap ${formatTime(rec.bestLap)} &middot; best finish ${ordinal(rec.bestPosition)} &middot; ${rec.races} race${rec.races === 1 ? '' : 's'}`
+    ? `Best lap ${formatTime(rec.bestLap)} &middot; best finish ${ordinal(rec.bestPosition)} &middot; ${rec.races} race${rec.races === 1 ? '' : 's'}${rec.bestPoints ? ` &middot; ${formatPoints(rec.bestPoints)}` : ''}`
     : 'Not raced yet'
 }</span>`;
     if (!locked) {
@@ -257,11 +326,21 @@ function syncSelection() {
 
 
 
-function startRace() {
+function startRace({ newCup = false } = {}) {
   hide('menu');
   hide('results');
   show('hud');
   if (isTouchDevice()) show('touch-hints');
+
+  
+  
+  
+  
+  if (newCup || !state.rotationRng) {
+    state.progress = resetCup(state.progress);
+    saveProgress(safeLocalStorage(), state.progress);
+    state.rotationRng = new SeededRng((Date.now() & 0x7fffffff) || 1);
+  }
 
   if (state.race) state.race.dispose();
   state.race = createRace({
@@ -304,12 +383,39 @@ function quitRace() {
   show('menu');
   buildTrackGrid();
   syncSelection();
+  refreshBoard();
 }
 
 function showResults(result) {
   hide('hud');
   hide('touch-hints');
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const scored = scoreRace(result.table, { fieldSize: result.fieldSize });
+  const model = podium(scored, { playerId: 'player' });
+  renderPodium($('podium'), model, winnerAnnouncement(model));
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const { progress, notable } = recordRace(state.progress, {
     trackId: result.trackId,
     characterId: result.characterId,
@@ -318,21 +424,23 @@ function showResults(result) {
     bestLap: result.bestLap,
     raceTime: result.raceTime,
     difficulty: result.difficulty,
+    points: model.playerRow?.points ?? 0,
+    cupRows: model.playerRow ? [model.playerRow] : null,
   });
   state.progress = progress;
   saveProgress(safeLocalStorage(), progress);
 
-  $('results-title').textContent = result.position === 1
-    ? 'You won'
-    : `${ordinal(result.position)} of ${result.fieldSize}`;
+  $('results-title').textContent =
+    `${ordinal(result.position)} of ${result.fieldSize} · ${formatPoints(model.playerRow?.points ?? 0)}`;
   $('results-title').className = result.position === 1 ? 'win' : (result.position <= 3 ? 'podium' : '');
 
-  $('results-table').innerHTML = result.table.map((r) => `
+  $('results-table').innerHTML = scored.map((r) => `
     <tr class="${r.isPlayer ? 'me' : ''}">
       <td class="pos">${r.position}</td>
       <td><span class="dot" style="background:${hex(r.tint ?? PALETTE.ceiling)}"></span>${r.name}</td>
       <td class="time">${r.finished ? formatTime(r.time) : 'DNF'}</td>
       <td class="time">${r.bestLap != null ? formatTime(r.bestLap) : '--'}</td>
+      <td class="pts">${r.points}${r.fastestLap ? ' <em>FL</em>' : ''}</td>
     </tr>`).join('');
 
   $('results-notable').innerHTML = notable.length
@@ -340,9 +448,40 @@ function showResults(result) {
       if (n.type === 'bestLap') return `<li class="good">New best lap &mdash; ${formatTime(n.value)}</li>`;
       if (n.type === 'bestRace') return `<li class="good">New best race &mdash; ${formatTime(n.value)}</li>`;
       if (n.type === 'bestPosition') return `<li class="good">Best finish here &mdash; ${ordinal(n.value)}</li>`;
+      if (n.type === 'bestPoints') return `<li class="good">Best points here &mdash; ${formatPoints(n.value)}</li>`;
       return '';
     }).join('')
     : '';
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const cupTable = cupStandings(state.progress.cup);
+  const cupRow = cupTable.find((r) => r.id === 'player');
+  renderCupLine($('results-cup'), {
+    races: state.progress.cup?.races ?? 0,
+    points: cupRow?.points ?? 0,
+    
+    
+    
+    
+    position: cupTable.length > 1 ? (cupRow?.position ?? null) : null,
+  });
+  state.nextTrack = pickNextTrack(
+    state.rotationRng, state.progress, TRACKS,
+    
+    
+    
+    
+    { exclude: lastCupTrack(state.progress) ?? result.trackId },
+  );
+  renderNextUp($('results-next'), state.nextTrack);
 
   
   
@@ -354,7 +493,98 @@ function showResults(result) {
   trackEvent('match_end', {
     track: result.trackId, position: result.position, field: result.fieldSize,
   });
+  publishRace();
   show('results');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function publishRace() {
+  if (!isGlobalEnabled()) return;
+  const rows = kartPublishRows(state.progress, {
+    name: state.name, character: state.character,
+  });
+  if (!rows.length) return;
+  try {
+    Promise.resolve(publishScores(rows))
+      
+      
+      .then(() => { state.boardRows = null; refreshBoard(); })
+      .catch(() => {});
+  } catch (_) {  }
+}
+
+
+
+
+
+
+
+
+
+
+function refreshBoard() {
+  const root = $('global-board');
+  if (!root) return;
+  const paint = () => renderKartBoard(root, {
+    rows: state.boardRows,
+    globalEnabled: isGlobalEnabled(),
+    myName: state.name,
+    deviceRaces: state.progress?.totalRaces ?? 0,
+    deviceWins: state.progress?.totalWins ?? 0,
+  });
+  paint();
+  if (!isGlobalEnabled() || state.boardRows !== null) return;
+  
+  
+  
+  fetchTopPlayers(10, undefined, { orderField: 'wins' })
+    .then((rows) => { state.boardRows = rows ?? []; paint(); })
+    .catch(() => { state.boardRows = []; paint(); });
+}
+
+
+
+
+
+
+
+
+
+function buildNameField() {
+  const input = $('player-name');
+  if (!input) return;
+  input.value = state.name;
+  input.addEventListener('input', () => {
+    state.name = input.value;
+    localStorageSet('farmykart.name', state.name);
+  });
+  
+  
+  input.addEventListener('blur', refreshBoard);
 }
 
 

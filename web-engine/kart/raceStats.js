@@ -15,6 +15,17 @@
 
 
 
+
+
+
+
+
+
+
+
+
+import { emptyCup, applyRace } from './raceScore.js';
+
 export const STORE_KEY = 'farmykart.progress.v1';
 
 
@@ -49,6 +60,12 @@ export function emptyProgress() {
     totalRaces: 0,
     totalWins: 0,
     
+    totalPoints: 0,
+    
+    
+    
+    cup: emptyCup(),
+    
     unlocked: [],
   };
 }
@@ -64,7 +81,20 @@ export function loadProgress(store) {
     
     
     
-    return { ...emptyProgress(), ...parsed, tracks: parsed.tracks ?? {}, characters: parsed.characters ?? {} };
+    return {
+      ...emptyProgress(),
+      ...parsed,
+      tracks: parsed.tracks ?? {},
+      characters: parsed.characters ?? {},
+      
+      
+      
+      
+      
+      cup: parsed.cup && parsed.cup.version === 1
+        && parsed.cup.racers && typeof parsed.cup.racers === 'object'
+        ? parsed.cup : emptyCup(),
+    };
   } catch {
     return emptyProgress();
   }
@@ -84,8 +114,15 @@ export function saveProgress(store, progress) {
 
 
 
+
+
+
+
+
+
 export function recordRace(progress, {
   trackId, characterId, position, fieldSize, bestLap, raceTime, difficulty,
+  points = 0, cupRows = null,
 }) {
   const next = {
     ...progress,
@@ -93,7 +130,7 @@ export function recordRace(progress, {
     characters: { ...progress.characters },
   };
   const prev = next.tracks[trackId] ?? {
-    bestLap: null, bestRace: null, bestPosition: null, races: 0, wins: 0,
+    bestLap: null, bestRace: null, bestPosition: null, races: 0, wins: 0, bestPoints: null,
   };
   const notable = [];
 
@@ -110,15 +147,46 @@ export function recordRace(progress, {
     notable.push({ type: 'bestPosition', value: position, previous: t.bestPosition });
     t.bestPosition = position;
   }
+  
+  
+  
+  
+  const scored = Math.max(0, Math.floor(Number(points) || 0));
+  if (scored > 0 && (t.bestPoints == null || scored > t.bestPoints)) {
+    notable.push({ type: 'bestPoints', value: scored, previous: t.bestPoints });
+    t.bestPoints = scored;
+  }
+
   if (position === 1) { t.wins += 1; next.totalWins = (next.totalWins ?? 0) + 1; }
 
   next.tracks[trackId] = t;
   next.characters[characterId] = (next.characters[characterId] ?? 0) + 1;
   next.totalRaces = (next.totalRaces ?? 0) + 1;
+  next.totalPoints = (next.totalPoints ?? 0) + scored;
+  if (cupRows) next.cup = applyRace(next.cup, cupRows, { trackId });
   next.lastTrack = trackId;
   next.lastCharacter = characterId;
   next.lastDifficulty = difficulty;
   return { progress: next, notable, fieldSize };
+}
+
+
+
+
+
+
+
+
+
+
+export function resetCup(progress) {
+  return { ...progress, cup: emptyCup() };
+}
+
+
+export function lastCupTrack(progress) {
+  const ids = progress?.cup?.trackIds;
+  return Array.isArray(ids) && ids.length ? ids[ids.length - 1] : null;
 }
 
 
@@ -145,5 +213,12 @@ export function isLocked(progress, track) {
 
 
 export function trackRecord(progress, trackId) {
-  return progress.tracks?.[trackId] ?? { bestLap: null, bestRace: null, bestPosition: null, races: 0, wins: 0 };
+  const rec = progress.tracks?.[trackId];
+  
+  
+  
+  
+  
+  const empty = { bestLap: null, bestRace: null, bestPosition: null, races: 0, wins: 0, bestPoints: null };
+  return rec ? { ...empty, ...rec } : empty;
 }

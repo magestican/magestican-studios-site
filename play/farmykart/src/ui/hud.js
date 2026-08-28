@@ -25,6 +25,11 @@ export function createHud(root) {
     positionSuffix: root.querySelector('#hud-position-suffix'),
     lap: root.querySelector('#hud-lap'),
     lapTotal: root.querySelector('#hud-lap-total'),
+    
+    
+    
+    
+    score: root.querySelector('#hud-score'),
     clock: root.querySelector('#hud-clock'),
     lastLap: root.querySelector('#hud-lastlap'),
     bestLap: root.querySelector('#hud-bestlap'),
@@ -44,6 +49,7 @@ export function createHud(root) {
     lastItem: undefined,
     lastPosition: null,
     lastLap: null,
+    lastScore: null,
     bannerUntil: 0,
     _standingsHtml: '',
   };
@@ -71,6 +77,23 @@ export function updateHud(hud, view) {
     hud.lastLap = lapShown;
     if (el.lap) el.lap.textContent = String(lapShown);
     if (el.lapTotal) el.lapTotal.textContent = String(view.laps);
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (el.score && view.lapScore !== hud.lastScore) {
+    hud.lastScore = view.lapScore;
+    el.score.textContent = String(Math.max(0, Math.floor(Number(view.lapScore) || 0)));
   }
   if (el.clock) el.clock.textContent = formatTime(view.time);
   if (el.lastLap) el.lastLap.textContent = view.lastLapTime != null ? formatTime(view.lastLapTime) : '--:--.--';

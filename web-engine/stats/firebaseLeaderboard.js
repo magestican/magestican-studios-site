@@ -106,13 +106,29 @@ export async function publishScores(rows, cfg = LEADERBOARD_CONFIG) {
 
 
 
-export async function fetchTopPlayers(limit = LEADERBOARD_LIMIT, cfg = LEADERBOARD_CONFIG) {
+
+
+
+
+
+
+
+
+export const ORDERABLE_FIELDS = Object.freeze(['kills', 'deaths', 'wins', 'matches']);
+
+
+
+
+
+export async function fetchTopPlayers(limit = LEADERBOARD_LIMIT, cfg = LEADERBOARD_CONFIG,
+  { orderField = 'kills' } = {}) {
   const s = await ready(cfg);
   if (!s) return [];
+  const order = ORDERABLE_FIELDS.includes(orderField) ? orderField : 'kills';
   try {
     const q = s.store.query(
       s.store.collection(s.db, LEADERBOARD_COLLECTION),
-      s.store.orderBy('kills', 'desc'),
+      s.store.orderBy(order, 'desc'),
       s.store.limit(Math.max(1, Math.min(limit, LEADERBOARD_LIMIT))),
     );
     const snap = await s.store.getDocs(q);
