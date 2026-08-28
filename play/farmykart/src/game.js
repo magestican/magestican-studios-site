@@ -17,9 +17,11 @@ import * as THREE from 'three';
 
 import { buildPath, trackSurface, startGrid, sampleAt } from 'arbelo/trackPath';
 import { buildRacingLine } from 'arbelo/racingLine';
-import { createKart, stepKart, respawnKart, resolveKartContact } from 'arbelo/kartPhysics';
+import { createKart, stepKart, respawnKart, launchKart, resolveKartContact } from 'arbelo/kartPhysics';
 import { resolveTuning, characterById, CHARACTERS } from 'arbelo/kartTuning';
 import { createDriver, driveBot, findThreats } from 'arbelo/kartAi';
+import { crossedJump } from 'arbelo/trackJumps';
+import { hazardAt, hazardEffect } from 'arbelo/trackHazards';
 import { assistSteer } from 'arbelo/steerAssist';
 import { createRecovery, stepRecovery, isRecovering } from 'arbelo/recovery';
 import { createProgress, addRacer, updateRacer, standings } from 'arbelo/raceProgress';
@@ -43,7 +45,9 @@ import { buildTrackMesh, buildFences, SHOULDER } from './render/trackMesh.js';
 import { buildScenery } from './render/props.js';
 import { buildSpectators, updateSpectators } from './render/spectators.js';
 import { buildKart, poseKart } from './render/kartMesh.js';
-import { buildSky, buildLights, buildSun, updateSun, fogFor, createChaseCamera, updateChase, snapChase, focusShadow } from './render/world.js';
+import { buildSky, updateSky, buildLights, buildSun, updateSun, fogFor, createChaseCamera, updateChase, snapChase, focusShadow } from './render/world.js';
+import { configureRenderer, buildEnvironment, setQuality, detectQuality } from './render/materials.js';
+import { buildWater, updateWater, buildFires, updateFires } from './render/hazardMesh.js';
 import {
   createFx, updateFx, driftSparks, boostFlame, groundDust, hitBurst, pickupBurst, createShieldBubble,
 } from './render/fx.js';
@@ -99,6 +103,11 @@ export function createRace(options) {
   const raceLaps = laps ?? track.laps ?? 3;
 
   
+  
+  
+  
+  
+  setQuality(new URLSearchParams(location.search).get('quality') || detectQuality());
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   
@@ -109,21 +118,50 @@ export function createRace(options) {
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  
+  
+  configureRenderer(renderer);
 
   const scene = new THREE.Scene();
   scene.fog = fogFor(track.theme);
   const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.4, 1200);
   const chase = createChaseCamera(camera);
 
-  scene.add(buildSky(track.sky ?? 'day'));
+  
+  
+  
+  
+  
+  
   const lights = buildLights(track.theme);
   scene.add(lights);
+  const sunDir = lights.userData.sun.position.clone().normalize();
+  const sky = buildSky(track.sky ?? 'day', sunDir);
+  scene.add(sky);
   
   
   const sunDisc = buildSun(lights);
   scene.add(sunDisc);
+  
+  
+  
+  
+  scene.environment = buildEnvironment(renderer, sky.material);
+  
+  
+  scene.environmentIntensity = 0.55;
+  
+  
+  
+  
+  
+  path.hazards = track.hazards ?? null;
+
   scene.add(buildTrackMesh(path, track));
+  const water = buildWater(path, track);
+  scene.add(water);
+  const fires = buildFires(path, track);
+  scene.add(fires);
   scene.add(buildFences(path, track.scenery?.fencePosts ?? 160));
   scene.add(buildScenery(path, track));
   
@@ -372,6 +410,9 @@ export function createRace(options) {
   
   function step(dt) {
     clock += dt;
+    updateSky(sky, clock);
+    updateWater(water, clock);
+    updateFires(fires, clock);
     const driving = canDrive(flow);
     readControls(controls, dt);
 
@@ -432,7 +473,7 @@ export function createRace(options) {
           
           
           steer: assist
-            ? assistSteer({ steer: controls.steer, kart: r.kart, surface: surf, strength: 1 })
+            ? assistSteer({ steer: controls.steer, kart: r.kart, surface: surf, path, strength: 1 })
             : controls.steer,
           drift: controls.drift,
           jump: controls.jump,
@@ -481,6 +522,62 @@ export function createRace(options) {
 
       const prevBoost = r.kart.boost;
       r.kart = stepKart(r.kart, input, { ...surf, groundY: surf.y }, dt);
+
+      
+      
+      
+      
+      
+      if (track.jumps) {
+        const nowFrac = trackSurface(path, r.kart.x, r.kart.z, r.kart.pathHint, { shoulder: SHOULDER }).s
+          / path.length;
+        const hit = crossedJump(track.jumps, r.jumpFrac, nowFrac, r.kart.speed);
+        r.jumpFrac = nowFrac;
+        if (hit) {
+          launchKart(r.kart, hit.vy);
+          r.airFrom = hit.vy;
+          if (r.isPlayer) {
+            SFX.jump(audio, Math.min(1.4, hit.vy / 8));
+            
+            
+            
+            chase.shake = Math.min(1, 0.22 + hit.vy * 0.02);
+          }
+        }
+      }
+      
+      
+      
+      
+      
+      
+      if (track.hazards && r.kart.grounded) {
+        const zone = hazardAt(track.hazards, {
+          frac: surf.s / path.length, lateral: surf.lateral, width: surf.width,
+        });
+        const effect = hazardEffect(zone, r.kart);
+        if (effect?.action === 'respawn') {
+          if (r.isPlayer) { SFX.hit(audio); chase.shake = 0.6; }
+          
+          
+          
+          r.kart = respawnKart(r.kart, sampleAt(path, surf.s), { after: 0 });
+          r.kart.invuln = Math.max(r.kart.invuln ?? 0, 1.2);
+        } else if (effect?.action === 'spin') {
+          const out = applyEffect(r.kart, 'spin');
+          r.kart = out.kart;
+          if (r.isPlayer && out.hit) { SFX.hit(audio); chase.shake = 0.5; }
+        }
+      }
+
+      
+      if (r.kart.landed && r.airFrom) {
+        if (r.isPlayer) {
+          SFX.land(audio, Math.min(1, r.airFrom / 10));
+          chase.shake = Math.min(1, 0.18 + r.airFrom * 0.03);
+        }
+        r.airFrom = 0;
+      }
 
       if (r.kart.justBoosted) {
         if (r.isPlayer) SFX.miniTurbo(audio, r.kart.justBoosted.tier);

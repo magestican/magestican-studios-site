@@ -29,10 +29,20 @@
 
 
 export const ENVELOPE = Object.freeze({
-  topSpeed:   { min: 34.0, max: 44.0 },   
-  accel:      { min: 15.0, max: 26.0 },   
-  turnRate:   { min: 2.35, max: 3.60 },   
-  grip:       { min: 4.4,  max: 7.6 },    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  topSpeed:   { min: 48.0, max: 62.0 },   
+  accel:      { min: 22.0, max: 38.0 },   
+  turnRate:   { min: 3.15, max: 4.75 },   
+  grip:       { min: 6.0,  max: 10.2 },   
   weight:     { min: 0.72, max: 1.42 },   
 });
 
@@ -136,7 +146,7 @@ export function resolveTuning(character, { engineClass = 1 } = {}) {
     
     
     
-    brake: 32.0,
+    brake: 45.0,
     
     
     
@@ -149,14 +159,14 @@ export function resolveTuning(character, { engineClass = 1 } = {}) {
     
     
     
-    gripTurn: lerp(6.0, 10.0, d.gripDial),
+    gripTurn: lerp(8.2, 13.5, d.gripDial),
     
     
     
     
     
     
-    driftGripTurn: lerp(6.0, 10.0, d.gripDial) * c.driftGrip * 0.55,
+    driftGripTurn: lerp(8.2, 13.5, d.gripDial) * c.driftGrip * 0.55,
     
     
     

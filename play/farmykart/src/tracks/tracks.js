@@ -24,6 +24,29 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const TRACKS = [
   {
     id: 'sunflower',
@@ -38,18 +61,41 @@ export const TRACKS = [
     defaultWidth: 28,
     control: [
       { x: 0, z: 0, width: 30 },
-      { x: 120, z: -6 },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      { x: 52, z: -2.6 },
+      { x: 70, z: -3.5, y: 4.4 },      
+      { x: 82, z: -4.1, y: 1.2 },      
+      { x: 98, z: -4.9 },
+      { x: 120, z: -6 },               
       { x: 200, z: 30 },
-      { x: 232, z: 110 },
-      { x: 190, z: 178 },
-      { x: 100, z: 196 },
+      
+      
+      
+      { x: 232, z: 110, y: 4.5 },
+      { x: 190, z: 178, y: 6.2 },
+      { x: 100, z: 196, y: 3.4 },
       { x: 30, z: 168, width: 21 },
       { x: 8, z: 118, width: 18 },     
       { x: 40, z: 78, width: 19 },
       { x: 6, z: 40, width: 23 },
-      { x: -80, z: 46 },
-      { x: -140, z: 10 },
-      { x: -120, z: -50 },
+      { x: -80, z: 46, y: -2.2 },      
+      { x: -140, z: 10, y: -3.0 },
+      { x: -120, z: -50, y: -1.4 },
       { x: -50, z: -46 },
     ],
     
@@ -57,6 +103,21 @@ export const TRACKS = [
     
     
     itemStops: [0.12, 0.38, 0.62, 0.86],
+    
+    
+    
+    
+    jumps: [{ id: 'hay-ramp', at: 0.066, launch: 8.5 }],
+    
+    
+    
+    
+    
+    
+    hazards: [{
+      id: 'sunflower-fires', kind: 'fire', from: 0.30, to: 0.42,
+      side: 'both', beyond: 1.22, until: 1.8,
+    }],
     
     
     
@@ -117,22 +178,36 @@ export const TRACKS = [
     
     defaultWidth: 19,
     control: [
+      
+      
+      
+      
+      
+      
       { x: 0, z: 0, width: 23 },
-      { x: 92, z: 4 },
-      { x: 146, z: 34, width: 17 },
-      { x: 150, z: 84, width: 15 },    
-      { x: 108, z: 96, width: 15 },    
-      { x: 96, z: 148 },
-      { x: 40, z: 172, width: 17 },
-      { x: 6, z: 140, width: 17 },     
-      { x: -34, z: 158, width: 17 },
-      { x: -84, z: 128 },
-      { x: -96, z: 66, width: 15 },    
-      { x: -52, z: 44, width: 15 },
-      { x: -74, z: -6 },
+      { x: 92, z: 4, y: 2.6 },
+      { x: 146, z: 34, width: 17, y: 5.8 },
+      { x: 150, z: 84, width: 15, y: 7.4 },    
+      { x: 108, z: 96, width: 15, y: 7.1 },    
+      { x: 96, z: 148, y: 6.0 },
+      { x: 40, z: 172, width: 17, y: 4.2 },
+      { x: 6, z: 140, width: 17, y: 3.0 },     
+      { x: -34, z: 158, width: 17, y: 1.8 },
+      { x: -84, z: 128, y: -0.6 },
+      { x: -96, z: 66, width: 15, y: -2.4 },   
+      { x: -52, z: 44, width: 15, y: -2.0 },
+      { x: -74, z: -6, y: -0.8 },
       { x: -40, z: -34 },
     ],
     itemStops: [0.08, 0.3, 0.55, 0.78],
+    
+    
+    
+    
+    hazards: [{
+      id: 'muddy-ditch', kind: 'water', from: 0.62, to: 0.70,
+      side: 'left', beyond: 1.30, depth: 3.4, bank: 0.45,
+    }],
     
     
     
@@ -188,9 +263,18 @@ export const TRACKS = [
     
     control: [
       { x: 0, z: 0, width: 29 },
+      
+      
+      
+      
+      
+      { x: 48, z: 5.3 },
+      { x: 66, z: 7.3, y: 4.8 },       
+      { x: 78, z: 8.7, y: 1.3 },
+      { x: 94, z: 10.4 },
       { x: 108, z: 12 },
-      { x: 178, z: 62 },
-      { x: 186, z: 128, width: 18 },
+      { x: 178, z: 62, y: 3.2 },
+      { x: 186, z: 128, width: 18, y: 1.2 },
       { x: 146, z: 158, width: 15 },   
       { x: 104, z: 132, width: 15 },   
       { x: 78, z: 174, width: 18 },
@@ -202,6 +286,19 @@ export const TRACKS = [
       { x: -34, z: -34 },
     ],
     itemStops: [0.14, 0.42, 0.68, 0.9],
+    
+    
+    
+    
+    
+    hazards: [{
+      id: 'frostfield-lake', kind: 'water', from: 0.14, to: 0.22,
+      side: 'both', beyond: 1.25, depth: 5.0, bank: 0.5,
+    }],
+    
+    
+    
+    jumps: [{ id: 'snow-bank', at: 0.077, launch: 9.5 }],
     
     
     

@@ -50,6 +50,15 @@ export function createDriver(seedIndex, difficulty = DEFAULT_DIFFICULTY) {
   };
 }
 
+
+
+
+
+
+
+
+const GAIN_FALLOFF = 1.15;
+
 const clampAngle = (a) => {
   let x = a;
   while (x > Math.PI) x -= Math.PI * 2;
@@ -107,7 +116,20 @@ export function driveBot(driver, kart, line, ctx) {
   
   
   
-  const gain = 2.6 / (1 + speed * 0.035);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const speedFrac = Math.min(1.2, speed / Math.max(1, kart.tuning.topSpeed));
+  const gain = 2.6 / (1 + speedFrac * GAIN_FALLOFF);
   let steer = Math.max(-1, Math.min(1, -err * gain));
 
   

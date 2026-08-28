@@ -23,6 +23,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PALETTE } from '../palette.js';
+import { surface, paintedSurface, rubberSurface } from './materials.js';
 
 
 
@@ -84,7 +85,7 @@ export function driversReady() {
 
 const box = (w, h, d, colour) => new THREE.Mesh(
   new THREE.BoxGeometry(w, h, d),
-  new THREE.MeshLambertMaterial({ color: colour, flatShading: true }),
+  paintedSurface({ color: colour, flatShading: true }),
 );
 
 
@@ -106,7 +107,7 @@ function taper(w1, w2, h1, h2, d, colour, { skew = 0 } = {}) {
     pos.setY(i, pos.getY(i) * (h1 + (h2 - h1) * t) + skew * t);
   }
   geo.computeVertexNormals();
-  return new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: colour, flatShading: true }));
+  return new THREE.Mesh(geo, paintedSurface({ color: colour, flatShading: true }));
 }
 
 
@@ -151,7 +152,7 @@ export function buildKart(character, variant = 0) {
   
   const roundel = new THREE.Mesh(
     new THREE.CircleGeometry(0.17, 12),
-    new THREE.MeshLambertMaterial({ color: PALETTE.ceiling }),
+    surface({ color: PALETTE.ceiling }),
   );
   roundel.position.set(0, 0.47, 1.79);
   group.add(roundel);
@@ -206,7 +207,7 @@ export function buildKart(character, variant = 0) {
   for (const x of [-0.26, 0.26]) {
     const pipe = new THREE.Mesh(
       new THREE.CylinderGeometry(0.075, 0.09, 0.62, 6),
-      new THREE.MeshLambertMaterial({ color: PALETTE.chrome, flatShading: true }),
+      surface({ color: PALETTE.chrome, roughness: 0.28, metalness: 0.85, flatShading: true }),
     );
     pipe.position.set(x, 0.92, -1.28);
     pipe.rotation.x = -0.32;
@@ -228,14 +229,14 @@ export function buildKart(character, variant = 0) {
   
   const bar = new THREE.Mesh(
     new THREE.TorusGeometry(0.42, 0.055, 5, 10, Math.PI),
-    new THREE.MeshLambertMaterial({ color: PALETTE.chrome, flatShading: true }),
+    surface({ color: PALETTE.chrome, roughness: 0.28, metalness: 0.85, flatShading: true }),
   );
   bar.position.set(0, 0.86, -0.72);
   group.add(bar);
 
   const steering = new THREE.Mesh(
     new THREE.TorusGeometry(0.24, 0.045, 5, 10),
-    new THREE.MeshLambertMaterial({ color: PALETTE.night, flatShading: true }),
+    surface({ color: PALETTE.night, flatShading: true }),
   );
   steering.position.set(0, 0.86, 0.62);
   steering.rotation.x = 1.05;
@@ -263,12 +264,12 @@ export function buildKart(character, variant = 0) {
     }
     g.computeVertexNormals();
     g.rotateZ(Math.PI / 2);
-    const mesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: PALETTE.tyre, flatShading: true }));
+    const mesh = new THREE.Mesh(g, rubberSurface({ color: PALETTE.tyre, flatShading: true }));
 
     
     const hub = new THREE.Mesh(
       new THREE.CylinderGeometry(r * 0.52, r * 0.52, w * 0.96, 8),
-      new THREE.MeshLambertMaterial({ color: PALETTE.chrome, flatShading: true }),
+      surface({ color: PALETTE.chrome, roughness: 0.28, metalness: 0.85, flatShading: true }),
     );
     hub.rotation.z = Math.PI / 2;
     mesh.add(hub);
@@ -276,7 +277,7 @@ export function buildKart(character, variant = 0) {
     
     
     
-    const spokeMat = new THREE.MeshLambertMaterial({ color: PALETTE.night, flatShading: true });
+    const spokeMat = surface({ color: PALETTE.night, flatShading: true });
     for (let i = 0; i < 4; i += 1) {
       const spoke = new THREE.Mesh(new THREE.BoxGeometry(w * 1.02, r * 0.78, r * 0.16), spokeMat);
       spoke.rotation.x = (i * Math.PI) / 4;

@@ -41,6 +41,7 @@ import { nearestOnBranch, nearestOnPath } from 'arbelo/trackPath';
 import { PALETTE } from '../palette.js';
 import { makeBarnTexture } from './textures.js';
 import { SHOULDER, groundHeightAt } from './trackMesh.js';
+import { surface } from './materials.js';
 
 function rngFrom(seed) {
   let s = seed >>> 0 || 1;
@@ -74,6 +75,37 @@ function onShortcut(path, x, z, pad) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+function inWaterZone(path, x, z) {
+  const zones = path.hazards;
+  if (!zones || !zones.length) return false;
+  const near = nearestOnPath(path, x, z, null);
+  const frac = near.s / path.length;
+  const out = Math.abs(near.lateral ?? 0) / Math.max(1e-3, near.width / 2);
+  for (const zone of zones) {
+    if (zone.kind !== 'water') continue;
+    const within = zone.from <= zone.to
+      ? frac >= zone.from && frac <= zone.to
+      : frac >= zone.from || frac <= zone.to;
+    if (!within) continue;
+    if (zone.side && zone.side !== 'both') {
+      const side = (near.lateral ?? 0) > 0 ? 'left' : 'right';
+      if (zone.side !== side) continue;
+    }
+    if (out >= (zone.beyond ?? 1.18)) return true;
+  }
+  return false;
+}
+
 function besideTrack(path, rng, minOut, maxOut, { clear = 2, minClear = 0 } = {}) {
   let pick = null;
   let best = -Infinity;
@@ -85,6 +117,7 @@ function besideTrack(path, rng, minOut, maxOut, { clear = 2, minClear = 0 } = {}
     const out = ((p.width / 2) + SHOULDER + minOut + rng() * (maxOut - minOut)) * side;
     const x = p.x + t.z * out;
     const z = p.z - t.x * out;
+    if (inWaterZone(path, x, z)) continue;
     
     
     
@@ -282,7 +315,7 @@ function buildHedgerows(path, rng, count, theme) {
   const total = count * perRow;
   const geo = new THREE.BoxGeometry(3.4, 2.1, 1.5);
   geo.translate(0, 1.05, 0);
-  const mesh = instanced(geo, new THREE.MeshLambertMaterial({ color: colour, flatShading: true }), total);
+  const mesh = instanced(geo, surface({ color: colour, flatShading: true }), total);
 
   let idx = 0;
   for (let r = 0; r < count; r += 1) {
@@ -327,9 +360,9 @@ function buildSunflowers(path, rng, count) {
   centreGeo.rotateX(Math.PI / 2.35);
   centreGeo.translate(0, 1.52, 0.11);
 
-  const stems = instanced(stemGeo, new THREE.MeshLambertMaterial({ color: PALETTE.tree, flatShading: true }), count);
-  const heads = instanced(headGeo, new THREE.MeshLambertMaterial({ color: PALETTE.sunflower, flatShading: true }), count);
-  const centres = instanced(centreGeo, new THREE.MeshLambertMaterial({ color: PALETTE.sunflowerC, flatShading: true }), count);
+  const stems = instanced(stemGeo, surface({ color: PALETTE.tree, flatShading: true }), count);
+  const heads = instanced(headGeo, surface({ color: PALETTE.sunflower, flatShading: true }), count);
+  const centres = instanced(centreGeo, surface({ color: PALETTE.sunflowerC, flatShading: true }), count);
 
   let i = 0;
   while (i < count) {
@@ -380,11 +413,11 @@ function buildTrees(path, rng, count, theme) {
   const nBroad = Math.max(1, count - nConifer - nBare);
 
   const leaf = theme === 'snow' ? 0x4a6b52 : theme === 'mud' ? 0x3a5c2c : PALETTE.tree;
-  const trunkMat = new THREE.MeshLambertMaterial({ color: PALETTE.treeTrunk, flatShading: true });
-  const leafMat = new THREE.MeshLambertMaterial({ color: leaf, flatShading: true });
-  const pineMat = new THREE.MeshLambertMaterial({ color: PALETTE.pine, flatShading: true });
-  const snowMat = new THREE.MeshLambertMaterial({ color: PALETTE.pineSnow, flatShading: true });
-  const bareMat = new THREE.MeshLambertMaterial({ color: PALETTE.deadWood, flatShading: true });
+  const trunkMat = surface({ color: PALETTE.treeTrunk, flatShading: true });
+  const leafMat = surface({ color: leaf, flatShading: true });
+  const pineMat = surface({ color: PALETTE.pine, flatShading: true });
+  const snowMat = surface({ color: PALETTE.pineSnow, flatShading: true });
+  const bareMat = surface({ color: PALETTE.deadWood, flatShading: true });
 
   
   
@@ -476,7 +509,7 @@ function buildBales(path, rng, count, theme) {
   geo.rotateZ(Math.PI / 2);
   geo.translate(0, 0.95, 0);
   const colour = theme === 'snow' ? 0xcbb87f : PALETTE.haybale;
-  const bales = instanced(geo, new THREE.MeshLambertMaterial({ color: colour, flatShading: true }), count);
+  const bales = instanced(geo, surface({ color: colour, flatShading: true }), count);
   for (let i = 0; i < count; i += 1) {
     const p = besideTrack(path, rng, 1.5, 26);
     place(bales, i, p.x, p.y, p.z, rng() * Math.PI * 2, 0.85 + rng() * 0.4);
@@ -501,7 +534,7 @@ function buildBales(path, rng, count, theme) {
 function buildSnowmen(path, rng, count) {
   const group = new THREE.Group();
   group.name = 'snowmen';
-  const white = new THREE.MeshLambertMaterial({ color: PALETTE.snow, flatShading: true });
+  const white = surface({ color: PALETTE.snow, flatShading: true });
   const radii = [0.62, 0.44, 0.3];
   const ys = [];
   let y = 0;
@@ -515,10 +548,10 @@ function buildSnowmen(path, rng, count) {
   const noseGeo = new THREE.ConeGeometry(0.07, 0.34, 5);
   noseGeo.rotateX(Math.PI / 2);
   noseGeo.translate(0, y - 0.16, 0.3);
-  const noses = instanced(noseGeo, new THREE.MeshLambertMaterial({ color: 0xe08a3c, flatShading: true }), count);
+  const noses = instanced(noseGeo, surface({ color: 0xe08a3c, flatShading: true }), count);
   const hatGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.34, 8);
   hatGeo.translate(0, y + 0.16, 0);
-  const hats = instanced(hatGeo, new THREE.MeshLambertMaterial({ color: PALETTE.night, flatShading: true }), count);
+  const hats = instanced(hatGeo, surface({ color: PALETTE.night, flatShading: true }), count);
 
   for (let i = 0; i < count; i += 1) {
     const p = besideTrack(path, rng, 2, 30);
@@ -544,8 +577,8 @@ function buildSnowmen(path, rng, count) {
 function buildBarns(path, rng, count) {
   const group = new THREE.Group();
   group.name = 'barns';
-  const wallMat = new THREE.MeshLambertMaterial({ map: makeBarnTexture() });
-  const roofMat = new THREE.MeshLambertMaterial({ color: PALETTE.barnRoof, flatShading: true });
+  const wallMat = surface({ map: makeBarnTexture() });
+  const roofMat = surface({ color: PALETTE.barnRoof, flatShading: true });
   for (let i = 0; i < count; i += 1) {
     
     
@@ -577,8 +610,8 @@ function buildBarns(path, rng, count) {
 function buildSilos(path, rng, count) {
   const group = new THREE.Group();
   group.name = 'silos';
-  const body = new THREE.MeshLambertMaterial({ color: PALETTE.silo, flatShading: true });
-  const cap = new THREE.MeshLambertMaterial({ color: PALETTE.barnRoof, flatShading: true });
+  const body = surface({ color: PALETTE.silo, flatShading: true });
+  const cap = surface({ color: PALETTE.barnRoof, flatShading: true });
   for (let i = 0; i < count; i += 1) {
     const p = besideTrack(path, rng, 40, 100, { clear: 8, minClear: 34 });
     const g = new THREE.Group();
@@ -626,10 +659,10 @@ function buildLandmark(path, spec, theme) {
   const z = p.z - t.x * off;
   const g = new THREE.Group();
 
-  const stone = new THREE.MeshLambertMaterial({ color: PALETTE.silo, flatShading: true });
-  const dark = new THREE.MeshLambertMaterial({ color: PALETTE.barnRoof, flatShading: true });
-  const red = new THREE.MeshLambertMaterial({ color: PALETTE.barnRed, flatShading: true });
-  const cream = new THREE.MeshLambertMaterial({ color: PALETTE.ceiling, flatShading: true });
+  const stone = surface({ color: PALETTE.silo, flatShading: true });
+  const dark = surface({ color: PALETTE.barnRoof, flatShading: true });
+  const red = surface({ color: PALETTE.barnRed, flatShading: true });
+  const cream = surface({ color: PALETTE.ceiling, flatShading: true });
 
   if (kind === 'windmill') {
     const tower = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 5, 16, 8), stone);

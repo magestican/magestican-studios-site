@@ -357,6 +357,19 @@ export const SFX = {
     blip(audio, { freq: 300 + tier * 120, dur: 0.28, gain: 0.26, type: 'sawtooth', sweep: 420 + tier * 220 });
     noiseBurst(audio, { dur: 0.22, gain: 0.14, freq: 1800 + tier * 500 });
   },
+  
+  
+  
+  jump: (audio, strength = 1) => {
+    blip(audio, { freq: 240, dur: 0.34, gain: 0.2, type: 'triangle', sweep: 420 * strength });
+    noiseBurst(audio, { dur: 0.42, gain: 0.10, freq: 900, q: 0.7 });
+  },
+  
+  
+  land: (audio, hard = 0.5) => {
+    blip(audio, { freq: 150 - hard * 50, dur: 0.16, gain: 0.16 + hard * 0.12, type: 'sine', sweep: -80 });
+    noiseBurst(audio, { dur: 0.2, gain: 0.10 + hard * 0.1, freq: 320, q: 0.8 });
+  },
   itemGet: (audio) => {
     blip(audio, { freq: 520, dur: 0.09, gain: 0.2, type: 'square' });
     blip(audio, { freq: 780, dur: 0.11, gain: 0.2, type: 'square', delay: 0.08 });

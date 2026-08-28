@@ -43,6 +43,15 @@ export const GRAVITY = 26;
 
 
 
+
+
+export const LAUNCH_MAX = 14;
+
+
+
+
+
+
 export const JUMP_SPEED = 7.9;
 
 
@@ -97,6 +106,9 @@ export function createKart({ x = 0, y = 0, z = 0, heading = 0, id = 'p1', tuning
     speed: 0,
     slip: 0,
     steerVisual: 0,
+    yawRate: 0,
+    launched: 0,
+    landed: false,
     driftTier: 0,
     justBoosted: null,
     respawned: false,
@@ -201,7 +213,7 @@ export function effectiveSteer(input, drifting) {
 
 export function stepKart(state, input, surface, dt) {
   const t = state.tuning;
-  const s = { ...state, justBoosted: null, respawned: false };
+  const s = { ...state, justBoosted: null, respawned: false, launched: 0, landed: false };
   const throttle = clamp(input.throttle ?? 0, -1, 1);
 
   
@@ -303,7 +315,13 @@ export function stepKart(state, input, surface, dt) {
     
     
     
-    s.heading -= steer * t.turnRate * authority * driftGain * dirSign * air * dt;
+    
+    
+    
+    
+    
+    s.yawRate = -steer * t.turnRate * authority * driftGain * dirSign * air;
+    s.heading += s.yawRate * dt;
   }
 
   
@@ -441,15 +459,20 @@ export function stepKart(state, input, surface, dt) {
   s.groundSpeed = Math.hypot(s.vx, s.vz);
 
   
+  
+  
+  
+  
+  
+  
   const groundY = surface.groundY ?? surface.y ?? 0;
   if (!s.grounded || s.y > groundY + 1e-4) {
     s.vy -= GRAVITY * dt;
     s.y += s.vy * dt;
-    if (s.y <= groundY) { s.y = groundY; s.vy = 0; s.grounded = true; }
-    else s.grounded = false;
+    if (s.y <= groundY) {
+      s.y = groundY; s.vy = 0; s.grounded = true; s.landed = true;
+    } else s.grounded = false;
   } else {
-    
-    
     s.y = groundY;
     s.vy = 0;
     s.grounded = true;
@@ -522,6 +545,26 @@ export function resolveKartContact(a, b, { restitution = 0.55 } = {}) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+export function launchKart(kart, vy) {
+  if (!kart.grounded) return kart;          
+  const v = Math.max(0, Math.min(LAUNCH_MAX, vy));
+  if (v <= 0) return kart;
+  kart.vy = v;
+  kart.grounded = false;
+  kart.launched = v;
+  return kart;
+}
 
 export function respawnKart(state, place, { after = 2.4, keepSpeed = 0.28 } = {}) {
   if (state.lostTime < after) return state;

@@ -8,21 +8,20 @@
 
 import * as THREE from 'three';
 import { PALETTE } from '../palette.js';
-import { makeSkyTexture, makeSunFaceTexture } from './textures.js';
+import { makeSunFaceTexture } from './textures.js';
+import { buildSkyMaterial } from './materials.js';
 
 
-export function buildSky(kind) {
-  const geo = new THREE.SphereGeometry(900, 24, 16);
-  const mat = new THREE.MeshBasicMaterial({
-    map: makeSkyTexture(kind),
-    side: THREE.BackSide,
-    
-    
-    
-    fog: false,
-  });
+export function buildSky(kind, sunDir) {
+  const geo = new THREE.SphereGeometry(900, 32, 20);
+  const mat = buildSkyMaterial(kind, sunDir);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = 'sky';
+  
+  
+  
+  mesh.frustumCulled = false;
+  mesh.renderOrder = -1;
   return mesh;
 }
 
@@ -32,9 +31,10 @@ export function buildSky(kind) {
 
 
 
-
-
-
+export function updateSky(sky, elapsed) {
+  const u = sky?.material?.userData?.uniforms;
+  if (u) u.uTime.value = elapsed;
+}
 
 export function buildLights(theme) {
   const group = new THREE.Group();
@@ -234,9 +234,25 @@ export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.
 
   
   
-  const fast = Math.min(1, speed / 30);
-  const dist = back + fast * 1.7;
-  const h = height - fast * 0.35;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const top = kart.tuning?.topSpeed ?? 40;
+  const fast = Math.min(1, speed / top);
+  
+  
+  
+  const dist = back + fast * 3.2;
+  const h = height - fast * 0.95;
 
   const tx = kart.x - Math.sin(cam.yaw) * dist;
   const tz = kart.z - Math.cos(cam.yaw) * dist;
@@ -262,7 +278,11 @@ export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.
 
   
   
-  const wantFov = 62 + fast * 8 + (kart.boost ? 9 : 0);
+  
+  
+  
+  
+  const wantFov = 60 + fast * 22 + (kart.boost ? 12 : 0);
   cam.fov += (wantFov - cam.fov) * Math.min(1, dt * 5);
   if (Math.abs(cam.camera.fov - cam.fov) > 0.01) {
     cam.camera.fov = cam.fov;

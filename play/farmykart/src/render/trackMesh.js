@@ -17,6 +17,8 @@ import * as THREE from 'three';
 import { nearestOnPath, nearestOnBranch } from 'arbelo/trackPath';
 import { PALETTE } from '../palette.js';
 import { makeRoadTexture, makeGrassTexture, makeShortcutTexture } from './textures.js';
+import { surface, addGroundDetail } from './materials.js';
+import { waterDepthAt, inSpan } from 'arbelo/trackHazards';
 
 
 
@@ -84,15 +86,40 @@ const HILL_HEIGHT = 3.2;
 
 export function groundHeightAt(path, x, z) {
   const near = nearestOnPath(path, x, z, null);
+  
+  
+  
+  
+  
+  
+  
+  
+  const roadY = near.y ?? 0;
+
+  
+  
+  
+  
+  
+  
+  const depth = waterDepthAt(path.hazards, {
+    frac: near.s / path.length, lateral: near.lateral, width: near.width,
+  });
+  if (depth != null) return roadY - depth;
+
   const out = near.dist - near.width / 2;
-  if (out <= FLAT_OUT) return 0;
+  if (out <= FLAT_OUT) return roadY;
   
   
   const u = Math.min(1, (out - FLAT_OUT) / (HILL_OUT - FLAT_OUT));
   const ramp = u * u * (3 - 2 * u);
   const a = Math.sin(x * 0.0121 + 1.7) * Math.cos(z * 0.0104 - 0.6);
   const b = Math.sin(x * 0.0298 - 2.3) * Math.cos(z * 0.0331 + 1.1) * 0.42;
-  return (a + b) * HILL_HEIGHT * ramp;
+  const hills = (a + b) * HILL_HEIGHT;
+  
+  
+  
+  return roadY * (1 - ramp) + hills * ramp;
 }
 
 
@@ -147,7 +174,13 @@ function buildRoad(path, theme) {
   const map = makeRoadTexture(theme);
   map.repeat.set(1, 1);
   map.colorSpace = THREE.SRGBColorSpace;
-  const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map }));
+  
+  
+  
+  const mesh = new THREE.Mesh(geo, addGroundDetail(
+    surface({ map, roughness: 0.94, rim: false }),
+    { scale: 0.020, strength: 0.20 },
+  ));
   mesh.name = 'road';
   mesh.receiveShadow = true;
   return mesh;
@@ -217,7 +250,7 @@ function buildKerbs(path) {
     
     
     
-    group.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({
+    group.add(new THREE.Mesh(geo, surface({
       vertexColors: true, side: THREE.DoubleSide,
     })));
   }
@@ -283,7 +316,7 @@ function buildVerge(path, theme) {
   geo.setIndex(indices);
   geo.computeVertexNormals();
   
-  const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({
+  const mesh = new THREE.Mesh(geo, surface({
     color: colour, side: THREE.DoubleSide,
   }));
   mesh.name = 'verge';
@@ -350,7 +383,13 @@ function buildGround(path, theme) {
   
   map.repeat.set(w / 20, h / 20);
   map.colorSpace = THREE.SRGBColorSpace;
-  const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map }));
+  
+  
+  
+  const mesh = new THREE.Mesh(geo, addGroundDetail(
+    surface({ map, roughness: 0.97, rim: false }),
+    { scale: 0.0055, strength: 0.26, fade: 420 },
+  ));
   mesh.position.set(cx, -0.05, cz);
   mesh.name = 'ground';
   mesh.receiveShadow = true;
@@ -386,7 +425,7 @@ function buildShortcuts(path, theme) {
 
   const map = makeShortcutTexture(theme);
   map.colorSpace = THREE.SRGBColorSpace;
-  const mat = new THREE.MeshLambertMaterial({ map });
+  const mat = surface({ map });
 
   for (const br of path.branches) {
     const n = br.count;
@@ -462,10 +501,10 @@ function buildGates(path) {
   postGeo.translate(0, height / 2, 0);
   const bandGeo = new THREE.BoxGeometry(0.36, 0.42, 0.36);
   const posts = new THREE.InstancedMesh(
-    postGeo, new THREE.MeshLambertMaterial({ color: PALETTE.gatePost, flatShading: true }), mouths.length * 2,
+    postGeo, surface({ color: PALETTE.gatePost, flatShading: true }), mouths.length * 2,
   );
   const bands = new THREE.InstancedMesh(
-    bandGeo, new THREE.MeshLambertMaterial({ color: PALETTE.gateStripe, flatShading: true }), mouths.length * 6,
+    bandGeo, surface({ color: PALETTE.gateStripe, flatShading: true }), mouths.length * 6,
   );
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();
@@ -541,14 +580,14 @@ function buildMarkerPosts(path, theme) {
   const capGeo = new THREE.BoxGeometry(0.15, 0.24, 0.15);
   capGeo.translate(0, 0.92, 0);
 
-  const postMat = new THREE.MeshLambertMaterial({
+  const postMat = surface({
     
     
     
     color: theme === 'snow' ? PALETTE.night : PALETTE.marker,
     flatShading: true,
   });
-  const capMat = new THREE.MeshLambertMaterial({
+  const capMat = surface({
     color: theme === 'snow' ? PALETTE.barnRed : PALETTE.markerWarn, flatShading: true,
   });
 
@@ -634,8 +673,8 @@ function buildStartLine(path) {
   const depth = 2.4;
   const cellW = c.width / cols;
   const cellD = depth / rows;
-  const light = new THREE.MeshLambertMaterial({ color: PALETTE.line });
-  const dark = new THREE.MeshLambertMaterial({ color: PALETTE.night });
+  const light = surface({ color: PALETTE.line });
+  const dark = surface({ color: PALETTE.night });
   const geo = new THREE.PlaneGeometry(cellW, cellD);
   geo.rotateX(-Math.PI / 2);
   for (let i = 0; i < cols; i += 1) {
@@ -664,6 +703,14 @@ function buildStartLine(path) {
 
 
 
+
+function inWater(path, frac) {
+  for (const z of path.hazards ?? []) {
+    if (z.kind === 'water' && inSpan(frac, z.from, z.to)) return true;
+  }
+  return false;
+}
+
 export function buildFences(path, count, seed = 0xfe4ce5) {
   const group = new THREE.Group();
   group.name = 'fences';
@@ -671,9 +718,9 @@ export function buildFences(path, count, seed = 0xfe4ce5) {
   const rng = () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return (s >>> 0) / 4294967296; };
 
   const postGeo = new THREE.BoxGeometry(0.16, 1.35, 0.16);
-  const postMat = new THREE.MeshLambertMaterial({ color: PALETTE.fence });
+  const postMat = surface({ color: PALETTE.fence });
   const railGeo = new THREE.BoxGeometry(1, 0.11, 0.07);
-  const railMat = new THREE.MeshLambertMaterial({ color: PALETTE.fenceDark });
+  const railMat = surface({ color: PALETTE.fenceDark });
 
   const posts = new THREE.InstancedMesh(postGeo, postMat, count);
   const rails = new THREE.InstancedMesh(railGeo, railMat, count * 2);
@@ -706,6 +753,12 @@ export function buildFences(path, count, seed = 0xfe4ce5) {
       
       
       if (onAnyBranch(path, x, z, 1.5)) continue;
+      
+      
+      
+      
+      
+      if (inWater(path, sAt / path.length)) continue;
       const yaw = Math.atan2(t.x, t.z);
       const height = 0.85 + rng() * 0.35;
       e.set((rng() - 0.5) * 0.16, yaw + (rng() - 0.5) * 0.2, (rng() - 0.5) * 0.16);

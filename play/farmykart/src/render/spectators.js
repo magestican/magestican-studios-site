@@ -19,6 +19,7 @@
 
 import * as THREE from 'three';
 import { PALETTE, HOUSE } from '../palette.js';
+import { surface } from './materials.js';
 
 
 
@@ -61,7 +62,7 @@ export function buildSpectators(path, count = 64, { shoulder = 7, seed = 0xc0ffe
   const armGeo = new THREE.BoxGeometry(0.09, 0.5, 0.09);
   armGeo.translate(0, -0.25, 0);
 
-  const mat = (c) => new THREE.MeshLambertMaterial({ color: c, flatShading: true });
+  const mat = (c) => surface({ color: c, flatShading: true });
   const bodies = new THREE.InstancedMesh(bodyGeo, mat(0xffffff), count);
   const heads = new THREE.InstancedMesh(headGeo, mat(0xffffff), count);
   const armL = new THREE.InstancedMesh(armGeo, mat(0xffffff), count);
