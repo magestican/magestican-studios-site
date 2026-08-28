@@ -27,6 +27,37 @@ export function createAudio() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function resumeAudio(audio) {
   if (!audio.ctx) {
     const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -39,17 +70,140 @@ export function resumeAudio(audio) {
       return false;
     }
     audio.master = audio.ctx.createGain();
-    audio.master.gain.value = 0.55;
+    audio.master.gain.value = audio.muted ? 0 : 0.55;
     audio.master.connect(audio.ctx.destination);
   }
   if (audio.ctx.state === 'suspended') audio.ctx.resume();
+  
+  
+  try {
+    const buf = audio.ctx.createBuffer(1, 1, audio.ctx.sampleRate);
+    const src = audio.ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(audio.ctx.destination);
+    src.start(0);
+  } catch {  }
   audio.started = true;
   return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function installAudioUnlock(audio) {
+  
+  
+  
+  
+  
+  
+  
+  const unlock = () => {
+    if (audio.ctx && audio.ctx.state === 'running' && audio.silent && !audio.silent.paused) return;
+    resumeAudio(audio);
+    startSilentKeepAlive(audio);
+  };
+  for (const t of ['pointerdown', 'touchend', 'keydown', 'click']) {
+    window.addEventListener(t, unlock, true);
+  }
+
+  const wake = () => {
+    if (audio.ctx && audio.ctx.state === 'suspended') audio.ctx.resume();
+    if (audio.silent && audio.silent.paused && !audio.muted) {
+      audio.silent.play().catch(() => {  });
+    }
+  };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
+  window.addEventListener('focus', wake);
+  window.addEventListener('pageshow', wake);
+}
+
+
+
+
+
+
+
+
+function startSilentKeepAlive(audio) {
+  if (audio.silent) return;
+  try {
+    const el = document.createElement('audio');
+    el.loop = true;
+    
+    
+    el.setAttribute('playsinline', '');
+    el.setAttribute('webkit-playsinline', '');
+    el.volume = 0;
+    el.src = silentWavDataUrl();
+    el.play().catch(() => {  });
+    audio.silent = el;
+  } catch {  }
+}
+
+
+function silentWavDataUrl() {
+  const samples = 1024;
+  const bytes = 44 + samples * 2;
+  const b = new Uint8Array(bytes);
+  const view = new DataView(b.buffer);
+  const ascii = (off, str) => { for (let i = 0; i < str.length; i += 1) b[off + i] = str.charCodeAt(i); };
+  ascii(0, 'RIFF'); view.setUint32(4, bytes - 8, true); ascii(8, 'WAVEfmt ');
+  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+  view.setUint32(24, 22050, true); view.setUint32(28, 44100, true);
+  view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+  ascii(36, 'data'); view.setUint32(40, samples * 2, true);
+  let bin = '';
+  for (let i = 0; i < bytes; i += 1) bin += String.fromCharCode(b[i]);
+  return `data:audio/wav;base64,${btoa(bin)}`;
+}
+
+
+
+
+
+
+
+export function audioState(audio) {
+  
+  
+  
+  
+  
+  
+  
+  const ua = typeof navigator !== 'undefined' ? navigator.userActivation : null;
+  return {
+    hasContext: !!audio.ctx,
+    state: audio.ctx ? audio.ctx.state : 'none',
+    engine: !!audio.engine,
+    keepAlive: !!audio.silent && !audio.silent.paused,
+    muted: !!audio.muted,
+    activated: ua ? { sticky: ua.hasBeenActive, active: ua.isActive } : 'unsupported',
+  };
 }
 
 export function setMuted(audio, muted) {
   audio.muted = muted;
   if (audio.master) audio.master.gain.value = muted ? 0 : 0.55;
+  
+  
+  
+  
+  if (audio.silent) {
+    if (muted) audio.silent.pause();
+    else audio.silent.play().catch(() => {  });
+  }
 }
 
 

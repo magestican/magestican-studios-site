@@ -209,84 +209,218 @@
 
 
 
-    #hud { pointer-events: none; z-index: 5; }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #hud {
+      pointer-events: none; z-index: 5;
+      --hud-paper: #f6f1e6;
+      --hud-ink:   #1c1a17;
+      --hud-soft:  #6b6357;
+      --hud-shadow: 0 3px 0 rgba(28,26,23,0.55), 0 6px 18px rgba(28,26,23,0.35);
+      --hud-r: 12px;
+      font-variant-numeric: tabular-nums;
+    }
     #hud.show { display: block; }
+
+    
+
+
+
     .hud-tl { position: absolute; top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); }
     .hud-tr { position: absolute; top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); text-align: right; }
     .hud-tc { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); text-align: center; }
     .hud-bc { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); }
     .hud-bl { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: max(10px, env(safe-area-inset-left)); }
 
-    .plate { background: var(--panel); border: 1px solid var(--edge); border-radius: 10px;
-      padding: 7px 11px; backdrop-filter: blur(3px); }
+    
+    .hud-card {
+      background: var(--hud-paper); color: var(--hud-ink);
+      border: 2px solid var(--hud-ink); border-radius: var(--hud-r);
+      padding: 8px 12px; box-shadow: var(--hud-shadow);
+    }
+    
+
+
+    .hud-card.tilt { transform: rotate(-1.4deg); }
+    .hud-label {
+      display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--hud-soft); line-height: 1;
+    }
+    .hud-value { font-family: Georgia, "Iowan Old Style", serif; line-height: 1; color: var(--hud-ink); }
+    .hud-rule { height: 0; border-top: 1px dashed rgba(28,26,23,0.28); margin: 7px 0; }
+
     
 
 
 
 
-
-
-    #hud-place { display: flex; align-items: baseline; gap: 6px; }
-    #hud-position { font-family: Georgia, serif; font-size: clamp(54px, 13vw, 92px);
-      line-height: 0.86; color: var(--gold); letter-spacing: -0.02em;
-      text-shadow: 0 3px 14px rgba(0,0,0,0.7); }
-    #hud-position-suffix { font-family: Georgia, serif; font-size: clamp(18px, 4vw, 28px);
-      color: var(--gold); opacity: 0.75; }
-    #hud-position-of { font-size: clamp(12px, 2.6vw, 15px); color: #a79f90; letter-spacing: 0.04em; }
-    
-
-
-
+    #hud-place { display: flex; align-items: baseline; gap: 5px; margin-top: 3px; }
+    #hud-position {
+      font-family: Georgia, serif; font-size: clamp(46px, 11vw, 78px);
+      line-height: 0.82; letter-spacing: -0.03em; color: var(--hud-ink);
+      display: inline-block; transform-origin: 50% 70%;
+    }
+    #hud-position-suffix { font-family: Georgia, serif; font-size: clamp(16px, 3.4vw, 24px); color: var(--hud-soft); }
+    #hud-position-of { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--hud-soft); }
     #hud-position.bump { animation: placeBump 420ms cubic-bezier(.2,1.7,.4,1); }
     @keyframes placeBump {
-      0% { transform: scale(1); } 35% { transform: scale(1.28); } 100% { transform: scale(1); }
+      0% { transform: scale(1); } 35% { transform: scale(1.3); } 100% { transform: scale(1); }
     }
-    #hud-position.gained { color: var(--gold); }
-    #hud-position.lost { color: var(--barn); }
-    .lap { font-size: 13px; color: #c9c0ae; letter-spacing: 0.04em; margin-top: 2px; }
-    .lap b { color: var(--cream); font-size: 16px; }
-    #hud-clock { font-family: Georgia, serif; font-size: clamp(17px, 4.4vw, 24px); }
-    .splits { font-size: 11px; color: #a79f90; margin-top: 1px; letter-spacing: 0.02em; }
-    #minimap { display: block; border-radius: 10px; background: var(--panel); border: 1px solid var(--edge); }
-    #hud-standings { list-style: none; margin-top: 7px; font-size: 11.5px; }
-    #hud-standings li { display: flex; align-items: center; gap: 5px; justify-content: flex-end;
-      padding: 1.5px 0; color: #a79f90; }
-    #hud-standings li.me { color: var(--cream); font-weight: 700; }
-    #hud-standings .pos { width: 15px; text-align: right; color: #7f786b; }
-    #hud-standings .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
-    #hud-standings .gap { width: 40px; text-align: right; color: #7f786b; font-variant-numeric: tabular-nums; }
+    
 
-    #hud-item { position: relative; width: 76px; height: 76px; }
-    #hud-item-canvas { width: 76px; height: 76px; background: var(--panel);
-      border: 2px solid var(--edge); border-radius: 14px; }
-    #hud-item.empty #hud-item-canvas { opacity: 0.4; }
+    #hud-position.gained { color: #2d7a34; }
+    #hud-position.lost { color: var(--barn); }
+
+    .hud-row { display: flex; gap: 16px; align-items: baseline; }
+    .hud-row .hud-value { font-size: 19px; font-weight: 700; }
+
+    #hud-clock { font-family: Georgia, serif; font-size: clamp(20px, 4.6vw, 28px); line-height: 1; margin-top: 3px; }
+    .splits { display: flex; gap: 14px; justify-content: center; margin-top: 6px; }
+    .splits > span { display: block; }
+    .splits u { display: block; font-family: Georgia, serif; font-size: 13px;
+      color: var(--hud-ink); text-decoration: none; margin-top: 2px; }
+
+    #minimap-card { padding: 8px; }
+    #minimap { display: block; border-radius: 6px; background: #e6dfcd; }
+    #hud-standings { list-style: none; margin: 7px 0 0; padding: 0; font-size: 11.5px; }
+    #hud-standings li {
+      display: flex; align-items: center; gap: 6px; justify-content: flex-end;
+      padding: 2px 0; color: var(--hud-soft);
+    }
+    #hud-standings li + li { border-top: 1px dashed rgba(28,26,23,0.16); }
+    #hud-standings li.me { color: var(--hud-ink); font-weight: 800; }
+    #hud-standings .pos { width: 14px; text-align: right; font-weight: 700; }
+    #hud-standings .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; border: 1px solid rgba(28,26,23,0.4); }
+    #hud-standings .name { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #hud-standings .gap { width: 42px; text-align: right; }
+
+    
+
+    #hud-item { position: relative; width: 84px; height: 84px; }
+    #hud-item-canvas {
+      width: 84px; height: 84px; display: block;
+      background: var(--hud-paper); border: 2px solid var(--hud-ink);
+      border-radius: var(--hud-r); box-shadow: var(--hud-shadow);
+    }
+    #hud-item.empty #hud-item-canvas { opacity: 0.45; }
     #hud-item.rolling #hud-item-canvas { animation: roll 0.14s steps(2) infinite; }
     @keyframes roll { 0% { transform: scale(1); } 50% { transform: scale(0.9) rotate(-6deg); } 100% { transform: scale(1); } }
-    #hud-item-count { position: absolute; right: -3px; bottom: -3px; background: var(--barn);
-      border-radius: 999px; padding: 1px 7px; font-size: 12px; font-weight: 700; }
+    #hud-item-count {
+      position: absolute; right: -6px; bottom: -6px; background: var(--barn); color: var(--hud-paper);
+      border: 2px solid var(--hud-ink); border-radius: 999px; padding: 0 7px;
+      font-size: 12px; font-weight: 800; line-height: 18px;
+    }
     
 
 
-    #hud-boost-ring { position: absolute; inset: -7px; border: 3px solid var(--cream);
-      border-radius: 19px; opacity: 0; transition: opacity 90ms linear, transform 90ms linear;
-      pointer-events: none; }
-    .speedo { text-align: center; font-size: 11px; color: #8e8778; margin-top: 5px; letter-spacing: 0.06em; }
-    .speedo b { font-family: Georgia, serif; font-size: 17px; color: var(--cream); }
 
-    .banner { position: absolute; top: 32%; left: 50%; transform: translate(-50%, -50%) scale(0.85);
+    #hud-boost-ring {
+      position: absolute; inset: -8px; border: 4px solid var(--cream);
+      border-radius: 19px; opacity: 0; pointer-events: none;
+      transition: opacity 90ms linear, transform 90ms linear;
+    }
+    .speedo { display: flex; align-items: baseline; justify-content: center; gap: 5px; margin-top: 8px; }
+    .speedo b { font-family: Georgia, serif; font-size: 22px; color: var(--hud-paper);
+      text-shadow: 0 2px 7px rgba(28,26,23,0.95); }
+    .speedo i { font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      color: var(--hud-paper); opacity: 0.85; text-shadow: 0 2px 7px rgba(28,26,23,0.95); }
+
+    #pause-btn {
+      pointer-events: auto; font: inherit; font-size: 12px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--hud-paper); color: var(--hud-ink);
+      border: 2px solid var(--hud-ink); border-radius: var(--hud-r);
+      padding: 9px 14px; cursor: pointer; min-height: 42px; box-shadow: var(--hud-shadow);
+    }
+
+    
+
+
+    .banner {
+      position: absolute; top: 32%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.85);
       font-family: Georgia, serif; font-size: clamp(34px, 11vw, 76px); font-weight: 700;
-      color: var(--cream); text-shadow: 0 5px 22px rgba(0, 0, 0, 0.65); opacity: 0;
-      transition: opacity 120ms ease, transform 160ms cubic-bezier(.2,1.6,.4,1); letter-spacing: 0.02em; }
+      color: var(--hud-paper); opacity: 0; letter-spacing: 0.01em; white-space: nowrap;
+      -webkit-text-stroke: 4px var(--hud-ink); paint-order: stroke fill;
+      transition: opacity 120ms ease, transform 160ms cubic-bezier(.2,1.6,.4,1);
+    }
     .banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     .banner.good { color: var(--gold); }
     .banner.warn { color: var(--barn); }
-    .banner.count { color: var(--cream); font-size: clamp(52px, 18vw, 128px); }
+    .banner.count { font-size: clamp(64px, 22vw, 150px); }
 
-    #hud-wrongway { position: absolute; top: 46%; left: 50%; transform: translateX(-50%);
-      background: var(--barn); color: var(--cream); padding: 8px 18px; border-radius: 8px;
-      font-weight: 700; letter-spacing: 0.08em; font-size: 15px; opacity: 0;
-      transition: opacity 120ms linear; }
+    #hud-wrongway {
+      position: absolute; top: 46%; left: 50%; transform: translateX(-50%) rotate(-1.4deg);
+      background: var(--barn); color: var(--hud-paper);
+      border: 2px solid var(--hud-ink); border-radius: var(--hud-r);
+      padding: 9px 20px; font-weight: 800; letter-spacing: 0.1em; font-size: 15px;
+      text-transform: uppercase; box-shadow: var(--hud-shadow);
+      opacity: 0; transition: opacity 120ms linear;
+    }
     #hud-wrongway.show { opacity: 1; }
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    @media (max-width: 720px), (max-height: 430px) {
+      #hud { --hud-r: 10px; }
+      .hud-card { padding: 6px 9px; }
+      #hud-position { font-size: clamp(34px, 9vw, 52px); }
+      #hud-position-suffix { font-size: 14px; }
+      .hud-row { gap: 11px; }
+      .hud-row .hud-value { font-size: 16px; }
+      #hud-clock { font-size: clamp(16px, 4vw, 20px); }
+      .splits { display: none; }
+      #hud-standings { display: none; }
+      #minimap-card { padding: 6px; }
+      #hud-item, #hud-item-canvas { width: 68px; height: 68px; }
+      .speedo b { font-size: 18px; }
+      #pause-btn { padding: 7px 11px; min-height: 38px; }
+    }
+
+    
+
+
+
+    @media (max-height: 380px) {
+      .hud-card.tilt { transform: none; }
+      #hud-position { font-size: 34px; }
+      .hud-rule { margin: 5px 0; }
+    }
 
     #pause-btn, #mute-btn {
       pointer-events: auto; font: inherit; font-size: 12px; background: var(--panel);
@@ -463,6 +597,13 @@
       <h2>Distance</h2>
       <div id="lap-row" class="row"></div>
 
+      <h2>Assist</h2>
+      <div id="assist-row" class="row"></div>
+      <p class="join-note">Steer assist keeps you on the road when you are not
+        turning enough. It will not drive for you, it cannot out-steer you, and
+        it is slower than a good lap &mdash; so turn it off once the circuit is
+        familiar.</p>
+
       <h2>Leaderboard</h2>
       
 
@@ -555,40 +696,57 @@
   
   
   
+  
+
+
+
   <div id="hud" class="screen">
     <div class="hud-tl">
-      <div class="plate">
+      <div class="hud-card tilt">
+        <span class="hud-label">Position</span>
         <div id="hud-place">
           <span id="hud-position">8</span><span id="hud-position-suffix">th</span>
           <span id="hud-position-of">OF 8</span>
         </div>
-        <div class="lap">LAP <b id="hud-lap">1</b>/<span id="hud-lap-total">3</span></div>
-        
-
-
-        <div class="lap">SCORE <b id="hud-score">0</b></div>
+        <div class="hud-rule"></div>
+        <div class="hud-row">
+          <div>
+            <span class="hud-label">Lap</span>
+            <span class="hud-value"><b id="hud-lap">1</b>/<span id="hud-lap-total">3</span></span>
+          </div>
+          <div>
+            <span class="hud-label">Score</span>
+            <span class="hud-value" id="hud-score">0</span>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="hud-tc">
-      <div class="plate">
+      <div class="hud-card">
+        <span class="hud-label">Time</span>
         <div id="hud-clock">0:00.00</div>
-        <div class="splits">LAST <span id="hud-lastlap">--:--.--</span> &middot; BEST <span id="hud-bestlap">--:--.--</span></div>
+        <div class="splits">
+          <span><span class="hud-label">Last</span><u id="hud-lastlap">--:--.--</u></span>
+          <span><span class="hud-label">Best</span><u id="hud-bestlap">--:--.--</u></span>
+        </div>
       </div>
     </div>
 
     <div class="hud-tr">
-      <canvas id="minimap"></canvas>
-      <ol id="hud-standings"></ol>
+      <div class="hud-card" id="minimap-card">
+        <canvas id="minimap"></canvas>
+        <ol id="hud-standings"></ol>
+      </div>
     </div>
 
     <div class="hud-bc">
       <div id="hud-item" class="empty">
-        <canvas id="hud-item-canvas" width="76" height="76"></canvas>
+        <canvas id="hud-item-canvas" width="84" height="84"></canvas>
         <div id="hud-boost-ring"></div>
         <div id="hud-item-count"></div>
       </div>
-      <div class="speedo"><b id="hud-speed">0</b> KM/H</div>
+      <div class="speedo"><b id="hud-speed">0</b><i>km/h</i></div>
     </div>
 
     <div class="hud-bl">
@@ -596,7 +754,7 @@
     </div>
 
     <div id="hud-banner" class="banner"></div>
-    <div id="hud-wrongway">WRONG WAY</div>
+    <div id="hud-wrongway">Wrong way</div>
   </div>
 
   <div id="touch-hints" class="screen">
@@ -692,7 +850,7 @@
 
 
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=eabda48-20260828T063959Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=2a8a716-20260828T072840Z"></script>
 
   <script type="importmap">
   {
@@ -715,6 +873,7 @@
       "arbelo/itemRoulette":  "../../web-engine/kart/itemRoulette.js",
       "arbelo/minimap":       "../../web-engine/kart/minimap.js",
       "arbelo/raceStats":     "../../web-engine/kart/raceStats.js",
+      "arbelo/steerAssist":   "../../web-engine/kart/steerAssist.js",
       "arbelo/raceScore":     "../../web-engine/kart/raceScore.js",
       "arbelo/trackRotation": "../../web-engine/kart/trackRotation.js",
       "arbelo/kartLeaderboard": "../../web-engine/kart/kartLeaderboard.js",
@@ -742,6 +901,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=eabda48-20260828T063959Z"></script>
+  <script type="module" src="./src/main.js?v=2a8a716-20260828T072840Z"></script>
 </body>
 </html>

@@ -29,6 +29,7 @@ import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
 import { renderKartBoard } from './ui/kartBoard.js';
 
+import { defaultAssist } from 'arbelo/steerAssist';
 import { TRACKS, DEFAULT_TRACK } from './tracks/tracks.js';
 import { createRace } from './game.js';
 import { createSession, joinIdFromLocation, shareLinkFor } from './net/session.js';
@@ -36,6 +37,7 @@ import { createLobbyUi } from './ui/lobby.js';
 import { drawItemIcon } from './render/itemMesh.js';
 import { hex, PALETTE } from './palette.js';
 import { isTouchDevice } from './input/controls.js';
+import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState } from './audio/sfx.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -45,6 +47,7 @@ const state = {
   difficulty: DEFAULT_DIFFICULTY,
   laps: 3,
   field: 8,
+  assist: true,
   muted: false,
   race: null,
   progress: null,
@@ -76,8 +79,24 @@ const state = {
   boardRows: null,
 };
 
+
+
+
+
+
+
+
+
+
+
+const audio = createAudio();
+
 function boot() {
   initAnalytics();
+  installAudioUnlock(audio);
+  
+  
+  window.__fkAudio = () => audioState(audio);
   state.progress = loadProgress(safeLocalStorage());
   
   
@@ -86,6 +105,9 @@ function boot() {
   state.character = state.progress.lastCharacter ?? DEFAULT_CHARACTER;
   state.difficulty = state.progress.lastDifficulty ?? DEFAULT_DIFFICULTY;
   state.muted = localStorageGet('farmykart.muted') === '1';
+  
+  
+  state.assist = defaultAssist(state.progress);
   state.name = localStorageGet('farmykart.name') ?? '';
 
   
@@ -106,6 +128,7 @@ function boot() {
   buildTrackGrid();
   buildDifficultyRow();
   buildLapRow();
+  buildAssistRow();
   buildItemLegend();
   
   
@@ -396,6 +419,27 @@ function buildDifficultyRow() {
   }
 }
 
+function buildAssistRow() {
+  const root = $('assist-row');
+  root.innerHTML = '';
+  for (const [id, label] of [['on', 'Assist on'], ['off', 'Assist off']]) {
+    const el = document.createElement('button');
+    el.className = 'chip';
+    el.dataset.id = id;
+    el.textContent = label;
+    el.addEventListener('click', () => {
+      state.assist = id === 'on';
+      
+      
+      
+      state.progress = { ...state.progress, assist: state.assist, assistExplicit: true };
+      saveProgress(safeLocalStorage(), state.progress);
+      syncSelection();
+    });
+    root.appendChild(el);
+  }
+}
+
 function buildLapRow() {
   const root = $('lap-row');
   root.innerHTML = '';
@@ -457,6 +501,9 @@ function syncSelection() {
   for (const el of $('lap-row').children) {
     el.classList.toggle('on', el.dataset.id === String(state.laps));
   }
+  for (const el of $('assist-row').children) {
+    el.classList.toggle('on', el.dataset.id === (state.assist ? 'on' : 'off'));
+  }
 }
 
 
@@ -511,6 +558,8 @@ function startRace({ newCup = false, net = null } = {}) {
     laps: settings?.laps ?? state.laps,
     fieldSize: settings?.fieldSize ?? state.field,
     muted: state.muted,
+    audio,
+    assist: state.assist,
     session: net ? state.session : null,
     seats: net?.seats ?? null,
     resume: net?.resume ?? null,
@@ -768,6 +817,10 @@ function buildNameField() {
 function toggleMute() {
   state.muted = !state.muted;
   localStorageSet('farmykart.muted', state.muted ? '1' : '0');
+  
+  
+  
+  setAudioMuted(audio, state.muted);
   if (state.race) state.race.setMuted(state.muted);
   syncMuteButton();
 }

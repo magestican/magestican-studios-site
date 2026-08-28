@@ -60,6 +60,12 @@ export function emptyProgress() {
     totalRaces: 0,
     totalWins: 0,
     
+    
+    
+    
+    assist: true,
+    assistExplicit: false,
+    
     totalPoints: 0,
     
     

@@ -20,6 +20,7 @@ import { buildRacingLine } from 'arbelo/racingLine';
 import { createKart, stepKart, respawnKart, resolveKartContact } from 'arbelo/kartPhysics';
 import { resolveTuning, characterById, CHARACTERS } from 'arbelo/kartTuning';
 import { createDriver, driveBot, findThreats } from 'arbelo/kartAi';
+import { assistSteer } from 'arbelo/steerAssist';
 import { createProgress, addRacer, updateRacer, standings } from 'arbelo/raceProgress';
 import { createFlow, stepFlow, canDrive, judgeLaunch, launchMeter, PHASE } from 'arbelo/raceFlow';
 import { drawItem, layoutItemBoxes } from 'arbelo/itemRoulette';
@@ -64,7 +65,8 @@ export function createRace(options) {
   const {
     canvas, hudRoot, minimapCanvas,
     trackId, characterId, difficulty, laps, fieldSize = 8,
-    seed = 20260828, onFinish, onLap, muted = false,
+    seed = 20260828, onFinish, onLap, muted = false, audio: sharedAudio = null,
+    assist = false,
     
     
     
@@ -329,7 +331,18 @@ export function createRace(options) {
   const minimap = createMinimap(minimapCanvas, path);
   const minimapProj = createProjection(path.bounds, { w: minimap.size, h: minimap.size, pad: 12 });
   const controls = createControls(canvas);
-  const audio = createAudio();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const audio = sharedAudio ?? createAudio();
   setMuted(audio, muted);
 
   let running = false;
@@ -407,7 +420,14 @@ export function createRace(options) {
       } else if (r.isPlayer) {
         input = {
           throttle: controls.throttle,
-          steer: controls.steer,
+          
+          
+          
+          
+          
+          steer: assist
+            ? assistSteer({ steer: controls.steer, kart: r.kart, surface: surf, strength: 1 })
+            : controls.steer,
           drift: controls.drift,
           jump: controls.jump,
         };
