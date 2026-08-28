@@ -21,7 +21,7 @@ import { createKart, stepKart, respawnKart, resolveKartContact } from 'arbelo/ka
 import { resolveTuning, characterById, CHARACTERS } from 'arbelo/kartTuning';
 import { createDriver, driveBot, findThreats } from 'arbelo/kartAi';
 import { createProgress, addRacer, updateRacer, standings } from 'arbelo/raceProgress';
-import { createFlow, stepFlow, canDrive, countdownText, launchBoost, PHASE } from 'arbelo/raceFlow';
+import { createFlow, stepFlow, canDrive, judgeLaunch, launchMeter, PHASE } from 'arbelo/raceFlow';
 import { drawItem, layoutItemBoxes } from 'arbelo/itemRoulette';
 import {
   ITEMS, spawnDrop, spawnProjectile, stepHazard, applyEffect, hazardHits,
@@ -140,6 +140,7 @@ export function createRace(options) {
       lastHazardHit: null,
     });
   }
+  uniquifyNames(racers);
   const you = racers[player.index];
   snapChase(chase, you.kart);
 
@@ -236,6 +237,7 @@ export function createRace(options) {
           throttle: controls.throttle,
           steer: controls.steer,
           drift: controls.drift,
+          jump: controls.jump,
         };
       } else {
         const threats = findThreats(path, { id: r.id, s: r.s }, racers.map((o) => ({ id: o.id, s: o.s, finished: o.finished })));
@@ -513,7 +515,7 @@ export function createRace(options) {
     } else if (e.type === 'go') {
       SFX.go(audio);
       showBanner(hud, 'GO!', { kind: 'good', seconds: 1 });
-      const boost = launchBoost({ ...flow, phase: PHASE.COUNTDOWN, time: flow.countdown }, controls.throttleHeld);
+      const boost = judgeLaunch(controls.throttleHeld);
       if (boost?.boost) {
         you.kart = { ...you.kart, boost: { ...boost.boost } };
         showBanner(hud, 'GREAT START', { kind: 'good', seconds: 1.2 });
@@ -565,12 +567,13 @@ export function createRace(options) {
       itemRolling: you.itemRolling > 0,
       drifting: !!you.kart.drifting,
       driftTier: you.kart.driftTier ?? 0,
+      launch: launchMeter(flow, controls.throttleHeld),
       wrongWay: !!me?.wrongWayShown,
       standings: table.slice(0, 8).map((t) => {
         const r = racers.find((x) => x.id === t.id);
         return {
           position: t.position,
-          name: r?.character.name ?? t.id,
+          name: r?.displayName ?? r?.character.name ?? t.id,
           tint: r?.character.tint ?? PALETTE.ceiling,
           isPlayer: t.id === 'player',
           gap: t.id === 'player' ? '' : gapText(t.distance - (me?.distance ?? 0)),
@@ -627,7 +630,7 @@ export function createRace(options) {
           const r = racers.find((x) => x.id === t.id);
           return {
             position: t.position,
-            name: r?.character.name ?? t.id,
+            name: r?.displayName ?? r?.character.name ?? t.id,
             species: r?.character.species,
             tint: r?.character.tint,
             isPlayer: t.id === 'player',
@@ -692,4 +695,27 @@ export function createRace(options) {
 function pickBotCharacter(rng, deck) {
   if (deck.cards.length === 0) deck.cards = rng.shuffle(CHARACTERS.slice());
   return deck.cards.pop() ?? CHARACTERS[0];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+function uniquifyNames(racers) {
+  const seen = new Map();
+  for (const r of racers) {
+    const base = r.character.name;
+    const n = (seen.get(base) ?? 0) + 1;
+    seen.set(base, n);
+    r.displayName = n === 1 ? base : `${base} ${n}`;
+  }
+  return racers;
 }

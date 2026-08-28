@@ -118,13 +118,45 @@ export function countdownText(flow) {
 
 
 
-export function launchBoost(flow, throttleHeldFor) {
-  if (flow.phase !== PHASE.COUNTDOWN) return null;
-  const remaining = flow.countdown - flow.time;
-  if (remaining > 0.05) return null;   
-  if (throttleHeldFor <= 0) return null;
+export const LAUNCH_WINDOW = Object.freeze({ open: 0.35, close: 1.25 });
+
+
+
+
+
+
+
+
+
+
+export function judgeLaunch(throttleHeldFor) {
+  if (!(throttleHeldFor > 0)) return null;
   
-  if (throttleHeldFor > 1.25) return { kind: 'bog', time: 1.1 };
-  if (throttleHeldFor >= 0.35) return { kind: 'launch', boost: { time: 1.3, power: 1.26, name: 'launch' } };
+  if (throttleHeldFor > LAUNCH_WINDOW.close) return { kind: 'bog', time: 1.1 };
+  
+  if (throttleHeldFor >= LAUNCH_WINDOW.open) {
+    return { kind: 'launch', boost: { time: 1.4, power: 1.30, name: 'launch' } };
+  }
   return null;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export function launchMeter(flow, throttleHeldFor) {
+  if (flow.phase !== PHASE.COUNTDOWN) return null;
+  const held = Math.max(0, throttleHeldFor);
+  const charge = Math.min(1.35, held / LAUNCH_WINDOW.close);
+  const zone = held > LAUNCH_WINDOW.close ? 'over'
+    : held >= LAUNCH_WINDOW.open ? 'good'
+      : 'low';
+  return { charge, zone, held };
 }

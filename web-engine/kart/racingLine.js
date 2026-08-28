@@ -88,7 +88,17 @@ function smoothRing(values, window, passes) {
 
 
 
-export function buildRacingLine(path, { margin = 2.6, latAccel = 20, smoothing = 9 } = {}) {
+
+
+
+
+
+
+
+
+
+
+export function buildRacingLine(path, { margin = 2.6, latAccel = 26, smoothing = 9 } = {}) {
   const n = path.count;
   const k = curvatureOf(path);
 

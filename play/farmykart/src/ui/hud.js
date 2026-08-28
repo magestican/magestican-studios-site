@@ -17,7 +17,7 @@
 
 import { formatTime, ordinal } from 'arbelo/raceProgress';
 import { drawItemIcon } from '../render/itemMesh.js';
-import { DRIFT_TIER_COLOURS, hex } from '../palette.js';
+import { DRIFT_TIER_COLOURS, hex, PALETTE } from '../palette.js';
 
 export function createHud(root) {
   const el = {
@@ -103,7 +103,21 @@ export function updateHud(hud, view) {
   
   if (el.boostRing) {
     const tier = view.driftTier ?? 0;
-    if (view.drifting) {
+    
+    
+    
+    
+    
+    if (view.launch) {
+      const { charge, zone } = view.launch;
+      el.boostRing.style.opacity = charge > 0.02 ? '1' : '0';
+      el.boostRing.style.borderColor = zone === 'over' ? hex(PALETTE.barnRed)
+        : zone === 'good' ? hex(PALETTE.gold)
+          : hex(PALETTE.ceiling);
+      
+      
+      el.boostRing.style.transform = `scale(${1 + charge * 0.22})`;
+    } else if (view.drifting) {
       el.boostRing.style.opacity = '1';
       el.boostRing.style.borderColor = hex(DRIFT_TIER_COLOURS[Math.min(3, tier)]);
       el.boostRing.style.transform = `scale(${1 + tier * 0.06})`;

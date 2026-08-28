@@ -19,7 +19,7 @@
 
 
 
-export const TIER_TIMES = Object.freeze([0.45, 1.05, 1.85]);
+export const TIER_TIMES = Object.freeze([0.34, 0.80, 1.45]);
 
 
 

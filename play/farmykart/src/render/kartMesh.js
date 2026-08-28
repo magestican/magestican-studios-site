@@ -248,9 +248,6 @@ export function buildKart(character, variant = 0) {
     
     
     
-    
-    
-    
     const pivot = new THREE.Group();
     pivot.rotation.y = Math.PI;
     pivot.add(body);
@@ -289,7 +286,18 @@ export function poseKart(built, kart, dt) {
   const g = built.group;
   g.position.set(kart.x, kart.y, kart.z);
   
-  g.rotation.y = kart.heading + Math.PI;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  g.rotation.y = kart.heading;
 
   const slip = kart.slip ?? 0;
   const speed = Math.abs(kart.speed ?? 0);
@@ -311,7 +319,9 @@ export function poseKart(built, kart, dt) {
     const w = built.wheels[key];
     if (w) w.rotation.x -= spin;
   }
-  const steerAngle = Math.max(-0.52, Math.min(0.52, (kart.steerVisual ?? 0) * 0.52));
+  
+  
+  const steerAngle = Math.max(-0.52, Math.min(0.52, -(kart.steerVisual ?? 0) * 0.52));
   if (built.wheels.steerL) built.wheels.steerL.rotation.y = steerAngle;
   if (built.wheels.steerR) built.wheels.steerR.rotation.y = steerAngle;
 

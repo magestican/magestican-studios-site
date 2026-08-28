@@ -25,12 +25,18 @@
 
 const DEADZONE = 0.14;
 
+
+
+
+const TAP_MS = 180;
+
 export function createControls(root) {
   const state = {
     throttle: 0,
     steer: 0,
     drift: false,
     useItem: false,
+    jump: false,
     lookBack: false,
     
     throttleHeld: 0,
@@ -45,6 +51,7 @@ export function createControls(root) {
     _touchBrake: false,
     _touchDrift: false,
     _touchItem: false,
+    _touchJump: false,
     _pads: false,
     dispose: () => {},
   };
@@ -53,7 +60,7 @@ export function createControls(root) {
     const k = e.key.toLowerCase();
     const known = [
       'arrowup', 'arrowdown', 'arrowleft', 'arrowright',
-      'w', 'a', 's', 'd', ' ', 'shift', 'control', 'e', 'q', 'z', 'x',
+      'w', 'a', 's', 'd', ' ', 'shift', 'control', 'e', 'q', 'z', 'x', 'enter',
     ].includes(k);
     if (!known) return;
     
@@ -90,6 +97,7 @@ export function readControls(state, dt) {
   let throttle = 0;
   let drift = false;
   let useItem = false;
+  let jump = false;
   let lookBack = false;
 
   if (k.has('arrowleft') || k.has('a')) steer -= 1;
@@ -97,7 +105,15 @@ export function readControls(state, dt) {
   if (k.has('arrowup') || k.has('w')) throttle += 1;
   if (k.has('arrowdown') || k.has('s')) throttle -= 1;
   if (k.has('shift') || k.has('z')) drift = true;
-  if (k.has(' ') || k.has('control') || k.has('e') || k.has('x')) useItem = true;
+  
+  
+  
+  
+  
+  
+  
+  if (k.has(' ')) jump = true;
+  if (k.has('control') || k.has('e') || k.has('x') || k.has('enter')) useItem = true;
   if (k.has('q')) lookBack = true;
 
   
@@ -116,7 +132,7 @@ export function readControls(state, dt) {
     const lt = pad.buttons[6]?.value ?? 0;
     if (rt > 0.06) { throttle += rt; state.lastSource = 'pad'; }
     if (lt > 0.06) { throttle -= lt; state.lastSource = 'pad'; }
-    if (pad.buttons[0]?.pressed) { throttle += 1; state.lastSource = 'pad'; }
+    if (pad.buttons[0]?.pressed) { jump = true; state.lastSource = 'pad'; }
     if (pad.buttons[1]?.pressed || pad.buttons[5]?.pressed || pad.buttons[4]?.pressed) drift = true;
     if (pad.buttons[2]?.pressed || pad.buttons[3]?.pressed) useItem = true;
   }
@@ -127,11 +143,13 @@ export function readControls(state, dt) {
   if (state._touchBrake) throttle -= 1;
   if (state._touchDrift) drift = true;
   if (state._touchItem) useItem = true;
+  if (state._touchJump) jump = true;
 
   state.steer = Math.max(-1, Math.min(1, steer));
   state.throttle = Math.max(-1, Math.min(1, throttle));
   state.drift = drift;
   state.useItem = useItem;
+  state.jump = jump;
   state.lookBack = lookBack;
   state.throttleHeld = state.throttle > 0.1 ? state.throttleHeld + dt : 0;
   return state;
@@ -178,7 +196,7 @@ function attachTouch(root, state) {
     state.lastSource = 'touch';
     const w = window.innerWidth; const h = window.innerHeight;
     const zone = zoneOf(e.clientX, e.clientY, w, h);
-    pointers.set(e.pointerId, { zone, startX: e.clientX, startY: e.clientY });
+    pointers.set(e.pointerId, { zone, startX: e.clientX, startY: e.clientY, downAt: Date.now() });
     apply();
     e.preventDefault();
   };
@@ -196,6 +214,7 @@ function attachTouch(root, state) {
 
   function apply() {
     let steer = 0; let throttle = 0; let drift = false; let item = false; let brake = false;
+    let jump = false;
     const w = window.innerWidth;
     for (const p of pointers.values()) {
       if (p.zone === 'steer') {
@@ -212,7 +231,12 @@ function attachTouch(root, state) {
       } else if (p.zone === 'throttle') {
         throttle = 1;
       } else if (p.zone === 'drift') {
-        drift = true;
+        
+        
+        
+        
+        if (p.downAt !== undefined && Date.now() - p.downAt < TAP_MS) jump = true;
+        else drift = true;
         
         
         
@@ -225,6 +249,7 @@ function attachTouch(root, state) {
     state._touchThrottle = throttle;
     state._touchDrift = drift;
     state._touchItem = item;
+    state._touchJump = jump;
     state._touchBrake = brake;
   }
 

@@ -41,6 +41,17 @@ export const GRAVITY = 26;
 
 
 
+
+
+export const JUMP_SPEED = 7.9;
+
+
+
+export const JUMP_COOLDOWN = 0.28;
+
+
+
+
 export const CONTACT_RADIUS = 1.55;
 
 const clamp = (v, lo, hi) => (v < lo ? lo : (v > hi ? hi : v));
@@ -65,6 +76,10 @@ export function createKart({ x = 0, y = 0, z = 0, heading = 0, id = 'p1', tuning
     drifting: 0,          
     driftCharge: 0,       
     hopTime: 0,           
+    jumpCooldown: 0,      
+    jumped: false,        
+                          
+                          
     
     boost: null,          
     
@@ -91,7 +106,27 @@ export function createKart({ x = 0, y = 0, z = 0, heading = 0, id = 'p1', tuning
 
 export const forwardOf = (h) => ({ x: Math.sin(h), z: Math.cos(h) });
 
-export const rightOf = (h) => ({ x: Math.cos(h), z: -Math.sin(h) });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const rightOf = (h) => ({ x: -Math.cos(h), z: Math.sin(h) });
 
 
 
@@ -175,6 +210,8 @@ export function stepKart(state, input, surface, dt) {
   s.shielded = Math.max(0, s.shielded - dt);
   s.invuln = Math.max(0, s.invuln - dt);
   s.hopTime = Math.max(0, s.hopTime - dt);
+  s.jumpCooldown = Math.max(0, s.jumpCooldown - dt);
+  s.jumped = false;
   if (s.boost) {
     s.boost = { ...s.boost, time: s.boost.time - dt };
     if (s.boost.time <= 0) s.boost = null;
@@ -187,13 +224,24 @@ export function stepKart(state, input, surface, dt) {
   
   
   
+  if (input.jump && s.grounded && !spinning && s.jumpCooldown <= 0) {
+    s.vy = JUMP_SPEED;
+    s.grounded = false;
+    s.jumpCooldown = JUMP_COOLDOWN;
+    s.jumped = true;
+  }
+
+  
+  
+  
+  
   
   
   
   
   
   if (!spinning && (s.grounded || s.hopTime > 0)) {
-    if (input.drift && !s.drifting && s.hopTime <= 0 && s.grounded && Math.abs(s.speed) >= 9) {
+    if (input.drift && !s.drifting && s.hopTime <= 0 && s.grounded && !s.jumped && Math.abs(s.speed) >= 9) {
       
       
       
@@ -251,7 +299,11 @@ export function stepKart(state, input, surface, dt) {
     
     
     const air = s.grounded ? 1 : 0.35;
-    s.heading += steer * t.turnRate * authority * driftGain * dirSign * air * dt;
+    
+    
+    
+    
+    s.heading -= steer * t.turnRate * authority * driftGain * dirSign * air * dt;
   }
 
   
@@ -374,8 +426,12 @@ export function stepKart(state, input, surface, dt) {
   
   
   if (s.drifting && s.hopTime > 0.001 && speedNow > 1) {
+    
+    
+    
+    
     const kick = s.drifting * 0.5 * dt / 0.18;
-    const dir = Math.atan2(s.vx, s.vz) - kick;
+    const dir = Math.atan2(s.vx, s.vz) + kick;
     const mag = Math.hypot(s.vx, s.vz);
     s.vx = Math.sin(dir) * mag;
     s.vz = Math.cos(dir) * mag;

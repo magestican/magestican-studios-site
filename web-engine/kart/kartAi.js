@@ -102,8 +102,13 @@ export function driveBot(driver, kart, line, ctx) {
   
   
   
+  
+  
+  
+  
+  
   const gain = 2.6 / (1 + speed * 0.035);
-  let steer = Math.max(-1, Math.min(1, err * gain));
+  let steer = Math.max(-1, Math.min(1, -err * gain));
 
   
   
@@ -156,9 +161,23 @@ export function driveBot(driver, kart, line, ctx) {
   
   
   
-  const cornerIsSlow = target.speed < kart.tuning.topSpeed * 0.74;
-  const wantDrift = cornerIsSlow && speed > 13 && d.driftSkill > 0.15;
+  const cornerIsSlow = target.speed < kart.tuning.topSpeed * 0.80;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const roomToDrift = surface.width >= 15 - d.driftSkill * 4;
+  const wantDrift = cornerIsSlow && roomToDrift && speed > 13 && d.driftSkill > 0.15;
 
+  
+  
   
   
   
