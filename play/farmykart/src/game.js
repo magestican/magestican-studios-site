@@ -39,8 +39,9 @@ import { lapPoints } from 'arbelo/raceScore';
 import { trackById, itemStopsFor } from './tracks/tracks.js';
 import { buildTrackMesh, buildFences, SHOULDER } from './render/trackMesh.js';
 import { buildScenery } from './render/props.js';
+import { buildSpectators, updateSpectators } from './render/spectators.js';
 import { buildKart, poseKart } from './render/kartMesh.js';
-import { buildSky, buildLights, fogFor, createChaseCamera, updateChase, snapChase, focusShadow } from './render/world.js';
+import { buildSky, buildLights, buildSun, updateSun, fogFor, createChaseCamera, updateChase, snapChase, focusShadow } from './render/world.js';
 import {
   createFx, updateFx, driftSparks, boostFlame, groundDust, hitBurst, pickupBurst, createShieldBubble,
 } from './render/fx.js';
@@ -115,11 +116,22 @@ export function createRace(options) {
   scene.add(buildSky(track.sky ?? 'day'));
   const lights = buildLights(track.theme);
   scene.add(lights);
+  
+  
+  const sunDisc = buildSun(lights);
+  scene.add(sunDisc);
   scene.add(buildTrackMesh(path, track));
   scene.add(buildFences(path, track.scenery?.fencePosts ?? 160));
   scene.add(buildScenery(path, track));
+  
+  
+  const spectators = buildSpectators(path, track.scenery?.spectators ?? 64, { shoulder: SHOULDER });
+  scene.add(spectators);
 
   const fx = createFx(scene);
+  
+  
+  const sunOffset = sunDisc.position.clone();
   
   
   
@@ -903,6 +915,14 @@ export function createRace(options) {
     
     updateChase(chase, you.kart, dt, controls.lookBack ? { back: -6.5, look: -6 } : undefined);
     focusShadow(lights, you.kart.x, you.kart.z);
+    
+    
+    sunDisc.position.copy(camera.position).add(sunOffset);
+    updateSun(sunDisc, camera, dt);
+    
+    
+    
+    updateSpectators(spectators, clock, you.kart.x, you.kart.z);
     updateFx(fx, dt, camera);
     
     

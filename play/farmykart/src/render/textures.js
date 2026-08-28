@@ -483,6 +483,18 @@ const SKY_THEMES = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 const SUN_U = 0.585;
 const SUN_V = 0.2;
 
@@ -517,14 +529,15 @@ export function makeSkyTexture(kind = 'day') {
   
   
   
-  
   if (t.sun > 0) {
     const sx = SUN_U * W;
     const sy = SUN_V * H;
     for (const [radius, alpha, colour] of [
       [H * 0.62, 0.16 * t.sun, PALETTE.sunGlow],
-      [H * 0.22, 0.34 * t.sun, PALETTE.sunGlow],
-      [H * 0.055, 0.95 * t.sun, PALETTE.sun],
+      [H * 0.22, 0.30 * t.sun, PALETTE.sunGlow],
+      
+      
+      
     ]) {
       for (const dx of [0, W, -W]) {
         const grd = g.createRadialGradient(sx + dx, sy, 0, sx + dx, sy, radius);
@@ -693,4 +706,98 @@ export function makeBarnTexture() {
   g.stroke();
   g.globalAlpha = 1;
   return toTexture(c, 1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function makeSunFaceTexture() {
+  const S = 256;
+  const c = canvas(S);
+  const g = c.getContext('2d');
+  const mid = S / 2;
+
+  
+  
+  const rays = 12;
+  g.save();
+  g.translate(mid, mid);
+  for (let i = 0; i < rays; i += 1) {
+    g.rotate((Math.PI * 2) / rays);
+    g.beginPath();
+    g.moveTo(-S * 0.055, -S * 0.30);
+    g.lineTo(0, -S * 0.455);
+    g.lineTo(S * 0.055, -S * 0.30);
+    g.closePath();
+    g.fillStyle = i % 2 === 0 ? css(PALETTE.gold) : '#f0b93f';
+    g.fill();
+  }
+  g.restore();
+
+  
+  
+  const grad = g.createRadialGradient(mid - S * 0.05, mid - S * 0.06, S * 0.02, mid, mid, S * 0.31);
+  grad.addColorStop(0, '#fff6d8');
+  grad.addColorStop(0.55, css(PALETTE.gold));
+  grad.addColorStop(1, '#e8a531');
+  g.fillStyle = grad;
+  g.beginPath();
+  g.arc(mid, mid, S * 0.31, 0, Math.PI * 2);
+  g.fill();
+
+  
+  
+  const ink = '#7a4a1c';
+  g.strokeStyle = ink;
+  g.fillStyle = ink;
+  g.lineCap = 'round';
+  g.lineJoin = 'round';
+
+  
+  
+  g.lineWidth = S * 0.028;
+  for (const ex of [-1, 1]) {
+    g.beginPath();
+    g.arc(mid + ex * S * 0.105, mid - S * 0.045, S * 0.052, Math.PI * 1.15, Math.PI * 1.85);
+    g.stroke();
+  }
+
+  
+  
+  g.globalAlpha = 0.30;
+  g.fillStyle = '#e06a4a';
+  for (const ex of [-1, 1]) {
+    g.beginPath();
+    g.ellipse(mid + ex * S * 0.155, mid + S * 0.045, S * 0.045, S * 0.030, 0, 0, Math.PI * 2);
+    g.fill();
+  }
+  g.globalAlpha = 1;
+
+  
+  g.strokeStyle = ink;
+  g.lineWidth = S * 0.030;
+  g.beginPath();
+  g.arc(mid, mid + S * 0.025, S * 0.115, Math.PI * 0.18, Math.PI * 0.82);
+  g.stroke();
+
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
 }

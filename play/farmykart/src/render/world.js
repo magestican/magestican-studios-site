@@ -8,7 +8,7 @@
 
 import * as THREE from 'three';
 import { PALETTE } from '../palette.js';
-import { makeSkyTexture } from './textures.js';
+import { makeSkyTexture, makeSunFaceTexture } from './textures.js';
 
 
 export function buildSky(kind) {
@@ -40,10 +40,34 @@ export function buildLights(theme) {
   const group = new THREE.Group();
   group.name = 'lights';
 
-  const sunColour = theme === 'overcast' || theme === 'mud' ? 0xd8dbe0
-    : theme === 'snow' ? 0xf0f6ff : PALETTE.sun;
-  const sun = new THREE.DirectionalLight(sunColour, theme === 'mud' ? 1.05 : 1.35);
-  sun.position.set(-120, 190, 90);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const sunColour = theme === 'overcast' || theme === 'mud' ? 0xf0ead8
+    : theme === 'snow' ? 0xfaf6ff : PALETTE.sun;
+  const sun = new THREE.DirectionalLight(sunColour, theme === 'mud' ? 1.35 : 1.62);
+  
+  
+  
+  
+  
+  sun.position.set(-150, 110, 105);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024);
   
@@ -58,13 +82,17 @@ export function buildLights(theme) {
   group.add(sun.target);
 
   const skyFill = new THREE.HemisphereLight(
-    theme === 'snow' ? 0xdbeaff : PALETTE.skyHaze,
-    theme === 'snow' ? 0xb9cde0 : PALETTE.grassDark,
-    theme === 'overcast' || theme === 'mud' ? 0.85 : 0.62,
+    theme === 'snow' ? 0xe6f1ff : 0xcfe6ff,
+    
+    
+    
+    
+    theme === 'snow' ? 0xc8dcef : 0x9c9a5e,
+    theme === 'overcast' || theme === 'mud' ? 1.05 : 1.00,
   );
   group.add(skyFill);
 
-  const bounce = new THREE.DirectionalLight(theme === 'snow' ? 0xc9dcef : 0xc8a878, 0.28);
+  const bounce = new THREE.DirectionalLight(theme === 'snow' ? 0xd8e8f6 : 0xe0bf8a, 0.42);
   bounce.position.set(80, -40, -60);
   group.add(bounce);
 
@@ -73,19 +101,94 @@ export function buildLights(theme) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function buildSun(lights) {
+  const key = lights.userData.sun;
+  const dir = key.position.clone().normalize();
+  
+  
+  
+  
+  
+  
+  
+  
+  const mat = new THREE.SpriteMaterial({
+    map: makeSunFaceTexture(),
+    transparent: true,
+    depthWrite: false,
+    
+    
+    fog: false,
+    sizeAttenuation: false,
+  });
+  const sprite = new THREE.Sprite(mat);
+  sprite.name = 'sun';
+  
+  
+  
+  sprite.scale.set(0.30, 0.30, 1);
+  sprite.position.copy(dir.multiplyScalar(760));
+  sprite.renderOrder = -1;
+  return sprite;
+}
+
+
+
+
+
+
+
+
+
+
+export function updateSun(sun, camera, dt) {
+  if (!sun) return;
+  sun.material.rotation += dt * 0.16;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function focusShadow(lights, x, z) {
   const sun = lights.userData.sun;
   if (!sun) return;
-  sun.position.set(x - 120, 190, z + 90);
+  sun.position.set(x - 150, 110, z + 105);
   sun.target.position.set(x, 0, z);
   sun.target.updateMatrixWorld();
 }
 
-
 export function fogFor(theme) {
-  if (theme === 'snow') return new THREE.Fog(0xdfe9f3, 180, 620);
-  if (theme === 'mud' || theme === 'overcast') return new THREE.Fog(0xa9b0b8, 140, 520);
-  return new THREE.Fog(PALETTE.skyHaze, 200, 700);
+  
+  
+  
+  
+  
+  if (theme === 'snow') return new THREE.Fog(0xe9f2fb, 300, 900);
+  if (theme === 'mud' || theme === 'overcast') return new THREE.Fog(0xc9cdd2, 260, 820);
+  return new THREE.Fog(0xd3e8fb, 340, 980);
 }
 
 

@@ -94,6 +94,28 @@ const box = (w, h, d, colour) => new THREE.Mesh(
 
 
 
+
+
+function taper(w1, w2, h1, h2, d, colour, { skew = 0 } = {}) {
+  const geo = new THREE.BoxGeometry(1, 1, d);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i += 1) {
+    const z = pos.getZ(i);
+    const t = z / d + 0.5;                 
+    pos.setX(i, pos.getX(i) * (w1 + (w2 - w1) * t));
+    pos.setY(i, pos.getY(i) * (h1 + (h2 - h1) * t) + skew * t);
+  }
+  geo.computeVertexNormals();
+  return new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: colour, flatShading: true }));
+}
+
+
+
+
+
+
+
+
 export function buildKart(character, variant = 0) {
   const group = new THREE.Group();
   group.name = `kart-${character.id}`;
@@ -110,13 +132,29 @@ export function buildKart(character, variant = 0) {
   
   
   
-  const floor = box(1.5, 0.16, 2.5, tint);
+  
+  
+
+  
+  
+  
+  const floor = taper(1.44, 1.02, 0.20, 0.15, 2.5, tint);
   floor.position.y = 0.30;
   group.add(floor);
 
-  const nose = box(1.05, 0.30, 0.9, tint);
-  nose.position.set(0, 0.44, 1.25);
+  
+  
+  const nose = taper(1.02, 0.46, 0.30, 0.20, 1.0, tint, { skew: 0.05 });
+  nose.position.set(0, 0.44, 1.28);
   group.add(nose);
+  
+  
+  const roundel = new THREE.Mesh(
+    new THREE.CircleGeometry(0.17, 12),
+    new THREE.MeshLambertMaterial({ color: PALETTE.ceiling }),
+  );
+  roundel.position.set(0, 0.47, 1.79);
+  group.add(roundel);
 
   
   
@@ -126,20 +164,45 @@ export function buildKart(character, variant = 0) {
   
   
   
-  const sidepodL = box(0.30, 0.34, 1.5, tint);
-  sidepodL.position.set(0.72, 0.44, -0.05);
-  group.add(sidepodL);
-  const sidepodR = sidepodL.clone();
-  sidepodR.position.x = -0.72;
-  group.add(sidepodR);
+  
+  
+  
+  for (const side of [1, -1]) {
+    const pod = taper(0.34, 0.24, 0.36, 0.28, 1.6, tint);
+    pod.position.set(side * 0.70, 0.44, -0.02);
+    pod.rotation.y = side * -0.05;
+    group.add(pod);
+    
+    
+    
+    const rail = box(0.06, 0.07, 1.5, PALETTE.night);
+    rail.position.set(side * 0.87, 0.42, -0.02);
+    group.add(rail);
+  }
+
+  
+  const seatBack = taper(0.62, 0.54, 0.52, 0.46, 0.16, PALETTE.engine);
+  seatBack.position.set(0, 0.66, -0.62);
+  seatBack.rotation.x = -0.16;
+  group.add(seatBack);
+  for (const side of [1, -1]) {
+    const bolster = box(0.10, 0.34, 0.56, PALETTE.engine);
+    bolster.position.set(side * 0.30, 0.58, -0.34);
+    group.add(bolster);
+  }
 
   
   
   
   
-  const engine = box(0.9, 0.5, 0.66, PALETTE.engine);
+  const engine = taper(0.86, 0.76, 0.50, 0.44, 0.66, PALETTE.engine);
   engine.position.set(0, 0.56, -1.15);
   group.add(engine);
+  
+  
+  const camCover = box(0.52, 0.10, 0.5, tint);
+  camCover.position.set(0, 0.83, -1.15);
+  group.add(camCover);
   for (const x of [-0.26, 0.26]) {
     const pipe = new THREE.Mesh(
       new THREE.CylinderGeometry(0.075, 0.09, 0.62, 6),
@@ -148,6 +211,17 @@ export function buildKart(character, variant = 0) {
     pipe.position.set(x, 0.92, -1.28);
     pipe.rotation.x = -0.32;
     group.add(pipe);
+  }
+
+  
+  
+  const bumper = box(1.18, 0.12, 0.14, PALETTE.night);
+  bumper.position.set(0, 0.30, -1.46);
+  group.add(bumper);
+  for (const side of [1, -1]) {
+    const stay = box(0.08, 0.10, 0.34, PALETTE.night);
+    stay.position.set(side * 0.5, 0.30, -1.32);
+    group.add(stay);
   }
 
   
@@ -172,15 +246,42 @@ export function buildKart(character, variant = 0) {
   
   const wheels = { fl: null, fr: null, rl: null, rr: null };
   const mkWheel = (r, w) => {
-    const g = new THREE.CylinderGeometry(r, r, w, 10);
+    
+    
+    
+    
+    
+    
+    const g = new THREE.CylinderGeometry(r, r, w, 12);
+    const pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i += 1) {
+      const y = pos.getY(i);
+      if (Math.abs(Math.abs(y) - w / 2) < 1e-6) {
+        pos.setX(i, pos.getX(i) * 0.86);
+        pos.setZ(i, pos.getZ(i) * 0.86);
+      }
+    }
+    g.computeVertexNormals();
     g.rotateZ(Math.PI / 2);
     const mesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: PALETTE.tyre, flatShading: true }));
+
+    
     const hub = new THREE.Mesh(
-      new THREE.CylinderGeometry(r * 0.45, r * 0.45, w + 0.03, 6),
+      new THREE.CylinderGeometry(r * 0.52, r * 0.52, w * 0.96, 8),
       new THREE.MeshLambertMaterial({ color: PALETTE.chrome, flatShading: true }),
     );
     hub.rotation.z = Math.PI / 2;
     mesh.add(hub);
+
+    
+    
+    
+    const spokeMat = new THREE.MeshLambertMaterial({ color: PALETTE.night, flatShading: true });
+    for (let i = 0; i < 4; i += 1) {
+      const spoke = new THREE.Mesh(new THREE.BoxGeometry(w * 1.02, r * 0.78, r * 0.16), spokeMat);
+      spoke.rotation.x = (i * Math.PI) / 4;
+      mesh.add(spoke);
+    }
     return mesh;
   };
   
