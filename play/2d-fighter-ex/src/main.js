@@ -9,6 +9,7 @@ import { CAST, CAST_IDS, DEFAULT_A, DEFAULT_B, atlasFile, castId } from './cast.
 import { cursorAt, stateAt, totalMs, sceneAt } from './fightPlayback.js';
 import { FPS } from './fightScript.js';
 import { renderFrame } from './render.js';
+import { installAudio } from './audio.js';
 
 initAnalytics({ page: '2d-fighter-ex' });
 
@@ -63,6 +64,18 @@ let moodNow = mood;
 
 
 const fxOn = { shadow: true, weather: true, impact: true, words: true };
+
+
+
+
+
+
+
+
+
+
+
+const sound = installAudio({ search: globalThis.location.search });
 
 
 function syncUrl() {
@@ -142,6 +155,10 @@ function tick(now) {
 
   const pose = stateAt(elapsed);
   pose.sprites = sprites;
+  
+  
+  
+  sound.tick(pose);
 
   
   
