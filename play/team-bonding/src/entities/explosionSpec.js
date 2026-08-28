@@ -120,6 +120,36 @@ export const EX_KINDS = {
     shake: 0.30,
     truthfulRing: true,
   },
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  rocket: {
+    radius: 3.0,
+    puffs: 6, chunks: 16, sparks: 10,
+    ringTo: 1.0,        
+    shake: 0.55,
+    truthfulRing: true,
+  },
 };
 
 
@@ -318,6 +348,123 @@ export function planExplosion({ kind = 'slingshot', radius, colors = {}, rng = M
 export function shakeFor(kind) {
   return (EX_KINDS[kind] || EX_KINDS.hazard).shake;
 }
+
+
+
+
+
+
+
+
+export const SHAKE_REACH = 7.0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function shakeAtDistance(kind, distance, reach = SHAKE_REACH) {
+  const k = EX_KINDS[kind] || EX_KINDS.hazard;
+  if (!Number.isFinite(distance) || distance < 0) return k.shake;
+  const max = k.radius * reach;
+  if (max <= 0 || distance >= max) return 0;
+  return k.shake * (1 - distance / max);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const KICK_METRES = 0.35;
+
+
+
+
+
+export const KICK_ROLL = 0.18;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function nearFade(distance, radius) {
+  if (!Number.isFinite(distance) || !Number.isFinite(radius) || radius <= 0) return 1;
+  if (distance >= radius) return 1;
+  return Math.max(0, distance / radius);
+}
+
+
+
+
+
+
+
+
+
+
+export const FADE_LAYERS = Object.freeze(['flash', 'fireball', 'smoke']);
 
 
 

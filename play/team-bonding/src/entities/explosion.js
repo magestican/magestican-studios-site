@@ -37,7 +37,10 @@
 
 
 import * as THREE from 'three';
-import { planExplosion, shakeFor, EX_PALETTE } from './explosionSpec.js';
+import {
+  planExplosion, shakeAtDistance, nearFade,
+  KICK_METRES, KICK_ROLL, FADE_LAYERS, EX_PALETTE,
+} from './explosionSpec.js';
 
 export { EX_PALETTE };
 
@@ -96,6 +99,14 @@ export class ExplosionField {
     this.parts = [];
     
     this.shake = 0;
+    
+    
+    
+    
+    
+    
+    
+    this.listener = null;
   }
 
   
@@ -106,10 +117,20 @@ export class ExplosionField {
   
   
   
-  spawn(pos, { kind = 'slingshot', radius, groundY = 1, colors, rng } = {}) {
+  
+  
+  
+  
+  spawn(pos, { kind = 'slingshot', radius, groundY = 1, colors, rng, listener } = {}) {
     const plan = planExplosion({ kind, radius, colors, rng });
     for (const p of plan) this._add(p, pos, groundY);
-    this.shake = Math.max(this.shake, shakeFor(kind));
+    
+    
+    
+    
+    const ear = listener || this.listener;
+    const dist = ear ? ear.distanceTo(pos) : NaN;
+    this.shake = Math.max(this.shake, shakeAtDistance(kind, dist));
     return plan.length;
   }
 
@@ -192,19 +213,39 @@ export class ExplosionField {
 
       
       const ft = p.hold ? Math.max(0, (t - p.hold) / (1 - p.hold)) : t;
-      q.m.material.opacity = q.baseOpacity * (p.fade === 'linear' ? 1 - ft : Math.pow(1 - ft, 1.5));
+      let opacity = q.baseOpacity * (p.fade === 'linear' ? 1 - ft : Math.pow(1 - ft, 1.5));
+
+      
+      
+      
+      
+      
+      
+      if (this.listener && FADE_LAYERS.includes(p.layer)) {
+        
+        
+        opacity *= nearFade(this.listener.distanceTo(q.m.position), q.m.scale.x);
+      }
+
+      q.m.material.opacity = opacity;
       return true;
     });
   }
 
   
+  
+  
+  
+  
+  
+  
   shakeOffset() {
     if (this.shake <= 0) return null;
-    const s = this.shake * this.shake * 0.09;
+    const s = this.shake * this.shake * KICK_METRES;
     return {
       x: (Math.random() - 0.5) * s,
       y: (Math.random() - 0.5) * s,
-      roll: (Math.random() - 0.5) * s * 0.5,
+      roll: (Math.random() - 0.5) * s * KICK_ROLL,
     };
   }
 

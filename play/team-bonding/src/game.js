@@ -103,9 +103,24 @@ import {
 import { fovFor, detectTouch } from '../../../web-engine/render/cameraFov.js';
 import { kindForHit, shouldSpatter } from '../../../web-engine/combat/impactDebris.js';
 import { resolveSplash, hasSplash } from '../../../web-engine/combat/splash.js';
+import { ExplosionField } from './entities/explosion.js';
+import { SHAKE_REACH } from './entities/explosionSpec.js';
 import { MATCH_CAP, MAX_BOTS, desiredBots, pickBotToDisplace, hasRoom }
                               from '../../../web-engine/scenarios/matchRoster.js';
 
+
+
+
+
+
+
+
+
+
+
+
+
+const BLAST_KIND = Object.freeze({ chicken: 'slingshot', rocket: 'rocket' });
 
 const TEAM_HEX = { red: 0xd0503e, blue: 0x4f8adb };
 const FLAG_HOME_RADIUS = 3.5;   
@@ -894,7 +909,31 @@ export class Game {
     
     this.scene.add(this.camera);
     this.viewmodel = new FirstPersonWeapon(this.camera);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this.explosions = new ExplosionField(this.scene);
     this.hazards = new HazardSystem(this.scene, this.grid);
+    
+    
+    
+    
+    
+    
+    this.explosions.listener = this.camera.position;
+    this.hazards.explosions.listener = this.camera.position;
     
     this.chickenPickup = this._buildChickenPickup();
     
@@ -3284,7 +3323,37 @@ export class Game {
       
       
       
-      if (render && !this._contextLost) this.renderer.render(this.scene, this.camera);
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (render && !this._contextLost) {
+        const kick = this._cameraKick();
+        if (kick) {
+          this.camera.position.x += kick.x;
+          this.camera.position.y += kick.y;
+          this.camera.rotation.z += kick.roll;
+        }
+        this.renderer.render(this.scene, this.camera);
+        if (kick) {
+          this.camera.position.x -= kick.x;
+          this.camera.position.y -= kick.y;
+          this.camera.rotation.z -= kick.roll;
+        }
+      }
     } catch (err) {
       
       const key = String(err?.message || err);
@@ -3293,6 +3362,21 @@ export class Game {
         console.error('[frame error]', err);
       }
     }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  _cameraKick() {
+    const a = this.explosions?.shakeOffset?.() || null;
+    const b = this.hazards?.explosions?.shakeOffset?.() || null;
+    if (!a) return b;
+    if (!b) return a;
+    return Math.abs(a.x) + Math.abs(a.y) >= Math.abs(b.x) + Math.abs(b.y) ? a : b;
   }
 
   
@@ -3501,6 +3585,12 @@ export class Game {
     
     
     this._tickBotBanter(dt);
+
+    
+    
+    
+    
+    this.explosions?.update(dt);
 
     
     const nowMs = performance.now();
@@ -3751,106 +3841,48 @@ export class Game {
   
   
   
+  
+  
+  
+  
+  
+  
+  
   _spawnChickenExplosion(pos) {
     try { SFX.explosion(1.0); } catch (_) { try { SFX.boom(1.0); } catch (_) {} }
-
-    const grp = new THREE.Group();
-    grp.position.copy(pos);
-    this.scene.add(grp);
-
-    const core = new THREE.Mesh(
-      new THREE.SphereGeometry(1.0, 16, 12),
-      new THREE.MeshBasicMaterial({ color: 0xfffbe6, transparent: true, opacity: 1 }));
-    const ball = new THREE.Mesh(
-      new THREE.SphereGeometry(1.0, 16, 12),
-      new THREE.MeshBasicMaterial({ color: 0xffa32a, transparent: true, opacity: 0.95 }));
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(0.75, 1.0, 40),
-      new THREE.MeshBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0.9,
-                                    side: THREE.DoubleSide, depthWrite: false }));
-    ring.rotation.x = -Math.PI / 2;
-    grp.add(ball, core, ring);
-
     
-    const debris = [];
-    const dGeo = new THREE.BoxGeometry(0.26, 0.26, 0.26);
-    for (let i = 0; i < 16; i++) {
-      const m = new THREE.Mesh(dGeo, new THREE.MeshLambertMaterial({
-        color: i % 3 === 0 ? 0xf6f1e6 : (i % 3 === 1 ? 0xd8a23a : 0x8a5a2b),
-        flatShading: true,
-      }));
-      const a = Math.random() * Math.PI * 2;
-      const up = 5.5 + Math.random() * 6.5;
-      const out = 5 + Math.random() * 9;
-      m.userData.v = new THREE.Vector3(Math.cos(a) * out, up, Math.sin(a) * out);
-      m.userData.spin = new THREE.Vector3(Math.random() * 9, Math.random() * 9, Math.random() * 9);
-      grp.add(m); debris.push(m);
-    }
-
     
-    const d = this.camera.position.distanceTo(pos);
-    if (d < 22) this._shakeCamera(Math.max(0.12, 0.85 * (1 - d / 22)), 0.5);
-
-    const LIFE = 1.25;
-    const start = performance.now();
-    const tick = () => {
-      const age = (performance.now() - start) / 1000;
-      if (age >= LIFE) {
-        this.scene.remove(grp);
-        grp.traverse((o) => { o.geometry?.dispose?.(); o.material?.dispose?.(); });
-        return;
-      }
-      const f = age / LIFE;
-      
-      const cf = Math.min(1, age / 0.16);
-      core.scale.setScalar(0.6 + cf * 4.2);
-      core.material.opacity = Math.max(0, 1 - age / 0.22);
-      
-      const bf = 1 - Math.pow(1 - f, 2.2);
-      ball.scale.setScalar(0.9 + bf * 9.5);
-      ball.material.opacity = 0.95 * Math.pow(1 - f, 1.5);
-      ball.material.color.setRGB(1, 0.64 - 0.42 * f, 0.16 - 0.14 * f);
-      
-      const rf = 1 - Math.pow(1 - f, 3);
-      ring.scale.setScalar(1 + rf * 20);
-      ring.material.opacity = 0.9 * Math.pow(1 - f, 2);
-      
-      const dt2 = 1 / 60;
-      for (const m of debris) {
-        m.userData.v.y -= 22 * dt2;
-        m.position.addScaledVector(m.userData.v, dt2);
-        m.rotation.x += m.userData.spin.x * dt2;
-        m.rotation.y += m.userData.spin.y * dt2;
-        m.material.opacity = 1;
-        m.visible = age < LIFE * 0.92;
-      }
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
+    
+    
+    
+    
+    
+    
+    
+    
+    this.explosions?.spawn(pos, {
+      kind: 'slingshot',
+      groundY: Math.floor(pos.y) + 1,
+      listener: this.camera.position,
+    });
   }
 
   
   
-  _shakeCamera(power = 0.4, secs = 0.4) {
-    if (this._shakeUntil && performance.now() < this._shakeUntil) {
-      this._shakePower = Math.max(this._shakePower, power);
-      return;
-    }
-    this._shakePower = power;
-    this._shakeUntil = performance.now() + secs * 1000;
-    const start = performance.now();
-    const tick = () => {
-      const now = performance.now();
-      if (now >= this._shakeUntil) { this._shakePower = 0; return; }
-      const left = 1 - (now - start) / (this._shakeUntil - start);
-      const p = this._shakePower * left * left;
-      this.camera.position.x += (Math.random() - 0.5) * p;
-      this.camera.position.y += (Math.random() - 0.5) * p;
-      this.camera.position.z += (Math.random() - 0.5) * p;
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   
   
@@ -4494,7 +4526,55 @@ export class Game {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _spawnBlast(centre, radius, weaponId) {
+    if (!this.explosions || !centre) return;
+    const kind = BLAST_KIND[weaponId] || BLAST_KIND.rocket;
+    const pos = new THREE.Vector3(centre.x, centre.y, centre.z);
+    this.explosions.spawn(pos, {
+      kind,
+      radius: Number.isFinite(radius) && radius > 0 ? radius : undefined,
+      groundY: centre.y - 0.05,
+      listener: this.camera.position,
+    });
+    
+    
+    
+    
+    const d = this.camera.position.distanceTo(pos);
+    const reach = (kind === 'slingshot' ? 6.0 : radius || 3.0) * SHAKE_REACH;
+    if (d < reach) {
+      const loud = Math.max(0.12, 1 - d / reach);
+      try { SFX.boom(loud); } catch (_) {}
+    }
+  }
+
+  
+  
+  
+  
+  
+  
   _applySplash(centre, radius, damage, shooterId, weaponId) {
+    
+    
+    
+    
+    
+    
+    
+    this._spawnBlast(centre, radius, weaponId);
+
     const bodies = [{ id: this.myId, x: this.player.pos.x, y: this.player.pos.y, z: this.player.pos.z }];
     if (this.isHost) {
       for (const [bid, bot] of this.bots) {
