@@ -440,8 +440,20 @@ export class Player {
     if (jres.jumped) {
       this.jumpCount++;
       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       if (jres.jumped === 'air') {
-        try { SFX.animalVoice(this.character, 1.0); } catch (_) {}
+        try { this.onJumpVoice?.(); } catch (_) {}
       }
     }
 

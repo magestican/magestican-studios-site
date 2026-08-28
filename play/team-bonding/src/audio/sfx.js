@@ -32,6 +32,7 @@
 import { speakInto, PHRASES } from './announcerVoice.js';
 
 import { WEAPON_LEVEL } from '../../../../web-engine/audio/weaponSfxSpec.js';
+import { voiceGain } from '../../../../web-engine/audio/animalVoice.js';
 
 let _ctx = null;
 let _master = null;
@@ -984,12 +985,18 @@ export function cluck(loudness = 1.0) {
 
 
 export function animalVoice(character, loudness = 1.0) {
+  
+  
+  
+  
+  
+  const g = voiceGain(character, loudness);
   switch (character) {
-    case 'cow':     return moo(loudness);
-    case 'pig':     return oink(loudness);
-    case 'sheep':   return bheee(loudness);
-    case 'chicken': return cluck(loudness);
-    default:        return moo(loudness);
+    case 'cow':     return moo(g);
+    case 'pig':     return oink(g);
+    case 'sheep':   return bheee(g);
+    case 'chicken': return cluck(g);
+    default:        return moo(g);
   }
 }
 

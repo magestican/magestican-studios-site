@@ -33,7 +33,7 @@ import { pickWord, scramble } from './util/anagram.js';
 import { TouchControls }     from './touchControls.js';
 import { Chiptune }           from './audio/chiptune.js';
 import * as SFX               from './audio/sfx.js';
-import { callFor, shouldCall, loudnessFor, emptyVoiceState }
+import { callFor, shouldCall, loudnessFor, emptyVoiceState, peerDeathLoudness }
   from '../../../web-engine/audio/animalVoice.js';
 import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
 import { buildSkybox }        from './entities/skybox.js';
@@ -899,6 +899,11 @@ export class Game {
     
     this.player = new Player(this.camera, this.physics, spawn, this.team, this.character,
                              { friction: frictionFor(this.mapId), grid: this.grid });
+    
+    
+    
+    
+    this.player.onJumpVoice = () => this._animalCall('jump');
     this.weapons = new WeaponSystem(this.scene);
     this.tracers = new TracerSystem(this.scene);
     
@@ -1647,17 +1652,28 @@ export class Game {
   
   
   
-  _animalCall(moment) {
+  
+  
+  
+  _animalCall(moment, who = null, at = null) {
     this._voice = this._voice || emptyVoiceState();
     if (!shouldCall(this._voice, moment, performance.now())) return;
     const meta = this.playerMeta?.get(this.myId);
-    const character = meta?.character || this.character;
+    const character = who || meta?.character || this.character;
     
     
     
     
     
-    if (callFor(character)) SFX.animalVoice(character, loudnessFor(moment));
+    if (!callFor(character)) return;
+    
+    
+    let loud = loudnessFor(moment);
+    if (at && this.camera) {
+      loud = peerDeathLoudness(this.camera.position.distanceTo(at), loud);
+    }
+    if (loud <= 0.02) return;      
+    SFX.animalVoice(character, loud);
   }
 
   _announceKill(killer, victim, weapon) {
@@ -3105,13 +3121,19 @@ export class Game {
         this._steakPoisonBy.delete(msg.victim);
         if (msg.victim === this.myId) this._hidePoisonHint();
         
+        
+        
+        
+        
+        
+        
         try {
           const meta = this.playerMeta.get(msg.victim);
           const bot = this.bots.get(msg.victim);
           const character = meta?.character
             || bot?.character
             || (msg.victim === this.myId ? this.character : 'cow');
-          SFX.animalVoice(character, 1.0);
+          this._animalCall('peerDeath', character, this._posOf(msg.victim));
         } catch (_) {}
         
         
