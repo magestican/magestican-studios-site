@@ -172,6 +172,36 @@ class Fight {
 
 
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  arriveAt(ax, bx, opts = {}) {
+    const last = this.ticks[this.ticks.length - 1];
+    if (!last || !last.a || !last.b) return this;
+    const d = Math.max(Math.abs(last.a.x - ax), Math.abs(last.b.x - bx));
+    
+    if (d <= 4) return this;
+    
+    
+    const count = Math.min(14, Math.max(4, Math.round(d / 5)));
+    return this.walkTo(count, ax, bx, opts);
+  }
+
   walkTo(count, ax, bx, { pose = 'guard', ay = 0, by = 0 } = {}) {
     const last = this.ticks[this.ticks.length - 1];
     const fromA = last ? last.a.x : ax;
@@ -547,6 +577,9 @@ function sceneFlurry(f, { seedTag, count, closeIn = 0 }) {
   const rx = RIGHT_HOME - closeIn;
   
   
+  f.arriveAt(lx, rx);
+  
+  
   
   
   
@@ -619,6 +652,8 @@ function sceneJump(f, { attacker = 'b', pose = 'air-kick', connects = true } = {
   const jx = leftJumps ? LEFT_HOME : RIGHT_HOME;
   const ox = leftJumps ? RIGHT_HOME : LEFT_HOME;
   const face = leftJumps ? 1 : -1;
+  
+  f.arriveAt(leftJumps ? jx : ox, leftJumps ? ox : jx);
   const put = (jumper, other) => f.ticks.push(leftJumps
     ? { a: jumper, b: other, rate: 1 }
     : { a: other, b: jumper, rate: 1 });
@@ -754,6 +789,9 @@ function sceneSlowMo(f) {
 
 function sceneFlight(f) {
   f.mark('flight');
+  
+  
+  f.arriveAt(LEFT_HOME, RIGHT_HOME);
   
   
   f.push(22, (i, n, t) => {

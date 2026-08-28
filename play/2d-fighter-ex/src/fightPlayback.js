@@ -17,6 +17,7 @@
 
 import { fight, FPS, GROUND, BODY_H } from './fightScript.js';
 import { MOVE_ROT } from './moveManifest.js';
+import { CANVAS } from './choreography.js';
 
 const TICK_MS = 1000 / FPS;
 
@@ -234,10 +235,138 @@ function cameraTrack() {
 
 
 
-function drawableOf(s, next, t, side, ticks, index, rate) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const JOURNEY = [
+  [0.00, 0], [0.07, -240], [0.16, 170], [0.27, -330], [0.37, 70],
+  [0.48, 360], [0.58, -60], [0.69, -350], [0.79, 210], [0.88, -150],
+  [0.95, 60], [1.00, 0],
+];
+
+
+
+
+
+
+
+const FOLLOW = 0.012;
+
+
+
+
+
+
+const EDGE = 54;
+
+let travel = null;
+function travelTrack() {
+  if (travel) return travel;
+  const { ticks } = fight();
+  const n = ticks.length;
+  const world = new Float64Array(n);
+  const cam = new Float64Array(n);
+  const off = new Float64Array(n);
+
+  
+  
+  let w = 0;
+  for (let i = 0; i < n; i += 1) {
+    const f = n > 1 ? i / (n - 1) : 0;
+    while (w + 1 < JOURNEY.length - 1 && JOURNEY[w + 1][0] <= f) w += 1;
+    const [f0, x0] = JOURNEY[w];
+    const [f1, x1] = JOURNEY[w + 1];
+    const u = f1 > f0 ? Math.min(1, Math.max(0, (f - f0) / (f1 - f0))) : 0;
+    world[i] = x0 + (x1 - x0) * (u * u * (3 - 2 * u));
+  }
+
+  let c = world[0];
+  for (let i = 0; i < n; i += 1) {
+    c += (world[i] - c) * FOLLOW;
+    cam[i] = c;
+    const want = world[i] - c;
+
+    
+    
+    
+    const xs = [];
+    if (ticks[i].a) xs.push(ticks[i].a.x);
+    if (ticks[i].b) xs.push(ticks[i].b.x);
+    if (!xs.length) { off[i] = want; continue; }
+    const lo = EDGE - Math.min(...xs);
+    const hi = (CANVAS.width - EDGE) - Math.max(...xs);
+    off[i] = lo > hi ? 0 : Math.min(hi, Math.max(lo, want));
+  }
+
+  
+  
+  
+  
+  
+  const smooth = new Float64Array(n);
+  const B = 16;
+  for (let i = 0; i < n; i += 1) {
+    let sum = 0;
+    let k = 0;
+    for (let j = i - B; j <= i + B; j += 1) {
+      if (j < 0 || j >= n) continue;
+      sum += off[j];
+      k += 1;
+    }
+    smooth[i] = sum / k;
+  }
+
+  travel = { world, cam, off: smooth };
+  return travel;
+}
+
+
+export function travelAt(index) {
+  const t = travelTrack();
+  const i = Math.min(Math.max(0, index), t.cam.length - 1);
+  return { cam: t.cam[i], off: t.off[i], world: t.world[i] };
+}
+
+
+
+function drawableOf(s, next, t, side, ticks, index, rate, shift = 0) {
   if (!s) return null;
   
-  const x = next ? lerp(s.x, next.x, t) : s.x;
+  const x = (next ? lerp(s.x, next.x, t) : s.x) + shift;
   const y = next ? lerp(s.y, next.y, t) : s.y;
   const rot = (MOVE_ROT[s.pose] || 0) * (s.facing < 0 ? -1 : 1);
   return {
@@ -250,9 +379,13 @@ function drawableOf(s, next, t, side, ticks, index, rate) {
     height: y,
     facing: s.facing,
     rot,
+    
+    
+    
+    
     ghosts: trailAt(ticks, index, side, rate).map((g) => ({
       pose: g.pose,
-      cx: g.x,
+      cx: g.x + shift,
       feet: GROUND - g.y,
       top: GROUND - g.y - BODY_H,
       facing: g.facing,
@@ -269,6 +402,7 @@ export function stateAt(ms) {
   const cur = ticks[index];
   const next = ticks[(index + 1) % ticks.length];
   const rate = cur.rate ?? 1;
+  const trip = travelAt(index);
 
   return {
     index,
@@ -279,9 +413,9 @@ export function stateAt(ms) {
     
     
     
-    camera: { zoom: cameraTrack()[index], x: 0, y: 0, closeup: false },
-    a: drawableOf(cur.a, next && next.a, into, 'a', ticks, index, rate),
-    b: drawableOf(cur.b, next && next.b, into, 'b', ticks, index, rate),
+    camera: { zoom: cameraTrack()[index], x: trip.cam, y: 0, closeup: false },
+    a: drawableOf(cur.a, next && next.a, into, 'a', ticks, index, rate, trip.off),
+    b: drawableOf(cur.b, next && next.b, into, 'b', ticks, index, rate, trip.off),
     
     
     hit: impactAt(index),
