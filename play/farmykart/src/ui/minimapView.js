@@ -92,17 +92,43 @@ export function drawMinimap(mm, blips, hazards = []) {
     ctx.fill();
   }
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
   for (const b of blips) {
+    const r = b.isPlayer ? 9 : 7.5;
     ctx.beginPath();
-    ctx.arc(b.x, b.y, b.isPlayer ? 5 : 3.4, 0, Math.PI * 2);
+    ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
     ctx.fillStyle = hex(b.tint ?? PALETTE.ceiling);
     ctx.fill();
     
     
     
-    ctx.lineWidth = b.isPlayer ? 2 : 1;
-    ctx.strokeStyle = b.isPlayer ? hex(PALETTE.night) : 'rgba(28,26,23,0.55)';
+    ctx.lineWidth = b.isPlayer ? 3 : 1.5;
+    ctx.strokeStyle = b.isPlayer ? hex(PALETTE.night) : 'rgba(28,26,23,0.7)';
     ctx.stroke();
+
+    if (b.position != null) {
+      
+      
+      
+      
+      ctx.font = `700 ${b.isPlayer ? 12 : 10}px ui-monospace, monospace`;
+      ctx.fillStyle = hex(PALETTE.night);
+      ctx.fillText(String(b.position), b.x, b.y + 0.5);
+    }
   }
 }
 

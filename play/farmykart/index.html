@@ -219,8 +219,30 @@
 
     .plate { background: var(--panel); border: 1px solid var(--edge); border-radius: 10px;
       padding: 7px 11px; backdrop-filter: blur(3px); }
-    #hud-position { font-family: Georgia, serif; font-size: clamp(30px, 8vw, 46px); line-height: 0.95; color: var(--gold); }
-    #hud-position-suffix { font-size: 15px; color: #a79f90; vertical-align: super; }
+    
+
+
+
+
+
+
+    #hud-place { display: flex; align-items: baseline; gap: 6px; }
+    #hud-position { font-family: Georgia, serif; font-size: clamp(54px, 13vw, 92px);
+      line-height: 0.86; color: var(--gold); letter-spacing: -0.02em;
+      text-shadow: 0 3px 14px rgba(0,0,0,0.7); }
+    #hud-position-suffix { font-family: Georgia, serif; font-size: clamp(18px, 4vw, 28px);
+      color: var(--gold); opacity: 0.75; }
+    #hud-position-of { font-size: clamp(12px, 2.6vw, 15px); color: #a79f90; letter-spacing: 0.04em; }
+    
+
+
+
+    #hud-position.bump { animation: placeBump 420ms cubic-bezier(.2,1.7,.4,1); }
+    @keyframes placeBump {
+      0% { transform: scale(1); } 35% { transform: scale(1.28); } 100% { transform: scale(1); }
+    }
+    #hud-position.gained { color: var(--gold); }
+    #hud-position.lost { color: var(--barn); }
     .lap { font-size: 13px; color: #c9c0ae; letter-spacing: 0.04em; margin-top: 2px; }
     .lap b { color: var(--cream); font-size: 16px; }
     #hud-clock { font-family: Georgia, serif; font-size: clamp(17px, 4.4vw, 24px); }
@@ -529,7 +551,10 @@
   <div id="hud" class="screen">
     <div class="hud-tl">
       <div class="plate">
-        <div><span id="hud-position">8</span><span id="hud-position-suffix">th</span></div>
+        <div id="hud-place">
+          <span id="hud-position">8</span><span id="hud-position-suffix">th</span>
+          <span id="hud-position-of">OF 8</span>
+        </div>
         <div class="lap">LAP <b id="hud-lap">1</b>/<span id="hud-lap-total">3</span></div>
         
 
@@ -660,7 +685,7 @@
 
 
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=e04a6c3-20260828T053900Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=176086e-20260828T060412Z"></script>
 
   <script type="importmap">
   {
@@ -710,6 +735,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=e04a6c3-20260828T053900Z"></script>
+  <script type="module" src="./src/main.js?v=176086e-20260828T060412Z"></script>
 </body>
 </html>

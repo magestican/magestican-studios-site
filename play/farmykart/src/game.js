@@ -910,11 +910,19 @@ export function createRace(options) {
     updateEngine(audio, you.kart, { onRoad: true });
 
     const table = standings(progress);
+    
+    
+    
+    const posOnMap = new Map(table.map((t) => [t.id, t.position]));
     const me = table.find((t) => t.id === you.id);
     const myPos = me?.position ?? racers.length;
 
     updateHud(hud, {
       position: myPos,
+      
+      
+      
+      fieldSize: racers.length,
       lap: me?.lap ?? 0,
       laps: raceLaps,
       time: flow.phase === PHASE.COUNTDOWN ? 0 : flow.time,
@@ -947,10 +955,18 @@ export function createRace(options) {
     });
     tickBanner(hud);
 
+    
+    
+    
+    
     drawMinimap(
       minimap,
       projectRacers(minimapProj, racers.map((r) => ({
-        id: r.id, x: r.kart.x, z: r.kart.z, tint: r.character.tint,
+        id: r.id,
+        x: r.kart.x,
+        z: r.kart.z,
+        tint: r.character.tint,
+        position: posOnMap.get(r.id) ?? null,
       })), you.id),
       hazards,
     );

@@ -514,7 +514,11 @@ export function trackSurface(path, x, z, hint = null, { shoulder = 7 } = {}) {
     lost: !onRoad && !onShoulder,
     
     
-    gripScale: onRoad ? 1 : Math.max(0.35, 1 - (over / Math.max(shoulder, 1e-6)) * 0.65),
+    
+    
+    
+    
+    gripScale: onRoad ? 1 : Math.max(0.6, 1 - (over / Math.max(shoulder, 1e-6)) * 0.4),
     overBy: Math.max(0, over),
     
     branch: null,

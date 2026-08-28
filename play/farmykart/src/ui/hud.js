@@ -23,6 +23,7 @@ export function createHud(root) {
   const el = {
     position: root.querySelector('#hud-position'),
     positionSuffix: root.querySelector('#hud-position-suffix'),
+    positionOf: root.querySelector('#hud-position-of'),
     lap: root.querySelector('#hud-lap'),
     lapTotal: root.querySelector('#hud-lap-total'),
     
@@ -68,9 +69,23 @@ export function updateHud(hud, view) {
   const el = hud.el;
 
   if (view.position !== hud.lastPosition) {
+    const previous = hud.lastPosition;
     hud.lastPosition = view.position;
     if (el.position) el.position.textContent = String(view.position);
     if (el.positionSuffix) el.positionSuffix.textContent = ordinal(view.position).replace(String(view.position), '');
+    
+    
+    
+    
+    if (el.position && previous != null) {
+      el.position.classList.remove('bump', 'gained', 'lost');
+      void el.position.offsetWidth;
+      el.position.classList.add('bump', view.position < previous ? 'gained' : 'lost');
+    }
+  }
+  if (el.positionOf && view.fieldSize) {
+    const of = `OF ${view.fieldSize}`;
+    if (el.positionOf.textContent !== of) el.positionOf.textContent = of;
   }
   const lapShown = Math.min(view.lap + 1, view.laps);
   if (lapShown !== hud.lastLap) {

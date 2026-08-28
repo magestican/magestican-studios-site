@@ -184,8 +184,20 @@ export function resolveTuning(character, { engineClass = 1 } = {}) {
     drag: 0.55,
     
     
-    offRoadSpeed: 0.52,
-    offRoadDrag: 2.4,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    offRoadSpeed: 0.74,
+    offRoadDrag: 1.15,
   };
 }
 
