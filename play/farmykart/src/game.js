@@ -44,10 +44,12 @@ import { buildSky, buildLights, fogFor, createChaseCamera, updateChase, snapChas
 import {
   createFx, updateFx, driftSparks, boostFlame, groundDust, hitBurst, pickupBurst, createShieldBubble,
 } from './render/fx.js';
+import { createSpeedFx, updateSpeedFx } from './render/speedFx.js';
 import { buildItemBoxMesh, animateItemBox, buildHazardMesh, animateHazard } from './render/itemMesh.js';
 import { createHud, updateHud, showBanner, tickBanner, gapText } from './ui/hud.js';
 import { createMinimap, drawMinimap } from './ui/minimapView.js';
 import { createControls, readControls, consumeItemPress } from './input/controls.js';
+import { createRaceNet } from './net/raceNet.js';
 import { createAudio, resumeAudio, startEngine, updateEngine, stopEngine, SFX, setMuted } from './audio/sfx.js';
 import { PALETTE } from './palette.js';
 
@@ -62,10 +64,31 @@ export function createRace(options) {
     canvas, hudRoot, minimapCanvas,
     trackId, characterId, difficulty, laps, fieldSize = 8,
     seed = 20260828, onFinish, onLap, muted = false,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    session = null, seats = null,
+    
+    
+    
+    resume = null,
   } = options;
 
   const track = trackById(trackId);
-  const path = buildPath(track.control, { defaultWidth: track.defaultWidth });
+  
+  
+  
+  
+  const path = buildPath(track.control, {
+    defaultWidth: track.defaultWidth,
+    branches: track.shortcuts,
+  });
   const line = buildRacingLine(path);
   const rng = new SeededRng(seed);
   const itemRng = rng.child('items');
@@ -97,6 +120,10 @@ export function createRace(options) {
   scene.add(buildScenery(path, track));
 
   const fx = createFx(scene);
+  
+  
+  
+  const speedFx = createSpeedFx(scene, track.theme);
 
   
   
@@ -104,23 +131,85 @@ export function createRace(options) {
   
   
   
-  const grid = startGrid(path, fieldSize);
-  const player = { index: fieldSize - 1 };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let worldReady = false;
+  const pendingNet = [];
+  const whenReady = (fn) => (...args) => {
+    if (worldReady) fn(...args);
+    else pendingNet.push(() => fn(...args));
+  };
+
+  const net = (session && seats && seats.length)
+    ? createRaceNet(session, {
+      seats,
+      onEvent: whenReady(handleNetEvent),
+      onStandings: whenReady(applyHostStandings),
+      onSeats: whenReady(handleSeatChange),
+      
+      
+      raceClock: () => flow.time,
+    })
+    : null;
+  const fieldCount = net ? seats.length : fieldSize;
+
+  const grid = startGrid(path, fieldCount);
+  
+  
+  
+  
+  let myIndex = fieldCount - 1;
+  if (net) myIndex = Math.max(0, seats.findIndex((s) => s.id === net.mySeatId()));
+  const player = { index: myIndex };
   const racers = [];
   
   
   const deck = { cards: [] };
 
-  for (let i = 0; i < fieldSize; i += 1) {
+  for (let i = 0; i < fieldCount; i += 1) {
+    const seat = net ? seats[i] : null;
     const isPlayer = i === player.index;
-    const character = isPlayer
-      ? characterById(characterId)
-      : pickBotCharacter(rng, deck);
+    const character = seat
+      ? (characterById(seat.characterId) ?? pickBotCharacter(rng, deck))
+      : (isPlayer ? characterById(characterId) : pickBotCharacter(rng, deck));
     const slot = grid[i];
     const tuning = resolveTuning(character);
     const kart = createKart({
       x: slot.x, y: slot.y, z: slot.z, heading: slot.heading,
-      id: isPlayer ? 'player' : `bot${i}`,
+      
+      
+      
+      
+      
+      id: seat ? seat.id : (isPlayer ? 'player' : `bot${i}`),
       tuning,
     });
     const built = buildKart(character, i);
@@ -130,12 +219,20 @@ export function createRace(options) {
 
     racers.push({
       id: kart.id,
+      index: i,
       isPlayer,
       character,
       kart,
       built,
       shield,
+      
+      
+      
+      
+      
       driver: isPlayer ? null : createDriver(i, difficulty),
+      seatName: seat?.name ?? null,
+      wasHuman: false,
       s: 0,
       item: null,
       itemUses: 0,
@@ -165,6 +262,24 @@ export function createRace(options) {
   const hazardMeshes = new Map();
 
   
+  
+  
+  
+  
+  
+  
+  
+  
+  if (resume?.poses) {
+    for (const pose of resume.poses) {
+      const r = racers.find((x) => x.id === pose.id);
+      if (!r) continue;
+      [r.kart.x, r.kart.y, r.kart.z] = pose.p;
+      r.kart.heading = pose.h;
+      r.kart.speed = pose.s ?? 0;
+    }
+  }
+
   const progress = createProgress(path, { laps: raceLaps, checkpoints: 8 });
   for (const r of racers) {
     const surf = trackSurface(path, r.kart.x, r.kart.z, null, { shoulder: SHOULDER });
@@ -172,7 +287,30 @@ export function createRace(options) {
     r.s = surf.s;
     addRacer(progress, r.id, surf.s);
   }
+  
+  
+  
+  
+  if (resume?.rows) {
+    for (const row of resume.rows) {
+      const rec = progress.racers.get(row.id);
+      if (!rec) continue;
+      rec.lap = row.lap ?? 0;
+      rec.distance = row.distance ?? 0;
+      rec.bestLap = row.bestLap ?? null;
+      rec.finished = !!row.finished;
+      rec.finishTime = row.finishTime ?? null;
+    }
+  }
   const flow = createFlow({ laps: raceLaps });
+  
+  
+  
+  if (resume) {
+    flow.phase = PHASE.RACING;
+    flow.time = resume.clock ?? 0;
+    flow.startedAt = 0;
+  }
 
   
   const hud = createHud(hudRoot);
@@ -232,6 +370,22 @@ export function createRace(options) {
     for (let i = 0; i < racers.length; i += 1) {
       const r = racers[i];
       const surf = surfaces[i];
+
+      
+      
+      
+      
+      
+      
+      if (net && !net.owns(r.id)) {
+        net.applyRemote(r);
+        driftSparks(fx, r.kart, r.kart.driftTier ?? 0, dt);
+        boostFlame(fx, r.kart, dt);
+        groundDust(fx, r.kart, surf.onRoad, dt);
+        r.shield.visible = false;
+        continue;
+      }
+
       let input = { throttle: 0, steer: 0, drift: false };
 
       if (!driving) {
@@ -315,6 +469,18 @@ export function createRace(options) {
       }
     }
 
+    
+    
+    
+    if (net) {
+      net.publish(racers);
+      
+      
+      
+      
+      net.sweepStalled();
+    }
+
     stepItems(dt, posById);
     stepHazards(dt);
 
@@ -356,8 +522,20 @@ export function createRace(options) {
         }
       }
     }
+    
+    
+    
+    
+    
+    if (net && session.isHost) {
+      net.publishStandings(standings(progress).map((t) => ({
+        id: t.id, lap: t.lap, distance: t.distance, finished: t.finished,
+        finishTime: t.finishTime, bestLap: t.bestLap, position: t.position,
+      })));
+    }
+
     if (!finalLapAnnounced) {
-      const me = progress.racers.get('player');
+      const me = progress.racers.get(you.id);
       if (me && me.lap === raceLaps - 1) {
         finalLapAnnounced = true;
         showBanner(hud, 'FINAL LAP', { kind: 'warn', seconds: 2 });
@@ -377,6 +555,11 @@ export function createRace(options) {
       }
       for (const r of racers) {
         if (r.item || r.itemRolling > 0 || r.finished) continue;
+        
+        
+        
+        
+        if (net && !net.owns(r.id)) continue;
         const dx = r.kart.x - box.x;
         const dz = r.kart.z - box.z;
         if (dx * dx + dz * dz > ITEM_PICKUP_RADIUS * ITEM_PICKUP_RADIUS) continue;
@@ -391,6 +574,7 @@ export function createRace(options) {
         r.pendingItem = drawItem(posById.get(r.id) ?? 1, racers.length, () => itemRng.next(), { lapsLeft });
         if (r.isPlayer) SFX.itemGet(audio);
         pickupBurst(fx, box.x, box.y, box.z);
+        if (net) net.event({ k: 'box', i, by: r.id });
         break;
       }
     }
@@ -409,7 +593,7 @@ export function createRace(options) {
 
     if (consumeItemPress(controls) && you.item && canDrive(flow)) {
       const table = standings(progress);
-      const pos = table.find((t) => t.id === 'player')?.position ?? 1;
+      const pos = table.find((t) => t.id === you.id)?.position ?? 1;
       useItem(you, pos);
     }
   }
@@ -424,6 +608,13 @@ export function createRace(options) {
         const h = spawnDrop(item, r.kart);
         hazards.push(h);
         addHazardMesh(h);
+        
+        
+        
+        
+        
+        
+        if (net) net.event({ k: 'haz', h });
         break;
       }
       case 'projectile': {
@@ -434,6 +625,7 @@ export function createRace(options) {
         const h = spawnProjectile(item, r.kart, { backwards });
         hazards.push(h);
         addHazardMesh(h);
+        if (net) net.event({ k: 'haz', h });
         break;
       }
       case 'self':
@@ -453,6 +645,12 @@ export function createRace(options) {
         const table = standings(progress);
         const mine = table.find((t) => t.id === r.id)?.position ?? 1;
         SFX.thunder(audio);
+        
+        
+        
+        
+        
+        if (net) net.event({ k: 'thunder', by: r.id });
         for (const other of racers) {
           if (other.id === r.id) continue;
           const theirs = table.find((t) => t.id === other.id)?.position ?? 99;
@@ -498,6 +696,17 @@ export function createRace(options) {
       let consumed = false;
       for (const r of racers) {
         if (!hazardHits(h, r.kart)) continue;
+        
+        
+        
+        
+        
+        
+        if (net && !net.owns(r.id)) {
+          hitBurst(fx, r.kart.x, r.kart.y, r.kart.z);
+          if (h.kind === 'projectile') consumed = true;
+          break;
+        }
         const out = applyEffect(r.kart, ITEMS[h.item].effect, { from: h.owner });
         r.kart = out.kart;
         if (out.hit || out.blocked) {
@@ -556,6 +765,129 @@ export function createRace(options) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  function handleNetEvent(ev) {
+    if (!ev) return;
+    if (ev.k === 'haz' && ev.h) {
+      
+      if (hazards.some((x) => x.uid === ev.h.uid)) return;
+      const h = { ...ev.h };
+      hazards.push(h);
+      addHazardMesh(h);
+      return;
+    }
+    if (ev.k === 'box' && boxes[ev.i]) {
+      boxes[ev.i].respawn = BOX_RESPAWN;
+      pickupBurst(fx, boxes[ev.i].x, boxes[ev.i].y, boxes[ev.i].z);
+      return;
+    }
+    if (ev.k === 'thunder') {
+      
+      
+      
+      
+      const table = standings(progress);
+      const mine = table.find((t) => t.id === ev.by)?.position ?? 1;
+      SFX.thunder(audio);
+      for (const other of racers) {
+        if (other.id === ev.by) continue;
+        if (net && !net.owns(other.id)) continue;
+        const theirs = table.find((t) => t.id === other.id)?.position ?? 99;
+        if (theirs >= mine) continue;
+        const out = applyEffect(other.kart, 'squash', { from: ev.by });
+        other.kart = out.kart;
+        if (out.hit) hitBurst(fx, other.kart.x, other.kart.y, other.kart.z);
+        if (other.isPlayer && out.hit) chase.shake = 1;
+      }
+    }
+  }
+
+  
+
+
+
+
+
+
+
+
+
+  function applyHostStandings(rows) {
+    for (const row of rows) {
+      const rec = progress.racers.get(row.id);
+      if (!rec) continue;
+      if (row.lap > rec.lap) rec.lap = row.lap;
+      if (row.bestLap != null && (rec.bestLap == null || row.bestLap < rec.bestLap)) {
+        rec.bestLap = row.bestLap;
+      }
+      if (row.finished && !rec.finished) {
+        rec.finished = true;
+        rec.finishTime = row.finishTime;
+      }
+    }
+  }
+
+  
+
+
+
+
+
+
+
+
+
+  function handleSeatChange(next, detail) {
+    for (const seat of next) {
+      const r = racers.find((x) => x.id === seat.id);
+      if (!r) continue;
+      r.seatName = seat.name;
+      r.wasHuman = !!seat.wasHuman;
+      if (seat.characterId && seat.characterId !== r.character.id) reskin(r, seat.characterId);
+    }
+    if (detail?.left) {
+      showBanner(hud, 'BOT TAKES OVER', { kind: 'warn', seconds: 1.6 });
+    } else if (detail?.joined) {
+      showBanner(hud, detail.reclaimed ? 'BACK IN THE RACE' : 'NEW CHALLENGER', { kind: 'info', seconds: 1.6 });
+    }
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+  function reskin(r, characterId) {
+    const character = characterById(characterId);
+    if (!character) return;
+    const old = r.built.group;
+    scene.remove(old);
+    disposeObject(old);
+    r.character = character;
+    r.built = buildKart(character, r.index);
+    r.shield = createShieldBubble();
+    r.built.group.add(r.shield);
+    scene.add(r.built.group);
+  }
+
+  
+  
+  
   function draw(dt) {
     for (const r of racers) poseKart(r.built, r.kart, dt);
 
@@ -572,10 +904,13 @@ export function createRace(options) {
     updateChase(chase, you.kart, dt, controls.lookBack ? { back: -6.5, look: -6 } : undefined);
     focusShadow(lights, you.kart.x, you.kart.z);
     updateFx(fx, dt, camera);
+    
+    
+    updateSpeedFx(speedFx, you.kart, camera, dt);
     updateEngine(audio, you.kart, { onRoad: true });
 
     const table = standings(progress);
-    const me = table.find((t) => t.id === 'player');
+    const me = table.find((t) => t.id === you.id);
     const myPos = me?.position ?? racers.length;
 
     updateHud(hud, {
@@ -600,10 +935,13 @@ export function createRace(options) {
         const r = racers.find((x) => x.id === t.id);
         return {
           position: t.position,
-          name: r?.displayName ?? r?.character.name ?? t.id,
+          
+          
+          
+          name: r?.seatName ?? r?.displayName ?? r?.character.name ?? t.id,
           tint: r?.character.tint ?? PALETTE.ceiling,
-          isPlayer: t.id === 'player',
-          gap: t.id === 'player' ? '' : gapText(t.distance - (me?.distance ?? 0)),
+          isPlayer: t.id === you.id,
+          gap: t.id === you.id ? '' : gapText(t.distance - (me?.distance ?? 0)),
         };
       }),
     });
@@ -613,7 +951,7 @@ export function createRace(options) {
       minimap,
       projectRacers(minimapProj, racers.map((r) => ({
         id: r.id, x: r.kart.x, z: r.kart.z, tint: r.character.tint,
-      })), 'player'),
+      })), you.id),
       hazards,
     );
 
@@ -642,7 +980,7 @@ export function createRace(options) {
     cancelAnimationFrame(raf);
     stopEngine(audio);
     const table = standings(progress);
-    const me = table.find((t) => t.id === 'player');
+    const me = table.find((t) => t.id === you.id);
     if (onFinish) {
       onFinish({
         position: me?.position ?? racers.length,
@@ -662,7 +1000,7 @@ export function createRace(options) {
             
             id: t.id,
             position: t.position,
-            name: r?.displayName ?? r?.character.name ?? t.id,
+            name: r?.seatName ?? r?.displayName ?? r?.character.name ?? t.id,
             species: r?.character.species,
             character: r?.character.id ?? null,
             tint: r?.character.tint,
@@ -677,6 +1015,12 @@ export function createRace(options) {
       });
     }
   }
+
+  
+  
+  worldReady = true;
+  for (const fire of pendingNet) fire();
+  pendingNet.length = 0;
 
   return {
     track,
@@ -697,6 +1041,10 @@ export function createRace(options) {
     dispose() {
       disposed = true;
       this.stop();
+      
+      
+      
+      if (net) net.dispose();
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onResize);
       controls.dispose();
@@ -704,19 +1052,33 @@ export function createRace(options) {
       
       
       
-      scene.traverse((o) => {
-        if (o.geometry) o.geometry.dispose();
-        const mats = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
-        for (const m of mats) {
-          for (const key of ['map', 'normalMap', 'alphaMap']) {
-            if (m[key]?.dispose) m[key].dispose();
-          }
-          m.dispose();
-        }
-      });
+      disposeObject(scene);
       renderer.dispose();
     },
   };
+}
+
+
+
+
+
+
+
+
+
+
+
+function disposeObject(root) {
+  root.traverse((o) => {
+    if (o.geometry) o.geometry.dispose();
+    const mats = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
+    for (const m of mats) {
+      for (const key of ['map', 'normalMap', 'alphaMap']) {
+        if (m[key]?.dispose) m[key].dispose();
+      }
+      m.dispose();
+    }
+  });
 }
 
 

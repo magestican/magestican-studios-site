@@ -31,6 +31,8 @@ import { renderKartBoard } from './ui/kartBoard.js';
 
 import { TRACKS, DEFAULT_TRACK } from './tracks/tracks.js';
 import { createRace } from './game.js';
+import { createSession, joinIdFromLocation, shareLinkFor } from './net/session.js';
+import { createLobbyUi } from './ui/lobby.js';
 import { drawItemIcon } from './render/itemMesh.js';
 import { hex, PALETTE } from './palette.js';
 import { isTouchDevice } from './input/controls.js';
@@ -46,6 +48,15 @@ const state = {
   muted: false,
   race: null,
   progress: null,
+  
+  
+  
+  
+  
+  
+  
+  session: null,
+  lobbyUi: null,
   
   
   
@@ -114,9 +125,15 @@ function boot() {
   
   
   $('start-btn').addEventListener('click', () => startRace({ newCup: true }));
+  $('host-btn').addEventListener('click', () => openRoom('host'));
   $('mute-btn').addEventListener('click', toggleMute);
   $('results-again').addEventListener('click', () => {
     hide('results');
+    
+    
+    
+    if (state.session) { backToLobby(); return; }
+    
     
     
     
@@ -125,6 +142,7 @@ function boot() {
   });
   $('results-menu').addEventListener('click', () => {
     hide('results');
+    if (state.session) { backToLobby(); return; }
     
     
     
@@ -151,8 +169,127 @@ function boot() {
   
   
   
+  state.lobbyUi = createLobbyUi({
+    tracks: TRACKS,
+    difficulties: Object.values(DIFFICULTIES),
+    onClaim: (id) => { state.character = id; state.session?.claim(id); },
+    onReady: (flag) => state.session?.ready(flag),
+    onSettings: (patch) => state.session?.settings(patch),
+    onStart: () => state.session?.start(),
+    onLeave: leaveRoom,
+  });
+
   window.__fkBooted = true;
   $('boot-gate')?.remove();
+
+  
+  
+  const invite = joinIdFromLocation(location.href);
+  if (invite) {
+    $('join-note').textContent = 'Joining room ' + invite + '\u2026';
+    show('menu');
+    openRoom('join', invite);
+    return;
+  }
+  show('menu');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function openRoom(mode, hostId = null) {
+  if (state.session) return;
+  $('host-btn').disabled = true;
+  if (mode === 'host') $('join-note').textContent = 'Opening a room\u2026';
+  let session;
+  try {
+    session = await createSession({
+      mode,
+      hostId,
+      name: null,
+      characterId: state.character,
+      settings: {
+        trackId: state.track,
+        difficulty: state.difficulty,
+        laps: state.laps,
+        fieldSize: state.field,
+      },
+    });
+  } catch (err) {
+    $('join-note').textContent = 'Could not open the room: ' + err.message
+      + '. You can still race the bots.';
+    $('host-btn').disabled = false;
+    return;
+  }
+  state.session = session;
+  $('host-btn').disabled = false;
+  $('join-note').textContent = '';
+
+  const shareLink = shareLinkFor(location.href, session.myId);
+  const paint = (note) => state.lobbyUi.render(session.lobby, {
+    myId: session.myId, isHost: session.isHost, shareLink, note,
+  });
+
+  session.addEventListener('lobby', () => paint());
+  session.addEventListener('peer-joined', () => paint());
+  session.addEventListener('peer-left', () => paint());
+  session.addEventListener('host-changed', (e) => paint(e.detail.iAmHost
+    ? 'The host left. You are the host now.'
+    : 'The host left. Somebody else has taken over.'));
+  session.addEventListener('net-error', (e) => paint('Network: ' + e.detail.message));
+  session.addEventListener('start', (e) => startRace({ net: e.detail, newCup: true }));
+
+  if (session.isHost) {
+    
+    
+    
+    
+    try { window.history.replaceState({}, '', shareLink); } catch {  }
+  }
+  hide('menu');
+  show('lobby');
+  paint(session.isHost ? null : 'Connecting\u2026');
+}
+
+
+function backToLobby() {
+  if (!state.session) { show('menu'); return; }
+  hide('hud');
+  hide('touch-hints');
+  if (state.race) { state.race.dispose(); state.race = null; }
+  state.session.reopen();
+  state.lobbyUi.render(state.session.lobby, {
+    myId: state.session.myId,
+    isHost: state.session.isHost,
+    shareLink: shareLinkFor(location.href, state.session.myId),
+  });
+  show('lobby');
+}
+
+function leaveRoom() {
+  if (state.race) { state.race.dispose(); state.race = null; }
+  state.session?.destroy();
+  state.session = null;
+  hide('lobby');
+  hide('hud');
+  
+  
+  
+  try {
+    const url = new URL(location.href);
+    url.searchParams.delete('join');
+    window.history.replaceState({}, '', url.toString());
+  } catch {  }
+  $('join-note').textContent = '';
   show('menu');
 }
 
@@ -326,11 +463,32 @@ function syncSelection() {
 
 
 
-function startRace({ newCup = false } = {}) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function startRace({ newCup = false, net = null } = {}) {
   hide('menu');
+  hide('lobby');
   hide('results');
   show('hud');
   if (isTouchDevice()) show('touch-hints');
+
+  
+  
+  
+  const settings = net?.settings ?? null;
 
   
   
@@ -347,20 +505,27 @@ function startRace({ newCup = false } = {}) {
     canvas: $('scene'),
     hudRoot: document.body,
     minimapCanvas: $('minimap'),
-    trackId: state.track,
+    trackId: settings?.trackId ?? state.track,
     characterId: state.character,
-    difficulty: state.difficulty,
-    laps: state.laps,
-    fieldSize: state.field,
+    difficulty: settings?.difficulty ?? state.difficulty,
+    laps: settings?.laps ?? state.laps,
+    fieldSize: settings?.fieldSize ?? state.field,
     muted: state.muted,
+    session: net ? state.session : null,
+    seats: net?.seats ?? null,
+    resume: net?.resume ?? null,
     
     
-    seed: (Date.now() & 0x7fffffff) || 1,
+    seed: net?.seed ?? ((Date.now() & 0x7fffffff) || 1),
     onFinish: showResults,
   });
   state.race.start();
   trackEvent('game_start', {
-    track: state.track, character: state.character, difficulty: state.difficulty, laps: state.laps,
+    track: settings?.trackId ?? state.track,
+    character: state.character,
+    difficulty: settings?.difficulty ?? state.difficulty,
+    laps: settings?.laps ?? state.laps,
+    multiplayer: !!net,
   });
 }
 
@@ -379,6 +544,15 @@ function quitRace() {
   hide('pause');
   hide('hud');
   hide('touch-hints');
+  if (state.session) {
+    
+    
+    
+    
+    
+    backToLobby();
+    return;
+  }
   if (state.race) { state.race.dispose(); state.race = null; }
   show('menu');
   buildTrackGrid();

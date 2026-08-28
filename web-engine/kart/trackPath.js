@@ -43,6 +43,17 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 const ALPHA = 0.5;
 
 function knot(t, a, b) {
@@ -113,7 +124,10 @@ export function splinePoint(p0, p1, p2, p3, u) {
 
 
 
-export function buildPath(control, { samplesPerSegment = 14, defaultWidth = 16 } = {}) {
+
+
+
+export function buildPath(control, { samplesPerSegment = 14, defaultWidth = 16, branches = null } = {}) {
   if (!Array.isArray(control) || control.length < 4) {
     throw new Error('buildPath: a closed track needs at least 4 control points');
   }
@@ -157,7 +171,206 @@ export function buildPath(control, { samplesPerSegment = 14, defaultWidth = 16 }
     if (p.z + p.width > maxZ) maxZ = p.z + p.width;
   }
 
-  return { pts, tangents, s, length: s[m], count: m, bounds: { minX, maxX, minZ, maxZ } };
+  const path = { pts, tangents, s, length: s[m], count: m, bounds: { minX, maxX, minZ, maxZ } };
+
+  
+  
+  
+  
+  path.branches = [];
+  for (const spec of branches ?? []) path.branches.push(buildBranch(path, spec));
+  return path;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function buildBranch(path, spec, { samplesPerSegment = 12 } = {}) {
+  const entryS = wrapS(path, (spec.entryAt ?? 0) * path.length);
+  const exitS = wrapS(path, (spec.exitAt ?? 0) * path.length);
+  const a = sampleAt(path, entryS);
+  const b = sampleAt(path, exitS);
+  const lead = spec.lead ?? 8;
+  const mouthA = {
+    x: a.x + a.nx * ((spec.entryLateral ?? 0) * a.width * 0.5),
+    z: a.z + a.nz * ((spec.entryLateral ?? 0) * a.width * 0.5),
+  };
+  const mouthB = {
+    x: b.x + b.nx * ((spec.exitLateral ?? 0) * b.width * 0.5),
+    z: b.z + b.nz * ((spec.exitLateral ?? 0) * b.width * 0.5),
+  };
+  
+  
+  
+  
+  
+  
+  const control = [
+    { x: mouthA.x - a.tx * lead, z: mouthA.z - a.tz * lead },
+    mouthA,
+    ...(spec.via ?? []),
+    mouthB,
+    { x: mouthB.x + b.tx * lead, z: mouthB.z + b.tz * lead },
+  ];
+
+  const pts = [];
+  for (let i = 1; i < control.length - 2; i += 1) {
+    const p0 = control[i - 1]; const p1 = control[i];
+    const p2 = control[i + 1]; const p3 = control[i + 2];
+    for (let k = 0; k < samplesPerSegment; k += 1) {
+      const u = k / samplesPerSegment;
+      const p = splinePoint(p0, p1, p2, p3, u);
+      pts.push({ x: p.x, y: p.y ?? 0, z: p.z });
+    }
+  }
+  pts.push({ x: mouthB.x, y: b.y ?? 0, z: mouthB.z });
+
+  
+  
+  
+  
+  
+  
+  const m = pts.length;
+  const sArr = new Float64Array(m);
+  const tangents = new Array(m);
+  for (let i = 0; i < m - 1; i += 1) {
+    const p = pts[i]; const q = pts[i + 1];
+    const dx = q.x - p.x; const dz = q.z - p.z;
+    const d = Math.hypot(dx, dz) || 1e-9;
+    sArr[i + 1] = sArr[i] + d;
+    tangents[i] = { x: dx / d, z: dz / d };
+  }
+  tangents[m - 1] = tangents[m - 2] ?? { x: 0, z: 1 };
+
+  const length = sArr[m - 1];
+  const mainArc = wrapS(path, exitS - entryS);
+  return {
+    id: spec.id,
+    name: spec.name ?? spec.id,
+    pts,
+    tangents,
+    s: sArr,
+    count: m,
+    length,
+    width: spec.width ?? 9,
+    shoulder: spec.shoulder ?? 2.5,
+    grip: spec.grip ?? 0.8,
+    entryS,
+    exitS,
+    
+    
+    
+    
+    
+    saving: mainArc - length,
+    mainArc,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export function nearestOnBranch(branch, x, z) {
+  let bestI = 0; let bestD = Infinity;
+  for (let i = 0; i < branch.count; i += 1) {
+    const p = branch.pts[i];
+    const d = (p.x - x) * (p.x - x) + (p.z - z) * (p.z - z);
+    if (d < bestD) { bestD = d; bestI = i; }
+  }
+  const i = Math.min(bestI, branch.count - 2);
+  const a = branch.pts[i]; const b = branch.pts[i + 1];
+  const abx = b.x - a.x; const abz = b.z - a.z;
+  const len2 = abx * abx + abz * abz || 1e-9;
+  let u = ((x - a.x) * abx + (z - a.z) * abz) / len2;
+  if (u < 0) u = 0;
+  if (u > 1) u = 1;
+  const px = a.x + abx * u;
+  const pz = a.z + abz * u;
+  const at = branch.s[i] + Math.sqrt(len2) * u;
+  return {
+    index: i,
+    x: px,
+    z: pz,
+    s: at,
+    u: at / Math.max(branch.length, 1e-6),
+    tx: branch.tangents[i].x,
+    tz: branch.tangents[i].z,
+    dist: Math.hypot(x - px, z - pz),
+  };
 }
 
 
@@ -294,7 +507,7 @@ export function trackSurface(path, x, z, hint = null, { shoulder = 7 } = {}) {
   const over = near.dist - half;
   const onRoad = over <= 0;
   const onShoulder = !onRoad && over <= shoulder;
-  return {
+  const out = {
     ...near,
     onRoad,
     onShoulder,
@@ -303,7 +516,78 @@ export function trackSurface(path, x, z, hint = null, { shoulder = 7 } = {}) {
     
     gripScale: onRoad ? 1 : Math.max(0.35, 1 - (over / Math.max(shoulder, 1e-6)) * 0.65),
     overBy: Math.max(0, over),
+    
+    branch: null,
+    branchU: 0,
   };
+  if (!path.branches || path.branches.length === 0) return out;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let best = null;
+  for (const br of path.branches) {
+    const n = nearestOnBranch(br, x, z);
+    const brOver = n.dist - br.width / 2;
+    if (brOver > br.shoulder) continue;
+    if (best === null || brOver < best.over) best = { br, n, over: brOver };
+  }
+  if (!best) return out;
+
+  out.branch = best.br.id;
+  out.branchU = best.n.u;
+  
+  
+  
+  
+  
+  if (onRoad) return out;
+
+  const onBranch = best.over <= 0;
+  out.onRoad = onBranch;
+  out.onShoulder = !onBranch;
+  out.lost = false;
+  
+  
+  
+  
+  
+  const fade = onBranch ? 1 : Math.max(0.45, 1 - (best.over / Math.max(best.br.shoulder, 1e-6)) * 0.55);
+  out.gripScale = best.br.grip * fade;
+  out.overBy = Math.max(0, best.over);
+  return out;
+}
+
+
+
+
+
+
+
+
+
+
+
+export function branchAt(path, x, z, pad = 0) {
+  for (const br of path.branches ?? []) {
+    const n = nearestOnBranch(br, x, z);
+    if (n.dist <= br.width / 2 + br.shoulder + pad) return br;
+  }
+  return null;
 }
 
 

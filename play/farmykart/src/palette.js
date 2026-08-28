@@ -99,10 +99,73 @@ export const PALETTE = Object.freeze({
   silo:       0xc8c2b4,
 
   
+  
+  
+  
+  
+  
+  
+  
+  
+  skyHigh:    0x2f6fc4,
   skyTop:     0x4f92e8,
   skyHaze:    0xbcd9f7,
+  skyWarm:    0xf0e3c4,
   sun:        0xfff3d0,
+  sunGlow:    0xffe9a8,
   cloud:      0xf6f1e6,
+  cloudUnder: 0xc3b199,   
+                          
+  cirrus:     0xe8f0fb,
+  bird:       0x413a33,
+
+  
+  
+  
+  
+  
+  
+  
+  hillNear:   0x6f8a5a,
+  hillFar:    0x8fa6a8,
+  hillMud:    0x5d6a4c,
+  hillMudFar: 0x8b9192,
+  hillSnow:   0xc9dcee,
+  hillSnowFar: 0xd8e6f2,
+
+  
+  crop:       0xd8bf5c,   
+  cropDark:   0xa8903c,
+  hedge:      0x3f6136,
+  hedgeMud:   0x38512c,
+  pine:       0x2f5540,   
+  pineSnow:   0xdfeaf5,
+  deadWood:   0x6b5c48,   
+  scarecrow:  0xb08a4e,
+
+  
+  mudDark:    0x4c3d2c,
+  mudWet:     0x3b3226,
+  puddle:     0x413f38,
+  packedSnow: 0xd6e2ee,
+  snowRut:    0x8b7a63,   
+
+  
+  
+  
+  
+  
+  shortcut:     0x7a6a4c,
+  shortcutDark: 0x5f5238,
+  shortcutTuft: 0x6d7f42,   
+                            
+  gatePost:     0xf6f1e6,
+  gateStripe:   0xb73a2a,
+
+  
+  marker:     0xf6f1e6,
+  markerWarn: 0xf4c95d,
+  speedLine:  0xf6f1e6,
 
   
   

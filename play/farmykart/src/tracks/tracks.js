@@ -57,7 +57,52 @@ export const TRACKS = [
     
     
     itemStops: [0.12, 0.38, 0.62, 0.86],
-    scenery: { sunflowers: 260, trees: 34, bales: 26, fencePosts: 190, barns: 2, silos: 2 },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    shortcuts: [
+      {
+        id: 'sunflower-cut',
+        name: 'The Sunflower Cut',
+        entryAt: 0.57,
+        exitAt: 0.66,
+        entryLateral: 0.55,
+        exitLateral: 0.35,
+        width: 9,
+        grip: 0.8,
+        via: [{ x: 13, z: 94 }, { x: 9, z: 62 }],
+      },
+    ],
+    
+    
+    
+    
+    
+    
+    scenery: {
+      sunflowers: 260, trees: 44, bales: 26, fencePosts: 190, barns: 2, silos: 2,
+      hedgerows: 16, landmark: { kind: 'windmill', at: 0.27, side: -1, out: 74 },
+    },
     sky: 'day',
   },
   {
@@ -88,7 +133,33 @@ export const TRACKS = [
       { x: -40, z: -34 },
     ],
     itemStops: [0.08, 0.3, 0.55, 0.78],
-    scenery: { sunflowers: 40, trees: 70, bales: 40, fencePosts: 240, barns: 3, silos: 1 },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    shortcuts: [
+      {
+        id: 'cattle-gate',
+        name: 'The Cattle Gate',
+        entryAt: 0.195,
+        exitAt: 0.3,
+        entryLateral: -0.5,
+        exitLateral: -0.4,
+        width: 7,
+        shoulder: 2,
+        grip: 0.7,
+        via: [{ x: 134, z: 56 }, { x: 126, z: 76 }],
+      },
+    ],
+    scenery: {
+      sunflowers: 40, trees: 76, bales: 40, fencePosts: 240, barns: 3, silos: 1,
+      hedgerows: 13, landmark: { kind: 'watertower', at: 0.62, side: 1, out: 58 },
+    },
     sky: 'overcast',
   },
   {
@@ -131,7 +202,35 @@ export const TRACKS = [
       { x: -34, z: -34 },
     ],
     itemStops: [0.14, 0.42, 0.68, 0.9],
-    scenery: { sunflowers: 0, trees: 46, bales: 30, fencePosts: 200, barns: 2, silos: 2, snowmen: 22 },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    shortcuts: [
+      {
+        id: 'frozen-creek',
+        name: 'The Frozen Creek',
+        entryAt: 0.295,
+        exitAt: 0.425,
+        entryLateral: -0.5,
+        exitLateral: -0.3,
+        width: 11,
+        grip: 0.8,
+        via: [{ x: 160, z: 124 }, { x: 130, z: 128 }],
+      },
+    ],
+    scenery: {
+      sunflowers: 0, trees: 58, bales: 30, fencePosts: 200, barns: 2, silos: 2, snowmen: 22,
+      hedgerows: 10, landmark: { kind: 'church', at: 0.52, side: 1, out: 66 },
+    },
     sky: 'snow',
   },
 ];
