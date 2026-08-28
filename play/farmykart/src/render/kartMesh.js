@@ -38,7 +38,7 @@ const GLB_BASE = new URL('../../assets/hand-drawn/characters/', import.meta.url)
 const loader = new GLTFLoader();
 const cache = new Map();
 
-function loadDriver(species) {
+export function loadDriver(species) {
   if (cache.has(species)) return cache.get(species);
   const p = new Promise((resolve) => {
     loader.load(

@@ -40,7 +40,11 @@ import * as THREE from 'three';
 import { nearestOnBranch, nearestOnPath } from 'arbelo/trackPath';
 import { PALETTE } from '../palette.js';
 import { makeBarnTexture } from './textures.js';
-import { SHOULDER, groundHeightAt } from './trackMesh.js';
+
+
+
+
+import { SHOULDER, groundMeshHeightAt } from './trackMesh.js';
 import { surface } from './materials.js';
 
 function rngFrom(seed) {
@@ -137,13 +141,13 @@ function besideTrack(path, rng, minOut, maxOut, { clear = 2, minClear = 0 } = {}
     const road = near.dist - near.width / 2;
     if (onShortcut(path, x, z, clear)) continue;
     if (road >= SHOULDER + minClear) {
-      return { x, y: groundHeightAt(path, x, z), z, index: i, side };
+      return { x, y: groundMeshHeightAt(path, x, z), z, index: i, side };
     }
     
     
     
     
-    if (road > best) { best = road; pick = { x, y: groundHeightAt(path, x, z), z, index: i, side }; }
+    if (road > best) { best = road; pick = { x, y: groundMeshHeightAt(path, x, z), z, index: i, side }; }
   }
   return pick;
 }
@@ -327,7 +331,7 @@ function buildHedgerows(path, rng, count, theme) {
       const along = (k - perRow / 2) * (3.1 + rng() * 0.5);
       const x = anchor.x + Math.sin(dir) * along + (rng() - 0.5) * 1.4;
       const z = anchor.z + Math.cos(dir) * along + (rng() - 0.5) * 1.4;
-      place(mesh, idx, x, groundHeightAt(path, x, z) - 0.2, z, dir + (rng() - 0.5) * 0.25, 0.8 + rng() * 0.5);
+      place(mesh, idx, x, groundMeshHeightAt(path, x, z) - 0.2, z, dir + (rng() - 0.5) * 0.25, 0.8 + rng() * 0.5);
     }
   }
   for (let i = idx; i < total; i += 1) place(mesh, i, 0, -1000, 0, 0, 0);
@@ -375,7 +379,7 @@ function buildSunflowers(path, rng, count) {
       
       const yaw = 2.1 + (rng() - 0.5) * 0.9;
       const scale = 0.8 + rng() * 0.55;
-      const y = groundHeightAt(path, x, z);
+      const y = groundMeshHeightAt(path, x, z);
       place(stems, i, x, y, z, yaw, scale);
       place(heads, i, x, y, z, yaw, scale);
       place(centres, i, x, y, z, yaw, scale);
@@ -724,7 +728,7 @@ function buildLandmark(path, spec, theme) {
     g.add(spire);
   }
 
-  g.position.set(x, groundHeightAt(path, x, z), z);
+  g.position.set(x, groundMeshHeightAt(path, x, z), z);
   g.rotation.y = Math.atan2(t.x, t.z) + (side > 0 ? -1.2 : 1.2);
   g.traverse((o) => { if (o.isMesh) o.castShadow = true; });
   group.add(g);

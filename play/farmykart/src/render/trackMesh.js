@@ -84,6 +84,103 @@ const HILL_HEIGHT = 3.2;
 
 
 
+
+
+
+
+
+
+
+const GROUND_SEG = 64;
+
+
+
+
+
+
+
+export function groundGrid(path) {
+  const b = path.bounds;
+  
+  
+  const w = (b.maxX - b.minX) + 900;
+  const h = (b.maxZ - b.minZ) + 900;
+  return {
+    w, h, seg: GROUND_SEG,
+    cx: (b.minX + b.maxX) / 2,
+    cz: (b.minZ + b.maxZ) / 2,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function roadDip(out) {
+  const FULL = 2.4;             
+  const FADE = SHOULDER + KERB_WIDTH + 5;
+  if (out >= FADE) return 0;
+  const u = Math.max(0, out) / FADE;
+  
+  return FULL * (1 - u * u * (3 - 2 * u));
+}
+
+
+
+
+
+
+
+
+
+
+
+export function groundMeshHeightAt(path, x, z) {
+  const g = groundGrid(path);
+  const dx = g.w / g.seg;
+  const dz = g.h / g.seg;
+  const x0 = g.cx - g.w / 2;
+  const z0 = g.cz - g.h / 2;
+  
+  const fx = Math.min(g.seg - 1, Math.max(0, Math.floor((x - x0) / dx)));
+  const fz = Math.min(g.seg - 1, Math.max(0, Math.floor((z - z0) / dz)));
+  const ux = Math.min(1, Math.max(0, (x - (x0 + fx * dx)) / dx));
+  const uz = Math.min(1, Math.max(0, (z - (z0 + fz * dz)) / dz));
+  const at = (i, j) => groundMeshVertex(path, x0 + i * dx, z0 + j * dz);
+  const y00 = at(fx, fz);
+  const y10 = at(fx + 1, fz);
+  const y01 = at(fx, fz + 1);
+  const y11 = at(fx + 1, fz + 1);
+  
+  return (y00 * (1 - ux) + y10 * ux) * (1 - uz) + (y01 * (1 - ux) + y11 * ux) * uz;
+}
+
+
+function groundMeshVertex(path, x, z) {
+  const near = nearestOnPath(path, x, z, null);
+  return groundHeightAt(path, x, z) - roadDip(near.dist - near.width / 2);
+}
+
 export function groundHeightAt(path, x, z) {
   const near = nearestOnPath(path, x, z, null);
   
@@ -349,11 +446,9 @@ function buildGround(path, theme) {
   
   
   
-  const w = (b.maxX - b.minX) + 900;
-  const h = (b.maxZ - b.minZ) + 900;
-  const cx = (b.minX + b.maxX) / 2;
-  const cz = (b.minZ + b.maxZ) / 2;
-  const geo = new THREE.PlaneGeometry(w, h, 64, 64);
+  const grid = groundGrid(path);
+  const { w, h, cx, cz } = grid;
+  const geo = new THREE.PlaneGeometry(w, h, grid.seg, grid.seg);
   geo.rotateX(-Math.PI / 2);
 
   
@@ -365,7 +460,10 @@ function buildGround(path, theme) {
   for (let i = 0; i < pos.count; i += 1) {
     const x = pos.getX(i) + cx;
     const z = pos.getZ(i) + cz;
-    pos.setY(i, groundHeightAt(path, x, z));
+    
+    
+    
+    pos.setY(i, groundMeshVertex(path, x, z));
   }
   pos.needsUpdate = true;
   geo.computeVertexNormals();

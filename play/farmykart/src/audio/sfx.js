@@ -210,6 +210,33 @@ export function setMuted(audio, muted) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function engineWave(ctx) {
+  const real = new Float32Array(17);
+  const imag = new Float32Array(17);
+  
+  const amps = [0, 1.00, 0.86, 0.28, 0.64, 0.47, 0.16, 0.22, 0.19,
+    0.13, 0.11, 0.08, 0.09, 0.05, 0.06, 0.04, 0.05];
+  for (let i = 1; i < amps.length; i += 1) imag[i] = amps[i];
+  return ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+}
+
 export function startEngine(audio) {
   if (!audio.ctx || audio.engine) return;
   const ctx = audio.ctx;
@@ -217,27 +244,72 @@ export function startEngine(audio) {
   out.gain.value = 0;
   out.connect(audio.master);
 
+  
+
+
+
+
+
+
+
+
+  const body = ctx.createBiquadFilter();
+  body.type = 'peaking';
+  body.frequency.value = 320;
+  body.Q.value = 2.4;
+  body.gain.value = 9;
+  body.connect(out);
+
+  
   const filter = ctx.createBiquadFilter();
   filter.type = 'lowpass';
   filter.frequency.value = 900;
-  filter.Q.value = 1.2;
-  filter.connect(out);
+  filter.Q.value = 1.1;
+  filter.connect(body);
 
+  const wave = engineWave(ctx);
   
   
   
   const oscA = ctx.createOscillator();
   const oscB = ctx.createOscillator();
-  oscA.type = 'sawtooth';
-  oscB.type = 'sawtooth';
+  oscA.setPeriodicWave(wave);
+  oscB.setPeriodicWave(wave);
   oscA.frequency.value = 60;
-  oscB.frequency.value = 60 * 1.008;
+  oscB.frequency.value = 60 * 1.007;
   oscA.connect(filter);
   oscB.connect(filter);
   oscA.start();
   oscB.start();
 
   
+  
+  
+  const sub = ctx.createOscillator();
+  sub.type = 'sine';
+  sub.frequency.value = 30;
+  const subGain = ctx.createGain();
+  subGain.gain.value = 0.5;
+  sub.connect(subGain).connect(filter);
+  sub.start();
+
+  
+
+
+
+
+
+
+
+
+  const lump = ctx.createOscillator();
+  lump.type = 'sine';
+  lump.frequency.value = 11;
+  const lumpDepth = ctx.createGain();
+  lumpDepth.gain.value = 0.25;
+  lump.connect(lumpDepth).connect(out.gain);
+  lump.start();
+
   
   const noise = ctx.createBufferSource();
   const buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
@@ -253,7 +325,21 @@ export function startEngine(audio) {
   noise.connect(noiseFilter).connect(noiseGain).connect(audio.master);
   noise.start();
 
-  audio.engine = { out, filter, oscA, oscB, noiseGain, noiseFilter };
+  
+  
+  
+  const whine = ctx.createOscillator();
+  whine.type = 'triangle';
+  whine.frequency.value = 900;
+  const whineGain = ctx.createGain();
+  whineGain.gain.value = 0;
+  whine.connect(whineGain).connect(audio.master);
+  whine.start();
+
+  audio.engine = {
+    out, filter, body, oscA, oscB, sub, subGain,
+    lump, lumpDepth, noiseGain, noiseFilter, whine, whineGain,
+  };
 }
 
 
@@ -264,7 +350,11 @@ export function startEngine(audio) {
 
 
 
-export function updateEngine(audio, kart, { onRoad = true } = {}) {
+
+
+
+
+export function updateEngine(audio, kart, { onRoad = true, throttle = 1 } = {}) {
   const e = audio.engine;
   if (!e || !audio.ctx) return;
   const t = audio.ctx.currentTime;
@@ -280,12 +370,34 @@ export function updateEngine(audio, kart, { onRoad = true } = {}) {
 
   const base = 58 + revs * 118 + gear * 9;
   e.oscA.frequency.setTargetAtTime(base, t, 0.045);
-  e.oscB.frequency.setTargetAtTime(base * 1.008, t, 0.045);
-  e.filter.frequency.setTargetAtTime(500 + revs * 2100 + (kart.boost ? 900 : 0), t, 0.05);
+  e.oscB.frequency.setTargetAtTime(base * 1.007, t, 0.045);
+  e.sub.frequency.setTargetAtTime(base * 0.5, t, 0.05);
+
+  
+  
+  
+  
+  
+  const open = Math.max(0, throttle);
+  const brightness = 420 + revs * 1500 + open * (700 + revs * 900) + (kart.boost ? 1100 : 0);
+  e.filter.frequency.setTargetAtTime(brightness, t, 0.05);
+  
+  
+  e.body.gain.setTargetAtTime(4 + open * 7, t, 0.08);
+  
+  
+  e.lumpDepth.gain.setTargetAtTime(0.22 * (1 - Math.min(1, revs)) + 0.02, t, 0.1);
+  e.lump.frequency.setTargetAtTime(7 + revs * 16, t, 0.1);
 
   const load = kart.spinTime > 0 ? 0.06 : 0.05 + Math.min(0.16, frac * 0.18);
-  e.out.gain.setTargetAtTime(audio.muted ? 0 : load, t, 0.08);
+  e.out.gain.setTargetAtTime(audio.muted ? 0 : load * (0.55 + open * 0.45), t, 0.08);
 
+  
+  const boosting = kart.boost ? 1 : 0;
+  e.whine.frequency.setTargetAtTime(700 + revs * 1400, t, 0.12);
+  e.whineGain.gain.setTargetAtTime(audio.muted ? 0 : boosting * 0.045, t, 0.06);
+
+  
   
   
   
@@ -298,6 +410,12 @@ export function updateEngine(audio, kart, { onRoad = true } = {}) {
 export function stopEngine(audio) {
   const e = audio.engine;
   if (!e) return;
+  
+  
+  
+  for (const node of [e.sub, e.lump, e.whine]) {
+    try { node.stop(); } catch {  }
+  }
   try {
     e.oscA.stop(); e.oscB.stop();
   } catch {  }
@@ -369,6 +487,21 @@ export const SFX = {
   land: (audio, hard = 0.5) => {
     blip(audio, { freq: 150 - hard * 50, dur: 0.16, gain: 0.16 + hard * 0.12, type: 'sine', sweep: -80 });
     noiseBurst(audio, { dur: 0.2, gain: 0.10 + hard * 0.1, freq: 320, q: 0.8 });
+  },
+  
+  
+  
+  
+  
+  emote: (audio, id) => {
+    const voice = {
+      happy: { freq: 620, sweep: 340, type: 'square', dur: 0.18 },
+      boast: { freq: 300, sweep: 260, type: 'sawtooth', dur: 0.34 },
+      rude:  { freq: 190, sweep: -90, type: 'sawtooth', dur: 0.30 },
+      sulk:  { freq: 340, sweep: -180, type: 'triangle', dur: 0.40 },
+    }[id] ?? { freq: 460, sweep: 120, type: 'square', dur: 0.2 };
+    blip(audio, { ...voice, gain: 0.22 });
+    blip(audio, { ...voice, freq: voice.freq * 1.5, gain: 0.12, delay: 0.07 });
   },
   itemGet: (audio) => {
     blip(audio, { freq: 520, dur: 0.09, gain: 0.2, type: 'square' });

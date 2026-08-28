@@ -48,6 +48,7 @@ import { buildKart, poseKart } from './render/kartMesh.js';
 import { buildSky, updateSky, buildLights, buildSun, updateSun, fogFor, createChaseCamera, updateChase, snapChase, focusShadow } from './render/world.js';
 import { configureRenderer, buildEnvironment, setQuality, detectQuality } from './render/materials.js';
 import { buildWater, updateWater, buildFires, updateFires } from './render/hazardMesh.js';
+import { buildStartGate, updateStartGate } from './render/startGate.js';
 import {
   createFx, updateFx, driftSparks, boostFlame, groundDust, hitBurst, pickupBurst, createShieldBubble,
 } from './render/fx.js';
@@ -58,6 +59,7 @@ import { createMinimap, drawMinimap } from './ui/minimapView.js';
 import { createControls, readControls, consumeItemPress } from './input/controls.js';
 import { createRaceNet } from './net/raceNet.js';
 import { createAudio, resumeAudio, startEngine, updateEngine, stopEngine, SFX, setMuted } from './audio/sfx.js';
+import { startMusic, stopMusic, setMusicIntensity, duckMusic } from './audio/music.js';
 import { PALETTE } from './palette.js';
 
 
@@ -101,6 +103,16 @@ export function createRace(options) {
   const rng = new SeededRng(seed);
   const itemRng = rng.child('items');
   const raceLaps = laps ?? track.laps ?? 3;
+
+  
+  const hashOf = (str) => {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i += 1) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+    return h >>> 0;
+  };
 
   
   
@@ -162,6 +174,10 @@ export function createRace(options) {
   scene.add(water);
   const fires = buildFires(path, track);
   scene.add(fires);
+  
+  
+  const startGate = buildStartGate(path, track);
+  scene.add(startGate);
   scene.add(buildFences(path, track.scenery?.fencePosts ?? 160));
   scene.add(buildScenery(path, track));
   
@@ -394,6 +410,17 @@ export function createRace(options) {
   let last = 0;
   let clock = 0;
   let finalLapAnnounced = false;
+  
+
+
+
+
+
+
+
+
+
+  let playerSurface = null;
   let disposed = false;
 
   const onResize = () => {
@@ -413,6 +440,13 @@ export function createRace(options) {
     updateSky(sky, clock);
     updateWater(water, clock);
     updateFires(fires, clock);
+    
+    
+    
+    
+    
+    updateStartGate(startGate, clock,
+      finalLapAnnounced ? 1 : (racers.some((r) => r.finished) ? 0.5 : 0));
     const driving = canDrive(flow);
     readControls(controls, dt);
 
@@ -434,6 +468,7 @@ export function createRace(options) {
       if (track.surfaceGrip) s.gripScale *= track.surfaceGrip;
       return s;
     });
+    playerSurface = surfaces[racers.indexOf(you)] ?? null;
 
     const table = standings(progress);
     const posById = new Map(table.map((r) => [r.id, r.position]));
@@ -566,7 +601,7 @@ export function createRace(options) {
         } else if (effect?.action === 'spin') {
           const out = applyEffect(r.kart, 'spin');
           r.kart = out.kart;
-          if (r.isPlayer && out.hit) { SFX.hit(audio); chase.shake = 0.5; }
+          if (r.isPlayer && out.hit) { SFX.hit(audio); chase.shake = 0.5; duckMusic(audio); }
         }
       }
 
@@ -695,6 +730,10 @@ export function createRace(options) {
       if (me && me.lap === raceLaps - 1) {
         finalLapAnnounced = true;
         showBanner(hud, 'FINAL LAP', { kind: 'warn', seconds: 2 });
+        
+        
+        
+        setMusicIntensity(audio, 1);
       }
     }
   }
@@ -1071,7 +1110,15 @@ export function createRace(options) {
     
     
     updateSpeedFx(speedFx, you.kart, camera, dt);
-    updateEngine(audio, you.kart, { onRoad: true });
+    
+    
+    
+    
+    
+    updateEngine(audio, you.kart, {
+      onRoad: playerSurface ? playerSurface.onRoad : true,
+      throttle: controls.throttle ?? 1,
+    });
 
     const table = standings(progress);
     
@@ -1160,6 +1207,7 @@ export function createRace(options) {
     running = false;
     cancelAnimationFrame(raf);
     stopEngine(audio);
+    stopMusic(audio);
     const table = standings(progress);
     const me = table.find((t) => t.id === you.id);
     if (onFinish) {
@@ -1209,6 +1257,9 @@ export function createRace(options) {
       if (running || disposed) return;
       resumeAudio(audio);
       startEngine(audio);
+      
+      
+      startMusic(audio, track.theme, hashOf(track.id));
       running = true;
       last = performance.now();
       raf = requestAnimationFrame(frame);
@@ -1217,6 +1268,7 @@ export function createRace(options) {
       running = false;
       cancelAnimationFrame(raf);
       stopEngine(audio);
+      stopMusic(audio);
     },
     setMuted: (m) => setMuted(audio, m),
     dispose() {

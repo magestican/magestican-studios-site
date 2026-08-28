@@ -27,6 +27,9 @@ import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderbo
 import { startVersionChecker } from 'arbelo/updater';
 import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
+import { createShowcaseView } from './render/showcase.js';
+import { setMusicMuted, musicClock } from './audio/music.js';
+import { EMOTES } from 'arbelo/emotes';
 import { renderKartBoard } from './ui/kartBoard.js';
 
 import { defaultAssist } from 'arbelo/steerAssist';
@@ -37,7 +40,7 @@ import { createLobbyUi } from './ui/lobby.js';
 import { drawItemIcon } from './render/itemMesh.js';
 import { hex, PALETTE } from './palette.js';
 import { isTouchDevice } from './input/controls.js';
-import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState } from './audio/sfx.js';
+import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState, SFX } from './audio/sfx.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -96,7 +99,11 @@ function boot() {
   installAudioUnlock(audio);
   
   
-  window.__fkAudio = () => audioState(audio);
+  
+  
+  
+  
+  window.__fkAudio = () => ({ ...audioState(audio), musicClock: musicClock(audio) });
   state.progress = loadProgress(safeLocalStorage());
   
   
@@ -124,7 +131,7 @@ function boot() {
   
   startVersionChecker({ label: 'A new version of Farmy Kart is available.' });
 
-  buildCharacterGrid();
+  buildCharacterShowcase();
   buildTrackGrid();
   buildDifficultyRow();
   buildLapRow();
@@ -320,32 +327,71 @@ function leaveRoom() {
 
 
 
-function buildCharacterGrid() {
-  const root = $('char-grid');
-  root.innerHTML = '';
-  for (const c of CHARACTERS) {
-    const bars = statBars(c);
-    const el = document.createElement('button');
-    el.className = 'char-card';
-    el.dataset.id = c.id;
-    el.innerHTML = `
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let charView = null;
+
+function buildCharacterShowcase() {
+  const canvas = $('char-canvas');
+  if (!canvas || charView) return;
+
+  charView = createShowcaseView({
+    canvas,
+    ids: CHARACTERS.map((c) => c.id),
+    selected: state.character,
+    onSelect: (id) => {
+      
+      
+      state.character = id;
+      syncCharacterInfo();
+      
+      
+      
+    },
+  });
+
+  $('char-prev').addEventListener('click', () => charView.nudge(-1));
+  $('char-next').addEventListener('click', () => charView.nudge(+1));
+  syncCharacterInfo();
+}
+
+
+
+
+
+
+
+function syncCharacterInfo() {
+  const root = $('char-info');
+  if (!root) return;
+  const c = characterById(state.character) ?? CHARACTERS[0];
+  const bars = statBars(c);
+  root.innerHTML = `
+    <div>
       <span class="char-swatch" style="background:${hex(c.tint)}"></span>
       <span class="char-name">${c.name}</span>
       <span class="char-species">${c.species}</span>
       <span class="char-blurb">${c.blurb}</span>
-      <span class="stats">
-        ${bar('Speed', bars.speed)}
-        ${bar('Accel', bars.accel)}
-        ${bar('Turn', bars.handling)}
-        ${bar('Grip', bars.grip)}
-        ${bar('Weight', bars.weight)}
-      </span>`;
-    el.addEventListener('click', () => {
-      state.character = c.id;
-      syncSelection();
-    });
-    root.appendChild(el);
-  }
+    </div>
+    <span class="stats">
+      ${bar('Speed', bars.speed)}
+      ${bar('Accel', bars.accel)}
+      ${bar('Turn', bars.handling)}
+      ${bar('Grip', bars.grip)}
+      ${bar('Weight', bars.weight)}
+    </span>`;
 }
 
 const bar = (label, v) => `<span class="stat"><i>${label}</i><b><u style="width:${Math.round(Math.max(0.06, v) * 100)}%"></u></b></span>`;
@@ -488,10 +534,100 @@ function buildItemLegend() {
   }
 }
 
-function syncSelection() {
-  for (const el of document.querySelectorAll('.char-card')) {
-    el.classList.toggle('on', el.dataset.id === state.character);
+
+
+
+
+
+
+
+
+
+
+let podiumView = null;
+
+function showPodiumStage(model) {
+  const stage = $('podium-stage');
+  const bar = $('emote-bar');
+  if (!stage) return;
+
+  if (podiumView) { podiumView.dispose(); podiumView = null; }
+  const steps = (model.steps ?? []).filter((s) => s.row?.character);
+  
+  
+  
+  if (steps.length < 2) { stage.hidden = true; bar.hidden = true; return; }
+  stage.hidden = false;
+
+  const winnerAt = steps.findIndex((s) => s.place === 1);
+  podiumView = createShowcaseView({
+    canvas: $('podium-canvas'),
+    ids: steps.map((s) => s.row.character),
+    places: steps.map((s) => s.place),
+    podium: true,
+    
+    selected: steps[Math.max(0, winnerAt)].row.character,
+  });
+  $('podium-prev').onclick = () => podiumView.nudge(-1);
+  $('podium-next').onclick = () => podiumView.nudge(+1);
+
+  buildEmoteBar(model, steps);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function buildEmoteBar(model, steps) {
+  const bar = $('emote-bar');
+  bar.innerHTML = '';
+  const mine = steps.findIndex((s) => s.isPlayer);
+  if (mine < 0) {
+    
+    
+    bar.hidden = false;
+    const hint = document.createElement('span');
+    hint.className = 'emote-hint';
+    hint.textContent = 'Finish in the top three to emote.';
+    bar.appendChild(hint);
+    return;
   }
+  bar.hidden = false;
+  for (const e of EMOTES) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = `${e.icon} ${e.label}`;
+    b.title = e.blurb;
+    b.addEventListener('click', () => {
+      if (!podiumView) return;
+      podiumView.emote(mine, e.id);
+      SFX.emote(audio, e.id);
+      
+      
+      for (const btn of bar.querySelectorAll('button')) btn.disabled = true;
+      const wait = podiumView.emoteCooldown(mine);
+      setTimeout(() => {
+        for (const btn of bar.querySelectorAll('button')) btn.disabled = false;
+      }, Math.max(200, wait * 1000));
+    });
+    bar.appendChild(b);
+  }
+}
+
+function syncSelection() {
+  
+  
+  
+  
+  if (charView && charView.selected() !== state.character) charView.select(state.character);
+  syncCharacterInfo();
   for (const el of document.querySelectorAll('.track-card')) {
     el.classList.toggle('on', el.dataset.id === state.track);
   }
@@ -628,6 +764,7 @@ function showResults(result) {
   const scored = scoreRace(result.table, { fieldSize: result.fieldSize });
   const model = podium(scored, { playerId: 'player' });
   renderPodium($('podium'), model, winnerAnnouncement(model));
+  showPodiumStage(model);
 
   
   
@@ -816,6 +953,10 @@ function buildNameField() {
 
 function toggleMute() {
   state.muted = !state.muted;
+  
+  
+  
+  setMusicMuted(audio, state.muted);
   localStorageSet('farmykart.muted', state.muted ? '1' : '0');
   
   
