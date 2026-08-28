@@ -18,6 +18,8 @@ import { mountLeaderboard } from 'arbelo/leaderboard-ui';
 import { mountEscRouter } from 'arbelo/esc-router';
 import { randomLoadout, assertPlayable } from '../../../web-engine/ui/quickPlay.js';
 import { loadCareer, saveCareer, rememberCharacters } from 'arbelo/career';
+import { LOBBY_OPTIONS, readOption, writeOption } from '../../../web-engine/ui/lobbyOptions.js';
+import { setSfxMuted } from './audio/sfx.js';
 
 
 
@@ -92,7 +94,15 @@ const leaderboardUi = mountLeaderboard({
   
   
   
-  mountInto: '#menu .menu-card',
+  
+  
+  
+  
+  
+  
+  
+  
+  mountInto: '#menu .lobby-head',
   myName: localStorage.getItem('tb.name') || '',
 });
 
@@ -179,17 +189,131 @@ buildPicker('modeRow', 'modeBlurb', MODE_IDS.map((id) => MODES[id]), 'gmode', st
 selectFrom('characterRow', 'char', 'cow');
 
 for (const btn of $('characterRow').querySelectorAll('button')) {
-  btn.addEventListener('click', () => {
-    state.character = btn.dataset.char;
-    selectFrom('characterRow', 'char', state.character, btn);
-    rememberLocalCharacter();
-  });
+  btn.addEventListener('click', () => paintCharacter(btn.dataset.char));
 }
 for (const btn of $('teamRow').querySelectorAll('button')) {
   btn.addEventListener('click', () => {
     state.team = btn.dataset.team;
     selectFrom('teamRow', 'team', state.team, btn);
   });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const charStage = document.getElementById('charStage');
+const charNameEl = document.getElementById('charName');
+const CHAR_LABEL = { cow: 'Cow', chicken: 'Chicken', pig: 'Pig', sheep: 'Sheep' };
+let showcase = null;
+
+function paintCharacter(id, { fromCarousel = false } = {}) {
+  state.character = id;
+  const btn = $('characterRow').querySelector(`button[data-char="${id}"]`);
+  selectFrom('characterRow', 'char', id, btn || undefined);
+  if (charNameEl) charNameEl.textContent = CHAR_LABEL[id] || id;
+  rememberLocalCharacter();
+  
+  
+  if (!fromCarousel) showcase?.select(id);
+}
+
+
+
+
+(async () => {
+  if (!charStage) return;
+  try {
+    const { LobbyShowcase } = await import('./ui/lobbyShowcase.js');
+    showcase = new LobbyShowcase(charStage, ['cow', 'chicken', 'pig', 'sheep'], {
+      selected: state.character,
+      onSelect: (id) => paintCharacter(id, { fromCarousel: true }),
+    });
+    showcase.start();
+    
+    
+    
+    
+    
+    
+    window.__tbLobby = showcase;
+    document.getElementById('charPrev')?.addEventListener('click', () => showcase.nudge(-1));
+    document.getElementById('charNext')?.addEventListener('click', () => showcase.nudge(1));
+    
+    
+    
+    
+    const menuEl = $('menu');
+    new MutationObserver(() => {
+      if (menuEl.style.display === 'none') showcase.stop(); else showcase.start();
+    }).observe(menuEl, { attributes: true, attributeFilter: ['style'] });
+  } catch (err) {
+    console.warn('[lobby] character turntable unavailable, chips still work:', err);
+  }
+})();
+
+
+
+
+
+
+
+
+
+
+const optsEl = document.getElementById('lobbyOptions');
+if (optsEl) {
+  for (const opt of LOBBY_OPTIONS) {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.dataset.opt = opt.id;
+    b.setAttribute('role', 'switch');
+    const box = document.createElement('span');
+    box.className = 'opt-box';
+    const text = document.createElement('span');
+    text.className = 'opt-text';
+    const name = document.createElement('span');
+    name.className = 'opt-name';
+    name.textContent = opt.name;
+    const why = document.createElement('span');
+    why.className = 'opt-why';
+    why.textContent = opt.why;
+    text.append(name, why);
+    b.append(box, text);
+
+    const paint = (on) => {
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-checked', on ? 'true' : 'false');
+    };
+    paint(readOption(localStorage, opt.id));
+
+    b.addEventListener('click', () => {
+      const on = !readOption(localStorage, opt.id);
+      writeOption(localStorage, opt.id, on);
+      paint(on);
+      
+      
+      
+      if (opt.id === 'muted') {
+        try { setSfxMuted(on); } catch (_) {}
+        try { window.__tbGame?.audio?.setMuted?.(on); } catch (_) {}
+      }
+    });
+    optsEl.appendChild(b);
+  }
 }
 
 
