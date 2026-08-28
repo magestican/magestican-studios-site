@@ -31,6 +31,7 @@
 
 
 import { chargeRate, boostForCharge, applyBoost, driftTier } from './driftBoost.js';
+import { glideFields, glideStep, glideSink, glideCruise } from './glide.js';
 
 
 
@@ -101,6 +102,9 @@ export function createKart({ x = 0, y = 0, z = 0, heading = 0, id = 'p1', tuning
     
     pathHint: null,       
     lostTime: 0,          
+    
+    
+    ...glideFields(),
     
     
     speed: 0,
@@ -236,6 +240,40 @@ export function stepKart(state, input, surface, dt) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const groundY = surface.groundY ?? surface.y ?? 0;
+  s.airTime = s.grounded ? 0 : s.airTime + dt;
+  
+  
+  
+  s.airHeight = s.grounded ? 0 : Math.max(s.airHeight, s.y - groundY);
+  const glide = glideStep(s, input, {
+    height: s.airHeight,
+    dt,
+    
+    
+    
+    
+    declared: surface.glide === true,
+  });
+  s.gliding = glide.gliding;
+  s.glideTime = glide.glideTime;
+  s.glideDive = glide.dive;
+  s.glideStarted = glide.started;
+  s.glideLanded = false;
+
+  
+  
+  
+  
   if (input.jump && s.grounded && !spinning && s.jumpCooldown <= 0) {
     s.vy = JUMP_SPEED;
     s.grounded = false;
@@ -310,7 +348,9 @@ export function stepKart(state, input, surface, dt) {
     const driftGain = s.drifting ? 1.32 : 1;
     
     
-    const air = s.grounded ? 1 : 0.35;
+    
+    
+    const air = s.grounded ? 1 : (s.gliding ? glide.steer : 0.35);
     
     
     
@@ -339,7 +379,14 @@ export function stepKart(state, input, surface, dt) {
   let vf = s.vx * fwd.x + s.vz * fwd.z;
 
   let along = 0;   
-  if (spinning) {
+  if (s.gliding) {
+    
+    
+    
+    
+    
+    along = 0;
+  } else if (spinning) {
     along = -vf * 3.2;
   } else if (throttle > 0.02) {
     
@@ -382,7 +429,13 @@ export function stepKart(state, input, surface, dt) {
   
   vf = s.vx * fwd.x + s.vz * fwd.z;
   const ground = Math.hypot(s.vx, s.vz);
-  if (!s.boost && ground > speedCap && vf > 0) {
+  
+  
+  
+  
+  
+  
+  if (!s.boost && !s.gliding && ground > speedCap && vf > 0) {
     const scale = speedCap / ground;
     s.vx *= scale;
     s.vz *= scale;
@@ -404,7 +457,11 @@ export function stepKart(state, input, surface, dt) {
     const surfaceGrip = surface.gripScale ?? 1;
     
     
-    const air = s.grounded ? 1 : 0.06;
+    
+    
+    
+    
+    const air = s.grounded ? 1 : (s.gliding ? glide.grip : 0.06);
     const gripTurn = (drifting ? t.driftGripTurn : t.gripTurn) * surfaceGrip * air;
     const maxSlip = (drifting ? t.driftMaxSlip : t.maxSlip) / Math.max(surfaceGrip, 0.35);
 
@@ -455,6 +512,26 @@ export function stepKart(state, input, surface, dt) {
     s.vz = Math.cos(dir) * mag;
   }
 
+  
+  
+  
+  
+  
+  if (s.gliding) {
+    const was = Math.hypot(s.vx, s.vz);
+    const want = glideCruise(was, glide.cruise, dt);
+    if (was > 1e-6) {
+      const scale = want / was;
+      s.vx *= scale;
+      s.vz *= scale;
+    } else {
+      
+      
+      s.vx = fwd.x * want;
+      s.vz = fwd.z * want;
+    }
+  }
+
   s.speed = s.vx * fwd.x + s.vz * fwd.z;
   s.groundSpeed = Math.hypot(s.vx, s.vz);
 
@@ -465,12 +542,33 @@ export function stepKart(state, input, surface, dt) {
   
   
   
-  const groundY = surface.groundY ?? surface.y ?? 0;
+  
   if (!s.grounded || s.y > groundY + 1e-4) {
-    s.vy -= GRAVITY * dt;
+    
+    
+    
+    s.vy = s.gliding ? glideSink(s.vy, glide.sink, GRAVITY, dt) : s.vy - GRAVITY * dt;
     s.y += s.vy * dt;
     if (s.y <= groundY) {
       s.y = groundY; s.vy = 0; s.grounded = true; s.landed = true;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      s.airTime = 0;
+      s.airHeight = 0;
+      if (s.gliding) {
+        s.gliding = false;
+        s.glideTime = 0;
+        s.glideDive = false;
+        s.glideLanded = true;
+      }
     } else s.grounded = false;
   } else {
     s.y = groundY;
@@ -483,7 +581,27 @@ export function stepKart(state, input, surface, dt) {
   s.z += s.vz * dt;
 
   
-  s.lostTime = surface.lost ? s.lostTime + dt : 0;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (s.gliding) {
+    
+  } else if (s.glideLanded) {
+    s.lostTime = 0;
+  } else {
+    s.lostTime = surface.lost ? s.lostTime + dt : 0;
+  }
 
   return s;
 }
@@ -582,6 +700,16 @@ export function respawnKart(state, place, { after = 2.4, keepSpeed = 0.28 } = {}
     grounded: true,
     speed: v,
     slip: 0,
+    
+    
+    
+    airTime: 0,
+    airHeight: 0,
+    gliding: false,
+    glideTime: 0,
+    glideDive: false,
+    glideStarted: false,
+    glideLanded: false,
     drifting: 0,
     driftCharge: 0,
     spinTime: 0,

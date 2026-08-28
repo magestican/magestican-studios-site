@@ -213,10 +213,103 @@ export function createChaseCamera(camera) {
     yaw: 0,
     fov: 62,
     shake: 0,
+    
+    
+    glide: 0,
   };
 }
 
-export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.5 } = {}) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GLIDE_DOLLY = 1.15;
+
+
+export const GLIDE_LIFT = 6.5;
+
+
+
+
+
+
+
+
+
+
+export const GLIDE_LOOK_TIME = 2.2;
+
+
+export const GLIDE_LOOK_MAX = 80;
+
+
+
+
+
+
+
+
+
+
+export const GLIDE_LOOK_DROP = 22;
+
+
+
+
+
+
+
+
+
+
+
+
+const GLIDE_SINK_GUESS = 8;
+
+
+const GLIDE_EASE_IN = 2.2;
+
+
+
+
+const GLIDE_EASE_OUT = 1.25;
+
+
+
+
+
+
+
+
+
+
+export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.5, groundY = null } = {}) {
   const speed = Math.abs(kart.speed ?? 0);
   const travel = Math.hypot(kart.vx, kart.vz) > 1.2
     ? Math.atan2(kart.vx, kart.vz)
@@ -251,8 +344,23 @@ export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.
   
   
   
-  const dist = back + fast * 3.2;
-  const h = height - fast * 0.95;
+  let dist = back + fast * 3.2;
+  let h = height - fast * 0.95;
+
+  
+  
+  
+  
+  const wantGlide = kart.gliding ? 1 : 0;
+  const easeRate = wantGlide > cam.glide ? GLIDE_EASE_IN : GLIDE_EASE_OUT;
+  cam.glide += (wantGlide - cam.glide) * Math.min(1, dt * easeRate);
+  if (cam.glide < 1e-4) cam.glide = 0;
+  const g = cam.glide;
+
+  if (g > 0) {
+    dist *= 1 + g * GLIDE_DOLLY;
+    h += g * GLIDE_LIFT;
+  }
 
   const tx = kart.x - Math.sin(cam.yaw) * dist;
   const tz = kart.z - Math.cos(cam.yaw) * dist;
@@ -269,11 +377,26 @@ export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.
   const sx = cam.shake * (Math.sin(performance.now() * 0.07) * 0.22);
   const sy = cam.shake * (Math.sin(performance.now() * 0.093) * 0.18);
 
+  
+  
+  
+  
+  let lookDist = look;
+  let lookY = kart.y + 1.05;
+  if (g > 0) {
+    
+    
+    const drop = groundY === null ? 0 : Math.max(0, kart.y - groundY);
+    const ahead = Math.min(GLIDE_LOOK_MAX, speed * Math.min(GLIDE_LOOK_TIME, drop / GLIDE_SINK_GUESS));
+    lookDist = look + Math.sign(look || 1) * g * ahead;
+    lookY -= g * Math.min(drop, GLIDE_LOOK_DROP);
+  }
+
   cam.camera.position.set(cam.x + sx, cam.y + sy, cam.z);
   cam.camera.lookAt(
-    kart.x + Math.sin(cam.yaw) * look,
-    kart.y + 1.05,
-    kart.z + Math.cos(cam.yaw) * look,
+    kart.x + Math.sin(cam.yaw) * lookDist,
+    lookY,
+    kart.z + Math.cos(cam.yaw) * lookDist,
   );
 
   
@@ -292,6 +415,10 @@ export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.
 
 
 export function snapChase(cam, kart, { back = 7.4, height = 3.3 } = {}) {
+  
+  
+  
+  cam.glide = 0;
   cam.yaw = kart.heading;
   cam.x = kart.x - Math.sin(cam.yaw) * back;
   cam.y = kart.y + height;

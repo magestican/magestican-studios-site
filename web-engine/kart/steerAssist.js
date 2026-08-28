@@ -38,6 +38,7 @@
 
 
 import { trackSurface } from './trackPath.js';
+import { DEPLOY_HEIGHT } from './glide.js';
 
 
 export const MAX_CORRECTION = 0.55;
@@ -177,6 +178,28 @@ export function assistSteer({ steer, kart, surface, path = null, strength = 1 })
   
   
   if (!(kart.speed > 6) || kart.spinTime > 0) return steer;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (kart.gliding || (kart.airHeight ?? 0) >= DEPLOY_HEIGHT) return steer;
 
   const half = Math.max(1e-3, surface.width / 2);
   

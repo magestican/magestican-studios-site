@@ -185,7 +185,12 @@ export function createRace(options) {
   const spectators = buildSpectators(path, track.scenery?.spectators ?? 64, { shoulder: SHOULDER });
   scene.add(spectators);
 
-  const fx = createFx(scene);
+  
+  
+  
+  
+  
+  const fx = createFx(scene, { theme: track.theme, path });
   
   
   const sunOffset = sunDisc.position.clone();
@@ -603,6 +608,21 @@ export function createRace(options) {
           r.kart = out.kart;
           if (r.isPlayer && out.hit) { SFX.hit(audio); chase.shake = 0.5; duckMusic(audio); }
         }
+      }
+
+      
+      
+      
+      
+      
+      
+      
+      if (r.kart.glideLanded) {
+        if (r.isPlayer) {
+          SFX.land(audio, 0.45);
+          chase.shake = 0.22;
+        }
+        r.airFrom = 0;
       }
 
       
@@ -1118,7 +1138,16 @@ export function createRace(options) {
 
     
     
-    updateChase(chase, you.kart, dt, controls.lookBack ? { back: -6.5, look: -6 } : undefined);
+    
+    
+    
+    
+    
+    
+    updateChase(chase, you.kart, dt, {
+      ...(controls.lookBack ? { back: -6.5, look: -6 } : {}),
+      groundY: playerSurface ? playerSurface.y : null,
+    });
     focusShadow(lights, you.kart.x, you.kart.z);
     
     
