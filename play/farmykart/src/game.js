@@ -23,7 +23,7 @@ import { createDriver, driveBot, findThreats } from 'arbelo/kartAi';
 import { crossedJump } from 'arbelo/trackJumps';
 import { hazardAt, hazardEffect } from 'arbelo/trackHazards';
 import { assistSteer } from 'arbelo/steerAssist';
-import { createRecovery, stepRecovery, isRecovering } from 'arbelo/recovery';
+import { createRecovery, stepRecovery, isRecovering, isUnrecoverable } from 'arbelo/recovery';
 import { createProgress, addRacer, updateRacer, standings } from 'arbelo/raceProgress';
 import { createFlow, stepFlow, canDrive, judgeLaunch, launchMeter, PHASE } from 'arbelo/raceFlow';
 import { drawItem, layoutItemBoxes } from 'arbelo/itemRoulette';
@@ -617,6 +617,28 @@ export function createRace(options) {
       if (r.kart.justBoosted) {
         if (r.isPlayer) SFX.miniTurbo(audio, r.kart.justBoosted.tier);
         if (r.isPlayer) chase.shake = Math.min(1, 0.3 + r.kart.justBoosted.tier * 0.18);
+      }
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (isUnrecoverable(surf, r.kart)) {
+        r.kart = respawnKart(r.kart, sampleAt(path, surf.s), { after: 0 });
       }
 
       

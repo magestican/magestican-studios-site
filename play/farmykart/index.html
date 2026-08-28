@@ -280,14 +280,22 @@
 
 
 
-    #hud {
-      pointer-events: none; z-index: 5;
+    
+
+
+
+
+
+    #hud, #touch-hints {
       --hud-paper: #f6f1e6;
       --hud-ink:   #1c1a17;
       --hud-soft:  #6b6357;
       --hud-shadow: 0 2px 0 rgba(28,26,23,0.85), 0 5px 0 rgba(28,26,23,0.30),
                     0 10px 26px rgba(28,26,23,0.45);
       --hud-r: 12px;
+    }
+    #hud {
+      pointer-events: none; z-index: 5;
       font-variant-numeric: tabular-nums;
     }
     #hud.show { display: block; }
@@ -547,17 +555,149 @@
     }
 
     
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     #touch-hints { z-index: 6; pointer-events: none; }
-    #touch-hints .zone { position: absolute; bottom: 0; height: 45%;
-      display: flex; align-items: flex-end; justify-content: center;
-      padding-bottom: max(26px, env(safe-area-inset-bottom));
-      font-size: 12px; letter-spacing: 0.08em; color: rgba(246,241,230,0.5);
-      animation: fadeHint 5s ease forwards; }
-    #touch-hints .zone.left { left: 0; width: 42%; border-right: 1px dashed rgba(246,241,230,0.14); }
-    #touch-hints .zone.right { right: 0; width: 58%; }
-    #touch-hints .zone.drift { right: 0; width: 26%; height: 24%; align-items: center; }
+    #touch-hints .tc-box {
+      position: absolute; left: 0; top: 0;
+      transition: transform 70ms cubic-bezier(.2,1.4,.4,1);
+    }
+    #touch-hints canvas.tc-layer { position: absolute; left: 0; top: 0; display: block; }
+    
+
+
+
+
+
+    #tc-drift, #tc-item {
+      background: linear-gradient(180deg, #fbf7ef 0%, var(--hud-paper) 46%, #ece5d5 100%);
+      border: 2px solid var(--hud-ink); border-radius: var(--hud-r);
+      box-shadow: var(--hud-shadow);
+    }
+    
+
+
+
+
+    #tc-drift > canvas, #tc-item > canvas { left: -2px; top: -2px; }
+    #tc-drift.on, #tc-item.on {
+      background: linear-gradient(180deg, #ffe9a8 0%, var(--gold) 50%, #d9a93a 100%);
+      box-shadow: 0 1px 0 rgba(28,26,23,0.85), 0 2px 0 rgba(28,26,23,0.30);
+    }
+    
+
+
+
+    #touch-hints .tc-lit { opacity: 0; }
+    #touch-hints .on > .tc-lit { opacity: 1; }
+    #touch-hints .on > .tc-idle { opacity: 0; }
+    
+
+    #tc-wheel.on { transform: scale(1.035); }
+    #tc-pedal.on, #tc-drift.on, #tc-item.on { transform: scale(0.955); }
+    #tc-wheel-spin {
+      position: absolute; inset: 0; transform-origin: 50% 50%;
+      
+
+
+
+      transition: transform 60ms linear;
+      will-change: transform;
+    }
+
+    
+
+
+    #touch-hints .tc-label {
+      position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%);
+      background: var(--hud-paper); color: var(--hud-ink);
+      border: 2px solid var(--hud-ink); border-radius: 999px;
+      padding: 1px 8px 2px; font-size: 10px; font-weight: 800;
+      letter-spacing: 0.11em; text-transform: uppercase; white-space: nowrap;
+      box-shadow: 0 2px 0 rgba(28,26,23,0.55);
+    }
+    #touch-hints .on .tc-label { background: var(--gold); }
+    
+
+    #tc-pedal .tc-label { bottom: 4px; }
+
+    
+
+
+
+    #tc-brake {
+      position: absolute; left: 50%; top: -15px; transform: translateX(-50%);
+      background: var(--barn); color: var(--hud-paper);
+      border: 2px solid var(--hud-ink); border-radius: 999px;
+      padding: 2px 10px 3px; font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; opacity: 0; transition: opacity 80ms linear;
+      box-shadow: 0 2px 0 rgba(28,26,23,0.55);
+    }
+    #tc-brake.on { opacity: 1; }
+
+    
+
+
+    #tc-grip, #tc-thumb, #tc-bar { position: absolute; left: 0; top: 0; display: none; }
+    #tc-grip, #tc-thumb {
+      width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
+    }
+    #tc-grip {
+      border: 3px dashed var(--hud-paper);
+      box-shadow: 0 0 0 2px rgba(28,26,23,0.55), inset 0 0 0 2px rgba(28,26,23,0.4);
+    }
+    #tc-thumb {
+      background: rgba(244,201,93,0.62); border: 3px solid var(--hud-ink);
+      box-shadow: 0 0 0 2px rgba(246,241,230,0.85);
+    }
+    #tc-bar {
+      height: 9px; width: 0; margin-top: -4.5px; transform-origin: 0 50%;
+      background: var(--gold); border: 2px solid var(--hud-ink); border-radius: 999px;
+    }
+
+    
+
+
+
+
+    #tc-hint {
+      position: absolute; text-align: center;
+      background: var(--hud-paper); color: var(--hud-ink);
+      border: 2px solid var(--hud-ink); border-radius: 999px;
+      padding: 3px 8px; font-size: 9.5px; font-weight: 800; line-height: 1.25;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      box-shadow: 0 2px 0 rgba(28,26,23,0.55);
+      animation: fadeHint 7s ease forwards;
+    }
     @keyframes fadeHint { 0%, 55% { opacity: 1; } 100% { opacity: 0; } }
 
     
@@ -884,10 +1024,62 @@
     <div id="hud-wrongway">Wrong way</div>
   </div>
 
-  <div id="touch-hints" class="screen">
-    <div class="zone left">SLIDE TO STEER</div>
-    <div class="zone right">HOLD TO GO</div>
-    <div class="zone drift">DRIFT</div>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="touch-hints" class="screen" aria-hidden="true">
+    <div id="tc-wheel" class="tc-box">
+      <div id="tc-wheel-spin">
+        <canvas id="tc-wheel-a" class="tc-layer tc-idle"></canvas>
+        <canvas id="tc-wheel-b" class="tc-layer tc-lit"></canvas>
+      </div>
+      <div id="tc-brake">Brake</div>
+    </div>
+
+    <div id="tc-pedal" class="tc-box">
+      <canvas id="tc-pedal-a" class="tc-layer tc-idle"></canvas>
+      <canvas id="tc-pedal-b" class="tc-layer tc-lit"></canvas>
+      <span class="tc-label">Go</span>
+    </div>
+
+    <div id="tc-item" class="tc-box">
+      <canvas id="tc-item-c" class="tc-layer"></canvas>
+      <span class="tc-label">Item</span>
+    </div>
+
+    <div id="tc-drift" class="tc-box">
+      <canvas id="tc-drift-c" class="tc-layer"></canvas>
+      <span class="tc-label">Drift</span>
+    </div>
+
+    
+
+
+
+    <div id="tc-bar"></div>
+    <div id="tc-grip"></div>
+    <div id="tc-thumb"></div>
+
+    
+
+
+
+
+
+    
+
+    <div id="tc-hint">Slide the left side to steer &middot; hold the right to go<br>
+      Slide down to brake &middot; tap drift to hop</div>
   </div>
 
   
@@ -992,7 +1184,7 @@
 
 
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=a7bb194-20260828T134833Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=ada199d-20260828T140338Z"></script>
 
   <script type="importmap">
   {
@@ -1022,6 +1214,7 @@
       "arbelo/emotes":        "../../web-engine/kart/emotes.js",
       "arbelo/recovery":      "../../web-engine/kart/recovery.js",
       "arbelo/raceScore":     "../../web-engine/kart/raceScore.js",
+      "arbelo/touchLayout":   "../../web-engine/kart/touchLayout.js",
       "arbelo/trackRotation": "../../web-engine/kart/trackRotation.js",
       "arbelo/kartLeaderboard": "../../web-engine/kart/kartLeaderboard.js",
       "arbelo/leaderboard":   "../../web-engine/stats/firebaseLeaderboard.js",
@@ -1048,6 +1241,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=a7bb194-20260828T134833Z"></script>
+  <script type="module" src="./src/main.js?v=ada199d-20260828T140338Z"></script>
 </body>
 </html>

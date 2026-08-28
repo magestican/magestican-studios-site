@@ -138,3 +138,122 @@ function hold(rec, kart, surface) {
 
 
 export const isRecovering = (rec) => !!(rec && rec.active);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const UNRECOVERABLE_OVER = 34;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const UNRECOVERABLE_GRACE = 1.25;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function isUnrecoverable(surface, kart) {
+  if (!surface || !kart) return false;
+  
+  
+  
+  if (!surface.lost) return false;
+  if ((surface.overBy ?? 0) < UNRECOVERABLE_OVER) return false;
+  
+  if (!kart.grounded) return false;
+  return (kart.lostTime ?? 0) >= UNRECOVERABLE_GRACE;
+}

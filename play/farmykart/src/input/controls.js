@@ -23,6 +23,28 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import {
+  isBrakeSlide, steerFromDrag, touchZoneAt,
+} from 'arbelo/touchLayout';
+import { createTouchOverlay } from '../ui/touchControls.js';
+
 const DEADZONE = 0.14;
 
 
@@ -52,6 +74,10 @@ export function createControls(root) {
     _touchDrift: false,
     _touchItem: false,
     _touchJump: false,
+    
+    
+    
+    _touchTick: null,
     _pads: false,
     dispose: () => {},
   };
@@ -92,6 +118,16 @@ export function createControls(root) {
 
 
 export function readControls(state, dt) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (state._touchTick) state._touchTick();
   const k = state._keys;
   let steer = 0;
   let throttle = 0;
@@ -182,14 +218,21 @@ export function consumeItemPress(state) {
 function attachTouch(root, state) {
   const pointers = new Map();
 
-  const zoneOf = (x, y, w, h) => {
-    
-    const btnR = Math.max(64, Math.min(96, w * 0.09));
-    if (x > w - btnR * 2.6 && y > h - btnR * 2.6) return 'drift';
-    if (x > w - btnR * 5.4 && x < w - btnR * 2.8 && y > h - btnR * 2.2) return 'item';
-    if (x < w * 0.42) return 'steer';
-    return 'throttle';
-  };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const zoneOf = touchZoneAt;
+
+  const overlay = isTouchDevice() && typeof document !== 'undefined'
+    ? createTouchOverlay(document.getElementById('touch-hints'))
+    : null;
 
   const onDown = (e) => {
     if (e.pointerType === 'mouse') return;
@@ -215,19 +258,30 @@ function attachTouch(root, state) {
   function apply() {
     let steer = 0; let throttle = 0; let drift = false; let item = false; let brake = false;
     let jump = false;
+    
+    
+    
+    
+    
+    let grab = null;
     const w = window.innerWidth;
     for (const p of pointers.values()) {
       if (p.zone === 'steer') {
         
         
-        const travel = Math.max(60, w * 0.16);
+        
+        
         const dx = (p.x ?? p.startX) - p.startX;
-        steer += Math.max(-1, Math.min(1, dx / travel));
+        steer += steerFromDrag(dx, w);
         
         
         
         const dy = (p.y ?? p.startY) - p.startY;
-        if (dy > 70) brake = true;
+        if (isBrakeSlide(dy)) brake = true;
+        grab = {
+          startX: p.startX, startY: p.startY,
+          x: p.x ?? p.startX, y: p.y ?? p.startY,
+        };
       } else if (p.zone === 'throttle') {
         throttle = 1;
       } else if (p.zone === 'drift') {
@@ -251,7 +305,21 @@ function attachTouch(root, state) {
     state._touchItem = item;
     state._touchJump = jump;
     state._touchBrake = brake;
+    if (overlay) {
+      overlay.update({
+        steer: state._touchSteer,
+        throttle,
+        drift,
+        item,
+        brake,
+        grab,
+      });
+    }
   }
+
+  
+  
+  state._touchTick = () => { if (pointers.size) apply(); };
 
   const target = root ?? window;
   target.addEventListener('pointerdown', onDown, { passive: false });
@@ -268,6 +336,8 @@ function attachTouch(root, state) {
       target.removeEventListener('pointerup', onUp);
       target.removeEventListener('pointercancel', onUp);
       target.removeEventListener('pointerleave', onUp);
+      state._touchTick = null;
+      if (overlay) overlay.dispose();
     },
   };
 }

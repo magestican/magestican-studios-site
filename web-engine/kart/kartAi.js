@@ -14,7 +14,7 @@
 
 
 import { lineAt } from './racingLine.js';
-import { signedDelta } from './trackPath.js';
+import { signedDelta, nearestOnBranch } from './trackPath.js';
 
 
 
@@ -33,6 +33,21 @@ export const DIFFICULTIES = Object.freeze({
 export const DEFAULT_DIFFICULTY = 'market';
 
 
+
+
+
+
+
+
+function mix32(n) {
+  let h = Math.imul(n, 0x9e3779b1) >>> 0;
+  h ^= h >>> 15; h = Math.imul(h, 0x85ebca6b) >>> 0;
+  h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0;
+  h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
+}
+
+
 export function createDriver(seedIndex, difficulty = DEFAULT_DIFFICULTY) {
   const d = DIFFICULTIES[difficulty] ?? DIFFICULTIES[DEFAULT_DIFFICULTY];
   return {
@@ -47,6 +62,32 @@ export function createDriver(seedIndex, difficulty = DEFAULT_DIFFICULTY) {
     driftHold: 0,
     itemCooldown: 0.4 + (seedIndex % 5) * 0.3,
     lastS: 0,
+    
+    
+    
+    
+    
+    taking: null,
+    judged: null,
+    arrived: false,
+    approachFor: 0,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    nerve: mix32(seedIndex + 1),
   };
 }
 
@@ -75,6 +116,100 @@ const clampAngle = (a) => {
 
 
 
+
+
+
+
+
+
+
+
+const DECIDE_AHEAD = 55;
+
+
+const RELEASE_PAST = 6;
+
+
+
+
+
+
+
+
+
+function aheadBy(path, s, target) {
+  const d = target - s;
+  return ((d % path.length) + path.length) % path.length;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function wantsShortcut(driver, branch) {
+  if (!branch || branch.saving <= 2) return false;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  const d = driver.difficulty;
+  
+  
+  const skill = (d.driftSkill ?? 0.5) * 0.6 + (d.precision ?? 0.5) * 0.4;
+
+  
+  
+  const grip = branch.grip ?? 1;
+  const width = branch.width ?? 14;
+  const risk = (1 - grip) * 2.2 + Math.max(0, (14 - width) / 14) * 0.9;
+
+  
+  
+  
+  const appetite = skill * 0.9 + driver.nerve * 0.45;
+  return appetite > risk;
+}
+
+
+
+
+
+
+
+
+
+function aimOnBranch(branch, kart, look) {
+  const near = nearestOnBranch(branch, kart.x, kart.z);
+  const want = Math.min(branch.length, near.s + look);
+  
+  
+  
+  let i = near.index;
+  while (i < branch.count - 1 && branch.s[i] < want) i += 1;
+  const p = branch.pts[i];
+  return { x: p.x, z: p.z, s: near.s, index: near.index, tx: branch.tangents[i].x, tz: branch.tangents[i].z };
+}
+
 export function driveBot(driver, kart, line, ctx) {
   const d = driver.difficulty;
   const path = line.path;
@@ -87,14 +222,79 @@ export function driveBot(driver, kart, line, ctx) {
   
   
   const look = 7 + speed * 0.55;
-  const target = lineAt(line, surface.s + look);
+
+  
+  
+  
+  
+  
+  
+  let branchTarget = null;
+  const branches = path.branches ?? [];
+  if (branches.length) {
+    if (driver.taking) {
+      const near = nearestOnBranch(driver.taking, kart.x, kart.z);
+      const off = Math.hypot(kart.x - near.x, kart.z - near.z);
+      
+      
+      
+      
+      
+      
+      
+      if (off < (driver.taking.width ?? 12) * 0.75) driver.arrived = true;
+      driver.approachFor += ctx.dt ?? 0;
+
+      const done = near.s > driver.taking.length - RELEASE_PAST;
+      
+      const stray = driver.arrived && off > (driver.taking.width ?? 12);
+      
+      
+      
+      const gaveUp = !driver.arrived && driver.approachFor > 6;
+
+      if (done || stray || gaveUp) {
+        
+        
+        driver.taking = null;
+        driver.arrived = false;
+        driver.approachFor = 0;
+      } else branchTarget = aimOnBranch(driver.taking, kart, look);
+    } else {
+      for (const b of branches) {
+        const gap = aheadBy(path, surface.s, b.entryS);
+        if (gap > DECIDE_AHEAD) continue;
+        if (driver.judged === b.id) break;      
+        driver.judged = b.id;
+        if (wantsShortcut(driver, b)) {
+          driver.taking = b;
+          driver.arrived = false;
+          driver.approachFor = 0;
+        }
+        break;
+      }
+      
+      
+      
+      if (!driver.taking && driver.judged) {
+        const b = branches.find((x) => x.id === driver.judged);
+        if (b && aheadBy(path, surface.s, b.entryS) > DECIDE_AHEAD * 2) driver.judged = null;
+      }
+    }
+  }
+
+  const target = branchTarget ?? lineAt(line, surface.s + look);
 
   
   
   
   const wobble = Math.sin(ctx.time * 0.55 + driver.phase) * 1.1 * driver.lineBias * 2;
-  const tx = target.x + Math.cos(target.heading) * wobble;
-  const tz = target.z - Math.sin(target.heading) * wobble;
+  
+  
+  
+  const targetHeading = target.heading ?? Math.atan2(target.tx, target.tz);
+  const tx = target.x + Math.cos(targetHeading) * wobble;
+  const tz = target.z - Math.sin(targetHeading) * wobble;
 
   
   
