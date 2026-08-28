@@ -38,6 +38,7 @@
 
 import * as THREE from 'three';
 import { nearestOnBranch, nearestOnPath } from 'arbelo/trackPath';
+import { RESPAWNS } from 'arbelo/trackHazards';
 import { PALETTE } from '../palette.js';
 import { makeBarnTexture } from './textures.js';
 
@@ -90,13 +91,23 @@ function onShortcut(path, x, z, pad) {
 
 
 function inWaterZone(path, x, z) {
+  
+  
+  
+  
+  
+  
+  const feature = (path.terrain ?? []).find(
+    (f) => f.kind === 'volcano' && Math.hypot(x - f.x, z - f.z) < (f.craterRadius ?? 78) * 1.25,
+  );
+  if (feature) return true;
   const zones = path.hazards;
   if (!zones || !zones.length) return false;
   const near = nearestOnPath(path, x, z, null);
   const frac = near.s / path.length;
   const out = Math.abs(near.lateral ?? 0) / Math.max(1e-3, near.width / 2);
   for (const zone of zones) {
-    if (zone.kind !== 'water') continue;
+    if (!RESPAWNS.has(zone.kind)) continue;
     const within = zone.from <= zone.to
       ? frac >= zone.from && frac <= zone.to
       : frac >= zone.from || frac <= zone.to;
@@ -108,6 +119,28 @@ function inWaterZone(path, x, z) {
     if (out >= (zone.beyond ?? 1.18)) return true;
   }
   return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function tooSteep(path, x, z, limit = 0.34) {
+  const d = 6;
+  const dx = (groundMeshHeightAt(path, x + d, z) - groundMeshHeightAt(path, x - d, z)) / (2 * d);
+  const dz = (groundMeshHeightAt(path, x, z + d) - groundMeshHeightAt(path, x, z - d)) / (2 * d);
+  return Math.hypot(dx, dz) > limit;
 }
 
 function besideTrack(path, rng, minOut, maxOut, { clear = 2, minClear = 0 } = {}) {
@@ -122,6 +155,7 @@ function besideTrack(path, rng, minOut, maxOut, { clear = 2, minClear = 0 } = {}
     const x = p.x + t.z * out;
     const z = p.z - t.x * out;
     if (inWaterZone(path, x, z)) continue;
+    if (tooSteep(path, x, z)) continue;
     
     
     

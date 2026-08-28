@@ -14,19 +14,19 @@
 
 
 import * as THREE from 'three';
-import { nearestOnPath, nearestOnBranch } from 'arbelo/trackPath';
+import { nearestOnBranch, sampleAt } from 'arbelo/trackPath';
 import { PALETTE } from '../palette.js';
 import { makeRoadTexture, makeGrassTexture, makeShortcutTexture } from './textures.js';
 import { surface, addGroundDetail } from './materials.js';
-import { waterDepthAt, inSpan } from 'arbelo/trackHazards';
+import { inSpan } from 'arbelo/trackHazards';
+import {
+  SHOULDER, KERB_WIDTH, groundGrid, groundMeshHeightAt,
+} from 'arbelo/trackGround';
+import { terrainOffsetAt } from 'arbelo/trackTerrain';
 
 
 
 
-
-export const SHOULDER = 7;
-
-const KERB_WIDTH = 1.6;
 
 
 
@@ -44,11 +44,28 @@ export function buildTrackMesh(path, track) {
   group.name = 'track';
   const theme = track.theme ?? 'summer';
 
-  group.add(buildGround(path, theme));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  path.terrain = track.terrain ?? null;
+
+  group.add(buildGround(path, track));
+  group.add(buildChasmWalls(path, track));
+  group.add(buildViaducts(path));
   group.add(buildRoad(path, theme));
   group.add(buildShortcuts(path, theme));
   group.add(buildKerbs(path));
-  group.add(buildVerge(path, theme));
+  group.add(buildVerge(path, track));
   group.add(buildMarkerPosts(path, theme));
   group.add(buildStartLine(path));
   return group;
@@ -67,9 +84,6 @@ export function buildTrackMesh(path, track) {
 
 
 
-const FLAT_OUT = 46;
-const HILL_OUT = 150;
-const HILL_HEIGHT = 3.2;
 
 
 
@@ -79,145 +93,10 @@ const HILL_HEIGHT = 3.2;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-const GROUND_SEG = 64;
-
-
-
-
-
-
-
-export function groundGrid(path) {
-  const b = path.bounds;
-  
-  
-  const w = (b.maxX - b.minX) + 900;
-  const h = (b.maxZ - b.minZ) + 900;
-  return {
-    w, h, seg: GROUND_SEG,
-    cx: (b.minX + b.maxX) / 2,
-    cz: (b.minZ + b.maxZ) / 2,
-  };
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function roadDip(out) {
-  const FULL = 2.4;             
-  const FADE = SHOULDER + KERB_WIDTH + 5;
-  if (out >= FADE) return 0;
-  const u = Math.max(0, out) / FADE;
-  
-  return FULL * (1 - u * u * (3 - 2 * u));
-}
-
-
-
-
-
-
-
-
-
-
-
-export function groundMeshHeightAt(path, x, z) {
-  const g = groundGrid(path);
-  const dx = g.w / g.seg;
-  const dz = g.h / g.seg;
-  const x0 = g.cx - g.w / 2;
-  const z0 = g.cz - g.h / 2;
-  
-  const fx = Math.min(g.seg - 1, Math.max(0, Math.floor((x - x0) / dx)));
-  const fz = Math.min(g.seg - 1, Math.max(0, Math.floor((z - z0) / dz)));
-  const ux = Math.min(1, Math.max(0, (x - (x0 + fx * dx)) / dx));
-  const uz = Math.min(1, Math.max(0, (z - (z0 + fz * dz)) / dz));
-  const at = (i, j) => groundMeshVertex(path, x0 + i * dx, z0 + j * dz);
-  const y00 = at(fx, fz);
-  const y10 = at(fx + 1, fz);
-  const y01 = at(fx, fz + 1);
-  const y11 = at(fx + 1, fz + 1);
-  
-  return (y00 * (1 - ux) + y10 * ux) * (1 - uz) + (y01 * (1 - ux) + y11 * ux) * uz;
-}
-
-
-function groundMeshVertex(path, x, z) {
-  const near = nearestOnPath(path, x, z, null);
-  return groundHeightAt(path, x, z) - roadDip(near.dist - near.width / 2);
-}
-
-export function groundHeightAt(path, x, z) {
-  const near = nearestOnPath(path, x, z, null);
-  
-  
-  
-  
-  
-  
-  
-  
-  const roadY = near.y ?? 0;
-
-  
-  
-  
-  
-  
-  
-  const depth = waterDepthAt(path.hazards, {
-    frac: near.s / path.length, lateral: near.lateral, width: near.width,
-  });
-  if (depth != null) return roadY - depth;
-
-  const out = near.dist - near.width / 2;
-  if (out <= FLAT_OUT) return roadY;
-  
-  
-  const u = Math.min(1, (out - FLAT_OUT) / (HILL_OUT - FLAT_OUT));
-  const ramp = u * u * (3 - 2 * u);
-  const a = Math.sin(x * 0.0121 + 1.7) * Math.cos(z * 0.0104 - 0.6);
-  const b = Math.sin(x * 0.0298 - 2.3) * Math.cos(z * 0.0331 + 1.1) * 0.42;
-  const hills = (a + b) * HILL_HEIGHT;
-  
-  
-  
-  return roadY * (1 - ramp) + hills * ramp;
-}
+export {
+  SHOULDER, groundGrid, groundHeightAt, groundMeshHeightAt, groundMeshVertex,
+  bodyGroundY, groundTable,
+} from 'arbelo/trackGround';
 
 
 
@@ -361,7 +240,8 @@ function buildKerbs(path) {
 
 
 
-function buildVerge(path, theme) {
+function buildVerge(path, track) {
+  const theme = track.theme ?? 'summer';
   const n = path.count;
   const positions = new Float32Array(n * 4 * 3);
   const indices = [];
@@ -383,13 +263,38 @@ function buildVerge(path, theme) {
     : theme === 'mud' ? PALETTE.mud
       : PALETTE.shoulder;
 
+  
+  
+  
+  
+  
+  
+  
+  
+  const chasmEdge = (i, side) => {
+    const p = path.pts[i];
+    const frac = path.s[i] / path.length;
+    let cut = Infinity;
+    for (const zone of path.hazards ?? []) {
+      if ((zone.depth ?? 0) < 12) continue;
+      if (!inSpan(frac, zone.from, zone.to)) continue;
+      if (zone.side && zone.side !== 'both') {
+        if ((zone.side === 'left' ? 1 : -1) !== side) continue;
+      }
+      cut = Math.min(cut, (p.width / 2) * (zone.beyond ?? 1.18));
+    }
+    return cut;
+  };
+
   let v = 0;
   for (const side of [1, -1]) {
     for (let i = 0; i < n; i += 1) {
       const p = path.pts[i];
       const t = path.tangents[i];
       const inner = ((p.width / 2) + KERB_WIDTH) * side;
-      const outer = ((p.width / 2) + KERB_WIDTH + SHOULDER) * side;
+      const outer = Math.min(
+        (p.width / 2) + KERB_WIDTH + SHOULDER, chasmEdge(i, side),
+      ) * side;
       positions[v * 3 + 0] = p.x + t.z * inner;
       positions[v * 3 + 1] = p.y + 0.012;
       positions[v * 3 + 2] = p.z - t.x * inner;
@@ -439,7 +344,8 @@ function buildVerge(path, theme) {
 
 
 
-function buildGround(path, theme) {
+function buildGround(path, track) {
+  const theme = track.theme ?? 'summer';
   const b = path.bounds;
   
   
@@ -463,10 +369,72 @@ function buildGround(path, theme) {
     
     
     
-    pos.setY(i, groundMeshVertex(path, x, z));
+    
+    
+    
+    
+    
+    
+    pos.setY(i, groundMeshHeightAt(path, x, z));
   }
   pos.needsUpdate = true;
   geo.computeVertexNormals();
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const cold = theme === 'snow';
+  const rock = new THREE.Color(cold ? PALETTE.rockCold : PALETTE.rock);
+  const ash = new THREE.Color(cold ? 0x8f9aa4 : 0x4c443c);
+  const plain = new THREE.Color(0xffffff);
+  const colors = new Float32Array(pos.count * 3);
+  const step = Math.max(grid.w / grid.seg, grid.h / grid.seg);
+  const c = new THREE.Color();
+  for (let i = 0; i < pos.count; i += 1) {
+    const x = pos.getX(i) + cx;
+    const z = pos.getZ(i) + cz;
+    const y = pos.getY(i);
+    
+    
+    const dx = (groundMeshHeightAt(path, x + step, z) - groundMeshHeightAt(path, x - step, z)) / (2 * step);
+    const dz = (groundMeshHeightAt(path, x, z + step) - groundMeshHeightAt(path, x, z - step)) / (2 * step);
+    const slope = Math.hypot(dx, dz);
+    const bare = Math.min(1, Math.max(0, (slope - 0.30) / 0.55));
+    c.copy(plain).lerp(rock, bare * bare * (3 - 2 * bare));
+    const lift = terrainOffsetAt(path.terrain, x, z);
+    if (lift > 0) {
+      const burnt = Math.min(1, Math.max(0, (lift - 14) / 26));
+      c.lerp(ash, burnt * burnt * (3 - 2 * burnt) * 0.9);
+    }
+    colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+    
+    
+    void y;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
   const map = makeGrassTexture(theme);
   
@@ -485,7 +453,7 @@ function buildGround(path, theme) {
   
   
   const mesh = new THREE.Mesh(geo, addGroundDetail(
-    surface({ map, roughness: 0.97, rim: false }),
+    surface({ map, roughness: 0.97, rim: false, vertexColors: true }),
     { scale: 0.0055, strength: 0.26, fade: 420 },
   ));
   mesh.position.set(cx, -0.05, cz);
@@ -639,6 +607,293 @@ function buildGates(path) {
   posts.castShadow = true;
   group.add(posts, bands);
   return group;
+}
+
+
+
+
+
+
+
+const CHASM_DEPTH = 12;
+export const chasmZonesOf = (path) => (path.hazards ?? []).filter((z) => (z.depth ?? 0) >= CHASM_DEPTH);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildChasmWalls(path, track) {
+  const group = new THREE.Group();
+  group.name = 'chasmWalls';
+  const zones = chasmZonesOf(path);
+  if (!zones.length) return group;
+  const cold = (track.theme ?? 'summer') === 'snow';
+  const faceCol = new THREE.Color(cold ? PALETTE.rockCold : PALETTE.rock);
+  const lipCol = new THREE.Color(cold ? PALETTE.rockLipCold : PALETTE.rockLip);
+
+  let seed = (0x51ce ^ Math.floor(path.length * 7)) >>> 0 || 1;
+  const rng = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; };
+
+  for (const zone of zones) {
+    const span = zone.from <= zone.to ? zone.to - zone.from : (1 - zone.from) + zone.to;
+    
+    
+    
+    const steps = Math.max(16, Math.round((span * path.length) / 5));
+    const sides = !zone.side || zone.side === 'both' ? [1, -1] : [zone.side === 'left' ? 1 : -1];
+    const positions = [];
+    const colors = [];
+    const indices = [];
+    const ROWS = 4;
+    for (const side of sides) {
+      const base = positions.length / 3;
+      for (let i = 0; i <= steps; i += 1) {
+        const frac = (zone.from + (span * i) / steps) % 1;
+        const p = sampleAt(path, frac * path.length);
+        const half = p.width / 2;
+        const nx = p.tz * side;
+        const nz = -p.tx * side;
+        const lip = half * (zone.beyond ?? 1.18);
+        
+        const bed = half * ((zone.beyond ?? 1.18) + (zone.bank ?? 0.55));
+        const depth = zone.depth ?? 4.5;
+        const y0 = p.y ?? 0;
+        
+        
+        
+        
+        const over = 1.2;
+        const skirt = 16;
+        
+        
+        const wob = (rng() - 0.5) * 2.4;
+        const rows = [
+          { out: lip - over, y: y0 + 0.15, c: lipCol },
+          { out: lip + (bed - lip) * 0.34 + wob, y: y0 - depth * 0.42, c: faceCol },
+          { out: bed + wob * 0.5, y: y0 - depth, c: faceCol },
+          { out: bed + skirt, y: y0 - depth - 1.4, c: faceCol },
+        ];
+        for (const r of rows) {
+          positions.push(p.x + nx * r.out, r.y, p.z + nz * r.out);
+          colors.push(r.c.r, r.c.g, r.c.b);
+        }
+      }
+      for (let i = 0; i < steps; i += 1) {
+        for (let r = 0; r < ROWS - 1; r += 1) {
+          const a = base + i * ROWS + r;
+          const b = a + 1;
+          const c = base + (i + 1) * ROWS + r;
+          const d = c + 1;
+          indices.push(a, b, c, b, d, c);
+        }
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    
+    
+    
+    
+    const mesh = new THREE.Mesh(geo, surface({
+      vertexColors: true, side: THREE.DoubleSide, roughness: 0.98, flatShading: true,
+    }));
+    mesh.name = `cliff-${zone.id}`;
+    mesh.receiveShadow = true;
+    group.add(mesh);
+  }
+  return group;
+}
+
+
+
+
+
+
+
+const VIADUCT_MIN = 5;
+
+const PIER_GAP = 15;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildViaducts(path) {
+  const group = new THREE.Group();
+  group.name = 'viaducts';
+
+  
+  
+  
+  const clearance = new Float64Array(path.count);
+  const under = new Float64Array(path.count);
+  for (let i = 0; i < path.count; i += 1) {
+    const p = path.pts[i];
+    const t = path.tangents[i];
+    const off = p.width / 2 + KERB_WIDTH + SHOULDER + 5;
+    let ground = Infinity;
+    for (const side of [1, -1]) {
+      const x = p.x + t.z * off * side;
+      const z = p.z - t.x * off * side;
+      ground = Math.min(ground, groundMeshHeightAt(path, x, z));
+    }
+    under[i] = ground;
+    clearance[i] = (p.y ?? 0) - ground;
+  }
+
+  const fascia = buildFascia(path, clearance);
+  if (fascia) group.add(fascia);
+
+  
+  const legs = [];
+  let nextS = 0;
+  for (let i = 0; i < path.count; i += 1) {
+    if (path.s[i] < nextS) continue;
+    nextS = path.s[i] + PIER_GAP;
+    if (clearance[i] < VIADUCT_MIN) continue;
+    legs.push({ i, drop: clearance[i], ground: under[i] });
+  }
+  if (!legs.length) return group;
+
+  const postGeo = new THREE.CylinderGeometry(0.55, 0.85, 1, 6);
+  postGeo.translate(0, 0.5, 0);          
+  const braceGeo = new THREE.BoxGeometry(1, 0.34, 0.34);
+  const posts = new THREE.InstancedMesh(
+    postGeo, surface({ color: PALETTE.pier, flatShading: true }), legs.length * 2,
+  );
+  const braces = new THREE.InstancedMesh(
+    braceGeo, surface({ color: PALETTE.pierDark, flatShading: true }), legs.length * 2,
+  );
+  const m = new THREE.Matrix4();
+  const q = new THREE.Quaternion();
+  const e = new THREE.Euler();
+  const v = new THREE.Vector3();
+  const sc = new THREE.Vector3();
+  let pi = 0; let bi = 0;
+  for (const leg of legs) {
+    const p = path.pts[leg.i];
+    const t = path.tangents[leg.i];
+    const off = p.width / 2 - 1.5;
+    const yaw = Math.atan2(t.x, t.z);
+    for (const side of [1, -1]) {
+      const x = p.x + t.z * off * side;
+      const z = p.z - t.x * off * side;
+      e.set(0, yaw, 0);
+      q.setFromEuler(e);
+      v.set(x, leg.ground - 0.8, z);
+      sc.set(1, leg.drop + 1.0, 1);
+      posts.setMatrixAt(pi, m.compose(v, q, sc));
+      pi += 1;
+    }
+    
+    
+    const x0 = p.x + t.z * off; const z0 = p.z - t.x * off;
+    const x1 = p.x - t.z * off; const z1 = p.z + t.x * off;
+    for (const up of [0.34, 0.72]) {
+      e.set(0, Math.atan2(x1 - x0, z1 - z0) + Math.PI / 2, 0);
+      q.setFromEuler(e);
+      v.set((x0 + x1) / 2, leg.ground + leg.drop * up, (z0 + z1) / 2);
+      sc.set(Math.hypot(x1 - x0, z1 - z0), 1, 1);
+      braces.setMatrixAt(bi, m.compose(v, q, sc));
+      bi += 1;
+    }
+  }
+  
+  
+  const hidden = m.compose(new THREE.Vector3(0, -1000, 0), new THREE.Quaternion(), new THREE.Vector3(0, 0, 0));
+  for (let i = pi; i < legs.length * 2; i += 1) posts.setMatrixAt(i, hidden);
+  for (let i = bi; i < legs.length * 2; i += 1) braces.setMatrixAt(i, hidden);
+  posts.instanceMatrix.needsUpdate = true;
+  braces.instanceMatrix.needsUpdate = true;
+  posts.castShadow = true;
+  group.add(posts, braces);
+  return group;
+}
+
+
+
+
+
+
+
+
+
+function buildFascia(path, clearance) {
+  const n = path.count;
+  let any = false;
+  const positions = [];
+  const indices = [];
+  const depthAt = (i) => {
+    
+    
+    const c = clearance[i];
+    if (c < 1.2) return 0;
+    const u = Math.min(1, (c - 1.2) / 3);
+    return (0.5 + Math.min(2.2, c * 0.12)) * (u * u * (3 - 2 * u));
+  };
+  for (const side of [1, -1]) {
+    const base = positions.length / 3;
+    for (let i = 0; i < n; i += 1) {
+      const p = path.pts[i];
+      const t = path.tangents[i];
+      const off = ((p.width / 2) + KERB_WIDTH) * side;
+      const d = depthAt(i);
+      if (d > 0) any = true;
+      positions.push(p.x + t.z * off, (p.y ?? 0) + 0.05, p.z - t.x * off);
+      positions.push(p.x + t.z * off, (p.y ?? 0) - d, p.z - t.x * off);
+    }
+    for (let i = 0; i < n; i += 1) {
+      const a = base + i * 2; const b = a + 1;
+      const c = base + ((i + 1) % n) * 2; const dd = c + 1;
+      indices.push(a, b, c, b, dd, c);
+    }
+  }
+  if (!any) return null;
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  const mesh = new THREE.Mesh(geo, surface({
+    color: PALETTE.deck, side: THREE.DoubleSide, roughness: 0.95, flatShading: true,
+  }));
+  mesh.name = 'fascia';
+  return mesh;
 }
 
 

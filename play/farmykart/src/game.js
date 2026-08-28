@@ -22,6 +22,7 @@ import { resolveTuning, characterById, CHARACTERS } from 'arbelo/kartTuning';
 import { createDriver, driveBot, findThreats } from 'arbelo/kartAi';
 import { crossedJump } from 'arbelo/trackJumps';
 import { hazardAt, hazardEffect } from 'arbelo/trackHazards';
+import { bodyGroundY } from 'arbelo/trackGround';
 import { assistSteer } from 'arbelo/steerAssist';
 import { createRecovery, stepRecovery, isRecovering, isUnrecoverable } from 'arbelo/recovery';
 import { createProgress, addRacer, updateRacer, standings } from 'arbelo/raceProgress';
@@ -561,7 +562,19 @@ export function createRace(options) {
       }
 
       const prevBoost = r.kart.boost;
-      r.kart = stepKart(r.kart, input, { ...surf, groundY: surf.y }, dt);
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const groundY = bodyGroundY(path, surf, r.kart.x, r.kart.z);
+      r.kart = stepKart(r.kart, input, { ...surf, groundY }, dt);
 
       
       

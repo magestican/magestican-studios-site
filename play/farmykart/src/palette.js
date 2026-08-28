@@ -163,6 +163,29 @@ export const PALETTE = Object.freeze({
   gateStripe:   0xb73a2a,
 
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  rock:       0x6a5c50,   
+  rockLip:    0x93826f,   
+  rockCold:   0x53606b,   
+  rockLipCold: 0x7d8b98,
+  lava:       0xd8451a,   
+  lavaHot:    0xffb43a,
+  lavaCrust:  0x3a2620,
+  pier:       0x8a7a63,   
+  pierDark:   0x5f5240,
+  deck:       0x574a3a,   
+  shark:      0x54646e,
+  sharkBelly: 0xc9cdc4,
+
+  
   marker:     0xf6f1e6,
   markerWarn: 0xf4c95d,
   speedLine:  0xf6f1e6,

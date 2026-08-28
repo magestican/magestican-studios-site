@@ -258,10 +258,12 @@ export function buildBranch(path, spec, { samplesPerSegment = 12 } = {}) {
   const lead = spec.lead ?? 8;
   const mouthA = {
     x: a.x + a.nx * ((spec.entryLateral ?? 0) * a.width * 0.5),
+    y: a.y ?? 0,
     z: a.z + a.nz * ((spec.entryLateral ?? 0) * a.width * 0.5),
   };
   const mouthB = {
     x: b.x + b.nx * ((spec.exitLateral ?? 0) * b.width * 0.5),
+    y: b.y ?? 0,
     z: b.z + b.nz * ((spec.exitLateral ?? 0) * b.width * 0.5),
   };
   
@@ -270,12 +272,34 @@ export function buildBranch(path, spec, { samplesPerSegment = 12 } = {}) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const via = (spec.via ?? []).map((v, i, arr) => {
+    if (v.y != null) return v;
+    const t = (i + 1) / (arr.length + 1);
+    return { x: v.x, z: v.z, y: mouthA.y + (mouthB.y - mouthA.y) * t };
+  });
+  
+  
+  
+  
+  
+  
   const control = [
-    { x: mouthA.x - a.tx * lead, z: mouthA.z - a.tz * lead },
+    { x: mouthA.x - a.tx * lead, y: mouthA.y, z: mouthA.z - a.tz * lead },
     mouthA,
-    ...(spec.via ?? []),
+    ...via,
     mouthB,
-    { x: mouthB.x + b.tx * lead, z: mouthB.z + b.tz * lead },
+    { x: mouthB.x + b.tx * lead, y: mouthB.y, z: mouthB.z + b.tz * lead },
   ];
 
   const pts = [];

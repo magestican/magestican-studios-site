@@ -29,6 +29,20 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function wrapFrac(d) {
   let x = d;
   while (x > 0.5) x -= 1;
@@ -101,15 +115,42 @@ export function hazardAt(zones, { frac, lateral, width }) {
 
 
 
+export const RESPAWNS = new Set(['water', 'lava']);
 
 
 
-export function waterDepthAt(zones, { frac, lateral, width }) {
+
+
+
+
+
+
+export function surfaceLevelOf(zone) {
+  if (!zone) return 0;
+  if (zone.level != null) return zone.level;
+  return (zone.depth ?? 4.5) * 0.28;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function chasmDepthAt(zones, { frac, lateral, width }) {
   if (!zones || !zones.length) return null;
   const out = outwardness(lateral, width);
   const side = sideOf(lateral);
   for (const zone of zones) {
-    if (zone.kind !== 'water') continue;
+    if (!RESPAWNS.has(zone.kind)) continue;
     if (!inSpan(frac, zone.from, zone.to)) continue;
     if (zone.side && zone.side !== 'both' && zone.side !== side) continue;
     const edge = zone.beyond ?? 1.18;
@@ -140,7 +181,10 @@ export function waterDepthAt(zones, { frac, lateral, width }) {
 export function hazardEffect(zone, kart) {
   if (!zone) return null;
   if ((kart.invuln ?? 0) > 0) return null;
-  if (zone.kind === 'water') return { action: 'respawn', zone };
+  
+  
+  
+  if (RESPAWNS.has(zone.kind)) return { action: 'respawn', zone };
   if (zone.kind === 'fire') {
     
     if ((kart.spinTime ?? 0) > 0) return null;
