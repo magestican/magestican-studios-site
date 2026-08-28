@@ -379,14 +379,186 @@
     .hud-row { display: flex; gap: 16px; align-items: baseline; }
     .hud-row .hud-value { font-size: 19px; font-weight: 700; }
 
-    #hud-clock { font-family: Georgia, serif; font-size: clamp(20px, 4.6vw, 28px); line-height: 1; margin-top: 3px; }
-    .splits { display: flex; gap: 14px; justify-content: center; margin-top: 6px; }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #hud-timecard { transition: box-shadow 160ms linear, border-color 160ms linear; }
+    #hud-clock {
+      display: flex; align-items: baseline; justify-content: center; gap: 0;
+      margin-top: 4px; padding: 4px 11px 5px;
+      font-family: Georgia, serif; line-height: 1;
+      background: linear-gradient(180deg, #e4dcc8 0%, #f0eade 60%, #efe8da 100%);
+      border-radius: 8px;
+      
+
+
+      box-shadow: inset 0 2px 3px rgba(28,26,23,0.30),
+                  inset 0 -1px 0 rgba(255,255,255,0.85),
+                  inset 0 0 0 1px rgba(28,26,23,0.22);
+      position: relative; overflow: hidden;
+    }
+    
+    #hud-clock::before {
+      content: ''; position: absolute; left: 8px; right: 8px; top: 0; height: 4px;
+      background: repeating-linear-gradient(90deg,
+        rgba(28,26,23,0.38) 0 1px, rgba(28,26,23,0) 1px 9px);
+      pointer-events: none;
+    }
+    #hud-clock-main { font-weight: 400; font-size: clamp(20px, 4.6vw, 28px); letter-spacing: 0.005em; }
+    #hud-clock-frac {
+      font-style: normal; font-size: clamp(13px, 2.9vw, 17px);
+      color: var(--hud-soft); letter-spacing: 0.01em;
+    }
+    
+
+
+
+
+
+    #hud-lapbar {
+      height: 5px; margin: 6px 2px 0; border-radius: 999px;
+      background: rgba(28,26,23,0.16);
+      box-shadow: inset 0 1px 1px rgba(28,26,23,0.30);
+      overflow: hidden;
+    }
+    #hud-lapbar-fill {
+      display: block; height: 100%; width: 0%;
+      background: linear-gradient(180deg, #ffe9a8, var(--gold) 60%, #d9a93a);
+      box-shadow: inset 0 0 0 1px rgba(28,26,23,0.30);
+      transition: width 200ms linear;
+    }
+    .splits { display: flex; gap: 9px; justify-content: center; align-items: center; margin-top: 6px; }
     .splits > span { display: block; }
     .splits u { display: block; font-family: Georgia, serif; font-size: 13px;
       color: var(--hud-ink); text-decoration: none; margin-top: 2px; }
+    
+    #hud-bestlap { border-bottom: 2px solid transparent; padding-bottom: 1px; }
+    #hud-timecard.hasbest #hud-bestlap { border-bottom-color: var(--gold); }
+    
+
+
+    .delta {
+      font-family: Georgia, serif; font-size: 12px; font-weight: 700;
+      padding: 2px 6px 3px; border-radius: 999px; opacity: 0;
+      border: 1.5px solid var(--hud-ink); background: var(--hud-paper);
+      color: var(--hud-ink); line-height: 1; white-space: nowrap;
+      transition: opacity 140ms linear;
+    }
+    .delta.show { opacity: 1; }
+    .delta.down { background: var(--barn); color: var(--hud-paper); }
+    .delta.up { background: #2d7a34; color: var(--hud-paper); }
+    
+    #hud-timecard.best {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(244,201,93,0.55), var(--hud-shadow);
+      animation: bestPop 560ms cubic-bezier(.2,1.6,.4,1);
+    }
+    @keyframes bestPop {
+      0% { transform: scale(1); } 40% { transform: scale(1.055); } 100% { transform: scale(1); }
+    }
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    #hud-score-wrap { position: relative; }
+    .seal {
+      position: relative; display: inline-flex; width: 33px; height: 33px;
+      align-items: center; justify-content: center; margin-top: 2px;
+      filter: drop-shadow(0 2px 0 rgba(28,26,23,0.45));
+    }
+    .seal::before, .seal::after {
+      content: ''; position: absolute; inset: 0;
+      clip-path: polygon(50.0% 0.0%, 60.7% 9.9%, 75.0% 6.7%, 79.3% 20.7%, 93.3% 25.0%,
+        90.1% 39.3%, 100.0% 50.0%, 90.1% 60.7%, 93.3% 75.0%, 79.3% 79.3%, 75.0% 93.3%,
+        60.7% 90.1%, 50.0% 100.0%, 39.3% 90.1%, 25.0% 93.3%, 20.7% 79.3%, 6.7% 75.0%,
+        9.9% 60.7%, 0.0% 50.0%, 9.9% 39.3%, 6.7% 25.0%, 20.7% 20.7%, 25.0% 6.7%, 39.3% 9.9%);
+    }
+    .seal::before { background: var(--hud-ink); }
+    .seal::after {
+      inset: 2px;
+      background: linear-gradient(180deg, #ffe9a8 0%, var(--gold) 52%, #d9a93a 100%);
+    }
+    #hud-score {
+      position: relative; z-index: 1;
+      font-family: Georgia, "Iowan Old Style", serif; font-weight: 700;
+      font-size: 15px; line-height: 1; color: var(--hud-ink);
+    }
+    
+
+
+    #hud-score-seal.won { animation: sealPop 620ms cubic-bezier(.2,1.7,.4,1); }
+    @keyframes sealPop {
+      0% { transform: scale(1) rotate(0deg); }
+      30% { transform: scale(1.42) rotate(-9deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    #hud-score-gain {
+      position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%);
+      font-family: Georgia, serif; font-weight: 700; font-size: 13px;
+      color: #2d7a34; -webkit-text-stroke: 3px var(--hud-paper); paint-order: stroke fill;
+      opacity: 0; pointer-events: none; white-space: nowrap;
+    }
+    #hud-score-gain.fly { animation: gainFloat 1100ms ease-out; }
+    @keyframes gainFloat {
+      0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
+      18% { opacity: 1; transform: translate(-50%, -8px) scale(1.15); }
+      100% { opacity: 0; transform: translate(-50%, -30px) scale(1); }
+    }
+    
+
+
+    .hud-row .hud-value b { font-size: 1.25em; font-weight: 400; }
+    .hud-row .hud-value em { font-style: normal; color: var(--hud-soft); }
 
     #minimap-card { padding: 8px; }
-    #minimap { display: block; border-radius: 6px; background: #e6dfcd; }
+    #minimap-name {
+      margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis;
+      white-space: nowrap; max-width: 100%;
+    }
+    
+
+
+    #minimap { display: block; border-radius: 6px; background: #e6dfcd;
+      box-shadow: inset 0 2px 4px rgba(28,26,23,0.35); }
     #hud-standings { list-style: none; margin: 7px 0 0; padding: 0; font-size: 11.5px; }
     #hud-standings li {
       display: flex; align-items: center; gap: 6px; justify-content: flex-end;
@@ -529,10 +701,19 @@
       #hud-position-suffix { font-size: 14px; }
       .hud-row { gap: 11px; }
       .hud-row .hud-value { font-size: 16px; }
-      #hud-clock { font-size: clamp(16px, 4vw, 20px); }
+      #hud-clock { padding: 3px 8px 4px; }
+      #hud-clock-main { font-size: clamp(16px, 4vw, 20px); }
+      #hud-clock-frac { font-size: clamp(11px, 2.6vw, 13px); }
+      
+
+
+
       .splits { display: none; }
       #hud-standings { display: none; }
+      #minimap-name { display: none; }
       #minimap-card { padding: 6px; }
+      .seal { width: 26px; height: 26px; }
+      #hud-score { font-size: 12px; }
       #hud-item, #hud-item-canvas { width: 68px; height: 68px; }
       .speedo b { font-size: 18px; }
       #pause-btn { padding: 7px 11px; min-height: 38px; }
@@ -979,22 +1160,29 @@
         <div class="hud-row">
           <div>
             <span class="hud-label">Lap</span>
-            <span class="hud-value"><b id="hud-lap">1</b>/<span id="hud-lap-total">3</span></span>
+            <span class="hud-value"><b id="hud-lap">1</b><em>/<span id="hud-lap-total">3</span></em></span>
           </div>
-          <div>
+          
+          <div id="hud-score-wrap">
             <span class="hud-label">Score</span>
-            <span class="hud-value" id="hud-score">0</span>
+            <span class="seal" id="hud-score-seal"><b id="hud-score">0</b></span>
+            <span id="hud-score-gain"></span>
           </div>
         </div>
       </div>
     </div>
 
+    
+
+
     <div class="hud-tc">
-      <div class="hud-card">
+      <div class="hud-card" id="hud-timecard">
         <span class="hud-label">Time</span>
-        <div id="hud-clock">0:00.00</div>
+        <div id="hud-clock"><b id="hud-clock-main">0:00</b><i id="hud-clock-frac">.00</i></div>
+        <div id="hud-lapbar"><span id="hud-lapbar-fill"></span></div>
         <div class="splits">
           <span><span class="hud-label">Last</span><u id="hud-lastlap">--:--.--</u></span>
+          <span id="hud-delta" class="delta"></span>
           <span><span class="hud-label">Best</span><u id="hud-bestlap">--:--.--</u></span>
         </div>
       </div>
@@ -1002,6 +1190,7 @@
 
     <div class="hud-tr">
       <div class="hud-card" id="minimap-card">
+        <span class="hud-label" id="minimap-name">Circuit</span>
         <canvas id="minimap"></canvas>
         <ol id="hud-standings"></ol>
       </div>
@@ -1184,7 +1373,7 @@
 
 
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=1b21f9f-20260828T222148Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=68cf469-20260828T225712Z"></script>
 
   <script type="importmap">
   {
@@ -1244,6 +1433,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=1b21f9f-20260828T222148Z"></script>
+  <script type="module" src="./src/main.js?v=68cf469-20260828T225712Z"></script>
 </body>
 </html>

@@ -201,6 +201,7 @@ export function touchOverlayLayout(viewportWidth, viewportHeight) {
   const w = viewportWidth;
   const h = viewportHeight;
   const zones = touchZoneRects(w, h);
+  const r = buttonRadius(w);
   const margin = clamp(Math.min(w, h) * 0.035, 10, 26);
 
   
@@ -256,16 +257,56 @@ export function touchOverlayLayout(viewportWidth, viewportHeight) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   let pedal;
   if (available >= 96) {
-    const ph = clamp(available, 96, 190);
+    const ph = Math.min(available, r * 1.85);
     const pw = clamp(ph * 0.66, 76, zones.drift.w);
     pedal = { x: colCx - pw / 2, y: stackTop - gap - ph, w: pw, h: ph };
   } else {
-    const ph = clamp(stackTop - gap - topGuard, 54, 84);
+    
+    
+    const floor = zones.item.y;
+    const ph = clamp(floor - gap - topGuard, 44, 58);
     const left = zones.steer.w + gap;
     const right = Math.max(left + 120, zones.drift.x - gap);
-    pedal = { x: left, y: stackTop - gap - ph, w: right - left, h: ph };
+    
+    
+    
+    
+    
+    
+    const span = right - left;
+    const pw = Math.max(120, Math.min(span, span * 0.62));
+    pedal = {
+      x: left + (span - pw) / 2, y: Math.max(0, floor - gap - ph), w: pw, h: ph,
+    };
   }
 
   

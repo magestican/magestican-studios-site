@@ -18,9 +18,10 @@ import { nearestOnBranch, sampleAt } from 'arbelo/trackPath';
 import { PALETTE } from '../palette.js';
 import { makeRoadTexture, makeGrassTexture, makeShortcutTexture } from './textures.js';
 import { surface, addGroundDetail } from './materials.js';
-import { inSpan } from 'arbelo/trackHazards';
+import { inSpan, RESPAWNS } from 'arbelo/trackHazards';
 import {
-  SHOULDER, KERB_WIDTH, groundGrid, groundMeshHeightAt,
+  SHOULDER, KERB_WIDTH, groundGrid, groundMeshHeightAt, trackGuards,
+  GUARD_WIDTH, guardSection,
 } from 'arbelo/trackGround';
 import { terrainOffsetAt } from 'arbelo/trackTerrain';
 
@@ -66,6 +67,10 @@ export function buildTrackMesh(path, track) {
   group.add(buildShortcuts(path, theme));
   group.add(buildKerbs(path));
   group.add(buildVerge(path, track));
+  
+  
+  
+  group.add(buildEdgeGuards(path, track));
   group.add(buildMarkerPosts(path, theme));
   group.add(buildStartLine(path));
   return group;
@@ -95,7 +100,7 @@ export function buildTrackMesh(path, track) {
 
 export {
   SHOULDER, groundGrid, groundHeightAt, groundMeshHeightAt, groundMeshVertex,
-  bodyGroundY, groundTable,
+  bodyGroundY, groundTable, trackGuards, GUARD_WIDTH,
 } from 'arbelo/trackGround';
 
 
@@ -1059,9 +1064,319 @@ function buildStartLine(path) {
 
 function inWater(path, frac) {
   for (const z of path.hazards ?? []) {
-    if (z.kind === 'water' && inSpan(frac, z.from, z.to)) return true;
+    
+    
+    
+    
+    
+    
+    
+    
+    if (RESPAWNS.has(z.kind) && inSpan(frac, z.from, z.to)) return true;
   }
   return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildEdgeGuards(path, track) {
+  const group = new THREE.Group();
+  group.name = 'edgeGuards';
+  const guards = trackGuards(path, track);
+  if (!guards.spans.length) return group;
+
+  const theme = track.theme ?? 'summer';
+  const cold = theme === 'snow';
+  
+  
+  
+  
+  
+  
+  
+  const bankCol = new THREE.Color(cold ? PALETTE.packedSnow
+    : theme === 'mud' ? PALETTE.mud : PALETTE.grassDark);
+  const crestCol = new THREE.Color(cold ? PALETTE.snowCrest
+    : theme === 'mud' ? PALETTE.hedgeMud : PALETTE.grass);
+  const faceCol = new THREE.Color(cold ? PALETTE.rockCold : PALETTE.rock);
+
+  
+  const positions = [];
+  const colors = [];
+  const indices = [];
+  const ROWS = 6;
+  const perM = path.count / path.length;
+  const stride = Math.max(1, Math.round(3.5 * perM));
+
+  
+  
+  const dressed = { stones: [], barrels: [], wall: [] };
+  const spacing = { stones: 7.5, barrels: 6.0, wall: 2.4 };
+
+  for (let s = 0; s < 2; s += 1) {
+    const side = s === 0 ? 1 : -1;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const nextAt = { stones: 0, barrels: 0, wall: 0 };
+    let strip = [];
+    const flush = () => {
+      if (strip.length >= 2) {
+        const base = positions.length / 3;
+        for (const ring of strip) {
+          for (const r of ring) {
+            positions.push(r.x, r.y, r.z);
+            colors.push(r.c.r, r.c.g, r.c.b);
+          }
+        }
+        for (let i = 0; i < strip.length - 1; i += 1) {
+          for (let r = 0; r < ROWS - 1; r += 1) {
+            const a = base + i * ROWS + r;
+            const b = a + 1;
+            const c = base + (i + 1) * ROWS + r;
+            const d = c + 1;
+            indices.push(a, b, c, b, d, c);
+          }
+        }
+      }
+      strip = [];
+    };
+    
+    
+    
+    
+    for (let i = 0; i <= path.count; i += stride) {
+      const j = i % path.count;
+      const k = j * 2 + s;
+      const h = i < path.count ? guards.height[k] : 0;
+      if (!(h > 0)) { flush(); continue; }
+      const p = path.pts[j];
+      const t = path.tangents[j];
+      const y0 = p.y ?? 0;
+      
+      
+      
+      const { width: reach, flat, crest } = guardSection(guards.reach[k]);
+      const half = p.width / 2;
+      
+      
+      
+      
+      const ox = p.x + t.z * ((half + reach) * side);
+      const oz = p.z - t.x * ((half + reach) * side);
+      const outside = groundMeshHeightAt(path, ox, oz);
+      const fall = Math.max(0.6, Math.min(4.5, y0 + h - outside));
+      const at = (out, y, c) => ({
+        x: p.x + t.z * ((half + out) * side),
+        y,
+        z: p.z - t.x * ((half + out) * side),
+        c,
+      });
+      const rise = crest - flat;
+      strip.push([
+        
+        
+        
+        
+        at(0, y0 - 0.01, bankCol),
+        at(flat, y0 - 0.005, bankCol),
+        
+        
+        
+        
+        at(flat + rise * 0.45, y0 + h * 0.16, bankCol),
+        at(flat + rise * 0.80, y0 + h * 0.70, crestCol),
+        at(reach, y0 + h, crestCol),
+        at(reach, y0 + h - fall, faceCol),
+      ]);
+
+      
+      
+      
+      const tier = guards.tier[k];
+      if (tier && h > tier.height * 0.75) {
+        const arc = path.s[j];
+        const put = (kind) => {
+          if (arc < nextAt[kind]) return;
+          nextAt[kind] = arc + spacing[kind];
+          const out = half + (crest + reach) * 0.5;
+          dressed[kind].push({
+            x: p.x + t.z * (out * side),
+            y: y0 + h,
+            z: p.z - t.x * (out * side),
+            yaw: Math.atan2(t.x, t.z),
+          });
+        };
+        if (tier.dress === 'wall') {
+          put('wall');
+          
+          
+          
+          
+          
+          
+          
+          if (Math.floor(arc / 13) !== Math.floor((arc - spacing.wall) / 13)) put('barrels');
+        } else put(tier.dress);
+      }
+    }
+    flush();
+  }
+
+  if (indices.length) {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const mesh = new THREE.Mesh(geo, addGroundDetail(surface({
+      vertexColors: true, side: THREE.DoubleSide, roughness: 0.96,
+    }), { scale: 0.055, strength: 0.26 }));
+    mesh.name = 'guardBank';
+    mesh.receiveShadow = true;
+    group.add(mesh);
+  }
+
+  
+  
+  
+  
+  
+  
+  let seed = (0x9a1de5 ^ Math.floor(path.length * 11)) >>> 0 || 1;
+  const rng = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; };
+
+  const m = new THREE.Matrix4();
+  const q = new THREE.Quaternion();
+  const e = new THREE.Euler();
+  const v = new THREE.Vector3();
+  const sc = new THREE.Vector3();
+
+  const place = (list, geoms, mats, sizer) => {
+    if (!list.length) return;
+    const meshes = geoms.map((g, gi) => new THREE.InstancedMesh(g, mats[gi], list.length));
+    list.forEach((spot, idx) => {
+      const z = sizer(rng);
+      e.set(z.lean * (rng() - 0.5), spot.yaw + z.turn * (rng() - 0.5), z.lean * (rng() - 0.5));
+      q.setFromEuler(e);
+      v.set(spot.x, spot.y + z.lift, spot.z);
+      sc.set(z.sx, z.sy, z.sz);
+      for (const mesh of meshes) mesh.setMatrixAt(idx, m.compose(v, q, sc));
+    });
+    for (const mesh of meshes) {
+      mesh.instanceMatrix.needsUpdate = true;
+      
+      
+      
+      
+      mesh.castShadow = false;
+      mesh.receiveShadow = true;
+      group.add(mesh);
+    }
+    
+    
+    
+    
+    
+  };
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const stoneGeo = new THREE.IcosahedronGeometry(0.46, 0);
+  stoneGeo.translate(0, 0.16, 0);
+  place(dressed.stones, [stoneGeo],
+    [surface({ color: cold ? PALETTE.rockCold : PALETTE.rock, flatShading: true })],
+    (r) => ({
+      sx: 0.75 + r() * 0.55, sy: 0.6 + r() * 0.5, sz: 0.75 + r() * 0.55,
+      lean: 0.5, turn: 2.4, lift: -0.16,
+    }));
+
+  
+  
+  
+  
+  const barrelGeo = new THREE.CylinderGeometry(0.42, 0.42, 1.05, 9);
+  barrelGeo.translate(0, 0.52, 0);
+  const hoopGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.16, 9);
+  hoopGeo.translate(0, 0.62, 0);
+  place(dressed.barrels, [barrelGeo, hoopGeo], [
+    surface({ color: PALETTE.barn, flatShading: true }),
+    surface({ color: PALETTE.line, flatShading: true }),
+  ], (r) => ({ sx: 1, sy: 0.92 + r() * 0.2, sz: 1, lean: 0.1, turn: 3.1, lift: 0 }));
+
+  
+  
+  
+  
+  const blockGeo = new THREE.BoxGeometry(1.15, 0.78, 0.62);
+  blockGeo.translate(0, 0.39, 0);
+  const capGeo = new THREE.BoxGeometry(1.3, 0.2, 0.76);
+  capGeo.translate(0, 0.88, 0);
+  place(dressed.wall, [blockGeo, capGeo], [
+    surface({ color: cold ? PALETTE.rockCold : PALETTE.rock, flatShading: true }),
+    surface({ color: cold ? PALETTE.rockLipCold : PALETTE.rockLip, flatShading: true }),
+  ], (r) => ({
+    sx: 0.94 + r() * 0.18, sy: 0.88 + r() * 0.26, sz: 1,
+    lean: 0.09, turn: 0.12, lift: -0.06,
+  }));
+
+  return group;
 }
 
 export function buildFences(path, count, seed = 0xfe4ce5) {

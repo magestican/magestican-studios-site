@@ -31,9 +31,15 @@ export function createHud(root) {
     
     
     score: root.querySelector('#hud-score'),
-    clock: root.querySelector('#hud-clock'),
+    scoreSeal: root.querySelector('#hud-score-seal'),
+    scoreGain: root.querySelector('#hud-score-gain'),
+    timeCard: root.querySelector('#hud-timecard'),
+    clockMain: root.querySelector('#hud-clock-main'),
+    clockFrac: root.querySelector('#hud-clock-frac'),
+    lapBar: root.querySelector('#hud-lapbar-fill'),
     lastLap: root.querySelector('#hud-lastlap'),
     bestLap: root.querySelector('#hud-bestlap'),
+    delta: root.querySelector('#hud-delta'),
     speed: root.querySelector('#hud-speed'),
     itemCanvas: root.querySelector('#hud-item-canvas'),
     itemSlot: root.querySelector('#hud-item'),
@@ -51,9 +57,35 @@ export function createHud(root) {
     lastPosition: null,
     lastLap: null,
     lastScore: null,
+    
+    
+    
+    lastClock: '',
+    lastBest: null,
+    prevBest: null,
+    lastSplit: null,
+    bestUntil: 0,
     bannerUntil: 0,
     _standingsHtml: '',
   };
+}
+
+
+function replay(el, className) {
+  if (!el) return;
+  el.classList.remove(className);
+  
+  
+  
+  
+  void el.offsetWidth;
+  el.classList.add(className);
+}
+
+
+function deltaText(seconds) {
+  const sign = seconds > 0 ? '+' : '-';
+  return `${sign}${Math.abs(seconds).toFixed(2)}`;
 }
 
 
@@ -107,12 +139,107 @@ export function updateHud(hud, view) {
   
   
   if (el.score && view.lapScore !== hud.lastScore) {
+    const before = hud.lastScore;
     hud.lastScore = view.lapScore;
-    el.score.textContent = String(Math.max(0, Math.floor(Number(view.lapScore) || 0)));
+    const now = Math.max(0, Math.floor(Number(view.lapScore) || 0));
+    el.score.textContent = String(now);
+    
+    
+    
+    
+    
+    
+    
+    if (before != null && now > before) {
+      replay(el.scoreSeal, 'won');
+      if (el.scoreGain) {
+        el.scoreGain.textContent = `+${now - before}`;
+        replay(el.scoreGain, 'fly');
+      }
+    }
   }
-  if (el.clock) el.clock.textContent = formatTime(view.time);
+  
+  
+  
+  
+  
+  
+  
+  
+  const clock = formatTime(view.time);
+  if (clock !== hud.lastClock) {
+    hud.lastClock = clock;
+    const dot = clock.lastIndexOf('.');
+    if (el.clockMain) el.clockMain.textContent = dot < 0 ? clock : clock.slice(0, dot);
+    if (el.clockFrac) el.clockFrac.textContent = dot < 0 ? '' : clock.slice(dot);
+  }
+  
+  
+  
+  if (el.lapBar && view.raceFraction != null) {
+    const pct = `${(Math.max(0, Math.min(1, view.raceFraction)) * 100).toFixed(1)}%`;
+    if (el.lapBar.style.width !== pct) el.lapBar.style.width = pct;
+  }
   if (el.lastLap) el.lastLap.textContent = view.lastLapTime != null ? formatTime(view.lastLapTime) : '--:--.--';
   if (el.bestLap) el.bestLap.textContent = view.bestLap != null ? formatTime(view.bestLap) : '--:--.--';
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (view.bestLap !== hud.lastBest) {
+    hud.prevBest = hud.lastBest;
+    hud.lastBest = view.bestLap;
+    if (el.timeCard && view.bestLap != null) {
+      el.timeCard.classList.add('hasbest');
+      
+      
+      if (hud.prevBest != null) {
+        replay(el.timeCard, 'best');
+        hud.bestUntil = performance.now() + 2600;
+        if (el.delta) {
+          el.delta.textContent = deltaText(view.bestLap - hud.prevBest);
+          el.delta.className = 'delta up show';
+          hud.lastSplit = null;
+        }
+      }
+    }
+  }
+  if (el.timeCard && hud.bestUntil && performance.now() > hud.bestUntil) {
+    hud.bestUntil = 0;
+    el.timeCard.classList.remove('best');
+    hud.lastSplit = null;
+  }
+  
+  
+  
+  if (el.delta && !hud.bestUntil) {
+    const gap = view.lastLapTime != null && view.bestLap != null
+      ? view.lastLapTime - view.bestLap : null;
+    const key = gap == null ? 'none' : gap.toFixed(2);
+    if (key !== hud.lastSplit) {
+      hud.lastSplit = key;
+      if (gap == null) {
+        el.delta.className = 'delta';
+      } else if (gap < 0.005) {
+        
+        
+        el.delta.textContent = 'BEST';
+        el.delta.className = 'delta up show';
+      } else {
+        el.delta.textContent = deltaText(gap);
+        el.delta.className = 'delta down show';
+      }
+    }
+  }
   if (el.speed) el.speed.textContent = String(Math.round(Math.max(0, view.speed) * 3.6));
 
   

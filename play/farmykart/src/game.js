@@ -25,13 +25,15 @@ import { hazardAt, hazardEffect } from 'arbelo/trackHazards';
 import { bodyGroundY } from 'arbelo/trackGround';
 import { assistSteer } from 'arbelo/steerAssist';
 import { createRecovery, stepRecovery, isRecovering, isUnrecoverable } from 'arbelo/recovery';
-import { createProgress, addRacer, updateRacer, standings } from 'arbelo/raceProgress';
+import {
+  createProgress, addRacer, updateRacer, standings, fractionDone,
+} from 'arbelo/raceProgress';
 import { createFlow, stepFlow, canDrive, judgeLaunch, launchMeter, PHASE } from 'arbelo/raceFlow';
 import { drawItem, layoutItemBoxes } from 'arbelo/itemRoulette';
 import {
   ITEMS, spawnDrop, spawnProjectile, stepHazard, applyEffect, hazardHits,
 } from 'arbelo/items';
-import { createProjection, projectRacers } from 'arbelo/minimap';
+import { projectRacers } from 'arbelo/minimap';
 import { SeededRng } from 'arbelo/rng';
 import { planTick } from 'arbelo/tickPolicy';
 
@@ -394,8 +396,18 @@ export function createRace(options) {
 
   
   const hud = createHud(hudRoot);
-  const minimap = createMinimap(minimapCanvas, path);
-  const minimapProj = createProjection(path.bounds, { w: minimap.size, h: minimap.size, pad: 12 });
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const minimap = createMinimap(minimapCanvas, path, track);
+  const minimapProj = minimap.proj;
   const controls = createControls(canvas);
   
   
@@ -573,7 +585,12 @@ export function createRace(options) {
       
       
       
-      const groundY = bodyGroundY(path, surf, r.kart.x, r.kart.z);
+      
+      
+      
+      
+      
+      const groundY = bodyGroundY(path, surf, r.kart.x, r.kart.z, track);
       r.kart = stepKart(r.kart, input, { ...surf, groundY }, dt);
 
       
@@ -1215,6 +1232,9 @@ export function createRace(options) {
       
       
       lapScore: you.lapPoints ?? 0,
+      
+      
+      raceFraction: fractionDone(progress, you.id),
       standings: table.slice(0, 8).map((t) => {
         const r = racers.find((x) => x.id === t.id);
         return {
@@ -1243,6 +1263,10 @@ export function createRace(options) {
         z: r.kart.z,
         tint: r.character.tint,
         position: posOnMap.get(r.id) ?? null,
+        
+        
+        
+        heading: r.kart.heading,
       })), you.id),
       hazards,
     );

@@ -43,6 +43,19 @@
 import { nearestOnPath } from './trackPath.js';
 import { chasmDepthAt } from './trackHazards.js';
 import { terrainOffsetAt } from './trackTerrain.js';
+import { planEdgeGuards, guardGroundY } from './edgeGuard.js';
+
+
+
+
+
+
+
+
+export {
+  GUARD_FLAT, GUARD_RISE, GUARD_CAP, GUARD_WIDTH, GUARD_PROBE,
+  GUARD_TIERS, guardLift, guardSection, guardHeightFor, tierForDrop,
+} from './edgeGuard.js';
 
 
 
@@ -63,6 +76,25 @@ export const KERB_WIDTH = 1.6;
 export const FLAT_OUT = 46;
 export const HILL_OUT = 150;
 export const HILL_HEIGHT = 3.2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SHELF_OUT = 24;
+export const RIM_SLOPE = 1.4;
 
 
 
@@ -207,11 +239,47 @@ export function groundFieldAt(path, x, z) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const LANDFORM_CLEAR = FLAT_OUT + 4;
   const LANDFORM_FADE = 45;
   const hills = hillsAt(x, z);
-  let best = hills;
-  let bestOut = Infinity;
+  let land = -Infinity;
+  let ceiling = Infinity;
   const reach = HILL_OUT + 60;                 
   const reach2 = reach * reach;
   for (let i = 0; i < path.count; i += 1) {
@@ -232,8 +300,20 @@ export function groundFieldAt(path, x, z) {
       const ramp = u * u * (3 - 2 * u);
       h = roadY * (1 - ramp) + hills * ramp;
     }
-    if (h < best) { best = h; bestOut = out; }
+    if (h > land) land = h;
+    const c = roadY + RIM_SLOPE * Math.max(0, out - SHELF_OUT);
+    if (c < ceiling) ceiling = c;
   }
+  
+  if (land === -Infinity) land = hills;
+  let best = Math.min(land, ceiling);
+  
+  
+  
+  
+  
+  const bestOut = near.dist - near.width / 2;
+
   const lift = terrainOffsetAt(path.terrain, x, z);
   if (lift !== 0) {
     const nearOut = near.dist - near.width / 2;
@@ -334,6 +414,7 @@ export function groundMeshHeightAt(path, x, z) {
 
 
 
+const GUARDS = new WeakMap();
 
 
 
@@ -343,7 +424,52 @@ export function groundMeshHeightAt(path, x, z) {
 
 
 
-export function bodyGroundY(path, surf, x, z) {
+
+
+
+
+
+
+
+export function trackGuards(path, track) {
+  const cached = GUARDS.get(path);
+  if (cached && cached.hazards === path.hazards && cached.terrain === path.terrain
+      && cached.track === track) {
+    return cached.plan;
+  }
+  const plan = planEdgeGuards(path, track ?? {}, (x, z) => groundMeshHeightAt(path, x, z));
+  GUARDS.set(path, {
+    plan, track, hazards: path.hazards, terrain: path.terrain,
+  });
+  return plan;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function bodyGroundY(path, surf, x, z, track = null) {
   if (surf.onRoad) return surf.y;
   const ground = groundMeshHeightAt(path, x, z);
   
@@ -351,5 +477,8 @@ export function bodyGroundY(path, surf, x, z) {
   
   const u = Math.min(1, (surf.overBy ?? 0) / SHOULDER);
   const ramp = u * u * (3 - 2 * u);
-  return surf.y * (1 - ramp) + ground * ramp;
+  const blended = surf.y * (1 - ramp) + ground * ramp;
+  if (!track) return blended;
+  const guard = guardGroundY(trackGuards(path, track), surf);
+  return guard === null ? blended : Math.max(blended, guard);
 }

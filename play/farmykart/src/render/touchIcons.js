@@ -314,6 +314,37 @@ export function drawPedal(ctx, w, h, { pressed = false } = {}) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function drawDriftIcon(ctx, size) {
   const s = size;
   ctx.clearRect(0, 0, s, s);
@@ -325,49 +356,111 @@ export function drawDriftIcon(ctx, size) {
   
   
   
+  const CX = 0.55;
+  const CY = 0.44;
+  const YAW = -0.85;              
+  const VX = 0.94;                
+  const VY = -0.34;
+  const ca = Math.cos(YAW);
+  const sa = Math.sin(YAW);
   
-  
-  
-  
-  
-  
-  
-  
+  const kart = (x, y) => ({ x: CX + x * ca - y * sa, y: CY + x * sa + y * ca });
+  const rearL = kart(-0.17, -0.235);
+  const rearR = kart(-0.17, 0.235);
 
   
   
-  ctx.strokeStyle = '#453a2c';
-  for (const off of [0, 0.14]) {
-    ctx.lineWidth = Math.max(2.5, s * 0.085);
+  
+  
+  
+  
+  
+  
+  
+  
+  const mark = (from) => {
+    const LEN = 0.68;
+    
+    
+    const headX = from.x + VX * 0.04;
+    const headY = from.y + VY * 0.04;
+    const tipX = headX - VX * LEN;
+    const tipY = headY - VY * LEN;
+    
+    const cxp = (headX + tipX) / 2 + 0.055;
+    const cyp = (headY + tipY) / 2 + 0.060;
+    const N = 14;
+    const left = [];
+    const right = [];
+    for (let i = 0; i <= N; i += 1) {
+      const t = i / N;
+      const u = 1 - t;
+      
+      const px = u * u * tipX + 2 * u * t * cxp + t * t * headX;
+      const py = u * u * tipY + 2 * u * t * cyp + t * t * headY;
+      const dx = 2 * u * (cxp - tipX) + 2 * t * (headX - cxp);
+      const dy = 2 * u * (cyp - tipY) + 2 * t * (headY - cyp);
+      const len = Math.hypot(dx, dy) || 1;
+      
+      
+      
+      
+      
+      
+      
+      const w = (0.048 + 0.010 * t) * s;
+      const nx = (-dy / len) * w;
+      const ny = (dx / len) * w;
+      left.push([P(px) + nx, P(py) + ny]);
+      right.push([P(px) - nx, P(py) - ny]);
+    }
     ctx.beginPath();
-    ctx.moveTo(P(0.03), P(0.84 + off * 0.4));
-    ctx.quadraticCurveTo(P(0.34), P(0.86 + off), P(0.62), P(0.60 + off));
-    ctx.stroke();
-  }
+    ctx.moveTo(left[0][0], left[0][1]);
+    for (let i = 1; i <= N; i += 1) ctx.lineTo(left[i][0], left[i][1]);
+    for (let i = N; i >= 0; i -= 1) ctx.lineTo(right[i][0], right[i][1]);
+    ctx.closePath();
+    const g = ctx.createLinearGradient(P(tipX), P(tipY), P(headX), P(headY));
+    g.addColorStop(0, 'rgba(38,32,26,0.10)');
+    g.addColorStop(0.45, 'rgba(38,32,26,0.62)');
+    g.addColorStop(1, 'rgba(38,32,26,0.92)');
+    ctx.fillStyle = g;
+    ctx.fill();
+  };
+  mark(rearL);
+  mark(rearR);
 
   
   
   
-  for (const [x, y, rr] of [[0.20, 0.68, 0.095], [0.09, 0.83, 0.070], [0.35, 0.84, 0.058]]) {
-    ink(GOLD, () => {
-      const n = 4;
-      for (let i = 0; i < n * 2; i += 1) {
-        const ang = (Math.PI * i) / n - Math.PI / 2;
-        const rad = P(i % 2 ? rr * 0.40 : rr);
-        const px = P(x) + Math.cos(ang) * rad;
-        const py = P(y) + Math.sin(ang) * rad;
-        if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+  
+  
+  const puff = (from, spread) => {
+    const blobs = [
+      [from.x - VX * 0.13 - 0.02, from.y - VY * 0.13 - 0.05, 0.085 * spread],
+      [from.x - VX * 0.26 + 0.01, from.y - VY * 0.26 - 0.10, 0.062 * spread],
+      [from.x - VX * 0.20 - 0.06, from.y - VY * 0.20 + 0.02, 0.052 * spread],
+    ];
+    const w = Math.max(1.2, s * 0.026);
+    for (const colour of [INK, '#cabfa8']) {
+      ctx.beginPath();
+      for (const [bx, by, br] of blobs) {
+        const rr = P(br) + (colour === INK ? w : 0);
+        ctx.moveTo(P(bx) + rr, P(by));
+        ctx.arc(P(bx), P(by), rr, 0, Math.PI * 2);
       }
-      ctx.closePath();
-    }, { weight: 0.03 });
-  }
+      ctx.fillStyle = colour;
+      ctx.fill();
+    }
+  };
+  puff(rearL, 1.0);
+  puff(rearR, 1.15);
 
   
   
   
   ctx.save();
-  ctx.translate(P(0.52), P(0.44));
-  ctx.rotate(-0.55);
+  ctx.translate(P(CX), P(CY));
+  ctx.rotate(YAW);
   const k = (u) => s * u;
   
   
@@ -376,9 +469,21 @@ export function drawDriftIcon(ctx, size) {
   
   
   
-  for (const [wx, wy] of [[-0.17, -0.235], [0.17, -0.235], [-0.17, 0.235], [0.17, 0.235]]) {
-    ink('#2f2b26', () => ctx.roundRect(k(wx) - k(0.085), k(wy) - k(0.058),
+  
+  
+  
+  
+  
+  for (const [wx, wy, steer] of [
+    [-0.17, -0.235, 0], [0.17, -0.235, 0.38],
+    [-0.17, 0.235, 0], [0.17, 0.235, 0.38],
+  ]) {
+    ctx.save();
+    ctx.translate(k(wx), k(wy));
+    ctx.rotate(steer);
+    ink('#2f2b26', () => ctx.roundRect(-k(0.085), -k(0.058),
       k(0.17), k(0.116), k(0.045)), { weight: 0.028 });
+    ctx.restore();
   }
   ink(BARN, () => ctx.roundRect(-k(0.27), -k(0.185), k(0.54), k(0.37), k(0.10)));
   

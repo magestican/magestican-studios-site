@@ -45,7 +45,7 @@ import { makeBarnTexture } from './textures.js';
 
 
 
-import { SHOULDER, groundMeshHeightAt } from './trackMesh.js';
+import { SHOULDER, GUARD_WIDTH, groundMeshHeightAt } from './trackMesh.js';
 import { surface } from './materials.js';
 
 function rngFrom(seed) {
@@ -146,12 +146,28 @@ function tooSteep(path, x, z, limit = 0.34) {
 function besideTrack(path, rng, minOut, maxOut, { clear = 2, minClear = 0 } = {}) {
   let pick = null;
   let best = -Infinity;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const floor = Math.max(minOut, GUARD_WIDTH - SHOULDER + 0.5);
+  const span = Math.max(0, maxOut - floor);
   for (let tries = 0; tries < 10; tries += 1) {
     const i = Math.floor(rng() * path.count) % path.count;
     const p = path.pts[i];
     const t = path.tangents[i];
     const side = rng() > 0.5 ? 1 : -1;
-    const out = ((p.width / 2) + SHOULDER + minOut + rng() * (maxOut - minOut)) * side;
+    const out = ((p.width / 2) + SHOULDER + floor + rng() * span) * side;
     const x = p.x + t.z * out;
     const z = p.z - t.x * out;
     if (inWaterZone(path, x, z)) continue;
