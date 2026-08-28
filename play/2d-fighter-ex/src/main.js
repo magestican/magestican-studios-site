@@ -5,6 +5,7 @@ import { startVersionChecker } from '../../../web-engine/updater/versionChecker.
 import { CANVAS } from './choreography.js';
 import { buildStage } from './stage.js';
 import { WORLD_IDS } from './worlds.js';
+import { CAST, CAST_IDS, DEFAULT_A, DEFAULT_B, atlasFile, castId } from './cast.js';
 import { cursorAt, stateAt, totalMs, sceneAt } from './fightPlayback.js';
 import { FPS } from './fightScript.js';
 import { renderFrame } from './render.js';
@@ -48,6 +49,14 @@ let season = params.get('season') === 'winter' ? 'winter' : 'spring';
 
 
 let world = WORLD_IDS.includes(params.get('world')) ? params.get('world') : '';
+
+
+
+
+
+
+let castA = castId(params.get('a'), DEFAULT_A);
+let castB = castId(params.get('b'), DEFAULT_B);
 let moodNow = mood;
 
 
@@ -58,6 +67,10 @@ const fxOn = { shadow: true, weather: true, impact: true, words: true };
 
 function syncUrl() {
   const u = new URL(window.location.href);
+  if (castA === DEFAULT_A) u.searchParams.delete('a');
+  else u.searchParams.set('a', castA);
+  if (castB === DEFAULT_B) u.searchParams.delete('b');
+  else u.searchParams.set('b', castB);
   if (!world) u.searchParams.delete('world');
   else u.searchParams.set('world', world);
   if (season === 'spring') u.searchParams.delete('season');
@@ -91,11 +104,24 @@ const sprites = {};
 const BUILD_TAG = new URL(import.meta.url).searchParams.get('v') || '';
 const bust = (u) => (BUILD_TAG ? `${u}?v=${encodeURIComponent(BUILD_TAG)}` : u);
 
-for (const [who, file] of [['light', 'fighter-light.png'], ['dark', 'fighter-dark.png']]) {
-  const img = new Image();
-  img.src = bust(new URL(`../assets/${file}`, import.meta.url).href);
-  img.onload = () => { sprites[who] = img; };
+
+
+
+
+
+
+
+
+function loadCast() {
+  for (const [who, id] of [['light', castA], ['dark', castB]]) {
+    const img = new Image();
+    const src = bust(new URL(`../assets/${atlasFile(id)}`, import.meta.url).href);
+    if (sprites[who] && sprites[who].src !== src) delete sprites[who];
+    img.onload = () => { sprites[who] = img; };
+    img.src = src;
+  }
 }
+loadCast();
 $('seed').textContent = seed;
 
 
@@ -206,6 +232,28 @@ requestAnimationFrame(tick);
 
 
 
+
+
+
+for (const [elId, get, set] of [
+  ['castA', () => castA, (v) => { castA = v; }],
+  ['castB', () => castB, (v) => { castB = v; }],
+]) {
+  const sel = $(elId);
+  if (!sel) continue;
+  for (const c of CAST) {
+    const o = document.createElement('option');
+    o.value = c.id;
+    o.textContent = `${c.name} - ${c.role}`;
+    sel.appendChild(o);
+  }
+  sel.value = get();
+  sel.addEventListener('change', () => {
+    set(CAST_IDS.includes(sel.value) ? sel.value : get());
+    loadCast();
+    syncUrl();
+  });
+}
 
 const worldSel = $('world');
 if (worldSel) {
