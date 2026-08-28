@@ -244,12 +244,31 @@ export class Player {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const feetY = t.y - this.capsule.total / 2;
+    const feetSolid = this.grid.isSolid
+      ? this.grid.isSolid(Math.floor(t.x), Math.floor(feetY + 0.05), Math.floor(t.z))
+      : null;
     const fix = checkFloor({
       centreY: t.y,
       capsuleTotal: this.capsule.total,
+      feetInSolid: feetSolid,
       groundTop: groundTopOrVoid(
         columnOnMap(this.grid, t.x, t.z),
-        groundHeightAt(this.grid, t.x, t.z, t.y),
+        groundHeightAt(this.grid, t.x, t.z, feetY),
       ),
     });
     if (!fix) return false;

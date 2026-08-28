@@ -113,7 +113,7 @@ export function columnOnMap(grid, x, z) {
 
 
 
-export function checkFloor({ centreY, capsuleTotal, groundTop }, {
+export function checkFloor({ centreY, capsuleTotal, groundTop, feetInSolid = null }, {
   sinkTolerance = SINK_TOLERANCE,
   clearance = RESCUE_CLEARANCE,
 } = {}) {
@@ -121,6 +121,38 @@ export function checkFloor({ centreY, capsuleTotal, groundTop }, {
 
   const half = capsuleTotal / 2;
   const feet = centreY - half;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (feetInSolid === false) return null;
 
   
   

@@ -159,6 +159,42 @@ export function wetAtDistance(distance, range = HEARING_RANGE) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const WEAPON_LEVEL = 2.7;
+
+
+
+
+
+
 export const OWN_GAIN = 1.0;
 export const OTHER_GAIN = 0.62;
 

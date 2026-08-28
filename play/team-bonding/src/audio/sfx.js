@@ -31,6 +31,8 @@
 
 import { speakInto, PHRASES } from './announcerVoice.js';
 
+import { WEAPON_LEVEL } from '../../../../web-engine/audio/weaponSfxSpec.js';
+
 let _ctx = null;
 let _master = null;
 let _voice = null;        
@@ -141,14 +143,33 @@ export function pew() {
 export function splat() {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
-  const noise = whiteNoise(ctx, 0.08);
+  
+  
+  
+  
+  
+  
+  
+  
+  const snap = whiteNoise(ctx, 0.012);
+  const sf = ctx.createBiquadFilter();
+  sf.type = 'bandpass'; sf.frequency.value = 2600; sf.Q.value = 1.2;
+  const sg = ctx.createGain();
+  sg.gain.setValueAtTime(0.95, t);
+  sg.gain.exponentialRampToValueAtTime(0.001, t + 0.014);
+  snap.connect(sf).connect(sg).connect(_master);
+  snap.start(t); snap.stop(t + 0.016);
+
+  const noise = whiteNoise(ctx, 0.10);
   const gain = ctx.createGain();
   const filt = ctx.createBiquadFilter();
-  filt.type = 'lowpass'; filt.frequency.value = 800;
-  gain.gain.setValueAtTime(0.20, t);
-  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  filt.type = 'lowpass';
+  filt.frequency.setValueAtTime(1500, t);
+  filt.frequency.exponentialRampToValueAtTime(420, t + 0.09);
+  gain.gain.setValueAtTime(1.45, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
   noise.connect(filt).connect(gain).connect(_master);
-  noise.start(t); noise.stop(t + 0.1);
+  noise.start(t); noise.stop(t + 0.12);
 }
 
 
@@ -332,13 +353,14 @@ export function weaponFire(id, sound = null) {
 
 export function shovelFling(sound = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
-  const { pitch = 1, loudness = 1, timeJitter = 0 } = sound;
+  const { pitch = 1, timeJitter = 0 } = sound;
+  const loudness = (sound.loudness ?? 1) * WEAPON_LEVEL;
   const t = ctx.currentTime;
   const out = shotBus(ctx, { cutoffHz: 18000, wet: 0.10, ...sound });
 
   
   
-  transient(ctx, t, out, { gain: 0.30 * loudness, hz: 4200 });
+  transient(ctx, t, out, { gain: 0.55 * loudness, hz: 4200 });
 
   
   const flick = whiteNoise(ctx, 0.07);
@@ -348,14 +370,14 @@ export function shovelFling(sound = {}) {
   ff.frequency.exponentialRampToValueAtTime(420 * pitch, t + 0.07);
   ff.Q.value = 2.2;
   const fg = ctx.createGain();
-  fg.gain.setValueAtTime(0.34 * loudness, t);
-  fg.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  fg.gain.setValueAtTime(0.62 * loudness, t);
+  fg.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
   flick.connect(ff).connect(fg).connect(out);
   flick.start(t); flick.stop(t + 0.09);
 
   
   
-  const clangs = [[1180, 0.10, 0], [1790, 0.06, 0.004 + timeJitter]];
+  const clangs = [[1180, 0.22, 0], [1790, 0.14, 0.004 + timeJitter]];
   for (const [f, a, at] of clangs) {
     const o = ctx.createOscillator();
     const g = ctx.createGain();
@@ -380,16 +402,37 @@ export function shovelFling(sound = {}) {
   o.frequency.setValueAtTime(520 * pitch, t);
   o.frequency.exponentialRampToValueAtTime(150 * pitch, t + 0.09);
   g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(0.16 * loudness, t + 0.005);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+  g.gain.linearRampToValueAtTime(0.30 * loudness, t + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
   o.connect(g).connect(out);
-  o.start(t); o.stop(t + 0.13);
+  o.start(t); o.stop(t + 0.18);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  const thud = whiteNoise(ctx, 0.22);
+  const tf = ctx.createBiquadFilter();
+  tf.type = 'lowpass';
+  tf.frequency.setValueAtTime(900 * pitch, t);
+  tf.frequency.exponentialRampToValueAtTime(180 * pitch, t + 0.20);
+  const tg = ctx.createGain();
+  tg.gain.setValueAtTime(0, t);
+  tg.gain.linearRampToValueAtTime(0.52 * loudness, t + 0.012);
+  tg.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+  thud.connect(tf).connect(tg).connect(out);
+  thud.start(t); thud.stop(t + 0.24);
 }
 
 
 export function shotgunBlast(sound = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
-  const { pitch = 1, loudness = 1, timeJitter = 0 } = sound;
+  const { pitch = 1, timeJitter = 0 } = sound;
+  const loudness = (sound.loudness ?? 1) * WEAPON_LEVEL;
   const t = ctx.currentTime;
   const out = shotBus(ctx, { cutoffHz: 18000, wet: 0.22, ...sound });
 
@@ -444,7 +487,8 @@ export function shotgunBlast(sound = {}) {
 
 export function rocketLaunch(sound = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
-  const { pitch = 1, loudness = 1, timeJitter = 0 } = sound;
+  const { pitch = 1, timeJitter = 0 } = sound;
+  const loudness = (sound.loudness ?? 1) * WEAPON_LEVEL;
   const t = ctx.currentTime;
   const out = shotBus(ctx, { cutoffHz: 18000, wet: 0.25, ...sound });
 
@@ -502,15 +546,19 @@ export function rocketLaunch(sound = {}) {
 export function hitmarker({ loudness = 1.0 } = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
   const t = ctx.currentTime;
-  for (const [f, at] of [[2100, 0], [3150, 0.035]]) {
+  
+  
+  
+  
+  for (const [f, at, a] of [[2100, 0, 0.95], [3150, 0.035, 0.62]]) {
     const o = ctx.createOscillator();
     const g = ctx.createGain();
-    o.type = 'square';
+    o.type = 'triangle';
     o.frequency.setValueAtTime(f, t + at);
-    g.gain.setValueAtTime(0.10 * loudness, t + at);
-    g.gain.exponentialRampToValueAtTime(0.001, t + at + 0.05);
+    g.gain.setValueAtTime(a * loudness, t + at);
+    g.gain.exponentialRampToValueAtTime(0.001, t + at + 0.06);
     o.connect(g).connect(_master);
-    o.start(t + at); o.stop(t + at + 0.06);
+    o.start(t + at); o.stop(t + at + 0.07);
   }
 }
 

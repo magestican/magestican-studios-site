@@ -26,8 +26,9 @@
 
 
 import {
-  buildSong, midiToHz, VOICES, VOICE_NAMES,
+  buildSong, midiToHz, VOICES, VOICE_NAMES, openingTrackFor, nextTrackName,
 } from '../../../../web-engine/audio/songSpec.js';
+import { SeededRng } from '../../../../web-engine/rng/seededRng.js';
 
 
 
@@ -65,7 +66,13 @@ export class Chiptune {
   constructor({ seed = 0, map } = {}) {
     this.muted = localStorage.getItem('tb.muted') === '1';
     this._songKey = `${map || ''}#${seed}`;
-    this.song = buildSong(map ? { seed, map } : { seed });
+    this._map = map;
+    this._seed = seed;
+    
+    
+    this._track = openingTrackFor(map);
+    this._rotRng = new SeededRng((seed || 1) * 7919 + 13).child('tracks');
+    this.song = buildSong({ seed, map, track: this._track });
     this._audio = null;
     this._url = null;
     
@@ -98,7 +105,10 @@ export class Chiptune {
     const key = `${map || ''}#${seed}`;
     if (key === this._songKey) return false;
     this._songKey = key;
-    this.song = buildSong(map ? { seed, map } : { seed });
+    this._map = map;
+    this._seed = seed;
+    this._track = openingTrackFor(map);
+    this.song = buildSong({ seed, map, track: this._track });
     if (this.started) return false;          
     this._renderPromise = this._render().catch((err) => {
       console.warn('Chiptune re-render failed:', err);
@@ -132,7 +142,14 @@ export class Chiptune {
     const url = this._url || await this._renderPromise;
     if (url && !this._audio) {
       const a = new Audio(url);
-      a.loop = true;
+      
+      
+      
+      
+      
+      
+      a.loop = false;
+      a.addEventListener('ended', () => this._advanceTrack());
       a.setAttribute('playsinline', '');
       a.volume = this.muted ? 0 : MUSIC_LEVEL_TAG;
       this._audio = a;
@@ -142,6 +159,42 @@ export class Chiptune {
       }
     }
     if (!url && !this._fallbackCtx) this._startFallback();
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  async _advanceTrack() {
+    const next = this._nextUrl ? this._nextTrackName : this._track;
+    const url = this._nextUrl || this._url;
+    this._track = next;
+    this._nextUrl = null;
+    if (this._audio && url) {
+      this._audio.src = url;
+      this._audio.currentTime = 0;
+      try { await this._audio.play(); } catch (_) {}
+    }
+    this._prefetchNext();
+  }
+
+  
+  _prefetchNext() {
+    if (this._prefetching) return;
+    this._prefetching = true;
+    const name = nextTrackName(this._track, this._rotRng);
+    this._nextTrackName = name;
+    const song = buildSong({ seed: this._seed, map: this._map, track: name });
+    Promise.resolve()
+      .then(() => this._renderSong(song))
+      .then((url) => { this._nextUrl = url; })
+      .catch((err) => console.warn('Chiptune prefetch failed:', err))
+      .finally(() => { this._prefetching = false; });
   }
 
   _startFallback() {
@@ -214,15 +267,26 @@ export class Chiptune {
     osc.start(when); osc.stop(when + 0.14);
   }
 
-  async _render() {
-    const song = this.song;
+  
+  
+  
+  
+  async _render() { return this._renderSong(this.song); }
+
+  async _renderSong(song) {
     const beat = song.beatSec;
     const dur = song.durationSec + 0.4;
     const sampleRate = 44100;
     const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
     if (!Offline) throw new Error('no OfflineAudioContext');
     const ctx = new Offline(2, Math.ceil(dur * sampleRate), sampleRate);
-    const master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
+    
+    
+    
+    
+    const master = ctx.createGain();
+    master.gain.value = 0.9 * (song.gainScale ?? 1);
+    master.connect(ctx.destination);
 
     
     

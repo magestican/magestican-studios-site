@@ -51,11 +51,24 @@ export const N = Object.freeze({
   B4: 71, C5: 72, D5: 74, E5: 76, F5: 77, G5: 79, A5: 81, B5: 83, C6: 84,
 });
 
-export function inScale(midi) {
+
+
+
+
+
+
+
+
+
+export function inScale(midi, mode = 'aeolian') {
   if (midi == null) return true;                 
+  const scale = MODES_LAZY()[mode] || SCALE_SEMITONES;
   const d = (((midi - ROOT_MIDI) % 12) + 12) % 12;
-  return SCALE_SEMITONES.includes(d);
+  return scale.includes(d);
 }
+
+
+function MODES_LAZY() { return MODES; }
 
 export function midiToHz(midi) {
   return 440 * Math.pow(2, (midi - 69) / 12);
@@ -494,6 +507,149 @@ export function flavourFor(map) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const MODES = Object.freeze({
+  aeolian:  Object.freeze([0, 2, 3, 5, 7, 8, 10]),
+  phrygian: Object.freeze([0, 1, 3, 5, 7, 8, 10]),
+  dorian:   Object.freeze([0, 2, 3, 5, 7, 9, 10]),
+  harmonic: Object.freeze([0, 2, 3, 5, 7, 8, 11]),
+});
+export const MODE_NAMES = Object.freeze(Object.keys(MODES));
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function toMode(midi, mode = 'aeolian') {
+  if (midi == null) return midi;
+  const target = MODES[mode];
+  if (!target || mode === 'aeolian') return midi;
+  const rel = midi - ROOT_MIDI;
+  const oct = Math.floor(rel / 12);
+  const pc = ((rel % 12) + 12) % 12;
+  const degree = SCALE_SEMITONES.indexOf(pc);
+  if (degree < 0) return midi;                 
+  return ROOT_MIDI + oct * 12 + target[degree];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export const TRACKS = Object.freeze({
+  'hog-stomp':    Object.freeze({ mode: 'aeolian',  bpm: 156, riff: 'pedal',  mood: 'drive', gainScale: 1.00 }),
+  'barn-burner':  Object.freeze({ mode: 'phrygian', bpm: 168, riff: 'gallop', mood: 'drive', gainScale: 1.00 }),
+  
+  
+  
+  
+  
+  
+  'cold-open':    Object.freeze({ mode: 'dorian',   bpm: 151, riff: 'climb',  mood: 'stalk', gainScale: 0.78 }),
+  'silo-crawl':   Object.freeze({ mode: 'phrygian', bpm: 152, riff: 'pedal',  mood: 'stalk', gainScale: 0.74 }),
+  'wire-fence':   Object.freeze({ mode: 'harmonic', bpm: 162, riff: 'climb',  mood: 'drive', gainScale: 0.92 }),
+  'last-light':   Object.freeze({ mode: 'dorian',   bpm: 158, riff: 'gallop', mood: 'drive', gainScale: 1.00 }),
+});
+export const TRACK_NAMES = Object.freeze(Object.keys(TRACKS));
+
+
+
+export const MAP_OPENING_TRACK = Object.freeze({
+  'snow-farm':         'hog-stomp',
+  'icy-mountain':      'barn-burner',
+  'central-park-rink': 'cold-open',
+  'arctic':            'last-light',
+  'farm-maze':         'silo-crawl',
+});
+
+export function openingTrackFor(map) {
+  return MAP_OPENING_TRACK[map] || 'hog-stomp';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function nextTrackName(current, rng) {
+  const others = TRACK_NAMES.filter((n) => n !== current);
+  if (!others.length) return current;
+  const mood = TRACKS[current]?.mood;
+  const different = others.filter((n) => TRACKS[n].mood !== mood);
+  const pool = different.length ? different : others;
+  return rng && typeof rng.pick === 'function'
+    ? rng.pick(pool.slice())
+    : pool[0];
+}
+
+
+
+
+
+
+
+
+
 export const SPINE_HEAD = Object.freeze(['intro', 'riff']);
 export const SPINE_TAIL = Object.freeze(['outro']);
 const CORE_MIDDLE = Object.freeze(['riff', 'verse', 'hook', 'breakdown', 'bridge']);
@@ -541,13 +697,24 @@ export function buildSectionOrder(rng) {
 
 
 
-export function buildSong({ seed = 0, map = DEFAULT_MAP } = {}) {
+export function buildSong({ seed = 0, map = DEFAULT_MAP, track = null } = {}) {
   const parent = new SeededRng(seed);
   const resolvedSeed = parent.seed;
   const rng = parent.child('song');
 
-  const flavour = flavourFor(map);
-  const riff = RIFFS[flavour.riff];
+  
+  
+  
+  
+  
+  
+  
+  
+  const name = track && TRACKS[track] ? track : openingTrackFor(map);
+  const spec = TRACKS[name] || null;
+  const flavour = spec || flavourFor(map);
+  const mode = spec ? spec.mode : 'aeolian';
+  const riff = RIFFS[flavour.riff].map(([m, b]) => [toMode(m, mode), b]);
   assertBeats(riff, RIFF_BARS, `riff ${flavour.riff}`);
 
   const order = buildSectionOrder(rng);
@@ -557,11 +724,14 @@ export function buildSong({ seed = 0, map = DEFAULT_MAP } = {}) {
   const layout = [];
   let barCursor = 0;
 
-  for (const name of order) {
-    const section = SECTION_BUILDERS[name](riff);
+  for (const sectionName of order) {
+    const section = SECTION_BUILDERS[sectionName](riff);
     for (const v of VOICE_NAMES) {
-      assertBeats(section[v], section.bars, `${name}.${v}`);
-      voices[v].push(...section[v]);
+      assertBeats(section[v], section.bars, `${sectionName}.${v}`);
+      
+      
+      
+      voices[v].push(...section[v].map(([m, dur]) => [toMode(m, mode), dur]));
     }
     for (let b = 0; b < section.bars; b++) {
       const barStart = (barCursor + b) * 4;
@@ -569,7 +739,7 @@ export function buildSong({ seed = 0, map = DEFAULT_MAP } = {}) {
         drums.push({ drum: e.drum, beat: barStart + e.at, gain: e.gain });
       }
     }
-    layout.push({ name, startBar: barCursor, bars: section.bars, drums: section.drums });
+    layout.push({ name: sectionName, startBar: barCursor, bars: section.bars, drums: section.drums });
     barCursor += section.bars;
   }
 
@@ -585,6 +755,10 @@ export function buildSong({ seed = 0, map = DEFAULT_MAP } = {}) {
     bars,
     durationSec: bars * 4 * (60 / bpm),
     rootMidi: ROOT_MIDI,
+    track: name,
+    mode,
+    mood: spec ? spec.mood : 'drive',
+    gainScale: spec ? spec.gainScale : 1,
     riffName: flavour.riff,
     riff,
     order: Object.freeze(order),

@@ -11,6 +11,8 @@
 
 
 
+import { fireAimDelta, isAiming } from '../../../web-engine/input/fireAim.js';
+
 
 
 
@@ -119,17 +121,56 @@ export class TouchControls {
       setTimeout(() => this.input.setSynthetic('jump', false), 80);
     }, { passive: false });
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     const fire = this._el.querySelector('.tc-fire');
+    this._fireAim = null;
     fire.addEventListener('touchstart', (e) => {
       e.preventDefault();
       this.input.setSynthetic('fire', true);
       this._markActive(fire);
+      const t = e.changedTouches[0];
+      if (t) this._fireAim = { id: t.identifier, startY: t.clientY, applied: 0 };
     }, { passive: false });
-    fire.addEventListener('touchend', (e) => {
+    fire.addEventListener('touchmove', (e) => {
       e.preventDefault();
-      this.input.setSynthetic('fire', false);
+      const aim = this._fireAim;
+      if (!aim) return;
+      for (const t of e.changedTouches) {
+        if (t.identifier !== aim.id) continue;
+        
+        
+        
+        
+        const dyTotal = t.clientY - aim.startY;
+        const d = fireAimDelta(dyTotal, aim.applied);
+        if (d !== 0) {
+          aim.applied += d;
+          this.handlers.onLook(0, d);
+        }
+        if (isAiming(dyTotal)) fire.classList.add('aiming');
+      }
     }, { passive: false });
-    fire.addEventListener('touchcancel', () => this.input.setSynthetic('fire', false));
+    const endFire = () => {
+      this.input.setSynthetic('fire', false);
+      this._fireAim = null;
+      fire.classList.remove('aiming');
+    };
+    fire.addEventListener('touchend', (e) => { e.preventDefault(); endFire(); }, { passive: false });
+    fire.addEventListener('touchcancel', endFire);
 
     
     
