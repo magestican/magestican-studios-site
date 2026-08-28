@@ -573,7 +573,23 @@
     .kill-line { background: rgba(8,12,20,0.78); padding: 4px 9px; border-radius: 4px;
       border: 1px solid rgba(255,255,255,0.14);
       text-shadow: 0 1px 2px rgba(0,0,0,0.9);
-      max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      display: flex; align-items: center; gap: 5px; }
+    
+
+
+
+
+
+    .kf-who { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+    .kf-who .kf-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    
+
+    .kf-icon { font-size: 15px; line-height: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.8)); }
+    .kf-who.red  .kf-name { color: #ff9d8c; }
+    .kf-who.blue .kf-name { color: #9cc4ff; }
+    .kf-arrow { opacity: 0.75; }
+    .kf-weapon { opacity: 0.62; font-size: 12px; }
 
     
     #hit-flash {
@@ -629,6 +645,12 @@
       animation: chatIn .18s ease-out; transition: opacity .6s ease-out;
     }
     .chat-line .who { font-weight: 800; margin-right: 6px; }
+    
+
+
+
+    .chat-line .chat-icon { font-size: 15px; line-height: 1; margin-right: 5px;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.8)); }
     .chat-line.red   { border-left-color: #ff7b6a; }
     .chat-line.red   .who { color: #ff7b6a; }
     .chat-line.blue  { border-left-color: #7cb0ff; }
@@ -1324,7 +1346,7 @@
   </div>
 
   
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=f94b88d-20260828T124714Z"></script>
-  <script type="module" src="./src/main.js?v=f94b88d-20260828T124714Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=d41e619-20260828T125731Z"></script>
+  <script type="module" src="./src/main.js?v=d41e619-20260828T125731Z"></script>
 </body>
 </html>

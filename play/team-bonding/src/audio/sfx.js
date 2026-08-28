@@ -249,69 +249,155 @@ export function boom(loudness = 1.0) {
 
 
 
-export function weaponFire(id, opts = {}) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function shotBus(ctx, sound) {
+  const out = ctx.createGain();
+  out.gain.value = 1;
+  const air = ctx.createBiquadFilter();
+  air.type = 'lowpass';
+  air.frequency.value = sound.cutoffHz;
+  air.Q.value = 0.7;
+  out.connect(air).connect(_master);
+  const send = ctx.createGain();
+  send.gain.value = sound.wet;
+  air.connect(send).connect(_verbSend);
+  return out;
+}
+
+
+
+function transient(ctx, t, out, { gain = 0.5, hz = 3800 } = {}) {
+  const n = whiteNoise(ctx, 0.006);
+  const f = ctx.createBiquadFilter();
+  f.type = 'highpass'; f.frequency.value = hz;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(gain, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.006);
+  n.connect(f).connect(g).connect(out);
+  n.start(t); n.stop(t + 0.008);
+}
+
+
+
+
+
+export function weaponFire(id, sound = null) {
+  const s = sound || {
+    pitch: 1, loudness: 1, cutoffHz: 18000, wet: 0.10, timeJitter: 0, audible: true,
+  };
+  if (s.audible === false || s.loudness <= 0.004) return;
   switch (id) {
-    case 'shotgun': return shotgunBlast(opts);
-    case 'rocket':  return rocketLaunch(opts);
+    case 'shotgun': return shotgunBlast(s);
+    case 'rocket':  return rocketLaunch(s);
     case 'shovel':
-    default:        return shovelFling(opts);
+    default:        return shovelFling(s);
   }
 }
 
 
 
-export function shovelFling({ loudness = 1.0 } = {}) {
+export function shovelFling(sound = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const { pitch = 1, loudness = 1, timeJitter = 0 } = sound;
   const t = ctx.currentTime;
+  const out = shotBus(ctx, { cutoffHz: 18000, wet: 0.10, ...sound });
+
+  
+  
+  transient(ctx, t, out, { gain: 0.30 * loudness, hz: 4200 });
+
   
   const flick = whiteNoise(ctx, 0.07);
   const ff = ctx.createBiquadFilter();
   ff.type = 'bandpass';
-  ff.frequency.setValueAtTime(1400, t);
-  ff.frequency.exponentialRampToValueAtTime(420, t + 0.07);
+  ff.frequency.setValueAtTime(1400 * pitch, t);
+  ff.frequency.exponentialRampToValueAtTime(420 * pitch, t + 0.07);
   ff.Q.value = 2.2;
   const fg = ctx.createGain();
   fg.gain.setValueAtTime(0.34 * loudness, t);
   fg.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-  flick.connect(ff).connect(fg).connect(_master);
+  flick.connect(ff).connect(fg).connect(out);
   flick.start(t); flick.stop(t + 0.09);
+
   
-  for (const [f, a] of [[1180, 0.10], [1790, 0.06]]) {
+  
+  const clangs = [[1180, 0.10, 0], [1790, 0.06, 0.004 + timeJitter]];
+  for (const [f, a, at] of clangs) {
     const o = ctx.createOscillator();
     const g = ctx.createGain();
     o.type = 'triangle';
-    o.frequency.setValueAtTime(f, t);
-    o.frequency.exponentialRampToValueAtTime(f * 0.86, t + 0.12);
-    g.gain.setValueAtTime(a * loudness, t + 0.004);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-    o.connect(g).connect(_master);
-    o.start(t); o.stop(t + 0.16);
+    o.frequency.setValueAtTime(f * pitch, t + at);
+    o.frequency.exponentialRampToValueAtTime(f * pitch * 0.86, t + at + 0.12);
+    g.gain.setValueAtTime(a * loudness, t + at + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.001, t + at + 0.14);
+    o.connect(g).connect(out);
+    o.start(t + at); o.stop(t + at + 0.16);
   }
+
+  
+  
+  
+  
+  
   
   const o = ctx.createOscillator();
   const g = ctx.createGain();
-  o.type = 'square';
-  o.frequency.setValueAtTime(520, t);
-  o.frequency.exponentialRampToValueAtTime(150, t + 0.09);
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(520 * pitch, t);
+  o.frequency.exponentialRampToValueAtTime(150 * pitch, t + 0.09);
   g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(0.13 * loudness, t + 0.005);
+  g.gain.linearRampToValueAtTime(0.16 * loudness, t + 0.005);
   g.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
-  o.connect(g).connect(_master);
+  o.connect(g).connect(out);
   o.start(t); o.stop(t + 0.13);
 }
 
 
-export function shotgunBlast({ loudness = 1.0 } = {}) {
+export function shotgunBlast(sound = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const { pitch = 1, loudness = 1, timeJitter = 0 } = sound;
   const t = ctx.currentTime;
-  const out = ctx.createGain();
-  out.connect(_master);
-  const send = ctx.createGain(); send.gain.value = 0.22;
-  out.connect(send).connect(_verbSend);
+  const out = shotBus(ctx, { cutoffHz: 18000, wet: 0.22, ...sound });
+
+  transient(ctx, t, out, { gain: 0.70 * loudness, hz: 5000 });
 
   const crack = whiteNoise(ctx, 0.04);
   const cf = ctx.createBiquadFilter();
-  cf.type = 'highpass'; cf.frequency.value = 2400;
+  cf.type = 'highpass'; cf.frequency.value = 2400 * pitch;
   const cg = ctx.createGain();
   cg.gain.setValueAtTime(0.80 * loudness, t);
   cg.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
@@ -321,8 +407,8 @@ export function shotgunBlast({ loudness = 1.0 } = {}) {
   const thump = ctx.createOscillator();
   const tg = ctx.createGain();
   thump.type = 'sine';
-  thump.frequency.setValueAtTime(180, t);
-  thump.frequency.exponentialRampToValueAtTime(46, t + 0.22);
+  thump.frequency.setValueAtTime(180 * pitch, t);
+  thump.frequency.exponentialRampToValueAtTime(46 * pitch, t + 0.22);
   tg.gain.setValueAtTime(0, t);
   tg.gain.linearRampToValueAtTime(0.62 * loudness, t + 0.008);
   tg.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
@@ -332,8 +418,8 @@ export function shotgunBlast({ loudness = 1.0 } = {}) {
   const body = whiteNoise(ctx, 0.35);
   const bf = ctx.createBiquadFilter();
   bf.type = 'lowpass';
-  bf.frequency.setValueAtTime(5200, t);
-  bf.frequency.exponentialRampToValueAtTime(420, t + 0.26);
+  bf.frequency.setValueAtTime(5200 * pitch, t);
+  bf.frequency.exponentialRampToValueAtTime(420 * pitch, t + 0.26);
   const bg = ctx.createGain();
   bg.gain.setValueAtTime(0.50 * loudness, t + 0.004);
   bg.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
@@ -341,32 +427,34 @@ export function shotgunBlast({ loudness = 1.0 } = {}) {
   body.start(t); body.stop(t + 0.35);
 
   
-  for (const [at, f] of [[0.26, 2100], [0.36, 1500]]) {
+  
+  
+  for (const [at, f] of [[0.26 + timeJitter, 2100], [0.36 + timeJitter * 2, 1500]]) {
     const n = whiteNoise(ctx, 0.05);
     const nf = ctx.createBiquadFilter();
-    nf.type = 'bandpass'; nf.frequency.value = f; nf.Q.value = 4;
+    nf.type = 'bandpass'; nf.frequency.value = f * pitch; nf.Q.value = 4;
     const ng = ctx.createGain();
     ng.gain.setValueAtTime(0.16 * loudness, t + at);
     ng.gain.exponentialRampToValueAtTime(0.001, t + at + 0.05);
-    n.connect(nf).connect(ng).connect(_master);
+    n.connect(nf).connect(ng).connect(out);
     n.start(t + at); n.stop(t + at + 0.06);
   }
 }
 
 
-export function rocketLaunch({ loudness = 1.0 } = {}) {
+export function rocketLaunch(sound = {}) {
   const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const { pitch = 1, loudness = 1, timeJitter = 0 } = sound;
   const t = ctx.currentTime;
-  const out = ctx.createGain();
-  out.connect(_master);
-  const send = ctx.createGain(); send.gain.value = 0.25;
-  out.connect(send).connect(_verbSend);
+  const out = shotBus(ctx, { cutoffHz: 18000, wet: 0.25, ...sound });
+
+  transient(ctx, t, out, { gain: 0.42 * loudness, hz: 3200 });
 
   const ig = ctx.createOscillator();
   const igg = ctx.createGain();
   ig.type = 'sine';
-  ig.frequency.setValueAtTime(150, t);
-  ig.frequency.exponentialRampToValueAtTime(40, t + 0.3);
+  ig.frequency.setValueAtTime(150 * pitch, t);
+  ig.frequency.exponentialRampToValueAtTime(40 * pitch, t + 0.3);
   igg.gain.setValueAtTime(0, t);
   igg.gain.linearRampToValueAtTime(0.55 * loudness, t + 0.01);
   igg.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
@@ -376,8 +464,8 @@ export function rocketLaunch({ loudness = 1.0 } = {}) {
   const jet = whiteNoise(ctx, 0.9);
   const jf = ctx.createBiquadFilter();
   jf.type = 'bandpass';
-  jf.frequency.setValueAtTime(300, t);
-  jf.frequency.exponentialRampToValueAtTime(2400, t + 0.55);
+  jf.frequency.setValueAtTime(300 * pitch, t);
+  jf.frequency.exponentialRampToValueAtTime(2400 * pitch, t + 0.55);
   jf.Q.value = 1.1;
   const jg = ctx.createGain();
   jg.gain.setValueAtTime(0, t);
@@ -386,11 +474,25 @@ export function rocketLaunch({ loudness = 1.0 } = {}) {
   jet.connect(jf).connect(jg).connect(out);
   jet.start(t); jet.stop(t + 0.9);
 
+  
+  
+  
+  const dop = ctx.createOscillator();
+  const dg = ctx.createGain();
+  dop.type = 'sawtooth';
+  dop.frequency.setValueAtTime(420 * pitch, t + 0.02);
+  dop.frequency.exponentialRampToValueAtTime(120 * pitch, t + 0.5);
+  dg.gain.setValueAtTime(0, t + 0.02);
+  dg.gain.linearRampToValueAtTime(0.10 * loudness, t + 0.06);
+  dg.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+  dop.connect(dg).connect(out);
+  dop.start(t + 0.02); dop.stop(t + 0.6);
+
   const clank = whiteNoise(ctx, 0.04);
   const kf = ctx.createBiquadFilter();
-  kf.type = 'bandpass'; kf.frequency.value = 900; kf.Q.value = 5;
+  kf.type = 'bandpass'; kf.frequency.value = 900 * pitch; kf.Q.value = 5;
   const kg = ctx.createGain();
-  kg.gain.setValueAtTime(0.22 * loudness, t);
+  kg.gain.setValueAtTime(0.22 * loudness, t + Math.max(0, timeJitter));
   kg.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
   clank.connect(kf).connect(kg).connect(out);
   clank.start(t); clank.stop(t + 0.06);

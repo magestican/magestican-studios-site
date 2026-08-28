@@ -66,7 +66,8 @@ import {
 import { computeFlagAction }  from '../../../../web-engine/ctf/flagLogic.js';
 import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js';
 import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
-import { KillFeed, killFeedLine } from '../../../web-engine/ui/killFeed.js';
+import { KillFeed, killFeedEntry, toText } from '../../../web-engine/ui/killFeed.js';
+import { iconFor } from '../../../web-engine/ui/characterIcon.js';
 import { flagKeysFor, hasFlags, flagHome, neutralFlagHome, objectiveMarkers,
          OBJECTIVE_IDS } from '../../../web-engine/modes/objective.js';
 import { GoreSystem }         from './entities/gore.js';
@@ -104,6 +105,8 @@ import { fovFor, detectTouch } from '../../../web-engine/render/cameraFov.js';
 import { kindForHit, shouldSpatter } from '../../../web-engine/combat/impactDebris.js';
 import { resolveSplash, hasSplash } from '../../../web-engine/combat/splash.js';
 import { ExplosionField } from './entities/explosion.js';
+import { shotSound } from '../../../web-engine/audio/weaponSfxSpec.js';
+import { aimPoint, muzzleShot } from '../../../web-engine/combat/muzzle.js';
 import { SHAKE_REACH } from './entities/explosionSpec.js';
 import { MATCH_CAP, MAX_BOTS, desiredBots, pickBotToDisplace, hasRoom }
                               from '../../../web-engine/scenarios/matchRoster.js';
@@ -570,6 +573,9 @@ export class Game {
       
       getLocalTeam: () => this.team,
       getLocalId:   () => this.myId,
+      
+      
+      getCharacter: (peerId) => this._meta(peerId)?.character || null,
       onSend: (text) => {
         const msg = { t: MSG.CHAT, from: this.myId, name: this.name,
                       team: this.team, text, kind: 'say' };
@@ -1499,13 +1505,34 @@ export class Game {
   
   
   _localDeath(killer, victim, weapon, pos) {
-    this._killFeedPush(killFeedLine({
+    
+    
+    
+    
+    
+    const km = killer ? this._meta(killer) : null;
+    const vm = this._meta(victim);
+    this._killFeedPush(killFeedEntry({
       killerName: killer ? this._name(killer) : null,
+      killerTeam: km?.team || null,
+      killerCharacter: km?.character || null,
       victimName: this._name(victim),
+      victimTeam: vm?.team || null,
+      victimCharacter: vm?.character || null,
       weapon,
     }));
     this._announceKill(killer, victim, weapon);
     this._dropCorn(pos || this._posOf(victim));
+  }
+
+  
+  
+  
+  
+  
+  
+  _meta(peerId) {
+    return (peerId && this.playerMeta.get(peerId)) || null;
   }
 
   
@@ -3774,9 +3801,69 @@ export class Game {
       this.viewmodel?.kick();
       return;
     }
-    const shots = this.weapons.tryFire(origin, dir, this.rngShots, this.myId);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const solid = this.grid ? shotSolid(this.grid) : null;
+    const muzzle = this.viewmodel?.muzzleWorld?.() || null;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const enemyTeam = enemyOf(this.team);
+    const aimTargets = enemyTeam ? this._allPlayerRefs()
+      .filter((p) => p.peerId !== this.myId && p.team === enemyTeam && p.alive !== false)
+      .map((p) => {
+        const sc = this._peerScale.get(p.peerId) ?? 1;
+        return { x: p.pos.x, y: p.pos.y + 1.0 * sc, z: p.pos.z, radius: hitRadiusFor(sc) };
+      }) : null;
+    const aim = aimPoint({ eye: origin, dir, isSolid: solid, targets: aimTargets });
+    const from = muzzleShot({ eye: origin, dir, muzzle, target: aim, isSolid: solid });
+    
+    
+    
+    
+    
+    
+    
+    const shotFrom = new THREE.Vector3(from.origin.x, from.origin.y, from.origin.z);
+    const shotDir  = new THREE.Vector3(from.dir.x, from.dir.y, from.dir.z);
+    const shots = this.weapons.tryFire(shotFrom, shotDir, this.rngShots, this.myId,
+                                       { nose: from.fromMuzzle ? 0 : 0.6 });
     if (shots.length > 0) {
-      SFX.pew();
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const def = this.weapons.currentDef();
+      SFX.weaponFire(def.id, shotSound(def.id, {
+        shotIndex: this._shotSeq = (this._shotSeq || 0) + 1,
+        own: true,
+      }));
       this.viewmodel?.kick();
       
       
@@ -4248,7 +4335,23 @@ export class Game {
       this._addTracerForShot(s);
       this.weapons.spawnMuzzleFx(s);
     }
-    SFX.pew();
+    
+    
+    
+    
+    
+    
+    
+    const at = Array.isArray(s.origin) ? s.origin : null;
+    const d = at
+      ? Math.hypot(at[0] - this.camera.position.x,
+                   at[1] - this.camera.position.y,
+                   at[2] - this.camera.position.z)
+      : 0;
+    SFX.weaponFire(s.weaponId, shotSound(s.weaponId, {
+      shotIndex: this._remoteShotSeq = (this._remoteShotSeq || 0) + 1,
+      distance: d,
+    }));
   }
 
   
@@ -6253,15 +6356,65 @@ export class Game {
   _paintKillFeed() {
     const el = document.getElementById('kill-feed');
     if (!el) return;   
-    const lines = this._killFeed.lines(Date.now());
-    if (el.childElementCount === lines.length
-        && lines.every((t, i) => el.children[i].textContent === t)) return;
+    const items = this._killFeed.items(Date.now());
+    
+    
+    
+    
+    
+    const sig = items.map(toText).join('\n');
+    if (sig === this._killFeedSig) return;
+    this._killFeedSig = sig;
+
     el.innerHTML = '';
-    for (const text of lines) {
+    for (const item of items) {
       const d = document.createElement('div');
       d.className = 'kill-line';
-      d.textContent = text;
+      if (typeof item === 'string') {
+        d.textContent = item;                 
+      } else {
+        if (item.killer) {
+          d.appendChild(this._killFeedName(item.killer));
+          const arrow = document.createElement('span');
+          arrow.className = 'kf-arrow';
+          arrow.textContent = '➜';
+          d.appendChild(arrow);
+        } else {
+          const skull = document.createElement('span');
+          skull.className = 'kf-arrow';
+          skull.textContent = '☠';
+          d.appendChild(skull);
+        }
+        d.appendChild(this._killFeedName(item.victim));
+        const w = document.createElement('span');
+        w.className = 'kf-weapon';
+        w.textContent = item.weaponLabel;
+        d.appendChild(w);
+      }
       el.appendChild(d);
     }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _killFeedName(side) {
+    const span = document.createElement('span');
+    span.className = 'kf-who' + (side.team ? ' ' + side.team : '');
+    const icon = document.createElement('span');
+    icon.className = 'kf-icon';
+    icon.textContent = iconFor(side.character);
+    span.appendChild(icon);
+    const name = document.createElement('span');
+    name.className = 'kf-name';
+    name.textContent = side.name;
+    span.appendChild(name);
+    return span;
   }
 }

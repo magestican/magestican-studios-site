@@ -12,8 +12,20 @@
 
 
 import { isObserver } from '../../../../web-engine/match/observer.js';
+import { iconFor } from '../../../../web-engine/ui/characterIcon.js';
 
-const MAX_LINES = 7;
+
+
+
+
+
+
+
+
+
+
+
+const MAX_LINES = 3;
 
 
 
@@ -76,7 +88,7 @@ export class Chat {
   
   
   
-  constructor({ onSend, getLocalTeam, getLocalId } = {}) {
+  constructor({ onSend, getLocalTeam, getLocalId, getCharacter } = {}) {
     this.root  = document.getElementById('chat');
     this.log   = document.getElementById('chat-log');
     this.form  = document.getElementById('chat-form');
@@ -85,6 +97,16 @@ export class Chat {
     this.onSend = onSend || (() => {});
     this._getLocalTeam = getLocalTeam || null;
     this._getLocalId   = getLocalId || null;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this._getCharacter = getCharacter || null;
     this._localTeam = null;   
     this._localId   = null;
     this._sendingSelf = false;
@@ -157,7 +179,7 @@ export class Chat {
   toggle() { this.isComposing() ? this.close() : this.open(); }
 
   
-  push({ name, text, team, from, kind = 'say' }) {
+  push({ name, text, team, from, character, kind = 'say' }) {
     if (!this.log || !text) return;
     
     if (this._sendingSelf) {
@@ -183,6 +205,21 @@ export class Chat {
         tag.textContent = label.tag;
         el.appendChild(tag);
       }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const ch = character || this._getCharacter?.(from) || null;
+      const icon = document.createElement('span');
+      icon.className = 'chat-icon';
+      icon.textContent = iconFor(ch);
+      el.appendChild(icon);
+
       const who = document.createElement('span');
       who.className = 'who';
       who.textContent = name + ':';

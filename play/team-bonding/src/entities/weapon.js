@@ -63,7 +63,17 @@ export class WeaponSystem {
 
   
   
-  tryFire(originPos, dirVec, rng, ownerId) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  tryFire(originPos, dirVec, rng, ownerId, { nose = 0.6 } = {}) {
     if (this.cooldown > 0) return [];
     const def = this.currentDef();
     this.cooldown = def.cooldown * this.cooldownScale;
@@ -87,7 +97,7 @@ export class WeaponSystem {
         });
       }
     } else if (def.kind === 'projectile') {
-      const pos = originPos.clone().addScaledVector(dirVec, 0.6);
+      const pos = originPos.clone().addScaledVector(dirVec, nose);
       const vel = dirVec.clone().multiplyScalar(def.projectileSpeed);
       shots.push({
         kind: 'projectile',

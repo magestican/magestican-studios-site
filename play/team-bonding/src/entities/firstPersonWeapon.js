@@ -16,9 +16,14 @@
 
 import * as THREE from 'three';
 import { makeWoodTexture, makeMetalTexture } from '../map/textures.js';
-import { VIEWMODELS, VM_PALETTE, VM_TEXTURED, VM_EMISSIVE, DEFAULT_VIEWMODEL } from './viewmodelSpec.js';
+import {
+  VIEWMODELS, VM_PALETTE, VM_TEXTURED, VM_EMISSIVE, DEFAULT_VIEWMODEL,
+  muzzleFor, recoilFor, recoilPhase, recoilDuration,
+} from './viewmodelSpec.js';
 
 const REST_Z = -0.55;
+const REST_X = 0.35;
+const REST_Y = -0.30;
 
 export class FirstPersonWeapon {
   constructor(camera) {
@@ -29,16 +34,50 @@ export class FirstPersonWeapon {
 
     const tex = buildTextureLibrary();
     this._models = {};
+    this._muzzles = {};
     for (const [id, spec] of Object.entries(VIEWMODELS)) {
       const m = buildModel(spec, tex);
       m.visible = false;
       this._models[id] = m;
       this.rig.add(m);
+      
+      
+      
+      
+      
+      
+      
+      const anchor = new THREE.Object3D();
+      anchor.position.fromArray(muzzleFor(id));
+      m.add(anchor);
+      this._muzzles[id] = anchor;
+      
+      
+      
+      
+      
+      const flash = buildFlash(recoilFor(id).flash);
+      if (flash) { anchor.add(flash); this._flashes = this._flashes || {}; this._flashes[id] = flash; }
     }
     this.setWeapon('shovel');
 
-    this._recoilT = 0;
+    this._recoilAge = Infinity;   
+    this._flashT = 0;
     this._t = 0;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  muzzleWorld(out = new THREE.Vector3()) {
+    const anchor = this._muzzles[this._currentId];
+    if (!anchor) return null;
+    this.camera.updateMatrixWorld(true);
+    return anchor.getWorldPosition(out);
   }
 
   
@@ -63,7 +102,14 @@ export class FirstPersonWeapon {
   currentWeapon() { return this._currentId; }
 
   
-  kick() { this._recoilT = 0.15; }
+  
+  
+  
+  
+  kick() {
+    this._recoilAge = 0;
+    this._flashT = FLASH_SECONDS;
+  }
 
   update(dt) {
     this._t += dt;
@@ -74,22 +120,100 @@ export class FirstPersonWeapon {
     const sway = Math.sin(this._t * 0.9) * 0.012;
 
     
-    if (this._recoilT > 0) {
-      this._recoilT -= dt;
-      const k = Math.max(0, this._recoilT / 0.15);
-      this.rig.position.z = REST_Z + k * 0.18;
-      this.rig.rotation.x = -k * 0.35 + bobY;
-    } else {
-      this.rig.position.z = REST_Z;
-      this.rig.rotation.x = bobY;
+    
+    
+    
+    
+    
+    const r = recoilFor(this._currentId);
+    let k = 0;
+    if (this._recoilAge < recoilDuration(this._currentId)) {
+      this._recoilAge += dt;
+      k = recoilPhase(this._recoilAge, r);
     }
-    this.rig.position.x = 0.35 + bobX;
-    this.rig.position.y = -0.30 + bobY;
-    this.rig.rotation.z = sway * 0.5;
+
+    this.rig.position.x = REST_X + bobX + k * r.roll * 0.12;
+    this.rig.position.y = REST_Y + bobY + k * r.pitch * 0.06;
+    this.rig.position.z = REST_Z + k * r.back;
+    this.rig.rotation.x = bobY - k * r.pitch;
+    this.rig.rotation.z = sway * 0.5 + k * r.roll;
+
+    
+    
+    if (this._flashT > 0) {
+      this._flashT -= dt;
+      const f = this._flashes?.[this._currentId];
+      if (f) {
+        const a = Math.max(0, this._flashT / FLASH_SECONDS);
+        f.visible = true;
+        f.material.opacity = a;
+        f.scale.setScalar(0.6 + a * 0.7);
+        f.rotation.z = this._flashSpin ??= 0;
+      }
+    } else if (this._flashes) {
+      for (const f of Object.values(this._flashes)) f.visible = false;
+    }
   }
 }
 
 
+
+
+
+
+
+const FLASH_SECONDS = 0.045;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildFlash(radius) {
+  if (!radius || typeof document === 'undefined') return null;
+  const mat = new THREE.MeshBasicMaterial({
+    color: 0xf6f1e6, transparent: true, opacity: 0, depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const g = new THREE.Group();
+
+  
+  g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(radius * 0.55, 0), mat));
+
+  
+  
+  
+  const spike = new THREE.BoxGeometry(radius * 0.24, radius * 1.9, radius * 0.24);
+  for (let i = 0; i < 4; i++) {
+    const s = new THREE.Mesh(spike, mat);
+    s.rotation.z = (i / 4) * Math.PI * 2 + Math.PI / 8;
+    g.add(s);
+  }
+  
+  
+  const nose = new THREE.Mesh(
+    new THREE.BoxGeometry(radius * 0.30, radius * 0.30, radius * 1.5), mat);
+  nose.position.z = -radius * 0.5;
+  g.add(nose);
+
+  g.visible = false;
+  g.material = mat;      
+  return g;
+}
 
 function buildTextureLibrary() {
   

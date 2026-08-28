@@ -328,6 +328,122 @@ export const VIEWMODELS = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const MUZZLES = Object.freeze({
+  shovel:  [-0.045, -0.470, 0.060],
+  shotgun: [0, 0.005, -0.575],
+  rocket:  [0, 0, -0.735],
+  steak:   [-0.50, 0.15, 0.07],
+  chicken: [-0.16, 0.26, 0.10],
+});
+
+
+
+
+
+export function muzzleFor(viewmodelId) {
+  return MUZZLES[viewmodelId] || [0, 0, 0];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const RECOIL = Object.freeze({
+  shovel:  { back: 0.075, pitch: 0.16, roll: -0.09, punch: 0.035, settle: 0.16, flash: 0 },
+  shotgun: { back: 0.190, pitch: 0.34, roll: 0.05, punch: 0.045, settle: 0.30, flash: 0.16 },
+  rocket:  { back: 0.230, pitch: 0.30, roll: -0.07, punch: 0.060, settle: 0.42, flash: 0.26 },
+  steak:   { back: 0.110, pitch: 0.22, roll: 0.14, punch: 0.055, settle: 0.24, flash: 0 },
+  chicken: { back: 0.140, pitch: 0.26, roll: -0.16, punch: 0.050, settle: 0.28, flash: 0 },
+});
+
+export function recoilFor(viewmodelId) {
+  return RECOIL[viewmodelId] || RECOIL.shovel;
+}
+
+
+
+
+
+
+
+
+
+
+
+export function recoilPhase(age, { punch, settle }) {
+  if (!(age >= 0)) return 0;
+  if (age < punch) {
+    const t = age / punch;
+    return 1 - (1 - t) * (1 - t);        
+  }
+  const t = (age - punch) / settle;
+  if (t >= 1) return 0;
+  return 1 - (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+}
+
+
+export function recoilDuration(id) {
+  const r = recoilFor(id);
+  return r.punch + r.settle;
+}
+
+
+
 export function specBounds(parts) {
   const lo = [Infinity, Infinity, Infinity];
   const hi = [-Infinity, -Infinity, -Infinity];
