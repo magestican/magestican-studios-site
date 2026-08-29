@@ -171,6 +171,153 @@ export const STRENGTH_WORDS = Object.freeze([
 
 
 
+export const MIN_BITS = 45;
+
+
+
+
+
+
+
+
+
+
+export const HIGH_BITS = 75;
+
+
+
+
+
+
+
+
+
+
+
+function poolSize(p) {
+  let pool = 0;
+  if (/[a-z]/.test(p)) pool += 26;
+  if (/[A-Z]/.test(p)) pool += 26;
+  if (/[0-9]/.test(p)) pool += 10;
+  if (/[^A-Za-z0-9]/.test(p)) pool += 33;
+  
+  
+  if (/[^\x00-\x7F]/.test(p)) pool += 100;
+  return Math.max(pool, 1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export function estimateBits(password) {
+  if (typeof password !== 'string' || !password) return 0;
+  const p = password;
+  const perChar = Math.log2(poolSize(p));
+
+  let effective = 0;
+  for (let i = 0; i < p.length; i += 1) {
+    if (i > 0 && p[i] === p[i - 1]) { effective += 0.25; continue; }
+    effective += 1;
+  }
+
+  
+  
+  const run = hasRun(p);
+  if (run) effective -= Math.max(0, run.length - 2) * 0.75;
+
+  
+  const folded = unleet(p);
+  for (const word of COMMON) {
+    if (folded.includes(word)) {
+      effective -= Math.max(0, word.length - 1.5);
+      break;
+    }
+  }
+
+  return Math.max(0, effective) * perChar;
+}
+
+
+
+
+
+
+
+
+const POOL = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function randomInt(max, random) {
+  if (random) return Math.floor(random() * max) % max;
+  const c = globalThis.crypto;
+  if (!c || typeof c.getRandomValues !== 'function') {
+    throw new Error('no CSPRNG available');
+  }
+  const limit = Math.floor(0xFFFFFFFF / max) * max;
+  const buf = new Uint32Array(1);
+  for (;;) {
+    c.getRandomValues(buf);
+    if (buf[0] < limit) return buf[0] % max;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function generatePassword({ groups = 4, groupLen = 5, random = null } = {}) {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const parts = [];
+    for (let g = 0; g < groups; g += 1) {
+      let chunk = '';
+      for (let i = 0; i < groupLen; i += 1) chunk += POOL[randomInt(POOL.length, random)];
+      parts.push(chunk);
+    }
+    const candidate = parts.join('-');
+    if (checkPassword(candidate).ok) return candidate;
+  }
+  throw new Error('could not generate a password that passes our own policy');
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -221,13 +368,29 @@ export function checkPassword(password, { email = '' } = {}) {
       `That contains "${commonHit}", which is one of the first things anyone guesses. `
       + 'Pick something with no common word in it.');
   }
-  const run = hasRun(p);
-  if (run) {
-    return verdict(false, 'sequence',
-      `"${run}" is a run of keys in order, which adds nothing. Break it up.`);
+  
+  
+  
+  
+  
+  
+  const bits = estimateBits(p);
+  if (bits < HIGH_BITS) {
+    const run = hasRun(p);
+    if (run) {
+      return verdict(false, 'sequence',
+        `"${run}" is a run of keys in order, which adds nothing. Break it up.`);
+    }
+    if (hasRepeat(p)) {
+      return verdict(false, 'repeat', 'One character repeated four times adds nothing. Break it up.');
+    }
   }
-  if (hasRepeat(p)) {
-    return verdict(false, 'repeat', 'One character repeated four times adds nothing. Break it up.');
+  
+  
+  if (bits < MIN_BITS) {
+    return verdict(false, 'low-entropy',
+      'That is too easy to guess for its length - it uses too few different kinds of '
+      + 'character. Add letters of both cases, or make it longer.');
   }
   if (score < 2) {
     return verdict(false, 'weak', 'Add a few more characters, or another word.');

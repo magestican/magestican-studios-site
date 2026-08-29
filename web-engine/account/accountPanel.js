@@ -46,7 +46,9 @@ import {
   RARITY_DISCLAIMER, PROOF, PROOF_LABEL, PROOF_BLURB,
 } from './achievements.js';
 import { badgeSvg, progressArcSvg, verifiedTickSvg } from './badgeArt.js';
-import { strength, STRENGTH_WORDS, MIN_LENGTH } from './passwordPolicy.js';
+import {
+  strength, STRENGTH_WORDS, MIN_LENGTH, generatePassword,
+} from './passwordPolicy.js';
 import { standingOffer, proofLine } from './signupMoment.js';
 import { saveCoverage, SAVE_SYNC_ENABLED } from './gameSave.js';
 import { backupLines } from './saveConflict.js';
@@ -335,42 +337,128 @@ const AUTH_WORDS = Object.freeze({
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 function passwordEl(m, handlers) {
   if (!m.password) return null;
+
   const box = el('div', 'ap-auth');
-  box.appendChild(el('div', 'ap-auth-title', 'Save your progress with an email'));
+
+  
+  
+  
+  
+  
+  if (typeof window !== 'undefined' && window.isSecureContext === false) {
+    box.appendChild(el('div', 'ap-auth-title', 'Save your progress with an email'));
+    box.appendChild(el('div', 'ap-auth-note',
+      'This page was not loaded over a secure connection, so the password box is '
+      + 'switched off. Open the site over https and it will come back.'));
+    return box;
+  }
+
+  const form = document.createElement('form');
+  form.className = 'ap-auth-form';
+  
+  
+  form.addEventListener('submit', (e) => e.preventDefault());
+
+  let mode = 'create';
+
+  const title = el('div', 'ap-auth-title', 'Save your progress with an email');
+  box.appendChild(title);
+
+  const tabs = el('div', 'ap-tabs');
+  const tabCreate = el('button', 'ap-tab on', 'Create account');
+  const tabSignIn = el('button', 'ap-tab', 'I already have one');
+  tabCreate.type = 'button';
+  tabSignIn.type = 'button';
+  tabs.appendChild(tabCreate);
+  tabs.appendChild(tabSignIn);
+  box.appendChild(tabs);
 
   const email = document.createElement('input');
   email.type = 'email';
   email.className = 'ap-input';
+  email.name = 'email';
   email.placeholder = 'you@example.com';
-  
-  
   email.autocomplete = 'username';
   email.setAttribute('aria-label', 'Email address');
 
   const pass = document.createElement('input');
   pass.type = 'password';
   pass.className = 'ap-input';
-  pass.placeholder = `At least ${m.password.minLength} characters`;
+  pass.name = 'password';
   pass.autocomplete = 'new-password';
   pass.setAttribute('aria-label', 'Password');
+  pass.setAttribute('passwordrules',
+    `minlength: ${MIN_LENGTH}; required: lower; required: upper; required: digit; max-consecutive: 3;`);
+  pass.placeholder = `At least ${MIN_LENGTH} characters`;
 
+  const meterRow = el('div', 'ap-meter-row');
   const meter = el('div', 'ap-meter');
   const bar = el('div', 'ap-meter-fill');
   meter.appendChild(bar);
   const meterWord = el('span', 'ap-meter-word', '');
+  meterRow.appendChild(meter);
+  meterRow.appendChild(meterWord);
 
-  
-  
-  pass.addEventListener('input', () => {
+  const paintMeter = () => {
     const score = strength(pass.value, [email.value]);
     bar.style.width = `${(score / 4) * 100}%`;
     bar.className = `ap-meter-fill ap-meter-${score}`;
     meterWord.textContent = pass.value ? (STRENGTH_WORDS[score] ?? '') : '';
+  };
+  pass.addEventListener('input', paintMeter);
+
+  
+  
+  
+  const reveal = el('button', 'ap-link', 'Show');
+  reveal.type = 'button';
+  reveal.addEventListener('click', () => {
+    const showing = pass.type === 'text';
+    pass.type = showing ? 'password' : 'text';
+    reveal.textContent = showing ? 'Show' : 'Hide';
+  });
+
+  
+  
+  
+  
+  
+  const suggest = el('button', 'ap-link', 'Suggest a strong one');
+  suggest.type = 'button';
+  suggest.addEventListener('click', () => {
+    try {
+      pass.value = generatePassword();
+      pass.type = 'text';           
+      reveal.textContent = 'Hide';
+      paintMeter();
+      note.textContent = 'Copy this into your password manager before continuing.';
+    } catch (_) {
+      note.textContent = 'Could not generate one here. Type a few unrelated words instead.';
+    }
   });
 
   const note = el('div', 'ap-auth-note');
+
+  const row = el('div', 'ap-auth-row');
+  const primary = el('button', 'ap-btn ap-btn-primary', 'Create account');
+  primary.type = 'submit';
+  const forgot = el('button', 'ap-link', 'Forgot password');
+  forgot.type = 'button';
+
   let busy = false;
   const run = (fn) => {
     if (busy) return;
@@ -382,43 +470,56 @@ function passwordEl(m, handlers) {
       settled = true; busy = false;
       note.textContent = msg || AUTH_WORDS[key] || AUTH_WORDS.failed;
     };
-    
-    
     setTimeout(() => say('failed'), 25000);
     Promise.resolve(fn())
       .then((r) => {
-        if (r?.ok) { pass.value = ''; bar.style.width = '0%'; meterWord.textContent = ''; }
-        
-        
-        
+        if (r?.ok) { pass.value = ''; pass.type = 'password'; reveal.textContent = 'Show'; paintMeter(); }
         say(r?.ok ? (r.reason ?? 'created') : r?.reason, r?.message);
       })
       .catch(() => say('failed'));
   };
 
-  const row = el('div', 'ap-auth-row');
-  const create = el('button', 'ap-btn ap-btn-primary', 'Create account');
-  create.type = 'button';
-  create.addEventListener('click', () => run(() => handlers.onCreatePassword?.(email.value, pass.value)));
-  const signin = el('button', 'ap-btn', 'Sign in');
-  signin.type = 'button';
-  signin.addEventListener('click', () => run(() => handlers.onSignInPassword?.(email.value, pass.value)));
-  const forgot = el('button', 'ap-link', 'Forgot password');
-  forgot.type = 'button';
+  const submit = () => {
+    if (mode === 'create') run(() => handlers.onCreatePassword?.(email.value, pass.value));
+    else run(() => handlers.onSignInPassword?.(email.value, pass.value));
+  };
+  form.addEventListener('submit', submit);
+  primary.addEventListener('click', (e) => { e.preventDefault(); submit(); });
   forgot.addEventListener('click', () => run(() => handlers.onResetPassword?.(email.value)));
 
-  row.appendChild(create);
-  row.appendChild(signin);
-  row.appendChild(forgot);
+  const setMode = (next) => {
+    mode = next;
+    const creating = next === 'create';
+    tabCreate.classList.toggle('on', creating);
+    tabSignIn.classList.toggle('on', !creating);
+    primary.textContent = creating ? 'Create account' : 'Sign in';
+    
+    pass.autocomplete = creating ? 'new-password' : 'current-password';
+    pass.placeholder = creating ? `At least ${MIN_LENGTH} characters` : 'Your password';
+    meterRow.style.display = creating ? '' : 'none';
+    suggest.style.display = creating ? '' : 'none';
+    note.textContent = '';
+    
+    
+    const parent = pass.parentNode;
+    if (parent) { const at = pass.nextSibling; parent.removeChild(pass); parent.insertBefore(pass, at); }
+  };
+  tabCreate.addEventListener('click', () => setMode('create'));
+  tabSignIn.addEventListener('click', () => setMode('signin'));
 
-  box.appendChild(email);
-  box.appendChild(pass);
-  const meterRow = el('div', 'ap-meter-row');
-  meterRow.appendChild(meter);
-  meterRow.appendChild(meterWord);
-  box.appendChild(meterRow);
-  box.appendChild(row);
-  box.appendChild(note);
+  const tools = el('div', 'ap-auth-tools');
+  tools.appendChild(reveal);
+  tools.appendChild(suggest);
+
+  form.appendChild(email);
+  form.appendChild(pass);
+  form.appendChild(meterRow);
+  form.appendChild(tools);
+  row.appendChild(primary);
+  row.appendChild(forgot);
+  form.appendChild(row);
+  form.appendChild(note);
+  box.appendChild(form);
   return box;
 }
 
@@ -600,6 +701,14 @@ function injectStyles() {
     .ap-meter-fill.ap-meter-2 { background: #d9a13b; }
     .ap-meter-fill.ap-meter-3, .ap-meter-fill.ap-meter-4 { background: #5fd08a; }
     .ap-meter-word { font: 600 11px system-ui; color: #8e97a8; min-width: 74px; }
+    .ap-auth-form { display: flex; flex-direction: column; gap: 8px; }
+    .ap-tabs { display: flex; gap: 6px; }
+    .ap-tab {
+      font: 600 11px system-ui; padding: 6px 10px; min-height: 32px; border-radius: 999px;
+      border: 1px solid #39404f; background: transparent; color: #8e97a8; cursor: pointer;
+    }
+    .ap-tab.on { border-color: #59a6ff; color: #e8ecf5; background: #1d2531; }
+    .ap-auth-tools { display: flex; gap: 12px; align-items: center; }
     .ap-auth-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .ap-auth-note { font: 500 11px system-ui; color: #8e97a8; line-height: 1.45; }
     .ap-link {
