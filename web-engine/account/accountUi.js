@@ -19,7 +19,8 @@
 import {
   accountSummary, currentProfile, currentRecords, achievementRows, listBackups,
   linkAccount, forgetMe, restoreBackup, notePromptShown, notePromptNever,
-  resolveSaveConflict, syncNow, RULES_LANDED,
+  resolveSaveConflict, syncNow, linkPassword, signInPassword, resetPassword,
+  RULES_LANDED,
 } from './account.js';
 import { isSyncEnabled } from './firebaseAccount.js';
 import { SAVE_SYNC_ENABLED } from './gameSave.js';
@@ -71,6 +72,24 @@ export function mountProfilePanel(host, { filter = 'all' } = {}) {
       
       
       onSync: () => syncNow(),
+      
+      
+      
+      
+      
+      onCreatePassword: (mail, pw) => linkPassword(mail, pw).then((r) => {
+        if (r.conflict) askAboutConflict(r.conflict, () => mountProfilePanel(host, { filter }));
+        else if (r.ok) mountProfilePanel(host, { filter });
+        return r;
+      }),
+      onSignInPassword: (mail, pw) => signInPassword(mail, pw).then((r) => {
+        if (r.conflict) askAboutConflict(r.conflict, () => mountProfilePanel(host, { filter }));
+        else if (r.ok) mountProfilePanel(host, { filter });
+        return r;
+      }),
+      onResetPassword: (mail) => resetPassword(mail).then(
+        (r) => ({ ...r, reason: r.ok ? 'reset-sent' : r.reason }),
+      ),
     });
   } catch (_) {
     return null;

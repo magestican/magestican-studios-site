@@ -46,6 +46,7 @@ import {
   RARITY_DISCLAIMER, PROOF, PROOF_LABEL, PROOF_BLURB,
 } from './achievements.js';
 import { badgeSvg, progressArcSvg, verifiedTickSvg } from './badgeArt.js';
+import { strength, STRENGTH_WORDS, MIN_LENGTH } from './passwordPolicy.js';
 import { standingOffer, proofLine } from './signupMoment.js';
 import { saveCoverage, SAVE_SYNC_ENABLED } from './gameSave.js';
 import { backupLines } from './saveConflict.js';
@@ -106,6 +107,10 @@ export function panelModel({
     
     
     sync: syncEnabled ? { label: 'Sync now' } : null,
+    
+    
+    
+    password: syncEnabled && !summary?.linked ? { minLength: MIN_LENGTH } : null,
     
     offer: standingOffer(summary, { syncEnabled }),
     coverage: saveCoverage({ saveSync }).map((c) => ({ ...c, name: GAME_NAMES[c.id] ?? c.id })),
@@ -209,6 +214,8 @@ export function mountAccountPanel(host, model, handlers = {}) {
   const offer = offerEl(model, handlers);
   if (offer) host.appendChild(offer);
   host.appendChild(shelfEl(model));
+  const pw = passwordEl(model, handlers);
+  if (pw) host.appendChild(pw);
   const sync = syncEl(model, handlers);
   if (sync) host.appendChild(sync);
   const restore = restoreEl(model, handlers);
@@ -284,6 +291,134 @@ function todayEl(m) {
   if (t.weeklyLine) lines.appendChild(el('div', 'ap-line', t.weeklyLine));
   if (t.seasonLine) lines.appendChild(el('div', 'ap-line', t.seasonLine));
   if (lines.childNodes.length) box.appendChild(lines);
+  return box;
+}
+
+
+
+
+
+
+
+
+const AUTH_WORDS = Object.freeze({
+  'created': 'Saved. Your progress is on your account now.',
+  'signed-in': 'Signed in. Your progress has been brought across.',
+  'adopted': 'Signed in. Your progress has been brought across.',
+  'reset-sent': 'If that address has an account, a reset link is on its way.',
+  'no-match': 'That email and password do not match an account.',
+  'already-in-use': 'That email already has an account - use Sign in instead.',
+  'conflict': 'That account already has progress. Choose which to keep.',
+  'rate-limited': 'Too many attempts. Wait a few minutes and try again.',
+  'provider-disabled': 'Email sign-up is not switched on for this site yet.',
+  'invalid-email': 'That does not look like an email address.',
+  
+  
+  
+  
+  
+  'unavailable': 'Accounts are not available in this build.',
+  'signed-out': 'Could not reach the account service. Your progress on this device is safe.',
+  'no-service': 'The account service did not start. Your progress on this device is safe.',
+  'timeout': 'Could not reach the server. Your progress on this device is safe.',
+  'failed': 'That did not work. Your progress on this device is safe.',
+});
+
+
+
+
+
+
+
+
+
+
+
+
+function passwordEl(m, handlers) {
+  if (!m.password) return null;
+  const box = el('div', 'ap-auth');
+  box.appendChild(el('div', 'ap-auth-title', 'Save your progress with an email'));
+
+  const email = document.createElement('input');
+  email.type = 'email';
+  email.className = 'ap-input';
+  email.placeholder = 'you@example.com';
+  
+  
+  email.autocomplete = 'username';
+  email.setAttribute('aria-label', 'Email address');
+
+  const pass = document.createElement('input');
+  pass.type = 'password';
+  pass.className = 'ap-input';
+  pass.placeholder = `At least ${m.password.minLength} characters`;
+  pass.autocomplete = 'new-password';
+  pass.setAttribute('aria-label', 'Password');
+
+  const meter = el('div', 'ap-meter');
+  const bar = el('div', 'ap-meter-fill');
+  meter.appendChild(bar);
+  const meterWord = el('span', 'ap-meter-word', '');
+
+  
+  
+  pass.addEventListener('input', () => {
+    const score = strength(pass.value, [email.value]);
+    bar.style.width = `${(score / 4) * 100}%`;
+    bar.className = `ap-meter-fill ap-meter-${score}`;
+    meterWord.textContent = pass.value ? (STRENGTH_WORDS[score] ?? '') : '';
+  });
+
+  const note = el('div', 'ap-auth-note');
+  let busy = false;
+  const run = (fn) => {
+    if (busy) return;
+    busy = true;
+    note.textContent = 'Working\u2026';
+    let settled = false;
+    const say = (key, msg) => {
+      if (settled) return;
+      settled = true; busy = false;
+      note.textContent = msg || AUTH_WORDS[key] || AUTH_WORDS.failed;
+    };
+    
+    
+    setTimeout(() => say('failed'), 25000);
+    Promise.resolve(fn())
+      .then((r) => {
+        if (r?.ok) { pass.value = ''; bar.style.width = '0%'; meterWord.textContent = ''; }
+        
+        
+        
+        say(r?.ok ? (r.reason ?? 'created') : r?.reason, r?.message);
+      })
+      .catch(() => say('failed'));
+  };
+
+  const row = el('div', 'ap-auth-row');
+  const create = el('button', 'ap-btn ap-btn-primary', 'Create account');
+  create.type = 'button';
+  create.addEventListener('click', () => run(() => handlers.onCreatePassword?.(email.value, pass.value)));
+  const signin = el('button', 'ap-btn', 'Sign in');
+  signin.type = 'button';
+  signin.addEventListener('click', () => run(() => handlers.onSignInPassword?.(email.value, pass.value)));
+  const forgot = el('button', 'ap-link', 'Forgot password');
+  forgot.type = 'button';
+  forgot.addEventListener('click', () => run(() => handlers.onResetPassword?.(email.value)));
+
+  row.appendChild(create);
+  row.appendChild(signin);
+  row.appendChild(forgot);
+
+  box.appendChild(email);
+  box.appendChild(pass);
+  const meterRow = el('div', 'ap-meter-row');
+  meterRow.appendChild(meter);
+  meterRow.appendChild(meterWord);
+  box.appendChild(meterRow);
+  box.appendChild(row);
+  box.appendChild(note);
   return box;
 }
 
@@ -451,6 +586,26 @@ function injectStyles() {
     .ap-rank-name { font-weight: 700; color: #f2f5fa; letter-spacing: .04em; }
     .ap-rank-next { font-size: 11px; color: #7f8798; }
     .ap-bar { height: 6px; border-radius: 3px; background: #232935; margin-top: 6px; overflow: hidden; }
+    .ap-auth { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; max-width: 420px; }
+    .ap-auth-title { font: 700 11px system-ui; letter-spacing: 0.12em; text-transform: uppercase; color: #8e97a8; }
+    .ap-input {
+      font: 500 13px system-ui; padding: 9px 11px; border-radius: 8px;
+      border: 1px solid #39404f; background: #171b23; color: #e8ecf5; min-height: 40px;
+    }
+    .ap-input:focus { outline: 2px solid #59a6ff; outline-offset: 1px; }
+    .ap-meter-row { display: flex; align-items: center; gap: 8px; }
+    .ap-meter { flex: 1; height: 5px; border-radius: 3px; background: #232935; overflow: hidden; }
+    .ap-meter-fill { height: 100%; width: 0; transition: width 120ms linear; background: #59a6ff; }
+    .ap-meter-fill.ap-meter-0, .ap-meter-fill.ap-meter-1 { background: #d9534f; }
+    .ap-meter-fill.ap-meter-2 { background: #d9a13b; }
+    .ap-meter-fill.ap-meter-3, .ap-meter-fill.ap-meter-4 { background: #5fd08a; }
+    .ap-meter-word { font: 600 11px system-ui; color: #8e97a8; min-width: 74px; }
+    .ap-auth-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .ap-auth-note { font: 500 11px system-ui; color: #8e97a8; line-height: 1.45; }
+    .ap-link {
+      background: none; border: 0; padding: 4px 2px; cursor: pointer;
+      font: 500 11px system-ui; color: #8e97a8; text-decoration: underline;
+    }
     .ap-sync { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .ap-sync-note { font: 500 11px system-ui; color: #8e97a8; }
     .ap-today { margin-top: 14px; }

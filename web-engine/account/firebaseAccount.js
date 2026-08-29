@@ -104,6 +104,14 @@ let _state = null;
 
 
 
+
+
+
+
+
+
+
+
 function withDeadline(promise, ms, fallback = null) {
   let timer = null;
   const deadline = new Promise((resolve) => {
@@ -152,12 +160,32 @@ async function ready() {
     
     
     
-    const signed = a.currentUser
-      ? { user: a.currentUser }
-      : await withDeadline(auth.signInAnonymously(a), SIGN_IN_TIMEOUT_MS, null);
-    const user = signed?.user ?? null;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    let user = a.currentUser ?? null;
+    if (!user) {
+      
+      
+      
+      
+      const signed = await withDeadline(
+        auth.signInAnonymously(a).catch(() => null), SIGN_IN_TIMEOUT_MS, null,
+      );
+      user = signed?.user ?? null;
+    }
     _state = { app, auth, store, a, db: store.getFirestore(app), uid: user?.uid ?? null };
-    if (!_state.uid) _state = false;
   } catch (_) {
     
     
@@ -214,7 +242,7 @@ export function isSyncEnabled() {
 
 export async function pullProfile() {
   const s = await ready();
-  if (!s) return null;
+  if (!s || !s.uid) return null;
   try {
     const snap = await withDeadline(
       s.store.getDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid)), WRITE_TIMEOUT_MS, null,
@@ -265,7 +293,7 @@ export async function pullProfile() {
 
 export async function pushProfile(profile, records = null) {
   const s = await ready();
-  if (!s) return false;
+  if (!s || !s.uid) return false;
   const dto = toCloudDto(profile);
   if (!dto || !isSyncable(dto) || extraFields(dto).length) return false;
   try {
@@ -327,6 +355,10 @@ export async function pushProfile(profile, records = null) {
 export async function linkGoogle() {
   const s = await ready();
   if (!s) return { ok: false, reason: 'unavailable', mergeNeeded: false, credential: null };
+  
+  
+  
+  if (!s.a.currentUser) return { ok: false, reason: 'signed-out', mergeNeeded: false, credential: null };
   try {
     const provider = new s.auth.GoogleAuthProvider();
     
@@ -352,6 +384,169 @@ export async function linkGoogle() {
     }
     return { ok: false, reason: 'failed', mergeNeeded: false, credential: null };
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function linkEmailPassword(email, password) {
+  const s = await ready();
+  const fail = (reason, mergeNeeded = false, credential = null) => (
+    { ok: false, reason, mergeNeeded, credential });
+  
+  
+  
+  if (!s) return fail('no-service');
+  let credential = null;
+  try {
+    credential = s.auth.EmailAuthProvider.credential(email, password);
+    
+    
+    
+    
+    
+    
+    
+    
+    const res = s.a.currentUser
+      ? await withDeadline(
+        s.auth.linkWithCredential(s.a.currentUser, credential).then(() => 'ok'),
+        SIGN_IN_TIMEOUT_MS, null)
+      : await withDeadline(
+        s.auth.createUserWithEmailAndPassword(s.a, email, password).then(() => 'ok'),
+        SIGN_IN_TIMEOUT_MS, null);
+    if (res !== 'ok') return fail('timeout');
+    _state = { ..._state, uid: s.a.currentUser?.uid ?? _state.uid };
+    return { ok: true, reason: null, mergeNeeded: false, credential: null };
+  } catch (err) {
+    const code = err?.code ?? '';
+    
+    
+    
+    
+    
+    if (code === 'auth/email-already-in-use'
+        || code === 'auth/credential-already-in-use'
+        || code === 'auth/account-exists-with-different-credential') {
+      return fail('already-in-use', true, credential);
+    }
+    if (code === 'auth/weak-password') return fail('weak');
+    if (code === 'auth/invalid-email') return fail('invalid-email');
+    if (code === 'auth/operation-not-allowed') return fail('provider-disabled');
+    if (code === 'auth/requires-recent-login') return fail('reauth');
+    if (code === 'auth/too-many-requests') return fail('rate-limited');
+    return fail('failed');
+  }
+}
+
+
+
+
+
+
+
+
+
+
+export async function signInWithEmail(email, password) {
+  const s = await ready();
+  if (!s) return { ok: false, reason: 'no-service' };
+  try {
+    const res = await withDeadline(
+      s.auth.signInWithEmailAndPassword(s.a, email, password), SIGN_IN_TIMEOUT_MS, null,
+    );
+    const uid = res?.user?.uid ?? null;
+    if (!uid) return { ok: false, reason: 'timeout' };
+    
+    
+    _state = { ..._state, uid };
+    return { ok: true, reason: null };
+  } catch (err) {
+    const code = err?.code ?? '';
+    
+    
+    
+    
+    
+    
+    
+    if (code === 'auth/user-not-found' || code === 'auth/wrong-password'
+        || code === 'auth/invalid-credential' || code === 'auth/invalid-email') {
+      return { ok: false, reason: 'no-match' };
+    }
+    if (code === 'auth/too-many-requests') return { ok: false, reason: 'rate-limited' };
+    if (code === 'auth/operation-not-allowed') return { ok: false, reason: 'provider-disabled' };
+    return { ok: false, reason: 'failed' };
+  }
+}
+
+
+
+
+
+
+
+
+
+
+export async function sendPasswordReset(email) {
+  const s = await ready();
+  if (!s) return { ok: false, reason: 'no-service' };
+  try {
+    await withDeadline(
+      s.auth.sendPasswordResetEmail(s.a, email).catch((err) => {
+        
+        
+        if (err?.code === 'auth/user-not-found') return null;
+        throw err;
+      }),
+      SIGN_IN_TIMEOUT_MS, null,
+    );
+    return { ok: true, reason: null };
+  } catch (err) {
+    const code = err?.code ?? '';
+    if (code === 'auth/invalid-email') return { ok: false, reason: 'invalid-email' };
+    if (code === 'auth/too-many-requests') return { ok: false, reason: 'rate-limited' };
+    if (code === 'auth/operation-not-allowed') return { ok: false, reason: 'provider-disabled' };
+    return { ok: false, reason: 'failed' };
+  }
+}
+
+
+export async function accountMethods() {
+  const s = await ready();
+  const user = s ? s.a.currentUser : null;
+  if (!user) return { anonymous: false, google: false, password: false };
+  const ids = (user.providerData ?? []).map((d) => d?.providerId).filter(Boolean);
+  return {
+    anonymous: !!user.isAnonymous,
+    google: ids.includes('google.com'),
+    password: ids.includes('password'),
+  };
 }
 
 

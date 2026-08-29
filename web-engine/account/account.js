@@ -44,11 +44,14 @@ import {
 } from './profile.js';
 import { localDayNumber } from './dayKey.js';
 import { toCloudDto } from './profileDto.js';
+import { checkPassword, checkEmail } from './passwordPolicy.js';
+
 import {
   normaliseBudget, shouldPull, shouldPush, notePull, notePush, digestOf,
 } from './syncBudget.js';
 import {
   isSyncEnabled, pullProfile, pushProfile, linkGoogle, adoptCredential,
+  linkEmailPassword, signInWithEmail, sendPasswordReset, accountMethods,
   deleteCloudProfile, accountUid,
 } from './firebaseAccount.js';
 import {
@@ -420,6 +423,134 @@ async function pullRaw() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+export async function linkPassword(email, password) {
+  if (!isSyncEnabled()) return { ok: false, reason: 'unavailable', message: '', conflict: null };
+
+  
+  
+  
+  
+  const mail = checkEmail(email);
+  if (!mail.ok) return { ok: false, reason: 'invalid-email', message: mail.message, conflict: null };
+  const pass = checkPassword(password, { email });
+  if (!pass.ok) return { ok: false, reason: pass.reason, message: pass.message, conflict: null };
+
+  const nowMs = now();
+  try {
+    const result = await linkEmailPassword(String(email).trim(), password);
+    if (result.ok) {
+      const p = { ...currentProfile(), linked: true, uid: (await accountUid()) ?? null };
+      saveProfile(store(), normaliseProfile(p));
+      maybePush(p, currentRecords(), nowMs, true);
+      return { ok: true, reason: null, message: '', conflict: null };
+    }
+    if (result.mergeNeeded && result.credential) {
+      
+      
+      const adopted = await adoptCredential(result.credential);
+      if (!adopted) return { ok: false, reason: 'no-match', message: '', conflict: null };
+      return await afterAdopting(nowMs, 'adopted');
+    }
+    return { ok: false, reason: result.reason, message: '', conflict: null };
+  } catch (_) {
+    return { ok: false, reason: 'failed', message: '', conflict: null };
+  }
+}
+
+
+
+
+
+
+
+
+
+export async function signInPassword(email, password) {
+  if (!isSyncEnabled()) return { ok: false, reason: 'unavailable', message: '', conflict: null };
+  const mail = checkEmail(email);
+  if (!mail.ok) return { ok: false, reason: 'invalid-email', message: mail.message, conflict: null };
+  const nowMs = now();
+  try {
+    const res = await signInWithEmail(String(email).trim(), String(password ?? ''));
+    if (!res.ok) return { ok: false, reason: res.reason, message: '', conflict: null };
+    return await afterAdopting(nowMs, null);
+  } catch (_) {
+    return { ok: false, reason: 'failed', message: '', conflict: null };
+  }
+}
+
+
+
+
+
+
+
+
+
+async function afterAdopting(nowMs, okReason) {
+  const doc = await pullRaw();
+  const local = currentProfile();
+  if (!doc || !doc.profile) {
+    
+    
+    const p = { ...local, linked: true, uid: (await accountUid()) ?? null };
+    saveProfile(store(), normaliseProfile(p));
+    maybePush(p, currentRecords(), nowMs, true);
+    return { ok: true, reason: okReason, message: '', conflict: null };
+  }
+  return {
+    ok: false,
+    reason: 'conflict',
+    message: '',
+    conflict: {
+      local,
+      cloud: doc.profile,
+      localRecords: currentRecords(),
+      cloudRecords: doc.records,
+    },
+  };
+}
+
+
+
+
+
+
+
+
+
+export async function resetPassword(email) {
+  if (!isSyncEnabled()) return { ok: false, reason: 'unavailable', message: '' };
+  const mail = checkEmail(email);
+  if (!mail.ok) return { ok: false, reason: 'invalid-email', message: mail.message };
+  try {
+    return await sendPasswordReset(String(email).trim());
+  } catch (_) {
+    return { ok: false, reason: 'failed', message: '' };
+  }
+}
+
+
+export async function signInMethods() {
+  if (!isSyncEnabled()) return { anonymous: false, google: false, password: false };
+  try {
+    return await accountMethods();
+  } catch (_) {
+    return { anonymous: false, google: false, password: false };
+  }
+}
 
 export async function linkAccount() {
   if (!isSyncEnabled()) return { ok: false, reason: 'unavailable', conflict: null };

@@ -8,13 +8,13 @@
   <link rel="canonical" href="https://magesticanstudios.com/privacy.html">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Privacy Policy — Magestican Studios">
-  <meta property="og:description" content="What the Magestican Studios website and games collect: no cookies, an optional account for saving progress, anonymous page and match counts only.">
+  <meta property="og:description" content="What the Magestican Studios website and games collect: no cookies, an optional account for saving progress, and an email address only if you choose to set one.">
   <meta property="og:url" content="https://magesticanstudios.com/privacy.html">
   <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
   <meta property="og:site_name" content="Magestican Studios">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Privacy Policy — Magestican Studios">
-  <meta name="twitter:description" content="What the Magestican Studios website and games collect: no cookies, an optional account for saving progress, anonymous page and match counts only.">
+  <meta name="twitter:description" content="What the Magestican Studios website and games collect: no cookies, an optional account for saving progress, and an email address only if you choose to set one.">
   <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
   <script type="application/ld+json">
   {
@@ -59,7 +59,7 @@
       <li>This website (<code>magesticanstudios.com</code>) is static. It has no login, no comment box, and no server-side code. It sets no cookies.</li>
       <li>We use <strong>Google Analytics 4</strong> to count visits, configured so that it stores nothing on your device and cannot identify you (details below). It is the only third-party script on the site.</li>
       <li>Our games have no game server, and <strong>you never need an account to play</strong>. They report a small number of anonymous gameplay counts (which map and mode was chosen, how many AI bots, whether the match reached an end, phone or desktop) and nothing else.</li>
-      <li><strong>Saving your progress to an account is optional.</strong> If you use it, we store your game progress against an anonymous identifier under "Accounts and saved progress" below. If you do not, your progress stays in your own browser exactly as it always has.</li>
+      <li><strong>Saving your progress to an account is optional.</strong> If you use it, we store your game progress against an anonymous identifier — and, only if you choose to set an email and password rather than staying anonymous or using Google, your email address. Both are covered under "Accounts and saved progress" below. If you do not, your progress stays in your own browser exactly as it always has.</li>
       <li>The only personal information we hold about you is what you have voluntarily emailed us (e.g. a bug report, a press enquiry). We keep those emails only as long as needed to reply.</li>
     </ul>
 
@@ -71,10 +71,21 @@
     <h2>Accounts and saved progress</h2>
     <p><strong>You do not need an account to play anything we make, and you never will.</strong> Every game runs, saves and remembers your progress in your own browser with no account at all. What an account adds is one thing: the same progress on a second device, and a copy that survives clearing your browser data.</p>
     <p><strong>What we store if you use it.</strong> A single document holding your game progress: your chosen display name if you typed one, experience points, rank, streak counts, day numbers of when you played, how many times you have played and won each game, and your personal best lap times, race times, finishing positions and points for each Farmy Kart circuit. That is the whole list, and it is enforced by the database itself — our security rules name every permitted field and reject a write containing anything else, including an email address, a message, or a reference to another player.</p>
-    <p><strong>Who you are to us.</strong> By default, nobody. Saving progress signs you in anonymously: Google's Firebase Authentication issues a random identifier for your browser and we store the document against that identifier. It is not linked to a name, an email or a person, and we cannot tell who you are from it.</p>
-    <p><strong>If you link a Google account.</strong> You may optionally attach a Google account so the same progress follows you to another device. Google then confirms to us that the two devices are the same person; <strong>we do not store your email address, your Google profile or your name</strong>, and the security rules above would reject them if we tried. Google's own handling is covered by the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</p>
+    <p><strong>Who you are to us.</strong> By default, nobody. Playing signs you in anonymously: Google's Firebase Authentication issues a random identifier for your browser and we store the progress document against that identifier. It is not linked to a name, an email or a person, and we cannot tell who you are from it.</p>
+
+    <p><strong>There are three ways to make that progress durable, and they differ in what they involve.</strong></p>
+    <ul>
+      <li><strong>Nothing at all.</strong> Stay anonymous. Progress lives in this browser and, if the anonymous identifier persists, in our database against a random id. We know nothing about you.</li>
+      <li><strong>Link a Google account.</strong> Google confirms to us that two devices are the same person. <strong>We do not store your email address, your Google profile or your name</strong> — the security rules above would reject them.</li>
+      <li><strong>Set an email address and password.</strong> In this case we <strong>do</strong> hold your email address, because it is how you sign in. See immediately below.</li>
+    </ul>
+
+    <p><strong>If you set an email and password.</strong> Your email address is stored by <strong>Google Firebase Authentication</strong>, which operates it on our behalf as our processor. It is used for exactly two things: identifying your account when you sign in, and sending a password reset link if you ask for one. <strong>We do not send marketing email, we have no mailing list, and we do not share or sell the address.</strong></p>
+    <p><strong>Your password is never seen by us.</strong> It goes from the form directly to Firebase Authentication, which stores only a salted hash (scrypt). It is not written to our database — the security rules above name every permitted field and a password is not among them — it is not logged, and there is no screen anywhere, including one only we can see, that could display it.</p>
+    <p><strong>Your email is not in the progress document either.</strong> The two are held separately: Firebase Authentication holds the address, Cloud Firestore holds the progress, and the rules reject any attempt to write an email address into the progress document.</p>
+    <p>Google's own handling of authentication data is covered by the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</p>
     <p><strong>Where it is stored.</strong> Google Cloud Firestore, in a project we control. Access is restricted to your own document: the rules permit a signed-in browser to read and write the one document belonging to its own identifier and nothing else, and there is no listing, no search, and no path by which one player can reach another player's progress.</p>
-    <p><strong>Deleting it.</strong> The account panel in any of our games has an "Erase my progress" button. It deletes the stored document and your local copy. There is nothing to email us about and no waiting period.</p>
+    <p><strong>Deleting it.</strong> The account panel in any of our games has an "Erase my progress" button. It deletes the stored progress document and your local copy, immediately — there is nothing to email us about and no waiting period. If you also want the email address itself removed from Firebase Authentication, email us at the address under "Contact" and we will delete the account outright.</p>
 
     <h2>What we do with it</h2>
     <ul>
