@@ -86,6 +86,7 @@ export function panelModel({
       fraction: Math.max(0, Math.min(1, rank.fraction ?? 0)),
     },
     streakLine: streakLineFromStatus(summary?.streak ?? {}),
+    today: todaySection(summary),
     tourLine: tourLineOf(summary?.tour),
     
     
@@ -108,6 +109,50 @@ export function panelModel({
         + 'It cannot be undone. Erase it?',
     },
     filter,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function todaySection(summary) {
+  const board = summary?.tasks ?? null;
+  if (!board?.tasks?.length) return null;
+  const season = summary?.season ?? null;
+  const weekly = summary?.weekly ?? null;
+  const weeklyDone = (weekly?.goals ?? []).filter((g) => g.progress?.done ?? g.done).length;
+  return {
+    tasks: board.tasks.map((entry) => ({
+      text: entry.task?.text ?? '',
+      xp: entry.task?.xp ?? 0,
+      done: !!entry.progress?.done,
+      
+      
+      fraction: Math.max(0, Math.min(1, Number(entry.progress?.fraction) || 0)),
+      have: entry.progress?.have ?? 0,
+      need: entry.progress?.target ?? 0,
+    })),
+    countLine: board.complete
+      ? `Day complete - ${board.doneCount} of ${board.tasks.length}`
+      : `${board.doneCount} of ${board.tasks.length} done today`,
+    complete: !!board.complete,
+    weeklyLine: weekly?.goals?.length
+      ? `${weeklyDone} of ${weekly.goals.length} weekly goals`
+      : null,
+    seasonLine: season && Number(season.tiers) > 0
+      ? `${season.name ?? 'Season'} - tier ${season.tier ?? 0} of ${season.tiers}`
+      : null,
   };
 }
 
@@ -149,6 +194,8 @@ export function mountAccountPanel(host, model, handlers = {}) {
 
   host.appendChild(headerEl(model));
   host.appendChild(rankEl(model));
+  const today = todayEl(model);
+  if (today) host.appendChild(today);
   const offer = offerEl(model, handlers);
   if (offer) host.appendChild(offer);
   host.appendChild(shelfEl(model));
@@ -191,6 +238,40 @@ function rankEl(m) {
   fill.style.width = `${Math.round(m.rank.fraction * 100)}%`;
   bar.appendChild(fill);
   box.appendChild(bar);
+  return box;
+}
+
+function todayEl(m) {
+  const t = m.today;
+  if (!t) return null;
+  const box = el('div', 'ap-today');
+  const head = el('div', 'ap-today-head');
+  head.appendChild(el('span', 'ap-today-title', 'Today'));
+  head.appendChild(el('span', t.complete ? 'ap-today-count ap-today-done' : 'ap-today-count', t.countLine));
+  box.appendChild(head);
+
+  const list = el('ul', 'ap-tasks');
+  for (const task of t.tasks) {
+    const li = el('li', task.done ? 'ap-task ap-task-done' : 'ap-task');
+    const row = el('div', 'ap-task-row');
+    row.appendChild(el('span', 'ap-task-text', task.text));
+    
+    
+    row.appendChild(el('span', 'ap-task-have', task.done ? 'Done' : `${task.have} of ${task.need}`));
+    li.appendChild(row);
+    const bar = el('div', 'ap-bar');
+    const fill = el('div', 'ap-bar-fill');
+    fill.style.width = `${Math.round(task.fraction * 100)}%`;
+    bar.appendChild(fill);
+    li.appendChild(bar);
+    list.appendChild(li);
+  }
+  box.appendChild(list);
+
+  const lines = el('div', 'ap-lines');
+  if (t.weeklyLine) lines.appendChild(el('div', 'ap-line', t.weeklyLine));
+  if (t.seasonLine) lines.appendChild(el('div', 'ap-line', t.seasonLine));
+  if (lines.childNodes.length) box.appendChild(lines);
   return box;
 }
 
@@ -316,6 +397,18 @@ function injectStyles() {
     .ap-rank-name { font-weight: 700; color: #f2f5fa; letter-spacing: .04em; }
     .ap-rank-next { font-size: 11px; color: #7f8798; }
     .ap-bar { height: 6px; border-radius: 3px; background: #232935; margin-top: 6px; overflow: hidden; }
+    .ap-today { margin-top: 14px; }
+    .ap-today-head { display: flex; justify-content: space-between; align-items: baseline; }
+    .ap-today-title { font: 700 11px system-ui; letter-spacing: 0.12em; text-transform: uppercase; color: #8e97a8; }
+    .ap-today-count { font: 600 11px system-ui; color: #8e97a8; }
+    .ap-today-count.ap-today-done { color: #5fd08a; }
+    .ap-tasks { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+    .ap-task-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .ap-task-text { font: 500 13px system-ui; color: #d7dceb; }
+    .ap-task-have { font: 600 11px system-ui; color: #8e97a8; white-space: nowrap; }
+    .ap-task.ap-task-done .ap-task-text { color: #8e97a8; }
+    .ap-task.ap-task-done .ap-task-have { color: #5fd08a; }
+    .ap-task.ap-task-done .ap-bar-fill { background: #5fd08a; }
     .ap-bar-fill { height: 100%; background: linear-gradient(90deg,#59a6ff,#5fd08a); }
     .ap-offer { background: #171c25; border: 1px solid #2a3240; border-radius: 8px;
       padding: 12px; margin-bottom: 16px; }
