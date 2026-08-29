@@ -96,6 +96,43 @@ export function metricsFor(gameId) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+export function goalDeckFor(gameId) {
+  return GOALS[gameId] ?? [];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const COMPLETION_METRIC = Object.freeze({
+  'team-bonding': 'matches',
+  farmykart: 'races',
+  '2d-fighter-ex': 'fights',
+  zelakas: 'sessions',
+});
+
+
 export const DAILY_XP = 40;
 
 

@@ -169,3 +169,113 @@ export function daysBetween(from, to) {
   if (a === null || b === null) return null;
   return b - a;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const DAYS_PER_WEEK = 7;
+
+
+const EPOCH_WEEKDAY_SHIFT = 3;
+
+
+
+
+
+
+
+export function weekNumber(utcDay) {
+  const d = usable(utcDay);
+  if (d === null) return null;
+  return Math.floor((d + EPOCH_WEEKDAY_SHIFT) / DAYS_PER_WEEK);
+}
+
+
+export function weekStartDay(week) {
+  if (!Number.isInteger(week)) return null;
+  return usable(week * DAYS_PER_WEEK - EPOCH_WEEKDAY_SHIFT);
+}
+
+
+
+
+
+
+export function weekdayIndex(utcDay) {
+  const d = usable(utcDay);
+  if (d === null) return null;
+  return ((d + EPOCH_WEEKDAY_SHIFT) % DAYS_PER_WEEK + DAYS_PER_WEEK) % DAYS_PER_WEEK;
+}
+
+
+export function daysLeftInWeek(utcDay) {
+  const w = weekdayIndex(utcDay);
+  return w === null ? null : DAYS_PER_WEEK - w;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SEASON_WEEKS = 4;
+
+
+export function seasonNumber(utcDay) {
+  const w = weekNumber(utcDay);
+  return w === null ? null : Math.floor(w / SEASON_WEEKS);
+}
+
+
+export function seasonStartDay(season) {
+  if (!Number.isInteger(season) || season < 0) return null;
+  return weekStartDay(season * SEASON_WEEKS);
+}
+
+
+export function daysLeftInSeason(utcDay) {
+  const s = seasonNumber(utcDay);
+  const start = seasonStartDay(s);
+  if (start === null) return null;
+  const elapsed = daysBetween(start, utcDay);
+  if (elapsed === null || elapsed < 0) return null;
+  return SEASON_WEEKS * DAYS_PER_WEEK - elapsed;
+}

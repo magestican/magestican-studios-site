@@ -27,9 +27,11 @@ import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderbo
 
 
 
-import { recordSession, syncFromCloud } from '../../../web-engine/account/account.js';
+import { recordSession, syncFromCloud, accountSummary } from '../../../web-engine/account/account.js';
 import { sessionLines } from '../../../web-engine/account/accountBadge.js';
 import { mountProfilePanel } from '../../../web-engine/account/accountUi.js';
+import { shareCard } from '../../../web-engine/account/shareCard.js';
+import { localDayNumber } from '../../../web-engine/account/dayKey.js';
 import { startVersionChecker } from 'arbelo/updater';
 import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
@@ -1061,6 +1063,45 @@ function syncMuteButton() {
 function refreshAccountPanel() {
   const host = $('account-panel');
   if (host) mountProfilePanel(host);
+  
+  
+  
+  const share = $('share-day');
+  if (share && !share.dataset.bound) {
+    share.dataset.bound = '1';
+    share.addEventListener('click', copyDayCard);
+  }
+}
+
+
+
+
+
+
+
+
+
+function copyDayCard() {
+  const note = $('share-day-note');
+  try {
+    const nowMs = Date.now();
+    const s = accountSummary(nowMs);
+    const text = shareCard({
+      day: localDayNumber(nowMs),
+      board: s.tasks,
+      streak: s.streak,
+      season: s.season,
+    });
+    navigator.clipboard.writeText(text).then(() => {
+      if (note) note.textContent = 'Copied - paste it anywhere';
+    }).catch(() => {
+      
+      
+      if (note) note.textContent = text;
+    });
+  } catch {
+    if (note) note.textContent = 'Play a round first';
+  }
 }
 
 const show = (id) => {

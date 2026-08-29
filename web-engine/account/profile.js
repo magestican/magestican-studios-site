@@ -56,8 +56,17 @@
 import { localDayNumber, utcDayNumber, daysBetween } from './dayKey.js';
 import { emptyStreak, normaliseStreak, recordDay, streakStatus, MAX_STREAK } from './streak.js';
 import {
-  GAME_IDS, isGameId, metricsFor, dailyChallenge, challengeProgress,
+  GAME_IDS, isGameId, metricsFor, dailyChallenge, challengeProgress, gameOfTheDay,
 } from './dailyChallenge.js';
+import { dailyTaskBoard, boardStatus, DAY_COMPLETE_XP } from './dailyTasks.js';
+import {
+  emptyWeek, normaliseWeek, recordWeekPlay, weeklyBoardForDay, weeklyStatus,
+  WEEK_COMPLETE_XP,
+} from './weeklyGoals.js';
+import {
+  emptySeason, normaliseSeason, recordSeasonXp, seasonStatus,
+} from './season.js';
+import { openingRun, isFirstPlayOf, unplayedGames, NEW_GAME_XP } from './firstRun.js';
 
 
 
@@ -118,6 +127,15 @@ export function emptyProfile() {
     daily: { day: null, progress: {}, done: [] },
     
     tour: { stamps: 0, lastAwardDay: null },
+    
+    
+    
+    week: emptyWeek(),
+    
+    
+    
+    
+    season: emptySeason(),
   };
 }
 
@@ -207,6 +225,8 @@ export function normaliseProfile(raw) {
       stamps: clampInt(raw.tour?.stamps, LIMITS.maxTour),
       lastAwardDay: day(raw.tour?.lastAwardDay),
     },
+    week: normaliseWeek(raw.week),
+    season: normaliseSeason(raw.season),
   };
 }
 
@@ -313,7 +333,15 @@ export function recordPlay(profile, {
     games: { ...before.games },
     daily: { ...before.daily, progress: { ...before.daily.progress }, done: [...before.daily.done] },
     tour: { ...before.tour },
+    week: before.week,
+    season: before.season,
   };
+
+  
+  
+  
+  
+  const firstEver = isFirstPlayOf(before, gameId);
 
   if (name !== undefined) {
     const n = normaliseName(name);
@@ -337,6 +365,10 @@ export function recordPlay(profile, {
     totals,
   };
   let xp = XP.play + (won ? XP.win : 0);
+  if (firstEver) {
+    xp += NEW_GAME_XP;
+    events.push({ type: 'new-game', gameId, xp: NEW_GAME_XP });
+  }
 
   
   if (today !== null) {
@@ -379,6 +411,64 @@ export function recordPlay(profile, {
         events.push({ type: 'challenge', gameId, xp: challenge.xp, featured: challenge.featured, text: challenge.text });
       }
     }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const board = dailyTaskBoard(utcToday);
+    if (board) {
+      const wasToday = before.daily.day === utcToday;
+      const had = boardStatus(board, wasToday ? before.daily.progress : {});
+      const now = boardStatus(board, p.daily.progress);
+      for (let i = 0; i < now.tasks.length; i++) {
+        if (now.tasks[i].progress.done && !had.tasks[i]?.progress.done) {
+          const t = now.tasks[i].task;
+          xp += t.xp;
+          events.push({ type: 'task', slot: t.slot, xp: t.xp, text: t.text });
+        }
+      }
+      if (now.complete && !had.complete) {
+        xp += DAY_COMPLETE_XP;
+        events.push({ type: 'day-complete', xp: DAY_COMPLETE_XP, done: now.doneCount, of: now.tasks.length });
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+    const weekBoard = weeklyBoardForDay(utcToday);
+    const nextWeek = recordWeekPlay(before.week, { utcDay: utcToday, gameId, metrics });
+    p.week = nextWeek;
+    if (weekBoard) {
+      const hadW = weeklyStatus(weekBoard, before.week, utcToday);
+      const nowW = weeklyStatus(weekBoard, nextWeek, utcToday);
+      for (let i = 0; i < nowW.goals.length; i++) {
+        if (nowW.goals[i].progress.done && !hadW.goals[i]?.progress.done) {
+          const g = nowW.goals[i].goal;
+          xp += g.xp;
+          events.push({ type: 'weekly', slot: g.slot, xp: g.xp, text: g.text });
+        }
+      }
+      if (nowW.complete && !hadW.complete) {
+        xp += WEEK_COMPLETE_XP;
+        events.push({ type: 'week-complete', xp: WEEK_COMPLETE_XP });
+      }
+    }
   }
 
   
@@ -392,8 +482,33 @@ export function recordPlay(profile, {
   }
 
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let gained = xp;
+  if (utcToday !== null) {
+    const sr = recordSeasonXp(before.season, { utcDay: utcToday, xp });
+    p.season = sr.season;
+    gained = sr.gained;
+    if (sr.bonus > 0) {
+      events.push({ type: 'rested', xp: sr.bonus, daysAway: sr.daysAway, bonus: sr.bonus });
+    }
+    if (sr.tiersGained > 0) {
+      events.push({ type: 'season-tier', tier: sr.tier, gainedTiers: sr.tiersGained });
+    }
+  }
+
+  
   const rankBefore = rankFor(before.xp);
-  p.xp = Math.min(LIMITS.maxXp, before.xp + xp);
+  p.xp = Math.min(LIMITS.maxXp, before.xp + gained);
   const rankAfter = rankFor(p.xp);
   events.push({ type: 'xp', gained: p.xp - before.xp, total: p.xp });
   if (rankAfter.index > rankBefore.index) {
@@ -413,6 +528,8 @@ export function profileSummary(profile, nowMs = 0, tzOffsetMinutes) {
   const p = normaliseProfile(profile);
   const today = localDayNumber(nowMs, tzOffsetMinutes);
   const utcToday = utcDayNumber(nowMs);
+  const board = utcToday === null ? null : dailyTaskBoard(utcToday);
+  const weekBoard = utcToday === null ? null : weeklyBoardForDay(utcToday);
   return {
     name: p.name,
     linked: p.linked,
@@ -420,6 +537,23 @@ export function profileSummary(profile, nowMs = 0, tzOffsetMinutes) {
     streak: streakStatus(p.streak, today),
     tour: tourStatus(p, today),
     utcDay: utcToday,
+    
+    
+    
+    
+    
+    
+    tasks: boardStatus(board, p.daily.day === utcToday ? p.daily.progress : {}),
+    weekly: weeklyStatus(weekBoard, p.week, utcToday),
+    season: seasonStatus(p.season, utcToday),
+    
+    
+    
+    opening: openingRun(p),
+    
+    
+    featured: utcToday === null ? null : gameOfTheDay(utcToday),
+    newToYou: unplayedGames(p),
     games: GAME_IDS.map((id) => {
       const g = p.games[id] ?? { plays: 0, wins: 0, lastDay: null, totals: {} };
       const challenge = utcToday === null ? null : dailyChallenge(utcToday, id);
@@ -519,6 +653,12 @@ export function reconcileProfiles(local, cloud) {
       stamps: max(l.tour.stamps, c.tour.stamps),
       lastAwardDay: laterDay(l.tour.lastAwardDay, c.tour.lastAwardDay),
     },
+    
+    
+    
+    
+    week: l.week,
+    season: l.season,
   });
 }
 
@@ -611,6 +751,24 @@ export function mergeProfiles(a, b) {
     tour: {
       stamps: sum(x.tour.stamps, y.tour.stamps, LIMITS.maxTour),
       lastAwardDay: laterDay(x.tour.lastAwardDay, y.tour.lastAwardDay),
+    },
+    
+    
+    
+    
+    week: (x.week.week ?? -1) >= (y.week.week ?? -1) ? x.week : y.week,
+    
+    
+    
+    
+    
+    season: {
+      id: (x.season.id ?? -1) >= (y.season.id ?? -1) ? x.season.id : y.season.id,
+      xp: Math.max(x.season.xp, y.season.xp),
+      lastDay: laterDay(x.season.lastDay, y.season.lastDay),
+      rested: Math.max(x.season.rested, y.season.rested),
+      bestTier: Math.max(x.season.bestTier, y.season.bestTier),
+      seasons: x.season.seasons + y.season.seasons,
     },
   });
 }
