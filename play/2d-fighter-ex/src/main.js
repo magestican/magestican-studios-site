@@ -1,6 +1,11 @@
 
 
 import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
+
+
+
+import { recordSession, accountSummary, syncFromCloud } from '../../../web-engine/account/account.js';
+import { mountAccountBadge } from '../../../web-engine/account/accountBadge.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { CANVAS } from './choreography.js';
 import { buildStage } from './stage.js';
@@ -147,6 +152,48 @@ let elapsed = 0;
 let last = null;
 let speed = 1;
 
+
+
+
+
+
+
+
+
+
+
+
+let fightCounted = false;
+
+
+
+
+
+let lastBadgePaint = 0;
+
+function recordFightWatched() {
+  if (fightCounted) return;
+  fightCounted = true;
+  try {
+    recordSession({ gameId: '2d-fighter-ex', metrics: { fights: 1 } });
+    paintAccount(true);
+  } catch (_) {  }
+}
+
+
+
+
+function paintAccount(force = false) {
+  const host = $('account');
+  if (!host) return;
+  const nowMs = Date.now();
+  if (!force && nowMs - lastBadgePaint < 1000) return;
+  lastBadgePaint = nowMs;
+  try {
+    mountAccountBadge(host, accountSummary(nowMs), '2d-fighter-ex');
+  } catch (_) { host.textContent = ''; }
+}
+
 function tick(now) {
   if (last === null) last = now;
   const dt = Math.min(100, now - last);
@@ -174,6 +221,11 @@ function tick(now) {
   ctx.restore();
 
   const total = totalMs();
+  
+  
+  
+  if (playing && elapsed >= total) recordFightWatched();
+  paintAccount();
   $('frame').textContent = String(pose.index + 1);
   $('clock').textContent = `${(((elapsed % total) / 1000)).toFixed(1)}s`;
   
@@ -235,6 +287,12 @@ canvas.height = CANVAS.height;
 ctx.imageSmoothingEnabled = false;
 
 trackEvent('game_start', { game: '2d-fighter-ex', seed });
+
+
+
+
+try { Promise.resolve(syncFromCloud()).catch(() => {}); } catch (_) {  }
+paintAccount(true);
 
 
 

@@ -156,6 +156,20 @@ export function makeSnapshot(kart, { seat, seq }) {
     s: round2(kart.speed ?? 0),
     d: kart.driftTier ?? 0,
     b: kart.boost ? 1 : 0,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    g: kart.gliding ? 1 : 0,
   };
 }
 
@@ -282,6 +296,10 @@ export function sampleRemote(remote, now, { delayMs = INTERP_DELAY_MS } = {}) {
         
         driftTier: B.d ?? 0,
         boosting: !!B.b,
+        
+        
+        
+        gliding: !!B.g,
         mode: 'interp',
         ageMs: now - b.rt,
       };
@@ -309,6 +327,7 @@ function frame(snap, mode, ageMs) {
     vz: snap.v?.[1] ?? 0,
     driftTier: snap.d ?? 0,
     boosting: !!snap.b,
+    gliding: !!snap.g,
     mode,
     ageMs,
   };

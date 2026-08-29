@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The hash that was a lattice, and the shortcut nobody could take — Farmy Kart devlog</title>
+  <meta name="description" content="A shortcut in Farmy Kart that no bot could ever take, because the number deciding it sat on a lattice. What happens when multiply-and-modulo is your hash.">
+  <link rel="canonical" href="https://magesticanstudios.com/magazine/the-hash-that-was-a-lattice.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="The hash that was a lattice, and the shortcut nobody could take — Farmy Kart devlog">
+  <meta property="og:description" content="A shortcut in Farmy Kart that no bot could ever take, because the number deciding it sat on a lattice. What happens when multiply-and-modulo is your hash.">
+  <meta property="og:url" content="https://magesticanstudios.com/magazine/the-hash-that-was-a-lattice.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta property="article:published_time" content="2026-08-28">
+  <meta property="article:section" content="Development log">
+  <meta property="article:tag" content="Farmy Kart">
+  <meta property="article:tag" content="AI">
+  <meta property="article:tag" content="Randomness">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The hash that was a lattice, and the shortcut nobody could take — Farmy Kart devlog">
+  <meta name="twitter:description" content="A shortcut in Farmy Kart that no bot could ever take, because the number deciding it sat on a lattice. What happens when multiply-and-modulo is your hash.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "The hash that was a lattice, and the shortcut nobody could take",
+  "description": "A shortcut in Farmy Kart that no bot could ever take, because the number deciding it sat on a lattice. What happens when multiply-and-modulo is your hash.",
+  "datePublished": "2026-08-28",
+  "dateModified": "2026-08-28",
+  "author": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://magesticanstudios.com/favicon.svg"
+    }
+  },
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "inLanguage": "en-AU",
+  "keywords": "Farmy Kart, AI, Randomness",
+  "articleSection": "Development log",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "The Magestican Studios magazine",
+    "url": "https://magesticanstudios.com/magazine/"
+  },
+  "about": {
+    "@type": "VideoGame",
+    "name": "Farmy Kart",
+    "url": "https://magesticanstudios.com/farmykart.html"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://magesticanstudios.com/magazine/the-hash-that-was-a-lattice.html"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Magestican Studios",
+      "item": "https://magesticanstudios.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Magazine",
+      "item": "https://magesticanstudios.com/magazine/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "The hash that was a lattice, and the shortcut nobody could take",
+      "item": "https://magesticanstudios.com/magazine/the-hash-that-was-a-lattice.html"
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/magazine.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body class="mag-body">
+  <header class="site-header">
+    <a href="/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/#games">Games</a>
+      <a href="/team-bonding.html">Team Bonding</a>
+      <a href="/farmykart.html">Farmy Kart</a>
+      <a href="/magazine/">Magazine</a>
+      <a href="/reviews.html">Reviews</a>
+      <a href="/about.html">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="mag-crumb"><a href="/">Magestican Studios</a> &rsaquo; <a href="/magazine/">Magazine</a></p>
+
+    <article class="mag-article">
+      <h1>The hash that was a lattice, and the shortcut nobody could take</h1>
+      <p class="mag-meta">
+        <time datetime="2026-08-28">28 August 2026</time>
+        <span class="mag-tag">Farmy Kart</span>
+        <span>6 min read</span>
+      </p>
+      <p class="mag-lede">One of Farmy Kart&rsquo;s shortcuts had never been taken by a computer-controlled driver, on any grid, at any difficulty. It was not badly tuned. It was arithmetically impossible, and the reason was one line that looked like a hash and was not.</p>
+
+      <blockquote class="mag-pull">
+        <p>An uncontested shortcut is a corridor, not a decision.</p>
+      </blockquote>
+      <p>That is why this work happened at all. Farmy Kart&rsquo;s circuits have branch lines &mdash; a cut through the sunflowers, a frozen creek, a cattle gate &mdash; and if only the human player ever takes them, they are not shortcuts. Nobody is alongside you in there, nobody beats you to the mouth, and the field you rejoin has not moved. The gamble has no other side.</p>
+      <p>So the eight computer-controlled drivers needed to be able to take them, and to <em>disagree</em> about whether to, because a field where everybody makes the same choice is one decision, not eight.</p>
+      <h2>Nerve</h2>
+      <p>Each driver gets a personal appetite for a gamble, called nerve. It is fixed at creation from the driver&rsquo;s slot on the grid rather than rolled fresh, for two reasons: a race replayed from the same seed has to be the same race, and a wobble re-rolled every frame is noise rather than character.</p>
+      <p>Deriving a number in the range nought to one from a small integer looks like a solved problem, and the line that did it was this shape:</p>
+      <pre class="mag-data">(seedIndex * bigPrime) % 1000 / 1000</pre>
+      <p>It is a common idiom, it looks like scrambling, and for eight consecutive inputs it is not a hash at all. Multiplying by a constant and taking a modulus is an arithmetic sequence by construction. The multiply moves the values a long way; it does not <em>mix</em> them. Measured across the eight grid slots:</p>
+      <pre class="mag-data">0.000   0.519   0.038   0.557   0.076   0.595   0.114   0.633</pre>
+      <p>Read the odd and even positions separately and you can see it: two interleaved arithmetic sequences, each stepping by about 0.038. And a ceiling &mdash; across the whole grid, nerve <strong>never once exceeded 0.64</strong>.</p>
+      <h2>The consequence</h2>
+      <p>Muddy Bottom&rsquo;s cattle gate is the meanest cut on the roster: low grip, narrow, and it costs you if you get it wrong. At Market Day pace it needs a nerve above <strong>0.66</strong>.</p>
+      <p>Nothing on the grid could produce a 0.66. Not an unlikely event &mdash; an unreachable one. No driver in any race that had ever been run could have taken that shortcut, and none ever did.</p>
+      <p>What makes this worth an article is not the bug. It is that from the outside it was invisible in the most expensive possible way: it looked like a <em>tuning</em> problem. The gate is hard, bots do not take it, so the threshold must be a bit high &mdash; and every hour spent adjusting that threshold was an hour spent on a number that was never going to be compared against anything above 0.64.</p>
+      <p>The nerve value is now produced by a murmur3 finalizer: shift, multiply, exclusive-or, three times over. That is what actually avalanches small consecutive inputs across the range.</p>
+      <h2>What was deliberately not fixed</h2>
+      <p>Two other values on the same driver &mdash; its line bias and its steering phase &mdash; are computed with exactly the same broken idiom, and they were left alone.</p>
+      <p>They need <em>variety</em>, not a distribution. Nothing compares them against a threshold; they only have to differ from one another so the field does not drive as a single organism, and a lattice differs from itself perfectly well. Changing them would move every bot&rsquo;s line on every circuit and invalidate every lap time measured to date, in exchange for nothing anyone could see.</p>
+      <p>Fixing the two harmless instances of a bug you have just understood is very tempting and is a real cost.</p>
+      <h2>Two more, found on the way</h2>
+      <p>Neither announced itself.</p>
+      <p><strong>The skill lookup read fields that do not exist.</strong> It asked for <code>difficulty.aim ?? difficulty.skill</code>. A difficulty entry has neither; it has <code>precision</code> and <code>driftSkill</code>. So every driver on every setting fell through to the same fallback constant, and all three difficulties made identical choices &mdash; eight of eight drivers took every shortcut on every difficulty. A <code>??</code> chain onto a misremembered field name fails silently <em>and</em> plausibly: the code reads as considered, and the wrong answer it produces is a legal one.</p>
+      <p><strong>The commitment flapped.</strong> A driver decides about a branch while still on the main road, and therefore a long way from the branch line. A test for "have I strayed off the line I committed to", applied immediately, released the commitment on the very first frame &mdash; and because releasing also cleared the decision, the driver re-committed on the next frame, and so on. Measured: <strong>680 commitments across fifteen laps</strong> of a circuit with one shortcut on it.</p>
+      <h2>The result</h2>
+      <p>With drivers that can take the cuts and disagree about them, the field splits at the branch mouth, and lap times moved:</p>
+      <pre class="mag-data">Sunflower Fields   25.9 -&gt; 23.9 s   faster by 1.97 s/lap
+Frostfield         24.3 -&gt; 21.9 s   faster by 2.39 s/lap
+Muddy Bottom       22.8 -&gt; 21.2 s   faster by 1.57 s/lap</pre>
+      <p>Two seconds a lap is a large number in a race that lasts about ninety. But the number that mattered was 0.64, and it took measuring the distribution to see it &mdash; because everything downstream of a broken hash still runs, still looks reasonable, and still produces a race.</p>
+
+      <p class="mag-endnote">
+        <a class="mag-readon" href="/play/farmykart/">Play Farmy Kart in your browser &rarr;</a> &middot; <a href="/farmykart.html">About Farmy Kart</a> &middot; <a href="/reviews.html">What we think of our own games</a>
+      </p>
+    </article>
+
+    <section class="mag-more">
+      <h2>More from the magazine</h2>
+      <ul>
+        <li><a href="/magazine/two-suns-and-a-dead-lawn.html">Two suns, and a snowfall lit by a dead lawn</a></li>
+        <li><a href="/magazine/the-grass-grew-through-the-road.html">The grass grew through the road</a></li>
+        <li><a href="/magazine/guessing-where-the-ramp-is.html">Three ways to guess where a ramp is, and why we stopped guessing</a></li>
+      </ul>
+      <p><a class="mag-readon" href="/magazine/">All articles &rarr;</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      Site is static &middot; No cookies, no accounts, anonymous counts only (<a href="/privacy.html">how</a>)
+    </p>
+  </footer>
+
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    startVersionChecker();
+    initAnalytics({ page: 'magazine/the-hash-that-was-a-lattice' });
+    trackPlayClicks();
+  </script>
+</body>
+</html>

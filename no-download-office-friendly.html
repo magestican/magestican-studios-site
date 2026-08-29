@@ -51,33 +51,55 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="./" class="brand"><span class="brand-mark">M</span><span class="brand-name">Magestican Studios</span></a>
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
     <nav>
       <a href="./#games">Games</a>
       <a href="./team-bonding.html">Team Bonding</a>
+      <a href="./farmykart.html">Farmy Kart</a>
       <a href="./zelakas-in-space.html">Zelakas</a>
+      <a href="./2d-fighter-ex.html">Fighter EX</a>
       <a href="./for-remote-teams.html">For teams</a>
       <a href="./about.html">About</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./reviews.html">Reviews</a>
     </nav>
   </header>
 
-  <main>
-    <p style="font-size:13px;color:#7f8798;margin:8px 0 20px;">
-      <a href="./" style="color:#cbd3e1;text-decoration:none;">Magestican Studios</a> ›
-      <a href="./team-bonding.html" style="color:#cbd3e1;text-decoration:none;">Team Bonding</a> › Play at work
-    </p>
-
-    <section style="padding:44px 0 20px;">
-      <h1 style="font-size:clamp(28px,5vw,42px);line-height:1.1;">Your work laptop won't let you install games. Team Bonding doesn't need you to.</h1>
-      <p style="font-size:18px;color:#cbd3e1;max-width:640px;">A free multiplayer capture-the-flag that runs 100% in your browser. No installer, no admin rights, no signup, no server-side account. If your browser can open a URL, you're already good to go.</p>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin:22px 0;">
-        <a href="/play/team-bonding/" style="padding:12px 22px;border-radius:999px;background:#f4c95d;color:#1c1a17;font:700 15px system-ui,sans-serif;text-decoration:none;">▶ Play now — nothing to install</a>
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <p class="breadcrumb"><a href="./">Magestican Studios</a> › <a href="./team-bonding.html">Team Bonding</a> › Play at work</p>
+        <h1>Your work laptop won't let you install games. Team Bonding doesn't need you to.</h1>
+        <p class="lede">A free multiplayer capture-the-flag that runs 100% in your browser. No installer, no admin rights, no signup, no server-side account. If your browser can open a URL, you're already good to go.</p>
+        <ul class="hero-facts">
+          <li>Chromebook</li>
+          <li>Managed laptop</li>
+          <li>No admin rights</li>
+          <li>No installer</li>
+        </ul>
+        <div class="cta-row">
+          <a class="cta cta-primary" href="/play/team-bonding/">Play now — nothing to install</a>
+          <a class="cta cta-secondary" href="./for-remote-teams.html">For remote teams</a>
+        </div>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <section>
+  <main>
+
+    <section class="reveal">
       <h2>What works</h2>
-      <ul style="line-height:1.7;color:#cbd3e1;">
+      <ul>
         <li>✅ Chromebook (yes — this is where most other games fail)</li>
         <li>✅ Managed MacBook</li>
         <li>✅ Managed Windows laptop</li>
@@ -87,28 +109,51 @@
       </ul>
     </section>
 
-    <section>
+    <section class="reveal">
       <h2>What doesn't (be honest, IT)</h2>
-      <ul style="line-height:1.7;color:#cbd3e1;">
+      <ul>
         <li>❌ IE11 — sorry, WebRTC + modern JS</li>
         <li>❌ Networks that block ALL WebRTC (very rare — usually only high-security VPNs; try tethering to your phone)</li>
       </ul>
     </section>
-
-    <section style="margin:36px 0;">
-      <div style="background:#f4c95d;color:#1c1a17;padding:22px;border-radius:12px;text-align:center;">
-        <p style="font:800 20px system-ui,sans-serif;margin:0 0 12px;">Nothing to install. Nothing to explain to IT.</p>
-        <a style="display:inline-block;padding:12px 22px;border-radius:999px;background:#1c1a17;color:#f4c95d;font:700 15px system-ui,sans-serif;text-decoration:none;" href="/play/team-bonding/">▶ Just play →</a>
+    <section class="reveal">
+      <h2>What it looks like</h2>
+      <div class="shot-row">
+        <figure>
+          <img src="./assets/shot-tb-lobby.webp" width="900" height="616" loading="lazy" decoding="async"
+               alt="Team Bonding running in an ordinary browser tab: the lobby, with no installer and no launcher involved">
+          <figcaption>A browser tab. That is the whole install.</figcaption>
+        </figure>
+        <figure class="shot-phone">
+          <img src="./assets/shot-tb-phone.webp" width="430" height="930" loading="lazy" decoding="async"
+               alt="Team Bonding on a phone, with the lobby scaled to the screen">
+          <figcaption>And the same room code on a phone at lunch.</figcaption>
+        </figure>
       </div>
+    </section>
+
+
+    <section class="cta-band reveal">
+      <p>Nothing to install. Nothing to explain to IT.</p>
+      <a class="cta cta-primary" href="/play/team-bonding/">Just play →</a>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© Magestican Studios · a trading name of Ultra Task Pty Ltd · Australia</p>
-    <p><a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a></p>
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; Site is static &middot; no cookies, no accounts, anonymous counts only
+    </p>
   </footer>
   
 
+
+  <script type="module" src="./assets/site.js?v=70961b7-20260829T134926Z"></script>
 
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';

@@ -86,30 +86,48 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="./" class="brand"><span class="brand-mark">M</span><span class="brand-name">Magestican Studios</span></a>
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
     <nav>
       <a href="./#games">Games</a>
       <a href="./team-bonding.html">Team Bonding</a>
+      <a href="./farmykart.html">Farmy Kart</a>
       <a href="./zelakas-in-space.html">Zelakas</a>
+      <a href="./2d-fighter-ex.html">Fighter EX</a>
       <a href="./for-remote-teams.html">For teams</a>
       <a href="./about.html">About</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./reviews.html">Reviews</a>
     </nav>
   </header>
 
-  <main>
-    <p class="breadcrumb"><a href="./">Magestican Studios</a> › Team Bonding</p>
-
-    <section class="landing-hero">
-      <h1>Play a full multiplayer FPS with your team in 30 seconds — no download, no install, no signup.</h1>
-      <p class="tagline">Team Bonding is a free browser-based capture-the-flag game built for remote teams and offices that lock down software installs. Farm-animal characters, ice-drift movement, works on any laptop or phone at work.</p>
-      <div class="cta-row">
-        <a class="cta cta-primary" href="/play/team-bonding/">▶ Play now (free, no signup)</a>
-        <a class="cta cta-secondary" href="./for-remote-teams.html">For remote teams →</a>
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <p class="breadcrumb"><a href="./">Magestican Studios</a> › Team Bonding</p>
+        <h1>Play a full multiplayer FPS with your team in 30 seconds — no download, no install, no signup.</h1>
+        <p class="tagline">Team Bonding is a free browser-based capture-the-flag game built for remote teams and offices that lock down software installs. Farm-animal characters, ice-drift movement, works on any laptop or phone at work.</p>
+        <div class="cta-row">
+          <a class="cta cta-primary" href="/play/team-bonding/">▶ Play now (free, no signup)</a>
+          <a class="cta cta-secondary" href="./for-remote-teams.html">For remote teams →</a>
+        </div>
+        <p class="hero-note">Runs entirely in your browser over WebRTC. No server. No account. No install.</p>
       </div>
-      <p style="font-size:13px;color:#7f8798;margin-top:6px;">Runs entirely in your browser via WebRTC. No server. No account. No install.</p>
-    </section>
+    </div>
+  </div>
 
-    <section class="value-grid">
+  <main>
+
+    <section class="value-grid reveal">
       <div class="value-card">
         <h3>Zero install</h3>
         <p>Your IT team locks down .exe installers? Team Bonding runs in Chrome, Safari, Firefox and Edge. Nothing to download, ever.</p>
@@ -136,16 +154,40 @@
       </div>
     </section>
 
-    <section>
+    <section class="reveal">
       <h2>What it looks like</h2>
       <div class="shot-row">
-        <img src="./assets/tb-menu-with-bots.png" alt="Team Bonding lobby — pick your character (cow, chicken, pig, sheep), pick a team, set the bot count">
-        <img src="./assets/tb-mobile-menu-fixed.png" alt="Team Bonding running on a mobile phone with the touch controls overlay">
-        <img src="./assets/tb-live-menu.png" alt="Team Bonding in-game — ice-drift arena, farm animal players, corn health bar">
+        <figure>
+          <img src="./assets/shot-tb-lobby.webp" width="900" height="616" loading="lazy" decoding="async"
+               alt="The Team Bonding lobby: a 3D cow on a turntable, the five maps, the four modes, and a Host a new game button">
+          <figcaption>The lobby. Cow, chicken, pig or sheep; five maps; four modes; one button.</figcaption>
+        </figure>
+        <figure>
+          <img src="./assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async"
+               alt="Team Bonding, the Farm Maze map: a farmer soldier in a lane between walls of tall corn">
+          <figcaption>Farm Maze. You cross it by double-jumping the hedges, and the power-ups sit on top.</figcaption>
+        </figure>
+        <figure class="shot-phone">
+          <img src="./assets/shot-tb-phone.webp" width="390" height="844" loading="lazy" decoding="async"
+               alt="Team Bonding on a phone with the touch controls overlaid on the game">
+          <figcaption>On a phone, with touch controls. Same room code as the laptops.</figcaption>
+        </figure>
+      </div>
+    </section>
+    <section class="reveal">
+      <h2>Five places, all built from a number</h2>
+      <p>Every map is generated from a seed, so the same seed always builds the same world &mdash; and everybody in the room is standing in the same one. These are the game's own camera, lights, fog and sky.</p>
+      <div class="map-strip">
+        <figure><img src="./assets/map-snow-farm.webp" width="720" height="405" loading="lazy" decoding="async" alt="Snow Farm: two barns, a frozen field and a tractor lane, with geese standing about"><figcaption><strong>Snow Farm</strong>Two barns, a frozen field and a tractor lane. The original.</figcaption></figure>
+        <figure><img src="./assets/map-icy-mountain.webp" width="720" height="405" loading="lazy" decoding="async" alt="Icy Mountain: stepped granite terraces with pines growing out of the rock, and goats on a ledge"><figcaption><strong>Icy Mountain</strong>Stepped granite terraces and a wind-scoured saddle. Height is the cover.</figcaption></figure>
+        <figure><img src="./assets/map-central-park-rink.webp" width="720" height="405" loading="lazy" decoding="async" alt="Central Park Rink: hex pavers and park benches at dusk with a voxel city skyline and pigeons"><figcaption><strong>Central Park Rink</strong>An outdoor rink in the park at dusk. The ice is the arena.</figcaption></figure>
+        <figure><img src="./assets/map-arctic-floe.webp" width="720" height="405" loading="lazy" decoding="async" alt="Arctic Floe: pack ice and pressure ridges under a low sun, with penguins standing very still"><figcaption><strong>Arctic Floe</strong>Pack ice under a sun that will not set. And penguins, watching you.</figcaption></figure>
+        <figure><img src="./assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async" alt="Farm Maze: a lane between walls of tall corn with a farmer soldier in it"><figcaption><strong>Farm Maze</strong>A corn maze you cross by double-jumping the hedges. Something is in here with you.</figcaption></figure>
       </div>
     </section>
 
-    <section class="faq">
+
+    <section class="faq reveal">
       <h2>Frequently asked</h2>
       <h3>Is it really free?</h3>
       <p>Yes. Free, no ads, no signup required. Sign in with Google is optional and only remembers your player name.</p>
@@ -161,20 +203,27 @@
       <p>No accounts, no game server, and nothing tied to you. We count anonymous, cookieless page views and match results (map, mode, bot count) so we know which parts of the game people play. See our <a href="./privacy.html">privacy notes</a>.</p>
     </section>
 
-    <section style="margin:36px 0;">
-      <div style="background:#f4c95d;color:#1c1a17;padding:22px;border-radius:12px;text-align:center;">
-        <p style="font:800 20px system-ui,sans-serif;margin:0 0 12px;">Ready to be a chicken with a slingshot?</p>
-        <a class="cta cta-primary" style="background:#1c1a17;color:#f4c95d;" href="/play/team-bonding/">▶ Play Team Bonding now</a>
-      </div>
+    <section class="cta-band reveal">
+      <p>Ready to be a chicken with a slingshot?</p>
+      <a class="cta cta-primary" href="/play/team-bonding/">Play Team Bonding now</a>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© Magestican Studios · a trading name of Ultra Task Pty Ltd · Australia</p>
-    <p><a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a></p>
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; Site is static &middot; no cookies, no accounts, anonymous counts only
+    </p>
   </footer>
   
 
+
+  <script type="module" src="./assets/site.js?v=70961b7-20260829T134926Z"></script>
 
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';

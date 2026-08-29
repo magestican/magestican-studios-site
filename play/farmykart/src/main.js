@@ -24,6 +24,11 @@ import {
 import { pickNextTrack } from 'arbelo/trackRotation';
 import { kartPublishRows } from 'arbelo/kartLeaderboard';
 import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderboard';
+
+
+
+import { recordSession, syncFromCloud } from '../../../web-engine/account/account.js';
+import { sessionLines } from '../../../web-engine/account/accountBadge.js';
 import { startVersionChecker } from 'arbelo/updater';
 import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
@@ -45,6 +50,10 @@ import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState,
 const $ = (id) => document.getElementById(id);
 
 const state = {
+  
+  
+  
+  accountLines: [],
   track: DEFAULT_TRACK,
   character: DEFAULT_CHARACTER,
   difficulty: DEFAULT_DIFFICULTY,
@@ -105,6 +114,10 @@ function boot() {
   
   window.__fkAudio = () => ({ ...audioState(audio), musicClock: musicClock(audio) });
   state.progress = loadProgress(safeLocalStorage());
+  
+  
+  
+  try { Promise.resolve(syncFromCloud()).catch(() => {}); } catch (_) {  }
   
   
   
@@ -263,6 +276,42 @@ async function openRoom(mode, hostId = null) {
   state.session = session;
   $('host-btn').disabled = false;
   $('join-note').textContent = '';
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  session.mesh.addEventListener('join-failed', (e) => {
+    const traversal = e.detail?.stage === 'traversal';
+    
+    
+    
+    
+    
+    
+    leaveRoom();
+    show('menu');
+    $('join-note').textContent = traversal
+      ? 'Could not reach that room. Something on your network or theirs is blocking '
+        + 'the direct connection - a different wifi, or a phone off wifi, usually '
+        + 'gets through. You can race the bots in the meantime.'
+      : 'Could not reach the matchmaking server. Check your connection and open the '
+        + 'link again. You can race the bots in the meantime.';
+  }, { once: true });
 
   const shareLink = shareLinkFor(location.href, session.myId);
   const paint = (note) => state.lobbyUi.render(session.lobby, {
@@ -790,6 +839,31 @@ function showResults(result) {
   state.progress = progress;
   saveProgress(safeLocalStorage(), progress);
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const won = result.position === 1;
+  const podium = result.position <= 3 && result.fieldSize >= 4;
+  const session = recordSession({
+    gameId: 'farmykart',
+    metrics: {
+      races: 1,
+      wins: won ? 1 : 0,
+      podiums: podium ? 1 : 0,
+      points: model.playerRow?.points ?? 0,
+    },
+    won,
+    name: state.name,
+  });
+  state.accountLines = sessionLines(session.events);
+
   $('results-title').textContent =
     `${ordinal(result.position)} of ${result.fieldSize} · ${formatPoints(model.playerRow?.points ?? 0)}`;
   $('results-title').className = result.position === 1 ? 'win' : (result.position <= 3 ? 'podium' : '');
@@ -812,6 +886,17 @@ function showResults(result) {
       return '';
     }).join('')
     : '';
+
+  
+  
+  
+  
+  for (const line of state.accountLines ?? []) {
+    const li = document.createElement('li');
+    li.className = 'fk-account';
+    li.textContent = line;
+    $('results-notable').appendChild(li);
+  }
 
   
   

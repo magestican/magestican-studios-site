@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" width="1200" height="200">
+<path fill="#4e7534" d="M0 200v-96c60-18 140 16 200 0s140 12 200 0 140-18 200 0 140 10 200 0 140-16 200 0 140 14 200 0v96z"/>
+<g fill="#b73a2a">
+<rect x="0" y="50" width="13" height="86" rx="3"/>
+<rect x="150" y="54" width="13" height="82" rx="3"/>
+<rect x="300" y="48" width="13" height="88" rx="3"/>
+<rect x="450" y="53" width="13" height="83" rx="3"/>
+<rect x="600" y="49" width="13" height="87" rx="3"/>
+<rect x="750" y="55" width="13" height="81" rx="3"/>
+<rect x="900" y="50" width="13" height="86" rx="3"/>
+<rect x="1050" y="52" width="13" height="84" rx="3"/>
+<path d="M0 70h1200v11H0zM0 102h1200v10H0z"/>
+</g>
+<g fill="#e0b93f">
+<ellipse cx="360" cy="140" rx="34" ry="22"/><ellipse cx="360" cy="140" rx="20" ry="13" fill="#f4c95d"/>
+<ellipse cx="1005" cy="144" rx="28" ry="18"/><ellipse cx="1005" cy="144" rx="16" ry="10" fill="#f4c95d"/>
+</g>
+<g fill="#3f6129">
+<path d="M100 152c-4-15-2-27 4-36-1 13 2 24 8 32zM113 152c6-13 15-20 25-22-8 6-14 14-16 22zM680 156c-5-16-3-30 4-39-1 14 2 26 9 35zM694 156c7-13 17-22 28-25-9 7-16 16-18 25z"/>
+</g>
+</svg>

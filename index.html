@@ -84,99 +84,140 @@
     <nav>
       <a href="./#games">Games</a>
       <a href="./team-bonding.html">Team Bonding</a>
-          <a href="./farmykart.html">Farmy Kart</a>
+      <a href="./farmykart.html">Farmy Kart</a>
       <a href="./zelakas-in-space.html">Zelakas</a>
       <a href="./2d-fighter-ex.html">Fighter EX</a>
       <a href="./for-remote-teams.html">For teams</a>
       <a href="./about.html">About</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./reviews.html">Reviews</a>
     </nav>
   </header>
 
+  
+
+
+
+
+  <div class="hero-band hero-band--tall">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero-grid">
+        <div class="hero">
+          <h1>Procedural worlds,<br><span class="hand-underline">hand-drawn hearts.</span></h1>
+          <p class="tagline">Small games made by hand, from a seed. Every world different, every line drawn — and every one of them opens in the tab you are already in.</p>
+          <ul class="hero-facts">
+            <li>Free</li>
+            <li>No download</li>
+            <li>No signup</li>
+            <li>Any browser</li>
+          </ul>
+          <div class="cta-row">
+            <a class="cta cta-primary" href="/play/team-bonding/">Play Team Bonding</a>
+            <a class="cta cta-secondary" href="./#games">See all five games</a>
+          </div>
+        </div>
+        <figure class="hero-shot">
+          <img src="./assets/shot-team-bonding.webp" width="1024" height="576" fetchpriority="high" decoding="async"
+               alt="Team Bonding, Central Park Rink at dusk: a wooden bandstand on hex pavers, park lamps lit, a voxel city skyline behind it with lit windows">
+          <figcaption>Team Bonding — Central Park Rink at dusk, one of five voxel maps built from a seed. The same seed always builds the same city.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+
   <main>
-    <section class="hero">
-      <h1>Procedural worlds,<br><span class="hand-underline">hand-drawn hearts.</span></h1>
-      <p class="tagline">Small games made by hand, from a seed. Every world different, every line drawn.</p>
-      <figure class="hero-figure">
-        <img src="./assets/aracstory-hero.png" alt="A seeded Aracstory world tile — rooms, corridors, a yellow player at the spawn, and two glowing exit portals connecting to neighbouring tiles">
-        <figcaption>One tile of an Aracstory world, generated from seed <code>42</code> — <em>the same seed always builds the same world</em>.</figcaption>
-      </figure>
-    </section>
-
     <section id="games" class="games">
-      <h2>Games</h2>
+      <div class="section-head">
+        <h2>Games</h2>
+        <p class="section-note">Four you can play in this tab, right now. One still on the bench.</p>
+      </div>
+      <hr class="wobble-rule">
 
-      <article class="game-card game-aracstory">
-        <div class="game-art">
-          <img src="./assets/aracstory-preview.png" alt="A generated Aracstory world tile — coloured cells of rooms and corridors laid out from a seed" onerror="this.style.display='none'">
-          <div class="game-art-fallback" aria-hidden="true">A</div>
-        </div>
-        <div class="game-copy">
-          <h3>Aracstory</h3>
-          <p class="game-meta">2D adventure · seeded multi-tile worlds · WASD</p>
-          <p>An adventure across five connected worlds, all generated from a single seed. Same seed, same world; new seed, new run. Originally started in Unity in 2013 with Nikhil V; being remade in Godot 4.</p>
-          <p class="game-status"><span class="dot dot-yellow"></span> In development</p>
-        </div>
-      </article>
+      <div class="game-grid">
+        <article class="game-card game-teambonding reveal">
+          <div class="game-art">
+            <img src="./assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async" data-par="20"
+                 alt="Team Bonding, the Farm Maze map: a scarecrow-headed farmer soldier standing in a lane between walls of tall corn">
+          </div>
+          <div class="game-copy">
+            <h3>Team Bonding</h3>
+            <p class="game-meta">3D voxel FPS · P2P multiplayer · WASD + mouse</p>
+            <p>A browser FPS with ice-drift movement, farm-animal soldiers, seeded voxel maps, and P2P networking (no server). Capture 5 flags to win — unless the losing team can solve an anagram in 10 seconds. Cow, chicken, pig, or sheep?</p>
+            <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/team-bonding/">Play now →</a> · <a href="./team-bonding.html">About this game</a></p>
+          </div>
+        </article>
 
-      <article class="game-card game-zelakas">
-        <div class="game-art">
-          <img src="./assets/zelakas-preview.png" alt="Zelakas In Space — a 2D arcade shooter with a small ship dodging asteroids and drones" onerror="this.style.display='none'">
-          <div class="game-art-fallback" aria-hidden="true">Z</div>
-        </div>
-        <div class="game-copy">
-          <h3>Zelakas In Space</h3>
-          <p class="game-meta">2D arcade shooter · three endings · keyboard</p>
-          <p>Dodge asteroids, blackholes, and drones. Three endings by how much you clear. Made in 2014 with Gonzalo and Christian in ActionScript 3; playable today in a modern browser via Ruffle, and being remade in Godot 4.</p>
-          <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/zelakas/">Play now →</a> · <a href="./zelakas-in-space.html">About this game</a></p>
-        </div>
-      </article>
+        <article class="game-card game-farmykart reveal">
+          <div class="game-art">
+            <img src="./assets/kart-sheep.webp" width="720" height="405" loading="lazy" decoding="async" data-par="20"
+                 alt="Farmy Kart: a kart on the start line with a sheep in the seat, a red spoiler behind it and a barn in the distance">
+          </div>
+          <div class="game-copy">
+            <h3>Farmy Kart</h3>
+            <p class="game-meta">3D kart racer · drift boosts · race friends by link</p>
+            <p>The Team Bonding farm, in karts. Drift through a corner to charge a mini-turbo, throw a cowpat at whoever is winning, and hope nobody behind you draws the runaway tractor. Three circuits, eight-kart grids, and a driving model where the nose and the direction of travel are allowed to disagree.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/farmykart/">Play now →</a> · <a href="./farmykart.html">About this game</a></p>
+          </div>
+        </article>
 
-      <article class="game-card game-teambonding">
-        <div class="game-art">
-          <div class="game-art-fallback" aria-hidden="true">TB</div>
-        </div>
-        <div class="game-copy">
-          <h3>Team Bonding</h3>
-          <p class="game-meta">3D voxel FPS · P2P multiplayer · WASD + mouse</p>
-          <p>A browser FPS with ice-drift movement, farm-animal soldiers, seeded voxel maps, and P2P networking (no server). Capture 5 flags to win — unless the losing team can solve an anagram in 10 seconds. Cow, chicken, pig, or sheep?</p>
-          <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/team-bonding/">Play now →</a> · <a href="./team-bonding.html">About this game</a></p>
-        </div>
-      </article>
+        <article class="game-card game-zelakas reveal">
+          <div class="game-art">
+            <img src="./assets/shot-zelakas.webp" width="1024" height="547" loading="lazy" decoding="async" data-par="20"
+                 alt="Zelakas In Space title screen: a purple alien craft beside a dark planet, neon green menu type over a starfield">
+          </div>
+          <div class="game-copy">
+            <h3>Zelakas In Space</h3>
+            <p class="game-meta">2D arcade shooter · three endings · keyboard</p>
+            <p>Dodge asteroids, blackholes, and drones. Three endings by how much you clear. Made in 2014 with Gonzalo and Christian in ActionScript 3; playable today in a modern browser via Ruffle, and being remade in Godot 4.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/zelakas/">Play now →</a> · <a href="./zelakas-in-space.html">About this game</a></p>
+          </div>
+        </article>
 
-      <article class="game-card game-farmykart">
-        <div class="game-art">
-          <div class="game-art-fallback" aria-hidden="true">FK</div>
-        </div>
-        <div class="game-copy">
-          <h3>Farmy Kart</h3>
-          <p class="game-meta">3D kart racer &middot; drift boosts &middot; race friends by link &middot; phone or desktop</p>
-          <p>The Team Bonding farm, in karts. Drift through a corner to charge a mini-turbo, throw a cowpat at whoever is winning, and hope nobody behind you draws the runaway tractor. Three circuits, eight-kart grids, and a driving model where the nose and the direction of travel are allowed to disagree. Race friends by sending a link &mdash; peer to peer, no server and no accounts &mdash; and bots take any seat nobody claimed.</p>
-          <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/farmykart/">Play now &rarr;</a> &middot; <a href="./farmykart.html">About this game</a></p>
-        </div>
-      </article>
+        <article class="game-card game-fighter-ex reveal">
+          <div class="game-art">
+            <img src="./assets/shot-fighter.webp" width="1024" height="538" loading="lazy" decoding="async" data-par="20"
+                 alt="2D Fighter EX: two cel-anime fighters mid-exchange on a grey street, a train line and tower blocks behind them">
+          </div>
+          <div class="game-copy">
+            <h3>2D Fighter EX</h3>
+            <p class="game-meta">Animation experiment · seeded stage · scrub it frame by frame</p>
+            <p>EX is short for experiment. A fight animation whose project file was lost, recovered frame by frame from a screen recording — 84 frames of timing, a camera that pushes in to twice its size, and where each fighter stood — then replayed with 1990s cel-anime characters in a forest generated from a seed.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/2d-fighter-ex/">Open it →</a> · <a href="./2d-fighter-ex.html">About this experiment</a></p>
+          </div>
+        </article>
 
-      <article class="game-card game-fighter-ex">
-        <div class="game-art">
-          <img src="./assets/fighter-ex-preview.png" alt="2D Fighter EX — two anime-style fighters mid-exchange on a green tiled forest stage, a bright impact flash between them" onerror="this.style.display='none'">
-          <div class="game-art-fallback" aria-hidden="true">EX</div>
-        </div>
-        <div class="game-copy">
-          <h3>2D Fighter EX</h3>
-          <p class="game-meta">Animation experiment · seeded stage · scrub and slow it down</p>
-          <p>EX is short for experiment. A fight animation whose project file was lost, recovered frame by frame from a screen recording — 84 frames of timing, a camera that pushes in to twice its size, and where each fighter stood — then replayed with 1990s cel-anime characters in a forest generated from a seed.</p>
-          <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/2d-fighter-ex/">Open it →</a> · <a href="./2d-fighter-ex.html">About this experiment</a></p>
-        </div>
-      </article>
+        <article class="game-card game-aracstory reveal">
+          <div class="game-art">
+            <img src="./assets/shot-aracstory.webp" width="1024" height="717" loading="lazy" decoding="async" data-par="20"
+                 alt="A generated Aracstory world tile: green rooms and corridors laid out from a seed, with the player at the spawn and two exit portals">
+          </div>
+          <div class="game-copy">
+            <h3>Aracstory</h3>
+            <p class="game-meta">2D adventure · seeded multi-tile worlds · WASD</p>
+            <p>An adventure across five connected worlds, all generated from a single seed. Same seed, same world; new seed, new run. Originally started in Unity in 2013 with Nikhil V; being remade in Godot 4.</p>
+            <p class="game-status"><span class="dot dot-yellow"></span> In development</p>
+          </div>
+        </article>
+      </div>
     </section>
 
-    <section class="about-short">
+    <section class="about-short reveal">
       <h2>Who we are</h2>
-      <p>Magestican Studios is the imprint Bryan Arbelo uses to sign small games with big procgen and hand-drawn art. Every graphic in every game is drawn by a human hand — the engine deals the cards from a seeded deck, but a person paints every card.</p>
+      <p>Magestican Studios is the imprint Bryan Arbelo uses to sign small games with big procgen and hand-drawn art. The engine deals the cards from a seeded deck — a person designs every card.</p>
+      <p>No servers, no accounts, no launcher. A game is a link, and the link works on a locked-down work laptop, a Chromebook and a phone.</p>
       <p><a href="./about.html" class="more-link">Read the longer version →</a></p>
     </section>
   </main>
 
   <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
     <p>
       Copyright © 2026 Ultra Task Pty Ltd. All rights reserved.<br>
       Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
@@ -185,6 +226,8 @@
       Site is static · No cookies, no accounts, anonymous counts only (<a href="./privacy.html">how</a>) · <a href="https://github.com/magestican/arbelo-games">Source on GitHub</a><span id="support-slot"></span>
     </p>
   </footer>
+
+  <script type="module" src="./assets/site.js?v=70961b7-20260829T134926Z"></script>
 
   
 

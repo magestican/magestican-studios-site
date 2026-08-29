@@ -87,30 +87,48 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="./" class="brand"><span class="brand-mark">M</span><span class="brand-name">Magestican Studios</span></a>
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
     <nav>
       <a href="./#games">Games</a>
       <a href="./team-bonding.html">Team Bonding</a>
+      <a href="./farmykart.html">Farmy Kart</a>
       <a href="./zelakas-in-space.html">Zelakas</a>
+      <a href="./2d-fighter-ex.html">Fighter EX</a>
       <a href="./for-remote-teams.html">For teams</a>
       <a href="./about.html">About</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./reviews.html">Reviews</a>
     </nav>
   </header>
 
-  <main>
-    <p class="breadcrumb"><a href="./">Magestican Studios</a> › Zelakas In Space</p>
-
-    <section class="landing-hero">
-      <h1>A 2014 Flash game that never died. Play Zelakas In Space in your browser.</h1>
-      <p class="tagline">Dodge asteroids, blackholes and drones in a free 2D arcade shooter. Three endings, decided by how much of the field you clear. No plugin, no download, no account — the original SWF runs inside a modern browser through the Ruffle emulator.</p>
-      <div class="cta-row">
-        <a class="cta cta-primary" href="/play/zelakas/">▶ Play Zelakas In Space (free)</a>
-        <a class="cta cta-secondary" href="./team-bonding.html">Try Team Bonding →</a>
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <p class="breadcrumb"><a href="./">Magestican Studios</a> › Zelakas In Space</p>
+        <h1>A 2014 Flash game that never died. Play Zelakas In Space in your browser.</h1>
+        <p class="tagline">Dodge asteroids, blackholes and drones in a free 2D arcade shooter. Three endings, decided by how much of the field you clear. No plugin, no download, no account — the original SWF runs inside a modern browser through the Ruffle emulator.</p>
+        <div class="cta-row">
+          <a class="cta cta-primary" href="/play/zelakas/">▶ Play Zelakas In Space (free)</a>
+          <a class="cta cta-secondary" href="./team-bonding.html">Try Team Bonding →</a>
+        </div>
+        <p>Keyboard required. Desktop or laptop — this one predates touchscreens.</p>
       </div>
-      <p style="font-size:13px;color:#7f8798;margin-top:6px;">Keyboard required. Desktop or laptop — this one predates touchscreens.</p>
-    </section>
+    </div>
+  </div>
 
-    <section class="value-grid">
+  <main>
+
+    <section class="value-grid reveal">
       <div class="value-card">
         <h3>Three endings</h3>
         <p>Clear enough of the field and the run ends differently. Most players see the first ending and never learn there are two more.</p>
@@ -137,16 +155,23 @@
       </div>
     </section>
 
-    <section>
+    <section class="reveal">
       <h2>What it looks like</h2>
       <div class="shot-row">
-        <img src="./assets/zelakas-ingame.png" alt="Zelakas In Space in-game — the player ship weaving between asteroids and enemy drones against a starfield">
-        <img src="./assets/zelakas-preview.png" alt="Zelakas In Space title art — a small ship against space debris">
-        <img src="./assets/live-zelakas-play.png" alt="Zelakas In Space running live in a browser tab through the Ruffle Flash emulator">
+        <figure>
+          <img src="./assets/shot-zelakas.webp" width="1024" height="547" loading="lazy" decoding="async"
+               alt="Zelakas In Space title screen: a purple alien craft beside a dark planet, neon green menu type over a starfield">
+          <figcaption>The 2014 title screen, running unmodified in a modern browser through Ruffle.</figcaption>
+        </figure>
+        <figure>
+          <img src="./assets/cover-zelakas.webp" width="512" height="512" loading="lazy" decoding="async"
+               alt="Zelakas In Space cover art: a small ship against space debris">
+          <figcaption>Every ship, rock and drone was drawn by a person, in 2014, and none of it has been redrawn since.</figcaption>
+        </figure>
       </div>
     </section>
 
-    <section class="faq">
+    <section class="faq reveal">
       <h2>Frequently asked</h2>
       <h3>Do I need Flash Player?</h3>
       <p>No. Flash Player was end-of-lifed in 2020 and no browser will run it. This page loads the original <code>ZelakasInSpace.swf</code> through <a href="https://ruffle.rs/">Ruffle</a>, an open-source Flash emulator written in Rust and compiled to WebAssembly. It runs in the page's own sandbox; nothing installs.</p>
@@ -162,20 +187,27 @@
       <p>No account, no profile, no advertising. We count anonymous, cookieless page views so we know which games people find. See the <a href="./privacy.html">privacy policy</a>.</p>
     </section>
 
-    <section style="margin:36px 0;">
-      <div style="background:#f4c95d;color:#1c1a17;padding:22px;border-radius:12px;text-align:center;">
-        <p style="font:800 20px system-ui,sans-serif;margin:0 0 12px;">One ship. A lot of asteroids. Three ways it ends.</p>
-        <a class="cta cta-primary" style="background:#1c1a17;color:#f4c95d;" href="/play/zelakas/">▶ Play Zelakas In Space now</a>
-      </div>
+    <section class="cta-band reveal">
+      <p>One ship. A lot of asteroids. Three ways it ends.</p>
+      <a class="cta cta-primary" href="/play/zelakas/">Play Zelakas In Space now</a>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>© Magestican Studios · a trading name of Ultra Task Pty Ltd · Australia</p>
-    <p><a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a></p>
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; Site is static &middot; no cookies, no accounts, anonymous counts only
+    </p>
   </footer>
   
 
+
+  <script type="module" src="./assets/site.js?v=70961b7-20260829T134926Z"></script>
 
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';

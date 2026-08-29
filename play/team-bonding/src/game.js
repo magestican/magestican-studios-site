@@ -75,6 +75,13 @@ import { AmbientCritters }    from './entities/ambientCritters.js';
 import { aimPointY, isHeadshot, damageFor, HEADSHOT_MULTIPLIER } from 'arbelo/hitzones';
 import { loadCareer, saveCareer, recordMatch, leaderboard } from 'arbelo/career';
 import { publishScores, fetchTopPlayers, isGlobalEnabled, countMatch } from 'arbelo/leaderboard';
+
+
+
+
+
+import { recordSession, syncFromCloud } from '../../../web-engine/account/account.js';
+import { sessionLines } from '../../../web-engine/account/accountBadge.js';
 import { emptyTally, tallyKill, scoreboardRows, teamTotals, resultCopy,
          captureFanfare }     from '../../../web-engine/match/matchFlow.js';
 
@@ -381,6 +388,7 @@ export class Game {
   
 
   async boot() {
+    this._syncAccount();
     this._wireNet();
 
     
@@ -2620,6 +2628,7 @@ export class Game {
           <span class="rr-team rr-blue ${r.winner === 'blue' ? 'won' : ''}"><b>${r.blue}</b> BLUE</span>
         </div>
         <div class="rr-sub">${escapeHtml(r.sub)}</div>
+        ${(this._accountLines ?? []).map((l) => `<div class="rr-account">${escapeHtml(l)}</div>`).join('')}
         <div class="rr-hint">hold TAB for the scoreboard</div>
       </div>`;
     document.body.appendChild(root);
@@ -2629,6 +2638,15 @@ export class Game {
   _hideRoundResult() { document.getElementById('round-result')?.remove(); }
 
   
+
+  
+  
+  
+  
+  
+  _syncAccount() {
+    try { Promise.resolve(syncFromCloud()).catch(() => {}); } catch (_) {}
+  }
 
   _recordCareerMatch() {
     try {
@@ -2658,6 +2676,24 @@ export class Game {
       
       
       if (this.isHost) { try { countMatch(); } catch (_) {} }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const me = [...rows.red, ...rows.blue].find((r) => r.isMe);
+      const session = recordSession({
+        gameId: 'team-bonding',
+        metrics: { matches: 1, kills: me?.kills ?? 0, wins: (winner && me?.team === winner) ? 1 : 0 },
+        won: !!winner && me?.team === winner,
+        name: me?.name,
+      });
+      this._accountLines = sessionLines(session.events);
     } catch (_) {
       
     }
@@ -2797,6 +2833,13 @@ export class Game {
         font: 800 min(3.8vw,19px)/1.4 system-ui, sans-serif; letter-spacing: 0.1em; }
       #round-result .rr-hint { margin-top: 10px; color: #6f7d90;
         font: 700 12px system-ui, sans-serif; letter-spacing: 0.14em; }
+      /* The streak / daily-goal lines. Warm and quiet, ABOVE the hint and
+         below the score, so the eye finds them on the way out of the result
+         without them competing with it. Zero to three lines; nothing is
+         rendered at all when the session earned nothing worth saying, which
+         is the common case. */
+      #round-result .rr-account { margin-top: 8px; color: #ffd45e;
+        font: 700 13px system-ui, sans-serif; letter-spacing: 0.06em; }
       @keyframes rrFade { 0% { opacity: 0 } 100% { opacity: 1 } }
       @keyframes rrBody { 0% { transform: scale(0.7); opacity: 0 }
                           70% { transform: scale(1.04); opacity: 1 }

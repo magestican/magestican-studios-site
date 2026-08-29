@@ -43,12 +43,66 @@ const IS_PEER_AVAILABLE = () => typeof window !== 'undefined' && !!window.Peer;
 
 const HEARTBEAT = '__hb';
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const JOIN_TIMEOUT_MS = 20000;
+
+export const ICE_CONFIG = Object.freeze({
+  iceServers: Object.freeze([
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    
+    { urls: 'turn:eu-0.turn.peerjs.com:3478', username: 'peerjs', credential: 'peerjsp' },
+    { urls: 'turn:us-0.turn.peerjs.com:3478', username: 'peerjs', credential: 'peerjsp' },
+    
+    
+    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+    
+    
+    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+  ]),
+});
+
 export class PeerMesh extends EventTarget {
   constructor({ hostIdHint } = {}) {
     super();
     if (!IS_PEER_AVAILABLE()) throw new Error('window.Peer (PeerJS) not loaded');
     this.peer = new window.Peer(hostIdHint || undefined, {
       debug: 1,
+      config: ICE_CONFIG,
     });
     
     this.connections = new Map();
@@ -61,6 +115,7 @@ export class PeerMesh extends EventTarget {
     this._watch = null;
     this._heartbeatTimer = null;
     this._pollTimer = null;
+    this._joinTimer = null;
 
     this.peer.on('open', (id) => {
       this.myId = id;
@@ -81,7 +136,13 @@ export class PeerMesh extends EventTarget {
     this._dispatch('role', { role: 'host' });
   }
 
-  connectTo(hostId) {
+  
+
+
+
+
+
+  connectTo(hostId, timeoutMs = JOIN_TIMEOUT_MS) {
     this.isHost = false;
     this.hostId = hostId;
     if (this._watch) {
@@ -91,6 +152,31 @@ export class PeerMesh extends EventTarget {
     this._dispatch('role', { role: 'joiner' });
     const conn = this.peer.connect(hostId, { reliable: true });
     this._wireConnection(conn);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (timeoutMs > 0) {
+      this._joinTimer = setTimeout(() => {
+        if (this.connections.has(hostId)) return;             
+        const reachedBroker = !!this.myId;
+        this._dispatch('join-failed', {
+          hostId,
+          stage: reachedBroker ? 'traversal' : 'signalling',
+          reason: reachedBroker
+            ? 'Could not open a channel to the other player. Usually a network that blocks direct connections.'
+            : 'Could not reach the matchmaking server.',
+        });
+      }, timeoutMs);
+    }
   }
 
   
@@ -102,6 +188,8 @@ export class PeerMesh extends EventTarget {
 
   _wireConnection(conn) {
     conn.on('open', () => {
+      
+      if (this._joinTimer) { clearTimeout(this._joinTimer); this._joinTimer = null; }
       this.connections.set(conn.peer, conn);
       this._peers.add(conn.peer);
       this._watch?.addPeer(conn.peer, this._now());

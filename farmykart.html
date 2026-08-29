@@ -59,28 +59,47 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="./" class="brand"><span class="brand-mark">M</span><span class="brand-name">Magestican Studios</span></a>
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
     <nav>
       <a href="./#games">Games</a>
       <a href="./team-bonding.html">Team Bonding</a>
       <a href="./farmykart.html">Farmy Kart</a>
       <a href="./zelakas-in-space.html">Zelakas</a>
+      <a href="./2d-fighter-ex.html">Fighter EX</a>
+      <a href="./for-remote-teams.html">For teams</a>
       <a href="./about.html">About</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./reviews.html">Reviews</a>
     </nav>
   </header>
 
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <h1>Farmy Kart</h1>
+        <p class="lede">
+          Farm animals, karts, and a great deal of dirt. Drift through a corner to charge a
+          mini-turbo, throw a cowpat at whoever is winning, and hope nobody behind you draws
+          the runaway tractor. Free, in the browser, on a phone or a desktop.
+        </p>
+        <p>
+          <a class="cta cta-primary" href="/play/farmykart/">Play Farmy Kart now</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
   <main>
-    <section class="hero">
-      <h1>Farmy Kart</h1>
-      <p class="lede">
-        Farm animals, karts, and a great deal of dirt. Drift through a corner to charge a
-        mini-turbo, throw a cowpat at whoever is winning, and hope nobody behind you draws
-        the runaway tractor. Free, in the browser, on a phone or a desktop.
-      </p>
-      <p>
-        <a class="cta cta-primary" href="/play/farmykart/">Play Farmy Kart now</a>
-      </p>
-    </section>
 
     <section>
       <h2>What is in it</h2>
@@ -106,8 +125,34 @@
           table with every driver's race time and best lap.</li>
       </ul>
     </section>
+    <section class="reveal">
+      <h2>What it looks like</h2>
+      <div class="shot-row">
+        <figure>
+          <img src="./assets/shot-farmykart.webp" width="1024" height="576" loading="lazy" decoding="async"
+               alt="A grid of eight karts under the red start gantry on Sunflower Circuit, a smiling sun overhead">
+          <figcaption>Sunflower Circuit, on the grid. Start accelerating on the last beat of the countdown for a launch turbo.</figcaption>
+        </figure>
+        <figure>
+          <img src="./assets/kart-sheep.webp" width="720" height="405" loading="lazy" decoding="async"
+               alt="Close up of a kart on the start line with a sheep sitting in the seat">
+          <figcaption>Bramble the sheep. Good at everything, spectacular at nothing.</figcaption>
+        </figure>
+        <figure>
+          <img src="./assets/track-dirt.webp" width="720" height="397" loading="lazy" decoding="async"
+               alt="Muddy Bottom circuit: a brown dirt track with rutted lines and a hedge line in the distance">
+          <figcaption>Muddy Bottom. Narrow, two hairpins, and a surface that does not forgive.</figcaption>
+        </figure>
+        <figure>
+          <img src="./assets/track-snow.webp" width="720" height="397" loading="lazy" decoding="async"
+               alt="Frostfield Loop: a snow-covered circuit with pines and a pale sky">
+          <figcaption>Frostfield Loop, the old snow farm, where everything slides.</figcaption>
+        </figure>
+      </div>
+    </section>
 
-    <section>
+
+    <section class="reveal">
       <h2>Racing your friends</h2>
       <p>
         Press <b>Race with friends</b> on the menu and Farmy Kart opens a room and hands you a
@@ -125,7 +170,7 @@
       </p>
     </section>
 
-    <section>
+    <section class="reveal">
       <h2>How it drives</h2>
       <p>
         The handling model carries the kart's velocity separately from where its nose is pointing,
@@ -142,8 +187,19 @@
         handling is unfair to them, it is unfair to you.
       </p>
     </section>
+    <section class="reveal">
+      <h2>The lobby</h2>
+      <div class="shot-row">
+        <figure>
+          <img src="./assets/shot-fk-lobby.webp" width="900" height="616" loading="lazy" decoding="async"
+               alt="The Farmy Kart menu: Race and Race with friends buttons, a driver carousel with a pig, a sheep and a chicken, a stat bar chart, and three circuit cards">
+          <figcaption>Press <b>Race with friends</b> and it hands you a link. Whoever opens it is in the lobby; bots take the seats nobody claimed.</figcaption>
+        </figure>
+      </div>
+    </section>
 
-    <section>
+
+    <section class="reveal">
       <h2>Controls</h2>
       <p>
         <b>Keyboard:</b> arrows or WASD to drive, Shift to drift, Space to jump, E to use an item,
@@ -157,19 +213,26 @@
       </p>
     </section>
 
-    <section class="cta-band">
-      <div>
-        <p style="font:800 20px system-ui,sans-serif;margin:0 0 12px;">Ready to lose to a chicken?</p>
-        <a class="cta cta-primary" style="background:#1c1a17;color:#f4c95d;" href="/play/farmykart/">Play Farmy Kart now</a>
-      </div>
+    <section class="cta-band reveal">
+      <p>Ready to lose to a chicken?</p>
+      <a class="cta cta-primary" href="/play/farmykart/">Play Farmy Kart now</a>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>&copy; Magestican Studios &middot; a trading name of Ultra Task Pty Ltd &middot; Australia</p>
-    <p><a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a></p>
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; Site is static &middot; no cookies, no accounts, anonymous counts only
+    </p>
   </footer>
   
+
+  <script type="module" src="./assets/site.js?v=70961b7-20260829T134926Z"></script>
 
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';

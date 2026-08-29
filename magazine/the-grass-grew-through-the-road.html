@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The grass grew through the road — Farmy Kart devlog</title>
+  <meta name="description" content="Why Farmy Kart fields grew up through its roads: a ground mesh sampled every 20 metres against a road built from the spline itself, and how far apart they got.">
+  <link rel="canonical" href="https://magesticanstudios.com/magazine/the-grass-grew-through-the-road.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="The grass grew through the road — Farmy Kart devlog">
+  <meta property="og:description" content="Why Farmy Kart fields grew up through its roads: a ground mesh sampled every 20 metres against a road built from the spline itself, and how far apart they got.">
+  <meta property="og:url" content="https://magesticanstudios.com/magazine/the-grass-grew-through-the-road.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta property="article:published_time" content="2026-08-28">
+  <meta property="article:section" content="Development log">
+  <meta property="article:tag" content="Farmy Kart">
+  <meta property="article:tag" content="Rendering">
+  <meta property="article:tag" content="Terrain">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The grass grew through the road — Farmy Kart devlog">
+  <meta name="twitter:description" content="Why Farmy Kart fields grew up through its roads: a ground mesh sampled every 20 metres against a road built from the spline itself, and how far apart they got.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "The grass grew through the road",
+  "description": "Why Farmy Kart fields grew up through its roads: a ground mesh sampled every 20 metres against a road built from the spline itself, and how far apart they got.",
+  "datePublished": "2026-08-28",
+  "dateModified": "2026-08-28",
+  "author": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://magesticanstudios.com/favicon.svg"
+    }
+  },
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "inLanguage": "en-AU",
+  "keywords": "Farmy Kart, Rendering, Terrain",
+  "articleSection": "Development log",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "The Magestican Studios magazine",
+    "url": "https://magesticanstudios.com/magazine/"
+  },
+  "about": {
+    "@type": "VideoGame",
+    "name": "Farmy Kart",
+    "url": "https://magesticanstudios.com/farmykart.html"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://magesticanstudios.com/magazine/the-grass-grew-through-the-road.html"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Magestican Studios",
+      "item": "https://magesticanstudios.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Magazine",
+      "item": "https://magesticanstudios.com/magazine/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "The grass grew through the road",
+      "item": "https://magesticanstudios.com/magazine/the-grass-grew-through-the-road.html"
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/magazine.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body class="mag-body">
+  <header class="site-header">
+    <a href="/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/#games">Games</a>
+      <a href="/team-bonding.html">Team Bonding</a>
+      <a href="/farmykart.html">Farmy Kart</a>
+      <a href="/magazine/">Magazine</a>
+      <a href="/reviews.html">Reviews</a>
+      <a href="/about.html">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="mag-crumb"><a href="/">Magestican Studios</a> &rsaquo; <a href="/magazine/">Magazine</a></p>
+
+    <article class="mag-article">
+      <h1>The grass grew through the road</h1>
+      <p class="mag-meta">
+        <time datetime="2026-08-28">28 August 2026</time>
+        <span class="mag-tag">Farmy Kart</span>
+        <span>6 min read</span>
+      </p>
+      <p class="mag-lede">A report that grass was poking up through the tarmac turned out not to be about grass, or about the tarmac. It was about the difference between a curve and the straight lines you draw it with &mdash; and a day later, the same mistake was found again at thirty times the scale.</p>
+
+      <blockquote class="mag-pull">
+        <p>grass and other assets protrude through the floor and get on top of it</p>
+        <footer>&mdash; the bug report, in full</footer>
+      </blockquote>
+      <p>That is an accurate description of what was on screen and a completely misleading description of what was wrong. Nothing was wrong with the grass. Nothing was wrong with the road either. What was wrong was that the game had two different opinions about where the ground is, and both of them were being used.</p>
+      <h2>Two surfaces that were never going to agree</h2>
+      <p>There is a mathematical function that gives the height of the ground at any point &mdash; rolling hills, the valley floor, the raised shoulders where the road is banked up. Everything in the world is placed using it, and it is exact.</p>
+      <p>The ground you can <em>see</em> is not that function. It is a mesh: a grid of vertices, each one asking the function for its height, with flat triangles stretched between them. Those vertices are about <strong>twenty metres apart</strong> &mdash; wider than an entire jump ramp.</p>
+      <p>The road is not built that way. The road is generated from the spline at the spline&rsquo;s own, far finer resolution, because a road made of twenty-metre facets would be visibly faceted under the wheels.</p>
+      <p>So on any slope, the two disagree in between their shared points. Measured, the ground mesh came out as much as <strong>1.06&nbsp;m above the road surface</strong>.</p>
+      <p>A field one metre above the tarmac is a field growing through it. That is the whole bug, and by the time you can see it, it is a metre away from where it started.</p>
+      <h2>And the trees were worse</h2>
+      <p>Props &mdash; trees, fence posts, silos &mdash; are placed at the exact value of the height function. The drawn mesh differs from that by up to <strong>3.0&nbsp;m</strong>. So trees floated, and trees sank, by metres, and each one looked like a placement bug of its own.</p>
+      <h2>Why more triangles is not the answer</h2>
+      <p>The obvious fix is to subdivide the ground mesh until the error stops mattering. It was tried and measured:</p>
+      <pre class="mag-data">ground mesh at  32 segments   poke-through up to 1.06 m
+ground mesh at 128 segments   poke-through up to 0.46 m   (4x the triangles)</pre>
+      <p>Four times the geometry for a bit more than half the error, and it never reaches zero. That is not a sampling accident you can out-spend. It is the difference between a curve and its chords, and the road will always be the finer curve. Tessellation buys you a smaller gap; it cannot buy you no gap.</p>
+      <h2>What actually fixed it</h2>
+      <p>Two changes, and neither of them touched the grass.</p>
+      <p>First, the ground now <strong>ducks beneath the road</strong> &mdash; by more than the worst error, tapering back to nothing by the outer edge of the shoulder. A dip underneath an opaque road is invisible, because there is a road on top of it. The error is still there; it simply has nowhere to surface.</p>
+      <p>Second, everything that stands on the ground is now placed using the height of the surface that is actually <em>drawn</em>, rather than the ideal surface it approximates. If a tree and the ground disagree, the tree is wrong, because the ground is what the player can see.</p>
+      <pre class="mag-data">worst poke-through   before  1.06 m
+                     after   0.03 m and 0.00 m</pre>
+      <h2>A bug found on the way</h2>
+      <p>Chasing this turned up something unrelated and worse. There is an off-road tyre roar &mdash; the sound of a kart on grass instead of tarmac &mdash; and its own note in the source describes it as the only cue a player gets that they have left the road.</p>
+      <p>Its single call site passed <code>onRoad: true</code> as a literal. Not a variable that happened to be true; the word <code>true</code>, hard-coded. The sound had <strong>never once fired</strong>, on any surface, in any build.</p>
+      <p>Fixing it required carrying the real surface from the physics step through to the draw call. The first attempt reached for a variable that only exists inside the step function, which threw on every frame and killed the render loop. The test harness reported that as <em>the kart never got above 20&nbsp;km/h</em>, which is exactly what a dead frame loop looks like from the outside, and nothing like what it was.</p>
+      <h2>The sequel, one day later</h2>
+      <p>The next report was that karts were "falling under the road". Same family, thirty times the scale.</p>
+      <p>The ground is built as a lower envelope &mdash; take the lowest of several candidate heights &mdash; and the running minimum was seeded with the plain hill height, which at the roadside is around zero. That meant <strong>no raised road anywhere on the roster had an embankment</strong>. Not a shallow one. None.</p>
+      <pre class="mag-data">Sunflower Fields   road at  32.9 m,  ground beside it at -2.1 m   =  35.0 m sheer drop
+
+fraction of the lap with a drop of more than 3 m at the white line
+  Sunflower Fields   0.27 - 0.88
+  Muddy Bottom       0.02 - 0.90
+  Frostfield         0.27 - 0.83</pre>
+      <p>A thirty-five metre cliff immediately beside the racing line, for well over half of every lap, on all three circuits.</p>
+      <blockquote class="mag-pull">
+        <p>The only thing keeping it out of sight was that every preview tile is shot from three to six metres above the road looking down &mdash; and from up there, a chasm and a green field are both just green.</p>
+      </blockquote>
+      <p>That is the sentence worth keeping from all of this. The pictures being used to check the work were taken from the one angle at which the defect is invisible. Not a bad test: a bad camera.</p>
+      <p>Every raised road now carries a graded bank down to the field, and the verge is banked where the ground still falls away. Off-road wheel sink went from three to four metres down to one to one and a half; where the road is highest, from fourteen to eighteen metres down to under five. One circuit got measurably <em>more</em> off-road time out of the change, which is a regression and is recorded as one rather than buried.</p>
+
+      <p class="mag-endnote">
+        <a class="mag-readon" href="/play/farmykart/">Play Farmy Kart in your browser &rarr;</a> &middot; <a href="/farmykart.html">About Farmy Kart</a> &middot; <a href="/reviews.html">What we think of our own games</a>
+      </p>
+    </article>
+
+    <section class="mag-more">
+      <h2>More from the magazine</h2>
+      <ul>
+        <li><a href="/magazine/two-suns-and-a-dead-lawn.html">Two suns, and a snowfall lit by a dead lawn</a></li>
+        <li><a href="/magazine/the-hash-that-was-a-lattice.html">The hash that was a lattice, and the shortcut nobody could take</a></li>
+        <li><a href="/magazine/guessing-where-the-ramp-is.html">Three ways to guess where a ramp is, and why we stopped guessing</a></li>
+      </ul>
+      <p><a class="mag-readon" href="/magazine/">All articles &rarr;</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      Site is static &middot; No cookies, no accounts, anonymous counts only (<a href="/privacy.html">how</a>)
+    </p>
+  </footer>
+
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    startVersionChecker();
+    initAnalytics({ page: 'magazine/the-grass-grew-through-the-road' });
+    trackPlayClicks();
+  </script>
+</body>
+</html>

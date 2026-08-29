@@ -1,0 +1,303 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 760px) {
+  .mag-body .site-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 18px 20px;
+  }
+  
+
+
+
+
+
+  .mag-body .site-header nav {
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    font-size: 14px;
+  }
+  .mag-body main { padding-left: 20px; padding-right: 20px; }
+  .mag-body .site-footer { padding-left: 20px; padding-right: 20px; }
+}
+
+
+
+.mag-crumb {
+  font-size: 14px;
+  color: var(--ink-soft, #4a463f);
+  margin: 0 0 22px;
+  letter-spacing: 0.02em;
+}
+.mag-crumb a { color: var(--ink-soft, #4a463f); }
+
+.mag-masthead {
+  margin: 20px 0 40px;
+  padding-bottom: 28px;
+  border-bottom: 2px solid var(--ink, #1c1a17);
+}
+.mag-masthead h1 {
+  font-size: clamp(34px, 6vw, 54px);
+  margin: 0 0 14px;
+}
+.mag-masthead .mag-standfirst {
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink-soft, #4a463f);
+  max-width: 34em;
+  margin: 0;
+}
+
+.mag-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border: 1px solid var(--line, #d9d2c1);
+  border-radius: 999px;
+  background: #fffbf1;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft, #4a463f);
+  text-decoration: none;
+  white-space: nowrap;
+}
+a.mag-tag:hover { border-color: var(--ink, #1c1a17); color: var(--ink, #1c1a17); }
+
+
+
+.mag-list { list-style: none; margin: 0; padding: 0; }
+
+.mag-entry {
+  padding: 26px 0;
+  border-bottom: 1px dashed var(--line, #d9d2c1);
+}
+.mag-entry:first-child { padding-top: 6px; }
+
+.mag-entry h2 {
+  font-size: clamp(23px, 3.4vw, 30px);
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+.mag-entry h2 a { text-decoration: none; }
+.mag-entry h2 a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
+
+.mag-entry p { margin: 0 0 12px; max-width: 40em; }
+
+.mag-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--ink-soft, #4a463f);
+}
+.mag-meta time { white-space: nowrap; }
+
+.mag-readon {
+  color: var(--accent-z, #b73a2a);
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 15px;
+}
+.mag-readon:hover { text-decoration: underline; }
+
+
+
+.mag-article { max-width: 41em; }
+
+.mag-article h1 {
+  font-size: clamp(30px, 5.2vw, 46px);
+  margin: 0 0 16px;
+  line-height: 1.12;
+}
+.mag-article h2 {
+  font-size: clamp(21px, 3vw, 26px);
+  margin: 42px 0 12px;
+}
+.mag-article p { margin: 0 0 18px; }
+.mag-article ul, .mag-article ol { padding-left: 22px; margin: 0 0 18px; }
+.mag-article li { margin-bottom: 10px; }
+
+.mag-lede {
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--ink-soft, #4a463f);
+  margin: 0 0 26px;
+}
+
+.mag-article code {
+  background: #fffbf1;
+  border: 1px solid var(--line, #d9d2c1);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 0.9em;
+  word-break: break-word;
+}
+
+
+
+
+.mag-data {
+  margin: 0 0 22px;
+  padding: 16px 18px;
+  background: #fffbf1;
+  border: 1px solid var(--line, #d9d2c1);
+  border-left: 4px solid var(--accent-z, #b73a2a);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13.5px;
+  line-height: 1.65;
+  white-space: pre;
+  color: var(--ink, #1c1a17);
+}
+
+.mag-pull {
+  margin: 26px 0;
+  padding: 4px 0 4px 20px;
+  border-left: 4px solid var(--line, #d9d2c1);
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 21px;
+  line-height: 1.4;
+  color: var(--ink, #1c1a17);
+}
+.mag-pull p { margin: 0; }
+
+.mag-note {
+  margin: 26px 0;
+  padding: 16px 18px;
+  background: #fffbf1;
+  border: 1px dashed var(--line, #d9d2c1);
+  border-radius: 6px;
+  font-size: 15.5px;
+  color: var(--ink-soft, #4a463f);
+}
+.mag-note p { margin: 0 0 10px; }
+.mag-note p:last-child { margin: 0; }
+.mag-note strong { color: var(--ink, #1c1a17); }
+
+.mag-endnote {
+  margin: 46px 0 0;
+  padding-top: 22px;
+  border-top: 1px dashed var(--line, #d9d2c1);
+  font-size: 15px;
+  color: var(--ink-soft, #4a463f);
+}
+
+.mag-more {
+  margin: 40px 0 0;
+  padding-top: 26px;
+  border-top: 2px solid var(--ink, #1c1a17);
+}
+.mag-more h2 { font-size: 20px; margin: 0 0 14px; }
+.mag-more ul { list-style: none; margin: 0; padding: 0; }
+.mag-more li { margin-bottom: 10px; }
+
+
+
+
+
+
+
+
+
+.rev-empty {
+  margin: 0 0 44px;
+  padding: 22px 24px;
+  background: #fffbf1;
+  border: 2px dashed var(--line, #d9d2c1);
+  border-radius: 10px;
+}
+.rev-empty h2 { font-size: 22px; margin: 0 0 12px; }
+.rev-empty p { margin: 0 0 12px; max-width: 40em; }
+.rev-empty p:last-child { margin: 0; }
+
+.rev-contents { margin: 0 0 44px; }
+.rev-contents h2 { font-size: 20px; margin: 0 0 12px; }
+.rev-contents ul { list-style: none; margin: 0; padding: 0; }
+.rev-contents li { margin-bottom: 8px; }
+
+.rev-game {
+  padding: 30px 0 6px;
+  border-top: 1px dashed var(--line, #d9d2c1);
+}
+.rev-game h2 {
+  font-size: clamp(24px, 4vw, 32px);
+  margin: 0 0 4px;
+}
+.rev-game .mag-meta { margin-bottom: 16px; }
+.rev-game h3 {
+  font-size: 17px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft, #4a463f);
+  margin: 26px 0 10px;
+}
+.rev-game p { margin: 0 0 14px; max-width: 40em; }
+.rev-game ul { padding-left: 22px; margin: 0 0 14px; max-width: 40em; }
+.rev-game li { margin-bottom: 8px; }
+
+.rev-verdict {
+  margin: 22px 0 6px;
+  padding: 16px 18px;
+  background: #fffbf1;
+  border: 1px solid var(--line, #d9d2c1);
+  border-left: 4px solid var(--accent-z, #b73a2a);
+  border-radius: 6px;
+}
+.rev-verdict p { margin: 0; }
+.rev-verdict strong { display: block; margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase; font-size: 13px; color: var(--ink-soft, #4a463f); }
+
+.rev-play {
+  color: var(--accent-z, #b73a2a);
+  font-weight: 500;
+  text-decoration: none;
+}
+.rev-play:hover { text-decoration: underline; }
+
+
+
+@media (max-width: 640px) {
+  .mag-article { max-width: none; }
+  .mag-masthead { margin-bottom: 30px; }
+  .mag-data { font-size: 12px; padding: 12px 13px; }
+  .mag-pull { font-size: 19px; }
+  .mag-lede { font-size: 18px; }
+}

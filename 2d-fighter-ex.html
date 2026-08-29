@@ -43,25 +43,45 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/">Magestican Studios</a>
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
     <nav>
-      <a href="team-bonding.html">Team Bonding</a>
-      <a href="zelakas-in-space.html">Zelakas In Space</a>
-      <a href="about.html">About</a>
+      <a href="./#games">Games</a>
+      <a href="./team-bonding.html">Team Bonding</a>
+      <a href="./farmykart.html">Farmy Kart</a>
+      <a href="./zelakas-in-space.html">Zelakas</a>
+      <a href="./2d-fighter-ex.html">Fighter EX</a>
+      <a href="./for-remote-teams.html">For teams</a>
+      <a href="./about.html">About</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./reviews.html">Reviews</a>
     </nav>
   </header>
 
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <h1>2D Fighter EX</h1>
+        <p class="lede">EX is short for experiment. A fight animation, recovered
+          frame by frame from a screen recording, replayed by a browser that draws
+          it as anime characters on a stage it generates from a seed.</p>
+        <p><a class="cta cta-primary" href="play/2d-fighter-ex/">Open the experiment</a></p>
+        <img src="assets/fighter-ex-preview.png" width="1200" height="630"
+             alt="Two anime-style fighters mid-exchange on a green tiled forest stage, a bright impact flash between them.">
+      </div>
+    </div>
+  </div>
+
   <main>
-    <section class="hero">
-      <h1>2D Fighter EX</h1>
-      <p class="lede">EX is short for experiment. A fight animation, recovered
-        frame by frame from a screen recording, replayed by a browser that draws
-        it as anime characters on a stage it generates from a seed.</p>
-      <p><a class="cta" href="play/2d-fighter-ex/">Open the experiment</a></p>
-      <img src="assets/fighter-ex-preview.png" width="1200" height="630"
-           alt="Two anime-style fighters mid-exchange on a green tiled forest stage, a bright impact flash between them."
-           style="max-width:100%;height:auto">
-    </section>
 
     <section>
       <h2>What happened</h2>
@@ -76,8 +96,19 @@
       <p>None of the original art could be kept — it was not ours to use. What
         was worth keeping was the performance.</p>
     </section>
+    <section class="reveal">
+      <h2>What it looks like</h2>
+      <div class="shot-row">
+        <figure>
+          <img src="./assets/shot-fighter.webp" width="1024" height="538" loading="lazy" decoding="async"
+               alt="Two cel-anime fighters mid-exchange on a grey street, a raised train line and tower blocks behind them">
+          <figcaption>Frame 41 of 84. The positions, the timing and the camera are all measurements taken off the recording; only the art is new.</figcaption>
+        </figure>
+      </div>
+    </section>
 
-    <section>
+
+    <section class="reveal">
       <h2>Why it looks like this</h2>
       <p>The forest is generated the way <strong>Aracstory</strong> generates a
         dungeon — from a seed. Change the seed and you get a different forest
@@ -110,7 +141,7 @@
         move is the measurement taken off the original recording.</p>
     </section>
 
-    <section>
+    <section class="reveal">
       <h2>Things to try</h2>
       <ul>
         <li>Slow it to 0.1&times; and watch the hold before the throw — it is the
@@ -123,10 +154,18 @@
   </main>
 
   <footer class="site-footer">
-    <p><a href="/">Magestican Studios</a> &middot;
-       <a href="privacy.html">Privacy</a> &middot;
-       <a href="terms.html">Terms</a></p>
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; Site is static &middot; no cookies, no accounts, anonymous counts only
+    </p>
   </footer>
+  <script type="module" src="./assets/site.js?v=70961b7-20260829T134926Z"></script>
+
 
   <script type="module">
     import { initAnalytics, trackPlayClicks } from './web-engine/analytics/analytics.js';

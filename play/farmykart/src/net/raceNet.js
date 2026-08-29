@@ -162,6 +162,14 @@ export function createRaceNet(session, { seats, onEvent, onStandings, onSeats, r
       
       
       k.boost = f.boosting ? { time: 0.1, power: 1, name: 'remote' } : null;
+      
+      
+      
+      
+      
+      
+      
+      k.gliding = !!f.gliding;
       racer.netMode = f.mode;
       return true;
     },
