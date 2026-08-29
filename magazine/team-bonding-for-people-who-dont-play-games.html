@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team Bonding, for people who do not play games — Team Bonding devlog</title>
+  <meta name="description" content="Team Bonding is a browser voxel shooter for remote teams: one link, no download, bots to fill the seats, and a round short enough to fit in a meeting.">
+  <link rel="canonical" href="https://magesticanstudios.com/magazine/team-bonding-for-people-who-dont-play-games.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Team Bonding, for people who do not play games — Team Bonding devlog">
+  <meta property="og:description" content="Team Bonding is a browser voxel shooter for remote teams: one link, no download, bots to fill the seats, and a round short enough to fit in a meeting.">
+  <meta property="og:url" content="https://magesticanstudios.com/magazine/team-bonding-for-people-who-dont-play-games.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta property="article:published_time" content="2026-08-30">
+  <meta property="article:section" content="Development log">
+  <meta property="article:tag" content="Team Bonding">
+  <meta property="article:tag" content="Remote teams">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Team Bonding, for people who do not play games — Team Bonding devlog">
+  <meta name="twitter:description" content="Team Bonding is a browser voxel shooter for remote teams: one link, no download, bots to fill the seats, and a round short enough to fit in a meeting.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Team Bonding, for people who do not play games",
+  "description": "Team Bonding is a browser voxel shooter for remote teams: one link, no download, bots to fill the seats, and a round short enough to fit in a meeting.",
+  "datePublished": "2026-08-30",
+  "dateModified": "2026-08-30",
+  "author": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://magesticanstudios.com/favicon.svg"
+    }
+  },
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "inLanguage": "en-AU",
+  "keywords": "Team Bonding, Remote teams",
+  "articleSection": "Development log",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "The Magestican Studios magazine",
+    "url": "https://magesticanstudios.com/magazine/"
+  },
+  "about": {
+    "@type": "VideoGame",
+    "name": "Team Bonding",
+    "url": "https://magesticanstudios.com/team-bonding.html"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://magesticanstudios.com/magazine/team-bonding-for-people-who-dont-play-games.html"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Magestican Studios",
+      "item": "https://magesticanstudios.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Magazine",
+      "item": "https://magesticanstudios.com/magazine/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Team Bonding, for people who do not play games",
+      "item": "https://magesticanstudios.com/magazine/team-bonding-for-people-who-dont-play-games.html"
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/magazine.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body class="mag-body">
+  <header class="site-header">
+    <a href="/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/#games">Games</a>
+      <a href="/team-bonding.html">Team Bonding</a>
+      <a href="/farmykart.html">Farmy Kart</a>
+      <a href="/magazine/">Magazine</a>
+      <a href="/reviews.html">Reviews</a>
+      <a href="/about.html">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="mag-crumb"><a href="/">Magestican Studios</a> &rsaquo; <a href="/magazine/">Magazine</a></p>
+
+    <article class="mag-article">
+      <h1>Team Bonding, for people who do not play games</h1>
+      <p class="mag-meta">
+        <time datetime="2026-08-30">30 August 2026</time>
+        <span class="mag-tag">Team Bonding</span>
+        <span>4 min read</span>
+      </p>
+      <p class="mag-lede">A team shooter built for the eleven people in the meeting who have never held a controller, and the one who plays every night. Both have to enjoy the same twenty minutes.</p>
+
+      <p>Team Bonding is a voxel team shooter that opens in a browser tab. It exists because remote teams keep being asked to do something together and the options are a quiz, a video call with a hat on, or a game that half the room cannot install.</p>
+      <h2>The hard part is the spread of the room</h2>
+      <p>A work team is not an audience. In any group of a dozen there is somebody who plays competitively and somebody who has genuinely never moved a character with two hands before, and both of them are in the same twenty minutes. A game that is fun for one is humiliating or boring for the other.</p>
+      <p>Most of the design is about narrowing that gap without insulting anybody. Nothing to learn before you start. Nothing to buy. No character to build, no loadout to pick, no progression to be behind on. You spawn holding what you need.</p>
+      <p>Aiming is forgiving, and the maps are close-quarters on purpose, because the difference between a good player and a new one is largest at long range and smallest in a corridor. A team objective rather than a kill count means somebody who is not shooting well can still obviously be the reason their side won.</p>
+      <h2>Nobody waits for the room to fill</h2>
+      <p>You open a room and send one link. Whoever clicks it is in. Bots fill the empty seats immediately, so a round starts when the first two people are ready instead of when the last person finds the message. When a real person arrives, a bot stands down and hands over its place.</p>
+      <p>That sounds like a small convenience and it is the whole difference between playing and not. Any game that needs eight people to arrive before anything happens will be played once.</p>
+      <h2>Built from a seed</h2>
+      <p>The maps are generated rather than shipped. A seed builds a city, a snowbound farm, a rink; the same seed always builds the same place, so a team can go back to a map they liked, and the download stays small enough that the game starts in about a second.</p>
+      <p>It also means the maps are ours to change. When a map turns out to have a corner everybody hides in, the fix is a number rather than a re-export.</p>
+      <h2>What it is not</h2>
+      <p>It is not a competitive shooter and it is not trying to be. There is no ranking, no season, nothing to grind. It is twenty minutes that a room of colleagues can share without anybody needing to have played anything before.</p>
+      <p>If your team has ten minutes at the end of a call, it is one link away.</p>
+
+      <p class="mag-endnote">
+        <a class="mag-readon" href="/play/team-bonding/">Play Team Bonding in your browser &rarr;</a> &middot; <a href="/team-bonding.html">About Team Bonding</a> &middot; <a href="/reviews.html">What we think of our own games</a>
+      </p>
+    </article>
+
+    <section class="mag-more">
+      <h2>More from the magazine</h2>
+      <ul>
+        <li><a href="/magazine/five-games-one-tab.html">Five games, one tab, no download</a></li>
+        <li><a href="/magazine/farmy-kart-cliffs-and-gliders.html">Farmy Kart: cliffs, gliders and four very different karts</a></li>
+      </ul>
+      <p><a class="mag-readon" href="/magazine/">All articles &rarr;</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      Site is static &middot; No cookies, no accounts, anonymous counts only (<a href="/privacy.html">how</a>)
+    </p>
+  </footer>
+
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    startVersionChecker();
+    initAnalytics({ page: 'magazine/team-bonding-for-people-who-dont-play-games' });
+    trackPlayClicks();
+  </script>
+</body>
+</html>
