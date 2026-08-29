@@ -90,6 +90,8 @@
 
 
 import { MOVE_INDEX } from './moveManifest.js';
+import { solve } from './animeRig.mjs';
+import { poseById, registerTween, bakedPoseFor } from './moveSet.mjs';
 
 export const FPS = 30;
 
@@ -723,8 +725,84 @@ function perTick(table) {
 
 
 
-function exchange({ attack, attX, defX, attFace, defFace, connects, slow = 1, react }) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const STRIKE_SLOW = 4 / 3;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const ENRICHED = new Map();
+function enrichedSpec(attack) {
+  if (ENRICHED.has(attack)) return ENRICHED.get(attack);
   const spec = ATTACKS[attack];
+  const frames = [];
+  let hitFrame = spec.hitFrame;
+  for (let k = 0; k < spec.frames.length; k += 1) {
+    const cur = spec.frames[k];
+    if (k === spec.hitFrame) {
+      const prev = spec.frames[k - 1];
+      if (prev) {
+        const id = `${prev[0]}~${cur[0]}~in`;
+        if (registerTween(id, prev[0], cur[0], 0.5)) frames.push([id, 1]);
+      }
+      hitFrame = frames.length;
+    }
+    frames.push(cur);
+    if (k === spec.hitFrame) {
+      const nxt = spec.frames[k + 1];
+      if (nxt) {
+        const id = `${cur[0]}~${nxt[0]}~out`;
+        if (registerTween(id, cur[0], nxt[0], 0.5)) frames.push([id, 1]);
+      }
+    }
+  }
+  const out = { ...spec, frames, hitFrame };
+  ENRICHED.set(attack, out);
+  return out;
+}
+
+function exchange({ attack, attX, defX, attFace, defFace, connects, slow = 1, react }) {
+  const spec = enrichedSpec(attack);
   const { poses, frameOf, frameStart } = expand(spec.frames);
   const defSeq = perTick(DEFENCES[attack]);
   const out = [];
@@ -733,7 +811,14 @@ function exchange({ attack, attX, defX, attFace, defFace, connects, slow = 1, re
   
   
   
-  const hitTick = frameStart[spec.hitFrame] * slow;
+  
+  
+  
+  
+  
+  
+  
+  const hitTick = Math.round(frameStart[spec.hitFrame] * slow);
 
   
   
@@ -851,10 +936,25 @@ function whiffCounter(f, { lx, rx, leftAttacks }) {
   
   
   const COUNTER = { crouch: 26, 'upper-mid': 22, uppercut: 13, guard: 19 };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const upperGap = strikeTip('uppercut') + ATTACKS.uppercut.reach * 0.52 + BODY_FRONT;
   for (let i = 0; i < 10; i += 1) {
     const p = i < 4 ? 'stagger-mid' : i < 7 ? 'hit-body-mid' : 'hit-body';
     const c = i < 3 ? 'crouch' : i < 5 ? 'upper-mid' : i < 8 ? 'uppercut' : 'guard';
-    put(st(p, ax + face * 26, 0, face), st(c, dx + face * COUNTER[c], 0, -face));
+    const cx = (c === 'uppercut' || c === 'upper-mid')
+      ? ax + face * (26 + upperGap)
+      : dx + face * COUNTER[c];
+    put(st(p, ax + face * 26, 0, face), st(c, cx, 0, -face));
     if (i === 5) {
       f.ticks[f.ticks.length - 1].hit = { x: (ax + dx) / 2 + face * 22, power: 1 };
     }
@@ -870,12 +970,91 @@ function whiffCounter(f, { lx, rx, leftAttacks }) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+const strikeTipCache = new Map();
+function strikeTip(poseId) {
+  if (strikeTipCache.has(poseId)) return strikeTipCache.get(poseId);
+  const pose = poseById(poseId);
+  let tip = 0;
+  if (pose) {
+    const K = solve(pose, { flip: false });
+    tip = Math.max(
+      K.hands[0][0], K.hands[1][0], K.feet[0][0], K.feet[1][0],
+    ) * BODY_H;
+  }
+  strikeTipCache.set(poseId, tip);
+  return tip;
+}
+
+
+
+
+
+
+
+
+
+const BODY_FRONT = 0.12 * BODY_H;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function playExchange(f, opts) {
   const { leftAttacks } = opts;
+  let { lx, rx } = opts;
+
+  const spec = ATTACKS[opts.attack];
+  if (spec && opts.connects) {
+    const contactPose = spec.frames[spec.hitFrame][0];
+    const maxGap = strikeTip(contactPose) + spec.reach * 0.52 + BODY_FRONT;
+    const gap = Math.abs(rx - lx);
+    const pull = gap - maxGap;
+    
+    
+    
+    
+    
+    
+    
+    if (pull > 4) {
+      if (leftAttacks) lx += pull; else rx -= pull;
+      f.arriveAt(lx, rx);
+    }
+  }
+
   const rows = exchange({
     ...opts,
-    attX: leftAttacks ? opts.lx : opts.rx,
-    defX: leftAttacks ? opts.rx : opts.lx,
+    lx,
+    rx,
+    attX: leftAttacks ? lx : rx,
+    defX: leftAttacks ? rx : lx,
     attFace: leftAttacks ? 1 : -1,
     defFace: leftAttacks ? -1 : 1,
   });
@@ -1755,5 +1934,12 @@ export function posesUsed() {
 
 
 export function unknownPoses() {
-  return posesUsed().filter((p) => MOVE_INDEX[p] === undefined);
+  
+  
+  
+  
+  
+  
+  
+  return posesUsed().filter((p) => bakedPoseFor(p, (id) => MOVE_INDEX[id] !== undefined) === null);
 }

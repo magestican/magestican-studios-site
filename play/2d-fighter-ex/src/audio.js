@@ -643,9 +643,24 @@ export function preferredMuted(search = '') {
   if (/[?&]sound=on(&|$)/.test(q)) return false;
   if (/[?&]sound=off(&|$)/.test(q)) return true;
   try {
-    return globalThis.localStorage.getItem(STORE_KEY) !== 'on';
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    return globalThis.localStorage.getItem(STORE_KEY) === 'off';
   } catch {
-    return true;
+    return false;
   }
 }
 
@@ -785,10 +800,184 @@ export function setCharge(audio, level) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SCALE = [0, 3, 5, 7, 10];    
+
+const MUSIC = Object.freeze({
+  feudal: { root: 55.00, bpm: 96, wave: 'triangle', arp: 0.0, drum: 'taiko', lead: 'fifth' },
+  neon: { root: 65.41, bpm: 132, wave: 'sawtooth', arp: 1.0, drum: 'machine', lead: 'saw' },
+  waste: { root: 49.00, bpm: 78, wave: 'square', arp: 0.35, drum: 'sparse', lead: 'detuned' },
+});
+
+
+export function musicFor(world) {
+  return MUSIC[world] || MUSIC.feudal;
+}
+
+
+function drumAt(audio, when, { freq, drop, dur, level, noiseLevel }) {
+  const { ctx, bus } = audio;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(freq, when);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(24, freq * drop), when + dur);
+  g.gain.setValueAtTime(0.0001, when);
+  g.gain.exponentialRampToValueAtTime(level, when + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+  osc.connect(g).connect(bus);
+  osc.start(when);
+  osc.stop(when + dur + 0.02);
+
+  if (noiseLevel > 0) {
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuffer(audio);
+    const ng = ctx.createGain();
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 1400;
+    ng.gain.setValueAtTime(noiseLevel, when);
+    ng.gain.exponentialRampToValueAtTime(0.0001, when + dur * 0.5);
+    src.connect(hp).connect(ng).connect(bus);
+    src.start(when);
+    src.stop(when + dur);
+  }
+}
+
+
+function noteAt(audio, when, freq, dur, level, type) {
+  const { ctx, bus } = audio;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 1800;
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, when);
+  g.gain.setValueAtTime(0.0001, when);
+  g.gain.exponentialRampToValueAtTime(level, when + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+  osc.connect(lp).connect(g).connect(bus);
+  osc.start(when);
+  osc.stop(when + dur + 0.02);
+}
+
+
+
+
+
+
+
+
+
+export function createMusic(audio) {
+  let world = 'feudal';
+  let intensity = 0;
+  let timer = null;
+  let step = 0;
+  let next = 0;
+
+  const LOOKAHEAD = 0.12;
+  const TICK_MS = 25;
+
+  function schedule() {
+    if (!audio.ctx || audio.muted) return;
+    const cfg = musicFor(world);
+    const beat = 60 / cfg.bpm / 2;              
+    if (next < audio.ctx.currentTime) next = audio.ctx.currentTime + 0.05;
+    while (next < audio.ctx.currentTime + LOOKAHEAD) {
+      const bar = Math.floor(step / 8) % 4;
+      const s = step % 8;
+      const lift = 0.55 + 0.45 * intensity;
+
+      
+      if (cfg.drum === 'taiko') {
+        if (s === 0 || s === 3 || s === 6) {
+          drumAt(audio, next, { freq: 110, drop: 0.32, dur: 0.30, level: 0.34 * lift, noiseLevel: 0.02 });
+        }
+      } else if (cfg.drum === 'machine') {
+        if (s % 2 === 0) drumAt(audio, next, { freq: 130, drop: 0.28, dur: 0.16, level: 0.30 * lift, noiseLevel: 0 });
+        if (s === 4) drumAt(audio, next, { freq: 220, drop: 0.5, dur: 0.14, level: 0.12 * lift, noiseLevel: 0.14 * lift });
+      } else if (s === 0 || (s === 5 && bar % 2 === 1)) {
+        drumAt(audio, next, { freq: 84, drop: 0.35, dur: 0.42, level: 0.30 * lift, noiseLevel: 0.03 });
+      }
+
+      
+      const degree = SCALE[(bar * 2 + (s === 4 ? 2 : 0)) % SCALE.length];
+      const root = cfg.root * (2 ** (degree / 12));
+      if (s === 0 || s === 4 || (cfg.arp > 0.5 && s % 2 === 0)) {
+        noteAt(audio, next, root, beat * (cfg.arp > 0.5 ? 1.1 : 2.2), 0.16 * lift, cfg.wave);
+      }
+
+      
+      
+      if (intensity > 0.35 && (s === 2 || s === 6)) {
+        const up = root * (cfg.lead === 'fifth' ? 3 : 4);
+        noteAt(audio, next, up, beat * 1.6, 0.05 * intensity, cfg.lead === 'saw' ? 'sawtooth' : 'triangle');
+        if (cfg.lead === 'detuned') noteAt(audio, next, up * 1.006, beat * 1.6, 0.04 * intensity, 'triangle');
+      }
+
+      next += beat;
+      step += 1;
+    }
+  }
+
+  return {
+    setWorld(id) { world = id || 'feudal'; },
+    setIntensity(v) { intensity = Math.max(0, Math.min(1, v)); },
+    start() {
+      if (timer || !audio.ctx) return;
+      next = audio.ctx.currentTime + 0.06;
+      timer = globalThis.setInterval(schedule, TICK_MS);
+      schedule();
+    },
+    stop() {
+      if (timer) globalThis.clearInterval(timer);
+      timer = null;
+    },
+    get running() { return timer !== null; },
+  };
+}
+
 export function installAudio({ mount = null, search = '' } = {}) {
   const audio = createAudio();
   audio.muted = preferredMuted(search);
+  const music = createMusic(audio);
   let prev = null;
+  
+  let heat = 0;
+
+  
+  const wakeMusic = () => {
+    if (audio.muted || !audio.ctx) { music.stop(); return; }
+    music.start();
+  };
 
   const doc = globalThis.document;
   let button = null;
@@ -803,6 +992,7 @@ export function installAudio({ mount = null, search = '' } = {}) {
     
     resumeAudio(audio);
     setMuted(audio, !audio.muted);
+    wakeMusic();
     paint();
   };
 
@@ -822,7 +1012,7 @@ export function installAudio({ mount = null, search = '' } = {}) {
     
     
     
-    const wake = () => { if (!audio.muted) resumeAudio(audio); };
+    const wake = () => { if (!audio.muted) { resumeAudio(audio); wakeMusic(); } };
     for (const t of ['pointerdown', 'touchend', 'keydown']) {
       globalThis.addEventListener(t, wake, true);
     }
@@ -834,6 +1024,9 @@ export function installAudio({ mount = null, search = '' } = {}) {
   return {
     audio,
     toggle,
+    music,
+    
+    setWorld(id) { music.setWorld(id); },
     tick(pose) {
       
       
@@ -843,6 +1036,14 @@ export function installAudio({ mount = null, search = '' } = {}) {
       prev = state;
       for (const b of beats) playVoice(audio, voiceFor(b.event, b.index, b), 0);
       setCharge(audio, pose.charge ? pose.charge.level : 0);
+
+      
+      
+      
+      
+      heat = Math.max(heat * 0.985, pose.hit ? 1 : 0);
+      music.setIntensity(heat);
+      wakeMusic();
     },
   };
 }

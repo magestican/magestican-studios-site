@@ -99,7 +99,15 @@ let season = params.get('season') === 'winter' ? 'winter' : 'spring';
 
 
 
-let world = WORLD_IDS.includes(params.get('world')) ? params.get('world') : '';
+
+
+
+
+
+
+
+const DEFAULT_WORLD = 'feudal';
+let world = WORLD_IDS.includes(params.get('world')) ? params.get('world') : DEFAULT_WORLD;
 
 
 
@@ -128,13 +136,17 @@ const fxOn = { shadow: true, weather: true, impact: true, words: true };
 const sound = installAudio({ search: globalThis.location.search });
 
 
+
+sound.setWorld(world);
+
+
 function syncUrl() {
   const u = new URL(window.location.href);
   if (castA === DEFAULT_A) u.searchParams.delete('a');
   else u.searchParams.set('a', castA);
   if (castB === DEFAULT_B) u.searchParams.delete('b');
   else u.searchParams.set('b', castB);
-  if (!world) u.searchParams.delete('world');
+  if (world === DEFAULT_WORLD) u.searchParams.delete('world');
   else u.searchParams.set('world', world);
   if (season === 'spring') u.searchParams.delete('season');
   else u.searchParams.set('season', season);
@@ -382,6 +394,9 @@ if (worldSel) {
   worldSel.value = world;
   worldSel.addEventListener('change', () => {
     world = worldSel.value;
+    
+    
+    sound.setWorld(world);
     
     
     cells = buildStage(seed, season, world);

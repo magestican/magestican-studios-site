@@ -10,10 +10,11 @@ import {
   STAGE_WIDTH, GROUND_Y, seasonOf,
 } from './stage.js';
 import {
-  drawDust, drawCharge, drawClashExtras, drawWord, WORDS,
+  drawDust, drawCharge, drawClashExtras, drawWord, drawBlood, WORDS,
 } from './fx.js';
 import { drawBubble } from './dialogue.js';
 import { worldOf } from './worlds.js';
+import { bakedPoseFor } from './moveSet.mjs';
 
 
 
@@ -82,6 +83,33 @@ const MOOD_FILTERS = {
   angry: 'saturate(1.3) hue-rotate(-12deg) contrast(1.08)',
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const VIEW_ZOOM = 1.34;
+
 export const STAGE_OFFSET_X = (STAGE_WIDTH - CANVAS.width) / 2;
 
 
@@ -139,6 +167,15 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   const { width, height } = CANVAS;
   const cam = pose.camera;
   const view = { camX: cam.x, camY: cam.y, zoom: cam.zoom, width, height, offsetX: STAGE_OFFSET_X };
+
+  
+  
+  
+  
+  ctx.save();
+  ctx.translate(width / 2, GROUND_Y);
+  ctx.scale(VIEW_ZOOM, VIEW_ZOOM);
+  ctx.translate(-width / 2, -GROUND_Y);
 
   layer('sky');
   drawSky(ctx, width, height, season, world);
@@ -241,7 +278,12 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
     
     
     
-    const cellPos = MOVE_INDEX[spec.pose];
+    
+    
+    
+    const baked = MOVE_INDEX[spec.pose]
+      ? spec.pose : bakedPoseFor(spec.pose, (id) => !!MOVE_INDEX[id]);
+    const cellPos = baked ? MOVE_INDEX[baked] : null;
     if (!cellPos) return;
     
     
@@ -362,6 +404,13 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
     drawClashExtras(ctx, mid[0], mid[1],
       Math.min(1.6, (pose.hit.power || 1) * (0.5 + 0.5 * decay)), timeMs / 400);
     ctx.restore();
+
+    
+    
+    
+    
+    
+    drawBlood(ctx, mid[0], mid[1], pose.hit.power || 1, pose.hit.age || 0);
   }
 
   
@@ -410,6 +459,11 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
     const speaker = pose.say.who === 'a' ? pose.a : pose.b;
     drawBubble(ctx, speaker, pose.say);
   }
+
+  
+  
+  
+  ctx.restore();
 
   
   

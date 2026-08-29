@@ -693,3 +693,82 @@ export function drawClashExtras(ctx, x, y, scale, phase) {
   }
   ctx.restore();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const BLOOD_BRIGHT = '#C4232B';
+const BLOOD_DARK = '#6E0F17';
+
+
+
+
+
+
+
+
+
+
+
+export function drawBlood(ctx, x, y, power = 1, age = 0, salt = 0) {
+  if (age >= 1) return;
+  
+  
+  
+  if (power < 0.85) return;
+
+  const n = Math.round(x) * 31 + Math.round(y) + salt * 7;
+  const count = Math.round(5 + 7 * power);
+  
+  
+  
+  
+  const t = age;
+  const drag = 1 - (1 - t) ** 2;      
+  const fall = t * t;                  
+
+  ctx.save();
+  for (let i = 0; i < count; i += 1) {
+    
+    const ang = pick(n + i, 11, -2.5, -0.35);
+    const speed = pick(n + i, 12, 14, 46) * (0.6 + 0.6 * power);
+    const size = Math.max(1, Math.round(pick(n + i, 13, 1, 4)));
+    const px = Math.round(x + Math.cos(ang) * speed * drag * pick(n + i, 14, -1.15, 1.15));
+    const py = Math.round(y + Math.sin(ang) * speed * drag + fall * 58);
+    
+    ctx.fillStyle = seed01(n + i, 15) > 0.62 ? BLOOD_DARK : BLOOD_BRIGHT;
+    ctx.globalAlpha = Math.min(1, (1 - t) * 1.4);
+    ctx.fillRect(px, py, size, size);
+  }
+  
+  
+  ctx.globalAlpha = Math.min(1, (1 - t) * 1.6);
+  ctx.fillStyle = BLOOD_BRIGHT;
+  const w = Math.round(3 + 4 * power);
+  ctx.fillRect(Math.round(x - w / 2), Math.round(y - w / 2), w, Math.max(2, Math.round(w * 0.6)));
+  ctx.restore();
+}

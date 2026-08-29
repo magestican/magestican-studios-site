@@ -47,6 +47,12 @@
 
 
 import { ACCOUNT_CONFIG, ACCOUNTS_ENABLED, PROFILE_COLLECTION, isConfigured } from './accountConfig.js';
+
+
+
+
+const SAVE_SUBCOLLECTION = 'save';
+const SAVE_DOC = 'records';
 import { toCloudDto, fromCloudDto, isSyncable, extraFields } from './profileDto.js';
 import { SAVE_SYNC_ENABLED, toSaveDto, isSyncableSave, extraSaveFields } from './gameSave.js';
 
@@ -152,6 +158,19 @@ export function isSyncEnabled() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 export async function pullProfile() {
   const s = await ready();
   if (!s) return null;
@@ -159,14 +178,33 @@ export async function pullProfile() {
     const snap = await s.store.getDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid));
     if (!snap.exists()) return null;
     const data = snap.data();
+    let raw = data;
+    if (SAVE_SYNC_ENABLED) {
+      try {
+        const rec = await s.store.getDoc(
+          s.store.doc(s.db, PROFILE_COLLECTION, s.uid, SAVE_SUBCOLLECTION, SAVE_DOC),
+        );
+        
+        
+        
+        if (rec.exists()) raw = { ...data, ...rec.data() };
+      } catch (_) {  }
+    }
     
     
     
-    return { profile: fromCloudDto(data), raw: data };
+    return { profile: fromCloudDto(data), raw };
   } catch (_) {
     return null;
   }
 }
+
+
+
+
+
+
+
 
 
 
@@ -187,18 +225,27 @@ export async function pushProfile(profile, records = null) {
   if (!s) return false;
   const dto = toCloudDto(profile);
   if (!dto || !isSyncable(dto) || extraFields(dto).length) return false;
-  let payload = dto;
-  if (SAVE_SYNC_ENABLED) {
-    const save = toSaveDto(profile, records);
-    if (!isSyncableSave(save) || extraSaveFields(save).length) return false;
-    payload = { ...dto, ...save };
-  }
   try {
     
     
     
     
-    await s.store.setDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid), payload);
+    await s.store.setDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid),
+      { ...dto, updatedAt: s.store.serverTimestamp() });
+    if (SAVE_SYNC_ENABLED) {
+      const save = toSaveDto(profile, records);
+      
+      
+      
+      if (isSyncableSave(save) && !extraSaveFields(save).length) {
+        try {
+          await s.store.setDoc(
+            s.store.doc(s.db, PROFILE_COLLECTION, s.uid, SAVE_SUBCOLLECTION, SAVE_DOC),
+            { ...save, updatedAt: s.store.serverTimestamp() },
+          );
+        } catch (_) {  }
+      }
+    }
     return true;
   } catch (_) {
     

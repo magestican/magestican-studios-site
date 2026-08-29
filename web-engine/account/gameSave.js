@@ -130,7 +130,11 @@ export const SAVE_FIELDS = Object.freeze([
 
 
 
-export const SAVE_SYNC_ENABLED = false;
+
+
+
+
+export const SAVE_SYNC_ENABLED = true;
 
 
 

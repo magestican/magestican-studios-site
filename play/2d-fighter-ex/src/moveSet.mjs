@@ -1081,6 +1081,63 @@ export function blendPose(A, B, t) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+export function registerTween(id, fromId, toId, t) {
+  if (byId[id]) return byId[id];
+  const A = byId[fromId];
+  const B = byId[toId];
+  if (!A || !B) return null;
+  const pose = {
+    ...blendPose(A, B, t),
+    id,
+    note: `In-between: ${Math.round(t * 100)}% from ${fromId} toward ${toId}.`,
+    tweenOf: [fromId, toId, t],
+  };
+  MOVES.push(pose);
+  MOVE_INDEX[id] = MOVES.length - 1;
+  MOVE_IDS.push(id);
+  byId[id] = pose;
+  return pose;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function bakedPoseFor(id, has) {
+  let cur = id;
+  for (let i = 0; i < 8; i += 1) {
+    if (has(cur)) return cur;
+    const p = byId[cur];
+    if (!p || !p.tweenOf) return null;
+    cur = p.tweenOf[0];
+  }
+  return null;
+}
+
+
 export function poseById(id) {
   return byId[id] || null;
 }
@@ -1122,6 +1179,25 @@ for (const [id, from, to, t, tag] of TWEENS) {
   });
   MOVE_INDEX[id] = MOVES.length - 1;
   MOVE_IDS.push(id);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  byId[id] = MOVES[MOVES.length - 1];
 }
 
 
