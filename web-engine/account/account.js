@@ -334,6 +334,18 @@ export function notePromptNever() {
 
 export async function syncFromCloud() {
   if (!isSyncEnabled()) return null;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const known = currentProfile();
+  if (!known.uid) return null;
   const nowMs = now();
   const day = dayOf(nowMs);
   try {
@@ -541,11 +553,77 @@ export async function forgetMe() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function syncNow() {
+  if (!isSyncEnabled()) return { ok: false, status: 'off' };
+  try {
+    const uid = await accountUid();
+    if (!uid) return { ok: false, status: 'signed-out' };
+
+    
+    
+    await syncFromCloud();
+
+    const nowMs = now();
+    const profile = currentProfile();
+    const records = currentRecords();
+    const dto = toCloudDto(profile);
+    if (!dto) return { ok: false, status: 'nothing-to-save' };
+
+    let full = dto;
+    if (SAVE_SYNC_ENABLED) {
+      const save = toSaveDto(profile, records);
+      if (isSyncableSave(save)) full = { ...dto, ...save };
+    }
+    const day = dayOf(nowMs);
+    const budget = loadBudget();
+    const digest = digestOf(full);
+    if (digest === forDayDigest(budget, day)) return { ok: true, status: 'already-saved' };
+    if (!shouldPush(budget, { nowMs, today: day, digest, force: true })) {
+      return { ok: false, status: 'daily-limit' };
+    }
+    saveBudget(notePush(budget, { nowMs, today: day, digest }));
+    const sent = await pushProfile(profile, records);
+    return sent ? { ok: true, status: 'saved' } : { ok: false, status: 'refused' };
+  } catch (_) {
+    return { ok: false, status: 'failed' };
+  }
+}
+
+
+
+
+function forDayDigest(budget, today) {
+  const b = normaliseBudget(budget);
+  return b.day === today ? b.lastDigest : null;
+}
+
+
+
 function maybePush(profile, records, nowMs, force = false) {
   if (!isSyncEnabled()) return;
   try {
     const dto = toCloudDto(profile);
     if (!dto) return;
+    
+    
     
     
     

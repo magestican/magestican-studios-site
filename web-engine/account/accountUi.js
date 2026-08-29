@@ -19,7 +19,7 @@
 import {
   accountSummary, currentProfile, currentRecords, achievementRows, listBackups,
   linkAccount, forgetMe, restoreBackup, notePromptShown, notePromptNever,
-  resolveSaveConflict, RULES_LANDED,
+  resolveSaveConflict, syncNow, RULES_LANDED,
 } from './account.js';
 import { isSyncEnabled } from './firebaseAccount.js';
 import { SAVE_SYNC_ENABLED } from './gameSave.js';
@@ -67,6 +67,10 @@ export function mountProfilePanel(host, { filter = 'all' } = {}) {
         restoreBackup(index);
         mountProfilePanel(host, { filter });
       },
+      
+      
+      
+      onSync: () => syncNow(),
     });
   } catch (_) {
     return null;

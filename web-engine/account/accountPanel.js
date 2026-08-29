@@ -97,6 +97,16 @@ export function panelModel({
     proofLine: proofLine(all),
     rarityNote: RARITY_DISCLAIMER,
     
+    
+    
+    
+    
+    
+    
+    
+    
+    sync: syncEnabled ? { label: 'Sync now' } : null,
+    
     offer: standingOffer(summary, { syncEnabled }),
     coverage: saveCoverage({ saveSync }).map((c) => ({ ...c, name: GAME_NAMES[c.id] ?? c.id })),
     backups: backupLines(backups),
@@ -199,6 +209,8 @@ export function mountAccountPanel(host, model, handlers = {}) {
   const offer = offerEl(model, handlers);
   if (offer) host.appendChild(offer);
   host.appendChild(shelfEl(model));
+  const sync = syncEl(model, handlers);
+  if (sync) host.appendChild(sync);
   const restore = restoreEl(model, handlers);
   if (restore) host.appendChild(restore);
   host.appendChild(footerEl(model, handlers));
@@ -272,6 +284,48 @@ function todayEl(m) {
   if (t.weeklyLine) lines.appendChild(el('div', 'ap-line', t.weeklyLine));
   if (t.seasonLine) lines.appendChild(el('div', 'ap-line', t.seasonLine));
   if (lines.childNodes.length) box.appendChild(lines);
+  return box;
+}
+
+
+
+
+
+
+const SYNC_WORDS = Object.freeze({
+  saved: 'Saved to your account.',
+  'already-saved': 'Already saved - nothing has changed since last time.',
+  'nothing-to-save': 'Play a round first.',
+  'daily-limit': 'Saved as much as it needs to today. It will sync again tomorrow.',
+  'signed-out': 'Not signed in on this device.',
+  refused: 'The server would not take it. Your progress on this device is safe.',
+  failed: 'Could not reach the server. Your progress on this device is safe.',
+  off: 'Cross-device saving is switched off in this build.',
+});
+
+function syncEl(m, handlers) {
+  if (!m.sync) return null;
+  const box = el('div', 'ap-sync');
+  const btn = el('button', 'ap-btn', m.sync.label);
+  btn.type = 'button';
+  const note = el('div', 'ap-sync-note');
+  btn.addEventListener('click', () => {
+    note.textContent = 'Saving\u2026';
+    
+    
+    
+    
+    
+    
+    let done = false;
+    const say = (status) => { if (!done) { done = true; note.textContent = SYNC_WORDS[status] ?? SYNC_WORDS.failed; } };
+    setTimeout(() => say('failed'), 20000);
+    Promise.resolve(handlers.onSync?.())
+      .then((r) => say(r?.status))
+      .catch(() => say('failed'));
+  });
+  box.appendChild(btn);
+  box.appendChild(note);
   return box;
 }
 
@@ -397,6 +451,8 @@ function injectStyles() {
     .ap-rank-name { font-weight: 700; color: #f2f5fa; letter-spacing: .04em; }
     .ap-rank-next { font-size: 11px; color: #7f8798; }
     .ap-bar { height: 6px; border-radius: 3px; background: #232935; margin-top: 6px; overflow: hidden; }
+    .ap-sync { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .ap-sync-note { font: 500 11px system-ui; color: #8e97a8; }
     .ap-today { margin-top: 14px; }
     .ap-today-head { display: flex; justify-content: space-between; align-items: baseline; }
     .ap-today-title { font: 700 11px system-ui; letter-spacing: 0.12em; text-transform: uppercase; color: #8e97a8; }

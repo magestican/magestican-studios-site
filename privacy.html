@@ -8,13 +8,13 @@
   <link rel="canonical" href="https://magesticanstudios.com/privacy.html">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Privacy Policy — Magestican Studios">
-  <meta property="og:description" content="What the Magestican Studios website and games collect: no accounts, no cookies, anonymous page and match counts only.">
+  <meta property="og:description" content="What the Magestican Studios website and games collect: no cookies, an optional account for saving progress, anonymous page and match counts only.">
   <meta property="og:url" content="https://magesticanstudios.com/privacy.html">
   <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
   <meta property="og:site_name" content="Magestican Studios">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Privacy Policy — Magestican Studios">
-  <meta name="twitter:description" content="What the Magestican Studios website and games collect: no accounts, no cookies, anonymous page and match counts only.">
+  <meta name="twitter:description" content="What the Magestican Studios website and games collect: no cookies, an optional account for saving progress, anonymous page and match counts only.">
   <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
   <script type="application/ld+json">
   {
@@ -58,14 +58,23 @@
     <ul>
       <li>This website (<code>magesticanstudios.com.au</code>) is static. It has no login, no comment box, and no server-side code. It sets no cookies.</li>
       <li>We use <strong>Google Analytics 4</strong> to count visits, configured so that it stores nothing on your device and cannot identify you (details below). It is the only third-party script on the site.</li>
-      <li>Our games have no account and no game server. They report a small number of anonymous gameplay counts (which map and mode was chosen, how many AI bots, whether the match reached an end, phone or desktop) and nothing else.</li>
+      <li>Our games have no game server, and <strong>you never need an account to play</strong>. They report a small number of anonymous gameplay counts (which map and mode was chosen, how many AI bots, whether the match reached an end, phone or desktop) and nothing else.</li>
+      <li><strong>Saving your progress to an account is optional.</strong> If you use it, we store your game progress against an anonymous identifier under "Accounts and saved progress" below. If you do not, your progress stays in your own browser exactly as it always has.</li>
       <li>The only personal information we hold about you is what you have voluntarily emailed us (e.g. a bug report, a press enquiry). We keep those emails only as long as needed to reply.</li>
     </ul>
 
     <h2>What we collect</h2>
     <p><strong>On this website:</strong> nothing. The site is served as static files. Your browser makes a request; our host (a static file provider) receives the request and responds with a file. Our host may keep short-lived access logs (typically IP address, requested URL, user-agent, timestamp) for security and abuse-prevention purposes. We do not sell, rent, or share those logs, and we do not correlate them with any other information.</p>
-    <p><strong>In our games:</strong> no personal information. Game saves and settings (world seed, player name, preferences) are written to your own browser's storage and never leave it — we do not receive, upload, or read them. Team Bonding is peer-to-peer: the other players' browsers see the name you type, we do not. What we do receive are the anonymous match counts listed under "Analytics" below.</p>
+    <p><strong>In our games:</strong> no personal information. Game saves and settings (world seed, player name, preferences) are written to your own browser's storage. They stay there unless you choose to save your progress to an account, which is covered in its own section below. Team Bonding is peer-to-peer: the other players' browsers see the name you type, we do not. What we do receive are the anonymous match counts listed under "Analytics" below.</p>
     <p><strong>When you email us:</strong> your email address and whatever you chose to send. We reply from the same address, retain the thread as long as needed to help you, and delete it afterwards.</p>
+
+    <h2>Accounts and saved progress</h2>
+    <p><strong>You do not need an account to play anything we make, and you never will.</strong> Every game runs, saves and remembers your progress in your own browser with no account at all. What an account adds is one thing: the same progress on a second device, and a copy that survives clearing your browser data.</p>
+    <p><strong>What we store if you use it.</strong> A single document holding your game progress: your chosen display name if you typed one, experience points, rank, streak counts, day numbers of when you played, how many times you have played and won each game, and your personal best lap times, race times, finishing positions and points for each Farmy Kart circuit. That is the whole list, and it is enforced by the database itself — our security rules name every permitted field and reject a write containing anything else, including an email address, a message, or a reference to another player.</p>
+    <p><strong>Who you are to us.</strong> By default, nobody. Saving progress signs you in anonymously: Google's Firebase Authentication issues a random identifier for your browser and we store the document against that identifier. It is not linked to a name, an email or a person, and we cannot tell who you are from it.</p>
+    <p><strong>If you link a Google account.</strong> You may optionally attach a Google account so the same progress follows you to another device. Google then confirms to us that the two devices are the same person; <strong>we do not store your email address, your Google profile or your name</strong>, and the security rules above would reject them if we tried. Google's own handling is covered by the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</p>
+    <p><strong>Where it is stored.</strong> Google Cloud Firestore, in a project we control. Access is restricted to your own document: the rules permit a signed-in browser to read and write the one document belonging to its own identifier and nothing else, and there is no listing, no search, and no path by which one player can reach another player's progress.</p>
+    <p><strong>Deleting it.</strong> The account panel in any of our games has an "Erase my progress" button. It deletes the stored document and your local copy. There is nothing to email us about and no waiting period.</p>
 
     <h2>What we do with it</h2>
     <ul>
@@ -75,7 +84,7 @@
     </ul>
 
     <h2>Analytics</h2>
-    <p>We use Google Analytics 4 to answer one question: which games and pages people find, and on what kind of device. We deliberately run it in its weakest configuration, because a studio that advertises "no accounts, no tracking" and then fingerprints you is lying:</p>
+    <p>We use Google Analytics 4 to answer one question: which games and pages people find, and on what kind of device. We deliberately run it in its weakest configuration, because a studio that advertises "no tracking" and then fingerprints you is lying:</p>
     <ul>
       <li><strong>No cookies and no stored identifier.</strong> Analytics runs with <code>client_storage: 'none'</code>, so nothing is written to your browser and you are not recognised on a later visit. The trade-off is ours to wear: our "users" figure is really a "page opens" figure, and we would rather under-count you than identify you.</li>
       <li><strong>IP anonymisation on.</strong> Google truncates your IP address before logging it. We never see it.</li>
@@ -89,7 +98,7 @@
     <p>This site sets no cookies of its own, and the analytics described above are configured not to set any either. Games store your settings (name, chosen map, volume) in your browser's own local storage; that never leaves your device and you can clear it at any time from your browser settings.</p>
 
     <h2>Third parties</h2>
-    <p>Google (analytics, as described above) and the game-support services a browser game needs: a WebRTC signalling broker so two players' browsers can find each other, and a CDN that serves the 3D engine and the Flash emulator. None of them receives an account, a profile, or a name from us.</p>
+    <p>Google, in two roles: analytics as described above, and — only if you choose to save your progress to an account — Firebase Authentication and Cloud Firestore, which hold the anonymous identifier and the progress document described under "Accounts and saved progress". The other game-support service a browser game needs is a WebRTC signalling broker, so two players' browsers can find each other; it carries no account, no profile and no name.</p>
     <p>The site is hosted by a static-file provider (currently expected to be Cloudflare Pages or GitHub Pages) that operates under its own privacy policy. If you follow an external link from our site or games (for example, to a game's store page on itch.io or Steam) the destination site handles your data under its own policy.</p>
 
     <h2>Children</h2>

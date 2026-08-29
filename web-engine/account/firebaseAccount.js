@@ -84,16 +84,50 @@ let _state = null;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function withDeadline(promise, ms, fallback = null) {
+  let timer = null;
+  const deadline = new Promise((resolve) => {
+    timer = setTimeout(() => resolve(fallback), ms);
+  });
+  return Promise.race([promise, deadline]).finally(() => clearTimeout(timer));
+}
+
+
+const SIGN_IN_TIMEOUT_MS = 12000;
+const WRITE_TIMEOUT_MS = 15000;
+
 async function ready() {
   if (_state !== null) return _state;
   if (!ACCOUNTS_ENABLED || !isConfigured(ACCOUNT_CONFIG)) { _state = false; return _state; }
   try {
-    const [core, appCheck, auth, store] = await Promise.all([
+    const mods = await withDeadline(Promise.all([
       import('../vendor/firebase/firebase-app.js'),
       import('../vendor/firebase/firebase-app-check.js'),
       import('../vendor/firebase/firebase-auth.js'),
       import('../vendor/firebase/firebase-firestore-lite.js'),
-    ]);
+    ]), SIGN_IN_TIMEOUT_MS, null);
+    if (!mods) { _state = false; return _state; }
+    const [core, appCheck, auth, store] = mods;
     const cfg = ACCOUNT_CONFIG;
     const existing = core.getApps();
     const app = existing.length ? existing[0] : core.initializeApp({
@@ -114,7 +148,14 @@ async function ready() {
     
     
     try { await auth.setPersistence(a, auth.browserLocalPersistence); } catch (_) {}
-    const user = a.currentUser ?? (await auth.signInAnonymously(a)).user;
+    
+    
+    
+    
+    const signed = a.currentUser
+      ? { user: a.currentUser }
+      : await withDeadline(auth.signInAnonymously(a), SIGN_IN_TIMEOUT_MS, null);
+    const user = signed?.user ?? null;
     _state = { app, auth, store, a, db: store.getFirestore(app), uid: user?.uid ?? null };
     if (!_state.uid) _state = false;
   } catch (_) {
@@ -175,8 +216,10 @@ export async function pullProfile() {
   const s = await ready();
   if (!s) return null;
   try {
-    const snap = await s.store.getDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid));
-    if (!snap.exists()) return null;
+    const snap = await withDeadline(
+      s.store.getDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid)), WRITE_TIMEOUT_MS, null,
+    );
+    if (!snap || !snap.exists()) return null;
     const data = snap.data();
     let raw = data;
     if (SAVE_SYNC_ENABLED) {
@@ -230,8 +273,12 @@ export async function pushProfile(profile, records = null) {
     
     
     
-    await s.store.setDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid),
-      { ...dto, updatedAt: s.store.serverTimestamp() });
+    const ok = await withDeadline(
+      s.store.setDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid),
+        { ...dto, updatedAt: s.store.serverTimestamp() }).then(() => true),
+      WRITE_TIMEOUT_MS, false,
+    );
+    if (!ok) return false;
     if (SAVE_SYNC_ENABLED) {
       const save = toSaveDto(profile, records);
       

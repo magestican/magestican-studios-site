@@ -46,7 +46,13 @@ export { LEADERBOARD_CONFIG as ACCOUNT_CONFIG, isConfigured } from '../stats/lea
 
 
 
-export const ACCOUNTS_ENABLED = false;
+
+
+
+
+
+
+export const ACCOUNTS_ENABLED = true;
 
 
 
