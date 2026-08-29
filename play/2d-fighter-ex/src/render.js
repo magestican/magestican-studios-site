@@ -17,6 +17,58 @@ import { worldOf } from './worlds.js';
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let makeFighter3d = null;
+let fighter3d = null;
+
+
+
+
+
+
+
+
+
+export function setFighter3dFactory(fn) {
+  makeFighter3d = fn;
+  fighter3d = null;
+}
+
+
+
+
+function fighters3d() {
+  if (!makeFighter3d) return { ok: false };
+  if (fighter3d === null) {
+    fighter3d = makeFighter3d({ width: CANVAS.width, height: CANVAS.height });
+  }
+  return fighter3d;
+}
+
+
+
 const worldTrain = (world) => {
   const w = worldOf(world);
   return w ? w.train : true;
@@ -237,26 +289,53 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   
   
   layer('ghost');
-  for (const [spec, atlas] of [[pose.a, sprites.light], [pose.b, sprites.dark]]) {
-    if (!spec || !spec.ghosts) continue;
-    
-    for (let k = spec.ghosts.length - 1; k >= 0; k -= 1) {
-      drawSprite(spec.ghosts[k], atlas, spec.ghosts[k].alpha);
+  const three = fighters3d();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (!three.ok) {
+    for (const [spec, atlas] of [[pose.a, sprites.light], [pose.b, sprites.dark]]) {
+      if (!spec || !spec.ghosts) continue;
+      
+      for (let k = spec.ghosts.length - 1; k >= 0; k -= 1) {
+        drawSprite(spec.ghosts[k], atlas, spec.ghosts[k].alpha);
+      }
     }
   }
 
   layer('fighters');
-  
-  const pair = [
-    [pose.a, sprites.light, 0],
-    [pose.b, sprites.dark, 1],
-  ].filter(([s]) => s);
-  pair.sort((p, q) => {
-    const dh = (p[0].feet - p[0].top) - (q[0].feet - q[0].top);
-    return Math.abs(dh) > 0.5 ? dh : p[2] - q[2];
-  });
-  for (const [spec, atlas] of pair) {
-    drawSprite(spec, atlas);
+  if (three.ok) {
+    
+    
+    
+    
+    
+    
+    
+    three.draw(pose, {
+      a: (pose.cast && pose.cast.a) || 'renji',
+      b: (pose.cast && pose.cast.b) || 'kira',
+    });
+    ctx.drawImage(three.canvas, 0, 0);
+  } else if (sprites.light || sprites.dark) {
+    
+    
+    
+    const pair = [
+      [pose.a, sprites.light, 0],
+      [pose.b, sprites.dark, 1],
+    ].filter(([s]) => s);
+    pair.sort((p, q) => {
+      const dh = (p[0].feet - p[0].top) - (q[0].feet - q[0].top);
+      return Math.abs(dh) > 0.5 ? dh : p[2] - q[2];
+    });
+    for (const [spec, atlas] of pair) drawSprite(spec, atlas);
   }
 
   

@@ -48,13 +48,24 @@
 
 import { ACCOUNT_CONFIG, ACCOUNTS_ENABLED, PROFILE_COLLECTION, isConfigured } from './accountConfig.js';
 import { toCloudDto, fromCloudDto, isSyncable, extraFields } from './profileDto.js';
-
-
-
-
-const SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
+import { SAVE_SYNC_ENABLED, toSaveDto, isSyncableSave, extraSaveFields } from './gameSave.js';
 
 let _state = null;      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -72,10 +83,10 @@ async function ready() {
   if (!ACCOUNTS_ENABLED || !isConfigured(ACCOUNT_CONFIG)) { _state = false; return _state; }
   try {
     const [core, appCheck, auth, store] = await Promise.all([
-      import( `${SDK}firebase-app.js`),
-      import( `${SDK}firebase-app-check.js`),
-      import( `${SDK}firebase-auth.js`),
-      import( `${SDK}firebase-firestore.js`),
+      import('../vendor/firebase/firebase-app.js'),
+      import('../vendor/firebase/firebase-app-check.js'),
+      import('../vendor/firebase/firebase-auth.js'),
+      import('../vendor/firebase/firebase-firestore-lite.js'),
     ]);
     const cfg = ACCOUNT_CONFIG;
     const existing = core.getApps();
@@ -133,16 +144,25 @@ export function isSyncEnabled() {
 
 
 
+
+
+
+
+
+
+
+
 export async function pullProfile() {
   const s = await ready();
   if (!s) return null;
   try {
     const snap = await s.store.getDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid));
     if (!snap.exists()) return null;
+    const data = snap.data();
     
     
     
-    return fromCloudDto(snap.data());
+    return { profile: fromCloudDto(data), raw: data };
   } catch (_) {
     return null;
   }
@@ -156,17 +176,29 @@ export async function pullProfile() {
 
 
 
-export async function pushProfile(profile) {
+
+
+
+
+
+
+export async function pushProfile(profile, records = null) {
   const s = await ready();
   if (!s) return false;
   const dto = toCloudDto(profile);
   if (!dto || !isSyncable(dto) || extraFields(dto).length) return false;
+  let payload = dto;
+  if (SAVE_SYNC_ENABLED) {
+    const save = toSaveDto(profile, records);
+    if (!isSyncableSave(save) || extraSaveFields(save).length) return false;
+    payload = { ...dto, ...save };
+  }
   try {
     
     
     
     
-    await s.store.setDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid), dto);
+    await s.store.setDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid), payload);
     return true;
   } catch (_) {
     
@@ -186,9 +218,21 @@ export async function pushProfile(profile) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 export async function linkGoogle() {
   const s = await ready();
-  if (!s) return { ok: false, reason: 'unavailable', mergeNeeded: false };
+  if (!s) return { ok: false, reason: 'unavailable', mergeNeeded: false, credential: null };
   try {
     const provider = new s.auth.GoogleAuthProvider();
     
@@ -196,18 +240,59 @@ export async function linkGoogle() {
     
     
     await s.auth.linkWithPopup(s.a.currentUser, provider);
-    return { ok: true, reason: null, mergeNeeded: false };
+    return { ok: true, reason: null, mergeNeeded: false, credential: null };
   } catch (err) {
     const code = err?.code ?? '';
     if (code === 'auth/credential-already-in-use'
         || code === 'auth/email-already-in-use'
         || code === 'auth/account-exists-with-different-credential') {
-      return { ok: false, reason: 'already-in-use', mergeNeeded: true };
+      let credential = null;
+      
+      
+      
+      try { credential = s.auth.GoogleAuthProvider.credentialFromError(err) ?? null; } catch (_) {}
+      return { ok: false, reason: 'already-in-use', mergeNeeded: true, credential };
     }
     if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-      return { ok: false, reason: 'cancelled', mergeNeeded: false };
+      return { ok: false, reason: 'cancelled', mergeNeeded: false, credential: null };
     }
-    return { ok: false, reason: 'failed', mergeNeeded: false };
+    return { ok: false, reason: 'failed', mergeNeeded: false, credential: null };
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function adoptCredential(credential) {
+  const s = await ready();
+  if (!s || !credential) return false;
+  try {
+    const res = await s.auth.signInWithCredential(s.a, credential);
+    const uid = res?.user?.uid ?? s.a.currentUser?.uid ?? null;
+    if (!uid) return false;
+    
+    
+    
+    _state = { ..._state, uid };
+    return true;
+  } catch (_) {
+    return false;
   }
 }
 

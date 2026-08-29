@@ -13,8 +13,53 @@ import { WORLD_IDS } from './worlds.js';
 import { CAST, CAST_IDS, DEFAULT_A, DEFAULT_B, atlasFile, castId } from './cast.js';
 import { cursorAt, stateAt, totalMs, sceneAt } from './fightPlayback.js';
 import { FPS } from './fightScript.js';
-import { renderFrame } from './render.js';
+import { renderFrame, setFighter3dFactory } from './render.js';
 import { installAudio } from './audio.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const FIGHTER_3D_TIMEOUT_MS = 5000;
+const loaded = await Promise.race([
+  import('./ps1/fighter3d.js').catch((err) => ({ err })),
+  new Promise((done) => { setTimeout(() => done({ err: new Error('timed out') }), FIGHTER_3D_TIMEOUT_MS); }),
+]);
+if (loaded && loaded.createFighter3d) {
+  setFighter3dFactory(loaded.createFighter3d);
+} else {
+  
+  
+  console.warn('[fighter-ex] 3D fighters unavailable, drawing baked sprites instead',
+    loaded && loaded.err);
+}
 
 initAnalytics({ page: '2d-fighter-ex' });
 
@@ -217,7 +262,8 @@ function tick(now) {
     const k = pose.index * 2.3994;
     ctx.translate(Math.sin(k) * 5 * shake, Math.cos(k * 1.7) * 4 * shake);
   }
-  renderFrame(ctx, cells, pose, moodNow, { season, world, timeMs: elapsed, fx: fxOn });
+  renderFrame(ctx, cells, { ...pose, cast: { a: castA, b: castB } }, moodNow,
+    { season, world, timeMs: elapsed, fx: fxOn });
   ctx.restore();
 
   const total = totalMs();
@@ -301,7 +347,8 @@ paintAccount(true);
 
 
 
-renderFrame(ctx, cells, { ...stateAt(0), sprites }, moodNow, { season, world, timeMs: 0, fx: fxOn });
+renderFrame(ctx, cells, { ...stateAt(0), sprites, cast: { a: castA, b: castB } }, moodNow,
+  { season, world, timeMs: 0, fx: fxOn });
 
 requestAnimationFrame(tick);
 

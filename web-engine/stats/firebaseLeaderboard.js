@@ -24,11 +24,40 @@ import {
 } from './leaderboardConfig.js';
 import { toPublicDto, fromPublicDto, isPublishable, playerKey } from './leaderboardDto.js';
 
-
-
-const SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
-
 let _state = null;      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -37,9 +66,9 @@ async function ready(cfg = LEADERBOARD_CONFIG) {
   if (!isConfigured(cfg)) { _state = false; return _state; }
   try {
     const [{ initializeApp }, appCheck, store] = await Promise.all([
-      import( `${SDK}firebase-app.js`),
-      import( `${SDK}firebase-app-check.js`),
-      import( `${SDK}firebase-firestore.js`),
+      import('../vendor/firebase/firebase-app.js'),
+      import('../vendor/firebase/firebase-app-check.js'),
+      import('../vendor/firebase/firebase-firestore-lite.js'),
     ]);
     const app = initializeApp({
       apiKey: cfg.apiKey, authDomain: cfg.authDomain,

@@ -11,9 +11,25 @@
 
 
 
-import { CHARACTERS } from 'arbelo/kartTuning';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { CHARACTERS, characterById } from 'arbelo/kartTuning';
 import { LOBBY_PHASE, FIELD_SIZES, LAP_OPTIONS, botCount, canStart } from 'arbelo/kartLobby';
 import { hex } from '../palette.js';
+import { createShowcaseView } from '../render/showcase.js';
+import { driverPanelHtml } from './driverPanel.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -33,19 +49,110 @@ export function createLobbyUi({ tracks, difficulties, onClaim, onReady, onSettin
   buildChips($('lobby-lap-row'), LAP_OPTIONS.map((n) => ({ id: String(n), label: `${n} laps` })), (id) => onSettings({ laps: Number(id) }));
   buildChips($('lobby-field-row'), FIELD_SIZES.map((n) => ({ id: String(n), label: `${n} karts` })), (id) => onSettings({ fieldSize: Number(id) }));
 
-  const chars = $('lobby-chars');
-  chars.innerHTML = '';
+  
+  const claims = $('lobby-claims');
+  claims.innerHTML = '';
   for (const c of CHARACTERS) {
     const el = document.createElement('button');
-    el.className = 'char-card';
+    el.className = 'claim-chip';
+    el.type = 'button';
     el.dataset.id = c.id;
-    el.innerHTML = `
-      <span class="char-swatch" style="background:${hex(c.tint)}"></span>
-      <span class="char-name">${c.name}</span>
-      <span class="char-species">${c.species}</span>
-      <span class="char-holder"></span>`;
-    el.addEventListener('click', () => onClaim(c.id));
-    chars.appendChild(el);
+    el.innerHTML = `<span class="claim-dot" style="background:${hex(c.tint)}"></span>
+      <span class="claim-name">${c.name}</span>
+      <span class="claim-holder"></span>`;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    el.addEventListener('click', () => {
+      stage?.select(c.id);
+      if (!heldByOther.has(c.id)) onClaim(c.id);
+      paintShown();
+    });
+    claims.appendChild(el);
+  }
+
+  
+  
+  
+  
+  let stage = null;
+
+  
+  
+  
+  
+  let quiet = false;
+
+  
+  
+  let heldByOther = new Set();
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let room = null;
+  let seat = null;
+
+  function paintShown() {
+    if (!room) return;
+    const byCharacter = new Map(room.players.map((p) => [p.characterId, p]));
+    const held = room.players.find((p) => p.peerId === seat) ?? null;
+    const showingId = (stage && stage.selected()) ?? held?.characterId ?? null;
+    const shown = characterById(showingId) ?? CHARACTERS[0];
+
+    $('lobby-char-info').innerHTML = driverPanelHtml(shown);
+
+    const flag = $('lobby-taken-flag');
+    const holder = byCharacter.get(shown.id) ?? null;
+    const isShownMine = !!holder && holder.peerId === seat;
+    flag.hidden = false;
+    flag.className = isShownMine ? 'stage-flag yours' : 'stage-flag';
+    flag.textContent = isShownMine
+      ? 'Your driver'
+      : holder
+        ? `${escapeText(holder.name)} has ${shown.name}`
+        : `Spin here to take ${shown.name}`;
+
+    for (const el of claims.children) {
+      el.classList.toggle('showing', el.dataset.id === shown.id);
+    }
+  }
+
+  function ensureStage() {
+    if (stage) return;
+    const canvas = $('lobby-canvas');
+    if (!canvas) return;
+    stage = createShowcaseView({
+      canvas,
+      ids: CHARACTERS.map((c) => c.id),
+      selected: null,
+      onSelect: (id) => {
+        if (quiet) return;
+        
+        
+        
+        
+        if (!heldByOther.has(id)) onClaim(id);
+        paintShown();
+      },
+    });
+    $('lobby-prev').addEventListener('click', () => stage.nudge(-1));
+    $('lobby-next').addEventListener('click', () => stage.nudge(+1));
   }
 
   $('lobby-start').addEventListener('click', () => onStart());
@@ -73,6 +180,7 @@ export function createLobbyUi({ tracks, difficulties, onClaim, onReady, onSettin
 
 
     render(lobby, view) {
+      ensureStage();
       const me = lobby.players.find((p) => p.peerId === view.myId) ?? null;
       const byCharacter = new Map(lobby.players.map((p) => [p.characterId, p]));
 
@@ -80,18 +188,44 @@ export function createLobbyUi({ tracks, difficulties, onClaim, onReady, onSettin
       $('lobby-share').style.display = view.isHost ? '' : 'none';
       $('lobby-heading').textContent = view.isHost ? 'your room' : 'joining';
 
+      heldByOther = new Set(lobby.players
+        .filter((p) => p.peerId !== view.myId && p.characterId)
+        .map((p) => p.characterId));
+
       
-      for (const el of chars.children) {
-        const holder = byCharacter.get(el.dataset.id) ?? null;
-        const isMine = holder && holder.peerId === view.myId;
-        el.classList.toggle('on', !!isMine);
-        el.classList.toggle('taken', !!holder && !isMine);
-        el.querySelector('.char-holder').textContent = holder
-          ? (isMine ? 'you' : holder.name)
-          : '';
+      
+      
+      
+      
+      
+      
+      if (stage && me?.characterId) {
+        const at = stage.selected();
+        if (at == null || heldByOther.has(at)) {
+          quiet = true;
+          stage.select(me.characterId);
+          quiet = false;
+        }
+      }
+
+      
+      
+      
+      room = lobby;
+      seat = view.myId;
+      paintShown();
+
+      
+      for (const el of claims.children) {
+        const h = byCharacter.get(el.dataset.id) ?? null;
+        const isMine = !!h && h.peerId === view.myId;
+        el.classList.toggle('on', isMine);
+        el.classList.toggle('taken', !!h && !isMine);
+        el.querySelector('.claim-holder').textContent = h ? (isMine ? 'you' : h.name) : '';
         
         
-        el.setAttribute('aria-pressed', String(!!isMine));
+        
+        el.setAttribute('aria-pressed', String(isMine));
       }
 
       
@@ -133,6 +267,15 @@ export function createLobbyUi({ tracks, difficulties, onClaim, onReady, onSettin
 
       $('lobby-status').textContent = view.note ?? statusFor(lobby, view);
     },
+
+    
+    
+    
+    
+    dispose() {
+      stage?.dispose();
+      stage = null;
+    },
   };
 }
 
@@ -145,7 +288,7 @@ function statusFor(lobby, view) {
       ? 'Everyone is ready.'
       : 'Nobody has joined yet. You can race the bots now, or send the link and wait.';
   }
-  return 'Pick a driver, then say you are ready. The host starts the race.';
+  return 'Spin to a driver, then say you are ready. The host starts the race.';
 }
 
 function buildChips(root, options, onPick) {
@@ -169,3 +312,12 @@ const mark = (root, id) => {
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 }[c]));
+
+
+
+
+
+const escapeText = (s) => {
+  const t = String(s ?? '');
+  return t.length > 24 ? `${t.slice(0, 23)}\u2026` : t;
+};

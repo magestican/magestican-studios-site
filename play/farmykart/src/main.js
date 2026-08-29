@@ -7,7 +7,7 @@
 
 
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
-import { CHARACTERS, characterById, statBars, DEFAULT_CHARACTER } from 'arbelo/kartTuning';
+import { CHARACTERS, characterById, DEFAULT_CHARACTER } from 'arbelo/kartTuning';
 import { DIFFICULTIES, DEFAULT_DIFFICULTY } from 'arbelo/kartAi';
 import { formatTime, ordinal } from 'arbelo/raceProgress';
 import {
@@ -29,6 +29,7 @@ import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderbo
 
 import { recordSession, syncFromCloud } from '../../../web-engine/account/account.js';
 import { sessionLines } from '../../../web-engine/account/accountBadge.js';
+import { mountProfilePanel } from '../../../web-engine/account/accountUi.js';
 import { startVersionChecker } from 'arbelo/updater';
 import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
@@ -42,6 +43,7 @@ import { TRACKS, DEFAULT_TRACK } from './tracks/tracks.js';
 import { createRace } from './game.js';
 import { createSession, joinIdFromLocation, shareLinkFor } from './net/session.js';
 import { createLobbyUi } from './ui/lobby.js';
+import { driverPanelHtml } from './ui/driverPanel.js';
 import { drawItemIcon } from './render/itemMesh.js';
 import { hex, PALETTE } from './palette.js';
 import { isTouchDevice } from './input/controls.js';
@@ -358,6 +360,10 @@ function leaveRoom() {
   if (state.race) { state.race.dispose(); state.race = null; }
   state.session?.destroy();
   state.session = null;
+  
+  
+  
+  state.lobbyUi?.dispose();
   hide('lobby');
   hide('hud');
   
@@ -426,24 +432,10 @@ function syncCharacterInfo() {
   const root = $('char-info');
   if (!root) return;
   const c = characterById(state.character) ?? CHARACTERS[0];
-  const bars = statBars(c);
-  root.innerHTML = `
-    <div>
-      <span class="char-swatch" style="background:${hex(c.tint)}"></span>
-      <span class="char-name">${c.name}</span>
-      <span class="char-species">${c.species}</span>
-      <span class="char-blurb">${c.blurb}</span>
-    </div>
-    <span class="stats">
-      ${bar('Speed', bars.speed)}
-      ${bar('Accel', bars.accel)}
-      ${bar('Turn', bars.handling)}
-      ${bar('Grip', bars.grip)}
-      ${bar('Weight', bars.weight)}
-    </span>`;
+  
+  
+  root.innerHTML = driverPanelHtml(c);
 }
-
-const bar = (label, v) => `<span class="stat"><i>${label}</i><b><u style="width:${Math.round(Math.max(0.06, v) * 100)}%"></u></b></span>`;
 
 function buildTrackGrid() {
   const root = $('track-grid');
@@ -1057,7 +1049,24 @@ function syncMuteButton() {
   b.setAttribute('aria-pressed', String(state.muted));
 }
 
-const show = (id) => $(id)?.classList.add('show');
+
+
+
+
+
+
+
+
+
+function refreshAccountPanel() {
+  const host = $('account-panel');
+  if (host) mountProfilePanel(host);
+}
+
+const show = (id) => {
+  $(id)?.classList.add('show');
+  if (id === 'menu') refreshAccountPanel();
+};
 const hide = (id) => $(id)?.classList.remove('show');
 
 
