@@ -125,8 +125,22 @@ export function trailAt(ticks, index, side, rate) {
 
 const HIT_HOLD = 10;        
 const WORD_HOLD = 16;       
-const WORD_GAP = 45;        
-const WORD_POWER = 0.9;     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const WORD_GAP = 24;        
+const WORD_POWER = 0.75;    
 
 let wordTrack = null;
 function words() {

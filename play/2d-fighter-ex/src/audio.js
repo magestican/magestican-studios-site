@@ -983,10 +983,35 @@ export function setCharge(audio, level) {
 
 const SCALE = [0, 3, 5, 7, 10];    
 
+
+
+
+
+
+
+
+
+
+
+
+const MUSIC_LEVEL = 0.62;
+
+
+
+
+
+
+
+
+
+
+
+const PROGRESSION = [0, 8, 3, 10];
+
 const MUSIC = Object.freeze({
-  feudal: { root: 55.00, bpm: 96, wave: 'triangle', arp: 0.0, drum: 'taiko', lead: 'fifth' },
-  neon: { root: 65.41, bpm: 132, wave: 'sawtooth', arp: 1.0, drum: 'machine', lead: 'saw' },
-  waste: { root: 49.00, bpm: 78, wave: 'square', arp: 0.35, drum: 'sparse', lead: 'detuned' },
+  feudal: { root: 55.00, bpm: 96, wave: 'triangle', arp: 0.0, drum: 'taiko', lead: 'fifth', pad: 'triangle' },
+  neon: { root: 65.41, bpm: 132, wave: 'sawtooth', arp: 1.0, drum: 'machine', lead: 'saw', pad: 'sawtooth' },
+  waste: { root: 49.00, bpm: 78, wave: 'square', arp: 0.35, drum: 'sparse', lead: 'detuned', pad: 'triangle' },
 });
 
 
@@ -995,8 +1020,9 @@ export function musicFor(world) {
 }
 
 
-function drumAt(audio, when, { freq, drop, dur, level, noiseLevel }) {
-  const { ctx, bus } = audio;
+function drumAt(audio, out, when, { freq, drop, dur, level, noiseLevel }) {
+  const { ctx } = audio;
+  const bus = out;
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
   osc.type = 'sine';
@@ -1025,8 +1051,9 @@ function drumAt(audio, when, { freq, drop, dur, level, noiseLevel }) {
 }
 
 
-function noteAt(audio, when, freq, dur, level, type) {
-  const { ctx, bus } = audio;
+function noteAt(audio, out, when, freq, dur, level, type) {
+  const { ctx } = audio;
+  const bus = out;
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
   const lp = ctx.createBiquadFilter();
@@ -1060,41 +1087,78 @@ export function createMusic(audio) {
   const LOOKAHEAD = 0.12;
   const TICK_MS = 25;
 
+  
+  
+  
+  let out = null;
+  function output() {
+    if (!audio.ctx || !audio.bus) return null;
+    if (!out) {
+      out = audio.ctx.createGain();
+      out.gain.value = MUSIC_LEVEL;
+      out.connect(audio.bus);
+    }
+    return out;
+  }
+
   function schedule() {
     if (!audio.ctx || audio.muted) return;
+    const bed = output();
+    if (!bed) return;
     const cfg = musicFor(world);
     const beat = 60 / cfg.bpm / 2;              
     if (next < audio.ctx.currentTime) next = audio.ctx.currentTime + 0.05;
     while (next < audio.ctx.currentTime + LOOKAHEAD) {
       const bar = Math.floor(step / 8) % 4;
       const s = step % 8;
-      const lift = 0.55 + 0.45 * intensity;
+      const lift = 0.62 + 0.38 * intensity;
+
+      
+      
+      const chord = cfg.root * (2 ** (PROGRESSION[bar] / 12));
 
       
       if (cfg.drum === 'taiko') {
         if (s === 0 || s === 3 || s === 6) {
-          drumAt(audio, next, { freq: 110, drop: 0.32, dur: 0.30, level: 0.34 * lift, noiseLevel: 0.02 });
+          drumAt(audio, bed, next, { freq: 110, drop: 0.32, dur: 0.30, level: 0.52 * lift, noiseLevel: 0.03 });
+        }
+        
+        if (s === 2 || s === 7) {
+          drumAt(audio, bed, next, { freq: 320, drop: 0.6, dur: 0.09, level: 0.10 * lift, noiseLevel: 0.10 * lift });
         }
       } else if (cfg.drum === 'machine') {
-        if (s % 2 === 0) drumAt(audio, next, { freq: 130, drop: 0.28, dur: 0.16, level: 0.30 * lift, noiseLevel: 0 });
-        if (s === 4) drumAt(audio, next, { freq: 220, drop: 0.5, dur: 0.14, level: 0.12 * lift, noiseLevel: 0.14 * lift });
-      } else if (s === 0 || (s === 5 && bar % 2 === 1)) {
-        drumAt(audio, next, { freq: 84, drop: 0.35, dur: 0.42, level: 0.30 * lift, noiseLevel: 0.03 });
+        if (s % 2 === 0) drumAt(audio, bed, next, { freq: 130, drop: 0.28, dur: 0.16, level: 0.46 * lift, noiseLevel: 0 });
+        if (s === 4) drumAt(audio, bed, next, { freq: 220, drop: 0.5, dur: 0.14, level: 0.20 * lift, noiseLevel: 0.22 * lift });
+        if (s % 2 === 1) drumAt(audio, bed, next, { freq: 900, drop: 0.9, dur: 0.05, level: 0.03, noiseLevel: 0.07 * lift });
+      } else {
+        if (s === 0 || (s === 5 && bar % 2 === 1)) {
+          drumAt(audio, bed, next, { freq: 84, drop: 0.35, dur: 0.42, level: 0.48 * lift, noiseLevel: 0.05 });
+        }
+        if (s === 4) drumAt(audio, bed, next, { freq: 260, drop: 0.7, dur: 0.11, level: 0.09 * lift, noiseLevel: 0.13 * lift });
       }
 
       
-      const degree = SCALE[(bar * 2 + (s === 4 ? 2 : 0)) % SCALE.length];
-      const root = cfg.root * (2 ** (degree / 12));
-      if (s === 0 || s === 4 || (cfg.arp > 0.5 && s % 2 === 0)) {
-        noteAt(audio, next, root, beat * (cfg.arp > 0.5 ? 1.1 : 2.2), 0.16 * lift, cfg.wave);
+      const passing = SCALE[(bar * 2 + (s === 6 ? 3 : 0)) % SCALE.length];
+      const bassHz = s === 6 ? chord * (2 ** (passing / 12)) : chord;
+      if (s === 0 || s === 4 || s === 6 || (cfg.arp > 0.5 && s % 2 === 0)) {
+        noteAt(audio, bed, next, bassHz, beat * (cfg.arp > 0.5 ? 1.1 : 1.9), 0.30 * lift, cfg.wave);
       }
 
       
       
-      if (intensity > 0.35 && (s === 2 || s === 6)) {
-        const up = root * (cfg.lead === 'fifth' ? 3 : 4);
-        noteAt(audio, next, up, beat * 1.6, 0.05 * intensity, cfg.lead === 'saw' ? 'sawtooth' : 'triangle');
-        if (cfg.lead === 'detuned') noteAt(audio, next, up * 1.006, beat * 1.6, 0.04 * intensity, 'triangle');
+      
+      
+      if (s === 0) {
+        noteAt(audio, bed, next, chord * 2, beat * 7.4, 0.085 * lift, cfg.pad);
+        noteAt(audio, bed, next, chord * 3, beat * 7.4, 0.055 * lift, cfg.pad);
+      }
+
+      
+      
+      if (intensity > 0.3 && (s === 2 || s === 6)) {
+        const up = chord * (cfg.lead === 'fifth' ? 3 : 4);
+        noteAt(audio, bed, next, up, beat * 1.6, 0.11 * intensity, cfg.lead === 'saw' ? 'sawtooth' : 'triangle');
+        if (cfg.lead === 'detuned') noteAt(audio, bed, next, up * 1.006, beat * 1.6, 0.08 * intensity, 'triangle');
       }
 
       next += beat;

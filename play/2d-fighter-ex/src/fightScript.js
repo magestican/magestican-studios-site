@@ -1303,19 +1303,38 @@ function sceneApproach(f) {
   
   
   
-  f.push(90, (i) => {
-    const { stepping, u } = stride(i, 90);
+  
+  
+  
+  
+  
+  
+  
+  
+  const WALK = 60;
+  const line0 = OPENING[0];
+  
+  
+  
+  
+  const SAY_FROM = WALK - line0.ticks;
+  f.push(WALK, (i) => {
+    const { stepping, u } = stride(i, WALK);
     const e = easeInOut(u);
     
     const fade = i < 24 ? 1 - i / 24 : 0;
     const lx = lerp(START_L, LEFT_HOME - 18, e);
     const rx = lerp(START_R, RIGHT_HOME + 18, e);
     const step = stepping ? 'step-in' : 'idle';
-    return { a: st(step, lx, 0, 1), b: st(step, rx, 0, -1), fade };
+    const row = { a: st(step, lx, 0, 1), b: st(step, rx, 0, -1), fade };
+    if (i >= SAY_FROM) {
+      row.say = { who: line0.who, text: line0.text, i: i - SAY_FROM, n: line0.ticks };
+    }
+    return row;
   });
   
-  f.push(22, (i) => {
-    const { stepping, u } = stride(i, 22);
+  f.push(14, (i) => {
+    const { stepping, u } = stride(i, 14);
     const e = easeIn(u);
     const p = stepping ? 'step-in' : 'guard';
     return {
@@ -1323,6 +1342,86 @@ function sceneApproach(f) {
       b: st(p, lerp(RIGHT_HOME + 18, RIGHT_HOME, e), 0, -1),
     };
   });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function sceneOpening(f) {
+  f.mark('opening');
+  const CLOSE = 16;
+
+  const lx = LEFT_HOME;
+  const rx = RIGHT_HOME;
+
+  
+  
+  const CLASH = [['guard', 2], ['jab-mid', 2], ['jab', 3], ['jab-mid', 2]];
+  const seq = [];
+  for (const [pose, hold] of CLASH) for (let k = 0; k < hold; k += 1) seq.push(pose);
+  f.push(seq.length, (i) => {
+    const pose = seq[i];
+    
+    
+    
+    const lean = pose === 'jab-mid' ? 9 : pose === 'jab' ? 14 : 0;
+    const row = {
+      a: st(pose, lx + lean, 0, 1),
+      b: st(pose, rx - lean, 0, -1),
+    };
+    
+    
+    
+    if (i === 4) row.hit = { x: (lx + rx) / 2, power: 0.8 };
+    return row;
+  });
+
+  
+  f.push(10, (i) => {
+    const { stepping, u } = stride(i, 10);
+    const e = easeOut(u);
+    const p = stepping ? 'step-back' : 'guard';
+    return {
+      a: st(p, lerp(lx + 14, LEFT_HOME, e), 0, 1),
+      b: st(p, lerp(rx - 14, RIGHT_HOME, e), 0, -1),
+    };
+  });
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  for (const line of OPENING.slice(1)) {
+    f.push(line.ticks, (i) => ({
+      a: st(line.who === 'a' ? 'talk' : 'guard', LEFT_HOME, 0, 1),
+      b: st(line.who === 'b' ? 'talk' : 'guard', RIGHT_HOME, 0, -1),
+      say: { who: line.who, text: line.text, i, n: line.ticks },
+    }));
+  }
 }
 
 
@@ -1560,6 +1659,27 @@ function sceneJump(f, { attacker = 'b', pose = 'air-kick', connects = true } = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const OPENING = [
+  { who: 'b', text: 'You again.', ticks: 40 },
+  { who: 'a', text: 'Me again.', ticks: 34 },
+];
 
 export const DIALOGUE = [
   { who: 'a', text: 'Not bad, kid.', ticks: 34 },
@@ -1901,6 +2021,7 @@ export function buildFight() {
   
   
   sceneApproach(f);
+  sceneOpening(f);
   sceneFeelOut(f);
   sceneFlurry(f, { seedTag: 'flurry-1', count: 60 });
   

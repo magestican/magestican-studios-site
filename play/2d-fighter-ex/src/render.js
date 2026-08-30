@@ -591,16 +591,30 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   
   
   
-  layer('speech');
-  if (pose.say) {
-    const speaker = pose.say.who === 'a' ? pose.a : pose.b;
-    drawBubble(ctx, speaker, pose.say);
-  }
+  ctx.restore();
 
   
   
   
-  ctx.restore();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  layer('speech');
+  if (pose.say) {
+    const speaker = pose.say.who === 'a' ? pose.a : pose.b;
+    if (speaker) {
+      const head = projectPoint(shot, speaker.cx, speaker.top, width);
+      const feet = projectPoint(shot, speaker.cx, speaker.feet, width);
+      drawBubble(ctx, { ...speaker, cx: head.x, top: head.y, feet: feet.y }, pose.say);
+    }
+  }
 
   
   
