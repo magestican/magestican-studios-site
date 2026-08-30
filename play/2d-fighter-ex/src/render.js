@@ -103,8 +103,24 @@ const MOOD_FILTERS = {
 
 
 
-const CAM_MAX_ZOOM = 1.95;
+
+
+
+
+const CAM_BASE_ZOOM = 1.32;
+
+
+const CAM_MAX_ZOOM = 1.86;
 const CAM_MIN_ZOOM = 1.0;
+
+
+const CAM_PUSH = 0.85;
+
+const CAM_FOCUS_BIAS = 0.55;
+
+
+
+const CAM_ROLL = 0.035;
 
 
 const CAM_MARGIN_X = 78;
@@ -118,7 +134,7 @@ const CAM_MARGIN_TOP = 16;
 
 export function fightCamera(pose, width) {
   const both = [pose.a, pose.b].filter(Boolean);
-  if (!both.length) return { zoom: 1, cx: width / 2 };
+  if (!both.length) return { zoom: 1, cx: width / 2, roll: 0 };
 
   let lo = Infinity; let hi = -Infinity; let top = Infinity;
   for (const s of both) {
@@ -126,21 +142,98 @@ export function fightCamera(pose, width) {
     hi = Math.max(hi, s.cx);
     top = Math.min(top, s.top);
   }
-  lo -= CAM_MARGIN_X;
-  hi += CAM_MARGIN_X;
+  const loEdge = lo - CAM_MARGIN_X;
+  const hiEdge = hi + CAM_MARGIN_X;
 
   
   
-  const zoomX = width / Math.max(1, hi - lo);
+  
+  
+  const zoomX = width / Math.max(1, hiEdge - loEdge);
   const headroom = GROUND_Y - top;
   const zoomY = headroom > 0 ? (GROUND_Y - CAM_MARGIN_TOP) / headroom : CAM_MAX_ZOOM;
-  const zoom = Math.max(CAM_MIN_ZOOM, Math.min(CAM_MAX_ZOOM, zoomX, zoomY));
+  const fit = Math.min(zoomX, zoomY);
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let drama = 0;
+  let focus = (lo + hi) / 2;
+  if (pose.hit) {
+    const heavy = (pose.hit.power || 1) >= 0.9 ? 1 : 0.5;
+    drama = Math.max(drama, heavy * (1 - (pose.hit.age || 0)) ** 1.3);
+    focus = pose.hit.x;
+  }
+  if (pose.say) {
+    
+    
+    
+    const who = pose.say.who === 'a' ? pose.a : pose.say.who === 'b' ? pose.b : null;
+    drama = Math.max(drama, 0.45);
+    if (who) focus = who.cx;
+  }
+  if (pose.charge && pose.charge.level > 0.2) {
+    drama = Math.max(drama, 0.30 + 0.45 * pose.charge.level);
+  }
+
+  
+  
+  
+  
+  
+  const base = Math.min(CAM_BASE_ZOOM, fit);
+  const wanted = base + (Math.min(CAM_MAX_ZOOM, fit) - base) * CAM_PUSH * drama;
+  const zoom = Math.max(CAM_MIN_ZOOM, Math.min(CAM_MAX_ZOOM, fit, wanted));
+
+  
   
   
   const half = width / (2 * zoom);
-  const cx = Math.max(half, Math.min(width - half, (lo + hi) / 2));
-  return { zoom, cx };
+  const mid = (lo + hi) / 2;
+  let cx = mid + (focus - mid) * CAM_FOCUS_BIAS * drama;
+  const mustBeAbove = hiEdge - half;
+  const mustBeBelow = loEdge + half;
+  if (mustBeAbove <= mustBeBelow) cx = Math.max(mustBeAbove, Math.min(mustBeBelow, cx));
+  else cx = mid;
+  cx = Math.max(half, Math.min(width - half, cx));
+
+  
+  
+  
+  const roll = pose.hit
+    ? CAM_ROLL * ((pose.hit.power || 1) >= 0.9 ? 1 : 0.45)
+      * (1 - (pose.hit.age || 0)) ** 1.6 * (pose.hit.x > mid ? 1 : -1)
+    : 0;
+
+  return { zoom, cx, roll };
+}
+
+
+
+
+
+
+
+
+
+export function projectPoint(shot, x, y, width) {
+  const dx = x - shot.cx;
+  const dy = y - GROUND_Y;
+  const c = Math.cos(shot.roll || 0);
+  const s = Math.sin(shot.roll || 0);
+  return {
+    x: width / 2 + (dx * c - dy * s) * shot.zoom,
+    y: GROUND_Y + (dx * s + dy * c) * shot.zoom,
+  };
 }
 
 
@@ -210,6 +303,7 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   ctx.save();
   ctx.translate(width / 2, GROUND_Y);
   ctx.scale(shot.zoom, shot.zoom);
+  if (shot.roll) ctx.rotate(shot.roll);
   ctx.translate(-shot.cx, -GROUND_Y);
 
   layer('sky');

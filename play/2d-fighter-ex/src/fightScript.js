@@ -1539,6 +1539,28 @@ function sceneJump(f, { attacker = 'b', pose = 'air-kick', connects = true } = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const DIALOGUE = [
   { who: 'a', text: 'Not bad, kid.', ticks: 34 },
   { who: 'b', text: 'You are slow.', ticks: 34 },
@@ -1546,6 +1568,10 @@ export const DIALOGUE = [
   
   
   { who: 'a', text: 'Slow?', ticks: 32 },
+  { who: 'b', text: 'You telegraph.', ticks: 36 },
+  { who: 'a', text: 'And yet.', ticks: 32 },
+  { who: 'b', text: 'And yet nothing.', ticks: 38 },
+  { who: 'a', text: 'Then stop talking.', ticks: 40 },
   { who: 'b', text: 'Show me.', ticks: 30 },
 ];
 

@@ -110,7 +110,7 @@ const TONE = (o) => ({ kind: 'tone', attack: 0.003, wave: 'sine', gain: 1, ...o 
 
 
 
-export function voiceFor(event, index, { power = 1, big = false, who = 'a' } = {}) {
+export function voiceFor(event, index, { power = 1, big = false, who = 'a', text = '' } = {}) {
   const i = index | 0;
   const p = Math.max(0, Math.min(1.6, power));
   const kind = (event === 'hit' && big) ? 'bigHit' : event;
@@ -312,15 +312,51 @@ export function voiceFor(event, index, { power = 1, big = false, who = 'a' } = {
       
       
       
-      const base = who === 'b' ? span(i, 71, 300, 380) : span(i, 71, 190, 250);
-      return {
-        event: 'say',
-        dur: 0.07,
-        gain: 0.13,
-        layers: [TONE({
-          wave: 'triangle', dur: 0.07, gain: 1, f0: base, f1: base * 0.86, attack: 0.006,
-        })],
-      };
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const line = String(text || '');
+      const question = line.trim().endsWith('?');
+      const n = Math.max(3, Math.min(9, Math.round(line.replace(/\s/g, '').length / 2.2) || 3));
+      const base = who === 'b' ? span(i, 71, 300, 372) : span(i, 71, 186, 244);
+      const layers = [];
+      let t = 0;
+      for (let k = 0; k < n; k += 1) {
+        const u = n > 1 ? k / (n - 1) : 0;
+        
+        const contour = question ? 1 + 0.42 * u * u : 1 - 0.30 * u;
+        const jitter = 0.86 + 0.28 * hash01(i * 13 + k, 41);
+        const f = base * contour * jitter;
+        const dur = 0.045 + 0.045 * hash01(i * 13 + k, 42);
+        layers.push(TONE({
+          wave: 'square',
+          dur,
+          delay: t,
+          gain: 0.72 + 0.28 * hash01(i * 13 + k, 43),
+          f0: f,
+          f1: f * (0.90 + 0.06 * hash01(i * 13 + k, 44)),
+          attack: 0.005,
+          filter: { type: 'bandpass', Q: 5.5, f0: f * 2.6, f1: f * 1.9 },
+        }));
+        t += dur + 0.028 + 0.05 * hash01(i * 13 + k, 45);
+      }
+      return { event: 'say', dur: t, gain: 0.16, layers };
     }
 
     default:
@@ -503,7 +539,7 @@ export function beatsFor(pose, prev = null) {
   
   const sayKey = pose.say ? `${pose.say.who}:${pose.say.text || ''}` : null;
   if (sayKey && sayKey !== last.sayKey) {
-    beats.push({ event: 'say', index: at, who: pose.say.who });
+    beats.push({ event: 'say', index: at, who: pose.say.who, text: pose.say.text });
   }
 
   return {
@@ -552,6 +588,7 @@ export function createAudio() {
     drone: null,
     muted: true,
     started: false,
+    silent: null,
     voices: 0,
   };
 }
@@ -585,7 +622,99 @@ function noiseBuffer(audio) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function claimPlaybackSession() {
+  try {
+    const s = globalThis.navigator && globalThis.navigator.audioSession;
+    if (s && s.type !== 'playback') s.type = 'playback';
+  } catch {
+    
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function silentWavDataUrl() {
+  const samples = 1024;
+  const bytes = 44 + samples * 2;
+  const b = new Uint8Array(bytes);
+  const view = new DataView(b.buffer);
+  const ascii = (off, str) => { for (let i = 0; i < str.length; i += 1) b[off + i] = str.charCodeAt(i); };
+  ascii(0, 'RIFF'); view.setUint32(4, bytes - 8, true); ascii(8, 'WAVEfmt ');
+  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+  view.setUint32(24, 22050, true); view.setUint32(28, 44100, true);
+  view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+  ascii(36, 'data'); view.setUint32(40, samples * 2, true);
+  let bin = '';
+  for (let i = 0; i < bytes; i += 1) bin += String.fromCharCode(b[i]);
+  return `data:audio/wav;base64,${globalThis.btoa(bin)}`;
+}
+
+export function startSilentKeepAlive(audio) {
+  if (audio.silent || !globalThis.document) return;
+  try {
+    const el = globalThis.document.createElement('audio');
+    el.loop = true;
+    
+    
+    el.setAttribute('playsinline', '');
+    el.setAttribute('webkit-playsinline', '');
+    el.volume = 0;
+    el.src = silentWavDataUrl();
+    el.play().catch(() => {  });
+    audio.silent = el;
+  } catch {  }
+}
+
 export function resumeAudio(audio) {
+  claimPlaybackSession();
   if (!audio.ctx) {
     const Ctx = globalThis.AudioContext || globalThis.webkitAudioContext;
     if (!Ctx) return false;
@@ -606,8 +735,27 @@ export function resumeAudio(audio) {
     }
   }
   if (audio.ctx.state === 'suspended' && audio.ctx.resume) audio.ctx.resume();
+  
+  
+  try {
+    const src = audio.ctx.createBufferSource();
+    src.buffer = audio.ctx.createBuffer(1, 1, audio.ctx.sampleRate);
+    src.connect(audio.ctx.destination);
+    src.start(0);
+    
+    
+    
+    
+    src.stop(audio.ctx.currentTime + 0.02);
+  } catch {  }
+  startSilentKeepAlive(audio);
   audio.started = true;
   return true;
+}
+
+
+export function isAudible(audio) {
+  return !!(audio && audio.ctx && audio.ctx.state === 'running' && !audio.muted);
 }
 
 
@@ -678,11 +826,17 @@ export function playVoice(audio, voice, when = 0) {
   
   if (audio.voices > 24) return 0;
   const { ctx } = audio;
-  const t0 = Math.max(ctx.currentTime, when || ctx.currentTime);
+  const tv = Math.max(ctx.currentTime, when || ctx.currentTime);
   let built = 0;
 
   for (const layer of voice.layers) {
     const dur = Math.max(0.005, layer.dur);
+    
+    
+    
+    
+    
+    const t0 = tv + (layer.delay || 0);
     const g = ctx.createGain();
     const peak = Math.max(0.0002, voice.gain * layer.gain);
     
@@ -983,15 +1137,32 @@ export function installAudio({ mount = null, search = '' } = {}) {
   let button = null;
   const paint = () => {
     if (!button) return;
-    button.textContent = audio.muted ? 'Sound: off' : 'Sound: on';
-    button.setAttribute('aria-pressed', String(!audio.muted));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (!audio.muted && !isAudible(audio)) button.textContent = 'Tap for sound';
+    else button.textContent = audio.muted ? 'Sound: off' : 'Sound: on';
+    button.setAttribute('aria-pressed', String(isAudible(audio)));
   };
   const toggle = () => {
     
     
     
+    const wasAudible = isAudible(audio);
     resumeAudio(audio);
-    setMuted(audio, !audio.muted);
+    
+    
+    
+    if (wasAudible || audio.muted) setMuted(audio, !audio.muted);
     wakeMusic();
     paint();
   };
@@ -1012,9 +1183,34 @@ export function installAudio({ mount = null, search = '' } = {}) {
     
     
     
-    const wake = () => { if (!audio.muted) { resumeAudio(audio); wakeMusic(); } };
-    for (const t of ['pointerdown', 'touchend', 'keydown']) {
+    const wake = () => { if (!audio.muted) { resumeAudio(audio); wakeMusic(); } paint(); };
+    for (const t of ['pointerdown', 'touchend', 'keydown', 'click']) {
       globalThis.addEventListener(t, wake, true);
+    }
+    
+    
+    
+    const back = () => {
+      if (audio.muted) return;
+      if (audio.ctx && audio.ctx.state === 'suspended') audio.ctx.resume();
+      if (audio.silent && audio.silent.paused) audio.silent.play().catch(() => {});
+      wakeMusic();
+      paint();
+    };
+    globalThis.addEventListener('focus', back);
+    globalThis.addEventListener('pageshow', back);
+    
+    
+    
+    
+    if (doc.addEventListener) {
+      doc.addEventListener('visibilitychange', () => {
+        if (doc.visibilityState === 'visible' && !audio.muted) {
+          resumeAudio(audio);
+          wakeMusic();
+        }
+        paint();
+      });
     }
     globalThis.addEventListener('keydown', (e) => {
       if (e.key === 'm' || e.key === 'M') toggle();
