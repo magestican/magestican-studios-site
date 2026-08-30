@@ -1283,3 +1283,99 @@ export function crateBreak() {
   n.connect(bp).connect(ng).connect(out);
   n.start(t); n.stop(t + 0.26);
 }
+
+
+
+
+
+
+
+
+
+export function wormSwallow() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.value = 0.85;
+  out.connect(_master);
+
+  
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(420, t);
+  o.frequency.exponentialRampToValueAtTime(48, t + 0.13);
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(2600, t);
+  lp.frequency.exponentialRampToValueAtTime(320, t + 0.16);
+  g.gain.setValueAtTime(0.45, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+  o.connect(lp).connect(g).connect(out);
+  o.start(t); o.stop(t + 0.22);
+
+  
+  
+  const n = whiteNoise(ctx, 0.18);
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.Q.value = 0.9;
+  bp.frequency.setValueAtTime(900, t);
+  bp.frequency.exponentialRampToValueAtTime(180, t + 0.15);
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.34, t);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  n.connect(bp).connect(ng).connect(out);
+  n.start(t); n.stop(t + 0.19);
+}
+
+
+
+
+
+
+
+
+export function thunderStrike() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.value = 1.0;
+  out.connect(_master);
+
+  
+  const crack = whiteNoise(ctx, 0.20);
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.setValueAtTime(2400, t);
+  hp.frequency.exponentialRampToValueAtTime(600, t + 0.18);
+  const cg = ctx.createGain();
+  cg.gain.setValueAtTime(0, t);
+  cg.gain.linearRampToValueAtTime(0.85, t + 0.004);
+  cg.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+  crack.connect(hp).connect(cg).connect(out);
+  crack.start(t); crack.stop(t + 0.22);
+
+  
+  
+  const roll = whiteNoise(ctx, 1.6);
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(700, t);
+  lp.frequency.exponentialRampToValueAtTime(120, t + 1.5);
+  const rg = ctx.createGain();
+  rg.gain.setValueAtTime(0, t);
+  rg.gain.linearRampToValueAtTime(0.55, t + 0.06);
+  rg.gain.exponentialRampToValueAtTime(0.001, t + 1.55);
+  
+  const wob = ctx.createOscillator();
+  const wobGain = ctx.createGain();
+  wob.frequency.value = 5.5;
+  wobGain.gain.value = 0.16;
+  wob.connect(wobGain).connect(rg.gain);
+  wob.start(t); wob.stop(t + 1.6);
+  roll.connect(lp).connect(rg).connect(out);
+  roll.start(t); roll.stop(t + 1.6);
+
+  duckSfx(1.4);
+}

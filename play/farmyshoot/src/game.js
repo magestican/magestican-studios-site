@@ -113,13 +113,15 @@ import { kindForHit, shouldSpatter } from '../../../web-engine/combat/impactDebr
 import { createBreakState, damageVoxel, isBreakable, voxelAtImpact } from '../../../web-engine/combat/breakable.js';
 import { noteVoxelChange } from '../../../web-engine/ai/navField.js';
 import { removeVoxelMesh } from './map/voxelMesh.js';
+import { createTriggerLatch, triggerAllowed, blockUntilRelease } from '../../../web-engine/input/triggerLatch.js';
+import { scenarioFor } from '../../../web-engine/audio/scenarioMusic.js';
 import { resolveSplash, hasSplash } from '../../../web-engine/combat/splash.js';
 import { ExplosionField } from './entities/explosion.js';
 import { SandwormField } from './entities/sandworm.js';
 import {
   KILLS_TO_EARN as WORM_KILLS, DURATION as WORM_DURATION, PLACE_RANGE as WORM_RANGE,
   createSandworm, stepSandworm, earned as wormEarned, killsRemaining as wormKillsLeft,
-  canPlace as wormCanPlace,
+  canPlace as wormCanPlace, swallowCheck,
 } from 'arbelo/sandworm';
 import { shotSound } from '../../../web-engine/audio/weaponSfxSpec.js';
 import { aimPoint, muzzleShot } from '../../../web-engine/combat/muzzle.js';
@@ -962,6 +964,9 @@ export class Game {
     this.sandworms = new SandwormField(this.scene);
     
     this.breaks = createBreakState();
+    
+    
+    this._trigger = createTriggerLatch();
     this.wormState = [];        
     this.wormKills = 0;         
     this.wormCharges = 0;       
@@ -1752,9 +1757,16 @@ export class Game {
         try { SFX.wormShot?.(shot.from); } catch (_) {}
         this._applyWormShot(w, shot);
       }
+      
+      
+      for (const bite of swallowCheck(w, targets)) {
+        this.sandworms?.dive(w, bite.head);
+        try { SFX.wormSwallow?.(); } catch (_) {}
+        this._applyWormSwallow(w, bite);
+      }
       if (w.t >= WORM_DURATION) this.wormState.splice(i, 1);
     }
-    this.sandworms?.update();
+    this.sandworms?.update(dt);
   }
 
   
@@ -1875,6 +1887,31 @@ export class Game {
     return null;
   }
 
+  
+  
+  
+  
+  
+  
+  
+  _applyWormSwallow(w, bite) {
+    if (bite.id === this.myId) {
+      this._takeDamage(9999, w.ownerId, 'sandworm');
+      return;
+    }
+    if (!this.isHost) return;
+    const bot = this.bots.get(bite.id);
+    if (bot) {
+      if (!bot.takeDamage(9999)) return;
+      this._broadcast({ t: MSG.DEATH, victim: bot.peerId, killer: w.ownerId, weapon: 'sandworm' });
+      this._tallyKill(w.ownerId, bot.peerId);
+      this._localDeath(w.ownerId, bot.peerId, 'sandworm', bot.pos.clone());
+      setTimeout(() => { bot.respawn(); }, 500);
+      return;
+    }
+    this._broadcast({ t: MSG.HIT, target: bite.id, dmg: 9999, by: w.ownerId, weapon: 'sandworm' });
+  }
+
   _summonSandworm(point) {
     if (this.wormCharges <= 0) return false;
     if (!wormCanPlace(this.player?.pos, point, WORM_RANGE)) return false;
@@ -1887,7 +1924,7 @@ export class Game {
     this.wormCharges -= 1;
     
     this._refreshViewmodel();
-    try { SFX.wormSummon?.(point); } catch (_) {}
+    try { SFX.thunderStrike?.(); SFX.wormSummon?.(point); } catch (_) {}
     this._broadcast?.({ t: MSG.WORM, at: [worm.x, worm.y, worm.z], by: this.myId, team: worm.team });
     return true;
   }
@@ -2138,6 +2175,10 @@ export class Game {
         
         this.player.spawn = { ...this.world.spawns[next] };
         this.player.respawn();
+      
+      
+      
+      blockUntilRelease(this._trigger);
         this._invulnUntil = performance.now() + 2000;
       }
     }
@@ -3296,6 +3337,10 @@ export class Game {
             this.player.team = this.team;
             this.player.spawn = { ...this.world.spawns[this.team] };
             this.player.respawn();
+      
+      
+      
+      blockUntilRelease(this._trigger);
           }
         }
         
@@ -3377,7 +3422,7 @@ export class Game {
         });
         this.wormState.push(w);
         this.sandworms?.spawn(w);
-        try { SFX.wormSummon?.({ x: w.x, y: w.y, z: w.z }); } catch (_) {}
+        try { SFX.thunderStrike?.(); SFX.wormSummon?.({ x: w.x, y: w.y, z: w.z }); } catch (_) {}
         break;
       }
       case MSG.DEATH:
@@ -3828,7 +3873,18 @@ export class Game {
     
     const canFire = !isObserver(this.team) && (this.isTouch
       || document.pointerLockElement === this.renderer.domElement);
-    if (this.input.isDown('fire') && canFire) {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const armed = triggerAllowed(this._trigger, this.input.isDown('fire'), this._weaponIdentity());
+    if (armed && canFire) {
       this._tryFire();
     }
 
@@ -3964,8 +4020,37 @@ export class Game {
       });
     }
 
+    
+    
+    
+    try {
+      
+      
+      
+      this.audio?.setScenario?.(scenarioFor({
+        ended: this.matchState === 'ended',
+        wormOut: (this.wormState?.length ?? 0) > 0,
+        flagCarried: !!(this.flagCarrier?.red || this.flagCarrier?.blue),
+        topScore: Math.max(this.scores?.red ?? 0, this.scores?.blue ?? 0),
+        target: MODES[this.modeId]?.winScore ?? 0,
+      }));
+    } catch (_) {  }
+
     this._updateHud();
     this.input.endFrame();
+  }
+
+  
+  
+  
+  
+  
+  
+  _weaponIdentity() {
+    if (this.wormCharges > 0) return 'portal-gun';
+    if (this.chickenAmmo > 0) return 'chicken';
+    if (this.steakAmmo > 0) return 'steak';
+    try { return this.weapons.currentDef().id; } catch (_) { return 'none'; }
   }
 
   _switchWeapon(i) {
@@ -5090,6 +5175,10 @@ export class Game {
       this._updatePowerUpEffect();
       
       this.player.respawn();
+      
+      
+      
+      blockUntilRelease(this._trigger);
       this._invulnUntil = performance.now() + 2000;
     }
   }

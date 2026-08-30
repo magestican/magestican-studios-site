@@ -161,10 +161,27 @@ export function surfaceUnder(grid, x, y, z, maxDrop = 6) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const LANE_SURFACE = Object.freeze({
   'snow-farm': VOX.TRACK,
   'icy-mountain': VOX.TRACK,
-  'central-park-rink': VOX.PAVER,
+  'central-park-rink': VOX.TRACK,
   arctic: VOX.TRACK,
   'farm-maze': null,
 });

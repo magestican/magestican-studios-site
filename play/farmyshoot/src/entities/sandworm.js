@@ -35,8 +35,9 @@
 
 import * as THREE from 'three';
 import {
-  HEADS, PORTAL_RADIUS, NECK_REACH, EMERGE_TIME, DURATION,
-  headOffset, emergence, remaining,
+  HEADS, PORTAL_RADIUS, NECK_REACH, EMERGE_TIME, DURATION, WORM_SCALE,
+  STRIKE_TIME, headOffset, emergence, remaining, entrancePhase, portalOpenness,
+  strikeFlash,
 } from 'arbelo/sandworm';
 
 
@@ -180,6 +181,33 @@ class WormMesh {
     
     
     
+    
+    
+    
+    
+    
+    this.bolt = new THREE.Mesh(
+      new THREE.ConeGeometry(0.55 * WORM_SCALE, 40, 5, 1, true),
+      new THREE.MeshBasicMaterial({
+        color: 0xcfe0ff, transparent: true, opacity: 0,
+        blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
+      }),
+    );
+    this.bolt.position.y = 20;
+    this.bolt.visible = false;
+    this.group.add(this.bolt);
+
+    
+    
+    
+    this.strikeLight = new THREE.PointLight(0xbcd4ff, 0, 46, 2);
+    this.strikeLight.position.y = 3;
+    this.strikeLight.visible = false;
+    this.group.add(this.strikeLight);
+
+    
+    
+    
     this.bodyMat = new THREE.MeshStandardMaterial({
       vertexColors: true, roughness: 0.62, metalness: 0.05, flatShading: false,
     });
@@ -187,22 +215,27 @@ class WormMesh {
       color: MAW, roughness: 0.5, emissive: 0x2a0710, emissiveIntensity: 0.6,
     });
 
+    
+    
+    
+    
+    
+    this.eyeMat = new THREE.MeshBasicMaterial({ color: 0xf7e04a });
+    this.pupilMat = new THREE.MeshBasicMaterial({ color: 0x0a0a10 });
+    this.toothMat = new THREE.MeshStandardMaterial({
+      color: 0xefe6cf, roughness: 0.45, metalness: 0.0,
+    });
+
+    
+    
+    this.dives = new Array(HEADS).fill(0);
+
     this.necks = [];
     for (let i = 0; i < HEADS; i += 1) {
       const neck = new THREE.Mesh(new THREE.BufferGeometry(), this.bodyMat);
       neck.castShadow = true;
-      const head = new THREE.Group();
-      
-      
-      const skull = new THREE.Mesh(new THREE.SphereGeometry(0.62, 20, 14), this.bodyMat);
-      skull.scale.set(1.0, 0.86, 1.55);
-      skull.castShadow = true;
-      const maw = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 12), this.mawMat);
-      maw.scale.set(0.86, 0.7, 0.7);
-      maw.position.z = 0.62;
-      head.add(skull, maw);
-      this.group.add(neck, head);
-      this.necks.push({ neck, head });
+      this.necks.push({ neck, ...this._buildHead() });
+      this.group.add(neck, this.necks[i].head);
     }
     scene.add(this.group);
   }
@@ -217,13 +250,113 @@ class WormMesh {
 
 
 
-  update() {
+
+
+
+  _buildHead() {
+    const S = WORM_SCALE;
+    const head = new THREE.Group();
+
+    const skull = new THREE.Mesh(new THREE.SphereGeometry(0.62 * S, 22, 16), this.bodyMat);
+    skull.scale.set(1.0, 0.86, 1.55);
+    skull.castShadow = true;
+    head.add(skull);
+
+    
+    
+    const jaw = new THREE.Group();
+    jaw.position.set(0, -0.12 * S, 0.30 * S);
+    const jawMesh = new THREE.Mesh(new THREE.SphereGeometry(0.44 * S, 18, 12), this.mawMat);
+    jawMesh.scale.set(0.92, 0.55, 1.15);
+    jawMesh.position.z = 0.34 * S;
+    jaw.add(jawMesh);
+
+    
+    
+    const toothGeo = new THREE.ConeGeometry(0.075 * S, 0.30 * S, 5);
+    const TEETH = 8;
+    for (let k = 0; k < TEETH; k += 1) {
+      const a = (k / (TEETH - 1)) * Math.PI - Math.PI / 2;
+      const upper = new THREE.Mesh(toothGeo, this.toothMat);
+      upper.position.set(Math.sin(a) * 0.42 * S, 0.02 * S, 0.62 * S + Math.cos(a) * 0.06 * S);
+      upper.rotation.x = Math.PI;          
+      head.add(upper);
+      const lower = new THREE.Mesh(toothGeo, this.toothMat);
+      lower.position.set(Math.sin(a) * 0.40 * S, 0.10 * S, 0.60 * S + Math.cos(a) * 0.06 * S);
+      jaw.add(lower);
+    }
+    head.add(jaw);
+
+    
+    
+    
+    const eyes = [];
+    for (const side of [-1, 1]) {
+      
+      
+      
+      
+      
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.15 * S, 14, 10), this.eyeMat);
+      eye.position.set(side * 0.28 * S, 0.26 * S, 0.66 * S);
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.082 * S, 10, 8), this.pupilMat);
+      pupil.position.set(side * -0.02 * S, 0, 0.10 * S);
+      eye.add(pupil);
+      head.add(eye);
+      eyes.push(eye);
+    }
+    return { head, jaw, eyes };
+  }
+
+  
+
+
+
+
+
+
+
+
+
+  
+  dive(i) {
+    if (i >= 0 && i < HEADS) this.dives[i] = 1e-3;
+  }
+
+  update(dt = 1 / 60) {
     const t = this.worm.t;
+    
+    
+    for (let i = 0; i < HEADS; i += 1) {
+      if (this.dives[i] > 0) {
+        this.dives[i] += dt / 0.34;
+        if (this.dives[i] >= 1) this.dives[i] = 0;
+      }
+    }
+
+    
+    
+    
+    const phase = entrancePhase(t);
+    const flash = strikeFlash(t);
+    if (this.bolt) {
+      this.bolt.visible = phase === 'strike';
+      this.bolt.material.opacity = flash;
+      
+      
+      if (this.bolt.visible) this.bolt.rotation.y = (t * 37) % (Math.PI * 2);
+    }
+    if (this.strikeLight) {
+      this.strikeLight.intensity = flash * 26;
+      this.strikeLight.visible = flash > 0.01;
+    }
     const out = emergence(t);
     this.portalMat.uniforms.uTime.value = t;
     
+    
+    
     const closing = Math.min(1, remaining(t) / 1.4);
-    this.portalMat.uniforms.uOpen.value = Math.min(1, t / (EMERGE_TIME * 0.55)) * closing;
+    this.portalMat.uniforms.uOpen.value = portalOpenness(t) * closing;
 
     for (let i = 0; i < HEADS; i += 1) {
       const o = headOffset(i, t);
@@ -244,25 +377,65 @@ class WormMesh {
         new THREE.Vector3(hx * 0.8, hy * 0.86, hz * 0.8),
         new THREE.Vector3(hx, hy, hz),
       ]);
-      const { neck, head } = this.necks[i];
+      const { neck, head, jaw } = this.necks[i];
       neck.geometry.dispose();
       
       
       
       
-      neck.geometry = stripedTube(curve, 0.46, { segments: 24, radial: 10, band: 3 });
+      
+      
+      
+      neck.geometry = stripedTube(curve, 0.46 * WORM_SCALE, { segments: 26, radial: 10, band: 3 });
 
       head.position.set(hx, hy, hz);
       
-      const tangent = curve.getTangent(1);
-      head.lookAt(hx + tangent.x, hy + tangent.y, hz + tangent.z);
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const outLen = Math.hypot(hx, hz);
+      if (outLen > 0.05) {
+        head.lookAt(hx + (hx / outLen) * 2, hy - 0.7, hz + (hz / outLen) * 2);
+      } else {
+        const tangent = curve.getTangent(1);
+        head.lookAt(hx + tangent.x, hy + tangent.y, hz + tangent.z);
+      }
       head.visible = out > 0.12;
+
+      
+      
+      
+      
+      const dive = this.dives[i];
+      const gape = dive > 0
+        ? 1
+        : 0.18 + 0.14 * Math.sin(t * 1.9 + i * 2.1);
+      jaw.rotation.x = gape * 0.85;
+
+      
+      if (dive > 0) {
+        const k = 1 - Math.abs(dive - 0.5) * 2;      
+        head.position.y = hy - k * (hy - 1.2);
+      }
     }
   }
 
   dispose() {
     this.scene.remove(this.group);
     this.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+    this.bolt?.material?.dispose?.();
+    this.eyeMat?.dispose?.();
+    this.pupilMat?.dispose?.();
+    this.toothMat?.dispose?.();
     this.bodyMat.dispose();
     this.mawMat.dispose();
     this.portalMat.dispose();
@@ -289,7 +462,7 @@ export class SandwormField {
   }
 
   
-  update() {
+  update(dt = 1 / 60) {
     for (let i = this.items.length - 1; i >= 0; i -= 1) {
       const m = this.items[i];
       if (m.worm.t >= DURATION) {
@@ -297,8 +470,14 @@ export class SandwormField {
         this.items.splice(i, 1);
         continue;
       }
-      m.update();
+      m.update(dt);
     }
+  }
+
+  
+  dive(worm, i) {
+    const m = this.items.find((it) => it.worm === worm);
+    if (m) m.dive(i);
   }
 
   dispose() {

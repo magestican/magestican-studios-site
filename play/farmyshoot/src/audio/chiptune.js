@@ -28,6 +28,7 @@
 import {
   buildSong, midiToHz, VOICES, VOICE_NAMES, openingTrackFor, nextTrackName,
 } from '../../../../web-engine/audio/songSpec.js';
+import { settingsFor, trackFor, shouldSwitchTrack } from '../../../../web-engine/audio/scenarioMusic.js';
 import { SeededRng } from '../../../../web-engine/rng/seededRng.js';
 
 
@@ -74,6 +75,11 @@ export class Chiptune {
     this._rotRng = new SeededRng((seed || 1) * 7919 + 13).child('tracks');
     this.song = buildSong({ seed, map, track: this._track });
     this._audio = null;
+    
+    
+    this._scenario = 'play';
+    this._scenarioGain = 1;
+    this._brightness = 0.72;
     this._url = null;
     
     
@@ -296,7 +302,26 @@ export class Chiptune {
     const ampBus = ctx.createGain(); ampBus.gain.value = 1.0;
     const shaper = ctx.createWaveShaper(); shaper.curve = _distortionCurve(90);
     const lowpass = ctx.createBiquadFilter();
-    lowpass.type = 'lowpass'; lowpass.frequency.value = 2600; lowpass.Q.value = 0.7;
+    lowpass.type = 'lowpass';
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const bright = Math.max(0, Math.min(1, this._brightness ?? 0.72));
+    lowpass.frequency.value = 1500 + bright * 1900;
+    lowpass.Q.value = 0.7;
     ampBus.connect(shaper).connect(lowpass).connect(master);
 
     
@@ -364,7 +389,15 @@ export class Chiptune {
   _applyLevel() {
     const ducked = (this._duckUntil || 0) > Date.now();
     const k = this.muted ? 0 : (ducked ? (this._duckDepth ?? DUCK_DEPTH) : 1);
-    if (this._audio) this._audio.volume = MUSIC_LEVEL_TAG * k;
+    
+    
+    
+    
+    
+    const scen = this._scenarioGain ?? 1;
+    if (this._audio) {
+      this._audio.volume = Math.max(0, Math.min(1, MUSIC_LEVEL_TAG * k * scen));
+    }
     if (this._fallbackMaster) {
       const g = this._fallbackMaster.gain;
       const target = MUSIC_LEVEL_SYNTH * k;
@@ -379,6 +412,46 @@ export class Chiptune {
   }
 
   toggleMuted() { this.setMuted(!this.muted); return this.muted; }
+
+  
+
+
+
+
+
+
+
+
+
+  setScenario(name) {
+    if (name === this._scenario) return;
+    const from = this._scenario;
+    this._scenario = name;
+    const s = settingsFor(name);
+    this._scenarioGain = s.gain;
+    this._brightness = s.brightness;
+    this._applyLevel();
+    if (shouldSwitchTrack(from, name) && this._audio) {
+      
+      
+      
+      
+      
+      const want = trackFor(name, this._map, this._track);
+      this._nextTrackName = want;
+      this._nextUrl = null;
+      this._prefetching = true;
+      const song = buildSong({ seed: this._seed, map: this._map, track: want });
+      Promise.resolve()
+        .then(() => this._renderSong(song))
+        .then((url) => {
+          this._nextUrl = url;
+          this._prefetching = false;
+          if (this._scenario === name) this._advanceTrack();
+        })
+        .catch(() => { this._prefetching = false; });
+    }
+  }
 
   
   get isDucked() { return (this._duckUntil || 0) > Date.now(); }
