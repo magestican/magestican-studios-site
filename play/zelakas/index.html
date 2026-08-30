@@ -90,11 +90,10 @@
   <div id="account" style="text-align:center;margin:8px 0"></div>
 
   <footer>
-    Flash Player was end-of-lifed in 2020. This page loads the original
-    <code>ZelakasInSpace.swf</code> through
-    <a href="https://ruffle.rs/">Ruffle</a>, an open-source Flash emulator written in Rust.
-    A native Godot 4 port of the game lives under
-    <code>games/zelakas-in-space/</code> in this repo.
+    Flash Player was end-of-lifed in 2020. This page runs the original 2014
+    build through <a href="https://ruffle.rs/">Ruffle</a>, an open-source Flash
+    emulator written in Rust. A native rebuild is in progress and will replace
+    it here when it is ready.
   </footer>
 
   <script type="module">
@@ -160,13 +159,20 @@
         unmuteOverlay: "hidden",
         splashScreen: false,
         
-      }).catch(err => {
+      }).catch(() => {
+        
+        
+        
+        
+        
+        
+        
         stage.innerHTML =
-          "<div style='padding:32px;color:#f8a;font-family:monospace'>" +
-          "Failed to load ZelakasInSpace.swf<br><br>" +
-          err + "<br><br>" +
-          "Make sure ZelakasInSpace.swf sits next to this index.html and " +
-          "you're serving the folder over http:// (browsers block file:// SWF loads)." +
+          "<div style='padding:32px;text-align:center;line-height:1.6'>" +
+          "<strong>Zelakas In Space could not start.</strong><br><br>" +
+          "This can happen if your browser blocks the emulator, or if the " +
+          "connection dropped while it was loading. Reloading the page usually " +
+          "fixes it." +
           "</div>";
       });
     });
