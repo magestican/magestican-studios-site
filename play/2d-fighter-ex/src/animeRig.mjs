@@ -41,7 +41,7 @@
 
 
 
-import { elbow, knee } from './limbSolve.mjs';
+import { elbow, knee } from '../../../web-engine/ps1/limbSolve.mjs';
 
 
 

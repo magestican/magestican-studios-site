@@ -30,9 +30,9 @@
 import * as THREE from 'three';
 import { solve, RIG, ARCH, paintFace, bodyPalette } from '../animeRig.mjs';
 import { poseById } from '../moveSet.mjs';
-import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from './ps1Rig.mjs';
-import { buildFighter } from './ps1Mesh.mjs';
-import { head3d, hair3d } from './ps1Head.mjs';
+import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from '../../../../web-engine/ps1/ps1Rig.mjs';
+import { buildFighter } from '../../../../web-engine/ps1/ps1Mesh.mjs';
+import { head3d, hair3d } from '../../../../web-engine/ps1/ps1Head.mjs';
 
 
 
