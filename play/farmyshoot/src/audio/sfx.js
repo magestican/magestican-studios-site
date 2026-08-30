@@ -1241,3 +1241,45 @@ export function haySpring() {
   n.connect(bp).connect(ng).connect(out);
   n.start(t); n.stop(t + 0.22);
 }
+
+
+
+
+
+
+
+
+
+export function crateBreak() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.value = 0.6;
+  out.connect(_master);
+
+  
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(210, t);
+  o.frequency.exponentialRampToValueAtTime(70, t + 0.10);
+  g.gain.setValueAtTime(0.30, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+  o.connect(g).connect(out);
+  o.start(t); o.stop(t + 0.16);
+
+  
+  
+  const n = whiteNoise(ctx, 0.26);
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.Q.value = 1.1;
+  bp.frequency.setValueAtTime(1100, t);
+  bp.frequency.exponentialRampToValueAtTime(2800, t + 0.16);
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0, t);
+  ng.gain.linearRampToValueAtTime(0.34, t + 0.006);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+  n.connect(bp).connect(ng).connect(out);
+  n.start(t); n.stop(t + 0.26);
+}

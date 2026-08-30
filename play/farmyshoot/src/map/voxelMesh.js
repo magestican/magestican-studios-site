@@ -112,6 +112,15 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
 
   const parent = new THREE.Group();
   parent.name = 'voxelWorld';
+  
+  
+  
+  
+  
+  
+  
+  
+  const index = new Map();   
   const dummy = new THREE.Object3D();
   const materialsByType = {};   
 
@@ -177,6 +186,7 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
       dummy.position.set(x + 0.5, y + 0.5, z + 0.5);
       dummy.updateMatrix();
       inst.setMatrixAt(i, dummy.matrix);
+      index.set(`${x},${y},${z}`, { inst, i });
       const j = 1 - Math.random() * 0.08;
       jitterColor.setRGB(j, j, j);
       inst.setColorAt(i, jitterColor);
@@ -187,6 +197,7 @@ export function buildWorldMeshes(grid, { mature = false } = {}) {
   }
 
   parent.userData.materialsByType = materialsByType;
+  parent.userData.voxelIndex = index;
   
   
   
@@ -218,3 +229,28 @@ const NEIGHBOURS = [
   [ 0, 1, 0], [ 0,-1, 0],
   [ 0, 0, 1], [ 0, 0,-1],
 ];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function removeVoxelMesh(parent, x, y, z) {
+  const index = parent?.userData?.voxelIndex;
+  if (!index) return false;
+  const hit = index.get(`${Math.floor(x)},${Math.floor(y)},${Math.floor(z)}`);
+  if (!hit) return false;
+  const m = new THREE.Matrix4().makeScale(0, 0, 0);
+  hit.inst.setMatrixAt(hit.i, m);
+  hit.inst.instanceMatrix.needsUpdate = true;
+  index.delete(`${Math.floor(x)},${Math.floor(y)},${Math.floor(z)}`);
+  return true;
+}

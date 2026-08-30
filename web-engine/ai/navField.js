@@ -574,6 +574,18 @@ export class NavGraph {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 const GRAPHS = new WeakMap();
 let graphBuilds = 0;
 
@@ -591,6 +603,29 @@ export function navGraphFor(grid) {
   if (g && (g.jumpUp > 0) !== (want > MAX_STEP_UP)) g = null;
   if (!g) { g = new NavGraph(grid); GRAPHS.set(grid, g); graphBuilds++; }
   return g;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export function noteVoxelChange(grid, x, z) {
+  const g = GRAPHS.get(grid);
+  if (!g) return false;
+  const i = g.idx(Math.floor(x), Math.floor(z));
+  if (i < 0) return false;
+  g.surface[i] = surfaceYAt(grid, Math.floor(x), Math.floor(z), g.maxY);
+  
+  
+  g.fields.clear();
+  return true;
 }
 
 

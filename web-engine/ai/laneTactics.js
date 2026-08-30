@@ -32,6 +32,7 @@
 
 
 import { alongPolyline, nearestLane } from '../procgen/laneSpec.js';
+import { SPRING_RADIUS } from '../procgen/hayspring.js';
 
 
 
@@ -162,4 +163,75 @@ export function nearestChoke(lanes, x, z) {
 export function onLane(lanes, x, z, half = 8) {
   const n = nearestLane(lanes || [], x, z);
   return !!n && n.dist <= half;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const APPROACH_RANGE = 26;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function usesSpring(key) {
+  const s = String(key ?? '');
+  let h = 5381;
+  for (let i = 0; i < s.length; i += 1) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return (h % 3) === 0;
+}
+
+
+
+
+
+
+
+
+
+export function springApproach(springs, lane, pos, goal) {
+  if (!springs || !springs.length || !lane || !goal) return null;
+  const choke = lane.choke;
+  const dToChoke = Math.hypot(choke.x - pos.x, choke.z - pos.z);
+  if (dToChoke > APPROACH_RANGE) return null;
+
+  
+  
+  const chokeToGoal = Math.hypot(goal.x - choke.x, goal.z - choke.z);
+  const posToGoal = Math.hypot(goal.x - pos.x, goal.z - pos.z);
+  if (posToGoal < chokeToGoal) return null;
+
+  
+  let best = null;
+  let bestD = Infinity;
+  for (const sp of springs) {
+    if (sp.laneId !== lane.id) continue;
+    const d = Math.hypot(sp.x - pos.x, sp.z - pos.z);
+    if (d < bestD) { bestD = d; best = sp; }
+  }
+  return best;
+}
+
+
+export function atSpring(spring, x, z) {
+  if (!spring) return false;
+  return Math.hypot(spring.x - x, spring.z - z) <= SPRING_RADIUS + 1;
 }

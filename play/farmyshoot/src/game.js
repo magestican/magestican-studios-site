@@ -110,6 +110,9 @@ import {
 } from '../../../web-engine/match/observer.js';
 import { fovFor, detectTouch } from '../../../web-engine/render/cameraFov.js';
 import { kindForHit, shouldSpatter } from '../../../web-engine/combat/impactDebris.js';
+import { createBreakState, damageVoxel, isBreakable, voxelAtImpact } from '../../../web-engine/combat/breakable.js';
+import { noteVoxelChange } from '../../../web-engine/ai/navField.js';
+import { removeVoxelMesh } from './map/voxelMesh.js';
 import { resolveSplash, hasSplash } from '../../../web-engine/combat/splash.js';
 import { ExplosionField } from './entities/explosion.js';
 import { SandwormField } from './entities/sandworm.js';
@@ -957,6 +960,8 @@ export class Game {
     
     
     this.sandworms = new SandwormField(this.scene);
+    
+    this.breaks = createBreakState();
     this.wormState = [];        
     this.wormKills = 0;         
     this.wormCharges = 0;       
@@ -1757,6 +1762,47 @@ export class Game {
   
   
   
+  
+  
+  
+  
+  
+  
+  _damageCover(point, dir, damage) {
+    if (!this.isHost || !this.grid) return;
+    const c = voxelAtImpact(point, dir);
+    if (!c) return;
+    const vox = this.grid.get(c.x, c.y, c.z);
+    if (!isBreakable(vox)) return;
+    const res = damageVoxel(this.breaks, vox, c.x, c.y, c.z, damage);
+    if (!res.broken) return;
+    this._breakVoxel(c.x, c.y, c.z);
+    this._broadcast({ t: MSG.BREAK, at: [c.x, c.y, c.z] });
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  _breakVoxel(x, y, z) {
+    if (!this.grid || !this.grid.get(x, y, z)) return;
+    this.grid.set(x, y, z, 0);
+    noteVoxelChange(this.grid, x, z);
+    
+    
+    
+    try { removeVoxelMesh(this.scene.getObjectByName('voxelWorld'), x, y, z); } catch (_) {}
+    try {
+      this.gore?.spatterAt?.(
+        new THREE.Vector3(x + 0.5, y + 0.5, z + 0.5),
+        new THREE.Vector3(0, 1, 0), 'world');
+    } catch (_) {}
+    try { SFX.crateBreak(); } catch (_) {}
+  }
+
   _sandwormTargets() {
     const out = [];
     if (this.player?.alive) {
@@ -3316,6 +3362,11 @@ export class Game {
         if (msg.target === this.myId) this._takeDamage(msg.dmg, msg.by, msg.weapon);
         break;
       }
+      case MSG.BREAK: {
+        
+        this._breakVoxel(msg.at[0], msg.at[1], msg.at[2]);
+        break;
+      }
       case MSG.WORM: {
         
         
@@ -4734,6 +4785,10 @@ export class Game {
         
         
         
+        this._damageCover(result.point, shotDirection(p.shot), p.shot?.damage ?? 10);
+        
+        
+        
         this._explode(result.point, p.shot);
       }
       this.weapons.despawnProjectile(p.rec);
@@ -6097,6 +6152,10 @@ export class Game {
     
     this.sandworms?.dispose?.();
     if (this.wormState) this.wormState.length = 0;
+    
+    
+    
+    this.breaks = createBreakState();
   }
 
   

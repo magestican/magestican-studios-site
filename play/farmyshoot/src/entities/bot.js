@@ -14,7 +14,7 @@
 
 
 import * as THREE from 'three';
-import { laneFor, nextWaypoint, guardPost, nearestChoke }
+import { laneFor, nextWaypoint, guardPost, nearestChoke, usesSpring, springApproach }
   from '../../../../web-engine/ai/laneTactics.js';
 
 
@@ -267,6 +267,21 @@ export class Bot {
         const wp = nextWaypoint(lanes, this._lane, this.pos,
           { x: gx, z: gz }, this.team === 'red');
         if (wp) { gx = wp.x; gz = wp.z; }
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        if (usesSpring(this.peerId)) {
+          const sp = springApproach(ctx.world?.springs, this._lane, this.pos,
+            { x: this.objective.x, z: this.objective.z });
+          if (sp) { gx = sp.x; gz = sp.z; }
+        }
       }
     }
 
