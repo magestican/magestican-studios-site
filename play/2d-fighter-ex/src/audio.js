@@ -577,7 +577,28 @@ export function beatsFor(pose, prev = null) {
 const BUS = 0.42;
 
 
-const STORE_KEY = 'fighter-ex-sound';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const STORE_KEY = 'fighter-ex-sound-v2';
 
 export function createAudio() {
   return {
@@ -589,6 +610,7 @@ export function createAudio() {
     muted: true,
     started: false,
     silent: null,
+    sfx: null,
     voices: 0,
   };
 }
@@ -728,6 +750,17 @@ export function resumeAudio(audio) {
       audio.bus = audio.ctx.createGain();
       audio.bus.gain.value = audio.muted ? 0 : BUS;
       audio.bus.connect(audio.comp);
+      
+      
+      
+      
+      
+      
+      
+      
+      audio.sfx = audio.ctx.createGain();
+      audio.sfx.gain.value = SFX_LEVEL;
+      audio.sfx.connect(audio.bus);
       audio.comp.connect(audio.ctx.destination);
     } catch {
       audio.ctx = null;
@@ -757,6 +790,14 @@ export function resumeAudio(audio) {
 export function isAudible(audio) {
   return !!(audio && audio.ctx && audio.ctx.state === 'running' && !audio.muted);
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -844,7 +885,7 @@ export function playVoice(audio, voice, when = 0) {
     g.gain.setValueAtTime(0.0001, t0);
     g.gain.linearRampToValueAtTime(peak, t0 + Math.min(layer.attack, dur * 0.5));
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    g.connect(audio.bus);
+    g.connect(audio.sfx || audio.bus);
 
     let filter = null;
     if (layer.filter) {
@@ -895,7 +936,7 @@ export function setCharge(audio, level) {
     const { ctx } = audio;
     const gain = ctx.createGain();
     gain.gain.value = 0;
-    gain.connect(audio.bus);
+    gain.connect(audio.sfx || audio.bus);
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = CHARGE_DRONE.cutoffLow;
@@ -994,7 +1035,22 @@ const SCALE = [0, 3, 5, 7, 10];
 
 
 
-const MUSIC_LEVEL = 0.62;
+
+
+
+
+const MUSIC_LEVEL = 0.81;
+
+
+
+
+
+
+
+
+
+
+const SFX_LEVEL = 0.90;
 
 
 
