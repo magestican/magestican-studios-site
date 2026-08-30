@@ -18,6 +18,7 @@ import {
   ZONE_HALF, ZONE_DECK_TOP, insideZone, zoneSpawn,
   buildPowerZones, powerZoneCentres as zoneCentresOf,
 } from './powerUpZones.js';
+import { buildLanes, nearestLane, chokePoints, LANE_HALF } from './laneSpec.js';
 
 
 
@@ -111,6 +112,13 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   
   
   
+  
+  const lanes = buildLanes(WORLD_SIZE, redBase, blueBase, BASE_SIZE);
+
+  
+  
+  
+  
   const terrain = buildTerrain(grid, rng.child('terrain'), map, { redBase, blueBase, cx, cz });
 
   
@@ -133,8 +141,24 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   
   
   
+  
+  const chokes = map.terrain === 'maze' ? [] : chokePoints(lanes);
+  for (const choke of chokes) {
+    buildChoke(grid, choke, chokeVox(map), { powerUpZones, cx, cz });
+  }
+
+  
+  
+  
+  
+  
+  
+  
   const coverRng = rng.child('cover');
-  const coverCount = map.cover?.length ? perArea(coverRng.rangeI(20, 32)) : 0;
+  
+  
+  
+  const coverCount = map.cover?.length ? perArea(coverRng.rangeI(44, 64)) : 0;
   for (let i = 0; i < coverCount; i++) {
     const px = coverRng.rangeI(12, WORLD_SIZE.x - 13);
     const pz = coverRng.rangeI(12, WORLD_SIZE.z - 13);
@@ -145,7 +169,26 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
     
     
     
-    if (occupied(grid, px, pz, 3)) continue;
+    
+    
+    
+    
+    
+    
+    
+    
+    const near = nearestLane(lanes, px, pz);
+    const d = near ? near.dist : Infinity;
+    if (d <= 3) continue;
+    if (d <= LANE_HALF)      { if (!coverRng.chance(0.35)) continue; }
+    else if (d <= LANE_HALF + 4) {  }
+    else if (!coverRng.chance(0.25)) continue;
+    
+    
+    
+    
+    
+    if (footprintBlocked(grid, px, pz)) continue;
     buildCover(grid, coverRng, coverRng.pick(map.cover), px, pz);
   }
 
@@ -504,6 +547,36 @@ function occupied(grid, x, z, upTo = 3) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+function footprintBlocked(grid, x, z, reach = 6) {
+  for (let dx = 0; dx <= reach; dx += 1) {
+    for (let dz = 0; dz <= reach; dz += 1) {
+      if (occupied(grid, x + dx, z + dz, 3)) return true;
+    }
+  }
+  return false;
+}
+
+
+
+
+
+
+
+
+
+
+
 function standY(grid, x, z) {
   for (let y = WORLD_SIZE.y - 1; y >= 1; y--) if (grid.get(x, y, z) !== VOX.AIR) return y + 1;
   return 1;
@@ -636,6 +709,69 @@ function buildCentre(grid, map, cx, cz) {
       grid.fillBox(cx - 1, 2, cz - 1, cx + 1, 2, cz + 1, vox);
       return 3;
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildChoke(grid, choke, vox, { powerUpZones, cx, cz }) {
+  
+  const px = -choke.hz;
+  const pz = choke.hx;
+  const half = choke.span / 2;
+  const gapHalf = choke.gap / 2;
+  let placed = 0;
+  for (let d = -half; d <= half; d += 1) {
+    if (Math.abs(d) <= gapHalf) continue;              
+    for (let t = -1; t <= 1; t += 1) {                 
+      const x = Math.round(choke.x + px * d + choke.hx * t);
+      const z = Math.round(choke.z + pz * d + choke.hz * t);
+      if (x < 2 || z < 2 || x >= WORLD_SIZE.x - 2 || z >= WORLD_SIZE.z - 2) continue;
+      if (insideZone(x, z, powerUpZones, 1)) continue;
+      if (Math.abs(x - cx) <= 6 && Math.abs(z - cz) <= 6) continue;
+      if (occupied(grid, x, z, 3)) continue;
+      grid.fillBox(x, 1, z, x, 3, z, vox);
+      placed += 1;
+    }
+  }
+  return placed;
+}
+
+
+function chokeVox(map) {
+  const cover = map.cover || [];
+  if (cover.includes('iceWall') || cover.includes('berg')) return VOX.ICE;
+  if (cover.includes('spire') || cover.includes('boulder')) return VOX.ROCK;
+  if (cover.includes('bench')) return VOX.BOARDS;
+  return VOX.STONE;
 }
 
 function buildCover(grid, rng, kind, x, z) {

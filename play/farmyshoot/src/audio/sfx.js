@@ -1036,3 +1036,161 @@ function impulseResponse(ctx, seconds, decay) {
   }
   return buf;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function wormSummon() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.value = 0.9;
+  out.connect(_master);
+
+  
+  
+  for (const [mul, det] of [[1, 0], [1.5, 7], [2.01, -11]]) {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sawtooth';
+    o.detune.value = det;
+    o.frequency.setValueAtTime(190 * mul, t);
+    o.frequency.exponentialRampToValueAtTime(34 * mul, t + 1.05);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(2600, t);
+    lp.frequency.exponentialRampToValueAtTime(320, t + 1.1);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.30, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 1.25);
+    o.connect(lp).connect(g).connect(out);
+    o.start(t); o.stop(t + 1.3);
+  }
+
+  
+  
+  const n = whiteNoise(ctx, 1.2);
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.Q.value = 0.7;
+  bp.frequency.setValueAtTime(1500, t);
+  bp.frequency.exponentialRampToValueAtTime(180, t + 0.9);
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0, t);
+  ng.gain.linearRampToValueAtTime(0.5, t + 0.08);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
+  n.connect(bp).connect(ng).connect(out);
+  n.start(t); n.stop(t + 1.2);
+
+  
+  
+  duckSfx(1.2);
+}
+
+
+
+
+
+
+
+
+
+
+export function wormShot() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.value = 0.34;
+  out.connect(_master);
+
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(320, t);
+  o.frequency.exponentialRampToValueAtTime(72, t + 0.16);
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(3200, t);
+  lp.frequency.exponentialRampToValueAtTime(600, t + 0.18);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.42, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+  o.connect(lp).connect(g).connect(out);
+  o.start(t); o.stop(t + 0.22);
+
+  const n = whiteNoise(ctx, 0.12);
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 900;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.30, t);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+  n.connect(hp).connect(ng).connect(out);
+  n.start(t); n.stop(t + 0.12);
+}
+
+
+
+
+
+
+
+
+export function wormEarned() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.value = 0.55;
+  out.connect(_master);
+  
+  
+  [[0, 330], [0.10, 392], [0.20, 494]].forEach(([dt, hz]) => {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(hz, t + dt);
+    g.gain.setValueAtTime(0, t + dt);
+    g.gain.linearRampToValueAtTime(0.26, t + dt + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dt + 0.22);
+    o.connect(g).connect(out);
+    o.start(t + dt); o.stop(t + dt + 0.24);
+  });
+}
+
+
+export function deny() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(180, t);
+  o.frequency.setValueAtTime(120, t + 0.06);
+  g.gain.setValueAtTime(0.10, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+  o.connect(g).connect(_master);
+  o.start(t); o.stop(t + 0.13);
+}

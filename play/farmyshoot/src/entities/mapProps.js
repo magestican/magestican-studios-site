@@ -17,7 +17,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { SeededRng } from '../../../../web-engine/rng/seededRng.js';
 import { WORLD_SIZE, perArea, insideZone } from '../../../../web-engine/procgen/voxelWorldGen.js';
 
-const GLB_BASE = '/play/team-bonding/assets/hand-drawn/props/';
+const GLB_BASE = '/play/farmyshoot/assets/hand-drawn/props/';
 const _loader = new GLTFLoader();
 
 

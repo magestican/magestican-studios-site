@@ -48,7 +48,7 @@ export const GAME_IDS = Object.freeze([
 ]);
 
 export const GAME_NAMES = Object.freeze({
-  'team-bonding': 'Team Bonding',
+  'team-bonding': 'Farmyshoot',
   farmykart: 'Farmy Kart',
   '2d-fighter-ex': '2D Fighter EX',
   zelakas: 'Zelakas In Space',

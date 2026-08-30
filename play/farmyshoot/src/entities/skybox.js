@@ -34,7 +34,7 @@ const ANIMATE_FPS = 5;
 
 
 
-const RENDERED_PNG = '/play/team-bonding/assets/hand-drawn/sky/panorama.png';
+const RENDERED_PNG = '/play/farmyshoot/assets/hand-drawn/sky/panorama.png';
 
 
 

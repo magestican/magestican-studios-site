@@ -176,9 +176,39 @@ export function trackPlayClicks(root = globalThis.document) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SLUG_TO_GAME_ID = Object.freeze({
+  farmyshoot: 'team-bonding',
+});
+
 export function gameIdFromPath(href = '') {
   const m = /\/play\/([a-z0-9-]+)/i.exec(String(href));
-  return m ? m[1].toLowerCase() : 'unknown';
+  if (!m) return 'unknown';
+  const slug = m[1].toLowerCase();
+  return SLUG_TO_GAME_ID[slug] || slug;
 }
 
 

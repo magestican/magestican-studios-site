@@ -45,6 +45,7 @@ import {
   evaluate, statsFor, tally, showcase, nextUp, TIER_LABEL, TIER_COLOUR,
   RARITY_DISCLAIMER, PROOF, PROOF_LABEL, PROOF_BLURB,
 } from './achievements.js';
+import { gameStatRows, careerTotals, careerLine, nextGameToTry } from './gameStats.js';
 import { badgeSvg, progressArcSvg, verifiedTickSvg } from './badgeArt.js';
 import {
   strength, STRENGTH_WORDS, MIN_LENGTH, generatePassword,
@@ -97,6 +98,15 @@ export function panelModel({
     counts: t,
     showcase: showcase(all, 6),
     nextUp: nextUp(all, stats),
+    
+    
+    
+    
+    
+    games: gameStatRows(profile),
+    career: careerTotals(profile),
+    careerLine: careerLine(profile),
+    tryNext: nextGameToTry(profile),
     proofLine: proofLine(all),
     rarityNote: RARITY_DISCLAIMER,
     
@@ -215,6 +225,7 @@ export function mountAccountPanel(host, model, handlers = {}) {
   if (today) host.appendChild(today);
   const offer = offerEl(model, handlers);
   if (offer) host.appendChild(offer);
+  host.appendChild(gamesEl(model));
   host.appendChild(shelfEl(model));
   const pw = passwordEl(model, handlers);
   if (pw) host.appendChild(pw);
@@ -592,6 +603,50 @@ function offerEl(m, handlers) {
   return box;
 }
 
+
+
+
+
+
+
+
+
+function gamesEl(m) {
+  const box = el('section', 'ap-games');
+  const head = el('div', 'ap-shelf-head');
+  head.appendChild(el('h3', 'ap-h3', 'Across all games'));
+  head.appendChild(el('span', 'ap-shelf-count', m.careerLine));
+  box.appendChild(head);
+
+  const list = el('ul', 'ap-glist');
+  for (const g of m.games) {
+    const li = el('li', `ap-g ${g.played ? 'ap-g-on' : 'ap-g-off'}`);
+    const top = el('div', 'ap-g-top');
+    top.appendChild(el('span', 'ap-g-name', g.name));
+    
+    
+    top.appendChild(el('span', 'ap-g-win', g.played ? `${g.wins}W · ${g.winLine}` : 'not played'));
+    li.appendChild(top);
+
+    if (g.played) {
+      const mets = el('div', 'ap-g-mets');
+      mets.appendChild(el('span', 'ap-g-met', `${g.plays} played`));
+      for (const met of g.metrics) {
+        mets.appendChild(el('span', 'ap-g-met', `${met.value} ${met.label.toLowerCase()}`));
+      }
+      li.appendChild(mets);
+    }
+    list.appendChild(li);
+  }
+  box.appendChild(list);
+
+  
+  if (m.tryNext) {
+    box.appendChild(el('p', 'ap-g-next', `Never tried ${m.tryNext.name} — it is a different game entirely.`));
+  }
+  return box;
+}
+
 function shelfEl(m) {
   const box = el('section', 'ap-shelf');
   const head = el('div', 'ap-shelf-head');
@@ -745,6 +800,15 @@ function injectStyles() {
       padding: 2px 0; color: #7f8798; }
     .ap-cov-on .ap-cov-name { color: #9aa4b5; }
     .ap-cov-off .ap-cov-name { color: #6c7484; }
+    .ap-glist { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+    .ap-g { border: 1px solid #232b38; border-radius: 8px; padding: 8px 10px; }
+    .ap-g-off { opacity: 0.62; }
+    .ap-g-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .ap-g-name { font-weight: 600; color: #dfe5ee; }
+    .ap-g-win { font-size: 11px; color: #8d95a5; }
+    .ap-g-mets { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; }
+    .ap-g-met { font-size: 11px; color: #7f8798; }
+    .ap-g-next { margin: 8px 0 0; font-size: 11px; color: #7f8798; }
     .ap-shelf-head { display: flex; justify-content: space-between; align-items: baseline;
       gap: 10px; flex-wrap: wrap; }
     .ap-proof { font-size: 11px; color: #7f8798; }

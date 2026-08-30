@@ -59,18 +59,18 @@ window.__tbBooted = true;
 
 
 
-startVersionChecker({ label: 'A new version of Team Bonding is available.' });
+startVersionChecker({ label: 'A new version of Farmyshoot is available.' });
 
 
 
 
-mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Team Bonding (and any join code) on your phone.' });
+mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Farmyshoot (and any join code) on your phone.' });
 
 
 
 
 
-initAnalytics({ page: 'team-bonding-game' });
+initAnalytics({ page: 'farmyshoot-game' });
 
 const $ = (id) => document.getElementById(id);
 

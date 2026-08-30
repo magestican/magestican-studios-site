@@ -12,6 +12,12 @@ export const MSG = Object.freeze({
   STATE:      'state',       
   SHOT:       'shot',        
   HIT:        'hit',         
+  
+  
+  
+  
+  
+  WORM:       'worm',        
   DEATH:      'death',       
   FLAG_PICK:  'flagPick',    
   FLAG_DROP:  'flagDrop',    

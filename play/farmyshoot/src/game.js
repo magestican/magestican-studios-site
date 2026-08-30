@@ -112,6 +112,12 @@ import { fovFor, detectTouch } from '../../../web-engine/render/cameraFov.js';
 import { kindForHit, shouldSpatter } from '../../../web-engine/combat/impactDebris.js';
 import { resolveSplash, hasSplash } from '../../../web-engine/combat/splash.js';
 import { ExplosionField } from './entities/explosion.js';
+import { SandwormField } from './entities/sandworm.js';
+import {
+  KILLS_TO_EARN as WORM_KILLS, DURATION as WORM_DURATION, PLACE_RANGE as WORM_RANGE,
+  createSandworm, stepSandworm, earned as wormEarned, killsRemaining as wormKillsLeft,
+  canPlace as wormCanPlace,
+} from 'arbelo/sandworm';
 import { shotSound } from '../../../web-engine/audio/weaponSfxSpec.js';
 import { aimPoint, muzzleShot } from '../../../web-engine/combat/muzzle.js';
 import { SHAKE_REACH } from './entities/explosionSpec.js';
@@ -944,6 +950,12 @@ export class Game {
     
     
     this.explosions = new ExplosionField(this.scene);
+    
+    
+    this.sandworms = new SandwormField(this.scene);
+    this.wormState = [];        
+    this.wormKills = 0;         
+    this.wormCharges = 0;       
     this.hazards = new HazardSystem(this.scene, this.grid);
     
     
@@ -1535,6 +1547,7 @@ export class Game {
       weapon,
     }));
     this._announceKill(killer, victim, weapon);
+    this._noteWormKill(killer, victim);
     this._dropCorn(pos || this._posOf(victim));
   }
 
@@ -1682,6 +1695,151 @@ export class Game {
     }
     if (loud <= 0.02) return;      
     SFX.animalVoice(character, loud);
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _noteWormKill(killer, victim) {
+    if (!killer || killer !== this.myId) return;
+    if (victim === this.myId) return;
+    const vm = this._meta(victim);
+    const mine = this._meta(this.myId);
+    if (vm && mine && vm.team && vm.team === mine.team) return;
+    this.wormKills += 1;
+    if (!wormEarned(this.wormKills)) return;
+    this.wormKills = 0;
+    this.wormCharges += 1;
+    
+    
+    
+    this._refreshViewmodel();
+    try { SFX.wormEarned?.(); } catch (_) {}
+    this._showAnnounceBanner?.('sandworm');
+  }
+
+  
+  
+  
+  
+  
+  
+  _stepSandworms(dt) {
+    if (!this.wormState?.length) return;
+    const targets = this._sandwormTargets();
+    for (let i = this.wormState.length - 1; i >= 0; i -= 1) {
+      const w = this.wormState[i];
+      const shots = stepSandworm(w, dt, targets);
+      for (const shot of shots) {
+        try { SFX.wormShot?.(shot.from); } catch (_) {}
+        this._applyWormShot(w, shot);
+      }
+      if (w.t >= WORM_DURATION) this.wormState.splice(i, 1);
+    }
+    this.sandworms?.update();
+  }
+
+  
+  
+  
+  
+  
+  _sandwormTargets() {
+    const out = [];
+    if (this.player?.alive) {
+      out.push({
+        id: this.myId, team: this._meta(this.myId)?.team,
+        x: this.player.pos.x, y: this.player.pos.y, z: this.player.pos.z, alive: true,
+      });
+    }
+    for (const bot of this.bots.values()) {
+      if (bot.alive === false) continue;
+      out.push({ id: bot.peerId, team: bot.team, x: bot.pos.x, y: bot.pos.y, z: bot.pos.z, alive: true, bot });
+    }
+    for (const [pid, rp] of (this.remotePlayers || new Map())) {
+      const g = rp?.group;
+      if (!g) continue;
+      out.push({ id: pid, team: this.playerMeta.get(pid)?.team, x: g.position.x, y: g.position.y, z: g.position.z, alive: true });
+    }
+    return out;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  _applyWormShot(w, shot) {
+    const t = shot.target;
+    if (t.id === this.myId) { this._takeDamage(shot.damage, w.ownerId, 'sandworm'); return; }
+    if (!this.isHost) return;
+    if (t.bot) {
+      const died = t.bot.takeDamage(shot.damage);
+      if (!died) return;
+      this._broadcast({ t: MSG.DEATH, victim: t.bot.peerId, killer: w.ownerId, weapon: 'sandworm' });
+      this._tallyKill(w.ownerId, t.bot.peerId);
+      this._localDeath(w.ownerId, t.bot.peerId, 'sandworm', t.bot.pos.clone());
+      setTimeout(() => { t.bot.respawn(); }, 500);
+      return;
+    }
+    this._broadcast({ t: MSG.HIT, target: t.id, dmg: shot.damage, by: w.ownerId, weapon: 'sandworm' });
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _aimFloorPoint(origin, dir, range) {
+    const p = origin.clone();
+    const step = dir.clone().multiplyScalar(0.5);
+    for (let d = 0; d <= range; d += 0.5) {
+      p.add(step);
+      const gx = Math.floor(p.x);
+      const gy = Math.floor(p.y);
+      const gz = Math.floor(p.z);
+      if (gy < 0) return null;
+      if (this.world?.grid?.get?.(gx, gy, gz)) {
+        
+        
+        return { x: p.x, y: gy + 1, z: p.z };
+      }
+    }
+    return null;
+  }
+
+  _summonSandworm(point) {
+    if (this.wormCharges <= 0) return false;
+    if (!wormCanPlace(this.player?.pos, point, WORM_RANGE)) return false;
+    const worm = createSandworm({
+      x: point.x, y: point.y ?? 1, z: point.z,
+      team: this._meta(this.myId)?.team, ownerId: this.myId,
+    });
+    this.wormState.push(worm);
+    this.sandworms.spawn(worm);
+    this.wormCharges -= 1;
+    
+    this._refreshViewmodel();
+    try { SFX.wormSummon?.(point); } catch (_) {}
+    this._broadcast?.({ t: MSG.WORM, at: [worm.x, worm.y, worm.z], by: this.myId, team: worm.team });
+    return true;
   }
 
   _announceKill(killer, victim, weapon) {
@@ -2688,7 +2846,7 @@ export class Game {
       
       const me = [...rows.red, ...rows.blue].find((r) => r.isMe);
       const session = recordSession({
-        gameId: 'team-bonding',
+        gameId: 'farmyshoot',
         metrics: { matches: 1, kills: me?.kills ?? 0, wins: (winner && me?.team === winner) ? 1 : 0 },
         won: !!winner && me?.team === winner,
         name: me?.name,
@@ -3152,6 +3310,19 @@ export class Game {
       }
       case MSG.HIT: {
         if (msg.target === this.myId) this._takeDamage(msg.dmg, msg.by, msg.weapon);
+        break;
+      }
+      case MSG.WORM: {
+        
+        
+        
+        if (msg.by === this.myId) break;              
+        const w = createSandworm({
+          x: msg.at[0], y: msg.at[1], z: msg.at[2], team: msg.team, ownerId: msg.by,
+        });
+        this.wormState.push(w);
+        this.sandworms?.spawn(w);
+        try { SFX.wormSummon?.({ x: w.x, y: w.y, z: w.z }); } catch (_) {}
         break;
       }
       case MSG.DEATH:
@@ -3683,6 +3854,7 @@ export class Game {
     
     
     this.explosions?.update(dt);
+    this._stepSandworms(dt);
 
     
     const nowMs = performance.now();
@@ -3747,6 +3919,13 @@ export class Game {
     
     
     if (this.steakAmmo > 0) { this._updateSteakChip(); this._refreshViewmodel(); return; }
+    
+    
+    
+    
+    
+    
+    if (this.wormCharges > 0) { this._refreshViewmodel(); return; }
     this.weapons.selectSlot(i);
     
     
@@ -3825,6 +4004,26 @@ export class Game {
     const dir = new THREE.Vector3();
     this.camera.getWorldDirection(dir);
     const origin = this.camera.position.clone();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (this.wormCharges > 0) {
+      const point = this._aimFloorPoint(origin, dir, WORM_RANGE);
+      if (point && this._summonSandworm(point)) {
+        this.viewmodel?.kick();
+      } else {
+        
+        
+        try { SFX.deny?.(); } catch (_) {}
+      }
+      return;
+    }
     
     
     
@@ -5888,6 +6087,12 @@ export class Game {
     this.snow = null;
     this.chickenPickup = null;
     this.powerUpPickups = null;
+    
+    
+    
+    
+    this.sandworms?.dispose?.();
+    if (this.wormState) this.wormState.length = 0;
   }
 
   

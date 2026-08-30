@@ -118,9 +118,33 @@ export function dailySeedCode(utcDay, gameId) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const GAME_PATHS = Object.freeze({
+  'team-bonding': 'farmyshoot',
+});
+
 export function seedLink(gameId, code) {
   if (!isGameId(gameId) || typeof code !== 'string' || !code) return null;
-  const path = gameId === 'zelakas' ? 'zelakas' : gameId;
+  const path = GAME_PATHS[gameId] || gameId;
   return `/play/${path}/?seed=${encodeURIComponent(code)}`;
 }
 

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmyshoot — a free browser CTF for remote teams | Magestican Studios</title>
+  <meta name="description" content="Farmyshoot is a free browser-based capture-the-flag game for remote teams. No download, no install, no signup — just share a room code and play in 30 seconds. Farm-animal characters, ice-drift movement, works on any laptop or phone at work.">
+  <meta name="keywords" content="browser game, no download, capture the flag, remote team game, office friendly game, work team game, WebRTC multiplayer, free browser fps, farm animal game, magestican studios">
+  <link rel="canonical" href="https://magesticanstudios.com/farmyshoot.html">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Farmyshoot — free browser CTF for remote teams">
+  <meta property="og:description" content="No download. No install. Farm-animal capture-the-flag for teams that share a link and play in 30 seconds.">
+  <meta property="og:url" content="https://magesticanstudios.com/farmyshoot.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Farmyshoot — free browser CTF for remote teams">
+  <meta name="twitter:description" content="No download. Just share a room code. Made for offices that lock down installs.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Farmyshoot",
+    "description": "A free browser-based capture-the-flag game for remote teams. Farm-animal characters, ice-drift movement, no download required.",
+    "url": "https://magesticanstudios.com/farmyshoot.html",
+    "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Multiplayer", "First-person shooter", "Capture the Flag"],
+    "gamePlatform": ["Web browser", "Mobile browser"],
+    "playMode": "MultiPlayer",
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" },
+    "aggregateRating": null
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Is Farmyshoot really free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Free, no ads, no signup required. Sign in with Google is optional and only remembers your player name." } },
+      { "@type": "Question", "name": "Does Farmyshoot need a server or an installer?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Neither. Farmyshoot is peer-to-peer over WebRTC, so the players' browsers talk to each other directly. Nothing installs." } },
+      { "@type": "Question", "name": "Will it work on a locked-down work browser?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. If the browser can open the page it can run the game: Chrome, Edge, Firefox and Safari on Windows, macOS or a Chromebook, with no admin rights and no download." } },
+      { "@type": "Question", "name": "How many people can play Farmyshoot?",
+        "acceptedAnswer": { "@type": "Answer", "text": "2 to 16 humans in one match. Below four players you can pad both teams with AI bots." } },
+      { "@type": "Question", "name": "Can I play Farmyshoot on a phone?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Touch controls are built in, and a phone can join the same room code as a laptop." } },
+      { "@type": "Question", "name": "Is my data collected?",
+        "acceptedAnswer": { "@type": "Answer", "text": "There is no account and no game server. The site counts anonymous, cookieless page views and match events with no identifier attached to you." } }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <style>
+    .landing-hero { padding: 44px 0 20px; }
+    .landing-hero h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.1; margin: 0 0 10px; }
+    .landing-hero p.tagline { font-size: 18px; color: #cbd3e1; max-width: 640px; }
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 22px 0 8px; }
+    .cta { display: inline-block; padding: 12px 22px; border-radius: 999px;
+      font: 700 15px system-ui, sans-serif; text-decoration: none; }
+    .cta-primary { background: #f4c95d; color: #1c1a17; }
+    .cta-primary:hover { background: #ffd97a; }
+    .cta-secondary { background: rgba(255,255,255,0.06); color: #e8ecf1; border: 1px solid rgba(255,255,255,0.20); }
+    .value-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 18px; margin: 30px 0; }
+    .value-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px; padding: 18px; }
+    .value-card h3 { font-size: 17px; margin: 0 0 6px; color: #f4c95d; }
+    .value-card p { font-size: 14px; color: #cbd3e1; line-height: 1.5; margin: 0; }
+    .faq h3 { margin: 20px 0 6px; font-size: 17px; color: #e8ecf1; }
+    .faq p { color: #cbd3e1; margin: 0 0 14px; }
+    .shot-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; margin: 22px 0; }
+    .shot-row img { width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.10); }
+    .breadcrumb { font-size: 13px; color: #7f8798; margin: 8px 0 20px; }
+    .breadcrumb a { color: #cbd3e1; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="./#games">Games</a>
+      <a href="./farmyshoot.html">Farmyshoot</a>
+      <a href="./farmykart.html">Farmy Kart</a>
+      <a href="./zelakas-in-space.html">Zelakas</a>
+      <a href="./2d-fighter-ex.html">Fighter EX</a>
+      <a href="./for-remote-teams.html">For teams</a>
+      <a href="./about.html">About</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./reviews.html">Reviews</a>
+    </nav>
+  </header>
+
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <p class="breadcrumb"><a href="./">Magestican Studios</a> › Farmyshoot</p>
+        <h1>Play a full multiplayer FPS with your team in 30 seconds — no download, no install, no signup.</h1>
+        <p class="tagline">Farmyshoot is a free browser-based capture-the-flag game built for remote teams and offices that lock down software installs. Farm-animal characters, ice-drift movement, works on any laptop or phone at work.</p>
+        <div class="cta-row">
+          <a class="cta cta-primary" href="/play/farmyshoot/">▶ Play now (free, no signup)</a>
+          <a class="cta cta-secondary" href="./for-remote-teams.html">For remote teams →</a>
+        </div>
+        <p class="hero-note">Runs entirely in your browser over WebRTC. No server. No account. No install.</p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section class="value-grid reveal">
+      <div class="value-card">
+        <h3>Zero install</h3>
+        <p>Your IT team locks down .exe installers? Farmyshoot runs in Chrome, Safari, Firefox and Edge. Nothing to download, ever.</p>
+      </div>
+      <div class="value-card">
+        <h3>Share a link</h3>
+        <p>Host clicks "New game". Everyone else pastes the 6-character room code. Full teams up and playing before the standup ends.</p>
+      </div>
+      <div class="value-card">
+        <h3>Works on any device</h3>
+        <p>Corporate laptop, personal phone, tablet — same game, same room, no cross-platform launcher nonsense. Touch controls built in.</p>
+      </div>
+      <div class="value-card">
+        <h3>No account</h3>
+        <p>Optional Sign in with Google to remember your name across games. Everything else works without ever collecting your details.</p>
+      </div>
+      <div class="value-card">
+        <h3>Bots on demand</h3>
+        <p>Only 2 people online? Add up to 4 AI bots to balance the teams. Farmyshoot plays great from 2 to 16 humans.</p>
+      </div>
+      <div class="value-card">
+        <h3>Fair, not sweaty</h3>
+        <p>Farm animals (cow, chicken, pig, sheep). Poo-slinging shovels. Ice-slippery physics. Slingshot chicken super-weapon. Nobody feels bad about losing to a chicken.</p>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <h2>What it looks like</h2>
+      <div class="shot-row">
+        <figure>
+          <img src="./assets/shot-tb-lobby.webp" width="900" height="616" loading="lazy" decoding="async"
+               alt="The Farmyshoot lobby: a 3D cow on a turntable, the five maps, the four modes, and a Host a new game button">
+          <figcaption>The lobby. Cow, chicken, pig or sheep; five maps; four modes; one button.</figcaption>
+        </figure>
+        <figure>
+          <img src="./assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async"
+               alt="Farmyshoot, the Farm Maze map: a farmer soldier in a lane between walls of tall corn">
+          <figcaption>Farm Maze. You cross it by double-jumping the hedges, and the power-ups sit on top.</figcaption>
+        </figure>
+        <figure class="shot-phone">
+          <img src="./assets/shot-tb-phone.webp" width="390" height="844" loading="lazy" decoding="async"
+               alt="Farmyshoot on a phone with the touch controls overlaid on the game">
+          <figcaption>On a phone, with touch controls. Same room code as the laptops.</figcaption>
+        </figure>
+      </div>
+    </section>
+    <section class="reveal">
+      <h2>Five places, all built from a number</h2>
+      <p>Every map is generated from a seed, so the same seed always builds the same world &mdash; and everybody in the room is standing in the same one. These are the game's own camera, lights, fog and sky.</p>
+      <div class="map-strip">
+        <figure><img src="./assets/map-snow-farm.webp" width="720" height="405" loading="lazy" decoding="async" alt="Snow Farm: two barns, a frozen field and a tractor lane, with geese standing about"><figcaption><strong>Snow Farm</strong>Two barns, a frozen field and a tractor lane. The original.</figcaption></figure>
+        <figure><img src="./assets/map-icy-mountain.webp" width="720" height="405" loading="lazy" decoding="async" alt="Icy Mountain: stepped granite terraces with pines growing out of the rock, and goats on a ledge"><figcaption><strong>Icy Mountain</strong>Stepped granite terraces and a wind-scoured saddle. Height is the cover.</figcaption></figure>
+        <figure><img src="./assets/map-central-park-rink.webp" width="720" height="405" loading="lazy" decoding="async" alt="Central Park Rink: hex pavers and park benches at dusk with a voxel city skyline and pigeons"><figcaption><strong>Central Park Rink</strong>An outdoor rink in the park at dusk. The ice is the arena.</figcaption></figure>
+        <figure><img src="./assets/map-arctic-floe.webp" width="720" height="405" loading="lazy" decoding="async" alt="Arctic Floe: pack ice and pressure ridges under a low sun, with penguins standing very still"><figcaption><strong>Arctic Floe</strong>Pack ice under a sun that will not set. And penguins, watching you.</figcaption></figure>
+        <figure><img src="./assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async" alt="Farm Maze: a lane between walls of tall corn with a farmer soldier in it"><figcaption><strong>Farm Maze</strong>A corn maze you cross by double-jumping the hedges. Something is in here with you.</figcaption></figure>
+      </div>
+    </section>
+
+
+    <section class="faq reveal">
+      <h2>Frequently asked</h2>
+      <h3>Is it really free?</h3>
+      <p>Yes. Free, no ads, no signup required. Sign in with Google is optional and only remembers your player name.</p>
+      <h3>Does it need a server or installer?</h3>
+      <p>Neither. Farmyshoot is peer-to-peer over WebRTC. All the players' browsers talk to each other directly. Nothing installs.</p>
+      <h3>Will it work on my company's locked-down browser?</h3>
+      <p>If your browser can open <a href="https://magesticanstudios.com/play/farmyshoot/">this link</a>, yes. Chrome, Edge, Firefox, Safari, on Windows, Mac, or a Chromebook — all fine.</p>
+      <h3>How many people can play?</h3>
+      <p>2 to 16 humans. Below 4 you can pad the teams with AI bots.</p>
+      <h3>Can I play on a phone?</h3>
+      <p>Yes — touch controls are built in, and a phone can join the same room code as a laptop. If you want something keyboard-only and single-player instead, try <a href="./zelakas-in-space.html">Zelakas In Space</a>.</p>
+      <h3>Is my data collected?</h3>
+      <p>No game server, and nothing tied to you unless you ask us to save your progress. We count anonymous, cookieless page views and match results (map, mode, bot count) so we know which parts of the game people play. See our <a href="./privacy.html">privacy notes</a>.</p>
+    </section>
+
+    <section class="cta-band reveal">
+      <p>Ready to be a chicken with a slingshot?</p>
+      <a class="cta cta-primary" href="/play/farmyshoot/">Play Farmyshoot now</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; Site is static &middot; no cookies, anonymous counts only
+    </p>
+  </footer>
+  
+
+
+  <script type="module" src="./assets/site.js?v=6bad1bd-20260830T030114Z"></script>
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
+    initAnalytics({ page: 'farmyshoot-landing' });
+    trackPlayClicks();
+    
+    
+    
+    mountLeaderboard({ place: 'site', showChip: true });
+  </script>
+</body>
+</html>
