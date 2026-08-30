@@ -326,6 +326,13 @@ function buildVerge(path, track) {
   const mesh = new THREE.Mesh(geo, surface({
     color: colour, side: THREE.DoubleSide,
   }));
+  
+  
+  
+  
+  
+  
+  mesh.receiveShadow = true;
   mesh.name = 'verge';
   return mesh;
 }

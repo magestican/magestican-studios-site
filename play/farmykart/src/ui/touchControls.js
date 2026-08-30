@@ -42,6 +42,7 @@
 
 
 import { touchOverlayLayout, wheelAngleDeg } from 'arbelo/touchLayout';
+import { tapFlash } from 'arbelo/doubleTap';
 import {
   drawDriftIcon, drawItemBoxIcon, drawPedal, drawSteeringWheel,
 } from '../render/touchIcons.js';
@@ -88,7 +89,7 @@ export function createTouchOverlay(container) {
   
   
   const last = {
-    steer: null, throttle: null, drift: null, item: null, brake: null,
+    steer: null, throttle: null, drift: null, item: null, brake: null, flash: 0,
     grabbed: null, gx: null, gy: null, tx: null, ty: null, w: 0, h: 0,
   };
 
@@ -198,6 +199,26 @@ export function createTouchOverlay(container) {
     if (go !== last.throttle) {
       last.throttle = go;
       els.pedal.classList.toggle('on', go);
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const flash = tapFlash(Date.now() - (v.doubleTapAt ?? -Infinity));
+    if (Math.abs(flash - last.flash) > 0.02) {
+      last.flash = flash;
+      els.pedal.classList.toggle('tapped', flash > 0.02);
+      els.pedal.style.setProperty('--tap-flash', flash.toFixed(3));
     }
     const drift = !!v.drift;
     if (drift !== last.drift) {

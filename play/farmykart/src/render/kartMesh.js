@@ -838,7 +838,19 @@ export function buildKart(character, variant = 0) {
     driverPivot.add(pivot);
   });
 
-  group.traverse((o) => { if (o.isMesh) { o.castShadow = true; } });
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  group.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   return { group, wheels, driverPivot, tint, spec, glider, flames, exhaustTips: tips };
 }
 

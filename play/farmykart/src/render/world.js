@@ -61,7 +61,21 @@ export function buildLights(theme) {
   
   const sunColour = theme === 'overcast' || theme === 'mud' ? 0xf0ead8
     : theme === 'snow' ? 0xfaf6ff : PALETTE.sun;
-  const sun = new THREE.DirectionalLight(sunColour, theme === 'mud' ? 1.35 : 1.62);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const sun = new THREE.DirectionalLight(sunColour, theme === 'mud' ? 1.78 : 2.15);
   
   
   
@@ -69,15 +83,28 @@ export function buildLights(theme) {
   
   sun.position.set(-150, 110, 105);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
+  
+  
+  
+  
+  sun.shadow.mapSize.set(2048, 2048);
   
   
   
   
   const c = sun.shadow.camera;
-  c.left = -70; c.right = 70; c.top = 70; c.bottom = -70;
+  
+  
+  
+  c.left = -52; c.right = 52; c.top = 52; c.bottom = -52;
   c.near = 1; c.far = 520;
-  sun.shadow.bias = -0.0009;
+  
+  
+  
+  
+  
+  sun.shadow.bias = -0.00018;
+  sun.shadow.normalBias = 0.028;
   group.add(sun);
   group.add(sun.target);
 
@@ -88,11 +115,18 @@ export function buildLights(theme) {
     
     
     theme === 'snow' ? 0xc8dcef : 0x9c9a5e,
-    theme === 'overcast' || theme === 'mud' ? 1.05 : 1.00,
+    
+    
+    
+    
+    theme === 'overcast' || theme === 'mud' ? 0.62 : 0.40,
   );
   group.add(skyFill);
 
-  const bounce = new THREE.DirectionalLight(theme === 'snow' ? 0xd8e8f6 : 0xe0bf8a, 0.42);
+  
+  
+  
+  const bounce = new THREE.DirectionalLight(theme === 'snow' ? 0xd8e8f6 : 0xe0bf8a, 0.16);
   bounce.position.set(80, -40, -60);
   group.add(bounce);
 

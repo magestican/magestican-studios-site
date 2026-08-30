@@ -22,7 +22,9 @@ import { resolveTuning, characterById, CHARACTERS } from 'arbelo/kartTuning';
 import { createDriver, driveBot, findThreats } from 'arbelo/kartAi';
 import { crossedJump } from 'arbelo/trackJumps';
 import { hazardAt, hazardEffect } from 'arbelo/trackHazards';
-import { bodyGroundY } from 'arbelo/trackGround';
+import { bodyGroundY, trackGuards } from 'arbelo/trackGround';
+import { bankPush, guardBlock, WALL_DRAG } from 'arbelo/guardWall';
+import { lockZoom } from './input/zoomLock.js';
 import { assistSteer } from 'arbelo/steerAssist';
 import { createRecovery, stepRecovery, isRecovering, isUnrecoverable } from 'arbelo/recovery';
 import {
@@ -591,7 +593,52 @@ export function createRace(options) {
       
       
       const groundY = bodyGroundY(path, surf, r.kart.x, r.kart.z, track);
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const guards = trackGuards(path, track);
+      const push = bankPush(guards, surf);
+      if (push > 0 && r.kart.grounded) {
+        
+        const inward = (surf.lateral ?? 0) > 0 ? -1 : 1;
+        r.kart.vx += surf.nx * inward * push * dt;
+        r.kart.vz += surf.nz * inward * push * dt;
+      }
+
       r.kart = stepKart(r.kart, input, { ...surf, groundY }, dt);
+
+      
+      
+      
+      
+      
+      
+      {
+        const after = trackSurface(path, r.kart.x, r.kart.z, r.kart.pathHint, { shoulder: SHOULDER });
+        const hit = guardBlock(guards, after, r.kart);
+        if (hit) {
+          r.kart.x = hit.x;
+          r.kart.z = hit.z;
+          r.kart.vx = hit.vx;
+          r.kart.vz = hit.vz;
+          
+          
+          r.kart.speed = Math.max(0, r.kart.speed * (1 - WALL_DRAG * dt));
+          if (r.isPlayer && hit.scrub > 0.12) {
+            chase.shake = Math.max(chase.shake ?? 0, Math.min(0.5, hit.scrub * 0.5));
+          }
+        }
+      }
 
       
       
@@ -1339,10 +1386,69 @@ export function createRace(options) {
   for (const fire of pendingNet) fire();
   pendingNet.length = 0;
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  window.__fkGame = {
+    renderer, scene, camera, track, lights,
+    get racers() { return racers; },
+    get you() { return you; },
+    
+    lightReport() {
+      const out = [];
+      scene.traverse((o) => {
+        if (!o.isLight) return;
+        out.push({
+          type: o.type, intensity: o.intensity,
+          colour: o.color?.getHexString?.(),
+          castShadow: !!o.castShadow,
+          mapSize: o.shadow ? [o.shadow.mapSize.x, o.shadow.mapSize.y] : null,
+        });
+      });
+      return out;
+    },
+    
+    shadowReport() {
+      const r = { cast: 0, receive: 0, both: 0, neither: 0, neitherNames: [] };
+      scene.traverse((o) => {
+        if (!o.isMesh) return;
+        if (o.castShadow && o.receiveShadow) r.both++;
+        else if (o.castShadow) r.cast++;
+        else if (o.receiveShadow) r.receive++;
+        else { r.neither++; if (r.neitherNames.length < 24) r.neitherNames.push(o.name || o.geometry?.type || '?'); }
+      });
+      return r;
+    },
+    
+    materialReport() {
+      const counts = {};
+      scene.traverse((o) => {
+        const mats = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
+        for (const m of mats) counts[m.type] = (counts[m.type] || 0) + 1;
+      });
+      return counts;
+    },
+  };
+
+  let unlockZoom = null;
+
   return {
     track,
     start() {
       if (running || disposed) return;
+      
+      
+      
+      if (!unlockZoom) unlockZoom = lockZoom(document);
       resumeAudio(audio);
       startEngine(audio);
       
@@ -1354,6 +1460,7 @@ export function createRace(options) {
     },
     stop() {
       running = false;
+      if (unlockZoom) { unlockZoom(); unlockZoom = null; }
       cancelAnimationFrame(raf);
       stopEngine(audio);
       stopMusic(audio);

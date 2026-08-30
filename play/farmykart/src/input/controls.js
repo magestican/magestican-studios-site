@@ -44,6 +44,7 @@ import {
   isBrakeSlide, steerFromDrag, touchZoneAt,
 } from 'arbelo/touchLayout';
 import { createTouchOverlay } from '../ui/touchControls.js';
+import { createTapTracker, tapDown, tapReset } from 'arbelo/doubleTap';
 
 const DEADZONE = 0.14;
 
@@ -67,6 +68,14 @@ export function createControls(root) {
     
     
     lastSource: null,
+    
+    
+    
+    
+    _throttleTaps: createTapTracker(),
+    
+    
+    doubleTapAt: -Infinity,
     _keys: new Set(),
     _touchSteer: 0,
     _touchThrottle: 0,
@@ -149,6 +158,14 @@ export function readControls(state, dt) {
   
   
   if (k.has(' ')) jump = true;
+  
+  
+  
+  
+  
+  
+  
+  if (k.has(' ')) drift = true;
   if (k.has('control') || k.has('e') || k.has('x') || k.has('enter')) useItem = true;
   if (k.has('q')) lookBack = true;
 
@@ -239,7 +256,15 @@ function attachTouch(root, state) {
     state.lastSource = 'touch';
     const w = window.innerWidth; const h = window.innerHeight;
     const zone = zoneOf(e.clientX, e.clientY, w, h);
-    pointers.set(e.pointerId, { zone, startX: e.clientX, startY: e.clientY, downAt: Date.now() });
+    const now = Date.now();
+    
+    
+    let doubled = false;
+    if (zone === 'throttle') {
+      doubled = tapDown(state._throttleTaps, now);
+      if (doubled) state.doubleTapAt = now;
+    }
+    pointers.set(e.pointerId, { zone, startX: e.clientX, startY: e.clientY, downAt: now, doubled });
     apply();
     e.preventDefault();
   };
@@ -284,6 +309,15 @@ function attachTouch(root, state) {
         };
       } else if (p.zone === 'throttle') {
         throttle = 1;
+        
+        
+        
+        
+        
+        if (p.doubled) {
+          drift = true;
+          if (p.downAt !== undefined && Date.now() - p.downAt < TAP_MS) jump = true;
+        }
       } else if (p.zone === 'drift') {
         
         
@@ -313,6 +347,8 @@ function attachTouch(root, state) {
         item,
         brake,
         grab,
+        
+        doubleTapAt: state.doubleTapAt,
       });
     }
   }
@@ -329,8 +365,15 @@ function attachTouch(root, state) {
   target.addEventListener('pointercancel', onUp);
   target.addEventListener('pointerleave', onUp);
 
+  
+  
+  
+  
+  if (typeof window !== 'undefined') window.__fkControls = state;
+
   return {
     dispose: () => {
+      if (typeof window !== 'undefined' && window.__fkControls === state) window.__fkControls = null;
       target.removeEventListener('pointerdown', onDown);
       target.removeEventListener('pointermove', onMove);
       target.removeEventListener('pointerup', onUp);
