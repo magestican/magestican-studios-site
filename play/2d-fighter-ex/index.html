@@ -88,7 +88,20 @@
 
 
 
+    details.more { width: 100%; }
+    details.more > summary {
+      display: none; cursor: pointer; color: var(--muted); font-size: .9rem;
+      list-style: none; padding: 10px; text-align: center;
+    }
+    details.more > summary::-webkit-details-marker { display: none; }
+
     @media (max-width: 720px) {
+      
+      details.more > summary {
+        display: block; border: 1px solid #2f4030; border-radius: 4px;
+        margin: 10px auto 0; max-width: 220px;
+      }
+      details.more[open] > summary { margin-bottom: 4px; }
       body { padding: 0 0 16px; }
       header { margin: 10px 0 8px; }
       h1 { font-size: 1.1rem; }
@@ -117,6 +130,18 @@
       <span id="speedout">1.00x</span>
     </label>
   </div>
+
+  
+
+
+
+
+
+
+
+
+  <details class="more" id="more" open>
+    <summary>Options</summary>
 
   
 
@@ -168,6 +193,8 @@
   
 
 
+  </details>
+
   <div class="readout" id="account"></div>
 
   <footer>
@@ -181,9 +208,19 @@
 
 
 
+  <script>
+    
+    
+    
+    (function () {
+      var d = document.getElementById('more');
+      if (d && window.matchMedia('(max-width: 720px)').matches) d.open = false;
+    }());
+  </script>
+
   <script type="importmap">
   {"imports":{"three":"https://unpkg.com/three@0.161.0/build/three.module.js"}}
   </script>
-  <script type="module" src="./src/main.js?v=2eec94b-20260829T232548Z"></script>
+  <script type="module" src="./src/main.js?v=fa63b30-20260830T012546Z"></script>
 </body>
 </html>

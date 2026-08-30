@@ -103,12 +103,46 @@ const MOOD_FILTERS = {
 
 
 
+const CAM_MAX_ZOOM = 1.95;
+const CAM_MIN_ZOOM = 1.0;
+
+
+const CAM_MARGIN_X = 78;
+const CAM_MARGIN_TOP = 16;
 
 
 
 
 
-export const VIEW_ZOOM = 1.34;
+
+
+export function fightCamera(pose, width) {
+  const both = [pose.a, pose.b].filter(Boolean);
+  if (!both.length) return { zoom: 1, cx: width / 2 };
+
+  let lo = Infinity; let hi = -Infinity; let top = Infinity;
+  for (const s of both) {
+    lo = Math.min(lo, s.cx);
+    hi = Math.max(hi, s.cx);
+    top = Math.min(top, s.top);
+  }
+  lo -= CAM_MARGIN_X;
+  hi += CAM_MARGIN_X;
+
+  
+  
+  const zoomX = width / Math.max(1, hi - lo);
+  const headroom = GROUND_Y - top;
+  const zoomY = headroom > 0 ? (GROUND_Y - CAM_MARGIN_TOP) / headroom : CAM_MAX_ZOOM;
+  const zoom = Math.max(CAM_MIN_ZOOM, Math.min(CAM_MAX_ZOOM, zoomX, zoomY));
+
+  
+  
+  const half = width / (2 * zoom);
+  const cx = Math.max(half, Math.min(width - half, (lo + hi) / 2));
+  return { zoom, cx };
+}
+
 
 export const STAGE_OFFSET_X = (STAGE_WIDTH - CANVAS.width) / 2;
 
@@ -172,10 +206,11 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
   
   
   
+  const shot = fightCamera(pose, width);
   ctx.save();
   ctx.translate(width / 2, GROUND_Y);
-  ctx.scale(VIEW_ZOOM, VIEW_ZOOM);
-  ctx.translate(-width / 2, -GROUND_Y);
+  ctx.scale(shot.zoom, shot.zoom);
+  ctx.translate(-shot.cx, -GROUND_Y);
 
   layer('sky');
   drawSky(ctx, width, height, season, world);
@@ -425,7 +460,15 @@ export function renderFrame(ctx, stage, pose, mood = 'none', { onLayer, season =
     const pair = [pose.a, pose.b].filter(Boolean);
     if (pair.length) {
       const mx = pair.reduce((t, p) => t + p.cx, 0) / pair.length;
-      const top = Math.min(...pair.map((p) => p.top));
+      
+      
+      
+      
+      
+      
+      const WORD_H = 46;
+      const ceiling = GROUND_Y - (GROUND_Y - WORD_H) / shot.zoom;
+      const top = Math.max(ceiling, Math.min(...pair.map((p) => p.top)));
       if (pose.word) {
         
         
