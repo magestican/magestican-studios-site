@@ -208,7 +208,28 @@ export class LobbyShowcase {
       
       
       
-      g.rotation.y = s.spin + Math.PI;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      g.rotation.y = s.spin;
       
       
       
