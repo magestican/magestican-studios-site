@@ -17,13 +17,24 @@ import * as THREE from 'three';
 
 import { buildPath, trackSurface, startGrid, sampleAt } from 'arbelo/trackPath';
 import { buildRacingLine } from 'arbelo/racingLine';
-import { createKart, stepKart, respawnKart, launchKart, resolveKartContact } from 'arbelo/kartPhysics';
+import { createKart, respawnKart, resolveKartContact } from 'arbelo/kartPhysics';
 import { resolveTuning, characterById, CHARACTERS } from 'arbelo/kartTuning';
 import { createDriver, driveBot, findThreats } from 'arbelo/kartAi';
-import { crossedJump } from 'arbelo/trackJumps';
-import { hazardAt, hazardEffect } from 'arbelo/trackHazards';
-import { bodyGroundY, trackGuards } from 'arbelo/trackGround';
-import { bankPush, guardBlock, WALL_DRAG } from 'arbelo/guardWall';
+
+
+
+import { trackGuards, trackRails, railContact, IMPACT_KILL } from 'arbelo/trackGround';
+
+
+
+
+
+
+
+
+
+
+import { stepRacer } from 'arbelo/raceStep';
 import { lockZoom } from './input/zoomLock.js';
 import { assistSteer } from 'arbelo/steerAssist';
 import { createRecovery, stepRecovery, isRecovering, isUnrecoverable } from 'arbelo/recovery';
@@ -45,14 +56,39 @@ import { planTick } from 'arbelo/tickPolicy';
 
 import { lapPoints } from 'arbelo/raceScore';
 
+
+
+
+
+
+import { pageContexts } from '../../../web-engine/render/contextBudget.js';
 import { trackById, itemStopsFor } from './tracks/tracks.js';
 import { buildTrackMesh, buildFences, SHOULDER } from './render/trackMesh.js';
 import { buildScenery } from './render/props.js';
 import { buildSpectators, updateSpectators } from './render/spectators.js';
 import { buildKart, poseKart } from './render/kartMesh.js';
 import { buildSky, updateSky, buildLights, buildSun, updateSun, fogFor, createChaseCamera, updateChase, snapChase, focusShadow } from './render/world.js';
-import { configureRenderer, buildEnvironment, setQuality, detectQuality } from './render/materials.js';
-import { buildWater, updateWater, buildFires, updateFires } from './render/hazardMesh.js';
+
+
+
+
+
+
+
+
+
+
+
+import { configureRenderer, buildEnvironment, releaseEnvironment, setQuality, detectQuality } from './render/materials.js';
+
+
+
+
+
+
+
+
+import { buildWater, updateWater, boatWashSlots, buildFires, updateFires } from './render/hazardMesh.js';
 import { buildStartGate, updateStartGate } from './render/startGate.js';
 import {
   createFx, updateFx, driftSparks, boostFlame, groundDust, hitBurst, pickupBurst, createShieldBubble,
@@ -103,6 +139,13 @@ export function createRace(options) {
   const path = buildPath(track.control, {
     defaultWidth: track.defaultWidth,
     branches: track.shortcuts,
+    
+    
+    
+    
+    
+    
+    camberScale: track.camberScale,
   });
   const line = buildRacingLine(path);
   const rng = new SeededRng(seed);
@@ -110,14 +153,10 @@ export function createRace(options) {
   const raceLaps = laps ?? track.laps ?? 3;
 
   
-  const hashOf = (str) => {
-    let h = 0x811c9dc5;
-    for (let i = 0; i < str.length; i += 1) {
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 0x01000193);
-    }
-    return h >>> 0;
-  };
+  
+  
+  
+  
 
   
   
@@ -125,6 +164,23 @@ export function createRace(options) {
   
   
   setQuality(new URLSearchParams(location.search).get('quality') || detectQuality());
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  pageContexts.enterExclusive('scene');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.setSize(window.innerWidth, window.innerHeight, false);
   
@@ -458,7 +514,11 @@ export function createRace(options) {
   function step(dt) {
     clock += dt;
     updateSky(sky, clock);
-    updateWater(water, clock);
+    
+    
+    
+    
+    updateWater(water, clock, boatWashSlots(racers));
     updateFires(fires, clock);
     
     
@@ -506,6 +566,32 @@ export function createRace(options) {
       
       if (net && !net.owns(r.id)) {
         net.applyRemote(r);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        const rk = r.kart;
+        rk.bankRoll = Math.atan(surf.crossSlope ?? 0);
+        const rrail = rk.grinding ? railContact(trackRails(path, track), surf, rk) : null;
+        rk.grindSide = rrail ? rrail.side : 0;
+        rk.wheelie = rk.grinding ? 1 : 0;
+        rk.grindMount = rk.grinding ? 1 : 0;
         driftSparks(fx, r.kart, r.kart.driftTier ?? 0, dt);
         boostFlame(fx, r.kart, dt);
         groundDust(fx, r.kart, surf.onRoad, dt);
@@ -592,9 +678,6 @@ export function createRace(options) {
       
       
       
-      const groundY = bodyGroundY(path, surf, r.kart.x, r.kart.z, track);
-
-      
       
       
       
@@ -607,36 +690,79 @@ export function createRace(options) {
       
       
       const guards = trackGuards(path, track);
-      const push = bankPush(guards, surf);
-      if (push > 0 && r.kart.grounded) {
+      const stepped = stepRacer({
+        path, track, guards, kart: r.kart, input, dt, surface: surf, jumpFrac: r.jumpFrac,
+      });
+      r.kart = stepped.kart;
+      r.jumpFrac = stepped.jumpFrac;
+      const {
+        blocked, launched, hazard, hazardHit,
+        grindStarted, grindEnded, splashed, splashVy, beached, adrift,
+      } = stepped.events;
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (grindStarted && r.isPlayer) {
+        SFX.railOn(audio);
+        chase.shake = Math.max(chase.shake ?? 0, 0.18);
+      }
+      if (grindEnded && r.isPlayer) {
         
-        const inward = (surf.lateral ?? 0) > 0 ? -1 : 1;
-        r.kart.vx += surf.nx * inward * push * dt;
-        r.kart.vz += surf.nz * inward * push * dt;
+        
+        SFX.railOff(audio, grindEnded === 'jump');
+        if (grindEnded === 'jump') chase.shake = Math.max(chase.shake ?? 0, 0.34);
+      }
+      
+      
+      
+      
+      
+      if (r.isPlayer) {
+        SFX.railLoop(audio, r.kart.grinding ? 1 : 0, Math.abs(r.kart.speed ?? 0));
+      }
+      if (splashed && r.isPlayer) {
+        
+        
+        
+        
+        const hard = Math.min(1, Math.abs(splashVy) / IMPACT_KILL);
+        SFX.splash(audio, hard);
+        chase.shake = Math.max(chase.shake ?? 0, 0.2 + hard * 0.5);
+      }
+      if (beached && r.isPlayer) SFX.bump(audio);
+      
+      
+      
+      
+      
+      if (adrift && r.isPlayer) {
+        SFX.hit(audio);
+        chase.shake = 0.6;
       }
 
-      r.kart = stepKart(r.kart, input, { ...surf, groundY }, dt);
+      
+      
+      if (blocked && r.isPlayer && blocked.scrub > 0.12) {
+        chase.shake = Math.max(chase.shake ?? 0, Math.min(0.5, blocked.scrub * 0.5));
+      }
 
-      
-      
-      
-      
-      
-      
-      {
-        const after = trackSurface(path, r.kart.x, r.kart.z, r.kart.pathHint, { shoulder: SHOULDER });
-        const hit = guardBlock(guards, after, r.kart);
-        if (hit) {
-          r.kart.x = hit.x;
-          r.kart.z = hit.z;
-          r.kart.vx = hit.vx;
-          r.kart.vz = hit.vz;
+      if (launched) {
+        r.airFrom = launched.vy;
+        if (r.isPlayer) {
+          SFX.jump(audio, Math.min(1.4, launched.vy / 8));
           
           
-          r.kart.speed = Math.max(0, r.kart.speed * (1 - WALL_DRAG * dt));
-          if (r.isPlayer && hit.scrub > 0.12) {
-            chase.shake = Math.max(chase.shake ?? 0, Math.min(0.5, hit.scrub * 0.5));
-          }
+          
+          chase.shake = Math.min(1, 0.22 + launched.vy * 0.02);
         }
       }
 
@@ -644,47 +770,10 @@ export function createRace(options) {
       
       
       
-      
-      if (track.jumps) {
-        const nowFrac = trackSurface(path, r.kart.x, r.kart.z, r.kart.pathHint, { shoulder: SHOULDER }).s
-          / path.length;
-        const hit = crossedJump(track.jumps, r.jumpFrac, nowFrac, r.kart.speed);
-        r.jumpFrac = nowFrac;
-        if (hit) {
-          launchKart(r.kart, hit.vy);
-          r.airFrom = hit.vy;
-          if (r.isPlayer) {
-            SFX.jump(audio, Math.min(1.4, hit.vy / 8));
-            
-            
-            
-            chase.shake = Math.min(1, 0.22 + hit.vy * 0.02);
-          }
-        }
-      }
-      
-      
-      
-      
-      
-      
-      if (track.hazards && r.kart.grounded) {
-        const zone = hazardAt(track.hazards, {
-          frac: surf.s / path.length, lateral: surf.lateral, width: surf.width,
-        });
-        const effect = hazardEffect(zone, r.kart);
-        if (effect?.action === 'respawn') {
-          if (r.isPlayer) { SFX.hit(audio); chase.shake = 0.6; }
-          
-          
-          
-          r.kart = respawnKart(r.kart, sampleAt(path, surf.s), { after: 0 });
-          r.kart.invuln = Math.max(r.kart.invuln ?? 0, 1.2);
-        } else if (effect?.action === 'spin') {
-          const out = applyEffect(r.kart, 'spin');
-          r.kart = out.kart;
-          if (r.isPlayer && out.hit) { SFX.hit(audio); chase.shake = 0.5; duckMusic(audio); }
-        }
+      if (hazard === 'respawn') {
+        if (r.isPlayer) { SFX.hit(audio); chase.shake = 0.6; }
+      } else if (hazard === 'spin') {
+        if (r.isPlayer && hazardHit) { SFX.hit(audio); chase.shake = 0.5; duckMusic(audio); }
       }
 
       
@@ -1453,7 +1542,37 @@ export function createRace(options) {
       startEngine(audio);
       
       
-      startMusic(audio, track.theme, hashOf(track.id));
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      startMusic(audio, { trackId: track.id, theme: track.theme });
       running = true;
       last = performance.now();
       raf = requestAnimationFrame(frame);
@@ -1481,6 +1600,13 @@ export function createRace(options) {
       
       
       disposeObject(scene);
+      
+      
+      
+      
+      
+      releaseEnvironment(scene.environment);
+      scene.environment = null;
       renderer.dispose();
     },
   };

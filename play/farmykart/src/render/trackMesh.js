@@ -14,14 +14,28 @@
 
 
 import * as THREE from 'three';
-import { nearestOnBranch, sampleAt } from 'arbelo/trackPath';
+import { nearestOnBranch, sampleAt, trackSurface } from 'arbelo/trackPath';
 import { PALETTE } from '../palette.js';
-import { makeRoadTexture, makeGrassTexture, makeShortcutTexture } from './textures.js';
-import { surface, addGroundDetail } from './materials.js';
+import { makeRoadTexture, makeGrassTexture, makeShortcutTexture, makeGroundNormal } from './textures.js';
+import { surface, addGroundDetail, applyShadows } from './materials.js';
+
+import { NORMAL_SCALE } from '../../../../web-engine/render/lookGrade.js';
 import { inSpan, RESPAWNS } from 'arbelo/trackHazards';
 import {
   SHOULDER, KERB_WIDTH, groundGrid, groundMeshHeightAt, trackGuards,
-  GUARD_WIDTH, guardSection,
+  GUARD_WIDTH, guardSection, GUARD_DRESS_MIN,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  CAMBER_COLS, roadCrossSection, camberLiftAt, camberEdgeY,
+  blendToGround, trackRails, RAIL_AT, RAIL_HEIGHT, RAIL_RADIUS,
 } from 'arbelo/trackGround';
 import { terrainOffsetAt } from 'arbelo/trackTerrain';
 
@@ -71,6 +85,10 @@ export function buildTrackMesh(path, track) {
   
   
   group.add(buildEdgeGuards(path, track));
+  
+  
+  
+  group.add(buildRails(path, track));
   group.add(buildMarkerPosts(path, theme));
   group.add(buildStartLine(path));
   return group;
@@ -115,32 +133,78 @@ export {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function buildRoad(path, theme) {
   const n = path.count;
-  const positions = new Float32Array(n * 2 * 3);
-  const uvs = new Float32Array(n * 2 * 2);
+  const cols = CAMBER_COLS;
+  const positions = new Float32Array(n * cols * 3);
+  const uvs = new Float32Array(n * cols * 2);
   const indices = [];
 
   for (let i = 0; i < n; i += 1) {
     const p = path.pts[i];
     const t = path.tangents[i];
     const half = p.width / 2;
-    
-    
-    positions[i * 6 + 0] = p.x + t.z * half;
-    positions[i * 6 + 1] = p.y + 0.02;
-    positions[i * 6 + 2] = p.z - t.x * half;
-    positions[i * 6 + 3] = p.x - t.z * half;
-    positions[i * 6 + 4] = p.y + 0.02;
-    positions[i * 6 + 5] = p.z + t.x * half;
+    const section = roadCrossSection(path.camber, i);
     const v = path.s[i] / 8;
-    uvs[i * 4 + 0] = 0; uvs[i * 4 + 1] = v;
-    uvs[i * 4 + 2] = 1; uvs[i * 4 + 3] = v;
+    for (let j = 0; j < cols; j += 1) {
+      
+      
+      
+      
+      
+      
+      const { t: lat, lift } = section[cols - 1 - j];
+      const off = lat * half;
+      const b = (i * cols + j) * 3;
+      
+      
+      positions[b + 0] = p.x + t.z * off;
+      positions[b + 1] = p.y + 0.02 + lift;
+      positions[b + 2] = p.z - t.x * off;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const q = (i * cols + j) * 2;
+      uvs[q + 0] = (1 - lat) / 2;
+      uvs[q + 1] = v;
+    }
   }
   for (let i = 0; i < n; i += 1) {
-    const a = i * 2; const b = i * 2 + 1;
-    const j = ((i + 1) % n) * 2; const k = j + 1;
-    indices.push(a, b, j, b, k, j);
+    const row = i * cols;
+    const next = ((i + 1) % n) * cols;
+    for (let j = 0; j < cols - 1; j += 1) {
+      const a = row + j; const b = a + 1;
+      const c = next + j; const d = c + 1;
+      
+      
+      indices.push(a, b, c, b, d, c);
+    }
   }
 
   const geo = new THREE.BufferGeometry();
@@ -158,12 +222,31 @@ function buildRoad(path, theme) {
   
   
   
+  
+  const normalMap = makeGroundNormal(map, 1);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const mesh = new THREE.Mesh(geo, addGroundDetail(
-    surface({ map, roughness: 0.94, rim: false }),
+    surface({ map, normalMap, roughness: 0.94, rim: false, unique: true }),
     { scale: 0.020, strength: 0.20 },
   ));
+  if (normalMap) mesh.material.normalScale.set(NORMAL_SCALE.road, NORMAL_SCALE.road);
   mesh.name = 'road';
-  mesh.receiveShadow = true;
+  applyShadows(mesh, 'road');
   return mesh;
 }
 
@@ -191,14 +274,21 @@ function buildKerbs(path) {
       const t = path.tangents[i];
       const inner = (p.width / 2) * side;
       const outer = ((p.width / 2) + KERB_WIDTH) * side;
+      
+      
+      
+      
+      
+      
+      const lift = camberEdgeY(path.camber, i, side);
       positions[i * 6 + 0] = p.x + t.z * inner;
-      positions[i * 6 + 1] = p.y + 0.05;
+      positions[i * 6 + 1] = p.y + lift + 0.05;
       positions[i * 6 + 2] = p.z - t.x * inner;
       positions[i * 6 + 3] = p.x + t.z * outer;
       
       
       
-      positions[i * 6 + 4] = p.y + 0.13;
+      positions[i * 6 + 4] = p.y + lift + 0.13;
       positions[i * 6 + 5] = p.z - t.x * outer;
       const c = (Math.floor(path.s[i] / KERB_STRIPE) % 2 === 0) ? a : b;
       for (const off of [0, 3]) {
@@ -231,9 +321,17 @@ function buildKerbs(path) {
     
     
     
-    group.add(new THREE.Mesh(geo, surface({
+    const strip = new THREE.Mesh(geo, surface({
       vertexColors: true, side: THREE.DoubleSide,
-    })));
+    }));
+    
+    
+    
+    
+    
+    
+    applyShadows(strip, 'kerb');
+    group.add(strip);
   }
   return group;
 }
@@ -245,10 +343,40 @@ function buildKerbs(path) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const VERGE_ROWS = 5;
+
 function buildVerge(path, track) {
   const theme = track.theme ?? 'summer';
   const n = path.count;
-  const positions = new Float32Array(n * 4 * 3);
+  const positions = new Float32Array(n * 2 * VERGE_ROWS * 3);
   const indices = [];
   
   
@@ -291,31 +419,72 @@ function buildVerge(path, track) {
     return cut;
   };
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   let v = 0;
   for (const side of [1, -1]) {
     for (let i = 0; i < n; i += 1) {
       const p = path.pts[i];
       const t = path.tangents[i];
-      const inner = ((p.width / 2) + KERB_WIDTH) * side;
-      const outer = Math.min(
-        (p.width / 2) + KERB_WIDTH + SHOULDER, chasmEdge(i, side),
-      ) * side;
-      positions[v * 3 + 0] = p.x + t.z * inner;
-      positions[v * 3 + 1] = p.y + 0.012;
-      positions[v * 3 + 2] = p.z - t.x * inner;
-      v += 1;
-      positions[v * 3 + 0] = p.x + t.z * outer;
-      positions[v * 3 + 1] = p.y - 0.02;
-      positions[v * 3 + 2] = p.z - t.x * outer;
-      v += 1;
+      const innerMag = (p.width / 2) + KERB_WIDTH;
+      const outerMag = Math.min(innerMag + SHOULDER, chasmEdge(i, side));
+      for (let r = 0; r < VERGE_ROWS; r += 1) {
+        const f = r / (VERGE_ROWS - 1);
+        const off = (innerMag + (outerMag - innerMag) * f) * side;
+        const x = p.x + t.z * off;
+        const z = p.z - t.x * off;
+        const surf = trackSurface(path, x, z, i, { shoulder: SHOULDER });
+        
+        
+        
+        
+        
+        const bias = 0.012 + (-0.02 - 0.012) * f;
+        positions[v * 3 + 0] = x;
+        positions[v * 3 + 1] = blendToGround(path, surf, x, z) + bias;
+        positions[v * 3 + 2] = z;
+        v += 1;
+      }
     }
   }
   for (let s = 0; s < 2; s += 1) {
-    const base = s * n * 2;
+    const base = s * n * VERGE_ROWS;
     for (let i = 0; i < n; i += 1) {
-      const p0 = base + i * 2; const p1 = p0 + 1;
-      const q0 = base + ((i + 1) % n) * 2; const q1 = q0 + 1;
-      indices.push(p0, p1, q0, p1, q1, q0);
+      const row = base + i * VERGE_ROWS;
+      const next = base + ((i + 1) % n) * VERGE_ROWS;
+      for (let r = 0; r < VERGE_ROWS - 1; r += 1) {
+        const p0 = row + r; const p1 = p0 + 1;
+        const q0 = next + r; const q1 = q0 + 1;
+        indices.push(p0, p1, q0, p1, q1, q0);
+      }
     }
   }
   const geo = new THREE.BufferGeometry();
@@ -323,16 +492,34 @@ function buildVerge(path, track) {
   geo.setIndex(indices);
   geo.computeVertexNormals();
   
-  const mesh = new THREE.Mesh(geo, surface({
-    color: colour, side: THREE.DoubleSide,
-  }));
   
   
   
   
   
   
-  mesh.receiveShadow = true;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const mesh = new THREE.Mesh(geo, addGroundDetail(surface({
+    color: colour, side: THREE.DoubleSide, rim: false, roughness: 0.96, unique: true,
+  }), { scale: 0.030, strength: 0.30, fade: 300 }));
+  
+  
+  
+  
+  
+  
+  applyShadows(mesh, 'verge');
   mesh.name = 'verge';
   return mesh;
 }
@@ -462,15 +649,19 @@ function buildGround(path, track) {
   map.repeat.set(w / 20, h / 20);
   map.colorSpace = THREE.SRGBColorSpace;
   
+  const normalMap = makeGroundNormal(map, 1);
+  
   
   
   const mesh = new THREE.Mesh(geo, addGroundDetail(
-    surface({ map, roughness: 0.97, rim: false, vertexColors: true }),
+    
+    surface({ map, normalMap, roughness: 0.97, rim: false, vertexColors: true, unique: true }),
     { scale: 0.0055, strength: 0.26, fade: 420 },
   ));
+  if (normalMap) mesh.material.normalScale.set(NORMAL_SCALE.ground, NORMAL_SCALE.ground);
   mesh.position.set(cx, -0.05, cz);
   mesh.name = 'ground';
-  mesh.receiveShadow = true;
+  applyShadows(mesh, 'ground');
   return mesh;
 }
 
@@ -503,7 +694,11 @@ function buildShortcuts(path, theme) {
 
   const map = makeShortcutTexture(theme);
   map.colorSpace = THREE.SRGBColorSpace;
-  const mat = surface({ map });
+  
+  
+  
+  
+  const mat = surface({ map, rim: false });
 
   for (const br of path.branches) {
     const n = br.count;
@@ -546,7 +741,7 @@ function buildShortcuts(path, theme) {
     geo.computeVertexNormals();
     const mesh = new THREE.Mesh(geo, mat);
     mesh.name = `shortcut-${br.id}`;
-    mesh.receiveShadow = true;
+    applyShadows(mesh, 'shortcut');
     group.add(mesh);
   }
   group.add(buildGates(path));
@@ -734,7 +929,7 @@ function buildChasmWalls(path, track) {
       vertexColors: true, side: THREE.DoubleSide, roughness: 0.98, flatShading: true,
     }));
     mesh.name = `cliff-${zone.id}`;
-    mesh.receiveShadow = true;
+    applyShadows(mesh, 'cliff');
     group.add(mesh);
   }
   return group;
@@ -905,6 +1100,12 @@ function buildFascia(path, clearance) {
     color: PALETTE.deck, side: THREE.DoubleSide, roughness: 0.95, flatShading: true,
   }));
   mesh.name = 'fascia';
+  
+  
+  
+  
+  
+  applyShadows(mesh, 'fascia');
   return mesh;
 }
 
@@ -984,7 +1185,11 @@ function buildMarkerPosts(path, theme) {
       if (nearBranchMouth(path, x, z, 5.5)) continue;
       e.set((rng() - 0.5) * 0.13, Math.atan2(t.x, t.z), (rng() - 0.5) * 0.13);
       q.setFromEuler(e);
-      v.set(x, p.y ?? 0, z);
+      
+      
+      
+      
+      v.set(x, (p.y ?? 0) + camberEdgeY(path.camber, li, side), z);
       const scale = one.clone().setScalar(0.85 + rng() * 0.3);
       posts.setMatrixAt(idx, m.compose(v, q, scale));
       caps.setMatrixAt(idx, m.compose(v, q, scale));
@@ -1003,8 +1208,16 @@ function buildMarkerPosts(path, theme) {
   
   
   
-  posts.castShadow = false;
-  caps.castShadow = false;
+  
+  
+  
+  
+  
+  
+  
+  
+  applyShadows(posts, 'markerPost');
+  applyShadows(caps, 'markerPost');
   group.add(posts, caps);
   return group;
 }
@@ -1025,6 +1238,172 @@ function onAnyBranch(path, x, z, pad = 0) {
     if (nearestOnBranch(br, x, z).dist <= br.width / 2 + br.shoulder + pad) return true;
   }
   return false;
+}
+
+
+
+
+
+
+const RAIL_RADIAL = 6;
+
+
+const RAIL_POST_GAP = 6;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildRails(path, track) {
+  const group = new THREE.Group();
+  group.name = 'rails';
+  const rails = trackRails(path, track);
+  if (!rails || !rails.spans || !rails.spans.length) return group;
+
+  const positions = [];
+  const colors = [];
+  const indices = [];
+  const posts = [];
+  const bright = new THREE.Color(PALETTE.markerWarn);
+  const dark = new THREE.Color(PALETTE.deck);
+
+  for (let s = 0; s < 2; s += 1) {
+    
+    
+    
+    const side = s === 0 ? 1 : -1;
+    let strip = [];
+    
+    let nextPost = -Infinity;
+
+    const flush = () => {
+      if (strip.length >= 2) {
+        const base = positions.length / 3;
+        for (const ring of strip) {
+          for (let a = 0; a < RAIL_RADIAL; a += 1) {
+            const th = (a / RAIL_RADIAL) * Math.PI * 2;
+            const c = Math.cos(th);
+            const up = Math.sin(th);
+            positions.push(
+              ring.x + ring.nx * c * RAIL_RADIUS,
+              ring.y + up * RAIL_RADIUS,
+              ring.z + ring.nz * c * RAIL_RADIUS,
+            );
+            
+            
+            
+            const t = Math.max(0, Math.min(1, up * 0.5 + 0.5));
+            colors.push(
+              dark.r + (bright.r - dark.r) * t,
+              dark.g + (bright.g - dark.g) * t,
+              dark.b + (bright.b - dark.b) * t,
+            );
+          }
+        }
+        for (let i = 0; i < strip.length - 1; i += 1) {
+          for (let a = 0; a < RAIL_RADIAL; a += 1) {
+            const b = (a + 1) % RAIL_RADIAL;
+            const p0 = base + i * RAIL_RADIAL + a;
+            const p1 = base + i * RAIL_RADIAL + b;
+            const q0 = base + (i + 1) * RAIL_RADIAL + a;
+            const q1 = base + (i + 1) * RAIL_RADIAL + b;
+            indices.push(p0, p1, q0, p1, q1, q0);
+          }
+        }
+      }
+      strip = [];
+    };
+
+    for (let i = 0; i <= path.count; i += 1) {
+      const j = i % path.count;
+      const on = i < path.count ? rails.on[j * 2 + s] : 0;
+      if (!on) { flush(); continue; }
+      const p = path.pts[j];
+      const t = path.tangents[j];
+      const off = ((p.width / 2) + RAIL_AT) * side;
+      const x = p.x + t.z * off;
+      const z = p.z - t.x * off;
+      
+      
+      
+      const y = (p.y ?? 0) + camberEdgeY(path.camber, j, side) + RAIL_HEIGHT;
+      strip.push({ x, y, z, nx: t.z, nz: -t.x });
+
+      const arc = path.s[j];
+      if (arc >= nextPost) {
+        nextPost = arc + RAIL_POST_GAP;
+        
+        
+        
+        
+        
+        const ground = groundMeshHeightAt(path, x, z);
+        posts.push({ x, y, z, yaw: Math.atan2(t.x, t.z), drop: Math.max(0.35, Math.min(2.6, y - ground)) });
+      }
+    }
+    flush();
+  }
+
+  if (indices.length) {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    const mesh = new THREE.Mesh(geo, surface({
+      vertexColors: true, roughness: 0.42, metalness: 0.15,
+    }));
+    mesh.name = 'railTube';
+    applyShadows(mesh, 'grindRail');
+    group.add(mesh);
+  }
+
+  if (posts.length) {
+    
+    
+    const geo = new THREE.BoxGeometry(0.13, 1, 0.13);
+    geo.translate(0, -0.5, 0);           
+    const mat = surface({ color: PALETTE.deck, flatShading: true });
+    const inst = new THREE.InstancedMesh(geo, mat, posts.length);
+    const m = new THREE.Matrix4();
+    const q = new THREE.Quaternion();
+    const e = new THREE.Euler();
+    const v = new THREE.Vector3();
+    const sc = new THREE.Vector3();
+    for (let i = 0; i < posts.length; i += 1) {
+      const post = posts[i];
+      e.set(0, post.yaw, 0);
+      q.setFromEuler(e);
+      v.set(post.x, post.y, post.z);
+      sc.set(1, post.drop, 1);
+      inst.setMatrixAt(i, m.compose(v, q, sc));
+    }
+    inst.instanceMatrix.needsUpdate = true;
+    inst.name = 'railPosts';
+    applyShadows(inst, 'grindRail');
+    group.add(inst);
+  }
+  return group;
 }
 
 
@@ -1049,10 +1428,23 @@ function buildStartLine(path) {
       const along = (j + 0.5) * cellD - depth / 2;
       m.position.set(
         c.x + t.z * lat + t.x * along,
-        c.y + 0.04,
+        
+        
+        
+        
+        
+        
+        
+        c.y + 0.04 + camberLiftAt(path.camber, 0, lat / Math.max(1e-6, c.width / 2)),
         c.z - t.x * lat + t.z * along,
       );
       m.rotation.y = Math.atan2(t.x, t.z);
+      
+      
+      
+      
+      
+      applyShadows(m, 'startLine');
       group.add(m);
     }
   }
@@ -1193,7 +1585,16 @@ function buildEdgeGuards(path, track) {
       if (!(h > 0)) { flush(); continue; }
       const p = path.pts[j];
       const t = path.tangents[j];
-      const y0 = p.y ?? 0;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const y0 = (p.y ?? 0) + camberEdgeY(path.camber, j, side);
       
       
       
@@ -1235,7 +1636,12 @@ function buildEdgeGuards(path, track) {
       
       
       const tier = guards.tier[k];
-      if (tier && h > tier.height * 0.75) {
+      
+      
+      
+      
+      
+      if (tier && h > tier.height * GUARD_DRESS_MIN) {
         const arc = path.s[j];
         const put = (kind) => {
           if (arc < nextAt[kind]) return;
@@ -1284,11 +1690,23 @@ function buildEdgeGuards(path, track) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     const mesh = new THREE.Mesh(geo, addGroundDetail(surface({
       vertexColors: true, side: THREE.DoubleSide, roughness: 0.96,
+      rim: false, unique: true,
     }), { scale: 0.055, strength: 0.26 }));
     mesh.name = 'guardBank';
-    mesh.receiveShadow = true;
+    applyShadows(mesh, 'guardBank');
     group.add(mesh);
   }
 

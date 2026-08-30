@@ -12,6 +12,36 @@ import { makeSunFaceTexture } from './textures.js';
 import { buildSkyMaterial } from './materials.js';
 
 
+
+
+import { rigFor, SHADOW } from '../../../../web-engine/render/lightRig.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function sunDirFor(theme = 'summer') {
+  return new THREE.Vector3(...rigFor(theme).keyPos).normalize();
+}
+
+
 export function buildSky(kind, sunDir) {
   const geo = new THREE.SphereGeometry(900, 32, 20);
   const mat = buildSkyMaterial(kind, sunDir);
@@ -59,8 +89,6 @@ export function buildLights(theme) {
   
   
   
-  const sunColour = theme === 'overcast' || theme === 'mud' ? 0xf0ead8
-    : theme === 'snow' ? 0xfaf6ff : PALETTE.sun;
   
   
   
@@ -75,19 +103,26 @@ export function buildLights(theme) {
   
   
   
-  const sun = new THREE.DirectionalLight(sunColour, theme === 'mud' ? 1.78 : 2.15);
   
   
   
   
   
-  sun.position.set(-150, 110, 105);
+  
+  const rig = rigFor(theme);
+  const sun = new THREE.DirectionalLight(rig.keyColour, rig.keyIntensity);
+  
+  
+  
+  
+  
+  sun.position.set(...rig.keyPos);
   sun.castShadow = true;
   
   
   
   
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(SHADOW.mapSize, SHADOW.mapSize);
   
   
   
@@ -96,41 +131,60 @@ export function buildLights(theme) {
   
   
   
-  c.left = -52; c.right = 52; c.top = 52; c.bottom = -52;
-  c.near = 1; c.far = 520;
+  c.left = -SHADOW.half; c.right = SHADOW.half; c.top = SHADOW.half; c.bottom = -SHADOW.half;
+  c.near = SHADOW.near; c.far = SHADOW.far;
   
   
   
   
   
-  sun.shadow.bias = -0.00018;
-  sun.shadow.normalBias = 0.028;
+  
+  
+  
+  
+  c.updateProjectionMatrix();
+  
+  
+  
+  
+  
+  sun.shadow.bias = SHADOW.bias;
+  sun.shadow.normalBias = SHADOW.normalBias;
   group.add(sun);
   group.add(sun.target);
 
   const skyFill = new THREE.HemisphereLight(
-    theme === 'snow' ? 0xe6f1ff : 0xcfe6ff,
+    rig.hemiSky,
     
     
     
     
-    theme === 'snow' ? 0xc8dcef : 0x9c9a5e,
+    rig.hemiGround,
     
     
     
     
-    theme === 'overcast' || theme === 'mud' ? 0.62 : 0.40,
+    
+    
+    rig.hemiIntensity,
   );
   group.add(skyFill);
 
   
   
   
-  const bounce = new THREE.DirectionalLight(theme === 'snow' ? 0xd8e8f6 : 0xe0bf8a, 0.16);
-  bounce.position.set(80, -40, -60);
+  
+  
+  
+  
+  
+  
+  const bounce = new THREE.DirectionalLight(rig.bounceColour, rig.bounceIntensity);
+  bounce.position.set(...rig.bouncePos);
   group.add(bounce);
 
   group.userData.sun = sun;
+  group.userData.rig = rig;
   return group;
 }
 
@@ -206,11 +260,37 @@ export function updateSun(sun, camera, dt) {
 
 
 
-export function focusShadow(lights, x, z) {
+export function focusShadow(lights, x, z, heading = null) {
   const sun = lights.userData.sun;
   if (!sun) return;
-  sun.position.set(x - 150, 110, z + 105);
-  sun.target.position.set(x, 0, z);
+  const [px, py, pz] = lights.userData.rig?.keyPos ?? [-150, 110, 105];
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const lead = heading === null ? 0 : SHADOW.lead;
+  const lx = x + Math.sin(heading ?? 0) * lead;
+  const lz = z + Math.cos(heading ?? 0) * lead;
+  sun.position.set(lx + px, py, lz + pz);
+  sun.target.position.set(lx, 0, lz);
   sun.target.updateMatrixWorld();
 }
 

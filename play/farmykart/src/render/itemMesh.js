@@ -10,7 +10,7 @@
 
 import * as THREE from 'three';
 import { PALETTE } from '../palette.js';
-import { surface } from './materials.js';
+import { surface, applyShadows } from './materials.js';
 
 const lambert = (colour, opts = {}) => surface({ color: colour, flatShading: true, ...opts });
 
@@ -35,6 +35,15 @@ export function buildItemBoxMesh() {
   group.add(inner);
   group.userData.cube = cube;
   group.userData.inner = inner;
+  
+  
+  
+  
+  
+  
+  
+  
+  applyShadows(group, 'itemBox');
   return group;
 }
 
@@ -49,7 +58,12 @@ export function animateItemBox(mesh, time, taken) {
     mesh.visible = false;
   } else {
     mesh.visible = true;
-    cube.material.opacity = 0.92;
+    
+    
+    
+    
+    
+    
     inner.rotation.y = -time * 2.6;
   }
 }

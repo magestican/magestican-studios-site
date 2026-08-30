@@ -16,8 +16,42 @@
 
 
 import { formatTime, ordinal } from 'arbelo/raceProgress';
+import { ITEMS } from 'arbelo/items';
 import { drawItemIcon } from '../render/itemMesh.js';
 import { DRIFT_TIER_COLOURS, hex, PALETTE } from '../palette.js';
+import { drawGhostItemBox } from './emptyItemSlot.js';
+import { rouletteFace } from './itemSpin.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const ITEM_CANVAS_PX = 168;
+
+
+
+
+
+
+
+
+
+
+const ROULETTE_FACES = [...new Set(Object.values(ITEMS).map((i) => i.icon))];
 
 export function createHud(root) {
   const el = {
@@ -49,11 +83,51 @@ export function createHud(root) {
     boostRing: root.querySelector('#hud-boost-ring'),
     standings: root.querySelector('#hud-standings'),
   };
+  
+  
+  
+  
+  if (el.itemCanvas) {
+    el.itemCanvas.width = ITEM_CANVAS_PX;
+    el.itemCanvas.height = ITEM_CANVAS_PX;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  }
   const ctx = el.itemCanvas ? el.itemCanvas.getContext('2d') : null;
   return {
     el,
     ctx,
+    
+    
+    
     lastItem: undefined,
+    
+    
+    
+    
+    rollStartedAt: 0,
     lastPosition: null,
     lastLap: null,
     lastScore: null,
@@ -244,22 +318,51 @@ export function updateHud(hud, view) {
 
   
   
-  if (hud.ctx && view.item !== hud.lastItem) {
-    hud.lastItem = view.item;
-    const size = hud.el.itemCanvas.width;
-    if (view.item) drawItemIcon(hud.ctx, view.item, size);
-    else hud.ctx.clearRect(0, 0, size, size);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const rolling = !!view.itemRolling;
+  if (rolling && !hud.rollStartedAt) hud.rollStartedAt = performance.now();
+  if (!rolling) hud.rollStartedAt = 0;
+  const face = rolling
+    ? rouletteFace(performance.now() - hud.rollStartedAt, ROULETTE_FACES)
+    : (view.item ?? null);
+  if (hud.ctx) {
+    const key = face ?? 'empty';
+    if (key !== hud.lastItem) {
+      hud.lastItem = key;
+      const size = hud.el.itemCanvas.width;
+      if (face) drawItemIcon(hud.ctx, face, size);
+      else drawGhostItemBox(hud.ctx, size);
+    }
   }
   if (el.itemCount) {
     const show = view.itemUses > 1 ? `x${view.itemUses}` : '';
     if (el.itemCount.textContent !== show) el.itemCount.textContent = show;
   }
   if (el.itemSlot) {
-    const empty = !view.item;
+    
+    
+    
+    
+    const empty = !view.item && !rolling;
     el.itemSlot.classList.toggle('empty', empty);
     
     
-    el.itemSlot.classList.toggle('rolling', !!view.itemRolling);
+    el.itemSlot.classList.toggle('rolling', rolling);
   }
 
   

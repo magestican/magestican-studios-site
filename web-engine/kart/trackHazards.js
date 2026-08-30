@@ -145,6 +145,159 @@ export function surfaceLevelOf(zone) {
 
 
 
+
+
+export const CLIMB_MAX = 6;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const CHASM_DEPTH = 12;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function isChasmWater(zone) {
+  if (!zone) return false;
+  if (surfaceLevelOf(zone) > CLIMB_MAX) return true;
+  return (zone.depth ?? 4.5) >= CHASM_DEPTH;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function drivableWater(zone) {
+  if (!zone || !RESPAWNS.has(zone.kind)) return false;
+  if (zone.kind === 'lava') return false;
+  return zone.drivable ?? !isChasmWater(zone);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function waterPlaneY(zone, roadY) {
+  return (roadY ?? 0) - surfaceLevelOf(zone);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function bankAt(zone, frac, { shoreBank = SHORE_BANK } = {}) {
+  const base = zone.bank ?? 0.55;
+  if (!zone.shores || !zone.shores.length) return base;
+  let widest = base;
+  for (const sh of zone.shores) {
+    if (!inSpan(frac, sh.from, sh.to)) continue;
+    const span = sh.from <= sh.to ? (sh.to - sh.from) : ((1 - sh.from) + sh.to);
+    if (!(span > 0)) continue;
+    const into = sh.from <= frac ? (frac - sh.from) : ((1 - sh.from) + frac);
+    const u = Math.min(1, Math.max(0, into / span));
+    
+    
+    const t = 1 - Math.abs(u * 2 - 1);
+    const ease = t * t * (3 - 2 * t);
+    widest = Math.max(widest, base + (( sh.bank ?? shoreBank) - base) * ease);
+  }
+  return widest;
+}
+
+
+
+
+
+
+
+
+
+
+
+export const SHORE_BANK = 3.5;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function chasmDepthAt(zones, { frac, lateral, width }) {
   if (!zones || !zones.length) return null;
   const out = outwardness(lateral, width);
@@ -158,7 +311,14 @@ export function chasmDepthAt(zones, { frac, lateral, width }) {
     const depth = zone.depth ?? 4.5;
     
     
-    const bank = zone.bank ?? 0.55;
+    
+    
+    
+    
+    
+    
+    
+    const bank = bankAt(zone, frac);
     const u = Math.min(1, (out - edge) / bank);
     return depth * (u * u * (3 - 2 * u));
   }
@@ -181,6 +341,12 @@ export function chasmDepthAt(zones, { frac, lateral, width }) {
 export function hazardEffect(zone, kart) {
   if (!zone) return null;
   if ((kart.invuln ?? 0) > 0) return null;
+  
+  
+  
+  
+  
+  if (drivableWater(zone)) return null;
   
   
   

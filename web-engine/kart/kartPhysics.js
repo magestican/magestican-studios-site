@@ -30,8 +30,12 @@
 
 
 
+
 import { chargeRate, boostForCharge, applyBoost, driftTier } from './driftBoost.js';
 import { glideFields, glideStep, glideSink, glideCruise } from './glide.js';
+import { CAMBER_GRIP } from './trackCamber.js';
+import { grindFields, grindStep, grindHeight, canGrind } from './railGrind.js';
+import { waterFields, boatStep, boatFloat, impactKeep } from './water.js';
 
 
 
@@ -107,8 +111,19 @@ export function createKart({ x = 0, y = 0, z = 0, heading = 0, id = 'p1', tuning
     ...glideFields(),
     
     
+    ...grindFields(),
+    ...waterFields(),
+    
+    
     speed: 0,
     slip: 0,
+    
+    
+    
+    
+    
+    
+    bankRoll: 0,
     steerVisual: 0,
     yawRate: 0,
     launched: 0,
@@ -250,14 +265,125 @@ export function stepKart(state, input, surface, dt) {
   
   
   const groundY = surface.groundY ?? surface.y ?? 0;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const grind = grindStep(s, input, {
+    rail: surface.rail ?? null,
+    dt,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    enabled: canGrind(s),
+  });
+  const boat = boatStep(s, input, {
+    water: surface.water ?? null,
+    dt,
+    enabled: !grind.grinding,
+  });
+  s.grinding = grind.grinding;
+  s.grindTime = grind.grindTime;
+  s.grindSide = grind.grinding ? grind.side : 0;
+  s.grindCharge = grind.charge;
+  s.grindMount = grind.mount;
+  s.wheelie = grind.wheelie;
+  s.grindArmed = grind.armed;
+  s.grindStarted = grind.started;
+  s.grindEnded = grind.ended;
+  if (grind.ended && grind.boost) {
+    s.boost = applyBoost(s.boost, grind.boost);
+    s.justBoosted = grind.boost;
+  }
+  
+  
+  if (grind.started && s.drifting) { s.drifting = 0; s.driftCharge = 0; }
+
+  const wasBoating = s.boating;
+  s.boating = boat.boating;
+  s.boatTime = boat.boatTime;
+  s.splashed = boat.started;
+  s.beached = boat.ended && wasBoating;
+  s.splashVy = boat.started ? s.vy : 0;
+  
+  
+  s.adriftTime = boat.boating && boat.chasm ? (s.adriftTime ?? 0) + dt : 0;
+  if (boat.started) {
+    
+    
+    
+    
+    
+    const keep = impactKeep(s.vy);
+    s.vx *= keep;
+    s.vz *= keep;
+    
+    
+    
+    s.drifting = 0;
+    s.driftCharge = 0;
+  }
+
   s.airTime = s.grounded ? 0 : s.airTime + dt;
   
   
   
   s.airHeight = s.grounded ? 0 : Math.max(s.airHeight, s.y - groundY);
   const glide = glideStep(s, input, {
-    height: s.airHeight,
+    
+    
+    
+    height: s.grinding ? 0 : s.airHeight,
     dt,
+    
+    
+    
+    
+    
+    
+    
+    
+    enabled: !s.grinding && !s.boating,
     
     
     
@@ -274,7 +400,17 @@ export function stepKart(state, input, surface, dt) {
   
   
   
-  if (input.jump && s.grounded && !spinning && s.jumpCooldown <= 0) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (input.jump && s.grounded && !spinning && !s.grinding && !s.boating && s.jumpCooldown <= 0) {
     s.vy = JUMP_SPEED;
     s.grounded = false;
     s.jumpCooldown = JUMP_COOLDOWN;
@@ -290,7 +426,10 @@ export function stepKart(state, input, surface, dt) {
   
   
   
-  if (!spinning && (s.grounded || s.hopTime > 0)) {
+  
+  
+  
+  if (!spinning && !s.grinding && !s.boating && (s.grounded || s.hopTime > 0)) {
     if (input.drift && !s.drifting && s.hopTime <= 0 && s.grounded && !s.jumped && Math.abs(s.speed) >= 9) {
       
       
@@ -337,6 +476,12 @@ export function stepKart(state, input, surface, dt) {
     
     
     s.heading += (Math.PI * 2 * 1.5) * (dt / 0.9);
+  } else if (s.grinding) {
+    
+    
+    
+    s.yawRate = 0;
+    s.heading = grind.heading;
   } else {
     const authority = steerAuthority(s.speed, t);
     
@@ -350,7 +495,12 @@ export function stepKart(state, input, surface, dt) {
     
     
     
-    const air = s.grounded ? 1 : (s.gliding ? glide.steer : 0.35);
+    
+    
+    
+    const air = s.boating
+      ? boat.steer
+      : (s.grounded ? 1 : (s.gliding ? glide.steer : 0.35));
     
     
     
@@ -370,7 +520,11 @@ export function stepKart(state, input, surface, dt) {
   const squashed = s.squashTime > 0;
   const speedCap = t.topSpeed
     * boostPower
-    * (offRoad ? t.offRoadSpeed : 1)
+    
+    
+    
+    
+    * (s.boating ? boat.speedScale : (offRoad ? t.offRoadSpeed : 1))
     * (squashed ? 0.62 : 1);
 
   
@@ -379,7 +533,14 @@ export function stepKart(state, input, surface, dt) {
   let vf = s.vx * fwd.x + s.vz * fwd.z;
 
   let along = 0;   
-  if (s.gliding) {
+  if (s.grinding) {
+    
+    
+    
+    
+    
+    along = 0;
+  } else if (s.gliding) {
     
     
     
@@ -398,18 +559,27 @@ export function stepKart(state, input, surface, dt) {
     
     
     const head = clamp((speedCap - vf) / (speedCap * 0.35), 0, 1);
-    along = t.accel * throttle * head * (s.boost ? 2.1 : 1);
+    along = t.accel * throttle * head * (s.boost ? 2.1 : 1) * (s.boating ? boat.accelScale : 1);
   } else if (throttle < -0.02) {
     along = vf > 0.4
       ? t.brake * throttle
       : (vf > -t.reverseSpeed ? t.brake * 0.42 * throttle : 0);
+  } else if (s.boating) {
+    
+    
+    
+    along = -Math.sign(vf) * boat.drag;
+    if (Math.abs(vf) < 0.2) along = 0;
   } else {
     
     
     along = -Math.sign(vf) * t.drag * (t.topSpeed / 30) * 4;
     if (Math.abs(vf) < 0.2) along = 0;
   }
-  if (offRoad && !spinning) along -= Math.sign(vf) * t.offRoadDrag;
+  
+  
+  
+  if (offRoad && !spinning && !s.boating && !s.grinding) along -= Math.sign(vf) * t.offRoadDrag;
 
   s.vx += fwd.x * along * dt;
   s.vz += fwd.z * along * dt;
@@ -435,7 +605,26 @@ export function stepKart(state, input, surface, dt) {
   
   
   
-  if (!s.boost && !s.gliding && ground > speedCap && vf > 0) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (!s.boost && !s.gliding && !s.grinding && ground > speedCap && vf > 0) {
     const scale = speedCap / ground;
     s.vx *= scale;
     s.vz *= scale;
@@ -451,8 +640,58 @@ export function stepKart(state, input, surface, dt) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const crossSlope = surface.crossSlope ?? 0;
+  s.bankRoll = Math.atan(crossSlope);
+  if (crossSlope !== 0 && s.grounded && !s.gliding && !s.grinding && !s.boating) {
+    const a = -GRAVITY * crossSlope * CAMBER_GRIP * dt;
+    
+    
+    s.vx += (surface.nx ?? 0) * a;
+    s.vz += (surface.nz ?? 0) * a;
+  }
+
+  
+  
+  
+  
+  
   const speedNow = Math.hypot(s.vx, s.vz);
-  if (speedNow > 0.05) {
+  if (s.grinding) {
+    
+    
+    
+    
+    
+    s.vx = Math.sin(grind.heading) * grind.speed;
+    s.vz = Math.cos(grind.heading) * grind.speed;
+    s.slip = 0;
+  } else if (speedNow > 0.05) {
     const drifting = !!s.drifting;
     const surfaceGrip = surface.gripScale ?? 1;
     
@@ -462,8 +701,21 @@ export function stepKart(state, input, surface, dt) {
     
     
     const air = s.grounded ? 1 : (s.gliding ? glide.grip : 0.06);
-    const gripTurn = (drifting ? t.driftGripTurn : t.gripTurn) * surfaceGrip * air;
-    const maxSlip = (drifting ? t.driftMaxSlip : t.maxSlip) / Math.max(surfaceGrip, 0.35);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const gripTurn = s.boating
+      ? boat.gripTurn
+      : (drifting ? t.driftGripTurn : t.gripTurn) * surfaceGrip * air;
+    const maxSlip = s.boating
+      ? boat.maxSlip
+      : (drifting ? t.driftMaxSlip : t.maxSlip) / Math.max(surfaceGrip, 0.35);
 
     const vdir = Math.atan2(s.vx, s.vz);
     
@@ -543,7 +795,48 @@ export function stepKart(state, input, surface, dt) {
   
   
   
-  if (!s.grounded || s.y > groundY + 1e-4) {
+  if (s.grinding) {
+    
+    
+    
+    
+    
+    s.y = grindHeight(s.y, grind.y, grind.mount);
+    s.vy = 0;
+    s.grounded = false;
+  } else if (grind.ended === 'jump') {
+    
+    
+    
+    s.vy = JUMP_SPEED;
+    s.grounded = false;
+    s.jumped = true;
+    s.jumpCooldown = JUMP_COOLDOWN;
+    const inward = -(grind.side || 1);
+    s.vx += (surface.nx ?? 0) * inward * grind.push;
+    s.vz += (surface.nz ?? 0) * inward * grind.push;
+  } else if (s.boating) {
+    
+    
+    
+    
+    
+    
+    
+    
+    const f = boatFloat(s.y, s.vy, boat.planeY, dt, GRAVITY);
+    s.y = f.y;
+    s.vy = f.vy;
+    s.grounded = true;
+    s.airTime = 0;
+    s.airHeight = 0;
+    if (s.gliding) {
+      s.gliding = false;
+      s.glideTime = 0;
+      s.glideDive = false;
+      s.glideLanded = true;
+    }
+  } else if (!s.grounded || s.y > groundY + 1e-4) {
     
     
     
@@ -595,7 +888,17 @@ export function stepKart(state, input, surface, dt) {
   
   
   
-  if (s.gliding) {
+  if (s.gliding || s.grinding) {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
   } else if (s.glideLanded) {
     s.lostTime = 0;
@@ -710,6 +1013,12 @@ export function respawnKart(state, place, { after = 2.4, keepSpeed = 0.28 } = {}
     glideDive: false,
     glideStarted: false,
     glideLanded: false,
+    
+    
+    
+    
+    ...grindFields(),
+    ...waterFields(),
     drifting: 0,
     driftCharge: 0,
     spinTime: 0,

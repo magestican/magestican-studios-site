@@ -199,7 +199,21 @@ export function assistSteer({ steer, kart, surface, path = null, strength = 1 })
   
   
   
-  if (kart.gliding || (kart.airHeight ?? 0) >= DEPLOY_HEIGHT) return steer;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (kart.gliding || kart.grinding || (kart.airHeight ?? 0) >= DEPLOY_HEIGHT) return steer;
 
   const half = Math.max(1e-3, surface.width / 2);
   

@@ -36,7 +36,7 @@ import { startVersionChecker } from 'arbelo/updater';
 import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
 import { createShowcaseView } from './render/showcase.js';
-import { setMusicMuted, musicClock } from './audio/music.js';
+import { setMusicMuted, musicClock, musicNow } from './audio/music.js';
 import { EMOTES } from 'arbelo/emotes';
 import { renderKartBoard } from './ui/kartBoard.js';
 
@@ -48,8 +48,12 @@ import { createLobbyUi } from './ui/lobby.js';
 import { driverPanelHtml } from './ui/driverPanel.js';
 import { drawItemIcon } from './render/itemMesh.js';
 import { hex, PALETTE } from './palette.js';
-import { isTouchDevice } from './input/controls.js';
+import { showTouchOverlay } from './input/controls.js';
 import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState, SFX } from './audio/sfx.js';
+
+
+
+import { pageContexts } from '../../../web-engine/render/contextBudget.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -116,7 +120,20 @@ function boot() {
   
   
   
-  window.__fkAudio = () => ({ ...audioState(audio), musicClock: musicClock(audio) });
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  window.__fkAudio = () => ({
+    ...audioState(audio), musicClock: musicClock(audio), musicNow: musicNow(audio),
+  });
   state.progress = loadProgress(safeLocalStorage());
   
   
@@ -400,9 +417,47 @@ function leaveRoom() {
 
 let charView = null;
 
+let charArrowsBound = false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function freshCanvas(old) {
+  const next = old.cloneNode(false);
+  old.replaceWith(next);
+  return next;
+}
+
 function buildCharacterShowcase() {
-  const canvas = $('char-canvas');
-  if (!canvas || charView) return;
+  let canvas = $('char-canvas');
+  if (!canvas) return;
+  
+  
+  
+  
+  
+  
+  
+  
+  if (charView && pageContexts.has(canvas.id)) return;
+  if (charView) {
+    charView = null;
+    canvas = freshCanvas(canvas);
+  }
 
   charView = createShowcaseView({
     canvas,
@@ -419,8 +474,17 @@ function buildCharacterShowcase() {
     },
   });
 
-  $('char-prev').addEventListener('click', () => charView.nudge(-1));
-  $('char-next').addEventListener('click', () => charView.nudge(+1));
+  
+  
+  
+  
+  
+  
+  if (!charArrowsBound) {
+    charArrowsBound = true;
+    $('char-prev').addEventListener('click', () => charView?.nudge(-1));
+    $('char-next').addEventListener('click', () => charView?.nudge(+1));
+  }
   syncCharacterInfo();
 }
 
@@ -709,7 +773,13 @@ function startRace({ newCup = false, net = null } = {}) {
   hide('lobby');
   hide('results');
   show('hud');
-  if (isTouchDevice()) show('touch-hints');
+  
+  
+  
+  
+  
+  
+  if (showTouchOverlay()) show('touch-hints');
 
   
   
@@ -1107,6 +1177,16 @@ function copyDayCard() {
 const show = (id) => {
   $(id)?.classList.add('show');
   if (id === 'menu') refreshAccountPanel();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (id === 'menu') buildCharacterShowcase();
 };
 const hide = (id) => $(id)?.classList.remove('show');
 

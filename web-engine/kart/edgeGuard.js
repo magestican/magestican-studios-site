@@ -139,6 +139,116 @@ export const GUARD_TIERS = [
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GUARD_DRESS_TOP = Object.freeze({
+  stones: 0.46,
+  barrels: 1.045,
+  wall: 0.92,
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GUARD_DRESS_MIN = 0.75;
+
+
+
+
+
+
+
+export function dressTop(tier, height = Infinity) {
+  if (!tier || !(height > tier.height * GUARD_DRESS_MIN)) return 0;
+  return GUARD_DRESS_TOP[tier.dress] ?? 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const FATAL_OFFSETS = [4, 7, 16];
+
+
+
+
+
+
+
+
+
+
+export const FATAL_DROP = GUARD_TIERS[1].minDrop;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const GUARD_MAX_SLOPE = 0.22;
 
 
@@ -282,6 +392,14 @@ function reachAt(zones, { frac, side, width }) {
 
 
 
+
+
+
+
+
+
+
+
 export function planEdgeGuards(path, track, groundAt, {
   probe = GUARD_PROBE, minDrop = GUARD_MIN_DROP, lipClear = LIP_CLEAR,
 } = {}) {
@@ -290,8 +408,32 @@ export function planEdgeGuards(path, track, groundAt, {
   const height = new Float64Array(n * 2);
   const reach = new Float64Array(n * 2).fill(GUARD_WIDTH);
   const tier = new Array(n * 2).fill(null);
-  const blocked = new Uint8Array(n * 2);
+  const fatal = new Float64Array(n * 2);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const blockedLip = new Uint8Array(n * 2);
+  const blockedHard = new Uint8Array(n * 2);
 
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -309,6 +451,7 @@ export function planEdgeGuards(path, track, groundAt, {
   
   const jumps = track.jumps ?? [];
   const glides = track.glides ?? [];
+  const fatalOffsets = [...FATAL_OFFSETS, probe];
   for (let i = 0; i < n; i += 1) {
     const p = path.pts[i];
     const t = path.tangents[i];
@@ -326,10 +469,22 @@ export function planEdgeGuards(path, track, groundAt, {
       const x = p.x + t.z * off;
       const z = p.z - t.x * off;
       drop[k] = (p.y ?? 0) - groundAt(x, z);
+      
+      
+      
+      let worstFatal = drop[k];
+      for (const o of fatalOffsets) {
+        const fo = (p.width / 2 + o) * side;
+        worstFatal = Math.max(
+          worstFatal,
+          (p.y ?? 0) - groundAt(p.x + t.z * fo, p.z - t.x * fo),
+        );
+      }
+      fatal[k] = worstFatal;
       reach[k] = reachAt(track.hazards, {
         frac, side: side > 0 ? 'left' : 'right', width: p.width,
       });
-      if (toLip < lipClear) blocked[k] = 1;
+      if (toLip < lipClear) blockedLip[k] = 1;
       
       
       
@@ -342,10 +497,10 @@ export function planEdgeGuards(path, track, groundAt, {
       for (let o = 0; o <= GUARD_WIDTH + 1; o += 2) {
         const bx = p.x + t.z * ((p.width / 2 + o) * side);
         const bz = p.z - t.x * ((p.width / 2 + o) * side);
-        if (onAnyBranch(path, bx, bz, 2)) { blocked[k] = 1; break; }
+        if (onAnyBranch(path, bx, bz, 2)) { blockedHard[k] = 1; break; }
       }
       
-      if (reach[k] < 1.2) blocked[k] = 1;
+      if (reach[k] < 1.2) blockedHard[k] = 1;
     }
   }
 
@@ -358,24 +513,53 @@ export function planEdgeGuards(path, track, groundAt, {
   
   const perM = n / path.length;
   const win = Math.max(1, Math.round(6 * perM));
-  const smooth = new Float64Array(n * 2);
-  for (let s = 0; s < 2; s += 1) {
-    for (let i = 0; i < n; i += 1) {
-      let sum = 0; let cnt = 0;
-      for (let d = -win; d <= win; d += 1) {
-        const j = ((i + d) % n + n) % n;
-        sum += drop[j * 2 + s]; cnt += 1;
+  const smoothRing = (src) => {
+    const out = new Float64Array(n * 2);
+    for (let s = 0; s < 2; s += 1) {
+      for (let i = 0; i < n; i += 1) {
+        let sum = 0; let cnt = 0;
+        for (let d = -win; d <= win; d += 1) {
+          const j = ((i + d) % n + n) % n;
+          sum += src[j * 2 + s]; cnt += 1;
+        }
+        out[i * 2 + s] = sum / cnt;
       }
-      smooth[i * 2 + s] = sum / cnt;
     }
-  }
+    return out;
+  };
+  const smooth = smoothRing(drop);
+  
+  
+  
+  
+  const smoothFatal = smoothRing(fatal);
 
   
   const spans = [];
   for (let s = 0; s < 2; s += 1) {
     const want = new Uint8Array(n);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const openable = (k) => !blockedLip[k] || smoothFatal[k] >= FATAL_DROP;
     for (let i = 0; i < n; i += 1) {
-      want[i] = (!blocked[i * 2 + s] && smooth[i * 2 + s] >= minDrop) ? 1 : 0;
+      const k = i * 2 + s;
+      want[i] = (!blockedHard[k] && openable(k)
+        && Math.max(smooth[k], smoothFatal[k]) >= minDrop) ? 1 : 0;
     }
     
     
@@ -388,7 +572,10 @@ export function planEdgeGuards(path, track, groundAt, {
       if (run >= gapN || run === 0) continue;
       if (!want[((i - 1) % n + n) % n] || !want[(i + run) % n]) continue;
       let free = true;
-      for (let d = 0; d < run; d += 1) if (blocked[((i + d) % n) * 2 + s]) free = false;
+      for (let d = 0; d < run; d += 1) {
+        const k = ((i + d) % n) * 2 + s;
+        if (blockedHard[k] || !openable(k)) free = false;
+      }
       if (free) for (let d = 0; d < run; d += 1) want[(i + d) % n] = 1;
     }
     
@@ -403,6 +590,17 @@ export function planEdgeGuards(path, track, groundAt, {
       while (len < n && want[(i0 + i + len) % n]) len += 1;
       const metres = (len / perM);
       if (metres >= MIN_RUN) {
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         let worst = 0;
         for (let d = 0; d < len; d += 1) worst = Math.max(worst, smooth[((i0 + i + d) % n) * 2 + s]);
         const t = tierForDrop(worst);
@@ -431,7 +629,25 @@ export function planEdgeGuards(path, track, groundAt, {
     }
   }
 
-  return { count: n, drop, smooth, height, reach, tier, spans, probe, minDrop };
+  return {
+    count: n,
+    drop,
+    smooth,
+    fatal,
+    smoothFatal,
+    height,
+    reach,
+    tier,
+    spans,
+    probe,
+    minDrop,
+    
+    
+    
+    
+    blockedLip,
+    blockedHard,
+  };
 }
 
 
@@ -450,7 +666,22 @@ export function planEdgeGuards(path, track, groundAt, {
 
 
 
-export function guardGroundY(guards, surf) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function guardGroundY(guards, surf, baseY = null) {
   if (!guards || !surf || surf.onRoad) return null;
   const s = (surf.lateral ?? 0) > 0 ? 0 : 1;
   const k = (surf.index % guards.count) * 2 + s;
@@ -458,5 +689,5 @@ export function guardGroundY(guards, surf) {
   if (!(h > 0)) return null;
   const lift = guardLift(surf.overBy ?? 0, h, guards.reach[k]);
   if (lift === null) return null;
-  return (surf.y ?? 0) + lift;
+  return (baseY ?? surf.y ?? 0) + lift;
 }

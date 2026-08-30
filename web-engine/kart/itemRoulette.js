@@ -35,6 +35,7 @@
 
 import { ITEMS } from './items.js';
 import { sampleAt } from './trackPath.js';
+import { camberLiftAt } from './trackCamber.js';
 
 
 
@@ -122,12 +123,22 @@ export function layoutItemBoxes(path, stops, { perRow = 5, margin = 3 } = {}) {
   for (const s of stops) {
     const c = sampleAt(path, s);
     const usable = Math.max(1, c.width / 2 - margin);
+    const half = Math.max(1e-6, c.width / 2);
     for (let i = 0; i < perRow; i += 1) {
       const t = perRow === 1 ? 0 : (i / (perRow - 1)) * 2 - 1;
       boxes.push({
         uid: `box-${Math.round(s)}-${i}`,
         x: c.x + c.nx * usable * t,
-        y: c.y,
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        y: c.y + camberLiftAt(path.camber, c.index, (usable * t) / half),
         z: c.z + c.nz * usable * t,
         s,
         

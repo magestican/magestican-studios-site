@@ -43,8 +43,31 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PALETTE } from '../palette.js';
-import { surface, paintedSurface, rubberSurface, getQuality } from './materials.js';
+import {
+  surface, paintedSurface, rubberSurface, getQuality, applyShadows, dressImported,
+} from './materials.js';
 import { vehicleFor } from '../../../../web-engine/kart/vehicles.js';
+
+
+
+
+
+
+import { GRIND_WHEELIE } from '../../../../web-engine/kart/railGrind.js';
+
+
+
+
+
+
+
+
+
+import {
+  stepDeploy, rigPhases, propSpin, rigVisible, WHEEL_TUCK, WHEEL_ROLL,
+} from '../../../../web-engine/render/boatRig.js';
+import { boatFor, BOAT_STYLES } from '../../../../web-engine/render/boatSpec.js';
+import { makePaintTexture } from './textures.js';
 
 
 
@@ -184,9 +207,17 @@ export function driversReady() {
 
 
 
+
+
+
+
+
+
+
+
 const box = (w, h, d, colour) => new THREE.Mesh(
   new THREE.BoxGeometry(w, h, d),
-  paintedSurface({ color: colour, flatShading: true }),
+  paintedSurface({ color: colour, flatShading: true, map: makePaintTexture() }),
 );
 
 const metal = (colour) => surface({
@@ -212,7 +243,7 @@ function taper(w1, w2, h1, h2, d, colour, { skew = 0 } = {}) {
     pos.setY(i, pos.getY(i) * (h1 + (h2 - h1) * t) + skew * t);
   }
   geo.computeVertexNormals();
-  return new THREE.Mesh(geo, paintedSurface({ color: colour, flatShading: true }));
+  return new THREE.Mesh(geo, paintedSurface({ color: colour, flatShading: true, map: makePaintTexture() }));
 }
 
 
@@ -530,6 +561,251 @@ function buildWing(group, spec, tint, accent, trim) {
 
 
 
+function makeProp(radius, blades, guard, hubColour, bladeColour) {
+  const g = new THREE.Group();
+  const hub = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius * 0.20, radius * 0.20, radius * 0.34, 8),
+    metal(hubColour),
+  );
+  
+  
+  
+  hub.rotation.x = Math.PI / 2;
+  g.add(hub);
+  const n = Math.max(2, Math.round(blades));
+  for (let i = 0; i < n; i += 1) {
+    const blade = box(radius * 0.22, radius * 0.86, 0.035, bladeColour);
+    blade.position.set(0, radius * 0.50, 0);
+    const arm = new THREE.Group();
+    arm.rotation.z = (i / n) * Math.PI * 2;
+    arm.add(blade);
+    g.add(arm);
+  }
+  if (guard && detail()) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(radius, radius * 0.075, 4, 12),
+      metal(hubColour),
+    );
+    g.add(ring);
+  }
+  return g;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildBoat(spec, tint, accent, trim, metalColour) {
+  const g = new THREE.Group();
+  const b = boatFor(spec);
+  const f = b.floats;
+  const style = styleOf(BOAT_STYLES, f.style, 'pontoon');
+
+  
+  
+  
+  
+  
+  
+  
+  
+  const floats = new THREE.Group();
+  for (const side of [1, -1]) {
+    const hull = new THREE.Group();
+    if (style === 'barrel') {
+      
+      
+      const drum = new THREE.Mesh(
+        new THREE.CylinderGeometry(f.radius, f.radius, f.length * 0.92, 10),
+        paintedSurface({ color: accent, flatShading: true, map: makePaintTexture() }),
+      );
+      drum.rotation.x = Math.PI / 2;
+      hull.add(drum);
+      if (detail()) {
+        for (const at of [-0.30, 0.30]) {
+          const rim = new THREE.Mesh(
+            new THREE.TorusGeometry(f.radius * 1.06, f.radius * 0.10, 4, 10),
+            metal(metalColour),
+          );
+          rim.position.z = f.length * at;
+          hull.add(rim);
+        }
+      }
+    } else if (style === 'ski') {
+      
+      
+      
+      const shaft = new THREE.Mesh(
+        new THREE.CylinderGeometry(f.radius, f.radius, f.length * 0.86, 8),
+        paintedSurface({ color: tint, flatShading: true, map: makePaintTexture() }),
+      );
+      shaft.rotation.x = Math.PI / 2;
+      hull.add(shaft);
+      const tip = taper(f.radius * 2, f.radius * 0.7, f.radius, f.radius * 0.5, f.length * 0.20, accent);
+      tip.position.set(0, f.radius * 0.34, f.length * 0.48);
+      tip.rotation.x = -0.42;
+      hull.add(tip);
+    } else if (style === 'sponson') {
+      
+      
+      
+      
+      
+      
+      
+      
+      const body = taper(f.radius, f.radius * 0.55, f.radius,
+        f.radius * 0.6, f.length * 0.94, tint);
+      hull.add(body);
+      if (detail()) {
+        const chine = box(f.radius * 2.1, 0.05, f.length * 0.80, accent);
+        chine.position.y = -f.radius * f.squash * 0.55;
+        hull.add(chine);
+      }
+    } else {
+      
+      const tube = new THREE.Mesh(
+        new THREE.CylinderGeometry(f.radius, f.radius, f.length * 0.88, 9),
+        paintedSurface({ color: tint, flatShading: true, map: makePaintTexture() }),
+      );
+      tube.rotation.x = Math.PI / 2;
+      hull.add(tube);
+      const nose = new THREE.Mesh(
+        new THREE.ConeGeometry(f.radius, f.length * 0.16, 9),
+        paintedSurface({ color: accent, flatShading: true, map: makePaintTexture() }),
+      );
+      nose.rotation.x = Math.PI / 2;
+      nose.position.z = f.length * 0.52;
+      hull.add(nose);
+    }
+    
+    
+    
+    
+    if (detail()) {
+      const stripe = box(f.radius * 1.92, 0.06, f.length * 0.86, trim);
+      hull.add(stripe);
+    }
+    hull.position.set(side * f.x, 0, 0);
+    hull.scale.y = f.squash;
+    floats.add(hull);
+    
+    
+    
+    for (const at of [0.26, -0.26]) {
+      const strut = box(f.x * 0.9, 0.07, 0.09, metalColour);
+      strut.position.set(side * f.x * 0.55, 0, f.length * at);
+      floats.add(strut);
+    }
+  }
+  floats.position.set(0, f.y, f.z);
+  g.add(floats);
+
+  
+  
+  
+  
+  
+  
+  const d = b.drive;
+  const drive = new THREE.Group();
+  const leg = box(d.legRadius * 2, d.legLength, d.legRadius * 2.6, LIVERY.engine);
+  leg.position.y = -d.legLength / 2;
+  drive.add(leg);
+  if (detail()) {
+    
+    
+    
+    const plate = box(d.propRadius * 1.5, 0.04, d.propRadius * 0.9, metalColour);
+    plate.position.set(0, -d.propOffset + d.propRadius * 0.62, -0.02);
+    drive.add(plate);
+    
+    const collar = new THREE.Mesh(
+      new THREE.CylinderGeometry(d.legRadius * 1.9, d.legRadius * 1.9, 0.16, 8),
+      metal(metalColour),
+    );
+    collar.rotation.z = Math.PI / 2;
+    drive.add(collar);
+  }
+  const prop = makeProp(d.propRadius, d.blades, d.guard, metalColour, accent);
+  prop.position.y = -d.propOffset;
+  drive.add(prop);
+  drive.position.set(d.x, d.y, d.z);
+  g.add(drive);
+
+  
+  
+  
+  
+  
+  
+  let snorkel = null;
+  if (b.snorkel && detail()) {
+    snorkel = new THREE.Group();
+    const sn = b.snorkel;
+    const pipe = new THREE.Mesh(
+      new THREE.CylinderGeometry(sn.radius, sn.radius, sn.height, 6),
+      metal(metalColour),
+    );
+    pipe.position.y = sn.height / 2;
+    snorkel.add(pipe);
+    
+    
+    const elbow = new THREE.Mesh(
+      new THREE.CylinderGeometry(sn.radius, sn.radius * 1.2, sn.radius * 3.2, 6),
+      metal(accent),
+    );
+    elbow.rotation.x = Math.PI / 2;
+    elbow.position.set(0, sn.height, -sn.radius * 1.4);
+    snorkel.add(elbow);
+    snorkel.position.set(sn.x, sn.y, sn.z);
+    g.add(snorkel);
+  }
+
+  g.visible = false;
+  g.name = 'boat';
+  
+  g.userData.floats = floats;
+  g.userData.drive = drive;
+  g.userData.prop = prop;
+  g.userData.snorkel = snorkel;
+  g.userData.spec = b;
+  return g;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function buildGlider(spec, tint, accent) {
   const g = new THREE.Group();
@@ -761,6 +1037,15 @@ export function buildKart(character, variant = 0) {
   
   const steerPivotL = new THREE.Group();
   const steerPivotR = new THREE.Group();
+  
+  
+  
+  
+  
+  
+  
+  
+  wheels.home = {};
   for (const [key, x, r, width, z] of layout) {
     const wheel = makeWheel(r, width, w.spokes, metalColour);
     const holder = key === 'fl' ? steerPivotL : key === 'fr' ? steerPivotR : null;
@@ -772,6 +1057,11 @@ export function buildKart(character, variant = 0) {
       wheel.position.set(x, r, z);
       group.add(wheel);
     }
+    
+    
+    
+    
+    wheels.home[key] = { node: holder ?? wheel, x, y: r, z, side: Math.sign(x) || 1 };
     wheels[key] = wheel;
   }
   wheels.steerL = steerPivotL;
@@ -780,6 +1070,15 @@ export function buildKart(character, variant = 0) {
   
   const glider = buildGlider(spec, tint, accent);
   group.add(glider);
+
+  
+  
+  
+  
+  
+  
+  const boat = buildBoat(spec, tint, accent, trim, metalColour);
+  group.add(boat);
 
   
   
@@ -836,6 +1135,40 @@ export function buildKart(character, variant = 0) {
       if (child.userData.placeholder) driverPivot.remove(child);
     }
     driverPivot.add(pivot);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    applyShadows(pivot, 'driver');
+    
+    
+    
+    
+    
+    
+    pivot.traverse((o) => {
+      if (!o.isMesh) return;
+      for (const m of Array.isArray(o.material) ? o.material : [o.material]) dressImported(m);
+    });
   });
 
   
@@ -850,8 +1183,20 @@ export function buildKart(character, variant = 0) {
   
   
   
-  group.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-  return { group, wheels, driverPivot, tint, spec, glider, flames, exhaustTips: tips };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  applyShadows(group, 'kart');
+  return { group, wheels, driverPivot, tint, spec, glider, boat, flames, exhaustTips: tips };
 }
 
 
@@ -886,22 +1231,97 @@ export function poseKart(built, kart, dt) {
 
   const slip = kart.slip ?? 0;
   const speed = Math.abs(kart.speed ?? 0);
+  const boating = !!kart.boating;
+  const grinding = !!kart.grinding;
 
   
-  const wantRoll = Math.max(-0.34, Math.min(0.34, -slip * 0.5));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const boat = built.boat;
+  const boatT = boat ? stepDeploy(boat.userData.deploy ?? 0, boating, dt) : 0;
+  if (boat) boat.userData.deploy = boatT;
+  const boatPh = rigPhases(boatT);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const slipRoll = Math.max(-0.34, Math.min(0.34, -slip * 0.5)) * (boating ? 0.2 : 1);
+  const boatHeel = Math.max(-0.22, Math.min(0.22, slip * 0.55)) * boatPh.trim;
+  const wantRoll = slipRoll
+    + boatHeel
+    + (kart.bankRoll ?? 0)
+    + (kart.grindSide ?? 0) * 0.26 * (kart.grindMount ?? 0);
   g.rotation.z += (wantRoll - g.rotation.z) * Math.min(1, dt * 9);
 
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const accelCue = Math.max(-1, Math.min(1, (kart.boost ? 1 : 0) - (kart.spinTime > 0 ? 1 : 0)));
-  const wantPitch = -accelCue * 0.05;
-  g.rotation.x += (wantPitch - g.rotation.x) * Math.min(1, dt * 7);
+  const boatPlane = -Math.min(1, speed / 22) * 0.09 * boatPh.trim;
+  const wantPitch = -accelCue * 0.05 - (kart.wheelie ?? 0) * GRIND_WHEELIE + boatPlane;
+  g.rotation.x += (wantPitch - g.rotation.x) * Math.min(1, dt * (grinding ? 11 : 7));
 
   
   
   
   
-  const spin = (speed / (built.spec ? built.spec.wheels.rearRadius : 0.42)) * dt;
+  
+  
+  
+  
+  
+  
+  
+  const spin = (boating || grinding) ? 0 : (speed / (built.spec ? built.spec.wheels.rearRadius : 0.42)) * dt;
   for (const key of ['fl', 'fr', 'rl', 'rr']) {
     const w = built.wheels[key];
     if (w) w.rotation.x -= spin;
@@ -970,6 +1390,96 @@ export function poseKart(built, kart, dt) {
       
       glider.scale.set(Math.min(1, next * 1.6), 1, 0.4 + next * 0.6);
       glider.position.y = (1 - next) * -0.35;
+    }
+  }
+
+  
+  
+  
+  
+  
+  if (boat) {
+    boat.visible = rigVisible(boatT);
+    if (boat.visible) {
+      const bs = boat.userData.spec;
+      
+      
+      
+      
+      
+      
+      const inflate = 0.12 + 0.88 * boatPh.floats;
+      boat.userData.floats.scale.set(inflate, inflate, 0.55 + 0.45 * boatPh.floats);
+
+      
+      
+      
+      boat.userData.drive.rotation.x = bs.drive.stowTilt * (1 - boatPh.drive);
+
+      
+      
+      
+      
+      
+      boat.userData.prop.rotation.z -= propSpin(boatPh.prop, speed, dt);
+
+      
+      
+      if (boat.userData.snorkel) {
+        boat.userData.snorkel.scale.y = Math.max(0.001, boatPh.snorkel);
+        boat.userData.snorkel.visible = boatPh.snorkel > 0.02;
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const home = built.wheels.home;
+    if (home) {
+      for (const key of ['fl', 'fr', 'rl', 'rr']) {
+        const h = home[key];
+        if (!h) continue;
+        
+        
+        
+        h.node.position.x = h.x - h.side * WHEEL_TUCK * boatPh.wheels;
+        h.node.position.y = h.y + WHEEL_TUCK * 0.62 * boatPh.wheels;
+        
+        
+        
+        h.node.rotation.z = h.side * WHEEL_ROLL * boatPh.wheels;
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (boatPh.floats > 0.4 && built.flames && built.exhaustTips) {
+      const line = boat.userData.spec.waterline;
+      for (let i = 0; i < built.flames.length; i += 1) {
+        const tip = built.exhaustTips[i];
+        if (tip && tip.y < line) built.flames[i].visible = false;
+      }
     }
   }
 

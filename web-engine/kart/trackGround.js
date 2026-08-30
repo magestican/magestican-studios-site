@@ -44,6 +44,7 @@ import { nearestOnPath } from './trackPath.js';
 import { chasmDepthAt } from './trackHazards.js';
 import { terrainOffsetAt } from './trackTerrain.js';
 import { planEdgeGuards, guardGroundY } from './edgeGuard.js';
+import { planRails } from './trackRails.js';
 
 
 
@@ -55,7 +56,40 @@ import { planEdgeGuards, guardGroundY } from './edgeGuard.js';
 export {
   GUARD_FLAT, GUARD_RISE, GUARD_CAP, GUARD_WIDTH, GUARD_PROBE,
   GUARD_TIERS, guardLift, guardSection, guardHeightFor, tierForDrop,
+  
+  
+  
+  
+  GUARD_DRESS_TOP, GUARD_DRESS_MIN, dressTop,
 } from './edgeGuard.js';
+
+
+
+
+
+
+
+export {
+  COLUMN_T, CAMBER_COLS, CAMBER_START, CAMBER_MAX_RISE, CAMBER_GRIP,
+  roadCrossSection, camberLiftAt, camberSlopeAt, camberEdgeY, camberProfile,
+  planCamber,
+} from './trackCamber.js';
+
+
+
+
+
+
+export {
+  RAIL_AT, RAIL_HEIGHT, RAIL_RADIUS, RAIL_CATCH, railContact, railMetres,
+} from './trackRails.js';
+export {
+  
+  
+  
+  
+  DRAFT, WATER_SPEED, IMPACT_KILL, waterSurface, isWaterAt, isAdrift, boatCruise,
+} from './water.js';
 
 
 
@@ -449,6 +483,38 @@ export function trackGuards(path, track) {
 
 
 
+const RAILS = new WeakMap();
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function trackRails(path, track) {
+  const cached = RAILS.get(path);
+  if (cached && cached.hazards === path.hazards && cached.terrain === path.terrain
+      && cached.track === track) {
+    return cached.plan;
+  }
+  const plan = planRails(path, track ?? {}, { guards: trackGuards(path, track) });
+  RAILS.set(path, {
+    plan, track, hazards: path.hazards, terrain: path.terrain,
+  });
+  return plan;
+}
+
+
+
+
+
+
 
 
 
@@ -470,15 +536,67 @@ export function trackGuards(path, track) {
 
 
 export function bodyGroundY(path, surf, x, z, track = null) {
-  if (surf.onRoad) return surf.y;
+  const edge = vergeBaseY(surf);
+  if (surf.onRoad) return edge;
+  const blended = blendToGround(path, surf, x, z);
+  if (!track) return blended;
+  
+  
+  
+  const guard = guardGroundY(trackGuards(path, track), surf, edge);
+  return guard === null ? blended : Math.max(blended, guard);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export function vergeBaseY(surf) {
+  return surf.roadY ?? surf.y ?? 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function blendToGround(path, surf, x, z) {
+  const edge = vergeBaseY(surf);
   const ground = groundMeshHeightAt(path, x, z);
+  
+  
+  
+  
+  
+  
   
   
   
   const u = Math.min(1, (surf.overBy ?? 0) / SHOULDER);
   const ramp = u * u * (3 - 2 * u);
-  const blended = surf.y * (1 - ramp) + ground * ramp;
-  if (!track) return blended;
-  const guard = guardGroundY(trackGuards(path, track), surf);
-  return guard === null ? blended : Math.max(blended, guard);
+  return edge * (1 - ramp) + ground * ramp;
 }

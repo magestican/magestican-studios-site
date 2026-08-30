@@ -98,7 +98,14 @@ export function stepRecovery(rec, { kart, surface, dt, enabled = true }) {
   
   
   
-  if (kart.gliding) {
+  
+  
+  
+  
+  
+  
+  
+  if (kart.gliding || kart.grinding) {
     rec.wrongFor = 0;
     rec.lostFor = 0;
     rec.active = false;
@@ -292,5 +299,16 @@ export function isUnrecoverable(surface, kart) {
   
   
   if (kart.gliding) return false;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (kart.grinding) return false;
   return (kart.lostTime ?? 0) >= UNRECOVERABLE_GRACE;
 }

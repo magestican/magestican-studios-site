@@ -42,6 +42,8 @@
 
 
 
+import { planCamber, camberLiftAt, camberSlopeAt } from './trackCamber.js';
+
 
 
 
@@ -127,7 +129,11 @@ export function splinePoint(p0, p1, p2, p3, u) {
 
 
 
-export function buildPath(control, { samplesPerSegment = 14, defaultWidth = 16, branches = null } = {}) {
+
+
+export function buildPath(control, {
+  samplesPerSegment = 14, defaultWidth = 16, branches = null, camberScale = 1,
+} = {}) {
   if (!Array.isArray(control) || control.length < 4) {
     throw new Error('buildPath: a closed track needs at least 4 control points');
   }
@@ -138,11 +144,21 @@ export function buildPath(control, { samplesPerSegment = 14, defaultWidth = 16, 
     const p0 = at(i - 1); const p1 = at(i); const p2 = at(i + 1); const p3 = at(i + 2);
     const w1 = p1.width ?? defaultWidth;
     const w2 = p2.width ?? defaultWidth;
+    
+    
+    
+    
+    const c1 = p1.camber ?? 1;
+    const c2 = p2.camber ?? 1;
     for (let k = 0; k < samplesPerSegment; k += 1) {
       const u = k / samplesPerSegment;
       const p = splinePoint(p0, p1, p2, p3, u);
       const smooth = u * u * (3 - 2 * u);
-      pts.push({ x: p.x, y: p.y, z: p.z, width: w1 + (w2 - w1) * smooth });
+      pts.push({
+        x: p.x, y: p.y, z: p.z,
+        width: w1 + (w2 - w1) * smooth,
+        camber: c1 + (c2 - c1) * smooth,
+      });
     }
   }
 
@@ -172,6 +188,28 @@ export function buildPath(control, { samplesPerSegment = 14, defaultWidth = 16, 
   }
 
   const path = { pts, tangents, s, length: s[m], count: m, bounds: { minX, maxX, minZ, maxZ } };
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  path.camber = planCamber(path, {
+    scale: camberScale,
+    perPoint: Float64Array.from(pts, (p) => p.camber ?? 1),
+  });
 
   
   
@@ -256,15 +294,24 @@ export function buildBranch(path, spec, { samplesPerSegment = 12 } = {}) {
   const a = sampleAt(path, entryS);
   const b = sampleAt(path, exitS);
   const lead = spec.lead ?? 8;
+  
+  
+  
+  
+  
+  
+  
+  const entryT = spec.entryLateral ?? 0;
+  const exitT = spec.exitLateral ?? 0;
   const mouthA = {
-    x: a.x + a.nx * ((spec.entryLateral ?? 0) * a.width * 0.5),
-    y: a.y ?? 0,
-    z: a.z + a.nz * ((spec.entryLateral ?? 0) * a.width * 0.5),
+    x: a.x + a.nx * (entryT * a.width * 0.5),
+    y: (a.y ?? 0) + camberLiftAt(path.camber, a.index, entryT),
+    z: a.z + a.nz * (entryT * a.width * 0.5),
   };
   const mouthB = {
-    x: b.x + b.nx * ((spec.exitLateral ?? 0) * b.width * 0.5),
-    y: b.y ?? 0,
-    z: b.z + b.nz * ((spec.exitLateral ?? 0) * b.width * 0.5),
+    x: b.x + b.nx * (exitT * b.width * 0.5),
+    y: (b.y ?? 0) + camberLiftAt(path.camber, b.index, exitT),
+    z: b.z + b.nz * (exitT * b.width * 0.5),
   };
   
   
@@ -455,7 +502,24 @@ export function sampleAt(path, s) {
     nx: tan.z,
     nz: -tan.x,
     heading: Math.atan2(tan.x, tan.z),
+    
+    
+    
+    
+    
+    
+    
+    bank: bankAtIndex(path, i, u),
   };
+}
+
+
+function bankAtIndex(path, i, u) {
+  const cam = path.camber;
+  if (!cam || !cam.rise) return 0;
+  const a = cam.rise[i % cam.count];
+  const b = cam.rise[(i + 1) % cam.count];
+  return a + (b - a) * u;
 }
 
 
@@ -498,21 +562,38 @@ export function nearestOnPath(path, x, z, hint = null, window = 40) {
   const px = a.x + abx * u;
   const pz = a.z + abz * u;
   const tan = path.tangents[bestI];
+  const y = (a.y ?? 0) + ((b.y ?? 0) - (a.y ?? 0)) * u;
+  const width = a.width + (b.width - a.width) * u;
+  const lateral = (x - px) * tan.z + (z - pz) * -tan.x;
   return {
     index: bestI,
     s: path.s[bestI] + Math.sqrt(len2) * u,
     x: px,
     z: pz,
-    y: (a.y ?? 0) + ((b.y ?? 0) - (a.y ?? 0)) * u,
-    width: a.width + (b.width - a.width) * u,
+    y,
+    width,
     tx: tan.x,
     tz: tan.z,
     nx: tan.z,
     nz: -tan.x,
     heading: Math.atan2(tan.x, tan.z),
     
-    lateral: (x - px) * tan.z + (z - pz) * -tan.x,
+    lateral,
     dist: Math.hypot(x - px, z - pz),
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    bank: bankAtIndex(path, bestI, u),
   };
 }
 
@@ -531,8 +612,29 @@ export function trackSurface(path, x, z, hint = null, { shoulder = 7 } = {}) {
   const over = near.dist - half;
   const onRoad = over <= 0;
   const onShoulder = !onRoad && over <= shoulder;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const halfW = Math.max(1e-6, half);
+  const t = Math.max(-1, Math.min(1, (near.lateral ?? 0) / halfW));
   const out = {
     ...near,
+    roadY: (near.y ?? 0) + camberLiftAt(path.camber, near.index, t),
+    crossSlope: camberSlopeAt(path.camber, near.index, t, halfW),
     onRoad,
     onShoulder,
     lost: !onRoad && !onShoulder,
@@ -594,6 +696,19 @@ export function trackSurface(path, x, z, hint = null, { shoulder = 7 } = {}) {
   
   
   
+  
+  
+  
+  
+  
+  
+  out.roadY = out.y;
+  out.crossSlope = 0;
+  
+  
+  
+  
+  
   const fade = onBranch ? 1 : Math.max(0.45, 1 - (best.over / Math.max(best.br.shoulder, 1e-6)) * 0.55);
   out.gripScale = best.br.grip * fade;
   out.overBy = Math.max(0, best.over);
@@ -638,7 +753,13 @@ export function startGrid(path, count, { startS = 0, rowGap = 5.5, laneGap = 0.2
     const off = c.width * laneGap * side;
     out.push({
       x: c.x + c.nx * off,
-      y: c.y,
+      
+      
+      
+      
+      
+      
+      y: c.y + camberLiftAt(path.camber, c.index, off / Math.max(1e-6, c.width / 2)),
       z: c.z + c.nz * off,
       heading: c.heading,
       s: c.s,

@@ -52,7 +52,17 @@
 
 
 
-import { guardSection, GUARD_TIERS } from './edgeGuard.js';
+
+
+
+
+
+
+
+import { guardSection, GUARD_TIERS, dressTop } from './edgeGuard.js';
+
+
+import { MAX_STEP } from '../loop/tickPolicy.js';
 
 
 
@@ -64,6 +74,29 @@ import { guardSection, GUARD_TIERS } from './edgeGuard.js';
 
 
 export const SOLID_MIN_DROP = GUARD_TIERS[1].minDrop;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SOLID_MIN_HEIGHT = GUARD_TIERS[1].height * 0.75;
 
 
 
@@ -98,6 +131,18 @@ export const WALL_DRAG = 0.55;
 export const BANK_PUSH = 9.0;
 
 
+
+
+
+
+
+
+
+
+
+export const RIDE_SLACK = 0.6;
+
+
 function slotAt(guards, surf) {
   if (!guards || !surf || surf.onRoad) return null;
   const s = (surf.lateral ?? 0) > 0 ? 0 : 1;
@@ -110,15 +155,63 @@ function slotAt(guards, surf) {
     height,
     reach: guards.reach[k],
     drop: guards.smooth ? guards.smooth[k] : 0,
+    
+    
+    
+    fatal: guards.smoothFatal ? guards.smoothFatal[k] : (guards.smooth ? guards.smooth[k] : 0),
     tier: guards.tier ? guards.tier[k] : null,
   };
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function slotIsSolid(slot) {
   if (!slot) return false;
-  if (slot.tier && typeof slot.tier.minDrop === 'number') return slot.tier.minDrop >= SOLID_MIN_DROP;
-  return (slot.drop ?? 0) >= SOLID_MIN_DROP;
+  if (!((slot.height ?? 0) >= SOLID_MIN_HEIGHT)) return false;
+  return Math.max(slot.drop ?? 0, slot.fatal ?? 0) >= SOLID_MIN_DROP;
 }
 
 
@@ -164,12 +257,71 @@ export function bankPush(guards, surf) {
 
 
 
-export function guardBlock(guards, surf, kart) {
+
+
+
+
+export function guardBlock(guards, surf, kart, dt = MAX_STEP) {
   const slot = slotAt(guards, surf);
   if (!slot || !slotIsSolid(slot)) return null;
   const { crest } = guardSection(slot.reach);
   const out = surf.overBy ?? 0;
   if (out <= crest) return null;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const top = slot.height + Math.max(RIDE_SLACK, dressTop(slot.tier, slot.height));
+  if ((kart.y ?? 0) > (surf.roadY ?? surf.y ?? 0) + top) return null;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (out - crest > Math.hypot(kart.vx ?? 0, kart.vz ?? 0) * dt + 2) return null;
 
   
   
@@ -196,5 +348,11 @@ export function guardBlock(guards, surf, kart) {
     outVz = vz - nz * into + nz * keep;
     scrub = Math.min(1, into / 18);
   }
-  return { x, z, vx: outVx, vz: outVz, scrub };
+  
+  
+  
+  
+  
+  
+  return { x, z, vx: outVx, vz: outVz, scrub, back };
 }

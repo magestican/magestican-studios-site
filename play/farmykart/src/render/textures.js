@@ -49,6 +49,12 @@
 import * as THREE from 'three';
 import { PALETTE } from '../palette.js';
 
+
+
+
+import { roadRecipe, fieldRecipe } from '../../../../web-engine/render/groundRecipe.js';
+import { getQuality } from './materials.js';
+
 const SIZE = 128;
 
 
@@ -134,50 +140,74 @@ const ROAD_THEMES = {
 
 export function makeRoadTexture(theme = 'summer') {
   const t = ROAD_THEMES[theme] ?? ROAD_THEMES.summer;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const r = roadRecipe(theme);
+  const mark = (id) => r.marks.find((m) => m.id === id) ?? { colour: r.base, alpha: 0, coverage: 0 };
   const S = GROUND;
   const c = canvas(S); const g = c.getContext('2d');
   const rng = seedRng(t.seed);
-  g.fillStyle = css(t.base);
+  
+  
+  
+  
+  
+  const PPM_U = S / 26;
+  const PPM_V = S / 8;
+  g.fillStyle = css(r.base);
   g.fillRect(0, 0, S, S);
 
   
+  
+  
+  
+  
   for (let i = 0; i < 9; i += 1) {
+    const m = rng() > 0.5 ? mark('bandLight') : mark('bandDark');
     const y = rng() * S;
-    const h = 16 + rng() * 52;
-    g.globalAlpha = 0.10 + rng() * 0.12;
-    g.fillStyle = rng() > 0.5 ? css(t.light) : css(t.dark);
+    const h = m.scaleMetres[1] * PPM_V * (0.6 + rng() * 0.9);
+    g.globalAlpha = m.alpha * (0.7 + rng() * 0.6);
+    g.fillStyle = css(m.colour);
     g.fillRect(0, y, S, h);
     g.fillRect(0, y - S, S, h);
   }
   g.globalAlpha = 1;
 
   
-  for (const cx of [S * 0.3, S * 0.7]) {
-    g.strokeStyle = css(t.dark);
-    g.globalAlpha = t.rutAlpha;
-    g.lineWidth = 22;
-    g.beginPath();
-    g.moveTo(cx, 0);
-    
-    
-    
-    for (let y = 0; y <= S; y += 8) {
-      const wob = Math.sin((y / S) * Math.PI * 2) * 6.4;
-      g.lineTo(cx + wob, y);
+  
+  
+  
+  
+  
+  for (const [id, count] of [['dryPatch', 7], ['gravel', 5]]) {
+    const m = mark(id);
+    if (m.coverage <= 0) continue;
+    for (let i = 0; i < count; i += 1) {
+      const x = rng() * S; const y = rng() * S;
+      const rx = (m.scaleMetres[0] / 2) * PPM_U * (0.7 + rng() * 0.8);
+      const ry = (m.scaleMetres[1] / 2) * PPM_V * (0.7 + rng() * 0.8);
+      const rot = rng() * Math.PI;
+      g.globalAlpha = m.alpha * (0.75 + rng() * 0.5);
+      g.fillStyle = css(m.colour);
+      wrapDraw(x, y, S, (px, py) => {
+        g.beginPath(); g.ellipse(px, py, rx, ry, rot, 0, Math.PI * 2); g.fill();
+      });
     }
-    g.stroke();
-    
-    
-    g.strokeStyle = css(t.light);
-    g.globalAlpha = 0.35;
-    g.lineWidth = 5;
-    g.beginPath();
-    g.moveTo(cx + 12, 0);
-    for (let y = 0; y <= S; y += 8) {
-      const wob = Math.sin((y / S) * Math.PI * 2) * 6.4;
-      g.lineTo(cx + 12 + wob, y);
-    }
-    g.stroke();
   }
   g.globalAlpha = 1;
 
@@ -186,56 +216,273 @@ export function makeRoadTexture(theme = 'summer') {
   
   
   
+  const rut = mark('rut');
+  const rutDeep = mark('rutDeep');
+  const rutLip = mark('rutLip');
+  const wander = (cx, off) => {
+    g.beginPath();
+    g.moveTo(cx + off, 0);
+    
+    
+    
+    for (let y = 0; y <= S; y += 8) {
+      g.lineTo(cx + off + Math.sin((y / S) * Math.PI * 2) * 6.4, y);
+    }
+    g.stroke();
+  };
+  for (const cx of [S * 0.3, S * 0.7]) {
+    g.strokeStyle = css(rut.colour);
+    g.globalAlpha = rut.alpha;
+    g.lineWidth = rut.scaleMetres[0] * PPM_U;
+    wander(cx, 0);
+    g.strokeStyle = css(rutDeep.colour);
+    g.globalAlpha = rutDeep.alpha;
+    g.lineWidth = rutDeep.scaleMetres[0] * PPM_U;
+    wander(cx, 0);
+    g.strokeStyle = css(rutLip.colour);
+    g.globalAlpha = rutLip.alpha;
+    g.lineWidth = rutLip.scaleMetres[0] * PPM_U;
+    wander(cx, rut.scaleMetres[0] * PPM_U * 0.55);
+  }
+  g.globalAlpha = 1;
+
+  
+  
+  
+  const crown = mark('crown');
+  if (crown.coverage > 0) {
+    g.strokeStyle = css(crown.colour);
+    g.globalAlpha = crown.alpha;
+    g.lineWidth = crown.scaleMetres[0] * PPM_U;
+    wander(S * 0.5, 0);
+    g.globalAlpha = 1;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  const puddle = mark('puddle');
+  const puddleSky = mark('puddleSky');
   for (let i = 0; i < t.wet; i += 1) {
     const x = rng() * S; const y = rng() * S;
-    const rx = 6 + rng() * 20;
-    const ry = rx * (0.35 + rng() * 0.3);
+    const rx = (puddle.scaleMetres[0] / 2) * PPM_U * (0.6 + rng() * 1.1);
+    const ry = (puddle.scaleMetres[1] / 2) * PPM_V * (0.6 + rng() * 0.8);
     const rot = rng() * Math.PI;
     wrapDraw(x, y, S, (px, py) => {
-      g.globalAlpha = 0.5;
-      g.fillStyle = css(PALETTE.puddle);
+      g.globalAlpha = puddle.alpha;
+      g.fillStyle = css(puddle.colour);
       g.beginPath(); g.ellipse(px, py, rx, ry, rot, 0, Math.PI * 2); g.fill();
-      
-      
-      
-      
-      
-      
-      g.globalAlpha = 0.2;
-      g.fillStyle = css(PALETTE.skyHaze);
+      g.globalAlpha = puddleSky.alpha;
+      g.fillStyle = css(puddleSky.colour);
       g.beginPath(); g.ellipse(px, py - ry * 0.3, rx * 0.72, ry * 0.34, rot, 0, Math.PI * 2); g.fill();
     });
   }
   g.globalAlpha = 1;
 
   
+  
+  
+  const hollow = mark('hollow');
+  if (hollow.coverage > 0) {
+    g.globalAlpha = hollow.alpha;
+    g.fillStyle = css(hollow.colour);
+    for (let i = 0; i < 26; i += 1) {
+      const x = rng() * S; const y = rng() * S;
+      const rx = (hollow.scaleMetres[0] / 2) * PPM_U * (0.5 + rng() * 1.2);
+      const ry = (hollow.scaleMetres[1] / 2) * PPM_V * (0.5 + rng() * 1.2);
+      wrapDraw(x, y, S, (px, py) => {
+        g.beginPath(); g.ellipse(px, py, rx, ry, rng() * 3, 0, Math.PI * 2); g.fill();
+      });
+    }
+    g.globalAlpha = 1;
+  }
+
+  
+  
+  
+  
+  
+  const grit = mark('grit');
+  const gritLight = mark('gritLight');
   for (let i = 0; i < t.grit; i += 1) {
+    const m = rng() > 0.45 ? gritLight : grit;
     const x = rng() * S; const y = rng() * S;
-    const r = 0.8 + rng() * 2.6;
-    g.fillStyle = rng() > 0.45 ? css(t.light) : css(t.dark);
-    g.globalAlpha = 0.25 + rng() * 0.4;
+    const rad = Math.max(0.8, (m.scaleMetres[0] / 2) * PPM_U * (0.6 + rng() * 1.6));
+    g.fillStyle = css(m.colour);
+    g.globalAlpha = m.alpha * (0.6 + rng() * 0.7);
     wrapDraw(x, y, S, (px, py) => {
-      g.beginPath(); g.arc(px, py, r, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(px, py, rad, 0, Math.PI * 2); g.fill();
     });
+  }
+  g.globalAlpha = 1;
+  return toTexture(c, 1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function makeGroundNormal(sourceTexture, strength = 1) {
+  if (getQuality() === 'low') return null;
+  const src = sourceTexture?.image;
+  if (!src || !src.width) return null;
+  const S = src.width;
+  const sg = src.getContext('2d');
+  const data = sg.getImageData(0, 0, S, src.height).data;
+  const H = src.height;
+  const at = (x, y) => {
+    const xi = ((x % S) + S) % S;
+    const yi = ((y % H) + H) % H;
+    const i = (yi * S + xi) * 4;
+    return (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+  };
+  const out = canvas(S, H);
+  const og = out.getContext('2d');
+  const img = og.createImageData(S, H);
+  for (let y = 0; y < H; y += 1) {
+    for (let x = 0; x < S; x += 1) {
+      
+      const dx = (at(x + 1, y - 1) + 2 * at(x + 1, y) + at(x + 1, y + 1))
+        - (at(x - 1, y - 1) + 2 * at(x - 1, y) + at(x - 1, y + 1));
+      const dy = (at(x - 1, y + 1) + 2 * at(x, y + 1) + at(x + 1, y + 1))
+        - (at(x - 1, y - 1) + 2 * at(x, y - 1) + at(x + 1, y - 1));
+      
+      
+      
+      
+      let nx = -dx * strength * 2;
+      let ny = -dy * strength * 2;
+      const nz = 1;
+      const len = Math.hypot(nx, ny, nz);
+      nx /= len; ny /= len;
+      const i = (y * S + x) * 4;
+      img.data[i] = Math.round((nx * 0.5 + 0.5) * 255);
+      
+      
+      
+      
+      img.data[i + 1] = Math.round((-ny * 0.5 + 0.5) * 255);
+      img.data[i + 2] = Math.round((nz / len * 0.5 + 0.5) * 255);
+      img.data[i + 3] = 255;
+    }
+  }
+  og.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(out);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = 4;
+  
+  
+  
+  
+  tex.colorSpace = THREE.NoColorSpace;
+  
+  
+  
+  tex.repeat.copy(sourceTexture.repeat);
+  tex.offset.copy(sourceTexture.offset);
+  return tex;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let paintTexture = null;
+export function makePaintTexture() {
+  if (paintTexture) return paintTexture;
+  const S = SIZE;
+  const c = canvas(S); const g = c.getContext('2d');
+  const rng = seedRng(0x9a17e5);
+  g.fillStyle = '#ffffff';
+  g.fillRect(0, 0, S, S);
+
+  
+  for (let i = 0; i < 90; i += 1) {
+    const y = rng() * S;
+    g.strokeStyle = rng() > 0.5 ? 'rgba(255,255,255,1)' : 'rgba(150,150,150,1)';
+    g.globalAlpha = 0.03 + rng() * 0.05;
+    g.lineWidth = 1 + rng() * 3;
+    g.beginPath();
+    g.moveTo(-4, y);
+    for (let x = 0; x <= S; x += 12) g.lineTo(x, y + Math.sin(x * 0.09 + i) * 1.6);
+    g.stroke();
   }
   g.globalAlpha = 1;
 
   
   
+  const dust = g.createLinearGradient(0, S * 0.62, 0, S);
+  dust.addColorStop(0, 'rgba(150,138,120,0)');
+  dust.addColorStop(1, 'rgba(150,138,120,0.30)');
+  g.fillStyle = dust;
+  g.fillRect(0, S * 0.62, S, S * 0.38);
+
   
-  if (theme === 'snow') {
+  for (const [cx, cy] of [[6, 8], [S - 10, S - 6]]) {
     g.globalAlpha = 0.16;
-    g.fillStyle = css(PALETTE.snowHollow);
-    for (let i = 0; i < 26; i += 1) {
-      const x = rng() * S; const y = rng() * S;
-      const r = 6 + rng() * 18;
-      wrapDraw(x, y, S, (px, py) => {
-        g.beginPath(); g.ellipse(px, py, r, r * 0.5, rng() * 3, 0, Math.PI * 2); g.fill();
-      });
-    }
-    g.globalAlpha = 1;
+    g.fillStyle = '#8c8378';
+    g.beginPath(); g.ellipse(cx, cy, 14 + rng() * 10, 8 + rng() * 7, rng() * 3, 0, Math.PI * 2); g.fill();
   }
-  return toTexture(c, 1);
+  g.globalAlpha = 1;
+
+  
+  
+  const lit = g.createLinearGradient(0, 0, 0, S * 0.3);
+  lit.addColorStop(0, 'rgba(255,255,255,0.55)');
+  lit.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = lit;
+  g.fillRect(0, 0, S, S * 0.3);
+
+  paintTexture = toTexture(c, 1);
+  paintTexture.colorSpace = THREE.SRGBColorSpace;
+  return paintTexture;
 }
 
 
@@ -353,37 +600,53 @@ const GROUND_THEMES = {
 
 export function makeGrassTexture(theme = 'summer') {
   const t = GROUND_THEMES[theme] ?? GROUND_THEMES.summer;
+  
+  
+  
+  
+  
+  
+  
+  const r = fieldRecipe(theme);
+  const mark = (id) => r.marks.find((m) => m.id === id) ?? { colour: r.base, alpha: 0, coverage: 0, scaleMetres: [1, 1] };
   const S = GROUND;
   const c = canvas(S); const g = c.getContext('2d');
   const rng = seedRng(t.seed);
-  g.fillStyle = css(t.base);
+  
+  
+  const PPM = S / 20;
+  g.fillStyle = css(r.base);
   g.fillRect(0, 0, S, S);
 
   
   
   
   
+  const warmMark = mark('fieldWarm');
+  const darkMark = mark('fieldDark');
+  const plough = mark('plough');
   for (let i = 0; i < 7; i += 1) {
+    const warm = rng() > 0.45;
+    const m = warm ? warmMark : darkMark;
     const x = rng() * S; const y = rng() * S;
-    const rx = S * (0.18 + rng() * 0.24);
+    const rx = (m.scaleMetres[0] / 2) * PPM * (0.7 + rng() * 0.7);
     const ry = rx * (0.5 + rng() * 0.7);
     const rot = rng() * Math.PI;
-    const warm = rng() > 0.45;
-    g.globalAlpha = 0.13 + rng() * 0.12;
-    g.fillStyle = css(warm ? t.field : t.fieldDark);
+    g.globalAlpha = m.alpha * (0.75 + rng() * 0.5);
+    g.fillStyle = css(m.colour);
     wrapDraw(x, y, S, (px, py) => {
       g.beginPath(); g.ellipse(px, py, rx, ry, rot, 0, Math.PI * 2); g.fill();
     });
     
     
     if (warm) {
-      const step = 5 + rng() * 5;
+      const step = plough.scaleMetres[0] * PPM * (1.0 + rng() * 1.2);
       wrapDraw(x, y, S, (px, py) => {
         g.save();
         g.beginPath(); g.ellipse(px, py, rx, ry, rot, 0, Math.PI * 2); g.clip();
-        g.globalAlpha = 0.12;
-        g.strokeStyle = css(t.fieldDark);
-        g.lineWidth = 1.6;
+        g.globalAlpha = plough.alpha;
+        g.strokeStyle = css(plough.colour);
+        g.lineWidth = Math.max(1.2, plough.scaleMetres[0] * PPM * 0.35);
         for (let k = -rx; k < rx; k += step) {
           g.beginPath();
           g.moveTo(px + Math.cos(rot) * k - Math.sin(rot) * ry * 1.3, py + Math.sin(rot) * k + Math.cos(rot) * ry * 1.3);
@@ -399,13 +662,16 @@ export function makeGrassTexture(theme = 'summer') {
   
   
   
-  g.globalAlpha = 0.3;
-  g.strokeStyle = css(t.hedge);
+  
+  
+  const hedge = mark('hedge');
+  g.globalAlpha = hedge.alpha;
+  g.strokeStyle = css(hedge.colour);
   for (let i = 0; i < 3; i += 1) {
     const vertical = rng() > 0.5;
     const at = rng() * S;
     const wob = 6 + rng() * 10;
-    g.lineWidth = 2.5 + rng() * 3;
+    g.lineWidth = hedge.scaleMetres[0] * PPM * (0.6 + rng() * 0.8);
     g.beginPath();
     for (let k = 0; k <= S; k += 16) {
       const off = Math.sin((k / S) * Math.PI * 2 + i) * wob;
@@ -418,25 +684,33 @@ export function makeGrassTexture(theme = 'summer') {
   g.globalAlpha = 1;
 
   
+  
+  
+  
+  
+  const clumpLight = mark('clumpLight');
+  const clumpDark = mark('clumpDark');
   for (let i = 0; i < 320; i += 1) {
+    const m = rng() > 0.5 ? clumpLight : clumpDark;
     const x = rng() * S; const y = rng() * S;
-    const r = 5 + rng() * 16;
-    g.fillStyle = rng() > 0.5 ? css(t.light) : css(t.dark);
-    g.globalAlpha = 0.14 + rng() * 0.2;
+    const rad = (m.scaleMetres[0] / 2) * PPM * (0.6 + rng() * 1.6);
+    g.fillStyle = css(m.colour);
+    g.globalAlpha = m.alpha * (0.6 + rng() * 0.7);
     wrapDraw(x, y, S, (px, py) => {
-      g.beginPath(); g.ellipse(px, py, r, r * (0.6 + rng() * 0.5), rng() * 3.14, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.ellipse(px, py, rad, rad * (0.6 + rng() * 0.5), rng() * 3.14, 0, Math.PI * 2); g.fill();
     });
   }
   g.globalAlpha = 1;
   
   
   
+  const stubble = mark('stubble');
   for (let i = 0; i < 200; i += 1) {
     const x = rng() * S; const y = rng() * S;
-    g.strokeStyle = css(t.accent);
-    g.globalAlpha = 0.16 + rng() * 0.2;
+    g.strokeStyle = css(stubble.colour);
+    g.globalAlpha = stubble.alpha * (0.6 + rng() * 0.7);
     g.lineWidth = 1.4;
-    const len = 4 + rng() * 10;
+    const len = stubble.scaleMetres[0] * PPM * (0.5 + rng() * 1.3);
     const a = rng() * Math.PI;
     wrapDraw(x, y, S, (px, py) => {
       g.beginPath();

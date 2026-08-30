@@ -85,6 +85,28 @@ const MOTE_THEMES = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const BOAT_MOTE = { colour: PALETTE.snowHollow, size: 0.17, rate: 22 };
+
+
+
+
+
 export function createSpeedFx(scene, theme = 'summer') {
   const mote = MOTE_THEMES[theme] ?? MOTE_THEMES.summer;
 
@@ -172,6 +194,10 @@ export function createSpeedFx(scene, theme = 'summer') {
   return {
     lines, lineMat, spokes,
     motes, moteMat, pool, moteSpec: mote,
+    
+    
+    
+    _moteColour: mote.colour,
     cursor: 0,
     strength: 0,
     spawnDebt: 0,
@@ -269,7 +295,22 @@ export function updateSpeedFx(fx, kart, camera, dt) {
   
   
   
-  const spec = fx.moteSpec;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const spec = kart && kart.boating ? BOAT_MOTE : fx.moteSpec;
+  const wantColour = spec.colour;
+  if (fx._moteColour !== wantColour) {
+    fx._moteColour = wantColour;
+    fx.moteMat.color.setHex(wantColour);
+  }
   if (k > 0.05 && kart) {
     fx.spawnDebt += spec.rate * k * dt;
     while (fx.spawnDebt >= 1) {

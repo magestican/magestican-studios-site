@@ -23,7 +23,44 @@ export function createAudio() {
     engine: null,
     muted: false,
     started: false,
+    noise: null,
+    
+    
+    
+    rail: null,
   };
+}
+
+
+const NOISE_SECONDS = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function noiseBuffer(audio) {
+  if (!audio?.ctx) return null;
+  if (audio.noise && audio.noise.sampleRate === audio.ctx.sampleRate) return audio.noise;
+  const buf = audio.ctx.createBuffer(1, Math.ceil(audio.ctx.sampleRate * NOISE_SECONDS), audio.ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i += 1) d[i] = Math.random() * 2 - 1;
+  audio.noise = buf;
+  return buf;
 }
 
 
@@ -420,6 +457,80 @@ export function stopEngine(audio) {
     e.oscA.stop(); e.oscB.stop();
   } catch {  }
   audio.engine = null;
+  
+  
+  
+  
+  stopRailLoop(audio);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function railVoice(audio) {
+  if (!audio.ctx) return null;
+  if (audio.rail) return audio.rail;
+  const buf = noiseBuffer(audio);
+  if (!buf) return null;
+  const ctx = audio.ctx;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.loop = true;
+  const hi = ctx.createBiquadFilter();
+  hi.type = 'bandpass';
+  hi.frequency.value = 3200;
+  hi.Q.value = 7;
+  const lo = ctx.createBiquadFilter();
+  lo.type = 'bandpass';
+  lo.frequency.value = 1150;
+  lo.Q.value = 5;
+  const gain = ctx.createGain();
+  gain.gain.value = 0;
+  src.connect(hi).connect(gain);
+  src.connect(lo).connect(gain);
+  gain.connect(audio.master);
+  src.start();
+  audio.rail = { src, hi, lo, gain };
+  return audio.rail;
+}
+
+
+
+
+
+
+
+
+
+
+export function stopRailLoop(audio) {
+  const r = audio.rail;
+  if (!r) return;
+  try { r.src.stop(); } catch {  }
+  audio.rail = null;
 }
 
 
@@ -447,23 +558,66 @@ function noiseBurst(audio, { dur = 0.25, gain = 0.25, freq = 900, q = 0.8 }) {
   if (!audio.ctx || audio.muted) return;
   const ctx = audio.ctx;
   const t = ctx.currentTime;
+  const buf = noiseBuffer(audio);
+  if (!buf) return;
   const src = ctx.createBufferSource();
-  const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate);
-  const d = buf.getChannelData(0);
-  for (let i = 0; i < d.length; i += 1) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
   src.buffer = buf;
   const f = ctx.createBiquadFilter();
   f.type = 'bandpass';
   f.frequency.value = freq;
   f.Q.value = q;
   const g = ctx.createGain();
-  g.gain.value = gain;
+  
+  
+  
+  
+  
+  
+  g.gain.setValueAtTime(gain, t);
+  g.gain.linearRampToValueAtTime(0, t + dur);
   src.connect(f).connect(g).connect(audio.master);
-  src.start(t);
+  
+  
+  
+  const offset = Math.random() * Math.max(0, NOISE_SECONDS - dur);
+  src.start(t, offset, dur);
+  src.stop(t + dur + 0.02);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function countdownPitch(audio, beat) {
+  const root = audio?.music?.song?.root;
+  
+  
+  const step = beat === 3 ? 0 : beat === 2 ? 4 : 7;
+  if (root == null) return [420, 470, 528][Math.max(0, Math.min(2, 3 - (beat ?? 3)))];
+  return 440 * (2 ** (((root + 24 + step) - 69) / 12));
 }
 
 export const SFX = {
-  countdown: (audio, beat) => blip(audio, { freq: 420, dur: 0.16, gain: 0.22, type: 'square' }),
+  countdown: (audio, beat) => {
+    const freq = countdownPitch(audio, beat);
+    blip(audio, { freq, dur: 0.16, gain: 0.22, type: 'square' });
+    
+    
+    blip(audio, { freq: freq / 2, dur: 0.20, gain: 0.09, type: 'triangle' });
+  },
   go: (audio) => {
     blip(audio, { freq: 660, dur: 0.3, gain: 0.28, type: 'square' });
     blip(audio, { freq: 990, dur: 0.34, gain: 0.18, type: 'triangle', delay: 0.04 });
@@ -522,4 +676,95 @@ export const SFX = {
   },
   thunder: (audio) => noiseBurst(audio, { dur: 0.9, gain: 0.34, freq: 220, q: 0.4 }),
   bump: (audio) => noiseBurst(audio, { dur: 0.13, gain: 0.16, freq: 260, q: 1.4 }),
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+
+
+
+
+
+
+
+  railOn: (audio) => {
+    blip(audio, { freq: 720, dur: 0.12, gain: 0.20, type: 'square', sweep: 620 });
+    blip(audio, { freq: 960, dur: 0.16, gain: 0.13, type: 'triangle', sweep: 820, delay: 0.03 });
+    noiseBurst(audio, { dur: 0.14, gain: 0.16, freq: 4200, q: 3.2 });
+  },
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  railLoop: (audio, level = 0, speed = 0) => {
+    if (!audio.ctx) return;
+    
+    
+    if (level <= 0 && !audio.rail) return;
+    const v = railVoice(audio);
+    if (!v) return;
+    const t = audio.ctx.currentTime;
+    const want = Math.max(0, Math.min(1, level)) * 0.14;
+    v.gain.gain.setTargetAtTime(want, t, 0.05);
+    
+    
+    v.hi.frequency.setTargetAtTime(2600 + Math.min(1, speed / 55) * 2400, t, 0.08);
+  },
+
+  
+
+
+
+  railOff: (audio, paid = false) => {
+    if (paid) {
+      blip(audio, { freq: 520, dur: 0.24, gain: 0.22, type: 'square', sweep: 700 });
+      noiseBurst(audio, { dur: 0.20, gain: 0.13, freq: 3000, q: 2.0 });
+    } else {
+      
+      blip(audio, { freq: 900, dur: 0.20, gain: 0.14, type: 'triangle', sweep: -520 });
+      noiseBurst(audio, { dur: 0.12, gain: 0.09, freq: 1800, q: 2.4 });
+    }
+  },
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  splash: (audio, hard = 0.5) => {
+    const h = Math.max(0, Math.min(1, hard));
+    blip(audio, { freq: 190 - h * 70, dur: 0.16, gain: 0.14 + h * 0.14, type: 'sine', sweep: -110 });
+    noiseBurst(audio, { dur: 0.16, gain: 0.14 + h * 0.10, freq: 480, q: 0.7 });
+    noiseBurst(audio, { dur: 0.34 + h * 0.30, gain: 0.09 + h * 0.13, freq: 2600, q: 0.5 });
+  },
 };

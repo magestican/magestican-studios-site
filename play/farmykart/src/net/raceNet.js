@@ -170,6 +170,15 @@ export function createRaceNet(session, { seats, onEvent, onStandings, onSeats, r
       
       
       k.gliding = !!f.gliding;
+      
+      
+      
+      
+      
+      
+      
+      k.grinding = !!f.grinding;
+      k.boating = !!f.boating;
       racer.netMode = f.mode;
       return true;
     },

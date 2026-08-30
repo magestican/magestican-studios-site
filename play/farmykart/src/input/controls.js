@@ -44,9 +44,63 @@ import {
   isBrakeSlide, steerFromDrag, touchZoneAt,
 } from 'arbelo/touchLayout';
 import { createTouchOverlay } from '../ui/touchControls.js';
-import { createTapTracker, tapDown, tapReset } from 'arbelo/doubleTap';
+import { createTapTracker, tapDown, TAP_FLASH_MS } from 'arbelo/doubleTap';
+
+
+
+
+
+
+
+import { resolveTouchMode } from './touchMode.js';
 
 const DEADZONE = 0.14;
+
+
+
+
+
+
+
+
+
+let _mode = null;
+function touchMode() {
+  if (_mode) return _mode;
+  _mode = typeof window === 'undefined'
+    ? resolveTouchMode()
+    : resolveTouchMode({
+      maxTouchPoints: navigator.maxTouchPoints ?? 0,
+      hasTouchEvents: 'ontouchstart' in window,
+      search: location.search,
+    });
+  return _mode;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function showTouchOverlay() {
+  return touchMode().overlay;
+}
+
+
+
+
+
+
 
 
 
@@ -80,6 +134,22 @@ export function createControls(root) {
     _touchSteer: 0,
     _touchThrottle: 0,
     _touchBrake: false,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     _touchDrift: false,
     _touchItem: false,
     _touchJump: false,
@@ -127,6 +197,11 @@ export function createControls(root) {
 
 
 export function readControls(state, dt) {
+  
+  
+  
+  
+  
   
   
   
@@ -194,6 +269,9 @@ export function readControls(state, dt) {
   steer += state._touchSteer;
   if (state._touchThrottle) throttle += state._touchThrottle;
   if (state._touchBrake) throttle -= 1;
+  
+  
+  
   if (state._touchDrift) drift = true;
   if (state._touchItem) useItem = true;
   if (state._touchJump) jump = true;
@@ -247,12 +325,23 @@ function attachTouch(root, state) {
   
   const zoneOf = touchZoneAt;
 
-  const overlay = isTouchDevice() && typeof document !== 'undefined'
+  const overlay = showTouchOverlay() && typeof document !== 'undefined'
     ? createTouchOverlay(document.getElementById('touch-hints'))
     : null;
 
   const onDown = (e) => {
-    if (e.pointerType === 'mouse') return;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (e.pointerType === 'mouse' && !touchMode().mouseAsTouch) return;
     state.lastSource = 'touch';
     const w = window.innerWidth; const h = window.innerHeight;
     const zone = zoneOf(e.clientX, e.clientY, w, h);
@@ -318,17 +407,15 @@ function attachTouch(root, state) {
           drift = true;
           if (p.downAt !== undefined && Date.now() - p.downAt < TAP_MS) jump = true;
         }
-      } else if (p.zone === 'drift') {
-        
-        
-        
-        
-        if (p.downAt !== undefined && Date.now() - p.downAt < TAP_MS) jump = true;
-        else drift = true;
-        
-        
-        
-        throttle = 1;
+      
+      
+      
+      
+      
+      
+      
+      
+      
       } else if (p.zone === 'item') {
         item = true;
       }
@@ -355,7 +442,42 @@ function attachTouch(root, state) {
 
   
   
-  state._touchTick = () => { if (pointers.size) apply(); };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const FLASH_TAIL_MS = 150;
+  state._touchTick = () => {
+    if (pointers.size || Date.now() - state.doubleTapAt <= TAP_FLASH_MS + FLASH_TAIL_MS) apply();
+  };
 
   const target = root ?? window;
   target.addEventListener('pointerdown', onDown, { passive: false });
@@ -369,6 +491,11 @@ function attachTouch(root, state) {
   
   
   
+  
+  
+  
+  
+  state.touchMode = touchMode();
   if (typeof window !== 'undefined') window.__fkControls = state;
 
   return {
@@ -386,7 +513,8 @@ function attachTouch(root, state) {
 }
 
 
-export function isTouchDevice() {
-  if (typeof window === 'undefined') return false;
-  return ('ontouchstart' in window) || (navigator.maxTouchPoints ?? 0) > 0;
-}
+
+
+
+
+

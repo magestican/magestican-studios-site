@@ -27,6 +27,9 @@ import { poseAt, EMOTE_TIME } from 'arbelo/emotes';
 import { CHARACTERS, characterById } from 'arbelo/kartTuning';
 import { loadDriver } from './kartMesh.js';
 import { configureRenderer, surface, paintedSurface } from './materials.js';
+
+
+import { pageContexts } from '../../../../web-engine/render/contextBudget.js';
 import { PALETTE } from '../palette.js';
 
 
@@ -144,6 +147,10 @@ function buildFigure(character) {
     
     body.rotation.y = Math.PI;
     body.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    
+    
+    
+    body.userData.sharedDriver = true;
     pivot.remove(placeholder);
     pivot.add(body);
     root.userData.body = body;
@@ -169,6 +176,15 @@ export function createShowcaseView({
   canvas, ids, selected = null, podium = false, places = null, onSelect = null,
 }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  
+  
+  
+  
+  
+  
+  
+  
+  
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -176,6 +192,7 @@ export function createShowcaseView({
   
   renderer.setClearAlpha(0);
 
+  let disposed = false;
   const scene = new THREE.Scene();
   scene.add(studioLights());
 
@@ -350,7 +367,7 @@ export function createShowcaseView({
   canvas.addEventListener('pointerup', onUp);
   canvas.addEventListener('pointercancel', () => { dragFrom = null; });
 
-  return {
+  const view = {
     
     nudge: (dir) => nudge(state, dir),
     select: (id) => selectId(state, id),
@@ -377,12 +394,60 @@ export function createShowcaseView({
     },
     state,
     dispose() {
+      
+      
+      
+      
+      
+      if (disposed) return;
+      disposed = true;
       cancelAnimationFrame(raf);
       observer?.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
       canvas.removeEventListener('pointerdown', onDown);
       canvas.removeEventListener('pointerup', onUp);
+      
+      
+      pageContexts.release(canvas.id || canvas);
+      
+      
+      
+      
+      
       renderer.dispose();
+      renderer.forceContextLoss();
+      
+      
+      
+      
+      
+      
+      
+      scene.traverse((o) => {
+        if (!o.isMesh || sharesTheDriverCache(o)) return;
+        o.geometry?.dispose();
+        for (const m of (Array.isArray(o.material) ? o.material : [o.material])) m?.dispose();
+      });
     },
   };
+  
+  
+  pageContexts.acquire(canvas.id || canvas, view.dispose);
+  return view;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function sharesTheDriverCache(mesh) {
+  for (let o = mesh; o; o = o.parent) if (o.userData?.sharedDriver) return true;
+  return false;
 }

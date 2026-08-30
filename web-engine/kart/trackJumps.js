@@ -54,8 +54,25 @@ function wrapFrac(d) {
 
 
 
-export function crossedJump(jumps, prev, now, speed) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function crossedJump(jumps, prev, now, speed, { overBy = 0, maxOver = Infinity } = {}) {
   if (!jumps || !jumps.length || prev == null) return null;
+  if (overBy > maxOver) return null;
   const moved = wrapFrac(now - prev);
   
   

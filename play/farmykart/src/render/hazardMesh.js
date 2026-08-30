@@ -9,13 +9,30 @@
 
 import * as THREE from 'three';
 
-import { hazardMarkers, inSpan, surfaceLevelOf, chasmDepthAt } from 'arbelo/trackHazards';
+
+
+
+
+
+import {
+  hazardMarkers, inSpan, chasmDepthAt, waterPlaneY, bankAt,
+} from 'arbelo/trackHazards';
 import { lungePhase } from 'arbelo/trackGlides';
 import { lavaRise } from 'arbelo/trackTerrain';
 import { sampleAt, nearestOnPath } from 'arbelo/trackPath';
-import { surface, NOISE_GLSL } from './materials.js';
+import { isWaterAt } from 'arbelo/trackGround';
+import { surface, NOISE_GLSL, WAVE_GLSL, skyPalette, getQuality } from './materials.js';
+
+
+
+import { sunDirFor } from './world.js';
 import { PALETTE } from '../palette.js';
 import { SHOULDER, groundMeshHeightAt } from './trackMesh.js';
+
+
+
+import { boatBeam } from '../../../../web-engine/render/boatSpec.js';
+import { vehicleFor } from '../../../../web-engine/kart/vehicles.js';
 
 
 
@@ -45,7 +62,91 @@ const WATER_REACH = 90;
 
 
 
-export function buildWaterMaterial(theme = 'summer') {
+const WATER_COLS = 8;
+
+
+
+
+
+
+
+
+
+export const WASH_STRENGTH = 0.55;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function buildWaterMaterial(theme = 'summer', {
+  frozen = false, sky = 'day', sunDir = null, low = false,
+} = {}) {
   
   
   
@@ -60,14 +161,47 @@ export function buildWaterMaterial(theme = 'summer') {
   
   
   
+  
+  
+  
+  
+  
+  
+  const BODY_DROP = 0.74;
   const deep = theme === 'snow' ? 0x0c2740 : theme === 'mud' ? 0x1d3a38 : 0x1b4b6b;
   const shallow = theme === 'snow' ? 0x2d6d97 : theme === 'mud' ? 0x4a7d6f : 0x59a8c4;
+  const skyCols = skyPalette(sky);
+  
+  
+  
+  
+  
+  const sun = (sunDir ?? sunDirFor(theme)).clone().normalize();
   const uniforms = {
-    uDeep: { value: new THREE.Color(deep) },
-    uShallow: { value: new THREE.Color(shallow) },
-    uFoam: { value: new THREE.Color(theme === 'mud' ? 0xcfd3b6 : 0xeaf6ff) },
+    uDeep: { value: new THREE.Color(deep).multiplyScalar(BODY_DROP) },
+    uShallow: { value: new THREE.Color(shallow).multiplyScalar(BODY_DROP) },
+    
+    
+    
+    uFoam: { value: new THREE.Color(theme === 'mud' ? 0xcfd3b6 : 0xe6f2fb) },
+    uCrack: { value: new THREE.Color(0x9fc4d8) },
+    uSkyTop: { value: new THREE.Color(skyCols.top) },
+    uSkyHorizon: { value: new THREE.Color(skyCols.horizon) },
+    uHaze: { value: new THREE.Color(skyCols.haze) },
     uTime: { value: 0 },
-    uSun: { value: new THREE.Vector3(-0.6, 0.5, 0.42).normalize() },
+    uSun: { value: sun },
+    uFrozen: { value: frozen ? 1 : 0 },
+    
+    uWaveScale: { value: frozen ? 0.08 : 1 },
+    
+    
+    
+    
+    
+    uBoats: { value: [
+      new THREE.Vector4(0, 0, 0, 0), new THREE.Vector4(0, 0, 0, 0),
+      new THREE.Vector4(0, 0, 0, 0), new THREE.Vector4(0, 0, 0, 0),
+    ] },
   };
   const material = new THREE.ShaderMaterial({
     uniforms,
@@ -75,65 +209,300 @@ export function buildWaterMaterial(theme = 'summer') {
     
     
     
+    
+    
+    
+    
+    
     depthWrite: false,
+    
+    
+    
+    
+    
+    
+    side: THREE.DoubleSide,
     vertexShader: `
+      uniform float uTime, uWaveScale;
+      attribute float edge;
       varying vec2 vWorld;
       varying float vEdge;      // 0 at the bank, 1 out in the middle
-      attribute float edge;
+      varying float vAmp;       // the tapered wave amplitude scale here
+      varying vec3 vPos;
+      ${WAVE_GLSL}
       void main() {
         vec4 world = modelMatrix * vec4(position, 1.0);
-        vWorld = world.xz;
         vEdge = edge;
+        // THE WAVE FADES TO NOTHING AT THE BANK. The ribbon's inner edge is
+        // welded to the carved ground by waterlineInner(), which marches out
+        // until the bed is genuinely below the surface; a crest lifting that
+        // edge would show daylight under the water against the shore, which is
+        // the one place a player is looking when they decide whether to commit.
+        float amp = smoothstep(0.0, 0.06, edge) * uWaveScale;
+        vec3 n;
+        // Swell in full, chop at half, ripple not at all: see the note below on
+        // what this tessellation can actually represent.
+        float h = waveAt(world.xz, uTime, vec3(amp, amp * 0.5, 0.0), n);
+        world.y += h;
+        // THE NORMAL IS NOT PASSED DOWN FROM HERE, and that was the first
+        // design's mistake. The ribbon reaches WATER_REACH (90 m) out from the
+        // bank over WATER_COLS (8) columns, so a vertex every ~11 m - which can
+        // represent the 26 m swell and CANNOT represent the 7.4 m chop or the
+        // 2.1 m ripple at all. A normal sampled at 11 m intervals and
+        // interpolated across the gap aliases those two into noise, and the
+        // measured cost of that was real: the surface had to have world-space
+        // colour grain pushed back up to 0.082 to recover its local contrast,
+        // and at that level the lagoon looked like television static again -
+        // exactly the defect this shader was written to remove.
+        //
+        // So only the displacement happens here (the swell is the only train the
+        // tessellation can carry), and the normal is evaluated PER FRAGMENT from
+        // the same function. Six sines and six cosines a fragment, for chop and
+        // ripple detail that is correct at every distance instead of aliased.
+        vAmp = amp;
+        vWorld = world.xz;
+        vPos = world.xyz;
         gl_Position = projectionMatrix * viewMatrix * world;
       }
     `,
     fragmentShader: `
-      uniform vec3 uDeep, uShallow, uFoam, uSun;
-      uniform float uTime;
+      uniform vec3 uDeep, uShallow, uFoam, uSun, uSkyTop, uSkyHorizon, uHaze, uCrack;
+      uniform float uTime, uFrozen;
+      uniform vec4 uBoats[4];
       varying vec2 vWorld;
       varying float vEdge;
+      varying float vAmp;
+      varying vec3 vPos;
+      ${low ? '#define FK_LOW 1' : ''}
       ${NOISE_GLSL}
+      ${WAVE_GLSL}
+
+      // THE SKY, IN CLOSED FORM. The same three colours and the same 0.42
+      // exponent buildSkyMaterial uses, so the reflection cannot show a
+      // different sky from the one overhead - which is the two-suns failure in
+      // its other form, and this game has already shipped that once.
+      vec3 skyAlong(vec3 d) {
+        vec3 col = mix(uSkyHorizon, uSkyTop, pow(clamp(d.y, 0.0, 1.0), 0.42));
+        return mix(uHaze, col, smoothstep(-0.10, 0.06, d.y));
+      }
+
       void main() {
-        // TWO RIPPLE TRAINS AT AN ANGLE. One alone is corduroy; two at a right
-        // angle is a grid; two at an odd angle and different speeds is water.
-        // NOISE, NOT SINES. Two sine trains crossing is a lattice - the
-        // comment three lines up used to claim they made water and they made
-        // a polka-dot screen, plainly visible from above the lake. Any pair of
-        // pure periodic functions beats into a regular pattern; that is what
-        // periodic means. Two octaves of value noise drifting in different
-        // directions have no period to beat with, so they read as a surface.
-        vec2 w = vWorld;
-        float n1 = vnoise(w * 0.9 + vec2(uTime * 0.55, uTime * 0.22));
-        float n2 = vnoise(w * 2.3 - vec2(uTime * 0.31, uTime * 0.74));
-        float swell = vnoise(w * 0.16 + vec2(uTime * 0.07, 0.0));
-        float ripple = (n1 - 0.5) * 1.25 + (n2 - 0.5) * 0.75 + (swell - 0.5) * 0.5;
+        // The ribbon is double sided, so half the quads on a two-sided zone
+        // present their back face and would light upside down. The surface is
+        // horizontal by construction, so flipping to the upward normal is exact
+        // rather than a fudge.
+        // The wave, re-evaluated here. See the long note in the vertex shader:
+        // the tessellation cannot carry the chop or the ripple, so their normals
+        // have to be computed at the fragment or they are not there at all.
+        vec3 wn;
+        // THE SHORT WAVES FADE OUT WITH DISTANCE. A band of wavelength L is
+        // below one sample per wavelength once it is roughly 22 L from the
+        // camera, and past that it does not add detail, it prints MOIRE: the
+        // first per-fragment version of this shader laid a regular corduroy
+        // weave across the middle distance of the lagoon, which reads as fabric
+        // and is worse than the flat plane it replaced. So the ripple (2.1 m) is
+        // gone by about 46 m, the chop (7.4 m) by about 163 m, and the swell
+        // (26 m) survives past the far bank of any zone on the roster.
+        float dist = length(cameraPosition - vPos);
+        vec3 band = vAmp * vec3(
+          1.0,
+          1.0 - smoothstep(7.4 * 9.0, 7.4 * 22.0, dist),
+          1.0 - smoothstep(2.1 * 9.0, 2.1 * 22.0, dist));
+        float h = waveAt(vWorld, uTime, band, wn);
+        // NORMALISED TO -1..1, and the 0.34 is not a magic number: it is the sum
+        // of WAVE_GLSL's three amplitudes (0.22 + 0.09 + 0.03), i.e. the peak
+        // the three trains can reach in phase. The first cut divided by the
+        // scale alone, so this topped out at 0.34 and the crest foam -
+        // thresholded at 0.45 - could never fire at all. It still rendered
+        // whitewater, because that was the SPECULAR blowing out: a completely
+        // different bug that the same screenshot hid.
+        float vCrest = vAmp > 0.0 ? h / max(vAmp * 0.34, 0.0001) : 0.0;
+        vec3 N = normalize(wn);
+        if (N.y < 0.0) N = -N;
+        vec3 V = normalize(cameraPosition - vPos);
 
-        vec3 col = mix(uShallow, uDeep, smoothstep(0.0, 0.55, vEdge));
-        col += ripple * 0.045;
+        // -- boat wash ---------------------------------------------------
+        // A shallow bowl under each hull and a foam rim around it. b.z is the
+        // radius and b.w the strength; an empty slot has radius 0 and is
+        // skipped, because a zero radius is a division by zero in the falloff.
+        float rim = 0.0;
+        #ifndef FK_LOW
+        for (int i = 0; i < 4; i++) {
+          vec4 b = uBoats[i];
+          if (b.z <= 0.0) continue;
+          vec2 to = vWorld - b.xy;
+          float d = length(to);
+          if (d > b.z * 1.6) continue;
+          // The bowl tilts the normal outward, which is what makes the
+          // depression catch a different piece of sky from the water round it -
+          // the only reason it is visible at all on a surface with no shadow.
+          float slope = b.w * (1.0 - smoothstep(0.0, b.z, d)) * 0.9;
+          N = normalize(N + vec3(to.x, 0.0, to.y) / max(d, 0.001) * slope);
+          // A ring of foam just outside the hull.
+          rim = max(rim, b.w * (1.0 - smoothstep(b.z * 0.72, b.z * 1.45, d))
+                              * smoothstep(b.z * 0.30, b.z * 0.80, d));
+        }
+        #endif
 
-        // The glint. Narrow, so it is a highlight rather than a wash, and
-        // riding on the ripples so it breaks up the way a real one does.
-        // Narrower and quieter than it was, for the same reason: a broad
-        // highlight on a big swell is a blob, a narrow one on a small ripple
-        // is a sparkle.
-        float glint = pow(max(0.0, ripple * 0.5 + 0.5), 26.0);
-        col += uFoam * glint * 0.30;
+        // -- body ---------------------------------------------------------
+        vec3 body = mix(uShallow, uDeep, smoothstep(0.0, 0.55, vEdge));
+        // The colour-space noise the flat shader used, kept and quietened. It
+        // is no longer carrying the whole effect, so it no longer has to be
+        // strong enough to read on its own - at the old 0.045 over a lit
+        // surface it goes back to reading as static.
+        float n1 = 0.5;
+        float grain = 0.0;
+        #ifndef FK_LOW
+        n1 = vnoise(vWorld * 0.9 + vec2(uTime * 0.55, uTime * 0.22));
+        float n2 = vnoise(vWorld * 2.3 - vec2(uTime * 0.31, uTime * 0.74));
+        grain = (n1 - 0.5) * 1.25 + (n2 - 0.5) * 0.75;
+        #endif
 
-        // FOAM AT THE BANK. The single strongest cue that a body of water has
-        // an edge rather than just stopping - and the edge is exactly where a
-        // player needs to know precisely where the water begins.
-        float foam = 1.0 - smoothstep(0.0, 0.16, vEdge);
-        col = mix(col, uFoam, foam * (0.55 + 0.25 * sin(uTime * 3.0 + vWorld.x * 0.6)));
+        // -- Fresnel over the reflected sky --------------------------------
+        // SCHLICK, F0 = 0.02, which is water's real normal-incidence
+        // reflectance. The whole shape of the effect is in the grazing term:
+        // straight down the water is nearly transparent and you see its colour;
+        // along it - which is the chase camera's angle, 10 to 20 degrees - it is
+        // a mirror. That difference across one surface is contrast the flat
+        // shader could not produce at any exposure.
+        float ndv = max(dot(N, V), 0.0);
+        float fres = 0.02 + 0.98 * pow(1.0 - ndv, 5.0);
+        vec3 refl = skyAlong(reflect(-V, N));
+        // Ice is a rough mirror: the reflection is there but it is scattered,
+        // so it is mixed toward the haze rather than being a clean sky.
+        refl = mix(refl, mix(refl, uHaze, 0.45), uFrozen);
+        // A COLOURED MIRROR, NOT A MIRROR, and this is the one place the shader
+        // is deliberately not physical. Schlick run straight puts fres at 1.0 at
+        // grazing, and the eye height this game is played at is grazing over
+        // almost the whole surface - so the first render came back with the
+        // lagoon as a sheet of pale sky from bank to bank. That is physically
+        // right and it is wrong twice over here: it throws away the DARK-water
+        // cue that tells a player where the hazard is (the note at the top of
+        // this file about Frostfield's meltwater is the same lesson), and it
+        // moves the surface straight back into the flat 90-170 band.
+        //
+        // So the reflection is tinted 0.30 toward the body colour and its share
+        // is capped at REFLECT_MAX. Cartoon water in every game that has ever
+        // looked good does this; the alternative is a mirror floor.
+        const float REFLECT_MAX = 0.66;
+        // Tinted with the SHALLOW colour rather than the deep one, and by a lot.
+        // The first tint used uDeep + 0.55, which on Muddy Bottom is a
+        // desaturated grey-teal (0.63, 0.72, 0.71) - so every crest went milky
+        // and the whole lagoon read as dishwater. Multiplying by the shallow
+        // colour keeps the HUE in the reflection, which is the thing that has to
+        // survive: a lagoon that goes grey at the crests loses the blue-green
+        // separation from the grass that the note at the top of this file
+        // records buying at some cost.
+        refl = mix(refl, refl * (uShallow * 2.1), 0.45);
+        vec3 col = mix(body, refl, fres * REFLECT_MAX * mix(1.0, 0.72, uFrozen));
+
+        // THE GRAIN, WEIGHTED TOWARD GRAZING, and this is a measurement talking
+        // rather than a preference. The old flat shader added this same value
+        // noise to the colour at 0.045 and nothing else; because it is in WORLD
+        // space, at a grazing angle it compresses to roughly one noise cell per
+        // pixel and reads as television static - but it also scored a high
+        // localContrast, which is the "plain" number FROZEN CONTRACTS clause 6
+        // says to move. Measured on the lagoon at 1.6 m eye height: the flat
+        // shader read 4.82 and this shader at grain 0.022 read 3.76, so the
+        // rewrite LOST local contrast on the one axis it was supposed to gain
+        // it, while plainly looking better.
+        //
+        // Both things are true. Fine-scale break-up is real and belongs here;
+        // it just must not be the whole effect. Weighting it by (1 - N.V)
+        // squared puts it where a real surface shows most texture - along the
+        // surface, which is the chase camera's angle - and takes it out of the
+        // overhead view, where the waves and the sparkle are already carrying
+        // the frame (that shot measured 8.67 flat and 10.02 here).
+        col += grain * mix(0.014, 0.052, pow(1.0 - ndv, 2.0));
+
+        // -- the sun ---------------------------------------------------------
+        // Blinn-Phong at exponent 220 against uSun, which is the KEY LIGHT'S OWN
+        // direction. On ice it drops to 26 and dims, because a frozen surface is
+        // matte where a wet one is a mirror.
+        //
+        // THE MICRO-RIPPLE IS WHAT MAKES THIS A SPARKLE AND NOT A SHEET, and the
+        // first render is why it exists. Without it, the 26 m swell sweeps the
+        // surface normal smoothly through the mirror direction across a band
+        // tens of metres wide, so the whole sun path blew out to white - the
+        // 78 m tile came back with the near half of the lagoon as one flat white
+        // sheet, which is worse than the flat plane it replaced. Real sun
+        // glitter is bright and SPARSE because a real surface has centimetre
+        // ripples on top of the swell.
+        //
+        // Two more sine trains, amplitudes 0.012 m at 0.9 m and 0.005 m at
+        // 0.35 m, give slopes of a*2*pi/L = 0.084 and 0.090 radians - about 10
+        // degrees of jitter combined. The exponent-220 lobe is roughly
+        // sqrt(2/220) = 0.095 rad half-width, so the jitter is comfortably wider
+        // than the highlight and chops it into points. Six trig ops, and it
+        // costs nothing in the vertex stage because it never displaces anything.
+        vec2 m0 = vec2(0.6018, 0.7986);
+        vec2 m1 = vec2(-0.4695, 0.8829);
+        float mk0 = 6.9813;   // 2*pi / 0.9
+        float mk1 = 17.9520;  // 2*pi / 0.35
+        float mp0 = dot(vWorld, m0) * mk0 + uTime * 3.1 * mk0 * 0.35;
+        float mp1 = dot(vWorld, m1) * mk1 - uTime * 1.9 * mk1 * 0.35;
+        float ms0 = 0.0060 * mk0 * cos(mp0);
+        float ms1 = 0.0026 * mk1 * cos(mp1);
+        // Off on ice - a frozen surface has no centimetre ripples - and faded
+        // out at the bank, where the wave itself is already tapered to nothing
+        // so a jittering normal there would sparkle on a surface that is flat.
+        float micro = (1.0 - uFrozen) * smoothstep(0.0, 0.06, vEdge);
+        vec3 Ns = normalize(N + vec3(
+          -(ms0 * m0.x + ms1 * m1.x), 0.0, -(ms0 * m0.y + ms1 * m1.y)) * micro);
+        vec3 H = normalize(V + uSun);
+        float spec = pow(max(dot(Ns, H), 0.0), mix(220.0, 26.0, uFrozen));
+        // AND THE PATH IS SPARSE. Even with the ripple jitter, every fragment in
+        // the sun's path satisfies the mirror condition somewhere in its own
+        // 3-pixel footprint at 1264x625, so the glitter averaged back up to a
+        // continuous white smear across the middle distance - visible in the
+        // second render of this shader and no better than the sheet in the
+        // first. Real glitter is sparse because only some facets are aimed
+        // right. n1 is the noise field the body colour already computes, so
+        // punching holes in the highlight with it costs nothing.
+        spec *= 0.30 + 0.70 * n1;
+        col += uFoam * spec * mix(0.70, 0.30, uFrozen);
+
+        // -- foam -----------------------------------------------------------
+        // CREST FOAM, gated on the wave height rather than on noise, so it
+        // appears on the tops of the chop and travels with them. That motion is
+        // what says "this water is moving" from five metres away, which no
+        // amount of colour wobble does.
+        #ifdef FK_LOW
+        float crest = smoothstep(0.86, 0.99, vCrest);
+        #else
+        float crest = smoothstep(0.86, 0.99, vCrest) * (0.45 + 0.55 * vnoise(vWorld * 3.1));
+        #endif
+        // BANK FOAM. The single strongest cue that a body of water has an edge
+        // rather than just stopping - and the edge is exactly where a player
+        // needs to know precisely where the water begins.
+        float bank = 1.0 - smoothstep(0.0, 0.16, vEdge);
+        bank *= 0.55 + 0.25 * sin(uTime * 3.0 + vWorld.x * 0.6);
+        // Crest foam is deliberately weak. A cap on the top of a wave is a
+        // HINT of white, not a band of it; at 0.75 the lagoon read as a
+        // whitewater river, which is a different body of water entirely.
+        float foam = clamp(max(rim, max(crest * 0.22, bank)), 0.0, 1.0);
+        // A frozen river does not lap and does not cap. It cracks: a second
+        // noise band drawn as thin pale lines, which is a pressure ridge.
+        #ifdef FK_LOW
+        float crack = 0.0;
+        #else
+        float cn = vnoise(vWorld * 0.42);
+        float crack = smoothstep(0.46, 0.50, cn) * (1.0 - smoothstep(0.54, 0.58, cn));
+        #endif
+        col = mix(mix(col, uFoam, foam), mix(col, uCrack, crack * 0.7), uFrozen);
 
         // Fading in from the bank stops the mesh edge itself being a visible
-        // hard line where it meets the carved ground.
-        gl_FragColor = vec4(col, mix(0.72, 0.95, smoothstep(0.0, 0.10, vEdge)));
+        // hard line where it meets the carved ground. Foam is opaque wherever
+        // it lands, or a white rim over a dark bed reads as grey.
+        float alpha = mix(0.72, 0.95, smoothstep(0.0, 0.10, vEdge));
+        gl_FragColor = vec4(col, max(alpha, foam * 0.92));
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }
     `,
   });
   material.userData.uniforms = uniforms;
+  material.userData.frozen = !!frozen;
   return material;
 }
 
@@ -150,8 +519,31 @@ export function buildWater(path, track) {
   const zones = (track.hazards ?? []).filter((z) => z.kind === 'water');
   if (!zones.length) return group;
 
-  const material = buildWaterMaterial(track.theme);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const low = getQuality() === 'low';
+  const materials = new Map();
+  const materialFor = (frozen) => {
+    const key = `${track.theme}|${frozen ? 1 : 0}`;
+    let m = materials.get(key);
+    if (!m) {
+      m = buildWaterMaterial(track.theme, {
+        frozen, sky: track.sky ?? 'day', sunDir: sunDirFor(track.theme), low,
+      });
+      materials.set(key, m);
+    }
+    return m;
+  };
+
   for (const zone of zones) {
+    const material = materialFor(!!zone.frozen);
     if (zone.creatures) group.add(buildSharks(path, zone));
     
     
@@ -170,6 +562,25 @@ export function buildWater(path, track) {
     
     
     const steps = Math.max(8, Math.round((span * path.length) / 4));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const cols = low ? 1 : WATER_COLS;
     const positions = [];
     const edges = [];
     const indices = [];
@@ -183,25 +594,37 @@ export function buildWater(path, track) {
         const p = sampleAt(path, frac * path.length);
         const half = p.width / 2;
         
-        
-        
-        const inner = (half * (zone.beyond ?? 1.18)) + SHOULDER * 0.25;
-        const outer = inner + carvedReach(path, zone, p, side, inner);
-        
         const nx = p.tz * side;
         const nz = -p.tx * side;
         
         
         
-        const y = (p.y ?? 0) - surfaceLevelOf(zone);
-        positions.push(p.x + nx * inner, y, p.z + nz * inner);
-        edges.push(0);
-        positions.push(p.x + nx * outer, y, p.z + nz * outer);
-        edges.push(1);
+        
+        
+        
+        
+        
+        
+        const y = waterPlaneY(zone, p.y ?? 0);
+        const inner = waterlineInner(path, zone, p, side, half, y);
+        const outer = inner + carvedReach(path, zone, p, side, inner);
+        for (let j = 0; j <= cols; j += 1) {
+          const e = j / cols;
+          const d = inner + (outer - inner) * e;
+          positions.push(p.x + nx * d, y, p.z + nz * d);
+          
+          
+          
+          
+          edges.push(e);
+        }
       }
+      const stride = cols + 1;
       for (let i = 0; i < steps; i += 1) {
-        const a = base + i * 2;
-        indices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+        for (let j = 0; j < cols; j += 1) {
+          const a = base + i * stride + j;
+          indices.push(a, a + 1, a + stride, a + 1, a + stride + 1, a + stride);
+        }
       }
     }
 
@@ -213,12 +636,72 @@ export function buildWater(path, track) {
     
     
     
-    material.side = THREE.DoubleSide;
+    
+    
+    
     mesh.name = `water-${zone.id}`;
+    
+    
+    
+    mesh.userData.zone = zone;
     group.add(mesh);
   }
-  group.userData.material = material;
+  
+  
+  
+  group.userData.materials = [...materials.values()];
+  
+  
+  group.userData.material = group.userData.materials[0] ?? null;
   return group;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function waterlineInner(path, zone, p, side, half, planeY) {
+  const start = half * (zone.beyond ?? 1.18);
+  const nx = p.tz * side;
+  const nz = -p.tx * side;
+  
+  
+  
+  
+  const reach = start + bankAt(zone, (p.s ?? 0) / path.length) * half + SHOULDER;
+  for (let d = start; d <= reach; d += 0.5) {
+    const ground = groundMeshHeightAt(path, p.x + nx * d, p.z + nz * d);
+    if (isWaterAt(planeY, ground)) return d;
+  }
+  return start;
 }
 
 
@@ -266,9 +749,75 @@ function carvedReach(path, zone, p, side, inner) {
 
 
 
-export function updateWater(water, elapsed) {
-  const u = water?.userData?.material?.userData?.uniforms;
-  if (u) u.uTime.value = elapsed;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function boatWashSlots(racers) {
+  const out = [];
+  for (const r of racers ?? []) {
+    const kart = r?.kart ?? r;
+    if (!kart || !kart.boating) continue;
+    const spec = vehicleFor(kart.tuning?.id ?? kart.id ?? 'sheep');
+    out.push({
+      x: kart.x,
+      z: kart.z,
+      
+      
+      
+      radius: boatBeam(spec) * 0.62,
+      strength: WASH_STRENGTH,
+    });
+    if (out.length === 4) break;
+  }
+  return out;
+}
+
+export function updateWater(water, elapsed, boats = null) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const mats = water?.userData?.materials
+    ?? (water?.userData?.material ? [water.userData.material] : []);
+  for (const m of mats) {
+    const u = m?.userData?.uniforms;
+    if (!u) continue;
+    u.uTime.value = elapsed;
+    const slots = u.uBoats.value;
+    for (let i = 0; i < slots.length; i += 1) {
+      const b = boats && boats[i];
+      
+      
+      if (b) slots[i].set(b.x, b.z, b.radius ?? 0, b.strength ?? WASH_STRENGTH);
+      else slots[i].set(0, 0, 0, 0);
+    }
+  }
   for (const child of water?.children ?? []) updateSharks(child, elapsed);
 }
 
@@ -664,7 +1213,6 @@ function buildSharks(path, zone) {
     geo, surface({ vertexColors: true, roughness: 0.55, flatShading: true }), n,
   );
   const span = zone.from <= zone.to ? zone.to - zone.from : (1 - zone.from) + zone.to;
-  const level = surfaceLevelOf(zone);
   const anchors = [];
   for (let i = 0; i < n; i += 1) {
     
@@ -677,7 +1225,10 @@ function buildSharks(path, zone) {
     anchors.push({
       x: p.x + p.tz * side * off,
       z: p.z - p.tx * side * off,
-      water: (p.y ?? 0) - level,
+      
+      
+      
+      water: waterPlaneY(zone, p.y ?? 0),
       
       yaw: Math.atan2(p.tx, p.tz) + (side > 0 ? -Math.PI / 2 : Math.PI / 2),
       phase: (i * 0.7919) % 1,
@@ -808,7 +1359,6 @@ function buildLavaRibbon(path, zone, material) {
   const positions = [];
   const indices = [];
   const sides = !zone.side || zone.side === 'both' ? [1, -1] : [zone.side === 'left' ? 1 : -1];
-  const level = surfaceLevelOf(zone);
   for (const side of sides) {
     const base = positions.length / 3;
     for (let i = 0; i <= steps; i += 1) {
@@ -822,7 +1372,10 @@ function buildLavaRibbon(path, zone, material) {
       const outer = inner + carvedReach(path, zone, p, side, inner);
       const nx = p.tz * side;
       const nz = -p.tx * side;
-      const y = (p.y ?? 0) - level;
+      
+      
+      
+      const y = waterPlaneY(zone, p.y ?? 0);
       positions.push(p.x + nx * inner, y, p.z + nz * inner);
       positions.push(p.x + nx * outer, y, p.z + nz * outer);
     }

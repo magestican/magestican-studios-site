@@ -123,6 +123,26 @@ const inside = (r, x, y) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function touchZoneRects(viewportWidth, viewportHeight) {
   const w = viewportWidth;
   const h = viewportHeight;
@@ -133,42 +153,23 @@ export function touchZoneRects(viewportWidth, viewportHeight) {
   
   
   
-  const driftSide = 2.6 * r;
-  const driftLeft = Math.max(steerRight, w - driftSide);
-  const drift = { x: driftLeft, y: h - driftSide, w: w - driftLeft, h: driftSide };
-
-  const besideLeft = w - 5.4 * r;
-  if (besideLeft >= steerRight) {
-    
-    
-    
-    
-    return {
-      steer: { x: 0, y: 0, w: steerRight, h },
-      item: { x: besideLeft, y: h - 2.2 * r, w: 2.6 * r, h: 2.2 * r },
-      drift,
-    };
-  }
-
   
   
   
   
   
   
+  const itemLeft = Math.max(steerRight, w - 2.6 * r);
   
   
   
   
   
-  const stackFit = Math.min(1, (h * 0.68) / (4.5 * r));
-  const driftH = 2.6 * r * stackFit;
-  const itemH = 1.9 * r * stackFit;
-  const stacked = { x: driftLeft, y: h - driftH, w: w - driftLeft, h: driftH };
+  
+  const itemH = 2.2 * r * Math.min(1, (h * 0.55) / (2.2 * r));
   return {
     steer: { x: 0, y: 0, w: steerRight, h },
-    item: { x: stacked.x, y: stacked.y - itemH, w: stacked.w, h: itemH },
-    drift: stacked,
+    item: { x: itemLeft, y: h - itemH, w: w - itemLeft, h: itemH },
   };
 }
 
@@ -178,7 +179,6 @@ export function touchZoneRects(viewportWidth, viewportHeight) {
 
 export function touchZoneAt(x, y, viewportWidth, viewportHeight) {
   const z = touchZoneRects(viewportWidth, viewportHeight);
-  if (inside(z.drift, x, y)) return 'drift';
   if (inside(z.item, x, y)) return 'item';
   if (inside(z.steer, x, y)) return 'steer';
   return 'throttle';
@@ -234,8 +234,17 @@ export function touchOverlayLayout(viewportWidth, viewportHeight) {
   
   
   
-  const colCx = zones.drift.x + zones.drift.w / 2;
-  const stackTop = Math.min(zones.item.y, zones.drift.y);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const colCx = zones.item.x + zones.item.w / 2;
+  const stackTop = zones.item.y;
   
   
   
@@ -284,10 +293,20 @@ export function touchOverlayLayout(viewportWidth, viewportHeight) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   let pedal;
   if (available >= 96) {
     const ph = Math.min(available, r * 1.85);
-    const pw = clamp(ph * 0.66, 76, zones.drift.w);
+    const pw = clamp(ph * 0.66, 76, zones.item.w);
     pedal = { x: colCx - pw / 2, y: stackTop - gap - ph, w: pw, h: ph };
   } else {
     
@@ -295,7 +314,7 @@ export function touchOverlayLayout(viewportWidth, viewportHeight) {
     const floor = zones.item.y;
     const ph = clamp(floor - gap - topGuard, 44, 58);
     const left = zones.steer.w + gap;
-    const right = Math.max(left + 120, zones.drift.x - gap);
+    const right = Math.max(left + 120, zones.item.x - gap);
     
     
     
@@ -321,7 +340,6 @@ export function touchOverlayLayout(viewportWidth, viewportHeight) {
   return {
     wheel,
     pedal,
-    drift: glyph(zones.drift, 0.62),
     item: glyph(zones.item, 0.62),
   };
 }

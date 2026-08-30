@@ -23,6 +23,24 @@
 
 
 import * as THREE from 'three';
+import { PALETTE } from '../palette.js';
+
+
+
+
+
+
+
+
+
+
+import { installShaderEdit } from '../../../../web-engine/render/shaderChain.js';
+import { shadowsFor } from '../../../../web-engine/render/shadowRoles.js';
+import { createMaterialCache } from '../../../../web-engine/render/materialCache.js';
+import { EXPOSURE } from '../../../../web-engine/render/lookGrade.js';
+import {
+  ENV_INTENSITY, PAINT_ENV_INTENSITY, RUBBER_ENV_INTENSITY, DRIVER_ENV_INTENSITY,
+} from '../../../../web-engine/render/lightRig.js';
 
 
 
@@ -88,8 +106,24 @@ function installToneMapping() {
 export function configureRenderer(renderer) {
   installToneMapping();
   renderer.toneMapping = THREE.CustomToneMapping;
-  renderer.toneMappingExposure = 1.55;
+  
+  
+  
+  
+  renderer.toneMappingExposure = EXPOSURE;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  clearMaterialCache();
   return renderer;
 }
 
@@ -140,7 +174,14 @@ export function detectQuality() {
 }
 
 
-export function setQuality(level) { QUALITY = level === 'low' ? 'low' : 'high'; }
+export function setQuality(level) {
+  QUALITY = level === 'low' ? 'low' : 'high';
+  
+  
+  
+  
+  clearMaterialCache();
+}
 export function getQuality() { return QUALITY; }
 
 
@@ -167,7 +208,14 @@ function addRim(material, { colour = 0xffe9c4, strength = 0.28, power = 2.6 } = 
   const tint = new THREE.Color(colour);
   material.userData.rim = { value: new THREE.Vector4(tint.r, tint.g, tint.b, strength) };
   material.userData.rimPower = { value: power };
-  material.onBeforeCompile = (shader) => {
+  
+  
+  
+  
+  
+  
+  
+  installShaderEdit(material, `rim${power}`, (shader) => {
     shader.uniforms.uRim = material.userData.rim;
     shader.uniforms.uRimPower = material.userData.rimPower;
     shader.fragmentShader = shader.fragmentShader
@@ -191,11 +239,13 @@ function addRim(material, { colour = 0xffe9c4, strength = 0.28, power = 2.6 } = 
           gl_FragColor.rgb += uRim.rgb * (rim * uRim.a * lit);
         }
         #include <dithering_fragment>`);
-  };
+  });
   
   
   
-  material.customProgramCacheKey = () => `rim${power}`;
+  
+  
+  
   return material;
 }
 
@@ -209,7 +259,7 @@ function addRim(material, { colour = 0xffe9c4, strength = 0.28, power = 2.6 } = 
 
 
 
-export function surface({ rim, roughness, metalness, ...opts } = {}) {
+function makeSurface({ rim, roughness, metalness, envMapIntensity, ...opts }) {
   if (QUALITY === 'low') {
     
     
@@ -225,6 +275,20 @@ export function surface({ rim, roughness, metalness, ...opts } = {}) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    envMapIntensity: envMapIntensity ?? ENV_INTENSITY,
     ...opts,
   });
   if (rim !== false) addRim(mat, rim || undefined);
@@ -232,15 +296,119 @@ export function surface({ rim, roughness, metalness, ...opts } = {}) {
 }
 
 
+
+
+
+
+
+const materialCache = createMaterialCache(makeSurface);
+
+
+export function clearMaterialCache() { materialCache.clear(); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const materialCacheSize = () => materialCache.size();
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function surface(opts = {}) {
+  return materialCache.get(opts);
+}
+
+
+
+
+
+
+
+
+
+
 export const paintedSurface = (opts = {}) => surface({
-  roughness: 0.42, metalness: 0.08, ...opts,
+  roughness: 0.42, metalness: 0.08, envMapIntensity: PAINT_ENV_INTENSITY, ...opts,
   rim: { strength: 0.38, power: 2.2, ...(opts.rim || {}) },
 });
 
 
 export const rubberSurface = (opts = {}) => surface({
-  roughness: 0.95, metalness: 0.0, ...opts, rim: { strength: 0.12, power: 3.2 },
+  roughness: 0.95, metalness: 0.0, envMapIntensity: RUBBER_ENV_INTENSITY, ...opts,
+  rim: { strength: 0.12, power: 3.2 },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function dressImported(material, { envMapIntensity = DRIVER_ENV_INTENSITY, rim } = {}) {
+  if (!material || QUALITY === 'low') return material;
+  if (material.userData?.dressed) return material;
+  if ('envMapIntensity' in material) material.envMapIntensity = envMapIntensity;
+  if (rim !== false) addRim(material, rim || { strength: 0.22, power: 2.4 });
+  material.userData.dressed = true;
+  material.needsUpdate = true;
+  return material;
+}
+
+
+
+
+
+
+
+
+
+
+
+export function applyShadows(root, role) {
+  const { cast, receive } = shadowsFor(role, QUALITY);
+  root.traverse((o) => {
+    if (!o.isMesh && !o.isInstancedMesh) return;
+    o.castShadow = cast;
+    o.receiveShadow = receive;
+  });
+  return root;
+}
 
 
 
@@ -288,11 +456,21 @@ export const NOISE_GLSL = `
 
 
 
+
+
+
+
+
+
+
+
+
+
 const SKIES = {
-  day: { top: 0x2f74d8, horizon: 0xbcdcf7, haze: 0xd8e9f6, cloud: 0.55, cloudTint: 0xffffff },
-  snow: { top: 0x5f8fc4, horizon: 0xdcebf8, haze: 0xe9f2fb, cloud: 0.72, cloudTint: 0xf2f6fb },
-  overcast: { top: 0x7d90a2, horizon: 0xc4ccd4, haze: 0xc9cdd2, cloud: 0.88, cloudTint: 0xdfe4e9 },
-  dusk: { top: 0x38407e, horizon: 0xf0a978, haze: 0xe8b892, cloud: 0.60, cloudTint: 0xffd9b0 },
+  day: { top: 0x2f74d8, horizon: 0xbcdcf7, haze: 0xd8e9f6, cloud: 0.55, cloudTint: 0xffffff, cloudShade: 0xa8c2da },
+  snow: { top: 0x5f8fc4, horizon: 0xdcebf8, haze: 0xe9f2fb, cloud: 0.72, cloudTint: 0xf2f6fb, cloudShade: 0xc0d3e6 },
+  overcast: { top: 0x7d90a2, horizon: 0xc4ccd4, haze: 0xc9cdd2, cloud: 0.88, cloudTint: 0xdfe4e9, cloudShade: 0x99a4b0 },
+  dusk: { top: 0x38407e, horizon: 0xf0a978, haze: 0xe8b892, cloud: 0.60, cloudTint: 0xffd9b0, cloudShade: 0xc08e78 },
 };
 
 
@@ -309,16 +487,115 @@ const SKIES = {
 
 
 
-export function buildSkyMaterial(kind = 'day', sunDir = new THREE.Vector3(-0.6, 0.5, 0.42)) {
+
+export function skyPalette(kind = 'day') {
+  const c = SKIES[kind] || SKIES.day;
+  return { top: c.top, horizon: c.horizon, haze: c.haze };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const WAVE_GLSL = `
+  // amplitude, wavelength, speed, direction (unit)
+  const vec3 WAVE_A = vec3(0.22, 0.09, 0.03);
+  const vec3 WAVE_L = vec3(26.0, 7.4, 2.1);
+  const vec3 WAVE_S = vec3(0.62, 1.37, 2.71);
+  // The scale argument is PER BAND, not one number, and that is what lets a caller fade the
+  // short waves out with distance. A 2.1 m ripple evaluated per fragment 200 m
+  // away is far below one sample per wavelength and prints a moire corduroy
+  // across the whole surface - measured, on the lagoon, and it reads as woven
+  // fabric rather than as water. The vertex stage uses it for the opposite
+  // reason: at WATER_COLS resolution the mesh cannot carry the two short bands
+  // at all, so it displaces with the swell and leaves them to the fragment.
+  float waveAt(vec2 p, float t, vec3 scale, out vec3 nrm) {
+    // 21, 43 and 78 degrees. Two trains at a right angle print a grid and two
+    // at 60 print a hex, both of which are instantly readable as a pattern from
+    // directly above a lake; 22 and 35 degrees apart is neither.
+    vec2 d0 = vec2(0.9336, 0.3583);   // 21 deg
+    vec2 d1 = vec2(0.7314, 0.6820);   // 43 deg
+    vec2 d2 = vec2(0.2079, 0.9781);   // 78 deg
+    vec3 k = 6.28318530718 / WAVE_L;
+    vec3 amp = WAVE_A * scale;
+    vec3 phase = vec3(
+      dot(p, d0) * k.x + t * WAVE_S.x * k.x,
+      dot(p, d1) * k.y - t * WAVE_S.y * k.y,
+      dot(p, d2) * k.z + t * WAVE_S.z * k.z);
+    vec3 s = sin(phase);
+    vec3 c = cos(phase);
+    float h = dot(amp, s);
+    // dh/dx and dh/dz, exactly. The normal of a height field y = h(x,z) is
+    // normalize(-dh/dx, 1, -dh/dz); there is no approximation anywhere in it.
+    float dx = amp.x * c.x * k.x * d0.x + amp.y * c.y * k.y * d1.x + amp.z * c.z * k.z * d2.x;
+    float dz = amp.x * c.x * k.x * d0.y + amp.y * c.y * k.y * d1.y + amp.z * c.z * k.z * d2.y;
+    nrm = normalize(vec3(-dx, 1.0, -dz));
+    return h;
+  }
+`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function buildSkyMaterial(kind = 'day', sunDir = new THREE.Vector3(-0.6, 0.5, 0.42), { ground = null } = {}) {
   const c = SKIES[kind] || SKIES.day;
   const uniforms = {
     uTop: { value: new THREE.Color(c.top) },
     uHorizon: { value: new THREE.Color(c.horizon) },
     uHaze: { value: new THREE.Color(c.haze) },
     uCloudTint: { value: new THREE.Color(c.cloudTint) },
+    uCloudShade: { value: new THREE.Color(c.cloudShade ?? c.cloudTint) },
     uCloud: { value: c.cloud },
     uSunDir: { value: sunDir.clone().normalize() },
     uTime: { value: 0 },
+    
+    
+    
+    
+    uGround: { value: new THREE.Color(ground ?? c.haze) },
+    uGroundMix: { value: ground === null ? 0 : 1 },
   };
   const material = new THREE.ShaderMaterial({
     uniforms,
@@ -336,8 +613,8 @@ export function buildSkyMaterial(kind = 'day', sunDir = new THREE.Vector3(-0.6, 
       }
     `,
     fragmentShader: `
-      uniform vec3 uTop, uHorizon, uHaze, uCloudTint, uSunDir;
-      uniform float uCloud, uTime;
+      uniform vec3 uTop, uHorizon, uHaze, uCloudTint, uCloudShade, uSunDir, uGround;
+      uniform float uCloud, uTime, uGroundMix;
       varying vec3 vDir;
       ${NOISE_GLSL}
       void main() {
@@ -367,13 +644,45 @@ export function buildSkyMaterial(kind = 'day', sunDir = new THREE.Vector3(-0.6, 
         // Two thresholds rather than one: the lower makes a soft edge, the
         // upper a bright core, and the difference is what makes a cloud look
         // lit from one side instead of like a grey stain.
-        float body = smoothstep(0.52, 0.78, n) * uCloud;
-        float core = smoothstep(0.66, 0.92, n) * uCloud;
+        //
+        // THE THRESHOLDS WERE SET ABOVE THE RANGE THE NOISE PRODUCES. fbm()
+        // is three octaves whose amplitudes sum to at most 0.875 and which
+        // centre near 0.44, so smoothstep(0.52, 0.78, n) fired only in the top
+        // tail and smoothstep(0.66, 0.92, n) almost never fired at all. The
+        // clouds were being drawn where they could not show - which is most of
+        // why 23% of the frame measured a spread of ten luma levels.
+        // (No back-ticks in this comment: it lives inside a JS template
+        // literal, and one would end the shader source mid-string.)
+        float body = smoothstep(0.40, 0.63, n) * uCloud;
+        float core = smoothstep(0.55, 0.80, n) * uCloud;
         // Faded out at the horizon, where the projection stretches to infinity
-        // and any noise turns into streaks.
-        float fade = smoothstep(0.02, 0.30, h);
-        col = mix(col, uCloudTint * 0.90, body * fade * 0.85);
-        col = mix(col, uCloudTint, core * fade * 0.55);
+        // and any noise turns into streaks - but NOT as hard as it was. The
+        // band the chase camera actually shows is elevation 4 to 20 degrees
+        // (h 0.073-0.335), and smoothstep(0.02, 0.30, h) was still only at
+        // 0.06 at the bottom of it, so the visible sky was the one part with
+        // no cloud in it.
+        float fade = smoothstep(0.015, 0.16, h);
+        // SHADE FIRST, THEN THE LIT CORE. A cloud reads because its underside
+        // is DARKER than the sky behind it; the bright top is the accent on
+        // that, not the whole cloud. White on a 213-luma horizon is invisible.
+        col = mix(col, uCloudShade, body * fade * 0.62);
+        col = mix(col, uCloudTint, core * fade * 0.70);
+
+        // THE GROUND, FOR THE ENVIRONMENT BAKE ONLY (uGroundMix is 0 on the
+        // sky you can see). Without it the PMREM probe is the sky shader all
+        // the way round, so everything below the horizon is uHaze - and the
+        // FK-04 analysis pass measured what that does: integrated
+        // cosine-weighted about each normal, the probe's irradiance was luma
+        // 0.328 facing UP and 0.796 facing DOWN. The ambient light in this
+        // game was 2.4x brighter from below than from above. That is not weak
+        // lighting, it is INVERTED lighting, and it lands hardest on exactly
+        // the curved surfaces the chase camera looks at - every underside and
+        // side of every kart and animal was ambient-lit harder than its top.
+        // Re-integrating with the lower hemisphere blended to the ground
+        // colour leaves the up-facing number at 0.328 (so the road, field and
+        // verge plateau does not move at all) and takes the down-facing one to
+        // 0.134.
+        col = mix(col, uGround, uGroundMix * (1.0 - smoothstep(-0.16, 0.02, h)));
 
         gl_FragColor = vec4(col, 1.0);
         #include <tonemapping_fragment>
@@ -382,8 +691,33 @@ export function buildSkyMaterial(kind = 'day', sunDir = new THREE.Vector3(-0.6, 
     `,
   });
   material.userData.uniforms = uniforms;
+  
+  
+  
+  
+  
+  
+  
+  material.userData.skyKind = kind;
+  material.userData.sunDir = uniforms.uSunDir.value.clone();
   return material;
 }
+
+
+
+
+
+
+
+
+
+
+const ENV_GROUND = {
+  day: PALETTE.grassDark,
+  snow: PALETTE.packedSnow,
+  overcast: PALETTE.mud,
+  dusk: PALETTE.grassDark,
+};
 
 
 
@@ -409,12 +743,47 @@ export function buildEnvironment(renderer, skyMaterial) {
   const pmrem = new THREE.PMREMGenerator(renderer);
   pmrem.compileEquirectangularShader();
   const scene = new THREE.Scene();
-  const dome = new THREE.Mesh(new THREE.SphereGeometry(10, 24, 16), skyMaterial);
+  
+  
+  
+  
+  const kind = skyMaterial?.userData?.skyKind ?? 'day';
+  const bakeMaterial = buildSkyMaterial(
+    kind,
+    skyMaterial?.userData?.sunDir ?? new THREE.Vector3(-0.6, 0.5, 0.42),
+    { ground: ENV_GROUND[kind] ?? ENV_GROUND.day },
+  );
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(10, 24, 16), bakeMaterial);
   scene.add(dome);
   const target = pmrem.fromScene(scene, 0.04);
   dome.geometry.dispose();
+  bakeMaterial.dispose();
   pmrem.dispose();
+  
+  
+  
+  
+  
+  
+  
+  
+  target.texture.userData.renderTarget = target;
   return target.texture;
+}
+
+
+
+
+
+
+export function releaseEnvironment(texture) {
+  const target = texture?.userData?.renderTarget;
+  if (target) {
+    target.dispose();
+    texture.userData.renderTarget = null;
+  } else if (texture?.dispose) {
+    texture.dispose();
+  }
 }
 
 
@@ -448,7 +817,11 @@ export function addGroundDetail(material, { scale = 0.035, strength = 0.22, fade
     uStrength: { value: strength },
     uFade: { value: fade },
   };
-  material.onBeforeCompile = (shader) => {
+  
+  
+  
+  
+  installShaderEdit(material, `ground${scale}${strength}`, (shader) => {
     Object.assign(shader.uniforms, material.userData.groundDetail);
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', `#include <common>
@@ -488,7 +861,6 @@ export function addGroundDetail(material, { scale = 0.035, strength = 0.22, fade
             diffuseColor.rgb *= (1.0 + v);
           }
         }`);
-  };
-  material.customProgramCacheKey = () => `ground${scale}${strength}`;
+  });
   return material;
 }

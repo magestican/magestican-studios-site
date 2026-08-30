@@ -645,7 +645,16 @@
       background: var(--hud-paper); border: 2px solid var(--hud-ink);
       border-radius: var(--hud-r); box-shadow: var(--hud-shadow);
     }
-    #hud-item.empty #hud-item-canvas { opacity: 0.45; }
+    
+
+
+
+
+
+
+
+
+
     #hud-item.rolling #hud-item-canvas { animation: roll 0.14s steps(2) infinite; }
     @keyframes roll { 0% { transform: scale(1); } 50% { transform: scale(0.9) rotate(-6deg); } 100% { transform: scale(1); } }
     #hud-item-count {
@@ -834,7 +843,14 @@
 
 
 
-    #tc-drift, #tc-item {
+
+
+
+
+
+
+
+    #tc-item {
       background: linear-gradient(180deg, #fbf7ef 0%, var(--hud-paper) 46%, #ece5d5 100%);
       border: 2px solid var(--hud-ink); border-radius: var(--hud-r);
       box-shadow: var(--hud-shadow);
@@ -844,8 +860,8 @@
 
 
 
-    #tc-drift > canvas, #tc-item > canvas { left: -2px; top: -2px; }
-    #tc-drift.on, #tc-item.on {
+    #tc-item > canvas { left: -2px; top: -2px; }
+    #tc-item.on {
       background: linear-gradient(180deg, #ffe9a8 0%, var(--gold) 50%, #d9a93a 100%);
       box-shadow: 0 1px 0 rgba(28,26,23,0.85), 0 2px 0 rgba(28,26,23,0.30);
     }
@@ -859,7 +875,7 @@
     
 
     #tc-wheel.on { transform: scale(1.035); }
-    #tc-pedal.on, #tc-drift.on, #tc-item.on { transform: scale(0.955); }
+    #tc-pedal.on, #tc-item.on { transform: scale(0.955); }
 
     
 
@@ -945,6 +961,13 @@
     }
 
     
+
+
+
+
+
+
+
 
 
 
@@ -1355,11 +1378,6 @@
       <span class="tc-label">Item</span>
     </div>
 
-    <div id="tc-drift" class="tc-box">
-      <canvas id="tc-drift-c" class="tc-layer"></canvas>
-      <span class="tc-label">Drift</span>
-    </div>
-
     
 
 
@@ -1376,8 +1394,44 @@
 
     
 
-    <div id="tc-hint">Slide the left side to steer &middot; hold the right to go<br>
-      Slide down to brake &middot; tap drift to hop</div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="tc-hint">Slide left to steer &middot; hold right &middot; slide down to brake<br>
+      Double-tap GO to drift &middot; a quick double tap hops</div>
   </div>
 
   
@@ -1482,7 +1536,7 @@
 
 
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=e3d3410-20260830T051816Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=0866c4d-20260830T144900Z"></script>
 
   <script type="importmap">
   {
@@ -1496,6 +1550,7 @@
       "arbelo/trackPath":     "../../web-engine/kart/trackPath.js",
       "arbelo/racingLine":    "../../web-engine/kart/racingLine.js",
       "arbelo/kartPhysics":   "../../web-engine/kart/kartPhysics.js",
+      "arbelo/raceStep":      "../../web-engine/kart/raceStep.js",
       "arbelo/kartTuning":    "../../web-engine/kart/kartTuning.js",
       "arbelo/driftBoost":    "../../web-engine/kart/driftBoost.js",
       "arbelo/kartAi":        "../../web-engine/kart/kartAi.js",
@@ -1544,6 +1599,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=e3d3410-20260830T051816Z"></script>
+  <script type="module" src="./src/main.js?v=0866c4d-20260830T144900Z"></script>
 </body>
 </html>

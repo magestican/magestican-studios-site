@@ -156,6 +156,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const TRACKS = [
   {
     id: 'sunflower',
@@ -163,6 +195,12 @@ export const TRACKS = [
     tagline: 'Wide, fast, and it goes over a volcano.',
     theme: 'summer',
     laps: 3,
+    
+    
+    
+    
+    
+    
     
     
     
@@ -615,6 +653,54 @@ export const TRACKS = [
     },
     sky: 'snow',
   },
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 ];
 
 export const DEFAULT_TRACK = 'sunflower';

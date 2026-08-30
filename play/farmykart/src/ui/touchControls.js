@@ -41,11 +41,31 @@
 
 
 
+
+
+
+
+
+
+
 import { touchOverlayLayout, wheelAngleDeg } from 'arbelo/touchLayout';
 import { tapFlash } from 'arbelo/doubleTap';
-import {
-  drawDriftIcon, drawItemBoxIcon, drawPedal, drawSteeringWheel,
-} from '../render/touchIcons.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { drawItemBoxIcon, drawPedal, drawSteeringWheel } from '../render/touchIcons.js';
 
 
 
@@ -71,8 +91,12 @@ export function createTouchOverlay(container) {
     pedal: $('tc-pedal'),
     pedalA: $('tc-pedal-a'),
     pedalB: $('tc-pedal-b'),
-    drift: $('tc-drift'),
-    driftC: $('tc-drift-c'),
+    
+    
+    
+    
+    
+    pedalLabel: $('tc-pedal') ? $('tc-pedal').querySelector('.tc-label') : null,
     item: $('tc-item'),
     itemC: $('tc-item-c'),
     hint: $('tc-hint'),
@@ -83,14 +107,66 @@ export function createTouchOverlay(container) {
   
   
   
-  if (!els.wheel || !els.pedal || !els.drift || !els.item) return dead;
+  if (!els.wheel || !els.pedal || !els.item) return dead;
 
   
   
   
   const last = {
-    steer: null, throttle: null, drift: null, item: null, brake: null, flash: 0,
+    steer: null, throttle: null, item: null, brake: null, flash: 0, word: false,
     grabbed: null, gx: null, gy: null, tx: null, ty: null, w: 0, h: 0,
+  };
+
+  
+  
+  const idleWord = els.pedalLabel ? els.pedalLabel.textContent : 'Go';
+  const DRIFT_WORD = 'Drift';
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const setPedalWord = (on) => {
+    if (!els.pedalLabel) return;
+    const s = els.pedalLabel.style;
+    els.pedalLabel.textContent = on ? DRIFT_WORD : idleWord;
+    s.background = on ? 'var(--barn)' : '';
+    s.color = on ? 'var(--hud-paper)' : '';
+    
+    
+    
+    s.transform = on ? 'translateX(-50%) scale(calc(1 + 0.22 * var(--tap-flash)))' : '';
   };
 
   
@@ -132,9 +208,6 @@ export function createTouchOverlay(container) {
     place(els.pedal, L.pedal);
     drawPedal(fit(els.pedalA, L.pedal.w, L.pedal.h), L.pedal.w, L.pedal.h, { pressed: false });
     drawPedal(fit(els.pedalB, L.pedal.w, L.pedal.h), L.pedal.w, L.pedal.h, { pressed: true });
-
-    place(els.drift, L.drift);
-    drawDriftIcon(fit(els.driftC, L.drift.w, L.drift.h), L.drift.w);
 
     place(els.item, L.item);
     drawItemBoxIcon(fit(els.itemC, L.item.w, L.item.h), L.item.w);
@@ -215,15 +288,44 @@ export function createTouchOverlay(container) {
     
     
     const flash = tapFlash(Date.now() - (v.doubleTapAt ?? -Infinity));
-    if (Math.abs(flash - last.flash) > 0.02) {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (Math.abs(flash - last.flash) > 0.02 || (flash === 0 && last.flash !== 0)) {
       last.flash = flash;
-      els.pedal.classList.toggle('tapped', flash > 0.02);
-      els.pedal.style.setProperty('--tap-flash', flash.toFixed(3));
+      const on = flash > 0;
+      els.pedal.classList.toggle('tapped', on);
+      if (on) els.pedal.style.setProperty('--tap-flash', flash.toFixed(3));
+      else els.pedal.style.removeProperty('--tap-flash');
     }
-    const drift = !!v.drift;
-    if (drift !== last.drift) {
-      last.drift = drift;
-      els.drift.classList.toggle('on', drift);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const word = flash > 0 || !!v.drift;
+    if (word !== last.word) {
+      last.word = word;
+      setPedalWord(word);
     }
     const item = !!v.item;
     if (item !== last.item) {
@@ -259,7 +361,22 @@ export function createTouchOverlay(container) {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onResize);
       if (ro) ro.disconnect();
-      for (const el of [els.wheel, els.pedal, els.drift, els.item]) el.classList.remove('on');
+      for (const el of [els.wheel, els.pedal, els.item]) el.classList.remove('on');
+      
+      
+      
+      
+      
+      els.pedal.classList.remove('tapped');
+      els.pedal.style.removeProperty('--tap-flash');
+      last.flash = 0;
+      
+      
+      
+      
+      
+      last.word = false;
+      setPedalWord(false);
     },
   };
 }
