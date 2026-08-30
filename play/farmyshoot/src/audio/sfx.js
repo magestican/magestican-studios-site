@@ -1194,3 +1194,50 @@ export function deny() {
   o.connect(g).connect(_master);
   o.start(t); o.stop(t + 0.13);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function haySpring() {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.value = 0.7;
+  out.connect(_master);
+
+  
+  
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(150, t);
+  o.frequency.exponentialRampToValueAtTime(520, t + 0.13);
+  o.frequency.exponentialRampToValueAtTime(300, t + 0.30);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.34, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.34);
+  o.connect(g).connect(out);
+  o.start(t); o.stop(t + 0.36);
+
+  
+  
+  const n = whiteNoise(ctx, 0.22);
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 3200;
+  bp.Q.value = 0.6;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.22, t);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+  n.connect(bp).connect(ng).connect(out);
+  n.start(t); n.stop(t + 0.22);
+}

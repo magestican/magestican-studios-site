@@ -51,6 +51,20 @@ export const VOX = Object.freeze({
   
   
   HEDGE:     22,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  TRACK:     23,
 });
 
 
@@ -61,7 +75,7 @@ export const GROUND_VOX = Object.freeze([
   
   
   
-  VOX.RINK, VOX.PAVER,
+  VOX.RINK, VOX.PAVER, VOX.TRACK,
 ]);
 
 
@@ -92,6 +106,11 @@ export const VOX_COLOR = Object.freeze({
   [VOX.BOARDS]:         [0xf0, 0xef, 0xe8],
   [VOX.PINE]:           [0x24, 0x4b, 0x38],
   [VOX.PAVER]:          [0x9b, 0x94, 0x88],
+  
+  
+  
+  
+  [VOX.TRACK]:          [0xa9, 0xb3, 0xc0],
   [VOX.IGLOO]:          [0xe4, 0xee, 0xf6],
   
   

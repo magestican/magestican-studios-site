@@ -14,6 +14,8 @@
 
 
 import * as THREE from 'three';
+import { laneFor, nextWaypoint, guardPost, nearestChoke }
+  from '../../../../web-engine/ai/laneTactics.js';
 
 
 
@@ -161,6 +163,14 @@ export class Bot {
   
   
   
+  
+  _laneSlot() {
+    const s = String(this.peerId ?? '');
+    let h = 0;
+    for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  }
+
   update(dt, ctx) {
     if (!this.alive) return;
 
@@ -225,6 +235,41 @@ export class Bot {
     
     
     let gx = this.objective.x, gz = this.objective.z;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const lanes = ctx.world?.lanes;
+    if (lanes && lanes.length) {
+      if (this.role === 'guard') {
+        
+        
+        
+        
+        
+        
+        this._post = this._post || guardPost(lanes, this._laneSlot());
+        if (this._post) { gx = this._post.x; gz = this._post.z; }
+      } else {
+        
+        
+        this._lane = this._lane || laneFor(lanes, this.peerId);
+        
+        
+        const wp = nextWaypoint(lanes, this._lane, this.pos,
+          { x: gx, z: gz }, this.team === 'red');
+        if (wp) { gx = wp.x; gz = wp.z; }
+      }
+    }
+
     const foe = this._aim?.targetPos || nearestPos(this.pos, ctx.enemyPlayers);
     if (foe) {
       const dEnemy = Math.hypot(foe.x - this.pos.x, foe.z - this.pos.z);
@@ -248,9 +293,14 @@ export class Bot {
     
     
     
-    if (offLeash(this.role, Math.hypot(this.objective.x - this.pos.x,
-                                       this.objective.z - this.pos.z))) {
-      gx = this.objective.x; gz = this.objective.z;
+    
+    
+    
+    
+    const anchor = (this.role === 'guard' && this._post) ? this._post : this.objective;
+    if (offLeash(this.role, Math.hypot(anchor.x - this.pos.x,
+                                       anchor.z - this.pos.z))) {
+      gx = anchor.x; gz = anchor.z;
     }
     const goal = new THREE.Vector3(gx, this.pos.y, gz);
 

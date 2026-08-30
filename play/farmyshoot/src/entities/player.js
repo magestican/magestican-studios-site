@@ -8,6 +8,9 @@
 
 
 import * as THREE from 'three';
+import { springSites, newSpringState, springUnder, springLaunch,
+         stepSpring, armCooldown } from '../../../../web-engine/procgen/hayspring.js';
+import { frictionOn, surfaceUnder } from '../../../../web-engine/procgen/surfaceSpec.js';
 import { computeWishDelta, cameraHorizontalAxes } from 'arbelo/input-movement';
 import { stepJump, newJumpState } from '../../../../web-engine/movement/jump.js';
 import { checkFloor, clampAboveFloor, groundTopOrVoid, columnOnMap }
@@ -59,6 +62,11 @@ export class Player {
     
     
     this.grid = opts.grid ?? null;
+    
+    
+    
+    this.springs = opts.springs ?? [];
+    this._spring = newSpringState();
 
     
     const { body, collider } = physics.addCharacter({
@@ -117,6 +125,7 @@ export class Player {
     
     
     if (opts.grid !== undefined) this.grid = opts.grid;
+    if (opts.springs !== undefined) this.springs = opts.springs ?? [];
     
     
     if (opts.friction != null) this.groundFriction = opts.friction;
@@ -410,7 +419,21 @@ export class Player {
     const accel = this._grounded ? MOVE_ACCEL_GROUND : MOVE_ACCEL_AIR;
     this.vel.x += wx * accel * dt;
     this.vel.z += wz * accel * dt;
-    const fricBase = this._grounded ? this.groundFriction : ICE_FRICTION_AIR;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const surf = this._grounded ? surfaceUnder(this.grid, this.pos.x, this.pos.y, this.pos.z) : null;
+    const fricBase = this._grounded
+      ? (surf === null ? this.groundFriction : frictionOn(this.groundFriction, surf))
+      : ICE_FRICTION_AIR;
     const fric = Math.pow(fricBase, dt * 60);
     this.vel.x *= fric;
     this.vel.z *= fric;
@@ -471,6 +494,23 @@ export class Player {
 
     
     this._grounded = this.physics.characterCtrl.computedGrounded();
+
+    
+    
+    
+    
+    stepSpring(this._spring, dt);
+    if (this.springs.length) {
+      const hit = springUnder(this.springs, this.pos.x, this.pos.z,
+        { grounded: this._grounded, state: this._spring });
+      if (hit) {
+        const l = springLaunch({ vx: this.vel.x, vz: this.vel.z });
+        this.vel.x = l.vx; this.vel.y = l.vy; this.vel.z = l.vz;
+        armCooldown(this._spring);
+        this._grounded = false;
+        if (this.onSpring) this.onSpring(hit);
+      }
+    }
     
     if (this._grounded && this.vel.y < 0) this.vel.y = 0;
     

@@ -18,7 +18,9 @@ import {
   ZONE_HALF, ZONE_DECK_TOP, insideZone, zoneSpawn,
   buildPowerZones, powerZoneCentres as zoneCentresOf,
 } from './powerUpZones.js';
-import { buildLanes, nearestLane, chokePoints, LANE_HALF } from './laneSpec.js';
+import { buildLanes, nearestLane, chokePoints, LANE_HALF, alongPolyline } from './laneSpec.js';
+import { laneSurfaceFor, ROAD_HALF } from './surfaceSpec.js';
+import { springSites } from './hayspring.js';
 
 
 
@@ -142,9 +144,81 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   
   
   
+  
+  
+  
+  
+  
+  const laneVox = laneSurfaceFor(mapId);
+  if (laneVox) {
+    for (const lane of lanes) {
+      const steps = Math.ceil(lane.length * 2);
+      for (let i = 0; i <= steps; i += 1) {
+        const p = alongPolyline(lane.points, i / steps);
+        const r = Math.ceil(ROAD_HALF);
+        for (let dx = -r; dx <= r; dx += 1) {
+          for (let dz = -r; dz <= r; dz += 1) {
+            if (Math.hypot(dx, dz) > ROAD_HALF) continue;
+            const x = Math.round(p.x) + dx;
+            const z = Math.round(p.z) + dz;
+            if (x < 1 || z < 1 || x >= WORLD_SIZE.x - 1 || z >= WORLD_SIZE.z - 1) continue;
+            if (insideBase(x, z, redBase) || insideBase(x, z, blueBase)) continue;
+            if (insideZone(x, z, powerUpZones, 0)) continue;
+            
+            
+            
+            for (let y = WORLD_SIZE.y - 1; y >= 0; y -= 1) {
+              const v = grid.get(x, y, z);
+              if (!v) continue;
+              if (GROUND_VOX.includes(v)) grid.set(x, y, z, laneVox);
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
   const chokes = map.terrain === 'maze' ? [] : chokePoints(lanes);
   for (const choke of chokes) {
     buildChoke(grid, choke, chokeVox(map), { powerUpZones, cx, cz });
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const springs = chokes.length ? springSites(lanes) : [];
+  for (const sp of springs) {
+    const bx = Math.round(sp.x);
+    const bz = Math.round(sp.z);
+    if (bx < 3 || bz < 3 || bx >= WORLD_SIZE.x - 3 || bz >= WORLD_SIZE.z - 3) continue;
+    if (insideBase(bx, bz, redBase) || insideBase(bx, bz, blueBase)) continue;
+    if (insideZone(bx, bz, powerUpZones, 2)) continue;
+    
+    
+    
+    for (let dx = -1; dx <= 1; dx += 1) {
+      for (let dz = -1; dz <= 1; dz += 1) {
+        const h = (Math.abs(dx) + Math.abs(dz) >= 2) ? 1 : 2;
+        for (let y = 1; y <= h; y += 1) {
+          if (!grid.get(bx + dx, y, bz + dz)) grid.set(bx + dx, y, bz + dz, VOX.HAY);
+        }
+      }
+    }
   }
 
   
@@ -240,7 +314,7 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   };
 
   return { seed, mapId: map.id, map, grid, spawns, flags, redBase, blueBase,
-           hillSpawn, hayStacks, barnSigns,
+           hillSpawn, hayStacks, barnSigns, lanes, springs,
            tractorParking: wear.tractorParking,
            powerUpZones,
            powerUpSpawns: {

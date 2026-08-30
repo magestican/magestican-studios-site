@@ -912,7 +912,11 @@ export class Game {
     
     
     this.player = new Player(this.camera, this.physics, spawn, this.team, this.character,
-                             { friction: frictionFor(this.mapId), grid: this.grid });
+                             { friction: frictionFor(this.mapId), grid: this.grid,
+                               springs: this.world.springs ?? [] });
+    
+    
+    this.player.onSpring = () => { try { SFX.haySpring(); } catch (_) {} };
     
     
     
@@ -6034,7 +6038,7 @@ export class Game {
           y: (this.world.hillSpawn?.y ?? 0) + 8 }
       : (this.world.spawns[this.team] ?? this.world.spawns.red);
     this.player?.rebindWorld(this.physics, spawn,
-      { grid: this.grid, friction: frictionFor(this.mapId) });
+      { grid: this.grid, friction: frictionFor(this.mapId), springs: this.world.springs ?? [] });
     
     
     
