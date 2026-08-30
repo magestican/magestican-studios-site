@@ -775,6 +775,11 @@ export class Game {
     const world = prebuilt || generateWorld(seed, this.mapId);
     this.world = world;
     this.grid = world.grid;
+    
+    
+    
+    
+    if (this.sandworms) this.sandworms.grid = this.grid;
     const arena = new THREE.Group();
     arena.name = 'arena';
     this._arena = arena;
@@ -961,7 +966,7 @@ export class Game {
     this.explosions = new ExplosionField(this.scene);
     
     
-    this.sandworms = new SandwormField(this.scene);
+    this.sandworms = new SandwormField(this.scene, this.grid);
     
     this.breaks = createBreakState();
     

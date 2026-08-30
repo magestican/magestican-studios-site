@@ -161,21 +161,32 @@ function portalMaterial() {
 
 
 class WormMesh {
-  constructor(scene, worm) {
+  constructor(scene, worm, grid = null) {
     this.scene = scene;
     this.worm = worm;
+    
+    this.grid = grid;
     this.group = new THREE.Group();
     this.group.position.set(worm.x, worm.y, worm.z);
 
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     this.portalMat = portalMaterial();
-    this.portal = new THREE.Mesh(
-      new THREE.CircleGeometry(PORTAL_RADIUS * 1.25, 48),
-      this.portalMat,
-    );
-    this.portal.rotation.x = -Math.PI / 2;
-    this.portal.position.y = 0.06;
+    this.portal = new THREE.Mesh(this._drapedDisc(PORTAL_RADIUS * 1.25), this.portalMat);
     this.group.add(this.portal);
 
     
@@ -252,6 +263,89 @@ class WormMesh {
 
 
 
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  _drapedDisc(radius, rings = 8, segments = 48) {
+    const geo = new THREE.BufferGeometry();
+    const pos = [];
+    const uv = [];
+    const idx = [];
+    
+    pos.push(0, 0, 0);
+    uv.push(0.5, 0.5);
+    for (let r = 1; r <= rings; r += 1) {
+      const rad = (r / rings) * radius;
+      for (let s = 0; s < segments; s += 1) {
+        const a = (s / segments) * Math.PI * 2;
+        const x = Math.cos(a) * rad;
+        const z = Math.sin(a) * rad;
+        pos.push(x, 0, z);
+        
+        
+        
+        uv.push(0.5 + (x / radius) * 0.5, 0.5 + (z / radius) * 0.5);
+      }
+    }
+    
+    for (let s = 0; s < segments; s += 1) {
+      idx.push(0, 1 + s, 1 + ((s + 1) % segments));
+    }
+    for (let r = 1; r < rings; r += 1) {
+      const a0 = 1 + (r - 1) * segments;
+      const b0 = 1 + r * segments;
+      for (let s = 0; s < segments; s += 1) {
+        const s1 = (s + 1) % segments;
+        idx.push(a0 + s, b0 + s, b0 + s1);
+        idx.push(a0 + s, b0 + s1, a0 + s1);
+      }
+    }
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+    geo.setIndex(idx);
+    this._drape(geo);
+    return geo;
+  }
+
+  
+
+
+
+
+
+
+  _drape(geo) {
+    const grid = this.grid;
+    const p = geo.attributes.position;
+    for (let i = 0; i < p.count; i += 1) {
+      const wx = this.worm.x + p.getX(i);
+      const wz = this.worm.z + p.getZ(i);
+      let y = 0;
+      if (grid) {
+        
+        
+        
+        const top = Math.ceil(this.worm.y) + 4;
+        for (let gy = top; gy >= 0; gy -= 1) {
+          if (grid.get(Math.floor(wx), gy, Math.floor(wz))) { y = gy + 1 - this.worm.y; break; }
+        }
+      }
+      
+      p.setY(i, y + 0.06);
+    }
+    p.needsUpdate = true;
+    geo.computeVertexNormals();
+  }
 
   _buildHead() {
     const S = WORM_SCALE;
@@ -449,14 +543,18 @@ class WormMesh {
 
 
 export class SandwormField {
-  constructor(scene) {
+  constructor(scene, grid = null) {
     this.scene = scene;
+    
+    
+    
+    this.grid = grid;
     this.items = [];
   }
 
   
   spawn(worm) {
-    const m = new WormMesh(this.scene, worm);
+    const m = new WormMesh(this.scene, worm, this.grid);
     this.items.push(m);
     return m;
   }

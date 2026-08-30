@@ -112,14 +112,160 @@ export const MIN_BPM = 150;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const VOICES = Object.freeze({
-  lead:    Object.freeze({ wave: 'square',   gain: 0.16, gate: 0.78, bus: 'lead'  }),
-  guitar:  Object.freeze({ wave: 'square',   gain: 0.19, gate: 0.42, bus: 'amp'   }),
-  bass:    Object.freeze({ wave: 'sawtooth', gain: 0.22, gate: 0.55, bus: 'amp'   }),
-  harmony: Object.freeze({ wave: 'square',   gain: 0.10, gate: 0.62, bus: 'clean' }),
+  
+  
+  lead: Object.freeze({
+    wave: 'square', gain: 0.16, gate: 0.78, bus: 'lead',
+    unison: 2, detune: 9, sub: 0, pan: 0.18,
+    attack: 0.006, release: 0.05, accent: 0.28,
+    cutoff: 2400, cutoffEnv: 3200, q: 3.0,
+  }),
+  
+  
+  guitar: Object.freeze({
+    wave: 'square', gain: 0.19, gate: 0.42, bus: 'amp',
+    unison: 3, detune: 13, sub: 0, pan: 0,
+    attack: 0.003, release: 0.03, accent: 0.34,
+    cutoff: 1500, cutoffEnv: 2600, q: 4.5,
+  }),
+  
+  
+  
+  bass: Object.freeze({
+    wave: 'sawtooth', gain: 0.22, gate: 0.55, bus: 'amp',
+    unison: 2, detune: 6, sub: 0.55, pan: 0,
+    attack: 0.004, release: 0.04, accent: 0.22,
+    cutoff: 900, cutoffEnv: 1400, q: 2.2,
+  }),
+  
+  
+  harmony: Object.freeze({
+    wave: 'square', gain: 0.10, gate: 0.62, bus: 'clean',
+    unison: 2, detune: 11, sub: 0, pan: -0.22,
+    attack: 0.008, release: 0.07, accent: 0.20,
+    cutoff: 1800, cutoffEnv: 1600, q: 2.0,
+  }),
+  
+  
+  
+  
+  pad: Object.freeze({
+    wave: 'sawtooth', gain: 0.055, gate: 1.0, bus: 'clean',
+    unison: 3, detune: 17, sub: 0, pan: 0,
+    attack: 0.35, release: 0.55, accent: 0,
+    cutoff: 520, cutoffEnv: 260, q: 1.2, wide: 0.7,
+  }),
 });
 
-export const VOICE_NAMES = Object.freeze(['lead', 'guitar', 'bass', 'harmony']);
+export const VOICE_NAMES = Object.freeze(['lead', 'guitar', 'bass', 'harmony', 'pad']);
+
+
+
+
+
+
+
+
+
+
+
+export const WRITTEN_VOICES = Object.freeze(['lead', 'guitar', 'bass', 'harmony']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const PAD_LOW = 45;
+
+
+export function padRegister(midi, low = PAD_LOW) {
+  let m = midi;
+  while (m < low) m += 12;
+  while (m >= low + 12) m -= 12;
+  return m;
+}
+
+export function derivePad(seq, barBeats = 4) {
+  const out = [];
+  let bar = 0;            
+  let root = null;
+  for (const [midi, beats] of seq || []) {
+    if (root === null && midi != null) root = midi;
+    bar += beats;
+    while (bar >= barBeats) {
+      out.push([root === null ? null : padRegister(root), barBeats]);
+      bar -= barBeats;
+      root = null;
+    }
+  }
+  if (bar > 0) out.push([root === null ? null : padRegister(root), bar]);
+  return out;
+}
 
 
 
@@ -726,7 +872,7 @@ export function buildSong({ seed = 0, map = DEFAULT_MAP, track = null } = {}) {
 
   for (const sectionName of order) {
     const section = SECTION_BUILDERS[sectionName](riff);
-    for (const v of VOICE_NAMES) {
+    for (const v of WRITTEN_VOICES) {
       assertBeats(section[v], section.bars, `${sectionName}.${v}`);
       
       
@@ -742,6 +888,12 @@ export function buildSong({ seed = 0, map = DEFAULT_MAP, track = null } = {}) {
     layout.push({ name: sectionName, startBar: barCursor, bars: section.bars, drums: section.drums });
     barCursor += section.bars;
   }
+
+  
+  
+  
+  
+  voices.pad = derivePad(voices.bass);
 
   drums.sort((a, b) => a.beat - b.beat);
 

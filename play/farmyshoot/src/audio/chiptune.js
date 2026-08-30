@@ -291,8 +291,25 @@ export class Chiptune {
     
     
     const master = ctx.createGain();
-    master.gain.value = 0.9 * (song.gainScale ?? 1);
-    master.connect(ctx.destination);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    master.gain.value = 0.78 * (song.gainScale ?? 1);
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -1.5;
+    limiter.knee.value = 0;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.002;
+    limiter.release.value = 0.15;
+    master.connect(limiter).connect(ctx.destination);
 
     
     
@@ -504,7 +521,24 @@ function _scheduleDrums(ctx, dest, events, beat) {
     const when = e.beat * beat;
     switch (e.drum) {
       case 'kick':    kick(when, e.gain); break;
-      case 'snare':   noise(when, 0.09, 'bandpass', 1900, e.gain); break;
+      case 'snare':
+        
+        
+        
+        
+        noise(when, 0.09, 'bandpass', 1900, e.gain);
+        for (const [hz, lvl] of [[186, 0.5], [278, 0.3]]) {
+          const b = ctx.createOscillator();
+          const bg = ctx.createGain();
+          b.type = 'triangle';
+          b.frequency.setValueAtTime(hz, when);
+          b.frequency.exponentialRampToValueAtTime(hz * 0.72, when + 0.07);
+          bg.gain.setValueAtTime(e.gain * lvl, when);
+          bg.gain.exponentialRampToValueAtTime(0.001, when + 0.09);
+          b.connect(bg).connect(dest);
+          b.start(when); b.stop(when + 0.10);
+        }
+        break;
       case 'hat':     noise(when, 0.025, 'highpass', 7500, e.gain); break;
       case 'openhat': noise(when, 0.18, 'highpass', 6500, e.gain); break;
       case 'crash':   noise(when, 0.90, 'highpass', 4200, e.gain); break;
@@ -531,19 +565,124 @@ function _distortionCurve(amount) {
 
 
 
-function _scheduleVoice(ctx, dest, seq, voice, beat) {
+
+
+
+
+export function _scheduleVoice(ctx, dest, seq, voice, beat) {
+  
+  
+  
+  
+  
+  
+  
+  
+  let out = dest;
+  if (voice.pan) {
+    try {
+      const pan = ctx.createStereoPanner();
+      pan.pan.value = Math.max(-1, Math.min(1, voice.pan));
+      pan.connect(dest);
+      out = pan;
+    } catch (_) {  }
+  }
+
+  const unison = Math.max(1, voice.unison | 0 || 1);
+  const detune = voice.detune ?? 0;
+  const attack = voice.attack ?? 0.004;
+  const release = voice.release ?? 0.04;
+
   let t = 0;
   for (const [midi, beats] of seq) {
     if (midi != null) {
       const dur = beats * beat * voice.gate;
-      const osc = ctx.createOscillator();
+      const hz = midiToHz(midi);
+
+      
+      
+      
+      
+      
+      const onBeat = Math.abs(t / beat - Math.round(t / beat)) < 0.02;
+      const level = voice.gain * (onBeat ? 1 + (voice.accent ?? 0) : 1);
+
+      
+      
+      
+      
+      let sink = out;
+      if (voice.cutoff) {
+        const f = ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.Q.value = voice.q ?? 1;
+        const top = voice.cutoff + (voice.cutoffEnv ?? 0);
+        f.frequency.setValueAtTime(top, t);
+        f.frequency.exponentialRampToValueAtTime(
+          Math.max(60, voice.cutoff), t + Math.max(0.02, dur * 0.6));
+        f.connect(out);
+        sink = f;
+      }
+
       const gain = ctx.createGain();
-      osc.type = voice.wave; osc.frequency.value = midiToHz(midi);
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(voice.gain, t + 0.004);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      osc.connect(gain).connect(dest);
-      osc.start(t); osc.stop(t + dur + 0.05);
+      gain.gain.linearRampToValueAtTime(level, t + attack);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur + release);
+      gain.connect(sink);
+
+      
+      
+      
+      
+      for (let u = 0; u < unison; u += 1) {
+        const osc = ctx.createOscillator();
+        osc.type = voice.wave;
+        osc.frequency.value = hz;
+        if (unison > 1 && detune) {
+          osc.detune.value = -detune + (2 * detune * u) / (unison - 1);
+        }
+        
+        
+        const uG = ctx.createGain();
+        uG.gain.value = 1 / unison;
+        osc.connect(uG);
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        if (voice.wide && unison > 1) {
+          try {
+            const wp = ctx.createStereoPanner();
+            wp.pan.value = -voice.wide + (2 * voice.wide * u) / (unison - 1);
+            uG.connect(wp).connect(gain);
+          } catch (_) { uG.connect(gain); }
+        } else {
+          uG.connect(gain);
+        }
+        osc.start(t);
+        osc.stop(t + dur + release + 0.05);
+      }
+
+      
+      
+      
+      
+      if (voice.sub) {
+        const sub = ctx.createOscillator();
+        sub.type = 'sine';
+        sub.frequency.value = hz / 2;
+        const sg = ctx.createGain();
+        sg.gain.value = voice.sub;
+        sub.connect(sg).connect(gain);
+        sub.start(t);
+        sub.stop(t + dur + release + 0.05);
+      }
     }
     t += beats * beat;
   }
