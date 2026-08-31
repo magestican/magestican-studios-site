@@ -39,7 +39,17 @@ export const RAIL = Object.freeze({
   
   
   
-  segment: 10,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  segment: 7,
   
   
   
@@ -51,7 +61,21 @@ export const RAIL = Object.freeze({
   
   
   
-  ahead: 4.2,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  behind: 3.4,
   
   
   
@@ -93,7 +117,7 @@ export function railNodes(length, opt = {}) {
     nodes.push({
       from,
       to,
-      eye: { x: side * cfg.lateral, y: cfg.height, z: to + cfg.ahead },
+      eye: { x: side * cfg.lateral, y: cfg.height, z: from - cfg.behind },
       
       target: { x: 0, y: cfg.targetHeight, z: (from + to) / 2 },
     });
@@ -155,8 +179,6 @@ export function railPlacement(nodes, i, player, opt = {}) {
 
 
 
-
-
 export function railNodesForRuns(runs, opt = {}) {
   const cfg = { ...RAIL, ...opt };
   const nodes = [];
@@ -174,7 +196,13 @@ export function railNodesForRuns(runs, opt = {}) {
       const t0 = (i / count) * len;
       const t1 = ((i + 1) / count) * len;
       const side = nodes.length % 2 === 0 ? 1 : -1;
-      const eyeAt = Math.min(t1 + cfg.ahead, len + w / 2 - 0.3);
+      
+      
+      
+      
+      
+      
+      const eyeAt = Math.max(t0 - cfg.behind, -(w / 2) + 0.3);
       const mid = (t0 + t1) / 2;
       nodes.push({
         from: travelled + t0,

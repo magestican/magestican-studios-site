@@ -3360,8 +3360,17 @@ export function boot(canvas, hud) {
         nub.style.transform = `translate(${dx}px, ${dy}px)`;
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
         touch.fwd = -dy / R;
-        touch.turn = -dx / R;
+        touch.turn = dx / R;
         touch.active = true;
         lastInput = 'touch';
       };
@@ -3412,6 +3421,15 @@ export function boot(canvas, hud) {
   let lastInput = 'key';
   
   
+  let moveBasis = null;
+  let lastMoved = 0;
+  
+  
+  
+  let camEye = { x: 0, z: -1 };
+  let camTarget = { x: 0, z: 0 };
+  
+  
   const HINT_HTML = document.getElementById('hint')?.innerHTML ?? '';
   let inSafe = false;
   let safeResupplied = false;
@@ -3436,6 +3454,7 @@ export function boot(canvas, hud) {
     const dt = Math.min(0.05, last ? now - last : 0.016);
     last = now;
 
+    lastMoved = 0;
     if (!player.dead && !hidden) {
       
       
@@ -3446,14 +3465,49 @@ export function boot(canvas, hud) {
       let fwd = 0;
       if (keys.has('KeyW') || keys.has('ArrowUp')) fwd += 1;
       if (keys.has('KeyS') || keys.has('ArrowDown')) fwd -= 1;
-      let turn = 0;
-      if (keys.has('KeyA') || keys.has('ArrowLeft')) turn += 1;
-      if (keys.has('KeyD') || keys.has('ArrowRight')) turn -= 1;
-      if (touch.active) { fwd = touch.fwd; turn = touch.turn; }
+      let strafe = 0;
+      if (keys.has('KeyA') || keys.has('ArrowLeft')) strafe -= 1;
+      if (keys.has('KeyD') || keys.has('ArrowRight')) strafe += 1;
+      if (touch.active) { fwd = touch.fwd; strafe = touch.turn; }
       
-      if (player.struggle) turn = 0;
+      if (player.struggle) strafe = 0;
 
-      player.yaw += turn * 2.1 * dt;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const pressing = Math.abs(fwd) > 0.05 || Math.abs(strafe) > 0.05;
+      if (!pressing) {
+        
+        moveBasis = null;
+      }
+      if (pressing && !moveBasis) {
+        const f = { x: camTarget.x - camEye.x, z: camTarget.z - camEye.z };
+        const m = Math.hypot(f.x, f.z) || 1;
+        moveBasis = { fx: f.x / m, fz: f.z / m, rx: -f.z / m, rz: f.x / m };
+      }
+
       const slow = player.latchedBy ? (1 - CHICKEN_LATCH_SLOW) : 1;
       const speed = (player.struggle ? 0 : (sprint ? 5.5 : 2.4)) * slow;
       
@@ -3465,18 +3519,32 @@ export function boot(canvas, hud) {
       
       
       
-      const moved = moveInLevel(deck,
-        player,
-        -Math.sin(player.yaw) * fwd * speed * dt,
-        Math.cos(player.yaw) * fwd * speed * dt);
+      let dx = 0; let dz = 0;
+      if (pressing && moveBasis) {
+        dx = moveBasis.fx * fwd + moveBasis.rx * strafe;
+        dz = moveBasis.fz * fwd + moveBasis.rz * strafe;
+        const m = Math.hypot(dx, dz);
+        if (m > 1) { dx /= m; dz /= m; }        
+        
+        
+        
+        
+        
+        const want = Math.atan2(-dx, dz);
+        let d = want - player.yaw;
+        d = Math.atan2(Math.sin(d), Math.cos(d));   
+        player.yaw += d * (1 - Math.exp(-9 * dt));
+      }
+      const moved = moveInLevel(deck, player, dx * speed * dt, dz * speed * dt);
+      lastMoved = Math.hypot(moved.x - player.x, moved.z - player.z);
       player.x = moved.x;
       player.z = moved.z;
       
       
       
-      walkDist += Math.abs(fwd) * speed * dt + Math.abs(turn) * 0.85 * dt;
+      walkDist += Math.hypot(dx, dz) * speed * dt;
 
-      const mode = player.struggle ? 'walk' : (sprint && fwd ? 'sprint' : 'walk');
+      const mode = player.struggle ? 'walk' : (sprint && pressing ? 'sprint' : 'walk');
       tickVitals(player.vitals, dt, mode);
     }
 
@@ -3666,8 +3734,35 @@ export function boot(canvas, hud) {
       }
 
       applyChickenPose(b.rig, chickenPose(b.anim, prof || {}));
-      b.mesh.position.set(b.x, 0, b.z);
-      b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI;
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (b.latched) {
+        const grip = b.kind === 'chicken' ? 0.42 : 0.72;
+        b.x = player.x - Math.sin(player.yaw) * grip;
+        b.z = player.z + Math.cos(player.yaw) * grip;
+        const lift = b.kind === 'chicken' ? 0.28 : 0.42;
+        b.mesh.position.set(b.x, lift * (0.6 + 0.4 * Math.abs(Math.sin(now * 11))), b.z);
+        
+        b.mesh.rotation.z = player.yaw;
+        
+        
+        b.mesh.rotation.y = Math.sin(now * 9.5) * 0.30;
+      } else {
+        b.mesh.position.set(b.x, 0, b.z);
+        b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI;
+        b.mesh.rotation.y = 0;
+      }
     }
 
     
@@ -3730,6 +3825,8 @@ export function boot(canvas, hud) {
     camNode = nodeAt(rails, progressAt(deck, player.x, player.z), camNode);
     if (camNode !== wasNode) cutFlash = 0.05;   
     const place = railPlacement(rails, camNode, player);
+    camEye = place.eye;
+    camTarget = place.target;
     camera.fov = place.fov;
     camera.updateProjectionMatrix();
     
@@ -3746,14 +3843,12 @@ export function boot(canvas, hud) {
     
     
     
-    const moving = !player.dead && !player.struggle
-      && (keys.has('KeyW') || keys.has('KeyS') || keys.has('ArrowUp') || keys.has('ArrowDown') || (touch.active && Math.abs(touch.fwd) > 0.15));
     
     
     
-    const turning = !player.dead && !player.struggle && !moving
-      && (keys.has('KeyA') || keys.has('KeyD') || keys.has('ArrowLeft') || keys.has('ArrowRight')
-        || (touch.active && Math.abs(touch.turn) > 0.2));
+    
+    const moving = !player.dead && !player.struggle && lastMoved > 0.02;
+    const turning = false;
     let lean = 0;
     let bob = 0;
 
@@ -4123,8 +4218,28 @@ export function boot(canvas, hud) {
     
     
     
-    for (const c of ceilingPieces) {
-      c.visible = Math.hypot(c.position.x - place.eye.x, c.position.z - place.eye.z) > 2.2;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    {
+      const fx = place.target.x - place.eye.x;
+      const fz = place.target.z - place.eye.z;
+      const fm = Math.hypot(fx, fz) || 1;
+      for (const c of ceilingPieces) {
+        const ox = c.position.x - place.eye.x;
+        const oz = c.position.z - place.eye.z;
+        const ahead = (ox * fx + oz * fz) / fm;
+        c.visible = !(ahead < 1.1 && Math.hypot(ox, oz) < 2.4);
+      }
     }
 
     
@@ -4204,6 +4319,15 @@ export function boot(canvas, hud) {
       get pickups() { return pickups.filter((q) => !q.taken).length; },
       goTo(x, z) { player.x = x; player.z = z; },
       get level() { return level; },
+      
+      
+      
+      
+      get camBasis() {
+        const f = { x: camTarget.x - camEye.x, z: camTarget.z - camEye.z };
+        const m = Math.hypot(f.x, f.z) || 1;
+        return { fx: f.x / m, fz: f.z / m, rx: -f.z / m, rz: f.x / m };
+      },
       
       
       toLift() { player.x = EXIT.x; player.z = EXIT.z; },
