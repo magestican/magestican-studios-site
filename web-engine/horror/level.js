@@ -125,7 +125,17 @@ export function buildLevel(seed = 1, opt = {}) {
     rooms.push({
       ...makeRoom(on, 'back', r() < 0.5 ? 1 : -1, lerp(0.3, 0.75, r()), cfg),
       
-      contents: roll < 0.34 ? 'item' : (roll < 0.67 ? 'enemy' : 'empty'),
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      contents: i === 0 ? 'item' : (roll < 0.5 ? 'enemy' : 'empty'),
     });
   }
 

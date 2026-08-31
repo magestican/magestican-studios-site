@@ -2454,6 +2454,34 @@ function porkVoice(beast, kind, dist) {
 }
 
 
+
+
+function hideSfx() {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.01;
+  const thump = ctx.createOscillator(); const tg = ctx.createGain();
+  thump.type = 'sine';
+  thump.frequency.setValueAtTime(180, t);
+  thump.frequency.exponentialRampToValueAtTime(48, t + 0.13);
+  tg.gain.setValueAtTime(0.4, t);
+  tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+  thump.connect(tg); tg.connect(audio.sfxBus); thump.start(t); thump.stop(t + 0.25);
+
+  const at = t + 0.16;
+  const b = ctx.createBuffer(1, 512, ctx.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i += 1) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  const n = ctx.createBufferSource(); n.buffer = b;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 6;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.22, at);
+  g.gain.exponentialRampToValueAtTime(0.0001, at + 0.05);
+  n.connect(bp); bp.connect(g); g.connect(audio.sfxBus);
+  n.start(at); n.stop(at + 0.06);
+}
+
+
 function hitSfx() {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
@@ -3049,6 +3077,78 @@ export function boot(canvas, hud) {
   }
 
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const lockers = [];
+  for (const run of deck.runs) {
+    if (run.axis !== 'z') continue;
+    const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
+    for (let t = 6; t < len - 4; t += 9.5) {
+      if (hash2(run.z0 + t, 4.2) < 0.45) continue;
+      const side = hash2(run.z0 + t, 8.1) > 0.5 ? 1 : -1;
+      const x = run.x0 + side * (HALL_W / 2 - 0.22);
+      const z = run.z0 + t;
+      
+      if (deck.rooms.some((m) => Math.abs(m.door.x - x) < 1.4 && Math.abs(m.door.z - z) < 1.6)) continue;
+      const box = new THREE.Mesh(new THREE.BoxGeometry(0.42, 2.0, 0.72).toNonIndexed(), mat);
+      const n = box.geometry.attributes.position.count;
+      const col = new Float32Array(n * 3);
+      const c = new THREE.Color(0x4a5348);
+      for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+      box.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+      box.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+      box.geometry.computeVertexNormals();
+      box.position.set(x, 1.0, z);
+      scene.add(box);
+      lockers.push({ mesh: box, x: x - side * 0.5, z });
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  const pickups = [];
+  for (const m of deck.rooms) {
+    if (m.contents !== 'item') continue;
+    const cx = (m.x0 + m.x1) / 2; const cz = (m.z0 + m.z1) / 2;
+    const ammo = hash2(cx, cz) > 0.45;
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.30, 0.26).toNonIndexed(), mat);
+    {
+      const n = box.geometry.attributes.position.count;
+      const col = new Float32Array(n * 3);
+      const c = new THREE.Color(ammo ? 0xb5893f : 0xc4534a);
+      for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+      box.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+      box.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+      box.geometry.computeVertexNormals();
+    }
+    box.position.set(cx, 0.15, cz);
+    scene.add(box);
+    pickups.push({ mesh: box, x: cx, z: cz, ammo, taken: false });
+  }
+
+  
   const EXIT = deck.exit;
   const lift = new THREE.Mesh(
     new THREE.PlaneGeometry(2.0, 2.4).toNonIndexed(),
@@ -3079,6 +3179,11 @@ export function boot(canvas, hud) {
   let fireHeld = false;
   let aimLow = false;
   addEventListener('keydown', (e) => {
+    if (e.code === 'KeyE') {
+      if (hidden) hidden = false;
+      else if (nearLocker) { hidden = true; hideSfx(); }
+      return;
+    }
     keys.add(e.code);
     if (player.struggle) {
       
@@ -3170,6 +3275,16 @@ export function boot(canvas, hud) {
   let camNode = nodeAt(rails, progressAt(deck, deck.start.x, deck.start.z));
   let cutFlash = 0;
   let target = null;
+  const safeRoom = deck.rooms.find((m) => m.kind === 'safe') || null;
+  let nearLocker = null;
+  let hidden = false;
+  const bars = document.getElementById('bars');
+  let hintShown = true;
+  
+  
+  const HINT_HTML = document.getElementById('hint')?.innerHTML ?? '';
+  let inSafe = false;
+  let safeResupplied = false;
   let walkDist = 0;
   let fireT = 99;        
   let deathT = 0;
@@ -3191,7 +3306,7 @@ export function boot(canvas, hud) {
     const dt = Math.min(0.05, last ? now - last : 0.016);
     last = now;
 
-    if (!player.dead) {
+    if (!player.dead && !hidden) {
       
       
       
@@ -3263,7 +3378,7 @@ export function boot(canvas, hud) {
     
     fireT += dt;
     tickWeapon(player.weapon, dt);
-    if (fireHeld && !player.struggle && !player.dead && canFire(player.weapon)) {
+    if (fireHeld && !player.struggle && !player.dead && !hidden && canFire(player.weapon)) {
       fire(player.weapon);
       shotFlash = 0.06;
       fireT = 0;
@@ -3360,7 +3475,18 @@ export function boot(canvas, hud) {
       
       if (b.latched) b.anim.state = 'latched';
       const prof = b.kind === 'porker' ? PORKER : undefined;
-      const r = stepChicken(b.anim, dt, player.dead ? 1e6 : dist, prof || {});
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const unseen = player.dead || inSafe
+        || (hidden && b.anim.state !== 'stalk' && b.anim.state !== 'strike' && b.anim.state !== 'windup');
+      const r = stepChicken(b.anim, dt, unseen ? 1e6 : dist, prof || {});
       b.anim = r.anim;
 
       
@@ -3569,6 +3695,7 @@ export function boot(canvas, hud) {
       flash.rotation.y = now * 9;      
     }
 
+    xander.visible = !hidden;
     xander.position.set(player.x, bob, player.z);
     xander.rotation.z = player.yaw;
     
@@ -3724,7 +3851,85 @@ export function boot(canvas, hud) {
 
     
     const hunted = birds.some((b) => b.alive && Math.hypot(b.x - player.x, b.z - player.z) < 13);
-    audio.duck(hunted);
+    
+    
+    audio.duck(hunted || inSafe);
+
+    
+    nearLocker = null;
+    if (!player.dead && !player.struggle) {
+      for (const l of lockers) {
+        if (Math.hypot(player.x - l.x, player.z - l.z) < 1.05) { nearLocker = l; break; }
+      }
+    }
+    if (hidden && !nearLocker) hidden = false;      
+    const hint = $('hint');
+    if (hint) {
+      
+      
+      hint.style.display = (nearLocker || hidden) ? 'block' : (hintShown ? 'block' : 'none');
+      if (nearLocker || hidden) hint.innerHTML = hidden ? '<kbd>E</kbd> come out' : '<kbd>E</kbd> hide';
+      else if (hintShown) hint.innerHTML = HINT_HTML;
+    }
+    if (hidden) {
+      
+      player.x = nearLocker.x;
+      player.z = nearLocker.z;
+    }
+    if (bars) bars.style.opacity = hidden ? '1' : '0';
+
+    
+    for (const it of pickups) {
+      if (it.taken) continue;
+      
+      
+      it.mesh.rotation.y = now * 1.1;
+      it.mesh.position.y = 0.15 + Math.sin(now * 2.2) * 0.03;
+      if (!player.dead && Math.hypot(player.x - it.x, player.z - it.z) < 0.9) {
+        it.taken = true;
+        it.mesh.visible = false;
+        if (it.ammo) player.weapon.ammo += 24;
+        else player.vitals.health = Math.min(MAX_HEALTH, player.vitals.health + 35);
+        liftChime();
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const wasSafe = inSafe;
+    inSafe = !player.dead && safeRoom
+      && player.x > safeRoom.x0 && player.x < safeRoom.x1
+      && player.z > safeRoom.z0 && player.z < safeRoom.z1;
+    if (inSafe !== wasSafe) {
+      hud.msg(inSafe ? 'SAFE' : '');
+      if (inSafe) liftChime();
+    }
+    if (inSafe) {
+      player.vitals.health = Math.min(MAX_HEALTH, player.vitals.health + 5.5 * dt);
+      if (!safeResupplied) {
+        safeResupplied = true;
+        player.weapon.ammo += 30;
+      }
+    }
 
     
     if (!player.dead && Math.hypot(player.x - EXIT.x, player.z - EXIT.z) < 1.8) {
@@ -3755,6 +3960,8 @@ export function boot(canvas, hud) {
         
         
         player.weapon = readyWeapon('boltDriver', { ammo: 48 });
+        safeResupplied = false;
+        for (const it of pickups) { it.taken = false; it.mesh.visible = true; }
         hud.lift(0);
       }
     }
@@ -3837,7 +4044,21 @@ export function boot(canvas, hud) {
   
   
   
-  return { player, birds, touch, faces, head: xHead, neck };
+  
+  
+  
+  
+  
+  return {
+    player, birds, touch, faces, head: xHead, neck, lockers, safeRoom,
+    debug: {
+      get hidden() { return hidden; },
+      get inSafe() { return inSafe; },
+      get nearLocker() { return !!nearLocker; },
+      get pickups() { return pickups.filter((q) => !q.taken).length; },
+      goTo(x, z) { player.x = x; player.z = z; },
+    },
+  };
 }
 
 export { promptFor };
@@ -4126,6 +4347,10 @@ const hud = {
     const el = $('msg');
     el.textContent = toLevel ? `LIFT — DECK ${toLevel}` : '';
   },
+  
+  
+  
+  msg(text) { $('msg').textContent = text || ''; },
   dead() {
     $('overTitle').textContent = 'THE LIVESTOCK HAD OPINIONS';
     $('overBody').textContent = 'Xander does not report back.';
