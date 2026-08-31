@@ -47,7 +47,7 @@ import { buildPorker, PORKER_HEIGHT_M } from '../../../web-engine/ps1/creatures/
 import { buildCow, COW_HEIGHT_M } from '../../../web-engine/ps1/creatures/cow.mjs';
 import { buildHorse, HORSE_HEIGHT_M } from '../../../web-engine/ps1/creatures/horse.mjs';
 import {
-  ARENA, HORSE as BOSS_HORSE, createBossFight, stepBossFight, cutCable, bossLevel,
+  ARENA, HORSE as BOSS_HORSE, createBossFight, stepBossFight, cutCable, bossLevel, pillars,
 } from '../../../web-engine/horror/boss.js';
 import {
   emptyChickenAnim, stepChicken, chickenPose, RANGE as CHICK_RANGE, PORKER, COW,
@@ -2552,6 +2552,23 @@ function hideSfx() {
 }
 
 
+
+
+
+
+function pushOutOfPillars(list, p, pad) {
+  for (const q of list) {
+    const dx = p.x - q.x; const dz = p.z - q.z;
+    const d = Math.hypot(dx, dz);
+    const min = q.r + pad;
+    if (d < min && d > 1e-6) {
+      return { x: q.x + (dx / d) * min, z: q.z + (dz / d) * min };
+    }
+  }
+  return p;
+}
+
+
 function hitSfx() {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
@@ -2866,6 +2883,7 @@ export function boot(canvas, hud) {
   let fight = null;
   let boulder = null;
   let cable = null;
+  let arenaPillars = [];
   let deck = buildLevel(1);
   let deckGroup = null;
   let strips = [];
@@ -3264,6 +3282,7 @@ export function boot(canvas, hud) {
     
     boulder = null;
     cable = null;
+    arenaPillars = [];
     if (isBoss) {
       const bp = deck.boulder;
       boulder = new THREE.Mesh(new THREE.IcosahedronGeometry(0.95, 0).toNonIndexed(), mat);
@@ -3278,6 +3297,33 @@ export function boot(canvas, hud) {
       }
       boulder.position.set(bp.x, bp.y, bp.z);
       deckGroup.add(boulder);
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      for (const q of pillars()) {
+        const col = new THREE.Mesh(
+          new THREE.CylinderGeometry(q.r, q.r * 1.12, ARENA.height, 7).toNonIndexed(),
+          mat,
+        );
+        const n = col.geometry.attributes.position.count;
+        const cc = new Float32Array(n * 3);
+        const c2 = new THREE.Color(0x5d6357);
+        for (let i = 0; i < n; i += 1) { cc[i * 3] = c2.r; cc[i * 3 + 1] = c2.g; cc[i * 3 + 2] = c2.b; }
+        col.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(cc, 3));
+        col.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+        col.geometry.computeVertexNormals();
+        col.position.set(q.x, ARENA.height / 2, q.z);
+        deckGroup.add(col);
+        arenaPillars.push(q);
+      }
 
       
       const cg = new THREE.BufferGeometry();
@@ -3635,7 +3681,13 @@ export function boot(canvas, hud) {
         d = Math.atan2(Math.sin(d), Math.cos(d));   
         player.yaw += d * (1 - Math.exp(-9 * dt));
       }
-      const moved = moveInLevel(deck, player, dx * speed * dt, dz * speed * dt);
+      let moved = moveInLevel(deck, player, dx * speed * dt, dz * speed * dt);
+      
+      
+      
+      
+      
+      moved = pushOutOfPillars(arenaPillars, moved, 0.42);
       lastMoved = Math.hypot(moved.x - player.x, moved.z - player.z);
       player.x = moved.x;
       player.z = moved.z;
@@ -3832,9 +3884,15 @@ export function boot(canvas, hud) {
           const move = step.speed * dt;
           
           
-          b.x += (dx / dist) * move;
-          b.z += (dz / dist) * move;
-          bossMoved = move;
+          const want = pushOutOfPillars(
+            arenaPillars,
+            { x: b.x + (dx / dist) * move, z: b.z + (dz / dist) * move },
+            1.15,
+          );
+          
+          
+          bossMoved = Math.hypot(want.x - b.x, want.z - b.z);
+          b.x = want.x; b.z = want.z;
         }
         
         

@@ -53,7 +53,49 @@ export const ARENA = Object.freeze({
   
   
   crushRadius: 3.2,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  pillarR: 0.55,
+  
+  
+  
+  
+  pillarInset: 1.75,
+  pillarEvery: 11,
 });
+
+
+
+
+
+
+
+
+export function pillars() {
+  const out = [];
+  let i = 0;
+  for (let z = ARENA.pillarEvery; z < ARENA.length - 6; z += ARENA.pillarEvery) {
+    const side = i % 2 === 0 ? 1 : -1;
+    out.push({ x: side * (ARENA.width / 2 - ARENA.pillarInset), z, r: ARENA.pillarR });
+    i += 1;
+  }
+  return out;
+}
 
 export const HORSE = Object.freeze({
   
