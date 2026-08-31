@@ -24,7 +24,7 @@
 import * as THREE from 'three';
 
 import { solve, RIG as FRIG, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
-import { poseById } from '../../2d-fighter-ex/src/moveSet.mjs';
+import { poseById, blendPose } from '../../2d-fighter-ex/src/moveSet.mjs';
 import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from '../../../web-engine/ps1/ps1Rig.mjs';
 import { buildFighter, jointBall } from '../../../web-engine/ps1/ps1Mesh.mjs';
 import { head3d, hair3d } from '../../../web-engine/ps1/ps1Head.mjs';
@@ -633,7 +633,43 @@ function xanderHeadGeometry() {
   };
 }
 
-function xanderParts() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const WALK_FRAMES = 8;
+const WALK_AMPLITUDE = 0.55;
+const STRIDE = 1.55;                    
+
+function walkPose(phase) {
+  const idle = poseById(XANDER_POSE);
+  
+  
+  const t = Math.sin(phase * Math.PI * 2) * WALK_AMPLITUDE;
+  const other = poseById(t < 0 ? 'step-back' : 'step-in');
+  if (!other) return idle;
+  return blendPose(idle, other, Math.abs(t));
+}
+
+function xanderParts(pose) {
   
   
   
@@ -653,7 +689,13 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
   
   
   const build = 1.16;
-  const pose = poseById('guard');
+  
+  
+  
+  
+  
+  
+  pose = pose || poseById(XANDER_POSE);
   const K = solve(pose, { flip: false });
   const o = { flip: false, build };
   const built = buildFighter(K, {
@@ -1160,6 +1202,14 @@ export function boot(canvas, hud) {
   const bodyParts = xanderParts();
   const headBuilt = xanderHeadGeometry();
   const allParts = [...bodyParts, { name: 'head', mesh: headBuilt.mesh }];
+
+  
+  
+  
+  const walkGeo = [];
+  for (let i = 0; i < WALK_FRAMES; i += 1) {
+    walkGeo.push(partsToGeometry(xanderParts(walkPose(i / WALK_FRAMES)), xColour, XANDER_H, allParts));
+  }
   const xGeo = partsToGeometry(bodyParts, xColour, XANDER_H, allParts);
   const xander = new THREE.Mesh(xGeo, mat);
   xander.rotation.x = -Math.PI / 2;   
@@ -1378,6 +1428,7 @@ export function boot(canvas, hud) {
   
   let shake = 0;
   let headLook = 0;
+  let walkDist = 0;
   let level = 1;
   let liftIn = 0;
   const mapCv = document.getElementById('map');
@@ -1414,6 +1465,10 @@ export function boot(canvas, hud) {
       const speed = (player.struggle ? 0 : (sprint ? 5.5 : 2.4)) * slow;
       player.x -= Math.sin(player.yaw) * fwd * speed * dt;
       player.z += Math.cos(player.yaw) * fwd * speed * dt;
+      
+      
+      
+      walkDist += Math.abs(fwd) * speed * dt;
       player.x = clamp(player.x, -HALL_W / 2 + 0.4, HALL_W / 2 - 0.4);
       player.z = clamp(player.z, 1.5, HALL_LEN - 10);
 
@@ -1538,7 +1593,20 @@ export function boot(canvas, hud) {
     camera.position.set(place.eye.x + sx, place.eye.y + sy, place.eye.z);
     camera.lookAt(place.target.x + sx * 0.4, place.target.y + sy * 0.4, place.target.z);
 
-    xander.position.set(player.x, 0, player.z);
+    const moving = !player.dead && !player.struggle
+      && (keys.has('KeyW') || keys.has('KeyS') || keys.has('ArrowUp') || keys.has('ArrowDown') || (touch.active && Math.abs(touch.fwd) > 0.15));
+    if (moving) {
+      const ph = (walkDist / STRIDE) % 1;
+      const frame = Math.floor(ph * WALK_FRAMES) % WALK_FRAMES;
+      if (xander.geometry !== walkGeo[frame]) xander.geometry = walkGeo[frame];
+      
+      
+      
+      xander.position.set(player.x, Math.abs(Math.sin(ph * Math.PI * 2)) * 0.035, player.z);
+    } else {
+      if (xander.geometry !== xGeo) xander.geometry = xGeo;
+      xander.position.set(player.x, 0, player.z);
+    }
     xander.rotation.z = player.yaw;
 
     
