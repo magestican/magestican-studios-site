@@ -25,6 +25,7 @@
 
 
 import { statusOf, heightOf } from './dismemberment.js';
+import { createFatigue, tickFatigue } from './chaseFatigue.js';
 
 
 
@@ -93,7 +94,18 @@ const SPEC = { chicken: CHICKEN, porker: PORKER, cow: COW };
 
 
 
-export const STATES = Object.freeze(['idle', 'hunt', 'burst', 'recover', 'tell', 'latched', 'blind', 'dead']);
+export const STATES = Object.freeze(['idle', 'hunt', 'burst', 'recover', 'tell', 'latched', 'blind', 'giveup', 'dead']);
+
+
+
+
+
+
+
+
+
+
+const PURSUING = Object.freeze(['hunt', 'burst', 'recover', 'tell']);
 
 export function createStalker(creature, opts = {}) {
   return {
@@ -110,6 +122,9 @@ export function createStalker(creature, opts = {}) {
     
     
     holding: false,
+    
+    
+    fatigue: createFatigue(creature.species),
     ...opts,
   };
 }
@@ -138,6 +153,20 @@ export function tickStalker(st, dt, world) {
 
   st.stateTime += step;
 
+  
+  
+  
+  const pursuing = PURSUING.includes(st.state);
+  tickFatigue(st.fatigue, step, { pursuing, metres: pursuing ? speedOf(st) * step : 0 });
+
+  
+  
+  
+  
+  if (st.fatigue.gaveUp && st.state !== 'latched' && st.state !== 'dead') {
+    if (st.state !== 'giveup') { st.state = 'giveup'; st.stateTime = 0; }
+  }
+
   const player = world.player;
   const dist = distanceTo(st.creature.pos, player);
   
@@ -156,6 +185,13 @@ export function tickStalker(st, dt, world) {
   }
 
   switch (st.state) {
+    case 'giveup':
+      
+      
+      
+      if (!st.fatigue.gaveUp) { st.state = 'idle'; st.stateTime = 0; }
+      break;
+
     case 'latched':
       
       
@@ -244,13 +280,14 @@ export function speedOf(st) {
   const status = statusOf(st.creature);
   if (!status.alive) return 0;
   const spec = SPEC[st.species];
+  
+  
+  if (st.state === 'giveup' || st.state === 'latched') return 0;
   let base;
   if (st.species === 'chicken') {
-    if (st.state === 'burst') base = CHICKEN.burstSpeed;
-    else if (st.state === 'latched') base = 0;
-    else base = CHICKEN.cruiseSpeed;
+    base = st.state === 'burst' ? CHICKEN.burstSpeed : CHICKEN.cruiseSpeed;
   } else {
-    base = st.state === 'latched' ? 0 : spec.speed;
+    base = spec.speed;
   }
   return base * status.speed;
 }
