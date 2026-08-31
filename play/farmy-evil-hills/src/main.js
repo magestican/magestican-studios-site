@@ -25,10 +25,16 @@ import * as THREE from 'three';
 
 import { solve, RIG as FRIG, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
 import { poseById, blendPose } from '../../2d-fighter-ex/src/moveSet.mjs';
+import {
+  gaitPose, firePose, strugglePose, deathPose,
+} from '../../../web-engine/horror/gait.js';
 import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from '../../../web-engine/ps1/ps1Rig.mjs';
 import { buildFighter, jointBall } from '../../../web-engine/ps1/ps1Mesh.mjs';
 import { head3d, hair3d } from '../../../web-engine/ps1/ps1Head.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
+import {
+  emptyChickenAnim, stepChicken, chickenPose, RANGE as CHICK_RANGE,
+} from '../../../web-engine/horror/creatureAnim.js';
 import { ps1Vertex, FRAGMENT, KEY_DIR, FILL_DIR } from '../../../web-engine/ps1/ps1Shader.mjs';
 import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
 
@@ -37,7 +43,7 @@ import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
 
 import { lockZoom } from '../../shared/input/zoomLock.js';
 
-import { emptyCamera, stepCamera, cameraPlacement } from '../../../web-engine/horror/camera.js';
+import { railNodes, nodeAt, railPlacement } from '../../../web-engine/horror/railCamera.js';
 import { spawnVitals, tickVitals, damage, beginGrapple, endGrapple, MAX_HEALTH, CHICKEN_LATCH_SLOW } from '../../../web-engine/horror/health.js';
 import { spawn as spawnCreature, resolveHit, applyDamage, mobilityOf, statusOf } from '../../../web-engine/horror/dismemberment.js';
 import { readyWeapon, tickWeapon, canFire, fire } from '../../../web-engine/horror/weapons.js';
@@ -81,7 +87,6 @@ const HALL_H = 3.6;
 
 
 
-const CEIL_CULL = 11;
 
 
 
@@ -655,18 +660,47 @@ function xanderHeadGeometry() {
 
 
 
-const WALK_FRAMES = 8;
+
+
+
+
+
+
+
+
+const WALK_FRAMES = 14;
+const SPRINT_FRAMES = 12;
+const FIRE_FRAMES = 6;
+const STRUGGLE_FRAMES = 8;
+const DEATH_FRAMES = 6;
+
+const FIRE_TIME = 0.42;
+const DEATH_TIME = 0.9;
 const WALK_AMPLITUDE = 0.55;
 const STRIDE = 1.55;                    
 
-function walkPose(phase) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function walkPose(phase, mode = 'walk') {
   const idle = poseById(XANDER_POSE);
+  const g = gaitPose(phase, mode);
   
   
-  const t = Math.sin(phase * Math.PI * 2) * WALK_AMPLITUDE;
-  const other = poseById(t < 0 ? 'step-back' : 'step-in');
-  if (!other) return idle;
-  return blendPose(idle, other, Math.abs(t));
+  return { ...idle, ...g };
 }
 
 function xanderParts(pose) {
@@ -1002,6 +1036,402 @@ function buildHall(scene) {
 
 
 
+const GAS_PER_LEAK = 46;
+
+function makeLeak(x, y, z, dir) {
+  const pos = new Float32Array(GAS_PER_LEAK * 3);
+  const life = new Float32Array(GAS_PER_LEAK);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({
+    
+    
+    
+    color: 0x6d7a72, size: 0.15, sizeAttenuation: true,
+    transparent: true, opacity: 0.16, depthWrite: false,
+  }));
+  pts.frustumCulled = false;
+  for (let i = 0; i < GAS_PER_LEAK; i += 1) life[i] = Math.random();
+  return {
+    points: pts,
+    step(dt) {
+      for (let i = 0; i < GAS_PER_LEAK; i += 1) {
+        life[i] += dt * 0.42;
+        if (life[i] > 1) life[i] -= 1;
+        const t = life[i];
+        
+        const travel = (2.6 / 3.1) * (1 - Math.exp(-3.1 * t));
+        const spread = t * t * 0.55;
+        const seed = i * 12.9898;
+        pos[i * 3] = x + dir[0] * travel + (hash2(seed, 1.1) - 0.5) * spread;
+        pos[i * 3 + 1] = y + dir[1] * travel + t * 0.62 + (hash2(seed, 2.2) - 0.5) * spread;
+        pos[i * 3 + 2] = z + dir[2] * travel + (hash2(seed, 3.3) - 0.5) * spread;
+      }
+      geo.attributes.position.needsUpdate = true;
+    },
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+function makeWire(x, z, len, seed) {
+  const N = 7;
+  const pos = new Float32Array(N * 3);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x14110e }));
+  line.frustumCulled = false;
+  return {
+    line,
+    tip: [x, HALL_H - len, z],
+    step(t) {
+      const sway = Math.sin(t * 0.6 + seed) * 0.16;
+      for (let i = 0; i < N; i += 1) {
+        const f = i / (N - 1);
+        
+        pos[i * 3] = x + sway * f * f;
+        pos[i * 3 + 1] = HALL_H - len * f - Math.sin(f * Math.PI) * 0.10;
+        pos[i * 3 + 2] = z + Math.cos(t * 0.5 + seed) * 0.06 * f * f;
+      }
+      this.tip[0] = pos[(N - 1) * 3];
+      this.tip[1] = pos[(N - 1) * 3 + 1];
+      this.tip[2] = pos[(N - 1) * 3 + 2];
+      geo.attributes.position.needsUpdate = true;
+    },
+  };
+}
+
+function sparkSfx() {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.01;
+  
+  
+  
+  for (let k = 0; k < 2 + Math.floor(Math.random() * 3); k += 1) {
+    const at = t + k * (0.03 + Math.random() * 0.07);
+    const b = ctx.createBuffer(1, 1024, ctx.sampleRate);
+    const d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i += 1) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    const n = ctx.createBufferSource(); n.buffer = b;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2600;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.16 + Math.random() * 0.12, at);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 0.05);
+    n.connect(hp); hp.connect(g); g.connect(audio.sfxBus);
+    n.start(at); n.stop(at + 0.06);
+    const o = ctx.createOscillator(); const og = ctx.createGain();
+    o.type = 'square'; o.frequency.value = 3200 + Math.random() * 2600;
+    og.gain.setValueAtTime(0.05, at);
+    og.gain.exponentialRampToValueAtTime(0.0001, at + 0.04);
+    o.connect(og); og.connect(audio.sfxBus); o.start(at); o.stop(at + 0.05);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function creakSfx() {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.02;
+  const dur = 1.4 + Math.random() * 2.0;
+  const base = 52 + Math.random() * 70;
+
+  const o = ctx.createOscillator();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(base, t);
+  o.frequency.linearRampToValueAtTime(base * (1.1 + Math.random() * 0.5), t + dur);
+
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.setValueAtTime(base * 7, t);
+  bp.frequency.linearRampToValueAtTime(base * 11, t + dur);
+  bp.Q.value = 14;
+
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  
+  
+  let at = t;
+  while (at < t + dur) {
+    const stepLen = 0.045 + Math.random() * 0.16;
+    g.gain.exponentialRampToValueAtTime(0.03 + Math.random() * 0.10, at + stepLen * 0.35);
+    g.gain.exponentialRampToValueAtTime(0.004, at + stepLen);
+    at += stepLen;
+  }
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.2);
+
+  o.connect(bp); bp.connect(g); g.connect(audio.sfxBus);
+  o.start(t); o.stop(t + dur + 0.3);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CZ = { legs: { lo: 0.03, hi: 0.21 }, torso: { lo: 0.22, hi: 0.74 }, head: { lo: 0.75, hi: 0.99 } };
+const CT_H = CZ.torso.hi - CZ.torso.lo;
+const CHICK_PIVOT = {
+  legL: [-0.010, -0.062, CZ.legs.hi],
+  legR: [-0.010, 0.062, CZ.legs.hi],
+  wingL: [-0.010, -0.240 * 0.82, CZ.torso.lo + CT_H * 0.72],
+  wingR: [-0.010, 0.240 * 0.82, CZ.torso.lo + CT_H * 0.72],
+  tail: [-0.190, 0, CZ.torso.lo + CT_H * 0.55],
+  torso: [0, 0, (CZ.torso.lo + CZ.torso.hi) / 2],
+  head: [0.02, 0, CZ.head.lo],
+  beak: [0.02, 0, CZ.head.lo],
+  comb: [0.02, 0, CZ.head.lo],
+  eyeL: [0.02, 0, CZ.head.lo],
+  eyeR: [0.02, 0, CZ.head.lo],
+};
+const BODY_PIVOT = [0, 0, (CZ.torso.lo + CZ.torso.hi) / 2];
+const HEAD_PIVOT = [0.02, 0, CZ.head.lo];
+
+function chickenRig(parts, colourOf, targetHeight, material) {
+  
+  
+  
+  let lo = Infinity; let hi = -Infinity;
+  for (const p of parts) {
+    for (let i = 2; i < p.mesh.positions.length; i += 3) {
+      if (p.mesh.positions[i] < lo) lo = p.mesh.positions[i];
+      if (p.mesh.positions[i] > hi) hi = p.mesh.positions[i];
+    }
+  }
+  const sc = (hi - lo) > 1e-6 ? targetHeight / (hi - lo) : 1;
+
+  const geoFor = (p, pivot) => {
+    const pos = []; const col = [];
+    const c = new THREE.Color(colourOf(p.name));
+    for (let i = 0; i < p.mesh.positions.length; i += 3) {
+      pos.push(
+        (p.mesh.positions[i] - pivot[0]) * sc,
+        (p.mesh.positions[i + 1] - pivot[1]) * sc,
+        (p.mesh.positions[i + 2] - lo - (pivot[2] - lo)) * sc,
+      );
+      col.push(c.r, c.g, c.b);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+    g.setIndex([...p.mesh.indices]);
+    g.computeVertexNormals();
+    return g;
+  };
+
+  const root = new THREE.Group();
+  const body = new THREE.Group();
+  const head = new THREE.Group();
+  body.position.set(BODY_PIVOT[0] * sc, BODY_PIVOT[1] * sc, (BODY_PIVOT[2] - lo) * sc);
+  head.position.set((HEAD_PIVOT[0] - BODY_PIVOT[0]) * sc, 0, (HEAD_PIVOT[2] - BODY_PIVOT[2]) * sc);
+  body.add(head);
+  root.add(body);
+
+  const named = {};
+  const HEADPARTS = new Set(['head', 'beak', 'comb', 'eyeL', 'eyeR']);
+  for (const p of parts) {
+    const pivot = CHICK_PIVOT[p.name] || [0, 0, lo];
+    const m = new THREE.Mesh(geoFor(p, pivot), material);
+    named[p.name] = m;
+    if (p.name === 'legL' || p.name === 'legR') {
+      m.position.set(pivot[0] * sc, pivot[1] * sc, (pivot[2] - lo) * sc);
+      root.add(m);
+    } else if (HEADPARTS.has(p.name)) {
+      head.add(m);                    
+    } else {
+      m.position.set(
+        (pivot[0] - BODY_PIVOT[0]) * sc,
+        (pivot[1] - BODY_PIVOT[1]) * sc,
+        (pivot[2] - BODY_PIVOT[2]) * sc,
+      );
+      body.add(m);
+    }
+  }
+  return { root, body, head, named, scale: sc };
+}
+
+
+
+
+
+
+
+function applyChickenPose(rig, pose) {
+  rig.body.rotation.y = pose.torsoPitch;
+  rig.body.rotation.x = pose.bodyRoll;
+  rig.body.position.z = (BODY_PIVOT[2] - CZ.legs.lo) * rig.scale + pose.bodyLift * CHICKEN_H;
+  rig.head.rotation.y = pose.headPitch;
+  rig.head.position.x = pose.headThrust * CHICKEN_H;
+  rig.head.position.z = ((HEAD_PIVOT[2] - BODY_PIVOT[2]) * rig.scale) + pose.headBob * CHICKEN_H;
+  if (rig.named.legL) {
+    rig.named.legL.rotation.y = pose.legL.swing;
+    rig.named.legL.position.z = (CHICK_PIVOT.legL[2] - CZ.legs.lo) * rig.scale + pose.legL.lift * CHICKEN_H;
+  }
+  if (rig.named.legR) {
+    rig.named.legR.rotation.y = pose.legR.swing;
+    rig.named.legR.position.z = (CHICK_PIVOT.legR[2] - CZ.legs.lo) * rig.scale + pose.legR.lift * CHICKEN_H;
+  }
+  
+  
+  
+  if (rig.named.wingL) rig.named.wingL.rotation.x = -(pose.wingFlap + pose.mutantLag * 0.16);
+  if (rig.named.wingR) rig.named.wingR.rotation.x = pose.wingFlap * 0.86 - pose.mutantLag * 0.22;
+  if (rig.named.tail) rig.named.tail.rotation.y = -pose.tailFlick + pose.mutantLag * 0.1;
+}
+
+
+
+
+
+
+
+const SEVER_PART = { 'leg-l': 'legL', 'leg-r': 'legR', 'wing-l': 'wingL', 'wing-r': 'wingR', head: 'head' };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CHICK_CALL = {
+  
+  idle:   { f0: 340, to: 260, dur: 0.16, gain: 0.16, q: 9 },
+  alert:  { f0: 520, to: 980, dur: 0.34, gain: 0.42, q: 13 },
+  windup: { f0: 300, to: 210, dur: 0.26, gain: 0.26, q: 8 },
+  strike: { f0: 900, to: 1500, dur: 0.20, gain: 0.55, q: 16 },
+  hurt:   { f0: 760, to: 300, dur: 0.38, gain: 0.50, q: 11 },
+  die:    { f0: 430, to: 120, dur: 0.75, gain: 0.55, q: 7 },
+};
+
+function chickVoice(bird, kind, dist) {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const spec = CHICK_CALL[kind];
+  if (!spec) return;
+  
+  const near = Math.max(0, 1 - dist / 30);
+  if (near <= 0.02) return;
+  const t = ctx.currentTime + 0.01;
+  const v = bird.voice;
+  const dur = spec.dur * (2 - v) * 0.9;
+
+  
+  const o = ctx.createOscillator();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(spec.f0 * v * 0.55, t);
+  o.frequency.exponentialRampToValueAtTime(Math.max(40, spec.to * v * 0.55), t + dur);
+
+  
+  const f1 = ctx.createBiquadFilter();
+  f1.type = 'bandpass'; f1.Q.value = spec.q;
+  f1.frequency.setValueAtTime(spec.f0 * v, t);
+  f1.frequency.exponentialRampToValueAtTime(Math.max(60, spec.to * v), t + dur);
+  const f2 = ctx.createBiquadFilter();
+  f2.type = 'bandpass'; f2.Q.value = spec.q * 0.6;
+  f2.frequency.setValueAtTime(spec.f0 * v * 2.4, t);
+  f2.frequency.exponentialRampToValueAtTime(Math.max(120, spec.to * v * 2.1), t + dur);
+
+  
+  const air = ctx.createBiquadFilter();
+  air.type = 'lowpass';
+  air.frequency.value = 700 + near * 9000;
+
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(spec.gain * near * near, t + dur * 0.14);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+  o.connect(f1); f1.connect(f2); f2.connect(air); air.connect(g); g.connect(audio.sfxBus);
+  o.start(t); o.stop(t + dur + 0.05);
+}
+
+
+function hitSfx() {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.005;
+  const b = ctx.createBuffer(1, 2048, ctx.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i += 1) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length) ** 2;
+  const n = ctx.createBufferSource(); n.buffer = b;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.5, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+  n.connect(lp); lp.connect(g); g.connect(audio.sfxBus);
+  n.start(t); n.stop(t + 0.18);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1174,7 +1604,11 @@ export function boot(canvas, hud) {
     return null;
   }
   renderer.setPixelRatio(1);
-  renderer.setClearColor(0x05060a, 1);
+  
+  
+  
+  
+  renderer.setClearColor(0x000000, 1);
   if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   if ('toneMapping' in renderer) renderer.toneMapping = THREE.NoToneMapping;
 
@@ -1195,6 +1629,33 @@ export function boot(canvas, hud) {
 
   
   
+  const leaks = [];
+  const wires = [];
+  for (let z = 9; z < HALL_LEN - 8; z += 11) {
+    const side = hash2(z, 1.7) > 0.5 ? 1 : -1;
+    leaks.push(makeLeak(side * (HALL_W / 2 - 0.12), 0.55 + hash2(z, 2.9) * 1.5, z,
+      [-side * 0.9, 0.25, 0]));
+    if (hash2(z, 5.5) > 0.42) {
+      wires.push(makeWire((hash2(z, 6.1) - 0.5) * HALL_W * 0.7, z + 3,
+        0.7 + hash2(z, 7.3) * 1.5, z));
+    }
+  }
+  for (const l of leaks) scene.add(l.points);
+  for (const w of wires) scene.add(w.line);
+
+  
+  
+  const sparkGeo = new THREE.BufferGeometry();
+  sparkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3));
+  const sparkPt = new THREE.Points(sparkGeo, new THREE.PointsMaterial({
+    color: 0xcfe6ff, size: 0.5, sizeAttenuation: true, transparent: true, opacity: 0,
+    depthWrite: false,
+  }));
+  sparkPt.frustumCulled = false;
+  scene.add(sparkPt);
+
+  
+  
   
   
   
@@ -1206,9 +1667,33 @@ export function boot(canvas, hud) {
   
   
   
+  
+  
+  
+  const bake = (pose) => partsToGeometry(xanderParts(pose), xColour, XANDER_H, allParts);
   const walkGeo = [];
-  for (let i = 0; i < WALK_FRAMES; i += 1) {
-    walkGeo.push(partsToGeometry(xanderParts(walkPose(i / WALK_FRAMES)), xColour, XANDER_H, allParts));
+  for (let i = 0; i < WALK_FRAMES; i += 1) walkGeo.push(bake(walkPose(i / WALK_FRAMES, 'walk')));
+  
+  
+  
+  
+  
+  
+  
+  const sprintGeo = [];
+  for (let i = 0; i < SPRINT_FRAMES; i += 1) sprintGeo.push(bake(walkPose(i / SPRINT_FRAMES, 'sprint')));
+  const fireGeo = [];
+  for (let i = 0; i < FIRE_FRAMES; i += 1) {
+    fireGeo.push(bake({ ...poseById(XANDER_POSE), ...firePose((i / (FIRE_FRAMES - 1)) * FIRE_TIME) }));
+  }
+  const struggleGeo = [];
+  for (let i = 0; i < STRUGGLE_FRAMES; i += 1) {
+    
+    struggleGeo.push(bake({ ...poseById(XANDER_POSE), ...strugglePose((i / STRUGGLE_FRAMES) * (Math.PI * 2 / 13.5), 0.8) }));
+  }
+  const deathGeo = [];
+  for (let i = 0; i < DEATH_FRAMES; i += 1) {
+    deathGeo.push(bake({ ...poseById(XANDER_POSE), ...deathPose(i / (DEATH_FRAMES - 1)) }));
   }
   const xGeo = partsToGeometry(bodyParts, xColour, XANDER_H, allParts);
   const xander = new THREE.Mesh(xGeo, mat);
@@ -1250,7 +1735,7 @@ export function boot(canvas, hud) {
   xander.add(neck);
   const portrait = makePortrait(headGeo, shouldersGeo, faces, mat);
 
-  const chickenGeo = partsToGeometry(buildChicken().parts, (n) => CCOL[n] ?? 0xb9b07a, CHICKEN_H);
+  const chickenParts = buildChicken().parts;
 
   const player = {
     
@@ -1273,20 +1758,29 @@ export function boot(canvas, hud) {
     
     
     weapon: readyWeapon('boltDriver', { ammo: 48 }),
-    cam: emptyCamera(1),
     struggle: null,
     latchedBy: null,
     dead: false,
   };
 
   const birds = [];
+  let chickSeed = 0;
   function addChicken(z, x) {
-    const mesh = new THREE.Mesh(chickenGeo, mat);
-    mesh.rotation.x = -Math.PI / 2;
-    scene.add(mesh);
+    const rig = chickenRig(chickenParts, (n) => CCOL[n] ?? 0xb9b07a, CHICKEN_H, mat);
+    rig.root.rotation.x = -Math.PI / 2;
+    scene.add(rig.root);
+    chickSeed += 0.37;
     birds.push({
-      mesh, x, z, alive: true,
+      
+      mesh: rig.root, rig, x, z, alive: true,
       creature: spawnCreature('chicken'),
+      anim: emptyChickenAnim(chickSeed % 1),
+      
+      
+      
+      
+      voice: 0.78 + (chickSeed * 1.7) % 0.62,
+      idleIn: 1 + Math.random() * 5,
       latched: false,
       cool: 0,
     });
@@ -1348,7 +1842,7 @@ export function boot(canvas, hud) {
   
   const keys = new Set();
   let fireHeld = false;
-  let aiming = false;
+  let aimLow = false;
   addEventListener('keydown', (e) => {
     keys.add(e.code);
     if (player.struggle) {
@@ -1362,10 +1856,10 @@ export function boot(canvas, hud) {
   addEventListener('keyup', (e) => keys.delete(e.code));
   canvas.addEventListener('pointerdown', (e) => {
     if (player.struggle) { player.struggle.press('tap'); return; }
-    if (e.button === 2) { aiming = true; return; }
+    if (e.button === 2) { aimLow = true; return; }
     fireHeld = true;
   });
-  addEventListener('pointerup', () => { fireHeld = false; aiming = false; });
+  addEventListener('pointerup', () => { fireHeld = false; aimLow = false; });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   
   canvas.addEventListener('touchstart', (e) => {
@@ -1434,7 +1928,17 @@ export function boot(canvas, hud) {
   
   let shake = 0;
   let headLook = 0;
+  let creakIn = 6 + Math.random() * 10;
+  let sparkIn = 3 + Math.random() * 7;
+  let sparkFlash = 0;
+  const rails = railNodes(HALL_LEN);
+  let camNode = nodeAt(rails, 16);
+  let cutFlash = 0;
+  let target = null;
   let walkDist = 0;
+  let fireT = 99;        
+  let deathT = 0;
+  let sprintNow = false;
   let level = 1;
   let liftIn = 0;
   const mapCv = document.getElementById('map');
@@ -1444,6 +1948,8 @@ export function boot(canvas, hud) {
   
   const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const tmpV = new THREE.Vector3();
+  const reticEl = document.getElementById('retic');
+  const gradeEl = document.getElementById('grade');
 
   function step(nowMs) {
     const now = nowMs / 1000;
@@ -1456,6 +1962,7 @@ export function boot(canvas, hud) {
       
       
       const sprint = keys.has('ShiftLeft') || keys.has('ShiftRight') || (touch.active && touch.fwd > 0.75);
+      sprintNow = sprint;
       let fwd = 0;
       if (keys.has('KeyW') || keys.has('ArrowUp')) fwd += 1;
       if (keys.has('KeyS') || keys.has('ArrowDown')) fwd -= 1;
@@ -1474,7 +1981,7 @@ export function boot(canvas, hud) {
       
       
       
-      walkDist += Math.abs(fwd) * speed * dt;
+      walkDist += Math.abs(fwd) * speed * dt + Math.abs(turn) * 0.85 * dt;
       player.x = clamp(player.x, -HALL_W / 2 + 0.4, HALL_W / 2 - 0.4);
       player.z = clamp(player.z, 1.5, HALL_LEN - 10);
 
@@ -1483,10 +1990,37 @@ export function boot(canvas, hud) {
     }
 
     
+    
+    
+    
+    
+    
+    
+    
+    target = null;
+    if (!player.dead && !player.struggle) {
+      let best = Infinity;
+      const range = player.weapon.spec?.range ?? 18;
+      for (const b of birds) {
+        if (!b.alive) continue;
+        const dx = b.x - player.x; const dz = b.z - player.z;
+        const d = Math.hypot(dx, dz);
+        if (d > range || d > best) continue;
+        
+        let off = Math.atan2(-dx, dz) - player.yaw;
+        off = Math.atan2(Math.sin(off), Math.cos(off));
+        if (Math.abs(off) > 0.61) continue;          
+        best = d; target = b;
+      }
+    }
+
+    
+    fireT += dt;
     tickWeapon(player.weapon, dt);
     if (fireHeld && !player.struggle && !player.dead && canFire(player.weapon)) {
       fire(player.weapon);
       shotFlash = 0.06;
+      fireT = 0;
       
       
       
@@ -1502,7 +2036,7 @@ export function boot(canvas, hud) {
       
       
       const muzzleY = 1.30;
-      const aimDrop = keys.has('ControlLeft') || keys.has('KeyQ') ? 1.0 : 0.30;
+      const aimDrop = (aimLow || keys.has('ControlLeft') || keys.has('KeyQ')) ? 1.0 : 0.30;
       for (const b of birds) {
         if (!b.alive) continue;
         const dx = player.x - b.x; const dz = player.z - b.z;
@@ -1520,10 +2054,17 @@ export function boot(canvas, hud) {
           };
         };
         const tipY = muzzleY - aimDrop * (dist / 6);
+        
+        
+        
+        
+        
+        
+        const aimYaw = (target === b) ? Math.atan2(-(b.x - player.x), b.z - player.z) : player.yaw;
         const hit = resolveHit(
           b.creature,
           toLocal(player.x, muzzleY, player.z),
-          toLocal(player.x - Math.sin(player.yaw) * 30, tipY, player.z + Math.cos(player.yaw) * 30),
+          toLocal(player.x - Math.sin(aimYaw) * 30, tipY, player.z + Math.cos(aimYaw) * 30),
         );
         if (!hit) continue;
         applyDamage(b.creature, hit.id, player.weapon.spec?.limbDamage ?? 12);
@@ -1531,6 +2072,7 @@ export function boot(canvas, hud) {
         
         
         if (!st.alive) {
+          chickVoice(b, 'die', Math.hypot(player.x - b.x, player.z - b.z));
           b.alive = false;
           b.mesh.visible = false;
           if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
@@ -1558,11 +2100,36 @@ export function boot(canvas, hud) {
       const dx = player.x - b.x; const dz = player.z - b.z;
       const dist = Math.hypot(dx, dz);
       const mob = mobilityOf(b.creature);
-      const spd = 6.2 * (typeof mob === 'number' ? mob : (mob?.speed ?? 1));
-      if (!b.latched && dist > 0.75 && !player.dead) {
-        b.x += (dx / dist) * spd * dt;
-        b.z += (dz / dist) * spd * dt;
-      } else if (!b.latched && !player.dead && b.cool <= 0) {
+      const mobScale = (typeof mob === 'number' ? mob : (mob?.speed ?? 1));
+
+      
+      
+      
+      
+      if (b.latched) b.anim.state = 'latched';
+      const r = stepChicken(b.anim, dt, player.dead ? 1e6 : dist);
+      b.anim = r.anim;
+
+      
+      if (r.event === 'alert') chickVoice(b, 'alert', dist);
+      else if (r.event === 'windup') chickVoice(b, 'windup', dist);
+      else if (r.event === 'strike') chickVoice(b, 'strike', dist);
+
+      
+      
+      b.idleIn -= dt;
+      if (b.idleIn <= 0) {
+        b.idleIn = 3 + Math.random() * 7;
+        if (b.anim.state === 'dormant' && dist < 26) chickVoice(b, 'idle', dist);
+      }
+
+      if (!b.latched && !player.dead && r.speed !== 0 && dist > 0.05) {
+        const move = r.speed * mobScale * dt;
+        b.x += (dx / dist) * move;
+        b.z += (dz / dist) * move;
+      }
+      
+      if (r.canLatch && !b.latched && !player.dead && !player.struggle && b.cool <= 0) {
         b.latched = true;
         player.latchedBy = b;
         
@@ -1571,9 +2138,22 @@ export function boot(canvas, hud) {
         
         player.struggle = createStruggle({ verb: VERB_FOR.chicken ?? 'mash', mode: 'reduced' });
         shake = Math.max(shake, 0.55);
+        hitSfx();
         beginGrapple(player.vitals, 'chicken');
       }
       b.cool -= dt;
+
+      
+      const sev = statusOf(b.creature).severedLimbs;
+      if (sev.length !== (b.sevShown ?? 0)) {
+        b.sevShown = sev.length;
+        for (const id of sev) {
+          const part = b.rig.named[SEVER_PART[id]];
+          if (part && part.visible) { part.visible = false; chickVoice(b, 'hurt', dist); }
+        }
+      }
+
+      applyChickenPose(b.rig, chickenPose(b.anim));
       b.mesh.position.set(b.x, 0, b.z);
       b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI;
     }
@@ -1623,9 +2203,18 @@ export function boot(canvas, hud) {
     
     
     
-    const roomBehind = Math.max(0.6, player.z + 3.4);
-    player.cam = stepCamera(player.cam, { aiming }, dt, roomBehind);
-    const place = cameraPlacement(player.cam, { x: player.x, y: 0, z: player.z }, player.yaw);
+    
+    
+    
+    
+    
+    
+    
+    
+    const wasNode = camNode;
+    camNode = nodeAt(rails, player.z, camNode);
+    if (camNode !== wasNode) cutFlash = 0.05;   
+    const place = railPlacement(rails, camNode, player);
     camera.fov = place.fov;
     camera.updateProjectionMatrix();
     
@@ -1636,21 +2225,67 @@ export function boot(canvas, hud) {
     camera.position.set(place.eye.x + sx, place.eye.y + sy, place.eye.z);
     camera.lookAt(place.target.x + sx * 0.4, place.target.y + sy * 0.4, place.target.z);
 
+    
+    
+    
+    
+    
+    
     const moving = !player.dead && !player.struggle
       && (keys.has('KeyW') || keys.has('KeyS') || keys.has('ArrowUp') || keys.has('ArrowDown') || (touch.active && Math.abs(touch.fwd) > 0.15));
-    if (moving) {
-      const ph = (walkDist / STRIDE) % 1;
-      const frame = Math.floor(ph * WALK_FRAMES) % WALK_FRAMES;
-      if (xander.geometry !== walkGeo[frame]) xander.geometry = walkGeo[frame];
+    
+    
+    
+    const turning = !player.dead && !player.struggle && !moving
+      && (keys.has('KeyA') || keys.has('KeyD') || keys.has('ArrowLeft') || keys.has('ArrowRight')
+        || (touch.active && Math.abs(touch.turn) > 0.2));
+    let lean = 0;
+    let bob = 0;
+
+    if (player.dead) {
+      deathT = Math.min(DEATH_TIME, deathT + dt);
+      const f = Math.min(DEATH_FRAMES - 1, Math.floor((deathT / DEATH_TIME) * DEATH_FRAMES));
+      if (xander.geometry !== deathGeo[f]) xander.geometry = deathGeo[f];
+      
+      xander.rotation.x = -Math.PI / 2 + (deathT / DEATH_TIME) * 1.15;
+    } else if (player.struggle) {
+      xander.rotation.x = -Math.PI / 2;
+      const drive = player.struggle.progress ?? 0;
+      const f = Math.floor(now * 9 + drive * 4) % STRUGGLE_FRAMES;
+      if (xander.geometry !== struggleGeo[f]) xander.geometry = struggleGeo[f];
       
       
+      lean = Math.sin(now * 13.5) * (0.06 + drive * 0.16);
+      bob = -0.05 - drive * 0.03;
+    } else if (fireT < FIRE_TIME) {
+      xander.rotation.x = -Math.PI / 2;
+      const f = Math.min(FIRE_FRAMES - 1, Math.floor((fireT / FIRE_TIME) * FIRE_FRAMES));
+      if (xander.geometry !== fireGeo[f]) xander.geometry = fireGeo[f];
+      lean = -Math.exp(-fireT * 14) * 0.10;      
+    } else if (moving || turning) {
+      xander.rotation.x = -Math.PI / 2;
+      const running = sprintNow && moving;
+      const set = running ? sprintGeo : walkGeo;
+      const n = running ? SPRINT_FRAMES : WALK_FRAMES;
+      const stride = running ? STRIDE * 1.55 : STRIDE;
+      const ph = (walkDist / stride) % 1;
+      const frame = Math.floor(ph * n) % n;
+      if (xander.geometry !== set[frame]) xander.geometry = set[frame];
       
-      xander.position.set(player.x, Math.abs(Math.sin(ph * Math.PI * 2)) * 0.035, player.z);
+      
+      bob = running ? Math.max(0, Math.sin(ph * Math.PI * 2)) * 0.055 : 0;
+      lean = running ? 0.16 : 0.05;
     } else {
+      xander.rotation.x = -Math.PI / 2;
       if (xander.geometry !== xGeo) xander.geometry = xGeo;
-      xander.position.set(player.x, 0, player.z);
     }
+    xander.position.set(player.x, bob, player.z);
     xander.rotation.z = player.yaw;
+    
+    
+    
+    
+    xander.rotation.y = lean;
 
     
     
@@ -1725,6 +2360,72 @@ export function boot(canvas, hud) {
     }
 
     
+    for (const l of leaks) l.step(dt);
+    for (const w of wires) w.step(now);
+
+    creakIn -= dt;
+    if (creakIn <= 0) { creakIn = 9 + Math.random() * 16; creakSfx(); }
+
+    sparkIn -= dt;
+    if (sparkIn <= 0 && wires.length) {
+      sparkIn = 4 + Math.random() * 9;
+      const w = wires[Math.floor(Math.random() * wires.length)];
+      sparkGeo.attributes.position.setXYZ(0, w.tip[0], w.tip[1], w.tip[2]);
+      sparkGeo.attributes.position.needsUpdate = true;
+      sparkFlash = 0.16;
+      sparkSfx();
+    }
+    cutFlash = Math.max(0, cutFlash - dt);
+    if (gradeEl) gradeEl.style.background = cutFlash > 0
+      ? 'rgba(0,0,0,0.86)' : 'rgba(2, 5, 4, 0.34)';
+    sparkFlash = Math.max(0, sparkFlash - dt);
+    
+    
+    sparkPt.material.opacity = sparkFlash > 0 ? (Math.random() > 0.35 ? 0.95 : 0.2) : 0;
+
+    
+    for (const l of leaks) l.step(dt);
+    for (const w of wires) w.step(now);
+
+    creakIn -= dt;
+    if (creakIn <= 0) { creakIn = 9 + Math.random() * 16; creakSfx(); }
+
+    sparkIn -= dt;
+    if (sparkIn <= 0 && wires.length) {
+      sparkIn = 4 + Math.random() * 9;
+      const w = wires[Math.floor(Math.random() * wires.length)];
+      sparkGeo.attributes.position.setXYZ(0, w.tip[0], w.tip[1], w.tip[2]);
+      sparkGeo.attributes.position.needsUpdate = true;
+      sparkFlash = 0.16;
+      sparkSfx();
+    }
+    sparkFlash = Math.max(0, sparkFlash - dt);
+    
+    
+    sparkPt.material.opacity = sparkFlash > 0 ? (Math.random() > 0.35 ? 0.95 : 0.2) : 0;
+
+    
+    
+    
+    
+    
+    
+    
+    if (reticEl) {
+      if (target) {
+        tmpV.set(target.x, CHICKEN_H * 0.62, target.z).project(camera);
+        const on = tmpV.z < 1;
+        reticEl.style.opacity = on ? '0.92' : '0';
+        if (on) {
+          reticEl.style.left = `${(tmpV.x * 0.5 + 0.5) * 100}%`;
+          reticEl.style.top = `${(-tmpV.y * 0.5 + 0.5) * 100}%`;
+        }
+      } else {
+        reticEl.style.opacity = '0';
+      }
+    }
+
+    
     paIn -= dt;
     if (paIn <= 0 && !player.dead) {
       paIn = 22 + Math.random() * 26;
@@ -1771,7 +2472,19 @@ export function boot(canvas, hud) {
     
     
     
-    for (const c of ceilingPieces) c.visible = Math.abs(c.position.z - player.z) > CEIL_CULL;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    for (const c of ceilingPieces) c.visible = c.position.z < place.eye.z - 1.2;
 
     
     
@@ -2069,7 +2782,6 @@ const hud = {
 
     $('count').textContent = s.remaining ? `${s.remaining} ON THE DECK` : 'DECK CLEAR';
     $('flash').style.opacity = s.flash ? '0.30' : '0';
-    $('retic').style.opacity = s.alive ? '0.9' : '0';
 
     if (s.struggle) {
       $('qte').style.display = 'block';

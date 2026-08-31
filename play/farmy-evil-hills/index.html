@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="1719676-20260831T115441Z">
+<meta name="build" content="6f9d515-20260831T123215Z">
 <title>Play Farmy Evil Hills — free browser survival horror, no download | Magestican Studios</title>
 <meta name="description" content="Play Farmy Evil Hills free in your browser: PS1-era survival horror on a Space Farming Agency station on Venus. A virus has mutated the livestock. Take a chicken's leg off with a bolt driver, or mash one off your boot when it latches. Phone and desktop. No download, no install, no account.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2305060a'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23b6392c'%3EE%3C/text%3E%3C/svg%3E">
@@ -130,26 +130,60 @@
     background: var(--ink-dim); }
 
   
-  #retic { position: absolute; left: 50%; top: 44%; width: 26px; height: 26px; margin: -13px 0 0 -13px;
-    pointer-events: none; }
-  #retic i { position: absolute; background: rgba(120,255,214,.85); }
-  #retic i:nth-child(1) { left: 12px; top: 0; width: 2px; height: 7px; }
-  #retic i:nth-child(2) { left: 12px; bottom: 0; width: 2px; height: 7px; }
-  #retic i:nth-child(3) { top: 12px; left: 0; height: 2px; width: 7px; }
-  #retic i:nth-child(4) { top: 12px; right: 0; height: 2px; width: 7px; }
-  #retic b { position: absolute; inset: 5px; border: 1px solid rgba(120,255,214,.4); border-radius: 50%; }
 
-  #tapeMini { display: flex; align-items: center; gap: 5px; margin-top: 5px;
+
+
+
+
+
+  #retic { position: absolute; left: 50%; top: 44%; width: 13px; height: 13px;
+    margin: -7px 0 0 -7px; opacity: 0; transition: opacity 90ms linear;
+    pointer-events: none; }
+  #retic i { position: absolute; background: rgba(255,86,86,.95); }
+  #retic i:nth-child(1) { left: 6px; top: 0; width: 1px; height: 4px; }
+  #retic i:nth-child(2) { left: 6px; bottom: 0; width: 1px; height: 4px; }
+  #retic i:nth-child(3) { top: 6px; left: 0; height: 1px; width: 4px; }
+  #retic i:nth-child(4) { top: 6px; right: 0; height: 1px; width: 4px; }
+  #retic b { position: absolute; inset: 6px; width: 1px; height: 1px;
+    background: rgba(255,86,86,.95); border: 0; }
+
+#tapeMini { display: flex; align-items: center; gap: 5px; margin-top: 5px;
     font: 9px/1 ui-monospace, monospace; letter-spacing: .12em; color: var(--ink-dim);
     pointer-events: auto; cursor: pointer; }
   #tapeMini .reel { width: 9px; height: 9px; border: 2px solid var(--ink-dim); border-radius: 50%; }
   #tapeMini.on .reel { animation: spin 1.1s linear infinite; border-color: var(--ink); }
+  #grade { position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: rgba(2, 5, 4, 0.34); mix-blend-mode: multiply; }
+  #vignette { position: absolute; inset: 0; pointer-events: none; z-index: 3;
+    background:
+      radial-gradient(ellipse 78% 68% at 50% 46%,
+        rgba(0,0,0,0) 38%, rgba(0,0,0,0.55) 76%, rgba(0,0,0,0.92) 100%),
+      linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 16%),
+      linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 22%); }
+  
+  .hud, #bar, #touch, #boot, #over { z-index: 6; }
 </style>
 </head>
 <body>
 <div id="wrap">
   <canvas id="game"></canvas>
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="grade"></div>
+  <div id="vignette"></div>
   <div id="retic"><i></i><i></i><i></i><i></i><b></b></div>
   <div class="hud" id="count"></div>
   <div id="flash"></div>
@@ -263,6 +297,6 @@
   "arbelo/analytics": "../../web-engine/analytics/analytics.js"
 }}
 </script>
-<script type="module" src="./src/main.js?v=1719676-20260831T115441Z"></script>
+<script type="module" src="./src/main.js?v=6f9d515-20260831T123215Z"></script>
 </body>
 </html>
