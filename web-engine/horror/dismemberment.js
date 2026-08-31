@@ -115,7 +115,11 @@ export const DRAG_SPEED = 0.45;
 const chicken = {
   id: 'chicken',
   
-  height: 1.14,          
+  
+  
+  
+  
+  height: 0.72,
   torsoIntegrity: 120,
   limbs: [
     

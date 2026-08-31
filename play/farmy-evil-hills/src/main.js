@@ -26,7 +26,7 @@ import * as THREE from 'three';
 import { solve, RIG as FRIG, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
 import { poseById } from '../../2d-fighter-ex/src/moveSet.mjs';
 import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from '../../../web-engine/ps1/ps1Rig.mjs';
-import { buildFighter } from '../../../web-engine/ps1/ps1Mesh.mjs';
+import { buildFighter, jointBall } from '../../../web-engine/ps1/ps1Mesh.mjs';
 import { hair3d } from '../../../web-engine/ps1/ps1Head.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
 import { ps1Vertex, FRAGMENT, KEY_DIR, FILL_DIR } from '../../../web-engine/ps1/ps1Shader.mjs';
@@ -45,7 +45,7 @@ import { createStruggle, VERB_FOR, promptFor } from '../../../web-engine/horror/
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
-const CHICKEN_H = 1.14;
+const CHICKEN_H = 0.72;
 const HALL_W = 3.2;
 const HALL_H = 2.8;
 const HALL_LEN = 90;
@@ -59,7 +59,16 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 
 
-const XCOL = { top: 0xa8402f, pant: 0x39476b, accent: 0x5a3a24, skin: 0xd9a07a, hair: 0x4a3524 };
+const XCOL = {
+  top: 0xb8503a,      
+  pant: 0x3d5486,     
+  accent: 0x6b452a,   
+  skin: 0xe8b590,
+  hair: 0xe8cf82,     
+                      
+                      
+  eye: 0x2f6fd0,      
+};
 const CCOL = {
   torso: 0xb9b07a, wingL: 0xa89a68, wingR: 0xa89a68, tail: 0x8d8352,
   head: 0xc9a98c, beak: 0xd8c27a, comb: 0x8e3b46,
@@ -108,8 +117,19 @@ function partsToGeometry(parts, colourOf, targetHeight) {
 }
 
 function xanderParts() {
-  const A = ARCH.renji;
-  const build = A.build || 1;
+  
+  
+  
+  
+  
+  
+  
+  
+  const A = { ...ARCH.renji, hair: 'curtain', jaw: ARCH.renji.jaw, brow: ARCH.renji.brow };
+  
+  
+  
+  const build = 1.34;
   const pose = poseById('guard');
   const K = solve(pose, { flip: false });
   const o = { flip: false, build };
@@ -122,14 +142,36 @@ function xanderParts() {
   
   
   
+  
+  
+  
+  
+  
+  const hc = [K.head[0], 0, K.head[1]];
+  const r = FRIG.headR;
   return [...built.parts,
-    { name: 'hair', mesh: hair3d('crop', { centre: [K.head[0], 0, K.head[1]], r: FRIG.headR, forward: [1, 0, 0] }) },
+    { name: 'hair', mesh: hair3d('curtain', { centre: hc, r, forward: [1, 0, 0] }) },
+    { name: 'eyeL', mesh: jointBall([hc[0] + r * 0.66, +r * 0.34, hc[2] + r * 0.12], r * 0.20, { sides: 4 }) },
+    { name: 'eyeR', mesh: jointBall([hc[0] + r * 0.66, -r * 0.34, hc[2] + r * 0.12], r * 0.20, { sides: 4 }) },
   ].filter((p) => p.mesh && p.mesh.indices && p.mesh.indices.length);
 }
 const xColour = (n) => (n === 'hair' ? XCOL.hair
+  : /^eye/.test(n) ? XCOL.eye
   : /^pelvis|^thigh|^shin|^hip\d|^knee|^ankle/.test(n) ? XCOL.pant
     : /^torso|^trapezius/.test(n) ? XCOL.top
       : /^foot/.test(n) ? XCOL.accent : XCOL.skin);
+
+
+
+
+
+
+
+
+function hash2(x, y) {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return s - Math.floor(s);
+}
 
 
 
@@ -164,7 +206,30 @@ function panel(w, h, colour, place) {
   const n = g.attributes.position.count;
   const c = new THREE.Color(colour);
   const col = [];
-  for (let i = 0; i < n; i += 1) col.push(c.r, c.g, c.b);
+  const P = g.attributes.position.array;
+  for (let i = 0; i < n; i += 1) {
+    const vx = P[i * 3]; const vy = P[i * 3 + 1];
+    const t = new THREE.Color(colour);
+    
+    
+    
+    const r1 = hash2(vx * 0.7, vy * 0.7);
+    const r2 = hash2(vx * 0.21 + 11.3, vy * 0.19 - 7.1);
+    const r3 = hash2(vx * 1.9 - 3.7, vy * 2.3 + 5.9);
+
+    
+    
+    const seam = (Math.abs((vx % 4) ) < 0.55 || Math.abs((vy % 4)) < 0.55) ? 0.74 : 1;
+    t.multiplyScalar(seam * (0.86 + r1 * 0.28));
+
+    
+    
+    
+    if (r2 > 0.86) t.lerp(new THREE.Color(0x5a4327), 0.55);                    
+    else if (r2 < 0.055) t.lerp(new THREE.Color(0x4a1512), 0.62);              
+    if (r3 > 0.955) t.lerp(new THREE.Color(0xc9b25e), 0.5);                    
+    col.push(t.r, t.g, t.b);
+  }
   g.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
   const m = new THREE.Mesh(g, place.mat);
   place.apply(m);
@@ -266,7 +331,13 @@ export function boot(canvas, hud) {
       cool: 0,
     });
   }
-  for (let i = 0; i < 6; i += 1) addChicken(16 + i * 9, (i % 2 ? 1 : -1) * (0.4 + (i % 3) * 0.3));
+  
+  
+  
+  
+  
+  
+  [26, 42, 61].forEach((z, i) => addChicken(z, (i % 2 ? 1 : -1) * (0.5 + i * 0.25)));
 
   const camera = new THREE.PerspectiveCamera(62, 1, 0.05, 200);
   

@@ -35,7 +35,17 @@ import { emptyMesh, mergeMeshes, stackMesh, jointBall } from '../ps1Mesh.mjs';
 
 
 
-export const CHICKEN_HEIGHT_M = 1.14;
+
+
+
+
+
+
+
+
+
+
+export const CHICKEN_HEIGHT_M = 0.72;
 
 
 
