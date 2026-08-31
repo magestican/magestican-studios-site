@@ -5612,6 +5612,14 @@ export function boot(canvas, hud) {
       
       
       get audio() { return audio; },
+      
+      
+      
+      
+      
+      get tape() {
+        return { audible: tape.audible, side: tape.sideName, title: tape.title };
+      },
       get steps() { return stepCount; },
       
       
@@ -5994,7 +6002,22 @@ const PA_KINDS = ['oh', 'no', 'ah', 'sob', 'sob'];
 
 
 const tape = (() => {
-  const MANIFEST = './assets/music/music.json';
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const MANIFEST = '../assets/music/music.json';
   let manifest = null;
   let loading = null;
   const buffers = new Map();
@@ -6015,7 +6038,7 @@ const tape = (() => {
     
     await Promise.all(manifest.tracks.map(async (t) => {
       if (buffers.has(t.id)) return;
-      const res = await fetch(new URL(`./assets/music/${t.file}`, import.meta.url));
+      const res = await fetch(new URL(`../assets/music/${t.file}`, import.meta.url));
       if (!res.ok) throw new Error(`${t.file} ${res.status}`);
       buffers.set(t.id, await ctx.decodeAudioData(await res.arrayBuffer()));
     }));
