@@ -166,7 +166,26 @@ export const SEG = {
 const sideSign = (i, flip) => (flip ? (i === 0 ? -1 : 1) : (i === 0 ? 1 : -1));
 
 
-export function spansFor(build = 1) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function spansFor(build = 1, spans = null) {
+  if (spans && spans.shoulder) {
+    return { shoulder: spans.shoulder, hip: spans.hip ?? spans.shoulder * HIP_SPAN_RATIO };
+  }
   const shoulder = SHOULDER_SPAN * (1 + (build - 1) * BUILD_SHOULDER);
   const hip = SHOULDER_SPAN * HIP_SPAN_RATIO * (1 + (build - 1) * BUILD_HIP);
   return { shoulder, hip };
@@ -246,9 +265,10 @@ function girdleBar(a, b, L, sx, flip) {
 
 
 
-export function girdleOf(K, { flip = false, build = 1 } = {}) {
+export function girdleOf(K, { flip = false, build = 1, spans = null, depths = null } = {}) {
   const sx = flip ? -1 : 1;
-  const { shoulder: shL, hip: hipL } = spansFor(build);
+  const { shoulder: shL, hip: hipL } = spansFor(build, spans);
+  const D = depths || DEPTHS;
 
   const sh = girdleBar(K.sh[0], K.sh[1], shL, sx, flip);
   const hip = girdleBar(K.hip[0], K.hip[1], hipL, sx, flip);
@@ -256,9 +276,12 @@ export function girdleOf(K, { flip = false, build = 1 } = {}) {
   return {
     shoulder: sh,
     hip,
-    chestDepth: DEPTHS.chest * (1 + (build - 1) * BUILD_SHOULDER),
-    waistDepth: DEPTHS.waist * (1 + (build - 1) * BUILD_HIP),
-    pelvisDepth: DEPTHS.pelvis * (1 + (build - 1) * BUILD_HIP),
+    
+    
+    
+    chestDepth: depths ? D.chest : D.chest * (1 + (build - 1) * BUILD_SHOULDER),
+    waistDepth: depths ? D.waist : D.waist * (1 + (build - 1) * BUILD_HIP),
+    pelvisDepth: depths ? D.pelvis : D.pelvis * (1 + (build - 1) * BUILD_HIP),
     
     neck: [K.neck[0] * sx, 0, K.neck[1]],
     head: [K.head[0] * sx, 0, K.head[1]],
@@ -276,9 +299,10 @@ export function girdleOf(K, { flip = false, build = 1 } = {}) {
 
 
 
-export function segmentsOf(K, { flip = false, build = 1 } = {}) {
+export function segmentsOf(K, o = {}) {
+  const { flip = false, seg: SEGS = SEG } = o;
   const sx = flip ? -1 : 1;
-  const g = girdleOf(K, { flip, build });
+  const g = girdleOf(K, o);
   const out = [];
   const seg = (a, b, [w, d], part) => out.push({ a, b, w, d, part });
   const at = (v, y) => [v[0] * sx, y, v[1]];
@@ -286,12 +310,12 @@ export function segmentsOf(K, { flip = false, build = 1 } = {}) {
   for (let i = 0; i < 2; i += 1) {
     const ay = g.shoulder.points[i][1];
     const ly = g.hip.points[i][1];
-    seg(g.shoulder.points[i], at(K.elb[i], ay), SEG.upperArm, `upperArm${i}`);
-    seg(at(K.elb[i], ay), at(K.hands[i], ay), SEG.foreArm, `foreArm${i}`);
-    seg(g.hip.points[i], at(K.kne[i], ly), SEG.thigh, `thigh${i}`);
-    seg(at(K.kne[i], ly), at(K.feet[i], ly), SEG.shin, `shin${i}`);
+    seg(g.shoulder.points[i], at(K.elb[i], ay), SEGS.upperArm, `upperArm${i}`);
+    seg(at(K.elb[i], ay), at(K.hands[i], ay), SEGS.foreArm, `foreArm${i}`);
+    seg(g.hip.points[i], at(K.kne[i], ly), SEGS.thigh, `thigh${i}`);
+    seg(at(K.kne[i], ly), at(K.feet[i], ly), SEGS.shin, `shin${i}`);
   }
-  seg(g.neck, g.head, SEG.neck, 'neck');
+  seg(g.neck, g.head, SEGS.neck, 'neck');
   return out;
 }
 
@@ -307,9 +331,10 @@ export function segmentsOf(K, { flip = false, build = 1 } = {}) {
 
 
 
-export function jointsOf(K, { flip = false, build = 1 } = {}) {
+export function jointsOf(K, o = {}) {
+  const { flip = false, seg: SEGS = SEG } = o;
   const sx = flip ? -1 : 1;
-  const g = girdleOf(K, { flip, build });
+  const g = girdleOf(K, o);
   const at = (v, y) => [v[0] * sx, y, v[1]];
   const out = [];
   for (let i = 0; i < 2; i += 1) {
@@ -318,12 +343,12 @@ export function jointsOf(K, { flip = false, build = 1 } = {}) {
     
     
     
-    out.push({ centre: g.shoulder.points[i], r: SEG.upperArm[0] * 0.72, part: `shoulder${i}` });
-    out.push({ centre: at(K.elb[i], ay), r: SEG.foreArm[0] * 0.60, part: `elbow${i}` });
-    out.push({ centre: at(K.hands[i], ay), r: SEG.foreArm[0] * 0.46, part: `wrist${i}` });
-    out.push({ centre: g.hip.points[i], r: SEG.thigh[0] * 0.56, part: `hip${i}` });
-    out.push({ centre: at(K.kne[i], ly), r: SEG.shin[0] * 0.64, part: `knee${i}` });
-    out.push({ centre: at(K.feet[i], ly), r: SEG.shin[0] * 0.44, part: `ankle${i}` });
+    out.push({ centre: g.shoulder.points[i], r: SEGS.upperArm[0] * 0.72, part: `shoulder${i}` });
+    out.push({ centre: at(K.elb[i], ay), r: SEGS.foreArm[0] * 0.60, part: `elbow${i}` });
+    out.push({ centre: at(K.hands[i], ay), r: SEGS.foreArm[0] * 0.46, part: `wrist${i}` });
+    out.push({ centre: g.hip.points[i], r: SEGS.thigh[0] * 0.56, part: `hip${i}` });
+    out.push({ centre: at(K.kne[i], ly), r: SEGS.shin[0] * 0.64, part: `knee${i}` });
+    out.push({ centre: at(K.feet[i], ly), r: SEGS.shin[0] * 0.44, part: `ankle${i}` });
   }
   return out;
 }
@@ -335,8 +360,8 @@ export function jointsOf(K, { flip = false, build = 1 } = {}) {
 
 
 
-export function torsoBoxOf(K, { flip = false, build = 1 } = {}) {
-  const g = girdleOf(K, { flip, build });
+export function torsoBoxOf(K, o = {}) {
+  const g = girdleOf(K, o);
   return {
     top: g.shoulder.mid,
     bottom: g.hip.mid,

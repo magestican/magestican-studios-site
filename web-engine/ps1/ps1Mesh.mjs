@@ -1389,11 +1389,37 @@ export function foot(opts = {}) {
   const {
     origin = [0, 0, 0], forward = [1, 0, 0], up = [0, 0, 1],
     pitch = 0, side = 1, uv = BODY_UV.foot,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    long: kx = 1, wide: ky = 1, tall: kz = 1,
   } = opts;
   const cp = Math.cos(pitch); const sp = Math.sin(pitch);
   const fr = frameOf(forward, up);
   const sy = side >= 0 ? 1 : -1;
-  const P = (x, y, z) => place(origin, fr, [x * cp - z * sp, y, x * sp + z * cp]);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const P = (x, y, z) => place(origin, fr,
+    [(x * kx) * cp - (z * kz) * sp, y * ky, (x * kx) * sp + (z * kz) * cp]);
 
   const rings = SHOE.map(([x, hw, top, sole], si) => {
     const v = si / (SHOE.length - 1);
@@ -2017,9 +2043,22 @@ export function buildFighter(K, opts = {}) {
         const s = norm(sub(legEnd.b, legEnd.a));
         pitch = Math.max(-0.55, Math.min(0.95, dot(s, fwd) * 0.85));
       }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (pose && Array.isArray(pose.toe) && Number.isFinite(pose.toe[i])) {
+        pitch = pose.toe[i];
+      }
       add1(`foot${i}`, foot({
         origin: [K.feet[i][0] * sx, legEnd ? legEnd.b[1] : fallbackY, K.feet[i][1]],
         forward: fwd, side: i === 0 ? 1 : -1, pitch,
+        ...(opts.footScale || {}),
       }));
     }
   }

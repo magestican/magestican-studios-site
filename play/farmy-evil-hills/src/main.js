@@ -23,11 +23,23 @@
 
 import * as THREE from 'three';
 
-import { solve, RIG as FRIG, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
-import { poseById, blendPose } from '../../2d-fighter-ex/src/moveSet.mjs';
+import { solve, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
 import {
-  gaitPose, firePose, strugglePose, deathPose,
+  gaitPose, firePose, strugglePose, deathPose, standPose, gripOf, cycleTravel,
+  settleStep, SETTLE_TIME,
 } from '../../../web-engine/horror/gait.js';
+
+
+
+
+
+
+
+
+
+import {
+  humanise, XANDER_RIG, XANDER_SEG, XANDER_SPANS, XANDER_DEPTHS, XANDER_FOOT,
+} from '../../../web-engine/horror/xanderRig.js';
 import { buildBoltDriver, muzzlePoint } from '../../../web-engine/ps1/props/boltDriver.mjs';
 import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from '../../../web-engine/ps1/ps1Rig.mjs';
 import { buildFighter, jointBall } from '../../../web-engine/ps1/ps1Mesh.mjs';
@@ -83,7 +95,11 @@ const XANDER_H = 1.80;
 
 
 
-const XANDER_POSE = 'idle';
+
+
+
+
+
 const CHICKEN_H = 0.72;
 const HALL_W = 3.2;
 
@@ -1376,12 +1392,12 @@ function makePortrait(headGeo, shouldersGeo, faces, bodyMat) {
 
 function xanderHeadGeometry() {
   const A = ARCH.renji;
-  const pose = poseById(XANDER_POSE);
-  const K = solve(pose, { flip: false });
+  const pose = standPose(0);
+  const K = humanise(solve(pose, { flip: false }));
   const hc = [K.head[0], 0, K.head[1]];
   return {
     mesh: narrowAcross(head3d({
-      centre: hc, r: FRIG.headR, jaw: XANDER_JAW, brow: A.brow, forward: [1, 0, 0],
+      centre: hc, r: XANDER_RIG.headR, jaw: XANDER_JAW, brow: A.brow, forward: [1, 0, 0],
     })),
     centre: hc,
   };
@@ -1448,14 +1464,41 @@ function narrowAcross(mesh, k = HEAD_NARROW) {
 
 const WALK_FRAMES = 14;
 const SPRINT_FRAMES = 12;
+
+
+
+
+
+
+
+
+
+
+
+
+const IDLE_FRAMES = 6;
+const IDLE_TIME = 3.5;
 const FIRE_FRAMES = 6;
 const STRUGGLE_FRAMES = 8;
 const DEATH_FRAMES = 6;
 
 const FIRE_TIME = 0.42;
 const DEATH_TIME = 0.9;
-const WALK_AMPLITUDE = 0.55;
-const STRIDE = 1.55;                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+const STRIDE = cycleTravel('walk') * XANDER_H;
+const SPRINT_STRIDE = cycleTravel('sprint') * XANDER_H;
 
 
 
@@ -1474,7 +1517,7 @@ const STRIDE = 1.55;
 
 
 function walkPose(phase, mode = 'walk') {
-  const idle = poseById(XANDER_POSE);
+  const idle = standPose(0);
   const g = gaitPose(phase, mode);
   
   
@@ -1500,21 +1543,38 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
   
   
   
-  const build = 1.16;
   
   
   
   
   
   
-  pose = pose || poseById(XANDER_POSE);
-  const K = solve(pose, { flip: false });
-  const o = { flip: false, build };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  pose = pose || standPose(0);
+  const K = humanise(solve(pose, { flip: false }));
+  const o = {
+    flip: false, seg: XANDER_SEG, spans: XANDER_SPANS, depths: XANDER_DEPTHS,
+  };
   const built = buildFighter(K, {
     segments: segmentsOf(K, o), torso: torsoBoxOf(K, o),
     joints: jointsOf(K, o), girdle: girdleOf(K, o),
-    headR: FRIG.headR, arch: { build, jaw: A.jaw, brow: A.brow, hair: 'crop' },
+    headR: XANDER_RIG.headR, arch: { build: 1, jaw: A.jaw, brow: A.brow, hair: 'crop' },
     flip: false, pose, head: false,
+    
+    
+    footScale: XANDER_FOOT,
+    
+    
+    
+    hands: gripOf(pose),
   });
   
   
@@ -1525,7 +1585,7 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
   
   
   const hc = [K.head[0], 0, K.head[1]];
-  const r = FRIG.headR;
+  const r = XANDER_RIG.headR;
   return [...built.parts,
     
     
@@ -1582,20 +1642,74 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
 
 
 
+
+
+
+
+
+
 const overallsAt = (x, y, z) => {
-  if (z < 0.44) return XCOL.pant;
-  if (z < 0.68) return x > -0.01 ? XCOL.pant : XCOL.top;
-  if (z < 0.715) return (x > -0.01 && Math.abs(y) > 0.055) ? XCOL.accent : (x > -0.01 ? XCOL.pant : XCOL.top);
-  if (z < 0.86) return Math.abs(y) > 0.055 && Math.abs(y) < 0.135 ? XCOL.pant : XCOL.top;
-  return XCOL.top;
+  if (z < 0.575) return XCOL.pant;                       
+  
+  
+  
+  
+  
+  
+  
+  const bib = x > -0.01 && Math.abs(y) < 0.068;
+  if (z < 0.735) return bib ? XCOL.pant : XCOL.top;
+  
+  
+  
+  if (z < 0.762) return bib && Math.abs(y) > 0.042 ? XCOL.accent : (bib ? XCOL.pant : XCOL.top);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (z < 0.865) {
+    const ay = Math.abs(y);
+    return x > -0.01
+      ? (ay > 0.042 && ay < 0.088 ? XCOL.pant : XCOL.top)
+      : (ay > 0.035 && ay < 0.125 ? XCOL.pant : XCOL.top);
+  }
+  return XCOL.top;                                       
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const trapAt = (x, y, z) => (z < 0.865 ? XCOL.pant : XCOL.top);
 
 const xColour = (n) => (n === 'hair' ? XCOL.hair
   : /^eye/.test(n) ? XCOL.eye
   : /^pelvis|^hip\d/.test(n) ? XCOL.pant
     : /^thigh|^shin|^knee|^ankle/.test(n) ? XCOL.pant
-      : /^torso|^trapezius/.test(n) ? overallsAt
-        : /^foot/.test(n) ? XCOL.accent : XCOL.skin);
+      : /^trapezius/.test(n) ? trapAt
+        : /^torso/.test(n) ? overallsAt
+          : /^foot/.test(n) ? XCOL.accent : XCOL.skin);
 
 
 
@@ -2929,18 +3043,24 @@ export function boot(canvas, hud) {
   for (let i = 0; i < SPRINT_FRAMES; i += 1) sprintGeo.push(bake(walkPose(i / SPRINT_FRAMES, 'sprint')));
   const fireGeo = [];
   for (let i = 0; i < FIRE_FRAMES; i += 1) {
-    fireGeo.push(bake({ ...poseById(XANDER_POSE), ...firePose((i / (FIRE_FRAMES - 1)) * FIRE_TIME) }));
+    fireGeo.push(bake({ ...standPose(0), ...firePose((i / (FIRE_FRAMES - 1)) * FIRE_TIME) }));
   }
   const struggleGeo = [];
   for (let i = 0; i < STRUGGLE_FRAMES; i += 1) {
     
-    struggleGeo.push(bake({ ...poseById(XANDER_POSE), ...strugglePose((i / STRUGGLE_FRAMES) * (Math.PI * 2 / 13.5), 0.8) }));
+    struggleGeo.push(bake({ ...standPose(0), ...strugglePose((i / STRUGGLE_FRAMES) * (Math.PI * 2 / 13.5), 0.8) }));
   }
   const deathGeo = [];
   for (let i = 0; i < DEATH_FRAMES; i += 1) {
-    deathGeo.push(bake({ ...poseById(XANDER_POSE), ...deathPose(i / (DEATH_FRAMES - 1)) }));
+    deathGeo.push(bake({ ...standPose(0), ...deathPose(i / (DEATH_FRAMES - 1)) }));
   }
-  const xGeo = partsToGeometry(bodyParts, xColour, XANDER_H, allParts);
+  
+  
+  const idleGeo = [];
+  for (let i = 0; i < IDLE_FRAMES; i += 1) {
+    idleGeo.push(bake(standPose((i / (IDLE_FRAMES - 1)) * (Math.PI / 0.9))));
+  }
+  const xGeo = idleGeo[0];
 
   
   
@@ -2994,10 +3114,123 @@ export function boot(canvas, hud) {
   const flash = new THREE.Mesh(flashGeo, flashMat);
   flash.position.set(...muzzlePoint());
   gun.add(flash);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const xRig = new THREE.Group();
+  const xTilt = new THREE.Group();
   const xander = new THREE.Mesh(xGeo, mat);
   xander.rotation.x = -Math.PI / 2;   
+  xander.rotation.z = -Math.PI / 2;   
   xander.add(gun);
-  scene.add(xander);
+  xTilt.add(xander);
+  xRig.add(xTilt);
+  scene.add(xRig);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const shadowRig = new THREE.Group();
+  const shadowMats = [];
+  const blobs = [];
+  {
+    
+    
+    
+    
+    
+    
+    
+    const cv = document.createElement('canvas');
+    cv.width = 32; cv.height = 32;
+    const g2 = cv.getContext('2d');
+    
+    
+    
+    
+    const grad = g2.createRadialGradient(16, 16, 1, 16, 16, 16);
+    grad.addColorStop(0.00, 'rgba(0,0,0,1)');
+    grad.addColorStop(0.45, 'rgba(0,0,0,0.72)');
+    grad.addColorStop(1.00, 'rgba(0,0,0,0)');
+    g2.fillStyle = grad;
+    g2.fillRect(0, 0, 32, 32);
+    const tex = new THREE.CanvasTexture(cv);
+    const disc = new THREE.PlaneGeometry(2, 2);
+    
+    disc.rotateX(-Math.PI / 2);
+    for (let i = 0; i < 3; i += 1) {
+      const m = new THREE.MeshBasicMaterial({
+        
+        
+        
+        
+        color: 0x0d1410, map: tex, transparent: true, opacity: 0.4,
+        depthWrite: false,
+      });
+      const q = new THREE.Mesh(disc, m);
+      
+      
+      q.position.y = 0.02;
+      q.renderOrder = 2;
+      shadowMats.push(m);
+      blobs.push(q);
+      shadowRig.add(q);
+    }
+  }
+  scene.add(shadowRig);
 
   
   
@@ -3554,6 +3787,25 @@ export function boot(canvas, hud) {
   let sparkFlash = 0;
   let camNode = nodeAt(rails, progressAt(deck, deck.start.x, deck.start.z));
   let cutFlash = 0;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let studio = null;
+  let studioBg = null;
+  let soloSaved = null;
   let target = null;
   let bossMoved = 0;
   let bossWonIn = 0;
@@ -3580,6 +3832,10 @@ export function boot(canvas, hud) {
   let inSafe = false;
   let safeResupplied = false;
   let walkDist = 0;
+  
+  
+  let walkPhase = 0;
+  let settle = 0;
   let fireT = 99;        
   let deathT = 0;
   let sprintNow = false;
@@ -4092,6 +4348,40 @@ export function boot(canvas, hud) {
     const sy = shake ? (Math.random() - 0.5) * shake * 0.28 : 0;
     camera.position.set(place.eye.x + sx, place.eye.y + sy, place.eye.z);
     camera.lookAt(place.target.x + sx * 0.4, place.target.y + sy * 0.4, place.target.z);
+    if (studio) {
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const a = player.yaw + Math.PI + (studio.bearing ?? 0);
+      camera.fov = studio.fov ?? 34;
+      camera.updateProjectionMatrix();
+      const d = studio.dist ?? 3.2;
+      camera.position.set(player.x + Math.sin(a) * d, studio.eye ?? 1.05, player.z + Math.cos(a) * d);
+      camera.lookAt(player.x, studio.aim ?? 0.95, player.z);
+      
+      
+      
+      
+      
+      if (studio.solo) {
+        if (!soloSaved) {
+          soloSaved = new Map(scene.children.map((c) => [c, c.visible]));
+        }
+        for (const c of scene.children) c.visible = (c === xRig || c === shadowRig);
+        scene.background = studioBg || (studioBg = new THREE.Color(studio.bg ?? 0x11161a));
+      } else if (soloSaved) {
+        for (const [c, v] of soloSaved) c.visible = v;
+        soloSaved = null;
+        scene.background = null;
+      }
+    }
 
     
     
@@ -4107,15 +4397,35 @@ export function boot(canvas, hud) {
     const turning = false;
     let lean = 0;
     let bob = 0;
+    
+    
+    
+    
+    let posed = null;
+    let studioPose = null;
+    
+    
+    
+    let fall = 0;
+
+    
+    
+    
+    if (moving || turning) settle = SETTLE_TIME;
+    else if (settle > 0) {
+      const st = settleStep(walkPhase, settle, dt);
+      walkPhase = st.phase;
+      settle = st.settle;
+    }
 
     if (player.dead) {
       deathT = Math.min(DEATH_TIME, deathT + dt);
       const f = Math.min(DEATH_FRAMES - 1, Math.floor((deathT / DEATH_TIME) * DEATH_FRAMES));
       if (xander.geometry !== deathGeo[f]) xander.geometry = deathGeo[f];
       
-      xander.rotation.x = -Math.PI / 2 + (deathT / DEATH_TIME) * 1.15;
+      
+      fall = (deathT / DEATH_TIME) * 1.15;
     } else if (player.struggle) {
-      xander.rotation.x = -Math.PI / 2;
       const drive = player.struggle.progress ?? 0;
       const f = Math.floor(now * 9 + drive * 4) % STRUGGLE_FRAMES;
       if (xander.geometry !== struggleGeo[f]) xander.geometry = struggleGeo[f];
@@ -4124,27 +4434,87 @@ export function boot(canvas, hud) {
       lean = Math.sin(now * 13.5) * (0.06 + drive * 0.16);
       bob = -0.05 - drive * 0.03;
     } else if (fireT < FIRE_TIME) {
-      xander.rotation.x = -Math.PI / 2;
       const f = Math.min(FIRE_FRAMES - 1, Math.floor((fireT / FIRE_TIME) * FIRE_FRAMES));
       if (xander.geometry !== fireGeo[f]) xander.geometry = fireGeo[f];
       lean = -Math.exp(-fireT * 14) * 0.10;      
-    } else if (moving || turning) {
-      xander.rotation.x = -Math.PI / 2;
+    } else if (moving || turning || settle > 0) {
       const running = sprintNow && moving;
       const set = running ? sprintGeo : walkGeo;
       const n = running ? SPRINT_FRAMES : WALK_FRAMES;
-      const stride = running ? STRIDE * 1.55 : STRIDE;
-      const ph = (walkDist / stride) % 1;
+      const stride = running ? SPRINT_STRIDE : STRIDE;
+      const ph = (walkPhase = (moving || turning)
+        ? (walkDist / stride) % 1
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        : walkPhase);
       const frame = Math.floor(ph * n) % n;
       if (xander.geometry !== set[frame]) xander.geometry = set[frame];
       
       
-      bob = running ? Math.max(0, Math.sin(ph * Math.PI * 2)) * 0.055 : 0;
+      
+      
+      
+      bob = 0;
       lean = running ? 0.16 : 0.05;
     } else {
-      xander.rotation.x = -Math.PI / 2;
-      if (xander.geometry !== xGeo) xander.geometry = xGeo;
+      walkPhase = 0;
+      
+      
+      
+      const span = IDLE_FRAMES * 2 - 2;
+      const k = Math.floor((now / IDLE_TIME) * span) % span;
+      const f = k < IDLE_FRAMES ? k : span - k;
+      if (xander.geometry !== idleGeo[f]) xander.geometry = idleGeo[f];
     }
+    
+    
+    
+    if (studio && studio.clip) {
+      const SETS = {
+        idle: [xGeo], walk: walkGeo, sprint: sprintGeo,
+        fire: fireGeo, struggle: struggleGeo, death: deathGeo,
+      };
+      const set = SETS[studio.clip] || [xGeo];
+      const f = Math.max(0, Math.min(set.length - 1, Math.floor((studio.phase ?? 0) * set.length)));
+      if (xander.geometry !== set[f]) xander.geometry = set[f];
+      lean = studio.lean ?? 0;
+      bob = 0;
+      
+      
+      
+      if (studio.clip === 'death') fall = (studio.phase ?? 0) * 1.15;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const ph = f / set.length;
+      studioPose = studio.clip === 'idle'
+        ? standPose(0)
+        : gaitPose(ph, studio.clip === 'sprint' ? 'sprint' : 'walk');
+    }
+
     
     
     
@@ -4153,14 +4523,19 @@ export function boot(canvas, hud) {
     
     
     {
-      let hand;
-      if (player.dead) hand = deathPose(deathT / DEATH_TIME).hands[0];
-      else if (player.struggle) hand = strugglePose(now, player.struggle.progress ?? 0).hands[0];
-      else if (fireT < FIRE_TIME) hand = firePose(fireT).hands[0];
+      
+      
+      
+      
+      if (player.dead) posed = deathPose(deathT / DEATH_TIME);
+      else if (player.struggle) posed = strugglePose(now, player.struggle.progress ?? 0);
+      else if (fireT < FIRE_TIME) posed = firePose(fireT);
       else if (moving || turning) {
-        hand = gaitPose((walkDist / ((sprintNow && moving) ? STRIDE * 1.55 : STRIDE)) % 1,
-          (sprintNow && moving) ? 'sprint' : 'walk').hands[0];
-      } else hand = poseById(XANDER_POSE).hands[0];
+        posed = gaitPose((walkDist / ((sprintNow && moving) ? SPRINT_STRIDE : STRIDE)) % 1,
+          (sprintNow && moving) ? 'sprint' : 'walk');
+      } else posed = standPose(now);
+      if (studioPose) posed = studioPose;
+      const hand = posed.hands[0];
 
       gun.position.set(hand[0] * XANDER_H, 0.17, hand[1] * XANDER_H);
       
@@ -4180,14 +4555,52 @@ export function boot(canvas, hud) {
       flash.rotation.y = now * 9;      
     }
 
-    xander.visible = !hidden;
-    xander.position.set(player.x, bob, player.z);
-    xander.rotation.z = player.yaw;
+    xRig.visible = !hidden;
+    xRig.position.set(player.x, bob, player.z);
+    
+    
+    
+    xRig.rotation.y = -player.yaw;
+
     
     
     
     
-    xander.rotation.y = lean;
+    
+    
+    {
+      const fwdX = -Math.sin(player.yaw); const fwdZ = Math.cos(player.yaw);
+      const sideX = Math.cos(player.yaw); const sideZ = Math.sin(player.yaw);
+      
+      const HALF = XANDER_SPANS.hip * 0.5 * XANDER_H;
+      const feet = posed.feet || [[0, 0], [0, 0]];
+      for (let i = 0; i < 2; i += 1) {
+        const f = feet[i][0] * XANDER_H;
+        const lift = feet[i][1] * XANDER_H;
+        const lat = (i === 0 ? 1 : -1) * HALF;
+        blobs[i].position.x = fwdX * f + sideX * lat;
+        blobs[i].position.z = fwdZ * f + sideZ * lat;
+        
+        
+        
+        
+        const k = Math.min(1, lift / 0.30);
+        blobs[i].scale.setScalar(0.20 * (1 + k * 0.85));
+        shadowMats[i].opacity = 0.46 * (1 - k) ** 1.5;
+      }
+      
+      
+      blobs[2].position.set(fwdX * 0.04, 0.02, fwdZ * 0.04);
+      blobs[2].scale.setScalar(0.36);
+      shadowMats[2].opacity = player.dead ? 0.28 : 0.17;
+      shadowRig.position.set(player.x, 0, player.z);
+      shadowRig.visible = !hidden;
+    }
+    
+    
+    
+    
+    xTilt.rotation.x = lean + fall;
 
     
     
@@ -4228,7 +4641,12 @@ export function boot(canvas, hud) {
     
     
     headLook = headLook + (wantLook - headLook) * (1 - Math.exp(-6.5 * dt));
-    neck.rotation.z = headLook;
+    
+    
+    
+    
+    
+    neck.rotation.z = -headLook;
 
     
     const w = canvas.clientWidth || 960; const h = canvas.clientHeight || 540;
@@ -4631,6 +5049,31 @@ export function boot(canvas, hud) {
         fight.fatigue.value = 100;
         fight.fatigue.gaveUp = true;
         fight.fatigue.givenUpFor = BOSS_HORSE.giveUpSeconds;
+      },
+      
+      setStudio(o) { studio = o; },
+      get studio() { return studio; },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      get facing() {
+        const v = new THREE.Vector3(1, 0, 0);
+        xander.updateWorldMatrix(true, false);
+        v.applyQuaternion(xander.getWorldQuaternion(new THREE.Quaternion()));
+        return {
+          mesh: [v.x, v.z],
+          rule: [-Math.sin(player.yaw), Math.cos(player.yaw)],
+          yaw: player.yaw,
+        };
       },
     },
   };
