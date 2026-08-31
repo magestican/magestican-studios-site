@@ -116,6 +116,11 @@
     <div id="qteBtn">SHAKE IT OFF</div>
   </div>
 
+  <div class="hud" id="hint" style="display:none;left:50%;bottom:14px;transform:translateX(-50%);
+    font-size:11px;letter-spacing:.06em;opacity:.5;white-space:nowrap;text-shadow:0 1px 4px #000">
+    <kbd>W</kbd><kbd>S</kbd> walk &nbsp;·&nbsp; <kbd>A</kbd><kbd>D</kbd> turn &nbsp;·&nbsp;
+    <kbd>SHIFT</kbd> run &nbsp;·&nbsp; <b>click</b> fire &nbsp;·&nbsp; <kbd>Q</kbd> aim low
+  </div>
   <div class="hud" id="msg"></div>
   <div id="flash"></div>
 
@@ -139,12 +144,16 @@
         Station Hesper-4, Venus. The livestock has opinions.
       </div>
       <div style="opacity:.6;font-size:12px">
-        <kbd>W</kbd><kbd>S</kbd> walk · <kbd>A</kbd><kbd>D</kbd> turn ·
-        <kbd>Shift</kbd> sprint · <b>click</b> to fire the bolt driver<br>
+        <kbd>W</kbd> walk forward · <kbd>S</kbd> back · <kbd>A</kbd><kbd>D</kbd> turn<br>
+        Hold <kbd>SHIFT</kbd> to <b>run</b> — you tire, so it is not free<br>
+        <b>Click</b> to fire the bolt driver · hold <kbd>Q</kbd> to aim low<br>
         Aim <b>low</b> — a chicken with a leg gone stops outrunning you.<br>
         On a phone: tap to fire, and tap fast to shake one off.
       </div>
-      <div style="margin-top:16px;opacity:.5;font-size:12px">loading…</div>
+      <button id="startBtn" style="margin-top:18px;padding:12px 30px;font:inherit;font-weight:700;
+        letter-spacing:.12em;background:#8d2f24;color:#fff;border:1px solid #c4553f;
+        border-radius:6px;cursor:pointer">ENTER HESPER-4</button>
+      <div style="margin-top:10px;opacity:.45;font-size:11px">sound starts with the game</div>
     </div>
   </div>
 </div>
@@ -155,6 +164,6 @@
   "arbelo/analytics": "../../web-engine/analytics/analytics.js"
 }}
 </script>
-<script type="module" src="./src/main.js?v=d3e94c2-20260831T094937Z"></script>
+<script type="module" src="./src/main.js?v=7d8fcb6-20260831T095215Z"></script>
 </body>
 </html>

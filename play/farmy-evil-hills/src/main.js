@@ -32,6 +32,11 @@ import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
 import { ps1Vertex, FRAGMENT, KEY_DIR, FILL_DIR } from '../../../web-engine/ps1/ps1Shader.mjs';
 import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
 
+
+
+
+import { lockZoom } from '../../shared/input/zoomLock.js';
+
 import { emptyCamera, stepCamera, cameraPlacement } from '../../../web-engine/horror/camera.js';
 import { spawnVitals, tickVitals, damage, beginGrapple, endGrapple, MAX_HEALTH, CHICKEN_LATCH_SLOW } from '../../../web-engine/horror/health.js';
 import { spawn as spawnCreature, resolveHit, applyDamage, mobilityOf, statusOf } from '../../../web-engine/horror/dismemberment.js';
@@ -429,8 +434,11 @@ export function boot(canvas, hud) {
     }
 
     
-    const wallAhead = 3.0;
-    player.cam = stepCamera(player.cam, { aiming }, dt, wallAhead);
+    
+    
+    
+    const roomBehind = Math.max(0.6, player.z + 3.4);
+    player.cam = stepCamera(player.cam, { aiming }, dt, roomBehind);
     const place = cameraPlacement(player.cam, { x: player.x, y: 0, z: player.z }, player.yaw);
     camera.fov = place.fov;
     camera.updateProjectionMatrix();
@@ -575,6 +583,7 @@ const hud = {
 };
 
 function start() {
+  lockZoom();
   
   
   try { initAnalytics(); trackEvent('game_open', { game: 'farmy-evil-hills' }); } catch {  }
@@ -590,10 +599,40 @@ function start() {
     if (st) st.press('tap');
   });
 
+  
+  
+  
+  
+  
+  
+  
   try {
     const api = boot($('game'), hud);
     window.__feh = api;
-    if (api) $('boot').style.display = 'none';
+    if (api) {
+      let started = false;
+      const go = () => {
+        if (started) return;
+        started = true;
+        $('boot').style.display = 'none';
+        $('hint').style.display = 'block';
+        
+        
+        
+        
+        
+        if (!tape.audible) {
+          tape.toggle();
+          $('tape').classList.toggle('on', tape.audible);
+          $('tapeCap').textContent = tape.audible ? 'SIDE A' : 'TAP FOR SOUND';
+        }
+      };
+      $('startBtn').addEventListener('click', go);
+      $('boot').addEventListener('click', go);
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.code === 'Enter') go();
+      });
+    }
   } catch (err) {
     hud.fatal(`The station did not come up.<br><small style="opacity:.6">${String(err).slice(0, 300)}</small>`);
     throw err;

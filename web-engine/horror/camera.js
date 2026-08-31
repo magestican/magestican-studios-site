@@ -25,11 +25,18 @@ export const RIG = Object.freeze({
   
   
   
-  distance: 3.15,         
+  
+  
+  
+  
+  distance: 5.0,          
   aimDistance: 1.35,      
   shoulder: 0.42,         
   aimShoulder: 0.30,      
-  height: 0.34,           
+  
+  
+  
+  height: 1.35,           
   minDistance: 0.45,      
 });
 

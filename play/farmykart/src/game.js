@@ -35,7 +35,7 @@ import { trackGuards, trackRails, railContact, IMPACT_KILL } from 'arbelo/trackG
 
 
 import { stepRacer } from 'arbelo/raceStep';
-import { lockZoom } from './input/zoomLock.js';
+import { lockZoom } from '../../shared/input/zoomLock.js';
 import { assistSteer } from 'arbelo/steerAssist';
 import { createRecovery, stepRecovery, isRecovering, isUnrecoverable } from 'arbelo/recovery';
 import {
