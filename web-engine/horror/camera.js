@@ -29,7 +29,7 @@ export const RIG = Object.freeze({
   
   
   
-  distance: 5.0,          
+  distance: 6.5,          
   aimDistance: 1.35,      
   shoulder: 0.42,         
   aimShoulder: 0.30,      
@@ -42,7 +42,12 @@ export const RIG = Object.freeze({
   
   
   
-  height: 1.05,           
+  
+  
+  
+  
+  
+  height: 4.05,           
   minDistance: 0.45,      
 });
 
@@ -146,10 +151,34 @@ export function cameraPlacement(cam, pos, yaw) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     target: {
-      x: pivot.x + right.x * cam.shoulder - back.x * 6,
-      y: pivot.y - 0.06,
-      z: pivot.z + right.z * cam.shoulder - back.z * 6,
+      x: pivot.x + right.x * cam.shoulder - back.x * 1.8,
+      y: pivot.y + 0.30,
+      z: pivot.z + right.z * cam.shoulder - back.z * 1.8,
     },
     fov: cam.fov,
   };

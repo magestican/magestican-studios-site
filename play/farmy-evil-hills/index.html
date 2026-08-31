@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="a6bc65f-20260831T101157Z">
+<meta name="build" content="b760432-20260831T102518Z">
 <title>Play Farmy Evil Hills — free browser survival horror, no download | Magestican Studios</title>
 <meta name="description" content="Play Farmy Evil Hills free in your browser: PS1-era survival horror on a Space Farming Agency station on Venus. A virus has mutated the livestock. Take a chicken's leg off with a bolt driver, or mash one off your boot when it latches. Phone and desktop. No download, no install, no account.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2305060a'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23b6392c'%3EE%3C/text%3E%3C/svg%3E">
@@ -126,6 +126,24 @@
 
   <canvas class="hud" id="map" width="220" height="220"
     style="right:12px;bottom:12px;width:168px;height:168px;opacity:.92"></canvas>
+  
+
+
+
+  <div id="touch" style="display:none">
+    <div id="stick" style="position:absolute;left:18px;bottom:18px;width:132px;height:132px;
+      border:2px solid rgba(232,228,216,.30);border-radius:50%;pointer-events:auto;
+      touch-action:none;background:rgba(0,0,0,.28)">
+      <div id="nub" style="position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;
+        border-radius:50%;background:rgba(232,228,216,.34);border:1px solid rgba(232,228,216,.5)"></div>
+      <div style="position:absolute;left:0;right:0;bottom:-18px;text-align:center;font-size:9px;
+        letter-spacing:.12em;opacity:.5">MOVE</div>
+    </div>
+    <div id="fireBtn" style="position:absolute;right:22px;bottom:34px;width:96px;height:96px;
+      border:2px solid rgba(184,80,58,.75);border-radius:50%;pointer-events:auto;touch-action:none;
+      background:rgba(120,40,30,.32);display:flex;align-items:center;justify-content:center;
+      font-weight:700;letter-spacing:.08em;font-size:12px">FIRE</div>
+  </div>
   <div class="hud" id="msg"></div>
   <div id="flash"></div>
 
@@ -169,6 +187,6 @@
   "arbelo/analytics": "../../web-engine/analytics/analytics.js"
 }}
 </script>
-<script type="module" src="./src/main.js?v=a6bc65f-20260831T101157Z"></script>
+<script type="module" src="./src/main.js?v=b760432-20260831T102518Z"></script>
 </body>
 </html>

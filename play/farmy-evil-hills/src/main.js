@@ -55,7 +55,29 @@ const HALL_W = 3.2;
 
 
 
-const HALL_H = 3.4;
+
+
+
+
+
+
+
+
+const HALL_H = 3.6;
+
+
+
+
+const CEIL_CULL = 11;
+
+
+
+
+
+
+
+
+const WALL_H = 6.4;
 
 
 
@@ -82,7 +104,7 @@ const XCOL = {
   pant: 0x3d5486,     
   accent: 0x6b452a,   
   skin: 0xe8b590,
-  hair: 0xe8cf82,     
+  hair: 0xcfae5e,     
                       
                       
   eye: 0x2f6fd0,      
@@ -178,9 +200,20 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
     
     
     
-    { name: 'hair', mesh: hair3d('crop', { centre: [hc[0] - r * 0.06, hc[1], hc[2] + r * 0.10], r: r * 0.86, forward: [1, 0, 0] }) },
-    { name: 'eyeL', mesh: jointBall([hc[0] + r * 0.94, +r * 0.28, hc[2] + r * 0.02], r * 0.15, { sides: 4 }) },
-    { name: 'eyeR', mesh: jointBall([hc[0] + r * 0.94, -r * 0.28, hc[2] + r * 0.02], r * 0.15, { sides: 4 }) },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    { name: 'hair', mesh: hair3d('crop', { centre: hc, r: r * 1.07, forward: [1, 0, 0] }) },
+    { name: 'eyeL', mesh: jointBall([hc[0] + r * 0.82, +r * 0.26, hc[2] + r * 0.06], r * 0.13, { sides: 4 }) },
+    { name: 'eyeR', mesh: jointBall([hc[0] + r * 0.82, -r * 0.26, hc[2] + r * 0.06], r * 0.13, { sides: 4 }) },
   ].filter((p) => p.mesh && p.mesh.indices && p.mesh.indices.length);
 }
 const xColour = (n) => (n === 'hair' ? XCOL.hair
@@ -188,7 +221,6 @@ const xColour = (n) => (n === 'hair' ? XCOL.hair
   : /^pelvis|^thigh|^shin|^hip\d|^knee|^ankle/.test(n) ? XCOL.pant
     : /^torso|^trapezius/.test(n) ? XCOL.top
       : /^foot/.test(n) ? XCOL.accent : XCOL.skin);
-
 
 
 
@@ -223,104 +255,140 @@ function hash2(x, y) {
 
 
 
+const TEX = 128;
 
-function panel(w, h, colour, place) {
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const QUAD = 0.65;
-  const sw = Math.max(1, Math.round(w / QUAD));
-  const sh = Math.max(1, Math.round(h / QUAD));
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const g = new THREE.PlaneGeometry(w, h, sw, sh).toNonIndexed();
-  const P = g.attributes.position.array;
-  const n = g.attributes.position.count;
-  const col = new Float32Array(n * 3);
-  const base = new THREE.Color(colour);
-  const MUD = new THREE.Color(0x6a4f2c);
-  const BLOOD = new THREE.Color(0x53171a);
-  const HAY = new THREE.Color(0xd6bd63);
-  const t = new THREE.Color();
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  for (let quad = 0; quad < n; quad += 6) {
-    const last = Math.min(6, n - quad);
-    let cx = 0; let cy = 0;
-    for (let k = 0; k < last; k += 1) { cx += P[(quad + k) * 3]; cy += P[(quad + k) * 3 + 1]; }
-    cx /= last; cy /= last;
+function grimeTexture({ base, seams, rivets, mud, blood, hay }) {
+  const cv = document.createElement('canvas');
+  cv.width = TEX; cv.height = TEX;
+  const g = cv.getContext('2d');
+  const img = g.createImageData(TEX, TEX);
+  const b = new THREE.Color(base);
 
-    t.copy(base);
-    const grain = hash2(cx * 2.9, cy * 3.1);
-    const seam = (Math.abs(cx % 4) < 0.5 || Math.abs(cy % 4) < 0.5) ? 0.76 : 1;
-    t.multiplyScalar(seam * (0.84 + grain * 0.30));
-
-    
-    
-    
-    const blotch = hash2(cx * 0.30 + 3.1, cy * 0.30 - 1.7);
-    const edge = hash2(cx * 1.7 - 8.3, cy * 1.9 + 4.4);
-    if (blotch > 0.80 && edge > 0.30) t.lerp(MUD, 0.30 + edge * 0.35);
-    else if (blotch < 0.085 && edge > 0.42) t.lerp(BLOOD, 0.40 + edge * 0.40);
-    if (hash2(cx * 5.1, cy * 4.7) > 0.965) t.lerp(HAY, 0.55);
-
-    for (let k = 0; k < last; k += 1) {
-      col[(quad + k) * 3] = t.r;
-      col[(quad + k) * 3 + 1] = t.g;
-      col[(quad + k) * 3 + 2] = t.b;
+  
+  for (let y = 0; y < TEX; y += 1) {
+    for (let x = 0; x < TEX; x += 1) {
+      const i = (y * TEX + x) * 4;
+      const k = 0.84 + hash2(x * 0.9, y * 0.9) * 0.17 + hash2(x * 0.23, y * 0.21) * 0.13;
+      img.data[i] = Math.min(255, b.r * 255 * k);
+      img.data[i + 1] = Math.min(255, b.g * 255 * k);
+      img.data[i + 2] = Math.min(255, b.b * 255 * k);
+      img.data[i + 3] = 255;
     }
   }
-  g.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
-  g.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
-  g.computeVertexNormals();
+  g.putImageData(img, 0, 0);
+
+  if (seams) {
+    g.strokeStyle = 'rgba(0,0,0,0.42)';
+    g.lineWidth = 1;
+    for (const at of [0, TEX / 2]) {
+      g.beginPath(); g.moveTo(0, at + 0.5); g.lineTo(TEX, at + 0.5); g.stroke();
+      g.beginPath(); g.moveTo(at + 0.5, 0); g.lineTo(at + 0.5, TEX); g.stroke();
+    }
+  }
+  if (rivets) {
+    g.fillStyle = 'rgba(0,0,0,0.34)';
+    for (let i = 0; i < 24; i += 1) {
+      g.fillRect(Math.floor(hash2(i * 3.1, 1.7) * TEX), Math.floor(hash2(i * 1.3, 9.2) * TEX), 2, 2);
+    }
+  }
+
+  
+  
+  
+  const blob = (cx, cy, r, fill, drips) => {
+    g.fillStyle = fill;
+    g.beginPath();
+    for (let a = 0; a <= 22; a += 1) {
+      const th = (a / 22) * Math.PI * 2;
+      const rr = r * (0.5 + hash2(cx + Math.cos(th) * 9, cy + Math.sin(th) * 9) * 0.85);
+      const x = cx + Math.cos(th) * rr; const y = cy + Math.sin(th) * rr;
+      if (a === 0) g.moveTo(x, y); else g.lineTo(x, y);
+    }
+    g.closePath(); g.fill();
+    if (drips) {
+      for (let d = 0; d < 3; d += 1) {
+        const dx = cx + (hash2(cx + d, cy) - 0.5) * r * 1.5;
+        g.fillRect(Math.round(dx), Math.round(cy), 1, Math.round(r * (0.8 + hash2(cx, cy + d) * 2.4)));
+      }
+    }
+  };
+  for (let i = 0; i < mud; i += 1) {
+    blob(hash2(i * 5.1, 2.3) * TEX, hash2(i * 2.7, 8.1) * TEX, 4 + hash2(i, 3) * 10,
+      'rgba(84,62,33,0.5)', false);
+  }
+  for (let i = 0; i < blood; i += 1) {
+    blob(hash2(i * 7.7, 4.9) * TEX, hash2(i * 3.3, 1.1) * TEX, 3 + hash2(i, 7) * 6,
+      'rgba(66,17,17,0.6)', true);
+  }
+  g.fillStyle = 'rgba(206,182,96,0.7)';
+  for (let i = 0; i < hay; i += 1) {
+    g.save();
+    g.translate(hash2(i * 9.1, 6.4) * TEX, hash2(i * 4.2, 3.8) * TEX);
+    g.rotate(hash2(i, 1.4) * Math.PI);
+    g.fillRect(0, 0, 4 + hash2(i, 2) * 5, 1);
+    g.restore();
+  }
+
+  const t = new THREE.CanvasTexture(cv);
+  
+  
+  
+  t.magFilter = THREE.NearestFilter;
+  t.minFilter = THREE.NearestFilter;
+  t.generateMipmaps = false;
+  t.wrapS = THREE.RepeatWrapping;
+  t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+
+function texturedMaterial(map) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uRes: { value: new THREE.Vector2(PS1_SNAP.x, PS1_SNAP.y) },
+      uKey: { value: new THREE.Vector3(...KEY_DIR) },
+      uFill: { value: new THREE.Vector3(...FILL_DIR) },
+      uAlpha: { value: 1 },
+      uMap: { value: map },
+    },
+    vertexShader: ps1Vertex(),
+    fragmentShader: FRAGMENT.textured(),
+    fog: false, lights: false, toneMapped: false, side: THREE.DoubleSide,
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function panel(w, h, tile, place) {
+  const sw = Math.max(1, Math.round(w / 2.5));
+  const sh = Math.max(1, Math.round(h / 2.5));
+  const g = new THREE.PlaneGeometry(w, h, sw, sh);
+  const n = g.attributes.position.count;
+  const uv = g.attributes.uv.array;
+  for (let i = 0; i < n; i += 1) {
+    uv[i * 2] *= w / tile;
+    uv[i * 2 + 1] *= h / tile;
+  }
+  
+  
+  
+  g.setAttribute('aColor', new THREE.Float32BufferAttribute(new Float32Array(n * 3).fill(1), 3));
   const m = new THREE.Mesh(g, place.mat);
   place.apply(m);
   return m;
 }
 
-function buildHall(scene, mat) {
+function buildHall(scene) {
   const strips = [];
-  const mk = (w, h, colour, fn) => scene.add(panel(w, h, colour, { mat, apply: fn }));
-  const mid = HALL_LEN / 2 - 4;
-  
-  mk(HALL_W, HALL_LEN, 0x6d7360, (m) => { m.rotation.x = -Math.PI / 2; m.position.set(0, 0, mid); });
-  
-  mk(HALL_W, HALL_LEN, 0x4c5242, (m) => { m.rotation.x = Math.PI / 2; m.position.set(0, HALL_H, mid); });
-  
-  mk(HALL_LEN, HALL_H, 0xa3ad93, (m) => { m.rotation.y = Math.PI / 2; m.position.set(-HALL_W / 2, HALL_H / 2, mid); });
-  mk(HALL_LEN, HALL_H, 0x8f9a80, (m) => { m.rotation.y = -Math.PI / 2; m.position.set(HALL_W / 2, HALL_H / 2, mid); });
-  
-  mk(HALL_W, HALL_H, 0x5a6150, (m) => { m.position.set(0, HALL_H / 2, mid + HALL_LEN / 2); m.rotation.y = Math.PI; });
-  mk(HALL_W, HALL_H, 0x5a6150, (m) => { m.position.set(0, HALL_H / 2, mid - HALL_LEN / 2); });
+  const ceilingPieces = [];
 
   
   
@@ -328,25 +396,79 @@ function buildHall(scene, mat) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  const walls = [
+    grimeTexture({ base: 0x9aa48c, seams: true, rivets: true, mud: 5, blood: 4, hay: 0 }),
+    grimeTexture({ base: 0x939d86, seams: true, rivets: false, mud: 9, blood: 2, hay: 0 }),
+    grimeTexture({ base: 0xa1ab92, seams: true, rivets: true, mud: 3, blood: 8, hay: 0 }),
+    grimeTexture({ base: 0x8f9982, seams: true, rivets: true, mud: 7, blood: 1, hay: 0 }),
+  ];
+  const floors = [
+    grimeTexture({ base: 0x6f7562, seams: true, rivets: false, mud: 13, blood: 6, hay: 22 }),
+    grimeTexture({ base: 0x6a705e, seams: true, rivets: false, mud: 8, blood: 11, hay: 34 }),
+    grimeTexture({ base: 0x737a66, seams: true, rivets: true, mud: 17, blood: 3, hay: 14 }),
+  ];
+  const ceils = [
+    grimeTexture({ base: 0x555c48, seams: true, rivets: true, mud: 3, blood: 2, hay: 0 }),
+    grimeTexture({ base: 0x4f5644, seams: true, rivets: true, mud: 1, blood: 5, hay: 0 }),
+  ];
+  const endTex = grimeTexture({ base: 0x5e6552, seams: true, rivets: true, mud: 5, blood: 5, hay: 0 });
 
-  
-  
-  
-  
+  const mats = new Map();
+  const matFor = (tex) => {
+    if (!mats.has(tex)) mats.set(tex, texturedMaterial(tex));
+    return mats.get(tex);
+  };
+
+  const SEG = 8;
+  const count = Math.ceil(HALL_LEN / SEG);
+  for (let i = 0; i < count; i += 1) {
+    const z0 = -4 + i * SEG;
+    const mid = z0 + SEG / 2;
+    const pick = (arr, salt) => arr[Math.floor(hash2(i * 7.3 + salt, 2.1) * arr.length) % arr.length];
+    
+    
+    const off = hash2(i * 3.7, 5.5);
+
+    const add = (w, h, tex, tile, fn) => {
+      const m = panel(w, h, tile, { mat: matFor(tex), apply: fn });
+      const uv = m.geometry.attributes.uv;
+      for (let k = 0; k < uv.count; k += 1) uv.setX(k, uv.getX(k) + off * 3.1);
+      uv.needsUpdate = true;
+      scene.add(m);
+      return m;
+    };
+
+    add(HALL_W, SEG, pick(floors, 0.1), 2.2, (m) => { m.rotation.x = -Math.PI / 2; m.position.set(0, 0, mid); });
+    add(SEG, WALL_H, pick(walls, 0.2), 2.2, (m) => { m.rotation.y = Math.PI / 2; m.position.set(-HALL_W / 2, WALL_H / 2, mid); });
+    add(SEG, WALL_H, pick(walls, 0.9), 2.2, (m) => { m.rotation.y = -Math.PI / 2; m.position.set(HALL_W / 2, WALL_H / 2, mid); });
+    ceilingPieces.push(add(HALL_W, SEG, pick(ceils, 0.4), 2.2,
+      (m) => { m.rotation.x = Math.PI / 2; m.position.set(0, HALL_H, mid); }));
+  }
+
+  const endMat = matFor(endTex);
+  scene.add(panel(HALL_W, HALL_H, 2.2, { mat: endMat, apply: (m) => { m.position.set(0, HALL_H / 2, -4 + count * SEG); m.rotation.y = Math.PI; } }));
+  scene.add(panel(HALL_W, HALL_H, 2.2, { mat: endMat, apply: (m) => { m.position.set(0, HALL_H / 2, -4); } }));
+
+  const stripTex = grimeTexture({ base: 0xe8f0c8, seams: false, rivets: false, mud: 1, blood: 0, hay: 0 });
   for (let z = 2; z < HALL_LEN - 6; z += 7) {
-    
-    
-    const lm = mat.clone();
-    lm.uniforms = THREE.UniformsUtils.clone(mat.uniforms);
+    const lm = texturedMaterial(stripTex);
     lm.transparent = true;
-    const strip = panel(0.5, 1.6, 0xe4ecc0, {
+    const strip = panel(0.5, 1.6, 1.6, {
       mat: lm,
       apply: (m) => { m.rotation.x = Math.PI / 2; m.position.set(0, HALL_H - 0.02, z); },
     });
     scene.add(strip);
     strips.push({ mesh: strip, mat: lm, phase: hash2(z * 3.1, 7.7) * 10, next: 3 + hash2(z, 2.2) * 12 });
   }
-  return strips;
+  return { strips, ceilingPieces };
 }
 
 
@@ -473,7 +595,7 @@ export function boot(canvas, hud) {
     fog: false, lights: false, toneMapped: false, side: THREE.DoubleSide,
   });
 
-  const strips = buildHall(scene, mat);
+  const { strips, ceilingPieces } = buildHall(scene);
 
   const xGeo = partsToGeometry(xanderParts(), xColour, XANDER_H);
   const xander = new THREE.Mesh(xGeo, mat);
@@ -510,7 +632,11 @@ export function boot(canvas, hud) {
   
   
   
-  [26, 42, 61].forEach((z, i) => addChicken(z, (i % 2 ? 1 : -1) * (0.5 + i * 0.25)));
+  
+  
+  
+  
+  [30, 48].forEach((z, i) => addChicken(z, (i % 2 ? 1 : -1) * 0.55));
 
   
   const EXIT_Z = HALL_LEN - 12;
@@ -568,9 +694,64 @@ export function boot(canvas, hud) {
   canvas.addEventListener('touchend', () => { fireHeld = false; }, { passive: false });
 
   
+  
+  
+  
+  
+  const touch = { fwd: 0, turn: 0, active: false };
+  if ((navigator.maxTouchPoints || 0) > 0) {
+    const wrap = document.getElementById('touch');
+    if (wrap) wrap.style.display = 'block';
+    const stick = document.getElementById('stick');
+    const nub = document.getElementById('nub');
+    const fireBtn = document.getElementById('fireBtn');
+    if (stick && nub) {
+      const R = 46;
+      const set = (e) => {
+        const r = stick.getBoundingClientRect();
+        const t = e.touches ? e.touches[0] : e;
+        let dx = t.clientX - (r.left + r.width / 2);
+        let dy = t.clientY - (r.top + r.height / 2);
+        const d = Math.hypot(dx, dy) || 1;
+        if (d > R) { dx = (dx / d) * R; dy = (dy / d) * R; }
+        nub.style.transform = `translate(${dx}px, ${dy}px)`;
+        
+        
+        touch.fwd = -dy / R;
+        touch.turn = -dx / R;
+        touch.active = true;
+      };
+      const clear = () => {
+        nub.style.transform = 'translate(0,0)';
+        touch.fwd = 0; touch.turn = 0; touch.active = false;
+      };
+      stick.addEventListener('touchstart', (e) => { e.preventDefault(); set(e); }, { passive: false });
+      stick.addEventListener('touchmove', (e) => { e.preventDefault(); set(e); }, { passive: false });
+      stick.addEventListener('touchend', (e) => { e.preventDefault(); clear(); }, { passive: false });
+      stick.addEventListener('touchcancel', clear);
+    }
+    if (fireBtn) {
+      const down = (e) => {
+        e.preventDefault();
+        
+        
+        if (player.struggle) player.struggle.press('tap'); else fireHeld = true;
+      };
+      fireBtn.addEventListener('touchstart', down, { passive: false });
+      fireBtn.addEventListener('touchend', (e) => { e.preventDefault(); fireHeld = false; }, { passive: false });
+    }
+  }
+
+  
   let last = 0;
   let shotFlash = 0;
   let paIn = 12 + Math.random() * 14;
+  
+  
+  
+  
+  
+  let shake = 0;
   let level = 1;
   let liftIn = 0;
   const mapCv = document.getElementById('map');
@@ -588,13 +769,17 @@ export function boot(canvas, hud) {
 
     if (!player.dead) {
       
-      const sprint = keys.has('ShiftLeft') || keys.has('ShiftRight');
+      
+      
+      
+      const sprint = keys.has('ShiftLeft') || keys.has('ShiftRight') || (touch.active && touch.fwd > 0.75);
       let fwd = 0;
       if (keys.has('KeyW') || keys.has('ArrowUp')) fwd += 1;
       if (keys.has('KeyS') || keys.has('ArrowDown')) fwd -= 1;
       let turn = 0;
       if (keys.has('KeyA') || keys.has('ArrowLeft')) turn += 1;
       if (keys.has('KeyD') || keys.has('ArrowRight')) turn -= 1;
+      if (touch.active) { fwd = touch.fwd; turn = touch.turn; }
       
       if (player.struggle) turn = 0;
 
@@ -680,7 +865,12 @@ export function boot(canvas, hud) {
       } else if (!b.latched && !player.dead && b.cool <= 0) {
         b.latched = true;
         player.latchedBy = b;
-        player.struggle = createStruggle({ verb: VERB_FOR.chicken ?? 'mash' });
+        
+        
+        
+        
+        player.struggle = createStruggle({ verb: VERB_FOR.chicken ?? 'mash', mode: 'reduced' });
+        shake = Math.max(shake, 0.55);
         beginGrapple(player.vitals, 'chicken');
       }
       b.cool -= dt;
@@ -714,8 +904,13 @@ export function boot(canvas, hud) {
     const place = cameraPlacement(player.cam, { x: player.x, y: 0, z: player.z }, player.yaw);
     camera.fov = place.fov;
     camera.updateProjectionMatrix();
-    camera.position.set(place.eye.x, place.eye.y, place.eye.z);
-    camera.lookAt(place.target.x, place.target.y, place.target.z);
+    
+    if (player.struggle) shake = Math.min(0.9, Math.max(shake, player.struggle.progress * 0.25 + 0.35));
+    shake = Math.max(0, shake - dt * 1.9);
+    const sx = shake ? (Math.random() - 0.5) * shake * 0.34 : 0;
+    const sy = shake ? (Math.random() - 0.5) * shake * 0.28 : 0;
+    camera.position.set(place.eye.x + sx, place.eye.y + sy, place.eye.z);
+    camera.lookAt(place.target.x + sx * 0.4, place.target.y + sy * 0.4, place.target.z);
 
     xander.position.set(player.x, 0, player.z);
     xander.rotation.z = player.yaw;
@@ -788,6 +983,12 @@ export function boot(canvas, hud) {
         hud.lift(0);
       }
     }
+
+    
+    
+    
+    
+    for (const c of ceilingPieces) c.visible = Math.abs(c.position.z - player.z) > CEIL_CULL;
 
     if (mapCv) drawMap(mapCv, player, birds, EXIT_Z);
 
