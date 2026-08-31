@@ -492,77 +492,156 @@ function buildHall(scene) {
 
 
 
-const MAP_TILT = 0.62;          
-const MAP_SCALE = 1.55;         
-const MAP_RANGE = 34;           
 
-function drawMap(cv, player, birds, exitZ) {
+
+
+
+
+
+
+
+
+
+
+const MAP = Object.freeze({
+  pitch: 0.72,      
+  eye: 26,          
+  focal: 210,       
+  range: 40,        
+  behind: 9,        
+  deckGap: 7.5,     
+});
+
+
+
+
+
+
+
+
+
+function mapProject(wx, wy, wz, player, cx, cy) {
+  const dx = wx - player.x;
+  const dy = wy - 1.2;                    
+  const dz = wz - player.z;
+
+  
+  const c = Math.cos(-player.yaw); const sn = Math.sin(-player.yaw);
+  const rx = dx * c - dz * sn;
+  const rz = dx * sn + dz * c;
+
+  
+  const cp = Math.cos(MAP.pitch); const sp = Math.sin(MAP.pitch);
+  const ry = dy * cp - rz * sp;
+  const rzz = dy * sp + rz * cp;
+
+  const depth = rzz + MAP.eye;
+  if (depth < 1.2) return null;
+  const f = MAP.focal / depth;
+  return [cx + rx * f, cy - ry * f];
+}
+
+function drawMap(cv, player, birds, exitZ, level) {
   const g = cv.getContext('2d');
   const W = cv.width; const H = cv.height;
   g.clearRect(0, 0, W, H);
+  const cx = W / 2; const cy = H * 0.52;
+  const p = (x, y, z) => mapProject(x, y, z, player, cx, cy);
 
-  const cx = W / 2; const cy = H * 0.66;
-  const cos = Math.cos(-player.yaw); const sin = Math.sin(-player.yaw);
-
-  
-  
-  const proj = (wx, wz) => {
-    const dx = wx - player.x; const dz = wz - player.z;
-    const rx = dx * cos - dz * sin;
-    const rz = dx * sin + dz * cos;
-    const depth = 1 / (1 + Math.max(0, rz) * 0.020);
-    return [cx + rx * MAP_SCALE * depth * 2.2, cy - rz * MAP_SCALE * Math.cos(MAP_TILT) * depth];
-  };
-
-  const line = (a, b, colour, width) => {
+  const seg = (a, b, colour, width) => {
+    if (!a || !b) return;                 
     g.strokeStyle = colour; g.lineWidth = width || 1;
     g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke();
   };
 
-  const NEON = '#39ff88';
-  const DIM = 'rgba(57,255,136,0.28)';
+  const NEON = '#3dff92';
+  const MID = 'rgba(61,255,146,0.42)';
+  const FAINT = 'rgba(61,255,146,0.16)';
+  const GHOST = 'rgba(61,255,146,0.10)';
+
+  const hw = HALL_W / 2;
+  const z0 = player.z - MAP.behind;
+  const z1 = player.z + MAP.range;
 
   
-  const half = HALL_W / 2;
-  const z0 = player.z - 6; const z1 = player.z + MAP_RANGE;
-  line(proj(-half, z0), proj(-half, z1), DIM, 1.5);
-  line(proj(half, z0), proj(half, z1), DIM, 1.5);
-  for (let z = Math.ceil(z0 / 4) * 4; z < z1; z += 4) {
-    line(proj(-half, z), proj(half, z), 'rgba(57,255,136,0.13)', 1);
+  for (const dy of [-MAP.deckGap, MAP.deckGap]) {
+    seg(p(-hw, dy, z0), p(-hw, dy, z1), GHOST, 1);
+    seg(p(hw, dy, z0), p(hw, dy, z1), GHOST, 1);
+    for (let z = Math.ceil(z0 / 12) * 12; z < z1; z += 12) {
+      seg(p(-hw, dy, z), p(hw, dy, z), GHOST, 1);
+    }
   }
 
   
-  g.fillStyle = '#ff5a4a';
+  seg(p(-hw, 0, z0), p(-hw, 0, z1), MID, 1.6);
+  seg(p(hw, 0, z0), p(hw, 0, z1), MID, 1.6);
+  seg(p(-hw, HALL_H, z0), p(-hw, HALL_H, z1), FAINT, 1);
+  seg(p(hw, HALL_H, z0), p(hw, HALL_H, z1), FAINT, 1);
+
+  for (let z = Math.ceil(z0 / 4) * 4; z < z1; z += 4) {
+    seg(p(-hw, 0, z), p(hw, 0, z), FAINT, 1);                 
+    
+    
+    if (Math.round(z / 4) % 3 === 0) {
+      seg(p(-hw, 0, z), p(-hw, HALL_H, z), FAINT, 1);
+      seg(p(hw, 0, z), p(hw, HALL_H, z), FAINT, 1);
+      seg(p(-hw, HALL_H, z), p(hw, HALL_H, z), 'rgba(61,255,146,0.10)', 1);
+    }
+  }
+
+  
   for (const b of birds) {
     if (!b.alive) continue;
-    const d = Math.hypot(b.x - player.x, b.z - player.z);
-    if (d > MAP_RANGE) continue;
-    const [px, py] = proj(b.x, b.z);
-    g.fillRect(px - 2.5, py - 2.5, 5, 5);
+    if (b.z < z0 - 4 || b.z > z1) continue;
+    const foot = p(b.x, 0, b.z);
+    const top = p(b.x, 0.9, b.z);
+    if (!foot || !top) continue;
+    seg(foot, top, 'rgba(255,90,74,0.75)', 1);
+    g.fillStyle = '#ff5a4a';
+    g.fillRect(top[0] - 2.5, top[1] - 2.5, 5, 5);
   }
 
   
-  if (exitZ - player.z < MAP_RANGE + 8) {
-    const [ex, ey] = proj(0, exitZ);
-    g.strokeStyle = NEON; g.lineWidth = 2;
-    g.strokeRect(ex - 9, ey - 9, 18, 18);
-    g.fillStyle = NEON;
-    g.font = 'bold 9px ui-monospace, monospace';
-    g.textAlign = 'center';
-    g.fillText('EL', ex, ey + 3.5);
-    g.font = '8px ui-monospace, monospace';
-    g.fillText(`${Math.max(0, Math.round(exitZ - player.z))}m`, ex, ey - 13);
+  if (exitZ > z0 - 6 && exitZ < z1 + 10) {
+    const w = 1.1;
+    const corners = [[-w, exitZ - 0.8], [w, exitZ - 0.8], [w, exitZ + 0.8], [-w, exitZ + 0.8]];
+    for (let i = 0; i < 4; i += 1) {
+      const a = corners[i]; const b = corners[(i + 1) % 4];
+      seg(p(a[0], 0, a[1]), p(b[0], 0, b[1]), NEON, 1.4);
+      seg(p(a[0], HALL_H, a[1]), p(b[0], HALL_H, b[1]), NEON, 1.4);
+      seg(p(a[0], 0, a[1]), p(a[0], HALL_H, a[1]), NEON, 1.4);
+    }
+    const label = p(0, HALL_H + 1.1, exitZ);
+    if (label) {
+      g.fillStyle = NEON;
+      g.font = 'bold 9px ui-monospace, monospace';
+      g.textAlign = 'center';
+      g.fillText('LIFT', label[0], label[1]);
+      g.font = '8px ui-monospace, monospace';
+      g.fillText(`${Math.max(0, Math.round(exitZ - player.z))}m`, label[0], label[1] + 9);
+    }
   }
 
   
-  g.strokeStyle = '#eafff2'; g.lineWidth = 2;
-  g.beginPath();
-  g.moveTo(cx, cy - 7); g.lineTo(cx - 5, cy + 5); g.lineTo(cx + 5, cy + 5); g.closePath();
-  g.stroke();
+  const foot = p(0, 0, player.z - player.z);
+  const head = p(0, 1.8, 0);
+  if (foot && head) {
+    seg(foot, head, 'rgba(234,255,242,0.5)', 1);
+    g.strokeStyle = '#eafff2'; g.lineWidth = 1.6;
+    g.beginPath();
+    g.moveTo(foot[0], foot[1] - 6);
+    g.lineTo(foot[0] - 4.5, foot[1] + 3);
+    g.lineTo(foot[0] + 4.5, foot[1] + 3);
+    g.closePath(); g.stroke();
+  }
 
-  g.strokeStyle = 'rgba(57,255,136,0.45)';
+  g.strokeStyle = 'rgba(61,255,146,0.5)';
   g.lineWidth = 1;
   g.strokeRect(0.5, 0.5, W - 1, H - 1);
+  g.fillStyle = 'rgba(61,255,146,0.75)';
+  g.font = '8px ui-monospace, monospace';
+  g.textAlign = 'left';
+  g.fillText(`DECK ${level}`, 6, 12);
 }
 
 export function boot(canvas, hud) {
@@ -990,7 +1069,7 @@ export function boot(canvas, hud) {
     
     for (const c of ceilingPieces) c.visible = Math.abs(c.position.z - player.z) > CEIL_CULL;
 
-    if (mapCv) drawMap(mapCv, player, birds, EXIT_Z);
+    if (mapCv) drawMap(mapCv, player, birds, EXIT_Z, level);
 
     renderer.render(scene, camera);
     shotFlash = Math.max(0, shotFlash - dt);
