@@ -1,0 +1,19 @@
+{
+  "sampleRate": 48000,
+  "loopSamples": 4194304,
+  "loopSeconds": 87.381333,
+  "tracks": [
+    {
+      "id": "cold-deck",
+      "side": "A",
+      "title": "COLD DECK",
+      "file": "cold-deck.webm"
+    },
+    {
+      "id": "corridors",
+      "side": "B",
+      "title": "IT KNOWS THE CORRIDORS",
+      "file": "corridors.webm"
+    }
+  ]
+}

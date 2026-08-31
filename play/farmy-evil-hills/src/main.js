@@ -28,9 +28,20 @@ import { poseById, blendPose } from '../../2d-fighter-ex/src/moveSet.mjs';
 import {
   gaitPose, firePose, strugglePose, deathPose,
 } from '../../../web-engine/horror/gait.js';
+import { buildBoltDriver, muzzlePoint } from '../../../web-engine/ps1/props/boltDriver.mjs';
 import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from '../../../web-engine/ps1/ps1Rig.mjs';
 import { buildFighter, jointBall } from '../../../web-engine/ps1/ps1Mesh.mjs';
-import { head3d, hair3d } from '../../../web-engine/ps1/ps1Head.mjs';
+
+
+
+
+
+
+
+
+import {
+  head3d, hair3d, JAW, HEAD_RINGS,
+} from '../../../web-engine/ps1/ps1Head.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
 import {
   emptyChickenAnim, stepChicken, chickenPose, RANGE as CHICK_RANGE,
@@ -118,9 +129,9 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 
 const XCOL = {
-  top: 0xb8503a,      
-  pant: 0x3d5486,     
-  accent: 0x6b452a,   
+  top: 0x9c4436,      
+  pant: 0x3a4f7d,     
+  accent: 0xb5893f,   
   skin: 0xe8b590,
   hair: 0xcfae5e,     
                       
@@ -156,15 +167,40 @@ function partsToGeometry(parts, colourOf, targetHeight, measureAgainst, keepUv) 
   const s = (hi - lo) > 1e-6 ? targetHeight / (hi - lo) : 1;
 
   const pos = []; const col = []; const idx = [];
+  
+  
+  
+  const seen = new Map();
+  const colourAt = (hex) => {
+    let c = seen.get(hex);
+    if (!c) { c = new THREE.Color(hex); seen.set(hex, c); }
+    return c;
+  };
   for (const p of parts) {
     const base = pos.length / 3;
-    const c = new THREE.Color(colourOf(p.name));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const per = colourOf(p.name);
+    const fn = typeof per === 'function' ? per : null;
+    const flat = fn ? null : colourAt(per);
     for (let i = 0; i < p.mesh.positions.length; i += 3) {
+      const bx = p.mesh.positions[i];
+      const by = p.mesh.positions[i + 1];
+      const bz = (p.mesh.positions[i + 2] - lo) / ((hi - lo) || 1);
       pos.push(
-        p.mesh.positions[i] * s,
-        p.mesh.positions[i + 1] * s,
+        bx * s,
+        by * s,
         (p.mesh.positions[i + 2] - lo) * s,   
       );
+      const c = fn ? colourAt(fn(bx, by, bz)) : flat;
       col.push(c.r, c.g, c.b);
     }
     for (const i of p.mesh.indices) idx.push(base + i);
@@ -231,12 +267,271 @@ const FACE_PX = 128;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const HEAD_NARROW = 0.84;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const XANDER_JAW = 'long';
+
+
+const FACE_JAW = JAW[XANDER_JAW] || JAW.oval;
+
+
+
+
+
+
+
+
+function faceRingHalfWidth(ring) {
+  const J = FACE_JAW;
+  const mix = (t) => J.cheek + (J.chin - J.cheek) * t;
+  switch (ring.key) {
+    case 'crown': return J.crown * ring.hw;
+    case 'chin': return J.chin * ring.hw;
+    case 'mix45': return mix(0.45) * ring.hw;
+    case 'mix82': return mix(0.82) * ring.hw;
+    default: return J.cheek * ring.hw;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const FACE = (() => {
+  const S = FACE_PX;
+  const rows = HEAD_RINGS.map((r) => ({
+    name: r.name,
+    z: r.drop !== undefined ? -FACE_JAW.drop * r.drop : r.z,
+    v: r.v,
+    hw: faceRingHalfWidth(r),
+  }));
+  let yMax = 1e-6;
+  for (const r of rows) yMax = Math.max(yMax, r.hw);
+
+  
+  
+  const a = rows[0];
+  const b = rows[rows.length - 1];
+  const PX_V = ((b.v - a.v) * S) / (a.z - b.z);   
+  const PX_U = (0.46 * S) / yMax;                 
+  const Y = (z) => a.v * S + (a.z - z) * PX_V;
+  const X = (y) => S * 0.5 + y * PX_U;
+
+  
+  const line = [{ name: 'apex', y: Y(1.02), half: 0 }]
+    .concat(rows.map((r) => ({ name: r.name, y: Y(r.z), half: r.hw * PX_U })));
+  const at = {};
+  for (const r of line) at[r.name] = r;
+
+  
+  const halfAt = (y) => {
+    if (y <= line[0].y) return 0;
+    for (let i = 0; i + 1 < line.length; i += 1) {
+      const p = line[i]; const q = line[i + 1];
+      if (y >= p.y && y <= q.y) {
+        return p.half + (q.half - p.half) * ((y - p.y) / Math.max(1e-6, q.y - p.y));
+      }
+    }
+    
+    
+    const last = line[line.length - 1];
+    return Math.max(0, last.half * (1 - (y - last.y) / 10));
+  };
+
+  return {
+    S,
+    X,
+    Y,
+    rows: at,
+    halfAt,
+    crown: 0,
+    chin: at.chin.y,
+    
+
+
+
+
+
+    AY: (HEAD_NARROW * PX_V) / PX_U,
+  };
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const EXPRESSIONS = Object.freeze({
-  calm: { brow: 0, open: 1, lid: 1, mouth: 0 },
-  alert: { brow: -0.055, open: 1.18, lid: 0.82, mouth: 0.10 },
-  afraid: { brow: -0.095, open: 1.36, lid: 0.62, mouth: 0.38 },
-  hurt: { brow: 0.045, open: 0.52, lid: 1.5, mouth: 0.30 },
+  calm: { brow: 0, tilt: 0.10, open: 1, lid: 1, mouth: 0, tension: 0.25 },
+  alert: { brow: -0.030, tilt: 0.34, open: 1.16, lid: 0.80, mouth: 0.10, tension: 0.60 },
+  afraid: { brow: -0.062, tilt: -0.40, open: 1.34, lid: 0.55, mouth: 0.40, tension: 0.85 },
+  hurt: { brow: 0.030, tilt: 0.55, open: 0.42, lid: 1.6, mouth: 0.34, tension: 1.0 },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function xanderFaceSheet(exprName = 'calm') {
   const X = EXPRESSIONS[exprName] || EXPRESSIONS.calm;
@@ -249,277 +544,682 @@ function xanderFaceSheet(exprName = 'calm') {
   
   
   
-  const SKIN = '#d3a07c';
-  const SKIN_SHADE = '#b07e5e';
-  const SKIN_DEEP = '#8e6247';
-  const SKIN_LIT = '#e6b895';
-  const HAIR = '#c8a860';
-  const HAIR_DARK = '#8f7332';
-  const HAIR_LIT = '#e3cb8c';
-  const EYE_WHITE = '#ded6c8';        
-  const IRIS = '#3a6fa8';
-  const IRIS_DARK = '#1f4368';
-  const LINE = '#33221a';
-  const MOUTH = '#7d4436';
+  const SKIN = '#cf9d74';
+  const SKIN_LIT = '#e3b78d';
+  const SKIN_HI = '#eec9a2';
+  const SKIN_SH = '#a4744f';
+  const SKIN_DEEP = '#7c5439';
+  const SKIN_DARK = '#573925';
+  
+  
+  
+  const HAIR = '#cfae5e';
+  const HAIR_SH = '#9a7c34';
+  const HAIR_HI = '#e8d18d';
+  
+  
+  
+  const BROW = '#6b4a2c';
+  const SCLERA = '#c9c0b0';        
+  const IRIS = '#2f6fb8';
+  const IRIS_DK = '#17395e';
+  const PUPIL = '#101820';
+  const LINE = '#2b1c14';
+  const LIP = '#8a5245';
+  const LIP_LINE = '#57302a';
+  const MOUTH_IN = '#2a1512';
+
+  const S = FACE.S;
+  const cxp = S * 0.5;
+  const CHIN = FACE.chin;
+
+  
+  
+  
+  
+  
+  const HW = FACE.rows.eye.half;
+  const eDX = HW * 0.40;              
+  const eW = HW * 0.44;               
+  const AY = FACE.AY;
+  const ay = (w) => w * AY;           
+  const eH = ay(eW / 3) * X.open;     
+  
+  
+  
+  
+  
+  
+  const mouthHalf = eW * 0.82;
+  const noseHalf = eW * 0.46;
+
+  
+  
+  
+  
+  const yHair = CHIN * 0.225;
+  const yBrow = FACE.rows.browLip.y;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const yEye = FACE.rows.eye.y;
+  const yNose = CHIN * 0.725;
+  const yMouth = CHIN * 0.845;
+  
+  
+  
+  
+  const browY = yBrow - ay(eW * 0.11) - CHIN * (X.brow || 0);
+
+  const HAIR_TOP = -6;                
 
   c.fillStyle = SKIN;
   c.fillRect(0, 0, cv.width, cv.height);
 
+  
+  
+  
+  
+  
+  
+  
   const sx = cv.width * 0.52;
-  const wash = c.createLinearGradient(sx, 0, cv.width, 0);
-  wash.addColorStop(0, SKIN);
-  wash.addColorStop(1, SKIN_DEEP);
-  c.fillStyle = wash;
-  c.fillRect(sx, 0, cv.width - sx, cv.height);
+  const sw = cv.width - sx;
+  c.fillStyle = SKIN_SH;
+  c.fillRect(sx, 0, sw, cv.height);
+  c.fillStyle = SKIN_DEEP;
+  c.fillRect(sx + sw * 0.22, 0, sw * 0.56, cv.height);
 
   
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const S = FACE_PX;
-  const crown = 0;
-  const chin = (0.7275 / 0.75) * S;
-  const H = chin - crown;               
+  const eaX = sx + sw * 0.22;
+  const eaY = cv.height * 0.40;
+  const eaW = sw * 0.14;
+  const eaH = cv.height * 0.16;
+  c.fillStyle = SKIN;
+  c.beginPath();
+  c.ellipse(eaX + eaW * 0.5, eaY + eaH * 0.5, eaW * 0.5, eaH * 0.5, 0, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = SKIN_SH;
+  c.beginPath();
+  c.ellipse(eaX + eaW * 0.56, eaY + eaH * 0.52, eaW * 0.30, eaH * 0.34, 0.2, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = SKIN_DEEP;
+  c.beginPath();
+  c.ellipse(eaX + eaW * 0.60, eaY + eaH * 0.58, eaW * 0.16, eaH * 0.20, 0.2, 0, Math.PI * 2);
+  c.fill();
 
   
   
-  const FW = S * 0.58;
-  const cxp = S * 0.5;
-  const L = cxp - FW / 2;
-
   
-  
-  const yHair = crown + H * 0.22;       
-  const yBrow = crown + H * 0.46;       
-  const yEye = crown + H * 0.52;        
-  const yNose = crown + H * 0.72;       
-  const yMouth = crown + H * 0.845;     
-  const yChin = chin;
-
-  
-  const eW = FW / 5;
-  const eH = eW * 0.36;                 
-  const eDX = eW;                       
-
   c.save();
-  c.beginPath(); c.rect(0, 0, S, chin + H * 0.06); c.clip();
+  c.beginPath();
+  c.rect(0, 0, S, cv.height);
+  c.clip();
   c.lineJoin = 'round';
   c.lineCap = 'round';
 
+  {
+    const top = FACE.rows.cheek.y;
+    for (let y = Math.round(top); y < CHIN + 3; y += 1) {
+      const k = Math.min(1, (y - top) / (CHIN - top));
+      
+      
+      
+      
+      c.fillStyle = k < 0.5 ? SKIN_LIT : SKIN_HI;
+      c.globalAlpha = 0.14 + 0.52 * k;
+      const h = FACE.halfAt(y) * 0.98;
+      c.fillRect(Math.round(cxp - h), y, Math.round(h * 2), 1);
+    }
+    c.globalAlpha = 1;
+  }
+
+  
+  const sidePath = (dir, inset, y0, y1) => {
+    c.beginPath();
+    const step = 1.5;
+    for (let y = y0; y <= y1; y += step) {
+      const px = cxp + dir * FACE.halfAt(y);
+      if (y === y0) c.moveTo(px, y); else c.lineTo(px, y);
+    }
+    for (let y = y1; y >= y0; y -= step) {
+      const h = FACE.halfAt(y);
+      c.lineTo(cxp + dir * Math.max(0, h - inset(y, h)), y);
+    }
+    c.closePath();
+  };
+
   
   
   
   
-  c.fillStyle = SKIN_SHADE;
-  c.globalAlpha = 0.55;
-  c.beginPath();
-  c.moveTo(L - FW * 0.30, crown);
-  c.lineTo(L + FW * 0.06, crown);
-  c.quadraticCurveTo(L + FW * 0.10, yNose, L + FW * 0.30, yChin);
-  c.lineTo(L - FW * 0.30, yChin + H * 0.1);
-  c.closePath(); c.fill();
-  c.beginPath();
-  c.moveTo(L + FW * 1.30, crown);
-  c.lineTo(L + FW * 0.94, crown);
-  c.quadraticCurveTo(L + FW * 0.90, yNose, L + FW * 0.70, yChin);
-  c.lineTo(L + FW * 1.30, yChin + H * 0.1);
-  c.closePath(); c.fill();
+  
+  
+  const rim = (y, h) => {
+    const t = y / CHIN;
+    const wide = h * 0.26;
+    const narrow = h * 0.11;
+    
+    
+    const k = Math.min(1, Math.abs(t - 0.62) / 0.30);
+    return narrow + (wide - narrow) * k;
+  };
+  c.fillStyle = SKIN_SH;
+  c.globalAlpha = 0.40;
+  for (const d of [-1, 1]) { sidePath(d, rim, 6, CHIN); c.fill(); }
+  c.globalAlpha = 1;
+  c.fillStyle = SKIN_DEEP;
+  c.globalAlpha = 0.22;
+  for (const d of [-1, 1]) { sidePath(d, (y, h) => rim(y, h) * 0.34, 6, CHIN); c.fill(); }
   c.globalAlpha = 1;
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   c.fillStyle = SKIN_LIT;
-  c.globalAlpha = 0.38;
-  c.beginPath(); c.ellipse(cxp, yHair + H * 0.10, FW * 0.30, H * 0.07, 0, 0, Math.PI * 2); c.fill();
-  for (const d of [-1, 1]) {
-    c.beginPath();
-    c.ellipse(cxp + d * eW * 1.25, yNose - H * 0.05, eW * 0.62, H * 0.045, d * 0.2, 0, Math.PI * 2);
-    c.fill();
-  }
+  c.globalAlpha = 0.62;
+  c.beginPath();
+  c.moveTo(cxp - HW * 0.56, yHair + CHIN * 0.075);
+  c.lineTo(cxp + HW * 0.56, yHair + CHIN * 0.075);
+  c.lineTo(cxp + HW * 0.44, browY - ay(eW * 0.06));
+  c.lineTo(cxp + eW * 0.34, browY - ay(eW * 0.26));
+  c.lineTo(cxp - eW * 0.34, browY - ay(eW * 0.26));
+  c.lineTo(cxp - HW * 0.44, browY - ay(eW * 0.06));
+  c.closePath();
+  c.fill();
   c.globalAlpha = 1;
-  c.fillStyle = SKIN_DEEP;
-  c.globalAlpha = 0.26;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  c.fillStyle = SKIN_HI;
+  c.globalAlpha = 0.45;
+  c.beginPath();
+  c.moveTo(cxp - eW * 0.20, FACE.Y(0.13));
+  c.lineTo(cxp + eW * 0.20, FACE.Y(0.13));
+  c.lineTo(cxp + eW * 0.30, FACE.Y(-0.33));
+  c.lineTo(cxp - eW * 0.30, FACE.Y(-0.33));
+  c.closePath();
+  c.fill();
+  c.globalAlpha = 1;
+  c.fillStyle = SKIN_LIT;
+
+  
+  
+  
+  c.globalAlpha = 0.45;
   for (const d of [-1, 1]) {
     c.beginPath();
-    c.ellipse(cxp + d * eW * 1.35, yNose + H * 0.045, eW * 0.55, H * 0.05, d * 0.3, 0, Math.PI * 2);
+    c.moveTo(cxp + d * HW * 0.70, FACE.rows.eye.y + ay(eW * 0.26));
+    c.lineTo(cxp + d * eW * 0.60, yNose - ay(eW * 0.26));
+    c.lineTo(cxp + d * eW * 0.80, yNose + ay(eW * 0.04));
+    c.lineTo(cxp + d * HW * 0.66, yNose - ay(eW * 0.02));
+    c.closePath();
     c.fill();
   }
   c.globalAlpha = 1;
 
   
-  c.fillStyle = SKIN_SHADE;
-  c.globalAlpha = 0.5;
-  c.fillRect(cxp - eW * 2.1, yBrow + H * 0.012, eW * 4.2, H * 0.035);
+  c.fillStyle = SKIN_HI;
+  c.globalAlpha = 0.45;
+  c.beginPath();
+  c.moveTo(cxp - mouthHalf * 0.78, yMouth + ay(eW * 0.44));
+  c.lineTo(cxp + mouthHalf * 0.72, yMouth + ay(eW * 0.42));
+  c.lineTo(cxp + mouthHalf * 0.46, CHIN - ay(eW * 0.10));
+  c.lineTo(cxp - mouthHalf * 0.46, CHIN - ay(eW * 0.10));
+  c.closePath();
+  c.fill();
+  c.globalAlpha = 1;
+
+  
+  
+  
+  
+  c.fillStyle = SKIN_SH;
+  c.globalAlpha = 0.20;
+  for (const d of [-1, 1]) {
+    c.beginPath();
+    c.moveTo(cxp + d * HW * 0.62, yNose - ay(eW * 0.10));
+    c.lineTo(cxp + d * eW * 0.86, yNose + ay(eW * 0.08));
+    c.lineTo(cxp + d * mouthHalf * 1.04, yMouth - ay(eW * 0.18));
+    c.lineTo(cxp + d * FACE.halfAt(yMouth) * 0.86, yMouth - ay(eW * 0.40));
+    c.closePath();
+    c.fill();
+  }
+  c.globalAlpha = 1;
+
+  
+  
+  
+  const jawY = FACE.rows.jaw.y;
+  c.fillStyle = SKIN_DEEP;
+  c.globalAlpha = 0.18;
+  for (const d of [-1, 1]) {
+    c.beginPath();
+    c.moveTo(cxp + d * FACE.halfAt(jawY), jawY - ay(eW * 0.30));
+    c.lineTo(cxp + d * FACE.halfAt(jawY) * 0.30, CHIN + 2);
+    c.lineTo(cxp + d * FACE.halfAt(jawY) * 0.30, CHIN - ay(eW * 0.16));
+    c.quadraticCurveTo(cxp + d * FACE.halfAt(jawY) * 0.80, jawY + ay(eW * 0.10),
+      cxp + d * FACE.halfAt(jawY) * 0.92, jawY - ay(eW * 0.30));
+    c.closePath();
+    c.fill();
+  }
+  c.globalAlpha = 1;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const beardTop = yNose + ay(eW * 0.50);
+  const beardBot = CHIN - 1;
+  c.fillStyle = SKIN_DEEP;
+  for (let y = Math.round(beardTop); y < beardBot; y += 1) {
+    const h = FACE.halfAt(y) * 0.95;
+    const t = (y - beardTop) / Math.max(1, beardBot - beardTop);
+    
+    const w = h * Math.min(1, 0.34 + 1.5 * t);
+    c.globalAlpha = 0.115;
+    c.fillRect(Math.round(cxp - w), y, Math.round(w * 2), 1);
+    for (let k = 0; k < 4; k += 1) {
+      if (hash2(y * 3.1 + k, 5.7) > 0.42) continue;
+      c.fillRect(Math.round(cxp - w - k), y, 1, 1);
+      c.fillRect(Math.round(cxp + w + k), y, 1, 1);
+    }
+  }
+  c.globalAlpha = 1;
+
+  
+  
+  
+  c.fillStyle = SKIN_DEEP;
+  c.globalAlpha = 0.10;
+  for (const d of [-1, 1]) {
+    c.beginPath();
+    const y0 = FACE.rows.eye.y + ay(eW * 0.30);
+    for (let y = y0; y <= beardBot; y += 3) c.lineTo(cxp + d * FACE.halfAt(y) * 0.99, y);
+    for (let y = beardBot; y >= y0; y -= 3) {
+      const k = (y - y0) / Math.max(1, beardBot - y0);
+      c.lineTo(cxp + d * FACE.halfAt(y) * (0.85 - 0.22 * k), y);
+    }
+    c.closePath();
+    c.fill();
+  }
+  c.globalAlpha = 1;
+
+  
+  
+  
+  
+  
+  
+  c.fillStyle = SKIN_LIT;
+  c.globalAlpha = 0.55;
+  c.beginPath();
+  c.ellipse(cxp, yNose + ay(eW * 0.26), noseHalf * 0.40, ay(eW * 0.20), 0, 0, Math.PI * 2);
+  c.fill();
+  c.globalAlpha = 1;
+
+  
+  
+  
+  
+  
+  c.fillStyle = SKIN_DEEP;
+  c.globalAlpha = 0.40;
+  c.beginPath();
+  c.moveTo(cxp - HW * 0.84, browY + 1);
+  c.lineTo(cxp + HW * 0.84, browY + 1);
+  c.lineTo(cxp + HW * 0.70, FACE.rows.eye.y - ay(eW * 0.16));
+  c.lineTo(cxp - HW * 0.70, FACE.rows.eye.y - ay(eW * 0.16));
+  c.closePath();
+  c.fill();
   c.globalAlpha = 1;
 
   
   const eye = (dir) => {
     const ex = cxp + dir * eDX;
+    
     c.fillStyle = SKIN_DEEP;
-    c.globalAlpha = 0.26;
-    c.beginPath(); c.ellipse(ex, yEye, eW * 0.72, eH * 1.9, 0, 0, Math.PI * 2); c.fill();
+    c.globalAlpha = 0.22;
+    c.beginPath();
+    c.ellipse(ex + dir * eW * 0.14, yEye - ay(eW * 0.16), eW * 0.70, ay(eW * 0.38), 0, 0, Math.PI * 2);
+    c.fill();
     c.globalAlpha = 1;
 
-    c.fillStyle = EYE_WHITE;
-    c.beginPath();
-    c.moveTo(ex - eW * 0.48, yEye + eH * 0.10);
-    c.quadraticCurveTo(ex, yEye - eH * 1.25, ex + eW * 0.48, yEye + eH * 0.18);
-    c.quadraticCurveTo(ex, yEye + eH * 1.15, ex - eW * 0.48, yEye + eH * 0.10);
+    
+    
+    
+    const inner = ex - dir * eW * 0.50;
+    const outer = ex + dir * eW * 0.50;
+    const tilt = ay(eW * 0.05);
+    const aperture = () => {
+      c.beginPath();
+      c.moveTo(inner, yEye + tilt * 0.4);
+      c.quadraticCurveTo(ex - dir * eW * 0.18, yEye - eH * 1.5, outer, yEye - tilt * 0.2);
+      c.quadraticCurveTo(ex - dir * eW * 0.05, yEye + eH * 1.25, inner, yEye + tilt * 0.4);
+      c.closePath();
+    };
+    c.fillStyle = SCLERA;
+    aperture();
     c.fill();
 
-    const ir = eH * 1.00;
     c.save();
-    c.beginPath();
-    c.moveTo(ex - eW * 0.48, yEye + eH * 0.10);
-    c.quadraticCurveTo(ex, yEye - eH * 1.25, ex + eW * 0.48, yEye + eH * 0.18);
-    c.quadraticCurveTo(ex, yEye + eH * 1.15, ex - eW * 0.48, yEye + eH * 0.10);
+    aperture();
     c.clip();
+    
+    
+    
+    const ir = eW * 0.21;
+    const ix = ex - dir * eW * 0.02;
     c.fillStyle = IRIS;
-    c.beginPath(); c.arc(ex, yEye, ir, 0, Math.PI * 2); c.fill();
-    c.fillStyle = IRIS_DARK;
-    c.beginPath(); c.arc(ex, yEye, ir * 0.46, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.ellipse(ix, yEye, ir, ay(ir), 0, 0, Math.PI * 2); c.fill();
+    c.fillStyle = IRIS_DK;
+    c.beginPath(); c.ellipse(ix, yEye, ir, ay(ir), 0, Math.PI, Math.PI * 2); c.fill();
+    c.fillStyle = PUPIL;
+    c.beginPath(); c.ellipse(ix, yEye, ir * 0.44, ay(ir * 0.44), 0, 0, Math.PI * 2); c.fill();
+    
+    
+    
+    c.fillStyle = SKIN;
+    c.fillRect(ex - eW, yEye - eH * 1.6, eW * 2, eH * 1.6 - ay(ir) * (1.05 - 0.52 * X.lid));
+    c.fillStyle = SKIN_SH;
+    c.globalAlpha = 0.55;
+    c.fillRect(ex - eW, yEye - eH * 1.6, eW * 2, eH * 1.6 - ay(ir) * (1.30 - 0.52 * X.lid));
+    c.globalAlpha = 1;
     c.restore();
 
+    
+    
     c.strokeStyle = LINE;
-    c.lineWidth = Math.max(1.8, eH * 0.55);
+    c.lineCap = 'butt';
+    c.lineWidth = Math.max(2.6, ay(eW * 0.13));
     c.beginPath();
-    c.moveTo(ex - eW * 0.52, yEye - eH * 0.05);
-    c.quadraticCurveTo(ex, yEye - eH * 1.5 * X.lid, ex + eW * 0.54, yEye + eH * 0.06);
+    c.moveTo(inner, yEye + tilt * 0.4);
+    c.quadraticCurveTo(ex - dir * eW * 0.18, yEye - eH * 1.5, outer, yEye - tilt * 0.2);
     c.stroke();
+    
+    
+    c.lineWidth = Math.max(1.6, ay(eW * 0.08));
+    c.beginPath();
+    c.moveTo(outer - dir * eW * 0.10, yEye - tilt * 0.1);
+    c.lineTo(outer + dir * eW * 0.12, yEye + tilt * 0.5);
+    c.stroke();
+    
+    
+    c.strokeStyle = SKIN_HI;
+    c.globalAlpha = 0.55;
+    c.lineWidth = Math.max(1, ay(eW * 0.06));
+    c.beginPath();
+    c.moveTo(inner + dir * eW * 0.06, yEye + eH * 1.15);
+    c.quadraticCurveTo(ex, yEye + eH * 1.45, outer - dir * eW * 0.10, yEye + eH * 0.6);
+    c.stroke();
+    c.globalAlpha = 1;
 
-    c.fillStyle = '#f4efe6';
-    c.fillRect(Math.round(ex - dir * eW * 0.14), Math.round(yEye - eH * 0.5), 2, 2);
+    
+    
+    c.strokeStyle = SKIN_DEEP;
+    c.globalAlpha = 0.6;
+    c.lineWidth = Math.max(1, ay(eW * 0.06));
+    c.beginPath();
+    c.moveTo(inner + dir * eW * 0.10, yEye - eH * 1.5);
+    c.quadraticCurveTo(ex - dir * eW * 0.10, yEye - eH * 2.5, outer - dir * eW * 0.04, yEye - eH * 1.1);
+    c.stroke();
+    c.globalAlpha = 1;
+    c.lineCap = 'round';
+
+    
+    
+    c.fillStyle = '#f6f1e6';
+    c.fillRect(Math.round(ix - eW * 0.10), Math.round(yEye - ay(ir) * 0.55), 2, 2);
   };
   eye(-1); eye(1);
 
   
-  c.strokeStyle = HAIR_DARK;
-  c.lineCap = 'butt';
-  c.lineWidth = Math.max(2.4, H * 0.028);
+  
+  
+  
+  
+  c.strokeStyle = BROW;
+  c.lineCap = 'round';
+  c.lineWidth = Math.max(3.2, ay(eW * 0.20));
   for (const dir of [-1, 1]) {
     const ex = cxp + dir * eDX;
-    const by = yBrow - H * (X.brow || 0) * 1.6;
+    const inX = ex - dir * eW * 0.62;
+    const outX = ex + dir * eW * 0.66;
     c.beginPath();
-    c.moveTo(ex - dir * eW * 0.60, by + H * 0.012);
-    c.lineTo(ex + dir * eW * 0.52, by - H * 0.012);
+    c.moveTo(inX, browY + ay(eW * 0.10) * X.tilt);
+    c.quadraticCurveTo(ex, browY - ay(eW * 0.10), outX, browY + ay(eW * 0.16));
     c.stroke();
   }
-  c.lineCap = 'round';
-
   
-  c.strokeStyle = SKIN_DEEP;
-  c.globalAlpha = 0.5;
-  c.lineWidth = Math.max(1.5, H * 0.012);
-  c.beginPath();
-  c.moveTo(cxp + eW * 0.16, yEye + eH * 0.8);
-  c.lineTo(cxp + eW * 0.20, yNose - H * 0.012);
-  c.stroke();
-  c.globalAlpha = 0.38;
-  c.beginPath(); c.ellipse(cxp, yNose, eW * 0.46, H * 0.022, 0, 0, Math.PI * 2); c.fill();
-  c.globalAlpha = 1;
-  c.fillStyle = SKIN_DEEP;
-  c.fillRect(Math.round(cxp - eW * 0.30), Math.round(yNose - H * 0.004), 2, 2);
-  c.fillRect(Math.round(cxp + eW * 0.20), Math.round(yNose - H * 0.004), 2, 2);
-
   
-  const mW = eW * 0.78;
-  if (X.mouth > 0.02) {
-    c.fillStyle = '#3a1c18';
+  
+  c.lineWidth = Math.max(1.4, ay(eW * 0.08));
+  for (const dir of [-1, 1]) {
+    const ex = cxp + dir * eDX;
     c.beginPath();
-    c.ellipse(cxp, yMouth + H * 0.012, mW * 0.72, H * X.mouth * 0.055, 0, 0, Math.PI * 2);
+    c.moveTo(ex + dir * eW * 0.50, browY + ay(eW * 0.13));
+    c.lineTo(ex + dir * eW * 0.86, browY + ay(eW * 0.22));
+    c.stroke();
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  c.fillStyle = SKIN_SH;
+  c.globalAlpha = 0.22;
+  for (const d of [-1, 1]) {
+    c.beginPath();
+    c.ellipse(cxp + d * noseHalf * 0.84, yNose - ay(eW * 0.06),
+      noseHalf * 0.22, ay(noseHalf * 0.16), 0, 0, Math.PI * 2);
     c.fill();
   }
-  c.strokeStyle = MOUTH;
-  c.lineWidth = Math.max(1.8, H * 0.014);
+  c.globalAlpha = 1;
+  c.fillStyle = SKIN_DARK;
+  for (const d of [-1, 1]) {
+    c.beginPath();
+    c.ellipse(cxp + d * noseHalf * 0.44, yNose - ay(eW * 0.01),
+      noseHalf * 0.17, ay(noseHalf * 0.12), d * -0.5, 0, Math.PI * 2);
+    c.fill();
+  }
+
+  
+  
+  
+  
+  if (X.mouth > 0.02) {
+    c.fillStyle = MOUTH_IN;
+    c.beginPath();
+    c.ellipse(cxp, yMouth + ay(eW * 0.06) * X.mouth,
+      mouthHalf * (0.66 + 0.16 * X.mouth), ay(eW * 0.42) * X.mouth, 0, 0, Math.PI * 2);
+    c.fill();
+  }
+  
+  c.fillStyle = SKIN_SH;
+  c.globalAlpha = 0.15;
   c.beginPath();
-  c.moveTo(cxp - mW, yMouth);
-  c.quadraticCurveTo(cxp, yMouth + H * (0.005 + X.mouth * 0.03), cxp + mW, yMouth);
+  c.moveTo(cxp - mouthHalf, yMouth + ay(eW * 0.02));
+  c.quadraticCurveTo(cxp - mouthHalf * 0.5, yMouth - ay(eW * 0.15), cxp, yMouth - ay(eW * 0.04));
+  c.quadraticCurveTo(cxp + mouthHalf * 0.5, yMouth - ay(eW * 0.15), cxp + mouthHalf, yMouth + ay(eW * 0.02));
+  c.quadraticCurveTo(cxp, yMouth + ay(eW * 0.02), cxp - mouthHalf, yMouth + ay(eW * 0.02));
+  c.closePath();
+  c.fill();
+  c.globalAlpha = 1;
+  
+  c.strokeStyle = LIP_LINE;
+  c.lineCap = 'round';
+  c.lineWidth = Math.max(1.8, ay(eW * 0.075));
+  c.beginPath();
+  c.moveTo(cxp - mouthHalf, yMouth - ay(eW * 0.03));
+  c.quadraticCurveTo(cxp, yMouth + ay(eW * 0.04 + X.mouth * 0.12), cxp + mouthHalf, yMouth - ay(eW * 0.03));
   c.stroke();
-  c.fillStyle = SKIN_LIT;
-  c.globalAlpha = 0.4;
-  c.beginPath(); c.ellipse(cxp, yMouth + H * 0.028, mW * 0.7, H * 0.013, 0, 0, Math.PI * 2); c.fill();
+  
+  c.fillStyle = LIP;
+  c.globalAlpha = 0.34;
+  c.beginPath();
+  c.ellipse(cxp, yMouth + ay(eW * 0.16), mouthHalf * 0.70, ay(eW * 0.13), 0, 0, Math.PI * 2);
+  c.fill();
+  c.globalAlpha = 1;
+  c.fillStyle = SKIN_HI;
+  c.globalAlpha = 0.55;
+  c.beginPath();
+  c.ellipse(cxp, yMouth + ay(eW * 0.175), mouthHalf * 0.44, ay(eW * 0.070), 0, 0, Math.PI * 2);
+  c.fill();
+  c.globalAlpha = 1;
+  c.fillStyle = SKIN_DEEP;
+  c.globalAlpha = 0.30;
+  c.beginPath();
+  c.ellipse(cxp, yMouth + ay(eW * 0.30), mouthHalf * 0.50, ay(eW * 0.06), 0, 0, Math.PI * 2);
+  c.fill();
   c.globalAlpha = 1;
 
   
-  c.fillStyle = SKIN_DEEP;
-  c.globalAlpha = 0.22;
-  c.beginPath(); c.ellipse(cxp, yChin - H * 0.055, mW * 0.85, H * 0.02, 0, 0, Math.PI * 2); c.fill();
-  c.globalAlpha = 0.4;
+  
+  
+  
   c.strokeStyle = SKIN_DEEP;
-  c.lineWidth = Math.max(1.4, H * 0.011);
-  c.beginPath();
-  c.moveTo(cxp - FW * 0.34, yNose);
-  c.quadraticCurveTo(cxp, yChin - H * 0.012, cxp + FW * 0.34, yNose);
-  c.stroke();
-  c.globalAlpha = 1;
-
-  
-  c.fillStyle = SKIN_DEEP;
-  for (let i = 0; i < 300; i += 1) {
-    const px = cxp + (hash2(i * 1.7, 3.3) - 0.5) * FW * 0.86;
-    const py = yNose + hash2(i * 2.1, 8.8) * (yChin - yNose) * 1.05;
-    if (Math.abs(px - cxp) > FW * 0.42 * (1 - (py - yNose) / (yChin - yNose) * 0.45)) continue;
-    c.globalAlpha = 0.09 + hash2(i, 1.1) * 0.13;
-    c.fillRect(Math.round(px), Math.round(py), 1, 1);
+  c.globalAlpha = 0.09 + 0.26 * X.tension;
+  c.lineWidth = Math.max(1.2, ay(eW * 0.06));
+  for (const d of [-1, 1]) {
+    c.beginPath();
+    c.moveTo(cxp + d * noseHalf * 0.98, yNose + ay(eW * 0.02));
+    c.quadraticCurveTo(cxp + d * mouthHalf * 1.02, yNose + ay(eW * 0.30),
+      cxp + d * mouthHalf * 1.00, yMouth - ay(eW * 0.06));
+    c.stroke();
   }
   c.globalAlpha = 1;
 
+  
+  
+  
+  
+  
   
   c.fillStyle = HAIR;
   c.beginPath();
-  c.moveTo(cxp - FW * 0.86, crown - H * 0.02);
-  c.lineTo(cxp + FW * 0.86, crown - H * 0.02);
-  c.lineTo(cxp + FW * 0.86, yHair + H * 0.02);
-  c.quadraticCurveTo(cxp + FW * 0.22, yHair - H * 0.03, cxp - FW * 0.06, yHair + H * 0.01);
-  c.quadraticCurveTo(cxp - FW * 0.44, yHair + H * 0.05, cxp - FW * 0.86, yHair - H * 0.02);
+  c.moveTo(cxp - HW * 1.10, HAIR_TOP);
+  c.lineTo(cxp + HW * 1.10, HAIR_TOP);
+  c.lineTo(cxp + HW * 1.10, yHair + CHIN * 0.10);
+  
+  c.lineTo(cxp + HW * 0.86, yHair + CHIN * 0.055);
+  c.quadraticCurveTo(cxp + HW * 0.52, yHair - CHIN * 0.035, cxp + HW * 0.16, yHair - CHIN * 0.012);
+  c.quadraticCurveTo(cxp - HW * 0.24, yHair + CHIN * 0.008, cxp - HW * 0.62, yHair + CHIN * 0.030);
+  c.lineTo(cxp - HW * 0.86, yHair + CHIN * 0.052);
+  c.lineTo(cxp - HW * 1.10, yHair + CHIN * 0.10);
   c.closePath();
   c.fill();
-  c.strokeStyle = HAIR_DARK;
-  c.lineWidth = Math.max(2, H * 0.016);
-  c.beginPath();
-  c.moveTo(cxp + FW * 0.30, crown);
-  c.quadraticCurveTo(cxp + FW * 0.12, yHair - H * 0.10, cxp - FW * 0.26, yHair - H * 0.01);
-  c.stroke();
-  c.strokeStyle = HAIR_LIT;
-  c.globalAlpha = 0.5;
-  c.lineWidth = Math.max(1.3, H * 0.010);
-  for (const dx of [-0.62, -0.38, 0.42, 0.66]) {
+
+  
+  c.fillStyle = HAIR;
+  for (const d of [-1, 1]) {
+    const y0 = yHair + CHIN * 0.02;
+    const y1 = FACE.rows.eye.y - CHIN * 0.01;
     c.beginPath();
-    c.moveTo(cxp + FW * dx, crown + H * 0.01);
-    c.lineTo(cxp + FW * dx * 0.9, yHair - H * 0.01);
+    for (let y = y0; y <= y1; y += 3) c.lineTo(cxp + d * FACE.halfAt(y), y);
+    for (let y = y1; y >= y0; y -= 3) {
+      const k = 1 - (y - y0) / (y1 - y0);
+      c.lineTo(cxp + d * (FACE.halfAt(y) - HW * (0.03 + 0.12 * k)), y);
+    }
+    c.closePath();
+    c.fill();
+  }
+
+  
+  
+  c.fillStyle = SKIN_DEEP;
+  c.globalAlpha = 0.42;
+  c.beginPath();
+  c.moveTo(cxp - HW * 0.92, yHair + CHIN * 0.055);
+  c.quadraticCurveTo(cxp - HW * 0.24, yHair + CHIN * 0.008, cxp + HW * 0.16, yHair - CHIN * 0.012);
+  c.quadraticCurveTo(cxp + HW * 0.52, yHair - CHIN * 0.035, cxp + HW * 0.86, yHair + CHIN * 0.055);
+  c.lineTo(cxp + HW * 0.86, yHair + CHIN * 0.100);
+  c.quadraticCurveTo(cxp, yHair + CHIN * 0.055, cxp - HW * 0.92, yHair + CHIN * 0.100);
+  c.closePath();
+  c.fill();
+  c.globalAlpha = 1;
+
+  
+  c.strokeStyle = HAIR_SH;
+  c.lineWidth = Math.max(2, ay(eW * 0.11));
+  c.beginPath();
+  c.moveTo(cxp + HW * 0.34, HAIR_TOP + 2);
+  c.quadraticCurveTo(cxp + HW * 0.20, yHair - CHIN * 0.075, cxp - HW * 0.22, yHair - CHIN * 0.010);
+  c.stroke();
+  c.strokeStyle = HAIR_HI;
+  c.globalAlpha = 0.55;
+  c.lineWidth = Math.max(1.2, ay(eW * 0.06));
+  for (const dx of [-0.78, -0.50, -0.28, 0.50, 0.74, 0.94]) {
+    c.beginPath();
+    c.moveTo(cxp + HW * dx, HAIR_TOP + 3);
+    c.quadraticCurveTo(cxp + HW * dx * 0.94, yHair * 0.5, cxp + HW * dx * 0.86, yHair - CHIN * 0.005);
     c.stroke();
   }
   c.globalAlpha = 1;
+
   c.restore();
 
   const t = new THREE.CanvasTexture(cv);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  t.flipY = false;
   t.magFilter = THREE.NearestFilter;
   t.minFilter = THREE.NearestFilter;
   t.generateMipmaps = false;
@@ -598,8 +1298,19 @@ function makePortrait(headGeo, shouldersGeo, faces, bodyMat) {
   const dist = Math.max(hsz.x, hsz.y) * 3.1;
   
   
-  cam.position.set(hc2.x + dist, hc2.y - hsz.y * 0.10, hc2.z);
-  cam.lookAt(hc2.x, hc2.y - hsz.y * 0.24, hc2.z);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  cam.position.set(hc2.x + dist, hc2.y + hsz.y * 0.10, hc2.z);
+  cam.lookAt(hc2.x, hc2.y - hsz.y * 0.14, hc2.z);
 
   let current = null;
   return {
@@ -633,9 +1344,40 @@ function xanderHeadGeometry() {
   const K = solve(pose, { flip: false });
   const hc = [K.head[0], 0, K.head[1]];
   return {
-    mesh: head3d({ centre: hc, r: FRIG.headR, jaw: A.jaw, brow: A.brow, forward: [1, 0, 0] }),
+    mesh: narrowAcross(head3d({
+      centre: hc, r: FRIG.headR, jaw: XANDER_JAW, brow: A.brow, forward: [1, 0, 0],
+    })),
     centre: hc,
   };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function narrowAcross(mesh, k = HEAD_NARROW) {
+  if (!mesh || !mesh.positions) return mesh;
+  for (let i = 1; i < mesh.positions.length; i += 3) mesh.positions[i] *= k;
+  return mesh;
 }
 
 
@@ -764,14 +1506,60 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
     
     
     
-    { name: 'hair', mesh: hair3d('crop', { centre: hc, r: r * 1.07, forward: [1, 0, 0] }) },
+    
+    
+    
+    
+    
+    
+    
+    
+    {
+      name: 'hair',
+      mesh: narrowAcross(hair3d('crop', {
+        centre: hc, r: r * 1.07, forward: [1, 0, 0], jaw: XANDER_JAW, brow: A.brow,
+      })),
+    },
   ].filter((p) => p.mesh && p.mesh.indices && p.mesh.indices.length);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const overallsAt = (x, y, z) => {
+  if (z < 0.44) return XCOL.pant;
+  if (z < 0.68) return x > -0.01 ? XCOL.pant : XCOL.top;
+  if (z < 0.715) return (x > -0.01 && Math.abs(y) > 0.055) ? XCOL.accent : (x > -0.01 ? XCOL.pant : XCOL.top);
+  if (z < 0.86) return Math.abs(y) > 0.055 && Math.abs(y) < 0.135 ? XCOL.pant : XCOL.top;
+  return XCOL.top;
+};
+
 const xColour = (n) => (n === 'hair' ? XCOL.hair
   : /^eye/.test(n) ? XCOL.eye
-  : /^pelvis|^thigh|^shin|^hip\d|^knee|^ankle/.test(n) ? XCOL.pant
-    : /^torso|^trapezius/.test(n) ? XCOL.top
-      : /^foot/.test(n) ? XCOL.accent : XCOL.skin);
+  : /^pelvis|^hip\d/.test(n) ? XCOL.pant
+    : /^thigh|^shin|^knee|^ankle/.test(n) ? XCOL.pant
+      : /^torso|^trapezius/.test(n) ? overallsAt
+        : /^foot/.test(n) ? XCOL.accent : XCOL.skin);
 
 
 
@@ -1696,8 +2484,62 @@ export function boot(canvas, hud) {
     deathGeo.push(bake({ ...poseById(XANDER_POSE), ...deathPose(i / (DEATH_FRAMES - 1)) }));
   }
   const xGeo = partsToGeometry(bodyParts, xColour, XANDER_H, allParts);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const gunGeo = (() => {
+    const built = buildBoltDriver();
+    const pos = []; const col = []; const idx = [];
+    
+    
+    
+    const GCOL = {
+      receiver: 0x4a4f52, nose: 0x5b6165, guard: 0x2f3335,
+      bottle: 0x6a5f4a, magazine: 0x3d4143, grip: 0x241f1c, trigger: 0x2a2d2f,
+    };
+    for (const p of built.parts) {
+      const base = pos.length / 3;
+      const c = new THREE.Color(GCOL[p.name] ?? 0x4a4f52);
+      for (let i = 0; i < p.mesh.positions.length; i += 3) {
+        pos.push(p.mesh.positions[i], p.mesh.positions[i + 1], p.mesh.positions[i + 2]);
+        col.push(c.r, c.g, c.b);
+      }
+      for (const i of p.mesh.indices) idx.push(base + i);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  })();
+  const gun = new THREE.Mesh(gunGeo, mat);
+  gun.visible = false;
+
+  
+  
+  
+  const flashGeo = new THREE.PlaneGeometry(0.34, 0.34);
+  const flashMat = new THREE.MeshBasicMaterial({
+    color: 0xffd9a0, transparent: true, opacity: 0, depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const flash = new THREE.Mesh(flashGeo, flashMat);
+  flash.position.set(...muzzlePoint());
+  gun.add(flash);
   const xander = new THREE.Mesh(xGeo, mat);
   xander.rotation.x = -Math.PI / 2;   
+  xander.add(gun);
   scene.add(xander);
 
   
@@ -1728,6 +2570,19 @@ export function boot(canvas, hud) {
     (hb.min.x + hb.max.x) / 2, (hb.min.y + hb.max.y) / 2, (hb.min.z + hb.max.z) / 2,
   );
   headGeo.translate(-headMid.x, -headMid.y, -headMid.z);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (shouldersGeo) shouldersGeo.translate(-headMid.x, -headMid.y, -headMid.z);
   const neck = new THREE.Group();
   neck.position.copy(headMid);
   const xHead = new THREE.Mesh(headGeo, faceMat);
@@ -2279,6 +3134,41 @@ export function boot(canvas, hud) {
       xander.rotation.x = -Math.PI / 2;
       if (xander.geometry !== xGeo) xander.geometry = xGeo;
     }
+    
+    
+    
+    
+    
+    
+    
+    {
+      let hand;
+      if (player.dead) hand = deathPose(deathT / DEATH_TIME).hands[0];
+      else if (player.struggle) hand = strugglePose(now, player.struggle.progress ?? 0).hands[0];
+      else if (fireT < FIRE_TIME) hand = firePose(fireT).hands[0];
+      else if (moving || turning) {
+        hand = gaitPose((walkDist / ((sprintNow && moving) ? STRIDE * 1.55 : STRIDE)) % 1,
+          (sprintNow && moving) ? 'sprint' : 'walk').hands[0];
+      } else hand = poseById(XANDER_POSE).hands[0];
+
+      gun.position.set(hand[0] * XANDER_H, 0.17, hand[1] * XANDER_H);
+      
+      
+      
+      const ready = (fireT < FIRE_TIME * 2.2) || !!target;
+      gun.rotation.y = ready ? 0.02 : 0.78;
+      gun.rotation.z = ready ? 0 : -0.25;
+      
+      
+      
+      
+      
+      
+      gun.visible = !player.dead && (ready || !!target);
+      flashMat.opacity = Math.max(0, 1 - fireT / 0.055) * 0.9;
+      flash.rotation.y = now * 9;      
+    }
+
     xander.position.set(player.x, bob, player.z);
     xander.rotation.z = player.yaw;
     
@@ -2524,7 +3414,24 @@ export function boot(canvas, hud) {
     requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
-  return { player, birds, touch };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  return { player, birds, touch, faces, head: xHead, neck };
 }
 
 export { promptFor };
@@ -2689,68 +3596,121 @@ function liftChime() {
 
 const PA_KINDS = ['oh', 'no', 'ah', 'sob', 'sob'];
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const tape = (() => {
-  let timer = null; let bar = 0; let on = false;
-  const D = 146.83;
-  const dorian = [0, 2, 3, 5, 7, 9, 10];
-  const hz = (deg, oct = 0) => D * (2 ** ((dorian[((deg % 7) + 7) % 7] + 12 * (oct + Math.floor(deg / 7))) / 12));
-  const ctx = () => audio.ctx;
-  const bus = () => audio.musicBus;
+  const MANIFEST = './assets/music/music.json';
+  let manifest = null;
+  let loading = null;
+  const buffers = new Map();
+  let source = null;
+  let side = -1;             
+  let gain = null;
 
-  const tone = (type, f, t, dur, gain) => {
-    const o = ctx().createOscillator(); const g = ctx().createGain();
-    o.type = type; o.frequency.setValueAtTime(f, t);
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.linearRampToValueAtTime(gain, t + 0.014);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(bus()); o.start(t); o.stop(t + dur + 0.05);
-  };
-  const kick = (t) => {
-    const o = ctx().createOscillator(); const g = ctx().createGain();
-    o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.11);
-    g.gain.setValueAtTime(0.45, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-    o.connect(g); g.connect(bus()); o.start(t); o.stop(t + 0.2);
-  };
-  const hat = (t) => {
-    const b = ctx().createBuffer(1, 1024, ctx().sampleRate);
-    const d = b.getChannelData(0);
-    for (let i = 0; i < d.length; i += 1) d[i] = Math.random() * 2 - 1;
-    const n = ctx().createBufferSource(); n.buffer = b;
-    const hp = ctx().createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7000;
-    const g = ctx().createGain(); g.gain.setValueAtTime(0.09, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
-    n.connect(hp); hp.connect(g); g.connect(bus()); n.start(t); n.stop(t + 0.06);
-  };
-
-  function schedule() {
-    if (!ctx()) return;
-    const spb = 60 / 104;
-    const t0 = ctx().currentTime + 0.06;
-    const r = [0, 0, 3, 2][bar % 4];
-    for (let b = 0; b < 4; b += 1) {
-      const t = t0 + b * spb;
-      kick(t); hat(t + spb * 0.5);
-      tone('sawtooth', hz(r, -1), t, 0.34, 0.15);
-      if (b % 2 === 0) {
-        tone('triangle', hz(r + 2), t + 0.02, 0.5, 0.07);
-        tone('triangle', hz(r + 4), t + 0.02, 0.5, 0.055);
-      }
+  async function load() {
+    const ctx = audio.ensure();
+    if (!ctx) return false;
+    if (!manifest) {
+      const r = await fetch(new URL(MANIFEST, import.meta.url));
+      if (!r.ok) throw new Error(`music manifest ${r.status}`);
+      manifest = await r.json();
     }
-    bar += 1;
-    timer = setTimeout(schedule, spb * 4 * 1000 - 60);
+    
+    
+    
+    await Promise.all(manifest.tracks.map(async (t) => {
+      if (buffers.has(t.id)) return;
+      const res = await fetch(new URL(`./assets/music/${t.file}`, import.meta.url));
+      if (!res.ok) throw new Error(`${t.file} ${res.status}`);
+      buffers.set(t.id, await ctx.decodeAudioData(await res.arrayBuffer()));
+    }));
+    return true;
+  }
+
+  function stop() {
+    if (source) { try { source.stop(); } catch {  } source.disconnect(); }
+    source = null;
+  }
+
+  function play(i) {
+    const ctx = audio.ensure();
+    const track = manifest?.tracks?.[i];
+    const buf = track && buffers.get(track.id);
+    if (!ctx || !buf) return false;
+    stop();
+    if (!gain) { gain = ctx.createGain(); gain.gain.value = 0.85; gain.connect(audio.musicBus); }
+    source = ctx.createBufferSource();
+    source.buffer = buf;
+    source.loop = true;
+    source.loopStart = 0;
+    
+    
+    
+    
+    source.loopEnd = (manifest.loopSamples ?? buf.length) / (manifest.sampleRate ?? ctx.sampleRate);
+    source.connect(gain);
+    source.start();
+    return true;
   }
 
   return {
+    
     toggle() {
-      const c = audio.ensure();
-      if (!c) return false;
-      if (on) { clearTimeout(timer); timer = null; on = false; } else { if (c.resume) c.resume(); on = true; schedule(); }
-      return on;
+      const ctx = audio.ensure();
+      if (!ctx) return false;
+      if (ctx.resume) ctx.resume();
+      if (side >= 0 && side < 1) { side = 1; play(side); return true; }
+      if (side === 1) { side = -1; stop(); return false; }
+      side = 0;
+      if (!loading) {
+        loading = load().catch((e) => {
+          
+          
+          
+          console.warn('cassette:', e.message);
+          side = -1;
+          return false;
+        });
+      }
+      loading.then((ok) => { if (ok !== false && side === 0) play(0); });
+      return true;
     },
     
-    
-    
-    get audible() { return on && audio.running; },
+    get audible() { return !!source && audio.running; },
+    get sideName() { return side === 1 ? 'SIDE B' : (side === 0 ? 'SIDE A' : 'OFF'); },
+    get title() { return manifest?.tracks?.[side]?.title ?? ''; },
   };
 })();
 
@@ -2802,7 +3762,7 @@ function start() {
   $('tapeMini').addEventListener('click', () => {
     const playing = tape.toggle();
     $('tapeMini').classList.toggle('on', tape.audible);
-    $('tapeCap').textContent = playing ? (tape.audible ? 'SIDE A' : 'TAP') : 'OFF';
+    $('tapeCap').textContent = playing ? tape.sideName : 'OFF';
   });
   $('again').addEventListener('click', () => window.location.reload());
   $('qteBtn').addEventListener('pointerdown', (e) => {
@@ -2836,7 +3796,7 @@ function start() {
         if (!tape.audible) {
           tape.toggle();
           $('tapeMini').classList.toggle('on', tape.audible);
-          $('tapeCap').textContent = tape.audible ? 'SIDE A' : 'TAP';
+          $('tapeCap').textContent = tape.sideName;
         }
       };
       $('startBtn').addEventListener('click', go);
