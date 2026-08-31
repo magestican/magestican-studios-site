@@ -2805,51 +2805,38 @@ export function boot(canvas, hud) {
   
   
   
-  const deck = buildLevel(1);
-  const { strips, ceilingPieces } = buildDeck(scene, deck);
-
   
   
-  const leaks = [];
-  const wires = [];
-  for (const run of deck.runs) {
-    const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
-    const dx = (run.x1 - run.x0) / len; const dz = (run.z1 - run.z0) / len;
-    const px = -dz; const pz = dx;
-    for (let t = 5; t < len - 3; t += 11) {
-      const x = run.x0 + dx * t; const z = run.z0 + dz * t;
-      const side = hash2(x + z, 1.7) > 0.5 ? 1 : -1;
-      
-      
-      
-      leaks.push(makeLeak(
-        x + px * side * (HALL_W / 2 - 0.12),
-        0.55 + hash2(x, 2.9) * 1.5,
-        z + pz * side * (HALL_W / 2 - 0.12),
-        [-px * side * 0.9, 0.25, -pz * side * 0.9],
-      ));
-      if (hash2(x + z, 5.5) > 0.42) {
-        wires.push(makeWire(
-          x + px * (hash2(z, 6.1) - 0.5) * HALL_W * 0.7,
-          z + pz * (hash2(z, 6.1) - 0.5) * HALL_W * 0.7 + dz * 3,
-          0.7 + hash2(z, 7.3) * 1.5, x + z,
-        ));
-      }
-    }
-  }
-  for (const l of leaks) scene.add(l.points);
-  for (const w of wires) scene.add(w.line);
-
   
   
-  const sparkGeo = new THREE.BufferGeometry();
-  sparkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3));
-  const sparkPt = new THREE.Points(sparkGeo, new THREE.PointsMaterial({
-    color: 0xcfe6ff, size: 0.5, sizeAttenuation: true, transparent: true, opacity: 0,
-    depthWrite: false,
-  }));
-  sparkPt.frustumCulled = false;
-  scene.add(sparkPt);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let deck = buildLevel(1);
+  let deckGroup = null;
+  let strips = [];
+  let ceilingPieces = [];
+  let leaks = [];
+  let wires = [];
+  let sparkGeo = null;
+  let sparkPt = null;
+  let lockers = [];
+  let pickups = [];
+  let lift = null;
+  let EXIT = deck.exit;
+  let rails = railNodesForRuns(deck.runs);
+  let safeRoom = deck.rooms.find((m) => m.kind === 'safe') || null;
 
   
   
@@ -3059,42 +3046,6 @@ export function boot(canvas, hud) {
       cool: 0,
     });
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  [18, 30].forEach((back, i) => {
-    const p = pointBehind(deck, deck.start.x, deck.start.z, back);
-    addChicken(p.z, p.x + (i % 2 ? 1 : -1) * 0.5);
-  });
 
   
   
@@ -3103,125 +3054,245 @@ export function boot(canvas, hud) {
   
   
   
-  
-  
-  
-  deck.runs.forEach((run, i) => {
-    if (run.axis !== 'x' || i < 3) return;
-    addChicken(run.z1, (run.x0 + run.x1) / 2, 'porker');
-  });
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  {
-    const last = deck.runs[deck.runs.length - 1];
-    const t = 0.45;
-    addChicken(last.z0 + (last.z1 - last.z0) * t, last.x0, 'cow');
-  }
-
-  
-  
-  for (const m of deck.rooms) {
-    if (m.contents === 'enemy') addChicken((m.z0 + m.z1) / 2, (m.x0 + m.x1) / 2, 'porker');
-  }
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const lockers = [];
-  for (const run of deck.runs) {
-    if (run.axis !== 'z') continue;
-    const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
-    for (let t = 6; t < len - 4; t += 9.5) {
-      if (hash2(run.z0 + t, 4.2) < 0.45) continue;
-      const side = hash2(run.z0 + t, 8.1) > 0.5 ? 1 : -1;
-      const x = run.x0 + side * (HALL_W / 2 - 0.22);
-      const z = run.z0 + t;
-      
-      if (deck.rooms.some((m) => Math.abs(m.door.x - x) < 1.4 && Math.abs(m.door.z - z) < 1.6)) continue;
-      const box = new THREE.Mesh(new THREE.BoxGeometry(0.42, 2.0, 0.72).toNonIndexed(), mat);
-      const n = box.geometry.attributes.position.count;
-      const col = new Float32Array(n * 3);
-      const c = new THREE.Color(0x4a5348);
-      for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
-      box.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
-      box.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
-      box.geometry.computeVertexNormals();
-      box.position.set(x, 1.0, z);
-      scene.add(box);
-      lockers.push({ mesh: box, x: x - side * 0.5, z });
+  function buildWorld(seed) {
+    if (deckGroup) {
+      deckGroup.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+      scene.remove(deckGroup);
     }
-  }
+    deckGroup = new THREE.Group();
+    scene.add(deckGroup);
 
-  
-  
-  
-  
-  
-  
-  const pickups = [];
-  for (const m of deck.rooms) {
-    if (m.contents !== 'item') continue;
-    const cx = (m.x0 + m.x1) / 2; const cz = (m.z0 + m.z1) / 2;
-    const ammo = hash2(cx, cz) > 0.45;
-    const box = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.30, 0.26).toNonIndexed(), mat);
+    deck = buildLevel(seed);
+    EXIT = deck.exit;
+    rails = railNodesForRuns(deck.runs);
+    safeRoom = deck.rooms.find((m) => m.kind === 'safe') || null;
+    leaks = [];
+    wires = [];
+    lockers = [];
+    pickups = [];
+
+    ({ strips, ceilingPieces } = buildDeck(deckGroup, deck));
+
+    
+    
+    leaks = [];
+    wires = [];
+    for (const run of deck.runs) {
+      const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
+      const dx = (run.x1 - run.x0) / len; const dz = (run.z1 - run.z0) / len;
+      const px = -dz; const pz = dx;
+      for (let t = 5; t < len - 3; t += 11) {
+        const x = run.x0 + dx * t; const z = run.z0 + dz * t;
+        const side = hash2(x + z, 1.7) > 0.5 ? 1 : -1;
+        
+        
+        
+        leaks.push(makeLeak(
+          x + px * side * (HALL_W / 2 - 0.12),
+          0.55 + hash2(x, 2.9) * 1.5,
+          z + pz * side * (HALL_W / 2 - 0.12),
+          [-px * side * 0.9, 0.25, -pz * side * 0.9],
+        ));
+        if (hash2(x + z, 5.5) > 0.42) {
+          wires.push(makeWire(
+            x + px * (hash2(z, 6.1) - 0.5) * HALL_W * 0.7,
+            z + pz * (hash2(z, 6.1) - 0.5) * HALL_W * 0.7 + dz * 3,
+            0.7 + hash2(z, 7.3) * 1.5, x + z,
+          ));
+        }
+      }
+    }
+    for (const l of leaks) deckGroup.add(l.points);
+    for (const w of wires) deckGroup.add(w.line);
+
+    
+    
+    sparkGeo = new THREE.BufferGeometry();
+    sparkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3));
+    sparkPt = new THREE.Points(sparkGeo, new THREE.PointsMaterial({
+      color: 0xcfe6ff, size: 0.5, sizeAttenuation: true, transparent: true, opacity: 0,
+      depthWrite: false,
+    }));
+    sparkPt.frustumCulled = false;
+    deckGroup.add(sparkPt);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    lockers = [];
+    for (const run of deck.runs) {
+      if (run.axis !== 'z') continue;
+      const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
+      for (let t = 6; t < len - 4; t += 9.5) {
+        if (hash2(run.z0 + t, 4.2) < 0.45) continue;
+        const side = hash2(run.z0 + t, 8.1) > 0.5 ? 1 : -1;
+        const x = run.x0 + side * (HALL_W / 2 - 0.22);
+        const z = run.z0 + t;
+        
+        if (deck.rooms.some((m) => Math.abs(m.door.x - x) < 1.4 && Math.abs(m.door.z - z) < 1.6)) continue;
+        const box = new THREE.Mesh(new THREE.BoxGeometry(0.42, 2.0, 0.72).toNonIndexed(), mat);
+        const n = box.geometry.attributes.position.count;
+        const col = new Float32Array(n * 3);
+        const c = new THREE.Color(0x4a5348);
+        for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+        box.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+        box.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+        box.geometry.computeVertexNormals();
+        box.position.set(x, 1.0, z);
+        deckGroup.add(box);
+        lockers.push({ mesh: box, x: x - side * 0.5, z });
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+    pickups = [];
+    for (const m of deck.rooms) {
+      if (m.contents !== 'item') continue;
+      const cx = (m.x0 + m.x1) / 2; const cz = (m.z0 + m.z1) / 2;
+      const ammo = hash2(cx, cz) > 0.45;
+      const box = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.30, 0.26).toNonIndexed(), mat);
+      {
+        const n = box.geometry.attributes.position.count;
+        const col = new Float32Array(n * 3);
+        const c = new THREE.Color(ammo ? 0xb5893f : 0xc4534a);
+        for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+        box.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+        box.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+        box.geometry.computeVertexNormals();
+      }
+      box.position.set(cx, 0.15, cz);
+      deckGroup.add(box);
+      pickups.push({ mesh: box, x: cx, z: cz, ammo, taken: false });
+    }
+
+    
+    EXIT = deck.exit;
+    lift = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.0, 2.4).toNonIndexed(),
+      mat,
+    );
     {
-      const n = box.geometry.attributes.position.count;
+      const n = lift.geometry.attributes.position.count;
       const col = new Float32Array(n * 3);
-      const c = new THREE.Color(ammo ? 0xb5893f : 0xc4534a);
+      const c = new THREE.Color(0x2f6f4a);
       for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
-      box.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
-      box.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
-      box.geometry.computeVertexNormals();
+      lift.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+      lift.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+      lift.geometry.computeVertexNormals();
     }
-    box.position.set(cx, 0.15, cz);
-    scene.add(box);
-    pickups.push({ mesh: box, x: cx, z: cz, ammo, taken: false });
+    lift.position.set(EXIT.x, 1.2, EXIT.z + 0.9);
+    lift.rotation.y = Math.PI;
+    deckGroup.add(lift);
+
+    
+    
+    
+    
+    
+    for (const b of birds) { scene.remove(b.mesh); b.alive = false; }
+    birds.length = 0;
+    player.latchedBy = null;
+    player.struggle = null;
+
+    
+    
+    
+    
+    
+    
+    [18, 30].forEach((back, i) => {
+      const p = pointBehind(deck, deck.start.x, deck.start.z, back);
+      addChicken(p.z, p.x + (i % 2 ? 1 : -1) * 0.5);
+    });
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    deck.runs.forEach((run, i) => {
+      if (run.axis !== 'x' || i < 3) return;
+      addChicken(run.z1, (run.x0 + run.x1) / 2, 'porker');
+    });
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    {
+      const last = deck.runs[deck.runs.length - 1];
+      const t = 0.45;
+      addChicken(last.z0 + (last.z1 - last.z0) * t, last.x0, 'cow');
+    }
+
+    
+    
+    for (const m of deck.rooms) {
+      if (m.contents === 'enemy') addChicken((m.z0 + m.z1) / 2, (m.x0 + m.x1) / 2, 'porker');
+    }
   }
 
+  buildWorld(1);
+
   
-  const EXIT = deck.exit;
-  const lift = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.0, 2.4).toNonIndexed(),
-    mat,
-  );
-  {
-    const n = lift.geometry.attributes.position.count;
-    const col = new Float32Array(n * 3);
-    const c = new THREE.Color(0x2f6f4a);
-    for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
-    lift.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
-    lift.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
-    lift.geometry.computeVertexNormals();
-  }
-  lift.position.set(EXIT.x, 1.2, EXIT.z + 0.9);
-  lift.rotation.y = Math.PI;
-  scene.add(lift);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
 
   const camera = new THREE.PerspectiveCamera(62, 1, 0.05, 200);
   
@@ -3329,11 +3400,9 @@ export function boot(canvas, hud) {
   let creakIn = 6 + Math.random() * 10;
   let sparkIn = 3 + Math.random() * 7;
   let sparkFlash = 0;
-  const rails = railNodesForRuns(deck.runs);
   let camNode = nodeAt(rails, progressAt(deck, deck.start.x, deck.start.z));
   let cutFlash = 0;
   let target = null;
-  const safeRoom = deck.rooms.find((m) => m.kind === 'safe') || null;
   let nearLocker = null;
   let hidden = false;
   const bars = document.getElementById('bars');
@@ -4011,22 +4080,26 @@ export function boot(canvas, hud) {
       liftIn -= dt;
       if (liftIn <= 0) {
         level += 1;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        buildWorld(level);
         player.z = deck.start.z; player.x = deck.start.x; player.yaw = 0;
-        birds.forEach((b, i) => {
-          b.alive = true; b.mesh.visible = true;
-          b.creature = spawnCreature('chicken');
-          b.latched = false; b.cool = 0;
-          
-          const p = pointBehind(deck, deck.start.x, deck.start.z, 14 + i * (10 + Math.min(6, level)));
-          b.z = p.z;
-          b.x = p.x + (i % 2 ? 1 : -1) * 0.5;
-        });
-        player.latchedBy = null; player.struggle = null;
+        camNode = nodeAt(rails, progressAt(deck, player.x, player.z));
+        hidden = false;
+        inSafe = false;
         
         
         player.weapon = readyWeapon('boltDriver', { ammo: 48 });
         safeResupplied = false;
-        for (const it of pickups) { it.taken = false; it.mesh.visible = true; }
         hud.lift(0);
       }
     }
@@ -4116,13 +4189,24 @@ export function boot(canvas, hud) {
   
   
   return {
-    player, birds, touch, faces, head: xHead, neck, lockers, safeRoom,
+    player, birds, touch, faces, head: xHead, neck,
+    
+    
+    
+    
+    get lockers() { return lockers; },
+    get safeRoom() { return safeRoom; },
+    get deck() { return deck; },
     debug: {
       get hidden() { return hidden; },
       get inSafe() { return inSafe; },
       get nearLocker() { return !!nearLocker; },
       get pickups() { return pickups.filter((q) => !q.taken).length; },
       goTo(x, z) { player.x = x; player.z = z; },
+      get level() { return level; },
+      
+      
+      toLift() { player.x = EXIT.x; player.z = EXIT.z; },
     },
   };
 }
