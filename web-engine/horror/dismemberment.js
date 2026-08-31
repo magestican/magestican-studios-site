@@ -118,13 +118,54 @@ const chicken = {
   height: 1.14,          
   torsoIntegrity: 120,
   limbs: [
-    { id: 'leg-l', group: 'legs', integrity: 18, x: -0.10, y: 0.12, z: 0, r: 0.09 },
-    { id: 'leg-r', group: 'legs', integrity: 18, x: 0.10, y: 0.12, z: 0, r: 0.09 },
-    { id: 'wing-l', group: 'wings', integrity: 14, x: -0.30, y: 0.55, z: 0, r: 0.10 },
-    { id: 'wing-r', group: 'wings', integrity: 14, x: 0.30, y: 0.55, z: 0, r: 0.10 },
-    { id: 'head', group: 'head', integrity: 22, x: 0, y: 0.87, z: 0.06, r: 0.12 },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    { id: 'leg-l', group: 'legs', integrity: 18, x: -0.062, y: 0.120, z: 0.015, rx: 0.055, ry: 0.090, rz: 0.070, r: 0.090 },
+    { id: 'leg-r', group: 'legs', integrity: 18, x: 0.062, y: 0.120, z: 0.015, rx: 0.055, ry: 0.090, rz: 0.070, r: 0.090 },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    { id: 'wing-l', group: 'wings', integrity: 14, x: -0.2225, y: 0.433, z: -0.0575, rx: 0.070, ry: 0.161, rz: 0.133, r: 0.161 },
+    { id: 'wing-r', group: 'wings', integrity: 14, x: 0.2225, y: 0.433, z: -0.0575, rx: 0.070, ry: 0.161, rz: 0.133, r: 0.161 },
+    { id: 'head', group: 'head', integrity: 22, x: 0, y: 0.870, z: 0.094, rx: 0.086, ry: 0.120, rz: 0.123, r: 0.123 },
   ],
-  torso: { x: 0, y: 0.48, z: 0, r: 0.26 },
+  
+  
+  torso: { x: 0, y: 0.480, z: -0.035, rx: 0.160, ry: 0.260, rz: 0.250, r: 0.260 },
   
   
   lethalSets: [['leg-l', 'leg-r']],
@@ -205,13 +246,36 @@ export function heightOf(creature) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function zoneWorld(creature, zone) {
   const h = heightOf(creature);
   return {
     x: creature.pos.x + zone.x * h,
     y: creature.pos.y + zone.y * h,
     z: creature.pos.z + zone.z * h,
-    r: zone.r * h,
+    rx: (zone.rx ?? zone.r) * h,
+    ry: (zone.ry ?? zone.r) * h,
+    rz: (zone.rz ?? zone.r) * h,
+    
+    r: (zone.r ?? Math.max(zone.rx, zone.ry, zone.rz)) * h,
   };
 }
 
@@ -241,12 +305,35 @@ export function zonesOf(creature) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function resolveHit(creature, from, to) {
   if (!creature.alive) return null;
   let best = null;
   for (const z of zonesOf(creature)) {
-    const { distance, t } = closestApproach(from, to, z);
-    if (distance > z.r) continue;
+    
+    
+    
+    const s = (p) => ({ x: p.x / z.rx, y: p.y / z.ry, z: p.z / z.rz });
+    const { distance, t } = closestApproach(s(from), s(to), s(z));
+    if (distance > 1) continue;
     if (!best || t < best.t) best = { zone: z, t, distance };
   }
   if (!best) return null;
