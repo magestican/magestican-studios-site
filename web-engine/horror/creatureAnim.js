@@ -312,3 +312,37 @@ export const PORKER = Object.freeze({
   range: { wake: 19, lunge: 2.9, contact: 1.45 },
   speed: { stalk: 2.15, strike: 6.4, drift: 0.3 },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const COW = Object.freeze({
+  timing: { alert: 1.2, windup: 0.70, strike: 0.28, recover: 1.15 },
+  range: { wake: 22, lunge: 3.4, contact: 1.9 },
+  speed: { stalk: 1.7, strike: 5.0, drift: 0.25 },
+  
+  
+  
+  
+  pose: { pitch: 0.34, lift: 0.40, base: -0.30 },
+});

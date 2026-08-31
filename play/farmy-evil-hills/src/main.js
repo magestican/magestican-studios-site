@@ -44,8 +44,9 @@ import {
 } from '../../../web-engine/ps1/ps1Head.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
 import { buildPorker, PORKER_HEIGHT_M } from '../../../web-engine/ps1/creatures/porker.mjs';
+import { buildCow, COW_HEIGHT_M } from '../../../web-engine/ps1/creatures/cow.mjs';
 import {
-  emptyChickenAnim, stepChicken, chickenPose, RANGE as CHICK_RANGE, PORKER,
+  emptyChickenAnim, stepChicken, chickenPose, RANGE as CHICK_RANGE, PORKER, COW,
 } from '../../../web-engine/horror/creatureAnim.js';
 import { ps1Vertex, FRAGMENT, KEY_DIR, FILL_DIR } from '../../../web-engine/ps1/ps1Shader.mjs';
 import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
@@ -147,6 +148,16 @@ const XCOL = {
 
 
 
+
+
+
+const WCOL = {
+  torso: 0xb8b3ab, udder: 0xc19a92, head: 0x8f8a83,
+  hornL: 0xcfc6ad, hornR: 0xcfc6ad, earL: 0x8f8a83, earR: 0x8f8a83,
+  tentacleL: 0xc19a92, tentacleR: 0xb98f88,
+  legL: 0x6e6a64, legR: 0x6e6a64, tail: 0x6e6a64,
+  eyeL: 0x120f10, eyeR: 0x120f10,
+};
 const PCOL = {
   torso: 0xb08a86, head: 0xbe9691, earL: 0xa87f7c, earR: 0xa87f7c,
   snout: 0xc9a09a, armL: 0xb5908b, armR: 0xa17c78,
@@ -2197,6 +2208,29 @@ const PORKER_RIG = {
     snout: [0.15, 0, PZ.head.lo],
   },
 };
+
+
+
+const CWZ = { legs: { lo: 0.0, hi: 0.42 }, torso: { lo: 0.38, hi: 0.86 }, udder: { lo: 0.30, hi: 0.58 }, head: { lo: 0.80, hi: 1.0 } };
+const COW_RIG = {
+  bodyPivot: [-0.02, 0, (CWZ.torso.lo + CWZ.torso.hi) / 2],
+  headPivot: [-0.09, 0, CWZ.head.lo - 0.06],
+  headParts: ['head', 'hornL', 'hornR', 'earL', 'earR', 'eyeL', 'eyeR'],
+  legParts: ['legL', 'legR'],
+  pivots: {
+    legL: [-0.010, -0.098, CWZ.legs.hi],
+    legR: [-0.010, 0.098, CWZ.legs.hi],
+    tentacleL: [0.130, -0.150, CWZ.udder.hi - 0.02],
+    tentacleR: [0.130, 0.150, CWZ.udder.hi - 0.02],
+    torso: [-0.02, 0, (CWZ.torso.lo + CWZ.torso.hi) / 2],
+    udder: [-0.02, 0, (CWZ.torso.lo + CWZ.torso.hi) / 2],
+    tail: [-0.02, 0, (CWZ.torso.lo + CWZ.torso.hi) / 2],
+    head: [-0.09, 0, CWZ.head.lo - 0.06],
+    hornL: [-0.09, 0, CWZ.head.lo - 0.06], hornR: [-0.09, 0, CWZ.head.lo - 0.06],
+    earL: [-0.09, 0, CWZ.head.lo - 0.06], earR: [-0.09, 0, CWZ.head.lo - 0.06],
+    eyeL: [-0.09, 0, CWZ.head.lo - 0.06], eyeR: [-0.09, 0, CWZ.head.lo - 0.06],
+  },
+};
 const CHICKEN_RIG_CFG = {
   bodyPivot: BODY_PIVOT,
   headPivot: HEAD_PIVOT,
@@ -2305,8 +2339,8 @@ function applyChickenPose(rig, pose) {
   
   
   const armAxis = rig.cfg === CHICKEN_RIG_CFG ? 'x' : 'y';
-  const armL = rig.named.wingL || rig.named.armL;
-  const armR = rig.named.wingR || rig.named.armR;
+  const armL = rig.named.wingL || rig.named.armL || rig.named.tentacleL;
+  const armR = rig.named.wingR || rig.named.armR || rig.named.tentacleR;
   if (armL) armL.rotation[armAxis] = -(pose.wingFlap + pose.mutantLag * 0.16);
   if (armR) armR.rotation[armAxis] = (armAxis === 'x' ? 1 : -1)
     * (pose.wingFlap * 0.86 - pose.mutantLag * 0.22);
@@ -2323,6 +2357,7 @@ const SEVER_PART = {
   'leg-l': 'legL', 'leg-r': 'legR',
   'wing-l': 'wingL', 'wing-r': 'wingR',
   'arm-l': 'armL', 'arm-r': 'armR',
+  'tentacle-l': 'tentacleL', 'tentacle-r': 'tentacleR',
   head: 'head',
 };
 
@@ -2966,6 +3001,7 @@ export function boot(canvas, hud) {
 
   const chickenParts = buildChicken().parts;
   const porkerParts = buildPorker().parts;
+  const cowParts = buildCow().parts;
 
   const player = {
     
@@ -2996,10 +3032,15 @@ export function boot(canvas, hud) {
   const birds = [];
   let chickSeed = 0;
   function addChicken(z, x, kind = 'chicken') {
-    const pork = kind === 'porker';
-    const rig = pork
-      ? chickenRig(porkerParts, (n) => PCOL[n] ?? 0xb08a86, PORKER_HEIGHT_M, mat, PORKER_RIG)
-      : chickenRig(chickenParts, (n) => CCOL[n] ?? 0xb9b07a, CHICKEN_H, mat);
+    
+    
+    const SPECIES = {
+      chicken: [chickenParts, (n) => CCOL[n] ?? 0xb9b07a, CHICKEN_H, undefined],
+      porker: [porkerParts, (n) => PCOL[n] ?? 0xb08a86, PORKER_HEIGHT_M, PORKER_RIG],
+      cow: [cowParts, (n) => WCOL[n] ?? 0xb8b3ab, COW_HEIGHT_M, COW_RIG],
+    };
+    const [sParts, sCol, sH, sRig] = SPECIES[kind] || SPECIES.chicken;
+    const rig = chickenRig(sParts, sCol, sH, mat, sRig);
     rig.root.rotation.x = -Math.PI / 2;
     scene.add(rig.root);
     chickSeed += 0.37;
@@ -3069,6 +3110,21 @@ export function boot(canvas, hud) {
     if (run.axis !== 'x' || i < 3) return;
     addChicken(run.z1, (run.x0 + run.x1) / 2, 'porker');
   });
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  {
+    const last = deck.runs[deck.runs.length - 1];
+    const t = 0.45;
+    addChicken(last.z0 + (last.z1 - last.z0) * t, last.x0, 'cow');
+  }
 
   
   
@@ -3179,6 +3235,7 @@ export function boot(canvas, hud) {
   let fireHeld = false;
   let aimLow = false;
   addEventListener('keydown', (e) => {
+    lastInput = 'key';
     if (e.code === 'KeyE') {
       if (hidden) hidden = false;
       else if (nearLocker) { hidden = true; hideSfx(); }
@@ -3235,6 +3292,7 @@ export function boot(canvas, hud) {
         touch.fwd = -dy / R;
         touch.turn = -dx / R;
         touch.active = true;
+        lastInput = 'touch';
       };
       const clear = () => {
         nub.style.transform = 'translate(0,0)';
@@ -3280,6 +3338,9 @@ export function boot(canvas, hud) {
   let hidden = false;
   const bars = document.getElementById('bars');
   let hintShown = true;
+  
+  
+  let lastInput = 'key';
   
   
   const HINT_HTML = document.getElementById('hint')?.innerHTML ?? '';
@@ -3406,7 +3467,7 @@ export function boot(canvas, hud) {
         
         const fx = dx / dist; const fz = dz / dist;
         const rx = fz; const rz = -fx;                 
-        const bh = b.kind === 'porker' ? PORKER_HEIGHT_M : CHICKEN_H;
+        const bh = { porker: PORKER_HEIGHT_M, cow: COW_HEIGHT_M }[b.kind] ?? CHICKEN_H;
         const toLocal = (wx, wy, wz) => {
           const ox = wx - b.x; const oz = wz - b.z;
           return {
@@ -3474,7 +3535,7 @@ export function boot(canvas, hud) {
       
       
       if (b.latched) b.anim.state = 'latched';
-      const prof = b.kind === 'porker' ? PORKER : undefined;
+      const prof = b.kind === 'porker' ? PORKER : (b.kind === 'cow' ? COW : undefined);
       
       
       
@@ -3490,7 +3551,7 @@ export function boot(canvas, hud) {
       b.anim = r.anim;
 
       
-      const voice = b.kind === 'porker' ? porkVoice : chickVoice;
+      const voice = b.kind === 'chicken' ? chickVoice : porkVoice;
       if (r.event) voice(b, r.event === 'recover' ? 'idle' : r.event, dist);
 
       
@@ -3514,10 +3575,14 @@ export function boot(canvas, hud) {
         
         
         
-        player.struggle = createStruggle({ verb: VERB_FOR.chicken ?? 'mash', mode: 'reduced' });
+        
+        
+        
+        
+        player.struggle = createStruggle({ verb: VERB_FOR[b.kind] ?? VERB_FOR.chicken ?? 'mash', mode: 'reduced' });
         shake = Math.max(shake, 0.55);
         hitSfx();
-        beginGrapple(player.vitals, 'chicken');
+        beginGrapple(player.vitals, b.kind);
       }
       b.cool -= dt;
 
@@ -4017,6 +4082,7 @@ export function boot(canvas, hud) {
       maxHealth: MAX_HEALTH,
       stamina: player.vitals.stamina,
       struggle: player.struggle,
+      lastInput,
       alive: !player.dead,
       remaining: birds.filter((b) => b.alive).length,
       ammo: player.weapon.ammo,
@@ -4377,7 +4443,17 @@ const hud = {
     if (s.struggle) {
       $('qte').style.display = 'block';
       $('qteFill').style.width = `${Math.min(100, s.struggle.progress * 100)}%`;
-      $('qteHow').textContent = 'alternate A and D — or hit the button';
+      
+      
+      
+      
+      
+      
+      
+      
+      const how = promptFor(s.struggle.verb ?? 'mash', s.lastInput ?? 'key');
+      $('qteHow').textContent = how.text;
+      $('qte').dataset.icon = how.icon;
     } else {
       $('qte').style.display = 'none';
     }
