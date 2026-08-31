@@ -488,7 +488,33 @@ export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.
   cam.z += (tz - cam.z) * k;
 
   cam.shake = Math.max(0, cam.shake - dt * 3.2);
-  const sx = cam.shake * (Math.sin(performance.now() * 0.07) * 0.22);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const shakeX = cam.shake * (Math.sin(performance.now() * 0.07) * 0.22);
+  const sx = shakeX * Math.cos(cam.yaw);
+  const sz = -shakeX * Math.sin(cam.yaw);
   const sy = cam.shake * (Math.sin(performance.now() * 0.093) * 0.18);
 
   
@@ -506,7 +532,7 @@ export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.
     lookY -= g * Math.min(drop, GLIDE_LOOK_DROP);
   }
 
-  cam.camera.position.set(cam.x + sx, cam.y + sy, cam.z);
+  cam.camera.position.set(cam.x + sx, cam.y + sy, cam.z + sz);
   cam.camera.lookAt(
     kart.x + Math.sin(cam.yaw) * lookDist,
     lookY,

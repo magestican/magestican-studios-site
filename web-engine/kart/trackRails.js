@@ -124,6 +124,45 @@ export const RAIL_CATCH = 1.15;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const RAIL_BAND = RAIL_RADIUS + RAIL_CATCH;
+
+
+
+
+
+
+
+
+
+
 export const RAIL_REF_SPEED = 56;
 export const RAIL_V_FRAC = 0.95;
 export const RAIL_LAT_ACCEL = 34;
@@ -320,6 +359,83 @@ export function planRails(path, track = {}, { guards = null, minRun = RAIL_MIN_R
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function railContact(rails, surf, kart) {
   if (!rails || !surf) return null;
   if (surf.branch) return null;                 
@@ -327,7 +443,7 @@ export function railContact(rails, surf, kart) {
   const key = (surf.index % rails.count) * 2 + s;
   if (!rails.on[key]) return null;
   const over = surf.overBy ?? 0;
-  if (Math.abs(over - RAIL_AT) > RAIL_RADIUS + RAIL_CATCH) return null;
+  if (Math.abs(over - RAIL_AT) > RAIL_BAND) return null;
 
   const tangent = surf.heading ?? 0;
   const vx = kart.vx ?? 0;
@@ -367,6 +483,17 @@ export function railContact(rails, surf, kart) {
     angle,
     remaining: Math.max(0, remaining),
     speed,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    toRail: RAIL_AT - over,
   };
 }
 

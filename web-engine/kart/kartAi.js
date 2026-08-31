@@ -327,7 +327,96 @@ const RAIL_GIVE_UP = 6;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const RAIL_TOLL = 0.45;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -456,6 +545,19 @@ export function wantsRail(driver, span, { topSpeed = 45, speed = 0 } = {}) {
   const need = railMetresFor(0, TIER_TIMES[0], v, top);
   if (!(need <= span.metres)) return false;
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -873,7 +975,32 @@ export function driveBot(driver, kart, line, ctx) {
   
   
   
-  const cornerIsSlow = target.speed < kart.tuning.topSpeed * 0.80;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const cornerIsSlow = target.speed < kart.tuning.topSpeed * (kart.drifting ? 0.92 : 0.80);
   
   
   
@@ -914,6 +1041,21 @@ export function driveBot(driver, kart, line, ctx) {
   
   
   const cornerSteer = -Math.sign(target.curvature || 0);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   if (wantDrift && !kart.drifting && cornerSteer !== 0 && !railTarget) {
     steer = Math.max(-1, Math.min(1, steer + cornerSteer * 0.5));
   }

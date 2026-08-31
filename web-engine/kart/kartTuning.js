@@ -115,6 +115,23 @@ export const CHARACTERS = Object.freeze([
 
 export const DEFAULT_CHARACTER = 'sheep';
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const DRIFT_SLIP_LIMIT = 15 * (Math.PI / 180);
+
 export function characterById(id) {
   return CHARACTERS.find((c) => c.id === id) ?? CHARACTERS.find((c) => c.id === DEFAULT_CHARACTER);
 }
@@ -170,6 +187,39 @@ export function resolveTuning(character, { engineClass = 1 } = {}) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     maxSlip: 0.30,
     
     
@@ -177,7 +227,38 @@ export function resolveTuning(character, { engineClass = 1 } = {}) {
     
     
     
-    driftMaxSlip: lerp(0.62, 0.42, (c.driftGrip - 0.22) / 0.22),
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    driftMaxSlip: lerp(DRIFT_SLIP_LIMIT, 0.13, (c.driftGrip - 0.22) / 0.22),
     
     
     

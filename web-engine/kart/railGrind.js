@@ -71,7 +71,7 @@
 
 
 
-import { chargeRate, boostForCharge } from './driftBoost.js';
+import { chargeRate, boostForCharge, TIERS } from './driftBoost.js';
 
 const clamp = (v, lo, hi) => (v < lo ? lo : (v > hi ? hi : v));
 
@@ -83,6 +83,33 @@ const clamp = (v, lo, hi) => (v < lo ? lo : (v > hi ? hi : v));
 
 
 export const GRIND_MIN_SPEED = 12;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -120,7 +147,136 @@ export const GRIND_MAX_ANGLE = 0.6;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function alongRail(speed, angle) {
+  return Math.abs(speed) * Math.cos(clamp(Math.abs(angle), 0, Math.PI / 2));
+}
+
+
+
+
+
+
+
+
+
+
+
 export const GRIND_REACH = 2.0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function mountPull(tangent, toRail, side, speed) {
+  const v = Math.abs(speed);
+  if (!(v > 1e-6) || !Number.isFinite(toRail)) return tangent;
+  const want = (side >= 0 ? 1 : -1) * (toRail / GRIND_MOUNT);
+  const phi = clamp(Math.asin(clamp(want / v, -1, 1)), -GRIND_MAX_ANGLE, GRIND_MAX_ANGLE);
+  return tangent + phi;
+}
 
 
 
@@ -153,7 +309,97 @@ export const GRIND_MAX_TIME = 4.0;
 export const GRIND_MOUNT = 0.14;
 
 
+
+
+
+
+
+
+
+
 export const GRIND_DRAG = 0.10;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GRIND_RIDE = 1.0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function grindSpeed(speed, topSpeed, accel, dt) {
+  const v = Math.abs(speed);
+  const want = Math.max(0, topSpeed) * GRIND_RIDE;
+  if (v > want) return Math.max(want, v * (1 - GRIND_DRAG * dt));
+  return Math.min(want, v + Math.max(0, accel) * dt);
+}
 
 
 
@@ -167,6 +413,329 @@ export const GRIND_EXIT_STEER = 0.35;
 
 
 export const GRIND_EXIT_PUSH = 6.0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GRIND_EXIT_SPEED = 1.05;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GRIND_EXIT_BOOST = Object.freeze({
+  tier: 0,
+  time: TIERS[1].time,
+  power: GRIND_EXIT_SPEED,
+  name: 'grind',
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GRIND_LAUNCH_GRACE = TIERS[3].time;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 export const GRIND_TIMEOUT_PAY = 0.5;
@@ -209,6 +778,13 @@ export function grindFields() {
 
 
     grindEnded: null,
+    
+
+
+
+
+
+    railLaunch: 0,
   };
 }
 
@@ -246,6 +822,7 @@ export function grindStep(kart, input = {}, ctx = {}) {
     boost: null,
     push: 0,
     jumpOff: false,
+    exitSpeed: 0,
   };
   if (!enabled) return idle;
 
@@ -281,10 +858,24 @@ export function grindStep(kart, input = {}, ctx = {}) {
 
   if (!already) {
     
-    if (speed < GRIND_MIN_SPEED) return idle;
-    if (Math.abs(rail.angle) > GRIND_MAX_ANGLE) return idle;
+    
+    
+    
+    
+    
+    
+    
+    
+    const along = alongRail(speed, rail.angle ?? 0);
+    if (along < GRIND_MIN_SPEED) return idle;
     
     if (Math.abs((kart.y ?? 0) - rail.y) > GRIND_REACH) return idle;
+    
+    
+    
+    
+    
+    const crashed = Math.abs(rail.angle ?? 0) > GRIND_MAX_ANGLE;
     return {
       grinding: true,
       grindTime: 0,
@@ -296,7 +887,15 @@ export function grindStep(kart, input = {}, ctx = {}) {
       
       
       
-      charge: kart.drifting ? (kart.driftCharge ?? 0) : 0,
+      
+      
+      
+      
+      
+      
+      
+      
+      charge: (kart.drifting && !crashed) ? (kart.driftCharge ?? 0) : 0,
       mount: 0,
       wheelie: 0,
       
@@ -306,11 +905,24 @@ export function grindStep(kart, input = {}, ctx = {}) {
       started: true,
       ended: null,
       y: rail.y,
-      heading: rail.tangent,
-      speed: Math.abs(kart.speed ?? 0),
+      
+      
+      
+      
+      
+      heading: mountPull(rail.tangent, rail.toRail ?? 0, rail.side, along),
+      
+      
+      
+      
+      
+      
+      
+      speed: along,
       boost: null,
       push: 0,
       jumpOff: false,
+      exitSpeed: 0,
     };
   }
 
@@ -319,7 +931,12 @@ export function grindStep(kart, input = {}, ctx = {}) {
   const side = kart.grindSide || rail.side;
   const armed = kart.grindArmed || !input.jump;
   const mount = Math.min(1, (kart.grindMount ?? 0) + dt / Math.max(GRIND_MOUNT, 1e-6));
-  const nextSpeed = Math.max(0, speed * (1 - GRIND_DRAG * dt));
+  
+  
+  
+  const nextSpeed = grindSpeed(
+    speed, kart.tuning?.topSpeed ?? 40, kart.tuning?.accel ?? 30, dt,
+  );
   const charge = (kart.grindCharge ?? 0) + chargeRate({
     speed: nextSpeed,
     
@@ -347,9 +964,18 @@ export function grindStep(kart, input = {}, ctx = {}) {
     return {
       ...ended(kart, 'jump'),
       side,
-      boost: boostForCharge(charge),
+      boost: exitBoost(charge),
       push: GRIND_EXIT_PUSH,
       jumpOff: true,
+      
+      
+      
+      
+      
+      
+      
+      
+      exitSpeed: Math.min(nextSpeed, kart.tuning?.topSpeed ?? 40) * GRIND_EXIT_SPEED,
     };
   }
   
@@ -370,12 +996,38 @@ export function grindStep(kart, input = {}, ctx = {}) {
     started: false,
     ended: null,
     y: rail.y,
-    heading: rail.tangent,
+    
+    
+    heading: mountPull(rail.tangent, rail.toRail ?? 0, side, nextSpeed),
     speed: nextSpeed,
     boost: null,
     push: 0,
     jumpOff: false,
+    exitSpeed: 0,
   };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function exitBoost(charge) {
+  return boostForCharge(charge) ?? GRIND_EXIT_BOOST;
 }
 
 
@@ -396,6 +1048,7 @@ function ended(kart, why) {
     boost: null,
     push: 0,
     jumpOff: false,
+    exitSpeed: 0,
   };
 }
 

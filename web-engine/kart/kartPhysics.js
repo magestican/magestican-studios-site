@@ -34,7 +34,9 @@
 import { chargeRate, boostForCharge, applyBoost, driftTier } from './driftBoost.js';
 import { glideFields, glideStep, glideSink, glideCruise } from './glide.js';
 import { CAMBER_GRIP } from './trackCamber.js';
-import { grindFields, grindStep, grindHeight, canGrind } from './railGrind.js';
+import {
+  grindFields, grindStep, grindHeight, canGrind, GRIND_LAUNCH_GRACE,
+} from './railGrind.js';
 import { waterFields, boatStep, boatFloat, impactKeep } from './water.js';
 
 
@@ -62,6 +64,16 @@ export const JUMP_SPEED = 7.9;
 
 
 export const JUMP_COOLDOWN = 0.28;
+
+
+
+
+
+
+
+
+
+export const HOP_TIME = 0.18;
 
 
 
@@ -242,6 +254,10 @@ export function stepKart(state, input, surface, dt) {
   s.invuln = Math.max(0, s.invuln - dt);
   s.hopTime = Math.max(0, s.hopTime - dt);
   s.jumpCooldown = Math.max(0, s.jumpCooldown - dt);
+  
+  
+  
+  s.railLaunch = Math.max(0, (s.railLaunch ?? 0) - dt);
   s.jumped = false;
   if (s.boost) {
     s.boost = { ...s.boost, time: s.boost.time - dt };
@@ -337,6 +353,12 @@ export function stepKart(state, input, surface, dt) {
   }
   
   
+  
+  
+  
+  if (grind.ended === 'jump') s.railLaunch = GRIND_LAUNCH_GRACE;
+  
+  
   if (grind.started && s.drifting) { s.drifting = 0; s.driftCharge = 0; }
 
   const wasBoating = s.boating;
@@ -430,12 +452,23 @@ export function stepKart(state, input, surface, dt) {
   
   
   if (!spinning && !s.grinding && !s.boating && (s.grounded || s.hopTime > 0)) {
-    if (input.drift && !s.drifting && s.hopTime <= 0 && s.grounded && !s.jumped && Math.abs(s.speed) >= 9) {
+    if (!s.drifting && s.hopTime <= 0 && s.grounded && !s.jumped && driftEntry(input, s)) {
       
       
       
       
-      s.hopTime = 0.18;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      s.hopTime = HOP_TIME;
       s.vy = 3.4;
       s.grounded = false;
     }
@@ -518,14 +551,18 @@ export function stepKart(state, input, surface, dt) {
   const fwd = forwardOf(s.heading);
   const offRoad = !surface.onRoad;
   const squashed = s.squashTime > 0;
-  const speedCap = t.topSpeed
-    * boostPower
-    
-    
-    
-    
-    * (s.boating ? boat.speedScale : (offRoad ? t.offRoadSpeed : 1))
-    * (squashed ? 0.62 : 1);
+  
+  
+  
+  
+  
+  const capBase = t.topSpeed * boostPower * (squashed ? 0.62 : 1);
+  
+  
+  
+  
+  const surfaceScale = s.boating ? boat.speedScale : (offRoad ? t.offRoadSpeed : 1);
+  const speedCap = capBase * surfaceScale;
 
   
   
@@ -624,8 +661,77 @@ export function stepKart(state, input, surface, dt) {
   
   
   
-  if (!s.boost && !s.gliding && !s.grinding && ground > speedCap && vf > 0) {
-    const scale = speedCap / ground;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const launchCap = s.railLaunch > 0 ? capBase * (s.boating ? surfaceScale : 1) : speedCap;
+  if (!s.boost && !s.gliding && !s.grinding && ground > launchCap && vf > 0) {
+    const scale = launchCap / ground;
     s.vx *= scale;
     s.vz *= scale;
   }
@@ -752,16 +858,91 @@ export function stepKart(state, input, surface, dt) {
   
   
   
-  if (s.drifting && s.hopTime > 0.001 && speedNow > 1) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (s.drifting && s.hopTime > 0 && speedNow > 1) {
     
     
     
     
-    const kick = s.drifting * 0.5 * dt / 0.18;
+    const kick = s.drifting * t.driftMaxSlip * Math.min(dt, s.hopTime) / HOP_TIME;
     const dir = Math.atan2(s.vx, s.vz) + kick;
     const mag = Math.hypot(s.vx, s.vz);
     s.vx = Math.sin(dir) * mag;
     s.vz = Math.cos(dir) * mag;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (grind.ended === 'jump' && grind.exitSpeed > 0) {
+    const was = Math.hypot(s.vx, s.vz);
+    if (was > 1e-6) {
+      if (grind.exitSpeed > was) {
+        const scale = grind.exitSpeed / was;
+        s.vx *= scale;
+        s.vz *= scale;
+      }
+    } else {
+      
+      
+      
+      
+      s.vx = fwd.x * grind.exitSpeed;
+      s.vz = fwd.z * grind.exitSpeed;
+    }
   }
 
   

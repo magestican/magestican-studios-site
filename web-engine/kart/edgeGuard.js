@@ -74,13 +74,65 @@ import { inSpan, RESPAWNS } from './trackHazards.js';
 export const GUARD_FLAT = 3.0;
 
 
-export const GUARD_RISE = 4.5;
 
 
-export const GUARD_CAP = 2.5;
 
 
-export const GUARD_WIDTH = GUARD_FLAT + GUARD_RISE + GUARD_CAP;
+
+
+
+
+
+export const GUARD_RISE = 2.5;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GUARD_CAP = 1.8;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GUARD_BROW = 2.7;
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GUARD_WIDTH = GUARD_FLAT + GUARD_RISE + GUARD_CAP + GUARD_BROW;
 
 
 
@@ -286,8 +338,13 @@ export function tierForDrop(d) {
 export function guardSection(reach = GUARD_WIDTH) {
   const width = Math.max(1.2, Math.min(reach, GUARD_WIDTH));
   const flat = Math.min(GUARD_FLAT, width * 0.45);
-  const crest = flat + (width - flat) * (GUARD_RISE / (GUARD_RISE + GUARD_CAP));
-  return { width, flat, crest };
+  const outer = GUARD_RISE + GUARD_CAP + GUARD_BROW;
+  const crest = flat + (width - flat) * (GUARD_RISE / outer);
+  
+  
+  
+  const capEnd = flat + (width - flat) * ((GUARD_RISE + GUARD_CAP) / outer);
+  return { width, flat, crest, capEnd };
 }
 
 
@@ -308,13 +365,58 @@ export function guardSection(reach = GUARD_WIDTH) {
 
 export function guardLift(out, height, reach = GUARD_WIDTH) {
   if (!(height > 0)) return null;
-  const { width, flat, crest } = guardSection(reach);
+  const { width, flat, crest, capEnd } = guardSection(reach);
   if (out < 0) return 0;
   if (out > width) return null;
   if (out <= flat) return 0;
-  if (out >= crest) return height;
-  const u = (out - flat) / (crest - flat);
-  return height * u * u * (3 - 2 * u);
+  if (out < crest) {
+    const u = (out - flat) / (crest - flat);
+    return height * u * u * (3 - 2 * u);
+  }
+  if (out <= capEnd) return height;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const v = (out - capEnd) / Math.max(1e-6, width - capEnd);
+  return height * (1 - v * v * (3 - 2 * v));
 }
 
 

@@ -54,7 +54,7 @@ import { planRails } from './trackRails.js';
 
 
 export {
-  GUARD_FLAT, GUARD_RISE, GUARD_CAP, GUARD_WIDTH, GUARD_PROBE,
+  GUARD_FLAT, GUARD_RISE, GUARD_CAP, GUARD_BROW, GUARD_WIDTH, GUARD_PROBE,
   GUARD_TIERS, guardLift, guardSection, guardHeightFor, tierForDrop,
   
   

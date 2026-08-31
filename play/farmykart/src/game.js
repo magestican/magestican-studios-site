@@ -62,6 +62,29 @@ import { lapPoints } from 'arbelo/raceScore';
 
 
 import { pageContexts } from '../../../web-engine/render/contextBudget.js';
+
+
+
+
+
+
+
+
+
+
+import { releaseShadows } from '../../../web-engine/render/shadowRelease.js';
+import {
+  createContextState, contextLost, contextRestored, contextCheck, shouldDraw,
+} from '../../../web-engine/render/contextRecovery.js';
+import { createFrameGuard, frameOk, frameFailed, restartFrameGuard } from '../../../web-engine/render/frameGuard.js';
+
+
+
+
+
+
+
+import { showBanner as showPageBanner, hideBanner as hidePageBanner } from '../../../web-engine/updater/banner.js';
 import { trackById, itemStopsFor } from './tracks/tracks.js';
 import { buildTrackMesh, buildFences, SHOULDER } from './render/trackMesh.js';
 import { buildScenery } from './render/props.js';
@@ -498,6 +521,20 @@ export function createRace(options) {
 
   let playerSurface = null;
   let disposed = false;
+
+  
+  
+  
+  
+  
+  
+  
+  const ctxState = createContextState();
+  const guard = createFrameGuard();
+  
+  const GFX_BANNER = 'fk-graphics-banner';
+  const FAULT_BANNER = 'fk-frame-banner';
+  const offerReload = { actionLabel: 'Reload', onAction: () => location.reload() };
 
   const onResize = () => {
     renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -1436,15 +1473,87 @@ export function createRace(options) {
   
   function frame(now) {
     if (!running) return;
+    
+    
+    
+    
+    
+    
+    
     raf = requestAnimationFrame(frame);
     const elapsed = (now - last) / 1000;
     last = now;
+    try {
+      
+      
+      
+      
+      
+      
+      if (!shouldDraw(ctxState)) { pollContext(now); return; }
+      
+      
+      
+      const plan = planTick(elapsed, { hidden: document.hidden });
+      for (const dt of plan.steps) step(dt);
+      if (plan.render && plan.steps.length) draw(plan.steps[plan.steps.length - 1]);
+      const ok = frameOk(guard);
+      
+      
+      if (ok.recovered) {
+        hidePageBanner(FAULT_BANNER);
+        console.warn(`[fk] frame recovered after ${ok.failures} failing frames`);
+      }
+    } catch (err) {
+      frameThrew(err, now);
+    }
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  function frameThrew(err, now) {
+    const d = frameFailed(guard, err, now);
     
     
     
-    const plan = planTick(elapsed, { hidden: document.hidden });
-    for (const dt of plan.steps) step(dt);
-    if (plan.render && plan.steps.length) draw(plan.steps[plan.steps.length - 1]);
+    if (d.novel) console.error(`[fk] frame threw: ${d.signature}`, err);
+    if (d.warn) showPageBanner({ id: FAULT_BANNER, text: d.message });
+    if (d.stop) {
+      console.error(
+        `[fk] frame has thrown ${d.consecutive} times over ${Math.round(d.forMs)} ms`
+        + ` (${d.total} this race) - stopping the loop`, err);
+      
+      
+      running = false;
+      cancelAnimationFrame(raf);
+      stopEngine(audio);
+      stopMusic(audio);
+      showPageBanner({ id: FAULT_BANNER, text: d.message, ...offerReload });
+    }
+  }
+
+  
+
+
+
+
+
+
+  function pollContext(now) {
+    const c = contextCheck(ctxState, now);
+    if (!c.giveUp) return;
+    console.error(`[fk] WebGL context still lost after ${Math.round(c.downMs)} ms`);
+    showPageBanner({ id: GFX_BANNER, text: c.message, ...offerReload });
   }
 
   function finish() {
@@ -1492,6 +1601,60 @@ export function createRace(options) {
 
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const onContextLost = (e) => {
+    e.preventDefault();
+    const d = contextLost(ctxState, performance.now());
+    console.warn(`[fk] WebGL context lost (loss ${d.losses}) - holding the race`);
+    
+    
+    showPageBanner({ id: GFX_BANNER, text: d.message, ...(d.giveUp ? offerReload : {}) });
+  };
+  const onContextRestored = () => {
+    const d = contextRestored(ctxState, performance.now());
+    console.warn(`[fk] WebGL context restored after ${Math.round(d.downMs)} ms`);
+    if (d.rebuild) {
+      
+      
+      
+      
+      
+      
+      
+      
+      releaseEnvironment(scene.environment);
+      scene.environment = buildEnvironment(renderer, sky.material);
+      
+      
+      
+      onResize();
+    }
+    if (d.clear) hidePageBanner(GFX_BANNER);
+    
+    
+    last = performance.now();
+  };
+  canvas.addEventListener('webglcontextlost', onContextLost);
+  canvas.addEventListener('webglcontextrestored', onContextRestored);
+
+  
+  
   worldReady = true;
   for (const fire of pendingNet) fire();
   pendingNet.length = 0;
@@ -1512,6 +1675,14 @@ export function createRace(options) {
     renderer, scene, camera, track, lights,
     get racers() { return racers; },
     get you() { return you; },
+    
+    
+    
+    
+    
+    
+    get contextState() { return ctxState; },
+    get frameGuard() { return guard; },
     
     lightReport() {
       const out = [];
@@ -1555,6 +1726,14 @@ export function createRace(options) {
     track,
     start() {
       if (running || disposed) return;
+      
+      
+      
+      
+      
+      
+      
+      restartFrameGuard(guard);
       
       
       
@@ -1615,6 +1794,13 @@ export function createRace(options) {
       if (net) net.dispose();
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onResize);
+      canvas.removeEventListener('webglcontextlost', onContextLost);
+      canvas.removeEventListener('webglcontextrestored', onContextRestored);
+      
+      
+      
+      hidePageBanner(GFX_BANNER);
+      hidePageBanner(FAULT_BANNER);
       controls.dispose();
       
       
@@ -1628,6 +1814,23 @@ export function createRace(options) {
       
       releaseEnvironment(scene.environment);
       scene.environment = null;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      releaseShadows(scene);
       renderer.dispose();
     },
   };

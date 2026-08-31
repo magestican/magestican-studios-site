@@ -23,7 +23,7 @@ import { NORMAL_SCALE } from '../../../../web-engine/render/lookGrade.js';
 import { inSpan, RESPAWNS } from 'arbelo/trackHazards';
 import {
   SHOULDER, KERB_WIDTH, groundGrid, groundMeshHeightAt, trackGuards,
-  GUARD_WIDTH, guardSection, GUARD_DRESS_MIN,
+  GUARD_WIDTH, guardSection, guardLift, GUARD_DRESS_MIN,
   
   
   
@@ -1598,7 +1598,7 @@ function buildEdgeGuards(path, track) {
       
       
       
-      const { width: reach, flat, crest } = guardSection(guards.reach[k]);
+      const { width: reach, flat, crest, capEnd } = guardSection(guards.reach[k]);
       const half = p.width / 2;
       
       
@@ -1607,14 +1607,49 @@ function buildEdgeGuards(path, track) {
       const ox = p.x + t.z * ((half + reach) * side);
       const oz = p.z - t.x * ((half + reach) * side);
       const outside = groundMeshHeightAt(path, ox, oz);
-      const fall = Math.max(0.6, Math.min(4.5, y0 + h - outside));
+      
+      
+      
+      
+      
+      const fall = Math.max(0.6, Math.min(4.5, y0 - outside));
       const at = (out, y, c) => ({
         x: p.x + t.z * ((half + out) * side),
         y,
         z: p.z - t.x * ((half + out) * side),
         c,
       });
-      const rise = crest - flat;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const lift = (out) => guardLift(out, h, guards.reach[k]) ?? 0;
+      const row = (out, c) => at(out, y0 + lift(out), c);
+      const rows = [];
+      for (let n = 1; n <= 4; n += 1) {
+        const out = flat + (crest - flat) * (n / 4);
+        rows.push(row(out, n >= 3 ? crestCol : bankCol));
+      }
+      rows.push(row(capEnd, crestCol));
+      for (let n = 1; n <= 3; n += 1) {
+        const out = capEnd + (reach - capEnd) * (n / 3);
+        
+        
+        rows.push(row(out, n === 1 ? crestCol : bankCol));
+      }
       strip.push([
         
         
@@ -1622,14 +1657,8 @@ function buildEdgeGuards(path, track) {
         
         at(0, y0 - 0.01, bankCol),
         at(flat, y0 - 0.005, bankCol),
-        
-        
-        
-        
-        at(flat + rise * 0.45, y0 + h * 0.16, bankCol),
-        at(flat + rise * 0.80, y0 + h * 0.70, crestCol),
-        at(reach, y0 + h, crestCol),
-        at(reach, y0 + h - fall, faceCol),
+        ...rows,
+        at(reach, y0 - fall, faceCol),
       ]);
 
       
@@ -1646,7 +1675,14 @@ function buildEdgeGuards(path, track) {
         const put = (kind) => {
           if (arc < nextAt[kind]) return;
           nextAt[kind] = arc + spacing[kind];
-          const out = half + (crest + reach) * 0.5;
+          
+          
+          
+          
+          
+          
+          
+          const out = half + (crest + capEnd) * 0.5;
           dressed[kind].push({
             x: p.x + t.z * (out * side),
             y: y0 + h,
