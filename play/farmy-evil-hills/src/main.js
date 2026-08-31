@@ -27,7 +27,7 @@ import { solve, RIG as FRIG, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
 import { poseById } from '../../2d-fighter-ex/src/moveSet.mjs';
 import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from '../../../web-engine/ps1/ps1Rig.mjs';
 import { buildFighter, jointBall } from '../../../web-engine/ps1/ps1Mesh.mjs';
-import { hair3d } from '../../../web-engine/ps1/ps1Head.mjs';
+import { head3d, hair3d } from '../../../web-engine/ps1/ps1Head.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
 import { ps1Vertex, FRAGMENT, KEY_DIR, FILL_DIR } from '../../../web-engine/ps1/ps1Shader.mjs';
 import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
@@ -123,9 +123,13 @@ const CCOL = {
 
 
 
-function partsToGeometry(parts, colourOf, targetHeight) {
+function partsToGeometry(parts, colourOf, targetHeight, measureAgainst, keepUv) {
   let lo = Infinity; let hi = -Infinity;
-  for (const p of parts) {
+  
+  
+  
+  
+  for (const p of (measureAgainst || parts)) {
     for (let i = 2; i < p.mesh.positions.length; i += 3) {
       if (p.mesh.positions[i] < lo) lo = p.mesh.positions[i];
       if (p.mesh.positions[i] > hi) hi = p.mesh.positions[i];
@@ -150,10 +154,275 @@ function partsToGeometry(parts, colourOf, targetHeight) {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
-  g.setAttribute('uv', new THREE.Float32BufferAttribute(new Array((pos.length / 3) * 2).fill(0), 2));
+  
+  
+  if (keepUv) {
+    const uvs = [];
+    for (const p of parts) {
+      const src = p.mesh.uvs || [];
+      for (let i = 0; i < (p.mesh.positions.length / 3) * 2; i += 1) uvs.push(src[i] ?? 0);
+    }
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  } else {
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(new Array((pos.length / 3) * 2).fill(0), 2));
+  }
   g.setIndex(idx);
   g.computeVertexNormals();
   return g;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const FACE_PX = 128;
+
+function xanderFaceSheet() {
+  const cv = document.createElement('canvas');
+  cv.width = FACE_PX * 2;
+  cv.height = Math.round(FACE_PX / 0.75);
+  const c = cv.getContext('2d');
+
+  const SKIN = '#e2ab86';
+  const SKIN_SHADE = '#c08a68';
+  const SKIN_DEEP = '#a06f52';
+  const HAIR = '#d8b45e';
+  const HAIR_DARK = '#a8842f';
+  const EYE_WHITE = '#f2ece0';
+  const IRIS = '#2f6fd0';
+  const IRIS_DARK = '#1d4a94';
+  const LINE = '#3a2418';
+  const MOUTH = '#8d4a3c';
+
+  
+  
+  
+  c.fillStyle = SKIN;
+  c.fillRect(0, 0, cv.width, cv.height);
+
+  
+  
+  const sx = cv.width * 0.52;
+  const wash = c.createLinearGradient(sx, 0, cv.width, 0);
+  wash.addColorStop(0, SKIN);
+  wash.addColorStop(1, SKIN_DEEP);
+  c.fillStyle = wash;
+  c.fillRect(sx, 0, cv.width - sx, cv.height);
+
+  
+  const S = FACE_PX;
+  const crown = 0;
+  const chin = (0.7275 / 0.75) * S;      
+  const r = (chin - crown) / 2.06;       
+  const cxp = S * 0.5;
+  const eyeY = crown + 1.06 * r - r * 0.06;
+  const eyeDX = r * 0.42;
+  const eyeW = r * 0.34;
+  const eyeH = r * 0.17;
+
+  c.save();
+  c.beginPath(); c.rect(0, 0, S, chin + r * 0.2); c.clip();
+  c.lineJoin = 'round';
+  c.lineCap = 'round';
+
+  
+  c.fillStyle = SKIN_SHADE;
+  c.beginPath();
+  c.moveTo(cxp - r * 0.95, eyeY - r * 0.35);
+  c.quadraticCurveTo(cxp - r * 0.86, chin - r * 0.15, cxp, chin);
+  c.quadraticCurveTo(cxp + r * 0.86, chin - r * 0.15, cxp + r * 0.95, eyeY - r * 0.35);
+  c.lineTo(cxp + r * 0.95, chin + r * 0.3);
+  c.lineTo(cxp - r * 0.95, chin + r * 0.3);
+  c.closePath();
+  c.globalAlpha = 0.30; c.fill(); c.globalAlpha = 1;
+
+  
+  c.fillStyle = SKIN_SHADE;
+  c.globalAlpha = 0.4;
+  c.beginPath();
+  c.ellipse(cxp + eyeDX * 1.25, eyeY + r * 0.34, r * 0.24, r * 0.15, -0.3, 0, Math.PI * 2);
+  c.fill();
+  c.globalAlpha = 1;
+
+  const eye = (dir) => {
+    const ex = cxp + dir * eyeDX;
+    
+    c.fillStyle = LINE;
+    c.beginPath();
+    c.ellipse(ex, eyeY, eyeW * 1.08, eyeH * 1.24, 0, 0, Math.PI * 2);
+    c.fill();
+    
+    c.fillStyle = EYE_WHITE;
+    c.beginPath();
+    c.ellipse(ex, eyeY + eyeH * 0.12, eyeW * 0.92, eyeH * 0.92, 0, 0, Math.PI * 2);
+    c.fill();
+    
+    c.fillStyle = IRIS;
+    c.beginPath(); c.arc(ex, eyeY + eyeH * 0.12, eyeH * 0.80, 0, Math.PI * 2); c.fill();
+    c.fillStyle = IRIS_DARK;
+    c.beginPath(); c.arc(ex, eyeY + eyeH * 0.12, eyeH * 0.44, 0, Math.PI * 2); c.fill();
+    
+    
+    c.fillStyle = '#ffffff';
+    c.fillRect(Math.round(ex - dir * eyeW * 0.10 - 1), Math.round(eyeY - eyeH * 0.34), 2, 2);
+    
+    c.strokeStyle = LINE; c.lineWidth = Math.max(1.6, r * 0.055);
+    c.beginPath();
+    c.moveTo(ex - eyeW * 1.02, eyeY - eyeH * 0.28);
+    c.quadraticCurveTo(ex, eyeY - eyeH * 1.32, ex + eyeW * 1.02, eyeY - eyeH * 0.30);
+    c.stroke();
+  };
+  eye(-1); eye(1);
+
+  
+  
+  c.strokeStyle = HAIR_DARK;
+  c.lineWidth = Math.max(2, r * 0.085);
+  for (const dir of [-1, 1]) {
+    const ex = cxp + dir * eyeDX;
+    c.beginPath();
+    c.moveTo(ex - dir * eyeW * 1.05, eyeY - eyeH * 2.05);
+    c.quadraticCurveTo(ex, eyeY - eyeH * 2.75, ex + dir * eyeW * 1.0, eyeY - eyeH * 1.75);
+    c.stroke();
+  }
+
+  
+  c.strokeStyle = SKIN_DEEP;
+  c.lineWidth = Math.max(1.4, r * 0.05);
+  c.globalAlpha = 0.75;
+  c.beginPath();
+  c.moveTo(cxp + r * 0.05, eyeY + eyeH * 0.5);
+  c.lineTo(cxp + r * 0.09, eyeY + r * 0.44);
+  c.stroke();
+  c.globalAlpha = 1;
+  c.fillStyle = SKIN_DEEP;
+  c.fillRect(Math.round(cxp - r * 0.10), Math.round(eyeY + r * 0.50), 2, 2);
+  c.fillRect(Math.round(cxp + r * 0.07), Math.round(eyeY + r * 0.50), 2, 2);
+
+  
+  c.strokeStyle = MOUTH;
+  c.lineWidth = Math.max(1.8, r * 0.065);
+  c.beginPath();
+  c.moveTo(cxp - r * 0.24, eyeY + r * 0.80);
+  c.quadraticCurveTo(cxp, eyeY + r * 0.86, cxp + r * 0.24, eyeY + r * 0.80);
+  c.stroke();
+  c.strokeStyle = SKIN_SHADE;
+  c.lineWidth = Math.max(1.4, r * 0.05);
+  c.globalAlpha = 0.6;
+  c.beginPath();
+  c.moveTo(cxp - r * 0.15, eyeY + r * 0.95);
+  c.quadraticCurveTo(cxp, eyeY + r * 0.99, cxp + r * 0.15, eyeY + r * 0.95);
+  c.stroke();
+  c.globalAlpha = 1;
+
+  
+  c.strokeStyle = SKIN_DEEP;
+  c.lineWidth = Math.max(1.4, r * 0.05);
+  c.globalAlpha = 0.45;
+  c.beginPath();
+  c.moveTo(cxp - r * 0.66, eyeY + r * 0.52);
+  c.quadraticCurveTo(cxp, chin - r * 0.06, cxp + r * 0.66, eyeY + r * 0.52);
+  c.stroke();
+  c.globalAlpha = 1;
+
+  
+  
+  
+  c.fillStyle = HAIR;
+  c.beginPath();
+  c.moveTo(cxp - r * 1.0, crown);
+  c.lineTo(cxp + r * 1.0, crown);
+  c.lineTo(cxp + r * 1.0, eyeY - eyeH * 3.6);
+  c.quadraticCurveTo(cxp + r * 0.34, eyeY - eyeH * 2.4, cxp + r * 0.06, eyeY - eyeH * 3.5);
+  c.quadraticCurveTo(cxp - r * 0.40, eyeY - eyeH * 2.2, cxp - r * 1.0, eyeY - eyeH * 3.9);
+  c.closePath();
+  c.fill();
+  
+  c.strokeStyle = HAIR_DARK;
+  c.lineWidth = Math.max(1.6, r * 0.06);
+  c.globalAlpha = 0.7;
+  for (const dx of [-0.55, -0.18, 0.28, 0.62]) {
+    c.beginPath();
+    c.moveTo(cxp + r * dx, crown + r * 0.1);
+    c.lineTo(cxp + r * dx * 0.82, eyeY - eyeH * 3.2);
+    c.stroke();
+  }
+  c.globalAlpha = 1;
+  c.restore();
+
+  const t = new THREE.CanvasTexture(cv);
+  t.magFilter = THREE.NearestFilter;
+  t.minFilter = THREE.NearestFilter;
+  t.generateMipmaps = false;
+  t.userData = { canvas: cv, faceSize: FACE_PX };
+  return t;
+}
+
+
+
+
+
+
+
+
+
+function paintPortrait(tex) {
+  const el = document.getElementById('portrait');
+  if (!el || !tex || !tex.userData || !tex.userData.canvas) return;
+  const g = el.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  const n = tex.userData.faceSize;
+  g.clearRect(0, 0, el.width, el.height);
+  
+  
+  g.drawImage(tex.userData.canvas, n * 0.06, 0, n * 0.88, n * 0.98, 0, 0, el.width, el.height);
+}
+
+
+
+
+
+
+
+
+
+
+
+function xanderHeadGeometry() {
+  const A = ARCH.renji;
+  const pose = poseById('guard');
+  const K = solve(pose, { flip: false });
+  const hc = [K.head[0], 0, K.head[1]];
+  const mesh = head3d({
+    centre: hc, r: FRIG.headR, jaw: A.jaw, brow: A.brow, forward: [1, 0, 0],
+  });
+  
+  
+  return { mesh, centre: hc };
 }
 
 function xanderParts() {
@@ -183,7 +452,7 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
     segments: segmentsOf(K, o), torso: torsoBoxOf(K, o),
     joints: jointsOf(K, o), girdle: girdleOf(K, o),
     headR: FRIG.headR, arch: { build, jaw: A.jaw, brow: A.brow, hair: 'crop' },
-    flip: false, pose, head: true,
+    flip: false, pose, head: false,
   });
   
   
@@ -212,8 +481,6 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
     
     
     { name: 'hair', mesh: hair3d('crop', { centre: hc, r: r * 1.07, forward: [1, 0, 0] }) },
-    { name: 'eyeL', mesh: jointBall([hc[0] + r * 0.82, +r * 0.26, hc[2] + r * 0.06], r * 0.13, { sides: 4 }) },
-    { name: 'eyeR', mesh: jointBall([hc[0] + r * 0.82, -r * 0.26, hc[2] + r * 0.06], r * 0.13, { sides: 4 }) },
   ].filter((p) => p.mesh && p.mesh.indices && p.mesh.indices.length);
 }
 const xColour = (n) => (n === 'hair' ? XCOL.hair
@@ -676,10 +943,26 @@ export function boot(canvas, hud) {
 
   const { strips, ceilingPieces } = buildHall(scene);
 
-  const xGeo = partsToGeometry(xanderParts(), xColour, XANDER_H);
+  
+  
+  
+  
+  
+  
+  const bodyParts = xanderParts();
+  const headBuilt = xanderHeadGeometry();
+  const allParts = [...bodyParts, { name: 'head', mesh: headBuilt.mesh }];
+  const xGeo = partsToGeometry(bodyParts, xColour, XANDER_H, allParts);
   const xander = new THREE.Mesh(xGeo, mat);
   xander.rotation.x = -Math.PI / 2;   
   scene.add(xander);
+
+  const faceTex = xanderFaceSheet();
+  paintPortrait(faceTex);
+  const faceMat = texturedMaterial(faceTex);
+  const headGeo = partsToGeometry([{ name: 'head', mesh: headBuilt.mesh }], () => 0xffffff, XANDER_H, allParts, true);
+  const xHead = new THREE.Mesh(headGeo, faceMat);
+  xander.add(xHead);
 
   const chickenGeo = partsToGeometry(buildChicken().parts, (n) => CCOL[n] ?? 0xb9b07a, CHICKEN_H);
 

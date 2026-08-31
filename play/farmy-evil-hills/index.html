@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="ffeca82-20260831T104747Z">
+<meta name="build" content="6f283fe-20260831T105607Z">
 <title>Play Farmy Evil Hills — free browser survival horror, no download | Magestican Studios</title>
 <meta name="description" content="Play Farmy Evil Hills free in your browser: PS1-era survival horror on a Space Farming Agency station on Venus. A virus has mutated the livestock. Take a chicken's leg off with a bolt driver, or mash one off your boot when it latches. Phone and desktop. No download, no install, no account.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2305060a'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23b6392c'%3EE%3C/text%3E%3C/svg%3E">
@@ -185,9 +185,16 @@
 
     <div class="screen" id="stScreen">
       <div class="lab">STATUS SCREEN</div>
+      <div style="display:flex;gap:9px;align-items:flex-start">
+      <canvas id="portrait" width="128" height="128"
+        style="width:62px;height:62px;image-rendering:pixelated;
+        border:1px solid var(--ink-faint);background:#0a1512"></canvas>
+      <div>
       <div class="row"><span class="k">HP</span><div class="t"><div class="f" id="hpFill"></div></div><div class="v" id="hpVal">100</div></div>
       <div class="row"><span class="k">SP</span><div class="t"><div class="f" id="spFill"></div></div><div class="v" id="spVal">100</div></div>
       <div class="row"><span class="k">EP</span><div class="t"><div class="f" id="epFill"></div></div><div class="v" id="epVal">100</div></div>
+      <div class="row" style="opacity:.7"><span class="k" style="width:auto">XANDER</span></div>
+      </div></div>
       <div class="br1"></div><div class="br2"></div>
     </div>
   </div>
@@ -227,6 +234,6 @@
   "arbelo/analytics": "../../web-engine/analytics/analytics.js"
 }}
 </script>
-<script type="module" src="./src/main.js?v=ffeca82-20260831T104747Z"></script>
+<script type="module" src="./src/main.js?v=6f283fe-20260831T105607Z"></script>
 </body>
 </html>
