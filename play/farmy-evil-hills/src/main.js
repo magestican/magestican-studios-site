@@ -54,7 +54,10 @@ import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
 
 import { lockZoom } from '../../shared/input/zoomLock.js';
 
-import { railNodes, nodeAt, railPlacement } from '../../../web-engine/horror/railCamera.js';
+import { railNodesForRuns, nodeAt, railPlacement } from '../../../web-engine/horror/railCamera.js';
+import {
+  buildLevel, moveInLevel, progressAt, pointBehind, runRect,
+} from '../../../web-engine/horror/level.js';
 import { spawnVitals, tickVitals, damage, beginGrapple, endGrapple, MAX_HEALTH, CHICKEN_LATCH_SLOW } from '../../../web-engine/horror/health.js';
 import { spawn as spawnCreature, resolveHit, applyDamage, mobilityOf, statusOf } from '../../../web-engine/horror/dismemberment.js';
 import { readyWeapon, tickWeapon, canFire, fire } from '../../../web-engine/horror/weapons.js';
@@ -117,7 +120,8 @@ const WALL_H = 6.4;
 
 
 
-const HALL_LEN = 78;
+
+
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -1725,24 +1729,40 @@ function panel(w, h, tile, place) {
   return m;
 }
 
-function buildHall(scene) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildDeck(scene, level) {
   const strips = [];
   const ceilingPieces = [];
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   const walls = [
     grimeTexture({ base: 0x9aa48c, seams: true, rivets: true, mud: 5, blood: 4, hay: 0 }),
     grimeTexture({ base: 0x939d86, seams: true, rivets: false, mud: 9, blood: 2, hay: 0 }),
@@ -1759,6 +1779,10 @@ function buildHall(scene) {
     grimeTexture({ base: 0x4f5644, seams: true, rivets: true, mud: 1, blood: 5, hay: 0 }),
   ];
   const endTex = grimeTexture({ base: 0x5e6552, seams: true, rivets: true, mud: 5, blood: 5, hay: 0 });
+  
+  
+  
+  const safeTex = grimeTexture({ base: 0x7f8a94, seams: true, rivets: true, mud: 2, blood: 0, hay: 4 });
 
   const mats = new Map();
   const matFor = (tex) => {
@@ -1766,46 +1790,163 @@ function buildHall(scene) {
     return mats.get(tex);
   };
 
-  const SEG = 8;
-  const count = Math.ceil(HALL_LEN / SEG);
-  for (let i = 0; i < count; i += 1) {
-    const z0 = -4 + i * SEG;
-    const mid = z0 + SEG / 2;
-    const pick = (arr, salt) => arr[Math.floor(hash2(i * 7.3 + salt, 2.1) * arr.length) % arr.length];
+  let salt = 0;
+  const add = (w, h, tex, tile, fn) => {
+    salt += 1;
+    const off = hash2(salt * 3.7, 5.5);
+    const m = panel(w, h, tile, { mat: matFor(tex), apply: fn });
+    const uv = m.geometry.attributes.uv;
+    for (let k = 0; k < uv.count; k += 1) uv.setX(k, uv.getX(k) + off * 3.1);
+    uv.needsUpdate = true;
+    scene.add(m);
+    return m;
+  };
+  const pick = (arr, i, s2) => arr[Math.floor(hash2(i * 7.3 + s2, 2.1) * arr.length) % arr.length];
+
+  const W = level.width;
+  const H = level.height;
+  const HALFW = W / 2;
+  const SEG = 3.2;                 
+
+  
+  const doors = level.rooms.map((m) => ({ x: m.door.x, z: m.door.z, w: m.door.w }));
+  const inDoor = (x, z) => doors.some((d) => Math.abs(x - d.x) < W * 0.6 && Math.abs(z - d.z) < d.w);
+
+  
+  level.runs.forEach((run, i) => {
+    const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
+    const dx = (run.x1 - run.x0) / len;
+    const dz = (run.z1 - run.z0) / len;
+    const px = -dz; const pz = dx;                 
     
     
-    const off = hash2(i * 3.7, 5.5);
+    const t0 = i === 0 ? -HALFW : HALFW;
+    const t1 = i === level.runs.length - 1 ? len + HALFW : len - HALFW;
+    const span = t1 - t0;
+    if (!(span > 0.1)) return;
 
-    const add = (w, h, tex, tile, fn) => {
-      const m = panel(w, h, tile, { mat: matFor(tex), apply: fn });
-      const uv = m.geometry.attributes.uv;
-      for (let k = 0; k < uv.count; k += 1) uv.setX(k, uv.getX(k) + off * 3.1);
-      uv.needsUpdate = true;
-      scene.add(m);
-      return m;
-    };
+    const count = Math.max(1, Math.round(span / SEG));
+    for (let k = 0; k < count; k += 1) {
+      const a = t0 + (k / count) * span;
+      const b = t0 + ((k + 1) / count) * span;
+      const mid = (a + b) / 2;
+      const segLen = b - a;
+      const cx = run.x0 + dx * mid;
+      const cz = run.z0 + dz * mid;
+      const yaw = Math.atan2(dx, dz);              
 
-    add(HALL_W, SEG, pick(floors, 0.1), 2.2, (m) => { m.rotation.x = -Math.PI / 2; m.position.set(0, 0, mid); });
-    add(SEG, WALL_H, pick(walls, 0.2), 2.2, (m) => { m.rotation.y = Math.PI / 2; m.position.set(-HALL_W / 2, WALL_H / 2, mid); });
-    add(SEG, WALL_H, pick(walls, 0.9), 2.2, (m) => { m.rotation.y = -Math.PI / 2; m.position.set(HALL_W / 2, WALL_H / 2, mid); });
-    ceilingPieces.push(add(HALL_W, SEG, pick(ceils, 0.4), 2.2,
-      (m) => { m.rotation.x = Math.PI / 2; m.position.set(0, HALL_H, mid); }));
+      add(W, segLen, pick(floors, i * 9 + k, 0.1), 2.2, (m) => {
+        m.rotation.x = -Math.PI / 2; m.rotation.z = -yaw; m.position.set(cx, 0, cz);
+      });
+      ceilingPieces.push(add(W, segLen, pick(ceils, i * 9 + k, 0.4), 2.2, (m) => {
+        m.rotation.x = Math.PI / 2; m.rotation.z = yaw; m.position.set(cx, H, cz);
+      }));
+
+      for (const sgn of [-1, 1]) {
+        const wx = cx + px * HALFW * sgn;
+        const wz = cz + pz * HALFW * sgn;
+        if (inDoor(wx, wz)) continue;              
+        add(segLen, WALL_H, pick(walls, i * 9 + k, sgn > 0 ? 0.9 : 0.2), 2.2, (m) => {
+          m.rotation.y = yaw + (sgn > 0 ? -Math.PI / 2 : Math.PI / 2);
+          m.position.set(wx, WALL_H / 2, wz);
+        });
+      }
+    }
+  });
+
+  
+  for (let i = 0; i < level.runs.length - 1; i += 1) {
+    const a = level.runs[i]; const b = level.runs[i + 1];
+    const jx = a.x1; const jz = a.z1;
+    add(W, W, pick(floors, i, 3.3), 2.2, (m) => { m.rotation.x = -Math.PI / 2; m.position.set(jx, 0, jz); });
+    ceilingPieces.push(add(W, W, pick(ceils, i, 4.4), 2.2,
+      (m) => { m.rotation.x = Math.PI / 2; m.position.set(jx, H, jz); }));
+
+    
+    
+    
+    const alen = Math.hypot(a.x1 - a.x0, a.z1 - a.z0);
+    const blen = Math.hypot(b.x1 - b.x0, b.z1 - b.z0);
+    const inDir = { x: (a.x1 - a.x0) / alen, z: (a.z1 - a.z0) / alen };   
+    const outDir = { x: (b.x1 - b.x0) / blen, z: (b.z1 - b.z0) / blen };  
+    const sides = [
+      { x: 1, z: 0 }, { x: -1, z: 0 }, { x: 0, z: 1 }, { x: 0, z: -1 },
+    ];
+    for (const sd of sides) {
+      const open = (sd.x * outDir.x + sd.z * outDir.z) > 0.5     
+        || (sd.x * -inDir.x + sd.z * -inDir.z) > 0.5;            
+      if (open) continue;
+      add(W, WALL_H, pick(walls, i, 5.5), 2.2, (m) => {
+        m.rotation.y = Math.atan2(sd.x, sd.z) + Math.PI;
+        m.position.set(jx + sd.x * HALFW, WALL_H / 2, jz + sd.z * HALFW);
+      });
+    }
   }
 
-  const endMat = matFor(endTex);
-  scene.add(panel(HALL_W, HALL_H, 2.2, { mat: endMat, apply: (m) => { m.position.set(0, HALL_H / 2, -4 + count * SEG); m.rotation.y = Math.PI; } }));
-  scene.add(panel(HALL_W, HALL_H, 2.2, { mat: endMat, apply: (m) => { m.position.set(0, HALL_H / 2, -4); } }));
+  
+  for (const m of level.rooms) {
+    const rw = m.x1 - m.x0; const rd = m.z1 - m.z0;
+    const cx = (m.x0 + m.x1) / 2; const cz = (m.z0 + m.z1) / 2;
+    const tex = m.kind === 'safe' ? safeTex : pick(walls, 3, 6.6);
+    add(rw, rd, m.kind === 'safe' ? safeTex : pick(floors, 2, 7.7), 2.6,
+      (p2) => { p2.rotation.x = -Math.PI / 2; p2.position.set(cx, 0, cz); });
+    ceilingPieces.push(add(rw, rd, pick(ceils, 1, 8.8), 2.6,
+      (p2) => { p2.rotation.x = Math.PI / 2; p2.position.set(cx, H, cz); }));
 
-  const stripTex = grimeTexture({ base: 0xe8f0c8, seams: false, rivets: false, mud: 1, blood: 0, hay: 0 });
-  for (let z = 2; z < HALL_LEN - 6; z += 7) {
-    const lm = texturedMaterial(stripTex);
-    lm.transparent = true;
-    const strip = panel(0.5, 1.6, 1.6, {
-      mat: lm,
-      apply: (m) => { m.rotation.x = Math.PI / 2; m.position.set(0, HALL_H - 0.02, z); },
+    
+    add(rw, WALL_H, tex, 2.6, (p2) => { p2.position.set(cx, WALL_H / 2, m.z0); p2.rotation.y = 0; });
+    add(rw, WALL_H, tex, 2.6, (p2) => { p2.position.set(cx, WALL_H / 2, m.z1); p2.rotation.y = Math.PI; });
+    const far = m.side > 0 ? m.x1 : m.x0;
+    add(rd, WALL_H, tex, 2.6, (p2) => {
+      p2.position.set(far, WALL_H / 2, cz);
+      p2.rotation.y = m.side > 0 ? -Math.PI / 2 : Math.PI / 2;
     });
-    scene.add(strip);
-    strips.push({ mesh: strip, mat: lm, phase: hash2(z * 3.1, 7.7) * 10, next: 3 + hash2(z, 2.2) * 12 });
+    
+    const near = m.door.x;
+    const gap = m.door.w / 2;
+    for (const [za, zb] of [[m.z0, m.door.z - gap], [m.door.z + gap, m.z1]]) {
+      const h2 = zb - za;
+      if (h2 < 0.2) continue;
+      add(h2, WALL_H, tex, 2.6, (p2) => {
+        p2.position.set(near, WALL_H / 2, (za + zb) / 2);
+        p2.rotation.y = m.side > 0 ? Math.PI / 2 : -Math.PI / 2;
+      });
+    }
+  }
+
+  
+  const endMat = matFor(endTex);
+  const first = level.runs[0];
+  scene.add(panel(W, H, 2.2, {
+    mat: endMat,
+    apply: (m) => { m.position.set(first.x0, H / 2, first.z0 - HALFW); },
+  }));
+  const last = level.runs[level.runs.length - 1];
+  scene.add(panel(W, H, 2.2, {
+    mat: endMat,
+    apply: (m) => { m.position.set(last.x1, H / 2, last.z1 + HALFW); m.rotation.y = Math.PI; },
+  }));
+
+  
+  const stripTex = grimeTexture({ base: 0xe8f0c8, seams: false, rivets: false, mud: 1, blood: 0, hay: 0 });
+  for (const run of level.runs) {
+    const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
+    const dx = (run.x1 - run.x0) / len; const dz = (run.z1 - run.z0) / len;
+    for (let t = 2; t < len - 1; t += 7) {
+      const lm = texturedMaterial(stripTex);
+      lm.transparent = true;
+      const x = run.x0 + dx * t; const z = run.z0 + dz * t;
+      const strip = panel(0.5, 1.6, 1.6, {
+        mat: lm,
+        apply: (m) => {
+          m.rotation.x = Math.PI / 2;
+          m.rotation.z = Math.atan2(dx, dz);
+          m.position.set(x, H - 0.02, z);
+        },
+      });
+      scene.add(strip);
+      strips.push({ mesh: strip, mat: lm, phase: hash2(x * 3.1 + z, 7.7) * 10, next: 3 + hash2(z, 2.2) * 12 });
+    }
   }
   return { strips, ceilingPieces };
 }
@@ -2276,7 +2417,7 @@ function mapProject(wx, wy, wz, player, cx, cy) {
   return [cx + rx * f, cy - ry * f];
 }
 
-function drawMap(cv, player, birds, exitZ, level) {
+function drawMap(cv, player, birds, exit, level, deck) {
   const g = cv.getContext('2d');
   const W = cv.width; const H = cv.height;
   g.clearRect(0, 0, W, H);
@@ -2294,40 +2435,93 @@ function drawMap(cv, player, birds, exitZ, level) {
   const FAINT = 'rgba(111,240,216,0.22)';
   const GHOST = 'rgba(111,240,216,0.12)';
 
-  const hw = HALL_W / 2;
-  const z0 = player.z - MAP.behind;
-  const z1 = player.z + MAP.range;
+  const hw = deck.width / 2;
+  const H3 = deck.height;
 
   
-  for (const dy of [-MAP.deckGap, MAP.deckGap]) {
-    seg(p(-hw, dy, z0), p(-hw, dy, z1), GHOST, 1);
-    seg(p(hw, dy, z0), p(hw, dy, z1), GHOST, 1);
-    for (let z = Math.ceil(z0 / 12) * 12; z < z1; z += 12) {
-      seg(p(-hw, dy, z), p(hw, dy, z), GHOST, 1);
+  
+  
+  
+  const here = deck.runs[Math.min(deck.runs.length - 1, Math.max(0,
+    deck.runs.findIndex((q) => {
+      const r = runRect(q);
+      return player.x >= r.x0 && player.x <= r.x1 && player.z >= r.z0 && player.z <= r.z1;
+    })))] || deck.runs[0];
+  {
+    const len = Math.hypot(here.x1 - here.x0, here.z1 - here.z0) || 1;
+    const dx = (here.x1 - here.x0) / len; const dz = (here.z1 - here.z0) / len;
+    const px = -dz; const pz = dx;
+    for (const dy of [-MAP.deckGap, MAP.deckGap]) {
+      for (const sgn of [-1, 1]) {
+        seg(p(here.x0 + px * hw * sgn, dy, here.z0 + pz * hw * sgn),
+          p(here.x1 + px * hw * sgn, dy, here.z1 + pz * hw * sgn), GHOST, 1);
+      }
+      for (let t = 0; t < len; t += 12) {
+        const x = here.x0 + dx * t; const z = here.z0 + dz * t;
+        seg(p(x - px * hw, dy, z - pz * hw), p(x + px * hw, dy, z + pz * hw), GHOST, 1);
+      }
     }
   }
 
   
-  seg(p(-hw, 0, z0), p(-hw, 0, z1), MID, 1.6);
-  seg(p(hw, 0, z0), p(hw, 0, z1), MID, 1.6);
-  seg(p(-hw, HALL_H, z0), p(-hw, HALL_H, z1), FAINT, 1);
-  seg(p(hw, HALL_H, z0), p(hw, HALL_H, z1), FAINT, 1);
+  
+  for (const run of deck.runs) {
+    const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
+    if (!(len > 0)) continue;
+    
+    
+    const mid = { x: (run.x0 + run.x1) / 2, z: (run.z0 + run.z1) / 2 };
+    if (Math.hypot(mid.x - player.x, mid.z - player.z) > MAP.range + len) continue;
+    const dx = (run.x1 - run.x0) / len; const dz = (run.z1 - run.z0) / len;
+    const px = -dz; const pz = dx;
+    const at = (t, sgn) => ({ x: run.x0 + dx * t + px * hw * sgn, z: run.z0 + dz * t + pz * hw * sgn });
 
-  for (let z = Math.ceil(z0 / 4) * 4; z < z1; z += 4) {
-    seg(p(-hw, 0, z), p(hw, 0, z), FAINT, 1);                 
-    
-    
-    if (Math.round(z / 4) % 3 === 0) {
-      seg(p(-hw, 0, z), p(-hw, HALL_H, z), FAINT, 1);
-      seg(p(hw, 0, z), p(hw, HALL_H, z), FAINT, 1);
-      seg(p(-hw, HALL_H, z), p(hw, HALL_H, z), 'rgba(111,240,216,0.12)', 1);
+    for (const sgn of [-1, 1]) {
+      const s0 = at(-hw, sgn); const s1 = at(len + hw, sgn);
+      seg(p(s0.x, 0, s0.z), p(s1.x, 0, s1.z), MID, 1.6);
+      seg(p(s0.x, H3, s0.z), p(s1.x, H3, s1.z), FAINT, 1);
+    }
+    for (let t = 0; t <= len; t += 4) {
+      const l = at(t, -1); const r = at(t, 1);
+      seg(p(l.x, 0, l.z), p(r.x, 0, r.z), FAINT, 1);          
+      
+      
+      if (Math.round(t / 4) % 3 === 0) {
+        seg(p(l.x, 0, l.z), p(l.x, H3, l.z), FAINT, 1);
+        seg(p(r.x, 0, r.z), p(r.x, H3, r.z), FAINT, 1);
+        seg(p(l.x, H3, l.z), p(r.x, H3, r.z), 'rgba(111,240,216,0.12)', 1);
+      }
+    }
+  }
+
+  
+  for (const m of deck.rooms) {
+    const c = { x: (m.x0 + m.x1) / 2, z: (m.z0 + m.z1) / 2 };
+    if (Math.hypot(c.x - player.x, c.z - player.z) > MAP.range + 12) continue;
+    const safe = m.kind === 'safe';
+    const col = safe ? 'rgba(140,255,190,0.85)' : 'rgba(111,240,216,0.4)';
+    const corners = [[m.x0, m.z0], [m.x1, m.z0], [m.x1, m.z1], [m.x0, m.z1]];
+    for (let i = 0; i < 4; i += 1) {
+      const q = corners[i]; const w2 = corners[(i + 1) % 4];
+      seg(p(q[0], 0, q[1]), p(w2[0], 0, w2[1]), col, safe ? 1.5 : 1);
+      seg(p(q[0], H3, q[1]), p(w2[0], H3, w2[1]), col, 1);
+      seg(p(q[0], 0, q[1]), p(q[0], H3, q[1]), col, 1);
+    }
+    if (safe) {
+      const label = p(c.x, H3 + 0.9, c.z);
+      if (label) {
+        g.fillStyle = 'rgba(140,255,190,0.95)';
+        g.font = 'bold 8px ui-monospace, monospace';
+        g.textAlign = 'center';
+        g.fillText('SAFE', label[0], label[1]);
+      }
     }
   }
 
   
   for (const b of birds) {
     if (!b.alive) continue;
-    if (b.z < z0 - 4 || b.z > z1) continue;
+    if (Math.hypot(b.x - player.x, b.z - player.z) > MAP.range) continue;
     const foot = p(b.x, 0, b.z);
     const top = p(b.x, 0.9, b.z);
     if (!foot || !top) continue;
@@ -2337,29 +2531,36 @@ function drawMap(cv, player, birds, exitZ, level) {
   }
 
   
-  if (exitZ > z0 - 6 && exitZ < z1 + 10) {
+  if (Math.hypot(exit.x - player.x, exit.z - player.z) < MAP.range + 14) {
     const w = 1.1;
-    const corners = [[-w, exitZ - 0.8], [w, exitZ - 0.8], [w, exitZ + 0.8], [-w, exitZ + 0.8]];
+    const corners = [
+      [exit.x - w, exit.z - 0.8], [exit.x + w, exit.z - 0.8],
+      [exit.x + w, exit.z + 0.8], [exit.x - w, exit.z + 0.8],
+    ];
     for (let i = 0; i < 4; i += 1) {
-      const a = corners[i]; const b = corners[(i + 1) % 4];
-      seg(p(a[0], 0, a[1]), p(b[0], 0, b[1]), NEON, 1.4);
-      seg(p(a[0], HALL_H, a[1]), p(b[0], HALL_H, b[1]), NEON, 1.4);
-      seg(p(a[0], 0, a[1]), p(a[0], HALL_H, a[1]), NEON, 1.4);
+      const a2 = corners[i]; const b2 = corners[(i + 1) % 4];
+      seg(p(a2[0], 0, a2[1]), p(b2[0], 0, b2[1]), NEON, 1.4);
+      seg(p(a2[0], HALL_H, a2[1]), p(b2[0], HALL_H, b2[1]), NEON, 1.4);
+      seg(p(a2[0], 0, a2[1]), p(a2[0], HALL_H, a2[1]), NEON, 1.4);
     }
-    const label = p(0, HALL_H + 1.1, exitZ);
+    const label = p(exit.x, HALL_H + 1.1, exit.z);
     if (label) {
       g.fillStyle = NEON;
       g.font = 'bold 9px ui-monospace, monospace';
       g.textAlign = 'center';
       g.fillText('LIFT', label[0], label[1]);
       g.font = '8px ui-monospace, monospace';
-      g.fillText(`${Math.max(0, Math.round(exitZ - player.z))}m`, label[0], label[1] + 9);
+      
+      
+      
+      const togo = Math.max(0, progressAt(deck, exit.x, exit.z) - progressAt(deck, player.x, player.z));
+      g.fillText(`${Math.round(togo)}m`, label[0], label[1] + 9);
     }
   }
 
   
-  const foot = p(0, 0, player.z - player.z);
-  const head = p(0, 1.8, 0);
+  const foot = p(player.x, 0, player.z);
+  const head = p(player.x, 1.8, player.z);
   if (foot && head) {
     seg(foot, head, 'rgba(234,255,242,0.5)', 1);
     g.strokeStyle = '#eafff2'; g.lineWidth = 1.6;
@@ -2413,19 +2614,41 @@ export function boot(canvas, hud) {
     fog: false, lights: false, toneMapped: false, side: THREE.DoubleSide,
   });
 
-  const { strips, ceilingPieces } = buildHall(scene);
+  
+  
+  
+  
+  
+  const deck = buildLevel(1);
+  const { strips, ceilingPieces } = buildDeck(scene, deck);
 
   
   
   const leaks = [];
   const wires = [];
-  for (let z = 9; z < HALL_LEN - 8; z += 11) {
-    const side = hash2(z, 1.7) > 0.5 ? 1 : -1;
-    leaks.push(makeLeak(side * (HALL_W / 2 - 0.12), 0.55 + hash2(z, 2.9) * 1.5, z,
-      [-side * 0.9, 0.25, 0]));
-    if (hash2(z, 5.5) > 0.42) {
-      wires.push(makeWire((hash2(z, 6.1) - 0.5) * HALL_W * 0.7, z + 3,
-        0.7 + hash2(z, 7.3) * 1.5, z));
+  for (const run of deck.runs) {
+    const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
+    const dx = (run.x1 - run.x0) / len; const dz = (run.z1 - run.z0) / len;
+    const px = -dz; const pz = dx;
+    for (let t = 5; t < len - 3; t += 11) {
+      const x = run.x0 + dx * t; const z = run.z0 + dz * t;
+      const side = hash2(x + z, 1.7) > 0.5 ? 1 : -1;
+      
+      
+      
+      leaks.push(makeLeak(
+        x + px * side * (HALL_W / 2 - 0.12),
+        0.55 + hash2(x, 2.9) * 1.5,
+        z + pz * side * (HALL_W / 2 - 0.12),
+        [-px * side * 0.9, 0.25, -pz * side * 0.9],
+      ));
+      if (hash2(x + z, 5.5) > 0.42) {
+        wires.push(makeWire(
+          x + px * (hash2(z, 6.1) - 0.5) * HALL_W * 0.7,
+          z + pz * (hash2(z, 6.1) - 0.5) * HALL_W * 0.7 + dz * 3,
+          0.7 + hash2(z, 7.3) * 1.5, x + z,
+        ));
+      }
     }
   }
   for (const l of leaks) scene.add(l.points);
@@ -2600,7 +2823,7 @@ export function boot(canvas, hud) {
     
     
     
-    x: 0, z: 16, yaw: 0,
+    x: deck.start.x, z: deck.start.z, yaw: 0,
     vitals: spawnVitals(),
     
     
@@ -2666,10 +2889,19 @@ export function boot(canvas, hud) {
   
   
   
-  [-18, -30].forEach((dz, i) => addChicken(16 + dz, (i % 2 ? 1 : -1) * 0.9));
+  
+  
+  
+  
+  
+  
+  [18, 30].forEach((back, i) => {
+    const p = pointBehind(deck, deck.start.x, deck.start.z, back);
+    addChicken(p.z, p.x + (i % 2 ? 1 : -1) * 0.5);
+  });
 
   
-  const EXIT_Z = HALL_LEN - 12;
+  const EXIT = deck.exit;
   const lift = new THREE.Mesh(
     new THREE.PlaneGeometry(2.0, 2.4).toNonIndexed(),
     mat,
@@ -2683,7 +2915,7 @@ export function boot(canvas, hud) {
     lift.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
     lift.geometry.computeVertexNormals();
   }
-  lift.position.set(0, 1.2, EXIT_Z + 0.02);
+  lift.position.set(EXIT.x, 1.2, EXIT.z + 0.9);
   lift.rotation.y = Math.PI;
   scene.add(lift);
 
@@ -2786,8 +3018,8 @@ export function boot(canvas, hud) {
   let creakIn = 6 + Math.random() * 10;
   let sparkIn = 3 + Math.random() * 7;
   let sparkFlash = 0;
-  const rails = railNodes(HALL_LEN);
-  let camNode = nodeAt(rails, 16);
+  const rails = railNodesForRuns(deck.runs);
+  let camNode = nodeAt(rails, progressAt(deck, deck.start.x, deck.start.z));
   let cutFlash = 0;
   let target = null;
   let walkDist = 0;
@@ -2831,14 +3063,25 @@ export function boot(canvas, hud) {
       player.yaw += turn * 2.1 * dt;
       const slow = player.latchedBy ? (1 - CHICKEN_LATCH_SLOW) : 1;
       const speed = (player.struggle ? 0 : (sprint ? 5.5 : 2.4)) * slow;
-      player.x -= Math.sin(player.yaw) * fwd * speed * dt;
-      player.z += Math.cos(player.yaw) * fwd * speed * dt;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const moved = moveInLevel(deck,
+        player,
+        -Math.sin(player.yaw) * fwd * speed * dt,
+        Math.cos(player.yaw) * fwd * speed * dt);
+      player.x = moved.x;
+      player.z = moved.z;
       
       
       
       walkDist += Math.abs(fwd) * speed * dt + Math.abs(turn) * 0.85 * dt;
-      player.x = clamp(player.x, -HALL_W / 2 + 0.4, HALL_W / 2 - 0.4);
-      player.z = clamp(player.z, 1.5, HALL_LEN - 10);
 
       const mode = player.struggle ? 'walk' : (sprint && fwd ? 'sprint' : 'walk');
       tickVitals(player.vitals, dt, mode);
@@ -3067,7 +3310,10 @@ export function boot(canvas, hud) {
     
     
     const wasNode = camNode;
-    camNode = nodeAt(rails, player.z, camNode);
+    
+    
+    
+    camNode = nodeAt(rails, progressAt(deck, player.x, player.z), camNode);
     if (camNode !== wasNode) cutFlash = 0.05;   
     const place = railPlacement(rails, camNode, player);
     camera.fov = place.fov;
@@ -3327,7 +3573,7 @@ export function boot(canvas, hud) {
     audio.duck(hunted);
 
     
-    if (!player.dead && Math.abs(player.z - EXIT_Z) < 1.6 && Math.abs(player.x) < 1.1) {
+    if (!player.dead && Math.hypot(player.x - EXIT.x, player.z - EXIT.z) < 1.8) {
       if (liftIn <= 0) {
         liftIn = 2.4;
         hud.lift(level + 1);
@@ -3341,14 +3587,15 @@ export function boot(canvas, hud) {
       liftIn -= dt;
       if (liftIn <= 0) {
         level += 1;
-        player.z = 16; player.x = 0; player.yaw = 0;
+        player.z = deck.start.z; player.x = deck.start.x; player.yaw = 0;
         birds.forEach((b, i) => {
           b.alive = true; b.mesh.visible = true;
           b.creature = spawnCreature('chicken');
           b.latched = false; b.cool = 0;
           
-          b.z = 16 - 16 - i * (10 + Math.min(6, level));
-          b.x = (i % 2 ? 1 : -1) * (0.8 + i * 0.2);
+          const p = pointBehind(deck, deck.start.x, deck.start.z, 14 + i * (10 + Math.min(6, level)));
+          b.z = p.z;
+          b.x = p.x + (i % 2 ? 1 : -1) * 0.5;
         });
         player.latchedBy = null; player.struggle = null;
         
@@ -3374,7 +3621,12 @@ export function boot(canvas, hud) {
     
     
     
-    for (const c of ceilingPieces) c.visible = c.position.z < place.eye.z - 1.2;
+    
+    
+    
+    for (const c of ceilingPieces) {
+      c.visible = Math.hypot(c.position.x - place.eye.x, c.position.z - place.eye.z) > 2.2;
+    }
 
     
     
@@ -3395,7 +3647,7 @@ export function boot(canvas, hud) {
       portrait.draw(now);
     }
 
-    if (mapCv) drawMap(mapCv, player, birds, EXIT_Z, level);
+    if (mapCv) drawMap(mapCv, player, birds, EXIT, level, deck);
 
     renderer.render(scene, camera);
     shotFlash = Math.max(0, shotFlash - dt);

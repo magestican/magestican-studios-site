@@ -140,3 +140,58 @@ export function railPlacement(nodes, i, player, opt = {}) {
     fov: cfg.fov,
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function railNodesForRuns(runs, opt = {}) {
+  const cfg = { ...RAIL, ...opt };
+  const nodes = [];
+  let travelled = 0;
+  for (const run of runs) {
+    const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
+    if (!(len > 0)) continue;
+    const dx = (run.x1 - run.x0) / len;
+    const dz = (run.z1 - run.z0) / len;
+    
+    const px = -dz; const pz = dx;
+    const count = Math.max(1, Math.round(len / cfg.segment));
+    const w = run.w ?? 3.2;
+    for (let i = 0; i < count; i += 1) {
+      const t0 = (i / count) * len;
+      const t1 = ((i + 1) / count) * len;
+      const side = nodes.length % 2 === 0 ? 1 : -1;
+      const eyeAt = Math.min(t1 + cfg.ahead, len + w / 2 - 0.3);
+      const mid = (t0 + t1) / 2;
+      nodes.push({
+        from: travelled + t0,
+        to: travelled + t1,
+        eye: {
+          x: run.x0 + dx * eyeAt + px * cfg.lateral * side,
+          y: cfg.height,
+          z: run.z0 + dz * eyeAt + pz * cfg.lateral * side,
+        },
+        target: {
+          x: run.x0 + dx * mid,
+          y: cfg.targetHeight,
+          z: run.z0 + dz * mid,
+        },
+      });
+    }
+    travelled += len;
+  }
+  return nodes;
+}
