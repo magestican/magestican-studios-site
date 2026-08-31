@@ -43,8 +43,9 @@ import {
   head3d, hair3d, JAW, HEAD_RINGS,
 } from '../../../web-engine/ps1/ps1Head.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
+import { buildPorker, PORKER_HEIGHT_M } from '../../../web-engine/ps1/creatures/porker.mjs';
 import {
-  emptyChickenAnim, stepChicken, chickenPose, RANGE as CHICK_RANGE,
+  emptyChickenAnim, stepChicken, chickenPose, RANGE as CHICK_RANGE, PORKER,
 } from '../../../web-engine/horror/creatureAnim.js';
 import { ps1Vertex, FRAGMENT, KEY_DIR, FILL_DIR } from '../../../web-engine/ps1/ps1Shader.mjs';
 import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
@@ -141,6 +142,15 @@ const XCOL = {
                       
                       
   eye: 0x2f6fd0,      
+};
+
+
+
+
+const PCOL = {
+  torso: 0xb08a86, head: 0xbe9691, earL: 0xa87f7c, earR: 0xa87f7c,
+  snout: 0xc9a09a, armL: 0xb5908b, armR: 0xa17c78,
+  legL: 0x9c7874, legR: 0x9c7874, eyeL: 0x1a1416, eyeR: 0x1a1416,
 };
 const CCOL = {
   torso: 0xb9b07a, wingL: 0xa89a68, wingR: 0xa89a68, tail: 0x8d8352,
@@ -2161,7 +2171,41 @@ const CHICK_PIVOT = {
 const BODY_PIVOT = [0, 0, (CZ.torso.lo + CZ.torso.hi) / 2];
 const HEAD_PIVOT = [0.02, 0, CZ.head.lo];
 
-function chickenRig(parts, colourOf, targetHeight, material) {
+
+
+
+
+
+
+
+
+const PZ = { legs: { lo: 0.0, hi: 0.44 }, torso: { lo: 0.40, hi: 0.80 }, arms: { lo: 0.52, hi: 0.80 }, head: { lo: 0.80, hi: 1.0 } };
+const PORKER_RIG = {
+  bodyPivot: [0.04, 0, (PZ.torso.lo + PZ.torso.hi) / 2],
+  headPivot: [0.15, 0, PZ.head.lo],
+  headParts: ['head', 'earL', 'earR', 'eyeL', 'eyeR', 'snout'],
+  legParts: ['legL', 'legR'],
+  pivots: {
+    legL: [0.010, -0.082, PZ.legs.hi],
+    legR: [0.010, 0.082, PZ.legs.hi],
+    armL: [0.115, -0.245 * 0.86, PZ.arms.lo + (PZ.arms.hi - PZ.arms.lo) * 0.98],
+    armR: [0.115, 0.260 * 0.86, PZ.arms.lo + (PZ.arms.hi - PZ.arms.lo) * 0.98],
+    torso: [0.04, 0, (PZ.torso.lo + PZ.torso.hi) / 2],
+    head: [0.15, 0, PZ.head.lo],
+    earL: [0.15, 0, PZ.head.lo], earR: [0.15, 0, PZ.head.lo],
+    eyeL: [0.15, 0, PZ.head.lo], eyeR: [0.15, 0, PZ.head.lo],
+    snout: [0.15, 0, PZ.head.lo],
+  },
+};
+const CHICKEN_RIG_CFG = {
+  bodyPivot: BODY_PIVOT,
+  headPivot: HEAD_PIVOT,
+  headParts: ['head', 'beak', 'comb', 'eyeL', 'eyeR'],
+  legParts: ['legL', 'legR'],
+  pivots: CHICK_PIVOT,
+};
+
+function chickenRig(parts, colourOf, targetHeight, material, cfg = CHICKEN_RIG_CFG) {
   
   
   
@@ -2193,35 +2237,38 @@ function chickenRig(parts, colourOf, targetHeight, material) {
     return g;
   };
 
+  const BP = cfg.bodyPivot;
+  const HP = cfg.headPivot;
   const root = new THREE.Group();
   const body = new THREE.Group();
   const head = new THREE.Group();
-  body.position.set(BODY_PIVOT[0] * sc, BODY_PIVOT[1] * sc, (BODY_PIVOT[2] - lo) * sc);
-  head.position.set((HEAD_PIVOT[0] - BODY_PIVOT[0]) * sc, 0, (HEAD_PIVOT[2] - BODY_PIVOT[2]) * sc);
+  body.position.set(BP[0] * sc, BP[1] * sc, (BP[2] - lo) * sc);
+  head.position.set((HP[0] - BP[0]) * sc, 0, (HP[2] - BP[2]) * sc);
   body.add(head);
   root.add(body);
 
   const named = {};
-  const HEADPARTS = new Set(['head', 'beak', 'comb', 'eyeL', 'eyeR']);
+  const HEADPARTS = new Set(cfg.headParts);
+  const LEGPARTS = new Set(cfg.legParts);
   for (const p of parts) {
-    const pivot = CHICK_PIVOT[p.name] || [0, 0, lo];
+    const pivot = cfg.pivots[p.name] || [0, 0, lo];
     const m = new THREE.Mesh(geoFor(p, pivot), material);
     named[p.name] = m;
-    if (p.name === 'legL' || p.name === 'legR') {
+    if (LEGPARTS.has(p.name)) {
       m.position.set(pivot[0] * sc, pivot[1] * sc, (pivot[2] - lo) * sc);
       root.add(m);
     } else if (HEADPARTS.has(p.name)) {
       head.add(m);                    
     } else {
       m.position.set(
-        (pivot[0] - BODY_PIVOT[0]) * sc,
-        (pivot[1] - BODY_PIVOT[1]) * sc,
-        (pivot[2] - BODY_PIVOT[2]) * sc,
+        (pivot[0] - BP[0]) * sc,
+        (pivot[1] - BP[1]) * sc,
+        (pivot[2] - BP[2]) * sc,
       );
       body.add(m);
     }
   }
-  return { root, body, head, named, scale: sc };
+  return { root, body, head, named, scale: sc, cfg, lo, height: targetHeight };
 }
 
 
@@ -2231,25 +2278,38 @@ function chickenRig(parts, colourOf, targetHeight, material) {
 
 
 function applyChickenPose(rig, pose) {
+  const BP = rig.cfg.bodyPivot;
+  const HP = rig.cfg.headPivot;
+  const P = rig.cfg.pivots;
+  const legLo = rig.cfg === CHICKEN_RIG_CFG ? CZ.legs.lo : 0;
+  const HGT = rig.height;
   rig.body.rotation.y = pose.torsoPitch;
   rig.body.rotation.x = pose.bodyRoll;
-  rig.body.position.z = (BODY_PIVOT[2] - CZ.legs.lo) * rig.scale + pose.bodyLift * CHICKEN_H;
+  rig.body.position.z = (BP[2] - legLo) * rig.scale + pose.bodyLift * HGT;
   rig.head.rotation.y = pose.headPitch;
-  rig.head.position.x = pose.headThrust * CHICKEN_H;
-  rig.head.position.z = ((HEAD_PIVOT[2] - BODY_PIVOT[2]) * rig.scale) + pose.headBob * CHICKEN_H;
+  rig.head.position.x = ((HP[0] - BP[0]) * rig.scale) + pose.headThrust * HGT;
+  rig.head.position.z = ((HP[2] - BP[2]) * rig.scale) + pose.headBob * HGT;
   if (rig.named.legL) {
     rig.named.legL.rotation.y = pose.legL.swing;
-    rig.named.legL.position.z = (CHICK_PIVOT.legL[2] - CZ.legs.lo) * rig.scale + pose.legL.lift * CHICKEN_H;
+    rig.named.legL.position.z = (P.legL[2] - legLo) * rig.scale + pose.legL.lift * HGT;
   }
   if (rig.named.legR) {
     rig.named.legR.rotation.y = pose.legR.swing;
-    rig.named.legR.position.z = (CHICK_PIVOT.legR[2] - CZ.legs.lo) * rig.scale + pose.legR.lift * CHICKEN_H;
+    rig.named.legR.position.z = (P.legR[2] - legLo) * rig.scale + pose.legR.lift * HGT;
   }
   
   
   
-  if (rig.named.wingL) rig.named.wingL.rotation.x = -(pose.wingFlap + pose.mutantLag * 0.16);
-  if (rig.named.wingR) rig.named.wingR.rotation.x = pose.wingFlap * 0.86 - pose.mutantLag * 0.22;
+  
+  
+  
+  
+  const armAxis = rig.cfg === CHICKEN_RIG_CFG ? 'x' : 'y';
+  const armL = rig.named.wingL || rig.named.armL;
+  const armR = rig.named.wingR || rig.named.armR;
+  if (armL) armL.rotation[armAxis] = -(pose.wingFlap + pose.mutantLag * 0.16);
+  if (armR) armR.rotation[armAxis] = (armAxis === 'x' ? 1 : -1)
+    * (pose.wingFlap * 0.86 - pose.mutantLag * 0.22);
   if (rig.named.tail) rig.named.tail.rotation.y = -pose.tailFlick + pose.mutantLag * 0.1;
 }
 
@@ -2259,7 +2319,12 @@ function applyChickenPose(rig, pose) {
 
 
 
-const SEVER_PART = { 'leg-l': 'legL', 'leg-r': 'legR', 'wing-l': 'wingL', 'wing-r': 'wingR', head: 'head' };
+const SEVER_PART = {
+  'leg-l': 'legL', 'leg-r': 'legR',
+  'wing-l': 'wingL', 'wing-r': 'wingR',
+  'arm-l': 'armL', 'arm-r': 'armR',
+  head: 'head',
+};
 
 
 
@@ -2328,6 +2393,64 @@ function chickVoice(bird, kind, dist) {
 
   o.connect(f1); f1.connect(f2); f2.connect(air); air.connect(g); g.connect(audio.sfxBus);
   o.start(t); o.stop(t + dur + 0.05);
+}
+
+
+
+
+
+const PORK_CALL = {
+  idle:   { f0: 130, to: 96, dur: 0.34, gain: 0.22, squeal: 0.0 },
+  alert:  { f0: 180, to: 420, dur: 0.62, gain: 0.46, squeal: 1.0 },
+  windup: { f0: 150, to: 108, dur: 0.50, gain: 0.34, squeal: 0.2 },
+  strike: { f0: 300, to: 780, dur: 0.34, gain: 0.60, squeal: 1.2 },
+  hurt:   { f0: 480, to: 190, dur: 0.55, gain: 0.58, squeal: 1.4 },
+  die:    { f0: 260, to: 62, dur: 1.10, gain: 0.58, squeal: 0.6 },
+};
+
+function porkVoice(beast, kind, dist) {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const spec = PORK_CALL[kind];
+  if (!spec) return;
+  const near = Math.max(0, 1 - dist / 34);        
+  if (near <= 0.02) return;
+  const t = ctx.currentTime + 0.01;
+  const v = beast.voice;
+  const dur = spec.dur * (2 - v) * 0.9;
+
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(spec.gain * near * near, t + dur * 0.10);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  const air = ctx.createBiquadFilter();
+  air.type = 'lowpass';
+  air.frequency.value = 500 + near * 7000;
+  air.connect(g); g.connect(audio.sfxBus);
+
+  
+  const o = ctx.createOscillator();
+  o.type = 'square';
+  o.frequency.setValueAtTime(spec.f0 * v * 0.5, t);
+  o.frequency.exponentialRampToValueAtTime(Math.max(30, spec.to * v * 0.5), t + dur);
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 620; lp.Q.value = 4;
+  o.connect(lp); lp.connect(air);
+  o.start(t); o.stop(t + dur + 0.05);
+
+  
+  if (spec.squeal > 0) {
+    const sq = ctx.createOscillator();
+    sq.type = 'sawtooth';
+    sq.frequency.setValueAtTime(spec.f0 * v * 3.1, t);
+    sq.frequency.exponentialRampToValueAtTime(Math.max(80, spec.to * v * 3.6), t + dur * 0.8);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = 1500 * v; bp.Q.value = 7;
+    const sg = ctx.createGain();
+    sg.gain.value = 0.34 * spec.squeal;
+    sq.connect(bp); bp.connect(sg); sg.connect(air);
+    sq.start(t); sq.stop(t + dur + 0.05);
+  }
 }
 
 
@@ -2814,6 +2937,7 @@ export function boot(canvas, hud) {
   const portrait = makePortrait(headGeo, shouldersGeo, faces, mat);
 
   const chickenParts = buildChicken().parts;
+  const porkerParts = buildPorker().parts;
 
   const player = {
     
@@ -2843,15 +2967,18 @@ export function boot(canvas, hud) {
 
   const birds = [];
   let chickSeed = 0;
-  function addChicken(z, x) {
-    const rig = chickenRig(chickenParts, (n) => CCOL[n] ?? 0xb9b07a, CHICKEN_H, mat);
+  function addChicken(z, x, kind = 'chicken') {
+    const pork = kind === 'porker';
+    const rig = pork
+      ? chickenRig(porkerParts, (n) => PCOL[n] ?? 0xb08a86, PORKER_HEIGHT_M, mat, PORKER_RIG)
+      : chickenRig(chickenParts, (n) => CCOL[n] ?? 0xb9b07a, CHICKEN_H, mat);
     rig.root.rotation.x = -Math.PI / 2;
     scene.add(rig.root);
     chickSeed += 0.37;
     birds.push({
       
-      mesh: rig.root, rig, x, z, alive: true,
-      creature: spawnCreature('chicken'),
+      mesh: rig.root, rig, x, z, alive: true, kind,
+      creature: spawnCreature(kind),
       anim: emptyChickenAnim(chickSeed % 1),
       
       
@@ -2899,6 +3026,27 @@ export function boot(canvas, hud) {
     const p = pointBehind(deck, deck.start.x, deck.start.z, back);
     addChicken(p.z, p.x + (i % 2 ? 1 : -1) * 0.5);
   });
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  deck.runs.forEach((run, i) => {
+    if (run.axis !== 'x' || i < 3) return;
+    addChicken(run.z1, (run.x0 + run.x1) / 2, 'porker');
+  });
+
+  
+  
+  for (const m of deck.rooms) {
+    if (m.contents === 'enemy') addChicken((m.z0 + m.z1) / 2, (m.x0 + m.x1) / 2, 'porker');
+  }
 
   
   const EXIT = deck.exit;
@@ -3143,12 +3291,18 @@ export function boot(canvas, hud) {
         
         const fx = dx / dist; const fz = dz / dist;
         const rx = fz; const rz = -fx;                 
+        const bh = b.kind === 'porker' ? PORKER_HEIGHT_M : CHICKEN_H;
         const toLocal = (wx, wy, wz) => {
           const ox = wx - b.x; const oz = wz - b.z;
           return {
-            x: (ox * rx + oz * rz) / CHICKEN_H,
-            y: wy / CHICKEN_H,
-            z: (ox * fx + oz * fz) / CHICKEN_H,
+            
+            
+            
+            
+            
+            x: (ox * rx + oz * rz) / bh,
+            y: wy / bh,
+            z: (ox * fx + oz * fz) / bh,
           };
         };
         const tipY = muzzleY - aimDrop * (dist / 6);
@@ -3205,20 +3359,20 @@ export function boot(canvas, hud) {
       
       
       if (b.latched) b.anim.state = 'latched';
-      const r = stepChicken(b.anim, dt, player.dead ? 1e6 : dist);
+      const prof = b.kind === 'porker' ? PORKER : undefined;
+      const r = stepChicken(b.anim, dt, player.dead ? 1e6 : dist, prof || {});
       b.anim = r.anim;
 
       
-      if (r.event === 'alert') chickVoice(b, 'alert', dist);
-      else if (r.event === 'windup') chickVoice(b, 'windup', dist);
-      else if (r.event === 'strike') chickVoice(b, 'strike', dist);
+      const voice = b.kind === 'porker' ? porkVoice : chickVoice;
+      if (r.event) voice(b, r.event === 'recover' ? 'idle' : r.event, dist);
 
       
       
       b.idleIn -= dt;
       if (b.idleIn <= 0) {
         b.idleIn = 3 + Math.random() * 7;
-        if (b.anim.state === 'dormant' && dist < 26) chickVoice(b, 'idle', dist);
+        if (b.anim.state === 'dormant' && dist < 30) voice(b, 'idle', dist);
       }
 
       if (!b.latched && !player.dead && r.speed !== 0 && dist > 0.05) {
@@ -3247,11 +3401,11 @@ export function boot(canvas, hud) {
         b.sevShown = sev.length;
         for (const id of sev) {
           const part = b.rig.named[SEVER_PART[id]];
-          if (part && part.visible) { part.visible = false; chickVoice(b, 'hurt', dist); }
+          if (part && part.visible) { part.visible = false; voice(b, 'hurt', dist); }
         }
       }
 
-      applyChickenPose(b.rig, chickenPose(b.anim));
+      applyChickenPose(b.rig, chickenPose(b.anim, prof || {}));
       b.mesh.position.set(b.x, 0, b.z);
       b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI;
     }

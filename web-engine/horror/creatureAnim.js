@@ -155,6 +155,19 @@ const TAU = Math.PI * 2;
 
 export function chickenPose(a, opt = {}) {
   const T = { ...TIMING, ...(opt.timing || {}) };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const B = { pitch: 1, lift: 1, base: 0, ...(opt.pose || {}) };
   const p = a.gait * TAU;
   const s = a.state;
 
@@ -246,9 +259,9 @@ export function chickenPose(a, opt = {}) {
   const headBob = -bodyLift * 0.78 + Math.sin((a.gait - 0.125) * TAU) * 0.012 * legAmp;
 
   return {
-    torsoPitch,
-    bodyLift,
-    bodyRoll,
+    torsoPitch: B.base + torsoPitch * B.pitch,
+    bodyLift: bodyLift * B.lift,
+    bodyRoll: bodyRoll * B.pitch,
     headThrust,
     headPitch,
     headBob,
@@ -267,3 +280,35 @@ export function chickenPose(a, opt = {}) {
       + wingFlap * 0.4,
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const PORKER = Object.freeze({
+  timing: { alert: 0.9, windup: 0.58, strike: 0.20, recover: 0.92 },
+  
+  
+  
+  pose: { pitch: 0.42, lift: 0.55, base: 0.52 },
+  
+  
+  
+  range: { wake: 19, lunge: 2.9, contact: 1.45 },
+  speed: { stalk: 2.15, strike: 6.4, drift: 0.3 },
+});
