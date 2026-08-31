@@ -33,6 +33,7 @@ import { poseById } from '../moveSet.mjs';
 import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from '../../../../web-engine/ps1/ps1Rig.mjs';
 import { buildFighter } from '../../../../web-engine/ps1/ps1Mesh.mjs';
 import { head3d, hair3d } from '../../../../web-engine/ps1/ps1Head.mjs';
+import { ps1Vertex, FRAGMENT, KEY_DIR, FILL_DIR } from '../../../../web-engine/ps1/ps1Shader.mjs';
 
 
 
@@ -66,79 +67,16 @@ const YAW = 0.42;
 
 
 
-const KEY_DIR = [-0.42, 0.80, 0.60];   
-const FILL_DIR = [0.55, -0.35, -0.45]; 
-
-const VERT = [
-  'uniform vec2 uRes;',
-  'uniform vec3 uKey;',
-  'uniform vec3 uFill;',
-  'attribute vec3 aColor;',
-  'varying vec3 vColor;',
-  'varying vec2 vUv;',
-  'varying float vShade;',
-  'void main() {',
-  '  vec4 clip = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
-  
-  
-  
-  
-  
-  '  vec3 ndc = clip.xyz / clip.w;',
-  '  vec2 px = floor((ndc.xy * 0.5 + 0.5) * uRes + 0.5);',
-  '  ndc.xy = (px / uRes) * 2.0 - 1.0;',
-  '  gl_Position = vec4(ndc, 1.0);',
-  
-  
-  
-  '  vec3 n = normalize(normalMatrix * normal);',
-  '  float key = max(0.0, dot(n, normalize(uKey)));',
-  '  float fill = max(0.0, dot(n, normalize(uFill)));',
-  
-  
-  '  vShade = 0.72 + 0.40 * key + 0.12 * fill;',
-  '  vColor = aColor;',
-  '  vUv = uv;',
-  '}',
-].join('\n');
-
-
-const QUANT = '  c = floor(clamp(c, 0.0, 1.0) * 31.0 + 0.5) / 31.0;';
-
-const FRAG_COLOUR = [
-  'precision mediump float;',
-  'varying vec3 vColor;', 'varying float vShade;', 'varying vec2 vUv;',
-  'uniform float uAlpha;',
-  'void main() {',
-  '  vec3 c = vColor * vShade;', QUANT,
-  '  gl_FragColor = vec4(c, uAlpha);',
-  '}',
-].join('\n');
-
-const FRAG_TEX = [
-  'precision mediump float;',
-  'uniform sampler2D uMap;',
-  'uniform float uAlpha;',
-  'varying vec3 vColor;', 'varying float vShade;', 'varying vec2 vUv;',
-  'void main() {',
-  '  vec3 c = texture2D(uMap, vUv).rgb * vShade;', QUANT,
-  '  gl_FragColor = vec4(c, uAlpha);',
-  '}',
-].join('\n');
 
 
 
 
 
-const FRAG_GHOST = [
-  'precision mediump float;',
-  'varying vec3 vColor;', 'varying float vShade;', 'varying vec2 vUv;',
-  'uniform float uAlpha;',
-  'void main() {',
-  '  vec3 c = vColor * 0.12;', QUANT,
-  '  gl_FragColor = vec4(c, uAlpha);',
-  '}',
-].join('\n');
+
+const VERT = ps1Vertex();
+const FRAG_COLOUR = FRAGMENT.colour();
+const FRAG_TEX = FRAGMENT.textured();
+const FRAG_GHOST = FRAGMENT.ghost();
 
 
 
