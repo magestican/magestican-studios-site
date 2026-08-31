@@ -59,14 +59,29 @@ export function headPoint(pos, scale = 1) {
 
 
 
-function segmentPointDistance(from, to, p) {
+
+
+
+
+
+
+
+
+
+
+
+export function closestApproach(from, to, p) {
   const dx = to.x - from.x, dy = to.y - from.y, dz = to.z - from.z;
   const len2 = dx * dx + dy * dy + dz * dz;
-  if (len2 < 1e-12) return Math.hypot(p.x - from.x, p.y - from.y, p.z - from.z);
+  if (len2 < 1e-12) return { distance: Math.hypot(p.x - from.x, p.y - from.y, p.z - from.z), t: 0 };
   let t = ((p.x - from.x) * dx + (p.y - from.y) * dy + (p.z - from.z) * dz) / len2;
   t = Math.max(0, Math.min(1, t));
   const cx = from.x + dx * t, cy = from.y + dy * t, cz = from.z + dz * t;
-  return Math.hypot(p.x - cx, p.y - cy, p.z - cz);
+  return { distance: Math.hypot(p.x - cx, p.y - cy, p.z - cz), t };
+}
+
+export function segmentPointDistance(from, to, p) {
+  return closestApproach(from, to, p).distance;
 }
 
 
