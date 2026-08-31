@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="build" content="dev">
+<title>Play Farmy Evil Hills — free browser survival horror, no download | Magestican Studios</title>
+<meta name="description" content="Play Farmy Evil Hills free in your browser: PS1-era survival horror on a Space Farming Agency station on Venus. A virus has mutated the livestock. Take a chicken's leg off with a bolt driver, or mash one off your boot when it latches. Phone and desktop. No download, no install, no account.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2305060a'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23b6392c'%3EE%3C/text%3E%3C/svg%3E">
+<link rel="canonical" href="https://magesticanstudios.com/play/farmy-evil-hills/">
+<meta name="keywords" content="play farmy evil hills, free browser horror game, ps1 style survival horror, dead space style browser game, mutated animals horror, no download horror game, third person horror browser">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Play Farmy Evil Hills — free browser survival horror, no download">
+<meta property="og:description" content="Venus. A farm station gone quiet. The livestock has opinions. PS1-era horror in your browser.">
+<meta property="og:url" content="https://magesticanstudios.com/play/farmy-evil-hills/">
+<meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+<meta property="og:site_name" content="Magestican Studios">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Play Farmy Evil Hills — free browser survival horror">
+<meta name="twitter:description" content="Aim low. A chicken with a leg gone stops outrunning you.">
+<meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Farmy Evil Hills",
+  "url": "https://magesticanstudios.com/play/farmy-evil-hills/",
+  "description": "A free browser survival horror game in PS1-era 3D, set on a Space Farming Agency station on Venus where an airborne virus has mutated the livestock. Dismemberment-based combat, a struggle system for when something reaches you, and a cassette player. No download, no account.",
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                 "url": "https://magesticanstudios.com" },
+  "genre": ["Survival horror", "Action", "Third-person"],
+  "gamePlatform": ["Web browser", "Mobile browser"],
+  "playMode": ["SinglePlayer"],
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "en",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock" }
+}
+</script>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #05060a; overflow: hidden;
+    font: 14px/1.4 system-ui, sans-serif; color: #e8e4d8; }
+  #wrap { position: fixed; inset: 0; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+  .hud { position: absolute; pointer-events: none; }
+  #vitals { left: 14px; top: 14px; width: 190px; }
+  #hpTrack { height: 13px; background: #1a0e0e; border: 1px solid #000; }
+  #hpFill { height: 100%; width: 100%; background: #b6392c; transition: width .12s linear; }
+  #spTrack { height: 5px; margin-top: 4px; background: #101418; border: 1px solid #000;
+    opacity: 0; transition: opacity .3s; }
+  #spFill { height: 100%; width: 100%; background: #6f9ec4; }
+  #label { font-size: 10px; letter-spacing: .14em; opacity: .55; margin-bottom: 4px; }
+
+  
+
+  #tape { position: absolute; left: 14px; bottom: 14px; width: 96px; height: 60px;
+    background: #23201c; border: 2px solid #4a4238; border-radius: 4px;
+    pointer-events: auto; cursor: pointer; padding: 6px; }
+  #tape .win { height: 30px; background: #14120f; border-radius: 2px; position: relative; }
+  #tape .reel { position: absolute; top: 7px; width: 16px; height: 16px; border-radius: 50%;
+    border: 3px solid #8a7f6b; }
+  #tape .reel.l { left: 8px; } #tape .reel.r { right: 8px; }
+  #tape.on .reel { animation: spin 1.1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #tape .cap { font-size: 9px; letter-spacing: .1em; opacity: .7; margin-top: 5px; text-align: center; }
+
+  
+  #qte { left: 50%; top: 50%; transform: translate(-50%,-50%); text-align: center; display: none; }
+  #qte .verb { font-size: 30px; font-weight: 700; letter-spacing: .06em; }
+  #qte .how { font-size: 12px; opacity: .8; margin-top: 4px; }
+  #qteTrack { width: 210px; height: 9px; margin: 9px auto 0; background: #000a; border: 1px solid #fff4; }
+  #qteFill { height: 100%; width: 0%; background: #e8c15a; }
+  #qteBtn { pointer-events: auto; margin-top: 12px; display: inline-block; padding: 14px 30px;
+    border: 2px solid #e8c15a; border-radius: 8px; font-weight: 700; letter-spacing: .1em;
+    background: #0008; cursor: pointer; user-select: none; }
+
+  #msg { left: 50%; bottom: 54px; transform: translateX(-50%); text-align: center;
+    max-width: 80vw; text-shadow: 0 2px 6px #000; }
+  #count { right: 14px; top: 14px; font-size: 11px; letter-spacing: .1em; opacity: .6; }
+  #flash { position: absolute; inset: 0; background: #ffe9a8; opacity: 0; pointer-events: none; }
+  #over { position: absolute; inset: 0; background: #000c; display: none;
+    align-items: center; justify-content: center; text-align: center; pointer-events: auto; }
+  #over h2 { font-size: 26px; margin: 0 0 8px; letter-spacing: .08em; }
+  #over button { pointer-events: auto; margin-top: 14px; padding: 10px 22px; font: inherit;
+    background: #2a2620; color: #e8e4d8; border: 1px solid #6a5f4c; border-radius: 6px; cursor: pointer; }
+  #boot { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 20px; }
+  kbd { background: #2a2620; border: 1px solid #5a5142; border-bottom-width: 2px;
+    border-radius: 3px; padding: 1px 5px; font: 11px/1 ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game"></canvas>
+
+  <div class="hud" id="vitals">
+    <div id="label">XANDER · HESPER-4</div>
+    <div id="hpTrack"><div id="hpFill"></div></div>
+    <div id="spTrack"><div id="spFill"></div></div>
+  </div>
+
+  <div class="hud" id="count"></div>
+
+  <div class="hud" id="qte">
+    <div class="verb" id="qteVerb">MASH</div>
+    <div class="how" id="qteHow"></div>
+    <div id="qteTrack"><div id="qteFill"></div></div>
+    <div id="qteBtn">SHAKE IT OFF</div>
+  </div>
+
+  <div class="hud" id="msg"></div>
+  <div id="flash"></div>
+
+  <div id="tape" title="Cassette">
+    <div class="win"><div class="reel l"></div><div class="reel r"></div></div>
+    <div class="cap" id="tapeCap">TAP FOR SOUND</div>
+  </div>
+
+  <div id="over">
+    <div>
+      <h2 id="overTitle">HESPER-4 KEEPS ITS INSPECTOR</h2>
+      <div id="overBody" style="opacity:.8"></div>
+      <button id="again">Try again</button>
+    </div>
+  </div>
+
+  <div id="boot">
+    <div>
+      <h2 style="margin:0 0 10px">FARMY EVIL HILLS</h2>
+      <div style="opacity:.75;max-width:44ch;margin:0 auto 14px">
+        Station Hesper-4, Venus. The livestock has opinions.
+      </div>
+      <div style="opacity:.6;font-size:12px">
+        <kbd>W</kbd><kbd>S</kbd> walk · <kbd>A</kbd><kbd>D</kbd> turn ·
+        <kbd>Shift</kbd> sprint · <b>click</b> to fire the bolt driver<br>
+        Aim <b>low</b> — a chicken with a leg gone stops outrunning you.<br>
+        On a phone: tap to fire, and tap fast to shake one off.
+      </div>
+      <div style="margin-top:16px;opacity:.5;font-size:12px">loading…</div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{"imports":{
+  "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+  "arbelo/analytics": "../../web-engine/analytics/analytics.js"
+}}
+</script>
+<script type="module" src="./src/main.js?v=a0a4de9-20260831T091700Z"></script>
+</body>
+</html>
