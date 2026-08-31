@@ -29,7 +29,7 @@ export const RIG = Object.freeze({
   
   
   
-  distance: 6.5,          
+  distance: 8.5,          
   aimDistance: 1.35,      
   shoulder: 0.42,         
   aimShoulder: 0.30,      
@@ -47,7 +47,7 @@ export const RIG = Object.freeze({
   
   
   
-  height: 4.05,           
+  height: 3.24,           
   minDistance: 0.45,      
 });
 
@@ -135,6 +135,31 @@ export function stepCamera(cam, input, dt, wallDistance = Infinity) {
 
 
 
+
+
+
+
+
+
+
+
+const LOOK_AHEAD = 1.8;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const PITCH = (-8 * Math.PI) / 180;
+
 export function cameraPlacement(cam, pos, yaw) {
   const sin = Math.sin(yaw); const cos = Math.cos(yaw);
   const pivot = { x: pos.x, y: pos.y + RIG.pivotHeight, z: pos.z };
@@ -175,10 +200,17 @@ export function cameraPlacement(cam, pos, yaw) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
     target: {
-      x: pivot.x + right.x * cam.shoulder - back.x * 1.8,
-      y: pivot.y + 0.30,
-      z: pivot.z + right.z * cam.shoulder - back.z * 1.8,
+      x: pivot.x + right.x * cam.shoulder - back.x * LOOK_AHEAD,
+      y: pivot.y + RIG.height + Math.tan(PITCH) * (cam.distance + LOOK_AHEAD),
+      z: pivot.z + right.z * cam.shoulder - back.z * LOOK_AHEAD,
     },
     fov: cam.fov,
   };
