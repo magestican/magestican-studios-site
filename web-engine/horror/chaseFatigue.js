@@ -87,13 +87,34 @@ export const GIVE_UP_SECONDS = Object.freeze({
   horse: 25,
 });
 
-export function createFatigue(species) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function createFatigue(species, opts = {}) {
   return {
     species,
     value: 0,
     
     givenUpFor: 0,
     gaveUp: false,
+    metresPerPoint: opts.metresPerPoint,
+    giveUpSeconds: opts.giveUpSeconds,
   };
 }
 
@@ -114,12 +135,12 @@ export function tickFatigue(f, dt, { pursuing, metres = 0 } = {}) {
   }
 
   if (pursuing) {
-    const per = METRES_PER_POINT[f.species] ?? METRES_PER_POINT.cow;
+    const per = f.metresPerPoint ?? METRES_PER_POINT[f.species] ?? METRES_PER_POINT.cow;
     f.value += Math.max(0, metres) / per;
     if (f.value >= GIVE_UP_AT) {
       f.value = GIVE_UP_AT;
       f.gaveUp = true;
-      f.givenUpFor = GIVE_UP_SECONDS[f.species] ?? 15;
+      f.givenUpFor = f.giveUpSeconds ?? GIVE_UP_SECONDS[f.species] ?? 15;
     }
     return f;
   }

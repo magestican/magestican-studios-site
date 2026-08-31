@@ -45,6 +45,10 @@ import {
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
 import { buildPorker, PORKER_HEIGHT_M } from '../../../web-engine/ps1/creatures/porker.mjs';
 import { buildCow, COW_HEIGHT_M } from '../../../web-engine/ps1/creatures/cow.mjs';
+import { buildHorse, HORSE_HEIGHT_M } from '../../../web-engine/ps1/creatures/horse.mjs';
+import {
+  ARENA, HORSE as BOSS_HORSE, createBossFight, stepBossFight, cutCable, bossLevel,
+} from '../../../web-engine/horror/boss.js';
 import {
   emptyChickenAnim, stepChicken, chickenPose, RANGE as CHICK_RANGE, PORKER, COW,
 } from '../../../web-engine/horror/creatureAnim.js';
@@ -157,6 +161,13 @@ const WCOL = {
   tentacleL: 0xc19a92, tentacleR: 0xb98f88,
   legL: 0x6e6a64, legR: 0x6e6a64, tail: 0x6e6a64,
   eyeL: 0x120f10, eyeR: 0x120f10,
+};
+
+
+const HCOL = {
+  barrel: 0x2b2724, tail: 0x1d1a18,
+  neckC: 0x3a3531, neckL: 0x322d2a, neckR: 0x322d2a,
+  legFL: 0x241f1d, legFR: 0x241f1d, legHL: 0x241f1d, legHR: 0x241f1d,
 };
 const PCOL = {
   torso: 0xb08a86, head: 0xbe9691, earL: 0xa87f7c, earR: 0xa87f7c,
@@ -2231,6 +2242,30 @@ const COW_RIG = {
     eyeL: [-0.09, 0, CWZ.head.lo - 0.06], eyeR: [-0.09, 0, CWZ.head.lo - 0.06],
   },
 };
+
+
+
+
+
+const HRZ = { legs: { lo: 0.0, hi: 0.50 }, barrel: { lo: 0.44, hi: 0.76 }, necks: { lo: 0.70, hi: 1.0 } };
+const HORSE_RIG = {
+  bodyPivot: [0, 0, (HRZ.barrel.lo + HRZ.barrel.hi) / 2],
+  headPivot: [0.66, 0, HRZ.necks.lo - 0.02],
+  headParts: ['neckC', 'eyeCa', 'eyeCb'],
+  legParts: ['legFL', 'legFR', 'legHL', 'legHR'],
+  pivots: {
+    legFL: [0.50, -0.108, HRZ.legs.hi], legFR: [0.50, 0.108, HRZ.legs.hi],
+    legHL: [-0.44, -0.126, HRZ.legs.hi], legHR: [-0.44, 0.126, HRZ.legs.hi],
+    barrel: [0, 0, (HRZ.barrel.lo + HRZ.barrel.hi) / 2],
+    tail: [0, 0, (HRZ.barrel.lo + HRZ.barrel.hi) / 2],
+    neckC: [0.66, 0, HRZ.necks.lo - 0.02],
+    neckL: [0.66, -0.055, HRZ.necks.lo - 0.02],
+    neckR: [0.66, 0.055, HRZ.necks.lo - 0.02],
+    eyeCa: [0.66, 0, HRZ.necks.lo - 0.02], eyeCb: [0.66, 0, HRZ.necks.lo - 0.02],
+    eyeLa: [0.66, -0.055, HRZ.necks.lo - 0.02], eyeLb: [0.66, -0.055, HRZ.necks.lo - 0.02],
+    eyeRa: [0.66, 0.055, HRZ.necks.lo - 0.02], eyeRb: [0.66, 0.055, HRZ.necks.lo - 0.02],
+  },
+};
 const CHICKEN_RIG_CFG = {
   bodyPivot: BODY_PIVOT,
   headPivot: HEAD_PIVOT,
@@ -2823,6 +2858,14 @@ export function boot(canvas, hud) {
   
   
   
+  
+  
+  
+  const BOSS_DECK = 4;
+  let isBoss = false;
+  let fight = null;
+  let boulder = null;
+  let cable = null;
   let deck = buildLevel(1);
   let deckGroup = null;
   let strips = [];
@@ -2989,6 +3032,7 @@ export function boot(canvas, hud) {
   const chickenParts = buildChicken().parts;
   const porkerParts = buildPorker().parts;
   const cowParts = buildCow().parts;
+  const horseParts = buildHorse().parts;
 
   const player = {
     
@@ -3025,6 +3069,8 @@ export function boot(canvas, hud) {
       chicken: [chickenParts, (n) => CCOL[n] ?? 0xb9b07a, CHICKEN_H, undefined],
       porker: [porkerParts, (n) => PCOL[n] ?? 0xb08a86, PORKER_HEIGHT_M, PORKER_RIG],
       cow: [cowParts, (n) => WCOL[n] ?? 0xb8b3ab, COW_HEIGHT_M, COW_RIG],
+      horse: [horseParts, (n) => (/^eye/.test(n) ? 0x120e0c : (HCOL[n] ?? 0x2b2724)),
+        HORSE_HEIGHT_M, HORSE_RIG],
     };
     const [sParts, sCol, sH, sRig] = SPECIES[kind] || SPECIES.chicken;
     const rig = chickenRig(sParts, sCol, sH, mat, sRig);
@@ -3034,7 +3080,12 @@ export function boot(canvas, hud) {
     birds.push({
       
       mesh: rig.root, rig, x, z, alive: true, kind,
-      creature: spawnCreature(kind),
+      
+      
+      
+      
+      
+      creature: kind === 'horse' ? null : spawnCreature(kind),
       anim: emptyChickenAnim(chickSeed % 1),
       
       
@@ -3062,7 +3113,11 @@ export function boot(canvas, hud) {
     deckGroup = new THREE.Group();
     scene.add(deckGroup);
 
-    deck = buildLevel(seed);
+    
+    
+    isBoss = seed >= BOSS_DECK;
+    deck = isBoss ? bossLevel() : buildLevel(seed);
+    fight = isBoss ? createBossFight() : null;
     EXIT = deck.exit;
     rails = railNodesForRuns(deck.runs);
     safeRoom = deck.rooms.find((m) => m.kind === 'safe') || null;
@@ -3207,6 +3262,34 @@ export function boot(canvas, hud) {
     deckGroup.add(lift);
 
     
+    boulder = null;
+    cable = null;
+    if (isBoss) {
+      const bp = deck.boulder;
+      boulder = new THREE.Mesh(new THREE.IcosahedronGeometry(0.95, 0).toNonIndexed(), mat);
+      {
+        const n = boulder.geometry.attributes.position.count;
+        const col = new Float32Array(n * 3);
+        const c = new THREE.Color(0x4a4640);
+        for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+        boulder.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+        boulder.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+        boulder.geometry.computeVertexNormals();
+      }
+      boulder.position.set(bp.x, bp.y, bp.z);
+      deckGroup.add(boulder);
+
+      
+      const cg = new THREE.BufferGeometry();
+      cg.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+        bp.x, ARENA.height, bp.z, bp.x, bp.y + 0.9, bp.z,
+      ]), 3));
+      cable = new THREE.Line(cg, new THREE.LineBasicMaterial({ color: 0x8a7f68 }));
+      cable.frustumCulled = false;
+      deckGroup.add(cable);
+    }
+
+    
     
     
     
@@ -3217,6 +3300,20 @@ export function boot(canvas, hud) {
     player.struggle = null;
 
     
+  
+  
+  
+  
+  
+  
+  
+  
+  if (isBoss) {
+    addChicken(deck.length * 0.90, 0, 'horse');
+    return;
+  }
+
+  
     
     
     
@@ -3412,6 +3509,9 @@ export function boot(canvas, hud) {
   let camNode = nodeAt(rails, progressAt(deck, deck.start.x, deck.start.z));
   let cutFlash = 0;
   let target = null;
+  let bossMoved = 0;
+  let bossWonIn = 0;
+  let bossHorseSpeed = 0;
   let nearLocker = null;
   let hidden = false;
   const bars = document.getElementById('bars');
@@ -3561,7 +3661,7 @@ export function boot(canvas, hud) {
       let best = Infinity;
       const range = player.weapon.spec?.range ?? 18;
       for (const b of birds) {
-        if (!b.alive) continue;
+        if (!b.alive || b.kind === 'horse') continue;
         const dx = b.x - player.x; const dz = b.z - player.z;
         const d = Math.hypot(dx, dz);
         if (d > range || d > best) continue;
@@ -3580,6 +3680,26 @@ export function boot(canvas, hud) {
       fire(player.weapon);
       shotFlash = 0.06;
       fireT = 0;
+
+      
+      
+      
+      
+      
+      
+      
+      
+      if (isBoss && fight && fight.boulder === 'hung') {
+        const b0 = deck.boulder;
+        const near = Math.hypot(player.x - b0.x, player.z - b0.z) < 9;
+        const bearing = Math.atan2(-(b0.x - player.x), b0.z - player.z);
+        let off = bearing - player.yaw;
+        off = Math.atan2(Math.sin(off), Math.cos(off));
+        if (near && Math.abs(off) < 0.5) {
+          fight = cutCable(fight);
+          liftChime();
+        }
+      }
       
       
       
@@ -3597,7 +3717,10 @@ export function boot(canvas, hud) {
       const muzzleY = 1.30;
       const aimDrop = (aimLow || keys.has('ControlLeft') || keys.has('KeyQ')) ? 1.0 : 0.30;
       for (const b of birds) {
-        if (!b.alive) continue;
+        
+        
+        
+        if (!b.alive || !b.creature) continue;
         const dx = player.x - b.x; const dz = player.z - b.z;
         const dist = Math.hypot(dx, dz);
         if (dist > (player.weapon.spec?.range ?? 18)) continue;
@@ -3664,7 +3787,12 @@ export function boot(canvas, hud) {
       }
       const dx = player.x - b.x; const dz = player.z - b.z;
       const dist = Math.hypot(dx, dz);
-      const mob = mobilityOf(b.creature);
+      
+      
+      
+      
+      
+      const mob = b.creature ? mobilityOf(b.creature) : 1;
       const mobScale = (typeof mob === 'number' ? mob : (mob?.speed ?? 1));
 
       
@@ -3673,6 +3801,76 @@ export function boot(canvas, hud) {
       
       if (b.latched) b.anim.state = 'latched';
       const prof = b.kind === 'porker' ? PORKER : (b.kind === 'cow' ? COW : undefined);
+      
+      
+      
+      
+      
+      
+      if (b.kind === 'horse' && fight) {
+        const step = stepBossFight(fight, dt, {
+          dist,
+          metres: bossMoved,
+          toBoulder: Math.hypot(b.x - deck.boulder.x, b.z - deck.boulder.z),
+        });
+        fight = step.fight;
+        bossHorseSpeed = step.speed;
+        bossMoved = 0;
+
+        
+        
+        
+        
+        if (fight.dead) hud.msg('IT IS DOWN');
+        else if (fight.boulder === 'rewinding') hud.msg('THE BOULDER IS SPENT');
+        else if (step.blown) hud.msg('IT IS BLOWN');
+        else hud.msg('');
+        if (fight.event === 'blown') porkVoice(b, 'die', dist);
+        else if (fight.event === 'recovered') porkVoice(b, 'alert', dist);
+
+        if (!fight.dead && step.speed > 0 && dist > 1.1 && !player.dead) {
+          const move = step.speed * dt;
+          
+          
+          b.x += (dx / dist) * move;
+          b.z += (dz / dist) * move;
+          bossMoved = move;
+        }
+        
+        
+        
+        if (!fight.dead && dist < 1.3 && !player.dead && b.cool <= 0) {
+          b.cool = 1.6;
+          player.vitals.health -= 16;
+          shake = Math.max(shake, 0.8);
+          hitSfx();
+        }
+        b.cool -= dt;
+
+        
+        
+        
+        
+        
+        const tired = step.exhaustion ?? 0;
+        const sag = (k, ph) => {
+          const m = b.rig.named[k];
+          if (m) m.rotation.y = tired * (0.30 + 0.22 * Math.sin(now * (1.3 + ph) + ph * 2));
+        };
+        sag('neckC', 0); sag('neckL', 0.7); sag('neckR', 1.4);
+        b.rig.body.rotation.y = tired * 0.16 + (fight.dead ? 0.7 : 0);
+        
+        b.rig.body.scale.set(1, 1 + Math.sin(now * (3 + tired * 5)) * 0.02 * (0.4 + tired), 1);
+
+        if (fight.dead && b.alive) {
+          b.alive = false;
+          bossWonIn = 0.9;
+        }
+        b.mesh.position.set(b.x, 0, b.z);
+        b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI;
+        continue;
+      }
+
       
       
       
@@ -4108,6 +4306,33 @@ export function boot(canvas, hud) {
     if (bars) bars.style.opacity = hidden ? '1' : '0';
 
     
+    if (isBoss && boulder && fight) {
+      const bp = deck.boulder;
+      let y = bp.y;
+      if (fight.boulder === 'falling') {
+        
+        const u = fight.boulderT / 0.42;
+        y = bp.y - (bp.y - 0.9) * u * u;
+      } else if (fight.boulder === 'landed') {
+        y = 0.9;
+      } else if (fight.boulder === 'rewinding') {
+        y = 0.9 + (bp.y - 0.9) * Math.min(1, fight.boulderT / BOSS_HORSE.rewind);
+      }
+      boulder.position.y = y;
+      boulder.rotation.set(now * 0.3, now * 0.21, 0);
+      if (cable) {
+        const cp = cable.geometry.attributes.position;
+        cp.setXYZ(1, bp.x, y + 0.9, bp.z);
+        cp.needsUpdate = true;
+        cable.visible = fight.boulder === 'hung' || fight.boulder === 'rewinding';
+      }
+    }
+    if (bossWonIn > 0) {
+      bossWonIn -= dt;
+      if (bossWonIn <= 0) hud.won();
+    }
+
+    
     for (const it of pickups) {
       if (it.taken) continue;
       
@@ -4331,6 +4556,24 @@ export function boot(canvas, hud) {
       
       
       toLift() { player.x = EXIT.x; player.z = EXIT.z; },
+      get isBoss() { return isBoss; },
+      get fight() { return fight; },
+      get horseSpeed() { return bossHorseSpeed; },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      exhaustBoss() {
+        if (!fight) return;
+        fight.fatigue.value = 100;
+        fight.fatigue.gaveUp = true;
+        fight.fatigue.givenUpFor = BOSS_HORSE.giveUpSeconds;
+      },
     },
   };
 }
@@ -4628,6 +4871,15 @@ const hud = {
   dead() {
     $('overTitle').textContent = 'THE LIVESTOCK HAD OPINIONS';
     $('overBody').textContent = 'Xander does not report back.';
+    $('over').style.display = 'flex';
+  },
+  won() {
+    $('overTitle').textContent = 'HESPER-4 IS QUIET AGAIN';
+    $('overBody').textContent = 'The Agency will want the paperwork before the survivors.';
+    
+    
+    const b = $('again');
+    if (b) b.textContent = 'Again, from the top';
     $('over').style.display = 'flex';
   },
   paint(s) {
