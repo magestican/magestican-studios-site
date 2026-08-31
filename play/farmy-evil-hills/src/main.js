@@ -73,6 +73,7 @@ import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
 import { lockZoom } from '../../shared/input/zoomLock.js';
 
 import { railNodesForRuns, nodeAt, railPlacement } from '../../../web-engine/horror/railCamera.js';
+import { panOf, levelAt, makeImpulse } from '../../../web-engine/horror/audioSpace.js';
 import {
   buildLevel, moveInLevel, progressAt, pointBehind, runRect,
 } from '../../../web-engine/horror/level.js';
@@ -2184,9 +2185,11 @@ function makeWire(x, z, len, seed) {
   };
 }
 
-function sparkSfx() {
+function sparkSfx(x, z) {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
+  const out = audio.at(x, z);
+  if (!out) return;
   const t = ctx.currentTime + 0.01;
   
   
@@ -2201,13 +2204,13 @@ function sparkSfx() {
     const g = ctx.createGain();
     g.gain.setValueAtTime(0.16 + Math.random() * 0.12, at);
     g.gain.exponentialRampToValueAtTime(0.0001, at + 0.05);
-    n.connect(hp); hp.connect(g); g.connect(audio.sfxBus);
+    n.connect(hp); hp.connect(g); g.connect(out);
     n.start(at); n.stop(at + 0.06);
     const o = ctx.createOscillator(); const og = ctx.createGain();
     o.type = 'square'; o.frequency.value = 3200 + Math.random() * 2600;
     og.gain.setValueAtTime(0.05, at);
     og.gain.exponentialRampToValueAtTime(0.0001, at + 0.04);
-    o.connect(og); og.connect(audio.sfxBus); o.start(at); o.stop(at + 0.05);
+    o.connect(og); og.connect(out); o.start(at); o.stop(at + 0.05);
   }
 }
 
@@ -2222,9 +2225,11 @@ function sparkSfx() {
 
 
 
-function creakSfx() {
+function creakSfx(x, z) {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
+  const out = audio.at(x, z);
+  if (!out) return;
   const t = ctx.currentTime + 0.02;
   const dur = 1.4 + Math.random() * 2.0;
   const base = 52 + Math.random() * 70;
@@ -2253,7 +2258,7 @@ function creakSfx() {
   }
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.2);
 
-  o.connect(bp); bp.connect(g); g.connect(audio.sfxBus);
+  o.connect(bp); bp.connect(g); g.connect(out);
   o.start(t); o.stop(t + dur + 0.3);
 }
 
@@ -2543,8 +2548,16 @@ function chickVoice(bird, kind, dist) {
   const spec = CHICK_CALL[kind];
   if (!spec) return;
   
-  const near = Math.max(0, 1 - dist / 30);
-  if (near <= 0.02) return;
+  
+  
+  
+  
+  
+  
+  
+  const out = audio.at(bird.x, bird.z);
+  if (!out) return;
+  const near = 1;
   const t = ctx.currentTime + 0.01;
   const v = bird.voice;
   const dur = spec.dur * (2 - v) * 0.9;
@@ -2565,17 +2578,12 @@ function chickVoice(bird, kind, dist) {
   f2.frequency.setValueAtTime(spec.f0 * v * 2.4, t);
   f2.frequency.exponentialRampToValueAtTime(Math.max(120, spec.to * v * 2.1), t + dur);
 
-  
-  const air = ctx.createBiquadFilter();
-  air.type = 'lowpass';
-  air.frequency.value = 700 + near * 9000;
-
   const g = ctx.createGain();
   g.gain.setValueAtTime(0.0001, t);
   g.gain.exponentialRampToValueAtTime(spec.gain * near * near, t + dur * 0.14);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
 
-  o.connect(f1); f1.connect(f2); f2.connect(air); air.connect(g); g.connect(audio.sfxBus);
+  o.connect(f1); f1.connect(f2); f2.connect(g); g.connect(out);
   o.start(t); o.stop(t + dur + 0.05);
 }
 
@@ -2597,9 +2605,11 @@ function porkVoice(beast, kind, dist) {
   if (!ctx || !audio.running) return;
   const spec = PORK_CALL[kind];
   if (!spec) return;
-  const near = Math.max(0, 1 - dist / 34);        
-  if (near <= 0.02) return;
+  const out = audio.at(beast.x, beast.z);
+  if (!out) return;
+  const near = 1;
   const t = ctx.currentTime + 0.01;
+  void dist;
   const v = beast.voice;
   const dur = spec.dur * (2 - v) * 0.9;
 
@@ -2607,10 +2617,8 @@ function porkVoice(beast, kind, dist) {
   g.gain.setValueAtTime(0.0001, t);
   g.gain.exponentialRampToValueAtTime(spec.gain * near * near, t + dur * 0.10);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  const air = ctx.createBiquadFilter();
-  air.type = 'lowpass';
-  air.frequency.value = 500 + near * 7000;
-  air.connect(g); g.connect(audio.sfxBus);
+  const air = ctx.createGain();
+  air.connect(g); g.connect(out);
 
   
   const o = ctx.createOscillator();
@@ -2680,6 +2688,182 @@ function pushOutOfPillars(list, p, pad) {
     }
   }
   return p;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function roomTone() {
+  const ctx = audio.ensure();
+  if (!ctx || tone) return;
+
+  
+  
+  const n = Math.floor(ctx.sampleRate * 8);
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  
+  
+  
+  let last = 0;
+  for (let i = 0; i < n; i += 1) {
+    last = (last + (Math.random() * 2 - 1) * 0.09) * 0.985;
+    d[i] = last;
+  }
+  
+  
+  const fade = Math.floor(ctx.sampleRate * 0.25);
+  for (let i = 0; i < fade; i += 1) {
+    const k = i / fade;
+    d[i] = d[i] * k + d[n - fade + i] * (1 - k);
+  }
+
+  const src = ctx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 320; lp.Q.value = 0.7;
+
+  const lfo = ctx.createOscillator();
+  lfo.frequency.value = 0.055;                 
+  const lfoGain = ctx.createGain(); lfoGain.gain.value = 140;
+  lfo.connect(lfoGain); lfoGain.connect(lp.frequency);
+
+  const g = ctx.createGain(); g.gain.value = 0.0001;
+  src.connect(lp); lp.connect(g); g.connect(audio.sfxBus);
+  src.start(); lfo.start();
+  g.gain.setTargetAtTime(0.5, ctx.currentTime, 2.5);   
+
+  
+  const hum = ctx.createOscillator(); const hg = ctx.createGain();
+  hum.type = 'sine'; hum.frequency.value = 38;
+  hg.gain.value = 0.0001;
+  hum.connect(hg); hg.connect(audio.sfxBus); hum.start();
+  hg.gain.setTargetAtTime(0.10, ctx.currentTime, 3.5);
+
+  tone = { gain: g, hum: hg };
+}
+
+
+
+
+
+
+
+
+function roomToneLevel(quiet) {
+  if (!tone || !audio.ctx) return;
+  tone.gain.gain.setTargetAtTime(quiet ? 0.10 : 0.5, audio.ctx.currentTime, 0.8);
+  tone.hum.gain.setTargetAtTime(quiet ? 0.02 : 0.10, audio.ctx.currentTime, 0.8);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function breathSfx(hard) {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.01;
+  const dur = hard ? 0.34 : 0.5;
+  const b = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i += 1) {
+    
+    const u = i / d.length;
+    d[i] = (Math.random() * 2 - 1) * Math.sin(u * Math.PI) ** 1.4;
+  }
+  const n = ctx.createBufferSource(); n.buffer = b;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = hard ? 620 : 420;
+  bp.Q.value = 1.1;
+  const g = ctx.createGain();
+  g.gain.value = hard ? 0.16 : 0.075;
+  n.connect(bp); bp.connect(g); g.connect(audio.sfxBus);
+  n.start(t); n.stop(t + dur + 0.05);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function footSfx(x, z, running) {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const out = audio.at(x, z);
+  if (!out) return;
+  const t = ctx.currentTime + 0.005;
+  const v = 0.9 + Math.random() * 0.25;
+  const hard = running ? 1.5 : 1;
+
+  const o = ctx.createOscillator(); const og = ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(150 * v, t);
+  o.frequency.exponentialRampToValueAtTime(52 * v, t + 0.075);
+  og.gain.setValueAtTime(0.22 * hard, t);
+  og.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
+  o.connect(og); og.connect(out); o.start(t); o.stop(t + 0.16);
+
+  const r = ctx.createOscillator(); const rg = ctx.createGain();
+  r.type = 'triangle';
+  r.frequency.value = (running ? 320 : 260) * v;
+  rg.gain.setValueAtTime(0.09 * hard, t + 0.004);
+  rg.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+  r.connect(rg); rg.connect(out); r.start(t); r.stop(t + 0.11);
+
+  const b = ctx.createBuffer(1, 1600, ctx.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i += 1) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length) ** 2;
+  const n = ctx.createBufferSource(); n.buffer = b;
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1900;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.085 / hard, t);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+  n.connect(hp); hp.connect(ng); ng.connect(out); n.start(t); n.stop(t + 0.08);
 }
 
 
@@ -3821,6 +4005,9 @@ export function boot(canvas, hud) {
   
   let moveBasis = null;
   let lastMoved = 0;
+  let lastGait = 0;
+  let stepCount = 0;
+  let breathIn = 2;
   
   
   
@@ -4339,6 +4526,10 @@ export function boot(canvas, hud) {
     const place = railPlacement(rails, camNode, player);
     camEye = place.eye;
     camTarget = place.target;
+    
+    
+    
+    audio.listen(player.x, player.z, place.eye, place.target);
     camera.fov = place.fov;
     camera.updateProjectionMatrix();
     
@@ -4463,6 +4654,24 @@ export function boot(canvas, hud) {
         : walkPhase);
       const frame = Math.floor(ph * n) % n;
       if (xander.geometry !== set[frame]) xander.geometry = set[frame];
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const half = (v) => ((v % 0.5) + 0.5) % 0.5;
+      if (half(ph) < half(lastGait) || Math.abs(ph - lastGait) > 0.4) {
+        footSfx(player.x, player.z, running);
+        stepCount += 1;
+      }
+      lastGait = ph;
       
       
       
@@ -4684,7 +4893,16 @@ export function boot(canvas, hud) {
     for (const w of wires) w.step(now);
 
     creakIn -= dt;
-    if (creakIn <= 0) { creakIn = 9 + Math.random() * 16; creakSfx(); }
+    if (creakIn <= 0) {
+      creakIn = 9 + Math.random() * 16;
+      
+      
+      
+      creakSfx(
+        player.x + (Math.random() - 0.5) * 9,
+        player.z + (Math.random() - 0.5) * 22,
+      );
+    }
 
     sparkIn -= dt;
     if (sparkIn <= 0 && wires.length) {
@@ -4693,7 +4911,7 @@ export function boot(canvas, hud) {
       sparkGeo.attributes.position.setXYZ(0, w.tip[0], w.tip[1], w.tip[2]);
       sparkGeo.attributes.position.needsUpdate = true;
       sparkFlash = 0.16;
-      sparkSfx();
+      sparkSfx(w.tip[0], w.tip[2]);
     }
     cutFlash = Math.max(0, cutFlash - dt);
     if (gradeEl) gradeEl.style.background = cutFlash > 0
@@ -4703,26 +4921,6 @@ export function boot(canvas, hud) {
     
     sparkPt.material.opacity = sparkFlash > 0 ? (Math.random() > 0.35 ? 0.95 : 0.2) : 0;
 
-    
-    for (const l of leaks) l.step(dt);
-    for (const w of wires) w.step(now);
-
-    creakIn -= dt;
-    if (creakIn <= 0) { creakIn = 9 + Math.random() * 16; creakSfx(); }
-
-    sparkIn -= dt;
-    if (sparkIn <= 0 && wires.length) {
-      sparkIn = 4 + Math.random() * 9;
-      const w = wires[Math.floor(Math.random() * wires.length)];
-      sparkGeo.attributes.position.setXYZ(0, w.tip[0], w.tip[1], w.tip[2]);
-      sparkGeo.attributes.position.needsUpdate = true;
-      sparkFlash = 0.16;
-      sparkSfx();
-    }
-    sparkFlash = Math.max(0, sparkFlash - dt);
-    
-    
-    sparkPt.material.opacity = sparkFlash > 0 ? (Math.random() > 0.35 ? 0.95 : 0.2) : 0;
 
     
     
@@ -4757,6 +4955,26 @@ export function boot(canvas, hud) {
     
     
     audio.duck(hunted || inSafe);
+    
+    
+    
+    
+    roomToneLevel(inSafe);
+
+    
+    
+    
+    breathIn -= dt;
+    if (breathIn <= 0 && !player.dead) {
+      const sp = player.vitals.stamina ?? 100;
+      const spent = Math.max(0, 1 - sp / 100);
+      if (spent > 0.25) {
+        breathSfx(spent > 0.65);
+        breathIn = 1.5 - spent * 0.85;
+      } else {
+        breathIn = 1.2;
+      }
+    }
 
     
     nearLocker = null;
@@ -5032,6 +5250,11 @@ export function boot(canvas, hud) {
       
       
       toLift() { player.x = EXIT.x; player.z = EXIT.z; },
+      
+      
+      
+      get audio() { return audio; },
+      get steps() { return stepCount; },
       get isBoss() { return isBoss; },
       get fight() { return fight; },
       get horseSpeed() { return bossHorseSpeed; },
@@ -5103,12 +5326,17 @@ const $ = (id) => document.getElementById(id);
 
 
 
+let tone = null;
 const audio = (() => {
-  let ctx = null; let music = null; let sfx = null;
+  let ctx = null; let music = null; let sfx = null; let verb = null; let verbIn = null;
+  
+  
+  const ear = { px: 0, pz: 0, cx: 0, cz: -1, fx: 0, fz: 1 };
   return {
     get ctx() { return ctx; },
     get musicBus() { return music; },
     get sfxBus() { return sfx; },
+    get ear() { return ear; },
     ensure() {
       if (ctx) return ctx;
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -5116,7 +5344,82 @@ const audio = (() => {
       ctx = new AC();
       music = ctx.createGain(); music.gain.value = 0.50; music.connect(ctx.destination);
       sfx = ctx.createGain(); sfx.gain.value = 0.85; sfx.connect(ctx.destination);
+
+      
+      
+      
+      
+      
+      
+      
+      
+      try {
+        const ir = makeImpulse(ctx.sampleRate);
+        const buf = ctx.createBuffer(2, ir.length, ctx.sampleRate);
+        buf.copyToChannel(ir.left, 0);
+        buf.copyToChannel(ir.right, 1);
+        verb = ctx.createConvolver();
+        verb.normalize = true;
+        verb.buffer = buf;
+        const wet = ctx.createGain(); wet.gain.value = 0.9;
+        verb.connect(wet); wet.connect(sfx);
+        verbIn = ctx.createGain(); verbIn.gain.value = 1;
+        verbIn.connect(verb);
+      } catch (e) {
+        
+        verb = null; verbIn = null;
+      }
       return ctx;
+    },
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    at(x, z) {
+      if (!ctx || !sfx) return null;
+      const dist = Math.hypot(x - ear.px, z - ear.pz);
+      const lv = levelAt(dist);
+      if (!lv) return null;
+      const air = ctx.createBiquadFilter();
+      air.type = 'lowpass';
+      air.frequency.value = lv.air;
+      const pan = ctx.createStereoPanner
+        ? ctx.createStereoPanner()
+        : null;
+      const dry = ctx.createGain();
+      dry.gain.value = lv.gain;
+      if (pan) {
+        pan.pan.value = panOf({ x, z }, { x: ear.cx, z: ear.cz }, { x: ear.fx, z: ear.fz });
+        air.connect(pan); pan.connect(dry);
+      } else {
+        air.connect(dry);
+      }
+      dry.connect(sfx);
+      if (verbIn) {
+        const send = ctx.createGain();
+        send.gain.value = lv.wet * lv.gain;
+        (pan || air).connect(send);
+        send.connect(verbIn);
+      }
+      return air;
+    },
+
+    
+    listen(px, pz, cam, target) {
+      ear.px = px; ear.pz = pz;
+      ear.cx = cam.x; ear.cz = cam.z;
+      const fx = target.x - cam.x; const fz = target.z - cam.z;
+      const m = Math.hypot(fx, fz) || 1;
+      ear.fx = fx / m; ear.fz = fz / m;
     },
     get running() { return !!ctx && ctx.state === 'running'; },
     
@@ -5466,6 +5769,10 @@ function start() {
           $('tapeMini').classList.toggle('on', tape.audible);
           $('tapeCap').textContent = tape.sideName;
         }
+        
+        
+        
+        roomTone();
       };
       $('startBtn').addEventListener('click', go);
       $('boot').addEventListener('click', go);
