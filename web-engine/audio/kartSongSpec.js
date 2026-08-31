@@ -1007,22 +1007,127 @@ const DUST_BOWL = {
   ],
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SALTMARSH = {
+  id: 'saltmarsh',
+  name: 'Saltmarsh Run',
+  theme: 'marsh',
+  bpm: 148,
+  root: n('A3'),
+  mode: 'lydian',
+  swing: 0,
+  gainScale: 0.90,
+  voices: { lead: 'reed', comp: 'shimmer', bass: 'walk' },
+  drums: 'glide',
+  
+  
+  
+  
+  
+  progression: [
+    { degree: 0, quality: 'add9' },
+    { degree: 1, quality: 'maj' },
+    { degree: 0, quality: 'maj6' },
+    { degree: 5, quality: 'min7' },
+    { degree: 0, quality: 'maj7' },
+    { degree: 4, quality: 'maj6' },
+    { degree: 1, quality: 'add9' },
+    { degree: 0, quality: 'maj6' },
+  ],
+  
+  
+  
+  
+  lead: [
+    mel('A4 .5 C#5 .5 E5 .5 F#5 1 E5 .5 C#5 .5 A4 .5'),
+    mel('B4 .5 D#5 .5 F#5 1 E5 .5 C#5 .5 B4 1'),
+    mel('C#5 .5 E5 .5 A5 1 G#5 .5 F#5 .5 E5 1'),
+    mel('F#4 .5 A4 .5 C#5 .5 E5 1 C#5 .5 A4 .5 F#4 .5'),
+    mel('A4 .25 B4 .25 C#5 .5 E5 .5 G#5 .5 E5 .5 C#5 .5 A4 1'),
+    mel('E5 .5 G#5 .5 B5 1 A5 .5 F#5 .5 E5 1'),
+    mel('D#5 .5 F#5 .5 B5 1 A5 .5 F#5 .5 D#5 1'),
+    mel('C#5 .5 B4 .5 A4 .5 G#4 .5 A4 .5 C#5 .5 E5 1'),
+  ],
+};
+
 export const SONGS = Object.freeze({
   sunflower: Object.freeze(SUNFLOWER),
   muddybottom: Object.freeze(MUDDYBOTTOM),
   frostfield: Object.freeze(FROSTFIELD),
   'harvest-moon-night': Object.freeze(HARVEST_MOON),
   'dust-bowl-run': Object.freeze(DUST_BOWL),
+  saltmarsh: Object.freeze(SALTMARSH),
 });
 
 export const SONG_NAMES = Object.freeze(Object.keys(SONGS));
 
 
 export const TRACK_SONG = Object.freeze({
+  
   sunflower: 'sunflower',
   muddybottom: 'muddybottom',
   frostfield: 'frostfield',
+  
+  
+  
+  
+  
+  millrace: 'harvest-moon-night',
+  saltmarsh: 'saltmarsh',
+  canyon: 'dust-bowl-run',
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

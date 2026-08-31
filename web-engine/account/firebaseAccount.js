@@ -51,10 +51,25 @@ import { ACCOUNT_CONFIG, ACCOUNTS_ENABLED, PROFILE_COLLECTION, isConfigured } fr
 
 
 
+
+
+
+
+
+
+
+
 const SAVE_SUBCOLLECTION = 'save';
 const SAVE_DOC = 'records';
 import { toCloudDto, fromCloudDto, isSyncable, extraFields } from './profileDto.js';
-import { SAVE_SYNC_ENABLED, toSaveDto, isSyncableSave, extraSaveFields } from './gameSave.js';
+import {
+  SAVE_SYNC_ENABLED, toSaveDto, isSyncableSave, extraSaveFields,
+  CUP_IDS, HOME_CUP, CUP_SAVE_DOCS,
+  toCupSaveDto, isSyncableCupSave, extraCupSaveFields, mergeCupSaveDoc,
+} from './gameSave.js';
+
+
+const EXTRA_CUPS = CUP_IDS.filter((c) => c !== HOME_CUP);
 
 let _state = null;      
 
@@ -260,6 +275,31 @@ export async function pullProfile() {
         
         if (rec.exists()) raw = { ...data, ...rec.data() };
       } catch (_) {  }
+      
+      
+      
+      
+      
+      
+      
+      
+      for (const cupId of EXTRA_CUPS) {
+        try {
+          const got = await s.store.getDoc(s.store.doc(
+            s.db, PROFILE_COLLECTION, s.uid, SAVE_SUBCOLLECTION, CUP_SAVE_DOCS[cupId],
+          ));
+          if (!got.exists()) continue;
+          
+          
+          
+          
+          
+          
+          
+          
+          raw = mergeCupSaveDoc(raw, got.data(), cupId);
+        } catch (_) {  }
+      }
     }
     
     
@@ -317,6 +357,20 @@ export async function pushProfile(profile, records = null) {
           await s.store.setDoc(
             s.store.doc(s.db, PROFILE_COLLECTION, s.uid, SAVE_SUBCOLLECTION, SAVE_DOC),
             { ...save, updatedAt: s.store.serverTimestamp() },
+          );
+        } catch (_) {  }
+      }
+      
+      
+      
+      
+      for (const cupId of EXTRA_CUPS) {
+        const cup = toCupSaveDto(records, cupId);
+        if (!isSyncableCupSave(cup, cupId) || extraCupSaveFields(cup).length) continue;
+        try {
+          await s.store.setDoc(
+            s.store.doc(s.db, PROFILE_COLLECTION, s.uid, SAVE_SUBCOLLECTION, CUP_SAVE_DOCS[cupId]),
+            { ...cup, updatedAt: s.store.serverTimestamp() },
           );
         } catch (_) {  }
       }

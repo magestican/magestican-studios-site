@@ -631,6 +631,27 @@ export function createRace(options) {
           heldItem: r.item,
           heldFor: r.heldFor,
           lineCurvature: surf.curvature,
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          rails: trackRails(path, track),
           threatAhead: threats.ahead ? { distance: threats.ahead.distance } : null,
           threatBehind: threats.behind ? { distance: threats.behind.distance } : null,
         });

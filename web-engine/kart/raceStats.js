@@ -204,6 +204,14 @@ export function lastCupTrack(progress) {
 
 
 
+
+
+
+
+
+
+
+
 export function unlockedTracks(progress, allTracks) {
   const podiumed = Object.values(progress.tracks ?? {})
     .some((t) => t.bestPosition != null && t.bestPosition <= 3);
@@ -215,6 +223,77 @@ export function isLocked(progress, track) {
   if (!track.locked) return false;
   return !Object.values(progress.tracks ?? {})
     .some((t) => t.bestPosition != null && t.bestPosition <= 3);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function cupsOpened(before, after, cups) {
+  return (cups ?? []).filter((c) => {
+    const tracks = c.tracks ?? [];
+    if (!tracks.length) return false;
+    if (!tracks.every((t) => isLocked(before, t))) return false;
+    return tracks.some((t) => !isLocked(after, t));
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function cupUnlockLine(before, after, cups) {
+  const opened = cupsOpened(before, after, cups);
+  if (!opened.length) return '';
+  const names = opened.map((c) => c.name).join(' and ');
+  const circuits = opened.reduce((n, c) => n + (c.tracks ?? [])
+    .filter((t) => isLocked(before, t) && !isLocked(after, t)).length, 0);
+  return `${names} unlocked — ${circuits} more circuit${circuits === 1 ? '' : 's'}.`;
 }
 
 

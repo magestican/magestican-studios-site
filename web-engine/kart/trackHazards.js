@@ -207,6 +207,10 @@ export function isChasmWater(zone) {
 
 
 
+
+
+
+
 export function drivableWater(zone) {
   if (!zone || !RESPAWNS.has(zone.kind)) return false;
   if (zone.kind === 'lava') return false;
@@ -231,6 +235,17 @@ export function drivableWater(zone) {
 export function waterPlaneY(zone, roadY) {
   return (roadY ?? 0) - surfaceLevelOf(zone);
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

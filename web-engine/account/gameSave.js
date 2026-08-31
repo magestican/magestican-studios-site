@@ -148,7 +148,62 @@ export const SAVE_SYNC_ENABLED = true;
 
 
 
-export const TRACK_IDS = Object.freeze(['sunflower', 'muddybottom', 'frostfield']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const CUP_TRACK_IDS = Object.freeze({
+  'home-paddock': Object.freeze(['sunflower', 'muddybottom', 'frostfield']),
+  'long-paddock': Object.freeze(['millrace', 'saltmarsh', 'canyon']),
+});
+
+
+
+
+
+
+
+
+
+export const CUP_SAVE_DOCS = Object.freeze({
+  'home-paddock': 'records',
+  'long-paddock': 'records-long-paddock',
+});
+
+
+export const HOME_CUP = 'home-paddock';
+
+
+export const HOME_TRACK_IDS = CUP_TRACK_IDS[HOME_CUP];
+
+
+export const CUP_IDS = Object.freeze(Object.keys(CUP_TRACK_IDS));
+
+
+
+
+
+
+
+
+
+export const TRACK_IDS = Object.freeze(CUP_IDS.flatMap((c) => [...CUP_TRACK_IDS[c]]));
 
 
 export const SAVE_LIMITS = Object.freeze({
@@ -314,11 +369,154 @@ export function hasRecords(records) {
 
 
 
-const trackMap = (records, pick) => {
+const trackMap = (records, pick, ids) => {
   const out = {};
-  for (const id of TRACK_IDS) out[id] = pick(records[id]);
+  for (const id of ids) out[id] = pick(records[id]);
   return out;
 };
+
+const RECORD_FIELDS = Object.freeze([
+  ['fkBestLapMs', (r) => r.bestLapMs],
+  ['fkBestRaceMs', (r) => r.bestRaceMs],
+  ['fkBestPosition', (r) => r.bestPosition],
+  ['fkBestPoints', (r) => r.bestPoints],
+]);
+
+
+
+
+
+
+
+
+
+
+
+export const CUP_SAVE_FIELDS = Object.freeze(RECORD_FIELDS.map(([f]) => f));
+
+
+export function toCupSaveDto(records, cupId) {
+  const ids = CUP_TRACK_IDS[cupId];
+  if (!ids) return null;
+  const rec = normaliseRecords(records);
+  const out = {};
+  for (const [field, pick] of RECORD_FIELDS) out[field] = trackMap(rec, pick, ids);
+  return out;
+}
+
+
+export function extraCupSaveFields(obj) {
+  if (!obj || typeof obj !== 'object') return [];
+  return Object.keys(obj).filter((k) => !CUP_SAVE_FIELDS.includes(k));
+}
+
+
+
+
+
+
+
+
+
+export function isSyncableCupSave(dto, cupId) {
+  const ids = CUP_TRACK_IDS[cupId];
+  if (!ids) return false;
+  if (!dto || typeof dto !== 'object') return false;
+  if (extraCupSaveFields(dto).length) return false;
+  for (const k of CUP_SAVE_FIELDS) if (!(k in dto)) return false;
+  const bounded = (v, max) => Number.isInteger(v) && v >= 0 && v <= max;
+  const maxOf = {
+    fkBestLapMs: SAVE_LIMITS.maxLapMs,
+    fkBestRaceMs: SAVE_LIMITS.maxRaceMs,
+    fkBestPosition: SAVE_LIMITS.maxPosition,
+    fkBestPoints: SAVE_LIMITS.maxPoints,
+  };
+  for (const field of CUP_SAVE_FIELDS) {
+    const m = dto[field];
+    if (!m || typeof m !== 'object') return false;
+    if (Object.keys(m).length !== ids.length) return false;
+    for (const id of ids) if (!bounded(m[id], maxOf[field])) return false;
+  }
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function mergeCupSaveDoc(raw, cupDoc, cupId) {
+  const base = (raw && typeof raw === 'object') ? raw : {};
+  const ids = CUP_TRACK_IDS[cupId];
+  if (!ids || !cupDoc || typeof cupDoc !== 'object') return base;
+  const out = { ...base };
+  for (const field of CUP_SAVE_FIELDS) {
+    const from = cupDoc[field];
+    const merged = { ...(base[field] ?? {}) };
+    if (from && typeof from === 'object') {
+      for (const id of ids) if (id in from) merged[id] = from[id];
+    }
+    out[field] = merged;
+  }
+  return out;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function saveDigestFields(profile, records) {
+  const out = { ...toSaveDto(profile, records) };
+  for (const cupId of CUP_IDS) {
+    if (cupId === HOME_CUP) continue;
+    const doc = CUP_SAVE_DOCS[cupId];
+    const cup = toCupSaveDto(records, cupId);
+    for (const field of CUP_SAVE_FIELDS) out[`${doc}.${field}`] = cup[field];
+  }
+  return out;
+}
 
 
 
@@ -337,10 +535,10 @@ export function toSaveDto(profile, records) {
     tbKills: int(tb.kills, SAVE_LIMITS.maxCount),
     fkPodiums: int(fk.podiums, SAVE_LIMITS.maxCount),
     fkPoints: int(fk.points, SAVE_LIMITS.maxPoints),
-    fkBestLapMs: trackMap(rec, (r) => r.bestLapMs),
-    fkBestRaceMs: trackMap(rec, (r) => r.bestRaceMs),
-    fkBestPosition: trackMap(rec, (r) => r.bestPosition),
-    fkBestPoints: trackMap(rec, (r) => r.bestPoints),
+    fkBestLapMs: trackMap(rec, (r) => r.bestLapMs, HOME_TRACK_IDS),
+    fkBestRaceMs: trackMap(rec, (r) => r.bestRaceMs, HOME_TRACK_IDS),
+    fkBestPosition: trackMap(rec, (r) => r.bestPosition, HOME_TRACK_IDS),
+    fkBestPoints: trackMap(rec, (r) => r.bestPoints, HOME_TRACK_IDS),
   };
 }
 
@@ -351,7 +549,15 @@ export function toSaveDto(profile, records) {
 
 export function fromSaveDto(doc) {
   if (!doc || typeof doc !== 'object') return null;
-  const records = {};
+  const records = emptyRecords();
+  
+  
+  
+  
+  
+  
+  
+  
   for (const id of TRACK_IDS) {
     records[id] = {
       bestLapMs: int(doc.fkBestLapMs?.[id], SAVE_LIMITS.maxLapMs),
@@ -403,8 +609,14 @@ export function isSyncableSave(dto) {
     const m = dto[field];
     if (!m || typeof m !== 'object') return false;
     const keys = Object.keys(m);
-    if (keys.length !== TRACK_IDS.length) return false;
-    for (const id of TRACK_IDS) if (!bounded(m[id], max)) return false;
+    
+    
+    
+    
+    
+    
+    if (keys.length !== HOME_TRACK_IDS.length) return false;
+    for (const id of HOME_TRACK_IDS) if (!bounded(m[id], max)) return false;
   }
   return true;
 }

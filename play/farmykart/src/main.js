@@ -12,6 +12,7 @@ import { DIFFICULTIES, DEFAULT_DIFFICULTY } from 'arbelo/kartAi';
 import { formatTime, ordinal } from 'arbelo/raceProgress';
 import {
   loadProgress, saveProgress, recordRace, trackRecord, isLocked, resetCup, lastCupTrack,
+  cupUnlockLine,
 } from 'arbelo/raceStats';
 
 
@@ -41,7 +42,10 @@ import { EMOTES } from 'arbelo/emotes';
 import { renderKartBoard } from './ui/kartBoard.js';
 
 import { defaultAssist } from 'arbelo/steerAssist';
-import { TRACKS, DEFAULT_TRACK } from './tracks/tracks.js';
+import {
+  TRACKS, DEFAULT_TRACK, CUPS, DEFAULT_CUP, cupById, tracksInCup, cupLocked, cupOf,
+} from './tracks/tracks.js';
+import { trackBadges, factsLine, trackOutline, THUMB } from './tracks/trackFacts.js';
 import { createRace } from './game.js';
 import { createSession, joinIdFromLocation, shareLinkFor } from './net/session.js';
 import { createLobbyUi } from './ui/lobby.js';
@@ -63,6 +67,12 @@ const state = {
   
   accountLines: [],
   track: DEFAULT_TRACK,
+  
+  
+  
+  
+  
+  cup: DEFAULT_CUP,
   character: DEFAULT_CHARACTER,
   difficulty: DEFAULT_DIFFICULTY,
   laps: 3,
@@ -143,6 +153,9 @@ function boot() {
   
   
   state.track = state.progress.lastTrack ?? DEFAULT_TRACK;
+  
+  
+  state.cup = cupOf(state.track);
   state.character = state.progress.lastCharacter ?? DEFAULT_CHARACTER;
   state.difficulty = state.progress.lastDifficulty ?? DEFAULT_DIFFICULTY;
   state.muted = localStorageGet('farmykart.muted') === '1';
@@ -166,6 +179,7 @@ function boot() {
   startVersionChecker({ label: 'A new version of Farmy Kart is available.' });
 
   buildCharacterShowcase();
+  buildCupRow();
   buildTrackGrid();
   buildDifficultyRow();
   buildLapRow();
@@ -201,7 +215,13 @@ function boot() {
     
     
     
-    if (state.nextTrack) state.track = state.nextTrack.id;
+    if (state.nextTrack) {
+      state.track = state.nextTrack.id;
+      
+      
+      
+      state.cup = cupOf(state.track);
+    }
     startRace({ newCup: false });
   });
   $('results-menu').addEventListener('click', () => {
@@ -503,27 +523,40 @@ function syncCharacterInfo() {
   root.innerHTML = driverPanelHtml(c);
 }
 
-function buildTrackGrid() {
-  const root = $('track-grid');
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildCupRow() {
+  const root = $('cup-row');
+  if (!root) return;
   root.innerHTML = '';
-  for (const t of TRACKS) {
-    const locked = isLocked(state.progress, t);
-    const rec = trackRecord(state.progress, t.id);
+  for (const c of CUPS) {
+    const shut = cupLocked(c.id) && tracksInCup(c.id).every((t) => isLocked(state.progress, t));
     const el = document.createElement('button');
-    el.className = `track-card${locked ? ' locked' : ''}`;
-    el.dataset.id = t.id;
-    el.innerHTML = `
-      <span class="track-thumb theme-${t.theme}">${trackThumb(t)}</span>
-      <span class="track-name">${t.name}${locked ? ' <em>locked</em>' : ''}</span>
-      <span class="track-tag">${locked ? 'Finish on the podium on any track to open this one.' : t.tagline}</span>
-      <span class="track-rec">${
-  rec.races
-    ? `Best lap ${formatTime(rec.bestLap)} &middot; best finish ${ordinal(rec.bestPosition)} &middot; ${rec.races} race${rec.races === 1 ? '' : 's'}${rec.bestPoints ? ` &middot; ${formatPoints(rec.bestPoints)}` : ''}`
-    : 'Not raced yet'
-}</span>`;
-    if (!locked) {
-      el.addEventListener('click', () => { state.track = t.id; syncSelection(); });
-    }
+    el.className = `chip${shut ? ' locked' : ''}`;
+    el.type = 'button';
+    el.dataset.id = c.id;
+    el.innerHTML = shut ? `${c.name}<em class="chip-lock">locked</em>` : c.name;
+    el.addEventListener('click', () => {
+      state.cup = c.id;
+      
+      
+      
+      const open = tracksInCup(c.id).filter((t) => !isLocked(state.progress, t));
+      if (open.length && !open.some((t) => t.id === state.track)) state.track = open[0].id;
+      buildTrackGrid();
+      syncSelection();
+    });
     root.appendChild(el);
   }
 }
@@ -536,29 +569,84 @@ function buildTrackGrid() {
 
 
 
-function trackThumb(track) {
-  const xs = track.control.map((p) => p.x);
-  const zs = track.control.map((p) => p.z);
-  const minX = Math.min(...xs); const maxX = Math.max(...xs);
-  const minZ = Math.min(...zs); const maxZ = Math.max(...zs);
-  const spanX = Math.max(1, maxX - minX);
-  const spanZ = Math.max(1, maxZ - minZ);
-  const scale = Math.min(86 / spanX, 52 / spanZ);
-  const pts = track.control.map((p) => {
-    const x = 50 + (p.x - (minX + maxX) / 2) * scale;
-    
-    
-    const y = 32 - (p.z - (minZ + maxZ) / 2) * scale;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(' ');
-  return `<svg viewBox="0 0 100 64" aria-hidden="true">
-    <polygon points="${pts}" fill="none" stroke="rgba(28,26,23,0.55)" stroke-width="7"
-             stroke-linejoin="round"/>
-    <polygon points="${pts}" fill="none" stroke="${hex(PALETTE.roadLight)}" stroke-width="4"
-             stroke-linejoin="round"/>
-  </svg>`;
+
+
+function syncCupNote() {
+  const note = $('cup-note');
+  if (!note) return;
+  const cup = cupById(state.cup);
+  const inCup = tracksInCup(cup.id);
+  const shut = inCup.length > 0 && inCup.every((t) => isLocked(state.progress, t));
+  note.classList.toggle('shut', shut);
+  note.textContent = shut
+    ? `${cup.name} opens when you finish on the podium — top three in any race, on any `
+      + 'circuit. Have a look at what is in it.'
+    : cup.blurb;
 }
 
+function buildTrackGrid() {
+  const root = $('track-grid');
+  root.innerHTML = '';
+  
+  
+  
+  for (const t of tracksInCup(state.cup)) {
+    const locked = isLocked(state.progress, t);
+    const rec = trackRecord(state.progress, t.id);
+    const el = document.createElement('button');
+    el.className = `track-card${locked ? ' locked' : ''}`;
+    el.type = 'button';
+    el.dataset.id = t.id;
+    const badges = trackBadges(t).map((b) => `<span class="badge">${b}</span>`).join('');
+    el.innerHTML = `
+      <span class="track-thumb theme-${t.theme}">${trackThumb(t)}</span>
+      <span class="track-name"><i class="track-pick" aria-hidden="true"></i>${t.name}${
+  locked ? ' <em>locked</em>' : ''}</span>
+      <span class="track-tag">${t.tagline}</span>
+      ${badges ? `<span class="track-badges">${badges}</span>` : ''}
+      <span class="track-facts">${factsLine(t)}</span>
+      <span class="track-rec">${
+  rec.races
+    ? `Best lap ${formatTime(rec.bestLap)} &middot; best finish ${ordinal(rec.bestPosition)} &middot; ${rec.races} race${rec.races === 1 ? '' : 's'}${rec.bestPoints ? ` &middot; ${formatPoints(rec.bestPoints)}` : ''}`
+    : 'Not raced yet'
+}</span>`;
+    if (!locked) {
+      el.addEventListener('click', () => { state.track = t.id; syncSelection(); });
+    }
+    root.appendChild(el);
+  }
+  syncCupNote();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function trackThumb(track) {
+  const { outline, chasm, start } = trackOutline(track);
+  const path = (pts) => pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 ${THUMB.w} ${THUMB.h}" aria-hidden="true">
+    <polygon points="${path(outline)}" fill="none" stroke="rgba(28,26,23,0.55)" stroke-width="7"
+             stroke-linejoin="round"/>
+    <polygon points="${path(outline)}" fill="none" stroke="${hex(PALETTE.roadLight)}" stroke-width="4"
+             stroke-linejoin="round"/>
+    ${chasm.length > 1 ? `<polyline points="${path(chasm)}" fill="none" stroke="${hex(PALETTE.water)}"
+             stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+    <circle cx="${start.x.toFixed(1)}" cy="${start.y.toFixed(1)}" r="3.4"
+            fill="#f6f1e6" stroke="rgba(28,26,23,0.7)" stroke-width="1.4"/>
+  </svg>`;
+}
 function buildDifficultyRow() {
   const root = $('difficulty-row');
   root.innerHTML = '';
@@ -735,6 +823,25 @@ function syncSelection() {
   
   if (charView && charView.selected() !== state.character) charView.select(state.character);
   syncCharacterInfo();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  for (const el of $('cup-row').children) {
+    el.classList.toggle('on', el.dataset.id === state.cup);
+  }
+  syncCupNote();
   for (const el of document.querySelectorAll('.track-card')) {
     el.classList.toggle('on', el.dataset.id === state.track);
   }
@@ -853,6 +960,10 @@ function quitRace() {
   }
   if (state.race) { state.race.dispose(); state.race = null; }
   show('menu');
+  
+  
+  
+  buildCupRow();
   buildTrackGrid();
   syncSelection();
   refreshBoard();
@@ -889,6 +1000,12 @@ function showResults(result) {
   
   
   
+  
+  
+  
+  
+  
+  const preRace = state.progress;
   const { progress, notable } = recordRace(state.progress, {
     trackId: result.trackId,
     characterId: result.characterId,
@@ -994,10 +1111,17 @@ function showResults(result) {
 
   
   
-  const wasLocked = TRACKS.some((t) => t.locked);
+  
+  
+  
+  
+  
+  
+  
+  buildCupRow();
   buildTrackGrid();
-  const nowOpen = wasLocked && TRACKS.some((t) => t.locked && !isLocked(state.progress, t));
-  $('results-unlock').textContent = nowOpen ? 'Frostfield Loop unlocked.' : '';
+  $('results-unlock').textContent = cupUnlockLine(preRace, state.progress,
+    CUPS.map((c) => ({ ...c, tracks: tracksInCup(c.id) })));
 
   trackEvent('match_end', {
     track: result.trackId, position: result.position, field: result.fieldSize,

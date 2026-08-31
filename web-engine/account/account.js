@@ -56,7 +56,7 @@ import {
 } from './firebaseAccount.js';
 import {
   SAVE_SYNC_ENABLED, kartRecordsFrom, applyKartRecords,
-  fromSaveDto, toSaveDto, isSyncableSave,
+  fromSaveDto, toSaveDto, isSyncableSave, saveDigestFields,
 } from './gameSave.js';
 import {
   reconcileAll, resolveConflict, makeSnapshot, pushBackup, normaliseBackups,
@@ -721,7 +721,9 @@ export async function syncNow() {
     let full = dto;
     if (SAVE_SYNC_ENABLED) {
       const save = toSaveDto(profile, records);
-      if (isSyncableSave(save)) full = { ...dto, ...save };
+      
+      
+      if (isSyncableSave(save)) full = { ...dto, ...saveDigestFields(profile, records) };
     }
     const day = dayOf(nowMs);
     const budget = loadBudget();
@@ -759,10 +761,19 @@ function maybePush(profile, records, nowMs, force = false) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
     let full = dto;
     if (SAVE_SYNC_ENABLED) {
       const save = toSaveDto(profile, records);
-      if (isSyncableSave(save)) full = { ...dto, ...save };
+      if (isSyncableSave(save)) full = { ...dto, ...saveDigestFields(profile, records) };
     }
     const digest = digestOf(full);
     const day = dayOf(nowMs);

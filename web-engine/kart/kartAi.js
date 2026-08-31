@@ -16,7 +16,23 @@
 
 
 import { lineAt } from './racingLine.js';
-import { signedDelta, nearestOnBranch } from './trackPath.js';
+import { signedDelta, nearestOnBranch, sampleAt } from './trackPath.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { RAIL_AT, RAIL_CATCH, RAIL_RADIUS } from './trackRails.js';
+import { GRIND_EXIT_STEER, GRIND_MIN_SPEED, GRIND_MIN_TIME } from './railGrind.js';
+import { TIER_TIMES, chargeRate, driftTier } from './driftBoost.js';
 
 
 
@@ -90,6 +106,35 @@ export function createDriver(seedIndex, difficulty = DEFAULT_DIFFICULTY) {
     
     
     nerve: mix32(seedIndex + 1),
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    railTaking: null,
+    railJudged: null,
+    railFor: 0,
+    
+    
+    railRest: 0,
+    
+    
+    
+    
+    
+    
+    railRode: false,
+    
+    
+    
+    
+    
+    
+    railNerve: mix32(seedIndex + 101),
   };
 }
 
@@ -200,6 +245,272 @@ export function wantsShortcut(driver, branch) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const RAIL_DECIDE_AHEAD = 70;
+
+
+
+
+
+
+
+
+
+const RAIL_GIVE_UP = 6;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const RAIL_TOLL = 0.45;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const RAIL_REST = 0.9;
+
+
+
+
+
+
+
+
+
+
+
+
+const RAIL_WOBBLE_M = (RAIL_RADIUS + RAIL_CATCH) * 0.2;
+
+
+
+
+
+
+
+
+
+export function railKey(span) {
+  return `${span.side}@${span.from.toFixed(4)}`;
+}
+
+
+
+
+
+
+
+
+export function railSideSign(span) {
+  return span.side === 'left' ? 1 : -1;
+}
+
+
+
+
+
+
+
+
+
+
+
+function grindChargeRate(speed, topSpeed) {
+  return chargeRate({
+    speed, steerLock: 1, onRoad: false, topSpeed: topSpeed || 40,
+  });
+}
+
+
+
+
+
+
+
+
+export function railMetresFor(charge, tierTime, speed, topSpeed) {
+  const rate = grindChargeRate(speed, topSpeed);
+  if (!(rate > 0)) return Infinity;
+  return ((tierTime - charge) / rate) * Math.max(0, speed);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function wantsRail(driver, span, { topSpeed = 45, speed = 0 } = {}) {
+  if (!span || !(span.metres > 0)) return false;
+  const d = driver.difficulty;
+  if ((d.driftSkill ?? 0) <= 0.15) return false;   
+
+  
+  const top = Math.max(1, topSpeed);
+  if (!(span.limit < top * 0.80)) return false;
+
+  
+  
+  
+  
+  const v = Math.max(GRIND_MIN_SPEED, Math.min(speed || top, span.limit));
+  const need = railMetresFor(0, TIER_TIMES[0], v, top);
+  if (!(need <= span.metres)) return false;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const fit = need / span.metres;
+  const skill = (d.driftSkill ?? 0.5) * 0.6 + (d.precision ?? 0.5) * 0.4;
+  const appetite = skill * 0.5 + driver.railNerve * 0.8;
+  return appetite > fit + RAIL_TOLL;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function railAim(path, s, sideSign, look, over = RAIL_AT) {
+  const p = sampleAt(path, s + look);
+  const off = (p.width / 2 + over) * sideSign;
+  return {
+    x: p.x + p.nx * off,
+    z: p.z + p.nz * off,
+    tx: p.tx,
+    tz: p.tz,
+    index: p.index,
+  };
+}
+
+
+
+
+
+
+
+
+
 function aimOnBranch(branch, kart, look) {
   const near = nearestOnBranch(branch, kart.x, kart.z);
   const want = Math.min(branch.length, near.s + look);
@@ -224,6 +535,14 @@ export function driveBot(driver, kart, line, ctx) {
   
   
   const look = 7 + speed * 0.55;
+
+  
+  
+  
+  
+  if (driver.railRest > 0) {
+    driver.railRest = Math.max(0, driver.railRest - Math.abs(signedDelta(path, driver.lastS, surface.s)));
+  }
 
   
   
@@ -285,12 +604,181 @@ export function driveBot(driver, kart, line, ctx) {
     }
   }
 
-  const target = branchTarget ?? lineAt(line, surface.s + look);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let railTarget = null;
+  let railExit = false;
+  const spans = (!branchTarget && !driver.taking && ctx.rails) ? (ctx.rails.spans ?? []) : [];
+  if (spans.length) {
+    if (driver.railTaking) {
+      const span = driver.railTaking;
+      driver.railFor += ctx.dt ?? 0;
+      const sideSign = railSideSign(span);
+      
+      
+      
+      
+      const remaining = aheadBy(path, surface.s, span.to * path.length);
+      
+      
+      const past = remaining > path.length * 0.5;
+      
+      
+      const gaveUp = !kart.grinding && driver.railFor > RAIL_GIVE_UP;
+      
+      
+      
+      
+      
+      if (kart.grinding) driver.railRode = true;
+      const rodeItOut = driver.railRode && !kart.grinding;
+
+      if (past || gaveUp || rodeItOut) {
+        
+        
+        driver.railRest = path.length * RAIL_REST;
+        
+        
+        
+        driver.railTaking = null;
+        driver.railFor = 0;
+        driver.railRode = false;
+      } else {
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        const aimAhead = Math.min(remaining, look);
+        const halfW = Math.max(1e-6, (surface.width ?? 20) / 2);
+        
+        
+        
+        const shortBy = ((halfW + RAIL_AT) * sideSign - (surface.lateral ?? 0)) * sideSign;
+        const lead = Math.min(RAIL_AT, Math.max(0, shortBy));
+        const pace = lineAt(line, surface.s + aimAhead);
+        railTarget = {
+          ...railAim(path, surface.s, sideSign, aimAhead, RAIL_AT + lead),
+          speed: pace.speed,
+          curvature: pace.curvature,
+        };
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        if (kart.grinding && (kart.grindTime ?? 0) >= GRIND_MIN_TIME) {
+          const charge = kart.grindCharge ?? 0;
+          const top = kart.tuning?.topSpeed ?? 40;
+          const next = TIER_TIMES.find((t) => t > charge);
+          const reach = next === undefined
+            ? Infinity
+            : railMetresFor(charge, next, speed, top);
+          if (driftTier(charge) >= 1) railExit = true;
+          void reach;
+        }
+      }
+    } else if (driver.railRest <= 0) {
+      for (const span of spans) {
+        const gap = aheadBy(path, surface.s, span.from * path.length);
+        if (gap > RAIL_DECIDE_AHEAD) continue;
+        const key = railKey(span);
+        if (driver.railJudged === key) break;   
+        driver.railJudged = key;
+        if (wantsRail(driver, span, { topSpeed: kart.tuning?.topSpeed ?? 40, speed })) {
+          driver.railTaking = span;
+          driver.railFor = 0;
+          driver.railRode = false;
+        }
+        break;
+      }
+      
+      
+      if (!driver.railTaking && driver.railJudged) {
+        const span = spans.find((x) => railKey(x) === driver.railJudged);
+        if (span && aheadBy(path, surface.s, span.from * path.length) > RAIL_DECIDE_AHEAD * 2) {
+          driver.railJudged = null;
+        }
+      }
+    }
+  } else if (driver.railTaking) {
+    
+    
+    
+    driver.railTaking = null;
+    driver.railFor = 0;
+    driver.railRode = false;
+  }
+
+  const target = branchTarget ?? railTarget ?? lineAt(line, surface.s + look);
 
   
   
   
-  const wobble = Math.sin(ctx.time * 0.55 + driver.phase) * 1.1 * driver.lineBias * 2;
+  
+  
+  
+  
+  let wobble = Math.sin(ctx.time * 0.55 + driver.phase) * 1.1 * driver.lineBias * 2;
+  if (railTarget) {
+    wobble = Math.max(-RAIL_WOBBLE_M, Math.min(RAIL_WOBBLE_M, wobble));
+  }
   
   
   
@@ -398,6 +886,15 @@ export function driveBot(driver, kart, line, ctx) {
   
   
   const roomToDrift = surface.width >= 15 - d.driftSkill * 4;
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const wantDrift = cornerIsSlow && roomToDrift && speed > 13 && d.driftSkill > 0.15;
 
   
@@ -417,17 +914,73 @@ export function driveBot(driver, kart, line, ctx) {
   
   
   const cornerSteer = -Math.sign(target.curvature || 0);
-  if (wantDrift && !kart.drifting && cornerSteer !== 0) {
+  if (wantDrift && !kart.drifting && cornerSteer !== 0 && !railTarget) {
     steer = Math.max(-1, Math.min(1, steer + cornerSteer * 0.5));
   }
   driver.driftHold = wantDrift
     ? 0.28 + d.driftSkill * 0.30
     : Math.max(0, driver.driftHold - ctx.dt);
-  let drift = driver.driftHold > 0 && speed > 9 && !surface.lost;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let drift = driver.driftHold > 0 && speed > 9 && !surface.lost
+    && !kart.grinding && !kart.boating;
   
   
   
   if (kart.drifting && steer * kart.drifting < -0.05) drift = false;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let jump = false;
+  if (railExit && kart.grinding) {
+    jump = true;
+    const side = kart.grindSide || 0;
+    
+    
+    
+    
+    if (side !== 0) steer = side * GRIND_EXIT_STEER;
+  }
 
   
   driver.itemCooldown = Math.max(0, driver.itemCooldown - ctx.dt);
@@ -435,7 +988,7 @@ export function driveBot(driver, kart, line, ctx) {
   if (useItem) driver.itemCooldown = 0.55 + (1 - d.itemSkill) * 2.4;
 
   driver.lastS = surface.s;
-  return { throttle, steer, drift, useItem };
+  return { throttle, steer, drift, jump, useItem };
 }
 
 

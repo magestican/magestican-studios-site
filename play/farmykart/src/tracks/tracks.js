@@ -191,6 +191,7 @@
 export const TRACKS = [
   {
     id: 'sunflower',
+    cup: 'home-paddock',
     name: 'Sunflower Circuit',
     tagline: 'Wide, fast, and it goes over a volcano.',
     theme: 'summer',
@@ -382,6 +383,7 @@ export const TRACKS = [
   },
   {
     id: 'muddybottom',
+    cup: 'home-paddock',
     name: 'Muddy Bottom',
     tagline: 'Technical, and the lagoon at the bottom has teeth.',
     theme: 'mud',
@@ -509,6 +511,7 @@ export const TRACKS = [
   },
   {
     id: 'frostfield',
+    cup: 'home-paddock',
     name: 'Frostfield Loop',
     tagline: 'The old snow farm, and the ravine at the back of it.',
     theme: 'snow',
@@ -522,7 +525,13 @@ export const TRACKS = [
     
     
     
-    locked: true,
+    
+    
+    
+    
+    
+    
+    
     surfaceGrip: 0.72,
     defaultWidth: 38,
     control: [
@@ -653,6 +662,460 @@ export const TRACKS = [
     },
     sky: 'snow',
   },
+  {
+    id: 'millrace',
+    cup: 'long-paddock',
+    
+    
+    
+    
+    locked: true,
+    name: 'Harvest Millrace',
+    tagline: 'Dusk over the mill, and the pond is deep enough to float you.',
+    
+    
+    
+    
+    
+    
+    
+    theme: 'summer',
+    laps: 3,
+    
+    
+    
+    defaultWidth: 34,
+    control: [
+      { x: 0, z: 0, width: 34 },
+      { x: 33.2, z: 0, y: 0.2, width: 34 },
+      { x: 57, z: 0, y: 0.4, width: 34 },
+      { x: 76.8, z: 0, y: 1, width: 34 },
+      { x: 95.8, z: 0, y: 3.1, width: 34 },
+      { x: 114.7, z: 0, y: 5.1, width: 34 },
+      { x: 133.7, z: 0, y: 3.9, width: 34 },
+      { x: 152.7, z: 0, y: 2.2, width: 34 },
+      { x: 171.5, z: -2.5, y: 1, width: 33 },
+      { x: 189.4, z: -8.7, y: 0.6, width: 33 },
+      { x: 205.8, z: -18.3, y: 0.2, width: 33 },
+      { x: 219.9, z: -31.1, y: 0.3, width: 32 },
+      { x: 233.4, z: -47, y: 0.5, width: 32 },
+      { x: 249.7, z: -68.3, y: 0.7, width: 32 },
+      { x: 264.2, z: -102.4, y: 1.7, width: 32 },
+      { x: 267.1, z: -144, y: 3.2, width: 32 },
+      { x: 257.1, z: -181, y: 4.6, width: 32 },
+      { x: 245.2, z: -206.6, y: 6.3, width: 27 },
+      { x: 236.1, z: -226, y: 7.6, width: 24 },
+      { x: 223.1, z: -239.7, y: 8.7, width: 22 },
+      { x: 204.7, z: -244.3, y: 9.9, width: 23 },
+      { x: 183.6, z: -242.5, y: 11.2, width: 24 },
+      { x: 156, z: -240.1, y: 12.9, width: 27 },
+      { x: 118, z: -236.8, y: 15.5, width: 30 },
+      { x: 80.1, z: -234.3, y: 18.4, width: 30 },
+      { x: 52.5, z: -236.1, y: 20.7, width: 30 },
+      { x: 31.6, z: -239.8, y: 22.8, width: 30 },
+      { x: 13.2, z: -244.8, y: 24.7, width: 29 },
+      { x: -4.7, z: -251.2, y: 27.2, width: 29 },
+      { x: -22.6, z: -257.7, y: 29, width: 28 },
+      { x: -40.4, z: -264.2, y: 26.9, width: 28 },
+      { x: -58.4, z: -270.4, y: 23.1, width: 27 },
+      { x: -76.8, z: -274.9, y: 13.9, width: 26 },
+      { x: -96, z: -277.2, y: 6, width: 26 },
+      { x: -116.4, z: -277.4, y: 2.1, width: 26 },
+      { x: -137.7, z: -274.9, y: 1.9, width: 26 },
+      { x: -158.5, z: -271.2, y: 1.7, width: 26 },
+      { x: -178.3, z: -267.7, y: 1.5, width: 26 },
+      { x: -196.1, z: -261, y: 2.2, width: 26 },
+      { x: -210.5, z: -248.6, y: 3.4, width: 27 },
+      { x: -219.8, z: -232.2, y: 4.6, width: 28 },
+      { x: -223.8, z: -213.7, y: 5.5, width: 29 },
+      { x: -227.1, z: -195, y: 6.4, width: 28 },
+      { x: -230.4, z: -176.3, y: 7.3, width: 28 },
+      { x: -233.4, z: -157.5, y: 7.3, width: 27 },
+      { x: -232.3, z: -138.6, y: 6.8, width: 26 },
+      { x: -226.2, z: -120.7, y: 6.4, width: 25 },
+      { x: -215.5, z: -105.1, y: 5.9, width: 24 },
+      { x: -200.6, z: -91.7, y: 5.1, width: 25 },
+      { x: -181.9, z: -76.1, y: 4.1, width: 27 },
+      { x: -155.4, z: -54.7, y: 2.9, width: 29 },
+      { x: -119.5, z: -34.3, y: 1.8, width: 31 },
+      { x: -80.2, z: -19.6, y: 0.8, width: 32 },
+      { x: -40.6, z: -5.6, y: 0.1, width: 34 },
+    ],
+    itemStops: [0.16, 0.40, 0.63, 0.88],
+    jumps: [
+      { id: 'granary-ramp', at: 0.090, launch: 9.5 },
+      
+      
+      
+      { id: 'weir-lip', at: 0.550, launch: 12.0 },
+    ],
+    glides: [
+      {
+        id: 'weir-drop',
+        name: 'The Weir Drop',
+        jump: 'weir-lip',
+        from: 0.550,
+        to: 0.680,
+        
+        
+        
+        
+        
+        over: 'water',
+        drop: 28.0,
+        floorY: 1.4,
+      },
+    ],
+    hazards: [
+      
+      
+      
+      
+      
+      {
+        id: 'millrace-pond', kind: 'water', from: 0.21, to: 0.30,
+        side: 'left', beyond: 1.25, depth: 6, bank: 0.70, level: 2.2,
+        drivable: true, shores: [{ from: 0.275, to: 0.300 }],
+      },
+      
+      
+      
+      {
+        id: 'millrace-tailrace', kind: 'water', from: 0.598, to: 0.672,
+        side: 'both', beyond: 1.25, depth: 25, bank: 0.30, level: 16,
+      },
+    ],
+    
+    
+    
+    
+    shortcuts: [
+      {
+        id: 'sluice-gate',
+        name: 'The Sluice Gate',
+        entryAt: 0.30,
+        exitAt: 0.42,
+        entryLateral: 0.5,
+        exitLateral: 0.35,
+        width: 12,
+        shoulder: 2,
+        grip: 0.75,
+        via: [{ x: 211, z: -225.2 }],
+      },
+    ],
+    scenery: {
+      sunflowers: 120, trees: 60, bales: 52, fencePosts: 240, barns: 2, silos: 2,
+      hedgerows: 16, landmark: { kind: 'windmill', at: 0.26, side: 1, out: 70 },
+    },
+    sky: 'dusk',
+  },
+  {
+    id: 'saltmarsh',
+    cup: 'long-paddock',
+    
+    
+    
+    
+    locked: true,
+    name: 'Saltmarsh Run',
+    tagline: 'Off the sea wall in the first ten seconds, then out onto the flats.',
+    
+    
+    
+    theme: 'snow',
+    laps: 3,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    surfaceGrip: 0.90,
+    defaultWidth: 32,
+    control: [
+      { x: 45.8, z: 0, y: 14.8, width: 31 },
+      { x: 80.9, z: 0, y: 16.6, width: 30 },
+      { x: 110.2, z: -0.6, y: 19.3, width: 29 },
+      { x: 131.9, z: -3.4, y: 21.4, width: 29 },
+      { x: 150.7, z: -7.8, y: 23.4, width: 28 },
+      { x: 168.7, z: -13.9, y: 25.3, width: 28 },
+      { x: 186, z: -21.7, y: 26.2, width: 27 },
+      { x: 202.4, z: -31.1, y: 22.9, width: 27 },
+      { x: 218, z: -42, y: 16.3, width: 27 },
+      { x: 232.9, z: -53.7, y: 8.3, width: 26 },
+      { x: 247.8, z: -65.5, y: 3.5, width: 26 },
+      { x: 262.7, z: -77.2, y: 1.3, width: 26 },
+      { x: 277.7, z: -88.9, y: 1.2, width: 26 },
+      { x: 292.4, z: -100.9, y: 1.1, width: 26 },
+      { x: 303.9, z: -115.8, y: 0.9, width: 26 },
+      { x: 310.5, z: -133.7, y: 0.8, width: 26 },
+      { x: 313.8, z: -154.6, y: 1.9, width: 28 },
+      { x: 318.1, z: -181.6, y: 3.1, width: 30 },
+      { x: 322.3, z: -219.2, y: 3.8, width: 31 },
+      { x: 317.6, z: -260.7, y: 4.4, width: 32 },
+      { x: 303.6, z: -298.5, y: 4.5, width: 32 },
+      { x: 286.9, z: -324.9, y: 4.5, width: 32 },
+      { x: 271.8, z: -341.9, y: 4.6, width: 32 },
+      { x: 258, z: -355.6, y: 5, width: 32 },
+      { x: 244.5, z: -369, y: 6.8, width: 32 },
+      { x: 231, z: -382.3, y: 7.7, width: 32 },
+      { x: 215.9, z: -393.8, y: 5.4, width: 32 },
+      { x: 198.8, z: -401.9, y: 5, width: 32 },
+      { x: 180.4, z: -406.4, y: 4.8, width: 31 },
+      { x: 161.2, z: -407, y: 4.6, width: 31 },
+      { x: 139.4, z: -405.6, y: 4.4, width: 30 },
+      { x: 112, z: -403.9, y: 4.3, width: 28 },
+      { x: 82.6, z: -402, y: 4.3, width: 25 },
+      { x: 58.7, z: -400.5, y: 4.2, width: 23 },
+      { x: 39, z: -397.8, y: 4.2, width: 22 },
+      { x: 23.2, z: -387.7, y: 4.3, width: 22 },
+      { x: 11.9, z: -372.5, y: 4.4, width: 24 },
+      { x: 0.9, z: -357, y: 4.5, width: 26 },
+      { x: -10, z: -341.5, y: 4.5, width: 25 },
+      { x: -21, z: -326, y: 4.6, width: 24 },
+      { x: -29.9, z: -309.4, y: 4.8, width: 23 },
+      { x: -31.4, z: -290.6, y: 5.1, width: 22 },
+      { x: -24.8, z: -272.9, y: 5.3, width: 25 },
+      { x: -12.5, z: -258.6, y: 5.6, width: 27 },
+      { x: 0.5, z: -244.7, y: 5.8, width: 28 },
+      { x: 10.9, z: -228.9, y: 6.2, width: 29 },
+      { x: 16.5, z: -210.9, y: 6.6, width: 29 },
+      { x: 16.7, z: -192, y: 7.1, width: 30 },
+      { x: 11.6, z: -173.8, y: 7.6, width: 30 },
+      { x: 1.5, z: -157.8, y: 8.1, width: 30 },
+      { x: -12.2, z: -144.6, y: 8.6, width: 30 },
+      { x: -26.1, z: -131.7, y: 9.3, width: 30 },
+      { x: -38.8, z: -117.6, y: 9.9, width: 30 },
+      { x: -48.4, z: -101.3, y: 10.5, width: 30 },
+      { x: -54.5, z: -83.4, y: 11.1, width: 30 },
+      { x: -57.6, z: -64.7, y: 11.7, width: 31 },
+      { x: -56.7, z: -45.8, y: 12.3, width: 31 },
+      { x: -49.8, z: -28.2, y: 12.9, width: 32 },
+      { x: -37.5, z: -13.8, y: 13.6, width: 32 },
+      { x: -21.3, z: -4.1, y: 13.9, width: 32 },
+      { x: -2.8, z: -0.1, y: 14, width: 32 },
+      { x: 18.4, z: 0, y: 14.1, width: 32 },
+    ],
+    itemStops: [0.07, 0.28, 0.50, 0.79],
+    jumps: [
+      { id: 'seawall-lip', at: 0.110, launch: 12.5 },
+      
+      
+      
+      
+      
+      
+      
+      
+      { id: 'staithe-ramp', at: 0.445, launch: 9.0 },
+    ],
+    glides: [
+      {
+        id: 'tidal-drop',
+        name: 'The Tidal Drop',
+        jump: 'seawall-lip',
+        from: 0.110,
+        to: 0.240,
+        over: 'water',
+        drop: 25.1,
+        floorY: 0.8,
+      },
+    ],
+    hazards: [
+      
+      
+      
+      
+      {
+        id: 'saltmarsh-channel', kind: 'water', from: 0.160, to: 0.240,
+        side: 'both', beyond: 1.25, depth: 24, bank: 0.28, level: 15,
+      },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      {
+        id: 'saltmarsh-saltings', kind: 'water', from: 0.250, to: 0.400,
+        side: 'left', beyond: 1.25, depth: 5.5, bank: 0.75, level: 2.0,
+        drivable: true, shores: [{ from: 0.360, to: 0.400 }],
+      },
+    ],
+    shortcuts: [
+      {
+        id: 'oyster-beds',
+        name: 'The Oyster Beds',
+        entryAt: 0.57,
+        exitAt: 0.67,
+        entryLateral: 0.5,
+        exitLateral: 0.35,
+        width: 13,
+        shoulder: 2,
+        grip: 0.70,
+        via: [{ x: 27.9, z: -357 }],
+      },
+    ],
+    scenery: {
+      sunflowers: 0, trees: 34, bales: 18, fencePosts: 280, barns: 2, silos: 1,
+      snowmen: 0, hedgerows: 22,
+      landmark: { kind: 'watertower', at: 0.45, side: 1, out: 62 },
+    },
+    sky: 'day',
+  },
+  {
+    id: 'canyon',
+    cup: 'long-paddock',
+    
+    
+    
+    
+    locked: true,
+    name: 'Copperhead Canyon',
+    tagline: 'Off the arch, along the river, and home along the shelf.',
+    
+    
+    theme: 'mud',
+    laps: 3,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    defaultWidth: 36,
+    control: [
+      { x: 65.6, z: 0, y: 12.2, width: 36 },
+      { x: 106.3, z: 0, y: 14.2, width: 36 },
+      { x: 148, z: -0.6, y: 18, width: 35 },
+      { x: 187.4, z: -9.6, y: 22.3, width: 34 },
+      { x: 216.4, z: -24.2, y: 26, width: 33 },
+      { x: 235, z: -38.5, y: 28.5, width: 33 },
+      { x: 248.7, z: -52.5, y: 30.3, width: 32 },
+      { x: 260.1, z: -67.5, y: 32, width: 31 },
+      { x: 270.9, z: -83, y: 32.9, width: 31 },
+      { x: 281.6, z: -98.4, y: 33.2, width: 30 },
+      { x: 292.4, z: -113.9, y: 28.9, width: 29 },
+      { x: 303.2, z: -129.3, y: 21.5, width: 27 },
+      { x: 313.7, z: -145.6, y: 11.4, width: 26 },
+      { x: 323.1, z: -166.4, y: 4.4, width: 26 },
+      { x: 330.2, z: -196.9, y: 3.8, width: 26 },
+      { x: 329.3, z: -236.9, y: 3.2, width: 26 },
+      { x: 316.5, z: -276.4, y: 3.2, width: 27 },
+      { x: 299.4, z: -314.3, y: 3.2, width: 28 },
+      { x: 281.1, z: -351.6, y: 3.6, width: 29 },
+      { x: 253.4, z: -382.5, y: 5.1, width: 30 },
+      { x: 217.4, z: -403.1, y: 6.6, width: 30 },
+      { x: 176.9, z: -411.5, y: 8.7, width: 30 },
+      { x: 139.6, z: -415.2, y: 10.9, width: 28 },
+      { x: 112.5, z: -417.8, y: 12.4, width: 25 },
+      { x: 91.6, z: -419.8, y: 13.7, width: 23 },
+      { x: 73, z: -417, y: 14.9, width: 22 },
+      { x: 57, z: -407.3, y: 16.2, width: 23 },
+      { x: 44.7, z: -392.7, y: 17.4, width: 25 },
+      { x: 32.9, z: -377.6, y: 18.7, width: 26 },
+      { x: 20.9, z: -362.4, y: 20, width: 27 },
+      { x: 9, z: -347.2, y: 20.8, width: 28 },
+      { x: -2.6, z: -332.1, y: 21.7, width: 29 },
+      { x: -11.9, z: -315.8, y: 22.6, width: 30 },
+      { x: -18.2, z: -298.1, y: 23.4, width: 30 },
+      { x: -21.3, z: -279.5, y: 24.3, width: 30 },
+      { x: -21.2, z: -260.7, y: 25.1, width: 30 },
+      { x: -17.7, z: -242.2, y: 26, width: 30 },
+      { x: -11.1, z: -224.6, y: 26.2, width: 30 },
+      { x: -3.2, z: -207.5, y: 26.3, width: 30 },
+      { x: 2.5, z: -189.6, y: 26.5, width: 29 },
+      { x: 4.5, z: -170.9, y: 26.7, width: 29 },
+      { x: 2.9, z: -152.2, y: 26.9, width: 28 },
+      { x: -2.4, z: -134.2, y: 26.6, width: 28 },
+      { x: -11.2, z: -117.6, y: 25.4, width: 29 },
+      { x: -23.1, z: -103, y: 24.2, width: 29 },
+      { x: -36.5, z: -89.8, y: 23, width: 30 },
+      { x: -47.3, z: -74.5, y: 21.8, width: 30 },
+      { x: -52.1, z: -56.4, y: 20.1, width: 32 },
+      { x: -50.2, z: -37.8, y: 17.4, width: 33 },
+      { x: -41.9, z: -21, y: 14.8, width: 34 },
+      { x: -28.2, z: -8.3, y: 13.4, width: 35 },
+      { x: -10.9, z: -1.1, y: 12.2, width: 36 },
+      { x: 8.7, z: 0, y: 12, width: 36 },
+      { x: 32.5, z: 0, y: 12.1, width: 36 },
+    ],
+    itemStops: [0.095, 0.355, 0.615, 0.835],
+    jumps: [
+      { id: 'arch-lip', at: 0.195, launch: 12.5 },
+    ],
+    glides: [
+      {
+        id: 'arch-drop',
+        name: 'The Copperhead Drop',
+        jump: 'arch-lip',
+        from: 0.195,
+        to: 0.315,
+        over: 'water',
+        drop: 29.4,
+        floorY: 3.2,
+      },
+    ],
+    hazards: [
+      
+      {
+        id: 'copperhead-river', kind: 'water', from: 0.243, to: 0.300,
+        side: 'both', beyond: 1.25, depth: 28, bank: 0.30, level: 18,
+      },
+      
+      
+      
+      
+      
+      {
+        id: 'copperhead-ford', kind: 'water', from: 0.310, to: 0.380,
+        side: 'left', beyond: 1.25, depth: 5.0, bank: 0.80, level: 1.8,
+        drivable: true, shores: [{ from: 0.350, to: 0.380 }],
+      },
+    ],
+    
+    
+    
+    shortcuts: [
+      {
+        id: 'the-slot',
+        name: 'The Slot',
+        entryAt: 0.515,
+        exitAt: 0.615,
+        entryLateral: 0.5,
+        exitLateral: 0.35,
+        width: 11,
+        shoulder: 2,
+        grip: 0.85,
+        via: [{ x: 84.8, z: -403.3 }],
+      },
+    ],
+    scenery: {
+      sunflowers: 0, trees: 26, bales: 12, fencePosts: 210, barns: 1, silos: 1,
+      hedgerows: 8, landmark: { kind: 'church', at: 0.735, side: 1, out: 68 },
+    },
+    sky: 'day',
+  },
   
   
   
@@ -680,28 +1143,91 @@ export const TRACKS = [
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
 ];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const CUPS = [
+  {
+    id: 'home-paddock',
+    name: 'Home Paddock',
+    blurb: 'The three circuits on the farm itself. Wide, fast, and where you learn the kart.',
+  },
+  {
+    id: 'long-paddock',
+    name: 'Long Paddock',
+    blurb: 'Out past the boundary fence: a millpond, a tidal marsh and a canyon with a river in it.',
+  },
+];
+
+export const DEFAULT_CUP = 'home-paddock';
+
+export function cupById(id) {
+  return CUPS.find((c) => c.id === id) ?? CUPS.find((c) => c.id === DEFAULT_CUP);
+}
+
+
+export function tracksInCup(cupId) {
+  return TRACKS.filter((t) => t.cup === cupId);
+}
+
+
+
+
+
+
+
+
+
+
+export function cupLocked(cupId) {
+  const inCup = tracksInCup(cupId);
+  return inCup.length > 0 && inCup.every((t) => t.locked === true);
+}
+
+
+export function cupOf(trackId) {
+  return TRACKS.find((t) => t.id === trackId)?.cup ?? DEFAULT_CUP;
+}
 
 export const DEFAULT_TRACK = 'sunflower';
 

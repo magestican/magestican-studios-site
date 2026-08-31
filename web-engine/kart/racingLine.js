@@ -34,6 +34,99 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { camberSlopeAt, CAMBER_GRIP, CAMBER_GRAVITY } from './trackCamber.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function bankSupportAt(path, i, lateral, turnSign) {
+  const cam = path && path.camber;
+  if (!cam || !turnSign) return 0;
+  const pt = path.pts[i];
+  const half = Math.max(1e-6, (pt && pt.width ? pt.width : 0) / 2);
+  const slope = camberSlopeAt(cam, i, lateral / half, half);
+  if (!slope) return 0;
+  
+  
+  const along = -CAMBER_GRAVITY * CAMBER_GRIP * slope;
+  return Math.max(0, along * turnSign);
+}
+
+
+
+
+
+
 export function curvatureOf(path) {
   const n = path.count;
   const segLen = (i) => path.s[i + 1] - path.s[i];
@@ -177,9 +270,14 @@ export function buildRacingLine(path, { margin = 2.6, latAccel = 34, smoothing =
   const smoothedK = smoothRing(lineK, 5, 2);
 
   const limit = new Float64Array(n);
+  
+  
+  
+  const bankSupport = new Float64Array(n);
   for (let i = 0; i < n; i += 1) {
     const kk = Math.abs(smoothedK[i]);
-    limit[i] = kk < 1e-4 ? 999 : Math.sqrt(latAccel / kk);
+    bankSupport[i] = bankSupportAt(path, i, lateral[i], Math.sign(smoothedK[i]));
+    limit[i] = kk < 1e-4 ? 999 : Math.sqrt((latAccel + bankSupport[i]) / kk);
   }
 
   
@@ -202,7 +300,13 @@ export function buildRacingLine(path, { margin = 2.6, latAccel = 34, smoothing =
     }
   }
 
-  return { lateral, curvature: k, lineCurvature: smoothedK, speed, path };
+  return {
+    lateral, curvature: k, lineCurvature: smoothedK, speed, path,
+    
+    
+    
+    bankSupport,
+  };
 }
 
 
