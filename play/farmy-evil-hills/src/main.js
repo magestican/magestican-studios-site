@@ -4176,6 +4176,7 @@ export function boot(canvas, hud) {
   let lastGait = 0;
   let stepCount = 0;
   let hitCount = 0;
+  let paCount = 0;
   let breathIn = 2;
   
   
@@ -5306,6 +5307,7 @@ export function boot(canvas, hud) {
     if (paIn <= 0 && !player.dead) {
       paIn = 22 + Math.random() * 26;
       paVoice(PA_KINDS[Math.floor(Math.random() * PA_KINDS.length)]);
+      paCount += 1;
     }
 
     
@@ -5628,6 +5630,27 @@ export function boot(canvas, hud) {
       
       
       get hits() { return hitCount; },
+      
+      
+      
+      
+      get pa() { return paCount; },
+      firePA() { paVoice(PA_KINDS[Math.floor(Math.random() * PA_KINDS.length)]); paCount += 1; },
+      get lights() {
+        let lit = 0;
+        for (const st of strips) if (st.mat && st.mat.uniforms && st.mat.uniforms.uAlpha) {
+          if (st.mat.uniforms.uAlpha.value < 0.98) lit += 1;
+        }
+        return { total: strips.length, dimmed: lit };
+      },
+      
+      
+      toPickup() {
+        const it = pickups.find((q) => !q.taken);
+        if (!it) return null;
+        player.x = it.x; player.z = it.z;
+        return { ammo: it.ammo };
+      },
       
       
       
