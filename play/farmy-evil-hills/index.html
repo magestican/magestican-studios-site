@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="4f5b455-20260831T100013Z">
+<meta name="build" content="a6bc65f-20260831T101157Z">
 <title>Play Farmy Evil Hills — free browser survival horror, no download | Magestican Studios</title>
 <meta name="description" content="Play Farmy Evil Hills free in your browser: PS1-era survival horror on a Space Farming Agency station on Venus. A virus has mutated the livestock. Take a chicken's leg off with a bolt driver, or mash one off your boot when it latches. Phone and desktop. No download, no install, no account.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2305060a'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23b6392c'%3EE%3C/text%3E%3C/svg%3E">
@@ -49,6 +49,7 @@
     font: 14px/1.4 system-ui, sans-serif; color: #e8e4d8; }
   #wrap { position: fixed; inset: 0; }
   canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  #map { width: 168px; height: 168px; }
 
   .hud { position: absolute; pointer-events: none; }
   #vitals { left: 14px; top: 14px; width: 190px; }
@@ -121,6 +122,10 @@
     <kbd>W</kbd><kbd>S</kbd> walk &nbsp;·&nbsp; <kbd>A</kbd><kbd>D</kbd> turn &nbsp;·&nbsp;
     <kbd>SHIFT</kbd> run &nbsp;·&nbsp; <b>click</b> fire &nbsp;·&nbsp; <kbd>Q</kbd> aim low
   </div>
+  
+
+  <canvas class="hud" id="map" width="220" height="220"
+    style="right:12px;bottom:12px;width:168px;height:168px;opacity:.92"></canvas>
   <div class="hud" id="msg"></div>
   <div id="flash"></div>
 
@@ -164,6 +169,6 @@
   "arbelo/analytics": "../../web-engine/analytics/analytics.js"
 }}
 </script>
-<script type="module" src="./src/main.js?v=4f5b455-20260831T100013Z"></script>
+<script type="module" src="./src/main.js?v=a6bc65f-20260831T101157Z"></script>
 </body>
 </html>

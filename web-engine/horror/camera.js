@@ -36,7 +36,13 @@ export const RIG = Object.freeze({
   
   
   
-  height: 1.35,           
+  
+  
+  
+  
+  
+  
+  height: 1.05,           
   minDistance: 0.45,      
 });
 

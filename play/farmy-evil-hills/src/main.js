@@ -47,8 +47,26 @@ import { initAnalytics, trackEvent } from 'arbelo/analytics';
 const XANDER_H = 1.80;
 const CHICKEN_H = 0.72;
 const HALL_W = 3.2;
-const HALL_H = 2.8;
-const HALL_LEN = 90;
+
+
+
+
+
+
+
+
+const HALL_H = 3.4;
+
+
+
+
+
+
+
+
+
+
+const HALL_LEN = 64;
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -125,11 +143,17 @@ function xanderParts() {
   
   
   
-  const A = { ...ARCH.renji, hair: 'curtain', jaw: ARCH.renji.jaw, brow: ARCH.renji.brow };
+  
+
+
+
+const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.brow };
   
   
   
-  const build = 1.34;
+  
+  
+  const build = 1.16;
   const pose = poseById('guard');
   const K = solve(pose, { flip: false });
   const o = { flip: false, build };
@@ -150,9 +174,13 @@ function xanderParts() {
   const hc = [K.head[0], 0, K.head[1]];
   const r = FRIG.headR;
   return [...built.parts,
-    { name: 'hair', mesh: hair3d('curtain', { centre: hc, r, forward: [1, 0, 0] }) },
-    { name: 'eyeL', mesh: jointBall([hc[0] + r * 0.66, +r * 0.34, hc[2] + r * 0.12], r * 0.20, { sides: 4 }) },
-    { name: 'eyeR', mesh: jointBall([hc[0] + r * 0.66, -r * 0.34, hc[2] + r * 0.12], r * 0.20, { sides: 4 }) },
+    
+    
+    
+    
+    { name: 'hair', mesh: hair3d('crop', { centre: [hc[0] - r * 0.06, hc[1], hc[2] + r * 0.10], r: r * 0.86, forward: [1, 0, 0] }) },
+    { name: 'eyeL', mesh: jointBall([hc[0] + r * 0.94, +r * 0.28, hc[2] + r * 0.02], r * 0.15, { sides: 4 }) },
+    { name: 'eyeR', mesh: jointBall([hc[0] + r * 0.94, -r * 0.28, hc[2] + r * 0.02], r * 0.15, { sides: 4 }) },
   ].filter((p) => p.mesh && p.mesh.indices && p.mesh.indices.length);
 }
 const xColour = (n) => (n === 'hair' ? XCOL.hair
@@ -200,43 +228,87 @@ function panel(w, h, colour, place) {
   
   
   
-  const sw = Math.max(1, Math.round(w / 2));
-  const sh = Math.max(1, Math.round(h / 2));
-  const g = new THREE.PlaneGeometry(w, h, sw, sh);
-  const n = g.attributes.position.count;
-  const c = new THREE.Color(colour);
-  const col = [];
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const QUAD = 0.65;
+  const sw = Math.max(1, Math.round(w / QUAD));
+  const sh = Math.max(1, Math.round(h / QUAD));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const g = new THREE.PlaneGeometry(w, h, sw, sh).toNonIndexed();
   const P = g.attributes.position.array;
-  for (let i = 0; i < n; i += 1) {
-    const vx = P[i * 3]; const vy = P[i * 3 + 1];
-    const t = new THREE.Color(colour);
-    
-    
-    
-    const r1 = hash2(vx * 0.7, vy * 0.7);
-    const r2 = hash2(vx * 0.21 + 11.3, vy * 0.19 - 7.1);
-    const r3 = hash2(vx * 1.9 - 3.7, vy * 2.3 + 5.9);
+  const n = g.attributes.position.count;
+  const col = new Float32Array(n * 3);
+  const base = new THREE.Color(colour);
+  const MUD = new THREE.Color(0x6a4f2c);
+  const BLOOD = new THREE.Color(0x53171a);
+  const HAY = new THREE.Color(0xd6bd63);
+  const t = new THREE.Color();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  for (let quad = 0; quad < n; quad += 6) {
+    const last = Math.min(6, n - quad);
+    let cx = 0; let cy = 0;
+    for (let k = 0; k < last; k += 1) { cx += P[(quad + k) * 3]; cy += P[(quad + k) * 3 + 1]; }
+    cx /= last; cy /= last;
+
+    t.copy(base);
+    const grain = hash2(cx * 2.9, cy * 3.1);
+    const seam = (Math.abs(cx % 4) < 0.5 || Math.abs(cy % 4) < 0.5) ? 0.76 : 1;
+    t.multiplyScalar(seam * (0.84 + grain * 0.30));
 
     
     
-    const seam = (Math.abs((vx % 4) ) < 0.55 || Math.abs((vy % 4)) < 0.55) ? 0.74 : 1;
-    t.multiplyScalar(seam * (0.86 + r1 * 0.28));
+    
+    const blotch = hash2(cx * 0.30 + 3.1, cy * 0.30 - 1.7);
+    const edge = hash2(cx * 1.7 - 8.3, cy * 1.9 + 4.4);
+    if (blotch > 0.80 && edge > 0.30) t.lerp(MUD, 0.30 + edge * 0.35);
+    else if (blotch < 0.085 && edge > 0.42) t.lerp(BLOOD, 0.40 + edge * 0.40);
+    if (hash2(cx * 5.1, cy * 4.7) > 0.965) t.lerp(HAY, 0.55);
 
-    
-    
-    
-    if (r2 > 0.86) t.lerp(new THREE.Color(0x5a4327), 0.55);                    
-    else if (r2 < 0.055) t.lerp(new THREE.Color(0x4a1512), 0.62);              
-    if (r3 > 0.955) t.lerp(new THREE.Color(0xc9b25e), 0.5);                    
-    col.push(t.r, t.g, t.b);
+    for (let k = 0; k < last; k += 1) {
+      col[(quad + k) * 3] = t.r;
+      col[(quad + k) * 3 + 1] = t.g;
+      col[(quad + k) * 3 + 2] = t.b;
+    }
   }
   g.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+  g.computeVertexNormals();
   const m = new THREE.Mesh(g, place.mat);
   place.apply(m);
   return m;
 }
 
 function buildHall(scene, mat) {
+  const strips = [];
   const mk = (w, h, colour, fn) => scene.add(panel(w, h, colour, { mat, apply: fn }));
   const mid = HALL_LEN / 2 - 4;
   
@@ -262,13 +334,114 @@ function buildHall(scene, mat) {
   
   
   for (let z = 2; z < HALL_LEN - 6; z += 7) {
-    mk(0.5, 1.6, 0xd8e0b0, (m) => { m.rotation.x = Math.PI / 2; m.position.set(0, HALL_H - 0.02, z); });
+    
+    
+    const lm = mat.clone();
+    lm.uniforms = THREE.UniformsUtils.clone(mat.uniforms);
+    lm.transparent = true;
+    const strip = panel(0.5, 1.6, 0xe4ecc0, {
+      mat: lm,
+      apply: (m) => { m.rotation.x = Math.PI / 2; m.position.set(0, HALL_H - 0.02, z); },
+    });
+    scene.add(strip);
+    strips.push({ mesh: strip, mat: lm, phase: hash2(z * 3.1, 7.7) * 10, next: 3 + hash2(z, 2.2) * 12 });
   }
+  return strips;
 }
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const MAP_TILT = 0.62;          
+const MAP_SCALE = 1.55;         
+const MAP_RANGE = 34;           
+
+function drawMap(cv, player, birds, exitZ) {
+  const g = cv.getContext('2d');
+  const W = cv.width; const H = cv.height;
+  g.clearRect(0, 0, W, H);
+
+  const cx = W / 2; const cy = H * 0.66;
+  const cos = Math.cos(-player.yaw); const sin = Math.sin(-player.yaw);
+
+  
+  
+  const proj = (wx, wz) => {
+    const dx = wx - player.x; const dz = wz - player.z;
+    const rx = dx * cos - dz * sin;
+    const rz = dx * sin + dz * cos;
+    const depth = 1 / (1 + Math.max(0, rz) * 0.020);
+    return [cx + rx * MAP_SCALE * depth * 2.2, cy - rz * MAP_SCALE * Math.cos(MAP_TILT) * depth];
+  };
+
+  const line = (a, b, colour, width) => {
+    g.strokeStyle = colour; g.lineWidth = width || 1;
+    g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke();
+  };
+
+  const NEON = '#39ff88';
+  const DIM = 'rgba(57,255,136,0.28)';
+
+  
+  const half = HALL_W / 2;
+  const z0 = player.z - 6; const z1 = player.z + MAP_RANGE;
+  line(proj(-half, z0), proj(-half, z1), DIM, 1.5);
+  line(proj(half, z0), proj(half, z1), DIM, 1.5);
+  for (let z = Math.ceil(z0 / 4) * 4; z < z1; z += 4) {
+    line(proj(-half, z), proj(half, z), 'rgba(57,255,136,0.13)', 1);
+  }
+
+  
+  g.fillStyle = '#ff5a4a';
+  for (const b of birds) {
+    if (!b.alive) continue;
+    const d = Math.hypot(b.x - player.x, b.z - player.z);
+    if (d > MAP_RANGE) continue;
+    const [px, py] = proj(b.x, b.z);
+    g.fillRect(px - 2.5, py - 2.5, 5, 5);
+  }
+
+  
+  if (exitZ - player.z < MAP_RANGE + 8) {
+    const [ex, ey] = proj(0, exitZ);
+    g.strokeStyle = NEON; g.lineWidth = 2;
+    g.strokeRect(ex - 9, ey - 9, 18, 18);
+    g.fillStyle = NEON;
+    g.font = 'bold 9px ui-monospace, monospace';
+    g.textAlign = 'center';
+    g.fillText('EL', ex, ey + 3.5);
+    g.font = '8px ui-monospace, monospace';
+    g.fillText(`${Math.max(0, Math.round(exitZ - player.z))}m`, ex, ey - 13);
+  }
+
+  
+  g.strokeStyle = '#eafff2'; g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(cx, cy - 7); g.lineTo(cx - 5, cy + 5); g.lineTo(cx + 5, cy + 5); g.closePath();
+  g.stroke();
+
+  g.strokeStyle = 'rgba(57,255,136,0.45)';
+  g.lineWidth = 1;
+  g.strokeRect(0.5, 0.5, W - 1, H - 1);
+}
 
 export function boot(canvas, hud) {
   let renderer;
@@ -300,7 +473,7 @@ export function boot(canvas, hud) {
     fog: false, lights: false, toneMapped: false, side: THREE.DoubleSide,
   });
 
-  buildHall(scene, mat);
+  const strips = buildHall(scene, mat);
 
   const xGeo = partsToGeometry(xanderParts(), xColour, XANDER_H);
   const xander = new THREE.Mesh(xGeo, mat);
@@ -338,6 +511,25 @@ export function boot(canvas, hud) {
   
   
   [26, 42, 61].forEach((z, i) => addChicken(z, (i % 2 ? 1 : -1) * (0.5 + i * 0.25)));
+
+  
+  const EXIT_Z = HALL_LEN - 12;
+  const lift = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.0, 2.4).toNonIndexed(),
+    mat,
+  );
+  {
+    const n = lift.geometry.attributes.position.count;
+    const col = new Float32Array(n * 3);
+    const c = new THREE.Color(0x2f6f4a);
+    for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+    lift.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+    lift.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+    lift.geometry.computeVertexNormals();
+  }
+  lift.position.set(0, 1.2, EXIT_Z + 0.02);
+  lift.rotation.y = Math.PI;
+  scene.add(lift);
 
   const camera = new THREE.PerspectiveCamera(62, 1, 0.05, 200);
   
@@ -378,6 +570,15 @@ export function boot(canvas, hud) {
   
   let last = 0;
   let shotFlash = 0;
+  let paIn = 12 + Math.random() * 14;
+  let level = 1;
+  let liftIn = 0;
+  const mapCv = document.getElementById('map');
+  
+  
+  
+  
+  const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const tmpV = new THREE.Vector3();
 
   function step(nowMs) {
@@ -527,6 +728,69 @@ export function boot(canvas, hud) {
       camera.updateProjectionMatrix();
     }
 
+    
+    
+    
+    
+    
+    if (!calm) {
+      for (const st of strips) {
+        st.next -= dt;
+        if (st.next <= 0) {
+          st.next = 4 + Math.random() * 14;
+          st.phase = 0.42 + Math.random() * 0.3;      
+        }
+        const fit = st.phase > 0;
+        if (fit) {
+          st.phase -= dt;
+          const w = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(now * 26 + st.next));
+          st.mat.uniforms.uAlpha.value = w;
+        } else if (st.mat.uniforms.uAlpha.value !== 1) {
+          st.mat.uniforms.uAlpha.value = 1;
+        }
+      }
+    }
+
+    
+    paIn -= dt;
+    if (paIn <= 0 && !player.dead) {
+      paIn = 22 + Math.random() * 26;
+      paVoice(PA_KINDS[Math.floor(Math.random() * PA_KINDS.length)]);
+    }
+
+    
+    const hunted = birds.some((b) => b.alive && Math.hypot(b.x - player.x, b.z - player.z) < 13);
+    audio.duck(hunted);
+
+    
+    if (!player.dead && Math.abs(player.z - EXIT_Z) < 1.6 && Math.abs(player.x) < 1.1) {
+      if (liftIn <= 0) {
+        liftIn = 2.4;
+        hud.lift(level + 1);
+        
+        
+        
+        liftChime();
+      }
+    }
+    if (liftIn > 0) {
+      liftIn -= dt;
+      if (liftIn <= 0) {
+        level += 1;
+        player.z = 0; player.x = 0; player.yaw = 0;
+        birds.forEach((b, i) => {
+          b.alive = true; b.mesh.visible = true;
+          b.creature = spawnCreature('chicken');
+          b.latched = false; b.cool = 0;
+          b.z = 24 + i * (13 - Math.min(6, level)); b.x = (i % 2 ? 1 : -1) * (0.5 + i * 0.25);
+        });
+        player.latchedBy = null; player.struggle = null;
+        hud.lift(0);
+      }
+    }
+
+    if (mapCv) drawMap(mapCv, player, birds, EXIT_Z);
+
     renderer.render(scene, camera);
     shotFlash = Math.max(0, shotFlash - dt);
     hud.paint({
@@ -564,40 +828,155 @@ const $ = (id) => document.getElementById(id);
 
 
 
+
+
+
+
+const audio = (() => {
+  let ctx = null; let music = null; let sfx = null;
+  return {
+    get ctx() { return ctx; },
+    get musicBus() { return music; },
+    get sfxBus() { return sfx; },
+    ensure() {
+      if (ctx) return ctx;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      ctx = new AC();
+      music = ctx.createGain(); music.gain.value = 0.50; music.connect(ctx.destination);
+      sfx = ctx.createGain(); sfx.gain.value = 0.85; sfx.connect(ctx.destination);
+      return ctx;
+    },
+    get running() { return !!ctx && ctx.state === 'running'; },
+    
+    
+    duck(on) {
+      if (music && ctx) music.gain.setTargetAtTime(on ? 0.18 : 0.50, ctx.currentTime, 0.4);
+    },
+  };
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const FORMANTS = {
+  oh: [[500, 860], [0.95, 0.5]],
+  no: [[400, 1100], [1.0, 0.55]],
+  ah: [[730, 1150], [1.0, 0.6]],
+  sob: [[430, 1250], [0.7, 0.45]],
+};
+
+function paVoice(kind) {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const [freqs, amps] = FORMANTS[kind] || FORMANTS.oh;
+  const t0 = ctx.currentTime + 0.03;
+  const dur = kind === 'sob' ? 0.42 : 1.1 + Math.random() * 0.8;
+
+  const speaker = ctx.createBiquadFilter();
+  speaker.type = 'bandpass'; speaker.frequency.value = 1500; speaker.Q.value = 0.7;
+  const crunch = ctx.createWaveShaper();
+  const curve = new Float32Array(256);
+  for (let i = 0; i < 256; i += 1) { const x = (i / 128) - 1; curve[i] = Math.tanh(x * 2.6); }
+  crunch.curve = curve;
+  const out = ctx.createGain(); out.gain.value = 0.5;
+  speaker.connect(crunch); crunch.connect(out); out.connect(audio.sfxBus);
+
+  const osc = ctx.createOscillator();
+  osc.type = 'sawtooth';
+  const base = 115 + Math.random() * 95;
+  osc.frequency.setValueAtTime(base * 1.15, t0);
+  osc.frequency.exponentialRampToValueAtTime(base * 0.7, t0 + dur);
+  const amp = ctx.createGain();
+  amp.gain.setValueAtTime(0.0001, t0);
+  amp.gain.exponentialRampToValueAtTime(0.45, t0 + (kind === 'sob' ? 0.05 : 0.2));
+  amp.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(amp);
+  freqs.forEach((f, i) => {
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 8;
+    const g = ctx.createGain(); g.gain.value = amps[i];
+    amp.connect(bp); bp.connect(g); g.connect(speaker);
+  });
+  osc.start(t0); osc.stop(t0 + dur + 0.12);
+
+  for (const at of [t0 - 0.02, t0 + dur + 0.03]) {
+    const c = ctx.createOscillator(); const cg = ctx.createGain();
+    c.frequency.value = 1900;
+    cg.gain.setValueAtTime(0.05, at);
+    cg.gain.exponentialRampToValueAtTime(0.0001, at + 0.03);
+    c.connect(cg); cg.connect(audio.sfxBus); c.start(at); c.stop(at + 0.05);
+  }
+}
+
+function liftChime() {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.05;
+  
+  
+  [392.0, 493.9, 587.3, 880.0].forEach((f, i) => {
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    const at = t + i * 0.09;
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(0.16, at + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 2.1);
+    o.connect(g); g.connect(audio.musicBus); o.start(at); o.stop(at + 2.2);
+  });
+}
+
+const PA_KINDS = ['oh', 'no', 'ah', 'sob', 'sob'];
+
 const tape = (() => {
-  let ctx = null; let bus = null; let timer = null; let bar = 0; let on = false;
+  let timer = null; let bar = 0; let on = false;
   const D = 146.83;
   const dorian = [0, 2, 3, 5, 7, 9, 10];
   const hz = (deg, oct = 0) => D * (2 ** ((dorian[((deg % 7) + 7) % 7] + 12 * (oct + Math.floor(deg / 7))) / 12));
+  const ctx = () => audio.ctx;
+  const bus = () => audio.musicBus;
 
   const tone = (type, f, t, dur, gain) => {
-    const o = ctx.createOscillator(); const g = ctx.createGain();
+    const o = ctx().createOscillator(); const g = ctx().createGain();
     o.type = type; o.frequency.setValueAtTime(f, t);
     g.gain.setValueAtTime(0.0001, t);
     g.gain.linearRampToValueAtTime(gain, t + 0.014);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 0.05);
+    o.connect(g); g.connect(bus()); o.start(t); o.stop(t + dur + 0.05);
   };
   const kick = (t) => {
-    const o = ctx.createOscillator(); const g = ctx.createGain();
+    const o = ctx().createOscillator(); const g = ctx().createGain();
     o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.11);
     g.gain.setValueAtTime(0.45, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-    o.connect(g); g.connect(bus); o.start(t); o.stop(t + 0.2);
+    o.connect(g); g.connect(bus()); o.start(t); o.stop(t + 0.2);
   };
   const hat = (t) => {
-    const b = ctx.createBuffer(1, 1024, ctx.sampleRate);
+    const b = ctx().createBuffer(1, 1024, ctx().sampleRate);
     const d = b.getChannelData(0);
     for (let i = 0; i < d.length; i += 1) d[i] = Math.random() * 2 - 1;
-    const n = ctx.createBufferSource(); n.buffer = b;
-    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7000;
-    const g = ctx.createGain(); g.gain.setValueAtTime(0.09, t);
+    const n = ctx().createBufferSource(); n.buffer = b;
+    const hp = ctx().createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7000;
+    const g = ctx().createGain(); g.gain.setValueAtTime(0.09, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
-    n.connect(hp); hp.connect(g); g.connect(bus); n.start(t); n.stop(t + 0.06);
+    n.connect(hp); hp.connect(g); g.connect(bus()); n.start(t); n.stop(t + 0.06);
   };
 
   function schedule() {
+    if (!ctx()) return;
     const spb = 60 / 104;
-    const t0 = ctx.currentTime + 0.06;
+    const t0 = ctx().currentTime + 0.06;
     const r = [0, 0, 3, 2][bar % 4];
     for (let b = 0; b < 4; b += 1) {
       const t = t0 + b * spb;
@@ -614,23 +993,24 @@ const tape = (() => {
 
   return {
     toggle() {
-      if (!ctx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return false;
-        ctx = new AC(); bus = ctx.createGain(); bus.gain.value = 0.5; bus.connect(ctx.destination);
-      }
-      if (on) { clearTimeout(timer); timer = null; on = false; } else { if (ctx.resume) ctx.resume(); on = true; schedule(); }
+      const c = audio.ensure();
+      if (!c) return false;
+      if (on) { clearTimeout(timer); timer = null; on = false; } else { if (c.resume) c.resume(); on = true; schedule(); }
       return on;
     },
     
     
     
-    get audible() { return on && !!ctx && ctx.state === 'running'; },
+    get audible() { return on && audio.running; },
   };
 })();
 
 const hud = {
   fatal(text) { const b = $('boot'); if (b) { b.style.display = 'flex'; b.innerHTML = `<div style="max-width:46ch">${text}</div>`; } },
+  lift(toLevel) {
+    const el = $('msg');
+    el.textContent = toLevel ? `LIFT — DECK ${toLevel}` : '';
+  },
   dead() {
     $('overTitle').textContent = 'THE LIVESTOCK HAD OPINIONS';
     $('overBody').textContent = 'Xander does not report back.';
