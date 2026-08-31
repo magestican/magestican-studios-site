@@ -167,7 +167,15 @@ export function chickenPose(a, opt = {}) {
   
   
   
-  const B = { pitch: 1, lift: 1, base: 0, ...(opt.pose || {}) };
+  const B = {
+    pitch: 1, lift: 1, base: 0,
+    
+    attack: 'lunge',
+    
+    
+    hand: a.seed < 0.5 ? 1 : -1,
+    ...(opt.pose || {}),
+  };
   const p = a.gait * TAU;
   const s = a.state;
 
@@ -258,7 +266,37 @@ export function chickenPose(a, opt = {}) {
   
   const headBob = -bodyLift * 0.78 + Math.sin((a.gait - 0.125) * TAU) * 0.012 * legAmp;
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let swing = 0;
+  if (B.attack === 'sweep') {
+    if (s === 'windup') {
+      
+      
+      swing = -B.hand * k(T.windup) ** 1.5;
+    } else if (s === 'strike') {
+      
+      
+      swing = B.hand * (-1 + 2.35 * k(T.strike));
+    } else if (s === 'recover') {
+      swing = B.hand * 1.35 * Math.exp(-k(T.recover) * 3.4);
+    }
+  }
+
   return {
+    swing,
     torsoPitch: B.base + torsoPitch * B.pitch,
     bodyLift: bodyLift * B.lift,
     bodyRoll: bodyRoll * B.pitch,
@@ -344,5 +382,5 @@ export const COW = Object.freeze({
   
   
   
-  pose: { pitch: 0.34, lift: 0.40, base: -0.30 },
+  pose: { pitch: 0.34, lift: 0.40, base: -0.30, attack: 'sweep' },
 });

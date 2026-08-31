@@ -2498,6 +2498,22 @@ function applyChickenPose(rig, pose) {
   if (armL) armL.rotation[armAxis] = -(pose.wingFlap + pose.mutantLag * 0.16);
   if (armR) armR.rotation[armAxis] = (armAxis === 'x' ? 1 : -1)
     * (pose.wingFlap * 0.86 - pose.mutantLag * 0.22);
+
+  
+  
+  
+  
+  
+  
+  if (pose.swing) {
+    rig.body.rotation.z = pose.swing * 0.55;
+    if (armL) armL.rotation.z = -pose.swing * 0.42;
+    if (armR) armR.rotation.z = -pose.swing * 0.42;
+  } else if (rig.body.rotation.z) {
+    rig.body.rotation.z = 0;
+    if (armL) armL.rotation.z = 0;
+    if (armR) armR.rotation.z = 0;
+  }
   if (rig.named.tail) rig.named.tail.rotation.y = -pose.tailFlick + pose.mutantLag * 0.1;
 }
 
@@ -3994,6 +4010,7 @@ export function boot(canvas, hud) {
   
   let shake = 0;
   let headLook = 0;
+  let prevYaw = 0;
   let creakIn = 6 + Math.random() * 10;
   let sparkIn = 3 + Math.random() * 7;
   let sparkFlash = 0;
@@ -4893,6 +4910,25 @@ export function boot(canvas, hud) {
       seen = d;
       wantLook = clamp(rel * 0.55, -1.08, 1.08);      
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (!Number.isFinite(seen)) {
+      const rate = dt > 0 ? (player.yaw - prevYaw) / dt : 0;
+      wantLook = clamp(rate * 0.16, -0.5, 0.5);
+    }
+    prevYaw = player.yaw;
+
     
     
     
