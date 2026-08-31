@@ -88,6 +88,29 @@
 
 
 export const MASH_GAIN = 0.14;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const FALLBACK_GAIN = MASH_GAIN * 0.45;
 export const MASH_REPEAT_GAIN = 0.03;
 export const MASH_DECAY = 0.55;
 
@@ -196,6 +219,8 @@ export function createStruggle(opts = {}) {
 
     
     _mashRaw: 0,
+    
+    _fallbackRaw: 0,
     _lastToken: null,
     _repeatRun: 0,
 
@@ -231,6 +256,21 @@ export function createStruggle(opts = {}) {
         this.progress = Math.min(1, Math.abs(this._angle) / this.target);
       } else {
         this.progress = Math.min(1, this._strokes.size / this.target);
+      }
+      
+      
+      
+      if (verb !== 'mash' && mode !== 'hold') {
+        
+        
+        
+        
+        
+        
+        
+        
+        const fb = Math.min(1, this._fallbackRaw / scaleFor(mode));
+        if (fb > this.progress) this.progress = fb;
       }
       if (this.progress >= 1 && !this.done) {
         this.done = true;
@@ -312,7 +352,7 @@ export function createStruggle(opts = {}) {
 
       if (verb === 'circle') {
         const i = DIAMOND.indexOf(token);
-        if (i < 0) return this.progress;
+        if (i < 0) { this._fallbackRaw += FALLBACK_GAIN; return this._recompute(); }
         if (this._lastDiamond === null) { this._lastDiamond = token; return this.progress; }
         const j = DIAMOND.indexOf(this._lastDiamond);
         
@@ -334,8 +374,12 @@ export function createStruggle(opts = {}) {
         this._lastCrossKey = null;
         return this._bankStroke(strokeId);
       }
+      
+      
+      
       this._lastCrossKey = token;
-      return this.progress;
+      this._fallbackRaw += FALLBACK_GAIN;
+      return this._recompute();
     },
 
     

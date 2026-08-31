@@ -117,8 +117,24 @@ export const WEAPONS = Object.freeze({
     flavour: 'Fence-post driver, agency issue. It was never for this.',
     range: 18,
     fireRate: 1.6,
-    limbDamage: 12,
-    torsoDamage: 12,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    limbDamage: 26,
+    torsoDamage: 26,
     
     
     severBonus: 1.35,
@@ -199,8 +215,17 @@ export const WEAPONS = Object.freeze({
     
     
     fireRate: 8,
-    limbDamage: 3.5,
-    torsoDamage: 3.5,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    limbDamage: 4.5,
+    torsoDamage: 4.5,
     severBonus: 1,
     stagger: 0.2,
     

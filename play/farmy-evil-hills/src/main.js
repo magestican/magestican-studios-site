@@ -3118,13 +3118,28 @@ const MAP = Object.freeze({
 
 
 
-function mapProject(wx, wy, wz, player, cx, cy) {
+function mapProject(wx, wy, wz, player, cx, cy, bearing) {
   const dx = wx - player.x;
   const dy = wy - 1.2;                    
   const dz = wz - player.z;
 
   
-  const c = Math.cos(-player.yaw); const sn = Math.sin(-player.yaw);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const c = Math.cos(-bearing); const sn = Math.sin(-bearing);
   const rx = dx * c - dz * sn;
   const rz = dx * sn + dz * c;
 
@@ -3139,12 +3154,12 @@ function mapProject(wx, wy, wz, player, cx, cy) {
   return [cx + rx * f, cy - ry * f];
 }
 
-function drawMap(cv, player, birds, exit, level, deck) {
+function drawMap(cv, player, birds, exit, level, deck, bearing) {
   const g = cv.getContext('2d');
   const W = cv.width; const H = cv.height;
   g.clearRect(0, 0, W, H);
   const cx = W / 2; const cy = H * 0.52;
-  const p = (x, y, z) => mapProject(x, y, z, player, cx, cy);
+  const p = (x, y, z) => mapProject(x, y, z, player, cx, cy, bearing);
 
   const seg = (a, b, colour, width) => {
     if (!a || !b) return;                 
@@ -5540,7 +5555,12 @@ export function boot(canvas, hud) {
       portrait.draw(now);
     }
 
-    if (mapCv) drawMap(mapCv, player, birds, EXIT, level, deck);
+    if (mapCv) {
+      
+      
+      const mb = Math.atan2(-(place.target.x - place.eye.x), place.target.z - place.eye.z);
+      drawMap(mapCv, player, birds, EXIT, level, deck, mb);
+    }
 
     renderer.render(scene, camera);
     shotFlash = Math.max(0, shotFlash - dt);

@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="78e4da2-20260831T231602Z">
+<meta name="build" content="a9d0dc6-20260831T233754Z">
 <title>Play Farmy Evil Hills — free browser survival horror, no download | Magestican Studios</title>
 <meta name="description" content="Play Farmy Evil Hills free in your browser: PS1-era survival horror on a Space Farming Agency station on Venus. A virus has mutated the livestock. Take a chicken's leg off with a bolt driver, or mash one off your boot when it latches. Phone and desktop. No download, no install, no account.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2305060a'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23b6392c'%3EE%3C/text%3E%3C/svg%3E">
@@ -167,6 +167,40 @@
       linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 22%); }
   
   .hud, #bar, #touch, #boot, #over { z-index: 6; }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  @media (pointer: coarse), (max-width: 520px) {
+    #hint { display: none !important; }
+    #bar { height: 108px; gap: 6px; padding: 0 6px 6px; transform: scale(.86);
+      transform-origin: bottom center; }
+    #stick { bottom: 190px !important; }
+    #fireBtn { bottom: 198px !important; }
+  }
+  
+  @media (pointer: coarse) and (max-height: 720px) {
+    #bar { transform: scale(.74); }
+    #stick { bottom: 168px !important; width: 124px !important; height: 124px !important; }
+    #fireBtn { bottom: 176px !important; width: 92px !important; height: 92px !important; }
+  }
 </style>
 </head>
 <body>
@@ -308,6 +342,6 @@
   "arbelo/analytics": "../../web-engine/analytics/analytics.js"
 }}
 </script>
-<script type="module" src="./src/main.js?v=78e4da2-20260831T231602Z"></script>
+<script type="module" src="./src/main.js?v=a9d0dc6-20260831T233754Z"></script>
 </body>
 </html>
