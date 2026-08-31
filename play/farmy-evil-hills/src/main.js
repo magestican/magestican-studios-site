@@ -127,8 +127,35 @@ const xColour = (n) => (n === 'hair' ? XCOL.hair
       : /^foot/.test(n) ? XCOL.accent : XCOL.skin);
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function panel(w, h, colour, place) {
-  const g = new THREE.PlaneGeometry(w, h);
+  
+  
+  
+  const sw = Math.max(1, Math.round(w / 2));
+  const sh = Math.max(1, Math.round(h / 2));
+  const g = new THREE.PlaneGeometry(w, h, sw, sh);
   const n = g.attributes.position.count;
   const c = new THREE.Color(colour);
   const col = [];
