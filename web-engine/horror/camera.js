@@ -21,11 +21,15 @@
 
 export const RIG = Object.freeze({
   pivotHeight: 1.52,      
-  distance: 2.35,         
+  
+  
+  
+  
+  distance: 3.15,         
   aimDistance: 1.35,      
   shoulder: 0.42,         
   aimShoulder: 0.30,      
-  height: 0.18,           
+  height: 0.34,           
   minDistance: 0.45,      
 });
 

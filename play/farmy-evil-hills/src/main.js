@@ -143,15 +143,22 @@ function buildHall(scene, mat) {
   const mk = (w, h, colour, fn) => scene.add(panel(w, h, colour, { mat, apply: fn }));
   const mid = HALL_LEN / 2 - 4;
   
-  mk(HALL_W, HALL_LEN, 0x3f4436, (m) => { m.rotation.x = -Math.PI / 2; m.position.set(0, 0, mid); });
+  mk(HALL_W, HALL_LEN, 0x6d7360, (m) => { m.rotation.x = -Math.PI / 2; m.position.set(0, 0, mid); });
   
-  mk(HALL_W, HALL_LEN, 0x272b20, (m) => { m.rotation.x = Math.PI / 2; m.position.set(0, HALL_H, mid); });
+  mk(HALL_W, HALL_LEN, 0x4c5242, (m) => { m.rotation.x = Math.PI / 2; m.position.set(0, HALL_H, mid); });
   
-  mk(HALL_LEN, HALL_H, 0x76806a, (m) => { m.rotation.y = Math.PI / 2; m.position.set(-HALL_W / 2, HALL_H / 2, mid); });
-  mk(HALL_LEN, HALL_H, 0x646e59, (m) => { m.rotation.y = -Math.PI / 2; m.position.set(HALL_W / 2, HALL_H / 2, mid); });
+  mk(HALL_LEN, HALL_H, 0xa3ad93, (m) => { m.rotation.y = Math.PI / 2; m.position.set(-HALL_W / 2, HALL_H / 2, mid); });
+  mk(HALL_LEN, HALL_H, 0x8f9a80, (m) => { m.rotation.y = -Math.PI / 2; m.position.set(HALL_W / 2, HALL_H / 2, mid); });
   
-  mk(HALL_W, HALL_H, 0x2c3126, (m) => { m.position.set(0, HALL_H / 2, mid + HALL_LEN / 2); m.rotation.y = Math.PI; });
-  mk(HALL_W, HALL_H, 0x2c3126, (m) => { m.position.set(0, HALL_H / 2, mid - HALL_LEN / 2); });
+  mk(HALL_W, HALL_H, 0x5a6150, (m) => { m.position.set(0, HALL_H / 2, mid + HALL_LEN / 2); m.rotation.y = Math.PI; });
+  mk(HALL_W, HALL_H, 0x5a6150, (m) => { m.position.set(0, HALL_H / 2, mid - HALL_LEN / 2); });
+
+  
+  
+  
+  
+  
+  
 
   
   
@@ -169,7 +176,11 @@ function buildHall(scene, mat) {
 export function boot(canvas, hud) {
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+    
+    
+    
+    
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: true });
   } catch (e) {
     hud.fatal('This browser could not start WebGL, so the station stays dark.');
     return null;
@@ -226,6 +237,11 @@ export function boot(canvas, hud) {
   for (let i = 0; i < 6; i += 1) addChicken(16 + i * 9, (i % 2 ? 1 : -1) * (0.4 + (i % 3) * 0.3));
 
   const camera = new THREE.PerspectiveCamera(62, 1, 0.05, 200);
+  
+  
+  renderer.setSize(canvas.clientWidth || 960, canvas.clientHeight || 540, false);
+  camera.aspect = (canvas.clientWidth || 960) / (canvas.clientHeight || 540);
+  camera.updateProjectionMatrix();
 
   
   const keys = new Set();
