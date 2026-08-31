@@ -201,31 +201,52 @@ function partsToGeometry(parts, colourOf, targetHeight, measureAgainst, keepUv) 
 
 const FACE_PX = 128;
 
-function xanderFaceSheet() {
+
+
+
+
+
+
+
+
+
+
+
+
+const EXPRESSIONS = Object.freeze({
+  calm: { brow: 0, open: 1, lid: 1, mouth: 0 },
+  alert: { brow: -0.055, open: 1.18, lid: 0.82, mouth: 0.10 },
+  afraid: { brow: -0.095, open: 1.36, lid: 0.62, mouth: 0.38 },
+  hurt: { brow: 0.045, open: 0.52, lid: 1.5, mouth: 0.30 },
+});
+
+function xanderFaceSheet(exprName = 'calm') {
+  const X = EXPRESSIONS[exprName] || EXPRESSIONS.calm;
   const cv = document.createElement('canvas');
   cv.width = FACE_PX * 2;
   cv.height = Math.round(FACE_PX / 0.75);
   const c = cv.getContext('2d');
 
-  const SKIN = '#e2ab86';
-  const SKIN_SHADE = '#c08a68';
-  const SKIN_DEEP = '#a06f52';
-  const HAIR = '#d8b45e';
-  const HAIR_DARK = '#a8842f';
-  const EYE_WHITE = '#f2ece0';
-  const IRIS = '#2f6fd0';
-  const IRIS_DARK = '#1d4a94';
-  const LINE = '#3a2418';
-  const MOUTH = '#8d4a3c';
+  
+  
+  
+  
+  const SKIN = '#d3a07c';
+  const SKIN_SHADE = '#b07e5e';
+  const SKIN_DEEP = '#8e6247';
+  const SKIN_LIT = '#e6b895';
+  const HAIR = '#c8a860';
+  const HAIR_DARK = '#8f7332';
+  const HAIR_LIT = '#e3cb8c';
+  const EYE_WHITE = '#ded6c8';        
+  const IRIS = '#3a6fa8';
+  const IRIS_DARK = '#1f4368';
+  const LINE = '#33221a';
+  const MOUTH = '#7d4436';
 
-  
-  
-  
   c.fillStyle = SKIN;
   c.fillRect(0, 0, cv.width, cv.height);
 
-  
-  
   const sx = cv.width * 0.52;
   const wash = c.createLinearGradient(sx, 0, cv.width, 0);
   wash.addColorStop(0, SKIN);
@@ -236,13 +257,28 @@ function xanderFaceSheet() {
   
   const S = FACE_PX;
   const crown = 0;
-  const chin = (0.7275 / 0.75) * S;      
-  const r = (chin - crown) / 2.06;       
+  const chin = (0.7275 / 0.75) * S;
+  const r = (chin - crown) / 2.06;
   const cxp = S * 0.5;
-  const eyeY = crown + 1.06 * r - r * 0.06;
-  const eyeDX = r * 0.42;
-  const eyeW = r * 0.34;
-  const eyeH = r * 0.17;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const eyeY = crown + 1.02 * r;
+  const eyeDX = r * 0.40;
+  const eyeW = r * 0.30;
+  const eyeH = r * 0.098 * X.open;    
 
   c.save();
   c.beginPath(); c.rect(0, 0, S, chin + r * 0.2); c.clip();
@@ -250,103 +286,188 @@ function xanderFaceSheet() {
   c.lineCap = 'round';
 
   
-  c.fillStyle = SKIN_SHADE;
-  c.beginPath();
-  c.moveTo(cxp - r * 0.95, eyeY - r * 0.35);
-  c.quadraticCurveTo(cxp - r * 0.86, chin - r * 0.15, cxp, chin);
-  c.quadraticCurveTo(cxp + r * 0.86, chin - r * 0.15, cxp + r * 0.95, eyeY - r * 0.35);
-  c.lineTo(cxp + r * 0.95, chin + r * 0.3);
-  c.lineTo(cxp - r * 0.95, chin + r * 0.3);
-  c.closePath();
-  c.globalAlpha = 0.30; c.fill(); c.globalAlpha = 1;
+  
+  
 
   
   c.fillStyle = SKIN_SHADE;
-  c.globalAlpha = 0.4;
+  c.globalAlpha = 0.5;
   c.beginPath();
-  c.ellipse(cxp + eyeDX * 1.25, eyeY + r * 0.34, r * 0.24, r * 0.15, -0.3, 0, Math.PI * 2);
-  c.fill();
+  c.moveTo(cxp - r * 1.02, eyeY - r * 0.62);
+  c.quadraticCurveTo(cxp - r * 0.92, chin - r * 0.28, cxp - r * 0.30, chin - r * 0.02);
+  c.lineTo(cxp - r * 1.02, chin + r * 0.3);
+  c.closePath(); c.fill();
+  c.beginPath();
+  c.moveTo(cxp + r * 1.02, eyeY - r * 0.62);
+  c.quadraticCurveTo(cxp + r * 0.92, chin - r * 0.28, cxp + r * 0.30, chin - r * 0.02);
+  c.lineTo(cxp + r * 1.02, chin + r * 0.3);
+  c.closePath(); c.fill();
   c.globalAlpha = 1;
 
+  
+  
+  c.fillStyle = SKIN_SHADE;
+  c.globalAlpha = 0.55;
+  c.fillRect(cxp - r * 0.78, eyeY - r * 0.30, r * 1.56, r * 0.17);
+  c.globalAlpha = 1;
+
+  
+  c.fillStyle = SKIN_LIT;
+  c.globalAlpha = 0.42;
+  c.beginPath();
+  c.ellipse(cxp, eyeY - r * 0.62, r * 0.52, r * 0.22, 0, 0, Math.PI * 2);
+  c.fill();
+  for (const d of [-1, 1]) {
+    c.beginPath();
+    c.ellipse(cxp + d * r * 0.52, eyeY + r * 0.26, r * 0.24, r * 0.13, d * 0.22, 0, Math.PI * 2);
+    c.fill();
+  }
+  c.globalAlpha = 1;
+
+  
+  c.fillStyle = SKIN_DEEP;
+  c.globalAlpha = 0.28;
+  for (const d of [-1, 1]) {
+    c.beginPath();
+    c.ellipse(cxp + d * r * 0.50, eyeY + r * 0.56, r * 0.20, r * 0.15, d * 0.3, 0, Math.PI * 2);
+    c.fill();
+  }
+  c.globalAlpha = 1;
+
+  
   const eye = (dir) => {
     const ex = cxp + dir * eyeDX;
+
     
-    c.fillStyle = LINE;
+    c.fillStyle = SKIN_DEEP;
+    c.globalAlpha = 0.30;
     c.beginPath();
-    c.ellipse(ex, eyeY, eyeW * 1.08, eyeH * 1.24, 0, 0, Math.PI * 2);
+    c.ellipse(ex, eyeY + eyeH * 0.2, eyeW * 1.35, eyeH * 2.1, 0, 0, Math.PI * 2);
     c.fill();
+    c.globalAlpha = 1;
+
     
     c.fillStyle = EYE_WHITE;
     c.beginPath();
-    c.ellipse(ex, eyeY + eyeH * 0.12, eyeW * 0.92, eyeH * 0.92, 0, 0, Math.PI * 2);
+    c.moveTo(ex - eyeW, eyeY + eyeH * 0.10);
+    c.quadraticCurveTo(ex, eyeY - eyeH * 1.30, ex + eyeW, eyeY + eyeH * 0.22);
+    c.quadraticCurveTo(ex, eyeY + eyeH * 1.20, ex - eyeW, eyeY + eyeH * 0.10);
     c.fill();
-    
-    c.fillStyle = IRIS;
-    c.beginPath(); c.arc(ex, eyeY + eyeH * 0.12, eyeH * 0.80, 0, Math.PI * 2); c.fill();
-    c.fillStyle = IRIS_DARK;
-    c.beginPath(); c.arc(ex, eyeY + eyeH * 0.12, eyeH * 0.44, 0, Math.PI * 2); c.fill();
+
     
     
-    c.fillStyle = '#ffffff';
-    c.fillRect(Math.round(ex - dir * eyeW * 0.10 - 1), Math.round(eyeY - eyeH * 0.34), 2, 2);
-    
-    c.strokeStyle = LINE; c.lineWidth = Math.max(1.6, r * 0.055);
+    const ir = eyeH * 1.02;
+    c.save();
     c.beginPath();
-    c.moveTo(ex - eyeW * 1.02, eyeY - eyeH * 0.28);
-    c.quadraticCurveTo(ex, eyeY - eyeH * 1.32, ex + eyeW * 1.02, eyeY - eyeH * 0.30);
+    c.moveTo(ex - eyeW, eyeY + eyeH * 0.10);
+    c.quadraticCurveTo(ex, eyeY - eyeH * 1.30, ex + eyeW, eyeY + eyeH * 0.22);
+    c.quadraticCurveTo(ex, eyeY + eyeH * 1.20, ex - eyeW, eyeY + eyeH * 0.10);
+    c.clip();
+    c.fillStyle = IRIS;
+    c.beginPath(); c.arc(ex + dir * eyeW * 0.06, eyeY, ir, 0, Math.PI * 2); c.fill();
+    c.fillStyle = IRIS_DARK;
+    c.beginPath(); c.arc(ex + dir * eyeW * 0.06, eyeY, ir * 0.48, 0, Math.PI * 2); c.fill();
+    c.restore();
+
+    
+    
+    c.strokeStyle = LINE;
+    c.lineWidth = Math.max(2, r * 0.055);
+    c.beginPath();
+    c.moveTo(ex - eyeW * 1.06, eyeY - eyeH * 0.05);
+    c.quadraticCurveTo(ex, eyeY - eyeH * 1.55 * X.lid, ex + eyeW * 1.08, eyeY + eyeH * 0.10);
     c.stroke();
+    
+    c.strokeStyle = SKIN_DEEP;
+    c.globalAlpha = 0.75;
+    c.lineWidth = Math.max(1, r * 0.028);
+    c.beginPath();
+    c.moveTo(ex - eyeW * 0.86, eyeY + eyeH * 0.62);
+    c.quadraticCurveTo(ex, eyeY + eyeH * 1.35, ex + eyeW * 0.90, eyeY + eyeH * 0.70);
+    c.stroke();
+    c.globalAlpha = 1;
+
+    
+    
+    c.fillStyle = '#f4efe6';
+    c.fillRect(Math.round(ex - dir * eyeW * 0.16), Math.round(eyeY - eyeH * 0.55), 2, 2);
   };
   eye(-1); eye(1);
 
   
   
+  
+  
   c.strokeStyle = HAIR_DARK;
-  c.lineWidth = Math.max(2, r * 0.085);
+  c.lineCap = 'butt';
   for (const dir of [-1, 1]) {
     const ex = cxp + dir * eyeDX;
+    c.lineWidth = Math.max(2.6, r * 0.10);
     c.beginPath();
-    c.moveTo(ex - dir * eyeW * 1.05, eyeY - eyeH * 2.05);
-    c.quadraticCurveTo(ex, eyeY - eyeH * 2.75, ex + dir * eyeW * 1.0, eyeY - eyeH * 1.75);
+    c.moveTo(ex - dir * eyeW * 1.18, eyeY - r * (0.235 - X.brow));
+    c.lineTo(ex + dir * eyeW * 0.95, eyeY - r * (0.30 - X.brow * 1.4));
     c.stroke();
   }
+  c.lineCap = 'round';
 
   
   c.strokeStyle = SKIN_DEEP;
-  c.lineWidth = Math.max(1.4, r * 0.05);
-  c.globalAlpha = 0.75;
+  c.globalAlpha = 0.55;
+  c.lineWidth = Math.max(1.6, r * 0.045);
   c.beginPath();
-  c.moveTo(cxp + r * 0.05, eyeY + eyeH * 0.5);
-  c.lineTo(cxp + r * 0.09, eyeY + r * 0.44);
+  c.moveTo(cxp + r * 0.085, eyeY - r * 0.10);
+  c.lineTo(cxp + r * 0.105, eyeY + r * 0.42);
   c.stroke();
+  c.globalAlpha = 0.42;
+  c.beginPath();
+  c.ellipse(cxp, eyeY + r * 0.50, r * 0.16, r * 0.075, 0, 0, Math.PI * 2);
+  c.fill();
   c.globalAlpha = 1;
   c.fillStyle = SKIN_DEEP;
-  c.fillRect(Math.round(cxp - r * 0.10), Math.round(eyeY + r * 0.50), 2, 2);
-  c.fillRect(Math.round(cxp + r * 0.07), Math.round(eyeY + r * 0.50), 2, 2);
+  c.fillRect(Math.round(cxp - r * 0.135), Math.round(eyeY + r * 0.505), 2, 2);
+  c.fillRect(Math.round(cxp + r * 0.095), Math.round(eyeY + r * 0.505), 2, 2);
 
   
+  if (X.mouth > 0.02) {
+    
+    c.fillStyle = '#3a1c18';
+    c.beginPath();
+    c.ellipse(cxp, eyeY + r * (0.80 + X.mouth * 0.06), r * (0.13 + X.mouth * 0.10), r * X.mouth * 0.20, 0, 0, Math.PI * 2);
+    c.fill();
+  }
   c.strokeStyle = MOUTH;
-  c.lineWidth = Math.max(1.8, r * 0.065);
+  c.lineWidth = Math.max(1.8, r * 0.055);
   c.beginPath();
-  c.moveTo(cxp - r * 0.24, eyeY + r * 0.80);
-  c.quadraticCurveTo(cxp, eyeY + r * 0.86, cxp + r * 0.24, eyeY + r * 0.80);
+  c.moveTo(cxp - r * 0.20, eyeY + r * 0.79);
+  c.quadraticCurveTo(cxp, eyeY + r * (0.815 + X.mouth * 0.12), cxp + r * 0.20, eyeY + r * 0.79);
   c.stroke();
-  c.strokeStyle = SKIN_SHADE;
-  c.lineWidth = Math.max(1.4, r * 0.05);
-  c.globalAlpha = 0.6;
+  c.fillStyle = SKIN_LIT;
+  c.globalAlpha = 0.45;
   c.beginPath();
-  c.moveTo(cxp - r * 0.15, eyeY + r * 0.95);
-  c.quadraticCurveTo(cxp, eyeY + r * 0.99, cxp + r * 0.15, eyeY + r * 0.95);
-  c.stroke();
+  c.ellipse(cxp, eyeY + r * 0.87, r * 0.15, r * 0.055, 0, 0, Math.PI * 2);
+  c.fill();
   c.globalAlpha = 1;
 
   
-  c.strokeStyle = SKIN_DEEP;
-  c.lineWidth = Math.max(1.4, r * 0.05);
-  c.globalAlpha = 0.45;
+  c.fillStyle = SKIN_DEEP;
+  c.globalAlpha = 0.24;
   c.beginPath();
-  c.moveTo(cxp - r * 0.66, eyeY + r * 0.52);
-  c.quadraticCurveTo(cxp, chin - r * 0.06, cxp + r * 0.66, eyeY + r * 0.52);
-  c.stroke();
+  c.ellipse(cxp, eyeY + r * 0.99, r * 0.20, r * 0.07, 0, 0, Math.PI * 2);
+  c.fill();
+  c.globalAlpha = 1;
+
+  
+  
+  c.fillStyle = SKIN_DEEP;
+  for (let i = 0; i < 260; i += 1) {
+    const a = hash2(i * 1.7, 3.3) * Math.PI * 2;
+    const rad = 0.55 + hash2(i * 2.1, 8.8) * 0.42;
+    const px = cxp + Math.cos(a) * r * rad * 0.86;
+    const py = eyeY + r * 0.72 + Math.sin(a) * r * rad * 0.34;
+    if (py < eyeY + r * 0.5) continue;
+    c.globalAlpha = 0.10 + hash2(i, 1.1) * 0.14;
+    c.fillRect(Math.round(px), Math.round(py), 1, 1);
+  }
   c.globalAlpha = 1;
 
   
@@ -354,21 +475,27 @@ function xanderFaceSheet() {
   
   c.fillStyle = HAIR;
   c.beginPath();
-  c.moveTo(cxp - r * 1.0, crown);
-  c.lineTo(cxp + r * 1.0, crown);
-  c.lineTo(cxp + r * 1.0, eyeY - eyeH * 3.6);
-  c.quadraticCurveTo(cxp + r * 0.34, eyeY - eyeH * 2.4, cxp + r * 0.06, eyeY - eyeH * 3.5);
-  c.quadraticCurveTo(cxp - r * 0.40, eyeY - eyeH * 2.2, cxp - r * 1.0, eyeY - eyeH * 3.9);
+  c.moveTo(cxp - r * 1.04, crown);
+  c.lineTo(cxp + r * 1.04, crown);
+  c.lineTo(cxp + r * 1.04, eyeY - r * 0.60);
+  c.quadraticCurveTo(cxp + r * 0.40, eyeY - r * 0.40, cxp - r * 0.10, eyeY - r * 0.50);
+  c.quadraticCurveTo(cxp - r * 0.62, eyeY - r * 0.62, cxp - r * 1.04, eyeY - r * 0.34);
   c.closePath();
   c.fill();
   
   c.strokeStyle = HAIR_DARK;
-  c.lineWidth = Math.max(1.6, r * 0.06);
-  c.globalAlpha = 0.7;
-  for (const dx of [-0.55, -0.18, 0.28, 0.62]) {
+  c.lineWidth = Math.max(2, r * 0.06);
+  c.beginPath();
+  c.moveTo(cxp + r * 0.34, crown + r * 0.02);
+  c.quadraticCurveTo(cxp + r * 0.16, eyeY - r * 0.72, cxp - r * 0.34, eyeY - r * 0.52);
+  c.stroke();
+  c.strokeStyle = HAIR_LIT;
+  c.globalAlpha = 0.55;
+  c.lineWidth = Math.max(1.4, r * 0.038);
+  for (const dx of [-0.72, -0.46, 0.52, 0.78]) {
     c.beginPath();
-    c.moveTo(cxp + r * dx, crown + r * 0.1);
-    c.lineTo(cxp + r * dx * 0.82, eyeY - eyeH * 3.2);
+    c.moveTo(cxp + r * dx, crown + r * 0.06);
+    c.lineTo(cxp + r * dx * 0.88, eyeY - r * 0.46);
     c.stroke();
   }
   c.globalAlpha = 1;
@@ -390,18 +517,131 @@ function xanderFaceSheet() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+function makePortrait(headGeo, faces) {
+  const el = document.getElementById('portrait');
+  if (!el) return null;
+  let current = null;
+  return {
+    set(expr) {
+      if (expr === current || !faces[expr]) return;
+      current = expr;
+      paintPortrait(faces[expr]);
+    },
+    get expr() { return current; },
+    draw() {  },
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function paintPortrait(tex) {
   const el = document.getElementById('portrait');
   if (!el || !tex || !tex.userData || !tex.userData.canvas) return;
   const g = el.getContext('2d');
+  const W = el.width; const H = el.height;
   g.imageSmoothingEnabled = false;
-  const n = tex.userData.faceSize;
-  g.clearRect(0, 0, el.width, el.height);
-  
-  
-  g.drawImage(tex.userData.canvas, n * 0.06, 0, n * 0.88, n * 0.98, 0, 0, el.width, el.height);
-}
+  g.clearRect(0, 0, W, H);
 
+  
+  
+  g.fillStyle = '#0a1512';
+  g.fillRect(0, 0, W, H);
+  const pool = g.createRadialGradient(W * 0.5, H * 0.42, W * 0.06, W * 0.5, H * 0.42, W * 0.52);
+  pool.addColorStop(0, 'rgba(70,110,96,0.55)');
+  pool.addColorStop(1, 'rgba(10,21,18,0)');
+  g.fillStyle = pool;
+  g.fillRect(0, 0, W, H);
+
+  
+  
+  
+  const shoulderTop = H * 0.72;
+  g.fillStyle = '#b8503a';                       
+  g.beginPath();
+  g.moveTo(W * 0.06, H);
+  g.quadraticCurveTo(W * 0.16, shoulderTop, W * 0.36, shoulderTop + H * 0.05);
+  g.lineTo(W * 0.64, shoulderTop + H * 0.05);
+  g.quadraticCurveTo(W * 0.84, shoulderTop, W * 0.94, H);
+  g.closePath();
+  g.fill();
+  
+  g.fillStyle = '#3d5486';
+  g.beginPath();
+  g.moveTo(W * 0.34, H);
+  g.lineTo(W * 0.34, H * 0.90);
+  g.lineTo(W * 0.66, H * 0.90);
+  g.lineTo(W * 0.66, H);
+  g.closePath();
+  g.fill();
+  for (const x of [0.395, 0.605]) {
+    g.beginPath();
+    g.moveTo(W * (x - 0.035), H);
+    g.quadraticCurveTo(W * (x - 0.02), H * 0.86, W * (x + 0.02), shoulderTop + H * 0.045);
+    g.lineTo(W * (x + 0.055), shoulderTop + H * 0.05);
+    g.quadraticCurveTo(W * (x + 0.03), H * 0.87, W * (x + 0.03), H);
+    g.closePath();
+    g.fill();
+  }
+  
+  g.fillStyle = 'rgba(0,0,0,0.28)';
+  g.fillRect(0, shoulderTop + H * 0.02, W * 0.14, H);
+  g.fillRect(W * 0.86, shoulderTop + H * 0.02, W * 0.14, H);
+
+  
+  g.fillStyle = '#c08a68';
+  g.fillRect(W * 0.40, H * 0.60, W * 0.20, H * 0.20);
+  g.fillStyle = 'rgba(0,0,0,0.30)';
+  g.fillRect(W * 0.40, H * 0.60, W * 0.20, H * 0.05);
+
+  
+  
+  
+  
+  const n = tex.userData.faceSize;
+  const chinRow = (0.7275 / 0.75) * n;
+  const hw = W * 0.56;
+  const hh = hw * (chinRow / n) * 1.24;
+  g.drawImage(tex.userData.canvas, 0, 0, n, chinRow, (W - hw) / 2, H * 0.06, hw, hh);
+
+  
+  
+  g.globalAlpha = 0.35;
+  g.fillStyle = '#e3cb8c';
+  g.fillRect((W - hw) / 2 + hw - 3, H * 0.09, 2, hh * 0.5);
+  g.globalAlpha = 1;
+
+  g.strokeStyle = 'rgba(111,240,216,0.22)';
+  g.lineWidth = 1;
+  g.strokeRect(0.5, 0.5, W - 1, H - 1);
+}
 
 
 
@@ -417,12 +657,10 @@ function xanderHeadGeometry() {
   const pose = poseById('guard');
   const K = solve(pose, { flip: false });
   const hc = [K.head[0], 0, K.head[1]];
-  const mesh = head3d({
-    centre: hc, r: FRIG.headR, jaw: A.jaw, brow: A.brow, forward: [1, 0, 0],
-  });
-  
-  
-  return { mesh, centre: hc };
+  return {
+    mesh: head3d({ centre: hc, r: FRIG.headR, jaw: A.jaw, brow: A.brow, forward: [1, 0, 0] }),
+    centre: hc,
+  };
 }
 
 function xanderParts() {
@@ -957,12 +1195,17 @@ export function boot(canvas, hud) {
   xander.rotation.x = -Math.PI / 2;   
   scene.add(xander);
 
-  const faceTex = xanderFaceSheet();
-  paintPortrait(faceTex);
-  const faceMat = texturedMaterial(faceTex);
+  const faces = {
+    calm: xanderFaceSheet('calm'),
+    alert: xanderFaceSheet('alert'),
+    afraid: xanderFaceSheet('afraid'),
+    hurt: xanderFaceSheet('hurt'),
+  };
+  const faceMat = texturedMaterial(faces.calm);
   const headGeo = partsToGeometry([{ name: 'head', mesh: headBuilt.mesh }], () => 0xffffff, XANDER_H, allParts, true);
   const xHead = new THREE.Mesh(headGeo, faceMat);
   xander.add(xHead);
+  const portrait = makePortrait(headGeo, faces);
 
   const chickenGeo = partsToGeometry(buildChicken().parts, (n) => CCOL[n] ?? 0xb9b07a, CHICKEN_H);
 
@@ -1364,6 +1607,25 @@ export function boot(canvas, hud) {
     
     
     for (const c of ceilingPieces) c.visible = Math.abs(c.position.z - player.z) > CEIL_CULL;
+
+    
+    
+    
+    
+    
+    if (portrait) {
+      const nearest = birds.reduce((d, b) => (b.alive
+        ? Math.min(d, Math.hypot(b.x - player.x, b.z - player.z)) : d), Infinity);
+      let expr = 'calm';
+      if (player.struggle) expr = 'afraid';
+      else if (player.vitals.health < 55) expr = 'hurt';
+      else if (nearest < 7) expr = 'afraid';
+      else if (nearest < 20) expr = 'alert';
+      portrait.set(expr);
+      
+      faceMat.uniforms.uMap.value = faces[expr];
+      portrait.draw(now);
+    }
 
     if (mapCv) drawMap(mapCv, player, birds, EXIT_Z, level);
 
