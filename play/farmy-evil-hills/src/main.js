@@ -1538,7 +1538,7 @@ function xanderParts(pose) {
 
 
 
-const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.brow };
+const A = { ...ARCH.renji, hair: 'sleek', jaw: ARCH.renji.jaw, brow: ARCH.renji.brow };
   
   
   
@@ -1567,7 +1567,7 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
   const built = buildFighter(K, {
     segments: segmentsOf(K, o), torso: torsoBoxOf(K, o),
     joints: jointsOf(K, o), girdle: girdleOf(K, o),
-    headR: XANDER_RIG.headR, arch: { build: 1, jaw: A.jaw, brow: A.brow, hair: 'crop' },
+    headR: XANDER_RIG.headR, arch: { build: 1, jaw: A.jaw, brow: A.brow, hair: 'sleek' },
     flip: false, pose, head: false,
     
     
@@ -1613,7 +1613,7 @@ const A = { ...ARCH.renji, hair: 'crop', jaw: ARCH.renji.jaw, brow: ARCH.renji.b
     
     {
       name: 'hair',
-      mesh: narrowAcross(hair3d('crop', {
+      mesh: narrowAcross(hair3d('sleek', {
         centre: hc, r: r * 1.07, forward: [1, 0, 0], jaw: XANDER_JAW, brow: A.brow,
       })),
     },
@@ -2821,6 +2821,61 @@ function breathSfx(hard) {
 
 
 
+let shadowTex = null;
+let shadowGeo = null;
+function shadowAssets() {
+  if (!shadowTex) {
+    const cv = document.createElement('canvas');
+    cv.width = 32; cv.height = 32;
+    const g2 = cv.getContext('2d');
+    
+    
+    
+    const grad = g2.createRadialGradient(16, 16, 1, 16, 16, 16);
+    grad.addColorStop(0.00, 'rgba(0,0,0,1)');
+    grad.addColorStop(0.45, 'rgba(0,0,0,0.72)');
+    grad.addColorStop(1.00, 'rgba(0,0,0,0)');
+    g2.fillStyle = grad;
+    g2.fillRect(0, 0, 32, 32);
+    shadowTex = new THREE.CanvasTexture(cv);
+    shadowGeo = new THREE.PlaneGeometry(2, 2);
+    
+    shadowGeo.rotateX(-Math.PI / 2);
+  }
+  return { tex: shadowTex, geo: shadowGeo };
+}
+
+
+function makeBlob(r, opacity = 0.4) {
+  const { tex, geo } = shadowAssets();
+  const m = new THREE.MeshBasicMaterial({
+    
+    
+    
+    color: 0x0d1410, map: tex, transparent: true, opacity, depthWrite: false,
+  });
+  const q = new THREE.Mesh(geo, m);
+  q.scale.set(r, 1, r);
+  
+  
+  q.position.y = 0.02;
+  q.renderOrder = 2;
+  q.frustumCulled = false;
+  return q;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3371,45 +3426,9 @@ export function boot(canvas, hud) {
   const shadowMats = [];
   const blobs = [];
   {
-    
-    
-    
-    
-    
-    
-    
-    const cv = document.createElement('canvas');
-    cv.width = 32; cv.height = 32;
-    const g2 = cv.getContext('2d');
-    
-    
-    
-    
-    const grad = g2.createRadialGradient(16, 16, 1, 16, 16, 16);
-    grad.addColorStop(0.00, 'rgba(0,0,0,1)');
-    grad.addColorStop(0.45, 'rgba(0,0,0,0.72)');
-    grad.addColorStop(1.00, 'rgba(0,0,0,0)');
-    g2.fillStyle = grad;
-    g2.fillRect(0, 0, 32, 32);
-    const tex = new THREE.CanvasTexture(cv);
-    const disc = new THREE.PlaneGeometry(2, 2);
-    
-    disc.rotateX(-Math.PI / 2);
     for (let i = 0; i < 3; i += 1) {
-      const m = new THREE.MeshBasicMaterial({
-        
-        
-        
-        
-        color: 0x0d1410, map: tex, transparent: true, opacity: 0.4,
-        depthWrite: false,
-      });
-      const q = new THREE.Mesh(disc, m);
-      
-      
-      q.position.y = 0.02;
-      q.renderOrder = 2;
-      shadowMats.push(m);
+      const q = makeBlob(1, 0.4);
+      shadowMats.push(q.material);
       blobs.push(q);
       shadowRig.add(q);
     }
@@ -3510,11 +3529,16 @@ export function boot(canvas, hud) {
     const [sParts, sCol, sH, sRig] = SPECIES[kind] || SPECIES.chicken;
     const rig = chickenRig(sParts, sCol, sH, mat, sRig);
     rig.root.rotation.x = -Math.PI / 2;
-    scene.add(rig.root);
+    (deckGroup || scene).add(rig.root);
+    
+    
+    
+    const shade = makeBlob(sH * (kind === 'horse' ? 1.15 : 0.62), 0.44);
+    (deckGroup || scene).add(shade);
     chickSeed += 0.37;
     birds.push({
       
-      mesh: rig.root, rig, x, z, alive: true, kind,
+      mesh: rig.root, rig, shade, x, z, alive: true, kind,
       
       
       
@@ -3757,7 +3781,11 @@ export function boot(canvas, hud) {
     
     
     
-    for (const b of birds) { scene.remove(b.mesh); b.alive = false; }
+    for (const b of birds) {
+      scene.remove(b.mesh);
+      if (b.shade) scene.remove(b.shade);
+      b.alive = false;
+    }
     birds.length = 0;
     player.latchedBy = null;
     player.struggle = null;
@@ -4258,6 +4286,7 @@ export function boot(canvas, hud) {
           chickVoice(b, 'die', Math.hypot(player.x - b.x, player.z - b.z));
           b.alive = false;
           b.mesh.visible = false;
+          if (b.shade) b.shade.visible = false;
           if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
         }
         break;                                        
@@ -4277,7 +4306,7 @@ export function boot(canvas, hud) {
                                                
         b.mesh.position.set(b.x, Math.max(0, b.mesh.position.y + b.vy * dt), b.z);
         b.mesh.rotation.x = -Math.PI / 2 + b.spin * (0.85 - b.kick);
-        if (b.kick <= 0) { b.alive = false; b.mesh.visible = false; }
+        if (b.kick <= 0) { b.alive = false; b.mesh.visible = false; if (b.shade) b.shade.visible = false; }
         continue;
       }
       const dx = player.x - b.x; const dz = player.z - b.z;
@@ -4461,6 +4490,24 @@ export function boot(canvas, hud) {
         b.mesh.position.set(b.x, 0, b.z);
         b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI;
         b.mesh.rotation.y = 0;
+      }
+
+      
+      
+      
+      
+      
+      
+      
+      if (b.shade) {
+        const air = Math.max(0, b.mesh.position.y);
+        const k = 1 / (1 + air * 2.4);
+        b.shade.visible = b.alive;
+        b.shade.position.set(b.x, 0.02, b.z);
+        const base = (b.kind === 'horse' ? 1.15 : 0.62)
+          * ({ porker: PORKER_HEIGHT_M, cow: COW_HEIGHT_M, horse: HORSE_HEIGHT_M }[b.kind] ?? CHICKEN_H);
+        b.shade.scale.set(base * k, 1, base * k);
+        b.shade.material.opacity = 0.44 * k;
       }
     }
 

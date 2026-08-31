@@ -995,6 +995,71 @@ export function hair3d(style, opts = {}) {
         mesh: hairShell(P, res, { low: -0.50, frontLow: 0.26, sideLow: -0.02, puffTop: 1.075, puffMid: 1.07, puffLow: 1.045, uv }),
       });
       break;
+    case 'sleek': {
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      parts.push({
+        name: 'shell',
+        mesh: hairShell(P, res, {
+          low: -0.46, frontLow: 0.30, sideLow: 0.10,
+          puffTop: 1.075, puffMid: 1.052, puffLow: 1.008, uv,
+        }),
+      });
+      
+      
+      
+      
+      
+      
+      
+      
+      const sweep = emptyMesh();
+      hairBlade(V([0.52, 0.26, 0.60]), V([0.94, -0.30, 0.24]),
+        0.15 * r, 0.07 * r, 0.30, FORE_AFT, uv, sweep);
+      parts.push({ name: 'sweep', mesh: sweep });
+      
+      
+      
+      for (const s2 of [-1, 1]) {
+        const sb = emptyMesh();
+        hairBlade(V([0.20, s2 * 0.90, 0.10]), V([0.24, s2 * 0.86, -0.26]),
+          0.09 * r, 0.06 * r, 0.18, FORE_AFT, uv, sb);
+        parts.push({ name: `burn${s2 > 0 ? 'L' : 'R'}`, mesh: sb });
+      }
+      break;
+    }
     case 'topknot': {
       
       
