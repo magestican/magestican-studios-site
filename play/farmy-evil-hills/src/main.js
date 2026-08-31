@@ -504,9 +504,9 @@ function buildHall(scene) {
 
 
 const MAP = Object.freeze({
-  pitch: 0.72,      
+  pitch: 0.58,      
   eye: 26,          
-  focal: 210,       
+  focal: 260,       
   range: 40,        
   behind: 9,        
   deckGap: 7.5,     
@@ -554,10 +554,10 @@ function drawMap(cv, player, birds, exitZ, level) {
     g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke();
   };
 
-  const NEON = '#3dff92';
-  const MID = 'rgba(61,255,146,0.42)';
-  const FAINT = 'rgba(61,255,146,0.16)';
-  const GHOST = 'rgba(61,255,146,0.10)';
+  const NEON = '#6ff0d8';
+  const MID = 'rgba(111,240,216,0.5)';
+  const FAINT = 'rgba(111,240,216,0.22)';
+  const GHOST = 'rgba(111,240,216,0.12)';
 
   const hw = HALL_W / 2;
   const z0 = player.z - MAP.behind;
@@ -585,7 +585,7 @@ function drawMap(cv, player, birds, exitZ, level) {
     if (Math.round(z / 4) % 3 === 0) {
       seg(p(-hw, 0, z), p(-hw, HALL_H, z), FAINT, 1);
       seg(p(hw, 0, z), p(hw, HALL_H, z), FAINT, 1);
-      seg(p(-hw, HALL_H, z), p(hw, HALL_H, z), 'rgba(61,255,146,0.10)', 1);
+      seg(p(-hw, HALL_H, z), p(hw, HALL_H, z), 'rgba(111,240,216,0.12)', 1);
     }
   }
 
@@ -635,10 +635,10 @@ function drawMap(cv, player, birds, exitZ, level) {
     g.closePath(); g.stroke();
   }
 
-  g.strokeStyle = 'rgba(61,255,146,0.5)';
+  g.strokeStyle = 'rgba(111,240,216,0.55)';
   g.lineWidth = 1;
   g.strokeRect(0.5, 0.5, W - 1, H - 1);
-  g.fillStyle = 'rgba(61,255,146,0.75)';
+  g.fillStyle = 'rgba(111,240,216,0.8)';
   g.font = '8px ui-monospace, monospace';
   g.textAlign = 'left';
   g.fillText(`DECK ${level}`, 6, 12);
@@ -686,7 +686,17 @@ export function boot(canvas, hud) {
   const player = {
     x: 0, z: 0, yaw: 0,
     vitals: spawnVitals(),
-    weapon: readyWeapon('boltDriver'),
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    weapon: readyWeapon('boltDriver', { ammo: 48 }),
     cam: emptyCamera(1),
     struggle: null,
     latchedBy: null,
@@ -1059,6 +1069,9 @@ export function boot(canvas, hud) {
           b.z = 24 + i * (13 - Math.min(6, level)); b.x = (i % 2 ? 1 : -1) * (0.5 + i * 0.25);
         });
         player.latchedBy = null; player.struggle = null;
+        
+        
+        player.weapon = readyWeapon('boltDriver', { ammo: 48 });
         hud.lift(0);
       }
     }
@@ -1080,6 +1093,9 @@ export function boot(canvas, hud) {
       struggle: player.struggle,
       alive: !player.dead,
       remaining: birds.filter((b) => b.alive).length,
+      ammo: player.weapon.ammo,
+      range: Math.round(player.weapon.spec?.range ?? 0),
+      ep: 100 - Math.min(100, level * 6),
       flash: shotFlash > 0,
     });
     requestAnimationFrame(step);
@@ -1297,19 +1313,32 @@ const hud = {
     $('over').style.display = 'flex';
   },
   paint(s) {
-    $('hpFill').style.width = `${Math.max(0, (s.health / s.maxHealth) * 100)}%`;
-    $('spTrack').style.opacity = s.stamina >= 99 ? '0' : '1';
-    $('spFill').style.width = `${Math.max(0, s.stamina)}%`;
+    const pct = (v, m) => `${Math.max(0, Math.min(100, (v / m) * 100))}%`;
+    $('hpFill').style.width = pct(s.health, s.maxHealth);
+    $('hpVal').textContent = Math.max(0, Math.round(s.health));
+    $('spFill').style.width = pct(s.stamina, 100);
+    $('spVal').textContent = Math.max(0, Math.round(s.stamina));
+    
+    
+    
+    $('epFill').style.width = pct(s.ep ?? 100, 100);
+    $('epVal').textContent = Math.round(s.ep ?? 100);
+
+    $('wpAmmo').textContent = s.ammo == null ? '--' : s.ammo;
+    $('wpRange').textContent = s.range == null ? '--' : s.range;
+
     $('count').textContent = s.remaining ? `${s.remaining} ON THE DECK` : 'DECK CLEAR';
     $('flash').style.opacity = s.flash ? '0.30' : '0';
+    $('retic').style.opacity = s.alive ? '0.9' : '0';
+
     if (s.struggle) {
       $('qte').style.display = 'block';
       $('qteFill').style.width = `${Math.min(100, s.struggle.progress * 100)}%`;
-      $('qteHow').textContent = 'alternate A and D — or tap the button';
+      $('qteHow').textContent = 'alternate A and D — or hit the button';
     } else {
       $('qte').style.display = 'none';
     }
-    $('tape').classList.toggle('on', tape.audible);
+    $('tapeMini').classList.toggle('on', tape.audible);
   },
 };
 
@@ -1318,10 +1347,10 @@ function start() {
   
   
   try { initAnalytics(); trackEvent('game_open', { game: 'farmy-evil-hills' }); } catch {  }
-  $('tape').addEventListener('click', () => {
+  $('tapeMini').addEventListener('click', () => {
     const playing = tape.toggle();
-    $('tape').classList.toggle('on', tape.audible);
-    $('tapeCap').textContent = playing ? (tape.audible ? 'SIDE A' : 'TAP FOR SOUND') : 'STOPPED';
+    $('tapeMini').classList.toggle('on', tape.audible);
+    $('tapeCap').textContent = playing ? (tape.audible ? 'SIDE A' : 'TAP') : 'OFF';
   });
   $('again').addEventListener('click', () => window.location.reload());
   $('qteBtn').addEventListener('pointerdown', (e) => {
@@ -1354,8 +1383,8 @@ function start() {
         
         if (!tape.audible) {
           tape.toggle();
-          $('tape').classList.toggle('on', tape.audible);
-          $('tapeCap').textContent = tape.audible ? 'SIDE A' : 'TAP FOR SOUND';
+          $('tapeMini').classList.toggle('on', tape.audible);
+          $('tapeCap').textContent = tape.audible ? 'SIDE A' : 'TAP';
         }
       };
       $('startBtn').addEventListener('click', go);
