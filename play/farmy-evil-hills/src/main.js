@@ -2902,6 +2902,121 @@ function makeBlob(r, opacity = 0.4) {
 
 
 
+
+const IMPACT_PARTS = 96;
+function makeImpacts() {
+  const pos = new Float32Array(IMPACT_PARTS * 3);
+  const vel = new Float32Array(IMPACT_PARTS * 3);
+  const life = new Float32Array(IMPACT_PARTS);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({
+    
+    
+    color: 0x8e2b24, size: 0.09, sizeAttenuation: true,
+    transparent: true, opacity: 0.9, depthWrite: false,
+  }));
+  pts.frustumCulled = false;
+  let next = 0;
+  
+  
+  for (let i = 0; i < IMPACT_PARTS; i += 1) pos[i * 3 + 1] = -50;
+
+  return {
+    points: pts,
+    
+    burst(x, y, z, dir) {
+      for (let k = 0; k < 14; k += 1) {
+        const i = next; next = (next + 1) % IMPACT_PARTS;
+        pos[i * 3] = x; pos[i * 3 + 1] = y; pos[i * 3 + 2] = z;
+        
+        
+        const back = k < 3 ? -0.45 : 1;
+        vel[i * 3] = dir.x * 2.6 * back + (Math.random() - 0.5) * 2.2;
+        vel[i * 3 + 1] = 1.1 + Math.random() * 2.0;
+        vel[i * 3 + 2] = dir.z * 2.6 * back + (Math.random() - 0.5) * 2.2;
+        life[i] = 0.55 + Math.random() * 0.35;
+      }
+      geo.attributes.position.needsUpdate = true;
+    },
+    step(dt) {
+      let any = false;
+      for (let i = 0; i < IMPACT_PARTS; i += 1) {
+        if (life[i] <= 0) continue;
+        any = true;
+        life[i] -= dt;
+        vel[i * 3 + 1] -= 11 * dt;                  
+        pos[i * 3] += vel[i * 3] * dt;
+        pos[i * 3 + 1] += vel[i * 3 + 1] * dt;
+        pos[i * 3 + 2] += vel[i * 3 + 2] * dt;
+        if (pos[i * 3 + 1] < 0.02) {
+          
+          
+          pos[i * 3 + 1] = 0.02;
+          vel[i * 3] = 0; vel[i * 3 + 1] = 0; vel[i * 3 + 2] = 0;
+        }
+        if (life[i] <= 0) pos[i * 3 + 1] = -50;
+      }
+      if (any) geo.attributes.position.needsUpdate = true;
+    },
+  };
+}
+
+
+
+
+function meatSfx(x, z) {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const out = audio.at(x, z);
+  if (!out) return;
+  const t = ctx.currentTime + 0.005;
+
+  const b = ctx.createBuffer(1, 2600, ctx.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i += 1) {
+    const u = i / d.length;
+    d[i] = (Math.random() * 2 - 1) * (1 - u) ** 3;
+  }
+  const n = ctx.createBufferSource(); n.buffer = b;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1400; lp.Q.value = 2;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.42, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+  n.connect(lp); lp.connect(g); g.connect(out);
+  n.start(t); n.stop(t + 0.16);
+
+  const o = ctx.createOscillator(); const og = ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(210, t);
+  o.frequency.exponentialRampToValueAtTime(64, t + 0.09);
+  og.gain.setValueAtTime(0.26, t);
+  og.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+  o.connect(og); og.connect(out); o.start(t); o.stop(t + 0.17);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function footSfx(x, z, running) {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
@@ -3253,6 +3368,7 @@ export function boot(canvas, hud) {
   let boulder = null;
   let cable = null;
   let arenaPillars = [];
+  let impacts = null;
   let deck = buildLevel(1);
   let deckGroup = null;
   let strips = [];
@@ -3645,6 +3761,13 @@ export function boot(canvas, hud) {
     }));
     sparkPt.frustumCulled = false;
     deckGroup.add(sparkPt);
+
+    
+    
+    
+    
+    impacts = makeImpacts();
+    deckGroup.add(impacts.points);
     
     
     
@@ -4052,6 +4175,7 @@ export function boot(canvas, hud) {
   let lastMoved = 0;
   let lastGait = 0;
   let stepCount = 0;
+  let hitCount = 0;
   let breathIn = 2;
   
   
@@ -4254,7 +4378,29 @@ export function boot(canvas, hud) {
       
       
       
-      const muzzleY = 1.30;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const lowNow = aimLow || keys.has('ControlLeft') || keys.has('KeyQ');
+      const muzzleY = lowNow ? 0.62 : 1.30;
+      
+      
+      
+      
+      const SHOT_OVERSHOOT = 1.8;
       const aimDrop = (aimLow || keys.has('ControlLeft') || keys.has('KeyQ')) ? 1.0 : 0.30;
       for (const b of birds) {
         
@@ -4281,21 +4427,149 @@ export function boot(canvas, hud) {
             z: (ox * fx + oz * fz) / bh,
           };
         };
-        const tipY = muzzleY - aimDrop * (dist / 6);
         
         
         
         
         
         
-        const aimYaw = (target === b) ? Math.atan2(-(b.x - player.x), b.z - player.z) : player.yaw;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        const aimAt = lowNow ? 0.14 : 0.50;
+        const tipY = aimAt * bh;
+        void aimDrop;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        let aimX = b.x;
+        let aimZ = b.z;
+        if (lowNow) {
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          const gone = new Set(statusOf(b.creature).severedLimbs || []);
+          const cand = [];
+          for (const [id, sgn] of [['leg-l', -1], ['leg-r', 1]]) {
+            if (gone.has(id)) continue;
+            const lx = b.x + rx * sgn * 0.062 * bh;
+            const lz = b.z + rz * sgn * 0.062 * bh;
+            let d = Math.atan2(-(lx - player.x), lz - player.z) - player.yaw;
+            d = Math.atan2(Math.sin(d), Math.cos(d));
+            cand.push({ lx, lz, err: Math.abs(d) });
+          }
+          if (cand.length) {
+            cand.sort((p, q) => p.err - q.err);
+            aimX = cand[0].lx;
+            aimZ = cand[0].lz;
+          }
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        const aimYaw = target
+          ? Math.atan2(-(aimX - player.x), aimZ - player.z)
+          : player.yaw;
         const hit = resolveHit(
           b.creature,
           toLocal(player.x, muzzleY, player.z),
-          toLocal(player.x - Math.sin(aimYaw) * 30, tipY, player.z + Math.cos(aimYaw) * 30),
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          toLocal(
+            player.x - Math.sin(aimYaw) * dist * SHOT_OVERSHOOT,
+            muzzleY + (tipY - muzzleY) * SHOT_OVERSHOOT,
+            player.z + Math.cos(aimYaw) * dist * SHOT_OVERSHOOT,
+          ),
         );
         if (!hit) continue;
         applyDamage(b.creature, hit.id, player.weapon.spec?.limbDamage ?? 12);
+
+        
+        
+        
+        
+        
+        
+        
+        const hy = (hit.z ?? 0.5) * bh;
+        impacts.burst(
+          b.x, Math.max(0.1, hy), b.z,
+          { x: -Math.sin(aimYaw), z: Math.cos(aimYaw) },
+        );
+        meatSfx(b.x, b.z);
+        hitCount += 1;
+        
+        
+        shake = Math.max(shake, 0.16);
+
         const st = statusOf(b.creature);
         
         
@@ -4972,6 +5246,7 @@ export function boot(canvas, hud) {
     }
 
     
+    if (impacts) impacts.step(dt);
     for (const l of leaks) l.step(dt);
     for (const w of wires) w.step(now);
 
@@ -5338,6 +5613,63 @@ export function boot(canvas, hud) {
       
       get audio() { return audio; },
       get steps() { return stepCount; },
+      
+      
+      
+      
+      
+      
+      get hits() { return hitCount; },
+      
+      
+      
+      
+      testShot() {
+        const b = birds.find((q) => q.alive && q.creature);
+        if (!b) return null;
+        const dx = player.x - b.x; const dz = player.z - b.z;
+        const dist = Math.hypot(dx, dz);
+        const fx = dx / dist; const fz = dz / dist;
+        const rx = fz; const rz = -fx;
+        const bh = { porker: PORKER_HEIGHT_M, cow: COW_HEIGHT_M }[b.kind] ?? CHICKEN_H;
+        const toLocal = (wx, wy, wz) => {
+          const ox = wx - b.x; const oz = wz - b.z;
+          return {
+            x: (ox * rx + oz * rz) / bh,
+            y: wy / bh,
+            z: (ox * fx + oz * fz) / bh,
+          };
+        };
+        const side = ((player.x - b.x) * rx + (player.z - b.z) * rz) >= 0 ? 1 : -1;
+        const lx = b.x + rx * side * 0.062 * bh;
+        const lz = b.z + rz * side * 0.062 * bh;
+        const aimYaw = Math.atan2(-(b.x - player.x), b.z - player.z);
+        const legYaw = Math.atan2(-(lx - player.x), lz - player.z);
+        const from = toLocal(player.x, 0.62, player.z);
+        
+        
+        const shot = (mz, aimAt, yaw) => {
+          const f2 = toLocal(player.x, mz, player.z);
+          const t2 = toLocal(
+            player.x - Math.sin(yaw) * dist * 1.8,
+            mz + (aimAt * bh - mz) * 1.8,
+            player.z + Math.cos(yaw) * dist * 1.8,
+          );
+          return { from: f2, to: t2, hit: resolveHit(b.creature, f2, t2) };
+        };
+        const high = shot(1.30, 0.50, aimYaw);
+        const low = shot(0.62, 0.14, legYaw);
+        return {
+          kind: b.kind, dist, bh, from, to: low.to,
+          high: high.hit, low: low.hit,
+          keysQ: keys.has('KeyQ'),
+          hit: low.hit,
+          
+          
+          
+          limbs: Object.values(b.creature.limbs).map((l) => [l.id, l.integrity, l.severed]),
+        };
+      },
       get isBoss() { return isBoss; },
       get fight() { return fight; },
       get horseSpeed() { return bossHorseSpeed; },
