@@ -204,7 +204,7 @@ export function boot(canvas, hud) {
   const player = {
     x: 0, z: 0, yaw: 0,
     vitals: spawnVitals(),
-    weapon: readyWeapon('bolt-driver'),
+    weapon: readyWeapon('boltDriver'),
     cam: emptyCamera(1),
     struggle: null,
     latchedBy: null,
@@ -298,32 +298,52 @@ export function boot(canvas, hud) {
       
       
       
-      const from = { x: player.x, y: 1.35, z: player.z };
-      const to = {
-        x: player.x - Math.sin(player.yaw) * 40,
-        y: 1.35 - 0.42 * 40 * 0.02,
-        z: player.z + Math.cos(player.yaw) * 40,
-      };
-      let best = null;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const muzzleY = 1.30;
+      const aimDrop = keys.has('ControlLeft') || keys.has('KeyQ') ? 1.0 : 0.30;
       for (const b of birds) {
         if (!b.alive) continue;
-        const d = Math.hypot(b.x - player.x, b.z - player.z);
-        if (d > 24) continue;
-        const local = {
-          from: { x: from.x - b.x, y: from.y, z: from.z - b.z },
-          to: { x: to.x - b.x, y: to.y, z: to.z - b.z },
+        const dx = player.x - b.x; const dz = player.z - b.z;
+        const dist = Math.hypot(dx, dz);
+        if (dist > (player.weapon.spec?.range ?? 18)) continue;
+        
+        const fx = dx / dist; const fz = dz / dist;
+        const rx = fz; const rz = -fx;                 
+        const toLocal = (wx, wy, wz) => {
+          const ox = wx - b.x; const oz = wz - b.z;
+          return {
+            x: (ox * rx + oz * rz) / CHICKEN_H,
+            y: wy / CHICKEN_H,
+            z: (ox * fx + oz * fz) / CHICKEN_H,
+          };
         };
-        const hit = resolveHit(b.creature, local.from, local.to);
-        if (hit && (!best || d < best.d)) best = { b, hit, d };
-      }
-      if (best) {
-        applyDamage(best.b.creature, best.hit.zoneId ?? best.hit.id ?? 'torso', player.weapon.spec?.damage ?? 12);
-        const st = statusOf(best.b.creature);
-        if (st && st.dead) {
-          best.b.alive = false;
-          best.b.mesh.visible = false;
-          if (best.b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
+        const tipY = muzzleY - aimDrop * (dist / 6);
+        const hit = resolveHit(
+          b.creature,
+          toLocal(player.x, muzzleY, player.z),
+          toLocal(player.x - Math.sin(player.yaw) * 30, tipY, player.z + Math.cos(player.yaw) * 30),
+        );
+        if (!hit) continue;
+        applyDamage(b.creature, hit.id, player.weapon.spec?.limbDamage ?? 12);
+        const st = statusOf(b.creature);
+        
+        
+        if (!st.alive) {
+          b.alive = false;
+          b.mesh.visible = false;
+          if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
         }
+        break;                                        
       }
     }
 
