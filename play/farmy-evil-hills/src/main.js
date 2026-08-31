@@ -1311,7 +1311,13 @@ export function boot(canvas, hud) {
   
   
   
-  [-8, -14].forEach((dz, i) => addChicken(16 + dz, (i % 2 ? 1 : -1) * 0.9));
+  
+  
+  
+  
+  
+  
+  [-18, -30].forEach((dz, i) => addChicken(16 + dz, (i % 2 ? 1 : -1) * 0.9));
 
   
   const EXIT_Z = HALL_LEN - 12;
@@ -1536,6 +1542,19 @@ export function boot(canvas, hud) {
     
     for (const b of birds) {
       if (!b.alive) continue;
+
+      
+      if (b.kick > 0) {
+        b.kick -= dt;
+        b.x += b.vx * dt;
+        b.z += b.vz * dt;
+        b.vy -= 14 * dt;                       
+                                               
+        b.mesh.position.set(b.x, Math.max(0, b.mesh.position.y + b.vy * dt), b.z);
+        b.mesh.rotation.x = -Math.PI / 2 + b.spin * (0.85 - b.kick);
+        if (b.kick <= 0) { b.alive = false; b.mesh.visible = false; }
+        continue;
+      }
       const dx = player.x - b.x; const dz = player.z - b.z;
       const dist = Math.hypot(dx, dz);
       const mob = mobilityOf(b.creature);
@@ -1564,7 +1583,31 @@ export function boot(canvas, hud) {
       player.struggle.update(dt);
       if (player.struggle.progress >= 1 || player.struggle.done) {
         const b = player.latchedBy;
-        if (b) { b.latched = false; b.cool = 1.6; b.x -= Math.sin(player.yaw) * -0.8; }
+        if (b) {
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          b.latched = false;
+          b.kick = 0.85;                       
+          b.vz = -Math.cos(player.yaw) * 9.5;  
+          b.vx = Math.sin(player.yaw) * 9.5;
+          b.vy = 5.4;                          
+          b.spin = 11 + Math.random() * 6;
+          kickSfx();
+          shake = Math.max(shake, 0.5);
+        }
         player.latchedBy = null;
         player.struggle = null;
         endGrapple(player.vitals);
@@ -1713,7 +1756,7 @@ export function boot(canvas, hud) {
           b.creature = spawnCreature('chicken');
           b.latched = false; b.cool = 0;
           
-          b.z = 16 - 7 - i * (6 + Math.min(5, level));
+          b.z = 16 - 16 - i * (10 + Math.min(6, level));
           b.x = (i % 2 ? 1 : -1) * (0.8 + i * 0.2);
         });
         player.latchedBy = null; player.struggle = null;
@@ -1768,7 +1811,7 @@ export function boot(canvas, hud) {
     requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
-  return { player, birds };
+  return { player, birds, touch };
 }
 
 export { promptFor };
@@ -1882,6 +1925,36 @@ function paVoice(kind) {
     cg.gain.exponentialRampToValueAtTime(0.0001, at + 0.03);
     c.connect(cg); cg.connect(audio.sfxBus); c.start(at); c.stop(at + 0.05);
   }
+}
+
+function kickSfx() {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.01;
+  
+  
+  const b = ctx.createBuffer(1, 2048, ctx.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i += 1) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  const n = ctx.createBufferSource(); n.buffer = b;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 420; bp.Q.value = 1.1;
+  const g = ctx.createGain(); g.gain.setValueAtTime(0.5, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+  n.connect(bp); bp.connect(g); g.connect(audio.sfxBus); n.start(t); n.stop(t + 0.16);
+
+  
+  
+  const o = ctx.createOscillator(); const og = ctx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(520, t);
+  o.frequency.exponentialRampToValueAtTime(1250, t + 0.07);
+  o.frequency.exponentialRampToValueAtTime(300, t + 0.42);
+  og.gain.setValueAtTime(0.0001, t);
+  og.gain.exponentialRampToValueAtTime(0.28, t + 0.03);
+  og.gain.exponentialRampToValueAtTime(0.0001, t + 0.46);
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300;
+  o.connect(og); og.connect(hp); hp.connect(audio.sfxBus);
+  o.start(t); o.stop(t + 0.5);
 }
 
 function liftChime() {
