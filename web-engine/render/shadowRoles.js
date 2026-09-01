@@ -99,6 +99,14 @@ export const SHADOW_ROLES = {
       + 'cost of testing that every frame buys a picture that never changes',
   },
 
+  ceremony: {
+    cast: true,
+    receive: true,
+    why: 'the podium rostrum and its three animals (FK-20, 2026-09-01). It '
+      + 'stands on the verge in full sun while the camera holds on it for the '
+      + 'whole ceremony - an unshadowed block there reads as pasted on',
+  },
+
   
   kart: { cast: true, receive: true, why: 'the hand-built chassis; a kart must shadow its own driver and its neighbour' },
   driver: {

@@ -61,6 +61,10 @@ export function createHud(root) {
     lap: root.querySelector('#hud-lap'),
     lapTotal: root.querySelector('#hud-lap-total'),
     
+    bigLap: root.querySelector('#hud-biglap'),
+    bigLapNow: root.querySelector('#hud-biglap-now'),
+    bigLapOf: root.querySelector('#hud-biglap-of'),
+    
     
     
     
@@ -198,6 +202,15 @@ export function updateHud(hud, view) {
     hud.lastLap = lapShown;
     if (el.lap) el.lap.textContent = String(lapShown);
     if (el.lapTotal) el.lapTotal.textContent = String(view.laps);
+    if (el.bigLapNow) el.bigLapNow.textContent = String(lapShown);
+    if (el.bigLapOf) el.bigLapOf.textContent = `/${view.laps}`;
+    
+    
+    if (el.bigLap && hud.lastLap !== null) {
+      el.bigLap.classList.remove('bump');
+      void el.bigLap.offsetWidth;
+      el.bigLap.classList.add('bump');
+    }
   }
   
   

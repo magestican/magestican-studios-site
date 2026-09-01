@@ -23,6 +23,7 @@ import {
 } from '../../../web-engine/kart/rescueAirship.js';
 import { buildMilkRamps } from './render/milkRampMesh.js';
 import { buildAirship, updateAirship } from './render/airshipMesh.js';
+import { buildCeremony } from './render/ceremony.js';
 import { buildRacingLine } from 'arbelo/racingLine';
 import { createKart, respawnKart, resolveKartContact } from 'arbelo/kartPhysics';
 import { resolveTuning, characterById, CHARACTERS } from 'arbelo/kartTuning';
@@ -566,6 +567,9 @@ export function createRace(options) {
 
   let playerSurface = null;
   let disposed = false;
+  
+  
+  let ceremony = null;
 
   
   
@@ -613,7 +617,12 @@ export function createRace(options) {
     
     updateStartGate(startGate, clock,
       finalLapAnnounced ? 1 : (racers.some((r) => r.finished) ? 0.5 : 0));
-    const driving = canDrive(flow);
+    
+    
+    
+    
+    
+    const driving = canDrive(flow) || !!ceremony;
     readControls(controls, dt);
 
     const { events } = stepFlow(flow, dt, {
@@ -691,7 +700,7 @@ export function createRace(options) {
         
         
         input = { throttle: 0, steer: 0, drift: false };
-      } else if (r.isPlayer) {
+      } else if (r.isPlayer && !(ceremony && r.finished)) {
         input = {
           throttle: controls.throttle,
           
@@ -706,6 +715,13 @@ export function createRace(options) {
           jump: controls.jump,
         };
       } else {
+        
+        
+        
+        
+        
+        
+        if (!r.driver) r.driver = createDriver(player.index, 'easy');
         const threats = findThreats(path, { id: r.id, s: r.s }, racers.map((o) => ({ id: o.id, s: o.s, finished: o.finished })));
         const botInput = driveBot(r.driver, r.kart, line, {
           surface: surf,
@@ -1612,6 +1628,17 @@ export function createRace(options) {
       hazards,
     );
 
+    
+    
+    
+    
+    if (ceremony) {
+      if (ceremony.camera) {
+        camera.position.copy(ceremony.camera.pos);
+        camera.lookAt(ceremony.camera.look);
+      }
+      ceremony.update(clock);
+    }
     renderer.render(scene, camera);
   }
 
@@ -1704,12 +1731,29 @@ export function createRace(options) {
   }
 
   function finish() {
-    if (!running) return;
-    running = false;
-    cancelAnimationFrame(raf);
-    stopEngine(audio);
+    
+    
+    
+    
+    
+    
+    
+    if (ceremony) return;
     stopMusic(audio);
     const table = standings(progress);
+    
+    try {
+      const top3 = table.slice(0, 3).map((t) => {
+        const r = racers.find((x) => x.id === t.id);
+        return { place: t.position, character: r?.character?.id ?? 'sheep', isPlayer: !!r?.isPlayer };
+      });
+      ceremony = buildCeremony({ path, steps: top3 });
+      scene.add(ceremony.group);
+    } catch (err) {
+      
+      console.warn('[fk] ceremony failed to build', err);
+      ceremony = { group: null, camera: null, emote: () => false, update: () => {} };
+    }
     const me = table.find((t) => t.id === you.id);
     if (onFinish) {
       onFinish({
@@ -1967,6 +2011,15 @@ export function createRace(options) {
       stopMusic(audio);
     },
     setMuted: (m) => setMuted(audio, m),
+    
+    
+    
+    get ceremonyActive() { return !!ceremony; },
+    ceremonyEmote(id) {
+      if (!ceremony) return false;
+      const ok = ceremony.emote(id, clock);
+      return ok;
+    },
     dispose() {
       
       

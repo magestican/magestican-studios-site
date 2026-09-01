@@ -29,6 +29,7 @@ import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderbo
 
 
 import { recordSession, syncFromCloud, accountSummary } from '../../../web-engine/account/account.js';
+import { levelFrom, totalsFromSummary } from '../../../web-engine/account/playerLevel.js';
 import { sessionLines } from '../../../web-engine/account/accountBadge.js';
 import { mountProfilePanel } from '../../../web-engine/account/accountUi.js';
 import { shareCard } from '../../../web-engine/account/shareCard.js';
@@ -38,7 +39,7 @@ import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
 import { createShowcaseView, freshCanvas } from './render/showcase.js';
 import { setMusicMuted, musicClock, musicNow } from './audio/music.js';
-import { EMOTES } from 'arbelo/emotes';
+import { EMOTES, EMOTE_TIME } from 'arbelo/emotes';
 import { renderKartBoard } from './ui/kartBoard.js';
 
 import { defaultAssist } from 'arbelo/steerAssist';
@@ -759,11 +760,30 @@ function showPodiumStage(model) {
 
   if (podiumView) { podiumView.dispose(); podiumView = null; }
   const steps = (model.steps ?? []).filter((s) => s.row?.character);
+
+  
+  
+  
+  
+  
+  
+  
+  if (state.race?.ceremonyActive) {
+    
+    
+    
+    
+    stage.hidden = true;
+    stage.style.display = 'none';
+    buildEmoteBar(model, steps);
+    return;
+  }
   
   
   
   if (steps.length < 2) { stage.hidden = true; bar.hidden = true; return; }
   stage.hidden = false;
+  stage.style.display = '';
 
   const winnerAt = steps.findIndex((s) => s.place === 1);
   podiumView = createShowcaseView({
@@ -812,6 +832,17 @@ function buildEmoteBar(model, steps) {
     b.textContent = `${e.icon} ${e.label}`;
     b.title = e.blurb;
     b.addEventListener('click', () => {
+      
+      
+      if (state.race?.ceremonyActive) {
+        state.race.ceremonyEmote(e.id);
+        SFX.emote(audio, e.id);
+        for (const btn of bar.querySelectorAll('button')) btn.disabled = true;
+        setTimeout(() => {
+          for (const btn of bar.querySelectorAll('button')) btn.disabled = false;
+        }, EMOTE_TIME * 1000);
+        return;
+      }
       if (!podiumView) return;
       podiumView.emote(mine, e.id);
       SFX.emote(audio, e.id);
@@ -1054,13 +1085,20 @@ function showResults(result) {
   
   
   const won = result.position === 1;
-  const podium = result.position <= 3 && result.fieldSize >= 4;
+  
+  
+  
+  
+  
+  
+  
+  const onPodium = result.position <= 3 && result.fieldSize >= 4;
   const session = recordSession({
     gameId: 'farmykart',
     metrics: {
       races: 1,
       wins: won ? 1 : 0,
-      podiums: podium ? 1 : 0,
+      podiums: onPodium ? 1 : 0,
       points: model.playerRow?.points ?? 0,
     },
     won,
@@ -1280,6 +1318,7 @@ function syncMuteButton() {
 function refreshAccountPanel() {
   const host = $('account-panel');
   if (host) mountProfilePanel(host);
+  refreshLoginChip();
   
   
   
@@ -1287,6 +1326,49 @@ function refreshAccountPanel() {
   if (share && !share.dataset.bound) {
     share.dataset.bound = '1';
     share.addEventListener('click', copyDayCard);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+function refreshLoginChip() {
+  const chip = $('login-chip');
+  if (!chip) return;
+  let summary = null;
+  try { summary = accountSummary(); } catch {  }
+  chip.hidden = false;
+  if (summary && summary.linked) {
+    const lvl = levelFrom(totalsFromSummary(summary));
+    chip.classList.add('level');
+    chip.innerHTML = '';
+    const b = document.createElement('b');
+    b.textContent = `Lv ${lvl.level}`;
+    chip.appendChild(b);
+    chip.appendChild(document.createTextNode(
+      ` ${summary.name ? String(summary.name).slice(0, 14) : ''}`,
+    ));
+    chip.title = `${lvl.intoLevel}/${lvl.forNext} xp to level ${lvl.level + 1}`;
+  } else {
+    chip.classList.remove('level');
+    chip.textContent = 'Log in';
+    chip.title = 'Sign in to keep your progress everywhere';
+  }
+  if (!chip.dataset.bound) {
+    chip.dataset.bound = '1';
+    chip.addEventListener('click', () => {
+      const panel = $('account-panel');
+      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 }
 

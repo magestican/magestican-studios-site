@@ -635,6 +635,44 @@
 
 
 
+    
+
+
+
+
+    
+    #login-chip {
+      position: absolute; top: 14px; right: 16px; min-height: 44px;
+      font: 700 14px Georgia, serif; letter-spacing: 0.03em;
+      background: #f4c95d; color: #1c1a17; border: 2px solid #1c1a17;
+      border-radius: 999px; padding: 8px 16px; cursor: pointer;
+      box-shadow: 0 2px 0 rgba(28,26,23,0.7);
+    }
+    #login-chip.level { background: #f6f1e6; }
+    #login-chip.level b { color: #b0743a; font-size: 17px; }
+    #hud-biglap {
+      text-align: center; margin-top: 6px; pointer-events: none;
+      font-family: Georgia, serif; color: #f6f1e6;
+      
+
+
+
+
+      -webkit-text-stroke: 1.5px #1c1a17;
+      text-shadow:
+        -2px -2px 0 #1c1a17, 2px -2px 0 #1c1a17,
+        -2px 2px 0 #1c1a17, 2px 2px 0 #1c1a17,
+        0 4px 10px rgba(0,0,0,0.45);
+      line-height: 1;
+    }
+    #hud-biglap b { font-size: 58px; font-weight: 700; }
+    #hud-biglap span { font-size: 28px; color: #f4c95d; }
+    #hud-biglap.bump b { animation: biglap-pop 700ms ease-out; display: inline-block; }
+    @keyframes biglap-pop {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.65); color: #f4c95d; }
+      100% { transform: scale(1); }
+    }
     #hud-lapbar {
       height: 5px; margin: 6px 2px 0; border-radius: 999px;
       background: rgba(28,26,23,0.16);
@@ -1121,7 +1159,15 @@
     
     
     
-    #pause, #results { background: rgba(20, 18, 15, 0.9); z-index: 20;
+    #pause { background: rgba(20, 18, 15, 0.9); }
+    
+
+
+
+    #results { background: rgba(20, 18, 15, 0.28); }
+    #results.show { align-items: flex-end; }
+    #results .card { max-height: 58vh; }
+    #pause, #results { z-index: 20;
       display: none; align-items: center; justify-content: center; padding: 20px; }
     #pause.show, #results.show { display: flex; }
     .card { background: #221f1b; border: 1px solid #3a352e; border-radius: 14px;
@@ -1252,6 +1298,10 @@
   <div id="menu" class="screen">
     <div class="wrap">
       <h1 class="title">Farmy <em>Kart</em></h1>
+      
+
+
+      <button id="login-chip" class="chip" type="button" hidden>Log in</button>
       <p class="sub">Farm animals, karts, and a great deal of dirt. Drift to charge a turbo, throw a cowpat at whoever is winning.</p>
 
       <button id="start-btn" class="primary">Race</button>
@@ -1474,6 +1524,14 @@
           <span><span class="hud-label">Best</span><u id="hud-bestlap">--:--.--</u></span>
         </div>
       </div>
+      
+
+
+
+
+      <div id="hud-biglap" aria-label="Current lap">
+        <b id="hud-biglap-now">1</b><span id="hud-biglap-of">/3</span>
+      </div>
     </div>
 
     <div class="hud-tr">
@@ -1692,7 +1750,7 @@
 
 
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=6515112-20260901T125405Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=20eb2c6-20260901T132923Z"></script>
 
   <script type="importmap">
   {
@@ -1755,6 +1813,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=6515112-20260901T125405Z"></script>
+  <script type="module" src="./src/main.js?v=20eb2c6-20260901T132923Z"></script>
 </body>
 </html>
