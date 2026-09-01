@@ -76,6 +76,9 @@ import { lockZoom } from '../../shared/input/zoomLock.js';
 import { railNodesForRuns, nodeAt, railPlacement } from '../../../web-engine/horror/railCamera.js';
 import { panOf, levelAt, makeImpulse } from '../../../web-engine/horror/audioSpace.js';
 import {
+  LIFT, createLift, stepLift, mapRise, insideCar,
+} from '../../../web-engine/horror/lift.js';
+import {
   buildLevel, moveInLevel, progressAt, pointBehind, runRect,
 } from '../../../web-engine/horror/level.js';
 import { spawnVitals, tickVitals, damage, beginGrapple, endGrapple, MAX_HEALTH, CHICKEN_LATCH_SLOW } from '../../../web-engine/horror/health.js';
@@ -2809,6 +2812,93 @@ function pushOutOfPillars(list, p, pad) {
 
 
 
+function doorSfx(opening) {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.01;
+
+  const o = ctx.createOscillator(); const og = ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(130, t);
+  o.frequency.exponentialRampToValueAtTime(48, t + 0.1);
+  og.gain.setValueAtTime(0.26, t);
+  og.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+  o.connect(og); og.connect(audio.sfxBus); o.start(t); o.stop(t + 0.18);
+
+  
+  
+  const dur = 1.15;
+  const b = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i += 1) {
+    const u = i / d.length;
+    d[i] = (Math.random() * 2 - 1) * Math.sin(u * Math.PI) * 0.8;
+  }
+  const n = ctx.createBufferSource(); n.buffer = b;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass'; bp.Q.value = 1.4;
+  bp.frequency.setValueAtTime(opening ? 380 : 900, t + 0.05);
+  bp.frequency.linearRampToValueAtTime(opening ? 900 : 340, t + dur);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t + 0.05);
+  g.gain.linearRampToValueAtTime(0.14, t + 0.2);
+  g.gain.linearRampToValueAtTime(0.0001, t + dur);
+  n.connect(bp); bp.connect(g); g.connect(audio.sfxBus);
+  n.start(t + 0.05); n.stop(t + dur + 0.05);
+}
+
+
+
+
+
+
+
+let liftVoice = null;
+function liftHum(on) {
+  const ctx = audio.ensure();
+  if (!ctx) return;
+  if (!on) {
+    if (liftVoice) {
+      liftVoice.gain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.5);
+      const dying = liftVoice;
+      setTimeout(() => { try { dying.stop(); } catch {  } }, 2000);
+      liftVoice = null;
+    }
+    return;
+  }
+  if (liftVoice) return;
+  const g = ctx.createGain();
+  g.gain.value = 0.0001;
+  g.connect(audio.musicBus);
+
+  
+  
+  const o = ctx.createOscillator();
+  o.type = 'sawtooth'; o.frequency.value = 46;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 190; lp.Q.value = 3;
+  const wob = ctx.createOscillator(); const wg = ctx.createGain();
+  wob.frequency.value = 2.7; wg.gain.value = 5;
+  wob.connect(wg); wg.connect(o.frequency);
+  o.connect(lp); lp.connect(g);
+
+  
+  
+  for (const [hz, lvl] of [[196, 0.05], [294, 0.035], [392, 0.022]]) {
+    const v = ctx.createOscillator(); const vg = ctx.createGain();
+    v.type = 'sine'; v.frequency.value = hz; vg.gain.value = lvl;
+    v.connect(vg); vg.connect(g); v.start();
+  }
+  o.start(); wob.start();
+  g.gain.setTargetAtTime(0.55, ctx.currentTime, 0.6);
+  liftVoice = { gain: g, stop() { try { o.stop(); wob.stop(); } catch {  } } };
+}
+
+
+
+
+
+
 
 
 
@@ -3265,12 +3355,13 @@ function mapProject(wx, wy, wz, player, cx, cy, bearing) {
   return [cx + rx * f, cy - ry * f];
 }
 
-function drawMap(cv, player, birds, exit, level, deck, bearing) {
+function drawMap(cv, player, birds, exit, level, deck, bearing, rise = 0) {
   const g = cv.getContext('2d');
   const W = cv.width; const H = cv.height;
   g.clearRect(0, 0, W, H);
   const cx = W / 2; const cy = H * 0.52;
-  const p = (x, y, z) => mapProject(x, y, z, player, cx, cy, bearing);
+  
+  const p = (x, y, z) => mapProject(x, y - rise, z, player, cx, cy, bearing);
 
   const seg = (a, b, colour, width) => {
     if (!a || !b) return;                 
@@ -3495,6 +3586,16 @@ export function boot(canvas, hud) {
   let cable = null;
   let arenaPillars = [];
   let impacts = null;
+  let liftCar = null;
+  let liftDoors = null;
+  let liftGroup = null;
+  let ride = createLift();
+
+  
+  function placeCar(x, z) {
+    liftCar = { x, z: z + LIFT.depth / 2 + 0.1 };
+    if (liftGroup) liftGroup.position.set(x, 0, z);
+  }
   let deck = buildLevel(1);
   let deckGroup = null;
   let strips = [];
@@ -3967,23 +4068,76 @@ export function boot(canvas, hud) {
     }
 
     
-    EXIT = deck.exit;
-    lift = new THREE.Mesh(
-      new THREE.PlaneGeometry(2.0, 2.4).toNonIndexed(),
-      mat,
-    );
+  
+  
+  
+  
+  
+  
+  
+  
+  {
+    const cw = LIFT.width; const cd = LIFT.depth; const ch = LIFT.height;
+    
+    
+    
+    
+    
+    
+    
+    
+    liftGroup = new THREE.Group();
+    deckGroup.add(liftGroup);
+    const cx = 0; const cz = cd / 2 + 0.1;
+    placeCar(EXIT.x, EXIT.z);
+
+    const carMat = texturedMaterial(grimeTexture({
+      base: 0x7a8a80, seams: true, rivets: true, mud: 2, blood: 3, hay: 0,
+    }));
+    const put = (w, h, tile, fn) => {
+      const m = panel(w, h, tile, { mat: carMat, apply: fn });
+      liftGroup.add(m);
+      return m;
+    };
+    put(cw, cd, 2.0, (m) => { m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.01, cz); });
+    put(cw, cd, 2.0, (m) => { m.rotation.x = Math.PI / 2; m.position.set(cx, ch, cz); });
+    put(cw, ch, 2.0, (m) => { m.position.set(cx, ch / 2, cz + cd / 2); m.rotation.y = Math.PI; });
+    put(cd, ch, 2.0, (m) => { m.position.set(cx - cw / 2, ch / 2, cz); m.rotation.y = Math.PI / 2; });
+    put(cd, ch, 2.0, (m) => { m.position.set(cx + cw / 2, ch / 2, cz); m.rotation.y = -Math.PI / 2; });
+
+    
+    
+    
+    const doorMat = texturedMaterial(grimeTexture({
+      base: 0x9fb0a4, seams: true, rivets: true, mud: 1, blood: 2, hay: 0,
+    }));
+    liftDoors = [-1, 1].map((side) => {
+      const d = panel(cw / 2, ch, 1.6, {
+        mat: doorMat,
+        apply: (m) => { m.position.set(cx + side * cw / 4, ch / 2, cz - cd / 2); },
+      });
+      d.userData.side = side;
+      d.userData.homeX = cx + side * cw / 4;
+      liftGroup.add(d);
+      return d;
+    });
+
+    
+    
+    const call = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.26).toNonIndexed(), mat);
     {
-      const n = lift.geometry.attributes.position.count;
+      const n = call.geometry.attributes.position.count;
       const col = new Float32Array(n * 3);
-      const c = new THREE.Color(0x2f6f4a);
+      const c = new THREE.Color(0x7dffc4);
       for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
-      lift.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
-      lift.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
-      lift.geometry.computeVertexNormals();
+      call.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+      call.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+      call.geometry.computeVertexNormals();
     }
-    lift.position.set(EXIT.x, 1.2, EXIT.z + 0.9);
-    lift.rotation.y = Math.PI;
-    deckGroup.add(lift);
+    call.position.set(cx + cw / 2 - 0.05, 1.35, cz - cd / 2 - 0.06);
+    liftGroup.add(call);
+    lift = call;
+  }
 
     
     boulder = null;
@@ -4323,7 +4477,6 @@ export function boot(canvas, hud) {
   let deathT = 0;
   let sprintNow = false;
   let level = 1;
-  let liftIn = 0;
   const mapCv = document.getElementById('map');
   
   
@@ -4988,7 +5141,38 @@ export function boot(canvas, hud) {
     
     camNode = nodeAt(rails, progressAt(deck, player.x, player.z), camNode);
     if (camNode !== wasNode) cutFlash = 0.05;   
-    const place = railPlacement(rails, camNode, player);
+    let place = railPlacement(rails, camNode, player);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (liftCar && ride.phase !== 'idle' && ride.phase !== 'opening' && ride.phase !== 'boarding') {
+      place = {
+        
+        
+        
+        eye: {
+          x: liftCar.x + LIFT.width * 0.34,
+          y: 2.55,
+          z: liftCar.z + LIFT.depth / 2 - 0.16,
+        },
+        
+        
+        
+        target: { x: liftCar.x - 0.1, y: 0.85, z: liftCar.z - LIFT.depth / 2 },
+        fov: 72,
+      };
+    }
     camEye = place.eye;
     camTarget = place.target;
     
@@ -5566,33 +5750,39 @@ export function boot(canvas, hud) {
     }
 
     
-    if (!player.dead && Math.hypot(player.x - EXIT.x, player.z - EXIT.z) < 1.8) {
-      if (liftIn <= 0) {
-        liftIn = 2.4;
-        hud.lift(level + 1);
+    
+    
+    
+    
+    
+    
+    
+    
+    if (liftCar && !player.dead) {
+      const near = Math.hypot(player.x - liftCar.x, player.z - liftCar.z) < LIFT.callRadius;
+      const inCar = insideCar(liftCar, player.x, player.z, 0.35);
+      const was = ride.phase;
+      ride = stepLift(ride, dt, { near, inside: inCar });
+
+      if (ride.event === 'open') { liftChime(); hud.msg('LIFT'); }
+      else if (ride.event === 'shut') { doorSfx(false); hud.msg(''); }
+      else if (ride.event === 'depart') {
         
         
         
-        liftChime();
-      }
-    }
-    if (liftIn > 0) {
-      liftIn -= dt;
-      if (liftIn <= 0) {
         level += 1;
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         buildWorld(level);
-        player.z = deck.start.z; player.x = deck.start.x; player.yaw = 0;
+        
+        
+        
+        
+        
+        
+        
+        placeCar(deck.start.x, deck.start.z - LIFT.depth - 0.6);
+        player.x = liftCar.x; player.z = liftCar.z;
+        
+        player.yaw = 0;
         camNode = nodeAt(rails, progressAt(deck, player.x, player.z));
         hidden = false;
         inSafe = false;
@@ -5600,7 +5790,28 @@ export function boot(canvas, hud) {
         
         player.weapon = readyWeapon('boltDriver', { ammo: 48 });
         safeResupplied = false;
-        hud.lift(0);
+        hud.lift(level);
+        liftHum(true);
+      } else if (ride.event === 'arrive') { liftHum(false); doorSfx(true); }
+      else if (ride.event === 'ready') { hud.lift(0); hud.msg(''); }
+      if (was === 'idle' && ride.phase === 'opening') doorSfx(true);
+
+      
+      
+      if (liftDoors) {
+        for (const d of liftDoors) {
+          d.position.x = d.userData.homeX + d.userData.side * ride.door * (LIFT.width / 2);
+        }
+      }
+
+      
+      
+      
+      if (ride.sealed) {
+        const half = LIFT.width / 2 - 0.35;
+        const halfD = LIFT.depth / 2 - 0.35;
+        player.x = clamp(player.x, liftCar.x - half, liftCar.x + half);
+        player.z = clamp(player.z, liftCar.z - halfD, liftCar.z + halfD);
       }
     }
 
@@ -5670,7 +5881,11 @@ export function boot(canvas, hud) {
       
       
       const mb = Math.atan2(-(place.target.x - place.eye.x), place.target.z - place.eye.z);
-      drawMap(mapCv, player, birds, EXIT, level, deck, mb);
+      
+      
+      
+      
+      drawMap(mapCv, player, birds, EXIT, level, deck, mb, mapRise(ride, MAP.deckGap));
     }
 
     renderer.render(scene, camera);
@@ -5740,7 +5955,15 @@ export function boot(canvas, hud) {
       },
       
       
-      toLift() { player.x = EXIT.x; player.z = EXIT.z; },
+      toLift() {
+        if (liftCar) { player.x = liftCar.x; player.z = liftCar.z; }
+        else { player.x = EXIT.x; player.z = EXIT.z; }
+      },
+      get ride() {
+        return {
+          phase: ride.phase, door: ride.door, rise: ride.rise, sealed: ride.sealed,
+        };
+      },
       
       
       
