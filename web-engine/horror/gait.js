@@ -225,6 +225,39 @@ export const GAIT = Object.freeze({
     roll: { strike: -0.18, off: 0.95 },
     grip: 'fist',
   },
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  shuffle: {
+    stride: 0.07,
+    lift: 0.035,          
+    stance: 0.62,         
+    front: 0.070,
+    back: 0.085,
+    lean: 0.015,
+    twist: 0.10,
+    
+    
+    hand: { y: 0.520, rise: 0.018, swing: 0.045, lead: 0.012 },
+    roll: { strike: -0.14, off: 0.38 },
+    grip: 'open',
+  },
 });
 
 const TAU = Math.PI * 2;
@@ -304,12 +337,34 @@ function hipDrop(feet, phases, cfg) {
 
 
 function reachSafe(x, y) {
-  const dy = y - SH;
+  return reachFrom(x, y, SH);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+function reachFrom(x, y, sy) {
+  const dy = y - sy;
   const d = Math.hypot(x, dy);
   const max = ARM * 0.985;
   if (d <= max || d < 1e-6) return [x, y];
   const k = max / d;
-  return [x * k, SH + dy * k];
+  return [x * k, sy + dy * k];
+}
+
+
+function ss(v) {
+  const c = clamp(v, 0, 1);
+  return c * c * (3 - 2 * c);
 }
 
 
@@ -668,6 +723,214 @@ export function deathPose(u) {
     air: 0,
     squash: 1 - k * 0.42,
     lean: 0,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export const KICK_TIME = 0.45;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function kickPose(t) {
+  const u = clamp(t / KICK_TIME, 0, 1);
+  const load = ss(u / 0.22) * (1 - ss((u - 0.22) / 0.50));
+  const k = ss((u - 0.20) / 0.30) * (1 - ss((u - 0.62) / 0.38));
+  
+  
+  
+  const drop = 0.030 * load + 0.055 * k;
+  const shY = SH - drop;
+  return {
+    hands: [
+      
+      reachFrom(0.14 + 0.16 * k - 0.06 * load, shY - 0.30 + 0.18 * k, shY),
+      
+      reachFrom(0.04 - 0.24 * k - 0.10 * load, shY - 0.28 - 0.04 * k, shY),
+    ],
+    feet: [
+      
+      
+      [-0.09 - 0.03 * load, 0],
+      
+      [0.05 - 0.19 * load + 0.33 * k, 0.05 * load + 0.26 * k],
+    ],
+    
+    
+    toe: [0.10 * k, 0.12 * load - 0.30 * k],
+    grip: 'open',                     
+    twist: 0.10 * load - 0.30 * k,    
+    air: 0,
+    drop,
+    squash: 1 - drop,
+    
+    lean: -0.10 * load - 0.18 * k,
+  };
+}
+
+
+
+
+
+
+export const FLINCH_TIME = 0.30;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function flinchAdd(t) {
+  if (!(t >= 0) || t >= FLINCH_TIME) return { lean: 0, bob: 0 };
+  const k = 1 - t / FLINCH_TIME;
+  const e = k * k;
+  return { lean: -0.17 * e, bob: -0.048 * e };
+}
+
+
+
+
+
+
+
+
+
+
+export const TURN_RATE_MIN = 0.9;
+
+
+
+
+
+
+
+export const TURN_CYCLES_PER_RAD = 0.55;
+
+
+
+
+
+
+
+
+export const TURN_MAX_CYCLES_PER_S = 2.2;
+
+
+
+
+
+
+export function turnStep(phase, dYaw, dt) {
+  const step = Math.min(
+    Math.abs(dYaw) * TURN_CYCLES_PER_RAD,
+    Math.max(0, dt || 0) * TURN_MAX_CYCLES_PER_S,
+  );
+  return wrap(phase + step);
+}
+
+
+
+
+
+
+
+
+
+
+
+export const REACH_TIME = 0.42;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function reachPose(t) {
+  const u = clamp(t / REACH_TIME, 0, 1);
+  const w = u < 0.45 ? ss(u / 0.45) : 1 - ss((u - 0.45) / 0.55);
+  const drop = 0.17 * w;
+  const shY = SH - drop;
+  
+  
+  
+  const rx = 0.04 + 0.17 * w;
+  const rdy = -0.97 * Math.sqrt(Math.max(1e-4, (ARM * 0.985) ** 2 - rx * rx));
+  return {
+    hands: [
+      
+      reachFrom(0.10 - 0.06 * w, shY - 0.30 - 0.02 * w, shY),
+      
+      reachFrom(rx, shY + rdy, shY),
+    ],
+    
+    
+    feet: [[-0.035 - 0.075 * w, 0], [0.052 + 0.078 * w, 0]],
+    toe: [0.16 * w, 0],
+    grip: 'open',
+    twist: 0.05 + 0.14 * w,           
+    air: 0,
+    drop,
+    squash: 1 - drop,
+    lean: 0.012 + 0.13 * w,           
   };
 }
 

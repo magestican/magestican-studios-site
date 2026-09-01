@@ -26,6 +26,7 @@ import * as THREE from 'three';
 import { solve, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
 import {
   gaitPose, firePose, strugglePose, deathPose, standPose, gripOf, cycleTravel, settleStep, SETTLE_TIME, aimPose, aimedGait,
+  kickPose, KICK_TIME, flinchAdd, FLINCH_TIME, turnStep, TURN_RATE_MIN, reachPose, REACH_TIME,
 } from '../../../web-engine/horror/gait.js';
 
 
@@ -63,7 +64,8 @@ import {
   ARENA, HORSE as BOSS_HORSE, createBossFight, stepBossFight, cutCable, bossLevel, pillars,
 } from '../../../web-engine/horror/boss.js';
 import {
-  emptyChickenAnim, stepChicken, chickenPose, RANGE as CHICK_RANGE, PORKER, COW,
+  emptyChickenAnim, stepChicken, chickenPose, staggerHit, stepHorseGait,
+  horsePose, deathTwitch, RANGE as CHICK_RANGE, PORKER, COW,
 } from '../../../web-engine/horror/creatureAnim.js';
 import { ps1Vertex, FRAGMENT, KEY_DIR, FILL_DIR } from '../../../web-engine/ps1/ps1Shader.mjs';
 import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
@@ -80,6 +82,9 @@ import { panOf, levelAt, makeImpulse } from '../../../web-engine/horror/audioSpa
 import {
   LIFT, createLift, stepLift, mapRise, insideCar, keepOut, carIsSafe, clearOfCar,
 } from '../../../web-engine/horror/lift.js';
+import {
+  createHide, stepHide, hideProtects, hideDrawsPlayer, hideSettled,
+} from '../../../web-engine/horror/hideout.js';
 import {
   buildLevel, moveInLevel, progressAt, pointBehind, runRect, clearOfProps, insideLevel,
 } from '../../../web-engine/horror/level.js';
@@ -1654,6 +1659,21 @@ const FIRE_FRAMES = 6;
 const STRUGGLE_FRAMES = 8;
 const DEATH_FRAMES = 6;
 
+
+
+
+
+
+const KICK_FRAMES = 8;
+
+
+const REACH_FRAMES = 8;
+
+
+
+
+const SHUFFLE_FRAMES = 10;
+
 const FIRE_TIME = 0.42;
 const DEATH_TIME = 0.9;
 
@@ -2745,7 +2765,18 @@ function applyChickenPose(rig, pose) {
   rig.body.rotation.y = pose.torsoPitch;
   rig.body.rotation.x = pose.bodyRoll;
   rig.body.position.z = (BP[2] - legLo) * rig.scale + pose.bodyLift * HGT;
+  
+  
+  
+  rig.body.position.x = BP[0] * rig.scale + (pose.shoveX || 0) * HGT;
+  rig.body.position.y = BP[1] * rig.scale + (pose.shoveY || 0) * HGT;
+  
+  
+  const br = 1 + (pose.breath || 0);
+  rig.body.scale.set(1, br, br);
   rig.head.rotation.y = pose.headPitch;
+  
+  rig.head.rotation.z = pose.headYaw || 0;
   rig.head.position.x = ((HP[0] - BP[0]) * rig.scale) + pose.headThrust * HGT;
   rig.head.position.z = ((HP[2] - BP[2]) * rig.scale) + pose.headBob * HGT;
   if (rig.named.legL) {
@@ -2786,6 +2817,28 @@ function applyChickenPose(rig, pose) {
     if (armR) armR.rotation.z = 0;
   }
   if (rig.named.tail) rig.named.tail.rotation.y = -pose.tailFlick + pose.mutantLag * 0.1;
+}
+
+
+
+
+
+
+
+function applyHorsePose(rig, pose, basePitch = 0) {
+  const BP = rig.cfg.bodyPivot;
+  const P = rig.cfg.pivots;
+  const HGT = rig.height;
+  rig.body.rotation.y = basePitch + pose.bodyPitch;
+  rig.body.rotation.x = pose.bodyRoll;
+  rig.body.position.z = (BP[2] - rig.lo) * rig.scale + pose.bodyLift * HGT;
+  for (const name of ['legFL', 'legFR', 'legHL', 'legHR']) {
+    const m = rig.named[name];
+    if (!m) continue;
+    m.rotation.y = pose[name].swing;
+    m.position.z = (P[name][2] - rig.lo) * rig.scale + pose[name].lift * HGT;
+  }
+  if (rig.named.tail) rig.named.tail.rotation.z = pose.tailSwish;
 }
 
 
@@ -4554,6 +4607,13 @@ export function boot(canvas, hud) {
   let sparkGeo = null;
   let sparkPt = null;
   let lockers = [];
+  
+  
+  
+  let hide = createHide();
+  let hideLocker = null;
+  let hideWant = false;
+  let hideFrom = null;
   let pickups = [];
   let lift = null;
   let EXIT = deck.exit;
@@ -4625,6 +4685,28 @@ export function boot(canvas, hud) {
   const deathGeo = [];
   for (let i = 0; i < DEATH_FRAMES; i += 1) {
     deathGeo.push(bake({ ...standPose(0), ...deathPose(i / (DEATH_FRAMES - 1)) }));
+  }
+  
+  
+  
+  
+  const kickGeo = [];
+  for (let i = 0; i < KICK_FRAMES; i += 1) {
+    kickGeo.push(bake({ ...standPose(0), ...kickPose((i / (KICK_FRAMES - 1)) * KICK_TIME) }));
+  }
+  
+  const reachGeo = [];
+  for (let i = 0; i < REACH_FRAMES; i += 1) {
+    reachGeo.push(bake({ ...standPose(0), ...reachPose((i / (REACH_FRAMES - 1)) * REACH_TIME) }));
+  }
+  
+  
+  
+  
+  
+  const shuffleGeo = [];
+  for (let i = 0; i < SHUFFLE_FRAMES; i += 1) {
+    shuffleGeo.push(bake(walkPose(i / SHUFFLE_FRAMES, 'shuffle')));
   }
   
   
@@ -4853,6 +4935,11 @@ export function boot(canvas, hud) {
   if (shouldersGeo) shouldersGeo.translate(-headMid.x, -headMid.y, -headMid.z);
   const neck = new THREE.Group();
   neck.position.copy(headMid);
+  
+  
+  
+  
+  const neckHomeZ = neck.position.z;
   const xHead = new THREE.Mesh(headGeo, faceMat);
   neck.add(xHead);
   xander.add(neck);
@@ -5124,7 +5211,34 @@ export function boot(canvas, hud) {
         box.geometry.computeVertexNormals();
         box.position.set(x, 1.0, z);
         deckGroup.add(box);
-        lockers.push({ mesh: box, x: x - side * 0.5, z });
+        
+        
+        
+        
+        
+        const hinge = new THREE.Group();
+        const panel = new THREE.Mesh(new THREE.BoxGeometry(0.38, 1.9, 0.035).toNonIndexed(), mat);
+        {
+          const pn = panel.geometry.attributes.position.count;
+          const pcol = new Float32Array(pn * 3);
+          const pc = new THREE.Color(0x3e463d);
+          for (let i = 0; i < pn; i += 1) { pcol[i * 3] = pc.r; pcol[i * 3 + 1] = pc.g; pcol[i * 3 + 2] = pc.b; }
+          panel.geometry.setAttribute('aColor', new THREE.Float32BufferAttribute(pcol, 3));
+          panel.geometry.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(pn * 2).fill(0), 2));
+          panel.geometry.computeVertexNormals();
+        }
+        
+        
+        panel.position.x = 0.19;
+        hinge.add(panel);
+        
+        hinge.position.set(x - 0.19, 1.0, z - side * 0.37 * 0 + (0.72 / 2 + 0.02) * -side);
+        deckGroup.add(hinge);
+        lockers.push({
+          mesh: box, door: hinge, x: x - side * 0.5, z, side,
+          
+          inX: x - side * 0.26, inZ: z,
+        });
       }
     }
 
@@ -5307,14 +5421,21 @@ export function boot(canvas, hud) {
         
         
         
-        const scr = paint(new THREE.PlaneGeometry(0.64, 0.42).toNonIndexed(), 0x6ff0d8);
+        
+        
+        
+        
+        
+        
+        const scrMat = new THREE.MeshBasicMaterial({ color: 0x6ff0d8 });
+        const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.64, 0.42), scrMat);
         scr.position.set(far - safeRoom.side * 0.60, 1.42, lz);
         scr.rotation.y = safeRoom.side > 0 ? -Math.PI / 2 : Math.PI / 2;
         deckGroup.add(scr);
         
         
         solidProps.push({ x: lx, z: lz, r: 0.85 });
-        library = { x: lx, z: lz };
+        library = { x: lx, z: lz, screen: scr };
       }
     }
 
@@ -5566,8 +5687,14 @@ export function boot(canvas, hud) {
   addEventListener('keydown', (e) => {
     lastInput = 'key';
     if (e.code === 'KeyE') {
-      if (hidden) hidden = false;
-      else if (nearLocker) { hidden = true; hideSfx(); }
+      
+      
+      
+      
+      
+      
+      if (hidden || !hideSettled(hide) ) { hideWant = true; return; }
+      if (nearLocker) { hideLocker = nearLocker; hideWant = true; hideSfx(); }
       return;
     }
     keys.add(e.code);
@@ -5756,6 +5883,27 @@ export function boot(canvas, hud) {
   let walkPhase = 0;
   let settle = 0;
   let fireT = 99;        
+  
+  
+  let kickT = 99;        
+  let reachT = 99;       
+  let flinchT = 99;      
+  
+  
+  
+  let flinchHp = MAX_HEALTH;
+  
+  
+  let pendingPickup = null;
+  
+  
+  
+  let wasTurnStep = false;
+  
+  
+  let stillFor = 0;
+  let glanceAt = 10 + Math.random() * 4;   
+  let glanceDir = 1;
   let deathT = 0;
   let sprintNow = false;
   let level = 1;
@@ -5829,7 +5977,12 @@ export function boot(canvas, hud) {
       }
 
       const slow = player.latchedBy ? (1 - CHICKEN_LATCH_SLOW) : 1;
-      const speed = (player.struggle ? 0 : (sprint ? 5.5 : 2.4)) * slow;
+      
+      
+      
+      
+      
+      const speed = ((player.struggle || reachT < REACH_TIME) ? 0 : (sprint ? 5.5 : 2.4)) * slow;
       
       
       
@@ -5910,6 +6063,9 @@ export function boot(canvas, hud) {
 
     
     fireT += dt;
+    kickT += dt;
+    reachT += dt;
+    flinchT += dt;
     tickWeapon(player.weapon, dt);
     const mayFire = fireHeld && !player.struggle && !player.dead && !hidden;
     
@@ -6193,6 +6349,23 @@ export function boot(canvas, hud) {
         
         applyDamage(b.creature, hit.id,
           player.weapon.spec?.limbDamage ?? WEAPONS.boltDriver.limbDamage);
+        
+        
+        
+        
+        
+        
+        
+        
+        if (b.anim) {
+          const boltX = -Math.sin(aimYaw);
+          const boltZ = Math.cos(aimYaw);
+          b.anim = staggerHit(
+            b.anim,
+            player.weapon.spec?.stagger ?? WEAPONS.boltDriver.stagger,
+            Math.atan2(boltX * rx + boltZ * rz, boltX * fx + boltZ * fz),
+          );
+        }
 
         
         
@@ -6387,6 +6560,17 @@ export function boot(canvas, hud) {
         if (u < 1) {
           const tw = Math.exp(-u * 5) * Math.sin(u * 34) * 0.10;
           b.mesh.rotation.y += tw;
+          
+          
+          
+          
+          
+          const dtw = deathTwitch(u, b.anim ? b.anim.seed : 0);
+          const kickLeg = b.rig.named[dtw.side < 0 ? 'legL' : 'legR'];
+          if (kickLeg && kickLeg.visible) kickLeg.rotation.y = dtw.legKick;
+          const spasmAxis = b.rig.cfg === CHICKEN_RIG_CFG ? 'x' : 'y';
+          const wing = b.rig.named.wingL || b.rig.named.armL || b.rig.named.tentacleL;
+          if (wing && wing.visible) wing.rotation[spasmAxis] = -dtw.wingSpasm;
         }
         if (b.shade) {
           
@@ -6501,12 +6685,21 @@ export function boot(canvas, hud) {
         
         
         const tired = step.exhaustion ?? 0;
+        
+        
+        
+        
+        
+        
+        
+        b.gallopGait = stepHorseGait(b.gallopGait || 0, dt, step.speed, tired);
+        const hp = horsePose(b.gallopGait, step.speed / BOSS_HORSE.speed, tired);
         const sag = (k, ph) => {
           const m = b.rig.named[k];
-          if (m) m.rotation.y = tired * (0.30 + 0.22 * Math.sin(now * (1.3 + ph) + ph * 2));
+          if (m) m.rotation.y = hp.neckPump + tired * (0.30 + 0.22 * Math.sin(now * (1.3 + ph) + ph * 2));
         };
         sag('neckC', 0); sag('neckL', 0.7); sag('neckR', 1.4);
-        b.rig.body.rotation.y = tired * 0.16 + (fight.dead ? 0.7 : 0);
+        applyHorsePose(b.rig, hp, tired * 0.16 + (fight.dead ? 0.7 : 0));
         
         b.rig.body.scale.set(1, 1 + Math.sin(now * (3 + tired * 5)) * 0.02 * (0.4 + tired), 1);
 
@@ -6533,7 +6726,11 @@ export function boot(canvas, hud) {
       
       const unseen = player.dead || inSafe
         || (hidden && b.anim.state !== 'stalk' && b.anim.state !== 'strike' && b.anim.state !== 'windup');
-      const r = stepChicken(b.anim, dt, unseen ? 1e6 : dist, prof || {});
+      
+      
+      
+      const r = stepChicken(b.anim, dt, unseen ? 1e6 : dist,
+        { ...(prof || {}), legsLost: (mob && typeof mob === 'object') ? mob.legsLost : 0 });
       b.anim = r.anim;
 
       
@@ -6593,7 +6790,13 @@ export function boot(canvas, hud) {
         }
       }
 
-      applyChickenPose(b.rig, chickenPose(b.anim, prof || {}));
+      applyChickenPose(b.rig, chickenPose(b.anim, {
+        ...(prof || {}),
+        
+        
+        
+        severed: { legL: sev.includes('leg-l'), legR: sev.includes('leg-r') },
+      }));
 
       
       
@@ -6673,6 +6876,12 @@ export function boot(canvas, hud) {
           b.vy = 5.4;                          
           b.spin = 11 + Math.random() * 6;
           kickSfx();
+          
+          
+          
+          
+          
+          kickT = 0;
           shake = Math.max(shake, 0.5);
         }
         player.latchedBy = null;
@@ -6815,8 +7024,37 @@ export function boot(canvas, hud) {
     
     
     
+    
+    
+    if (player.vitals.health < flinchHp - 2 && !player.dead
+        && !player.struggle && !player.latchedBy) flinchT = 0;
+    flinchHp = player.vitals.health;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     const moving = !player.dead && !player.struggle && lastMoved > 0.02;
-    const turning = false;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    let dYaw = player.yaw - prevYaw;
+    dYaw = Math.atan2(Math.sin(dYaw), Math.cos(dYaw));
+    const turning = !player.dead && !player.struggle && !moving
+      && kickT >= KICK_TIME && reachT >= REACH_TIME && fireT >= FIRE_TIME
+      && dt > 0 && Math.abs(dYaw) / dt > TURN_RATE_MIN;
     let lean = 0;
     let bob = 0;
     
@@ -6855,10 +7093,27 @@ export function boot(canvas, hud) {
       
       lean = Math.sin(now * 13.5) * (0.06 + drive * 0.16);
       bob = -0.05 - drive * 0.03;
+    } else if (kickT < KICK_TIME) {
+      
+      
+      
+      
+      const f = Math.min(KICK_FRAMES - 1, Math.floor((kickT / KICK_TIME) * KICK_FRAMES));
+      if (xander.geometry !== kickGeo[f]) xander.geometry = kickGeo[f];
+      
+      
+      lean = kickPose(kickT).lean;
     } else if (fireT < FIRE_TIME) {
       const f = Math.min(FIRE_FRAMES - 1, Math.floor((fireT / FIRE_TIME) * FIRE_FRAMES));
       if (xander.geometry !== fireGeo[f]) xander.geometry = fireGeo[f];
       lean = -Math.exp(-fireT * 14) * 0.10;      
+    } else if (reachT < REACH_TIME) {
+      
+      
+      
+      const f = Math.min(REACH_FRAMES - 1, Math.floor((reachT / REACH_TIME) * REACH_FRAMES));
+      if (xander.geometry !== reachGeo[f]) xander.geometry = reachGeo[f];
+      lean = reachPose(reachT).lean;             
     } else if (moving || turning || settle > 0) {
       const running = sprintNow && moving;
       
@@ -6873,10 +7128,23 @@ export function boot(canvas, hud) {
       
       
       const gunUp = !player.dead && !!target && !running;
-      const set = running ? sprintGeo : (gunUp ? walkAimGeo : walkGeo);
-      const n = running ? SPRINT_FRAMES : WALK_FRAMES;
+      
+      
+      
+      
+      
+      
+      
+      const turnOnly = turning && !moving;
+      if (turnOnly) { walkPhase = turnStep(walkPhase, dYaw, dt); wasTurnStep = true; }
+      if (moving) wasTurnStep = false;
+      const useShuffle = turnOnly || (!moving && wasTurnStep);
+      const set = useShuffle ? shuffleGeo
+        : (running ? sprintGeo : (gunUp ? walkAimGeo : walkGeo));
+      const n = useShuffle ? SHUFFLE_FRAMES
+        : (running ? SPRINT_FRAMES : WALK_FRAMES);
       const stride = running ? SPRINT_STRIDE : STRIDE;
-      const ph = (walkPhase = (moving || turning)
+      const ph = (walkPhase = moving
         ? (walkDist / stride) % 1
         
         
@@ -6921,7 +7189,9 @@ export function boot(canvas, hud) {
       
       
       bob = 0;
-      lean = running ? 0.16 : 0.05;
+      
+      
+      lean = useShuffle ? 0.015 : (running ? 0.16 : 0.05);
     } else if (!player.dead && !!target) {
       
       
@@ -6950,6 +7220,7 @@ export function boot(canvas, hud) {
       const SETS = {
         idle: [xGeo], walk: walkGeo, sprint: sprintGeo,
         fire: fireGeo, struggle: struggleGeo, death: deathGeo,
+        kick: kickGeo, reach: reachGeo, shuffle: shuffleGeo,
       };
       const set = SETS[studio.clip] || [xGeo];
       const f = Math.max(0, Math.min(set.length - 1, Math.floor((studio.phase ?? 0) * set.length)));
@@ -6973,9 +7244,19 @@ export function boot(canvas, hud) {
       
       
       const ph = f / set.length;
+      
+      
+      
+      const phEnd = f / Math.max(1, set.length - 1);
       studioPose = studio.clip === 'idle'
         ? standPose(0)
-        : gaitPose(ph, studio.clip === 'sprint' ? 'sprint' : 'walk');
+        : studio.clip === 'kick' ? kickPose(phEnd * KICK_TIME)
+          : studio.clip === 'reach' ? reachPose(phEnd * REACH_TIME)
+            : gaitPose(ph, (studio.clip === 'sprint' || studio.clip === 'shuffle') ? studio.clip : 'walk');
+      
+      
+      
+      if (studio.clip === 'kick' || studio.clip === 'reach') lean = studioPose.lean;
     }
 
     
@@ -6990,12 +7271,19 @@ export function boot(canvas, hud) {
       
       
       
+      
+      
+      
+      
       if (player.dead) posed = deathPose(deathT / DEATH_TIME);
       else if (player.struggle) posed = strugglePose(now, player.struggle.progress ?? 0);
+      else if (kickT < KICK_TIME) posed = kickPose(kickT);
       else if (fireT < FIRE_TIME) posed = firePose(fireT);
-      else if (moving || turning) {
-        posed = gaitPose((walkDist / ((sprintNow && moving) ? SPRINT_STRIDE : STRIDE)) % 1,
-          (sprintNow && moving) ? 'sprint' : 'walk');
+      else if (reachT < REACH_TIME) posed = reachPose(reachT);
+      else if (turning && !moving) posed = gaitPose(walkPhase, 'shuffle');
+      else if (moving) {
+        posed = gaitPose((walkDist / (sprintNow ? SPRINT_STRIDE : STRIDE)) % 1,
+          sprintNow ? 'sprint' : 'walk');
       } else posed = standPose(now);
       if (studioPose) posed = studioPose;
       const hand = posed.hands[0];
@@ -7074,7 +7362,70 @@ export function boot(canvas, hud) {
       flash.rotation.y = now * 9;      
     }
 
-    xRig.visible = !hidden;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    neck.position.z = neckHomeZ - ((posed && posed.drop) || 0) * XANDER_H;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    if (!studio && !player.dead && flinchT < FLINCH_TIME) {
+      const add = flinchAdd(flinchT);
+      lean += add.lean;
+      bob += add.bob;
+    }
+    
+    
+    
+    
+    
+    if (!studio && !player.dead && stillFor > 10) {
+      const in_ = Math.min(1, (stillFor - 10) / 2);
+      lean += Math.sin(now * 0.31) * 0.007 * in_;
+      bob += Math.sin(now * 0.23 + 1.7) * 0.004 * in_;
+    }
+
+    
+    {
+      const was = hide.phase;
+      hide = stepHide(hide, dt, { wantToggle: hideWant });
+      hideWant = false;
+      if (hide.event === 'creak' && hideLocker) creakSfx(hideLocker.x, hideLocker.z);
+      if (hide.event === 'clank' && hideLocker) hitSfx();
+      if (was === 'out' && hide.phase === 'opening') {
+        hideFrom = { x: player.x, z: player.z };
+      }
+      if (hideLocker) {
+        
+        hideLocker.door.rotation.y = hide.door * 1.83 * (hideLocker.side || 1);
+        
+        if (hideFrom && !hideSettled(hide)) {
+          const u = hide.step;
+          player.x = hideFrom.x + (hideLocker.inX - hideFrom.x) * u;
+          player.z = hideFrom.z + (hideLocker.inZ - hideFrom.z) * u;
+          
+          player.yaw = Math.atan2(-(hideFrom.x - hideLocker.inX), hideFrom.z - hideLocker.inZ);
+        }
+        if (hide.phase === 'out') { hideLocker = null; hideFrom = null; }
+      }
+      
+      
+      hidden = hideProtects(hide);
+    }
+    xRig.visible = !player.dead ? hideDrawsPlayer(hide) : xRig.visible;
     xRig.position.set(player.x, bob, player.z);
     
     
@@ -7172,7 +7523,29 @@ export function boot(canvas, hud) {
     if (!Number.isFinite(seen)) {
       const rate = dt > 0 ? (player.yaw - prevYaw) / dt : 0;
       wantLook = clamp(rate * 0.16, -0.5, 0.5);
+      
+      
+      
+      
+      
+      
+      
+      
+      if (stillFor > 10 && Math.abs(wantLook) < 0.05) {
+        const gt = stillFor - glanceAt;
+        if (gt >= 0 && gt < 1.4) wantLook = glanceDir * 0.42;
+        else if (gt >= 1.4) {
+          glanceAt = stillFor + 4 + Math.random() * 6;
+          glanceDir = Math.random() < 0.5 ? -1 : 1;
+        }
+      }
     }
+    
+    
+    if (moving || turning || player.dead || player.struggle || target
+        || kickT < KICK_TIME || reachT < REACH_TIME || fireT < FIRE_TIME) {
+      if (stillFor > 0) { stillFor = 0; glanceAt = 10 + Math.random() * 4; }
+    } else stillFor += dt;
     prevYaw = player.yaw;
 
     
@@ -7268,6 +7641,16 @@ export function boot(canvas, hud) {
     cutFlash = Math.max(0, cutFlash - dt);
     if (gradeEl) gradeEl.style.background = cutFlash > 0
       ? 'rgba(0,0,0,0.86)' : 'rgba(2, 5, 4, 0.34)';
+    
+    
+    
+    
+    
+    if (library && library.screen) {
+      const hum = 0.92 + Math.sin(now * 13.7) * 0.03 + Math.sin(now * 3.1) * 0.03;
+      const drop = (Math.sin(now * 0.43) > 0.997) ? 0.55 : 1;
+      library.screen.material.color.setScalar(hum * drop);
+    }
     sparkFlash = Math.max(0, sparkFlash - dt);
     
     
@@ -7376,7 +7759,14 @@ export function boot(canvas, hud) {
         if (Math.hypot(player.x - l.x, player.z - l.z) < 1.05) { nearLocker = l; break; }
       }
     }
-    if (hidden && !nearLocker) hidden = false;      
+    
+    
+    
+    
+    
+    if (hidden && !nearLocker && hideSettled(hide)) {
+      hide = createHide(); hideLocker = null; hideFrom = null; hidden = false;
+    }
     const hint = $('hint');
     if (hint) {
       
@@ -7420,6 +7810,28 @@ export function boot(canvas, hud) {
     }
 
     
+    
+    
+    
+    
+    
+    
+    
+    
+    if (pendingPickup && reachT >= REACH_TIME * 0.5) {
+      const it = pendingPickup;
+      pendingPickup = null;
+      it.mesh.visible = false;
+      if (it.ammo) player.weapon.ammo += 24;
+      
+      
+      
+      
+      
+      else if (it.medkit) player.vitals.health = MAX_HEALTH;
+      else player.vitals.health = Math.min(MAX_HEALTH, player.vitals.health + 35);
+      liftChime();
+    }
     for (const it of pickups) {
       if (it.taken) continue;
       
@@ -7428,18 +7840,17 @@ export function boot(canvas, hud) {
       
       it.mesh.rotation.y = now * (it.spin ?? 1.1);
       it.mesh.position.y = (it.baseY ?? 0.15) + Math.sin(now * 2.2) * (it.bob ?? 0.03);
-      if (!player.dead && Math.hypot(player.x - it.x, player.z - it.z) < 0.9) {
+      
+      
+      
+      
+      
+      
+      if (!player.dead && !player.struggle && reachT >= REACH_TIME
+          && Math.hypot(player.x - it.x, player.z - it.z) < 0.9) {
         it.taken = true;
-        it.mesh.visible = false;
-        if (it.ammo) player.weapon.ammo += 24;
-        
-        
-        
-        
-        
-        else if (it.medkit) player.vitals.health = MAX_HEALTH;
-        else player.vitals.health = Math.min(MAX_HEALTH, player.vitals.health + 35);
-        liftChime();
+        reachT = 0;
+        pendingPickup = it;
       }
     }
 
@@ -7541,6 +7952,11 @@ export function boot(canvas, hud) {
         
         player.yaw = 0;
         camNode = nodeAt(rails, progressAt(deck, player.x, player.z));
+        
+        
+        
+        
+        hide = createHide(); hideLocker = null; hideFrom = null;
         hidden = false;
         inSafe = false;
         
@@ -7809,6 +8225,35 @@ export function boot(canvas, hud) {
       
       
       
+      
+      
+      
+      maim(kind, limb = 'leg-l') {
+        const b = birds.find((q) => q.alive && q.kind === kind && q.creature);
+        if (!b || !b.creature.limbs[limb]) return null;
+        b.creature.limbs[limb].integrity = 0;
+        b.creature.limbs[limb].severed = true;
+        return statusOf(b.creature);
+      },
+      
+      
+      
+      
+      staggerNow(kind, amount = 1, dir = Math.PI) {
+        const b = birds.find((q) => q.alive && q.kind === kind && q.anim);
+        if (!b) return null;
+        b.anim = staggerHit(b.anim, amount, dir);
+        return { staggerT: b.anim.staggerT, staggerAmt: b.anim.staggerAmt };
+      },
+      
+      
+      animOf(kind) {
+        const b = birds.find((q) => q.alive && q.kind === kind && q.anim);
+        return b ? { ...b.anim, gallopGait: b.gallopGait } : null;
+      },
+      
+      
+      
       settleNow() { return settleSfx(player.x + 4, player.z + 6); },
       
       
@@ -7926,6 +8371,35 @@ export function boot(canvas, hud) {
           }
         }
         return null;
+      },
+      get hide() {
+        return {
+          phase: hide.phase, door: hide.door, step: hide.step,
+          protectedNow: hideProtects(hide), draws: hideDrawsPlayer(hide),
+        };
+      },
+      
+      
+      hideNow() {
+        let best = null; let bd = Infinity;
+        for (const l of lockers) {
+          const d = Math.hypot(l.x - player.x, l.z - player.z);
+          if (d < bd) { bd = d; best = l; }
+        }
+        if (!best) return null;
+        player.x = best.x; player.z = best.z;
+        hideLocker = best; hideWant = true;
+        return { x: best.x, z: best.z };
+      },
+      unhideNow() { hideWant = true; return hide.phase; },
+      
+      
+      
+      
+      
+      snapCamera() {
+        camNode = nodeAt(rails, progressAt(deck, player.x, player.z));
+        return camNode;
       },
       get gunSfx() { return { ...gunSfx }; },
       
@@ -8073,6 +8547,32 @@ export function boot(canvas, hud) {
       
       setStudio(o) { studio = o; },
       get studio() { return studio; },
+      
+      
+      
+      
+      
+      
+      kickNow() { kickT = 0; },
+      flinchNow() { flinchT = 0; },
+      reachNow() { reachT = 0; },
+      get kickT() { return kickT; },
+      get flinchT() { return flinchT; },
+      get reachT() { return reachT; },
+      get walkPhase() { return walkPhase; },
+      get pendingPickup() { return !!pendingPickup; },
+      
+      
+      
+      get pickupItems() {
+        return pickups.map((q) => ({
+          x: q.x, z: q.z, taken: q.taken, medkit: !!q.medkit, ammo: !!q.ammo,
+        }));
+      },
+      
+      
+      get poseLean() { return xTilt.rotation.x; },
+      get bobY() { return xRig.position.y; },
       
       
       

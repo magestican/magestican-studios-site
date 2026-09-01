@@ -59,6 +59,43 @@ export function emptyChickenAnim(seed = 0) {
     t: 0,
     gait: seed % 1,      
     seed,                
+    
+    
+    
+    staggerT: 0,
+    staggerAmt: 0,
+    staggerDir: 0,
+  };
+}
+
+
+export const STAGGER = Object.freeze({
+  seconds: 0.25,   
+  shove: 0.17,     
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function staggerHit(a, amount = 0.35, dir = Math.PI) {
+  return {
+    ...a,
+    staggerT: 1,
+    
+    staggerAmt: Math.max(amount, (a.staggerT || 0) * (a.staggerAmt || 0)),
+    staggerDir: dir,
   };
 }
 
@@ -130,7 +167,19 @@ export function stepChicken(a, dt, dist, opt = {}) {
 
   
   
-  n.gait = (a.gait + Math.abs(speed) * dt * 1.35) % 1;
+  
+  n.staggerT = Math.max(0, (a.staggerT || 0) - dt / STAGGER.seconds);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  const hop = (opt.legsLost || 0) === 1 ? 1.8 : 1;
+  n.gait = (a.gait + Math.abs(speed) * dt * 1.35 * hop) % 1;
   return { anim: n, speed, canLatch, vulnerable, event };
 }
 
@@ -187,9 +236,11 @@ export function chickenPose(a, opt = {}) {
   let bodyRoll = 0;
   let headThrust = 0;
   let headPitch = 0;
+  let headYaw = 0;
   let wingFlap = 0;
   let tailFlick = 0;
   let legAmp = 0;
+  let breath = 0;             
 
   if (s === 'stalk') {
     legAmp = 1;
@@ -242,12 +293,88 @@ export function chickenPose(a, opt = {}) {
     headPitch = 0.25 * Math.sin(a.t * 19);
   } else {
     
-    const q = a.t * 0.9 + a.seed;
-    torsoPitch = 0.12 + 0.30 * Math.max(0, Math.sin(q * 0.7));
-    bodyLift = 0.008 * Math.sin(q * 1.7);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const sd = ((a.seed % 1) + 1) % 1;
+    const rate = 0.72 + sd * 0.6;             
+    const q = a.t * rate + sd * 41.7;
+    
+    breath = 0.013 + 0.011 * Math.sin(q * 1.8);
+    bodyLift = 0.010 * Math.sin(q * 1.8);
     bodyRoll = 0.05 * Math.sin(q * 0.5);
-    headPitch = 0.5 * Math.max(0, Math.sin(q * 0.7));
+    
+    const peck = Math.max(0, Math.sin(q * 0.7));
+    torsoPitch = 0.12 + 0.28 * peck;
+    headPitch = 0.55 * peck * Math.max(0.25, Math.sin(q * 6.3));
+    
+    
+    
+    headYaw = 0.45 * Math.tanh(3 * Math.sin(q * 0.19 + 2.1)) * (1 - peck);
     tailFlick = 0.06 * Math.sin(q * 2.3);
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  let shoveX = 0;
+  let shoveY = 0;
+  const sT = a.staggerT || 0;
+  if (sT > 0) {
+    const e = sT * sT * (a.staggerAmt || 0);  
+    const d = a.staggerDir || 0;              
+    shoveX = Math.cos(d) * STAGGER.shove * e; 
+    shoveY = Math.sin(d) * STAGGER.shove * e; 
+    torsoPitch += Math.cos(d) * 0.34 * e;     
+    bodyRoll += Math.sin(d) * 0.62 * e;       
+    bodyLift -= 0.035 * e;                    
+    headPitch += Math.cos(d) * 0.30 * e;      
+    wingFlap += 0.25 * e;                     
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const sevL = !!(opt.severed && opt.severed.legL);
+  const sevR = !!(opt.severed && opt.severed.legR);
+  const legsLost = (sevL ? 1 : 0) + (sevR ? 1 : 0);
+  if (legsLost === 1) {
+    const missSide = sevL ? -1 : 1;
+    const beat = Math.max(0, Math.sin(p + (sevL ? 0 : Math.PI)));
+    bodyRoll += missSide * (0.16 + 0.11 * Math.sin(p)) * Math.max(0.35, legAmp);
+    bodyLift -= 0.055 * beat * legAmp;        
+    torsoPitch += 0.07;                       
+  } else if (legsLost >= 2) {
+    torsoPitch += 0.60;                       
+    bodyLift = -0.10;                         
+    bodyRoll *= 0.3;
+    headPitch -= 0.35;                        
+    legAmp = 0;                               
   }
 
   
@@ -260,6 +387,22 @@ export function chickenPose(a, opt = {}) {
     const lift = ph < 0.5 ? Math.sin(ph * TAU) * 0.085 * legAmp : 0;
     return { swing, lift, fold: Math.max(0, Math.sin(ph * TAU)) * 0.6 * legAmp };
   };
+
+  
+  
+  
+  
+  
+  const TRAIL = Object.freeze({ swing: -0.5, lift: 0, fold: 0.85 });
+  let legL = sevL ? { ...TRAIL } : legOf(0);
+  let legR = sevR ? { ...TRAIL } : legOf(0.5);
+  if (legsLost >= 2) { legL = { ...TRAIL }; legR = { ...TRAIL }; }
+  else if (legsLost === 1) {
+    const keep = sevL ? legR : legL;
+    keep.swing *= 0.55;
+    keep.fold *= 0.8;
+    keep.lift *= 1.2;
+  }
 
   
   
@@ -302,11 +445,18 @@ export function chickenPose(a, opt = {}) {
     bodyRoll: bodyRoll * B.pitch,
     headThrust,
     headPitch,
+    headYaw,
     headBob,
     wingFlap,
     tailFlick,
-    legL: legOf(0),
-    legR: legOf(0.5),
+    breath,
+    
+    
+    
+    shoveX: shoveX * B.lift,
+    shoveY: shoveY * B.lift,
+    legL,
+    legR,
     
     
     
@@ -384,3 +534,132 @@ export const COW = Object.freeze({
   
   pose: { pitch: 0.34, lift: 0.40, base: -0.30, attack: 'sweep' },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GALLOP = Object.freeze({
+  stride: 2.6,        
+  strideTired: 1.7,   
+  
+  
+  
+  
+  
+  
+  beats: Object.freeze({ legHL: 0.0, legHR: 0.12, legFL: 0.28, legFR: 0.40 }),
+  air: 0.68,          
+  airLen: 0.26,       
+});
+
+
+
+
+
+
+
+export function stepHorseGait(gait, dt, speed, tired = 0) {
+  const k = Math.min(1, Math.max(0, tired));
+  const stride = GALLOP.stride + (GALLOP.strideTired - GALLOP.stride) * k;
+  return ((gait || 0) + (Math.abs(speed) * dt) / stride) % 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function horsePose(gait, speedFrac, tired = 0) {
+  const v = Math.min(1, Math.max(0, speedFrac));
+  const k = Math.min(1, Math.max(0, tired));
+  const p = (gait || 0) * TAU;
+
+  
+  const amp = (0.55 + 0.35 * v) * v * (1 - 0.38 * k);
+  const legAt = (ph, hind) => {
+    const c = ((gait || 0) + 1 - ph) % 1;
+    return {
+      
+      swing: Math.sin(c * TAU) * amp * (hind ? 1.12 : 0.92),
+      lift: Math.max(0, Math.sin(c * TAU)) * (0.085 + 0.03 * v) * v,
+    };
+  };
+
+  
+  
+  const ac = (((gait || 0) - GALLOP.air + 1) % 1) / GALLOP.airLen;
+  const air = (ac < 1 ? Math.sin(ac * Math.PI) : 0)
+    * Math.max(0, (v - 0.55) / 0.45) * (1 - k);
+
+  
+  
+  
+  const bodyPitch = Math.sin(p + 0.6) * (0.085 + 0.045 * v) * v
+    + k * 0.05 * Math.sin(p * 2) * v;
+
+  return {
+    bodyPitch,
+    bodyLift: Math.abs(Math.sin(p)) * 0.022 * v + air * 0.075,
+    bodyRoll: Math.sin(p + 1.1) * (0.03 + 0.09 * k) * v,
+    
+    
+    
+    neckPump: -Math.sin(p + 0.6) * (0.16 + 0.10 * v) * v * (1 - 0.35 * k)
+      + k * 0.10,
+    legFL: legAt(GALLOP.beats.legFL, false),
+    legFR: legAt(GALLOP.beats.legFR, false),
+    legHL: legAt(GALLOP.beats.legHL, true),
+    legHR: legAt(GALLOP.beats.legHR, true),
+    tailSwish: Math.sin(p + 2.0) * 0.28 * v,
+    air,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+export function deathTwitch(u, seed = 0) {
+  const sd = ((seed % 1) + 1) % 1;
+  const env = Math.exp(-u * 4.2);
+  const rate = 18 + ((sd * 131) % 1) * 22;
+  const amp = 0.45 + ((sd * 53) % 1) * 0.6;
+  return {
+    
+    side: ((sd * 7919) % 1) < 0.5 ? -1 : 1,
+    legKick: env * Math.max(0, Math.sin(u * rate + sd * 9)) * amp,
+    wingSpasm: env * Math.sin(u * rate * 0.66 + sd * 17) * 0.5 * amp,
+  };
+}
