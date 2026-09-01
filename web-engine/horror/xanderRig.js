@@ -250,12 +250,24 @@ export const XANDER_DEPTHS = Object.freeze({ chest: 0.163, waist: 0.126, pelvis:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 export const XANDER_SEG = Object.freeze({
   upperArm: [0.072, 0.072],
   foreArm: [0.060, 0.060],
   thigh: [0.112, 0.114],
   shin: [0.079, 0.081],
-  neck: [0.070, 0.074],
+  neck: [0.058, 0.061],
 });
 
 

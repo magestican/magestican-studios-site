@@ -159,14 +159,48 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const FACE_SKIN = Object.freeze({
+  SKIN: '#cf9d74',
+  SKIN_LIT: '#e3b78d',
+  SKIN_HI: '#eec9a2',
+  SKIN_SH: '#a4744f',
+  SKIN_DEEP: '#7c5439',
+  SKIN_DARK: '#573925',
+});
+
+
+const hexNum = (h) => parseInt(h.slice(1), 16);
+
 const XCOL = {
   top: 0x9c4436,      
   pant: 0x3a4f7d,     
   accent: 0xb5893f,   
-  skin: 0xe8b590,
+  
+  
+  
+  skin: hexNum(FACE_SKIN.SKIN_LIT),
   hair: 0xcfae5e,     
                       
                       
+  
+  
+  
   eye: 0x2f6fd0,      
 };
 
@@ -601,12 +635,9 @@ function xanderFaceSheet(exprName = 'calm') {
   
   
   
-  const SKIN = '#cf9d74';
-  const SKIN_LIT = '#e3b78d';
-  const SKIN_HI = '#eec9a2';
-  const SKIN_SH = '#a4744f';
-  const SKIN_DEEP = '#7c5439';
-  const SKIN_DARK = '#573925';
+  const {
+    SKIN, SKIN_LIT, SKIN_HI, SKIN_SH, SKIN_DEEP, SKIN_DARK,
+  } = FACE_SKIN;
   
   
   
@@ -1804,6 +1835,16 @@ const overallsAt = (x, y, z) => {
 
 
 const trapAt = (x, y, z) => (z < 0.865 ? XCOL.pant : XCOL.top);
+
+
+
+
+
+
+
+
+
+
 
 const xColour = (n) => (n === 'hair' ? XCOL.hair
   : /^eye/.test(n) ? XCOL.eye
