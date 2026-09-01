@@ -45,7 +45,7 @@ import { defaultAssist } from 'arbelo/steerAssist';
 import {
   TRACKS, DEFAULT_TRACK, CUPS, DEFAULT_CUP, cupById, tracksInCup, cupLocked, cupOf,
 } from './tracks/tracks.js';
-import { trackBadges, factsLine, trackOutline, THUMB } from './tracks/trackFacts.js';
+import { trackBadges, factsLine, trackPreviewShape } from './tracks/trackFacts.js';
 import { createRace } from './game.js';
 import { createSession, joinIdFromLocation, shareLinkFor } from './net/session.js';
 import { createLobbyUi } from './ui/lobby.js';
@@ -633,18 +633,48 @@ function buildTrackGrid() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function trackThumb(track) {
-  const { outline, chasm, start } = trackOutline(track);
+  const shape = trackPreviewShape(track);
   const path = (pts) => pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-  return `<svg viewBox="0 0 ${THUMB.w} ${THUMB.h}" aria-hidden="true">
-    <polygon points="${path(outline)}" fill="none" stroke="rgba(28,26,23,0.55)" stroke-width="7"
-             stroke-linejoin="round"/>
-    <polygon points="${path(outline)}" fill="none" stroke="${hex(PALETTE.roadLight)}" stroke-width="4"
-             stroke-linejoin="round"/>
-    ${chasm.length > 1 ? `<polyline points="${path(chasm)}" fill="none" stroke="${hex(PALETTE.water)}"
-             stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
-    <circle cx="${start.x.toFixed(1)}" cy="${start.y.toFixed(1)}" r="3.4"
-            fill="#f6f1e6" stroke="rgba(28,26,23,0.7)" stroke-width="1.4"/>
+  const { startLine: sl } = shape;
+  return `<svg viewBox="0 0 ${shape.w} ${shape.h}" aria-hidden="true">
+    <polygon points="${path(shape.ribbon)}" fill="${hex(PALETTE.roadDark)}"
+             stroke="rgba(18,16,14,0.75)" stroke-width="3.2" stroke-linejoin="round"/>
+    <polygon points="${path(shape.ribbon)}" fill="${hex(PALETTE.roadLight)}"
+             stroke="none"/>
+    ${shape.chasm.length > 2 ? `<polygon points="${path(shape.chasm)}"
+             fill="${hex(PALETTE.water)}" stroke="none"/>` : ''}
+    <line x1="${sl.a.x.toFixed(1)}" y1="${sl.a.y.toFixed(1)}"
+          x2="${sl.b.x.toFixed(1)}" y2="${sl.b.y.toFixed(1)}"
+          stroke="#f6f1e6" stroke-width="2.6" stroke-linecap="butt"/>
   </svg>`;
 }
 function buildDifficultyRow() {

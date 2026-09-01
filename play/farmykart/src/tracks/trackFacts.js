@@ -32,6 +32,9 @@ import { buildPath } from '../../../../web-engine/kart/trackPath.js';
 import { trackRails, railMetres } from '../../../../web-engine/kart/trackGround.js';
 import { drivableWater } from '../../../../web-engine/kart/trackHazards.js';
 import { createProjection, project, spanIndices } from '../../../../web-engine/kart/minimap.js';
+import {
+  fitPreviewCamera, projectPreview, roadPixels, northIsUp,
+} from '../../../../web-engine/kart/trackPreview.js';
 
 
 
@@ -131,7 +134,77 @@ export function factsLine(track) {
 
 
 
-export const THUMB = Object.freeze({ w: 100, h: 64, padX: 7, padY: 6 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const PREVIEW_CARD = Object.freeze({ w: 281.25, h: 180 });
+
+
+
+
+
+
+
+
+
+
+
+
+const RIBBON_STEP = 4;
+
+
+function leftNormal(path, i) {
+  const t = path.tangents[i];
+  const l = Math.hypot(t.x, t.z) || 1;
+  
+  
+  
+  
+  
+  return { x: -t.z / l, z: t.x / l };
+}
+
+
+function roadEdges(path) {
+  const out = [];
+  for (let i = 0; i < path.count; i += 1) {
+    const p = path.pts[i];
+    const n = leftNormal(path, i);
+    const half = (p.width ?? 0) / 2;
+    out.push({
+      l: { x: p.x + n.x * half, y: p.y ?? 0, z: p.z + n.z * half },
+      r: { x: p.x - n.x * half, y: p.y ?? 0, z: p.z - n.z * half },
+    });
+  }
+  return out;
+}
+
+function everyNth(n, step) {
+  const idx = [];
+  for (let i = 0; i < n; i += step) idx.push(i);
+  return idx;
+}
 
 
 
@@ -159,16 +232,77 @@ export const THUMB = Object.freeze({ w: 100, h: 64, padX: 7, padY: 6 });
 
 
 
-
-export function trackOutline(track) {
+export function trackPreviewShape(track, {
+  w = PREVIEW_CARD.w, h = PREVIEW_CARD.h, elevationDeg, fovDeg,
+} = {}) {
   const path = pathOf(track);
-  const proj = createProjection(path.bounds, {
-    w: THUMB.w, h: THUMB.h, pad: Math.min(THUMB.padX, THUMB.padY),
+  const edges = roadEdges(path);
+  
+  
+  
+  
+  const fitPoints = [];
+  for (const e of edges) { fitPoints.push(e.l, e.r); }
+  const cam = fitPreviewCamera(fitPoints, {
+    w,
+    h,
+    ...(elevationDeg == null ? {} : { elevationDeg }),
+    ...(fovDeg == null ? {} : { fovDeg }),
   });
-  const outline = path.pts.map((p) => project(proj, p.x, p.z));
+
+  const idx = everyNth(path.count, RIBBON_STEP);
+  const proj = (p) => {
+    const q = projectPreview(cam, p.x, p.y, p.z);
+    return { x: q.x, y: q.y };
+  };
+  const left = idx.map((i) => proj(edges[i].l));
+  const right = idx.map((i) => proj(edges[i].r));
+
+  
+  
+  
+  
+  
+  
+  const ribbon = left.concat([...right].reverse());
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const glide = (track.glides ?? [])[0] ?? null;
-  const chasm = glide
-    ? spanIndices(path, glide.from, glide.to).map((i) => outline[i])
+  const span = new Set(glide ? spanIndices(path, glide.from, glide.to) : []);
+  const inSpanK = [];
+  for (let k = 0; k < idx.length; k += 1) if (span.has(idx[k])) inSpanK.push(k);
+  const chasm = inSpanK.length > 1
+    ? inSpanK.map((k) => left[k]).concat([...inSpanK].reverse().map((k) => right[k]))
     : [];
-  return { outline, chasm, start: outline[0] };
+
+  
+  
+  const startLine = { a: proj(edges[0].l), b: proj(edges[0].r) };
+
+  let minWidth = Infinity;
+  for (const p of path.pts) minWidth = Math.min(minWidth, p.width ?? Infinity);
+
+  return {
+    w,
+    h,
+    ribbon,
+    chasm,
+    startLine,
+    start: proj(path.pts[0]),
+    
+    
+    
+    roadPx: roadPixels(minWidth, cam),
+    northUp: northIsUp(cam),
+    cam,
+  };
 }
