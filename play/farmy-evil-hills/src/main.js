@@ -5791,6 +5791,7 @@ export function boot(canvas, hud) {
     for (const b of birds) {
       scene.remove(b.mesh);
       if (b.shade) scene.remove(b.shade);
+      if (b.flame) { scene.remove(b.flame); b.flame = null; }
       b.alive = false;
     }
     birds.length = 0;
@@ -6630,6 +6631,20 @@ export function boot(canvas, hud) {
     renderer.render(scene, camera);
   }
 
+  
+  
+  
+  function creatureDeath(b, bh, fallSide) {
+    const voice = b.kind === 'chicken' ? chickVoice : porkVoice;
+    voice(b, 'die', Math.hypot(player.x - b.x, player.z - b.z));
+    b.alive = false;
+    b.dying = 0;
+    if (decals) decals.put(b.x, b.z, bh * 1.5, 0.9);
+    b.fallSide = fallSide;
+    if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
+    combatSay(barks, 'kill');
+  }
+
   function step(nowMs) {
     const now = nowMs / 1000;
     const dt = Math.min(0.05, last ? now - last : 0.016);
@@ -6927,7 +6942,15 @@ export function boot(canvas, hud) {
       const SHOT_OVERSHOOT = 1.8;
       const aimDrop = lowNow ? 1.0 : 0.30;
       let lastAimYaw = player.yaw;
-      for (const b of birds) {
+      
+      
+      
+      
+      
+      let targetsLeft = player.weapon.spec?.targets ?? 1;
+      const shotOrder = [...birds].sort((p, q) => (
+        Math.hypot(player.x - p.x, player.z - p.z) - Math.hypot(player.x - q.x, player.z - q.z)));
+      for (const b of shotOrder) {
         
         
         
@@ -7104,6 +7127,18 @@ export function boot(canvas, hud) {
         
         
         
+        if ((player.weapon.spec?.burnDps ?? 0) > 0 && hit.id !== 'torso') {
+          b.burn = {
+            left: player.weapon.spec.burnSeconds,
+            dps: player.weapon.spec.burnDps,
+            limb: hit.id,
+          };
+        }
+        
+        
+        
+        
+        
         
         
         
@@ -7143,34 +7178,20 @@ export function boot(canvas, hud) {
         const st = statusOf(b.creature);
         
         
+        
+        
+        
         if (!st.alive) {
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          const voice = b.kind === 'chicken' ? chickVoice : porkVoice;
-          voice(b, 'die', Math.hypot(player.x - b.x, player.z - b.z));
-          b.alive = false;
-          b.dying = 0;
-          
-          if (decals) decals.put(b.x, b.z, bh * 1.5, 0.9);
-          
-          
-          b.fallSide = (hit.id === 'leg-l') ? -1 : ((hit.id === 'leg-r') ? 1 : (Math.random() < 0.5 ? -1 : 1));
-          if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
-          
-          
-          
-          combatSay(barks, 'kill');
+          creatureDeath(b, bh,
+            (hit.id === 'leg-l') ? -1 : ((hit.id === 'leg-r') ? 1 : (Math.random() < 0.5 ? -1 : 1)));
         }
-        break;                                        
+        
+        
+        
+        
+        
+        targetsLeft -= 1;
+        if (targetsLeft <= 0) break;
       }
 
       
@@ -7257,6 +7278,37 @@ export function boot(canvas, hud) {
     };
 
     
+    
+    
+    
+    
+    
+    for (const b of birds) {
+      if (!b.burn) continue;
+      if (!b.alive) { if (b.flame) b.flame.visible = false; b.burn = null; continue; }
+      b.burn.left -= dt;
+      applyDamage(b.creature, b.burn.limb, b.burn.dps * dt);
+      const bh2 = { porker: PORKER_HEIGHT_M, cow: COW_HEIGHT_M }[b.kind] ?? CHICKEN_H;
+      
+      
+      if (!b.flame) {
+        b.flame = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.14, 0.09),
+          new THREE.MeshBasicMaterial({ color: 0xff9a3d }));
+        scene.add(b.flame);
+      }
+      b.flame.visible = Math.random() > 0.15;
+      b.flame.position.set(b.x + (b.burn.limb === 'leg-l' ? -0.05 : 0.05) * bh2, bh2 * 0.28, b.z);
+      b.flame.scale.setScalar(0.8 + Math.random() * 0.5);
+      const stB = statusOf(b.creature);
+      if (!stB.alive) {
+        creatureDeath(b, bh2, b.burn.limb === 'leg-l' ? -1 : 1);
+      } else if ((stB.severedLimbs || []).includes(b.burn.limb)) {
+        
+        b.burn = null; b.flame.visible = false;
+      }
+      if (b.burn && b.burn.left <= 0) { b.burn = null; b.flame.visible = false; }
+    }
+
     for (const b of birds) {
       keepClear(b);
 
@@ -9010,6 +9062,14 @@ export function boot(canvas, hud) {
         return it ? { x: it.x, z: it.z, taken: it.taken } : null;
       },
       get library() { return library ? { ...library, near: nearLibrary } : null; },
+      
+      
+      
+      giveWeapon(wid, ammo) { player.weapon = readyWeapon(wid, { ammo: ammo ?? 48 }); return player.weapon.id; },
+      creatureStatus(i) {
+        const b = birds[i];
+        return b && b.creature ? { ...statusOf(b.creature), burn: b.burn ? { ...b.burn } : null } : null;
+      },
       get workbench() {
         return workbench ? {
           x: workbench.x, z: workbench.z, near: nearBench,
