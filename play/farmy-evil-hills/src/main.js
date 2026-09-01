@@ -4567,12 +4567,49 @@ export function boot(canvas, hud) {
   let liftCar = null;
   let liftDoors = null;
   let liftGroup = null;
+  
+  
+  let sealedDoors = null;
+  let liftLamp = null;
+  function paintGeo(geo, hex) {
+    const n = geo.attributes.position.count;
+    const col = new Float32Array(n * 3);
+    const c = new THREE.Color(hex);
+    for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+    geo.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+    geo.computeVertexNormals();
+  }
   let ride = createLift();
 
   
-  function placeCar(x, z) {
-    liftCar = { x, z: z + LIFT.depth / 2 + 0.1 };
-    if (liftGroup) liftGroup.position.set(x, 0, z);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function placeCar(bay) {
+    liftCar = { x: bay.car.x, z: bay.car.z, face: bay.car.face, kind: bay.kind };
+    if (liftGroup) {
+      
+      
+      
+      liftGroup.position.set(
+        bay.car.x + bay.car.face.x * (LIFT.depth / 2 + 0.1),
+        0,
+        bay.car.z + bay.car.face.z * (LIFT.depth / 2 + 0.1),
+      );
+      liftGroup.rotation.y = Math.atan2(-bay.car.face.x, -bay.car.face.z);
+    }
   }
   let deck = buildLevel(1);
   let deckGroup = null;
@@ -5461,7 +5498,61 @@ export function boot(canvas, hud) {
     liftGroup = new THREE.Group();
     deckGroup.add(liftGroup);
     const cx = 0; const cz = cd / 2 + 0.1;
-    placeCar(EXIT.x, EXIT.z);
+    placeCar(deck.bays[1]);
+
+    
+    
+    
+    
+    
+    sealedDoors = null;
+    for (const bay of deck.bays) {
+      const f = bay.car.face;
+      const yaw = Math.atan2(-f.x, -f.z);
+      const mouth = {
+        x: bay.car.x + f.x * (LIFT.depth / 2 + 0.12),
+        z: bay.car.z + f.z * (LIFT.depth / 2 + 0.12),
+      };
+      const frame = new THREE.Group();
+      frame.position.set(mouth.x, 0, mouth.z);
+      frame.rotation.y = yaw;
+      const jambGeo = new THREE.BoxGeometry(0.22, LIFT.height + 0.15, 0.3).toNonIndexed();
+      for (const sideX of [-1, 1]) {
+        const j = new THREE.Mesh(jambGeo.clone(), mat);
+        paintGeo(j.geometry, 0x565e52);
+        j.position.set(sideX * (LIFT.width / 2 + 0.11), (LIFT.height + 0.15) / 2, 0);
+        frame.add(j);
+      }
+      const lintel = new THREE.Mesh(new THREE.BoxGeometry(LIFT.width + 0.66, 0.3, 0.3).toNonIndexed(), mat);
+      paintGeo(lintel.geometry, 0x565e52);
+      lintel.position.set(0, LIFT.height + 0.15, 0);
+      frame.add(lintel);
+      
+      
+      
+      const lampMat = new THREE.MeshBasicMaterial({ color: 0x2a4a3e });
+      const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.12, 0.1), lampMat);
+      lamp.position.set(0, LIFT.height - 0.05, 0.18);
+      frame.add(lamp);
+      deckGroup.add(frame);
+      if (bay.kind === 'departure') liftLamp = lampMat;
+      if (bay.kind === 'arrival') {
+        
+        
+        const sd = new THREE.Group();
+        sd.position.copy(frame.position);
+        sd.rotation.y = yaw;
+        for (const sideX of [-1, 1]) {
+          const leaf = new THREE.Mesh(new THREE.BoxGeometry(LIFT.width / 2, LIFT.height, 0.09).toNonIndexed(), mat);
+          paintGeo(leaf.geometry, 0x49544b);
+          leaf.position.set(sideX * (LIFT.width / 4), LIFT.height / 2, 0.02);
+          sd.add(leaf);
+        }
+        sd.visible = false;
+        deckGroup.add(sd);
+        sealedDoors = sd;
+      }
+    }
 
     const carMat = texturedMaterial(grimeTexture({
       base: 0x7a8a80, seams: true, rivets: true, mud: 2, blood: 3, hay: 0,
@@ -7947,10 +8038,11 @@ export function boot(canvas, hud) {
         
         
         
-        placeCar(deck.start.x, deck.start.z - LIFT.depth - 0.6);
+        placeCar(deck.bays[0]);
         player.x = liftCar.x; player.z = liftCar.z;
         
-        player.yaw = 0;
+        
+        player.yaw = Math.atan2(-liftCar.face.x, liftCar.face.z);
         camNode = nodeAt(rails, progressAt(deck, player.x, player.z));
         
         
@@ -7968,8 +8060,32 @@ export function boot(canvas, hud) {
         
         
         say(barks, 'lift');
-      } else if (ride.event === 'arrive') { liftHum(false); doorSfx(true); }
+      } else if (ride.event === 'arrive') {
+        liftHum(false);
+        
+        
+        
+        if (!sfxSheet.play('liftChime', { gain: 0.9 })) {  }
+        doorSfx(true);
+      }
       else if (ride.event === 'ready') { hud.lift(0); hud.msg(''); }
+      
+      
+      
+      
+      
+      
+      
+      
+      if (ride.phase === 'idle' && liftCar && liftCar.kind === 'arrival') {
+        placeCar(deck.bays[1]);
+        if (sealedDoors) sealedDoors.visible = true;
+      }
+      
+      if (liftLamp && liftCar) {
+        const nearLift = Math.hypot(player.x - liftCar.x, player.z - liftCar.z) < LIFT.callRadius;
+        liftLamp.color.setHex(nearLift ? 0x9df5d9 : 0x2a4a3e);
+      }
       if (was === 'idle' && ride.phase === 'opening') doorSfx(true);
 
       
@@ -8121,6 +8237,17 @@ export function boot(canvas, hud) {
       get pickups() { return pickups.filter((q) => !q.taken).length; },
       goTo(x, z) { player.x = x; player.z = z; },
       get level() { return level; },
+      
+      
+      
+      
+      
+      get deck() {
+        return {
+          start: deck.start, exit: deck.exit, bays: deck.bays,
+          runs: deck.runs.map((r) => ({ x0: r.x0, z0: r.z0, x1: r.x1, z1: r.z1 })),
+        };
+      },
       
       
       

@@ -247,14 +247,38 @@ export function bossLevel() {
   const runs = [{
     axis: 'z', x0: 0, z0: 0, x1: 0, z1: ARENA.length, w: ARENA.width,
   }];
+  
+  
+  
+  
+  
+  
+  const BAY = { w: 3.0, d: 3.4 };
+  const bays = [
+    {
+      kind: 'arrival',
+      x0: ARENA.width / 2, x1: ARENA.width / 2 + BAY.d,
+      z0: 5 - BAY.w / 2, z1: 5 + BAY.w / 2,
+      side: 1,
+      car: { x: ARENA.width / 2 + BAY.d / 2, z: 5, face: { x: -1, z: 0 } },
+    },
+    {
+      kind: 'departure',
+      x0: -BAY.w / 2, x1: BAY.w / 2,
+      z0: ARENA.length, z1: ARENA.length + BAY.d,
+      side: 0,
+      car: { x: 0, z: ARENA.length + BAY.d / 2, face: { x: 0, z: -1 } },
+    },
+  ];
   return {
     seed: 'boss',
     boss: true,
     runs,
     rooms: [],
+    bays,
     start: { x: 0, z: 5 },
     
-    exit: { x: 0, z: ARENA.length - 3 },
+    exit: { x: 0, z: ARENA.length - 0.4 },
     width: ARENA.width,
     height: ARENA.height,
     length: ARENA.length,

@@ -93,7 +93,64 @@ export function buildLevel(seed = 1, opt = {}) {
     x += dir * cross;
   }
 
-  const exit = { x, z: z - 1.6 };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const BAY = { w: 3.0, d: 3.4 };
+  const arrivalSide = r() < 0.5 ? 1 : -1;
+  const bays = [
+    {
+      kind: 'arrival',
+      
+      x0: arrivalSide > 0 ? runs[0].x0 + cfg.width / 2 : runs[0].x0 - cfg.width / 2 - BAY.d,
+      x1: arrivalSide > 0 ? runs[0].x0 + cfg.width / 2 + BAY.d : runs[0].x0 - cfg.width / 2,
+      z0: 16 - BAY.w / 2,
+      z1: 16 + BAY.w / 2,
+      side: arrivalSide,
+      
+      
+      car: {
+        x: runs[0].x0 + arrivalSide * (cfg.width / 2 + BAY.d / 2),
+        z: 16,
+        face: { x: -arrivalSide, z: 0 },
+      },
+    },
+    {
+      kind: 'departure',
+      x0: x - BAY.w / 2,
+      x1: x + BAY.w / 2,
+      z0: z,
+      z1: z + BAY.d,
+      side: 0,
+      car: { x, z: z + BAY.d / 2, face: { x: 0, z: -1 } },
+    },
+  ];
+  
+  
+  const exit = { x, z: z - 0.4 };
   
   
   
@@ -140,7 +197,7 @@ export function buildLevel(seed = 1, opt = {}) {
   }
 
   return {
-    seed, runs, rooms, start, exit,
+    seed, runs, rooms, start, exit, bays,
     width: cfg.width,
     height: cfg.height,
     length: runs.reduce((n, q) => n + Math.hypot(q.x1 - q.x0, q.z1 - q.z0), 0),
@@ -212,6 +269,14 @@ const inRect = (r, x, z, pad) => x >= r.x0 + pad && x <= r.x1 - pad
 
 export function insideLevel(level, x, z, pad = 0.4) {
   for (const run of level.runs) if (inRect(runRect(run), x, z, pad)) return true;
+  
+  
+  
+  if (level.bays) {
+    for (const b of level.bays) {
+      if (inRect(b, x, z, Math.min(pad, 0.3))) return true;
+    }
+  }
   for (const m of level.rooms) {
     if (inRect(m, x, z, pad)) return true;
     

@@ -1,6 +1,6 @@
 {
   "sampleRate": 48000,
-  "seconds": 79.135,
+  "seconds": 80.825,
   "clips": {
     "shot1": {
       "effect": "shot",
@@ -232,98 +232,103 @@
       "offset": 43.65,
       "duration": 0.565
     },
+    "chime1": {
+      "effect": "liftChime",
+      "offset": 44.265,
+      "duration": 1.64
+    },
     "creak1": {
       "effect": "creak",
-      "offset": 44.265,
+      "offset": 45.955,
       "duration": 1.75
     },
     "creak2": {
       "effect": "creak",
-      "offset": 46.065,
+      "offset": 47.755,
       "duration": 2.05
     },
     "creak3": {
       "effect": "creak",
-      "offset": 48.165,
+      "offset": 49.855,
       "duration": 1.25
     },
     "creak4": {
       "effect": "creak",
-      "offset": 49.465,
+      "offset": 51.155,
       "duration": 1.65
     },
     "creak5": {
       "effect": "creak",
-      "offset": 51.165,
+      "offset": 52.855,
       "duration": 1.9
     },
     "dOpen1": {
       "effect": "doorOpen",
-      "offset": 53.115,
+      "offset": 54.805,
       "duration": 1.6
     },
     "dOpen2": {
       "effect": "doorOpen",
-      "offset": 54.765,
+      "offset": 56.455,
       "duration": 1.42
     },
     "dClose1": {
       "effect": "doorClose",
-      "offset": 56.235,
+      "offset": 57.925,
       "duration": 1.4
     },
     "dClose2": {
       "effect": "doorClose",
-      "offset": 57.685,
+      "offset": 59.375,
       "duration": 1.36
     },
     "lift1": {
       "effect": "liftLoop",
-      "offset": 59.095,
+      "offset": 60.785,
       "duration": 3.25,
       "wrap": 0.5
     },
     "lift2": {
       "effect": "liftLoop",
-      "offset": 62.395,
+      "offset": 64.085,
       "duration": 3.25,
       "wrap": 0.5
     },
     "room1": {
       "effect": "roomTone",
-      "offset": 65.695,
+      "offset": 67.385,
       "duration": 4.25,
       "wrap": 0.5
     },
     "room2": {
       "effect": "roomTone",
-      "offset": 69.995,
+      "offset": 71.685,
       "duration": 4.25,
       "wrap": 0.5
     },
     "breath1": {
       "effect": "breath",
-      "offset": 74.295,
+      "offset": 75.985,
       "duration": 0.63
     },
     "breath2": {
       "effect": "breath",
-      "offset": 74.975,
+      "offset": 76.665,
       "duration": 0.77
     },
     "breath3": {
       "effect": "breath",
-      "offset": 75.795,
+      "offset": 77.485,
       "duration": 0.56
     },
     "settle1": {
       "effect": "settle",
-      "offset": 76.405,
+      "offset": 78.095,
       "duration": 1.35
     },
     "settle2": {
       "effect": "settle",
-      "offset": 77.805,
+      "offset": 79.495,
       "duration": 1.28
     }
   },
@@ -409,6 +414,9 @@
       "rico1",
       "rico2",
       "rico3"
+    ],
+    "liftChime": [
+      "chime1"
     ],
     "creak": [
       "creak1",
