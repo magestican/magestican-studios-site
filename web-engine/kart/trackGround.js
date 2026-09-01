@@ -45,6 +45,7 @@ import { chasmDepthAt } from './trackHazards.js';
 import { terrainOffsetAt } from './trackTerrain.js';
 import { planEdgeGuards, guardGroundY } from './edgeGuard.js';
 import { planRails } from './trackRails.js';
+import { rampLift } from './milkRamps.js';
 
 
 
@@ -537,7 +538,16 @@ export function trackRails(path, track) {
 
 export function bodyGroundY(path, surf, x, z, track = null) {
   const edge = vergeBaseY(surf);
-  if (surf.onRoad) return edge;
+  
+  
+  
+  
+  
+  
+  if (surf.onRoad) {
+    return edge + rampLift(track && track.ramps, surf.s / path.length,
+      surf.lateral, surf.width, path.length);
+  }
   const blended = blendToGround(path, surf, x, z);
   if (!track) return blended;
   

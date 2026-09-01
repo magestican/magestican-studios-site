@@ -23,6 +23,7 @@ import {
 } from '../../../../web-engine/kart/milkRamps.js';
 import { sampleAt } from 'arbelo/trackPath';
 import { surface, applyShadows } from './materials.js';
+import { makeMilkTexture } from './textures.js';
 
 
 
@@ -35,21 +36,44 @@ import { surface, applyShadows } from './materials.js';
 
 
 
+
+let MILK_MAPS = null;
+function milkMaps() {
+  if (MILK_MAPS === null) MILK_MAPS = makeMilkTexture() ?? false;
+  return MILK_MAPS || {};
+}
 
 function milkMaterial() {
+  const m = milkMaps();
   return surface({
     
     
     
     
     
+    map: m.map ?? null,
+    roughnessMap: m.roughnessMap ?? null,
     
     
-    color: 0xd9d5c8,
-    roughness: 0.20,
-    metalness: 0.02,
-    envMapIntensity: 1.0,
-    rim: { strength: 0.30, power: 2.4 },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    color: 0xb6bcb6,
+    
+    
+    roughness: 0.85,
+    metalness: 0.03,
+    envMapIntensity: 1.05,
+    rim: { strength: 0.34, power: 2.2 },
   });
 }
 
@@ -132,10 +156,35 @@ function buildOne(width) {
   
   
   
-  const spill = new THREE.Mesh(new THREE.CircleGeometry(w * 0.55, 20), spillMaterial());
+  const dripMat = milkMaterial();
+  for (let i = 0; i < 6; i += 1) {
+    const t = (i + 0.5) / 6;
+    const len = 0.22 + Math.abs(Math.sin(i * 2.9)) * 0.5;
+    const drip = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.07, len, 3, 6), dripMat,
+    );
+    drip.position.set((t - 0.5) * w * 0.86, h - len * 0.45, L / 2 + 0.06);
+    g.add(drip);
+  }
+
+  
+  
+  
+  
+  
+  
+  const puddle = new THREE.Shape();
+  const pts = 12;
+  for (let i = 0; i <= pts; i += 1) {
+    const ang = (i / pts) * Math.PI * 2;
+    const rad = w * (0.5 + Math.sin(i * 2.3) * 0.09 + Math.sin(i * 5.1) * 0.05);
+    const px = Math.cos(ang) * rad;
+    const pz = Math.sin(ang) * rad * 0.6;
+    if (i === 0) puddle.moveTo(px, pz); else puddle.lineTo(px, pz);
+  }
+  const spill = new THREE.Mesh(new THREE.ShapeGeometry(puddle), spillMaterial());
   spill.rotation.x = -Math.PI / 2;
   spill.position.set(0, 0.012, -L / 2 - w * 0.16);
-  spill.scale.set(1, 1, 0.55);
   g.add(spill);
 
   return g;

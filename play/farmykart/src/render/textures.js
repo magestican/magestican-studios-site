@@ -1075,3 +1075,86 @@ export function makeSunFaceTexture() {
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function makeMilkTexture(seed = 0x31c4) {
+  if (typeof document === 'undefined') return null;
+  const SZ = 256;
+  const rnd = seedRng(seed);
+
+  const albedo = canvas(SZ);
+  const a = albedo.getContext('2d');
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  a.fillStyle = '#c2c8c2';
+  a.fillRect(0, 0, SZ, SZ);
+
+  const rough = canvas(SZ);
+  const r = rough.getContext('2d');
+  
+  
+  r.fillStyle = '#8a8a8a';
+  r.fillRect(0, 0, SZ, SZ);
+
+  
+  for (let i = 0; i < 14; i += 1) {
+    const x = rnd() * SZ; const y = rnd() * SZ;
+    const rad = 18 + rnd() * 46;
+    wrapDraw(x, y, SZ, (px, py) => {
+      const ga = a.createRadialGradient(px, py, 0, px, py, rad);
+      ga.addColorStop(0, 'rgba(243,246,242,0.95)');
+      ga.addColorStop(1, 'rgba(243,246,242,0)');
+      a.fillStyle = ga;
+      a.beginPath(); a.arc(px, py, rad, 0, Math.PI * 2); a.fill();
+
+      
+      const gr = r.createRadialGradient(px, py, 0, px, py, rad);
+      gr.addColorStop(0, 'rgba(40,40,40,0.9)');
+      gr.addColorStop(1, 'rgba(40,40,40,0)');
+      r.fillStyle = gr;
+      r.beginPath(); r.arc(px, py, rad, 0, Math.PI * 2); r.fill();
+    });
+  }
+
+  
+  
+  for (let i = 0; i < 10; i += 1) {
+    const x = rnd() * SZ; const y = rnd() * SZ;
+    const rad = 10 + rnd() * 34;
+    wrapDraw(x, y, SZ, (px, py) => {
+      a.strokeStyle = 'rgba(168,176,168,0.8)';
+      a.lineWidth = 1.5 + rnd() * 2;
+      a.beginPath(); a.arc(px, py, rad, 0, Math.PI * 2); a.stroke();
+      
+      r.strokeStyle = 'rgba(220,220,220,0.8)';
+      r.lineWidth = 2 + rnd() * 2.5;
+      r.beginPath(); r.arc(px, py, rad, 0, Math.PI * 2); r.stroke();
+    });
+  }
+
+  return { map: toTexture(albedo, 1), roughnessMap: toTexture(rough, 1) };
+}
