@@ -264,6 +264,8 @@ function boot() {
     onLeave: leaveRoom,
   });
 
+  
+  installHistoryRouter();
   window.__fkBooted = true;
   $('boot-gate')?.remove();
 
@@ -1405,6 +1407,9 @@ function copyDayCard() {
 
 const show = (id) => {
   $(id)?.classList.add('show');
+  
+  
+  if (id === 'menu' || id === 'lobby' || id === 'results') markScreen(id);
   if (id === 'menu') refreshAccountPanel();
   
   
@@ -1418,6 +1423,73 @@ const show = (id) => {
   if (id === 'menu') buildCharacterShowcase();
 };
 const hide = (id) => $(id)?.classList.remove('show');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SCREEN_STATE = 'fk-screen';
+
+function markScreen(id) {
+  try {
+    const at = window.history.state;
+    
+    
+    if (at && at[SCREEN_STATE] === id) return;
+    window.history.pushState({ [SCREEN_STATE]: id }, '');
+  } catch {  }
+}
+
+function routeTo(id) {
+  
+  
+  if (id === 'lobby' && state.session) { hide('menu'); hide('results'); show('lobby'); return; }
+  if (id === 'results') { hide('menu'); show('results'); return; }
+  hide('lobby'); hide('results'); hide('hud'); hide('touch-hints');
+  if (state.race) { state.race.dispose(); state.race = null; }
+  show('menu');
+}
+
+function installHistoryRouter() {
+  try {
+    
+    
+    window.history.replaceState({ [SCREEN_STATE]: 'menu' }, '');
+    window.history.pushState({ [SCREEN_STATE]: 'menu' }, '');
+  } catch {  }
+  window.addEventListener('popstate', (e) => {
+    const id = e.state && e.state[SCREEN_STATE];
+    if (!id) {
+      
+      
+      try { window.history.pushState({ [SCREEN_STATE]: 'menu' }, ''); } catch {  }
+      routeTo('menu');
+      return;
+    }
+    routeTo(id);
+  });
+}
 
 
 

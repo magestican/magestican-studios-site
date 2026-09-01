@@ -91,6 +91,44 @@
       max-width: 940px; margin: auto; display: flex; flex-direction: column;
       align-items: stretch; min-height: 100%; justify-content: flex-start;
     }
+
+    
+
+
+
+
+
+
+
+
+
+    #driver-air { height: 34vh; min-height: 190px; pointer-events: none; flex: none; }
+
+    
+
+
+    .menu-group { border: 1px solid #3a352e; border-radius: 12px; margin: 14px 0 0;
+      background: rgba(24,21,18,0.55); overflow: hidden; }
+    .menu-group > summary {
+      cursor: pointer; list-style: none; padding: 13px 16px; min-height: 44px;
+      font: 600 16px Georgia, serif; color: #e6dcc6;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .menu-group > summary::-webkit-details-marker { display: none; }
+    .menu-group > summary::after { content: 'be'; margin-left: auto; color: #9a8f7a; }
+    .menu-group[open] > summary::after { content: 'b4'; }
+    .menu-group > summary:hover { background: rgba(244,201,93,0.10); }
+    .menu-group .grp-icon { font-size: 18px; color: var(--gold); }
+    .menu-group summary em { font-style: normal; color: #9a8f7a; font-size: 13px; font-weight: 400; }
+    
+
+
+
+
+
+    .menu-group:not([open]) .menu-group-body { display: none; }
+    .menu-group-body { padding: 0 16px 14px; }
+    .menu-group-body h2:first-child { margin-top: 4px; }
     .title { font-family: Georgia, serif; font-size: clamp(30px, 7vw, 46px); letter-spacing: 0.01em; margin: 10px 0 2px; }
     .title em { font-style: normal; color: var(--gold); }
     .sub { color: #a79f90; font-size: clamp(13px, 2.6vw, 16px); margin-bottom: 14px; }
@@ -1312,9 +1350,14 @@
 
 
 
-      <p class="join-note">Opens a room and gives you a link to send. They open it and they are on the grid &mdash; no signup, no download, and bots fill the empty seats.</p>
+      
       <p id="join-note" class="join-note"></p>
 
+      
+      <div id="driver-air" aria-hidden="true"></div>
+      
+
+      <p class="join-note">Opens a room and gives you a link to send. They open it and they are on the grid &mdash; no signup, no download, and bots fill the empty seats.</p>
       <h2>Driver</h2>
       
 
@@ -1351,19 +1394,37 @@
       <p id="cup-note" class="cup-note"></p>
       <div id="track-grid" class="grid"></div>
 
-      <h2>Opponents</h2>
-      <div id="difficulty-row" class="row"></div>
+      
 
-      <h2>Distance</h2>
-      <div id="lap-row" class="row"></div>
 
-      <h2>Assist</h2>
-      <div id="assist-row" class="row"></div>
+
+
+
+
+
+
+      <details class="menu-group">
+        <summary><span class="grp-icon">&#9881;</span>Race setup
+          <em id="setup-summary"></em></summary>
+        <div class="menu-group-body">
+          <h2>Opponents</h2>
+          <div id="difficulty-row" class="row"></div>
+
+          <h2>Distance</h2>
+          <div id="lap-row" class="row"></div>
+
+          <h2>Assist</h2>
+          <div id="assist-row" class="row"></div>
       <p class="join-note">Steer assist keeps you on the road when you are not
         turning enough. It will not drive for you, it cannot out-steer you, and
         it is slower than a good lap &mdash; so turn it off once the circuit is
         familiar.</p>
+        </div>
+      </details>
 
+      <details class="menu-group">
+        <summary><span class="grp-icon">&#9733;</span>Your progress &amp; board</summary>
+        <div class="menu-group-body">
       <h2>Leaderboard</h2>
       
 
@@ -1394,6 +1455,8 @@
 
       <h2>Items</h2>
       <div id="item-legend"></div>
+        </div>
+      </details>
 
       <h2>Controls</h2>
       <p class="howto">
@@ -1750,7 +1813,7 @@
 
 
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=16fd8b3-20260901T232819Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=5dbb221-20260901T233734Z"></script>
 
   <script type="importmap">
   {
@@ -1813,6 +1876,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=16fd8b3-20260901T232819Z"></script>
+  <script type="module" src="./src/main.js?v=5dbb221-20260901T233734Z"></script>
 </body>
 </html>
