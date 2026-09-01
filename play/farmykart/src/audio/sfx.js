@@ -521,11 +521,48 @@ export function stopEngine(audio) {
   } catch {  }
   audio.engine = null;
   stopRivals(audio);
+  if (audio.airshipDrone) {
+    try { audio.airshipDrone.a.stop(); audio.airshipDrone.b.stop(); } catch {  }
+    audio.airshipDrone = null;
+  }
   
   
   
   
   stopRailLoop(audio);
+}
+
+
+
+
+
+
+
+
+
+
+
+export function updateAirshipDrone(audio, carrying) {
+  if (!audio.ctx || !audio.master) return;
+  if (!audio.airshipDrone) {
+    const ctx = audio.ctx;
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 260;
+    const a = ctx.createOscillator();
+    const b = ctx.createOscillator();
+    a.type = 'sawtooth'; b.type = 'sawtooth';
+    a.frequency.value = 55; b.frequency.value = 55 * 1.02;
+    a.connect(lp); b.connect(lp);
+    lp.connect(gain).connect(audio.master);
+    a.start(); b.start();
+    audio.airshipDrone = { gain, a, b };
+  }
+  const t = audio.ctx.currentTime;
+  const target = carrying && !audio.muted ? 0.11 : 0;
+  audio.airshipDrone.gain.gain.setTargetAtTime(target, t, 0.25);
 }
 
 
@@ -961,6 +998,30 @@ export const SFX = {
 
 
 
+
+  
+
+
+
+
+
+
+  milkRamp: (audio) => {
+    noiseBurst(audio, { dur: 0.12, gain: 0.2, freq: 2400, q: 0.6 });
+    blip(audio, { freq: 240, type: 'triangle', dur: 0.28, gain: 0.16, sweep: 420 });
+    blip(audio, { freq: 120, type: 'sine', dur: 0.16, gain: 0.14, delay: 0.02 });
+  },
+
+  
+
+
+
+
+  airshipGrab: (audio) => {
+    blip(audio, { freq: 70, type: 'sine', dur: 0.7, gain: 0.3, sweep: 60 });
+    blip(audio, { freq: 220, type: 'triangle', dur: 0.5, gain: 0.12, sweep: 160, delay: 0.1 });
+    noiseBurst(audio, { dur: 0.4, gain: 0.08, freq: 500, q: 0.5 });
+  },
 
   splash: (audio, hard = 0.5) => {
     const h = Math.max(0, Math.min(1, hard));

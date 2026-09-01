@@ -131,7 +131,7 @@ import { createHud, updateHud, showBanner, tickBanner, gapText } from './ui/hud.
 import { createMinimap, drawMinimap } from './ui/minimapView.js';
 import { createControls, readControls, consumeItemPress } from './input/controls.js';
 import { createRaceNet } from './net/raceNet.js';
-import { createAudio, resumeAudio, startEngine, updateEngine, updateRivals, stopEngine, SFX, setMuted } from './audio/sfx.js';
+import { createAudio, resumeAudio, startEngine, updateEngine, updateRivals, updateAirshipDrone, stopEngine, SFX, setMuted } from './audio/sfx.js';
 import { startMusic, stopMusic, setMusicIntensity, duckMusic } from './audio/music.js';
 import { PALETTE } from './palette.js';
 
@@ -818,6 +818,14 @@ export function createRace(options) {
       });
       r.kart = stepped.kart;
       r.jumpFrac = stepped.jumpFrac;
+      
+      
+      
+      
+      
+      if (r.isPlayer && r.kart.boost?.name === 'milk' && prevBoost?.name !== 'milk') {
+        SFX.milkRamp(audio);
+      }
       const {
         blocked, launched, hazard, hazardHit,
         grindStarted, grindEnded, splashed, splashVy, beached, adrift,
@@ -1137,6 +1145,13 @@ export function createRace(options) {
         : null;
       const d = stepAirship(r.airship, dt, { me, ahead, field });
       r.carried = d;
+      
+      
+      
+      if (r.isPlayer) {
+        if (d.started) SFX.airshipGrab(audio);
+        updateAirshipDrone(audio, d.carrying);
+      }
       if (!d.carrying) { r.airS = null; continue; }
 
       
