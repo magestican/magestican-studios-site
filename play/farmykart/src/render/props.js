@@ -296,10 +296,23 @@ export function buildScenery(path, track) {
 
 
 const BACKDROP_THEMES = {
-  summer: { near: PALETTE.hillNear, far: PALETTE.hillFar },
-  mud: { near: PALETTE.hillMud, far: PALETTE.hillMudFar },
-  snow: { near: PALETTE.hillSnow, far: PALETTE.hillSnowFar },
+  summer: { near: PALETTE.hillNear, fog: 0xd3e8fb },
+  mud: { near: PALETTE.hillMud, fog: 0xc9cdd2 },
+  snow: { near: PALETTE.hillSnow, fog: 0xe9f2fb },
 };
+
+
+function towardFog(colour, fogColour, t) {
+  const c = new THREE.Color(colour);
+  return c.lerp(new THREE.Color(fogColour), t).getHex();
+}
+
+
+
+
+
+
+
 
 
 
@@ -334,8 +347,9 @@ function buildBackdrop(path, theme) {
   const halfSpan = Math.max(b.maxX - b.minX, b.maxZ - b.minZ) / 2;
 
   const rings = [
-    { radius: halfSpan + 430, lo: 34, hi: 86, colour: c.far, seed: 3.1, freq: 2 },
-    { radius: halfSpan + 300, lo: 18, hi: 52, colour: c.near, seed: 0.7, freq: 3 },
+    { radius: halfSpan + 560, lo: 46, hi: 110, blend: 0.78, seed: 5.7, freq: 2 },
+    { radius: halfSpan + 430, lo: 34, hi: 86, blend: 0.5, seed: 3.1, freq: 2 },
+    { radius: halfSpan + 300, lo: 18, hi: 52, blend: 0.18, seed: 0.7, freq: 3 },
   ];
   for (const ring of rings) {
     const N = 128;
@@ -376,11 +390,62 @@ function buildBackdrop(path, theme) {
     
     
     
-    
-    const mat = new THREE.MeshBasicMaterial({ color: ring.colour, side: THREE.DoubleSide, fog: true });
+    const mat = new THREE.MeshBasicMaterial({
+      color: towardFog(c.near, c.fog, ring.blend), side: THREE.DoubleSide, fog: false,
+    });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.name = 'hills';
     group.add(mesh);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (ring.blend === 0.5) {
+      const millMat = new THREE.MeshBasicMaterial({
+        
+        
+        color: towardFog(c.near, c.fog, 0.34), side: THREE.DoubleSide, fog: false,
+      });
+      for (let m = 0; m < 6; m += 1) {
+        
+        
+        const a = (m / 6) * Math.PI * 2 + Math.sin(m * 2.7 + ring.seed) * 0.35;
+        const ridgeY = ring.lo + (ring.hi - ring.lo) * (
+          0.5
+          + 0.28 * Math.sin(a * ring.freq + ring.seed)
+          + 0.14 * Math.sin(a * (ring.freq * 3 + 1) + ring.seed * 2.3)
+          + 0.08 * Math.sin(a * (ring.freq * 7 + 2) - ring.seed)
+        );
+        const mx = cx + Math.sin(a) * (ring.radius - 4);
+        const mz = cz + Math.cos(a) * (ring.radius - 4);
+        const mill = new THREE.Group();
+        const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 2.6, 22, 6), millMat);
+        tower.position.y = 11;
+        mill.add(tower);
+        for (let bIdx = 0; bIdx < 4; bIdx += 1) {
+          const blade = new THREE.Mesh(new THREE.BoxGeometry(1.6, 13, 0.4), millMat);
+          blade.position.y = 6.5;
+          const arm = new THREE.Group();
+          arm.rotation.z = (bIdx / 4) * Math.PI * 2 + 0.4 + m;
+          arm.add(blade);
+          arm.position.y = 22;
+          mill.add(arm);
+        }
+        mill.position.set(mx, ridgeY - 2, mz);
+        
+        
+        mill.lookAt(cx, ridgeY, cz);
+        mill.scale.setScalar(1.35);
+        group.add(mill);
+      }
+    }
   }
   return group;
 }
