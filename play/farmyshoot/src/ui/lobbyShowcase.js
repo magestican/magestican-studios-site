@@ -40,6 +40,10 @@
 
 
 import * as THREE from 'three';
+
+import {
+  holdContext, releaseRenderer,
+} from '../../../../web-engine/render/contextLease.js';
 import {
   createShowcase, nudge, selectId, selectedId, stepShowcase, slotsOf, dragToNudge,
 } from '../../../../web-engine/kart/characterShowcase.js';
@@ -108,6 +112,11 @@ export class LobbyShowcase {
     
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     this.renderer.setClearColor(0x000000, 0);
+    
+    
+    
+    
+    this._ctxId = canvas.id || canvas;
 
     this.bodies = new Map();
     for (const id of this.ids) {
@@ -153,6 +162,19 @@ export class LobbyShowcase {
       nudge(this.state, step);
       this._drag.x = e.clientX;
     }
+  }
+
+  
+
+
+
+
+
+
+
+  hold() {
+    holdContext(this._ctxId, () => this.dispose());
+    return this;
   }
 
   start() {
@@ -265,6 +287,16 @@ export class LobbyShowcase {
     this.canvas.removeEventListener('pointerdown', this._onPointerDown);
     window.removeEventListener('pointermove', this._onPointerMove);
     window.removeEventListener('pointerup', this._onPointerUp);
-    this.renderer.dispose();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    releaseRenderer(this._ctxId, this.renderer);
   }
 }

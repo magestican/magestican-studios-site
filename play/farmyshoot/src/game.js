@@ -1,6 +1,18 @@
 
 
 import * as THREE from 'three';
+
+import { pageContexts } from '../../../web-engine/render/contextBudget.js';
+import { holdContext, releaseRenderer } from '../../../web-engine/render/contextLease.js';
+
+
+
+
+
+
+
+
+const FPS_CONTEXT = 'fps-scene';
 import { InputBus } from 'arbelo/input';
 import { SeededRng } from 'arbelo/rng';
 import { VOX } from 'arbelo/voxel';
@@ -694,11 +706,26 @@ export class Game {
   
 
   _initThree() {
+    
+    
+    
+    
+    
+    
+    
+    
+    pageContexts.enterExclusive(FPS_CONTEXT);
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setClearColor(new THREE.Color(this.sky.fog));
     this.opts.canvasParent.appendChild(this.renderer.domElement);
+
+    
+    
+    
+    
+    holdContext(FPS_CONTEXT, () => this.releaseRenderer());
 
     window.addEventListener('resize', () => this._onResize());
 
@@ -6219,6 +6246,28 @@ export class Game {
   
   
   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  releaseRenderer() {
+    if (!this.renderer) return false;
+    return releaseRenderer(FPS_CONTEXT, this.renderer, {
+      
+      
+      before: () => { try { this._disposeArena(); } catch (_) {  } },
+    });
+  }
+
   _disposeArena() {
     const arena = this._arena;
     if (!arena) return;

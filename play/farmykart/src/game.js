@@ -62,6 +62,7 @@ import { lapPoints } from 'arbelo/raceScore';
 
 
 import { pageContexts } from '../../../web-engine/render/contextBudget.js';
+import { holdContext, releaseRenderer } from '../../../web-engine/render/contextLease.js';
 
 
 
@@ -1872,46 +1873,13 @@ export function createRace(options) {
       
       
       
-      releaseShadows(scene);
-      renderer.dispose();
+      
+      
+      
+      
+      
+      releaseRenderer('scene', renderer, { before: () => releaseShadows(scene) });
 
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      renderer.forceContextLoss();
-
-      
-      
-      
-      
-      
-      
-      pageContexts.release('scene');
     },
   };
 
@@ -1925,7 +1893,7 @@ export function createRace(options) {
   
   
   
-  pageContexts.acquire('scene', () => race.dispose());
+  holdContext('scene', () => race.dispose());
   return race;
 }
 

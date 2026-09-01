@@ -33,6 +33,17 @@ import { pageContexts } from '../../../../web-engine/render/contextBudget.js';
 
 
 
+import {
+  freshCanvas, holdContext, releaseRenderer,
+} from '../../../../web-engine/render/contextLease.js';
+
+
+
+
+export { freshCanvas };
+
+
+
 
 import {
   createContextState, contextLost, contextRestored, shouldDraw,
@@ -182,34 +193,6 @@ function buildFigure(character) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export function freshCanvas(old) {
-  const next = old.cloneNode(false);
-  old.replaceWith(next);
-  return next;
-}
 
 export function createShowcaseView({
   canvas, ids, selected = null, podium = false, places = null, onSelect = null,
@@ -594,16 +577,17 @@ export function createShowcaseView({
       
       canvas.removeEventListener('webglcontextlost', onContextLost);
       canvas.removeEventListener('webglcontextrestored', onContextRestored);
-      
-      
-      pageContexts.release(canvas.id || canvas);
-      
+
       
       
       
       
-      renderer.dispose();
-      renderer.forceContextLoss();
+      
+      
+      
+      
+      
+      releaseRenderer(canvas.id || canvas, renderer);
       
       
       
@@ -620,7 +604,7 @@ export function createShowcaseView({
   };
   
   
-  pageContexts.acquire(canvas.id || canvas, view.dispose);
+  holdContext(canvas.id || canvas, view.dispose);
   return view;
 }
 

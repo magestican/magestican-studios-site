@@ -243,27 +243,67 @@ function paintCharacter(id, { fromCarousel = false } = {}) {
   if (!charStage) return;
   try {
     const { LobbyShowcase } = await import('./ui/lobbyShowcase.js');
-    showcase = new LobbyShowcase(charStage, [...ROSTER], {
-      selected: state.character,
-      onSelect: (id) => paintCharacter(id, { fromCarousel: true }),
-    });
-    showcase.start();
+    const { freshCanvas } = await import('../../../web-engine/render/contextLease.js');
+
     
     
     
     
     
     
-    window.__tbLobby = showcase;
-    document.getElementById('charPrev')?.addEventListener('click', () => showcase.nudge(-1));
-    document.getElementById('charNext')?.addEventListener('click', () => showcase.nudge(1));
+    
+    
+    
+    
+    let stageCanvas = charStage;
+    const build = () => {
+      stageCanvas = freshCanvas(stageCanvas);
+      showcase = new LobbyShowcase(stageCanvas, [...ROSTER], {
+        selected: state.character,
+        onSelect: (id) => paintCharacter(id, { fromCarousel: true }),
+      }).hold();
+      showcase.start();
+      window.__tbLobby = showcase;
+    };
+    build();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    document.getElementById('charPrev')?.addEventListener('click', () => showcase?.nudge(-1));
+    document.getElementById('charNext')?.addEventListener('click', () => showcase?.nudge(1));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
     
     const menuEl = $('menu');
     new MutationObserver(() => {
-      if (menuEl.style.display === 'none') showcase.stop(); else showcase.start();
+      const hidden = menuEl.style.display === 'none';
+      if (hidden) {
+        showcase?.dispose();
+        showcase = null;
+      } else if (!showcase) {
+        build();
+      } else {
+        showcase.start();
+      }
     }).observe(menuEl, { attributes: true, attributeFilter: ['style'] });
   } catch (err) {
     console.warn('[lobby] character turntable unavailable, chips still work:', err);

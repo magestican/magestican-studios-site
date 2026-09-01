@@ -971,9 +971,27 @@
 
     var has = {
       modules: probe(function () { return 'noModule' in D.createElement('script'); }),
+      
+
+
+
+
+
+
+
+
+
+
+
+
       webgl: probe(function () {
         var c = D.createElement('canvas');
-        return c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl');
+        var gl = c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl');
+        if (gl && gl.getExtension) {
+          var lose = gl.getExtension('WEBGL_lose_context');
+          if (lose) lose.loseContext();
+        }
+        return gl;
       }),
       webrtc: probe(function () {
         return W.RTCPeerConnection || W.webkitRTCPeerConnection || W.mozRTCPeerConnection;
@@ -1508,7 +1526,7 @@
   </div>
 
   
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=89ce95a-20260901T041557Z"></script>
-  <script type="module" src="./src/main.js?v=89ce95a-20260901T041557Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=e8202a7-20260901T054347Z"></script>
+  <script type="module" src="./src/main.js?v=e8202a7-20260901T054347Z"></script>
 </body>
 </html>
