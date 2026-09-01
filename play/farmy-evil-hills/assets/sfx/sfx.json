@@ -1,0 +1,142 @@
+{
+  "sampleRate": 48000,
+  "seconds": 13.497,
+  "clips": {
+    "shot1": {
+      "effect": "shot",
+      "offset": 0.05,
+      "duration": 0.646
+    },
+    "shot2": {
+      "effect": "shot",
+      "offset": 0.746,
+      "duration": 0.63
+    },
+    "shot3": {
+      "effect": "shot",
+      "offset": 1.426,
+      "duration": 0.684
+    },
+    "dry1": {
+      "effect": "dryClick",
+      "offset": 2.16,
+      "duration": 0.158
+    },
+    "dry2": {
+      "effect": "dryClick",
+      "offset": 2.368,
+      "duration": 0.17
+    },
+    "deck1": {
+      "effect": "stepDeck",
+      "offset": 2.588,
+      "duration": 0.504
+    },
+    "deck2": {
+      "effect": "stepDeck",
+      "offset": 3.142,
+      "duration": 0.475
+    },
+    "deck3": {
+      "effect": "stepDeck",
+      "offset": 3.667,
+      "duration": 0.524
+    },
+    "deck4": {
+      "effect": "stepDeck",
+      "offset": 4.241,
+      "duration": 0.446
+    },
+    "grain1": {
+      "effect": "stepGrain",
+      "offset": 4.737,
+      "duration": 0.32
+    },
+    "grain2": {
+      "effect": "stepGrain",
+      "offset": 5.107,
+      "duration": 0.34
+    },
+    "grain3": {
+      "effect": "stepGrain",
+      "offset": 5.497,
+      "duration": 0.37
+    },
+    "kick1": {
+      "effect": "kick",
+      "offset": 5.917,
+      "duration": 0.54
+    },
+    "kick2": {
+      "effect": "kick",
+      "offset": 6.507,
+      "duration": 0.51
+    },
+    "kick3": {
+      "effect": "kick",
+      "offset": 7.067,
+      "duration": 0.58
+    },
+    "meat1": {
+      "effect": "meat",
+      "offset": 7.697,
+      "duration": 0.26
+    },
+    "meat2": {
+      "effect": "meat",
+      "offset": 8.007,
+      "duration": 0.24
+    },
+    "creak1": {
+      "effect": "creak",
+      "offset": 8.297,
+      "duration": 1.75
+    },
+    "creak2": {
+      "effect": "creak",
+      "offset": 10.097,
+      "duration": 2.05
+    },
+    "creak3": {
+      "effect": "creak",
+      "offset": 12.197,
+      "duration": 1.25
+    }
+  },
+  "effects": {
+    "shot": [
+      "shot1",
+      "shot2",
+      "shot3"
+    ],
+    "dryClick": [
+      "dry1",
+      "dry2"
+    ],
+    "stepDeck": [
+      "deck1",
+      "deck2",
+      "deck3",
+      "deck4"
+    ],
+    "stepGrain": [
+      "grain1",
+      "grain2",
+      "grain3"
+    ],
+    "kick": [
+      "kick1",
+      "kick2",
+      "kick3"
+    ],
+    "meat": [
+      "meat1",
+      "meat2"
+    ],
+    "creak": [
+      "creak1",
+      "creak2",
+      "creak3"
+    ]
+  }
+}

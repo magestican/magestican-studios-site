@@ -133,8 +133,24 @@ export const WEAPONS = Object.freeze({
     
     
     
-    limbDamage: 26,
-    torsoDamage: 26,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    limbDamage: 39,
+    torsoDamage: 39,
     
     
     severBonus: 1.35,
@@ -213,7 +229,6 @@ export const WEAPONS = Object.freeze({
     range: 4,
     
     
-    
     fireRate: 8,
     
     
@@ -224,8 +239,22 @@ export const WEAPONS = Object.freeze({
     
     
     
-    limbDamage: 4.5,
-    torsoDamage: 4.5,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    limbDamage: 5.8,
+    torsoDamage: 5.8,
     severBonus: 1,
     stagger: 0.2,
     
