@@ -1737,6 +1737,29 @@ export function createRace(options) {
       
       
       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      hidePageBanner(FAULT_BANNER);
+      if (!ctxState.lost) hidePageBanner(GFX_BANNER);
+      
+      
+      
       if (!unlockZoom) unlockZoom = lockZoom(document);
       resumeAudio(audio);
       startEngine(audio);

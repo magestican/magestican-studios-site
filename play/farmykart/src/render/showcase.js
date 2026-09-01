@@ -30,6 +30,13 @@ import { configureRenderer, surface, paintedSurface } from './materials.js';
 
 
 import { pageContexts } from '../../../../web-engine/render/contextBudget.js';
+
+
+
+
+import {
+  createContextState, contextLost, contextRestored, shouldDraw,
+} from '../../../../web-engine/render/contextRecovery.js';
 import { PALETTE } from '../palette.js';
 
 
@@ -174,6 +181,7 @@ function buildFigure(character) {
 
 export function createShowcaseView({
   canvas, ids, selected = null, podium = false, places = null, onSelect = null,
+  onContext = null,
 }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   
@@ -327,12 +335,81 @@ export function createShowcaseView({
 
   const onVisibility = () => {
     if (document.hidden) cancelAnimationFrame(raf);
-    else if (visible) { prev = 0; raf = requestAnimationFrame(frame); }
+    else if (visible && !ctx.lost) { prev = 0; raf = requestAnimationFrame(frame); }
   };
   document.addEventListener('visibilitychange', onVisibility);
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  const clockNow = () => (typeof performance === 'object' && performance.now
+    ? performance.now() : Date.now());
+  const ctx = createContextState();
+  const onContextLost = (e) => {
+    
+    
+    
+    
+    
+    e.preventDefault();
+    const d = contextLost(ctx, clockNow());
+    cancelAnimationFrame(raf);
+    raf = 0;
+    if (onContext) onContext({ ...d, state: ctx });
+  };
+  const onContextRestored = () => {
+    const d = contextRestored(ctx, clockNow());
+    
+    
+    
+    prev = 0;
+    if (visible && !document.hidden && !disposed) raf = requestAnimationFrame(frame);
+    if (onContext) onContext({ ...d, state: ctx });
+  };
+  canvas.addEventListener('webglcontextlost', onContextLost);
+  canvas.addEventListener('webglcontextrestored', onContextRestored);
+
   function frame(now) {
-    if (!visible || document.hidden) { raf = 0; return; }
+    if (!visible || document.hidden || !shouldDraw(ctx)) { raf = 0; return; }
     raf = requestAnimationFrame(frame);
     const dt = Math.min(0.05, prev ? (now - prev) / 1000 : 0.016);
     prev = now;
@@ -406,6 +483,14 @@ export function createShowcaseView({
       document.removeEventListener('visibilitychange', onVisibility);
       canvas.removeEventListener('pointerdown', onDown);
       canvas.removeEventListener('pointerup', onUp);
+      
+      
+      
+      
+      
+      
+      canvas.removeEventListener('webglcontextlost', onContextLost);
+      canvas.removeEventListener('webglcontextrestored', onContextRestored);
       
       
       pageContexts.release(canvas.id || canvas);
