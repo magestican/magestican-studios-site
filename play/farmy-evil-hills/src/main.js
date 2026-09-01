@@ -106,6 +106,7 @@ import {
 import { compileMumble, seedOf } from '../../../web-engine/horror/mumble.js';
 import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix } from '../../../web-engine/horror/aimLatch.js';
 import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../../web-engine/horror/intro.js';
+import { isBossDeck, rosterFor, actCardFor } from '../../../web-engine/horror/acts.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
@@ -4628,7 +4629,9 @@ export function boot(canvas, hud) {
   
   
   
-  const BOSS_DECK = 4;
+  
+  
+  
   let isBoss = false;
   let fight = null;
   let boulder = null;
@@ -5177,7 +5180,7 @@ export function boot(canvas, hud) {
 
     
     
-    isBoss = seed >= BOSS_DECK;
+    isBoss = isBossDeck(seed);
     deck = isBoss ? bossLevel() : buildLevel(seed);
     fight = isBoss ? createBossFight() : null;
     EXIT = deck.exit;
@@ -5780,7 +5783,10 @@ export function boot(canvas, hud) {
     
     
     
-    [18, 30].forEach((back, i) => {
+    
+    
+    const plan = rosterFor(seed);
+    plan.behind.forEach((back, i) => {
       const p = pointBehind(deck, deck.start.x, deck.start.z, back);
       addChicken(p.z, p.x + (i % 2 ? 1 : -1) * 0.5);
     });
@@ -5795,8 +5801,11 @@ export function boot(canvas, hud) {
     
     
     
+    
+    
+    
     deck.runs.forEach((run, i) => {
-      if (run.axis !== 'x' || i < 3) return;
+      if (run.axis !== 'x' || i < plan.porkerFromCorner) return;
       addChicken(run.z1, (run.x0 + run.x1) / 2, 'porker');
     });
 
@@ -5810,9 +5819,21 @@ export function boot(canvas, hud) {
     
     
     {
-      const last = deck.runs[deck.runs.length - 1];
-      const t = 0.45;
-      addChicken(last.z0 + (last.z1 - last.z0) * t, last.x0, 'cow');
+      const zRuns = deck.runs.filter((r) => r.axis === 'z');
+      const last = zRuns[zRuns.length - 1];
+      addChicken(last.z0 + (last.z1 - last.z0) * 0.45, last.x0, 'cow');
+      
+      
+      if (plan.cows >= 2 && zRuns.length > 2) {
+        const mid = zRuns[Math.floor(zRuns.length / 2) - 1];
+        addChicken(mid.z0 + (mid.z1 - mid.z0) * 0.5, mid.x0, 'cow');
+      }
+    }
+    
+    
+    if (plan.ahead >= 1 && deck.runs.length > 2) {
+      const r2 = deck.runs[2];
+      addChicken((r2.z0 + r2.z1) / 2, (r2.x0 + r2.x1) / 2);
     }
 
     
@@ -5820,6 +5841,11 @@ export function boot(canvas, hud) {
     for (const m of deck.rooms) {
       if (m.contents === 'enemy') addChicken((m.z0 + m.z1) / 2, (m.x0 + m.x1) / 2, 'porker');
     }
+
+    
+    
+    const card = actCardFor(seed);
+    if (card) { hud.msg(card); actCardT = 5; }
   }
 
   buildWorld(1);
@@ -6077,6 +6103,7 @@ export function boot(canvas, hud) {
   
   let walkPhase = 0;
   let settle = 0;
+  let actCardT = 0;
   let fireT = 99;        
   
   
@@ -6135,6 +6162,7 @@ export function boot(canvas, hud) {
   let introCapUntil = 0;
   let introActs = null;
   let introRefs = null;
+  let introBed = null;
   const INTRO_SET = {
     title: { x: 0, z: -600 }, moonFarm: { x: 0, z: -600 }, call: { x: 0, z: -600 },
     ship: { x: 0, z: -600 }, transit: { x: 150, z: -600 }, crash: { x: 300, z: -600 },
@@ -6229,6 +6257,14 @@ export function boot(canvas, hud) {
     flame.rotation.x = Math.PI; flame.position.set(-3.2, -0.4, -2.6);
     flame.visible = false; moon.add(flame);
     refs.flame = flame;
+    
+    
+    
+    const dust = basic(new THREE.Mesh(new THREE.RingGeometry(0.8, 2.0, 18),
+      new THREE.MeshBasicMaterial({ color: 0x8d9088, transparent: true, opacity: 0 })));
+    dust.rotation.x = -Math.PI / 2; dust.position.set(-3.2, 0.06, -2.6);
+    moon.add(dust);
+    refs.dust = dust;
     stage.add(moon);
     refs.moon = moon;
 
@@ -6336,18 +6372,32 @@ export function boot(canvas, hud) {
       else if (e.act === 'board') { introActs.walking = -1; xRig.visible = false; }
       else if (e.act === 'ignite') introActs.ignite = 0;
       else if (e.act === 'shake') introActs.shake = 1;
-      else if (e.act === 'impact') introActs.impact = 0.4;
+      else if (e.act === 'impact') {
+        introActs.impact = 0.4;
+        if (introBed) { introBed.stop(); introBed = null; }
+      }
       else if (e.act === 'rise') introActs.rise = 0;
     } else if (e.kind === 'shotStart') {
       if (e.shotId === 'wreck') {
+        
+        
         
         const o = INTRO_SET.wreck;
         xRig.visible = true;
         xRig.position.set(o.x + 2.4, 0, o.z + 1.4);
         xRig.rotation.y = 0.6;
+        xRig.rotation.x = -1.25;
         xander.geometry = deathGeo[DEATH_FRAMES - 1];
       }
       if (e.shotId === 'transit' || e.shotId === 'crash') xRig.visible = false;
+      if (e.shotId === 'transit' && !introBed) {
+        
+        
+        
+        const h = sfxSheet.play('liftLoop', { loop: true, rate: 0.5, gain: 0.55 });
+        if (h && h.stop) introBed = h;
+      }
+      if (e.shotId === 'wreck' && introBed) { introBed.stop(); introBed = null; }
     }
   }
 
@@ -6389,6 +6439,8 @@ export function boot(canvas, hud) {
       for (const bm of introRefs.basics) { if (bm.material) bm.material.dispose(); }
     }
     introStage = null; introRefs = null; introActs = null;
+    if (introBed) { introBed.stop(); introBed = null; }
+    xRig.rotation.x = 0;
     const el = document.getElementById('vox');
     if (el) { el.textContent = ''; el.classList.remove('pa'); }
     xRig.visible = true;
@@ -6464,6 +6516,13 @@ export function boot(canvas, hud) {
           introRefs.rocket.position.y = risen * risen * 2.2;
           fl.position.y = -0.4 + introRefs.rocket.position.y;
         }
+        if (introRefs.dust) {
+          
+          
+          const du = Math.min(1, introActs.ignite / 2.8);
+          introRefs.dust.scale.setScalar(0.6 + du * 3.2);
+          introRefs.dust.material.opacity = Math.max(0, 0.5 * (1 - du * du));
+        }
       }
     }
     if (shotId === 'transit' && introRefs.shipSmall) {
@@ -6478,10 +6537,15 @@ export function boot(canvas, hud) {
         if (introActs.rise < RISE_T) {
           
           
+          
+          
           const u = 1 - (introActs.rise / RISE_T);
           const fd = Math.min(DEATH_FRAMES - 1, Math.floor(u * DEATH_FRAMES));
           if (xander.geometry !== deathGeo[fd]) xander.geometry = deathGeo[fd];
+          const up = Math.min(1, introActs.rise / (RISE_T * 0.55));
+          xRig.rotation.x = -1.25 * (1 - up * up * (3 - 2 * up));
         } else {
+          xRig.rotation.x = 0;
           const span = IDLE_FRAMES * 2 - 2;
           const k = Math.floor((now / IDLE_TIME) * span) % span;
           const fi = k < IDLE_FRAMES ? k : span - k;
@@ -7930,6 +7994,15 @@ export function boot(canvas, hud) {
         
         
         posed = (walkArmsShown && !sprintNow) ? aimedGait(g, aimPose(ph2 * (1 / 0.9))) : g;
+      } else if (settle > 0) {
+        
+        
+        
+        
+        
+        
+        const g = gaitPose(walkPhase, wasTurnStep ? 'shuffle' : 'walk');
+        posed = (walkArmsShown && !wasTurnStep) ? aimedGait(g, aimPose(walkPhase * (1 / 0.9))) : g;
       } else if (!player.dead && aimLatch.u > 0.001) {
         
         
@@ -8297,6 +8370,7 @@ export function boot(canvas, hud) {
       sparkFlash = 0.34;
       sparkSfx(w.tip[0], w.tip[2]);
     }
+    if (actCardT > 0) { actCardT -= dt; if (actCardT <= 0) hud.msg(''); }
     cutFlash = Math.max(0, cutFlash - dt);
     if (gradeEl) gradeEl.style.background = cutFlash > 0
       ? 'rgba(0,0,0,0.86)' : 'rgba(2, 5, 4, 0.34)';
