@@ -233,7 +233,61 @@ export function drivableWater(zone) {
 
 
 export function waterPlaneY(zone, roadY) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (zone && zone.plane != null) return zone.plane;
   return (roadY ?? 0) - surfaceLevelOf(zone);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function crossesRoad(zone) {
+  return !!zone && (zone.beyond ?? 1.18) < 1;
 }
 
 
@@ -321,6 +375,29 @@ export function chasmDepthAt(zones, { frac, lateral, width }) {
     if (!RESPAWNS.has(zone.kind)) continue;
     if (!inSpan(frac, zone.from, zone.to)) continue;
     if (zone.side && zone.side !== 'both' && zone.side !== side) continue;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (crossesRoad(zone)) continue;
     const edge = zone.beyond ?? 1.18;
     if (out < edge) return null;
     const depth = zone.depth ?? 4.5;
@@ -387,6 +464,14 @@ export function hazardEffect(zone, kart) {
 export function hazardMarkers(zone, spacing = 0.006) {
   const out = [];
   if (!zone) return out;
+  
+  
+  
+  
+  
+  
+  
+  if (crossesRoad(zone)) return out;
   const span = zone.from <= zone.to ? zone.to - zone.from : (1 - zone.from) + zone.to;
   const n = Math.max(1, Math.round(span / spacing));
   const at = zone.beyond ?? 1.18;

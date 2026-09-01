@@ -584,6 +584,30 @@ export function vergeBaseY(surf) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function vergeRamp(overBy) {
+  const u = Math.min(1, Math.max(0, overBy ?? 0) / SHOULDER);
+  return u * u * (3 - 2 * u);
+}
+
 export function blendToGround(path, surf, x, z) {
   const edge = vergeBaseY(surf);
   const ground = groundMeshHeightAt(path, x, z);
@@ -596,7 +620,6 @@ export function blendToGround(path, surf, x, z) {
   
   
   
-  const u = Math.min(1, (surf.overBy ?? 0) / SHOULDER);
-  const ramp = u * u * (3 - 2 * u);
+  const ramp = vergeRamp(surf.overBy ?? 0);
   return edge * (1 - ramp) + ground * ramp;
 }

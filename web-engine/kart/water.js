@@ -204,6 +204,33 @@ export function waterFields() {
     
     boatTime: 0,
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    boatPlaneY: 0,
+    
     adriftTime: 0,
     
     splashed: false,
@@ -243,6 +270,15 @@ export function waterSurface(zones, at, groundY) {
     if (!inSpanLocal(frac, zone.from, zone.to)) continue;
     if (zone.side && zone.side !== 'both' && zone.side !== side) continue;
     if (out < (zone.beyond ?? 1.18)) continue;
+    
+    
+    
+    
+    
+    
+    
+    
+    if (zone.until != null && out > zone.until) continue;
     const planeY = waterPlaneY(zone, y);
     if (!isWaterAt(planeY, groundY)) continue;
     return { zone, planeY, chasm: isChasmWater(zone) };
@@ -345,7 +381,35 @@ export function boatStep(kart, input = {}, ctx = {}) {
 
 
 
-export function boatFloat(y, vy, planeY, dt, gravity) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function boatFloat(y, vy, planeY, dt, gravity, bedY = -Infinity) {
   const k = buoyancyK(gravity);
   const c = buoyancyDamp(gravity);
   const submerge = Math.max(0, planeY - y);
@@ -353,7 +417,7 @@ export function boatFloat(y, vy, planeY, dt, gravity) {
   if (submerge > 0) v += (k * submerge - c * vy) * dt;
   if (v > RISE_CAP) v = RISE_CAP;
   let ny = y + v * dt;
-  const floor = planeY - PLUNGE_MAX;
+  const floor = Math.max(planeY - PLUNGE_MAX, bedY);
   if (ny < floor) { ny = floor; v = Math.max(0, v); }
   return { y: ny, vy: v, submerge: Math.max(0, planeY - ny) };
 }

@@ -38,7 +38,12 @@
 
 import * as THREE from 'three';
 import { nearestOnBranch, nearestOnPath } from 'arbelo/trackPath';
-import { RESPAWNS } from 'arbelo/trackHazards';
+import { RESPAWNS, crossesRoad, waterPlaneY } from 'arbelo/trackHazards';
+
+
+
+
+import { isWaterAt } from 'arbelo/trackGround';
 import { PALETTE } from '../palette.js';
 import { makeBarnTexture } from './textures.js';
 
@@ -116,7 +121,36 @@ function inWaterZone(path, x, z) {
       const side = (near.lateral ?? 0) > 0 ? 'left' : 'right';
       if (zone.side !== side) continue;
     }
-    if (out >= (zone.beyond ?? 1.18)) return true;
+    if (out < (zone.beyond ?? 1.18)) continue;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (zone.until != null && out > zone.until) continue;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (crossesRoad(zone)
+      && !isWaterAt(waterPlaneY(zone, near.y ?? 0), groundMeshHeightAt(path, x, z))) continue;
+    return true;
   }
   return false;
 }

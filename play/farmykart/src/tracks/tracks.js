@@ -221,11 +221,37 @@ export const TRACKS = [
       { x: 87.7, z: -141.5, y: 1.2, width: 40 },     
       { x: 105.4, z: -148.7, y: 0.4, width: 40 },
       { x: 123.6, z: -154.4, width: 40 },
-      { x: 142, z: -158.8, width: 40 },
-      { x: 160.5, z: -162.4, width: 40 },
-      { x: 182.3, z: -166.2, width: 40 },
       
-      { x: 218.3, z: -173.9, width: 39 },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      { x: 142, z: -158.8, y: -0.55, width: 40 },
+      { x: 160.5, z: -162.4, y: -1.35, width: 40 },
+      { x: 182.3, z: -166.2, y: -1.75, width: 40 },
+      
+      { x: 218.3, z: -173.9, y: -0.55, width: 39 },
       { x: 258.6, z: -185.3, y: 0.8, width: 38 },
       { x: 299.5, z: -194.9, y: 4.1, width: 37 },
       { x: 341.2, z: -197.9, y: 7.5, width: 35 },
@@ -280,7 +306,23 @@ export const TRACKS = [
     
     
     
-    itemStops: [0.20, 0.44, 0.66, 0.82],
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    itemStops: [0.09, 0.44, 0.66, 0.82],
     
     
     
@@ -308,6 +350,71 @@ export const TRACKS = [
       },
     ],
     hazards: [
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      {
+        id: 'sunflower-ford', kind: 'water', from: 0.160, to: 0.240,
+        side: 'both', beyond: 0, until: 2.4, drivable: true,
+        plane: -0.25, depth: 1.5, bank: 0.55,
+      },
       
       
       
@@ -544,10 +651,10 @@ export const TRACKS = [
       { x: 40, z: -134.2, y: 2.2, width: 38 },
       { x: 52.9, z: -148.3, y: 0.6, width: 38 },
       { x: 67.3, z: -160.8, width: 38 },
-      { x: 82.9, z: -171.5, width: 38 },
-      { x: 99.4, z: -180.5, width: 38 },
-      { x: 123, z: -190.1, width: 37 },
-      { x: 163.4, z: -199.9, width: 35 },
+      { x: 82.9, z: -171.5, y: -0.55, width: 38 },
+      { x: 99.4, z: -180.5, y: -1.35, width: 38 },
+      { x: 123, z: -190.1, y: -1.75, width: 37 },
+      { x: 163.4, z: -199.9, y: -0.55, width: 35 },
       { x: 205.2, z: -201.9, y: 1.6, width: 33 },
       
       { x: 245.7, z: -192.6, y: 4.9, width: 30 },
@@ -597,7 +704,40 @@ export const TRACKS = [
       { x: 17.8, z: 58.8, width: 34 },
       { x: 8.8, z: 42.3, width: 35 },
     ],
-    itemStops: [0.18, 0.46, 0.68, 0.88],
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    itemStops: [0.29, 0.46, 0.68, 0.88],
     jumps: [
       
       
@@ -624,8 +764,8 @@ export const TRACKS = [
       
       
       {
-        id: 'frostfield-lake', kind: 'water', from: 0.17, to: 0.23,
-        side: 'both', beyond: 1.30, depth: 5.0, bank: 0.5,
+        id: 'frostfield-lake', kind: 'water', from: 0.155, to: 0.260, plane: -0.25, until: 2.4, drivable: true,
+        side: 'both', beyond: 0, depth: 1.5, bank: 0.55,
       },
       
       
@@ -1082,6 +1222,24 @@ export const TRACKS = [
         id: 'copperhead-river', kind: 'water', from: 0.243, to: 0.300,
         side: 'both', beyond: 1.25, depth: 28, bank: 0.30, level: 18,
       },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       
       
       

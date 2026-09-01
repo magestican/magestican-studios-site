@@ -273,7 +273,264 @@ export const XANDER_SEG = Object.freeze({
 
 
 
-export const XANDER_FOOT = Object.freeze({ long: 1.34, wide: 0.98, tall: 1.12 });
+export const XANDER_FOOT = Object.freeze({
+  long: 1.34,
+  
+
+
+
+
+
+
+
+
+  wide: 1.12,
+  tall: 1.12,
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  cuff: Object.freeze({
+    rings: Object.freeze([
+      Object.freeze([0.050, 0.0330]),
+      Object.freeze([0.034, 0.0348]),
+      Object.freeze([0.018, 0.0318]),
+    ]),
+    
+
+
+
+
+
+
+
+
+    depth: 0.95,
+    at: 0,
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    pitchShare: 0,
+  }),
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const XANDER_LIMB_PROFILE = Object.freeze({
+  
+  thigh: Object.freeze([
+    Object.freeze([0.00, 0.94, 0.95, 0.14, 0.00]),  
+    Object.freeze([0.32, 0.84, 0.87, 0.00, 0.00]),  
+    Object.freeze([0.72, 0.68, 0.74, -0.12, 0.00]), 
+    Object.freeze([1.00, 0.58, 0.62, -0.06, 0.00]), 
+  ]),
+  shin: Object.freeze([
+    Object.freeze([0.00, 0.85, 0.83, -0.10, 0.00]), 
+    Object.freeze([0.14, 0.90, 0.88, 0.20, 0.00]),  
+    Object.freeze([0.30, 1.00, 0.97, 0.40, 0.14]),  
+    Object.freeze([0.55, 0.84, 0.83, 0.22, 0.10]),  
+    Object.freeze([0.91, 0.54, 0.56, 0.03, 0.02]),  
+    
+    
+    
+    
+    
+  ]),
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function xanderJoints(list) {
+  const out = [];
+  for (const j of list) {
+    if (/^ankle\d$/.test(j.part)) continue;
+    out.push(/^knee\d$/.test(j.part) ? { ...j, r: j.r * (0.50 / 0.64) } : j);
+  }
+  return out;
+}
 
 
 

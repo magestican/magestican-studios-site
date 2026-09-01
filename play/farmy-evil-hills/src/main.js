@@ -39,6 +39,7 @@ import {
 
 import {
   humanise, XANDER_RIG, XANDER_SEG, XANDER_SPANS, XANDER_DEPTHS, XANDER_FOOT,
+  XANDER_LIMB_PROFILE, xanderJoints,
 } from '../../../web-engine/horror/xanderRig.js';
 import { buildBoltDriver, muzzlePoint } from '../../../web-engine/ps1/props/boltDriver.mjs';
 import { segmentsOf, torsoBoxOf, jointsOf, girdleOf } from '../../../web-engine/ps1/ps1Rig.mjs';
@@ -52,7 +53,7 @@ import { buildFighter, jointBall } from '../../../web-engine/ps1/ps1Mesh.mjs';
 
 
 import {
-  head3d, hair3d, JAW, HEAD_RINGS,
+  head3d, hair3d, JAW, HEAD_RINGS, NOSE,
 } from '../../../web-engine/ps1/ps1Head.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
 import { buildPorker, PORKER_HEIGHT_M } from '../../../web-engine/ps1/creatures/porker.mjs';
@@ -668,8 +669,33 @@ function xanderFaceSheet(exprName = 'calm') {
   
   
   const yEye = FACE.rows.eye.y;
-  const yNose = CHIN * 0.725;
-  const yMouth = CHIN * 0.845;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const yNose = FACE.Y(NOSE.tip);
+  
+  const yNoseWing = FACE.Y(NOSE.wing);
+  const yMouth = yNose + (CHIN - yNose) * 0.34;
   
   
   
@@ -817,10 +843,10 @@ function xanderFaceSheet(exprName = 'calm') {
   c.fillStyle = SKIN_HI;
   c.globalAlpha = 0.45;
   c.beginPath();
-  c.moveTo(cxp - eW * 0.20, FACE.Y(0.13));
-  c.lineTo(cxp + eW * 0.20, FACE.Y(0.13));
-  c.lineTo(cxp + eW * 0.30, FACE.Y(-0.33));
-  c.lineTo(cxp - eW * 0.30, FACE.Y(-0.33));
+  c.moveTo(cxp - eW * 0.20, FACE.Y(NOSE.root));
+  c.lineTo(cxp + eW * 0.20, FACE.Y(NOSE.root));
+  c.lineTo(cxp + eW * 0.30, FACE.Y(NOSE.tip));
+  c.lineTo(cxp - eW * 0.30, FACE.Y(NOSE.tip));
   c.closePath();
   c.fill();
   c.globalAlpha = 1;
@@ -1100,22 +1126,74 @@ function xanderFaceSheet(exprName = 'calm') {
   
   
   
-  c.fillStyle = SKIN_SH;
-  c.globalAlpha = 0.22;
-  for (const d of [-1, 1]) {
-    c.beginPath();
-    c.ellipse(cxp + d * noseHalf * 0.84, yNose - ay(eW * 0.06),
-      noseHalf * 0.22, ay(noseHalf * 0.16), 0, 0, Math.PI * 2);
-    c.fill();
-  }
+  
+  
+  
+  
+  
+  
+  const nx = 128 * NOSE.halfU;                 
+  const nyMid = yNoseWing + (yNose - yNoseWing) * 0.55;
+  
+  
+  
+  c.fillStyle = SKIN_DEEP;
+  c.globalAlpha = 0.55;
+  c.beginPath();
+  c.moveTo(cxp - nx, yNoseWing);
+  c.lineTo(cxp + nx, yNoseWing);
+  c.lineTo(cxp + nx * 0.30, yNose);
+  c.lineTo(cxp - nx * 0.30, yNose);
+  c.closePath();
+  c.fill();
   c.globalAlpha = 1;
+  
+  
+  
   c.fillStyle = SKIN_DARK;
   for (const d of [-1, 1]) {
     c.beginPath();
-    c.ellipse(cxp + d * noseHalf * 0.44, yNose - ay(eW * 0.01),
-      noseHalf * 0.17, ay(noseHalf * 0.12), d * -0.5, 0, Math.PI * 2);
+    c.ellipse(cxp + d * nx * 0.52, nyMid, nx * 0.30, (yNose - yNoseWing) * 0.26,
+      d * 0.45, 0, Math.PI * 2);
     c.fill();
   }
+  
+  
+  
+  c.fillStyle = SKIN_LIT;
+  c.globalAlpha = 0.75;
+  c.beginPath();
+  c.moveTo(cxp - nx * 0.15, yNoseWing);
+  c.lineTo(cxp + nx * 0.15, yNoseWing);
+  c.lineTo(cxp + nx * 0.10, yNose);
+  c.lineTo(cxp - nx * 0.10, yNose);
+  c.closePath();
+  c.fill();
+  c.globalAlpha = 1;
+  
+  
+  
+  
+  c.fillStyle = SKIN_SH;
+  c.globalAlpha = 0.20;
+  for (const d of [-1, 1]) {
+    c.beginPath();
+    c.ellipse(cxp + d * noseHalf * 0.80, yNoseWing - ay(eW * 0.02),
+      noseHalf * 0.20, ay(noseHalf * 0.14), 0, 0, Math.PI * 2);
+    c.fill();
+  }
+  c.globalAlpha = 1;
+  
+  
+  
+  
+  c.fillStyle = SKIN_SH;
+  c.globalAlpha = 0.16;
+  c.beginPath();
+  c.ellipse(cxp, yNose + (yMouth - yNose) * 0.16, nx * 1.05,
+    (yMouth - yNose) * 0.13, 0, 0, Math.PI * 2);
+  c.fill();
+  c.globalAlpha = 1;
 
   
   
@@ -1399,6 +1477,17 @@ function xanderHeadGeometry() {
   return {
     mesh: narrowAcross(head3d({
       centre: hc, r: XANDER_RIG.headR, jaw: XANDER_JAW, brow: A.brow, forward: [1, 0, 0],
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      nose: 'human',
     })),
     centre: hc,
   };
@@ -1566,7 +1655,16 @@ const A = { ...ARCH.renji, hair: 'sleek', jaw: ARCH.renji.jaw, brow: ARCH.renji.
   };
   const built = buildFighter(K, {
     segments: segmentsOf(K, o), torso: torsoBoxOf(K, o),
-    joints: jointsOf(K, o), girdle: girdleOf(K, o),
+    
+    
+    
+    
+    
+    
+    
+    
+    profiles: XANDER_LIMB_PROFILE,
+    joints: xanderJoints(jointsOf(K, o)), girdle: girdleOf(K, o),
     headR: XANDER_RIG.headR, arch: { build: 1, jaw: A.jaw, brow: A.brow, hair: 'sleek' },
     flip: false, pose, head: false,
     

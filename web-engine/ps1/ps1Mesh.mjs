@@ -1483,6 +1483,153 @@ export function foot(opts = {}) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function bootCuff(opts = {}) {
+  const {
+    origin = [0, 0, 0], forward = [1, 0, 0], up = [0, 0, 1],
+    pitch = 0, uv = BODY_UV.foot, shinUp = null,
+    rings: cr = [[0.058, 0.0345], [0.040, 0.0365], [0.020, 0.0330]],
+    depth = 0.95, at = 0, pitchShare = 0,
+  } = opts;
+  const fr = frameOf(forward, up);
+  const cp = Math.cos(pitch); const sp = Math.sin(pitch);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const ang = Math.atan2(sp, cp) * pitchShare;
+  const c2 = Math.cos(ang); const s2 = Math.sin(ang);
+  const rot = (v) => [v[0] * c2 - v[2] * s2, v[1], v[0] * s2 + v[2] * c2];
+  
+  
+  const upL = shinUp
+    ? norm([dot(shinUp, fr.f), dot(shinUp, fr.s), dot(shinUp, fr.u)])
+    : [0, 0, 1];
+  const U = rot(upL);
+  
+  
+  
+  
+  
+  
+  const sv0 = sub([0, 1, 0], mul(U, dot([0, 1, 0], U)));
+  const sv = len(sv0) > 1e-6 ? norm(sv0) : [0, 1, 0];
+  const su = cross(sv, U);
+  const SIDES = 6;
+  const stack = cr.map(([z, hw], i) => {
+    const pts = []; const uvs = [];
+    for (let j = 0; j < SIDES; j += 1) {
+      const th = (j / SIDES) * Math.PI * 2;
+      const local = add(mul(U, z), add(
+        mul(su, at + Math.cos(th) * hw * depth),
+        mul(sv, Math.sin(th) * hw),
+      ));
+      pts.push(place(origin, fr, local));
+      uvs.push(remapUV(uv, j / SIDES, 0.20 + 0.6 * (i / Math.max(1, cr.length - 1))));
+    }
+    return { pts, uv: uvs };
+  });
+  const mesh = stackMesh(stack, {
+    
+    
+    
+    
+    
+    capFirst: true, capLast: true,
+    firstCapUV: (i) => remapUV(uv, 0.08 + 0.14 * i, 0.06),
+    lastCapUV: (i) => remapUV(uv, 0.08 + 0.14 * i, 0.94),
+  });
+  
+  
+  
+  
+  
+  
+  
+  mesh.axis = place([0, 0, 0], fr, U);
+  mesh.origin = origin.slice();
+  return mesh;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function hairDome(centre, fr, r, o = {}) {
   const {
     scale = 1.07, low = -0.20, frontLow = null, rings: nRings = 2,
@@ -1782,10 +1929,20 @@ export function buildFighter(K, opts = {}) {
     segments = [], torso = null, joints = null, girdle = null,
     headR = 0.118, arch = {}, flip = false, pose = null, hands: handStyles = null,
     head: headMesh = true,
+    
+    
+    
+    
+    
+    
+    
+    profiles = null,
   } = opts;
   const sx = flip ? -1 : 1;
   const fwd = [sx, 0, 0];
   const parts = [];
+  
+  const cuffs = [];
   const add1 = (name, mesh) => { if (mesh && mesh.tris) parts.push({ name, mesh, tris: mesh.tris }); };
 
   const uvFor = {
@@ -1838,7 +1995,7 @@ export function buildFighter(K, opts = {}) {
 
   for (const s of segments) {
     const kind = s.part.replace(/\d+$/, '');
-    const prof = LIMB_PROFILE[kind] || LIMB_PROFILE.straight;
+    const prof = (profiles && profiles[kind]) || LIMB_PROFILE[kind] || LIMB_PROFILE.straight;
     
     
     
@@ -2053,19 +2210,63 @@ export function buildFighter(K, opts = {}) {
       
       
       if (pose && Array.isArray(pose.toe) && Number.isFinite(pose.toe[i])) {
-        pitch = pose.toe[i];
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        pitch = -pose.toe[i];
       }
+      const footAt = [K.feet[i][0] * sx, legEnd ? legEnd.b[1] : fallbackY, K.feet[i][1]];
+      const fs = opts.footScale || {};
       add1(`foot${i}`, foot({
-        origin: [K.feet[i][0] * sx, legEnd ? legEnd.b[1] : fallbackY, K.feet[i][1]],
-        forward: fwd, side: i === 0 ? 1 : -1, pitch,
-        ...(opts.footScale || {}),
+        origin: footAt, forward: fwd, side: i === 0 ? 1 : -1, pitch, ...fs,
       }));
+      if (fs.cuff) {
+        const cm = bootCuff({
+          origin: footAt, forward: fwd, pitch,
+          
+          
+          
+          shinUp: legEnd ? norm(sub(legEnd.a, legEnd.b)) : null,
+          ...fs.cuff,
+        });
+        add1(`footCuff${i}`, cm);
+        cuffs.push({ part: `footCuff${i}`, origin: cm.origin, axis: cm.axis });
+      }
     }
   }
 
   const mesh = mergeMeshes(parts.map((p) => p.mesh));
   return {
-    parts, mesh, tris: mesh.tris,
+    parts, mesh, tris: mesh.tris, cuffs,
     
     
     

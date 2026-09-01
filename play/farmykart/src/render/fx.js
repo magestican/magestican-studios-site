@@ -26,6 +26,8 @@ import { vehicleFor } from '../../../../web-engine/kart/vehicles.js';
 
 
 
+
+
 import { DRAFT } from '../../../../web-engine/kart/water.js';
 import { wakeGeometry } from '../../../../web-engine/render/boatRig.js';
 import { boatBeam } from '../../../../web-engine/render/boatSpec.js';
@@ -889,7 +891,23 @@ function sprayFor(fx) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 function boatSurfaceY(kart) {
+  const plane = kart.boatPlaneY;
+  
+  
+  if (kart.boating && typeof plane === 'number' && Number.isFinite(plane)) return plane;
   return (kart.y ?? 0) + DRAFT;
 }
 

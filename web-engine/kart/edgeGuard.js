@@ -55,7 +55,7 @@
 
 
 import { nearestOnBranch } from './trackPath.js';
-import { inSpan, RESPAWNS } from './trackHazards.js';
+import { inSpan, RESPAWNS, crossesRoad } from './trackHazards.js';
 
 
 
@@ -466,10 +466,28 @@ function onAnyBranch(path, x, z, pad) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function reachAt(zones, { frac, side, width }) {
   let reach = GUARD_WIDTH;
   for (const zone of zones ?? []) {
     if (!RESPAWNS.has(zone.kind)) continue;
+    if (crossesRoad(zone)) continue;
     if (!inSpan(frac, zone.from, zone.to)) continue;
     if (zone.side && zone.side !== 'both' && zone.side !== side) continue;
     

@@ -538,7 +538,7 @@ export function head3d(opts = {}) {
   });
 
   const parts = [{ name: 'skull', mesh: skull }];
-  if (nose) parts.push({ name: 'nose', mesh: noseWedge(P, cFace) });
+  if (nose) parts.push({ name: 'nose', mesh: noseWedge(P, cFace, nose === 'human' ? jaw : null) });
   if (ears) {
     parts.push({ name: 'earL', mesh: earBlade(P, res, cSides, 1) });
     parts.push({ name: 'earR', mesh: earBlade(P, res, cSides, -1) });
@@ -572,9 +572,68 @@ export function head3d(opts = {}) {
 
 
 
+export const NOSE = Object.freeze({
+  
+  root: 0.13,
+  
+  bridge: -0.06,
+  
+  tip: -0.335,
+  
+  wing: -0.275,
+  
+  column: -0.318,
+  
+  halfY: 0.19,
+  
+  halfU: 0.052,
+});
 
 
-function noseWedge(P, cFace) {
+
+
+
+
+
+
+
+
+export function chartRowOf(z, jawId = 'oval') {
+  const J = JAW[jawId] || JAW.oval;
+  const a = HEAD_RINGS[0];
+  const b = HEAD_RINGS[HEAD_RINGS.length - 1];
+  const bz = b.drop !== undefined ? -J.drop * b.drop : b.z;
+  return a.v + (a.z - z) * ((b.v - a.v) / (a.z - bz));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function noseWedge(P, cFace, humanJaw) {
+  if (humanJaw) return humanNose(P, cFace, humanJaw);
   const A = P(0.83, 0, 0.13);    
   const B = P(0.91, 0, -0.05);   
   const T = P(0.96, 0, -0.24);   
@@ -593,6 +652,100 @@ function noseWedge(P, cFace) {
   pushTriOut(m, c, B, R, T, uB, uR, uT);
   pushTriOut(m, c, T, L, R, uT, uL, uR);
   pushTriOut(m, c, A, L, R, uA, uL, uR);
+  return m;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function humanNose(P, cFace, jawId) {
+  const A = P(0.83, 0, NOSE.root);
+  const B = P(0.91, 0, NOSE.bridge);
+  const T = P(0.97, 0, NOSE.tip);
+  const L = P(0.82, NOSE.halfY, NOSE.wing);
+  const R = P(0.82, -NOSE.halfY, NOSE.wing);
+  const C = P(0.885, 0, NOSE.column);
+  const c = [
+    (A[0] + B[0] + T[0] + L[0] + R[0] + C[0]) / 6,
+    (A[1] + B[1] + T[1] + L[1] + R[1] + C[1]) / 6,
+    (A[2] + B[2] + T[2] + L[2] + R[2] + C[2]) / 6,
+  ];
+  const m = emptyMesh();
+  const nu = (du, z) => remapUV(cFace, 0.5 + du, chartRowOf(z, jawId));
+  const uA = nu(0, NOSE.root);
+  const uB = nu(0, NOSE.bridge);
+  const uT = nu(0, NOSE.tip);
+  const uC = nu(0, NOSE.column);
+  const uL = nu(NOSE.halfU, NOSE.wing);
+  const uR = nu(-NOSE.halfU, NOSE.wing);
+  
+  pushTriOut(m, c, A, B, L, uA, uB, uL);
+  pushTriOut(m, c, A, R, B, uA, uR, uB);
+  pushTriOut(m, c, B, T, L, uB, uT, uL);
+  pushTriOut(m, c, B, R, T, uB, uR, uT);
+  
+  pushTriOut(m, c, T, L, C, uT, uL, uC);
+  pushTriOut(m, c, T, C, R, uT, uC, uR);
+  
+  pushTriOut(m, c, A, L, C, uA, uL, uC);
+  pushTriOut(m, c, A, C, R, uA, uC, uR);
   return m;
 }
 
@@ -762,6 +915,13 @@ function hairShell(P, res, o = {}) {
   const {
     low = -0.20, frontLow = null, sideLow = null, puffTop = 1.10, puffMid = 1.09,
     puffLow = 1.03, uv = HEAD_UV.hair,
+    
+    
+    
+    
+    
+    
+    crown = 0,
   } = o;
   const fl = frontLow === null ? low : frontLow;
   const sl = sideLow === null ? (fl + low) / 2 : sideLow;
@@ -806,13 +966,55 @@ function hairShell(P, res, o = {}) {
     rowAt((ci) => lerp(CROWN, colLow[ci], 0.72), puffMid, 0.64),
     rowAt((ci) => colLow[ci], puffLow, 0.92),
   ];
+  const apexP = P(APEX[0] * puffTop, 0, APEX[2] * puffTop + 0.06);
+
   
   
   
-  return flipWinding(stackMesh(rows, {
-    apex: P(APEX[0] * puffTop, 0, APEX[2] * puffTop + 0.06),
-    apexUV: (a, b) => [(a[0] + b[0]) / 2, uv[1] + (uv[3] - uv[1]) * 0.02],
-  }));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const stack = crown > 0
+    ? [{
+      pts: skullAt(res, CROWN).map((p) => P(
+        p[0] * puffTop * crown + APEX[0] * puffTop * (1 - crown),
+        p[1] * puffTop * crown,
+        APEX[2] * puffTop + 0.02,
+      )),
+      uv: HEAD_COLS.map((_, ci) => remapUV(uv, ci / HEAD_COLS.length, 0.02)),
+    }, ...rows]
+    : rows;
+
+  
+  
+  
+  return flipWinding(stackMesh(stack, crown > 0
+    ? {
+      capFirst: true,
+      firstCapUV: (i) => remapUV(uv, 0.10 + 0.12 * i, uv[1] + (uv[3] - uv[1]) * 0.01),
+    }
+    : {
+      apex: apexP,
+      apexUV: (a, b) => [(a[0] + b[0]) / 2, uv[1] + (uv[3] - uv[1]) * 0.02],
+    }));
 }
 
 
@@ -1035,6 +1237,11 @@ export function hair3d(style, opts = {}) {
         mesh: hairShell(P, res, {
           low: -0.46, frontLow: 0.30, sideLow: 0.10,
           puffTop: 1.075, puffMid: 1.052, puffLow: 1.008, uv,
+          
+          
+          
+          
+          crown: 0.22,
         }),
       });
       

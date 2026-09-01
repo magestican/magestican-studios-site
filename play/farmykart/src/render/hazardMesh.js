@@ -15,12 +15,12 @@ import * as THREE from 'three';
 
 
 import {
-  hazardMarkers, inSpan, chasmDepthAt, waterPlaneY, bankAt,
+  hazardMarkers, inSpan, chasmDepthAt, waterPlaneY, bankAt, crossesRoad,
 } from 'arbelo/trackHazards';
 import { lungePhase } from 'arbelo/trackGlides';
 import { lavaRise } from 'arbelo/trackTerrain';
 import { sampleAt, nearestOnPath } from 'arbelo/trackPath';
-import { isWaterAt } from 'arbelo/trackGround';
+import { isWaterAt, vergeRamp } from 'arbelo/trackGround';
 import { surface, NOISE_GLSL, WAVE_GLSL, skyPalette, getQuality } from './materials.js';
 
 
@@ -63,6 +63,86 @@ const WATER_REACH = 90;
 
 
 const WATER_COLS = 8;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const WET_MARGIN = 0.23;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CROSSING_PAD = 18;
+
+const clamp01 = (v) => (v < 0 ? 0 : (v > 1 ? 1 : v));
+const smooth01 = (v) => { const u = clamp01(v); return u * u * (3 - 2 * u); };
+
+
+
+
+
+
+
+
+
+
+
+
+
+function wetArc(path, zone) {
+  const span = zone.to >= zone.from ? zone.to - zone.from : (1 - zone.from) + zone.to;
+  const from = zone.from * path.length;
+  let first = null;
+  let last = null;
+  for (let d = 0; d <= span * path.length; d += 0.5) {
+    const p = sampleAt(path, (from + d) % path.length);
+    if (!isWaterAt(waterPlaneY(zone, p.y ?? 0), p.y ?? 0)) continue;
+    if (first == null) first = from + d;
+    last = from + d;
+  }
+  return first == null ? null : { from: first, to: last };
+}
 
 
 
@@ -145,7 +225,7 @@ export const WASH_STRENGTH = 0.55;
 
 
 export function buildWaterMaterial(theme = 'summer', {
-  frozen = false, sky = 'day', sunDir = null, low = false,
+  frozen = false, sky = 'day', sunDir = null, low = false, wetMargin = 0,
 } = {}) {
   
   
@@ -192,6 +272,11 @@ export function buildWaterMaterial(theme = 'summer', {
     uSun: { value: sun },
     uFrozen: { value: frozen ? 1 : 0 },
     
+    
+    
+    
+    uWetMargin: { value: wetMargin },
+    
     uWaveScale: { value: frozen ? 0.08 : 1 },
     
     
@@ -223,7 +308,7 @@ export function buildWaterMaterial(theme = 'summer', {
     
     side: THREE.DoubleSide,
     vertexShader: `
-      uniform float uTime, uWaveScale;
+      uniform float uTime, uWaveScale, uWetMargin;
       attribute float edge;
       varying vec2 vWorld;
       varying float vEdge;      // 0 at the bank, 1 out in the middle
@@ -238,7 +323,15 @@ export function buildWaterMaterial(theme = 'summer', {
         // until the bed is genuinely below the surface; a crest lifting that
         // edge would show daylight under the water against the shore, which is
         // the one place a player is looking when they decide whether to commit.
-        float amp = smoothstep(0.0, 0.06, edge) * uWaveScale;
+        //
+        // AND THE TAPER IS LONGER ON A CROSSING, because there "edge" is a
+        // measured DEPTH rather than a distance from a bank (see buildWater).
+        // 0.06 of a 1.5 m reference is 9 cm of water, and the three trains sum
+        // to 0.34 m of displacement in phase - so a full-amplitude swell in the
+        // shallows of a ford would put the drawn surface through the road. 0.30
+        // is 45 cm, which is deeper than the trough can reach.
+        float ampEdge = uWetMargin > 0.0 ? 0.30 : 0.06;
+        float amp = smoothstep(0.0, ampEdge, edge) * uWaveScale;
         vec3 n;
         // Swell in full, chop at half, ripple not at all: see the note below on
         // what this tessellation can actually represent.
@@ -267,7 +360,7 @@ export function buildWaterMaterial(theme = 'summer', {
     `,
     fragmentShader: `
       uniform vec3 uDeep, uShallow, uFoam, uSun, uSkyTop, uSkyHorizon, uHaze, uCrack;
-      uniform float uTime, uFrozen;
+      uniform float uTime, uFrozen, uWetMargin;
       uniform vec4 uBoats[4];
       varying vec2 vWorld;
       varying float vEdge;
@@ -415,6 +508,59 @@ export function buildWaterMaterial(theme = 'summer', {
         // the frame (that shot measured 8.67 flat and 10.02 here).
         col += grain * mix(0.014, 0.052, pow(1.0 - ndv, 2.0));
 
+        // -- caustics, and ONLY in the shallows of a crossing ---------------
+        //
+        // WHAT A FORD LOOKS LIKE FROM A KART IS THE BOTTOM OF IT. Standing
+        // water over a hard pale bed throws the sun back as a moving net of
+        // bright lines; it is the single most recognisable thing about shallow
+        // water in sunlight, and it is the one cue a lake beside a road has no
+        // use for and a road you are driving THROUGH does.
+        //
+        // IT IS ALSO WHAT THE LOOK PROBE IS ASKING FOR. Measured 2026-08-31 by
+        // deleting the ford's water and leaving its road dip in place, the
+        // drawn pool cost the frame 0.11 of localContrast (3.13 -> 3.02) - it
+        // replaces tarmac, which carries tyre marks and grain, with a large
+        // calm surface. Some of that is honest: water IS flatter than tarmac.
+        // The part that is not honest is the shallows, where a real ford is at
+        // its BUSIEST and this shader had nothing at all.
+        //
+        // Two sine trains 39 degrees apart at 3.5 m and 2.6 m, thresholded by
+        // the classic 1 - |a*b| so the bright set is the lines where either
+        // train crosses zero rather than a lattice of dots. Faded out past 30 m
+        // for the same reason the 2.1 m ripple is (below one sample per
+        // wavelength prints moire, and this repo has shipped that once), and
+        // faded out below 0.93 m of depth, which is where the bed stops being
+        // visible through the body colour anyway.
+        #ifndef FK_LOW
+        // A QUARTER OF IT SURVIVES THE DEEP END. The first cut faded the
+        // caustic out completely by 0.93 m and the deep middle of the pool went
+        // back to being the flat sheet this is here to break up - measured on
+        // the preview page, the drawn water was worth -0.26 of localContrast at
+        // the mid-pool pose and +0.29 at the exit, which is exactly the shape
+        // of "detail in the shallows, nothing in the deep".
+        float cfade = (1.0 - smoothstep(40.0, 115.0, dist))
+                    * (1.0 - 0.76 * smoothstep(0.10, 1.00, vEdge))
+                    * step(0.0001, uWetMargin) * (1.0 - uFrozen);
+        if (cfade > 0.0) {
+          // DOMAIN-WARPED, AND THAT IS NOT POLISH. Two clean sine trains
+          // thresholded this way print GRAPH PAPER: photographed on
+          // 2026-08-31, the pool came back with a regular cyan crosshatch
+          // across it, which is the same failure the fragment ripple had when
+          // it laid a corduroy weave over the lagoon. Pushing the sample point
+          // around with a few metres of the value noise the body colour already
+          // computes turns the lattice into a wandering net, which is what
+          // light through moving water actually does, for two noise lookups.
+          vec2 warp = vec2(vnoise(vWorld * 0.11 + uTime * 0.05),
+                           vnoise(vWorld * 0.13 - uTime * 0.04)) - 0.5;
+          vec2 cw = vWorld + warp * 7.0;
+          vec2 c0 = vec2(0.9336, 0.3583);
+          vec2 c1 = vec2(0.5000, 0.8660);
+          float ca = sin(dot(cw, c0) * 1.795 + uTime * 1.7);
+          float cb = sin(dot(cw, c1) * 2.417 - uTime * 1.3);
+          col += uFoam * pow(max(0.0, 1.0 - abs(ca * cb)), 5.0) * 0.15 * cfade;
+        }
+        #endif
+
         // -- the sun ---------------------------------------------------------
         // Blinn-Phong at exponent 220 against uSun, which is the KEY LIGHT'S OWN
         // direction. On ice it drops to 26 and dims, because a frozen surface is
@@ -471,6 +617,14 @@ export function buildWaterMaterial(theme = 'summer', {
         float crest = smoothstep(0.86, 0.99, vCrest);
         #else
         float crest = smoothstep(0.86, 0.99, vCrest) * (0.45 + 0.55 * vnoise(vWorld * 3.1));
+        // A WIDER CREST WINDOW FOR A CROSSING WAS TRIED AND REVERTED, and the
+        // reason is written here so it is not tried again. vCrest is three
+        // sine trains, i.e. exactly periodic; the 0.86 threshold only ever
+        // fires on the rare in-phase peaks, which is what makes the caps look
+        // scattered. Dropped to 0.62 it fires on the regular structure instead,
+        // and the pool came back photographed as evenly spaced diagonal dashes
+        // in a lattice - the "two trains print a grid" failure WAVE_GLSL's own
+        // header warns about, and worse than the flat plane it replaced.
         #endif
         // BANK FOAM. The single strongest cue that a body of water has an edge
         // rather than just stopping - and the edge is exactly where a player
@@ -491,11 +645,37 @@ export function buildWaterMaterial(theme = 'summer', {
         #endif
         col = mix(mix(col, uFoam, foam), mix(col, uCrack, crack * 0.7), uFrozen);
 
+        // -- the wet margin, and why the waterline is not a ruled line ------
+        //
+        // ONLY ON A CROSSING. uWetMargin is 0 everywhere else, and then
+        // "margin" is exactly 1.0 and the two lines below compute what they
+        // computed before this existed.
+        //
+        // TWO THINGS AT ONCE, in one expression, because they are one statement
+        // about where the water ends:
+        //
+        //   * the ribbon FADES OUT over the last WET_MARGIN of depth instead
+        //     of stopping at alpha 0.72. Through it the tarmac is seen
+        //     through a thinning film - a road darkening into water, which is
+        //     what a ford has and a blue polygon does not;
+        //   * the line it fades out ON is WOBBLED in world space. A level pool
+        //     standing in a smoothly ruled road has a geometrically STRAIGHT
+        //     waterline, so no amount of tessellation stops it reading as a
+        //     polygon edge - what stops it is the edge not being where the
+        //     geometry puts it. Two octaves, about 10 m and about 3 m, sharing
+        //     half the margin between them, with the short one creeping so the
+        //     edge laps rather than sitting still.
+        float wob = 0.0;
+        #ifndef FK_LOW
+        wob = ((vnoise(vWorld * 0.10 + 4.7) - 0.5) * 0.72
+             + (vnoise(vWorld * 0.34 + vec2(uTime * 0.11, -2.1)) - 0.5) * 0.28) * uWetMargin;
+        #endif
+        float margin = uWetMargin > 0.0 ? smoothstep(0.0, uWetMargin, vEdge + wob) : 1.0;
         // Fading in from the bank stops the mesh edge itself being a visible
         // hard line where it meets the carved ground. Foam is opaque wherever
         // it lands, or a white rim over a dark bed reads as grey.
-        float alpha = mix(0.72, 0.95, smoothstep(0.0, 0.10, vEdge));
-        gl_FragColor = vec4(col, max(alpha, foam * 0.92));
+        float alpha = mix(0.72, 0.95, smoothstep(0.0, 0.10, vEdge)) * margin;
+        gl_FragColor = vec4(col, max(alpha, foam * 0.92 * margin));
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }
@@ -530,12 +710,18 @@ export function buildWater(path, track) {
   
   const low = getQuality() === 'low';
   const materials = new Map();
-  const materialFor = (frozen) => {
-    const key = `${track.theme}|${frozen ? 1 : 0}`;
+  
+  
+  
+  
+  
+  const materialFor = (frozen, crossing) => {
+    const key = `${track.theme}|${frozen ? 1 : 0}|${crossing ? 1 : 0}`;
     let m = materials.get(key);
     if (!m) {
       m = buildWaterMaterial(track.theme, {
         frozen, sky: track.sky ?? 'day', sunDir: sunDirFor(track.theme), low,
+        wetMargin: crossing ? WET_MARGIN : 0,
       });
       materials.set(key, m);
     }
@@ -543,7 +729,14 @@ export function buildWater(path, track) {
   };
 
   for (const zone of zones) {
-    const material = materialFor(!!zone.frozen);
+    const crossing = crossesRoad(zone);
+    const material = materialFor(!!zone.frozen, crossing);
+    
+    
+    
+    
+    
+    const deepRef = Math.max(0.5, zone.depth ?? 4.5);
     if (zone.creatures) group.add(buildSharks(path, zone));
     
     
@@ -557,11 +750,39 @@ export function buildWater(path, track) {
     
     
     const OVERHANG = 0.008;
-    const span = (zone.to >= zone.from ? zone.to - zone.from : (1 - zone.from) + zone.to)
-      + OVERHANG * 2;
+    const zoneSpan = zone.to >= zone.from ? zone.to - zone.from : (1 - zone.from) + zone.to;
+    let startFrac = zone.from - OVERHANG;
+    let span = zoneSpan + OVERHANG * 2;
+    if (crossing) {
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const wet = wetArc(path, zone);
+      if (wet) {
+        startFrac = (wet.from - CROSSING_PAD) / path.length;
+        span = (wet.to - wet.from + CROSSING_PAD * 2) / path.length;
+      }
+    }
     
     
-    const steps = Math.max(8, Math.round((span * path.length) / 4));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const steps = Math.max(8, Math.round((span * path.length) / (crossing ? 2 : 4)));
     
     
     
@@ -590,7 +811,17 @@ export function buildWater(path, track) {
     for (const side of sides) {
       const base = positions.length / 3;
       for (let i = 0; i <= steps; i += 1) {
-        const frac = ((zone.from - OVERHANG) + (span * i) / steps + 1) % 1;
+        const frac = (startFrac + (span * i) / steps + 1) % 1;
+        
+        
+        
+        
+        
+        
+        const alongM = (span * i) / steps * path.length;
+        const endU = crossing
+          ? smooth01(Math.min(alongM, span * path.length - alongM) / CROSSING_PAD)
+          : 1;
         const p = sampleAt(path, frac * path.length);
         const half = p.width / 2;
         
@@ -607,7 +838,7 @@ export function buildWater(path, track) {
         
         const y = waterPlaneY(zone, p.y ?? 0);
         const inner = waterlineInner(path, zone, p, side, half, y);
-        const outer = inner + carvedReach(path, zone, p, side, inner);
+        const outer = inner + carvedReach(path, zone, p, side, inner, y);
         for (let j = 0; j <= cols; j += 1) {
           const e = j / cols;
           const d = inner + (outer - inner) * e;
@@ -616,7 +847,58 @@ export function buildWater(path, track) {
           
           
           
-          edges.push(e);
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          if (crossing) {
+            const raw = (y - bedHeightAt(path, p, half, d, nx, nz)) / deepRef;
+            
+            
+            
+            
+            edges.push(raw > 0
+              ? Math.min(1, raw * endU - 0.30 * (1 - endU))
+              : Math.max(-1, raw));
+          } else {
+            edges.push(e);
+          }
         }
       }
       const stride = cols + 1;
@@ -698,8 +980,7 @@ function waterlineInner(path, zone, p, side, half, planeY) {
   
   const reach = start + bankAt(zone, (p.s ?? 0) / path.length) * half + SHOULDER;
   for (let d = start; d <= reach; d += 0.5) {
-    const ground = groundMeshHeightAt(path, p.x + nx * d, p.z + nz * d);
-    if (isWaterAt(planeY, ground)) return d;
+    if (isWaterAt(planeY, bedHeightAt(path, p, half, d, nx, nz))) return d;
   }
   return start;
 }
@@ -721,9 +1002,86 @@ function waterlineInner(path, zone, p, side, half, planeY) {
 
 
 
-function carvedReach(path, zone, p, side, inner) {
+
+
+function bedHeightAt(path, p, half, d, nx, nz) {
+  const ramp = vergeRamp(d - half);
+  if (ramp <= 0) return p.y ?? 0;
+  const ground = groundMeshHeightAt(path, p.x + nx * d, p.z + nz * d);
+  if (ramp >= 1) return ground;
+  return (p.y ?? 0) * (1 - ramp) + ground * ramp;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function carvedReach(path, zone, p, side, inner, planeY) {
   const nx = p.tz * side;
   const nz = -p.tx * side;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (crossesRoad(zone)) {
+    const half = p.width / 2;
+    const limit = (zone.until ?? 3) * half;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const from = half + SHOULDER;
+    let last = from;
+    for (let d = from; d <= limit; d += 0.5) {
+      if (!isWaterAt(planeY, bedHeightAt(path, p, half, d, nx, nz))) break;
+      last = d;
+    }
+    return Math.max(half * 1.05, last) - inner;
+  }
   let last = 12;
   for (let d = 6; d <= WATER_REACH; d += 6) {
     const x = p.x + nx * (inner + d);
@@ -1366,16 +1724,22 @@ function buildLavaRibbon(path, zone, material) {
       const p = sampleAt(path, frac * path.length);
       const half = p.width / 2;
       const inner = half * ((zone.beyond ?? 1.18) + (zone.bank ?? 0.55) * 0.7);
-      
-      
-      
-      const outer = inner + carvedReach(path, zone, p, side, inner);
       const nx = p.tz * side;
       const nz = -p.tx * side;
       
       
       
+      
+      
+      
+      
+      
+      
       const y = waterPlaneY(zone, p.y ?? 0);
+      
+      
+      
+      const outer = inner + carvedReach(path, zone, p, side, inner, y);
       positions.push(p.x + nx * inner, y, p.z + nz * inner);
       positions.push(p.x + nx * outer, y, p.z + nz * outer);
     }

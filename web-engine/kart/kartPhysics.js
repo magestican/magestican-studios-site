@@ -364,6 +364,12 @@ export function stepKart(state, input, surface, dt) {
   const wasBoating = s.boating;
   s.boating = boat.boating;
   s.boatTime = boat.boatTime;
+  
+  
+  
+  
+  
+  s.boatPlaneY = boat.boating ? boat.planeY : 0;
   s.splashed = boat.started;
   s.beached = boat.ended && wasBoating;
   s.splashVy = boat.started ? s.vy : 0;
@@ -730,8 +736,45 @@ export function stepKart(state, input, surface, dt) {
   
   
   const launchCap = s.railLaunch > 0 ? capBase * (s.boating ? surfaceScale : 1) : speedCap;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   if (!s.boost && !s.gliding && !s.grinding && ground > launchCap && vf > 0) {
-    const scale = launchCap / ground;
+    const reachable = Math.max(launchCap, ground - t.brake * dt);
+    const scale = reachable / ground;
     s.vx *= scale;
     s.vz *= scale;
   }
@@ -1005,7 +1048,17 @@ export function stepKart(state, input, surface, dt) {
     
     
     
-    const f = boatFloat(s.y, s.vy, boat.planeY, dt, GRAVITY);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const f = boatFloat(s.y, s.vy, boat.planeY, dt, GRAVITY, groundY);
     s.y = f.y;
     s.vy = f.vy;
     s.grounded = true;
