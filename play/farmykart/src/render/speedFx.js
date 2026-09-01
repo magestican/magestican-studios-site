@@ -200,6 +200,10 @@ export function createSpeedFx(scene, theme = 'summer') {
     _moteColour: mote.colour,
     cursor: 0,
     strength: 0,
+    
+    
+    clearX: 0,
+    clearY: 0,
     spawnDebt: 0,
     _m: new THREE.Matrix4(),
     _v: new THREE.Vector3(),
@@ -220,7 +224,16 @@ export function createSpeedFx(scene, theme = 'summer') {
 
 
 
-export function updateSpeedFx(fx, kart, camera, dt) {
+
+
+
+
+
+
+
+
+
+export function updateSpeedFx(fx, kart, camera, dt, aheadPoint = null) {
   const top = kart?.tuning?.topSpeed ?? 33;
   const speed = Math.abs(kart?.speed ?? 0);
   const boosting = !!kart?.boost;
@@ -240,8 +253,25 @@ export function updateSpeedFx(fx, kart, camera, dt) {
   
   
   const want = boosting ? 1 : raw * 0.72;
-  const rate = want > fx.strength ? 8 : 2.6;
-  fx.strength += (want - fx.strength) * Math.min(1, dt * rate);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (boosting && want > fx.strength) fx.strength = want;
+  else {
+    const rate = want > fx.strength ? 8 : 2.6;
+    fx.strength += (want - fx.strength) * Math.min(1, dt * rate);
+  }
   const k = fx.strength;
 
   
@@ -268,6 +298,42 @@ export function updateSpeedFx(fx, kart, camera, dt) {
     
     
     const aspect = camera.aspect || 1.78;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    let ox = 0;
+    let oy = 0;
+    if (aheadPoint) {
+      fx._v.set(aheadPoint.x, camera.position.y, aheadPoint.z).project(camera);
+      if (Number.isFinite(fx._v.x) && Number.isFinite(fx._v.y)) {
+        const clamp = (v) => Math.max(-0.42, Math.min(0.42, v));
+        
+        
+        ox = clamp(fx._v.x) * 0.84 * aspect;
+        oy = clamp(fx._v.y) * 0.84;
+      }
+    }
+    
+    
+    
+    
+    fx.clearX += (ox - fx.clearX) * Math.min(1, dt * 6);
+    fx.clearY += (oy - fx.clearY) * Math.min(1, dt * 6);
+
     for (let i = 0; i < fx.spokes.length; i += 1) {
       const sp = fx.spokes[i];
       
@@ -278,7 +344,11 @@ export function updateSpeedFx(fx, kart, camera, dt) {
       const ex = Math.cos(sp.angle) * aspect;
       const ey = Math.sin(sp.angle);
       const mag = Math.hypot(ex, ey) || 1;
-      fx._v.set((ex / mag) * inner * aspect, (ey / mag) * inner, 0);
+      fx._v.set(
+        fx.clearX + (ex / mag) * inner * aspect,
+        fx.clearY + (ey / mag) * inner,
+        0,
+      );
       fx._q.setFromAxisAngle(Z_AXIS, Math.atan2(ey, ex) - Math.PI / 2);
       fx._s.set(1, len, 1);
       fx.lines.setMatrixAt(i, fx._m.compose(fx._v, fx._q, fx._s));

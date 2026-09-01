@@ -1384,7 +1384,19 @@ export function createRace(options) {
     updateFx(fx, dt, camera);
     
     
-    updateSpeedFx(speedFx, you.kart, camera, dt);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const ahead = playerSurface
+      ? sampleAt(path, (playerSurface.s + 26) % path.length)
+      : null;
+    updateSpeedFx(speedFx, you.kart, camera, dt, ahead);
     
     
     
