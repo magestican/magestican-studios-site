@@ -1,6 +1,6 @@
 {
   "sampleRate": 48000,
-  "seconds": 39.384,
+  "seconds": 45.854,
   "clips": {
     "shot1": {
       "effect": "shot",
@@ -192,19 +192,39 @@
       "offset": 33.424,
       "duration": 0.71
     },
+    "pa1": {
+      "effect": "tannoy",
+      "offset": 34.184,
+      "duration": 1.69
+    },
+    "pa2": {
+      "effect": "tannoy",
+      "offset": 35.924,
+      "duration": 2.03
+    },
+    "pa3": {
+      "effect": "tannoy",
+      "offset": 38.004,
+      "duration": 1.81
+    },
+    "pa4": {
+      "effect": "tannoy",
+      "offset": 39.864,
+      "duration": 0.74
+    },
     "creak1": {
       "effect": "creak",
-      "offset": 34.184,
+      "offset": 40.654,
       "duration": 1.75
     },
     "creak2": {
       "effect": "creak",
-      "offset": 35.984,
+      "offset": 42.454,
       "duration": 2.05
     },
     "creak3": {
       "effect": "creak",
-      "offset": 38.084,
+      "offset": 44.554,
       "duration": 1.25
     }
   },
@@ -278,6 +298,12 @@
       "spark1",
       "spark2",
       "spark3"
+    ],
+    "tannoy": [
+      "pa1",
+      "pa2",
+      "pa3",
+      "pa4"
     ],
     "creak": [
       "creak1",

@@ -7154,6 +7154,28 @@ const FORMANTS = {
 function paVoice(kind) {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (sfxSheet.play('tannoy', { gain: 0.8, rate: 0.94 + Math.random() * 0.12 })) return;
   const [freqs, amps] = FORMANTS[kind] || FORMANTS.oh;
   const t0 = ctx.currentTime + 0.03;
   const dur = kind === 'sob' ? 0.42 : 1.1 + Math.random() * 0.8;
