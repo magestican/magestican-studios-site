@@ -530,8 +530,12 @@ export function createRace(options) {
   
   
   
-  const ctxState = createContextState();
-  const guard = createFrameGuard();
+  
+  
+  
+  
+  const ctxState = createContextState({ verb: 'racing' });
+  const guard = createFrameGuard({ title: 'Farmy Kart' });
   
   const GFX_BANNER = 'fk-graphics-banner';
   const FAULT_BANNER = 'fk-frame-banner';

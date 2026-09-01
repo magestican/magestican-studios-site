@@ -2009,19 +2009,36 @@ function grimeTexture({ base, seams, rivets, mud, blood, hay }) {
   return t;
 }
 
+
+
+
+
+
+
+
+
+
+
+const FLASH_MATS = [];
+
 function texturedMaterial(map) {
-  return new THREE.ShaderMaterial({
+  const m = new THREE.ShaderMaterial({
     uniforms: {
       uRes: { value: new THREE.Vector2(PS1_SNAP.x, PS1_SNAP.y) },
       uKey: { value: new THREE.Vector3(...KEY_DIR) },
       uFill: { value: new THREE.Vector3(...FILL_DIR) },
       uAlpha: { value: 1 },
       uMap: { value: map },
+      uDim: { value: 0.58 },
+      uFlashPos: { value: new THREE.Vector3(0, 1.2, 0) },
+      uFlash: { value: 0 },
     },
-    vertexShader: ps1Vertex(),
+    vertexShader: ps1Vertex({ flash: true }),
     fragmentShader: FRAGMENT.textured(),
     fog: false, lights: false, toneMapped: false, side: THREE.DoubleSide,
   });
+  FLASH_MATS.push(m);
+  return m;
 }
 
 
@@ -2839,6 +2856,33 @@ function sheetVoice(beast, kind) {
     dest: out, gain: 0.95, rate: 0.92 + (seed - 0.78) * 0.30,
   });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CREATURE_FACE = Math.PI / 2;
 
 function chickVoice(bird, kind, dist) {
   const ctx = audio.ensure();
@@ -4028,11 +4072,26 @@ export function boot(canvas, hud) {
       uKey: { value: new THREE.Vector3(...KEY_DIR) },
       uFill: { value: new THREE.Vector3(...FILL_DIR) },
       uAlpha: { value: 1 },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      uDim: { value: 0.58 },
+      uFlashPos: { value: new THREE.Vector3(0, 1.2, 0) },
+      uFlash: { value: 0 },
     },
-    vertexShader: ps1Vertex(),
+    vertexShader: ps1Vertex({ flash: true }),
     fragmentShader: FRAGMENT.colour(),
     fog: false, lights: false, toneMapped: false, side: THREE.DoubleSide,
   });
+  FLASH_MATS.push(mat);
 
   
   
@@ -4084,6 +4143,7 @@ export function boot(canvas, hud) {
   let ceilingPieces = [];
   let leaks = [];
   let wires = [];
+  let props = [];
   
   
   
@@ -4207,14 +4267,56 @@ export function boot(canvas, hud) {
   
   
   
-  const flashGeo = new THREE.PlaneGeometry(0.34, 0.34);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const flashTex = (() => {
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 64;
+    const g = c.getContext('2d');
+    const grad = g.createRadialGradient(32, 32, 0, 32, 32, 30);
+    grad.addColorStop(0, 'rgba(255,255,245,1)');
+    grad.addColorStop(0.22, 'rgba(255,226,150,0.95)');
+    grad.addColorStop(0.55, 'rgba(255,150,54,0.45)');
+    grad.addColorStop(1, 'rgba(255,110,30,0)');
+    g.fillStyle = grad;
+    g.beginPath(); g.arc(32, 32, 30, 0, Math.PI * 2); g.fill();
+    
+    g.globalCompositeOperation = 'lighter';
+    for (const [ang, len, wide] of [[0, 30, 7], [1.62, 20, 5], [3.05, 26, 6], [4.9, 15, 4]]) {
+      g.save(); g.translate(32, 32); g.rotate(ang);
+      const p = g.createLinearGradient(0, 0, len, 0);
+      p.addColorStop(0, 'rgba(255,240,200,0.9)');
+      p.addColorStop(1, 'rgba(255,140,40,0)');
+      g.fillStyle = p;
+      g.beginPath(); g.moveTo(0, -wide); g.lineTo(len, 0); g.lineTo(0, wide); g.closePath(); g.fill();
+      g.restore();
+    }
+    return new THREE.CanvasTexture(c);
+  })();
   const flashMat = new THREE.MeshBasicMaterial({
-    color: 0xffd9a0, transparent: true, opacity: 0, depthWrite: false,
-    side: THREE.DoubleSide,
+    map: flashTex, color: 0xffffff, transparent: true, opacity: 0,
+    depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
   });
+  const flashGeo = new THREE.PlaneGeometry(0.46, 0.46);
   const flash = new THREE.Mesh(flashGeo, flashMat);
   flash.position.set(...muzzlePoint());
   gun.add(flash);
+  
+  const flashCross = new THREE.Mesh(flashGeo, flashMat);
+  flashCross.position.set(...muzzlePoint());
+  flashCross.rotation.x = Math.PI / 2;
+  gun.add(flashCross);
   
   
   
@@ -4461,6 +4563,7 @@ export function boot(canvas, hud) {
     
     leaks = [];
     wires = [];
+    props = [];
     for (const run of deck.runs) {
       const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
       const dx = (run.x1 - run.x0) / len; const dz = (run.z1 - run.z0) / len;
@@ -4587,6 +4690,73 @@ export function boot(canvas, hud) {
         box.position.set(x, 1.0, z);
         deckGroup.add(box);
         lockers.push({ mesh: box, x: x - side * 0.5, z });
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    props = [];
+    for (const run of deck.runs) {
+      const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
+      const dx = (run.x1 - run.x0) / len; const dz = (run.z1 - run.z0) / len;
+      const px = -dz; const pz = dx;
+      for (let t = 3.5; t < len - 3; t += 5.5) {
+        if (hash2(run.z0 + t, 11.3) < 0.34) continue;
+        const side = hash2(run.x0 + t, 12.7) > 0.5 ? 1 : -1;
+        const x = run.x0 + dx * t + px * side * (HALL_W / 2 - 0.34);
+        const z = run.z0 + dz * t + pz * side * (HALL_W / 2 - 0.34);
+        if (deck.rooms.some((m) => Math.abs(m.door.x - x) < 1.6 && Math.abs(m.door.z - z) < 1.8)) continue;
+        if (liftCar && Math.hypot(x - liftCar.x, z - liftCar.z) < 3.4) continue;
+        const barrel = hash2(z, 13.9) > 0.42;
+        const h = barrel ? 0.86 : 0.52;
+        const geo = barrel
+          ? new THREE.CylinderGeometry(0.27, 0.27, h, 8, 1).toNonIndexed()
+          : new THREE.BoxGeometry(0.54, h, 0.48).toNonIndexed();
+        const box = new THREE.Mesh(geo, mat);
+        const n = geo.attributes.position.count;
+        const col = new Float32Array(n * 3);
+        
+        
+        const c = new THREE.Color(barrel ? 0x6b4a34 : 0x5c5140);
+        for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+        geo.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+        geo.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+        geo.computeVertexNormals();
+        box.position.set(x, h / 2, z);
+        box.rotation.y = hash2(x, 14.6) * Math.PI;
+        deckGroup.add(box);
+
+        const shGeo = new THREE.PlaneGeometry(1, 1);
+        const shMat = new THREE.MeshBasicMaterial({
+          color: 0x000000, transparent: true, opacity: 0, depthWrite: false,
+        });
+        const sh = new THREE.Mesh(shGeo, shMat);
+        sh.rotation.x = -Math.PI / 2;
+        sh.position.set(x, 0.012, z);
+        deckGroup.add(sh);
+        props.push({
+          mesh: box, shadow: sh, mat: shMat, x, z, r: barrel ? 0.27 : 0.30, h,
+        });
       }
     }
 
@@ -4954,6 +5124,11 @@ export function boot(canvas, hud) {
   
   let last = 0;
   let shotFlash = 0;
+  
+  
+  const FLASH_WORLD = new THREE.Vector3();
+  let flashHeld = false;
+  let flashTicks = 0;
   let paIn = 12 + Math.random() * 14;
   
   
@@ -5234,14 +5409,42 @@ export function boot(canvas, hud) {
       
       
       
-      const lowNow = aimLow || keys.has('ControlLeft') || keys.has('KeyQ');
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const lowNow = aimLow || keys.has('ControlLeft') || keys.has('KeyQ') || !!target;
       const muzzleY = lowNow ? 0.62 : 1.30;
       
       
       
       
       const SHOT_OVERSHOOT = 1.8;
-      const aimDrop = (aimLow || keys.has('ControlLeft') || keys.has('KeyQ')) ? 1.0 : 0.30;
+      const aimDrop = lowNow ? 1.0 : 0.30;
       for (const b of birds) {
         
         
@@ -5657,7 +5860,10 @@ export function boot(canvas, hud) {
           bossWonIn = 0.9;
         }
         b.mesh.position.set(b.x, 0, b.z);
-        b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI;
+        
+        
+        
+        b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI + CREATURE_FACE;
         continue;
       }
 
@@ -5750,13 +5956,15 @@ export function boot(canvas, hud) {
         const lift = b.kind === 'chicken' ? 0.28 : 0.42;
         b.mesh.position.set(b.x, lift * (0.6 + 0.4 * Math.abs(Math.sin(now * 11))), b.z);
         
-        b.mesh.rotation.z = player.yaw;
+        
+        
+        b.mesh.rotation.z = player.yaw + CREATURE_FACE;
         
         
         b.mesh.rotation.y = Math.sin(now * 9.5) * 0.30;
       } else {
         b.mesh.position.set(b.x, 0, b.z);
-        b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI;
+        b.mesh.rotation.z = Math.atan2(dx, dz) + Math.PI + CREATURE_FACE;
         b.mesh.rotation.y = 0;
       }
 
@@ -6106,7 +6314,63 @@ export function boot(canvas, hud) {
       
       
       gun.visible = !player.dead && (ready || !!target);
-      flashMat.opacity = Math.max(0, 1 - fireT / 0.055) * 0.9;
+      
+      
+      
+      
+      const fk = flashHeld ? 1 : Math.max(0, 1 - fireT / 0.055);
+      flashMat.opacity = fk * fk * 1.0;
+      
+      if (fireT < 0.004) {
+        flash.rotation.z = Math.random() * Math.PI * 2;
+        flashCross.rotation.z = Math.random() * Math.PI * 2;
+        const sc = 0.85 + Math.random() * 0.4;
+        flash.scale.set(sc, sc, sc);
+        flashCross.scale.set(sc * 0.9, sc * 0.9, sc * 0.9);
+      }
+      
+      
+      
+      {
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        FLASH_WORLD.set(
+          player.x - Math.sin(player.yaw) * 0.34,
+          (aimLow || keys.has('ControlLeft') || keys.has('KeyQ') || !!target) ? 0.72 : 1.16,
+          player.z + Math.cos(player.yaw) * 0.34,
+        );
+        for (const fm of FLASH_MATS) {
+          if (!fm.uniforms.uFlash) continue;
+          fm.uniforms.uFlashPos.value.copy(FLASH_WORLD);
+          fm.uniforms.uFlash.value = fk * fk;
+        }
+        
+        
+        
+        const lit = fk * fk;
+        flashTicks += 1;
+        for (const p of props) {
+          if (lit <= 0.01) { if (p.mat.opacity !== 0) p.mat.opacity = 0; continue; }
+          const ox = p.x - FLASH_WORLD.x; const oz = p.z - FLASH_WORLD.z;
+          const d = Math.hypot(ox, oz) || 1;
+          if (d > 9) { p.mat.opacity = 0; continue; }
+          
+          
+          
+          const long = Math.min(4.2, (p.h * d) / Math.max(0.35, FLASH_WORLD.y));
+          p.shadow.scale.set(p.r * 2.1, long, 1);
+          p.shadow.position.set(p.x + (ox / d) * long * 0.5, 0.012, p.z + (oz / d) * long * 0.5);
+          p.shadow.rotation.z = -Math.atan2(ox, oz);
+          p.mat.opacity = Math.min(0.72, lit * 0.85) * Math.max(0, 1 - d / 9);
+        }
+      }
       flash.rotation.y = now * 9;      
     }
 
@@ -6751,6 +7015,67 @@ export function boot(canvas, hud) {
         sparkFlash = 0.34;
         sparkSfx(best.tip[0], best.tip[2]);
         return { at: [...best.tip], dist: bd };
+      },
+      
+      
+      freshCreature(kind) { return spawnCreature(kind); },
+      
+      
+      
+      
+      
+      
+      
+      facingOf(b) {
+        if (!b || !b.mesh) return null;
+        b.mesh.updateMatrixWorld(true);
+        const m = b.mesh.matrixWorld.elements;
+        
+        const axis = (i) => ({ x: m[i * 4], y: m[i * 4 + 1], z: m[i * 4 + 2] });
+        const dx = player.x - b.x; const dz = player.z - b.z;
+        const len = Math.hypot(dx, dz) || 1;
+        const toPlayer = { x: dx / len, z: dz / len };
+        const dot = (a) => {
+          const l = Math.hypot(a.x, a.z) || 1;
+          return (a.x / l) * toPlayer.x + (a.z / l) * toPlayer.z;
+        };
+        return {
+          toPlayer,
+          localX: axis(0),
+          localY: axis(1),
+          localZ: axis(2),
+          dotX: dot(axis(0)),
+          dotY: dot(axis(1)),
+          dotZ: dot(axis(2)),
+          rotZ: b.mesh.rotation.z,
+        };
+      },
+      
+      
+      
+      holdFlash(on) {
+        flashHeld = !!on;
+        if (!on && mat && mat.uniforms.uFlash) mat.uniforms.uFlash.value = 0;
+      },
+      get flashTicks() { return flashTicks; },
+      get dim() { return mat && mat.uniforms.uDim ? mat.uniforms.uDim.value : 1; },
+      
+      
+      toProp() {
+        let best = null; let bd = Infinity;
+        for (const p of props) {
+          const d = Math.hypot(p.x - player.x, p.z - player.z);
+          if (d < bd) { bd = d; best = p; }
+        }
+        if (!best) return null;
+        player.x = best.x; player.z = best.z - 1.5;
+        return { x: best.x, z: best.z, was: bd };
+      },
+      get props() {
+        return {
+          count: props.length,
+          litShadows: props.filter((p) => p.mat.opacity > 0.01).length,
+        };
       },
       get gunSfx() { return { ...gunSfx }; },
       

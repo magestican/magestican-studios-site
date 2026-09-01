@@ -59,11 +59,45 @@ const quantLine = `  c = floor(clamp(c, 0.0, 1.0) * ${QUANT_LEVELS.toFixed(1)} +
 
 
 
-export function ps1Vertex() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function ps1Vertex(opt = {}) {
+  const flash = !!opt.flash;
   return [
     'uniform vec2 uRes;',
     'uniform vec3 uKey;',
     'uniform vec3 uFill;',
+    ...(flash ? [
+      'uniform vec3 uFlashPos;',   
+      'uniform float uFlash;',     
+      'uniform float uDim;',       
+    ] : []),
     'attribute vec3 aColor;',
     'varying vec3 vColor;',
     'varying vec2 vUv;',
@@ -80,6 +114,21 @@ export function ps1Vertex() {
     '  float key = max(0.0, dot(n, normalize(uKey)));',
     '  float fill = max(0.0, dot(n, normalize(uFill)));',
     `  vShade = ${SHADE.ambient.toFixed(2)} + ${SHADE.key.toFixed(2)} * key + ${SHADE.fill.toFixed(2)} * fill;`,
+    ...(flash ? [
+      
+      '  vShade *= uDim;',
+      
+      
+      
+      
+      
+      '  vec3 wp = (modelMatrix * vec4(position, 1.0)).xyz;',
+      '  vec3 wn = normalize(mat3(modelMatrix) * normal);',
+      '  vec3 toFlash = uFlashPos - wp;',
+      '  float fd = length(toFlash);',
+      '  float lam = max(0.0, dot(wn, toFlash / max(fd, 0.001)));',
+      '  vShade += uFlash * lam * 6.0 / (1.0 + fd * fd * 0.30);',
+    ] : []),
     '  vColor = aColor;',
     '  vUv = uv;',
     
