@@ -81,6 +81,7 @@ import { MAP, mapProject } from '../../../web-engine/horror/minimap.js';
 import { panOf, levelAt, makeImpulse } from '../../../web-engine/horror/audioSpace.js';
 import {
   LIFT, createLift, stepLift, mapRise, insideCar, keepOut, carIsSafe, clearOfCar,
+  carLocal, carWorld,
 } from '../../../web-engine/horror/lift.js';
 import {
   createHide, stepHide, hideProtects, hideDrawsPlayer, hideSettled,
@@ -102,6 +103,7 @@ import { createStruggle, VERB_FOR, promptFor } from '../../../web-engine/horror/
 import {
   createBarks, say, stepBarks, combatSay, currentBark,
 } from '../../../web-engine/horror/barks.js';
+import { compileMumble, seedOf } from '../../../web-engine/horror/mumble.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
@@ -5512,16 +5514,22 @@ export function boot(canvas, hud) {
       
       
       
+      
+      
+      
+      
+      
+      
       {
-        const lx = far - safeRoom.side * 0.32;
-        const lz = cz + 2.1;
-        const shelf = paint(new THREE.BoxGeometry(0.52, 2.05, 1.5).toNonIndexed(), 0x4a5347);
+        const lx = cx + safeRoom.side * 0.8;
+        const lz = safeRoom.z1 - 0.32;
+        const shelf = paint(new THREE.BoxGeometry(1.5, 2.05, 0.52).toNonIndexed(), 0x4a5347);
         shelf.position.set(lx, 1.025, lz);
         deckGroup.add(shelf);
         
         for (const y of [0.62, 1.15, 1.68]) {
-          const lip = paint(new THREE.BoxGeometry(0.06, 0.05, 1.42).toNonIndexed(), 0x2e352d);
-          lip.position.set(lx - safeRoom.side * 0.29, y, lz);
+          const lip = paint(new THREE.BoxGeometry(1.42, 0.05, 0.06).toNonIndexed(), 0x2e352d);
+          lip.position.set(lx, y, lz - 0.29);
           deckGroup.add(lip);
         }
         
@@ -5535,8 +5543,8 @@ export function boot(canvas, hud) {
         
         const scrMat = new THREE.MeshBasicMaterial({ color: 0x6ff0d8 });
         const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.64, 0.42), scrMat);
-        scr.position.set(far - safeRoom.side * 0.60, 1.42, lz);
-        scr.rotation.y = safeRoom.side > 0 ? -Math.PI / 2 : Math.PI / 2;
+        scr.position.set(lx, 1.42, safeRoom.z1 - 0.60);
+        scr.rotation.y = Math.PI;
         deckGroup.add(scr);
         
         
@@ -7125,15 +7133,16 @@ export function boot(canvas, hud) {
         
         
         
-        eye: {
-          x: liftCar.x + LIFT.width * 0.34,
-          y: 2.55,
-          z: liftCar.z + LIFT.depth / 2 - 0.16,
-        },
         
         
         
-        target: { x: liftCar.x - 0.1, y: 0.85, z: liftCar.z - LIFT.depth / 2 },
+        
+        
+        eye: { ...carWorld(liftCar, -(LIFT.depth / 2 - 0.16), LIFT.width * 0.34), y: 2.55 },
+        
+        
+        
+        target: { ...carWorld(liftCar, LIFT.depth / 2, -0.1), y: 0.85 },
         fov: 72,
       };
     }
@@ -7822,7 +7831,10 @@ export function boot(canvas, hud) {
     if (library && library.screen) {
       const hum = 0.92 + Math.sin(now * 13.7) * 0.03 + Math.sin(now * 3.1) * 0.03;
       const drop = (Math.sin(now * 0.43) > 0.997) ? 0.55 : 1;
-      library.screen.material.color.setScalar(hum * drop);
+      
+      
+      
+      library.screen.material.color.setHex(0x6ff0d8).multiplyScalar(hum * drop);
     }
     sparkFlash = Math.max(0, sparkFlash - dt);
     
@@ -7881,6 +7893,20 @@ export function boot(canvas, hud) {
     stepBarks(barks, dt, {
       busy: barkSpotted || !!player.struggle || !!player.latchedBy || player.dead,
     });
+    
+    
+    
+    
+    
+    {
+      const cb = currentBark(barks);
+      const key = cb ? cb.who + '|' + cb.text : null;
+      if (key !== lastMumbleKey) {
+        lastMumbleKey = key;
+        if (cb && cb.who === 'xander') mumbleSay(cb.text);
+        else if (mumbleStop) { mumbleStop(); mumbleStop = null; }
+      }
+    }
     if (barkSpotted && !barkSpottedWas) {
       
       
@@ -8181,11 +8207,17 @@ export function boot(canvas, hud) {
       
       
       
+      
+      
+      
+      
+      
       if (ride.sealed) {
-        const half = LIFT.width / 2 - 0.35;
-        const halfD = LIFT.depth / 2 - 0.35;
-        player.x = clamp(player.x, liftCar.x - half, liftCar.x + half);
-        player.z = clamp(player.z, liftCar.z - halfD, liftCar.z + halfD);
+        const lc = carLocal(liftCar, player.x, player.z);
+        const u = clamp(lc.u, -(LIFT.depth / 2 - 0.35), LIFT.depth / 2 - 0.35);
+        const v = clamp(lc.v, -(LIFT.width / 2 - 0.35), LIFT.width / 2 - 0.35);
+        const w = carWorld(liftCar, u, v);
+        player.x = w.x; player.z = w.z;
       }
     }
 
@@ -8610,6 +8642,7 @@ export function boot(canvas, hud) {
         camNode = nodeAt(rails, progressAt(deck, player.x, player.z));
         return camNode;
       },
+      get mumble() { return { count: mumbleCount, playing: !!mumbleStop }; },
       get vox() {
         return {
           ready: voxSheet.ready, failure: voxSheet.failure,
@@ -9068,6 +9101,83 @@ const FORMANTS = {
   ah: [[730, 1150], [1.0, 0.6]],
   sob: [[430, 1250], [0.7, 0.45]],
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let mumbleStop = null;
+let lastMumbleKey = null;
+let mumbleCount = 0;
+function mumbleSay(text) {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return 0;
+  if (mumbleStop) { mumbleStop(); mumbleStop = null; }
+  const { events, total } = compileMumble(text, seedOf(text));
+  const t0 = ctx.currentTime + 0.03;
+  const out = ctx.createGain();
+  
+  
+  
+  out.gain.value = 0.34;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 2600;
+  out.connect(lp); lp.connect(audio.sfxBus);
+  const nodes = [];
+  for (const e of events) {
+    const osc = ctx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(e.f0, t0 + e.at);
+    
+    
+    osc.frequency.exponentialRampToValueAtTime(Math.max(40, e.f0 * 0.94), t0 + e.at + e.dur);
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, t0 + e.at);
+    env.gain.linearRampToValueAtTime(e.amp, t0 + e.at + 0.018);
+    env.gain.setValueAtTime(e.amp, t0 + e.at + e.dur * 0.7);
+    env.gain.linearRampToValueAtTime(0.0001, t0 + e.at + e.dur);
+    
+    
+    osc.connect(env);
+    for (const [freq, q, gn] of [[e.f1, 8, 1.0], [e.f2, 10, 0.5]]) {
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = q;
+      const bg = ctx.createGain(); bg.gain.value = gn;
+      env.connect(bp); bp.connect(bg); bg.connect(out);
+    }
+    
+    if (e.burst) {
+      const nb = ctx.createBufferSource();
+      const buf = ctx.createBuffer(1, Math.floor(0.02 * ctx.sampleRate), ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i += 1) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      nb.buffer = buf;
+      const ng = ctx.createGain(); ng.gain.value = 0.35 * e.amp;
+      const nf = ctx.createBiquadFilter(); nf.type = 'highpass'; nf.frequency.value = 1200;
+      nb.connect(nf); nf.connect(ng); ng.connect(out);
+      nb.start(t0 + e.at); nb.stop(t0 + e.at + 0.02);
+      nodes.push(nb);
+    }
+    osc.start(t0 + e.at);
+    osc.stop(t0 + e.at + e.dur + 0.01);
+    nodes.push(osc);
+  }
+  mumbleCount += 1;
+  mumbleStop = () => {
+    for (const n of nodes) { try { n.stop(); } catch {  } }
+    try { out.gain.setValueAtTime(0, ctx.currentTime); } catch {  }
+  };
+  return total;
+}
 
 function paVoice(kind) {
   const ctx = audio.ensure();

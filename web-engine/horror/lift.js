@@ -208,9 +208,36 @@ export function mapRise(l, deckGap) {
 
 
 
+
+
+
+
+
+
+
+
+export function carFrame(car) {
+  const f = car.face || { x: 0, z: -1 };
+  return { fx: f.x, fz: f.z, rx: -f.z, rz: f.x };
+}
+
+
+export function carLocal(car, x, z) {
+  const { fx, fz, rx, rz } = carFrame(car);
+  const dx = x - car.x; const dz = z - car.z;
+  return { u: dx * fx + dz * fz, v: dx * rx + dz * rz };
+}
+
+
+export function carWorld(car, u, v) {
+  const { fx, fz, rx, rz } = carFrame(car);
+  return { x: car.x + u * fx + v * rx, z: car.z + u * fz + v * rz };
+}
+
 export function insideCar(car, x, z, pad = 0) {
-  return Math.abs(x - car.x) <= LIFT.width / 2 - pad
-    && Math.abs(z - car.z) <= LIFT.depth / 2 - pad;
+  const { u, v } = carLocal(car, x, z);
+  return Math.abs(u) <= LIFT.depth / 2 - pad
+    && Math.abs(v) <= LIFT.width / 2 - pad;
 }
 
 
@@ -253,11 +280,18 @@ export function insideCar(car, x, z, pad = 0) {
 
 
 export function carBounds(car, pad = 0) {
+  
+  
+  
+  
+  const f = car.face || { x: 0, z: -1 };
+  const hx = (f.x !== 0 ? LIFT.depth : LIFT.width) / 2 + pad;
+  const hz = (f.x !== 0 ? LIFT.width : LIFT.depth) / 2 + pad;
   return {
-    x0: car.x - LIFT.width / 2 - pad,
-    x1: car.x + LIFT.width / 2 + pad,
-    z0: car.z - LIFT.depth / 2 - LIFT.apron - pad,
-    z1: car.z + LIFT.depth / 2 + pad,
+    x0: car.x - hx - (f.x < 0 ? LIFT.apron : 0),
+    x1: car.x + hx + (f.x > 0 ? LIFT.apron : 0),
+    z0: car.z - hz - (f.z < 0 ? LIFT.apron : 0),
+    z1: car.z + hz + (f.z > 0 ? LIFT.apron : 0),
   };
 }
 

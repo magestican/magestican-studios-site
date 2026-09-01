@@ -267,6 +267,14 @@ const inRect = (r, x, z, pad) => x >= r.x0 + pad && x <= r.x1 - pad
 
 
 
+
+
+
+
+
+
+const BAY_MOUTH = Object.freeze({ reach: 1.6 });
+
 export function insideLevel(level, x, z, pad = 0.4) {
   for (const run of level.runs) if (inRect(runRect(run), x, z, pad)) return true;
   
@@ -275,6 +283,27 @@ export function insideLevel(level, x, z, pad = 0.4) {
   if (level.bays) {
     for (const b of level.bays) {
       if (inRect(b, x, z, Math.min(pad, 0.3))) return true;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const f = b.car.face;
+      const R = BAY_MOUTH.reach + 1.2;
+      const mouth = f.x !== 0
+        ? { x0: b.car.x - R, x1: b.car.x + R, z0: b.z0 + 0.2, z1: b.z1 - 0.2 }
+        : { x0: b.x0 + 0.2, x1: b.x1 - 0.2, z0: b.car.z - R, z1: b.car.z + R };
+      if (inRect(mouth, x, z, Math.min(pad, 0.25))) return true;
     }
   }
   for (const m of level.rooms) {
