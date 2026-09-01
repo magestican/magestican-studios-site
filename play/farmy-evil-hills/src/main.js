@@ -105,6 +105,7 @@ import {
 } from '../../../web-engine/horror/barks.js';
 import { compileMumble, seedOf } from '../../../web-engine/horror/mumble.js';
 import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix } from '../../../web-engine/horror/aimLatch.js';
+import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../../web-engine/horror/intro.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
@@ -6111,10 +6112,410 @@ export function boot(canvas, hud) {
   const reticEl = document.getElementById('retic');
   const gradeEl = document.getElementById('grade');
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let intro = null;
+  let introDone = false;
+  let introSkip = false;
+  let introStage = null;
+  let introOnDone = null;
+  let introCapUntil = 0;
+  let introActs = null;
+  let introRefs = null;
+  const INTRO_SET = {
+    title: { x: 0, z: -600 }, moonFarm: { x: 0, z: -600 }, call: { x: 0, z: -600 },
+    ship: { x: 0, z: -600 }, transit: { x: 150, z: -600 }, crash: { x: 300, z: -600 },
+    wreck: { x: 300, z: -600 },
+  };
+  const introSkipPress = () => {
+    if (intro && !intro.done && intro.t > 0.8) introSkip = true;
+  };
+
+  function introPaint(geo, hex) {
+    const nn = geo.attributes.position.count;
+    const col = new Float32Array(nn * 3);
+    const c = new THREE.Color(hex);
+    for (let i = 0; i < nn; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+    geo.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(nn * 2).fill(0), 2));
+    geo.computeVertexNormals();
+    return new THREE.Mesh(geo, mat);
+  }
+
+  function introRocket() {
+    const g = new THREE.Group();
+    const body = introPaint(new THREE.CylinderGeometry(0.9, 1.05, 4.6, 10).toNonIndexed(), 0x9aa0a8);
+    body.position.y = 2.7; g.add(body);
+    const nose = introPaint(new THREE.ConeGeometry(0.92, 1.9, 10).toNonIndexed(), 0xb04a3a);
+    nose.position.y = 5.95; g.add(nose);
+    for (let i = 0; i < 3; i += 1) {
+      const a = (i / 3) * Math.PI * 2;
+      const leg = introPaint(new THREE.BoxGeometry(0.16, 1.6, 0.16).toNonIndexed(), 0x6f7377);
+      leg.position.set(Math.cos(a) * 1.15, 0.7, Math.sin(a) * 1.15);
+      leg.rotation.z = Math.cos(a) * 0.35; leg.rotation.x = -Math.sin(a) * 0.35;
+      g.add(leg);
+      const fin = introPaint(new THREE.BoxGeometry(0.08, 1.3, 0.7).toNonIndexed(), 0xb04a3a);
+      fin.position.set(Math.cos(a) * 1.0, 1.3, Math.sin(a) * 1.0);
+      fin.rotation.y = -a;
+      g.add(fin);
+    }
+    return g;
+  }
+
+  function buildIntroStage() {
+    const stage = new THREE.Group();
+    const basics = [];
+    const basic = (m) => { basics.push(m); return m; };
+    const refs = { basics };
+
+    
+    const moon = new THREE.Group();
+    moon.position.set(INTRO_SET.moonFarm.x, 0, INTRO_SET.moonFarm.z);
+    const ground = introPaint(new THREE.CircleGeometry(50, 26).toNonIndexed(), 0x6a6d66);
+    ground.rotation.x = -Math.PI / 2; moon.add(ground);
+    for (const [cx2, cz2, cr] of [[-8, -10, 3.4], [10, -14, 5], [6, 9, 2.2], [-14, 6, 2.8]]) {
+      const crater = introPaint(new THREE.CircleGeometry(cr, 14).toNonIndexed(), 0x585b54);
+      crater.rotation.x = -Math.PI / 2; crater.position.set(cx2, 0.02, cz2);
+      moon.add(crater);
+    }
+    
+    
+    const earth = basic(new THREE.Mesh(new THREE.SphereGeometry(2.4, 12, 10),
+      new THREE.MeshBasicMaterial({ color: 0x7fa7d8 })));
+    earth.position.set(16, 15, -30); moon.add(earth);
+    
+    for (let i = 0; i < 4; i += 1) {
+      for (let j = 0; j < 2; j += 1) {
+        const post = introPaint(new THREE.BoxGeometry(0.1, 0.9, 0.1).toNonIndexed(), 0x7a6f5a);
+        post.position.set(1.4 + i * 1.0, 0.45, j === 0 ? 0.2 : 2.2);
+        moon.add(post);
+      }
+    }
+    for (const rz of [0.2, 2.2]) {
+      const rail = introPaint(new THREE.BoxGeometry(3.2, 0.07, 0.07).toNonIndexed(), 0x7a6f5a);
+      rail.position.set(2.9, 0.72, rz); moon.add(rail);
+    }
+    const trough = introPaint(new THREE.BoxGeometry(1.2, 0.28, 0.4).toNonIndexed(), 0x5c6157);
+    trough.position.set(2.6, 0.14, 1.2); moon.add(trough);
+    
+    const hab = introPaint(new THREE.SphereGeometry(2.4, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).toNonIndexed(), 0x8b8f96);
+    hab.position.set(-6.5, 0, -4.5); moon.add(hab);
+    
+    const radio = introPaint(new THREE.BoxGeometry(0.3, 1.5, 0.3).toNonIndexed(), 0x4a5347);
+    radio.position.set(1.6, 0.75, 3.4); moon.add(radio);
+    const lampM = new THREE.MeshBasicMaterial({ color: 0x2a4a3e });
+    const lamp = basic(new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.14), lampM));
+    lamp.position.set(1.6, 1.6, 3.4); moon.add(lamp);
+    refs.lamp = lamp;
+    
+    const rocket = introRocket();
+    rocket.position.set(-3.2, 0, -2.6); moon.add(rocket);
+    refs.rocket = rocket;
+    const flame = basic(new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.6, 8),
+      new THREE.MeshBasicMaterial({ color: 0xffb361 })));
+    flame.rotation.x = Math.PI; flame.position.set(-3.2, -0.4, -2.6);
+    flame.visible = false; moon.add(flame);
+    refs.flame = flame;
+    stage.add(moon);
+    refs.moon = moon;
+
+    
+    {
+      const pts = [];
+      let sd = 91;
+      const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+      for (let i = 0; i < 420; i += 1) {
+        const a = rnd() * Math.PI * 2; const e = rnd() * Math.PI * 0.48 + 0.04;
+        const r = 120;
+        pts.push(150 + Math.cos(a) * Math.cos(e) * r, Math.sin(e) * r, -600 + Math.sin(a) * Math.cos(e) * r);
+      }
+      const sg = new THREE.BufferGeometry();
+      sg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+      const stars = basic(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xcfd8de, size: 0.55, sizeAttenuation: false })));
+      stage.add(stars);
+    }
+
+    
+    const transit = new THREE.Group();
+    transit.position.set(INTRO_SET.transit.x, 0, INTRO_SET.transit.z);
+    const shipSmall = introRocket();
+    shipSmall.scale.setScalar(0.42);
+    shipSmall.rotation.z = -Math.PI / 2;   
+    shipSmall.position.set(6, 0.6, 0);
+    transit.add(shipSmall);
+    refs.shipSmall = shipSmall;
+    const venus = basic(new THREE.Mesh(new THREE.SphereGeometry(1.7, 12, 10),
+      new THREE.MeshBasicMaterial({ color: 0xc8935a })));
+    venus.position.set(-11, 2.2, -7); transit.add(venus);
+    stage.add(transit);
+
+    
+    const venusSet = new THREE.Group();
+    venusSet.position.set(INTRO_SET.crash.x, 0, INTRO_SET.crash.z);
+    const vGround = introPaint(new THREE.CircleGeometry(60, 24).toNonIndexed(), 0x7a5140);
+    vGround.rotation.x = -Math.PI / 2; venusSet.add(vGround);
+    for (const [rx, rz2, rs] of [[-4, -6, 1.1], [5, -3, 0.8], [-2, 4, 0.6], [7, 5, 1.4], [-8, 2, 0.9]]) {
+      const rock = introPaint(new THREE.BoxGeometry(rs, rs * 0.7, rs * 0.9).toNonIndexed(), 0x5e3d30);
+      rock.position.set(rx, rs * 0.3, rz2); rock.rotation.y = rx * 0.7;
+      venusSet.add(rock);
+    }
+    
+    for (const [bx, bw, bh] of [[-6, 8, 4], [3, 6, 6], [10, 9, 3]]) {
+      const slab = introPaint(new THREE.BoxGeometry(bw, bh, 3).toNonIndexed(), 0x3a2a22);
+      slab.position.set(bx, bh / 2, -34); venusSet.add(slab);
+    }
+    
+    const wreck = introRocket();
+    wreck.rotation.z = 1.45; wreck.rotation.y = 0.5;
+    wreck.position.set(0.6, 0.9, -1.2);
+    venusSet.add(wreck);
+    const sparkBit = basic(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.08),
+      new THREE.MeshBasicMaterial({ color: 0xbfe8ff })));
+    sparkBit.position.set(1.6, 1.3, -0.6); sparkBit.visible = false;
+    venusSet.add(sparkBit);
+    refs.sparkBit = sparkBit;
+    stage.add(venusSet);
+
+    scene.add(stage);
+    return { stage, refs };
+  }
+
+  function introStatic() {
+    const ctx = audio.ensure();
+    if (!ctx || !audio.running) return;
+    const dur = 1.1;
+    const buf = ctx.createBuffer(1, Math.floor(dur * ctx.sampleRate), ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i += 1) d[i] = (Math.random() * 2 - 1);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1150; bp.Q.value = 0.8;
+    const g = ctx.createGain();
+    const t0 = ctx.currentTime + 0.02;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(0.34, t0 + 0.09);
+    g.gain.setValueAtTime(0.34, t0 + dur - 0.15);
+    g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(bp); bp.connect(g); g.connect(audio.sfxBus);
+    src.start(t0); src.stop(t0 + dur + 0.02);
+  }
+
+  function introCaption(text, cls, seconds) {
+    const el = document.getElementById('vox');
+    if (!el) return;
+    el.textContent = text;
+    el.classList.toggle('pa', cls === 'pa');
+    introCapUntil = intro.t + seconds;
+  }
+
+  function routeIntroCue(e) {
+    if (e.kind === 'caption') introCaption(e.text, 'pa', 3.4);
+    else if (e.kind === 'agency') {
+      const dur = voxSheet.speak(e.voxId);
+      introCaption(e.text, 'pa', (dur > 0 ? dur : 3.5) + 0.5);
+    } else if (e.kind === 'xander') {
+      const dur = mumbleSay(e.text) || 2.2;
+      introCaption(e.text, '', dur + 0.7);
+    } else if (e.kind === 'sfx') {
+      if (e.effect === 'static') introStatic();
+      else sfxSheet.play(e.effect, { gain: e.gain ?? 1, rate: e.rate ?? 1 });
+    } else if (e.kind === 'act') {
+      if (e.act === 'walk') introActs.walking = 0;
+      else if (e.act === 'board') { introActs.walking = -1; xRig.visible = false; }
+      else if (e.act === 'ignite') introActs.ignite = 0;
+      else if (e.act === 'shake') introActs.shake = 1;
+      else if (e.act === 'impact') introActs.impact = 0.4;
+      else if (e.act === 'rise') introActs.rise = 0;
+    } else if (e.kind === 'shotStart') {
+      if (e.shotId === 'wreck') {
+        
+        const o = INTRO_SET.wreck;
+        xRig.visible = true;
+        xRig.position.set(o.x + 2.4, 0, o.z + 1.4);
+        xRig.rotation.y = 0.6;
+        xander.geometry = deathGeo[DEATH_FRAMES - 1];
+      }
+      if (e.shotId === 'transit' || e.shotId === 'crash') xRig.visible = false;
+    }
+  }
+
+  function beginIntro(onDone) {
+    introOnDone = onDone || null;
+    intro = createIntro();
+    introActs = { walking: -1, ignite: -1, shake: 0, impact: 0, rise: -1, walkDist: 0 };
+    const built = buildIntroStage();
+    introStage = built.stage;
+    introRefs = built.refs;
+    document.body.classList.add('introMode');
+    
+    const o = INTRO_SET.moonFarm;
+    xRig.visible = true;
+    xRig.position.set(o.x + 1.0, 0, o.z + 3.0);
+    xRig.rotation.y = -0.9;
+    
+    
+    for (let i = 0; i < 2 && i < birds.length; i += 1) {
+      const b = birds[i];
+      if (!b.mesh) continue;
+      b.mesh.visible = true;
+      b.mesh.position.set(o.x + 2.2 + i * 0.9, 0, o.z + 1.0 + i * 0.7);
+      b.mesh.rotation.y = 1.2 + i;
+    }
+    window.addEventListener('keydown', introSkipPress);
+    window.addEventListener('pointerdown', introSkipPress);
+  }
+
+  function endIntro() {
+    window.removeEventListener('keydown', introSkipPress);
+    window.removeEventListener('pointerdown', introSkipPress);
+    document.body.classList.remove('introMode');
+    if (introStage) {
+      scene.remove(introStage);
+      
+      
+      introStage.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+      for (const bm of introRefs.basics) { if (bm.material) bm.material.dispose(); }
+    }
+    introStage = null; introRefs = null; introActs = null;
+    const el = document.getElementById('vox');
+    if (el) { el.textContent = ''; el.classList.remove('pa'); }
+    xRig.visible = true;
+    intro = null;
+    introDone = true;
+    if (introOnDone) { const fcb = introOnDone; introOnDone = null; fcb(); }
+  }
+
+  function runIntroFrame(now, dt) {
+    const pressed = introSkip; introSkip = false;
+    const r = stepIntro(intro, dt, pressed);
+    intro = r.state;
+    for (const e of r.events) routeIntroCue(e);
+    if (intro.done) { endIntro(); return; }
+
+    const shotId = INTRO_SHOTS[intro.shot].id;
+    const o = INTRO_SET[shotId];
+    const cam = introCam(intro);
+    let ex = o.x + cam.eye[0]; let ey = cam.eye[1]; let ez = o.z + cam.eye[2];
+    const lx = o.x + cam.look[0]; const ly = cam.look[1]; const lz = o.z + cam.look[2];
+    if (introActs.shake > 0) {
+      introActs.shake = Math.max(0, introActs.shake - dt * 0.5);
+      const sh = introActs.shake * 0.25;
+      ex += (Math.random() * 2 - 1) * sh; ey += (Math.random() * 2 - 1) * sh; ez += (Math.random() * 2 - 1) * sh;
+    }
+    camera.position.set(ex, ey, ez);
+    camera.lookAt(lx, ly, lz);
+    camera.fov = cam.fov;
+    camera.updateProjectionMatrix();
+    audio.listen(lx, lz, { x: ex, y: ey, z: ez }, { x: lx, y: ly, z: lz });
+
+    
+    if (shotId === 'moonFarm' || shotId === 'call' || shotId === 'ship') {
+      
+      for (let i = 0; i < 2 && i < birds.length; i += 1) {
+        const m = birds[i].mesh;
+        if (m) m.rotation.x = Math.abs(Math.sin(now * 2.1 + i * 1.7)) * 0.28;
+      }
+    }
+    if (shotId === 'moonFarm' || shotId === 'call') {
+      
+      const span = IDLE_FRAMES * 2 - 2;
+      const k = Math.floor((now / IDLE_TIME) * span) % span;
+      const fi = k < IDLE_FRAMES ? k : span - k;
+      if (xander.geometry !== idleGeo[fi]) xander.geometry = idleGeo[fi];
+    }
+    if (shotId === 'call' && introRefs.lamp) {
+      introRefs.lamp.material.color.setHex(Math.sin(now * 9) > 0 ? 0x9df5d9 : 0x2a4a3e);
+    }
+    if (shotId === 'ship') {
+      if (introActs.walking >= 0) {
+        
+        
+        const oM = INTRO_SET.ship;
+        const from = { x: oM.x + 1.0, z: oM.z + 3.0 };
+        const to = { x: oM.x - 2.2, z: oM.z - 1.4 };
+        const total = Math.hypot(to.x - from.x, to.z - from.z);
+        introActs.walking = Math.min(1, introActs.walking + (dt * 1.25) / total);
+        const wk = introActs.walking;
+        xRig.position.set(from.x + (to.x - from.x) * wk, 0, from.z + (to.z - from.z) * wk);
+        xRig.rotation.y = -Math.atan2(-(to.x - from.x), to.z - from.z);
+        introActs.walkDist += dt * 1.25;
+        const wf = Math.floor(((introActs.walkDist / STRIDE) % 1) * WALK_FRAMES) % WALK_FRAMES;
+        if (xander.geometry !== walkGeo[wf]) xander.geometry = walkGeo[wf];
+      }
+      if (introActs.ignite >= 0 && introRefs.flame && introRefs.rocket) {
+        introActs.ignite += dt;
+        const fl = introRefs.flame;
+        fl.visible = true;
+        fl.scale.set(1, 0.8 + Math.random() * 0.6, 1);
+        if (introActs.ignite > 1.1) {
+          const risen = (introActs.ignite - 1.1);
+          introRefs.rocket.position.y = risen * risen * 2.2;
+          fl.position.y = -0.4 + introRefs.rocket.position.y;
+        }
+      }
+    }
+    if (shotId === 'transit' && introRefs.shipSmall) {
+      introRefs.shipSmall.position.x -= dt * 1.05;
+      introRefs.shipSmall.position.y = 0.6 + Math.sin(now * 0.8) * 0.1;
+    }
+    if (shotId === 'wreck') {
+      if (introRefs.sparkBit) introRefs.sparkBit.visible = Math.random() < 0.09;
+      if (introActs.rise >= 0) {
+        introActs.rise += dt;
+        const RISE_T = 3.4;
+        if (introActs.rise < RISE_T) {
+          
+          
+          const u = 1 - (introActs.rise / RISE_T);
+          const fd = Math.min(DEATH_FRAMES - 1, Math.floor(u * DEATH_FRAMES));
+          if (xander.geometry !== deathGeo[fd]) xander.geometry = deathGeo[fd];
+        } else {
+          const span = IDLE_FRAMES * 2 - 2;
+          const k = Math.floor((now / IDLE_TIME) * span) % span;
+          const fi = k < IDLE_FRAMES ? k : span - k;
+          if (xander.geometry !== idleGeo[fi]) xander.geometry = idleGeo[fi];
+        }
+      }
+    }
+
+    
+    if (intro.t > introCapUntil) {
+      const el = document.getElementById('vox');
+      if (el && el.textContent) { el.textContent = ''; el.classList.remove('pa'); }
+    }
+    const f = introFade(intro);
+    if (introActs.impact > 0) {
+      introActs.impact = Math.max(0, introActs.impact - dt);
+      gradeEl.style.background = `rgba(255,244,230,${(introActs.impact / 0.4) * 0.95})`;
+    } else {
+      gradeEl.style.background = `rgba(0,0,0,${Math.max(0.2, f).toFixed(3)})`;
+    }
+    renderer.render(scene, camera);
+  }
+
   function step(nowMs) {
     const now = nowMs / 1000;
     const dt = Math.min(0.05, last ? now - last : 0.016);
     last = now;
+
+    
+    if (intro && !intro.done) {
+      runIntroFrame(now, dt);
+      requestAnimationFrame(step);
+      return;
+    }
 
     lastMoved = 0;
     if (!player.dead && !hidden) {
@@ -8412,6 +8813,7 @@ export function boot(canvas, hud) {
   
   
   return {
+    beginIntro,
     player, birds, touch, faces, head: xHead, neck,
     
     
@@ -8719,6 +9121,25 @@ export function boot(canvas, hud) {
         return camNode;
       },
       get mumble() { return { count: mumbleCount, playing: !!mumbleStop }; },
+      get intro() {
+        if (intro) {
+          return {
+            shot: INTRO_SHOTS[intro.shot].id, t: +intro.t.toFixed(2),
+            tShot: +intro.tShot.toFixed(2), leaving: intro.leaving, done: false,
+          };
+        }
+        return introDone ? { done: true } : null;
+      },
+      
+      
+      introJump(shotId) {
+        if (!intro) return false;
+        const idx = INTRO_SHOTS.findIndex((sh) => sh.id === shotId);
+        if (idx < 0) return false;
+        intro = { ...intro, shot: idx, tShot: 0, fired: 0 };
+        routeIntroCue({ kind: 'shotStart', shotId });
+        return true;
+      },
       get aim() { return { up: aimLatch.up, u: +aimLatch.u.toFixed(3), target: !!target, armsShown: walkArmsShown }; },
       get vox() {
         return {
@@ -9660,15 +10081,23 @@ function start() {
         
         
         
-        
+        if (api.beginIntro) {
+          api.beginIntro(() => { startStationAudio(); });
+          return;
+        }
+        startStationAudio();
+      };
+      
+      
+      
+      
+      
+      const startStationAudio = () => {
         if (!tape.audible) {
           tape.toggle();
           $('tapeMini').classList.toggle('on', tape.audible);
           $('tapeCap').textContent = tape.sideName;
         }
-        
-        
-        
         roomTone();
       };
       $('startBtn').addEventListener('click', go);

@@ -1,45 +1,53 @@
 {
   "sampleRate": 48000,
-  "seconds": 57.15,
+  "seconds": 73.104,
   "clips": {
-    "pa1": {
+    "agency1": {
       "offset": 0.08,
+      "duration": 6.5995
+    },
+    "agency2": {
+      "offset": 6.7595,
+      "duration": 9.1945
+    },
+    "pa1": {
+      "offset": 16.034,
       "duration": 7.1445
     },
     "pa10": {
-      "offset": 7.3045,
+      "offset": 23.2585,
       "duration": 5.8145
     },
     "pa2": {
-      "offset": 13.199,
+      "offset": 29.153,
       "duration": 5.8945
     },
     "pa3": {
-      "offset": 19.1735,
+      "offset": 35.1275,
       "duration": 5.2745
     },
     "pa4": {
-      "offset": 24.528,
+      "offset": 40.482,
       "duration": 5.5145
     },
     "pa5": {
-      "offset": 30.1225,
+      "offset": 46.0765,
       "duration": 5.1345
     },
     "pa6": {
-      "offset": 35.337,
+      "offset": 51.291,
       "duration": 6.0545
     },
     "pa7": {
-      "offset": 41.4715,
+      "offset": 57.4255,
       "duration": 3.8795
     },
     "pa8": {
-      "offset": 45.431,
+      "offset": 61.385,
       "duration": 7.5545
     },
     "pa9": {
-      "offset": 53.0655,
+      "offset": 69.0195,
       "duration": 4.0045
     }
   }
