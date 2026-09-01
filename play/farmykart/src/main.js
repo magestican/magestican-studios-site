@@ -481,6 +481,10 @@ function buildCharacterShowcase() {
 
   charView = createShowcaseView({
     canvas,
+    
+    
+    
+    backdrop: true,
     ids: CHARACTERS.map((c) => c.id),
     selected: state.character,
     onSelect: (id) => {

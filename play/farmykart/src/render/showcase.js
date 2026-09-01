@@ -38,6 +38,10 @@ import {
   createContextState, contextLost, contextRestored, shouldDraw,
 } from '../../../../web-engine/render/contextRecovery.js';
 import { PALETTE } from '../palette.js';
+import { buildMenuScene } from './menuScene.js';
+import {
+  STAGE, stageCamera, subjectShiftMetres,
+} from '../../../../web-engine/kart/menuStage.js';
 
 
 const SPACING = 1.65;
@@ -181,7 +185,7 @@ function buildFigure(character) {
 
 export function createShowcaseView({
   canvas, ids, selected = null, podium = false, places = null, onSelect = null,
-  onContext = null,
+  onContext = null, backdrop = false,
 }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   
@@ -202,39 +206,92 @@ export function createShowcaseView({
 
   let disposed = false;
   const scene = new THREE.Scene();
-  scene.add(studioLights());
 
   
   
   
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 60);
-  camera.position.set(0, podium ? 1.15 : 0.86, podium ? 4.3 : 3.5);
-  camera.lookAt(0, podium ? 0.86 : 0.58, 0);
+  
+  
+  
+  
+  
+  
+  
+  
+  const stage = backdrop ? buildMenuScene() : null;
+  if (stage) {
+    scene.add(stage.group);
+    scene.add(stage.lights);
+    
+    
+    
+    
+    
+    scene.add(stage.sky);
+    scene.fog = stage.fog;
+  } else {
+    scene.add(studioLights());
+  }
 
   
   
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(24, 24),
-    new THREE.ShadowMaterial({ opacity: 0.28 }),
-  );
-  floor.rotation.x = -Math.PI / 2;
-  floor.receiveShadow = true;
-  scene.add(floor);
+  
+  
+  
+  
+  
+  const camera = backdrop
+    ? new THREE.PerspectiveCamera(STAGE.fovDeg, 1, 0.1, 1200)
+    : new THREE.PerspectiveCamera(30, 1, 0.1, 60);
+  if (backdrop) {
+    const c = stageCamera(0);
+    camera.position.set(c.position.x, c.position.y, c.position.z);
+    camera.lookAt(c.target.x, c.target.y, c.target.z);
+  } else {
+    camera.position.set(0, podium ? 1.15 : 0.86, podium ? 4.3 : 3.5);
+    camera.lookAt(0, podium ? 0.86 : 0.58, 0);
+  }
+
+  
+  
+  
+  
+  
+  
+  if (!stage) {
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(24, 24),
+      new THREE.ShadowMaterial({ opacity: 0.28 }),
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+  }
 
   const state = createShowcase(ids, selected);
   
   
   const figures = [];
   const steps = [];
+  
+  
+  
+  
+  
+  
+  const subjects = new THREE.Group();
+  if (stage) subjects.position.y = STAGE.plinthY;
+  scene.add(subjects);
+
   ids.forEach((id, i) => {
     const character = characterById(id) ?? CHARACTERS[0];
     const fig = buildFigure(character);
     figures[i] = fig;
-    scene.add(fig);
+    subjects.add(fig);
     if (podium) {
       const step = buildStep(places ? places[i] : i + 1);
       steps[i] = step;
-      scene.add(step);
+      subjects.add(step);
     }
   });
 
@@ -301,6 +358,16 @@ export function createShowcaseView({
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    
+    
+    
+    
+    
+    
+    if (stage) {
+      stage.layout(w, h);
+      subjects.position.x = subjectShiftMetres(w, h);
+    }
   }
 
   
@@ -417,6 +484,14 @@ export function createShowcaseView({
     stepShowcase(state, dt);
     resize();
     layout();
+    if (stage) {
+      
+      
+      
+      const c = stageCamera(time);
+      camera.position.set(c.position.x, c.position.y, c.position.z);
+      camera.lookAt(c.target.x, c.target.y, c.target.z);
+    }
     renderer.render(scene, camera);
 
     const nowSelected = selectedId(state);
