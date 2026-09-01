@@ -55,6 +55,8 @@ export function createContextState(opts = {}) {
   return {
     giveUpAfterMs: opts.giveUpAfterMs ?? GIVE_UP_AFTER_MS,
     
+    verb: opts.verb ?? DEFAULT_VERB,
+    
     lost: false,
     
     lostAt: null,
@@ -96,7 +98,7 @@ export function contextLost(state, now) {
     draw: false,
     losses: state.losses,
     giveUp,
-    message: giveUp ? GONE_MESSAGE : LOST_MESSAGE,
+    message: giveUp ? goneMessage(state.verb) : LOST_MESSAGE,
   };
 }
 
@@ -141,7 +143,7 @@ export function contextCheck(state, now) {
     return { giveUp: false, downMs, message: null };
   }
   state.gaveUp = true;
-  return { giveUp: true, downMs, message: GONE_MESSAGE };
+  return { giveUp: true, downMs, message: goneMessage(state.verb) };
 }
 
 
@@ -154,4 +156,29 @@ export function contextCheck(state, now) {
 
 
 export const LOST_MESSAGE = 'Graphics dropped out. Trying to get them back...';
-export const GONE_MESSAGE = 'Graphics could not recover. Reload to keep racing.';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const DEFAULT_VERB = 'playing';
+
+
+
+
+
+
+
+
+export function goneMessage(verb = DEFAULT_VERB) {
+  return `Graphics could not recover. Reload to keep ${verb}.`;
+}
