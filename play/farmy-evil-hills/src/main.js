@@ -106,7 +106,7 @@ import {
 import { compileMumble, seedOf } from '../../../web-engine/horror/mumble.js';
 import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix } from '../../../web-engine/horror/aimLatch.js';
 import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../../web-engine/horror/intro.js';
-import { isBossDeck, rosterFor, actCardFor } from '../../../web-engine/horror/acts.js';
+import { isBossDeck, rosterFor, actCardFor, actFor } from '../../../web-engine/horror/acts.js';
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
@@ -5190,7 +5190,9 @@ export function boot(canvas, hud) {
     
     isBoss = isBossDeck(seed);
     deck = isBoss ? bossLevel() : buildLevel(seed);
-    fight = isBoss ? createBossFight() : null;
+    
+    
+    fight = isBoss ? createBossFight({ endurance: 1 + (actFor(seed) - 1) * 0.25 }) : null;
     EXIT = deck.exit;
     rails = railNodesForRuns(deck.runs);
     safeRoom = deck.rooms.find((m) => m.kind === 'safe') || null;

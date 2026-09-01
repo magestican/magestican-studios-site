@@ -119,13 +119,23 @@ export const HORSE = Object.freeze({
   rewind: 16,
 });
 
-export function createBossFight() {
+
+
+
+
+
+
+
+
+
+
+export function createBossFight({ endurance = 1 } = {}) {
   return {
     
     
     
     fatigue: createFatigue('horse', {
-      metresPerPoint: HORSE.metresPerPoint,
+      metresPerPoint: HORSE.metresPerPoint * endurance,
       giveUpSeconds: HORSE.giveUpSeconds,
     }),
     
