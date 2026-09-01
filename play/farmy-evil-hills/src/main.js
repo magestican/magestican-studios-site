@@ -81,7 +81,7 @@ import {
   LIFT, createLift, stepLift, mapRise, insideCar, keepOut, carIsSafe, clearOfCar,
 } from '../../../web-engine/horror/lift.js';
 import {
-  buildLevel, moveInLevel, progressAt, pointBehind, runRect,
+  buildLevel, moveInLevel, progressAt, pointBehind, runRect, clearOfProps, insideLevel,
 } from '../../../web-engine/horror/level.js';
 import { spawnVitals, tickVitals, damage, beginGrapple, endGrapple, MAX_HEALTH, CHICKEN_LATCH_SLOW } from '../../../web-engine/horror/health.js';
 import { spawn as spawnCreature, resolveHit, applyDamage, mobilityOf, statusOf } from '../../../web-engine/horror/dismemberment.js';
@@ -4145,6 +4145,8 @@ export function boot(canvas, hud) {
   let wires = [];
   let props = [];
   
+  let solidProps = [];
+  
   
   
   
@@ -4564,6 +4566,7 @@ export function boot(canvas, hud) {
     leaks = [];
     wires = [];
     props = [];
+    solidProps = [];
     for (const run of deck.runs) {
       const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
       const dx = (run.x1 - run.x0) / len; const dz = (run.z1 - run.z0) / len;
@@ -4757,6 +4760,14 @@ export function boot(canvas, hud) {
         props.push({
           mesh: box, shadow: sh, mat: shMat, x, z, r: barrel ? 0.27 : 0.30, h,
         });
+        
+        
+        
+        
+        
+        
+        
+        solidProps.push({ x, z, r: (barrel ? 0.27 : 0.30) + 0.16 });
       }
     }
 
@@ -5297,7 +5308,16 @@ export function boot(canvas, hud) {
         d = Math.atan2(Math.sin(d), Math.cos(d));   
         player.yaw += d * (1 - Math.exp(-9 * dt));
       }
-      let moved = moveInLevel(deck, player, dx * speed * dt, dz * speed * dt);
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      let moved = moveInLevel(deck, player, dx * speed * dt, dz * speed * dt, 0.4, solidProps);
       
       
       
@@ -7068,12 +7088,38 @@ export function boot(canvas, hud) {
           if (d < bd) { bd = d; best = p; }
         }
         if (!best) return null;
-        player.x = best.x; player.z = best.z - 1.5;
-        return { x: best.x, z: best.z, was: bd };
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        for (let i = 0; i < 16; i += 1) {
+          const a = (i / 16) * Math.PI * 2;
+          const px = best.x + Math.sin(a) * 1.5;
+          const pz = best.z + Math.cos(a) * 1.5;
+          if (!insideLevel(deck, px, pz, 0.45)) continue;
+          if (!clearOfProps(solidProps, px, pz)) continue;
+          player.x = px; player.z = pz;
+          return { x: best.x, z: best.z, from: { x: px, z: pz }, was: bd };
+        }
+        return null;
       },
+      
+      
+      step(dx, dz) {
+        const m = moveInLevel(deck, player, dx, dz, 0.4, solidProps);
+        player.x = m.x; player.z = m.z;
+        return { x: m.x, z: m.z };
+      },
+      clearOfProp(x, z) { return clearOfProps(solidProps, x, z); },
       get props() {
         return {
           count: props.length,
+          solid: solidProps.length,
           litShadows: props.filter((p) => p.mat.opacity > 0.01).length,
         };
       },
