@@ -1722,7 +1722,7 @@ export function createRace(options) {
 
   let unlockZoom = null;
 
-  return {
+  const race = {
     track,
     start() {
       if (running || disposed) return;
@@ -1809,6 +1809,13 @@ export function createRace(options) {
     },
     setMuted: (m) => setMuted(audio, m),
     dispose() {
+      
+      
+      
+      
+      
+      
+      if (disposed) return;
       disposed = true;
       this.stop();
       
@@ -1855,8 +1862,59 @@ export function createRace(options) {
       
       releaseShadows(scene);
       renderer.dispose();
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      renderer.forceContextLoss();
+
+      
+      
+      
+      
+      
+      
+      pageContexts.release('scene');
     },
   };
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  pageContexts.acquire('scene', () => race.dispose());
+  return race;
 }
 
 

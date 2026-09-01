@@ -74,19 +74,16 @@ import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
 import { lockZoom } from '../../shared/input/zoomLock.js';
 
 import { railNodesForRuns, nodeAt, railPlacement } from '../../../web-engine/horror/railCamera.js';
-import { MAP, mapProject } from '../../../web-engine/horror/minimap.js';
 import { panOf, levelAt, makeImpulse } from '../../../web-engine/horror/audioSpace.js';
 import {
-  LIFT, createLift, stepLift, mapRise, insideCar, keepOut, carIsSafe, clearOfCar,
+  LIFT, createLift, stepLift, mapRise, insideCar,
 } from '../../../web-engine/horror/lift.js';
 import {
   buildLevel, moveInLevel, progressAt, pointBehind, runRect,
 } from '../../../web-engine/horror/level.js';
 import { spawnVitals, tickVitals, damage, beginGrapple, endGrapple, MAX_HEALTH, CHICKEN_LATCH_SLOW } from '../../../web-engine/horror/health.js';
 import { spawn as spawnCreature, resolveHit, applyDamage, mobilityOf, statusOf } from '../../../web-engine/horror/dismemberment.js';
-import {
-  readyWeapon, tickWeapon, canFire, fire, WEAPONS,
-} from '../../../web-engine/horror/weapons.js';
+import { readyWeapon, tickWeapon, canFire, fire } from '../../../web-engine/horror/weapons.js';
 import { createStruggle, VERB_FOR, promptFor } from '../../../web-engine/horror/struggle.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
@@ -3131,86 +3128,6 @@ function makeBlob(r, opacity = 0.4) {
 
 
 
-const DECALS = 40;
-let decalTex = null;
-
-
-function decalTexture() {
-  if (decalTex) return decalTex;
-  const n = 64;
-  const cv = document.createElement('canvas');
-  cv.width = n; cv.height = n;
-  const g = cv.getContext('2d');
-  g.clearRect(0, 0, n, n);
-  
-  
-  
-  for (let i = 0; i < 6; i += 1) {
-    const a = (i / 6) * Math.PI * 2 + hash2(i, 1.3) * 1.2;
-    const r = n * (0.16 + hash2(i, 2.7) * 0.14);
-    const d = n * hash2(i, 3.9) * 0.16;
-    const x = n / 2 + Math.cos(a) * d;
-    const y = n / 2 + Math.sin(a) * d;
-    const grad = g.createRadialGradient(x, y, r * 0.2, x, y, r);
-    grad.addColorStop(0, 'rgba(90,14,10,0.95)');
-    grad.addColorStop(0.7, 'rgba(70,10,8,0.55)');
-    grad.addColorStop(1, 'rgba(60,8,6,0)');
-    g.fillStyle = grad;
-    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
-  }
-  decalTex = new THREE.CanvasTexture(cv);
-  return decalTex;
-}
-
-function makeDecals() {
-  const tex = decalTexture();
-  const geo = new THREE.PlaneGeometry(1, 1);
-  geo.rotateX(-Math.PI / 2);
-  const pool = [];
-  const group = new THREE.Group();
-  for (let i = 0; i < DECALS; i += 1) {
-    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
-      map: tex, transparent: true, opacity: 0, depthWrite: false,
-    }));
-    m.position.y = -50;
-    m.renderOrder = 3;
-    m.frustumCulled = false;
-    group.add(m);
-    pool.push(m);
-  }
-  let next = 0;
-  return {
-    group,
-    
-    put(x, z, size, dark) {
-      const m = pool[next];
-      next = (next + 1) % DECALS;
-      m.position.set(x, 0.015 + (next % 4) * 0.002, z);
-      
-      
-      
-      m.rotation.y = Math.random() * Math.PI * 2;
-      const w = size * (0.8 + Math.random() * 0.5);
-      m.scale.set(w, 1, w * (0.75 + Math.random() * 0.5));
-      m.material.opacity = 0.55 + dark * 0.4;
-    },
-  };
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3370,136 +3287,6 @@ function footSfx(x, z, running) {
 }
 
 
-
-
-
-
-const gunSfx = { shots: 0, dry: 0 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function shotSfx() {
-  const ctx = audio.ensure();
-  if (!ctx || !audio.running) return;
-  const t = ctx.currentTime + 0.005;
-
-  
-  
-  const cd = 0.05;
-  const cb = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * cd)), ctx.sampleRate);
-  const cdat = cb.getChannelData(0);
-  for (let i = 0; i < cdat.length; i += 1) {
-    const u = i / cdat.length;
-    cdat[i] = (Math.random() * 2 - 1) * (1 - u) ** 2.2;
-  }
-  const cn = ctx.createBufferSource(); cn.buffer = cb;
-  const hp = ctx.createBiquadFilter();
-  hp.type = 'highpass'; hp.frequency.value = 1300; hp.Q.value = 0.7;
-  const cg = ctx.createGain();
-  cg.gain.setValueAtTime(0.42, t);
-  cg.gain.exponentialRampToValueAtTime(0.0001, t + cd);
-  cn.connect(hp); hp.connect(cg); cg.connect(audio.sfxBus);
-  cn.start(t); cn.stop(t + cd + 0.01);
-
-  
-  
-  const o = ctx.createOscillator(); const og = ctx.createGain();
-  o.type = 'square';
-  o.frequency.setValueAtTime(210, t);
-  o.frequency.exponentialRampToValueAtTime(52, t + 0.07);
-  og.gain.setValueAtTime(0.3, t);
-  og.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
-  const lp = ctx.createBiquadFilter();
-  lp.type = 'lowpass'; lp.frequency.value = 900;
-  o.connect(lp); lp.connect(og); og.connect(audio.sfxBus);
-  o.start(t); o.stop(t + 0.13);
-
-  
-  
-  const hd = 0.34;
-  const hb = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * hd)), ctx.sampleRate);
-  const hdat = hb.getChannelData(0);
-  for (let i = 0; i < hdat.length; i += 1) hdat[i] = Math.random() * 2 - 1;
-  const hn = ctx.createBufferSource(); hn.buffer = hb;
-  const bp = ctx.createBiquadFilter();
-  bp.type = 'bandpass'; bp.Q.value = 0.9;
-  bp.frequency.setValueAtTime(4200, t + 0.02);
-  bp.frequency.exponentialRampToValueAtTime(1500, t + hd);
-  const hg = ctx.createGain();
-  hg.gain.setValueAtTime(0.0001, t + 0.015);
-  hg.gain.linearRampToValueAtTime(0.13, t + 0.045);
-  hg.gain.exponentialRampToValueAtTime(0.0001, t + hd);
-  hn.connect(bp); bp.connect(hg); hg.connect(audio.sfxBus);
-  hn.start(t + 0.015); hn.stop(t + hd + 0.02);
-
-  
-  
-  const r = ctx.createOscillator(); const rg = ctx.createGain();
-  r.type = 'triangle';
-  r.frequency.setValueAtTime(1720 + Math.random() * 90, t + 0.02);
-  rg.gain.setValueAtTime(0.055, t + 0.02);
-  rg.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
-  r.connect(rg); rg.connect(audio.sfxBus);
-  r.start(t + 0.02); r.stop(t + 0.32);
-  gunSfx.shots += 1;
-}
-
-
-
-
-
-
-
-function dryClickSfx() {
-  const ctx = audio.ensure();
-  if (!ctx || !audio.running) return;
-  const t = ctx.currentTime + 0.005;
-  for (const [at, gain] of [[0, 0.16], [0.055, 0.1]]) {
-    const d = 0.02;
-    const b = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * d)), ctx.sampleRate);
-    const dat = b.getChannelData(0);
-    for (let i = 0; i < dat.length; i += 1) {
-      dat[i] = (Math.random() * 2 - 1) * (1 - i / dat.length) ** 3;
-    }
-    const n = ctx.createBufferSource(); n.buffer = b;
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 2200;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(gain, t + at);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + at + d);
-    n.connect(hp); hp.connect(g); g.connect(audio.sfxBus);
-    n.start(t + at); n.stop(t + at + d + 0.01);
-  }
-  gunSfx.dry += 1;
-}
-
 function hitSfx() {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
@@ -3548,11 +3335,71 @@ function hitSfx() {
 
 
 
+const MAP = Object.freeze({
+  pitch: 0.58,      
+  eye: 26,          
+  focal: 260,       
+  range: 40,        
+  behind: 9,        
+  deckGap: 7.5,     
+});
 
 
 
 
 
+
+
+
+
+function mapProject(wx, wy, wz, player, cx, cy, bearing) {
+  const dx = wx - player.x;
+  const dy = wy - 1.2;                    
+  const dz = wz - player.z;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const c = Math.cos(-bearing); const sn = Math.sin(-bearing);
+  const rx = dx * c - dz * sn;
+  const rz = dx * sn + dz * c;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const cp = Math.cos(MAP.pitch); const sp = Math.sin(MAP.pitch);
+  const ry = dy * cp + rz * sp;
+  const rzz = rz * cp - dy * sp;
+
+  const depth = rzz + MAP.eye;
+  if (depth < 1.2) return null;
+  const f = MAP.focal / depth;
+  return [cx + rx * f, cy - ry * f];
+}
 
 function drawMap(cv, player, birds, exit, level, deck, bearing, rise = 0) {
   const g = cv.getContext('2d');
@@ -3785,7 +3632,6 @@ export function boot(canvas, hud) {
   let cable = null;
   let arenaPillars = [];
   let impacts = null;
-  let decals = null;
   let liftCar = null;
   let liftDoors = null;
   let liftGroup = null;
@@ -4085,14 +3931,6 @@ export function boot(canvas, hud) {
       horse: [horseParts, (n) => (/^eye/.test(n) ? 0x120e0c : (HCOL[n] ?? 0x2b2724)),
         HORSE_HEIGHT_M, HORSE_RIG],
     };
-    
-    
-    
-    
-    if (liftCar) {
-      const k = keepOut(liftCar, x, z, 0.6);
-      x = k.x; z = k.z;
-    }
     const [sParts, sCol, sH, sRig] = SPECIES[kind] || SPECIES.chicken;
     const rig = chickenRig(sParts, sCol, sH, mat, sRig);
     rig.root.rotation.x = -Math.PI / 2;
@@ -4203,8 +4041,6 @@ export function boot(canvas, hud) {
     
     impacts = makeImpacts();
     deckGroup.add(impacts.points);
-    decals = makeDecals();
-    deckGroup.add(decals.group);
     
     
     
@@ -4830,19 +4666,8 @@ export function boot(canvas, hud) {
     
     fireT += dt;
     tickWeapon(player.weapon, dt);
-    const mayFire = fireHeld && !player.struggle && !player.dead && !hidden;
-    
-    
-    
-    if (mayFire && !canFire(player.weapon) && player.weapon.ammo <= 0) {
-      if (fireT > 1 / (player.weapon.spec?.fireRate ?? 1.6)) { dryClickSfx(); fireT = 0; }
-    }
-    if (mayFire && canFire(player.weapon)) {
+    if (fireHeld && !player.struggle && !player.dead && !hidden && canFire(player.weapon)) {
       fire(player.weapon);
-      
-      
-      
-      shotSfx();
       shotFlash = 0.06;
       fireT = 0;
 
@@ -5051,12 +4876,7 @@ export function boot(canvas, hud) {
           ),
         );
         if (!hit) continue;
-        
-        
-        
-        
-        applyDamage(b.creature, hit.id,
-          player.weapon.spec?.limbDamage ?? WEAPONS.boltDriver.limbDamage);
+        applyDamage(b.creature, hit.id, player.weapon.spec?.limbDamage ?? 12);
 
         
         
@@ -5071,9 +4891,6 @@ export function boot(canvas, hud) {
           { x: -Math.sin(aimYaw), z: Math.cos(aimYaw) },
         );
         meatSfx(b.x, b.z);
-        
-        
-        if (decals) decals.put(b.x, b.z, bh * 0.5, 0.15);
         hitCount += 1;
         
         
@@ -5099,8 +4916,6 @@ export function boot(canvas, hud) {
           b.alive = false;
           b.dying = 0;
           
-          if (decals) decals.put(b.x, b.z, bh * 1.5, 0.9);
-          
           
           b.fallSide = (hit.id === 'leg-l') ? -1 : ((hit.id === 'leg-r') ? 1 : (Math.random() < 0.5 ? -1 : 1));
           if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
@@ -5110,60 +4925,7 @@ export function boot(canvas, hud) {
     }
 
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    const keepClear = (b) => {
-      if (!liftCar) return;
-      const kept = keepOut(liftCar, b.x, b.z, 0.2);
-      if (!kept.moved) return;
-      b.x = kept.x; b.z = kept.z;
-      if (b.mesh) b.mesh.position.set(b.x, b.mesh.position.y, b.z);
-    };
-
-    
     for (const b of birds) {
-      keepClear(b);
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      if (b.latched && ride && carIsSafe(ride, liftCar, player.x, player.z)) {
-        b.latched = false;
-        b.cool = 1.2;
-        if (player.latchedBy === b) player.latchedBy = null;
-        player.struggle = null;
-        keepClear(b);
-      }
 
       
       
@@ -5222,7 +4984,6 @@ export function boot(canvas, hud) {
         b.kick -= dt;
         b.x += b.vx * dt;
         b.z += b.vz * dt;
-        keepClear(b);
         b.vy -= 14 * dt;                       
                                                
         b.mesh.position.set(b.x, Math.max(0, b.mesh.position.y + b.vy * dt), b.z);
@@ -5352,16 +5113,8 @@ export function boot(canvas, hud) {
         const move = r.speed * mobScale * dt;
         b.x += (dx / dist) * move;
         b.z += (dz / dist) * move;
-        keepClear(b);
       }
       
-      
-      
-      
-      
-      
-      
-      if (ride && carIsSafe(ride, liftCar, player.x, player.z)) continue;
       if (r.canLatch && !b.latched && !player.dead && !player.struggle && b.cool <= 0) {
         b.latched = true;
         player.latchedBy = b;
@@ -6306,27 +6059,6 @@ export function boot(canvas, hud) {
       
       
       
-      get fireState() {
-        return {
-          fireHeld,
-          hidden,
-          dead: player.dead,
-          struggling: !!player.struggle,
-          ammo: player.weapon.ammo,
-          cooldown: player.weapon.cooldown,
-          canFire: canFire(player.weapon),
-          fireT,
-        };
-      },
-      
-      
-      
-      get liftCar() { return liftCar ? { ...liftCar } : null; },
-      clearOfCar(x, z) { return liftCar ? clearOfCar(liftCar, x, z, 0.2) : true; },
-      get gunSfx() { return { ...gunSfx }; },
-      
-      
-      emptyGun() { player.weapon.ammo = 0; },
       get camBasis() {
         const f = { x: camTarget.x - camEye.x, z: camTarget.z - camEye.z };
         const m = Math.hypot(f.x, f.z) || 1;

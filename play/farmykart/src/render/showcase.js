@@ -183,6 +183,34 @@ function buildFigure(character) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function freshCanvas(old) {
+  const next = old.cloneNode(false);
+  old.replaceWith(next);
+  return next;
+}
+
 export function createShowcaseView({
   canvas, ids, selected = null, podium = false, places = null, onSelect = null,
   onContext = null, backdrop = false,

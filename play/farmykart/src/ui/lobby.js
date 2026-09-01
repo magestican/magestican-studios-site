@@ -28,7 +28,8 @@
 import { CHARACTERS, characterById } from 'arbelo/kartTuning';
 import { LOBBY_PHASE, FIELD_SIZES, LAP_OPTIONS, botCount, canStart } from 'arbelo/kartLobby';
 import { hex } from '../palette.js';
-import { createShowcaseView } from '../render/showcase.js';
+import { createShowcaseView, freshCanvas } from '../render/showcase.js';
+import { pageContexts } from '../../../../web-engine/render/contextBudget.js';
 import { driverPanelHtml } from './driverPanel.js';
 
 const $ = (id) => document.getElementById(id);
@@ -134,9 +135,33 @@ export function createLobbyUi({ tracks, difficulties, onClaim, onReady, onSettin
   }
 
   function ensureStage() {
-    if (stage) return;
-    const canvas = $('lobby-canvas');
-    if (!canvas) return;
+    
+    
+    
+    
+    
+    
+    
+    
+    if (stage && pageContexts.has('lobby-canvas')) return;
+    const old = $('lobby-canvas');
+    if (!old) return;
+    
+    
+    
+    const canvas = freshCanvas(old);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    pageContexts.enterExclusive('lobby-canvas');
     stage = createShowcaseView({
       canvas,
       ids: CHARACTERS.map((c) => c.id),
@@ -151,9 +176,14 @@ export function createLobbyUi({ tracks, difficulties, onClaim, onReady, onSettin
         paintShown();
       },
     });
-    $('lobby-prev').addEventListener('click', () => stage.nudge(-1));
-    $('lobby-next').addEventListener('click', () => stage.nudge(+1));
   }
+
+  
+  
+  
+  
+  $('lobby-prev').addEventListener('click', () => stage?.nudge(-1));
+  $('lobby-next').addEventListener('click', () => stage?.nudge(+1));
 
   $('lobby-start').addEventListener('click', () => onStart());
   $('lobby-ready').addEventListener('click', (e) => onReady(e.currentTarget.dataset.next === '1'));

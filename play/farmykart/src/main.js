@@ -36,7 +36,7 @@ import { localDayNumber } from '../../../web-engine/account/dayKey.js';
 import { startVersionChecker } from 'arbelo/updater';
 import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
-import { createShowcaseView } from './render/showcase.js';
+import { createShowcaseView, freshCanvas } from './render/showcase.js';
 import { setMusicMuted, musicClock, musicNow } from './audio/music.js';
 import { EMOTES } from 'arbelo/emotes';
 import { renderKartBoard } from './ui/kartBoard.js';
@@ -438,29 +438,6 @@ function leaveRoom() {
 let charView = null;
 
 let charArrowsBound = false;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function freshCanvas(old) {
-  const next = old.cloneNode(false);
-  old.replaceWith(next);
-  return next;
-}
 
 function buildCharacterShowcase() {
   let canvas = $('char-canvas');
@@ -939,7 +916,19 @@ function startRace({ newCup = false, net = null } = {}) {
 
   if (state.race) state.race.dispose();
   state.race = createRace({
-    canvas: $('scene'),
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    canvas: freshCanvas($('scene')),
     hudRoot: document.body,
     minimapCanvas: $('minimap'),
     trackId: settings?.trackId ?? state.track,
