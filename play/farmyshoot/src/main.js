@@ -7,6 +7,11 @@
 import { installPointerLockPromise } from 'arbelo/pointer-lock-compat';
 
 import { Game } from './game.js';
+
+
+
+
+import { CHARACTERS as ROSTER } from '../../../web-engine/stats/careerStats.js';
 import { MAPS, MAP_IDS, DEFAULT_MAP } from 'arbelo/mapspec';
 import { MODES, MODE_IDS, DEFAULT_MODE } from 'arbelo/modes';
 import { PeerMesh } from 'arbelo/net';
@@ -238,7 +243,7 @@ function paintCharacter(id, { fromCarousel = false } = {}) {
   if (!charStage) return;
   try {
     const { LobbyShowcase } = await import('./ui/lobbyShowcase.js');
-    showcase = new LobbyShowcase(charStage, ['cow', 'chicken', 'pig', 'sheep'], {
+    showcase = new LobbyShowcase(charStage, [...ROSTER], {
       selected: state.character,
       onSelect: (id) => paintCharacter(id, { fromCarousel: true }),
     });

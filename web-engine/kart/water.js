@@ -358,7 +358,15 @@ export function boatStep(kart, input = {}, ctx = {}) {
     ended: false,
     planeY: water.planeY,
     chasm: !!water.chasm,
-    speedScale: WATER_SPEED,
+    
+    
+    
+    
+    
+    
+    
+    
+    speedScale: t?.waterSpeed ?? WATER_SPEED,
     accelScale: WATER_ACCEL,
     steer: WATER_STEER,
     
@@ -435,5 +443,5 @@ export function isAdrift(kart) {
 
 
 export function boatCruise(tuning) {
-  return (tuning?.topSpeed ?? 40) * WATER_SPEED;
+  return (tuning?.topSpeed ?? 40) * (tuning?.waterSpeed ?? WATER_SPEED);
 }

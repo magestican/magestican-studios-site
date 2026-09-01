@@ -42,7 +42,13 @@ export const CAREER_KEY = 'tb.career.v1';
 
 
 
-export const CHARACTERS = Object.freeze(['cow', 'chicken', 'pig', 'sheep']);
+
+
+
+
+export const CHARACTERS = Object.freeze([
+  'cow', 'chicken', 'pig', 'sheep', 'goat', 'duck', 'donkey', 'goose',
+]);
 
 
 export function normaliseCharacter(raw) {

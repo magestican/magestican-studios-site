@@ -93,6 +93,37 @@ const STYLE_FOR = Object.freeze({
   bulldozer: 'barrel',
   cluckcannon: 'ski',
   mudlark: 'sponson',
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  ploughman: 'pontoon',
+  paddler: 'barrel',
+  scrambler: 'sponson',
+  gander: 'sponson',
 });
 
 

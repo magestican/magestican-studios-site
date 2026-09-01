@@ -20,6 +20,14 @@ export const ANIMAL_CALL = Object.freeze({
   pig: 'oink',
   chicken: 'cluck',
   sheep: 'bheee',
+  
+  
+  
+  
+  goat: 'bleat',
+  duck: 'quack',
+  donkey: 'bray',
+  goose: 'honk',
 });
 
 
@@ -147,6 +155,20 @@ export const ANIMAL_TRIM = Object.freeze({
   pig: 0.90,       
   chicken: 1.05,
   sheep: 2.30,     
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  goat: 1.78,
+  duck: 1.35,
+  donkey: 1.12,
+  goose: 1.43,
 });
 
 

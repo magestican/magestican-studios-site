@@ -90,9 +90,21 @@ export const BOARD_LIMIT = 20;
 
 export const CHARACTER_EMOJI = Object.freeze({
   cow: '\u{1F404}', chicken: '\u{1F413}', pig: '\u{1F416}', sheep: '\u{1F411}',
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  goat: '\u{1F410}', duck: '\u{1F986}', donkey: '\u{1FACF}', goose: '\u{1FABF}',
 });
 export const CHARACTER_NAME = Object.freeze({
   cow: 'Cow', chicken: 'Chicken', pig: 'Pig', sheep: 'Sheep',
+  goat: 'Goat', duck: 'Duck', donkey: 'Donkey', goose: 'Goose',
 });
 
 

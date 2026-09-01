@@ -54,7 +54,13 @@ export const PUBLIC_FIELDS = Object.freeze([
 
 
 
-export const VALID_CHARACTERS = Object.freeze(['cow', 'chicken', 'pig', 'sheep']);
+
+
+
+
+export const VALID_CHARACTERS = Object.freeze([
+  'cow', 'chicken', 'pig', 'sheep', 'goat', 'duck', 'donkey', 'goose',
+]);
 
 
 

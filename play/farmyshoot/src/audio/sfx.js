@@ -984,6 +984,127 @@ export function cluck(loudness = 1.0) {
 }
 
 
+
+
+
+
+
+
+
+export function quack(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t0 = ctx.currentTime;
+  const barks = [[0, 0.14, 420, 300, 0.34], [0.19, 0.11, 380, 250, 0.26]];
+  for (const [start, dur, f0, f1, amp] of barks) {
+    const t = t0 + start;
+    const src = _voiceSource(ctx, t, dur, f0, f1, amp * loudness, 34, 30);
+    const out = ctx.createGain(); out.gain.value = 1;
+    _formant(ctx, src, 950, 780, 4, 1.00, t, dur, out);      
+    _formant(ctx, src, 2150, 1900, 7, 0.55, t, dur, out);
+    _formant(ctx, src, 3300, 3100, 9, 0.18, t, dur, out);
+    out.connect(_master);
+    out.connect(_wetSend(ctx, 0.22 * loudness));
+  }
+}
+
+
+
+
+
+
+export function bleat(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t = ctx.currentTime, dur = 0.55;
+  const src = _voiceSource(ctx, t, dur, 540, 420, 0.32 * loudness, 15, 34);
+  const trem = ctx.createGain();
+  const lfo = ctx.createOscillator();
+  const lg = ctx.createGain();
+  lfo.type = 'sine'; lfo.frequency.value = 15; lg.gain.value = 0.55;
+  trem.gain.value = 0.45;
+  lfo.connect(lg).connect(trem.gain);
+  lfo.start(t); lfo.stop(t + dur + 0.05);
+  src.connect(trem);
+  const out = ctx.createGain(); out.gain.value = 1;
+  _formant(ctx, trem, 820, 900, 7, 1.00, t, dur, out);       
+  _formant(ctx, trem, 2050, 1900, 9, 0.60, t, dur, out);     
+  _formant(ctx, trem, 3050, 3050, 12, 0.20, t, dur, out);
+  out.connect(_master);
+  out.connect(_wetSend(ctx, 0.26 * loudness));
+}
+
+
+
+
+
+
+
+
+export function bray(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t0 = ctx.currentTime;
+
+  
+  const d1 = 0.30;
+  const hee = _voiceSource(ctx, t0, d1, 210, 330, 0.30 * loudness, 26, 16);
+  const o1 = ctx.createGain(); o1.gain.value = 1;
+  _formant(ctx, hee, 1150, 1400, 8, 1.00, t0, d1, o1);
+  _formant(ctx, hee, 2500, 2700, 10, 0.45, t0, d1, o1);
+  o1.connect(_master);
+  o1.connect(_wetSend(ctx, 0.24 * loudness));
+
+  
+  
+  const t1 = t0 + 0.32, d2 = 0.62;
+  const haw = _voiceSource(ctx, t1, d2, 300, 96, 0.40 * loudness, 30, 26);
+  const n = ctx.createBufferSource();
+  n.buffer = noiseBuffer(ctx, d2);
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.09 * loudness, t1);
+  ng.gain.exponentialRampToValueAtTime(0.001, t1 + d2);
+  n.connect(ng);
+  n.start(t1); n.stop(t1 + d2 + 0.02);
+  const o2 = ctx.createGain(); o2.gain.value = 1;
+  for (const s of [haw, ng]) {
+    _formant(ctx, s, 620, 480, 6, 1.00, t1, d2, o2);
+    _formant(ctx, s, 1500, 1150, 8, 0.50, t1, d2, o2);
+  }
+  o2.connect(_master);
+  o2.connect(_wetSend(ctx, 0.30 * loudness));
+}
+
+
+
+
+
+
+
+
+
+
+export function honk(loudness = 1.0) {
+  const ctx = ensureCtx(); if (!ctx || _muted()) return;
+  const t0 = ctx.currentTime;
+  const honks = [[0, 0.20, 330, 250, 0.38], [0.27, 0.17, 300, 220, 0.30]];
+  for (const [start, dur, f0, f1, amp] of honks) {
+    const t = t0 + start;
+    const src = _voiceSource(ctx, t, dur, f0, f1, amp * loudness, 19, 14);
+    const n = ctx.createBufferSource();
+    n.buffer = noiseBuffer(ctx, 0.05);
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.14 * loudness, t);
+    ng.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    n.connect(ng);
+    n.start(t); n.stop(t + 0.07);
+    const out = ctx.createGain(); out.gain.value = 1;
+    for (const s of [src, ng]) _formant(ctx, s, 1120, 980, 5, 1.00, t, dur, out);
+    _formant(ctx, src, 2400, 2200, 8, 0.45, t, dur, out);
+    _formant(ctx, src, 3600, 3400, 10, 0.15, t, dur, out);
+    out.connect(_master);
+    out.connect(_wetSend(ctx, 0.20 * loudness));
+  }
+}
+
+
 export function animalVoice(character, loudness = 1.0) {
   
   
@@ -996,6 +1117,16 @@ export function animalVoice(character, loudness = 1.0) {
     case 'pig':     return oink(g);
     case 'sheep':   return bheee(g);
     case 'chicken': return cluck(g);
+    case 'goat':    return bleat(g);
+    case 'duck':    return quack(g);
+    case 'donkey':  return bray(g);
+    case 'goose':   return honk(g);
+    
+    
+    
+    
+    
+    
     default:        return moo(g);
   }
 }

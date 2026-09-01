@@ -74,6 +74,38 @@ const lerp = (a, b, t) => a + (b - a) * Math.min(1, Math.max(0, t));
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const CHARACTERS = Object.freeze([
   Object.freeze({
     id: 'sheep',
@@ -110,6 +142,83 @@ export const CHARACTERS = Object.freeze([
     tint: 0x7cb0ff,
     dials: Object.freeze({ speed: 0.66, accel: 0.42, handling: 0.62, gripDial: 0.72, weight: 0.66 }),
     driftGrip: 0.44,
+  }),
+  Object.freeze({
+    id: 'goat',
+    name: 'Nanny',
+    species: 'goat',
+    blurb: 'Sticks to anything, including ice. Will lose every straight.',
+    tint: 0x8f6b3d,
+    dials: Object.freeze({ speed: 0.30, accel: 0.70, handling: 0.84, gripDial: 1.00, weight: 0.22 }),
+    driftGrip: 0.38,
+  }),
+  Object.freeze({
+    id: 'duck',
+    name: 'Puddle',
+    species: 'duck',
+    blurb: 'Slow on land. The only one that does not slow down in the water.',
+    tint: 0x2f7d4f,
+    dials: Object.freeze({ speed: 0.34, accel: 0.78, handling: 0.80, gripDial: 0.40, weight: 0.10 }),
+    driftGrip: 0.26,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    waterSpeed: 0.86,
+  }),
+  Object.freeze({
+    id: 'donkey',
+    name: 'Barrow',
+    species: 'donkey',
+    blurb: 'As heavy as the cow and it can actually corner. Dreadful start.',
+    tint: 0x9aa0a6,
+    
+    
+    
+    
+    
+    
+    dials: Object.freeze({ speed: 0.58, accel: 0.30, handling: 0.34, gripDial: 0.90, weight: 0.94 }),
+    driftGrip: 0.40,
+  }),
+  Object.freeze({
+    id: 'goose',
+    name: 'Bluster',
+    species: 'goose',
+    blurb: 'Wins the run to the first corner. Then there is the corner.',
+    tint: 0xe0762a,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    dials: Object.freeze({ speed: 0.44, accel: 0.96, handling: 1.00, gripDial: 0.12, weight: 0.06 }),
+    driftGrip: 0.24,
   }),
 ]);
 
@@ -287,6 +396,12 @@ export function resolveTuning(character, { engineClass = 1 } = {}) {
     
     
     
+    
+    
+    
+    
+    
+    waterSpeed: c.waterSpeed,
     offRoadSpeed: 0.74,
     offRoadDrag: 1.15,
   };

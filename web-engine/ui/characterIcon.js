@@ -22,6 +22,14 @@ export const CHARACTER_ICON = Object.freeze({
   chicken: '🐓',
   pig: '🐖',
   sheep: '🐑',
+  
+  
+  
+  
+  goat: '🐐',
+  duck: '🦆',
+  donkey: '🫏',
+  goose: '🪿',
 });
 
 

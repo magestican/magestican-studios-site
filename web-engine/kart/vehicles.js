@@ -317,7 +317,213 @@ const MUDLARK = {
   halfWidth: 1.06,
 };
 
-export const VEHICLES = Object.freeze([WOOLPACKER, CLUCKCANNON, BULLDOZER, MUDLARK].map(deepFreeze));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const GANDER = {
+  id: 'gander',
+  character: 'goose',
+  name: 'Gander',
+  
+  
+  
+  
+  
+  blurb: 'All rear tyre and no sense. Gone before the lights finish.',
+  wheelbase: 2.02,
+  wheels: {
+    frontRadius: 0.24, rearRadius: 0.42,
+    frontWidth: 0.20, rearWidth: 0.44,
+    trackFront: 1.18, trackRear: 1.50,
+    spokes: 5,
+  },
+  floor: { length: 2.30, z: 0, y: 0.32, tailHalf: 0.60, noseHalf: 0.38, tailHeight: 0.22, noseHeight: 0.16, rake: -0.06 },
+  pods: { style: 'rail', half: 0.09, length: 1.55, height: 0.15, x: 0.60, y: 0.44, z: -0.04, lean: 0, rail: false },
+  nose: { style: 'wedge', length: 0.86, z: 1.24, y: 0.32, rootHalf: 0.30, tipHalf: 0.16, rootHeight: 0.20, tipHeight: 0.11, lift: 0.06, roundel: 0.12 },
+  engine: { half: 0.34, height: 0.44, length: 0.60, y: 0.50, z: -1.04, camCover: false },
+  seat: { z: -0.08, y: 0.36, width: 0.66, backY: 0.74, backZ: -0.58, driverHeight: 0.84, tilt: 0.18 },
+  rollBar: { style: 'hoop', radius: 0.34, tube: 0.05, y: 0.86, z: -0.70 },
+  exhaust: {
+    style: 'twinRear',
+    pipes: [[0.24, 0.58, -1.08], [-0.24, 0.58, -1.08]],
+    dir: [0, 0.78, -0.63], length: 0.50, radius: 0.070, tipRadius: 0.088, cap: false,
+  },
+  
+  
+  
+  
+  wing: { style: 'lowBlade', span: 0.86, chord: 0.22, thickness: 0.06, y: 1.52, z: -1.30, strut: 0.44, strutX: 0.32 },
+  bumper: { width: 1.10, y: 0.32, z: -1.40, height: 0.10 },
+  glider: { span: 3.30, chord: 1.42, y: 2.20, dihedral: 0.26 },
+  livery: { accent: 'gold', trim: 'night', metal: 'chrome', pipe: 'engine' },
+  halfWidth: 0.99,
+};
+
+const PADDLER = {
+  id: 'paddler',
+  character: 'duck',
+  name: 'Paddler',
+  
+  
+  
+  
+  
+  
+  
+  
+  blurb: 'A flat-bottomed hull on wheels. Ignores the ford entirely.',
+  wheelbase: 1.98,
+  wheels: {
+    frontRadius: 0.26, rearRadius: 0.40,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    frontWidth: 0.24, rearWidth: 0.62,
+    trackFront: 1.40, trackRear: 1.42,
+    spokes: 6,
+  },
+  floor: { length: 2.60, z: 0, y: 0.22, tailHalf: 0.80, noseHalf: 0.62, tailHeight: 0.18, noseHeight: 0.14, rake: -0.02 },
+  pods: { style: 'sidepod', half: 0.19, length: 1.80, height: 0.28, x: 0.80, y: 0.30, z: -0.04, lean: 0.06, rail: true },
+  nose: { style: 'shovel', length: 1.05, z: 1.36, y: 0.28, rootHalf: 0.46, tipHalf: 0.44, rootHeight: 0.16, tipHeight: 0.10, lift: -0.03, roundel: 0.14 },
+  engine: { half: 0.42, height: 0.40, length: 0.64, y: 0.42, z: -1.18, camCover: true },
+  seat: { z: -0.12, y: 0.26, width: 0.62, backY: 0.56, backZ: -0.56, driverHeight: 0.80, tilt: 0.24 },
+  rollBar: { style: 'hoop', radius: 0.30, tube: 0.05, y: 0.62, z: -0.62 },
+  exhaust: {
+    style: 'sideStacks',
+    pipes: [[0.86, 0.46, -0.24], [-0.86, 0.46, -0.24]],
+    dir: [0.04, 0.999, 0], length: 0.58, radius: 0.075, tipRadius: 0.090, cap: true,
+  },
+  wing: { style: 'highSlab', span: 1.10, chord: 0.26, thickness: 0.06, y: 1.03, z: -1.24, strut: 0.40, strutX: 0.40 },
+  bumper: { width: 1.30, y: 0.24, z: -1.48, height: 0.11 },
+  glider: { span: 3.40, chord: 1.48, y: 1.80, dihedral: 0.24 },
+  livery: { accent: 'ceiling', trim: 'chrome', metal: 'chrome', pipe: 'chrome' },
+  halfWidth: 1.00,
+};
+
+const SCRAMBLER = {
+  id: 'scrambler',
+  character: 'goat',
+  name: 'Scrambler',
+  
+  
+  
+  
+  
+  
+  blurb: 'A hill-climb cage. It will not be quick, but it will not let go.',
+  wheelbase: 1.94,
+  wheels: {
+    frontRadius: 0.28, rearRadius: 0.41,
+    frontWidth: 0.24, rearWidth: 0.44,
+    trackFront: 1.58, trackRear: 1.67,
+    spokes: 6,
+  },
+  floor: { length: 2.45, z: 0, y: 0.30, tailHalf: 0.74, noseHalf: 0.52, tailHeight: 0.20, noseHeight: 0.16, rake: 0.02 },
+  pods: { style: 'rail', half: 0.10, length: 1.62, height: 0.18, x: 0.72, y: 0.46, z: -0.04, lean: 0, rail: true },
+  nose: { style: 'cone', length: 0.92, z: 1.26, y: 0.42, rootHalf: 0.48, tipHalf: 0.22, rootHeight: 0.26, tipHeight: 0.16, lift: 0.06, roundel: 0.15 },
+  engine: { half: 0.40, height: 0.48, length: 0.64, y: 0.54, z: -1.10, camCover: true },
+  seat: { z: -0.10, y: 0.36, width: 0.66, backY: 0.70, backZ: -0.60, driverHeight: 0.90, tilt: 0.20 },
+  
+  
+  
+  rollBar: { style: 'brace', radius: 0.50, tube: 0.08, y: 1.20, z: -0.72 },
+  exhaust: {
+    style: 'quadLow',
+    pipes: [[0.18, 0.38, -1.16], [-0.18, 0.38, -1.16], [0.46, 0.38, -1.14], [-0.46, 0.38, -1.14]],
+    dir: [0, 0.10, -0.995], length: 0.32, radius: 0.058, tipRadius: 0.070, cap: false,
+  },
+  wing: { style: 'highSlab', span: 1.30, chord: 0.40, thickness: 0.06, y: 1.30, z: -1.26, strut: 0.50, strutX: 0.50 },
+  bumper: { width: 1.34, y: 0.30, z: -1.44, height: 0.12 },
+  glider: { span: 3.50, chord: 1.52, y: 2.30, dihedral: 0.22 },
+  livery: { accent: 'barnRed', trim: 'night', metal: 'chrome', pipe: 'engine' },
+  halfWidth: 1.04,
+};
+
+const PLOUGHMAN = {
+  id: 'ploughman',
+  character: 'donkey',
+  name: 'Ploughman',
+  
+  
+  
+  
+  
+  blurb: 'As much kart as the hauler, and it can actually take a corner.',
+  wheelbase: 2.14,
+  wheels: {
+    frontRadius: 0.40, rearRadius: 0.46,
+    frontWidth: 0.38, rearWidth: 0.50,
+    trackFront: 1.96, trackRear: 2.08,
+    spokes: 6,
+  },
+  floor: { length: 2.70, z: 0, y: 0.34, tailHalf: 0.90, noseHalf: 0.74, tailHeight: 0.26, noseHeight: 0.20, rake: 0.02 },
+  pods: { style: 'slab', half: 0.22, length: 1.80, height: 0.46, x: 0.98, y: 0.50, z: -0.05, lean: 0.03, rail: true },
+  nose: { style: 'bullbar', length: 0.86, z: 1.42, y: 0.48, rootHalf: 0.70, tipHalf: 0.56, rootHeight: 0.34, tipHeight: 0.28, lift: 0.03, roundel: 0.19 },
+  engine: { half: 0.56, height: 0.54, length: 0.76, y: 0.60, z: -1.22, camCover: true },
+  seat: { z: -0.14, y: 0.40, width: 0.84, backY: 0.80, backZ: -0.68, driverHeight: 1.02, tilt: 0.22 },
+  rollBar: { style: 'brace', radius: 0.58, tube: 0.09, y: 1.29, z: -0.76 },
+  exhaust: {
+    style: 'twinRear',
+    pipes: [[0.30, 0.66, -1.16], [-0.30, 0.66, -1.16]],
+    dir: [0, 0.78, -0.63], length: 0.62, radius: 0.085, tipRadius: 0.105, cap: false,
+  },
+  wing: { style: 'winglets', span: 1.50, chord: 0.50, thickness: 0.07, y: 1.46, z: -1.34, strut: 0.52, strutX: 0.50 },
+  bumper: { width: 2.00, y: 0.34, z: -1.72, height: 0.16 },
+  glider: { span: 4.20, chord: 1.78, y: 2.35, dihedral: 0.16 },
+  livery: { accent: 'night', trim: 'gold', metal: 'chrome', pipe: 'engine' },
+  halfWidth: 1.24,
+};
+
+export const VEHICLES = Object.freeze(
+  [WOOLPACKER, CLUCKCANNON, BULLDOZER, MUDLARK, GANDER, PADDLER, SCRAMBLER, PLOUGHMAN]
+    .map(deepFreeze),
+);
 
 function deepFreeze(o) {
   for (const v of Object.values(o)) {

@@ -44,7 +44,13 @@ const NAMES = [
   'Bot-Fuzzy', 'Bot-Bramble', 'Bot-Dustpan', 'Bot-Waddles',
   'Bot-Mudflap', 'Bot-Rascal', 'Bot-Turnip', 'Bot-Bramblehat',
 ];
-const CHARACTERS = ['cow', 'chicken', 'pig', 'sheep'];
+
+
+
+
+
+
+import { CHARACTERS } from '../../../../web-engine/stats/careerStats.js';
 
 const RANGE_SEE_ENEMY = 22;
 const RANGE_FIRE_ENEMY = 18;
