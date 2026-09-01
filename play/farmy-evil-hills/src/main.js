@@ -2525,6 +2525,25 @@ function creakSfx(x, z) {
 
 
 
+function settleSfx(x, z) {
+  const out = audio.at(x, z);
+  if (!out) return false;
+  return !!sfxSheet.play('settle', {
+    dest: out, gain: 0.34, rate: 0.9 + Math.random() * 0.2,
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3052,6 +3071,14 @@ function pushOutOfPillars(list, p, pad) {
 
 
 function doorSfx(opening) {
+  
+  
+  
+  
+  
+  if (sfxSheet.play(opening ? 'doorOpen' : 'doorClose', {
+    gain: 0.8, rate: 0.94 + Math.random() * 0.12,
+  })) return;
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
   const t = ctx.currentTime + 0.01;
@@ -3109,28 +3136,46 @@ function liftHum(on) {
   const g = ctx.createGain();
   g.gain.value = 0.0001;
   g.connect(audio.musicBus);
+  const stops = [];
 
   
   
-  const o = ctx.createOscillator();
-  o.type = 'sawtooth'; o.frequency.value = 46;
-  const lp = ctx.createBiquadFilter();
-  lp.type = 'lowpass'; lp.frequency.value = 190; lp.Q.value = 3;
-  const wob = ctx.createOscillator(); const wg = ctx.createGain();
-  wob.frequency.value = 2.7; wg.gain.value = 5;
-  wob.connect(wg); wg.connect(o.frequency);
-  o.connect(lp); lp.connect(g);
+  
+  
+  
+  const drone = sfxSheet.play('liftLoop', {
+    loop: true, dest: g, gain: 0.9, rate: 0.94 + Math.random() * 0.1,
+  });
+  if (drone) {
+    stops.push(() => drone.stop(0.1));
+  } else {
+    
+    
+    
+    const o = ctx.createOscillator();
+    o.type = 'sawtooth'; o.frequency.value = 46;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 190; lp.Q.value = 3;
+    const wob = ctx.createOscillator(); const wg = ctx.createGain();
+    wob.frequency.value = 2.7; wg.gain.value = 5;
+    wob.connect(wg); wg.connect(o.frequency);
+    o.connect(lp); lp.connect(g);
+    o.start(); wob.start();
+    stops.push(() => { try { o.stop(); wob.stop(); } catch {  } });
+  }
 
+  
+  
   
   
   for (const [hz, lvl] of [[196, 0.05], [294, 0.035], [392, 0.022]]) {
     const v = ctx.createOscillator(); const vg = ctx.createGain();
     v.type = 'sine'; v.frequency.value = hz; vg.gain.value = lvl;
     v.connect(vg); vg.connect(g); v.start();
+    stops.push(() => { try { v.stop(); } catch {  } });
   }
-  o.start(); wob.start();
   g.gain.setTargetAtTime(0.55, ctx.currentTime, 0.6);
-  liftVoice = { gain: g, stop() { try { o.stop(); wob.stop(); } catch {  } } };
+  liftVoice = { gain: g, stop() { for (const s of stops) s(); } };
 }
 
 
@@ -3154,9 +3199,42 @@ function liftHum(on) {
 
 
 
+
+
+
+
+
+
+
+
+
+const TONE_BED = 0.08;
+const TONE_SAFE = 0.016;
+function startRecordedTone() {
+  const h = sfxSheet.play('roomTone', {
+    loop: true, gain: TONE_BED, rate: 0.97 + Math.random() * 0.06,
+  });
+  if (!h) return false;
+  tone = {
+    recorded: true,
+    setLevel(quiet) {
+      if (!audio.ctx) return;
+      h.gain.gain.setTargetAtTime(quiet ? TONE_SAFE : TONE_BED, audio.ctx.currentTime, 0.8);
+    },
+    stop() { h.stop(1.0); },
+  };
+  return true;
+}
 function roomTone() {
   const ctx = audio.ensure();
   if (!ctx || tone) return;
+  if (startRecordedTone()) return;
+
+  
+  
+  
+  
+  
 
   
   
@@ -3202,7 +3280,46 @@ function roomTone() {
   hum.connect(hg); hg.connect(audio.sfxBus); hum.start();
   hg.gain.setTargetAtTime(0.10, ctx.currentTime, 3.5);
 
-  tone = { gain: g, hum: hg };
+  tone = {
+    recorded: false,
+    setLevel(quiet) {
+      if (!audio.ctx) return;
+      g.gain.setTargetAtTime(quiet ? 0.10 : 0.5, audio.ctx.currentTime, 0.8);
+      hg.gain.setTargetAtTime(quiet ? 0.02 : 0.10, audio.ctx.currentTime, 0.8);
+    },
+    stop() {
+      if (!audio.ctx) return;
+      g.gain.setTargetAtTime(0.0001, audio.ctx.currentTime, 0.6);
+      hg.gain.setTargetAtTime(0.0001, audio.ctx.currentTime, 0.6);
+      setTimeout(() => {
+        try { src.stop(); lfo.stop(); hum.stop(); } catch {  }
+      }, 2500);
+    },
+  };
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let upTries = 60;
+  const up = setInterval(() => {
+    upTries -= 1;
+    if (!tone || tone.recorded || upTries <= 0) { clearInterval(up); return; }
+    if (!sfxSheet.ready) return;
+    const synth = tone;
+    tone = null;
+    if (!startRecordedTone()) { tone = synth; return; }
+    synth.stop();
+    clearInterval(up);
+  }, 1000);
 }
 
 
@@ -3213,9 +3330,7 @@ function roomTone() {
 
 
 function roomToneLevel(quiet) {
-  if (!tone || !audio.ctx) return;
-  tone.gain.gain.setTargetAtTime(quiet ? 0.10 : 0.5, audio.ctx.currentTime, 0.8);
-  tone.hum.gain.setTargetAtTime(quiet ? 0.02 : 0.10, audio.ctx.currentTime, 0.8);
+  if (tone) tone.setLevel(quiet);
 }
 
 
@@ -3230,6 +3345,16 @@ function roomToneLevel(quiet) {
 
 
 function breathSfx(hard) {
+  
+  
+  
+  
+  
+  
+  
+  if (sfxSheet.play('breath', {
+    gain: hard ? 0.38 : 0.2, rate: (hard ? 1.02 : 0.9) + Math.random() * 0.08,
+  })) return;
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
   const t = ctx.currentTime + 0.01;
@@ -3811,8 +3936,17 @@ const sfxSheet = (() => {
 
 
 
+
+
+
+
+
+
+
+
+
   function play(effect, {
-    gain = 1, rate = 1, dest = null, when = 0,
+    gain = 1, rate = 1, dest = null, when = 0, loop = false,
   } = {}) {
     const ctx = audio.ensure();
     if (!ctx || !audio.running || !buffer || !manifest) return false;
@@ -3829,6 +3963,7 @@ const sfxSheet = (() => {
     last.set(effect, name);
     const clip = manifest.clips[name];
     if (!clip) return false;
+    if (loop && !clip.wrap) return false;
     const src = ctx.createBufferSource();
     src.buffer = buffer;
     src.playbackRate.value = rate;
@@ -3837,6 +3972,28 @@ const sfxSheet = (() => {
     src.connect(g);
     g.connect(dest || audio.sfxBus);
     const t = ctx.currentTime + Math.max(0, when) + 0.002;
+    if (loop) {
+      src.loop = true;
+      src.loopStart = clip.offset;
+      src.loopEnd = clip.offset + clip.duration - clip.wrap;
+      
+      
+      g.gain.value = 0.0001;
+      g.gain.setTargetAtTime(gain, t, 0.4);
+      src.start(t, clip.offset);
+      played += 1;
+      byEffect[effect] = (byEffect[effect] || 0) + 1;
+      return {
+        gain: g,
+        stop(fadeSec = 0.6) {
+          g.gain.setTargetAtTime(0.0001, ctx.currentTime, Math.max(0.02, fadeSec / 3));
+          
+          
+          
+          setTimeout(() => { try { src.stop(); } catch {  } }, fadeSec * 1000 + 400);
+        },
+      };
+    }
     
     
     src.start(t, clip.offset, clip.duration / rate);
@@ -7073,10 +7230,11 @@ export function boot(canvas, hud) {
       
       
       
-      creakSfx(
-        player.x + (Math.random() - 0.5) * 9,
-        player.z + (Math.random() - 0.5) * 22,
-      );
+      
+      
+      const gx = player.x + (Math.random() - 0.5) * 9;
+      const gz = player.z + (Math.random() - 0.5) * 22;
+      if (!(Math.random() < 0.25 && settleSfx(gx, gz))) creakSfx(gx, gz);
     }
 
     sparkIn -= dt;
@@ -7648,6 +7806,10 @@ export function boot(canvas, hud) {
       
       
       freshCreature(kind) { return spawnCreature(kind); },
+      
+      
+      
+      settleNow() { return settleSfx(player.x + 4, player.z + 6); },
       
       
       

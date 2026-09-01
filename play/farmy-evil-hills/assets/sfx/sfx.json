@@ -1,6 +1,6 @@
 {
   "sampleRate": 48000,
-  "seconds": 49.465,
+  "seconds": 79.135,
   "clips": {
     "shot1": {
       "effect": "shot",
@@ -246,6 +246,85 @@
       "effect": "creak",
       "offset": 48.165,
       "duration": 1.25
+    },
+    "creak4": {
+      "effect": "creak",
+      "offset": 49.465,
+      "duration": 1.65
+    },
+    "creak5": {
+      "effect": "creak",
+      "offset": 51.165,
+      "duration": 1.9
+    },
+    "dOpen1": {
+      "effect": "doorOpen",
+      "offset": 53.115,
+      "duration": 1.6
+    },
+    "dOpen2": {
+      "effect": "doorOpen",
+      "offset": 54.765,
+      "duration": 1.42
+    },
+    "dClose1": {
+      "effect": "doorClose",
+      "offset": 56.235,
+      "duration": 1.4
+    },
+    "dClose2": {
+      "effect": "doorClose",
+      "offset": 57.685,
+      "duration": 1.36
+    },
+    "lift1": {
+      "effect": "liftLoop",
+      "offset": 59.095,
+      "duration": 3.25,
+      "wrap": 0.5
+    },
+    "lift2": {
+      "effect": "liftLoop",
+      "offset": 62.395,
+      "duration": 3.25,
+      "wrap": 0.5
+    },
+    "room1": {
+      "effect": "roomTone",
+      "offset": 65.695,
+      "duration": 4.25,
+      "wrap": 0.5
+    },
+    "room2": {
+      "effect": "roomTone",
+      "offset": 69.995,
+      "duration": 4.25,
+      "wrap": 0.5
+    },
+    "breath1": {
+      "effect": "breath",
+      "offset": 74.295,
+      "duration": 0.63
+    },
+    "breath2": {
+      "effect": "breath",
+      "offset": 74.975,
+      "duration": 0.77
+    },
+    "breath3": {
+      "effect": "breath",
+      "offset": 75.795,
+      "duration": 0.56
+    },
+    "settle1": {
+      "effect": "settle",
+      "offset": 76.405,
+      "duration": 1.35
+    },
+    "settle2": {
+      "effect": "settle",
+      "offset": 77.805,
+      "duration": 1.28
     }
   },
   "effects": {
@@ -334,7 +413,34 @@
     "creak": [
       "creak1",
       "creak2",
-      "creak3"
+      "creak3",
+      "creak4",
+      "creak5"
+    ],
+    "doorOpen": [
+      "dOpen1",
+      "dOpen2"
+    ],
+    "doorClose": [
+      "dClose1",
+      "dClose2"
+    ],
+    "liftLoop": [
+      "lift1",
+      "lift2"
+    ],
+    "roomTone": [
+      "room1",
+      "room2"
+    ],
+    "breath": [
+      "breath1",
+      "breath2",
+      "breath3"
+    ],
+    "settle": [
+      "settle1",
+      "settle2"
     ]
   }
 }
