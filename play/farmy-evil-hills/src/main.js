@@ -104,6 +104,7 @@ import {
   createBarks, say, stepBarks, combatSay, currentBark,
 } from '../../../web-engine/horror/barks.js';
 import { compileMumble, seedOf } from '../../../web-engine/horror/mumble.js';
+import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix } from '../../../web-engine/horror/aimLatch.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
@@ -1642,6 +1643,7 @@ const WALK_FRAMES = 14;
 
 
 const AIM_FRAMES = 10;
+const RAISE_FRAMES = 7;
 const SPRINT_FRAMES = 12;
 
 
@@ -4774,6 +4776,14 @@ export function boot(canvas, hud) {
   for (let i = 0; i < AIM_FRAMES; i += 1) {
     aimGeo.push(bake({ ...standPose(0), ...aimPose((i / AIM_FRAMES) * (1 / 0.9)) }));
   }
+  
+  
+  
+  
+  const raiseGeo = [];
+  for (let i = 0; i < RAISE_FRAMES; i += 1) {
+    raiseGeo.push(bake(raiseMix(standPose(0), aimPose(0), i / (RAISE_FRAMES - 1))));
+  }
   const walkAimGeo = [];
   for (let i = 0; i < WALK_FRAMES; i += 1) {
     walkAimGeo.push(bake(aimedGait(
@@ -5993,6 +6003,9 @@ export function boot(canvas, hud) {
   let studioBg = null;
   let soloSaved = null;
   let target = null;
+  let aimLatch = createAimLatch();
+  let walkArmsShown = false;
+  let wasGaitBranch = false;
   let bossMoved = 0;
   let bossWonIn = 0;
   let bossHorseSpeed = 0;
@@ -6225,22 +6238,34 @@ export function boot(canvas, hud) {
     
     
     
-    target = null;
-    if (!player.dead && !player.struggle) {
+    
+    
+    
+    
+    
+    
+    
+    const bearingTo = (b) => {
+      const off = Math.atan2(-(b.x - player.x), b.z - player.z) - player.yaw;
+      return Math.atan2(Math.sin(off), Math.cos(off));
+    };
+    const range = player.weapon.spec?.range ?? 18;
+    if (player.dead || player.struggle) target = null;
+    if (target && (!target.alive
+      || releases(Math.hypot(target.x - player.x, target.z - player.z), bearingTo(target), range))) {
+      target = null;
+    }
+    if (!target && !player.dead && !player.struggle) {
       let best = Infinity;
-      const range = player.weapon.spec?.range ?? 18;
       for (const b of birds) {
         if (!b.alive || b.kind === 'horse') continue;
-        const dx = b.x - player.x; const dz = b.z - player.z;
-        const d = Math.hypot(dx, dz);
-        if (d > range || d > best) continue;
-        
-        let off = Math.atan2(-dx, dz) - player.yaw;
-        off = Math.atan2(Math.sin(off), Math.cos(off));
-        if (Math.abs(off) > 0.61) continue;          
+        const d = Math.hypot(b.x - player.x, b.z - player.z);
+        if (d > best || !acquires(d, bearingTo(b), range)) continue;
         best = d; target = b;
       }
     }
+    
+    aimLatch = stepAimLatch(aimLatch, dt, !player.dead && !!target);
 
     
     fireT += dt;
@@ -7309,7 +7334,15 @@ export function boot(canvas, hud) {
       
       
       
-      const gunUp = !player.dead && !!target && !running;
+      
+      
+      const gunUp = !player.dead && aimLatch.up && !running;
+      
+      
+      
+      
+      if (!wasGaitBranch) walkArmsShown = gunUp;
+      wasGaitBranch = true;
       
       
       
@@ -7321,8 +7354,14 @@ export function boot(canvas, hud) {
       if (turnOnly) { walkPhase = turnStep(walkPhase, dYaw, dt); wasTurnStep = true; }
       if (moving) wasTurnStep = false;
       const useShuffle = turnOnly || (!moving && wasTurnStep);
+      
+      
+      
+      
+      
+      
       const set = useShuffle ? shuffleGeo
-        : (running ? sprintGeo : (gunUp ? walkAimGeo : walkGeo));
+        : (running ? sprintGeo : (walkArmsShown ? walkAimGeo : walkGeo));
       const n = useShuffle ? SHUFFLE_FRAMES
         : (running ? SPRINT_FRAMES : WALK_FRAMES);
       const stride = running ? SPRINT_STRIDE : STRIDE;
@@ -7363,6 +7402,7 @@ export function boot(canvas, hud) {
       if (half(ph) < half(lastGait) || Math.abs(ph - lastGait) > 0.4) {
         footSfx(player.x, player.z, running);
         stepCount += 1;
+        walkArmsShown = gunUp;
       }
       lastGait = ph;
       
@@ -7374,7 +7414,7 @@ export function boot(canvas, hud) {
       
       
       lean = useShuffle ? 0.015 : (running ? 0.16 : 0.05);
-    } else if (!player.dead && !!target) {
+    } else if (!player.dead && aimLatch.u > 0.001) {
       
       
       
@@ -7383,10 +7423,26 @@ export function boot(canvas, hud) {
       
       
       walkPhase = 0;
-      const fa = Math.floor(now * 9) % AIM_FRAMES;
-      if (xander.geometry !== aimGeo[fa]) xander.geometry = aimGeo[fa];
+      wasGaitBranch = false;
+      if (aimLatch.u < 1) {
+        
+        
+        
+        const fr = Math.round(aimLatch.u * (RAISE_FRAMES - 1));
+        if (xander.geometry !== raiseGeo[fr]) xander.geometry = raiseGeo[fr];
+      } else {
+        
+        
+        
+        
+        const span = AIM_FRAMES * 2 - 2;
+        const k = Math.floor(now * 9) % span;
+        const fa = k < AIM_FRAMES ? k : span - k;
+        if (xander.geometry !== aimGeo[fa]) xander.geometry = aimGeo[fa];
+      }
     } else {
       walkPhase = 0;
+      wasGaitBranch = false;
       
       
       
@@ -7464,8 +7520,28 @@ export function boot(canvas, hud) {
       else if (reachT < REACH_TIME) posed = reachPose(reachT);
       else if (turning && !moving) posed = gaitPose(walkPhase, 'shuffle');
       else if (moving) {
-        posed = gaitPose((walkDist / (sprintNow ? SPRINT_STRIDE : STRIDE)) % 1,
-          sprintNow ? 'sprint' : 'walk');
+        const ph2 = (walkDist / (sprintNow ? SPRINT_STRIDE : STRIDE)) % 1;
+        const g = gaitPose(ph2, sprintNow ? 'sprint' : 'walk');
+        
+        
+        
+        
+        
+        
+        posed = (walkArmsShown && !sprintNow) ? aimedGait(g, aimPose(ph2 * (1 / 0.9))) : g;
+      } else if (!player.dead && aimLatch.u > 0.001) {
+        
+        
+        
+        if (aimLatch.u < 1) {
+          const k = Math.round(aimLatch.u * (RAISE_FRAMES - 1)) / (RAISE_FRAMES - 1);
+          posed = raiseMix(standPose(0), aimPose(0), k);
+        } else {
+          const span = AIM_FRAMES * 2 - 2;
+          const kk = Math.floor(now * 9) % span;
+          const fa = kk < AIM_FRAMES ? kk : span - kk;
+          posed = { ...standPose(0), ...aimPose((fa / AIM_FRAMES) * (1 / 0.9)) };
+        }
       } else posed = standPose(now);
       if (studioPose) posed = studioPose;
       const hand = posed.hands[0];
@@ -8643,6 +8719,7 @@ export function boot(canvas, hud) {
         return camNode;
       },
       get mumble() { return { count: mumbleCount, playing: !!mumbleStop }; },
+      get aim() { return { up: aimLatch.up, u: +aimLatch.u.toFixed(3), target: !!target, armsShown: walkArmsShown }; },
       get vox() {
         return {
           ready: voxSheet.ready, failure: voxSheet.failure,
