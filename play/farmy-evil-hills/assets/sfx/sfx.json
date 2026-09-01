@@ -1,0 +1,268 @@
+{
+  "sampleRate": 48000,
+  "seconds": 37.847,
+  "clips": {
+    "shot1": {
+      "effect": "shot",
+      "offset": 0.05,
+      "duration": 0.646
+    },
+    "shot2": {
+      "effect": "shot",
+      "offset": 0.746,
+      "duration": 0.63
+    },
+    "shot3": {
+      "effect": "shot",
+      "offset": 1.426,
+      "duration": 0.684
+    },
+    "dry1": {
+      "effect": "dryClick",
+      "offset": 2.16,
+      "duration": 0.158
+    },
+    "dry2": {
+      "effect": "dryClick",
+      "offset": 2.368,
+      "duration": 0.17
+    },
+    "deck1": {
+      "effect": "stepDeck",
+      "offset": 2.588,
+      "duration": 0.504
+    },
+    "deck2": {
+      "effect": "stepDeck",
+      "offset": 3.142,
+      "duration": 0.475
+    },
+    "deck3": {
+      "effect": "stepDeck",
+      "offset": 3.667,
+      "duration": 0.524
+    },
+    "deck4": {
+      "effect": "stepDeck",
+      "offset": 4.241,
+      "duration": 0.446
+    },
+    "grain1": {
+      "effect": "stepGrain",
+      "offset": 4.737,
+      "duration": 0.32
+    },
+    "grain2": {
+      "effect": "stepGrain",
+      "offset": 5.107,
+      "duration": 0.34
+    },
+    "grain3": {
+      "effect": "stepGrain",
+      "offset": 5.497,
+      "duration": 0.37
+    },
+    "kick1": {
+      "effect": "kick",
+      "offset": 5.917,
+      "duration": 0.54
+    },
+    "kick2": {
+      "effect": "kick",
+      "offset": 6.507,
+      "duration": 0.51
+    },
+    "kick3": {
+      "effect": "kick",
+      "offset": 7.067,
+      "duration": 0.58
+    },
+    "meat1": {
+      "effect": "meat",
+      "offset": 7.697,
+      "duration": 0.26
+    },
+    "meat2": {
+      "effect": "meat",
+      "offset": 8.007,
+      "duration": 0.24
+    },
+    "porkIdle1": {
+      "effect": "porkerIdle",
+      "offset": 8.297,
+      "duration": 1.2
+    },
+    "porkIdle2": {
+      "effect": "porkerIdle",
+      "offset": 9.547,
+      "duration": 1.27
+    },
+    "porkAlert1": {
+      "effect": "porkerAlert",
+      "offset": 10.867,
+      "duration": 1.32
+    },
+    "porkAlert2": {
+      "effect": "porkerAlert",
+      "offset": 12.237,
+      "duration": 1.3
+    },
+    "porkHit1": {
+      "effect": "porkerAttack",
+      "offset": 13.587,
+      "duration": 0.81
+    },
+    "porkHit2": {
+      "effect": "porkerAttack",
+      "offset": 14.447,
+      "duration": 0.76
+    },
+    "chickIdle1": {
+      "effect": "chickIdle",
+      "offset": 15.257,
+      "duration": 1.55
+    },
+    "chickIdle2": {
+      "effect": "chickIdle",
+      "offset": 16.857,
+      "duration": 1.7
+    },
+    "chickAlert1": {
+      "effect": "chickAlert",
+      "offset": 18.607,
+      "duration": 1.26
+    },
+    "chickAlert2": {
+      "effect": "chickAlert",
+      "offset": 19.917,
+      "duration": 1.03
+    },
+    "chickHit1": {
+      "effect": "chickAttack",
+      "offset": 20.997,
+      "duration": 1.24
+    },
+    "chickHit2": {
+      "effect": "chickAttack",
+      "offset": 22.287,
+      "duration": 1.17
+    },
+    "cowIdle1": {
+      "effect": "cowIdle",
+      "offset": 23.507,
+      "duration": 1.48
+    },
+    "cowIdle2": {
+      "effect": "cowIdle",
+      "offset": 25.037,
+      "duration": 1.41
+    },
+    "cowHit1": {
+      "effect": "cowAttack",
+      "offset": 26.497,
+      "duration": 1.09
+    },
+    "cowHit2": {
+      "effect": "cowAttack",
+      "offset": 27.637,
+      "duration": 1.12
+    },
+    "horse1": {
+      "effect": "horseCry",
+      "offset": 28.807,
+      "duration": 1.91
+    },
+    "horse2": {
+      "effect": "horseCry",
+      "offset": 30.767,
+      "duration": 1.83
+    },
+    "creak1": {
+      "effect": "creak",
+      "offset": 32.647,
+      "duration": 1.75
+    },
+    "creak2": {
+      "effect": "creak",
+      "offset": 34.447,
+      "duration": 2.05
+    },
+    "creak3": {
+      "effect": "creak",
+      "offset": 36.547,
+      "duration": 1.25
+    }
+  },
+  "effects": {
+    "shot": [
+      "shot1",
+      "shot2",
+      "shot3"
+    ],
+    "dryClick": [
+      "dry1",
+      "dry2"
+    ],
+    "stepDeck": [
+      "deck1",
+      "deck2",
+      "deck3",
+      "deck4"
+    ],
+    "stepGrain": [
+      "grain1",
+      "grain2",
+      "grain3"
+    ],
+    "kick": [
+      "kick1",
+      "kick2",
+      "kick3"
+    ],
+    "meat": [
+      "meat1",
+      "meat2"
+    ],
+    "porkerIdle": [
+      "porkIdle1",
+      "porkIdle2"
+    ],
+    "porkerAlert": [
+      "porkAlert1",
+      "porkAlert2"
+    ],
+    "porkerAttack": [
+      "porkHit1",
+      "porkHit2"
+    ],
+    "chickIdle": [
+      "chickIdle1",
+      "chickIdle2"
+    ],
+    "chickAlert": [
+      "chickAlert1",
+      "chickAlert2"
+    ],
+    "chickAttack": [
+      "chickHit1",
+      "chickHit2"
+    ],
+    "cowIdle": [
+      "cowIdle1",
+      "cowIdle2"
+    ],
+    "cowAttack": [
+      "cowHit1",
+      "cowHit2"
+    ],
+    "horseCry": [
+      "horse1",
+      "horse2"
+    ],
+    "creak": [
+      "creak1",
+      "creak2",
+      "creak3"
+    ]
+  }
+}
