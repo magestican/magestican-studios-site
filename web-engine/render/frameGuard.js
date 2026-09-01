@@ -77,8 +77,6 @@ export function createFrameGuard(opts = {}) {
     warnAfterMs: opts.warnAfterMs ?? WARN_AFTER_MS,
     stopAfterMs: opts.stopAfterMs ?? STOP_AFTER_MS,
     
-    title: opts.title ?? DEFAULT_TITLE,
-    
     consecutive: 0,
     
     total: 0,
@@ -177,7 +175,7 @@ export function frameFailed(guard, err, now) {
     total: guard.total,
     forMs,
     warn, stop,
-    message: stop ? stopMessage(guard.title) : (warn ? warnMessage(guard.title) : null),
+    message: stop ? STOP_MESSAGE : (warn ? WARN_MESSAGE : null),
   };
 }
 
@@ -188,32 +186,8 @@ export function frameFailed(guard, err, now) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export const DEFAULT_TITLE = 'The game';
-
-
-export function warnMessage(title = DEFAULT_TITLE) {
-  return `${title} hit a snag and is trying to keep going.`;
-}
-
-
-export function stopMessage(title = DEFAULT_TITLE) {
-  return `${title} had to stop. Reload to get back on track.`;
-}
+export const WARN_MESSAGE = 'Farmy Kart hit a snag and is trying to keep going.';
+export const STOP_MESSAGE = 'Farmy Kart had to stop. Reload to get back on track.';
 
 
 

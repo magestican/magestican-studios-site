@@ -3,26 +3,6 @@
 import * as THREE from 'three';
 
 import { pageContexts } from '../../../web-engine/render/contextBudget.js';
-
-
-
-
-
-
-
-
-
-import {
-  createContextState, contextLost, contextRestored, contextCheck, shouldDraw,
-} from '../../../web-engine/render/contextRecovery.js';
-import {
-  createFrameGuard, frameOk, frameFailed,
-} from '../../../web-engine/render/frameGuard.js';
-import { showBanner, hideBanner } from '../../../web-engine/updater/banner.js';
-
-
-const GFX_BANNER = 'fs-graphics-banner';
-const FAULT_BANNER = 'fs-frame-banner';
 import { holdContext, releaseRenderer } from '../../../web-engine/render/contextLease.js';
 
 
@@ -481,60 +461,19 @@ export class Game {
     
     
     const canvas = this.renderer.domElement;
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    this._ctxState = createContextState({ verb: 'playing' });
     canvas.addEventListener('webglcontextlost', (e) => {
       e.preventDefault();
-      const d = contextLost(this._ctxState, performance.now());
       this._contextLost = true;
-      console.warn(`[gfx] WebGL context lost (loss ${d.losses}) - holding the match`);
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      showBanner({
-        id: GFX_BANNER, text: d.message, ...(d.giveUp ? this._offerReload() : {}),
-      });
+      console.warn('[gfx] WebGL context lost — skipping draws until it returns');
     });
     canvas.addEventListener('webglcontextrestored', () => {
-      const d = contextRestored(this._ctxState, performance.now());
       this._contextLost = false;
-      if (d.clear) hideBanner(GFX_BANNER);
-      
-      
-      
-      
-      if (d.rebuild) this._onResize();
-      console.warn(`[gfx] WebGL context restored after ${Math.round(d.downMs)} ms`);
+      console.warn('[gfx] WebGL context restored');
     });
 
     
     
     
-    
-    this._guard = createFrameGuard({ title: 'Farmyshoot' });
     this._loop = new TickSource({
       onTick: (dt, opts) => this._frame(dt, opts),
     });
@@ -3796,7 +3735,7 @@ export class Game {
       
       
       
-      if (render && shouldDraw(this._ctxState ?? { lost: this._contextLost })) {
+      if (render && !this._contextLost) {
         const kick = this._cameraKick();
         if (kick) {
           this.camera.position.x += kick.x;
@@ -3810,66 +3749,13 @@ export class Game {
           this.camera.rotation.z -= kick.roll;
         }
       }
-      
-      
-      
-      
-      
-      
-      
-      const ok = this._guard ? frameOk(this._guard) : { recovered: false };
-      if (ok.recovered) {
-        hideBanner(FAULT_BANNER);
-        console.warn(`[frame] recovered after ${ok.failures} failing frames`);
-      }
     } catch (err) {
-      this._frameThrew(err);
-    }
-    
-    
-    if (this._contextLost && this._ctxState) {
-      const c = contextCheck(this._ctxState, performance.now());
-      if (c.giveUp && !this._gfxToldThem) {
-        this._gfxToldThem = true;
-        console.error(`[gfx] WebGL context still lost after ${Math.round(c.downMs)} ms`);
-        showBanner({ id: GFX_BANNER, text: c.message, ...this._offerReload() });
+      
+      const key = String(err?.message || err);
+      if (key !== this._lastFrameErr) {
+        this._lastFrameErr = key;
+        console.error('[frame error]', err);
       }
-    }
-  }
-
-  
-  _offerReload() {
-    return { actionLabel: 'Reload', onAction: () => location.reload() };
-  }
-
-  
-
-
-
-
-
-
-
-
-
-  _frameThrew(err) {
-    if (!this._guard) { console.error('[frame] threw before the guard existed', err); return; }
-    const d = frameFailed(this._guard, err, performance.now());
-    
-    
-    
-    if (d.novel) console.error(`[frame] threw: ${d.signature}`, err);
-    this._tickError = String(err?.message || err);
-    if (d.warn) showBanner({ id: FAULT_BANNER, text: d.message });
-    if (d.stop) {
-      console.error(
-        `[frame] has thrown ${d.consecutive} times over ${Math.round(d.forMs)} ms`
-        + ` (${d.total} this match) - stopping the loop`, err,
-      );
-      
-      
-      this._loop?.stop();
-      showBanner({ id: FAULT_BANNER, text: d.message, ...this._offerReload() });
     }
   }
 

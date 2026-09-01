@@ -55,6 +55,7 @@ import { buildFighter, jointBall } from '../../../web-engine/ps1/ps1Mesh.mjs';
 import {
   head3d, hair3d, JAW, HEAD_RINGS, NOSE,
 } from '../../../web-engine/ps1/ps1Head.mjs';
+import { makeRowMap } from '../../../web-engine/ps1/faceChart.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
 import { buildPorker, PORKER_HEIGHT_M } from '../../../web-engine/ps1/creatures/porker.mjs';
 import { buildCow, COW_HEIGHT_M } from '../../../web-engine/ps1/creatures/cow.mjs';
@@ -74,16 +75,19 @@ import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
 import { lockZoom } from '../../shared/input/zoomLock.js';
 
 import { railNodesForRuns, nodeAt, railPlacement } from '../../../web-engine/horror/railCamera.js';
+import { MAP, mapProject } from '../../../web-engine/horror/minimap.js';
 import { panOf, levelAt, makeImpulse } from '../../../web-engine/horror/audioSpace.js';
 import {
-  LIFT, createLift, stepLift, mapRise, insideCar,
+  LIFT, createLift, stepLift, mapRise, insideCar, keepOut, carIsSafe, clearOfCar,
 } from '../../../web-engine/horror/lift.js';
 import {
   buildLevel, moveInLevel, progressAt, pointBehind, runRect,
 } from '../../../web-engine/horror/level.js';
 import { spawnVitals, tickVitals, damage, beginGrapple, endGrapple, MAX_HEALTH, CHICKEN_LATCH_SLOW } from '../../../web-engine/horror/health.js';
 import { spawn as spawnCreature, resolveHit, applyDamage, mobilityOf, statusOf } from '../../../web-engine/horror/dismemberment.js';
-import { readyWeapon, tickWeapon, canFire, fire } from '../../../web-engine/horror/weapons.js';
+import {
+  readyWeapon, tickWeapon, canFire, fire, WEAPONS,
+} from '../../../web-engine/horror/weapons.js';
 import { createStruggle, VERB_FOR, promptFor } from '../../../web-engine/horror/struggle.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
@@ -507,9 +511,36 @@ const FACE = (() => {
   
   const a = rows[0];
   const b = rows[rows.length - 1];
+  
+  
+  
+  
+  
   const PX_V = ((b.v - a.v) * S) / (a.z - b.z);   
   const PX_U = (0.46 * S) / yMax;                 
-  const Y = (z) => a.v * S + (a.z - z) * PX_V;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const V = makeRowMap(rows);
+  const Y = (z) => V(z) * S;
   const X = (y) => S * 0.5 + y * PX_U;
 
   
@@ -2305,12 +2336,34 @@ function makeLeak(x, y, z, dir) {
 
 
 
+
+
+let SPARK_SPRITE = null;
+function sparkSprite() {
+  if (SPARK_SPRITE) return SPARK_SPRITE;
+  const c = document.createElement('canvas');
+  c.width = 16; c.height = 16;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(8, 8, 0, 8, 8, 8);
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.45, 'rgba(214,232,255,0.75)');
+  grad.addColorStop(1, 'rgba(140,180,255,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 16, 16);
+  SPARK_SPRITE = new THREE.CanvasTexture(c);
+  return SPARK_SPRITE;
+}
+
 function makeWire(x, z, len, seed) {
   const N = 7;
   const pos = new Float32Array(N * 3);
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x14110e }));
+  
+  
+  
+  
+  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x3a332b }));
   line.frustumCulled = false;
   return {
     line,
@@ -2337,6 +2390,19 @@ function sparkSfx(x, z) {
   if (!ctx || !audio.running) return;
   const out = audio.at(x, z);
   if (!out) return;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (sfxSheet.play('spark', {
+    dest: out, gain: 0.85, rate: 0.90 + Math.random() * 0.24,
+  })) return;
   const t = ctx.currentTime + 0.01;
   
   
@@ -2375,6 +2441,16 @@ function sparkSfx(x, z) {
 function creakSfx(x, z) {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
+  
+  
+  
+  
+  {
+    const out = audio.at(x, z);
+    if (out && sfxSheet.play('creak', {
+      dest: out, gain: 0.7, rate: 0.85 + Math.random() * 0.3,
+    })) return;
+  }
   const out = audio.at(x, z);
   if (!out) return;
   const t = ctx.currentTime + 0.02;
@@ -2705,9 +2781,69 @@ const CHICK_CALL = {
   die:    { f0: 430, to: 120, dur: 0.75, gain: 0.55, q: 7 },
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SHEET_VOICE = {
+  chicken: {
+    idle: 'chickIdle', alert: 'chickAlert', windup: 'chickAlert', strike: 'chickAttack', hurt: 'chickAlert', die: 'chickAttack',
+  },
+  porker: {
+    idle: 'porkerIdle', alert: 'porkerAlert', windup: 'porkerAlert', strike: 'porkerAttack', hurt: 'porkerAlert', die: 'porkerAttack',
+  },
+  cow: {
+    idle: 'cowIdle', alert: 'cowIdle', windup: 'cowIdle', strike: 'cowAttack', hurt: 'cowIdle', die: 'cowAttack',
+  },
+  horse: {
+    idle: 'horseCry', alert: 'horseCry', windup: 'horseCry', strike: 'horseCry', hurt: 'horseCry', die: 'horseCry',
+  },
+};
+
+function sheetVoice(beast, kind) {
+  const table = SHEET_VOICE[beast && beast.kind] || SHEET_VOICE.chicken;
+  const effect = table[kind];
+  if (!effect) return false;
+  const out = audio.at(beast.x, beast.z);
+  if (!out) return false;
+  
+  
+  
+  const seed = typeof beast.voice === 'number' ? beast.voice : 1;
+  return sfxSheet.play(effect, {
+    dest: out, gain: 0.95, rate: 0.92 + (seed - 0.78) * 0.30,
+  });
+}
+
 function chickVoice(bird, kind, dist) {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
+  if (sheetVoice(bird, kind)) return;
   const spec = CHICK_CALL[kind];
   if (!spec) return;
   
@@ -2766,6 +2902,7 @@ const PORK_CALL = {
 function porkVoice(beast, kind, dist) {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
+  if (sheetVoice(beast, kind)) return;
   const spec = PORK_CALL[kind];
   if (!spec) return;
   const out = audio.at(beast.x, beast.z);
@@ -3128,6 +3265,86 @@ function makeBlob(r, opacity = 0.4) {
 
 
 
+const DECALS = 40;
+let decalTex = null;
+
+
+function decalTexture() {
+  if (decalTex) return decalTex;
+  const n = 64;
+  const cv = document.createElement('canvas');
+  cv.width = n; cv.height = n;
+  const g = cv.getContext('2d');
+  g.clearRect(0, 0, n, n);
+  
+  
+  
+  for (let i = 0; i < 6; i += 1) {
+    const a = (i / 6) * Math.PI * 2 + hash2(i, 1.3) * 1.2;
+    const r = n * (0.16 + hash2(i, 2.7) * 0.14);
+    const d = n * hash2(i, 3.9) * 0.16;
+    const x = n / 2 + Math.cos(a) * d;
+    const y = n / 2 + Math.sin(a) * d;
+    const grad = g.createRadialGradient(x, y, r * 0.2, x, y, r);
+    grad.addColorStop(0, 'rgba(90,14,10,0.95)');
+    grad.addColorStop(0.7, 'rgba(70,10,8,0.55)');
+    grad.addColorStop(1, 'rgba(60,8,6,0)');
+    g.fillStyle = grad;
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+  }
+  decalTex = new THREE.CanvasTexture(cv);
+  return decalTex;
+}
+
+function makeDecals() {
+  const tex = decalTexture();
+  const geo = new THREE.PlaneGeometry(1, 1);
+  geo.rotateX(-Math.PI / 2);
+  const pool = [];
+  const group = new THREE.Group();
+  for (let i = 0; i < DECALS; i += 1) {
+    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+      map: tex, transparent: true, opacity: 0, depthWrite: false,
+    }));
+    m.position.y = -50;
+    m.renderOrder = 3;
+    m.frustumCulled = false;
+    group.add(m);
+    pool.push(m);
+  }
+  let next = 0;
+  return {
+    group,
+    
+    put(x, z, size, dark) {
+      const m = pool[next];
+      next = (next + 1) % DECALS;
+      m.position.set(x, 0.015 + (next % 4) * 0.002, z);
+      
+      
+      
+      m.rotation.y = Math.random() * Math.PI * 2;
+      const w = size * (0.8 + Math.random() * 0.5);
+      m.scale.set(w, 1, w * (0.75 + Math.random() * 0.5));
+      m.material.opacity = 0.55 + dark * 0.4;
+    },
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3204,6 +3421,11 @@ function meatSfx(x, z) {
   if (!ctx || !audio.running) return;
   const out = audio.at(x, z);
   if (!out) return;
+  
+  
+  if (sfxSheet.play('meat', {
+    dest: out, gain: 0.85, rate: 0.92 + Math.random() * 0.18,
+  })) return;
   const t = ctx.currentTime + 0.005;
 
   const b = ctx.createBuffer(1, 2600, ctx.sampleRate);
@@ -3256,6 +3478,22 @@ function footSfx(x, z, running) {
   if (!ctx || !audio.running) return;
   const out = audio.at(x, z);
   if (!out) return;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (sfxSheet.play('stepDeck', {
+    dest: out,
+    gain: (running ? 1.0 : 0.62) * (0.9 + Math.random() * 0.2),
+    rate: (running ? 0.94 : 1.0) * (0.94 + Math.random() * 0.12),
+  })) return;
   const t = ctx.currentTime + 0.005;
   const v = 0.9 + Math.random() * 0.25;
   const hard = running ? 1.5 : 1;
@@ -3286,6 +3524,263 @@ function footSfx(x, z, running) {
   n.connect(hp); hp.connect(ng); ng.connect(out); n.start(t); n.stop(t + 0.08);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+const gunSfx = { shots: 0, dry: 0, fromSheet: 0 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const sfxSheet = (() => {
+  const MANIFEST = '../assets/sfx/sfx.json';
+  let manifest = null;
+  let buffer = null;
+  let loading = null;
+  let failed = null;
+  
+  
+  
+  const last = new Map();
+  let played = 0;
+  
+  
+  
+  const byEffect = Object.create(null);
+
+  async function load() {
+    const ctx = audio.ensure();
+    if (!ctx) return false;
+    if (buffer) return true;
+    if (failed) return false;
+    if (!loading) {
+      loading = (async () => {
+        const r = await fetch(new URL(MANIFEST, import.meta.url));
+        if (!r.ok) throw new Error(`sfx manifest ${r.status}`);
+        manifest = await r.json();
+        const a = await fetch(new URL('../assets/sfx/sfx.webm', import.meta.url));
+        if (!a.ok) throw new Error(`sfx.webm ${a.status}`);
+        buffer = await ctx.decodeAudioData(await a.arrayBuffer());
+        return true;
+      })().catch((e) => { failed = String(e && e.message ? e.message : e); loading = null; return false; });
+    }
+    return loading;
+  }
+
+  
+
+
+
+
+
+
+
+
+  function play(effect, {
+    gain = 1, rate = 1, dest = null, when = 0,
+  } = {}) {
+    const ctx = audio.ensure();
+    if (!ctx || !audio.running || !buffer || !manifest) return false;
+    const names = manifest.effects[effect];
+    if (!names || !names.length) return false;
+    let name;
+    if (names.length === 1) {
+      [name] = names;
+    } else {
+      const prev = last.get(effect);
+      const pool = names.filter((n) => n !== prev);
+      name = pool[Math.floor(Math.random() * pool.length)];
+    }
+    last.set(effect, name);
+    const clip = manifest.clips[name];
+    if (!clip) return false;
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.playbackRate.value = rate;
+    const g = ctx.createGain();
+    g.gain.value = gain;
+    src.connect(g);
+    g.connect(dest || audio.sfxBus);
+    const t = ctx.currentTime + Math.max(0, when) + 0.002;
+    
+    
+    src.start(t, clip.offset, clip.duration / rate);
+    played += 1;
+    byEffect[effect] = (byEffect[effect] || 0) + 1;
+    return true;
+  }
+
+  return {
+    load,
+    play,
+    get ready() { return !!buffer; },
+    get failure() { return failed; },
+    get played() { return played; },
+    get byEffect() { return { ...byEffect }; },
+    
+    
+    get effectNames() { return manifest ? Object.keys(manifest.effects) : null; },
+  };
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function shotSfx() {
+  
+  
+  
+  if (sfxSheet.play('shot', { gain: 0.9, rate: 0.97 + Math.random() * 0.06 })) { gunSfx.shots += 1; gunSfx.fromSheet += 1; return; }
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.005;
+
+  
+  
+  const cd = 0.05;
+  const cb = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * cd)), ctx.sampleRate);
+  const cdat = cb.getChannelData(0);
+  for (let i = 0; i < cdat.length; i += 1) {
+    const u = i / cdat.length;
+    cdat[i] = (Math.random() * 2 - 1) * (1 - u) ** 2.2;
+  }
+  const cn = ctx.createBufferSource(); cn.buffer = cb;
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 1300; hp.Q.value = 0.7;
+  const cg = ctx.createGain();
+  cg.gain.setValueAtTime(0.42, t);
+  cg.gain.exponentialRampToValueAtTime(0.0001, t + cd);
+  cn.connect(hp); hp.connect(cg); cg.connect(audio.sfxBus);
+  cn.start(t); cn.stop(t + cd + 0.01);
+
+  
+  
+  const o = ctx.createOscillator(); const og = ctx.createGain();
+  o.type = 'square';
+  o.frequency.setValueAtTime(210, t);
+  o.frequency.exponentialRampToValueAtTime(52, t + 0.07);
+  og.gain.setValueAtTime(0.3, t);
+  og.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 900;
+  o.connect(lp); lp.connect(og); og.connect(audio.sfxBus);
+  o.start(t); o.stop(t + 0.13);
+
+  
+  
+  const hd = 0.34;
+  const hb = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * hd)), ctx.sampleRate);
+  const hdat = hb.getChannelData(0);
+  for (let i = 0; i < hdat.length; i += 1) hdat[i] = Math.random() * 2 - 1;
+  const hn = ctx.createBufferSource(); hn.buffer = hb;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass'; bp.Q.value = 0.9;
+  bp.frequency.setValueAtTime(4200, t + 0.02);
+  bp.frequency.exponentialRampToValueAtTime(1500, t + hd);
+  const hg = ctx.createGain();
+  hg.gain.setValueAtTime(0.0001, t + 0.015);
+  hg.gain.linearRampToValueAtTime(0.13, t + 0.045);
+  hg.gain.exponentialRampToValueAtTime(0.0001, t + hd);
+  hn.connect(bp); bp.connect(hg); hg.connect(audio.sfxBus);
+  hn.start(t + 0.015); hn.stop(t + hd + 0.02);
+
+  
+  
+  const r = ctx.createOscillator(); const rg = ctx.createGain();
+  r.type = 'triangle';
+  r.frequency.setValueAtTime(1720 + Math.random() * 90, t + 0.02);
+  rg.gain.setValueAtTime(0.055, t + 0.02);
+  rg.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+  r.connect(rg); rg.connect(audio.sfxBus);
+  r.start(t + 0.02); r.stop(t + 0.32);
+  gunSfx.shots += 1;
+}
+
+
+
+
+
+
+
+function dryClickSfx() {
+  
+  if (sfxSheet.play('dryClick', { gain: 0.8, rate: 0.96 + Math.random() * 0.09 })) { gunSfx.dry += 1; gunSfx.fromSheet += 1; return; }
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const t = ctx.currentTime + 0.005;
+  for (const [at, gain] of [[0, 0.16], [0.055, 0.1]]) {
+    const d = 0.02;
+    const b = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * d)), ctx.sampleRate);
+    const dat = b.getChannelData(0);
+    for (let i = 0; i < dat.length; i += 1) {
+      dat[i] = (Math.random() * 2 - 1) * (1 - i / dat.length) ** 3;
+    }
+    const n = ctx.createBufferSource(); n.buffer = b;
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 2200;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(gain, t + at);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + at + d);
+    n.connect(hp); hp.connect(g); g.connect(audio.sfxBus);
+    n.start(t + at); n.stop(t + at + d + 0.01);
+  }
+  gunSfx.dry += 1;
+}
 
 function hitSfx() {
   const ctx = audio.ensure();
@@ -3335,71 +3830,11 @@ function hitSfx() {
 
 
 
-const MAP = Object.freeze({
-  pitch: 0.58,      
-  eye: 26,          
-  focal: 260,       
-  range: 40,        
-  behind: 9,        
-  deckGap: 7.5,     
-});
 
 
 
 
 
-
-
-
-
-function mapProject(wx, wy, wz, player, cx, cy, bearing) {
-  const dx = wx - player.x;
-  const dy = wy - 1.2;                    
-  const dz = wz - player.z;
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const c = Math.cos(-bearing); const sn = Math.sin(-bearing);
-  const rx = dx * c - dz * sn;
-  const rz = dx * sn + dz * c;
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const cp = Math.cos(MAP.pitch); const sp = Math.sin(MAP.pitch);
-  const ry = dy * cp + rz * sp;
-  const rzz = rz * cp - dy * sp;
-
-  const depth = rzz + MAP.eye;
-  if (depth < 1.2) return null;
-  const f = MAP.focal / depth;
-  return [cx + rx * f, cy - ry * f];
-}
 
 function drawMap(cv, player, birds, exit, level, deck, bearing, rise = 0) {
   const g = cv.getContext('2d');
@@ -3632,6 +4067,7 @@ export function boot(canvas, hud) {
   let cable = null;
   let arenaPillars = [];
   let impacts = null;
+  let decals = null;
   let liftCar = null;
   let liftDoors = null;
   let liftGroup = null;
@@ -3648,6 +4084,27 @@ export function boot(canvas, hud) {
   let ceilingPieces = [];
   let leaks = [];
   let wires = [];
+  
+  
+  
+  
+  const sparkStats = { fired: 0, near: 0 };
+  const SPARK_N = 14;
+  
+  
+  function sparkAt(tip) {
+    if (!sparkGeo) return;
+    const a = sparkGeo.attributes.position;
+    for (let i = 0; i < SPARK_N; i += 1) {
+      a.setXYZ(
+        i,
+        tip[0] + (Math.random() - 0.5) * 0.42,
+        tip[1] - Math.random() * 0.50 + 0.06,
+        tip[2] + (Math.random() - 0.5) * 0.42,
+      );
+    }
+    a.needsUpdate = true;
+  }
   let sparkGeo = null;
   let sparkPt = null;
   let lockers = [];
@@ -3931,6 +4388,14 @@ export function boot(canvas, hud) {
       horse: [horseParts, (n) => (/^eye/.test(n) ? 0x120e0c : (HCOL[n] ?? 0x2b2724)),
         HORSE_HEIGHT_M, HORSE_RIG],
     };
+    
+    
+    
+    
+    if (liftCar) {
+      const k = keepOut(liftCar, x, z, 0.6);
+      x = k.x; z = k.z;
+    }
     const [sParts, sCol, sH, sRig] = SPECIES[kind] || SPECIES.chicken;
     const rig = chickenRig(sParts, sCol, sH, mat, sRig);
     rig.root.rotation.x = -Math.PI / 2;
@@ -4012,11 +4477,27 @@ export function boot(canvas, hud) {
           z + pz * side * (HALL_W / 2 - 0.12),
           [-px * side * 0.9, 0.25, -pz * side * 0.9],
         ));
-        if (hash2(x + z, 5.5) > 0.42) {
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        for (let u = 0; u < 3; u += 1) {
+          const wt = t + u * 3.7;
+          if (wt >= len - 3) break;
+          if (hash2(wt + z, 5.5) <= 0.30) continue;
+          const wx = run.x0 + dx * wt; const wz = run.z0 + dz * wt;
           wires.push(makeWire(
-            x + px * (hash2(z, 6.1) - 0.5) * HALL_W * 0.7,
-            z + pz * (hash2(z, 6.1) - 0.5) * HALL_W * 0.7 + dz * 3,
-            0.7 + hash2(z, 7.3) * 1.5, x + z,
+            wx + px * (hash2(wz, 6.1) - 0.5) * HALL_W * 0.7,
+            wz + pz * (hash2(wz, 6.1) - 0.5) * HALL_W * 0.7,
+            0.7 + hash2(wz, 7.3) * 1.5, wx + wz,
           ));
         }
       }
@@ -4026,11 +4507,31 @@ export function boot(canvas, hud) {
 
     
     
+    
+    
+    
+    
     sparkGeo = new THREE.BufferGeometry();
-    sparkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3));
+    sparkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(SPARK_N * 3), 3));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     sparkPt = new THREE.Points(sparkGeo, new THREE.PointsMaterial({
-      color: 0xcfe6ff, size: 0.5, sizeAttenuation: true, transparent: true, opacity: 0,
-      depthWrite: false,
+      color: 0xdfe9ff, size: 0.20, sizeAttenuation: true, transparent: true, opacity: 0,
+      map: sparkSprite(), blending: THREE.AdditiveBlending, depthWrite: false,
     }));
     sparkPt.frustumCulled = false;
     deckGroup.add(sparkPt);
@@ -4041,6 +4542,8 @@ export function boot(canvas, hud) {
     
     impacts = makeImpacts();
     deckGroup.add(impacts.points);
+    decals = makeDecals();
+    deckGroup.add(decals.group);
     
     
     
@@ -4666,8 +5169,19 @@ export function boot(canvas, hud) {
     
     fireT += dt;
     tickWeapon(player.weapon, dt);
-    if (fireHeld && !player.struggle && !player.dead && !hidden && canFire(player.weapon)) {
+    const mayFire = fireHeld && !player.struggle && !player.dead && !hidden;
+    
+    
+    
+    if (mayFire && !canFire(player.weapon) && player.weapon.ammo <= 0) {
+      if (fireT > 1 / (player.weapon.spec?.fireRate ?? 1.6)) { dryClickSfx(); fireT = 0; }
+    }
+    if (mayFire && canFire(player.weapon)) {
       fire(player.weapon);
+      
+      
+      
+      shotSfx();
       shotFlash = 0.06;
       fireT = 0;
 
@@ -4876,7 +5390,12 @@ export function boot(canvas, hud) {
           ),
         );
         if (!hit) continue;
-        applyDamage(b.creature, hit.id, player.weapon.spec?.limbDamage ?? 12);
+        
+        
+        
+        
+        applyDamage(b.creature, hit.id,
+          player.weapon.spec?.limbDamage ?? WEAPONS.boltDriver.limbDamage);
 
         
         
@@ -4891,6 +5410,9 @@ export function boot(canvas, hud) {
           { x: -Math.sin(aimYaw), z: Math.cos(aimYaw) },
         );
         meatSfx(b.x, b.z);
+        
+        
+        if (decals) decals.put(b.x, b.z, bh * 0.5, 0.15);
         hitCount += 1;
         
         
@@ -4916,6 +5438,8 @@ export function boot(canvas, hud) {
           b.alive = false;
           b.dying = 0;
           
+          if (decals) decals.put(b.x, b.z, bh * 1.5, 0.9);
+          
           
           b.fallSide = (hit.id === 'leg-l') ? -1 : ((hit.id === 'leg-r') ? 1 : (Math.random() < 0.5 ? -1 : 1));
           if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
@@ -4925,7 +5449,60 @@ export function boot(canvas, hud) {
     }
 
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const keepClear = (b) => {
+      if (!liftCar) return;
+      const kept = keepOut(liftCar, b.x, b.z, 0.2);
+      if (!kept.moved) return;
+      b.x = kept.x; b.z = kept.z;
+      if (b.mesh) b.mesh.position.set(b.x, b.mesh.position.y, b.z);
+    };
+
+    
     for (const b of birds) {
+      keepClear(b);
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (b.latched && ride && carIsSafe(ride, liftCar, player.x, player.z)) {
+        b.latched = false;
+        b.cool = 1.2;
+        if (player.latchedBy === b) player.latchedBy = null;
+        player.struggle = null;
+        keepClear(b);
+      }
 
       
       
@@ -4984,6 +5561,7 @@ export function boot(canvas, hud) {
         b.kick -= dt;
         b.x += b.vx * dt;
         b.z += b.vz * dt;
+        keepClear(b);
         b.vy -= 14 * dt;                       
                                                
         b.mesh.position.set(b.x, Math.max(0, b.mesh.position.y + b.vy * dt), b.z);
@@ -5113,8 +5691,16 @@ export function boot(canvas, hud) {
         const move = r.speed * mobScale * dt;
         b.x += (dx / dist) * move;
         b.z += (dz / dist) * move;
+        keepClear(b);
       }
       
+      
+      
+      
+      
+      
+      
+      if (ride && carIsSafe(ride, liftCar, player.x, player.z)) continue;
       if (r.canLatch && !b.latched && !player.dead && !player.struggle && b.cool <= 0) {
         b.latched = true;
         player.latchedBy = b;
@@ -5686,11 +6272,30 @@ export function boot(canvas, hud) {
 
     sparkIn -= dt;
     if (sparkIn <= 0 && wires.length) {
-      sparkIn = 4 + Math.random() * 9;
-      const w = wires[Math.floor(Math.random() * wires.length)];
-      sparkGeo.attributes.position.setXYZ(0, w.tip[0], w.tip[1], w.tip[2]);
-      sparkGeo.attributes.position.needsUpdate = true;
-      sparkFlash = 0.16;
+      sparkIn = 3.5 + Math.random() * 6;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const inRange = wires.filter(
+        (q) => Math.hypot(q.tip[0] - player.x, q.tip[2] - player.z) < 16,
+      );
+      const pool = inRange.length ? inRange : wires;
+      const w = pool[Math.floor(Math.random() * pool.length)];
+      sparkStats.fired += 1;
+      if (Math.hypot(w.tip[0] - player.x, w.tip[2] - player.z) < 14) sparkStats.near += 1;
+      sparkAt(w.tip);
+      sparkFlash = 0.34;
       sparkSfx(w.tip[0], w.tip[2]);
     }
     cutFlash = Math.max(0, cutFlash - dt);
@@ -5700,6 +6305,15 @@ export function boot(canvas, hud) {
     
     
     sparkPt.material.opacity = sparkFlash > 0 ? (Math.random() > 0.35 ? 0.95 : 0.2) : 0;
+    
+    
+    if (sparkFlash > 0 && sparkGeo) {
+      const a = sparkGeo.attributes.position;
+      for (let i = 0; i < SPARK_N; i += 1) {
+        a.setY(i, a.getY(i) - dt * (0.9 + i * 0.15));
+      }
+      a.needsUpdate = true;
+    }
 
 
     
@@ -6059,6 +6673,89 @@ export function boot(canvas, hud) {
       
       
       
+      get fireState() {
+        return {
+          fireHeld,
+          hidden,
+          dead: player.dead,
+          struggling: !!player.struggle,
+          ammo: player.weapon.ammo,
+          cooldown: player.weapon.cooldown,
+          canFire: canFire(player.weapon),
+          fireT,
+        };
+      },
+      
+      
+      
+      get liftCar() { return liftCar ? { ...liftCar } : null; },
+      clearOfCar(x, z) { return liftCar ? clearOfCar(liftCar, x, z, 0.2) : true; },
+      
+      
+      
+      
+      
+      
+      
+      get sfxSheet() {
+        return {
+          ready: sfxSheet.ready,
+          failure: sfxSheet.failure,
+          played: sfxSheet.played,
+          byEffect: sfxSheet.byEffect,
+        };
+      },
+      
+      
+      voice(b, kind) {
+        if (!b) return 'no creature';
+        const fn = b.kind === 'chicken' ? chickVoice : porkVoice;
+        fn(b, kind, Math.hypot(b.x - player.x, b.z - player.z));
+        return 'called';
+      },
+      
+      
+      
+      whyVoice(b, kind) {
+        if (!b) return { ok: false, why: 'no creature' };
+        const table = SHEET_VOICE[b.kind] || SHEET_VOICE.chicken;
+        return {
+          ok: sheetVoice(b, kind),
+          kind: b.kind,
+          effect: table[kind] || null,
+          hasNode: !!audio.at(b.x, b.z),
+          sheetReady: sfxSheet.ready,
+          audioRunning: audio.running,
+          knownEffects: sfxSheet.effectNames,
+          dist: Math.hypot(b.x - player.x, b.z - player.z),
+        };
+      },
+      get wires() {
+        let nearest = Infinity;
+        for (const w of wires) {
+          nearest = Math.min(nearest, Math.hypot(w.tip[0] - player.x, w.tip[2] - player.z));
+        }
+        return { count: wires.length, nearest: Number.isFinite(nearest) ? nearest : null };
+      },
+      get sparks() { return { ...sparkStats }; },
+      
+      
+      sparkNow() {
+        let best = null; let bd = Infinity;
+        for (const w of wires) {
+          const d = Math.hypot(w.tip[0] - player.x, w.tip[2] - player.z);
+          if (d < bd) { bd = d; best = w; }
+        }
+        if (!best) return null;
+        sparkAt(best.tip);
+        sparkFlash = 0.34;
+        sparkSfx(best.tip[0], best.tip[2]);
+        return { at: [...best.tip], dist: bd };
+      },
+      get gunSfx() { return { ...gunSfx }; },
+      
+      
+      emptyGun() { player.weapon.ammo = 0; },
       get camBasis() {
         const f = { x: camTarget.x - camEye.x, z: camTarget.z - camEye.z };
         const m = Math.hypot(f.x, f.z) || 1;
@@ -6457,6 +7154,28 @@ const FORMANTS = {
 function paVoice(kind) {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (sfxSheet.play('tannoy', { gain: 0.8, rate: 0.94 + Math.random() * 0.12 })) return;
   const [freqs, amps] = FORMANTS[kind] || FORMANTS.oh;
   const t0 = ctx.currentTime + 0.03;
   const dur = kind === 'sob' ? 0.42 : 1.1 + Math.random() * 0.8;
@@ -6500,6 +7219,14 @@ function paVoice(kind) {
 function kickSfx() {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
+  
+  
+  
+  
+  
+  
+  
+  if (sfxSheet.play('kick', { gain: 1.0, rate: 0.94 + Math.random() * 0.12 })) return;
   const t = ctx.currentTime + 0.01;
   
   
@@ -6749,6 +7476,17 @@ function start() {
   
   
   installAudioUnlock();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  try { sfxSheet.load(); } catch {  }
   
   
   try { initAnalytics(); trackEvent('game_open', { game: 'farmy-evil-hills' }); } catch {  }
