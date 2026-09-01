@@ -2390,6 +2390,19 @@ function sparkSfx(x, z) {
   if (!ctx || !audio.running) return;
   const out = audio.at(x, z);
   if (!out) return;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (sfxSheet.play('spark', {
+    dest: out, gain: 0.85, rate: 0.90 + Math.random() * 0.24,
+  })) return;
   const t = ctx.currentTime + 0.01;
   
   

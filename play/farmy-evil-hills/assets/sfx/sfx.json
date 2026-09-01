@@ -1,6 +1,6 @@
 {
   "sampleRate": 48000,
-  "seconds": 37.847,
+  "seconds": 39.384,
   "clips": {
     "shot1": {
       "effect": "shot",
@@ -177,19 +177,34 @@
       "offset": 30.767,
       "duration": 1.83
     },
+    "spark1": {
+      "effect": "spark",
+      "offset": 32.647,
+      "duration": 0.384
+    },
+    "spark2": {
+      "effect": "spark",
+      "offset": 33.081,
+      "duration": 0.293
+    },
+    "spark3": {
+      "effect": "spark",
+      "offset": 33.424,
+      "duration": 0.71
+    },
     "creak1": {
       "effect": "creak",
-      "offset": 32.647,
+      "offset": 34.184,
       "duration": 1.75
     },
     "creak2": {
       "effect": "creak",
-      "offset": 34.447,
+      "offset": 35.984,
       "duration": 2.05
     },
     "creak3": {
       "effect": "creak",
-      "offset": 36.547,
+      "offset": 38.084,
       "duration": 1.25
     }
   },
@@ -258,6 +273,11 @@
     "horseCry": [
       "horse1",
       "horse2"
+    ],
+    "spark": [
+      "spark1",
+      "spark2",
+      "spark3"
     ],
     "creak": [
       "creak1",
