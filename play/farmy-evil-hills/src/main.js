@@ -1586,6 +1586,11 @@ function narrowAcross(mesh, k = HEAD_NARROW) {
 
 
 
+
+
+
+const DEATH_FALL = 0.75;
+const DEATH_LIE = 3.2;
 const WALK_FRAMES = 14;
 const SPRINT_FRAMES = 12;
 
@@ -4895,10 +4900,24 @@ export function boot(canvas, hud) {
         
         
         if (!st.alive) {
-          chickVoice(b, 'die', Math.hypot(player.x - b.x, player.z - b.z));
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          const voice = b.kind === 'chicken' ? chickVoice : porkVoice;
+          voice(b, 'die', Math.hypot(player.x - b.x, player.z - b.z));
           b.alive = false;
-          b.mesh.visible = false;
-          if (b.shade) b.shade.visible = false;
+          b.dying = 0;
+          
+          
+          b.fallSide = (hit.id === 'leg-l') ? -1 : ((hit.id === 'leg-r') ? 1 : (Math.random() < 0.5 ? -1 : 1));
           if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
         }
         break;                                        
@@ -4907,6 +4926,57 @@ export function boot(canvas, hud) {
 
     
     for (const b of birds) {
+
+      
+      
+      
+      
+      
+      
+      if (!b.alive && b.dying !== undefined && b.dying < DEATH_LIE) {
+        b.dying += dt;
+        const u = Math.min(1, b.dying / DEATH_FALL);
+        
+        
+        const fall = u * u;
+        
+        
+        
+        b.mesh.rotation.x = -Math.PI / 2;
+        b.mesh.rotation.y = b.fallSide * fall * (Math.PI / 2);
+        
+        
+        b.mesh.position.set(b.x, -fall * 0.10, b.z);
+        
+        
+        if (u < 1) {
+          const tw = Math.exp(-u * 5) * Math.sin(u * 34) * 0.10;
+          b.mesh.rotation.y += tw;
+        }
+        if (b.shade) {
+          
+          b.shade.visible = true;
+          const k = 1 + fall * 0.5;
+          const base = (b.kind === 'horse' ? 1.15 : 0.62)
+            * ({ porker: PORKER_HEIGHT_M, cow: COW_HEIGHT_M, horse: HORSE_HEIGHT_M }[b.kind] ?? CHICKEN_H);
+          b.shade.position.set(b.x, 0.02, b.z);
+          b.shade.scale.set(base * k, 1, base * k);
+          b.shade.material.opacity = 0.44 * (1 - fall * 0.35);
+        }
+        
+        
+        const left = DEATH_LIE - b.dying;
+        if (left < 0.6) {
+          const a = Math.max(0, left / 0.6);
+          b.mesh.visible = a > 0.02;
+          if (b.shade) b.shade.material.opacity *= a;
+        }
+        if (b.dying >= DEATH_LIE) {
+          b.mesh.visible = false;
+          if (b.shade) b.shade.visible = false;
+        }
+        continue;
+      }
       if (!b.alive) continue;
 
       
