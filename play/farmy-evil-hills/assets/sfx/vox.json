@@ -1,0 +1,46 @@
+{
+  "sampleRate": 48000,
+  "seconds": 57.15,
+  "clips": {
+    "pa1": {
+      "offset": 0.08,
+      "duration": 7.1445
+    },
+    "pa10": {
+      "offset": 7.3045,
+      "duration": 5.8145
+    },
+    "pa2": {
+      "offset": 13.199,
+      "duration": 5.8945
+    },
+    "pa3": {
+      "offset": 19.1735,
+      "duration": 5.2745
+    },
+    "pa4": {
+      "offset": 24.528,
+      "duration": 5.5145
+    },
+    "pa5": {
+      "offset": 30.1225,
+      "duration": 5.1345
+    },
+    "pa6": {
+      "offset": 35.337,
+      "duration": 6.0545
+    },
+    "pa7": {
+      "offset": 41.4715,
+      "duration": 3.8795
+    },
+    "pa8": {
+      "offset": 45.431,
+      "duration": 7.5545
+    },
+    "pa9": {
+      "offset": 53.0655,
+      "duration": 4.0045
+    }
+  }
+}

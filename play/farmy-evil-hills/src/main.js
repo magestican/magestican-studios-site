@@ -3945,6 +3945,75 @@ const gunSfx = { shots: 0, dry: 0, fromSheet: 0 };
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const voxSheet = (() => {
+  let manifest = null;
+  let buffer = null;
+  let loading = null;
+  let failed = null;
+  let played = 0;
+  let lastId = null;
+
+  async function load() {
+    const ctx = audio.ensure();
+    if (!ctx) return false;
+    if (buffer) return true;
+    if (failed) return false;
+    if (!loading) {
+      loading = (async () => {
+        const r = await fetch(new URL('../assets/sfx/vox.json', import.meta.url));
+        if (!r.ok) throw new Error(`vox manifest ${r.status}`);
+        manifest = await r.json();
+        const a = await fetch(new URL('../assets/sfx/vox.webm', import.meta.url));
+        if (!a.ok) throw new Error(`vox.webm ${a.status}`);
+        buffer = await ctx.decodeAudioData(await a.arrayBuffer());
+        return true;
+      })().catch((e) => { failed = String(e && e.message ? e.message : e); loading = null; return false; });
+    }
+    return loading;
+  }
+
+  
+  function speak(id, gain = 0.85) {
+    const ctx = audio.ensure();
+    if (!ctx || !audio.running || !buffer || !manifest) return 0;
+    const clip = manifest.clips[id];
+    if (!clip) return 0;
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const g = ctx.createGain();
+    g.gain.value = gain;
+    src.connect(g);
+    g.connect(audio.sfxBus);
+    src.start(ctx.currentTime + 0.01, clip.offset, clip.duration);
+    played += 1;
+    lastId = id;
+    return clip.duration;
+  }
+
+  return {
+    load,
+    speak,
+    get ready() { return !!buffer; },
+    get failure() { return failed; },
+    get played() { return played; },
+    get lastId() { return lastId; },
+  };
+})();
+
 const sfxSheet = (() => {
   const MANIFEST = '../assets/sfx/sfx.json';
   let manifest = null;
@@ -5944,9 +6013,22 @@ export function boot(canvas, hud) {
   
   
   function tannoy() {
-    paVoice(PA_KINDS[Math.floor(Math.random() * PA_KINDS.length)]);
     paCount += 1;
-    say(barks, null, { who: 'pa', force: true });
+    const line = say(barks, null, { who: 'pa', force: true });
+    
+    
+    
+    
+    
+    
+    const dur = line ? voxSheet.speak(line.id) : 0;
+    if (dur > 0) {
+      if (barks.current) barks.current.until = barks.t + dur + 0.4;
+      barks.quietUntil = Math.max(barks.quietUntil, barks.t + dur + 0.8);
+    } else {
+      
+      paVoice(PA_KINDS[Math.floor(Math.random() * PA_KINDS.length)]);
+    }
   }
   let breathIn = 2;
   
@@ -8528,6 +8610,18 @@ export function boot(canvas, hud) {
         camNode = nodeAt(rails, progressAt(deck, player.x, player.z));
         return camNode;
       },
+      get vox() {
+        return {
+          ready: voxSheet.ready, failure: voxSheet.failure,
+          played: voxSheet.played, lastId: voxSheet.lastId,
+        };
+      },
+      
+      
+      
+      
+      
+      holdPA(seconds) { paIn = seconds; return paIn; },
       get gunSfx() { return { ...gunSfx }; },
       
       
@@ -8581,7 +8675,15 @@ export function boot(canvas, hud) {
       
       get barks() {
         const c = currentBark(barks);
-        return { current: c ? { ...c } : null, saidCount: barks.said.size };
+        return {
+          current: c ? { ...c } : null,
+          saidCount: barks.said.size,
+          
+          
+          
+          t: barks.t,
+          quietUntil: barks.quietUntil,
+        };
       },
       sayNow(trigger) {
         return trigger === 'pa'
@@ -9334,6 +9436,7 @@ function start() {
   
   
   try { sfxSheet.load(); } catch {  }
+  try { voxSheet.load(); } catch {  }
   
   
   try { initAnalytics(); trackEvent('game_open', { game: 'farmy-evil-hills' }); } catch {  }
