@@ -179,6 +179,73 @@ export function railPlacement(nodes, i, player, opt = {}) {
 
 
 
+export const SAFE_CAM = Object.freeze({
+  
+  
+  
+  
+  
+  
+  height: 2.9,
+  
+  
+  
+  
+  margin: 0.7,
+  targetHeight: 1.30,     
+  
+  
+  fov: 70,
+});
+
+
+
+
+
+
+
+
+
+
+
+export function safeRoomCamera(room, opt = {}) {
+  const cfg = { ...SAFE_CAM, ...opt };
+  const far = room.side > 0 ? room.x1 : room.x0;   
+  return {
+    eye: {
+      x: far - room.side * cfg.margin,
+      y: cfg.height,
+      
+      
+      
+      z: room.z0 + cfg.margin,
+    },
+    
+    
+    
+    target: {
+      x: (room.x0 + room.x1) / 2,
+      y: cfg.targetHeight,
+      z: (room.z0 + room.z1) / 2,
+    },
+    fov: cfg.fov,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function railNodesForRuns(runs, opt = {}) {
   const cfg = { ...RAIL, ...opt };
   const nodes = [];

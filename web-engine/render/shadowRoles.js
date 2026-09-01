@@ -76,6 +76,29 @@ export const SHADOW_ROLES = {
       + 'grid, at the one moment every player is looking hardest',
   },
 
+  milkRamp: {
+    cast: true,
+    receive: false,
+    why: 'the 10-degree milk ramp (2026-09-01). It CASTS, because a metre-tall '
+      + 'white wedge with no shadow floats above the road and the player cannot '
+      + 'judge where its foot is - which is the one thing they need to know to '
+      + 'take it straight. It does NOT receive: the kart about to hit it would '
+      + 'lay its own shadow across the ramp face at exactly the moment the '
+      + 'player is reading that face to line the launch up, and a liquid milk '
+      + 'film would not hold a crisp shadow anyway',
+  },
+
+  airship: {
+    cast: true,
+    receive: false,
+    why: 'the rescue airship (2026-09-01). A 26 m envelope CASTS, and its shadow '
+      + 'sweeping across the road is most of how the rest of the field learns '
+      + 'that something is happening above them - the one player it is carrying '
+      + 'is the only one who can see the balloon itself. It does not receive: '
+      + 'it flies above everything, so there is nothing to shadow it, and the '
+      + 'cost of testing that every frame buys a picture that never changes',
+  },
+
   
   kart: { cast: true, receive: true, why: 'the hand-built chassis; a kart must shadow its own driver and its neighbour' },
   driver: {

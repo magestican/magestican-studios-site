@@ -73,7 +73,8 @@ import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
 
 import { lockZoom } from '../../shared/input/zoomLock.js';
 
-import { railNodesForRuns, nodeAt, railPlacement } from '../../../web-engine/horror/railCamera.js';
+import { railNodesForRuns, nodeAt, railPlacement, safeRoomCamera } from '../../../web-engine/horror/railCamera.js';
+import { chapterFor } from '../../../web-engine/horror/lore.js';
 import { MAP, mapProject } from '../../../web-engine/horror/minimap.js';
 import { panOf, levelAt, makeImpulse } from '../../../web-engine/horror/audioSpace.js';
 import {
@@ -90,6 +91,12 @@ import {
   readyWeapon, tickWeapon, canFire, fire, WEAPONS,
 } from '../../../web-engine/horror/weapons.js';
 import { createStruggle, VERB_FOR, promptFor } from '../../../web-engine/horror/struggle.js';
+
+
+
+import {
+  createBarks, say, stepBarks, combatSay, currentBark,
+} from '../../../web-engine/horror/barks.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
@@ -4395,6 +4402,9 @@ export function boot(canvas, hud) {
   let EXIT = deck.exit;
   let rails = railNodesForRuns(deck.runs);
   let safeRoom = deck.rooms.find((m) => m.kind === 'safe') || null;
+  
+  
+  let library = null;
 
   
   
@@ -4722,6 +4732,20 @@ export function boot(canvas, hud) {
     dead: false,
   };
 
+  
+  
+  
+  
+  
+  const barks = createBarks((Date.now() % 100000) | 1);
+  
+  
+  
+  
+  let barkHealthWas = MAX_HEALTH;
+  let barkAmmoWas = Infinity;
+  let barkSpottedWas = false;
+
   const birds = [];
   let chickSeed = 0;
   function addChicken(z, x, kind = 'chicken') {
@@ -4796,6 +4820,11 @@ export function boot(canvas, hud) {
     EXIT = deck.exit;
     rails = railNodesForRuns(deck.runs);
     safeRoom = deck.rooms.find((m) => m.kind === 'safe') || null;
+    
+    
+    
+    
+    library = null;
     leaks = [];
     wires = [];
     lockers = [];
@@ -5041,6 +5070,95 @@ export function boot(canvas, hud) {
       box.position.set(cx, 0.15, cz);
       deckGroup.add(box);
       pickups.push({ mesh: box, x: cx, z: cz, ammo, taken: false });
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (safeRoom) {
+      const cx = (safeRoom.x0 + safeRoom.x1) / 2;
+      const cz = (safeRoom.z0 + safeRoom.z1) / 2;
+      const far = safeRoom.side > 0 ? safeRoom.x1 : safeRoom.x0;
+      
+      
+      
+      const paint = (geo, hex) => {
+        const n = geo.attributes.position.count;
+        const col = new Float32Array(n * 3);
+        const c = new THREE.Color(hex);
+        for (let i = 0; i < n; i += 1) { col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+        geo.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+        geo.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+        geo.computeVertexNormals();
+        return new THREE.Mesh(geo, mat);
+      };
+
+      
+      
+      
+      
+      
+      
+      
+      
+      {
+        const kit = new THREE.Group();
+        
+        
+        
+        kit.add(paint(new THREE.BoxGeometry(0.42, 0.30, 0.30).toNonIndexed(), 0xd8d4c8));
+        
+        for (const zs of [-1, 1]) {
+          const h = paint(new THREE.BoxGeometry(0.24, 0.075, 0.02).toNonIndexed(), 0xb6392c);
+          h.position.set(0, 0, zs * 0.155);
+          const v = paint(new THREE.BoxGeometry(0.075, 0.24, 0.02).toNonIndexed(), 0xb6392c);
+          v.position.set(0, 0, zs * 0.155);
+          kit.add(h, v);
+        }
+        kit.position.set(cx, 0.95, cz);
+        deckGroup.add(kit);
+        pickups.push({
+          mesh: kit, x: cx, z: cz, medkit: true, taken: false,
+          
+          
+          baseY: 0.95, bob: 0.09, spin: 0.7,
+        });
+      }
+
+      
+      
+      
+      
+      {
+        const lx = far - safeRoom.side * 0.32;
+        const lz = cz + 2.1;
+        const shelf = paint(new THREE.BoxGeometry(0.52, 2.05, 1.5).toNonIndexed(), 0x4a5347);
+        shelf.position.set(lx, 1.025, lz);
+        deckGroup.add(shelf);
+        
+        for (const y of [0.62, 1.15, 1.68]) {
+          const lip = paint(new THREE.BoxGeometry(0.06, 0.05, 1.42).toNonIndexed(), 0x2e352d);
+          lip.position.set(lx - safeRoom.side * 0.29, y, lz);
+          deckGroup.add(lip);
+        }
+        
+        
+        
+        const scr = paint(new THREE.PlaneGeometry(0.64, 0.42).toNonIndexed(), 0x6ff0d8);
+        scr.position.set(far - safeRoom.side * 0.60, 1.42, lz);
+        scr.rotation.y = safeRoom.side > 0 ? -Math.PI / 2 : Math.PI / 2;
+        deckGroup.add(scr);
+        
+        
+        solidProps.push({ x: lx, z: lz, r: 0.85 });
+        library = { x: lx, z: lz };
+      }
     }
 
     
@@ -5441,6 +5559,20 @@ export function boot(canvas, hud) {
   let stepCount = 0;
   let hitCount = 0;
   let paCount = 0;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  function tannoy() {
+    paVoice(PA_KINDS[Math.floor(Math.random() * PA_KINDS.length)]);
+    paCount += 1;
+    say(barks, null, { who: 'pa', force: true });
+  }
   let breathIn = 2;
   
   
@@ -5452,6 +5584,15 @@ export function boot(canvas, hud) {
   const HINT_HTML = document.getElementById('hint')?.innerHTML ?? '';
   let inSafe = false;
   let safeResupplied = false;
+  
+  
+  
+  
+  let usingSafeCam = false;
+  
+  
+  
+  let nearLibrary = false;
   let walkDist = 0;
   
   
@@ -5632,6 +5773,10 @@ export function boot(canvas, hud) {
       shotSfx();
       shotFlash = 0.06;
       fireT = 0;
+      
+      
+      
+      say(barks, 'firstShot');
 
       
       
@@ -5940,6 +6085,10 @@ export function boot(canvas, hud) {
           
           b.fallSide = (hit.id === 'leg-l') ? -1 : ((hit.id === 'leg-r') ? 1 : (Math.random() < 0.5 ? -1 : 1));
           if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
+          
+          
+          
+          combatSay(barks, 'kill');
         }
         break;                                        
       }
@@ -6271,6 +6420,9 @@ export function boot(canvas, hud) {
         shake = Math.max(shake, 0.55);
         hitSfx();
         beginGrapple(player.vitals, b.kind);
+        
+        
+        combatSay(barks, 'hurt');
       }
       b.cool -= dt;
 
@@ -6396,6 +6548,25 @@ export function boot(canvas, hud) {
     camNode = nodeAt(rails, progressAt(deck, player.x, player.z), camNode);
     if (camNode !== wasNode) cutFlash = 0.05;   
     let place = railPlacement(rails, camNode, player);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const safeCam = inSafe && safeRoom ? safeRoomCamera(safeRoom) : null;
+    if (!!safeCam !== usingSafeCam) { cutFlash = 0.05; usingSafeCam = !!safeCam; }
+    if (safeCam) place = safeCam;
 
     
     
@@ -6979,9 +7150,40 @@ export function boot(canvas, hud) {
     paIn -= dt;
     if (paIn <= 0 && !player.dead) {
       paIn = 22 + Math.random() * 26;
-      paVoice(PA_KINDS[Math.floor(Math.random() * PA_KINDS.length)]);
-      paCount += 1;
+      tannoy();
     }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    const barkSpotted = !player.dead
+      && birds.some((b) => b.alive && b.anim && b.anim.state !== 'dormant'
+        && Math.hypot(b.x - player.x, b.z - player.z) < 16);
+    stepBarks(barks, dt, {
+      busy: barkSpotted || !!player.struggle || !!player.latchedBy || player.dead,
+    });
+    if (barkSpotted && !barkSpottedWas) {
+      
+      
+      
+      say(barks, barks.fired.has('see1') ? 'sight' : 'firstSight');
+    }
+    barkSpottedWas = barkSpotted;
+    
+    
+    
+    if (!player.dead) {
+      if (player.vitals.health < 30 && barkHealthWas >= 30) say(barks, 'lowHealth');
+      if (player.weapon.ammo <= 0 && barkAmmoWas > 0) say(barks, 'empty');
+      else if (player.weapon.ammo < 10 && barkAmmoWas >= 10) say(barks, 'lowAmmo');
+    }
+    barkHealthWas = player.vitals.health;
+    barkAmmoWas = player.weapon.ammo;
 
     
     const hunted = birds.some((b) => b.alive && Math.hypot(b.x - player.x, b.z - player.z) < 13);
@@ -7064,12 +7266,20 @@ export function boot(canvas, hud) {
       if (it.taken) continue;
       
       
-      it.mesh.rotation.y = now * 1.1;
-      it.mesh.position.y = 0.15 + Math.sin(now * 2.2) * 0.03;
+      
+      
+      it.mesh.rotation.y = now * (it.spin ?? 1.1);
+      it.mesh.position.y = (it.baseY ?? 0.15) + Math.sin(now * 2.2) * (it.bob ?? 0.03);
       if (!player.dead && Math.hypot(player.x - it.x, player.z - it.z) < 0.9) {
         it.taken = true;
         it.mesh.visible = false;
         if (it.ammo) player.weapon.ammo += 24;
+        
+        
+        
+        
+        
+        else if (it.medkit) player.vitals.health = MAX_HEALTH;
         else player.vitals.health = Math.min(MAX_HEALTH, player.vitals.health + 35);
         liftChime();
       }
@@ -7102,13 +7312,39 @@ export function boot(canvas, hud) {
       && player.z > safeRoom.z0 && player.z < safeRoom.z1;
     if (inSafe !== wasSafe) {
       hud.msg(inSafe ? 'SAFE' : '');
-      if (inSafe) liftChime();
+      if (inSafe) {
+        liftChime();
+        
+        
+        say(barks, 'safe');
+      }
     }
     if (inSafe) {
       player.vitals.health = Math.min(MAX_HEALTH, player.vitals.health + 5.5 * dt);
       if (!safeResupplied) {
         safeResupplied = true;
         player.weapon.ammo += 30;
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    {
+      const nearLib = !!library && !player.dead
+        && Math.hypot(player.x - library.x, player.z - library.z) < 1.6;
+      if (nearLib !== nearLibrary) {
+        nearLibrary = nearLib;
+        hud.lore(nearLib ? chapterFor(level) : null);
       }
     }
 
@@ -7155,6 +7391,9 @@ export function boot(canvas, hud) {
         safeResupplied = false;
         hud.lift(level);
         liftHum(true);
+        
+        
+        say(barks, 'lift');
       } else if (ride.event === 'arrive') { liftHum(false); doorSfx(true); }
       else if (ride.event === 'ready') { hud.lift(0); hud.msg(''); }
       if (was === 'idle' && ride.phase === 'opening') doorSfx(true);
@@ -7265,6 +7504,7 @@ export function boot(canvas, hud) {
       range: Math.round(player.weapon.spec?.range ?? 0),
       ep: 100 - Math.min(100, level * 6),
       flash: shotFlash > 0,
+      bark: currentBark(barks),
     });
     requestAnimationFrame(step);
   }
@@ -7307,6 +7547,21 @@ export function boot(canvas, hud) {
       get pickups() { return pickups.filter((q) => !q.taken).length; },
       goTo(x, z) { player.x = x; player.z = z; },
       get level() { return level; },
+      
+      
+      
+      
+      
+      get cameraEye() { return { ...camEye }; },
+      get cameraTarget() { return { ...camTarget }; },
+      
+      
+      
+      get medkit() {
+        const it = pickups.find((q) => q.medkit);
+        return it ? { x: it.x, z: it.z, taken: it.taken } : null;
+      },
+      get library() { return library ? { ...library, near: nearLibrary } : null; },
       
       
       
@@ -7555,7 +7810,21 @@ export function boot(canvas, hud) {
       
       
       get pa() { return paCount; },
-      firePA() { paVoice(PA_KINDS[Math.floor(Math.random() * PA_KINDS.length)]); paCount += 1; },
+      firePA() { tannoy(); },
+      
+      
+      
+      
+      
+      get barks() {
+        const c = currentBark(barks);
+        return { current: c ? { ...c } : null, saidCount: barks.said.size };
+      },
+      sayNow(trigger) {
+        return trigger === 'pa'
+          ? say(barks, null, { who: 'pa', force: true })
+          : say(barks, trigger, { force: true });
+      },
       get lights() {
         let lit = 0;
         for (const st of strips) if (st.mat && st.mat.uniforms && st.mat.uniforms.uAlpha) {
@@ -8174,6 +8443,18 @@ const hud = {
   
   
   msg(text) { $('msg').textContent = text || ''; },
+  
+  
+  
+  lore(ch) {
+    const el = $('lore');
+    if (!el) return;
+    if (!ch) { el.style.display = 'none'; return; }
+    $('loreTag').textContent = 'STATION ARCHIVE - RECOVERED DOCUMENT';
+    $('loreTitle').textContent = ch.title;
+    $('loreBody').textContent = ch.text;
+    el.style.display = 'block';
+  },
   dead() {
     $('overTitle').textContent = 'THE LIVESTOCK HAD OPINIONS';
     $('overBody').textContent = 'Xander does not report back.';
@@ -8224,6 +8505,25 @@ const hud = {
       $('qte').style.display = 'none';
     }
     $('tapeMini').classList.toggle('on', tape.audible);
+
+    
+    
+    
+    
+    const vox = document.getElementById('vox');
+    if (vox) {
+      if (s.bark) {
+        const pa = s.bark.who === 'pa';
+        
+        
+        vox.textContent = pa ? `[ PA ] ${s.bark.text}` : s.bark.text;
+        vox.classList.toggle('pa', pa);
+        vox.style.display = 'block';
+      } else if (vox.textContent) {
+        vox.textContent = '';
+        vox.style.display = 'none';
+      }
+    }
   },
 };
 

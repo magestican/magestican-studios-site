@@ -74,6 +74,7 @@ import { stepKart, launchKart, respawnKart } from './kartPhysics.js';
 import { bodyGroundY, trackGuards, trackRails, SHOULDER } from './trackGround.js';
 import { bankPush, guardBlock, WALL_DRAG } from './guardWall.js';
 import { crossedJump } from './trackJumps.js';
+import { crossedRamp } from './milkRamps.js';
 import { hazardAt, hazardEffect } from './trackHazards.js';
 import { railContact } from './trackRails.js';
 import { waterSurface, isAdrift } from './water.js';
@@ -335,6 +336,40 @@ export function stepRacer({
     if (hit) {
       launchKart(k, hit.vy);
       launched = hit;
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (track.ramps && track.ramps.length) {
+    const now = trackSurface(path, k.x, k.z, k.pathHint, { shoulder: SHOULDER });
+    const nowFrac = now.s / path.length;
+    
+    
+    const onRoad = (now.overBy ?? 0) <= SHOULDER;
+    const milk = onRoad ? crossedRamp(track.ramps, jumpFrac, nowFrac, k.speed) : null;
+    if (nextJumpFrac === jumpFrac) nextJumpFrac = nowFrac;
+    if (milk) {
+      
+      
+      k.boost = { ...milk.boost };
+      if (!launched) {
+        launchKart(k, milk.vy);
+        launched = milk;
+      }
     }
   }
 

@@ -32,6 +32,7 @@ import { buildPath } from '../../../../web-engine/kart/trackPath.js';
 import { trackRails, railMetres } from '../../../../web-engine/kart/trackGround.js';
 import { drivableWater } from '../../../../web-engine/kart/trackHazards.js';
 import { createProjection, project, spanIndices } from '../../../../web-engine/kart/minimap.js';
+import { undulateTrack } from '../../../../web-engine/kart/trackUndulation.js';
 import {
   fitPreviewCamera, projectPreview, roadPixels, northIsUp,
 } from '../../../../web-engine/kart/trackPreview.js';
@@ -44,7 +45,12 @@ const CACHE = new Map();
 function pathOf(track) {
   let p = CACHE.get(track.id);
   if (!p) {
-    p = buildPath(track.control, { defaultWidth: track.defaultWidth, branches: track.shortcuts });
+    
+    
+    
+    
+    const control = undulateTrack(track, { seed: track.id.length });
+    p = buildPath(control, { defaultWidth: track.defaultWidth, branches: track.shortcuts });
     p.hazards = track.hazards ?? null;
     p.terrain = track.terrain ?? null;
     CACHE.set(track.id, p);
