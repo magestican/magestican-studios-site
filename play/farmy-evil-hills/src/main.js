@@ -25,8 +25,7 @@ import * as THREE from 'three';
 
 import { solve, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
 import {
-  gaitPose, firePose, strugglePose, deathPose, standPose, gripOf, cycleTravel,
-  settleStep, SETTLE_TIME,
+  gaitPose, firePose, strugglePose, deathPose, standPose, gripOf, cycleTravel, settleStep, SETTLE_TIME, aimPose, aimedGait,
 } from '../../../web-engine/horror/gait.js';
 
 
@@ -84,7 +83,9 @@ import {
   buildLevel, moveInLevel, progressAt, pointBehind, runRect, clearOfProps, insideLevel,
 } from '../../../web-engine/horror/level.js';
 import { spawnVitals, tickVitals, damage, beginGrapple, endGrapple, MAX_HEALTH, CHICKEN_LATCH_SLOW } from '../../../web-engine/horror/health.js';
-import { spawn as spawnCreature, resolveHit, applyDamage, mobilityOf, statusOf } from '../../../web-engine/horror/dismemberment.js';
+import {
+  spawn as spawnCreature, resolveHit, applyDamage, mobilityOf, statusOf, legAimHeight,
+} from '../../../web-engine/horror/dismemberment.js';
 import {
   readyWeapon, tickWeapon, canFire, fire, WEAPONS,
 } from '../../../web-engine/horror/weapons.js';
@@ -1623,6 +1624,10 @@ function narrowAcross(mesh, k = HEAD_NARROW) {
 const DEATH_FALL = 0.75;
 const DEATH_LIE = 3.2;
 const WALK_FRAMES = 14;
+
+
+
+const AIM_FRAMES = 10;
 const SPRINT_FRAMES = 12;
 
 
@@ -3399,6 +3404,156 @@ function makeDecals() {
 
 
 const IMPACT_PARTS = 96;
+const TRACERS = 6;
+
+
+
+
+const BOLT_LIFE = 0.09;
+const RICOCHET_PARTS = 72;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function makeTracers() {
+  const pos = new Float32Array(TRACERS * 6);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.LineBasicMaterial({
+    color: 0xffe9c0, transparent: true, opacity: 0,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const lines = new THREE.LineSegments(geo, mat);
+  lines.frustumCulled = false;
+  const shots = [];
+  
+  let holdFrames = 0;
+  for (let i = 0; i < TRACERS; i += 1) shots.push({ life: 0 });
+  let next = 0;
+  for (let i = 0; i < TRACERS * 6; i += 3) pos[i + 1] = -50;
+
+  return {
+    lines,
+    freeze(frames) { holdFrames = frames; },
+    fire(from, to) {
+      const i = next; next = (next + 1) % TRACERS;
+      shots[i] = { life: BOLT_LIFE, from: [...from], to: [...to] };
+    },
+    step(dt) {
+      let lit = 0;
+      for (let i = 0; i < TRACERS; i += 1) {
+        const sh = shots[i];
+        if (!sh || sh.life <= 0) { pos[i * 6 + 1] = -50; pos[i * 6 + 4] = -50; continue; }
+        
+        if (holdFrames <= 0) sh.life -= dt;
+        lit += 1;
+        
+        
+        const u = Math.max(0, Math.min(1, 1 - sh.life / BOLT_LIFE));
+        const head = u;
+        const tail = Math.max(0, u - 0.34);
+        for (let k = 0; k < 3; k += 1) {
+          pos[i * 6 + k] = sh.from[k] + (sh.to[k] - sh.from[k]) * tail;
+          pos[i * 6 + 3 + k] = sh.from[k] + (sh.to[k] - sh.from[k]) * head;
+        }
+      }
+      if (holdFrames > 0) holdFrames -= 1;
+      geo.attributes.position.needsUpdate = true;
+      mat.opacity = lit ? 0.85 : 0;
+      return lit;
+    },
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function makeRicochets() {
+  const pos = new Float32Array(RICOCHET_PARTS * 3);
+  const vel = new Float32Array(RICOCHET_PARTS * 3);
+  const life = new Float32Array(RICOCHET_PARTS);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({
+    color: 0xffd9a0, size: 0.055, sizeAttenuation: true,
+    transparent: true, opacity: 0.95, depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  }));
+  pts.frustumCulled = false;
+  let next = 0;
+  for (let i = 0; i < RICOCHET_PARTS; i += 1) pos[i * 3 + 1] = -50;
+
+  return {
+    points: pts,
+    
+    burst(x, y, z, dir, n) {
+      
+      const dot = dir.x * n.x + dir.z * n.z;
+      const rx = dir.x - 2 * dot * n.x;
+      const rz = dir.z - 2 * dot * n.z;
+      for (let k = 0; k < 12; k += 1) {
+        const i = next; next = (next + 1) % RICOCHET_PARTS;
+        pos[i * 3] = x; pos[i * 3 + 1] = y; pos[i * 3 + 2] = z;
+        const spread = 1.5;
+        vel[i * 3] = rx * (3.2 + Math.random() * 3.4) + (Math.random() - 0.5) * spread;
+        vel[i * 3 + 1] = 0.6 + Math.random() * 2.6;
+        vel[i * 3 + 2] = rz * (3.2 + Math.random() * 3.4) + (Math.random() - 0.5) * spread;
+        life[i] = 0.22 + Math.random() * 0.34;
+      }
+      geo.attributes.position.needsUpdate = true;
+    },
+    step(dt) {
+      let any = false;
+      for (let i = 0; i < RICOCHET_PARTS; i += 1) {
+        if (life[i] <= 0) continue;
+        any = true;
+        life[i] -= dt;
+        vel[i * 3 + 1] -= 15 * dt;
+        pos[i * 3] += vel[i * 3] * dt;
+        pos[i * 3 + 1] += vel[i * 3 + 1] * dt;
+        pos[i * 3 + 2] += vel[i * 3 + 2] * dt;
+        
+        if (pos[i * 3 + 1] < 0.02) { pos[i * 3 + 1] = 0.02; vel[i * 3 + 1] *= -0.25; }
+        if (life[i] <= 0) pos[i * 3 + 1] = -50;
+      }
+      if (any) geo.attributes.position.needsUpdate = true;
+      return any;
+    },
+  };
+}
+
 function makeImpacts() {
   const pos = new Float32Array(IMPACT_PARTS * 3);
   const vel = new Float32Array(IMPACT_PARTS * 3);
@@ -3729,7 +3884,7 @@ function shotSfx() {
   
   
   
-  if (sfxSheet.play('shot', { gain: 0.9, rate: 0.97 + Math.random() * 0.06 })) { gunSfx.shots += 1; gunSfx.fromSheet += 1; return; }
+  if (sfxSheet.play('shot', { gain: 1.0, rate: 0.97 + Math.random() * 0.06 })) { gunSfx.shots += 1; gunSfx.fromSheet += 1; return; }
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
   const t = ctx.currentTime + 0.005;
@@ -3824,6 +3979,69 @@ function dryClickSfx() {
     n.start(t + at); n.stop(t + at + d + 0.01);
   }
   gunSfx.dry += 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function ricochetSfx(x, z) {
+  const ctx = audio.ensure();
+  if (!ctx || !audio.running) return;
+  const out = audio.at(x, z);
+  if (!out) return;
+
+  
+  
+  if (sfxSheet.play('ricochet', {
+    dest: out, gain: 0.55, rate: 0.95 + Math.random() * 0.5,
+  })) return;
+
+  const t = ctx.currentTime + 0.004;
+  
+  const d = 0.03;
+  const b = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * d)), ctx.sampleRate);
+  const dat = b.getChannelData(0);
+  for (let i = 0; i < dat.length; i += 1) dat[i] = (Math.random() * 2 - 1) * (1 - i / dat.length) ** 2;
+  const n = ctx.createBufferSource(); n.buffer = b;
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 2600;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.30, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  n.connect(hp); hp.connect(g); g.connect(out);
+  n.start(t); n.stop(t + d + 0.01);
+
+  
+  
+  
+  const base = 1900 + Math.random() * 1500;
+  for (const [mult, gain, dur] of [[1, 0.085, 0.16], [2.41, 0.05, 0.12]]) {
+    const o = ctx.createOscillator(); const og = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(base * mult, t);
+    
+    o.frequency.exponentialRampToValueAtTime(base * mult * 0.88, t + dur);
+    og.gain.setValueAtTime(gain, t);
+    og.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(og); og.connect(out);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
 }
 
 function hitSfx() {
@@ -4126,6 +4344,8 @@ export function boot(canvas, hud) {
   let cable = null;
   let arenaPillars = [];
   let impacts = null;
+  let ricochets = null;
+  let tracers = null;
   let decals = null;
   let liftCar = null;
   let liftDoors = null;
@@ -4204,6 +4424,28 @@ export function boot(canvas, hud) {
   
   const sprintGeo = [];
   for (let i = 0; i < SPRINT_FRAMES; i += 1) sprintGeo.push(bake(walkPose(i / SPRINT_FRAMES, 'sprint')));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const aimGeo = [];
+  for (let i = 0; i < AIM_FRAMES; i += 1) {
+    aimGeo.push(bake({ ...standPose(0), ...aimPose((i / AIM_FRAMES) * (1 / 0.9)) }));
+  }
+  const walkAimGeo = [];
+  for (let i = 0; i < WALK_FRAMES; i += 1) {
+    walkAimGeo.push(bake(aimedGait(
+      walkPose(i / WALK_FRAMES, 'walk'),
+      aimPose((i / WALK_FRAMES) * (1 / 0.9)),
+    )));
+  }
   const fireGeo = [];
   for (let i = 0; i < FIRE_FRAMES; i += 1) {
     fireGeo.push(bake({ ...standPose(0), ...firePose((i / (FIRE_FRAMES - 1)) * FIRE_TIME) }));
@@ -4647,6 +4889,10 @@ export function boot(canvas, hud) {
     
     
     impacts = makeImpacts();
+    ricochets = makeRicochets();
+    tracers = makeTracers();
+    deckGroup.add(ricochets.points);
+    deckGroup.add(tracers.lines);
     deckGroup.add(impacts.points);
     decals = makeDecals();
     deckGroup.add(decals.group);
@@ -5138,6 +5384,9 @@ export function boot(canvas, hud) {
   
   
   const FLASH_WORLD = new THREE.Vector3();
+  let shotEnd = null;
+  
+  const shotStats = { bolts: 0, ricochets: 0, forcedAt: null };
   let flashHeld = false;
   let flashTicks = 0;
   let paIn = 12 + Math.random() * 14;
@@ -5376,6 +5625,10 @@ export function boot(canvas, hud) {
       
       
       
+      shotEnd = null;
+      
+      
+      
       shotSfx();
       shotFlash = 0.06;
       fireT = 0;
@@ -5465,6 +5718,7 @@ export function boot(canvas, hud) {
       
       const SHOT_OVERSHOOT = 1.8;
       const aimDrop = lowNow ? 1.0 : 0.30;
+      let lastAimYaw = player.yaw;
       for (const b of birds) {
         
         
@@ -5512,7 +5766,20 @@ export function boot(canvas, hud) {
         
         
         
-        const aimAt = lowNow ? 0.14 : 0.50;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        const aimAt = lowNow ? legAimHeight(b.kind) : 0.50;
         const tipY = aimAt * bh;
         void aimDrop;
         
@@ -5590,6 +5857,11 @@ export function boot(canvas, hud) {
         const aimYaw = target
           ? Math.atan2(-(aimX - player.x), aimZ - player.z)
           : player.yaw;
+        
+        
+        
+        
+        lastAimYaw = aimYaw;
         const hit = resolveHit(
           b.creature,
           toLocal(player.x, muzzleY, player.z),
@@ -5628,6 +5900,8 @@ export function boot(canvas, hud) {
         
         
         const hy = (hit.z ?? 0.5) * bh;
+        
+        shotEnd = [b.x, Math.max(0.1, hy), b.z];
         impacts.burst(
           b.x, Math.max(0.1, hy), b.z,
           { x: -Math.sin(aimYaw), z: Math.cos(aimYaw) },
@@ -5668,6 +5942,61 @@ export function boot(canvas, hud) {
           if (b.latched) { player.latchedBy = null; player.struggle = null; endGrapple(player.vitals); }
         }
         break;                                        
+      }
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (fireT === 0) {
+        const muzzle = [
+          player.x - Math.sin(player.yaw) * 0.34,
+          lowNow ? 0.72 : 1.16,
+          player.z + Math.cos(player.yaw) * 0.34,
+        ];
+        if (!shotEnd) {
+          
+          
+          
+          
+          
+          
+          const range = player.weapon.spec?.range ?? 18;
+          const dirX = -Math.sin(lastAimYaw);
+          const dirZ = Math.cos(lastAimYaw);
+          let d = 0.4;
+          let wallAt = null;
+          while (d < range) {
+            const px = player.x + dirX * d;
+            const pz = player.z + dirZ * d;
+            if (!insideLevel(deck, px, pz, 0.02)) { wallAt = [px, pz, d]; break; }
+            d += 0.22;
+          }
+          if (wallAt) {
+            
+            
+            
+            const bx = player.x + dirX * (wallAt[2] - 0.22);
+            const bz = player.z + dirZ * (wallAt[2] - 0.22);
+            const acrossX = Math.abs(wallAt[0] - bx) > Math.abs(wallAt[1] - bz);
+            const n = acrossX
+              ? { x: dirX > 0 ? -1 : 1, z: 0 }
+              : { x: 0, z: dirZ > 0 ? -1 : 1 };
+            const wy = muzzle[1] + (0.02 * (Math.random() - 0.5));
+            shotEnd = [wallAt[0], wy, wallAt[1]];
+            if (ricochets) { ricochets.burst(wallAt[0], wy, wallAt[1], { x: dirX, z: dirZ }, n); shotStats.ricochets += 1; }
+            ricochetSfx(wallAt[0], wallAt[1]);
+          } else {
+            shotEnd = [player.x + dirX * range, muzzle[1], player.z + dirZ * range];
+          }
+        }
+        if (tracers) { tracers.fire(muzzle, shotEnd); shotStats.bolts += 1; }
       }
     }
 
@@ -6204,7 +6533,19 @@ export function boot(canvas, hud) {
       lean = -Math.exp(-fireT * 14) * 0.10;      
     } else if (moving || turning || settle > 0) {
       const running = sprintNow && moving;
-      const set = running ? sprintGeo : walkGeo;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const gunUp = !player.dead && !!target && !running;
+      const set = running ? sprintGeo : (gunUp ? walkAimGeo : walkGeo);
       const n = running ? SPRINT_FRAMES : WALK_FRAMES;
       const stride = running ? SPRINT_STRIDE : STRIDE;
       const ph = (walkPhase = (moving || turning)
@@ -6253,6 +6594,17 @@ export function boot(canvas, hud) {
       
       bob = 0;
       lean = running ? 0.16 : 0.05;
+    } else if (!player.dead && !!target) {
+      
+      
+      
+      
+      
+      
+      
+      walkPhase = 0;
+      const fa = Math.floor(now * 9) % AIM_FRAMES;
+      if (xander.geometry !== aimGeo[fa]) xander.geometry = aimGeo[fa];
     } else {
       walkPhase = 0;
       
@@ -6539,6 +6891,8 @@ export function boot(canvas, hud) {
 
     
     if (impacts) impacts.step(dt);
+    if (ricochets) ricochets.step(dt);
+    if (tracers) tracers.step(dt);
     for (const l of leaks) l.step(dt);
     for (const w of wires) w.step(now);
 
@@ -7122,6 +7476,39 @@ export function boot(canvas, hud) {
           solid: solidProps.length,
           litShadows: props.filter((p) => p.mat.opacity > 0.01).length,
         };
+      },
+      
+      
+      
+      
+      
+      
+      poseShot() {
+        const yaw = player.yaw;
+        const dx = -Math.sin(yaw); const dz = Math.cos(yaw);
+        const from = [player.x + dx * 0.34, 1.16, player.z + dz * 0.34];
+        const to = [player.x + dx * 6, 1.06, player.z + dz * 6];
+        if (tracers) { tracers.fire(from, to); tracers.freeze(40); }
+        if (ricochets) ricochets.burst(to[0], to[1], to[2], { x: dx, z: dz }, { x: -dx, z: -dz });
+        return { from, to };
+      },
+      get shots() { return { ...shotStats }; },
+      
+      
+      shootWall() {
+        shotStats.forcedAt = null;
+        const range = player.weapon.spec?.range ?? 18;
+        for (const yaw of [player.yaw, player.yaw + 1.57, player.yaw + 3.14, player.yaw + 4.71]) {
+          const dx = -Math.sin(yaw); const dz = Math.cos(yaw);
+          for (let d2 = 0.4; d2 < range; d2 += 0.22) {
+            if (!insideLevel(deck, player.x + dx * d2, player.z + dz * d2, 0.02)) {
+              player.yaw = yaw;
+              shotStats.forcedAt = d2;
+              return { yaw, dist: d2 };
+            }
+          }
+        }
+        return null;
       },
       get gunSfx() { return { ...gunSfx }; },
       

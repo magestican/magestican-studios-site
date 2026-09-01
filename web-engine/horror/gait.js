@@ -524,6 +524,79 @@ export function standPose(t = 0) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function aimPose(t, base = 0.0) {
+  const breath = Math.sin(t * 0.9 * Math.PI * 2);
+  const sway = Math.sin(t * 1.37 * Math.PI * 2);
+  
+  const dz = breath * 0.008 + sway * 0.004;
+  const dx = sway * 0.006;
+  return {
+    hands: [
+      
+      reachSafe(0.40 + dx, SH - 0.155 + dz + base),
+      
+      reachSafe(0.255 + dx * 0.6, SH - 0.215 + dz * 0.8 + base),
+    ],
+    
+    
+    grip: 'fist',
+    
+    
+    twist: 0.34 + breath * 0.02,
+    lean: 0.012 + breath * 0.006,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function aimedGait(gait, aim) {
+  return {
+    ...gait,
+    hands: aim.hands,
+    grip: aim.grip,
+    twist: aim.twist,
+    lean: gait.lean * 0.35 + aim.lean,
+  };
+}
+
 export function firePose(t, base = 0.0) {
   const kick = Math.exp(-t * 14) * Math.sin(Math.min(t, 0.5) * 46);
   const raise = Math.min(1, t / 0.09);

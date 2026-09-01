@@ -213,6 +213,38 @@ export const BESTIARY = Object.freeze({ chicken, porker, cow });
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function legAimHeight(speciesId) {
+  const spec = BESTIARY[speciesId];
+  if (!spec) return 0.14;
+  const legs = spec.limbs.filter((l) => l.group === 'legs');
+  if (!legs.length) return 0.14;
+  
+  
+  return legs.reduce((a, l) => a + l.y, 0) / legs.length;
+}
+
 export const MOBILITY_GROUPS = Object.freeze(['legs']);
 export const GRAPPLE_GROUPS = Object.freeze(['arms', 'tentacles']);
 export const SENSE_GROUPS = Object.freeze(['head']);
