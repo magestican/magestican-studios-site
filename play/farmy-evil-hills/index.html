@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="e5bc2af-20260901T085422Z">
+<meta name="build" content="d1afe1c-20260901T092337Z">
 <title>Play Farmy Evil Hills — free browser survival horror, no download | Magestican Studios</title>
 <meta name="description" content="Play Farmy Evil Hills free in your browser: PS1-era survival horror on a Space Farming Agency station on Venus. A virus has mutated the livestock. Take a chicken's leg off with a bolt driver, or mash one off your boot when it latches. Phone and desktop. No download, no install, no account.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2305060a'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23b6392c'%3EE%3C/text%3E%3C/svg%3E">
@@ -188,16 +188,78 @@
 
 
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   @media (pointer: coarse), (max-width: 520px) {
     #hint { display: none !important; }
-    #bar { height: 108px; gap: 6px; padding: 0 6px 6px; transform: scale(.86);
-      transform-origin: bottom center; }
+    #bar { height: 104px; gap: 4px; padding: 0 4px 6px; }
+    .screen { padding: 5px 6px 6px; flex: 0 1 auto; min-width: 0; }
+    .screen .lab { font-size: 8px; letter-spacing: .10em; margin-bottom: 3px; }
+    #map { width: 112px !important; height: 72px !important; }
+    #portrait { width: 60px !important; height: 60px !important; }
+    
+
+
+
+
+    #stScreen .row { gap: 3px; margin-bottom: 3px; }
+    #stScreen .row .k { width: 16px; }
+    #stScreen .row .t { width: 56px; }
+    #stScreen .row .v { width: 22px; }
+    
+
+
+
+
+    .screen { flex: 0 0 auto; }
     #stick { bottom: 190px !important; }
     #fireBtn { bottom: 198px !important; }
   }
   
+
+
+  
+
+
+
+  @media (pointer: coarse) and (max-width: 440px), (max-width: 440px) {
+    #bar { gap: 2px; padding: 0 2px 5px; }
+    .screen { padding: 4px 4px 5px; }
+    #map { width: 88px !important; height: 56px !important; }
+    #portrait { width: 42px !important; height: 42px !important; }
+    #stScreen .row .t { width: 44px; }
+    #stScreen .row .v { width: 20px; }
+    .screen .lab { font-size: 7px; letter-spacing: .06em; }
+  }
+  
+
+
+  @media (max-width: 340px) {
+    #map { width: 78px !important; height: 50px !important; }
+    #portrait { width: 34px !important; height: 34px !important; }
+    #stScreen .row .t { width: 38px; }
+    #stScreen .row .k { width: 14px; }
+    #stScreen .row .v { width: 18px; }
+  }
+  
   @media (pointer: coarse) and (max-height: 720px) {
-    #bar { transform: scale(.74); }
+    #bar { height: 92px; }
+    #map { width: 100px !important; height: 64px !important; }
+    #portrait { width: 52px !important; height: 52px !important; }
     #stick { bottom: 168px !important; width: 124px !important; height: 124px !important; }
     #fireBtn { bottom: 176px !important; width: 92px !important; height: 92px !important; }
   }
@@ -342,6 +404,6 @@
   "arbelo/analytics": "../../web-engine/analytics/analytics.js"
 }}
 </script>
-<script type="module" src="./src/main.js?v=e5bc2af-20260901T085422Z"></script>
+<script type="module" src="./src/main.js?v=d1afe1c-20260901T092337Z"></script>
 </body>
 </html>

@@ -46,6 +46,18 @@ export const LIFT = Object.freeze({
   settle: 0.55,
   
   callRadius: 3.2,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  apron: 1.4,
 });
 
 
@@ -199,4 +211,98 @@ export function mapRise(l, deckGap) {
 export function insideCar(car, x, z, pad = 0) {
   return Math.abs(x - car.x) <= LIFT.width / 2 - pad
     && Math.abs(z - car.z) <= LIFT.depth / 2 - pad;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function carBounds(car, pad = 0) {
+  return {
+    x0: car.x - LIFT.width / 2 - pad,
+    x1: car.x + LIFT.width / 2 + pad,
+    z0: car.z - LIFT.depth / 2 - LIFT.apron - pad,
+    z1: car.z + LIFT.depth / 2 + pad,
+  };
+}
+
+
+export function clearOfCar(car, x, z, pad = 0) {
+  const b = carBounds(car, pad);
+  return x < b.x0 || x > b.x1 || z < b.z0 || z > b.z1;
+}
+
+
+
+
+
+
+
+
+
+
+export function keepOut(car, x, z, pad = 0) {
+  if (clearOfCar(car, x, z, pad)) return { x, z, moved: false };
+  const b = carBounds(car, pad);
+  return { x, z: b.z0 - 0.001, moved: true };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function carIsSafe(l, car, x, z) {
+  if (!car) return false;
+  if (!insideCar(car, x, z, -0.15)) return false;
+  return !!l.sealed || l.door <= 0.02;
 }
