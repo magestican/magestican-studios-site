@@ -107,6 +107,7 @@ import { compileMumble, seedOf } from '../../../web-engine/horror/mumble.js';
 import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix } from '../../../web-engine/horror/aimLatch.js';
 import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../../web-engine/horror/intro.js';
 import { isBossDeck, rosterFor, actCardFor } from '../../../web-engine/horror/acts.js';
+import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
@@ -4736,6 +4737,13 @@ export function boot(canvas, hud) {
   
   
   let library = null;
+  
+  
+  
+  let actCardT = 0;
+  let bench = createBench();
+  let workbench = null;
+  let nearBench = false;
 
   
   
@@ -5191,6 +5199,8 @@ export function boot(canvas, hud) {
     
     
     library = null;
+    workbench = null;
+    nearBench = false;
     leaks = [];
     wires = [];
     lockers = [];
@@ -5565,6 +5575,30 @@ export function boot(canvas, hud) {
         solidProps.push({ x: lx, z: lz, r: 0.85 });
         library = { x: lx, z: lz, screen: scr };
       }
+
+      
+      
+      
+      
+      {
+        const near = safeRoom.side > 0 ? safeRoom.x0 : safeRoom.x1;
+        const wx = near + safeRoom.side * 0.55;
+        const wz = safeRoom.z0 + 1.6;
+        const table = paint(new THREE.BoxGeometry(0.6, 0.92, 1.5).toNonIndexed(), 0x525a55);
+        table.position.set(wx, 0.46, wz);
+        deckGroup.add(table);
+        
+        
+        const tool = paint(new THREE.BoxGeometry(0.12, 0.1, 0.9).toNonIndexed(), 0x8a5a3a);
+        tool.position.set(wx - safeRoom.side * 0.08, 0.97, wz - 0.15);
+        tool.rotation.y = 0.35;
+        deckGroup.add(tool);
+        const box2 = paint(new THREE.BoxGeometry(0.28, 0.18, 0.28).toNonIndexed(), 0x3e463f);
+        box2.position.set(wx, 1.01, wz + 0.45);
+        deckGroup.add(box2);
+        solidProps.push({ x: wx, z: wz, r: 0.7 });
+        workbench = { x: wx, z: wz };
+      }
     }
 
     
@@ -5844,8 +5878,16 @@ export function boot(canvas, hud) {
 
     
     
+    bench = stockBench(bench, seed, player.weapon.id);
+
+    
+    
+    
+    const rec = recoveredAt(seed);
+    const recName = rec ? `RECOVERED: ${WEAPONS[rec].name}` : null;
     const card = actCardFor(seed);
-    if (card) { hud.msg(card); actCardT = 5; }
+    const note = card && recName ? `${card}  •  ${recName}` : (card || recName);
+    if (note) { hud.msg(note); actCardT = 5; }
   }
 
   buildWorld(1);
@@ -5891,6 +5933,21 @@ export function boot(canvas, hud) {
   let aimLow = false;
   addEventListener('keydown', (e) => {
     lastInput = 'key';
+    if (e.code === 'KeyE' && nearBench && benchOffers(bench).length) {
+      
+      
+      
+      
+      const takeId = nextOffer(bench, player.weapon.id);
+      const r = benchSwap(bench, player.weapon, takeId);
+      bench = r.bench;
+      player.weapon = r.weapon;
+      const ammoTxt = r.weapon.ammo === Infinity ? '\u221E' : String(r.weapon.ammo);
+      hud.msg(`${r.weapon.spec.name}  \u2022  ${ammoTxt}`);
+      actCardT = 3;
+      sfxSheet.play('settle', { gain: 0.7, rate: 1.3 });
+      return;
+    }
     if (e.code === 'KeyE') {
       
       
@@ -5913,7 +5970,9 @@ export function boot(canvas, hud) {
   });
   addEventListener('keyup', (e) => keys.delete(e.code));
   canvas.addEventListener('pointerdown', (e) => {
-    if (player.struggle) { player.struggle.press('tap'); return; }
+    
+    
+    if (player.struggle && !player.weapon.spec?.breaksGrapple) { player.struggle.press('tap'); return; }
     if (e.button === 2) { aimLow = true; return; }
     fireHeld = true;
   });
@@ -5922,7 +5981,8 @@ export function boot(canvas, hud) {
   
   canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    if (player.struggle) player.struggle.press('tap'); else fireHeld = true;
+    if (player.struggle && !player.weapon.spec?.breaksGrapple) player.struggle.press('tap');
+    else fireHeld = true;
   }, { passive: false });
   canvas.addEventListener('touchend', () => { fireHeld = false; }, { passive: false });
 
@@ -5978,7 +6038,8 @@ export function boot(canvas, hud) {
         e.preventDefault();
         
         
-        if (player.struggle) player.struggle.press('tap'); else fireHeld = true;
+        if (player.struggle && !player.weapon.spec?.breaksGrapple) player.struggle.press('tap');
+        else fireHeld = true;
       };
       fireBtn.addEventListener('touchstart', down, { passive: false });
       fireBtn.addEventListener('touchend', (e) => { e.preventDefault(); fireHeld = false; }, { passive: false });
@@ -6103,7 +6164,7 @@ export function boot(canvas, hud) {
   
   let walkPhase = 0;
   let settle = 0;
-  let actCardT = 0;
+
   let fireT = 99;        
   
   
@@ -6738,7 +6799,12 @@ export function boot(canvas, hud) {
     reachT += dt;
     flinchT += dt;
     tickWeapon(player.weapon, dt);
-    const mayFire = fireHeld && !player.struggle && !player.dead && !hidden;
+    
+    
+    
+    
+    const mayFire = fireHeld && (!player.struggle || player.weapon.spec?.breaksGrapple)
+      && !player.dead && !hidden;
     
     
     
@@ -6747,6 +6813,19 @@ export function boot(canvas, hud) {
     }
     if (mayFire && canFire(player.weapon)) {
       fire(player.weapon);
+      if (player.struggle && player.weapon.spec?.breaksGrapple) {
+        
+        
+        const gb = player.latchedBy;
+        if (gb) {
+          gb.latched = false;
+          gb.kick = 0.6;
+          gb.stagger = Math.max(gb.stagger || 0, 0.9);
+        }
+        player.latchedBy = null;
+        player.struggle = null;
+        endGrapple(player.vitals);
+      }
       
       
       
@@ -8661,6 +8740,8 @@ export function boot(canvas, hud) {
     {
       const nearLib = !!library && !player.dead
         && Math.hypot(player.x - library.x, player.z - library.z) < 1.6;
+      nearBench = !!workbench && !player.dead
+        && Math.hypot(player.x - workbench.x, player.z - workbench.z) < 1.7;
       if (nearLib !== nearLibrary) {
         nearLibrary = nearLib;
         hud.lore(nearLib ? chapterFor(level) : null);
@@ -8929,6 +9010,12 @@ export function boot(canvas, hud) {
         return it ? { x: it.x, z: it.z, taken: it.taken } : null;
       },
       get library() { return library ? { ...library, near: nearLibrary } : null; },
+      get workbench() {
+        return workbench ? {
+          x: workbench.x, z: workbench.z, near: nearBench,
+          offers: benchOffers(bench), carried: player.weapon.id,
+        } : null;
+      },
       
       
       
