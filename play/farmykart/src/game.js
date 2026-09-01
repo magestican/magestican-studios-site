@@ -1089,6 +1089,84 @@ export function createRace(options) {
       }
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const air = standings(progress);
+    const field = air.length;
+    for (let i = 0; i < air.length; i += 1) {
+      const rec = air[i];
+      const r = racers.find((x) => x.id === rec.id);
+      if (!r) continue;
+      if (!r.airship) r.airship = createAirship();
+      const lap = path.length || 1;
+      const me = { place: rec.position, laps: rec.distance / lap, lapFrac: 0 };
+      const aheadRec = air[i - 1] ?? null;
+      const ahead = aheadRec
+        ? { place: aheadRec.position, laps: aheadRec.distance / lap, lapFrac: 0 }
+        : null;
+      const d = stepAirship(r.airship, dt, { me, ahead, field });
+      r.carried = d;
+      if (!d.carrying) { r.airS = null; continue; }
+
+      
+      
+      
+      
+      const top = r.kart.tuning?.topSpeed ?? 30;
+      const v = top * d.speedScale;
+      r.airS = (r.airS ?? r.s) + v * dt;
+      const at = sampleAt(path, r.airS);
+      const heading = Math.atan2(at.tx, at.tz);
+      r.kart = {
+        ...r.kart,
+        x: at.x,
+        z: at.z,
+        y: at.y + carryHeight(d.lift),
+        speed: v,
+        vx: Math.sin(heading) * v,
+        vz: Math.cos(heading) * v,
+        vy: 0,
+        heading,
+        slip: 0,
+        spinTime: 0,
+        
+        
+        
+        invuln: Math.max(r.kart.invuln ?? 0, 0.2),
+      };
+    }
+
+    
+    
+    
+    const lifted = racers.find((x) => x.carried && x.carried.carrying);
+    
+    
+    
+    
+    
+    
+    if (lifted) {
+      updateAirship(airship, lifted.kart, carryHeight(lifted.carried.lift),
+        performance.now() / 1000);
+    }
+    else airship.visible = false;
+
     for (const r of racers) {
       if (r.itemRolling > 0) {
         r.itemRolling -= dt;
@@ -1102,75 +1180,6 @@ export function createRace(options) {
     }
 
     if (consumeItemPress(controls) && you.item && canDrive(flow)) {
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      const air = standings(progress);
-      const field = air.length;
-      for (let i = 0; i < air.length; i += 1) {
-        const rec = air[i];
-        const r = racers.find((x) => x.id === rec.id);
-        if (!r) continue;
-        if (!r.airship) r.airship = createAirship();
-        const lap = path.length || 1;
-        const me = { place: rec.position, laps: rec.distance / lap, lapFrac: 0 };
-        const aheadRec = air[i - 1] ?? null;
-        const ahead = aheadRec
-          ? { place: aheadRec.position, laps: aheadRec.distance / lap, lapFrac: 0 }
-          : null;
-        const d = stepAirship(r.airship, dt, { me, ahead, field });
-        r.carried = d;
-        if (!d.carrying) { r.airS = null; continue; }
-
-        
-        
-        
-        
-        const top = r.kart.tuning?.topSpeed ?? 30;
-        const v = top * d.speedScale;
-        r.airS = (r.airS ?? r.s) + v * dt;
-        const at = sampleAt(path, r.airS);
-        const heading = Math.atan2(at.tx, at.tz);
-        r.kart = {
-          ...r.kart,
-          x: at.x,
-          z: at.z,
-          y: at.y + carryHeight(d.lift),
-          speed: v,
-          vx: Math.sin(heading) * v,
-          vz: Math.cos(heading) * v,
-          vy: 0,
-          heading,
-          slip: 0,
-          spinTime: 0,
-          
-          
-          
-          invuln: Math.max(r.kart.invuln ?? 0, 0.2),
-        };
-      }
-
-      
-      
-      
-      const lifted = racers.find((x) => x.carried && x.carried.carrying);
-      if (lifted) updateAirship(airship, lifted.kart, carryHeight(lifted.carried.lift), now / 1000);
-      else airship.visible = false;
-
       const table = standings(progress);
       const pos = table.find((t) => t.id === you.id)?.position ?? 1;
       useItem(you, pos);
