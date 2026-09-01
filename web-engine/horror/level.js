@@ -234,89 +234,13 @@ export function insideLevel(level, x, z, pad = 0.4) {
 
 
 
-const NO_PROPS = Object.freeze([]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export function clearOfProps(obstacles, x, z) {
-  for (let i = 0; i < obstacles.length; i += 1) {
-    const o = obstacles[i];
-    const dx = x - o.x; const dz = z - o.z;
-    if (dx * dx + dz * dz < o.r * o.r) return false;
-  }
-  return true;
-}
-
-
-
-
-
-
-
-
-export function pushOutOfProps(obstacles, x, z) {
-  let px = x; let pz = z;
-  for (let i = 0; i < obstacles.length; i += 1) {
-    const o = obstacles[i];
-    const dx = px - o.x; const dz = pz - o.z;
-    const d = Math.hypot(dx, dz);
-    if (d >= o.r) continue;
-    
-    
-    
-    if (d < 1e-6) { px = o.x + o.r; pz = o.z; continue; }
-    px = o.x + (dx / d) * o.r;
-    pz = o.z + (dz / d) * o.r;
-  }
-  return { x: px, z: pz };
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export function moveInLevel(level, from, dx, dz, pad = 0.4, obstacles = NO_PROPS) {
-  const ok = (x, z) => insideLevel(level, x, z, pad)
-    && (obstacles.length === 0 || clearOfProps(obstacles, x, z));
+export function moveInLevel(level, from, dx, dz, pad = 0.4) {
   const both = { x: from.x + dx, z: from.z + dz };
-  if (ok(both.x, both.z)) return both;
+  if (insideLevel(level, both.x, both.z, pad)) return both;
   const slideX = { x: from.x + dx, z: from.z };
-  if (ok(slideX.x, slideX.z)) return slideX;
+  if (insideLevel(level, slideX.x, slideX.z, pad)) return slideX;
   const slideZ = { x: from.x, z: from.z + dz };
-  if (ok(slideZ.x, slideZ.z)) return slideZ;
-  
-  
-  
-  if (obstacles.length && !clearOfProps(obstacles, from.x, from.z)) {
-    const out = pushOutOfProps(obstacles, from.x, from.z);
-    if (insideLevel(level, out.x, out.z, pad)) return out;
-  }
+  if (insideLevel(level, slideZ.x, slideZ.z, pad)) return slideZ;
   return { x: from.x, z: from.z };
 }
 

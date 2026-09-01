@@ -123,7 +123,7 @@ import { createHud, updateHud, showBanner, tickBanner, gapText } from './ui/hud.
 import { createMinimap, drawMinimap } from './ui/minimapView.js';
 import { createControls, readControls, consumeItemPress } from './input/controls.js';
 import { createRaceNet } from './net/raceNet.js';
-import { createAudio, resumeAudio, startEngine, updateEngine, stopEngine, SFX, setMuted } from './audio/sfx.js';
+import { createAudio, resumeAudio, startEngine, updateEngine, updateRivals, stopEngine, SFX, setMuted } from './audio/sfx.js';
 import { startMusic, stopMusic, setMusicIntensity, duckMusic } from './audio/music.js';
 import { PALETTE } from './palette.js';
 
@@ -1411,6 +1411,14 @@ export function createRace(options) {
       onRoad: playerSurface ? playerSurface.onRoad : true,
       throttle: controls.throttle ?? 1,
     });
+    
+    
+    
+    
+    
+    updateRivals(audio, you.kart, racers.filter((r) => r !== you).map((r) => ({
+      ...r.kart, id: r.id ?? r.name ?? String(racers.indexOf(r)),
+    })));
 
     const table = standings(progress);
     
@@ -1701,6 +1709,13 @@ export function createRace(options) {
     get contextState() { return ctxState; },
     get frameGuard() { return guard; },
     
+    
+    
+    
+    
+    
+    get audio() { return audio; },
+    
     lightReport() {
       const out = [];
       scene.traverse((o) => {
@@ -1779,7 +1794,12 @@ export function createRace(options) {
       
       if (!unlockZoom) unlockZoom = lockZoom(document);
       resumeAudio(audio);
-      startEngine(audio);
+      
+      
+      
+      
+      
+      startEngine(audio, you.kart?.tuning?.id ?? null);
       
       
       

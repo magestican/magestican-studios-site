@@ -16,6 +16,27 @@
 
 const noteCache = new Map();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import {
+  voiceFor, harmonicsFor, airboxHz, subLevel,
+  firingWobble, lumpHz, lumpDepth, slowDrift, enginePitch,
+} from '../../../../web-engine/audio/engineVoice.js';
+import { rivalMix, MAX_VOICES } from '../../../../web-engine/audio/rivalMix.js';
+
 export function createAudio() {
   return {
     ctx: null,
@@ -264,19 +285,25 @@ export function setMuted(audio, muted) {
 
 
 
-function engineWave(ctx) {
-  const real = new Float32Array(17);
-  const imag = new Float32Array(17);
+function engineWave(ctx, voice) {
   
-  const amps = [0, 1.00, 0.86, 0.28, 0.64, 0.47, 0.16, 0.22, 0.19,
-    0.13, 0.11, 0.08, 0.09, 0.05, 0.06, 0.04, 0.05];
+  
+  
+  
+  const amps = harmonicsFor(voice);
+  const real = new Float32Array(amps.length);
+  const imag = new Float32Array(amps.length);
   for (let i = 1; i < amps.length; i += 1) imag[i] = amps[i];
   return ctx.createPeriodicWave(real, imag, { disableNormalization: false });
 }
 
-export function startEngine(audio) {
+export function startEngine(audio, characterId = null) {
   if (!audio.ctx || audio.engine) return;
   const ctx = audio.ctx;
+  
+  
+  
+  const voice = voiceFor(characterId);
   const out = ctx.createGain();
   out.gain.value = 0;
   out.connect(audio.master);
@@ -292,7 +319,11 @@ export function startEngine(audio) {
 
   const body = ctx.createBiquadFilter();
   body.type = 'peaking';
-  body.frequency.value = 320;
+  
+  
+  
+  
+  body.frequency.value = airboxHz(voice);
   body.Q.value = 2.4;
   body.gain.value = 9;
   body.connect(out);
@@ -304,7 +335,7 @@ export function startEngine(audio) {
   filter.Q.value = 1.1;
   filter.connect(body);
 
-  const wave = engineWave(ctx);
+  const wave = engineWave(ctx, voice);
   
   
   
@@ -326,7 +357,9 @@ export function startEngine(audio) {
   sub.type = 'sine';
   sub.frequency.value = 30;
   const subGain = ctx.createGain();
-  subGain.gain.value = 0.5;
+  
+  
+  subGain.gain.value = subLevel(voice);
   sub.connect(subGain).connect(filter);
   sub.start();
 
@@ -376,6 +409,14 @@ export function startEngine(audio) {
   audio.engine = {
     out, filter, body, oscA, oscB, sub, subGain,
     lump, lumpDepth, noiseGain, noiseFilter, whine, whineGain,
+    
+    
+    
+    
+    
+    voice,
+    startedAt: ctx.currentTime,
+    baseAirbox: airboxHz(voice),
   };
 }
 
@@ -399,16 +440,20 @@ export function updateEngine(audio, kart, { onRoad = true, throttle = 1 } = {}) 
   const top = kart.tuning?.topSpeed ?? 30;
   const frac = Math.min(1.35, speed / top);
 
-  const GEARS = 4;
-  const gearSpan = 1 / GEARS;
-  const gear = Math.min(GEARS - 1, Math.floor(frac / gearSpan));
-  const withinGear = (frac - gear * gearSpan) / gearSpan;
-  const revs = 0.35 + withinGear * 0.65;
-
-  const base = 58 + revs * 118 + gear * 9;
+  
+  
+  
+  
+  const voice = e.voice;
+  const { hz: base, revs } = enginePitch(voice, frac);
   e.oscA.frequency.setTargetAtTime(base, t, 0.045);
   e.oscB.frequency.setTargetAtTime(base * 1.007, t, 0.045);
   e.sub.frequency.setTargetAtTime(base * 0.5, t, 0.05);
+
+  
+  
+  
+  const age = t - e.startedAt;
 
   
   
@@ -423,8 +468,26 @@ export function updateEngine(audio, kart, { onRoad = true, throttle = 1 } = {}) 
   e.body.gain.setTargetAtTime(4 + open * 7, t, 0.08);
   
   
-  e.lumpDepth.gain.setTargetAtTime(0.22 * (1 - Math.min(1, revs)) + 0.02, t, 0.1);
-  e.lump.frequency.setTargetAtTime(7 + revs * 16, t, 0.1);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const wobble = firingWobble(voice, age, revs);
+  e.lumpDepth.gain.setTargetAtTime(lumpDepth(voice, revs) * (0.55 + wobble * 0.9), t, 0.09);
+  e.lump.frequency.setTargetAtTime(lumpHz(voice, revs) * (0.85 + wobble * 0.3), t, 0.1);
+
+  
+  
+  
+  
+  e.body.frequency.setTargetAtTime(e.baseAirbox * slowDrift(age), t, 0.3);
 
   const load = kart.spinTime > 0 ? 0.06 : 0.05 + Math.min(0.16, frac * 0.18);
   e.out.gain.setTargetAtTime(audio.muted ? 0 : load * (0.55 + open * 0.45), t, 0.08);
@@ -457,11 +520,149 @@ export function stopEngine(audio) {
     e.oscA.stop(); e.oscB.stop();
   } catch {  }
   audio.engine = null;
+  stopRivals(audio);
   
   
   
   
   stopRailLoop(audio);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function rivalWave(audio, id) {
+  if (!audio.rivalWaves) audio.rivalWaves = new Map();
+  let w = audio.rivalWaves.get(id);
+  if (!w) {
+    const amps = harmonicsFor(voiceFor(id));
+    const real = new Float32Array(amps.length);
+    const imag = new Float32Array(amps.length);
+    for (let i = 1; i < amps.length; i += 1) imag[i] = amps[i];
+    w = audio.ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+    audio.rivalWaves.set(id, w);
+  }
+  return w;
+}
+
+function buildRivalPool(audio) {
+  const ctx = audio.ctx;
+  const slots = [];
+  for (let i = 0; i < MAX_VOICES; i += 1) {
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+    
+    
+    
+    
+    const pan = ctx.createStereoPanner();
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 900;
+    filter.Q.value = 0.9;
+    const osc = ctx.createOscillator();
+    osc.frequency.value = 90;
+    osc.connect(filter).connect(gain).connect(pan).connect(audio.master);
+    osc.start();
+    slots.push({ osc, filter, gain, pan, id: null, character: null });
+  }
+  return { slots, voiced: [] };
+}
+
+
+
+
+
+
+
+export function updateRivals(audio, listener, rivals) {
+  if (!audio.ctx || !audio.master) return;
+  if (!audio.rivals) audio.rivals = buildRivalPool(audio);
+  const pool = audio.rivals;
+  const t = audio.ctx.currentTime;
+
+  
+  const shaped = [];
+  for (const k of rivals || []) {
+    if (!k) continue;
+    shaped.push({
+      id: k.id ?? k.racerId ?? k.tuning?.id,
+      pos: { x: k.x, z: k.z },
+      speed: k.speed,
+      tuning: k.tuning,
+      character: k.tuning?.id ?? null,
+    });
+  }
+  const listen = { pos: { x: listener.x, z: listener.z }, heading: listener.heading ?? 0 };
+  const mix = rivalMix(listen, shaped, pool.voiced);
+  pool.voiced = mix.map((m) => m.id);
+
+  const byId = new Map(shaped.map((k) => [k.id, k]));
+  for (let i = 0; i < pool.slots.length; i += 1) {
+    const slot = pool.slots[i];
+    const m = mix[i];
+    if (!m) {
+      
+      
+      
+      slot.gain.gain.setTargetAtTime(0, t, 0.12);
+      slot.id = null;
+      continue;
+    }
+    const kart = byId.get(m.id);
+    const character = kart?.character ?? null;
+    
+    
+    if (character !== slot.character) {
+      slot.osc.setPeriodicWave(rivalWave(audio, character));
+      slot.character = character;
+    }
+    slot.id = m.id;
+
+    const voice = voiceFor(character);
+    const { hz, revs } = enginePitch(voice, m.frac);
+    slot.osc.frequency.setTargetAtTime(hz, t, 0.08);
+    slot.filter.frequency.setTargetAtTime(500 + revs * 1600, t, 0.1);
+    slot.pan.pan.setTargetAtTime(m.pan, t, 0.09);
+    
+    
+    slot.gain.gain.setTargetAtTime(audio.muted ? 0 : m.gain * 0.055, t, 0.1);
+  }
+}
+
+
+export function stopRivals(audio) {
+  const pool = audio.rivals;
+  if (!pool) return;
+  for (const slot of pool.slots) {
+    try { slot.osc.stop(); } catch {  }
+  }
+  audio.rivals = null;
+  
+  
+  audio.rivalWaves = null;
 }
 
 
