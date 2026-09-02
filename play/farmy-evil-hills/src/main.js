@@ -10829,6 +10829,7 @@ export function boot(canvas, hud) {
       get injury() { return injuryDbg; },
       get liftForced() { return liftForced; },
       beginEntrance(i) { return beginEntrance(i); },
+      get litter() { return debrisPool.filter((d) => d.live && d.settled).length; },
       get director() {
         return director ? { budget: director.budget, fired: director.fired, cooldown: +director.cooldown.toFixed(1) } : null;
       },
