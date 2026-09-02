@@ -112,6 +112,9 @@ import { isBossDeck, rosterFor, actCardFor, actFor } from '../../../web-engine/h
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
 import { INJURY, isInjured, isDanger, nextStumbleAt, wallSupport } from '../../../web-engine/horror/injury.js';
 import { getUpAt, restTravel, restPose } from '../../../web-engine/horror/groundPoses.js';
+import {
+  ACCESS_KEYS, resolveAccess, shakeScale, flashScale, flashGap, struggleMode, textScale,
+} from '../../../web-engine/horror/access.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
@@ -6223,6 +6226,7 @@ export function boot(canvas, hud) {
   let bankRoll = 0;
   let flinchSide = 1;
   let lastPosedFeet = null;
+  let lastFlashAt = -99;
   let stumbleAt = nextStumbleAt(0);
   let stumbleT = -1;
   let walkedTotal = 0;
@@ -6356,6 +6360,15 @@ export function boot(canvas, hud) {
   
   
   const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  
+  
+  
+  let access = resolveAccess(loadAccess(), { prefersReducedMotion: !!calm });
+  const applyAccess = () => {
+    const el = document.getElementById('vox');
+    if (el) el.style.setProperty('--voxScale', String(textScale(access)));
+  };
+  applyAccess();
   const tmpV = new THREE.Vector3();
   const reticEl = document.getElementById('retic');
   const gradeEl = document.getElementById('grade');
@@ -7617,6 +7630,7 @@ export function boot(canvas, hud) {
       
       shotSfx();
       shotFlash = 0.06;
+      lastFlashAt = now;
       fireT = 0;
       
       
@@ -8339,7 +8353,14 @@ export function boot(canvas, hud) {
         
         
         
-        player.struggle = createStruggle({ verb: VERB_FOR[b.kind] ?? VERB_FOR.chicken ?? 'mash', mode: 'reduced' });
+        
+        
+        
+        
+        player.struggle = createStruggle({
+          verb: VERB_FOR[b.kind] ?? VERB_FOR.chicken ?? 'mash',
+          mode: struggleMode(access, 'reduced'),
+        });
         shake = Math.max(shake, 0.55);
         hitSfx();
         beginGrapple(player.vitals, b.kind);
@@ -8550,7 +8571,10 @@ export function boot(canvas, hud) {
     
     if (player.struggle) shake = Math.min(0.9, Math.max(shake, player.struggle.progress * 0.25 + 0.35));
     shake = Math.max(0, shake - dt * 1.9);
-    const sx = shake ? (Math.random() - 0.5) * shake * 0.34 : 0;
+    
+    
+    const shakeK = shakeScale(access);
+    const sx = shake ? (Math.random() - 0.5) * shake * 0.34 * shakeK : 0;
     const sy = shake ? (Math.random() - 0.5) * shake * 0.28 : 0;
     camera.position.set(place.eye.x + sx, place.eye.y + sy, place.eye.z);
     camera.lookAt(place.target.x + sx * 0.4, place.target.y + sy * 0.4, place.target.z);
@@ -9455,7 +9479,8 @@ export function boot(canvas, hud) {
     sparkFlash = Math.max(0, sparkFlash - dt);
     
     
-    sparkPt.material.opacity = sparkFlash > 0 ? (Math.random() > 0.35 ? 0.95 : 0.2) : 0;
+    sparkPt.material.opacity = sparkFlash > 0
+      ? (Math.random() > 0.35 ? 0.95 : 0.2) * flashScale(access) : 0;
     
     
     if (sparkFlash > 0 && sparkGeo) {
@@ -9953,6 +9978,9 @@ export function boot(canvas, hud) {
 
     renderer.render(scene, camera);
     shotFlash = Math.max(0, shotFlash - dt);
+    
+    
+    const flashK = flashScale(access);
     hud.paint({
       health: player.vitals.health,
       maxHealth: MAX_HEALTH,
@@ -9964,7 +9992,7 @@ export function boot(canvas, hud) {
       ammo: player.weapon.ammo,
       range: Math.round(player.weapon.spec?.range ?? 0),
       ep: 100 - Math.min(100, level * 6),
-      flash: shotFlash > 0,
+      flash: shotFlash > 0 && flashK > 0.3 && (now - lastFlashAt) >= flashGap(access),
       bark: currentBark(barks),
     });
     requestAnimationFrame(step);
@@ -9994,6 +10022,14 @@ export function boot(canvas, hud) {
   
   return {
     beginIntro,
+    
+    setAccess(patch) {
+      access = resolveAccess({ ...access, ...patch }, { prefersReducedMotion: !!calm });
+      saveAccess(access);
+      applyAccess();
+      return { ...access };
+    },
+    getAccess() { return { ...access }; },
     introActive: () => !!(intro && !intro.done),
     player, birds, touch, faces, head: xHead, neck,
     
@@ -10548,6 +10584,7 @@ export function boot(canvas, hud) {
       
       
       say(trigger) { const l = say(barks, trigger, { force: true }); return l ? l.id : null; },
+      get access() { return { ...access, shake: shakeScale(access), flash: flashScale(access) }; },
       get body() {
         return {
           talking: talkT >= 0, fidget: fidgetT >= 0 ? fidgetWhich : -1,
@@ -10905,6 +10942,16 @@ function mumbleSay(text) {
     try { out.gain.setValueAtTime(0, ctx.currentTime); } catch {  }
   };
   return total;
+}
+
+
+
+
+function loadAccess() {
+  try { return JSON.parse(localStorage.getItem('feh.access') || 'null'); } catch { return null; }
+}
+function saveAccess(a) {
+  try { localStorage.setItem('feh.access', JSON.stringify(a)); } catch {  }
 }
 
 function paVoice(kind) {
@@ -11340,6 +11387,25 @@ function start() {
       if (api.beginIntro) {
         $('boot').style.display = 'none';
         api.beginIntro(() => { $('boot').style.display = ''; });
+      }
+      
+      
+      
+      
+      {
+        const boxes = {
+          reducedMotion: $('acReduced'), noFlash: $('acFlash'),
+          holdStruggle: $('acHold'), bigText: $('acText'),
+        };
+        const cur = api.getAccess ? api.getAccess() : {};
+        for (const k of ACCESS_KEYS) {
+          const box = boxes[k];
+          if (!box) continue;
+          box.checked = !!cur[k];
+          box.addEventListener('change', () => {
+            if (api.setAccess) api.setAccess({ [k]: box.checked });
+          });
+        }
       }
       $('startBtn').addEventListener('click', go);
       $('boot').addEventListener('click', go);
