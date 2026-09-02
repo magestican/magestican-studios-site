@@ -4854,6 +4854,8 @@ export function boot(canvas, hud) {
   let entrances = [];
   let debrisPool = [];
   let director = null;
+  let openingPending = [];
+  let openingCooldown = 0;
   let bench = createBench();
   let workbench = null;
   let nearBench = false;
@@ -5397,6 +5399,7 @@ export function boot(canvas, hud) {
       latched: false,
       cool: 0,
     });
+    return birds[birds.length - 1];
   }
 
   
@@ -6069,9 +6072,17 @@ export function boot(canvas, hud) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    const openingBreach = [];
     deck.runs.forEach((run, i) => {
       if (run.axis !== 'x' || i < plan.porkerFromCorner) return;
-      addChicken(run.z1, (run.x0 + run.x1) / 2, 'porker');
+      openingBreach.push('porker');
     });
 
     
@@ -6084,14 +6095,11 @@ export function boot(canvas, hud) {
     
     
     {
-      const zRuns = deck.runs.filter((r) => r.axis === 'z');
-      const last = zRuns[zRuns.length - 1];
-      addChicken(last.z0 + (last.z1 - last.z0) * 0.45, last.x0, 'cow');
       
       
-      if (plan.cows >= 2 && zRuns.length > 2) {
-        const mid = zRuns[Math.floor(zRuns.length / 2) - 1];
-        addChicken(mid.z0 + (mid.z1 - mid.z0) * 0.5, mid.x0, 'cow');
+      openingBreach.push('cow');
+      if (plan.cows >= 2 && deck.runs.filter((r) => r.axis === 'z').length > 2) {
+        openingBreach.push('cow');
       }
     }
     
@@ -6127,6 +6135,8 @@ export function boot(canvas, hud) {
     
     
     director = null;
+    openingPending = [];
+    openingCooldown = 0;
     if (!isBoss) {
       const gs = gatesFor(deck, seed, { act: actFor(seed) });
       for (const g of gs) {
@@ -6188,6 +6198,23 @@ export function boot(canvas, hud) {
         }
         deckGroup.add(gg);
       }
+      
+      
+      
+      
+      
+      openingPending = [];
+      {
+        const spare = gateMeshes
+          .map((m, gi) => ({ m, gi }))
+          .filter((x) => x.m.gate.kind !== 'drop')
+          .sort((a, b) => (a.m.gate.kind === 'breach' ? -1 : 1) - (b.m.gate.kind === 'breach' ? -1 : 1));
+        openingBreach.forEach((species, k) => {
+          const slot = spare[k];
+          if (slot) openingPending.push({ gi: slot.gi, species, gate: slot.m.gate });
+        });
+      }
+
       
       
       
@@ -7287,21 +7314,23 @@ export function boot(canvas, hud) {
   
   
   
-  function beginEntrance(gateIdx) {
+  function beginEntrance(gateIdx, speciesOverride) {
     const gm = gateMeshes[gateIdx];
     if (!gm || gm.opened) return false;
-    const kind = gm.gate.kind === 'duct' ? 'chicken' : 'porker';
-    const b = birds.find((q) => !q.alive && q.mesh);
-    if (!b) return false;
+    
+    
+    
+    
+    
+    
+    
+    const kind = speciesOverride || (gm.gate.kind === 'duct' ? 'chicken' : 'porker');
     const inWall = emergeAt(gm.gate, 0);
-    b.alive = true;
-    b.kind = kind;
-    b.latched = false;
-    b.kick = 0;
-    b.burn = null;
-    b.x = inWall.x; b.z = inWall.z;
+    const b = addChicken(inWall.z, inWall.x, kind);
+    if (!b) return false;
     b.homeX = gm.gate.x + gm.gate.nx * 2; b.homeZ = gm.gate.z + gm.gate.nz * 2;
     b.mesh.visible = false;   
+    if (b.shade) b.shade.visible = false;
     b.entering = true;
     entrances.push({ e: createEntrance(gm.gate.kind), gm, b, telegraphSfxT: 0 });
     return true;
@@ -7819,6 +7848,7 @@ export function boot(canvas, hud) {
             deckGroup.add(chole);
           }
           en.b.mesh.visible = true;
+          if (en.b.shade) en.b.shade.visible = true;
         }
         if (en.e.phase === 'emerge' || en.e.event === 'emerged') {
           const p2 = emergeAt(g, en.e.phase === 'emerge' ? en.e.k : 1);
@@ -7893,6 +7923,41 @@ export function boot(canvas, hud) {
       director = r.d;
       if (r.fire >= 0) beginEntrance(r.fire);
     }
+    
+    
+    
+    
+    
+    
+    openingCooldown = Math.max(0, openingCooldown - dt);
+    if (openingPending.length && !player.dead && openingCooldown <= 0) {
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const atLift = liftCar && Math.hypot(player.x - liftCar.x, player.z - liftCar.z) < 7;
+      const idx = (inSafe || atLift || player.struggle) ? -1 : openingPending.findIndex((op) => {
+        const gm = gateMeshes[op.gi];
+        if (!gm || gm.opened) return false;
+        const d2 = Math.hypot(gm.gate.x - player.x, gm.gate.z - player.z);
+        return d2 < 11 && d2 > 8;
+      });
+      if (idx >= 0 && entrances.length < 2) {
+        beginEntrance(openingPending[idx].gi, openingPending[idx].species);
+        openingPending.splice(idx, 1);
+        openingCooldown = 5;
+      }
+    }
+    openingPending = openingPending.filter((op) => {
+      const gm = gateMeshes[op.gi];
+      return gm && !gm.opened;
+    });
 
     
     
@@ -8970,9 +9035,25 @@ export function boot(canvas, hud) {
     
     
     
-    camera.fov = (navigator.maxTouchPoints > 1 || touch.active)
-      ? Math.max(place.fov, 90) : place.fov;
+    const wideLens = navigator.maxTouchPoints > 1 || touch.active;
+    camera.fov = wideLens ? Math.max(place.fov, 90) : place.fov;
     camera.updateProjectionMatrix();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (wideLens && place.fov <= 64 && !intro) {
+      const headroom = 1.15;
+      const drop = Math.max(0, (HALL_H - place.eye.y) < headroom ? headroom - (HALL_H - place.eye.y) : 0);
+      place.eye = { ...place.eye, y: place.eye.y - drop };
+    }
     
     if (player.struggle) shake = Math.min(0.9, Math.max(shake, player.struggle.progress * 0.25 + 0.35));
     shake = Math.max(0, shake - dt * 1.9);
@@ -10401,20 +10482,42 @@ export function boot(canvas, hud) {
       const fx = place.target.x - place.eye.x;
       const fz = place.target.z - place.eye.z;
       const fm = Math.hypot(fx, fz) || 1;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      let cullR = 2.9;
+      if (camera.fov > 70) {
+        const dh = HALL_H - place.eye.y;
+        const pitch = Math.atan2(place.eye.y - place.target.y, fm);
+        const halfV = (camera.fov * Math.PI / 180) / 2;
+        const cone = halfV - pitch;
+        const dNear = cone > 0.05 ? dh / Math.tan(cone) : 0;
+        cullR = Math.max(2.9, dNear + 2.2);
+      }
       for (const c of ceilingPieces) {
         const ox = c.position.x - place.eye.x;
         const oz = c.position.z - place.eye.z;
         const ahead = (ox * fx + oz * fz) / fm;
         const flat = Math.hypot(ox, oz);
-        
-        
-        
-        
-        
-        
-        
-        
-        c.visible = !(flat < 2.9 || (ahead < 1.1 && flat < 3.4));
+        c.visible = !(flat < cullR || (ahead < 1.1 && flat < cullR + 0.5));
       }
     }
 
@@ -10828,8 +10931,14 @@ export function boot(canvas, hud) {
       get gunVisible() { return gun.visible; },
       get injury() { return injuryDbg; },
       get liftForced() { return liftForced; },
-      beginEntrance(i) { return beginEntrance(i); },
+      beginEntrance(i, species) { return beginEntrance(i, species); },
+      
+      
+      
+      clearOpeningPending() { const n = openingPending.length; openingPending = []; return n; },
       get litter() { return debrisPool.filter((d) => d.live && d.settled).length; },
+      camFov() { return camera.fov; },
+      ceilVis() { let v = 0; for (const c of ceilingPieces) if (c.visible) v += 1; return { visible: v, total: ceilingPieces.length }; },
       get director() {
         return director ? { budget: director.budget, fired: director.fired, cooldown: +director.cooldown.toFixed(1) } : null;
       },
