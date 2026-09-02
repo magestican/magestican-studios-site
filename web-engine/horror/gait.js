@@ -343,6 +343,13 @@ function reachSafe(x, y) {
 
 
 
+export function reachGuard(x, y) {
+  return reachFrom(x, y, SH);
+}
+
+
+
+
 
 
 
@@ -1020,4 +1027,65 @@ export function settleStep(phase, settle, dt) {
   if (step >= togo - CONTACT_EPS) return { phase: wrap(next), settle: 0, done: true };
   const left = Math.max(0, settle - dt);
   return { phase: wrap(p0 + step), settle: left, done: left <= 0 };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function woundedGait(gait, wallward = false) {
+  return {
+    ...gait,
+    hands: [
+      
+      
+      wallward
+        ? reachSafe(0.33, SH + 0.10)
+        : reachSafe(gait.hands[0][0] * 0.35, gait.hands[0][1]),
+      
+      
+      reachSafe(0.10, SH - 0.28),
+    ],
+    grip: 'open',
+    
+    
+    lean: (gait.lean ?? 0) + 0.10,
+    twist: (gait.twist ?? 0) + (wallward ? 0.14 : 0.04),
+    
+    squash: (gait.squash ?? 1) * 0.97,
+  };
+}
+
+
+
+
+
+
+export function wallLeanPose(t) {
+  const b = Math.sin(t * 0.9 * Math.PI * 2) * 0.008;
+  const s = Math.sin(t * 1.37 * Math.PI * 2) * 0.005;
+  return {
+    hands: [
+      reachSafe(0.30, SH + 0.14 + b),          
+      reachSafe(0.09, SH - 0.29 + s),           
+    ],
+    feet: [[-0.02, 0], [0.14, 0]],
+    toe: [0, 0.05],
+    grip: 'open',
+    twist: 0.22,
+    air: 0,
+    squash: 0.955 + b,
+    lean: 0.08,
+  };
 }

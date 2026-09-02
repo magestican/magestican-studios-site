@@ -26,6 +26,7 @@ import * as THREE from 'three';
 import { solve, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
 import {
   gaitPose, firePose, strugglePose, deathPose, standPose, gripOf, cycleTravel, settleStep, SETTLE_TIME, aimPose, aimedGait,
+  woundedGait, wallLeanPose,
   kickPose, KICK_TIME, flinchAdd, FLINCH_TIME, turnStep, TURN_RATE_MIN, reachPose, REACH_TIME,
 } from '../../../web-engine/horror/gait.js';
 
@@ -108,6 +109,8 @@ import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix }
 import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../../web-engine/horror/intro.js';
 import { isBossDeck, rosterFor, actCardFor, actFor } from '../../../web-engine/horror/acts.js';
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
+import { INJURY, isInjured, wallSupport } from '../../../web-engine/horror/injury.js';
+import { getUpAt } from '../../../web-engine/horror/groundPoses.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
@@ -4856,9 +4859,39 @@ export function boot(canvas, hud) {
   }
   
   
+  
+  
+  
+  
+  const woundedWalkGeo = [];
+  const woundedWallWalkGeo = [];
+  for (let i = 0; i < WALK_FRAMES; i += 1) {
+    woundedWalkGeo.push(bake(woundedGait(walkPose(i / WALK_FRAMES, 'walk'), false)));
+    woundedWallWalkGeo.push(bake(woundedGait(walkPose(i / WALK_FRAMES, 'walk'), true)));
+  }
+  const WALLLEAN_FRAMES = 10;
+  const wallLeanGeo = [];
+  for (let i = 0; i < WALLLEAN_FRAMES; i += 1) {
+    wallLeanGeo.push(bake(wallLeanPose((i / WALLLEAN_FRAMES) * (1 / 0.9))));
+  }
+  
+  
+  
+  const GETUP_FRAMES = 14;
+  const getUpGeo = [];
+  const getUpPitch = [];
+  const getUpLift = [];
+  for (let i = 0; i < GETUP_FRAMES; i += 1) {
+    const gu = getUpAt(i / (GETUP_FRAMES - 1));
+    getUpGeo.push(bake(gu.pose));
+    getUpPitch.push(gu.pitch);
+    getUpLift.push(gu.lift);
+  }
   const idleGeo = [];
+  const woundedIdleGeo = [];
   for (let i = 0; i < IDLE_FRAMES; i += 1) {
     idleGeo.push(bake(standPose((i / (IDLE_FRAMES - 1)) * (Math.PI / 0.9))));
+    woundedIdleGeo.push(bake(woundedGait(standPose((i / (IDLE_FRAMES - 1)) * (Math.PI / 0.9)))));
   }
   const xGeo = idleGeo[0];
 
@@ -5909,6 +5942,11 @@ export function boot(canvas, hud) {
     if (note) { hud.msg(note); actCardT = 5; }
   }
 
+  
+  
+  
+  
+  player.vitals.health = MAX_HEALTH * INJURY.startHealthFrac;
   buildWorld(1);
 
   
@@ -6113,6 +6151,8 @@ export function boot(canvas, hud) {
   let aimLatch = createAimLatch();
   let walkArmsShown = false;
   let wasGaitBranch = false;
+  let wallRoll = 0;
+  let injuryDbg = { injured: false, wall: null, touch: false, leanClose: false };
   let bossMoved = 0;
   let bossWonIn = 0;
   let bossHorseSpeed = 0;
@@ -6821,12 +6861,14 @@ export function boot(canvas, hud) {
         
         
         
+        
         const o = INTRO_SET.wreck;
+        const gu0 = getUpAt(0);
         xRig.visible = true;
-        xRig.position.set(o.x + 2.4, 0, o.z + 1.4);
+        xRig.position.set(o.x + 2.4, gu0.lift * XANDER_H, o.z + 1.4);
         xRig.rotation.y = 0.6;
-        xRig.rotation.x = -1.25;
-        xander.geometry = deathGeo[DEATH_FRAMES - 1];
+        xRig.rotation.x = gu0.pitch;
+        xander.geometry = getUpGeo[0];
       }
       if (e.shotId === 'transit' || e.shotId === 'crash') xRig.visible = false;
       if (e.shotId === 'transit' && !introBed) {
@@ -6895,6 +6937,7 @@ export function boot(canvas, hud) {
     introStage = null; introRefs = null; introActs = null;
     if (introBed) { introBed.stop(); introBed = null; }
     xRig.rotation.x = 0;
+    xRig.position.y = 0;
     const el = document.getElementById('vox');
     if (el) { el.textContent = ''; el.classList.remove('pa'); }
     xRig.visible = true;
@@ -7109,19 +7152,21 @@ export function boot(canvas, hud) {
       }
       if (introActs.rise >= 0) {
         introActs.rise += dt;
-        const RISE_T = 3.4;
+        
+        
+        
+        
+        const RISE_T = 4.6;
         if (introActs.rise < RISE_T) {
-          
-          
-          
-          
-          const u = 1 - (introActs.rise / RISE_T);
-          const fd = Math.min(DEATH_FRAMES - 1, Math.floor(u * DEATH_FRAMES));
-          if (xander.geometry !== deathGeo[fd]) xander.geometry = deathGeo[fd];
-          const up = Math.min(1, introActs.rise / (RISE_T * 0.55));
-          xRig.rotation.x = -1.25 * (1 - up * up * (3 - 2 * up));
+          const u = introActs.rise / RISE_T;
+          const gu = getUpAt(u);
+          const fd = Math.min(GETUP_FRAMES - 1, Math.floor(u * GETUP_FRAMES));
+          if (xander.geometry !== getUpGeo[fd]) xander.geometry = getUpGeo[fd];
+          xRig.rotation.x = gu.pitch;
+          xRig.position.y = gu.lift * XANDER_H;
         } else if (!(introActs.step >= 0 && introActs.step < 0.9)) {
           xRig.rotation.x = 0;
+          xRig.position.y = 0;
           const span = IDLE_FRAMES * 2 - 2;
           const k = Math.floor((now / IDLE_TIME) * span) % span;
           const fi = k < IDLE_FRAMES ? k : span - k;
@@ -7233,7 +7278,8 @@ export function boot(canvas, hud) {
         moveBasis = { fx: f.x / m, fz: f.z / m, rx: -f.z / m, rz: f.x / m };
       }
 
-      const slow = player.latchedBy ? (1 - CHICKEN_LATCH_SLOW) : 1;
+      const slow = (player.latchedBy ? (1 - CHICKEN_LATCH_SLOW) : 1)
+        * (isInjured(player.vitals.health, MAX_HEALTH) ? INJURY.moveScale : 1);
       
       
       
@@ -7290,7 +7336,7 @@ export function boot(canvas, hud) {
       walkDist += Math.hypot(dx, dz) * speed * dt;
 
       const mode = player.struggle ? 'walk' : (sprint && pressing ? 'sprint' : 'walk');
-      tickVitals(player.vitals, dt, mode);
+      tickVitals(player.vitals, dt, mode, INJURY.enemyDamageScale);
     }
 
     
@@ -7301,6 +7347,29 @@ export function boot(canvas, hud) {
     
     
     
+    
+    
+    
+    const injuredNow = !player.dead && isInjured(player.vitals.health, MAX_HEALTH);
+    const wall = injuredNow && deck ? wallSupport(deck, player.x, player.z) : null;
+    const wallTouch = !!wall && wall.dist <= INJURY.touchReach;
+    const wallLeanClose = !!wall && wall.dist <= INJURY.leanReach;
+    {
+      
+      
+      
+      const fx2 = -Math.sin(player.yaw);
+      const fz2 = Math.cos(player.yaw);
+      const side2 = wall ? (Math.sign(wall.dx * fz2 - wall.dz * fx2) || 1) : 0;
+      const rollTarget = (injuredNow && (wallTouch || wallLeanClose)) ? side2 * 0.085 : 0;
+      wallRoll += (rollTarget - wallRoll) * Math.min(1, dt * 6);
+      injuryDbg = {
+        injured: injuredNow,
+        wall: wall ? { dist: +wall.dist.toFixed(2), side: side2 } : null,
+        touch: wallTouch, leanClose: wallLeanClose,
+      };
+    }
+
     
     
     
@@ -7997,7 +8066,7 @@ export function boot(canvas, hud) {
         
         if (!fight.dead && dist < 1.3 && !player.dead && b.cool <= 0) {
           b.cool = 1.6;
-          player.vitals.health -= 16;
+          player.vitals.health -= 16 * INJURY.enemyDamageScale;
           shake = Math.max(shake, 0.8);
           hitSfx();
         }
@@ -8478,8 +8547,14 @@ export function boot(canvas, hud) {
       
       
       
-      const set = useShuffle ? shuffleGeo
-        : (running ? sprintGeo : (walkArmsShown ? walkAimGeo : walkGeo));
+      
+      
+      
+      
+      const woundedSet = injuredNow && !running && !walkArmsShown && !useShuffle
+        ? (wallTouch ? woundedWallWalkGeo : woundedWalkGeo) : null;
+      const set = woundedSet || (useShuffle ? shuffleGeo
+        : (running ? sprintGeo : (walkArmsShown ? walkAimGeo : walkGeo)));
       const n = useShuffle ? SHUFFLE_FRAMES
         : (running ? SPRINT_FRAMES : WALK_FRAMES);
       const stride = running ? SPRINT_STRIDE : STRIDE;
@@ -8557,6 +8632,20 @@ export function boot(canvas, hud) {
         const k = Math.floor(now * 9) % span;
         const fa = k < AIM_FRAMES ? k : span - k;
         if (xander.geometry !== aimGeo[fa]) xander.geometry = aimGeo[fa];
+      }
+    } else if (injuredNow) {
+      
+      
+      walkPhase = 0;
+      wasGaitBranch = false;
+      if (wallLeanClose) {
+        const fl2 = Math.floor(now * 9) % WALLLEAN_FRAMES;
+        if (xander.geometry !== wallLeanGeo[fl2]) xander.geometry = wallLeanGeo[fl2];
+      } else {
+        const span = IDLE_FRAMES * 2 - 2;
+        const k = Math.floor((now / IDLE_TIME) * span) % span;
+        const fi = k < IDLE_FRAMES ? k : span - k;
+        if (xander.geometry !== woundedIdleGeo[fi]) xander.geometry = woundedIdleGeo[fi];
       }
     } else {
       walkPhase = 0;
@@ -8646,7 +8735,9 @@ export function boot(canvas, hud) {
         
         
         
-        posed = (walkArmsShown && !sprintNow) ? aimedGait(g, aimPose(ph2 * (1 / 0.9))) : g;
+        posed = (injuredNow && !sprintNow && !walkArmsShown)
+          ? woundedGait(g, wallTouch)
+          : ((walkArmsShown && !sprintNow) ? aimedGait(g, aimPose(ph2 * (1 / 0.9))) : g);
       } else if (settle > 0) {
         
         
@@ -8655,7 +8746,9 @@ export function boot(canvas, hud) {
         
         
         const g = gaitPose(walkPhase, wasTurnStep ? 'shuffle' : 'walk');
-        posed = (walkArmsShown && !wasTurnStep) ? aimedGait(g, aimPose(walkPhase * (1 / 0.9))) : g;
+        posed = (injuredNow && !wasTurnStep && !walkArmsShown)
+          ? woundedGait(g, wallTouch)
+          : ((walkArmsShown && !wasTurnStep) ? aimedGait(g, aimPose(walkPhase * (1 / 0.9))) : g);
       } else if (!player.dead && aimLatch.u > 0.001) {
         
         
@@ -8669,6 +8762,8 @@ export function boot(canvas, hud) {
           const fa = kk < AIM_FRAMES ? kk : span - kk;
           posed = { ...standPose(0), ...aimPose((fa / AIM_FRAMES) * (1 / 0.9)) };
         }
+      } else if (injuredNow) {
+        posed = wallLeanClose ? wallLeanPose(now) : woundedGait(standPose(now));
       } else posed = standPose(now);
       if (studioPose) posed = studioPose;
       const hand = posed.hands[0];
@@ -8856,6 +8951,7 @@ export function boot(canvas, hud) {
     
     
     xTilt.rotation.x = lean + fall;
+    xTilt.rotation.z = wallRoll;
 
     
     
@@ -9877,6 +9973,7 @@ export function boot(canvas, hud) {
       },
       get mumble() { return { count: mumbleCount, playing: !!mumbleStop }; },
       get gunVisible() { return gun.visible; },
+      get injury() { return injuryDbg; },
       get intro() {
         if (intro) {
           return {
