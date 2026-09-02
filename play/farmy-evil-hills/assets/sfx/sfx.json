@@ -1,6 +1,6 @@
 {
   "sampleRate": 48000,
-  "seconds": 80.825,
+  "seconds": 85.965,
   "clips": {
     "shot1": {
       "effect": "shot",
@@ -262,73 +262,113 @@
       "offset": 52.855,
       "duration": 1.9
     },
+    "ductRattle1": {
+      "effect": "ductRattle",
+      "offset": 54.805,
+      "duration": 0.6
+    },
+    "ductRattle2": {
+      "effect": "ductRattle",
+      "offset": 55.455,
+      "duration": 0.65
+    },
+    "wallThud1": {
+      "effect": "wallThud",
+      "offset": 56.155,
+      "duration": 0.55
+    },
+    "wallThud2": {
+      "effect": "wallThud",
+      "offset": 56.755,
+      "duration": 0.56
+    },
+    "breach1": {
+      "effect": "breach",
+      "offset": 57.365,
+      "duration": 0.53
+    },
+    "breach2": {
+      "effect": "breach",
+      "offset": 57.945,
+      "duration": 0.58
+    },
+    "debrisFall1": {
+      "effect": "debrisFall",
+      "offset": 58.575,
+      "duration": 0.68
+    },
+    "debrisFall2": {
+      "effect": "debrisFall",
+      "offset": 59.305,
+      "duration": 0.59
+    },
     "dOpen1": {
       "effect": "doorOpen",
-      "offset": 54.805,
+      "offset": 59.945,
       "duration": 1.6
     },
     "dOpen2": {
       "effect": "doorOpen",
-      "offset": 56.455,
+      "offset": 61.595,
       "duration": 1.42
     },
     "dClose1": {
       "effect": "doorClose",
-      "offset": 57.925,
+      "offset": 63.065,
       "duration": 1.4
     },
     "dClose2": {
       "effect": "doorClose",
-      "offset": 59.375,
+      "offset": 64.515,
       "duration": 1.36
     },
     "lift1": {
       "effect": "liftLoop",
-      "offset": 60.785,
+      "offset": 65.925,
       "duration": 3.25,
       "wrap": 0.5
     },
     "lift2": {
       "effect": "liftLoop",
-      "offset": 64.085,
+      "offset": 69.225,
       "duration": 3.25,
       "wrap": 0.5
     },
     "room1": {
       "effect": "roomTone",
-      "offset": 67.385,
+      "offset": 72.525,
       "duration": 4.25,
       "wrap": 0.5
     },
     "room2": {
       "effect": "roomTone",
-      "offset": 71.685,
+      "offset": 76.825,
       "duration": 4.25,
       "wrap": 0.5
     },
     "breath1": {
       "effect": "breath",
-      "offset": 75.985,
+      "offset": 81.125,
       "duration": 0.63
     },
     "breath2": {
       "effect": "breath",
-      "offset": 76.665,
+      "offset": 81.805,
       "duration": 0.77
     },
     "breath3": {
       "effect": "breath",
-      "offset": 77.485,
+      "offset": 82.625,
       "duration": 0.56
     },
     "settle1": {
       "effect": "settle",
-      "offset": 78.095,
+      "offset": 83.235,
       "duration": 1.35
     },
     "settle2": {
       "effect": "settle",
-      "offset": 79.495,
+      "offset": 84.635,
       "duration": 1.28
     }
   },
@@ -424,6 +464,22 @@
       "creak3",
       "creak4",
       "creak5"
+    ],
+    "ductRattle": [
+      "ductRattle1",
+      "ductRattle2"
+    ],
+    "wallThud": [
+      "wallThud1",
+      "wallThud2"
+    ],
+    "breach": [
+      "breach1",
+      "breach2"
+    ],
+    "debrisFall": [
+      "debrisFall1",
+      "debrisFall2"
     ],
     "doorOpen": [
       "dOpen1",

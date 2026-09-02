@@ -111,6 +111,7 @@ import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix }
 import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../../web-engine/horror/intro.js';
 import { isBossDeck, rosterFor, actCardFor, actFor } from '../../../web-engine/horror/acts.js';
 import { gatesFor } from '../../../web-engine/horror/gates.js';
+import { createEntrance, stepEntrance, isProtectedPhase, emergeAt, emergeY } from '../../../web-engine/horror/entrance.js';
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
 import { INJURY, isInjured, isDanger, nextStumbleAt, wallSupport } from '../../../web-engine/horror/injury.js';
 import { getUpAt, restTravel, restPose } from '../../../web-engine/horror/groundPoses.js';
@@ -4848,6 +4849,10 @@ export function boot(canvas, hud) {
   
   
   let gateMeshes = [];
+  
+  let entrances = [];
+  let debrisPool = [];
+  let deck2Duct = false;
   let bench = createBench();
   let workbench = null;
   let nearBench = false;
@@ -6115,6 +6120,12 @@ export function boot(canvas, hud) {
     
     
     gateMeshes = [];
+    entrances = [];
+    for (const d of debrisPool) { d.live = false; d.settled = false; if (d.mesh) d.mesh.visible = false; }
+    
+    
+    
+    if (seed === 2) deck2Duct = false;
     if (!isBoss) {
       const gs = gatesFor(deck, seed, { act: actFor(seed) });
       for (const g of gs) {
@@ -6179,6 +6190,24 @@ export function boot(canvas, hud) {
   
   
   player.vitals.health = MAX_HEALTH * INJURY.startHealthFrac;
+  
+  
+  
+  
+  for (let i = 0; i < 12; i += 1) {
+    const sz = 0.06 + (i % 4) * 0.03;
+    const chunk = introPaintVaried(new THREE.BoxGeometry(sz, sz * 0.7, sz * 0.9).toNonIndexed(), 0x4b524d, 0.2);
+    chunk.visible = false;
+    scene.add(chunk);
+    debrisPool.push({ mesh: chunk, vx: 0, vy: 0, vz: 0, live: false });
+  }
+  for (let i = 0; i < 4; i += 1) {
+    const dq = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5),
+      new THREE.MeshBasicMaterial({ color: 0x8b877d, transparent: true, opacity: 0, depthWrite: false }));
+    dq.visible = false;
+    scene.add(dq);
+    debrisPool.push({ mesh: dq, vx: 0, vy: 0.4, vz: 0, live: false, dust: true });
+  }
   buildWorld(1);
 
   
@@ -7234,6 +7263,51 @@ export function boot(canvas, hud) {
     if (introOnDone) { const fcb = introOnDone; introOnDone = null; fcb(); }
   }
 
+  
+  
+  
+  
+  function beginEntrance(gateIdx) {
+    const gm = gateMeshes[gateIdx];
+    if (!gm || gm.opened) return false;
+    const kind = gm.gate.kind === 'duct' ? 'chicken' : 'porker';
+    const b = birds.find((q) => !q.alive && q.mesh);
+    if (!b) return false;
+    const inWall = emergeAt(gm.gate, 0);
+    b.alive = true;
+    b.kind = kind;
+    b.latched = false;
+    b.kick = 0;
+    b.burn = null;
+    b.x = inWall.x; b.z = inWall.z;
+    b.homeX = gm.gate.x + gm.gate.nx * 2; b.homeZ = gm.gate.z + gm.gate.nz * 2;
+    b.mesh.visible = false;   
+    b.entering = true;
+    entrances.push({ e: createEntrance(gm.gate.kind), gm, b, telegraphSfxT: 0 });
+    return true;
+  }
+
+  function throwDebris(x, z, nx, nz, n = 6) {
+    let thrown = 0;
+    for (const d of debrisPool) {
+      if (d.live || thrown >= n) continue;
+      d.live = true;
+      d.mesh.visible = true;
+      d.settled = false;
+      d.mesh.position.set(x + nx * 0.2, 0.5 + Math.random() * 0.8, z + nz * 0.2);
+      if (d.dust) {
+        d.mesh.material.opacity = 0.35;
+        d.vy = 0.3 + Math.random() * 0.3;
+        d.vx = nx * 0.3; d.vz = nz * 0.3;
+      } else {
+        d.vx = nx * (1 + Math.random() * 2) + (Math.random() - 0.5);
+        d.vz = nz * (1 + Math.random() * 2) + (Math.random() - 0.5);
+        d.vy = 1 + Math.random() * 2;
+      }
+      thrown += 1;
+    }
+  }
+
   function runIntroFrame(now, dt) {
     
     
@@ -7672,6 +7746,106 @@ export function boot(canvas, hud) {
     
     
     
+    
+    
+    
+    if (entrances.length) {
+      entrances = entrances.filter((en) => {
+        const was2 = en.e.phase;
+        en.e = stepEntrance(en.e, dt);
+        const g = en.gm.gate;
+        if (en.e.phase === 'telegraph') {
+          en.telegraphSfxT -= dt;
+          if (en.telegraphSfxT <= 0) {
+            en.telegraphSfxT = g.kind === 'breach' ? 0.9 : 0.45;
+            sfxSheet.play(g.kind === 'duct' ? 'ductRattle' : (g.kind === 'breach' ? 'wallThud' : 'debrisFall'),
+              { dest: audio.at(g.x, g.z) || undefined, gain: 0.9 });
+          }
+          
+          const sh3 = Math.sin(now * 43) * 0.012 * en.e.k;
+          if (en.gm.grille) en.gm.grille.position.x = sh3;
+          if (en.gm.cracks) en.gm.cracks.position.x = sh3 * 0.6;
+        }
+        if (en.e.event === 'burst') {
+          en.gm.opened = true;
+          sfxSheet.play('breach', { dest: audio.at(g.x, g.z) || undefined, gain: 1.0 });
+          sfxSheet.play('debrisFall', { dest: audio.at(g.x, g.z) || undefined, gain: 0.7, when: 0.12 });
+          throwDebris(g.x, g.z, g.nx, g.nz, g.kind === 'breach' ? 8 : 5);
+          shake = Math.max(shake, g.kind === 'breach' ? 0.5 : 0.3);
+          if (en.gm.grille) {
+            
+            en.gm.grille.userData.fly = { vx: g.nx * 3, vz: g.nz * 3, vy: 2.2 };
+          }
+          if (en.gm.cracks && en.gm.group) {
+            
+            en.gm.cracks.visible = false;
+            const hole2 = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.6),
+              new THREE.MeshBasicMaterial({ color: 0x050807 }));
+            hole2.position.set(0, 0.95, 0.065);
+            en.gm.group.add(hole2);
+          }
+          en.b.mesh.visible = true;
+        }
+        if (en.e.phase === 'emerge' || en.e.event === 'emerged') {
+          const p2 = emergeAt(g, en.e.phase === 'emerge' ? en.e.k : 1);
+          en.b.x = p2.x; en.b.z = p2.z;
+          if (en.b.mesh) en.b.mesh.position.set(en.b.x, g.kind === 'drop' ? emergeY(en.e.k) : 0, en.b.z);
+        }
+        if (en.e.event === 'emerged') {
+          en.b.entering = false;
+          return false;   
+        }
+        en.b.entering = isProtectedPhase(en.e);
+        return true;
+      });
+    }
+    
+    for (const gm of gateMeshes) {
+      const fly = gm.grille && gm.grille.userData.fly;
+      if (fly) {
+        gm.grille.position.x += fly.vx * dt * 0.2;
+        gm.grille.position.y += fly.vy * dt;
+        gm.grille.position.z += fly.vz * dt * 0.2;
+        gm.grille.rotation.x += dt * 6;
+        fly.vy -= dt * 9;
+        if (gm.grille.position.y < -0.9) {
+          gm.grille.position.y = -0.9;
+          gm.grille.userData.fly = null;   
+        }
+      }
+    }
+    for (const d of debrisPool) {
+      if (!d.live || d.settled) continue;
+      d.mesh.position.x += d.vx * dt;
+      d.mesh.position.y += d.vy * dt;
+      d.mesh.position.z += d.vz * dt;
+      if (d.dust) {
+        d.mesh.material.opacity = Math.max(0, d.mesh.material.opacity - dt * 0.25);
+        if (d.mesh.material.opacity <= 0) { d.live = false; d.mesh.visible = false; }
+      } else {
+        d.vy -= dt * 9;
+        if (d.mesh.position.y <= 0.03) {
+          d.mesh.position.y = 0.03;
+          d.settled = true;   
+        }
+      }
+    }
+
+    
+    
+    
+    
+    if (level === 2 && !deck2Duct && !player.dead && deck && deck.exit) {
+      const prog = Math.hypot(player.x - deck.start.x, player.z - deck.start.z)
+        / (Math.hypot(deck.exit.x - deck.start.x, deck.exit.z - deck.start.z) || 1);
+      if (prog > 0.4) {
+        deck2Duct = true;
+        const di = gateMeshes.findIndex((m) => m.gate.kind === 'duct' && !m.opened
+          && Math.hypot(m.gate.x - player.x, m.gate.z - player.z) > 9);
+        if (di >= 0) beginEntrance(di);
+      }
+    }
+
     
     
     
@@ -8269,6 +8443,11 @@ export function boot(canvas, hud) {
     }
 
     for (const b of birds) {
+      
+      
+      
+      
+      if (b.entering) continue;
       keepClear(b);
 
       
@@ -10601,6 +10780,13 @@ export function boot(canvas, hud) {
       get gunVisible() { return gun.visible; },
       get injury() { return injuryDbg; },
       get liftForced() { return liftForced; },
+      beginEntrance(i) { return beginEntrance(i); },
+      get entrances() {
+        return entrances.map((en) => ({
+          kind: en.gm.gate.kind, phase: en.e.phase, k: +(en.e.k || 0).toFixed(2),
+          bx: +en.b.x.toFixed(2), bz: +en.b.z.toFixed(2), entering: !!en.b.entering,
+        }));
+      },
       get gates() {
         return gateMeshes.map((m) => ({
           kind: m.gate.kind, x: +m.gate.x.toFixed(2), z: +m.gate.z.toFixed(2),
