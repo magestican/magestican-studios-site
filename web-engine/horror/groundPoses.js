@@ -145,3 +145,105 @@ export function getUpAt(u) {
     },
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const REST_SEAT = {
+  hands: [[0.20, 0.545], [0.15, 0.535]],   
+  feet: [[-0.07, 0], [0.13, 0]],
+  toe: [0.02, 0.06],
+  grip: 'open',
+  twist: 0.06,
+  air: 0,
+  
+  
+  
+  
+  
+  drop: 0.085,
+  squash: 0.885,                            
+  lean: 0.30,                               
+};
+
+
+
+
+
+
+
+export function restTravel(k, down = true) {
+  const kk = down ? Math.min(1, Math.max(0, k)) : 1 - Math.min(1, Math.max(0, k));
+  const e = kk * kk * (3 - 2 * kk);
+  const a = standPose(0);
+  const mix = (x, y) => x + (y - x) * e;
+  return {
+    pitch: 0,
+    lift: 0,
+    pose: {
+      hands: [0, 1].map((j) => reachGuard(
+        mix(a.hands[j][0], REST_SEAT.hands[j][0]),
+        mix(a.hands[j][1], REST_SEAT.hands[j][1]),
+      )),
+      feet: [0, 1].map((j) => [mix(a.feet[j][0], REST_SEAT.feet[j][0]), 0]),
+      toe: [0, 1].map((j) => mix(a.toe[j], REST_SEAT.toe[j])),
+      grip: 'open',
+      air: 0,
+      twist: mix(a.twist, REST_SEAT.twist),
+      drop: mix(a.drop ?? 0, REST_SEAT.drop),
+      squash: mix(a.squash, REST_SEAT.squash),
+      lean: mix(a.lean ?? 0, REST_SEAT.lean),
+    },
+  };
+}
+
+
+export function restPose(injured = false) {
+  const seat = restTravel(1, true);
+  if (!injured) return seat;
+  return {
+    pitch: 0,
+    lift: 0,
+    pose: {
+      ...seat.pose,
+      hands: [seat.pose.hands[0], reachGuard(0.042, 0.497)],
+      lean: seat.pose.lean + 0.16,
+      drop: (seat.pose.drop ?? 0) + 0.025,
+      squash: seat.pose.squash * 0.96,
+    },
+  };
+}

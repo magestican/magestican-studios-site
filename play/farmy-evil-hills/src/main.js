@@ -111,7 +111,7 @@ import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../
 import { isBossDeck, rosterFor, actCardFor, actFor } from '../../../web-engine/horror/acts.js';
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
 import { INJURY, isInjured, isDanger, nextStumbleAt, wallSupport } from '../../../web-engine/horror/injury.js';
-import { getUpAt } from '../../../web-engine/horror/groundPoses.js';
+import { getUpAt, restTravel, restPose } from '../../../web-engine/horror/groundPoses.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
 const XANDER_H = 1.80;
@@ -4897,6 +4897,21 @@ export function boot(canvas, hud) {
   
   
   
+  
+  
+  const REST_FRAMES = 10;
+  const restGeo = [];
+  const restPitch = [];
+  const restLift = [];
+  for (let i = 0; i < REST_FRAMES; i += 1) {
+    const rt = restTravel(i / (REST_FRAMES - 1), true);
+    restGeo.push(bake(rt.pose));
+    restPitch.push(rt.pitch);
+    restLift.push(rt.lift);
+  }
+  const seatGeo = [bake(restPose(false).pose), bake(restPose(true).pose)];
+  const seatPitch = [restPose(false).pitch, restPose(true).pitch];
+  const seatLift = [restPose(false).lift, restPose(true).lift];
   const GETUP_FRAMES = 14;
   const getUpGeo = [];
   const getUpPitch = [];
@@ -6250,6 +6265,17 @@ export function boot(canvas, hud) {
   let startDist = 0;
   let startPhase = 0;
   let groundNow = 0;
+  
+  
+  
+  let safeIdle = 0;
+  let restT = 0;
+  let resting = false;
+  let blown = false;
+  let restNow = null;
+  const REST_AFTER = 6;
+  let restRigPitch = 0;
+  let restRigLift = 0;
   
   
   let walkPhase = 0;
@@ -8742,6 +8768,24 @@ export function boot(canvas, hud) {
         const fa = k < AIM_FRAMES ? k : span - k;
         if (xander.geometry !== aimGeo[fa]) xander.geometry = aimGeo[fa];
       }
+    } else if (restNow) {
+      
+      
+      
+      
+      walkPhase = 0;
+      wasGaitBranch = false;
+      if (restNow.seated) {
+        const seat = injuredNow ? 1 : 0;
+        if (xander.geometry !== seatGeo[seat]) xander.geometry = seatGeo[seat];
+        restRigPitch = seatPitch[seat];
+        restRigLift = seatLift[seat];
+      } else {
+        const fr3 = Math.min(REST_FRAMES - 1, Math.round(restNow.k * (REST_FRAMES - 1)));
+        if (xander.geometry !== restGeo[fr3]) xander.geometry = restGeo[fr3];
+        restRigPitch = restPitch[fr3];
+        restRigLift = restLift[fr3];
+      }
     } else if (injuredNow) {
       
       
@@ -8881,6 +8925,8 @@ export function boot(canvas, hud) {
           const fa = kk < AIM_FRAMES ? kk : span - kk;
           posed = { ...standPose(0), ...aimPose((fa / AIM_FRAMES) * (1 / 0.9)) };
         }
+      } else if (restNow) {
+        posed = restNow.seated ? restPose(injuredNow).pose : restTravel(restNow.k, true).pose;
       } else if (injuredNow) {
         posed = wallLeanClose
           ? (dangerNow ? forearmLeanPose(now) : wallLeanPose(now))
@@ -9030,7 +9076,12 @@ export function boot(canvas, hud) {
       hidden = hideProtects(hide);
     }
     xRig.visible = !player.dead ? hideDrawsPlayer(hide) : xRig.visible;
-    xRig.position.set(player.x, bob, player.z);
+    
+    
+    
+    
+    xRig.rotation.x = restRigPitch;
+    xRig.position.set(player.x, bob + restRigLift * XANDER_H, player.z);
     
     
     
@@ -9082,6 +9133,10 @@ export function boot(canvas, hud) {
       const su = stumbleT / INJURY.stumbleTime;
       stumbleLean = Math.sin(Math.PI * (su ** 0.65)) * 0.22;
     }
+    
+    
+    
+    if (!restNow) { restRigPitch = 0; restRigLift = 0; }
     xTilt.rotation.x = lean + fall + stumbleLean;
     xTilt.rotation.z = wallRoll;
 
@@ -9530,6 +9585,33 @@ export function boot(canvas, hud) {
         
         say(barks, 'safe');
       }
+    }
+    
+    
+    
+    
+    
+    
+    {
+      
+      
+      
+      
+      
+      
+      const canRest = !player.dead && !player.struggle
+        && !moving && !turning && !fireHeld && !hidden;
+      const sp = player.vitals.stamina ?? 100;
+      if (sp <= 1) blown = true;
+      if (sp > 35 || !canRest) blown = false;
+      const wantRest = canRest && (inSafe || blown);
+      if (wantRest) safeIdle += dt; else safeIdle = 0;
+      
+      if (safeIdle > (blown ? 0.15 : REST_AFTER)) resting = true;
+      if (!wantRest) resting = false;
+      const RT = 1.45;
+      restT = Math.max(0, Math.min(RT, restT + (resting ? dt : -dt * 1.6)));
+      restNow = restT > 0 ? { k: restT / RT, seated: restT >= RT } : null;
     }
     if (inSafe) {
       player.vitals.health = Math.min(MAX_HEALTH, player.vitals.health + 5.5 * dt);
@@ -10332,6 +10414,13 @@ export function boot(canvas, hud) {
       
       get poseFeet() { return lastPosedFeet; },
       get startStep() { return { dist: +startDist.toFixed(3), phase: +startPhase.toFixed(3) }; },
+      get rest() {
+        return {
+          safeIdle: +safeIdle.toFixed(2), resting,
+          k: restNow ? +restNow.k.toFixed(2) : 0, seated: !!(restNow && restNow.seated),
+          blown,
+        };
+      },
       get bobY() { return xRig.position.y; },
       
       
