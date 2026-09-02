@@ -208,7 +208,15 @@ export const XANDER_RIG = Object.freeze({
 
 
 
-export const XANDER_SPANS = Object.freeze({ shoulder: 0.262, hip: 0.153 });
+
+
+
+
+
+
+
+
+export const XANDER_SPANS = Object.freeze({ shoulder: 0.232, hip: 0.153 });
 
 
 

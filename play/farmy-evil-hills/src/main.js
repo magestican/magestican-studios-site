@@ -1979,9 +1979,15 @@ const clothNoise = (base, x, y, z) => {
 
 const SLEEVE_END = 0.62;
 const sleeveAt = (x, y, z) => {
-  if (z > SLEEVE_END + 0.055) return clothNoise(XCOL.top, x, y, z);
-  if (z > SLEEVE_END) return clothNoise(0xc4614f, x, y, z);   
-  return XCOL.skin;
+  
+  
+  
+  
+  
+  
+  
+  if (z > 0.86) return clothNoise(0xc4614f, x, y, z);   
+  return clothNoise(XCOL.top, x, y, z);                  
 };
 
 
@@ -1995,10 +2001,17 @@ const xColour = (n) => (n === 'hair' ? XCOL.hair
   : /^eye/.test(n) ? XCOL.eye
   : /^pelvis|^hip\d/.test(n) ? ((x, y, z) => clothNoise(XCOL.pant, x, y, z))
     : /^thigh|^shin|^knee|^ankle/.test(n) ? legAt
-      : /^upperArm/.test(n) ? sleeveAt
-        : /^trapezius/.test(n) ? trapAt
-          : /^torso/.test(n) ? overallsAt
-            : /^foot/.test(n) ? ((x, y, z) => clothNoise(XCOL.accent, x, y, z)) : XCOL.skin);
+      
+      
+      
+      
+      
+      
+      : /^shoulder/.test(n) ? ((x, y, z) => clothNoise(XCOL.top, x, y, z))
+        : /^upperArm/.test(n) ? sleeveAt
+          : /^trapezius/.test(n) ? trapAt
+            : /^torso/.test(n) ? overallsAt
+              : /^foot/.test(n) ? ((x, y, z) => clothNoise(XCOL.accent, x, y, z)) : XCOL.skin);
 
 
 
