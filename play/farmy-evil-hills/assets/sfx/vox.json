@@ -1,6 +1,6 @@
 {
   "sampleRate": 48000,
-  "seconds": 73.104,
+  "seconds": 254.387,
   "clips": {
     "agency1": {
       "offset": 0.08,
@@ -49,6 +49,190 @@
     "pa9": {
       "offset": 69.0195,
       "duration": 4.0045
+    },
+    "x_ammo1": {
+      "offset": 73.104,
+      "duration": 3.7458
+    },
+    "x_ammo2": {
+      "offset": 76.9298,
+      "duration": 2.7498
+    },
+    "x_empty1": {
+      "offset": 79.7596,
+      "duration": 4.5504
+    },
+    "x_hurt1": {
+      "offset": 84.3899,
+      "duration": 1.6253
+    },
+    "x_hurt2": {
+      "offset": 86.0952,
+      "duration": 2.7606
+    },
+    "x_hurt3": {
+      "offset": 88.9358,
+      "duration": 3.7549
+    },
+    "x_idle1": {
+      "offset": 92.7707,
+      "duration": 4.0948
+    },
+    "x_idle10": {
+      "offset": 96.9455,
+      "duration": 4.1056
+    },
+    "x_idle11": {
+      "offset": 101.1311,
+      "duration": 4.4998
+    },
+    "x_idle12": {
+      "offset": 105.7109,
+      "duration": 4.0206
+    },
+    "x_idle2": {
+      "offset": 109.8115,
+      "duration": 4.3896
+    },
+    "x_idle3": {
+      "offset": 114.2811,
+      "duration": 3.4748
+    },
+    "x_idle4": {
+      "offset": 117.8359,
+      "duration": 4.261
+    },
+    "x_idle5": {
+      "offset": 122.1769,
+      "duration": 3.7749
+    },
+    "x_idle6": {
+      "offset": 126.0317,
+      "duration": 4.0459
+    },
+    "x_idle7": {
+      "offset": 130.1576,
+      "duration": 4.431
+    },
+    "x_idle8": {
+      "offset": 134.6686,
+      "duration": 4.5848
+    },
+    "x_idle9": {
+      "offset": 139.3334,
+      "duration": 3.5108
+    },
+    "x_kill1": {
+      "offset": 142.9241,
+      "duration": 3.2252
+    },
+    "x_kill2": {
+      "offset": 146.2294,
+      "duration": 3.3102
+    },
+    "x_kill3": {
+      "offset": 149.6196,
+      "duration": 3.9356
+    },
+    "x_kill4": {
+      "offset": 153.6352,
+      "duration": 2.7245
+    },
+    "x_kill5": {
+      "offset": 156.4397,
+      "duration": 4.0857
+    },
+    "x_lift1": {
+      "offset": 160.6054,
+      "duration": 4.0405
+    },
+    "x_lift2": {
+      "offset": 164.726,
+      "duration": 3.585
+    },
+    "x_lift3": {
+      "offset": 168.391,
+      "duration": 5.5953
+    },
+    "x_low1": {
+      "offset": 174.0662,
+      "duration": 6.2606
+    },
+    "x_low2": {
+      "offset": 180.4068,
+      "duration": 2.7154
+    },
+    "x_notagun": {
+      "offset": 183.2022,
+      "duration": 4.5901
+    },
+    "x_rusty": {
+      "offset": 187.8723,
+      "duration": 3.3607
+    },
+    "x_safe1": {
+      "offset": 191.3131,
+      "duration": 3.8598
+    },
+    "x_safe2": {
+      "offset": 195.2529,
+      "duration": 3.7259
+    },
+    "x_safe3": {
+      "offset": 199.0588,
+      "duration": 2.7896
+    },
+    "x_see1": {
+      "offset": 201.9284,
+      "duration": 4.2809
+    },
+    "x_see2": {
+      "offset": 206.2893,
+      "duration": 3.4748
+    },
+    "x_see3": {
+      "offset": 209.8441,
+      "duration": 5.25
+    },
+    "x_see4": {
+      "offset": 215.1741,
+      "duration": 3.8851
+    },
+    "x_see5": {
+      "offset": 219.1392,
+      "duration": 2.6304
+    },
+    "x_see6": {
+      "offset": 221.8496,
+      "duration": 3.1203
+    },
+    "xi1": {
+      "offset": 225.05,
+      "duration": 6.4956
+    },
+    "xi2": {
+      "offset": 231.6255,
+      "duration": 4.2503
+    },
+    "xi3": {
+      "offset": 235.9558,
+      "duration": 2.0609
+    },
+    "xi4": {
+      "offset": 238.0967,
+      "duration": 4.0099
+    },
+    "xi5": {
+      "offset": 242.1866,
+      "duration": 4.14
+    },
+    "xi6": {
+      "offset": 246.4066,
+      "duration": 4.6499
+    },
+    "xi7": {
+      "offset": 251.1364,
+      "duration": 3.1709
     }
   }
 }

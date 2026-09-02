@@ -40,6 +40,8 @@ export const INTRO = Object.freeze({
 
 
 
+
+
 export const INTRO_SHOTS = Object.freeze([
   {
     id: 'title',
@@ -57,7 +59,7 @@ export const INTRO_SHOTS = Object.freeze([
     cam: { from: [-4.2, 1.7, 8.5], to: [-1.6, 1.55, 6.2], look: [0.6, 1.0, 0], fov: 58 },
     cues: [
       { at: 0.6, kind: 'sfx', effect: 'chickIdle', gain: 0.8 },
-      { at: 2.2, kind: 'xander', text: 'Morning, ladies. Eggs by nine. No excuses.' },
+      { at: 2.2, kind: 'xander', voxId: 'xi1', text: 'Morning, ladies. Eggs by nine. No excuses.' },
       
       
       
@@ -65,7 +67,7 @@ export const INTRO_SHOTS = Object.freeze([
       { at: 4.1, kind: 'sfx', effect: 'stepGrain', gain: 0.5, rate: 1.35 },
       { at: 5.0, kind: 'sfx', effect: 'chickIdle', gain: 0.75, rate: 0.96 },
       { at: 6.4, kind: 'sfx', effect: 'chickIdle', gain: 0.7, rate: 1.06 },
-      { at: 8.2, kind: 'xander', text: 'Quiet shift. Earth looks good from here.' },
+      { at: 8.2, kind: 'xander', voxId: 'xi2', text: 'Quiet shift. Earth looks good from here.' },
       { at: 9.4, kind: 'act', act: 'feed' },
       { at: 9.9, kind: 'sfx', effect: 'stepGrain', gain: 0.45, rate: 1.28 },
     ],
@@ -79,9 +81,9 @@ export const INTRO_SHOTS = Object.freeze([
       { at: 0.5, kind: 'sfx', effect: 'liftChime', rate: 1.4, gain: 0.8 },
       { at: 1.3, kind: 'sfx', effect: 'liftChime', rate: 1.4, gain: 0.8 },
       { at: 2.2, kind: 'agency', voxId: 'agency1', text: 'Agency dispatch calling Luna-9. Come in, Xander.' },
-      { at: 6.0, kind: 'xander', text: 'It is my day off.' },
+      { at: 6.0, kind: 'xander', voxId: 'xi3', text: 'It is my day off.' },
       { at: 7.8, kind: 'agency', voxId: 'agency2', text: 'Hesper-4 has stopped reporting. You are the nearest certified hand. It is a one man job.' },
-      { at: 13.0, kind: 'xander', text: 'Of course it is. Of course I am.' },
+      { at: 13.0, kind: 'xander', voxId: 'xi4', text: 'Of course it is. Of course I am.' },
     ],
   },
   {
@@ -104,10 +106,10 @@ export const INTRO_SHOTS = Object.freeze([
     cam: { from: [0, 0.4, 10], to: [1.8, 0.7, 7.6], look: [0, 0.6, 0], fov: 55 },
     cues: [
       { at: 0.9, kind: 'sfx', effect: 'blip' },
-      { at: 1.2, kind: 'xander', text: 'Hesper-4 control, requesting approach.' },
+      { at: 1.2, kind: 'xander', voxId: 'xi5', text: 'Hesper-4 control, requesting approach.' },
       { at: 4.2, kind: 'sfx', effect: 'static' },
       { at: 6.1, kind: 'sfx', effect: 'blip' },
-      { at: 6.4, kind: 'xander', text: 'Hesper-4 control. Requesting approach.' },
+      { at: 6.4, kind: 'xander', voxId: 'xi6', text: 'Hesper-4 control. Requesting approach.' },
       { at: 9.4, kind: 'sfx', effect: 'static' },
       { at: 11.4, kind: 'caption', text: 'Nobody answered.' },
     ],
@@ -137,7 +139,7 @@ export const INTRO_SHOTS = Object.freeze([
       { at: 2.0, kind: 'act', act: 'rise' },        
       { at: 3.4, kind: 'sfx', effect: 'spark', gain: 0.7 },
       { at: 5.9, kind: 'act', act: 'step' },        
-      { at: 6.2, kind: 'xander', text: 'Venus. Wonderful.' },
+      { at: 6.2, kind: 'xander', voxId: 'xi7', text: 'Venus. Wonderful.' },
       { at: 7.3, kind: 'sfx', effect: 'creak', gain: 0.6, rate: 0.78 },
       { at: 8.4, kind: 'sfx', effect: 'spark', gain: 0.6 },
       { at: 9.6, kind: 'caption', text: 'HESPER-4 STOCK STATION - VENUS' },

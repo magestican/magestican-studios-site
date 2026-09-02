@@ -1647,6 +1647,7 @@ const WALK_FRAMES = 14;
 
 const AIM_FRAMES = 10;
 const RAISE_FRAMES = 7;
+const TALK_FRAMES = 7;
 const SPRINT_FRAMES = 12;
 
 
@@ -4796,6 +4797,21 @@ export function boot(canvas, hud) {
   for (let i = 0; i < RAISE_FRAMES; i += 1) {
     raiseGeo.push(bake(raiseMix(standPose(0), aimPose(0), i / (RAISE_FRAMES - 1))));
   }
+  
+  
+  
+  
+  
+  const talkGeo = [];
+  {
+    const talkTo = {
+      hands: [[0.24, 0.60], [0.07, 0.51]],
+      twist: 0.14, lean: 0.02, grip: 'open',
+    };
+    for (let i = 0; i < TALK_FRAMES; i += 1) {
+      talkGeo.push(bake(raiseMix(standPose(0), { ...standPose(0), ...talkTo }, i / (TALK_FRAMES - 1))));
+    }
+  }
   const walkAimGeo = [];
   for (let i = 0; i < WALK_FRAMES; i += 1) {
     walkAimGeo.push(bake(aimedGait(
@@ -6602,8 +6618,13 @@ export function boot(canvas, hud) {
       const dur = voxSheet.speak(e.voxId);
       introCaption(e.text, 'pa', (dur > 0 ? dur : 3.5) + 0.5);
     } else if (e.kind === 'xander') {
-      const dur = mumbleSay(e.text) || 2.2;
+      
+      
+      
+      const spoken = e.voxId ? voxSheet.speak(e.voxId) : 0;
+      const dur = spoken > 0 ? spoken : (mumbleSay(e.text) || 2.2);
       introCaption(e.text, '', dur + 0.7);
+      if (introActs) introActs.talk = 0;
     } else if (e.kind === 'sfx') {
       if (e.effect === 'static') introStatic();
       else if (e.effect === 'hiss') introHiss();
@@ -6651,7 +6672,7 @@ export function boot(canvas, hud) {
     intro = createIntro();
     introActs = {
       walking: -1, ignite: -1, shake: 0, impact: 0, rise: -1, walkDist: 0,
-      feed: -1, toRadio: -1, step: -1,
+      feed: -1, toRadio: -1, step: -1, talk: -1,
     };
     const built = buildIntroStage();
     introStage = built.stage;
@@ -6763,6 +6784,18 @@ export function boot(canvas, hud) {
           xRig.rotation.y = -Math.atan2(-(1.6 - 1.25), 3.4 - 2.55);
           introActs.toRadio = -1;
         }
+      }
+      
+      
+      if (!gestured && introActs.talk >= 0) {
+        introActs.talk += dt;
+        const TT = 1.5;
+        if (introActs.talk < TT) {
+          const k3 = Math.sin(Math.PI * (introActs.talk / TT));
+          const tf = Math.round(k3 * (TALK_FRAMES - 1));
+          if (xander.geometry !== talkGeo[tf]) xander.geometry = talkGeo[tf];
+          gestured = true;
+        } else introActs.talk = -1;
       }
       if (!gestured) {
         const span = IDLE_FRAMES * 2 - 2;
@@ -8849,8 +8882,20 @@ export function boot(canvas, hud) {
       const key = cb ? cb.who + '|' + cb.text : null;
       if (key !== lastMumbleKey) {
         lastMumbleKey = key;
-        if (cb && cb.who === 'xander') mumbleSay(cb.text);
-        else if (mumbleStop) { mumbleStop(); mumbleStop = null; }
+        if (cb && cb.who === 'xander') {
+          
+          
+          
+          
+          
+          
+          
+          const dv = voxSheet.speak(`x_${cb.id}`);
+          if (dv > 0 && barks.current) {
+            barks.current.until = Math.max(barks.current.until, barks.t + dv + 0.3);
+            barks.quietUntil = Math.max(barks.quietUntil, barks.t + dv + 0.7);
+          } else mumbleSay(cb.text);
+        } else if (mumbleStop) { mumbleStop(); mumbleStop = null; }
       }
     }
     if (barkSpotted && !barkSpottedWas) {
