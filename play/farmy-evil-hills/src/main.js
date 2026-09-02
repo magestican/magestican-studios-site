@@ -112,6 +112,7 @@ import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../
 import { isBossDeck, rosterFor, actCardFor, actFor } from '../../../web-engine/horror/acts.js';
 import { gatesFor } from '../../../web-engine/horror/gates.js';
 import { createEntrance, stepEntrance, isProtectedPhase, emergeAt, emergeY } from '../../../web-engine/horror/entrance.js';
+import { createDirector, stepDirector } from '../../../web-engine/horror/director.js';
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
 import { INJURY, isInjured, isDanger, nextStumbleAt, wallSupport } from '../../../web-engine/horror/injury.js';
 import { getUpAt, restTravel, restPose } from '../../../web-engine/horror/groundPoses.js';
@@ -4852,7 +4853,7 @@ export function boot(canvas, hud) {
   
   let entrances = [];
   let debrisPool = [];
-  let deck2Duct = false;
+  let director = null;
   let bench = createBench();
   let workbench = null;
   let nearBench = false;
@@ -6125,7 +6126,7 @@ export function boot(canvas, hud) {
     
     
     
-    if (seed === 2) deck2Duct = false;
+    director = null;
     if (!isBoss) {
       const gs = gatesFor(deck, seed, { act: actFor(seed) });
       for (const g of gs) {
@@ -6173,6 +6174,11 @@ export function boot(canvas, hud) {
         }
         deckGroup.add(gg);
       }
+      
+      
+      
+      
+      director = seed > 1 ? createDirector(seed, actFor(seed), gateMeshes.length) : null;
     }
 
     
@@ -7835,15 +7841,20 @@ export function boot(canvas, hud) {
     
     
     
-    if (level === 2 && !deck2Duct && !player.dead && deck && deck.exit) {
-      const prog = Math.hypot(player.x - deck.start.x, player.z - deck.start.z)
-        / (Math.hypot(deck.exit.x - deck.start.x, deck.exit.z - deck.start.z) || 1);
-      if (prog > 0.4) {
-        deck2Duct = true;
-        const di = gateMeshes.findIndex((m) => m.gate.kind === 'duct' && !m.opened
-          && Math.hypot(m.gate.x - player.x, m.gate.z - player.z) > 9);
-        if (di >= 0) beginEntrance(di);
-      }
+    if (director && !player.dead && deck && deck.exit) {
+      const progress = Math.min(1, Math.hypot(player.x - deck.start.x, player.z - deck.start.z)
+        / (Math.hypot(deck.exit.x - deck.start.x, deck.exit.z - deck.start.z) || 1));
+      const gctx = gateMeshes.map((m) => ({
+        kind: m.gate.kind, opened: !!m.opened,
+        dist: Math.hypot(m.gate.x - player.x, m.gate.z - player.z),
+      }));
+      const r = stepDirector(director, dt, {
+        progress, gates: gctx,
+        inStruggle: !!player.struggle,
+        healthFrac: player.vitals.health / MAX_HEALTH,
+      });
+      director = r.d;
+      if (r.fire >= 0) beginEntrance(r.fire);
     }
 
     
@@ -10781,6 +10792,9 @@ export function boot(canvas, hud) {
       get injury() { return injuryDbg; },
       get liftForced() { return liftForced; },
       beginEntrance(i) { return beginEntrance(i); },
+      get director() {
+        return director ? { budget: director.budget, fired: director.fired, cooldown: +director.cooldown.toFixed(1) } : null;
+      },
       get entrances() {
         return entrances.map((en) => ({
           kind: en.gm.gate.kind, phase: en.e.phase, k: +(en.e.k || 0).toFixed(2),
