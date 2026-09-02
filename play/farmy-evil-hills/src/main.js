@@ -6295,24 +6295,107 @@ export function boot(canvas, hud) {
     return new THREE.Mesh(geo, mat);
   }
 
-  function introRocket() {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  function introRocket(basic, variant = 'pad') {
     const g = new THREE.Group();
-    const body = introPaint(new THREE.CylinderGeometry(0.9, 1.05, 4.6, 10).toNonIndexed(), 0x9aa0a8);
-    body.position.y = 2.7; g.add(body);
-    const nose = introPaint(new THREE.ConeGeometry(0.92, 1.9, 10).toNonIndexed(), 0xb04a3a);
-    nose.position.y = 5.95; g.add(nose);
+    const bits = { beacons: [], screens: [], survivor: null };
+    const dead = variant === 'wreck';
+    const glow = (w, h, hex) => {
+      const m = basic(new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+        new THREE.MeshBasicMaterial({ color: hex })));
+      g.add(m);
+      return m;
+    };
+
+    
+    const skirt = introPaintVaried(new THREE.CylinderGeometry(0.78, 1.15, 0.9, 12).toNonIndexed(), 0x33363a, 0.2);
+    skirt.position.y = 0.45; g.add(skirt);
+    const lower = introPaintVaried(new THREE.CylinderGeometry(0.85, 0.92, 2.2, 12).toNonIndexed(), 0xd9dde0, 0.05);
+    lower.position.y = 2.0; g.add(lower);
+    const stripe = introPaint(new THREE.CylinderGeometry(0.935, 0.94, 0.18, 12).toNonIndexed(), 0xb04a3a);
+    stripe.position.y = 2.72; g.add(stripe);
+    const collar = introPaint(new THREE.CylinderGeometry(0.87, 0.87, 0.5, 12).toNonIndexed(), 0x44484d);
+    collar.position.y = 3.35; g.add(collar);
+    const upper = introPaintVaried(new THREE.CylinderGeometry(0.66, 0.84, 1.9, 12).toNonIndexed(), 0xc8ccd0, 0.05);
+    upper.position.y = 4.55; g.add(upper);
+    const crew = introPaintVaried(new THREE.CylinderGeometry(0.52, 0.66, 0.9, 12).toNonIndexed(), 0xd9dde0, 0.05);
+    crew.position.y = 5.95; g.add(crew);
+    const nose = introPaint(new THREE.ConeGeometry(0.53, 1.5, 12).toNonIndexed(), 0xb04a3a);
+    nose.position.y = 7.15; g.add(nose);
+
+    
+    const conduit = introPaint(new THREE.BoxGeometry(0.1, 4.4, 0.14).toNonIndexed(), 0x6f7377);
+    conduit.position.set(-0.02, 3.1, -0.9); g.add(conduit);
+    const mast = introPaint(new THREE.CylinderGeometry(0.022, 0.022, 1.1, 6).toNonIndexed(), 0x8a9096);
+    mast.position.set(0.55, 6.9, 0.15); g.add(mast);
+
+    
     for (let i = 0; i < 3; i += 1) {
       const a = (i / 3) * Math.PI * 2;
-      const leg = introPaint(new THREE.BoxGeometry(0.16, 1.6, 0.16).toNonIndexed(), 0x6f7377);
-      leg.position.set(Math.cos(a) * 1.15, 0.7, Math.sin(a) * 1.15);
+      const leg = introPaint(new THREE.BoxGeometry(0.14, 1.7, 0.14).toNonIndexed(), 0x565a5e);
+      leg.position.set(Math.cos(a) * 1.2, 0.75, Math.sin(a) * 1.2);
       leg.rotation.z = Math.cos(a) * 0.35; leg.rotation.x = -Math.sin(a) * 0.35;
       g.add(leg);
-      const fin = introPaint(new THREE.BoxGeometry(0.08, 1.3, 0.7).toNonIndexed(), 0xb04a3a);
-      fin.position.set(Math.cos(a) * 1.0, 1.3, Math.sin(a) * 1.0);
+      const fin = introPaint(new THREE.BoxGeometry(0.07, 1.9, 0.85).toNonIndexed(), 0xd9dde0);
+      fin.position.set(Math.cos(a) * 1.05, 1.35, Math.sin(a) * 1.05);
       fin.rotation.y = -a;
       g.add(fin);
+      const tip = introPaint(new THREE.BoxGeometry(0.075, 0.5, 0.85).toNonIndexed(), 0xb04a3a);
+      tip.position.set(Math.cos(a) * 1.05, 2.55, Math.sin(a) * 1.05);
+      tip.rotation.y = -a;
+      g.add(tip);
     }
-    return g;
+
+    
+    
+    
+    for (const off of [-0.2, 0.2]) {
+      const pane = glow(0.34, 0.42, dead ? 0x16211f : 0x6fd8e8);
+      pane.position.set(off, 6.0, 0.58);
+      pane.rotation.x = -0.18; pane.rotation.y = off * 0.9;
+      bits.screens.push(pane);
+    }
+    
+    
+    const hatch = glow(0.55, 0.95, 0x181c1e);
+    hatch.position.set(0.905, 1.75, 0); hatch.rotation.y = Math.PI / 2;
+    for (const [sy, sw] of [[0.55, 0.6], [0.25, 0.75]]) {
+      const stepB = introPaint(new THREE.BoxGeometry(0.3, 0.09, sw).toNonIndexed(), 0x565a5e);
+      stepB.position.set(1.05, sy, 0); g.add(stepB);
+    }
+    
+    
+    const term = glow(0.22, 0.15, dead ? 0x14201c : 0x6ff0d8);
+    term.position.set(0.93, 2.45, 0.42); term.rotation.y = Math.PI / 2 + 0.35;
+    bits.screens.push(term);
+    
+    
+    [0x74e08a, 0x74e08a, 0xe0b674].forEach((hex, i) => {
+      const lamp2 = basic(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.07),
+        new THREE.MeshBasicMaterial({ color: dead ? (i === 2 ? 0xe0b674 : 0x1c1f1c) : hex })));
+      lamp2.position.set(0.9, 2.9 + i * 0.16, -0.25);
+      g.add(lamp2);
+      if (dead && i === 2) bits.survivor = lamp2;
+    });
+    
+    
+    for (const [bx2, by2, bz2] of [[0, 7.95, 0], [0.55, 7.5, 0.15]]) {
+      const bcn = basic(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.08),
+        new THREE.MeshBasicMaterial({ color: dead ? 0x2a1512 : 0xff5040 })));
+      bcn.position.set(bx2, by2, bz2);
+      g.add(bcn);
+      if (!dead) bits.beacons.push(bcn);
+    }
+    return { group: g, bits };
   }
 
   function buildIntroStage() {
@@ -6337,6 +6420,14 @@ export function boot(canvas, hud) {
       const rim = introPaint(new THREE.RingGeometry(cr * 0.92, cr * 1.18, 14).toNonIndexed(), 0xc2c5b6);
       rim.rotation.x = -Math.PI / 2; rim.position.set(cx2, 0.035, cz2);
       moon.add(rim);
+    }
+    
+    
+    for (const [hx, hz, hw, hh] of [[-30, -28, 22, 3.4], [8, -38, 26, 4.2], [34, -20, 18, 2.8], [-38, 8, 16, 2.4], [26, 26, 20, 3.0]]) {
+      const hill = introPaintVaried(new THREE.SphereGeometry(1, 10, 6).toNonIndexed(), 0x565952, 0.1);
+      hill.scale.set(hw, hh, hw * 0.5);
+      hill.position.set(hx, 0, hz);
+      moon.add(hill);
     }
     
     for (const [rx3, rz3, rs3] of [[-11, 2, 0.5], [7, -6, 0.7], [12, 3, 0.4], [-4, 12, 0.6], [3, -11, 0.5], [-16, -4, 0.8]]) {
@@ -6386,6 +6477,11 @@ export function boot(canvas, hud) {
       new THREE.MeshBasicMaterial({ color: 0xffd9a0 })));
     habWin.position.set(-5.05, 1.1, -2.9); habWin.rotation.y = 0.95;
     moon.add(habWin);
+    
+    const habPool = basic(new THREE.Mesh(new THREE.CircleGeometry(1.2, 12),
+      new THREE.MeshBasicMaterial({ color: 0xffd9a0, transparent: true, opacity: 0.14 })));
+    habPool.rotation.x = -Math.PI / 2; habPool.position.set(-4.5, 0.045, -2.4);
+    moon.add(habPool);
     const lampPost = introPaint(new THREE.BoxGeometry(0.09, 1.9, 0.09).toNonIndexed(), 0x6f7377);
     lampPost.position.set(4.7, 0.95, 1.2); moon.add(lampPost);
     const penLamp = basic(new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.2),
@@ -6399,6 +6495,24 @@ export function boot(canvas, hud) {
     lamp.position.set(1.6, 1.6, 3.4); moon.add(lamp);
     refs.lamp = lamp;
     
+    const radioPool = basic(new THREE.Mesh(new THREE.CircleGeometry(0.7, 12),
+      new THREE.MeshBasicMaterial({ color: 0x9df5d9, transparent: true, opacity: 0.05 })));
+    radioPool.rotation.x = -Math.PI / 2; radioPool.position.set(1.6, 0.05, 3.4);
+    moon.add(radioPool);
+    refs.radioPool = radioPool;
+    
+    for (const [fx2, fz2] of [[-1.3, -0.9], [-4.9, -4.4]]) {
+      const pole = introPaint(new THREE.BoxGeometry(0.08, 2.6, 0.08).toNonIndexed(), 0x565a5e);
+      pole.position.set(fx2, 1.3, fz2); moon.add(pole);
+      const head = basic(new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.14),
+        new THREE.MeshBasicMaterial({ color: 0xffe9c0 })));
+      head.position.set(fx2, 2.62, fz2); moon.add(head);
+      const pool = basic(new THREE.Mesh(new THREE.CircleGeometry(1.0, 12),
+        new THREE.MeshBasicMaterial({ color: 0xffe9c0, transparent: true, opacity: 0.12 })));
+      pool.rotation.x = -Math.PI / 2; pool.position.set(fx2 - 0.5, 0.05, fz2 - 0.5);
+      moon.add(pool);
+    }
+    
     
     
     const pad = introPaintVaried(new THREE.CircleGeometry(2.3, 18).toNonIndexed(), 0x6e716b, 0.12);
@@ -6411,9 +6525,11 @@ export function boot(canvas, hud) {
       clamp2.rotation.y = -a;
       moon.add(clamp2);
     }
-    const rocket = introRocket();
+    const rocketR = introRocket(basic, 'pad');
+    const rocket = rocketR.group;
     rocket.position.set(-3.2, 0, -2.6); moon.add(rocket);
     refs.rocket = rocket;
+    refs.rocketBits = rocketR.bits;
     const flame = basic(new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.6, 8),
       new THREE.MeshBasicMaterial({ color: 0xffb361 })));
     flame.rotation.x = Math.PI; flame.position.set(-3.2, -0.4, -2.6);
@@ -6424,6 +6540,34 @@ export function boot(canvas, hud) {
     flameCore.rotation.x = Math.PI; flameCore.position.set(-3.2, -0.3, -2.6);
     flameCore.visible = false; moon.add(flameCore);
     refs.flameCore = flameCore;
+    
+    
+    refs.mach = [];
+    for (const [my, mr, mh] of [[-0.95, 0.2, 0.5], [-1.35, 0.15, 0.4]]) {
+      const md = basic(new THREE.Mesh(new THREE.ConeGeometry(mr, mh, 7),
+        new THREE.MeshBasicMaterial({ color: 0x9cc8ff })));
+      md.rotation.x = Math.PI; md.position.set(-3.2, my, -2.6);
+      md.visible = false; moon.add(md);
+      refs.mach.push(md);
+    }
+    
+    
+    const padGlow = basic(new THREE.Mesh(new THREE.CircleGeometry(2.0, 16),
+      new THREE.MeshBasicMaterial({ color: 0xffc27a, transparent: true, opacity: 0 })));
+    padGlow.rotation.x = -Math.PI / 2; padGlow.position.set(-3.2, 0.05, -2.6);
+    moon.add(padGlow);
+    refs.padGlow = padGlow;
+    
+    
+    refs.igSmoke = [];
+    for (let i = 0; i < 3; i += 1) {
+      const sq = basic(new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.9),
+        new THREE.MeshBasicMaterial({ color: 0xb9bcae, transparent: true, opacity: 0, depthWrite: false })));
+      sq.position.set(-3.2, 0.5, -2.6);
+      sq.rotation.y = 0.9;
+      moon.add(sq);
+      refs.igSmoke.push({ mesh: sq, dir: (i - 1) * 1.2 + 0.4, seed: i * 0.7 });
+    }
     
     
     
@@ -6457,7 +6601,9 @@ export function boot(canvas, hud) {
     
     const transit = new THREE.Group();
     transit.position.set(INTRO_SET.transit.x, 0, INTRO_SET.transit.z);
-    const shipSmall = introRocket();
+    const shipR = introRocket(basic, 'transit');
+    const shipSmall = shipR.group;
+    refs.transitBits = shipR.bits;
     shipSmall.scale.setScalar(0.42);
     shipSmall.rotation.z = -Math.PI / 2;   
     shipSmall.position.set(6, 0.6, 0);
@@ -6478,6 +6624,20 @@ export function boot(canvas, hud) {
     tFlame.rotation.z = -Math.PI / 2;
     transit.add(tFlame);
     refs.tFlame = tFlame;
+    
+    
+    refs.streaks = [];
+    {
+      let sd2 = 47;
+      const rnd2 = () => { sd2 = (sd2 * 16807) % 2147483647; return sd2 / 2147483647; };
+      for (let i = 0; i < 12; i += 1) {
+        const st2 = basic(new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.02, 0.02),
+          new THREE.MeshBasicMaterial({ color: 0xaebac2, transparent: true, opacity: 0.16 + rnd2() * 0.2 })));
+        st2.position.set(rnd2() * 16 - 8, rnd2() * 4 - 1.2, rnd2() * -8 - 1);
+        transit.add(st2);
+        refs.streaks.push(st2);
+      }
+    }
     stage.add(transit);
 
     
@@ -6491,9 +6651,20 @@ export function boot(canvas, hud) {
       venusSet.add(rock);
     }
     
+    refs.stationWin = [];
     for (const [bx, bw, bh] of [[-6, 8, 4], [3, 6, 6], [10, 9, 3]]) {
       const slab = introPaint(new THREE.BoxGeometry(bw, bh, 3).toNonIndexed(), 0x3a2a22);
       slab.position.set(bx, bh / 2, -34); venusSet.add(slab);
+      
+      
+      
+      for (let wi = 0; wi < 3; wi += 1) {
+        const win = basic(new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.35),
+          new THREE.MeshBasicMaterial({ color: 0xd8a050 })));
+        win.position.set(bx - bw / 3 + wi * (bw / 3), bh * (0.35 + 0.3 * ((wi + 1) % 2)), -32.45);
+        venusSet.add(win);
+        refs.stationWin.push(win);
+      }
     }
     
     
@@ -6506,7 +6677,9 @@ export function boot(canvas, hud) {
     const scorch = introPaintVaried(new THREE.CircleGeometry(3.1, 16).toNonIndexed(), 0x2e1d15, 0.1);
     scorch.rotation.x = -Math.PI / 2; scorch.position.set(0.9, 0.04, -1.2);
     venusSet.add(scorch);
-    const wreck = introRocket();
+    const wreckR = introRocket(basic, 'wreck');
+    const wreck = wreckR.group;
+    refs.wreckBits = wreckR.bits;
     wreck.rotation.z = 1.45; wreck.rotation.y = 0.5;
     wreck.position.set(0.6, 0.9, -1.2);
     venusSet.add(wreck);
@@ -6754,6 +6927,16 @@ export function boot(canvas, hud) {
     audio.listen(lx, lz, { x: ex, y: ey, z: ez }, { x: lx, y: ly, z: lz });
 
     
+    
+    {
+      const cad = (now % 1.2) < 0.13;
+      const bitSet = shotId === 'transit' ? introRefs.transitBits : introRefs.rocketBits;
+      if (bitSet) for (const bc of bitSet.beacons) bc.visible = cad;
+      if (shotId === 'wreck' && introRefs.wreckBits && introRefs.wreckBits.survivor) {
+        
+        introRefs.wreckBits.survivor.visible = (now % 1.7) < 0.3;
+      }
+    }
     if (shotId === 'moonFarm' || shotId === 'call' || shotId === 'ship') {
       
       for (let i = 0; i < 2 && i < birds.length; i += 1) {
@@ -6817,7 +7000,10 @@ export function boot(canvas, hud) {
       }
     }
     if (shotId === 'call' && introRefs.lamp) {
-      introRefs.lamp.material.color.setHex(Math.sin(now * 9) > 0 ? 0x9df5d9 : 0x2a4a3e);
+      const ringing = Math.sin(now * 9) > 0;
+      introRefs.lamp.material.color.setHex(ringing ? 0x9df5d9 : 0x2a4a3e);
+      
+      if (introRefs.radioPool) introRefs.radioPool.material.opacity = ringing ? 0.2 : 0.05;
     }
     if (shotId === 'ship') {
       if (introActs.walking >= 0) {
@@ -6825,7 +7011,7 @@ export function boot(canvas, hud) {
         
         const oM = INTRO_SET.ship;
         const from = { x: oM.x + 1.25, z: oM.z + 2.55 };
-        const to = { x: oM.x - 2.2, z: oM.z - 1.4 };
+        const to = { x: oM.x - 3.2 + 1.55, z: oM.z - 2.6 };   
         const total = Math.hypot(to.x - from.x, to.z - from.z);
         introActs.walking = Math.min(1, introActs.walking + (dt * 1.25) / total);
         const wk = introActs.walking;
@@ -6848,6 +7034,27 @@ export function boot(canvas, hud) {
           fl.position.y = -0.4 + introRefs.rocket.position.y;
           if (core) core.position.y = -0.3 + introRefs.rocket.position.y;
         }
+        for (const md of introRefs.mach || []) {
+          md.visible = introActs.ignite > 0.25;
+          md.scale.set(1, 0.7 + Math.random() * 0.6, 1);
+          md.position.y = md.userData.baseY ?? (md.userData.baseY = md.position.y);
+          md.position.y = md.userData.baseY + (introRefs.rocket ? introRefs.rocket.position.y : 0);
+        }
+        if (introRefs.padGlow) {
+          
+          const clear2 = Math.max(0, 1 - (introRefs.rocket ? introRefs.rocket.position.y : 0) / 4);
+          introRefs.padGlow.material.opacity = clear2 * (0.3 + Math.random() * 0.25);
+        }
+        for (const sq of introRefs.igSmoke || []) {
+          const tIg = introActs.ignite - sq.seed * 0.3;
+          if (tIg > 0 && tIg < 3.2) {
+            const kIg = tIg / 3.2;
+            sq.mesh.material.opacity = 0.4 * (1 - kIg);
+            sq.mesh.position.set(-3.2 + INTRO_SET.ship.x + Math.cos(sq.dir) * (0.8 + kIg * 3.2),
+              0.4 + kIg * 0.9, -2.6 + INTRO_SET.ship.z + Math.sin(sq.dir) * (0.8 + kIg * 3.2));
+            sq.mesh.scale.setScalar(0.7 + kIg * 2.2);
+          } else sq.mesh.material.opacity = 0;
+        }
         if (introRefs.dust) {
           
           
@@ -6855,6 +7062,12 @@ export function boot(canvas, hud) {
           introRefs.dust.scale.setScalar(0.6 + du * 3.2);
           introRefs.dust.material.opacity = Math.max(0, 0.65 * (1 - du * du));
         }
+      }
+    }
+    if (shotId === 'transit' && introRefs.streaks) {
+      for (const st2 of introRefs.streaks) {
+        st2.position.x += dt * 7.5;
+        if (st2.position.x > 9) st2.position.x = -9;
       }
     }
     if (shotId === 'transit' && introRefs.shipSmall) {
