@@ -1,0 +1,13 @@
+{
+  "sampleRate": 48000,
+  "loopSamples": 4194304,
+  "loopSeconds": 87.381333,
+  "tracks": [
+    {
+      "id": "shoot-lobby",
+      "side": "A",
+      "title": "BEFORE THE WHISTLE",
+      "file": "shoot-lobby.webm"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "sampleRate": 48000,
+  "loopSamples": 4194304,
+  "loopSeconds": 87.381333,
+  "tracks": [
+    {
+      "id": "kart-lobby",
+      "side": "A",
+      "title": "THE LONG PADDOCK",
+      "file": "kart-lobby.webm"
+    }
+  ]
+}

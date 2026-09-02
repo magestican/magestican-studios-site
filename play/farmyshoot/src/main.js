@@ -24,7 +24,10 @@ import { mountEscRouter } from 'arbelo/esc-router';
 import { randomLoadout, assertPlayable } from '../../../web-engine/ui/quickPlay.js';
 import { loadCareer, saveCareer, rememberCharacters } from 'arbelo/career';
 import { LOBBY_OPTIONS, readOption, writeOption } from '../../../web-engine/ui/lobbyOptions.js';
-import { setSfxMuted } from './audio/sfx.js';
+import { setSfxMuted, sfxBus } from './audio/sfx.js';
+import { createLobbyMusic } from '../../../web-engine/audio/lobbyMusic.js';
+
+
 
 
 
@@ -53,6 +56,69 @@ import { setSfxMuted } from './audio/sfx.js';
 
 
 installPointerLockPromise(window);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let lobbyMusic = null;
+function lobbyBed() {
+  if (lobbyMusic) return lobbyMusic;
+  const { ctx, master } = sfxBus({ create: true });
+  if (!ctx || !master) return null;
+  lobbyMusic = createLobbyMusic({
+    ctx,
+    
+    destination: master,
+    manifestUrl: new URL('../assets/music/music.json', import.meta.url),
+    gain: 0.30,
+  });
+  lobbyMusic.setMuted(localStorage.getItem('tb.muted') === '1');
+  return lobbyMusic;
+}
+
+
+
+
+
+
+
+
+
+let starts = 0;
+function armLobbyBed() {
+  
+  
+  
+  
+  
+  
+  
+  const tryStart = () => {
+    const hud = document.getElementById('hud');
+    const inMatch = hud && hud.style.display === 'block';
+    if (!inMatch) { starts += 1; lobbyBed()?.play(); }
+  };
+  for (const t of ['pointerdown', 'touchend', 'keydown', 'click']) {
+    window.addEventListener(t, tryStart, true);
+  }
+  
+  window.__tbLobbyMusic = () => (lobbyMusic ? { ...lobbyMusic.state(), starts } : { starts });
+}
+armLobbyBed();
 
 
 
@@ -354,6 +420,7 @@ if (optsEl) {
       
       if (opt.id === 'muted') {
         try { setSfxMuted(on); } catch (_) {}
+        try { lobbyBed()?.setMuted(on); } catch (_) {}
         try { window.__tbGame?.audio?.setMuted?.(on); } catch (_) {}
       }
     });
@@ -617,6 +684,7 @@ async function startGame(hostIdToJoin) {
 
   
   const goInGame = () => {
+    lobbyBed()?.stop();
     $('menu').style.display = 'none';
     $('hud').style.display = 'block';
     $('loading').classList.add('done');

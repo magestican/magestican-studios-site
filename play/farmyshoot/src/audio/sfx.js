@@ -91,6 +91,31 @@ function ensureCtx() {
   return _ctx;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function sfxBus({ create = false } = {}) {
+  
+  
+  
+  
+  
+  
+  
+  if (create) ensureCtx();
+  return { ctx: _ctx, master: _master };
+}
+
 export function setSfxMuted(muted) {
   _muted = () => muted;
   _sfxDuckUntil = 0;

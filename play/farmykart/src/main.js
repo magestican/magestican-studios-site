@@ -39,6 +39,7 @@ import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
 import { createShowcaseView, freshCanvas } from './render/showcase.js';
 import { setMusicMuted, musicClock, musicNow } from './audio/music.js';
+import { createLobbyMusic } from '../../../web-engine/audio/lobbyMusic.js';
 import { EMOTES, EMOTE_TIME } from 'arbelo/emotes';
 import { renderKartBoard } from './ui/kartBoard.js';
 
@@ -125,6 +126,7 @@ const audio = createAudio();
 function boot() {
   initAnalytics();
   installAudioUnlock(audio);
+  armMenuBed();
   
   
   
@@ -144,6 +146,9 @@ function boot() {
   
   window.__fkAudio = () => ({
     ...audioState(audio), musicClock: musicClock(audio), musicNow: musicNow(audio),
+    
+    
+    lobby: lobbyMusic ? lobbyMusic.state() : null,
   });
   state.progress = loadProgress(safeLocalStorage());
   
@@ -1190,6 +1195,15 @@ function showResults(result) {
     track: result.trackId, position: result.position, field: result.fieldSize,
   });
   publishRace();
+  
+  
+  
+  
+  
+  
+  
+  hide('hud');
+  hide('touch-hints');
   show('results');
 }
 
@@ -1293,6 +1307,7 @@ function toggleMute() {
   
   
   setMusicMuted(audio, state.muted);
+  menuBed()?.setMuted(state.muted);
   localStorageSet('farmykart.muted', state.muted ? '1' : '0');
   
   
@@ -1405,6 +1420,66 @@ function copyDayCard() {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let lobbyMusic = null;
+function menuBed() {
+  if (lobbyMusic) return lobbyMusic;
+  if (!audio.ctx || !audio.master) return null;
+  lobbyMusic = createLobbyMusic({
+    ctx: audio.ctx,
+    
+    
+    destination: audio.master,
+    manifestUrl: new URL('../assets/music/music.json', import.meta.url),
+  });
+  lobbyMusic.setMuted(state.muted);
+  return lobbyMusic;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function armMenuBed() {
+  const tryStart = () => {
+    const onMenu = $('menu')?.classList.contains('show')
+      || $('lobby')?.classList.contains('show');
+    if (onMenu) menuBed()?.play();
+  };
+  for (const t of ['pointerdown', 'touchend', 'keydown', 'click']) {
+    window.addEventListener(t, tryStart, true);
+  }
+}
+
 const show = (id) => {
   $(id)?.classList.add('show');
   
@@ -1421,6 +1496,11 @@ const show = (id) => {
   
   
   if (id === 'menu') buildCharacterShowcase();
+  
+  
+  
+  if (id === 'menu' || id === 'lobby') menuBed()?.play();
+  if (id === 'hud') menuBed()?.stop();
 };
 const hide = (id) => $(id)?.classList.remove('show');
 
@@ -1465,7 +1545,7 @@ function routeTo(id) {
   
   
   if (id === 'lobby' && state.session) { hide('menu'); hide('results'); show('lobby'); return; }
-  if (id === 'results') { hide('menu'); show('results'); return; }
+  if (id === 'results') { hide('menu'); hide('hud'); hide('touch-hints'); show('results'); return; }
   hide('lobby'); hide('results'); hide('hud'); hide('touch-hints');
   if (state.race) { state.race.dispose(); state.race = null; }
   show('menu');

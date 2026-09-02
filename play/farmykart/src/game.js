@@ -1683,8 +1683,13 @@ export function createRace(options) {
     
     if (ceremony) {
       if (ceremony.camera) {
-        camera.position.copy(ceremony.camera.pos);
-        camera.lookAt(ceremony.camera.look);
+        
+        
+        
+        const shot = ceremony.cameraFor
+          ? ceremony.cameraFor(camera.aspect) : ceremony.camera;
+        camera.position.copy(shot.pos);
+        camera.lookAt(shot.look);
       }
       ceremony.update(clock);
     }
