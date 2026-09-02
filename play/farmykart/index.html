@@ -114,9 +114,27 @@
       font: 600 16px Georgia, serif; color: #e6dcc6;
       display: flex; align-items: center; gap: 10px;
     }
-    .menu-group > summary::-webkit-details-marker { display: none; }
-    .menu-group > summary::after { content: 'be'; margin-left: auto; color: #9a8f7a; }
-    .menu-group[open] > summary::after { content: 'b4'; }
+    
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+    .menu-group .grp-caret { margin-left: auto; color: #9a8f7a; font-size: 13px;
+      transition: transform .15s ease; }
+    .menu-group[open] .grp-caret { transform: rotate(180deg); }
     .menu-group > summary:hover { background: rgba(244,201,93,0.10); }
     .menu-group .grp-icon { font-size: 18px; color: var(--gold); }
     .menu-group summary em { font-style: normal; color: #9a8f7a; font-size: 13px; font-weight: 400; }
@@ -1406,7 +1424,7 @@
 
       <details class="menu-group">
         <summary><span class="grp-icon">&#9881;</span>Race setup
-          <em id="setup-summary"></em></summary>
+          <em id="setup-summary"></em><span class="grp-caret" aria-hidden="true">&#9662;</span></summary>
         <div class="menu-group-body">
           <h2>Opponents</h2>
           <div id="difficulty-row" class="row"></div>
@@ -1424,7 +1442,7 @@
       </details>
 
       <details class="menu-group">
-        <summary><span class="grp-icon">&#9733;</span>Your progress &amp; board</summary>
+        <summary><span class="grp-icon">&#9733;</span>Your progress &amp; board<span class="grp-caret" aria-hidden="true">&#9662;</span></summary>
         <div class="menu-group-body">
       <h2>Leaderboard</h2>
       
@@ -1814,7 +1832,7 @@
 
 
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=914501d-20260902T143435Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=abb2c27-20260902T214925Z"></script>
 
   <script type="importmap">
   {
@@ -1877,6 +1895,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=914501d-20260902T143435Z"></script>
+  <script type="module" src="./src/main.js?v=abb2c27-20260902T214925Z"></script>
 </body>
 </html>
