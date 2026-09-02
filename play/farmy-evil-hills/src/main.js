@@ -6288,8 +6288,15 @@ export function boot(canvas, hud) {
     ship: { x: 0, z: -600 }, transit: { x: 150, z: -600 }, crash: { x: 300, z: -600 },
     wreck: { x: 300, z: -600 },
   };
+  let introHadGesture = false;
   const introSkipPress = () => {
-    if (intro && !intro.done && intro.t > 0.8) introSkip = true;
+    if (!intro || intro.done || intro.t <= 0.8) return;
+    
+    
+    
+    
+    if (!introHadGesture) { introHadGesture = true; return; }
+    introSkip = true;
   };
 
   
@@ -6940,6 +6947,8 @@ export function boot(canvas, hud) {
     xRig.position.y = 0;
     const el = document.getElementById('vox');
     if (el) { el.textContent = ''; el.classList.remove('pa'); }
+    const tEl = document.getElementById('introTitle');
+    if (tEl) tEl.style.opacity = '0';
     xRig.visible = true;
     intro = null;
     introDone = true;
@@ -7172,6 +7181,23 @@ export function boot(canvas, hud) {
           const fi = k < IDLE_FRAMES ? k : span - k;
           if (xander.geometry !== idleGeo[fi]) xander.geometry = idleGeo[fi];
         }
+      }
+    }
+
+    
+    
+    
+    {
+      const el = document.getElementById('introTitle');
+      if (el) {
+        if (shotId === 'title') {
+          const tt = intro.tShot;
+          const shotDur = INTRO_SHOTS[intro.shot].dur;
+          const inK = Math.min(1, Math.max(0, (tt - 0.3) / 0.9));
+          const outK = Math.min(1, Math.max(0, (shotDur - tt) / 1.1));
+          const flick = 0.86 + Math.sin(now * 13.7) * 0.07 + Math.sin(now * 3.4) * 0.07;
+          el.style.opacity = (Math.min(inK, outK) * flick).toFixed(3);
+        } else if (el.style.opacity !== '0') el.style.opacity = '0';
       }
     }
 
@@ -8364,7 +8390,12 @@ export function boot(canvas, hud) {
     
     
     audio.listen(player.x, player.z, place.eye, place.target);
-    camera.fov = place.fov;
+    
+    
+    
+    
+    camera.fov = (navigator.maxTouchPoints > 1 || touch.active)
+      ? Math.max(place.fov, 90) : place.fov;
     camera.updateProjectionMatrix();
     
     if (player.struggle) shake = Math.min(0.9, Math.max(shake, player.struggle.progress * 0.25 + 0.35));
@@ -9651,6 +9682,7 @@ export function boot(canvas, hud) {
   
   return {
     beginIntro,
+    introActive: () => !!(intro && !intro.done),
     player, birds, touch, faces, head: xHead, neck,
     
     
@@ -10928,16 +10960,11 @@ function start() {
       const go = () => {
         if (started) return;
         started = true;
+        
+        
+        if (api.introActive && api.introActive()) return;
         $('boot').style.display = 'none';
         $('hint').style.display = 'block';
-        
-        
-        
-        
-        if (api.beginIntro) {
-          api.beginIntro(() => { startStationAudio(); });
-          return;
-        }
         startStationAudio();
       };
       
@@ -10953,6 +10980,17 @@ function start() {
         }
         roomTone();
       };
+      
+      
+      
+      
+      
+      
+      
+      if (api.beginIntro) {
+        $('boot').style.display = 'none';
+        api.beginIntro(() => { $('boot').style.display = ''; });
+      }
       $('startBtn').addEventListener('click', go);
       $('boot').addEventListener('click', go);
       document.addEventListener('keydown', (e) => {
