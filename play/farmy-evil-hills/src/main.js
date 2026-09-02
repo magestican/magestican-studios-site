@@ -27,6 +27,7 @@ import { solve, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
 import {
   gaitPose, firePose, strugglePose, deathPose, standPose, gripOf, cycleTravel, settleStep, SETTLE_TIME, aimPose, aimedGait,
   woundedGait, wallLeanPose, dangerGait, forearmLeanPose, limpWarp,
+  feedPose,
   startPhaseAdvance, START_DIST,
   kickPose, KICK_TIME, flinchAdd, FLINCH_TIME, turnStep, TURN_RATE_MIN, reachPose, REACH_TIME,
 } from '../../../web-engine/horror/gait.js';
@@ -153,7 +154,7 @@ const HALL_W = 3.2;
 
 
 
-const HALL_H = 3.6;
+const HALL_H = 2.95;   
 
 
 
@@ -1882,7 +1883,10 @@ const overallsAt = (x, y, z) => {
   
   
   const bib = x > -0.01 && Math.abs(y) < 0.068;
-  if (z < 0.735) return bib ? XCOL.pant : XCOL.top;
+  
+  
+  if (bib && z > 0.60 && z < 0.665 && Math.abs(y) < 0.040) return clothNoise(0x32456e, x, y, z);
+  if (z < 0.735) return clothNoise(bib ? XCOL.pant : XCOL.top, x, y, z);
   
   
   
@@ -1937,13 +1941,61 @@ const trapAt = (x, y, z) => (z < 0.865 ? XCOL.pant : XCOL.top);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const clothNoise = (base, x, y, z) => {
+  const n = hash2(x * 40 + z * 13, y * 40 + z * 7);
+  const k = 0.95 + n * 0.10;
+  const r = Math.min(255, Math.round(((base >> 16) & 255) * k));
+  const g = Math.min(255, Math.round(((base >> 8) & 255) * k));
+  const b = Math.min(255, Math.round((base & 255) * k));
+  return (r << 16) | (g << 8) | b;
+};
+
+
+
+
+const SLEEVE_END = 0.62;
+const sleeveAt = (x, y, z) => {
+  if (z > SLEEVE_END + 0.055) return clothNoise(XCOL.top, x, y, z);
+  if (z > SLEEVE_END) return clothNoise(0xc4614f, x, y, z);   
+  return XCOL.skin;
+};
+
+
+const legAt = (x, y, z) => {
+  if (z > 0.30 && z < 0.40) return clothNoise(0x32456e, x, y, z);   
+  if (z < 0.11) return clothNoise(0x2c3a5c, x, y, z);               
+  return clothNoise(XCOL.pant, x, y, z);
+};
+
 const xColour = (n) => (n === 'hair' ? XCOL.hair
   : /^eye/.test(n) ? XCOL.eye
-  : /^pelvis|^hip\d/.test(n) ? XCOL.pant
-    : /^thigh|^shin|^knee|^ankle/.test(n) ? XCOL.pant
-      : /^trapezius/.test(n) ? trapAt
-        : /^torso/.test(n) ? overallsAt
-          : /^foot/.test(n) ? XCOL.accent : XCOL.skin);
+  : /^pelvis|^hip\d/.test(n) ? ((x, y, z) => clothNoise(XCOL.pant, x, y, z))
+    : /^thigh|^shin|^knee|^ankle/.test(n) ? legAt
+      : /^upperArm/.test(n) ? sleeveAt
+        : /^trapezius/.test(n) ? trapAt
+          : /^torso/.test(n) ? overallsAt
+            : /^foot/.test(n) ? ((x, y, z) => clothNoise(XCOL.accent, x, y, z)) : XCOL.skin);
 
 
 
@@ -4817,6 +4869,17 @@ export function boot(canvas, hud) {
   
   
   
+  
+  
+  
+  const FEED_FRAMES = 9;
+  const feedGeo = [];
+  const feedDrop = [];
+  for (let i = 0; i < FEED_FRAMES; i += 1) {
+    const fp = feedPose(i / (FEED_FRAMES - 1));
+    feedGeo.push(bake(fp));
+    feedDrop.push(fp.drop || 0);
+  }
   const talkGeo = [];
   {
     for (let i = 0; i < TALK_FRAMES; i += 1) {
@@ -6397,19 +6460,19 @@ export function boot(canvas, hud) {
   let introActs = null;
   let introRefs = null;
   let introBed = null;
+  let introDrop = 0;
   const INTRO_SET = {
     title: { x: 0, z: -600 }, moonFarm: { x: 0, z: -600 }, call: { x: 0, z: -600 },
     ship: { x: 0, z: -600 }, transit: { x: 150, z: -600 }, crash: { x: 300, z: -600 },
     wreck: { x: 300, z: -600 },
   };
-  let introHadGesture = false;
   const introSkipPress = () => {
+    
+    
+    
+    
+    
     if (!intro || intro.done || intro.t <= 0.8) return;
-    
-    
-    
-    
-    if (!introHadGesture) { introHadGesture = true; return; }
     introSkip = true;
   };
 
@@ -7059,6 +7122,7 @@ export function boot(canvas, hud) {
     if (introBed) { introBed.stop(); introBed = null; }
     xRig.rotation.x = 0;
     xRig.position.y = 0;
+    neck.position.z = neckHomeZ;
     const el = document.getElementById('vox');
     if (el) { el.textContent = ''; el.classList.remove('pa'); }
     const tEl = document.getElementById('introTitle');
@@ -7070,6 +7134,13 @@ export function boot(canvas, hud) {
   }
 
   function runIntroFrame(now, dt) {
+    
+    
+    
+    
+    
+    
+    introDrop = 0;
     const pressed = introSkip; introSkip = false;
     const r = stepIntro(intro, dt, pressed);
     intro = r.state;
@@ -7116,10 +7187,11 @@ export function boot(canvas, hud) {
       let gestured = false;
       if (introActs.feed >= 0) {
         introActs.feed += dt;
-        const FT = 1.15;
+        const FT = 1.6;
         if (introActs.feed < FT) {
-          const fr2 = Math.min(REACH_FRAMES - 1, Math.floor((introActs.feed / FT) * REACH_FRAMES));
-          if (xander.geometry !== reachGeo[fr2]) xander.geometry = reachGeo[fr2];
+          const fr2 = Math.min(FEED_FRAMES - 1, Math.floor((introActs.feed / FT) * FEED_FRAMES));
+          if (xander.geometry !== feedGeo[fr2]) xander.geometry = feedGeo[fr2];
+          introDrop = feedDrop[fr2];
           gestured = true;
         } else introActs.feed = -1;
       }
@@ -7138,6 +7210,7 @@ export function boot(canvas, hud) {
           introActs.walkDist += dt * 0.85;
           const wf2 = Math.floor(((introActs.walkDist / STRIDE) % 1) * WALK_FRAMES) % WALK_FRAMES;
           if (xander.geometry !== walkGeo[wf2]) xander.geometry = walkGeo[wf2];
+          introDrop = walkPose(wf2 / WALK_FRAMES, 'walk').drop || 0;
           xRig.rotation.y = -Math.atan2(-(to2.x - from2.x), to2.z - from2.z);
           gestured = true;
         } else {
@@ -7186,6 +7259,7 @@ export function boot(canvas, hud) {
         introActs.walkDist += dt * 1.25;
         const wf = Math.floor(((introActs.walkDist / STRIDE) % 1) * WALK_FRAMES) % WALK_FRAMES;
         if (xander.geometry !== walkGeo[wf]) xander.geometry = walkGeo[wf];
+        introDrop = walkPose(wf / WALK_FRAMES, 'walk').drop || 0;
       }
       if (introActs.ignite >= 0 && introRefs.flame && introRefs.rocket) {
         introActs.ignite += dt;
@@ -7314,6 +7388,9 @@ export function boot(canvas, hud) {
         } else if (el.style.opacity !== '0') el.style.opacity = '0';
       }
     }
+
+    
+    neck.position.z = neckHomeZ - introDrop * XANDER_H;
 
     
     if (intro.t > introCapUntil) {
@@ -9942,7 +10019,16 @@ export function boot(canvas, hud) {
         const ox = c.position.x - place.eye.x;
         const oz = c.position.z - place.eye.z;
         const ahead = (ox * fx + oz * fz) / fm;
-        c.visible = !(ahead < 1.1 && Math.hypot(ox, oz) < 2.4);
+        const flat = Math.hypot(ox, oz);
+        
+        
+        
+        
+        
+        
+        
+        
+        c.visible = !(flat < 2.9 || (ahead < 1.1 && flat < 3.4));
       }
     }
 
@@ -11349,11 +11435,28 @@ function start() {
     window.__feh = api;
     if (api) {
       let started = false;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       const go = () => {
         if (started) return;
-        
-        
-        
         
         
         
@@ -11362,6 +11465,18 @@ function start() {
         started = true;
         $('boot').style.display = 'none';
         $('hint').style.display = 'block';
+        
+        
+        
+        audio.ensure();
+        if (api.beginIntro) {
+          
+          
+          
+          
+          api.beginIntro(() => { startStationAudio(); });
+          return;
+        }
         startStationAudio();
       };
       
@@ -11377,17 +11492,6 @@ function start() {
         }
         roomTone();
       };
-      
-      
-      
-      
-      
-      
-      
-      if (api.beginIntro) {
-        $('boot').style.display = 'none';
-        api.beginIntro(() => { $('boot').style.display = ''; });
-      }
       
       
       

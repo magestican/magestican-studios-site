@@ -31,7 +31,14 @@
 
 export const DECK = Object.freeze({
   width: 3.2,          
-  height: 3.6,
+  
+  
+  
+  
+  
+  
+  
+  height: 2.95,
   
   
   longRun: [15, 22],

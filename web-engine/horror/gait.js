@@ -1218,3 +1218,44 @@ export function forearmLeanPose(t) {
     lean: 0.26,
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function feedPose(k) {
+  const u = Math.sin(Math.PI * clamp(k, 0, 1));
+  return {
+    hands: [
+      
+      
+      reachSafe(0.14 + 0.24 * u, SH - 0.16 - 0.10 * u),
+      
+      reachSafe(0.06 + 0.03 * u, SH - 0.30 + 0.02 * u),
+    ],
+    feet: [[-0.05, 0], [0.11, 0]],
+    toe: [0.02, 0.05],
+    grip: 'open',
+    
+    twist: 0.05 + 0.20 * u,
+    air: 0,
+    
+    
+    drop: 0.035 * u,
+    squash: 1 - 0.03 * u,
+    lean: 0.05 + 0.30 * u,
+  };
+}
