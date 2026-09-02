@@ -126,6 +126,64 @@ armLobbyBed();
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SCREEN = 'tb-screen';
+
+function markInMatch() {
+  try { history.pushState({ [SCREEN]: 'match' }, ''); } catch (_) {  }
+}
+
+function lobbyUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('join');
+  return url.toString();
+}
+
+function installLobbyRouter() {
+  try {
+    history.replaceState({ [SCREEN]: 'lobby' }, '');
+    history.pushState({ [SCREEN]: 'lobby' }, '');
+  } catch (_) { return; }
+  window.addEventListener('popstate', (e) => {
+    const to = e.state && e.state[SCREEN];
+    const inMatch = document.getElementById('hud')?.style.display === 'block';
+    if (inMatch) { window.location.replace(lobbyUrl()); return; }
+    
+    
+    if (to !== 'match') {
+      try { history.pushState({ [SCREEN]: 'lobby' }, ''); } catch (_) {  }
+    }
+  });
+}
+installLobbyRouter();
+
+
+
+
+
+
+
+
 window.__tbBooted = true;
 
 
@@ -685,6 +743,7 @@ async function startGame(hostIdToJoin) {
   
   const goInGame = () => {
     lobbyBed()?.stop();
+    markInMatch();
     $('menu').style.display = 'none';
     $('hud').style.display = 'block';
     $('loading').classList.add('done');

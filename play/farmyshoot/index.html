@@ -216,6 +216,35 @@
       .turntable { aspect-ratio: 3 / 2; }
     }
     .row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    .menu-group { margin: 0 0 12px; }
+    .menu-group:not([open]) .menu-group-body { display: none; }
+    .menu-group > summary {
+      cursor: pointer; user-select: none;
+      font: 600 0.78rem/1 system-ui, sans-serif; letter-spacing: .12em;
+      text-transform: uppercase; color: #8fa0b8;
+      padding: 9px 2px; border-bottom: 1px solid #2a3446;
+    }
+    
+
+
+
+
+    .menu-group > summary:hover { color: #e8ecf1; }
+    .menu-group-body { padding-top: 10px; }
     button { font: inherit; background: #2a3446; color: #e8ecf1;
       border: 1px solid #3a475e; border-radius: 8px;
       padding: 10px 16px; cursor: pointer; transition: background .15s ease;
@@ -878,6 +907,40 @@
       background: #1a2330; border: 2px solid #f4c95d; border-radius: 14px;
     }
     #anagramBox h2 { font-family: Georgia,serif; font-size: 26px; margin-bottom: 8px; }
+
+    
+
+
+
+
+
+
+
+
+
+    .podium { display: flex; align-items: flex-end; justify-content: center;
+      gap: 10px; margin: 18px 0 6px; }
+    .podium-slot { display: flex; flex-direction: column; align-items: center; width: 104px; }
+    .podium-figure { font-size: 34px; line-height: 1; margin-bottom: 4px; }
+    .podium-name { font-size: 13px; font-weight: 600; color: #e8ecf1;
+      max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .podium-kills { font-size: 11px; color: #8fa0b8; margin-bottom: 5px; }
+    
+
+    .podium-step { width: 100%; border-radius: 6px 6px 0 0;
+      display: flex; align-items: center; justify-content: center;
+      font: 700 20px Georgia, serif; color: #10161f; }
+    .podium-slot[data-place="1"] .podium-step { height: 78px; background: #f4c95d; }
+    .podium-slot[data-place="2"] .podium-step { height: 56px; background: #c6ced8; }
+    .podium-slot[data-place="3"] .podium-step { height: 40px; background: #cd8a52; }
+    
+
+    .podium-slot.is-me .podium-name { color: #f4c95d; }
+    .podium-you { font: 700 10px system-ui, sans-serif; letter-spacing: .16em;
+      color: #10161f; background: #f4c95d; border-radius: 4px;
+      padding: 2px 6px; margin-bottom: 4px; }
+    .podium-mine { font-size: 13px; color: #8fa0b8; margin-top: 6px; }
+    .podium-mine b { color: #e8ecf1; }
     #anagramTimer { font-size: 40px; font-weight: 700; color: #f4c95d; margin: 12px 0; font-variant-numeric: tabular-nums; }
     #scrambled { font-family: 'SF Mono', Menlo, Consolas, monospace;
       font-size: 40px; letter-spacing: 0.4em; margin: 20px 0; color: #7cb0ff;
@@ -1263,6 +1326,16 @@
 
 
 
+
+
+
+
+
+
+
+          <details class="menu-group">
+            <summary>All animals</summary>
+            <div class="menu-group-body">
           <div class="row chips" id="characterRow">
             <button class="anim-btn" data-char="cow"><span class="emoji">&#128004;</span><span class="lbl">Cow</span></button>
             <button class="anim-btn" data-char="chicken"><span class="emoji">&#128019;</span><span class="lbl">Chicken</span></button>
@@ -1273,6 +1346,8 @@
             <button class="anim-btn" data-char="donkey"><span class="emoji">&#129743;</span><span class="lbl">Donkey</span></button>
             <button class="anim-btn" data-char="goose"><span class="emoji">&#129727;</span><span class="lbl">Goose</span></button>
           </div>
+            </div>
+          </details>
 
           <h3>Name</h3>
           <div class="row">
@@ -1292,13 +1367,21 @@
         <section class="panel panel-match">
           <h2>The match</h2>
 
-          <h3>Map</h3>
-          <div class="row chips" id="mapRow"></div>
-          <p class="pick-blurb" id="mapBlurb"></p>
+          <details class="menu-group">
+            <summary>Map</summary>
+            <div class="menu-group-body">
+              <div class="row chips" id="mapRow"></div>
+              <p class="pick-blurb" id="mapBlurb"></p>
+            </div>
+          </details>
 
-          <h3>Mode</h3>
-          <div class="row chips" id="modeRow"></div>
-          <p class="pick-blurb" id="modeBlurb"></p>
+          <details class="menu-group">
+            <summary>Mode</summary>
+            <div class="menu-group-body">
+              <div class="row chips" id="modeRow"></div>
+              <p class="pick-blurb" id="modeBlurb"></p>
+            </div>
+          </details>
 
           <h3>Bots <span class="hint">&mdash; they fill the empty seats</span></h3>
           <div class="row slider-row">
@@ -1336,8 +1419,12 @@
 
 
 
-          <h3>Options</h3>
-          <div class="opts" id="lobbyOptions"></div>
+          <details class="menu-group">
+            <summary>Options</summary>
+            <div class="menu-group-body">
+              <div class="opts" id="lobbyOptions"></div>
+            </div>
+          </details>
 
           <p class="footer-note">
             A <a href="https://magesticanstudios.com">Magestican Studios</a> game.
@@ -1535,11 +1622,17 @@
       <div id="scrambled">------</div>
       <input type="text" id="anagramInput" placeholder="TYPE THE WORD" autocomplete="off" spellcheck="false" maxlength="12">
       <div id="anagramMsg">Unscramble to steal the win.</div>
+      
+
+
+
+      <div id="podium" class="podium" hidden></div>
+      <div id="podiumMine" class="podium-mine" hidden></div>
     </div>
   </div>
 
   
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=ea65225-20260902T123617Z"></script>
-  <script type="module" src="./src/main.js?v=ea65225-20260902T123617Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=3392f65-20260902T132827Z"></script>
+  <script type="module" src="./src/main.js?v=3392f65-20260902T132827Z"></script>
 </body>
 </html>

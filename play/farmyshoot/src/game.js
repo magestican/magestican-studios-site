@@ -140,6 +140,7 @@ import {
   OBSERVER_TEAM, isObserver, isPlaying, enemyOf, teamCounts, playingCount,
   seatChange, rejoinTeam,
 } from '../../../web-engine/match/observer.js';
+import { podiumFrom, placeOf } from '../../../web-engine/match/podium.js';
 import { fovFor, detectTouch } from '../../../web-engine/render/cameraFov.js';
 import { kindForHit, shouldSpatter } from '../../../web-engine/combat/impactDebris.js';
 import { createBreakState, damageVoxel, isBreakable, voxelAtImpact } from '../../../web-engine/combat/breakable.js';
@@ -5768,6 +5769,15 @@ export class Game {
       spectator: (this.team !== losingTeam) };
     const wrap = document.getElementById('anagramWrap');
     const input = document.getElementById('anagramInput');
+    
+    
+    
+    
+    
+    for (const id of ['podium', 'podiumMine']) {
+      const el = document.getElementById(id);
+      if (el) { el.hidden = true; if (id === 'podium') el.textContent = ''; }
+    }
     document.getElementById('scrambled').textContent = scrambled;
     document.getElementById('anagramTitle').textContent = this._anagram.spectator
       ? `The ${losingTeam} team is trying to steal the win…`
@@ -5809,6 +5819,86 @@ export class Game {
     tick();
   }
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  _paintPodium() {
+    const host = document.getElementById('podium');
+    const mine = document.getElementById('podiumMine');
+    if (!host) return;
+    try {
+      const rows = scoreboardRows({
+        players: this._scoreboardPlayers(), tally: this._tally, myId: this.myId,
+      });
+      const all = [...rows.red, ...rows.blue].map((r) => ({
+        ...r, character: this.playerMeta.get(r.id)?.character,
+      }));
+      const top = podiumFrom(all, { myId: this.myId });
+      host.textContent = '';
+      for (const p of top) {
+        const slot = document.createElement('div');
+        slot.className = `podium-slot${p.isMe ? ' is-me' : ''}`;
+        slot.dataset.place = String(p.place);
+        if (p.isMe) {
+          const you = document.createElement('div');
+          you.className = 'podium-you';
+          you.textContent = 'YOU';
+          slot.appendChild(you);
+        }
+        const fig = document.createElement('div');
+        fig.className = 'podium-figure';
+        
+        
+        
+        
+        fig.textContent = iconFor(p.character);
+        const name = document.createElement('div');
+        name.className = 'podium-name';
+        name.textContent = p.name;
+        const kills = document.createElement('div');
+        kills.className = 'podium-kills';
+        kills.textContent = `${p.kills} kills / ${p.deaths} deaths`;
+        const step = document.createElement('div');
+        step.className = 'podium-step';
+        step.textContent = String(p.place);
+        slot.append(fig, name, kills, step);
+        host.appendChild(slot);
+      }
+      host.hidden = top.length === 0;
+
+      if (mine) {
+        const at = placeOf(all, this.myId);
+        const onPodium = top.some((p) => p.isMe);
+        if (at && !onPodium) {
+          mine.textContent = '';
+          mine.append(document.createTextNode('You finished '));
+          const b = document.createElement('b');
+          b.textContent = `${at.place} of ${at.of}`;
+          mine.append(b, document.createTextNode('.'));
+          mine.hidden = false;
+        } else {
+          mine.hidden = true;
+        }
+      }
+    } catch (err) {
+      
+      host.hidden = true;
+      if (mine) mine.hidden = true;
+      console.warn('[tb] podium failed to paint', err);
+    }
+  }
+
   _endAnagram({ winner, by }) {
     
     
@@ -5830,6 +5920,7 @@ export class Game {
     if (by) msg.textContent = `${this._name(by)} solved "${this._anagram?.word}" and stole the win for ${winner}.`;
     else    msg.textContent = `Time's up. ${winner.toUpperCase()} team keeps the score-based win.`;
     this._anagram = null;
+    this._paintPodium();
 
     
     
