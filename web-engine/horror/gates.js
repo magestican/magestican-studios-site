@@ -76,6 +76,25 @@ export function gatesFor(deck, seed, { act = 1 } = {}) {
   
   
   
+  
+
+  
+  if (act >= 3 && deck.runs.length > 2) {
+    const ri = 1 + Math.floor(h(seed, 5, 5) * (deck.runs.length - 2));
+    const run = deck.runs[ri];
+    const p = run.axis === 'z'
+      ? { x: run.x0, z: run.z0 + 1.5, nx: 0, nz: 1 }
+      : { x: run.x0 + 1.5, z: run.z0, nx: 1, nz: 0 };
+    if (!tooClose(p.x, p.z) && insideLevel(deck, p.x, p.z, 0.3)) {
+      out.push({ ...p, kind: 'drop', run: ri });
+    }
+  }
+
+  
+  
+  
+  
+  
   {
     const [lo, hi] = GATES.breachesPerDeck;
     const want = lo + Math.floor(h(seed, 99, 2) * (hi - lo + 1));
@@ -110,19 +129,6 @@ export function gatesFor(deck, seed, { act = 1 } = {}) {
     }
   });
 
-  }
-
-  
-  
-  if (act >= 3 && deck.runs.length > 2) {
-    const ri = 1 + Math.floor(h(seed, 5, 5) * (deck.runs.length - 2));
-    const run = deck.runs[ri];
-    const p = run.axis === 'z'
-      ? { x: run.x0, z: run.z0 + 1.5, nx: 0, nz: 1 }
-      : { x: run.x0 + 1.5, z: run.z0, nx: 1, nz: 0 };
-    if (!tooClose(p.x, p.z) && insideLevel(deck, p.x, p.z, 0.3)) {
-      out.push({ ...p, kind: 'drop', run: ri });
-    }
   }
 
   return out;

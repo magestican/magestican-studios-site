@@ -6130,7 +6130,21 @@ export function boot(canvas, hud) {
     if (!isBoss) {
       const gs = gatesFor(deck, seed, { act: actFor(seed) });
       for (const g of gs) {
-        if (g.kind === 'drop') { gateMeshes.push({ gate: g, group: null }); continue; }
+        if (g.kind === 'drop') {
+          
+          
+          
+          
+          const dg = new THREE.Group();
+          dg.position.set(g.x, HALL_H, g.z);
+          const tile = introPaint(new THREE.BoxGeometry(1.3, 0.06, 1.3).toNonIndexed(), 0x3a3f3b);
+          tile.position.y = -0.03;
+          tile.rotation.x = 0.04;   
+          dg.add(tile);
+          deckGroup.add(dg);
+          gateMeshes.push({ gate: g, group: dg, tile });
+          continue;
+        }
         const gg = new THREE.Group();
         const yaw2 = Math.atan2(g.nx, g.nz);
         gg.position.set(g.x, 0, g.z);
@@ -7768,9 +7782,15 @@ export function boot(canvas, hud) {
               { dest: audio.at(g.x, g.z) || undefined, gain: 0.9 });
           }
           
+          
           const sh3 = Math.sin(now * 43) * 0.012 * en.e.k;
           if (en.gm.grille) en.gm.grille.position.x = sh3;
           if (en.gm.cracks) en.gm.cracks.position.x = sh3 * 0.6;
+          if (en.gm.tile) {
+            en.gm.tile.position.y = -0.03 - en.e.k * 0.08;
+            en.gm.tile.rotation.x = 0.04 + en.e.k * 0.10;
+            if (Math.random() < 0.25 * en.e.k) throwDebris(g.x, g.z, 0, 0, 1);
+          }
         }
         if (en.e.event === 'burst') {
           en.gm.opened = true;
@@ -7790,6 +7810,14 @@ export function boot(canvas, hud) {
             hole2.position.set(0, 0.95, 0.065);
             en.gm.group.add(hole2);
           }
+          if (en.gm.tile) {
+            
+            en.gm.tile.userData.fall = { vy: -0.5, spin: 6 };
+            const chole = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3),
+              new THREE.MeshBasicMaterial({ color: 0x050807 }));
+            chole.rotation.x = Math.PI / 2; chole.position.set(g.x, HALL_H - 0.01, g.z);
+            deckGroup.add(chole);
+          }
           en.b.mesh.visible = true;
         }
         if (en.e.phase === 'emerge' || en.e.event === 'emerged') {
@@ -7807,6 +7835,15 @@ export function boot(canvas, hud) {
     }
     
     for (const gm of gateMeshes) {
+      const tf = gm.tile && gm.tile.userData.fall;
+      if (tf) {
+        gm.tile.position.y += tf.vy * dt;
+        gm.tile.rotation.z += tf.spin * dt;
+        tf.vy -= dt * 9;
+        if (gm.group.position.y + gm.tile.position.y < 0.06) {
+          gm.tile.userData.fall = null;   
+        }
+      }
       const fly = gm.grille && gm.grille.userData.fly;
       if (fly) {
         gm.grille.position.x += fly.vx * dt * 0.2;
@@ -10866,6 +10903,11 @@ export function boot(canvas, hud) {
         if (liftCar) { player.x = liftCar.x; player.z = liftCar.z; }
         else { player.x = EXIT.x; player.z = EXIT.z; }
       },
+      
+      
+      
+      
+      buildDeck(n) { level = n; buildWorld(n); return level; },
       get ride() {
         return {
           phase: ride.phase, door: ride.door, rise: ride.rise, sealed: ride.sealed,
