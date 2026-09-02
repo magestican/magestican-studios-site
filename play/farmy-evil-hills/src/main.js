@@ -4508,6 +4508,40 @@ function drawMap(cv, player, birds, exit, level, deck, bearing, rise = 0) {
 
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  if (deck.bays) {
+    const pCar = (x, y, z) => mapProject(x, y, z, player, cx, cy, bearing);
+    for (const b of deck.bays) {
+      const near2 = Math.hypot((b.x0 + b.x1) / 2 - player.x, (b.z0 + b.z1) / 2 - player.z);
+      if (near2 > MAP.range + 8) continue;
+      const cs = [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]];
+      for (let i = 0; i < 4; i += 1) {
+        const a2 = cs[i]; const b2 = cs[(i + 1) % 4];
+        
+        seg(p(a2[0], 0, a2[1]), p(b2[0], 0, b2[1]), NEON, 1.8);
+        seg(p(a2[0], H3 * 0.8, a2[1]), p(b2[0], H3 * 0.8, b2[1]), MID, 1);
+      }
+      
+      const hwc = 1.1;
+      const cc = [[b.car.x - hwc, b.car.z - hwc], [b.car.x + hwc, b.car.z - hwc],
+        [b.car.x + hwc, b.car.z + hwc], [b.car.x - hwc, b.car.z + hwc]];
+      for (let i = 0; i < 4; i += 1) {
+        const a3 = cc[i]; const b3 = cc[(i + 1) % 4];
+        seg(pCar(a3[0], 0, a3[1]), pCar(b3[0], 0, b3[1]), NEON, 1.2);
+        seg(pCar(a3[0], H3 * 0.55, a3[1]), pCar(b3[0], H3 * 0.55, b3[1]), NEON, 1);
+      }
+    }
+  }
+
+  
+  
   for (const run of deck.runs) {
     const len = Math.hypot(run.x1 - run.x0, run.z1 - run.z0);
     if (!(len > 0)) continue;
@@ -6290,6 +6324,9 @@ export function boot(canvas, hud) {
   let flinchSide = 1;
   let lastPosedFeet = null;
   let lastFlashAt = -99;
+  let sinceArrive = -1;
+  let liftForced = 0;
+  let deckCardT = 0;
   let stumbleAt = nextStumbleAt(0);
   let stumbleT = -1;
   let walkedTotal = 0;
@@ -9537,6 +9574,14 @@ export function boot(canvas, hud) {
       sparkSfx(w.tip[0], w.tip[2]);
     }
     if (actCardT > 0) { actCardT -= dt; if (actCardT <= 0) hud.msg(''); }
+    {
+      const el = document.getElementById('deckCard');
+      if (el) {
+        deckCardT = Math.max(0, deckCardT - dt);
+        
+        el.style.opacity = Math.min(1, deckCardT / 0.9).toFixed(3);
+      }
+    }
     cutFlash = Math.max(0, cutFlash - dt);
     if (gradeEl) gradeEl.style.background = cutFlash > 0
       ? 'rgba(0,0,0,0.86)' : 'rgba(2, 5, 4, 0.34)';
@@ -9889,9 +9934,59 @@ export function boot(canvas, hud) {
       const inCar = insideCar(liftCar, player.x, player.z, 0.35);
       const was = ride.phase;
       ride = stepLift(ride, dt, { near, inside: inCar });
+      
+      
+      
+      
+      
+      
+      
+      
+      if (sinceArrive >= 0) {
+        sinceArrive += dt;
+        if (ride.phase === 'clear' || ride.phase === 'idle') sinceArrive = -1;
+        else if (sinceArrive > (LIFT.settle + LIFT.doorTime) * 2 + 1) {
+          ride = { ...ride, phase: 'clear', t: 0, door: 1, sealed: false, event: 'ready' };
+          liftForced += 1;
+          sinceArrive = -1;
+        }
+      }
 
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (was !== 'closing' && ride.phase === 'closing') {
+        for (const b of birds) {
+          b.alive = false;
+          b.latched = false;
+          if (b.mesh) b.mesh.visible = false;
+          if (b.flame) b.flame.visible = false;
+          b.burn = null;
+        }
+        player.latchedBy = null;
+        player.struggle = null;
+      }
       if (ride.event === 'open') { liftChime(); hud.msg('LIFT'); }
       else if (ride.event === 'shut') { doorSfx(false); hud.msg(''); }
+      else if (ride.event === 'arrive') { sinceArrive = 0; }
+      else if (ride.event === 'ready') {
+        
+        
+        
+        const el = document.getElementById('deckCard');
+        if (el) el.textContent = `DECK ${level}`;
+        deckCardT = 3.4;
+        sinceArrive = -1;
+      }
       else if (ride.event === 'depart') {
         
         
@@ -10078,6 +10173,7 @@ export function boot(canvas, hud) {
       ammo: player.weapon.ammo,
       range: Math.round(player.weapon.spec?.range ?? 0),
       ep: 100 - Math.min(100, level * 6),
+      deckNo: level,
       flash: shotFlash > 0 && flashK > 0.3 && (now - lastFlashAt) >= flashGap(access),
       bark: currentBark(barks),
     });
@@ -10440,6 +10536,11 @@ export function boot(canvas, hud) {
       get mumble() { return { count: mumbleCount, playing: !!mumbleStop }; },
       get gunVisible() { return gun.visible; },
       get injury() { return injuryDbg; },
+      get liftForced() { return liftForced; },
+      get deckCard() {
+        const el = document.getElementById('deckCard');
+        return { text: el ? el.textContent : '', opacity: el ? +(el.style.opacity || 0) : 0 };
+      },
       get danger() {
         return {
           danger: isDanger(player.vitals.health, MAX_HEALTH),
@@ -11346,7 +11447,11 @@ const hud = {
     $('wpAmmo').textContent = s.ammo == null ? '--' : s.ammo;
     $('wpRange').textContent = s.range == null ? '--' : s.range;
 
-    $('count').textContent = s.remaining ? `${s.remaining} ON THE DECK` : 'DECK CLEAR';
+    
+    
+    $('count').textContent = s.remaining
+      ? `DECK ${s.deckNo} \u00b7 ${s.remaining} ON THE DECK`
+      : `DECK ${s.deckNo} \u00b7 CLEAR`;
     $('flash').style.opacity = s.flash ? '0.30' : '0';
 
     if (s.struggle) {
