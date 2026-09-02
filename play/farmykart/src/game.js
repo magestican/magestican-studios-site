@@ -130,7 +130,8 @@ import { createRain, updateRain } from './render/rainFx.js';
 import { buildItemBoxMesh, animateItemBox, buildHazardMesh, animateHazard } from './render/itemMesh.js';
 import { createHud, updateHud, showBanner, tickBanner, gapText } from './ui/hud.js';
 import { createMinimap, drawMinimap } from './ui/minimapView.js';
-import { createControls, readControls, consumeItemPress } from './input/controls.js';
+import { createControls, readControls, consumeItemPress, showTouchOverlay } from './input/controls.js';
+import { raceFov, fovCeiling } from '../../../web-engine/kart/raceFov.js';
 import { createRaceNet } from './net/raceNet.js';
 import { createAudio, resumeAudio, startEngine, updateEngine, updateRivals, updateAirshipDrone, stopEngine, SFX, setMuted } from './audio/sfx.js';
 import { startMusic, stopMusic, setMusicIntensity, duckMusic } from './audio/music.js';
@@ -258,8 +259,21 @@ export function createRace(options) {
 
   const scene = new THREE.Scene();
   scene.fog = fogFor(track.theme);
-  const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.4, 1200);
-  const chase = createChaseCamera(camera);
+  
+  
+  
+  
+  
+  
+  
+  const touch = showTouchOverlay();
+  const camera = new THREE.PerspectiveCamera(
+    raceFov(window.innerWidth, window.innerHeight, { touch }),
+    window.innerWidth / window.innerHeight, 0.4, 1200);
+  const chase = createChaseCamera(camera, {
+    baseFov: raceFov(window.innerWidth, window.innerHeight, { touch }),
+    ceiling: fovCeiling(window.innerWidth, window.innerHeight),
+  });
 
   
   
@@ -600,6 +614,18 @@ export function createRace(options) {
     renderer.setSize(window.innerWidth, window.innerHeight, false);
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     camera.aspect = window.innerWidth / window.innerHeight;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    chase.baseFov = raceFov(window.innerWidth, window.innerHeight, { touch });
+    chase.ceiling = fovCeiling(window.innerWidth, window.innerHeight);
     camera.updateProjectionMatrix();
   };
   window.addEventListener('resize', onResize);

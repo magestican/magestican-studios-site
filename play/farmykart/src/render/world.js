@@ -11,6 +11,7 @@ import { PALETTE } from '../palette.js';
 import { makeSunFaceTexture } from './textures.js';
 import { buildSkyMaterial } from './materials.js';
 import { themeOf } from './themes.js';
+import { BASE_FOV, V_FOV_CEILING } from '../../../../web-engine/kart/raceFov.js';
 
 
 
@@ -325,12 +326,19 @@ export function fogFor(theme) {
 
 
 
-export function createChaseCamera(camera) {
+export function createChaseCamera(camera, { baseFov = BASE_FOV, ceiling = V_FOV_CEILING } = {}) {
   return {
     camera,
     x: 0, y: 4, z: 0,
     yaw: 0,
-    fov: 62,
+    
+    
+    
+    
+    
+    baseFov,
+    ceiling,
+    fov: baseFov,
     shake: 0,
     
     
@@ -550,7 +558,11 @@ export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.
   
   
   
-  const wantFov = 60 + fast * 22 + (kart.boost ? 12 : 0);
+  
+  
+  
+  
+  const wantFov = Math.min(cam.ceiling, cam.baseFov + fast * 22 + (kart.boost ? 12 : 0));
   cam.fov += (wantFov - cam.fov) * Math.min(1, dt * 5);
   if (Math.abs(cam.camera.fov - cam.fov) > 0.01) {
     cam.camera.fov = cam.fov;
