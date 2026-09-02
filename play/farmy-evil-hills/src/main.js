@@ -1652,6 +1652,14 @@ const WALK_FRAMES = 14;
 const AIM_FRAMES = 10;
 const RAISE_FRAMES = 7;
 const TALK_FRAMES = 7;
+const TALK_TIME = 1.5;
+const FIDGET_TIME = 2.2;
+
+
+const TALK_TO = Object.freeze({
+  hands: [[0.24, 0.60], [0.07, 0.51]],
+  twist: 0.14, lean: 0.02, grip: 'open',
+});
 const SPRINT_FRAMES = 12;
 
 
@@ -4808,12 +4816,8 @@ export function boot(canvas, hud) {
   
   const talkGeo = [];
   {
-    const talkTo = {
-      hands: [[0.24, 0.60], [0.07, 0.51]],
-      twist: 0.14, lean: 0.02, grip: 'open',
-    };
     for (let i = 0; i < TALK_FRAMES; i += 1) {
-      talkGeo.push(bake(raiseMix(standPose(0), { ...standPose(0), ...talkTo }, i / (TALK_FRAMES - 1))));
+      talkGeo.push(bake(raiseMix(standPose(0), { ...standPose(0), ...TALK_TO }, i / (TALK_FRAMES - 1))));
     }
   }
   const walkAimGeo = [];
@@ -4888,6 +4892,35 @@ export function boot(canvas, hud) {
   const dangerIdleGeo = [];
   for (let i = 0; i < IDLE_FRAMES; i += 1) {
     dangerIdleGeo.push(bake(dangerGait(standPose((i / (IDLE_FRAMES - 1)) * (Math.PI / 0.9)))));
+  }
+  
+  
+  
+  
+  
+  
+  
+  const FIDGET_FRAMES = 9;
+  const fidgetGeo = [[], []];
+  for (let i = 0; i < FIDGET_FRAMES; i += 1) {
+    
+    const k = Math.sin(Math.PI * (i / (FIDGET_FRAMES - 1)));
+    const base = standPose(0);
+    fidgetGeo[0].push(bake({
+      ...base,
+      
+      feet: [[base.feet[0][0] - 0.03 * k, 0], [base.feet[1][0] + 0.05 * k, 0]],
+      hands: [base.hands[0], [base.hands[1][0] + 0.045 * k, base.hands[1][1] + 0.02 * k]],
+      twist: (base.twist ?? 0) + 0.06 * k,
+      lean: (base.lean ?? 0) + 0.012 * k,
+    }));
+    fidgetGeo[1].push(bake({
+      ...base,
+      
+      twist: (base.twist ?? 0) + 0.13 * k,
+      hands: [[base.hands[0][0] + 0.02 * k, base.hands[0][1] + 0.035 * k], base.hands[1]],
+      lean: (base.lean ?? 0) - 0.02 * k,
+    }));
   }
   const WALLLEAN_FRAMES = 10;
   const wallLeanGeo = [];
@@ -6187,6 +6220,8 @@ export function boot(canvas, hud) {
   let walkArmsShown = false;
   let wasGaitBranch = false;
   let wallRoll = 0;
+  let bankRoll = 0;
+  let flinchSide = 1;
   let lastPosedFeet = null;
   let stumbleAt = nextStumbleAt(0);
   let stumbleT = -1;
@@ -6272,6 +6307,15 @@ export function boot(canvas, hud) {
   let restT = 0;
   let resting = false;
   let blown = false;
+  
+  
+  
+  let talkT = -1;
+  let lastTalkKey = null;
+  let fidgetT = -1;
+  let fidgetWhich = 0;
+  let fidgetBag = [0, 1];
+  let fidgetAt = 26;
   let restNow = null;
   const REST_AFTER = 6;
   let restRigPitch = 0;
@@ -7440,6 +7484,26 @@ export function boot(canvas, hud) {
     
     
     
+    
+    
+    
+    
+    {
+      const cbT = currentBark(barks);
+      const keyT = cbT && cbT.who === 'xander' ? cbT.text : null;
+      if (keyT !== lastTalkKey) {
+        lastTalkKey = keyT;
+        if (keyT) talkT = 0;
+      }
+      if (talkT >= 0) {
+        talkT += dt;
+        if (talkT > TALK_TIME) talkT = -1;
+      }
+    }
+
+    
+    
+    
     const injuredNow = !player.dead && isInjured(player.vitals.health, MAX_HEALTH);
     const dangerNow = !player.dead && isDanger(player.vitals.health, MAX_HEALTH);
     
@@ -8538,7 +8602,25 @@ export function boot(canvas, hud) {
     
     
     if (player.vitals.health < flinchHp - 2 && !player.dead
-        && !player.struggle && !player.latchedBy) flinchT = 0;
+        && !player.struggle && !player.latchedBy) {
+      flinchT = 0;
+      
+      
+      
+      
+      let near = null;
+      let nd = Infinity;
+      for (const b of birds) {
+        if (!b.alive) continue;
+        const d2 = Math.hypot(b.x - player.x, b.z - player.z);
+        if (d2 < nd) { nd = d2; near = b; }
+      }
+      if (near) {
+        const rx2 = Math.cos(player.yaw);
+        const rz2 = Math.sin(player.yaw);
+        flinchSide = Math.sign((near.x - player.x) * rx2 + (near.z - player.z) * rz2) || 1;
+      }
+    }
     flinchHp = player.vitals.health;
 
     
@@ -8805,6 +8887,20 @@ export function boot(canvas, hud) {
         const idleSet = dangerNow ? dangerIdleGeo : woundedIdleGeo;
         if (xander.geometry !== idleSet[fi]) xander.geometry = idleSet[fi];
       }
+    } else if (talkT >= 0 && !injuredNow) {
+      
+      walkPhase = 0;
+      wasGaitBranch = false;
+      const kT = Math.sin(Math.PI * (talkT / TALK_TIME));
+      const fT = Math.round(kT * (TALK_FRAMES - 1));
+      if (xander.geometry !== talkGeo[fT]) xander.geometry = talkGeo[fT];
+    } else if (fidgetT >= 0 && !injuredNow) {
+      
+      walkPhase = 0;
+      wasGaitBranch = false;
+      const fF = Math.min(FIDGET_FRAMES - 1, Math.floor((fidgetT / FIDGET_TIME) * FIDGET_FRAMES));
+      const setF = fidgetGeo[fidgetWhich];
+      if (xander.geometry !== setF[fF]) xander.geometry = setF[fF];
     } else {
       walkPhase = 0;
       wasGaitBranch = false;
@@ -8927,6 +9023,10 @@ export function boot(canvas, hud) {
         }
       } else if (restNow) {
         posed = restNow.seated ? restPose(injuredNow).pose : restTravel(restNow.k, true).pose;
+      } else if (talkT >= 0 && !injuredNow) {
+        const kT2 = Math.sin(Math.PI * (talkT / TALK_TIME));
+        const q = Math.round(kT2 * (TALK_FRAMES - 1)) / (TALK_FRAMES - 1);
+        posed = raiseMix(standPose(0), { ...standPose(0), ...TALK_TO }, q);
       } else if (injuredNow) {
         posed = wallLeanClose
           ? (dangerNow ? forearmLeanPose(now) : wallLeanPose(now))
@@ -9138,7 +9238,19 @@ export function boot(canvas, hud) {
     
     if (!restNow) { restRigPitch = 0; restRigLift = 0; }
     xTilt.rotation.x = lean + fall + stumbleLean;
-    xTilt.rotation.z = wallRoll;
+    
+    
+    
+    
+    
+    const bank = clamp(-dYaw * 0.9, -0.05, 0.05);
+    bankRoll += (bank - bankRoll) * Math.min(1, dt * 7);
+    let flinchRoll = 0;
+    if (flinchT < FLINCH_TIME) {
+      const fu = flinchT / FLINCH_TIME;
+      flinchRoll = Math.sin(Math.PI * fu) * 0.055 * flinchSide;
+    }
+    xTilt.rotation.z = clamp(wallRoll + bankRoll + flinchRoll, -0.16, 0.16);
 
     
     
@@ -9213,7 +9325,24 @@ export function boot(canvas, hud) {
     if (moving || turning || player.dead || player.struggle || target
         || kickT < KICK_TIME || reachT < REACH_TIME || fireT < FIRE_TIME) {
       if (stillFor > 0) { stillFor = 0; glanceAt = 10 + Math.random() * 4; }
-    } else stillFor += dt;
+    } else {
+      stillFor += dt;
+      
+      
+      
+      if (fidgetT < 0 && stillFor > fidgetAt) {
+        if (!fidgetBag.length) fidgetBag = [0, 1];
+        const pick = Math.floor(Math.random() * fidgetBag.length);
+        fidgetWhich = fidgetBag.splice(pick, 1)[0];
+        fidgetT = 0;
+        fidgetAt = stillFor + 20 + Math.random() * 14;
+      }
+    }
+    if (fidgetT >= 0) {
+      fidgetT += dt;
+      if (fidgetT > FIDGET_TIME) fidgetT = -1;
+    }
+    if (stillFor < 0.2) { fidgetT = -1; fidgetAt = 26; }
     prevYaw = player.yaw;
 
     
@@ -10414,6 +10543,18 @@ export function boot(canvas, hud) {
       
       get poseFeet() { return lastPosedFeet; },
       get startStep() { return { dist: +startDist.toFixed(3), phase: +startPhase.toFixed(3) }; },
+      
+      
+      
+      
+      say(trigger) { const l = say(barks, trigger, { force: true }); return l ? l.id : null; },
+      get body() {
+        return {
+          talking: talkT >= 0, fidget: fidgetT >= 0 ? fidgetWhich : -1,
+          still: +stillFor.toFixed(1),
+          roll: +xTilt.rotation.z.toFixed(4), flinchSide,
+        };
+      },
       get rest() {
         return {
           safeIdle: +safeIdle.toFixed(2), resting,
