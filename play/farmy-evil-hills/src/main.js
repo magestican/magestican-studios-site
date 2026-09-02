@@ -6236,6 +6236,38 @@ export function boot(canvas, hud) {
     if (intro && !intro.done && intro.t > 0.8) introSkip = true;
   };
 
+  
+  
+  
+  
+  function introPaintVaried(geo, hex, amount = 0.12) {
+    const nn = geo.attributes.position.count;
+    const col = new Float32Array(nn * 3);
+    const c = new THREE.Color(hex);
+    let sd = 1234567;
+    const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+    for (let i = 0; i < nn; i += 1) {
+      const k = 1 + (rnd() * 2 - 1) * amount;
+      col[i * 3] = c.r * k; col[i * 3 + 1] = c.g * k; col[i * 3 + 2] = c.b * k;
+    }
+    geo.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(new Array(nn * 2).fill(0), 2));
+    geo.computeVertexNormals();
+    return new THREE.Mesh(geo, mat);
+  }
+
+  
+  
+  function introPlanetTexture(w, h, painter) {
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    painter(cv.getContext('2d'), w, h);
+    const tex = new THREE.CanvasTexture(cv);
+    tex.magFilter = THREE.NearestFilter;
+    tex.minFilter = THREE.NearestFilter;
+    return tex;
+  }
+
   function introPaint(geo, hex) {
     const nn = geo.attributes.position.count;
     const col = new Float32Array(nn * 3);
@@ -6276,35 +6308,73 @@ export function boot(canvas, hud) {
     
     const moon = new THREE.Group();
     moon.position.set(INTRO_SET.moonFarm.x, 0, INTRO_SET.moonFarm.z);
-    const ground = introPaint(new THREE.CircleGeometry(50, 26).toNonIndexed(), 0x6a6d66);
+    
+    
+    const ground = introPaintVaried(new THREE.CircleGeometry(50, 40).toNonIndexed(), 0xa9ac9f, 0.12);
     ground.rotation.x = -Math.PI / 2; moon.add(ground);
     for (const [cx2, cz2, cr] of [[-8, -10, 3.4], [10, -14, 5], [6, 9, 2.2], [-14, 6, 2.8]]) {
-      const crater = introPaint(new THREE.CircleGeometry(cr, 14).toNonIndexed(), 0x585b54);
+      const crater = introPaintVaried(new THREE.CircleGeometry(cr, 14).toNonIndexed(), 0x83867a, 0.1);
       crater.rotation.x = -Math.PI / 2; crater.position.set(cx2, 0.02, cz2);
       moon.add(crater);
+      
+      
+      const rim = introPaint(new THREE.RingGeometry(cr * 0.92, cr * 1.18, 14).toNonIndexed(), 0xc2c5b6);
+      rim.rotation.x = -Math.PI / 2; rim.position.set(cx2, 0.035, cz2);
+      moon.add(rim);
+    }
+    
+    for (const [rx3, rz3, rs3] of [[-11, 2, 0.5], [7, -6, 0.7], [12, 3, 0.4], [-4, 12, 0.6], [3, -11, 0.5], [-16, -4, 0.8]]) {
+      const rock = introPaintVaried(new THREE.BoxGeometry(rs3, rs3 * 0.6, rs3 * 0.8).toNonIndexed(), 0x8f9288, 0.15);
+      rock.position.set(rx3, rs3 * 0.25, rz3); rock.rotation.y = rx3 * 1.3;
+      moon.add(rock);
     }
     
     
-    const earth = basic(new THREE.Mesh(new THREE.SphereGeometry(2.4, 12, 10),
-      new THREE.MeshBasicMaterial({ color: 0x7fa7d8 })));
+    
+    
+    const earthTex = introPlanetTexture(64, 48, (g, w, h) => {
+      g.fillStyle = '#3f6ea8'; g.fillRect(0, 0, w, h);
+      g.fillStyle = '#4e7a45';
+      for (const [bx, by, bw2, bh3] of [[6, 14, 16, 10], [30, 20, 14, 12], [46, 8, 12, 8], [18, 30, 10, 8], [50, 30, 9, 9]]) {
+        g.beginPath(); g.ellipse(bx, by, bw2 / 2, bh3 / 2, 0.4, 0, Math.PI * 2); g.fill();
+      }
+      g.fillStyle = '#e8eef2';
+      g.fillRect(0, 0, w, 5); g.fillRect(0, h - 4, w, 4);
+      g.globalAlpha = 0.35; g.fillStyle = '#dfe7ec';
+      for (const [sx, sy] of [[10, 22], [38, 12], [26, 38], [54, 22]]) g.fillRect(sx, sy, 12, 3);
+    });
+    const earth = basic(new THREE.Mesh(new THREE.SphereGeometry(2.4, 14, 12),
+      new THREE.MeshBasicMaterial({ map: earthTex })));
+    earth.rotation.y = 2.2;
     earth.position.set(16, 15, -30); moon.add(earth);
     
     for (let i = 0; i < 4; i += 1) {
       for (let j = 0; j < 2; j += 1) {
-        const post = introPaint(new THREE.BoxGeometry(0.1, 0.9, 0.1).toNonIndexed(), 0x7a6f5a);
+        const post = introPaint(new THREE.BoxGeometry(0.1, 0.9, 0.1).toNonIndexed(), 0xa89a7e);
         post.position.set(1.4 + i * 1.0, 0.45, j === 0 ? 0.2 : 2.2);
         moon.add(post);
       }
     }
     for (const rz of [0.2, 2.2]) {
-      const rail = introPaint(new THREE.BoxGeometry(3.2, 0.07, 0.07).toNonIndexed(), 0x7a6f5a);
+      const rail = introPaint(new THREE.BoxGeometry(3.2, 0.07, 0.07).toNonIndexed(), 0xa89a7e);
       rail.position.set(2.9, 0.72, rz); moon.add(rail);
     }
-    const trough = introPaint(new THREE.BoxGeometry(1.2, 0.28, 0.4).toNonIndexed(), 0x5c6157);
+    const trough = introPaint(new THREE.BoxGeometry(1.2, 0.28, 0.4).toNonIndexed(), 0x8a9083);
     trough.position.set(2.6, 0.14, 1.2); moon.add(trough);
     
-    const hab = introPaint(new THREE.SphereGeometry(2.4, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).toNonIndexed(), 0x8b8f96);
+    const hab = introPaint(new THREE.SphereGeometry(2.4, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).toNonIndexed(), 0xb4b8bf);
     hab.position.set(-6.5, 0, -4.5); moon.add(hab);
+    
+    
+    const habWin = basic(new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.36),
+      new THREE.MeshBasicMaterial({ color: 0xffd9a0 })));
+    habWin.position.set(-5.05, 1.1, -2.9); habWin.rotation.y = 0.95;
+    moon.add(habWin);
+    const lampPost = introPaint(new THREE.BoxGeometry(0.09, 1.9, 0.09).toNonIndexed(), 0x6f7377);
+    lampPost.position.set(4.7, 0.95, 1.2); moon.add(lampPost);
+    const penLamp = basic(new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.2),
+      new THREE.MeshBasicMaterial({ color: 0xffcf8e })));
+    penLamp.position.set(4.7, 1.92, 1.2); moon.add(penLamp);
     
     const radio = introPaint(new THREE.BoxGeometry(0.3, 1.5, 0.3).toNonIndexed(), 0x4a5347);
     radio.position.set(1.6, 0.75, 3.4); moon.add(radio);
@@ -6313,6 +6383,18 @@ export function boot(canvas, hud) {
     lamp.position.set(1.6, 1.6, 3.4); moon.add(lamp);
     refs.lamp = lamp;
     
+    
+    
+    const pad = introPaintVaried(new THREE.CircleGeometry(2.3, 18).toNonIndexed(), 0x6e716b, 0.12);
+    pad.rotation.x = -Math.PI / 2; pad.position.set(-3.2, 0.025, -2.6);
+    moon.add(pad);
+    for (let i = 0; i < 3; i += 1) {
+      const a = (i / 3) * Math.PI * 2 + 0.5;
+      const clamp2 = introPaint(new THREE.BoxGeometry(0.3, 0.5, 0.5).toNonIndexed(), 0x5a5e5a);
+      clamp2.position.set(-3.2 + Math.cos(a) * 1.7, 0.25, -2.6 + Math.sin(a) * 1.7);
+      clamp2.rotation.y = -a;
+      moon.add(clamp2);
+    }
     const rocket = introRocket();
     rocket.position.set(-3.2, 0, -2.6); moon.add(rocket);
     refs.rocket = rocket;
@@ -6321,11 +6403,16 @@ export function boot(canvas, hud) {
     flame.rotation.x = Math.PI; flame.position.set(-3.2, -0.4, -2.6);
     flame.visible = false; moon.add(flame);
     refs.flame = flame;
+    const flameCore = basic(new THREE.Mesh(new THREE.ConeGeometry(0.34, 1.1, 8),
+      new THREE.MeshBasicMaterial({ color: 0xfff2c8 })));
+    flameCore.rotation.x = Math.PI; flameCore.position.set(-3.2, -0.3, -2.6);
+    flameCore.visible = false; moon.add(flameCore);
+    refs.flameCore = flameCore;
     
     
     
     const dust = basic(new THREE.Mesh(new THREE.RingGeometry(0.8, 2.0, 18),
-      new THREE.MeshBasicMaterial({ color: 0x8d9088, transparent: true, opacity: 0 })));
+      new THREE.MeshBasicMaterial({ color: 0xcfd2c2, transparent: true, opacity: 0 })));
     dust.rotation.x = -Math.PI / 2; dust.position.set(-3.2, 0.06, -2.6);
     moon.add(dust);
     refs.dust = dust;
@@ -6337,9 +6424,12 @@ export function boot(canvas, hud) {
       const pts = [];
       let sd = 91;
       const rnd = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
-      for (let i = 0; i < 420; i += 1) {
-        const a = rnd() * Math.PI * 2; const e = rnd() * Math.PI * 0.48 + 0.04;
-        const r = 120;
+      
+      
+      
+      for (let i = 0; i < 700; i += 1) {
+        const a = rnd() * Math.PI * 2; const e = rnd() * Math.PI * 0.48 + 0.03;
+        const r = 260;
         pts.push(150 + Math.cos(a) * Math.cos(e) * r, Math.sin(e) * r, -600 + Math.sin(a) * Math.cos(e) * r);
       }
       const sg = new THREE.BufferGeometry();
@@ -6357,15 +6447,27 @@ export function boot(canvas, hud) {
     shipSmall.position.set(6, 0.6, 0);
     transit.add(shipSmall);
     refs.shipSmall = shipSmall;
-    const venus = basic(new THREE.Mesh(new THREE.SphereGeometry(1.7, 12, 10),
-      new THREE.MeshBasicMaterial({ color: 0xc8935a })));
+    const venusTex = introPlanetTexture(48, 32, (g, w, h) => {
+      g.fillStyle = '#c8935a'; g.fillRect(0, 0, w, h);
+      for (const [by, bh4, cc] of [[4, 4, '#d8a86e'], [11, 3, '#b57f47'], [17, 5, '#d3a061'], [25, 4, '#ba854e']]) {
+        g.fillStyle = cc; g.fillRect(0, by, w, bh4);
+      }
+    });
+    const venus = basic(new THREE.Mesh(new THREE.SphereGeometry(1.7, 14, 12),
+      new THREE.MeshBasicMaterial({ map: venusTex })));
     venus.position.set(-11, 2.2, -7); transit.add(venus);
+    
+    const tFlame = basic(new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.7, 7),
+      new THREE.MeshBasicMaterial({ color: 0xffc27a })));
+    tFlame.rotation.z = -Math.PI / 2;
+    transit.add(tFlame);
+    refs.tFlame = tFlame;
     stage.add(transit);
 
     
     const venusSet = new THREE.Group();
     venusSet.position.set(INTRO_SET.crash.x, 0, INTRO_SET.crash.z);
-    const vGround = introPaint(new THREE.CircleGeometry(60, 24).toNonIndexed(), 0x7a5140);
+    const vGround = introPaintVaried(new THREE.CircleGeometry(60, 36).toNonIndexed(), 0x94664f, 0.16);
     vGround.rotation.x = -Math.PI / 2; venusSet.add(vGround);
     for (const [rx, rz2, rs] of [[-4, -6, 1.1], [5, -3, 0.8], [-2, 4, 0.6], [7, 5, 1.4], [-8, 2, 0.9]]) {
       const rock = introPaint(new THREE.BoxGeometry(rs, rs * 0.7, rs * 0.9).toNonIndexed(), 0x5e3d30);
@@ -6378,10 +6480,46 @@ export function boot(canvas, hud) {
       slab.position.set(bx, bh / 2, -34); venusSet.add(slab);
     }
     
+    
+    
+    
+    const trench = introPaintVaried(new THREE.PlaneGeometry(11, 1.7).toNonIndexed(), 0x3f2a20, 0.12);
+    trench.rotation.x = -Math.PI / 2; trench.rotation.z = 0.5;
+    trench.position.set(4.6, 0.03, -3.2);
+    venusSet.add(trench);
+    const scorch = introPaintVaried(new THREE.CircleGeometry(3.1, 16).toNonIndexed(), 0x2e1d15, 0.1);
+    scorch.rotation.x = -Math.PI / 2; scorch.position.set(0.9, 0.04, -1.2);
+    venusSet.add(scorch);
     const wreck = introRocket();
     wreck.rotation.z = 1.45; wreck.rotation.y = 0.5;
     wreck.position.set(0.6, 0.9, -1.2);
     venusSet.add(wreck);
+    
+    for (const [dx2, dz2, ds2, dr2] of [[3.4, -2.6, 0.5, 0.7], [5.8, -3.8, 0.4, 2.1], [2.2, -0.2, 0.3, 1.2], [7.4, -4.6, 0.55, 0.3], [1.4, -2.9, 0.35, 2.8]]) {
+      const shard = introPaint(new THREE.BoxGeometry(ds2, ds2 * 0.25, ds2 * 0.7).toNonIndexed(), 0x8a9096);
+      shard.position.set(dx2, ds2 * 0.12, dz2); shard.rotation.y = dr2; shard.rotation.z = 0.15;
+      venusSet.add(shard);
+    }
+    const stuckFin = introPaint(new THREE.BoxGeometry(0.08, 1.2, 0.65).toNonIndexed(), 0xb04a3a);
+    stuckFin.position.set(6.6, 0.45, -2.4); stuckFin.rotation.z = 0.35; stuckFin.rotation.y = 1.1;
+    venusSet.add(stuckFin);
+    
+    
+    
+    refs.smoke = [];
+    for (let i = 0; i < 2; i += 1) {
+      const sm = basic(new THREE.Mesh(new THREE.PlaneGeometry(0.8 + i * 0.4, 0.9 + i * 0.4),
+        new THREE.MeshBasicMaterial({ color: 0x777672, transparent: true, opacity: 0.3, depthWrite: false })));
+      sm.position.set(1.5, 1.4 + i * 0.7, -0.7);
+      sm.rotation.y = 0.7;
+      venusSet.add(sm);
+      refs.smoke.push({ mesh: sm, y0: 1.4 + i * 0.7, phase: i * 0.9 });
+    }
+    const ember = basic(new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.3),
+      new THREE.MeshBasicMaterial({ color: 0xff7a30, transparent: true, opacity: 0.5 })));
+    ember.position.set(1.5, 0.55, -0.65); ember.rotation.y = 0.7;
+    venusSet.add(ember);
+    refs.ember = ember;
     const sparkBit = basic(new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.08),
       new THREE.MeshBasicMaterial({ color: 0xbfe8ff })));
     sparkBit.position.set(1.6, 1.3, -0.6); sparkBit.visible = false;
@@ -6412,6 +6550,44 @@ export function boot(canvas, hud) {
     src.start(t0); src.stop(t0 + dur + 0.02);
   }
 
+  
+  
+  
+  function introHiss() {
+    const ctx = audio.ensure();
+    if (!ctx || !audio.running) return;
+    const dur = 1.7;
+    const buf = ctx.createBuffer(1, Math.floor(dur * ctx.sampleRate), ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i += 1) d[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 720;
+    const g = ctx.createGain();
+    const t0 = ctx.currentTime + 0.02;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(0.42, t0 + 0.35);
+    g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(lp); lp.connect(g); g.connect(audio.sfxBus);
+    src.start(t0); src.stop(t0 + dur + 0.02);
+  }
+
+  
+  
+  function introBlip() {
+    const ctx = audio.ensure();
+    if (!ctx || !audio.running) return;
+    const t0 = ctx.currentTime + 0.02;
+    for (const [at, f] of [[0, 880], [0.11, 990]]) {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0 + at);
+      g.gain.linearRampToValueAtTime(0.22, t0 + at + 0.012);
+      g.gain.linearRampToValueAtTime(0.0001, t0 + at + 0.07);
+      o.connect(g); g.connect(audio.sfxBus);
+      o.start(t0 + at); o.stop(t0 + at + 0.09);
+    }
+  }
+
   function introCaption(text, cls, seconds) {
     const el = document.getElementById('vox');
     if (!el) return;
@@ -6430,9 +6606,14 @@ export function boot(canvas, hud) {
       introCaption(e.text, '', dur + 0.7);
     } else if (e.kind === 'sfx') {
       if (e.effect === 'static') introStatic();
+      else if (e.effect === 'hiss') introHiss();
+      else if (e.effect === 'blip') introBlip();
       else sfxSheet.play(e.effect, { gain: e.gain ?? 1, rate: e.rate ?? 1 });
     } else if (e.kind === 'act') {
       if (e.act === 'walk') introActs.walking = 0;
+      else if (e.act === 'feed') introActs.feed = 0;
+      else if (e.act === 'toRadio') introActs.toRadio = 0;
+      else if (e.act === 'step') introActs.step = 0;
       else if (e.act === 'board') { introActs.walking = -1; xRig.visible = false; }
       else if (e.act === 'ignite') introActs.ignite = 0;
       else if (e.act === 'shake') introActs.shake = 1;
@@ -6468,7 +6649,10 @@ export function boot(canvas, hud) {
   function beginIntro(onDone) {
     introOnDone = onDone || null;
     intro = createIntro();
-    introActs = { walking: -1, ignite: -1, shake: 0, impact: 0, rise: -1, walkDist: 0 };
+    introActs = {
+      walking: -1, ignite: -1, shake: 0, impact: 0, rise: -1, walkDist: 0,
+      feed: -1, toRadio: -1, step: -1,
+    };
     const built = buildIntroStage();
     introStage = built.stage;
     introRefs = built.refs;
@@ -6546,10 +6730,46 @@ export function boot(canvas, hud) {
     }
     if (shotId === 'moonFarm' || shotId === 'call') {
       
-      const span = IDLE_FRAMES * 2 - 2;
-      const k = Math.floor((now / IDLE_TIME) * span) % span;
-      const fi = k < IDLE_FRAMES ? k : span - k;
-      if (xander.geometry !== idleGeo[fi]) xander.geometry = idleGeo[fi];
+      
+      let gestured = false;
+      if (introActs.feed >= 0) {
+        introActs.feed += dt;
+        const FT = 1.15;
+        if (introActs.feed < FT) {
+          const fr2 = Math.min(REACH_FRAMES - 1, Math.floor((introActs.feed / FT) * REACH_FRAMES));
+          if (xander.geometry !== reachGeo[fr2]) xander.geometry = reachGeo[fr2];
+          gestured = true;
+        } else introActs.feed = -1;
+      }
+      
+      
+      
+      if (!gestured && introActs.toRadio >= 0) {
+        const o2 = INTRO_SET.call;
+        const from2 = { x: o2.x + 1.0, z: o2.z + 3.0 };
+        const to2 = { x: o2.x + 1.25, z: o2.z + 2.55 };
+        const total2 = Math.hypot(to2.x - from2.x, to2.z - from2.z);
+        introActs.toRadio = Math.min(1, introActs.toRadio + (dt * 0.85) / total2);
+        const k2 = introActs.toRadio;
+        xRig.position.set(from2.x + (to2.x - from2.x) * k2, 0, from2.z + (to2.z - from2.z) * k2);
+        if (k2 < 1) {
+          introActs.walkDist += dt * 0.85;
+          const wf2 = Math.floor(((introActs.walkDist / STRIDE) % 1) * WALK_FRAMES) % WALK_FRAMES;
+          if (xander.geometry !== walkGeo[wf2]) xander.geometry = walkGeo[wf2];
+          xRig.rotation.y = -Math.atan2(-(to2.x - from2.x), to2.z - from2.z);
+          gestured = true;
+        } else {
+          
+          xRig.rotation.y = -Math.atan2(-(1.6 - 1.25), 3.4 - 2.55);
+          introActs.toRadio = -1;
+        }
+      }
+      if (!gestured) {
+        const span = IDLE_FRAMES * 2 - 2;
+        const k = Math.floor((now / IDLE_TIME) * span) % span;
+        const fi = k < IDLE_FRAMES ? k : span - k;
+        if (xander.geometry !== idleGeo[fi]) xander.geometry = idleGeo[fi];
+      }
     }
     if (shotId === 'call' && introRefs.lamp) {
       introRefs.lamp.material.color.setHex(Math.sin(now * 9) > 0 ? 0x9df5d9 : 0x2a4a3e);
@@ -6575,26 +6795,60 @@ export function boot(canvas, hud) {
         const fl = introRefs.flame;
         fl.visible = true;
         fl.scale.set(1, 0.8 + Math.random() * 0.6, 1);
+        const core = introRefs.flameCore;
+        if (core) { core.visible = true; core.scale.set(1, 0.7 + Math.random() * 0.7, 1); }
         if (introActs.ignite > 1.1) {
           const risen = (introActs.ignite - 1.1);
           introRefs.rocket.position.y = risen * risen * 2.2;
           fl.position.y = -0.4 + introRefs.rocket.position.y;
+          if (core) core.position.y = -0.3 + introRefs.rocket.position.y;
         }
         if (introRefs.dust) {
           
           
           const du = Math.min(1, introActs.ignite / 2.8);
           introRefs.dust.scale.setScalar(0.6 + du * 3.2);
-          introRefs.dust.material.opacity = Math.max(0, 0.5 * (1 - du * du));
+          introRefs.dust.material.opacity = Math.max(0, 0.65 * (1 - du * du));
         }
       }
     }
     if (shotId === 'transit' && introRefs.shipSmall) {
-      introRefs.shipSmall.position.x -= dt * 1.05;
-      introRefs.shipSmall.position.y = 0.6 + Math.sin(now * 0.8) * 0.1;
+      const sh2 = introRefs.shipSmall;
+      sh2.position.x -= dt * 1.05;
+      sh2.position.y = 0.6 + Math.sin(now * 0.8) * 0.1;
+      sh2.rotation.z = -Math.PI / 2 + Math.sin(now * 1.3) * 0.035;
+      if (introRefs.tFlame) {
+        introRefs.tFlame.position.set(sh2.position.x + 1.35, sh2.position.y, sh2.position.z);
+        introRefs.tFlame.scale.set(1, 0.7 + Math.random() * 0.7, 1);
+        introRefs.tFlame.visible = Math.random() > 0.08;
+      }
     }
     if (shotId === 'wreck') {
       if (introRefs.sparkBit) introRefs.sparkBit.visible = Math.random() < 0.09;
+      
+      if (introRefs.smoke) {
+        for (const sm of introRefs.smoke) {
+          const m2 = sm.mesh;
+          m2.position.y += dt * 0.42;
+          const life = (m2.position.y - sm.y0) / 1.7;
+          m2.material.opacity = Math.max(0, 0.32 * (1 - life));
+          if (life >= 1) m2.position.y = sm.y0;
+        }
+      }
+      if (introRefs.ember) {
+        introRefs.ember.material.opacity = 0.3 + Math.abs(Math.sin(now * 5.2 + Math.sin(now * 2.1))) * 0.35;
+      }
+      
+      
+      if (introActs.step >= 0 && introActs.rise >= 3.4) {
+        introActs.step += dt;
+        const ST2 = 0.9;
+        if (introActs.step < ST2) {
+          const sf2 = Math.floor((introActs.step / ST2) * SHUFFLE_FRAMES) % SHUFFLE_FRAMES;
+          if (xander.geometry !== shuffleGeo[sf2]) xander.geometry = shuffleGeo[sf2];
+          xRig.position.x -= dt * 0.22;
+        } else introActs.step = -1;
+      }
       if (introActs.rise >= 0) {
         introActs.rise += dt;
         const RISE_T = 3.4;
@@ -6608,7 +6862,7 @@ export function boot(canvas, hud) {
           if (xander.geometry !== deathGeo[fd]) xander.geometry = deathGeo[fd];
           const up = Math.min(1, introActs.rise / (RISE_T * 0.55));
           xRig.rotation.x = -1.25 * (1 - up * up * (3 - 2 * up));
-        } else {
+        } else if (!(introActs.step >= 0 && introActs.step < 0.9)) {
           xRig.rotation.x = 0;
           const span = IDLE_FRAMES * 2 - 2;
           const k = Math.floor((now / IDLE_TIME) * span) % span;
@@ -6624,6 +6878,14 @@ export function boot(canvas, hud) {
       if (el && el.textContent) { el.textContent = ''; el.classList.remove('pa'); }
     }
     const f = introFade(intro);
+    if (shotId === 'crash' && introActs.impact <= 0) {
+      
+      
+      const pulse = 0.10 + Math.abs(Math.sin(now * 6.3)) * 0.14;
+      gradeEl.style.background = `rgba(150,20,10,${Math.max(pulse, f * 0.9).toFixed(3)})`;
+      renderer.render(scene, camera);
+      return;
+    }
     if (introActs.impact > 0) {
       introActs.impact = Math.max(0, introActs.impact - dt);
       gradeEl.style.background = `rgba(255,244,230,${(introActs.impact / 0.4) * 0.95})`;
