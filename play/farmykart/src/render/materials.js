@@ -471,6 +471,12 @@ const SKIES = {
   snow: { top: 0x5f8fc4, horizon: 0xdcebf8, haze: 0xe9f2fb, cloud: 0.72, cloudTint: 0xf2f6fb, cloudShade: 0xc0d3e6 },
   overcast: { top: 0x7d90a2, horizon: 0xc4ccd4, haze: 0xc9cdd2, cloud: 0.88, cloudTint: 0xdfe4e9, cloudShade: 0x99a4b0 },
   dusk: { top: 0x38407e, horizon: 0xf0a978, haze: 0xe8b892, cloud: 0.60, cloudTint: 0xffd9b0, cloudShade: 0xc08e78 },
+  
+  
+  
+  
+  
+  rain: { top: 0x5b6874, horizon: 0x98a4ae, haze: 0xa8b1b8, cloud: 0.96, cloudTint: 0xb9c2c9, cloudShade: 0x74808b },
 };
 
 

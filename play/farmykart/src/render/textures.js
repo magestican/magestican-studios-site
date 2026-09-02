@@ -54,6 +54,7 @@ import { PALETTE } from '../palette.js';
 
 import { roadRecipe, fieldRecipe } from '../../../../web-engine/render/groundRecipe.js';
 import { getQuality } from './materials.js';
+import { themeOf } from './themes.js';
 
 const SIZE = 128;
 
@@ -497,10 +498,8 @@ export function makePaintTexture() {
 export function makeShortcutTexture(theme = 'summer') {
   const S = GROUND;
   const c = canvas(S); const g = c.getContext('2d');
-  const rng = seedRng(theme === 'snow' ? 0x5c07c3 : theme === 'mud' ? 0x5c07c2 : 0x5c07c1);
-  const base = theme === 'snow' ? PALETTE.packedSnow : theme === 'mud' ? PALETTE.mudDark : PALETTE.shortcut;
-  const dark = theme === 'snow' ? PALETTE.snowRut : theme === 'mud' ? PALETTE.mudWet : PALETTE.shortcutDark;
-  const tuft = theme === 'snow' ? PALETTE.snowHollow : PALETTE.shortcutTuft;
+  const { seed, base, dark, tuft } = themeOf(theme).shortcut;
+  const rng = seedRng(seed);
 
   g.fillStyle = css(base);
   g.fillRect(0, 0, S, S);
@@ -581,6 +580,16 @@ const GROUND_THEMES = {
     base: 0xe2eef8, light: PALETTE.snowCrest, dark: PALETTE.snowHollow,
     accent: PALETTE.stubble, field: 0xdfeaf6, fieldDark: 0xbcd0e4,
     hedge: 0x6f8494, seed: 0x51102,
+  },
+  
+  
+  
+  
+  
+  rain: {
+    base: 0x4b6844, light: 0x87a471, dark: 0x22301e,
+    accent: 0x7c7a58, field: 0x8b9668, fieldDark: 0x2a4023,
+    hedge: 0x1f2c1c, seed: 0x51104,
   },
 };
 

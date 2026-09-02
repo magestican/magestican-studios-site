@@ -55,6 +55,7 @@ import {
 } from 'arbelo/minimap';
 import { SeededRng } from 'arbelo/rng';
 import { PALETTE, hex } from '../palette.js';
+import { themeOf } from '../render/themes.js';
 
 const INK = hex(PALETTE.night);
 const PAPER = hex(PALETTE.ceiling);
@@ -85,11 +86,10 @@ function mix(a, b, t, alpha = 1) {
 
 
 
-const THEME = {
-  summer: { ground: PALETTE.grass, tuft: PALETTE.grassDark },
-  mud: { ground: PALETTE.mudDark, tuft: PALETTE.hedgeMud },
-  snow: { ground: PALETTE.snowHollow, tuft: PALETTE.ice },
-};
+
+
+
+
 
 
 const HAZARD_PAINT = {
@@ -219,7 +219,7 @@ export function createMinimap(canvas, path, track = null, { size: forced = 0 } =
 
 
 function drawTerrain(ctx, size, proj, path, track) {
-  const theme = THEME[track && track.theme] ?? THEME.summer;
+  const theme = themeOf(track && track.theme).minimap;
   ctx.save();
   frame(ctx, size, 6);
   ctx.clip();

@@ -810,6 +810,17 @@ export const TRACKS = [
     scenery: {
       sunflowers: 0, trees: 66, bales: 34, fencePosts: 230, barns: 2, silos: 2, snowmen: 26,
       hedgerows: 12, landmark: { kind: 'church', at: 0.86, side: 1, out: 66 },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      city: { blocks: 64, spread: 44, seed: 0xf1057 },
     },
     sky: 'snow',
   },
@@ -965,6 +976,18 @@ export const TRACKS = [
     scenery: {
       sunflowers: 120, trees: 60, bales: 52, fencePosts: 240, barns: 2, silos: 2,
       hedgerows: 16, landmark: { kind: 'windmill', at: 0.26, side: 1, out: 70 },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      city: { blocks: 76, spread: 38, seed: 0x0117e },
     },
     sky: 'dusk',
   },
@@ -977,11 +1000,22 @@ export const TRACKS = [
     
     locked: true,
     name: 'Saltmarsh Run',
-    tagline: 'Off the sea wall in the first ten seconds, then out onto the flats.',
+    tagline: 'Weather in off the sea, and the flats hold every drop of it.',
     
     
     
-    theme: 'snow',
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    theme: 'rain',
     laps: 3,
     
     
@@ -1130,7 +1164,7 @@ export const TRACKS = [
       snowmen: 0, hedgerows: 22,
       landmark: { kind: 'watertower', at: 0.45, side: 1, out: 62 },
     },
-    sky: 'day',
+    sky: 'rain',
   },
   {
     id: 'canyon',

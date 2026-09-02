@@ -10,6 +10,7 @@ import * as THREE from 'three';
 import { PALETTE } from '../palette.js';
 import { makeSunFaceTexture } from './textures.js';
 import { buildSkyMaterial } from './materials.js';
+import { themeOf } from './themes.js';
 
 
 
@@ -300,9 +301,13 @@ export function fogFor(theme) {
   
   
   
-  if (theme === 'snow') return new THREE.Fog(0xe9f2fb, 300, 900);
-  if (theme === 'mud' || theme === 'overcast') return new THREE.Fog(0xc9cdd2, 260, 820);
-  return new THREE.Fog(0xd3e8fb, 340, 980);
+  
+  
+  
+  
+  
+  const { fog } = themeOf(theme);
+  return new THREE.Fog(fog.colour, fog.near, fog.far);
 }
 
 

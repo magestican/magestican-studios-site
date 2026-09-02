@@ -26,6 +26,7 @@ import { surface, NOISE_GLSL, WAVE_GLSL, skyPalette, getQuality } from './materi
 
 
 import { sunDirFor } from './world.js';
+import { themeOf } from './themes.js';
 import { PALETTE } from '../palette.js';
 import { SHOULDER, groundMeshHeightAt } from './trackMesh.js';
 
@@ -248,8 +249,7 @@ export function buildWaterMaterial(theme = 'summer', {
   
   
   const BODY_DROP = 0.74;
-  const deep = theme === 'snow' ? 0x0c2740 : theme === 'mud' ? 0x1d3a38 : 0x1b4b6b;
-  const shallow = theme === 'snow' ? 0x2d6d97 : theme === 'mud' ? 0x4a7d6f : 0x59a8c4;
+  const { deep, shallow, foam } = themeOf(theme).water;
   const skyCols = skyPalette(sky);
   
   
@@ -263,7 +263,7 @@ export function buildWaterMaterial(theme = 'summer', {
     
     
     
-    uFoam: { value: new THREE.Color(theme === 'mud' ? 0xcfd3b6 : 0xe6f2fb) },
+    uFoam: { value: new THREE.Color(foam) },
     uCrack: { value: new THREE.Color(0x9fc4d8) },
     uSkyTop: { value: new THREE.Color(skyCols.top) },
     uSkyHorizon: { value: new THREE.Color(skyCols.horizon) },

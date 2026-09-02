@@ -126,6 +126,7 @@ import {
   createFx, updateFx, driftSparks, boostFlame, groundDust, hitBurst, pickupBurst, createShieldBubble,
 } from './render/fx.js';
 import { createSpeedFx, updateSpeedFx } from './render/speedFx.js';
+import { createRain, updateRain } from './render/rainFx.js';
 import { buildItemBoxMesh, animateItemBox, buildHazardMesh, animateHazard } from './render/itemMesh.js';
 import { createHud, updateHud, showBanner, tickBanner, gapText } from './ui/hud.js';
 import { createMinimap, drawMinimap } from './ui/minimapView.js';
@@ -328,6 +329,12 @@ export function createRace(options) {
   
   
   const speedFx = createSpeedFx(scene, track.theme);
+
+  
+  
+  
+  
+  const rain = createRain(scene, track.theme);
 
   
   
@@ -1555,6 +1562,7 @@ export function createRace(options) {
       ? sampleAt(path, (playerSurface.s + 26) % path.length)
       : null;
     updateSpeedFx(speedFx, you.kart, camera, dt, ahead);
+    updateRain(rain, dt, camera, you.kart);
     
     
     
