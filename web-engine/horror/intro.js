@@ -75,7 +75,16 @@ export const INTRO_SHOTS = Object.freeze([
   {
     id: 'call',
     dur: 14.5,
-    cam: { from: [2.6, 1.5, 5.6], to: [2.1, 1.45, 4.2], look: [1.2, 1.1, 0.4], fov: 56 },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    cam: { from: [1.25, 1.55, -0.5], to: [1.05, 1.45, 0.5], look: [1.45, 1.05, 3.2], fov: 56 },
     cues: [
       { at: 0.3, kind: 'act', act: 'toRadio' },   
       { at: 0.5, kind: 'sfx', effect: 'liftChime', rate: 1.4, gain: 0.8 },

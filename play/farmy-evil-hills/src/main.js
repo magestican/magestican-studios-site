@@ -6679,10 +6679,22 @@ export function boot(canvas, hud) {
     introRefs = built.refs;
     document.body.classList.add('introMode');
     
+    
+    
+    
+    
+    
+    
+    
+    
+    gun.visible = false;
+    
     const o = INTRO_SET.moonFarm;
     xRig.visible = true;
-    xRig.position.set(o.x + 1.0, 0, o.z + 3.0);
-    xRig.rotation.y = -0.9;
+    
+    
+    xRig.position.set(o.x + 0.9, 0, o.z + 1.5);
+    xRig.rotation.y = -Math.atan2(-(2.9 - 0.9), 1.2 - 1.5);
     
     
     for (let i = 0; i < 2 && i < birds.length; i += 1) {
@@ -6767,7 +6779,7 @@ export function boot(canvas, hud) {
       
       if (!gestured && introActs.toRadio >= 0) {
         const o2 = INTRO_SET.call;
-        const from2 = { x: o2.x + 1.0, z: o2.z + 3.0 };
+        const from2 = { x: o2.x + 0.9, z: o2.z + 1.5 };
         const to2 = { x: o2.x + 1.25, z: o2.z + 2.55 };
         const total2 = Math.hypot(to2.x - from2.x, to2.z - from2.z);
         introActs.toRadio = Math.min(1, introActs.toRadio + (dt * 0.85) / total2);
@@ -6812,7 +6824,7 @@ export function boot(canvas, hud) {
         
         
         const oM = INTRO_SET.ship;
-        const from = { x: oM.x + 1.0, z: oM.z + 3.0 };
+        const from = { x: oM.x + 1.25, z: oM.z + 2.55 };
         const to = { x: oM.x - 2.2, z: oM.z - 1.4 };
         const total = Math.hypot(to.x - from.x, to.z - from.z);
         introActs.walking = Math.min(1, introActs.walking + (dt * 1.25) / total);
@@ -9651,6 +9663,7 @@ export function boot(canvas, hud) {
         return camNode;
       },
       get mumble() { return { count: mumbleCount, playing: !!mumbleStop }; },
+      get gunVisible() { return gun.visible; },
       get intro() {
         if (intro) {
           return {
