@@ -1010,6 +1010,56 @@ export const CONTACT_EPS = 0.045;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const START_DIST = 0.62;
+
+
+export function startEase(dist) {
+  const u = clamp(dist / START_DIST, 0, 1);
+  
+  
+  return 0.55 + 0.45 * (u * u * (3 - 2 * u));
+}
+
+
+
+
+
+
+
+export function startPhaseAdvance(dist, dm, stride) {
+  const N = 6;
+  let d = dist;
+  let ph = 0;
+  for (let i = 0; i < N; i += 1) {
+    const slice = dm / N;
+    ph += (slice / stride) * startEase(d + slice * 0.5);
+    d += slice;
+  }
+  return ph;
+}
+
 export function settleStep(phase, settle, dt) {
   const p0 = wrap(phase);
   
@@ -1087,5 +1137,84 @@ export function wallLeanPose(t) {
     air: 0,
     squash: 0.955 + b,
     lean: 0.08,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function limpWarp(p, bias = 0.6) {
+  const t = wrap(p);
+  const b = clamp(bias, 0, 1);
+  const half = t < 0.5 ? 0 : 1;
+  const u = (t - half * 0.5) / 0.5;             
+  
+  
+  const e = half === 0 ? 1 + b * 1.1 : 1 / (1 + b * 1.1);
+  return half * 0.5 + (u ** e) * 0.5;
+}
+
+
+
+
+
+export function dangerGait(gait, wallward = false) {
+  const w = woundedGait(gait, wallward);
+  return {
+    ...w,
+    hands: [
+      w.hands[0],
+      
+      
+      reachSafe(0.13, SH - 0.33),
+    ],
+    
+    lean: (gait.lean ?? 0) + 0.19,
+    squash: (gait.squash ?? 1) * 0.94,
+  };
+}
+
+
+
+
+
+
+export function forearmLeanPose(t) {
+  const b = Math.sin(t * 0.83 * Math.PI * 2) * 0.010;
+  const s = Math.sin(t * 1.29 * Math.PI * 2) * 0.006;
+  return {
+    hands: [
+      reachSafe(0.20, SH + 0.04 + b),          
+      reachSafe(0.12, SH - 0.34 + s),          
+    ],
+    feet: [[-0.06, 0], [0.17, 0]],
+    toe: [0, 0.05],
+    grip: 'open',
+    twist: 0.30,
+    air: 0,
+    squash: 0.925 + b,
+    
+    
+    lean: 0.26,
   };
 }

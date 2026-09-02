@@ -26,7 +26,8 @@ import * as THREE from 'three';
 import { solve, ARCH } from '../../2d-fighter-ex/src/animeRig.mjs';
 import {
   gaitPose, firePose, strugglePose, deathPose, standPose, gripOf, cycleTravel, settleStep, SETTLE_TIME, aimPose, aimedGait,
-  woundedGait, wallLeanPose,
+  woundedGait, wallLeanPose, dangerGait, forearmLeanPose, limpWarp,
+  startPhaseAdvance, START_DIST,
   kickPose, KICK_TIME, flinchAdd, FLINCH_TIME, turnStep, TURN_RATE_MIN, reachPose, REACH_TIME,
 } from '../../../web-engine/horror/gait.js';
 
@@ -109,7 +110,7 @@ import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix }
 import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../../web-engine/horror/intro.js';
 import { isBossDeck, rosterFor, actCardFor, actFor } from '../../../web-engine/horror/acts.js';
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
-import { INJURY, isInjured, wallSupport } from '../../../web-engine/horror/injury.js';
+import { INJURY, isInjured, isDanger, nextStumbleAt, wallSupport } from '../../../web-engine/horror/injury.js';
 import { getUpAt } from '../../../web-engine/horror/groundPoses.js';
 import { initAnalytics, trackEvent } from 'arbelo/analytics';
 
@@ -4869,6 +4870,25 @@ export function boot(canvas, hud) {
     woundedWalkGeo.push(bake(woundedGait(walkPose(i / WALK_FRAMES, 'walk'), false)));
     woundedWallWalkGeo.push(bake(woundedGait(walkPose(i / WALK_FRAMES, 'walk'), true)));
   }
+  
+  
+  
+  const dangerWalkGeo = [];
+  const dangerWallWalkGeo = [];
+  for (let i = 0; i < WALK_FRAMES; i += 1) {
+    const wp = limpWarp(i / WALK_FRAMES, INJURY.limpBias);
+    dangerWalkGeo.push(bake(dangerGait(walkPose(wp, 'walk'), false)));
+    dangerWallWalkGeo.push(bake(dangerGait(walkPose(wp, 'walk'), true)));
+  }
+  const FOREARM_FRAMES = 10;
+  const forearmLeanGeo = [];
+  for (let i = 0; i < FOREARM_FRAMES; i += 1) {
+    forearmLeanGeo.push(bake(forearmLeanPose((i / FOREARM_FRAMES) * (1 / 0.83))));
+  }
+  const dangerIdleGeo = [];
+  for (let i = 0; i < IDLE_FRAMES; i += 1) {
+    dangerIdleGeo.push(bake(dangerGait(standPose((i / (IDLE_FRAMES - 1)) * (Math.PI / 0.9)))));
+  }
   const WALLLEAN_FRAMES = 10;
   const wallLeanGeo = [];
   for (let i = 0; i < WALLLEAN_FRAMES; i += 1) {
@@ -6152,6 +6172,10 @@ export function boot(canvas, hud) {
   let walkArmsShown = false;
   let wasGaitBranch = false;
   let wallRoll = 0;
+  let lastPosedFeet = null;
+  let stumbleAt = nextStumbleAt(0);
+  let stumbleT = -1;
+  let walkedTotal = 0;
   let injuryDbg = { injured: false, wall: null, touch: false, leanClose: false };
   let bossMoved = 0;
   let bossWonIn = 0;
@@ -6219,6 +6243,13 @@ export function boot(canvas, hud) {
   
   let nearLibrary = false;
   let walkDist = 0;
+  
+  
+  
+  
+  let startDist = 0;
+  let startPhase = 0;
+  let groundNow = 0;
   
   
   let walkPhase = 0;
@@ -7251,6 +7282,7 @@ export function boot(canvas, hud) {
     }
 
     lastMoved = 0;
+    groundNow = 0;
     if (!player.dead && !hidden) {
       
       
@@ -7305,7 +7337,8 @@ export function boot(canvas, hud) {
       }
 
       const slow = (player.latchedBy ? (1 - CHICKEN_LATCH_SLOW) : 1)
-        * (isInjured(player.vitals.health, MAX_HEALTH) ? INJURY.moveScale : 1);
+        * (isDanger(player.vitals.health, MAX_HEALTH) ? INJURY.dangerMoveScale
+          : (isInjured(player.vitals.health, MAX_HEALTH) ? INJURY.moveScale : 1));
       
       
       
@@ -7359,7 +7392,12 @@ export function boot(canvas, hud) {
       
       
       
-      walkDist += Math.hypot(dx, dz) * speed * dt;
+      
+      
+      
+      groundNow = Math.hypot(dx, dz) * speed * dt;
+      walkDist += groundNow;
+      startDist += groundNow;
 
       const mode = player.struggle ? 'walk' : (sprint && pressing ? 'sprint' : 'walk');
       tickVitals(player.vitals, dt, mode, INJURY.enemyDamageScale);
@@ -7377,6 +7415,28 @@ export function boot(canvas, hud) {
     
     
     const injuredNow = !player.dead && isInjured(player.vitals.health, MAX_HEALTH);
+    const dangerNow = !player.dead && isDanger(player.vitals.health, MAX_HEALTH);
+    
+    
+    
+    
+    
+    if (stumbleT >= 0) {
+      stumbleT += dt;
+      if (stumbleT >= INJURY.stumbleTime) stumbleT = -1;
+    }
+    if (dangerNow) {
+      walkedTotal += lastMoved;
+      if (walkedTotal >= stumbleAt && stumbleT < 0) {
+        stumbleT = 0;
+        stumbleAt = nextStumbleAt(walkedTotal);
+      }
+    } else {
+      
+      
+      walkedTotal = 0;
+      stumbleAt = nextStumbleAt(0);
+    }
     const wall = injuredNow && deck ? wallSupport(deck, player.x, player.z) : null;
     const wallTouch = !!wall && wall.dist <= INJURY.touchReach;
     const wallLeanClose = !!wall && wall.dist <= INJURY.leanReach;
@@ -8496,6 +8556,11 @@ export function boot(canvas, hud) {
     
     
     
+    
+    
+    
+    if (!moving && settle <= 0) { startDist = 0; startPhase = 0; }
+    if (sprintNow && moving) startDist = START_DIST;
     if (moving || turning) settle = SETTLE_TIME;
     else if (settle > 0) {
       const st = settleStep(walkPhase, settle, dt);
@@ -8583,14 +8648,27 @@ export function boot(canvas, hud) {
       
       
       const woundedSet = injuredNow && !running && !walkArmsShown && !useShuffle
-        ? (wallTouch ? woundedWallWalkGeo : woundedWalkGeo) : null;
+        ? (dangerNow
+          ? (wallTouch ? dangerWallWalkGeo : dangerWalkGeo)
+          : (wallTouch ? woundedWallWalkGeo : woundedWalkGeo))
+        : null;
       const set = woundedSet || (useShuffle ? shuffleGeo
         : (running ? sprintGeo : (walkArmsShown ? walkAimGeo : walkGeo)));
       const n = useShuffle ? SHUFFLE_FRAMES
         : (running ? SPRINT_FRAMES : WALK_FRAMES);
       const stride = running ? SPRINT_STRIDE : STRIDE;
+      
+      
+      
+      
+      
+      
+      
+      if (moving) {
+        startPhase = (startPhase + startPhaseAdvance(startDist - groundNow, groundNow, stride)) % 1;
+      }
       const ph = (walkPhase = moving
-        ? (walkDist / stride) % 1
+        ? startPhase
         
         
         
@@ -8670,13 +8748,18 @@ export function boot(canvas, hud) {
       walkPhase = 0;
       wasGaitBranch = false;
       if (wallLeanClose) {
-        const fl2 = Math.floor(now * 9) % WALLLEAN_FRAMES;
-        if (xander.geometry !== wallLeanGeo[fl2]) xander.geometry = wallLeanGeo[fl2];
+        
+        
+        const set2 = dangerNow ? forearmLeanGeo : wallLeanGeo;
+        const n2 = dangerNow ? FOREARM_FRAMES : WALLLEAN_FRAMES;
+        const fl2 = Math.floor(now * 9) % n2;
+        if (xander.geometry !== set2[fl2]) xander.geometry = set2[fl2];
       } else {
         const span = IDLE_FRAMES * 2 - 2;
         const k = Math.floor((now / IDLE_TIME) * span) % span;
         const fi = k < IDLE_FRAMES ? k : span - k;
-        if (xander.geometry !== woundedIdleGeo[fi]) xander.geometry = woundedIdleGeo[fi];
+        const idleSet = dangerNow ? dangerIdleGeo : woundedIdleGeo;
+        if (xander.geometry !== idleSet[fi]) xander.geometry = idleSet[fi];
       }
     } else {
       walkPhase = 0;
@@ -8758,7 +8841,9 @@ export function boot(canvas, hud) {
       else if (reachT < REACH_TIME) posed = reachPose(reachT);
       else if (turning && !moving) posed = gaitPose(walkPhase, 'shuffle');
       else if (moving) {
-        const ph2 = (walkDist / (sprintNow ? SPRINT_STRIDE : STRIDE)) % 1;
+        
+        
+        const ph2 = walkPhase;
         const g = gaitPose(ph2, sprintNow ? 'sprint' : 'walk');
         
         
@@ -8766,8 +8851,11 @@ export function boot(canvas, hud) {
         
         
         
+        
+        
+        const gd = dangerNow ? gaitPose(limpWarp(ph2, INJURY.limpBias), 'walk') : g;
         posed = (injuredNow && !sprintNow && !walkArmsShown)
-          ? woundedGait(g, wallTouch)
+          ? (dangerNow ? dangerGait(gd, wallTouch) : woundedGait(g, wallTouch))
           : ((walkArmsShown && !sprintNow) ? aimedGait(g, aimPose(ph2 * (1 / 0.9))) : g);
       } else if (settle > 0) {
         
@@ -8778,7 +8866,7 @@ export function boot(canvas, hud) {
         
         const g = gaitPose(walkPhase, wasTurnStep ? 'shuffle' : 'walk');
         posed = (injuredNow && !wasTurnStep && !walkArmsShown)
-          ? woundedGait(g, wallTouch)
+          ? (dangerNow ? dangerGait(g, wallTouch) : woundedGait(g, wallTouch))
           : ((walkArmsShown && !wasTurnStep) ? aimedGait(g, aimPose(walkPhase * (1 / 0.9))) : g);
       } else if (!player.dead && aimLatch.u > 0.001) {
         
@@ -8794,9 +8882,14 @@ export function boot(canvas, hud) {
           posed = { ...standPose(0), ...aimPose((fa / AIM_FRAMES) * (1 / 0.9)) };
         }
       } else if (injuredNow) {
-        posed = wallLeanClose ? wallLeanPose(now) : woundedGait(standPose(now));
+        posed = wallLeanClose
+          ? (dangerNow ? forearmLeanPose(now) : wallLeanPose(now))
+          : (dangerNow ? dangerGait(standPose(now)) : woundedGait(standPose(now)));
       } else posed = standPose(now);
       if (studioPose) posed = studioPose;
+      
+      
+      lastPosedFeet = posed.feet ? posed.feet.map((f) => [+f[0].toFixed(4), +f[1].toFixed(4)]) : null;
       const hand = posed.hands[0];
 
       gun.position.set(hand[0] * XANDER_H, 0.17, hand[1] * XANDER_H);
@@ -8981,7 +9074,15 @@ export function boot(canvas, hud) {
     
     
     
-    xTilt.rotation.x = lean + fall;
+    
+    
+    
+    let stumbleLean = 0;
+    if (stumbleT >= 0) {
+      const su = stumbleT / INJURY.stumbleTime;
+      stumbleLean = Math.sin(Math.PI * (su ** 0.65)) * 0.22;
+    }
+    xTilt.rotation.x = lean + fall + stumbleLean;
     xTilt.rotation.z = wallRoll;
 
     
@@ -10006,6 +10107,14 @@ export function boot(canvas, hud) {
       get mumble() { return { count: mumbleCount, playing: !!mumbleStop }; },
       get gunVisible() { return gun.visible; },
       get injury() { return injuryDbg; },
+      get danger() {
+        return {
+          danger: isDanger(player.vitals.health, MAX_HEALTH),
+          stumbling: stumbleT >= 0,
+          walked: +walkedTotal.toFixed(2),
+          nextStumble: +stumbleAt.toFixed(2),
+        };
+      },
       get intro() {
         if (intro) {
           return {
@@ -10217,6 +10326,12 @@ export function boot(canvas, hud) {
       
       
       get poseLean() { return xTilt.rotation.x; },
+      
+      
+      
+      
+      get poseFeet() { return lastPosedFeet; },
+      get startStep() { return { dist: +startDist.toFixed(3), phase: +startPhase.toFixed(3) }; },
       get bobY() { return xRig.position.y; },
       
       
@@ -10959,10 +11074,15 @@ function start() {
       let started = false;
       const go = () => {
         if (started) return;
-        started = true;
+        
+        
+        
+        
+        
         
         
         if (api.introActive && api.introActive()) return;
+        started = true;
         $('boot').style.display = 'none';
         $('hint').style.display = 'block';
         startStationAudio();

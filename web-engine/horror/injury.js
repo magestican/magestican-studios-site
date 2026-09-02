@@ -24,6 +24,17 @@ export const INJURY = Object.freeze({
   
   threshold: 0.5,
   
+  
+  
+  dangerThreshold: 0.25,
+  dangerMoveScale: 0.65,
+  limpBias: 0.62,
+  
+  
+  
+  stumbleEvery: [8, 14],
+  stumbleTime: 0.55,
+  
   touchReach: 0.62,
   leanReach: 0.5,
   
@@ -32,6 +43,25 @@ export const INJURY = Object.freeze({
 
 export function isInjured(health, max) {
   return health <= max * INJURY.threshold;
+}
+
+export function isDanger(health, max) {
+  return health <= max * INJURY.dangerThreshold;
+}
+
+
+
+
+
+
+
+export function nextStumbleAt(fromMetres) {
+  const [lo, hi] = INJURY.stumbleEvery;
+  
+  
+  const h = Math.sin(fromMetres * 12.9898) * 43758.5453;
+  const r = h - Math.floor(h);
+  return fromMetres + lo + r * (hi - lo);
 }
 
 
