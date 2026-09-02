@@ -110,6 +110,7 @@ import { compileMumble, seedOf } from '../../../web-engine/horror/mumble.js';
 import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix } from '../../../web-engine/horror/aimLatch.js';
 import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../../web-engine/horror/intro.js';
 import { isBossDeck, rosterFor, actCardFor, actFor } from '../../../web-engine/horror/acts.js';
+import { gatesFor } from '../../../web-engine/horror/gates.js';
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
 import { INJURY, isInjured, isDanger, nextStumbleAt, wallSupport } from '../../../web-engine/horror/injury.js';
 import { getUpAt, restTravel, restPose } from '../../../web-engine/horror/groundPoses.js';
@@ -4843,6 +4844,10 @@ export function boot(canvas, hud) {
   
   
   let actCardT = 0;
+  
+  
+  
+  let gateMeshes = [];
   let bench = createBench();
   let workbench = null;
   let nearBench = false;
@@ -6099,6 +6104,65 @@ export function boot(canvas, hud) {
     
     
     bench = stockBench(bench, seed, player.weapon.id);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    gateMeshes = [];
+    if (!isBoss) {
+      const gs = gatesFor(deck, seed, { act: actFor(seed) });
+      for (const g of gs) {
+        if (g.kind === 'drop') { gateMeshes.push({ gate: g, group: null }); continue; }
+        const gg = new THREE.Group();
+        const yaw2 = Math.atan2(g.nx, g.nz);
+        gg.position.set(g.x, 0, g.z);
+        gg.rotation.y = yaw2;
+        if (g.kind === 'duct') {
+          
+          
+          const hole = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.4),
+            new THREE.MeshBasicMaterial({ color: 0x050807 }));
+          hole.position.set(0, 0.24, 0.02);
+          gg.add(hole);
+          const frame2 = introPaint(new THREE.BoxGeometry(0.72, 0.06, 0.06).toNonIndexed(), 0x565a5e);
+          frame2.position.set(0, 0.47, 0.05); gg.add(frame2);
+          const sill = introPaint(new THREE.BoxGeometry(0.72, 0.05, 0.08).toNonIndexed(), 0x565a5e);
+          sill.position.set(0, 0.03, 0.05); gg.add(sill);
+          const grille = new THREE.Group();
+          for (let li = 0; li < 5; li += 1) {
+            const louvre = introPaint(new THREE.BoxGeometry(0.62, 0.045, 0.03).toNonIndexed(), 0x6f7377);
+            louvre.position.set(0, 0.09 + li * 0.075, 0.06);
+            louvre.rotation.x = 0.5;
+            grille.add(louvre);
+          }
+          gg.add(grille);
+          gateMeshes.push({ gate: g, group: gg, grille });
+        } else {
+          
+          
+          
+          const panel = introPaint(new THREE.BoxGeometry(1.5, 1.9, 0.05).toNonIndexed(), 0x4b524d);
+          panel.position.set(0, 1.0, 0.03); gg.add(panel);
+          const crackG = new THREE.Group();
+          for (const [cx3, cy3, len3, rot3] of [[0, 1.2, 0.9, 0.5], [-0.2, 0.8, 0.7, -0.9], [0.25, 1.5, 0.5, 1.2], [0.1, 0.5, 0.6, -0.3]]) {
+            const ck = new THREE.Mesh(new THREE.PlaneGeometry(len3, 0.025),
+              new THREE.MeshBasicMaterial({ color: 0x120f0c }));
+            ck.position.set(cx3, cy3, 0.062);
+            ck.rotation.z = rot3;
+            crackG.add(ck);
+          }
+          gg.add(crackG);
+          gateMeshes.push({ gate: g, group: gg, cracks: crackG });
+        }
+        deckGroup.add(gg);
+      }
+    }
 
     
     
@@ -10537,6 +10601,12 @@ export function boot(canvas, hud) {
       get gunVisible() { return gun.visible; },
       get injury() { return injuryDbg; },
       get liftForced() { return liftForced; },
+      get gates() {
+        return gateMeshes.map((m) => ({
+          kind: m.gate.kind, x: +m.gate.x.toFixed(2), z: +m.gate.z.toFixed(2),
+          nx: m.gate.nx, nz: m.gate.nz, drawn: !!m.group,
+        }));
+      },
       get deckCard() {
         const el = document.getElementById('deckCard');
         return { text: el ? el.textContent : '', opacity: el ? +(el.style.opacity || 0) : 0 };
