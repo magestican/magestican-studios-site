@@ -856,8 +856,11 @@ function buildCover(grid, rng, kind, x, z) {
       break;
     }
     case 'crate': {
+      
+      
+      
       const stacks = rng.rangeI(1, 2);
-      grid.fillBox(x, 1, z, x + 1, stacks, z + 1, VOX.WOOD);
+      grid.fillBox(x, 1, z, x + 1, stacks, z + 1, VOX.CRATE);
       break;
     }
     case 'wall': {
@@ -898,10 +901,13 @@ function buildCover(grid, rng, kind, x, z) {
       break;
     }
     case 'bench': {
+      
+      
+      
       const len = rng.rangeI(3, 5);
       const alongX = rng.pick(['x', 'z']) === 'x';
       for (let i = 0; i < len; i++) {
-        grid.set(alongX ? x + i : x, 1, alongX ? z : z + i, VOX.WOOD);
+        grid.set(alongX ? x + i : x, 1, alongX ? z : z + i, VOX.CRATE);
       }
       break;
     }

@@ -50,7 +50,7 @@ import { Player }           from './entities/player.js';
 import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
 import { computeAimAssist } from 'arbelo/aim-assist';
 import { attachRightClickMove } from 'arbelo/rmb-move';
-import { stepProjectile } from '../../../web-engine/combat/projectileHit.js';
+import { stepProjectile, sweepHitWorld } from '../../../web-engine/combat/projectileHit.js';
 import { shotSolid } from '../../../web-engine/combat/shotWorld.js';
 import { Chat } from './ui/chat.js';
 import { KillAnnouncer, shouldHear } from './audio/killAnnouncer.js';
@@ -1882,16 +1882,49 @@ export class Game {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   _damageCover(point, dir, damage) {
-    if (!this.isHost || !this.grid) return;
+    if (!this.grid) return;
     const c = voxelAtImpact(point, dir);
     if (!c) return;
-    const vox = this.grid.get(c.x, c.y, c.z);
+    
+    
+    
+    if (!isBreakable(this.grid.get(c.x, c.y, c.z))) return;
+    if (!this.isHost) {
+      this._broadcast({ t: MSG.COVER, at: [c.x, c.y, c.z], dmg: damage });
+      return;
+    }
+    this._applyCoverDamage(c.x, c.y, c.z, damage);
+  }
+
+  
+  
+  
+  
+  
+  _applyCoverDamage(x, y, z, damage) {
+    if (!this.isHost || !this.grid) return;
+    const vox = this.grid.get(x, y, z);
     if (!isBreakable(vox)) return;
-    const res = damageVoxel(this.breaks, vox, c.x, c.y, c.z, damage);
+    const res = damageVoxel(this.breaks, vox, x, y, z, damage);
     if (!res.broken) return;
-    this._breakVoxel(c.x, c.y, c.z);
-    this._broadcast({ t: MSG.BREAK, at: [c.x, c.y, c.z] });
+    this._breakVoxel(x, y, z);
+    this._broadcast({ t: MSG.BREAK, at: [x, y, z] });
   }
 
   
@@ -2632,6 +2665,36 @@ export class Game {
         if (target.distanceTo(closest) < 0.7 && t < bestT) { bestT = t; best = { kind: 'self' }; }
       }
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const solid = this.grid ? shotSolid(this.grid) : null;
+    if (solid) {
+      const far = origin.clone().addScaledVector(dir, 60);
+      const tWorld = sweepHitWorld(
+        { x: origin.x, y: origin.y, z: origin.z },
+        { x: far.x, y: far.y, z: far.z }, solid);
+      
+      
+      
+      if (tWorld !== null && (!best || tWorld * 60 < bestT)) {
+        const at = origin.clone().addScaledVector(dir, tWorld * 60);
+        this._damageCover({ x: at.x, y: at.y, z: at.z },
+                          { x: dir.x, y: dir.y, z: dir.z }, s.damage);
+      }
+    }
+
     if (!best) return;
     if (best.kind === 'self') this._takeDamage(s.damage, s.ownerId, s.weaponId);
     else if (best.kind === 'remote') {
@@ -3519,6 +3582,19 @@ export class Game {
       case MSG.BREAK: {
         
         this._breakVoxel(msg.at[0], msg.at[1], msg.at[2]);
+        break;
+      }
+      case MSG.COVER: {
+        
+        
+        
+        
+        
+        
+        
+        
+        if (!Array.isArray(msg.at) || msg.at.length < 3) break;
+        this._applyCoverDamage(msg.at[0], msg.at[1], msg.at[2], msg.dmg ?? 10);
         break;
       }
       case MSG.WORM: {

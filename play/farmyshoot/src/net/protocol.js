@@ -22,6 +22,21 @@ export const MSG = Object.freeze({
   
   
   BREAK:      'break',       
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  COVER:      'cover',       
   DEATH:      'death',       
   FLAG_PICK:  'flagPick',    
   FLAG_DROP:  'flagDrop',    

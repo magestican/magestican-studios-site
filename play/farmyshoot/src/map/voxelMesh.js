@@ -48,6 +48,13 @@ function getTextures() {
     [VOX.IGLOO]:  makeIglooTexture(),
     [VOX.HEDGE]:  makeHedgeTexture(),
   };
+  
+  
+  
+  
+  
+  
+  TEX[VOX.CRATE] = TEX[VOX.WOOD];
   return TEX;
 }
 
@@ -83,7 +90,7 @@ let TEX_BLOOD = null;
 function getBloodTextures() {
   if (TEX_BLOOD) return TEX_BLOOD;
   const base = getTextures();
-  const BLOOD_TARGETS = new Set([VOX.WOOD, VOX.STONE, VOX.HAY, VOX.ROCK, VOX.BOARDS]);
+  const BLOOD_TARGETS = new Set([VOX.WOOD, VOX.CRATE, VOX.STONE, VOX.HAY, VOX.ROCK, VOX.BOARDS]);
   TEX_BLOOD = {};
   for (const k in base) {
     if (BLOOD_TARGETS.has(Number(k))) TEX_BLOOD[k] = makeBloodTinted(base[k]);
