@@ -56,6 +56,17 @@ const THEME = 'summer';
 
 
 
+
+
+
+
+
+
+const SKY = 'day';
+
+
+
+
 const BOX = new THREE.BoxGeometry(1, 1, 1);
 const CYL = new THREE.CylinderGeometry(0.5, 0.5, 1, 12);
 const CONE = new THREE.ConeGeometry(0.5, 1, 9);
@@ -249,9 +260,9 @@ export function buildMenuScene() {
     group.add(m);
   }
 
-  const sunDir = sunDirFor(THEME);
-  const sky = buildSky(THEME, sunDir);
-  const lights = buildLights(THEME);
+  const sunDir = sunDirFor(SKY);
+  const sky = buildSky(SKY, sunDir);
+  const lights = buildLights(SKY);
 
   
   

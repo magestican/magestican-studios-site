@@ -281,15 +281,23 @@ export function createRace(options) {
   
   
   
-  const lights = buildLights(track.theme);
+  
+  
+  
+  
+  
+  
+  const skyKind = track.sky ?? 'day';
+  const lights = buildLights(skyKind);
   scene.add(lights);
   const sunDir = lights.userData.sun.position.clone().normalize();
-  const sky = buildSky(track.sky ?? 'day', sunDir);
+  const sky = buildSky(skyKind, sunDir);
   scene.add(sky);
   
   
-  const sunDisc = buildSun(lights);
-  scene.add(sunDisc);
+  
+  const sunDisc = buildSun(lights, skyKind);
+  if (sunDisc) scene.add(sunDisc);
   
   
   
@@ -338,7 +346,14 @@ export function createRace(options) {
   const fx = createFx(scene, { theme: track.theme, path });
   
   
-  const sunOffset = sunDisc.position.clone();
+  
+  
+  
+  
+  
+  
+  
+  const sunOffset = sunDisc ? sunDisc.position.clone() : null;
   
   
   
@@ -1566,8 +1581,12 @@ export function createRace(options) {
     focusShadow(lights, you.kart.x, you.kart.z);
     
     
-    sunDisc.position.copy(camera.position).add(sunOffset);
-    updateSun(sunDisc, camera, dt);
+    
+    
+    if (sunDisc) {
+      sunDisc.position.copy(camera.position).add(sunOffset);
+      updateSun(sunDisc, camera, dt);
+    }
     
     
     

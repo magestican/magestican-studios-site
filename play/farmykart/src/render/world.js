@@ -39,8 +39,12 @@ import { rigFor, SHADOW } from '../../../../web-engine/render/lightRig.js';
 
 
 
-export function sunDirFor(theme = 'summer') {
-  return new THREE.Vector3(...rigFor(theme).keyPos).normalize();
+
+
+
+
+export function sunDirFor(sky = 'day') {
+  return new THREE.Vector3(...rigFor(sky).keyPos).normalize();
 }
 
 
@@ -68,7 +72,7 @@ export function updateSky(sky, elapsed) {
   if (u) u.uTime.value = elapsed;
 }
 
-export function buildLights(theme) {
+export function buildLights(sky) {
   const group = new THREE.Group();
   group.name = 'lights';
 
@@ -111,7 +115,7 @@ export function buildLights(theme) {
   
   
   
-  const rig = rigFor(theme);
+  const rig = rigFor(sky);
   const sun = new THREE.DirectionalLight(rig.keyColour, rig.keyIntensity);
   
   
@@ -205,7 +209,21 @@ export function buildLights(theme) {
 
 
 
-export function buildSun(lights) {
+export function buildSun(lights, sky = 'day') {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (sky === 'rain') return null;
   const key = lights.userData.sun;
   const dir = key.position.clone().normalize();
   

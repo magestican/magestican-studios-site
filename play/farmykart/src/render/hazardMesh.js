@@ -256,7 +256,12 @@ export function buildWaterMaterial(theme = 'summer', {
   
   
   
-  const sun = (sunDir ?? sunDirFor(theme)).clone().normalize();
+  
+  
+  
+  
+  
+  const sun = (sunDir ?? sunDirFor(sky)).clone().normalize();
   const uniforms = {
     uDeep: { value: new THREE.Color(deep).multiplyScalar(BODY_DROP) },
     uShallow: { value: new THREE.Color(shallow).multiplyScalar(BODY_DROP) },
@@ -720,7 +725,7 @@ export function buildWater(path, track) {
     let m = materials.get(key);
     if (!m) {
       m = buildWaterMaterial(track.theme, {
-        frozen, sky: track.sky ?? 'day', sunDir: sunDirFor(track.theme), low,
+        frozen, sky: track.sky ?? 'day', sunDir: sunDirFor(track.sky ?? 'day'), low,
         wetMargin: crossing ? WET_MARGIN : 0,
       });
       materials.set(key, m);

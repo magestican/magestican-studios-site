@@ -66,6 +66,40 @@ export const PROBE_UP_RADIANCE = {
   day: [0.1736, 0.3287, 0.7819],
   snow: [0.2746, 0.4261, 0.6719],
   overcast: [0.3114, 0.3824, 0.4608],
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  rain: [0.1664, 0.2071, 0.2480],
+  dusk: [0.2849, 0.1532, 0.2025],
 };
 
 
@@ -129,8 +163,54 @@ export const DRIVER_ENV_INTENSITY = 0.45;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const LIGHT_RIG = {
-  summer: {
+  day: {
     sky: 'day',
     keyColour: 0xfff3d0, keyIntensity: 3.00, keyPos: [-150, 110, 105],
     hemiSky: 0xcfe6ff, hemiGround: 0x9c9a5e, hemiIntensity: 0.30,
@@ -157,7 +237,7 @@ export const LIGHT_RIG = {
     bounceColour: 0xd8e8f6, bounceIntensity: 0.16, bouncePos: [80, -40, -60],
     envIntensity: ENV_INTENSITY,
   },
-  mud: {
+  overcast: {
     sky: 'overcast',
     
     
@@ -170,11 +250,86 @@ export const LIGHT_RIG = {
     bounceColour: 0xe0bf8a, bounceIntensity: 0.16, bouncePos: [80, -40, -60],
     envIntensity: ENV_INTENSITY,
   },
+  rain: {
+    sky: 'rain',
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    keyColour: 0xd7dee4, keyIntensity: 2.30, keyPos: [-150, 110, 105],
+    hemiSky: 0xb9c2c9, hemiGround: 0x7f8a72, hemiIntensity: 0.46,
+    bounceColour: 0xa8b1b8, bounceIntensity: 0.14, bouncePos: [80, -40, -60],
+    envIntensity: ENV_INTENSITY,
+  },
+  dusk: {
+    sky: 'dusk',
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    keyColour: 0xffd2a0, keyIntensity: 2.70, keyPos: [-150, 110, 105],
+    hemiSky: 0xf0a978, hemiGround: 0x6b5a44, hemiIntensity: 0.32,
+    bounceColour: 0xe8b892, bounceIntensity: 0.16, bouncePos: [80, -40, -60],
+    envIntensity: ENV_INTENSITY,
+  },
 };
 
 
-export function rigFor(theme) {
-  return LIGHT_RIG[theme] ?? (theme === 'overcast' ? LIGHT_RIG.mud : LIGHT_RIG.summer);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function rigFor(sky) {
+  return LIGHT_RIG[sky] ?? LIGHT_RIG.day;
 }
 
 
