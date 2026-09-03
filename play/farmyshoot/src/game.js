@@ -614,6 +614,14 @@ export class Game {
 
     
     
+    
+    
+    
+    
+    this.reducedMotion = localStorage.getItem('tb.reducedMotion') === '1';
+
+    
+    
     this.mature = localStorage.getItem('tb.mature') === '1';
     const matureBtn = document.getElementById('mature-btn');
     const paintMature = () => { matureBtn.classList.toggle('on', this.mature); };
@@ -2689,6 +2697,13 @@ export class Game {
   
   
   _flashHitmarker(dmg = 0, killed = false, headshot = false) {
+    
+    
+    
+    
+    
+    
+    try { SFX.hitmarker({ loudness: killed ? 1.0 : 0.85 }); } catch (_) {}
     const el = document.getElementById('hitmarker');
     if (el) {
       el.classList.remove('visible');
@@ -3882,6 +3897,10 @@ export class Game {
   
   
   _cameraKick() {
+    
+    
+    
+    if (this.reducedMotion) return null;
     const a = this.explosions?.shakeOffset?.() || null;
     const b = this.hazards?.explosions?.shakeOffset?.() || null;
     if (!a) return b;
@@ -4213,7 +4232,12 @@ export class Game {
     
     
     if (this.wormCharges > 0) { this._refreshViewmodel(); return; }
+    const before = this.weapons.slot;
     this.weapons.selectSlot(i);
+    
+    
+    
+    if (this.weapons.slot !== before) { try { SFX.weaponSwitch(); } catch (_) {} }
     
     
     
