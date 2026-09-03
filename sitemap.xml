@@ -73,6 +73,12 @@
     <priority>0.2</priority>
   </url>
   <url>
+    <loc>https://magesticanstudios.com/licence.html</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
     <loc>https://magesticanstudios.com/play/farmyshoot/</loc>
     <lastmod>2026-08-30</lastmod>
     <changefreq>weekly</changefreq>

@@ -39,29 +39,35 @@
   }
   </script>
   <link rel="stylesheet" href="./styles.css">
-  <script type="importmap">
-  {"imports":{"arbelo/analytics":"./web-engine/analytics/analytics.js"}}
-  </script>
   <script type="module">
-    import { initAnalytics } from './web-engine/analytics/analytics.js';
-    try { initAnalytics(); } catch {  }
+    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    try {
+      initAnalytics({ page: 'farmy-evil-hills-landing' });
+      trackPlayClicks();
+    } catch {  }
   </script>
 </head>
 <body>
-  <header class="site-head">
-    <a href="./" class="brand">Magestican Studios</a>
+  <header class="site-header">
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
     <nav>
       <a href="./#games">Games</a>
       <a href="./farmyshoot.html">Farmyshoot</a>
-      <a href="./farmy-evil-hills.html" aria-current="page">Farmy Evil Hills</a>
       <a href="./farmykart.html">Farmy Kart</a>
+      <a href="./farmy-evil-hills.html">Farmy Evil Hills</a>
       <a href="./zelakas-in-space.html">Zelakas</a>
       <a href="./2d-fighter-ex.html">Fighter EX</a>
+      <a href="./for-remote-teams.html">For teams</a>
       <a href="./about.html">About</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./reviews.html">Reviews</a>
     </nav>
   </header>
 
-  <main class="page">
+  <main>
     <h1>Farmy Evil Hills</h1>
     <p class="lede">Station Hesper-4 has missed three reporting cycles. The Space
       Farming Agency sends one inspector, because one inspector is cheaper than two.</p>
@@ -92,16 +98,27 @@
     </ul>
 
     <h2>Made in the browser, for the browser</h2>
-    <p>Every surface, every sound and every face in this game is generated at run
-      time — no image files, no audio files. The whole thing is a few hundred
-      kilobytes plus a renderer, so a link opens into a playable game rather than
-      into a download. It runs on a phone.</p>
+    <p>Every surface and every face in this game is generated at run time — there
+      are no texture files to download. The sound is the one exception and it earns
+      it: about 2.5 MB of real recorded effects and voice, fetched after the game is
+      already playable, because synthesised horror sounds like a synthesiser. A link
+      still opens into a playable game rather than into a download, and it runs on a
+      phone.</p>
 
     <p><a class="cta" href="/play/farmy-evil-hills/">Play Farmy Evil Hills →</a></p>
   </main>
 
-  <footer class="site-foot">
-    <p>© Magestican Studios · <a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a></p>
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; Site is static &middot; no cookies, anonymous counts only
+    </p>
   </footer>
+  <script type="module" src="./assets/site.js?v=6665b8f-20260903T111841Z"></script>
 </body>
 </html>
