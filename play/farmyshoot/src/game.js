@@ -51,6 +51,12 @@ import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
 import { computeAimAssist } from 'arbelo/aim-assist';
 import { attachRightClickMove } from 'arbelo/rmb-move';
 import { stepProjectile, sweepHitWorld } from '../../../web-engine/combat/projectileHit.js';
+
+
+
+import {
+  HitFlash, FLASH, flashDuration, hitStopFor, addHitStop, stepHitStop,
+} from '../../../web-engine/combat/impactFeel.js';
 import { shotSolid } from '../../../web-engine/combat/shotWorld.js';
 import { Chat } from './ui/chat.js';
 import { KillAnnouncer, shouldHear } from './audio/killAnnouncer.js';
@@ -1041,6 +1047,26 @@ export class Game {
     
     this.snow    = new SnowSystem(this._arena || this.scene, this.player.pos, this.grid);
     this.gore    = new GoreSystem(this.scene);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this.hitFlash = new HitFlash(new THREE.MeshBasicMaterial({
+      color: FLASH.COLOR, fog: false,
+    }));
+    
+    this._hitStop = 0;
     
     
     this.scene.add(this.camera);
@@ -3444,7 +3470,38 @@ export class Game {
     }
   }
 
-  _broadcast(msg) { this.mesh.broadcast(msg); }
+  _broadcast(msg) {
+    
+    
+    
+    
+    
+    
+    
+    if (msg && msg.t === MSG.HIT) this._flashTarget(msg.target, msg.dmg, msg.head);
+    this.mesh.broadcast(msg);
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  _flashTarget(targetId, dmg = 0, headshot = false, killed = false) {
+    if (!targetId || targetId === this.myId || !this.hitFlash) return 0;
+    const rp = this.remotePlayers.get(targetId);
+    if (!rp) return 0;
+    const d = flashDuration({ damage: dmg, killed, headshot: !!headshot });
+    return this.hitFlash.flash(rp.idlePivot || rp.group, d);
+  }
 
   _onMessage(fromTransport, msg) {
     if (!msg || !msg.t) return;
@@ -3577,6 +3634,11 @@ export class Game {
       }
       case MSG.HIT: {
         if (msg.target === this.myId) this._takeDamage(msg.dmg, msg.by, msg.weapon);
+        
+        
+        
+        
+        else this._flashTarget(msg.target, msg.dmg, msg.head);
         break;
       }
       case MSG.BREAK: {
@@ -3829,6 +3891,27 @@ export class Game {
   
   
   _frame(dt, { render = true } = {}) {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const sleep = stepHitStop(this._hitStop, dt);
+    this._hitStop = sleep.remaining;
+    dt = sleep.step;
+    
+    
+    
+    
+    this.hitFlash?.update(dt);
     if (!this.gameOver) {
       try { this._tick(dt); }
       catch (err) {
@@ -5173,6 +5256,13 @@ export class Game {
     const hpLeft = bot ? bot.hp - dmg
                  : (rp && rp.hp != null ? rp.hp - dmg : null);
     this._flashHitmarker(dmg, hpLeft != null && hpLeft <= 0, headshot);
+    
+    
+    
+    if (headshot) {
+      this._hitStop = addHitStop(this._hitStop,
+        hitStopFor({ headshot: true, mine: true }));
+    }
     if (headshot) { try { SFX.chirp(); } catch (_) {} }
     SFX.splat();
     
@@ -5703,6 +5793,21 @@ export class Game {
   
   
   _creditKill(killerId, victimId) {
+    
+    
+    
+    
+    
+    
+    
+    
+    if (killerId === this.myId && victimId !== this.myId) {
+      this._hitStop = addHitStop(this._hitStop,
+        hitStopFor({ killed: true, mine: true }));
+      
+      
+      this._flashTarget(victimId, 0, false, true);
+    }
     
     
     this._tallyKill(killerId, victimId);
