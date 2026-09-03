@@ -160,6 +160,37 @@ export class Bot {
     this._path.wanderT = 0;
     this._path.stuckRef = null;
     this._path.stuckT = 0;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this._lane = null;
+    this._post = null;
   }
 
   
