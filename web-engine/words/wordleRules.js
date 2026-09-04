@@ -137,7 +137,11 @@ export function rejectReason(guess, allowed) {
   if (g.length < WORD_LENGTH) return `Only ${g.length} letters - it needs ${WORD_LENGTH}.`;
   if (g.length > WORD_LENGTH) return `That is ${g.length} letters - it needs ${WORD_LENGTH}.`;
   if (!/^[A-Z]+$/.test(g)) return 'Letters only, please.';
-  if (allowed && !allowed.has(g)) return `${g} is not in the word list.`;
+  
+  
+  
+  
+  if (allowed && !allowed.has(g)) return `${g} is incorrect - not a word we know.`;
   return null;
 }
 

@@ -169,6 +169,13 @@ export function summariseGuess(guess, marks) {
   });
 
   if (marks.every((m) => m === 'right')) return 'Every letter in place.';
+  
+  
+  
+  
+  
+  
+  if (marks.every((m) => m === 'absent')) return 'None of those letters are in it.';
 
   const pick = (want) => order.filter((c) => best.get(c) === want);
   const join = (list) => (list.length === 1
