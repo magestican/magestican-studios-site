@@ -109,8 +109,10 @@ import {
 import { compileMumble, seedOf } from '../../../web-engine/horror/mumble.js';
 import { AIM_LATCH, createAimLatch, stepAimLatch, acquires, releases, raiseMix } from '../../../web-engine/horror/aimLatch.js';
 import { INTRO_SHOTS, createIntro, stepIntro, introFade, introCam } from '../../../web-engine/horror/intro.js';
-import { isBossDeck, rosterFor, actCardFor, actFor } from '../../../web-engine/horror/acts.js';
-import { gatesFor } from '../../../web-engine/horror/gates.js';
+import {
+  isBossDeck, rosterFor, actCardFor, actFor, isFinalDeck, FINAL_DECK,
+} from '../../../web-engine/horror/acts.js';
+import { gatesFor, OPENING_FIRE } from '../../../web-engine/horror/gates.js';
 import { createEntrance, stepEntrance, isProtectedPhase, emergeAt, emergeY } from '../../../web-engine/horror/entrance.js';
 import { createDirector, stepDirector } from '../../../web-engine/horror/director.js';
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
@@ -6092,10 +6094,18 @@ export function boot(canvas, hud) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
     const openingBreach = [];
     deck.runs.forEach((run, i) => {
       if (run.axis !== 'x' || i < plan.porkerFromCorner) return;
-      openingBreach.push('porker');
+      openingBreach.push({ species: 'porker', x: (run.x0 + run.x1) / 2, z: run.z1 });
     });
 
     
@@ -6110,9 +6120,18 @@ export function boot(canvas, hud) {
     {
       
       
-      openingBreach.push('cow');
-      if (plan.cows >= 2 && deck.runs.filter((r) => r.axis === 'z').length > 2) {
-        openingBreach.push('cow');
+      
+      
+      const zRuns = deck.runs.filter((r) => r.axis === 'z');
+      const last = zRuns[zRuns.length - 1];
+      openingBreach.push({
+        species: 'cow', x: last.x0, z: last.z0 + (last.z1 - last.z0) * 0.45,
+      });
+      if (plan.cows >= 2 && zRuns.length > 2) {
+        const mid = zRuns[Math.floor(zRuns.length / 2) - 1];
+        openingBreach.push({
+          species: 'cow', x: mid.x0, z: mid.z0 + (mid.z1 - mid.z0) * 0.5,
+        });
       }
     }
     
@@ -6216,16 +6235,40 @@ export function boot(canvas, hud) {
       
       
       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       openingPending = [];
       {
-        const spare = gateMeshes
-          .map((m, gi) => ({ m, gi }))
-          .filter((x) => x.m.gate.kind !== 'drop')
-          .sort((a, b) => (a.m.gate.kind === 'breach' ? -1 : 1) - (b.m.gate.kind === 'breach' ? -1 : 1));
-        openingBreach.forEach((species, k) => {
-          const slot = spare[k];
-          if (slot) openingPending.push({ gi: slot.gi, species, gate: slot.m.gate });
-        });
+        const used = new Set();
+        for (const item of openingBreach) {
+          let best = -1;
+          let bestD = Infinity;
+          gateMeshes.forEach((m, gi) => {
+            if (m.gate.kind !== 'breach' || used.has(gi)) return;
+            const d = Math.hypot(m.gate.x - item.x, m.gate.z - item.z);
+            if (d < bestD) { bestD = d; best = gi; }
+          });
+          if (best >= 0) {
+            used.add(best);
+            openingPending.push({
+              gi: best, species: item.species, gate: gateMeshes[best].gate,
+            });
+          } else {
+            addChicken(item.z, item.x, item.species);
+          }
+        }
       }
 
       
@@ -7959,7 +8002,7 @@ export function boot(canvas, hud) {
         const gm = gateMeshes[op.gi];
         if (!gm || gm.opened) return false;
         const d2 = Math.hypot(gm.gate.x - player.x, gm.gate.z - player.z);
-        return d2 < 11 && d2 > 8;
+        return d2 < OPENING_FIRE.max && d2 > OPENING_FIRE.min;
       });
       if (idx >= 0 && entrances.length < 2) {
         beginEntrance(openingPending[idx].gi, openingPending[idx].species);
@@ -8771,7 +8814,20 @@ export function boot(canvas, hud) {
 
         if (fight.dead && b.alive) {
           b.alive = false;
-          bossWonIn = 0.9;
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          if (isFinalDeck(level)) bossWonIn = 0.9;
+          else { hud.msg('IT IS DOWN  -  THE WAY UP IS OPEN'); actCardT = 4.5; }
         }
         b.mesh.position.set(b.x, 0, b.z);
         
@@ -10949,6 +11005,16 @@ export function boot(canvas, hud) {
       
       
       clearOpeningPending() { const n = openingPending.length; openingPending = []; return n; },
+      
+      
+      
+      get opening() {
+        return openingPending.map((op) => ({
+          species: op.species,
+          kind: op.gate.kind,
+          fromStart: +Math.hypot(op.gate.x - deck.start.x, op.gate.z - deck.start.z).toFixed(1),
+        }));
+      },
       get litter() { return debrisPool.filter((d) => d.live && d.settled).length; },
       camFov() { return camera.fov; },
       ceilVis() { let v = 0; for (const c of ceilingPieces) if (c.visible) v += 1; return { visible: v, total: ceilingPieces.length }; },

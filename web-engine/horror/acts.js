@@ -59,6 +59,27 @@ export const ACTS = Object.freeze([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+export const FINAL_DECK = ACTS.length * ACT_LEN;
+
+
+export function isFinalDeck(level) {
+  return level === FINAL_DECK;
+}
+
+
+
 export function actFor(level) {
   return Math.min(ACTS.length, Math.max(1, Math.ceil(level / ACT_LEN)));
 }

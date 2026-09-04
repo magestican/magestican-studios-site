@@ -29,11 +29,48 @@ import { insideLevel } from './level.js';
 
 export const GATES = Object.freeze({
   ductsPerLongRun: [2, 3],   
-  breachesPerDeck: [1, 2],
-  minFromStart: 8,           
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  breachesPerDeck: [5, 7],
+  
+  
+  
+  
+  
+  
+  
+  minFromStart: 14,
   minSpacing: 6,             
   wallInset: 0.06,           
 });
+
+
+
+
+
+
+
+
+
+
+
+export const OPENING_FIRE = Object.freeze({ min: 8, max: 11 });
+
+
+
+export function openingBandClearsSpawn() {
+  return GATES.minFromStart > OPENING_FIRE.max;
+}
 
 
 function h(seed, a, b) {
