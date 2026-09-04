@@ -116,6 +116,9 @@ import {
 import { gatesFor, OPENING_FIRE } from '../../../web-engine/horror/gates.js';
 
 
+import {
+  SAVE_KEY, makeSave, normaliseSave, newerOf, describeSave,
+} from '../../../web-engine/horror/saveGame.js';
 import { createFatigue, tickFatigue } from '../../../web-engine/horror/chaseFatigue.js';
 import { createEntrance, stepEntrance, isProtectedPhase, emergeAt, emergeY } from '../../../web-engine/horror/entrance.js';
 import { createDirector, stepDirector } from '../../../web-engine/horror/director.js';
@@ -6555,6 +6558,101 @@ export function boot(canvas, hud) {
   let injuryDbg = { injured: false, wall: null, touch: false, leanClose: false };
   let bossMoved = 0;
   let bossWonIn = 0;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let paused = false;
+  
+  
+  let api_setPaused = null;
+
+
+  
+  function runState() {
+    return {
+      deck: level,
+      health: player.vitals.health,
+      stamina: player.vitals.stamina ?? 100,
+      ammo: player.weapon?.ammo ?? 0,
+      weapon: player.weapon?.id ?? '',
+      x: player.x, z: player.z, yaw: player.yaw,
+    };
+  }
+
+  function readLocalSave() {
+    try { return normaliseSave(localStorage.getItem(SAVE_KEY)); } catch { return null; }
+  }
+  function writeLocalSave(save) {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); return true; } catch { return false; }
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  let accountMod = null;
+  let accountTried = false;
+  async function account() {
+    if (accountTried) return accountMod;
+    accountTried = true;
+    try {
+      accountMod = await import('../../../web-engine/account/account.js');
+    } catch { accountMod = null; }
+    return accountMod;
+  }
+
+  
+  async function cloudWho() {
+    try {
+      const a = await account();
+      if (!a || !a.accountSummary) return null;
+      const sum = a.accountSummary();
+      return (sum && sum.signedIn) ? (sum.name || 'your account') : null;
+    } catch { return null; }
+  }
+
+  
+
+
+
+
+  async function cloudPush(save) {
+    try {
+      const a = await account();
+      if (!a) return false;
+      if (typeof a.putGameSave === 'function') return !!(await a.putGameSave('farmy-evil-hills', save));
+      
+      
+      
+      if (typeof a.recordSession === 'function') {
+        a.recordSession({ gameId: 'farmy-evil-hills', metrics: { deck: save.deck } });
+      }
+      return false;
+    } catch { return false; }
+  }
+
+  async function cloudPull() {
+    try {
+      const a = await account();
+      if (!a || typeof a.getGameSave !== 'function') return null;
+      return normaliseSave(await a.getGameSave('farmy-evil-hills'));
+    } catch { return null; }
+  }
   
   let frameCount = 0;
   let bossHorseSpeed = 0;
@@ -7741,6 +7839,25 @@ export function boot(canvas, hud) {
     const now = nowMs / 1000;
     const dt = Math.min(0.05, last ? now - last : 0.016);
     last = now;
+
+    
+    
+    
+    
+    
+    if (paused) {
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      requestAnimationFrame(step);
+      return;
+    }
 
     
     if (intro && !intro.done) {
@@ -10790,6 +10907,75 @@ export function boot(canvas, hud) {
     requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
+
+  
+  {
+    const el = (id) => document.getElementById(id);
+    const setPaused = (on) => {
+      
+      
+      if (on && (intro && !intro.done)) return;
+      if (on && player.dead) return;
+      paused = !!on;
+      const p = el('pause');
+      if (p) p.style.display = paused ? 'flex' : 'none';
+      document.body.classList.toggle('modalOpen', paused);
+      if (paused) {
+        const w = el('pauseWhere');
+        if (w) w.textContent = `DECK ${level}`;
+        const st = el('saveState');
+        const existing = readLocalSave();
+        if (st) st.textContent = existing ? `Last save: ${describeSave(existing, Date.now())}` : 'No save yet.';
+        
+        
+        
+        const cl = el('saveCloud');
+        if (cl) {
+          cl.textContent = 'Checking your account…';
+          cloudWho().then((who) => {
+            cl.textContent = who
+              ? `Signed in as ${who} — saves also go to your account.`
+              : 'Saved on this browser only. Sign up on magesticanstudios.com to keep your save if you clear your browser or switch device.';
+          }).catch(() => { cl.textContent = 'Saved on this browser only.'; });
+        }
+      }
+    };
+    el('resumeBtn')?.addEventListener('click', () => setPaused(false));
+    el('pause')?.addEventListener('click', (e) => { if (e.target === el('pause')) setPaused(false); });
+    el('saveBtn')?.addEventListener('click', async () => {
+      const btn = el('saveBtn');
+      const st = el('saveState');
+      if (btn) btn.disabled = true;
+      const save = makeSave(runState(), Date.now());
+      const okLocal = writeLocalSave(save);
+      
+      
+      saveProgress({ deck: save.deck, seenIntro: true });
+      if (st) st.textContent = okLocal ? 'Saved on this browser…' : 'This browser refused to store the save.';
+      if (okLocal) {
+        const up = await cloudPush(save);
+        if (st) {
+          st.textContent = up
+            ? `Saved — ${describeSave(save, Date.now())} — and copied to your account.`
+            : `Saved — ${describeSave(save, Date.now())} — on this browser.`;
+        }
+        feh_track('game_saved', { deck: save.deck, cloud: up });
+      }
+      if (btn) btn.disabled = false;
+    });
+    
+    window.addEventListener('keydown', (e) => {
+      if (e.code !== 'Escape' && e.code !== 'KeyP') return;
+      if (intro && !intro.done) return;      
+      e.preventDefault();
+      setPaused(!paused);
+    });
+    
+    
+    window.addEventListener('blur', () => { if (!player.dead) setPaused(true); });
+    api_setPaused = setPaused;
+  }
+
   
   
   
@@ -10818,6 +11004,34 @@ export function boot(canvas, hud) {
     
     progress: () => loadProgress(),
     markIntroSeen: () => saveProgress({ seenIntro: true }),
+    
+    
+    
+    loadSave(raw) {
+      const save = normaliseSave(raw);
+      if (!save) return null;
+      level = Math.max(1, save.deck);
+      buildWorld(level);
+      
+      
+      
+      
+      if (insideLevel(deck, save.x, save.z, 0.3)) {
+        player.x = save.x; player.z = save.z; player.yaw = save.yaw;
+      } else {
+        player.x = deck.start.x; player.z = deck.start.z;
+      }
+      player.vitals.health = Math.max(1, save.health);
+      if (player.vitals.stamina !== undefined) player.vitals.stamina = save.stamina;
+      if (save.weapon) {
+        try { player.weapon = readyWeapon(save.weapon, { ammo: save.ammo }); } catch {  }
+      }
+      
+      player.latchedBy = null; player.struggle = null;
+      for (const b of birds) b.latched = false;
+      saveProgress({ deck: level, seenIntro: true });
+      return level;
+    },
     resumeAt(deck) {
       const n = Math.max(1, Math.floor(deck) || 1);
       level = n;
@@ -11218,6 +11432,14 @@ export function boot(canvas, hud) {
         });
         return player.struggle.verb;
       },
+      get paused() { return paused; },
+      setPaused(on) { if (api_setPaused) api_setPaused(on); return paused; },
+      saveNow() {
+        const save = makeSave(runState(), Date.now());
+        writeLocalSave(save);
+        return save;
+      },
+      readSave() { return readLocalSave(); },
       get frames() { return frameCount; },
       get render() {
         const i = renderer.info;
@@ -12396,7 +12618,11 @@ function start() {
       let started = false;
       
       
+      
+      document.body.classList.add('modalOpen');
       let resumeDeck = 0;
+      
+      let resumeSave = null;
       
       
       
@@ -12426,6 +12652,9 @@ function start() {
         if (api.introActive && api.introActive()) return;
         started = true;
         $('boot').style.display = 'none';
+        
+        
+        document.body.classList.remove('modalOpen');
         $('hint').style.display = 'block';
         
         
@@ -12446,7 +12675,8 @@ function start() {
           api.beginIntro(() => { startStationAudio(); });
           return;
         }
-        if (resumeDeck && api.resumeAt) api.resumeAt(resumeDeck);
+        if (resumeSave && api.loadSave) api.loadSave(resumeSave);
+        else if (resumeDeck && api.resumeAt) api.resumeAt(resumeDeck);
         startStationAudio();
       };
       
@@ -12485,13 +12715,30 @@ function start() {
       
       {
         const prog = api.progress ? api.progress() : null;
-        if (prog && prog.deck > 1) {
+        
+        
+        
+        
+        
+        let saved = null;
+        try { saved = normaliseSave(localStorage.getItem(SAVE_KEY)); } catch { saved = null; }
+        if (saved || (prog && prog.deck > 1)) {
           const btn = $('contBtn');
           const num = $('contDeck');
           if (btn && num) {
-            num.textContent = String(prog.deck);
+            num.textContent = String(saved ? saved.deck : prog.deck);
             btn.style.display = 'inline-block';
-            btn.addEventListener('click', () => { resumeDeck = prog.deck; go(); });
+            if (saved) {
+              const line = document.createElement('div');
+              line.style.cssText = 'margin-top:6px;opacity:.5;font-size:11px';
+              line.textContent = describeSave(saved, Date.now());
+              btn.insertAdjacentElement('afterend', line);
+            }
+            btn.addEventListener('click', () => {
+              resumeDeck = saved ? saved.deck : prog.deck;
+              resumeSave = saved;
+              go();
+            });
           }
           const note = $('bootNote');
           
@@ -12499,7 +12746,7 @@ function start() {
           
           
           if (note) {
-            note.textContent = prog.seenIntro
+            note.textContent = (saved || (prog && prog.seenIntro))
               ? 'BEGIN starts a new run from deck 1 · sound on'
               : 'opens with a short film · sound on · any key skips it';
           }

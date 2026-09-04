@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="f3181a6-20260904T063934Z">
+<meta name="build" content="8905aba-20260904T090032Z">
 <title>Play Farmy Evil Hills — free browser survival horror, no download | Magestican Studios</title>
 <meta name="description" content="Play Farmy Evil Hills free in your browser: PS1-era survival horror on a Space Farming Agency station on Venus. A virus has mutated the livestock. Take a chicken's leg off with a bolt driver, or mash one off your boot when it latches. Phone and desktop. No download, no install, no account.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2305060a'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23b6392c'%3EE%3C/text%3E%3C/svg%3E">
@@ -165,6 +165,38 @@
   #over h2 { font-size: 26px; margin: 0 0 8px; letter-spacing: .08em; }
   #over button { pointer-events: auto; margin-top: 14px; padding: 10px 22px; font: inherit;
     background: #2a2620; color: #e8e4d8; border: 1px solid #6a5f4c; border-radius: 6px; cursor: pointer; }
+  
+
+
+
+
+
+  
+
+
+
+
+
+  body.modalOpen #vox, body.modalOpen #hint, body.modalOpen #msg { display: none !important; }
+  #pause { position: absolute; inset: 0; background: #000d; display: none;
+    align-items: center; justify-content: center; text-align: center;
+    pointer-events: auto; z-index: 7; }
+  #pause h2 { font-size: 24px; margin: 0 0 4px; letter-spacing: .10em; }
+  #pause .sub { opacity: .6; font-size: 12px; margin-bottom: 16px; letter-spacing: .06em; }
+  #pause button { pointer-events: auto; margin: 6px; padding: 11px 26px; font: inherit;
+    font-weight: 700; letter-spacing: .08em;
+    background: #2a2620; color: #e8e4d8; border: 1px solid #6a5f4c;
+    border-radius: 6px; cursor: pointer; }
+  #pause button.primary { background: #8d2f24; border-color: #c4553f; color: #fff; }
+  #pause button[disabled] { opacity: .45; cursor: default; }
+  
+
+
+
+  #saveState { margin-top: 14px; font-size: 12px; opacity: .75; min-height: 1.2em; }
+  #saveCloud { margin-top: 6px; font-size: 11px; opacity: .55; max-width: 40ch;
+    margin-left: auto; margin-right: auto; }
+  #saveCloud a { color: #cfe3dc; }
   #boot { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     text-align: center; padding: 20px; }
   kbd { background: #2a2620; border: 1px solid #5a5142; border-bottom-width: 2px;
@@ -550,6 +582,19 @@
     </div>
   </div>
 
+  <div id="pause">
+    <div>
+      <h2>PAUSED</h2>
+      <div class="sub" id="pauseWhere">DECK 1</div>
+      <div>
+        <button id="resumeBtn" class="primary">RESUME</button>
+        <button id="saveBtn">SAVE</button>
+      </div>
+      <div id="saveState"></div>
+      <div id="saveCloud"></div>
+    </div>
+  </div>
+
   <div id="boot">
     <div>
       <h2 style="margin:0 0 10px">FARMY EVIL HILLS</h2>
@@ -595,6 +640,6 @@
   "arbelo/analytics": "../../web-engine/analytics/analytics.js"
 }}
 </script>
-<script type="module" src="./src/main.js?v=f3181a6-20260904T063934Z"></script>
+<script type="module" src="./src/main.js?v=8905aba-20260904T090032Z"></script>
 </body>
 </html>
