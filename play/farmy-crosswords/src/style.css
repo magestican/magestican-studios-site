@@ -19,6 +19,12 @@
 
 :root {
   --fc-paper: #FBF5E4;
+  
+
+
+
+  --fc-paper-wash: rgba(246, 241, 230, 0.14);
+  --fc-paper-dim: rgba(246, 241, 230, 0.62);
   --fc-card: #FFFDF6;
   --fc-ink: #17150F;
   --fc-inkSoft: #4A4438;
@@ -81,6 +87,8 @@ body {
   padding: 0 14px;
   height: 52px;
   background: var(--fc-ink);
+  
+  justify-content: flex-start;
   color: var(--fc-paper);
   text-decoration: none;
   font-family: Georgia, 'Times New Roman', serif;
@@ -92,19 +100,60 @@ body {
   position: relative;
   z-index: 2;
 }
-.studio-bar img { display: block; }
-.studio-bar:hover span,
-.studio-bar:focus-visible span { text-decoration: underline; }
-.studio-bar:focus-visible {
-  outline: var(--fc-shadow) solid var(--fc-blue);
-  outline-offset: -4px;
+.studio-home {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
 }
+.studio-home img { display: block; flex: 0 0 auto; }
+.studio-home span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.studio-home:hover span,
+.studio-home:focus-visible span { text-decoration: underline; }
+.studio-home:focus-visible,
+.studio-music:focus-visible {
+  outline: var(--fc-shadow) solid var(--fc-blue);
+  outline-offset: 2px;
+}
+
+
+
+.studio-music {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fc-paper);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.studio-music:hover { background: var(--fc-paper-wash); }
+
+
+
+
+
+
+.studio-music .mg-slash { display: none; }
+.studio-music[aria-pressed="false"] .mg-slash { display: block; }
+.studio-music[aria-pressed="false"] .mg-note { opacity: 0.45; }
+.studio-music[aria-pressed="false"] { color: var(--fc-paper-dim); }
 
 
 
 @media (max-width: 520px) {
   .studio-bar { height: 44px; font-size: 17px; gap: 8px; }
-  .studio-bar img { width: 30px; height: 30px; }
+  .studio-home img { width: 30px; height: 30px; }
+  .studio-music { width: 44px; height: 40px; }
 }
 
 canvas#board {

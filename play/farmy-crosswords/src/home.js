@@ -80,7 +80,11 @@ export function create(app) {
     
     
     
-    const cardH = Math.max(112, Math.min(240, Math.floor((available - gap * (rows - 1)) / rows)));
+    
+    
+    
+    
+    const cardH = Math.max(112, Math.min(240, Math.floor(Math.max(0, available - gap * (rows - 1)) / rows)));
     const block = rows * cardH + gap * (rows - 1);
     
     

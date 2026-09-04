@@ -24,8 +24,21 @@ import { COLORS, SIZES, FONT_STACK, STATES } from '../../../web-engine/words/sty
 import { at, alive } from '../../../web-engine/words/confetti.js';
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function roundRect(g, x, y, w, h, r = SIZES.radius) {
-  const rad = Math.min(r, w / 2, h / 2);
+  const rad = Math.max(0, Math.min(r, w / 2, h / 2));
   g.beginPath();
   g.moveTo(x + rad, y);
   g.arcTo(x + w, y, x + w, y + h, rad);

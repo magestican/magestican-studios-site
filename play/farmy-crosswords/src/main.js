@@ -50,6 +50,7 @@ import {
   scoreboard, winnerOf, GAME_NAMES, MODES, movesForBoard, displayName, cleanName, chipsFor,
 } from '../../../web-engine/words/coop.js';
 import * as sfx from './sfx.js';
+import * as music from './music.js';
 
 initAnalytics({ page: 'farmy-crosswords' });
 
@@ -1465,6 +1466,40 @@ globalThis.addEventListener('resize', resize);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function wireMusic() {
+  const btn = document.getElementById('music-btn');
+  if (!btn) return;
+  const paint_ = () => {
+    const on = music.isOn();
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('aria-label', on ? 'Stop the music' : 'Play music');
+    btn.setAttribute('title', on ? 'Stop the music' : 'Play music');
+  };
+  btn.addEventListener('click', () => {
+    const on = music.toggle();
+    paint_();
+    announce(on ? 'Music on.' : 'Music off.');
+    app.sound('press');
+  });
+  paint_();
+}
+wireMusic();
+
 globalThis.__fc = {
   get room() {
     return {
@@ -1481,6 +1516,7 @@ globalThis.__fc = {
   
   
   get audio() { return sfx.state(); },
+  get music() { return music.state(); },
   get screen() { return current; },
   get index() { return indexFor[current] ?? null; },
   get overlay() { return overlay ? 'open' : null; },
