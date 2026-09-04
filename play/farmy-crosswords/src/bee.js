@@ -309,10 +309,13 @@ export function create(app, index) {
       paint.text(g, found1,
         { x: rankBand.x, y: rankBand.y, width: textW, height: rankBand.height },
         { size: SIZES.small, colour: COLORS.ink, align: 'left', fit: true, maxWidth: textW * 0.6 });
+      
+      
+      
       paint.text(g, points,
-        { x: rankBand.x + textW * 0.6, y: rankBand.y, width: textW * 0.4, height: rankBand.height },
+        { x: rankBand.x + textW * 0.46, y: rankBand.y, width: textW * 0.54, height: rankBand.height },
         { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'right',
-          fit: true, maxWidth: textW * 0.4 });
+          fit: true, maxWidth: textW * 0.54 });
     } else {
       const half = rankBand.height / 2;
       paint.text(g, found1,

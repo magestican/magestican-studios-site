@@ -25,7 +25,7 @@ import { tick } from '../../../web-engine/words/frameLoop.js';
 import { pieces as confettiPieces, done as confettiDone } from '../../../web-engine/words/confetti.js';
 import { scoreIn, isSolved, levelOf } from '../../../web-engine/words/scoring.js';
 import {
-  countAt, beatShare, counting as isCounting, freshPuzzle, freshScores,
+  COUNT_MS, countAt, beatShare, counting as isCounting, freshPuzzle, freshScores,
   sessionButton, remainingMs, sessionOver, clockText, clockUrgent, SESSION_MINUTES,
 } from '../../../web-engine/words/match.js';
 import { rectAt } from '../../../web-engine/words/layout.js';
@@ -38,7 +38,10 @@ import * as bee from './bee.js';
 import * as connections from './connections.js';
 import * as strands from './strands.js';
 import { picker, help, hints, KEY_LINES } from './overlay.js';
-import { room as roomPanel, more as morePanel, results as resultsPanel, say as sayPanel } from './rooms.js';
+import {
+  room as roomPanel, more as morePanel, results as resultsPanel, say as sayPanel,
+  length as lengthPanel,
+} from './rooms.js';
 import { createNet, canPlayTogether } from './net.js';
 import {
   puzzleKey, mergeMoves, movesFromState, stateFromMoves, nextSeq,
@@ -392,6 +395,68 @@ function layoutBar() {
     { x: togetherX, y, w: 150, h, id: 'together', label: togetherLabel() },
     ...chipRect(togetherX - 8 - 150, 150),
   ];
+}
+
+
+
+
+
+
+
+
+function drawCount(now) {
+  const ms = now - countAtMs;
+  const text = countAt(ms);
+  if (text === null) return;
+  const share = beatShare(ms);
+  const go = text === 'GO';
+
+  
+  
+  
+  
+  
+  
+  
+  const side = Math.round(Math.min(app.width, app.height, 520) * (go ? 0.46 : 0.38));
+  
+  
+  const grow = app.motion ? 1 + 0.14 * (1 - Math.min(1, share * 3)) : 1;
+  const w = Math.round(side * (go ? 1.45 : 1) * grow);
+  const h = Math.round(side * grow);
+  const card = {
+    x: Math.round(app.width / 2 - w / 2),
+    y: Math.round(app.height / 2 - h / 2),
+    w,
+    h,
+  };
+
+  
+  
+  
+  paint.scrim(g, app.width, app.height, 0.38);
+  paint.surface(g, card, { fill: go ? COLORS.green : COLORS.card, offset: SIZES.shadow + 4 });
+
+  
+  
+  if (!go) {
+    const trackW = Math.round(card.w * 0.62);
+    const trackX = Math.round(card.x + (card.w - trackW) / 2);
+    const trackY = card.y + card.h - 26;
+    g.fillStyle = COLORS.paper;
+    paint.roundRect(g, trackX, trackY, trackW, 8, 4);
+    g.fill();
+    g.fillStyle = COLORS.green;
+    paint.roundRect(g, trackX, trackY, Math.max(4, Math.round(trackW * (1 - share))), 8, 4);
+    g.fill();
+  }
+
+  paint.text(g, text, { x: card.x, y: card.y - (go ? 0 : 10), w: card.w, h: card.h }, {
+    size: Math.round(h * (go ? 0.44 : 0.62)),
+    colour: go ? COLORS.card : COLORS.ink,
+    fit: true,
+    maxWidth: card.w - 24,
+  });
 }
 
 function drawBar(now) {
