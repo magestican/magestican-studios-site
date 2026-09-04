@@ -15,7 +15,7 @@ import {
   keyboardState, rejectReason, play, verdict, MAX_GUESSES, WORD_LENGTH,
 } from '../../../web-engine/words/wordleRules.js';
 import { WORDLE_ANSWERS, WORDLE_GUESSES } from '../../../web-engine/words/data/wordleWords.js';
-import { describeWordle, summariseGuess } from '../../../web-engine/words/describe.js';
+import { describeWordle, summariseGuess, lettersKnown } from '../../../web-engine/words/describe.js';
 import { grid, keyboard, rectAt } from '../../../web-engine/words/layout.js';
 import {
   progress, lift, sink, shake, stagger, flipScale, flipTurned, DURATION,
@@ -60,7 +60,12 @@ export function create(app, index) {
     keys = keyboard({
       box: { x: area.x, y: kbTop, width: area.width, height: kbHeight }, rows: KEYS, gap: 6,
     });
-    statusBand = { x: area.x, y: kbTop - 50, width: area.width, height: 40 };
+    
+    
+    
+    
+    
+    statusBand = { x: area.x, y: kbTop - 76, width: area.width, height: 66 };
     board = grid({
       box: { x: area.x, y: area.y + 4, width: area.width, height: statusBand.y - area.y - 12 },
       cols: WORD_LENGTH,
@@ -110,8 +115,20 @@ export function create(app, index) {
       }
     }
 
-    paint.text(g, s.over ? verdict(s, answer) : (app.message || verdict(s, answer)), statusBand, {
-      size: SIZES.base, colour: s.lost ? COLORS.red : COLORS.ink, fit: true, maxWidth: statusBand.width - 20,
+    
+    
+    
+    
+    
+    const said = s.over
+      ? verdict(s, answer)
+      : (app.message || lettersKnown(s.rows) || verdict(s, answer));
+    const lines = paint.wrap(g, said, statusBand.width - 20, { size: SIZES.base, weight: 700 })
+      .slice(0, 2);
+    lines.forEach((line, i) => {
+      paint.text(g, line, {
+        x: statusBand.x, y: statusBand.y + i * 32, width: statusBand.width, height: 30,
+      }, { size: SIZES.base, colour: s.lost ? COLORS.red : COLORS.ink, fit: true, maxWidth: statusBand.width - 20 });
     });
 
     const kb = keyboardState(s.rows);
@@ -175,8 +192,17 @@ export function create(app, index) {
     const learned = summariseGuess(guesses[guesses.length - 1], now.rows[revealRow].marks);
     
     
-    app.message = now.over ? `${learned} ${verdict(now, answer)}` : learned;
-    app.announce(app.message);
+    
+    
+    
+    
+    
+    
+    
+    
+    const spoken = now.over ? `${learned} ${verdict(now, answer)}` : learned;
+    app.message = now.over ? verdict(now, answer) : '';
+    app.announce(spoken);
     app.sound(now.won ? 'win' : 'word');
     app.invalidate();
     if (now.over) app.finished(now.won);

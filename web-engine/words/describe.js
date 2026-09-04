@@ -21,7 +21,7 @@
 
 
 
-import { scoreGuess, MAX_GUESSES } from './wordleRules.js';
+import { scoreGuess, MAX_GUESSES , keyboardState } from './wordleRules.js';
 import { STATES } from './style.js';
 import { scoreWord, isPangram, rankFor } from './beeRules.js';
 import { MAX_MISTAKES } from './connectionsRules.js';
@@ -46,6 +46,12 @@ export function describeWordle({ answer, guesses, typed = '', puzzle = 1 }) {
   const won = guesses.some((g) => g.toUpperCase() === answer.toUpperCase());
   const out = guesses.length >= MAX_GUESSES;
   if (!won && !out) {
+    
+    
+    
+    
+    const known = lettersKnown(guesses.map((g, i) => ({ guess: g, marks: scoreGuess(g, answer) })));
+    if (known) lines.push(known);
     lines.push(typed
       ? `Typing: ${[...typed].join(' ')}. ${MAX_GUESSES - guesses.length} guesses left.`
       : `${MAX_GUESSES - guesses.length} guesses left. Type a five letter word.`);
@@ -178,4 +184,45 @@ export function summariseGuess(guess, marks) {
   if (moved.length) parts.push(`${join(moved)} ${verb(moved)} in the word but somewhere else`);
   if (absent.length) parts.push(`${join(absent)} ${verb(absent)} not in the word`);
   return `${parts.join('. ')}.`;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function lettersKnown(rows) {
+  const kb = keyboardState(rows);
+  if (!kb.size) return '';
+  const of = (want) => [...kb.entries()]
+    .filter(([, mark]) => mark === want)
+    .map(([letter]) => letter)
+    .sort();
+
+  const parts = [];
+  const right = of('right');
+  const moved = of('moved');
+  const absent = of('absent');
+  if (right.length) parts.push(`Right place: ${right.join(' ')}.`);
+  if (moved.length) parts.push(`In the word: ${moved.join(' ')}.`);
+  if (absent.length) parts.push(`Not in it: ${absent.join(' ')}.`);
+  return parts.join(' ');
 }
