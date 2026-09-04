@@ -176,7 +176,21 @@ const HALL_H = 2.95;
 
 
 
-const WALL_H = 6.4;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const WALL_H = HALL_H;
 
 
 
