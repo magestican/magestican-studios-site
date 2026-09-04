@@ -129,4 +129,18 @@ export function cueFor(event) {
 }
 
 
-export const MUTE_KEY = 'farmy-crosswords:v1:muted';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const MUTE_KEY = 'farmy-crosswords:v2:muted';

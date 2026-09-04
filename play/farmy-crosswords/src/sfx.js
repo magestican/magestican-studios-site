@@ -20,7 +20,14 @@
 
 
 
+
+
+
+
+
+
 import { CUES, cueFor, gainFor, dragPitch, voicesOf, MUTE_KEY } from '../../../web-engine/words/soundSpec.js';
+import { createAudioUnlock } from '../../shared/audio/iosUnlock.js';
 
 let ctx = null;
 let master = null;
@@ -30,15 +37,32 @@ let failed = 0;
 let lastAt = 0;
 
 
+
+
+
+
+
+
+
+
 try {
   muted = globalThis.localStorage?.getItem(MUTE_KEY) === '1';
-} catch {  }
+} catch {
+  muted = false;
+}
 
 function ensure() {
   if (ctx) return ctx;
   const Ctor = globalThis.AudioContext ?? globalThis.webkitAudioContext;
   if (!Ctor) return null;
-  ctx = new Ctor();
+  try {
+    ctx = new Ctor();
+  } catch {
+    
+    
+    failed += 1;
+    return null;
+  }
   master = ctx.createGain();
   master.gain.value = 1;
   master.connect(ctx.destination);
@@ -51,11 +75,32 @@ function ensure() {
 
 
 
+
+
+
+const unlocker = createAudioUnlock({
+  ensureContext: ensure,
+  
+  
+  currentContext: () => ctx,
+  isMuted: () => muted,
+});
+
+
+
+
+
+
+
+
+
 export function wake() {
-  try {
-    const c = ensure();
-    if (c && c.state !== 'running') c.resume();
-  } catch { failed += 1; }
+  try { unlocker.unlock(); } catch { failed += 1; }
+}
+
+
+export function install() {
+  try { unlocker.install(); } catch { failed += 1; }
 }
 
 
@@ -127,6 +172,10 @@ export function isMuted() { return muted; }
 export function setMuted(next) {
   muted = Boolean(next);
   try { globalThis.localStorage?.setItem(MUTE_KEY, muted ? '1' : '0'); } catch {  }
+  
+  
+  
+  try { if (muted) unlocker.stopKeepAlive(); else unlocker.unlock(); } catch { failed += 1; }
   return muted;
 }
 
@@ -143,5 +192,11 @@ export function state() {
     played,
     failed,
     muted,
+    
+    
+    
+    
+    
+    ...unlocker.report(),
   };
 }

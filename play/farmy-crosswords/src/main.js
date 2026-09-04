@@ -35,6 +35,12 @@ import { picker, help, hints, KEY_LINES } from './overlay.js';
 import * as sfx from './sfx.js';
 
 initAnalytics({ page: 'farmy-crosswords' });
+
+
+
+
+
+sfx.install();
 startVersionChecker({
   versionUrl: './version.json',
   label: 'A new version of Farmy Crosswords is available.',
@@ -147,6 +153,15 @@ function relayout() {
   layoutBar();
 }
 
+
+
+
+
+
+
+
+const soundLabel = () => (sfx.isMuted() ? 'Sound: off' : 'Sound: on');
+
 function layoutBar() {
   
   
@@ -160,7 +175,7 @@ function layoutBar() {
   if (current === HOME) {
     barRects = [
       { x: helpX, y: 12, w: 48, h: 48, id: 'help', label: '?' },
-      { x: soundX, y: 12, w: 140, h: 48, id: 'sound', label: sfx.isMuted() ? 'Sound off' : 'Sound on' },
+      { x: soundX, y: 12, w: 140, h: 48, id: 'sound', label: soundLabel() },
     ];
     return;
   }
@@ -168,7 +183,7 @@ function layoutBar() {
   barRects = [
     { x: 12, y: 8, w: 52, h: 44, id: 'back', label: '←' },
     { x: helpX, y: 8, w: 48, h: 44, id: 'help', label: '?' },
-    { x: soundX, y: 8, w: 140, h: 44, id: 'sound', label: sfx.isMuted() ? 'Sound off' : 'Sound on' },
+    { x: soundX, y: 8, w: 140, h: 44, id: 'sound', label: soundLabel() },
     { x: pickerX, y: 8, w: 118, h: 44, id: 'picker', label: 'Puzzles' },
   ];
 }
