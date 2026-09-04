@@ -9121,6 +9121,11 @@ export function boot(canvas, hud) {
     if (player.vitals.health <= 0 && !player.dead) {
       player.dead = true;
       hud.dead();
+      
+      
+      
+      
+      feh_track('run_death', { deck: level, act: actFor(level) });
     }
 
     
@@ -10320,7 +10325,7 @@ export function boot(canvas, hud) {
     }
     if (bossWonIn > 0) {
       bossWonIn -= dt;
-      if (bossWonIn <= 0) hud.won();
+      if (bossWonIn <= 0) { hud.won(); feh_track('run_win', { deck: level }); }
     }
 
     
@@ -10535,6 +10540,7 @@ export function boot(canvas, hud) {
         
         
         saveProgress({ deck: level });
+        feh_track('deck_reached', { deck: level, act: actFor(level) });
         buildWorld(level);
         
         
@@ -10735,10 +10741,34 @@ export function boot(canvas, hud) {
       struggle: player.struggle,
       lastInput,
       alive: !player.dead,
-      remaining: birds.filter((b) => b.alive).length,
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      remaining: birds.filter((b) => b.alive && b.anim
+        && b.anim.state !== 'dormant' && !(b.fatigue && b.fatigue.gaveUp)).length,
       ammo: player.weapon.ammo,
       range: Math.round(player.weapon.spec?.range ?? 0),
-      ep: 100 - Math.min(100, level * 6),
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      ep: Math.max(0, 100 - gateMeshes.filter((m) => m.opened).length * 9
+        - Math.min(30, (level - 1) * 3)),
       deckNo: level,
       flash: shotFlash > 0 && flashK > 0.3 && (now - lastFlashAt) >= flashGap(access),
       bark: currentBark(barks),
@@ -11834,6 +11864,12 @@ function saveAccess(a) {
 
 
 
+
+
+function feh_track(name, props) {
+  try { trackEvent(name, { game: 'farmy-evil-hills', ...props }); } catch {  }
+}
+
 const PROGRESS_KEY = 'feh.progress';
 function loadProgress() {
   try {
@@ -12163,8 +12199,12 @@ const hud = {
 
     
     
+    
+    
+    
+    
     $('count').textContent = s.remaining
-      ? `DECK ${s.deckNo} \u00b7 ${s.remaining} ON THE DECK`
+      ? `DECK ${s.deckNo} \u00b7 ${s.remaining} HUNTING`
       : `DECK ${s.deckNo} \u00b7 CLEAR`;
     $('flash').style.opacity = s.flash ? '0.30' : '0';
 
