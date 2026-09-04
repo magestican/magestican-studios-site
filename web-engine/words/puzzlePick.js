@@ -70,9 +70,15 @@ export function saveKey(game, puzzleId) {
 export const LAST_KEY = 'farmy-crosswords:v1:last';
 
 
+
+
+
+
+
+
 export const GAMES = [
   { id: 'wordle', name: 'Wordle', blurb: 'Six guesses at a five-letter word.' },
-  { id: 'bee', name: 'Spelling Bee', blurb: 'Make words from seven letters. The middle one is compulsory.' },
-  { id: 'connections', name: 'Connections', blurb: 'Sixteen words. Find the four groups of four.' },
-  { id: 'strands', name: 'Strands', blurb: 'Every letter belongs to a word about the theme.' },
+  { id: 'bee', name: 'Spelling Bee', blurb: 'Seven letters, one of them compulsory.' },
+  { id: 'connections', name: 'Connections', blurb: 'Sixteen words, four secret groups.' },
+  { id: 'strands', name: 'Strands', blurb: 'Every letter is part of a word.' },
 ];

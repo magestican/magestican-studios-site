@@ -8,184 +8,400 @@
 
 
 
-import { el, clear, applyState, legend } from './ui.js';
+
+
+
+import { COLORS, SIZES, STATES } from '../../../web-engine/words/style.js';
 import {
   adjacent, themeWordAt, play, hintCells, wordAt, rowOf, colOf,
   COLS, ROWS, MIN_BONUS_LENGTH, WORDS_PER_HINT,
 } from '../../../web-engine/words/strandsRules.js';
 import { WORDLE_GUESSES } from '../../../web-engine/words/data/wordleWords.js';
 import { STRANDS_PUZZLES } from '../../../web-engine/words/data/strandsPuzzles.js';
-
-
-
-
-
-
+import { describeStrands } from '../../../web-engine/words/describe.js';
+import { grid, keyboard, rectAt, rectAtLoose, centreOf } from '../../../web-engine/words/layout.js';
+import { extendTrail, tapTrail, trailPoints, pulseFront, isDrag } from '../../../web-engine/words/drag.js';
+import { progress, lift, sink, shake, hump, DURATION } from '../../../web-engine/words/motion.js';
+import * as paint from './paint.js';
 
 const KNOWN = new Set(WORDLE_GUESSES);
 
 export const count = () => STRANDS_PUZZLES.length;
+export const label = (i) => `${i + 1}. ${STRANDS_PUZZLES[i].theme}`;
 
-export const label = (index) => `${index + 1}. ${STRANDS_PUZZLES[index].theme}`;
-
-export function mount(root, ctx) {
-  const puzzle = STRANDS_PUZZLES[ctx.index];
-  const saved = ctx.load() ?? {};
+export function create(app, index) {
+  const puzzle = STRANDS_PUZZLES[index];
   const real = new Set(puzzle.words.map((w) => w.w));
+  const saved = app.load() ?? {};
   let found = (Array.isArray(saved.found) ? saved.found : []).filter((w) => real.has(w));
   let bonus = Array.isArray(saved.bonus) ? saved.bonus : [];
   let hintsUsed = Number.isInteger(saved.hintsUsed) ? saved.hintsUsed : 0;
-  let picked = [];
+  let trail = [];
+  let typed = '';
   let lit = [];
 
-  const board = el('div', { class: 'strands-board', role: 'group', 'aria-label': 'The letter grid' });
-  const trace = el('p', { class: 'strands-trace', role: 'status', 'aria-live': 'polite' });
-  const status = el('p', { class: 'status', role: 'status', 'aria-live': 'polite' });
-  const buttons = el('div', { class: 'row-buttons' });
-  const foundList = el('ul', { class: 'found-list', 'aria-label': 'Words you have found' });
+  let themeBand = { x: 0, y: 0, width: 0, height: 0 };
+  let board = { rects: [] };
+  let traceBand = { x: 0, y: 0, width: 0, height: 0 };
+  let buttons = { rects: [] };
+  let hover = -1;
+  let hoverAt = 0;
+  let pressed = -1;
+  let pressAt = 0;
+  let shakeAt = -1;
+  let foundAt = 0;
+  let foundPath = [];
+  let dragging = null;
+  let cursor = 0;
+  let area = { x: 0, y: 0, width: 0, height: 0 };
 
-  clear(root);
-  root.appendChild(el('h2', { text: 'Farmy Strands' }));
-  root.appendChild(el('p', { class: 'strands-theme card', text: `Today's theme: ${puzzle.theme}` }));
-  root.appendChild(el('p', {
-    class: 'hint-note',
-    text: 'Tap letters that touch each other, including corner to corner, to spell a word about '
-      + `the theme. Every letter on the board belongs to one. Find ${WORDS_PER_HINT} other words `
-      + `of ${MIN_BONUS_LENGTH} letters or more to earn a hint.`,
-  }));
-  root.appendChild(board);
-  root.appendChild(trace);
-  root.appendChild(buttons);
-  root.appendChild(status);
-  root.appendChild(foundList);
-  root.appendChild(legend(['theme', 'spangram'], {
-    theme: 'a word about the theme',
-    spangram: 'the spangram - it names the theme and crosses the whole board',
-  }));
-
-  function tap(index) {
-    const at = picked.indexOf(index);
-    if (at !== -1) { picked = picked.slice(0, at); draw(); return; }   
-    if (picked.length && !adjacent(picked[picked.length - 1], index)) {
-      
-      
-      
-      picked = [index];
-      draw();
-      return;
-    }
-    picked = [...picked, index];
-    const hit = themeWordAt(puzzle, picked);
-    if (hit && !found.includes(hit.w)) {
-      found = [...found, hit.w];
-      picked = [];
-      lit = [];
-      ctx.save({ found, bonus, hintsUsed });
-      status.textContent = hit.w === puzzle.spangram
-        ? `${hit.w} - that is the spangram.`
-        : `Found ${hit.w}.`;
-      draw();
-      if (found.length === puzzle.words.length) ctx.finished(true);
-      return;
-    }
-    draw();
+  function layout(box) {
+    area = box;
+    themeBand = { x: box.x, y: box.y + 2, width: box.width, height: 52 };
+    const btnH = SIZES.target;
+    const bottom = box.y + box.height;
+    buttons = keyboard({
+      box: { x: box.x, y: bottom - btnH, width: box.width, height: btnH },
+      rows: [['Clear', 'Other word', `Hint (${state().hintsAvailable})`]],
+      gap: 10,
+      wideUnits: 1,
+      maxKey: 190,
+    });
+    traceBand = { x: box.x, y: bottom - btnH - 52, width: box.width, height: 44 };
+    board = grid({
+      box: {
+        x: box.x,
+        y: themeBand.y + themeBand.height + 10,
+        width: box.width,
+        height: traceBand.y - themeBand.y - themeBand.height - 22,
+      },
+      cols: COLS,
+      rows: ROWS,
+      gap: 6,
+      maxCell: 76,
+      min: 34,
+    });
   }
 
+  function state() {
+    return play(puzzle, found, bonus.length, hintsUsed);
+  }
+
+  
+  function owners() {
+    const map = new Map();
+    for (const entry of puzzle.words) {
+      if (!found.includes(entry.w)) continue;
+      const kind = entry.w === puzzle.spangram ? 'spangram' : 'theme';
+      for (const cell of entry.p) map.set(cell, kind);
+    }
+    return map;
+  }
+
+  function draw(g, now) {
+    const s = state();
+    const owner = owners();
+    const wobble = shakeAt >= 0 ? shake(progress(now, shakeAt, DURATION.shake, app.motion)) : 0;
+    const foundP = progress(now, foundAt, DURATION.found, app.motion);
+
+    paint.surface(g, { x: themeBand.x, y: themeBand.y, w: themeBand.width, h: themeBand.height }, {
+      fill: COLORS.card,
+    });
+    paint.text(g, puzzle.theme, themeBand, {
+      size: SIZES.base, colour: COLORS.ink, fit: true, maxWidth: themeBand.width - 24,
+    });
+
+    board.rects.forEach((r0, i) => {
+      const letter = puzzle.rows[rowOf(i)][colOf(i)];
+      const kind = owner.get(i) ?? null;
+      const inTrail = trail.includes(i);
+      const isHover = i === hover && !kind;
+      const up = isHover ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0;
+      const r = { ...r0, x: r0.x + (inTrail ? wobble : 0) };
+      
+      
+      const glow = lit.includes(i) && app.motion ? hump((now / 900) % 1) * 2 : (lit.includes(i) ? 2 : 0);
+      paint.tile(g, r, {
+        letter,
+        state: kind,
+        fill: kind ? null : (inTrail ? COLORS.ink : COLORS.card),
+        lift: up + glow,
+        press: inTrail ? 2 : 0,
+        size: Math.round(r.h * 0.46),
+        cursor: app.keyboardMode && i === cursor,
+      });
+      if (inTrail && !kind) {
+        paint.text(g, letter, { x: r.x, y: r.y + 2, w: r.w, h: r.h }, {
+          size: Math.round(r.h * 0.46), colour: COLORS.card,
+        });
+      }
+    });
+
+    
+    
+    
+    
+    
+    
+    if (trail.length) {
+      paint.ribbon(g, trailPoints(trail, (i) => centreOf(board.rects[i])), {
+        colour: COLORS.blue, width: Math.max(14, board.cell * 0.5), alpha: 0.3,
+      });
+    }
+    
+    
+    if (foundPath.length && foundP < 1) {
+      const front = pulseFront(foundPath, foundP);
+      const shown = foundPath.slice(0, Math.max(2, Math.ceil(front)));
+      paint.ribbon(g, trailPoints(shown, (i) => centreOf(board.rects[i])), {
+        colour: COLORS.gold, width: Math.max(16, board.cell * 0.6), alpha: 0.5,
+      });
+    }
+
+    
+    
+    
+    
+    
+    trail.forEach((i) => {
+      const r = board.rects[i];
+      const letter = puzzle.rows[rowOf(i)][colOf(i)];
+      paint.text(g, letter, { x: r.x, y: r.y + 2, w: r.w, h: r.h }, {
+        size: Math.round(r.h * 0.46), colour: COLORS.card,
+      });
+    });
+
+    const tracing = trail.length ? wordAt(puzzle.rows, trail) : typed;
+    paint.text(g, tracing || `${s.foundCount} of ${s.total} words found`, traceBand, {
+      size: tracing ? SIZES.h2 : SIZES.base,
+      weight: tracing ? 700 : 400,
+      colour: tracing ? COLORS.ink : COLORS.inkSoft,
+      fit: true,
+      maxWidth: traceBand.width - 20,
+    });
+
+    buttons.rects.forEach((r, i) => {
+      const isHint = r.label.startsWith('Hint');
+      const disabled = isHint ? s.hintsAvailable === 0 : (r.label === 'Clear' && !trail.length && !typed);
+      paint.button(g, r, {
+        label: r.label,
+        disabled,
+        size: SIZES.min,
+        hover: hover === 100 + i && !disabled
+          ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
+        press: pressed === 100 + i
+          ? sink(progress(now, pressAt, DURATION.press, app.motion), app.motion) : 0,
+      });
+    });
+  }
+
+  function lockIn(entry) {
+    found = [...found, entry.w];
+    foundPath = entry.p;
+    foundAt = app.now();
+    trail = [];
+    typed = '';
+    lit = [];
+    app.save({ found, bonus, hintsUsed });
+    const msg = entry.w === puzzle.spangram
+      ? `${entry.w}. That is the spangram.`
+      : `Found ${entry.w}.`;
+    app.message = msg;
+    app.announce(msg);
+    app.invalidate();
+    if (found.length === puzzle.words.length) app.finished(true);
+  }
+
+  
   function submitBonus() {
-    const word = wordAt(puzzle.rows, picked);
-    picked = [];
-    if (word.length < MIN_BONUS_LENGTH) {
-      status.textContent = `${word || 'That'} is too short - ${MIN_BONUS_LENGTH} letters or more.`;
-    } else if (real.has(word)) {
-      status.textContent = `${word} is a theme word - trace it again to lock it in.`;
-    } else if (bonus.includes(word)) {
-      status.textContent = `You already found ${word}.`;
-    } else if (word.length === 5 && !KNOWN.has(word)) {
-      status.textContent = `${word} is not in the word list.`;
-    } else {
+    const word = trail.length ? wordAt(puzzle.rows, trail) : typed.toUpperCase();
+    trail = [];
+    typed = '';
+    let msg;
+    if (word.length < MIN_BONUS_LENGTH) msg = `${word || 'That'} is too short.`;
+    else if (real.has(word)) msg = `${word} is a theme word - trace it on the board.`;
+    else if (bonus.includes(word)) msg = `You already found ${word}.`;
+    else if (word.length === 5 && !KNOWN.has(word)) msg = `${word} is not in the word list.`;
+    else {
       bonus = [...bonus, word];
-      ctx.save({ found, bonus, hintsUsed });
+      app.save({ found, bonus, hintsUsed });
       const togo = WORDS_PER_HINT - (bonus.length % WORDS_PER_HINT);
-      status.textContent = bonus.length % WORDS_PER_HINT === 0
+      msg = bonus.length % WORDS_PER_HINT === 0
         ? `${word}. That earns a hint.`
         : `${word}. ${togo} more for a hint.`;
+      app.message = msg;
+      app.announce(msg);
+      app.invalidate();
+      return;
     }
-    draw();
+    shakeAt = app.now();
+    app.message = msg;
+    app.announce(msg);
+    app.invalidate();
+  }
+
+  
+  function submitTrail() {
+    if (trail.length) {
+      const hit = themeWordAt(puzzle, trail);
+      if (hit && !found.includes(hit.w)) { lockIn(hit); return true; }
+      
+      
+      shakeAt = app.now();
+      app.invalidate();
+      return false;
+    }
+    if (typed) {
+      
+      
+      
+      
+      const hit = puzzle.words.find((e) => e.w === typed.toUpperCase() && !found.includes(e.w));
+      if (hit) { lockIn(hit); return true; }
+      submitBonus();
+      return false;
+    }
+    return false;
   }
 
   function useHint() {
-    const state = play(puzzle, found, bonus.length, hintsUsed);
-    if (state.hintsAvailable <= 0) return;
+    const s = state();
+    if (s.hintsAvailable <= 0) return;
     lit = hintCells(puzzle, found);
     hintsUsed += 1;
-    ctx.save({ found, bonus, hintsUsed });
-    status.textContent = 'One word is lit up. The letters are right; the order is yours.';
-    draw();
+    app.save({ found, bonus, hintsUsed });
+    app.message = 'One word is lit up. The letters are right; the order is yours.';
+    app.announce(app.message);
+    layout(area);
+    app.invalidate();
   }
 
-  function draw() {
-    const state = play(puzzle, found, bonus.length, hintsUsed);
-    const owner = new Map();
-    for (const entry of puzzle.words) {
-      if (!found.includes(entry.w)) continue;
-      for (const cell of entry.p) owner.set(cell, entry.w === puzzle.spangram ? 'spangram' : 'theme');
-    }
-
-    clear(board);
-    for (let i = 0; i < ROWS * COLS; i += 1) {
-      const letter = puzzle.rows[rowOf(i)][colOf(i)];
-      const cell = el('button', {
-        type: 'button',
-        class: 'strands-cell',
-        text: letter,
-        'aria-label': `${letter}, row ${rowOf(i) + 1} column ${colOf(i) + 1}`,
-        onclick: () => tap(i),
-      });
-      const state2 = owner.get(i);
-      if (state2) applyState(cell, state2, letter);
-      else if (picked.includes(i)) cell.classList.add('picked');
-      else if (lit.includes(i)) cell.classList.add('lit');
-      board.appendChild(cell);
-    }
-
-    trace.textContent = picked.length ? wordAt(puzzle.rows, picked) : '…';
-
-    clear(buttons);
-    buttons.appendChild(el('button', {
-      type: 'button', text: 'Clear', disabled: picked.length === 0,
-      onclick: () => { picked = []; draw(); },
-    }));
-    buttons.appendChild(el('button', {
-      type: 'button', text: 'Not a theme word', disabled: picked.length === 0,
-      onclick: submitBonus,
-    }));
-    buttons.appendChild(el('button', {
-      type: 'button',
-      text: `Hint (${state.hintsAvailable})`,
-      disabled: state.hintsAvailable === 0 || state.won,
-      onclick: useHint,
-    }));
-
-    clear(foundList);
-    foundList.appendChild(el('li', { text: `${state.foundCount} of ${state.total} theme words` }));
-    for (const w of found) {
-      foundList.appendChild(el('li', {
-        class: w === puzzle.spangram ? 'pangram' : null,
-        text: w === puzzle.spangram ? `${w} ★` : w,
-        'aria-label': w === puzzle.spangram ? `${w}, the spangram` : w,
-      }));
-    }
-    if (bonus.length) {
-      foundList.appendChild(el('li', {
-        text: `${bonus.length} other ${bonus.length === 1 ? 'word' : 'words'} · `
-          + `${state.towardsHint}/${WORDS_PER_HINT} towards a hint`,
-      }));
-    }
-
-    if (!status.textContent) status.textContent = 'Tap the letters of a word about the theme.';
-    if (state.won) status.textContent = 'Every word found. That is the lot.';
+  function pressButton(i) {
+    const name = buttons.rects[i].label;
+    if (name === 'Clear') { trail = []; typed = ''; }
+    else if (name.startsWith('Hint')) useHint();
+    else submitBonus();
+    app.invalidate();
   }
 
-  draw();
-  return () => {};
+  function hitAt(pt) {
+    const cell = rectAt(board.rects, pt.x, pt.y);
+    if (cell >= 0) return cell;
+    const btn = rectAt(buttons.rects, pt.x, pt.y);
+    return btn >= 0 ? 100 + btn : -1;
+  }
+
+  return {
+    id: 'strands',
+    layout,
+    rects: () => [
+      ...board.rects.map((r, i) => ({ id: `cell:${i}`, ...r })),
+      ...buttons.rects.map((r) => ({ id: `btn:${r.label}`, ...r })),
+    ],
+    draw,
+    pointerDown: (pt) => {
+      const hit = hitAt(pt);
+      pressed = hit;
+      pressAt = app.now();
+      if (hit >= 0 && hit < 100) {
+        typed = '';
+        trail = tapTrail(trail, hit, trail.length ? adjacent(trail[trail.length - 1], hit) : false);
+        dragging = { from: pt, drawing: false };
+        
+        
+        if (themeWordAt(puzzle, trail)) submitTrail();
+      }
+      app.invalidate();
+    },
+    pointerMove: (pt) => {
+      if (dragging) {
+        if (!dragging.drawing && !isDrag(dragging.from, pt)) return;
+        dragging.drawing = true;
+        
+        
+        const cell = rectAtLoose(board.rects, pt.x, pt.y, -Math.round(board.cell * 0.14));
+        if (cell >= 0) {
+          const next = extendTrail(trail, cell, {
+            adjacent: trail.length ? adjacent(trail[trail.length - 1], cell) : true,
+            onBreak: 'ignore',
+          });
+          if (next !== trail) { trail = next; app.invalidate(); }
+        }
+        return;
+      }
+      const hit = hitAt(pt);
+      if (hit !== hover) { hover = hit; hoverAt = app.now(); app.invalidate(); }
+    },
+    pointerLeave: () => { hover = -1; pressed = -1; dragging = null; app.invalidate(); },
+    pointerUp: (pt) => {
+      const was = pressed;
+      const drew = dragging && dragging.drawing;
+      dragging = null;
+      pressed = -1;
+      app.invalidate();
+      if (drew) { submitTrail(); return; }
+      const hit = hitAt(pt);
+      if (hit >= 100 && hit === was) pressButton(hit - 100);
+    },
+    key: (action) => {
+      if (action.type === 'letter') {
+        trail = [];
+        typed += action.value;
+        app.message = '';
+        app.invalidate();
+        return true;
+      }
+      if (action.type === 'delete') {
+        if (trail.length) trail = trail.slice(0, -1);
+        else typed = typed.slice(0, -1);
+        app.invalidate();
+        return true;
+      }
+      if (action.type === 'submit') {
+        if (app.keyboardMode && !typed) {
+          trail = tapTrail(trail, cursor, trail.length ? adjacent(trail[trail.length - 1], cursor) : false);
+          if (themeWordAt(puzzle, trail)) submitTrail();
+          app.invalidate();
+          return true;
+        }
+        submitTrail();
+        return true;
+      }
+      if (action.type === 'move') {
+        const next = cursor + action.dx + action.dy * COLS;
+        const sameRow = action.dy !== 0 || rowOf(next) === rowOf(cursor);
+        if (next >= 0 && next < COLS * ROWS && sameRow) { cursor = next; app.invalidate(); }
+        return true;
+      }
+      return false;
+    },
+    describe: () => describeStrands({
+      puzzle,
+      found,
+      bonus,
+      hintsUsed,
+      trail: trail.length ? [...wordAt(puzzle.rows, trail)] : [...typed],
+      index: index + 1,
+    }),
+    animating: (now) => app.motion && (
+      (shakeAt >= 0 && now - shakeAt < DURATION.shake)
+      || now - foundAt < DURATION.found
+      || now - hoverAt < DURATION.hover
+      || now - pressAt < DURATION.press
+      || lit.length > 0
+    ),
+    keys: 'Drag across letters that touch to spell a theme word, or type it and press Enter.',
+    help: [
+      'Every letter on the board belongs to one word about the theme.',
+      'Drag across letters that touch - corners count - to spell one.',
+      'Drag back over the last letter to rub it out.',
+      'You can also type a word and press Enter.',
+      'The spangram names the theme and crosses the whole board.',
+      `Find ${WORDS_PER_HINT} other words of ${MIN_BONUS_LENGTH} letters or more to earn a hint.`,
+    ],
+    
+    
+    
+    marks: { theme: STATES.theme.mark, spangram: STATES.spangram.mark },
+  };
 }

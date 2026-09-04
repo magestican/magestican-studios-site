@@ -6,7 +6,7 @@
   <title>Play Farmy Crosswords - four word games, big clear letters</title>
   <meta name="description" content="Farmy Crosswords is four free word games in your browser: Wordle, Spelling Bee, Connections and Strands, with a farm flavour. Big letters, high contrast, no timer, no account, and more than fifty puzzles in each game.">
   <meta name="keywords" content="farmy crosswords, free word games browser, wordle spelling bee connections strands, large print word puzzles, accessible word games no download">
-  <meta name="build" content="cf380f8-20260904T021851Z">
+  <meta name="build" content="cd9dba9-20260904T024535Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/farmy-crosswords/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Farmy Crosswords - four word games, big clear letters">
@@ -46,28 +46,21 @@
   </script>
 </head>
 <body>
-  <div class="wrap">
-    <header class="masthead">
-      <h1>Farmy Crosswords</h1>
-      <p>Four word games. Big letters, no clock, and more than fifty puzzles in each.</p>
-    </header>
+  
 
-    <ul class="tabs" id="tabs" role="tablist" aria-label="Choose a game"></ul>
 
-    <main class="panel card" id="panel" role="tabpanel">
-      <h2>Loading</h2>
-      <p>If this line stays here, the page could not start its JavaScript. Farmy
-        Crosswords needs it; there is nothing else to download.</p>
-    </main>
 
-    <footer>
-      <p>Nothing here is timed and nothing is locked. Your progress is kept in this
-        browser only - there is no account and nothing is sent anywhere.<br>
-        <a href="../../farmy-crosswords.html">About this game</a> &middot;
-        <a href="../../">Magestican Studios</a></p>
-    </footer>
-  </div>
 
-  <script type="module" src="./src/main.js?v=cf380f8-20260904T021851Z"></script>
+  <canvas id="board" tabindex="0" role="application"
+          aria-label="Farmy Crosswords. Four word games. Use the arrow keys to move, Enter to choose, and type letters to play."></canvas>
+
+  <noscript>
+    <p>Farmy Crosswords needs JavaScript, and there is nothing else to
+    download. Four word games - Wordle, Spelling Bee, Connections and
+    Strands - with big letters and no clock.
+    <a href="../../farmy-crosswords.html">Read about the game</a>.</p>
+  </noscript>
+
+  <script type="module" src="./src/main.js?v=cd9dba9-20260904T024535Z"></script>
 </body>
 </html>

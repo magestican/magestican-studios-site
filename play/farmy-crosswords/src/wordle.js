@@ -1,128 +1,249 @@
 
 
-import { el, clear, applyState, legend } from './ui.js';
+
+
+
+
+
+
+
+
+
+
+import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import {
   keyboardState, rejectReason, play, verdict, MAX_GUESSES, WORD_LENGTH,
 } from '../../../web-engine/words/wordleRules.js';
 import { WORDLE_ANSWERS, WORDLE_GUESSES } from '../../../web-engine/words/data/wordleWords.js';
+import { describeWordle, summariseGuess } from '../../../web-engine/words/describe.js';
+import { grid, keyboard, rectAt } from '../../../web-engine/words/layout.js';
+import {
+  progress, lift, sink, shake, stagger, flipScale, flipTurned, DURATION,
+} from '../../../web-engine/words/motion.js';
+import * as paint from './paint.js';
 
 const ALLOWED = new Set(WORDLE_GUESSES);
-
-
-
 
 const KEYS = [
   'QWERTYUIOP'.split(''),
   'ASDFGHJKL'.split(''),
-  ['ENTER', ...'ZXCVBNM'.split(''), 'DELETE'],
+  ['ENTER', ...'ZXCVBNM'.split(''), 'DEL'],
 ];
 
 export const count = () => WORDLE_ANSWERS.length;
+export const label = (i) => `Puzzle ${i + 1}`;
 
-export function label(index) {
-  return `Puzzle ${index + 1}`;
-}
-
-export function mount(root, ctx) {
-  const answer = WORDLE_ANSWERS[ctx.index];
-  const saved = ctx.load() ?? { guesses: [] };
-  let guesses = Array.isArray(saved.guesses) ? saved.guesses.filter((g) => ALLOWED.has(g)) : [];
+export function create(app, index) {
+  const answer = WORDLE_ANSWERS[index];
+  const saved = app.load() ?? {};
+  let guesses = (Array.isArray(saved.guesses) ? saved.guesses : []).filter((w) => ALLOWED.has(w));
   let typed = '';
+  let board = { rects: [], cell: 48 };
+  let keys = { rects: [] };
+  let statusBand = { x: 0, y: 0, width: 0, height: 0 };
+  let hover = -1;
+  let hoverAt = 0;
+  let press = -1;
+  let pressAt = 0;
+  let revealRow = -1;      
+  let revealAt = 0;
+  let shakeAt = -1;        
+  let cursor = 0;          
 
-  const board = el('div', { class: 'wordle-board', role: 'group', 'aria-label': 'Your guesses' });
-  const keyboard = el('div', { class: 'keyboard' });
-  const status = el('p', { class: 'status', role: 'status', 'aria-live': 'polite' });
+  function layout(area) {
+    
+    
+    
+    
+    const kbHeight = Math.min(216, Math.max(3 * SIZES.target + 12, area.height * 0.34));
+    const kbTop = area.y + area.height - kbHeight;
+    keys = keyboard({
+      box: { x: area.x, y: kbTop, width: area.width, height: kbHeight }, rows: KEYS, gap: 6,
+    });
+    statusBand = { x: area.x, y: kbTop - 50, width: area.width, height: 40 };
+    board = grid({
+      box: { x: area.x, y: area.y + 4, width: area.width, height: statusBand.y - area.y - 12 },
+      cols: WORD_LENGTH,
+      rows: MAX_GUESSES,
+      gap: 8,
+      maxCell: 68,
+      min: 40,
+    });
+  }
 
-  clear(root);
-  root.appendChild(el('h2', { text: 'Farmy Wordle' }));
-  root.appendChild(el('p', {
-    class: 'hint-note',
-    text: `Guess the ${WORD_LENGTH}-letter word. You have ${MAX_GUESSES} tries. There is no clock.`,
-  }));
-  root.appendChild(board);
-  root.appendChild(status);
-  root.appendChild(keyboard);
-  root.appendChild(legend(['right', 'moved', 'absent'], {
-    right: 'right letter, right place',
-    moved: 'right letter, somewhere else',
-    absent: 'not in the word',
-  }));
+  function state() {
+    return play(answer, guesses);
+  }
 
-  function press(key) {
-    const state = play(answer, guesses);
-    if (state.over) return;
-    if (key === 'DELETE') { typed = typed.slice(0, -1); draw(); return; }
-    if (key === 'ENTER') {
-      const why = rejectReason(typed, ALLOWED);
-      if (why) { say(why); return; }
-      guesses = [...guesses, typed.toUpperCase()];
-      typed = '';
-      ctx.save({ guesses });
-      draw();
-      const now = play(answer, guesses);
-      if (now.over) ctx.finished(now.won);
+  function draw(g, now) {
+    const s = state();
+    const rowShake = shakeAt >= 0 ? shake(progress(now, shakeAt, DURATION.shake, app.motion)) : 0;
+    const revealP = revealRow >= 0
+      ? progress(now, revealAt, DURATION.reveal * 2.2, app.motion)
+      : 1;
+
+    for (let row = 0; row < MAX_GUESSES; row += 1) {
+      const done = s.rows[row];
+      const pending = row === s.rows.length ? typed : '';
+      const shaking = row === s.rows.length && shakeAt >= 0 ? rowShake : 0;
+      for (let i = 0; i < WORD_LENGTH; i += 1) {
+        const r = board.rects[row * WORD_LENGTH + i];
+        const rect = { ...r, x: r.x + shaking };
+        if (done) {
+          const turning = row === revealRow;
+          const p = turning ? stagger(revealP, i, WORD_LENGTH) : 1;
+          paint.tile(g, rect, {
+            letter: done.guess[i],
+            
+            
+            
+            state: flipTurned(p) ? done.marks[i] : null,
+            scaleX: turning ? flipScale(p) : 1,
+          });
+        } else {
+          paint.tile(g, rect, { letter: pending[i] ?? '' });
+        }
+      }
+    }
+
+    paint.text(g, s.over ? verdict(s, answer) : (app.message || verdict(s, answer)), statusBand, {
+      size: SIZES.base, colour: s.lost ? COLORS.red : COLORS.ink, fit: true, maxWidth: statusBand.width - 20,
+    });
+
+    const kb = keyboardState(s.rows);
+    keys.rects.forEach((r, i) => {
+      const mark = kb.get(r.label);
+      const isHover = i === hover;
+      const isPress = i === press;
+      const up = isHover ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0;
+      const down = isPress ? sink(progress(now, pressAt, DURATION.press, app.motion), app.motion) : 0;
+      if (mark) {
+        paint.tile(g, r, {
+          letter: r.label, state: mark, lift: up, press: down,
+          size: r.label.length > 1 ? SIZES.min : SIZES.base,
+          cursor: app.keyboardMode && i === cursor,
+        });
+      } else {
+        paint.button(g, r, {
+          label: r.label, hover: up, press: down,
+          size: r.label.length > 1 ? SIZES.min : SIZES.base,
+          disabled: s.over,
+        });
+        if (app.keyboardMode && i === cursor) paint.focusRing(g, r);
+      }
+    });
+  }
+
+  function type(letter) {
+    const s = state();
+    if (s.over) return;
+    if (typed.length < WORD_LENGTH) { typed += letter; app.message = ''; app.invalidate(); }
+  }
+
+  function backspace() {
+    if (state().over) return;
+    typed = typed.slice(0, -1);
+    app.invalidate();
+  }
+
+  function submit() {
+    const s = state();
+    if (s.over) return;
+    const why = rejectReason(typed, ALLOWED);
+    if (why) {
+      
+      
+      shakeAt = app.now();
+      app.message = why;
+      app.announce(why);
+      app.invalidate();
       return;
     }
-    if (/^[A-Z]$/.test(key) && typed.length < WORD_LENGTH) { typed += key; draw(); }
-  }
-
-  function say(text) {
-    status.textContent = text;
-  }
-
-  function draw() {
-    const state = play(answer, guesses);
-
-    clear(board);
-    for (let row = 0; row < MAX_GUESSES; row += 1) {
-      const done = state.rows[row];
-      const pending = row === state.rows.length ? typed : '';
-      for (let i = 0; i < WORD_LENGTH; i += 1) {
-        const letter = done ? done.guess[i] : (pending[i] ?? '');
-        const tile = el('div', { class: 'wordle-tile', text: letter });
-        if (done) applyState(tile, done.marks[i], letter);
-        else tile.setAttribute('aria-label', letter ? letter : 'empty');
-        board.appendChild(tile);
-      }
-    }
-
+    guesses = [...guesses, typed.toUpperCase()];
+    revealRow = guesses.length - 1;
+    revealAt = app.now();
+    shakeAt = -1;
+    typed = '';
+    app.save({ guesses });
+    const now = play(answer, guesses);
+    const learned = summariseGuess(guesses[guesses.length - 1], now.rows[revealRow].marks);
     
     
-    const keyState = keyboardState(state.rows);
-    clear(keyboard);
-    for (const rowKeys of KEYS) {
-      const row = el('div', { class: 'keyrow' });
-      for (const k of rowKeys) {
-        const wide = k.length > 1;
-        const key = el('button', {
-          type: 'button',
-          class: `key${wide ? ' wide' : ''}`,
-          text: k,
-          onclick: () => press(k),
-        });
-        const mark = keyState.get(k);
-        
-        
-        
-        if (mark) applyState(key, mark, k);
-        if (state.over) key.disabled = true;
-        row.appendChild(key);
-      }
-      keyboard.appendChild(row);
-    }
-
-    say(verdict(state, answer));
+    app.message = now.over ? `${learned} ${verdict(now, answer)}` : learned;
+    app.announce(app.message);
+    app.invalidate();
+    if (now.over) app.finished(now.won);
   }
 
-  const onKey = (e) => {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    const k = e.key.toUpperCase();
-    if (k === 'BACKSPACE') { e.preventDefault(); press('DELETE'); return; }
-    if (k === 'ENTER') { e.preventDefault(); press('ENTER'); return; }
-    if (/^[A-Z]$/.test(k)) { e.preventDefault(); press(k); }
+  function pressKeyAt(i) {
+    const r = keys.rects[i];
+    if (!r) return;
+    if (r.label === 'ENTER') submit();
+    else if (r.label === 'DEL') backspace();
+    else type(r.label);
+  }
+
+  return {
+    id: 'wordle',
+    layout,
+    rects: () => [
+      ...board.rects.map((r, i) => ({ id: `tile:${Math.floor(i / WORD_LENGTH)}:${i % WORD_LENGTH}`, ...r })),
+      ...keys.rects.map((r) => ({ id: `key:${r.label}`, ...r })),
+    ],
+    draw,
+    pointerMove: (pt) => {
+      const i = pt ? rectAt(keys.rects, pt.x, pt.y) : -1;
+      if (i !== hover) { hover = i; hoverAt = app.now(); app.invalidate(); }
+    },
+    pointerLeave: () => { hover = -1; press = -1; app.invalidate(); },
+    pointerDown: (pt) => { press = rectAt(keys.rects, pt.x, pt.y); pressAt = app.now(); app.invalidate(); },
+    pointerUp: (pt) => {
+      const i = rectAt(keys.rects, pt.x, pt.y);
+      const was = press;
+      press = -1;
+      app.invalidate();
+      if (i >= 0 && i === was) pressKeyAt(i);
+    },
+    key: (action) => {
+      if (action.type === 'letter') { type(action.value); return true; }
+      if (action.type === 'delete') { backspace(); return true; }
+      if (action.type === 'submit') {
+        if (app.keyboardMode && typed.length < WORD_LENGTH) { pressKeyAt(cursor); return true; }
+        submit();
+        return true;
+      }
+      if (action.type === 'move') {
+        const row = keys.rects.filter((r) => r.y === keys.rects[cursor].y);
+        const rowIndex = keys.rects.indexOf(row[0]);
+        let next = cursor + action.dx;
+        if (action.dy) {
+          const rows = [...new Set(keys.rects.map((r) => r.y))];
+          const at = rows.indexOf(keys.rects[cursor].y) + action.dy;
+          if (at < 0 || at >= rows.length) return true;
+          const target = keys.rects.filter((r) => r.y === rows[at]);
+          const offset = Math.min(cursor - rowIndex, target.length - 1);
+          next = keys.rects.indexOf(target[offset]);
+        }
+        cursor = Math.max(0, Math.min(keys.rects.length - 1, next));
+        app.invalidate();
+        return true;
+      }
+      return false;
+    },
+    describe: () => describeWordle({ answer, guesses, typed, puzzle: index + 1 }),
+    animating: (now) => app.motion && (
+      (revealRow >= 0 && now - revealAt < DURATION.reveal * 2.4)
+      || (shakeAt >= 0 && now - shakeAt < DURATION.shake)
+      || now - hoverAt < DURATION.hover
+      || now - pressAt < DURATION.press
+    ),
+    keys: 'Type a five letter word and press Enter. Backspace deletes.',
+    help: [
+      'Guess the five-letter word in six tries.',
+      'A green tile with a square is the right letter in the right place.',
+      'A gold tile with a diamond is the right letter somewhere else.',
+      'A grey tile with a cross is a letter that is not in the word.',
+      'There is no clock, and no streak to lose.',
+    ],
   };
-  document.addEventListener('keydown', onKey);
-
-  draw();
-  return () => document.removeEventListener('keydown', onKey);
 }
