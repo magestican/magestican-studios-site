@@ -94,6 +94,15 @@ export function moveLines(state) {
 export function describeEvent(event, state) {
   if (!event) return '';
   const name = (t) => teamAt(t).name;
+  if (event.kind === 'retry') {
+    
+    
+    
+    
+    const left = event.left === 1 ? 'one more go' : `${event.left} more goes`;
+    return `${name(event.team)} rolled ${event.die} and is still in the yard. `
+      + `Rolling again - ${left}.`;
+  }
   if (event.kind === 'pass') {
     
     

@@ -56,6 +56,27 @@ export const SIXES_FORFEIT = 3;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+export const YARD_TRIES = 3;
+
+
+
+
+
+
+
+
+
 export function start(seats) {
   return {
     seats: seats.map((s, i) => ({ kind: 'bot', by: null, name: null, ...s, team: i })),
@@ -72,6 +93,7 @@ export function start(seats) {
     
     awaiting: 'roll',
     sixes: 0,
+    tries: 0,
     finished: [],
     winner: null,
     
@@ -187,6 +209,7 @@ export function rolled(state, die) {
   if (s.sixes >= SIXES_FORFEIT) {
     s.moves = [];
     s.sixes = 0;
+    s.tries = 0;
     s.event = { kind: 'forfeit', team: state.turn, die };
     s.turn = nextSeat(s, state.turn);
     s.awaiting = 'roll';
@@ -196,11 +219,24 @@ export function rolled(state, die) {
   s.moves = movesFor(state, die);
   if (!s.moves.length) {
     s.sixes = 0;
+    
+    
+    
+    const stuckInYard = state.tokens[state.turn].every((t) => t === -1);
+    const tried = (state.tries ?? 0) + 1;
+    if (stuckInYard && tried < YARD_TRIES) {
+      s.tries = tried;
+      s.event = { kind: 'retry', team: state.turn, die, left: YARD_TRIES - tried };
+      s.awaiting = 'roll';
+      return s;
+    }
+    s.tries = 0;
     s.event = { kind: 'pass', team: state.turn, die };
     s.turn = nextSeat(s, state.turn);
     s.awaiting = 'roll';
     return s;
   }
+  s.tries = 0;
   s.event = { kind: 'roll', team: state.turn, die };
   s.awaiting = 'move';
   return s;
@@ -258,6 +294,7 @@ export function moved(state, token) {
     },
   };
   s.turn = again ? state.turn : nextSeat(s, state.turn);
+  s.tries = 0;   
   return s;
 }
 

@@ -40,6 +40,7 @@
 
 
 import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
+import * as sfx from './sfx.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { tick } from '../../../web-engine/words/frameLoop.js';
 import { rectAt } from '../../../web-engine/words/layout.js';
@@ -75,6 +76,7 @@ initAnalytics({ page: 'farmy-ludo' });
 
 
 
+sfx.install();
 
 
 
@@ -107,7 +109,42 @@ initAnalytics({ page: 'farmy-ludo' });
 
 
 
-const PACE = { roll: 240, move: 480, capture: 780, afterPass: 300 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const PACE = {
+  roll: 950, move: 700, capture: 1150, afterPass: 620,
+  
+  
+  
+  retry: 380,
+};
+
+const MOVE_MS = 460;
+const DIE_MS = 560;
 
 
 const SOLO = 'you';
@@ -362,7 +399,14 @@ function pump() {
 
   if (r.did === 'wait-move') {
     const seat = match.seats[match.turn];
-    if (mySeat() === match.turn) { cursor = 0; invalidate(); return; }
+    if (mySeat() === match.turn) {
+      cursor = 0;
+      
+      
+      sfx.play('yours');
+      invalidate();
+      return;
+    }
     
     
     
@@ -394,6 +438,7 @@ function pump() {
 
 function paceFor(did, event) {
   if (did === 'roll') {
+    if (event?.kind === 'retry') return PACE.retry;
     return (event?.kind === 'pass' || event?.kind === 'forfeit') ? PACE.afterPass : PACE.roll;
   }
   return event?.captures?.length ? PACE.capture : PACE.move;
@@ -404,13 +449,18 @@ function applyStep(r) {
   match = r.state;
   const now = performance.now();
   if (r.did === 'move') anim = { at: now, before, after: match.tokens };
-  else dieAt = now;
+  else { dieAt = now; sfx.play('roll'); setTimeout(() => sfx.play('settle'), 420); }
+  
+  
+  
+  if (r.did === 'move') sfx.playEvent(match.event);
   spots = tokenSpots(match.tokens, boardBox);
   if (match.event) say(describeEvent(match.event, match));
   cursor = 0;
   invalidate();
 
   if (match.awaiting === 'over') {
+    sfx.play('win');
     trackEvent('ludo_finished', { winner: match.winner });
     setTimeout(showResults, 1100);
     return;
@@ -503,8 +553,8 @@ const myMoves = () => (myTurn() ? match.moves : []);
 
 function animating(now) {
   if (overlay?.animating(now)) return true;
-  if (anim && now - anim.at < DURATION.found) return true;
-  if (now - dieAt < DURATION.reveal) return true;
+  if (anim && now - anim.at < MOVE_MS) return true;
+  if (now - dieAt < DIE_MS) return true;
   if (barHover >= 0 && now - barHoverAt < DURATION.hover) return true;
   if (tokenHover >= 0 && now - tokenHoverAt < DURATION.hover) return true;
   return false;
@@ -528,13 +578,29 @@ function drawBoard(now) {
   
   
   
-  const p = anim ? easeOut(progress(now, anim.at, DURATION.found, app.motion)) : 1;
+  const p = anim ? easeOut(progress(now, anim.at, MOVE_MS, app.motion)) : 1;
   const from = anim ? tokenSpots(anim.before, boardBox) : null;
   const legal = new Set(myMoves().map((m) => m.token));
   spots.forEach((spot, i) => {
     const a = from?.[i];
+    
+    
+    
+    
+    
+    
+    
+    const dist = a ? Math.hypot(spot.x - a.x, spot.y - a.y) : 0;
+    const arc = a && p < 1 ? Math.sin(p * Math.PI) * Math.min(46, dist * 0.22) : 0;
     const shown = a && p < 1
-      ? { ...spot, x: a.x + (spot.x - a.x) * p, y: a.y + (spot.y - a.y) * p, r: a.r + (spot.r - a.r) * p }
+      ? {
+        ...spot,
+        x: a.x + (spot.x - a.x) * p,
+        y: a.y + (spot.y - a.y) * p - arc,
+        
+        
+        r: (a.r + (spot.r - a.r) * p) * (1 + Math.sin(p * Math.PI) * 0.16),
+      }
       : spot;
     const canMove = spot.team === match.turn && legal.has(spot.token);
     const cursorHere = canMove && myMoves()[cursor]?.token === spot.token;
@@ -551,7 +617,7 @@ function drawPanel(now) {
   const pressable = myRoll();
   paint.die(g, dieRect, {
     face: match.awaiting === 'roll' && !match.die ? null : match.die,
-    tumble: progress(now, dieAt, DURATION.reveal, app.motion),
+    tumble: progress(now, dieAt, DIE_MS, app.motion),
     hover: pressable ? 2 : 0,
     hint: pressable ? 'ROLL' : '',
   });
@@ -686,6 +752,21 @@ function openMenu() {
       label: iAmHost() ? 'New game' : 'The host starts the next game',
       disabled: !iAmHost(),
       run: () => { closeOverlay(); newMatch(); },
+    },
+    
+    
+    
+    
+    
+    {
+      id: 'sound',
+      label: sfx.isMuted() ? 'Sound: off' : 'Sound: on',
+      run: () => {
+        sfx.setMuted(!sfx.isMuted());
+        sfx.play('yours');
+        closeOverlay();
+        openMenu();
+      },
     },
     { id: 'help', label: 'How to play', run: openHelp },
   ];
@@ -928,6 +1009,7 @@ canvas.addEventListener('pointerleave', () => {
 canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
 document.addEventListener('keydown', (e) => {
+  sfx.wake();
   const action = routeKey(
     { key: e.key, ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey },
     { overlay: !!overlay, typing: !!overlay?.typing?.() },
@@ -975,6 +1057,9 @@ globalThis.addEventListener('resize', resize);
 
 
 globalThis.__fl = {
+  
+  
+  get audio() { return sfx.state(); },
   get game() {
     return {
       turn: match.turn,
