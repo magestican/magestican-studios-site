@@ -75,6 +75,11 @@ export function routeKey(press, state) {
     
     
     
+    
+    
+    
+    
+    if (k === ' ') return { type: LETTER, value: ' ' };
     if (/^[A-Z]$/.test(upper)) return { type: LETTER, value: upper };
     return NONE;
   }

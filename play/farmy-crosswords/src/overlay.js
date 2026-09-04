@@ -64,17 +64,22 @@ function drawPips(g, r, band, onInk) {
   
   
   
-  const radius = 4.5;
-  const pitch = 13;
+  
+  
+  
+  
+  
+  const radius = 3.2;
+  const pitch = 9.5;
   const cx = r.x + r.w / 2;
-  const cy = r.y + r.h - 11;
+  const cy = r.y + r.h - 9;
   const left = cx - ((PIP_SLOTS - 1) * pitch) / 2;
   const colour = onInk ? COLORS.card : COLORS[spec.fill];
   g.save();
   
   
   
-  g.lineWidth = 2;
+  g.lineWidth = 1.6;
   g.strokeStyle = colour;
   g.fillStyle = colour;
   for (let i = 0; i < PIP_SLOTS; i += 1) {

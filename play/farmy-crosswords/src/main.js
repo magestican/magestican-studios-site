@@ -40,14 +40,14 @@ import * as strands from './strands.js';
 import { picker, help, hints, KEY_LINES } from './overlay.js';
 import {
   room as roomPanel, more as morePanel, results as resultsPanel, say as sayPanel,
-  length as lengthPanel,
+  length as lengthPanel, nameEditor as namePanel,
 } from './rooms.js';
 import { createNet, canPlayTogether } from './net.js';
 import {
   puzzleKey, mergeMoves, movesFromState, stateFromMoves, nextSeq,
   nameFor, colourFor, describeRoom, joinIdFrom, shareLinkFor, puzzleFrom,
   creditFor, creditForGroup, describeFind, describeSaying, sayingText,
-  scoreboard, winnerOf, GAME_NAMES, MODES, movesForBoard,
+  scoreboard, winnerOf, GAME_NAMES, MODES, movesForBoard, displayName, cleanName, chipsFor,
 } from '../../../web-engine/words/coop.js';
 import * as sfx from './sfx.js';
 
@@ -64,6 +64,11 @@ startVersionChecker({
 });
 
 const MODULES = { wordle, bee, connections, strands };
+
+
+
+
+const NAME_KEY = 'farmy-crosswords:v2:name';
 const BAR = 60;
 
 
@@ -161,6 +166,8 @@ const roomState = {
   
   
   mode: MODES.TOGETHER,
+  
+  names: {},
 };
 let net = null;
 
@@ -475,11 +482,42 @@ function drawBar(now) {
       hover: barHover === -2
         ? lift(progress(now, barHoverAt, DURATION.hover, app.motion), app.motion) : 0,
     });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const chips = inRoom() && roomState.peers.length > 1
+      ? chipsFor(rankedRoom().map((r) => ({ ...r, name: nameOf(r.by) })))
+      : [];
+    let right = app.width - row.pad;
+    if (chips.length) {
+      for (const chip of chips.slice(0, 4)) {
+        const text = chip.score ? `${chip.initials} ${chip.score}` : chip.initials;
+        g.font = paint.font(SIZES.min, 700);
+        const w = Math.ceil(g.measureText(text).width) + 34;
+        const r = { x: right - w, y: row.y + 2, w, h: row.height - 4 };
+        if (r.x < row.pad + row.button.w + 8) break;
+        paint.surface(g, r, { fill: chip.you ? COLORS.card : COLORS.paper, offset: 0 });
+        paint.surface(g, { x: r.x + 6, y: r.y + (r.h - 16) / 2, w: 16, h: 16 },
+          { fill: COLORS[chip.colour] ?? COLORS.slate, offset: 0 });
+        paint.text(g, text, { x: r.x + 26, y: r.y, w: r.w - 32, h: r.h },
+          { size: SIZES.min, colour: COLORS.ink, align: 'left', fit: true, maxWidth: r.w - 32 });
+        right = r.x - 6;
+      }
+    }
     const scoreX = row.pad + row.button.w + 12;
-    paint.text(g, scoreLabel(),
-      { x: scoreX, y: row.y, width: app.width - scoreX - row.pad, height: row.height },
-      { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right',
-        fit: true, maxWidth: app.width - scoreX - row.pad });
+    if (right - scoreX > 90) {
+      paint.text(g, scoreLabel(),
+        { x: scoreX, y: row.y, width: right - scoreX, height: row.height },
+        { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right',
+          fit: true, maxWidth: right - scoreX });
+    }
 
     
     
@@ -680,6 +718,16 @@ function solvedIn(game) {
   return out;
 }
 
+
+function myName() {
+  try { return cleanName(globalThis.localStorage?.getItem(NAME_KEY)); } catch { return null; }
+}
+
+
+function nameOf(id) {
+  return displayName(id, roomState.names);
+}
+
 function myProgress() {
   if (current === HOME || !MODULES[current]) return { done: 0, total: 0, label: '' };
   const saved = readJson(saveKey(current, indexFor[current])) ?? {};
@@ -726,7 +774,7 @@ function roomSummary() {
 
 
 function roomWho() {
-  const ranked = rankedRoom();
+  const ranked = rankedRoom().map((r) => ({ ...r, name: nameOf(r.by) }));
   if (ranked.length) return ranked;
   
   return roomState.peers.map((id) => ({
@@ -749,6 +797,7 @@ function startNet() {
       
       
       solved: current === HOME ? [] : solvedIn(current),
+      name: myName(),
       ...myProgress(),
     }),
     onMoves: applyMoves,
@@ -790,6 +839,7 @@ function startNet() {
     },
     onPresence: (where) => {
       roomState.where = where;
+      for (const w of where) if (w?.by && w.name) roomState.names[w.by] = w.name;
       relayout();
       invalidate();
     },
@@ -1187,6 +1237,25 @@ function endMatch() {
   invalidate();
 }
 
+function openName() {
+  app.message = '';
+  overlay = namePanel(app, {
+    current: nameOf(roomState.me ?? 'me'),
+    onSave: (name) => {
+      try {
+        if (name) globalThis.localStorage?.setItem(NAME_KEY, name);
+        else globalThis.localStorage?.removeItem(NAME_KEY);
+      } catch {  }
+      if (roomState.me) roomState.names[roomState.me] = name ?? null;
+      net?.here();
+      announce(`You are ${nameOf(roomState.me ?? 'me')}.`);
+      closeOverlay();
+    },
+  });
+  overlay.layout();
+  invalidate();
+}
+
 function openMore() {
   app.message = '';
   const items = [
@@ -1200,6 +1269,7 @@ function openMore() {
       label: soundLabel(),
       run: () => { toggleSound(); openMore(); },
     },
+    { id: 'name', label: `Your name: ${nameOf(roomState.me ?? 'me')}`, run: openName },
     { id: 'help', label: 'How to play', run: openHelp },
     
     

@@ -9,7 +9,7 @@ import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
 import {
-  CODE_ALPHABET, CODE_LENGTH, normaliseCode, spokenCode, SAYINGS,
+  CODE_ALPHABET, CODE_LENGTH, normaliseCode, spokenCode, SAYINGS, cleanName, NAME_MAX,
 } from '../../../web-engine/words/coop.js';
 import * as paint from './paint.js';
 import { panelBox } from './overlay.js';
@@ -211,6 +211,9 @@ export function room(app, {
   
   function typeChar(ch) {
     if (state.active || typed.length >= CODE_LENGTH) return true;
+    
+    
+    if (ch === ' ') return true;
     if (!CODE_ALPHABET.includes(ch)) {
       
       
@@ -630,6 +633,142 @@ export function length(app, { minutes, onPick }) {
       title: 'How long?',
       status: 'Choose how long the session runs. Everybody starts on nothing.',
       lines: minutes.map((m) => `${m} minutes`),
+    }),
+    animating: (now) => app.motion && now - hoverAt < DURATION.hover,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function nameEditor(app, { current, onSave }) {
+  let box = panelBox(app, false);
+  let buttons = [];
+  let hover = -1;
+  let hoverAt = 0;
+  let typed = '';
+  let note = '';
+
+  const clean = () => cleanName(typed);
+
+  function layout() {
+    box = panelBox(app, false);
+    const w = Math.min(300, box.w - 44);
+    const x = box.x + (box.w - w) / 2;
+    const bottom = box.y + box.h - 20;
+    const h = SIZES.target;
+    buttons = [
+      { id: 'save', label: 'Use this name', x, y: bottom - h * 3 - 24, w, h },
+      { id: 'reset', label: 'Back to the given one', x, y: bottom - h * 2 - 12, w, h },
+      { id: 'close', label: 'Close', x, y: bottom - h, w, h },
+    ];
+  }
+
+  function draw(g, now) {
+    paint.scrim(g, app.width, app.height);
+    paint.surface(g, { x: box.x, y: box.y, w: box.w, h: box.h }, { fill: COLORS.card });
+    paint.text(g, 'Your name', { x: box.x, y: box.y + 16, width: box.w, height: 38 },
+      { size: SIZES.h2, colour: COLORS.ink });
+
+    const pad = 24;
+    const width = box.w - pad * 2;
+    let y = box.y + 62;
+    for (const line of paint.wrap(g, `You are ${current} unless you say otherwise. Type a new name and it is used on everybody's screen.`, width, { size: SIZES.min })) {
+      paint.text(g, line, { x: box.x + pad, y, width, height: 26 },
+        { size: SIZES.min, weight: 400, colour: COLORS.ink, align: 'left' });
+      y += 26;
+    }
+
+    const limit = buttons[0].y - 16;
+    const boxTop = limit - 96;
+    const rect = { x: box.x + pad, y: boxTop, w: width, h: 60 };
+    paint.surface(g, rect, { fill: COLORS.paper, offset: 0 });
+    paint.text(g, typed || current, rect, {
+      size: SIZES.h2, colour: typed ? COLORS.ink : COLORS.inkSoft, fit: true, maxWidth: rect.w - 20,
+    });
+    paint.text(g, note || (clean() ? 'Press Enter to use it.' : `Letters, ${NAME_MAX} at most.`),
+      { x: box.x + pad, y: boxTop + 64, width, height: 24 },
+      { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'left', fit: true, maxWidth: width });
+
+    buttons.forEach((b, i) => {
+      const off = b.id === 'save' && !clean();
+      paint.button(g, b, {
+        label: b.label,
+        size: SIZES.min,
+        tone: b.id === 'save' && !off ? 'green' : null,
+        disabled: off,
+        hover: hover === i && !off
+          ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
+      });
+    });
+  }
+
+  function typeChar(ch) {
+    if (typed.length >= NAME_MAX) return true;
+    note = '';
+    typed += ch;
+    app.sound('type');
+    app.invalidate();
+    return true;
+  }
+
+  return {
+    overlay: true,
+    layout,
+    draw,
+    rects: () => buttons.map((b) => ({ ...b, id: `btn:${b.id}` })),
+    pointerMove: (pt) => {
+      const i = pt ? rectAt(buttons, pt.x, pt.y) : -1;
+      if (i !== hover) { hover = i; hoverAt = app.now(); app.invalidate(); }
+    },
+    pointerLeave: () => { hover = -1; app.invalidate(); },
+    pointerDown: () => {},
+    pointerUp: (pt) => {
+      const i = rectAt(buttons, pt.x, pt.y);
+      if (i < 0) return;
+      const id = buttons[i].id;
+      if (id === 'save') { if (clean()) onSave(clean()); }
+      else if (id === 'reset') onSave(null);
+      else app.closeOverlay();
+    },
+    key: (action) => {
+      if (action.type === 'letter') return typeChar(action.value);
+      
+      
+      
+      if (action.type === 'delete') { typed = typed.slice(0, -1); note = ''; app.invalidate(); return true; }
+      if (action.type === 'submit') {
+        if (clean()) { onSave(clean()); return true; }
+        note = 'That is too short - two letters at least.';
+        app.invalidate();
+        return true;
+      }
+      return false;
+    },
+    describe: () => ({
+      title: 'Your name',
+      status: `You are ${current}. Type a new name and press Enter.`,
+      lines: [typed ? `Typing: ${typed}` : 'Nothing typed yet.', note].filter(Boolean),
     }),
     animating: (now) => app.motion && now - hoverAt < DURATION.hover,
   };
