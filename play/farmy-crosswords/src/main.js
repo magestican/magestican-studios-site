@@ -1422,6 +1422,16 @@ canvas.addEventListener('pointerleave', () => {
 
 canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
+
+
+
+
+
+canvas.addEventListener('wheel', (e) => {
+  if (overlay || !screen?.wheel) return;
+  if (screen.wheel(e.deltaY)) e.preventDefault();
+}, { passive: false });
+
 document.addEventListener('keydown', (e) => {
   sfx.wake();
   const action = routeKey(

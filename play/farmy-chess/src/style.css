@@ -27,6 +27,8 @@
   --fc-small: 18px;
   --fc-h1: 34px;
   --fc-h2: 26px;
+  --fc-tile: 34px;
+  --fc-tileWide: 44px;
   --fc-target: 48px;
   --fc-border: 3px;
   --fc-radius: 6px;
@@ -85,13 +87,14 @@ canvas#board:focus-visible {
   white-space: nowrap;
 }
 
+
+
 noscript p {
   margin: 0;
   padding: 24px;
   font-size: var(--fc-base);
   color: var(--fc-ink);
 }
-
 
 
 

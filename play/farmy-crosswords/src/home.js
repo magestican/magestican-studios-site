@@ -17,6 +17,7 @@ import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { GAMES } from '../../../web-engine/words/puzzlePick.js';
 import { describeHome } from '../../../web-engine/words/describe.js';
 import { rectAt } from '../../../web-engine/words/layout.js';
+import { DRAG_SLOP } from '../../../web-engine/words/drag.js';
 import { progress, lift, sink, easeOut, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
 
@@ -39,6 +40,18 @@ import * as paint from './paint.js';
 
 const FAMILY = [
   {
+    id: 'chess',
+    name: 'Farmy Chess',
+    blurb: 'Play a bot at your level, or a friend.',
+    url: '/play/farmy-chess/',
+  },
+  {
+    id: 'ludo',
+    name: 'Farmy Ludo',
+    blurb: 'Four farms, one track. Bots fill the seats.',
+    url: '/play/farmy-ludo/',
+  },
+  {
     id: 'scrabble',
     name: 'Farmy Scrabble',
     blurb: 'The whole board. Play a bot, or two to four people.',
@@ -49,6 +62,27 @@ const FAMILY = [
 export function create(app) {
   let cards = [];
   let family = [];
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  let scroll = 0;
+  let contentH = 0;
+  let dragFrom = null;   
   let hover = -1;
   let hoverAt = 0;
   let press = -1;
@@ -59,6 +93,9 @@ export function create(app) {
 
   function layout(area) {
     box = area;
+    
+    
+    scroll = clampScroll(scroll);
     
     
     
@@ -98,6 +135,7 @@ export function create(app) {
       game: g,
     }));
 
+    contentH = 0;   
     const lastCard = cards[cards.length - 1];
     const famTop = (lastCard ? lastCard.y + lastCard.h : top) + 34;
     family = FAMILY.map((f, i) => ({
@@ -107,9 +145,36 @@ export function create(app) {
       h: 52,
       game: f,
     }));
+
+    
+    
+    
+    const last = family[family.length - 1] ?? lastCard;
+    contentH = (last ? last.y + last.h + 46 : area.y) - area.y;
+    scroll = clampScroll(scroll);
   }
 
+  
+  function clampScroll(want) {
+    const over = Math.max(0, contentH - box.height);
+    return Math.max(0, Math.min(over, want));
+  }
+
+  const scrollable = () => contentH > box.height + 1;
+
+  
+  const shift = (r) => ({ ...r, y: r.y - scroll });
+
   function draw(g, now) {
+    
+    
+    
+    g.save();
+    g.beginPath();
+    g.rect(box.x - 4, box.y, box.width + 8, box.height);
+    g.clip();
+    g.translate(0, -scroll);
+
     const head = { x: box.x, y: box.y + 8, width: box.width, height: 52 };
     paint.text(g, 'Farmy Crosswords', head, { size: SIZES.h1, colour: COLORS.ink });
     paint.text(g, 'Four word games. Nothing is timed.',
@@ -226,36 +291,90 @@ export function create(app) {
     paint.text(g, 'Press 1 to 4, or just start typing.',
       { x: box.x, y: footY, width: box.width, height: 28 },
       { size: SIZES.small, weight: 400, colour: COLORS.inkSoft });
+
+    g.restore();
+
+    
+    
+    
+    if (scrollable()) {
+      const trackH = box.height - 16;
+      const thumbH = Math.max(40, trackH * (box.height / contentH));
+      const at = (scroll / Math.max(1, contentH - box.height)) * (trackH - thumbH);
+      paint.surface(g, {
+        x: box.x + box.width - 5, y: box.y + 8 + at, w: 5, h: thumbH,
+      }, { fill: COLORS.slate, offset: 0 });
+    }
   }
 
   
   const all = () => [...cards, ...family];
 
   function hoverAtPoint(pt) {
-    const i = pt ? rectAt(all(), pt.x, pt.y) : -1;
+    const i = pt ? rectAt(all().map(shift), pt.x, pt.y) : -1;
     if (i !== hover) { hover = i; hoverAt = app.now(); app.invalidate(); }
     return i;
+  }
+
+  
+  function scrollBy(dy) {
+    const was = scroll;
+    scroll = clampScroll(scroll + dy);
+    if (scroll !== was) app.invalidate();
+    return scroll !== was;
+  }
+
+  
+  function reveal(i) {
+    const r = all()[i];
+    if (!r) return;
+    const top = r.y - box.y;
+    const bottom = top + r.h;
+    if (top - scroll < 0) scrollBy(top - scroll - 8);
+    else if (bottom - scroll > box.height) scrollBy(bottom - scroll - box.height + 8);
   }
 
   return {
     id: 'home',
     layout,
-    rects: () => all().map((c) => ({ id: `card:${c.game.id}`, x: c.x, y: c.y, w: c.w, h: c.h })),
+    wheel: (dy) => scrollBy(dy),
+    
+    
+    rects: () => all().map(shift).map((c) => ({ id: `card:${c.game.id}`, x: c.x, y: c.y, w: c.w, h: c.h })),
     draw,
-    cursorRect: () => all()[cursor],
-    pointerMove: (pt) => { hoverAtPoint(pt); },
-    pointerLeave: () => { hoverAtPoint(null); press = -1; },
+    cursorRect: () => { const r = all()[cursor]; return r ? shift(r) : r; },
+    pointerMove: (pt) => {
+      if (dragFrom && scrollable()) {
+        const want = dragFrom.scroll - (pt.y - dragFrom.y);
+        if (want !== scroll) { scroll = clampScroll(want); app.invalidate(); }
+        
+        if (Math.abs(pt.y - dragFrom.y) > DRAG_SLOP) press = -1;
+        return;
+      }
+      hoverAtPoint(pt);
+    },
+    pointerLeave: () => { hoverAtPoint(null); press = -1; dragFrom = null; },
     pointerDown: (pt) => {
-      press = rectAt(all(), pt.x, pt.y);
+      press = rectAt(all().map(shift), pt.x, pt.y);
       pressAt = app.now();
+      
+      
+      
+      dragFrom = { y: pt.y, scroll };
       if (press >= 0) app.sound('press');
       app.invalidate();
     },
     pointerUp: (pt) => {
-      const i = rectAt(all(), pt.x, pt.y);
+      const moved = dragFrom ? Math.abs(pt.y - dragFrom.y) : 0;
+      dragFrom = null;
+      const i = rectAt(all().map(shift), pt.x, pt.y);
       const was = press;
       press = -1;
       app.invalidate();
+      
+      
+      
+      if (moved > DRAG_SLOP) return;
       if (i < 0 || i !== was) return;
       if (i < cards.length) app.openGame(cards[i].game.id);
       else app.leaveFor(family[i - cards.length].game.url);
@@ -269,7 +388,7 @@ export function create(app) {
           ? action.dy + action.dx
           : (action.dy * cols) + action.dx;
         const next = cursor + step;
-        if (next >= 0 && next < all().length) { cursor = next; app.invalidate(); }
+        if (next >= 0 && next < all().length) { cursor = next; reveal(cursor); app.invalidate(); }
         return true;
       }
       if (action.type === 'submit') {

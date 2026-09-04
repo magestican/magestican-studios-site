@@ -58,7 +58,8 @@ html, body {
 canvas#board {
   display: block;
   width: 100%;
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   
 
   -webkit-tap-highlight-color: transparent;
@@ -93,4 +94,74 @@ noscript p {
   padding: 24px;
   font-size: var(--fc-base);
   color: var(--fc-ink);
+}
+
+
+
+
+
+
+
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  height: 52px;
+  background: var(--fc-ink);
+  color: var(--fc-paper);
+  position: relative;
+  z-index: 2;
+}
+.studio-home {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 19px;
+}
+.studio-home img { display: block; flex: 0 0 auto; }
+.studio-home span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.studio-home:hover span, .studio-home:focus-visible span { text-decoration: underline; }
+.studio-back {
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: var(--fc-paper-dim);
+  text-decoration: none;
+  font-size: 17px;
+  padding: 10px 6px;
+  white-space: nowrap;
+}
+.studio-back:hover, .studio-back:focus-visible { color: var(--fc-paper); text-decoration: underline; }
+.studio-home:focus-visible, .studio-back:focus-visible {
+  outline: 3px solid var(--fc-blue);
+  outline-offset: 2px;
+}
+
+
+
+@media (max-width: 560px) {
+  .studio-bar { height: 44px; gap: 8px; }
+  .studio-home img { width: 30px; height: 30px; }
+  
+
+
+
+
+
+
+
+  .studio-home span { width: 0; overflow: hidden; }
+  .studio-back { font-size: 16px; }
 }
