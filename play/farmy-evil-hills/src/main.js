@@ -11120,6 +11120,41 @@ export function boot(canvas, hud) {
       
       
       
+      
+      
+      
+      
+      
+      
+      
+      forceStruggle(verb) {
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        let b = birds.find((q) => q.alive && q.kind !== 'horse');
+        if (!b) {
+          b = birds.find((q) => q.kind !== 'horse' && q.mesh);
+          if (!b) return null;
+          b.alive = true;
+          b.dying = undefined;
+          if (b.mesh) b.mesh.visible = true;
+          b.x = player.x; b.z = player.z + 0.8;
+        }
+        b.latched = true;
+        b.cool = 0;
+        player.latchedBy = b;
+        player.struggle = createStruggle({
+          verb: verb || 'mash',
+          mode: struggleMode(access, 'reduced'),
+        });
+        return player.struggle.verb;
+      },
       get frames() { return frameCount; },
       get render() {
         const i = renderer.info;
@@ -12091,6 +12126,13 @@ const hud = {
       const how = promptFor(s.struggle.verb ?? 'mash', s.lastInput ?? 'key');
       $('qteHow').textContent = how.text;
       $('qte').dataset.icon = how.icon;
+      
+      
+      
+      
+      
+      $('qteBtn').textContent = how.icon === 'mash' ? 'MASH'
+        : (how.icon === 'dial' ? 'CIRCLE' : 'SLASH');
     } else {
       $('qte').style.display = 'none';
     }
@@ -12150,6 +12192,85 @@ function start() {
     const st = window.__feh && window.__feh.player && window.__feh.player.struggle;
     if (st) st.press('tap');
   });
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  {
+    const pad = $('qtePad');
+    const dot = $('qteDot');
+    const toUnit = (e) => {
+      const r = pad.getBoundingClientRect();
+      const half = r.width / 2;
+      if (!(half > 0)) return null;
+      return {
+        x: (e.clientX - (r.left + half)) / half,
+        
+        
+        
+        y: -(e.clientY - (r.top + r.height / 2)) / half,
+      };
+    };
+    const showDot = (p) => {
+      if (!p) { dot.style.opacity = '0'; return; }
+      const r = pad.getBoundingClientRect();
+      const half = r.width / 2;
+      dot.style.transform = `translate(${p.x * half}px, ${-p.y * half}px)`;
+      dot.style.opacity = '0.9';
+    };
+    let drawing = false;
+    const sample = (e) => {
+      const st = window.__feh && window.__feh.player && window.__feh.player.struggle;
+      if (!st) return;
+      const p = toUnit(e);
+      if (!p) return;
+      st.point(p.x, p.y);
+      showDot(p);
+    };
+    pad.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      drawing = true;
+      try { pad.setPointerCapture(e.pointerId); } catch {  }
+      sample(e);
+    });
+    pad.addEventListener('pointermove', (e) => {
+      if (!drawing) return;
+      e.preventDefault();
+      sample(e);
+    });
+    const end = (e) => {
+      if (!drawing) return;
+      drawing = false;
+      showDot(null);
+      const st = window.__feh && window.__feh.player && window.__feh.player.struggle;
+      
+      
+      
+      if (st && typeof st.release === 'function') st.release();
+      if (e && e.pointerId != null) {
+        try { pad.releasePointerCapture(e.pointerId); } catch {  }
+      }
+    };
+    pad.addEventListener('pointerup', end);
+    pad.addEventListener('pointercancel', end);
+    pad.addEventListener('pointerleave', end);
+  }
 
   
   
