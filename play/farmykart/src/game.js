@@ -258,7 +258,9 @@ export function createRace(options) {
   configureRenderer(renderer);
 
   const scene = new THREE.Scene();
-  scene.fog = fogFor(track.theme);
+  
+  
+  scene.fog = fogFor(track.theme, track.sky);
   
   
   

@@ -51,7 +51,7 @@ import { makeBarnTexture } from './textures.js';
 
 
 import { SHOULDER, GUARD_WIDTH, groundMeshHeightAt } from './trackMesh.js';
-import { surface } from './materials.js';
+import { surface, skyPalette } from './materials.js';
 import { themeOf } from './themes.js';
 import { buildCity } from './cityMesh.js';
 
@@ -281,7 +281,7 @@ export function buildScenery(path, track) {
   const s = track.scenery ?? {};
   const theme = track.theme ?? 'summer';
 
-  group.add(buildBackdrop(path, theme));
+  group.add(buildBackdrop(path, theme, track.sky));
   group.add(buildHedgerows(path, rng, s.hedgerows ?? 14, theme));
   if (s.sunflowers) group.add(buildSunflowers(path, rng, s.sunflowers));
   if (s.trees) group.add(buildTrees(path, rng, s.trees, theme));
@@ -342,10 +342,21 @@ function towardFog(colour, fogColour, t) {
 
 
 
-function buildBackdrop(path, theme) {
+function buildBackdrop(path, theme, sky = null) {
   const group = new THREE.Group();
   group.name = 'backdrop';
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const c = themeOf(theme).backdrop;
+  const haze = sky ? skyPalette(sky).haze : c.fog;
   const b = path.bounds;
   const cx = (b.minX + b.maxX) / 2;
   const cz = (b.minZ + b.maxZ) / 2;
@@ -396,7 +407,7 @@ function buildBackdrop(path, theme) {
     
     
     const mat = new THREE.MeshBasicMaterial({
-      color: towardFog(c.near, c.fog, ring.blend), side: THREE.DoubleSide, fog: false,
+      color: towardFog(c.near, haze, ring.blend), side: THREE.DoubleSide, fog: false,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.name = 'hills';
@@ -416,7 +427,7 @@ function buildBackdrop(path, theme) {
       const millMat = new THREE.MeshBasicMaterial({
         
         
-        color: towardFog(c.near, c.fog, 0.34), side: THREE.DoubleSide, fog: false,
+        color: towardFog(c.near, haze, 0.34), side: THREE.DoubleSide, fog: false,
       });
       for (let m = 0; m < 6; m += 1) {
         

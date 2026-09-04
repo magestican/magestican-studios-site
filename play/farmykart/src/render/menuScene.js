@@ -307,7 +307,7 @@ export function buildMenuScene() {
     group,
     sky,
     lights,
-    fog: fogFor(THEME),
+    fog: fogFor(THEME, SKY),
     
 
 

@@ -9,7 +9,7 @@
 import * as THREE from 'three';
 import { PALETTE } from '../palette.js';
 import { makeSunFaceTexture } from './textures.js';
-import { buildSkyMaterial } from './materials.js';
+import { buildSkyMaterial, skyPalette } from './materials.js';
 import { themeOf } from './themes.js';
 import { BASE_FOV, V_FOV_CEILING } from '../../../../web-engine/kart/raceFov.js';
 
@@ -314,7 +314,28 @@ export function focusShadow(lights, x, z, heading = null) {
   sun.target.updateMatrixWorld();
 }
 
-export function fogFor(theme) {
+export function fogFor(theme, sky = null) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -326,7 +347,8 @@ export function fogFor(theme) {
   
   
   const { fog } = themeOf(theme);
-  return new THREE.Fog(fog.colour, fog.near, fog.far);
+  const colour = sky ? skyPalette(sky).haze : fog.colour;
+  return new THREE.Fog(colour, fog.near, fog.far);
 }
 
 
