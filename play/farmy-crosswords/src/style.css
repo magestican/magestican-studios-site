@@ -60,10 +60,58 @@ html, body {
   touch-action: none;
 }
 
+
+
+
+
+
+
+
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 52px;
+  background: var(--fc-ink);
+  color: var(--fc-paper);
+  text-decoration: none;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: 0.01em;
+  
+
+  position: relative;
+  z-index: 2;
+}
+.studio-bar img { display: block; }
+.studio-bar:hover span,
+.studio-bar:focus-visible span { text-decoration: underline; }
+.studio-bar:focus-visible {
+  outline: var(--fc-shadow) solid var(--fc-blue);
+  outline-offset: -4px;
+}
+
+
+
+@media (max-width: 520px) {
+  .studio-bar { height: 44px; font-size: 17px; gap: 8px; }
+  .studio-bar img { width: 30px; height: 30px; }
+}
+
 canvas#board {
   display: block;
   width: 100%;
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   
 
   -webkit-tap-highlight-color: transparent;

@@ -1457,17 +1457,33 @@ globalThis.__fc = {
   get screen() { return current; },
   get index() { return indexFor[current] ?? null; },
   get overlay() { return overlay ? 'open' : null; },
-  rects: () => [
-    ...((overlay ?? screen).rects?.() ?? []),
-    ...(overlay ? [] : barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h }))),
-    
-    
-    
-    ...(overlay || current === HOME ? [] : [(() => {
-      const b = infoRow().button;
-      return { id: 'bar:index', x: b.x, y: b.y, w: b.w, h: b.h };
-    })()]),
-  ],
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  rects: () => {
+    const box = canvas.getBoundingClientRect();
+    const shift = (r) => ({ ...r, x: r.x + box.left, y: r.y + box.top });
+    return [
+      ...((overlay ?? screen).rects?.() ?? []),
+      ...(overlay ? [] : barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h }))),
+      
+      
+      
+      ...(overlay || current === HOME ? [] : [(() => {
+        const b = infoRow().button;
+        return { id: 'bar:index', x: b.x, y: b.y, w: b.w, h: b.h };
+      })()]),
+    ].map(shift);
+  },
 };
 
 
