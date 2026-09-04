@@ -933,6 +933,13 @@ function openPicker() {
   app.message = '';
   const mod = MODULES[current];
   overlay = picker(app, {
+    
+    
+    
+    
+    
+    
+    game: current,
     count: mod.count(),
     label: mod.label,
     current: indexFor[current],
@@ -1383,6 +1390,13 @@ globalThis.__fc = {
   rects: () => [
     ...((overlay ?? screen).rects?.() ?? []),
     ...(overlay ? [] : barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h }))),
+    
+    
+    
+    ...(overlay || current === HOME ? [] : [(() => {
+      const b = infoRow().button;
+      return { id: 'bar:index', x: b.x, y: b.y, w: b.w, h: b.h };
+    })()]),
   ],
 };
 

@@ -17,6 +17,9 @@
 import { COLORS, SIZES, STATES } from '../../../web-engine/words/style.js';
 import { grid, rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
+import {
+  BAND_PIPS, PIP_SLOTS, ratingsFor, curveOrder, distribution,
+} from '../../../web-engine/words/difficulty.js';
 import * as paint from './paint.js';
 
 
@@ -34,33 +37,225 @@ export function panelBox(app, wide) {
 
 
 
-export function picker(app, { count, label, current, today, onPick }) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function drawPips(g, r, band, onInk) {
+  const spec = BAND_PIPS[band];
+  if (!spec) return;
+  
+  
+  
+  
+  
+  
+  
+  const radius = 4.5;
+  const pitch = 13;
+  const cx = r.x + r.w / 2;
+  const cy = r.y + r.h - 11;
+  const left = cx - ((PIP_SLOTS - 1) * pitch) / 2;
+  const colour = onInk ? COLORS.card : COLORS[spec.fill];
+  g.save();
+  
+  
+  
+  g.lineWidth = 2;
+  g.strokeStyle = colour;
+  g.fillStyle = colour;
+  for (let i = 0; i < PIP_SLOTS; i += 1) {
+    g.beginPath();
+    g.arc(left + i * pitch, cy, radius, 0, Math.PI * 2);
+    if (i < spec.pips) g.fill(); else g.stroke();
+  }
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+function drawTodayMark(g, r) {
+  const cx = r.x + r.w / 2;
+  const top = r.y + 7;
+  g.save();
+  g.fillStyle = COLORS.blue;
+  g.beginPath();
+  g.moveTo(cx - 5, top);
+  g.lineTo(cx + 5, top);
+  g.lineTo(cx, top + 8);
+  g.closePath();
+  g.fill();
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function picker(app, {
+  count, label, current, today, onPick, game = null,
+}) {
   let box = panelBox(app, true);
   let cells = { rects: [] };
   let closeRect = { x: 0, y: 0, w: 0, h: 0 };
   let todayRect = { x: 0, y: 0, w: 0, h: 0 };
+  
+  
+  
   let hover = -1;
   let hoverAt = 0;
   let typedNumber = '';
 
+  
+  
+  
+  const ratings = (() => {
+    if (!game) return null;
+    try {
+      const list = ratingsFor(game);
+      return list.length === count ? list : null;
+    } catch { return null; }
+  })();
+  const order = ratings ? curveOrder(ratings) : Array.from({ length: count }, (_, i) => i);
+  const slotAt = new Map(order.map((puzzle, slot) => [puzzle, slot]));
+  const puzzleAt = (slot) => (slot >= 0 && slot < order.length ? order[slot] : -1);
+  const bandOf = (puzzle) => (ratings && ratings[puzzle] ? ratings[puzzle].band : null);
+  const bandWord = (puzzle) => {
+    const band = bandOf(puzzle);
+    return band ? BAND_PIPS[band].label : '';
+  };
+
+  const PAD = 20;
+  const HEAD = 62;
+  const WHY_LINE = 24;
+  
+  
+  
+  
+  
+  
+  const WHY_ROWS = 3;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const FOOT_GAP = 18;
+  const FOOT = FOOT_GAP + 28 + WHY_LINE * WHY_ROWS + 16;
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function place() {
+    const base = panelBox(app, true);
+    const gap = 6;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const room = (Math.min(app.height, app.height) - 32) - HEAD - SIZES.target - 16 - FOOT;
+    const widest = Math.max(6, Math.min(10, Math.floor((base.w - PAD * 2) / 62)));
+    let cols = widest;
+    let rows = Math.ceil(count / cols);
+    let cell = Math.min(62, Math.floor((base.w - PAD * 2 - gap * (cols - 1)) / cols));
+    while (rows * cell + gap * (rows - 1) > room && cols < 14) {
+      cols += 1;
+      rows = Math.ceil(count / cols);
+      cell = Math.min(62, Math.floor((base.w - PAD * 2 - gap * (cols - 1)) / cols));
+      
+      
+      
+      if (cell < 40) { cell = 40; break; }
+    }
+    const need = HEAD + SIZES.target + 16 + (rows * cell + gap * (rows - 1)) + FOOT;
+    const h = Math.min(app.height - 32, Math.max(base.h, need));
+    box = { ...base, y: Math.round((app.height - h) / 2), h };
+    return { cols, rows, gap };
+  }
+
   function layout() {
-    box = panelBox(app, true);
-    const pad = 20;
-    const head = box.y + 62;
-    todayRect = { x: box.x + pad, y: head, w: 150, h: SIZES.target };
-    closeRect = { x: box.x + box.w - pad - 120, y: head, w: 120, h: SIZES.target };
-    const cols = Math.max(6, Math.min(10, Math.floor((box.w - pad * 2) / 62)));
-    const rows = Math.ceil(count / cols);
+    const { cols, rows, gap } = place();
+    const head = box.y + HEAD;
+    todayRect = { x: box.x + PAD, y: head, w: 150, h: SIZES.target };
+    closeRect = { x: box.x + box.w - PAD - 120, y: head, w: 120, h: SIZES.target };
     cells = grid({
       box: {
-        x: box.x + pad,
+        x: box.x + PAD,
         y: head + SIZES.target + 16,
-        width: box.w - pad * 2,
-        height: box.h - (head - box.y) - SIZES.target - 90,
+        width: box.w - PAD * 2,
+        height: box.h - HEAD - SIZES.target - 16 - FOOT,
       },
       cols,
       rows,
-      gap: 6,
+      gap,
       maxCell: 62,
       min: 40,
     });
@@ -85,30 +280,46 @@ export function picker(app, { count, label, current, today, onPick }) {
       hover: hover === -3 ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
     });
 
-    cells.rects.forEach((r, i) => {
-      const isNow = i === current;
-      const isToday = i === today;
+    cells.rects.forEach((r, slot) => {
+      const puzzle = puzzleAt(slot);
+      const isNow = puzzle === current;
+      const isToday = puzzle === today;
       paint.tile(g, r, {
-        letter: String(i + 1),
+        letter: String(puzzle + 1),
         fill: isNow ? COLORS.ink : COLORS.card,
-        lift: i === hover ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
+        lift: slot === hover ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
         size: SIZES.min,
       });
-      if (isNow) {
-        paint.text(g, String(i + 1), r, { size: SIZES.min, colour: COLORS.card });
-      } else if (isToday) {
-        
-        
-        g.fillStyle = COLORS.blue;
-        g.beginPath();
-        g.arc(r.x + r.w / 2, r.y + r.h - 8, 3.5, 0, Math.PI * 2);
-        g.fill();
-      }
+      if (isNow) paint.text(g, String(puzzle + 1), r, { size: SIZES.min, colour: COLORS.card });
+      if (isToday) drawTodayMark(g, r);
+      const band = bandOf(puzzle);
+      if (band) drawPips(g, r, band, isNow);
     });
 
-    const name = hover >= 0 ? label(hover) : label(current);
-    paint.text(g, name, { x: box.x + 16, y: box.y + box.h - 44, width: box.w - 32, height: 30 },
-      { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, fit: true, maxWidth: box.w - 32 });
+    
+    
+    
+    
+    
+    
+    
+    
+    const shown = hover >= 0 ? puzzleAt(hover) : current;
+    const band = bandOf(shown);
+    const name = band ? `${label(shown)} - ${BAND_PIPS[band].label}` : label(shown);
+    const width = box.w - 32;
+    const nameY = box.y + box.h - FOOT + FOOT_GAP;
+    paint.text(g, name, { x: box.x + 16, y: nameY, width, height: 28 },
+      { size: SIZES.small, colour: COLORS.ink, fit: true, maxWidth: width });
+    if (ratings) {
+      paint.wrap(g, ratings[shown].why, width, { size: SIZES.min })
+        .slice(0, WHY_ROWS)
+        .forEach((row, i) => {
+          paint.text(g, row,
+            { x: box.x + 16, y: nameY + 30 + i * WHY_LINE, width, height: WHY_LINE },
+            { size: SIZES.min, weight: 400, colour: COLORS.inkSoft });
+        });
+    }
   }
 
   function hitAt(pt) {
@@ -124,7 +335,11 @@ export function picker(app, { count, label, current, today, onPick }) {
     rects: () => [
       { id: "btn:Today's", ...todayRect },
       { id: 'btn:Close', ...closeRect },
-      ...cells.rects.map((r, i) => ({ id: `num:${i + 1}`, ...r })),
+      
+      
+      
+      
+      ...cells.rects.map((r, slot) => ({ id: `num:${puzzleAt(slot) + 1}`, ...r })),
     ],
     pointerMove: (pt) => {
       const i = pt ? hitAt(pt) : -1;
@@ -136,10 +351,13 @@ export function picker(app, { count, label, current, today, onPick }) {
       const i = hitAt(pt);
       if (i === -3) { app.closeOverlay(); return; }
       if (i === -2) { onPick(today); return; }
-      if (i >= 0) onPick(i);
+      if (i >= 0) onPick(puzzleAt(i));
     },
     key: (action) => {
       if (action.type === 'choose') {
+        
+        
+        
         
         
         typedNumber += action.value;
@@ -148,25 +366,49 @@ export function picker(app, { count, label, current, today, onPick }) {
           if (n >= 1 && n <= count) onPick(n - 1);
           typedNumber = '';
         } else if (n >= 1 && n <= count) {
-          hover = n - 1;
+          hover = slotAt.get(n - 1) ?? -1;
           app.invalidate();
         }
         return true;
       }
       if (action.type === 'move') {
-        const at = hover >= 0 ? hover : current;
+        
+        
+        const at = hover >= 0 ? hover : (slotAt.get(current) ?? 0);
         const next = at + action.dx + action.dy * cells.cols;
         if (next >= 0 && next < count) { hover = next; app.invalidate(); }
         return true;
       }
-      if (action.type === 'submit') { onPick(hover >= 0 ? hover : current); return true; }
+      if (action.type === 'submit') {
+        onPick(hover >= 0 ? puzzleAt(hover) : current);
+        return true;
+      }
       return false;
     },
-    describe: () => ({
-      title: 'Choose a puzzle',
-      status: `${count} puzzles. Type a number, or use the arrow keys and Enter.`,
-      lines: [`Currently on ${label(current)}.`, `Today's is ${label(today)}.`],
-    }),
+    describe: () => {
+      
+      
+      
+      const shown = hover >= 0 ? puzzleAt(hover) : current;
+      const lines = [
+        `Currently on ${label(current)}${bandWord(current) ? `, ${bandWord(current)}` : ''}.`,
+        `Today's is ${label(today)}${bandWord(today) ? `, ${bandWord(today)}` : ''}.`,
+      ];
+      if (ratings) {
+        const d = distribution(ratings);
+        lines.push(`Listed easiest first: ${d.easy} easy, ${d.medium} medium, ${d.hard} hard.`);
+        lines.push(`Position ${(slotAt.get(shown) ?? 0) + 1} of ${count} is ${label(shown)}`
+          + `, ${bandWord(shown)}: ${ratings[shown].why}`);
+      }
+      return {
+        title: 'Choose a puzzle',
+        status: ratings
+          ? `${count} puzzles, easiest first. Each is marked easy, medium or hard.`
+            + ' Type a number, or use the arrow keys and Enter.'
+          : `${count} puzzles. Type a number, or use the arrow keys and Enter.`,
+        lines,
+      };
+    },
     animating: (now) => app.motion && now - hoverAt < DURATION.hover,
   };
 }
