@@ -232,6 +232,12 @@ export function create(app, index) {
   return {
     id: 'connections',
     layout,
+    reload: (s) => {
+      if (!Array.isArray(s.selections)) return;
+      selections = s.selections;
+      picked = [];
+      layout(area);
+    },
     rects: () => [
       ...board.rects.map((r, i) => ({ id: `tile:${words[i]}`, ...r })),
       ...buttons.rects.map((r) => ({ id: `btn:${r.label}`, ...r })),

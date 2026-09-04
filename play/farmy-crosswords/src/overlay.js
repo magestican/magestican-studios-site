@@ -20,7 +20,7 @@ import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
 
 
-function panelBox(app, wide) {
+export function panelBox(app, wide) {
   const w = Math.min(wide ? 640 : 560, app.width - 32);
   const h = Math.min(wide ? 620 : 520, app.height - 32);
   return { x: Math.round((app.width - w) / 2), y: Math.round((app.height - h) / 2), w, h };

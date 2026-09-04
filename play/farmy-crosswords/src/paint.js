@@ -357,3 +357,34 @@ export function emblem(g, id, r) {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function wrap(g, string, maxWidth, { size = SIZES.small, weight = 400 } = {}) {
+  g.font = font(size, weight);
+  const out = [];
+  let line = '';
+  for (const word of String(string ?? '').split(/\s+/).filter(Boolean)) {
+    const next = line ? `${line} ${word}` : word;
+    if (line && g.measureText(next).width > maxWidth) {
+      out.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  }
+  if (line) out.push(line);
+  return out;
+}

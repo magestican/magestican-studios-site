@@ -193,6 +193,11 @@ export function create(app, index) {
   return {
     id: 'wordle',
     layout,
+    
+    
+    
+    
+    reload: (s) => { guesses = Array.isArray(s.guesses) ? s.guesses : guesses; },
     rects: () => [
       ...board.rects.map((r, i) => ({ id: `tile:${Math.floor(i / WORD_LENGTH)}:${i % WORD_LENGTH}`, ...r })),
       ...keys.rects.map((r) => ({ id: `key:${r.label}`, ...r })),

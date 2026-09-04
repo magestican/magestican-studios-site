@@ -370,6 +370,15 @@ export function create(app, index) {
   return {
     id: 'strands',
     layout,
+    reload: (s) => {
+      if (Array.isArray(s.found)) {
+        if (s.found.length !== found.length) foundAt = app.now();
+        found = s.found;
+      }
+      if (Array.isArray(s.bonus)) bonus = s.bonus;
+      if (Number.isInteger(s.hintsUsed)) hintsUsed = s.hintsUsed;
+      layout(area);
+    },
     rects: () => [
       ...board.rects.map((r, i) => ({ id: `cell:${i}`, ...r })),
       ...buttons.rects.map((r) => ({ id: `btn:${r.label}`, ...r })),

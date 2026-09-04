@@ -67,8 +67,15 @@ export function routeKey(press, state) {
     
     if (/^[0-9]$/.test(k)) return { type: CHOOSE, value: k };
     if (k === 'Enter') return { type: SUBMIT };
+    if (k === 'Backspace' || k === 'Delete') return { type: DELETE };
     const move = arrow(k);
     if (move) return { type: MOVE, ...move };
+    
+    
+    
+    
+    
+    if (/^[A-Z]$/.test(upper)) return { type: LETTER, value: upper };
     return NONE;
   }
 

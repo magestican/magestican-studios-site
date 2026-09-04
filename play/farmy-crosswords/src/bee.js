@@ -299,6 +299,11 @@ export function create(app, index) {
   return {
     id: 'bee',
     layout,
+    reload: (s) => {
+      if (!Array.isArray(s.found)) return;
+      if (s.found.length !== found.length) { foundAt = app.now(); barFrom = share(); barAt = app.now(); }
+      found = s.found;
+    },
     rects: () => [
       ...cells.map((r, i) => ({ id: `key:${letters[i]}`, ...r })),
       ...buttons.rects.map((r) => ({ id: `btn:${r.label}`, ...r })),
