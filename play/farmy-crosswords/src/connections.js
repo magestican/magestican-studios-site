@@ -28,6 +28,9 @@ import * as paint from './paint.js';
 export const count = () => CONNECTIONS_PUZZLES.length;
 
 
+export const puzzleAt = (index) => CONNECTIONS_PUZZLES[index] ?? null;
+
+
 
 
 

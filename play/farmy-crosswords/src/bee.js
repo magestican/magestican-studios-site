@@ -128,6 +128,9 @@ const HOLD_MS = 500;
 export const count = () => BEE_PUZZLES.length;
 
 
+export const puzzleAt = (index) => BEE_PUZZLES[index] ?? null;
+
+
 
 export function progressIn(index, saved = {}) {
   const puzzle = BEE_PUZZLES[index];

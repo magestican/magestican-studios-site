@@ -39,6 +39,8 @@ export const MSG = Object.freeze({
   MOVE: 'fc-move',     
   SAY: 'fc-say',       
   WHERE: 'fc-where',   
+  START: 'fc-start',   
+  RESUME: 'fc-resume', 
 });
 
 

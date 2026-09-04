@@ -133,6 +133,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #menu .tblb-chip-head { padding-right: 52px; }
+    body:not(.in-match) .tblb-btn-game { display: none; }
+
+    
+
+
+
+
     .lobby-grid { display: grid; gap: 14px;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 
@@ -417,9 +449,17 @@
     
 
 
+    
+
+
+
+
+
+
+
     #hud-topright { position: fixed; z-index: 8;
       top: max(10px, env(safe-area-inset-top));
-      right: max(10px, env(safe-area-inset-right));
+      right: calc(max(10px, env(safe-area-inset-right)) + 52px);
       display: flex; align-items: center; gap: 8px;
       pointer-events: none; }
     #hud-topright > button { pointer-events: auto !important; }
@@ -936,6 +976,15 @@
       -webkit-tap-highlight-color: transparent; touch-action: manipulation;
     }
     @media (max-width: 700px), (pointer: coarse) { #chat-btn { display: flex; } }
+    
+
+
+
+
+
+
+
+    body:not(.in-match) #chat-btn { display: none; }
 
     
 
@@ -1610,10 +1659,21 @@
 
   <script type="module">
     import { installInfo } from '../shared/ui/infoButton.js';
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     installInfo({
       title: "Farmyshoot - how to play",
       contentFrom: "#tb-howto-body",
-      into: "#hud-topright",
     });
   </script>
 
@@ -1727,7 +1787,7 @@
   </div>
 
   
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=ef521c4-20260904T112816Z"></script>
-  <script type="module" src="./src/main.js?v=ef521c4-20260904T112816Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=bb68087-20260904T114402Z"></script>
+  <script type="module" src="./src/main.js?v=bb68087-20260904T114402Z"></script>
 </body>
 </html>

@@ -193,7 +193,27 @@ startVersionChecker({ label: 'A new version of Farmyshoot is available.' });
 
 
 
-mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Farmyshoot (and any join code) on your phone.' });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const removeDeviceQr = mountDeviceQr({
+  label: 'Play on your phone',
+  sublabel: 'Scan this to open Farmyshoot (and any join code) on your phone.',
+  collapsed: true,
+});
 
 
 
@@ -747,6 +767,18 @@ async function startGame(hostIdToJoin) {
     $('menu').style.display = 'none';
     $('hud').style.display = 'block';
     $('loading').classList.add('done');
+    
+    
+    
+    
+    
+    
+    
+    document.body.classList.add('in-match');
+    
+    
+    
+    Promise.resolve(removeDeviceQr).then((off) => off?.()).catch(() => {});
     
     
     

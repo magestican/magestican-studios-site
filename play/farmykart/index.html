@@ -552,7 +552,19 @@
 
 
     .hud-tl { position: absolute; top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); }
-    .hud-tr { position: absolute; top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); text-align: right; }
+    
+
+
+
+
+
+
+
+
+
+
+
+    .hud-tr { position: absolute; top: calc(max(10px, env(safe-area-inset-top)) + 52px); right: max(10px, env(safe-area-inset-right)); text-align: right; }
     .hud-tc { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); text-align: center; }
     
 
@@ -707,6 +719,31 @@
     }
     #login-chip.level { background: #f6f1e6; }
     #login-chip.level b { color: #b0743a; font-size: 17px; }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @media (max-width: 1060px) {
+      #login-chip { right: 68px; }
+      #menu .sub { margin-top: 18px; }
+    }
     #hud-biglap {
       text-align: center; margin-top: 6px; pointer-events: none;
       font-family: Georgia, serif; color: #f6f1e6;
@@ -1832,7 +1869,7 @@
 
 
 
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=ef521c4-20260904T112816Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=bb68087-20260904T114402Z"></script>
 
   <script type="importmap">
   {
@@ -1895,7 +1932,7 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=ef521c4-20260904T112816Z"></script>
+  <script type="module" src="./src/main.js?v=bb68087-20260904T114402Z"></script>
 
   
 

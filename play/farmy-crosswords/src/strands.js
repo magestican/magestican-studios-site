@@ -96,6 +96,9 @@ function creditDot(g, chip, colour) {
 export const count = () => STRANDS_PUZZLES.length;
 
 
+export const puzzleAt = (index) => STRANDS_PUZZLES[index] ?? null;
+
+
 
 export function progressIn(index, saved = {}) {
   const puzzle = STRANDS_PUZZLES[index];

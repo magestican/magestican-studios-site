@@ -545,3 +545,92 @@ export function say(app, { onSay }) {
     animating: (now) => app.motion && now - hoverAt < DURATION.hover,
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+export function length(app, { minutes, onPick }) {
+  let box = panelBox(app, false);
+  let buttons = [];
+  let hover = -1;
+  let hoverAt = 0;
+
+  function layout() {
+    box = panelBox(app, false);
+    const w = Math.min(300, box.w - 44);
+    const x = box.x + (box.w - w) / 2;
+    const h = SIZES.target + 4;
+    const top = box.y + 120;
+    buttons = minutes.map((m, i) => ({
+      id: `m${m}`, minutes: m, label: `${m} minutes`, x, y: top + i * (h + 12), w, h,
+    }));
+    buttons.push({
+      id: 'close', label: 'Not yet', x, y: box.y + box.h - 20 - h, w, h,
+    });
+  }
+
+  function draw(g, now) {
+    paint.scrim(g, app.width, app.height);
+    paint.surface(g, { x: box.x, y: box.y, w: box.w, h: box.h }, { fill: COLORS.card });
+    paint.text(g, 'How long?', { x: box.x, y: box.y + 18, width: box.w, height: 40 },
+      { size: SIZES.h2, colour: COLORS.ink });
+    const pad = 24;
+    const width = box.w - pad * 2;
+    let y = box.y + 64;
+    for (const line of paint.wrap(g, 'Everybody gets a fresh puzzle and starts on nothing. The clock stops if somebody drops out.', width, { size: SIZES.min })) {
+      if (y + 24 > box.y + 118) break;
+      paint.text(g, line, { x: box.x + pad, y, width, height: 24 },
+        { size: SIZES.min, weight: 400, colour: COLORS.ink, align: 'left' });
+      y += 24;
+    }
+    buttons.forEach((b, i) => {
+      paint.button(g, b, {
+        label: b.label,
+        size: SIZES.min,
+        tone: b.id === 'm10' ? 'green' : null,
+        hover: hover === i ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
+      });
+    });
+  }
+
+  return {
+    overlay: true,
+    layout,
+    draw,
+    rects: () => buttons.map((b) => ({ ...b, id: `btn:${b.id}` })),
+    pointerMove: (pt) => {
+      const i = pt ? rectAt(buttons, pt.x, pt.y) : -1;
+      if (i !== hover) { hover = i; hoverAt = app.now(); app.invalidate(); }
+    },
+    pointerLeave: () => { hover = -1; app.invalidate(); },
+    pointerDown: () => {},
+    pointerUp: (pt) => {
+      const i = rectAt(buttons, pt.x, pt.y);
+      if (i < 0) return;
+      if (buttons[i].id === 'close') app.closeOverlay();
+      else onPick(buttons[i].minutes);
+    },
+    key: (action) => {
+      if (action.type === 'submit') { onPick(buttons[0].minutes); return true; }
+      
+      if (action.type === 'choose') {
+        const wanted = minutes.find((m) => String(m).startsWith(action.value));
+        if (wanted) { onPick(wanted); return true; }
+      }
+      return false;
+    },
+    describe: () => ({
+      title: 'How long?',
+      status: 'Choose how long the session runs. Everybody starts on nothing.',
+      lines: minutes.map((m) => `${m} minutes`),
+    }),
+    animating: (now) => app.motion && now - hoverAt < DURATION.hover,
+  };
+}

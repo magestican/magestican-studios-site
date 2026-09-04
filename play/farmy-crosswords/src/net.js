@@ -56,9 +56,11 @@ const CODE_TRIES = 5;
 
 
 
+
+
 export function createNet({
   snapshot, onMoves, onPeers, onPuzzle, onStatus,
-  onPresence = () => {}, onSay = () => {},
+  onPresence = () => {}, onSay = () => {}, onStart = () => {}, onResume = () => {},
 }) {
   let mesh = null;
   let myId = null;
@@ -133,6 +135,14 @@ export function createNet({
         onPresence(everyone());
         return;
       }
+      if (message.t === MSG.START && !hosting) {
+        
+        
+        
+        onStart(message.start);
+        return;
+      }
+      if (message.t === MSG.RESUME && !hosting) { onResume(); return; }
       if (message.t === MSG.SAY) {
         
         
@@ -254,6 +264,18 @@ export function createNet({
 
     
     resync: sendHello,
+
+    
+    start(spec) {
+      if (!mesh) return;
+      mesh.broadcast({ t: MSG.START, start: spec });
+    },
+
+    
+    resume() {
+      if (!mesh) return;
+      mesh.broadcast({ t: MSG.RESUME });
+    },
 
     
     say(id) {

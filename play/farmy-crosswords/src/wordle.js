@@ -33,6 +33,9 @@ const KEYS = [
 export const count = () => WORDLE_ANSWERS.length;
 
 
+export const puzzleAt = (index) => WORDLE_ANSWERS[index] ?? null;
+
+
 
 
 

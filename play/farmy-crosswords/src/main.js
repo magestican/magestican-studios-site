@@ -22,7 +22,12 @@ import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { GAMES, saveKey, puzzleForDay, LAST_KEY } from '../../../web-engine/words/puzzlePick.js';
 import { routeKey, HOME } from '../../../web-engine/words/keyRouter.js';
 import { tick } from '../../../web-engine/words/frameLoop.js';
-import { pieces as confettiPieces, done as confettiDone, CONFETTI_MS } from '../../../web-engine/words/confetti.js';
+import { pieces as confettiPieces, done as confettiDone } from '../../../web-engine/words/confetti.js';
+import { scoreIn, isSolved, levelOf } from '../../../web-engine/words/scoring.js';
+import {
+  countAt, beatShare, counting as isCounting, freshPuzzle, freshScores,
+  sessionButton, remainingMs, sessionOver, clockText, clockUrgent, SESSION_MINUTES,
+} from '../../../web-engine/words/match.js';
 import { rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
@@ -57,6 +62,10 @@ startVersionChecker({
 
 const MODULES = { wordle, bee, connections, strands };
 const BAR = 60;
+
+
+
+const INFO = 40;
 
 const canvas = document.getElementById('board');
 const g = canvas.getContext('2d');
@@ -156,6 +165,29 @@ let net = null;
 
 
 
+let countAtMs = -1;
+
+
+
+
+
+
+
+
+
+
+const match = {
+  startedAt: null,   
+  minutes: SESSION_MINUTES[0],
+  pausedMs: 0,       
+  pausedAt: null,    
+  scores: {},        
+};
+
+
+
+
+
 
 
 
@@ -195,8 +227,35 @@ function resize() {
 
 function contentBox() {
   const pad = app.width < 520 ? 10 : 20;
-  const top = current === HOME ? 12 : BAR;
+  const top = current === HOME ? 12 : BAR + INFO;
   return { x: pad, y: top + 8, width: app.width - pad * 2, height: app.height - top - 20 };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function infoRow() {
+  const pad = app.width < 520 ? 10 : 20;
+  const mod = MODULES[current];
+  const label = `Puzzle ${indexFor[current] + 1} of ${mod.count()}`;
+  const w = Math.min(200, Math.max(150, app.width * 0.42));
+  return {
+    pad,
+    y: BAR + 2,
+    height: INFO - 6,
+    button: { x: pad, y: BAR + 2, w, h: INFO - 6, id: 'index', label },
+  };
 }
 
 function relayout() {
@@ -213,6 +272,44 @@ function relayout() {
 
 
 const soundLabel = () => (sfx.isMuted() ? 'Sound: off' : 'Sound: on');
+
+
+
+
+
+
+
+
+
+
+function scoreLabel() {
+  const level = levelOf(lifetimeScore());
+  const here = scoreHere();
+  return here > 0 ? `${level.name} ${level.points} (+${here})` : `${level.name} ${level.points}`;
+}
+
+
+
+
+
+
+
+
+
+
+function sessionChip() {
+  if (!inRoom()) return null;
+  if (matchLive()) {
+    return { id: 'clock', label: clockText(remainingMs(matchArgs())), enabled: false, clock: true };
+  }
+  return sessionButton({
+    hosting: !!net?.hosting,
+    peers: roomState.peers,
+    started: match.startedAt !== null && !sessionOver(matchArgs()),
+    paused: match.pausedAt !== null,
+    counting: countAtMs >= 0 && isCounting(app.now() - countAtMs),
+  });
+}
 
 
 
@@ -248,10 +345,20 @@ function layoutBar() {
   
   
   
+  
+  
+  
+  const chip = sessionChip();
+  const chipRect = (x, w) => (chip && chip.label
+    ? [{ x, y, w, h, id: chip.id, label: chip.label, off: !chip.enabled, clock: chip.clock }]
+    : []);
+
   if (app.width < BAR_WIDE) {
+    const moreX = right - 96;
     barRects = [
       ...(current === HOME ? [] : [{ x: 12, y, w: 52, h, id: 'back', label: '←' }]),
-      { x: right - 96, y, w: 96, h, id: 'more', label: roomState.active ? 'Menu •' : 'Menu' },
+      ...chipRect(moreX - 8 - 132, 132),
+      { x: moreX, y, w: 96, h, id: 'more', label: roomState.active ? 'Menu •' : 'Menu' },
     ];
     return;
   }
@@ -267,16 +374,23 @@ function layoutBar() {
       { x: helpX, y, w: 48, h, id: 'help', label: '?' },
       { x: soundX, y, w: 140, h, id: 'sound', label: soundLabel() },
       { x: togetherX, y, w: 150, h, id: 'together', label: togetherLabel() },
+      ...chipRect(togetherX - 8 - 150, 150),
     ];
     return;
   }
-  const pickerX = togetherX - 8 - 118;
+  
+  
+  
+  
+  
+  
+  
   barRects = [
     { x: 12, y, w: 52, h, id: 'back', label: '←' },
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
     { x: soundX, y, w: 140, h, id: 'sound', label: soundLabel() },
     { x: togetherX, y, w: 150, h, id: 'together', label: togetherLabel() },
-    { x: pickerX, y, w: 118, h, id: 'picker', label: 'Puzzles' },
+    ...chipRect(togetherX - 8 - 150, 150),
   ];
 }
 
@@ -284,17 +398,29 @@ function drawBar(now) {
   if (current !== HOME) {
     const mod = MODULES[current];
     const name = GAMES.find((x) => x.id === current).name;
-    const room = Math.max(120, barRects[barRects.length - 1].x - 90);
+    const leftmost = barRects.reduce((m, b) => (b.x > 70 && b.x < m ? b.x : m), app.width);
+    const room = Math.max(90, leftmost - 90);
     paint.text(g, name, { x: 76, y: 8, width: room, height: 44 },
       { size: SIZES.base, colour: COLORS.ink, align: 'left', fit: true, maxWidth: room });
-    paint.text(g, `${indexFor[current] + 1} of ${mod.count()}`,
-      { x: 76, y: 8, width: room, height: 44 },
-      { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right', fit: true });
+    
+    const row = infoRow();
+    paint.button(g, row.button, {
+      label: row.button.label,
+      size: SIZES.min,
+      hover: barHover === -2
+        ? lift(progress(now, barHoverAt, DURATION.hover, app.motion), app.motion) : 0,
+    });
+    const scoreX = row.pad + row.button.w + 12;
+    paint.text(g, scoreLabel(),
+      { x: scoreX, y: row.y, width: app.width - scoreX - row.pad, height: row.height },
+      { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right',
+        fit: true, maxWidth: app.width - scoreX - row.pad });
+
     
     
     
     
-    paint.rule(g, 0, BAR - 4, app.width);
+    paint.rule(g, 0, BAR + INFO - 4, app.width);
   }
   barRects.forEach((b, i) => {
     paint.button(g, b, {
@@ -319,7 +445,15 @@ function frame() {
   
   
   const partying = confettiAt >= 0 && !confettiDone(now - confettiAt);
-  const step = tick({ dirty, moving: !!(active && active.animating(now)) || partying, wasMoving });
+  
+  
+  
+  const ticking = (countAtMs >= 0 && isCounting(now - countAtMs)) || matchLive();
+  
+  
+  
+  if (match.startedAt !== null && match.pausedAt === null && sessionOver(matchArgs())) endMatch();
+  const step = tick({ dirty, moving: !!(active && active.animating(now)) || partying || ticking, wasMoving });
   dirty = false;
   wasMoving = step.wasMoving;
   if (step.draw) {
@@ -329,6 +463,10 @@ function frame() {
     if (overlay) overlay.draw(g, now);
     
     
+    if (countAtMs >= 0) {
+      if (isCounting(now - countAtMs)) drawCount(now);
+      else countAtMs = -1;
+    }
     if (partying) paint.confetti(g, confetti, now - confettiAt, app.width, app.height);
     else if (confettiAt >= 0) { confettiAt = -1; confetti = []; }
     const d = active.describe();
@@ -413,6 +551,70 @@ function contributeLocal() {
 
 
 
+const matchArgs = () => ({
+  startedAt: match.startedAt,
+  minutes: match.minutes,
+  now: app.now(),
+  pausedMs: match.pausedMs,
+  pausedAt: match.pausedAt,
+});
+
+
+const matchLive = () => match.startedAt !== null && match.pausedAt === null
+  && !sessionOver(matchArgs());
+
+
+function puzzleOf(game, index) {
+  try { return MODULES[game]?.puzzleAt?.(index) ?? null; } catch { return null; }
+}
+
+
+function scoreHere() {
+  if (current === HOME) return 0;
+  const saved = readJson(saveKey(current, indexFor[current])) ?? {};
+  return scoreIn(current, puzzleOf(current, indexFor[current]), saved);
+}
+
+
+
+
+
+
+
+
+
+
+let lifetime = null;
+function lifetimeScore() {
+  if (lifetime !== null) return lifetime;
+  let total = 0;
+  for (const game of GAMES) {
+    const n = MODULES[game.id].count();
+    for (let i = 0; i < n; i += 1) {
+      const saved = readJson(saveKey(game.id, i));
+      if (saved) total += scoreIn(game.id, puzzleOf(game.id, i), saved);
+    }
+  }
+  lifetime = total;
+  return total;
+}
+
+
+
+
+
+
+
+function solvedIn(game) {
+  const out = [];
+  const n = MODULES[game].count();
+  for (let i = 0; i < n; i += 1) {
+    const saved = readJson(saveKey(game, i));
+    if (saved && isSolved(game, puzzleOf(game, i), saved)) out.push(i);
+  }
+  return out;
+}
+
 function myProgress() {
   if (current === HOME || !MODULES[current]) return { done: 0, total: 0, label: '' };
   const saved = readJson(saveKey(current, indexFor[current])) ?? {};
@@ -479,6 +681,9 @@ function startNet() {
       index: current === HOME ? 0 : indexFor[current],
       moves: roomState.moves,
       mode: roomState.mode,
+      
+      
+      solved: current === HOME ? [] : solvedIn(current),
       ...myProgress(),
     }),
     onMoves: applyMoves,
@@ -487,6 +692,13 @@ function startNet() {
       
       
       
+      
+      
+      
+      
+      if (peers.length < roomState.peers.length && match.startedAt !== null) {
+        pauseMatch('Somebody dropped out. The session is paused.');
+      }
       roomState.peers = peers;
       if (me) roomState.me = me;
       if (!me && !peers.length) { roomState.me = null; roomState.active = false; }
@@ -514,6 +726,15 @@ function startNet() {
     onPresence: (where) => {
       roomState.where = where;
       relayout();
+      invalidate();
+    },
+    onStart: (spec) => { if (spec) applyStart({ ...spec, at: app.now() }); },
+    onResume: () => {
+      if (match.pausedAt === null) return;
+      match.pausedMs += Math.max(0, app.now() - match.pausedAt);
+      match.pausedAt = null;
+      announce('Back on.');
+      layoutBar();
       invalidate();
     },
     onSay: ({ say, by }) => {
@@ -557,6 +778,7 @@ function openGame(id, firstLetter) {
     const key = saveKey(id, index);
     const before = readJson(key) ?? {};
     writeJson(key, state);
+    lifetime = null;   
     if (!inRoom()) return;
     const made = movesFromState(id, before, state, {
       by: roomState.me,
@@ -781,6 +1003,118 @@ function openSay() {
   invalidate();
 }
 
+
+
+
+
+
+
+
+
+function openStart() {
+  app.message = '';
+  overlay = lengthPanel(app, {
+    minutes: SESSION_MINUTES,
+    onPick: (mins) => {
+      closeOverlay();
+      beginMatch(mins);
+    },
+  });
+  overlay.layout();
+  invalidate();
+}
+
+
+
+
+
+
+
+
+function beginMatch(minutes) {
+  const game = current === HOME ? GAMES[0].id : current;
+  const mine = solvedIn(game);
+  const theirs = roomState.where.map((w) => w.solved ?? []);
+  const index = freshPuzzle(MODULES[game].count(), [mine, ...theirs]);
+  const at = app.now();
+  applyStart({ game, index: index ?? indexFor[game], minutes, at });
+  net?.start({ game, index: index ?? indexFor[game], minutes });
+}
+
+
+function applyStart({ game, index, minutes, at }) {
+  match.minutes = minutes;
+  match.startedAt = null;
+  match.pausedMs = 0;
+  match.pausedAt = null;
+  match.scores = freshScores(roomState.peers);
+  countAtMs = at;
+  roomState.shownResult = null;
+  if (MODULES[game]) {
+    indexFor[game] = index;
+    openGame(game);
+  }
+  announce('Starting together. Three, two, one.');
+  
+  
+  setTimeout(() => {
+    match.startedAt = app.now();
+    layoutBar();
+    invalidate();
+  }, COUNT_MS);
+  layoutBar();
+  invalidate();
+}
+
+
+
+
+
+
+
+
+
+
+function pauseMatch(why) {
+  if (match.startedAt === null || match.pausedAt !== null) return;
+  match.pausedAt = app.now();
+  announce(why ?? 'The session is paused.');
+  layoutBar();
+  invalidate();
+}
+
+function resumeMatch() {
+  if (match.pausedAt === null) return;
+  match.pausedMs += Math.max(0, app.now() - match.pausedAt);
+  match.pausedAt = null;
+  net?.resume();
+  announce('Back on.');
+  layoutBar();
+  invalidate();
+}
+
+
+
+
+
+
+
+
+function endMatch() {
+  if (match.startedAt === null) return;
+  match.startedAt = null;
+  match.pausedAt = null;
+  if (app.motion) {
+    confetti = confettiPieces(64, Math.round(app.now()) % 9973);
+    confettiAt = app.now();
+  }
+  app.sound('win');
+  announce('Time. Here is how everybody did.');
+  openResults(true);
+  layoutBar();
+  invalidate();
+}
+
 function openMore() {
   app.message = '';
   const items = [
@@ -863,12 +1197,16 @@ canvas.addEventListener('pointerdown', (e) => {
 canvas.addEventListener('pointermove', (e) => {
   const pt = pointAt(e);
   if (overlay) { overlay.pointerMove(pt); return; }
-  const bar = rectAt(barRects, pt.x, pt.y);
+  
+  
+  
+  const over = current !== HOME && rectAt([infoRow().button], pt.x, pt.y) === 0;
+  const bar = over ? -2 : rectAt(barRects, pt.x, pt.y);
   if (bar !== barHover) { barHover = bar; barHoverAt = performance.now(); invalidate(); }
   
   
   
-  canvas.style.cursor = bar >= 0 ? 'pointer' : (screen.cursorRect || screen.id !== 'home' ? 'pointer' : 'default');
+  canvas.style.cursor = bar >= 0 || bar === -2 ? 'pointer' : (screen.cursorRect || screen.id !== 'home' ? 'pointer' : 'default');
   screen.pointerMove(pt);
 });
 
@@ -876,15 +1214,27 @@ canvas.addEventListener('pointerup', (e) => {
   const pt = pointAt(e);
   canvas.releasePointerCapture?.(e.pointerId);
   if (overlay) { overlay.pointerUp(pt); return; }
+  
+  
+  
+  if (current !== HOME && rectAt([infoRow().button], pt.x, pt.y) === 0) {
+    app.sound('press');
+    openPicker();
+    return;
+  }
   const bar = rectAt(barRects, pt.x, pt.y);
   if (bar >= 0) {
-    const id = barRects[bar].id;
+    const b = barRects[bar];
+    if (b.off) return;                       
     app.sound('press');
-    if (id === 'back') goHome();
-    else if (id === 'help') openHelp();
-    else if (id === 'more') openMore();
-    else if (id === 'together') openRoom();
-    else if (id === 'sound') toggleSound();
+    if (b.id === 'back') goHome();
+    else if (b.id === 'help') openHelp();
+    else if (b.id === 'more') openMore();
+    else if (b.id === 'together') openRoom();
+    else if (b.id === 'sound') toggleSound();
+    else if (b.id === 'start') openStart();
+    else if (b.id === 'resume') resumeMatch();
+    else if (b.id === 'clock') openRoom();
     else openPicker();
     return;
   }
