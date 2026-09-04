@@ -109,6 +109,16 @@ const app = {
   openGame,
   goHome,
   closeOverlay,
+  
+
+
+
+
+
+
+
+
+  leaveFor: (url) => { try { globalThis.location.assign(url); } catch {  } },
   finished: () => {},
   save: () => {},
   load: () => null,
@@ -237,7 +247,16 @@ function resize() {
 
 function contentBox() {
   const pad = app.width < 520 ? 10 : 20;
-  const top = current === HOME ? 12 : BAR + INFO;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const top = current === HOME ? BAR : BAR + INFO;
   return { x: pad, y: top + 8, width: app.width - pad * 2, height: app.height - top - 20 };
 }
 
@@ -258,8 +277,16 @@ function contentBox() {
 function infoRow() {
   const pad = app.width < 520 ? 10 : 20;
   const mod = MODULES[current];
-  const label = `Puzzle ${indexFor[current] + 1} of ${mod.count()}`;
-  const w = Math.min(200, Math.max(150, app.width * 0.42));
+  
+  
+  
+  
+  
+  const narrow = app.width < 520;
+  const label = narrow
+    ? `${indexFor[current] + 1} of ${mod.count()}`
+    : `Puzzle ${indexFor[current] + 1} of ${mod.count()}`;
+  const w = narrow ? 120 : Math.min(200, Math.max(150, app.width * 0.42));
   return {
     pad,
     y: BAR + 2,

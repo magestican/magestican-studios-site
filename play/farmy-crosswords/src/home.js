@@ -20,8 +20,35 @@ import { rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, sink, easeOut, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const FAMILY = [
+  {
+    id: 'scrabble',
+    name: 'Farmy Scrabble',
+    blurb: 'The whole board, two to four players.',
+    url: '/play/farmy-scrabble/',
+  },
+];
+
 export function create(app) {
   let cards = [];
+  let family = [];
   let hover = -1;
   let hoverAt = 0;
   let press = -1;
@@ -41,7 +68,11 @@ export function create(app) {
     const cardW = Math.floor((area.width - gap * (cols - 1)) / cols);
     const headH = 116;
     const footH = 52;
-    const available = area.height - headH - footH;
+    
+    
+    
+    const famH = FAMILY.length ? 34 + FAMILY.length * 62 : 0;
+    const available = area.height - headH - footH - famH;
     
     
     
@@ -58,6 +89,16 @@ export function create(app) {
       w: cardW,
       h: cardH,
       game: g,
+    }));
+
+    const lastCard = cards[cards.length - 1];
+    const famTop = (lastCard ? lastCard.y + lastCard.h : top) + 34;
+    family = FAMILY.map((f, i) => ({
+      x: area.x,
+      y: famTop + i * 62,
+      w: area.width,
+      h: 52,
+      game: f,
     }));
   }
 
@@ -100,14 +141,62 @@ export function create(app) {
       paint.text(g, c.game.name,
         { x: textLeft, y: c.y + down + rise + c.h / 2 - 26, w: textW, h: 32 },
         { size: SIZES.h2, colour: COLORS.ink, align: 'left', fit: true, maxWidth: textW });
-      paint.text(g, c.game.blurb,
-        { x: textLeft, y: c.y + down + rise + c.h / 2 + 8, w: textW, h: 26 },
-        { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'left', fit: true, maxWidth: textW });
+      
+      
+      
+      
+      paint.wrap(g, c.game.blurb, textW, { size: SIZES.small, weight: 400 })
+        .slice(0, 2)
+        .forEach((line, k) => {
+          paint.text(g, line,
+            { x: textLeft, y: c.y + down + rise + c.h / 2 + 4 + k * 24, w: textW, h: 24 },
+            { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'left' });
+        });
 
       if (i === cursor && app.keyboardMode) paint.focusRing(g, { ...c, y: c.y + down });
     });
 
-    const last = cards[cards.length - 1];
+    
+    if (family.length) {
+      const first = family[0];
+      paint.rule(g, box.x, first.y - 22, box.width);
+      paint.text(g, 'More from the farm',
+        { x: box.x, y: first.y - 18, width: box.width, height: 20 },
+        { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'left' });
+    }
+    family.forEach((c, i) => {
+      const at = cards.length + i;
+      const isHover = at === hover;
+      const isPress = at === press;
+      const up = isHover ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0;
+      const down = isPress ? sink(progress(now, pressAt, DURATION.press, app.motion), app.motion) : 0;
+      paint.surface(g, c, { offset: Math.max(0, SIZES.shadow + up - down), dy: down });
+      
+      
+      
+      
+      
+      const pad = 16;
+      const narrow = c.w < 480;
+      const nameW = narrow ? c.w - pad * 2 - 26 : c.w * 0.46;
+      paint.text(g, c.game.name,
+        { x: c.x + pad, y: c.y + down, w: nameW, h: c.h },
+        { size: SIZES.base, colour: COLORS.ink, align: 'left', fit: true, maxWidth: nameW });
+      if (narrow) {
+        paint.text(g, '→', { x: c.x + c.w - pad - 22, y: c.y + down, w: 22, h: c.h },
+          { size: SIZES.base, colour: COLORS.inkSoft });
+      } else {
+        const blurbX = c.x + pad + nameW + 16;
+        const blurbW = c.x + c.w - pad - blurbX;
+        paint.text(g, c.game.blurb,
+          { x: blurbX, y: c.y + down, w: blurbW, h: c.h },
+          { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right',
+            fit: true, maxWidth: blurbW });
+      }
+      if (at === cursor && app.keyboardMode) paint.focusRing(g, { ...c, y: c.y + down });
+    });
+
+    const last = family[family.length - 1] ?? cards[cards.length - 1];
     const footY = (last ? last.y + last.h : box.y) + 14;
     
     
@@ -116,8 +205,11 @@ export function create(app) {
       { size: SIZES.small, weight: 400, colour: COLORS.inkSoft });
   }
 
+  
+  const all = () => [...cards, ...family];
+
   function hoverAtPoint(pt) {
-    const i = pt ? rectAt(cards, pt.x, pt.y) : -1;
+    const i = pt ? rectAt(all(), pt.x, pt.y) : -1;
     if (i !== hover) { hover = i; hoverAt = app.now(); app.invalidate(); }
     return i;
   }
@@ -125,35 +217,57 @@ export function create(app) {
   return {
     id: 'home',
     layout,
-    rects: () => cards.map((c) => ({ id: `card:${c.game.id}`, x: c.x, y: c.y, w: c.w, h: c.h })),
+    rects: () => all().map((c) => ({ id: `card:${c.game.id}`, x: c.x, y: c.y, w: c.w, h: c.h })),
     draw,
-    cursorRect: () => cards[cursor],
+    cursorRect: () => all()[cursor],
     pointerMove: (pt) => { hoverAtPoint(pt); },
     pointerLeave: () => { hoverAtPoint(null); press = -1; },
     pointerDown: (pt) => {
-      press = rectAt(cards, pt.x, pt.y);
+      press = rectAt(all(), pt.x, pt.y);
       pressAt = app.now();
       if (press >= 0) app.sound('press');
       app.invalidate();
     },
     pointerUp: (pt) => {
-      const i = rectAt(cards, pt.x, pt.y);
+      const i = rectAt(all(), pt.x, pt.y);
       const was = press;
       press = -1;
       app.invalidate();
-      if (i >= 0 && i === was) app.openGame(cards[i].game.id);
+      if (i < 0 || i !== was) return;
+      if (i < cards.length) app.openGame(cards[i].game.id);
+      else app.leaveFor(family[i - cards.length].game.url);
     },
     key: (action) => {
       if (action.type === 'move') {
         const cols = box.width >= 760 ? 2 : 1;
-        const next = cursor + (action.dy * cols) + action.dx;
-        if (next >= 0 && next < cards.length) { cursor = next; app.invalidate(); }
+        
+        
+        const step = cursor >= cards.length || (action.dy > 0 && cursor + cols >= cards.length)
+          ? action.dy + action.dx
+          : (action.dy * cols) + action.dx;
+        const next = cursor + step;
+        if (next >= 0 && next < all().length) { cursor = next; app.invalidate(); }
         return true;
       }
-      if (action.type === 'submit') { app.openGame(cards[cursor].game.id); return true; }
+      if (action.type === 'submit') {
+        if (cursor < cards.length) app.openGame(cards[cursor].game.id);
+        else app.leaveFor(family[cursor - cards.length].game.url);
+        return true;
+      }
       return false;
     },
-    describe: () => describeHome(GAMES),
+    describe: () => {
+      const d = describeHome(GAMES);
+      return {
+        ...d,
+        lines: [
+          ...d.lines,
+          ...(family.length
+            ? ['More from the farm:', ...family.map((c) => `${c.game.name}. ${c.game.blurb}`)]
+            : []),
+        ],
+      };
+    },
     
     animating: (now) => app.motion && (
       now - hoverAt < DURATION.hover

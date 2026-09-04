@@ -213,7 +213,12 @@ export function create(app, index) {
 
     buttons = keyboard({
       box: { x: play.x, y: btnTop, width: Math.min(play.width, 560), height: btnH },
-      rows: [['Delete', 'Shuffle', 'Hints', 'Enter']],
+      
+      
+      
+      
+      
+      rows: [['Delete', area.width < 520 ? 'Mix' : 'Shuffle', 'Hints', 'Enter']],
       gap: 10,
       wideUnits: 1,
       maxKey: 130,
@@ -443,7 +448,7 @@ export function create(app, index) {
   function pressButton(i) {
     const name = buttons.rects[i].label;
     if (name === 'Delete') typed = typed.slice(0, -1);
-    else if (name === 'Shuffle') {
+    else if (name === 'Shuffle' || name === 'Mix') {
       for (let k = outer.length - 1; k > 0; k -= 1) {
         const j = Math.floor(Math.random() * (k + 1));
         [outer[k], outer[j]] = [outer[j], outer[k]];
