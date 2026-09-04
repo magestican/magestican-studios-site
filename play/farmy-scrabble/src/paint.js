@@ -431,8 +431,51 @@ export function wrap(g, string, maxWidth, { size = SIZES.small, weight = 400 } =
 
 
 
-export function chip(g, r, { initials = '', colour = 'blue', you = false }) {
-  surface(g, r, { fill: COLORS[colour] ?? COLORS.blue, offset: 0, border: 2, radius: r.h / 2 });
+
+
+
+
+
+
+export function loupeFrame(g, box, { at, side = 'left' }) {
+  surface(g, box, { fill: COLORS.card, offset: SIZES.shadow, border: SIZES.border });
+  if (!at) return;
+  g.save();
+  g.fillStyle = COLORS.ink;
+  
+  const edge = side === 'left' ? box.x + box.w : box.x;
+  const dir = side === 'left' ? 1 : -1;
+  const cy = Math.max(box.y + 14, Math.min(box.y + box.h - 14, at.y));
+  g.beginPath();
+  g.moveTo(edge, cy - 9);
+  g.lineTo(edge, cy + 9);
+  g.lineTo(edge + dir * 12, cy);
+  g.closePath();
+  g.fill();
+  g.restore();
+}
+
+
+
+
+
+
+
+
+export function chip(g, r, { initials = '', colour = 'blue', you = false, bot = false }) {
+  
+  
+  
+  
+  
+  
+  
+  surface(g, r, {
+    fill: COLORS[colour] ?? COLORS.blue,
+    offset: 0,
+    border: 2,
+    radius: bot ? 3 : r.h / 2,
+  });
   text(g, initials, r, { size: SIZES.min, colour: COLORS.card, fit: true, maxWidth: r.w - 6, floor: 12 });
   if (you) focusRing(g, r, COLORS.ink);
 }

@@ -46,7 +46,12 @@ import { routeKey } from '../../../web-engine/words/keyRouter.js';
 import { tick } from '../../../web-engine/words/frameLoop.js';
 import { rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
-import { isWord } from '../../../web-engine/words/scrabbleWords.js';
+import { isWord, commonWords } from '../../../web-engine/words/scrabbleWords.js';
+import { soundLabel } from '../../../web-engine/words/scrabbleSound.js';
+import {
+  createFinder, botAction, botToPlay, isBotSeat, botNameFor, seatsWithBot,
+  seatsWithoutBot, botsIn, describeBots, botsSummary,
+} from '../../../web-engine/words/scrabbleBot.js';
 import {
   applyAction, replay, seatsWith, isMyTurn, standings,
 } from '../../../web-engine/words/scrabbleMatch.js';
@@ -55,12 +60,23 @@ import {
   nameFor, colourFor, shareLinkFor, joinIdFrom, describeSaying, describeRoom,
 } from '../../../web-engine/words/coop.js';
 import * as paint from './paint.js';
+import * as sfx from './sfx.js';
 import * as boardScreen from './board.js';
 import { mirror, announce, keysAre } from './a11y.js';
-import { help, values, letters, room as roomPanel, say as sayPanel, results, menu } from './panels.js';
+import {
+  help, values, letters, room as roomPanel, say as sayPanel, results, menu,
+  bots as botsPanel,
+} from './panels.js';
 import { createNet, canPlayTogether } from './net.js';
 
 initAnalytics({ page: 'farmy-scrabble' });
+
+
+
+
+
+
+sfx.install();
 startVersionChecker({
   versionUrl: './version.json',
   label: 'A new version of Farmy Scrabble is available.',
@@ -69,9 +85,27 @@ startVersionChecker({
 
 const BAR = 56;
 
-const BAR_WIDE = 760;
+
+
+
+
+
+
+
+const BAR_WIDE = 1080;
 
 const SAVE_KEY = 'fs.solo.match';
+
+
+
+
+
+
+
+
+
+
+const BOT_PAUSE_MS = 1100;
 
 const SOLO = 'you';
 
@@ -124,6 +158,24 @@ const app = {
   motion: !(reduceMotion?.matches),
   message: '',
   keyboardMode: false,
+  
+
+
+
+
+
+
+
+  touch: false,
+  
+
+
+
+
+
+  sound: (event, opts) => sfx.play(event, opts),
+  
+  barBottom: BAR,
   now: () => performance.now(),
   invalidate,
   announce: (m) => announce(m),
@@ -131,8 +183,20 @@ const app = {
   me: SOLO,
   state: () => derived,
   myTurn: () => isMyTurn(derived, app.me),
-  nameOf: (id) => (id === SOLO ? 'You' : nameFor(id)),
-  colourOf: (id) => (id === SOLO ? 'blue' : colourFor(id, roomState.peers)),
+  
+  
+  
+  nameOf: (id) => {
+    if (id === SOLO) return 'You';
+    if (isBotSeat(id)) return botNameFor(id);
+    return nameFor(id);
+  },
+  isBot: isBotSeat,
+  
+  
+  
+  
+  colourOf: (id) => (id === SOLO ? 'blue' : colourFor(id, match.seats)),
   act,
   chooseLetter: openLetters,
   
@@ -156,11 +220,72 @@ let barHoverAt = 0;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const finder = createFinder({ words: commonWords(), isWord });
+
+
 function rederive() {
   derived = replay(match, isWord);
   if (!roomState.active) writeJson(SAVE_KEY, match);
   screen?.reload?.();
   checkFinished();
+  scheduleBot();
+}
+
+let botTimer = null;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function scheduleBot() {
+  if (botTimer) { clearTimeout(botTimer); botTimer = null; }
+  if (!botToPlay(derived)) return;
+  if (roomState.active && net && !net.hosting) return;
+  const at = derived.history.length;
+  botTimer = setTimeout(() => {
+    botTimer = null;
+    
+    
+    
+    if (derived.history.length !== at || !botToPlay(derived)) return;
+    const action = botAction(derived, finder);
+    if (!action) return;
+    const error = act(action);
+    if (error) {
+      
+      
+      
+      
+      act({ kind: 'pass', seat: derived.turn });
+    }
+  }, BOT_PAUSE_MS);
 }
 
 
@@ -296,6 +421,18 @@ function relayout() {
   if (overlay) overlay.layout();
 }
 
+
+
+
+
+
+
+
+const botsLabel = () => {
+  const n = botsIn(match.seats).length;
+  return n === 0 ? 'Add a bot' : `Bots: ${n}`;
+};
+
 const togetherLabel = () => {
   if (!roomState.active) return 'Together';
   const n = roomState.peers.length;
@@ -318,8 +455,10 @@ function layoutBar() {
     return;
   }
   const helpX = right - 48;
-  const tilesX = helpX - 8 - 110;
-  const togetherX = tilesX - 8 - 150;
+  const soundX = helpX - 8 - 128;
+  const tilesX = soundX - 8 - 96;
+  const botsX = tilesX - 8 - 120;
+  const togetherX = botsX - 8 - 150;
   
   
   
@@ -327,7 +466,9 @@ function layoutBar() {
   const newX = togetherX - 8 - 150;
   barRects = [
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
-    { x: tilesX, y, w: 110, h, id: 'values', label: 'Tiles' },
+    { x: soundX, y, w: 128, h, id: 'sound', label: soundLabel(sfx.isMuted()) },
+    { x: tilesX, y, w: 96, h, id: 'values', label: 'Tiles' },
+    { x: botsX, y, w: 120, h, id: 'bots', label: botsLabel() },
     { x: togetherX, y, w: 150, h, id: 'together', label: togetherLabel() },
     { x: newX, y, w: 150, h, id: 'new', label: 'New game' },
   ];
@@ -397,6 +538,68 @@ const openHelp = () => show(help(app, {
 }));
 
 const openValues = () => show(values(app, { onClose: closeOverlay }));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function toggleSound() {
+  sfx.setMuted(!sfx.isMuted());
+  sfx.wake();
+  app.sound('lift');
+  layoutBar();
+  announce(sfx.isMuted() ? 'Sound off.' : 'Sound on.');
+  invalidate();
+}
+
+function openBots() {
+  show(botsPanel(app, {
+    state: {
+      get summary() { return botsSummary(derived); },
+      get rows() { return describeBots(derived); },
+      
+      
+      
+      
+      get canAdd() {
+        if (roomState.active && net && !net.hosting) return false;
+        return seatsWithBot(match.seats) !== match.seats;
+      },
+      get guest() { return !!(roomState.active && net && !net.hosting); },
+      get started() { return match.actions.length > 0; },
+    },
+    onAdd: () => {
+      const seats = seatsWithBot(match.seats);
+      if (seats === match.seats) return;
+      restart(seats);
+      announce(`${botsSummary(derived)} Your turn.`);
+      overlay?.refresh();
+      invalidate();
+    },
+    onRemove: () => {
+      const seats = seatsWithoutBot(match.seats);
+      if (seats === match.seats) return;
+      restart(seats);
+      announce(botsSummary(derived));
+      overlay?.refresh();
+      invalidate();
+    },
+    onClose: closeOverlay,
+  }));
+}
 
 
 
@@ -507,6 +710,11 @@ function openMenu() {
       { id: 'together', label: togetherLabel(), tone: 'blue', run: openRoom },
       ...(roomState.active && roomState.peers.length > 1
         ? [{ id: 'say', label: 'Say something', run: openSay }] : []),
+      { id: 'bots', label: botsLabel(), run: openBots },
+      
+      
+      
+      { id: 'sound', label: soundLabel(sfx.isMuted()), run: () => { toggleSound(); openMenu(); } },
       { id: 'new', label: 'New game', run: () => { closeOverlay(); restart(); } },
       { id: 'values', label: 'What the tiles are worth', run: openValues },
       { id: 'help', label: 'How to play', run: openHelp },
@@ -573,6 +781,12 @@ const pointAt = (e) => {
 
 canvas.addEventListener('pointerdown', (e) => {
   const pt = pointAt(e);
+  app.touch = e.pointerType === 'touch' || e.pointerType === 'pen';
+  
+  
+  
+  
+  sfx.wake();
   canvas.setPointerCapture?.(e.pointerId);
   if (overlay) { overlay.pointerDown(pt); return; }
   if (rectAt(barRects, pt.x, pt.y) >= 0) return;   
@@ -581,6 +795,7 @@ canvas.addEventListener('pointerdown', (e) => {
 
 canvas.addEventListener('pointermove', (e) => {
   const pt = pointAt(e);
+  if (e.pointerType) app.touch = e.pointerType === 'touch' || e.pointerType === 'pen';
   if (overlay) { overlay.pointerMove(pt); return; }
   const bar = rectAt(barRects, pt.x, pt.y);
   if (bar !== barHover) { barHover = bar; barHoverAt = performance.now(); invalidate(); }
@@ -600,6 +815,8 @@ canvas.addEventListener('pointerup', (e) => {
     const id = barRects[bar].id;
     if (id === 'help') openHelp();
     else if (id === 'values') openValues();
+    else if (id === 'sound') toggleSound();
+    else if (id === 'bots') openBots();
     else if (id === 'together') openRoom();
     else if (id === 'menu') openMenu();
     else if (id === 'new') restart();
@@ -620,6 +837,7 @@ canvas.addEventListener('pointerleave', () => {
 canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
 document.addEventListener('keydown', (e) => {
+  sfx.wake();
   const action = routeKey(
     { key: e.key, ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey },
     { screen: 'scrabble', overlay: !!overlay, games: ['scrabble'] },
@@ -654,6 +872,14 @@ globalThis.addEventListener('resize', resize);
 
 
 
+
+
+
+
+
+
+
+
 globalThis.__fs = {
   get room() {
     return {
@@ -669,6 +895,7 @@ globalThis.__fs = {
     return {
       seed: match.seed,
       seats: match.seats,
+      bots: botsIn(match.seats),
       actions: match.actions.length,
       turn: derived.turn,
       scores: derived.scores,
@@ -677,6 +904,14 @@ globalThis.__fs = {
     };
   },
   get overlay() { return overlay ? overlay.id : null; },
+  
+  get loupe() { return screen?.loupe?.() ?? null; },
+  
+  get loupeBox() { return screen?.loupeBox?.() ?? null; },
+  
+  
+  
+  get audio() { return sfx.state(); },
   rects: () => [
     ...((overlay ?? screen).rects?.() ?? []),
     ...(overlay ? [] : barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h }))),

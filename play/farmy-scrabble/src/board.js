@@ -40,17 +40,20 @@
 
 
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
-import { grid, keyboard, rectAt, rectAtLoose } from '../../../web-engine/words/layout.js';
-import { progress, lift, sink, shake, DURATION } from '../../../web-engine/words/motion.js';
+import { grid, keyboard, rectAt } from '../../../web-engine/words/layout.js';
+import {
+  progress, lift, sink, shake, easeOut, hump, DURATION,
+} from '../../../web-engine/words/motion.js';
 import { isDrag, DRAG_SLOP } from '../../../web-engine/words/drag.js';
 import {
   SIZE, BLANK, VALUES, premiumCharAt, judge, idx, onBoard, RACK_SIZE,
 } from '../../../web-engine/words/scrabbleRules.js';
 import { ACTIONS, canExchange, seatOf } from '../../../web-engine/words/scrabbleMatch.js';
 import {
-  describeMatch, describeSquare, coordOf, describeTurn,
+  describeMatch, describeSquare, coordOf, describeTurn, premiumName,
 } from '../../../web-engine/words/scrabbleDescribe.js';
 import { initialsOf } from '../../../web-engine/words/coop.js';
+import { loupeFor, squareUnder } from './loupe.js';
 import * as paint from './paint.js';
 
 
@@ -79,8 +82,25 @@ export function create(app) {
   let pressButton = -1;
   let pressAt = 0;
   let shakeAt = -1;         
+  
+
+
+
+  let settleAt = -1;
+  let settleWhere = null;
+  
+  let scoreFrom = 0;
+  let scoreTo = 0;
+  let scoreAt = -1;
+  let dealtAt = -1;
+  
+  let lastTurn = -1;
+  
+  let turnAt = -1;
 
   let boardGrid = { rects: [], cell: 24 };
+  
+  let boardGap = 2;
   let rackGrid = { rects: [], cell: 48 };
   let buttons = { rects: [] };
   let scoreBand = { x: 0, y: 0, width: 0, height: 0 };
@@ -116,6 +136,23 @@ export function create(app) {
     const seat = mySeat();
     if (!force && stamp(s) === seenStamp) return;
     seenStamp = stamp(s);
+    
+    
+    
+    
+    
+    if (s.over) {
+      if (lastTurn !== -2) { app.sound('over'); lastTurn = -2; }
+    } else {
+      if (s.turn === seat && lastTurn !== seat && lastTurn !== -1) {
+        app.sound('turn');
+        dealtAt = app.now();
+      }
+      if (s.turn !== lastTurn) turnAt = app.now();
+      lastTurn = s.turn;
+    }
+    scoreTo = s.scores[seat] ?? scoreTo;
+    if (scoreAt < 0) scoreFrom = scoreTo;
     pending = [];
     chosen = -1;
     swapping = null;
@@ -156,6 +193,7 @@ export function create(app) {
       min: 40,
       centreY: true,
     });
+    boardGap = narrow ? 2 : 3;
     boardGrid = grid({
       box: {
         x: area.x,
@@ -165,7 +203,7 @@ export function create(app) {
       },
       cols: SIZE,
       rows: SIZE,
-      gap: narrow ? 2 : 3,
+      gap: boardGap,
       
       
       min: 18,
@@ -198,6 +236,26 @@ export function create(app) {
   }
 
   const pendingAt = (row, col) => pending.find((p) => p.row === row && p.col === col) ?? null;
+
+  
+
+
+
+
+
+
+
+  function dropVerdict(target) {
+    const tile = dragging ? slots[dragging.slot] : null;
+    if (!tile || !target) return null;
+    if (state().board[idx(target.row, target.col)] || pendingAt(target.row, target.col)) return null;
+    const letter = tile.letter === BLANK ? null : tile.letter;
+    const laid = [
+      ...pending.map(({ row, col, letter: l, blank }) => ({ row, col, letter: l, blank })),
+      { row: target.row, col: target.col, letter: letter ?? 'E', blank: !letter },
+    ];
+    return { ...judge(state().board, laid, app.isWord), letter };
+  }
 
   
   function verdict() {
@@ -239,6 +297,11 @@ export function create(app) {
     pending = [...pending, { row, col, letter: ch, blank: tile.letter === BLANK, slot }];
     chosen = -1;
     cursor = { row, col };
+    
+    
+    app.sound('place', { index: pending.length - 1 });
+    settleAt = app.now();
+    settleWhere = { row, col };
     advance();
     app.invalidate();
   }
@@ -250,6 +313,7 @@ export function create(app) {
     pending = pending.filter((x) => x !== p);
     slots = slots.map((t, i) => (i === p.slot ? { letter: p.blank ? BLANK : p.letter } : t));
     cursor = { row, col };
+    app.sound('recall');
     app.invalidate();
     return true;
   }
@@ -286,6 +350,10 @@ export function create(app) {
   }
 
   function refuse(why) {
+    
+    
+    
+    app.sound('reject');
     shakeAt = app.now();
     app.message = why;
     app.announce(why);
@@ -306,6 +374,15 @@ export function create(app) {
       placed: pending.map(({ row, col, letter, blank }) => ({ row, col, letter, blank })),
     });
     if (error) { refuse(error); return; }
+    const last = state().last;
+    app.sound(last?.bingo ? 'bingo' : 'play');
+    
+    
+    
+    scoreFrom = scoreTo;
+    scoreTo = state().scores[mySeat()] ?? 0;
+    scoreAt = app.now();
+    dealtAt = app.now();
     
     
     
@@ -375,6 +452,8 @@ export function create(app) {
     const error = app.act({ kind: ACTIONS.EXCHANGE, seat: mySeat(), tiles });
     if (error) { refuse(error); return; }
     swapping = null;
+    app.sound('swap');
+    dealtAt = app.now();
     syncRack(true);
     app.invalidate();
   }
@@ -384,6 +463,7 @@ export function create(app) {
     undo();
     const error = app.act({ kind: ACTIONS.PASS, seat: mySeat() });
     if (error) { refuse(error); return; }
+    app.sound('pass');
     syncRack(true);
     app.invalidate();
   }
@@ -394,29 +474,56 @@ export function create(app) {
   
   
 
-  function drawScores(g) {
+  function drawScores(g, now) {
     const s = state();
     const room = scoreBand.width;
     
     
     
-    const chipW = Math.min(58, Math.max(44, (room - 120) / Math.max(1, s.seats.length)));
+    
+    
+    
+    
+    
+    
+    const bagRoom = 82;
+    const slot = Math.max(46, (room - bagRoom) / Math.max(1, s.seats.length));
+    const chipW = Math.max(30, Math.min(58, Math.round(slot * 0.46)));
     let x = scoreBand.x;
     s.seats.forEach((id, seat) => {
       const you = id === app.me;
-      const r = { x, y: scoreBand.y + 2, w: chipW, h: 30 };
+      
+      
+      
+      const mine = seat === s.turn && !s.over;
+      const pulse = mine && turnAt >= 0
+        ? hump(progress(now, turnAt, DURATION.found, app.motion)) * 4
+        : 0;
+      const r = {
+        x: x - pulse / 2, y: scoreBand.y + 2 - pulse / 2, w: chipW + pulse, h: 30 + pulse,
+      };
       paint.chip(g, r, {
         initials: you ? 'You' : initialsOf(app.nameOf(id)),
         colour: app.colourOf(id),
-        you: seat === s.turn && !s.over,
+        you: mine,
+        bot: app.isBot(id),
       });
       
       
       
-      paint.text(g, String(s.scores[seat]), { x: x + chipW + 12, y: scoreBand.y + 2, w: 56, h: 30 }, {
-        size: SIZES.base, colour: COLORS.ink, align: 'left', fit: true, maxWidth: 56,
+      
+      
+      
+      
+      const shown = you && scoreAt >= 0
+        ? Math.round(scoreFrom + (scoreTo - scoreFrom)
+          * easeOut(progress(now, scoreAt, DURATION.reveal * 1.4, app.motion)))
+        : s.scores[seat];
+      const scoreW = Math.max(24, slot - chipW - 12);
+      paint.text(g, String(shown), { x: x + chipW + 10, y: scoreBand.y + 2, w: scoreW, h: 30 }, {
+        size: SIZES.base, colour: COLORS.ink, align: 'left', fit: true, maxWidth: scoreW,
       });
-      x += chipW + 76;
+      x += slot;
     });
     paint.text(g, `Bag ${s.bag.length}`, {
       x: scoreBand.x, y: scoreBand.y + 2, width: scoreBand.width, height: 30,
@@ -434,7 +541,15 @@ export function create(app) {
       const col = i % SIZE;
       const tile = board[i];
       const isPending = !!(tile && tile.pending);
-      paint.square(g, { ...r, x: r.x + (isPending ? wobble : 0) }, {
+      
+      
+      
+      
+      
+      const settling = settleWhere && settleWhere.row === row && settleWhere.col === col
+        ? 1 - easeOut(progress(now, settleAt, DURATION.reveal, app.motion))
+        : 0;
+      paint.square(g, { ...r, x: r.x + (isPending ? wobble : 0), y: r.y - settling * 7 }, {
         premium: premiumCharAt(row, col),
         tile: tile ? { letter: tile.letter, blank: tile.blank, value: VALUES[tile.letter] ?? 0 } : null,
         pending: isPending,
@@ -486,7 +601,15 @@ export function create(app) {
         return;
       }
       const up = i === hoverRack ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0;
-      paint.rackTile(g, r, {
+      
+      
+      
+      
+      const arrive = dealtAt >= 0
+        ? progress(now, dealtAt + i * 26, DURATION.reveal, app.motion)
+        : 1;
+      const drop = (1 - easeOut(arrive)) * 14;
+      paint.rackTile(g, { ...r, y: r.y - drop }, {
         ch: tile.letter === BLANK ? '' : tile.letter,
         value: tile.letter === BLANK ? null : VALUES[tile.letter],
         blank: tile.letter === BLANK,
@@ -519,13 +642,16 @@ export function create(app) {
   }
 
   function draw(g, now) {
-    drawScores(g);
+    drawScores(g, now);
     drawBoard(g, now);
     drawStatus(g);
     drawRack(g, now);
     drawButtons(g, now);
     if (dragging) {
       
+      
+      
+      drawLoupe(g);
       
       const size = rackGrid.cell;
       const tile = slots[dragging.slot];
@@ -541,10 +667,100 @@ export function create(app) {
   }
 
   
+
+
+
+
+
+
+
+
+  function drawLoupe(g) {
+    if (!dragging || !app.touch) return;
+    const target = squareAt({ x: dragging.x, y: dragging.y });
+    if (!target) return;
+    const l = loupeFor({
+      pointer: { x: dragging.x, y: dragging.y },
+      target,
+      grid: gridSpec(),
+      width: app.width,
+      height: app.height,
+      top: app.barBottom ?? 0,
+    });
+    paint.loupeFrame(g, l.box, { at: { y: dragging.y }, side: l.side });
+
+    const board = shown();
+    const carried = slots[dragging.slot];
+    for (const c of l.cells) {
+      const tile = board[idx(c.row, c.col)];
+      const isTarget = c.target && !tile;
+      paint.square(g, c, {
+        premium: premiumCharAt(c.row, c.col),
+        
+        
+        
+        tile: isTarget && carried
+          ? {
+            letter: carried.letter === BLANK ? '' : carried.letter,
+            blank: carried.letter === BLANK,
+            value: carried.letter === BLANK ? null : VALUES[carried.letter],
+          }
+          : (tile ? { letter: tile.letter, blank: tile.blank, value: VALUES[tile.letter] ?? 0 } : null),
+        pending: isTarget || !!tile?.pending,
+      });
+      
+      
+      
+      
+      if (c.target) paint.cursorRing(g, c, axis);
+    }
+
+    
+    
+    
+    const drop = dropVerdict(target);
+    const premium = premiumName(target.row, target.col);
+    const worth = drop && drop.ok ? `${drop.score} points` : (premium || 'empty');
+    for (const [i, line] of [coordOf(target.row, target.col), worth].entries()) {
+      paint.text(g, line, { ...l.caption, y: l.caption.y + i * l.caption.h }, {
+        size: SIZES.min,
+        weight: i === 0 ? 700 : 400,
+        colour: i === 0 ? COLORS.ink : COLORS.inkSoft,
+        fit: true,
+        maxWidth: l.caption.w,
+      });
+    }
+  }
+
+  
   
   
 
-  const squareIndexAt = (pt) => rectAtLoose(boardGrid.rects, pt.x, pt.y, 1);
+  
+
+
+
+
+
+
+
+
+
+
+
+  const gridSpec = () => ({
+    x: boardGrid.x,
+    y: boardGrid.y,
+    cell: boardGrid.cell,
+    gap: boardGap,
+    cols: SIZE,
+    rows: SIZE,
+  });
+  const squareAt = (pt) => squareUnder(pt, gridSpec());
+  const squareIndexAt = (pt) => {
+    const at = squareAt(pt);
+    return at ? idx(at.row, at.col) : -1;
+  };
 
   function pointerDown(pt) {
     syncRack();
@@ -673,16 +889,80 @@ export function create(app) {
       ...rackGrid.rects.map((r, i) => ({ id: `rack:${i}`, ...r })),
       ...buttons.rects.map((r) => ({ id: `btn:${r.label}`, ...r })),
     ],
-    describe: () => describeMatch(state(), {
-      me: app.me,
-      nameOf: app.nameOf,
-      pending,
-      verdict: verdict(),
-      cursor,
-      message: app.message,
-    }),
+    
+
+
+
+
+
+    loupeBox: () => {
+      if (!dragging || !app.touch) return null;
+      const target = squareAt({ x: dragging.x, y: dragging.y });
+      if (!target) return null;
+      const l = loupeFor({
+        pointer: { x: dragging.x, y: dragging.y },
+        target,
+        grid: gridSpec(),
+        width: app.width,
+        height: app.height,
+        top: app.barBottom ?? 0,
+      });
+      return { ...l.box, side: l.side, cell: l.cell, finger: { x: dragging.x, y: dragging.y } };
+    },
+    
+    loupe: () => {
+      if (!dragging || !app.touch) return null;
+      const target = squareAt({ x: dragging.x, y: dragging.y });
+      if (!target) return null;
+      const drop = dropVerdict(target);
+      return {
+        row: target.row,
+        col: target.col,
+        where: describeSquare(state().board, target.row, target.col),
+        score: drop && drop.ok ? drop.score : null,
+        carrying: slots[dragging.slot]?.letter ?? null,
+      };
+    },
+    describe: () => {
+      const d = describeMatch(state(), {
+        me: app.me,
+        nameOf: app.nameOf,
+        pending,
+        verdict: verdict(),
+        cursor,
+        message: app.message,
+      });
+      
+      
+      
+      
+      const at = dragging && app.touch ? squareAt({ x: dragging.x, y: dragging.y }) : null;
+      if (at) {
+        const drop = dropVerdict(at);
+        const carrying = slots[dragging.slot]?.letter;
+        d.lines = [
+          `Holding ${carrying === BLANK ? 'a blank' : carrying} over ${describeSquare(state().board, at.row, at.col)}.`
+            + (drop && drop.ok ? ` It would score ${drop.score}.` : ''),
+          ...d.lines,
+        ];
+      }
+      return d;
+    },
+    
+
+
+
+
+
+
+
+
     animating: (now) => app.motion && (
       (shakeAt >= 0 && now - shakeAt < DURATION.shake)
+      || (settleAt >= 0 && now - settleAt < DURATION.reveal)
+      || (scoreAt >= 0 && now - scoreAt < DURATION.reveal * 1.4)
+      || (dealtAt >= 0 && now - dealtAt < DURATION.reveal + RACK_SIZE * 26)
+      || (turnAt >= 0 && now - turnAt < DURATION.found)
       || now - hoverAt < DURATION.hover
       || now - pressAt < DURATION.press
     ),
@@ -701,6 +981,7 @@ export function create(app) {
       'Your first word goes through the star in the middle. After that every word must touch one already there.',
       'Play scores the word. Undo takes your tiles back, Mix shuffles your rack, Swap changes tiles, Pass gives up the turn.',
       'Use all seven tiles in one go for fifty extra points. There is no clock - take as long as you like.',
+      'Press Bots to play against the computer. One bot plays about as well as you do; any others are there for company, and they all say they are bots.',
     ],
   };
 }

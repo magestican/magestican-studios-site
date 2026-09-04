@@ -41,7 +41,7 @@ const FAMILY = [
   {
     id: 'scrabble',
     name: 'Farmy Scrabble',
-    blurb: 'The whole board, two to four players.',
+    blurb: 'The whole board. Play a bot, or two to four people.',
     url: '/play/farmy-scrabble/',
   },
 ];

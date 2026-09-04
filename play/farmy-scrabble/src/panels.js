@@ -337,6 +337,47 @@ export function results(app, { state, onAgain, onClose }) {
 }
 
 
+
+
+
+
+
+
+
+
+export function bots(app, { state, onAdd, onRemove, onClose }) {
+  return card(app, {
+    id: 'bots',
+    title: () => 'Bots',
+    lines: () => [
+      state.summary,
+      ...state.rows.map((b) => `${b.name} - ${b.kind}${b.score ? ` - ${b.score} points` : ''}`),
+      state.guest
+        ? 'Only the person who opened the room can change the bots.'
+        : (state.started
+          ? 'Adding or removing a bot deals a new game, because everybody’s tiles come out of one bag.'
+          : 'One bot plays as well as you do. Any others are there for company.'),
+    ],
+    buttons: () => [
+      {
+        id: 'add',
+        label: state.canAdd
+          ? (state.started ? 'Add a bot and start again' : 'Add a bot')
+          : (state.guest ? 'The host chooses the bots' : 'The table is full'),
+        tone: state.canAdd ? 'green' : null,
+        disabled: !state.canAdd,
+        run: onAdd,
+      },
+      ...(state.rows.length && !state.guest
+        ? [{ id: 'remove', label: state.started ? 'Take one away and start again' : 'Take one away', run: onRemove }]
+        : []),
+      { id: 'close', label: 'Back to the board', run: onClose },
+    ],
+    describe: () => ({ status: state.summary }),
+  });
+}
+
+
 export function menu(app, { items }) {
   return card(app, {
     id: 'menu',
