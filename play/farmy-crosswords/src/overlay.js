@@ -16,6 +16,7 @@
 
 import { COLORS, SIZES, STATES } from '../../../web-engine/words/style.js';
 import { grid, rectAt } from '../../../web-engine/words/layout.js';
+import { DRAG_SLOP } from '../../../web-engine/words/drag.js';
 import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
 import {
   BAND_PIPS, PIP_SLOTS, ratingsFor, curveOrder, distribution,
@@ -145,6 +146,28 @@ export function picker(app, {
 }) {
   let box = panelBox(app, true);
   let cells = { rects: [] };
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  let scroll = 0;
+  let placed = false;
+  let gridH = 0;
+  let viewH = 0;
+  let dragFrom = null;
   let closeRect = { x: 0, y: 0, w: 0, h: 0 };
   let todayRect = { x: 0, y: 0, w: 0, h: 0 };
   
@@ -226,24 +249,63 @@ export function picker(app, {
     
     
     
-    const room = (Math.min(app.height, app.height) - 32) - HEAD - SIZES.target - 16 - FOOT;
-    const widest = Math.max(6, Math.min(10, Math.floor((base.w - PAD * 2) / 62)));
-    let cols = widest;
-    let rows = Math.ceil(count / cols);
-    let cell = Math.min(62, Math.floor((base.w - PAD * 2 - gap * (cols - 1)) / cols));
-    while (rows * cell + gap * (rows - 1) > room && cols < 14) {
-      cols += 1;
-      rows = Math.ceil(count / cols);
-      cell = Math.min(62, Math.floor((base.w - PAD * 2 - gap * (cols - 1)) / cols));
-      
-      
-      
-      if (cell < 40) { cell = 40; break; }
-    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const inner = base.w - PAD * 2;
+    const fitAt = (size) => Math.max(1, Math.floor((inner + gap) / (size + gap)));
+    const cols = Math.max(4, Math.min(fitAt(40), Math.max(6, fitAt(52))));
+    const rows = Math.ceil(count / cols);
+    const cell = Math.max(40, Math.min(62, Math.floor((inner - gap * (cols - 1)) / cols)));
     const need = HEAD + SIZES.target + 16 + (rows * cell + gap * (rows - 1)) + FOOT;
     const h = Math.min(app.height - 32, Math.max(base.h, need));
     box = { ...base, y: Math.round((app.height - h) / 2), h };
+    gridH = rows * cell + gap * (rows - 1);
+    viewH = h - HEAD - SIZES.target - 16 - FOOT;
+    scroll = clampScroll(scroll);
+    
+    
+    
+    
+    if (!placed) {
+      placed = true;
+      const slot = slotAt.get(current);
+      if (slot !== undefined) revealSlot(slot, cell, gap, cols);
+    }
     return { cols, rows, gap };
+  }
+
+  function clampScroll(want) {
+    return Math.max(0, Math.min(Math.max(0, gridH - viewH), want));
+  }
+
+  
+  function revealSlot(slot, cell, gap, cols) {
+    const row = Math.floor(slot / cols);
+    const top = row * (cell + gap);
+    if (top < scroll) scroll = clampScroll(top - 6);
+    else if (top + cell > scroll + viewH) scroll = clampScroll(top + cell - viewH + 6);
+  }
+
+  const scrollable = () => gridH > viewH + 1;
+
+  
+  function reveal(i) {
+    const r = cells.rects[i];
+    if (!r || !scrollable()) return;
+    const top = r.y - (box.y + HEAD + SIZES.target + 16);
+    if (top - scroll < 0) scroll = clampScroll(top - scroll + scroll - 6);
+    else if (top + r.h - scroll > viewH) scroll = clampScroll(top + r.h - viewH + 6);
   }
 
   function layout() {
@@ -285,6 +347,15 @@ export function picker(app, {
       hover: hover === -3 ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
     });
 
+    
+    
+    const viewTop = box.y + HEAD + SIZES.target + 16;
+    g.save();
+    g.beginPath();
+    g.rect(box.x, viewTop - 4, box.w, viewH + 8);
+    g.clip();
+    g.translate(0, -scroll);
+
     cells.rects.forEach((r, slot) => {
       const puzzle = puzzleAt(slot);
       const isNow = puzzle === current;
@@ -300,6 +371,20 @@ export function picker(app, {
       const band = bandOf(puzzle);
       if (band) drawPips(g, r, band, isNow);
     });
+
+    g.restore();
+
+    
+    
+    
+    if (scrollable()) {
+      const trackH = viewH - 8;
+      const thumbH = Math.max(34, trackH * (viewH / gridH));
+      const at = (scroll / Math.max(1, gridH - viewH)) * (trackH - thumbH);
+      paint.surface(g, {
+        x: box.x + box.w - 10, y: viewTop + 4 + at, w: 5, h: thumbH,
+      }, { fill: COLORS.slate, offset: 0 });
+    }
 
     
     
@@ -327,10 +412,24 @@ export function picker(app, {
     }
   }
 
+  
+  const shift = (r) => ({ ...r, y: r.y - scroll });
+
   function hitAt(pt) {
     if (rectAt([todayRect], pt.x, pt.y) === 0) return -2;
     if (rectAt([closeRect], pt.x, pt.y) === 0) return -3;
-    return rectAt(cells.rects, pt.x, pt.y);
+    
+    
+    const viewTop = box.y + HEAD + SIZES.target + 16;
+    if (pt.y < viewTop - 4 || pt.y > viewTop + viewH + 4) return -1;
+    return rectAt(cells.rects.map(shift), pt.x, pt.y);
+  }
+
+  function scrollBy(dy) {
+    const was = scroll;
+    scroll = clampScroll(scroll + dy);
+    if (scroll !== was) app.invalidate();
+    return scroll !== was;
   }
 
   return {
@@ -344,15 +443,27 @@ export function picker(app, {
       
       
       
-      ...cells.rects.map((r, slot) => ({ id: `num:${puzzleAt(slot) + 1}`, ...r })),
+      ...cells.rects.map(shift).map((r, slot) => ({ id: `num:${puzzleAt(slot) + 1}`, ...r })),
     ],
+    wheel: (dy) => scrollBy(dy),
     pointerMove: (pt) => {
+      if (dragFrom && scrollable()) {
+        const want = dragFrom.scroll - (pt.y - dragFrom.y);
+        if (want !== scroll) { scroll = clampScroll(want); app.invalidate(); }
+        return;
+      }
       const i = pt ? hitAt(pt) : -1;
       if (i !== hover) { hover = i; hoverAt = app.now(); app.invalidate(); }
     },
-    pointerLeave: () => { hover = -1; app.invalidate(); },
-    pointerDown: () => {},
+    pointerLeave: () => { hover = -1; dragFrom = null; app.invalidate(); },
+    pointerDown: (pt) => { dragFrom = { y: pt.y, scroll }; },
     pointerUp: (pt) => {
+      
+      
+      
+      const moved = dragFrom ? Math.abs(pt.y - dragFrom.y) : 0;
+      dragFrom = null;
+      if (moved > DRAG_SLOP) return;
       const i = hitAt(pt);
       if (i === -3) { app.closeOverlay(); return; }
       if (i === -2) { onPick(today); return; }
@@ -381,7 +492,7 @@ export function picker(app, {
         
         const at = hover >= 0 ? hover : (slotAt.get(current) ?? 0);
         const next = at + action.dx + action.dy * cells.cols;
-        if (next >= 0 && next < count) { hover = next; app.invalidate(); }
+        if (next >= 0 && next < count) { hover = next; reveal(next); app.invalidate(); }
         return true;
       }
       if (action.type === 'submit') {

@@ -323,7 +323,13 @@ export function create(app, index) {
     
     const credits = found.map((w) => app.credit?.('found', w) ?? null);
     const sizes = found.map((w, i) => ({
-      w: Math.ceil(g.measureText(w).width) + 26 + (credits[i] ? CREDIT_PAD : 0),
+      
+      
+      
+      
+      
+      
+      w: Math.ceil(g.measureText(w).width) + 56 + (credits[i] ? CREDIT_PAD : 0),
       h: 32,
     }));
     const rects = flow({ box, sizes, gap: 8 }).rects;

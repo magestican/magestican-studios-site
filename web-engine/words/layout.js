@@ -230,3 +230,78 @@ export function flow({ box, sizes, gap = 8, lineHeight = null }) {
   const last = rects[rects.length - 1];
   return { rects, height: rects.length ? (last.y + last.h) - box.y : 0, lines: line + 1 };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function breakWord({ word, room, measure, size = SIZES.min, floor = 14 }) {
+  
+  
+  
+  
+  if (!word || word.length < 6 || measure(word, floor) <= room) return null;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const cuts = [];
+  for (let cut = 3; cut <= word.length - 3; cut += 1) {
+    const lines = [word.slice(0, cut), word.slice(cut)];
+    cuts.push({ lines, wide: Math.max(measure(lines[0], floor), measure(lines[1], floor)) });
+  }
+  if (!cuts.length) return null;
+
+  const even = (c) => Math.abs(c.lines[0].length - c.lines[1].length);
+  const readable = (a, b) => even(a) - even(b)
+    || (b.lines[0].length - b.lines[1].length) - (a.lines[0].length - a.lines[1].length);
+
+  const fitting = cuts.filter((c) => c.wide <= room);
+  const best = fitting.length
+    ? fitting.sort(readable)[0]
+    : cuts.sort((a, b) => a.wide - b.wide)[0];
+
+  if (!best) return null;
+
+  let at = size;
+  while (at > floor && Math.max(measure(best.lines[0], at), measure(best.lines[1], at)) > room) {
+    at -= 1;
+  }
+  return { lines: best.lines, size: at };
+}

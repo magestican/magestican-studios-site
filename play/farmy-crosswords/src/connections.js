@@ -20,7 +20,9 @@ import {
 import { BANDS, STATES } from '../../../web-engine/words/style.js';
 import { CONNECTIONS_PUZZLES } from '../../../web-engine/words/data/connectionsPuzzles.js';
 import { describeConnections } from '../../../web-engine/words/describe.js';
-import { grid, keyboard, rectAt, rectAtLoose } from '../../../web-engine/words/layout.js';
+import {
+  grid, keyboard, rectAt, rectAtLoose, breakWord,
+} from '../../../web-engine/words/layout.js';
 import { isDrag, DRAG_SLOP } from '../../../web-engine/words/drag.js';
 import { progress, lift, sink, shake, hump, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
@@ -56,6 +58,12 @@ export const puzzleAt = (index) => CONNECTIONS_PUZZLES[index] ?? null;
 
 
 const TILE_FLOOR = 14;
+
+
+const measurer = (g) => (text, size) => {
+  g.font = paint.font(size, 700);
+  return g.measureText(text).width;
+};
 
 
 
@@ -198,8 +206,19 @@ export function create(app, index) {
         ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0;
       const down = isPicked ? SIZES.shadow : 0;
       const r = { ...r0, x: r0.x + (isPicked ? wobble : 0) };
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const split = breakWord({ word, room: r.w - 12, measure: measurer(g), floor: TILE_FLOOR });
       paint.tile(g, r, {
-        letter: word,
+        letter: split ? '' : word,
         fill: isPicked ? COLORS.ink : COLORS.card,
         lift: up,
         press: down,
@@ -207,7 +226,19 @@ export function create(app, index) {
         floor: TILE_FLOOR,     
         cursor: app.keyboardMode && i === cursor,
       });
-      if (isPicked) {
+      if (split) {
+        const step = Math.round(split.size * 1.12);
+        split.lines.forEach((line, k) => {
+          paint.text(g, line, {
+            x: r.x, y: r.y + down - step / 2 + k * step, w: r.w, h: r.h,
+          }, {
+            size: split.size,
+            colour: isPicked ? COLORS.card : COLORS.ink,
+            maxWidth: r.w - 10,
+          });
+        });
+      }
+      if (isPicked && !split) {
         
         
         

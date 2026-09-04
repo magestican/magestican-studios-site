@@ -193,12 +193,22 @@ export function tile(g, r, {
   if (dim) g.globalAlpha = 0.55;
   surface(g, r, { fill: face, offset, dy: press });
   if (letter) {
-    text(g, letter, { x: r.x, y: r.y + press, w: r.w, h: r.h }, {
+    
+    
+    
+    
+    
+    
+    
+    
+    const word = String(letter).length > 1;
+    const forMark = s && word ? 30 : 0;
+    text(g, letter, { x: r.x, y: r.y + press, w: r.w - forMark, h: r.h }, {
       size: size ?? Math.round(r.h * 0.52),
       colour: inkOn,
       fit: true,
       floor,
-      maxWidth: r.w - (String(letter).length <= 1 ? 6 : 12),
+      maxWidth: r.w - forMark - (word ? 12 : 6),
     });
   }
   if (s) {

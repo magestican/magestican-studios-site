@@ -1428,8 +1428,12 @@ canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false
 
 
 canvas.addEventListener('wheel', (e) => {
-  if (overlay || !screen?.wheel) return;
-  if (screen.wheel(e.deltaY)) e.preventDefault();
+  
+  
+  
+  const target = overlay ?? screen;
+  if (!target?.wheel) return;
+  if (target.wheel(e.deltaY)) e.preventDefault();
 }, { passive: false });
 
 document.addEventListener('keydown', (e) => {

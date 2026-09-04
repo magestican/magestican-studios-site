@@ -35,7 +35,49 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const WORDLE_ANSWERS = [
+  
   'ACORN', 'APPLE', 'BACON', 'BAKER', 'BERRY', 'BLOOM', 'BREAD', 'BROOD',
   'BROOM', 'CANAL', 'CHAFF', 'CHICK', 'CHURN', 'CIDER', 'CREAM', 'CROPS',
   'DAIRY', 'DITCH', 'DRAKE', 'DROVE', 'FENCE', 'FIELD', 'FLOCK', 'FLOUR',
@@ -45,6 +87,49 @@ export const WORDLE_ANSWERS = [
   'SHEEP', 'SHIRE', 'SPADE', 'STALL', 'STOCK', 'STORK', 'STRAW', 'SWARM',
   'SWINE', 'THORN', 'TRACT', 'TROUT', 'TULIP', 'UDDER', 'WAGON', 'WHEAT',
   'YEAST',
+
+  
+  'ACTOR', 'DRAMA', 'SCENE', 'GENRE', 'DEBUT', 'STUNT', 'PILOT', 'MOVIE',
+  'COMIC', 'EXTRA', 'SCORE', 'STAGE', 'FARCE', 'ROBOT', 'ALIEN', 'HEIST',
+  'CAMEO', 'TITLE',
+
+  
+  'ALBUM', 'CHORD', 'TEMPO', 'PIANO', 'DRUMS', 'BLUES', 'LYRIC', 'VERSE',
+  'VINYL', 'BANJO', 'FLUTE', 'CHOIR', 'DISCO', 'OPERA', 'MUSIC',
+
+  
+  'MATCH', 'MEDAL', 'RELAY', 'COACH', 'PITCH', 'SQUAD', 'RUGBY', 'SKATE',
+  'ARENA', 'SCRUM', 'VAULT', 'BOXER', 'DERBY', 'BOWLS',
+
+  
+  'EMAIL', 'MOUSE', 'CABLE', 'MODEM', 'LOGIN', 'VIDEO', 'PIXEL', 'PHONE',
+  'CLICK', 'CLOUD', 'VIRUS', 'MEDIA', 'RADIO', 'MOTOR',
+
+  
+  'PASTA', 'PIZZA', 'SUSHI', 'CURRY', 'SALAD', 'SPICE', 'TOAST', 'JUICE',
+  'COCOA', 'MANGO', 'LEMON', 'OLIVE', 'STEAK', 'SAUCE', 'SUGAR', 'SNACK',
+  'FEAST', 'LUNCH', 'BROTH',
+
+  
+  'BEACH', 'HOTEL', 'TRAIN', 'PLANE', 'COAST', 'RIVER', 'CABIN', 'MOTEL',
+  'FERRY', 'ROUTE', 'ATLAS', 'OASIS', 'PLAZA', 'TOWER', 'CANOE', 'TRAIL',
+  'GUIDE',
+
+  
+  'STORM', 'FROST', 'OCEAN', 'SHORE', 'CORAL', 'WHALE', 'TIGER', 'EAGLE',
+  'OTTER', 'KOALA', 'PANDA', 'ZEBRA', 'SNAKE', 'CLIFF', 'SUNNY', 'MISTY',
+  'STONE',
+
+  
+  'CHAIR', 'TABLE', 'CLOCK', 'TOWEL', 'KNIFE', 'SPOON', 'PLATE', 'GLASS',
+  'SHELF', 'LIGHT', 'BRUSH', 'STOVE', 'LINEN', 'BASIN', 'PATIO', 'ATTIC',
+  'PORCH', 'FLOOR',
+
+  
+  'HAPPY', 'QUIET', 'BRAVE', 'SMILE', 'DREAM', 'LAUGH', 'MERRY', 'SWIFT',
+  'NOBLE', 'EAGER', 'CLEAN', 'SHARP', 'SMART', 'TRUST', 'VALUE', 'WORTH',
+  'PRIDE', 'GRACE', 'PEACE', 'LUCKY', 'JOLLY', 'MIGHT', 'LEARN', 'TEACH',
+  'WRITE', 'SPEAK', 'THINK', 'SOLVE', 'CROWN', 'BADGE',
 ];
 
 
