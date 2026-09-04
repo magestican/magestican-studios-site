@@ -6541,6 +6541,8 @@ export function boot(canvas, hud) {
   let injuryDbg = { injured: false, wall: null, touch: false, leanClose: false };
   let bossMoved = 0;
   let bossWonIn = 0;
+  
+  let frameCount = 0;
   let bossHorseSpeed = 0;
   let nearLocker = null;
   let hidden = false;
@@ -10718,6 +10720,7 @@ export function boot(canvas, hud) {
     }
 
     renderer.render(scene, camera);
+    frameCount += 1;
     shotFlash = Math.max(0, shotFlash - dt);
     
     
@@ -11105,6 +11108,28 @@ export function boot(canvas, hud) {
       
       
       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      get frames() { return frameCount; },
+      get render() {
+        const i = renderer.info;
+        return {
+          tris: i.render.triangles,
+          calls: i.render.calls,
+          geometries: i.memory.geometries,
+          textures: i.memory.textures,
+        };
+      },
       get opening() {
         return openingPending.map((op) => ({
           species: op.species,
