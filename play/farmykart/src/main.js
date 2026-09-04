@@ -259,6 +259,13 @@ function boot() {
   
   
   
+  window.addEventListener('mg-info-open', () => {
+    if (state.race && !$('pause').classList.contains('show')) pauseRace();
+  });
+
+  
+  
+  
   state.lobbyUi = createLobbyUi({
     tracks: TRACKS,
     difficulties: Object.values(DIFFICULTIES),

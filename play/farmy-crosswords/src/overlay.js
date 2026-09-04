@@ -15,7 +15,7 @@
 
 
 import { COLORS, SIZES, STATES } from '../../../web-engine/words/style.js';
-import { grid, rectAt, stack } from '../../../web-engine/words/layout.js';
+import { grid, rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
 
@@ -172,46 +172,126 @@ export function picker(app, { count, label, current, today, onPick }) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function help(app, { title, lines, keys }) {
   let box = panelBox(app, false);
   let closeRect = { x: 0, y: 0, w: 0, h: 0 };
-  let bands = [];
   let hover = -1;
   let hoverAt = 0;
 
-  function layout() {
-    box = panelBox(app, false);
+  
+  
+  const HEAD = 62;
+  const FOOT = 12 + SIZES.target + 18;
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function place(contentH = null) {
+    const base = panelBox(app, false);
+    const need = contentH == null ? app.height - 32 : contentH + HEAD + FOOT;
+    const h = Math.max(240, Math.min(app.height - 32, need));
+    box = { ...base, y: Math.round((app.height - h) / 2), h };
     closeRect = {
-      x: box.x + box.w / 2 - 70, y: box.y + box.h - SIZES.target - 18, w: 140, h: SIZES.target,
+      x: box.x + box.w / 2 - 70, y: box.y + h - SIZES.target - 18, w: 140, h: SIZES.target,
     };
-    bands = stack(
-      { x: box.x + 22, y: box.y + 70, width: box.w - 44, height: box.h - 150 },
-      lines.map(() => 46),
-      6,
-    ).bands;
   }
 
+  function layout() { place(); }
+
   function draw(g, now) {
+    const pad = 22;
+    
+    
+    
+    const width = panelBox(app, false).w - pad * 2;
+
+    
+    
+    
+    
+    
+    const blocks = lines.map((line) => ({
+      rows: paint.wrap(g, line, width, { size: SIZES.small }),
+      colour: COLORS.ink,
+      lead: 1,
+    }));
+    if (keys) {
+      blocks.push({
+        rows: paint.wrap(g, keys, width, { size: SIZES.min }),
+        colour: COLORS.inkSoft,
+        lead: 1.8,
+      });
+    }
+
+    
+    
+    
+    
+    const rows = blocks.reduce((n, b) => n + b.rows.length, 0);
+    const leads = blocks.reduce((n, b) => n + b.lead, 0) - (blocks[0]?.lead ?? 0);
+    let lineH = 26;
+    let gap = 12;
+    place(rows * lineH + leads * gap);
+    const top = box.y + HEAD;
+    
+    
+    
+    const limit = closeRect.y - 12;
+    const room = limit - top;
+    while (rows * lineH + leads * gap > room && (gap > 4 || lineH > 22)) {
+      if (gap > 4) gap -= 1; else lineH -= 1;
+    }
+
     paint.scrim(g, app.width, app.height);
     paint.surface(g, { x: box.x, y: box.y, w: box.w, h: box.h }, { fill: COLORS.card });
     paint.text(g, title, { x: box.x, y: box.y + 16, width: box.w, height: 40 },
       { size: SIZES.h2, colour: COLORS.ink });
-    lines.forEach((line, i) => {
-      const band = bands[i];
-      if (!band) return;
-      paint.text(g, line, { x: band.x, y: band.y, width: band.width, height: band.height }, {
-        size: SIZES.small, weight: 400, colour: COLORS.ink, align: 'left',
-        fit: true, maxWidth: band.width,
-      });
-    });
-    if (keys) {
-      paint.text(g, keys, {
-        x: box.x + 22, y: closeRect.y - 44, width: box.w - 44, height: 34,
-      }, {
-        size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'left',
-        fit: true, maxWidth: box.w - 44,
-      });
+
+    let y = top;
+    let first = true;
+    for (const block of blocks) {
+      if (!first) y += gap * block.lead;
+      first = false;
+      for (const row of block.rows) {
+        
+        
+        if (y + lineH > limit) break;
+        paint.text(g, row, { x: box.x + pad, y, width, height: lineH },
+          { size: SIZES.small, weight: 400, colour: block.colour, align: 'left' });
+        y += lineH;
+      }
     }
+
     paint.button(g, closeRect, {
       label: 'Close',
       hover: hover === 0 ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
@@ -286,13 +366,22 @@ export function hints(app, { title, grid }) {
       { size: SIZES.h2, colour: COLORS.ink, fit: true, maxWidth: box.w - 40 });
 
     const pad = 22;
+    const width = box.w - pad * 2;
+    const left = box.x + pad;
     const summary = grid.remaining === 0
       ? 'Every word found.'
       : `${grid.remaining} word${grid.remaining === 1 ? '' : 's'} left of ${grid.total}`
         + `, including ${grid.pangrams.total - grid.pangrams.found} pangram`
         + `${grid.pangrams.total - grid.pangrams.found === 1 ? '' : 's'}.`;
-    paint.text(g, summary, { x: box.x + pad, y: box.y + 56, width: box.w - pad * 2, height: 30 },
-      { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'left', fit: true, maxWidth: box.w - pad * 2 });
+    
+    
+    
+    
+    const summaryRows = paint.wrap(g, summary, width, { size: SIZES.small });
+    summaryRows.forEach((row, i) => {
+      paint.text(g, row, { x: left, y: box.y + 56 + i * 24, width, height: 24 },
+        { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'left' });
+    });
 
     
     
@@ -301,10 +390,9 @@ export function hints(app, { title, grid }) {
     
     
     
-    const top = box.y + 130;
-    const colW = Math.min(54, Math.floor((box.w - pad * 2 - 70) / Math.max(1, grid.lengths.length + 1)));
+    const top = box.y + 56 + summaryRows.length * 24 + 50;
+    const colW = Math.min(54, Math.floor((width - 70) / Math.max(1, grid.lengths.length + 1)));
     const rowH = 34;
-    const left = box.x + pad;
 
     paint.text(g, 'Length', { x: left, y: top - 30, w: 64, h: 26 },
       { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'left' });
@@ -314,11 +402,45 @@ export function hints(app, { title, grid }) {
     });
     paint.text(g, 'All', { x: left + 70 + grid.lengths.length * colW, y: top - 30, w: colW, h: 26 },
       { size: SIZES.min, colour: COLORS.inkSoft });
-    paint.rule(g, left, top - 8, box.w - pad * 2);
+    paint.rule(g, left, top - 8, width);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const pairRows = [];
+    if (grid.pairs.length) {
+      g.font = paint.font(SIZES.min, 400);
+      let line = '';
+      for (const p of grid.pairs) {
+        const item = `${p.pair} ${p.count}`;
+        const next = line ? `${line}   ${item}` : item;
+        if (line && g.measureText(next).width > width) {
+          pairRows.push(line);
+          line = item;
+        } else {
+          line = next;
+        }
+      }
+      if (line) pairRows.push(line);
+    } else {
+      pairRows.push(...paint.wrap(g, 'Nothing left to find.', width, { size: SIZES.min }));
+    }
+    const pairsTop = closeRect.y - 16 - pairRows.length * 24;
 
     grid.rows.forEach((row, r) => {
       const y = top + r * rowH;
-      if (y + rowH > closeRect.y - 90) return;
+      
+      
+      
+      if (y + rowH > pairsTop - 26) return;
       paint.text(g, row.letter, { x: left, y, w: 64, h: rowH },
         { size: SIZES.small, colour: COLORS.ink, align: 'left' });
       row.counts.forEach((n, i) => {
@@ -330,16 +452,11 @@ export function hints(app, { title, grid }) {
         { size: SIZES.small, weight: 400, colour: COLORS.inkSoft });
     });
 
-    
-    
-    const pairsY = closeRect.y - 76;
-    paint.rule(g, left, pairsY - 12, box.w - pad * 2);
-    const pairText = grid.pairs.length
-      ? grid.pairs.map((p) => `${p.pair} ${p.count}`).join('   ')
-      : 'Nothing left to find.';
-    paint.text(g, pairText, { x: left, y: pairsY, width: box.w - pad * 2, height: 30 },
-      { size: SIZES.min, weight: 400, colour: COLORS.ink, align: 'left',
-        fit: true, maxWidth: box.w - pad * 2 });
+    paint.rule(g, left, pairsTop - 12, width);
+    pairRows.forEach((row, i) => {
+      paint.text(g, row, { x: left, y: pairsTop + i * 24, width, height: 24 },
+        { size: SIZES.min, weight: 400, colour: COLORS.ink, align: 'left' });
+    });
 
     paint.button(g, closeRect, {
       label: 'Close',

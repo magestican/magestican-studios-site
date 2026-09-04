@@ -10973,6 +10973,11 @@ export function boot(canvas, hud) {
     
     
     window.addEventListener('blur', () => { if (!player.dead) setPaused(true); });
+    
+    
+    
+    
+    window.addEventListener('mg-info-open', () => { if (!player.dead) setPaused(true); });
     api_setPaused = setPaused;
   }
 

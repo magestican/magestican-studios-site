@@ -28,7 +28,7 @@ export const CONNECTIONS_PUZZLES = [
     { name: 'Baby farm animals', words: ['CALF', 'LAMB', 'FOAL', 'PIGLET'] },
     { name: 'Where livestock sleep', words: ['BARN', 'STY', 'COOP', 'STABLE'] },
     { name: 'Long-handled tools', words: ['SPADE', 'RAKE', 'HOE', 'SCYTHE'] },
-    { name: 'Noises off', words: ['MOO', 'BAA', 'OINK', 'CLUCK'] },
+    { name: 'Animal noises', words: ['MOO', 'BAA', 'OINK', 'CLUCK'] },
   ] },
 
   { id: 2, groups: [

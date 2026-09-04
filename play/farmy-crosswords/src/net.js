@@ -26,7 +26,7 @@
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import {
-  MSG, mergeMoves, puzzleKey, roomCode, normaliseCode,
+  MSG, mergeMoves, puzzleKey, roomCode, normaliseCode, sayingText,
 } from '../../../web-engine/words/coop.js';
 
 
@@ -54,10 +54,26 @@ const CODE_TRIES = 5;
 
 
 
-export function createNet({ snapshot, onMoves, onPeers, onPuzzle, onStatus }) {
+
+
+export function createNet({
+  snapshot, onMoves, onPeers, onPuzzle, onStatus,
+  onPresence = () => {}, onSay = () => {},
+}) {
   let mesh = null;
   let myId = null;
   let hosting = false;
+  
+
+
+
+
+
+
+
+
+
+  const presence = new Map();
 
   const peers = () => (mesh ? [...mesh._peers] : []);
   const announce = (s) => { try { onStatus(s); } catch {  } };
@@ -81,8 +97,11 @@ export function createNet({ snapshot, onMoves, onPeers, onPuzzle, onStatus }) {
       void e;
     });
 
-    mesh.addEventListener('peer-left', () => {
+    mesh.addEventListener('peer-left', (e) => {
+      const gone = e.detail?.peerId ?? e.detail?.id;
+      if (gone) presence.delete(gone);
       onPeers(peers(), myId);
+      onPresence(everyone());
       announce('Somebody left the room.');
     });
 
@@ -91,11 +110,15 @@ export function createNet({ snapshot, onMoves, onPeers, onPuzzle, onStatus }) {
       if (!message || typeof message !== 'object') return;
 
       if (message.t === MSG.HELLO) {
+        if (message.where?.by) { presence.set(message.where.by, message.where); onPresence(everyone()); }
         
         
         
         
-        if (!hosting && message.game) onPuzzle(message.game, message.index);
+        
+        
+        
+        if (!hosting && message.game) onPuzzle(message.game, message.index, message.mode);
         mergeIn(message.moves, message.game, message.index);
         onPeers(peers(), myId);
         return;
@@ -103,6 +126,20 @@ export function createNet({ snapshot, onMoves, onPeers, onPuzzle, onStatus }) {
       if (message.t === MSG.MOVE) {
         const now = snapshot();
         mergeIn([message.move], now.game, now.index);
+        return;
+      }
+      if (message.t === MSG.WHERE && message.where?.by) {
+        presence.set(message.where.by, message.where);
+        onPresence(everyone());
+        return;
+      }
+      if (message.t === MSG.SAY) {
+        
+        
+        
+        
+        if (!sayingText(message.say)) return;
+        onSay({ say: message.say, by: message.by });
       }
     });
 
@@ -140,7 +177,26 @@ export function createNet({ snapshot, onMoves, onPeers, onPuzzle, onStatus }) {
   function sendHello() {
     if (!mesh) return;
     const now = snapshot();
-    mesh.broadcast({ t: MSG.HELLO, game: now.game, index: now.index, moves: now.moves });
+    mesh.broadcast({
+      t: MSG.HELLO, game: now.game, index: now.index, moves: now.moves,
+      where: mine(now), mode: now.mode,
+    });
+  }
+
+  
+  function mine(now = snapshot()) {
+    return {
+      by: myId, game: now.game, index: now.index, done: now.done ?? 0, total: now.total ?? 0,
+    };
+  }
+
+  
+  function everyone() {
+    const rows = [];
+    for (const id of peers()) {
+      rows.push(id === myId ? mine() : (presence.get(id) ?? { by: id }));
+    }
+    return rows;
   }
 
   return {
@@ -198,6 +254,27 @@ export function createNet({ snapshot, onMoves, onPeers, onPuzzle, onStatus }) {
 
     
     resync: sendHello,
+
+    
+    say(id) {
+      if (!mesh) return;
+      mesh.broadcast({ t: MSG.SAY, say: id, by: myId });
+    },
+
+    
+
+
+
+
+
+
+    here() {
+      if (!mesh) return;
+      const where = mine();
+      presence.set(myId, where);
+      mesh.broadcast({ t: MSG.WHERE, where });
+      onPresence(everyone());
+    },
 
     leave() {
       try { mesh?.destroy(); } catch {  }

@@ -11,6 +11,19 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { COLORS, SIZES, STATES } from '../../../web-engine/words/style.js';
 import {
   adjacent, themeWordAt, play, hintCells, wordAt, rowOf, colOf,
@@ -26,7 +39,74 @@ import * as paint from './paint.js';
 
 const KNOWN = new Set(WORDLE_GUESSES);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CREDIT_DOT = 12;
+const CREDIT_RING = 2;
+
+
+const CREDIT_PAD = 22;
+
+function creditDot(g, chip, colour) {
+  const x = chip.x + 3;
+  const y = chip.y + 3;
+  const ring = CREDIT_DOT + CREDIT_RING * 2;
+  paint.surface(g, { x, y, w: ring, h: ring }, {
+    fill: COLORS.card, offset: 0, border: 0, radius: ring / 2,
+  });
+  paint.surface(g, { x: x + CREDIT_RING, y: y + CREDIT_RING, w: CREDIT_DOT, h: CREDIT_DOT }, {
+    fill: COLORS[colour] ?? COLORS.blue, offset: 0, border: 0, radius: CREDIT_DOT / 2,
+  });
+}
+
 export const count = () => STRANDS_PUZZLES.length;
+
+
+
+export function progressIn(index, saved = {}) {
+  const puzzle = STRANDS_PUZZLES[index];
+  const words = puzzle?.words?.length ?? 0;
+  const real = new Set(puzzle?.words ?? []);
+  const done = (Array.isArray(saved.found) ? saved.found : []).filter((w) => real.has(w)).length;
+  return {
+    done, total: words, finished: words > 0 && done >= words,
+    label: `${done} of ${words} words`,
+  };
+}
 export const label = (i) => `${i + 1}. ${STRANDS_PUZZLES[i].theme}`;
 
 export function create(app, index) {
@@ -232,7 +312,17 @@ export function create(app, index) {
       x: listBox.x + 14, y: listBox.y + 60, width: listBox.width - 28, height: listBox.height - 130,
     };
     g.font = paint.font(SIZES.small, 700);
-    const sizes = found.map((w) => ({ w: Math.ceil(g.measureText(w).width) + 26, h: 32 }));
+    
+    
+    
+    
+    
+    
+    const credits = found.map((w) => app.credit?.('found', w) ?? null);
+    const sizes = found.map((w, i) => ({
+      w: Math.ceil(g.measureText(w).width) + 26 + (credits[i] ? CREDIT_PAD : 0),
+      h: 32,
+    }));
     const rects = flow({ box, sizes, gap: 8 }).rects;
     const pop = progress(now, foundAt, DURATION.found, app.motion);
 
@@ -243,11 +333,14 @@ export function create(app, index) {
       const newest = w === found[found.length - 1] && pop < 1;
       const grow = newest ? hump(pop) * 3 : 0;
       const rr = { x: r.x - grow, y: r.y - grow, w: r.w + grow * 2, h: r.h + grow * 2 };
+      
+      
       paint.tile(g, rr, {
         letter: w,
         state: isSpangram ? 'spangram' : 'theme',
         size: SIZES.min,
       });
+      if (credits[i]) creditDot(g, rr, credits[i].colour);
     });
 
     if (!found.length) {
@@ -466,14 +559,33 @@ export function create(app, index) {
       }
       return false;
     },
-    describe: () => describeStrands({
-      puzzle,
-      found,
-      bonus,
-      hintsUsed,
-      trail: trail.length ? [...wordAt(puzzle.rows, trail)] : [...typed],
-      index: index + 1,
-    }),
+    describe: () => {
+      const base = describeStrands({
+        puzzle,
+        found,
+        bonus,
+        hintsUsed,
+        trail: trail.length ? [...wordAt(puzzle.rows, trail)] : [...typed],
+        index: index + 1,
+      });
+      
+      
+      
+      
+      
+      
+      const credits = [
+        ...found.map((w) => {
+          const c = app.credit?.('found', w);
+          return c ? `${w}, found by ${c.name}.` : null;
+        }),
+        ...bonus.map((w) => {
+          const c = app.credit?.('bonus', w);
+          return c ? `Other word ${w}, found by ${c.name}.` : null;
+        }),
+      ].filter(Boolean);
+      return credits.length ? { ...base, lines: [...base.lines, ...credits] } : base;
+    },
     animating: (now) => app.motion && (
       (shakeAt >= 0 && now - shakeAt < DURATION.shake)
       || now - foundAt < DURATION.found

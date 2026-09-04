@@ -21,6 +21,25 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import {
   scoreWord, isPangram, rejectReason, rankFor, hintGrid, MIN_LENGTH,
@@ -37,7 +56,89 @@ import * as paint from './paint.js';
 
 export const WIDE = 900;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CREDIT_DOT = 12;
+const CREDIT_RING = 2;
+
+
+const CREDIT_PAD = 22;
+
+function creditDot(g, chip, colour) {
+  const x = chip.x + 3;
+  const y = chip.y + 3;
+  const ring = CREDIT_DOT + CREDIT_RING * 2;
+  paint.surface(g, { x, y, w: ring, h: ring }, {
+    fill: COLORS.card, offset: 0, border: 0, radius: ring / 2,
+  });
+  paint.surface(g, { x: x + CREDIT_RING, y: y + CREDIT_RING, w: CREDIT_DOT, h: CREDIT_DOT }, {
+    fill: COLORS[colour] ?? COLORS.blue, offset: 0, border: 0, radius: CREDIT_DOT / 2,
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+const HOLD_MS = 500;
+
 export const count = () => BEE_PUZZLES.length;
+
+
+
+export function progressIn(index, saved = {}) {
+  const puzzle = BEE_PUZZLES[index];
+  const answers = puzzle?.answers?.length ?? 0;
+  const valid = new Set(puzzle?.answers ?? []);
+  const done = (Array.isArray(saved.found) ? saved.found : []).filter((w) => valid.has(w)).length;
+  return {
+    done, total: answers, finished: answers > 0 && done >= answers,
+    label: `${done} of ${answers} words`,
+  };
+}
 export const label = (i) => `Hive ${i + 1}, middle ${BEE_PUZZLES[i].centre}`;
 
 export function create(app, index) {
@@ -65,6 +166,9 @@ export function create(app, index) {
   let foundAt = 0;
   let stroke = null;
   let cursor = 0;
+  
+  let holdTimer = null;
+  let holdFrom = null;
   
   
   
@@ -179,13 +283,44 @@ export function create(app, index) {
       });
     });
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     const s = score();
     const rank = rankFor(s, puzzle);
-    const trackW = Math.min(240, rankBand.width * 0.4);
+    const found1 = `${rank.name} - found ${found.length} of ${puzzle.answers.length}`;
+    const points = rank.next ? `${s} points, ${rank.toNext} to ${rank.next}` : `${s} points, every word found`;
+    const trackW = Math.min(240, Math.max(70, rankBand.width * (wide ? 0.4 : 0.24)));
     const trackX = rankBand.x + rankBand.width - trackW;
-    paint.text(g, `${rank.name} - found ${found.length} of ${puzzle.answers.length}`,
-      { x: rankBand.x, y: rankBand.y, width: rankBand.width - trackW - 12, height: rankBand.height },
-      { size: SIZES.small, colour: COLORS.ink, align: 'left', fit: true, maxWidth: rankBand.width - trackW - 20 });
+    const textW = rankBand.width - trackW - 14;
+
+    if (wide) {
+      paint.text(g, found1,
+        { x: rankBand.x, y: rankBand.y, width: textW, height: rankBand.height },
+        { size: SIZES.small, colour: COLORS.ink, align: 'left', fit: true, maxWidth: textW * 0.6 });
+      paint.text(g, points,
+        { x: rankBand.x + textW * 0.6, y: rankBand.y, width: textW * 0.4, height: rankBand.height },
+        { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'right',
+          fit: true, maxWidth: textW * 0.4 });
+    } else {
+      const half = rankBand.height / 2;
+      paint.text(g, found1,
+        { x: rankBand.x, y: rankBand.y - 2, width: textW, height: half },
+        { size: SIZES.min, colour: COLORS.ink, align: 'left', fit: true, maxWidth: textW });
+      paint.text(g, points,
+        { x: rankBand.x, y: rankBand.y + half - 2, width: textW, height: half },
+        { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'left',
+          fit: true, maxWidth: textW });
+    }
+
     paint.surface(g, { x: trackX, y: rankBand.y + 6, w: trackW, h: 22 }, { offset: 0 });
     const at = barFrom + (share() - barFrom) * easeOut(progress(now, barAt, DURATION.found, app.motion));
     const fillW = Math.round((trackW - 6) * Math.max(0, Math.min(1, at)));
@@ -194,9 +329,6 @@ export function create(app, index) {
       paint.roundRect(g, trackX + 3, rankBand.y + 9, fillW, 16, 3);
       g.fill();
     }
-    paint.text(g, rank.next ? `${s} points, ${rank.toNext} to ${rank.next}` : `${s} points, every word found`,
-      { x: rankBand.x, y: rankBand.y, width: rankBand.width - trackW - 12, height: rankBand.height },
-      { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'right' });
 
     drawFound(g, now);
   }
@@ -217,12 +349,38 @@ export function create(app, index) {
       ? { x: listBox.x + 14, y: listBox.y + 60, width: listBox.width - 28, height: listBox.height - 72 }
       : listBox;
     g.font = paint.font(SIZES.small, 700);
-    const sizes = found.map((w) => ({ w: Math.ceil(g.measureText(w).width) + 20, h: 30 }));
-    pills = flow({ box, sizes, gap: 8 }).rects;
+    
+    
+    
+    
+    
+    const credits = found.map((w) => app.credit?.('word', w) ?? null);
+    const sizes = found.map((w, i) => {
+      const full = Math.ceil(g.measureText(w).width) + 20 + (credits[i] ? CREDIT_PAD : 0);
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      return { w: Math.min(full, box.width), h: 30 };
+    });
+    pills = flow({ box, sizes, gap: 8 }).rects.map((r, i) => ({
+      ...r, word: found[i], credit: credits[i], shown: false,
+    }));
 
     found.forEach((w, i) => {
       const r = pills[i];
       if (!r || r.y + r.h > box.y + box.height) return;
+      
+      
+      
+      r.shown = true;
       const pangram = isPangram(w, puzzle.letters);
       
       
@@ -230,9 +388,14 @@ export function create(app, index) {
       const grow = newest ? hump(pop) * 3 : 0;
       const rr = { x: r.x - grow, y: r.y - grow, w: r.w + grow * 2, h: r.h + grow * 2 };
       paint.surface(g, rr, { fill: pangram ? COLORS.gold : COLORS.card, offset: 0 });
-      paint.text(g, w, rr, {
-        size: SIZES.small, colour: pangram ? COLORS.card : COLORS.ink, fit: true, maxWidth: rr.w - 8,
+      
+      const tb = credits[i]
+        ? { x: rr.x + CREDIT_PAD, y: rr.y, w: rr.w - CREDIT_PAD, h: rr.h }
+        : rr;
+      paint.text(g, w, tb, {
+        size: SIZES.small, colour: pangram ? COLORS.card : COLORS.ink, fit: true, maxWidth: tb.w - 8,
       });
+      if (credits[i]) creditDot(g, rr, credits[i].colour);
     });
 
     if (!found.length) {
@@ -289,6 +452,50 @@ export function create(app, index) {
     app.invalidate();
   }
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function holdOn(pt) {
+    const reachable = pills.filter((p) => p.shown);
+    const i = rectAt(reachable, pt.x, pt.y);
+    if (i < 0) return;
+    const chip = reachable[i];
+    holdFrom = pt;
+    holdTimer = setTimeout(() => {
+      holdTimer = null;
+      const msg = chip.credit ? `${chip.word}, found by ${chip.credit.name}.` : `${chip.word}.`;
+      app.message = msg;
+      app.announce(msg);
+      app.invalidate();
+    }, HOLD_MS);
+  }
+
+  function cancelHold() {
+    if (holdTimer !== null) clearTimeout(holdTimer);
+    holdTimer = null;
+    holdFrom = null;
+  }
+
   function hitAt(pt) {
     const cell = rectAt(cells, pt.x, pt.y);
     if (cell >= 0) return cell;
@@ -307,10 +514,18 @@ export function create(app, index) {
     rects: () => [
       ...cells.map((r, i) => ({ id: `key:${letters[i]}`, ...r })),
       ...buttons.rects.map((r) => ({ id: `btn:${r.label}`, ...r })),
+      
+      
+      
+      ...pills.filter((p) => p.shown).map((p) => ({ id: `found:${p.word}`, x: p.x, y: p.y, w: p.w, h: p.h })),
     ],
     draw,
     pointerDown: (pt) => {
       const hit = hitAt(pt);
+      cancelHold();
+      
+      
+      if (hit < 0) holdOn(pt);
       pressed = hit;
       pressAt = app.now();
       if (hit >= 0) app.sound('press');
@@ -322,6 +537,10 @@ export function create(app, index) {
       app.invalidate();
     },
     pointerMove: (pt) => {
+      
+      
+      
+      if (holdTimer !== null && isDrag(holdFrom, pt)) cancelHold();
       if (stroke) {
         if (!stroke.drawing && !isDrag(stroke.from, pt)) return;
         stroke.drawing = true;
@@ -341,8 +560,12 @@ export function create(app, index) {
       const hit = hitAt(pt);
       if (hit !== hover) { hover = hit; hoverAt = app.now(); app.invalidate(); }
     },
-    pointerLeave: () => { hover = -1; pressed = -1; stroke = null; app.invalidate(); },
+    pointerLeave: () => {
+      cancelHold();
+      hover = -1; pressed = -1; stroke = null; app.invalidate();
+    },
     pointerUp: (pt) => {
+      cancelHold();
       const was = pressed;
       const drawing = stroke && stroke.drawing;
       stroke = null;
@@ -388,7 +611,21 @@ export function create(app, index) {
       }
       return false;
     },
-    describe: () => describeBee({ puzzle, found, typed, index: index + 1 }),
+    describe: () => {
+      const base = describeBee({ puzzle, found, typed, index: index + 1 });
+      
+      
+      
+      
+      
+      const credits = found
+        .map((w) => {
+          const c = app.credit?.('word', w);
+          return c ? `${w}, found by ${c.name}.` : null;
+        })
+        .filter(Boolean);
+      return credits.length ? { ...base, lines: [...base.lines, ...credits] } : base;
+    },
     animating: (now) => app.motion && (
       (shakeAt >= 0 && now - shakeAt < DURATION.shake)
       || now - foundAt < DURATION.found
@@ -404,6 +641,7 @@ export function create(app, index) {
       'A word using all seven letters is a pangram, worth seven extra points.',
       'Drag across the letters to spell a word, or just type it.',
       'Press Hints to see how many words are left, by first letter and length.',
+      'Press and hold a word you have found to see it in full and hear who found it.',
     ],
   };
 }

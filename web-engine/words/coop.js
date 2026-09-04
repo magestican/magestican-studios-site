@@ -37,6 +37,8 @@
 export const MSG = Object.freeze({
   HELLO: 'fc-hello',   
   MOVE: 'fc-move',     
+  SAY: 'fc-say',       
+  WHERE: 'fc-where',   
 });
 
 
@@ -339,4 +341,199 @@ export function puzzleFrom(href) {
   } catch {
     return { game: null, index: null };
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const MODES = Object.freeze({ TOGETHER: 'together', RACE: 'race' });
+
+export const isRace = (mode) => mode === MODES.RACE;
+
+
+
+
+
+
+
+
+
+export function movesForBoard(moves, { mode, me }) {
+  if (!isRace(mode)) return moves;
+  return moves.filter((m) => m.by === me);
+}
+
+
+export function progressOf(game, moves, peers = []) {
+  return peers.map((by) => {
+    const mine = moves.filter((m) => m.by === by);
+    const state = stateFromMoves(game, mine);
+    return { by, name: nameFor(by), done: countDone(game, state) };
+  });
+}
+
+
+export function countDone(game, state) {
+  if (game === 'wordle') return (state.guesses ?? []).length;
+  if (game === 'bee') return (state.found ?? []).length;
+  if (game === 'connections') return (state.selections ?? []).length;
+  if (game === 'strands') return (state.found ?? []).length;
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+export function creditForGroup(moves, words) {
+  const want = [...words].map(String).sort().join('|');
+  const m = orderMoves(moves).find((x) => x.kind === 'selection'
+    && Array.isArray(x.value)
+    && [...x.value].map(String).sort().join('|') === want);
+  return m ? m.by : null;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SAYINGS = Object.freeze([
+  { id: 'nice', text: 'Nice one!' },
+  { id: 'stuck', text: "I'm stuck" },
+  { id: 'go', text: 'Your turn' },
+  { id: 'wait', text: 'Hang on' },
+  { id: 'look', text: 'Look at the middle' },
+  { id: 'bye', text: 'I have to go' },
+]);
+
+
+export function sayingText(id) {
+  const found = SAYINGS.find((s) => s.id === id);
+  return found ? found.text : null;
+}
+
+
+export function describeSaying({ by, id, me } = {}) {
+  const text = sayingText(id);
+  if (!text) return null;
+  return `${by === me ? 'You' : nameFor(by)}: ${text}`;
+}
+
+
+export function describeFind({ by, value, me } = {}) {
+  if (!by || by === me) return null;
+  return `${nameFor(by)} found ${value}.`;
+}
+
+
+
+
+
+
+export const GAME_NAMES = Object.freeze({
+  wordle: 'Wordle',
+  bee: 'Spelling Bee',
+  connections: 'Connections',
+  strands: 'Strands',
+});
+
+
+
+
+
+
+
+
+
+
+export function whereOf({ game, index, done, total } = {}) {
+  const name = GAME_NAMES[game];
+  if (!name) return 'Not in a puzzle yet';
+  const puzzle = Number.isInteger(index) ? `${name}, puzzle ${index + 1}` : name;
+  if (!Number.isInteger(total) || total <= 0) return puzzle;
+  return `${puzzle} - ${done ?? 0} of ${total}`;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function scoreboard(list = [], { me = null, game = null, index = null } = {}) {
+  const rows = list.map((w, i) => {
+    const total = Number.isInteger(w.total) && w.total > 0 ? w.total : null;
+    const done = Math.max(0, w.done ?? 0);
+    const sameBoard = w.game === game && w.index === index;
+    return {
+      by: w.by,
+      name: nameFor(w.by),
+      colour: colourFor(w.by, list.map((x) => x.by)),
+      you: w.by === me,
+      game: w.game ?? null,
+      index: Number.isInteger(w.index) ? w.index : null,
+      done,
+      total,
+      share: total ? done / total : 0,
+      finished: !!total && done >= total,
+      comparable: !!(game && sameBoard),
+      where: whereOf(w),
+      seat: i,
+    };
+  });
+  return rows.sort((a, b) => (b.share - a.share) || (a.seat - b.seat));
+}
+
+
+
+
+
+
+
+
+export function winnerOf(rows = []) {
+  const racing = rows.filter((r) => r.comparable);
+  const done = racing.filter((r) => r.finished);
+  if (!done.length) return null;
+  return done[0];
 }

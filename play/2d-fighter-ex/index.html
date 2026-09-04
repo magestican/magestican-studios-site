@@ -73,8 +73,14 @@
     }
     button:hover { border-color: var(--accent); }
     label { color: var(--muted); font-size: .85rem; display: flex; align-items: center; gap: 6px; }
+    
+
+
+
+
+
     .readout {
-      display: flex; gap: 18px; margin-top: 10px; color: var(--muted);
+      display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; color: var(--muted);
       font-size: .8rem; font-variant-numeric: tabular-nums;
     }
     .readout b { color: var(--ink); font-weight: 600; }
@@ -198,7 +204,11 @@
   <div class="readout" id="account"></div>
 
   <footer>
-    <p>Space to play or pause. Arrow keys to step.<br>
+    
+
+
+
+    <p><span id="fx-controls-body">Space to play or pause. Arrow keys to step.</span><br>
     <a href="../../2d-fighter-ex.html">What this is</a> &middot;
     <a href="../../">Magestican Studios</a></p>
   </footer>
@@ -221,6 +231,21 @@
   <script type="importmap">
   {"imports":{"three":"https://unpkg.com/three@0.161.0/build/three.module.js"}}
   </script>
-  <script type="module" src="./src/main.js?v=428a631-20260904T110702Z"></script>
+  <script type="module" src="./src/main.js?v=f159df1-20260904T111311Z"></script>
+
+  
+
+
+
+
+
+  <script type="module">
+    import { installInfo } from '../shared/ui/infoButton.js';
+    installInfo({
+      title: "2D Fighter EX - controls",
+      contentFrom: "#fx-controls-body",
+    });
+  </script>
+
 </body>
 </html>

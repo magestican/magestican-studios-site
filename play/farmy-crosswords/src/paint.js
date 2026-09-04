@@ -45,9 +45,17 @@ export const font = (size, weight = 700) => `${weight} ${Math.round(size)}px ${F
 
 
 
+
+
+
+
+
+
+
 export function text(g, string, box, {
   size = SIZES.base, weight = 700, colour = COLORS.ink,
   align = 'center', baseline = 'middle', fit = false, maxWidth = null,
+  floor = SIZES.min,
 } = {}) {
   
   
@@ -61,7 +69,7 @@ export function text(g, string, box, {
   if (fit) {
     const limit = maxWidth ?? box.w ?? box.width;
     g.font = font(s, weight);
-    while (s > SIZES.min && g.measureText(shown).width > limit) {
+    while (s > floor && g.measureText(shown).width > limit) {
       s -= 1;
       g.font = font(s, weight);
     }
@@ -70,11 +78,27 @@ export function text(g, string, box, {
     
     
     
+    
     if (g.measureText(shown).width > limit) {
-      while (shown.length > 1 && g.measureText(`${shown}…`).width > limit) {
-        shown = shown.slice(0, -1);
+      
+      
+      
+      
+      
+      
+      
+      
+      if (shown.length <= 1) {
+        while (s > 10 && g.measureText(shown).width > limit) {
+          s -= 1;
+          g.font = font(s, weight);
+        }
+      } else {
+        while (shown.length > 1 && g.measureText(`${shown}…`).width > limit) {
+          shown = shown.slice(0, -1);
+        }
+        shown = `${shown.trimEnd()}…`;
       }
-      shown = `${shown.trimEnd()}…`;
     }
   }
   g.font = font(s, weight);
@@ -135,6 +159,10 @@ export function surface(g, r, {
 export function tile(g, r, {
   letter = '', state = null, lift = 0, press = 0, scaleX = 1,
   size = null, fill = null, dim = false, cursor = false,
+  
+  
+  
+  floor = SIZES.min,
 } = {}) {
   const s = state ? STATES[state] : null;
   const face = fill ?? (s ? COLORS[s.fill] : COLORS.card);
@@ -155,7 +183,8 @@ export function tile(g, r, {
       size: size ?? Math.round(r.h * 0.52),
       colour: inkOn,
       fit: true,
-      maxWidth: r.w - 12,
+      floor,
+      maxWidth: r.w - (String(letter).length <= 1 ? 6 : 12),
     });
   }
   if (s) {
@@ -234,7 +263,9 @@ export function button(g, r, {
     alpha: disabled ? 0.6 : 1,
   });
   text(g, label, { x: r.x, y: r.y + press, w: r.w, h: r.h }, {
-    size, colour: on, fit: true, maxWidth: r.w - 16,
+    
+    
+    size, colour: on, fit: true, maxWidth: r.w - (String(label).length <= 1 ? 6 : 16),
   });
 }
 
@@ -387,4 +418,80 @@ export function wrap(g, string, maxWidth, { size = SIZES.small, weight = 400 } =
   }
   if (line) out.push(line);
   return out;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function keyGlyph(g, r, kind, colour = COLORS.ink) {
+  const cx = r.x + r.w / 2;
+  const cy = r.y + r.h / 2;
+  
+  
+  const s = Math.max(13, Math.min(20, Math.min(r.w, r.h) * 0.42));
+
+  g.save();
+  g.strokeStyle = colour;
+  g.fillStyle = colour;
+  g.lineWidth = Math.max(2, s * 0.16);
+  g.lineJoin = 'round';
+  g.lineCap = 'round';
+
+  if (kind === 'enter') {
+    
+    const x0 = cx - s * 0.85;
+    const x1 = cx + s * 0.8;
+    const yTop = cy - s * 0.65;
+    const yBot = cy + s * 0.45;
+    g.beginPath();
+    g.moveTo(x1, yTop);
+    g.lineTo(x1, yBot);
+    g.lineTo(x0, yBot);
+    g.stroke();
+    g.beginPath();
+    g.moveTo(x0, yBot);
+    g.lineTo(x0 + s * 0.5, yBot - s * 0.42);
+    g.lineTo(x0 + s * 0.5, yBot + s * 0.42);
+    g.closePath();
+    g.fill();
+  } else {
+    
+    const w = s * 1.7;
+    const h = s * 1.15;
+    const left = cx - w * 0.62;
+    const right = cx + w * 0.38;
+    g.beginPath();
+    g.moveTo(left, cy);
+    g.lineTo(left + h * 0.6, cy - h / 2);
+    g.lineTo(right, cy - h / 2);
+    g.lineTo(right, cy + h / 2);
+    g.lineTo(left + h * 0.6, cy + h / 2);
+    g.closePath();
+    g.stroke();
+    const k = h * 0.22;
+    const mx = (left + h * 0.6 + right) / 2 + k * 0.2;
+    g.beginPath();
+    g.moveTo(mx - k, cy - k);
+    g.lineTo(mx + k, cy + k);
+    g.moveTo(mx + k, cy - k);
+    g.lineTo(mx - k, cy + k);
+    g.stroke();
+  }
+  g.restore();
 }

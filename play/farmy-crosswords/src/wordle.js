@@ -31,6 +31,35 @@ const KEYS = [
 ];
 
 export const count = () => WORDLE_ANSWERS.length;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function progressIn(index, saved = {}) {
+  const guesses = Array.isArray(saved.guesses) ? saved.guesses : [];
+  const answer = (WORDLE_ANSWERS[index] ?? '').toUpperCase();
+  const won = guesses.some((g) => String(g).toUpperCase() === answer);
+  const out = guesses.length >= MAX_GUESSES;
+  return {
+    done: won ? 1 : 0,
+    total: 1,
+    finished: won || out,
+    label: won
+      ? `Solved in ${guesses.length}`
+      : (out ? 'Out of guesses' : `${guesses.length} of ${MAX_GUESSES} guesses`),
+  };
+}
 export const label = (i) => `Puzzle ${i + 1}`;
 
 export function create(app, index) {
@@ -138,6 +167,10 @@ export function create(app, index) {
       const isPress = i === press;
       const up = isHover ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0;
       const down = isPress ? sink(progress(now, pressAt, DURATION.press, app.motion), app.motion) : 0;
+      
+      
+      
+      const glyph = r.label === 'ENTER' ? 'enter' : (r.label === 'DEL' ? 'delete' : null);
       if (mark) {
         paint.tile(g, r, {
           letter: r.label, state: mark, lift: up, press: down,
@@ -146,10 +179,13 @@ export function create(app, index) {
         });
       } else {
         paint.button(g, r, {
-          label: r.label, hover: up, press: down,
+          label: glyph ? '' : r.label, hover: up, press: down,
           size: r.label.length > 1 ? SIZES.min : SIZES.base,
           disabled: s.over,
         });
+        if (glyph) {
+          paint.keyGlyph(g, { ...r, y: r.y + down }, glyph, s.over ? COLORS.slate : COLORS.ink);
+        }
         if (app.keyboardMode && i === cursor) paint.focusRing(g, r);
       }
     });

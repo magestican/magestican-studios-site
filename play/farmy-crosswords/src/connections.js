@@ -9,6 +9,9 @@
 
 
 
+
+
+
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import {
   checkSelection, boardOrder, play, seededShuffle,
@@ -18,11 +21,70 @@ import { BANDS, STATES } from '../../../web-engine/words/style.js';
 import { CONNECTIONS_PUZZLES } from '../../../web-engine/words/data/connectionsPuzzles.js';
 import { describeConnections } from '../../../web-engine/words/describe.js';
 import { grid, keyboard, rectAt, rectAtLoose } from '../../../web-engine/words/layout.js';
-import { isDrag } from '../../../web-engine/words/drag.js';
+import { isDrag, DRAG_SLOP } from '../../../web-engine/words/drag.js';
 import { progress, lift, sink, shake, hump, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
 
 export const count = () => CONNECTIONS_PUZZLES.length;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const TILE_FLOOR = 14;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const HOLD_MS = 500;
+
+
+
+export function progressIn(index, saved = {}) {
+  const puzzle = CONNECTIONS_PUZZLES[index];
+  const groups = puzzle?.groups?.length ?? 0;
+  const state = puzzle
+    ? play(puzzle, Array.isArray(saved.selections) ? saved.selections : [])
+    : { solved: [] };
+  const done = state.solved.length;
+  return {
+    done, total: groups, finished: groups > 0 && done >= groups,
+    label: `${done} of ${groups} groups`,
+  };
+}
 export const label = (i) => `Set ${i + 1}`;
 
 export function create(app, index) {
@@ -44,6 +106,8 @@ export function create(app, index) {
   let shakeAt = -1;
   let solveAt = 0;
   let sweep = null;
+  let hold = null;             
+  let heldIndex = -1;          
   let cursor = 0;
   let area = { x: 0, y: 0, width: 0, height: 0 };
 
@@ -137,13 +201,19 @@ export function create(app, index) {
         lift: up,
         press: down,
         size: SIZES.min,
+        floor: TILE_FLOOR,     
         cursor: app.keyboardMode && i === cursor,
       });
       if (isPicked) {
         
         
+        
+        
+        
+        
+        
         paint.text(g, word, { x: r.x, y: r.y + down, w: r.w, h: r.h }, {
-          size: SIZES.min, colour: COLORS.card, fit: true, maxWidth: r.w - 10,
+          size: SIZES.min, colour: COLORS.card, fit: true, floor: TILE_FLOOR, maxWidth: r.w - 10,
         });
       }
     });
@@ -172,6 +242,104 @@ export function create(app, index) {
           ? sink(progress(now, pressAt, DURATION.press, app.motion), app.motion) : 0,
       });
     });
+
+    readOut(g);
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function readOut(g) {
+    if (heldIndex < 0) return;
+    const word = words[heldIndex];
+    const r = board.rects[heldIndex];
+    if (!word || !r) return;
+    const h = 52;
+    const w = Math.min(area.width, Math.max(r.w, word.length * 20 + 40));
+    
+    
+    
+    
+    
+    const top = Math.max(area.y, r.y - h - 10);
+    const card = {
+      x: Math.max(area.x, Math.min(area.x + area.width - w, r.x + r.w / 2 - w / 2)),
+      y: top + h <= r.y + r.h * 0.35
+        ? top
+        : Math.min(area.y + area.height - h, r.y + r.h + 10),
+      w,
+      h,
+    };
+    paint.surface(g, card, { fill: COLORS.blue, offset: SIZES.shadow });
+    paint.text(g, word, card, {
+      size: SIZES.h2, colour: COLORS.card, fit: true, maxWidth: card.w - 20,
+    });
+  }
+
+  
+
+
+
+
+
+  function cancelHold() {
+    if (hold) clearTimeout(hold.timer);
+    hold = null;
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function startHold(index, from) {
+    cancelHold();
+    const token = { at: app.now(), from, index, timer: 0 };
+    token.timer = setTimeout(() => {
+      if (hold !== token) return;
+      hold = null;
+      const word = words[index];
+      if (!word) return;
+      heldIndex = index;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      app.message = word;
+      app.announce(word);
+      app.invalidate();
+    }, HOLD_MS);
+    hold = token;
   }
 
   function toggle(word) {
@@ -234,6 +402,10 @@ export function create(app, index) {
     layout,
     reload: (s) => {
       if (!Array.isArray(s.selections)) return;
+      
+      
+      cancelHold();
+      heldIndex = -1;
       selections = s.selections;
       picked = [];
       layout(area);
@@ -247,15 +419,29 @@ export function create(app, index) {
       const hit = hitAt(pt);
       pressed = hit;
       pressAt = app.now();
+      heldIndex = -1;
+      cancelHold();
       if (hit >= 0) app.sound('press');
-      if (hit >= 0 && hit < 100) sweep = { from: pt, drawing: false, touched: new Set([hit]) };
+      if (hit >= 0 && hit < 100) {
+        sweep = { from: pt, drawing: false, touched: new Set([hit]) };
+        startHold(hit, pt);
+      }
       app.invalidate();
     },
     pointerMove: (pt) => {
+      
+      
+      
+      
+      if (hold && isDrag(hold.from, pt, DRAG_SLOP)) cancelHold();
       if (sweep) {
         if (!sweep.drawing) {
           if (!isDrag(sweep.from, pt)) return;
           sweep.drawing = true;
+          
+          
+          
+          heldIndex = -1;
           
           
           
@@ -275,13 +461,23 @@ export function create(app, index) {
       const hit = hitAt(pt);
       if (hit !== hover) { hover = hit; hoverAt = app.now(); app.invalidate(); }
     },
-    pointerLeave: () => { hover = -1; pressed = -1; sweep = null; app.invalidate(); },
+    pointerLeave: () => {
+      hover = -1; pressed = -1; sweep = null; heldIndex = -1; cancelHold(); app.invalidate();
+    },
     pointerUp: (pt) => {
       const was = pressed;
       const drew = sweep && sweep.drawing;
+      const wasRead = heldIndex >= 0;
       sweep = null;
       pressed = -1;
+      heldIndex = -1;
+      cancelHold();
       app.invalidate();
+      
+      
+      
+      
+      if (wasRead) return;
       
       
       
@@ -324,6 +520,9 @@ export function create(app, index) {
     help: [
       'Sixteen words hide four groups of four.',
       'Drag across four words to select them, or click them one at a time.',
+      
+      
+      'Press and hold a word to have it spelled out in full underneath.',
       'You can be wrong four times.',
       'A guess holding three of one group is told so.',
       'Each group has a colour and a shape: circle, triangle, square, diamond, easiest first.',

@@ -32,11 +32,13 @@ import * as bee from './bee.js';
 import * as connections from './connections.js';
 import * as strands from './strands.js';
 import { picker, help, hints, KEY_LINES } from './overlay.js';
-import { room as roomPanel, more as morePanel } from './rooms.js';
+import { room as roomPanel, more as morePanel, results as resultsPanel, say as sayPanel } from './rooms.js';
 import { createNet, canPlayTogether } from './net.js';
 import {
   puzzleKey, mergeMoves, movesFromState, stateFromMoves, nextSeq,
   nameFor, colourFor, describeRoom, joinIdFrom, shareLinkFor, puzzleFrom,
+  creditFor, creditForGroup, describeFind, describeSaying, sayingText,
+  scoreboard, winnerOf, GAME_NAMES, MODES, movesForBoard,
 } from '../../../web-engine/words/coop.js';
 import * as sfx from './sfx.js';
 
@@ -133,6 +135,15 @@ const roomState = {
   copied: false,
   key: null,        
   seededKey: null,  
+  
+  
+  where: [],
+  said: null,       
+  shownResult: null, 
+  
+  
+  
+  mode: MODES.TOGETHER,
 };
 let net = null;
 
@@ -327,10 +338,23 @@ function frame() {
 
 
 function applyMoves(moves) {
+  const before = new Set(roomState.moves.map((m) => m.id));
   roomState.moves = moves;
   if (!inRoom()) return;
+  
+  
+  
+  
+  const arrived = moves.filter((m) => !before.has(m.id) && m.by !== roomState.me);
+  const news = arrived
+    .map((m) => describeFind({ by: m.by, value: Array.isArray(m.value) ? m.value.join(', ') : m.value, me: roomState.me }))
+    .filter(Boolean);
+  if (news.length) {
+    app.message = news[news.length - 1];
+    announce(news.join(' '));
+  }
   if (current === HOME) return;
-  const derived = stateFromMoves(current, moves);
+  const derived = stateFromMoves(current, movesForBoard(moves, { mode: roomState.mode, me: roomState.me }));
   writeJson(saveKey(current, indexFor[current]), derived);
   screen?.reload?.(derived);
   relayout();
@@ -369,16 +393,68 @@ function contributeLocal() {
   for (const m of made) net?.share(m);
 }
 
+
+
+
+
+
+
+
+function myProgress() {
+  if (current === HOME || !MODULES[current]) return { done: 0, total: 0, label: '' };
+  const saved = readJson(saveKey(current, indexFor[current])) ?? {};
+  try {
+    return MODULES[current].progressIn(indexFor[current], saved);
+  } catch {
+    return { done: 0, total: 0, label: '' };
+  }
+}
+
+
+
+
+
+
+
+function creditOf(kind, value) {
+  if (!inRoom() || roomState.peers.length < 2) return null;
+  const by = Array.isArray(value)
+    ? creditForGroup(roomState.moves, value)
+    : creditFor(roomState.moves, kind, value);
+  if (!by || by === roomState.me) return null;
+  return { by, name: nameFor(by), colour: colourFor(by, roomState.peers) };
+}
+
+
+function rankedRoom() {
+  return scoreboard(roomState.where, {
+    me: roomState.me,
+    game: current === HOME ? null : current,
+    index: current === HOME ? null : indexFor[current],
+  });
+}
+
 function roomSummary() {
   return describeRoom({ peers: roomState.peers, me: roomState.me });
 }
 
 
+
+
+
+
+
+
 function roomWho() {
+  const ranked = rankedRoom();
+  if (ranked.length) return ranked;
+  
   return roomState.peers.map((id) => ({
+    by: id,
     name: nameFor(id),
     colour: colourFor(id, roomState.peers),
     you: id === roomState.me,
+    where: 'Just arrived',
   }));
 }
 
@@ -389,6 +465,8 @@ function startNet() {
       game: current === HOME ? GAMES[0].id : current,
       index: current === HOME ? 0 : indexFor[current],
       moves: roomState.moves,
+      mode: roomState.mode,
+      ...myProgress(),
     }),
     onMoves: applyMoves,
     onPeers: (peers, me) => {
@@ -404,7 +482,8 @@ function startNet() {
       relayout();
       invalidate();
     },
-    onPuzzle: (game, index) => {
+    onPuzzle: (game, index, mode) => {
+      if (mode) roomState.mode = mode;
       
       
       
@@ -416,6 +495,21 @@ function startNet() {
     onStatus: (status) => {
       roomState.status = status;
       announce(status);
+      relayout();
+      invalidate();
+    },
+    onPresence: (where) => {
+      roomState.where = where;
+      relayout();
+      invalidate();
+    },
+    onSay: ({ say, by }) => {
+      const line = describeSaying({ by, id: say, me: roomState.me });
+      if (!line) return;
+      roomState.said = { by, id: say };
+      app.message = line;
+      announce(line);
+      app.sound('word');
       relayout();
       invalidate();
     },
@@ -459,16 +553,44 @@ function openGame(id, firstLetter) {
     if (!made.length) return;
     roomState.moves = mergeMoves(roomState.moves, made, puzzleKey(id, index));
     for (const m of made) net?.share(m);
+    
+    
+    
+    net?.here();
   };
   app.load = () => (inRoom()
-    ? stateFromMoves(id, roomState.moves)
+    ? stateFromMoves(id, movesForBoard(roomState.moves, { mode: roomState.mode, me: roomState.me }))
     : readJson(saveKey(id, index)));
-  app.finished = (won) => trackEvent('puzzle_finished', { game: id, won: won ? 1 : 0 });
+  app.finished = (won) => {
+    trackEvent('puzzle_finished', { game: id, won: won ? 1 : 0 });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (roomState.shownResult === puzzleKey(id, index)) return;
+    roomState.shownResult = puzzleKey(id, index);
+    if (inRoom()) net?.here();
+    setTimeout(() => openResults(won), 900);
+  };
+  
+  app.credit = creditOf;
   app.message = '';
   screen = MODULES[id].create(app, index);
   keysAre(screen.keys);
   remember();
   contributeLocal();
+  
+  if (inRoom()) setTimeout(() => net?.here(), 0);
   relayout();
   invalidate();
   if (firstLetter) screen.key({ type: 'letter', value: firstLetter });
@@ -530,11 +652,24 @@ function openRoom() {
       get status() { return roomState.status; },
       get who() { return roomWho(); },
       get copied() { return roomState.copied; },
+      get mode() { return roomState.mode; },
     },
     onHost: () => {
       roomState.copied = false;
       roomState.active = true;
       startNet().host();
+      relayout();
+      invalidate();
+    },
+    
+    
+    
+    onMode: (mode) => {
+      if (!net?.hosting && roomState.active) return;
+      roomState.mode = mode;
+      net?.here();
+      net?.resync();
+      if (screen && current !== HOME) screen.reload?.(app.load() ?? {});
       relayout();
       invalidate();
     },
@@ -579,17 +714,69 @@ function openRoom() {
   invalidate();
 }
 
+function openResults(won = true) {
+  app.message = '';
+  const here = current;
+  const at = indexFor[current];
+  overlay = resultsPanel(app, {
+    state: {
+      won,
+      get rows() { return inRoom() && roomState.peers.length > 1 ? rankedRoom() : []; },
+      get winner() { return winnerOf(rankedRoom()); },
+      get me() { return roomState.me; },
+      get score() { return myProgress().label; },
+      get game() { return GAME_NAMES[here] ?? 'this puzzle'; },
+      get next() { return ((at + 1) % MODULES[here].count()) + 1; },
+    },
+    
+    
+    
+    onNext: () => {
+      indexFor[here] = (at + 1) % MODULES[here].count();
+      openGame(here);
+    },
+    onGames: () => { closeOverlay(); goHome(); },
+    onClose: () => closeOverlay(),
+  });
+  overlay.layout();
+  invalidate();
+}
+
+function openSay() {
+  app.message = '';
+  overlay = sayPanel(app, {
+    onSay: (id) => {
+      net?.say(id);
+      const line = describeSaying({ by: roomState.me, id, me: roomState.me });
+      if (line) { app.message = line; announce(line); }
+      app.sound('press');
+      closeOverlay();
+    },
+  });
+  overlay.layout();
+  invalidate();
+}
+
 function openMore() {
   app.message = '';
   const items = [
     ...(current === HOME ? [] : [{ id: 'picker', label: 'Puzzles', run: openPicker }]),
     { id: 'together', label: togetherLabel(), run: openRoom },
+    ...(inRoom() && roomState.peers.length > 1
+      ? [{ id: 'say', label: 'Say something', run: openSay }]
+      : []),
     {
       id: 'sound',
       label: soundLabel(),
       run: () => { toggleSound(); openMore(); },
     },
     { id: 'help', label: 'How to play', run: openHelp },
+    
+    
+    
+    
+    
+    ...(current === HOME ? [] : [{ id: 'games', label: 'Choose another game', run: () => { closeOverlay(); goHome(); } }]),
     { id: 'close', label: 'Close', run: () => closeOverlay() },
   ];
   overlay = morePanel(app, { items });
@@ -769,6 +956,17 @@ if (linkPuzzle.game && MODULES[linkPuzzle.game]) {
     indexFor[linkPuzzle.game] = linkPuzzle.index;
   }
   openGame(linkPuzzle.game);
+} else if (last.game && MODULES[last.game]) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  openGame(last.game);
 } else {
   goHome();
 }

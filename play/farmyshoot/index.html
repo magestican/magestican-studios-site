@@ -1602,6 +1602,21 @@
     <button id="add-bot-btn" aria-label="Add AI bot" style="display:none;">+ Bot</button>
     <button id="mute-btn" class="hud-icon-btn" aria-label="Toggle music">🔊</button>
   </div>
+  
+
+
+
+
+
+  <script type="module">
+    import { installInfo } from '../shared/ui/infoButton.js';
+    installInfo({
+      title: "Farmyshoot - how to play",
+      contentFrom: "#tb-howto-body",
+      into: "#hud-topright",
+    });
+  </script>
+
   <button id="enable-sound" aria-label="Enable sound">🔊 Tap to enable sound</button>
 
   
@@ -1614,6 +1629,7 @@
          border-radius:12px; padding:24px 28px; max-width:460px; width:100%; color:#e8ecf1;
          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
       <h2 style="font-family:Georgia,serif; font-size:22px; color:#f4c95d; margin:0 0 4px;">How to play</h2>
+      <div id="tb-howto-body">
       <p style="color:#cbd3e1; font-size:13px; margin:0 0 16px;">First team to capture 5 flags wins. Ties go to a 10-second anagram duel.</p>
       <ul style="line-height:1.75; font-size:14px; color:#e8ecf1; margin:0 0 16px; padding-left:20px;">
         <li><b>Move</b> — WASD + mouse (desktop) · left thumb joystick + right thumb look (mobile)</li>
@@ -1624,6 +1640,7 @@
         <li><b>🥩 Steaks</b> — shoot the 4 floating steaks at the map edges; collect 5 to throw a poison steak</li>
         <li><b>🌾 Hay bales</b> — walk inside one to hide; you can see out, they can't see in</li>
       </ul>
+      </div>
       <button id="howto-close" style="width:100%; padding:12px; border-radius:8px; border:0;
            background:#f4c95d; color:#1c1a17; font:800 15px inherit; cursor:pointer;">Got it — let's play</button>
     </div>
@@ -1710,7 +1727,7 @@
   </div>
 
   
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=428a631-20260904T110702Z"></script>
-  <script type="module" src="./src/main.js?v=428a631-20260904T110702Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=f159df1-20260904T111311Z"></script>
+  <script type="module" src="./src/main.js?v=f159df1-20260904T111311Z"></script>
 </body>
 </html>
