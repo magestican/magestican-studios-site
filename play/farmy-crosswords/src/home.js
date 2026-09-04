@@ -77,7 +77,10 @@ export function create(app) {
     
     
     
-    const cardH = Math.max(96, Math.min(240, Math.floor((available - gap * (rows - 1)) / rows)));
+    
+    
+    
+    const cardH = Math.max(112, Math.min(240, Math.floor((available - gap * (rows - 1)) / rows)));
     const block = rows * cardH + gap * (rows - 1);
     
     
@@ -138,20 +141,36 @@ export function create(app) {
 
       const textLeft = c.x + pad + 42 + art;
       const textW = c.w - pad * 2 - 42 - art;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const NAME_H = 32;
+      const LINE_H = 24;
+      let lines = paint.wrap(g, c.game.blurb, textW, { size: SIZES.small, weight: 400 }).slice(0, 2);
+      if (NAME_H + lines.length * LINE_H > c.h - 14) lines = lines.slice(0, 1);
+      const blockH = NAME_H + lines.length * LINE_H;
+      const blockTop = c.y + down + rise + Math.max(6, (c.h - blockH) / 2);
+
       paint.text(g, c.game.name,
-        { x: textLeft, y: c.y + down + rise + c.h / 2 - 26, w: textW, h: 32 },
+        { x: textLeft, y: blockTop, w: textW, h: NAME_H },
         { size: SIZES.h2, colour: COLORS.ink, align: 'left', fit: true, maxWidth: textW });
-      
-      
-      
-      
-      paint.wrap(g, c.game.blurb, textW, { size: SIZES.small, weight: 400 })
-        .slice(0, 2)
-        .forEach((line, k) => {
-          paint.text(g, line,
-            { x: textLeft, y: c.y + down + rise + c.h / 2 + 4 + k * 24, w: textW, h: 24 },
-            { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'left' });
-        });
+      lines.forEach((line, k) => {
+        paint.text(g, line,
+          { x: textLeft, y: blockTop + NAME_H + k * LINE_H, w: textW, h: LINE_H },
+          { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'left',
+            fit: true, maxWidth: textW });
+      });
 
       if (i === cursor && app.keyboardMode) paint.focusRing(g, { ...c, y: c.y + down });
     });
