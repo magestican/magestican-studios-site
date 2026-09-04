@@ -110,6 +110,25 @@ export const MSG = Object.freeze({
   
   SPLASH:       'splash',
   POWERUP_PICK: 'powerPick',  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  PICKUP_STATE: 'pickState',  
 
   
   

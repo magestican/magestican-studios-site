@@ -106,6 +106,8 @@ import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js'
 import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
 import { KillFeed, killFeedEntry, toText } from '../../../web-engine/ui/killFeed.js';
 import { iconFor } from '../../../web-engine/ui/characterIcon.js';
+import { itemClockEntries, itemClockKey, ITEM_RESPAWN_MS }
+  from '../../../web-engine/ui/itemClock.js';
 import { flagKeysFor, hasFlags, flagHome, neutralFlagHome, objectiveMarkers,
          OBJECTIVE_IDS } from '../../../web-engine/modes/objective.js';
 import { GoreSystem }         from './entities/gore.js';
@@ -951,24 +953,36 @@ export class Game {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
   _buildChickenPickup() {
-    return new ChickenPickup(this._arena || this.scene, this.world.hillSpawn, {
+    const p = new ChickenPickup(this._arena || this.scene, this.world.hillSpawn, {
       onPickup: (peerId) => {
         
-        this._broadcast({ t: MSG.CHICKEN_PICK, by: peerId, respawnAt: Date.now() + 30000 });
+        this._broadcast({ t: MSG.CHICKEN_PICK, by: peerId, respawnAt: Date.now() + ITEM_RESPAWN_MS });
         this._grantChicken(peerId);
       },
     });
+    p.listener = this.camera.position;
+    return p;
   }
 
   _buildPowerUpPickups() {
-    return new PowerUpPickups(this._arena || this.scene, this.world.powerUpSpawns, {
+    const p = new PowerUpPickups(this._arena || this.scene, this.world.powerUpSpawns, {
       onPickup: (id, peerId) => {
         this._broadcast({ t: MSG.POWERUP_PICK, id, by: peerId,
-                          respawnAt: Date.now() + 30000 });
+                          respawnAt: Date.now() + ITEM_RESPAWN_MS });
         this._grantPowerUp(id, peerId);
       },
     });
+    p.listener = this.camera.position;
+    return p;
   }
 
   _buildFlagMesh(pos, color) {
@@ -1137,6 +1151,16 @@ export class Game {
     
     
     this.powerUpPickups = this._buildPowerUpPickups();
+    
+    
+    
+    
+    
+    if (this._pendingPickupState) {
+      const pending = this._pendingPickupState;
+      this._pendingPickupState = null;
+      this._applyPickupState(pending);
+    }
     this.powerUpState = emptyPowerUpState();
     
     
@@ -1498,8 +1522,16 @@ export class Game {
     
     
     
+    
+    
+    
+    
+    
+    
     const steaks = this._steakStateMsg();
     if (steaks) this.mesh.send(peerId, steaks);
+    const pickups = this._pickupStateMsg();
+    if (pickups) this.mesh.send(peerId, pickups);
     
     
     
@@ -1528,6 +1560,59 @@ export class Game {
       };
     }
     return { t: MSG.STEAK_STATE, statuses };
+  }
+
+  
+  
+  
+  _pickupStateMsg() {
+    const states = [];
+    if (this.chickenPickup) states.push(this.chickenPickup.clockState());
+    if (this.powerUpPickups) states.push(...this.powerUpPickups.clockStates());
+    if (!states.length) return null;
+    const now = performance.now();
+    const items = {};
+    for (const st of states) {
+      
+      
+      items[st.id] = {
+        available: !!st.available,
+        respawnAt: st.available ? 0 : Date.now() + Math.max(0, st.nextSpawnAt - now),
+      };
+    }
+    return { t: MSG.PICKUP_STATE, items };
+  }
+
+  
+  _applyPickupState(items) {
+    if (!items) return;
+    
+    
+    
+    
+    
+    if (!this.chickenPickup && !this.powerUpPickups) {
+      this._pendingPickupState = items;
+      return;
+    }
+    for (const [id, incoming] of Object.entries(items)) {
+      if (!incoming) continue;
+      
+      
+      
+      const at = incoming.available
+        ? performance.now()
+        : (incoming.respawnAt - Date.now()) + performance.now();
+      if (id === 'chicken') {
+        if (!this.chickenPickup) continue;
+        this.chickenPickup.available = !!incoming.available;
+        this.chickenPickup.mesh.visible = !!incoming.available;
+        this.chickenPickup._nextSpawnAt = at;
+      } else if (this.powerUpPickups) {
+        if (incoming.available) this.powerUpPickups.markAvailable(id);
+        else this.powerUpPickups.markTaken(id, at);
+      }
+    }
   }
 
   
@@ -3332,6 +3417,44 @@ export class Game {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _paintItemClock() {
+    const root = this._itemClockEl
+      || (this._itemClockEl = document.getElementById('itemclock'));
+    if (!root) return;
+    const items = [];
+    
+    
+    if (this.chickenPickup) items.push(this.chickenPickup.clockState());
+    if (this.powerUpPickups) items.push(...this.powerUpPickups.clockStates());
+    const entries = itemClockEntries(items, performance.now());
+    const key = itemClockKey(entries);
+    
+    
+    
+    if (key === this._itemClockKey) return;
+    this._itemClockKey = key;
+    if (!entries.length) { root.style.display = 'none'; return; }
+    root.style.display = '';
+    root.innerHTML = entries.map((e) => (
+      `<div class="ic-pill ic-${e.phase}">`
+      + `<span class="ic-icon">${e.icon}</span>`
+      + `<span class="ic-name">${e.label}</span>`
+      + `<span class="ic-time">${e.text}</span>`
+      + '</div>'
+    )).join('');
+  }
+
   _paintCompass() {
     if (!this.player) return;
     const markers = objectiveMarkers(this.mode, {
@@ -3767,6 +3890,11 @@ export class Game {
         
         
         this._applySteakState(msg.statuses);
+        break;
+      case MSG.PICKUP_STATE:
+        
+        
+        this._applyPickupState(msg.items);
         break;
       case MSG.POWERUP_PICK:
         
@@ -4230,6 +4358,7 @@ export class Game {
     }
     this._updatePowerUpEffect();
     this._paintCompass();
+    this._paintItemClock();
     this._paintHayHide();
 
     
@@ -6697,6 +6826,11 @@ export class Game {
     
     this.critters = null;
     this.snow = null;
+    
+    
+    
+    try { this.chickenPickup?.pad?.dispose?.(); } catch (_) {  }
+    try { this.powerUpPickups?.disposePads?.(); } catch (_) {  }
     this.chickenPickup = null;
     this.powerUpPickups = null;
     

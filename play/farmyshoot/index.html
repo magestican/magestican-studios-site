@@ -712,6 +712,81 @@
 
 
 
+
+
+
+
+
+
+
+
+
+    #itemclock { position: absolute; left: 20px; top: 120px; display: flex;
+      flex-direction: column; align-items: flex-start; gap: 4px;
+      pointer-events: none; font-size: 13px; color: #e8edf5; }
+    
+
+
+    .ic-pill { background: rgba(8,12,20,0.78); padding: 3px 8px; border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.14);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+      display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .ic-icon { font-size: 15px; line-height: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.8)); }
+    .ic-name { font: 700 11px/1 monospace; letter-spacing: 0.04em; color: #aab4c4; }
+    
+
+
+
+    .ic-time { font: 700 12px/1 monospace; min-width: 30px; text-align: right; }
+    
+
+
+
+
+
+
+
+
+    .ic-up { background: #f4c95d; border-color: #f4c95d; color: #1c1a17; }
+    .ic-up .ic-time { color: #1c1a17; }
+    .ic-up .ic-name { color: #4a3c1c; }
+    .ic-up { text-shadow: none; }
+    .ic-wait { opacity: 0.72; }
+    .ic-wait .ic-time { color: #cbd3e1; }
+    
+
+
+
+    .ic-soon { border-color: rgba(255,215,106,0.9); }
+    .ic-soon .ic-time { color: #ffd76a; }
+    .ic-soon { animation: icPulse 1s ease-in-out infinite; }
+    @keyframes icPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+    
+
+
+
+
+
+
+    @media (max-width: 700px), (pointer: coarse) {
+      
+
+
+
+
+
+
+
+      #itemclock { left: max(12px, env(safe-area-inset-left));
+        top: calc(max(8px, env(safe-area-inset-top)) + 112px); gap: 3px; }
+      .ic-name { display: none; }
+      .ic-pill { padding: 2px 6px; gap: 4px; }
+      .ic-time { font-size: 11px; min-width: 26px; }
+    }
+    
+
+
+
     #kill-feed { position: absolute; right: 20px; top: 60px; display: flex;
       flex-direction: column; align-items: flex-end; gap: 4px;
       max-width: 340px; font-size: 13px; color: #e8edf5; pointer-events: none; }
@@ -1498,6 +1573,9 @@
       </div>
     </div>
     <div id="flagStatus"></div>
+    
+
+    <div id="itemclock"></div>
     <div id="kill-feed"></div>
     <div id="bottombar">
       HP <span id="health-bar"><span id="health-fill"></span></span>
@@ -1632,7 +1710,7 @@
   </div>
 
   
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=8a33000-20260904T103445Z"></script>
-  <script type="module" src="./src/main.js?v=8a33000-20260904T103445Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=428a631-20260904T110702Z"></script>
+  <script type="module" src="./src/main.js?v=428a631-20260904T110702Z"></script>
 </body>
 </html>
