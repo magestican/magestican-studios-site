@@ -477,3 +477,33 @@ export function pointBehind(level, x, z, back) {
   }
   return { x: level.exit.x, z: level.exit.z };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function chaseWaypoint(level, from, to, lookahead = 3) {
+  const pf = progressAt(level, from.x, from.z);
+  const pt = progressAt(level, to.x, to.z);
+  const delta = pt - pf;
+  
+  if (Math.abs(delta) <= lookahead) return { x: to.x, z: to.z };
+  
+  
+  return pointBehind(level, from.x, from.z, -Math.sign(delta) * lookahead);
+}

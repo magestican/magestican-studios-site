@@ -123,7 +123,18 @@ export function stepChicken(a, dt, dist, opt = {}) {
   switch (a.state) {
     case 'dormant':
       speed = 0;
-      if (dist <= R.wake) { n.state = 'alert'; n.t = 0; event = 'alert'; }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (!opt.giveUp && dist <= R.wake) { n.state = 'alert'; n.t = 0; event = 'alert'; }
       break;
 
     case 'alert':
@@ -131,12 +142,31 @@ export function stepChicken(a, dt, dist, opt = {}) {
       
       
       speed = 0;
-      if (n.t >= T.alert) { n.state = 'stalk'; n.t = 0; }
+      if (opt.giveUp) { n.state = 'dormant'; n.t = 0; event = 'giveup'; }
+      else if (n.t >= T.alert) { n.state = 'stalk'; n.t = 0; }
       break;
 
     case 'stalk':
       speed = S.stalk;
-      if (dist <= R.lunge) { n.state = 'windup'; n.t = 0; event = 'windup'; }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (opt.giveUp) { n.state = 'dormant'; n.t = 0; event = 'giveup'; }
+      else if (dist <= R.lunge) { n.state = 'windup'; n.t = 0; event = 'windup'; }
       break;
 
     case 'windup':
@@ -156,7 +186,13 @@ export function stepChicken(a, dt, dist, opt = {}) {
       
       speed = 0;
       vulnerable = true;
-      if (n.t >= T.recover) { n.state = dist <= R.lunge ? 'windup' : 'stalk'; n.t = 0; }
+      
+      
+      
+      if (n.t >= T.recover) {
+        if (opt.giveUp) { n.state = 'dormant'; n.t = 0; event = 'giveup'; }
+        else { n.state = dist <= R.lunge ? 'windup' : 'stalk'; n.t = 0; }
+      }
       break;
 
     case 'latched':

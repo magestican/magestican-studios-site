@@ -91,6 +91,7 @@ import {
 } from '../../../web-engine/horror/hideout.js';
 import {
   buildLevel, moveInLevel, progressAt, pointBehind, runRect, clearOfProps, insideLevel,
+  chaseWaypoint,
 } from '../../../web-engine/horror/level.js';
 import { spawnVitals, tickVitals, damage, beginGrapple, endGrapple, MAX_HEALTH, CHICKEN_LATCH_SLOW } from '../../../web-engine/horror/health.js';
 import {
@@ -113,6 +114,9 @@ import {
   isBossDeck, rosterFor, actCardFor, actFor, isFinalDeck, FINAL_DECK,
 } from '../../../web-engine/horror/acts.js';
 import { gatesFor, OPENING_FIRE } from '../../../web-engine/horror/gates.js';
+
+
+import { createFatigue, tickFatigue } from '../../../web-engine/horror/chaseFatigue.js';
 import { createEntrance, stepEntrance, isProtectedPhase, emergeAt, emergeY } from '../../../web-engine/horror/entrance.js';
 import { createDirector, stepDirector } from '../../../web-engine/horror/director.js';
 import { createBench, stockBench, benchOffers, benchSwap, nextOffer, recoveredAt } from '../../../web-engine/horror/workbench.js';
@@ -4817,6 +4821,14 @@ export function boot(canvas, hud) {
   let wires = [];
   let props = [];
   
+  
+  
+  
+  
+  
+  
+  
+  const CREATURE_PAD = 0.22;
   let solidProps = [];
   
   
@@ -8848,12 +8860,40 @@ export function boot(canvas, hud) {
       
       const unseen = player.dead || inSafe
         || (hidden && b.anim.state !== 'stalk' && b.anim.state !== 'strike' && b.anim.state !== 'windup');
+
       
       
       
-      const r = stepChicken(b.anim, dt, unseen ? 1e6 : dist,
-        { ...(prof || {}), legsLost: (mob && typeof mob === 'object') ? mob.legsLost : 0 });
+      
+      
+      
+      
+      if (!unseen) b.lastSeen = { x: player.x, z: player.z };
+
+      
+      
+      
+      
+      if (!b.fatigue) b.fatigue = createFatigue(b.kind);
+      const chasing = !unseen && b.anim.state !== 'dormant' && !b.latched;
+      b.fatigue = tickFatigue(b.fatigue, dt, {
+        pursuing: chasing,
+        metres: Math.hypot(b.x - (b.lastX ?? b.x), b.z - (b.lastZ ?? b.z)),
+      });
+      b.lastX = b.x; b.lastZ = b.z;
+
+      
+      
+      
+      const r = stepChicken(b.anim, dt, unseen ? 1e6 : dist, {
+        ...(prof || {}),
+        legsLost: (mob && typeof mob === 'object') ? mob.legsLost : 0,
+        giveUp: b.fatigue.gaveUp,
+      });
       b.anim = r.anim;
+      
+      
+      if (r.event === 'giveup') b.lastSeen = null;
 
       
       const voice = b.kind === 'chicken' ? chickVoice : porkVoice;
@@ -8867,10 +8907,67 @@ export function boot(canvas, hud) {
         if (b.anim.state === 'dormant' && dist < 30) voice(b, 'idle', dist);
       }
 
-      if (!b.latched && !player.dead && r.speed !== 0 && dist > 0.05) {
+      
+      
+      
+      
+      
+      const seek = (unseen && b.lastSeen) ? b.lastSeen : (unseen ? null : player);
+      
+      
+      
+      
+      
+      
+      
+      
+      const aim = (seek && !isBoss) ? chaseWaypoint(deck, b, seek) : seek;
+      const sdx = aim ? aim.x - b.x : 0;
+      const sdz = aim ? aim.z - b.z : 0;
+      const sdist = Math.hypot(sdx, sdz);
+      const toTarget = seek ? Math.hypot(seek.x - b.x, seek.z - b.z) : 0;
+      if (!b.latched && !player.dead && r.speed !== 0 && seek && toTarget > 0.35 && sdist > 0.01) {
         const move = r.speed * mobScale * dt;
-        b.x += (dx / dist) * move;
-        b.z += (dz / dist) * move;
+        const stepX = (sdx / sdist) * move;
+        const stepZ = (sdz / sdist) * move;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        if (b.entering || !insideLevel(deck, b.x, b.z, 0)) {
+          b.x += stepX;
+          b.z += stepZ;
+        } else {
+          const n = moveInLevel(deck, b, stepX, stepZ, CREATURE_PAD, solidProps);
+          b.x = n.x;
+          b.z = n.z;
+        }
         keepClear(b);
       }
       
