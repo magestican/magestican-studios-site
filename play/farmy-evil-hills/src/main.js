@@ -10532,6 +10532,9 @@ export function boot(canvas, hud) {
         
         
         level += 1;
+        
+        
+        saveProgress({ deck: level });
         buildWorld(level);
         
         
@@ -10767,6 +10770,22 @@ export function boot(canvas, hud) {
   
   return {
     beginIntro,
+    
+    
+    progress: () => loadProgress(),
+    markIntroSeen: () => saveProgress({ seenIntro: true }),
+    resumeAt(deck) {
+      const n = Math.max(1, Math.floor(deck) || 1);
+      level = n;
+      buildWorld(n);
+      
+      
+      player.x = deck.start.x;
+      player.z = deck.start.z;
+      player.vitals.health = MAX_HEALTH;
+      saveProgress({ deck: n });
+      return level;
+    },
     
     setAccess(patch) {
       access = resolveAccess({ ...access, ...patch }, { prefersReducedMotion: !!calm });
@@ -11799,6 +11818,43 @@ function saveAccess(a) {
   try { localStorage.setItem('feh.access', JSON.stringify(a)); } catch {  }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const PROGRESS_KEY = 'feh.progress';
+function loadProgress() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null');
+    if (!p || typeof p.deck !== 'number' || !(p.deck >= 1)) return null;
+    return { deck: Math.min(99, Math.floor(p.deck)), seenIntro: !!p.seenIntro };
+  } catch { return null; }
+}
+function saveProgress(next) {
+  try {
+    const was = loadProgress() || { deck: 1, seenIntro: false };
+    
+    
+    const merged = {
+      deck: Math.max(was.deck, next.deck ?? was.deck),
+      seenIntro: was.seenIntro || !!next.seenIntro,
+    };
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(merged));
+  } catch {  }
+}
+
 function paVoice(kind) {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
@@ -12286,6 +12342,9 @@ function start() {
       let started = false;
       
       
+      let resumeDeck = 0;
+      
+      
       
       
       
@@ -12318,14 +12377,22 @@ function start() {
         
         
         audio.ensure();
-        if (api.beginIntro) {
+        
+        
+        
+        
+        
+        const seen = api.progress && api.progress() && api.progress().seenIntro;
+        if (api.beginIntro && !seen && !resumeDeck) {
           
           
           
           
+          if (api.markIntroSeen) api.markIntroSeen();
           api.beginIntro(() => { startStationAudio(); });
           return;
         }
+        if (resumeDeck && api.resumeAt) api.resumeAt(resumeDeck);
         startStationAudio();
       };
       
@@ -12360,7 +12427,30 @@ function start() {
           });
         }
       }
-      $('startBtn').addEventListener('click', go);
+      $('startBtn').addEventListener('click', () => { resumeDeck = 0; go(); });
+      
+      {
+        const prog = api.progress ? api.progress() : null;
+        if (prog && prog.deck > 1) {
+          const btn = $('contBtn');
+          const num = $('contDeck');
+          if (btn && num) {
+            num.textContent = String(prog.deck);
+            btn.style.display = 'inline-block';
+            btn.addEventListener('click', () => { resumeDeck = prog.deck; go(); });
+          }
+          const note = $('bootNote');
+          
+          
+          
+          
+          if (note) {
+            note.textContent = prog.seenIntro
+              ? 'BEGIN starts a new run from deck 1 · sound on'
+              : 'opens with a short film · sound on · any key skips it';
+          }
+        }
+      }
       $('boot').addEventListener('click', go);
       document.addEventListener('keydown', (e) => {
         if (e.code === 'Space' || e.code === 'Enter') go();
