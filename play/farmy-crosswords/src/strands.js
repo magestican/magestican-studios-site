@@ -19,7 +19,7 @@ import {
 import { WORDLE_GUESSES } from '../../../web-engine/words/data/wordleWords.js';
 import { STRANDS_PUZZLES } from '../../../web-engine/words/data/strandsPuzzles.js';
 import { describeStrands } from '../../../web-engine/words/describe.js';
-import { grid, keyboard, rectAt, rectAtLoose, centreOf } from '../../../web-engine/words/layout.js';
+import { grid, keyboard, rectAt, rectAtLoose, centreOf, flow } from '../../../web-engine/words/layout.js';
 import { extendTrail, tapTrail, trailPoints, pulseFront, isDrag } from '../../../web-engine/words/drag.js';
 import { progress, lift, sink, shake, hump, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
@@ -44,6 +44,8 @@ export function create(app, index) {
   let board = { rects: [] };
   let traceBand = { x: 0, y: 0, width: 0, height: 0 };
   let buttons = { rects: [] };
+  let listBox = { x: 0, y: 0, width: 0, height: 0 };
+  let wide = false;
   let hover = -1;
   let hoverAt = 0;
   let pressed = -1;
@@ -55,8 +57,19 @@ export function create(app, index) {
   let cursor = 0;
   let area = { x: 0, y: 0, width: 0, height: 0 };
 
-  function layout(box) {
-    area = box;
+  
+  const WIDE = 900;
+
+  function layout(area0) {
+    area = area0;
+    
+    
+    
+    
+    wide = area0.width >= WIDE;
+    const listW = wide ? Math.min(300, Math.round(area0.width * 0.28)) : 0;
+    const box = { ...area0, width: area0.width - (wide ? listW + 20 : 0) };
+    listBox = { x: area0.x + area0.width - listW, y: area0.y + 4, width: listW, height: area0.height - 8 };
     themeBand = { x: box.x, y: box.y + 2, width: box.width, height: 52 };
     const btnH = SIZES.target;
     const bottom = box.y + box.height;
@@ -180,6 +193,8 @@ export function create(app, index) {
       maxWidth: traceBand.width - 20,
     });
 
+    if (wide) drawFound(g, now);
+
     buttons.rects.forEach((r, i) => {
       const isHint = r.label.startsWith('Hint');
       const disabled = isHint ? s.hintsAvailable === 0 : (r.label === 'Clear' && !trail.length && !typed);
@@ -195,6 +210,65 @@ export function create(app, index) {
     });
   }
 
+  
+
+
+
+
+
+
+
+  function drawFound(g, now) {
+    paint.surface(g, { x: listBox.x, y: listBox.y, w: listBox.width, h: listBox.height }, {
+      fill: COLORS.card,
+    });
+    const s = state();
+    paint.text(g, `Found ${s.foundCount} of ${s.total}`,
+      { x: listBox.x, y: listBox.y + 10, width: listBox.width, height: 32 },
+      { size: SIZES.small, colour: COLORS.ink });
+    paint.rule(g, listBox.x + 14, listBox.y + 46, listBox.width - 28);
+
+    const box = {
+      x: listBox.x + 14, y: listBox.y + 60, width: listBox.width - 28, height: listBox.height - 130,
+    };
+    g.font = paint.font(SIZES.small, 700);
+    const sizes = found.map((w) => ({ w: Math.ceil(g.measureText(w).width) + 26, h: 32 }));
+    const rects = flow({ box, sizes, gap: 8 }).rects;
+    const pop = progress(now, foundAt, DURATION.found, app.motion);
+
+    found.forEach((w, i) => {
+      const r = rects[i];
+      if (!r || r.y + r.h > box.y + box.height) return;
+      const isSpangram = w === puzzle.spangram;
+      const newest = w === found[found.length - 1] && pop < 1;
+      const grow = newest ? hump(pop) * 3 : 0;
+      const rr = { x: r.x - grow, y: r.y - grow, w: r.w + grow * 2, h: r.h + grow * 2 };
+      paint.tile(g, rr, {
+        letter: w,
+        state: isSpangram ? 'spangram' : 'theme',
+        size: SIZES.min,
+      });
+    });
+
+    if (!found.length) {
+      paint.text(g, 'Words you find appear here.',
+        { x: box.x, y: box.y, width: box.width, height: 40 },
+        { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, fit: true, maxWidth: box.width });
+    }
+
+    
+    
+    
+    
+    
+    
+    paint.text(g, `${bonus.length} other word${bonus.length === 1 ? '' : 's'}, `
+      + `${s.towardsHint}/${WORDS_PER_HINT} to a hint`,
+      { x: listBox.x + 14, y: listBox.y + listBox.height - 56, width: listBox.width - 28, height: 40 },
+      { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'left',
+        fit: true, maxWidth: listBox.width - 28 });
+  }
+
   function lockIn(entry) {
     found = [...found, entry.w];
     foundPath = entry.p;
@@ -208,8 +282,9 @@ export function create(app, index) {
       : `Found ${entry.w}.`;
     app.message = msg;
     app.announce(msg);
+    app.sound(entry.w === puzzle.spangram ? 'spangram' : 'word');
     app.invalidate();
-    if (found.length === puzzle.words.length) app.finished(true);
+    if (found.length === puzzle.words.length) { app.sound('win'); app.finished(true); }
   }
 
   
@@ -237,6 +312,7 @@ export function create(app, index) {
     shakeAt = app.now();
     app.message = msg;
     app.announce(msg);
+    app.sound('reject');
     app.invalidate();
   }
 
@@ -303,6 +379,7 @@ export function create(app, index) {
       const hit = hitAt(pt);
       pressed = hit;
       pressAt = app.now();
+      if (hit >= 0) app.sound('press');
       if (hit >= 0 && hit < 100) {
         typed = '';
         trail = tapTrail(trail, hit, trail.length ? adjacent(trail[trail.length - 1], hit) : false);
@@ -325,7 +402,12 @@ export function create(app, index) {
             adjacent: trail.length ? adjacent(trail[trail.length - 1], cell) : true,
             onBreak: 'ignore',
           });
-          if (next !== trail) { trail = next; app.invalidate(); }
+          if (next !== trail) {
+            
+            if (next.length > trail.length) app.sound('trail', { index: next.length - 1 });
+            trail = next;
+            app.invalidate();
+          }
         }
         return;
       }

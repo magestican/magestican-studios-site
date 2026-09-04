@@ -139,3 +139,69 @@ export function rankFor(score, puzzle) {
 export function pangramsOf(puzzle) {
   return puzzle.answers.filter((a) => isPangram(a, puzzle.letters));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function hintGrid(puzzle, found = []) {
+  const done = new Set(found.map((w) => w.toUpperCase()));
+  const left = puzzle.answers.filter((w) => !done.has(w.toUpperCase()));
+
+  const lengths = [...new Set(left.map((w) => w.length))].sort((a, b) => a - b);
+  const letters = [...new Set(left.map((w) => w[0]))].sort();
+  const rows = letters.map((letter) => {
+    const words = left.filter((w) => w[0] === letter);
+    return {
+      letter,
+      counts: lengths.map((n) => words.filter((w) => w.length === n).length),
+      total: words.length,
+    };
+  });
+
+  
+  
+  
+  const pairCount = new Map();
+  for (const w of left) {
+    const pair = w.slice(0, 2);
+    pairCount.set(pair, (pairCount.get(pair) ?? 0) + 1);
+  }
+  const pairs = [...pairCount.entries()]
+    .map(([pair, count]) => ({ pair, count }))
+    .sort((a, b) => a.pair.localeCompare(b.pair));
+
+  const allPangrams = pangramsOf(puzzle);
+  return {
+    lengths,
+    rows,
+    remaining: left.length,
+    total: puzzle.answers.length,
+    pangrams: {
+      found: allPangrams.filter((w) => done.has(w)).length,
+      total: allPangrams.length,
+    },
+    pairs,
+  };
+}

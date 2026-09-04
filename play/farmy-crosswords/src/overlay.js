@@ -249,3 +249,135 @@ export const KEY_LINES = [
   `${STATES.moved.mark} gold: the right letter somewhere else.`,
   `${STATES.absent.mark} grey: not in the word.`,
 ];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function hints(app, { title, grid }) {
+  let box = panelBox(app, true);
+  let closeRect = { x: 0, y: 0, w: 0, h: 0 };
+  let hover = -1;
+  let hoverAt = 0;
+
+  function layout() {
+    box = panelBox(app, true);
+    closeRect = {
+      x: box.x + box.w / 2 - 70, y: box.y + box.h - SIZES.target - 16, w: 140, h: SIZES.target,
+    };
+  }
+
+  function draw(g, now) {
+    paint.scrim(g, app.width, app.height);
+    paint.surface(g, { x: box.x, y: box.y, w: box.w, h: box.h }, { fill: COLORS.card });
+    paint.text(g, title, { x: box.x, y: box.y + 14, width: box.w, height: 38 },
+      { size: SIZES.h2, colour: COLORS.ink, fit: true, maxWidth: box.w - 40 });
+
+    const pad = 22;
+    const summary = grid.remaining === 0
+      ? 'Every word found.'
+      : `${grid.remaining} word${grid.remaining === 1 ? '' : 's'} left of ${grid.total}`
+        + `, including ${grid.pangrams.total - grid.pangrams.found} pangram`
+        + `${grid.pangrams.total - grid.pangrams.found === 1 ? '' : 's'}.`;
+    paint.text(g, summary, { x: box.x + pad, y: box.y + 56, width: box.w - pad * 2, height: 30 },
+      { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'left', fit: true, maxWidth: box.w - pad * 2 });
+
+    
+    
+    
+    
+    
+    
+    
+    const top = box.y + 130;
+    const colW = Math.min(54, Math.floor((box.w - pad * 2 - 70) / Math.max(1, grid.lengths.length + 1)));
+    const rowH = 34;
+    const left = box.x + pad;
+
+    paint.text(g, 'Length', { x: left, y: top - 30, w: 64, h: 26 },
+      { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'left' });
+    grid.lengths.forEach((n, i) => {
+      paint.text(g, String(n), { x: left + 70 + i * colW, y: top - 30, w: colW, h: 26 },
+        { size: SIZES.min, colour: COLORS.ink });
+    });
+    paint.text(g, 'All', { x: left + 70 + grid.lengths.length * colW, y: top - 30, w: colW, h: 26 },
+      { size: SIZES.min, colour: COLORS.inkSoft });
+    paint.rule(g, left, top - 8, box.w - pad * 2);
+
+    grid.rows.forEach((row, r) => {
+      const y = top + r * rowH;
+      if (y + rowH > closeRect.y - 90) return;
+      paint.text(g, row.letter, { x: left, y, w: 64, h: rowH },
+        { size: SIZES.small, colour: COLORS.ink, align: 'left' });
+      row.counts.forEach((n, i) => {
+        paint.text(g, n === 0 ? '-' : String(n), { x: left + 70 + i * colW, y, w: colW, h: rowH },
+          { size: SIZES.small, weight: n === 0 ? 400 : 700, colour: n === 0 ? COLORS.inkSoft : COLORS.ink });
+      });
+      paint.text(g, String(row.total),
+        { x: left + 70 + grid.lengths.length * colW, y, w: colW, h: rowH },
+        { size: SIZES.small, weight: 400, colour: COLORS.inkSoft });
+    });
+
+    
+    
+    const pairsY = closeRect.y - 76;
+    paint.rule(g, left, pairsY - 12, box.w - pad * 2);
+    const pairText = grid.pairs.length
+      ? grid.pairs.map((p) => `${p.pair} ${p.count}`).join('   ')
+      : 'Nothing left to find.';
+    paint.text(g, pairText, { x: left, y: pairsY, width: box.w - pad * 2, height: 30 },
+      { size: SIZES.min, weight: 400, colour: COLORS.ink, align: 'left',
+        fit: true, maxWidth: box.w - pad * 2 });
+
+    paint.button(g, closeRect, {
+      label: 'Close',
+      hover: hover === 0 ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
+    });
+  }
+
+  return {
+    overlay: true,
+    layout,
+    draw,
+    rects: () => [{ id: 'btn:Close', ...closeRect }],
+    pointerMove: (pt) => {
+      const i = pt ? rectAt([closeRect], pt.x, pt.y) : -1;
+      if (i !== hover) { hover = i; hoverAt = app.now(); app.invalidate(); }
+    },
+    pointerLeave: () => { hover = -1; app.invalidate(); },
+    pointerDown: () => {},
+    pointerUp: (pt) => { if (rectAt([closeRect], pt.x, pt.y) === 0) app.closeOverlay(); },
+    key: (action) => {
+      if (action.type === 'submit') { app.closeOverlay(); return true; }
+      return false;
+    },
+    describe: () => ({
+      title,
+      status: grid.remaining === 0
+        ? 'Every word found.'
+        : `${grid.remaining} words left of ${grid.total}.`,
+      lines: [
+        ...grid.rows.map((row) => `${row.letter}: ${row.total} left - `
+          + grid.lengths.map((n, i) => `${row.counts[i]} of ${n} letters`)
+            .filter((_, i) => row.counts[i] > 0).join(', ')),
+        grid.pairs.length
+          ? `Starting pairs: ${grid.pairs.map((p) => `${p.pair} ${p.count}`).join(', ')}.`
+          : 'Nothing left to find.',
+        `Pangrams: ${grid.pangrams.found} of ${grid.pangrams.total} found.`,
+      ],
+    }),
+    animating: (now) => app.motion && now - hoverAt < DURATION.hover,
+  };
+}

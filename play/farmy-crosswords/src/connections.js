@@ -185,6 +185,7 @@ export function create(app, index) {
     if (s.over || picked.length !== GROUP_SIZE) return;
     const result = checkSelection(picked, puzzle.groups, s.previous);
     if (result.kind === REPEAT) {
+      app.sound('reject');
       shakeAt = app.now();
       app.message = result.message;
       app.announce(result.message);
@@ -199,7 +200,9 @@ export function create(app, index) {
       solveAt = app.now();
       app.message = result.group.name;
       app.announce(`Yes. ${result.group.name}.`);
+      app.sound('word');
     } else {
+      app.sound('reject');
       shakeAt = app.now();
       app.message = result.kind === ONE_AWAY
         ? `One away. ${now.mistakesLeft} left.`
@@ -208,7 +211,7 @@ export function create(app, index) {
     }
     layout(area);
     app.invalidate();
-    if (now.over) app.finished(now.won);
+    if (now.over) { if (now.won) app.sound('win'); app.finished(now.won); }
   }
 
   function pressButton(i) {
@@ -238,6 +241,7 @@ export function create(app, index) {
       const hit = hitAt(pt);
       pressed = hit;
       pressAt = app.now();
+      if (hit >= 0) app.sound('press');
       if (hit >= 0 && hit < 100) sweep = { from: pt, drawing: false, touched: new Set([hit]) };
       app.invalidate();
     },
@@ -255,7 +259,10 @@ export function create(app, index) {
         const i = rectAtLoose(board.rects, pt.x, pt.y, 6);
         if (i >= 0 && !sweep.touched.has(i)) {
           sweep.touched.add(i);
-          if (!picked.includes(words[i])) toggle(words[i]);
+          if (!picked.includes(words[i])) {
+            app.sound('trail', { index: picked.length });
+            toggle(words[i]);
+          }
         }
         return;
       }

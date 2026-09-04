@@ -31,7 +31,8 @@ import * as wordle from './wordle.js';
 import * as bee from './bee.js';
 import * as connections from './connections.js';
 import * as strands from './strands.js';
-import { picker, help, KEY_LINES } from './overlay.js';
+import { picker, help, hints, KEY_LINES } from './overlay.js';
+import * as sfx from './sfx.js';
 
 initAnalytics({ page: 'farmy-crosswords' });
 startVersionChecker({
@@ -79,6 +80,19 @@ const app = {
   finished: () => {},
   save: () => {},
   load: () => null,
+  
+  
+  
+  
+  sound: (event, opts) => sfx.play(event, opts),
+  
+  
+  openHints: (spec) => {
+    app.message = '';
+    overlay = hints(app, spec);
+    overlay.layout();
+    invalidate();
+  },
 };
 
 let screen = null;
@@ -134,14 +148,28 @@ function relayout() {
 }
 
 function layoutBar() {
+  
+  
+  
+  const right = app.width - 14;
+  const helpX = right - 48;
+  
+  
+  
+  const soundX = helpX - 8 - 140;
   if (current === HOME) {
-    barRects = [{ x: app.width - 62, y: 12, w: 48, h: 48, id: 'help', label: '?' }];
+    barRects = [
+      { x: helpX, y: 12, w: 48, h: 48, id: 'help', label: '?' },
+      { x: soundX, y: 12, w: 140, h: 48, id: 'sound', label: sfx.isMuted() ? 'Sound off' : 'Sound on' },
+    ];
     return;
   }
+  const pickerX = soundX - 8 - 118;
   barRects = [
     { x: 12, y: 8, w: 52, h: 44, id: 'back', label: '←' },
-    { x: app.width - 62, y: 8, w: 48, h: 44, id: 'help', label: '?' },
-    { x: app.width - 62 - 130, y: 8, w: 124, h: 44, id: 'picker', label: 'Puzzles' },
+    { x: helpX, y: 8, w: 48, h: 44, id: 'help', label: '?' },
+    { x: soundX, y: 8, w: 140, h: 44, id: 'sound', label: sfx.isMuted() ? 'Sound off' : 'Sound on' },
+    { x: pickerX, y: 8, w: 118, h: 44, id: 'picker', label: 'Puzzles' },
   ];
 }
 
@@ -149,11 +177,17 @@ function drawBar(now) {
   if (current !== HOME) {
     const mod = MODULES[current];
     const name = GAMES.find((x) => x.id === current).name;
-    paint.text(g, name, { x: 76, y: 8, width: app.width - 340, height: 44 },
-      { size: SIZES.base, colour: COLORS.ink, align: 'left', fit: true, maxWidth: app.width - 350 });
+    const room = Math.max(120, barRects[barRects.length - 1].x - 90);
+    paint.text(g, name, { x: 76, y: 8, width: room, height: 44 },
+      { size: SIZES.base, colour: COLORS.ink, align: 'left', fit: true, maxWidth: room });
     paint.text(g, `${indexFor[current] + 1} of ${mod.count()}`,
-      { x: 76, y: 8, width: app.width - 340, height: 44 },
+      { x: 76, y: 8, width: room, height: 44 },
       { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right', fit: true });
+    
+    
+    
+    
+    paint.rule(g, 0, BAR - 4, app.width);
   }
   barRects.forEach((b, i) => {
     paint.button(g, b, {
@@ -286,6 +320,11 @@ const pointAt = (e) => {
 
 canvas.addEventListener('pointerdown', (e) => {
   const pt = pointAt(e);
+  
+  
+  
+  
+  sfx.wake();
   canvas.setPointerCapture?.(e.pointerId);
   if (overlay) { overlay.pointerDown(pt); return; }
   const bar = rectAt(barRects, pt.x, pt.y);
@@ -312,9 +351,18 @@ canvas.addEventListener('pointerup', (e) => {
   const bar = rectAt(barRects, pt.x, pt.y);
   if (bar >= 0) {
     const id = barRects[bar].id;
+    app.sound('press');
     if (id === 'back') goHome();
     else if (id === 'help') openHelp();
-    else openPicker();
+    else if (id === 'sound') {
+      sfx.setMuted(!sfx.isMuted());
+      
+      
+      app.sound('press');
+      layoutBar();
+      announce(sfx.isMuted() ? 'Sound off.' : 'Sound on.');
+      invalidate();
+    } else openPicker();
     return;
   }
   screen.pointerUp(pt);
@@ -332,6 +380,7 @@ canvas.addEventListener('pointerleave', () => {
 canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
 document.addEventListener('keydown', (e) => {
+  sfx.wake();
   const action = routeKey(
     { key: e.key, ctrl: e.ctrlKey, meta: e.metaKey, alt: e.altKey },
     { screen: current, overlay: !!overlay, games: GAMES.map((x) => x.id) },
@@ -346,7 +395,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
   if (action.type === 'help') { if (overlay) closeOverlay(); else openHelp(); return; }
-  if (action.type === 'open') { openGame(action.game, action.value); return; }
+  if (action.type === 'open') { app.sound('press'); openGame(action.game, action.value); return; }
 
   const active = overlay ?? screen;
   active.key(action);
@@ -375,6 +424,10 @@ globalThis.addEventListener('resize', resize);
 
 
 globalThis.__fc = {
+  
+  
+  
+  get audio() { return sfx.state(); },
   get screen() { return current; },
   get index() { return indexFor[current] ?? null; },
   get overlay() { return overlay ? 'open' : null; },

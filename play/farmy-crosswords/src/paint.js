@@ -252,3 +252,108 @@ export function scrim(g, width, height, alpha = 0.72) {
   g.fillRect(0, 0, width, height);
   g.restore();
 }
+
+
+
+
+
+
+
+
+export function rule(g, x, y, width) {
+  g.save();
+  g.fillStyle = COLORS.ink;
+  g.fillRect(x, y, width, SIZES.border);
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function emblem(g, id, r) {
+  
+  
+  
+  const side = Math.min(r.w, r.h);
+  const unit = side / 3.4;
+  const cx = r.x + r.w / 2;
+  const cy = r.y + r.h / 2;
+  const cell = (x, y, w, h, fill) => {
+    surface(g, { x, y, w, h }, { fill, offset: 0, border: 2, radius: 3 });
+  };
+
+  if (id === 'wordle') {
+    
+    
+    const w = unit;
+    const gap = 5;
+    const left = cx - (w * 1.5 + gap);
+    for (const [i, fill] of [COLORS.green, COLORS.gold, COLORS.card].entries()) {
+      cell(left + i * (w + gap), cy - w / 2, w, w, fill);
+    }
+    return;
+  }
+  if (id === 'bee') {
+    
+    
+    const w = unit * 0.8;
+    const gap = 4;
+    const step = w + gap;
+    cell(cx - step / 2 - w / 2, cy - step - w / 2, w, w, COLORS.card);
+    cell(cx + step / 2 - w / 2, cy - step - w / 2, w, w, COLORS.card);
+    cell(cx - step - w / 2, cy - w / 2, w, w, COLORS.card);
+    cell(cx - w / 2, cy - w / 2, w, w, COLORS.gold);
+    cell(cx + step - w / 2, cy - w / 2, w, w, COLORS.card);
+    cell(cx - step / 2 - w / 2, cy + step - w / 2, w, w, COLORS.card);
+    cell(cx + step / 2 - w / 2, cy + step - w / 2, w, w, COLORS.card);
+    return;
+  }
+  if (id === 'connections') {
+    
+    const w = unit;
+    const gap = 5;
+    const fills = [COLORS.green, COLORS.gold, COLORS.blue, COLORS.red];
+    for (let i = 0; i < 4; i += 1) {
+      cell(cx - w - gap / 2 + (i % 2) * (w + gap),
+        cy - w - gap / 2 + Math.floor(i / 2) * (w + gap), w, w, fills[i]);
+    }
+    return;
+  }
+  
+  const w = unit * 0.78;
+  const step = w + 4;
+  const path = [[0, 0], [1, 1], [2, 1], [2, 2]];
+  const ox = cx - (step * 3 - 4) / 2;
+  const oy = cy - (step * 3 - 4) / 2;
+  g.save();
+  g.globalAlpha = 0.35;
+  g.strokeStyle = COLORS.blue;
+  g.lineWidth = w * 0.7;
+  g.lineJoin = 'round';
+  g.lineCap = 'round';
+  g.beginPath();
+  path.forEach(([px, py], i) => {
+    const x = ox + px * step + w / 2;
+    const y = oy + py * step + w / 2;
+    if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+  });
+  g.stroke();
+  g.restore();
+  for (let y = 0; y < 3; y += 1) {
+    for (let x = 0; x < 3; x += 1) {
+      const on = path.some(([px, py]) => px === x && py === y);
+      cell(ox + x * step, oy + y * step, w, w, on ? COLORS.ink : COLORS.card);
+    }
+  }
+}

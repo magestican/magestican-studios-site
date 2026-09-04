@@ -68,6 +68,10 @@ export function create(app, index) {
       gap: 8,
       maxCell: 68,
       min: 40,
+      
+      
+      
+      centreY: true,
     });
   }
 
@@ -137,12 +141,13 @@ export function create(app, index) {
   function type(letter) {
     const s = state();
     if (s.over) return;
-    if (typed.length < WORD_LENGTH) { typed += letter; app.message = ''; app.invalidate(); }
+    if (typed.length < WORD_LENGTH) { typed += letter; app.message = ''; app.sound('type'); app.invalidate(); }
   }
 
   function backspace() {
     if (state().over) return;
     typed = typed.slice(0, -1);
+    app.sound('type');
     app.invalidate();
   }
 
@@ -153,6 +158,7 @@ export function create(app, index) {
     if (why) {
       
       
+      app.sound('reject');
       shakeAt = app.now();
       app.message = why;
       app.announce(why);
@@ -171,6 +177,7 @@ export function create(app, index) {
     
     app.message = now.over ? `${learned} ${verdict(now, answer)}` : learned;
     app.announce(app.message);
+    app.sound(now.won ? 'win' : 'word');
     app.invalidate();
     if (now.over) app.finished(now.won);
   }
@@ -196,7 +203,12 @@ export function create(app, index) {
       if (i !== hover) { hover = i; hoverAt = app.now(); app.invalidate(); }
     },
     pointerLeave: () => { hover = -1; press = -1; app.invalidate(); },
-    pointerDown: (pt) => { press = rectAt(keys.rects, pt.x, pt.y); pressAt = app.now(); app.invalidate(); },
+    pointerDown: (pt) => {
+      press = rectAt(keys.rects, pt.x, pt.y);
+      pressAt = app.now();
+      if (press >= 0) app.sound('press');
+      app.invalidate();
+    },
     pointerUp: (pt) => {
       const i = rectAt(keys.rects, pt.x, pt.y);
       const was = press;
