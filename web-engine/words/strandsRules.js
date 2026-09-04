@@ -28,6 +28,14 @@ export const CELLS = COLS * ROWS;
 export const WORDS_PER_HINT = 3;
 
 
+
+
+
+
+
+export const FREE_HINTS = 3;
+
+
 export const MIN_BONUS_LENGTH = 4;
 
 
@@ -153,10 +161,22 @@ export function themeWordAt(puzzle, path) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 export function play(puzzle, foundWords = [], bonusCount = 0, hintsUsed = 0) {
   const found = new Set(foundWords.map((w) => w.toUpperCase()));
   const remaining = puzzle.words.filter((e) => !found.has(e.w));
-  const earned = Math.floor(bonusCount / WORDS_PER_HINT);
+  const earned = FREE_HINTS + Math.floor(bonusCount / WORDS_PER_HINT);
   return {
     found: [...found],
     remaining,

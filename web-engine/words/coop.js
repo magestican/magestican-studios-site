@@ -537,3 +537,78 @@ export function winnerOf(rows = []) {
   if (!done.length) return null;
   return done[0];
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const NAME_MAX = 14;
+
+
+
+
+
+
+
+
+
+export function cleanName(text) {
+  const name = String(text ?? '')
+    .replace(/[^A-Za-z \-']/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, NAME_MAX);
+  return name.length >= 2 ? name : null;
+}
+
+
+export function displayName(peerId, names = {}) {
+  return cleanName(names?.[peerId]) ?? nameFor(peerId);
+}
+
+
+
+
+
+
+
+
+
+
+export function initialsOf(name) {
+  const parts = String(name ?? '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+
+
+
+
+
+
+
+export function chipsFor(rows = []) {
+  return rows.map((r) => ({
+    by: r.by,
+    colour: r.colour,
+    initials: initialsOf(r.name),
+    score: r.comparable && r.total ? `${r.done}/${r.total}` : '',
+    you: !!r.you,
+    finished: !!r.finished,
+  }));
+}

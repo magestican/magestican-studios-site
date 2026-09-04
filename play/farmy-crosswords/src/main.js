@@ -22,6 +22,7 @@ import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { GAMES, saveKey, puzzleForDay, LAST_KEY } from '../../../web-engine/words/puzzlePick.js';
 import { routeKey, HOME } from '../../../web-engine/words/keyRouter.js';
 import { tick } from '../../../web-engine/words/frameLoop.js';
+import { pieces as confettiPieces, done as confettiDone, CONFETTI_MS } from '../../../web-engine/words/confetti.js';
 import { rectAt } from '../../../web-engine/words/layout.js';
 import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
@@ -118,6 +119,10 @@ let wasMoving = false;
 let barRects = [];
 let barHover = -1;
 let barHoverAt = 0;
+
+
+let confettiAt = -1;
+let confetti = [];
 
 
 
@@ -310,7 +315,11 @@ function frame() {
   
   
   
-  const step = tick({ dirty, moving: !!(active && active.animating(now)), wasMoving });
+  
+  
+  
+  const partying = confettiAt >= 0 && !confettiDone(now - confettiAt);
+  const step = tick({ dirty, moving: !!(active && active.animating(now)) || partying, wasMoving });
   dirty = false;
   wasMoving = step.wasMoving;
   if (step.draw) {
@@ -318,6 +327,10 @@ function frame() {
     if (screen) screen.draw(g, now);
     drawBar(now);
     if (overlay) overlay.draw(g, now);
+    
+    
+    if (partying) paint.confetti(g, confetti, now - confettiAt, app.width, app.height);
+    else if (confettiAt >= 0) { confettiAt = -1; confetti = []; }
     const d = active.describe();
     
     
@@ -580,6 +593,17 @@ function openGame(id, firstLetter) {
     if (roomState.shownResult === puzzleKey(id, index)) return;
     roomState.shownResult = puzzleKey(id, index);
     if (inRoom()) net?.here();
+    
+    
+    
+    
+    
+    
+    if (won && app.motion) {
+      confetti = confettiPieces(64, Math.round(app.now()) % 9973);
+      confettiAt = app.now();
+      invalidate();
+    }
     setTimeout(() => openResults(won), 900);
   };
   
