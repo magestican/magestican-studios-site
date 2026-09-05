@@ -22,6 +22,7 @@ import {
   BAND_PIPS, PIP_SLOTS, ratingsFor, curveOrder, distribution,
 } from '../../../web-engine/words/difficulty.js';
 import * as paint from './paint.js';
+import { velocityOf, glide, gliding, isFlick } from '../../../web-engine/words/momentum.js';
 
 
 export function panelBox(app, wide) {
@@ -168,6 +169,13 @@ export function picker(app, {
   let gridH = 0;
   let viewH = 0;
   let dragFrom = null;
+  
+  
+  
+  let samples = [];
+  let flick = 0;
+  let flickAt = 0;
+  let flickFrom = 0;
   let closeRect = { x: 0, y: 0, w: 0, h: 0 };
   let todayRect = { x: 0, y: 0, w: 0, h: 0 };
   
@@ -330,7 +338,18 @@ export function picker(app, {
     cells.cols = cols;
   }
 
+  
+  function stepFlick(now) {
+    if (!flick) return;
+    const t = now - flickAt;
+    if (!gliding(flick, t)) { flick = 0; return; }
+    const want = clampScroll(flickFrom + glide(flick, t));
+    if (want !== scroll) scroll = want;
+    else flick = 0;
+  }
+
   function draw(g, now) {
+    stepFlick(now);
     paint.scrim(g, app.width, app.height);
     paint.surface(g, { x: box.x, y: box.y, w: box.w, h: box.h }, { fill: COLORS.card });
     paint.text(g, 'Choose a puzzle', { x: box.x, y: box.y + 14, width: box.w, height: 40 },
@@ -448,6 +467,8 @@ export function picker(app, {
     wheel: (dy) => scrollBy(dy),
     pointerMove: (pt) => {
       if (dragFrom && scrollable()) {
+        samples.push({ y: pt.y, at: app.now() });
+        if (samples.length > 12) samples.shift();
         const want = dragFrom.scroll - (pt.y - dragFrom.y);
         if (want !== scroll) { scroll = clampScroll(want); app.invalidate(); }
         return;
@@ -455,14 +476,30 @@ export function picker(app, {
       const i = pt ? hitAt(pt) : -1;
       if (i !== hover) { hover = i; hoverAt = app.now(); app.invalidate(); }
     },
-    pointerLeave: () => { hover = -1; dragFrom = null; app.invalidate(); },
-    pointerDown: (pt) => { dragFrom = { y: pt.y, scroll }; },
+    pointerLeave: () => { hover = -1; dragFrom = null; samples = []; app.invalidate(); },
+    pointerDown: (pt) => {
+      
+      
+      dragFrom = { y: pt.y, scroll };
+      flick = 0;
+      samples = [{ y: pt.y, at: app.now() }];
+    },
     pointerUp: (pt) => {
       
       
       
       const moved = dragFrom ? Math.abs(pt.y - dragFrom.y) : 0;
+      const wasDragging = !!dragFrom;
       dragFrom = null;
+      samples.push({ y: pt.y, at: app.now() });
+      const v = -velocityOf(samples);
+      samples = [];
+      if (wasDragging && moved > DRAG_SLOP && scrollable() && isFlick(v)) {
+        flick = v;
+        flickAt = app.now();
+        flickFrom = scroll;
+        app.invalidate();
+      }
       if (moved > DRAG_SLOP) return;
       const i = hitAt(pt);
       if (i === -3) { app.closeOverlay(); return; }
@@ -525,7 +562,8 @@ export function picker(app, {
         lines,
       };
     },
-    animating: (now) => app.motion && now - hoverAt < DURATION.hover,
+    animating: (now) => gliding(flick, now - flickAt)
+      || (app.motion && now - hoverAt < DURATION.hover),
   };
 }
 

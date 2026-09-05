@@ -40,6 +40,9 @@
 
 
 import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
+
+
+import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { routeKey } from '../../../web-engine/words/keyRouter.js';
@@ -913,16 +916,6 @@ wireMusicButton({ music, announce, sound: (e) => sfx.play(e) });
 
 
 
-
-
-
-
-
-
-
-
-
-
 globalThis.__fs = {
   get room() {
     return {
@@ -1001,9 +994,23 @@ screen.reload();
 resize();
 
 const linkRoom = joinIdFrom(globalThis.location.href);
-if (linkRoom && canPlayTogether()) {
+const joinedSomebodyElse = !!(linkRoom && canPlayTogether());
+if (joinedSomebodyElse) {
   roomState.active = true;
   startNet().join(linkRoom);
 }
 
 trackEvent('game_start', { game: 'farmy-scrabble' });
+
+
+
+
+
+
+
+
+
+
+
+
+countPlay('farmy-scrabble', { isHost: !joinedSomebodyElse });

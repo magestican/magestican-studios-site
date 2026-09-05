@@ -40,7 +40,55 @@
 export const PLACEHOLDER_ID = 'G-XXXXXXXXXX';
 
 
-export const MEASUREMENT_ID = 'G-XXXXXXXXXX';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const MEASUREMENT_ID = 'G-M8WP95NXBK';
 
 
 const ID_SHAPE = /^G-[A-Z0-9]{6,}$/;

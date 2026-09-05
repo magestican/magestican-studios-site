@@ -20,6 +20,7 @@ import { rectAt } from '../../../web-engine/words/layout.js';
 import { DRAG_SLOP } from '../../../web-engine/words/drag.js';
 import { progress, lift, sink, easeOut, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
+import { velocityOf, glide, gliding, isFlick } from '../../../web-engine/words/momentum.js';
 
 
 
@@ -109,7 +110,18 @@ export function create(app) {
 
   let scroll = 0;
   let contentH = 0;
-  let dragFrom = null;   
+  let dragFrom = null;
+  
+  
+  
+  
+  
+  
+  
+  let samples = [];
+  let flick = 0;
+  let flickAt = 0;
+  let flickFrom = 0;   
   let hover = -1;
   let hoverAt = 0;
   let press = -1;
@@ -204,7 +216,28 @@ export function create(app) {
   
   const shift = (r) => ({ ...r, y: r.y - scroll });
 
+  
+
+
+
+
+
+
+
+
+
+
+  function stepFlick(now) {
+    if (!flick) return;
+    const t = now - flickAt;
+    if (!gliding(flick, t)) { flick = 0; return; }
+    const want = clampScroll(flickFrom + glide(flick, t));
+    if (want !== scroll) scroll = want;
+    else flick = 0;
+  }
+
   function draw(g, now) {
+    stepFlick(now);
     
     
     
@@ -397,6 +430,8 @@ export function create(app) {
     cursorRect: () => { const r = all()[cursor]; return r ? shift(r) : r; },
     pointerMove: (pt) => {
       if (dragFrom && scrollable()) {
+        samples.push({ y: pt.y, at: app.now() });
+        if (samples.length > 12) samples.shift();
         const want = dragFrom.scroll - (pt.y - dragFrom.y);
         if (want !== scroll) { scroll = clampScroll(want); app.invalidate(); }
         
@@ -405,7 +440,7 @@ export function create(app) {
       }
       hoverAtPoint(pt);
     },
-    pointerLeave: () => { hoverAtPoint(null); press = -1; dragFrom = null; },
+    pointerLeave: () => { hoverAtPoint(null); press = -1; dragFrom = null; samples = []; },
     pointerDown: (pt) => {
       press = rectAt(all().map(shift), pt.x, pt.y);
       pressAt = app.now();
@@ -413,6 +448,11 @@ export function create(app) {
       
       
       dragFrom = { y: pt.y, scroll };
+      
+      
+      
+      flick = 0;
+      samples = [{ y: pt.y, at: app.now() }];
       
       
       
@@ -432,6 +472,19 @@ export function create(app) {
     pointerUp: (pt) => {
       const moved = dragFrom ? Math.abs(pt.y - dragFrom.y) : 0;
       dragFrom = null;
+      
+      
+      
+      
+      samples.push({ y: pt.y, at: app.now() });
+      const v = -velocityOf(samples);
+      samples = [];
+      if (moved > DRAG_SLOP && scrollable() && isFlick(v)) {
+        flick = v;
+        flickAt = app.now();
+        flickFrom = scroll;
+        app.invalidate();
+      }
       const i = rectAt(all().map(shift), pt.x, pt.y);
       const was = press;
       press = -1;
@@ -480,10 +533,16 @@ export function create(app) {
       };
     },
     
-    animating: (now) => app.motion && (
-      now - hoverAt < DURATION.hover
-      || now - pressAt < DURATION.press
-      || now - bornAt < DURATION.fade + 45 * cards.length
+    animating: (now) => (
+      
+      
+      
+      gliding(flick, now - flickAt)
+      || (app.motion && (
+        now - hoverAt < DURATION.hover
+        || now - pressAt < DURATION.press
+        || now - bornAt < DURATION.fade + 45 * cards.length
+      ))
     ),
     keys: 'Press 1 to 4 to choose a game, or type a letter to start Wordle. Arrow keys move, Enter opens.',
     

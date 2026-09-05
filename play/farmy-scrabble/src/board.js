@@ -39,49 +39,8 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
-import {
-  grid, keyboard, rectAt, rectAtLoose,
-} from '../../../web-engine/words/layout.js';
-import { routeKey } from '../../../web-engine/words/keyRouter.js';
-import {
-  KEY_ROWS, KEY_GAP, ENTER_KEY, DELETE_KEY, KEYS_HELP, KEYS_MAX_WIDTH,
-  keysHeight, keysReserved, keysLive, pressFor, firesOnDown, strokeStep, dragTypes,
-} from '../../../web-engine/words/scrabbleKeys.js';
+import { grid, keyboard, rectAt } from '../../../web-engine/words/layout.js';
 import {
   progress, lift, sink, shake, easeOut, hump, DURATION,
 } from '../../../web-engine/words/motion.js';
@@ -98,48 +57,11 @@ import { loupeFor, squareUnder } from './loupe.js';
 import * as paint from './paint.js';
 
 
-
-
-
-
-const NARROW = KEYS_MAX_WIDTH;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+const NARROW = 640;
 
 
 const WIDE_ROWS = [['Play', 'Undo', 'Mix', 'Swap', 'Pass']];
-const NARROW_ROWS = [['Play', 'Undo', 'Mix', 'Swap', 'Pass']];
-
-
-
-
-
-
-
-
-
-
-
-const BUTTON_PAD = { wide: 16, phone: 10 };
+const NARROW_ROWS = [['Play', 'Undo'], ['Mix', 'Swap', 'Pass']];
 
 export function create(app) {
   
@@ -159,17 +81,6 @@ export function create(app) {
   let hoverAt = 0;
   let pressButton = -1;
   let pressAt = 0;
-  
-  let hoverKey = -1;
-  let pressKey = -1;
-  
-
-
-
-
-
-
-  let stroke = null;
   let shakeAt = -1;         
   
 
@@ -192,10 +103,6 @@ export function create(app) {
   let boardGap = 2;
   let rackGrid = { rects: [], cell: 48 };
   let buttons = { rects: [] };
-  
-  let buttonPad = BUTTON_PAD.wide;
-  
-  let keys = { rects: [] };
   let scoreBand = { x: 0, y: 0, width: 0, height: 0 };
   let statusBand = { x: 0, y: 0, width: 0, height: 0 };
 
@@ -263,40 +170,18 @@ export function create(app) {
     const rackHeight = narrow ? 56 : 66;
     const statusHeight = narrow ? 56 : 44;
     const scoresHeight = 36;
-    buttonPad = narrow ? BUTTON_PAD.phone : BUTTON_PAD.wide;
 
     scoreBand = { x: area.x, y: area.y, width: area.width, height: scoresHeight };
     const bottom = area.y + area.height;
-    
-    
-    
-    const hasKeys = keysReserved(app.width);
-    const keysBox = {
-      x: area.x,
-      y: bottom - keysHeight(),
-      width: area.width,
-      height: keysHeight(),
-    };
-    keys = hasKeys
-      ? keyboard({ box: keysBox, rows: KEY_ROWS, gap: KEY_GAP })
-      : { rects: [] };
-    const buttonsTop = (hasKeys ? keysBox.y - gap : bottom) - buttonsHeight;
+    const buttonsTop = bottom - buttonsHeight;
     const rackTop = buttonsTop - gap - rackHeight;
     const statusTop = rackTop - gap - statusHeight;
 
     buttons = keyboard({
       box: { x: area.x, y: buttonsTop, width: area.width, height: buttonsHeight },
       rows,
-      
-      
-      
-      
-      
-      
-      
-      
-      gap: narrow ? 6 : 8,
-      wideUnits: narrow ? 1 : 1.6,
+      gap: 8,
+      wideUnits: 1.6,
       maxKey: narrow ? 999 : 84,
     });
     rackGrid = grid({
@@ -735,21 +620,6 @@ export function create(app) {
     });
   }
 
-  
-
-
-
-
-
-
-
-
-  function toneFor(label, disabled) {
-    if (swapping && label === 'Swap') return 'gold';
-    if (label === 'Play' && !disabled && pending.length) return 'green';
-    return null;
-  }
-
   function drawButtons(g, now) {
     const s = state();
     buttons.rects.forEach((r, i) => {
@@ -760,66 +630,14 @@ export function create(app) {
       const up = i === hoverButton ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0;
       const down = i === pressButton ? sink(progress(now, pressAt, DURATION.press, app.motion), app.motion) : 0;
       paint.button(g, r, {
-        
-        
-        
-        
-        
-        
-        
-        
-        label,
+        label: swapping && label === 'Swap' ? 'Swap!' : label,
         hover: up,
         press: down,
         disabled,
-        pad: buttonPad,
         
         
-        
-        tone: toneFor(label, disabled),
+        tone: label === 'Play' && !disabled && pending.length ? 'green' : null,
       });
-    });
-  }
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  function drawKeys(g, now) {
-    if (!keys.rects.length) return;
-    const live = keysLive({ myTurn: app.myTurn(), over: state().over });
-    keys.rects.forEach((r, i) => {
-      const glyph = r.label === ENTER_KEY ? 'enter' : (r.label === DELETE_KEY ? 'delete' : null);
-      const up = i === hoverKey ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0;
-      const down = i === pressKey ? sink(progress(now, pressAt, DURATION.press, app.motion), app.motion) : 0;
-      paint.button(g, r, {
-        label: glyph ? '' : r.label,
-        hover: up,
-        press: down,
-        disabled: !live,
-        size: SIZES.base,
-        
-        
-        
-        tone: glyph === 'enter' && live && pending.length ? 'green' : null,
-      });
-      if (glyph) {
-        paint.keyGlyph(g, { ...r, y: r.y + down }, glyph, {
-          colour: !live ? COLORS.slate : (glyph === 'enter' && pending.length ? COLORS.card : COLORS.ink),
-        });
-      }
     });
   }
 
@@ -829,7 +647,6 @@ export function create(app) {
     drawStatus(g);
     drawRack(g, now);
     drawButtons(g, now);
-    drawKeys(g, now);
     if (dragging) {
       
       
@@ -945,43 +762,9 @@ export function create(app) {
     return at ? idx(at.row, at.col) : -1;
   };
 
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  function pressLabel(label, drag = false) {
-    const action = routeKey(pressFor(label), { screen: 'scrabble', overlay: false, games: ['scrabble'] });
-    if (!action) return;
-    key(drag ? { ...action, drag: true } : action);
-  }
-
-  
-  const rackLetters = () => slots.filter(Boolean).map((t) => t.letter);
-
   function pointerDown(pt) {
     syncRack();
     downAt = pt;
-    
-    
-    const onKey = rectAt(keys.rects, pt.x, pt.y);
-    if (onKey >= 0) {
-      pressKey = onKey;
-      pressAt = app.now();
-      stroke = { from: pt, lastKey: onKey, drawing: false };
-      const label = keys.rects[onKey].label;
-      if (firesOnDown(label)) pressLabel(label);
-      app.invalidate();
-      return;
-    }
     const rack = rectAt(rackGrid.rects, pt.x, pt.y);
     if (rack >= 0 && slots[rack]) { dragging = null; app.invalidate(); return; }
     const button = rectAt(buttons.rects, pt.x, pt.y);
@@ -989,37 +772,11 @@ export function create(app) {
   }
 
   function pointerMove(pt) {
-    
-    
-    
-    
-    
-    if (stroke) {
-      
-      
-      
-      if (!stroke.drawing && !isDrag(stroke.from, pt, DRAG_SLOP)) return;
-      stroke.drawing = true;
-      
-      
-      const at = rectAtLoose(keys.rects, pt.x, pt.y, 6);
-      const step = strokeStep(stroke, at, (i) => keys.rects[i].label);
-      if (step.stroke !== stroke) {
-        stroke = step.stroke;
-        pressKey = at;
-        pressAt = app.now();
-        if (step.emit) pressLabel(step.emit, true);
-        app.invalidate();
-      }
-      return;
-    }
     const rack = rectAt(rackGrid.rects, pt.x, pt.y);
     const button = rectAt(buttons.rects, pt.x, pt.y);
-    const onKey = rectAt(keys.rects, pt.x, pt.y);
-    if (rack !== hoverRack || button !== hoverButton || onKey !== hoverKey) {
+    if (rack !== hoverRack || button !== hoverButton) {
       hoverRack = rack;
       hoverButton = button;
-      hoverKey = onKey;
       hoverAt = app.now();
       app.invalidate();
     }
@@ -1039,33 +796,6 @@ export function create(app) {
     const button = rectAt(buttons.rects, pt.x, pt.y);
     const wasPressed = pressButton;
     pressButton = -1;
-    const wasKey = pressKey;
-    const swiped = !!(stroke && stroke.drawing);
-    stroke = null;
-    pressKey = -1;
-
-    if (wasKey >= 0 || swiped) {
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      if (!swiped) {
-        const onKey = rectAt(keys.rects, pt.x, pt.y);
-        const label = onKey >= 0 ? keys.rects[onKey].label : null;
-        
-        
-        
-        
-        if (onKey >= 0 && onKey === wasKey && !firesOnDown(label)) pressLabel(label);
-      }
-      app.invalidate();
-      return;
-    }
 
     if (wasDragging) {
       const square = squareIndexAt(pt);
@@ -1108,9 +838,6 @@ export function create(app) {
   function pointerLeave() {
     hoverRack = -1;
     hoverButton = -1;
-    hoverKey = -1;
-    pressKey = -1;
-    stroke = null;
     dragging = null;
     downAt = null;
     app.invalidate();
@@ -1122,19 +849,7 @@ export function create(app) {
 
   function key(action) {
     syncRack();
-    if (action.type === 'letter') {
-      
-      
-      
-      
-      
-      
-      
-      if (action.drag
-        && !dragTypes({ ch: action.value, rack: rackLetters(), myTurn: app.myTurn() })) return true;
-      typeLetter(action.value);
-      return true;
-    }
+    if (action.type === 'letter') { typeLetter(action.value); return true; }
     if (action.type === 'delete') { backspace(); return true; }
     if (action.type === 'submit') { play(); return true; }
     if (action.type === 'move') {
@@ -1173,11 +888,6 @@ export function create(app) {
       ...boardGrid.rects.map((r, i) => ({ id: `sq:${Math.floor(i / SIZE)}:${i % SIZE}`, ...r })),
       ...rackGrid.rects.map((r, i) => ({ id: `rack:${i}`, ...r })),
       ...buttons.rects.map((r) => ({ id: `btn:${r.label}`, ...r })),
-      
-      
-      
-      
-      ...keys.rects.map((r) => ({ id: `key:${r.label}`, ...r })),
     ],
     
 
@@ -1256,11 +966,7 @@ export function create(app) {
       || now - hoverAt < DURATION.hover
       || now - pressAt < DURATION.press
     ),
-    
-    
-    
-    keys: 'Arrow keys move the cursor. Type letters to lay tiles, Backspace takes one back, Enter plays the word. '
-      + KEYS_HELP,
+    keys: 'Arrow keys move the cursor. Type letters to lay tiles, Backspace takes one back, Enter plays the word.',
     
     
     
@@ -1270,13 +976,7 @@ export function create(app) {
     
     help: [
       'Make words on the board, like the box game.',
-      
-      
-      
-      
-      
-      
-      'Type where the blue ring is: tap or slide across the keys, drag a tile, or tap a tile then a square.',
+      'Type where the blue ring is, drag a tile from your rack, or tap a tile and then tap a square.',
       'Tap the square you are on again to turn the word from across to down.',
       'Your first word goes through the star in the middle. After that every word must touch one already there.',
       'Play scores the word. Undo takes your tiles back, Mix shuffles your rack, Swap changes tiles, Pass gives up the turn.',

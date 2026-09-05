@@ -455,21 +455,8 @@ export function focusRing(g, r, colour = COLORS.blue) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 export function button(g, r, {
   label = '', hover = 0, press = 0, disabled = false, tone = null, size = SIZES.base,
-  pad = 16,
 } = {}) {
   const fill = tone ? COLORS[tone] : COLORS.card;
   const on = tone ? COLORS.card : (disabled ? COLORS.slate : COLORS.ink);
@@ -480,94 +467,8 @@ export function button(g, r, {
     alpha: disabled ? 0.6 : 1,
   });
   text(g, label, { x: r.x, y: r.y + press, w: r.w, h: r.h }, {
-    size, colour: on, fit: true, maxWidth: r.w - (String(label).length <= 1 ? 6 : pad),
+    size, colour: on, fit: true, maxWidth: r.w - (String(label).length <= 1 ? 6 : 16),
   });
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export function keyGlyph(g, r, kind, { colour = COLORS.ink } = {}) {
-  const cx = r.x + r.w / 2;
-  const cy = r.y + r.h / 2;
-  const s = Math.max(12, Math.min(19, Math.min(r.w, r.h) * 0.44));
-  const pen = Math.max(2.5, s * 0.17);
-
-  g.save();
-  g.strokeStyle = colour;
-  g.fillStyle = colour;
-  g.lineWidth = pen;
-  g.lineJoin = 'round';
-  g.lineCap = 'round';
-
-  if (kind === 'enter') {
-    
-    
-    
-    const right = cx + s * 0.72;
-    const left = cx - s * 0.62;
-    const top = cy - s * 0.72;
-    const base = cy + s * 0.4;
-    const head = s * 0.46;
-    g.beginPath();
-    g.moveTo(right, top);
-    g.lineTo(right, base);
-    
-    g.lineTo(left + head * 0.8, base);
-    g.stroke();
-    g.beginPath();
-    g.moveTo(left, base);
-    g.lineTo(left + head, base - head);
-    g.lineTo(left + head, base + head);
-    g.closePath();
-    g.fill();
-  } else {
-    
-    const h = s * 1.12;
-    const nose = cx - s * 1.0;
-    const tail = cx + s * 0.72;
-    const shoulder = nose + h * 0.58;
-    g.beginPath();
-    g.moveTo(nose, cy);
-    g.lineTo(shoulder, cy - h / 2);
-    g.lineTo(tail, cy - h / 2);
-    g.lineTo(tail, cy + h / 2);
-    g.lineTo(shoulder, cy + h / 2);
-    g.closePath();
-    g.stroke();
-    const k = h * 0.21;
-    const mx = (shoulder + tail) / 2 + k * 0.3;
-    g.beginPath();
-    g.moveTo(mx - k, cy - k);
-    g.lineTo(mx + k, cy + k);
-    g.moveTo(mx + k, cy - k);
-    g.lineTo(mx - k, cy + k);
-    g.stroke();
-  }
-  g.restore();
 }
 
 

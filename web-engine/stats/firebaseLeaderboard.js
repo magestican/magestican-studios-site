@@ -24,6 +24,15 @@ import {
 } from './leaderboardConfig.js';
 import { toPublicDto, fromPublicDto, isPublishable, playerKey } from './leaderboardDto.js';
 
+
+
+
+
+
+import {
+  PLAY_COUNTS_COLLECTION, isCountedGameId, shouldCountPlay, COUNTED_GAME_IDS,
+} from '../analytics/playCounts.js';
+
 let _state = null;      
 
 
@@ -242,4 +251,151 @@ export async function fetchTotals(cfg = LEADERBOARD_CONFIG) {
     console.warn('[leaderboard] totals fetch failed:', err?.message || err);
     return null;
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function whenIdle(ms = 3000) {
+  return new Promise((go) => {
+    const w = globalThis;
+    let done = false;
+    const once = () => { if (!done) { done = true; go(); } };
+    if (typeof w.requestIdleCallback === 'function') w.requestIdleCallback(once, { timeout: ms });
+    setTimeout(once, ms);
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function countPlay(gameId, { isHost } = {}, cfg = LEADERBOARD_CONFIG) {
+  
+  
+  
+  if (!shouldCountPlay({ isHost })) return false;
+  if (!isCountedGameId(gameId)) {
+    
+    
+    
+    
+    
+    console.warn(`[playCounts] "${gameId}" is not a counted game id - not written`);
+    return false;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  await whenIdle();
+  const s = await ready(cfg);
+  if (!s) return false;
+  try {
+    const { doc, setDoc, increment } = s.store;
+    
+    
+    
+    
+    
+    await setDoc(
+      doc(s.db, PLAY_COUNTS_COLLECTION, gameId),
+      { matches: increment(1), updatedAt: Date.now() },
+      { merge: true },
+    );
+    return true;
+  } catch (err) {
+    console.warn('[playCounts] play count failed:', err?.message || err);
+    return false;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function fetchPlayCounts(cfg = LEADERBOARD_CONFIG) {
+  const s = await ready(cfg);
+  if (!s) return null;
+  const { doc, getDoc } = s.store;
+  const out = {};
+  for (const id of COUNTED_GAME_IDS) {
+    try {
+      const snap = await getDoc(doc(s.db, PLAY_COUNTS_COLLECTION, id));
+      
+      
+      
+      
+      
+      if (!snap.exists()) continue;
+      const n = snap.data()?.matches;
+      if (Number.isInteger(n) && n >= 0) out[id] = n;
+    } catch (_) {  }
+  }
+  return out;
 }

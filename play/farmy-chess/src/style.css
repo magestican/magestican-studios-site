@@ -84,6 +84,26 @@ html, body {
 }
 
 canvas#board {
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  touch-action: none;
+
   display: block;
   width: 100%;
   flex: 1 1 auto;

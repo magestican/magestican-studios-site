@@ -133,6 +133,9 @@ import { createMinimap, drawMinimap } from './ui/minimapView.js';
 import { createControls, readControls, consumeItemPress, showTouchOverlay } from './input/controls.js';
 import { raceFov, fovCeiling } from '../../../web-engine/kart/raceFov.js';
 import { createRaceNet } from './net/raceNet.js';
+
+
+import { countPlay } from 'arbelo/leaderboard';
 import { createAudio, resumeAudio, startEngine, updateEngine, updateRivals, updateAirshipDrone, stopEngine, SFX, setMuted } from './audio/sfx.js';
 import { startMusic, stopMusic, setMusicIntensity, duckMusic } from './audio/music.js';
 import { PALETTE } from './palette.js';
@@ -164,6 +167,31 @@ export function createRace(options) {
     
     resume = null,
   } = options;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  countPlay('farmykart', { isHost: !session || session.isHost === true });
 
   const authored = trackById(trackId);
   
