@@ -76,6 +76,22 @@ import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { createCelebration } from '../../shared/ui/celebrate.js';
 
+
+
+
+
+
+
+
+
+try {
+  if (globalThis.self !== globalThis.top) document.documentElement.classList.add('framed');
+} catch {
+  
+  
+  
+}
+
 initAnalytics({ page: 'farmy-scrabble' });
 
 

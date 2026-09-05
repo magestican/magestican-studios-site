@@ -124,7 +124,18 @@ const app = {
 
 
 
-  leaveFor: (url) => { try { globalThis.location.assign(url); } catch {  } },
+
+
+
+
+
+
+
+
+
+
+
+  leaveFor: (url) => openFamily(url),
   finished: () => {},
   save: () => {},
   load: () => null,
@@ -1001,6 +1012,130 @@ function openGame(id, firstLetter) {
   invalidate();
   if (firstLetter) screen.key({ type: 'letter', value: firstLetter });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const familyFrame = document.getElementById('family');
+const familyBack = document.getElementById('family-back');
+
+
+let familyUrl = null;
+
+
+
+
+
+
+
+
+
+const shellUrl = (() => {
+  try { return globalThis.location.pathname + globalThis.location.search; } catch { return '/'; }
+})();
+
+function showFamily(url) {
+  familyUrl = url;
+  if (url) {
+    
+    
+    if (familyFrame.getAttribute('src') !== url) familyFrame.setAttribute('src', url);
+    familyFrame.hidden = false;
+    canvas.hidden = true;
+    familyBack.hidden = false;
+    
+    try { familyFrame.focus(); } catch {  }
+  } else {
+    familyFrame.hidden = true;
+    canvas.hidden = false;
+    familyBack.hidden = true;
+    
+    
+    familyFrame.removeAttribute('src');
+    try { canvas.focus(); } catch {  }
+    resize();
+  }
+}
+
+
+function openFamily(url) {
+  if (!familyFrame || !url) {
+    try { globalThis.location.assign(url); } catch {  }
+    return;
+  }
+  showFamily(url);
+  try { globalThis.history.pushState({ family: url }, '', url); } catch {  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function closeFamily(fromPopstate = false) {
+  if (!familyUrl) return;
+  showFamily(null);
+  if (fromPopstate) return;
+  const was = globalThis.location?.pathname;
+  try { globalThis.history.back(); } catch {  }
+  globalThis.setTimeout(() => {
+    try {
+      if (globalThis.location.pathname === was) {
+        globalThis.history.replaceState({}, '', shellUrl);
+      }
+    } catch {  }
+  }, 120);
+}
+
+if (familyBack) familyBack.addEventListener('click', () => closeFamily());
+
+
+
+
+globalThis.addEventListener('popstate', (e) => {
+  const want = e.state?.family ?? null;
+  if (want === familyUrl) return;
+  if (want) showFamily(want);
+  else showFamily(null);
+});
 
 function goHome() {
   current = HOME;

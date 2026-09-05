@@ -249,3 +249,13 @@ body {
   .studio-home span { width: 0; overflow: hidden; }
   .studio-back { font-size: 16px; }
 }
+
+
+
+
+
+
+
+
+
+html.framed .studio-bar { display: none; }

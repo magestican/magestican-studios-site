@@ -86,6 +86,22 @@ import { cueFor } from '../../../web-engine/chess/chessSound.js';
 import { easeOut } from '../../../web-engine/words/motion.js';
 import { createCelebration } from '../../shared/ui/celebrate.js';
 
+
+
+
+
+
+
+
+
+try {
+  if (globalThis.self !== globalThis.top) document.documentElement.classList.add('framed');
+} catch {
+  
+  
+  
+}
+
 initAnalytics({ page: 'farmy-chess' });
 startVersionChecker({
   versionUrl: './version.json',

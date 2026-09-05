@@ -40,6 +40,21 @@
 
 
 export function wireMusicButton({ music, announce = () => {}, sound = () => {} } = {}) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let framed = false;
+  try { framed = globalThis.self !== globalThis.top; } catch { framed = false; }
+  if (framed) return () => {};
+
   const btn = globalThis.document?.getElementById('music-btn');
   if (!btn || !music) return () => {};
 

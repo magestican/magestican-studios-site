@@ -244,3 +244,67 @@ noscript p {
   font-size: var(--fc-base);
   color: var(--fc-ink);
 }
+
+
+
+
+
+
+
+
+
+
+.family-frame {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  background: var(--fc-paper);
+}
+.family-frame[hidden] { display: none; }
+canvas#board[hidden] { display: none; }
+
+
+
+
+.studio-back-btn {
+  flex: 0 0 auto;
+  margin-left: auto;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fc-paper);
+  font: inherit;
+  font-size: 17px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.studio-back-btn:hover { background: var(--fc-paper-wash); }
+.studio-back-btn:focus-visible {
+  outline: var(--fc-shadow) solid var(--fc-blue);
+  outline-offset: 2px;
+}
+
+
+.studio-back-btn ~ .studio-music { margin-left: 2px; }
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 560px) {
+  body:has(.studio-back-btn:not([hidden])) .studio-home span { display: none; }
+}
+
+
+
+
+html.framed .studio-bar { display: none; }
