@@ -327,8 +327,42 @@ export function setOn(value) {
 
 
 
-export function duck(depth = 0.42, ms = 260) {
-  if (!on || !master || !ctx) return;
+
+
+
+
+
+
+
+export function duck(depth = 0.32, ms = 300) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (!on || !master || !ctx) {
+    try {
+      if (globalThis.self !== globalThis.top) {
+        globalThis.parent.postMessage(
+          { magestican: 'duck', depth, ms },
+          globalThis.location.origin,
+        );
+      }
+    } catch {  }
+    return;
+  }
   const now = ctx.currentTime;
   const full = 0.34;
   master.gain.cancelScheduledValues(now);
@@ -366,3 +400,21 @@ export function state() {
     loopBars: LOOP_BARS,
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+try {
+  globalThis.addEventListener('message', (e) => {
+    if (e.origin !== globalThis.location.origin) return;
+    if (e.data?.magestican !== 'duck') return;
+    duck(e.data.depth, e.data.ms);
+  });
+} catch {  }
