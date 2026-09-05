@@ -413,7 +413,20 @@ export function create(app) {
       
       
       dragFrom = { y: pt.y, scroll };
-      if (press >= 0) app.sound('press');
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       app.invalidate();
     },
     pointerUp: (pt) => {
@@ -428,6 +441,10 @@ export function create(app) {
       
       if (moved > DRAG_SLOP) return;
       if (i < 0 || i !== was) return;
+      
+      
+      
+      app.sound('press');
       if (i < cards.length) app.openGame(cards[i].game.id);
       else app.leaveFor(family[i - cards.length].game.url);
     },

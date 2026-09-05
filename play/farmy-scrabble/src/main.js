@@ -913,6 +913,16 @@ wireMusicButton({ music, announce, sound: (e) => sfx.play(e) });
 
 
 
+
+
+
+
+
+
+
+
+
+
 globalThis.__fs = {
   get room() {
     return {
@@ -945,10 +955,30 @@ globalThis.__fs = {
   
   
   get audio() { return sfx.state(); },
-  rects: () => [
-    ...((overlay ?? screen).rects?.() ?? []),
-    ...(overlay ? [] : barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h }))),
-  ],
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  rects: () => {
+    const box = canvas.getBoundingClientRect();
+    return [
+      ...((overlay ?? screen).rects?.() ?? []),
+      ...(overlay ? [] : barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h }))),
+    ].map((r) => ({ ...r, x: r.x + box.left, y: r.y + box.top }));
+  },
 };
 
 

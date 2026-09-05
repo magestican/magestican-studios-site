@@ -307,6 +307,38 @@ export function setOn(value) {
   return on;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function duck(depth = 0.42, ms = 260) {
+  if (!on || !master || !ctx) return;
+  const now = ctx.currentTime;
+  const full = 0.34;
+  master.gain.cancelScheduledValues(now);
+  master.gain.setValueAtTime(master.gain.value, now);
+  
+  
+  master.gain.linearRampToValueAtTime(full * depth, now + 0.03);
+  master.gain.linearRampToValueAtTime(full, now + 0.03 + ms / 1000);
+}
+
 export function toggle() { return setOn(!on); }
 
 
@@ -323,6 +355,11 @@ export function state() {
   return {
     on,
     context: ctx ? ctx.state : 'none',
+    
+    
+    
+    
+    gain: master ? Math.round(master.gain.value * 1000) / 1000 : null,
     bar,
     played,
     failed,

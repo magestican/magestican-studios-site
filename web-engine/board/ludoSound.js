@@ -24,6 +24,13 @@
 
 
 
+
+
+
+
+
+
+
 export const MASTER = 0.35;
 export const CEILING = 0.22;
 export const TOP_HZ = 900;
@@ -69,10 +76,10 @@ export const CUES = Object.freeze({
   },
   
   
-  settle: { kind: 'noise', voices: [{ hz: 245, gain: 0.13, at: 0, ms: 85 }] },
+  settle: { kind: 'noise', voices: [{ hz: 245, gain: 0.195, at: 0, ms: 85 }] },
   
   
-  step: { kind: 'tone', voices: [{ hz: 520, gain: 0.055, at: 0, ms: 60 }] },
+  step: { kind: 'tone', voices: [{ hz: 520, gain: 0.104, at: 0, ms: 60 }] },
   
   
   capture: {
@@ -86,7 +93,7 @@ export const CUES = Object.freeze({
   out: {
     kind: 'tone',
     voices: [
-      { hz: 430, gain: 0.10, at: 0, ms: 70 },
+      { hz: 430, gain: 0.15, at: 0, ms: 70 },
       { hz: 645, gain: 0.10, at: 55, ms: 90 },
     ],
   },
@@ -95,15 +102,15 @@ export const CUES = Object.freeze({
   home: {
     kind: 'tone',
     voices: [
-      { hz: 523, gain: 0.13, at: 0, ms: 90 },
+      { hz: 523, gain: 0.182, at: 0, ms: 90 },
       { hz: 659, gain: 0.13, at: 45, ms: 110 },
     ],
   },
   
   
-  yours: { kind: 'tone', voices: [{ hz: 587, gain: 0.09, at: 0, ms: 80 }] },
+  yours: { kind: 'tone', voices: [{ hz: 587, gain: 0.144, at: 0, ms: 80 }] },
   
-  pass: { kind: 'tone', voices: [{ hz: 240, gain: 0.08, at: 0, ms: 110 }] },
+  pass: { kind: 'tone', voices: [{ hz: 240, gain: 0.128, at: 0, ms: 110 }] },
   
   
   win: {

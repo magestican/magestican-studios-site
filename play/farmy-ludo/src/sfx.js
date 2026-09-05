@@ -14,6 +14,7 @@
 
 import { MASTER, cueFor, voicesOf, MUTE_KEY } from '../../../web-engine/board/ludoSound.js';
 import { createAudioUnlock } from '../../shared/audio/iosUnlock.js';
+import { duck } from '../../shared/audio/lofi.js';
 
 let ctx = null;
 let master = null;
@@ -94,6 +95,11 @@ export function play(name) {
   if (!ensureContext()) return;
   const voices = voicesOf(name);
   if (!voices.length) return;
+  
+  
+  
+  
+  duck();
   const now = ctx.currentTime;
   for (const v of voices) {
     try {
