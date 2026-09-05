@@ -401,7 +401,13 @@ export function results(app, { state, onNext, onGames, onClose }) {
     const rows = state.rows ?? [];
     const winner = state.winner;
 
-    paint.text(g, state.won ? 'Solved' : 'That is the lot',
+    
+    
+    
+    
+    const title = state.reason === 'time' ? 'Time is up'
+      : (state.won ? 'Solved' : 'That is the lot');
+    paint.text(g, title,
       { x: box.x, y: box.y + 16, width: box.w, height: 38 },
       { size: SIZES.h2, colour: COLORS.ink });
 
@@ -419,16 +425,46 @@ export function results(app, { state, onNext, onGames, onClose }) {
         if (y + 30 > limit) break;
         const dot = { x: box.x + pad, y: y + 3, w: 20, h: 20 };
         paint.surface(g, dot, { fill: COLORS[row.colour] ?? COLORS.slate, offset: 0 });
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        const scored = Number.isInteger(row.total) && row.total > 0;
+        const right = row.comparable
+          ? (scored ? `${row.done} of ${row.total}` : 'here')
+          : row.where;
+
+        
+        
+        
+        
+        
+        
+        
+        
+        g.font = paint.font(SIZES.min, 400);
+        const rightW = Math.min(width * 0.6, g.measureText(right).width + 10);
+        const nameW = width - 30 - rightW;
+
         paint.text(g, row.you ? `${row.name} (you)` : row.name,
-          { x: box.x + pad + 30, y, width: width * 0.5, height: 26 },
+          { x: box.x + pad + 30, y, width: nameW, height: 26 },
           { size: SIZES.min, weight: 700, colour: COLORS.ink, align: 'left',
-            fit: true, maxWidth: width * 0.5 });
+            fit: true, maxWidth: nameW });
         
         
-        paint.text(g, row.comparable ? (row.label ?? row.where) : 'On another puzzle',
-          { x: box.x + pad + width * 0.5, y, width: width * 0.5, height: 26 },
+        paint.text(g, right,
+          { x: box.x + pad + width - rightW, y, width: rightW, height: 26 },
           { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right',
-            fit: true, maxWidth: width * 0.5 });
+            fit: true, maxWidth: rightW });
         y += 30;
       }
     }

@@ -103,7 +103,14 @@ export const puzzleAt = (index) => STRANDS_PUZZLES[index] ?? null;
 export function progressIn(index, saved = {}) {
   const puzzle = STRANDS_PUZZLES[index];
   const words = puzzle?.words?.length ?? 0;
-  const real = new Set(puzzle?.words ?? []);
+  
+  
+  
+  
+  
+  
+  
+  const real = new Set((puzzle?.words ?? []).map((w) => w.w));
   const done = (Array.isArray(saved.found) ? saved.found : []).filter((w) => real.has(w)).length;
   return {
     done, total: words, finished: words > 0 && done >= words,

@@ -1397,13 +1397,17 @@ function openRoom() {
   invalidate();
 }
 
-function openResults(won = true) {
+function openResults(won = true, reason = null) {
   app.message = '';
   const here = current;
   const at = indexFor[current];
   overlay = resultsPanel(app, {
     state: {
       won,
+      
+      
+      
+      reason,
       get rows() { return inRoom() && roomState.peers.length > 1 ? rankedRoom() : []; },
       get winner() { return winnerOf(rankedRoom()); },
       get me() { return roomState.me; },
@@ -1544,7 +1548,9 @@ function endMatch() {
   party.start();
   app.sound('win');
   announce('Time. Here is how everybody did.');
-  openResults(true);
+  
+  
+  openResults(false, 'time');
   layoutBar();
   invalidate();
 }
