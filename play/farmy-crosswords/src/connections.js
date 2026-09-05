@@ -254,6 +254,42 @@ export function create(app, index) {
 
     paint.text(g, 'Mistakes', { x: area.x, y: pipRects[0].y - 4, w: 100, h: 34 },
       { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'left' });
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const lastPip = pipRects[pipRects.length - 1];
+    const textLeft = lastPip.x + lastPip.w + 10;
+    const room = (area.x + area.width) - textLeft;
+    const leftToFind = 4 - s.solved.length;
+    
+    
+    
+    
+    
+    const long = leftToFind === 1 ? '1 group to go' : `${leftToFind} groups to go`;
+    const short = `${leftToFind} to go`;
+    g.font = paint.font(SIZES.small, 400);
+    const label = g.measureText(long).width <= room - 4 ? long : short;
+    paint.text(g, label,
+      { x: textLeft, y: pipRects[0].y - 4, w: room, h: 34 },
+      { size: SIZES.small, weight: 400, colour: COLORS.inkSoft, align: 'right', fit: true,
+        maxWidth: room });
     pipRects.forEach((r, i) => {
       const spent = i < s.mistakes;
       paint.surface(g, r, { fill: spent ? COLORS[STATES.mistake.fill] : COLORS.card, offset: 0 });

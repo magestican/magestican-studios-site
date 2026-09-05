@@ -107,6 +107,13 @@ export function describeConnections({ puzzle, state, board, picked = [], index =
   if (left.length) lines.push(`Words left: ${left.join(', ')}.`);
   if (picked.length) lines.push(`Selected: ${picked.join(', ')}.`);
   lines.push(`Mistakes: ${state.mistakes} of ${MAX_MISTAKES}.`);
+  
+  
+  
+  const toGo = puzzle.groups.length - state.solved.length;
+  if (!state.won && !state.lost) {
+    lines.push(toGo === 1 ? '1 group to go.' : `${toGo} groups to go.`);
+  }
   return {
     title: `Farmy Connections, set ${index}`,
     status: state.won ? 'All four groups found.' : (state.lost ? 'Out of guesses.' : 'In play.'),
