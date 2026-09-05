@@ -184,3 +184,65 @@ export function verdict(state, answer) {
   if (state.lost) return `Out of guesses. The word was ${String(answer).toUpperCase()}.`;
   return `${state.guessesLeft} ${state.guessesLeft === 1 ? 'guess' : 'guesses'} left.`;
 }
+
+
+
+
+
+
+
+
+export const HINTS_ALLOWED = 2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function hintFor(answer, guesses = [], given = []) {
+  const word = String(answer).toUpperCase();
+  const sold = Array.isArray(given) ? given : [];
+  if (sold.length >= HINTS_ALLOWED) return null;
+  const state = play(word, guesses);
+  if (state.over) return null;
+
+  const known = new Set(sold.map((h) => h?.index).filter(Number.isInteger));
+  for (const row of state.rows) {
+    row.marks.forEach((mark, i) => { if (mark === RIGHT) known.add(i); });
+  }
+  for (let i = 0; i < word.length; i += 1) {
+    if (!known.has(i)) return { index: i, letter: word[i] };
+  }
+  return null;
+}
+
+
+const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
+
+
+
+
+
+
+export function describeHint(hint) {
+  if (!hint) return 'No hints left.';
+  return `Hint: the ${ORDINALS[hint.index] ?? `letter ${hint.index + 1}`} letter is ${hint.letter}.`;
+}

@@ -94,7 +94,22 @@ function wordleScore(answer, saved) {
   
   
   const used = guesses.length;
-  return 45 + Math.round((MAX_GUESSES - used) * 15);
+  const earned = 45 + Math.round((MAX_GUESSES - used) * 15);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const hints = Array.isArray(saved.given) ? saved.given.length : 0;
+  return Math.max(30, earned - hints * 15);
 }
 
 

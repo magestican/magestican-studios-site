@@ -158,7 +158,18 @@ export function create(app, index) {
     const bottom = box.y + box.height;
     buttons = keyboard({
       box: { x: box.x, y: bottom - btnH, width: box.width, height: btnH },
-      rows: [['Clear', 'Other word', `Hint (${state().hintsAvailable})`]],
+      
+      
+      
+      
+      
+      
+      
+      rows: [[
+        'Clear',
+        box.width < 520 ? 'Other' : 'Other word',
+        `Hint (${state().hintsAvailable})`,
+      ]],
       gap: 10,
       wideUnits: 1,
       maxKey: 190,
@@ -456,6 +467,8 @@ export function create(app, index) {
 
   function pressButton(i) {
     const name = buttons.rects[i].label;
+    
+    
     if (name === 'Clear') { trail = []; typed = ''; }
     else if (name.startsWith('Hint')) useHint();
     else submitBonus();

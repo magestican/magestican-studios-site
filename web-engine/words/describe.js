@@ -37,7 +37,9 @@ const tile = (letter, state) => `${letter} ${STATES[state].label}`;
 
 
 
-export function describeWordle({ answer, guesses, typed = '', puzzle = 1 }) {
+const ORDINAL = ['first', 'second', 'third', 'fourth', 'fifth'];
+
+export function describeWordle({ answer, guesses, typed = '', puzzle = 1, given = [] }) {
   const lines = [];
   guesses.forEach((guess, i) => {
     const marks = scoreGuess(guess, answer);
@@ -52,6 +54,13 @@ export function describeWordle({ answer, guesses, typed = '', puzzle = 1 }) {
     
     const known = lettersKnown(guesses.map((g, i) => ({ guess: g, marks: scoreGuess(g, answer) })));
     if (known) lines.push(known);
+    
+    
+    
+    
+    if (given.length) {
+      lines.push(`From hints: ${given.map((h) => `${ORDINAL[h.index] ?? h.index + 1} letter ${h.letter}`).join(', ')}.`);
+    }
     lines.push(typed
       ? `Typing: ${[...typed].join(' ')}. ${MAX_GUESSES - guesses.length} guesses left.`
       : `${MAX_GUESSES - guesses.length} guesses left. Type a five letter word.`);

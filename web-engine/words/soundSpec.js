@@ -120,6 +120,11 @@ export function cueFor(event) {
     case 'type': return 'key';
     case 'trail': return 'drag';
     case 'word': return 'found';
+    
+    
+    
+    
+    case 'hint': return 'found';
     case 'pangram':
     case 'spangram': return 'special';
     case 'reject': return 'refuse';

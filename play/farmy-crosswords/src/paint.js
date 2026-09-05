@@ -176,6 +176,10 @@ export function tile(g, r, {
   
   
   
+  colour = null,
+  
+  
+  
   floor = SIZES.min,
 } = {}) {
   const s = state ? STATES[state] : null;
@@ -205,7 +209,7 @@ export function tile(g, r, {
     const forMark = s && word ? 30 : 0;
     text(g, letter, { x: r.x, y: r.y + press, w: r.w - forMark, h: r.h }, {
       size: size ?? Math.round(r.h * 0.52),
-      colour: inkOn,
+      colour: colour ?? inkOn,
       fit: true,
       floor,
       maxWidth: r.w - forMark - (word ? 12 : 6),

@@ -106,6 +106,10 @@ const app = {
   keyboardMode: false,
   now: () => performance.now(),
   invalidate,
+  
+  
+  
+  relayout: () => relayout(),
   announce: (m) => announce(m),
   openGame,
   goHome,
@@ -287,7 +291,17 @@ function infoRow() {
   const label = narrow
     ? `${indexFor[current] + 1} of ${mod.count()}`
     : `Puzzle ${indexFor[current] + 1} of ${mod.count()}`;
-  const w = narrow ? 120 : Math.min(200, Math.max(150, app.width * 0.42));
+  
+  
+  
+  
+  
+  
+  g.font = paint.font(SIZES.min, 700);
+  const need = Math.ceil(g.measureText(label).width) + 30;
+  const w = narrow
+    ? Math.min(Math.max(120, need), Math.max(120, app.width * 0.5))
+    : Math.min(220, Math.max(150, need, app.width * 0.42));
   return {
     pad,
     y: BAR + 2,
