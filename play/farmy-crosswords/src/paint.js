@@ -281,9 +281,32 @@ export function ribbon(g, points, { width = 22, colour = COLORS.blue, alpha = 0.
 
 export function button(g, r, {
   label = '', hover = 0, press = 0, disabled = false, tone = null, size = SIZES.base,
+  glow = 0,
 } = {}) {
   const fill = tone ? COLORS[tone] : COLORS.card;
   const on = tone ? COLORS.card : (disabled ? COLORS.slate : COLORS.ink);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (glow > 0 && !disabled) {
+    const spread = 6 + glow * 10;
+    g.save();
+    g.globalAlpha = 0.16 + glow * 0.2;
+    g.fillStyle = fill;
+    roundRect(g, r.x - spread, r.y - spread, r.w + spread * 2, r.h + spread * 2,
+      SIZES.radius + spread);
+    g.fill();
+    g.restore();
+  }
   surface(g, r, {
     fill,
     offset: disabled ? 0 : Math.max(0, SIZES.shadow + hover - press),
@@ -710,6 +733,58 @@ export function playerFace(g, r, { colour = COLORS.blue, seat = 0, ink = COLORS.
   }
   g.beginPath();
   g.arc(cx, cy + rad * 0.12, rad * 0.42, 0.25 * Math.PI, 0.75 * Math.PI);
+  g.stroke();
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function cheerLetter(g, ch, { x, y, size, scale = 1, colour = COLORS.ink, alpha = 1 }) {
+  g.save();
+  g.globalAlpha = alpha;
+  g.font = font(size, 800);
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.translate(x, y);
+  g.scale(scale, scale);
+  g.fillStyle = COLORS.ink;
+  g.fillText(ch, 2, 3);
+  g.fillStyle = colour;
+  g.fillText(ch, 0, 0);
+  g.restore();
+}
+
+
+export function sparkle(g, { x, y, size, colour = COLORS.gold, alpha = 1 }) {
+  g.save();
+  g.globalAlpha = alpha;
+  g.fillStyle = colour;
+  g.fillRect(x - size / 2, y - size / 2, size, size);
+  g.restore();
+}
+
+
+export function cheerPlate(g, r, { alpha = 1, radius = SIZES.radius * 2 } = {}) {
+  g.save();
+  g.globalAlpha = alpha;
+  g.fillStyle = COLORS.card;
+  roundRect(g, r.x, r.y, r.w, r.h, radius);
+  g.fill();
+  g.globalAlpha = alpha * 0.55;
+  g.strokeStyle = COLORS.ink;
+  g.lineWidth = Math.max(2, r.h * 0.026);
   g.stroke();
   g.restore();
 }

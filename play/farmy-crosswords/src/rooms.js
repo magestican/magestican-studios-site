@@ -333,6 +333,10 @@ export function more(app, { items }) {
     overlay: true,
     layout,
     draw,
+    
+    
+    
+    animating: (now) => app.motion && (now - openedAt) < GLOW_MS,
     rects: () => buttons.map((b) => ({ ...b, id: `btn:${b.id}` })),
     pointerMove: (pt) => {
       const i = pt ? rectAt(buttons, pt.x, pt.y) : -1;
@@ -378,6 +382,14 @@ export function results(app, { state, onNext, onGames, onClose }) {
   let buttons = [];
   let hover = -1;
   let hoverAt = 0;
+  
+  
+  
+  
+  
+  
+  const openedAt = app.now();
+  const GLOW_MS = 6000;
 
   function layout() {
     box = panelBox(app, false);
@@ -470,10 +482,21 @@ export function results(app, { state, onNext, onGames, onClose }) {
     }
 
     buttons.forEach((b, i) => {
+      
+      
+      
+      
+      
+      
+      const breathing = app.motion && (now - openedAt) < GLOW_MS;
+      const breath = b.id === 'next'
+        ? (breathing ? 0.5 + 0.5 * Math.sin((now / 900) % (Math.PI * 2)) : 0.7)
+        : 0;
       paint.button(g, b, {
         label: b.label,
         size: SIZES.min,
         tone: b.id === 'next' ? 'green' : null,
+        glow: breath,
         hover: hover === i ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion) : 0,
       });
     });

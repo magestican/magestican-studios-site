@@ -358,7 +358,30 @@ export function create(app, index) {
     
     
     
-    reload: (s) => { guesses = Array.isArray(s.guesses) ? s.guesses : guesses; },
+    reload: (s) => {
+      const before = play(answer, guesses);
+      guesses = Array.isArray(s.guesses) ? s.guesses : guesses;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const after = play(answer, guesses);
+      if (!before.over && after.over) {
+        if (after.won) app.sound('win');
+        app.finished(after.won);
+      }
+    },
     rects: () => [
       ...board.rects.map((r, i) => ({ id: `tile:${Math.floor(i / WORD_LENGTH)}:${i % WORD_LENGTH}`, ...r })),
       ...keys.rects.map((r) => ({ id: `key:${r.label}`, ...r })),

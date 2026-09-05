@@ -584,8 +584,30 @@ export function create(app, index) {
     layout,
     reload: (s) => {
       if (!Array.isArray(s.found)) return;
+      const listedBefore = found.filter((w) => puzzle.answers.includes(w));
+      const wasDone = listedBefore.length === puzzle.answers.length;
       if (s.found.length !== found.length) { foundAt = app.now(); barFrom = share(); barAt = app.now(); }
       found = s.found;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const listedNow = found.filter((w) => puzzle.answers.includes(w));
+      if (!wasDone && listedNow.length === puzzle.answers.length) {
+        app.sound('win');
+        app.finished(true);
+      }
     },
     rects: () => [
       ...cells.map((r, i) => ({ id: `key:${letters[i]}`, ...r })),

@@ -36,6 +36,7 @@ import { grid, keyboard, rectAt, rectAtLoose, centreOf, flow } from '../../../we
 import { extendTrail, tapTrail, trailPoints, pulseFront, isDrag } from '../../../web-engine/words/drag.js';
 import { progress, lift, sink, shake, hump, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
+import { createSpangramCheer } from './cheer.js';
 
 const KNOWN = new Set(WORDLE_GUESSES);
 
@@ -212,6 +213,12 @@ export function create(app, index) {
     return map;
   }
 
+  
+  
+  
+  
+  const cheer = createSpangramCheer({ now: () => app.now(), motion: () => app.motion });
+
   function draw(g, now) {
     const s = state();
     const owner = owners();
@@ -309,6 +316,11 @@ export function create(app, index) {
           ? sink(progress(now, pressAt, DURATION.press, app.motion), app.motion) : 0,
       });
     });
+
+    
+    
+    
+    cheer.draw(g, app.width, app.height);
   }
 
   
@@ -403,6 +415,7 @@ export function create(app, index) {
     app.message = msg;
     app.announce(msg);
     app.sound(entry.w === puzzle.spangram ? 'spangram' : 'word');
+    if (entry.w === puzzle.spangram) cheer.start();
     app.invalidate();
     if (found.length === puzzle.words.length) { app.sound('win'); app.finished(true); }
   }
@@ -493,6 +506,7 @@ export function create(app, index) {
     id: 'strands',
     layout,
     reload: (s) => {
+      const wasDone = found.length === puzzle.words.length;
       if (Array.isArray(s.found)) {
         if (s.found.length !== found.length) foundAt = app.now();
         found = s.found;
@@ -500,6 +514,25 @@ export function create(app, index) {
       if (Array.isArray(s.bonus)) bonus = s.bonus;
       if (Number.isInteger(s.hintsUsed)) hintsUsed = s.hintsUsed;
       layout(area);
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (!wasDone && found.length === puzzle.words.length) {
+        app.sound('win');
+        app.finished(true);
+      }
     },
     rects: () => [
       ...board.rects.map((r, i) => ({ id: `cell:${i}`, ...r })),
@@ -615,13 +648,13 @@ export function create(app, index) {
       ].filter(Boolean);
       return credits.length ? { ...base, lines: [...base.lines, ...credits] } : base;
     },
-    animating: (now) => app.motion && (
+    animating: (now) => cheer.running() || (app.motion && (
       (shakeAt >= 0 && now - shakeAt < DURATION.shake)
       || now - foundAt < DURATION.found
       || now - hoverAt < DURATION.hover
       || now - pressAt < DURATION.press
       || lit.length > 0
-    ),
+    )),
     keys: 'Drag across letters that touch to spell a theme word, or type it and press Enter.',
     help: [
       'Every letter on the board belongs to one word about the theme.',

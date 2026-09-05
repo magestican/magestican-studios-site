@@ -476,9 +476,30 @@ export function create(app, index) {
       
       cancelHold();
       heldIndex = -1;
+      const before = play(puzzle, selections);
       selections = s.selections;
       picked = [];
       layout(area);
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const after = play(puzzle, selections);
+      if (!before.over && after.over) {
+        if (after.won) app.sound('win');
+        app.finished(after.won);
+      }
     },
     rects: () => [
       ...board.rects.map((r, i) => ({ id: `tile:${words[i]}`, ...r })),

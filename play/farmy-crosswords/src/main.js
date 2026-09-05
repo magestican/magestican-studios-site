@@ -1950,6 +1950,12 @@ globalThis.__fc = {
   
   
   
+  get celebrating() { return party.running(); },
+  
+  
+  
+  
+  
   
   
   
