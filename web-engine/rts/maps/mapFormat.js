@@ -32,6 +32,24 @@ export const CELLS_PER_SIDE = 48;
 export const CELL_MM = FIELD_MM / CELLS_PER_SIDE;   
 
 
+export const HALF_FIELD_MM = FIELD_MM / 2;
+
+
+
+
+
+
+
+
+
+
+
+
+export function centreOffset(sum, cells) {
+  return (sum * CELL_MM + cells * (CELL_MM / 2 - HALF_FIELD_MM)) / cells;
+}
+
+
 
 
 
@@ -177,8 +195,32 @@ export function buildMap(def) {
       
       
       
-      cx: Math.floor((sumX[i] * CELL_MM) / cells[i]) + CELL_MM / 2,
-      cy: Math.floor((sumY[i] * CELL_MM) / cells[i]) + CELL_MM / 2,
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      cx: HALF_FIELD_MM + Math.trunc(centreOffset(sumX[i], cells[i])),
+      cy: HALF_FIELD_MM + Math.trunc(centreOffset(sumY[i], cells[i])),
       cells: cells[i],
       neighbours: neighbours[i],
     });

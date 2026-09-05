@@ -195,6 +195,42 @@ export class Bank {
     this.earnedWater = 0;
     this.spentFeed = 0;
     this.spentWater = 0;
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    this.feedPerTick = 0;
+  }
+
+  
+
+
+
+
+
+
+
+
+  noteIncome(feedMilli) {
+    const delta = feedMilli - this.feedPerTick;
+    
+    
+    
+    let step = Math.trunc(delta / 16);
+    
+    
+    
+    if (step === 0 && delta !== 0) step = delta > 0 ? 1 : -1;
+    this.feedPerTick += step;
   }
 
   
@@ -241,6 +277,10 @@ export class Bank {
       feed: this.feed, water: this.water,
       earnedFeed: this.earnedFeed, earnedWater: this.earnedWater,
       spentFeed: this.spentFeed, spentWater: this.spentWater,
+      
+      
+      
+      feedPerTick: this.feedPerTick,
     };
   }
 
@@ -252,6 +292,7 @@ export class Bank {
     b.earnedWater = o.earnedWater | 0;
     b.spentFeed = o.spentFeed | 0;
     b.spentWater = o.spentWater | 0;
+    b.feedPerTick = o.feedPerTick | 0;
     return b;
   }
 }

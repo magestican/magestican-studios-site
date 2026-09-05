@@ -387,21 +387,50 @@ export const UNITS = Object.freeze({
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     cost: { feed: 270, water: 0 }, buildTicks: ticks(13),
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    cost: { feed: 200, water: 0 }, buildTicks: ticks(13),
   }),
 
   horseHerd: unit({

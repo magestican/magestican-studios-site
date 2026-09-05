@@ -24,7 +24,8 @@
 
 
 
-import { dist2 } from '../fixed.js';
+import { dist2, ticks } from '../fixed.js';
+import { toMilli } from '../economy.js';
 import { UNITS, BUILDINGS, HERD, YIELD, damageAfterArmour } from '../roster.js';
 import { HOLD_MAX } from '../territory.js';
 import { STATE, ORDER, unitSpec, isGatherer, isArmy } from './world.js';
@@ -157,7 +158,13 @@ export function makeBot(seat, strengthPct) {
 
 
     phase: 0,
-    openingWater: (seat % 2) === 1,
+    
+    
+    
+    
+    
+    
+    
   };
 }
 
@@ -187,9 +194,19 @@ function wobble(m, spread) {
   return m.w.rng.below(spread * 2 + 1) - spread;
 }
 
+
+
+
+
+
+
+
+
+export const thinksOn = (bot, tick) => ((tick + bot.phase) % bot.thinkTicks) === 0;
+
 export function stepBot(m, bot) {
   const w = m.w;
-  if ((w.tick + bot.phase) % bot.thinkTicks !== 0) return;
+  if (!thinksOn(bot, w.tick)) return;
   const seat = bot.seat;
   const faction = m.factions[seat];
 
@@ -369,6 +386,7 @@ function chooseUnit(m, bot, seat, faction, feed, water) {
   
   
   const options = armyOptions(faction, bot.usesCounters);
+  const have = tallyArmy(m, seat);
   const threat = bot.usesCounters ? seenThreat(m, seat) : null;
 
   
@@ -394,7 +412,33 @@ function chooseUnit(m, bot, seat, faction, feed, water) {
     const per = threat
       ? damageAfterArmour(spec.damage, spec.damageClass, threat.armourClass, threat.armourFlat)
       : spec.damage;
-    const score = Math.floor((per * spec.packSize * spec.hp) / spec.cost.feed);
+    
+    
+    
+    
+    
+    
+    
+    const bodies = spec.packSize * spec.packSize;
+    const raw = Math.floor((per * bodies * spec.hp) / spec.cost.feed);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const score = Math.floor((raw * MIX_HALF_AT) / (MIX_HALF_AT + (have[id] || 0)));
     if (score > wantScore) { wantScore = score; want = id; }
   }
   if (!want) return null;
@@ -410,9 +454,24 @@ function chooseUnit(m, bot, seat, faction, feed, water) {
   
   
   
-  const wantSpec = UNITS[want];
-  if (wantSpec.cost.water <= water && wantSpec.cost.feed <= feed * 2) return null;
-
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   let fallback = null;
@@ -420,15 +479,90 @@ function chooseUnit(m, bot, seat, faction, feed, water) {
   for (const id of options) {
     if (!affordable(m, seat, id, feed, water)) continue;
     const spec = UNITS[id];
-    const score = Math.floor((spec.damage * spec.packSize * spec.hp) / spec.cost.feed);
+    
+    
+    
+    
+    const bodies = spec.packSize * spec.packSize;
+    const raw = Math.floor((spec.damage * bodies * spec.hp) / spec.cost.feed);
+    const score = Math.floor((raw * MIX_HALF_AT) / (MIX_HALF_AT + (have[id] || 0)));
     if (score > fallbackScore) { fallbackScore = score; fallback = id; }
   }
+
+  const wantSpec = UNITS[want];
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const fallbackTier = fallback ? UNITS[fallback].tier : 0;
+  if (wantSpec.tier <= fallbackTier) return fallback;
+
+  if (wantSpec.cost.water > water) {
+    
+  } else {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const shortfall = wantSpec.cost.feed - feed;
+    if (toMilli(shortfall) <= m.banks[seat].feedPerTick * SAVE_HORIZON_TICKS) return null;
+  }
+
+  
+  
+  
   return fallback;
 }
 
 
 
-const HERD_ARMY = ['skulk', 'sounder', 'horseHerd', 'pride', 'wing', 'elephant'];
+
+
+
+
+
+
+
+
+
+
+
+const SAVE_HORIZON_TICKS = ticks(20);
+
+
+
+
+
+
+
+
+
+const MIX_HALF_AT = 4;
+
+
+
+const HERD_ARMY =['skulk', 'sounder', 'horseHerd', 'pride', 'wing', 'elephant'];
 const YIELD_ARMY = ['farmhand', 'quadBike', 'tractor', 'poundWagon', 'foodTruck', 'cropDuster', 'combine'];
 
 const HERD_SIMPLE = ['skulk', 'sounder', 'pride'];
@@ -564,6 +698,23 @@ function countOwnedSectors(m, seat) {
     if (s.kind === 'water') water += 1; else land += 1;
   }
   return { land, water };
+}
+
+
+
+
+
+
+
+function tallyArmy(m, seat) {
+  const w = m.w;
+  const have = Object.create(null);
+  for (let i = 0; i < w.u.count; i += 1) {
+    if (!w.u.alive[i] || w.u.owner[i] !== seat) continue;
+    const id = unitSpec(w, i).id;
+    have[id] = (have[id] || 0) + 1;
+  }
+  return have;
 }
 
 function countUnits(m, seat, pred) {

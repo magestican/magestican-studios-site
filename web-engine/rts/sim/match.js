@@ -50,7 +50,7 @@ import { stepMovement, stepSeparation, moveTo } from './movement.js';
 import { stepCombat, stepPoundWagons } from './combat.js';
 import { stepBuildings, yieldBonusBySector } from './buildings.js';
 import { createQueues, stepProduction, rallyPoint, spawnFrame } from './production.js';
-import { stepBot } from './botBrain.js';
+import { stepBot, thinksOn } from './botBrain.js';
 
 
 
@@ -89,6 +89,8 @@ export function createMatch({ map, seats, seed }) {
     
     scheduled: new Map(),
     events: [],
+    
+    botRound: 0,
     over: false,
     winner: -1,
     endReason: '',
@@ -210,11 +212,35 @@ export function stepMatch(m, applyCommand) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let decides = false;
+  for (let p = 0; p < m.playerCount; p += 1) {
+    const b = m.w.seats[p].bot;
+    if (b && thinksOn(b, w.tick)) { decides = true; break; }
+  }
+  const first = decides ? m.botRound % m.playerCount : 0;
   for (let k = 0; k < m.playerCount; k += 1) {
-    const p = (w.tick + k) % m.playerCount;
+    const p = (first + k) % m.playerCount;
     const bot = m.w.seats[p].bot;
     if (bot) stepBot(m, bot);
   }
+  if (decides) m.botRound += 1;
 
   
   stepProduction(w, m.queues, m.events);
@@ -430,9 +456,22 @@ function collectIncome(m) {
       owner: u.owner[i], unitId: spec.id, members: u.members[i], sectorId: u.sector[i],
     });
   }
-  if (gatherers.length === 0) return;
-  const income = stepEconomy(gatherers, w.sectors, m.factions, bonus);
-  for (const p of Object.keys(income)) m.banks[p].earn(income[p]);
+  const income = gatherers.length === 0
+    ? null
+    : stepEconomy(gatherers, w.sectors, m.factions, bonus);
+  if (income) for (const p of Object.keys(income)) m.banks[p].earn(income[p]);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  for (let p = 0; p < m.banks.length; p += 1) {
+    m.banks[p].noteIncome(income && income[p] ? (income[p].feed || 0) : 0);
+  }
 }
 
 
