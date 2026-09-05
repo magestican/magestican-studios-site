@@ -40,7 +40,37 @@
 
 
 export function watchViewport(onResize) {
-  const fire = () => { try { onResize(); } catch {  } };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  try { globalThis.history.scrollRestoration = 'manual'; } catch {  }
+
+  const home = () => {
+    try {
+      const el = globalThis.document?.scrollingElement;
+      if (el && (el.scrollTop || el.scrollLeft)) el.scrollTo(0, 0);
+    } catch {  }
+  };
+
+  const fire = () => {
+    home();
+    try { onResize(); } catch {  }
+  };
 
   
   

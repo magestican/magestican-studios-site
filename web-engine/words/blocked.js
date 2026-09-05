@@ -43,7 +43,20 @@
 
 
 
-export const BLOCKED = Object.freeze([
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const OBSCENE = Object.freeze([
   'ANILINGUS', 'ANUS', 'ANUSES', 'ARSE', 'ARSED', 'ARSEHOLE', 'ARSEHOLES', 'ARSES',
   'BALLSACK', 'BASTARD', 'BASTARDS', 'BESTIALITY', 'BITCH', 'BITCHED', 'BITCHES',
   'BITCHING', 'BLOWJOB', 'BLOWJOBS', 'BOLLOCK', 'BOLLOCKS', 'BONER', 'BONERS',
@@ -69,6 +82,26 @@ export const BLOCKED = Object.freeze([
   'VAGINA', 'VAGINAL', 'VAGINAS', 'VULVA', 'VULVAS', 'WANK', 'WANKED', 'WANKER',
   'WANKERS', 'WANKING', 'WANKS', 'WHORE', 'WHORES', 'WHORING',
 ]);
+
+
+
+
+
+
+
+
+export const CRUDE = Object.freeze([
+  'ASS', 'ASSES', 'BALLS', 'BOLLOX', 'BUM', 'BUMHOLE', 'BUMS',
+  'COCK', 'COCKS', 'CRAP', 'CRAPPED', 'CRAPPER', 'CRAPPING', 'CRAPPY', 'CRAPS',
+  'DAMN', 'DAMNED', 'DAMNING', 'DAMNS', 'DICK', 'DICKHEAD', 'DICKS', 'FART',
+  'FARTED', 'FARTING', 'FARTS', 'HELL', 'HELLS', 'KNOB', 'KNOBS', 'PEE',
+  'PEED', 'PEEING', 'PEES', 'POO', 'POOED', 'POOING', 'POOP', 'POOPED',
+  'POOPING', 'POOPS', 'POOS', 'PRICK', 'PRICKS', 'SNOT', 'SNOTS', 'SNOTTY',
+  'WILLIES', 'WILLY',
+]);
+
+
+export const BLOCKED = Object.freeze([...new Set([...OBSCENE, ...CRUDE])].sort());
 
 const SET = new Set(BLOCKED);
 

@@ -108,7 +108,7 @@ export const BEE_PUZZLES = [
       'O'
     ],
     centre: 'M',
-    answers: ['ALMOND', 'AMEN', 'AMEND', 'AMENDED', 'DAEMON', 'DAME', 'DAMN', 'DAMNED', 'DAMON', 'DEEMED', 'DEMAND', 'DEMANDED', 'DEMON', 'DOME', 'DOOM', 'ELEM', 'ENAMEL', 'LAME', 'LEMMA', 'LEMON', 'LEMONADE', 'MADAME', 'MADDEN', 'MADE', 'MALE', 'MALL', 'MAMA', 'MEAL', 'MEAN', 'MEDAL', 'MELLON', 'MEMO', 'MODE', 'MODEL', 'MODELED', 'MODEM', 'MOLD', 'MOLDED', 'MOLE', 'MONO', 'MOOD', 'MOON', 'NAME', 'NAMED', 'OMAN']
+    answers: ['ALMOND', 'AMEN', 'AMEND', 'AMENDED', 'DAEMON', 'DAME', 'DAMON', 'DEEMED', 'DEMAND', 'DEMANDED', 'DEMON', 'DOME', 'DOOM', 'ELEM', 'ENAMEL', 'LAME', 'LEMMA', 'LEMON', 'LEMONADE', 'MADAME', 'MADDEN', 'MADE', 'MALE', 'MALL', 'MAMA', 'MEAL', 'MEAN', 'MEDAL', 'MELLON', 'MEMO', 'MODE', 'MODEL', 'MODELED', 'MODEM', 'MOLD', 'MOLDED', 'MOLE', 'MONO', 'MOOD', 'MOON', 'NAME', 'NAMED', 'OMAN']
   },
   {
     id: 8,
@@ -374,7 +374,7 @@ export const BEE_PUZZLES = [
       'S'
     ],
     centre: 'H',
-    answers: ['AHEAD', 'ASHES', 'DASH', 'DASHED', 'HAHA', 'HALE', 'HALL', 'HALLS', 'HAND', 'HANDED', 'HANDEL', 'HANDLE', 'HANDLED', 'HANDLES', 'HANDS', 'HANS', 'HASH', 'HASSLE', 'HEAD', 'HEADED', 'HEADLANDS', 'HEADS', 'HEAL', 'HEEL', 'HEELS', 'HEHE', 'HELD', 'HELL', 'NASH', 'SHADE', 'SHADED', 'SHADES', 'SHAH', 'SHALL', 'SHED', 'SHEDS', 'SHELLS', 'SLASH']
+    answers: ['AHEAD', 'ASHES', 'DASH', 'DASHED', 'HAHA', 'HALE', 'HALL', 'HALLS', 'HAND', 'HANDED', 'HANDEL', 'HANDLE', 'HANDLED', 'HANDLES', 'HANDS', 'HANS', 'HASH', 'HASSLE', 'HEAD', 'HEADED', 'HEADLANDS', 'HEADS', 'HEAL', 'HEEL', 'HEELS', 'HEHE', 'HELD', 'NASH', 'SHADE', 'SHADED', 'SHADES', 'SHAH', 'SHALL', 'SHED', 'SHEDS', 'SHELLS', 'SLASH']
   },
   {
     id: 27,
