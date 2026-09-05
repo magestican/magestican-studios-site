@@ -14,6 +14,7 @@
 
 import { MASTER, cueFor, voicesOf, MUTE_KEY } from '../../../web-engine/chess/chessSound.js';
 import { createAudioUnlock } from '../../shared/audio/iosUnlock.js';
+import { duck } from '../../shared/audio/lofi.js';
 
 let ctx = null;
 let master = null;
@@ -92,6 +93,9 @@ function tone({ hz, gain, ms }, at) {
 export function play(name) {
   if (muted) return;
   if (!ensureContext()) return;
+  
+  
+  duck();
   const voices = voicesOf(name);
   if (!voices.length) return;
   const now = ctx.currentTime;

@@ -337,7 +337,24 @@ function resize() {
   
   
   
-  if (w <= 0 || h <= 0) return;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (w <= 0 || h <= 0) {
+    if (app.width > 0 && app.height > 0) return;
+    globalThis.requestAnimationFrame(() => resize());
+    return;
+  }
   canvas.width = Math.round(w * dpr);
   canvas.height = Math.round(h * dpr);
   g.setTransform(dpr, 0, 0, dpr, 0, 0);

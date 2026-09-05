@@ -28,6 +28,7 @@ import {
   CUES, MASTER, MUTE_KEY, cueFor, gainFor, placePitch, voicesOf,
 } from '../../../web-engine/words/scrabbleSound.js';
 import { createAudioUnlock } from '../../shared/audio/iosUnlock.js';
+import { duck } from '../../shared/audio/lofi.js';
 
 let ctx = null;
 let master = null;
@@ -95,6 +96,13 @@ export function wake() {
 export function play(event, { index = 0 } = {}) {
   const name = cueFor(event);
   if (!name || muted) return;
+  
+  
+  
+  
+  
+  
+  duck();
   const cue = CUES[name];
   const audio = ctx ?? ensure();
   if (!audio || !master) return;

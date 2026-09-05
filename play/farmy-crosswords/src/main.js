@@ -274,7 +274,24 @@ function resize() {
   
   
   
-  if (w <= 0 || h <= 0) return;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (w <= 0 || h <= 0) {
+    if (app.width > 0 && app.height > 0) return;
+    globalThis.requestAnimationFrame(() => resize());
+    return;
+  }
   canvas.width = Math.round(w * dpr);
   canvas.height = Math.round(h * dpr);
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1061,8 +1078,9 @@ function openGame(id, firstLetter) {
 
 
 
-const familyFrame = document.getElementById('family');
+let familyFrame = document.getElementById('family');
 const familyBack = document.getElementById('family-back');
+const familyLoading = document.getElementById('family-loading');
 
 
 let familyUrl = null;
@@ -1079,28 +1097,89 @@ const shellUrl = (() => {
   try { return globalThis.location.pathname + globalThis.location.search; } catch { return '/'; }
 })();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function newFrame(url) {
+  const next = document.createElement('iframe');
+  next.id = 'family';
+  next.className = 'family-frame';
+  next.title = url ? 'Farmy game' : 'No game open';
+  next.hidden = true;
+  
+  
+  
+  
+  next.addEventListener('load', () => {
+    if (!familyUrl || next !== familyFrame) return;
+    next.hidden = false;
+    if (familyLoading) familyLoading.hidden = true;
+  });
+  familyFrame.replaceWith(next);
+  familyFrame = next;
+  
+  
+  if (url) next.setAttribute('src', url);
+}
+
 function showFamily(url) {
   familyUrl = url;
   if (url) {
-    
-    
-    if (familyFrame.getAttribute('src') !== url) familyFrame.setAttribute('src', url);
-    familyFrame.hidden = false;
+    newFrame(url);
+    if (familyLoading) familyLoading.hidden = false;
     canvas.hidden = true;
     familyBack.hidden = false;
-    
-    try { familyFrame.focus(); } catch {  }
   } else {
-    familyFrame.hidden = true;
+    newFrame(null);
+    if (familyLoading) familyLoading.hidden = true;
     canvas.hidden = false;
     familyBack.hidden = true;
-    
-    
-    familyFrame.removeAttribute('src');
     try { canvas.focus(); } catch {  }
+    
+    
+    
+    
     resize();
+    globalThis.requestAnimationFrame(() => resize());
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function openFamily(url) {
@@ -1108,8 +1187,13 @@ function openFamily(url) {
     try { globalThis.location.assign(url); } catch {  }
     return;
   }
+  const alreadyInAGame = !!familyUrl;
   showFamily(url);
-  try { globalThis.history.pushState({ family: url }, '', url); } catch {  }
+  try {
+    const entry = { family: url };
+    if (alreadyInAGame) globalThis.history.replaceState(entry, '', url);
+    else globalThis.history.pushState(entry, '', url);
+  } catch {  }
 }
 
 
@@ -1131,6 +1215,12 @@ function closeFamily(fromPopstate = false) {
   if (fromPopstate) return;
   const was = globalThis.location?.pathname;
   try { globalThis.history.back(); } catch {  }
+  
+  
+  
+  
+  
+  
   globalThis.setTimeout(() => {
     try {
       if (globalThis.location.pathname === was) {

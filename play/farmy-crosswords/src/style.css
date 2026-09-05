@@ -263,6 +263,20 @@ noscript p {
   background: var(--fc-paper);
 }
 .family-frame[hidden] { display: none; }
+
+
+
+.family-loading {
+  flex: 1 1 auto;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fc-min);
+  color: var(--fc-inkSoft);
+  background: var(--fc-paper);
+}
+.family-loading[hidden] { display: none; }
 canvas#board[hidden] { display: none; }
 
 
