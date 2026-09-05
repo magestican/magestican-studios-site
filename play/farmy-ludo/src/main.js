@@ -75,6 +75,9 @@ import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { createCelebration } from '../../shared/ui/celebrate.js';
 import { createShakeToRoll } from '../../shared/ui/shakeToRoll.js';
+import { roomPresence } from '../../shared/net/roomPresence.js';
+import { mountLiveBadge } from '../../shared/ui/liveBadge.js';
+import { LIVE_PATH } from '../../../web-engine/net/presence.js';
 
 
 
@@ -1133,6 +1136,7 @@ function openRoom() {
       invalidate();
     },
     onLeave: () => {
+      presence.withdraw();
       net?.leave();
       net = null;
       room.active = false;
@@ -1171,6 +1175,43 @@ function showResults() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+function wireLiveBadge() {
+  const bar = document.querySelector('.studio-bar');
+  if (!bar) return;
+  mountLiveBadge({
+    host: bar,
+    mine: () => net?.id ?? null,
+    onJoin: (room) => {
+      
+      
+      
+      const path = LIVE_PATH[room.game];
+      if (!path) return false;
+      globalThis.location.href = `${path}?join=${encodeURIComponent(room.code)}`;
+      return true;
+    },
+  });
+}
+wireLiveBadge();
+
+const presence = roomPresence({
+  game: 'ludo',
+  net: () => net,
+  players: () => room.peers.length + 1,
+});
+
 function startNet() {
   if (net) return net;
   net = createNet({
@@ -1195,6 +1236,9 @@ function startNet() {
     },
     onPeers: ({ peers, me }) => {
       room.peers = peers;
+      
+      
+      presence.sync();
       if (me) room.me = me;
       room.active = !!peers.length || !!me;
       if (!peers.length && !me) { room.active = false; room.me = SOLO; }

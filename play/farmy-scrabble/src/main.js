@@ -75,6 +75,9 @@ import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { createCelebration } from '../../shared/ui/celebrate.js';
+import { roomPresence } from '../../shared/net/roomPresence.js';
+import { mountLiveBadge } from '../../shared/ui/liveBadge.js';
+import { LIVE_PATH } from '../../../web-engine/net/presence.js';
 
 
 
@@ -742,6 +745,7 @@ function openRoom() {
     },
     onStart: () => { restart([...new Set([roomState.me, ...roomState.peers])].filter(Boolean)); closeOverlay(); },
     onLeave: () => {
+      presence.withdraw();
       net?.leave();
       net = null;
       roomState.active = false;
@@ -802,6 +806,43 @@ function openMenu() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+function wireLiveBadge() {
+  const bar = document.querySelector('.studio-bar');
+  if (!bar) return;
+  mountLiveBadge({
+    host: bar,
+    mine: () => net?.id ?? null,
+    onJoin: (room) => {
+      
+      
+      
+      const path = LIVE_PATH[room.game];
+      if (!path) return false;
+      globalThis.location.href = `${path}?join=${encodeURIComponent(room.code)}`;
+      return true;
+    },
+  });
+}
+wireLiveBadge();
+
+const presence = roomPresence({
+  game: 'scrabble',
+  net: () => net,
+  players: () => roomState.peers.length + 1,
+});
+
 function startNet() {
   if (net) return net;
   net = createNet({
@@ -810,6 +851,9 @@ function startNet() {
     onProposal,
     onPeers: (peers, me) => {
       roomState.peers = peers;
+      
+      
+      presence.sync();
       if (me) roomState.me = me;
       roomState.active = !!(me || peers.length);
       app.me = meId();

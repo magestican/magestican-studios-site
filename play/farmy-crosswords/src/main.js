@@ -52,6 +52,9 @@ import {
 import * as sfx from './sfx.js';
 import * as music from '../../shared/audio/lofi.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
+import { mountLiveBadge } from '../../shared/ui/liveBadge.js';
+import { roomPresence } from '../../shared/net/roomPresence.js';
+import { LIVE_PATH } from '../../../web-engine/net/presence.js';
 
 initAnalytics({ page: 'farmy-crosswords' });
 
@@ -878,6 +881,19 @@ function roomWho() {
   }));
 }
 
+
+
+
+
+
+
+
+const presence = roomPresence({
+  game: 'crosswords',
+  net: () => net,
+  players: () => roomState.peers.length + 1,
+});
+
 function startNet() {
   if (net) return net;
   net = createNet({
@@ -906,6 +922,10 @@ function startNet() {
         pauseMatch('Somebody dropped out. The session is paused.');
       }
       roomState.peers = peers;
+      
+      
+      
+      presence.sync();
       if (me) roomState.me = me;
       if (!me && !peers.length) { roomState.me = null; roomState.active = false; }
       else roomState.active = true;
@@ -925,6 +945,7 @@ function startNet() {
     },
     onStatus: (status) => {
       roomState.status = status;
+      presence.sync();
       announce(status);
       relayout();
       invalidate();
@@ -1338,6 +1359,7 @@ function openRoom() {
       invalidate();
     },
     onLeave: () => {
+      presence.withdraw();
       net?.leave();
       net = null;
       roomState.active = false;
@@ -1774,6 +1796,48 @@ function wireMusic() {
   paint_();
 }
 wireMusic();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function wireLiveBadge() {
+  const bar = document.querySelector('.studio-bar');
+  if (!bar) return;
+  mountLiveBadge({
+    host: bar,
+    mine: () => net?.id ?? null,
+    onJoin: (room) => {
+      if (room.game === 'crosswords') {
+        roomState.copied = false;
+        roomState.active = true;
+        startNet().join(room.code);
+        announce('Joining that room.');
+        relayout();
+        invalidate();
+        return true;
+      }
+      const path = LIVE_PATH[room.game];
+      if (!path) return false;
+      openFamily(`${path}?join=${encodeURIComponent(room.code)}`);
+      return true;
+    },
+  });
+}
+wireLiveBadge();
 
 globalThis.__fc = {
   get room() {
