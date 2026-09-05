@@ -31,7 +31,7 @@
 
 
 import { LEADERBOARD_CONFIG, isConfigured } from '../stats/leaderboardConfig.js';
-import { REFRESH_MS, roomDoc, LIVE_GAMES } from './presence.js';
+import { REFRESH_MS, roomDoc, LIVE_GAMES, isFresh } from './presence.js';
 
 
 export const ROOMS_COLLECTION = 'openRooms';
@@ -136,6 +136,47 @@ export async function fetchOpenRooms(cfg = LEADERBOARD_CONFIG) {
   } catch (_) {
     return [];
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function sweepStaleRooms(rooms, { now = Date.now(), limit = 1 } = {}, cfg = LEADERBOARD_CONFIG) {
+  const dead = (rooms ?? []).filter((r) => !isFresh(r, now)).slice(0, Math.max(0, limit));
+  if (!dead.length) return 0;
+  const s = await ready(cfg);
+  if (!s) return 0;
+  let gone = 0;
+  for (const room of dead) {
+    try {
+      const { doc, deleteDoc } = s.store;
+      await deleteDoc(doc(s.db, ROOMS_COLLECTION, room.code));
+      gone += 1;
+    } catch (_) {  }
+  }
+  return gone;
 }
 
 

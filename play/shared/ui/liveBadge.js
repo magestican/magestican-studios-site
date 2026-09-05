@@ -50,7 +50,7 @@
 import {
   liveRooms, badgeText, roomLine, LIVE_GAMES, LIVE_PATH, REFRESH_MS,
 } from '../../../web-engine/net/presence.js';
-import { fetchOpenRooms } from '../../../web-engine/net/firebaseRooms.js';
+import { fetchOpenRooms, sweepStaleRooms } from '../../../web-engine/net/firebaseRooms.js';
 
 
 export const POLL_MS = Math.round(REFRESH_MS * (2 / 3));
@@ -189,6 +189,9 @@ export function mountLiveBadge({
   now = () => Date.now(),
   pollMs = POLL_MS,
   onJoin = null,
+  
+  
+  sweep = true,
 } = {}) {
   if (!host || !doc?.createElement) return null;
 
@@ -299,7 +302,13 @@ export function mountLiveBadge({
     let all = [];
     try { all = await fetch(); } catch (_) { all = []; }
     if (stopped) return;
-    rooms = liveRooms(all, { now: now(), mine: mine() });
+    const at = now();
+    rooms = liveRooms(all, { now: at, mine: mine() });
+    
+    
+    
+    
+    if (sweep) sweepStaleRooms(all, { now: at, limit: 1 }).catch(() => {});
     const label = badgeText(rooms.length);
     text.textContent = label;
     button.dataset.live = rooms.length ? '1' : '0';
