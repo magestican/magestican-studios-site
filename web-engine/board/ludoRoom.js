@@ -49,6 +49,12 @@ export const GAME_ID = 'farmy-ludo';
 
 export const MSG = Object.freeze({
   SETUP: 'ludo-setup',
+  
+  
+  
+  
+  
+  READY: 'ludo-ready',
   ROLL: 'ludo-roll',
   MOVE: 'ludo-move',
   SAY: 'ludo-say',

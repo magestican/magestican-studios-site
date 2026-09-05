@@ -58,7 +58,7 @@ const CODE_TRIES = 5;
 
 
 export function createNet({
-  onPeers = () => {}, onSetup = () => {}, onRoll = () => {},
+  onPeers = () => {}, onSetup = () => {}, onRoll = () => {}, onReady = () => {},
   onMove = () => {}, onSay = () => {}, onStatus = () => {}, onHostChange = () => {},
   hello = () => null,
 }) {
@@ -114,6 +114,7 @@ export function createNet({
       
       if (message.g !== GAME_ID) return;
       if (message.t === MSG.SETUP) safely(onSetup, message);
+      else if (message.t === MSG.READY) safely(onReady, message);
       else if (message.t === MSG.ROLL) safely(onRoll, message);
       else if (message.t === MSG.MOVE) safely(onMove, message);
       else if (message.t === MSG.SAY) safely(onSay, message);
@@ -186,6 +187,12 @@ export function createNet({
 
     
     setup: sendHello,
+
+    
+    ready(n) {
+      if (!mesh) return;
+      mesh.broadcast(stamp({ t: MSG.READY, n }));
+    },
 
     
     roll(n, link) {

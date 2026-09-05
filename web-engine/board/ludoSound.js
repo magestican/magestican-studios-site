@@ -38,16 +38,38 @@ export const MAX_MS = 200;
 export const CUES = Object.freeze({
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   roll: {
     kind: 'noise',
     voices: [
-      { hz: 420, gain: 0.10, at: 0, ms: 45 },
-      { hz: 380, gain: 0.08, at: 70, ms: 45 },
-      { hz: 330, gain: 0.07, at: 150, ms: 55 },
+      { hz: 430, gain: 0.110, at: 0, ms: 42 },
+      { hz: 360, gain: 0.095, at: 68, ms: 40 },
+      { hz: 470, gain: 0.080, at: 130, ms: 36 },
+      { hz: 340, gain: 0.068, at: 184, ms: 34 },
+      { hz: 410, gain: 0.056, at: 232, ms: 30 },
+      { hz: 320, gain: 0.046, at: 272, ms: 28 },
+      { hz: 380, gain: 0.039, at: 308, ms: 26 },
+      { hz: 300, gain: 0.035, at: 338, ms: 24 },
     ],
   },
   
-  settle: { kind: 'noise', voices: [{ hz: 260, gain: 0.12, at: 0, ms: 70 }] },
+  
+  settle: { kind: 'noise', voices: [{ hz: 245, gain: 0.13, at: 0, ms: 85 }] },
   
   
   step: { kind: 'tone', voices: [{ hz: 520, gain: 0.055, at: 0, ms: 60 }] },

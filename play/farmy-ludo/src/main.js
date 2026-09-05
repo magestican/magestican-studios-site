@@ -74,6 +74,7 @@ import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { createCelebration } from '../../shared/ui/celebrate.js';
+import { createShakeToRoll } from '../../shared/ui/shakeToRoll.js';
 
 initAnalytics({ page: 'farmy-ludo' });
 
@@ -464,13 +465,75 @@ function schedulePump(ms) {
 
 
 
-function pump() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const shaker = createShakeToRoll({
+  onShake: () => rollNow(),
+  enabled: () => myRoll(),
+  now: () => performance.now(),
+});
+
+function rollNow() {
+  if (!myRoll()) return;
+  if (iAmHost()) { pump(true); return; }
+  net?.ready(match.n);
+  message = 'Rolling...';
+  invalidate();
+}
+
+function waitingOnAPerson() {
+  const seat = match.seats[match.turn];
+  if (!seat || seat.kind === 'bot') return false;
+  if (!room.active) return true;                   
+  if (!seat.by) return true;
+  return room.peers.includes(seat.by) || seat.by === room.me;
+}
+
+function pump(force = false) {
   clearTimeout(pumpTimer);
   const r = stepOnce(match, entries);
 
   if (r.did === 'over') return;
 
   if (r.did === 'wait-roll') {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (!force && waitingOnAPerson()) { invalidate(); return; }
     if (iAmHost()) revealNext();
     else schedulePump(400);          
     return;
@@ -872,6 +935,26 @@ function openMenu() {
     
     
     
+    
+    {
+      id: 'shake',
+      label: shaker.supported()
+        ? `Shake to roll: ${shaker.isOn() ? 'on' : 'off'}`
+        : 'Shake to roll: not on this device',
+      disabled: !shaker.supported(),
+      run: async () => {
+        const want = !shaker.isOn();
+        const got = await shaker.setOn(want);
+        if (want && !got) say('This device would not allow motion access.');
+        else say(got ? 'Shake the phone to roll.' : 'Shake to roll is off.');
+        openMenu();
+      },
+    },
+    
+    
+    
+    
+    
     {
       id: 'sound',
       label: sfx.isMuted() ? 'Sound: off' : 'Sound: on',
@@ -985,6 +1068,17 @@ function startNet() {
       
       entries: entries.map((e, n) => (e ? { ...e, n } : null)).filter(Boolean),
     }),
+    
+    
+    
+    
+    onReady: ({ n, by }) => {
+      if (!net?.hosting) return;
+      if (n !== match.n) return;
+      const seat = match.seats[match.turn];
+      if (!seat || (by && seat.by && seat.by !== by)) return;
+      pump(true);
+    },
     onPeers: ({ peers, me }) => {
       room.peers = peers;
       if (me) room.me = me;
@@ -1109,7 +1203,8 @@ canvas.addEventListener('pointerup', (e) => {
   }
   
   
-  if (inDie(pt) && myRoll()) { pump(); return; }
+  
+  if (inDie(pt) && myRoll()) { rollNow(); return; }
   
   
   
@@ -1161,7 +1256,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
   if (action.type === 'enter') {
-    if (myRoll()) { pump(); return; }
+    if (myRoll()) { rollNow(); return; }
     if (moves.length) playToken(moves[cursor % moves.length].token);
   }
 });
@@ -1222,6 +1317,21 @@ globalThis.__fl = {
     };
   },
   get overlay() { return overlay ? overlay.id : null; },
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   rects: () => (overlay
     ? overlay.rects()
     : [
@@ -1234,7 +1344,10 @@ globalThis.__fl = {
         .map((r) => ({ id: r.id, x: r.x, y: r.y, w: r.w, h: r.h })),
       ...seatRects.map((r) => ({ id: r.id, x: r.x, y: r.y, w: r.w, h: r.h })),
       ...barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h })),
-    ]),
+    ].map((r) => {
+      const box = canvas.getBoundingClientRect();
+      return { ...r, x: r.x + box.left, y: r.y + box.top };
+    })),
 };
 
 
