@@ -108,9 +108,19 @@
 
     <section class="rev-contents">
       <h2>Our own assessment, game by game</h2>
+      
+
+
+
+
+
+
       <ul>
         <li><a href="#farmyshoot">Farmyshoot</a> &mdash; peer-to-peer voxel shooter, farm animals, no download</li>
+        <li><a href="#farmy-evil-hills">Farmy Evil Hills</a> &mdash; PS1-era survival horror, not yet assessed</li>
         <li><a href="#farmy-kart">Farmy Kart</a> &mdash; kart racer, six circuits, drift boosts</li>
+        <li><a href="#farmy-scrabble">Farmy Scrabble</a> &mdash; the full board over a link, not yet assessed</li>
+        <li><a href="#farmy-crosswords">Farmy Crosswords</a> &mdash; four word games, 223 puzzles, no clock</li>
         <li><a href="#zelakas-in-space">Zelakas In Space</a> &mdash; 2014 arcade shooter, running on an emulator</li>
         <li><a href="#fighter-ex">2D Fighter EX</a> &mdash; an animation experiment, and not a game</li>
       </ul>
@@ -150,6 +160,31 @@
       <p><a class="rev-play" href="/play/farmyshoot/">Play Farmyshoot &rarr;</a> &middot; <a href="/farmyshoot.html">More about it</a></p>
     </article>
 
+    
+
+
+
+
+
+
+
+
+
+    <article class="rev-game" id="farmy-evil-hills">
+      <h2>Farmy Evil Hills</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">Playable now</span>
+        <span>PS1-era survival horror &middot; published 2026-08-31 &middot; not yet assessed</span>
+      </p>
+      <p><strong>We have not written this one up yet.</strong> The game is published and
+        playable; what is missing is our own assessment of it, of the same kind as the
+        ones above &mdash; what works, and what is still wrong with it.</p>
+      <p>Rather than leave a gap, or fill it with something written from the design
+        documents by somebody who has not played it, it says so here. The same rule
+        applies to us as to the empty shelf at the top of this page.</p>
+      <p><a class="rev-play" href="/play/farmy-evil-hills/">Play Farmy Evil Hills &rarr;</a> &middot; <a href="/farmy-evil-hills.html">More about it</a></p>
+    </article>
+
     <article class="rev-game" id="farmy-kart">
       <h2>Farmy Kart</h2>
       <p class="mag-meta">
@@ -180,6 +215,56 @@
         <p>The most fun per minute of anything on this site, and the least finished. Worth twenty minutes today; not yet worth telling people it is a complete game.</p>
       </div>
       <p><a class="rev-play" href="/play/farmykart/">Play Farmy Kart &rarr;</a> &middot; <a href="/farmykart.html">More about it</a> &middot; <a href="/magazine/">three of its bugs, written up</a></p>
+    </article>
+
+    <article class="rev-game" id="farmy-scrabble">
+      <h2>Farmy Scrabble</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">Playable now</span>
+        <span>Fifteen by fifteen &middot; published 2026-09-04 &middot; not yet assessed</span>
+      </p>
+      <p><strong>We have not written this one up yet either.</strong> It is playable, and
+        it shares its type, contrast and shape-as-well-as-colour rules with Farmy
+        Crosswords below, which is assessed in full &mdash; but that is a description of
+        the intent, not a verdict on the result, and this page only carries verdicts
+        somebody has earned by playing.</p>
+      <p><a class="rev-play" href="/play/farmy-scrabble/">Play Farmy Scrabble &rarr;</a> &middot; <a href="/farmy-scrabble.html">More about it</a></p>
+    </article>
+
+    <article class="rev-game" id="farmy-crosswords">
+      <h2>Farmy Crosswords</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">Playable now</span>
+        <span>Four word games &middot; 223 puzzles &middot; drawn, not typed into a form</span>
+      </p>
+
+      <h3>What it is</h3>
+      <p>Wordle, Spelling Bee, Connections and Strands on one page, with a farm flavour and no clock anywhere. Sixty-five Wordle words, fifty-three hives, fifty-two Connections sets and fifty-three Strands grids, all reachable from a dropdown rather than doled out one a day. The look is a printed almanac &mdash; cream paper, heavy ink outlines, five flat colours &mdash; and it was specified in writing before any of it was built, because the audience it is for is one that most puzzle games design past rather than for.</p>
+
+      <h3>What works</h3>
+      <ul>
+        <li><strong>You draw the words.</strong> Press and drag across the letters in Strands and a ribbon follows your hand; drag across the hive in Spelling Bee to spell; sweep four words in Connections in one gesture. And you can type at any moment without clicking into anything first, including at the menu.</li>
+        <li><strong>It is genuinely readable.</strong> Nothing is under 18 pixels, nothing pressable is under 48 by 48, and text clears AAA contrast rather than AA. That is a different game to play in poor light than the ones it is modelled on.</li>
+        <li><strong>No state is signalled by colour alone.</strong> Every tile carries a shape in its corner and a spoken label as well as a fill, so a green-gold-grey row still reads if you cannot separate those hues.</li>
+        <li><strong>The Strands grids are properly tiled.</strong> Every one of the 48 cells belongs to exactly one theme word, which is what lets you finish the last word by elimination. They were packed by a program and each is checked by the same validator the deploy gate runs.</li>
+        <li><strong>Nothing is locked.</strong> There is a puzzle of the day, and there is also a list of all 223.</li>
+      </ul>
+
+      <h3>What is wrong with it</h3>
+      <ul>
+        <li><strong>The Wordle guess list is common words, not a full dictionary.</strong> About seventeen hundred five-letter words. A real word you type can be refused, and the message says so plainly rather than pretending otherwise &mdash; but it is still a refusal, and it will happen to somebody.</li>
+        <li><strong>The Spelling Bee only accepts the words on its own list.</strong> Each hive carries an authored answer list, so a legitimate word the setter did not think of is not accepted. That is a deliberate trade &mdash; the alternative is a shared dictionary that is wrong in a more confusing way &mdash; but it is a limit, not a feature.</li>
+        <li><strong>A sweep in Connections picks up everything it crosses.</strong> That is how the gesture works and it is honest about it &mdash; four words scattered across the grid cannot be swept without touching the ones in between, so for those you still click. It is not obvious until it happens to you.</li>
+        <li><strong>The puzzles are ours, and they are a first set.</strong> The Connections sets in particular are the part most likely to have a group somebody can argue with. If you find one, that is a defect and we would like to hear about it.</li>
+        <li><strong>The sound is very quiet by design.</strong> It is pitched to sit under a conversation rather than to fill a room, which is right for a puzzle you do with the television on and will read as thin if you were expecting a game.</li>
+        <li><strong>It shipped with no sound at all on iPhone,</strong> for a week. Web audio on iOS has three separate traps and we had solved one of them. It works now, and with your phone on silent it will still make noise &mdash; which is what a game does, and is worth knowing before you open it in a waiting room.</li>
+      </ul>
+
+      <div class="rev-verdict">
+        <strong>Our verdict</strong>
+        <p>The one on this site to send to a parent. It does what the games it is modelled on do, without the clock, the lockout or the small grey type &mdash; and if you want the originals' word lists rather than ours, you will notice the difference.</p>
+      </div>
+      <p><a class="rev-play" href="/play/farmy-crosswords/">Play Farmy Crosswords &rarr;</a> &middot; <a href="/farmy-crosswords.html">More about it</a></p>
     </article>
 
     <article class="rev-game" id="zelakas-in-space">
@@ -240,42 +325,6 @@
         <p>Five minutes, once, if the idea of pulling animation timing back out of a screen recording appeals to you. If it does not, skip it &mdash; there is nothing else in there.</p>
       </div>
       <p><a class="rev-play" href="/play/2d-fighter-ex/">Open 2D Fighter EX &rarr;</a> &middot; <a href="/2d-fighter-ex.html">More about it</a></p>
-    </article>
-
-    <article class="rev-game" id="farmy-crosswords">
-      <h2>Farmy Crosswords</h2>
-      <p class="mag-meta">
-        <span class="mag-tag">Playable now</span>
-        <span>Four word games &middot; 223 puzzles &middot; drawn, not typed into a form</span>
-      </p>
-
-      <h3>What it is</h3>
-      <p>Wordle, Spelling Bee, Connections and Strands on one page, with a farm flavour and no clock anywhere. Sixty-five Wordle words, fifty-three hives, fifty-two Connections sets and fifty-three Strands grids, all reachable from a dropdown rather than doled out one a day. The look is a printed almanac &mdash; cream paper, heavy ink outlines, five flat colours &mdash; and it was specified in writing before any of it was built, because the audience it is for is one that most puzzle games design past rather than for.</p>
-
-      <h3>What works</h3>
-      <ul>
-        <li><strong>You draw the words.</strong> Press and drag across the letters in Strands and a ribbon follows your hand; drag across the hive in Spelling Bee to spell; sweep four words in Connections in one gesture. And you can type at any moment without clicking into anything first, including at the menu.</li>
-        <li><strong>It is genuinely readable.</strong> Nothing is under 18 pixels, nothing pressable is under 48 by 48, and text clears AAA contrast rather than AA. That is a different game to play in poor light than the ones it is modelled on.</li>
-        <li><strong>No state is signalled by colour alone.</strong> Every tile carries a shape in its corner and a spoken label as well as a fill, so a green-gold-grey row still reads if you cannot separate those hues.</li>
-        <li><strong>The Strands grids are properly tiled.</strong> Every one of the 48 cells belongs to exactly one theme word, which is what lets you finish the last word by elimination. They were packed by a program and each is checked by the same validator the deploy gate runs.</li>
-        <li><strong>Nothing is locked.</strong> There is a puzzle of the day, and there is also a list of all 223.</li>
-      </ul>
-
-      <h3>What is wrong with it</h3>
-      <ul>
-        <li><strong>The Wordle guess list is common words, not a full dictionary.</strong> About seventeen hundred five-letter words. A real word you type can be refused, and the message says so plainly rather than pretending otherwise &mdash; but it is still a refusal, and it will happen to somebody.</li>
-        <li><strong>The Spelling Bee only accepts the words on its own list.</strong> Each hive carries an authored answer list, so a legitimate word the setter did not think of is not accepted. That is a deliberate trade &mdash; the alternative is a shared dictionary that is wrong in a more confusing way &mdash; but it is a limit, not a feature.</li>
-        <li><strong>A sweep in Connections picks up everything it crosses.</strong> That is how the gesture works and it is honest about it &mdash; four words scattered across the grid cannot be swept without touching the ones in between, so for those you still click. It is not obvious until it happens to you.</li>
-        <li><strong>The puzzles are ours, and they are a first set.</strong> The Connections sets in particular are the part most likely to have a group somebody can argue with. If you find one, that is a defect and we would like to hear about it.</li>
-        <li><strong>The sound is very quiet by design.</strong> It is pitched to sit under a conversation rather than to fill a room, which is right for a puzzle you do with the television on and will read as thin if you were expecting a game.</li>
-        <li><strong>It shipped with no sound at all on iPhone,</strong> for a week. Web audio on iOS has three separate traps and we had solved one of them. It works now, and with your phone on silent it will still make noise &mdash; which is what a game does, and is worth knowing before you open it in a waiting room.</li>
-      </ul>
-
-      <div class="rev-verdict">
-        <strong>Our verdict</strong>
-        <p>The one on this site to send to a parent. It does what the games it is modelled on do, without the clock, the lockout or the small grey type &mdash; and if you want the originals' word lists rather than ours, you will notice the difference.</p>
-      </div>
-      <p><a class="rev-play" href="/play/farmy-crosswords/">Play Farmy Crosswords &rarr;</a> &middot; <a href="/farmy-crosswords.html">More about it</a></p>
     </article>
 
     <section class="rev-game" id="method">
