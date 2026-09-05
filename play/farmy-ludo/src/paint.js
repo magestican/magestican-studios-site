@@ -30,7 +30,7 @@
 
 import { COLORS, FONT_STACK, SIZES, STATES } from '../../../web-engine/words/style.js';
 import {
-  GRID, YARD, boardLayout, boxPx, cellRect, homeCell, homeRun, isSafe,
+  GRID, TRACK, YARD, boardLayout, boxPx, cellRect, homeCell, homeRun, isSafe,
   RING, entryIndex, yardBox, yardSlots,
 } from '../../../web-engine/board/ludoBoard.js';
 import { TEAMS } from '../../../web-engine/board/ludoTeams.js';
@@ -210,6 +210,106 @@ export function rule(g, x, y, width) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+function bevel(g, x, y, w, h, radius, {
+  light = COLORS.card, shade = COLORS.ink,
+  lightAlpha = 0.3, shadeAlpha = 0.16, width = 2, sunken = false,
+} = {}) {
+  const bw = Math.max(1, width);
+  if (w <= bw * 2.5 || h <= bw * 2.5) return;
+  const l = x + bw / 2;
+  const t = y + bw / 2;
+  const rt = x + w - bw / 2;
+  const b = y + h - bw / 2;
+  g.save();
+  roundRect(g, x, y, w, h, radius);
+  g.clip();
+  g.lineWidth = bw;
+  const topLeft = sunken ? [shade, shadeAlpha] : [light, lightAlpha];
+  const bottomRight = sunken ? [light, lightAlpha] : [shade, shadeAlpha];
+  if (topLeft[1] > 0) {
+    g.globalAlpha = topLeft[1];
+    g.strokeStyle = topLeft[0];
+    g.beginPath();
+    g.moveTo(l, b); g.lineTo(l, t); g.lineTo(rt, t);
+    g.stroke();
+  }
+  if (bottomRight[1] > 0) {
+    g.globalAlpha = bottomRight[1];
+    g.strokeStyle = bottomRight[0];
+    g.beginPath();
+    g.moveTo(rt, t); g.lineTo(rt, b); g.lineTo(l, b);
+    g.stroke();
+  }
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function chevron(g, cx, cy, dx, dy, size, colour, alpha) {
+  
+  
+  
+  
+  const px = -dy;
+  const py = dx;
+  g.save();
+  g.globalAlpha = alpha;
+  g.fillStyle = colour;
+  g.beginPath();
+  g.moveTo(cx + dx * size, cy + dy * size);
+  g.lineTo(cx - dx * size * 0.68 + px * size * 0.86, cy - dy * size * 0.68 + py * size * 0.86);
+  g.lineTo(cx - dx * size * 0.68 - px * size * 0.86, cy - dy * size * 0.68 - py * size * 0.86);
+  g.closePath();
+  g.fill();
+  g.restore();
+}
+
+
+function stepDir(from, to) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  return { dx: dx / len, dy: dy / len };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function shapePath(g, shape, cx, cy, r) {
   g.beginPath();
   if (shape === 'circle') {
@@ -242,12 +342,80 @@ export function shapePath(g, shape, cx, cy, r) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function relief(g, shape, x, y, r) {
+  const far = r * 2.2;
+  const band = Math.max(1.5, r * 0.28);
+  
+  
+  
+  const base = g.globalAlpha;
+  
+  const halves = [
+    
+    
+    
+    
+    [[-far, -far], [far, -far], [-far, far], COLORS.card, 0.5],
+    [[far, -far], [far, far], [-far, far], COLORS.ink, 0.36],
+  ];
+  for (const [a, b, c, colour, alpha] of halves) {
+    g.save();
+    shapePath(g, shape, x, y, r);
+    g.clip();
+    g.beginPath();
+    g.moveTo(x + a[0], y + a[1]);
+    g.lineTo(x + b[0], y + b[1]);
+    g.lineTo(x + c[0], y + c[1]);
+    g.closePath();
+    g.clip();
+    g.globalAlpha = alpha * base;
+    g.strokeStyle = colour;
+    g.lineWidth = band;
+    shapePath(g, shape, x, y, r * 0.87);
+    g.stroke();
+    g.restore();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function token(g, spot, {
   lift = 0, legal = false, chosen = false, dim = false, moving = false,
 } = {}) {
   const team = TEAMS[spot.team];
   const r = spot.r;
-  const drop = Math.max(0, 3 + lift);
+  
+  
+  
+  
+  
+  const drop = Math.max(0, Math.max(2, r * 0.17) + lift);
   g.save();
   if (dim) g.globalAlpha = 0.4;
   g.fillStyle = COLORS.ink;
@@ -256,6 +424,7 @@ export function token(g, spot, {
   g.fillStyle = ink(team.colour);
   shapePath(g, team.shape, spot.x, spot.y, r);
   g.fill();
+  relief(g, team.shape, spot.x, spot.y, r);
   g.lineWidth = Math.max(2, r * 0.16);
   g.strokeStyle = COLORS.ink;
   shapePath(g, team.shape, spot.x, spot.y, r);
@@ -275,25 +444,46 @@ export function token(g, spot, {
   
   
   
+  
+  
+  
+  
+  
+  
   if (legal || chosen) {
     g.save();
-    g.lineWidth = chosen ? 5 : 4;
+    g.lineWidth = chosen ? Math.max(3, r * 0.26) : Math.max(2.5, r * 0.22);
     g.strokeStyle = COLORS.blue;
     if (!chosen && !moving) g.setLineDash([Math.max(4, r * 0.5), Math.max(3, r * 0.35)]);
     g.beginPath();
-    g.arc(spot.x, spot.y, r + 6, 0, Math.PI * 2);
+    g.arc(spot.x, spot.y, r + Math.max(3, r * 0.32), 0, Math.PI * 2);
     g.stroke();
     g.restore();
   }
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
 export function ghost(g, shape, x, y, r) {
   g.save();
+  g.globalAlpha = 0.16;
+  g.fillStyle = COLORS.blue;
+  shapePath(g, shape, x, y, r);
+  g.fill();
   g.globalAlpha = 0.9;
-  g.lineWidth = 3;
+  g.lineWidth = Math.max(2.5, r * 0.16);
   g.strokeStyle = COLORS.blue;
-  g.setLineDash([6, 5]);
+  g.setLineDash([Math.max(5, r * 0.42), Math.max(4, r * 0.32)]);
   shapePath(g, shape, x, y, r);
   g.stroke();
   g.restore();
@@ -333,8 +523,29 @@ export function board(g, box, { tokens = null } = {}) {
   const L = boardLayout(box);
 
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   surface(g, { x: L.x - 6, y: L.y - 6, w: L.size + 12, h: L.size + 12 },
-    { fill: COLORS.card, offset: SIZES.shadow + 2, radius: 10 });
+    { fill: COLORS.wood, offset: SIZES.shadow + 2, radius: 10 });
+  
+  bevel(g, L.x - 6 + SIZES.border, L.y - 6 + SIZES.border,
+    L.size + 12 - SIZES.border * 2, L.size + 12 - SIZES.border * 2, 8, {
+      light: COLORS.woodLit, shade: COLORS.woodShade,
+      lightAlpha: 0.9, shadeAlpha: 0.9, width: Math.max(2, L.cell * 0.12),
+    });
+
+  
+  
+  
+  const gap = Math.max(1, Math.round(L.cell * 0.06));
 
   
   
@@ -344,12 +555,27 @@ export function board(g, box, { tokens = null } = {}) {
     const pen4 = yardBox(t);
     
     
-    const box6 = boxPx(L, { x: pen4.x - 1, y: pen4.y - 1, w: pen4.w + 2, h: pen4.h + 2 });
+    const cell6 = boxPx(L, { x: pen4.x - 1, y: pen4.y - 1, w: pen4.w + 2, h: pen4.h + 2 });
+    const box6 = {
+      x: cell6.x + gap, y: cell6.y + gap, w: cell6.w - gap * 2, h: cell6.h - gap * 2,
+    };
     surface(g, { x: box6.x, y: box6.y, w: box6.w, h: box6.h },
       { fill: ink(team.colour), offset: 0, radius: 8 });
+    
+    
+    
+    
+    bevel(g, box6.x + 2, box6.y + 2, box6.w - 4, box6.h - 4, 7, {
+      lightAlpha: 0.34, shadeAlpha: 0.32, width: Math.max(3, L.cell * 0.22),
+    });
     const pen = boxPx(L, pen4);
     surface(g, { x: pen.x, y: pen.y, w: pen.w, h: pen.h },
       { fill: COLORS.card, offset: 0, radius: 8 });
+    bevel(g, pen.x + 2, pen.y + 2, pen.w - 4, pen.h - 4, 7, {
+      sunken: true,
+      light: COLORS.woodLit, shade: COLORS.ink,
+      lightAlpha: 0, shadeAlpha: 0.16, width: Math.max(2, L.cell * 0.18),
+    });
     
     
     
@@ -379,30 +605,60 @@ export function board(g, box, { tokens = null } = {}) {
   }
 
   
+  
+  
+  
+  
+  
+  
+  const paver = (r, fill, coloured) => {
+    const p = { x: r.x + gap, y: r.y + gap, w: r.w - gap * 2, h: r.h - gap * 2 };
+    surface(g, p, { fill, offset: 0, border: 2, radius: 4 });
+    bevel(g, p.x + 2, p.y + 2, p.w - 4, p.h - 4, 3, {
+      lightAlpha: coloured ? 0.26 : 0,
+      shadeAlpha: coloured ? 0.2 : 0.13,
+      width: Math.max(1.5, L.cell * 0.11),
+    });
+  };
+
+  
   for (let i = 0; i < RING.length; i += 1) {
     const r = cellRect(L, RING[i]);
     const owner = TEAMS.findIndex((unused, t) => entryIndex(t) === i);
-    surface(g, { x: r.x, y: r.y, w: r.w, h: r.h }, {
-      fill: owner >= 0 ? ink(TEAMS[owner].colour) : COLORS.card,
-      offset: 0,
-      border: 2,
-      radius: 4,
-    });
+    paver(r, owner >= 0 ? ink(TEAMS[owner].colour) : COLORS.card, owner >= 0);
+    
+    
+    
+    if (!isSafe(i) && L.cell >= 18) {
+      const dir = stepDir(RING[i], RING[(i + 1) % TRACK]);
+      chevron(g, r.x + r.w / 2, r.y + r.h / 2, dir.dx, dir.dy, L.cell * 0.18,
+        owner >= 0 ? COLORS.card : COLORS.ink, owner >= 0 ? 0.45 : 0.2);
+    }
     if (isSafe(i)) {
       
       
-      star(g, r.x + r.w / 2, r.y + r.h / 2, r.w * 0.28,
-        owner >= 0 ? COLORS.card : COLORS.slate);
+      
+      
+      
+      
+      
+      
+      star(g, r.x + r.w / 2, r.y + r.h / 2, r.w * 0.32,
+        owner >= 0 ? COLORS.card : COLORS.inkSoft);
     }
   }
 
   
   
+  
+  
+  
+  
+  
   for (let t = 0; t < TEAMS.length; t += 1) {
     for (const c of homeRun(t)) {
       const r = cellRect(L, c);
-      surface(g, { x: r.x, y: r.y, w: r.w, h: r.h },
-        { fill: ink(TEAMS[t].colour), offset: 0, border: 2, radius: 4 });
+      paver(r, ink(TEAMS[t].colour), true);
       text(g, STATES[TEAMS[t].state].mark, { x: r.x, y: r.y, w: r.w, h: r.h },
         { size: SIZES.min, colour: COLORS.card });
     }
@@ -411,7 +667,10 @@ export function board(g, box, { tokens = null } = {}) {
   
   
   const mid = { x: L.x + 7.5 * L.cell, y: L.y + 7.5 * L.cell };
-  const half = 1.5 * L.cell;
+  
+  
+  
+  const half = 1.5 * L.cell - gap;
   const corners = [
     [{ x: -half, y: half }, { x: half, y: half }],      
     [{ x: -half, y: -half }, { x: -half, y: half }],    
@@ -427,8 +686,32 @@ export function board(g, box, { tokens = null } = {}) {
     g.closePath();
     g.fillStyle = ink(TEAMS[t].colour);
     g.fill();
+    
+    
+    
+    
+    
+    g.clip();
+    
+    
+    
+    
+    g.globalAlpha = t === 2 || t === 1 ? 0.2 : 0.14;
+    g.strokeStyle = t === 2 || t === 1 ? COLORS.card : COLORS.ink;
+    g.lineWidth = Math.max(3, L.cell * 0.2);
+    g.beginPath();
+    g.moveTo(mid.x + a.x, mid.y + a.y);
+    g.lineTo(mid.x + b.x, mid.y + b.y);
+    g.stroke();
+    g.restore();
+    g.save();
     g.lineWidth = 3;
     g.strokeStyle = COLORS.ink;
+    g.beginPath();
+    g.moveTo(mid.x, mid.y);
+    g.lineTo(mid.x + a.x, mid.y + a.y);
+    g.lineTo(mid.x + b.x, mid.y + b.y);
+    g.closePath();
     g.stroke();
     g.restore();
     const home = cellRect(L, homeCell(t));
@@ -675,11 +958,29 @@ export function seat(g, r, {
   
   
   if (compact) {
-    text(g, `${active ? '▸ ' : ''}${t.name}`, { x: left, y: r.y + 5, w: width - 44, h: r.h / 2 - 4 },
-      { size: SIZES.min, colour: COLORS.ink, align: 'left', fit: true, maxWidth: width - 44 });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const forCount = 40;
+    text(g, `${active ? '▸ ' : ''}${t.name}`,
+      { x: left, y: r.y + 5, w: width - forCount, h: r.h / 2 - 4 },
+      { size: SIZES.min, colour: COLORS.ink, align: 'left', fit: true, maxWidth: width - forCount });
     text(g, finished ? 'HOME' : `${done}/${total}`,
       { x: left, y: r.y + 5, w: width, h: r.h / 2 - 4 },
-      { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right', fit: true, maxWidth: 44 });
+      { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right', fit: true, maxWidth: forCount });
     text(g, who, { x: left, y: r.y + r.h / 2 - 2, w: width, h: r.h / 2 },
       { size: SIZES.min, weight: 400, colour: active ? COLORS.blue : COLORS.inkSoft, align: 'left', fit: true, maxWidth: width });
     return;

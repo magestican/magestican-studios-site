@@ -13,14 +13,20 @@
     <priority>0.95</priority>
   </url>
   <url>
+    <loc>https://magesticanstudios.com/farmy-evil-hills.html</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
     <loc>https://magesticanstudios.com/farmykart.html</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://magesticanstudios.com/farmy-evil-hills.html</loc>
-    <lastmod>2026-08-31</lastmod>
+    <loc>https://magesticanstudios.com/farmy-scrabble.html</loc>
+    <lastmod>2026-09-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
@@ -29,6 +35,18 @@
     <lastmod>2026-09-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://magesticanstudios.com/zelakas-in-space.html</loc>
+    <lastmod>2026-08-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://magesticanstudios.com/2d-fighter-ex.html</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://magesticanstudios.com/farmy-wordle.html</loc>
@@ -53,18 +71,6 @@
     <lastmod>2026-09-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://magesticanstudios.com/zelakas-in-space.html</loc>
-    <lastmod>2026-08-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://magesticanstudios.com/2d-fighter-ex.html</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://magesticanstudios.com/reviews.html</loc>
@@ -115,26 +121,14 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://magesticanstudios.com/play/farmykart/</loc>
-    <lastmod>2026-08-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://magesticanstudios.com/play/farmy-evil-hills/</loc>
     <lastmod>2026-08-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://magesticanstudios.com/play/farmy-crosswords/</loc>
-    <lastmod>2026-09-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://magesticanstudios.com/farmy-scrabble.html</loc>
-    <lastmod>2026-09-04</lastmod>
+    <loc>https://magesticanstudios.com/play/farmykart/</loc>
+    <lastmod>2026-08-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -145,13 +139,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://magesticanstudios.com/play/farmy-ludo/</loc>
-    <lastmod>2026-09-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://magesticanstudios.com/play/farmy-chess/</loc>
+    <loc>https://magesticanstudios.com/play/farmy-crosswords/</loc>
     <lastmod>2026-09-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -167,6 +155,18 @@
     <lastmod>2026-08-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://magesticanstudios.com/play/farmy-ludo/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://magesticanstudios.com/play/farmy-chess/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://magesticanstudios.com/magazine/</loc>
