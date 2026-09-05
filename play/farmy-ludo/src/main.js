@@ -216,7 +216,26 @@ let message = '';
 let cursor = 0;          
 
 
-let chain = buildChain(randomSecret());
+const SAVE_KEY = 'fludo.solo.match';
+
+
+
+
+
+
+const readJson = (key) => {
+  try {
+    const raw = globalThis.localStorage?.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+};
+const writeJson = (key, value) => {
+  try { globalThis.localStorage?.setItem(key, JSON.stringify(value)); } catch {  }
+};
+
+
+let secret = randomSecret();
+let chain = buildChain(secret);
 let head = chain[0];
 let headAt = 0;
 
@@ -403,10 +422,21 @@ function layoutChoices() {
   const h = CHOICE_H;
   const top = boardBox.y + boardBox.height + 10;
   const w = Math.floor((boardBox.width - gap * (choices.length - 1)) / choices.length);
+  
+  
+  
+  
+  
+  
+  
+  
+  g.font = paint.font(SIZES.min, 700);
+  const room = w - 20;
+  const longFits = choices.every((c) => g.measureText(c.label).width <= room);
   choiceRects = choices.map((c, i) => ({
     id: `choice:${c.index}`,
     index: c.index,
-    label: c.label,
+    label: longFits ? c.label : c.short,
     x: boardBox.x + i * (w + gap),
     y: top,
     w,
@@ -661,7 +691,11 @@ function revealNext() {
 }
 
 function newChain(at) {
-  chain = buildChain(mixSeed([...room.peers, room.me], randomSecret()));
+  
+  
+  
+  secret = mixSeed([...room.peers, room.me], randomSecret());
+  chain = buildChain(secret);
   head = chain[0];
   headAt = at;
 }
@@ -677,6 +711,11 @@ function recordRoll(n, link) {
     return false;
   }
   entries = withEntry(entries, n, { link, die: r.die });
+  
+  
+  
+  
+  saveSolo();
   return true;
 }
 
@@ -685,8 +724,33 @@ function rebuild() {
   match = advance(start(seats), entries).state;
   spots = tokenSpots(match.tokens, boardBox);
   anim = null;
+  saveSolo();
   relayout();
   invalidate();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function saveSolo() {
+  if (room.active) return;
+  writeJson(SAVE_KEY, { v: 1, secret, headAt, entries, seats });
 }
 
 
@@ -703,6 +767,7 @@ function newMatch() {
   message = '';
   spots = tokenSpots(match.tokens, boardBox);
   net?.setup();
+  saveSolo();
   relayout();
   invalidate();
   trackEvent('ludo_start', { people: seats.filter((s) => s.kind === 'person').length });
@@ -716,6 +781,7 @@ function playToken(token) {
   const check = acceptMove(match, match.seats, { n, token, by: room.me });
   if (!check.ok) { say('That piece cannot make this move.'); return; }
   entries = withEntry(entries, n, { token, by: room.me });
+  saveSolo();
   net?.move(n, token);
   pump();
 }
@@ -1392,11 +1458,50 @@ keysAre(KEY_HELP);
 resize();
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function restoreSolo() {
+  const saved = readJson(SAVE_KEY);
+  if (!saved || saved.v !== 1) return false;
+  if (!Array.isArray(saved.entries) || !Array.isArray(saved.seats)) return false;
+  if (!saved.entries.length) return false;              
+  try {
+    seats = saved.seats;
+    entries = saved.entries;
+    secret = saved.secret;
+    chain = buildChain(secret);
+    head = chain[0];
+    headAt = Number(saved.headAt) || 0;
+    match = advance(start(seats), entries).state;
+    spots = tokenSpots(match.tokens, boardBox);
+    relayout();
+    invalidate();
+    
+    
+    schedulePump(PACE.roll);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const linkRoom = joinIdFrom(globalThis.location.href);
 if (linkRoom && canPlayTogether()) {
   room.active = true;
   startNet().join(linkRoom);
-} else {
+} else if (!restoreSolo()) {
   newMatch();
 }
 trackEvent('game_start', { game: 'farmy-ludo' });

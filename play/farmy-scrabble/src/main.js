@@ -1020,6 +1020,20 @@ const saved = readJson(SAVE_KEY);
 if (saved && Array.isArray(saved.seats) && saved.seats.length && Array.isArray(saved.actions)) {
   match = saved;
   derived = replay(match, isWord);
+} else {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (!roomState.active) writeJson(SAVE_KEY, match);
 }
 
 screen = boardScreen.create(app);

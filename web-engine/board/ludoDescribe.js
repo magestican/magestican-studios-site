@@ -137,7 +137,13 @@ export function statusOf(state, who = defaultWho) {
   }
   const seat = state.seats[state.turn];
   if (state.awaiting === 'roll') return `${teamAt(state.turn).name} to roll (${who(seat)}).`;
-  return `${teamAt(state.turn).name} rolled ${state.die}. Choose a token (${who(seat)}).`;
+  
+  
+  
+  
+  const blocked = blockedGateLine(state, state.die);
+  const tail = blocked ? ` ${blocked}` : '';
+  return `${teamAt(state.turn).name} rolled ${state.die}. Choose a token (${who(seat)}).${tail}`;
 }
 
 
@@ -181,14 +187,51 @@ export function describe(state, { message = '', room = '', who = defaultWho } = 
 
 
 
-export function moveLabel(move) {
+export function moveLabel(move, short = false) {
   if (!move) return '';
   
-  if (move.captures?.length) return `Take ${teamAt(move.captures[0].team).one}`;
-  if (move.enters) return 'Bring one out';
-  if (move.finishes) return 'Get one home';
-  if (move.safe) return 'Move to safety';
-  return 'Move forward';
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (move.captures?.length) {
+    return short ? 'Take' : `Take ${teamAt(move.captures[0].team).one}`;
+  }
+  if (move.enters) return short ? 'Out' : 'Bring one out';
+  if (move.finishes) return short ? 'Home' : 'Get one home';
+  if (move.safe) return short ? 'Safe' : 'Move to safety';
+  return short ? 'Fwd' : 'Move forward';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function blockedGateLine(state, die) {
+  if (!state || die !== 6) return '';
+  if (state.awaiting !== 'move') return '';
+  const mine = state.tokens?.[state.turn] ?? [];
+  const waiting = mine.some((at) => at < 0);
+  if (!waiting) return '';
+  if ((state.moves ?? []).some((m) => m.enters)) return '';
+  return 'Your gate is blocked by two of your own counters. Move one of them first.';
 }
 
 
@@ -237,13 +280,22 @@ export function moveChoices(state) {
       if (seenYard) return;
       seenYard = true;
     }
-    entries.push({ index, move, label: moveLabel(move), rank: moveRank(move) });
+    entries.push({
+      index,
+      move,
+      label: moveLabel(move),
+      short: moveLabel(move, true),
+      rank: moveRank(move),
+    });
   });
 
   const count = new Map();
   for (const e of entries) count.set(e.label, (count.get(e.label) ?? 0) + 1);
   for (const e of entries) {
-    if (count.get(e.label) > 1 && !e.move.enters) e.label = `${e.label} ${e.move.from + 1}`;
+    if (count.get(e.label) > 1 && !e.move.enters) {
+      e.label = `${e.label} ${e.move.from + 1}`;
+      e.short = `${e.short} ${e.move.from + 1}`;
+    }
   }
 
   
