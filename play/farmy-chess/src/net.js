@@ -62,6 +62,7 @@
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import { roomCode, normaliseCode, sayingText } from '../../../web-engine/words/coop.js';
 import { CMSG } from '../../../web-engine/chess/chessMatch.js';
+import { GAME_PREFIX, gameOfCode } from '../../../web-engine/words/coop.js';
 
 
 
@@ -73,6 +74,25 @@ import { CMSG } from '../../../web-engine/chess/chessMatch.js';
 
 
 
+
+
+const MY_PREFIX = GAME_PREFIX.chess;
+
+
+
+
+
+
+
+
+function codeError(typed) {
+  const other = gameOfCode(typed);
+  if (other && GAME_PREFIX[other] !== MY_PREFIX) {
+    const name = other.charAt(0).toUpperCase() + other.slice(1);
+    return `That is a Farmy ${name} code. Open Farmy ${name} to use it.`;
+  }
+  return 'That code does not look right. Check it and try again.';
+}
 
 const CODE_TRIES = 5;
 
@@ -192,7 +212,12 @@ export function createNet({
     
     host(attempt = 0) {
       if (mesh) return;
-      const hint = attempt < CODE_TRIES ? roomCode() : null;
+      
+      
+      
+      
+      
+      const hint = attempt < CODE_TRIES ? roomCode(Math.random, MY_PREFIX) : null;
       const mine = new PeerMesh(hint ? { hostIdHint: hint } : {});
       mesh = mine;
       hosting = true;
@@ -210,7 +235,10 @@ export function createNet({
 
     
     join(typed) {
-      const hostId = normaliseCode(typed) ?? typed;
+      
+      
+      const hostId = normaliseCode(typed, MY_PREFIX);
+      if (!hostId) return { error: codeError(typed) };
       if (mesh) return;
       mesh = new PeerMesh({});
       hosting = false;

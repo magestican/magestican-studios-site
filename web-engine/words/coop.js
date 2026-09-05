@@ -267,13 +267,54 @@ export const CODE_LENGTH = 6;
 export const ROOM_PREFIX = 'fcx-';
 
 
-export function roomCode(random = Math.random) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const GAME_PREFIX = Object.freeze({
+  crosswords: 'fcx-',
+  chess: 'fch-',
+  ludo: 'flu-',
+  scrabble: 'fsc-',
+});
+
+
+export function gameOfCode(text) {
+  const raw = String(text ?? '').toUpperCase().replace(/[\s._-]/g, '');
+  for (const [game, prefix] of Object.entries(GAME_PREFIX)) {
+    const bare = prefix.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (raw.startsWith(bare)) return game;
+  }
+  return null;
+}
+
+
+
+
+
+
+
+export function roomCode(random = Math.random, prefix = ROOM_PREFIX) {
   let out = '';
   for (let i = 0; i < CODE_LENGTH; i += 1) {
     const at = Math.floor(random() * CODE_ALPHABET.length);
     out += CODE_ALPHABET[Math.min(CODE_ALPHABET.length - 1, Math.max(0, at))];
   }
-  return ROOM_PREFIX + out;
+  return prefix + out;
 }
 
 
@@ -285,13 +326,18 @@ export function roomCode(random = Math.random) {
 
 
 
-export function normaliseCode(text) {
+export function normaliseCode(text, prefix = ROOM_PREFIX) {
   const raw = String(text ?? '').toUpperCase().replace(/[\s._-]/g, '');
-  const bare = ROOM_PREFIX.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  const body = raw.startsWith(bare) ? raw.slice(bare.length) : raw;
+  
+  
+  
+  const belongsTo = gameOfCode(raw);
+  const mine = prefix.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (belongsTo && GAME_PREFIX[belongsTo].toUpperCase().replace(/[^A-Z0-9]/g, '') !== mine) return null;
+  const body = raw.startsWith(mine) ? raw.slice(mine.length) : raw;
   if (body.length !== CODE_LENGTH) return null;
   for (const ch of body) if (!CODE_ALPHABET.includes(ch)) return null;
-  return ROOM_PREFIX + body;
+  return prefix + body;
 }
 
 

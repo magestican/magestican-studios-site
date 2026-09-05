@@ -26,7 +26,7 @@
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import {
-  MSG, mergeMoves, puzzleKey, roomCode, normaliseCode, sayingText,
+  MSG, mergeMoves, puzzleKey, roomCode, normaliseCode, sayingText, gameOfCode,
 } from '../../../web-engine/words/coop.js';
 
 
@@ -241,7 +241,22 @@ export function createNet({
 
     
     join(typed) {
-      const hostId = normaliseCode(typed) ?? typed;
+      
+      
+      
+      
+      
+      const hostId = normaliseCode(typed);
+      if (!hostId) {
+        const other = gameOfCode(typed);
+        const name = other && other !== 'crosswords'
+          ? other.charAt(0).toUpperCase() + other.slice(1) : null;
+        return {
+          error: name
+            ? `That is a Farmy ${name} code. Open Farmy ${name} to use it.`
+            : 'That code does not look right. Check it and try again.',
+        };
+      }
       if (mesh) return;
       mesh = new PeerMesh({});
       hosting = false;

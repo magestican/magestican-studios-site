@@ -436,6 +436,21 @@ function resize() {
   const dpr = Math.min(3, globalThis.devicePixelRatio || 1);
   const w = canvas.clientWidth;
   const h = canvas.clientHeight;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (w <= 0 || h <= 0) return;
   canvas.width = Math.round(w * dpr);
   canvas.height = Math.round(h * dpr);
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
