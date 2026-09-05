@@ -891,7 +891,15 @@ function roomWho() {
 const presence = roomPresence({
   game: 'crosswords',
   net: () => net,
-  players: () => roomState.peers.length + 1,
+  
+  
+  
+  
+  
+  
+  
+  
+  players: () => new Set([roomState.me, ...roomState.peers].filter(Boolean)).size || 1,
 });
 
 function startNet() {

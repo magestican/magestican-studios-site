@@ -818,6 +818,8 @@ function openMenu() {
 
 
 
+
+
 function wireLiveBadge() {
   const bar = document.querySelector('.studio-bar');
   if (!bar) return;
@@ -840,7 +842,15 @@ wireLiveBadge();
 const presence = roomPresence({
   game: 'scrabble',
   net: () => net,
-  players: () => roomState.peers.length + 1,
+  
+  
+  
+  
+  
+  
+  
+  
+  players: () => new Set([roomState.me, ...roomState.peers].filter(Boolean)).size || 1,
 });
 
 function startNet() {

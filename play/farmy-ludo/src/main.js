@@ -1187,6 +1187,8 @@ function showResults() {
 
 
 
+
+
 function wireLiveBadge() {
   const bar = document.querySelector('.studio-bar');
   if (!bar) return;
@@ -1209,7 +1211,15 @@ wireLiveBadge();
 const presence = roomPresence({
   game: 'ludo',
   net: () => net,
-  players: () => room.peers.length + 1,
+  
+  
+  
+  
+  
+  
+  
+  
+  players: () => new Set([room.me, ...room.peers].filter(Boolean)).size || 1,
 });
 
 function startNet() {
