@@ -39,7 +39,7 @@
 
 
 
-export function watchViewport(onResize) {
+export function watchViewport(onResize, element = null) {
   
   
   
@@ -74,9 +74,30 @@ export function watchViewport(onResize) {
 
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const fireTwice = () => {
     fire();
     try { globalThis.requestAnimationFrame(fire); } catch {  }
+    try {
+      globalThis.setTimeout(fire, 250);
+      globalThis.setTimeout(fire, 600);
+    } catch {  }
   };
 
   const off = [];
@@ -86,7 +107,22 @@ export function watchViewport(onResize) {
     off.push(() => target.removeEventListener(type, handler));
   };
 
+  
+  
+  
+  
+  
+  
+  
+  if (element && typeof globalThis.ResizeObserver === 'function') {
+    const ro = new globalThis.ResizeObserver(() => fire());
+    ro.observe(element);
+    off.push(() => ro.disconnect());
+  }
+
   on(globalThis, 'resize', fire);
+  
+  on(globalThis, 'focus', fireTwice);
   on(globalThis, 'orientationchange', fireTwice);
   
   

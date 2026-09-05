@@ -1266,7 +1266,10 @@ reduceMotion?.addEventListener?.('change', (ev) => { app.motion = !ev.matches; i
 
 
 
-watchViewport(resize);
+
+
+
+watchViewport(resize, canvas);
 
 
 

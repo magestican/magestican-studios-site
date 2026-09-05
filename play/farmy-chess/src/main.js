@@ -957,7 +957,10 @@ reduceMotion?.addEventListener?.('change', (e) => {
 
 sfx.install();
 
-watchViewport(resize);
+
+
+
+watchViewport(resize, canvas);
 
 
 
