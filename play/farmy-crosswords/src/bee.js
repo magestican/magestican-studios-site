@@ -238,7 +238,28 @@ export function create(app, index) {
     paint.surface(g, { x: entry.x + wobble, y: entry.y, w: entry.width, h: entry.height }, {
       fill: COLORS.card, offset: 0,
     });
-    paint.text(g, typed || 'Type or drag a word',
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    paint.text(g, typed || 'Tap the letters to spell a word',
       { x: entry.x + wobble, y: entry.y, width: entry.width, height: entry.height }, {
         size: typed ? SIZES.h2 : SIZES.base,
         weight: typed ? 700 : 400,
@@ -644,13 +665,13 @@ export function create(app, index) {
       || now - hoverAt < DURATION.hover
       || now - pressAt < DURATION.press
     ),
-    keys: `Type a word and press Enter, or drag across the letters. Every word needs the middle letter, ${puzzle.centre}. Press Hints to see what is left.`,
+    keys: `Tap the letters, or drag across them, or type. Enter submits. Every word needs the middle letter, ${puzzle.centre}. Press Hints to see what is left.`,
     help: [
       `Make words of ${MIN_LENGTH} letters or more from the seven letters.`,
       `Every word must use the middle letter, ${puzzle.centre}.`,
-      'Letters can be used more than once.',
+      'Any order, letters can repeat, and there is no path to follow.',
       'A word using all seven letters is a pangram, worth seven extra points.',
-      'Drag across the letters to spell a word, or just type it.',
+      'Tap the letters to spell a word. Dragging across them is a shortcut, and a keyboard works too.',
       'Press Hints to see how many words are left, by first letter and length.',
       'Press and hold a word you have found to see it in full and hear who found it.',
     ],

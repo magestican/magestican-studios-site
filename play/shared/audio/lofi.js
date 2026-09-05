@@ -22,12 +22,21 @@
 
 
 
+
+
+
+
 import {
   BAR_SECONDS, LOOP_BARS, eventsForBar, noteHz,
 } from '../../../web-engine/words/lofi.js';
-import { createAudioUnlock } from '../../shared/audio/iosUnlock.js';
+import { createAudioUnlock } from './iosUnlock.js';
 
-const KEY = 'farmy-crosswords:v2:music';
+
+
+
+
+
+const KEY = 'magestican:v1:music';
 
 let ctx = null;
 let master = null;      
@@ -132,29 +141,80 @@ function kick(at, gain) {
 }
 
 
-function voice(at, { kind, note, gain, length }) {
-  const osc = ctx.createOscillator();
-  const g = ctx.createGain();
-  const hz = noteHz(note);
-  
-  
-  
-  
-  osc.type = kind === 'bass' ? 'sine' : 'triangle';
-  osc.frequency.value = hz;
-  
-  
-  osc.detune.value = (Math.random() - 0.5) * 9;
 
-  const attack = kind === 'bass' ? 0.012 : 0.05;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function voice(at, { kind, note, gain, length }) {
+  const hz = noteHz(note);
+  const isBass = kind === 'bass';
+
+  const g = ctx.createGain();
+  const attack = isBass ? 0.012 : 0.05;
   g.gain.setValueAtTime(0.0001, at);
   g.gain.exponentialRampToValueAtTime(Math.max(0.0002, gain), at + attack);
   g.gain.exponentialRampToValueAtTime(0.0001, at + Math.max(attack + 0.05, length));
 
+  if (isBass) {
+    g.connect(bus);
+  } else {
+    
+    
+    const colour = ctx.createBiquadFilter();
+    colour.type = 'lowpass';
+    colour.frequency.value = Math.min(2000, hz * 3.1);
+    colour.Q.value = 0.5;
+    g.connect(colour);
+    colour.connect(bus);
+  }
+
+  const osc = ctx.createOscillator();
+  
+  
+  
+  osc.type = isBass ? 'sine' : 'triangle';
+  osc.frequency.value = hz;
+  
+  
+  osc.detune.value = (Math.random() - 0.5) * 9;
   osc.connect(g);
-  g.connect(bus);
   osc.start(at);
   osc.stop(at + length + 0.1);
+
+  if (isBass) {
+    const up = ctx.createOscillator();
+    const upGain = ctx.createGain();
+    up.type = 'triangle';   
+    up.frequency.value = hz * 2;
+    up.detune.value = (Math.random() - 0.5) * 6;
+    upGain.gain.setValueAtTime(0.0001, at);
+    upGain.gain.exponentialRampToValueAtTime(Math.max(0.0002, gain * 0.34), at + 0.02);
+    upGain.gain.exponentialRampToValueAtTime(0.0001, at + Math.max(0.1, length * 0.85));
+    up.connect(upGain);
+    upGain.connect(bus);
+    up.start(at);
+    up.stop(at + length + 0.1);
+  }
 }
 
 

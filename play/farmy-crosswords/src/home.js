@@ -38,6 +38,33 @@ import * as paint from './paint.js';
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const FAM_HEAD = {
+  above: 26,    
+  rule: 10,     
+  text: 24,     
+  below: 12,    
+};
+const FAM_HEAD_H = FAM_HEAD.above + FAM_HEAD.rule + FAM_HEAD.text + FAM_HEAD.below;
+
+
+const GUTTER = 9;
+
 const FAMILY = [
   {
     id: 'chess',
@@ -91,8 +118,20 @@ export function create(app) {
   let box = { x: 0, y: 0, width: 0, height: 0 };
   const bornAt = app.now();
 
+  
+  let contentW = 0;
+
   function layout(area) {
     box = area;
+    
+    
+    
+    
+    
+    
+    
+    
+    contentW = Math.max(120, area.width - GUTTER);
     
     
     scroll = clampScroll(scroll);
@@ -102,13 +141,13 @@ export function create(app) {
     const cols = area.width >= 760 ? 2 : 1;
     const rows = Math.ceil(GAMES.length / cols);
     const gap = 14;
-    const cardW = Math.floor((area.width - gap * (cols - 1)) / cols);
+    const cardW = Math.floor((contentW - gap * (cols - 1)) / cols);
     const headH = 116;
     const footH = 52;
     
     
     
-    const famH = FAMILY.length ? 34 + FAMILY.length * 62 : 0;
+    const famH = FAMILY.length ? FAM_HEAD_H + FAMILY.length * 62 : 0;
     const available = area.height - headH - footH - famH;
     
     
@@ -137,11 +176,11 @@ export function create(app) {
 
     contentH = 0;   
     const lastCard = cards[cards.length - 1];
-    const famTop = (lastCard ? lastCard.y + lastCard.h : top) + 34;
+    const famTop = (lastCard ? lastCard.y + lastCard.h : top) + FAM_HEAD_H;
     family = FAMILY.map((f, i) => ({
       x: area.x,
       y: famTop + i * 62,
-      w: area.width,
+      w: contentW,
       h: 52,
       game: f,
     }));
@@ -246,10 +285,14 @@ export function create(app) {
 
     
     if (family.length) {
+      
+      
+      
       const first = family[0];
-      paint.rule(g, box.x, first.y - 22, box.width);
+      const textTop = first.y - FAM_HEAD.below - FAM_HEAD.text;
+      paint.rule(g, box.x, textTop - FAM_HEAD.rule, contentW);
       paint.text(g, 'More from the farm',
-        { x: box.x, y: first.y - 18, width: box.width, height: 20 },
+        { x: box.x, y: textTop, width: contentW, height: FAM_HEAD.text },
         { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'left' });
     }
     family.forEach((c, i) => {
@@ -289,7 +332,7 @@ export function create(app) {
     
     
     paint.text(g, 'Press 1 to 4, or just start typing.',
-      { x: box.x, y: footY, width: box.width, height: 28 },
+      { x: box.x, y: footY, width: contentW, height: 28 },
       { size: SIZES.small, weight: 400, colour: COLORS.inkSoft });
 
     g.restore();

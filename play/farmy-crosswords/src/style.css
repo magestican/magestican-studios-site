@@ -33,6 +33,9 @@
   --fc-red: #A8321E;
   --fc-blue: #1D4E89;
   --fc-slate: #5D5749;
+  --fc-wood: #E9D3A8;
+  --fc-woodLit: #F7EBD2;
+  --fc-woodShade: #C4A874;
   --fc-base: 20px;
   --fc-min: 18px;
   --fc-small: 18px;
@@ -50,10 +53,33 @@
 
 * { box-sizing: border-box; }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  height: 100svh;
   overflow: hidden;
   background: var(--fc-paper);
   color: var(--fc-ink);

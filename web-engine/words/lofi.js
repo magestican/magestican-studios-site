@@ -46,6 +46,23 @@ export const LOOP_SECONDS = LOOP_BARS * BAR_SECONDS;
 export const SWING = 0.62;
 
 
+
+
+
+
+
+export const BASS_FLOOR = 36;
+
+
+
+
+
+
+
+
+export const KEY_CEILING = 84;
+
+
 export function swingAt(sixteenth) {
   const beat = Math.floor(sixteenth / 4);
   const within = sixteenth % 4;
@@ -136,10 +153,29 @@ export function eventsForBar(bar) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const voicing = new Set(chord.notes);
+  const key = (note) => {
+    if (note <= KEY_CEILING) return note;
+    const down = note - 12;
+    return voicing.has(down) ? down - 12 : down;
+  };
   if (chord.at !== undefined && shape.barInSection % 2 === 0) {
     chord.notes.forEach((n, i) => {
       out.push({
-        kind: 'key', note: n, at: at(2) + i * 0.012,
+        kind: 'key', note: key(n), at: at(2) + i * 0.012,
         gain: 0.075 * shape.keys, length: BAR_SECONDS * 1.9,
       });
     });
@@ -148,7 +184,7 @@ export function eventsForBar(bar) {
     
     chord.notes.slice(2).forEach((n, i) => {
       out.push({
-        kind: 'key', note: n, at: at(6) + i * 0.012,
+        kind: 'key', note: key(n), at: at(6) + i * 0.012,
         gain: 0.045 * shape.keys, length: BAR_SECONDS * 0.9,
       });
     });
@@ -157,10 +193,26 @@ export function eventsForBar(bar) {
   
   
   
-  out.push({ kind: 'bass', note: chord.root, at: at(0), gain: 0.30, length: BEAT_SECONDS * 1.6 });
-  out.push({ kind: 'bass', note: chord.root + 7, at: at(11), gain: 0.20, length: BEAT_SECONDS * 0.7 });
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const bass = (note) => Math.max(BASS_FLOOR, note);
+  out.push({ kind: 'bass', note: bass(chord.root), at: at(0), gain: 0.30, length: BEAT_SECONDS * 1.6 });
+  out.push({ kind: 'bass', note: bass(chord.root + 7), at: at(11), gain: 0.20, length: BEAT_SECONDS * 0.7 });
   if (shape.barInSection % 4 === 3) {
-    out.push({ kind: 'bass', note: chord.root - 12, at: at(14), gain: 0.24, length: BEAT_SECONDS });
+    out.push({ kind: 'bass', note: bass(chord.root - 12), at: at(14), gain: 0.24, length: BEAT_SECONDS });
   }
 
   

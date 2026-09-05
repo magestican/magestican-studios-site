@@ -471,27 +471,159 @@ const PIPS = {
 
 
 
+
+
+
+
+
+
+
+
+function pip(g, cx, cy, radius) {
+  g.beginPath();
+  g.arc(cx, cy, radius, 0, Math.PI * 2);
+  g.fillStyle = COLORS.ink;
+  g.fill();
+  g.save();
+  g.clip();
+  g.globalAlpha = 0.5;
+  g.beginPath();
+  g.arc(cx + radius * 0.34, cy + radius * 0.34, radius * 0.82, 0, Math.PI * 2);
+  g.fillStyle = COLORS.slate ?? '#4A4438';
+  g.fill();
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function die(g, r, { face = null, tumble = 1, hover = 0, press = 0, hint = null } = {}) {
+  const rolling = face !== null && tumble < 1;
   const shown = face === null ? null
     : (tumble >= 1 ? face : ((Math.floor(tumble * 24) * 5 + 1) % 6) + 1);
-  surface(g, r, {
-    fill: COLORS.card,
-    offset: Math.max(0, SIZES.shadow + hover - press),
-    dy: press,
-    radius: 10,
-  });
+
   if (shown === null) {
+    surface(g, r, {
+      fill: COLORS.card,
+      offset: Math.max(0, SIZES.shadow + hover - press),
+      dy: press,
+      radius: 10,
+    });
     text(g, hint ?? 'ROLL', { x: r.x, y: r.y + press, w: r.w, h: r.h },
       { size: SIZES.h2, colour: COLORS.ink, fit: true, maxWidth: r.w - 14 });
     return;
   }
-  const pip = Math.max(4, r.w * 0.1);
-  g.save();
-  g.fillStyle = COLORS.ink;
-  for (const [px, py] of PIPS[shown]) {
+
+  const cx = r.x + r.w / 2;
+  const cy = r.y + r.h / 2;
+
+  
+  
+  
+  const air = rolling ? Math.sin(tumble * Math.PI) : 0;
+  const hop = air * r.h * 0.38;
+
+  if (air > 0.01) {
+    g.save();
+    g.globalAlpha = 0.16 * (1 - air * 0.7);
+    g.fillStyle = COLORS.ink;
     g.beginPath();
-    g.arc(r.x + px * r.w, r.y + press + py * r.h, pip, 0, Math.PI * 2);
+    g.ellipse(cx, r.y + r.h + 4, (r.w / 2) * (1 - air * 0.35), 5 * (1 - air * 0.5), 0, 0, Math.PI * 2);
     g.fill();
+    g.restore();
+  }
+
+  
+  
+  const spin = rolling ? (1 - tumble) ** 2 * Math.PI * 2.4 : 0;
+  
+  const land = rolling && tumble > 0.8 ? Math.sin((tumble - 0.8) / 0.2 * Math.PI) : 0;
+
+  g.save();
+  g.translate(cx, cy - hop + land * r.h * 0.05);
+  g.rotate(spin);
+  g.scale(1 + land * 0.09, 1 - land * 0.09);
+  g.translate(-cx, -cy);
+
+  surface(g, r, {
+    fill: COLORS.card,
+    offset: Math.max(0, SIZES.shadow + hover - press + air * 5),
+    dy: press,
+    radius: 10,
+  });
+
+  
+  
+  
+  g.save();
+  roundRect(g, r.x + 2, r.y + press + 2, r.w - 4, r.h - 4, 8);
+  g.clip();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const bw = Math.max(2, r.w * 0.07);
+  const l = r.x + 2 + bw / 2;
+  const t = r.y + press + 2 + bw / 2;
+  const rt = r.x + r.w - 2 - bw / 2;
+  const b = r.y + press + r.h - 2 - bw / 2;
+  g.lineWidth = bw;
+  g.strokeStyle = '#FFFFFF';
+  g.beginPath();
+  g.moveTo(l, b);
+  g.lineTo(l, t);
+  g.lineTo(rt, t);
+  g.stroke();
+  g.globalAlpha = 0.55;
+  g.strokeStyle = '#C6BEAB';
+  g.beginPath();
+  g.moveTo(rt, t);
+  g.lineTo(rt, b);
+  g.lineTo(l, b);
+  g.stroke();
+  g.restore();
+
+  const radius = Math.max(4, r.w * 0.1);
+  for (const [px, py] of PIPS[shown]) {
+    pip(g, r.x + px * r.w, r.y + press + py * r.h, radius);
   }
   g.restore();
 }

@@ -44,6 +44,18 @@ export const COLORS = {
   red: '#A8321E',      
   blue: '#1D4E89',     
   slate: '#5D5749',    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  wood: '#E9D3A8',       
+  woodLit: '#F7EBD2',    
+  woodShade: '#C4A874',  
 };
 
 

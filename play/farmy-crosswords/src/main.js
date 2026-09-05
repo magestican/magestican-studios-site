@@ -50,7 +50,8 @@ import {
   scoreboard, winnerOf, GAME_NAMES, MODES, movesForBoard, displayName, cleanName, chipsFor,
 } from '../../../web-engine/words/coop.js';
 import * as sfx from './sfx.js';
-import * as music from './music.js';
+import * as music from '../../shared/audio/lofi.js';
+import { watchViewport } from '../../shared/ui/viewport.js';
 
 initAnalytics({ page: 'farmy-crosswords' });
 
@@ -1477,7 +1478,11 @@ reduceMotion?.addEventListener?.('change', (e) => {
   invalidate();
 });
 
-globalThis.addEventListener('resize', resize);
+
+
+
+
+watchViewport(resize);
 
 
 

@@ -68,6 +68,9 @@ import * as paint from './paint.js';
 import * as overlays from './overlay.js';
 import { announce, keysAre, mirror } from './a11y.js';
 import { canPlayTogether, createNet } from './net.js';
+import { watchViewport } from '../../shared/ui/viewport.js';
+import * as music from '../../shared/audio/lofi.js';
+import { wireMusicButton } from '../../shared/ui/musicButton.js';
 
 initAnalytics({ page: 'farmy-ludo' });
 
@@ -1039,7 +1042,16 @@ document.addEventListener('keydown', (e) => {
 });
 
 reduceMotion?.addEventListener?.('change', (ev) => { app.motion = !ev.matches; invalidate(); });
-globalThis.addEventListener('resize', resize);
+
+
+
+
+watchViewport(resize);
+
+
+
+
+wireMusicButton({ music, announce, sound: (e) => sfx.play(e) });
 
 
 

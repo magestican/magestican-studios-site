@@ -78,6 +78,9 @@ import {
   help, room as roomPanel, say as sayPanel, results, menu, sides, promotion, moves as movesPanel,
 } from './panels.js';
 import { createNet, canPlayTogether } from './net.js';
+import { watchViewport } from '../../shared/ui/viewport.js';
+import * as music from '../../shared/audio/lofi.js';
+import { wireMusicButton } from '../../shared/ui/musicButton.js';
 
 initAnalytics({ page: 'farmy-chess' });
 startVersionChecker({
@@ -842,7 +845,16 @@ reduceMotion?.addEventListener?.('change', (e) => {
   invalidate();
 });
 
-globalThis.addEventListener('resize', resize);
+
+
+
+
+watchViewport(resize);
+
+
+
+
+wireMusicButton({ music, announce, });
 
 
 

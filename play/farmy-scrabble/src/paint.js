@@ -219,13 +219,20 @@ export function square(g, r, {
     
     
     
-    surface(g, r, {
-      fill: pending ? COLORS.gold : COLORS.card,
-      offset: pending ? Math.min(3, r.w * 0.1) : 0,
-      border,
-      radius: Math.min(SIZES.radius, r.w / 4),
-      alpha: dim ? 0.75 : 1,
-    });
+    
+    
+    
+    
+    const radius = Math.min(SIZES.radius, r.w / 4);
+    if (pending) {
+      surface(g, r, {
+        fill: COLORS.gold, offset: Math.min(3, r.w * 0.1), border, radius, alpha: dim ? 0.75 : 1,
+      });
+    } else {
+      surface(g, r, { fill: COLORS.card, offset: 0, border, radius, alpha: dim ? 0.75 : 1 });
+      woodFace(g, { x: r.x + border, y: r.y + border, w: r.w - border * 2, h: r.h - border * 2 },
+        { radius: Math.max(0, radius - border), alpha: dim ? 0.75 : 1 });
+    }
     letter(g, r, tile.letter, {
       value: tile.blank ? null : tile.value,
       colour: pending ? COLORS.card : COLORS.ink,
@@ -242,6 +249,86 @@ export function square(g, r, {
     }
   }
   if (cursor) cursorRing(g, r, cursorAxis);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function woodFace(g, r, { radius = SIZES.radius, alpha = 1 } = {}) {
+  g.save();
+  g.globalAlpha = alpha;
+
+  g.fillStyle = COLORS.wood;
+  roundRect(g, r.x, r.y, r.w, r.h, radius);
+  g.fill();
+
+  
+  g.clip();
+  const inset = Math.max(1.5, r.w * 0.055);
+  g.lineWidth = inset;
+  g.lineCap = 'butt';
+
+  g.strokeStyle = COLORS.woodLit;
+  g.beginPath();
+  g.moveTo(r.x, r.y + r.h);
+  g.lineTo(r.x, r.y);
+  g.lineTo(r.x + r.w, r.y);
+  g.stroke();
+
+  g.strokeStyle = COLORS.woodShade;
+  g.beginPath();
+  g.moveTo(r.x + r.w, r.y);
+  g.lineTo(r.x + r.w, r.y + r.h);
+  g.lineTo(r.x, r.y + r.h);
+  g.stroke();
+
+  
+  
+  
+  
+  if (r.w >= 30) {
+    g.globalAlpha = alpha * 0.32;
+    g.strokeStyle = COLORS.woodShade;
+    g.lineWidth = 1;
+    
+    
+    for (const at of [0.22, 0.37, 0.68, 0.81]) {
+      const y = Math.round(r.y + r.h * at) + 0.5;
+      g.beginPath();
+      g.moveTo(r.x + r.w * 0.08, y);
+      g.lineTo(r.x + r.w * 0.92, y);
+      g.stroke();
+    }
+  }
+  g.restore();
 }
 
 
@@ -293,6 +380,14 @@ export function rackTile(g, r, {
     dy: press,
     radius: SIZES.radius,
   });
+  
+  
+  
+  
+  if (!chosen) {
+    woodFace(g, { x: r.x + 2, y: r.y + press + 2, w: r.w - 4, h: r.h - 4 },
+      { radius: Math.max(0, SIZES.radius - 2) });
+  }
   const on = chosen ? COLORS.card : COLORS.ink;
   const box = { x: r.x, y: r.y + press, w: r.w, h: r.h };
   if (blank && !ch) {

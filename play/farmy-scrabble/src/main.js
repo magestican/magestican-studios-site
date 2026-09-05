@@ -68,6 +68,9 @@ import {
   bots as botsPanel,
 } from './panels.js';
 import { createNet, canPlayTogether } from './net.js';
+import { watchViewport } from '../../shared/ui/viewport.js';
+import * as music from '../../shared/audio/lofi.js';
+import { wireMusicButton } from '../../shared/ui/musicButton.js';
 
 initAnalytics({ page: 'farmy-scrabble' });
 
@@ -855,7 +858,16 @@ reduceMotion?.addEventListener?.('change', (e) => {
   invalidate();
 });
 
-globalThis.addEventListener('resize', resize);
+
+
+
+
+watchViewport(resize);
+
+
+
+
+wireMusicButton({ music, announce, sound: (e) => sfx.play(e) });
 
 
 
