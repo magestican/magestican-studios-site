@@ -36,6 +36,13 @@
   --fc-border: 3px;
   --fc-radius: 6px;
   --fc-shadow: 4px;
+  
+
+
+
+
+  --fc-paperDim: rgba(246, 241, 230, 0.78);
+  --fc-paperWash: rgba(246, 241, 230, 0.14);
   --fc-motionMs: 120ms;
   --fc-font: Verdana, "DejaVu Sans", Tahoma, "Segoe UI", system-ui, sans-serif;
 }
@@ -209,7 +216,7 @@ body {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.studio-music:hover { background: rgba(246, 241, 230, 0.14); }
+.studio-music:hover { background: var(--fc-paperWash); }
 
 
 
@@ -219,12 +226,12 @@ body {
 .studio-music .mg-slash { display: none; }
 .studio-music[aria-pressed="false"] .mg-slash { display: block; }
 .studio-music[aria-pressed="false"] .mg-note { opacity: 0.45; }
-.studio-music[aria-pressed="false"] { color: var(--fc-paper-dim); }
+.studio-music[aria-pressed="false"] { color: var(--fc-paperDim); }
 
 .studio-back {
   margin-left: auto;
   flex: 0 0 auto;
-  color: var(--fc-paper-dim);
+  color: var(--fc-paperDim);
   text-decoration: none;
   font-size: 17px;
   padding: 10px 6px;

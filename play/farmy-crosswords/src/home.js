@@ -85,6 +85,20 @@ const FAMILY = [
     blurb: 'The whole board. Play a bot, or two to four people.',
     url: '/play/farmy-scrabble/',
   },
+  {
+    id: 'checkers',
+    name: 'Farmy Checkers',
+    
+    
+    
+    
+    
+    
+    
+    
+    blurb: 'Draughts. Every jump you can take, you must.',
+    url: '/play/farmy-checkers/',
+  },
 ];
 
 export function create(app) {

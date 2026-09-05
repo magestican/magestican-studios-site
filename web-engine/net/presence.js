@@ -43,6 +43,7 @@ export const LIVE_GAMES = Object.freeze({
   chess: 'Farmy Chess',
   ludo: 'Farmy Ludo',
   scrabble: 'Farmy Scrabble',
+  checkers: 'Farmy Checkers',
 });
 
 
@@ -51,6 +52,7 @@ export const LIVE_PATH = Object.freeze({
   chess: '/play/farmy-chess/',
   ludo: '/play/farmy-ludo/',
   scrabble: '/play/farmy-scrabble/',
+  checkers: '/play/farmy-checkers/',
 });
 
 

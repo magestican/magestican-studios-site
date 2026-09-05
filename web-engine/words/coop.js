@@ -290,6 +290,13 @@ export const GAME_PREFIX = Object.freeze({
   chess: 'fch-',
   ludo: 'flu-',
   scrabble: 'fsc-',
+  
+  
+  
+  
+  
+  
+  checkers: 'fdr-',
 });
 
 
@@ -331,10 +338,31 @@ export function normaliseCode(text, prefix = ROOM_PREFIX) {
   
   
   
-  const belongsTo = gameOfCode(raw);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const belongsTo = raw.length > CODE_LENGTH ? gameOfCode(raw) : null;
   const mine = prefix.toUpperCase().replace(/[^A-Z0-9]/g, '');
   if (belongsTo && GAME_PREFIX[belongsTo].toUpperCase().replace(/[^A-Z0-9]/g, '') !== mine) return null;
-  const body = raw.startsWith(mine) ? raw.slice(mine.length) : raw;
+  
+  
+  
+  
+  
+  const body = (raw.length > CODE_LENGTH && raw.startsWith(mine)) ? raw.slice(mine.length) : raw;
   if (body.length !== CODE_LENGTH) return null;
   for (const ch of body) if (!CODE_ALPHABET.includes(ch)) return null;
   return prefix + body;

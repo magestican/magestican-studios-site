@@ -23,8 +23,9 @@
 
 
 
-  --fc-paper-wash: rgba(246, 241, 230, 0.14);
-  --fc-paper-dim: rgba(246, 241, 230, 0.62);
+
+  --fc-paperWash: rgba(246, 241, 230, 0.14);
+  --fc-paperDim: rgba(246, 241, 230, 0.78);
   --fc-card: #FFFDF6;
   --fc-ink: #17150F;
   --fc-inkSoft: #4A4438;
@@ -164,7 +165,7 @@ body {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.studio-music:hover { background: var(--fc-paper-wash); }
+.studio-music:hover { background: var(--fc-paperWash); }
 
 
 
@@ -174,7 +175,7 @@ body {
 .studio-music .mg-slash { display: none; }
 .studio-music[aria-pressed="false"] .mg-slash { display: block; }
 .studio-music[aria-pressed="false"] .mg-note { opacity: 0.45; }
-.studio-music[aria-pressed="false"] { color: var(--fc-paper-dim); }
+.studio-music[aria-pressed="false"] { color: var(--fc-paperDim); }
 
 
 
@@ -296,7 +297,7 @@ canvas#board[hidden] { display: none; }
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.studio-back-btn:hover { background: var(--fc-paper-wash); }
+.studio-back-btn:hover { background: var(--fc-paperWash); }
 .studio-back-btn:focus-visible {
   outline: var(--fc-shadow) solid var(--fc-blue);
   outline-offset: 2px;

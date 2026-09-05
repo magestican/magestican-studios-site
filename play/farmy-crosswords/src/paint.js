@@ -484,6 +484,34 @@ export function boardEmblem(g, id, r) {
       const x = cx - step - w / 2 + i * step;
       cell(x, cy - w / 2 + (i === 1 ? -w * 0.16 : 0), w, w, COLORS.wood);
     }
+    return;
+  }
+
+  if (id === 'checkers') {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const rad = side * 0.28;
+    const lift = side * 0.13;
+    g.save();
+    g.lineWidth = Math.max(1.5, side / 14);
+    for (const [dx, dy, fill] of [[-rad * 0.45, lift, COLORS.ink],
+                                  [rad * 0.45, -lift, COLORS.card]]) {
+      g.beginPath();
+      g.arc(cx + dx, cy + dy, rad, 0, Math.PI * 2);
+      g.fillStyle = fill;
+      g.fill();
+      g.strokeStyle = COLORS.ink;
+      g.stroke();
+    }
+    g.restore();
   }
 }
 

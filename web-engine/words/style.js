@@ -56,6 +56,27 @@ export const COLORS = {
   wood: '#E9D3A8',       
   woodLit: '#F7EBD2',    
   woodShade: '#C4A874',  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  paperDim: 'rgba(246, 241, 230, 0.78)',   
+  paperWash: 'rgba(246, 241, 230, 0.14)',  
 };
 
 
