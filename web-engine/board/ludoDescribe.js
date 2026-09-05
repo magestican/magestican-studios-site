@@ -156,3 +156,98 @@ export function describe(state, { message = '', room = '', who = defaultWho } = 
     ],
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function moveLabel(move) {
+  if (!move) return '';
+  
+  if (move.captures?.length) return `Take ${teamAt(move.captures[0].team).one}`;
+  if (move.enters) return 'Bring one out';
+  if (move.finishes) return 'Get one home';
+  if (move.safe) return 'Move to safety';
+  return 'Move forward';
+}
+
+
+
+
+
+
+
+
+
+
+export function moveRank(move) {
+  if (!move) return 0;
+  if (move.captures?.length) return 4;
+  if (move.finishes) return 3;
+  if (move.enters) return 2;
+  if (move.safe) return 1;
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function moveChoices(state) {
+  if (state.awaiting !== 'move' || !state.moves?.length) return [];
+  const entries = [];
+  let seenYard = false;
+  state.moves.forEach((move, index) => {
+    if (move.enters) {
+      if (seenYard) return;
+      seenYard = true;
+    }
+    entries.push({ index, move, label: moveLabel(move), rank: moveRank(move) });
+  });
+
+  const count = new Map();
+  for (const e of entries) count.set(e.label, (count.get(e.label) ?? 0) + 1);
+  for (const e of entries) {
+    if (count.get(e.label) > 1 && !e.move.enters) e.label = `${e.label} ${e.move.from + 1}`;
+  }
+
+  
+  
+  
+  return entries.sort((a, b) => b.rank - a.rank || a.index - b.index);
+}

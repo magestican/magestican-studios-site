@@ -308,16 +308,25 @@ export function create(app) {
       
       
       const pad = 16;
+      
+      
+      
+      
+      const art = Math.min(30, c.h - 18);
+      paint.boardEmblem(g, c.game.id, {
+        x: c.x + pad, y: c.y + down + (c.h - art) / 2, w: art, h: art,
+      });
+      const left = c.x + pad + art + 14;
       const narrow = c.w < 480;
-      const nameW = narrow ? c.w - pad * 2 - 26 : c.w * 0.46;
+      const nameW = narrow ? (c.x + c.w - pad - 26) - left : c.w * 0.46 - art - 14;
       paint.text(g, c.game.name,
-        { x: c.x + pad, y: c.y + down, w: nameW, h: c.h },
+        { x: left, y: c.y + down, w: nameW, h: c.h },
         { size: SIZES.base, colour: COLORS.ink, align: 'left', fit: true, maxWidth: nameW });
       if (narrow) {
         paint.text(g, '→', { x: c.x + c.w - pad - 22, y: c.y + down, w: 22, h: c.h },
           { size: SIZES.base, colour: COLORS.inkSoft });
       } else {
-        const blurbX = c.x + pad + nameW + 16;
+        const blurbX = left + nameW + 16;
         const blurbW = c.x + c.w - pad - blurbX;
         paint.text(g, c.game.blurb,
           { x: blurbX, y: c.y + down, w: blurbW, h: c.h },

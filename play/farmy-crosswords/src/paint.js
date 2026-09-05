@@ -431,6 +431,76 @@ export function emblem(g, id, r) {
 
 
 
+
+
+export function boardEmblem(g, id, r) {
+  const side = Math.min(r.w, r.h);
+  const cx = r.x + r.w / 2;
+  const cy = r.y + r.h / 2;
+  const cell = (x, y, w, h, fill) => surface(g, { x, y, w, h }, {
+    fill, offset: 0, border: Math.max(1, Math.round(side / 18)), radius: 2,
+  });
+
+  if (id === 'chess') {
+    
+    
+    const w = side / 2.2;
+    const ox = cx - w;
+    const oy = cy - w;
+    for (let y = 0; y < 2; y += 1) {
+      for (let x = 0; x < 2; x += 1) {
+        cell(ox + x * w, oy + y * w, w, w, (x + y) % 2 ? COLORS.ink : COLORS.card);
+      }
+    }
+    return;
+  }
+
+  if (id === 'ludo') {
+    
+    
+    const w = side * 0.86;
+    cell(cx - w / 2, cy - w / 2, w, w, COLORS.card);
+    const off = w * 0.22;
+    const dot = Math.max(1.6, w * 0.11);
+    g.save();
+    g.fillStyle = COLORS.ink;
+    for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+      g.beginPath();
+      g.arc(cx + dx * off, cy + dy * off, dot, 0, Math.PI * 2);
+      g.fill();
+    }
+    g.restore();
+    return;
+  }
+
+  if (id === 'scrabble') {
+    
+    
+    
+    
+    const w = side * 0.42;
+    const step = w * 0.78;
+    for (let i = 0; i < 3; i += 1) {
+      const x = cx - step - w / 2 + i * step;
+      cell(x, cy - w / 2 + (i === 1 ? -w * 0.16 : 0), w, w, COLORS.wood);
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function wrap(g, string, maxWidth, { size = SIZES.small, weight = 400 } = {}) {
   g.font = font(size, weight);
   const out = [];

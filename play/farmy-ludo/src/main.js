@@ -56,7 +56,9 @@ import {
   advance, progressOf, standings, start, stepOnce,
 } from '../../../web-engine/board/ludoRules.js';
 import { choose } from '../../../web-engine/board/ludoBots.js';
-import { describe, describeEvent, statusOf } from '../../../web-engine/board/ludoDescribe.js';
+import {
+  describe, describeEvent, statusOf, moveChoices,
+} from '../../../web-engine/board/ludoDescribe.js';
 import {
   buildChain, linkFor, mixSeed, randomSecret,
 } from '../../../web-engine/board/ludoDie.js';
@@ -147,6 +149,14 @@ const PACE = {
 };
 
 const MOVE_MS = 460;
+
+
+
+
+
+
+
+const CHOICE_H = 48;
 const DIE_MS = 560;
 
 
@@ -234,6 +244,10 @@ let barHover = -1;
 let barHoverAt = 0;
 let tokenHover = -1;
 let tokenHoverAt = 0;
+
+let choiceRects = [];
+let choiceHover = -1;
+let choiceHoverAt = 0;
 let overlay = null;
 let dirty = true;
 let looping = false;
@@ -283,10 +297,23 @@ function relayout() {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const room = CHOICE_H + 10;
   if (app.width >= BAR_WIDE) {
     const col = 320;
     boardBox = {
-      x: screenBox.x, y: screenBox.y, width: screenBox.width - col - 18, height: screenBox.height,
+      x: screenBox.x,
+      y: screenBox.y,
+      width: screenBox.width - col - 18,
+      height: screenBox.height - room,
     };
     panelBox = {
       x: screenBox.x + screenBox.width - col, y: screenBox.y, width: col, height: screenBox.height,
@@ -294,7 +321,10 @@ function relayout() {
   } else {
     const strip = 236;
     boardBox = {
-      x: screenBox.x, y: screenBox.y, width: screenBox.width, height: screenBox.height - strip - 10,
+      x: screenBox.x,
+      y: screenBox.y,
+      width: screenBox.width,
+      height: screenBox.height - strip - 10 - room,
     };
     panelBox = {
       x: screenBox.x, y: screenBox.y + screenBox.height - strip, width: screenBox.width, height: strip,
@@ -303,7 +333,45 @@ function relayout() {
   layoutPanel();
   layoutBar();
   spots = tokenSpots(match.tokens, boardBox);
+  layoutChoices();
   if (overlay) overlay.layout();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function layoutChoices() {
+  choiceRects = [];
+  const choices = myTurn() ? moveChoices(match) : [];
+  if (!choices.length) return;
+  const gap = 8;
+  const h = CHOICE_H;
+  const top = boardBox.y + boardBox.height + 10;
+  const w = Math.floor((boardBox.width - gap * (choices.length - 1)) / choices.length);
+  choiceRects = choices.map((c, i) => ({
+    id: `choice:${c.index}`,
+    index: c.index,
+    label: c.label,
+    x: boardBox.x + i * (w + gap),
+    y: top,
+    w,
+    h,
+  }));
 }
 
 function layoutPanel() {
@@ -560,6 +628,7 @@ function animating(now) {
   if (now - dieAt < DIE_MS) return true;
   if (barHover >= 0 && now - barHoverAt < DURATION.hover) return true;
   if (tokenHover >= 0 && now - tokenHoverAt < DURATION.hover) return true;
+  if (choiceHover >= 0 && now - choiceHoverAt < DURATION.hover) return true;
   return false;
 }
 
@@ -614,6 +683,32 @@ function drawBoard(now) {
       moving: p < 1,
     });
   });
+}
+
+
+
+
+
+
+
+function drawChoices(now) {
+  
+  
+  
+  
+  
+  layoutChoices();
+  for (let i = 0; i < choiceRects.length; i += 1) {
+    const r = choiceRects[i];
+    const hovered = i === choiceHover;
+    paint.button(g, r, {
+      label: r.label,
+      size: SIZES.min,
+      hover: hovered
+        ? lift(progress(now, choiceHoverAt, DURATION.hover, app.motion), app.motion)
+        : 0,
+    });
+  }
 }
 
 function drawPanel(now) {
@@ -695,6 +790,7 @@ function frame() {
   if (step.draw) {
     paint.clear(g, app.width, app.height);
     drawBoard(now);
+    drawChoices(now);
     drawPanel(now);
     drawBar(now);
     if (overlay) overlay.draw(g, now);
@@ -974,6 +1070,9 @@ canvas.addEventListener('pointermove', (e) => {
     && myMoves().some((m) => m.token === spots[tk].token);
   const at = canTake ? tk : -1;
   if (at !== tokenHover) { tokenHover = at; tokenHoverAt = performance.now(); invalidate(); }
+  layoutChoices();
+  const ch = rectAt(choiceRects, pt.x, pt.y);
+  if (ch !== choiceHover) { choiceHover = ch; choiceHoverAt = performance.now(); invalidate(); }
   
   
   
@@ -996,6 +1095,16 @@ canvas.addEventListener('pointerup', (e) => {
   
   
   if (inDie(pt) && myRoll()) { pump(); return; }
+  
+  
+  
+  layoutChoices();
+  const choice = rectAt(choiceRects, pt.x, pt.y);
+  if (choice >= 0) {
+    const move = match.moves?.[choiceRects[choice].index];
+    if (move) playToken(move.token);
+    return;
+  }
   const tk = tokenAt(pt);
   if (tk >= 0 && spots[tk].team === match.turn) playToken(spots[tk].token);
 });
@@ -1003,6 +1112,7 @@ canvas.addEventListener('pointerup', (e) => {
 canvas.addEventListener('pointerleave', () => {
   barHover = -1;
   tokenHover = -1;
+  choiceHover = -1;
   if (overlay) overlay.pointerLeave();
   invalidate();
 });
@@ -1102,6 +1212,11 @@ globalThis.__fl = {
     : [
       ...spots.map((s) => ({ id: `token:${s.team}:${s.token}`, ...s.hit })),
       { id: 'die', ...dieRect },
+      
+      
+      
+      ...(() => { layoutChoices(); return choiceRects; })()
+        .map((r) => ({ id: r.id, x: r.x, y: r.y, w: r.w, h: r.h })),
       ...seatRects.map((r) => ({ id: r.id, x: r.x, y: r.y, w: r.w, h: r.h })),
       ...barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h })),
     ]),

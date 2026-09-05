@@ -426,9 +426,13 @@ export function highlight(g, r, kind, { dark = false } = {}) {
 
 
 
-function drawPiece(g, r, kind, white, lineOverride = null) {
-  const body = white ? COLORS.card : COLORS.ink;
-  const line = lineOverride ?? (white ? COLORS.ink : COLORS.card);
+function drawPiece(g, r, kind, white, lineOverride = null, lit = false) {
+  
+  
+  const body = lit
+    ? (white ? COLORS.paper : COLORS.slate)
+    : (white ? COLORS.card : COLORS.ink);
+  const line = lit ? body : (lineOverride ?? (white ? COLORS.ink : COLORS.card));
   const x = r.x;
   const y = r.y;
   const w = r.w;
@@ -635,16 +639,58 @@ export function piece(g, r, code, { lift = 0, alpha = 1, ghost = false, outline 
   };
   g.save();
   g.globalAlpha = ghost ? 0.4 : alpha;
-  if (lift > 0) {
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (!ghost) {
+    const up = Math.max(0, lift);
     g.save();
-    g.globalAlpha = 0.25;
+    g.globalAlpha = (ghost ? 0.1 : 0.22) * alpha;
     g.fillStyle = COLORS.ink;
     g.beginPath();
-    g.ellipse(r.x + r.w / 2, r.y + r.h * 0.86, r.w * 0.3, r.h * 0.09, 0, 0, Math.PI * 2);
+    g.ellipse(
+      r.x + r.w / 2,
+      r.y + r.h * 0.87,
+      r.w * (0.28 + up * 0.004),
+      r.h * (0.075 + up * 0.001),
+      0, 0, Math.PI * 2,
+    );
     g.fill();
     g.restore();
   }
+
   drawPiece(g, box, kind, white, outline);
+
+  
+  
+  
+  
+  
+  
+  
+  if (!ghost) {
+    g.save();
+    
+    
+    
+    
+    g.globalAlpha = (white ? 0.32 : 0.18) * alpha;
+    g.beginPath();
+    g.rect(box.x - 2, box.y - 2, box.w + 4, box.h * 0.42);
+    g.clip();
+    drawPiece(g, box, kind, white, outline, true);
+    g.restore();
+  }
+
   g.restore();
 }
 

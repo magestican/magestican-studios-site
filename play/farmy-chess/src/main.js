@@ -81,6 +81,9 @@ import { createNet, canPlayTogether } from './net.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
+import * as sfx from './sfx.js';
+import { cueFor } from '../../../web-engine/chess/chessSound.js';
+import { easeOut } from '../../../web-engine/words/motion.js';
 
 initAnalytics({ page: 'farmy-chess' });
 startVersionChecker({
@@ -146,6 +149,10 @@ const app = {
   now: () => performance.now(),
   invalidate,
   announce: (m) => { app.message = m; announce(m); invalidate(); },
+  
+  
+  slide: (now) => slide(now),
+  sound: (event) => sfx.play(event),
   me: SOLO,
   state: () => derived,
   myTurn: () => isMyTurn(derived, app.me) && !isBot(derived.turnId),
@@ -259,9 +266,64 @@ function play(key) {
 }
 
 
+
+
+
+
+
+
+
+
+const SLIDE_MS = 280;
+
+let slideFrom = -1;
+let slideTo = -1;
+let slideAt = 0;
+
+
+
+
+
+
+
+
+
+function slide(now) {
+  if (!app.motion || slideFrom < 0) return null;
+  const t = (now - slideAt) / SLIDE_MS;
+  if (t >= 1 || t < 0) return null;
+  return { from: slideFrom, to: slideTo, t: easeOut(t) };
+}
+
+
+
+
+
+
+
+
+function announceMoveAloud() {
+  const last = derived.moves[derived.moves.length - 1];
+  if (!last) return;
+  slideFrom = last.from;
+  slideTo = last.to;
+  slideAt = app.now();
+  sfx.playEvent({
+    from: last.from,
+    to: last.to,
+    captured: last.captured || undefined,
+    promotion: last.promo || undefined,
+    castle: !!last.castle,
+    check: !!derived.check,
+    over: !!derived.over,
+  });
+}
+
+
 function land(next, key) {
   match = next;
   rederive();
+  announceMoveAloud();
   net?.publish();
   const said = derived.moves.length
     ? describeMoveJustPlayed()
@@ -712,6 +774,20 @@ function openMenu() {
         ? [{ id: 'say', label: 'Say something', run: openSay }] : []),
       { id: 'new', label: 'New game', run: () => { closeOverlay(); restart(); } },
       { id: 'moves', label: 'The moves so far', run: openMoves },
+      
+      
+      
+      
+      {
+        id: 'sound',
+        label: sfx.isMuted() ? 'Sound: off' : 'Sound: on',
+        run: () => {
+          const muted = sfx.setMuted(!sfx.isMuted());
+          if (!muted) sfx.play('lift');
+          announce(muted ? 'Sound off.' : 'Sound on.');
+          openMenu();
+        },
+      },
       { id: 'help', label: 'How to play', run: openHelp },
       { id: 'close', label: 'Close', run: closeOverlay },
     ],
@@ -849,6 +925,14 @@ reduceMotion?.addEventListener?.('change', (e) => {
 
 
 
+
+
+
+
+
+
+sfx.install();
+
 watchViewport(resize);
 
 
@@ -901,10 +985,26 @@ globalThis.__fchess = {
   get bot() { return { ...bot, thinking: thinkingAt }; },
   get record() { return { ...record }; },
   get overlay() { return overlay ? overlay.id : null; },
-  rects: () => [
-    ...((overlay ?? screen).rects?.() ?? []),
-    ...(overlay ? [] : barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h }))),
-  ],
+  
+
+
+
+
+
+
+
+
+
+
+
+  rects: () => {
+    const box = canvas.getBoundingClientRect();
+    const shift = (r) => ({ ...r, x: r.x + box.left, y: r.y + box.top });
+    return [
+      ...((overlay ?? screen).rects?.() ?? []),
+      ...(overlay ? [] : barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h }))),
+    ].map(shift);
+  },
 };
 
 

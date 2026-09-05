@@ -570,10 +570,19 @@ export function die(g, r, { face = null, tumble = 1, hover = 0, press = 0, hint 
   
   const land = rolling && tumble > 0.8 ? Math.sin((tumble - 0.8) / 0.2 * Math.PI) : 0;
 
+  
+  
+  
+  
+  
+  
+  
+  const fit = 1 / (Math.abs(Math.cos(spin)) + Math.abs(Math.sin(spin)));
+
   g.save();
   g.translate(cx, cy - hop + land * r.h * 0.05);
   g.rotate(spin);
-  g.scale(1 + land * 0.09, 1 - land * 0.09);
+  g.scale(fit * (1 + land * 0.09), fit * (1 - land * 0.09));
   g.translate(-cx, -cy);
 
   surface(g, r, {

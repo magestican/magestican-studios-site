@@ -292,15 +292,42 @@ export function create(app) {
         paint.highlight(g, squares[cursor], 'cursor', { dark: isDarkSquare(cursor) });
       }
 
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const slide = app.slide?.(now) ?? null;
       for (let sq = 0; sq < 64; sq += 1) {
         const code = d.pos.board[sq];
         if (!code) continue;
         if (dragging && sq === selected) continue;   
+        if (slide && sq === slide.to) continue;      
         const hovered = sq === hoverSquare && sideOf(code) === d.turn && app.myTurn();
         const rise = hovered
           ? lift(progress(now, hoverAt, DURATION.hover, app.motion), app.motion)
           : 0;
         paint.piece(g, squares[sq], code, { lift: sq === selected ? 3 : rise });
+      }
+      if (slide && squares[slide.from] && squares[slide.to]) {
+        const a = squares[slide.from];
+        const b = squares[slide.to];
+        const code = d.pos.board[slide.to];
+        
+        
+        
+        paint.piece(g, {
+          x: a.x + (b.x - a.x) * slide.t,
+          y: a.y + (b.y - a.y) * slide.t,
+          w: a.w,
+          h: a.h,
+        }, code, { lift: 4 + Math.sin(slide.t * Math.PI) * 6 });
       }
       if (dragging && selected >= 0 && dragAt) {
         const code = d.pos.board[selected];
@@ -442,7 +469,11 @@ export function create(app) {
       });
     },
 
-    animating: (now) => app.motion && (now - hoverAt < DURATION.hover || now - shakeAt < DURATION.shake),
+    animating: (now) => app.motion && (
+      now - hoverAt < DURATION.hover
+      || now - shakeAt < DURATION.shake
+      || !!app.slide?.(now)
+    ),
 
     
 
