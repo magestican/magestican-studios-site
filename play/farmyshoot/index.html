@@ -572,6 +572,25 @@
     .settings-card .setting.checkbox { gap: 8px; }
     .settings-card input[type=range] { flex: 1 1 auto; }
     #volume-value { font-family: monospace; min-width: 30px; text-align: right; color: #f4c95d; }
+    
+
+
+
+
+
+    .settings-card .sound-toggle {
+      flex: 1 1 auto; padding: 11px 14px; text-align: left;
+      background: rgba(6,10,16,0.72); color: #e8ecf1;
+      border: 1px solid #3a4457; border-radius: 8px;
+      font: 600 15px inherit; cursor: pointer;
+    }
+    .settings-card .sound-toggle:hover,
+    .settings-card .sound-toggle:focus-visible {
+      border-color: #f4c95d; color: #f4c95d; outline: none;
+    }
+    
+
+    .settings-card .sound-toggle[data-muted="1"] { color: #f4c95d; border-color: #f4c95d; }
     .settings-card .hint { color: #6b7387; font-size: 12px; margin: 16px 0 12px; }
     .settings-card #settings-close {
       background: #2a3446; color: #e8ecf1; border: 1px solid #3a475e;
@@ -1717,10 +1736,22 @@
         <span id="volume-value">35</span>
       </label>
 
-      <label class="setting checkbox">
-        <input id="music-mute" type="checkbox">
-        <span>Mute music</span>
-      </label>
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <div id="sound-setting" class="setting"></div>
       
 
 
@@ -1787,7 +1818,7 @@
   </div>
 
   
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=7c2965a-20260905T092442Z"></script>
-  <script type="module" src="./src/main.js?v=7c2965a-20260905T092442Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=33fffd4-20260905T100550Z"></script>
+  <script type="module" src="./src/main.js?v=33fffd4-20260905T100550Z"></script>
 </body>
 </html>

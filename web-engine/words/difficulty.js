@@ -634,10 +634,34 @@ function rateStrands(puzzle) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const THRESHOLDS = {
   wordle: { easy: 0.2080, hard: 0.5640 },
   bee: { easy: 0.5200, hard: 0.7500 },
-  connections: { easy: 0.4333, hard: 0.6929 },
+  connections: { easy: 0.4400, hard: 0.6800 },
   strands: { easy: 0.5012, hard: 0.7759 },
 };
 

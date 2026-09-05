@@ -59,6 +59,14 @@ import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState,
 
 
 
+
+
+
+
+import { mountSoundToggle, soundLabel, syncSoundToggles } from '../../shared/ui/muteButton.js';
+
+
+
 import { pageContexts } from '../../../web-engine/render/contextBudget.js';
 
 const $ = (id) => document.getElementById(id);
@@ -200,6 +208,9 @@ function boot() {
   
   
   syncSelection();
+  
+  
+  mountMenuSoundToggles();
   syncMuteButton();
   buildNameField();
   refreshBoard();
@@ -1308,8 +1319,17 @@ function buildNameField() {
 
 
 
-function toggleMute() {
-  state.muted = !state.muted;
+
+
+
+
+
+
+
+
+
+function setMuted(muted) {
+  state.muted = !!muted;
   
   
   
@@ -1324,10 +1344,47 @@ function toggleMute() {
   syncMuteButton();
 }
 
+function toggleMute() { setMuted(!state.muted); }
+
 function syncMuteButton() {
   const b = $('mute-btn');
-  b.textContent = state.muted ? 'Sound off' : 'Sound on';
+  
+  
+  
+  
+  b.textContent = soundLabel(state.muted);
   b.setAttribute('aria-pressed', String(state.muted));
+  
+  syncSoundToggles();
+}
+
+
+
+
+
+
+
+
+
+
+
+function mountMenuSoundToggles() {
+  const read = () => state.muted;
+  const write = (m) => setMuted(m);
+  const pauseRow = document.querySelector('#pause .row');
+  if (pauseRow) {
+    mountSoundToggle({
+      host: pauseRow, id: 'pause-sound', className: 'chip', isMuted: read, setMuted: write,
+    });
+  }
+  
+  
+  const lobbyRow = document.getElementById('lobby-sound-row');
+  if (lobbyRow) {
+    mountSoundToggle({
+      host: lobbyRow, id: 'lobby-sound', className: 'chip', isMuted: read, setMuted: write,
+    });
+  }
 }
 
 

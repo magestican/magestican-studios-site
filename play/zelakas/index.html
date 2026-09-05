@@ -75,6 +75,22 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
     #stage { width: 100%; height: 100%; }
+    
+
+
+    #stage-controls { display: flex; justify-content: center; }
+    
+
+
+    #stage-controls button {
+      font: 600 14px inherit; padding: 12px 22px; min-height: 44px; border-radius: 6px;
+      background: #0d1017; color: #d8dde8; border: 1px solid #2a3140;
+      cursor: pointer;
+    }
+    #stage-controls button:hover, #stage-controls button:focus-visible {
+      border-color: #9dc6ff; color: #9dc6ff; outline: none;
+    }
+    #stage-controls button[data-muted="1"] { color: #9dc6ff; border-color: #9dc6ff; }
     footer { font-size: 12px; opacity: 0.55; text-align: center; max-width: 900px; }
     footer a { color: #9dc6ff; }
   </style>
@@ -86,6 +102,15 @@
   </header>
 
   <div id="stage-wrap"><div id="stage"></div></div>
+
+  
+
+
+
+
+
+
+  <div id="stage-controls"></div>
 
   <div id="account" style="text-align:center;margin:8px 0"></div>
 
@@ -144,21 +169,65 @@
     
     Promise.resolve(syncFromCloud()).catch(() => {});
   </script>
-  <script>
+  <script type="module">
+    
+    
+    
+    
+    
+    
+    import {
+      mountSoundToggle, syncSoundToggles, readMuted, writeMuted,
+    } from '../shared/ui/muteButton.js';
+    const MUTE_KEY = 'zelakas.muted';
+
     window.addEventListener("load", () => {
       
       const ruffle = window.RufflePlayer.newest();
       const player = ruffle.createPlayer();
+      const muted = readMuted(MUTE_KEY, false);
       const stage = document.getElementById("stage");
       stage.appendChild(player);
       player.style.width = "100%";
       player.style.height = "100%";
+      
+      
+      
+      
+      
+      
+      try { player.volume = muted ? 0 : 1; } catch (_) {}
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       player.load({
         url: "./ZelakasInSpace.swf",
         autoplay: "on",
         unmuteOverlay: "hidden",
         splashScreen: false,
+        volume: muted ? 0 : 1,
         
+      }).then(() => {
+        
+        
+        
+        
+        try { player.volume = readMuted(MUTE_KEY, false) ? 0 : 1; } catch (_) {}
+        syncSoundToggles();
       }).catch(() => {
         
         
@@ -174,6 +243,30 @@
           "connection dropped while it was loading. Reloading the page usually " +
           "fixes it." +
           "</div>";
+      });
+
+      
+      
+      
+      
+      
+      mountSoundToggle({
+        host: document.getElementById('stage-controls'),
+        id: 'zelakas-sound',
+        
+        
+        
+        
+        isMuted: () => {
+          try {
+            if (player.isPlaying !== undefined || player.readyState) return player.volume === 0;
+          } catch (_) {  }
+          return readMuted(MUTE_KEY, false);
+        },
+        setMuted: (m) => {
+          try { player.volume = m ? 0 : 1; } catch (_) {  }
+          writeMuted(MUTE_KEY, m);
+        },
       });
     });
   </script>

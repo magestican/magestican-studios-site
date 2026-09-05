@@ -60,6 +60,17 @@ import {
 } from '../../../web-engine/ps1/ps1Head.mjs';
 import { makeRowMap } from '../../../web-engine/ps1/faceChart.mjs';
 import { buildChicken } from '../../../web-engine/ps1/creatures/chicken.mjs';
+
+
+
+
+
+
+
+
+import {
+  mountSoundToggle, syncSoundToggles, onSoundChange, readMuted, writeMuted,
+} from '../../shared/ui/muteButton.js';
 import { buildPorker, PORKER_HEIGHT_M } from '../../../web-engine/ps1/creatures/porker.mjs';
 import { buildCow, COW_HEIGHT_M } from '../../../web-engine/ps1/creatures/cow.mjs';
 import { buildHorse, HORSE_HEIGHT_M } from '../../../web-engine/ps1/creatures/horse.mjs';
@@ -10941,6 +10952,16 @@ export function boot(canvas, hud) {
       }
     };
     el('resumeBtn')?.addEventListener('click', () => setPaused(false));
+    
+    
+    
+    
+    mountSoundToggle({
+      host: el('pauseButtons'),
+      id: 'pauseSound',
+      isMuted: () => audio.muted,
+      setMuted: (m) => audio.setMuted(m),
+    });
     el('pause')?.addEventListener('click', (e) => { if (e.target === el('pause')) setPaused(false); });
     el('saveBtn')?.addEventListener('click', async () => {
       const btn = el('saveBtn');
@@ -11877,8 +11898,21 @@ function installAudioUnlock() {
   window.addEventListener('focus', wake);
   window.addEventListener('pageshow', wake);
 }
+
+
+
+
+const MUSIC_LEVEL = 0.50;
+const SFX_LEVEL = 0.85;
+
+
+
+
+const MUTE_KEY = 'feh.muted';
+
 const audio = (() => {
   let ctx = null; let music = null; let sfx = null; let verb = null; let verbIn = null;
+  let muted = readMuted(MUTE_KEY, false);
   
   
   const ear = { px: 0, pz: 0, cx: 0, cz: -1, fx: 0, fz: 1 };
@@ -11887,13 +11921,48 @@ const audio = (() => {
     get musicBus() { return music; },
     get sfxBus() { return sfx; },
     get ear() { return ear; },
+    
+    get muted() { return muted; },
+    
+
+
+
+
+
+
+
+
+
+
+
+    setMuted(next) {
+      muted = !!next;
+      writeMuted(MUTE_KEY, muted);
+      if (ctx) {
+        const t = ctx.currentTime;
+        for (const [bus, level] of [[music, MUSIC_LEVEL], [sfx, SFX_LEVEL]]) {
+          if (!bus) continue;
+          bus.gain.cancelScheduledValues(t);
+          bus.gain.setValueAtTime(bus.gain.value, t);
+          bus.gain.linearRampToValueAtTime(muted ? 0 : level, t + 0.06);
+        }
+      }
+      
+      
+      try {
+        if (muted) silentEl?.pause();
+        else silentEl?.play?.().catch(() => {});
+      } catch {  }
+      syncSoundToggles();
+      return muted;
+    },
     ensure() {
       if (ctx) return ctx;
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
       ctx = new AC();
-      music = ctx.createGain(); music.gain.value = 0.50; music.connect(ctx.destination);
-      sfx = ctx.createGain(); sfx.gain.value = 0.85; sfx.connect(ctx.destination);
+      music = ctx.createGain(); music.gain.value = muted ? 0 : MUSIC_LEVEL; music.connect(ctx.destination);
+      sfx = ctx.createGain(); sfx.gain.value = muted ? 0 : SFX_LEVEL; sfx.connect(ctx.destination);
 
       
       
@@ -12619,6 +12688,23 @@ function start() {
   try {
     const api = boot($('game'), hud);
     window.__feh = api;
+    
+    
+    
+    
+    
+    
+    try {
+      Object.defineProperty(window.__feh, 'audio', {
+        configurable: true,
+        get: () => ({
+          muted: audio.muted,
+          state: audio.ctx ? audio.ctx.state : null,
+          music: audio.musicBus ? audio.musicBus.gain.value : null,
+          sfx: audio.sfxBus ? audio.sfxBus.gain.value : null,
+        }),
+      });
+    } catch {  }
     if (api) {
       let started = false;
       
@@ -12716,6 +12802,33 @@ function start() {
           });
         }
       }
+      
+      
+      
+      
+      mountSoundToggle({
+        host: $('bootSound'),
+        id: 'bootSoundBtn',
+        isMuted: () => audio.muted,
+        setMuted: (m) => audio.setMuted(m),
+      });
+      
+      
+      
+      
+      
+      
+      {
+        const note = $('bootNote');
+        const paintNote = () => {
+          if (!note) return;
+          note.textContent = audio.muted
+            ? 'opens with a short film · muted · any key skips it'
+            : 'opens with a short film · sound on · any key skips it';
+        };
+        onSoundChange(paintNote);
+        paintNote();
+      }
       $('startBtn').addEventListener('click', () => { resumeDeck = 0; go(); });
       
       {
@@ -12757,7 +12870,18 @@ function start() {
           }
         }
       }
-      $('boot').addEventListener('click', go);
+      
+      
+      
+      
+      
+      
+      
+      
+      $('boot').addEventListener('click', (e) => {
+        if (e.target?.closest?.('button, a, input, select, label, [role="button"], [role="switch"]')) return;
+        go();
+      });
       document.addEventListener('keydown', (e) => {
         if (e.code === 'Space' || e.code === 'Enter') go();
       });

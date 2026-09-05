@@ -25,6 +25,12 @@ import { randomLoadout, assertPlayable } from '../../../web-engine/ui/quickPlay.
 import { loadCareer, saveCareer, rememberCharacters } from 'arbelo/career';
 import { LOBBY_OPTIONS, readOption, writeOption } from '../../../web-engine/ui/lobbyOptions.js';
 import { setSfxMuted, sfxBus } from './audio/sfx.js';
+
+
+
+import { mountSoundToggle, syncSoundToggles, onSoundChange } from '../../shared/ui/muteButton.js';
+
+
 import { createLobbyMusic } from '../../../web-engine/audio/lobbyMusic.js';
 
 
@@ -463,6 +469,91 @@ function paintCharacter(id, { fromCarousel = false } = {}) {
 
 
 
+
+
+
+
+
+
+function applyMute(on) {
+  writeOption(localStorage, 'muted', on);
+  
+  
+  
+  const game = window.__tbGame;
+  if (game?._setSound) { try { game._setSound(on); } catch (_) {} }
+  else {
+    try { setSfxMuted(on); } catch (_) {}
+    try { window.__tbGame?.audio?.setMuted?.(on); } catch (_) {}
+  }
+  try { lobbyBed()?.setMuted(on); } catch (_) {}
+  try { syncSoundToggles(); } catch (_) {}
+}
+
+
+
+
+
+
+
+
+
+function mutedNow() {
+  const audio = window.__tbGame?.audio;
+  if (audio && typeof audio.muted === 'boolean') return !!audio.muted;
+  return readOption(localStorage, 'muted');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+  const gear = document.getElementById('settings-btn');
+  const modal = document.getElementById('settings-modal');
+  const close = document.getElementById('settings-close');
+  const open = (e) => { if (e) e.preventDefault(); modal?.classList.add('visible'); };
+  const shut = (e) => { if (e) e.preventDefault(); modal?.classList.remove('visible'); };
+  if (gear && modal) {
+    gear.addEventListener('click', open);
+    
+    
+    gear.addEventListener('touchstart', open, { passive: false });
+    close?.addEventListener('click', shut);
+    close?.addEventListener('touchstart', shut, { passive: false });
+  }
+}
+
+const soundSetting = document.getElementById('sound-setting');
+if (soundSetting) {
+  mountSoundToggle({
+    host: soundSetting,
+    id: 'sound-toggle',
+    className: 'sound-toggle',
+    isMuted: mutedNow,
+    setMuted: applyMute,
+  });
+}
+
 const optsEl = document.getElementById('lobbyOptions');
 if (optsEl) {
   for (const opt of LOBBY_OPTIONS) {
@@ -488,6 +579,11 @@ if (optsEl) {
       b.setAttribute('aria-checked', on ? 'true' : 'false');
     };
     paint(readOption(localStorage, opt.id));
+    
+    
+    
+    
+    if (opt.id === 'muted') onSoundChange(() => paint(readOption(localStorage, 'muted')));
 
     b.addEventListener('click', () => {
       const on = !readOption(localStorage, opt.id);
@@ -496,11 +592,7 @@ if (optsEl) {
       
       
       
-      if (opt.id === 'muted') {
-        try { setSfxMuted(on); } catch (_) {}
-        try { lobbyBed()?.setMuted(on); } catch (_) {}
-        try { window.__tbGame?.audio?.setMuted?.(on); } catch (_) {}
-      }
+      if (opt.id === 'muted') applyMute(on);
     });
     optsEl.appendChild(b);
   }

@@ -71,6 +71,10 @@ import { pickWord, scramble } from './util/anagram.js';
 import { TouchControls }     from './touchControls.js';
 import { Chiptune }           from './audio/chiptune.js';
 import * as SFX               from './audio/sfx.js';
+
+
+
+import { syncSoundToggles, soundDescription } from '../../shared/ui/muteButton.js';
 import { callFor, shouldCall, loudnessFor, emptyVoiceState, peerDeathLoudness }
   from '../../../web-engine/audio/animalVoice.js';
 import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
@@ -588,24 +592,61 @@ export class Game {
       for (let i = 0; i < want; i++) this.addBot();
     }
     
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
     const muteBtn = document.getElementById('mute-btn');
-    const paintMute = () => { muteBtn.textContent = this.audio.muted ? '🔇' : '🔊'; };
+    const paintMute = () => {
+      muteBtn.textContent = this.audio.muted ? '🔇' : '🔊';
+      
+      
+      muteBtn.setAttribute('aria-label', soundDescription(this.audio.muted));
+    };
+    this._setSound = (muted) => {
+      const on = !!muted;
+      this.audio.setMuted(on);   
+      try { SFX.setSfxMuted(on); } catch (_) {  }
+      
+      
+      try { window.__tbLobbyMusic?.setMuted?.(on); } catch (_) {}
+      paintMute();
+      
+      
+      
+      
+      this._paintSoundSettings?.();
+      syncSoundToggles();
+    };
     paintMute();
+
+    
+    
+    
     const handleMuteToggle = (e) => {
       if (e) e.preventDefault();
       
       
       if (!this.audio.isPlaying) {
-        this.audio.setMuted(false);
-        paintMute();
+        this._setSound(false);
         this._tryStartAudio();
       } else {
-        this.audio.toggleMuted();
-        paintMute();
+        this._setSound(!this.audio.muted);
       }
     };
     muteBtn.addEventListener('click', handleMuteToggle);
@@ -651,25 +692,39 @@ export class Game {
     const settingsClose = document.getElementById('settings-close');
     const volSlider     = document.getElementById('volume-slider');
     const volValue      = document.getElementById('volume-value');
-    const muteCheck     = document.getElementById('music-mute');
-    const savedVol = parseInt(localStorage.getItem('tb.vol') || '35', 10);
+    
+    
+    let savedVolRaw = '35';
+    try { savedVolRaw = localStorage.getItem('tb.vol') || '35'; } catch (_) {  }
+    const savedVol = parseInt(savedVolRaw, 10);
     volSlider.value = String(savedVol); volValue.textContent = String(savedVol);
-    muteCheck.checked = this.audio.muted;
     const applyVolume = () => {
       const v = parseInt(volSlider.value, 10);
       volValue.textContent = String(v);
-      localStorage.setItem('tb.vol', String(v));
+      try { localStorage.setItem('tb.vol', String(v)); } catch (_) {  }
       
       if (this.audio._audio) this.audio._audio.volume = (this.audio.muted ? 0 : v / 100);
       if (this.audio.master) this.audio.master.gain.value = (this.audio.muted ? 0 : v / 200);
     };
     applyVolume();
     volSlider.addEventListener('input', applyVolume);
-    muteCheck.addEventListener('change', () => {
-      this.audio.setMuted(muteCheck.checked);
-      paintMute();
-      applyVolume();
-    });
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    this._paintSoundSettings = applyVolume;
     
     
     this.chat = new Chat({
@@ -732,12 +787,16 @@ export class Game {
         localStorage.setItem('tb.rmbmove', this.rmbMove ? '1' : '0');
       });
     }
-    const openSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.add('visible'); };
-    const closeSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.remove('visible'); };
-    settingsBtn.addEventListener('click', openSettings);
-    settingsBtn.addEventListener('touchstart', openSettings, { passive: false });
-    settingsClose.addEventListener('click', closeSettings);
-    settingsClose.addEventListener('touchstart', closeSettings, { passive: false });
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    void settingsBtn; void settingsClose;
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeSettings();
     });

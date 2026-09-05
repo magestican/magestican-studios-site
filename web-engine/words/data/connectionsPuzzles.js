@@ -66,667 +66,684 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const CONNECTIONS_PUZZLES = [
   { id: 1, groups: [
-    { name: 'Baby farm animals', words: ['CALF', 'LAMB', 'FOAL', 'PIGLET'] },
-    { name: 'Where livestock sleep', words: ['BARN', 'STY', 'COOP', 'STABLE'] },
-    { name: 'Long-handled tools', words: ['SPADE', 'RAKE', 'HOE', 'SCYTHE'] },
-    { name: 'Animal noises', words: ['MOO', 'BAA', 'OINK', 'CLUCK'] },
+    { name: 'Baby farm animals', domain: 'farm', words: ['CALF', 'LAMB', 'FOAL', 'PIGLET'] },
+    { name: 'Brass instruments', domain: 'music', words: ['TUBA', 'CORNET', 'TROMBONE', 'BUGLE'] },
+    { name: 'Parts of the leg', domain: 'body', words: ['SHIN', 'THIGH', 'ANKLE', 'HEEL'] },
+    { name: 'Kinds of horn', domain: 'wordplay', words: ['FRENCH', 'SHOE', 'FOG', 'BULL'] },
   ] },
 
   { id: 2, groups: [
-    { name: 'Cereal crops', words: ['WHEAT', 'BARLEY', 'OATS', 'RYE'] },
-    { name: 'Breads', words: ['SODA', 'NAAN', 'PITTA', 'BAGEL'] },
-    { name: 'Cheeses', words: ['BRIE', 'FETA', 'EDAM', 'GOUDA'] },
-    { name: '___ berry', words: ['STRAW', 'GOOSE', 'BLACK', 'ELDER'] },
+    { name: 'Cheeses', domain: 'food', words: ['BRIE', 'FETA', 'EDAM', 'GOUDA'] },
+    { name: 'Hedgerow shrubs', domain: 'nature', words: ['HAWTHORN', 'BRAMBLE', 'HAZEL', 'HOLLY'] },
+    { name: 'Cricket fielding spots', domain: 'sport', words: ['SLIP', 'GULLY', 'COVER', 'POINT'] },
+    { name: '___ berry', domain: 'wordplay', words: ['STRAW', 'GOOSE', 'BLACK', 'ELDER'] },
   ] },
 
   { id: 3, groups: [
-    { name: 'Things with a head', words: ['LETTUCE', 'GARLIC', 'NAIL', 'BED'] },
-    { name: 'Things with eyes', words: ['POTATO', 'NEEDLE', 'STORM', 'SPIDER'] },
-    { name: 'Things with legs', words: ['JOURNEY', 'TROUSERS', 'CHAIR', 'STOOL'] },
-    { name: 'Things with teeth', words: ['COMB', 'SAW', 'GEAR', 'ZIP'] },
+    { name: 'Salad leaves', domain: 'food', words: ['ROCKET', 'ROMAINE', 'CHICORY', 'SORREL'] },
+    { name: 'Garden birds', domain: 'nature', words: ['ROBIN', 'WREN', 'FINCH', 'STARLING'] },
+    { name: 'Old units of length', domain: 'science', words: ['FURLONG', 'CHAIN', 'FATHOM', 'CUBIT'] },
+    { name: 'Things with teeth', domain: 'wordplay', words: ['COMB', 'SAW', 'GEAR', 'ZIP'] },
   ] },
 
   { id: 4, groups: [
-    { name: 'Root vegetables', words: ['CARROT', 'TURNIP', 'SWEDE', 'PARSNIP'] },
-    { name: 'Leaves you can eat', words: ['KALE', 'CHARD', 'SPINACH', 'ROCKET'] },
-    { name: 'Squashes', words: ['MARROW', 'PUMPKIN', 'COURGETTE', 'BUTTERNUT'] },
-    { name: '___ bean', words: ['BROAD', 'RUNNER', 'KIDNEY', 'BUTTER'] },
+    { name: 'Root vegetables', domain: 'farm', words: ['CARROT', 'TURNIP', 'SWEDE', 'PARSNIP'] },
+    { name: 'In the kitchen drawer', domain: 'home', words: ['WHISK', 'GRATER', 'PEELER', 'LADLE'] },
+    { name: 'Boxing punches', domain: 'sport', words: ['JAB', 'HOOK', 'UPPERCUT', 'CROSS'] },
+    { name: '___ bean', domain: 'wordplay', words: ['BROAD', 'RUNNER', 'KIDNEY', 'BUTTER'] },
   ] },
 
   { id: 5, groups: [
-    { name: 'Made from milk', words: ['CREAM', 'CHEESE', 'YOGHURT', 'CURD'] },
-    { name: 'Pastries', words: ['PUFF', 'SHORT', 'FILO', 'CHOUX'] },
-    { name: 'Kinds of cake', words: ['SPONGE', 'FRUIT', 'MARBLE', 'BATTENBERG'] },
-    { name: 'What a baker does', words: ['WHISK', 'KNEAD', 'FOLD', 'SIFT'] },
+    { name: 'Pastries', domain: 'food', words: ['PUFF', 'FILO', 'CHOUX', 'DANISH'] },
+    { name: 'Greek gods', domain: 'myth', words: ['ZEUS', 'HERA', 'APOLLO', 'HADES'] },
+    { name: 'Fastenings', domain: 'clothes', words: ['ZIP', 'BUTTON', 'BUCKLE', 'VELCRO'] },
+    { name: 'Kinds of roll', domain: 'wordplay', words: ['DRUM', 'BREAD', 'ROCK', 'BARREL'] },
   ] },
 
   { id: 6, groups: [
-    { name: 'Cattle breeds', words: ['ANGUS', 'HEREFORD', 'FRIESIAN', 'HIGHLAND'] },
-    { name: 'Sheep breeds', words: ['MERINO', 'SUFFOLK', 'ROMNEY', 'DORSET'] },
-    { name: 'Apple varieties', words: ['PIPPIN', 'GALA', 'FUJI', 'BRAEBURN'] },
-    { name: 'Potato varieties', words: ['RUSSET', 'DESIREE', 'ROOSTER', 'CHARLOTTE'] },
+    { name: 'Cattle breeds', domain: 'farm', words: ['ANGUS', 'HEREFORD', 'FRIESIAN', 'HIGHLAND'] },
+    { name: 'On a film crew', domain: 'screen', words: ['GAFFER', 'GRIP', 'EDITOR', 'RUNNER'] },
+    { name: 'Planets', domain: 'science', words: ['MARS', 'VENUS', 'SATURN', 'NEPTUNE'] },
+    { name: '___ light', domain: 'wordplay', words: ['MOON', 'TRAFFIC', 'SPOT', 'HIGH'] },
   ] },
 
   { id: 7, groups: [
-    { name: 'Falling weather', words: ['HAIL', 'SLEET', 'DRIZZLE', 'SNOW'] },
-    { name: 'Clouds', words: ['CIRRUS', 'CUMULUS', 'STRATUS', 'NIMBUS'] },
-    { name: 'Moving air', words: ['GALE', 'BREEZE', 'GUST', 'SQUALL'] },
-    { name: 'Big storms', words: ['THUNDER', 'TEMPEST', 'TORNADO', 'CYCLONE'] },
+    { name: 'Falling weather', domain: 'nature', words: ['HAIL', 'SLEET', 'SNOW', 'RAIN'] },
+    { name: 'Pizza toppings', domain: 'food', words: ['OLIVE', 'HAM', 'BASIL', 'CHEESE'] },
+    { name: 'Heard at tennis', domain: 'sport', words: ['SERVE', 'LOVE', 'ACE', 'NET'] },
+    { name: 'Roadside features', domain: 'travel', words: ['LANE', 'KERB', 'VERGE', 'SIGN'] },
   ] },
 
   { id: 8, groups: [
-    { name: 'Dog commands', words: ['SIT', 'STAY', 'HEEL', 'FETCH'] },
-    { name: 'Bird noises', words: ['HOOT', 'CAW', 'TWEET', 'COO'] },
-    { name: 'Cat noises', words: ['PURR', 'MEOW', 'HISS', 'YOWL'] },
-    { name: 'Insect noises', words: ['BUZZ', 'CHIRP', 'DRONE', 'HUM'] },
+    { name: 'Dog commands', domain: 'farm', words: ['SIT', 'STAY', 'HEEL', 'FETCH'] },
+    { name: 'Big cats', domain: 'nature', words: ['LION', 'TIGER', 'LYNX', 'PUMA'] },
+    { name: 'Ways to say shout', domain: 'language', words: ['YELL', 'BELLOW', 'HOLLER', 'ROAR'] },
+    { name: '___ dog', domain: 'wordplay', words: ['SHEEP', 'HOT', 'GUARD', 'TOP'] },
   ] },
 
   { id: 9, groups: [
-    { name: 'Parts of a fence', words: ['POST', 'RAIL', 'WIRE', 'STAKE'] },
-    { name: 'Parts of a tent', words: ['PEG', 'POLE', 'GUY', 'CANVAS'] },
-    { name: 'In the toolbox', words: ['HAMMER', 'PLIERS', 'CHISEL', 'SPANNER'] },
-    { name: 'Punches', words: ['JAB', 'HOOK', 'CROSS', 'UPPERCUT'] },
+    { name: 'In the toolbox', domain: 'home', words: ['SPANNER', 'CHISEL', 'PLIERS', 'MALLET'] },
+    { name: 'Boxing weights', domain: 'sport', words: ['FLY', 'BANTAM', 'FEATHER', 'CRUISER'] },
+    { name: 'Parts of a ship', domain: 'travel', words: ['BOW', 'KEEL', 'MAST', 'RUDDER'] },
+    { name: 'Kinds of hammer', domain: 'wordplay', words: ['CLAW', 'SLEDGE', 'WAR', 'JACK'] },
   ] },
 
   { id: 10, groups: [
-    { name: 'Green things', words: ['MOSS', 'LIME', 'JADE', 'OLIVE'] },
-    { name: 'Browns', words: ['TAN', 'CHESTNUT', 'UMBER', 'SEPIA'] },
-    { name: 'Horse colours', words: ['BAY', 'ROAN', 'PIEBALD', 'PALOMINO'] },
-    { name: 'Ways with an egg', words: ['BOILED', 'POACHED', 'FRIED', 'SCRAMBLED'] },
+    { name: 'Ways with an egg', domain: 'food', words: ['POACH', 'SCRAMBLE', 'FRY', 'BOIL'] },
+    { name: 'Noble gases', domain: 'science', words: ['ARGON', 'NEON', 'XENON', 'RADON'] },
+    { name: 'Film genres', domain: 'screen', words: ['WESTERN', 'HORROR', 'ROMCOM', 'THRILLER'] },
+    { name: '___ board', domain: 'wordplay', words: ['SURF', 'KEY', 'CHESS', 'DASH'] },
   ] },
 
   { id: 11, groups: [
-    { name: 'Beekeeping', words: ['HIVE', 'COMB', 'SMOKER', 'APIARY'] },
-    { name: 'In a hive', words: ['QUEEN', 'DRONE', 'WORKER', 'BROOD'] },
-    { name: 'Sweet things', words: ['HONEY', 'SYRUP', 'TREACLE', 'NECTAR'] },
-    { name: 'Chess pieces', words: ['KING', 'ROOK', 'BISHOP', 'KNIGHT'] },
+    { name: 'In a beehive', domain: 'farm', words: ['COMB', 'DRONE', 'QUEEN', 'LARVA'] },
+    { name: 'Sweet things', domain: 'food', words: ['HONEY', 'FUDGE', 'TOFFEE', 'NOUGAT'] },
+    { name: 'Chess pieces', domain: 'sport', words: ['KING', 'ROOK', 'BISHOP', 'KNIGHT'] },
+    { name: 'Kinds of cell', domain: 'wordplay', words: ['PRISON', 'SOLAR', 'BLOOD', 'MEMORY'] },
   ] },
 
   { id: 12, groups: [
-    { name: 'Farm machinery', words: ['TRACTOR', 'PLOUGH', 'HARROW', 'BALER'] },
-    { name: 'Parts of an engine', words: ['PISTON', 'VALVE', 'CRANK', 'GASKET'] },
-    { name: 'Fuels', words: ['DIESEL', 'PETROL', 'COAL', 'PARAFFIN'] },
-    { name: 'Round and turning', words: ['WHEEL', 'GEAR', 'PULLEY', 'ROLLER'] },
+    { name: 'Farm machinery', domain: 'farm', words: ['TRACTOR', 'PLOUGH', 'HARROW', 'BALER'] },
+    { name: 'Inside a computer', domain: 'tech', words: ['MONITOR', 'ROUTER', 'DRIVE', 'CABLE'] },
+    { name: 'Cycling kit', domain: 'travel', words: ['HELMET', 'PANNIER', 'PUMP', 'LIGHTS'] },
+    { name: 'Kinds of chain', domain: 'wordplay', words: ['DAISY', 'FOOD', 'KEY', 'SUPPLY'] },
   ] },
 
   { id: 13, groups: [
-    { name: 'Wool words', words: ['FLEECE', 'YARN', 'SKEIN', 'WORSTED'] },
-    { name: 'Making cloth', words: ['LOOM', 'SHUTTLE', 'WARP', 'WEFT'] },
-    { name: 'Sewing kit', words: ['THIMBLE', 'BOBBIN', 'NEEDLE', 'PINS'] },
-    { name: 'Sheep jobs', words: ['SHEARING', 'DIPPING', 'LAMBING', 'DRENCHING'] },
+    { name: 'Hats', domain: 'clothes', words: ['BERET', 'FEDORA', 'BOWLER', 'BEANIE'] },
+    { name: 'In the sewing box', domain: 'home', words: ['THIMBLE', 'BOBBIN', 'NEEDLE', 'PINS'] },
+    { name: 'Ways to be paid', domain: 'work', words: ['WAGE', 'SALARY', 'BONUS', 'TIP'] },
+    { name: '___ cap', domain: 'wordplay', words: ['KNEE', 'NIGHT', 'HUB', 'MOB'] },
   ] },
 
   { id: 14, groups: [
-    { name: 'Hedgerow birds', words: ['WREN', 'ROBIN', 'FINCH', 'THRUSH'] },
-    { name: 'Big black birds', words: ['ROOK', 'CROW', 'RAVEN', 'JACKDAW'] },
-    { name: 'Water birds', words: ['SWAN', 'HERON', 'MOORHEN', 'MALLARD'] },
-    { name: 'Birds of prey', words: ['KESTREL', 'BUZZARD', 'HARRIER', 'MERLIN'] },
+    { name: 'Birds of prey', domain: 'nature', words: ['KESTREL', 'BUZZARD', 'HARRIER', 'OSPREY'] },
+    { name: 'What a director shouts', domain: 'screen', words: ['ACTION', 'CUT', 'ROLLING', 'QUIET'] },
+    { name: 'Golf clubs', domain: 'sport', words: ['WEDGE', 'PUTTER', 'DRIVER', 'IRON'] },
+    { name: '___ shot', domain: 'wordplay', words: ['GUN', 'BIG', 'MUG', 'LONG'] },
   ] },
 
   { id: 15, groups: [
-    { name: 'Kinds of soil', words: ['CLAY', 'LOAM', 'CHALK', 'PEAT'] },
-    { name: 'Field shapes', words: ['FURROW', 'RIDGE', 'HEADLAND', 'TERRACE'] },
-    { name: 'Fertiliser', words: ['MANURE', 'COMPOST', 'LIME', 'POTASH'] },
-    { name: 'Weeds', words: ['NETTLE', 'THISTLE', 'DOCK', 'BINDWEED'] },
+    { name: 'On your face', domain: 'body', words: ['BROW', 'LASH', 'LOBE', 'TEMPLE'] },
+    { name: 'Italian dishes', domain: 'food', words: ['RISOTTO', 'GNOCCHI', 'LASAGNE', 'CALZONE'] },
+    { name: 'Singing voices', domain: 'music', words: ['ALTO', 'TENOR', 'BASS', 'SOPRANO'] },
+    { name: 'Kinds of drum', domain: 'wordplay', words: ['EAR', 'OIL', 'SNARE', 'STEEL'] },
   ] },
 
   { id: 16, groups: [
-    { name: 'Fruit stones and pips', words: ['CHERRY', 'PLUM', 'PEACH', 'DAMSON'] },
-    { name: 'Citrus', words: ['LEMON', 'ORANGE', 'GRAPEFRUIT', 'MANDARIN'] },
-    { name: 'Melons and squash', words: ['HONEYDEW', 'CANTALOUPE', 'GALIA', 'WATERMELON'] },
-    { name: 'Jam words', words: ['PECTIN', 'SETTING', 'PRESERVE', 'CONSERVE'] },
+    { name: 'Jobs in the field', domain: 'farm', words: ['SOW', 'REAP', 'WEED', 'HARVEST'] },
+    { name: 'At the airport', domain: 'travel', words: ['GATE', 'LOUNGE', 'CAROUSEL', 'TARMAC'] },
+    { name: 'In the office', domain: 'work', words: ['STAPLER', 'INBOX', 'ROTA', 'MEMO'] },
+    { name: 'Kinds of belt', domain: 'wordplay', words: ['SEAT', 'GREEN', 'FAN', 'CONVEYOR'] },
   ] },
 
   { id: 17, groups: [
-    { name: 'Pig words', words: ['SOW', 'BOAR', 'TROTTER', 'SNOUT'] },
-    { name: 'Muddy', words: ['MIRE', 'SLUDGE', 'SLURRY', 'BOG'] },
-    { name: 'Cured pork', words: ['BACON', 'GAMMON', 'PANCETTA', 'PROSCIUTTO'] },
-    { name: 'To plant seed', words: ['SOWING', 'DRILLING', 'BROADCAST', 'SCATTERING'] },
+    { name: 'Bones', domain: 'body', words: ['FEMUR', 'TIBIA', 'PELVIS', 'SKULL'] },
+    { name: 'Rooms in a house', domain: 'home', words: ['PANTRY', 'LANDING', 'PORCH', 'CELLAR'] },
+    { name: 'Fairy tale villains', domain: 'myth', words: ['WITCH', 'TROLL', 'OGRE', 'GIANT'] },
+    { name: 'Kinds of bridge', domain: 'wordplay', words: ['TOLL', 'DENTAL', 'ROPE', 'DRAW'] },
   ] },
 
   { id: 18, groups: [
-    { name: 'Herbs', words: ['SAGE', 'THYME', 'CHIVES', 'PARSLEY'] },
-    { name: 'Spices', words: ['CUMIN', 'CLOVE', 'NUTMEG', 'PAPRIKA'] },
-    { name: 'Wise words', words: ['ORACLE', 'GURU', 'SEER', 'PROPHET'] },
-    { name: 'Units of time', words: ['MOMENT', 'HOUR', 'SEASON', 'EPOCH'] },
+    { name: 'Herbs', domain: 'food', words: ['THYME', 'SAGE', 'CHIVES', 'DILL'] },
+    { name: 'Butterflies', domain: 'nature', words: ['ADMIRAL', 'PEACOCK', 'BRIMSTONE', 'COMMA'] },
+    { name: 'On a phone screen', domain: 'tech', words: ['ICON', 'WIDGET', 'BADGE', 'SWIPE'] },
+    { name: 'Kinds of mouse', domain: 'wordplay', words: ['FIELD', 'CHURCH', 'HOUSE', 'OPTICAL'] },
   ] },
 
   { id: 19, groups: [
-    { name: 'Bits of a horse', words: ['MANE', 'HOOF', 'WITHERS', 'FETLOCK'] },
-    { name: 'Tack', words: ['SADDLE', 'BRIDLE', 'STIRRUP', 'HARNESS'] },
-    { name: 'Horse paces', words: ['WALK', 'TROT', 'CANTER', 'GALLOP'] },
-    { name: 'Heavy horse breeds', words: ['SHIRE', 'CLYDESDALE', 'PERCHERON', 'SUFFOLK'] },
+    { name: 'Horse tack', domain: 'farm', words: ['BRIDLE', 'SADDLE', 'STIRRUP', 'REINS'] },
+    { name: 'Woodwind', domain: 'music', words: ['OBOE', 'CLARINET', 'FLUTE', 'PICCOLO'] },
+    { name: 'Heard at the darts', domain: 'sport', words: ['OCHE', 'BULL', 'TREBLE', 'CHECKOUT'] },
+    { name: 'Kinds of pipe', domain: 'wordplay', words: ['PAN', 'DRAIN', 'PEACE', 'EXHAUST'] },
   ] },
 
   { id: 20, groups: [
-    { name: 'Barn structure', words: ['RAFTER', 'BEAM', 'GABLE', 'LINTEL'] },
-    { name: 'Roofing', words: ['THATCH', 'SLATE', 'TILE', 'SHINGLE'] },
-    { name: 'Building materials', words: ['MORTAR', 'BRICK', 'TIMBER', 'RUBBLE'] },
-    { name: 'Ways in', words: ['DOOR', 'GATE', 'HATCH', 'STILE'] },
+    { name: 'Footwear', domain: 'clothes', words: ['BROGUE', 'SANDAL', 'LOAFER', 'WELLY'] },
+    { name: 'Television genres', domain: 'screen', words: ['SITCOM', 'QUIZ', 'DRAMA', 'THRILLER'] },
+    { name: 'At a hotel', domain: 'travel', words: ['LOBBY', 'SUITE', 'PORTER', 'MINIBAR'] },
+    { name: 'Kinds of pump', domain: 'wordplay', words: ['FOOT', 'PETROL', 'HEAT', 'BICYCLE'] },
   ] },
 
   { id: 21, groups: [
-    { name: 'Poultry', words: ['HEN', 'DUCK', 'GOOSE', 'TURKEY'] },
-    { name: 'In the hen house', words: ['ROOST', 'PERCH', 'NESTBOX', 'CLUTCH'] },
-    { name: 'Egg parts', words: ['SHELL', 'YOLK', 'WHITE', 'MEMBRANE'] },
-    { name: 'Feather words', words: ['DOWN', 'QUILL', 'PLUME', 'PINION'] },
+    { name: 'In the hen house', domain: 'farm', words: ['PERCH', 'ROOST', 'NEST', 'RUN'] },
+    { name: 'A cooked breakfast', domain: 'food', words: ['SAUSAGE', 'TOAST', 'BEANS', 'MUSHROOM'] },
+    { name: 'Units of time', domain: 'science', words: ['SECOND', 'MINUTE', 'HOUR', 'DECADE'] },
+    { name: '___ shell', domain: 'wordplay', words: ['EGG', 'NUT', 'SEA', 'BOMB'] },
   ] },
 
   { id: 22, groups: [
-    { name: 'Farm dogs', words: ['COLLIE', 'KELPIE', 'HEELER', 'SHEPHERD'] },
-    { name: 'Dog kit', words: ['LEAD', 'COLLAR', 'KENNEL', 'WHISTLE'] },
-    { name: 'Herding words', words: ['GATHER', 'DRIVE', 'PEN', 'SHED'] },
-    { name: 'Kinds of bark', words: ['BIRCH', 'CORK', 'CINNAMON', 'WILLOW'] },
+    { name: 'Parts of the eye', domain: 'body', words: ['IRIS', 'RETINA', 'CORNEA', 'LENS'] },
+    { name: 'Athletics events', domain: 'sport', words: ['HURDLES', 'JAVELIN', 'DISCUS', 'RELAY'] },
+    { name: 'At school', domain: 'work', words: ['PUPIL', 'PREFECT', 'TERM', 'ASSEMBLY'] },
+    { name: 'Notes and rests', domain: 'music', words: ['CROTCHET', 'QUAVER', 'MINIM', 'BREVE'] },
   ] },
 
   { id: 23, groups: [
-    { name: 'Cider making', words: ['PRESS', 'PULP', 'FERMENT', 'SCRUMPY'] },
-    { name: 'Beer words', words: ['HOPS', 'MALT', 'YEAST', 'WORT'] },
-    { name: 'Pub games', words: ['DARTS', 'DOMINOES', 'SKITTLES', 'CRIBBAGE'] },
-    { name: 'Drink measures', words: ['PINT', 'GILL', 'DRAM', 'NIP'] },
+    { name: 'Beer styles', domain: 'food', words: ['STOUT', 'PORTER', 'LAGER', 'MILD'] },
+    { name: 'Moorland birds', domain: 'nature', words: ['CURLEW', 'GROUSE', 'SNIPE', 'PIPIT'] },
+    { name: 'King Arthur', domain: 'myth', words: ['MERLIN', 'ARTHUR', 'CAMELOT', 'GRAIL'] },
+    { name: '___ mail', domain: 'wordplay', words: ['BLACK', 'CHAIN', 'VOICE', 'JUNK'] },
   ] },
 
   { id: 24, groups: [
-    { name: 'Trees', words: ['OAK', 'BEECH', 'ASH', 'ELM'] },
-    { name: 'What trees drop', words: ['ACORN', 'CONKER', 'CATKIN', 'MAST'] },
-    { name: 'Woodland floor', words: ['BRACKEN', 'BRAMBLE', 'FUNGI', 'LEAFMOULD'] },
-    { name: 'Card games', words: ['WHIST', 'RUMMY', 'PATIENCE', 'CANASTA'] },
+    { name: 'On the mantelpiece', domain: 'home', words: ['CLOCK', 'VASE', 'CANDLE', 'PHOTO'] },
+    { name: 'Music genres', domain: 'music', words: ['GRIME', 'TECHNO', 'REGGAE', 'INDIE'] },
+    { name: 'Web words', domain: 'tech', words: ['BROWSER', 'COOKIE', 'TAB', 'LINK'] },
+    { name: 'Kinds of bug', domain: 'wordplay', words: ['FIRE', 'BED', 'STOMACH', 'LOVE'] },
   ] },
 
   { id: 25, groups: [
-    { name: 'Village show classes', words: ['MARROW', 'ONION', 'SPONGE', 'CHUTNEY'] },
-    { name: 'What you win', words: ['ROSETTE', 'TROPHY', 'RIBBON', 'CERTIFICATE'] },
-    { name: 'Who decides', words: ['JUDGE', 'STEWARD', 'PANEL', 'REFEREE'] },
-    { name: 'Show ground', words: ['MARQUEE', 'RING', 'STALL', 'PADDOCK'] },
+    { name: 'Sheep farming', domain: 'farm', words: ['FLEECE', 'RAM', 'EWE', 'SHEARS'] },
+    { name: 'Parts of a newspaper', domain: 'screen', words: ['COLUMN', 'HEADLINE', 'SPREAD', 'BYLINE'] },
+    { name: 'In court', domain: 'work', words: ['JURY', 'VERDICT', 'DOCK', 'GAVEL'] },
+    { name: '___ paper', domain: 'wordplay', words: ['NEWS', 'SAND', 'WALL', 'FLY'] },
   ] },
 
   { id: 26, groups: [
-    { name: 'Kinds of gate', words: ['FIVEBAR', 'KISSING', 'TURNSTILE', 'WICKET'] },
-    { name: 'Paths', words: ['TRACK', 'BRIDLEWAY', 'FOOTPATH', 'LANE'] },
-    { name: 'Signposts', words: ['ARROW', 'MARKER', 'WAYMARK', 'CAIRN'] },
-    { name: 'Crossing water', words: ['FORD', 'BRIDGE', 'CAUSEWAY', 'PLANK'] },
+    { name: 'Feeling unwell', domain: 'body', words: ['NAUSEA', 'CHILLS', 'ACHE', 'FEVER'] },
+    { name: 'Landforms', domain: 'nature', words: ['MESA', 'FJORD', 'DELTA', 'RIDGE'] },
+    { name: 'On the railway', domain: 'travel', words: ['PLATFORM', 'SLEEPER', 'SIDING', 'BUFFET'] },
+    { name: 'Greek letters', domain: 'language', words: ['ALPHA', 'BETA', 'SIGMA', 'OMEGA'] },
   ] },
 
   { id: 27, groups: [
-    { name: 'Milking parlour', words: ['UDDER', 'TEAT', 'CLUSTER', 'PIPELINE'] },
-    { name: 'Dairy vessels', words: ['CHURN', 'PAIL', 'VAT', 'BUCKET'] },
-    { name: 'Cream words', words: ['SINGLE', 'DOUBLE', 'CLOTTED', 'WHIPPING'] },
-    { name: 'Kinds of double', words: ['AGENT', 'GLAZING', 'TAKE', 'BLUFF'] },
+    { name: 'In the milking parlour', domain: 'farm', words: ['UDDER', 'CHURN', 'TEAT', 'PAIL'] },
+    { name: 'Social media', domain: 'tech', words: ['FEED', 'POST', 'STORY', 'HANDLE'] },
+    { name: 'Norse gods', domain: 'myth', words: ['ODIN', 'THOR', 'LOKI', 'FREYA'] },
+    { name: 'Kinds of cream', domain: 'wordplay', words: ['ICE', 'SOUR', 'SUN', 'CLOTTED'] },
   ] },
 
   { id: 28, groups: [
-    { name: 'Hay and straw', words: ['BALE', 'STOOK', 'RICK', 'SWATH'] },
-    { name: 'Cutting the crop', words: ['SICKLE', 'SCYTHE', 'MOWER', 'COMBINE'] },
-    { name: 'Storing grain', words: ['SILO', 'GRANARY', 'BIN', 'LOFT'] },
-    { name: 'Measures of grain', words: ['BUSHEL', 'PECK', 'QUARTER', 'TONNE'] },
+    { name: 'Trouser styles', domain: 'clothes', words: ['CHINOS', 'CARGO', 'FLARES', 'CORDS'] },
+    { name: 'Sauces', domain: 'food', words: ['PESTO', 'GRAVY', 'AIOLI', 'SALSA'] },
+    { name: 'Latin dances', domain: 'music', words: ['RUMBA', 'TANGO', 'SAMBA', 'MAMBO'] },
+    { name: 'Kinds of press', domain: 'wordplay', words: ['TROUSER', 'PRINTING', 'BENCH', 'FRENCH'] },
   ] },
 
   { id: 29, groups: [
-    { name: 'Small mammals', words: ['MOUSE', 'VOLE', 'SHREW', 'STOAT'] },
-    { name: 'Night visitors', words: ['BADGER', 'FOX', 'HEDGEHOG', 'OWL'] },
-    { name: 'Underground', words: ['MOLE', 'RABBIT', 'WORM', 'BEETLE'] },
-    { name: 'Computer things', words: ['MEMORY', 'DRIVE', 'CACHE', 'PORT'] },
+    { name: 'Nocturnal animals', domain: 'nature', words: ['BADGER', 'OWL', 'MOTH', 'HEDGEHOG'] },
+    { name: 'States of matter', domain: 'science', words: ['SOLID', 'LIQUID', 'GAS', 'PLASMA'] },
+    { name: 'Obsolete gadgets', domain: 'tech', words: ['PAGER', 'WALKMAN', 'MODEM', 'MINIDISC'] },
+    { name: '___ screen', domain: 'wordplay', words: ['SMOKE', 'SUN', 'SPLIT', 'TOUCH'] },
   ] },
 
   { id: 30, groups: [
-    { name: 'Fishing gear', words: ['ROD', 'NET', 'LINE', 'FLOAT'] },
-    { name: 'River fish', words: ['TROUT', 'PIKE', 'PERCH', 'CHUB'] },
-    { name: 'Sea fish', words: ['COD', 'MACKEREL', 'HERRING', 'PLAICE'] },
-    { name: 'Boat parts', words: ['KEEL', 'HULL', 'RUDDER', 'MAST'] },
+    { name: 'Farm buildings', domain: 'farm', words: ['BARN', 'SILO', 'STY', 'DAIRY'] },
+    { name: 'Football positions', domain: 'sport', words: ['KEEPER', 'WINGER', 'STRIKER', 'SWEEPER'] },
+    { name: 'Ways to cross water', domain: 'travel', words: ['FERRY', 'BRIDGE', 'TUNNEL', 'FORD'] },
+    { name: '___ house', domain: 'wordplay', words: ['FARM', 'LIGHT', 'FULL', 'GLASS'] },
   ] },
 
   { id: 31, groups: [
-    { name: 'Preserving', words: ['PICKLE', 'SALT', 'SMOKE', 'DRY'] },
-    { name: 'Kitchen jars', words: ['LID', 'SEAL', 'LABEL', 'RING'] },
-    { name: 'Sour things', words: ['VINEGAR', 'LEMON', 'GHERKIN', 'SORREL'] },
-    { name: 'Ways to say quickly', words: ['SHARPISH', 'PRONTO', 'SWIFTLY', 'APACE'] },
+    { name: 'On the pig farm', domain: 'farm', words: ['SNOUT', 'TROUGH', 'TRUFFLE', 'LITTER'] },
+    { name: 'Cured meats', domain: 'food', words: ['SALAMI', 'CHORIZO', 'PANCETTA', 'BACON'] },
+    { name: 'Ways to walk', domain: 'language', words: ['AMBLE', 'STRIDE', 'HOBBLE', 'TRUDGE'] },
+    { name: '___ pen', domain: 'wordplay', words: ['PIG', 'PLAY', 'FOUNTAIN', 'BULL'] },
   ] },
 
   { id: 32, groups: [
-    { name: 'Wild flowers', words: ['POPPY', 'COWSLIP', 'BLUEBELL', 'CLOVER'] },
-    { name: 'Garden flowers', words: ['DAHLIA', 'PEONY', 'LUPIN', 'DELPHINIUM'] },
-    { name: 'Parts of a flower', words: ['PETAL', 'STAMEN', 'SEPAL', 'STIGMA'] },
-    { name: 'Flower shops sell', words: ['BOUQUET', 'POSY', 'WREATH', 'SPRAY'] },
+    { name: 'Cleaning kit', domain: 'home', words: ['MOP', 'DUSTER', 'HOOVER', 'BROOM'] },
+    { name: 'Wild flowers', domain: 'nature', words: ['COWSLIP', 'FOXGLOVE', 'BLUEBELL', 'TEASEL'] },
+    { name: 'Theatre words', domain: 'screen', words: ['STALLS', 'CIRCLE', 'WINGS', 'CURTAIN'] },
+    { name: '___ dust', domain: 'wordplay', words: ['STAR', 'SAW', 'GOLD', 'ANGEL'] },
   ] },
 
   { id: 33, groups: [
-    { name: 'Winter', words: ['FROST', 'ICICLE', 'THAW', 'SLUSH'] },
-    { name: 'Keeping warm', words: ['MITTEN', 'SCARF', 'BLANKET', 'HEARTH'] },
-    { name: 'Firewood', words: ['LOG', 'KINDLING', 'EMBER', 'ASH'] },
-    { name: 'Kinds of ash', words: ['MOUNTAIN', 'VOLCANIC', 'CIGARETTE', 'BONE'] },
+    { name: 'Farmyard birds', domain: 'farm', words: ['GOOSE', 'DUCK', 'TURKEY', 'BANTAM'] },
+    { name: 'Monsters', domain: 'myth', words: ['KRAKEN', 'YETI', 'SPHINX', 'HYDRA'] },
+    { name: 'Snooker colours', domain: 'sport', words: ['PINK', 'BROWN', 'GREEN', 'YELLOW'] },
+    { name: 'On a ski holiday', domain: 'travel', words: ['CHALET', 'PISTE', 'LIFT', 'APRESKI'] },
   ] },
 
   { id: 34, groups: [
-    { name: 'Market day', words: ['STALL', 'TRADER', 'HAGGLE', 'PITCH'] },
-    { name: 'Money', words: ['CASH', 'CHANGE', 'FLOAT', 'TAKINGS'] },
-    { name: 'Weighing', words: ['SCALES', 'BALANCE', 'WEIGHT', 'MEASURE'] },
-    { name: 'Cricket words', words: ['STUMP', 'OVER', 'CREASE', 'INNINGS'] },
+    { name: 'Ways to cook meat', domain: 'food', words: ['ROAST', 'GRILL', 'BRAISE', 'SEAR'] },
+    { name: 'Metals', domain: 'science', words: ['COPPER', 'TIN', 'ZINC', 'NICKEL'] },
+    { name: 'Jobs in a hospital', domain: 'work', words: ['SURGEON', 'MATRON', 'NURSE', 'ORDERLY'] },
+    { name: 'Kinds of pan', domain: 'wordplay', words: ['PETER', 'FRYING', 'FLASH', 'SAUCE'] },
   ] },
 
   { id: 35, groups: [
-    { name: 'Ponds', words: ['REED', 'RUSH', 'LILY', 'BULRUSH'] },
-    { name: 'Amphibians', words: ['FROG', 'TOAD', 'NEWT', 'TADPOLE'] },
-    { name: 'Wet ground', words: ['MARSH', 'FEN', 'SWAMP', 'MOOR'] },
-    { name: 'Kinds of spring', words: ['COIL', 'HOT', 'MATTRESS', 'MAINSPRING'] },
+    { name: 'Knitted things', domain: 'clothes', words: ['JUMPER', 'SCARF', 'MITTENS', 'CARDIGAN'] },
+    { name: 'Pond life', domain: 'nature', words: ['NEWT', 'TADPOLE', 'CARP', 'REED'] },
+    { name: 'Email words', domain: 'tech', words: ['DRAFT', 'ATTACH', 'FORWARD', 'SUBJECT'] },
+    { name: '___ pool', domain: 'wordplay', words: ['CAR', 'WHIRL', 'GENE', 'LIVER'] },
   ] },
 
   { id: 36, groups: [
-    { name: 'Orchard work', words: ['PRUNE', 'GRAFT', 'THIN', 'PICK'] },
-    { name: 'Ladders and baskets', words: ['RUNG', 'STEP', 'PUNNET', 'CRATE'] },
-    { name: 'Apple things', words: ['CORE', 'PIP', 'PEEL', 'STALK'] },
-    { name: 'Hard work', words: ['GRIND', 'TOIL', 'SLOG', 'LABOUR'] },
+    { name: 'In the orchard', domain: 'farm', words: ['GRAFT', 'PRUNE', 'BLOSSOM', 'PICKER'] },
+    { name: 'In the garden shed', domain: 'home', words: ['TROWEL', 'TWINE', 'POTS', 'CANES'] },
+    { name: 'Game show words', domain: 'screen', words: ['BUZZER', 'JACKPOT', 'HOST', 'ROUND'] },
+    { name: '___ stick', domain: 'wordplay', words: ['LIP', 'CHOP', 'BROOM', 'YARD'] },
   ] },
 
   { id: 37, groups: [
-    { name: 'Stone walling', words: ['COPING', 'COURSE', 'THROUGH', 'HEARTING'] },
-    { name: 'Rocks', words: ['GRANITE', 'LIMESTONE', 'SLATE', 'SANDSTONE'] },
-    { name: 'On old stone', words: ['LICHEN', 'MOSS', 'IVY', 'WEATHERING'] },
-    { name: 'Hitting things', words: ['MALLET', 'SLEDGE', 'MAUL', 'GAVEL'] },
+    { name: 'Inside the chest', domain: 'body', words: ['LUNGS', 'RIBS', 'HEART', 'AORTA'] },
+    { name: 'Parts of a song', domain: 'music', words: ['VERSE', 'CHORUS', 'BRIDGE', 'HOOK'] },
+    { name: 'On a map', domain: 'travel', words: ['CONTOUR', 'LEGEND', 'GRID', 'KEY'] },
+    { name: 'Kinds of organ', domain: 'wordplay', words: ['BARREL', 'MOUTH', 'CHURCH', 'ELECTRIC'] },
   ] },
 
   { id: 38, groups: [
-    { name: 'Potato growing', words: ['CHIT', 'EARTH', 'HAULM', 'CLAMP'] },
-    { name: 'Potato dishes', words: ['MASH', 'CHIPS', 'ROSTI', 'GRATIN'] },
-    { name: 'Plant diseases', words: ['BLIGHT', 'RUST', 'MILDEW', 'CANKER'] },
-    { name: 'Kinds of chip', words: ['SILICON', 'POKER', 'WOOD', 'SHOULDER'] },
+    { name: 'In the vegetable patch', domain: 'farm', words: ['CLOCHE', 'COMPOST', 'SEEDLING', 'MULCH'] },
+    { name: 'Potato dishes', domain: 'food', words: ['MASH', 'CHIPS', 'ROSTI', 'GRATIN'] },
+    { name: 'Rugby words', domain: 'sport', words: ['SCRUM', 'TRY', 'LINEOUT', 'RUCK'] },
+    { name: '___ ball', domain: 'wordplay', words: ['ODD', 'EYE', 'SNOW', 'MEAT'] },
   ] },
 
   { id: 39, groups: [
-    { name: 'The night sky', words: ['ORION', 'PLOUGH', 'COMET', 'ECLIPSE'] },
-    { name: 'Planets', words: ['MARS', 'VENUS', 'SATURN', 'NEPTUNE'] },
-    { name: 'Moon words', words: ['CRESCENT', 'WAXING', 'HARVEST', 'GIBBOUS'] },
-    { name: 'Roman gods', words: ['JUNO', 'VULCAN', 'CUPID', 'DIANA'] },
+    { name: 'The night sky', domain: 'science', words: ['COMET', 'ECLIPSE', 'ORBIT', 'METEOR'] },
+    { name: 'Roman gods', domain: 'myth', words: ['JUNO', 'VULCAN', 'CUPID', 'DIANA'] },
+    { name: 'Horror creatures', domain: 'screen', words: ['ZOMBIE', 'MUMMY', 'VAMPIRE', 'GHOUL'] },
+    { name: '___ mother', domain: 'wordplay', words: ['GOD', 'GRAND', 'STEP', 'QUEEN'] },
   ] },
 
   { id: 40, groups: [
-    { name: 'Basket making', words: ['WILLOW', 'WEAVE', 'STAKE', 'TRUG'] },
-    { name: 'Country crafts', words: ['POTTERY', 'THATCHING', 'BLACKSMITH', 'WHITTLING'] },
-    { name: 'Handles', words: ['GRIP', 'HAFT', 'SHAFT', 'HILT'] },
-    { name: 'Kinds of shaft', words: ['MINE', 'LIFT', 'DRIVE', 'LIGHT'] },
+    { name: 'Animal feed', domain: 'farm', words: ['SILAGE', 'PELLETS', 'HAY', 'SWILL'] },
+    { name: 'Types of soil', domain: 'nature', words: ['CLAY', 'PEAT', 'CHALK', 'LOAM'] },
+    { name: 'Ways to say tired', domain: 'language', words: ['WEARY', 'BEAT', 'SPENT', 'DONE'] },
+    { name: '___ bank', domain: 'wordplay', words: ['PIGGY', 'RIVER', 'BLOOD', 'SNOW'] },
   ] },
 
   { id: 41, groups: [
-    { name: 'Insects', words: ['APHID', 'WEEVIL', 'EARWIG', 'LADYBIRD'] },
-    { name: 'Insect stages', words: ['EGG', 'LARVA', 'PUPA', 'ADULT'] },
-    { name: 'Stinging things', words: ['WASP', 'HORNET', 'NETTLE', 'JELLYFISH'] },
-    { name: 'Kinds of bug', words: ['STOMACH', 'LISTENING', 'SOFTWARE', 'FIRE'] },
+    { name: 'Marks on the skin', domain: 'body', words: ['FRECKLE', 'MOLE', 'WRINKLE', 'SCAR'] },
+    { name: 'Jobs for a Sunday', domain: 'home', words: ['GROUT', 'PLASTER', 'TILE', 'VARNISH'] },
+    { name: 'Ways to store a file', domain: 'tech', words: ['CLOUD', 'DISK', 'DRIVE', 'FOLDER'] },
+    { name: '___ storm', domain: 'wordplay', words: ['BRAIN', 'SAND', 'THUNDER', 'FIRE'] },
   ] },
 
   { id: 42, groups: [
-    { name: 'Irrigation', words: ['DITCH', 'SLUICE', 'CHANNEL', 'CULVERT'] },
-    { name: 'Pumps and pipes', words: ['VALVE', 'HOSE', 'NOZZLE', 'MAIN'] },
-    { name: 'Too much water', words: ['FLOOD', 'DELUGE', 'TORRENT', 'SPATE'] },
-    { name: 'Too little', words: ['DROUGHT', 'DEARTH', 'FAMINE', 'SHORTAGE'] },
+    { name: 'Coffee shop orders', domain: 'food', words: ['LATTE', 'MOCHA', 'ESPRESSO', 'CORTADO'] },
+    { name: 'Ways to travel', domain: 'travel', words: ['COACH', 'TRAM', 'TAXI', 'TUBE'] },
+    { name: 'In a supermarket', domain: 'work', words: ['TILL', 'AISLE', 'TROLLEY', 'RECEIPT'] },
+    { name: '___ station', domain: 'wordplay', words: ['PETROL', 'POLICE', 'SPACE', 'RADIO'] },
   ] },
 
   { id: 43, groups: [
-    { name: 'Windmill parts', words: ['SAIL', 'HOPPER', 'MILLSTONE', 'CAP'] },
-    { name: 'Milling', words: ['GRIND', 'SIFT', 'BOLT', 'DRESS'] },
-    { name: 'Flour', words: ['WHOLEMEAL', 'PLAIN', 'SELFRAISING', 'STRONG'] },
-    { name: 'Kinds of cap', words: ['KNEE', 'BOTTLE', 'MOB', 'NIGHT'] },
+    { name: 'Crops in the field', domain: 'farm', words: ['WHEAT', 'BARLEY', 'OATS', 'MAIZE'] },
+    { name: 'Camera moves', domain: 'screen', words: ['PAN', 'ZOOM', 'TILT', 'TRACK'] },
+    { name: 'Branches of science', domain: 'science', words: ['BOTANY', 'GEOLOGY', 'OPTICS', 'ANATOMY'] },
+    { name: '___ mill', domain: 'wordplay', words: ['WIND', 'TREAD', 'SAW', 'PEPPER'] },
   ] },
 
   { id: 44, groups: [
-    { name: 'Sunday lunch', words: ['ROAST', 'GRAVY', 'STUFFING', 'YORKSHIRE'] },
-    { name: 'Cuts of beef', words: ['SIRLOIN', 'BRISKET', 'RIB', 'SHIN'] },
-    { name: 'Carving', words: ['KNIFE', 'FORK', 'BOARD', 'STEEL'] },
-    { name: 'Kinds of steel', words: ['STAINLESS', 'CARBON', 'DAMASCUS', 'TOOL'] },
+    { name: 'The senses', domain: 'body', words: ['SIGHT', 'TOUCH', 'TASTE', 'SMELL'] },
+    { name: 'Cuts of beef', domain: 'food', words: ['SIRLOIN', 'BRISKET', 'RUMP', 'FLANK'] },
+    { name: 'Creatures with wings', domain: 'myth', words: ['PEGASUS', 'GRIFFIN', 'PHOENIX', 'HARPY'] },
+    { name: 'Desert life', domain: 'nature', words: ['CACTUS', 'SCORPION', 'CAMEL', 'DUNE'] },
   ] },
 
   { id: 45, groups: [
-    { name: 'Fair rides', words: ['CAROUSEL', 'WALTZER', 'DODGEMS', 'BIGWHEEL'] },
-    { name: 'Fair food', words: ['TOFFEE', 'CANDYFLOSS', 'DOUGHNUT', 'HOTDOG'] },
-    { name: 'Fair prizes', words: ['GOLDFISH', 'TEDDY', 'COCONUT', 'BALLOON'] },
-    { name: 'Loud things', words: ['ORGAN', 'TANNOY', 'KLAXON', 'FANFARE'] },
+    { name: 'Kinds of lighting', domain: 'home', words: ['LAMP', 'SCONCE', 'PENDANT', 'LANTERN'] },
+    { name: 'Winter sports', domain: 'sport', words: ['LUGE', 'CURLING', 'SLALOM', 'BIATHLON'] },
+    { name: 'Camping kit', domain: 'travel', words: ['TENT', 'ROLLMAT', 'STOVE', 'PEGS'] },
+    { name: '___ iron', domain: 'wordplay', words: ['FLAT', 'WAFFLE', 'BRANDING', 'CAST'] },
   ] },
 
   { id: 46, groups: [
-    { name: 'Animal feed', words: ['SILAGE', 'PELLET', 'BRAN', 'MASH'] },
-    { name: 'Feeding kit', words: ['MANGER', 'TROUGH', 'SCOOP', 'HOPPER'] },
-    { name: 'Quantities', words: ['RATION', 'HELPING', 'PORTION', 'DOSE'] },
-    { name: 'Kinds of mash', words: ['POTATO', 'MONSTER', 'SMASH', 'BREW'] },
+    { name: 'Spring on the farm', domain: 'farm', words: ['LAMBING', 'SOWING', 'CALVING', 'SHEARING'] },
+    { name: 'Waterproofs', domain: 'clothes', words: ['ANORAK', 'CAGOULE', 'PONCHO', 'OILSKIN'] },
+    { name: 'Screen awards', domain: 'screen', words: ['OSCAR', 'BAFTA', 'EMMY', 'RAZZIE'] },
+    { name: '___ coat', domain: 'wordplay', words: ['RAIN', 'TURN', 'TOP', 'SUGAR'] },
   ] },
 
   { id: 47, groups: [
-    { name: 'Spring on the farm', words: ['LAMBING', 'CALVING', 'SOWING', 'BUDDING'] },
-    { name: 'Spring flowers', words: ['DAFFODIL', 'CROCUS', 'SNOWDROP', 'PRIMROSE'] },
-    { name: 'Migrating birds', words: ['SWALLOW', 'CUCKOO', 'SWIFT', 'HOUSEMARTIN'] },
-    { name: 'Kinds of swallow', words: ['HARD', 'GULP', 'BOLT', 'STOMACH'] },
+    { name: 'Percussion', domain: 'music', words: ['GONG', 'TIMPANI', 'CYMBAL', 'MARACAS'] },
+    { name: 'Migrating birds', domain: 'nature', words: ['SWIFT', 'SWALLOW', 'MARTIN', 'CUCKOO'] },
+    
+    
+    
+    
+    
+    
+    
+    { name: 'Money words', domain: 'work', words: ['INTEREST', 'DEPOSIT', 'LOAN', 'OVERDRAFT'] },
+    { name: '___ note', domain: 'wordplay', words: ['KEY', 'SICK', 'FOOT', 'TOP'] },
   ] },
 
   { id: 48, groups: [
-    { name: 'Farmhouse kitchen', words: ['DRESSER', 'RANGE', 'LARDER', 'PANTRY'] },
-    { name: 'On the table', words: ['CROCK', 'JUG', 'BASIN', 'PLATTER'] },
-    { name: 'Seats', words: ['STOOL', 'BENCH', 'SETTLE', 'PEW'] },
-    { name: 'Kinds of range', words: ['MOUNTAIN', 'SHOOTING', 'FREE', 'VOCAL'] },
+    { name: 'Parts of the hand', domain: 'body', words: ['PALM', 'THUMB', 'WRIST', 'KNUCKLE'] },
+    { name: 'Gates and fences', domain: 'farm', words: ['STILE', 'HURDLE', 'LATCH', 'POST'] },
+    { name: 'On a cruise ship', domain: 'travel', words: ['CABIN', 'DECK', 'PORT', 'GALLEY'] },
+    { name: '___ hole', domain: 'wordplay', words: ['PIGEON', 'MAN', 'KEY', 'BLACK'] },
   ] },
 
   { id: 49, groups: [
-    { name: 'Sheepdog trial', words: ['OUTRUN', 'LIFT', 'FETCH', 'PEN'] },
-    { name: 'Trial fields', words: ['COURSE', 'OBSTACLE', 'MARKER', 'TIMEKEEPER'] },
-    { name: 'Legal trial', words: ['JURY', 'VERDICT', 'EVIDENCE', 'WITNESS'] },
-    { name: 'Kinds of lift', words: ['SKI', 'FACE', 'GOODS', 'HITCH'] },
+    { name: 'Apple varieties', domain: 'food', words: ['PIPPIN', 'GALA', 'BRAEBURN', 'RUSSET'] },
+    { name: 'Egyptian gods', domain: 'myth', words: ['ANUBIS', 'HORUS', 'ISIS', 'OSIRIS'] },
+    { name: 'Sailing words', domain: 'sport', words: ['TACK', 'JIBE', 'LEEWARD', 'REGATTA'] },
+    { name: '___ tree', domain: 'wordplay', words: ['FAMILY', 'PALM', 'PLANE', 'SHOE'] },
   ] },
 
   { id: 50, groups: [
-    { name: 'Vermin control', words: ['TRAP', 'BAIT', 'SNARE', 'FERRET'] },
-    { name: 'Fox words', words: ['EARTH', 'VIXEN', 'BRUSH', 'CUB'] },
-    { name: 'Guarding stock', words: ['FENCE', 'LIGHT', 'ALARM', 'PATROL'] },
-    { name: 'Kinds of brush', words: ['PAINT', 'TOOTH', 'SCRUBBING', 'UNDERGROWTH'] },
+    { name: 'Jewellery', domain: 'clothes', words: ['BROOCH', 'LOCKET', 'BANGLE', 'ANKLET'] },
+    { name: 'Bedroom furniture', domain: 'home', words: ['WARDROBE', 'DRESSER', 'BEDSIDE', 'OTTOMAN'] },
+    { name: 'Seashore finds', domain: 'nature', words: ['COCKLE', 'WHELK', 'LIMPET', 'KELP'] },
+    { name: '___ ring', domain: 'wordplay', words: ['KEY', 'BOXING', 'ONION', 'NAPKIN'] },
   ] },
 
   { id: 51, groups: [
-    { name: 'Coastal farm', words: ['SALTMARSH', 'DUNE', 'CLIFFTOP', 'ESTUARY'] },
-    { name: 'Seaside birds', words: ['GULL', 'TERN', 'DUNLIN', 'CURLEW'] },
-    { name: 'Shellfish', words: ['COCKLE', 'MUSSEL', 'WHELK', 'SCALLOP'] },
-    { name: 'Tides', words: ['EBB', 'FLOOD', 'NEAP', 'SLACK'] },
+    { name: 'Vermin the farmer fights', domain: 'farm', words: ['RAT', 'MOLE', 'PIGEON', 'WEEVIL'] },
+    { name: 'Maths words', domain: 'science', words: ['PRIME', 'FACTOR', 'RATIO', 'VERTEX'] },
+    { name: 'Coding words', domain: 'tech', words: ['LOOP', 'ARRAY', 'STRING', 'BRANCH'] },
+    { name: '___ trap', domain: 'wordplay', words: ['MOUSE', 'SAND', 'SPEED', 'TOURIST'] },
   ] },
 
   { id: 52, groups: [
-    { name: 'Country pursuits', words: ['RAMBLING', 'BIRDING', 'FORAGING', 'ANGLING'] },
-    { name: 'Walking kit', words: ['BOOTS', 'FLASK', 'MAP', 'COMPASS'] },
-    { name: 'Map features', words: ['CONTOUR', 'GRID', 'LEGEND', 'SCALE'] },
-    { name: 'Kinds of legend', words: ['URBAN', 'LIVING', 'MYTH', 'FOLKLORE'] },
+    { name: 'In the credits', domain: 'screen', words: ['PRODUCER', 'STUNTS', 'MAKEUP', 'SCORE'] },
+    { name: 'Olympic sports', domain: 'sport', words: ['ARCHERY', 'JUDO', 'FENCING', 'ROWING'] },
+    { name: 'Ways to say quickly', domain: 'language', words: ['BRISKLY', 'PRONTO', 'SHARPISH', 'APACE'] },
+    { name: '___ point', domain: 'wordplay', words: ['FOCAL', 'VIEW', 'MATCH', 'PIN'] },
   ] },
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-
   { id: 53, groups: [
-    { name: 'Cinema snacks', words: ['POPCORN', 'NACHOS', 'SWEETS', 'ICECREAM'] },
-    { name: 'Film crew', words: ['DIRECTOR', 'PRODUCER', 'EDITOR', 'GRIP'] },
-    
-    
-    { name: 'What a director shouts', words: ['ACTION', 'CUT', 'ROLLING', 'WRAP'] },
-    { name: 'Kinds of cut', words: ['SHORT', 'CREW', 'POWER', 'PAY'] },
+    { name: 'At the dentist', domain: 'body', words: ['FILLING', 'PLAQUE', 'MOLAR', 'BRACE'] },
+    { name: 'Puddings', domain: 'food', words: ['TRIFLE', 'CRUMBLE', 'TIRAMISU', 'SUNDAE'] },
+    { name: 'What a phone does', domain: 'tech', words: ['RING', 'VIBRATE', 'CHARGE', 'SYNC'] },
+    { name: '___ plate', domain: 'wordplay', words: ['NUMBER', 'HOT', 'NAME', 'TECTONIC'] },
   ] },
 
   { id: 54, groups: [
-    { name: 'Television genres', words: ['SITCOM', 'SOAP', 'DRAMA', 'QUIZ'] },
-    { name: 'What you watch on', words: ['TELLY', 'SCREEN', 'TABLET', 'LAPTOP'] },
-    { name: 'Parts of a TV series', words: ['EPISODE', 'SEASON', 'PILOT', 'FINALE'] },
-    { name: 'Kinds of pilot', words: ['AUTO', 'TEST', 'FIGHTER', 'HARBOUR'] },
+    { name: 'Weeds', domain: 'farm', words: ['NETTLE', 'THISTLE', 'DOCK', 'BINDWEED'] },
+    { name: 'In a recording studio', domain: 'music', words: ['BOOTH', 'MIXER', 'FADER', 'TAKE'] },
+    { name: 'On a road trip', domain: 'travel', words: ['MAP', 'SATNAV', 'PLAYLIST', 'SERVICES'] },
+    { name: '___ side', domain: 'wordplay', words: ['COUNTRY', 'SEA', 'HILL', 'BROAD'] },
   ] },
 
   { id: 55, groups: [
-    { name: 'String instruments', words: ['VIOLIN', 'CELLO', 'HARP', 'BANJO'] },
-    { name: 'In a recording studio', words: ['MIXER', 'BOOTH', 'TAKE', 'TRACK'] },
-    { name: 'Parts of a song', words: ['VERSE', 'CHORUS', 'BRIDGE', 'HOOK'] },
-    { name: 'Kinds of hook', words: ['COAT', 'FISH', 'LEFT', 'GRAPPLING'] },
+    { name: 'Doing the laundry', domain: 'home', words: ['RINSE', 'SPIN', 'SOAK', 'IRON'] },
+    { name: 'Fairy tale objects', domain: 'myth', words: ['SPINDLE', 'SLIPPER', 'LAMP', 'MIRROR'] },
+    { name: 'In a bank', domain: 'work', words: ['VAULT', 'CASHIER', 'BRANCH', 'QUEUE'] },
+    { name: 'A frosty morning', domain: 'nature', words: ['RIME', 'HOAR', 'ICICLE', 'THAW'] },
   ] },
 
   { id: 56, groups: [
-    { name: 'Music genres', words: ['JAZZ', 'BLUES', 'REGGAE', 'TECHNO'] },
-    { name: 'Where a band plays', words: ['STAGE', 'ARENA', 'FESTIVAL', 'PUB'] },
-    { name: 'Singing voices', words: ['SOPRANO', 'ALTO', 'TENOR', 'BASS'] },
-    { name: 'Kinds of bass', words: ['DOUBLE', 'SEA', 'GUITAR', 'DRUM'] },
+    { name: 'Curry dishes', domain: 'food', words: ['KORMA', 'BALTI', 'MADRAS', 'BHUNA'] },
+    { name: 'Trees', domain: 'nature', words: ['ALDER', 'ROWAN', 'BEECH', 'YEW'] },
+    { name: 'On the golf course', domain: 'sport', words: ['BUNKER', 'FAIRWAY', 'TEE', 'ROUGH'] },
+    { name: 'Ways to say strange', domain: 'language', words: ['WEIRD', 'ODD', 'RUM', 'EERIE'] },
   ] },
 
   { id: 57, groups: [
-    { name: 'Athletics events', words: ['HURDLES', 'JAVELIN', 'SHOTPUT', 'MARATHON'] },
-    { name: 'Police kit', words: ['HANDCUFFS', 'RADIO', 'HELMET', 'TASER'] },
-    { name: 'On a running track', words: ['LANE', 'BATON', 'STARTER', 'FINISH'] },
-    { name: 'Kinds of finish', words: ['PHOTO', 'GLOSS', 'MATT', 'SATIN'] },
+    { name: 'Parts of a shirt', domain: 'clothes', words: ['COLLAR', 'CUFF', 'YOKE', 'POCKET'] },
+    { name: 'Types of film shot', domain: 'screen', words: ['CLOSEUP', 'WIDE', 'MASTER', 'CUTAWAY'] },
+    { name: 'Things a laptop has', domain: 'tech', words: ['WEBCAM', 'TRACKPAD', 'HINGE', 'CHARGER'] },
+    { name: '___ port', domain: 'wordplay', words: ['PASS', 'AIR', 'CAR', 'SEA'] },
   ] },
 
   { id: 58, groups: [
-    { name: 'Ball games', words: ['TENNIS', 'SQUASH', 'NETBALL', 'HOCKEY'] },
-    { name: 'Football positions', words: ['KEEPER', 'DEFENDER', 'WINGER', 'STRIKER'] },
-    { name: 'Given by the referee', words: ['PENALTY', 'CORNER', 'CARD', 'FREEKICK'] },
-    { name: 'Kinds of card', words: ['WILD', 'GREETING', 'REPORT', 'CREDIT'] },
+    { name: 'Hedgerow harvest', domain: 'farm', words: ['SLOE', 'DAMSON', 'ROSEHIP', 'CRAB'] },
+    { name: 'Aches and pains', domain: 'body', words: ['STITCH', 'CRAMP', 'SPRAIN', 'BRUISE'] },
+    { name: 'Building trades', domain: 'work', words: ['JOINER', 'GLAZIER', 'ROOFER', 'MASON'] },
+    { name: '___ nut', domain: 'wordplay', words: ['DOUGH', 'PEA', 'CHEST', 'HAZEL'] },
   ] },
 
   { id: 59, groups: [
-    { name: 'Parts of a computer', words: ['KEYBOARD', 'MONITOR', 'MOUSE', 'PRINTER'] },
-    { name: 'On a phone screen', words: ['APP', 'ICON', 'WIDGET', 'BADGE'] },
-    { name: 'Web words', words: ['BROWSER', 'DOWNLOAD', 'PASSWORD', 'WEBSITE'] },
-    { name: 'Kinds of mouse', words: ['FIELD', 'CHURCH', 'HOUSE', 'DORMOUSE'] },
+    { name: 'String instruments', domain: 'music', words: ['CELLO', 'VIOLA', 'BANJO', 'SITAR'] },
+    { name: 'Space travel', domain: 'science', words: ['LAUNCH', 'MODULE', 'DOCKING', 'THRUSTER'] },
+    { name: 'At the ferry port', domain: 'travel', words: ['RAMP', 'FUNNEL', 'GANGWAY', 'BERTH'] },
+    { name: '___ mate', domain: 'wordplay', words: ['CHECK', 'SOUL', 'CLASS', 'SHIP'] },
   ] },
 
   { id: 60, groups: [
-    { name: 'Social media', words: ['POST', 'SHARE', 'LIKE', 'FOLLOW'] },
-    { name: 'Email words', words: ['INBOX', 'DRAFT', 'ATTACH', 'FORWARD'] },
-    { name: 'What a phone does', words: ['RING', 'BUZZ', 'CHARGE', 'DIAL'] },
-    { name: 'Kinds of charge', words: ['CAVALRY', 'BATTERY', 'DEPTH', 'SERVICE'] },
+    { name: 'Things on toast', domain: 'food', words: ['MARMITE', 'PATE', 'HONEY', 'JAM'] },
+    { name: 'In the airing cupboard', domain: 'home', words: ['TOWELS', 'LINEN', 'BOILER', 'SHEETS'] },
+    { name: 'On the radio', domain: 'screen', words: ['JINGLE', 'DIAL', 'AIRWAVES', 'SHIPPING'] },
+    { name: 'Ways to say tell', domain: 'language', words: ['RELATE', 'RECOUNT', 'NARRATE', 'INFORM'] },
   ] },
 
   { id: 61, groups: [
-    { name: 'In a suitcase', words: ['PASSPORT', 'ADAPTER', 'SUNCREAM', 'RAZOR'] },
-    { name: 'Ways to travel', words: ['TRAIN', 'TRAM', 'COACH', 'TAXI'] },
-    { name: 'At an airport', words: ['GATE', 'TERMINAL', 'RUNWAY', 'CHECKIN'] },
-    { name: 'Kinds of terminal', words: ['BUS', 'COMPUTER', 'OIL', 'FERRY'] },
+    { name: 'At the sheepdog trial', domain: 'farm', words: ['PEN', 'DRIVE', 'SHED', 'OUTRUN'] },
+    { name: 'Coats and jackets', domain: 'clothes', words: ['BLAZER', 'PARKA', 'GILET', 'BOMBER'] },
+    { name: 'On a video call', domain: 'tech', words: ['MUTE', 'SHARE', 'LAG', 'HOST'] },
+    { name: '___ gate', domain: 'wordplay', words: ['FLOOD', 'TAIL', 'WATER', 'TOLL'] },
   ] },
 
   { id: 62, groups: [
-    { name: 'At the seaside', words: ['PIER', 'PROMENADE', 'DECKCHAIR', 'ARCADE'] },
-    { name: 'Camping kit', words: ['TENT', 'TORCH', 'STOVE', 'MALLET'] },
-    { name: 'Mountain words', words: ['SUMMIT', 'RIDGE', 'GLACIER', 'SLOPE'] },
-    { name: 'Kinds of slope', words: ['SKI', 'SLIPPERY', 'NURSERY', 'DRY'] },
+    { name: 'Blood words', domain: 'body', words: ['ARTERY', 'VEIN', 'CLOT', 'PLATELET'] },
+    { name: 'Rocks', domain: 'nature', words: ['GRANITE', 'SLATE', 'BASALT', 'MARBLE'] },
+    { name: 'At the swimming pool', domain: 'sport', words: ['LENGTH', 'FLOAT', 'DIVE', 'MEDLEY'] },
+    { name: '___ stroke', domain: 'wordplay', words: ['BACK', 'SUN', 'KEY', 'MASTER'] },
   ] },
 
   { id: 63, groups: [
-    { name: 'Italian dishes', words: ['RISOTTO', 'LASAGNE', 'GNOCCHI', 'CALZONE'] },
-    { name: 'Coffee shop orders', words: ['LATTE', 'FLATWHITE', 'MOCHA', 'ESPRESSO'] },
-    { name: 'Pizza toppings', words: ['CHEESE', 'OLIVE', 'HAM', 'MUSHROOM'] },
-    { name: 'Kinds of mushroom', words: ['BUTTON', 'OYSTER', 'FIELD', 'CLOUD'] },
+    { name: 'Mushrooms', domain: 'food', words: ['PORCINI', 'MOREL', 'OYSTER', 'CHESTNUT'] },
+    { name: 'Places in legend', domain: 'myth', words: ['AVALON', 'ATLANTIS', 'ASGARD', 'OLYMPUS'] },
+    { name: 'At the cinema', domain: 'screen', words: ['TRAILER', 'USHER', 'INTERVAL', 'MATINEE'] },
+    { name: '___ card', domain: 'wordplay', words: ['WILD', 'POST', 'CREDIT', 'RED'] },
   ] },
 
   { id: 64, groups: [
-    { name: 'In a fruit salad', words: ['MELON', 'GRAPE', 'BANANA', 'MANGO'] },
-    
-    { name: 'Birds that cannot fly', words: ['EMU', 'PENGUIN', 'OSTRICH', 'KIWI'] },
-    { name: 'Soft drinks', words: ['LEMONADE', 'COLA', 'TONIC', 'SQUASH'] },
-    { name: 'Kinds of squash', words: ['BUTTERNUT', 'ACORN', 'SPAGHETTI', 'GEM'] },
+    { name: 'At the country fair', domain: 'farm', words: ['ROSETTE', 'MARQUEE', 'TOMBOLA', 'STEWARD'] },
+    { name: 'Horse racing', domain: 'sport', words: ['STEEPLE', 'PADDOCK', 'SILKS', 'FURLONG'] },
+    { name: 'Ways to say win', domain: 'language', words: ['TRIUMPH', 'PREVAIL', 'CLINCH', 'LAND'] },
+    { name: '___ show', domain: 'wordplay', words: ['ROAD', 'SLIDE', 'PEEP', 'GAME'] },
   ] },
 
   { id: 65, groups: [
-    { name: 'On your face', words: ['BROW', 'LASH', 'LIP', 'CHIN'] },
-    { name: 'Bones', words: ['SKULL', 'RIB', 'FEMUR', 'SPINE'] },
-    { name: 'Organs', words: ['HEART', 'LIVER', 'LUNG', 'KIDNEY'] },
-    { name: 'Kinds of organ', words: ['PIPE', 'BARREL', 'MOUTH', 'ELECTRIC'] },
+    { name: 'Organs', domain: 'body', words: ['LIVER', 'KIDNEY', 'SPLEEN', 'PANCREAS'] },
+    { name: 'Types of flooring', domain: 'home', words: ['PARQUET', 'LINO', 'CARPET', 'TILES'] },
+    { name: 'Orchestra sections', domain: 'music', words: ['STRINGS', 'BRASS', 'WOODWIND', 'CHOIR'] },
+    { name: '___ bar', domain: 'wordplay', words: ['CROW', 'HANDLE', 'WINE', 'TOW'] },
   ] },
 
   { id: 66, groups: [
-    { name: 'Out in space', words: ['ASTEROID', 'COMET', 'GALAXY', 'NEBULA'] },
-    { name: 'Space travel', words: ['ROCKET', 'ORBIT', 'LAUNCH', 'SPACESUIT'] },
-    { name: 'States of matter', words: ['SOLID', 'LIQUID', 'GAS', 'PLASMA'] },
-    { name: 'Kinds of gas', words: ['NATURAL', 'LAUGHING', 'NOBLE', 'TEAR'] },
+    { name: 'Soft drinks', domain: 'food', words: ['SQUASH', 'CORDIAL', 'TONIC', 'LEMONADE'] },
+    { name: 'Forces', domain: 'science', words: ['GRAVITY', 'FRICTION', 'THRUST', 'DRAG'] },
+    { name: 'Airline words', domain: 'travel', words: ['BOARDING', 'STOPOVER', 'UPGRADE', 'DUTYFREE'] },
+    { name: '___ class', domain: 'wordplay', words: ['FIRST', 'MASTER', 'WORKING', 'BUSINESS'] },
   ] },
 
   { id: 67, groups: [
-    { name: 'Paid for work', words: ['WAGE', 'SALARY', 'FEE', 'TIP'] },
-    { name: 'Jobs on a ship', words: ['CAPTAIN', 'PURSER', 'BOSUN', 'DECKHAND'] },
-    
-    { name: 'Jobs in a hospital', words: ['NURSE', 'SURGEON', 'PORTER', 'MIDWIFE'] },
-    { name: 'Beer styles', words: ['STOUT', 'MILD', 'BROWN', 'LAGER'] },
+    { name: 'The dairy herd', domain: 'farm', words: ['HEIFER', 'STEER', 'BULLOCK', 'YEARLING'] },
+    { name: 'Dressing up', domain: 'clothes', words: ['TIARA', 'SASH', 'CAPE', 'GOWN'] },
+    { name: 'Knights and castles', domain: 'myth', words: ['MOAT', 'KEEP', 'JOUST', 'HERALD'] },
+    { name: '___ guard', domain: 'wordplay', words: ['BODY', 'LIFE', 'VAN', 'COAST'] },
   ] },
 
   { id: 68, groups: [
-    { name: 'School subjects', words: ['MATHS', 'HISTORY', 'BIOLOGY', 'ART'] },
-    { name: 'In a pencil case', words: ['RUBBER', 'RULER', 'COMPASS', 'SHARPENER'] },
-    { name: 'Exam words', words: ['PAPER', 'GRADE', 'REVISE', 'PASS'] },
-    { name: 'Kinds of pass', words: ['BOARDING', 'MOUNTAIN', 'HALL', 'SEASON'] },
+    { name: 'Ways to play a note', domain: 'music', words: ['PLUCK', 'STRUM', 'BOW', 'BLOW'] },
+    { name: 'Reality TV words', domain: 'screen', words: ['EVICTION', 'VOTE', 'TASK', 'DIARY'] },
+    { name: 'At an interview', domain: 'work', words: ['PANEL', 'REFEREE', 'NOTICE', 'OFFER'] },
+    { name: '___ room', domain: 'wordplay', words: ['BOARD', 'GREEN', 'LEG', 'WAITING'] },
   ] },
 
   { id: 69, groups: [
-    { name: 'Footwear', words: ['BOOTS', 'SANDALS', 'TRAINERS', 'SLIPPERS'] },
-    { name: 'Hats', words: ['BERET', 'BOWLER', 'FEDORA', 'BEANIE'] },
-    { name: 'Fastenings', words: ['ZIP', 'BUTTON', 'BUCKLE', 'VELCRO'] },
-    { name: 'Kinds of button', words: ['BELLY', 'PANIC', 'PUSH', 'MUSHROOM'] },
+    { name: 'Hair words', domain: 'body', words: ['PARTING', 'FRINGE', 'ROOTS', 'CURL'] },
+    { name: 'Ways to cut a vegetable', domain: 'food', words: ['DICE', 'JULIENNE', 'GRATE', 'SLICE'] },
+    { name: 'Woodland edge', domain: 'nature', words: ['COPPICE', 'GLADE', 'THICKET', 'BRACKEN'] },
+    { name: '___ back', domain: 'wordplay', words: ['HORSE', 'PAY', 'FEED', 'HUNCH'] },
   ] },
 
   { id: 70, groups: [
-    { name: 'Big cats', words: ['LION', 'TIGER', 'LEOPARD', 'JAGUAR'] },
-    { name: 'Australian animals', words: ['KOALA', 'WOMBAT', 'ECHIDNA', 'QUOKKA'] },
-    { name: 'Sea mammals', words: ['WHALE', 'DOLPHIN', 'SEAL', 'WALRUS'] },
-    { name: 'Kinds of seal', words: ['WAX', 'RUBBER', 'DOOR', 'TAMPER'] },
+    { name: 'Muck and manure', domain: 'farm', words: ['SPREADER', 'HEAP', 'SLURRY', 'DUNG'] },
+    { name: 'Cricket words', domain: 'sport', words: ['INNINGS', 'WICKET', 'OVER', 'CREASE'] },
+    { name: 'Gaming words', domain: 'tech', words: ['RESPAWN', 'LOBBY', 'PATCH', 'CONSOLE'] },
+    { name: 'Ways to say lazy', domain: 'language', words: ['IDLE', 'SLOTHFUL', 'WORKSHY', 'SLACK'] },
   ] },
 
   { id: 71, groups: [
-    { name: 'Units of time', words: ['SECOND', 'MINUTE', 'DECADE', 'CENTURY'] },
-    { name: 'Parts of a hand', words: ['PALM', 'THUMB', 'KNUCKLE', 'WRIST'] },
-    { name: 'Clock parts', words: ['FACE', 'HAND', 'PENDULUM', 'DIAL'] },
-    { name: 'Kinds of face', words: ['POKER', 'BRAVE', 'CLIFF', 'BABY'] },
+    { name: 'In the china cabinet', domain: 'home', words: ['TUREEN', 'PLATTER', 'SAUCER', 'DECANTER'] },
+    { name: 'Countries in Europe', domain: 'travel', words: ['MALTA', 'POLAND', 'GREECE', 'LATVIA'] },
+    { name: 'Ways to say small', domain: 'language', words: ['TINY', 'MINUTE', 'SLIGHT', 'PETITE'] },
+    { name: '___ hand', domain: 'wordplay', words: ['SECOND', 'FARM', 'UPPER', 'SHORT'] },
   ] },
 
   { id: 72, groups: [
-    { name: 'In a western', words: ['SALOON', 'SHERIFF', 'STETSON', 'SPURS'] },
-    { name: 'Film genres', words: ['WESTERN', 'THRILLER', 'ROMCOM', 'HORROR'] },
-    
-    
-    { name: 'Horror creatures', words: ['VAMPIRE', 'ZOMBIE', 'WEREWOLF', 'MUMMY'] },
-    { name: 'Words for mother', words: ['MUM', 'MAMA', 'MOTHER', 'MA'] },
+    { name: 'At the livestock market', domain: 'farm', words: ['AUCTION', 'PENS', 'LOTS', 'BIDDER'] },
+    { name: 'In a western', domain: 'screen', words: ['SALOON', 'SHERIFF', 'STETSON', 'POSSE'] },
+    { name: 'The underworld', domain: 'myth', words: ['STYX', 'CHARON', 'CERBERUS', 'LETHE'] },
+    { name: '___ star', domain: 'wordplay', words: ['ROCK', 'SHOOTING', 'SEA', 'LONE'] },
   ] },
 
   { id: 73, groups: [
-    { name: 'Board games', words: ['CHESS', 'DRAUGHTS', 'LUDO', 'DOMINOES'] },
-    { name: 'Game show words', words: ['JACKPOT', 'HOST', 'PRIZE', 'BUZZER'] },
-    { name: 'What you do with dice', words: ['ROLL', 'THROW', 'SHAKE', 'CAST'] },
-    { name: 'Kinds of cast', words: ['PLASTER', 'FISHING', 'IRON', 'LEG'] },
+    { name: 'Muscles', domain: 'body', words: ['BICEP', 'TRICEP', 'DELTOID', 'HAMSTRING'] },
+    { name: 'Board games', domain: 'sport', words: ['LUDO', 'CLUEDO', 'RISK', 'SCRABBLE'] },
+    { name: 'In a meeting', domain: 'work', words: ['AGENDA', 'MINUTES', 'ACTIONS', 'MATTERS'] },
+    { name: 'Ways to say agree', domain: 'language', words: ['CONCUR', 'ASSENT', 'ACCEDE', 'SIDE'] },
   ] },
 
   { id: 74, groups: [
-    { name: 'Woodwind', words: ['FLUTE', 'OBOE', 'CLARINET', 'BASSOON'] },
-    { name: 'Percussion', words: ['DRUM', 'CYMBAL', 'TRIANGLE', 'GONG'] },
-    { name: 'Brass', words: ['TRUMPET', 'TROMBONE', 'TUBA', 'HORN'] },
-    { name: 'Kinds of horn', words: ['FOG', 'SHOE', 'BULL', 'LONG'] },
+    { name: 'Threshing and storing', domain: 'farm', words: ['FLAIL', 'CHAFF', 'GRANARY', 'SACK'] },
+    { name: 'Baking words', domain: 'food', words: ['PROVE', 'KNEAD', 'SIFT', 'FOLD'] },
+    { name: 'Ways to sing', domain: 'music', words: ['FALSETTO', 'SCAT', 'YODEL', 'CROON'] },
+    { name: '___ corn', domain: 'wordplay', words: ['POP', 'PEPPER', 'SWEET', 'CANDY'] },
   ] },
 
   { id: 75, groups: [
-    { name: 'At the pool', words: ['LANE', 'FLOAT', 'GOGGLES', 'ARMBANDS'] },
-    { name: 'Swimming strokes', words: ['BUTTERFLY', 'BACKSTROKE', 'CRAWL', 'MEDLEY'] },
-    { name: 'Water sports', words: ['SURFING', 'ROWING', 'DIVING', 'POLO'] },
-    { name: 'Kinds of polo', words: ['WATER', 'NECK', 'SHIRT', 'MINT'] },
+    { name: 'Beachwear', domain: 'clothes', words: ['TRUNKS', 'BIKINI', 'KAFTAN', 'SARONG'] },
+    { name: 'Rock pool life', domain: 'nature', words: ['ANEMONE', 'STARFISH', 'PRAWN', 'MUSSEL'] },
+    { name: 'In the laboratory', domain: 'science', words: ['PIPETTE', 'BEAKER', 'BUNSEN', 'RETORT'] },
+    { name: '___ suit', domain: 'wordplay', words: ['WET', 'TRACK', 'LAW', 'BOILER'] },
   ] },
 
   { id: 76, groups: [
-    { name: 'Obsolete gadgets', words: ['PAGER', 'CASSETTE', 'FAX', 'PHONEBOX'] },
-    { name: 'Photography', words: ['LENS', 'SHUTTER', 'TRIPOD', 'FLASH'] },
-    { name: 'Ways to store a file', words: ['DISK', 'CLOUD', 'USB', 'TAPE'] },
-    { name: 'Kinds of tape', words: ['MASKING', 'RED', 'DUCT', 'MEASURE'] },
+    { name: 'Fencing the field', domain: 'farm', words: ['WIRE', 'STAPLE', 'STRAINER', 'POSTS'] },
+    { name: 'Photography words', domain: 'tech', words: ['APERTURE', 'SHUTTER', 'EXPOSURE', 'TRIPOD'] },
+    { name: 'On a bus', domain: 'travel', words: ['FARE', 'STOP', 'ROUTE', 'SHELTER'] },
+    { name: '___ tape', domain: 'wordplay', words: ['RED', 'MASKING', 'DUCT', 'CASSETTE'] },
   ] },
 
   { id: 77, groups: [
-    { name: 'Beach things', words: ['TOWEL', 'PARASOL', 'BUCKET', 'SPADE'] },
-    { name: 'At a hotel', words: ['RECEPTION', 'LOBBY', 'SUITE', 'CONCIERGE'] },
-    { name: 'On a menu', words: ['STARTER', 'MAIN', 'DESSERT', 'SIDE'] },
-    { name: 'Kinds of side', words: ['SEA', 'COUNTRY', 'OFF', 'BLIND'] },
+    { name: 'On a pub menu', domain: 'food', words: ['SCAMPI', 'GAMMON', 'HOTPOT', 'PLOUGHMAN'] },
+    { name: 'In the bathroom', domain: 'home', words: ['CISTERN', 'LOOFAH', 'BATHMAT', 'RAZOR'] },
+    { name: 'Table tennis words', domain: 'sport', words: ['RALLY', 'SMASH', 'BAT', 'PADDLE'] },
+    { name: '___ head', domain: 'wordplay', words: ['ARROW', 'HAMMER', 'EGG', 'FIGURE'] },
   ] },
 
   { id: 78, groups: [
-    { name: 'Cereals', words: ['MUESLI', 'PORRIDGE', 'GRANOLA', 'BRAN'] },
-    { name: 'Cooked breakfast', words: ['BACON', 'SAUSAGE', 'BEANS', 'MUSHROOM'] },
-    { name: 'Spreads', words: ['JAM', 'MARMALADE', 'HONEY', 'BUTTER'] },
-    { name: 'Kinds of jam', words: ['TRAFFIC', 'PAPER', 'LOG', 'SESSION'] },
+    { name: 'First aid', domain: 'body', words: ['BANDAGE', 'SLING', 'SPLINT', 'GAUZE'] },
+    { name: 'Parts of a TV series', domain: 'screen', words: ['PILOT', 'EPISODE', 'FINALE', 'SEASON'] },
+    { name: 'Airport departures', domain: 'travel', words: ['DELAY', 'STANDBY', 'TRANSFER', 'VISA'] },
+    { name: '___ case', domain: 'wordplay', words: ['BRIEF', 'SUIT', 'STAIR', 'NUT'] },
   ] },
 
   { id: 79, groups: [
-    { name: 'Emergency services', words: ['POLICE', 'AMBULANCE', 'FIRE', 'COASTGUARD'] },
-    { name: 'In an ambulance', words: ['STRETCHER', 'SIREN', 'PARAMEDIC', 'OXYGEN'] },
-    { name: 'Things that are blue', words: ['SKY', 'BRUISE', 'DENIM', 'SAPPHIRE'] },
-    { name: 'Kinds of fire', words: ['CAMP', 'BUSH', 'CROSS', 'OPEN'] },
+    { name: 'Guarding the flock', domain: 'farm', words: ['COLLIE', 'CROOK', 'WHISTLE', 'LLAMA'] },
+    { name: 'Coastal features', domain: 'nature', words: ['COVE', 'SPIT', 'STACK', 'ARCH'] },
+    { name: 'Emergency services', domain: 'work', words: ['SIREN', 'ENGINE', 'CREW', 'DISPATCH'] },
+    { name: '___ way', domain: 'wordplay', words: ['RAIL', 'HALL', 'MID', 'SUB'] },
   ] },
 
   { id: 80, groups: [
-    { name: 'Greek letters', words: ['ALPHA', 'BETA', 'OMEGA', 'SIGMA'] },
-    { name: 'Bodies of water', words: ['LAKE', 'LAGOON', 'FJORD', 'BAY'] },
-    
-    { name: 'Landforms', words: ['PLATEAU', 'CANYON', 'ISTHMUS', 'DELTA'] },
-    { name: 'Kinds of bay', words: ['LOADING', 'SICK', 'LEAF', 'WINDOW'] },
+    { name: 'Ways to preserve food', domain: 'food', words: ['PICKLE', 'SMOKE', 'BRINE', 'CURE'] },
+    { name: 'Tempo markings', domain: 'music', words: ['ADAGIO', 'ALLEGRO', 'LARGO', 'PRESTO'] },
+    { name: 'Ways to say complain', domain: 'language', words: ['GRIPE', 'GRUMBLE', 'MOAN', 'WHINGE'] },
+    { name: '___ bell', domain: 'wordplay', words: ['DUMB', 'DOOR', 'BLUE', 'TUBULAR'] },
   ] },
 
   { id: 81, groups: [
-    { name: 'Cooking pots', words: ['WOK', 'KETTLE', 'CASSEROLE', 'SKILLET'] },
-    { name: 'Camera kit', words: ['TRIPOD', 'LENS', 'FILTER', 'DOLLY'] },
-    { name: 'Types of film shot', words: ['CLOSEUP', 'WIDE', 'PAN', 'ZOOM'] },
-    { name: 'Kinds of pan', words: ['FRYING', 'SAUCE', 'ROASTING', 'BED'] },
+    { name: 'Formal wear', domain: 'clothes', words: ['TUXEDO', 'CRAVAT', 'TAILS', 'WAISTCOAT'] },
+    { name: 'Kitchen appliances', domain: 'home', words: ['KETTLE', 'TOASTER', 'BLENDER', 'FRIDGE'] },
+    { name: 'Wifi words', domain: 'tech', words: ['ROUTER', 'SIGNAL', 'PASSWORD', 'HOTSPOT'] },
+    { name: 'Gymnastics', domain: 'sport', words: ['BEAM', 'RINGS', 'FLOOR', 'POMMEL'] },
   ] },
 
   { id: 82, groups: [
-    { name: 'Sauces and dips', words: ['HUMMUS', 'GUACAMOLE', 'KETCHUP', 'PESTO'] },
-    
-    { name: 'Latin dances', words: ['SALSA', 'SAMBA', 'RUMBA', 'MAMBO'] },
-    { name: 'Dance styles', words: ['BALLET', 'TAP', 'DISCO', 'BREAK'] },
-    { name: 'Kinds of break', words: ['TEA', 'LUCKY', 'PRISON', 'COFFEE'] },
+    { name: 'Ploughing', domain: 'farm', words: ['FURROW', 'HEADLAND', 'SHARE', 'STUBBLE'] },
+    { name: 'The mouth', domain: 'body', words: ['PALATE', 'GUM', 'UVULA', 'TONGUE'] },
+    { name: 'Talent show words', domain: 'screen', words: ['AUDITION', 'MENTOR', 'LIVE', 'FINAL'] },
+    { name: '___ tie', domain: 'wordplay', words: ['BOW', 'BLACK', 'RAIL', 'CABLE'] },
   ] },
 
   { id: 83, groups: [
-    { name: 'Winter sports', words: ['SKIING', 'SKATING', 'CURLING', 'BOBSLEIGH'] },
-    { name: 'Golf scores', words: ['BIRDIE', 'EAGLE', 'PAR', 'BOGEY'] },
-    { name: 'On the golf course', words: ['BUNKER', 'GREEN', 'TEE', 'FAIRWAY'] },
-    { name: 'Kinds of green', words: ['VILLAGE', 'BOWLING', 'EVER', 'SEA'] },
+    { name: 'Guitar words', domain: 'music', words: ['FRET', 'CAPO', 'PICK', 'RIFF'] },
+    { name: 'Golf scores', domain: 'sport', words: ['BIRDIE', 'EAGLE', 'BOGEY', 'PAR'] },
+    { name: 'On a canal', domain: 'travel', words: ['LOCK', 'BARGE', 'TOWPATH', 'MOORING'] },
+    { name: 'Ways to say push', domain: 'language', words: ['SHOVE', 'NUDGE', 'PROD', 'JOSTLE'] },
   ] },
 
   { id: 84, groups: [
-    { name: 'Warning lights', words: ['OIL', 'FUEL', 'ENGINE', 'BRAKE'] },
-    { name: 'Car parts', words: ['BONNET', 'BOOT', 'CLUTCH', 'EXHAUST'] },
-    { name: 'Electric car words', words: ['BATTERY', 'CHARGER', 'RANGE', 'PLUG'] },
-    { name: 'Kinds of boot', words: ['COWBOY', 'ANKLE', 'RIDING', 'WALKING'] },
+    { name: 'Irrigation', domain: 'farm', words: ['SPRINKLER', 'DITCH', 'SLUICE', 'BOREHOLE'] },
+    { name: 'Fixing a leak', domain: 'home', words: ['WASHER', 'SEALANT', 'WRENCH', 'PLUNGER'] },
+    { name: 'Measuring instruments', domain: 'science', words: ['CALIPER', 'SCALES', 'GAUGE', 'RULER'] },
+    { name: '___ works', domain: 'wordplay', words: ['WATER', 'GAS', 'FIRE', 'CLOCK'] },
   ] },
 
   { id: 85, groups: [
-    { name: 'In a castle', words: ['MOAT', 'TURRET', 'DUNGEON', 'KEEP'] },
-    { name: 'Internet things', words: ['SPAM', 'MEME', 'HASHTAG', 'EMOJI'] },
-    
-    
-    { name: 'Fairy tale characters', words: ['PRINCE', 'WITCH', 'GIANT', 'TROLL'] },
-    { name: 'Words for very big', words: ['HUGE', 'VAST', 'MASSIVE', 'ENORMOUS'] },
+    { name: 'Sleep words', domain: 'body', words: ['SNORE', 'DREAM', 'DOZE', 'YAWN'] },
+    { name: 'Magic words', domain: 'myth', words: ['SPELL', 'CHARM', 'POTION', 'WAND'] },
+    { name: 'Internet things', domain: 'tech', words: ['SERVER', 'STREAM', 'UPLOAD', 'FIREWALL'] },
+    { name: '___ wall', domain: 'wordplay', words: ['SEA', 'DRY', 'STONE', 'CAVITY'] },
   ] },
 
   { id: 86, groups: [
-    { name: 'High cards', words: ['JACK', 'QUEEN', 'KING', 'ACE'] },
-    { name: 'Poker words', words: ['BLUFF', 'FOLD', 'RAISE', 'CHIP'] },
-    { name: 'Card suits', words: ['HEART', 'CLUB', 'SPADE', 'DIAMOND'] },
-    { name: 'Kinds of club', words: ['GOLF', 'NIGHT', 'SANDWICH', 'BOOK'] },
+    { name: 'Christmas dinner', domain: 'food', words: ['SPROUTS', 'STUFFING', 'CRACKER', 'TRIMMINGS'] },
+    { name: 'Pantomime', domain: 'screen', words: ['DAME', 'GENIE', 'BUTTONS', 'VILLAIN'] },
+    { name: 'Poker words', domain: 'sport', words: ['BLUFF', 'RAISE', 'FLOP', 'RIVER'] },
+    { name: '___ pot', domain: 'wordplay', words: ['JACK', 'TEA', 'MELTING', 'STOCK'] },
   ] },
 
   { id: 87, groups: [
-    { name: 'Kitchen gadgets', words: ['BLENDER', 'WHISK', 'GRATER', 'PEELER'] },
-    { name: 'Ways to cook meat', words: ['ROAST', 'GRILL', 'POACH', 'BRAISE'] },
-    { name: 'Cookery show words', words: ['ROUND', 'JUDGE', 'HEAT', 'DISH'] },
-    { name: 'Ways to say criticise', words: ['PAN', 'SLATE', 'KNOCK', 'SLAM'] },
+    { name: 'Feeding time', domain: 'farm', words: ['BUCKET', 'SCOOP', 'MANGER', 'HAYNET'] },
+    { name: 'On the motorway', domain: 'travel', words: ['JUNCTION', 'SLIPROAD', 'TAILBACK', 'GANTRY'] },
+    { name: 'Ways to say quiet', domain: 'language', words: ['HUSH', 'MUTED', 'STILL', 'SOFT'] },
+    { name: 'Kinds of cone', domain: 'wordplay', words: ['ICE', 'PINE', 'NOSE', 'TRAFFIC'] },
   ] },
 
   { id: 88, groups: [
-    { name: 'Parts of a newspaper', words: ['HEADLINE', 'COLUMN', 'EDITORIAL', 'CROSSWORD'] },
-    { name: 'Radio words', words: ['FREQUENCY', 'DIAL', 'PRESENTER', 'JINGLE'] },
-    { name: 'Ways to say announce', words: ['BROADCAST', 'DECLARE', 'PROCLAIM', 'HERALD'] },
-    { name: 'Kinds of column', words: ['SPINAL', 'GOSSIP', 'FIFTH', 'STEERING'] },
+    { name: 'What a baby wears', domain: 'clothes', words: ['BIB', 'BOOTEES', 'MITTS', 'ROMPER'] },
+    { name: 'Pop group sizes', domain: 'music', words: ['DUO', 'TRIO', 'QUARTET', 'SOLO'] },
+    { name: 'In a newsroom', domain: 'work', words: ['DEADLINE', 'SCOOP', 'SOURCE', 'COPY'] },
+    { name: '___ print', domain: 'wordplay', words: ['BLUE', 'FINGER', 'FOOT', 'NEWS'] },
   ] },
 
   { id: 89, groups: [
-    { name: 'Green energy', words: ['SOLAR', 'WIND', 'HYDRO', 'TIDAL'] },
-    { name: 'In the recycling bin', words: ['GLASS', 'CARDBOARD', 'PLASTIC', 'TIN'] },
-    { name: 'See-through things', words: ['WATER', 'ICE', 'CLINGFILM', 'PERSPEX'] },
-    { name: 'Kinds of glass', words: ['STAINED', 'WINE', 'LOOKING', 'HOUR'] },
+    { name: 'In the recycling bin', domain: 'home', words: ['CARDBOARD', 'TINS', 'BOTTLES', 'CARTONS'] },
+    { name: 'Windy weather', domain: 'nature', words: ['GALE', 'GUST', 'SQUALL', 'BREEZE'] },
+    { name: 'Renewable power', domain: 'science', words: ['SOLAR', 'TIDAL', 'HYDRO', 'BIOMASS'] },
+    { name: 'Kinds of glass', domain: 'wordplay', words: ['STAINED', 'LOOKING', 'HOUR', 'SPY'] },
   ] },
 
   { id: 90, groups: [
-    { name: 'In the post', words: ['LETTER', 'PARCEL', 'STAMP', 'POSTCARD'] },
-    { name: 'Ways to say hello', words: ['HI', 'HOWDY', 'GREETINGS', 'GDAY'] },
-    { name: 'Parts of an envelope', words: ['FLAP', 'SEAL', 'WINDOW', 'GUM'] },
-    { name: 'Kinds of letter', words: ['CHAIN', 'COVERING', 'CAPITAL', 'LOVE'] },
+    { name: 'The chicken run', domain: 'farm', words: ['PECK', 'SCRATCH', 'BROODY', 'LAYER'] },
+    { name: 'A seaside holiday', domain: 'travel', words: ['PIER', 'ARCADE', 'PROM', 'DONKEY'] },
+    { name: 'Fairy folk', domain: 'myth', words: ['PIXIE', 'ELF', 'SPRITE', 'GNOME'] },
+    { name: 'Ways to say hello', domain: 'language', words: ['HOWDY', 'HULLO', 'HIYA', 'GREETINGS'] },
   ] },
 ];

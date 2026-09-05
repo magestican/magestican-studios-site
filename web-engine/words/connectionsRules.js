@@ -25,6 +25,119 @@ export const GROUP_SIZE = 4;
 export const MAX_MISTAKES = 4;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const DOMAINS = Object.freeze([
+  'farm',      
+  'food',      
+  'nature',    
+  'body',      
+  'home',      
+  'music',     
+  'sport',     
+  'screen',    
+  'tech',      
+  'travel',    
+  'work',      
+  'clothes',   
+  'myth',      
+  'science',   
+  'wordplay',  
+  'language',  
+]);
+
+const DOMAIN_SET = new Set(DOMAINS);
+
+
+export const isDomain = (d) => DOMAIN_SET.has(d);
+
+
+
+
+
+
+
+
+
+
+
+
+export function domainProblems(puzzle) {
+  const out = [];
+  const groups = puzzle.groups ?? [];
+  const seen = new Map();
+  for (const g of groups) {
+    if (!g.domain) { out.push(`group "${g.name}" has no domain`); continue; }
+    if (!isDomain(g.domain)) {
+      out.push(`group "${g.name}" has domain "${g.domain}", which is not in DOMAINS`);
+      continue;
+    }
+    if (seen.has(g.domain)) {
+      out.push(`"${seen.get(g.domain)}" and "${g.name}" are both ${g.domain} - a set needs four different subjects`);
+    }
+    seen.set(g.domain, g.name);
+  }
+  return out;
+}
+
+
 export const EXACT = 'exact';
 export const ONE_AWAY = 'one-away';
 export const WRONG = 'wrong';
