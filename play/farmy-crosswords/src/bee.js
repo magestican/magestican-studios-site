@@ -52,6 +52,7 @@ import {
 import { trailPoints, isDrag } from '../../../web-engine/words/drag.js';
 import { progress, lift, sink, shake, easeOut, hump, DURATION } from '../../../web-engine/words/motion.js';
 import * as paint from './paint.js';
+import { BEE_ACCEPTED } from '../../../web-engine/words/data/beeAccepted.js';
 
 
 export const WIDE = 900;
@@ -143,6 +144,42 @@ export function progressIn(index, saved = {}) {
   };
 }
 export const label = (i) => `Hive ${i + 1}, middle ${BEE_PUZZLES[i].centre}`;
+
+
+
+
+
+
+
+const ACCEPTED = new Set(BEE_ACCEPTED);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function foundLine(found, puzzle, wide = true) {
+  const listed = found.filter((w) => puzzle.answers.includes(w)).length;
+  const extra = found.length - listed;
+  const plus = extra ? ` +${extra}` : '';
+  
+  
+  
+  
+  
+  if (!wide) return `${listed}/${puzzle.answers.length}${plus}`;
+  return `found ${listed} of ${puzzle.answers.length}${plus}`;
+}
 
 export function create(app, index) {
   const puzzle = BEE_PUZZLES[index];
@@ -325,7 +362,9 @@ export function create(app, index) {
     
     const s = score();
     const rank = rankFor(s, puzzle);
-    const found1 = `${rank.name} - found ${found.length} of ${puzzle.answers.length}`;
+    const found1 = wide
+      ? `${rank.name} - ${foundLine(found, puzzle, true)}`
+      : `${rank.name} ${foundLine(found, puzzle, false)}`;
     const points = rank.next ? `${s} points, ${rank.toNext} to ${rank.next}` : `${s} points, every word found`;
     const trackW = Math.min(240, Math.max(70, rankBand.width * (wide ? 0.4 : 0.24)));
     const trackX = rankBand.x + rankBand.width - trackW;
@@ -371,7 +410,7 @@ export function create(app, index) {
       paint.surface(g, { x: listBox.x, y: listBox.y, w: listBox.width, h: listBox.height }, {
         fill: COLORS.card,
       });
-      paint.text(g, `Found ${found.length} of ${puzzle.answers.length}`,
+      paint.text(g, `Found ${foundLine(found, puzzle, true).replace('found ', '')}`,
         { x: listBox.x, y: listBox.y + 10, width: listBox.width, height: 32 },
         { size: SIZES.small, colour: COLORS.ink });
       paint.rule(g, listBox.x + 14, listBox.y + 46, listBox.width - 28);
@@ -439,7 +478,7 @@ export function create(app, index) {
 
   function submit() {
     const word = typed.toUpperCase();
-    const why = rejectReason(word, puzzle, new Set(found));
+    const why = rejectReason(word, puzzle, new Set(found), ACCEPTED);
     typed = '';
     if (why) {
       shakeAt = app.now();
@@ -463,7 +502,12 @@ export function create(app, index) {
     app.announce(msg);
     app.sound(pangram ? 'pangram' : 'word');
     app.invalidate();
-    if (found.length === puzzle.answers.length) { app.sound('win'); app.finished(true); }
+    
+    
+    
+    
+    const listedFound = found.filter((w) => puzzle.answers.includes(w));
+    if (listedFound.length === puzzle.answers.length) { app.sound('win'); app.finished(true); }
   }
 
   function pressButton(i) {

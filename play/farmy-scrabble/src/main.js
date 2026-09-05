@@ -53,7 +53,7 @@ import {
   seatsWithoutBot, botsIn, describeBots, botsSummary,
 } from '../../../web-engine/words/scrabbleBot.js';
 import {
-  applyAction, replay, seatsWith, isMyTurn, standings,
+  applyAction, replay, seatsWith, isMyTurn, standings, winnerOf,
 } from '../../../web-engine/words/scrabbleMatch.js';
 import { describeResult, describeLast } from '../../../web-engine/words/scrabbleDescribe.js';
 import {
@@ -71,6 +71,7 @@ import { createNet, canPlayTogether } from './net.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
+import { createCelebration } from '../../shared/ui/celebrate.js';
 
 initAnalytics({ page: 'farmy-scrabble' });
 
@@ -381,9 +382,21 @@ function seat(id) {
   invalidate();
 }
 
+
+const party = createCelebration({
+  now: () => performance.now(),
+  colours: COLORS,
+  motion: () => app.motion,
+});
+
 function checkFinished() {
   if (!derived.over || roomState.shownResult) return;
   roomState.shownResult = true;
+  
+  
+  
+  const won = winnerOf(derived);
+  if (won && won.id === app.me) { party.start(); invalidate(); }
   trackEvent('scrabble_finished', { seats: derived.seats.length });
   setTimeout(openResults, 700);
 }
@@ -497,7 +510,11 @@ function drawBar(now) {
 function frame() {
   const now = performance.now();
   const active = overlay ?? screen;
-  const step = tick({ dirty, moving: !!(active && active.animating(now)), wasMoving });
+  const step = tick({
+    dirty,
+    moving: !!(active && active.animating(now)) || party.running(),
+    wasMoving,
+  });
   dirty = false;
   wasMoving = step.wasMoving;
   if (step.draw) {
@@ -505,6 +522,10 @@ function frame() {
     if (screen) screen.draw(g, now);
     drawBar(now);
     if (overlay) overlay.draw(g, now);
+    
+    
+    
+    party.draw(g, app.width, app.height);
     const d = active.describe();
     
     

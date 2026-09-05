@@ -22,7 +22,7 @@ import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { GAMES, saveKey, puzzleForDay, LAST_KEY } from '../../../web-engine/words/puzzlePick.js';
 import { routeKey, HOME } from '../../../web-engine/words/keyRouter.js';
 import { tick } from '../../../web-engine/words/frameLoop.js';
-import { pieces as confettiPieces, done as confettiDone } from '../../../web-engine/words/confetti.js';
+import { createCelebration } from '../../shared/ui/celebrate.js';
 import { scoreIn, isSolved, levelOf } from '../../../web-engine/words/scoring.js';
 import {
   COUNT_MS, countAt, beatShare, counting as isCounting, freshPuzzle, freshScores,
@@ -154,8 +154,15 @@ let barHover = -1;
 let barHoverAt = 0;
 
 
-let confettiAt = -1;
-let confetti = [];
+
+
+
+
+const party = createCelebration({
+  now: () => app.now(),
+  colours: COLORS,
+  motion: () => app.motion,
+});
 
 
 
@@ -590,7 +597,7 @@ function frame() {
   
   
   
-  const partying = confettiAt >= 0 && !confettiDone(now - confettiAt);
+  const partying = party.running();
   
   
   
@@ -613,8 +620,7 @@ function frame() {
       if (isCounting(now - countAtMs)) drawCount(now);
       else countAtMs = -1;
     }
-    if (partying) paint.confetti(g, confetti, now - confettiAt, app.width, app.height);
-    else if (confettiAt >= 0) { confettiAt = -1; confetti = []; }
+    party.draw(g, app.width, app.height);
     const d = active.describe();
     
     
@@ -979,11 +985,7 @@ function openGame(id, firstLetter) {
     
     
     
-    if (won && app.motion) {
-      confetti = confettiPieces(64, Math.round(app.now()) % 9973);
-      confettiAt = app.now();
-      invalidate();
-    }
+    if (won) { party.start(); invalidate(); }
     setTimeout(() => openResults(won), 900);
   };
   
@@ -1269,10 +1271,7 @@ function endMatch() {
   if (match.startedAt === null) return;
   match.startedAt = null;
   match.pausedAt = null;
-  if (app.motion) {
-    confetti = confettiPieces(64, Math.round(app.now()) % 9973);
-    confettiAt = app.now();
-  }
+  party.start();
   app.sound('win');
   announce('Time. Here is how everybody did.');
   openResults(true);

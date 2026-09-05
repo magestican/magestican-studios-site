@@ -73,6 +73,7 @@ import { canPlayTogether, createNet } from './net.js';
 import { watchViewport } from '../../shared/ui/viewport.js';
 import * as music from '../../shared/audio/lofi.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
+import { createCelebration } from '../../shared/ui/celebrate.js';
 
 initAnalytics({ page: 'farmy-ludo' });
 
@@ -157,6 +158,13 @@ const MOVE_MS = 460;
 
 
 const CHOICE_H = 48;
+
+
+const party = createCelebration({
+  now: () => performance.now(),
+  colours: COLORS,
+  motion: () => app.motion,
+});
 const DIE_MS = 560;
 
 
@@ -532,6 +540,9 @@ function applyStep(r) {
 
   if (match.awaiting === 'over') {
     sfx.play('win');
+    
+    
+    if (match.winner !== null && match.winner === mySeat()) { party.start(); invalidate(); }
     trackEvent('ludo_finished', { winner: match.winner });
     setTimeout(showResults, 1100);
     return;
@@ -784,7 +795,7 @@ function roomLine() {
 
 function frame() {
   const now = performance.now();
-  const step = tick({ dirty, moving: animating(now), wasMoving });
+  const step = tick({ dirty, moving: animating(now) || party.running(), wasMoving });
   dirty = false;
   wasMoving = step.wasMoving;
   if (step.draw) {
@@ -794,6 +805,10 @@ function frame() {
     drawPanel(now);
     drawBar(now);
     if (overlay) overlay.draw(g, now);
+    
+    
+    
+    party.draw(g, app.width, app.height);
     const d = overlay
       ? overlay.describe()
       : describe(match, { message, room: roomLine(), who: whoIs });

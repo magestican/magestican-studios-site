@@ -21,7 +21,7 @@
 
 
 import { COLORS, SIZES, FONT_STACK, STATES } from '../../../web-engine/words/style.js';
-import { at, alive } from '../../../web-engine/words/confetti.js';
+
 
 
 
@@ -594,26 +594,3 @@ export function keyGlyph(g, r, kind, colour = COLORS.ink) {
   g.restore();
 }
 
-
-
-
-
-
-
-
-export function confetti(g, list, ms, width, height) {
-  g.save();
-  for (const piece of list) {
-    if (!alive(piece, ms)) continue;
-    const p = at(piece, ms);
-    g.globalAlpha = p.alpha;
-    g.fillStyle = COLORS[piece.colour] ?? COLORS.ink;
-    g.translate(p.x * width, p.y * height);
-    g.rotate(p.angle);
-    const w = piece.strip ? piece.size * 0.42 : piece.size;
-    g.fillRect(-w / 2, -piece.size / 2, w, piece.size);
-    g.rotate(-p.angle);
-    g.translate(-p.x * width, -p.y * height);
-  }
-  g.restore();
-}

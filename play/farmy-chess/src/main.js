@@ -84,6 +84,7 @@ import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import * as sfx from './sfx.js';
 import { cueFor } from '../../../web-engine/chess/chessSound.js';
 import { easeOut } from '../../../web-engine/words/motion.js';
+import { createCelebration } from '../../shared/ui/celebrate.js';
 
 initAnalytics({ page: 'farmy-chess' });
 startVersionChecker({
@@ -452,11 +453,26 @@ function control(id) {
   if (id === 'moves') openMoves();
 }
 
+
+
+
+
+
+
+const party = createCelebration({
+  now: () => performance.now(),
+  colours: COLORS,
+  motion: () => app.motion,
+});
+
 function checkFinished() {
   if (!derived.over) return;
   if (roomState.shownResult) return;
   roomState.shownResult = true;
   const outcome = resultFor(derived, app.me);
+  
+  
+  if (outcome === 'won') { party.start(); invalidate(); }
   if (outcome === 'won') record = { ...record, won: record.won + 1 };
   else if (outcome === 'lost') record = { ...record, lost: record.lost + 1 };
   else if (outcome === 'draw') record = { ...record, drawn: record.drawn + 1 };
@@ -609,7 +625,11 @@ function drawBar(now) {
 function frame() {
   const now = performance.now();
   const active = overlay ?? screen;
-  const step = tick({ dirty, moving: !!(active && active.animating(now)), wasMoving });
+  const step = tick({
+    dirty,
+    moving: !!(active && active.animating(now)) || party.running(),
+    wasMoving,
+  });
   dirty = false;
   wasMoving = step.wasMoving;
   if (step.draw) {
@@ -617,6 +637,10 @@ function frame() {
     if (screen) screen.draw(g, now);
     drawBar(now);
     if (overlay) overlay.draw(g, now);
+    
+    
+    
+    party.draw(g, app.width, app.height);
     const d = active.describe();
     
     

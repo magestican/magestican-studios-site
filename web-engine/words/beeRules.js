@@ -64,7 +64,7 @@ export function isPangram(word, letters) {
 
 
 
-export function rejectReason(word, puzzle, found = new Set()) {
+export function rejectReason(word, puzzle, found = new Set(), accepted = null) {
   const w = String(word ?? '').toUpperCase();
   const centre = String(puzzle.centre).toUpperCase();
   const hive = new Set(puzzle.letters.map((c) => String(c).toUpperCase()));
@@ -76,7 +76,25 @@ export function rejectReason(word, puzzle, found = new Set()) {
   const stray = [...w].find((c) => !hive.has(c));
   if (stray) return `There is no ${stray} in this hive.`;
   if (found.has(w)) return `You already found ${w}.`;
-  if (!puzzle.answers.some((a) => a.toUpperCase() === w)) return `${w} is not in the word list.`;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const known = accepted?.has ? accepted.has(w) : false;
+  const listed = puzzle.answers.some((a) => a.toUpperCase() === w);
+  if (!known && !listed) return `${w} is not a word I know.`;
   return null;
 }
 
@@ -120,7 +138,12 @@ export const RANKS = [
 
 export function rankFor(score, puzzle) {
   const max = maxScore(puzzle);
-  const share = max === 0 ? 0 : score / max;
+  
+  
+  
+  
+  
+  const share = max === 0 ? 0 : Math.min(1, score / max);
   let index = 0;
   for (let i = 0; i < RANKS.length; i += 1) if (share >= RANKS[i].at) index = i;
   const next = RANKS[index + 1] ?? null;
