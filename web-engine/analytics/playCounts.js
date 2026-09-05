@@ -116,10 +116,18 @@ export const PLAY_COUNTS_COLLECTION = 'gamePlays';
 
 export const COUNTED_GAME_IDS = Object.freeze([
   'team-bonding',
+  'farmy-uprising',
   'farmy-evil-hills',
   'farmykart',
   'farmy-scrabble',
   'farmy-crosswords',
+  
+  
+  
+  
+  'farmy-chess',
+  'farmy-checkers',
+  'farmy-ludo',
   'zelakas',
   '2d-fighter-ex',
 ]);

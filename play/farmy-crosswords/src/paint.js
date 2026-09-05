@@ -622,3 +622,94 @@ export function keyGlyph(g, r, kind, colour = COLORS.ink) {
   g.restore();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function playerFace(g, r, { colour = COLORS.blue, seat = 0, ink = COLORS.ink } = {}) {
+  const side = Math.min(r.w, r.h);
+  const cx = r.x + r.w / 2;
+  const cy = r.y + r.h / 2;
+  const rad = side * 0.42;
+  const line = Math.max(1, side / 16);
+  const kind = ((Number(seat) % 4) + 4) % 4;
+
+  g.save();
+  g.lineWidth = line;
+  g.strokeStyle = ink;
+  g.lineJoin = 'round';
+  g.lineCap = 'round';
+
+  
+  
+  if (kind === 1) {                       
+    for (const s of [-1, 1]) {
+      g.beginPath();
+      g.arc(cx + s * rad * 0.92, cy, rad * 0.34, 0, Math.PI * 2);
+      g.fillStyle = colour; g.fill(); g.stroke();
+    }
+  } else if (kind === 2) {                
+    g.beginPath();
+    g.moveTo(cx - rad * 1.25, cy - rad * 0.52);
+    g.lineTo(cx + rad * 0.2, cy - rad * 0.52);
+    g.lineTo(cx + rad * 0.2, cy - rad * 0.86);
+    g.lineTo(cx - rad * 0.5, cy - rad * 1.02);
+    g.closePath();
+    g.fillStyle = colour; g.fill(); g.stroke();
+  } else if (kind === 0) {                
+    g.beginPath();
+    g.moveTo(cx - rad * 0.28, cy - rad * 0.82);
+    g.quadraticCurveTo(cx - rad * 0.1, cy - rad * 1.5, cx + rad * 0.34, cy - rad * 0.9);
+    g.closePath();
+    g.fillStyle = colour; g.fill(); g.stroke();
+  }
+
+  g.beginPath();
+  g.arc(cx, cy, rad, 0, Math.PI * 2);
+  g.fillStyle = colour;
+  g.fill();
+  g.stroke();
+
+  if (kind === 3) {                       
+    g.beginPath();
+    g.arc(cx - rad * 0.36, cy - rad * 0.08, rad * 0.3, 0, Math.PI * 2);
+    g.arc(cx + rad * 0.36, cy - rad * 0.08, rad * 0.3, 0, Math.PI * 2);
+    g.moveTo(cx - rad * 0.06, cy - rad * 0.08);
+    g.lineTo(cx + rad * 0.06, cy - rad * 0.08);
+    g.stroke();
+  }
+
+  
+  
+  
+  const eye = Math.max(1, rad * 0.14);
+  g.fillStyle = ink;
+  for (const s of [-1, 1]) {
+    g.beginPath();
+    g.arc(cx + s * rad * 0.36, cy - rad * 0.1, eye, 0, Math.PI * 2);
+    g.fill();
+  }
+  g.beginPath();
+  g.arc(cx, cy + rad * 0.12, rad * 0.42, 0.25 * Math.PI, 0.75 * Math.PI);
+  g.stroke();
+  g.restore();
+}

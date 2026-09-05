@@ -77,10 +77,14 @@
     <nav>
       <a href="/#games">Games</a>
       <a href="/farmyshoot.html">Farmyshoot</a>
+      <a href="/farmy-uprising.html">Uprising</a>
       <a href="/farmy-evil-hills.html">Evil Hills</a>
       <a href="/farmykart.html">Kart</a>
       <a href="/farmy-scrabble.html">Scrabble</a>
       <a href="/farmy-crosswords.html">Crosswords</a>
+      <a href="/farmy-chess.html">Chess</a>
+      <a href="/farmy-checkers.html">Checkers</a>
+      <a href="/farmy-ludo.html">Ludo</a>
       <a href="/zelakas-in-space.html">Zelakas</a>
       <a href="/2d-fighter-ex.html">Fighter EX</a>
       <a href="/for-remote-teams.html">For teams</a>
@@ -117,10 +121,14 @@
 
       <ul>
         <li><a href="#farmyshoot">Farmyshoot</a> &mdash; peer-to-peer voxel shooter, farm animals, no download</li>
+        <li><a href="#farmy-uprising">Farmy Uprising</a> &mdash; ten-minute strategy, animals against farmers, not yet assessed</li>
         <li><a href="#farmy-evil-hills">Farmy Evil Hills</a> &mdash; PS1-era survival horror, not yet assessed</li>
         <li><a href="#farmy-kart">Farmy Kart</a> &mdash; kart racer, six circuits, drift boosts</li>
         <li><a href="#farmy-scrabble">Farmy Scrabble</a> &mdash; the full board over a link, not yet assessed</li>
         <li><a href="#farmy-crosswords">Farmy Crosswords</a> &mdash; four word games, 223 puzzles, no clock</li>
+        <li><a href="#farmy-chess">Farmy Chess</a> &mdash; the whole game, no clock, take a move back</li>
+        <li><a href="#farmy-checkers">Farmy Checkers</a> &mdash; English draughts, sheep against cows</li>
+        <li><a href="#farmy-ludo">Farmy Ludo</a> &mdash; four teams, each one a shape as well as a colour</li>
         <li><a href="#zelakas-in-space">Zelakas In Space</a> &mdash; 2014 arcade shooter, running on an emulator</li>
         <li><a href="#fighter-ex">2D Fighter EX</a> &mdash; an animation experiment, and not a game</li>
       </ul>
@@ -169,6 +177,25 @@
 
 
 
+
+    <article class="rev-game" id="farmy-uprising">
+      <h2>Farmy Uprising</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">Playable now</span>
+        <span>Ten-minute strategy &middot; published 2026-09-06 &middot; not yet assessed</span>
+      </p>
+      <p><strong>We have not written this one up yet.</strong> The game is published and
+        playable against a bot; what is missing is our own assessment of it, of the same
+        kind as the ones above &mdash; what works, and what is still wrong with it.</p>
+      <p>Two things we already know are worth saying, because a review that appears later
+        and mentions them for the first time would be a review that waited to be safe. It
+        is <strong>single-player only for now</strong>: the game is built for four and the
+        network layer is not written, so today it is you against one opponent. And the two
+        sides are not yet equally hard to play well &mdash; they are within a few points of
+        each other in several hundred simulated matches, which is not the same as being
+        even in your hands.</p>
+      <p><a class="rev-play" href="/play/farmy-uprising/">Play Farmy Uprising &rarr;</a> &middot; <a href="/farmy-uprising.html">More about it</a></p>
+    </article>
 
     <article class="rev-game" id="farmy-evil-hills">
       <h2>Farmy Evil Hills</h2>
@@ -265,6 +292,106 @@
         <p>The one on this site to send to a parent. It does what the games it is modelled on do, without the clock, the lockout or the small grey type &mdash; and if you want the originals' word lists rather than ours, you will notice the difference.</p>
       </div>
       <p><a class="rev-play" href="/play/farmy-crosswords/">Play Farmy Crosswords &rarr;</a> &middot; <a href="/farmy-crosswords.html">More about it</a></p>
+    </article>
+
+    <article class="rev-game" id="farmy-chess">
+      <h2>Farmy Chess</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">Playable now</span>
+        <span>Complete chess &middot; bot or a shared link &middot; no clock anywhere</span>
+      </p>
+
+      <h3>What it is</h3>
+      <p>Chess in a browser tab, played by the full rules rather than a subset of them: castling both sides, en passant, promotion to any piece, and the draws that are not stalemate. The board is cream and brown with the ranks and files printed on it, the pieces are drawn large enough to read across a room, and there is no clock on the move, on the game, or anywhere near the edge of the screen. You play a bot or you send somebody a link.</p>
+
+      <h3>What works</h3>
+      <ul>
+        <li><strong>It tells you what is happening in words.</strong> Under the board it says &ldquo;You to move.&rdquo; That sounds like nothing until you have used a chess site that signals the same thing with a coloured border and expects you to know.</li>
+        <li><strong>Take a move back is right there.</strong> Not buried, not a premium feature, not disabled against the computer. For the audience this is built for, an undo is the difference between a game and a test.</li>
+        <li><strong>The board is labelled.</strong> Ranks 1&ndash;8 and files a&ndash;h are on the board itself, so a beginner reading a book or following along with somebody can find the square being named.</li>
+        <li><strong>The move list is plain and always visible,</strong> beside the board rather than hidden behind a tab.</li>
+        <li><strong>Nothing counts down.</strong> This is the whole pitch and it holds up: you can walk away mid-move.</li>
+      </ul>
+
+      <h3>What is wrong with it</h3>
+      <ul>
+        <li><strong>The two armies are told apart by fill, not by shape.</strong> Every piece is drawn in the same outline style and the sides differ by whether that outline is filled. On the light squares this is obvious; on the dark squares it is doing less work than it should, which is a shame in a game that has otherwise thought hard about being readable.</li>
+        <li><strong>The right-hand panel is mostly empty at the start</strong> &mdash; two player rows and a blank move list &mdash; so the first screen gives over a third of its width to nothing much.</li>
+        <li><strong>&ldquo;Play a bot&rdquo; does not say which bot.</strong> The claim is that it plays at your level, and there is no visible setting, no indication of what it has decided, and no way to ask for something harder or easier if it has judged you wrong.</li>
+        <li><strong>There is no notation export.</strong> The moves are listed but there is no PGN to copy, so a game you would like to keep or show somebody lives only in that tab.</li>
+      </ul>
+
+      <div class="rev-verdict">
+        <strong>Our verdict</strong>
+        <p>The clock is the point. If you stopped playing chess online because a timer turned thinking into a penalty, this is the one to open &mdash; and if you want an engine you can dial up to punish you, it is not.</p>
+      </div>
+      <p><a class="rev-play" href="/play/farmy-chess/">Play Farmy Chess &rarr;</a> &middot; <a href="/farmy-chess.html">More about it</a></p>
+    </article>
+
+    <article class="rev-game" id="farmy-checkers">
+      <h2>Farmy Checkers</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">Playable now</span>
+        <span>English draughts &middot; takes compulsory &middot; bot or a shared link</span>
+      </p>
+
+      <h3>What it is</h3>
+      <p>English draughts, twelve sheep against twelve cows. Captures are compulsory, a jump that sets up another jump keeps going in the same turn, and a piece that reaches the far rank is crowned. Undo is on the screen, the move count is on the screen, and there is no clock.</p>
+
+      <h3>What works</h3>
+      <ul>
+        <li><strong>The two sides are actual different animals.</strong> Filled cow faces against outlined sheep faces &mdash; a shape difference, not a colour difference, which is the thing most draughts boards get wrong. It reads on a phone in sunlight and it reads if you cannot separate the two hues.</li>
+        <li><strong>The dark squares are hatched rather than filled.</strong> The board carries texture as well as tone, which is a small decision that does a lot in poor light.</li>
+        <li><strong>The count is at the top and the turn is in a sentence.</strong> &ldquo;Sheep: 12 &middot; Cows: 12&rdquo; with a marker on whose turn it is, and &ldquo;Your move, playing the sheep&rdquo; underneath the board.</li>
+        <li><strong>Compulsory takes are enforced,</strong> which is the rule that makes draughts a game about laying traps instead of a game about shuffling.</li>
+      </ul>
+
+      <h3>What is wrong with it</h3>
+      <ul>
+        <li><strong>The board is small for the window it sits in.</strong> On a desktop it occupies about a third of the width with a lot of cream either side, which is an odd result for a game whose whole argument is that things should be big.</li>
+        <li><strong>&ldquo;Play a bot&rdquo; sits under the board, below the fold on a short window,</strong> next to Undo and the move count &mdash; so the first thing a new player looks for is the last thing they find.</li>
+        <li><strong>The bot has no visible strength setting,</strong> the same gap as in Farmy Chess: it adjusts to you, and it does not tell you what it has concluded or let you argue.</li>
+        <li><strong>Nothing explains that takes are compulsory</strong> until you try to make a different move. The rule is correct and it is the interesting one; a first-time player deserves to be told rather than corrected.</li>
+      </ul>
+
+      <div class="rev-verdict">
+        <strong>Our verdict</strong>
+        <p>The most readable board on the site, and the one that best justifies the farm-animal conceit &mdash; the animals are doing accessibility work, not decoration. It wants a bigger board and a sentence about compulsory takes.</p>
+      </div>
+      <p><a class="rev-play" href="/play/farmy-checkers/">Play Farmy Checkers &rarr;</a> &middot; <a href="/farmy-checkers.html">More about it</a></p>
+    </article>
+
+    <article class="rev-game" id="farmy-ludo">
+      <h2>Farmy Ludo</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">Playable now</span>
+        <span>Four teams &middot; against the computer or over a link &middot; no clock</span>
+      </p>
+
+      <h3>What it is</h3>
+      <p>Ludo, with four teams named for farm animals: Sheep, Geese, Pigs and Cows. A six to bring a piece out, capture by landing on a single opponent, and an exact roll to come home. Play alone with the computer taking the other three seats, or share a link and let people claim them.</p>
+
+      <h3>What works</h3>
+      <ul>
+        <li><strong>Every team has its own shape as well as its own colour</strong> &mdash; a circle, a triangle, a square and a diamond. Four coloured discs is the standard and it is the standard that fails in bright light and for anyone with a colour vision deficiency. This one does not.</li>
+        <li><strong>The track carries arrows.</strong> The direction of travel is drawn on the board rather than left to be remembered, which matters in Ludo more than in most games because the path turns a corner you cannot see.</li>
+        <li><strong>Safe squares are marked with a star,</strong> so the one rule people argue about at a real table is settled on the board.</li>
+        <li><strong>The roll button is enormous and the state is a sentence:</strong> &ldquo;Sheep to roll (You).&rdquo; The side panel keeps a running &ldquo;0 of 4 home&rdquo; for every team, so you can see the shape of the game without counting pieces.</li>
+      </ul>
+
+      <h3>What is wrong with it</h3>
+      <ul>
+        <li><strong>The pieces are much smaller than the yards they sit in.</strong> The four home boxes are large and mostly empty, while the track squares &mdash; the part you actually play on &mdash; are small. On a phone the track is the tightest thing on the screen, and it is the thing you have to tap.</li>
+        <li><strong>The board is dense at a glance.</strong> Arrows, stars and team colours all compete on squares that are already small, so the first look is busier than the game is.</li>
+        <li><strong>It is still Ludo.</strong> The exact roll to finish means a game can end with somebody rolling for a three several turns running, and no interface decision fixes that. Worth knowing rather than being disappointed by.</li>
+        <li><strong>Nothing explains the rules on the page.</strong> There is a &ldquo;?&rdquo; button, and the assumption otherwise is that you already know Ludo &mdash; reasonable for most people, and not for the person being taught.</li>
+      </ul>
+
+      <div class="rev-verdict">
+        <strong>Our verdict</strong>
+        <p>The accessibility thinking is real and it is the reason to pick this one over the dozens of other free Ludo boards. It needs the track to be as big as the yards.</p>
+      </div>
+      <p><a class="rev-play" href="/play/farmy-ludo/">Play Farmy Ludo &rarr;</a> &middot; <a href="/farmy-ludo.html">More about it</a></p>
     </article>
 
     <article class="rev-game" id="zelakas-in-space">

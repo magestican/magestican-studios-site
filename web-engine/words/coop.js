@@ -682,6 +682,13 @@ export function chipsFor(rows = []) {
   return rows.map((r) => ({
     by: r.by,
     colour: r.colour,
+    
+    
+    
+    
+    
+    
+    name: r.name,
     initials: initialsOf(r.name),
     score: r.comparable && r.total ? `${r.done}/${r.total}` : '',
     you: !!r.you,

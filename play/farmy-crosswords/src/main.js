@@ -165,6 +165,9 @@ let looping = false;
 let wasMoving = false;
 let barRects = [];
 let barHover = -1;
+
+
+let chipRects = [];
 let barHoverAt = 0;
 
 
@@ -566,10 +569,22 @@ function drawBar(now) {
   if (current !== HOME) {
     const mod = MODULES[current];
     const name = GAMES.find((x) => x.id === current).name;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     const leftmost = barRects.reduce((m, b) => (b.x > 70 && b.x < m ? b.x : m), app.width);
-    const room = Math.max(90, leftmost - 90);
-    paint.text(g, name, { x: 76, y: 8, width: room, height: 44 },
-      { size: SIZES.base, colour: COLORS.ink, align: 'left', fit: true, maxWidth: room });
+    const room = leftmost - 76 - 10;
+    if (room >= 44) {
+      paint.text(g, name, { x: 76, y: 8, width: room, height: 44 },
+        { size: SIZES.base, colour: COLORS.ink, align: 'left', fit: true, maxWidth: room });
+    }
     
     const row = infoRow();
     paint.button(g, row.button, {
@@ -593,19 +608,59 @@ function drawBar(now) {
       : [];
     let right = app.width - row.pad;
     if (chips.length) {
-      for (const chip of chips.slice(0, 4)) {
-        const text = chip.score ? `${chip.initials} ${chip.score}` : chip.initials;
-        g.font = paint.font(SIZES.min, 700);
-        const w = Math.ceil(g.measureText(text).width) + 34;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const shown = chips.slice(0, 4);
+      g.font = paint.font(SIZES.min, 700);
+      const textOf = (chip, mode) => {
+        if (mode === 'dot') return '';
+        if (mode === 'initials') return chip.initials;
+        return chip.score ? `${chip.initials} ${chip.score}` : chip.initials;
+      };
+      const widthOf = (chip, mode) => (mode === 'dot'
+        ? 28
+        : Math.ceil(g.measureText(textOf(chip, mode)).width) + 34);
+      const roomFor = (app.width - row.pad) - (row.pad + row.button.w + 8);
+      const total = (mode) => shown.reduce((sum, c) => sum + widthOf(c, mode) + 6, 0);
+      const mode = ['full', 'initials', 'dot'].find((m) => total(m) <= roomFor) ?? 'dot';
+
+      chipRects = [];
+      for (const [seat, chip] of shown.entries()) {
+        const text = textOf(chip, mode);
+        const w = widthOf(chip, mode);
         const r = { x: right - w, y: row.y + 2, w, h: row.height - 4 };
-        if (r.x < row.pad + row.button.w + 8) break;
         paint.surface(g, r, { fill: chip.you ? COLORS.card : COLORS.paper, offset: 0 });
-        paint.surface(g, { x: r.x + 6, y: r.y + (r.h - 16) / 2, w: 16, h: 16 },
-          { fill: COLORS[chip.colour] ?? COLORS.slate, offset: 0 });
-        paint.text(g, text, { x: r.x + 26, y: r.y, w: r.w - 32, h: r.h },
-          { size: SIZES.min, colour: COLORS.ink, align: 'left', fit: true, maxWidth: r.w - 32 });
+        
+        
+        
+        
+        
+        
+        
+        paint.playerFace(g, { x: r.x + 5, y: r.y + (r.h - 18) / 2, w: 18, h: 18 },
+          { colour: COLORS[chip.colour] ?? COLORS.slate, seat });
+        if (text) {
+          paint.text(g, text, { x: r.x + 26, y: r.y, w: r.w - 32, h: r.h },
+            { size: SIZES.min, colour: COLORS.ink, align: 'left', fit: true, maxWidth: r.w - 32 });
+        }
+        
+        
+        
+        
+        chipRects.push({ ...r, id: `chip:${chip.by}`, name: chip.name,
+          score: chip.score, you: !!chip.you });
         right = r.x - 6;
       }
+    } else {
+      chipRects = [];
     }
     const scoreX = row.pad + row.button.w + 12;
     if (right - scoreX > 90) {
@@ -1682,6 +1737,23 @@ canvas.addEventListener('pointerup', (e) => {
     openPicker();
     return;
   }
+  
+  
+  
+  
+  
+  const onChip = rectAt(chipRects, pt.x, pt.y);
+  if (onChip >= 0) {
+    const c = chipRects[onChip];
+    app.sound('press');
+    const said = c.you
+      ? `${c.name} - that is you${c.score ? `, ${c.score}` : ''}.`
+      : `${c.name}${c.score ? `, ${c.score}` : ''}.`;
+    app.message = said;
+    announce(said);
+    invalidate();
+    return;
+  }
   const bar = rectAt(barRects, pt.x, pt.y);
   if (bar >= 0) {
     const b = barRects[bar];
@@ -1891,6 +1963,10 @@ globalThis.__fc = {
     return [
       ...((overlay ?? screen).rects?.() ?? []),
       ...(overlay ? [] : barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h }))),
+      
+      
+      
+      ...(overlay ? [] : chipRects.map((c) => ({ id: c.id, x: c.x, y: c.y, w: c.w, h: c.h }))),
       
       
       

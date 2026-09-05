@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="build" content="83785e5-20260905T225041Z">
+<title>Play Farmy Uprising — free browser strategy game, no download | Magestican Studios</title>
+<meta name="description" content="Play Farmy Uprising free in your browser. Mother Nature woke the animals up and they want the farms gone. Ten-minute asymmetrical strategy: the Waking Herd against the Yield Group, a map cut into sectors, and a score measured in land-seconds. Phone, desktop and controller. No download, no install, no account.">
+<link rel="canonical" href="https://magesticanstudios.com/play/farmy-uprising/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Play Farmy Uprising — free browser strategy game, no download">
+<meta property="og:description" content="The animals woke up and they want the farms gone. Ten-minute asymmetrical RTS in your browser.">
+<meta property="og:url" content="https://magesticanstudios.com/play/farmy-uprising/">
+<meta property="og:image" content="https://magesticanstudios.com/assets/farmy-uprising-preview.png">
+<meta property="og:site_name" content="Magestican Studios">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Play Farmy Uprising - free browser strategy, no download">
+<meta name="twitter:description" content="The animals woke up and they want the farms gone. Ten minutes, a map cut into sectors, and a score measured in the seconds you hold them.">
+<meta name="twitter:image" content="https://magesticanstudios.com/assets/farmy-uprising-preview.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Farmy Uprising",
+  "url": "https://magesticanstudios.com/play/farmy-uprising/",
+  "description": "A free ten-minute real-time strategy game in the browser. The map is cut into sectors and every second you hold one it pays you, so the game is scored in ground held rather than in kills. The Waking Herd takes ground almost instantly and loses it just as fast; the Yield Group takes it slowly and never gives it back. Both want the water, for opposite reasons.",
+  "image": "https://magesticanstudios.com/assets/farmy-uprising-preview.png",
+  "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                 "url": "https://magesticanstudios.com" },
+  "genre": ["Strategy", "Real-time strategy", "Casual"],
+  "gamePlatform": ["Web browser", "Mobile browser"],
+  "playMode": ["SinglePlayer"],
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "en",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock" }
+}
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230b0f14'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-weight='700' font-size='19' text-anchor='middle' fill='%23d8b54a'%3EU%3C/text%3E%3C/svg%3E">
+<style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+:root{
+  --ink:#e8e4d8; --dim:#9aa0a6; --panel:rgba(10,14,19,.82);
+  --herd:#5f8f3e; --herd-edge:#d8b54a; --yield:#7c8087; --yield-edge:#e8701a;
+  --line:rgba(232,228,216,.14);
+  --top:46px; --rail:56px; --act:64px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b0f14;color:var(--ink);
+  font:500 14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  touch-action:none;user-select:none}
+#game{position:fixed;inset:0;display:block;width:100%;height:100%}
+
+.panel{position:fixed;left:0;right:0;background:var(--panel);
+  backdrop-filter:blur(6px);border-color:var(--line);z-index:5}
+
+
+#top{top:0;height:var(--top);padding-top:env(safe-area-inset-top);
+  height:calc(var(--top) + env(safe-area-inset-top));
+  border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding-inline:12px}
+.res{display:flex;align-items:center;gap:5px;font-variant-numeric:tabular-nums}
+.res i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.res.feed i{background:var(--herd-edge)}
+.res.water i{background:#2f9e9e}
+#clock{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.5px}
+#scorewrap{flex:1 1 120px;min-width:80px;max-width:340px}
+#scorebar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.08)}
+#scorebar i{display:block;height:100%;transition:width .25s}
+#scorebar i.herd{background:var(--herd)} #scorebar i.yield{background:var(--yield)}
+#scorebar i.me{box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+#share{font-size:11px;color:var(--dim);text-align:center;margin-top:2px}
+
+
+#ticker{position:fixed;left:12px;top:calc(var(--top) + env(safe-area-inset-top) + 8px);
+  z-index:4;display:flex;flex-direction:column;gap:2px;pointer-events:none;max-width:60vw}
+#ticker span{background:rgba(10,14,19,.6);padding:3px 8px;border-radius:3px;
+  font-size:12px;color:var(--dim)}
+
+
+#rail{bottom:calc(var(--act) + env(safe-area-inset-bottom));height:var(--rail);
+  border-top:1px solid var(--line);display:flex;align-items:center;gap:6px;
+  padding-inline:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+#rail::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;background:rgba(255,255,255,.06);color:var(--ink);border:1px solid var(--line);
+  border-radius:6px;padding:6px 9px;font:600 12px/1 inherit;display:flex;align-items:center;gap:5px}
+.chip b{font-weight:700;color:var(--herd-edge);font-variant-numeric:tabular-nums}
+.chip.on{background:rgba(216,181,74,.18);border-color:var(--herd-edge)}
+.chip .hurt{width:6px;height:6px;border-radius:50%;background:#b6392c;display:inline-block}
+.railsep{flex:0 0 1px;height:26px;background:var(--line)}
+
+
+#act{bottom:0;height:calc(var(--act) + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;padding-inline:10px}
+.act{flex:1 1 0;height:44px;border-radius:8px;border:1px solid var(--line);
+  background:rgba(255,255,255,.07);color:var(--ink);font:700 14px/1 inherit;letter-spacing:.6px}
+#btn-attack{background:rgba(182,57,44,.28);border-color:#b6392c}
+#btn-capture{background:rgba(95,143,62,.28);border-color:var(--herd)}
+.act.small{flex:0 0 52px;font-size:12px}
+
+
+#buildbar{position:fixed;left:0;right:0;bottom:calc(var(--act) + var(--rail) + env(safe-area-inset-bottom));
+  z-index:5;background:var(--panel);border-top:1px solid var(--line);
+  display:none;flex-direction:column;gap:4px;padding:6px 8px;max-height:32vh;overflow-y:auto}
+#buildbar.open{display:flex}
+.buildrow{display:flex;gap:5px;flex-wrap:wrap}
+.bbtn{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:5px;
+  color:var(--ink);padding:5px 7px;font:600 11px/1.2 inherit;display:flex;flex-direction:column;gap:2px}
+.bbtn b{font-weight:700;color:var(--dim);font-size:10px}
+.bbtn.off{opacity:.38}
+.bbtn.bld{border-color:rgba(216,181,74,.4)}
+
+
+#quick{position:fixed;right:8px;bottom:calc(var(--act) + var(--rail) + 8px + env(safe-area-inset-bottom));
+  width:250px;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:10px;z-index:6;display:none}
+#quick.open{display:block}
+#quick h3{margin:0 0 8px;font-size:12px;letter-spacing:.8px;color:var(--dim);text-transform:uppercase}
+.tgl{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:center;padding:5px 0;
+  border-top:1px solid var(--line)}
+.tgl:first-of-type{border-top:0}
+.tgl span{font-size:13px}
+.tgl em{grid-column:2;font-style:normal;font-size:11px;color:var(--dim)}
+
+
+#banner{position:fixed;inset:0;display:none;place-items:center;z-index:8;
+  background:rgba(6,10,14,.72);font:700 22px/1.3 Georgia,serif;text-align:center;padding:24px}
+#banner.show{display:grid}
+
+
+#menu,#endcard{position:fixed;inset:0;z-index:10;display:none;place-items:center;
+  background:radial-gradient(circle at 50% 35%,#243019,#0d1210 70%);padding:16px;overflow:auto}
+#menu.show,#endcard.show{display:grid}
+.card{width:min(440px,100%);background:rgba(10,14,19,.86);border:1px solid var(--line);
+  border-radius:12px;padding:18px}
+.card h1{margin:0 0 4px;font:700 30px/1.1 Georgia,serif;letter-spacing:.5px}
+.card h2{margin:0 0 8px;font:700 22px/1.2 Georgia,serif}
+.tag{margin:0 0 14px;color:var(--dim);font-size:13px}
+.pick{display:grid;gap:8px;margin-bottom:12px}
+.side{text-align:left;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:8px;padding:10px 12px;color:var(--ink);display:grid;gap:3px}
+.side b{font-size:15px}
+.side span{font-size:12px;color:var(--dim);line-height:1.35}
+.side.herd.on{border-color:var(--herd-edge);background:rgba(95,143,62,.20)}
+.side.yield.on{border-color:var(--yield-edge);background:rgba(232,112,26,.16)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:7px 2px;font-size:13px;color:var(--dim)}
+.row select{background:rgba(255,255,255,.07);color:var(--ink);border:1px solid var(--line);
+  border-radius:6px;padding:6px 8px;font:inherit;min-width:150px}
+.play{width:100%;margin-top:12px;height:46px;border-radius:8px;border:1px solid var(--herd-edge);
+  background:rgba(216,181,74,.20);color:var(--ink);font:700 15px/1 inherit;letter-spacing:1px}
+.how{margin:12px 0 0;font-size:12px;color:var(--dim);line-height:1.45}
+.how b{color:var(--ink)}
+#end-score{display:flex;gap:10px;margin:10px 0}
+#end-score i{flex:1 1 0;height:10px;border-radius:5px;display:block}
+#end-stats{font-size:13px;color:var(--dim);line-height:1.7}
+#end-stats b{color:var(--ink);float:right;font-variant-numeric:tabular-nums}
+
+
+@media (max-width:440px){
+  :root{--rail:50px;--act:58px}
+  .chip{padding:5px 7px;font-size:11px}
+  .act{height:40px;font-size:13px}
+  #ticker{max-width:70vw}
+}
+@media (max-width:340px){
+  :root{--top:42px;--rail:46px;--act:54px}
+  .chip{padding:4px 6px;font-size:10px;gap:3px}
+  .act{height:36px;font-size:12px;letter-spacing:.3px}
+  #scorewrap{max-width:120px}
+  #share{display:none}
+}
+
+@media (max-height:420px){
+  :root{--top:38px;--rail:44px;--act:50px}
+  #share{display:none}
+}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="top" class="panel">
+  <span class="res feed"><i></i><span id="feed">0</span></span>
+  <span class="res water"><i></i><span id="water">0</span></span>
+  <div id="scorewrap"><div id="scorebar"></div><div id="share"></div></div>
+  <span id="clock">10:00</span>
+</div>
+
+<div id="ticker"></div>
+
+<div id="buildbar"></div>
+<div id="quick"></div>
+
+<div id="rail" class="panel"></div>
+
+<div id="act" class="panel">
+  <button id="btn-attack" class="act">ATTACK</button>
+  <button id="btn-capture" class="act">CAPTURE</button>
+  <button id="btn-build" class="act small">BUILD</button>
+  <button id="btn-quick" class="act small">☰</button>
+</div>
+
+<div id="banner"></div>
+
+
+
+<div id="menu" class="show">
+  <div class="card">
+    <h1>Farmy Uprising</h1>
+    <p class="tag">Mother Nature woke the animals up. They want the farms gone.</p>
+
+    <div class="pick" id="pick-faction">
+      <button class="side herd on" data-faction="herd">
+        <b>The Waking Herd</b>
+        <span>Take ground fast, hold it badly. Spread wide and never stop.</span>
+      </button>
+      <button class="side yield" data-faction="yield">
+        <b>The Yield Group</b>
+        <span>Take ground slowly, and never give it back.</span>
+      </button>
+    </div>
+
+    <label class="row">Opponent
+      <select id="pick-level">
+        <option value="1">Gentle</option>
+        <option value="6" selected>Steady</option>
+        <option value="12">Hard</option>
+      </select>
+    </label>
+    <label class="row">Map <select id="pick-map"></select></label>
+
+    <button id="btn-play" class="play">PLAY</button>
+    <p class="how">Hold ground to score. Ten minutes. <b>ATTACK</b> and
+      <b>CAPTURE</b> send your units at the nearest thing worth taking - drag to
+      look around, pinch to zoom.</p>
+  </div>
+</div>
+
+<div id="endcard">
+  <div class="card">
+    <h2 id="end-title">Time</h2>
+    <div id="end-score"></div>
+    <div id="end-stats"></div>
+    <button id="btn-again" class="play">PLAY AGAIN</button>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.161.0/build/three.module.js"
+  }
+}
+</script>
+
+
+
+<script type="module">
+  import { initAnalytics, trackPlayClicks } from '../../web-engine/analytics/analytics.js';
+  try {
+    initAnalytics({ page: 'farmy-uprising' });
+    trackPlayClicks();
+  } catch {  }
+</script>
+<script type="module" src="./src/main.js?v=83785e5-20260905T225041Z"></script>
+</body>
+</html>
