@@ -8,6 +8,21 @@
   <meta name="keywords" content="zelakas in space, free browser arcade shooter, play flash games in browser, ruffle flash emulator, 2d space shooter no download, asteroid dodging game, old flash game playable, indie space shooter">
   <link rel="canonical" href="https://magesticanstudios.com/zelakas-in-space.html">
   
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  
   <meta property="og:type" content="website">
   <meta property="og:title" content="Zelakas In Space — free browser arcade shooter">
   <meta property="og:description" content="Dodge asteroids, blackholes and drones. Three endings. A 2014 Flash game, alive again in a modern browser.">
@@ -225,12 +240,23 @@
 
 
 
-  <script type="module" src="./assets/site.js?v=d868aad-20260906T131251Z"></script>
+  <script type="module" src="./assets/site.js?v=d36cb95-20260906T135511Z"></script>
 
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
     initAnalytics({ page: 'zelakas-landing' });
     trackPlayClicks();
+  </script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>

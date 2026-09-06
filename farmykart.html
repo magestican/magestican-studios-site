@@ -7,6 +7,21 @@
   <meta name="description" content="A free browser kart racer: eight farm-animal drivers, six circuits in two cups, drift turbos and cowpats. Race friends from a link, with no server and no signup.">
   <meta name="keywords" content="browser kart racer, free racing game no download, mario kart style browser game, drift boost racing game, farm animal racing game, mobile kart game, magestican studios">
   <link rel="canonical" href="https://magesticanstudios.com/farmykart.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
   <meta property="og:type" content="website">
   <meta property="og:title" content="Farmy Kart — a free browser kart racer">
   <meta property="og:description" content="Farm animals in karts. Drift to charge a turbo, throw a cowpat at whoever is winning. Six circuits, eight drivers, phone or desktop, no download.">
@@ -247,12 +262,23 @@
   </footer>
   
 
-  <script type="module" src="./assets/site.js?v=d868aad-20260906T131251Z"></script>
+  <script type="module" src="./assets/site.js?v=d36cb95-20260906T135511Z"></script>
 
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
     initAnalytics({ page: 'farmykart-landing' });
     trackPlayClicks();
+  </script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>

@@ -7,6 +7,21 @@
   <meta name="description" content="Farmy Spelling Bee is a free browser word game: seven letters, the middle one compulsory, 53 hives and 3,949 words. Large high-contrast type, no timer, no account.">
   <link rel="icon" href="./favicon.svg">
   <link rel="canonical" href="https://magesticanstudios.com/farmy-spelling-bee.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
   <meta name="keywords" content="farmy spelling bee, browser spelling bee no account, free spelling bee game, seven letter word game, pangram puzzle online, large print word game, spelling bee for older players, honeycomb word puzzle">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Farmy Spelling Bee - free seven-letter word game, big clear letters">
@@ -242,6 +257,17 @@
       &middot; Site is static &middot; no cookies, anonymous counts only
     </p>
   </footer>
-  <script type="module" src="./assets/site.js?v=d868aad-20260906T131251Z"></script>
+  <script type="module" src="./assets/site.js?v=d36cb95-20260906T135511Z"></script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,31 @@
+{
+  "name": "Magestican Studios - free browser games",
+  "short_name": "Magestican",
+  "description": "Free board and word games in the browser. No signup, no download, no timers. Play alone or with up to four people in a room.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "orientation": "any",
+  "theme_color": "#1c1a17",
+  "background_color": "#f6f1e6",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["games", "entertainment", "education"],
+  "icons": [
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "/assets/farmy-chess-preview.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide", "label": "Farmy Chess" },
+    { "src": "/assets/farmy-ludo-preview.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide", "label": "Farmy Ludo" },
+    { "src": "/assets/farmy-crosswords-preview.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide", "label": "Farmy Crosswords" }
+  ],
+  "shortcuts": [
+    { "name": "Farmy Chess", "url": "/play/farmy-chess/", "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Farmy Ludo", "url": "/play/farmy-ludo/", "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Farmy Crosswords", "url": "/play/farmy-crosswords/", "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

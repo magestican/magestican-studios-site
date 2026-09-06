@@ -6,6 +6,21 @@
   <title>Terms of Use — Magestican Studios</title>
   <meta name="description" content="Terms of use for the Magestican Studios website and games.">
   <link rel="canonical" href="https://magesticanstudios.com/terms.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
   <meta property="og:type" content="website">
   <meta property="og:title" content="Terms of Use — Magestican Studios">
   <meta property="og:description" content="Terms of use for the Magestican Studios website and games.">
@@ -108,6 +123,17 @@
     initAnalytics({ page: 'terms' });
     trackPlayClicks();
   </script>
-  <script type="module" src="./assets/studioBanner.js?v=d868aad-20260906T131251Z"></script>
+  <script type="module" src="./assets/studioBanner.js?v=d36cb95-20260906T135511Z"></script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

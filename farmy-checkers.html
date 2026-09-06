@@ -7,6 +7,21 @@
   <meta name="description" content="Free English draughts in your browser: twelve sheep against twelve cows, compulsory takes, multiple jumps and crowned kings. No clock, no account.">
   <link rel="icon" href="./favicon.svg">
   <link rel="canonical" href="https://magesticanstudios.com/farmy-checkers.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
   <meta name="keywords" content="farmy checkers, free browser checkers, english draughts online, draughts no download, checkers without an account, large print checkers, checkers for older players, play checkers with a friend online, checkers against the computer free">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Farmy Checkers - free draughts in your browser, big pieces, no clock">
@@ -168,6 +183,17 @@
       &middot; Site is static &middot; no cookies, anonymous counts only
     </p>
   </footer>
-  <script type="module" src="./assets/site.js?v=d868aad-20260906T131251Z"></script>
+  <script type="module" src="./assets/site.js?v=d36cb95-20260906T135511Z"></script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>
