@@ -1509,9 +1509,25 @@ globalThis.__fl = {
 
 
 
-  rects: () => (overlay
-    ? overlay.rects()
-    : [
+  rects: () => {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const box = canvas.getBoundingClientRect();
+    const toPage = (r) => ({ ...r, x: r.x + box.left, y: r.y + box.top });
+    return (overlay
+      ? overlay.rects().map(toPage)
+      : [
       ...spots.map((s) => ({ id: `token:${s.team}:${s.token}`, ...s.hit })),
       { id: 'die', ...dieRect },
       
@@ -1521,10 +1537,8 @@ globalThis.__fl = {
         .map((r) => ({ id: r.id, x: r.x, y: r.y, w: r.w, h: r.h })),
       ...seatRects.map((r) => ({ id: r.id, x: r.x, y: r.y, w: r.w, h: r.h })),
       ...barRects.map((b) => ({ id: `bar:${b.id}`, x: b.x, y: b.y, w: b.w, h: b.h })),
-    ].map((r) => {
-      const box = canvas.getBoundingClientRect();
-      return { ...r, x: r.x + box.left, y: r.y + box.top };
-    })),
+      ].map(toPage));
+  },
 };
 
 
