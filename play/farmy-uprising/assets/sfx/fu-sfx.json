@@ -1,0 +1,199 @@
+{
+ "sheet": "fu-sfx.webm",
+ "sampleRate": 48000,
+ "total": 31.759,
+ "effects": {
+  "uiTap": {
+   "start": 0,
+   "dur": 0.05,
+   "loop": false,
+   "peak": 0.5
+  },
+  "uiDeny": {
+   "start": 0.1,
+   "dur": 0.15,
+   "loop": false,
+   "peak": 0.5
+  },
+  "captureTick": {
+   "start": 0.3,
+   "dur": 0.045,
+   "loop": false,
+   "peak": 0.32
+  },
+  "captureDone": {
+   "start": 0.395,
+   "dur": 0.6,
+   "loop": false,
+   "peak": 0.62
+  },
+  "sectorLost": {
+   "start": 1.045,
+   "dur": 0.64,
+   "loop": false,
+   "peak": 0.58
+  },
+  "buildDone": {
+   "start": 1.735,
+   "dur": 0.4,
+   "loop": false,
+   "peak": 0.6
+  },
+  "unitReady": {
+   "start": 2.185,
+   "dur": 0.32,
+   "loop": false,
+   "peak": 0.5
+  },
+  "engineTractor": {
+   "start": 2.555,
+   "dur": 2,
+   "loop": true,
+   "peak": 0.7
+  },
+  "engineQuad": {
+   "start": 4.605,
+   "dur": 2,
+   "loop": true,
+   "peak": 0.7
+  },
+  "engineTruck": {
+   "start": 6.655,
+   "dur": 2,
+   "loop": true,
+   "peak": 0.7
+  },
+  "engineCombine": {
+   "start": 8.705,
+   "dur": 2,
+   "loop": true,
+   "peak": 0.75
+  },
+  "rotorDuster": {
+   "start": 10.755,
+   "dur": 2,
+   "loop": true,
+   "peak": 0.72
+  },
+  "rifleCrack": {
+   "start": 12.805,
+   "dur": 0.168,
+   "loop": false,
+   "peak": 0.85
+  },
+  "fenceHum": {
+   "start": 13.023,
+   "dur": 2,
+   "loop": true,
+   "peak": 0.3
+  },
+  "fenceSnap": {
+   "start": 15.073,
+   "dur": 0.232,
+   "loop": false,
+   "peak": 0.8
+  },
+  "canisterThump": {
+   "start": 15.355,
+   "dur": 0.6,
+   "loop": false,
+   "peak": 0.8
+  },
+  "canisterHiss": {
+   "start": 16.005,
+   "dur": 1.2,
+   "loop": false,
+   "peak": 0.32
+  },
+  "hydraulics": {
+   "start": 17.255,
+   "dur": 0.7,
+   "loop": false,
+   "peak": 0.55
+  },
+  "hoofLight": {
+   "start": 18.005,
+   "dur": 0.115,
+   "loop": false,
+   "peak": 0.528
+  },
+  "hoofMid": {
+   "start": 18.17,
+   "dur": 0.155,
+   "loop": false,
+   "peak": 0.656
+  },
+  "hoofHeavy": {
+   "start": 18.375,
+   "dur": 0.2,
+   "loop": false,
+   "peak": 0.8
+  },
+  "wingbeats": {
+   "start": 18.625,
+   "dur": 1.6,
+   "loop": true,
+   "peak": 0.62
+  },
+  "shoulderCharge": {
+   "start": 20.275,
+   "dur": 0.4,
+   "loop": false,
+   "peak": 0.85
+  },
+  "stoneOnSteel": {
+   "start": 20.725,
+   "dur": 0.35,
+   "loop": false,
+   "peak": 0.6
+  },
+  "elephantStep": {
+   "start": 21.125,
+   "dur": 0.55,
+   "loop": false,
+   "peak": 0.9
+  },
+  "waterClean": {
+   "start": 21.725,
+   "dur": 2.4,
+   "loop": true,
+   "peak": 0.34
+  },
+  "waterFouled": {
+   "start": 24.175,
+   "dur": 2.4,
+   "loop": true,
+   "peak": 0.34
+  },
+  "windGrass": {
+   "start": 26.625,
+   "dur": 3,
+   "loop": true,
+   "peak": 0.26
+  },
+  "ducks": {
+   "start": 29.675,
+   "dur": 0.9436,
+   "loop": false,
+   "peak": 0.4
+  },
+  "hitFlesh": {
+   "start": 30.6686,
+   "dur": 0.14,
+   "loop": false,
+   "peak": 0.6
+  },
+  "hitMetal": {
+   "start": 30.8586,
+   "dur": 0.3,
+   "loop": false,
+   "peak": 0.55
+  },
+  "unitDown": {
+   "start": 31.2086,
+   "dur": 0.5,
+   "loop": false,
+   "peak": 0.7
+  }
+ }
+}

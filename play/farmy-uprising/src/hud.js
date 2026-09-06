@@ -132,6 +132,14 @@ export function createHud(match, seat, actions) {
   
   
   
+  
+  const AUDIO_BUSES = [
+    ['voice', 'Voices'],
+    ['sfx', 'Effects'],
+    ['music', 'Music'],
+  ];
+  const audioLevels = { music: 0.5, sfx: 0.75, voice: 1 };
+
   const TOGGLES = [
     ['autoRally', 'Auto-rally', 'new fighters walk to the front'],
     ['autoGather', 'Auto-gather', 'new workers find ground to work'],
@@ -146,6 +154,18 @@ export function createHud(match, seat, actions) {
     for (const [key, label, why] of TOGGLES) {
       html += `<label class="tgl"><input type="checkbox" data-toggle="${key}"`
         + `${a[key] ? ' checked' : ''}><span>${label}</span><em>${why}</em></label>`;
+    }
+    
+    
+    
+    
+    
+    html += '<h3>Sound</h3>';
+    for (const [bus, label] of AUDIO_BUSES) {
+      const v = Math.round((audioLevels[bus] ?? 1) * 100);
+      html += `<label class="lvl"><span>${label}</span>`
+        + `<input type="range" min="0" max="100" value="${v}" data-bus="${bus}">`
+        + `<em data-busval="${bus}">${v}%</em></label>`;
     }
     el.quick.innerHTML = html;
   }
@@ -169,6 +189,19 @@ export function createHud(match, seat, actions) {
   el.quick.addEventListener('change', (e) => {
     const t = e.target.dataset.toggle;
     if (t) actions.onToggle(t, e.target.checked);
+  });
+
+  
+  
+  
+  el.quick.addEventListener('input', (e) => {
+    const bus = e.target.dataset.bus;
+    if (!bus) return;
+    const v = Number(e.target.value) / 100;
+    audioLevels[bus] = v;
+    const out = el.quick.querySelector(`[data-busval="${bus}"]`);
+    if (out) out.textContent = `${Math.round(v * 100)}%`;
+    if (actions.onAudioLevel) actions.onAudioLevel(bus, v);
   });
 
   $('btn-attack').addEventListener('click', () => actions.onAttack());

@@ -1,0 +1,749 @@
+{
+ "sheet": "fu-vox.webm",
+ "sampleRate": 48000,
+ "total": 191.003,
+ "clips": {
+  "chicken.select.0": {
+   "start": 0,
+   "dur": 0.6624,
+   "species": "chicken",
+   "event": "select",
+   "register": "inside"
+  },
+  "chicken.select.1": {
+   "start": 0.7224,
+   "dur": 1.3148,
+   "species": "chicken",
+   "event": "select",
+   "register": "inside"
+  },
+  "chicken.select.2": {
+   "start": 2.0972,
+   "dur": 0.6252,
+   "species": "chicken",
+   "event": "select",
+   "register": "inside"
+  },
+  "chicken.move.0": {
+   "start": 2.7824,
+   "dur": 1.2862,
+   "species": "chicken",
+   "event": "move",
+   "register": "inside"
+  },
+  "chicken.move.1": {
+   "start": 4.1286,
+   "dur": 1.2476,
+   "species": "chicken",
+   "event": "move",
+   "register": "inside"
+  },
+  "chicken.move.2": {
+   "start": 5.4362,
+   "dur": 0.5228,
+   "species": "chicken",
+   "event": "move",
+   "register": "inside"
+  },
+  "chicken.capture.0": {
+   "start": 6.0189,
+   "dur": 0.8462,
+   "species": "chicken",
+   "event": "capture",
+   "register": "inside"
+  },
+  "chicken.capture.1": {
+   "start": 6.9252,
+   "dur": 0.7641,
+   "species": "chicken",
+   "event": "capture",
+   "register": "inside"
+  },
+  "chicken.capture.2": {
+   "start": 7.7493,
+   "dur": 1.2555,
+   "species": "chicken",
+   "event": "capture",
+   "register": "inside"
+  },
+  "chicken.attack.0": {
+   "start": 9.0648,
+   "dur": 1.2098,
+   "species": "chicken",
+   "event": "attack",
+   "register": "inside"
+  },
+  "chicken.attack.1": {
+   "start": 10.3346,
+   "dur": 1.2492,
+   "species": "chicken",
+   "event": "attack",
+   "register": "inside"
+  },
+  "chicken.attack.2": {
+   "start": 11.6438,
+   "dur": 0.6328,
+   "species": "chicken",
+   "event": "attack",
+   "register": "inside"
+  },
+  "chicken.lost.0": {
+   "start": 12.3366,
+   "dur": 0.7582,
+   "species": "chicken",
+   "event": "lost",
+   "register": "inside"
+  },
+  "chicken.lost.1": {
+   "start": 13.1548,
+   "dur": 0.7108,
+   "species": "chicken",
+   "event": "lost",
+   "register": "inside"
+  },
+  "duck.select.0": {
+   "start": 13.9256,
+   "dur": 0.9528,
+   "species": "duck",
+   "event": "select",
+   "register": "inside"
+  },
+  "duck.select.1": {
+   "start": 14.9385,
+   "dur": 1.2789,
+   "species": "duck",
+   "event": "select",
+   "register": "inside"
+  },
+  "duck.move.0": {
+   "start": 16.2773,
+   "dur": 1.8476,
+   "species": "duck",
+   "event": "move",
+   "register": "inside"
+  },
+  "duck.move.1": {
+   "start": 18.1849,
+   "dur": 0.6482,
+   "species": "duck",
+   "event": "move",
+   "register": "inside"
+  },
+  "duck.capture.0": {
+   "start": 18.8931,
+   "dur": 0.9046,
+   "species": "duck",
+   "event": "capture",
+   "register": "inside"
+  },
+  "duck.capture.1": {
+   "start": 19.8578,
+   "dur": 0.925,
+   "species": "duck",
+   "event": "capture",
+   "register": "inside"
+  },
+  "duck.attack.0": {
+   "start": 20.8428,
+   "dur": 0.7544,
+   "species": "duck",
+   "event": "attack",
+   "register": "inside"
+  },
+  "duck.attack.1": {
+   "start": 21.6572,
+   "dur": 1.5208,
+   "species": "duck",
+   "event": "attack",
+   "register": "inside"
+  },
+  "duck.lost.0": {
+   "start": 23.238,
+   "dur": 0.8635,
+   "species": "duck",
+   "event": "lost",
+   "register": "inside"
+  },
+  "fox.select.0": {
+   "start": 24.1615,
+   "dur": 1.6757,
+   "species": "fox",
+   "event": "select",
+   "register": "inside"
+  },
+  "fox.select.1": {
+   "start": 25.8972,
+   "dur": 1.8981,
+   "species": "fox",
+   "event": "select",
+   "register": "inside"
+  },
+  "fox.move.0": {
+   "start": 27.8553,
+   "dur": 2.0795,
+   "species": "fox",
+   "event": "move",
+   "register": "inside"
+  },
+  "fox.move.1": {
+   "start": 29.9948,
+   "dur": 1.6676,
+   "species": "fox",
+   "event": "move",
+   "register": "inside"
+  },
+  "fox.capture.0": {
+   "start": 31.7224,
+   "dur": 1.7762,
+   "species": "fox",
+   "event": "capture",
+   "register": "inside"
+  },
+  "fox.capture.1": {
+   "start": 33.5586,
+   "dur": 2.4111,
+   "species": "fox",
+   "event": "capture",
+   "register": "inside"
+  },
+  "fox.attack.0": {
+   "start": 36.0296,
+   "dur": 1.8747,
+   "species": "fox",
+   "event": "attack",
+   "register": "inside"
+  },
+  "fox.attack.1": {
+   "start": 37.9643,
+   "dur": 1.6819,
+   "species": "fox",
+   "event": "attack",
+   "register": "inside"
+  },
+  "fox.lost.0": {
+   "start": 39.7062,
+   "dur": 2.8418,
+   "species": "fox",
+   "event": "lost",
+   "register": "inside"
+  },
+  "pig.select.0": {
+   "start": 42.608,
+   "dur": 1.2724,
+   "species": "pig",
+   "event": "select",
+   "register": "inside"
+  },
+  "pig.select.1": {
+   "start": 43.9404,
+   "dur": 3.0885,
+   "species": "pig",
+   "event": "select",
+   "register": "inside"
+  },
+  "pig.move.0": {
+   "start": 47.089,
+   "dur": 1.3208,
+   "species": "pig",
+   "event": "move",
+   "register": "inside"
+  },
+  "pig.move.1": {
+   "start": 48.4697,
+   "dur": 1.7365,
+   "species": "pig",
+   "event": "move",
+   "register": "inside"
+  },
+  "pig.capture.0": {
+   "start": 50.2663,
+   "dur": 2.9771,
+   "species": "pig",
+   "event": "capture",
+   "register": "inside"
+  },
+  "pig.capture.1": {
+   "start": 53.3034,
+   "dur": 1.772,
+   "species": "pig",
+   "event": "capture",
+   "register": "inside"
+  },
+  "pig.attack.0": {
+   "start": 55.1354,
+   "dur": 1.0529,
+   "species": "pig",
+   "event": "attack",
+   "register": "inside"
+  },
+  "pig.attack.1": {
+   "start": 56.2482,
+   "dur": 1.5207,
+   "species": "pig",
+   "event": "attack",
+   "register": "inside"
+  },
+  "pig.lost.0": {
+   "start": 57.8289,
+   "dur": 1.536,
+   "species": "pig",
+   "event": "lost",
+   "register": "inside"
+  },
+  "horse.select.0": {
+   "start": 59.4249,
+   "dur": 3.1549,
+   "species": "horse",
+   "event": "select",
+   "register": "inside"
+  },
+  "horse.move.0": {
+   "start": 62.6397,
+   "dur": 3.4623,
+   "species": "horse",
+   "event": "move",
+   "register": "inside"
+  },
+  "horse.capture.0": {
+   "start": 66.162,
+   "dur": 3.0159,
+   "species": "horse",
+   "event": "capture",
+   "register": "inside"
+  },
+  "horse.attack.0": {
+   "start": 69.238,
+   "dur": 2.9105,
+   "species": "horse",
+   "event": "attack",
+   "register": "inside"
+  },
+  "horse.lost.0": {
+   "start": 72.2084,
+   "dur": 2.5727,
+   "species": "horse",
+   "event": "lost",
+   "register": "inside"
+  },
+  "eagle.select.0": {
+   "start": 74.8411,
+   "dur": 1.0315,
+   "species": "eagle",
+   "event": "select",
+   "register": "inside"
+  },
+  "eagle.select.1": {
+   "start": 75.9327,
+   "dur": 1.461,
+   "species": "eagle",
+   "event": "select",
+   "register": "inside"
+  },
+  "eagle.move.0": {
+   "start": 77.4536,
+   "dur": 0.8047,
+   "species": "eagle",
+   "event": "move",
+   "register": "inside"
+  },
+  "eagle.move.1": {
+   "start": 78.3183,
+   "dur": 0.6921,
+   "species": "eagle",
+   "event": "move",
+   "register": "inside"
+  },
+  "eagle.capture.0": {
+   "start": 79.0704,
+   "dur": 1.7549,
+   "species": "eagle",
+   "event": "capture",
+   "register": "inside"
+  },
+  "eagle.capture.1": {
+   "start": 80.8854,
+   "dur": 1.2709,
+   "species": "eagle",
+   "event": "capture",
+   "register": "inside"
+  },
+  "eagle.attack.0": {
+   "start": 82.2162,
+   "dur": 1.3713,
+   "species": "eagle",
+   "event": "attack",
+   "register": "inside"
+  },
+  "eagle.attack.1": {
+   "start": 83.6475,
+   "dur": 1.0608,
+   "species": "eagle",
+   "event": "attack",
+   "register": "inside"
+  },
+  "eagle.lost.0": {
+   "start": 84.7683,
+   "dur": 1.0402,
+   "species": "eagle",
+   "event": "lost",
+   "register": "inside"
+  },
+  "lion.select.0": {
+   "start": 85.8685,
+   "dur": 2.1262,
+   "species": "lion",
+   "event": "select",
+   "register": "inside"
+  },
+  "lion.select.1": {
+   "start": 88.0547,
+   "dur": 2.0256,
+   "species": "lion",
+   "event": "select",
+   "register": "inside"
+  },
+  "lion.move.0": {
+   "start": 90.1403,
+   "dur": 1.4725,
+   "species": "lion",
+   "event": "move",
+   "register": "inside"
+  },
+  "lion.move.1": {
+   "start": 91.6728,
+   "dur": 1.9034,
+   "species": "lion",
+   "event": "move",
+   "register": "inside"
+  },
+  "lion.capture.0": {
+   "start": 93.6362,
+   "dur": 2.0409,
+   "species": "lion",
+   "event": "capture",
+   "register": "inside"
+  },
+  "lion.capture.1": {
+   "start": 95.7371,
+   "dur": 2.1375,
+   "species": "lion",
+   "event": "capture",
+   "register": "inside"
+  },
+  "lion.attack.0": {
+   "start": 97.9345,
+   "dur": 3.8679,
+   "species": "lion",
+   "event": "attack",
+   "register": "inside"
+  },
+  "lion.attack.1": {
+   "start": 101.8625,
+   "dur": 2.1068,
+   "species": "lion",
+   "event": "attack",
+   "register": "inside"
+  },
+  "lion.lost.0": {
+   "start": 104.0293,
+   "dur": 2.2135,
+   "species": "lion",
+   "event": "lost",
+   "register": "inside"
+  },
+  "elephant.select.0": {
+   "start": 106.3028,
+   "dur": 4.3415,
+   "species": "elephant",
+   "event": "select",
+   "register": "inside"
+  },
+  "elephant.move.0": {
+   "start": 110.7043,
+   "dur": 5.3993,
+   "species": "elephant",
+   "event": "move",
+   "register": "inside"
+  },
+  "elephant.capture.0": {
+   "start": 116.1636,
+   "dur": 4.2683,
+   "species": "elephant",
+   "event": "capture",
+   "register": "inside"
+  },
+  "elephant.attack.0": {
+   "start": 120.4918,
+   "dur": 6.4743,
+   "species": "elephant",
+   "event": "attack",
+   "register": "inside"
+  },
+  "elephant.lost.0": {
+   "start": 127.0261,
+   "dur": 4.6586,
+   "species": "elephant",
+   "event": "lost",
+   "register": "inside"
+  },
+  "monkey.select.0": {
+   "start": 131.7447,
+   "dur": 1.4089,
+   "species": "monkey",
+   "event": "select",
+   "register": "inside"
+  },
+  "monkey.select.1": {
+   "start": 133.2137,
+   "dur": 1.0824,
+   "species": "monkey",
+   "event": "select",
+   "register": "inside"
+  },
+  "monkey.attack.0": {
+   "start": 134.356,
+   "dur": 1.5722,
+   "species": "monkey",
+   "event": "attack",
+   "register": "inside"
+  },
+  "monkey.attack.1": {
+   "start": 135.9882,
+   "dur": 0.7998,
+   "species": "monkey",
+   "event": "attack",
+   "register": "inside"
+  },
+  "human.select.0": {
+   "start": 136.848,
+   "dur": 1.6333,
+   "species": "human",
+   "event": "select",
+   "register": "plain"
+  },
+  "human.select.1": {
+   "start": 138.5413,
+   "dur": 1.6579,
+   "species": "human",
+   "event": "select",
+   "register": "plain"
+  },
+  "human.select.2": {
+   "start": 140.2592,
+   "dur": 0.3662,
+   "species": "human",
+   "event": "select",
+   "register": "plain"
+  },
+  "human.move.0": {
+   "start": 140.6854,
+   "dur": 1.1176,
+   "species": "human",
+   "event": "move",
+   "register": "plain"
+  },
+  "human.move.1": {
+   "start": 141.863,
+   "dur": 0.9593,
+   "species": "human",
+   "event": "move",
+   "register": "plain"
+  },
+  "human.move.2": {
+   "start": 142.8823,
+   "dur": 0.9338,
+   "species": "human",
+   "event": "move",
+   "register": "plain"
+  },
+  "human.capture.0": {
+   "start": 143.8761,
+   "dur": 2.2022,
+   "species": "human",
+   "event": "capture",
+   "register": "plain"
+  },
+  "human.capture.1": {
+   "start": 146.1383,
+   "dur": 1.3337,
+   "species": "human",
+   "event": "capture",
+   "register": "plain"
+  },
+  "human.attack.0": {
+   "start": 147.5321,
+   "dur": 1.8304,
+   "species": "human",
+   "event": "attack",
+   "register": "plain"
+  },
+  "human.attack.1": {
+   "start": 149.4225,
+   "dur": 1.4228,
+   "species": "human",
+   "event": "attack",
+   "register": "plain"
+  },
+  "human.lost.0": {
+   "start": 150.9052,
+   "dur": 1.8679,
+   "species": "human",
+   "event": "lost",
+   "register": "plain"
+  },
+  "human.lost.1": {
+   "start": 152.8331,
+   "dur": 1.7024,
+   "species": "human",
+   "event": "lost",
+   "register": "plain"
+  },
+  "human.build.0": {
+   "start": 154.5955,
+   "dur": 1.9186,
+   "species": "human",
+   "event": "build",
+   "register": "plain"
+  },
+  "human.build.1": {
+   "start": 156.5741,
+   "dur": 1.3334,
+   "species": "human",
+   "event": "build",
+   "register": "plain"
+  },
+  "machine.select.0": {
+   "start": 157.9675,
+   "dur": 1.5087,
+   "species": "machine",
+   "event": "select",
+   "register": "radio"
+  },
+  "machine.select.1": {
+   "start": 159.5362,
+   "dur": 2.0736,
+   "species": "machine",
+   "event": "select",
+   "register": "radio"
+  },
+  "machine.move.0": {
+   "start": 161.6698,
+   "dur": 1.7924,
+   "species": "machine",
+   "event": "move",
+   "register": "radio"
+  },
+  "machine.move.1": {
+   "start": 163.5222,
+   "dur": 1.1591,
+   "species": "machine",
+   "event": "move",
+   "register": "radio"
+  },
+  "machine.capture.0": {
+   "start": 164.7413,
+   "dur": 2.0659,
+   "species": "machine",
+   "event": "capture",
+   "register": "radio"
+  },
+  "machine.capture.1": {
+   "start": 166.8671,
+   "dur": 1.3748,
+   "species": "machine",
+   "event": "capture",
+   "register": "radio"
+  },
+  "machine.attack.0": {
+   "start": 168.3019,
+   "dur": 2.3218,
+   "species": "machine",
+   "event": "attack",
+   "register": "radio"
+  },
+  "machine.attack.1": {
+   "start": 170.6838,
+   "dur": 1.5867,
+   "species": "machine",
+   "event": "attack",
+   "register": "radio"
+  },
+  "machine.lost.0": {
+   "start": 172.3305,
+   "dur": 1.5789,
+   "species": "machine",
+   "event": "lost",
+   "register": "radio"
+  },
+  "machine.lost.1": {
+   "start": 173.9694,
+   "dur": 2.4389,
+   "species": "machine",
+   "event": "lost",
+   "register": "radio"
+  },
+  "machine.build.0": {
+   "start": 176.4682,
+   "dur": 2.0384,
+   "species": "machine",
+   "event": "build",
+   "register": "radio"
+  },
+  "announcer.matchStart": {
+   "start": 178.5666,
+   "dur": 2.9944,
+   "species": "announcer",
+   "event": "matchStart",
+   "register": "plain"
+  },
+  "announcer.halfway": {
+   "start": 181.621,
+   "dur": 1.3794,
+   "species": "announcer",
+   "event": "halfway",
+   "register": "plain"
+  },
+  "announcer.oneMinute": {
+   "start": 183.0604,
+   "dur": 0.5856,
+   "species": "announcer",
+   "event": "oneMinute",
+   "register": "plain"
+  },
+  "announcer.leadTaken": {
+   "start": 183.706,
+   "dur": 0.8517,
+   "species": "announcer",
+   "event": "leadTaken",
+   "register": "plain"
+  },
+  "announcer.leadLost": {
+   "start": 184.6177,
+   "dur": 1.1602,
+   "species": "announcer",
+   "event": "leadLost",
+   "register": "plain"
+  },
+  "announcer.win": {
+   "start": 185.8379,
+   "dur": 1.1067,
+   "species": "announcer",
+   "event": "win",
+   "register": "plain"
+  },
+  "announcer.lose": {
+   "start": 187.0046,
+   "dur": 1.242,
+   "species": "announcer",
+   "event": "lose",
+   "register": "plain"
+  },
+  "announcer.rout": {
+   "start": 188.3066,
+   "dur": 2.6368,
+   "species": "announcer",
+   "event": "rout",
+   "register": "plain"
+  }
+ }
+}

@@ -535,16 +535,33 @@ function checkEnd(m) {
   if (w.tick + 1 >= MATCH_TICKS) {
     m.over = true;
     m.winner = leader(m);
-    m.endReason = 'time';
-    m.events.push({ type: 'matchOver', winner: m.winner, reason: 'time' });
+    m.endReason = m.winner < 0 ? 'draw' : 'time';
+    m.events.push({ type: 'matchOver', winner: m.winner, reason: m.endReason });
   }
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function leader(m) {
   let best = 0;
-  for (let p = 1; p < m.playerCount; p += 1) if (m.score[p] > m.score[best]) best = p;
-  return best;
+  let tied = false;
+  for (let p = 1; p < m.playerCount; p += 1) {
+    if (m.score[p] > m.score[best]) { best = p; tied = false; } else if (m.score[p] === m.score[best]) tied = true;
+  }
+  return tied ? -1 : best;
 }
 
 

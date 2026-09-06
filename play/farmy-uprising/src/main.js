@@ -14,12 +14,12 @@
 
 
 
-import { MAPS, MAP_IDS, DEFAULT_MAP } from '../../../web-engine/rts/maps/index.js';
+import { MAPS, PLAYABLE_MAP_IDS, DEFAULT_MAP } from '../../../web-engine/rts/maps/index.js';
 import { HERD, YIELD } from '../../../web-engine/rts/roster.js';
 import { MS_PER_TICK, MATCH_TICKS, TICKS_PER_SECOND } from '../../../web-engine/rts/fixed.js';
 import { seedFromString } from '../../../web-engine/rts/rng.js';
 import { landSeconds, sharePct } from '../../../web-engine/rts/territory.js';
-import { matchPoints, xpFromMatch, rankTitle } from '../../../web-engine/rts/progression.js';
+import { matchPoints, rankTitle } from '../../../web-engine/rts/progression.js';
 import { createMatch, stepMatch, placings } from '../../../web-engine/rts/sim/match.js';
 import { makeBot, strengthFromLevel } from '../../../web-engine/rts/sim/botBrain.js';
 import { applyCommand, resolveSelection, CMD } from '../../../web-engine/rts/sim/commands.js';
@@ -28,6 +28,12 @@ import { createRenderer } from './render.js';
 import { createHud } from './hud.js';
 import { createInput } from './input.js';
 import { createAudio } from './audio.js';
+import { createVoices } from './voices.js';
+import { saveMatch, restoreMatch } from '../../../web-engine/rts/sim/save.js';
+import {
+  storeSave, loadSave, clearSave, hasSave, loadProfile, recordMatch,
+  levelProgress,
+} from './store.js';
 
 const params = new URLSearchParams(location.search);
 const SEAT = 0;
@@ -45,7 +51,9 @@ const $ = (id) => document.getElementById(id);
 let chosenFaction = params.get('faction') === 'yield' ? YIELD : HERD;
 
 const mapSelect = $('pick-map');
-for (const id of MAP_IDS) {
+
+
+for (const id of PLAYABLE_MAP_IDS) {
   const opt = document.createElement('option');
   opt.value = id;
   opt.textContent = MAPS[id].name;
@@ -62,10 +70,41 @@ $('pick-faction').addEventListener('click', (e) => {
   }
 });
 
-$('btn-play').addEventListener('click', () => { start(); });
+$('btn-play').addEventListener('click', () => { clearSave(); start(); });
+
+
+
+
+
+
+
+
+function offerResume() {
+  const btn = $('btn-resume');
+  const saved = loadSave();
+  if (!saved) { btn.hidden = true; return; }
+  let restored = null;
+  try {
+    restored = restoreMatch(saved.blob);
+  } catch {
+    clearSave();
+    btn.hidden = true;
+    return;
+  }
+  const mins = Math.floor(saved.meta.tick / (60 * TICKS_PER_SECOND));
+  const secs = Math.floor(saved.meta.tick / TICKS_PER_SECOND) % 60;
+  btn.hidden = false;
+  btn.textContent = `RESUME  ${mins}:${String(secs).padStart(2, '0')}  -  ${saved.meta.share}% held`;
+  btn.onclick = () => { start(restored); };
+}
+offerResume();
 $('btn-again').addEventListener('click', () => {
   $('endcard').classList.remove('show');
   $('menu').classList.add('show');
+  
+  
+  
+  offerResume();
 });
 
 
@@ -78,6 +117,8 @@ let view = null;
 let hud = null;
 let input = null;
 let audio = null;
+let voices = null;
+let lastSavedTick = -1;
 let selection = { kind: 'all', key: null };
 let sequence = 0;
 let paused = false;
@@ -110,21 +151,36 @@ function flashOrder() {
   hud.say(`Moving on ${s.kind === 'water' ? 'the water' : 'that ground'}.`);
 }
 
-async function start() {
-  const level = Number($('pick-level').value) || 6;
-  const mapId = mapSelect.value;
-  const seedText = params.get('seed') || `${Date.now()}`;
+async function start(resumed) {
+  if (resumed) {
+    
+    
+    
+    
+    
+    
+    match = resumed;
+  } else {
+    
+    
+    
+    
+    const level = Number($('pick-level').value) || loadProfile().level;
+    const mapId = mapSelect.value;
+    const seedText = params.get('seed') || `${Date.now()}`;
 
-  const seats = [
-    { faction: chosenFaction, bot: null },
-    {
-      faction: chosenFaction === HERD ? YIELD : HERD,
-      
-      
-      bot: makeBot(1, strengthFromLevel(level)),
-    },
-  ];
-  match = createMatch({ map: MAPS[mapId], seats, seed: seedFromString(seedText) });
+    const seats = [
+      { faction: chosenFaction, bot: null },
+      {
+        faction: chosenFaction === HERD ? YIELD : HERD,
+        
+        
+        bot: makeBot(1, strengthFromLevel(level)),
+      },
+    ];
+    match = createMatch({ map: MAPS[mapId], seats, seed: seedFromString(seedText) });
+  }
+  lastSavedTick = match.w.tick;
   selection = { kind: 'all', key: null };
   sequence = 0;
   ended = false;
@@ -152,12 +208,32 @@ async function start() {
     onTrain(unit) { send({ c: CMD.TRAIN, unit }); audio.ui('click'); },
     onBuildPick(building) { input.armBuild(building); hud.say(`Tap where the ${building} should go.`); },
     onToggle(key, value) { send({ c: CMD.TOGGLE, key, value }); },
-    onAttack() { send({ c: CMD.ATTACK, sector: -1, sel: selection }); flashOrder(); audio.ui('order'); },
-    onCapture() { send({ c: CMD.CAPTURE, sector: -1, sel: selection }); flashOrder(); audio.ui('order'); },
+    
+    
+    
+    
+    onAudioLevel(bus, value) { audio.setLevel(bus, value); },
+    onAttack() {
+      send({ c: CMD.ATTACK, sector: -1, sel: selection });
+      flashOrder(); audio.ui('order');
+      if (voices) voices.ordered(match, SEAT, 'attack');
+    },
+    onCapture() {
+      send({ c: CMD.CAPTURE, sector: -1, sel: selection });
+      flashOrder(); audio.ui('order');
+      if (voices) voices.ordered(match, SEAT, 'move');
+    },
   });
 
   if (!input) {
-    input = createInput(canvas, view, {
+    
+  
+  
+  
+  voices = createVoices(audio, hud);
+  voices.matchStart(match);
+
+  input = createInput(canvas, view, {
       select(sel) {
         if (sel.kind === 'view') {
           
@@ -239,12 +315,19 @@ function showEnd() {
     waterHoldTicks: st.waterHoldTicks,
     lowestSharePct: st.lowestSharePct,
   });
+  const drawn = match.winner < 0;
   const won = match.winner === SEAT;
-  const xp = xpFromMatch(points, won);
 
-  $('end-title').textContent = won
-    ? (match.endReason === 'rout' ? 'A rout. The map is yours.' : 'You held the most ground.')
-    : (match.endReason === 'rout' ? 'Routed.' : 'They held more ground.');
+  
+  
+  
+  
+  
+  $('end-title').textContent = drawn
+    ? 'Level. Neither side gave ground.'
+    : (won
+      ? (match.endReason === 'rout' ? 'A rout. The map is yours.' : 'You held the most ground.')
+      : (match.endReason === 'rout' ? 'Routed.' : 'They held more ground.'));
 
   let bars = '';
   for (let p = 0; p < match.playerCount; p += 1) {
@@ -262,12 +345,56 @@ function showEnd() {
     [match.factions[SEAT] === HERD ? 'Farms unmade' : 'Stock recovered',
       match.factions[SEAT] === HERD ? st.farmsUnmade : st.stockRecovered],
     ['Match points', points],
-    ['Experience', `+${xp}`],
-    ['Rank', rankTitle(3, match.factions[SEAT])],
   ];
+
+  
+  
+  
+  const banked = recordMatch({ points, won, score: match.score[SEAT] });
+  rows.push(['Experience', `+${banked.gained}`]);
+  rows.push(['Level', banked.levelledUp
+    ? `${banked.profile.level} - levelled up`
+    : `${banked.profile.level} (${Math.round(levelProgress(banked.profile) * 100)}% to next)`]);
+  rows.push(['Rank', rankTitle(banked.profile.level, match.factions[SEAT])]);
+  rows.push(['Played', `${banked.profile.won} won of ${banked.profile.played}`]);
+
+  
+  clearSave();
   $('end-stats').innerHTML = rows.map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join('');
   $('endcard').classList.add('show');
   if (audio) audio.matchOver(won);
+  if (voices) voices.matchOver(match, won, match.endReason === 'rout');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function maybeAutosave() {
+  if (!match || match.over) return;
+  if (match.w.tick - lastSavedTick < 10 * TICKS_PER_SECOND) return;
+  lastSavedTick = match.w.tick;
+  storeSave(saveMatch(match), {
+    faction: match.factions[SEAT],
+    mapId: match.w.map.id,
+    tick: match.w.tick,
+    share: sharePct(match.w.sectors, SEAT),
+  });
 }
 
 
@@ -298,11 +425,17 @@ function loop(now) {
       acc -= MS_PER_TICK;
       budget -= 1;
       const events = stepMatch(match, applyCommand);
-      if (events.length) { hud.events(events, match); audio.events(events, match); }
+      if (events.length) {
+        hud.events(events, match);
+        audio.events(events, match);
+        if (voices) voices.events(events, match, SEAT);
+      }
     }
     if (budget === 0) acc = 0;
     hud.update(match, now);
     audio.update(match, SEAT);
+
+    maybeAutosave();
   }
   if (match.over && !ended) showEnd();
   view.frame(match, SEAT, now);
@@ -318,6 +451,11 @@ window.__fu = {
   get tick() { return match ? match.w.tick : -1; },
   get score() { return match ? [...match.score] : []; },
   get over() { return !!(match && match.over); },
+  
+  
+  
+  get audio() { return audio ? audio.debug : null; },
+  get voices() { return voices ? voices.state : null; },
   debug: {
     start,
     started() { return !!match; },
@@ -328,6 +466,10 @@ window.__fu = {
         stepMatch(match, applyCommand);
       }
       hud.update(match, performance.now());
+      
+      
+      
+      maybeAutosave();
     },
     select(sel) { selection = sel; hud.setSelection(sel); },
     selectionSize() { return resolveSelection(match, SEAT, selection).length; },

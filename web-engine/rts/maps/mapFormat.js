@@ -238,6 +238,11 @@ export function buildMap(def) {
     symmetry: def.symmetry || null,
     intent: def.intent || '',
     players: def.players,
+    
+    
+    
+    
+    playable: def.playable !== false,
     cellsPerSide: CELLS_PER_SIDE,
     cellMm: CELL_MM,
     sectorOfCell,

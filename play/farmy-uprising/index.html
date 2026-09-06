@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="2af9c57-20260906T004220Z">
+<meta name="build" content="7ed04b6-20260906T010512Z">
 <title>Play Farmy Uprising — free browser strategy game, no download | Magestican Studios</title>
 <meta name="description" content="Play Farmy Uprising free in your browser. Mother Nature woke the animals up and they want the farms gone. Ten-minute asymmetrical strategy: the Waking Herd against the Yield Group, a map cut into sectors, and a score measured in land-seconds. Phone, desktop and controller. No download, no install, no account.">
 <link rel="canonical" href="https://magesticanstudios.com/play/farmy-uprising/">
@@ -139,6 +139,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0b0f14;color:var(--in
 .tgl em{grid-column:2;font-style:normal;font-size:11px;color:var(--dim)}
 
 
+
+#quick h3 + .lvl{border-top:0}
+.lvl{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;
+  padding:6px 0;border-top:1px solid var(--line)}
+.lvl span{font-size:13px;min-width:56px}
+.lvl em{font-style:normal;font-size:11px;color:var(--dim);min-width:34px;text-align:right}
+.lvl input[type=range]{-webkit-appearance:none;appearance:none;height:22px;background:transparent}
+.lvl input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--line)}
+.lvl input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--line)}
+.lvl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  width:22px;height:22px;margin-top:-9px;border-radius:50%;background:var(--ink);border:0}
+.lvl input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;
+  background:var(--ink);border:0}
+
+
 #banner{position:fixed;inset:0;display:none;place-items:center;z-index:8;
   background:rgba(6,10,14,.72);font:700 22px/1.3 Georgia,serif;text-align:center;padding:24px}
 #banner.show{display:grid}
@@ -247,6 +262,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0b0f14;color:var(--in
     <label class="row">Map <select id="pick-map"></select></label>
 
     <button id="btn-play" class="play">PLAY</button>
+    
+
+    <button id="btn-resume" class="play" hidden>RESUME</button>
     <p class="how">Hold ground to score. Ten minutes. <b>ATTACK</b> and
       <b>CAPTURE</b> send your units at the nearest thing worth taking - drag to
       look around, pinch to zoom.</p>
@@ -279,6 +297,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0b0f14;color:var(--in
     trackPlayClicks();
   } catch {  }
 </script>
-<script type="module" src="./src/main.js?v=2af9c57-20260906T004220Z"></script>
+<script type="module" src="./src/main.js?v=7ed04b6-20260906T010512Z"></script>
 </body>
 </html>
