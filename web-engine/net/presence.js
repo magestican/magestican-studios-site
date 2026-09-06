@@ -116,10 +116,26 @@ export function badgeText(count) {
 export function roomLine(room) {
   if (!room) return '';
   const name = LIVE_GAMES[room.game] ?? 'A farm game';
-  const players = Number(room.players);
-  const who = players === 1 ? 'one player waiting'
-    : (players > 1 ? `${players} players` : 'open');
-  return `${name} - ${who} - ${String(room.code).toUpperCase()}`;
+  return `${name} - ${whoIsIn(room)} - ${String(room.code).toUpperCase()}`;
+}
+
+
+
+
+
+
+
+
+export function whoIsIn(room) {
+  const players = Math.max(0, Number(room?.players) || 0);
+  const bots = Math.max(0, Number(room?.bots) || 0);
+  const people = Math.max(0, players - bots);
+  if (people <= 0) {
+    if (bots <= 0) return 'open';
+    return bots === 1 ? 'a bot playing, join in' : `${bots} bots playing, join in`;
+  }
+  const said = people === 1 ? 'one player waiting' : `${people} players`;
+  return bots > 0 ? `${said} and ${bots === 1 ? 'a bot' : `${bots} bots`}` : said;
 }
 
 
@@ -131,11 +147,24 @@ export function roomLine(room) {
 
 
 
-export function roomDoc({ game, code, players, now }) {
+export function roomDoc({ game, code, players, bots = 0, now }) {
   return {
     game: String(game),
     code: String(code),
     players: Math.max(0, Math.min(99, Number(players) || 0)),
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    bots: Math.max(0, Math.min(99, Number(bots) || 0)),
     updatedAt: Number(now),
   };
 }

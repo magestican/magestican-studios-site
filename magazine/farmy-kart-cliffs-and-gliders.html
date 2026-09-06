@@ -177,9 +177,15 @@
     </p>
   </footer>
 
+  <!-- The studio banner is imported below. Explained in render.mjs rather than
+       here: a comment written into this template is emitted into every article
+       and shipped, because buildPublic.mjs's stripper works on source files and
+       cannot reach inside an inline script it generated. The publicSurface
+       guard caught exactly that. -->
   <script type="module">
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
     import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    import('/assets/studioBanner.js').catch(() => {});
     startVersionChecker();
     initAnalytics({ page: 'magazine/farmy-kart-cliffs-and-gliders' });
     trackPlayClicks();
