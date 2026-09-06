@@ -297,6 +297,10 @@ export const GAME_PREFIX = Object.freeze({
   
   
   checkers: 'fdr-',
+  
+  
+  
+  uprising: 'fup-',
 });
 
 

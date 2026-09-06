@@ -44,6 +44,7 @@ export const LIVE_GAMES = Object.freeze({
   ludo: 'Farmy Ludo',
   scrabble: 'Farmy Scrabble',
   checkers: 'Farmy Checkers',
+  uprising: 'Farmy Uprising',
 });
 
 
@@ -53,6 +54,7 @@ export const LIVE_PATH = Object.freeze({
   ludo: '/play/farmy-ludo/',
   scrabble: '/play/farmy-scrabble/',
   checkers: '/play/farmy-checkers/',
+  uprising: '/play/farmy-uprising/',
 });
 
 
