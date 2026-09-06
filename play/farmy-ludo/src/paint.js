@@ -160,6 +160,7 @@ export function focusRing(g, r, colour = COLORS.blue, grow = 5) {
 
 export function button(g, r, {
   label = '', hover = 0, press = 0, disabled = false, tone = null, size = SIZES.base,
+  icon = null,
 } = {}) {
   const fill = tone ? ink(tone) : COLORS.card;
   const on = tone ? COLORS.card : (disabled ? COLORS.slate : COLORS.ink);
@@ -169,8 +170,19 @@ export function button(g, r, {
     dy: press,
     alpha: disabled ? 0.6 : 1,
   });
-  text(g, label, { x: r.x, y: r.y + press, w: r.w, h: r.h }, {
-    size, colour: on, fit: true, maxWidth: r.w - (String(label).length <= 1 ? 6 : 16),
+  
+  
+  const pad = icon && label ? Math.min(26, r.h * 0.6) : 0;
+  if (icon === 'people') {
+    
+    
+    
+    peopleIcon(g, label
+      ? { x: r.x + 6, y: r.y + press, w: pad, h: r.h }
+      : { x: r.x, y: r.y + press, w: r.w, h: r.h }, on);
+  }
+  text(g, label, { x: r.x + pad, y: r.y + press, w: r.w - pad, h: r.h }, {
+    size, colour: on, fit: true, maxWidth: r.w - pad - (String(label).length <= 1 ? 6 : 16),
   });
 }
 
@@ -995,3 +1007,47 @@ export function seat(g, r, {
 
 
 export const BOARD_CELLS = GRID;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function peopleIcon(g, r, colour = COLORS.ink) {
+  const s = Math.min(r.w, r.h);
+  const cx = r.x + r.w / 2;
+  const cy = r.y + r.h / 2;
+  const head = s * 0.17;
+  g.save();
+  g.fillStyle = colour;
+  g.strokeStyle = colour;
+  g.lineWidth = Math.max(1.5, s * 0.09);
+  g.lineCap = 'round';
+  
+  
+  for (const [dx, dy, scale] of [[s * 0.20, -s * 0.06, 0.82], [-s * 0.16, s * 0.04, 1]]) {
+    const hx = cx + dx;
+    const hy = cy + dy - s * 0.16;
+    g.beginPath();
+    g.arc(hx, hy, head * scale, 0, Math.PI * 2);
+    g.fill();
+    g.beginPath();
+    g.arc(hx, hy + head * scale * 2.5, head * scale * 1.85, Math.PI * 1.15, Math.PI * 1.85);
+    g.stroke();
+  }
+  g.restore();
+}

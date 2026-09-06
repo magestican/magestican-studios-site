@@ -500,10 +500,27 @@ function layoutPanel() {
   }));
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const togetherLabel = () => {
-  if (!room.active) return 'Together';
+  if (!room.active) return 'Multiplayer';
   const n = room.peers.length;
-  return n <= 1 ? 'Room open' : `Together: ${n}`;
+  
+  
+  return n <= 1 ? 'Room open' : `${n} players`;
 };
 
 function layoutBar() {
@@ -516,7 +533,26 @@ function layoutBar() {
     
     
     
-    barRects = [{ x: right - 104, y, w: 104, h, id: 'more', label: room.active ? 'Menu •' : 'Menu' }];
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    barRects = [
+      ...(room.active ? [] : [{
+        x: right - 104 - 8 - 56, y, w: 56, h, id: 'together',
+        label: '', icon: 'people',
+      }]),
+      { x: right - 104, y, w: 104, h, id: 'more', label: room.active ? 'Menu •' : 'Menu' },
+    ];
     return;
   }
   const helpX = right - 48;
@@ -525,7 +561,7 @@ function layoutBar() {
   barRects = [
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
     { x: newX, y, w: 132, h, id: 'again', label: 'New game' },
-    { x: togetherX, y, w: 158, h, id: 'together', label: togetherLabel() },
+    { x: togetherX, y, w: 184, h, id: 'together', label: togetherLabel(), icon: 'people' },
   ];
 }
 
@@ -954,12 +990,23 @@ function drawPanel(now) {
 }
 
 function drawBar(now) {
-  paint.text(g, 'Farmy Ludo', { x: 14, y: 8, w: Math.max(120, app.width - 360), h: 44 },
-    { size: SIZES.h2, align: 'left', fit: true, maxWidth: Math.max(120, app.width - 360) });
+  
+  
+  
+  
+  
+  
+  const leftmost = barRects.reduce((m, b) => Math.min(m, b.x), app.width);
+  const room = Math.max(120, leftmost - 14 - 10);
+  paint.text(g, 'Farmy Ludo', { x: 14, y: 8, w: room, h: 44 },
+    { size: SIZES.h2, align: 'left', fit: true, maxWidth: room });
   paint.rule(g, 0, BAR - 4, app.width);
   barRects.forEach((b, i) => {
     paint.button(g, b, {
       label: b.label,
+      
+      
+      icon: b.icon ?? null,
       size: SIZES.min,
       hover: i === barHover ? lift(progress(now, barHoverAt, DURATION.hover, app.motion), app.motion) : 0,
     });

@@ -430,12 +430,27 @@ function sessionChip() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const togetherLabel = () => {
-  if (!roomState.active) return 'Together';
+  if (!roomState.active) return 'Multiplayer';
   const n = roomState.peers.length;
   
   
-  return n <= 1 ? 'Room open' : `Together: ${n}`;
+  return n <= 1 ? 'Room open' : `${n} players`;
 };
 
 
@@ -465,9 +480,26 @@ function layoutBar() {
 
   if (app.width < BAR_WIDE) {
     const moreX = right - 96;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     barRects = [
       ...(current === HOME ? [] : [{ x: 12, y, w: 52, h, id: 'back', label: '←' }]),
       ...chipRect(moreX - 8 - 132, 132),
+      ...(roomState.active ? [] : [{
+        x: moreX - 8 - 56, y, w: 56, h, id: 'together',
+        label: '', icon: 'people',
+      }]),
       { x: moreX, y, w: 96, h, id: 'more', label: roomState.active ? 'Menu •' : 'Menu' },
     ];
     return;
@@ -478,12 +510,12 @@ function layoutBar() {
   
   
   const soundX = helpX - 8 - 140;
-  const togetherX = soundX - 8 - 150;
+  const togetherX = soundX - 8 - 176;
   if (current === HOME) {
     barRects = [
       { x: helpX, y, w: 48, h, id: 'help', label: '?' },
       { x: soundX, y, w: 140, h, id: 'sound', label: soundLabel() },
-      { x: togetherX, y, w: 150, h, id: 'together', label: togetherLabel() },
+      { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
       ...chipRect(togetherX - 8 - 150, 150),
     ];
     return;
@@ -499,7 +531,7 @@ function layoutBar() {
     { x: 12, y, w: 52, h, id: 'back', label: '←' },
     { x: helpX, y, w: 48, h, id: 'help', label: '?' },
     { x: soundX, y, w: 140, h, id: 'sound', label: soundLabel() },
-    { x: togetherX, y, w: 150, h, id: 'together', label: togetherLabel() },
+    { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
     ...chipRect(togetherX - 8 - 150, 150),
   ];
 }
@@ -705,6 +737,9 @@ function drawBar(now) {
   barRects.forEach((b, i) => {
     paint.button(g, b, {
       label: b.label,
+      
+      
+      icon: b.icon ?? null,
       size: b.id === 'picker' ? SIZES.min : SIZES.base,
       hover: i === barHover ? lift(progress(now, barHoverAt, DURATION.hover, app.motion), app.motion) : 0,
     });

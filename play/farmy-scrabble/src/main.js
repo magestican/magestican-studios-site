@@ -503,10 +503,20 @@ const botsLabel = () => {
   return n === 0 ? 'Add a bot' : `Bots: ${n}`;
 };
 
+
+
+
+
+
+
+
+
+
+
 const togetherLabel = () => {
-  if (!roomState.active) return 'Together';
+  if (!roomState.active) return 'Multiplayer';
   const n = roomState.peers.length;
-  return n <= 1 ? 'Room open' : `Together: ${n}`;
+  return n <= 1 ? 'Room open' : `${n} players`;
 };
 
 function layoutBar() {
@@ -521,7 +531,26 @@ function layoutBar() {
     
     
     
-    barRects = [{ x: right - 100, y, w: 100, h, id: 'menu', label: roomState.active ? 'Menu •' : 'Menu' }];
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    barRects = [
+      ...(roomState.active ? [] : [{
+        x: right - 100 - 8 - 56, y, w: 56, h, id: 'together',
+        label: '', icon: 'people',
+      }]),
+      { x: right - 100, y, w: 100, h, id: 'menu', label: roomState.active ? 'Menu •' : 'Menu' },
+    ];
     return;
   }
   const helpX = right - 48;
@@ -539,13 +568,22 @@ function layoutBar() {
     { x: soundX, y, w: 128, h, id: 'sound', label: soundLabel(sfx.isMuted()) },
     { x: tilesX, y, w: 96, h, id: 'values', label: 'Tiles' },
     { x: botsX, y, w: 120, h, id: 'bots', label: botsLabel() },
-    { x: togetherX, y, w: 150, h, id: 'together', label: togetherLabel() },
+    { x: togetherX, y, w: 176, h, id: 'together', label: togetherLabel(), icon: 'people' },
     { x: newX, y, w: 150, h, id: 'new', label: 'New game' },
   ];
 }
 
 function drawBar(now) {
-  const room = Math.max(120, (barRects[barRects.length - 1]?.x ?? app.width) - 24);
+  
+  
+  
+  
+  
+  
+  
+  
+  const leftmost = barRects.reduce((m, b) => Math.min(m, b.x), app.width);
+  const room = Math.max(120, leftmost - 24);
   paint.text(g, 'Farmy Scrabble', { x: 12, y: 6, width: room, height: 44 }, {
     size: SIZES.h2, colour: COLORS.ink, align: 'left', fit: true, maxWidth: room,
   });
@@ -555,6 +593,9 @@ function drawBar(now) {
   barRects.forEach((b, i) => {
     paint.button(g, b, {
       label: b.label,
+      
+      
+      icon: b.icon ?? null,
       size: SIZES.min,
       hover: i === barHover ? lift(progress(now, barHoverAt, DURATION.hover, app.motion), app.motion) : 0,
     });
