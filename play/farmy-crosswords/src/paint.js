@@ -759,8 +759,21 @@ export function cheerLetter(g, ch, { x, y, size, scale = 1, colour = COLORS.ink,
   g.textBaseline = 'middle';
   g.translate(x, y);
   g.scale(scale, scale);
-  g.fillStyle = COLORS.ink;
-  g.fillText(ch, 2, 3);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  g.lineJoin = 'round';
+  g.lineWidth = Math.max(3, size * 0.16);
+  g.strokeStyle = COLORS.ink;
+  g.strokeText(ch, 0, 0);
   g.fillStyle = colour;
   g.fillText(ch, 0, 0);
   g.restore();
@@ -776,15 +789,8 @@ export function sparkle(g, { x, y, size, colour = COLORS.gold, alpha = 1 }) {
 }
 
 
-export function cheerPlate(g, r, { alpha = 1, radius = SIZES.radius * 2 } = {}) {
-  g.save();
-  g.globalAlpha = alpha;
-  g.fillStyle = COLORS.card;
-  roundRect(g, r.x, r.y, r.w, r.h, radius);
-  g.fill();
-  g.globalAlpha = alpha * 0.55;
-  g.strokeStyle = COLORS.ink;
-  g.lineWidth = Math.max(2, r.h * 0.026);
-  g.stroke();
-  g.restore();
-}
+
+
+
+
+

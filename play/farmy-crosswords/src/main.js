@@ -48,6 +48,7 @@ import {
   nameFor, colourFor, describeRoom, joinIdFrom, shareLinkFor, puzzleFrom,
   creditFor, creditForGroup, describeFind, describeSaying, sayingText,
   scoreboard, winnerOf, GAME_NAMES, MODES, movesForBoard, displayName, cleanName, chipsFor,
+  seating, isObserver, watchingText, MAX_PLAYERS,
 } from '../../../web-engine/words/coop.js';
 import * as sfx from './sfx.js';
 import * as music from '../../shared/audio/lofi.js';
@@ -603,8 +604,15 @@ function drawBar(now) {
     
     
     
+    
+    
+    
+    const seats = inRoom() ? seating(roomState.where) : { players: [], observers: [] };
+    const playing = new Set(seats.players.map((r) => r.by));
     const chips = inRoom() && roomState.peers.length > 1
-      ? chipsFor(rankedRoom().map((r) => ({ ...r, name: nameOf(r.by) })))
+      ? chipsFor(rankedRoom()
+        .filter((r) => playing.size === 0 || playing.has(r.by))
+        .map((r) => ({ ...r, name: nameOf(r.by) })))
       : [];
     let right = app.width - row.pad;
     if (chips.length) {
@@ -662,6 +670,24 @@ function drawBar(now) {
     } else {
       chipRects = [];
     }
+    
+    
+    
+    
+    
+    const watchers = watchingText(seats.observers.length);
+    if (watchers) {
+      g.font = paint.font(SIZES.min, 400);
+      const w = Math.ceil(g.measureText(watchers).width) + 16;
+      const r = { x: right - w, y: row.y + 2, w, h: row.height - 4 };
+      if (r.x > row.pad + row.button.w + 8) {
+        paint.text(g, watchers, { x: r.x, y: r.y, w: r.w, h: r.h },
+          { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right',
+            fit: true, maxWidth: r.w });
+        right = r.x - 6;
+      }
+    }
+
     const scoreX = row.pad + row.button.w + 12;
     if (right - scoreX > 90) {
       paint.text(g, scoreLabel(),
@@ -901,6 +927,51 @@ function creditOf(kind, value) {
     : creditFor(roomState.moves, kind, value);
   if (!by || by === roomState.me) return null;
   return { by, name: nameFor(by), colour: colourFor(by, roomState.peers) };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let refusedAt = -1;
+function refusePlay() {
+  const at = app.now();
+  if (refusedAt >= 0 && at - refusedAt < 4000) return true;
+  refusedAt = at;
+  const line = `You are watching this game. It is full at ${MAX_PLAYERS} players.`;
+  app.message = line;
+  announce(line);
+  invalidate();
+  return true;
+}
+
+function watching() {
+  return inRoom() && isObserver(roomState.where, roomState.me);
+}
+
+
+function watcherCount() {
+  return inRoom() ? seating(roomState.where).observers.length : 0;
 }
 
 
@@ -1706,6 +1777,7 @@ canvas.addEventListener('pointerdown', (e) => {
   if (overlay) { overlay.pointerDown(pt); return; }
   const bar = rectAt(barRects, pt.x, pt.y);
   if (bar >= 0) return;                       
+  if (watching()) { refusePlay(); return; }
   screen.pointerDown(pt);
 });
 
@@ -1770,6 +1842,7 @@ canvas.addEventListener('pointerup', (e) => {
     else openPicker();
     return;
   }
+  if (watching()) { refusePlay(); return; }
   screen.pointerUp(pt);
 });
 
@@ -1817,6 +1890,10 @@ document.addEventListener('keydown', (e) => {
   if (action.type === 'open') { app.sound('press'); openGame(action.game, action.value); return; }
 
   const active = overlay ?? screen;
+  
+  
+  
+  if (!overlay && watching() && action.type !== 'move') { refusePlay(); return; }
   active.key(action);
 });
 
@@ -1951,6 +2028,16 @@ globalThis.__fc = {
   
   
   get celebrating() { return party.running(); },
+  
+  
+  
+  get watching() { return watching(); },
+  get watchers() { return watcherCount(); },
+  
+  
+  
+  
+  get where() { return roomState.where; },
   
   
   

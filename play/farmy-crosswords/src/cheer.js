@@ -110,11 +110,7 @@ export function createSpangramCheer({ now, motion = () => true } = {}) {
       
       
       
-      const plateH = size * 1.9;
-      paint.cheerPlate(g, {
-        x: (width - total) / 2 - size * 0.45, y: cy - plateH / 2,
-        w: total + size * 0.9, h: plateH,
-      }, { alpha: fade * 0.94 });
+      
 
       
       

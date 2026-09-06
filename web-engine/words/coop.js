@@ -576,6 +576,69 @@ export function whereOf({ game, index, done, total } = {}) {
 
 
 
+
+
+
+
+
+
+
+export const MAX_PLAYERS = 4;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function seating(where = [], { max = MAX_PLAYERS } = {}) {
+  const ordered = [...where].sort((a, b) => (
+    (Number(a?.joinedAt ?? 0) - Number(b?.joinedAt ?? 0))
+    || String(a?.by ?? '').localeCompare(String(b?.by ?? ''))
+  ));
+  return {
+    players: ordered.slice(0, Math.max(0, max)),
+    observers: ordered.slice(Math.max(0, max)),
+  };
+}
+
+
+export function isObserver(where = [], me = null, opts = {}) {
+  if (!me) return false;
+  return seating(where, opts).observers.some((w) => w?.by === me);
+}
+
+
+
+
+
+
+
+
+export function watchingText(count = 0) {
+  if (!count) return '';
+  return count === 1 ? '1 watching' : `${count} watching`;
+}
+
 export function scoreboard(list = [], { me = null, game = null, index = null } = {}) {
   const rows = list.map((w, i) => {
     const total = Number.isInteger(w.total) && w.total > 0 ? w.total : null;

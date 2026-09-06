@@ -194,9 +194,18 @@ export function createNet({
   }
 
   
+  
+  
+  
+  
+  
+  
+  const joinedAt = Date.now();
+
   function mine(now = snapshot()) {
     return {
       by: myId, game: now.game, index: now.index, done: now.done ?? 0, total: now.total ?? 0,
+      joinedAt,
     };
   }
 

@@ -255,6 +255,34 @@ export function mountLiveBadge({
 
   function paintList() {
     list.textContent = '';
+    
+    
+    
+    if (!rooms.length) {
+      const own = mine();
+      sub.textContent = own
+        ? 'Your room is open and nobody else is playing online right now.'
+        : 'Nobody else is playing online right now.';
+      if (own) {
+        const li = doc.createElement('li');
+        const b = doc.createElement('button');
+        b.type = 'button';
+        b.className = 'live-join';
+        b.append(doc.createTextNode('Your room'));
+        const code = doc.createElement('span');
+        code.className = 'live-code';
+        code.textContent = `Read this out: ${String(own).toUpperCase()}`;
+        b.appendChild(code);
+        b.setAttribute('aria-label', `Your room, code ${String(own).toUpperCase()}. Press to copy it.`);
+        b.addEventListener('click', () => {
+          try { globalThis.navigator?.clipboard?.writeText(String(own).toUpperCase()); } catch {  }
+          code.textContent = 'Copied';
+        });
+        li.appendChild(b);
+        list.appendChild(li);
+      }
+      return;
+    }
     sub.textContent = rooms.length === 1
       ? 'One room is open. Joining opens that game.'
       : `${rooms.length} rooms are open. Joining opens that game.`;
@@ -291,7 +319,7 @@ export function mountLiveBadge({
   }
 
   button.addEventListener('click', () => {
-    if (!rooms.length) return;
+    if (!rooms.length && !mine()) return;
     paintList();
     sheet.dataset.open = '1';
     sheet.querySelector('.live-join')?.focus();
@@ -309,19 +337,39 @@ export function mountLiveBadge({
     
     
     if (sweep) sweepStaleRooms(all, { now: at, limit: 1 }).catch(() => {});
-    const label = badgeText(rooms.length);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const ownCode = mine();
+    const onlyMine = !rooms.length && !!ownCode;
+    const label = rooms.length ? badgeText(rooms.length) : (onlyMine ? 'Your room is live' : '');
+    const lit = rooms.length > 0 || onlyMine;
     text.textContent = label;
-    button.dataset.live = rooms.length ? '1' : '0';
+    button.dataset.live = lit ? '1' : '0';
+    button.dataset.own = onlyMine ? '1' : '0';
     
     
-    try { host.dataset.live = rooms.length ? '1' : '0'; } catch {  }
-    button.setAttribute('aria-label', label
+    try { host.dataset.live = lit ? '1' : '0'; } catch {  }
+    button.setAttribute('aria-label', rooms.length
       ? `${label}. Open the list of games you can join.`
-      : 'Nobody else is playing online right now');
+      : (onlyMine
+        ? 'Your room is open. Show the code to share it.'
+        : 'Nobody else is playing online right now'));
     
     
     if (sheet.dataset.open === '1') {
-      if (!rooms.length) close();
+      if (!rooms.length && !onlyMine) close();
       else paintList();
     }
   }
