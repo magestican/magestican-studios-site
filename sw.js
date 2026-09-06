@@ -25,7 +25,7 @@
 
 
 
-const BUILD = 'd36cb95-20260906T135511Z';
+const BUILD = '0e934f2-20260906T141130Z';
 const CACHE = `magestican-${BUILD}`;
 
 
@@ -77,7 +77,14 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  if (url.pathname === '/version.json') return;   
+  
+  
+  
+  
+  
+  
+  
+  if (url.pathname.endsWith('version.json')) return;
 
   if (isPage(request)) {
     event.respondWith((async () => {
