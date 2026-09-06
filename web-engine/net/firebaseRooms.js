@@ -129,6 +129,10 @@ export async function fetchOpenRooms(cfg = LEADERBOARD_CONFIG) {
         game: String(data.game),
         code: String(data.code ?? d.id),
         players: Number(data.players) || 0,
+        
+        
+        
+        bots: Number(data.bots) || 0,
         updatedAt: Number(data.updatedAt) || 0,
       });
     });

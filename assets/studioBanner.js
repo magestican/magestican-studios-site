@@ -44,6 +44,44 @@ const MUSIC_SRC = '/play/shared/audio/lofi.js';
 const MUSIC_BTN_SRC = '/play/shared/ui/musicButton.js';
 const LIVE_SRC = '/play/shared/ui/liveBadge.js';
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const CSS = `
 .site-header .studio-tools {
   display: flex; align-items: center; gap: 6px;
@@ -62,8 +100,26 @@ const CSS = `
 .site-header .studio-music[aria-pressed="false"] .mg-slash { display: block; }
 .site-header .studio-music[aria-pressed="false"] .mg-note { opacity: 0.45; }
 .site-header .studio-music[aria-pressed="false"] { opacity: 0.75; }
+
+.site-header .studio-live {
+  color: inherit;
+  background: rgba(127, 127, 127, 0.14);
+  border-color: rgba(127, 127, 127, 0.42);
+}
+.site-header .studio-live:hover,
+.site-header .studio-live:focus-visible {
+  background: rgba(127, 127, 127, 0.24);
+  border-color: currentColor;
+}
 @media (max-width: 700px) {
+  .site-header { flex-wrap: wrap; }
+  .site-header .brand { order: 0; }
+  .site-header .studio-tools { order: 1; margin-left: auto; }
+  .site-header nav { order: 2; flex-basis: 100%; }
   .site-header .studio-music { width: 44px; height: 40px; }
+}
+@media (max-width: 480px) {
+  .site-header .brand-name { display: none; }
 }
 `;
 

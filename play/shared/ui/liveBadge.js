@@ -48,7 +48,7 @@
 
 
 import {
-  liveRooms, badgeText, roomLine, LIVE_GAMES, LIVE_PATH, REFRESH_MS,
+  liveRooms, badgeText, roomLine, whoIsIn, LIVE_GAMES, LIVE_PATH, REFRESH_MS,
 } from '../../../web-engine/net/presence.js';
 import { fetchOpenRooms, sweepStaleRooms } from '../../../web-engine/net/firebaseRooms.js';
 
@@ -117,7 +117,7 @@ const CSS = `
   background: #7ee081; box-shadow: 0 0 0 3px rgba(126,224,129,0.28);
 }
 @media (max-width: 520px) {
-  .studio-live { min-height: 40px; font-size: 17px; padding: 6px 11px; margin-left: 6px; }
+  .studio-live { min-height: 40px; font-size: 17px; padding: 6px 9px; margin-left: 4px; }
   .studio-live .live-dot { width: 9px; height: 9px; box-shadow: 0 0 0 2px rgba(126,224,129,0.28); }
   .studio-bar[data-live="1"] .studio-home span { display: none; }
 }
@@ -292,10 +292,12 @@ export function mountLiveBadge({
       b.type = 'button';
       b.className = 'live-join';
       const name = LIVE_GAMES[room.game] ?? 'A farm game';
-      const players = Number(room.players) || 0;
-      const who = players === 1 ? 'one player waiting'
-        : (players > 1 ? `${players} players` : 'open, nobody in it yet');
-      b.append(doc.createTextNode(`${name} - ${who}`));
+      
+      
+      
+      
+      
+      b.append(doc.createTextNode(`${name} - ${whoIsIn(room)}`));
       const code = doc.createElement('span');
       code.className = 'live-code';
       code.textContent = `Room ${String(room.code).toUpperCase()}`;
