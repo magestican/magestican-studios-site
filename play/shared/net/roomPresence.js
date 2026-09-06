@@ -32,13 +32,18 @@ import { publishRoom } from '../../../web-engine/net/firebaseRooms.js';
 
 
 
-export function roomPresence({ game, net, players }) {
+
+
+
+
+
+export function roomPresence({ game, net, players, bots = 0 }) {
   let withdrawFn = null;
 
   function sync() {
     const mesh = net();
     if (withdrawFn || !mesh?.hosting || !mesh.id) return;
-    withdrawFn = publishRoom({ game, code: mesh.id, players });
+    withdrawFn = publishRoom({ game, code: mesh.id, players, bots });
   }
 
   function withdraw() {

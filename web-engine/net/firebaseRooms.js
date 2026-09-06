@@ -191,8 +191,13 @@ export async function sweepStaleRooms(rooms, { now = Date.now(), limit = 1 } = {
 
 
 
-export function publishRoom({ game, code, players }, cfg = LEADERBOARD_CONFIG) {
+export function publishRoom({ game, code, players, bots = 0 }, cfg = LEADERBOARD_CONFIG) {
   const countOf = typeof players === 'function' ? players : () => players;
+  
+  
+  
+  
+  const botsOf = typeof bots === 'function' ? bots : () => bots;
   let stopped = false;
   let timer = null;
 
@@ -203,7 +208,7 @@ export function publishRoom({ game, code, players }, cfg = LEADERBOARD_CONFIG) {
       const { doc, setDoc } = s.store;
       await setDoc(
         doc(s.db, ROOMS_COLLECTION, code),
-        roomDoc({ game, code, players: countOf(), now: Date.now() }),
+        roomDoc({ game, code, players: countOf(), bots: botsOf(), now: Date.now() }),
       );
     } catch (_) {  }
   };

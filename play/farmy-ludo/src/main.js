@@ -1220,6 +1220,12 @@ const presence = roomPresence({
   
   
   players: () => new Set([room.me, ...room.peers].filter(Boolean)).size || 1,
+  
+  
+  
+  
+  
+  bots: () => seats.filter((s) => s.kind === 'bot').length,
 });
 
 function startNet() {
