@@ -34,7 +34,42 @@
 
 
 
-export const REFRESH_MS = 20_000;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const REFRESH_MS = 60_000;
 export const STALE_MS = REFRESH_MS * 3;
 
 
@@ -132,12 +167,26 @@ export function whoIsIn(room) {
   const players = Math.max(0, Number(room?.players) || 0);
   const bots = Math.max(0, Number(room?.bots) || 0);
   const people = Math.max(0, players - bots);
-  if (people <= 0) {
-    if (bots <= 0) return 'open';
-    return bots === 1 ? 'a bot playing, join in' : `${bots} bots playing, join in`;
-  }
-  const said = people === 1 ? 'one player waiting' : `${people} players`;
-  return bots > 0 ? `${said} and ${bots === 1 ? 'a bot' : `${bots} bots`}` : said;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const total = Math.max(people + bots, players);
+  if (total <= 0) return 'open';
+  if (people <= 0) return total === 1 ? 'one playing, join in' : `${total} playing, join in`;
+  if (bots > 0) return `${total} playing, join in`;
+  return people === 1 ? 'one player waiting' : `${people} players`;
 }
 
 
@@ -169,4 +218,35 @@ export function roomDoc({ game, code, players, bots = 0, now }) {
     bots: Math.max(0, Math.min(99, Number(bots) || 0)),
     updatedAt: Number(now),
   };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function readNow({
+  hidden = false, lastReadAt = null, now = 0, pollMs = REFRESH_MS,
+} = {}) {
+  if (hidden) return false;
+  if (lastReadAt === null || !Number.isFinite(Number(lastReadAt))) return true;
+  return Number(now) - Number(lastReadAt) >= Number(pollMs);
 }

@@ -56,7 +56,8 @@ import { levelOf } from '../../../web-engine/words/scoring.js';
 import {
   nameFor, shareLinkFor, joinIdFrom, describeSaying, describeRoom,
 } from '../../../web-engine/words/coop.js';
-import { SIDE_NAMES } from '../../../web-engine/checkers/checkersRules.js';
+import { SIDE_NAMES, legalMoves } from '../../../web-engine/checkers/checkersRules.js';
+import { squareName } from '../../../web-engine/checkers/checkersDescribe.js';
 import {
   SOLO, createMatch, replay, applyAction, withMove, wireMove, undoPlies,
   undoMatch, seatsWith, standings, isMyTurn, sideOfSeat, seatOfSide,
@@ -1021,6 +1022,48 @@ globalThis.__fch = {
     return {
       seat: bot.seat, strength: bot.strength, thinking: bot.thinking, name: bot.name,
     };
+  },
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+  get myTurn() { try { return !!app.myTurn(); } catch { return false; } },
+  get plays() {
+    try {
+      if (derived.over) return [];
+      return legalMoves(derived.board, derived.turn).map((m) => ({
+        press: (m.path ?? [m.from, m.to]).map((i) => `sq:${squareName(i)}`),
+      }));
+    } catch { return []; }
   },
   get overlay() { return overlay ? overlay.id : null; },
   

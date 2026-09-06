@@ -61,7 +61,7 @@ import { progress, lift, DURATION } from '../../../web-engine/words/motion.js';
 import {
   displayName, shareLinkFor, joinIdFrom, describeSaying, describeRoom,
 } from '../../../web-engine/words/coop.js';
-import { WHITE, BLACK } from '../../../web-engine/chess/position.js';
+import { WHITE, BLACK, squareName } from '../../../web-engine/chess/position.js';
 import { speakMove } from '../../../web-engine/chess/notation.js';
 import {
   newMatch, replay, applyMove, undo, resign, swapSides, seatsWith,
@@ -1158,6 +1158,47 @@ globalThis.__fchess = {
       list: derived.list,
       fen: derived.startFen,
     };
+  },
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+  get myTurn() { try { return !!app.myTurn(); } catch { return false; } },
+  get plays() {
+    try {
+      if (derived.over) return [];
+      return (derived.legal ?? []).map((m) => ({
+        press: [`sq:${squareName(m.from)}`, `sq:${squareName(m.to)}`],
+        promo: m.promo ?? null,
+      }));
+    } catch { return []; }
   },
   get bot() { return { ...bot, thinking: thinkingAt }; },
   get record() { return { ...record }; },

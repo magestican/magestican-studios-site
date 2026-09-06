@@ -48,7 +48,7 @@
 
 
 import {
-  liveRooms, badgeText, roomLine, whoIsIn, LIVE_GAMES, LIVE_PATH, REFRESH_MS,
+  liveRooms, badgeText, roomLine, whoIsIn, readNow, LIVE_GAMES, LIVE_PATH, REFRESH_MS,
 } from '../../../web-engine/net/presence.js';
 import { fetchOpenRooms, sweepStaleRooms } from '../../../web-engine/net/firebaseRooms.js';
 
@@ -327,8 +327,24 @@ export function mountLiveBadge({
     sheet.querySelector('.live-join')?.focus();
   });
 
+  
+  
+  
+  
+  let lastReadAt = null;
+
   async function poll() {
     if (stopped) return;
+    
+    
+    
+    
+    
+    const hidden = (() => {
+      try { return !!globalThis.document?.hidden; } catch { return false; }
+    })();
+    if (!readNow({ hidden, lastReadAt, now: now(), pollMs })) return;
+    lastReadAt = now();
     let all = [];
     try { all = await fetch(); } catch (_) { all = []; }
     if (stopped) return;
@@ -379,8 +395,16 @@ export function mountLiveBadge({
   poll();
   timer = setInterval(poll, pollMs);
 
+  
+  
+  
+  
+  const onShow = () => { poll(); };
+  try { globalThis.document?.addEventListener('visibilitychange', onShow); } catch {  }
+
   return function stop() {
     stopped = true;
+    try { globalThis.document?.removeEventListener('visibilitychange', onShow); } catch {  }
     if (timer) { clearInterval(timer); timer = null; }
     button.remove();
     sheet.remove();
