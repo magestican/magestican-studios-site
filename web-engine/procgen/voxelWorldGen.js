@@ -21,6 +21,7 @@ import {
 import { buildLanes, nearestLane, chokePoints, LANE_HALF, alongPolyline } from './laneSpec.js';
 import { laneSurfaceFor, ROAD_HALF } from './surfaceSpec.js';
 import { springSites } from './hayspring.js';
+import { placeLofts, PERCH_CAP_HALF } from './loftRoute.js';
 
 
 
@@ -228,6 +229,57 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const lofts = chokes.length ? placeLofts(lanes, {
+    surfaceAt: (x, z) => (
+      x >= 1 && z >= 1 && x < WORLD_SIZE.x - 1 && z < WORLD_SIZE.z - 1
+        ? standY(grid, x, z) : NaN),
+    worldHeight: WORLD_SIZE.y,
+    worldSize: WORLD_SIZE,
+    blocked: (x, z) => insideBase(x, z, redBase) || insideBase(x, z, blueBase)
+                    || insideZone(x, z, powerUpZones, 2),
+  }) : [];
+  for (const site of lofts) {
+    const { x: bx, z: bz, half, top } = site;
+    grid.fillBox(bx - half, 1, bz - half, bx + half, top, bz + half, loftVox(map));
+    
+    
+    
+    
+    if (site.kind === 'perch') {
+      grid.fillBox(bx - PERCH_CAP_HALF, top, bz - PERCH_CAP_HALF,
+                   bx + PERCH_CAP_HALF, top, bz + PERCH_CAP_HALF, loftCapVox(map));
+    }
+    
+    
+    
+    const clear = site.kind === 'perch' ? PERCH_CAP_HALF : half;
+    for (let y = top + 1; y <= top + 3 && y < WORLD_SIZE.y; y += 1) {
+      grid.fillBox(bx - clear, y, bz - clear, bx + clear, y, bz + clear, VOX.AIR);
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
   const coverRng = rng.child('cover');
   
   
@@ -314,7 +366,7 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   };
 
   return { seed, mapId: map.id, map, grid, spawns, flags, redBase, blueBase,
-           hillSpawn, hayStacks, barnSigns, lanes, springs,
+           hillSpawn, hayStacks, barnSigns, lanes, springs, lofts,
            tractorParking: wear.tractorParking,
            powerUpZones,
            powerUpSpawns: {
@@ -846,6 +898,38 @@ function chokeVox(map) {
   if (cover.includes('spire') || cover.includes('boulder')) return VOX.ROCK;
   if (cover.includes('bench')) return VOX.BOARDS;
   return VOX.STONE;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function loftVox(map) {
+  const cover = map.cover || [];
+  if (cover.includes('iceWall') || cover.includes('berg')) return VOX.STONE;
+  return VOX.WOOD;
+}
+
+
+
+
+
+
+function loftCapVox(map) {
+  return loftVox(map) === VOX.STONE ? VOX.WOOD : VOX.STONE;
 }
 
 function buildCover(grid, rng, kind, x, z) {
