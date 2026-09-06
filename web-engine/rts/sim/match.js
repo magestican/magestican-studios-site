@@ -573,6 +573,39 @@ export function placings(m) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function handOverToBot(m, seat, bot) {
+  if (!m.w.seats[seat]) return false;
+  if (m.w.seats[seat].bot) return false;      
+  m.w.seats[seat].bot = bot;
+  m.events.push({ type: 'playerLeft', seat });
+  return true;
+}
+
+
 export function runMatch(m, applyCommand, limit = MATCH_TICKS) {
   let n = 0;
   while (!m.over && n < limit) { stepMatch(m, applyCommand); n += 1; }

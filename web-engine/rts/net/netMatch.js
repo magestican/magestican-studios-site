@@ -27,6 +27,7 @@
 
 
 import { createLockstep, INPUT_DELAY_TICKS } from './lockstep.js';
+import { stepMatch } from '../sim/match.js';
 
 
 
@@ -37,9 +38,13 @@ import { createLockstep, INPUT_DELAY_TICKS } from './lockstep.js';
 
 
 const REANNOUNCE_EVERY_MS = 250;
-import { stepMatch } from '../sim/match.js';
+
 import { checksum } from '../sim/world.js';
 import { saveMatch, restoreMatch } from '../sim/save.js';
+import { handOverToBot } from '../sim/match.js';
+
+
+
 
 
 
@@ -57,6 +62,7 @@ import { saveMatch, restoreMatch } from '../sim/save.js';
 
 export function createNetMatch({
   match, transport, peers, localSeat, onDrop, onDesync, onStall, onResync,
+  botForDroppedSeat,
 }) {
   const ls = createLockstep({ peers, localSeat });
   let stalledSeats = [];
@@ -139,6 +145,13 @@ export function createNetMatch({
           if (s.nameThem && onStall) onStall(s.seats);
           for (const seat of s.drop) {
             ls.drop(seat);
+            
+            
+            
+            
+            
+            const bot = botForDroppedSeat ? botForDroppedSeat(seat) : null;
+            if (bot) handOverToBot(match, seat, bot);
             if (onDrop) onDrop(seat);
           }
 
