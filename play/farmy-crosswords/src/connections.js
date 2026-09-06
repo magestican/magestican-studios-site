@@ -174,6 +174,11 @@ export function create(app, index) {
       maxCell: 130,
       min: 56,
       centreY: true,
+      
+      
+      
+      
+      shrinkToFit: true,
     });
     board.rects = board.rects.slice(0, words.length);
   }

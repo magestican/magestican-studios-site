@@ -1739,6 +1739,24 @@ function openMore() {
   app.message = '';
   const items = [
     ...(current === HOME ? [] : [{ id: 'picker', label: 'Puzzles', run: openPicker }]),
+    
+    
+    
+    
+    
+    
+    ...((() => {
+      
+      
+      const h = screen?.hint;
+      if (!h || h.onBoard()) return [];
+      return [{
+        id: 'hint',
+        label: h.label(),
+        disabled: h.disabled(),
+        run: () => { closeOverlay(); h.run(); },
+      }];
+    })()),
     { id: 'together', label: togetherLabel(), run: openRoom },
     ...(inRoom() && roomState.peers.length > 1
       ? [{ id: 'say', label: 'Say something', run: openSay }]

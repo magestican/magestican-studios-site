@@ -333,6 +333,11 @@ export function picker(app, {
       gap,
       maxCell: 62,
       min: 40,
+      
+      
+      
+      
+      shrinkToFit: true,
     });
     cells.rects = cells.rects.slice(0, count);
     cells.cols = cols;

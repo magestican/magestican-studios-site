@@ -195,6 +195,11 @@ export function create(app, index) {
       gap: 6,
       maxCell: 76,
       min: 34,
+      
+      
+      
+      
+      shrinkToFit: true,
     });
   }
 

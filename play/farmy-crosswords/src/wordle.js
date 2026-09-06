@@ -77,6 +77,9 @@ export function create(app, index) {
   
   let given = Array.isArray(saved.given) ? saved.given.filter((h) => h && Number.isInteger(h.index)) : [];
   let buttons = { rects: [] };
+  
+  
+  let hintHasRow = true;
   let board = { rects: [], cell: 48 };
   let keys = { rects: [] };
   let statusBand = { x: 0, y: 0, width: 0, height: 0 };
@@ -142,14 +145,46 @@ export function create(app, index) {
     
     
     const btnH = SIZES.target;
-    buttons = keyboard({
-      box: { x: area.x, y: kbTop - btnH - 8, width: area.width, height: btnH },
-      rows: [[hintLabel()]],
-      gap: 10,
-      wideUnits: 1,
-      maxKey: 200,
-    });
-    statusBand = { x: area.x, y: buttons.rects[0].y - 74, width: area.width, height: 66 };
+    const bandH = 66;
+    const bandDrop = 74;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const boardNeeds = MAX_GUESSES * SIZES.tile + (MAX_GUESSES - 1) * 8;
+    const roomWithButton = (kbTop - btnH - 8 - bandDrop) - (area.y + 4) - 12;
+    hintHasRow = roomWithButton >= boardNeeds;
+
+    buttons = hintHasRow
+      ? keyboard({
+        box: { x: area.x, y: kbTop - btnH - 8, width: area.width, height: btnH },
+        rows: [[hintLabel()]],
+        gap: 10,
+        wideUnits: 1,
+        maxKey: 200,
+      })
+      : { rects: [], height: 0 };
+
+    const bandBottom = hintHasRow ? buttons.rects[0].y : kbTop - 8;
+    statusBand = { x: area.x, y: bandBottom - bandDrop, width: area.width, height: bandH };
     board = grid({
       box: { x: area.x, y: area.y + 4, width: area.width, height: statusBand.y - area.y - 12 },
       cols: WORD_LENGTH,
@@ -161,6 +196,11 @@ export function create(app, index) {
       
       
       centreY: true,
+      
+      
+      
+      
+      shrinkToFit: true,
     });
   }
 
@@ -351,6 +391,20 @@ export function create(app, index) {
   return {
     id: 'wordle',
     layout,
+    
+
+
+
+
+
+
+
+    hint: {
+      label: () => hintLabel(),
+      onBoard: () => hintHasRow,
+      disabled: () => state().over || hintsLeft() === 0,
+      run: () => useHint(),
+    },
     
     
     

@@ -29,10 +29,41 @@ import { SIZES } from './style.js';
 
 
 
-export function fitCell({ width, height, cols, rows, gap, min = SIZES.target, max = 999 }) {
+export function fitCell({
+  width, height, cols, rows, gap, min = SIZES.target, max = 999, shrinkToFit = false,
+}) {
   const byWidth = (width - gap * (cols - 1)) / cols;
   const byHeight = (height - gap * (rows - 1)) / rows;
-  return Math.max(min, Math.min(max, Math.floor(Math.min(byWidth, byHeight))));
+  const fits = Math.floor(Math.min(byWidth, byHeight));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (!shrinkToFit) return Math.max(min, Math.min(max, fits));
+  
+  
+  
+  
+  
+  return Math.max(1, Math.min(max, fits));
 }
 
 
@@ -42,8 +73,13 @@ export function fitCell({ width, height, cols, rows, gap, min = SIZES.target, ma
 
 
 
-export function grid({ box, cols, rows, gap = 8, maxCell = 999, min = SIZES.target, centreY = false }) {
-  const cell = fitCell({ width: box.width, height: box.height, cols, rows, gap, min, max: maxCell });
+export function grid({
+  box, cols, rows, gap = 8, maxCell = 999, min = SIZES.target, centreY = false,
+  shrinkToFit = false,
+}) {
+  const cell = fitCell({
+    width: box.width, height: box.height, cols, rows, gap, min, max: maxCell, shrinkToFit,
+  });
   const width = cols * cell + gap * (cols - 1);
   const height = rows * cell + gap * (rows - 1);
   const left = Math.round(box.x + (box.width - width) / 2);
