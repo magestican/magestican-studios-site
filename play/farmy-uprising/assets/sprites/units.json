@@ -1,74 +1,74 @@
 {
-  "tile": 96,
+  "tile": 160,
   "facings": 8,
   "rows": {
     "bowser": {
       "row": 0,
-      "worldSize": 4.059
+      "worldSize": 5.274
     },
     "combine": {
       "row": 1,
-      "worldSize": 7.841
+      "worldSize": 8.599
     },
     "cropDuster": {
       "row": 2,
-      "worldSize": 5.463
+      "worldSize": 6.004
     },
     "duckRaft": {
       "row": 3,
-      "worldSize": 0.634
+      "worldSize": 1.406
     },
     "elephant": {
       "row": 4,
-      "worldSize": 4.003
+      "worldSize": 6.347
     },
     "farmhand": {
       "row": 5,
-      "worldSize": 2.035
+      "worldSize": 2.314
     },
     "flock": {
       "row": 6,
-      "worldSize": 0.858
+      "worldSize": 0.956
     },
     "foodTruck": {
       "row": 7,
-      "worldSize": 4.668
+      "worldSize": 4.985
     },
     "harvester": {
       "row": 8,
-      "worldSize": 5.505
+      "worldSize": 5.19
     },
     "horseHerd": {
       "row": 9,
-      "worldSize": 2.829
+      "worldSize": 3.328
     },
     "poundWagon": {
       "row": 10,
-      "worldSize": 4.465
+      "worldSize": 7.096
     },
     "pride": {
       "row": 11,
-      "worldSize": 2.39
+      "worldSize": 2.827
     },
     "quadBike": {
       "row": 12,
-      "worldSize": 2.145
+      "worldSize": 2.538
     },
     "skulk": {
       "row": 13,
-      "worldSize": 1.539
+      "worldSize": 1.961
     },
     "sounder": {
       "row": 14,
-      "worldSize": 1.492
+      "worldSize": 1.788
     },
     "tractor": {
       "row": 15,
-      "worldSize": 4.159
+      "worldSize": 4.729
     },
     "wing": {
       "row": 16,
-      "worldSize": 1.605
+      "worldSize": 4.257
     }
   }
 }

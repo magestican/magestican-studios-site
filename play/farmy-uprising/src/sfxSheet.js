@@ -27,6 +27,7 @@
 
 
 
+
 export function createSheet(ctx, baseUrl) {
   
   let status = 'idle';
@@ -88,7 +89,9 @@ export function createSheet(ctx, baseUrl) {
 
 
 
-    play(id, { dest, gain = 1, when = 0, loop = false, rate = 1 } = {}) {
+
+
+    play(id, { dest, gain = 1, when = 0, loop = false, rate = 1, offset = 0 } = {}) {
       if (status !== 'ready' || !buffer) return null;
       const table = index.effects || index.clips;
       const slice = table && table[id];
@@ -110,7 +113,16 @@ export function createSheet(ctx, baseUrl) {
         src.loop = true;
         src.loopStart = slice.start;
         src.loopEnd = slice.start + slice.dur;
-        src.start(t, slice.start);
+        
+        
+        
+        
+        
+        
+        
+        
+        const into = offset > 0 ? offset % slice.dur : 0;
+        src.start(t, slice.start + into);
       } else {
         src.start(t, slice.start, slice.dur);
       }

@@ -64,8 +64,30 @@ export function unitScale(unitId, manifest) {
   
   
   
-  const readable = 18 + Math.sqrt(world) * 11;
-  return spec && spec.tier === 3 ? readable * 1.12 : readable;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const readable = Math.min(112, Math.max(44, 32 + (world ** 0.62) * 21));
+  return spec && spec.tier === 3 ? Math.min(120, readable * 1.10) : readable;
 }
 
 

@@ -21,14 +21,19 @@ import { seedFromString } from '../../../web-engine/rts/rng.js';
 import { landSeconds, sharePct } from '../../../web-engine/rts/territory.js';
 import { matchPoints, rankTitle } from '../../../web-engine/rts/progression.js';
 import { createMatch, stepMatch, placings } from '../../../web-engine/rts/sim/match.js';
+import { checksum } from '../../../web-engine/rts/sim/world.js';
 import { makeBot, strengthFromLevel } from '../../../web-engine/rts/sim/botBrain.js';
 import { applyCommand, resolveSelection, CMD } from '../../../web-engine/rts/sim/commands.js';
 import { sectorAt } from '../../../web-engine/rts/maps/mapFormat.js';
+import { createNetMatch } from '../../../web-engine/rts/net/netMatch.js';
+import { nameFor, joinIdFrom } from '../../../web-engine/words/coop.js';
 import { createRenderer } from './render.js';
 import { createHud } from './hud.js';
 import { createInput } from './input.js';
 import { createAudio } from './audio.js';
 import { createVoices } from './voices.js';
+import { createNet, openRooms, canPlayTogether } from './net.js';
+import { createLobbyPanel } from './lobbyPanel.js';
 import { saveMatch, restoreMatch } from '../../../web-engine/rts/sim/save.js';
 import {
   storeSave, loadSave, clearSave, hasSave, loadProfile, recordMatch,
@@ -36,7 +41,24 @@ import {
 } from './store.js';
 
 const params = new URLSearchParams(location.search);
-const SEAT = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let SEAT = 0;
 const $ = (id) => document.getElementById(id);
 
 
@@ -125,14 +147,46 @@ let paused = false;
 let ended = false;
 
 
+
+
+
+let net = null;          
+let netMatch = null;     
+let netPayload = null;   
+let lobbyUi = null;
+let observing = false;
+
+let pendingFlash = -1;
+let stallShown = false;
+
+
+
+
+
+
+
+
+const DROPPED_BOT_STRENGTH = 60;
+
+
 function send(cmd) {
   if (!match) return;
+  
+  
+  
+  if (observing) return;
   const full = { ...cmd, p: SEAT, seq: sequence };
   sequence += 1;
   
   
   
   
+  
+  if (netMatch) {
+    const packet = netMatch.issue(full);
+    pendingFlash = packet.t;
+    return;
+  }
   applyCommand(match, full);
 }
 
@@ -151,8 +205,137 @@ function flashOrder() {
   hud.say(`Moving on ${s.kind === 'water' ? 'the water' : 'that ground'}.`);
 }
 
-async function start(resumed) {
-  if (resumed) {
+
+
+
+
+
+
+
+
+function seatName(seat) {
+  const s = netPayload && netPayload.seats[seat];
+  return s ? nameFor(s.id) : `Seat ${seat + 1}`;
+}
+
+
+function showStall(seats) {
+  stallShown = true;
+  $('banner').textContent = `Waiting for ${seats.map(seatName).join(' and ')}`;
+  $('banner').classList.add('show');
+}
+
+function clearStall() {
+  stallShown = false;
+  $('banner').classList.remove('show');
+}
+
+
+
+
+
+
+
+
+
+
+
+function handleEvents(events) {
+  if (!events || !events.length) return;
+  hud.events(events, match);
+  audio.events(events, match);
+  if (voices) voices.events(events, match, SEAT);
+}
+
+
+
+
+
+
+
+
+
+
+function tickFlash(tick) {
+  if (pendingFlash < 0 || tick < pendingFlash) return;
+  pendingFlash = -1;
+  flashOrder();
+}
+
+
+
+
+
+
+
+
+
+
+async function start(resumed, networked) {
+  if (networked) {
+    netPayload = networked.payload;
+    
+    
+    
+    
+    observing = networked.seat < 0;
+    SEAT = observing ? 0 : networked.seat;
+    match = createMatch({
+      map: networked.map,
+      
+      
+      
+      
+      seats: netPayload.seats.map((x) => ({ faction: x.faction, bot: null })),
+      seed: netPayload.seed,
+    });
+    netMatch = createNetMatch({
+      match,
+      transport: networked.transport,
+      peers: networked.peers,
+      localSeat: networked.seat,
+      onTick(events, tick) { handleEvents(events); tickFlash(tick); },
+      onStall(seats) { showStall(seats); },
+      onDesync(d) {
+        
+        
+        
+        
+        hud.say(`Out of step at tick ${d.tick}. Resynchronising.`);
+        console.warn("[fu] desync", d);
+      },
+      onResync() { hud.say("Resynchronised."); },
+      onDrop(seat) { hud.say(`${seatName(seat)} dropped out. A bot has their farm.`); },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      botForDroppedSeat: (seat) => makeBot(seat, DROPPED_BOT_STRENGTH),
+    });
+    
+    
+    
+    
+    
+    clearSave();
+  } else if (resumed) {
     
     
     
@@ -180,6 +363,21 @@ async function start(resumed) {
     ];
     match = createMatch({ map: MAPS[mapId], seats, seed: seedFromString(seedText) });
   }
+
+  if (!networked) {
+    
+    
+    
+    
+    
+    
+    netMatch = null;
+    netPayload = null;
+    observing = false;
+    SEAT = 0;
+  }
+  pendingFlash = -1;
+  stallShown = false;
   lastSavedTick = match.w.tick;
   selection = { kind: 'all', key: null };
   sequence = 0;
@@ -204,7 +402,15 @@ async function start(resumed) {
   audio.begin(match, SEAT);
 
   hud = createHud(match, SEAT, {
-    onSelect(sel) { selection = sel; },
+    onSelect(sel) {
+      selection = sel;
+      
+      
+      
+      
+      
+      if (voices) voices.selected(match, SEAT, sel && sel.key);
+    },
     onTrain(unit) { send({ c: CMD.TRAIN, unit }); audio.ui('click'); },
     onBuildPick(building) { input.armBuild(building); hud.say(`Tap where the ${building} should go.`); },
     onToggle(key, value) { send({ c: CMD.TOGGLE, key, value }); },
@@ -213,6 +419,12 @@ async function start(resumed) {
     
     
     onAudioLevel(bus, value) { audio.setLevel(bus, value); },
+    
+    
+    
+    
+    
+    onJumpCamera(xMm, yMm) { view.centreOn(xMm, yMm); },
     onAttack() {
       send({ c: CMD.ATTACK, sector: -1, sel: selection });
       flashOrder(); audio.ui('order');
@@ -225,15 +437,24 @@ async function start(resumed) {
     },
   });
 
-  if (!input) {
-    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
   voices = createVoices(audio, hud);
   voices.matchStart(match);
 
-  input = createInput(canvas, view, {
+  if (!input) {
+    input = createInput(canvas, view, {
       select(sel) {
         if (sel.kind === 'view') {
           
@@ -279,6 +500,74 @@ async function start(resumed) {
     });
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+function startNet() {
+  if (net) return net;
+  net = createNet({
+    onRoom(v) { lobbyUi.room(v); },
+    onStatus(text) { lobbyUi.say(text); },
+    onError(text) { lobbyUi.say(text); },
+    
+    
+    
+    onStart(info) {
+      lobbyUi.close();
+      start(null, info);
+    },
+  });
+  return net;
+}
+
+lobbyUi = createLobbyPanel({
+  onHost(mapId) { startNet().host(mapId); },
+  onJoin(code) {
+    const outcome = startNet().join(code);
+    
+    
+    
+    
+    if (outcome && outcome.error) lobbyUi.say(outcome.error);
+  },
+  onFaction(faction) { if (net) net.chooseFaction(faction); },
+  onReady(ready) { if (net) net.setReady(ready); },
+  onMap(mapId) { if (net) net.chooseMap(mapId); },
+  onStart() { if (net) net.start(); },
+  onLeave() {
+    if (net) net.leave();
+    net = null;
+    lobbyUi.room(null);
+  },
+  onBack() {
+    lobbyUi.close();
+    $('menu').classList.add('show');
+  },
+  listRooms: () => openRooms(net && net.id),
+});
+
+$('btn-multi').addEventListener('click', () => {
+  
+  
+  
+  
+  if (!audio) audio = createAudio();
+  $('menu').classList.remove('show');
+  lobbyUi.open();
+  if (!canPlayTogether()) {
+    
+    
+    lobbyUi.say('Multiplayer needs PeerJS and it did not load. Check the network and reload.');
+  }
+});
 
 $('btn-build').addEventListener('click', () => $('buildbar').classList.toggle('open'));
 
@@ -387,6 +676,9 @@ function showEnd() {
 
 function maybeAutosave() {
   if (!match || match.over) return;
+  
+  
+  if (netMatch) return;
   if (match.w.tick - lastSavedTick < 10 * TICKS_PER_SECOND) return;
   lastSavedTick = match.w.tick;
   storeSave(saveMatch(match), {
@@ -421,23 +713,46 @@ function loop(now) {
     
     
     let budget = 10;
-    while (acc >= MS_PER_TICK && budget > 0) {
-      acc -= MS_PER_TICK;
-      budget -= 1;
-      const events = stepMatch(match, applyCommand);
-      if (events.length) {
-        hud.events(events, match);
-        audio.events(events, match);
-        if (voices) voices.events(events, match, SEAT);
+    if (netMatch) {
+      
+      
+      
+      
+      
+      let want = 0;
+      while (acc >= MS_PER_TICK && want < budget) { acc -= MS_PER_TICK; want += 1; }
+      if (want >= budget) acc = 0;
+      
+      
+      
+      if (want > 0) netMatch.step(want, now);
+      
+      
+      
+      if (stallShown && netMatch.stalledSeats.length === 0) clearStall();
+    } else {
+      while (acc >= MS_PER_TICK && budget > 0) {
+        acc -= MS_PER_TICK;
+        budget -= 1;
+        handleEvents(stepMatch(match, applyCommand));
       }
+      if (budget === 0) acc = 0;
     }
-    if (budget === 0) acc = 0;
-    hud.update(match, now);
-    audio.update(match, SEAT);
+    hud.update(match, now, view);
+    
+    
+    audio.update(match, SEAT, view.view);
 
     maybeAutosave();
   }
   if (match.over && !ended) showEnd();
+  
+  
+  
+  
+  
+  
+  view.setSelection(selection.kind === 'all' ? null : resolveSelection(match, SEAT, selection));
   view.frame(match, SEAT, now);
 }
 
@@ -456,8 +771,45 @@ window.__fu = {
   
   get audio() { return audio ? audio.debug : null; },
   get voices() { return voices ? voices.state : null; },
+  
+  
+  
+  
+  
+  get net() {
+    if (!net) return null;
+    return {
+      id: net.id, hosting: net.hosting, started: net.started, view: net.view,
+    };
+  },
+  get lockstep() {
+    if (!netMatch) return null;
+    return {
+      seat: SEAT,
+      observing,
+      tick: match ? match.w.tick : -1,
+      
+      
+      
+      checksum: match ? checksum(match.w) >>> 0 : 0,
+      stalled: netMatch.stalledSeats,
+      resyncs: netMatch.resyncs,
+      lastDesync: netMatch.lockstep.lastDesync,
+      peers: netMatch.lockstep.peers,
+      dropped: netMatch.lockstep.dropped,
+    };
+  },
   debug: {
     start,
+    lobby: {
+      open() { $('btn-multi').click(); },
+      host(mapId) { lobbyUi.open(); startNet().host(mapId); },
+      join(code) { lobbyUi.open(); return startNet().join(code); },
+      faction(f) { return net.chooseFaction(f); },
+      ready(r) { return net.setReady(r); },
+      go() { return net.start(); },
+      rooms: () => openRooms(net && net.id),
+    },
     started() { return !!match; },
     pause(on) { paused = !!on; },
     step(n = 1) { for (let i = 0; i < n; i += 1) stepMatch(match, applyCommand); },
@@ -465,7 +817,7 @@ window.__fu = {
       while (match.w.tick < Math.min(tick, MATCH_TICKS) && !match.over) {
         stepMatch(match, applyCommand);
       }
-      hud.update(match, performance.now());
+      hud.update(match, performance.now(), view);
       
       
       
@@ -483,3 +835,14 @@ requestAnimationFrame(loop);
 
 
 if (params.get('autostart') === '1') start();
+
+
+
+
+const linkRoom = joinIdFrom(location.href);
+if (linkRoom) {
+  $('menu').classList.remove('show');
+  lobbyUi.open();
+  const outcome = startNet().join(linkRoom);
+  if (outcome && outcome.error) lobbyUi.say(outcome.error);
+}

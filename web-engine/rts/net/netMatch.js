@@ -27,7 +27,8 @@
 
 
 import { createLockstep, INPUT_DELAY_TICKS } from './lockstep.js';
-import { stepMatch } from '../sim/match.js';
+import { stepMatch, schedule } from '../sim/match.js';
+import { applyCommand } from '../sim/commands.js';
 
 
 
@@ -60,15 +61,37 @@ import { handOverToBot } from '../sim/match.js';
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 export function createNetMatch({
   match, transport, peers, localSeat, onDrop, onDesync, onStall, onResync,
-  botForDroppedSeat,
+  botForDroppedSeat, onTick,
 }) {
   const ls = createLockstep({ peers, localSeat });
   let stalledSeats = [];
   let resyncs = 0;
   let sentIdleTo = -1;
   let lastReannounceMs = -1e9;
+  
+
+
+
+
+
+
+
+
+
+  let nextSeq = 0;
 
   transport.onMessage((msg) => {
     if (!msg || typeof msg !== 'object') return;
@@ -112,7 +135,9 @@ export function createNetMatch({
 
     
     issue(command) {
-      const packet = ls.issue({ ...command, k: 'cmd' }, match.w.tick);
+      const seq = typeof command.seq === 'number' ? command.seq : nextSeq;
+      nextSeq = Math.max(nextSeq, seq) + 1;
+      const packet = ls.issue({ ...command, seq, k: 'cmd' }, match.w.tick);
       transport.broadcast(packet);
       return packet;
     },
@@ -139,11 +164,40 @@ export function createNetMatch({
           transport.broadcast({ k: 'idle', p: localSeat, t: sentIdleTo });
         }
 
-        if (!ls.canRun(tick)) {
-          const s = ls.stallStatus(tick, nowMs);
-          stalledSeats = s.nameThem ? s.seats : [];
-          if (s.nameThem && onStall) onStall(s.seats);
-          for (const seat of s.drop) {
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        const stall = ls.stallStatus(tick, nowMs);
+        if (stall.stalled) {
+          stalledSeats = stall.nameThem ? stall.seats : [];
+          if (stall.nameThem && onStall) onStall(stall.seats);
+          for (const seat of stall.drop) {
             ls.drop(seat);
             
             
@@ -176,8 +230,33 @@ export function createNetMatch({
         }
         stalledSeats = [];
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         const queued = ls.commandsFor(tick);
-        stepMatch(match, (apply) => { for (const c of queued) apply(c); });
+        for (const c of queued) schedule(match, tick, c);
+        const events = stepMatch(match, applyCommand);
+        if (onTick) onTick(events, tick);
         ls.retire(tick);
         ran += 1;
 

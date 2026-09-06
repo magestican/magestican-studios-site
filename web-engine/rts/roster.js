@@ -154,6 +154,36 @@ export function damageAfterArmour(damage, damageClass, armourClass, armourFlat) 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const unit = (o) => Object.freeze({
   packSize: 1,
   armourFlat: 0,

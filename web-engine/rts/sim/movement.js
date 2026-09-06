@@ -32,7 +32,62 @@ const SLOWS_PCT = new Int32Array(BUILDING_KINDS.map((k) => BUILDINGS[k].slowsNea
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const ARRIVE_MM = 9000;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -52,7 +107,61 @@ export const ARRIVE_MM = 9000;
 export const SEPARATION_MM = 11000;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const SEPARATION_DIVISOR = 3;
+
+
+
+
+
+
+
+
+
+
+
+
+const WALL_SLOW_MM = 19000;
+const WALL_TOUCH_MM = 11000;
 
 
 
@@ -96,6 +205,14 @@ export function stepMovement(w, speedBonusPct = null) {
     }
   }
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -218,7 +335,9 @@ export function wallSlowAt(w, xMm, yMm) {
     if (pct <= worst) continue;
     
     
-    const r = SEPARATION_MM + 8000;
+    
+    
+    const r = WALL_SLOW_MM;
     if (dist2(xMm, yMm, b.x[i], b.y[i]) <= r * r) worst = pct;
   }
   return worst;
@@ -229,7 +348,7 @@ export function wallBetween(w, ax, ay, bx, by) {
   const b = w.b;
   for (let i = 0; i < b.count; i += 1) {
     if (!b.alive[i] || b.building[i] > 0 || !IS_WALL[b.kind[i]]) continue;
-    if (pointNearSegment(b.x[i], b.y[i], ax, ay, bx, by, SEPARATION_MM)) return i;
+    if (pointNearSegment(b.x[i], b.y[i], ax, ay, bx, by, WALL_TOUCH_MM)) return i;
   }
   return -1;
 }

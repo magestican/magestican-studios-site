@@ -1,0 +1,198 @@
+{
+  "tile": 160,
+  "facings": 4,
+  "rows": {
+    "boulder": {
+      "row": 0,
+      "worldSize": 4.855,
+      "drawSize": 13.593,
+      "footY": 0.4052,
+      "role": "point",
+      "footprint": 1.9
+    },
+    "cypress": {
+      "row": 1,
+      "worldSize": 9.395,
+      "drawSize": 26.306,
+      "footY": 0.1784,
+      "role": "point",
+      "footprint": 1.9
+    },
+    "deadGum": {
+      "row": 2,
+      "worldSize": 11.098,
+      "drawSize": 31.075,
+      "footY": 0.2148,
+      "role": "point",
+      "footprint": 2.6
+    },
+    "fence": {
+      "row": 3,
+      "worldSize": 11.039,
+      "drawSize": 22.078,
+      "footY": 0.4579,
+      "role": "line",
+      "footprint": 4.6
+    },
+    "gate": {
+      "row": 4,
+      "worldSize": 5.496,
+      "drawSize": 12.091,
+      "footY": 0.3868,
+      "role": "line",
+      "footprint": 2.4
+    },
+    "gum": {
+      "row": 5,
+      "worldSize": 17.252,
+      "drawSize": 48.305,
+      "footY": 0.2479,
+      "role": "point",
+      "footprint": 3
+    },
+    "gumOld": {
+      "row": 6,
+      "worldSize": 22.939,
+      "drawSize": 64.23,
+      "footY": 0.2421,
+      "role": "point",
+      "footprint": 4.4
+    },
+    "gumYoung": {
+      "row": 7,
+      "worldSize": 9.28,
+      "drawSize": 25.984,
+      "footY": 0.2411,
+      "role": "point",
+      "footprint": 1.7
+    },
+    "haystack": {
+      "row": 8,
+      "worldSize": 5.53,
+      "drawSize": 13.271,
+      "footY": 0.2,
+      "role": "line",
+      "footprint": 2.8
+    },
+    "hedge": {
+      "row": 9,
+      "worldSize": 11.875,
+      "drawSize": 23.749,
+      "footY": 0.3921,
+      "role": "line",
+      "footprint": 4.2
+    },
+    "hedgeLow": {
+      "row": 10,
+      "worldSize": 12.163,
+      "drawSize": 24.326,
+      "footY": 0.436,
+      "role": "line",
+      "footprint": 4
+    },
+    "ironbark": {
+      "row": 11,
+      "worldSize": 18.495,
+      "drawSize": 51.787,
+      "footY": 0.2413,
+      "role": "point",
+      "footprint": 3.4
+    },
+    "logPile": {
+      "row": 12,
+      "worldSize": 9.016,
+      "drawSize": 19.836,
+      "footY": 0.4573,
+      "role": "line",
+      "footprint": 2.4
+    },
+    "reeds": {
+      "row": 13,
+      "worldSize": 3.578,
+      "drawSize": 10.017,
+      "footY": 0.244,
+      "role": "point",
+      "footprint": 1.6
+    },
+    "rockPile": {
+      "row": 14,
+      "worldSize": 9.339,
+      "drawSize": 26.148,
+      "footY": 0.4391,
+      "role": "point",
+      "footprint": 3
+    },
+    "saltbush": {
+      "row": 15,
+      "worldSize": 4.15,
+      "drawSize": 11.619,
+      "footY": 0.3881,
+      "role": "point",
+      "footprint": 1.5
+    },
+    "shed": {
+      "row": 16,
+      "worldSize": 13.08,
+      "drawSize": 31.392,
+      "footY": 0.3778,
+      "role": "line",
+      "footprint": 4.6
+    },
+    "shedRust": {
+      "row": 17,
+      "worldSize": 8.88,
+      "drawSize": 21.312,
+      "footY": 0.3326,
+      "role": "line",
+      "footprint": 3.6
+    },
+    "silo": {
+      "row": 18,
+      "worldSize": 13.7,
+      "drawSize": 41.099,
+      "footY": 0.2122,
+      "role": "mark",
+      "footprint": 2.4
+    },
+    "stump": {
+      "row": 19,
+      "worldSize": 2.66,
+      "drawSize": 7.447,
+      "footY": 0.3241,
+      "role": "point",
+      "footprint": 1.3
+    },
+    "tank": {
+      "row": 20,
+      "worldSize": 7.531,
+      "drawSize": 18.075,
+      "footY": 0.2434,
+      "role": "point",
+      "footprint": 2.3
+    },
+    "trough": {
+      "row": 21,
+      "worldSize": 6,
+      "drawSize": 13.2,
+      "footY": 0.4553,
+      "role": "line",
+      "footprint": 2.6
+    },
+    "wattle": {
+      "row": 22,
+      "worldSize": 6.472,
+      "drawSize": 18.122,
+      "footY": 0.3178,
+      "role": "point",
+      "footprint": 1.9
+    },
+    "windmill": {
+      "row": 23,
+      "worldSize": 15.606,
+      "drawSize": 46.817,
+      "footY": 0.1729,
+      "role": "mark",
+      "footprint": 2.6
+    }
+  }
+}

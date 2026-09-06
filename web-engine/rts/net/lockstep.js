@@ -43,6 +43,15 @@ export const CHECKSUM_EVERY_TICKS = TICKS_PER_SECOND;
 
 
 
+
+export const KEEP_CHECKSUM_TICKS = CHECKSUM_EVERY_TICKS * 4;
+
+
+
+
+
+
+
 export const NAME_THE_STALLER_AFTER_MS = 400;
 
 
@@ -208,9 +217,32 @@ export function createLockstep({ peers, localSeat }) {
     },
 
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     retire(tick) {
       inbox.delete(tick);
-      checksums.delete(tick);
+      checksums.delete(tick - KEEP_CHECKSUM_TICKS);
     },
 
     

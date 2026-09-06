@@ -1,0 +1,66 @@
+{
+  "tile": 160,
+  "facings": 4,
+  "rows": {
+    "electricFence": {
+      "row": 0,
+      "worldSize": 6.738,
+      "faction": "yield"
+    },
+    "greatTree": {
+      "row": 1,
+      "worldSize": 9.912,
+      "faction": "herd"
+    },
+    "greatWarren": {
+      "row": 2,
+      "worldSize": 20.882,
+      "faction": "herd"
+    },
+    "haven": {
+      "row": 3,
+      "worldSize": 11.348,
+      "faction": "herd"
+    },
+    "machineShed": {
+      "row": 4,
+      "worldSize": 11.116,
+      "faction": "yield"
+    },
+    "mudWall": {
+      "row": 5,
+      "worldSize": 8.061,
+      "faction": "herd"
+    },
+    "pesticideBattery": {
+      "row": 6,
+      "worldSize": 6.502,
+      "faction": "yield"
+    },
+    "processingPlant": {
+      "row": 7,
+      "worldSize": 16.783,
+      "faction": "yield"
+    },
+    "pumpStation": {
+      "row": 8,
+      "worldSize": 9.966,
+      "faction": "yield"
+    },
+    "reedbed": {
+      "row": 9,
+      "worldSize": 8.549,
+      "faction": "herd"
+    },
+    "sanctuary": {
+      "row": 10,
+      "worldSize": 13.27,
+      "faction": "herd"
+    },
+    "watchtower": {
+      "row": 11,
+      "worldSize": 7.349,
+      "faction": "yield"
+    }
+  }
+}
