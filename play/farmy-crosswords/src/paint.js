@@ -206,7 +206,22 @@ export function tile(g, r, {
     
     
     const word = String(letter).length > 1;
-    const forMark = s && word ? 30 : 0;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const tight = !word && !!s && r.h < 44;
+    const forMark = s && word ? 30 : (tight ? Math.round(r.w * 0.34) : 0);
     text(g, letter, { x: r.x, y: r.y + press, w: r.w - forMark, h: r.h }, {
       size: size ?? Math.round(r.h * 0.52),
       colour: colour ?? inkOn,
