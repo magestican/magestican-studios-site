@@ -24,11 +24,74 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { FIELD_MM } from '../fixed.js';
 import { SECTOR_VALUE, createSector } from '../territory.js';
+import {
+  rasterise, rotate180, pieces, absorbSpecks, seedOf, MIRRORED,
+} from './shapes.js';
+import { buildElevation, cliffStepBetween } from './elevation.js';
+import { sectorOutlines } from './outline.js';
 
 
-export const CELLS_PER_SIDE = 48;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const CELLS_PER_SIDE = 96;
 export const CELL_MM = FIELD_MM / CELLS_PER_SIDE;   
 
 
@@ -63,7 +126,32 @@ export function centreOffset(sum, cells) {
 
 
 
-export const MIN_BORDER_CELLS = 4;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const MIN_BORDER_CELLS = 8;
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -84,47 +172,108 @@ export const MIN_BORDER_CELLS = 4;
 
 
 export function buildMap(def) {
+  const hasSketch = def.sketch !== undefined;
+  const hasRegions = Array.isArray(def.regions);
   
   
   
   
-  const raw = Array.isArray(def.sketch)
-    ? def.sketch
-    : String(def.sketch).split(String.fromCharCode(10));
-  const rows = raw.map((r) => r.trim()).filter((r) => r.length > 0);
-  const side = rows.length;
-  if (side === 0) throw new Error(`${def.id}: empty sketch`);
-  for (let r = 0; r < side; r += 1) {
-    if (rows[r].length !== side) {
-      throw new Error(
-        `${def.id}: sketch row ${r} is ${rows[r].length} characters, expected ${side} `
-        + '(the sketch must be square, or the map is silently skewed)',
-      );
-    }
+  if (hasSketch === hasRegions) {
+    throw new Error(`${def.id}: give exactly one of sketch and regions`);
   }
-  if (CELLS_PER_SIDE % side !== 0) {
-    throw new Error(`${def.id}: sketch of ${side} does not divide ${CELLS_PER_SIDE}`);
-  }
-  const scale = CELLS_PER_SIDE / side;
 
-  
-  
-  
-  
-  
   const letters = [];
   const indexOfLetter = new Map();
-  for (const row of rows) {
-    for (const ch of row) {
-      if (ch === '.') continue;             
-      if (!indexOfLetter.has(ch)) {
-        indexOfLetter.set(ch, letters.length);
-        letters.push(ch);
+  const declare = (ch) => {
+    if (indexOfLetter.has(ch)) return;
+    indexOfLetter.set(ch, letters.length);
+    letters.push(ch);
+  };
+  let sectorOfCell;
+
+  if (hasSketch) {
+    
+    
+    
+    
+    const raw = Array.isArray(def.sketch)
+      ? def.sketch
+      : String(def.sketch).split(String.fromCharCode(10));
+    const rows = raw.map((r) => r.trim()).filter((r) => r.length > 0);
+    const side = rows.length;
+    if (side === 0) throw new Error(`${def.id}: empty sketch`);
+    for (let r = 0; r < side; r += 1) {
+      if (rows[r].length !== side) {
+        throw new Error(
+          `${def.id}: sketch row ${r} is ${rows[r].length} characters, expected ${side} `
+          + '(the sketch must be square, or the map is silently skewed)',
+        );
       }
     }
+    if (CELLS_PER_SIDE % side !== 0) {
+      throw new Error(`${def.id}: sketch of ${side} does not divide ${CELLS_PER_SIDE}`);
+    }
+    const scale = CELLS_PER_SIDE / side;
+
+    
+    
+    
+    
+    
+    for (const row of rows) {
+      for (const ch of row) {
+        if (ch === '.') continue;             
+        declare(ch);
+      }
+    }
+
+    
+    sectorOfCell = new Uint8Array(CELLS_PER_SIDE * CELLS_PER_SIDE);
+    for (let cy = 0; cy < CELLS_PER_SIDE; cy += 1) {
+      const sy = Math.floor(cy / scale);
+      for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
+        const sx = Math.floor(cx / scale);
+        sectorOfCell[cy * CELLS_PER_SIDE + cx] = indexOfLetter.get(rows[sy][sx]);
+      }
+    }
+  } else {
+    
+    
+    
+    
+    
+    for (const r of def.regions) {
+      if (indexOfLetter.has(r.letter)) {
+        throw new Error(`${def.id}: region '${r.letter}' is listed twice`);
+      }
+      if (!r.region || typeof r.region.f !== 'function') {
+        throw new Error(`${def.id}: region '${r.letter}' is not a shapes.js region`);
+      }
+      if (r.region === MIRRORED && !def.mirror) {
+        throw new Error(
+          `${def.id}: region '${r.letter}' is MIRRORED but the map declares no mirror, `
+          + 'so nothing would ever fill it in',
+        );
+      }
+      declare(r.letter);
+    }
+    sectorOfCell = rasterise(def.regions.map((r) => r.region), CELLS_PER_SIDE, CELL_MM);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    absorbSpecks(sectorOfCell, CELLS_PER_SIDE, letters.length);
   }
+
   for (const ch of letters) {
-    if (!def.sectors[ch]) throw new Error(`${def.id}: sketch uses '${ch}' with no sector defined`);
+    if (!def.sectors[ch]) throw new Error(`${def.id}: map uses '${ch}' with no sector defined`);
   }
   for (const ch of Object.keys(def.sectors)) {
     if (!indexOfLetter.has(ch)) throw new Error(`${def.id}: sector '${ch}' is defined but unused`);
@@ -132,12 +281,91 @@ export function buildMap(def) {
   if (letters.length > 255) throw new Error(`${def.id}: more than 255 sectors`);
 
   
-  const sectorOfCell = new Uint8Array(CELLS_PER_SIDE * CELLS_PER_SIDE);
-  for (let cy = 0; cy < CELLS_PER_SIDE; cy += 1) {
-    const sy = Math.floor(cy / scale);
-    for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
-      const sx = Math.floor(cx / scale);
-      sectorOfCell[cy * CELLS_PER_SIDE + cx] = indexOfLetter.get(rows[sy][sx]);
+  
+  
+  
+  
+  
+  
+  
+  let partnerIdx = null;
+  if (def.mirror) {
+    if (def.mirror !== 'rot180') throw new Error(`${def.id}: unknown mirror '${def.mirror}'`);
+    if (!def.symmetry) throw new Error(`${def.id}: mirror needs a symmetry table`);
+    partnerIdx = new Int32Array(letters.length);
+    for (let i = 0; i < letters.length; i += 1) {
+      const p = def.symmetry[letters[i]];
+      const j = indexOfLetter.get(p);
+      if (j === undefined) {
+        throw new Error(`${def.id}: '${letters[i]}' has no partner in the symmetry table`);
+      }
+      partnerIdx[i] = j;
+    }
+    rotate180(sectorOfCell, CELLS_PER_SIDE, partnerIdx);
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const heightOfCell = def.elevation
+    ? buildElevation({
+      n: CELLS_PER_SIDE,
+      cellMm: CELL_MM,
+      seed: seedOf(def.id),
+      features: def.elevation.features || [],
+      baseDm: def.elevation.baseDm || 0,
+      baseWaveMm: def.elevation.baseWaveMm || 300_000,
+    })
+    : new Int16Array(CELLS_PER_SIDE * CELLS_PER_SIDE);
+  if (def.mirror) {
+    for (let cy = CELLS_PER_SIDE / 2; cy < CELLS_PER_SIDE; cy += 1) {
+      for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
+        heightOfCell[cy * CELLS_PER_SIDE + cx] = heightOfCell[
+          (CELLS_PER_SIDE - 1 - cy) * CELLS_PER_SIDE + (CELLS_PER_SIDE - 1 - cx)];
+      }
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  for (let i = 0; i < letters.length; i += 1) {
+    const parts = pieces(sectorOfCell, CELLS_PER_SIDE, i);
+    if (parts.length === 0) {
+      throw new Error(
+        `${def.id}: sector '${letters[i]}' owns no cells - it was drawn and then `
+        + 'covered over. Raise its weight, or delete it.',
+      );
+    }
+    if (parts.length > 1) {
+      
+      
+      
+      
+      
+      
+      throw new Error(
+        `${def.id}: sector '${letters[i]}' is in ${parts.length} disconnected pieces (`
+        + parts.map((q) => `${q.size} cells from ${q.cx},${q.cy} walled in by `
+          + q.around.map((t) => `${letters[t.region]} x ${t.edges}`).join(', ')).join('; ')
+        + '). Its centroid would land in none of them, and every rally and every '
+        + 'bot order aimed at it would send an army onto ground its owner does '
+        + 'not hold.',
+      );
     }
   }
 
@@ -155,19 +383,43 @@ export function buildMap(def) {
   }
 
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const border = new Map();                 
+  const touching = new Map();               
   const key = (a, b) => (a < b ? `${a},${b}` : `${b},${a}`);
+  const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
   for (let cy = 0; cy < CELLS_PER_SIDE; cy += 1) {
     for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
       const here = sectorOfCell[cy * CELLS_PER_SIDE + cx];
       
       if (cx + 1 < CELLS_PER_SIDE) {
         const r = sectorOfCell[cy * CELLS_PER_SIDE + cx + 1];
-        if (r !== here) border.set(key(here, r), (border.get(key(here, r)) || 0) + 1);
+        if (r !== here) {
+          const k = key(here, r);
+          bump(touching, k);
+          if (!cliffStepBetween(heightOfCell, CELLS_PER_SIDE, cx, cy, cx + 1, cy)) bump(border, k);
+        }
       }
       if (cy + 1 < CELLS_PER_SIDE) {
         const d = sectorOfCell[(cy + 1) * CELLS_PER_SIDE + cx];
-        if (d !== here) border.set(key(here, d), (border.get(key(here, d)) || 0) + 1);
+        if (d !== here) {
+          const k = key(here, d);
+          bump(touching, k);
+          if (!cliffStepBetween(heightOfCell, CELLS_PER_SIDE, cx, cy, cx, cy + 1)) bump(border, k);
+        }
       }
     }
   }
@@ -246,6 +498,26 @@ export function buildMap(def) {
     cellsPerSide: CELLS_PER_SIDE,
     cellMm: CELL_MM,
     sectorOfCell,
+    
+
+
+
+
+
+    heightOfCell,
+    
+
+
+
+
+    outlines: sectorOutlines(sectorOfCell, CELLS_PER_SIDE, CELL_MM, letters.length),
+    
+
+
+
+
+
+    touching: Object.freeze(Object.fromEntries(touching)),
     letters,
     sectors,
     spawns,

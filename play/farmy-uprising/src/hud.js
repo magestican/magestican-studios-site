@@ -46,6 +46,7 @@ import { loadAtlas } from './sprites.js';
 import { loadBuildingAtlas } from './buildingSprites.js';
 import { loadPortraits, portraitRow } from './portraits.js';
 import { createMinimap } from './minimap.js';
+import { skinFor } from './hudSkin.js';
 
 const $ = (id) => document.getElementById(id);
 const clock = (ticks) => {
@@ -75,16 +76,35 @@ const clock = (ticks) => {
 const ICON_FACING = 2;
 
 
-const DOING = {
-  [STATE.IDLE]: 'HOLDING',
-  [STATE.MOVING]: 'ON THE MOVE',
-  [STATE.ATTACKING]: 'FIGHTING',
-  [STATE.GATHERING]: 'WORKING',
-  [STATE.LOADING]: 'LOADING',
-  [STATE.DEAD]: 'GONE',
+
+
+
+
+
+
+const DOING_KEY = {
+  [STATE.IDLE]: 'idle',
+  [STATE.MOVING]: 'moving',
+  [STATE.ATTACKING]: 'attacking',
+  [STATE.GATHERING]: 'gathering',
+  [STATE.LOADING]: 'loading',
+  [STATE.DEAD]: 'dead',
 };
 
+
+const POP_GAP_MS = 650;
+
+
+const ROLL = 0.22;
+
 export function createHud(match, seat, actions) {
+  
+  
+  
+  
+  
+  const skin = skinFor(match.factions[seat]);
+
   const el = {
     feed: $('feed'), water: $('water'), clock: $('clock'),
     bar: $('scorebar'), share: $('share'),
@@ -96,6 +116,47 @@ export function createHud(match, seat, actions) {
 
   
   let selection = { kind: 'none', key: null };
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (typeof document !== 'undefined') document.documentElement.dataset.skin = skin.id;
+
+  
+  
+  
+  const cap = (id, text) => { const n = $(id); if (n) n.textContent = text; };
+  const label = (id, text) => { const n = $(id); if (n) n.dataset.label = text; };
+  label('p-forces', skin.panels.forces);
+  label('p-map', skin.panels.map);
+  label('p-status', skin.panels.status);
+  cap('btn-attack', skin.buttons.attack);
+  cap('btn-capture', skin.buttons.capture);
+  cap('btn-build', skin.buttons.build);
+  cap('btn-quick', skin.buttons.menu);
+  
+  
+  
+  
+  const hint = (id, text) => { const n = $(id); if (n) n.title = text; };
+  hint('btn-attack', 'Send what is selected at the nearest thing worth fighting');
+  hint('btn-capture', 'Send what is selected to take the nearest ground');
+  hint('btn-build', 'Open what you can make');
+  if (document.querySelector('.res.feed em')) {
+    document.querySelector('.res.feed em').textContent = skin.res.feed;
+  }
+  if (document.querySelector('.res.water em')) {
+    document.querySelector('.res.water em').textContent = skin.res.water;
+  }
 
   
   
@@ -252,10 +313,10 @@ export function createHud(match, seat, actions) {
   function renderRail(m) {
     const groups = groupsFor(m);
     const chips = [
-      { key: 'all', label: 'ALL', n: groups.reduce((a, g) => a + g.units, 0) },
-      { key: 'army', label: 'ARMY', n: countWhere(m, isArmy) },
-      { key: 'gather', label: 'GATHER', n: countWhere(m, isGatherer) },
-      { key: 'view', label: 'VIEW', n: -1 },
+      { key: 'all', label: skin.chips.all, n: groups.reduce((a, g) => a + g.units, 0) },
+      { key: 'army', label: skin.chips.army, n: countWhere(m, isArmy) },
+      { key: 'gather', label: skin.chips.gather, n: countWhere(m, isGatherer) },
+      { key: 'view', label: skin.chips.view, n: -1 },
     ];
     let html = '';
     for (const c of chips) {
@@ -319,7 +380,7 @@ export function createHud(match, seat, actions) {
 
     const key = `${units.join()}|${trainWhy.map((w) => (w ? 1 : 0)).join()}`
       + `|${builds.join()}|${buildWhy.map((w) => (w ? 1 : 0)).join()}`
-      + `|${atlas ? 1 : 0}${buildingAtlas ? 1 : 0}`;
+      + `|${atlas ? 1 : 0}${buildingAtlas ? 1 : 0}|${skin.id}`;
     if (key === buildKey) return;
     buildKey = key;
 
@@ -332,7 +393,8 @@ export function createHud(match, seat, actions) {
     
     
     const cost = (spec) => `${spec.cost.feed}${spec.cost.water ? `/${spec.cost.water}` : ''}`;
-    let html = '<section class="bpanel buildpanel" data-label="TRAIN"><div class="buildrow">';
+    let html = `<section class="bpanel buildpanel" data-label="${skin.rows.train}">`
+      + '<div class="buildrow">';
     units.forEach((id, i) => {
       const spec = UNITS[id];
       html += `<button class="bbtn${trainWhy[i] ? ' off' : ''}" data-train="${id}"`
@@ -340,7 +402,7 @@ export function createHud(match, seat, actions) {
         + `<canvas data-icon="${id}" width="64" height="64"></canvas>`
         + `<span>${spec.name}</span><b>${cost(spec)}</b></button>`;
     });
-    html += '</div></section><section class="bpanel buildpanel" data-label="BUILD">'
+    html += `</div></section><section class="bpanel buildpanel" data-label="${skin.rows.build}">`
       + '<div class="buildrow">';
     builds.forEach((id, i) => {
       const spec = BUILDINGS[id];
@@ -426,7 +488,8 @@ export function createHud(match, seat, actions) {
     }
     const f = incomeMark.feedRate.toFixed(1);
     const w = incomeMark.waterRate.toFixed(1);
-    const next = `<span class="f">FEED <b>+${f}</b>/s</span><span class="w">WATER <b>+${w}</b>/s</span>`;
+    const next = `<span class="f">${skin.res.feed} <b>+${f}</b>/s</span>`
+      + `<span class="w">${skin.res.water} <b>+${w}</b>/s</span>`;
     
     
     
@@ -434,6 +497,90 @@ export function createHud(match, seat, actions) {
       el.income.dataset.v = next;
       el.income.innerHTML = next;
     }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const pill = (n) => (n && n.parentElement ? n.parentElement : null);
+  const money = {
+    feed: { out: el.feed, pill: pill(el.feed), shown: -1, earned: -1, pending: 0, popAt: 0, glow: 0, pops: 0 },
+    water: { out: el.water, pill: pill(el.water), shown: -1, earned: -1, pending: 0, popAt: 0, glow: 0, pops: 0 },
+  };
+
+  
+
+
+
+
+
+
+
+  function popGain(s, n) {
+    if (!s.pill) return;
+    const e = document.createElement('i');
+    e.className = 'pop';
+    e.textContent = `+${n}`;
+    
+    
+    e.addEventListener('animationend', () => e.remove());
+    s.pill.appendChild(e);
+    const live = s.pill.querySelectorAll('.pop');
+    for (let i = 0; i < live.length - 3; i += 1) live[i].remove();
+    s.pill.classList.add('gain');
+    clearTimeout(s.glow);
+    s.glow = setTimeout(() => s.pill.classList.remove('gain'), 320);
+    s.pops += 1;
+  }
+
+  
+
+
+
+
+
+
+
+  function rollCounter(s, target, earnedMilli, now) {
+    if (!s.out) return;
+    const whole = Math.floor(earnedMilli / 1000);
+    
+    
+    if (s.earned < 0 || whole < s.earned) { s.earned = whole; s.pending = 0; }
+    if (whole > s.earned) { s.pending += whole - s.earned; s.earned = whole; }
+    if (s.pending >= 1 && now - s.popAt >= POP_GAP_MS) {
+      popGain(s, s.pending);
+      s.pending = 0;
+      s.popAt = now;
+    }
+    if (s.shown < 0 || target < s.shown) s.shown = target;
+    else if (s.shown < target) s.shown = Math.min(target, s.shown + Math.max(1, (target - s.shown) * ROLL));
+    const txt = String(Math.floor(s.shown));
+    if (s.out.textContent !== txt) s.out.textContent = txt;
   }
 
   
@@ -527,8 +674,8 @@ export function createHud(match, seat, actions) {
   function renderStatus(m) {
     const i = focusUnit(m);
     if (i < 0) {
-      st.name.textContent = 'NO FORCES';
-      st.doing.textContent = 'TRAIN SOMETHING';
+      st.name.textContent = skin.empty.name;
+      st.doing.textContent = skin.empty.hint;
       st.nums.innerHTML = '';
       st.fill.style.width = '0%';
       return;
@@ -552,13 +699,21 @@ export function createHud(match, seat, actions) {
     
     const max = Math.max(w.u.members[i], spec.packSize) * spec.hp;
     const pct = max > 0 ? Math.round((total * 100) / max) : 0;
-    st.name.textContent = spec.name.toUpperCase();
-    st.doing.textContent = DOING[w.u.state[i]] || 'HOLDING';
+    
+    
+    
+    
+    st.name.textContent = skin.id === 'herd' ? spec.name : spec.name.toUpperCase();
+    st.doing.textContent = skin.doing[DOING_KEY[w.u.state[i]]] || skin.doing.idle;
     st.fill.style.width = `${Math.max(0, Math.min(100, pct))}%`;
     st.bar.classList.toggle('low', pct < 40);
-    st.nums.innerHTML = `<span>HP <b>${total}</b>/${max}</span>`
-      + `<span>DMG <b>${spec.damage}</b></span>`
-      + `<span>PACK <b>${w.u.members[i]}</b></span>`;
+    
+    
+    
+    
+    st.nums.innerHTML = `<span>${skin.nums.hp} <b>${total}</b>/${max}</span>`
+      + `<span>${skin.nums.dmg} <b>${spec.damage}</b></span>`
+      + `<span>${skin.nums.pack} <b>${w.u.members[i]}</b></span>`;
   }
 
   
@@ -572,6 +727,9 @@ export function createHud(match, seat, actions) {
     canvas: el.minimap,
     match,
     seat,
+    
+    
+    skin: skin.id,
     onJump(xMm, yMm) {
       if (actions.onJumpCamera) actions.onJumpCamera(xMm, yMm);
     },
@@ -702,9 +860,10 @@ export function createHud(match, seat, actions) {
   let lastStatus = 0;
 
   function update(m, now, view) {
-    const bank = m.banks[seat].display();
-    el.feed.textContent = bank.feed;
-    el.water.textContent = bank.water;
+    const bank = m.banks[seat];
+    const held = bank.display();
+    rollCounter(money.feed, held.feed, bank.earnedFeed, now);
+    rollCounter(money.water, held.water, bank.earnedWater, now);
     el.clock.textContent = clock(m.w.tick);
 
     
@@ -719,7 +878,7 @@ export function createHud(match, seat, actions) {
       html += `<i class="${cls}${p === seat ? ' me' : ''}" style="width:${w}%"></i>`;
     }
     el.bar.innerHTML = html;
-    el.share.textContent = `${sharePct(m.w.sectors, seat)}% HELD  ·  ${landSeconds(m.score[seat])} PTS`;
+    el.share.textContent = skin.share(sharePct(m.w.sectors, seat), landSeconds(m.score[seat]));
     renderIncome(m);
 
     
@@ -738,18 +897,29 @@ export function createHud(match, seat, actions) {
     if (now - lastStatus > 250) { lastStatus = now; renderStatus(m); }
   }
 
+  
+
+
+
+
+
+
+
+
+
   function events(evs, m) {
+    const t = skin.ticker;
     for (const ev of evs) {
-      if (ev.type === 'captured' && ev.to === seat) say('Ground taken.');
-      else if (ev.type === 'lost' && ev.from === seat) say('We are losing ground.');
-      else if (ev.type === 'faded' && ev.from === seat) say('Ground has gone quiet. It needs a Haven.');
-      else if (ev.type === 'buildingDone' && ev.owner === seat) say(`${BUILDINGS[ev.building].name} is standing.`);
-      else if (ev.type === 'stockRecovered' && ev.owner === seat) say('They have taken one of us away.');
-      else if (ev.type === 'stockRecovered' && ev.by === seat) say('Stock recovered.');
-      else if (ev.type === 'waterPolluted') say('The water is turning.');
-      else if (ev.type === 'waterCleaned') say('The water is clearing.');
+      if (ev.type === 'captured' && ev.to === seat) say(t.captured);
+      else if (ev.type === 'lost' && ev.from === seat) say(t.lost);
+      else if (ev.type === 'faded' && ev.from === seat) say(t.faded);
+      else if (ev.type === 'buildingDone' && ev.owner === seat) say(t.made(BUILDINGS[ev.building].name));
+      else if (ev.type === 'stockRecovered' && ev.owner === seat) say(t.stockLost);
+      else if (ev.type === 'stockRecovered' && ev.by === seat) say(t.stockTaken);
+      else if (ev.type === 'waterPolluted') say(t.waterPolluted);
+      else if (ev.type === 'waterCleaned') say(t.waterCleaned);
       else if (ev.type === 'matchOver') {
-        el.banner.textContent = ev.winner === seat ? 'You held the most ground.' : 'They held more ground.';
+        el.banner.textContent = ev.winner === seat ? t.won : t.lostMatch;
         el.banner.classList.add('show');
       }
     }
@@ -781,6 +951,27 @@ export function createHud(match, seat, actions) {
       get tile() { return atlas ? atlas.manifest.tile : 0; },
       get minimap() { return minimap ? minimap.debug : null; },
       get focusName() { return st.name.textContent; },
+      
+      get skin() { return skin.id; },
+      
+
+
+
+
+
+
+
+
+      get income() {
+        return {
+          pops: money.feed.pops + money.water.pops,
+          feedPops: money.feed.pops,
+          waterPops: money.water.pops,
+          shownFeed: Math.floor(Math.max(0, money.feed.shown)),
+          shownWater: Math.floor(Math.max(0, money.water.shown)),
+          live: document.querySelectorAll('#top .pop').length,
+        };
+      },
     },
   };
 

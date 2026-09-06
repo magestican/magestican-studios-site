@@ -184,6 +184,253 @@ export function damageAfterArmour(damage, damageClass, armourClass, armourFlat) 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const unit = (o) => Object.freeze({
   packSize: 1,
   armourFlat: 0,
@@ -225,15 +472,15 @@ export const UNITS = Object.freeze({
     
     
     
-    damage: 12, damageClass: 'smallArms', attackTicks: 16, rangeMm: 45000,
-    speedMmPerTick: 950, visionMm: 140000, captureWeight: 6,
+    damage: 12, damageClass: 'smallArms', attackTicks: 16, rangeMm: 72000,
+    speedMmPerTick: 1520, visionMm: 140000, captureWeight: 6,
     cost: { feed: 60, water: 0 }, buildTicks: ticks(6),
   }),
 
   harvester: unit({
     id: 'harvester', faction: YIELD, tier: 1, name: 'Harvester',
     hp: 260, armourClass: 'metal', armourFlat: 4,
-    speedMmPerTick: 700, visionMm: 113750, captureWeight: 5,
+    speedMmPerTick: 1120, visionMm: 113750, captureWeight: 5,
     
     
     
@@ -260,7 +507,7 @@ export const UNITS = Object.freeze({
   bowser: unit({
     id: 'bowser', faction: YIELD, tier: 1, name: 'Water Bowser',
     hp: 240, armourClass: 'metal', armourFlat: 4,
-    speedMmPerTick: 620, visionMm: 105000, captureWeight: 4,
+    speedMmPerTick: 992, visionMm: 105000, captureWeight: 4,
     gatherWaterPerTick: 100,
     cost: { feed: 110, water: 0 }, buildTicks: ticks(9),
   }),
@@ -268,8 +515,8 @@ export const UNITS = Object.freeze({
   quadBike: unit({
     id: 'quadBike', faction: YIELD, tier: 1, name: 'Quad Bike',
     hp: 110, armourClass: 'metal', armourFlat: 2,
-    damage: 8, damageClass: 'smallArms', attackTicks: 12, rangeMm: 45000,
-    speedMmPerTick: 1700, visionMm: 210000, captureWeight: 3,
+    damage: 8, damageClass: 'smallArms', attackTicks: 12, rangeMm: 72000,
+    speedMmPerTick: 2720, visionMm: 210000, captureWeight: 3,
     cost: { feed: 90, water: 0 }, buildTicks: ticks(7),
   }),
 
@@ -287,7 +534,7 @@ export const UNITS = Object.freeze({
     
     
     hp: 320, armourClass: 'metal', armourFlat: 5,
-    speedMmPerTick: 800, visionMm: 122500, captureWeight: 4,
+    speedMmPerTick: 1280, visionMm: 122500, captureWeight: 4,
     capturesPacks: true, capturesBelowPct: 40, captureTicks: ticks(3),
     captureRefundPct: 60, captureScore: 15,
     cost: { feed: 180, water: 10 }, buildTicks: ticks(14),
@@ -296,7 +543,7 @@ export const UNITS = Object.freeze({
   foodTruck: unit({
     id: 'foodTruck', faction: YIELD, tier: 2, name: 'Food Truck',
     hp: 300, armourClass: 'metal', armourFlat: 5,
-    speedMmPerTick: 850, visionMm: 122500, captureWeight: 4,
+    speedMmPerTick: 1360, visionMm: 122500, captureWeight: 4,
     healPerPulse: 9, healPulseTicks: 20, healRadiusMm: 50000,
     auraSpeedPct: 8, auraRadiusMm: 50000,
     cost: { feed: 200, water: 20 }, buildTicks: ticks(15),
@@ -305,8 +552,8 @@ export const UNITS = Object.freeze({
   tractor: unit({
     id: 'tractor', faction: YIELD, tier: 2, name: 'Tractor',
     hp: 620, armourClass: 'metal', armourFlat: 9,
-    damage: 34, damageClass: 'crush', attackTicks: 24, rangeMm: 18000,
-    speedMmPerTick: 700, visionMm: 122500, captureWeight: 7,
+    damage: 34, damageClass: 'crush', attackTicks: 24, rangeMm: 28800,
+    speedMmPerTick: 1120, visionMm: 122500, captureWeight: 7,
     
     
     
@@ -317,9 +564,9 @@ export const UNITS = Object.freeze({
   cropDuster: unit({
     id: 'cropDuster', faction: YIELD, tier: 3, name: 'Crop Duster',
     hp: 260, armourClass: 'air', armourFlat: 3,
-    damage: 14, damageClass: 'pesticide', attackTicks: 30, rangeMm: 60000,
+    damage: 14, damageClass: 'pesticide', attackTicks: 30, rangeMm: 96000,
     areaMm: 26000,
-    speedMmPerTick: 2100, visionMm: 262500,
+    speedMmPerTick: 3360, visionMm: 262500,
     
     
     
@@ -332,8 +579,8 @@ export const UNITS = Object.freeze({
   combine: unit({
     id: 'combine', faction: YIELD, tier: 3, name: 'Combine Harvester',
     hp: 1400, armourClass: 'metal', armourFlat: 13,
-    damage: 70, damageClass: 'crush', attackTicks: 20, rangeMm: 26000,
-    speedMmPerTick: 550, visionMm: 131250, captureWeight: 9,
+    damage: 70, damageClass: 'crush', attackTicks: 20, rangeMm: 41600,
+    speedMmPerTick: 880, visionMm: 131250, captureWeight: 9,
     requires: 'machineShed',
     cost: { feed: 520, water: 140 }, buildTicks: ticks(34),
   }),
@@ -343,8 +590,8 @@ export const UNITS = Object.freeze({
   flock: unit({
     id: 'flock', faction: HERD, tier: 1, name: 'Flock', packSize: 6,
     hp: 26, armourClass: 'flesh', armourFlat: 0,
-    damage: 3, damageClass: 'claw', attackTicks: 14, rangeMm: 9000,
-    speedMmPerTick: 900, visionMm: 113750, captureWeight: 1,
+    damage: 3, damageClass: 'claw', attackTicks: 14, rangeMm: 14400,
+    speedMmPerTick: 1440, visionMm: 113750, captureWeight: 1,
     
     
     gatherFeedPerTick: 25,
@@ -359,8 +606,8 @@ export const UNITS = Object.freeze({
   duckRaft: unit({
     id: 'duckRaft', faction: HERD, tier: 1, name: 'Duck Raft', packSize: 5,
     hp: 30, armourClass: 'flesh', armourFlat: 0,
-    damage: 2, damageClass: 'claw', attackTicks: 16, rangeMm: 9000,
-    speedMmPerTick: 700, visionMm: 105000, captureWeight: 1,
+    damage: 2, damageClass: 'claw', attackTicks: 16, rangeMm: 14400,
+    speedMmPerTick: 1120, visionMm: 105000, captureWeight: 1,
     gatherWaterPerTick: 25, waterOnly: true,
     cost: { feed: 90, water: 0 }, buildTicks: ticks(8),
   }),
@@ -368,8 +615,8 @@ export const UNITS = Object.freeze({
   skulk: unit({
     id: 'skulk', faction: HERD, tier: 1, name: 'Skulk', packSize: 3,
     hp: 55, armourClass: 'flesh', armourFlat: 1,
-    damage: 9, damageClass: 'claw', attackTicks: 12, rangeMm: 11000,
-    speedMmPerTick: 1750, visionMm: 280000, captureWeight: 2,
+    damage: 9, damageClass: 'claw', attackTicks: 12, rangeMm: 17600,
+    speedMmPerTick: 2800, visionMm: 280000, captureWeight: 2,
     cost: { feed: 100, water: 0 }, buildTicks: ticks(7),
   }),
 
@@ -383,7 +630,7 @@ export const UNITS = Object.freeze({
     hp: 160, armourClass: 'hide', armourFlat: 3,
     
     
-    damage: 13, damageClass: 'gore', attackTicks: 20, rangeMm: 13000,
+    damage: 13, damageClass: 'gore', attackTicks: 20, rangeMm: 20800,
     
     
     
@@ -397,7 +644,7 @@ export const UNITS = Object.freeze({
     
     
     
-    speedMmPerTick: 1080, visionMm: 122500, captureWeight: 3,
+    speedMmPerTick: 1728, visionMm: 122500, captureWeight: 3,
     
     
     
@@ -471,8 +718,8 @@ export const UNITS = Object.freeze({
     
     
     hp: 130, armourClass: 'hide', armourFlat: 3,
-    damage: 12, damageClass: 'kick', attackTicks: 18, rangeMm: 12000,
-    speedMmPerTick: 1600, visionMm: 148750, captureWeight: 3,
+    damage: 12, damageClass: 'kick', attackTicks: 18, rangeMm: 19200,
+    speedMmPerTick: 2560, visionMm: 148750, captureWeight: 3,
     auraSpeedPct: 15, auraDamagePct: 12, auraRadiusMm: 70000,
     carriesUnit: 'flock',
     cost: { feed: 220, water: 25 }, buildTicks: ticks(16),
@@ -481,8 +728,8 @@ export const UNITS = Object.freeze({
   wing: unit({
     id: 'wing', faction: HERD, tier: 3, name: 'Wing', packSize: 3,
     hp: 90, armourClass: 'air', armourFlat: 1,
-    damage: 21, damageClass: 'talon', attackTicks: 16, rangeMm: 22000,
-    speedMmPerTick: 2200, visionMm: 350000, captureWeight: 0, air: true,
+    damage: 21, damageClass: 'talon', attackTicks: 16, rangeMm: 35200,
+    speedMmPerTick: 3520, visionMm: 350000, captureWeight: 0, air: true,
     requires: 'sanctuary',
     
     
@@ -493,8 +740,8 @@ export const UNITS = Object.freeze({
   pride: unit({
     id: 'pride', faction: HERD, tier: 3, name: 'Pride', packSize: 3,
     hp: 175, armourClass: 'hide', armourFlat: 4,
-    damage: 33, damageClass: 'claw', attackTicks: 18, rangeMm: 14000,
-    speedMmPerTick: 1450, visionMm: 157500, captureWeight: 4,
+    damage: 33, damageClass: 'claw', attackTicks: 18, rangeMm: 22400,
+    speedMmPerTick: 2320, visionMm: 157500, captureWeight: 4,
     requires: 'sanctuary',
     cost: { feed: 340, water: 60 }, buildTicks: ticks(22),
   }),
@@ -506,8 +753,8 @@ export const UNITS = Object.freeze({
     
     
     hp: 1500, armourClass: 'hide', armourFlat: 11,
-    damage: 95, damageClass: 'trample', attackTicks: 30, rangeMm: 26000,
-    speedMmPerTick: 560, visionMm: 157500, captureWeight: 8,
+    damage: 95, damageClass: 'trample', attackTicks: 30, rangeMm: 41600,
+    speedMmPerTick: 896, visionMm: 157500, captureWeight: 8,
     requires: 'sanctuary',
     cost: { feed: 500, water: 130 }, buildTicks: ticks(32),
   }),
@@ -545,7 +792,7 @@ export const BUILDINGS = Object.freeze({
   watchtower: building({
     id: 'watchtower', faction: YIELD, name: 'Watchtower',
     hp: 400, armourFlat: 6,
-    damage: 13, damageClass: 'towerGun', attackTicks: 22, rangeMm: 90000,
+    damage: 13, damageClass: 'towerGun', attackTicks: 22, rangeMm: 144000,
     
     
     
@@ -563,7 +810,7 @@ export const BUILDINGS = Object.freeze({
     
     
     hp: 550, armourFlat: 8,
-    damage: 10, damageClass: 'pesticide', attackTicks: 34, rangeMm: 110000,
+    damage: 10, damageClass: 'pesticide', attackTicks: 34, rangeMm: 176000,
     areaMm: 26000, dotTicks: ticks(4),
     visionMm: 210000,
     cost: { feed: 200, water: 30 }, buildTicks: ticks(16),
@@ -576,7 +823,7 @@ export const BUILDINGS = Object.freeze({
     
     
     hp: 300, armourFlat: 10, wall: true, seversAura: true,
-    damage: 7, damageClass: 'current', attackTicks: 20, rangeMm: 9000,
+    damage: 7, damageClass: 'current', attackTicks: 20, rangeMm: 14400,
     visionMm: 52500,
     cost: { feed: 40, water: 0 }, buildTicks: ticks(3),
   }),
@@ -646,7 +893,7 @@ export const BUILDINGS = Object.freeze({
     
     
     hp: 600, armourFlat: 6, arcs: true,
-    damage: 30, damageClass: 'stone', attackTicks: 30, rangeMm: 105000,
+    damage: 30, damageClass: 'stone', attackTicks: 30, rangeMm: 168000,
     visionMm: 210000,
     cost: { feed: 210, water: 30 }, buildTicks: ticks(16),
   }),

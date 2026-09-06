@@ -155,6 +155,17 @@ export function createStems(ctx, baseUrl, names) {
   const buffers = Object.create(null);
   const nodes = Object.create(null);
   const gains = Object.create(null);
+  
+
+
+
+
+
+
+
+
+  let started = 0;
+  let stopped = 0;
   let error = null;
   let promise = null;
 
@@ -180,6 +191,8 @@ export function createStems(ctx, baseUrl, names) {
     get status() { return status; },
     get error() { return error; },
     get gains() { return gains; },
+    
+    get live() { return started - stopped; },
     ready() { if (!promise) promise = load(); return promise; },
 
     
@@ -192,6 +205,22 @@ export function createStems(ctx, baseUrl, names) {
 
     start(dest, when = 0) {
       if (status !== 'ready') return false;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      for (const n of Object.keys(nodes)) {
+        try { nodes[n].stop(); } catch {  }
+        stopped += 1;
+        delete nodes[n];
+        delete gains[n];
+      }
       const t = when || ctx.currentTime + 0.05;
       for (const n of names) {
         const src = ctx.createBufferSource();
@@ -201,6 +230,7 @@ export function createStems(ctx, baseUrl, names) {
         g.gain.value = 0;
         src.connect(g).connect(dest);
         src.start(t);
+        started += 1;
         nodes[n] = src;
         gains[n] = g;
       }
@@ -220,6 +250,7 @@ export function createStems(ctx, baseUrl, names) {
     stop() {
       for (const n of Object.keys(nodes)) {
         try { nodes[n].stop(); } catch {  }
+        stopped += 1;
         delete nodes[n];
       }
     },

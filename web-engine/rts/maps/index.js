@@ -6,10 +6,12 @@
 
 
 
+import bindiRidge from './bindiRidge.js';
 import mudgeeFlats from './mudgeeFlats.js';
 import theReservoir from './theReservoir.js';
 
 export const MAPS = Object.freeze({
+  bindiRidge,
   mudgeeFlats,
   theReservoir,
 });

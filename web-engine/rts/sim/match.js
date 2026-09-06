@@ -41,7 +41,7 @@ import {
 import { Bank, stepEconomy, gatherOf, sectorCap } from '../economy.js';
 import { EVENT_BONUS_LAND_TICKS, scoresFor } from '../progression.js';
 import {
-  createWorld, spawnUnit, unitSpec, isGatherer, factionMap, checksum,
+  createWorld, spawnUnit, unitSpec, buildingSpec, isGatherer, factionMap, checksum,
   STATE, ORDER, MAX_UNITS,
 } from './world.js';
 import { createPresenceBuffers, measurePresence } from './presence.js';
@@ -519,6 +519,97 @@ function updateStats(m) {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function isEliminated(m, p) {
+  const w = m.w;
+  for (let i = 0; i < w.u.count; i += 1) {
+    if (w.u.alive[i] && w.u.owner[i] === p) return false;
+  }
+  if (m.queues[p].length > 0) return false;
+  for (let i = 0; i < w.b.count; i += 1) {
+    
+    
+    if (!w.b.alive[i] || w.b.owner[i] !== p) continue;
+    if (buildingSpec(w, i).spawnsUnit) return false;
+  }
+  return !m.banks[p].canAfford(cheapestUnitCost(m.factions[p]));
+}
+
+
+
+
+
+
+
+
+
+
+const CHEAPEST_UNIT = new Map();
+function cheapestUnitCost(faction) {
+  let got = CHEAPEST_UNIT.get(faction);
+  if (got) return got;
+  for (const spec of Object.values(UNITS)) {
+    if (spec.faction !== faction || spec.requires) continue;
+    if (!got || spec.cost.feed < got.feed
+        || (spec.cost.feed === got.feed && spec.cost.water < got.water)) {
+      got = { feed: spec.cost.feed, water: spec.cost.water };
+    }
+  }
+  CHEAPEST_UNIT.set(faction, got);
+  return got;
+}
+
 function checkEnd(m) {
   const w = m.w;
   for (let p = 0; p < m.playerCount; p += 1) {
@@ -532,6 +623,33 @@ function checkEnd(m) {
       return;
     }
   }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  let alive = -1;
+  let aliveCount = 0;
+  for (let p = 0; p < m.playerCount; p += 1) {
+    if (isEliminated(m, p)) continue;
+    aliveCount += 1;
+    alive = p;
+  }
+  if (aliveCount <= 1) {
+    m.over = true;
+    
+    
+    
+    m.winner = aliveCount === 1 ? alive : -1;
+    m.endReason = aliveCount === 1 ? 'eliminated' : 'draw';
+    m.events.push({ type: 'matchOver', winner: m.winner, reason: m.endReason });
+    return;
+  }
+
   if (w.tick + 1 >= MATCH_TICKS) {
     m.over = true;
     m.winner = leader(m);

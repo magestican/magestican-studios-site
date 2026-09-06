@@ -245,6 +245,13 @@ function handleEvents(events) {
   hud.events(events, match);
   audio.events(events, match);
   if (voices) voices.events(events, match, SEAT);
+  
+  
+  
+  
+  
+  
+  if (view) view.shots(match, SEAT, events);
 }
 
 
@@ -752,7 +759,26 @@ function loop(now) {
   
   
   
-  view.setSelection(selection.kind === 'all' ? null : resolveSelection(match, SEAT, selection));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  view.setSelection(resolveSelection(match, SEAT, selection));
   view.frame(match, SEAT, now);
 }
 

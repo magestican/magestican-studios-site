@@ -66,6 +66,75 @@ import {
 import { createSheet, createStems } from './sfxSheet.js';
 
 
+const CLOCK_STALL_SECONDS = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function resumeReason({ visible, state, ctxTime, lastCtxTime, wallElapsed }) {
+  if (!visible) return null;
+  if (state !== 'running') return 'state';
+  
+  
+  if (wallElapsed >= CLOCK_STALL_SECONDS && ctxTime <= lastCtxTime) return 'clock';
+  return null;
+}
+
+
 
 
 
@@ -274,6 +343,17 @@ export function createAudio() {
   let usingSynthMusic = false;
   let duckUntil = 0;
   let lastSpoken = null;
+  
+  let pumps = 0;
+  
+  
+  let watchTime = -1;
+  let watchWall = 0;
+  
+  let resumes = 0;
+  let lastResumeReason = null;
+  
+  let wired = false;
 
   const LEVELS = { music: 0.5, sfx: 0.75, voice: 1.0 };
 
@@ -305,6 +385,55 @@ export function createAudio() {
   
   const moveStats = { steps: 0, moving: 0 };
   const voiceLog = [];
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function wake() {
+    if (!ctx) return;
+    const nowWall = Date.now();
+    const visible = typeof document === 'undefined' || document.visibilityState !== 'hidden';
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const why = resumeReason({
+      visible,
+      state: ctx.state,
+      ctxTime: ctx.currentTime,
+      lastCtxTime: watchTime,
+      wallElapsed: watchWall ? (nowWall - watchWall) / 1000 : 0,
+    });
+    
+    
+    if (ctx.currentTime > watchTime || watchWall === 0 || why) {
+      watchTime = ctx.currentTime;
+      watchWall = nowWall;
+    }
+    if (!why) return;
+    resumes += 1;
+    lastResumeReason = why;
+    
+    
+    try { const r = ctx.resume(); if (r && r.catch) r.catch(() => {}); } catch {  }
+  }
 
   function ensure() {
     if (ctx) return true;
@@ -347,6 +476,25 @@ export function createAudio() {
       sheet = createSheet(ctx, './assets/sfx');
       vox = createSheet(ctx, './assets/sfx');
       stems = createStems(ctx, './assets/music', ['pastoral', 'industrial']);
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (!wired && typeof document !== 'undefined' && document.addEventListener) {
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') wake();
+        });
+        
+        
+        ctx.addEventListener('statechange', () => { wake(); });
+        wired = true;
+      }
       return true;
     } catch {
       
@@ -871,6 +1019,12 @@ export function createAudio() {
 
   function pump() {
     if (!ctx) return;
+    pumps += 1;
+    
+    
+    
+    
+    wake();
     while (usingSynthMusic && nextNoteAt < ctx.currentTime + 2) scheduleBar();
     
     
@@ -981,6 +1135,11 @@ export function createAudio() {
     begin(match, seat) {
       if (!ensure()) return;
       if (ctx.state === 'suspended') ctx.resume();
+      
+      
+      
+      watchTime = ctx.currentTime;
+      watchWall = Date.now();
       bar = 0;
       nextNoteAt = ctx.currentTime + 0.1;
       blend = 0.5;
@@ -1190,9 +1349,25 @@ export function createAudio() {
         sfxSheet: sheet,
         voxSheet: vox,
         stems,
+        state: ctx ? ctx.state : 'none',
+        contextTime: ctx ? Number(ctx.currentTime.toFixed(3)) : -1,
+        pumps,
+        
+        
+        
+        resumes,
+        lastResumeReason,
         sfxStatus: sheet ? sheet.status : 'none',
         voxStatus: vox ? vox.status : 'none',
         musicStatus: stems ? stems.status : 'none',
+        
+        
+        
+        
+        stemGains: stems ? Object.fromEntries(Object.entries(stems.gains)
+          .map(([k, g]) => [k, Number(g.gain.value.toFixed(4))])) : {},
+        
+        stemVoices: stems ? stems.live : 0,
         usingSynthMusic,
         lastSpoken,
         missing: [...(sheet ? sheet.missing : []), ...(vox ? vox.missing : [])],

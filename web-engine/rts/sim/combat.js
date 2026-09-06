@@ -84,6 +84,77 @@ export const LEASH_MM = 260000;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const PROJECTILE_CLASSES = new Set([
+  'smallArms',  
+  'towerGun',   
+  'stone',      
+  'pesticide',  
+  'current',    
+]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const SECTOR_FRONTAGE = 24;
 
 
@@ -294,6 +365,24 @@ export function stepCombat(w, damageBonusPct = null, eventsOut = []) {
     const crowd = w._crowd ? w._crowd[i] : 100;
     const volley = Math.max(1, Math.floor((per * u.members[i] * crowd) / 100));
 
+    
+    
+    
+    
+    eventsOut.push({
+      type: 'shot',
+      tick: w.tick,
+      owner: u.owner[i],
+      attacker: u.id[i],
+      building: -1,
+      x: u.x[i], y: u.y[i],
+      tx, ty,
+      weapon: U_DMG_CLASS[kind],
+      projectile: PROJECTILE_CLASSES.has(U_DMG_CLASS[kind]),
+      areaMm: U_AREA[kind],
+      members: u.members[i],
+    });
+
     if (U_AREA[kind] > 0) {
       applyArea(w, i, u.owner[i], tx, ty, U_AREA[kind], U_DMG_CLASS[kind], volley, eventsOut);
     } else if (target.kind === 1) {
@@ -442,6 +531,22 @@ function stepBuildingGuns(w, eventsOut) {
 
     b.cooldown[i] = B_ATTACK_TICKS[kind];
     const raw = B_DAMAGE[kind];
+    
+    
+    
+    eventsOut.push({
+      type: 'shot',
+      tick: w.tick,
+      owner,
+      attacker: -1,
+      building: b.id[i],
+      x: b.x[i], y: b.y[i],
+      tx: u.x[bestSlot], ty: u.y[bestSlot],
+      weapon: myClass,
+      projectile: PROJECTILE_CLASSES.has(myClass),
+      areaMm: B_AREA[kind],
+      members: 1,
+    });
     if (B_AREA[kind] > 0) {
       applyArea(w, -1, owner, u.x[bestSlot], u.y[bestSlot], B_AREA[kind], myClass, raw, eventsOut);
     } else {

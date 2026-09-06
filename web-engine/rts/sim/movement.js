@@ -147,6 +147,83 @@ export const SEPARATION_MM = 11000;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const SEPARATION_DIVISOR = 3;
 
 
@@ -172,6 +249,45 @@ const WALL_TOUCH_MM = 11000;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const CHARGE_PCT = 35;
+
+
+
+
+
+
+
+
+
+
 export function stepMovement(w, speedBonusPct = null) {
   const u = w.u;
   for (let i = 0; i < u.count; i += 1) {
@@ -181,6 +297,12 @@ export function stepMovement(w, speedBonusPct = null) {
     const ty = u.orderY[i];
 
     let speed = SPEED[u.kind[i]];
+    
+    
+    
+    if (u.orderType[i] === ORDER.ATTACK) {
+      speed += Math.trunc((speed * CHARGE_PCT) / 100);
+    }
     if (speedBonusPct) speed += Math.floor((speed * speedBonusPct[i]) / 100);
     
     
@@ -259,6 +381,10 @@ export function stepSeparation(w, sectorCount) {
     head[s] = i;
   }
 
+  
+  
+  
+  
   const r2 = SEPARATION_MM * SEPARATION_MM;
   for (let s = 0; s < sectorCount; s += 1) {
     for (let i = head[s]; i !== -1; i = next[i]) {

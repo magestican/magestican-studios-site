@@ -64,6 +64,11 @@
 
 
 import { CELLS_PER_SIDE, CELL_MM } from '../maps/mapFormat.js';
+
+
+
+
+import { CLIFF_STEP_DM, slopeDm } from '../maps/elevation.js';
 import { FIELD_MM } from '../fixed.js';
 
 
@@ -102,7 +107,16 @@ const SURROUND_STEP_MM = 55_000;
 
 
 
-export const MAX_PROPS = 3000;
+export const MAX_PROPS = 6000;
+
+
+
+
+
+
+
+
+export const SURROUND_RESERVE = 1200;
 
 
 export function hash(a, b, c) {
@@ -190,13 +204,50 @@ export function seedOf(mapId) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const DRESSINGS = Object.freeze([
-  { id: 'hedge', share: 26, prop: 'hedge', step: 3, gapIn: 6 },
-  { id: 'hedgeLow', share: 14, prop: 'hedgeLow', step: 3, gapIn: 6 },
-  { id: 'fence', share: 24, prop: 'fence', step: 3, gapIn: 7 },
-  { id: 'treeline', share: 15, prop: 'cypress', step: 1, gapIn: 3 },
-  { id: 'bare', share: 21, prop: null, step: 0, gapIn: 0 },
+  { id: 'hedge', share: 26, prop: 'hedge', per100m: 9, gapIn: 6 },
+  { id: 'hedgeLow', share: 14, prop: 'hedgeLow', per100m: 9, gapIn: 6 },
+  { id: 'fence', share: 24, prop: 'fence', per100m: 9, gapIn: 7 },
+  { id: 'treeline', share: 15, prop: 'cypress', per100m: 6, gapIn: 3 },
+  { id: 'bare', share: 21, prop: null, per100m: 0, gapIn: 0 },
 ]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function stepsOnEdge(per100m, seed, edgeId) {
+  const milli = Math.trunc((per100m * CELL_MM) / 100);
+  const whole = Math.trunc(milli / 1000);
+  const frac = milli - whole * 1000;
+  return whole + (frac > 0 && hash(seed ^ 0x7f4a7c15, edgeId, 5) % 1000 < frac ? 1 : 0);
+}
 
 const DRESS_TOTAL = DRESSINGS.reduce((n, d) => n + d.share, 0);
 
@@ -228,6 +279,7 @@ const LOOSE = Object.freeze({
 
 
 const SHORE = Object.freeze(['reeds', 'reeds', 'reeds', 'logPile', 'saltbush']);
+const SHORE_PER_100M = 11;
 
 
 const COPSE = Object.freeze(['gum', 'gum', 'gumOld', 'ironbark', 'gumYoung', 'deadGum', 'cypress']);
@@ -241,6 +293,103 @@ const SURROUND_KIT = Object.freeze([
   'gum', 'gum', 'gumOld', 'ironbark', 'cypress', 'cypress', 'gumYoung',
   'saltbush', 'deadGum', 'hedge', 'hedge', 'saltbush',
 ]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CHARACTERS = Object.freeze([
+  {
+    id: 'wooded',
+    groves: 4,
+    
+    looseIn: 6,
+    kit: ['saltbush', 'gumYoung', 'gumYoung', 'wattle', 'stump', 'gum', 'saltbush'],
+  },
+  {
+    id: 'stony',
+    groves: 2,
+    looseIn: 5,
+    kit: ['boulder', 'boulder', 'rockPile', 'saltbush', 'stump', 'deadGum'],
+  },
+  {
+    id: 'grazed',
+    groves: 2,
+    looseIn: 10,
+    kit: ['saltbush', 'trough', 'stump', 'wattle', 'saltbush', 'boulder'],
+  },
+  {
+    id: 'cropped',
+    groves: 1,
+    looseIn: 13,
+    kit: ['haystack', 'haystack', 'saltbush', 'stump', 'logPile'],
+  },
+]);
+
+
+export function characterOf(seed, sectorId) {
+  return CHARACTERS[hash(seed ^ 0x1b873593, sectorId, 77) % CHARACTERS.length];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const OUTCROP = Object.freeze(['boulder', 'rockPile', 'rockPile', 'deadGum', 'stump', 'boulder']);
+
+
+const OUTCROP_IN = 2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SCREE = Object.freeze(['boulder', 'saltbush', 'stump', 'rockPile', 'saltbush', 'boulder']);
+const SCREE_STEP_DM = 25;
+const SCREE_IN = 6;
 
 
 
@@ -311,6 +460,7 @@ const DIR_ALONG_Z = (facings) => facings / 4;
 
 export function scatterProps(map, opts = {}) {
   const seed = opts.seed === undefined ? seedOf(map.id) : (opts.seed >>> 0);
+  const max = opts.max === undefined ? MAX_PROPS : opts.max;
   const wantSurround = opts.surround !== false;
   const facings = opts.facings || DEFAULT_FACINGS;
   if (facings % 4 !== 0) {
@@ -339,8 +489,23 @@ export function scatterProps(map, opts = {}) {
     return true;
   };
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let cap = max - SURROUND_RESERVE;
+
   const add = (x, y, kind, variant, scale, sector) => {
-    if (props.length >= MAX_PROPS) { dropped += 1; return; }
+    if (props.length >= cap) { dropped += 1; return; }
     if (!PROPS[kind]) throw new Error(`scatter: no prop '${kind}'`);
     
     
@@ -398,10 +563,12 @@ export function scatterProps(map, opts = {}) {
         
         
         
-        const steps = wet ? 2 : (dress.step || 0);
+        const edgeId = (cy * CELLS_PER_SIDE + cx) * 2 + e;
+        
+        
+        const steps = stepsOnEdge(wet ? SHORE_PER_100M : dress.per100m, seed, edgeId);
         if (steps === 0) continue;
 
-        const edgeId = (cy * CELLS_PER_SIDE + cx) * 2 + e;
         for (let k = 0; k < steps; k += 1) {
           
           
@@ -525,7 +692,10 @@ export function scatterProps(map, opts = {}) {
     
     
     
-    const n = 2 + (h >>> 16) % 3;
+    
+    
+    
+    const n = 3 + (h >>> 16) % 5;
     for (let k = 0; k < n; k += 1) {
       const d2 = RING12[hash(seed ^ 0x2e0b4482, s, k) % 12];
       const r2 = 16_000 + hash(seed, s, k + 60) % 30_000;
@@ -545,14 +715,20 @@ export function scatterProps(map, opts = {}) {
   for (let s = 0; s < sectors.length; s += 1) {
     const sec = sectors[s];
     if (sec.kind === 'water') continue;
-    const groves = 1 + hash(seed ^ 0x03707344, s, 5) % 2;
+    
+    
+    
+    
+    const groves = characterOf(seed, s).groves + hash(seed ^ 0x03707344, s, 5) % 2;
     for (let g = 0; g < groves; g += 1) {
       const h = hash(seed ^ 0x64f98fa7, s, g);
       const dir = RING12[h % 12];
       const r = 30_000 + (h >>> 6) % 95_000;
       const gx = sec.cx + Math.trunc((dir[0] * r) / 1000);
       const gz = sec.cy + Math.trunc((dir[1] * r) / 1000);
-      const n = 3 + (h >>> 18) % 4;
+      
+      
+      const n = 4 + (h >>> 18) % 5;
       for (let k = 0; k < n; k += 1) {
         const d2 = RING12[hash(seed ^ 0xbe5466cf, s * 8 + g, k) % 12];
         
@@ -573,6 +749,75 @@ export function scatterProps(map, opts = {}) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (map.heightOfCell) {
+    const hgt = map.heightOfCell;
+    for (let cy = 0; cy < CELLS_PER_SIDE; cy += 1) {
+      for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
+        const here = cy * CELLS_PER_SIDE + cx;
+        for (let e = 0; e < 2; e += 1) {
+          const nx = cx + (e === 0 ? 1 : 0);
+          const ny = cy + (e === 0 ? 0 : 1);
+          if (nx >= CELLS_PER_SIDE || ny >= CELLS_PER_SIDE) continue;
+          const there = ny * CELLS_PER_SIDE + nx;
+          const drop = hgt[here] - hgt[there];
+          if ((drop < 0 ? -drop : drop) < CLIFF_STEP_DM) continue;
+          const edgeId = here * 2 + e + 0x40000;
+          if (hash(seed ^ 0x0801f2e2, edgeId, 1) % OUTCROP_IN !== 0) continue;
+          
+          const topX = drop > 0 ? cx : nx;
+          const topY = drop > 0 ? cy : ny;
+          const kind = OUTCROP[hash(seed ^ 0xd2e0eb15, edgeId, 2) % OUTCROP.length];
+          add(topX * CELL_MM + CELL_MM / 2 + jitter(seed, edgeId, 3, 4200),
+            topY * CELL_MM + CELL_MM / 2 + jitter(seed, edgeId, 4, 4200),
+            kind, pick(seed, edgeId, 5, facings), sizeAt(seed, edgeId, 6),
+            cells[topY * CELLS_PER_SIDE + topX]);
+        }
+      }
+    }
+  }
+
+  
+  
+  
+  
+  
+  if (map.heightOfCell) {
+    for (let cy = 0; cy < CELLS_PER_SIDE; cy += 1) {
+      for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
+        const idx = cy * CELLS_PER_SIDE + cx;
+        const sec = sectors[cells[idx]];
+        if (sec.kind === 'water') continue;
+        const slope = slopeDm(map, cx, cy);
+        
+        
+        
+        if (slope < SCREE_STEP_DM || slope >= CLIFF_STEP_DM) continue;
+        const h = hash(seed ^ 0x5c3ee2f1, idx, 2);
+        if (h % SCREE_IN !== 0) continue;
+        const kind = SCREE[(h >>> 9) % SCREE.length];
+        add(cx * CELL_MM + CELL_MM / 2 + jitter(seed, idx, 6, 4600),
+          cy * CELL_MM + CELL_MM / 2 + jitter(seed, idx, 7, 4600),
+          kind, pick(seed, idx, 8, facings), sizeAt(seed, idx, 9), cells[idx]);
+      }
+    }
+  }
+
+  
+  
+  
+  
+  
   for (let cy = 0; cy < CELLS_PER_SIDE; cy += 1) {
     for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
       const idx = cy * CELLS_PER_SIDE + cx;
@@ -580,8 +825,12 @@ export function scatterProps(map, opts = {}) {
       const sec = sectors[s];
       if (sec.kind === 'water') continue;
       const h = hash(seed ^ 0x452821e6, idx, 1);
-      if (h % 14 !== 0) continue;
-      const table = LOOSE[sec.kind] || LOOSE.land;
+      
+      
+      
+      const ch = characterOf(seed, s);
+      if (h % (sec.kind === 'keystone' ? 12 : ch.looseIn) !== 0) continue;
+      const table = sec.kind === 'keystone' ? LOOSE.keystone : ch.kit;
       const kind = table[(h >>> 8) % table.length];
       add(cx * CELL_MM + CELL_MM / 2 + jitter(seed, idx, 2, 9000),
         cy * CELL_MM + CELL_MM / 2 + jitter(seed, idx, 3, 9000),
@@ -601,6 +850,7 @@ export function scatterProps(map, opts = {}) {
   
   
   if (wantSurround) {
+    cap = max;                 
     const lo = -SURROUND_MM;
     const hi = FIELD_MM + SURROUND_MM;
     const n = Math.ceil((hi - lo) / SURROUND_STEP_MM);
@@ -622,7 +872,7 @@ export function scatterProps(map, opts = {}) {
         if (x > 25_000 && x < FIELD_MM - 25_000
           && z > 25_000 && z < FIELD_MM - 25_000) continue;
         const h = hash(seed ^ 0x9216d5d9, gy * 512 + gx, 9);
-        if (h % 5 >= 2) continue;                    
+        if (h % 8 >= 5) continue;                    
         const kind = SURROUND_KIT[(h >>> 7) % SURROUND_KIT.length];
         const variant = (h >>> 12) % facings;
         

@@ -80,12 +80,58 @@ const COL = {
 };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SKIN_COL = {
+  yield: {
+    camera: '#ffc48a',
+    flash: '#ffd08a',
+    mine: '#f2ffd8',
+    theirs: '#ff5a3c',
+  },
+  herd: {
+    
+    
+    unknownLand: '#d7cfa6',
+    unknownWater: '#b6ccd0',
+    unknownKeystone: '#ded1a4',
+    
+    
+    neutral: '#7d7050',
+    keystone: '#b08f2c',
+    
+    
+    camera: '#24400d',
+    flash: '#a5490d',
+    mine: '#1e3a0a',
+    theirs: '#a81f12',
+  },
+};
+
+
 function rgb(hex) {
   const n = parseInt(hex.slice(1), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-const RGB = Object.fromEntries(Object.entries(COL).map(([k, v]) => [k, rgb(v)]));
 
 
 
@@ -95,9 +141,13 @@ const RGB = Object.fromEntries(Object.entries(COL).map(([k, v]) => [k, rgb(v)]))
 
 
 
-
-export function createMinimap({ canvas, match, seat, onJump }) {
+export function createMinimap({ canvas, match, seat, onJump, skin = 'yield' }) {
   const ctx = canvas.getContext('2d');
+  
+  
+  
+  const COLS = { ...COL, ...(SKIN_COL[skin] || SKIN_COL.yield) };
+  const RGB = Object.fromEntries(Object.entries(COLS).map(([k, v]) => [k, rgb(v)]));
 
   
   
@@ -325,7 +375,7 @@ export function createMinimap({ canvas, match, seat, onJump }) {
         const b = bounds[sec];
         if (!b || b.x1 < 0) continue;
         ctx.globalAlpha = Math.min(1, (until - now) / 700);
-        ctx.strokeStyle = COL.flash;
+        ctx.strokeStyle = COLS.flash;
         ctx.strokeRect(b.x0 * px + 0.5, b.y0 * px + 0.5,
           (b.x1 - b.x0 + 1) * px - 1, (b.y1 - b.y0 + 1) * px - 1);
       }
@@ -344,14 +394,14 @@ export function createMinimap({ canvas, match, seat, onJump }) {
     const blip = Math.max(2, px * 1.35);
     const half = blip / 2;
 
-    ctx.fillStyle = COL.theirs;
+    ctx.fillStyle = COLS.theirs;
     for (let i = 0; i < w.u.count; i += 1) {
       if (!w.u.alive[i] || w.u.owner[i] === s || w.u.owner[i] < 0) continue;
       const sec = w.u.sector[i];
       if (sec < 0 || !vis[base + sec]) continue;
       ctx.fillRect((w.u.x[i] / FIELD_MM) * W - half, (w.u.y[i] / FIELD_MM) * H - half, blip, blip);
     }
-    ctx.fillStyle = COL.mine;
+    ctx.fillStyle = COLS.mine;
     for (let i = 0; i < w.u.count; i += 1) {
       if (!w.u.alive[i] || w.u.owner[i] !== s) continue;
       ctx.fillRect((w.u.x[i] / FIELD_MM) * W - half, (w.u.y[i] / FIELD_MM) * H - half, blip, blip);
@@ -365,7 +415,7 @@ export function createMinimap({ canvas, match, seat, onJump }) {
       const own = w.b.owner[i];
       const sec = w.b.sector[i];
       if (own !== s && (sec < 0 || !vis[base + sec])) continue;
-      ctx.fillStyle = own === s ? COL.mine : COL.theirs;
+      ctx.fillStyle = own === s ? COLS.mine : COLS.theirs;
       ctx.fillRect((w.b.x[i] / FIELD_MM) * W - bs / 2, (w.b.y[i] / FIELD_MM) * H - bs / 2, bs, bs);
       ctx.strokeStyle = 'rgba(4,10,12,.8)';
       ctx.lineWidth = 1;
@@ -390,7 +440,7 @@ export function createMinimap({ canvas, match, seat, onJump }) {
       const ry = ((v.y - hh) / field) * H;
       const rw = Math.max(4, (hw * 2 / field) * W);
       const rh = Math.max(4, (hh * 2 / field) * H);
-      ctx.strokeStyle = COL.camera;
+      ctx.strokeStyle = COLS.camera;
       ctx.lineWidth = 1.5;
       ctx.strokeRect(Math.round(rx) + 0.5, Math.round(ry) + 0.5, rw, rh);
       cameraRect = { x: rx, y: ry, w: rw, h: rh };
