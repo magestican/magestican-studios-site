@@ -25,7 +25,7 @@
 
 
 
-const BUILD = 'c3e882c-20260906T145657Z';
+const BUILD = 'c9ad73e-20260906T150538Z';
 const CACHE = `magestican-${BUILD}`;
 
 
@@ -105,20 +105,47 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const immutable = url.search.includes('v=') || url.pathname.startsWith('/assets/');
+
   event.respondWith((async () => {
-    const hit = await caches.match(request);
-    if (hit) return hit;
-    try {
-      const fresh = await fetch(request);
+    const cache = await caches.open(CACHE);
+    const hit = await cache.match(request);
+    const network = fetch(request).then((fresh) => {
       
       
-      if (fresh && fresh.status === 200 && fresh.type === 'basic') {
-        const cache = await caches.open(CACHE);
-        cache.put(request, fresh.clone());
-      }
+      if (fresh && fresh.status === 200 && fresh.type === 'basic') cache.put(request, fresh.clone());
       return fresh;
-    } catch {
-      return new Response('', { status: 504 });
+    }).catch(() => null);
+
+    if (hit && immutable) return hit;
+    if (hit) {
+      
+      event.waitUntil(network);
+      return hit;
     }
+    const fresh = await network;
+    return fresh || new Response('', { status: 504 });
   })());
 });
