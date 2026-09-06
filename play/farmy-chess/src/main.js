@@ -966,7 +966,18 @@ const presence = roomPresence({
   
   
   
-  players: () => new Set([roomState.me, ...roomState.peers].filter(Boolean)).size || 1,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  bots: () => (derived.seats ?? []).filter((s) => isBot(s)).length,
 });
 
 function startNet() {

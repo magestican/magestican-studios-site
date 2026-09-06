@@ -164,28 +164,33 @@ export function roomLine(room) {
 
 
 export function whoIsIn(room) {
-  const players = Math.max(0, Number(room?.players) || 0);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const people = Math.max(0, Number(room?.players) || 0);
   const bots = Math.max(0, Number(room?.bots) || 0);
-  const people = Math.max(0, players - bots);
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const total = Math.max(people + bots, players);
+  const total = people + bots;
   if (total <= 0) return 'open';
-  if (people <= 0) return total === 1 ? 'one playing, join in' : `${total} playing, join in`;
-  if (bots > 0) return `${total} playing, join in`;
+  
+  
+  
+  
+  if (people <= 0 || bots > 0) {
+    return total === 1 ? 'one playing, join in' : `${total} playing, join in`;
+  }
   return people === 1 ? 'one player waiting' : `${people} players`;
 }
 
