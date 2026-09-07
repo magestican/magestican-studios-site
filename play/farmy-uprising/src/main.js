@@ -218,6 +218,11 @@ async function ensureView(m, seat) {
 async function startBackdrop() {
   
   if (match || backdrop || params.get('autostart') === '1' || joinIdFrom(location.href)) return;
+  
+  
+  
+  
+  document.documentElement.classList.add('menu');
   const day = params.get('seed') || new Date().toISOString().slice(0, 10);
   const seats = [
     { faction: HERD, bot: makeBot(0, strengthFromLevel(6)) },
