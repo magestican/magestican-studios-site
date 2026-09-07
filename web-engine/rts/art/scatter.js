@@ -221,11 +221,26 @@ export function seedOf(mapId) {
 
 
 export const DRESSINGS = Object.freeze([
-  { id: 'hedge', share: 26, prop: 'hedge', per100m: 9, gapIn: 6 },
+  { id: 'hedge', share: 22, prop: 'hedge', per100m: 9, gapIn: 6 },
   { id: 'hedgeLow', share: 14, prop: 'hedgeLow', per100m: 9, gapIn: 6 },
-  { id: 'fence', share: 24, prop: 'fence', per100m: 9, gapIn: 7 },
+  { id: 'fence', share: 21, prop: 'fence', per100m: 9, gapIn: 7 },
   { id: 'treeline', share: 15, prop: 'cypress', per100m: 6, gapIn: 3 },
-  { id: 'bare', share: 21, prop: null, per100m: 0, gapIn: 0 },
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  { id: 'powerLine', share: 10, prop: 'powerPole', per100m: 3, gapIn: 99 },
+  { id: 'bare', share: 18, prop: null, per100m: 0, gapIn: 0 },
 ]);
 
 
@@ -272,7 +287,7 @@ export function dressingFor(seed, sa, sb) {
 
 
 const LOOSE = Object.freeze({
-  land: ['saltbush', 'saltbush', 'stump', 'boulder', 'wattle', 'gumYoung', 'gum', 'haystack'],
+  land: ['saltbush', 'saltbush', 'stump', 'boulder', 'wattle', 'stump', 'saltbush', 'haystack'],
   keystone: ['boulder', 'boulder', 'rockPile', 'rockPile', 'saltbush', 'stump'],
   water: ['reeds'],
 });
@@ -285,8 +300,27 @@ const SHORE_PER_100M = 11;
 const COPSE = Object.freeze(['gum', 'gum', 'gumOld', 'ironbark', 'gumYoung', 'deadGum', 'cypress']);
 
 
+
+
+
+
+
+
+
+
+
+const KING_TREE = Object.freeze(['gumOld', 'gumOld', 'gum', 'ironbark', 'deadGum']);
+
+
+
+
+
+
+
 const LANDMARK = Object.freeze(['windmill', 'windmill', 'silo']);
-const STEADING = Object.freeze(['tank', 'shed', 'shedRust', 'haystack', 'trough', 'logPile', 'gate']);
+const STEADING = Object.freeze([
+  'tank', 'shed', 'shedRust', 'haystack', 'trough', 'logPile', 'gate', 'stockyard',
+]);
 
 
 const SURROUND_KIT = Object.freeze([
@@ -315,31 +349,94 @@ const SURROUND_KIT = Object.freeze([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const CHARACTERS = Object.freeze([
   {
-    id: 'wooded',
-    groves: 4,
     
-    looseIn: 6,
-    kit: ['saltbush', 'gumYoung', 'gumYoung', 'wattle', 'stump', 'gum', 'saltbush'],
+    id: 'forest',
+    groves: 4,
+    looseIn: 8,
+    lone: 0,
+    kit: ['gumYoung', 'wattle', 'saltbush', 'stump', 'stump', 'logPile', 'saltbush'],
+  },
+  {
+    id: 'wooded',
+    groves: 3,
+    
+    looseIn: 9,
+    lone: 1,
+    kit: ['saltbush', 'gumYoung', 'wattle', 'stump', 'saltbush', 'boulder', 'saltbush'],
   },
   {
     id: 'stony',
     groves: 2,
-    looseIn: 5,
+    looseIn: 7,
+    lone: 1,
     kit: ['boulder', 'boulder', 'rockPile', 'saltbush', 'stump', 'deadGum'],
   },
   {
     id: 'grazed',
-    groves: 2,
-    looseIn: 10,
+    groves: 1,
+    looseIn: 12,
+    lone: 3,
     kit: ['saltbush', 'trough', 'stump', 'wattle', 'saltbush', 'boulder'],
+  },
+  {
+    
+    
+    
+    id: 'orchard',
+    groves: 2,
+    looseIn: 16,
+    lone: 0,
+    rows: true,
+    kit: ['saltbush', 'stump', 'logPile', 'haystack'],
   },
   {
     id: 'cropped',
     groves: 1,
     looseIn: 13,
+    lone: 2,
     kit: ['haystack', 'haystack', 'saltbush', 'stump', 'logPile'],
+  },
+  {
+    
+    
+    
+    
+    
+    
+    
+    id: 'bare',
+    groves: 0,
+    looseIn: 26,
+    lone: 2,
+    kit: ['stump', 'saltbush', 'deadGum', 'boulder'],
   },
 ]);
 
@@ -347,6 +444,9 @@ const CHARACTERS = Object.freeze([
 export function characterOf(seed, sectorId) {
   return CHARACTERS[hash(seed ^ 0x1b873593, sectorId, 77) % CHARACTERS.length];
 }
+
+
+export const CHARACTER_IDS = Object.freeze(CHARACTERS.map((c) => c.id));
 
 
 
@@ -397,6 +497,80 @@ const SCREE_IN = 6;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SIZE_MIN = 580;
+
+export const SIZE_MAX = 1250;
+
+
+
+
+export const GIANT_MAX = 1500;
+
+
+
+
+
+const BAND = Object.freeze({
+  
+  loose: [SIZE_MIN, 1000],
+  
+  boundary: [920, 1120],
+  
+  copse: [700, 1150],
+  
+  king: [1240, GIANT_MAX],
+  
+  landmark: [1120, 1380],
+  
+  steading: [880, 1180],
+  
+  shore: [700, 1150],
+  
+  rock: [640, 1340],
+  
+  surround: [820, GIANT_MAX],
+});
+
+
+
+
+
+
+
 const RING12 = Object.freeze([
   [1000, 0], [866, 500], [500, 866], [0, 1000], [-500, 866], [-866, 500],
   [-1000, 0], [-866, -500], [-500, -866], [0, -1000], [500, -866], [866, -500],
@@ -431,6 +605,10 @@ export const DEFAULT_FACINGS = 4;
 
 const DIR_ALONG_X = () => 0;
 const DIR_ALONG_Z = (facings) => facings / 4;
+
+
+
+
 
 
 
@@ -531,7 +709,16 @@ export function scatterProps(map, opts = {}) {
     });
   };
 
-  const sizeAt = (a, b, c) => 850 + (hash(a, b, c) % 351);
+  
+
+
+
+
+
+
+  const sizeIn = (a, b, c, lo, hi) => lo + (hash(a, b, c) % (hi - lo + 1));
+  
+  const sizeAt = (a, b, c) => sizeIn(a, b, c, BAND.loose[0], BAND.loose[1]);
 
   
   
@@ -582,7 +769,7 @@ export function scatterProps(map, opts = {}) {
               const ax = e === 0 ? (cx + 1) * CELL_MM : (cx + t) * CELL_MM;
               const az = e === 0 ? (cy + t) * CELL_MM : (cy + 1) * CELL_MM;
               add(ax, az, 'gate', e === 0 ? dirZ : dirX,
-                sizeAt(seed, edgeId, k + 90), here);
+                sizeIn(seed, edgeId, k + 90, ...BAND.boundary), here);
             }
             continue;
           }
@@ -635,7 +822,8 @@ export function scatterProps(map, opts = {}) {
             if (e === 0) x += push; else z += push;
             const kind = SHORE[hash(seed ^ 0x299f31d0, edgeId, k) % SHORE.length];
             const variant = PROPS[kind].role === 'line' ? dir : pick(seed, edgeId, k + 7, facings);
-            add(x, z, kind, variant, sizeAt(seed, edgeId, k), landIsHere ? here : there);
+            add(x, z, kind, variant, sizeIn(seed, edgeId, k, ...BAND.shore),
+              landIsHere ? here : there);
             continue;
           }
 
@@ -646,9 +834,10 @@ export function scatterProps(map, opts = {}) {
             const kind = hash(seed ^ 0x082efa98, edgeId, k) % 3 === 0
               ? COPSE[hash(seed ^ 0xec4e6c89, edgeId, k) % COPSE.length]
               : 'cypress';
-            add(x, z, kind, pick(seed, edgeId, k + 11, facings), sizeAt(seed, edgeId, k), here);
+            add(x, z, kind, pick(seed, edgeId, k + 11, facings),
+              sizeIn(seed, edgeId, k, ...BAND.boundary), here);
           } else {
-            add(x, z, dress.prop, dir, sizeAt(seed, edgeId, k), here);
+            add(x, z, dress.prop, dir, sizeIn(seed, edgeId, k, ...BAND.boundary), here);
           }
         }
       }
@@ -688,7 +877,25 @@ export function scatterProps(map, opts = {}) {
     const cxm = sec.cx + Math.trunc((dir[0] * r) / 1000);
     const czm = sec.cy + Math.trunc((dir[1] * r) / 1000);
     const mark = LANDMARK[hash(seed, s, 17) % LANDMARK.length];
-    add(cxm, czm, mark, pick(seed, s, 19, facings), sizeAt(seed, s, 21), s);
+    add(cxm, czm, mark, pick(seed, s, 19, facings),
+      sizeIn(seed, s, 21, ...BAND.landmark), s);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const hd = RING12[hash(seed ^ 0x6a09e667, s, 13) % 12];
+    const hr = 30_000 + hash(seed ^ 0xbb67ae85, s, 14) % 26_000;
+    add(cxm + Math.trunc((hd[0] * hr) / 1000), czm + Math.trunc((hd[1] * hr) / 1000),
+      'homestead', pick(seed, s, 15, facings), sizeIn(seed, s, 16, 950, 1180), s);
     
     
     
@@ -703,7 +910,7 @@ export function scatterProps(map, opts = {}) {
       const variant = PROPS[kind].role === 'line'
         ? pick(seed, s, k + 31, facings) : pick(seed, s, k + 33, facings);
       add(cxm + Math.trunc((d2[0] * r2) / 1000), czm + Math.trunc((d2[1] * r2) / 1000),
-        kind, variant, sizeAt(seed, s, k + 41), s);
+        kind, variant, sizeIn(seed, s, k + 41, ...BAND.steading), s);
     }
   }
 
@@ -719,7 +926,8 @@ export function scatterProps(map, opts = {}) {
     
     
     
-    const groves = characterOf(seed, s).groves + hash(seed ^ 0x03707344, s, 5) % 2;
+    const ch = characterOf(seed, s);
+    const groves = ch.groves + (ch.groves === 0 ? 0 : hash(seed ^ 0x03707344, s, 5) % 2);
     for (let g = 0; g < groves; g += 1) {
       const h = hash(seed ^ 0x64f98fa7, s, g);
       const dir = RING12[h % 12];
@@ -729,18 +937,94 @@ export function scatterProps(map, opts = {}) {
       
       
       const n = 4 + (h >>> 18) % 5;
+      
+      
+      
+      
+      
+      
+      const rows = ch.rows === true;
+      const rowStep = 22_000;
+      const rowDir = (h >>> 24) % 2;
       for (let k = 0; k < n; k += 1) {
         const d2 = RING12[hash(seed ^ 0xbe5466cf, s * 8 + g, k) % 12];
+        if (rows) {
+          const t = (k - (n - 1) / 2) * rowStep;
+          add(gx + (rowDir === 0 ? Math.trunc(t) : 0) + jitter(seed, s * 8 + g, k, 1400),
+            gz + (rowDir === 0 ? 0 : Math.trunc(t)) + jitter(seed, s * 8 + g, k + 5, 1400),
+            k === n - 1 ? 'gumOld' : 'cypress',
+            pick(seed, s * 8 + g, k + 3, facings),
+            sizeIn(seed, s * 8 + g, k, 980, 1180), s);
+          continue;
+        }
         
         
         
         
-        const r2 = 6000 + hash(seed, s * 8 + g, k + 70) % 30_000;
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        const king = k === 0;
+        const r2 = king ? 0 : 9000 + hash(seed, s * 8 + g, k + 70) % 29_000;
         add(gx + Math.trunc((d2[0] * r2) / 1000) + jitter(seed, s * 8 + g, k, 3000),
           gz + Math.trunc((d2[1] * r2) / 1000) + jitter(seed, s * 8 + g, k + 5, 3000),
-          COPSE[hash(seed ^ 0x34e90c6c, s * 8 + g, k) % COPSE.length],
-          pick(seed, s * 8 + g, k + 3, facings), sizeAt(seed, s * 8 + g, k), s);
+          king
+            ? KING_TREE[hash(seed ^ 0x9d2c5680, s * 8 + g, 2) % KING_TREE.length]
+            : COPSE[hash(seed ^ 0x34e90c6c, s * 8 + g, k) % COPSE.length],
+          pick(seed, s * 8 + g, k + 3, facings),
+          sizeIn(seed, s * 8 + g, k, ...(king ? BAND.king : BAND.copse)), s);
       }
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  for (let s = 0; s < sectors.length; s += 1) {
+    const sec = sectors[s];
+    if (sec.kind === 'water') continue;
+    const lone = characterOf(seed, s).lone || 0;
+    for (let i = 0; i < lone; i += 1) {
+      const h = hash(seed ^ 0x7c9e6a5b, s, i + 3);
+      const dir = RING12[h % 12];
+      
+      
+      
+      const r = 85_000 + (h >>> 5) % 75_000;
+      const lx = sec.cx + Math.trunc((dir[0] * r) / 1000);
+      const lz = sec.cy + Math.trunc((dir[1] * r) / 1000);
+      add(lx, lz, KING_TREE[(h >>> 17) % KING_TREE.length],
+        pick(seed, s, i + 51, facings), sizeIn(seed, s, i + 53, ...BAND.king), s);
+      add(lx + jitter(seed, s, i + 55, 14_000), lz + jitter(seed, s, i + 57, 14_000),
+        'stump', pick(seed, s, i + 59, facings), sizeIn(seed, s, i + 61, 700, 1100), s);
+      add(lx + jitter(seed, s, i + 63, 17_000), lz + jitter(seed, s, i + 65, 17_000),
+        'logPile', pick(seed, s, i + 67, facings), sizeIn(seed, s, i + 69, 620, 980), s);
     }
   }
 
@@ -780,7 +1064,7 @@ export function scatterProps(map, opts = {}) {
           const kind = OUTCROP[hash(seed ^ 0xd2e0eb15, edgeId, 2) % OUTCROP.length];
           add(topX * CELL_MM + CELL_MM / 2 + jitter(seed, edgeId, 3, 4200),
             topY * CELL_MM + CELL_MM / 2 + jitter(seed, edgeId, 4, 4200),
-            kind, pick(seed, edgeId, 5, facings), sizeAt(seed, edgeId, 6),
+            kind, pick(seed, edgeId, 5, facings), sizeIn(seed, edgeId, 6, ...BAND.rock),
             cells[topY * CELLS_PER_SIDE + topX]);
         }
       }
@@ -808,7 +1092,7 @@ export function scatterProps(map, opts = {}) {
         const kind = SCREE[(h >>> 9) % SCREE.length];
         add(cx * CELL_MM + CELL_MM / 2 + jitter(seed, idx, 6, 4600),
           cy * CELL_MM + CELL_MM / 2 + jitter(seed, idx, 7, 4600),
-          kind, pick(seed, idx, 8, facings), sizeAt(seed, idx, 9), cells[idx]);
+          kind, pick(seed, idx, 8, facings), sizeIn(seed, idx, 9, ...BAND.rock), cells[idx]);
       }
     }
   }
@@ -834,7 +1118,7 @@ export function scatterProps(map, opts = {}) {
       const kind = table[(h >>> 8) % table.length];
       add(cx * CELL_MM + CELL_MM / 2 + jitter(seed, idx, 2, 9000),
         cy * CELL_MM + CELL_MM / 2 + jitter(seed, idx, 3, 9000),
-        kind, pick(seed, idx, 4, facings), sizeAt(seed, idx, 5), s);
+        kind, pick(seed, idx, 4, facings), sizeIn(seed, idx, 5, ...BAND.loose), s);
     }
   }
 
@@ -884,7 +1168,7 @@ export function scatterProps(map, opts = {}) {
         const jz = z + jitter(seed, gy * 512 + gx, 11, 22_000);
         if (jx > 25_000 && jx < FIELD_MM - 25_000
           && jz > 25_000 && jz < FIELD_MM - 25_000) continue;
-        add(jx, jz, kind, variant, sizeAt(seed, gy * 512 + gx, 12), -1);
+        add(jx, jz, kind, variant, sizeIn(seed, gy * 512 + gx, 12, ...BAND.surround), -1);
       }
     }
   }

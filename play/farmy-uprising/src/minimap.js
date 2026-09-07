@@ -33,6 +33,7 @@
 import { FIELD_MM } from '../../../web-engine/rts/fixed.js';
 import { CELLS_PER_SIDE } from '../../../web-engine/rts/maps/mapFormat.js';
 import { HERD } from '../../../web-engine/rts/roster.js';
+import { terrainForSector, TERRAIN_RECIPE } from '../../../web-engine/rts/art/terrainRecipe.js';
 
 
 
@@ -218,11 +219,33 @@ export function createMinimap({ canvas, match, seat, onJump, skin = 'yield' }) {
 
   let cameraRect = null;
 
+  
+  
+  
+  
+  
+  
+  const terrainRGB = new Map();
+  function neutralColour(s) {
+    if (s.kind === 'keystone') return RGB.keystone;
+    const id = terrainForSector({ kind: s.kind, faction: null, pollution: s.pollution || 0 });
+    let c = terrainRGB.get(id);
+    if (!c) {
+      const r = TERRAIN_RECIPE[id];
+      if (!r || r.base === undefined) c = RGB.neutral;
+      else {
+        const b = r.base;
+        const base = [(b >> 16) & 255, (b >> 8) & 255, b & 255];
+        c = base.map((v, i) => Math.round(v * 0.67 + RGB.neutral[i] * 0.33));
+      }
+      terrainRGB.set(id, c);
+    }
+    return c;
+  }
+
   function ownerColour(m, s) {
     if (s.kind === 'water') return s.pollution > 1 ? RGB.waterFoul : RGB.water;
-    if (s.owner === null || s.owner < 0) {
-      return s.kind === 'keystone' ? RGB.keystone : RGB.neutral;
-    }
+    if (s.owner === null || s.owner < 0) return neutralColour(s);
     return m.factions[s.owner] === HERD ? RGB.herd : RGB.yieldd;
   }
 

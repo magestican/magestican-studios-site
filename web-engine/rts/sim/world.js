@@ -169,7 +169,35 @@ export function createWorld({ map, seats, seed }) {
       cells: s.cells,
       neighbours: s.neighbours,
     })),
-    seats,
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    seats: seats.map((s) => ({ faction: s.faction, bot: s.bot || null })),
+    
+
+
+
+
+
+
+
+
+
+    seed,
     rng: new Rng(seed),
     u,
     b,
@@ -399,12 +427,80 @@ export function factionMap(w) {
 
 
 
-const FNV_PRIME = 16777619;
 
-function mix(h, v) {
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const U_COLS = Object.freeze(['id', 'owner', 'kind', 'alive', 'x', 'y',
+  'sector', 'facing', 'members', 'hp', 'state', 'cooldown', 'orderType',
+  'orderX', 'orderY', 'orderArg', 'progress', 'variant']);
+
+
+export const B_COLS = Object.freeze(['id', 'owner', 'kind', 'alive', 'x', 'y',
+  'sector', 'hp', 'building', 'cooldown', 'pulse']);
+
+
+
+
+
+export const S_COLS = Object.freeze(['owner', 'ownerFaction', 'hold', 'claimant',
+  'claim', 'idleTicks', 'anchored', 'fenced', 'pollution', 'scoreMultiplier']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const W_SCALARS = Object.freeze(['tick', 'nextId', 'seed']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const CHECKSUM_VERSION = 2;
+
+const FNV_PRIME = 16777619;
+const FNV_OFFSET = 0x811c9dc5;
+
+
+const T_NULL = 0x9e; const T_UNDEF = 0x9f; const T_NUM = 0xa1;
+const T_BOOL = 0xa2; const T_STR = 0xa3; const T_ARR = 0xa4; const T_OBJ = 0xa5;
+
+export function mix(h, v) {
   let x = h ^ (v | 0);
   x = Math.imul(x, FNV_PRIME);
   return x | 0;
@@ -417,54 +513,133 @@ function mix(h, v) {
 
 
 
+
+
+
+
+
+
+
+
+function mixNum(h, v) {
+  if (!Number.isFinite(v)) return mix(h, Number.isNaN(v) ? 0x7ff8 : (v > 0 ? 0x7f80 : 0xff80));
+  const t = Math.trunc(v);
+  let x = mix(h, t | 0);
+  x = mix(x, Math.trunc(t / 4294967296));
+  
+  
+  
+  if (v !== t) x = mix(x, Math.trunc((v - t) * 1073741824));
+  return x;
+}
+
+function mixStr(h, s) {
+  let x = mix(h, s.length);
+  for (let i = 0; i < s.length; i += 1) x = mix(x, s.charCodeAt(i));
+  return x;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export function mixValue(h, v) {
+  if (v === null) return mix(h, T_NULL);
+  if (v === undefined) return mix(h, T_UNDEF);
+  const t = typeof v;
+  if (t === 'number') return mixNum(mix(h, T_NUM), v);
+  if (t === 'boolean') return mix(mix(h, T_BOOL), v ? 1 : 0);
+  if (t === 'string') return mixStr(mix(h, T_STR), v);
+  if (Array.isArray(v) || ArrayBuffer.isView(v)) {
+    let x = mix(mix(h, T_ARR), v.length);
+    for (let i = 0; i < v.length; i += 1) x = mixValue(x, v[i]);
+    return x;
+  }
+  if (v instanceof Map) {
+    
+    
+    const keys = [...v.keys()].sort((a, b) => (a < b ? -1 : (a > b ? 1 : 0)));
+    let x = mix(mix(h, T_ARR), keys.length);
+    for (const k of keys) { x = mixValue(x, k); x = mixValue(x, v.get(k)); }
+    return x;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  let x = mix(h, T_OBJ);
+  const keys = Object.keys(v).filter((k) => v[k] !== undefined).sort();
+  x = mix(x, keys.length);
+  for (const k of keys) { x = mixStr(x, k); x = mixValue(x, v[k]); }
+  return x;
+}
+
+
+
+
+
+
+
+
+
+
+
+export const digest = (v) => mixValue(FNV_OFFSET, v) >>> 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function checksum(w) {
-  let h = 0x811c9dc5;
-  h = mix(h, w.tick);
-  h = mix(h, w.nextId);
-  h = mix(h, w.rng.save());
+  let h = FNV_OFFSET;
+  for (const k of W_SCALARS) h = mixValue(h, w[k]);
+  h = mixStr(h, (w.map && w.map.id) || '');
+  h = mixValue(h, w.rng.save());
+  h = mixValue(h, w.seats);
+  h = mixValue(h, w.spawnSeq);
+
   const u = w.u;
-  for (let i = 0; i < w.u.count; i += 1) {
-    h = mix(h, u.alive[i]);
-    if (!u.alive[i]) continue;
-    h = mix(h, u.id[i]);
-    h = mix(h, u.owner[i]);
-    h = mix(h, u.kind[i]);
-    h = mix(h, u.x[i]);
-    h = mix(h, u.y[i]);
-    h = mix(h, u.members[i]);
-    h = mix(h, u.hp[i]);
-    h = mix(h, u.state[i]);
-    h = mix(h, u.cooldown[i]);
-    h = mix(h, u.orderType[i]);
-    h = mix(h, u.orderArg[i]);
-    h = mix(h, u.progress[i]);
+  h = mix(h, u.count);
+  for (const c of U_COLS) {
+    const col = u[c];
+    for (let i = 0; i < u.count; i += 1) h = mix(h, col[i]);
   }
   const b = w.b;
-  for (let i = 0; i < w.b.count; i += 1) {
-    h = mix(h, b.alive[i]);
-    if (!b.alive[i]) continue;
-    h = mix(h, b.id[i]);
-    h = mix(h, b.owner[i]);
-    h = mix(h, b.kind[i]);
-    h = mix(h, b.x[i]);
-    h = mix(h, b.y[i]);
-    h = mix(h, b.hp[i]);
-    h = mix(h, b.building[i]);
-    h = mix(h, b.pulse[i]);
+  h = mix(h, b.count);
+  for (const c of B_COLS) {
+    const col = b[c];
+    for (let i = 0; i < b.count; i += 1) h = mix(h, col[i]);
   }
   
   
   
+  h = mix(h, w.sectors.length);
   for (const s of w.sectors) {
-    h = mix(h, s.owner === null ? -1 : s.owner);
-    h = mix(h, s.hold);
-    h = mix(h, s.claim);
-    h = mix(h, s.claimant === null ? -1 : s.claimant);
-    h = mix(h, s.idleTicks);
-    h = mix(h, s.pollution);
-    h = mix(h, s.anchored ? 1 : 0);
-    h = mix(h, s.fenced ? 1 : 0);
-    h = mix(h, s.scoreMultiplier);
+    for (const c of S_COLS) h = mixValue(h, s[c]);
   }
   return h >>> 0;
 }

@@ -388,6 +388,43 @@ export const landSeconds = (landTicks) => Math.floor(landTicks / TICKS_PER_SECON
 
 
 
+
+
+
+
+
+
+
+export function captureEta(sector, player, net, factionOf) {
+  if (player === null || player === undefined || net <= 0) return -1;
+  if (sector.owner === player) return 0;
+  const rate = CAPTURE_RATE[factionOf[player]] * net;
+  if (!(rate > 0)) return -1;
+  let ticks = 0;
+  let need = HOLD_MAX;
+  if (sector.owner === null) {
+    if (sector.claimant === player) need = HOLD_MAX - sector.claim;
+  } else {
+    const resist = sector.fenced && sector.ownerFaction === YIELD
+      ? FENCE_RESISTANCE_PCT
+      : DEFENCE_RESISTANCE_PCT[sector.ownerFaction];
+    const chip = Math.floor((rate * resist) / 100);
+    if (chip <= 0) return -1;
+    ticks += Math.ceil(sector.hold / chip);
+  }
+  ticks += Math.ceil(need / rate);
+  return ticks;
+}
+
+
+
+
+
+
+
+
+
+
 export const ROUT_SHARE_PCT = 85;
 export const ROUT_HOLD_TICKS = ticks(45);
 

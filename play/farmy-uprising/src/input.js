@@ -22,6 +22,7 @@
 
 
 import { CMD } from '../../../web-engine/rts/sim/commands.js';
+import { releaseVelocity } from './interp.js';
 
 
 const TAP_SLOP_PX = 12;
@@ -54,6 +55,8 @@ export function createInput(canvas, view, emit, opts = {}) {
     if (e.button === 2) state.boxing = { x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY };
   });
 
+  
+  const swipe = [];
   canvas.addEventListener('pointermove', (e) => {
     const p = pointers.get(e.pointerId);
     if (!p) return;
@@ -69,9 +72,14 @@ export function createInput(canvas, view, emit, opts = {}) {
       const d = Math.hypot(a.x - b.x, a.y - b.y);
       if (pinchDist > 0 && d > 0) view.zoomBy(pinchDist / d);
       pinchDist = d;
+      swipe.length = 0;
       return;
     }
-    if (pointers.size === 1) view.panBy(dx, dy);
+    if (pointers.size === 1) {
+      view.panBy(dx, dy);
+      swipe.push({ t: performance.now(), dx, dy });
+      if (swipe.length > 12) swipe.shift();
+    }
   });
 
   const release = (e) => {
@@ -79,6 +87,19 @@ export function createInput(canvas, view, emit, opts = {}) {
     pointers.delete(e.pointerId);
     if (pointers.size < 2) pinchDist = 0;
     if (!p) return;
+
+    
+    
+    
+    if (pointers.size === 0 && !state.boxing && moved > TAP_SLOP_PX && view.fling) {
+      const v = releaseVelocity(swipe, performance.now());
+      
+      
+      state.lastFling = { ...v, samples: swipe.length, moved };
+      if (Math.abs(v.vx) + Math.abs(v.vy) > 0.05) view.fling(v.vx, v.vy);
+    }
+    state.swipeSamples = swipe.length;
+    swipe.length = 0;
 
     if (state.boxing) {
       const b = state.boxing;

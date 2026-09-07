@@ -83,15 +83,74 @@ export const facingFor = (manifest, yawSteps) => (
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function buildingScale(id, manifest) {
   const row = manifest && manifest.rows[id];
   const world = row ? row.worldSize : 8;
   const spec = BUILDINGS[id];
   
-  
-  
-  const base = Math.min(92, Math.max(46, 30 + Math.sqrt(world) * 15));
-  return spec && spec.wall ? base * 0.8 : base;
+  const base = Math.min(210, Math.max(80, 20.7 + (world ** 0.62) * 28));
+  return spec && spec.wall ? base * 0.78 : base;
 }
 
 

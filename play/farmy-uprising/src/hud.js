@@ -38,7 +38,8 @@
 
 import { UNITS, BUILDINGS, HERD } from '../../../web-engine/rts/roster.js';
 import { TICKS_PER_SECOND, MATCH_TICKS } from '../../../web-engine/rts/fixed.js';
-import { sharePct, landSeconds } from '../../../web-engine/rts/territory.js';
+import { sharePct, landSeconds, captureEta } from '../../../web-engine/rts/territory.js';
+import { weightIn } from '../../../web-engine/rts/sim/presence.js';
 import { unitSpec, isGatherer, isArmy, STATE } from '../../../web-engine/rts/sim/world.js';
 import { resolveSelection } from '../../../web-engine/rts/sim/commands.js';
 import { whyCannotTrain } from '../../../web-engine/rts/sim/production.js';
@@ -134,7 +135,14 @@ export function createHud(match, seat, actions) {
   
   
   
-  const cap = (id, text) => { const n = $(id); if (n) n.textContent = text; };
+  
+  
+  const cap = (id, text) => {
+    const n = $(id);
+    if (!n) return;
+    const c = n.querySelector('.cap');
+    if (c) c.textContent = text; else n.textContent = text;
+  };
   const label = (id, text) => { const n = $(id); if (n) n.dataset.label = text; };
   label('p-forces', skin.panels.forces);
   label('p-map', skin.panels.map);
@@ -281,7 +289,25 @@ export function createHud(match, seat, actions) {
     for (const c of root.querySelectorAll('canvas[data-icon]')) {
       c.getContext('2d').drawImage(iconFor(c.dataset.icon, c.width), 0, 0);
     }
+    
+    
+    
+    for (const c of root.querySelectorAll('canvas[data-portrait]')) portraitInto(c, c.dataset.portrait);
     iconsDrawnWith = { units: !!atlas, buildings: !!buildingAtlas };
+  }
+
+  
+  function portraitInto(c, id) {
+    const g = c.getContext('2d');
+    const px = c.width;
+    g.clearRect(0, 0, px, px);
+    const row = portraits ? portraitRow(portraits.manifest, id) : -1;
+    if (row >= 0) {
+      const tile = portraits.manifest.tile;
+      g.drawImage(portraits.image, 0, row * tile, tile, tile, 0, 0, px, px);
+      return;
+    }
+    g.drawImage(iconFor(id, px), 0, 0);
   }
 
   
@@ -331,9 +357,27 @@ export function createHud(match, seat, actions) {
       
       
       html += `<button class="chip grp${on}" data-kind="group" data-id="${g.id}">`
+        + `<canvas data-portrait="${g.id}" width="44" height="44" aria-hidden="true"></canvas>`
         + `${g.name}<b>${g.members}</b>${g.hurt ? '<i class="hurt"></i>' : ''}</button>`;
     }
     el.rail.innerHTML = html;
+    paintIcons(el.rail);
+  }
+
+  
+
+
+
+
+  function flashSelection() {
+    
+    
+    if (match && !el.rail.querySelector('.chip.on')) renderRail(match);
+    for (const c of el.rail.querySelectorAll('.chip.on')) {
+      c.classList.remove('ack');
+      void c.offsetWidth;
+      c.classList.add('ack');
+    }
   }
 
   function countWhere(m, pred) {
@@ -671,6 +715,29 @@ export function createHud(match, seat, actions) {
     return best;
   }
 
+  
+
+
+
+
+
+
+  function captureEtaHere(m, sec) {
+    if (sec < 0 || !m.presence) return -1;
+    const pc = m.presence.playerCount;
+    let total = 0;
+    let best = 0;
+    let bestId = null;
+    for (let p = 0; p < pc; p += 1) {
+      const v = weightIn(m.presence, sec, p);
+      if (v <= 0) continue;
+      total += v;
+      if (v > best) { best = v; bestId = p; }
+    }
+    if (bestId !== seat) return -1;
+    return captureEta(m.w.sectors[sec], seat, best - (total - best), m.factions);
+  }
+
   function renderStatus(m) {
     const i = focusUnit(m);
     if (i < 0) {
@@ -705,6 +772,15 @@ export function createHud(match, seat, actions) {
     
     st.name.textContent = skin.id === 'herd' ? spec.name : spec.name.toUpperCase();
     st.doing.textContent = skin.doing[DOING_KEY[w.u.state[i]]] || skin.doing.idle;
+    
+    
+    
+    
+    
+    const eta = captureEtaHere(m, w.u.sector[i]);
+    if (eta > 0) {
+      st.doing.textContent += ` · ${skin.doing.taking} ${Math.ceil(eta / TICKS_PER_SECOND)}s`;
+    }
     st.fill.style.width = `${Math.max(0, Math.min(100, pct))}%`;
     st.bar.classList.toggle('low', pct < 40);
     
@@ -934,8 +1010,9 @@ export function createHud(match, seat, actions) {
     update,
     events,
     say,
+    flashSelection,
     get selection() { return selection; },
-    setSelection(s) { selection = s; renderStatus(match); },
+    setSelection(s) { selection = s; renderStatus(match); if (match) renderRail(match); },
     minimap,
     
     

@@ -64,7 +64,32 @@ import {
 
 
 
-export const TEX_METRES = 50;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const TEX_METRES = 100;
 export const TEX_PX = 1024;
 const PX_PER_M = TEX_PX / TEX_METRES;
 
@@ -238,6 +263,21 @@ function drawSoft(ctx, mark, rand) {
 const ENV_LO = ROW_ENVELOPE_LO;
 const ENV_MEAN = ROW_ENVELOPE_MEAN;
 
+
+
+
+
+
+
+
+
+
+
+const ENV_BREAK_METRES = 15;
+
+
+const WOBBLE_METRES = 30;
+
 function drawRows(ctx, mark, rand) {
   const across = mark.scaleMetres[0] <= mark.scaleMetres[1] ? 0 : 1;
   const widthPx = Math.max(1.5, Math.min(mark.scaleMetres[0], mark.scaleMetres[1]) * PX_PER_M);
@@ -264,7 +304,14 @@ function drawRows(ctx, mark, rand) {
     const centre = i * periodPx + phase + jitter;
     
     
-    const cycles = 1 + Math.floor(rand() * 3);
+    
+    
+    
+    
+    
+    
+    
+    const cycles = Math.max(1, Math.round(TEX_METRES / WOBBLE_METRES) + Math.floor(rand() * 3) - 1);
     const wobblePhase = rand() * Math.PI * 2;
     
     
@@ -289,7 +336,17 @@ function drawRows(ctx, mark, rand) {
     
     
     
-    const envCycles = 2 + Math.floor(rand() * 3);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const envCycles = Math.max(2,
+      Math.round(TEX_METRES / ENV_BREAK_METRES) + Math.floor(rand() * 3) - 1);
     const envPhase = rand() * Math.PI * 2;
     const g = ctx.createLinearGradient(-span / 2, 0, span / 2, 0);
     g.addColorStop(0, rgba(mark.colour, 0));
@@ -496,8 +553,34 @@ export const GROUND_LIGHT = Object.freeze({
   shadeSpan: 0.52,
   macroWeights: [0.52, 0.30, 0.18],
   
-  cool: [0.86, 0.95, 1.12],
-  warm: [1.09, 1.00, 0.86],
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  cool: [0.95, 0.98, 0.95],
+  warm: [1.05, 1.02, 0.94],
 });
 
 
@@ -674,12 +757,17 @@ export const SURROUND_REPEAT = 3;
 
 
 
+
+
+
+
+
 const SURROUND_TONES = [
-  0x55603c, 0x4a5636, 0x606a40, 0x6d7047, 0x7a7550, 0x585f3a,
-  0x6a6b45, 0x4f5a38, 0x74704b, 0x616540,
+  0x66714b, 0x5b6745, 0x717b4f, 0x7e8156, 0x8a865f, 0x697049,
+  0x7b7c54, 0x606b47, 0x85815a, 0x72764f,
 ];
-const SURROUND_HEDGE = 0x333a26;
-const SURROUND_TREE = 0x2c3520;
+const SURROUND_HEDGE = 0x3f4730;
+const SURROUND_TREE = 0x38422a;
 
 
 

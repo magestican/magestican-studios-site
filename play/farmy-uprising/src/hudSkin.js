@@ -85,6 +85,8 @@ const HERD_SKIN = {
   doing: {
     idle: 'standing', moving: 'moving', attacking: 'fighting',
     gathering: 'working', loading: 'carrying', dead: 'gone',
+    
+    taking: 'taking this ground',
   },
   
 
@@ -144,6 +146,7 @@ const YIELD_SKIN = {
   doing: {
     idle: 'STANDING BY', moving: 'EN ROUTE', attacking: 'ENGAGED',
     gathering: 'WORKING', loading: 'LOADING', dead: 'OFF ROSTER',
+    taking: 'SECURING SECTOR',
   },
   nums: { hp: 'HP', dmg: 'DMG', pack: 'HEAD' },
   empty: { name: 'NO CREWS', hint: 'CREW UP TO BEGIN' },

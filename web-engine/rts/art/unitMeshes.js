@@ -155,6 +155,19 @@ function group(parts, name, fn) {
 
 
 
+function limbTag(parts, tag, fn) {
+  const at = parts.length;
+  fn();
+  for (let i = at; i < parts.length; i += 1) parts[i].limb = tag;
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -353,6 +366,9 @@ export function quadruped(o) {
     for (const sy of [-1, 1]) {
       
       
+      limbTag(parts, `${sx > 0 ? 'F' : 'H'}${sy < 0 ? 'R' : 'L'}`, () => {
+      
+      
       
       
       
@@ -367,6 +383,7 @@ export function quadruped(o) {
         parts.push(part(limb([sx * lx * 0.95, sy * ly * 1.25, legTop * 0.34],
           [sx * lx * 0.92, sy * ly * 1.45, r * 0.45], r * 1.04), o.socks));
       }
+      });
     }
   }
   });
@@ -654,6 +671,7 @@ export function bird(o) {
   ];
   group(parts, 'legs', () => {
   for (const sy of [-1, 1]) {
+    limbTag(parts, sy < 0 ? 'R' : 'L', () => {
     
     
     
@@ -674,6 +692,7 @@ export function bird(o) {
           o.girth * 0.09, o.girth * 0.07), legCol));
       }
     }
+    });
   }
   });
   const headZ = bodyZ + o.height * 0.38;
@@ -1091,11 +1110,13 @@ export function humanoid(o) {
       [h * 0.065, h * 0.055, h * 0.075]), o.skin));
     });
     group(parts, 'legs', () => {
+    limbTag(parts, sy < 0 ? 'R' : 'L', () => {
     parts.push(part(limb([0, sy * h * 0.08, h * 0.45], [0, sy * h * 0.10, 0], h * 0.06), o.legs));
     
     
     parts.push(part(box([h * 0.02, sy * h * 0.10, h * 0.028],
       [h * 0.13, h * 0.075, h * 0.055]), o.boots || '#2a2118'));
+    });
     });
   }
   group(parts, 'tool', () => {

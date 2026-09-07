@@ -68,14 +68,36 @@ export const PROP_CATALOGUE = Object.freeze({
   haystack: { role: 'line', footprint: 2.8, draw: 2.4 },
   hedge: { role: 'line', footprint: 4.2, draw: 2 },
   hedgeLow: { role: 'line', footprint: 4, draw: 2 },
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  homestead: { role: 'line', footprint: 3.4, draw: 2.2 },
   ironbark: { role: 'point', footprint: 3.4, draw: 2.8 },
   logPile: { role: 'line', footprint: 2.4, draw: 2.2 },
+  
+  
+  powerPole: { role: 'line', footprint: 2, draw: 2 },
   reeds: { role: 'point', footprint: 1.6, draw: 2.8 },
   rockPile: { role: 'point', footprint: 3, draw: 2.8 },
   saltbush: { role: 'point', footprint: 1.5, draw: 2.8 },
   shed: { role: 'line', footprint: 4.6, draw: 2.4 },
   shedRust: { role: 'line', footprint: 3.6, draw: 2.4 },
   silo: { role: 'mark', footprint: 2.4, draw: 3 },
+  stockyard: { role: 'line', footprint: 5, draw: 2.2 },
   stump: { role: 'point', footprint: 1.3, draw: 2.8 },
   tank: { role: 'point', footprint: 2.3, draw: 2.4 },
   trough: { role: 'line', footprint: 2.6, draw: 2.2 },

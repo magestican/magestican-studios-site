@@ -259,7 +259,9 @@ const FOOTFALL = {
   flock: { sfx: 'hoofLight', hz: 9, gain: 0.20, rate: 1.25 },
   duckRaft: { sfx: 'hoofLight', hz: 7, gain: 0.16, rate: 1.35 },
   skulk: { sfx: 'hoofLight', hz: 8, gain: 0.18, rate: 1.10 },
-  farmhand: { sfx: 'hoofLight', hz: 2.4, gain: 0.22, rate: 1.15 },
+  
+  
+  farmhand: { sfx: 'footstep', hz: 2.4, gain: 0.22, rate: 1.0 },
   sounder: { sfx: 'hoofMid', hz: 7, gain: 0.28, rate: 1.05 },
   
   
@@ -356,6 +358,33 @@ export function createAudio() {
   let wired = false;
 
   const LEVELS = { music: 0.5, sfx: 0.75, voice: 1.0 };
+  
+  let verbs = null;
+  let sfxDuck = 1;
+  let uiTouches = 0;
+
+  
+
+
+
+
+
+  function makeVerb(sec, wet) {
+    const len = Math.max(1, Math.round(sec * ctx.sampleRate));
+    const ir = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch += 1) {
+      const d = ir.getChannelData(ch);
+      
+      for (let i = 0; i < len; i += 1) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2);
+    }
+    const conv = ctx.createConvolver();
+    conv.buffer = ir;
+    const send = ctx.createGain();
+    send.gain.value = wet;
+    send.connect(conv);
+    conv.connect(master);
+    return { send, conv, fed: 0 };
+  }
 
   
   
@@ -454,6 +483,23 @@ export function createAudio() {
       musicBus.connect(master);
       sfxBus.connect(master);
       voiceBus.connect(master);
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      verbs = {
+        plain: makeVerb(0.30, 0.20),
+        radio: makeVerb(0.10, 0.06),
+        inside: makeVerb(0.55, 0.32),
+        field: makeVerb(0.40, 0.12),
+      };
+      sfxBus.connect(verbs.field.send);
 
       
       
@@ -1035,6 +1081,15 @@ export function createAudio() {
     
     const speaking = ctx.currentTime < duckUntil;
     const ducked = speaking ? 0.63 : 1;                        
+    
+    
+    
+    
+    
+    if (sfxBus) {
+      sfxDuck = speaking ? 0.794 : 1;
+      sfxBus.gain.setTargetAtTime(sfxOn ? LEVELS.sfx * sfxDuck : 0, ctx.currentTime, 0.05);
+    }
     if (stems && stems.status === 'ready') {
       stems.setGain('pastoral', (1 - blend) * 0.9 * ducked, 0.3);
       stems.setGain('industrial', blend * 0.9 * ducked, 0.3);
@@ -1281,6 +1336,9 @@ export function createAudio() {
       const src = vox.play(clip, { dest, gain: level });
       if (!src) return false;
       if (head) src.onended = () => { try { head.disconnect(); } catch {  } };
+      
+      const verb = verbs && (verbs[register] || verbs.plain);
+      if (verb) { try { src.connect(verb.send); verb.fed += 1; } catch {  } }
       lastSpoken = clip;
       if (head) spatialStats.voicesPanned += 1; else spatialStats.voicesFlat += 1;
       
@@ -1305,6 +1363,11 @@ export function createAudio() {
     ui(kind) {
       if (!ctx || !sfxOn) return;
       if (kind === 'deny') { effect('uiDeny', 0.7); return; }
+      
+      
+      
+      
+      if (kind === 'touch') { effect('uiTap', 0.28, null, 1.6); uiTouches += 1; return; }
       effect(kind === 'order' ? 'captureTick' : 'uiTap', kind === 'order' ? 0.8 : 0.6);
     },
 
@@ -1372,6 +1435,15 @@ export function createAudio() {
         lastSpoken,
         missing: [...(sheet ? sheet.missing : []), ...(vox ? vox.missing : [])],
         levels: { ...LEVELS },
+        
+        
+        
+        mix: {
+          rooms: verbs ? Object.fromEntries(Object.entries(verbs).map(([k, v]) => [k, v.fed])) : null,
+          sfxDuck,
+          sfxGain: sfxBus ? Number(sfxBus.gain.value.toFixed(4)) : -1,
+          uiTouches,
+        },
 
         
         

@@ -90,8 +90,16 @@
       "role": "line",
       "footprint": 4
     },
-    "ironbark": {
+    "homestead": {
       "row": 11,
+      "worldSize": 17.304,
+      "drawSize": 48.451,
+      "footY": 0.3515,
+      "role": "line",
+      "footprint": 3.4
+    },
+    "ironbark": {
+      "row": 12,
       "worldSize": 18.495,
       "drawSize": 51.787,
       "footY": 0.2413,
@@ -99,15 +107,23 @@
       "footprint": 3.4
     },
     "logPile": {
-      "row": 12,
+      "row": 13,
       "worldSize": 9.016,
       "drawSize": 19.836,
       "footY": 0.4573,
       "role": "line",
       "footprint": 2.4
     },
+    "powerPole": {
+      "row": 14,
+      "worldSize": 14.414,
+      "drawSize": 40.359,
+      "footY": 0.2577,
+      "role": "line",
+      "footprint": 2
+    },
     "reeds": {
-      "row": 13,
+      "row": 15,
       "worldSize": 3.578,
       "drawSize": 10.017,
       "footY": 0.244,
@@ -115,7 +131,7 @@
       "footprint": 1.6
     },
     "rockPile": {
-      "row": 14,
+      "row": 16,
       "worldSize": 9.339,
       "drawSize": 26.148,
       "footY": 0.4391,
@@ -123,7 +139,7 @@
       "footprint": 3
     },
     "saltbush": {
-      "row": 15,
+      "row": 17,
       "worldSize": 4.15,
       "drawSize": 11.619,
       "footY": 0.3881,
@@ -131,7 +147,7 @@
       "footprint": 1.5
     },
     "shed": {
-      "row": 16,
+      "row": 18,
       "worldSize": 13.08,
       "drawSize": 31.392,
       "footY": 0.3778,
@@ -139,7 +155,7 @@
       "footprint": 4.6
     },
     "shedRust": {
-      "row": 17,
+      "row": 19,
       "worldSize": 8.88,
       "drawSize": 21.312,
       "footY": 0.3326,
@@ -147,15 +163,23 @@
       "footprint": 3.6
     },
     "silo": {
-      "row": 18,
+      "row": 20,
       "worldSize": 13.7,
       "drawSize": 41.099,
       "footY": 0.2122,
       "role": "mark",
       "footprint": 2.4
     },
+    "stockyard": {
+      "row": 21,
+      "worldSize": 16.826,
+      "drawSize": 47.112,
+      "footY": 0.4634,
+      "role": "line",
+      "footprint": 5
+    },
     "stump": {
-      "row": 19,
+      "row": 22,
       "worldSize": 2.66,
       "drawSize": 7.447,
       "footY": 0.3241,
@@ -163,7 +187,7 @@
       "footprint": 1.3
     },
     "tank": {
-      "row": 20,
+      "row": 23,
       "worldSize": 7.531,
       "drawSize": 18.075,
       "footY": 0.2434,
@@ -171,7 +195,7 @@
       "footprint": 2.3
     },
     "trough": {
-      "row": 21,
+      "row": 24,
       "worldSize": 6,
       "drawSize": 13.2,
       "footY": 0.4553,
@@ -179,7 +203,7 @@
       "footprint": 2.6
     },
     "wattle": {
-      "row": 22,
+      "row": 25,
       "worldSize": 6.472,
       "drawSize": 18.122,
       "footY": 0.3178,
@@ -187,7 +211,7 @@
       "footprint": 1.9
     },
     "windmill": {
-      "row": 23,
+      "row": 26,
       "worldSize": 15.606,
       "drawSize": 46.817,
       "footY": 0.1729,

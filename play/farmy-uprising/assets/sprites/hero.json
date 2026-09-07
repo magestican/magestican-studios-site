@@ -1,0 +1,17 @@
+{
+  "tile": 512,
+  "rows": {
+    "pride": {
+      "row": 0,
+      "kind": "unit"
+    },
+    "combine": {
+      "row": 1,
+      "kind": "unit"
+    }
+  },
+  "order": [
+    "pride",
+    "combine"
+  ]
+}

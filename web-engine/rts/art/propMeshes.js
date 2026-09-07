@@ -171,13 +171,52 @@ function seeded(seed) {
 const BARK_PALE = '#c6bca6';      
 const BARK_SHADE = '#938973';
 const BARK_DARK = '#6a5b46';      
-const LEAF = '#6d8a4a';           
-const LEAF_DARK = '#4a6634';
-const LEAF_BLUE = '#7d9576';      
-const PINE_DARK = '#33502c';
-const PINE_LIGHT = '#456b39';
-const HEDGE = '#456d31';
-const HEDGE_DARK = '#2d4a22';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const LEAF = '#83995a';           
+const LEAF_DARK = '#6b8149';
+const LEAF_BLUE = '#93a686';      
+const PINE_DARK = '#486b3c';
+const PINE_LIGHT = '#5c8149';
+const HEDGE = '#5b8442';
+const HEDGE_DARK = '#46693a';
 const SALT_BUSH = '#8b9670';      
 const SALT_DARK = '#67714f';
 const WATTLE = '#93a24d';
@@ -577,6 +616,177 @@ export function hayShed(o) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function homestead(o) {
+  const parts = [];
+  const wallZ = o.h * 0.52;
+  const eaveZ = o.h * 0.60;
+  
+  
+  parts.push(part(box([0, 0, wallZ / 2], [o.len, o.wid, wallZ]), o.wall));
+  parts.push(part(
+    tube([-o.len * 0.20, 0, eaveZ], [o.len * 0.20, 0, eaveZ],
+      (o.h - eaveZ) * 2, o.wid * 1.30, [[0, 1, 1], [1, 1, 1]], 4),
+    o.roof,
+  ));
+  
+  
+  for (const sx of [-1, 1]) {
+    parts.push(part(
+      tube([sx * o.len * 0.20, 0, eaveZ], [sx * o.len * 0.62, 0, eaveZ],
+        (o.h - eaveZ) * 2, o.wid * 1.30, CONE, 4),
+      o.roof,
+    ));
+  }
+  
+  
+  
+  const vy = o.wid * 0.5 + o.wid * 0.34;
+  for (let i = 0; i < 5; i += 1) {
+    const x = (-0.5 + i / 4) * o.len * 0.88;
+    parts.push(part(post([x, vy, 0], [x, vy, wallZ * 0.92], 0.09, STRAIGHT, 5), o.trim));
+  }
+  parts.push(part(
+    box([0, o.wid * 0.5 + o.wid * 0.17, wallZ * 0.30], [o.len * 0.94, o.wid * 0.34, 0.18]),
+    TIMBER_DARK,
+  ));
+  parts.push(part(
+    gable(-o.len * 0.48, o.len * 0.48, o.wid * 0.5 + o.wid * 0.17,
+      wallZ * 1.02, o.wid * 0.40, wallZ * 0.14),
+    o.roof,
+  ));
+  
+  for (const x of [-o.len * 0.28, o.len * 0.28]) {
+    parts.push(part(box([x, o.wid * 0.5 + 0.04, wallZ * 0.56], [o.len * 0.16, 0.12, wallZ * 0.40]),
+      '#2b3330'));
+  }
+  parts.push(part(box([0, o.wid * 0.5 + 0.04, wallZ * 0.44], [o.len * 0.10, 0.12, wallZ * 0.70]),
+    '#2b3330'));
+  
+  
+  parts.push(part(box([-o.len * 0.30, -o.wid * 0.22, o.h * 0.62], [0.66, 0.66, o.h * 1.24]),
+    o.brick));
+  parts.push(part(box([-o.len * 0.30, -o.wid * 0.22, o.h * 1.26], [0.86, 0.86, 0.22]), TIMBER_DARK));
+  
+  
+  parts.push(part(tube([o.len * 0.60, -o.wid * 0.42, 0], [o.len * 0.60, -o.wid * 0.42, wallZ * 0.86],
+    1.9, 1.9, STRAIGHT, 8), GALV));
+  parts.push(part(tube([o.len * 0.60, -o.wid * 0.42, wallZ * 0.84],
+    [o.len * 0.60, -o.wid * 0.42, wallZ * 0.98], 2.0, 2.0, CONE, 8), GALV_DARK));
+  return parts;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function powerPole(o) {
+  const parts = [];
+  const half = o.len / 2;
+  parts.push(part(post([0, 0, 0], [0, 0, o.h], o.poleR, TAPER, 5), TIMBER_DARK));
+  
+  parts.push(part(tube([0, -o.arm, o.h * 0.88], [0, o.arm, o.h * 0.88], 0.20, 0.16, STRAIGHT, 4),
+    TIMBER));
+  for (const sy of [-1, 1]) {
+    parts.push(part(post([0, sy * o.arm * 0.82, o.h * 0.90], [0, sy * o.arm * 0.82, o.h * 0.99],
+      0.11, STRAIGHT, 5), '#cfd3cb'));
+  }
+  
+  
+  
+  for (const sy of [-1, 1]) {
+    const y = sy * o.arm * 0.82;
+    const z = o.h * 0.99;
+    const sag = o.h * 0.10;
+    parts.push(part(tube([-half, y, z - sag], [-half * 0.34, y, z - sag * 0.30], 0.07, 0.07,
+      STRAIGHT, 4), WIRE));
+    parts.push(part(tube([-half * 0.34, y, z - sag * 0.30], [half * 0.34, y, z - sag * 0.30],
+      0.07, 0.07, STRAIGHT, 4), WIRE));
+    parts.push(part(tube([half * 0.34, y, z - sag * 0.30], [half, y, z - sag], 0.07, 0.07,
+      STRAIGHT, 4), WIRE));
+  }
+  return parts;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function stockyard(o) {
+  const parts = [];
+  const hx = o.len / 2;
+  const hy = o.wid / 2;
+  const rail = (x0, y0, x1, y1) => {
+    for (let k = 0; k < 3; k += 1) {
+      const z = o.h * (0.30 + k * 0.30);
+      parts.push(part(tube([x0, y0, z], [x1, y1, z], 0.11, 0.11, STRAIGHT, 4), TIMBER));
+    }
+  };
+  
+  rail(-hx, -hy, hx, -hy);
+  rail(-hx, hy, hx, hy);
+  rail(-hx, -hy, -hx, hy);
+  rail(hx, -hy, hx, -hy * 0.25);
+  
+  for (const x of [-hx, -hx * 0.34, hx * 0.34, hx]) {
+    for (const y of [-hy, hy]) {
+      parts.push(part(post([x, y, 0], [x, y, o.h], 0.15, STRAIGHT, 5), TIMBER_DARK));
+    }
+  }
+  
+  
+  for (const sy of [-1, 1]) {
+    const y = sy * o.wid * 0.16;
+    parts.push(part(post([hx, y, 0], [hx * 1.5, y, 0], 0.13, STRAIGHT, 5), TIMBER_DARK));
+    for (let k = 0; k < 2; k += 1) {
+      const z = o.h * (0.34 + k * 0.34);
+      parts.push(part(tube([hx, y, z], [hx * 1.5, y, z], 0.11, 0.11, STRAIGHT, 4), TIMBER));
+    }
+    parts.push(part(post([hx * 1.5, y, 0], [hx * 1.5, y, o.h], 0.15, STRAIGHT, 5), TIMBER_DARK));
+  }
+  
+  
+  
+  parts.push(part(box([0, 0, 0.07], [o.len * 0.98, o.wid * 0.98, 0.14]), '#8a7457'));
+  return parts;
+}
+
+
 export function waterTank(o) {
   const parts = [];
   parts.push(part(tube([0, 0, 0], [0, 0, o.h * 0.14], o.dia * 1.06, o.dia * 1.06, STRAIGHT, 8), CONCRETE));
@@ -951,6 +1161,28 @@ export const PROPS = {
     role: 'mark',
     footprint: 2.6,
     build: () => windmill({ h: 17.0, base: 1.75, fan: 4.4, steel: GALV_DARK, vane: RUST }),
+  },
+  homestead: {
+    
+    
+    
+    
+    role: 'line',
+    footprint: 3.4,
+    build: () => homestead({
+      len: 11.0, wid: 6.2, h: 5.4, wall: '#cdc6b0', roof: '#8e4230', trim: '#e6e2d4',
+      brick: '#9a5f4a',
+    }),
+  },
+  powerPole: {
+    role: 'line',
+    footprint: 2.0,
+    build: () => powerPole({ len: 12.0, h: 9.4, poleR: 0.20, arm: 1.35 }),
+  },
+  stockyard: {
+    role: 'line',
+    footprint: 5.0,
+    build: () => stockyard({ len: 11.0, wid: 7.0, h: 1.55 }),
   },
   silo: {
     role: 'mark',

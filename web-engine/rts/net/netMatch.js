@@ -26,6 +26,8 @@
 
 
 
+
+
 import { createLockstep, INPUT_DELAY_TICKS } from './lockstep.js';
 import { stepMatch, schedule } from '../sim/match.js';
 import { applyCommand } from '../sim/commands.js';
@@ -40,9 +42,13 @@ import { applyCommand } from '../sim/commands.js';
 
 const REANNOUNCE_EVERY_MS = 250;
 
-import { checksum } from '../sim/world.js';
-import { saveMatch, restoreMatch } from '../sim/save.js';
+import { CHECKSUM_VERSION } from '../sim/world.js';
+import { saveMatch, restoreMatch, matchChecksum } from '../sim/save.js';
 import { handOverToBot } from '../sim/match.js';
+
+
+
+
 
 
 
@@ -74,11 +80,13 @@ import { handOverToBot } from '../sim/match.js';
 
 export function createNetMatch({
   match, transport, peers, localSeat, onDrop, onDesync, onStall, onResync,
-  botForDroppedSeat, onTick,
+  botForDroppedSeat, onTick, onVersionMismatch,
 }) {
   const ls = createLockstep({ peers, localSeat });
   let stalledSeats = [];
   let resyncs = 0;
+  
+  let versionMismatch = null;
   let sentIdleTo = -1;
   let lastReannounceMs = -1e9;
   
@@ -93,22 +101,70 @@ export function createNetMatch({
 
   let nextSeq = 0;
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function actOnVerdict(d) {
+    if (!d) return;
+    if (onDesync) onDesync(d);
+    if (d.resyncFrom === localSeat && d.odd.length > 0) {
+      transport.broadcast({ k: 'sync', p: localSeat, t: d.tick, blob: saveMatch(match) });
+    }
+  }
+
   transport.onMessage((msg) => {
     if (!msg || typeof msg !== 'object') return;
     if (msg.k === 'cmd') ls.receive(msg);
     else if (msg.k === 'idle') ls.confirmEmpty(msg.p, msg.t);
     else if (msg.k === 'sum') {
-      const d = ls.noteChecksum(msg.p, msg.t, msg.v);
-      if (d) {
-        if (onDesync) onDesync(d);
-        
-        
-        
-        
-        if (d.resyncFrom === localSeat && d.odd.length > 0) {
-          transport.broadcast({ k: 'sync', p: localSeat, t: d.tick, blob: saveMatch(match) });
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (msg.cv !== CHECKSUM_VERSION) {
+        if (!versionMismatch) {
+          versionMismatch = { seat: msg.p, theirs: msg.cv === undefined ? null : msg.cv, ours: CHECKSUM_VERSION };
+          if (onVersionMismatch) onVersionMismatch(versionMismatch);
         }
+        return;
       }
+      actOnVerdict(ls.noteChecksum(msg.p, msg.t, msg.v));
     } else if (msg.k === 'sync') {
       
       
@@ -131,6 +187,8 @@ export function createNetMatch({
   return {
     get lockstep() { return ls; },
     get resyncs() { return resyncs; },
+    
+    get versionMismatch() { return versionMismatch; },
     get stalledSeats() { return [...stalledSeats]; },
 
     
@@ -261,10 +319,12 @@ export function createNetMatch({
         ran += 1;
 
         if (ls.shouldChecksum(match.w.tick)) {
-          const v = checksum(match.w);
+          const v = matchChecksum(match);
           const t = match.w.tick;
-          ls.noteChecksum(localSeat, t, v);
-          transport.broadcast({ k: 'sum', p: localSeat, t, v });
+          
+          
+          transport.broadcast({ k: 'sum', p: localSeat, t, v, cv: CHECKSUM_VERSION });
+          actOnVerdict(ls.noteChecksum(localSeat, t, v));
         }
       }
       return ran;

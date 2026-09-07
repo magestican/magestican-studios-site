@@ -28,10 +28,50 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { Rng } from '../rng.js';
 import { Bank } from '../economy.js';
 import { MAPS } from '../maps/index.js';
-import { createWorld, checksum, MAX_UNITS, MAX_BUILDINGS } from './world.js';
+import {
+  createWorld, checksum, mixValue, digest, MAX_UNITS, MAX_BUILDINGS,
+  U_COLS, B_COLS, S_COLS,
+} from './world.js';
 import { createPresenceBuffers } from './presence.js';
 import { createAuraBuffers } from './auras.js';
 import { createQueues } from './production.js';
@@ -44,18 +84,12 @@ import { createQueues } from './production.js';
 
 
 
-export const SAVE_VERSION = 1;
 
 
-const U_COLS = ['id', 'owner', 'kind', 'alive', 'x', 'y', 'sector', 'facing',
-  'members', 'hp', 'state', 'cooldown', 'orderType', 'orderX', 'orderY',
-  'orderArg', 'progress', 'variant'];
-const B_COLS = ['id', 'owner', 'kind', 'alive', 'x', 'y', 'sector', 'hp',
-  'building', 'cooldown', 'pulse'];
 
 
-const S_COLS = ['owner', 'ownerFaction', 'hold', 'claimant', 'claim', 'idleTicks',
-  'anchored', 'fenced', 'pollution'];
+
+export const SAVE_VERSION = 2;
 
 
 
@@ -65,6 +99,49 @@ const S_COLS = ['owner', 'ownerFaction', 'hold', 'claimant', 'claim', 'idleTicks
 
 
 const col = (arr, n) => Array.from(arr.subarray(0, n));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function matchState(m) {
+  return {
+    banks: m.banks.map((k) => k.save()),
+    queues: m.queues.map((q) => q.map((e) => ({ ...e }))),
+    score: Array.from(m.score),
+    routTicks: Array.from(m.routTicks),
+    stats: m.stats.map((s) => ({ ...s })),
+    automation: m.automation.map((a) => ({ ...a })),
+    
+    
+    
+    scheduled: [...m.scheduled.entries()]
+      .map(([tick, cmds]) => [
+        tick,
+        [...cmds].sort((a, b) => (a.p - b.p) || (a.seq - b.seq)).map((c) => ({ ...c })),
+      ])
+      .sort((a, b) => a[0] - b[0]),
+    botRound: m.botRound || 0,
+    over: !!m.over,
+    winner: m.winner,
+    endReason: m.endReason || '',
+  };
+}
 
 
 
@@ -97,28 +174,30 @@ export function saveMatch(m) {
     
     rng: w.rng.state,
     nextId: w.nextId,
-    spawnSeq: w.spawnSeq,
+    
+    
+    
+    
+    
+    
+    spawnSeq: Array.from(w.spawnSeq),
     seats: w.seats.map((s) => ({ faction: s.faction, bot: s.bot ? { ...s.bot } : null })),
     uCount: w.u.count,
     bCount: w.b.count,
     u,
     b,
     sectors,
-    banks: m.banks.map((k) => k.save()),
-    queues: m.queues.map((q) => q.map((e) => ({ ...e }))),
-    score: Array.from(m.score),
-    routTicks: Array.from(m.routTicks),
-    stats: m.stats.map((s) => ({ ...s })),
-    automation: m.automation.map((a) => ({ ...a })),
+    ...matchState(m),
     
     
     
-    scheduled: [...m.scheduled.entries()].map(([tick, cmds]) => [tick, cmds.map((c) => ({ ...c }))]),
-    botRound: m.botRound || 0,
+    
+    
+    
+    
+    
+    
     barks: m.barks ? JSON.parse(JSON.stringify(m.barks)) : null,
-    over: m.over,
-    winner: m.winner,
-    endReason: m.endReason,
   };
 }
 
@@ -142,12 +221,19 @@ export function restoreMatch(data) {
   
   
   
-  const w = createWorld({ map, seats, seed: data.seed || 1 });
+  
+  
+  
+  
+  
+  const w = createWorld({ map, seats, seed: data.seed == null ? 1 : data.seed });
   w.tick = data.tick;
   w.rng = new Rng(1);
   w.rng.state = data.rng | 0;
   w.nextId = data.nextId;
-  w.spawnSeq = data.spawnSeq;
+  
+  
+  w.spawnSeq.set(data.spawnSeq);
 
   w.u.count = data.uCount;
   for (const c of U_COLS) {
@@ -206,6 +292,70 @@ export function restoreMatch(data) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+export function matchChecksum(m) {
+  return mixValue(checksum(m.w) | 0, matchState(m)) >>> 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function checksumFields(m) {
+  const w = m.w;
+  const out = {
+    tick: digest(w.tick),
+    nextId: digest(w.nextId),
+    seed: digest(w.seed),
+    mapId: digest((w.map && w.map.id) || ''),
+    rng: digest(w.rng.save()),
+    seats: digest(w.seats),
+    spawnSeq: digest(w.spawnSeq),
+    'u.count': digest(w.u.count),
+    'b.count': digest(w.b.count),
+  };
+  for (const c of U_COLS) out[`u.${c}`] = digest(col(w.u[c], w.u.count));
+  for (const c of B_COLS) out[`b.${c}`] = digest(col(w.b[c], w.b.count));
+  for (const c of S_COLS) out[`s.${c}`] = digest(w.sectors.map((s) => s[c]));
+  const ms = matchState(m);
+  for (const k of Object.keys(ms)) out[`m.${k}`] = digest(ms[k]);
+  return out;
+}
+
+
+
+
+
+
+
+
+
 export function saveChecksum(m) {
-  return checksum(m.w);
+  return matchChecksum(m);
 }

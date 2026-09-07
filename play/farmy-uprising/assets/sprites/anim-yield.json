@@ -1,0 +1,58 @@
+{
+  "tile": 96,
+  "facings": 8,
+  "slots": 4,
+  "faction": "yield",
+  "kinds": {
+    "walk": {
+      "offset": 0,
+      "frames": 4
+    },
+    "attack": {
+      "offset": 1,
+      "frames": 2
+    },
+    "die": {
+      "offset": 2,
+      "frames": 3
+    }
+  },
+  "rows": {
+    "bowser": {
+      "row": 0,
+      "worldSize": 4.991
+    },
+    "combine": {
+      "row": 3,
+      "worldSize": 8.599
+    },
+    "cropDuster": {
+      "row": 6,
+      "worldSize": 6.206
+    },
+    "farmhand": {
+      "row": 9,
+      "worldSize": 2.361
+    },
+    "foodTruck": {
+      "row": 12,
+      "worldSize": 5.463
+    },
+    "harvester": {
+      "row": 15,
+      "worldSize": 5.243
+    },
+    "poundWagon": {
+      "row": 18,
+      "worldSize": 7.443
+    },
+    "quadBike": {
+      "row": 21,
+      "worldSize": 2.559
+    },
+    "tractor": {
+      "row": 24,
+      "worldSize": 4.86
+    }
+  }
+}
