@@ -161,11 +161,13 @@ export function baseConfig() {
   };
 }
 
-function gtag(...args) {
+function gtag() {
   const w = globalThis;
   if (!w.dataLayer) return;
   
-  w.dataLayer.push(args);
+  
+  
+  w.dataLayer.push(arguments);
 }
 
 
