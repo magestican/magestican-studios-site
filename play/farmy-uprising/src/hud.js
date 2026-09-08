@@ -141,6 +141,43 @@ export function createHud(match, seat, actions) {
   if (typeof document !== 'undefined') document.documentElement.dataset.skin = skin.id;
 
   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function dressIcons(root = document) {
+    if (typeof document === 'undefined' || !root) return;
+    for (const use of root.querySelectorAll('use')) {
+      const href = use.getAttribute('href') || '';
+      const base = href.replace(/^#/, '').replace(/-(herd|yield)$/, '');
+      if (!base.startsWith('i-')) continue;
+      const want = `${base}-${skin.id}`;
+      if (document.getElementById(want)) use.setAttribute('href', `#${want}`);
+      else if (href !== `#${base}`) use.setAttribute('href', `#${base}`);
+    }
+  }
+  dressIcons();
+
+  
   
   
   
@@ -369,6 +406,7 @@ export function createHud(match, seat, actions) {
         + `${g.name}<b>${g.members}</b>${g.hurt ? '<i class="hurt"></i>' : ''}</button>`;
     }
     el.rail.innerHTML = html;
+    dressIcons(el.rail);
     paintIcons(el.rail);
   }
 
@@ -466,6 +504,9 @@ export function createHud(match, seat, actions) {
     html += '</div></section>';
     el.buildBar.innerHTML = html;
     paintIcons(el.buildBar);
+    
+    
+    dressIcons(el.buildBar);
     updateRowCues();
   }
 

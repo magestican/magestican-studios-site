@@ -86,7 +86,28 @@ for (const id of PLAYABLE_MAP_IDS) {
   mapSelect.appendChild(opt);
 }
 
-function pickFaction(f) {
+
+
+
+
+
+
+
+
+
+
+
+let audio = null;
+function menuAudio() {
+  if (!audio) audio = createAudio();
+  return audio;
+}
+function menuMusic() {
+  try { menuAudio().menu(chosenFaction === HERD ? 'herd' : 'yield'); } catch {  }
+}
+
+function pickFaction(f, byHand) {
+  const changed = chosenFaction !== f;
   chosenFaction = f;
   for (const s of $('pick-faction').querySelectorAll('.side')) {
     s.classList.toggle('on', s.dataset.faction === chosenFaction);
@@ -95,6 +116,15 @@ function pickFaction(f) {
   
   
   document.documentElement.dataset.skin = chosenFaction === HERD ? 'herd' : 'yield';
+  
+  
+  if (byHand) {
+    try {
+      const a = menuAudio();
+      a.menu(chosenFaction === HERD ? 'herd' : 'yield');
+      if (changed) a.pickCue(chosenFaction === HERD ? 'herd' : 'yield');
+    } catch {  }
+  }
 }
 pickFaction(chosenFaction);
 
@@ -102,24 +132,44 @@ pickFaction(chosenFaction);
 
 
 
+menuMusic();
+for (const evt of ['pointerdown', 'keydown', 'touchstart']) {
+  window.addEventListener(evt, () => { menuMusic(); }, { once: true, passive: true });
+}
 
-const HERO_OF = { herd: 'pride', yield: 'combine' };
+
+
+
+
+
+
+
+
+
+
+const HERO_OF = {
+  herd: ['flock', 'sounder', 'horseHerd'],
+  yield: ['farmhand', 'tractor', 'harvester'],
+};
 fetch('assets/sprites/hero.json').then((r) => (r.ok ? r.json() : null)).then((hero) => {
   if (!hero || !hero.order) return;
   const n = hero.order.length;
   for (const side of $('pick-faction').querySelectorAll('.side')) {
-    const row = hero.order.indexOf(HERO_OF[side.dataset.faction]);
-    const el = side.querySelector('.hero');
-    if (row < 0 || !el) continue;
-    el.style.backgroundPosition = `50% ${n > 1 ? (row * 100) / (n - 1) : 0}%`;
-    el.style.backgroundSize = `auto ${n * 100}%`;
+    const want = HERO_OF[side.dataset.faction] || [];
+    want.forEach((id, slot) => {
+      const row = hero.order.indexOf(id);
+      const el = side.querySelector(`.hero.s${slot}`);
+      if (row < 0 || !el) return;
+      el.style.backgroundPosition = `50% ${n > 1 ? (row * 100) / (n - 1) : 0}%`;
+      el.style.backgroundSize = `auto ${n * 100}%`;
+    });
   }
 }).catch(() => {  });
 
 $('pick-faction').addEventListener('click', (e) => {
   const b = e.target.closest('button');
   if (!b) return;
-  pickFaction(b.dataset.faction === 'yield' ? YIELD : HERD);
+  pickFaction(b.dataset.faction === 'yield' ? YIELD : HERD, true);
 });
 
 $('btn-play').addEventListener('click', () => { clearSave(); start(); });
@@ -274,7 +324,6 @@ function leaveMenu() {
   menu.classList.add('leaving');
   setTimeout(() => { menu.classList.remove('show', 'leaving'); }, 420);
 }
-let audio = null;
 let voices = null;
 let lastSavedTick = -1;
 let selection = { kind: 'all', key: null };

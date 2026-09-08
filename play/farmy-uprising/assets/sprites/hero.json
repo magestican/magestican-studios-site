@@ -1,17 +1,37 @@
 {
   "tile": 512,
   "rows": {
-    "pride": {
+    "flock": {
       "row": 0,
       "kind": "unit"
     },
-    "combine": {
+    "sounder": {
       "row": 1,
+      "kind": "unit"
+    },
+    "horseHerd": {
+      "row": 2,
+      "kind": "unit"
+    },
+    "farmhand": {
+      "row": 3,
+      "kind": "unit"
+    },
+    "tractor": {
+      "row": 4,
+      "kind": "unit"
+    },
+    "harvester": {
+      "row": 5,
       "kind": "unit"
     }
   },
   "order": [
-    "pride",
-    "combine"
+    "flock",
+    "sounder",
+    "horseHerd",
+    "farmhand",
+    "tractor",
+    "harvester"
   ]
 }

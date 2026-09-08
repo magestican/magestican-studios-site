@@ -343,6 +343,14 @@ export function createAudio() {
   let blend = 0.5;          
   let target = 0.5;
   let usingSynthMusic = false;
+  
+  
+  
+  let menuRunning = false;
+  
+  
+  
+  let menuCues = 0;
   let duckUntil = 0;
   let lastSpoken = null;
   
@@ -1074,7 +1082,15 @@ export function createAudio() {
     while (usingSynthMusic && nextNoteAt < ctx.currentTime + 2) scheduleBar();
     
     
-    blend += (target - blend) * 0.08;
+    
+    
+    
+    
+    
+    
+    
+    
+    blend += (target - blend) * (menuRunning ? 0.35 : 0.08);
 
     
     
@@ -1200,6 +1216,10 @@ export function createAudio() {
       blend = 0.5;
       target = 0.5;
       usingSynthMusic = false;
+      
+      
+      
+      menuRunning = false;
       lastMatch = match || null;
       voiceLog.length = 0;
       spatialStats.placed = 0;
@@ -1229,6 +1249,73 @@ export function createAudio() {
 
       if (timer) clearInterval(timer);
       timer = setInterval(pump, 250);
+    },
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    menu(side) {
+      if (!ensure()) return;
+      if (ctx.state === 'suspended') ctx.resume();
+      if (!menuRunning) {
+        menuRunning = true;
+        watchTime = ctx.currentTime;
+        watchWall = Date.now();
+        bar = 0;
+        nextNoteAt = ctx.currentTime + 0.1;
+        usingSynthMusic = false;
+        lastMatch = null;
+        sheet.ready('fu-sfx.json');
+        stems.ready().then((status) => {
+          if (status === 'ready') stems.start(musicBus);
+          else { usingSynthMusic = true; nextNoteAt = ctx.currentTime + 0.1; }
+        });
+        if (timer) clearInterval(timer);
+        timer = setInterval(pump, 250);
+      }
+      
+      
+      
+      if (side !== undefined) target = side === 'yield' ? 1 : 0;
+    },
+
+    
+
+
+
+
+
+
+    pickCue(side) {
+      if (!ctx || !sfxOn || !sheet || sheet.status !== 'ready') return;
+      if (side === 'yield') {
+        effect('fenceSnap', 0.55, null, 0.92);
+        effect('hydraulics', 0.30, null, 1.15);
+      } else {
+        effect('hoofHeavy', 0.70, null, 0.88);
+        effect('wingbeats', 0.28, null, 1.10);
+      }
+      menuCues += 1;
     },
 
     
@@ -1432,6 +1519,14 @@ export function createAudio() {
         
         stemVoices: stems ? stems.live : 0,
         usingSynthMusic,
+        
+        
+        
+        
+        menuRunning,
+        menuCues,
+        musicTarget: Number(target.toFixed(3)),
+        musicBlend: Number(blend.toFixed(3)),
         lastSpoken,
         missing: [...(sheet ? sheet.missing : []), ...(vox ? vox.missing : [])],
         levels: { ...LEVELS },
