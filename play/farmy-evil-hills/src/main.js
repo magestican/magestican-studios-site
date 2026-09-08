@@ -2451,6 +2451,11 @@ export function boot(canvas, hud) {
   const gradeEl = document.getElementById('grade');
   
   const skipEl = document.getElementById('skipBtn');
+  
+  
+  
+  const introCapEl = document.getElementById('introCap');
+  const introTapEl = document.getElementById('introTap');
 
   
   
@@ -3146,6 +3151,12 @@ export function boot(canvas, hud) {
     }
     window.addEventListener('keydown', introSkipPress);
     window.addEventListener('pointerdown', introSkipPress);
+    
+    
+    
+    
+    
+    if (introTapEl) introTapEl.style.display = 'block';
   }
 
   function endIntro() {
@@ -3169,6 +3180,8 @@ export function boot(canvas, hud) {
     const tEl = document.getElementById('introTitle');
     if (tEl) tEl.style.opacity = '0';
     if (skipEl) skipEl.style.display = 'none';
+    if (introCapEl) introCapEl.style.display = 'none';
+    if (introTapEl) introTapEl.style.display = 'none';
     xRig.visible = true;
     intro = null;
     introDone = true;
@@ -3252,7 +3265,11 @@ export function boot(canvas, hud) {
     
     
     
-    if (skipEl) skipEl.style.display = intro.t > 0.8 ? 'block' : 'none';
+    
+    
+    const skipUp = intro.t > 0.8 ? 'block' : 'none';
+    if (skipEl) skipEl.style.display = skipUp;
+    if (introCapEl) introCapEl.style.display = skipUp;
 
     const shotId = INTRO_SHOTS[intro.shot].id;
     const o = INTRO_SET[shotId];
@@ -3691,7 +3708,14 @@ export function boot(canvas, hud) {
       
       setLookMode('intro');
       scene.fog = null;
-      runIntroFrame(now, dt);
+      
+      
+      
+      
+      
+      
+      
+      runIntroFrame(now, wallDt);
       requestAnimationFrame(step);
       return;
     }
@@ -8114,6 +8138,23 @@ export function boot(canvas, hud) {
     getAccess() { return { ...access }; },
     introActive: () => !!(intro && !intro.done),
     
+
+
+
+
+
+
+
+
+
+
+    endIntroNow() {
+      if (!intro || intro.done) return false;
+      introOnDone = null;
+      endIntro();
+      return true;
+    },
+    
     
     
     
@@ -8121,6 +8162,12 @@ export function boot(canvas, hud) {
     
     
     beginRun() { menuUp = false; },
+    
+    
+    
+    
+    
+    runActive: () => !menuUp,
     player, birds, touch, faces, head: xHead, neck,
     
     
@@ -8387,10 +8434,10 @@ function start() {
       
       
       
-      document.body.classList.add('modalOpen', 'bootOpen');
       let resumeDeck = 0;
       
       let resumeSave = null;
+
       
       
       
@@ -8411,23 +8458,59 @@ function start() {
       
       
       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      let menuShownAt = 0;
+      const MENU_SETTLE_MS = 350;
+      const menuSettling = () => (performance.now() - menuShownAt) < MENU_SETTLE_MS;
+      const showMenu = () => {
+        document.body.classList.remove('filmFirst');
+        $('boot').style.display = 'flex';
+        menuShownAt = performance.now();
+        
+        
+        
+        
+        
+        document.body.classList.add('modalOpen', 'bootOpen');
+      };
+      const hideMenu = () => {
+        $('boot').style.display = 'none';
+        
+        
+        document.body.classList.remove('modalOpen', 'bootOpen');
+      };
+
       const go = () => {
         if (started) return;
         
         
         
         
-        if (api.introActive && api.introActive()) return;
+        
+        
+        
+        
+        if (api.introActive && api.introActive() && api.endIntroNow) api.endIntroNow();
         started = true;
         
         
         
         
         if (api.beginRun) api.beginRun();
-        $('boot').style.display = 'none';
-        
-        
-        document.body.classList.remove('modalOpen', 'bootOpen');
+        hideMenu();
         $('hint').style.display = 'block';
         
         
@@ -8445,23 +8528,8 @@ function start() {
         
         
         
-        const seen = api.progress && api.progress() && api.progress().seenIntro;
         
         
-        
-        
-        
-        let inRoom = false;
-        try { inRoom = !!(api.debug && api.debug.coop.active); } catch { inRoom = false; }
-        if (api.beginIntro && !seen && !resumeDeck && !inRoom) {
-          
-          
-          
-          
-          if (api.markIntroSeen) api.markIntroSeen();
-          api.beginIntro(() => { startStationAudio(); });
-          return;
-        }
         if (resumeSave && api.loadSave) api.loadSave(resumeSave);
         else if (resumeDeck && api.resumeAt) api.resumeAt(resumeDeck);
         startStationAudio();
@@ -8499,6 +8567,23 @@ function start() {
         }
       }
       $('startBtn').addEventListener('click', () => { resumeDeck = 0; go(); });
+      
+      
+      
+      
+      
+      
+      
+      $('introBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();          
+        if (started) return;
+        if (api.introActive && api.introActive()) return;
+        if (!api.beginIntro) return;
+        audio.ensure();
+        if (api.markIntroSeen) api.markIntroSeen();
+        hideMenu();
+        api.beginIntro(() => { showMenu(); });
+      });
       
       {
         const prog = api.progress ? api.progress() : null;
@@ -8577,12 +8662,43 @@ function start() {
         
         
         if (e.target && e.target.closest && e.target.closest('#coop')) return;
+        
+        if (menuSettling()) return;
         go();
       });
       document.addEventListener('keydown', (e) => {
         if (document.activeElement && document.activeElement.id === 'coopCode') return;
+        
+        
+        
+        
+        
+        
+        if (api.introActive && api.introActive()) return;
+        
+        
+        
+        if (menuSettling()) return;
         if (e.code === 'Space' || e.code === 'Enter') go();
       });
+
+      
+      
+      
+      
+      
+      let wantFilm = true;
+      try { wantFilm = new URLSearchParams(location.search).get('intro') !== '0'; } catch { wantFilm = true; }
+      if (wantFilm && api.beginIntro) {
+        
+        
+        
+        
+        if (api.markIntroSeen) api.markIntroSeen();
+        api.beginIntro(() => { showMenu(); });
+      } else {
+        showMenu();
+      }
     }
   } catch (err) {
     hud.fatal(`The station did not come up.<br><small style="opacity:.6">${String(err).slice(0, 300)}</small>`);
