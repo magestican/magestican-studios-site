@@ -348,6 +348,7 @@ export function boot(canvas, hud) {
     get startPhase() { return startPhase; },
     get stepCount() { return stepCount; },
     get stillFor() { return stillFor; },
+    get moveTrace() { return moveTrace; },
     get strips() { return strips; }, set strips(v) { strips = v; },
     
     
@@ -2272,6 +2273,23 @@ export function boot(canvas, hud) {
   
   let lastInput = 'key';
   let lastMoved = 0;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let moveTrace = null;
   let lastGait = 0;
   let stepCount = 0;
   let hitCount = 0;
@@ -3796,6 +3814,7 @@ export function boot(canvas, hud) {
       
       
       
+      const beforeX = player.x; const beforeZ = player.z;
       let moved = moveInLevel(deck, player, dx * speed * dt, dz * speed * dt, 0.4, solidProps);
       
       
@@ -3831,6 +3850,19 @@ export function boot(canvas, hud) {
       groundNow = lastMoved;
       walkDist += groundNow;
       startDist += groundNow;
+      
+      
+      
+      moveTrace = {
+        fwd: +fwd.toFixed(3), strafe: +strafe.toFixed(3), mag: +mv.mag.toFixed(3),
+        wantX: +(dx * speed * dt).toFixed(4), wantZ: +(dz * speed * dt).toFixed(4),
+        gotX: +(player.x - beforeX).toFixed(4), gotZ: +(player.z - beforeZ).toFixed(4),
+        moved: +lastMoved.toFixed(4), speed: +speed.toFixed(3), slow: +slow.toFixed(3),
+        reachT: +reachT.toFixed(2), staggerT: +(player.staggerT || 0).toFixed(2),
+        struggle: !!player.struggle, latched: !!player.latchedBy,
+        basis: { fx: +basis.fx.toFixed(3), fz: +basis.fz.toFixed(3) },
+        keys: [...keys].filter((k) => /^(Key[WASD]|Arrow)/.test(k)),
+      };
 
       const mode = player.struggle ? 'walk' : (sprint && pressing ? 'sprint' : 'walk');
       tickVitals(player.vitals, dt, mode, INJURY.enemyDamageScale);
@@ -5669,6 +5701,18 @@ export function boot(canvas, hud) {
       
       
       aiming: aimLatch.up,
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      solids: solidProps,
     };
     let camWant = 'auto';
     

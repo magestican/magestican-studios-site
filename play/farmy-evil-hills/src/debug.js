@@ -1210,6 +1210,12 @@ export function createDebug(ctx) {
     
     
     emptyGun() { ctx.player.weapon.ammo = 0; },
+    
+    
+    
+    
+    
+    get moveTrace() { return ctx.moveTrace || null; },
     get camBasis() {
       const f = { x: ctx.camTarget.x - ctx.camEye.x, z: ctx.camTarget.z - ctx.camEye.z };
       const m = Math.hypot(f.x, f.z) || 1;

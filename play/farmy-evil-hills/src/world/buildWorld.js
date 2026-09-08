@@ -222,7 +222,12 @@ export function buildWorld(ctx, seed) {
       extraFixtures.push({ x: p.x, y: y + L.y, z: p.z, colour: hexRgb(L.colour), intensity: L.intensity, radius: L.radius, flicker: !!L.flicker });
     }
     if (p.solid && p.place !== 'ceiling' && p.solids && p.solids.length) {
-      for (const sd of p.solids) ctx.solidProps.push({ x: sd.x, z: sd.z, r: sd.r });
+      
+      
+      
+      
+      
+      for (const sd of p.solids) ctx.solidProps.push({ x: sd.x, z: sd.z, r: sd.r, h: p.h });
       const shGeo = new THREE.PlaneGeometry(1, 1);
       const shMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0, depthWrite: false });
       const sh = new THREE.Mesh(shGeo, shMat);
@@ -378,7 +383,7 @@ export function buildWorld(ctx, seed) {
       ctx.deckGroup.add(scr);
       
       
-      ctx.solidProps.push({ x: lx, z: lz, r: 0.85 });
+      ctx.solidProps.push({ x: lx, z: lz, r: 0.85, h: 1.9 });   
       ctx.library = { x: lx, z: lz, screen: scr };
     }
 
@@ -402,7 +407,7 @@ export function buildWorld(ctx, seed) {
       const box2 = paint(new THREE.BoxGeometry(0.28, 0.18, 0.28).toNonIndexed(), 0x3e463f);
       box2.position.set(wx, 1.01, wz + 0.45);
       ctx.deckGroup.add(box2);
-      ctx.solidProps.push({ x: wx, z: wz, r: 0.7 });
+      ctx.solidProps.push({ x: wx, z: wz, r: 0.7, h: 0.92 });   
       ctx.workbench = { x: wx, z: wz };
     }
   }

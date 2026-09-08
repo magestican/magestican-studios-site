@@ -63,7 +63,32 @@ export const LIGHT = Object.freeze({
   gain: 2,
   intensity: Object.freeze({ sodium: 8.0, fluorescent: 7.0, emergency: 6.0 }),
   room: Object.freeze({ radius: 2.2, intensity: 6.0, mount: 0.25 }),
-  bay: Object.freeze({ radius: 1.8, intensity: 5.0 }),
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  bay: Object.freeze({ radius: 2.6, intensity: 5.0, colour: 0xffe8cf }),
   
   
   
@@ -110,9 +135,10 @@ export function fixturesFor(dressing, plan, { height = 2.95, seed = 1 } = {}) {
       seed: (seed * 7919 + 5000 + i * 131) >>> 0, phase: 0,
     });
   });
+  const bayColour = hexRgb(LIGHT.bay.colour);
   (plan.bays || []).forEach((b, i) => {
     out.push({
-      x: b.car.x + b.car.face.x * 0.4, y: height - LIGHT.mount, z: b.car.z + b.car.face.z * 0.4, colour,
+      x: b.car.x, y: height - LIGHT.mount, z: b.car.z, colour: bayColour,
       radius: LIGHT.bay.radius, intensity: LIGHT.bay.intensity, cutoff: LIGHT.cutoff,
       flicker: false, dead: false, kind: 'bay', run: -1, progress: -1,
       seed: (seed * 7919 + 9000 + i * 131) >>> 0, phase: 0,
@@ -329,12 +355,36 @@ export function sampleLight(x, y, z, fixtures, levels, { ambient = LIGHT.ambient
 
 
 
-export const MOVER = Object.freeze({ chroma: 0.25, knee: 0.62, ceiling: 0.86 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const MOVER = Object.freeze({ chroma: 0.25, knee: 0.62, ceiling: 0.86, floor: 0.30 });
 
 export function moverTint(rgb, out = [0, 0, 0], o = {}) {
   const chroma = o.chroma === undefined ? MOVER.chroma : o.chroma;
   const knee = o.knee === undefined ? MOVER.knee : o.knee;
   const ceiling = o.ceiling === undefined ? MOVER.ceiling : o.ceiling;
+  const floor = o.floor === undefined ? MOVER.floor : o.floor;
   
   
   const y = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
@@ -352,6 +402,28 @@ export function moverTint(rgb, out = [0, 0, 0], o = {}) {
     
     const k = (knee + over / (1 + over / span)) / mx;
     r *= k; g *= k; b *= k;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (floor > 0 && knee > floor) {
+    const yOut = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    if (yOut < knee) {
+      const want = floor + (knee - floor) * (yOut / knee);
+      if (yOut <= 1e-6) { r = floor; g = floor; b = floor; }
+      else { const k = want / yOut; r *= k; g *= k; b *= k; }
+    }
   }
   out[0] = r; out[1] = g; out[2] = b;
   return out;

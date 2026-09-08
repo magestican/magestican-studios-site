@@ -340,6 +340,41 @@ export const DRESSING = Object.freeze({
   centreToWall: 2.0,        
                             
   roomCentreClear: 0.9,     
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  roomFreeFrac: 0.35,       
+  
+  
+  
+  
+  
+  
+  
+  roomPocketM2: 0.6,        
+  roomMovePad: 0.4,         
+  roomGrid: 0.1,            
   doorZone: { fx: 0.2, fz: 0.25 },
   sideCap: 6,               
 });
@@ -364,6 +399,85 @@ function solidsOf(spec, x, z, along) {
     out.push({ x: x + along.x * t, z: z + along.z * t, r });
   }
   return out;
+}
+
+
+
+
+
+
+
+export function roomFloor(m, solids, pad = DRESSING.roomMovePad, step = DRESSING.roomGrid) {
+  const nx = Math.max(1, Math.round((m.x1 - m.x0) / step));
+  const nz = Math.max(1, Math.round((m.z1 - m.z0) / step));
+  const open = new Uint8Array(nx * nz);
+  let free = 0;
+  for (let j = 0; j < nz; j += 1) {
+    const z = m.z0 + j * step;
+    for (let i = 0; i < nx; i += 1) {
+      const x = m.x0 + i * step;
+      let ok = 1;
+      for (const q of solids) {
+        const rr = q.r + pad;
+        if ((q.x - x) * (q.x - x) + (q.z - z) * (q.z - z) < rr * rr) { ok = 0; break; }
+      }
+      open[j * nx + i] = ok; free += ok;
+    }
+  }
+  const seen = new Uint8Array(nx * nz);
+  const minCells = Math.max(1, Math.round(DRESSING.roomPocketM2 / (step * step)));
+  let islands = 0; let slivers = 0; let biggest = 0;
+  const stack = [];
+  for (let k = 0; k < open.length; k += 1) {
+    if (!open[k] || seen[k]) continue;
+    let size = 0;
+    stack.length = 0; stack.push(k); seen[k] = 1;
+    while (stack.length) {
+      const c = stack.pop(); size += 1;
+      const ci = c % nx; const cj = (c - ci) / nx;
+      if (ci + 1 < nx && open[c + 1] && !seen[c + 1]) { seen[c + 1] = 1; stack.push(c + 1); }
+      if (ci > 0 && open[c - 1] && !seen[c - 1]) { seen[c - 1] = 1; stack.push(c - 1); }
+      if (cj + 1 < nz && open[c + nx] && !seen[c + nx]) { seen[c + nx] = 1; stack.push(c + nx); }
+      if (cj > 0 && open[c - nx] && !seen[c - nx]) { seen[c - nx] = 1; stack.push(c - nx); }
+    }
+    if (size > biggest) biggest = size;
+    if (size >= minCells) islands += 1; else slivers += 1;
+  }
+  return { free, cells: nx * nz, frac: free / (nx * nz), islands, slivers, biggest };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function thinRoom(m, placed) {
+  const kept = placed.slice();
+  const solidsOfKept = () => kept.flatMap((q) => q.solids);
+  for (let guard = 0; guard < placed.length; guard += 1) {
+    const now = roomFloor(m, solidsOfKept());
+    if (now.frac >= DRESSING.roomFreeFrac && now.islands <= 1) break;
+    let best = -1; let bestScore = -1;
+    for (let i = 0; i < kept.length; i += 1) {
+      if (!kept[i].solid) continue;
+      const without = kept.filter((_, j) => j !== i);
+      const f = roomFloor(m, without.flatMap((q) => q.solids));
+      
+      
+      if (f.biggest >= bestScore) { bestScore = f.biggest; best = i; }
+    }
+    if (best < 0) break;
+    kept.splice(best, 1);
+  }
+  return kept;
 }
 
 
@@ -500,11 +614,14 @@ export function dressDeck(plan, level, { campaignSeed = 1 } = {}) {
         place: spec.place || 'floor', r: spec.r, h: spec.h, solid: !!spec.solid,
         solids: solidsOf(spec, x, z, along),
       };
-      solids.push(...item.solids);
       return item;
     });
+    
+    
+    const keep = thinRoom(m, placed);
+    for (const item of keep) solids.push(...item.solids);
     return {
-      room: m, template, props: placed,
+      room: m, template, props: keep, dropped: placed.length - keep.length,
       light: { x: cx, z: cz, colour: m.kind === 'safe' ? arch.palette.safeLight : arch.lights.colour },
     };
   });
