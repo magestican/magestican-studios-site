@@ -165,7 +165,11 @@ const HERD_SKIN = {
 
 const YIELD_SKIN = {
   id: 'yield',
-  panels: { forces: 'FORCES', map: 'SECTOR MAP', status: 'STOCK STATUS' },
+  
+  
+  
+  
+  panels: { forces: 'FORCES', map: 'SECTOR MAP', status: 'UNIT STATUS' },
   rows: { train: 'CREW', build: 'BUILDINGS' },
   buttons: { attack: 'ATTACK', capture: 'CAPTURE', build: 'BUILD', menu: '≡' },
   coach: {

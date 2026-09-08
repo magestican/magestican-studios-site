@@ -842,7 +842,11 @@ function unitsOnScreen() {
 
 
 function animateEndCard() {
-  const rows = [...$('end-stats').querySelectorAll('b[data-final]')];
+  
+  
+  
+  
+  const rows = [...$('endcard').querySelectorAll('b[data-final]')];
   if (reduceMotion) return;
   
   
@@ -945,7 +949,17 @@ function showEnd() {
     em.width = mm.width; em.height = mm.height;
     em.getContext('2d').drawImage(mm, 0, 0);
   }
-  $('end-stats').innerHTML = rows.map(([k, v], i) => `<div style="--i:${i}">${k}<b data-final="${String(v).replace(/"/g, '&quot;')}">${v}</b></div>`).join('');
+  
+  
+  
+  
+  
+  
+  const landPts = `${landSeconds(match.score[SEAT])}`;
+  const land = $('end-land');
+  land.dataset.final = landPts;
+  land.textContent = landPts;
+  $('end-stats').innerHTML = rows.map(([k, v], i) => `<div style="--i:${i}"${k === 'Land held' ? ' class="promoted"' : ''}>${k}<b data-final="${String(v).replace(/"/g, '&quot;')}">${v}</b></div>`).join('');
   $('endcard').classList.add('show');
   animateEndCard();
   if (audio) audio.matchOver(won);
