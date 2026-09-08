@@ -301,6 +301,17 @@ export const GAME_PREFIX = Object.freeze({
   
   
   uprising: 'fup-',
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  evilhills: 'feh-',
 });
 
 

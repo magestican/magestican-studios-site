@@ -21,7 +21,9 @@
 import * as THREE from 'three';
 import { FIELD_MM } from '../../../web-engine/rts/fixed.js';
 import { CELLS_PER_SIDE, sectorAt } from '../../../web-engine/rts/maps/mapFormat.js';
-import { cornerHeightDm, MM_PER_DM } from '../../../web-engine/rts/maps/elevation.js';
+import {
+  cornerHeightDm, MM_PER_DM, tierOfDm, tierAtMm,
+} from '../../../web-engine/rts/maps/elevation.js';
 import { terrainForSector } from '../../../web-engine/rts/art/terrainRecipe.js';
 import {
   buildTerrainTextures, buildMacroTexture, buildDetailTexture, buildSurroundTexture,
@@ -2301,6 +2303,53 @@ export async function createRenderer(canvas, match, viewSeat) {
           const rel = relationOf(sec.owner, seat, m.teams || null);
           gctx.fillStyle = washStyle(sec.owner, seat, m.factions, washAlphaFor(rel), m.teams || null);
           gctx.fillRect(x0, y0, cellEdge(cx + 1) - x0, y1 - y0);
+        }
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    {
+      const cpx = GROUND_PX / CELLS_PER_SIDE;
+      const tierAt = (cx, cy) => {
+        if (cx < 0 || cy < 0 || cx >= CELLS_PER_SIDE || cy >= CELLS_PER_SIDE) return -1;
+        return tierOfDm(map.heightOfCell[cy * CELLS_PER_SIDE + cx]);
+      };
+      for (let cy = 0; cy < CELLS_PER_SIDE; cy += 1) {
+        for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
+          const t = tierAt(cx, cy);
+          if (t <= 0) continue;
+          
+          
+          gctx.fillStyle = t === 1 ? 'rgba(255,250,232,0.055)' : 'rgba(255,250,232,0.10)';
+          gctx.fillRect(cx * cpx, cy * cpx, cpx + 0.5, cpx + 0.5);
+        }
+      }
+      gctx.fillStyle = 'rgba(38,30,18,0.34)';
+      const cw = Math.max(1.5, cpx * 0.22);
+      for (let cy = 0; cy < CELLS_PER_SIDE; cy += 1) {
+        for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
+          const t = tierAt(cx, cy);
+          if (tierAt(cx + 1, cy) > t) gctx.fillRect((cx + 1) * cpx - cw / 2, cy * cpx, cw, cpx + 0.5);
+          if (tierAt(cx, cy + 1) > t) gctx.fillRect(cx * cpx, (cy + 1) * cpx - cw / 2, cpx + 0.5, cw);
         }
       }
     }

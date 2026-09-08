@@ -826,10 +826,39 @@ export const BUILDINGS = Object.freeze({
   
   
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   farmhouse: building({
     id: 'farmhouse', faction: YIELD, name: 'Farmhouse',
     hp: 2400, armourFlat: 10,
-    visionMm: 620000,
+    visionMm: 210000,
     buildable: false,
     home: true,
     cost: { feed: 0, water: 0 }, buildTicks: 0,
@@ -838,7 +867,7 @@ export const BUILDINGS = Object.freeze({
   roost: building({
     id: 'roost', faction: HERD, name: 'The Roost',
     hp: 2400, armourFlat: 10,
-    visionMm: 620000,
+    visionMm: 210000,
     buildable: false,
     home: true,
     
@@ -877,7 +906,7 @@ export const BUILDINGS = Object.freeze({
     hp: 550, armourFlat: 8,
     damage: 10, damageClass: 'pesticide', attackTicks: 34, rangeMm: 176000,
     areaMm: 26000, dotTicks: ticks(4),
-    visionMm: 210000,
+    visionMm: 620000,
     cost: { feed: 200, water: 30 }, buildTicks: ticks(16),
   }),
 
@@ -959,7 +988,7 @@ export const BUILDINGS = Object.freeze({
     
     hp: 600, armourFlat: 6, arcs: true,
     damage: 30, damageClass: 'stone', attackTicks: 30, rangeMm: 168000,
-    visionMm: 210000,
+    visionMm: 620000,
     cost: { feed: 210, water: 30 }, buildTicks: ticks(16),
   }),
 

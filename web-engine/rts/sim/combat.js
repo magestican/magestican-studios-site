@@ -380,6 +380,23 @@ export function stepCombat(w, damageBonusPct = null, eventsOut = []) {
     
     let per = U_DAMAGE[kind];
     if (damageBonusPct) per += Math.floor((per * damageBonusPct[i]) / 100);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     const crowd = w._crowd ? w._crowd[i] : 100;

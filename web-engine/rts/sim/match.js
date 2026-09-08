@@ -35,7 +35,7 @@
 
 import { MATCH_TICKS, TICKS_PER_SECOND } from '../fixed.js';
 import {
-  START_FORCE, START_RESOURCES, UNITS, HOME_OF, HOME_SETBACK_MM,
+  START_FORCE, START_RESOURCES, UNITS, BUILDINGS, HOME_OF, HOME_SETBACK_MM,
 } from '../roster.js';
 import {
   stepTerritoryFlat, stepRout, sharePct, ROUT_HOLD_TICKS,
@@ -586,7 +586,24 @@ function applyEvents(m) {
       
       
       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const lostSpec = BUILDINGS[ev.building];
       if (ev.by >= 0 && scoresFor(m.factions[ev.by], 'farmUnmade')
+          && !(lostSpec && lostSpec.home)
           && m.factions[ev.owner] !== m.factions[ev.by]) {
         m.score[ev.by] += EVENT_BONUS_LAND_TICKS;
         m.stats[ev.by].farmsUnmade += 1;

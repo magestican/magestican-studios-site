@@ -124,24 +124,57 @@ function torso(n = 6) {
 
 
 
-function neckAndHead(n = 5) {
+
+
+
+const NECK_HEAD_PROFILE = [
+  [0.00, 0.085, 0.078, 0.040],
+  [0.30, 0.068, 0.062, 0.070],   
+  [0.55, 0.072, 0.066, 0.098],   
+  [0.74, 0.098, 0.090, 0.118],   
+  [0.90, 0.086, 0.079, 0.124],
+  [1.00, 0.042, 0.038, 0.118],
+];
+
+
+
+
+
+const NECK_TOP_ROW = 2;
+
+
+
+
+export const CHICKEN_NECK_TOP_T = NECK_HEAD_PROFILE[NECK_TOP_ROW][0];
+
+function neckHeadRings(rows, n) {
   const { lo, hi } = ZONES.head;
   const h = hi - lo;
-  const profile = [
-    [0.00, 0.085, 0.078, 0.040],
-    [0.30, 0.068, 0.062, 0.070],   
-    [0.55, 0.072, 0.066, 0.098],
-    [0.74, 0.098, 0.090, 0.118],   
-    [0.90, 0.086, 0.079, 0.124],
-    [1.00, 0.042, 0.038, 0.118],
-  ];
-  
-  
-  
-  
-  
-  const rings = profile.map(([t, rx, ry, cx]) => ring(lo + t * h, rx, ry, n, { cx }));
-  return stackMesh(rings, { capFirst: true, capLast: true });
+  return rows.map(([t, rx, ry, cx]) => ring(lo + t * h, rx, ry, n, { cx }));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function neck(n = 5) {
+  return stackMesh(neckHeadRings(NECK_HEAD_PROFILE.slice(0, NECK_TOP_ROW + 1), n), { capFirst: true, capLast: true });
+}
+
+
+function skull(n = 5) {
+  return stackMesh(neckHeadRings(NECK_HEAD_PROFILE.slice(NECK_TOP_ROW), n), { capFirst: true, capLast: true });
 }
 
 
@@ -259,7 +292,12 @@ function tail(n = 4) {
 export function buildChicken() {
   const parts = [
     { name: 'torso', zone: 'torso', mesh: torso() },
-    { name: 'head', zone: 'head', mesh: neckAndHead() },
+    
+    
+    
+    
+    { name: 'neck', zone: 'head', mesh: neck() },
+    { name: 'head', zone: 'head', mesh: skull() },
     { name: 'beak', zone: 'head', mesh: beak() },
     { name: 'comb', zone: 'head', mesh: comb() },
     
