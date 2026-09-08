@@ -126,6 +126,41 @@ export const CLIFF_STEP_DM = 55;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const HIGH_GROUND = Object.freeze({
   rangePct: Object.freeze([
     Object.freeze([100, 92, 85]),     
