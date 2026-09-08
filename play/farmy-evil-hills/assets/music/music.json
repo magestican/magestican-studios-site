@@ -7,13 +7,55 @@
       "id": "cold-deck",
       "side": "A",
       "title": "COLD DECK",
-      "file": "cold-deck.webm"
+      "file": "cold-deck.webm",
+      "role": "bed",
+      "loopSamples": 4194304,
+      "loopSeconds": 87.381333
     },
     {
       "id": "corridors",
       "side": "B",
       "title": "IT KNOWS THE CORRIDORS",
-      "file": "corridors.webm"
+      "file": "corridors.webm",
+      "role": "bed",
+      "loopSamples": 4194304,
+      "loopSeconds": 87.381333
+    },
+    {
+      "id": "processing-floor",
+      "side": "C",
+      "title": "THE PROCESSING FLOOR",
+      "file": "processing-floor.webm",
+      "role": "bed",
+      "loopSamples": 4194304,
+      "loopSeconds": 87.381333
+    },
+    {
+      "id": "dark-decks",
+      "side": "D",
+      "title": "DARK DECKS",
+      "file": "dark-decks.webm",
+      "role": "bed",
+      "loopSamples": 4194304,
+      "loopSeconds": 87.381333
+    },
+    {
+      "id": "chase",
+      "side": "E",
+      "title": "IT HAS SEEN YOU",
+      "file": "chase.webm",
+      "role": "stinger",
+      "loopSamples": 1048576,
+      "loopSeconds": 21.845333
+    },
+    {
+      "id": "safe-room",
+      "side": "F",
+      "title": "THE ONLY WARM ROOM",
+      "file": "safe-room.webm",
+      "role": "safe",
+      "loopSamples": 2097152,
+      "loopSeconds": 43.690667
     }
   ]
 }

@@ -263,21 +263,35 @@ export function bossLevel() {
   
   
   
-  const BAY = { w: 3.0, d: 3.4 };
+  
+  
+  
+  
+  
+  
+  
+  const BAY = { w: 3.0, d: 3.4, car: 3.1 };
+  const mouthZ = -ARENA.width / 2;
   const bays = [
     {
       kind: 'arrival',
-      x0: ARENA.width / 2, x1: ARENA.width / 2 + BAY.d,
-      z0: 5 - BAY.w / 2, z1: 5 + BAY.w / 2,
-      side: 1,
-      car: { x: ARENA.width / 2 + BAY.d / 2, z: 5, face: { x: -1, z: 0 } },
+      x0: -BAY.w / 2, x1: BAY.w / 2,
+      z0: mouthZ - BAY.d, z1: mouthZ,
+      side: 0,
+      car: { x: 0, z: mouthZ - BAY.d + BAY.car / 2, face: { x: 0, z: 1 } },
     },
     {
       kind: 'departure',
       x0: -BAY.w / 2, x1: BAY.w / 2,
-      z0: ARENA.length, z1: ARENA.length + BAY.d,
+      
+      
+      
+      
+      
+      
+      z0: ARENA.length + ARENA.width / 2, z1: ARENA.length + ARENA.width / 2 + BAY.d,
       side: 0,
-      car: { x: 0, z: ARENA.length + BAY.d / 2, face: { x: 0, z: -1 } },
+      car: { x: 0, z: ARENA.length + ARENA.width / 2 + BAY.d - BAY.car / 2, face: { x: 0, z: -1 } },
     },
   ];
   return {
@@ -286,9 +300,10 @@ export function bossLevel() {
     runs,
     rooms: [],
     bays,
-    start: { x: 0, z: 5 },
     
-    exit: { x: 0, z: ARENA.length - 0.4 },
+    start: { x: 0, z: mouthZ + 1.5 },
+    
+    exit: { x: 0, z: ARENA.length + ARENA.width / 2 - 0.5 },
     width: ARENA.width,
     height: ARENA.height,
     length: ARENA.length,

@@ -182,6 +182,13 @@ export const GAIT = Object.freeze({
     
     
     
+    armLag: { x: 0.045, y: 0.105 },
+    
+    
+    
+    
+    
+    
     
     
     
@@ -222,6 +229,11 @@ export const GAIT = Object.freeze({
     
     hand: { y: 0.615, rise: 0.085, swing: 0.215, lead: 0.035 },
     
+    
+    
+    
+    armLag: { x: 0.028, y: 0.070 },
+    
     roll: { strike: -0.18, off: 0.95 },
     grip: 'fist',
   },
@@ -255,10 +267,26 @@ export const GAIT = Object.freeze({
     
     
     hand: { y: 0.520, rise: 0.018, swing: 0.045, lead: 0.012 },
+    
+    
+    
+    
+    armLag: { x: 0.050, y: 0.090 },
     roll: { strike: -0.14, off: 0.38 },
     grip: 'open',
   },
 });
+
+
+
+
+
+
+
+
+
+
+export const STAND_FEET = Object.freeze([[-0.035, 0], [0.052, 0]]);
 
 const TAU = Math.PI * 2;
 const wrap = (p) => ((p % 1) + 1) % 1;
@@ -471,21 +499,46 @@ export function gaitPose(p, mode = 'walk') {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const H = cfg.hand;
+  const LAG = cfg.armLag || { x: 0, y: 0 };
   const half = (cfg.front + cfg.back) / 2;
-  const armAt = (fx) => {
-    const u = clamp(fx / half, -1, 1);
+  const armAt = (ph) => {
+    const ux = clamp(footX(ph - LAG.x, cfg) / half, -1, 1);
+    const uy = clamp(footX(ph - LAG.y, cfg) / half, -1, 1);
     return reachSafe(
-      H.lead + H.swing * u,
+      H.lead + H.swing * ux,
       
       
-      H.y + H.rise * u + rise * 0.4,
+      H.y + H.rise * uy + rise * 0.4,
     );
   };
 
   return {
     
-    hands: [armAt(fxR), armAt(fxL)],
+    
+    
+    hands: [armAt(t + 0.5), armAt(t)],
     feet: [footL, footR],
     
     toe: [toePitch(t, cfg), toePitch(t + 0.5, cfg)],
@@ -562,7 +615,10 @@ export function standPose(t = 0) {
     
     
     
-    feet: [[-0.035, 0], [0.052, 0]],
+    
+    
+    
+    feet: [[...STAND_FEET[0]], [...STAND_FEET[1]]],
     toe: [0, 0],
     grip: 'open',
     
@@ -659,8 +715,39 @@ export function aimedGait(gait, aim) {
   };
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const FIRE_LAG = Object.freeze({ shoulder: 0.022, body: 0.048 });
+
 export function firePose(t, base = 0.0) {
-  const kick = Math.exp(-t * 14) * Math.sin(Math.min(t, 0.5) * 46);
+  const impulse = (lag) => {
+    const s = t - lag;
+    if (!(s > 0)) return 0;
+    return Math.exp(-s * 14) * Math.sin(Math.min(s, 0.5) * 46);
+  };
+  const kick = impulse(0);                       
+  const kShoulder = impulse(FIRE_LAG.shoulder);  
+  const kBody = impulse(FIRE_LAG.body);          
   const raise = Math.min(1, t / 0.09);
   return {
     hands: [
@@ -675,10 +762,15 @@ export function firePose(t, base = 0.0) {
     
     toe: [0.22, 0],
     grip: 'fist',
-    twist: 0.42 - kick * 0.22,
+    
+    
+    
+    
+    twist: 0.42 - kShoulder * 0.30,
     air: 0,
-    squash: 1 - Math.abs(kick) * 0.012,
-    lean: -kick * 0.05,
+    
+    squash: 1 - Math.abs(kShoulder) * 0.012 - Math.abs(kBody) * 0.010,
+    lean: -kBody * 0.07,
   };
 }
 
@@ -691,44 +783,224 @@ export function firePose(t, base = 0.0) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const STRUGGLE_BEAT = (Math.PI * 2) / 13.5;
+
+
+export const STRUGGLE_CYCLE = STRUGGLE_BEAT * 2;
+
+
+const STRUGGLE_COUNTER = 0.55;
+
+
+
+
+
+
+
+
+
+export function fightWave(t) {
+  const c = ((t % STRUGGLE_CYCLE) + STRUGGLE_CYCLE) % STRUGGLE_CYCLE;
+  const first = c < STRUGGLE_BEAT;
+  const u = (first ? c : c - STRUGGLE_BEAT) / STRUGGLE_BEAT;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const env = ss(u / 0.14) * (1 - ss((u - 0.22) / 0.78) ** 0.6);
+  return (first ? 1 : -STRUGGLE_COUNTER) * env;
+}
+
 export function strugglePose(t, drive = 0.5) {
-  const w = Math.sin(t * 13.5);
+  const w = fightWave(t);
   const a = 0.35 + drive * 0.65;
+  const e = Math.abs(w);
+  
+  
+  
+  const heave = Math.abs(fightWave(t - STRUGGLE_BEAT * 0.12));
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const R = ARM * 0.985;
+  const polar = (ang, r) => [Math.sin(ang) * R * r, SH - Math.cos(ang) * R * r];
   return {
     hands: [
-      reachSafe(0.10 + w * 0.34 * a, SH - 0.30 + Math.abs(w) * 0.10 * a),
-      reachSafe(0.06 - w * 0.30 * a, SH - 0.26 - Math.abs(w) * 0.08 * a),
+      
+      
+      
+      
+      
+      
+      polar(0.72 + w * 0.58 * a, 0.78 + e * 0.21 * a),
+      
+      
+      
+      polar(0.62 - w * 0.40 * a, 0.52 + e * 0.06 * a),
     ],
     
-    feet: [[-0.30, 0], [0.28, 0]],
+    
+    feet: [
+      [-0.30 - heave * 0.10 * a, 0],
+      [0.28 + w * 0.07 * a, 0],
+    ],
     
     
     
-    toe: [0.16 + Math.abs(w) * 0.10, 0.14 + Math.abs(w) * 0.10],
+    toe: [0.16 + heave * 0.14, 0.14 + e * 0.12],
     grip: 'open',
     twist: w * 0.55 * a,
     air: 0,
-    squash: 0.94 - Math.abs(w) * 0.03,
-    lean: -0.06 - drive * 0.05,
+    
+    
+    squash: 0.94 - heave * 0.05,
+    lean: -0.06 - drive * 0.05 - heave * 0.06,
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const DEATH_IMPACT = 0.58;
+
+
+
+
+
+
+
+
+export function deathFall(u) {
+  const k = clamp(u, 0, 1);
+  if (k <= DEATH_IMPACT) {
+    
+    
+    
+    return 1.15 * (k / DEATH_IMPACT) ** 1.9;
+  }
+  
+  
+  const s = (k - DEATH_IMPACT) / (1 - DEATH_IMPACT);
+  return 1.15 + Math.sin(s * Math.PI * 2.1) * 0.085 * Math.exp(-s * 2.8);
+}
+
+
+
+
+
+
+
 
 
 export function deathPose(u) {
   const k = clamp(u, 0, 1);
+  
+  
+  const g = deathFall(k) / 1.15;
+  
+  const s = k <= DEATH_IMPACT ? 0 : (k - DEATH_IMPACT) / (1 - DEATH_IMPACT);
+  const ring = s > 0 ? Math.sin(s * Math.PI * 2.1) * Math.exp(-s * 2.8) : 0;
   return {
     hands: [
-      reachSafe(0.10 - k * 0.22, (SH - 0.30) * (1 - k * 0.86)),
-      reachSafe(-0.04, (SH - 0.26) * (1 - k * 0.9)),
+      
+      
+      reachSafe(0.10 - g * 0.22 - ring * 0.06, (SH - 0.30) * (1 - g * 0.86) + ring * 0.03),
+      reachSafe(-0.04 + ring * 0.04, (SH - 0.26) * (1 - g * 0.9) - ring * 0.02),
     ],
-    feet: [[-0.24 - k * 0.14, 0], [0.20 + k * 0.2, 0]],
+    
+    feet: [[-0.24 - g * 0.14 - ring * 0.05, 0], [0.20 + g * 0.2 + ring * 0.04, 0]],
     
     
-    toe: [-0.10 - k * 0.30, 0.10 + k * 0.40],
+    toe: [-0.10 - g * 0.30, 0.10 + g * 0.40],
     grip: 'open',
-    twist: 0.1 - k * 0.3,
+    twist: 0.1 - g * 0.3 - ring * 0.05,
     air: 0,
-    squash: 1 - k * 0.42,
+    
+    squash: 1 - g * 0.42 - Math.max(0, ring) * 0.05,
     lean: 0,
   };
 }
@@ -834,11 +1106,81 @@ export const FLINCH_TIME = 0.30;
 
 
 
-export function flinchAdd(t) {
-  if (!(t >= 0) || t >= FLINCH_TIME) return { lean: 0, bob: 0 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function flinchAdd(t, bearing = 0) {
+  if (!(t >= 0) || t >= FLINCH_TIME) {
+    return { lean: 0, bob: 0, roll: 0, twist: 0 };
+  }
   const k = 1 - t / FLINCH_TIME;
   const e = k * k;
-  return { lean: -0.17 * e, bob: -0.048 * e };
+  const c = Math.cos(bearing);
+  const s = Math.sin(bearing);
+  return {
+    lean: -0.17 * e * c,
+    bob: -0.048 * e,
+    
+    
+    
+    
+    roll: Math.sin(Math.PI * (t / FLINCH_TIME)) * 0.055 * s,
+    
+    twist: 0.06 * e * s,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function idleShift(t) {
+  return {
+    roll: Math.sin(t * 0.193) * 0.024 + Math.sin(t * 0.309 + 2.1) * 0.008,
+    lean: Math.sin(t * 0.230 + 1.7) * 0.007,
+    bob: Math.sin(t * 0.193 + 0.9) * 0.0045,
+  };
 }
 
 
@@ -1032,14 +1374,73 @@ export const CONTACT_EPS = 0.045;
 
 
 
-export const START_DIST = 0.62;
 
 
-export function startEase(dist) {
-  const u = clamp(dist / START_DIST, 0, 1);
-  
-  
-  return 0.55 + 0.45 * (u * u * (3 - 2 * u));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const STEP_OFF_LOAD = 0.30;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const STEP_OFF_MODE = 'walk';
+
+
+
+
+
+
+
+
+export function stepOffTravel() {
+  return STAND_FEET[1][0] - footX(0.5, GAIT[STEP_OFF_MODE]);
 }
 
 
@@ -1048,17 +1449,86 @@ export function startEase(dist) {
 
 
 
-export function startPhaseAdvance(dist, dm, stride) {
-  const N = 6;
-  let d = dist;
-  let ph = 0;
-  for (let i = 0; i < N; i += 1) {
-    const slice = dm / N;
-    ph += (slice / stride) * startEase(d + slice * 0.5);
-    d += slice;
+
+export function stepOffPose(u) {
+  const mode = STEP_OFF_MODE;
+  const cfg = GAIT[mode];
+  const k = clamp(u, 0, 1);
+  const travel = stepOffTravel();
+
+  
+  
+  const supX = STAND_FEET[1][0] - travel * k;
+  
+  
+  
+  const supToe = toePitch(0.5, cfg) * ss((k - 0.45) / 0.55);
+  const supY = Math.max(0, TOE_ARM * Math.sin(supToe));
+
+  
+  
+  const plantedX = STAND_FEET[0][0] - travel * k;
+  const landX = footX(0, cfg);
+  let swX = plantedX;
+  let swY = 0;
+  let swToe = 0;
+  if (k > STEP_OFF_LOAD) {
+    const s = (k - STEP_OFF_LOAD) / (1 - STEP_OFF_LOAD);
+    const from = STAND_FEET[0][0] - travel * STEP_OFF_LOAD;
+    swX = from + (landX - from) * ss(s);
+    
+    
+    swToe = cfg.roll.strike * ss(s);
+    
+    
+    
+    
+    
+    
+    swY = Math.max(
+      cfg.lift * 0.85 * Math.sin(s ** 0.72 * Math.PI),
+      swToe >= 0 ? TOE_ARM * Math.sin(swToe) : HEEL_ARM * Math.sin(-swToe),
+    );
   }
-  return ph;
+
+  
+  
+  
+  
+  const anticip = Math.sin(Math.PI * clamp(k / (STEP_OFF_LOAD * 1.6), 0, 1));
+  const drop = Math.min(MAX_DROP, 0.024 * anticip);
+  const rise = -drop;
+  
+  const lean = -0.022 * anticip + cfg.lean * ss(k);
+
+  
+  
+  const contact = gaitPose(0, mode);
+  const stand = standPose(0);
+  const armK = ss(clamp((k - 0.06) / 0.94, 0, 1));
+  const blend = (a, b) => reachSafe(a[0] + (b[0] - a[0]) * armK, a[1] + (b[1] - a[1]) * armK + rise * 0.4);
+
+  return {
+    hands: [blend(stand.hands[0], contact.hands[0]), blend(stand.hands[1], contact.hands[1])],
+    feet: [[swX, swY], [supX, supY]],
+    toe: [swToe, supToe],
+    grip: cfg.grip,
+    
+    twist: -0.06 * anticip + contact.twist * ss(k),
+    air: 0,
+    drop,
+    squash: 1 + rise,
+    lean,
+  };
 }
+
+
+
+
+
+
+
+export const stepOffDist = (h) => stepOffTravel() * h;
 
 export function settleStep(phase, settle, dt) {
   const p0 = wrap(phase);

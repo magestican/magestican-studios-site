@@ -75,3 +75,42 @@ export function emergeY(k, ceiling = 2.95) {
   const fall = Math.min(1, k / 0.75);
   return ceiling * (1 - fall * fall);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function createWithdrawal(kind) {
+  if (!ENTRANCE[kind]) throw new Error(`unknown entrance kind: ${kind}`);
+  return { kind, phase: 'withdraw', t: 0, k: 0, event: null };
+}
+
+
+
+export function stepWithdrawal(w, dt) {
+  if (w.phase === 'gone') return w.event ? { ...w, event: null } : w;
+  const dur = ENTRANCE[w.kind].emerge;
+  const n = { ...w, t: w.t + Math.max(0, dt), event: null };
+  n.k = Math.min(1, n.t / dur);
+  if (n.t >= dur) { n.phase = 'gone'; n.k = 1; n.event = 'gone'; }
+  return n;
+}
+
+
+
+export function withdrawAt(gate, k) {
+  return emergeAt(gate, 1 - Math.min(1, Math.max(0, k)));
+}

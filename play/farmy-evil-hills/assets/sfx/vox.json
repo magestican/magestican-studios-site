@@ -1,238 +1,5732 @@
 {
   "sampleRate": 48000,
-  "seconds": 254.387,
+  "seconds": 656.634,
+  "renderer": "edge-tts",
+  "rendererVersion": "edge-tts 7.2.8",
+  "opusBitrate": "32k",
+  "bytes": 2577905,
+  "built": "2026-09-07T21:26:24.215Z",
+  "voices": {
+    "xander": {
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "filmRate": "-2%",
+      "chain": "flesh"
+    },
+    "host": {
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy"
+    },
+    "agency": {
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-6%",
+      "chain": "tannoy"
+    },
+    "emergency": {
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm"
+    },
+    "survivor": {
+      "voices": [
+        "en-US-GuyNeural",
+        "en-US-EmmaNeural",
+        "en-US-AvaNeural",
+        "en-US-AndrewNeural"
+      ],
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "shout": {
+        "pitch": "+6Hz",
+        "rate": "+12%"
+      }
+    }
+  },
   "clips": {
-    "agency1": {
-      "offset": 0.08,
-      "duration": 6.5995
-    },
-    "agency2": {
-      "offset": 6.7595,
-      "duration": 9.1945
-    },
-    "pa1": {
-      "offset": 16.034,
-      "duration": 7.1445
-    },
-    "pa10": {
-      "offset": 23.2585,
-      "duration": 5.8145
-    },
-    "pa2": {
-      "offset": 29.153,
-      "duration": 5.8945
-    },
-    "pa3": {
-      "offset": 35.1275,
-      "duration": 5.2745
-    },
-    "pa4": {
-      "offset": 40.482,
-      "duration": 5.5145
-    },
-    "pa5": {
-      "offset": 46.0765,
-      "duration": 5.1345
-    },
-    "pa6": {
-      "offset": 51.291,
-      "duration": 6.0545
-    },
-    "pa7": {
-      "offset": 57.4255,
-      "duration": 3.8795
-    },
-    "pa8": {
-      "offset": 61.385,
-      "duration": 7.5545
-    },
-    "pa9": {
-      "offset": 69.0195,
-      "duration": 4.0045
-    },
-    "x_ammo1": {
-      "offset": 73.104,
-      "duration": 3.7458
-    },
-    "x_ammo2": {
-      "offset": 76.9298,
-      "duration": 2.7498
-    },
-    "x_empty1": {
-      "offset": 79.7596,
-      "duration": 4.5504
-    },
-    "x_hurt1": {
-      "offset": 84.3899,
-      "duration": 1.6253
-    },
-    "x_hurt2": {
-      "offset": 86.0952,
-      "duration": 2.7606
-    },
-    "x_hurt3": {
-      "offset": 88.9358,
-      "duration": 3.7549
-    },
-    "x_idle1": {
-      "offset": 92.7707,
-      "duration": 4.0948
-    },
-    "x_idle10": {
-      "offset": 96.9455,
-      "duration": 4.1056
-    },
-    "x_idle11": {
-      "offset": 101.1311,
-      "duration": 4.4998
-    },
-    "x_idle12": {
-      "offset": 105.7109,
-      "duration": 4.0206
-    },
-    "x_idle2": {
-      "offset": 109.8115,
-      "duration": 4.3896
-    },
-    "x_idle3": {
-      "offset": 114.2811,
-      "duration": 3.4748
-    },
-    "x_idle4": {
-      "offset": 117.8359,
-      "duration": 4.261
-    },
-    "x_idle5": {
-      "offset": 122.1769,
-      "duration": 3.7749
-    },
-    "x_idle6": {
-      "offset": 126.0317,
-      "duration": 4.0459
-    },
-    "x_idle7": {
-      "offset": 130.1576,
-      "duration": 4.431
-    },
-    "x_idle8": {
-      "offset": 134.6686,
-      "duration": 4.5848
-    },
-    "x_idle9": {
-      "offset": 139.3334,
-      "duration": 3.5108
-    },
-    "x_kill1": {
-      "offset": 142.9241,
-      "duration": 3.2252
-    },
-    "x_kill2": {
-      "offset": 146.2294,
-      "duration": 3.3102
-    },
-    "x_kill3": {
-      "offset": 149.6196,
-      "duration": 3.9356
-    },
-    "x_kill4": {
-      "offset": 153.6352,
-      "duration": 2.7245
-    },
-    "x_kill5": {
-      "offset": 156.4397,
-      "duration": 4.0857
-    },
-    "x_lift1": {
-      "offset": 160.6054,
-      "duration": 4.0405
-    },
-    "x_lift2": {
-      "offset": 164.726,
-      "duration": 3.585
-    },
-    "x_lift3": {
-      "offset": 168.391,
-      "duration": 5.5953
-    },
-    "x_low1": {
-      "offset": 174.0662,
-      "duration": 6.2606
-    },
-    "x_low2": {
-      "offset": 180.4068,
-      "duration": 2.7154
-    },
-    "x_notagun": {
-      "offset": 183.2022,
-      "duration": 4.5901
-    },
-    "x_rusty": {
-      "offset": 187.8723,
-      "duration": 3.3607
-    },
-    "x_safe1": {
-      "offset": 191.3131,
-      "duration": 3.8598
-    },
-    "x_safe2": {
-      "offset": 195.2529,
-      "duration": 3.7259
-    },
-    "x_safe3": {
-      "offset": 199.0588,
-      "duration": 2.7896
-    },
-    "x_see1": {
-      "offset": 201.9284,
-      "duration": 4.2809
-    },
-    "x_see2": {
-      "offset": 206.2893,
-      "duration": 3.4748
-    },
-    "x_see3": {
-      "offset": 209.8441,
-      "duration": 5.25
-    },
-    "x_see4": {
-      "offset": 215.1741,
-      "duration": 3.8851
-    },
-    "x_see5": {
-      "offset": 219.1392,
-      "duration": 2.6304
-    },
-    "x_see6": {
-      "offset": 221.8496,
-      "duration": 3.1203
-    },
     "xi1": {
-      "offset": 225.05,
-      "duration": 6.4956
+      "offset": 0.08,
+      "duration": 3.134,
+      "speaker": "xander",
+      "text": "Morning, ladies. Eggs by nine.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-2%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.054,
+        "peakDb": -3.6,
+        "rmsDb": -22.2,
+        "centroid": 681,
+        "f0": 111,
+        "f0p10": 88,
+        "f0p90": 133,
+        "voiced": 0.3
+      },
+      "out": {
+        "duration": 3.134,
+        "peakDb": -3,
+        "rmsDb": -22.3,
+        "centroid": 648,
+        "f0": 114,
+        "f0p10": 87,
+        "f0p90": 133,
+        "voiced": 0.29
+      }
     },
     "xi2": {
-      "offset": 231.6255,
-      "duration": 4.2503
+      "offset": 3.294,
+      "duration": 1.402,
+      "speaker": "xander",
+      "text": "Earth looks good from here.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-2%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.322,
+        "peakDb": -5.6,
+        "rmsDb": -20.7,
+        "centroid": 515,
+        "f0": 125,
+        "f0p10": 84,
+        "f0p90": 151,
+        "voiced": 0.5
+      },
+      "out": {
+        "duration": 1.402,
+        "peakDb": -3,
+        "rmsDb": -18.8,
+        "centroid": 497,
+        "f0": 103,
+        "f0p10": 84,
+        "f0p90": 152,
+        "voiced": 0.42
+      }
+    },
+    "agency1": {
+      "offset": 4.776,
+      "duration": 2.908,
+      "speaker": "agency",
+      "text": "Agency dispatch calling Luna-9.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-6%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 2.628,
+        "peakDb": -5.2,
+        "rmsDb": -17.3,
+        "centroid": 365,
+        "f0": 178,
+        "f0p10": 152,
+        "f0p90": 245,
+        "voiced": 0.66
+      },
+      "out": {
+        "duration": 2.908,
+        "peakDb": -3,
+        "rmsDb": -13.2,
+        "centroid": 397,
+        "f0": 177,
+        "f0p10": 150,
+        "f0p90": 242,
+        "voiced": 0.59
+      }
     },
     "xi3": {
-      "offset": 235.9558,
-      "duration": 2.0609
+      "offset": 7.764,
+      "duration": 1.21,
+      "speaker": "xander",
+      "text": "It is my day off.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-2%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.13,
+        "peakDb": -4.4,
+        "rmsDb": -19,
+        "centroid": 606,
+        "f0": 117,
+        "f0p10": 98,
+        "f0p90": 137,
+        "voiced": 0.55
+      },
+      "out": {
+        "duration": 1.21,
+        "peakDb": -3,
+        "rmsDb": -18.6,
+        "centroid": 601,
+        "f0": 116,
+        "f0p10": 98,
+        "f0p90": 136,
+        "voiced": 0.49
+      }
+    },
+    "agency2": {
+      "offset": 9.054,
+      "duration": 4.61,
+      "speaker": "agency",
+      "text": "Hesper-4 has stopped reporting. It is a one man job.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-6%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.33,
+        "peakDb": -4,
+        "rmsDb": -18.9,
+        "centroid": 455,
+        "f0": 174,
+        "f0p10": 147,
+        "f0p90": 221,
+        "voiced": 0.5
+      },
+      "out": {
+        "duration": 4.61,
+        "peakDb": -3,
+        "rmsDb": -14.9,
+        "centroid": 497,
+        "f0": 178,
+        "f0p10": 147,
+        "f0p90": 220,
+        "voiced": 0.45
+      }
     },
     "xi4": {
-      "offset": 238.0967,
-      "duration": 4.0099
+      "offset": 13.744,
+      "duration": 0.98,
+      "speaker": "xander",
+      "text": "Of course it is.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-2%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 0.9,
+        "peakDb": -7.8,
+        "rmsDb": -23.2,
+        "centroid": 938,
+        "f0": 91,
+        "f0p10": 78,
+        "f0p90": 117,
+        "voiced": 0.34
+      },
+      "out": {
+        "duration": 0.98,
+        "peakDb": -3,
+        "rmsDb": -20,
+        "centroid": 772,
+        "f0": 89,
+        "f0p10": 78,
+        "f0p90": 117,
+        "voiced": 0.3
+      }
     },
     "xi5": {
-      "offset": 242.1866,
-      "duration": 4.14
+      "offset": 14.804,
+      "duration": 2.606,
+      "speaker": "xander",
+      "text": "Hesper-4 control, requesting approach.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-2%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.526,
+        "peakDb": -3.9,
+        "rmsDb": -21.1,
+        "centroid": 609,
+        "f0": 124,
+        "f0p10": 85,
+        "f0p90": 164,
+        "voiced": 0.25
+      },
+      "out": {
+        "duration": 2.606,
+        "peakDb": -3,
+        "rmsDb": -20.8,
+        "centroid": 593,
+        "f0": 119,
+        "f0p10": 85,
+        "f0p90": 163,
+        "voiced": 0.21
+      }
     },
     "xi6": {
-      "offset": 246.4066,
-      "duration": 4.6499
+      "offset": 17.49,
+      "duration": 0.582,
+      "speaker": "xander",
+      "text": "Anyone.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-2%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 0.502,
+        "peakDb": -8.2,
+        "rmsDb": -24,
+        "centroid": 427,
+        "f0": 103,
+        "f0p10": 71,
+        "f0p90": 127,
+        "voiced": 0.5
+      },
+      "out": {
+        "duration": 0.582,
+        "peakDb": -3,
+        "rmsDb": -18.4,
+        "centroid": 450,
+        "f0": 108,
+        "f0p10": 72,
+        "f0p90": 128,
+        "voiced": 0.38
+      }
     },
     "xi7": {
-      "offset": 251.1364,
-      "duration": 3.1709
+      "offset": 18.152,
+      "duration": 2.108,
+      "speaker": "xander",
+      "text": "Venus. Wonderful.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-2%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.028,
+        "peakDb": -5.3,
+        "rmsDb": -24.7,
+        "centroid": 679,
+        "f0": 134,
+        "f0p10": 81,
+        "f0p90": 150,
+        "voiced": 0.21
+      },
+      "out": {
+        "duration": 2.108,
+        "peakDb": -3,
+        "rmsDb": -23.4,
+        "centroid": 617,
+        "f0": 135,
+        "f0p10": 80,
+        "f0p90": 150,
+        "voiced": 0.19
+      }
+    },
+    "x_rusty": {
+      "offset": 20.34,
+      "duration": 2.486,
+      "speaker": "xander",
+      "text": "Oh god. I am rusty.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.406,
+        "peakDb": -5.1,
+        "rmsDb": -22.4,
+        "centroid": 689,
+        "f0": 116,
+        "f0p10": 79,
+        "f0p90": 135,
+        "voiced": 0.27
+      },
+      "out": {
+        "duration": 2.486,
+        "peakDb": -3,
+        "rmsDb": -21.2,
+        "centroid": 661,
+        "f0": 112,
+        "f0p10": 79,
+        "f0p90": 134,
+        "voiced": 0.27
+      }
+    },
+    "x_notagun": {
+      "offset": 22.906,
+      "duration": 3.65,
+      "speaker": "xander",
+      "text": "This is for fence posts. I want that noted.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.57,
+        "peakDb": -6.3,
+        "rmsDb": -23.6,
+        "centroid": 641,
+        "f0": 111,
+        "f0p10": 83,
+        "f0p90": 138,
+        "voiced": 0.24
+      },
+      "out": {
+        "duration": 3.65,
+        "peakDb": -3,
+        "rmsDb": -21.5,
+        "centroid": 593,
+        "f0": 114,
+        "f0p10": 84,
+        "f0p90": 134,
+        "voiced": 0.19
+      }
+    },
+    "x_nocatch": {
+      "offset": 26.636,
+      "duration": 3.512,
+      "speaker": "xander",
+      "text": "Safety catch. There is no safety catch.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.432,
+        "peakDb": -3.6,
+        "rmsDb": -22.2,
+        "centroid": 638,
+        "f0": 130,
+        "f0p10": 100,
+        "f0p90": 152,
+        "voiced": 0.23
+      },
+      "out": {
+        "duration": 3.512,
+        "peakDb": -3,
+        "rmsDb": -21.7,
+        "centroid": 600,
+        "f0": 130,
+        "f0p10": 99,
+        "f0p90": 152,
+        "voiced": 0.21
+      }
+    },
+    "x_see1": {
+      "offset": 30.228,
+      "duration": 3.19,
+      "speaker": "xander",
+      "text": "No. No, that is not a chicken.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.11,
+        "peakDb": -5.1,
+        "rmsDb": -22.4,
+        "centroid": 594,
+        "f0": 120,
+        "f0p10": 102,
+        "f0p90": 129,
+        "voiced": 0.31
+      },
+      "out": {
+        "duration": 3.19,
+        "peakDb": -3,
+        "rmsDb": -21.5,
+        "centroid": 567,
+        "f0": 119,
+        "f0p10": 101,
+        "f0p90": 128,
+        "voiced": 0.29
+      }
+    },
+    "x_see2": {
+      "offset": 33.498,
+      "duration": 2.466,
+      "speaker": "xander",
+      "text": "Another one. Marvellous.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.386,
+        "peakDb": -2.9,
+        "rmsDb": -22.6,
+        "centroid": 633,
+        "f0": 121,
+        "f0p10": 80,
+        "f0p90": 138,
+        "voiced": 0.26
+      },
+      "out": {
+        "duration": 2.466,
+        "peakDb": -3,
+        "rmsDb": -23.5,
+        "centroid": 624,
+        "f0": 121,
+        "f0p10": 80,
+        "f0p90": 138,
+        "voiced": 0.25
+      }
+    },
+    "x_see3": {
+      "offset": 36.044,
+      "duration": 3.522,
+      "speaker": "xander",
+      "text": "Stay there. Stay - no, of course not.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.442,
+        "peakDb": -4.9,
+        "rmsDb": -22.6,
+        "centroid": 621,
+        "f0": 119,
+        "f0p10": 95,
+        "f0p90": 129,
+        "voiced": 0.23
+      },
+      "out": {
+        "duration": 3.522,
+        "peakDb": -3,
+        "rmsDb": -21.6,
+        "centroid": 604,
+        "f0": 119,
+        "f0p10": 95,
+        "f0p90": 129,
+        "voiced": 0.21
+      }
+    },
+    "x_see4": {
+      "offset": 39.646,
+      "duration": 2.99,
+      "speaker": "xander",
+      "text": "I fed you. I actually fed you.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.91,
+        "peakDb": -5.6,
+        "rmsDb": -22.9,
+        "centroid": 571,
+        "f0": 117,
+        "f0p10": 83,
+        "f0p90": 148,
+        "voiced": 0.35
+      },
+      "out": {
+        "duration": 2.99,
+        "peakDb": -3,
+        "rmsDb": -20.5,
+        "centroid": 567,
+        "f0": 119,
+        "f0p10": 83,
+        "f0p90": 152,
+        "voiced": 0.34
+      }
+    },
+    "x_see5": {
+      "offset": 42.716,
+      "duration": 1.634,
+      "speaker": "xander",
+      "text": "Somebody else should be here.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.554,
+        "peakDb": -3.9,
+        "rmsDb": -21,
+        "centroid": 644,
+        "f0": 103,
+        "f0p10": 80,
+        "f0p90": 159,
+        "voiced": 0.61
+      },
+      "out": {
+        "duration": 1.634,
+        "peakDb": -3,
+        "rmsDb": -21,
+        "centroid": 614,
+        "f0": 104,
+        "f0p10": 80,
+        "f0p90": 160,
+        "voiced": 0.53
+      }
+    },
+    "x_see6": {
+      "offset": 44.43,
+      "duration": 2.188,
+      "speaker": "xander",
+      "text": "Twelve years of night shifts for this.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.108,
+        "peakDb": -3.8,
+        "rmsDb": -21.7,
+        "centroid": 764,
+        "f0": 120,
+        "f0p10": 78,
+        "f0p90": 157,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 2.188,
+        "peakDb": -3,
+        "rmsDb": -21.7,
+        "centroid": 697,
+        "f0": 121,
+        "f0p10": 98,
+        "f0p90": 157,
+        "voiced": 0.38
+      }
+    },
+    "x_see7": {
+      "offset": 46.698,
+      "duration": 4.89,
+      "speaker": "xander",
+      "text": "That one has a tag. Pen four. I know that one.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.81,
+        "peakDb": -4.9,
+        "rmsDb": -23.6,
+        "centroid": 539,
+        "f0": 107,
+        "f0p10": 79,
+        "f0p90": 156,
+        "voiced": 0.26
+      },
+      "out": {
+        "duration": 4.89,
+        "peakDb": -3,
+        "rmsDb": -22.6,
+        "centroid": 552,
+        "f0": 107,
+        "f0p10": 79,
+        "f0p90": 158,
+        "voiced": 0.25
+      }
+    },
+    "x_see8": {
+      "offset": 51.668,
+      "duration": 3.848,
+      "speaker": "xander",
+      "text": "It is looking at the gun. It knows what the gun is.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.768,
+        "peakDb": -4.7,
+        "rmsDb": -21.4,
+        "centroid": 573,
+        "f0": 119,
+        "f0p10": 81,
+        "f0p90": 145,
+        "voiced": 0.31
+      },
+      "out": {
+        "duration": 3.848,
+        "peakDb": -3,
+        "rmsDb": -20.8,
+        "centroid": 554,
+        "f0": 115,
+        "f0p10": 81,
+        "f0p90": 144,
+        "voiced": 0.31
+      }
+    },
+    "x_see9": {
+      "offset": 55.596,
+      "duration": 2.874,
+      "speaker": "xander",
+      "text": "Keep coming. Save me the walk.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.794,
+        "peakDb": -4.8,
+        "rmsDb": -23.4,
+        "centroid": 497,
+        "f0": 101,
+        "f0p10": 85,
+        "f0p90": 155,
+        "voiced": 0.32
+      },
+      "out": {
+        "duration": 2.874,
+        "peakDb": -3,
+        "rmsDb": -22.5,
+        "centroid": 488,
+        "f0": 103,
+        "f0p10": 85,
+        "f0p90": 155,
+        "voiced": 0.31
+      }
+    },
+    "x_see10": {
+      "offset": 58.55,
+      "duration": 1.816,
+      "speaker": "xander",
+      "text": "That is not how legs bend.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.736,
+        "peakDb": -5.2,
+        "rmsDb": -20.8,
+        "centroid": 633,
+        "f0": 103,
+        "f0p10": 77,
+        "f0p90": 135,
+        "voiced": 0.44
+      },
+      "out": {
+        "duration": 1.816,
+        "peakDb": -3,
+        "rmsDb": -19.4,
+        "centroid": 612,
+        "f0": 112,
+        "f0p10": 86,
+        "f0p90": 136,
+        "voiced": 0.35
+      }
+    },
+    "x_see11": {
+      "offset": 60.446,
+      "duration": 2.23,
+      "speaker": "xander",
+      "text": "Right. Right then.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.15,
+        "peakDb": -2.4,
+        "rmsDb": -22.3,
+        "centroid": 614,
+        "f0": 123,
+        "f0p10": 88,
+        "f0p90": 146,
+        "voiced": 0.18
+      },
+      "out": {
+        "duration": 2.23,
+        "peakDb": -3,
+        "rmsDb": -23.6,
+        "centroid": 624,
+        "f0": 124,
+        "f0p10": 118,
+        "f0p90": 146,
+        "voiced": 0.16
+      }
+    },
+    "x_see12": {
+      "offset": 62.756,
+      "duration": 3.544,
+      "speaker": "xander",
+      "text": "Bigger than the last one. They keep being bigger.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.464,
+        "peakDb": -5.6,
+        "rmsDb": -23,
+        "centroid": 532,
+        "f0": 104,
+        "f0p10": 95,
+        "f0p90": 142,
+        "voiced": 0.35
+      },
+      "out": {
+        "duration": 3.544,
+        "peakDb": -3,
+        "rmsDb": -21,
+        "centroid": 527,
+        "f0": 104,
+        "f0p10": 95,
+        "f0p90": 142,
+        "voiced": 0.32
+      }
+    },
+    "x_see13": {
+      "offset": 66.38,
+      "duration": 3.1,
+      "speaker": "xander",
+      "text": "I signed for that animal. Personally.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.02,
+        "peakDb": -5,
+        "rmsDb": -22.5,
+        "centroid": 905,
+        "f0": 128,
+        "f0p10": 78,
+        "f0p90": 159,
+        "voiced": 0.35
+      },
+      "out": {
+        "duration": 3.1,
+        "peakDb": -3,
+        "rmsDb": -21.5,
+        "centroid": 827,
+        "f0": 125,
+        "f0p10": 78,
+        "f0p90": 158,
+        "voiced": 0.31
+      }
+    },
+    "x_see14": {
+      "offset": 69.56,
+      "duration": 3.488,
+      "speaker": "xander",
+      "text": "Do not run at me. Do not - fine.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.408,
+        "peakDb": -4.1,
+        "rmsDb": -22.7,
+        "centroid": 551,
+        "f0": 122,
+        "f0p10": 86,
+        "f0p90": 168,
+        "voiced": 0.25
+      },
+      "out": {
+        "duration": 3.488,
+        "peakDb": -3,
+        "rmsDb": -22.3,
+        "centroid": 543,
+        "f0": 120,
+        "f0p10": 84,
+        "f0p90": 168,
+        "voiced": 0.26
+      }
+    },
+    "x_kill1": {
+      "offset": 73.128,
+      "duration": 2.256,
+      "speaker": "xander",
+      "text": "Sorry. Not sorry.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.176,
+        "peakDb": -1.8,
+        "rmsDb": -20.9,
+        "centroid": 835,
+        "f0": 119,
+        "f0p10": 72,
+        "f0p90": 133,
+        "voiced": 0.14
+      },
+      "out": {
+        "duration": 2.256,
+        "peakDb": -3,
+        "rmsDb": -23,
+        "centroid": 769,
+        "f0": 119,
+        "f0p10": 70,
+        "f0p90": 133,
+        "voiced": 0.13
+      }
+    },
+    "x_kill2": {
+      "offset": 75.464,
+      "duration": 2.36,
+      "speaker": "xander",
+      "text": "That is coming out of my wages somehow.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.28,
+        "peakDb": -4.6,
+        "rmsDb": -21.2,
+        "centroid": 693,
+        "f0": 103,
+        "f0p10": 92,
+        "f0p90": 136,
+        "voiced": 0.53
+      },
+      "out": {
+        "duration": 2.36,
+        "peakDb": -3,
+        "rmsDb": -20.7,
+        "centroid": 668,
+        "f0": 104,
+        "f0p10": 94,
+        "f0p90": 136,
+        "voiced": 0.48
+      }
+    },
+    "x_kill3": {
+      "offset": 77.904,
+      "duration": 3.032,
+      "speaker": "xander",
+      "text": "Livestock loss. Form nine.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.952,
+        "peakDb": -3.8,
+        "rmsDb": -22.4,
+        "centroid": 664,
+        "f0": 109,
+        "f0p10": 84,
+        "f0p90": 155,
+        "voiced": 0.28
+      },
+      "out": {
+        "duration": 3.032,
+        "peakDb": -3,
+        "rmsDb": -22.3,
+        "centroid": 634,
+        "f0": 113,
+        "f0p10": 86,
+        "f0p90": 155,
+        "voiced": 0.27
+      }
+    },
+    "x_kill4": {
+      "offset": 81.016,
+      "duration": 1.712,
+      "speaker": "xander",
+      "text": "Do not make me do that again.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.632,
+        "peakDb": -7.8,
+        "rmsDb": -21.6,
+        "centroid": 491,
+        "f0": 117,
+        "f0p10": 98,
+        "f0p90": 163,
+        "voiced": 0.55
+      },
+      "out": {
+        "duration": 1.712,
+        "peakDb": -3,
+        "rmsDb": -18.1,
+        "centroid": 490,
+        "f0": 117,
+        "f0p10": 97,
+        "f0p90": 163,
+        "voiced": 0.47
+      }
+    },
+    "x_kill5": {
+      "offset": 82.808,
+      "duration": 3.032,
+      "speaker": "xander",
+      "text": "I liked this job. Past tense.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.952,
+        "peakDb": -3.6,
+        "rmsDb": -23,
+        "centroid": 734,
+        "f0": 103,
+        "f0p10": 78,
+        "f0p90": 165,
+        "voiced": 0.13
+      },
+      "out": {
+        "duration": 3.032,
+        "peakDb": -3,
+        "rmsDb": -23.2,
+        "centroid": 698,
+        "f0": 101,
+        "f0p10": 78,
+        "f0p90": 159,
+        "voiced": 0.11
+      }
+    },
+    "x_kill6": {
+      "offset": 85.92,
+      "duration": 2.912,
+      "speaker": "xander",
+      "text": "Stay down. Just stay down.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.832,
+        "peakDb": -6.5,
+        "rmsDb": -23.7,
+        "centroid": 874,
+        "f0": 97,
+        "f0p10": 78,
+        "f0p90": 136,
+        "voiced": 0.27
+      },
+      "out": {
+        "duration": 2.912,
+        "peakDb": -3,
+        "rmsDb": -21.5,
+        "centroid": 797,
+        "f0": 97,
+        "f0p10": 78,
+        "f0p90": 127,
+        "voiced": 0.23
+      }
+    },
+    "x_kill7": {
+      "offset": 88.912,
+      "duration": 1.686,
+      "speaker": "xander",
+      "text": "One more for the incinerator.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.606,
+        "peakDb": -4.4,
+        "rmsDb": -20.7,
+        "centroid": 706,
+        "f0": 116,
+        "f0p10": 85,
+        "f0p90": 159,
+        "voiced": 0.55
+      },
+      "out": {
+        "duration": 1.686,
+        "peakDb": -3,
+        "rmsDb": -20.4,
+        "centroid": 630,
+        "f0": 117,
+        "f0p10": 98,
+        "f0p90": 159,
+        "voiced": 0.51
+      }
+    },
+    "x_kill8": {
+      "offset": 90.678,
+      "duration": 3.62,
+      "speaker": "xander",
+      "text": "Head office can count them. I am done counting.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.54,
+        "peakDb": -3.7,
+        "rmsDb": -22.7,
+        "centroid": 578,
+        "f0": 127,
+        "f0p10": 96,
+        "f0p90": 161,
+        "voiced": 0.3
+      },
+      "out": {
+        "duration": 3.62,
+        "peakDb": -3,
+        "rmsDb": -22.7,
+        "centroid": 585,
+        "f0": 127,
+        "f0p10": 96,
+        "f0p90": 162,
+        "voiced": 0.29
+      }
+    },
+    "x_kill9": {
+      "offset": 94.378,
+      "duration": 1.914,
+      "speaker": "xander",
+      "text": "That was a good bird, once.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.834,
+        "peakDb": -2.5,
+        "rmsDb": -21.4,
+        "centroid": 660,
+        "f0": 127,
+        "f0p10": 92,
+        "f0p90": 137,
+        "voiced": 0.36
+      },
+      "out": {
+        "duration": 1.914,
+        "peakDb": -3,
+        "rmsDb": -22.5,
+        "centroid": 625,
+        "f0": 120,
+        "f0p10": 91,
+        "f0p90": 136,
+        "voiced": 0.31
+      }
+    },
+    "x_kill10": {
+      "offset": 96.372,
+      "duration": 3.762,
+      "speaker": "xander",
+      "text": "Down. Good. Down is good.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.682,
+        "peakDb": -5.1,
+        "rmsDb": -23.2,
+        "centroid": 493,
+        "f0": 130,
+        "f0p10": 85,
+        "f0p90": 142,
+        "voiced": 0.22
+      },
+      "out": {
+        "duration": 3.762,
+        "peakDb": -3,
+        "rmsDb": -20.9,
+        "centroid": 496,
+        "f0": 132,
+        "f0p10": 83,
+        "f0p90": 142,
+        "voiced": 0.21
+      }
+    },
+    "x_kill11": {
+      "offset": 100.214,
+      "duration": 3.258,
+      "speaker": "xander",
+      "text": "Add it to the list. There is a list now.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.178,
+        "peakDb": -4.9,
+        "rmsDb": -22.4,
+        "centroid": 707,
+        "f0": 108,
+        "f0p10": 83,
+        "f0p90": 130,
+        "voiced": 0.31
+      },
+      "out": {
+        "duration": 3.258,
+        "peakDb": -3,
+        "rmsDb": -21.4,
+        "centroid": 653,
+        "f0": 112,
+        "f0p10": 83,
+        "f0p90": 132,
+        "voiced": 0.29
+      }
+    },
+    "x_kill12": {
+      "offset": 103.552,
+      "duration": 3.074,
+      "speaker": "xander",
+      "text": "I used to name them. I have stopped.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.994,
+        "peakDb": -5.1,
+        "rmsDb": -24.1,
+        "centroid": 848,
+        "f0": 92,
+        "f0p10": 82,
+        "f0p90": 152,
+        "voiced": 0.25
+      },
+      "out": {
+        "duration": 3.074,
+        "peakDb": -3,
+        "rmsDb": -23.3,
+        "centroid": 774,
+        "f0": 92,
+        "f0p10": 82,
+        "f0p90": 152,
+        "voiced": 0.24
+      }
+    },
+    "x_hurt1": {
+      "offset": 106.706,
+      "duration": 0.996,
+      "speaker": "xander",
+      "text": "Get OFF -",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 0.916,
+        "peakDb": -5.4,
+        "rmsDb": -19.6,
+        "centroid": 515,
+        "f0": 116,
+        "f0p10": 101,
+        "f0p90": 159,
+        "voiced": 0.49
+      },
+      "out": {
+        "duration": 0.996,
+        "peakDb": -3,
+        "rmsDb": -18.2,
+        "centroid": 519,
+        "f0": 116,
+        "f0p10": 79,
+        "f0p90": 159,
+        "voiced": 0.42
+      }
+    },
+    "x_hurt2": {
+      "offset": 107.782,
+      "duration": 1.826,
+      "speaker": "xander",
+      "text": "That is going to need a tetanus.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.746,
+        "peakDb": -5,
+        "rmsDb": -21.1,
+        "centroid": 608,
+        "f0": 119,
+        "f0p10": 83,
+        "f0p90": 140,
+        "voiced": 0.5
+      },
+      "out": {
+        "duration": 1.826,
+        "peakDb": -3,
+        "rmsDb": -19,
+        "centroid": 576,
+        "f0": 119,
+        "f0p10": 83,
+        "f0p90": 140,
+        "voiced": 0.46
+      }
+    },
+    "x_hurt3": {
+      "offset": 109.688,
+      "duration": 2.74,
+      "speaker": "xander",
+      "text": "Nobody is coming. I checked.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.66,
+        "peakDb": -4.8,
+        "rmsDb": -23.4,
+        "centroid": 535,
+        "f0": 122,
+        "f0p10": 109,
+        "f0p90": 162,
+        "voiced": 0.22
+      },
+      "out": {
+        "duration": 2.74,
+        "peakDb": -3,
+        "rmsDb": -22.7,
+        "centroid": 529,
+        "f0": 121,
+        "f0p10": 107,
+        "f0p90": 162,
+        "voiced": 0.23
+      }
+    },
+    "x_hurt4": {
+      "offset": 112.508,
+      "duration": 3.324,
+      "speaker": "xander",
+      "text": "Through the shirt. Through the actual shirt.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.244,
+        "peakDb": -5.7,
+        "rmsDb": -22.3,
+        "centroid": 588,
+        "f0": 110,
+        "f0p10": 82,
+        "f0p90": 139,
+        "voiced": 0.28
+      },
+      "out": {
+        "duration": 3.324,
+        "peakDb": -3,
+        "rmsDb": -20.5,
+        "centroid": 566,
+        "f0": 110,
+        "f0p10": 83,
+        "f0p90": 138,
+        "voiced": 0.27
+      }
+    },
+    "x_hurt5": {
+      "offset": 115.912,
+      "duration": 2.682,
+      "speaker": "xander",
+      "text": "Not the leg. I need the leg.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.602,
+        "peakDb": -6.2,
+        "rmsDb": -23.2,
+        "centroid": 468,
+        "f0": 116,
+        "f0p10": 82,
+        "f0p90": 130,
+        "voiced": 0.3
+      },
+      "out": {
+        "duration": 2.682,
+        "peakDb": -3,
+        "rmsDb": -21.2,
+        "centroid": 482,
+        "f0": 117,
+        "f0p10": 86,
+        "f0p90": 130,
+        "voiced": 0.27
+      }
+    },
+    "x_hurt6": {
+      "offset": 118.674,
+      "duration": 2.974,
+      "speaker": "xander",
+      "text": "Get off me. Get off, get -",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.894,
+        "peakDb": -3.8,
+        "rmsDb": -21.7,
+        "centroid": 573,
+        "f0": 135,
+        "f0p10": 79,
+        "f0p90": 161,
+        "voiced": 0.2
+      },
+      "out": {
+        "duration": 2.974,
+        "peakDb": -3,
+        "rmsDb": -21.8,
+        "centroid": 573,
+        "f0": 138,
+        "f0p10": 86,
+        "f0p90": 159,
+        "voiced": 0.18
+      }
+    },
+    "x_hurt7": {
+      "offset": 121.728,
+      "duration": 2.6,
+      "speaker": "xander",
+      "text": "Right. That one I felt.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.52,
+        "peakDb": -3.7,
+        "rmsDb": -24.3,
+        "centroid": 634,
+        "f0": 96,
+        "f0p10": 79,
+        "f0p90": 104,
+        "voiced": 0.18
+      },
+      "out": {
+        "duration": 2.6,
+        "peakDb": -3,
+        "rmsDb": -24.2,
+        "centroid": 639,
+        "f0": 96,
+        "f0p10": 78,
+        "f0p90": 146,
+        "voiced": 0.17
+      }
+    },
+    "x_hurt8": {
+      "offset": 124.408,
+      "duration": 2.562,
+      "speaker": "xander",
+      "text": "Teeth. It has teeth now.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.482,
+        "peakDb": -6.5,
+        "rmsDb": -24.9,
+        "centroid": 638,
+        "f0": 103,
+        "f0p10": 78,
+        "f0p90": 158,
+        "voiced": 0.27
+      },
+      "out": {
+        "duration": 2.562,
+        "peakDb": -3,
+        "rmsDb": -21.7,
+        "centroid": 600,
+        "f0": 109,
+        "f0p10": 78,
+        "f0p90": 162,
+        "voiced": 0.25
+      }
+    },
+    "x_low1": {
+      "offset": 127.05,
+      "duration": 5.638,
+      "speaker": "xander",
+      "text": "Right. Right. I am fine. I am fine.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 5.558,
+        "peakDb": -3.7,
+        "rmsDb": -24.3,
+        "centroid": 685,
+        "f0": 117,
+        "f0p10": 95,
+        "f0p90": 146,
+        "voiced": 0.15
+      },
+      "out": {
+        "duration": 5.638,
+        "peakDb": -3,
+        "rmsDb": -24.1,
+        "centroid": 690,
+        "f0": 117,
+        "f0p10": 94,
+        "f0p90": 138,
+        "voiced": 0.13
+      }
+    },
+    "x_low2": {
+      "offset": 132.768,
+      "duration": 1.87,
+      "speaker": "xander",
+      "text": "I am not paid enough to bleed.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.79,
+        "peakDb": -6.6,
+        "rmsDb": -22,
+        "centroid": 504,
+        "f0": 102,
+        "f0p10": 84,
+        "f0p90": 151,
+        "voiced": 0.54
+      },
+      "out": {
+        "duration": 1.87,
+        "peakDb": -3,
+        "rmsDb": -18.8,
+        "centroid": 520,
+        "f0": 101,
+        "f0p10": 84,
+        "f0p90": 150,
+        "voiced": 0.5
+      }
+    },
+    "x_low3": {
+      "offset": 134.718,
+      "duration": 3.704,
+      "speaker": "xander",
+      "text": "Medical bay is unstaffed. Of course it is.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.624,
+        "peakDb": -5.6,
+        "rmsDb": -22.7,
+        "centroid": 758,
+        "f0": 107,
+        "f0p10": 81,
+        "f0p90": 153,
+        "voiced": 0.27
+      },
+      "out": {
+        "duration": 3.704,
+        "peakDb": -3,
+        "rmsDb": -20.9,
+        "centroid": 682,
+        "f0": 107,
+        "f0p10": 81,
+        "f0p90": 159,
+        "voiced": 0.27
+      }
+    },
+    "x_low4": {
+      "offset": 138.502,
+      "duration": 1.898,
+      "speaker": "xander",
+      "text": "That is a lot of me on the floor.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.818,
+        "peakDb": -3.2,
+        "rmsDb": -19.9,
+        "centroid": 535,
+        "f0": 97,
+        "f0p10": 80,
+        "f0p90": 136,
+        "voiced": 0.51
+      },
+      "out": {
+        "duration": 1.898,
+        "peakDb": -3,
+        "rmsDb": -20.3,
+        "centroid": 525,
+        "f0": 97,
+        "f0p10": 81,
+        "f0p90": 136,
+        "voiced": 0.51
+      }
+    },
+    "x_low5": {
+      "offset": 140.48,
+      "duration": 2.998,
+      "speaker": "xander",
+      "text": "Keep walking. Walking is free.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.918,
+        "peakDb": -5.1,
+        "rmsDb": -22.3,
+        "centroid": 429,
+        "f0": 119,
+        "f0p10": 98,
+        "f0p90": 167,
+        "voiced": 0.3
+      },
+      "out": {
+        "duration": 2.998,
+        "peakDb": -3,
+        "rmsDb": -21,
+        "centroid": 414,
+        "f0": 120,
+        "f0p10": 97,
+        "f0p90": 168,
+        "voiced": 0.27
+      }
+    },
+    "x_low6": {
+      "offset": 143.558,
+      "duration": 2.072,
+      "speaker": "xander",
+      "text": "If I sit down I will not get up.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.992,
+        "peakDb": -5.1,
+        "rmsDb": -21.5,
+        "centroid": 722,
+        "f0": 115,
+        "f0p10": 99,
+        "f0p90": 138,
+        "voiced": 0.47
+      },
+      "out": {
+        "duration": 2.072,
+        "peakDb": -3,
+        "rmsDb": -20.4,
+        "centroid": 690,
+        "f0": 115,
+        "f0p10": 99,
+        "f0p90": 138,
+        "voiced": 0.43
+      }
+    },
+    "x_ammo1": {
+      "offset": 145.71,
+      "duration": 3.022,
+      "speaker": "xander",
+      "text": "Running dry. Of course I am.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.942,
+        "peakDb": -3,
+        "rmsDb": -21.3,
+        "centroid": 603,
+        "f0": 104,
+        "f0p10": 71,
+        "f0p90": 137,
+        "voiced": 0.29
+      },
+      "out": {
+        "duration": 3.022,
+        "peakDb": -3,
+        "rmsDb": -22.3,
+        "centroid": 601,
+        "f0": 105,
+        "f0p10": 79,
+        "f0p90": 139,
+        "voiced": 0.29
+      }
+    },
+    "x_ammo2": {
+      "offset": 148.812,
+      "duration": 1.83,
+      "speaker": "xander",
+      "text": "Who signs off on one crate?",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.75,
+        "peakDb": -5.4,
+        "rmsDb": -21.3,
+        "centroid": 703,
+        "f0": 106,
+        "f0p10": 90,
+        "f0p90": 172,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 1.83,
+        "peakDb": -3,
+        "rmsDb": -19.8,
+        "centroid": 659,
+        "f0": 112,
+        "f0p10": 95,
+        "f0p90": 176,
+        "voiced": 0.36
+      }
+    },
+    "x_ammo3": {
+      "offset": 150.722,
+      "duration": 4.358,
+      "speaker": "xander",
+      "text": "Count them. Count them again. Same number.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.278,
+        "peakDb": -5.4,
+        "rmsDb": -24.7,
+        "centroid": 527,
+        "f0": 133,
+        "f0p10": 90,
+        "f0p90": 151,
+        "voiced": 0.28
+      },
+      "out": {
+        "duration": 4.358,
+        "peakDb": -3,
+        "rmsDb": -21.2,
+        "centroid": 526,
+        "f0": 134,
+        "f0p10": 91,
+        "f0p90": 151,
+        "voiced": 0.27
+      }
+    },
+    "x_ammo4": {
+      "offset": 155.16,
+      "duration": 4.736,
+      "speaker": "xander",
+      "text": "Requisition form. Two weeks. Marvellous.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.656,
+        "peakDb": -3.3,
+        "rmsDb": -23,
+        "centroid": 645,
+        "f0": 128,
+        "f0p10": 79,
+        "f0p90": 155,
+        "voiced": 0.25
+      },
+      "out": {
+        "duration": 4.736,
+        "peakDb": -3,
+        "rmsDb": -23.6,
+        "centroid": 608,
+        "f0": 128,
+        "f0p10": 80,
+        "f0p90": 155,
+        "voiced": 0.24
+      }
+    },
+    "x_ammo5": {
+      "offset": 159.976,
+      "duration": 3.722,
+      "speaker": "xander",
+      "text": "Doyle had the spare crate. Doyle went home.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.642,
+        "peakDb": -5.2,
+        "rmsDb": -21.1,
+        "centroid": 570,
+        "f0": 129,
+        "f0p10": 83,
+        "f0p90": 149,
+        "voiced": 0.31
+      },
+      "out": {
+        "duration": 3.722,
+        "peakDb": -3,
+        "rmsDb": -19.3,
+        "centroid": 547,
+        "f0": 129,
+        "f0p10": 86,
+        "f0p90": 149,
+        "voiced": 0.29
+      }
+    },
+    "x_empty1": {
+      "offset": 163.778,
+      "duration": 3.648,
+      "speaker": "xander",
+      "text": "Empty. Brilliant. Thank you.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.568,
+        "peakDb": -4.2,
+        "rmsDb": -25.3,
+        "centroid": 485,
+        "f0": 121,
+        "f0p10": 71,
+        "f0p90": 147,
+        "voiced": 0.21
+      },
+      "out": {
+        "duration": 3.648,
+        "peakDb": -3,
+        "rmsDb": -23.2,
+        "centroid": 483,
+        "f0": 127,
+        "f0p10": 79,
+        "f0p90": 149,
+        "voiced": 0.18
+      }
+    },
+    "x_empty2": {
+      "offset": 167.506,
+      "duration": 4.38,
+      "speaker": "xander",
+      "text": "Click. That is the whole noise now. Click.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.3,
+        "peakDb": -4.8,
+        "rmsDb": -23.1,
+        "centroid": 555,
+        "f0": 123,
+        "f0p10": 79,
+        "f0p90": 142,
+        "voiced": 0.27
+      },
+      "out": {
+        "duration": 4.38,
+        "peakDb": -3,
+        "rmsDb": -21.4,
+        "centroid": 542,
+        "f0": 125,
+        "f0p10": 79,
+        "f0p90": 142,
+        "voiced": 0.25
+      }
+    },
+    "x_empty3": {
+      "offset": 171.966,
+      "duration": 3.148,
+      "speaker": "xander",
+      "text": "Nothing. It makes a nothing noise.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.068,
+        "peakDb": -4.9,
+        "rmsDb": -23.4,
+        "centroid": 589,
+        "f0": 105,
+        "f0p10": 85,
+        "f0p90": 145,
+        "voiced": 0.35
+      },
+      "out": {
+        "duration": 3.148,
+        "peakDb": -3,
+        "rmsDb": -22.6,
+        "centroid": 573,
+        "f0": 103,
+        "f0p10": 85,
+        "f0p90": 145,
+        "voiced": 0.32
+      }
+    },
+    "x_safe1": {
+      "offset": 175.194,
+      "duration": 3.138,
+      "speaker": "xander",
+      "text": "A door that shuts. I could cry.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.058,
+        "peakDb": -3.6,
+        "rmsDb": -22.4,
+        "centroid": 575,
+        "f0": 124,
+        "f0p10": 85,
+        "f0p90": 157,
+        "voiced": 0.16
+      },
+      "out": {
+        "duration": 3.138,
+        "peakDb": -3,
+        "rmsDb": -22.7,
+        "centroid": 564,
+        "f0": 130,
+        "f0p10": 85,
+        "f0p90": 158,
+        "voiced": 0.13
+      }
+    },
+    "x_safe2": {
+      "offset": 178.412,
+      "duration": 2.864,
+      "speaker": "xander",
+      "text": "Two minutes. Just two minutes.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.784,
+        "peakDb": -5.6,
+        "rmsDb": -23.7,
+        "centroid": 700,
+        "f0": 145,
+        "f0p10": 88,
+        "f0p90": 162,
+        "voiced": 0.22
+      },
+      "out": {
+        "duration": 2.864,
+        "peakDb": -3,
+        "rmsDb": -20.8,
+        "centroid": 623,
+        "f0": 145,
+        "f0p10": 91,
+        "f0p90": 167,
+        "voiced": 0.22
+      }
+    },
+    "x_safe3": {
+      "offset": 181.356,
+      "duration": 1.976,
+      "speaker": "xander",
+      "text": "Nobody knows I am down here.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 1.896,
+        "peakDb": -4.9,
+        "rmsDb": -20.5,
+        "centroid": 513,
+        "f0": 98,
+        "f0p10": 86,
+        "f0p90": 163,
+        "voiced": 0.61
+      },
+      "out": {
+        "duration": 1.976,
+        "peakDb": -3,
+        "rmsDb": -19.4,
+        "centroid": 525,
+        "f0": 97,
+        "f0p10": 87,
+        "f0p90": 162,
+        "voiced": 0.6
+      }
+    },
+    "x_safe4": {
+      "offset": 183.412,
+      "duration": 4.67,
+      "speaker": "xander",
+      "text": "A chair. There is a chair. I am having the chair.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.59,
+        "peakDb": -4.8,
+        "rmsDb": -22.8,
+        "centroid": 629,
+        "f0": 113,
+        "f0p10": 84,
+        "f0p90": 132,
+        "voiced": 0.24
+      },
+      "out": {
+        "duration": 4.67,
+        "peakDb": -3,
+        "rmsDb": -21.8,
+        "centroid": 618,
+        "f0": 114,
+        "f0p10": 84,
+        "f0p90": 132,
+        "voiced": 0.24
+      }
+    },
+    "x_safe5": {
+      "offset": 188.162,
+      "duration": 4.568,
+      "speaker": "xander",
+      "text": "The kettle works. The kettle. Not the doors.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.488,
+        "peakDb": -5.6,
+        "rmsDb": -23.8,
+        "centroid": 570,
+        "f0": 119,
+        "f0p10": 81,
+        "f0p90": 151,
+        "voiced": 0.17
+      },
+      "out": {
+        "duration": 4.568,
+        "peakDb": -3,
+        "rmsDb": -22.1,
+        "centroid": 543,
+        "f0": 118,
+        "f0p10": 81,
+        "f0p90": 151,
+        "voiced": 0.18
+      }
+    },
+    "x_safe6": {
+      "offset": 192.81,
+      "duration": 4.182,
+      "speaker": "xander",
+      "text": "Somebody left their lunch. Tuesday, by the smell.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.102,
+        "peakDb": -3.5,
+        "rmsDb": -22.9,
+        "centroid": 745,
+        "f0": 106,
+        "f0p10": 83,
+        "f0p90": 166,
+        "voiced": 0.3
+      },
+      "out": {
+        "duration": 4.182,
+        "peakDb": -3,
+        "rmsDb": -23,
+        "centroid": 699,
+        "f0": 107,
+        "f0p10": 83,
+        "f0p90": 165,
+        "voiced": 0.29
+      }
+    },
+    "x_safe7": {
+      "offset": 197.072,
+      "duration": 4.248,
+      "speaker": "xander",
+      "text": "Do not fall asleep. Do not - do not fall asleep.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.168,
+        "peakDb": -7.4,
+        "rmsDb": -22,
+        "centroid": 596,
+        "f0": 138,
+        "f0p10": 116,
+        "f0p90": 164,
+        "voiced": 0.32
+      },
+      "out": {
+        "duration": 4.248,
+        "peakDb": -3,
+        "rmsDb": -18.5,
+        "centroid": 528,
+        "f0": 138,
+        "f0p10": 117,
+        "f0p90": 163,
+        "voiced": 0.31
+      }
+    },
+    "x_safe8": {
+      "offset": 201.4,
+      "duration": 2.518,
+      "speaker": "xander",
+      "text": "There is a poster about lifting with the knees.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.438,
+        "peakDb": -4.1,
+        "rmsDb": -19.9,
+        "centroid": 560,
+        "f0": 121,
+        "f0p10": 83,
+        "f0p90": 161,
+        "voiced": 0.44
+      },
+      "out": {
+        "duration": 2.518,
+        "peakDb": -3,
+        "rmsDb": -19.6,
+        "centroid": 541,
+        "f0": 119,
+        "f0p10": 83,
+        "f0p90": 156,
+        "voiced": 0.39
+      }
+    },
+    "x_lift1": {
+      "offset": 203.998,
+      "duration": 2.984,
+      "speaker": "xander",
+      "text": "Down. It only ever goes down.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.904,
+        "peakDb": -5.6,
+        "rmsDb": -21.8,
+        "centroid": 521,
+        "f0": 111,
+        "f0p10": 85,
+        "f0p90": 151,
+        "voiced": 0.32
+      },
+      "out": {
+        "duration": 2.984,
+        "peakDb": -3,
+        "rmsDb": -19.5,
+        "centroid": 526,
+        "f0": 112,
+        "f0p10": 85,
+        "f0p90": 151,
+        "voiced": 0.3
+      }
+    },
+    "x_lift2": {
+      "offset": 207.062,
+      "duration": 2.53,
+      "speaker": "xander",
+      "text": "Seven seconds of nothing trying to eat me.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.45,
+        "peakDb": -4.4,
+        "rmsDb": -21.5,
+        "centroid": 780,
+        "f0": 110,
+        "f0p10": 92,
+        "f0p90": 152,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 2.53,
+        "peakDb": -3,
+        "rmsDb": -20.9,
+        "centroid": 717,
+        "f0": 110,
+        "f0p10": 91,
+        "f0p90": 153,
+        "voiced": 0.39
+      }
+    },
+    "x_lift3": {
+      "offset": 209.672,
+      "duration": 4.802,
+      "speaker": "xander",
+      "text": "They fixed the music. Not the doors. The music.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.722,
+        "peakDb": -5.6,
+        "rmsDb": -23.6,
+        "centroid": 526,
+        "f0": 120,
+        "f0p10": 85,
+        "f0p90": 151,
+        "voiced": 0.24
+      },
+      "out": {
+        "duration": 4.802,
+        "peakDb": -3,
+        "rmsDb": -21.3,
+        "centroid": 493,
+        "f0": 120,
+        "f0p10": 83,
+        "f0p90": 152,
+        "voiced": 0.23
+      }
+    },
+    "x_lift4": {
+      "offset": 214.554,
+      "duration": 3.622,
+      "speaker": "xander",
+      "text": "Inspection tag says March. Which March.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.542,
+        "peakDb": -4.5,
+        "rmsDb": -22.9,
+        "centroid": 875,
+        "f0": 111,
+        "f0p10": 80,
+        "f0p90": 146,
+        "voiced": 0.28
+      },
+      "out": {
+        "duration": 3.622,
+        "peakDb": -3,
+        "rmsDb": -21.6,
+        "centroid": 797,
+        "f0": 111,
+        "f0p10": 80,
+        "f0p90": 143,
+        "voiced": 0.27
+      }
+    },
+    "x_lift5": {
+      "offset": 218.256,
+      "duration": 2.792,
+      "speaker": "xander",
+      "text": "If this stops between decks I am staying in it.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.712,
+        "peakDb": -4.2,
+        "rmsDb": -21.4,
+        "centroid": 817,
+        "f0": 108,
+        "f0p10": 92,
+        "f0p90": 127,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 2.792,
+        "peakDb": -3,
+        "rmsDb": -21.5,
+        "centroid": 748,
+        "f0": 108,
+        "f0p10": 90,
+        "f0p90": 127,
+        "voiced": 0.38
+      }
+    },
+    "x_lift6": {
+      "offset": 221.128,
+      "duration": 3.296,
+      "speaker": "xander",
+      "text": "Rated for eight persons. Persons.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.216,
+        "peakDb": -4.5,
+        "rmsDb": -21.8,
+        "centroid": 750,
+        "f0": 130,
+        "f0p10": 91,
+        "f0p90": 161,
+        "voiced": 0.27
+      },
+      "out": {
+        "duration": 3.296,
+        "peakDb": -3,
+        "rmsDb": -21.3,
+        "centroid": 684,
+        "f0": 130,
+        "f0p10": 90,
+        "f0p90": 161,
+        "voiced": 0.25
+      }
+    },
+    "x_lift7": {
+      "offset": 224.504,
+      "duration": 4.65,
+      "speaker": "xander",
+      "text": "Deeper. Right. Deeper is where the answer is.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.57,
+        "peakDb": -4.1,
+        "rmsDb": -23.1,
+        "centroid": 587,
+        "f0": 120,
+        "f0p10": 84,
+        "f0p90": 156,
+        "voiced": 0.24
+      },
+      "out": {
+        "duration": 4.65,
+        "peakDb": -3,
+        "rmsDb": -22.6,
+        "centroid": 564,
+        "f0": 120,
+        "f0p10": 83,
+        "f0p90": 157,
+        "voiced": 0.23
+      }
+    },
+    "x_lift8": {
+      "offset": 229.234,
+      "duration": 4.006,
+      "speaker": "xander",
+      "text": "Nobody serviced this. Nobody serviced anything.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.926,
+        "peakDb": -4.7,
+        "rmsDb": -21.8,
+        "centroid": 661,
+        "f0": 135,
+        "f0p10": 90,
+        "f0p90": 167,
+        "voiced": 0.32
+      },
+      "out": {
+        "duration": 4.006,
+        "peakDb": -3,
+        "rmsDb": -19.1,
+        "centroid": 596,
+        "f0": 134,
+        "f0p10": 91,
+        "f0p90": 167,
+        "voiced": 0.31
+      }
+    },
+    "x_idle1": {
+      "offset": 233.32,
+      "duration": 3.32,
+      "speaker": "xander",
+      "text": "Why is it me. Why is it always me.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.24,
+        "peakDb": -5.9,
+        "rmsDb": -21.2,
+        "centroid": 540,
+        "f0": 140,
+        "f0p10": 85,
+        "f0p90": 175,
+        "voiced": 0.41
+      },
+      "out": {
+        "duration": 3.32,
+        "peakDb": -3,
+        "rmsDb": -19.3,
+        "centroid": 524,
+        "f0": 133,
+        "f0p10": 87,
+        "f0p90": 175,
+        "voiced": 0.4
+      }
+    },
+    "x_idle2": {
+      "offset": 236.72,
+      "duration": 3.78,
+      "speaker": "xander",
+      "text": "Doyle had the pass card. Doyle went home.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.7,
+        "peakDb": -4.9,
+        "rmsDb": -21.1,
+        "centroid": 496,
+        "f0": 118,
+        "f0p10": 78,
+        "f0p90": 151,
+        "voiced": 0.38
+      },
+      "out": {
+        "duration": 3.78,
+        "peakDb": -3,
+        "rmsDb": -19.2,
+        "centroid": 498,
+        "f0": 118,
+        "f0p10": 78,
+        "f0p90": 146,
+        "voiced": 0.36
+      }
+    },
+    "x_idle3": {
+      "offset": 240.58,
+      "duration": 2.446,
+      "speaker": "xander",
+      "text": "The training video was eleven minutes long.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.366,
+        "peakDb": -6.2,
+        "rmsDb": -21.9,
+        "centroid": 544,
+        "f0": 112,
+        "f0p10": 93,
+        "f0p90": 141,
+        "voiced": 0.67
+      },
+      "out": {
+        "duration": 2.446,
+        "peakDb": -3,
+        "rmsDb": -19.8,
+        "centroid": 525,
+        "f0": 111,
+        "f0p10": 95,
+        "f0p90": 141,
+        "voiced": 0.63
+      }
+    },
+    "x_idle4": {
+      "offset": 243.106,
+      "duration": 3.396,
+      "speaker": "xander",
+      "text": "I am a farmhand. That is the whole of it.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.316,
+        "peakDb": -4,
+        "rmsDb": -21.9,
+        "centroid": 595,
+        "f0": 117,
+        "f0p10": 83,
+        "f0p90": 142,
+        "voiced": 0.32
+      },
+      "out": {
+        "duration": 3.396,
+        "peakDb": -3,
+        "rmsDb": -21.6,
+        "centroid": 599,
+        "f0": 120,
+        "f0p10": 83,
+        "f0p90": 142,
+        "voiced": 0.3
+      }
+    },
+    "x_idle5": {
+      "offset": 246.582,
+      "duration": 2.646,
+      "speaker": "xander",
+      "text": "Somebody in an office decided this was fine.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.566,
+        "peakDb": -3.8,
+        "rmsDb": -21.8,
+        "centroid": 742,
+        "f0": 126,
+        "f0p10": 96,
+        "f0p90": 169,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 2.646,
+        "peakDb": -3,
+        "rmsDb": -21.8,
+        "centroid": 687,
+        "f0": 126,
+        "f0p10": 96,
+        "f0p90": 162,
+        "voiced": 0.38
+      }
+    },
+    "x_idle6": {
+      "offset": 249.308,
+      "duration": 3.094,
+      "speaker": "xander",
+      "text": "They cut the safety budget. Twice.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.014,
+        "peakDb": -4.9,
+        "rmsDb": -23.3,
+        "centroid": 830,
+        "f0": 121,
+        "f0p10": 92,
+        "f0p90": 131,
+        "voiced": 0.15
+      },
+      "out": {
+        "duration": 3.094,
+        "peakDb": -3,
+        "rmsDb": -22.4,
+        "centroid": 757,
+        "f0": 122,
+        "f0p10": 92,
+        "f0p90": 139,
+        "voiced": 0.14
+      }
+    },
+    "x_idle7": {
+      "offset": 252.482,
+      "duration": 3.406,
+      "speaker": "xander",
+      "text": "I have a flat. I would like to see it again.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.326,
+        "peakDb": -4.2,
+        "rmsDb": -23.2,
+        "centroid": 672,
+        "f0": 125,
+        "f0p10": 91,
+        "f0p90": 143,
+        "voiced": 0.29
+      },
+      "out": {
+        "duration": 3.406,
+        "peakDb": -3,
+        "rmsDb": -23,
+        "centroid": 644,
+        "f0": 124,
+        "f0p10": 91,
+        "f0p90": 147,
+        "voiced": 0.26
+      }
+    },
+    "x_idle8": {
+      "offset": 255.968,
+      "duration": 3.828,
+      "speaker": "xander",
+      "text": "Not a hero. Just the last one holding a key.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.748,
+        "peakDb": -3.1,
+        "rmsDb": -21,
+        "centroid": 608,
+        "f0": 106,
+        "f0p10": 76,
+        "f0p90": 136,
+        "voiced": 0.37
+      },
+      "out": {
+        "duration": 3.828,
+        "peakDb": -3,
+        "rmsDb": -21.5,
+        "centroid": 601,
+        "f0": 111,
+        "f0p10": 79,
+        "f0p90": 136,
+        "voiced": 0.35
+      }
+    },
+    "x_idle9": {
+      "offset": 259.876,
+      "duration": 2.548,
+      "speaker": "xander",
+      "text": "Everyone who could have stopped this got a bonus.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.468,
+        "peakDb": -3.7,
+        "rmsDb": -21,
+        "centroid": 679,
+        "f0": 119,
+        "f0p10": 94,
+        "f0p90": 158,
+        "voiced": 0.37
+      },
+      "out": {
+        "duration": 2.548,
+        "peakDb": -3,
+        "rmsDb": -21.1,
+        "centroid": 628,
+        "f0": 119,
+        "f0p10": 94,
+        "f0p90": 161,
+        "voiced": 0.36
+      }
+    },
+    "x_idle10": {
+      "offset": 262.504,
+      "duration": 3.03,
+      "speaker": "xander",
+      "text": "If anything down here is listening: I resign.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.95,
+        "peakDb": -4.7,
+        "rmsDb": -21.1,
+        "centroid": 659,
+        "f0": 113,
+        "f0p10": 86,
+        "f0p90": 140,
+        "voiced": 0.58
+      },
+      "out": {
+        "duration": 3.03,
+        "peakDb": -3,
+        "rmsDb": -20.2,
+        "centroid": 630,
+        "f0": 113,
+        "f0p10": 86,
+        "f0p90": 140,
+        "voiced": 0.55
+      }
+    },
+    "x_idle11": {
+      "offset": 265.614,
+      "duration": 3.68,
+      "speaker": "xander",
+      "text": "It smells like the feed store. It should not.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.6,
+        "peakDb": -3.6,
+        "rmsDb": -21.9,
+        "centroid": 916,
+        "f0": 123,
+        "f0p10": 79,
+        "f0p90": 142,
+        "voiced": 0.27
+      },
+      "out": {
+        "duration": 3.68,
+        "peakDb": -3,
+        "rmsDb": -22,
+        "centroid": 816,
+        "f0": 120,
+        "f0p10": 79,
+        "f0p90": 142,
+        "voiced": 0.26
+      }
+    },
+    "x_idle12": {
+      "offset": 269.374,
+      "duration": 2.804,
+      "speaker": "xander",
+      "text": "Whatever this is, it is above my pay grade.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.724,
+        "peakDb": -3.8,
+        "rmsDb": -20.9,
+        "centroid": 605,
+        "f0": 114,
+        "f0p10": 97,
+        "f0p90": 152,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 2.804,
+        "peakDb": -3,
+        "rmsDb": -21,
+        "centroid": 592,
+        "f0": 112,
+        "f0p10": 96,
+        "f0p90": 147,
+        "voiced": 0.4
+      }
+    },
+    "x_idle13": {
+      "offset": 272.258,
+      "duration": 3.598,
+      "speaker": "xander",
+      "text": "The contract said light maintenance. Light.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.518,
+        "peakDb": -3.5,
+        "rmsDb": -22.1,
+        "centroid": 820,
+        "f0": 119,
+        "f0p10": 105,
+        "f0p90": 158,
+        "voiced": 0.26
+      },
+      "out": {
+        "duration": 3.598,
+        "peakDb": -3,
+        "rmsDb": -22.4,
+        "centroid": 773,
+        "f0": 122,
+        "f0p10": 106,
+        "f0p90": 159,
+        "voiced": 0.25
+      }
+    },
+    "x_idle14": {
+      "offset": 275.936,
+      "duration": 3.762,
+      "speaker": "xander",
+      "text": "Forty minutes on hold to report a leak. Forty.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.682,
+        "peakDb": -4.8,
+        "rmsDb": -22.3,
+        "centroid": 509,
+        "f0": 126,
+        "f0p10": 87,
+        "f0p90": 162,
+        "voiced": 0.32
+      },
+      "out": {
+        "duration": 3.762,
+        "peakDb": -3,
+        "rmsDb": -21.4,
+        "centroid": 476,
+        "f0": 126,
+        "f0p10": 87,
+        "f0p90": 162,
+        "voiced": 0.31
+      }
+    },
+    "x_idle15": {
+      "offset": 279.778,
+      "duration": 4.428,
+      "speaker": "xander",
+      "text": "Somebody laminated the evacuation plan. Had the time.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.348,
+        "peakDb": -3.7,
+        "rmsDb": -22.9,
+        "centroid": 561,
+        "f0": 117,
+        "f0p10": 88,
+        "f0p90": 161,
+        "voiced": 0.36
+      },
+      "out": {
+        "duration": 4.428,
+        "peakDb": -3,
+        "rmsDb": -22.8,
+        "centroid": 561,
+        "f0": 116,
+        "f0p10": 89,
+        "f0p90": 160,
+        "voiced": 0.34
+      }
+    },
+    "x_idle16": {
+      "offset": 284.286,
+      "duration": 2.636,
+      "speaker": "xander",
+      "text": "Head office is eleven weeks away by post.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.556,
+        "peakDb": -4.3,
+        "rmsDb": -21.9,
+        "centroid": 608,
+        "f0": 116,
+        "f0p10": 88,
+        "f0p90": 160,
+        "voiced": 0.42
+      },
+      "out": {
+        "duration": 2.636,
+        "peakDb": -3,
+        "rmsDb": -21.4,
+        "centroid": 588,
+        "f0": 114,
+        "f0p10": 88,
+        "f0p90": 153,
+        "voiced": 0.36
+      }
+    },
+    "x_idle17": {
+      "offset": 287.002,
+      "duration": 3.7,
+      "speaker": "xander",
+      "text": "I had a plan for Tuesday. It involved a chair.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.62,
+        "peakDb": -5.3,
+        "rmsDb": -22.1,
+        "centroid": 554,
+        "f0": 121,
+        "f0p10": 90,
+        "f0p90": 134,
+        "voiced": 0.3
+      },
+      "out": {
+        "duration": 3.7,
+        "peakDb": -3,
+        "rmsDb": -20.9,
+        "centroid": 556,
+        "f0": 120,
+        "f0p10": 90,
+        "f0p90": 133,
+        "voiced": 0.3
+      }
+    },
+    "x_idle18": {
+      "offset": 290.782,
+      "duration": 2.398,
+      "speaker": "xander",
+      "text": "The union rep left on the first shuttle.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.318,
+        "peakDb": -4.8,
+        "rmsDb": -20.6,
+        "centroid": 528,
+        "f0": 119,
+        "f0p10": 91,
+        "f0p90": 147,
+        "voiced": 0.52
+      },
+      "out": {
+        "duration": 2.398,
+        "peakDb": -3,
+        "rmsDb": -19.5,
+        "centroid": 517,
+        "f0": 120,
+        "f0p10": 91,
+        "f0p90": 147,
+        "voiced": 0.52
+      }
+    },
+    "x_idle19": {
+      "offset": 293.26,
+      "duration": 2.482,
+      "speaker": "xander",
+      "text": "They stopped restocking the biscuits in June.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.402,
+        "peakDb": -3.4,
+        "rmsDb": -21.8,
+        "centroid": 697,
+        "f0": 117,
+        "f0p10": 101,
+        "f0p90": 136,
+        "voiced": 0.34
+      },
+      "out": {
+        "duration": 2.482,
+        "peakDb": -3,
+        "rmsDb": -22.3,
+        "centroid": 657,
+        "f0": 116,
+        "f0p10": 100,
+        "f0p90": 125,
+        "voiced": 0.34
+      }
+    },
+    "x_idle20": {
+      "offset": 295.822,
+      "duration": 5.496,
+      "speaker": "xander",
+      "text": "Every door down here needs a card. One card. Doyle.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 5.416,
+        "peakDb": -3.5,
+        "rmsDb": -22.3,
+        "centroid": 509,
+        "f0": 111,
+        "f0p10": 79,
+        "f0p90": 143,
+        "voiced": 0.35
+      },
+      "out": {
+        "duration": 5.496,
+        "peakDb": -3,
+        "rmsDb": -22.6,
+        "centroid": 517,
+        "f0": 115,
+        "f0p10": 79,
+        "f0p90": 143,
+        "voiced": 0.35
+      }
+    },
+    "x_idle21": {
+      "offset": 301.398,
+      "duration": 4.48,
+      "speaker": "xander",
+      "text": "The feed order was doubled in spring. Nobody asked why.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.4,
+        "peakDb": -4.8,
+        "rmsDb": -21.6,
+        "centroid": 532,
+        "f0": 113,
+        "f0p10": 79,
+        "f0p90": 164,
+        "voiced": 0.34
+      },
+      "out": {
+        "duration": 4.48,
+        "peakDb": -3,
+        "rmsDb": -20.4,
+        "centroid": 526,
+        "f0": 117,
+        "f0p10": 82,
+        "f0p90": 164,
+        "voiced": 0.34
+      }
+    },
+    "x_idle22": {
+      "offset": 305.958,
+      "duration": 4.148,
+      "speaker": "xander",
+      "text": "Hazard pay is a line on a form. It is not pay.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.068,
+        "peakDb": -4.2,
+        "rmsDb": -21.5,
+        "centroid": 591,
+        "f0": 106,
+        "f0p10": 93,
+        "f0p90": 150,
+        "voiced": 0.38
+      },
+      "out": {
+        "duration": 4.148,
+        "peakDb": -3,
+        "rmsDb": -20.9,
+        "centroid": 578,
+        "f0": 106,
+        "f0p10": 94,
+        "f0p90": 144,
+        "voiced": 0.35
+      }
+    },
+    "x_idle23": {
+      "offset": 310.186,
+      "duration": 3.876,
+      "speaker": "xander",
+      "text": "There was a memo about the lights. I did not read it.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.796,
+        "peakDb": -5.9,
+        "rmsDb": -22.8,
+        "centroid": 542,
+        "f0": 123,
+        "f0p10": 90,
+        "f0p90": 146,
+        "voiced": 0.32
+      },
+      "out": {
+        "duration": 3.876,
+        "peakDb": -3,
+        "rmsDb": -21,
+        "centroid": 537,
+        "f0": 123,
+        "f0p10": 87,
+        "f0p90": 148,
+        "voiced": 0.32
+      }
+    },
+    "x_idle24": {
+      "offset": 314.142,
+      "duration": 4.654,
+      "speaker": "xander",
+      "text": "Six months accident free, the sign says. Six months.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 4.574,
+        "peakDb": -5,
+        "rmsDb": -23.7,
+        "centroid": 1171,
+        "f0": 113,
+        "f0p10": 79,
+        "f0p90": 152,
+        "voiced": 0.22
+      },
+      "out": {
+        "duration": 4.654,
+        "peakDb": -3,
+        "rmsDb": -22.6,
+        "centroid": 990,
+        "f0": 117,
+        "f0p10": 79,
+        "f0p90": 152,
+        "voiced": 0.21
+      }
+    },
+    "x_idle25": {
+      "offset": 318.876,
+      "duration": 2.738,
+      "speaker": "xander",
+      "text": "My boots are the only thing on this deck I trust.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.658,
+        "peakDb": -4.2,
+        "rmsDb": -21.5,
+        "centroid": 592,
+        "f0": 108,
+        "f0p10": 97,
+        "f0p90": 132,
+        "voiced": 0.43
+      },
+      "out": {
+        "duration": 2.738,
+        "peakDb": -3,
+        "rmsDb": -21.2,
+        "centroid": 575,
+        "f0": 109,
+        "f0p10": 97,
+        "f0p90": 140,
+        "voiced": 0.43
+      }
+    },
+    "x_idle26": {
+      "offset": 321.694,
+      "duration": 2.574,
+      "speaker": "xander",
+      "text": "Whoever built this put the shed at the far end.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.494,
+        "peakDb": -3.8,
+        "rmsDb": -20.5,
+        "centroid": 575,
+        "f0": 104,
+        "f0p10": 84,
+        "f0p90": 138,
+        "voiced": 0.28
+      },
+      "out": {
+        "duration": 2.574,
+        "peakDb": -3,
+        "rmsDb": -20.3,
+        "centroid": 569,
+        "f0": 104,
+        "f0p10": 83,
+        "f0p90": 138,
+        "voiced": 0.27
+      }
+    },
+    "x_idle27": {
+      "offset": 324.348,
+      "duration": 3.736,
+      "speaker": "xander",
+      "text": "Half the doors here open the wrong way. Half.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.656,
+        "peakDb": -3.1,
+        "rmsDb": -20.5,
+        "centroid": 588,
+        "f0": 111,
+        "f0p10": 90,
+        "f0p90": 158,
+        "voiced": 0.39
+      },
+      "out": {
+        "duration": 3.736,
+        "peakDb": -3,
+        "rmsDb": -21.3,
+        "centroid": 588,
+        "f0": 112,
+        "f0p10": 90,
+        "f0p90": 158,
+        "voiced": 0.36
+      }
+    },
+    "x_idle28": {
+      "offset": 328.164,
+      "duration": 4.078,
+      "speaker": "xander",
+      "text": "Nobody in the training video had a limp. I noticed.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.998,
+        "peakDb": -6.1,
+        "rmsDb": -22.9,
+        "centroid": 505,
+        "f0": 117,
+        "f0p10": 90,
+        "f0p90": 158,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 4.078,
+        "peakDb": -3,
+        "rmsDb": -21,
+        "centroid": 500,
+        "f0": 117,
+        "f0p10": 89,
+        "f0p90": 159,
+        "voiced": 0.39
+      }
+    },
+    "x_cough1": {
+      "offset": 332.322,
+      "duration": 3.84,
+      "speaker": "xander",
+      "text": "Kh - that is not air. That is not air.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.76,
+        "peakDb": -5,
+        "rmsDb": -22.2,
+        "centroid": 677,
+        "f0": 116,
+        "f0p10": 84,
+        "f0p90": 144,
+        "voiced": 0.29
+      },
+      "out": {
+        "duration": 3.84,
+        "peakDb": -3,
+        "rmsDb": -21.2,
+        "centroid": 644,
+        "f0": 119,
+        "f0p10": 85,
+        "f0p90": 154,
+        "voiced": 0.28
+      }
+    },
+    "x_cough2": {
+      "offset": 336.242,
+      "duration": 2.902,
+      "speaker": "xander",
+      "text": "Gas. Of course there is gas.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 2.822,
+        "peakDb": -5.6,
+        "rmsDb": -23.8,
+        "centroid": 783,
+        "f0": 113,
+        "f0p10": 85,
+        "f0p90": 131,
+        "voiced": 0.18
+      },
+      "out": {
+        "duration": 2.902,
+        "peakDb": -3,
+        "rmsDb": -22.1,
+        "centroid": 722,
+        "f0": 113,
+        "f0p10": 85,
+        "f0p90": 131,
+        "voiced": 0.17
+      }
+    },
+    "x_cough3": {
+      "offset": 339.224,
+      "duration": 3.982,
+      "speaker": "xander",
+      "text": "Eyes. My eyes. Keep moving.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.902,
+        "peakDb": -4.5,
+        "rmsDb": -24.1,
+        "centroid": 613,
+        "f0": 96,
+        "f0p10": 86,
+        "f0p90": 135,
+        "voiced": 0.28
+      },
+      "out": {
+        "duration": 3.982,
+        "peakDb": -3,
+        "rmsDb": -23.7,
+        "centroid": 593,
+        "f0": 96,
+        "f0p10": 86,
+        "f0p90": 157,
+        "voiced": 0.26
+      }
+    },
+    "x_cough4": {
+      "offset": 343.286,
+      "duration": 3.366,
+      "speaker": "xander",
+      "text": "There is a valve. There is always a valve.",
+      "renderer": "edge-tts",
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": "-8%",
+      "chain": "flesh",
+      "raw": {
+        "duration": 3.286,
+        "peakDb": -5.1,
+        "rmsDb": -21.1,
+        "centroid": 546,
+        "f0": 122,
+        "f0p10": 95,
+        "f0p90": 142,
+        "voiced": 0.33
+      },
+      "out": {
+        "duration": 3.366,
+        "peakDb": -3,
+        "rmsDb": -19.7,
+        "centroid": 540,
+        "f0": 122,
+        "f0p10": 95,
+        "f0p90": 143,
+        "voiced": 0.3
+      }
+    },
+    "pa1": {
+      "offset": 346.732,
+      "duration": 5.902,
+      "speaker": "host",
+      "text": "ATTENTION. All personnel report to muster. Thank you.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 5.622,
+        "peakDb": -3.9,
+        "rmsDb": -19.5,
+        "centroid": 447,
+        "f0": 179,
+        "f0p10": 136,
+        "f0p90": 223,
+        "voiced": 0.36
+      },
+      "out": {
+        "duration": 5.902,
+        "peakDb": -3,
+        "rmsDb": -15.6,
+        "centroid": 501,
+        "f0": 184,
+        "f0p10": 136,
+        "f0p90": 227,
+        "voiced": 0.33
+      }
+    },
+    "pa2": {
+      "offset": 352.714,
+      "duration": 4.798,
+      "speaker": "host",
+      "text": "ATTENTION. Livestock deck sealed pending inspection.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.518,
+        "peakDb": -4.2,
+        "rmsDb": -19.4,
+        "centroid": 481,
+        "f0": 178,
+        "f0p10": 150,
+        "f0p90": 222,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 4.798,
+        "peakDb": -3,
+        "rmsDb": -15.3,
+        "centroid": 524,
+        "f0": 182,
+        "f0p10": 154,
+        "f0p90": 257,
+        "voiced": 0.37
+      }
+    },
+    "pa3": {
+      "offset": 357.592,
+      "duration": 3.9,
+      "speaker": "host",
+      "text": "Reminder: hand contact with stock is not permitted.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.62,
+        "peakDb": -4.9,
+        "rmsDb": -17.3,
+        "centroid": 413,
+        "f0": 196,
+        "f0p10": 140,
+        "f0p90": 250,
+        "voiced": 0.61
+      },
+      "out": {
+        "duration": 3.9,
+        "peakDb": -3,
+        "rmsDb": -13.5,
+        "centroid": 474,
+        "f0": 198,
+        "f0p10": 140,
+        "f0p90": 250,
+        "voiced": 0.52
+      }
+    },
+    "pa4": {
+      "offset": 361.572,
+      "duration": 4.384,
+      "speaker": "host",
+      "text": "ATTENTION. Air handling is operating normally.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.104,
+        "peakDb": -5.5,
+        "rmsDb": -17.5,
+        "centroid": 365,
+        "f0": 180,
+        "f0p10": 137,
+        "f0p90": 229,
+        "voiced": 0.58
+      },
+      "out": {
+        "duration": 4.384,
+        "peakDb": -3,
+        "rmsDb": -13.4,
+        "centroid": 418,
+        "f0": 184,
+        "f0p10": 136,
+        "f0p90": 238,
+        "voiced": 0.52
+      }
+    },
+    "pa5": {
+      "offset": 366.036,
+      "duration": 3.664,
+      "speaker": "host",
+      "text": "Please report any unusual behaviour to your supervisor.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.384,
+        "peakDb": -4.8,
+        "rmsDb": -16.7,
+        "centroid": 367,
+        "f0": 177,
+        "f0p10": 145,
+        "f0p90": 223,
+        "voiced": 0.68
+      },
+      "out": {
+        "duration": 3.664,
+        "peakDb": -3,
+        "rmsDb": -12.6,
+        "centroid": 397,
+        "f0": 176,
+        "f0p10": 146,
+        "f0p90": 229,
+        "voiced": 0.63
+      }
+    },
+    "pa6": {
+      "offset": 369.78,
+      "duration": 4.89,
+      "speaker": "host",
+      "text": "ATTENTION. The medical bay is unstaffed this rotation.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.61,
+        "peakDb": -3.4,
+        "rmsDb": -19.3,
+        "centroid": 438,
+        "f0": 181,
+        "f0p10": 150,
+        "f0p90": 227,
+        "voiced": 0.44
+      },
+      "out": {
+        "duration": 4.89,
+        "peakDb": -3,
+        "rmsDb": -15.3,
+        "centroid": 487,
+        "f0": 181,
+        "f0p10": 150,
+        "f0p90": 221,
+        "voiced": 0.39
+      }
+    },
+    "pa7": {
+      "offset": 374.75,
+      "duration": 2.464,
+      "speaker": "host",
+      "text": "Your safety is our second priority.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 2.184,
+        "peakDb": -3.8,
+        "rmsDb": -16.5,
+        "centroid": 484,
+        "f0": 180,
+        "f0p10": 152,
+        "f0p90": 244,
+        "voiced": 0.63
+      },
+      "out": {
+        "duration": 2.464,
+        "peakDb": -3,
+        "rmsDb": -13.1,
+        "centroid": 501,
+        "f0": 178,
+        "f0p10": 150,
+        "f0p90": 244,
+        "voiced": 0.55
+      }
+    },
+    "pa8": {
+      "offset": 377.294,
+      "duration": 6.276,
+      "speaker": "host",
+      "text": "ATTENTION. Feed cycle complete. Feed cycle complete.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 5.996,
+        "peakDb": -4.7,
+        "rmsDb": -20.3,
+        "centroid": 431,
+        "f0": 179,
+        "f0p10": 151,
+        "f0p90": 242,
+        "voiced": 0.33
+      },
+      "out": {
+        "duration": 6.276,
+        "peakDb": -3,
+        "rmsDb": -16.4,
+        "centroid": 450,
+        "f0": 180,
+        "f0p10": 154,
+        "f0p90": 242,
+        "voiced": 0.29
+      }
+    },
+    "pa9": {
+      "offset": 383.65,
+      "duration": 2.768,
+      "speaker": "host",
+      "text": "- and we thank you for another productive season.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 2.488,
+        "peakDb": -5.3,
+        "rmsDb": -17.2,
+        "centroid": 360,
+        "f0": 182,
+        "f0p10": 161,
+        "f0p90": 238,
+        "voiced": 0.62
+      },
+      "out": {
+        "duration": 2.768,
+        "peakDb": -3,
+        "rmsDb": -13.3,
+        "centroid": 383,
+        "f0": 183,
+        "f0p10": 159,
+        "f0p90": 241,
+        "voiced": 0.55
+      }
+    },
+    "pa10": {
+      "offset": 386.498,
+      "duration": 4.466,
+      "speaker": "host",
+      "text": "ATTENTION. Do not approach the pens without a partner.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.186,
+        "peakDb": -4.5,
+        "rmsDb": -18.9,
+        "centroid": 426,
+        "f0": 188,
+        "f0p10": 143,
+        "f0p90": 231,
+        "voiced": 0.47
+      },
+      "out": {
+        "duration": 4.466,
+        "peakDb": -3,
+        "rmsDb": -15.1,
+        "centroid": 483,
+        "f0": 193,
+        "f0p10": 163,
+        "f0p90": 251,
+        "voiced": 0.4
+      }
+    },
+    "pa11": {
+      "offset": 391.044,
+      "duration": 5.224,
+      "speaker": "host",
+      "text": "Good morning, Hesper-4. Shift change is in effect.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.944,
+        "peakDb": -3,
+        "rmsDb": -19.1,
+        "centroid": 441,
+        "f0": 180,
+        "f0p10": 136,
+        "f0p90": 253,
+        "voiced": 0.38
+      },
+      "out": {
+        "duration": 5.224,
+        "peakDb": -3,
+        "rmsDb": -15.2,
+        "centroid": 487,
+        "f0": 183,
+        "f0p10": 137,
+        "f0p90": 270,
+        "voiced": 0.35
+      }
+    },
+    "pa12": {
+      "offset": 396.348,
+      "duration": 3.694,
+      "speaker": "host",
+      "text": "Reminder: the canteen closes at nineteen hundred.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.414,
+        "peakDb": -4.5,
+        "rmsDb": -16.6,
+        "centroid": 348,
+        "f0": 190,
+        "f0p10": 144,
+        "f0p90": 236,
+        "voiced": 0.65
+      },
+      "out": {
+        "duration": 3.694,
+        "peakDb": -3,
+        "rmsDb": -13,
+        "centroid": 388,
+        "f0": 190,
+        "f0p10": 144,
+        "f0p90": 240,
+        "voiced": 0.56
+      }
+    },
+    "pa13": {
+      "offset": 400.122,
+      "duration": 5.62,
+      "speaker": "host",
+      "text": "ATTENTION. Lift maintenance is scheduled. Thank you.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 5.34,
+        "peakDb": -3.4,
+        "rmsDb": -19.8,
+        "centroid": 371,
+        "f0": 184,
+        "f0p10": 136,
+        "f0p90": 213,
+        "voiced": 0.37
+      },
+      "out": {
+        "duration": 5.62,
+        "peakDb": -3,
+        "rmsDb": -16,
+        "centroid": 415,
+        "f0": 189,
+        "f0p10": 136,
+        "f0p90": 257,
+        "voiced": 0.33
+      }
+    },
+    "pa14": {
+      "offset": 405.822,
+      "duration": 3.3,
+      "speaker": "host",
+      "text": "Please keep the corridors clear of personal effects.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.02,
+        "peakDb": -5.1,
+        "rmsDb": -17.8,
+        "centroid": 417,
+        "f0": 187,
+        "f0p10": 150,
+        "f0p90": 273,
+        "voiced": 0.45
+      },
+      "out": {
+        "duration": 3.3,
+        "peakDb": -3,
+        "rmsDb": -13.8,
+        "centroid": 441,
+        "f0": 185,
+        "f0p10": 148,
+        "f0p90": 277,
+        "voiced": 0.43
+      }
+    },
+    "pa15": {
+      "offset": 409.202,
+      "duration": 3.544,
+      "speaker": "host",
+      "text": "Hesper-4 has been accident free for six months.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.264,
+        "peakDb": -4.9,
+        "rmsDb": -19.7,
+        "centroid": 546,
+        "f0": 171,
+        "f0p10": 152,
+        "f0p90": 238,
+        "voiced": 0.45
+      },
+      "out": {
+        "duration": 3.544,
+        "peakDb": -3,
+        "rmsDb": -15.3,
+        "centroid": 541,
+        "f0": 176,
+        "f0p10": 155,
+        "f0p90": 268,
+        "voiced": 0.44
+      }
+    },
+    "pa16": {
+      "offset": 412.826,
+      "duration": 5.984,
+      "speaker": "host",
+      "text": "ATTENTION. Deck lighting is in economy mode. Thank you.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 5.704,
+        "peakDb": -3.8,
+        "rmsDb": -19,
+        "centroid": 379,
+        "f0": 168,
+        "f0p10": 136,
+        "f0p90": 212,
+        "voiced": 0.44
+      },
+      "out": {
+        "duration": 5.984,
+        "peakDb": -3,
+        "rmsDb": -14.9,
+        "centroid": 432,
+        "f0": 174,
+        "f0p10": 136,
+        "f0p90": 273,
+        "voiced": 0.41
+      }
+    },
+    "pa17": {
+      "offset": 418.89,
+      "duration": 3.774,
+      "speaker": "host",
+      "text": "Reminder: hearing protection is available at the desk.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.494,
+        "peakDb": -4.9,
+        "rmsDb": -17.5,
+        "centroid": 370,
+        "f0": 181,
+        "f0p10": 145,
+        "f0p90": 251,
+        "voiced": 0.64
+      },
+      "out": {
+        "duration": 3.774,
+        "peakDb": -3,
+        "rmsDb": -13.6,
+        "centroid": 412,
+        "f0": 187,
+        "f0p10": 144,
+        "f0p90": 261,
+        "voiced": 0.55
+      }
+    },
+    "pa18": {
+      "offset": 422.744,
+      "duration": 2.906,
+      "speaker": "host",
+      "text": "A pleasant and productive shift to all of you.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 2.626,
+        "peakDb": -3.3,
+        "rmsDb": -17.3,
+        "centroid": 490,
+        "f0": 180,
+        "f0p10": 144,
+        "f0p90": 249,
+        "voiced": 0.6
+      },
+      "out": {
+        "duration": 2.906,
+        "peakDb": -3,
+        "rmsDb": -13.7,
+        "centroid": 543,
+        "f0": 182,
+        "f0p10": 143,
+        "f0p90": 244,
+        "voiced": 0.53
+      }
+    },
+    "pa19": {
+      "offset": 425.73,
+      "duration": 4.602,
+      "speaker": "host",
+      "text": "ATTENTION. Please log all pen counts before you leave.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.322,
+        "peakDb": -4.3,
+        "rmsDb": -18.5,
+        "centroid": 428,
+        "f0": 178,
+        "f0p10": 141,
+        "f0p90": 221,
+        "voiced": 0.51
+      },
+      "out": {
+        "duration": 4.602,
+        "peakDb": -3,
+        "rmsDb": -14.2,
+        "centroid": 485,
+        "f0": 180,
+        "f0p10": 144,
+        "f0p90": 264,
+        "voiced": 0.47
+      }
+    },
+    "pa20": {
+      "offset": 430.412,
+      "duration": 2.852,
+      "speaker": "host",
+      "text": "The company values every single one of you.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 2.572,
+        "peakDb": -3.4,
+        "rmsDb": -15.7,
+        "centroid": 367,
+        "f0": 171,
+        "f0p10": 143,
+        "f0p90": 244,
+        "voiced": 0.81
+      },
+      "out": {
+        "duration": 2.852,
+        "peakDb": -3,
+        "rmsDb": -12.3,
+        "centroid": 403,
+        "f0": 170,
+        "f0p10": 142,
+        "f0p90": 222,
+        "voiced": 0.7
+      }
+    },
+    "pa73": {
+      "offset": 433.344,
+      "duration": 4.726,
+      "speaker": "host",
+      "text": "ATTENTION. Visitors must be accompanied at all times.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.446,
+        "peakDb": -3.7,
+        "rmsDb": -19,
+        "centroid": 415,
+        "f0": 178,
+        "f0p10": 138,
+        "f0p90": 218,
+        "voiced": 0.5
+      },
+      "out": {
+        "duration": 4.726,
+        "peakDb": -3,
+        "rmsDb": -14.6,
+        "centroid": 459,
+        "f0": 180,
+        "f0p10": 144,
+        "f0p90": 242,
+        "voiced": 0.44
+      }
+    },
+    "pa74": {
+      "offset": 438.15,
+      "duration": 3.756,
+      "speaker": "host",
+      "text": "Reminder: the suggestion box is beside the lift.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.476,
+        "peakDb": -3.4,
+        "rmsDb": -17.3,
+        "centroid": 469,
+        "f0": 180,
+        "f0p10": 144,
+        "f0p90": 232,
+        "voiced": 0.59
+      },
+      "out": {
+        "duration": 3.756,
+        "peakDb": -3,
+        "rmsDb": -13.6,
+        "centroid": 508,
+        "f0": 182,
+        "f0p10": 145,
+        "f0p90": 232,
+        "voiced": 0.53
+      }
+    },
+    "pa75": {
+      "offset": 441.986,
+      "duration": 5.874,
+      "speaker": "host",
+      "text": "ATTENTION. Deck four is closed for cleaning. Thank you.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 5.594,
+        "peakDb": -3.7,
+        "rmsDb": -20.2,
+        "centroid": 403,
+        "f0": 176,
+        "f0p10": 137,
+        "f0p90": 218,
+        "voiced": 0.35
+      },
+      "out": {
+        "duration": 5.874,
+        "peakDb": -3,
+        "rmsDb": -16.2,
+        "centroid": 463,
+        "f0": 179,
+        "f0p10": 136,
+        "f0p90": 241,
+        "voiced": 0.32
+      }
+    },
+    "pa21": {
+      "offset": 447.94,
+      "duration": 4.684,
+      "speaker": "host",
+      "text": "ATTENTION. Overtime is mandatory this rotation.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.404,
+        "peakDb": -3.6,
+        "rmsDb": -18.8,
+        "centroid": 405,
+        "f0": 180,
+        "f0p10": 149,
+        "f0p90": 247,
+        "voiced": 0.49
+      },
+      "out": {
+        "duration": 4.684,
+        "peakDb": -3,
+        "rmsDb": -14.9,
+        "centroid": 449,
+        "f0": 181,
+        "f0p10": 149,
+        "f0p90": 257,
+        "voiced": 0.44
+      }
+    },
+    "pa22": {
+      "offset": 452.704,
+      "duration": 3.392,
+      "speaker": "host",
+      "text": "Reminder: absence without a note is deducted.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.112,
+        "peakDb": -4.6,
+        "rmsDb": -17.7,
+        "centroid": 423,
+        "f0": 178,
+        "f0p10": 148,
+        "f0p90": 230,
+        "voiced": 0.67
+      },
+      "out": {
+        "duration": 3.392,
+        "peakDb": -3,
+        "rmsDb": -13.8,
+        "centroid": 481,
+        "f0": 179,
+        "f0p10": 147,
+        "f0p90": 232,
+        "voiced": 0.6
+      }
+    },
+    "pa23": {
+      "offset": 456.176,
+      "duration": 6.708,
+      "speaker": "host",
+      "text": "ATTENTION. Processing quota unmet. Processing quota unmet.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 6.428,
+        "peakDb": -3,
+        "rmsDb": -19.1,
+        "centroid": 469,
+        "f0": 184,
+        "f0p10": 154,
+        "f0p90": 238,
+        "voiced": 0.38
+      },
+      "out": {
+        "duration": 6.708,
+        "peakDb": -3,
+        "rmsDb": -15.3,
+        "centroid": 502,
+        "f0": 184,
+        "f0p10": 154,
+        "f0p90": 238,
+        "voiced": 0.35
+      }
+    },
+    "pa24": {
+      "offset": 462.964,
+      "duration": 4.702,
+      "speaker": "host",
+      "text": "The intercom is for operational use only. Thank you.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.422,
+        "peakDb": -3.1,
+        "rmsDb": -18,
+        "centroid": 390,
+        "f0": 170,
+        "f0p10": 146,
+        "f0p90": 219,
+        "voiced": 0.53
+      },
+      "out": {
+        "duration": 4.702,
+        "peakDb": -3,
+        "rmsDb": -14,
+        "centroid": 444,
+        "f0": 170,
+        "f0p10": 150,
+        "f0p90": 226,
+        "voiced": 0.48
+      }
+    },
+    "pa25": {
+      "offset": 467.746,
+      "duration": 3.804,
+      "speaker": "host",
+      "text": "Reminder: incident reports are due by end of shift.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.524,
+        "peakDb": -3.7,
+        "rmsDb": -16.8,
+        "centroid": 376,
+        "f0": 180,
+        "f0p10": 151,
+        "f0p90": 253,
+        "voiced": 0.61
+      },
+      "out": {
+        "duration": 3.804,
+        "peakDb": -3,
+        "rmsDb": -13.2,
+        "centroid": 430,
+        "f0": 180,
+        "f0p10": 156,
+        "f0p90": 254,
+        "voiced": 0.56
+      }
+    },
+    "pa26": {
+      "offset": 471.63,
+      "duration": 5.076,
+      "speaker": "host",
+      "text": "ATTENTION. Rest breaks are suspended until further notice.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.796,
+        "peakDb": -4,
+        "rmsDb": -19.6,
+        "centroid": 450,
+        "f0": 179,
+        "f0p10": 142,
+        "f0p90": 218,
+        "voiced": 0.44
+      },
+      "out": {
+        "duration": 5.076,
+        "peakDb": -3,
+        "rmsDb": -15.4,
+        "centroid": 494,
+        "f0": 179,
+        "f0p10": 146,
+        "f0p90": 217,
+        "voiced": 0.41
+      }
+    },
+    "pa27": {
+      "offset": 476.786,
+      "duration": 2.748,
+      "speaker": "host",
+      "text": "Personal calls will be logged and charged.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 2.468,
+        "peakDb": -4.8,
+        "rmsDb": -18.5,
+        "centroid": 542,
+        "f0": 173,
+        "f0p10": 153,
+        "f0p90": 205,
+        "voiced": 0.65
+      },
+      "out": {
+        "duration": 2.748,
+        "peakDb": -3,
+        "rmsDb": -14.2,
+        "centroid": 599,
+        "f0": 173,
+        "f0p10": 155,
+        "f0p90": 236,
+        "voiced": 0.57
+      }
+    },
+    "pa28": {
+      "offset": 479.614,
+      "duration": 6.05,
+      "speaker": "host",
+      "text": "ATTENTION. Do not feed the stock by hand. It is noted.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 5.77,
+        "peakDb": -4.2,
+        "rmsDb": -19.2,
+        "centroid": 415,
+        "f0": 180,
+        "f0p10": 145,
+        "f0p90": 225,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 6.05,
+        "peakDb": -3,
+        "rmsDb": -15.5,
+        "centroid": 462,
+        "f0": 180,
+        "f0p10": 144,
+        "f0p90": 225,
+        "voiced": 0.38
+      }
+    },
+    "pa29": {
+      "offset": 485.744,
+      "duration": 5.872,
+      "speaker": "host",
+      "text": "ATTENTION. Deck. Deck. Deck.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 5.592,
+        "peakDb": -5.5,
+        "rmsDb": -23.2,
+        "centroid": 437,
+        "f0": 198,
+        "f0p10": 134,
+        "f0p90": 222,
+        "voiced": 0.16
+      },
+      "out": {
+        "duration": 5.872,
+        "peakDb": -3,
+        "rmsDb": -18.9,
+        "centroid": 543,
+        "f0": 204,
+        "f0p10": 135,
+        "f0p90": 224,
+        "voiced": 0.13
+      }
+    },
+    "pa30": {
+      "offset": 491.696,
+      "duration": 4.36,
+      "speaker": "host",
+      "text": "Reminder: the time is. The time is.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.08,
+        "peakDb": -5,
+        "rmsDb": -18.9,
+        "centroid": 410,
+        "f0": 195,
+        "f0p10": 141,
+        "f0p90": 213,
+        "voiced": 0.47
+      },
+      "out": {
+        "duration": 4.36,
+        "peakDb": -3,
+        "rmsDb": -15.1,
+        "centroid": 459,
+        "f0": 198,
+        "f0p10": 140,
+        "f0p90": 214,
+        "voiced": 0.43
+      }
+    },
+    "pa31": {
+      "offset": 496.136,
+      "duration": 3.718,
+      "speaker": "host",
+      "text": "All personnel report to. Thank you.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.438,
+        "peakDb": -3.9,
+        "rmsDb": -18.5,
+        "centroid": 439,
+        "f0": 172,
+        "f0p10": 136,
+        "f0p90": 223,
+        "voiced": 0.44
+      },
+      "out": {
+        "duration": 3.718,
+        "peakDb": -3,
+        "rmsDb": -14.8,
+        "centroid": 506,
+        "f0": 171,
+        "f0p10": 136,
+        "f0p90": 231,
+        "voiced": 0.4
+      }
+    },
+    "pa32": {
+      "offset": 499.934,
+      "duration": 7.554,
+      "speaker": "host",
+      "text": "ATTENTION. Feed cycle complete. Feed cycle. Feed.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 7.274,
+        "peakDb": -4.5,
+        "rmsDb": -20.8,
+        "centroid": 414,
+        "f0": 179,
+        "f0p10": 139,
+        "f0p90": 238,
+        "voiced": 0.3
+      },
+      "out": {
+        "duration": 7.554,
+        "peakDb": -3,
+        "rmsDb": -17,
+        "centroid": 446,
+        "f0": 180,
+        "f0p10": 144,
+        "f0p90": 238,
+        "voiced": 0.26
+      }
+    },
+    "pa33": {
+      "offset": 507.568,
+      "duration": 3.558,
+      "speaker": "host",
+      "text": "Your safety is our. Priority.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.278,
+        "peakDb": -3.1,
+        "rmsDb": -18,
+        "centroid": 469,
+        "f0": 180,
+        "f0p10": 144,
+        "f0p90": 222,
+        "voiced": 0.45
+      },
+      "out": {
+        "duration": 3.558,
+        "peakDb": -3,
+        "rmsDb": -14.5,
+        "centroid": 503,
+        "f0": 183,
+        "f0p10": 145,
+        "f0p90": 224,
+        "voiced": 0.39
+      }
+    },
+    "pa34": {
+      "offset": 511.206,
+      "duration": 4.72,
+      "speaker": "host",
+      "text": "Hand contact with stock is permitted. Is not permitted.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 4.44,
+        "peakDb": -4.7,
+        "rmsDb": -18.6,
+        "centroid": 414,
+        "f0": 193,
+        "f0p10": 150,
+        "f0p90": 251,
+        "voiced": 0.48
+      },
+      "out": {
+        "duration": 4.72,
+        "peakDb": -3,
+        "rmsDb": -14.5,
+        "centroid": 467,
+        "f0": 192,
+        "f0p10": 149,
+        "f0p90": 249,
+        "voiced": 0.43
+      }
+    },
+    "pa35": {
+      "offset": 516.006,
+      "duration": 4.16,
+      "speaker": "host",
+      "text": "ATTENTION. Muster point is where you are standing.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.88,
+        "peakDb": -3.4,
+        "rmsDb": -18.9,
+        "centroid": 424,
+        "f0": 178,
+        "f0p10": 150,
+        "f0p90": 222,
+        "voiced": 0.47
+      },
+      "out": {
+        "duration": 4.16,
+        "peakDb": -3,
+        "rmsDb": -15,
+        "centroid": 458,
+        "f0": 187,
+        "f0p10": 154,
+        "f0p90": 258,
+        "voiced": 0.41
+      }
+    },
+    "pa36": {
+      "offset": 520.246,
+      "duration": 3.878,
+      "speaker": "host",
+      "text": "Please remain where you are. Please remain.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.598,
+        "peakDb": -3.8,
+        "rmsDb": -16.7,
+        "centroid": 325,
+        "f0": 172,
+        "f0p10": 143,
+        "f0p90": 254,
+        "voiced": 0.53
+      },
+      "out": {
+        "duration": 3.878,
+        "peakDb": -3,
+        "rmsDb": -12.8,
+        "centroid": 355,
+        "f0": 176,
+        "f0p10": 145,
+        "f0p90": 261,
+        "voiced": 0.48
+      }
+    },
+    "pa37": {
+      "offset": 524.204,
+      "duration": 4.198,
+      "speaker": "host",
+      "text": "This has been a recorded announcement. This has been.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 3.918,
+        "peakDb": -3.9,
+        "rmsDb": -19.2,
+        "centroid": 430,
+        "f0": 183,
+        "f0p10": 156,
+        "f0p90": 238,
+        "voiced": 0.48
+      },
+      "out": {
+        "duration": 4.198,
+        "peakDb": -3,
+        "rmsDb": -15.1,
+        "centroid": 427,
+        "f0": 183,
+        "f0p10": 156,
+        "f0p90": 245,
+        "voiced": 0.44
+      }
+    },
+    "pa38": {
+      "offset": 528.482,
+      "duration": 5.926,
+      "speaker": "host",
+      "text": "Good morning, Hesper-4. Good morning. Good morning.",
+      "renderer": "edge-tts",
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-6Hz",
+      "rate": "-15%",
+      "chain": "tannoy",
+      "raw": {
+        "duration": 5.646,
+        "peakDb": -3,
+        "rmsDb": -19.1,
+        "centroid": 368,
+        "f0": 183,
+        "f0p10": 133,
+        "f0p90": 234,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 5.926,
+        "peakDb": -3,
+        "rmsDb": -15.2,
+        "centroid": 411,
+        "f0": 183,
+        "f0p10": 133,
+        "f0p90": 249,
+        "voiced": 0.37
+      }
+    },
+    "pa39": {
+      "offset": 534.488,
+      "duration": 4.186,
+      "speaker": "emergency",
+      "text": "Pressure seal fault, deck two. Clear the corridor.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 3.786,
+        "peakDb": -2.5,
+        "rmsDb": -20,
+        "centroid": 792,
+        "f0": 130,
+        "f0p10": 74,
+        "f0p90": 145,
+        "voiced": 0.25
+      },
+      "out": {
+        "duration": 4.186,
+        "peakDb": -3,
+        "rmsDb": -14.6,
+        "centroid": 845,
+        "f0": 140,
+        "f0p10": 80,
+        "f0p90": 262,
+        "voiced": 0.18
+      }
+    },
+    "pa40": {
+      "offset": 538.754,
+      "duration": 3.72,
+      "speaker": "emergency",
+      "text": "Coolant leak, sub-level. Clear the corridor.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 3.32,
+        "peakDb": -3.2,
+        "rmsDb": -20,
+        "centroid": 499,
+        "f0": 122,
+        "f0p10": 101,
+        "f0p90": 149,
+        "voiced": 0.27
+      },
+      "out": {
+        "duration": 3.72,
+        "peakDb": -3,
+        "rmsDb": -14.7,
+        "centroid": 567,
+        "f0": 139,
+        "f0p10": 105,
+        "f0p90": 232,
+        "voiced": 0.2
+      }
+    },
+    "pa41": {
+      "offset": 542.554,
+      "duration": 3.778,
+      "speaker": "emergency",
+      "text": "Stand clear of the pens. Stand clear.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 3.378,
+        "peakDb": -2.8,
+        "rmsDb": -20.1,
+        "centroid": 1018,
+        "f0": 126,
+        "f0p10": 73,
+        "f0p90": 138,
+        "voiced": 0.3
+      },
+      "out": {
+        "duration": 3.778,
+        "peakDb": -3,
+        "rmsDb": -15,
+        "centroid": 978,
+        "f0": 130,
+        "f0p10": 75,
+        "f0p90": 141,
+        "voiced": 0.24
+      }
+    },
+    "pa42": {
+      "offset": 546.412,
+      "duration": 4.28,
+      "speaker": "emergency",
+      "text": "Fire team to processing. Fire team to processing.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 3.88,
+        "peakDb": -3.1,
+        "rmsDb": -20.9,
+        "centroid": 910,
+        "f0": 132,
+        "f0p10": 73,
+        "f0p90": 139,
+        "voiced": 0.31
+      },
+      "out": {
+        "duration": 4.28,
+        "peakDb": -3,
+        "rmsDb": -15.1,
+        "centroid": 984,
+        "f0": 136,
+        "f0p10": 114,
+        "f0p90": 140,
+        "voiced": 0.24
+      }
+    },
+    "pa43": {
+      "offset": 550.772,
+      "duration": 3.76,
+      "speaker": "emergency",
+      "text": "Lockdown, section four. Lockdown.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 3.36,
+        "peakDb": -2.1,
+        "rmsDb": -21.4,
+        "centroid": 801,
+        "f0": 110,
+        "f0p10": 78,
+        "f0p90": 138,
+        "voiced": 0.28
+      },
+      "out": {
+        "duration": 3.76,
+        "peakDb": -3,
+        "rmsDb": -15.8,
+        "centroid": 882,
+        "f0": 128,
+        "f0p10": 81,
+        "f0p90": 212,
+        "voiced": 0.14
+      }
+    },
+    "pa44": {
+      "offset": 554.612,
+      "duration": 4.312,
+      "speaker": "emergency",
+      "text": "Containment fault, processing. This is not a drill.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 3.912,
+        "peakDb": -2.4,
+        "rmsDb": -19.9,
+        "centroid": 887,
+        "f0": 121,
+        "f0p10": 110,
+        "f0p90": 152,
+        "voiced": 0.26
+      },
+      "out": {
+        "duration": 4.312,
+        "peakDb": -3,
+        "rmsDb": -14.6,
+        "centroid": 920,
+        "f0": 140,
+        "f0p10": 115,
+        "f0p90": 221,
+        "voiced": 0.21
+      }
+    },
+    "pa45": {
+      "offset": 559.004,
+      "duration": 3.068,
+      "speaker": "emergency",
+      "text": "Seal the deck. Seal the deck.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 2.668,
+        "peakDb": -2.7,
+        "rmsDb": -19.8,
+        "centroid": 1263,
+        "f0": 133,
+        "f0p10": 114,
+        "f0p90": 147,
+        "voiced": 0.2
+      },
+      "out": {
+        "duration": 3.068,
+        "peakDb": -3,
+        "rmsDb": -14.7,
+        "centroid": 1131,
+        "f0": 146,
+        "f0p10": 117,
+        "f0p90": 294,
+        "voiced": 0.18
+      }
+    },
+    "pa46": {
+      "offset": 562.152,
+      "duration": 3.972,
+      "speaker": "emergency",
+      "text": "Do not use the lifts. Do not use the lifts.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 3.572,
+        "peakDb": -4.5,
+        "rmsDb": -19.8,
+        "centroid": 551,
+        "f0": 129,
+        "f0p10": 103,
+        "f0p90": 153,
+        "voiced": 0.34
+      },
+      "out": {
+        "duration": 3.972,
+        "peakDb": -3,
+        "rmsDb": -14.2,
+        "centroid": 615,
+        "f0": 150,
+        "f0p10": 103,
+        "f0p90": 262,
+        "voiced": 0.3
+      }
+    },
+    "pa47": {
+      "offset": 566.204,
+      "duration": 3.784,
+      "speaker": "emergency",
+      "text": "Muster is cancelled. Return to your stations.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 3.384,
+        "peakDb": -2,
+        "rmsDb": -20.1,
+        "centroid": 1304,
+        "f0": 117,
+        "f0p10": 77,
+        "f0p90": 154,
+        "voiced": 0.31
+      },
+      "out": {
+        "duration": 3.784,
+        "peakDb": -3,
+        "rmsDb": -15,
+        "centroid": 1258,
+        "f0": 118,
+        "f0p10": 78,
+        "f0p90": 156,
+        "voiced": 0.24
+      }
+    },
+    "pa48": {
+      "offset": 570.068,
+      "duration": 4.354,
+      "speaker": "emergency",
+      "text": "All decks. All decks. Lockdown.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 3.954,
+        "peakDb": -2.5,
+        "rmsDb": -21.8,
+        "centroid": 831,
+        "f0": 128,
+        "f0p10": 77,
+        "f0p90": 145,
+        "voiced": 0.2
+      },
+      "out": {
+        "duration": 4.354,
+        "peakDb": -3,
+        "rmsDb": -15.9,
+        "centroid": 891,
+        "f0": 140,
+        "f0p10": 117,
+        "f0p90": 147,
+        "voiced": 0.09
+      }
+    },
+    "pa49": {
+      "offset": 574.502,
+      "duration": 1.872,
+      "speaker": "emergency",
+      "text": "Do not open the cold store.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 1.472,
+        "peakDb": -3.3,
+        "rmsDb": -18.7,
+        "centroid": 1099,
+        "f0": 127,
+        "f0p10": 102,
+        "f0p90": 154,
+        "voiced": 0.43
+      },
+      "out": {
+        "duration": 1.872,
+        "peakDb": -3,
+        "rmsDb": -13.6,
+        "centroid": 874,
+        "f0": 133,
+        "f0p10": 114,
+        "f0p90": 247,
+        "voiced": 0.3
+      }
+    },
+    "pa50": {
+      "offset": 576.454,
+      "duration": 2.396,
+      "speaker": "emergency",
+      "text": "Power to deck lighting has been withdrawn.",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "raw": {
+        "duration": 1.996,
+        "peakDb": -3.6,
+        "rmsDb": -19.4,
+        "centroid": 443,
+        "f0": 114,
+        "f0p10": 94,
+        "f0p90": 156,
+        "voiced": 0.54
+      },
+      "out": {
+        "duration": 2.396,
+        "peakDb": -3,
+        "rmsDb": -13.8,
+        "centroid": 571,
+        "f0": 124,
+        "f0p10": 92,
+        "f0p90": 225,
+        "voiced": 0.41
+      }
+    },
+    "pa51": {
+      "offset": 578.93,
+      "duration": 5.176,
+      "speaker": "emergency",
+      "text": "This is not a drill. This is not a drill. This is not",
+      "renderer": "edge-tts",
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": "+4%",
+      "chain": "alarm",
+      "fx": "cut",
+      "raw": {
+        "duration": 4.776,
+        "peakDb": -2.5,
+        "rmsDb": -19.4,
+        "centroid": 885,
+        "f0": 117,
+        "f0p10": 110,
+        "f0p90": 150,
+        "voiced": 0.27
+      },
+      "out": {
+        "duration": 5.176,
+        "peakDb": -3,
+        "rmsDb": -14.2,
+        "centroid": 913,
+        "f0": 133,
+        "f0p10": 111,
+        "f0p90": 221,
+        "voiced": 0.24
+      }
+    },
+    "pa52": {
+      "offset": 584.186,
+      "duration": 5.01,
+      "speaker": "survivor",
+      "text": "Hello? Is this thing - hello? Is anyone on this channel?",
+      "renderer": "edge-tts",
+      "voice": "en-US-GuyNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 4.65,
+        "peakDb": -4.1,
+        "rmsDb": -21.3,
+        "centroid": 666,
+        "f0": 179,
+        "f0p10": 133,
+        "f0p90": 229,
+        "voiced": 0.38
+      },
+      "out": {
+        "duration": 5.01,
+        "peakDb": -3,
+        "rmsDb": -14.4,
+        "centroid": 699,
+        "f0": 202,
+        "f0p10": 133,
+        "f0p90": 300,
+        "voiced": 0.35
+      }
+    },
+    "pa53": {
+      "offset": 589.276,
+      "duration": 6.066,
+      "speaker": "survivor",
+      "text": "We're in the cold store. Deck six. Please. Somebody.",
+      "renderer": "edge-tts",
+      "voice": "en-US-GuyNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 5.706,
+        "peakDb": -1.5,
+        "rmsDb": -21.9,
+        "centroid": 817,
+        "f0": 172,
+        "f0p10": 96,
+        "f0p90": 222,
+        "voiced": 0.22
+      },
+      "out": {
+        "duration": 6.066,
+        "peakDb": -3,
+        "rmsDb": -15.4,
+        "centroid": 811,
+        "f0": 198,
+        "f0p10": 127,
+        "f0p90": 302,
+        "voiced": 0.17
+      }
+    },
+    "pa54": {
+      "offset": 595.422,
+      "duration": 2.956,
+      "speaker": "survivor",
+      "text": "Don't open it. Don't open it. DON'T -",
+      "renderer": "edge-tts",
+      "voice": "en-US-EmmaNeural",
+      "pitch": "+6Hz",
+      "rate": "+12%",
+      "chain": "radio",
+      "fx": "bang",
+      "raw": {
+        "duration": 2.596,
+        "peakDb": -4.2,
+        "rmsDb": -17.9,
+        "centroid": 402,
+        "f0": 281,
+        "f0p10": 119,
+        "f0p90": 316,
+        "voiced": 0.42
+      },
+      "out": {
+        "duration": 2.956,
+        "peakDb": -3,
+        "rmsDb": -12.8,
+        "centroid": 452,
+        "f0": 291,
+        "f0p10": 119,
+        "f0p90": 314,
+        "voiced": 0.34
+      }
+    },
+    "pa55": {
+      "offset": 598.458,
+      "duration": 3.186,
+      "speaker": "survivor",
+      "text": "It's in the vent. It's in the vent, Marcus, it's -",
+      "renderer": "edge-tts",
+      "voice": "en-US-EmmaNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.826,
+        "peakDb": -3.9,
+        "rmsDb": -16.9,
+        "centroid": 478,
+        "f0": 230,
+        "f0p10": 125,
+        "f0p90": 287,
+        "voiced": 0.51
+      },
+      "out": {
+        "duration": 3.186,
+        "peakDb": -3,
+        "rmsDb": -12,
+        "centroid": 482,
+        "f0": 236,
+        "f0p10": 128,
+        "f0p90": 286,
+        "voiced": 0.43
+      }
+    },
+    "pa56": {
+      "offset": 601.724,
+      "duration": 2.008,
+      "speaker": "survivor",
+      "text": "Get the door. GET THE DOOR!",
+      "renderer": "edge-tts",
+      "voice": "en-US-AvaNeural",
+      "pitch": "+6Hz",
+      "rate": "+12%",
+      "chain": "radio",
+      "fx": "bang",
+      "raw": {
+        "duration": 1.648,
+        "peakDb": -5.5,
+        "rmsDb": -20.5,
+        "centroid": 674,
+        "f0": 221,
+        "f0p10": 173,
+        "f0p90": 268,
+        "voiced": 0.45
+      },
+      "out": {
+        "duration": 2.008,
+        "peakDb": -3,
+        "rmsDb": -14.2,
+        "centroid": 709,
+        "f0": 224,
+        "f0p10": 163,
+        "f0p90": 268,
+        "voiced": 0.38
+      }
+    },
+    "pa57": {
+      "offset": 603.812,
+      "duration": 3.196,
+      "speaker": "survivor",
+      "text": "Is this going anywhere? Is anybody - okay. Okay.",
+      "renderer": "edge-tts",
+      "voice": "en-US-AndrewNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.836,
+        "peakDb": -3.5,
+        "rmsDb": -19.3,
+        "centroid": 481,
+        "f0": 120,
+        "f0p10": 80,
+        "f0p90": 166,
+        "voiced": 0.34
+      },
+      "out": {
+        "duration": 3.196,
+        "peakDb": -3,
+        "rmsDb": -14.6,
+        "centroid": 627,
+        "f0": 110,
+        "f0p10": 81,
+        "f0p90": 165,
+        "voiced": 0.22
+      }
+    },
+    "pa58": {
+      "offset": 607.088,
+      "duration": 2.516,
+      "speaker": "survivor",
+      "text": "Tell Marion I - tell her I tried the lift.",
+      "renderer": "edge-tts",
+      "voice": "en-US-GuyNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.156,
+        "peakDb": -3.9,
+        "rmsDb": -18.4,
+        "centroid": 670,
+        "f0": 155,
+        "f0p10": 133,
+        "f0p90": 214,
+        "voiced": 0.69
+      },
+      "out": {
+        "duration": 2.516,
+        "peakDb": -3,
+        "rmsDb": -12.6,
+        "centroid": 733,
+        "f0": 166,
+        "f0p10": 133,
+        "f0p90": 246,
+        "voiced": 0.53
+      }
+    },
+    "pa59": {
+      "offset": 609.684,
+      "duration": 3.014,
+      "speaker": "survivor",
+      "text": "Stop banging. Stop banging, they can hear it.",
+      "renderer": "edge-tts",
+      "voice": "en-US-EmmaNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.654,
+        "peakDb": -3.5,
+        "rmsDb": -17.9,
+        "centroid": 432,
+        "f0": 160,
+        "f0p10": 125,
+        "f0p90": 276,
+        "voiced": 0.51
+      },
+      "out": {
+        "duration": 3.014,
+        "peakDb": -3,
+        "rmsDb": -13.1,
+        "centroid": 545,
+        "f0": 163,
+        "f0p10": 122,
+        "f0p90": 282,
+        "voiced": 0.39
+      }
+    },
+    "pa60": {
+      "offset": 612.778,
+      "duration": 3.638,
+      "speaker": "survivor",
+      "text": "We counted eleven. We counted eleven and then we stopped.",
+      "renderer": "edge-tts",
+      "voice": "en-US-AvaNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 3.278,
+        "peakDb": -4.5,
+        "rmsDb": -20.9,
+        "centroid": 665,
+        "f0": 194,
+        "f0p10": 164,
+        "f0p90": 267,
+        "voiced": 0.68
+      },
+      "out": {
+        "duration": 3.638,
+        "peakDb": -3,
+        "rmsDb": -14,
+        "centroid": 719,
+        "f0": 194,
+        "f0p10": 165,
+        "f0p90": 271,
+        "voiced": 0.56
+      }
+    },
+    "pa61": {
+      "offset": 616.496,
+      "duration": 3.428,
+      "speaker": "survivor",
+      "text": "Please. Please. I've got a kid on Luna.",
+      "renderer": "edge-tts",
+      "voice": "en-US-AvaNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 3.068,
+        "peakDb": -4,
+        "rmsDb": -21,
+        "centroid": 760,
+        "f0": 227,
+        "f0p10": 161,
+        "f0p90": 308,
+        "voiced": 0.45
+      },
+      "out": {
+        "duration": 3.428,
+        "peakDb": -3,
+        "rmsDb": -14.5,
+        "centroid": 740,
+        "f0": 221,
+        "f0p10": 161,
+        "f0p90": 310,
+        "voiced": 0.38
+      }
+    },
+    "pa62": {
+      "offset": 620.004,
+      "duration": 2.884,
+      "speaker": "survivor",
+      "text": "Doyle. Doyle, if that's you, open the hatch!",
+      "renderer": "edge-tts",
+      "voice": "en-US-AndrewNeural",
+      "pitch": "+6Hz",
+      "rate": "+12%",
+      "chain": "radio",
+      "fx": "bang",
+      "raw": {
+        "duration": 2.524,
+        "peakDb": -3.7,
+        "rmsDb": -20.6,
+        "centroid": 527,
+        "f0": 175,
+        "f0p10": 119,
+        "f0p90": 194,
+        "voiced": 0.21
+      },
+      "out": {
+        "duration": 2.884,
+        "peakDb": -3,
+        "rmsDb": -14.7,
+        "centroid": 665,
+        "f0": 163,
+        "f0p10": 125,
+        "f0p90": 195,
+        "voiced": 0.23
+      }
+    },
+    "pa63": {
+      "offset": 622.968,
+      "duration": 3.354,
+      "speaker": "survivor",
+      "text": "Whoever's got the pass card. Whoever's got it. Please.",
+      "renderer": "edge-tts",
+      "voice": "en-US-AndrewNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.994,
+        "peakDb": -4.3,
+        "rmsDb": -19.9,
+        "centroid": 549,
+        "f0": 152,
+        "f0p10": 108,
+        "f0p90": 171,
+        "voiced": 0.19
+      },
+      "out": {
+        "duration": 3.354,
+        "peakDb": -3,
+        "rmsDb": -14.5,
+        "centroid": 672,
+        "f0": 158,
+        "f0p10": 140,
+        "f0p90": 185,
+        "voiced": 0.13
+      }
+    },
+    "pa64": {
+      "offset": 626.402,
+      "duration": 3.426,
+      "speaker": "survivor",
+      "text": "They're quiet now. Why are they quiet now.",
+      "renderer": "edge-tts",
+      "voice": "en-US-GuyNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 3.066,
+        "peakDb": -3.9,
+        "rmsDb": -21.2,
+        "centroid": 761,
+        "f0": 159,
+        "f0p10": 106,
+        "f0p90": 206,
+        "voiced": 0.38
+      },
+      "out": {
+        "duration": 3.426,
+        "peakDb": -3,
+        "rmsDb": -14.6,
+        "centroid": 767,
+        "f0": 162,
+        "f0p10": 111,
+        "f0p90": 293,
+        "voiced": 0.3
+      }
+    },
+    "pa65": {
+      "offset": 629.908,
+      "duration": 2.408,
+      "speaker": "survivor",
+      "text": "The lights keep - something's chewing the cable.",
+      "renderer": "edge-tts",
+      "voice": "en-US-EmmaNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.048,
+        "peakDb": -5,
+        "rmsDb": -18.4,
+        "centroid": 529,
+        "f0": 179,
+        "f0p10": 133,
+        "f0p90": 246,
+        "voiced": 0.52
+      },
+      "out": {
+        "duration": 2.408,
+        "peakDb": -3,
+        "rmsDb": -13.2,
+        "centroid": 542,
+        "f0": 182,
+        "f0p10": 134,
+        "f0p90": 254,
+        "voiced": 0.4
+      }
+    },
+    "pa66": {
+      "offset": 632.396,
+      "duration": 4.674,
+      "speaker": "survivor",
+      "text": "Hello? Hello? Hello? Hel-",
+      "renderer": "edge-tts",
+      "voice": "en-US-GuyNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "fx": "cut",
+      "raw": {
+        "duration": 4.374,
+        "peakDb": -2.2,
+        "rmsDb": -22.9,
+        "centroid": 776,
+        "f0": 141,
+        "f0p10": 122,
+        "f0p90": 229,
+        "voiced": 0.18
+      },
+      "out": {
+        "duration": 4.674,
+        "peakDb": -3,
+        "rmsDb": -16,
+        "centroid": 958,
+        "f0": 141,
+        "f0p10": 122,
+        "f0p90": 229,
+        "voiced": 0.14
+      }
+    },
+    "pa67": {
+      "offset": 637.15,
+      "duration": 2.738,
+      "speaker": "survivor",
+      "text": "Just static. It's just static now.",
+      "renderer": "edge-tts",
+      "voice": "en-US-AvaNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.378,
+        "peakDb": -3.7,
+        "rmsDb": -20.5,
+        "centroid": 795,
+        "f0": 206,
+        "f0p10": 170,
+        "f0p90": 259,
+        "voiced": 0.45
+      },
+      "out": {
+        "duration": 2.738,
+        "peakDb": -3,
+        "rmsDb": -14.1,
+        "centroid": 833,
+        "f0": 208,
+        "f0p10": 170,
+        "f0p90": 261,
+        "voiced": 0.39
+      }
+    },
+    "pa68": {
+      "offset": 639.968,
+      "duration": 3.168,
+      "speaker": "survivor",
+      "text": "If you can hear this, don't come down. Don't come down.",
+      "renderer": "edge-tts",
+      "voice": "en-US-AndrewNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.808,
+        "peakDb": -3.7,
+        "rmsDb": -19.3,
+        "centroid": 386,
+        "f0": 140,
+        "f0p10": 96,
+        "f0p90": 183,
+        "voiced": 0.32
+      },
+      "out": {
+        "duration": 3.168,
+        "peakDb": -3,
+        "rmsDb": -15.2,
+        "centroid": 604,
+        "f0": 148,
+        "f0p10": 98,
+        "f0p90": 190,
+        "voiced": 0.18
+      }
+    },
+    "pa69": {
+      "offset": 643.216,
+      "duration": 4.556,
+      "speaker": "survivor",
+      "text": "I can see the lift. I can see it. I can't -",
+      "renderer": "edge-tts",
+      "voice": "en-US-GuyNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 4.196,
+        "peakDb": -3.2,
+        "rmsDb": -22.4,
+        "centroid": 953,
+        "f0": 176,
+        "f0p10": 153,
+        "f0p90": 218,
+        "voiced": 0.22
+      },
+      "out": {
+        "duration": 4.556,
+        "peakDb": -3,
+        "rmsDb": -15.7,
+        "centroid": 904,
+        "f0": 179,
+        "f0p10": 157,
+        "f0p90": 302,
+        "voiced": 0.21
+      }
+    },
+    "pa70": {
+      "offset": 647.852,
+      "duration": 3.086,
+      "speaker": "survivor",
+      "text": "Marcus? Marcus. Say something.",
+      "renderer": "edge-tts",
+      "voice": "en-US-EmmaNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.726,
+        "peakDb": -3.7,
+        "rmsDb": -18.9,
+        "centroid": 546,
+        "f0": 184,
+        "f0p10": 109,
+        "f0p90": 308,
+        "voiced": 0.33
+      },
+      "out": {
+        "duration": 3.086,
+        "peakDb": -3,
+        "rmsDb": -14.4,
+        "centroid": 608,
+        "f0": 205,
+        "f0p10": 107,
+        "f0p90": 312,
+        "voiced": 0.22
+      }
+    },
+    "pa71": {
+      "offset": 651.018,
+      "duration": 2.874,
+      "speaker": "survivor",
+      "text": "Three of us. Two. Two of us.",
+      "renderer": "edge-tts",
+      "voice": "en-US-AvaNeural",
+      "pitch": "+0Hz",
+      "rate": "+6%",
+      "chain": "radio",
+      "raw": {
+        "duration": 2.514,
+        "peakDb": -4.7,
+        "rmsDb": -20.8,
+        "centroid": 643,
+        "f0": 210,
+        "f0p10": 164,
+        "f0p90": 251,
+        "voiced": 0.4
+      },
+      "out": {
+        "duration": 2.874,
+        "peakDb": -3,
+        "rmsDb": -14,
+        "centroid": 656,
+        "f0": 210,
+        "f0p10": 167,
+        "f0p90": 224,
+        "voiced": 0.31
+      }
+    },
+    "pa72": {
+      "offset": 653.972,
+      "duration": 2.582,
+      "speaker": "survivor",
+      "text": "OPEN UP! Open up, open up, open -",
+      "renderer": "edge-tts",
+      "voice": "en-US-AndrewNeural",
+      "pitch": "+6Hz",
+      "rate": "+12%",
+      "chain": "radio",
+      "fx": "bang",
+      "raw": {
+        "duration": 2.222,
+        "peakDb": -3.2,
+        "rmsDb": -18.7,
+        "centroid": 443,
+        "f0": 149,
+        "f0p10": 109,
+        "f0p90": 188,
+        "voiced": 0.2
+      },
+      "out": {
+        "duration": 2.582,
+        "peakDb": -3,
+        "rmsDb": -14.1,
+        "centroid": 567,
+        "f0": 151,
+        "f0p10": 98,
+        "f0p90": 192,
+        "voiced": 0.16
+      }
     }
   }
 }

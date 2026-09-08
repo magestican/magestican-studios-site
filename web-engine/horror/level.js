@@ -66,6 +66,18 @@ function rng(seed) {
   };
 }
 
+
+
+
+
+
+
+
+
+
+
+export const seededRng = rng;
+
 const lerp = (a, b, t) => a + (b - a) * t;
 
 
@@ -126,43 +138,99 @@ export function buildLevel(seed = 1, opt = {}) {
   
   
   
-  const BAY = { w: 3.0, d: 3.4 };
-  const arrivalSide = r() < 0.5 ? 1 : -1;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const BAY = { w: 3.0, d: 3.4, car: 3.1 };
+  
+  
+  
+  
+  
+  r();
+  const head = runs[0];
+  
+  
+  
+  
+  
+  
+  const mouthZ = head.z0 - cfg.width / 2;
   const bays = [
     {
       kind: 'arrival',
-      
-      x0: arrivalSide > 0 ? runs[0].x0 + cfg.width / 2 : runs[0].x0 - cfg.width / 2 - BAY.d,
-      x1: arrivalSide > 0 ? runs[0].x0 + cfg.width / 2 + BAY.d : runs[0].x0 - cfg.width / 2,
-      z0: 16 - BAY.w / 2,
-      z1: 16 + BAY.w / 2,
-      side: arrivalSide,
+      x0: head.x0 - BAY.w / 2,
+      x1: head.x0 + BAY.w / 2,
+      z0: mouthZ - BAY.d,
+      z1: mouthZ,
       
       
-      car: {
-        x: runs[0].x0 + arrivalSide * (cfg.width / 2 + BAY.d / 2),
-        z: 16,
-        face: { x: -arrivalSide, z: 0 },
-      },
+      side: 0,
+      
+      
+      
+      
+      car: { x: head.x0, z: mouthZ - BAY.d + BAY.car / 2, face: { x: 0, z: 1 } },
     },
     {
       kind: 'departure',
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       x0: x - BAY.w / 2,
       x1: x + BAY.w / 2,
-      z0: z,
-      z1: z + BAY.d,
+      z0: z + cfg.width / 2,
+      z1: z + cfg.width / 2 + BAY.d,
       side: 0,
-      car: { x, z: z + BAY.d / 2, face: { x: 0, z: -1 } },
+      car: { x, z: z + cfg.width / 2 + BAY.d - BAY.car / 2, face: { x: 0, z: -1 } },
     },
   ];
   
   
-  const exit = { x, z: z - 0.4 };
+  const exit = { x, z: z + cfg.width / 2 - 0.5 };
   
   
   
   
-  const start = { x: runs[0].x0, z: 16 };
+  
+  
+  
+  
+  
+  const start = { x: head.x0, z: mouthZ + 1.5 };
 
   
   
@@ -287,9 +355,21 @@ export function insideLevel(level, x, z, pad = 0.4) {
   
   
   
+  
+  
+  
   if (level.bays) {
     for (const b of level.bays) {
-      if (inRect(b, x, z, Math.min(pad, 0.3))) return true;
+      if (inRect(b, x, z, pad)) return true;
+      
+      
+      
+      
+      
+      
+      
+      
+      
       
       
       
@@ -307,10 +387,29 @@ export function insideLevel(level, x, z, pad = 0.4) {
       
       const f = b.car.face;
       const R = BAY_MOUTH.reach + 1.2;
-      const mouth = f.x !== 0
-        ? { x0: b.car.x - R, x1: b.car.x + R, z0: b.z0 + 0.2, z1: b.z1 - 0.2 }
-        : { x0: b.x0 + 0.2, x1: b.x1 - 0.2, z0: b.car.z - R, z1: b.car.z + R };
-      if (inRect(mouth, x, z, Math.min(pad, 0.25))) return true;
+      const ox = b.car.x + f.x * R; const oz = b.car.z + f.z * R;
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const p = Math.min(pad, 0.25);
+      const bridged = f.x !== 0
+        ? (x >= Math.min(b.car.x, ox) + p && x <= Math.max(b.car.x, ox) - p
+          && z >= b.z0 + pad && z <= b.z1 - pad)
+        : (z >= Math.min(b.car.z, oz) + p && z <= Math.max(b.car.z, oz) - p
+          && x >= b.x0 + pad && x <= b.x1 - pad);
+      if (bridged) return true;
     }
   }
   for (const m of level.rooms) {
@@ -338,6 +437,9 @@ export function insideLevel(level, x, z, pad = 0.4) {
 const NO_PROPS = Object.freeze([]);
 
 
+export const PROP_SLACK = 1e-4;
+
+
 
 
 
@@ -358,6 +460,10 @@ const NO_PROPS = Object.freeze([]);
 export function clearOfProps(obstacles, x, z) {
   for (let i = 0; i < obstacles.length; i += 1) {
     const o = obstacles[i];
+    if (o.halfLen !== undefined) {
+      if (rectDistance(o, x, z) < o.r) return false;
+      continue;
+    }
     const dx = x - o.x; const dz = z - o.z;
     if (dx * dx + dz * dz < o.r * o.r) return false;
   }
@@ -371,19 +477,109 @@ export function clearOfProps(obstacles, x, z) {
 
 
 
-export function pushOutOfProps(obstacles, x, z) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function rectDistance(o, x, z) {
+  const dx = x - o.x; const dz = z - o.z;
+  const a = dx * o.ax + dz * o.az;
+  const f = dx * o.fx + dz * o.fz;
+  const qa = Math.max(0, Math.abs(a) - o.halfLen);
+  const qf = Math.max(0, Math.abs(f) - o.halfThick);
+  return Math.hypot(qa, qf);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function nearestOnRect(o, x, z) {
+  const dx = x - o.x; const dz = z - o.z;
+  const a = Math.max(-o.halfLen, Math.min(dx * o.ax + dz * o.az, o.halfLen));
+  const f = Math.max(-o.halfThick, Math.min(dx * o.fx + dz * o.fz, o.halfThick));
+  return { x: o.x + o.ax * a + o.fx * f, z: o.z + o.az * a + o.fz * f };
+}
+
+
+export function firstBlocking(obstacles, x, z) {
+  for (let i = 0; i < obstacles.length; i += 1) {
+    const o = obstacles[i];
+    if (o.halfLen !== undefined) {
+      if (rectDistance(o, x, z) < o.r) return o;
+      continue;
+    }
+    const dx = x - o.x; const dz = z - o.z;
+    if (dx * dx + dz * dz < o.r * o.r) return o;
+  }
+  return null;
+}
+
+export function pushOutOfProps(obstacles, x, z, slack = 0) {
+  
+  
+  
+  
+  
+  
+  
+  
   let px = x; let pz = z;
   for (let i = 0; i < obstacles.length; i += 1) {
     const o = obstacles[i];
+    if (o.halfLen !== undefined) {
+      
+      
+      
+      
+      
+      const d = rectDistance(o, px, pz);
+      if (d >= o.r) continue;
+      const dx = px - o.x; const dz = pz - o.z;
+      const a = dx * o.ax + dz * o.az;
+      const f = dx * o.fx + dz * o.fz;
+      if (d < 1e-6) {
+        const s = f >= 0 ? 1 : -1;
+        px = o.x + a * o.ax + s * (o.halfThick + o.r) * o.fx;
+        pz = o.z + a * o.az + s * (o.halfThick + o.r) * o.fz;
+        continue;
+      }
+      
+      
+      const ca = Math.max(-o.halfLen, Math.min(o.halfLen, a));
+      const cf = Math.max(-o.halfThick, Math.min(o.halfThick, f));
+      const sx = o.x + ca * o.ax + cf * o.fx; const sz = o.z + ca * o.az + cf * o.fz;
+      const nx = (px - sx) / d; const nz = (pz - sz) / d;
+      px = sx + nx * (o.r + slack); pz = sz + nz * (o.r + slack);
+      continue;
+    }
     const dx = px - o.x; const dz = pz - o.z;
     const d = Math.hypot(dx, dz);
     if (d >= o.r) continue;
     
     
     
-    if (d < 1e-6) { px = o.x + o.r; pz = o.z; continue; }
-    px = o.x + (dx / d) * o.r;
-    pz = o.z + (dz / d) * o.r;
+    if (d < 1e-6) { px = o.x + o.r + slack; pz = o.z; continue; }
+    px = o.x + (dx / d) * (o.r + slack);
+    pz = o.z + (dz / d) * (o.r + slack);
   }
   return { x: px, z: pz };
 }
@@ -407,15 +603,51 @@ export function moveInLevel(level, from, dx, dz, pad = 0.4, obstacles = NO_PROPS
     && (obstacles.length === 0 || clearOfProps(obstacles, x, z));
   const both = { x: from.x + dx, z: from.z + dz };
   if (ok(both.x, both.z)) return both;
+  
+  
+  
+  
+  
+  
   const slideX = { x: from.x + dx, z: from.z };
-  if (ok(slideX.x, slideX.z)) return slideX;
+  if (Math.abs(dx) > 1e-9 && ok(slideX.x, slideX.z)) return slideX;
   const slideZ = { x: from.x, z: from.z + dz };
-  if (ok(slideZ.x, slideZ.z)) return slideZ;
+  if (Math.abs(dz) > 1e-9 && ok(slideZ.x, slideZ.z)) return slideZ;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (obstacles.length) {
+    const out = pushOutOfProps(obstacles, both.x, both.z, PROP_SLACK);
+    if ((out.x !== both.x || out.z !== both.z) && ok(out.x, out.z)) return out;
+  }
   
   
   
   if (obstacles.length && !clearOfProps(obstacles, from.x, from.z)) {
-    const out = pushOutOfProps(obstacles, from.x, from.z);
+    const out = pushOutOfProps(obstacles, from.x, from.z, PROP_SLACK);
     if (insideLevel(level, out.x, out.z, pad)) return out;
   }
   return { x: from.x, z: from.z };
@@ -506,4 +738,96 @@ export function chaseWaypoint(level, from, to, lookahead = 3) {
   
   
   return pointBehind(level, from.x, from.z, -Math.sign(delta) * lookahead);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function routeLength(level) {
+  return level.runs.reduce((n, q) => n + Math.hypot(q.x1 - q.x0, q.z1 - q.z0), 0);
+}
+
+
+
+
+
+
+export function routePointAt(level, progress) {
+  const want = Math.max(0, progress);
+  let done = 0;
+  for (let i = 0; i < level.runs.length; i += 1) {
+    const q = level.runs[i];
+    const len = Math.hypot(q.x1 - q.x0, q.z1 - q.z0);
+    const last = i === level.runs.length - 1;
+    if (done + len >= want || last) {
+      const t = len > 0 ? Math.min(1, Math.max(0, (want - done) / len)) : 0;
+      return {
+        x: lerp(q.x0, q.x1, t),
+        z: lerp(q.z0, q.z1, t),
+        run: i,
+        t,
+        dir: { x: len > 0 ? (q.x1 - q.x0) / len : 0, z: len > 0 ? (q.z1 - q.z0) / len : 1 },
+      };
+    }
+    done += len;
+  }
+  
+  
+  return { x: 0, z: 0, run: 0, t: 0, dir: { x: 0, z: 1 } };
+}
+
+
+
+
+
+
+
+export function wallPointAt(level, progress, side = 1) {
+  const p = routePointAt(level, progress);
+  const q = level.runs[p.run];
+  const h = q.w / 2;
+  const s = side >= 0 ? 1 : -1;
+  return q.axis === 'z'
+    ? { x: p.x + s * h, z: p.z, nx: -s, nz: 0, run: p.run, t: p.t, side: s }
+    : { x: p.x, z: p.z + s * h, nx: 0, nz: -s, run: p.run, t: p.t, side: s };
+}
+
+
+
+
+
+
+
+export function corners(level) {
+  const out = [];
+  let done = 0;
+  for (let i = 0; i < level.runs.length - 1; i += 1) {
+    const q = level.runs[i];
+    done += Math.hypot(q.x1 - q.x0, q.z1 - q.z0);
+    out.push({ index: i + 1, x: q.x1, z: q.z1, progress: done, runBefore: i, runAfter: i + 1 });
+  }
+  return out;
 }

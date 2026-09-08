@@ -1,6 +1,6 @@
 {
   "sampleRate": 48000,
-  "seconds": 85.965,
+  "seconds": 223.703,
   "clips": {
     "shot1": {
       "effect": "shot",
@@ -326,25 +326,45 @@
       "effect": "liftLoop",
       "offset": 65.925,
       "duration": 3.25,
-      "wrap": 0.5
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.0004404,
+        "maxStep": 0.003858,
+        "meanStep": 0.0002829
+      }
     },
     "lift2": {
       "effect": "liftLoop",
       "offset": 69.225,
       "duration": 3.25,
-      "wrap": 0.5
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.00009038,
+        "maxStep": 0.001197,
+        "meanStep": 0.0002445
+      }
     },
     "room1": {
       "effect": "roomTone",
       "offset": 72.525,
       "duration": 4.25,
-      "wrap": 0.5
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.00004144,
+        "maxStep": 0.001342,
+        "meanStep": 0.0001822
+      }
     },
     "room2": {
       "effect": "roomTone",
       "offset": 76.825,
       "duration": 4.25,
-      "wrap": 0.5
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.00001507,
+        "maxStep": 0.0007911,
+        "meanStep": 0.0001372
+      }
     },
     "breath1": {
       "effect": "breath",
@@ -370,8 +390,724 @@
       "effect": "settle",
       "offset": 84.635,
       "duration": 1.28
+    },
+    "fire1": {
+      "effect": "fireLoop",
+      "offset": 85.965,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.01183,
+        "maxStep": 0.2088,
+        "meanStep": 0.004632
+      }
+    },
+    "fire2": {
+      "effect": "fireLoop",
+      "offset": 91.015,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.0007687,
+        "maxStep": 0.3298,
+        "meanStep": 0.007818
+      }
+    },
+    "gas1": {
+      "effect": "gasLoop",
+      "offset": 96.065,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.00822,
+        "maxStep": 0.2417,
+        "meanStep": 0.04218
+      }
+    },
+    "gas2": {
+      "effect": "gasLoop",
+      "offset": 101.115,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.03712,
+        "maxStep": 0.2191,
+        "meanStep": 0.02979
+      }
+    },
+    "elec1": {
+      "effect": "elecLoop",
+      "offset": 106.165,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.003248,
+        "maxStep": 0.1815,
+        "meanStep": 0.005551
+      }
+    },
+    "elec2": {
+      "effect": "elecLoop",
+      "offset": 111.215,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.001603,
+        "maxStep": 0.19,
+        "meanStep": 0.005172
+      }
+    },
+    "steam1": {
+      "effect": "steamLoop",
+      "offset": 116.265,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.006621,
+        "maxStep": 0.1281,
+        "meanStep": 0.01637
+      }
+    },
+    "steam2": {
+      "effect": "steamLoop",
+      "offset": 121.315,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.005488,
+        "maxStep": 0.1422,
+        "meanStep": 0.0223
+      }
+    },
+    "conveyor1": {
+      "effect": "conveyorLoop",
+      "offset": 126.365,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.005776,
+        "maxStep": 0.0563,
+        "meanStep": 0.004435
+      }
+    },
+    "conveyor2": {
+      "effect": "conveyorLoop",
+      "offset": 131.415,
+      "duration": 5,
+      "wrap": 0.5,
+      "seam": {
+        "join": 0.02123,
+        "maxStep": 0.06483,
+        "meanStep": 0.004752
+      }
+    },
+    "cough1": {
+      "effect": "cough",
+      "offset": 136.465,
+      "duration": 1.1
+    },
+    "cough2": {
+      "effect": "cough",
+      "offset": 137.615,
+      "duration": 0.85
+    },
+    "cough3": {
+      "effect": "cough",
+      "offset": 138.515,
+      "duration": 0.62
+    },
+    "cough4": {
+      "effect": "cough",
+      "offset": 139.185,
+      "duration": 0.8
+    },
+    "zap1": {
+      "effect": "zap",
+      "offset": 140.035,
+      "duration": 0.5
+    },
+    "zap2": {
+      "effect": "zap",
+      "offset": 140.585,
+      "duration": 0.37
+    },
+    "zap3": {
+      "effect": "zap",
+      "offset": 141.005,
+      "duration": 0.68
+    },
+    "arc1": {
+      "effect": "arcBurst",
+      "offset": 141.735,
+      "duration": 0.75
+    },
+    "arc2": {
+      "effect": "arcBurst",
+      "offset": 142.535,
+      "duration": 0.69
+    },
+    "arc3": {
+      "effect": "arcBurst",
+      "offset": 143.275,
+      "duration": 1.1
+    },
+    "vent1": {
+      "effect": "steamBurst",
+      "offset": 144.425,
+      "duration": 1.6
+    },
+    "vent2": {
+      "effect": "steamBurst",
+      "offset": 146.075,
+      "duration": 1.5
+    },
+    "hDeck1": {
+      "effect": "heelDeck",
+      "offset": 147.625,
+      "duration": 0.464
+    },
+    "hDeck2": {
+      "effect": "heelDeck",
+      "offset": 148.139,
+      "duration": 0.464
+    },
+    "hDeck3": {
+      "effect": "heelDeck",
+      "offset": 148.653,
+      "duration": 0.464
+    },
+    "hDeck4": {
+      "effect": "heelDeck",
+      "offset": 149.167,
+      "duration": 0.464
+    },
+    "hDeck5": {
+      "effect": "heelDeck",
+      "offset": 149.681,
+      "duration": 0.464
+    },
+    "hDeck6": {
+      "effect": "heelDeck",
+      "offset": 150.195,
+      "duration": 0.464
+    },
+    "tDeck1": {
+      "effect": "toeDeck",
+      "offset": 150.709,
+      "duration": 0.302
+    },
+    "tDeck2": {
+      "effect": "toeDeck",
+      "offset": 151.061,
+      "duration": 0.302
+    },
+    "tDeck3": {
+      "effect": "toeDeck",
+      "offset": 151.413,
+      "duration": 0.302
+    },
+    "tDeck4": {
+      "effect": "toeDeck",
+      "offset": 151.765,
+      "duration": 0.302
+    },
+    "tDeck5": {
+      "effect": "toeDeck",
+      "offset": 152.117,
+      "duration": 0.302
+    },
+    "tDeck6": {
+      "effect": "toeDeck",
+      "offset": 152.469,
+      "duration": 0.302
+    },
+    "hGrate1": {
+      "effect": "heelGrate",
+      "offset": 152.821,
+      "duration": 0.37
+    },
+    "hGrate2": {
+      "effect": "heelGrate",
+      "offset": 153.241,
+      "duration": 0.37
+    },
+    "hGrate3": {
+      "effect": "heelGrate",
+      "offset": 153.661,
+      "duration": 0.37
+    },
+    "hGrate4": {
+      "effect": "heelGrate",
+      "offset": 154.081,
+      "duration": 0.37
+    },
+    "hGrate5": {
+      "effect": "heelGrate",
+      "offset": 154.501,
+      "duration": 0.33
+    },
+    "hGrate6": {
+      "effect": "heelGrate",
+      "offset": 154.881,
+      "duration": 0.37
+    },
+    "tGrate1": {
+      "effect": "toeGrate",
+      "offset": 155.301,
+      "duration": 0.18
+    },
+    "tGrate2": {
+      "effect": "toeGrate",
+      "offset": 155.531,
+      "duration": 0.18
+    },
+    "tGrate3": {
+      "effect": "toeGrate",
+      "offset": 155.761,
+      "duration": 0.18
+    },
+    "tGrate4": {
+      "effect": "toeGrate",
+      "offset": 155.991,
+      "duration": 0.18
+    },
+    "tGrate5": {
+      "effect": "toeGrate",
+      "offset": 156.221,
+      "duration": 0.18
+    },
+    "tGrate6": {
+      "effect": "toeGrate",
+      "offset": 156.451,
+      "duration": 0.18
+    },
+    "hWet1": {
+      "effect": "heelWet",
+      "offset": 156.681,
+      "duration": 0.455
+    },
+    "hWet2": {
+      "effect": "heelWet",
+      "offset": 157.186,
+      "duration": 0.455
+    },
+    "hWet3": {
+      "effect": "heelWet",
+      "offset": 157.691,
+      "duration": 0.45
+    },
+    "hWet4": {
+      "effect": "heelWet",
+      "offset": 158.191,
+      "duration": 0.455
+    },
+    "hWet5": {
+      "effect": "heelWet",
+      "offset": 158.696,
+      "duration": 0.455
+    },
+    "hWet6": {
+      "effect": "heelWet",
+      "offset": 159.201,
+      "duration": 0.455
+    },
+    "tWet1": {
+      "effect": "toeWet",
+      "offset": 159.706,
+      "duration": 0.27
+    },
+    "tWet2": {
+      "effect": "toeWet",
+      "offset": 160.026,
+      "duration": 0.27
+    },
+    "tWet3": {
+      "effect": "toeWet",
+      "offset": 160.346,
+      "duration": 0.27
+    },
+    "tWet4": {
+      "effect": "toeWet",
+      "offset": 160.666,
+      "duration": 0.27
+    },
+    "tWet5": {
+      "effect": "toeWet",
+      "offset": 160.986,
+      "duration": 0.27
+    },
+    "tWet6": {
+      "effect": "toeWet",
+      "offset": 161.306,
+      "duration": 0.27
+    },
+    "hStraw1": {
+      "effect": "heelStraw",
+      "offset": 161.626,
+      "duration": 0.34
+    },
+    "hStraw2": {
+      "effect": "heelStraw",
+      "offset": 162.016,
+      "duration": 0.34
+    },
+    "hStraw3": {
+      "effect": "heelStraw",
+      "offset": 162.406,
+      "duration": 0.34
+    },
+    "hStraw4": {
+      "effect": "heelStraw",
+      "offset": 162.796,
+      "duration": 0.34
+    },
+    "hStraw5": {
+      "effect": "heelStraw",
+      "offset": 163.186,
+      "duration": 0.34
+    },
+    "hStraw6": {
+      "effect": "heelStraw",
+      "offset": 163.576,
+      "duration": 0.34
+    },
+    "tStraw1": {
+      "effect": "toeStraw",
+      "offset": 163.966,
+      "duration": 0.18
+    },
+    "tStraw2": {
+      "effect": "toeStraw",
+      "offset": 164.196,
+      "duration": 0.18
+    },
+    "tStraw3": {
+      "effect": "toeStraw",
+      "offset": 164.426,
+      "duration": 0.18
+    },
+    "tStraw4": {
+      "effect": "toeStraw",
+      "offset": 164.656,
+      "duration": 0.18
+    },
+    "tStraw5": {
+      "effect": "toeStraw",
+      "offset": 164.886,
+      "duration": 0.17
+    },
+    "tStraw6": {
+      "effect": "toeStraw",
+      "offset": 165.106,
+      "duration": 0.18
+    },
+    "crawl1": {
+      "effect": "chickCrawl",
+      "offset": 165.336,
+      "duration": 0.75
+    },
+    "crawl2": {
+      "effect": "chickCrawl",
+      "offset": 166.136,
+      "duration": 0.77
+    },
+    "crawl3": {
+      "effect": "chickCrawl",
+      "offset": 166.956,
+      "duration": 0.75
+    },
+    "crawl4": {
+      "effect": "chickCrawl",
+      "offset": 167.756,
+      "duration": 0.75
+    },
+    "hoof1": {
+      "effect": "hoofClop",
+      "offset": 168.556,
+      "duration": 0.406
+    },
+    "hoof2": {
+      "effect": "hoofClop",
+      "offset": 169.012,
+      "duration": 0.406
+    },
+    "hoof3": {
+      "effect": "hoofClop",
+      "offset": 169.468,
+      "duration": 0.406
+    },
+    "hoof4": {
+      "effect": "hoofClop",
+      "offset": 169.924,
+      "duration": 0.406
+    },
+    "hoof5": {
+      "effect": "hoofClop",
+      "offset": 170.38,
+      "duration": 0.406
+    },
+    "hoof6": {
+      "effect": "hoofClop",
+      "offset": 170.836,
+      "duration": 0.406
+    },
+    "trot1": {
+      "effect": "trotterClatter",
+      "offset": 171.292,
+      "duration": 0.264
+    },
+    "trot2": {
+      "effect": "trotterClatter",
+      "offset": 171.606,
+      "duration": 0.264
+    },
+    "trot3": {
+      "effect": "trotterClatter",
+      "offset": 171.92,
+      "duration": 0.264
+    },
+    "trot4": {
+      "effect": "trotterClatter",
+      "offset": 172.234,
+      "duration": 0.264
+    },
+    "trot5": {
+      "effect": "trotterClatter",
+      "offset": 172.548,
+      "duration": 0.264
+    },
+    "trot6": {
+      "effect": "trotterClatter",
+      "offset": 172.862,
+      "duration": 0.264
+    },
+    "fallS1": {
+      "effect": "bodyFallSmall",
+      "offset": 173.176,
+      "duration": 0.75
+    },
+    "fallS2": {
+      "effect": "bodyFallSmall",
+      "offset": 173.976,
+      "duration": 0.75
+    },
+    "fallS3": {
+      "effect": "bodyFallSmall",
+      "offset": 174.776,
+      "duration": 0.75
+    },
+    "fallL1": {
+      "effect": "bodyFallLarge",
+      "offset": 175.576,
+      "duration": 1.1
+    },
+    "fallL2": {
+      "effect": "bodyFallLarge",
+      "offset": 176.726,
+      "duration": 1.1
+    },
+    "fallL3": {
+      "effect": "bodyFallLarge",
+      "offset": 177.876,
+      "duration": 1.1
+    },
+    "bone1": {
+      "effect": "boneSnap",
+      "offset": 179.026,
+      "duration": 0.3
+    },
+    "bone2": {
+      "effect": "boneSnap",
+      "offset": 179.376,
+      "duration": 0.3
+    },
+    "bone3": {
+      "effect": "boneSnap",
+      "offset": 179.726,
+      "duration": 0.3
+    },
+    "tear1": {
+      "effect": "wetTear",
+      "offset": 180.076,
+      "duration": 1
+    },
+    "tear2": {
+      "effect": "wetTear",
+      "offset": 181.126,
+      "duration": 1.02
+    },
+    "tear3": {
+      "effect": "wetTear",
+      "offset": 182.196,
+      "duration": 0.98
+    },
+    "crack1": {
+      "effect": "hitCrack",
+      "offset": 183.226,
+      "duration": 0.323
+    },
+    "crack2": {
+      "effect": "hitCrack",
+      "offset": 183.599,
+      "duration": 0.323
+    },
+    "crack3": {
+      "effect": "hitCrack",
+      "offset": 183.972,
+      "duration": 0.323
+    },
+    "porkHurt1": {
+      "effect": "porkerHurt",
+      "offset": 184.345,
+      "duration": 0.75
+    },
+    "porkHurt2": {
+      "effect": "porkerHurt",
+      "offset": 185.145,
+      "duration": 0.75
+    },
+    "chickHurt1": {
+      "effect": "chickHurt",
+      "offset": 185.945,
+      "duration": 1.02
+    },
+    "chickHurt2": {
+      "effect": "chickHurt",
+      "offset": 187.015,
+      "duration": 0.97
+    },
+    "cowHurt1": {
+      "effect": "cowHurt",
+      "offset": 188.035,
+      "duration": 1.04
+    },
+    "cowHurt2": {
+      "effect": "cowHurt",
+      "offset": 189.125,
+      "duration": 1.04
+    },
+    "scream1": {
+      "effect": "horseScream",
+      "offset": 190.215,
+      "duration": 2.6
+    },
+    "scream2": {
+      "effect": "horseScream",
+      "offset": 192.865,
+      "duration": 2.6
+    },
+    "chain1": {
+      "effect": "chainRattle",
+      "offset": 195.515,
+      "duration": 1.2
+    },
+    "chain2": {
+      "effect": "chainRattle",
+      "offset": 196.765,
+      "duration": 1.2
+    },
+    "chain3": {
+      "effect": "chainRattle",
+      "offset": 198.015,
+      "duration": 1.3
+    },
+    "hook1": {
+      "effect": "hookSlide",
+      "offset": 199.365,
+      "duration": 1.35
+    },
+    "hook2": {
+      "effect": "hookSlide",
+      "offset": 200.765,
+      "duration": 1.3
+    },
+    "hook3": {
+      "effect": "hookSlide",
+      "offset": 202.115,
+      "duration": 1.41
+    },
+    "klaxon1": {
+      "effect": "klaxon",
+      "offset": 203.575,
+      "duration": 3.1
+    },
+    "klaxon2": {
+      "effect": "klaxon",
+      "offset": 206.725,
+      "duration": 3.1
+    },
+    "pass1": {
+      "effect": "liftPass",
+      "offset": 209.875,
+      "duration": 1.1
+    },
+    "pass2": {
+      "effect": "liftPass",
+      "offset": 211.025,
+      "duration": 1.16
+    },
+    "pass3": {
+      "effect": "liftPass",
+      "offset": 212.235,
+      "duration": 1.06
+    },
+    "leaf1": {
+      "effect": "doorLeaf",
+      "offset": 213.345,
+      "duration": 0.654
+    },
+    "leaf2": {
+      "effect": "doorLeaf",
+      "offset": 214.049,
+      "duration": 0.68
+    },
+    "leaf3": {
+      "effect": "doorLeaf",
+      "offset": 214.779,
+      "duration": 0.654
+    },
+    "groan1": {
+      "effect": "metalGroan",
+      "offset": 215.483,
+      "duration": 2.4
+    },
+    "groan2": {
+      "effect": "metalGroan",
+      "offset": 217.933,
+      "duration": 2.4
+    },
+    "groan3": {
+      "effect": "metalGroan",
+      "offset": 220.383,
+      "duration": 2.4
+    },
+    "tick1": {
+      "effect": "hitTick",
+      "offset": 222.833,
+      "duration": 0.1
+    },
+    "tick2": {
+      "effect": "hitTick",
+      "offset": 222.983,
+      "duration": 0.1
+    },
+    "tick3": {
+      "effect": "hitTick",
+      "offset": 223.133,
+      "duration": 0.1
+    },
+    "skip1": {
+      "effect": "skipPress",
+      "offset": 223.283,
+      "duration": 0.16
+    },
+    "skip2": {
+      "effect": "skipPress",
+      "offset": 223.493,
+      "duration": 0.16
     }
   },
+  "bitrate": "64k",
   "effects": {
     "shot": [
       "shot1",
@@ -505,6 +1241,211 @@
     "settle": [
       "settle1",
       "settle2"
+    ],
+    "fireLoop": [
+      "fire1",
+      "fire2"
+    ],
+    "gasLoop": [
+      "gas1",
+      "gas2"
+    ],
+    "elecLoop": [
+      "elec1",
+      "elec2"
+    ],
+    "steamLoop": [
+      "steam1",
+      "steam2"
+    ],
+    "conveyorLoop": [
+      "conveyor1",
+      "conveyor2"
+    ],
+    "cough": [
+      "cough1",
+      "cough2",
+      "cough3",
+      "cough4"
+    ],
+    "zap": [
+      "zap1",
+      "zap2",
+      "zap3"
+    ],
+    "arcBurst": [
+      "arc1",
+      "arc2",
+      "arc3"
+    ],
+    "steamBurst": [
+      "vent1",
+      "vent2"
+    ],
+    "heelDeck": [
+      "hDeck1",
+      "hDeck2",
+      "hDeck3",
+      "hDeck4",
+      "hDeck5",
+      "hDeck6"
+    ],
+    "toeDeck": [
+      "tDeck1",
+      "tDeck2",
+      "tDeck3",
+      "tDeck4",
+      "tDeck5",
+      "tDeck6"
+    ],
+    "heelGrate": [
+      "hGrate1",
+      "hGrate2",
+      "hGrate3",
+      "hGrate4",
+      "hGrate5",
+      "hGrate6"
+    ],
+    "toeGrate": [
+      "tGrate1",
+      "tGrate2",
+      "tGrate3",
+      "tGrate4",
+      "tGrate5",
+      "tGrate6"
+    ],
+    "heelWet": [
+      "hWet1",
+      "hWet2",
+      "hWet3",
+      "hWet4",
+      "hWet5",
+      "hWet6"
+    ],
+    "toeWet": [
+      "tWet1",
+      "tWet2",
+      "tWet3",
+      "tWet4",
+      "tWet5",
+      "tWet6"
+    ],
+    "heelStraw": [
+      "hStraw1",
+      "hStraw2",
+      "hStraw3",
+      "hStraw4",
+      "hStraw5",
+      "hStraw6"
+    ],
+    "toeStraw": [
+      "tStraw1",
+      "tStraw2",
+      "tStraw3",
+      "tStraw4",
+      "tStraw5",
+      "tStraw6"
+    ],
+    "chickCrawl": [
+      "crawl1",
+      "crawl2",
+      "crawl3",
+      "crawl4"
+    ],
+    "hoofClop": [
+      "hoof1",
+      "hoof2",
+      "hoof3",
+      "hoof4",
+      "hoof5",
+      "hoof6"
+    ],
+    "trotterClatter": [
+      "trot1",
+      "trot2",
+      "trot3",
+      "trot4",
+      "trot5",
+      "trot6"
+    ],
+    "bodyFallSmall": [
+      "fallS1",
+      "fallS2",
+      "fallS3"
+    ],
+    "bodyFallLarge": [
+      "fallL1",
+      "fallL2",
+      "fallL3"
+    ],
+    "boneSnap": [
+      "bone1",
+      "bone2",
+      "bone3"
+    ],
+    "wetTear": [
+      "tear1",
+      "tear2",
+      "tear3"
+    ],
+    "hitCrack": [
+      "crack1",
+      "crack2",
+      "crack3"
+    ],
+    "porkerHurt": [
+      "porkHurt1",
+      "porkHurt2"
+    ],
+    "chickHurt": [
+      "chickHurt1",
+      "chickHurt2"
+    ],
+    "cowHurt": [
+      "cowHurt1",
+      "cowHurt2"
+    ],
+    "horseScream": [
+      "scream1",
+      "scream2"
+    ],
+    "chainRattle": [
+      "chain1",
+      "chain2",
+      "chain3"
+    ],
+    "hookSlide": [
+      "hook1",
+      "hook2",
+      "hook3"
+    ],
+    "klaxon": [
+      "klaxon1",
+      "klaxon2"
+    ],
+    "liftPass": [
+      "pass1",
+      "pass2",
+      "pass3"
+    ],
+    "doorLeaf": [
+      "leaf1",
+      "leaf2",
+      "leaf3"
+    ],
+    "metalGroan": [
+      "groan1",
+      "groan2",
+      "groan3"
+    ],
+    "hitTick": [
+      "tick1",
+      "tick2",
+      "tick3"
+    ],
+    "skipPress": [
+      "skip1",
+      "skip2"
     ]
   }
 }
