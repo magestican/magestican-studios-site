@@ -22,6 +22,7 @@ import { buildLanes, nearestLane, chokePoints, LANE_HALF, alongPolyline } from '
 import { laneSurfaceFor, ROAD_HALF } from './surfaceSpec.js';
 import { springSites } from './hayspring.js';
 import { placeLofts, PERCH_CAP_HALF } from './loftRoute.js';
+import { placeRim } from './infieldRim.js';
 
 
 
@@ -123,6 +124,29 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   
   
   const terrain = buildTerrain(grid, rng.child('terrain'), map, { redBase, blueBase, cx, cz });
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const terrainTop = new Int16Array(WORLD_SIZE.x * WORLD_SIZE.z);
+  for (let x = 0; x < WORLD_SIZE.x; x += 1) {
+    for (let z = 0; z < WORLD_SIZE.z; z += 1) terrainTop[x * WORLD_SIZE.z + z] = standY(grid, x, z);
+  }
 
   
   
@@ -280,6 +304,46 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const rim = chokes.length ? placeRim(lanes, {
+    surfaceAt: (x, z) => terrainTop[x * WORLD_SIZE.z + z],
+    occupied: (x, z) => standY(grid, x, z) !== terrainTop[x * WORLD_SIZE.z + z],
+    blocked: (x, z) => insideBase(x, z, redBase) || insideBase(x, z, blueBase)
+                    || insideZone(x, z, powerUpZones, 2),
+    worldHeight: WORLD_SIZE.y,
+    worldSize: WORLD_SIZE,
+    perches: lofts.filter((l) => l.kind === 'perch'),
+    nearestLane,
+  }) : [];
+  const rimBody = rimVox(map);
+  const rimCap = rimCapVox(map);
+  for (const tile of rim) {
+    for (let y = tile.base; y < tile.top; y += 1) grid.set(tile.x, y, tile.z, rimBody);
+    grid.set(tile.x, tile.top, tile.z, rimCap);
+  }
+
+  
+  
+  
+  
+  
+  
+  
   const coverRng = rng.child('cover');
   
   
@@ -333,7 +397,15 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
   
   
   const wear = map.wear
-    ? applyGroundWear(grid, rng.child('wear'), { redBase, blueBase, hillX: cx, hillZ: cz })
+    ? applyGroundWear(grid, rng.child('wear'), {
+        redBase, blueBase, hillX: cx, hillZ: cz,
+        
+        
+        
+        
+        
+        protectedTiles: new Set(rim.map((t) => t.x * 4096 + t.z)),
+      })
     : { tractorParking: [] };
 
   
@@ -367,6 +439,7 @@ export function generateWorld(seed, mapId = DEFAULT_MAP) {
 
   return { seed, mapId: map.id, map, grid, spawns, flags, redBase, blueBase,
            hillSpawn, hayStacks, barnSigns, lanes, springs, lofts,
+           rim,
            tractorParking: wear.tractorParking,
            powerUpZones,
            powerUpSpawns: {
@@ -917,6 +990,47 @@ function chokeVox(map) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function rimVox(map) {
+  const cover = map.cover || [];
+  if (cover.includes('iceWall') || cover.includes('berg')) return VOX.IGLOO;
+  return chokeVox(map);
+}
+
+function rimCapVox() {
+  return VOX.WOOD;
+}
+
 function loftVox(map) {
   const cover = map.cover || [];
   if (cover.includes('iceWall') || cover.includes('berg')) return VOX.STONE;
@@ -1107,7 +1221,8 @@ function wearDisc(grid, rng, x0, z0, r, fray = 0) {
   }
 }
 
-export function applyGroundWear(grid, rng, { redBase, blueBase, hillX, hillZ }) {
+export function applyGroundWear(grid, rng, { redBase, blueBase, hillX, hillZ,
+                                             protectedTiles = null }) {
   
   
   
@@ -1171,7 +1286,33 @@ export function applyGroundWear(grid, rng, { redBase, blueBase, hillX, hillZ }) 
   
   
   const tractorParking = [];
-  for (const px of WEAR.parkingX) {
+  
+  
+  
+  const bayClear = (px, pz) => {
+    if (!protectedTiles) return true;
+    for (let dz = -1; dz <= 1; dz += 1) {
+      for (let dx = -1; dx <= 1; dx += 1) {
+        if (protectedTiles.has((px + dx) * 4096 + (pz + dz))) return false;
+      }
+    }
+    return true;
+  };
+  for (const nominal of WEAR.parkingX) {
+    
+    
+    
+    
+    
+    
+    let px = null;
+    for (let off = 0; off <= 14 && px === null; off += 2) {
+      for (const cand of off === 0 ? [nominal] : [nominal - off, nominal + off]) {
+        if (cand < WEAR.trackX0 + 2 || cand > WEAR.trackX1 - 2) continue;
+        if (bayClear(cand, laneZ(cand) + 1)) { px = cand; break; }
+      }
+    }
+    if (px === null) continue;               
     const pz = laneZ(px) + 1;
     wearDisc(grid, rng, px, pz, WEAR.parkingApron + 1, 0.5);
     
