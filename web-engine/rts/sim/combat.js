@@ -19,6 +19,7 @@ import {
   UNIT_KINDS, BUILDING_KINDS, STATE, ORDER,
   unitSpec, buildingSpec, damageUnit, damageBuilding, packPct,
 } from './world.js';
+import { shouldRetreat } from './retreat.js';
 
 
 
@@ -328,7 +329,26 @@ export function stepCombat(w, damageBonusPct = null, eventsOut = []) {
     
     
     const committed = u.state[i] === STATE.MOVING && u.orderType[i] === ORDER.MOVE;
-    if (committed) continue;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const fleeing = u.state[i] === STATE.MOVING && u.orderType[i] === ORDER.NONE
+      && shouldRetreat(w, i, unitSpec(w, i));
+    if (committed || fleeing) continue;
 
     const target = acquire(w, i);
     if (target.kind === 0) continue;

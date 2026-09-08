@@ -7,58 +7,68 @@
       "worldSize": 6.856,
       "faction": "yield"
     },
-    "greatTree": {
+    "farmhouse": {
       "row": 1,
+      "worldSize": 18.175,
+      "faction": "yield"
+    },
+    "greatTree": {
+      "row": 2,
       "worldSize": 12.272,
       "faction": "herd"
     },
     "greatWarren": {
-      "row": 2,
+      "row": 3,
       "worldSize": 20.237,
       "faction": "herd"
     },
     "haven": {
-      "row": 3,
+      "row": 4,
       "worldSize": 12.395,
       "faction": "herd"
     },
     "machineShed": {
-      "row": 4,
+      "row": 5,
       "worldSize": 15.473,
       "faction": "yield"
     },
     "mudWall": {
-      "row": 5,
+      "row": 6,
       "worldSize": 8.414,
       "faction": "herd"
     },
     "pesticideBattery": {
-      "row": 6,
+      "row": 7,
       "worldSize": 8.693,
       "faction": "yield"
     },
     "processingPlant": {
-      "row": 7,
+      "row": 8,
       "worldSize": 21.334,
       "faction": "yield"
     },
     "pumpStation": {
-      "row": 8,
+      "row": 9,
       "worldSize": 12.989,
       "faction": "yield"
     },
     "reedbed": {
-      "row": 9,
+      "row": 10,
       "worldSize": 12.702,
       "faction": "herd"
     },
+    "roost": {
+      "row": 11,
+      "worldSize": 17.587,
+      "faction": "herd"
+    },
     "sanctuary": {
-      "row": 10,
+      "row": 12,
       "worldSize": 18.207,
       "faction": "herd"
     },
     "watchtower": {
-      "row": 11,
+      "row": 13,
       "worldSize": 8.421,
       "faction": "yield"
     }

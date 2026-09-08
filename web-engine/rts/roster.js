@@ -782,10 +782,75 @@ const building = (o) => Object.freeze({
   wall: false,
   waterOnly: false,
   unlocks: Object.freeze([]),
+  
+
+
+
+
+
+
+  buildable: true,
+  
+  home: false,
+  
+
+
+
+
+
+
+
+  cost: Object.freeze({ feed: 0, water: 0 }),
+  buildTicks: 0,
   ...o,
 });
 
 export const BUILDINGS = Object.freeze({
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  farmhouse: building({
+    id: 'farmhouse', faction: YIELD, name: 'Farmhouse',
+    hp: 2400, armourFlat: 10,
+    visionMm: 620000,
+    buildable: false,
+    home: true,
+    cost: { feed: 0, water: 0 }, buildTicks: 0,
+  }),
+
+  roost: building({
+    id: 'roost', faction: HERD, name: 'The Roost',
+    hp: 2400, armourFlat: 10,
+    visionMm: 620000,
+    buildable: false,
+    home: true,
+    
+    
+    
+    
+    
+    
+    
+    
+    anchorsSector: true,
+  }),
 
   
 
@@ -989,6 +1054,32 @@ export const START_FORCE = Object.freeze({
 });
 
 export const START_RESOURCES = Object.freeze({ feed: 150, water: 0 });
+
+
+
+
+
+
+
+
+
+export const HOME_OF = Object.freeze(Object.fromEntries(
+  Object.keys(BUILDINGS)
+    .filter((id) => BUILDINGS[id].home)
+    .map((id) => [BUILDINGS[id].faction, id]),
+));
+
+
+
+
+
+
+
+
+
+
+
+export const HOME_SETBACK_MM = 16000;
 
 
 

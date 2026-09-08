@@ -1094,8 +1094,123 @@ function greatWarren() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function farmhouse() {
+  return [
+    pad(12.5, 9.0, Y_CONCRETE),
+    
+    
+    
+    
+    
+    
+    part(tube([-3.4, 1.2, 0], [-3.4, 1.2, 9.8], 3.4, 3.4, STRAIGHT, 10), Y_SHEET),
+    part(tube([-3.4, 1.2, 9.8], [-3.4, 1.2, 11.4], 3.4, 0.7, CONE, 10), Y_ROOF),
+    part(tube([-3.4, 1.2, 3.4], [-3.4, 1.2, 4.0], 3.46, 3.46, STRAIGHT, 10), Y_ACCENT),
+    
+    ...shed({ len: 5.2, wid: 4.2, wall: 3.2, rise: 2.4, body: '#d8cdb4', roof: '#8c4a34' }),
+    
+    
+    part(strut([-3.0, -3.4, 0], [-3.0, -3.4, 2.5], 0.10), '#6b5a42'),
+    part(strut([-1.0, -3.4, 0], [-1.0, -3.4, 2.5], 0.10), '#6b5a42'),
+    part(strut([1.0, -3.4, 0], [1.0, -3.4, 2.5], 0.10), '#6b5a42'),
+    part(strut([3.0, -3.4, 0], [3.0, -3.4, 2.5], 0.10), '#6b5a42'),
+    panel([0, -3.1, 2.62], [7.0, 1.9, 0.22], '#7a4130'),
+    
+    panel([1.7, 1.0, 4.8], [0.8, 0.8, 2.4], '#9c6a52'),
+    
+    
+    
+    
+    
+    
+    
+    
+    part(strut([4.6, -1.0, 0.12], [4.6, -1.0, 8.6], 0.16), Y_STEEL),
+    part(strut([4.0, -1.6, 0.12], [4.6, -1.0, 4.2], 0.10), Y_STEEL),
+    part(strut([5.2, -0.4, 0.12], [4.6, -1.0, 4.2], 0.10), Y_STEEL),
+    part(tube([4.6, -1.0, 8.6], [4.6, -1.0, 9.0], 2.6, 2.6, STRAIGHT, 7), Y_SHEET),
+    panel([4.6, -1.0, 9.5], [0.30, 0.30, 1.1], Y_DARK),
+    
+    part(tube([1.4, -3.4, 0], [1.4, -3.4, 1.8], 1.9, 1.9, STRAIGHT, 8), Y_STEEL),
+  ];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function roost() {
+  return [
+    yard(5.4, H_MUD_DARK, 10),
+    
+    
+    
+    
+    
+    
+    
+    part(tube([0, 0, 0.1], [0, 0, 12.2], 3.8, 1.9, TAPER, 9), H_BARK),
+    part(tube([0, 0, 0.1], [0, 0, 2.6], 4.0, 3.6, TAPER, 9), H_BARK_DARK),
+    panel([0, -1.7, 3.6], [1.9, 0.5, 3.0], H_HOLE),
+    
+    
+    
+    part(tube([0.5, 0.3, 8.6], [4.0, 2.0, 10.6], 0.9, 0.4, TAPER, 6), H_BARK),
+    part(tube([-0.5, -0.3, 7.8], [-3.8, -1.8, 9.6], 0.8, 0.4, TAPER, 6), H_BARK_DARK),
+    
+    
+    
+    mound(3.2, -2.4, 1.0, 0.42, H_THATCH, 7),
+    mound(-3.0, 2.6, 0.85, 0.36, H_THATCH_DARK, 7),
+    
+    
+    part(strut([4.7, 0.6, 0], [4.7, 0.6, 1.7], 0.13), H_BARK_DARK),
+    part(strut([-4.4, -1.4, 0], [-4.4, -1.4, 1.5], 0.13), H_BARK_DARK),
+    part(strut([0.8, -4.6, 0], [0.8, -4.6, 1.6], 0.13), H_BARK_DARK),
+    part(strut([-1.6, 4.5, 0], [-1.6, 4.5, 1.4], 0.13), H_BARK_DARK),
+  ];
+}
+
 export const BUILDING_MESHES = Object.freeze({
   electricFence,
+  farmhouse,
   greatTree,
   greatWarren,
   haven,
@@ -1105,6 +1220,7 @@ export const BUILDING_MESHES = Object.freeze({
   processingPlant,
   pumpStation,
   reedbed,
+  roost,
   sanctuary,
   watchtower,
 });

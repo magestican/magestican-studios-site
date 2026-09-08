@@ -34,15 +34,17 @@
 
 
 import { MATCH_TICKS, TICKS_PER_SECOND } from '../fixed.js';
-import { START_FORCE, START_RESOURCES, UNITS } from '../roster.js';
+import {
+  START_FORCE, START_RESOURCES, UNITS, HOME_OF, HOME_SETBACK_MM,
+} from '../roster.js';
 import {
   stepTerritoryFlat, stepRout, sharePct, ROUT_HOLD_TICKS,
 } from '../territory.js';
 import { Bank, stepEconomy, gatherOf, sectorCap } from '../economy.js';
 import { EVENT_BONUS_LAND_TICKS, scoresFor } from '../progression.js';
 import {
-  createWorld, spawnUnit, unitSpec, buildingSpec, isGatherer, factionMap, checksum,
-  STATE, ORDER, MAX_UNITS,
+  createWorld, spawnUnit, spawnBuilding, unitSpec, buildingSpec, isGatherer,
+  factionMap, checksum, STATE, ORDER, MAX_UNITS,
 } from './world.js';
 import { createPresenceBuffers, measurePresence } from './presence.js';
 import { createAuraBuffers, measureAuras, stepHealing } from './auras.js';
@@ -50,6 +52,7 @@ import { stepMovement, stepSeparation, moveTo } from './movement.js';
 import { stepCombat, stepPoundWagons } from './combat.js';
 import { stepBuildings, yieldBonusBySector } from './buildings.js';
 import { createQueues, stepProduction, rallyPoint, spawnFrame } from './production.js';
+import { shouldRetreat, retreatTarget } from './retreat.js';
 import { stepBot, thinksOn } from './botBrain.js';
 
 
@@ -84,7 +87,33 @@ export function createMatch({ map, seats, seed }) {
     
     automation: seats.map(() => ({
       autoRally: true, autoGather: true, autoEngage: true,
-      autoRetreat: false, autoRebuild: false,
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      autoRetreat: false,
+      autoRebuild: false,
     })),
     
     scheduled: new Map(),
@@ -162,6 +191,41 @@ function placeStartingForces(m) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const home = HOME_OF[faction];
+    if (home) {
+      const f = spawnFrame(w, seat);
+      const back = Math.trunc((-HOME_SETBACK_MM * f.fx) / 1000);
+      const backY = Math.trunc((-HOME_SETBACK_MM * f.fy) / 1000);
+      const slot = spawnBuilding(w, seat, home, spawn.x + back, spawn.y + backY);
+      
+      if (slot >= 0) w.b.building[slot] = 0;
+    }
   }
 }
 
@@ -304,6 +368,36 @@ function applyAutomation(m) {
   const u = w.u;
   for (let i = 0; i < u.count; i += 1) {
     if (!u.alive[i] || u.owner[i] < 0) continue;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (m.automation[u.owner[i]].autoRetreat
+        && u.orderType[i] !== ORDER.MOVE && u.orderType[i] !== ORDER.HOLD
+        && shouldRetreat(w, i, unitSpec(w, i))) {
+      const home = retreatTarget(w, u.owner[i]);
+      if (home) {
+        moveTo(w, i, home.x, home.y);
+        
+        
+        
+        
+        u.orderType[i] = ORDER.NONE;
+        continue;
+      }
+    }
+
     if (u.state[i] !== STATE.IDLE) continue;
     
     

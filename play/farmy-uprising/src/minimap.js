@@ -36,6 +36,7 @@ import { HERD } from '../../../web-engine/rts/roster.js';
 import { terrainForSector, TERRAIN_RECIPE } from '../../../web-engine/rts/art/terrainRecipe.js';
 import { groundColour, playerColours } from '../../../web-engine/rts/palette.js';
 import { captureState } from '../../../web-engine/rts/territory.js';
+import { buildingSpec } from '../../../web-engine/rts/sim/world.js';
 
 
 
@@ -543,11 +544,36 @@ export function createMinimap({ canvas, match, seat, onJump, skin = 'yield' }) {
       const own = w.b.owner[i];
       const sec = w.b.sector[i];
       if (own !== s && (sec < 0 || !vis[base + sec])) continue;
+      const bx = (w.b.x[i] / FIELD_MM) * W;
+      const by = (w.b.y[i] / FIELD_MM) * H;
       ctx.fillStyle = own === s ? COLS.mine : (cols[own] || COLS.theirs);
-      ctx.fillRect((w.b.x[i] / FIELD_MM) * W - bs / 2, (w.b.y[i] / FIELD_MM) * H - bs / 2, bs, bs);
+
+      
+      
+      
+      
+      
+      
+      
+      
+      const spec = buildingSpec(w, i);
+      if (spec && spec.home) {
+        const r = bs * 0.95;
+        ctx.beginPath();
+        ctx.moveTo(bx, by - r); ctx.lineTo(bx + r, by);
+        ctx.lineTo(bx, by + r); ctx.lineTo(bx - r, by);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(4,10,12,.85)';
+        ctx.lineWidth = 1.25;
+        ctx.stroke();
+        continue;
+      }
+
+      ctx.fillRect(bx - bs / 2, by - bs / 2, bs, bs);
       ctx.strokeStyle = 'rgba(4,10,12,.8)';
       ctx.lineWidth = 1;
-      ctx.strokeRect((w.b.x[i] / FIELD_MM) * W - bs / 2, (w.b.y[i] / FIELD_MM) * H - bs / 2, bs, bs);
+      ctx.strokeRect(bx - bs / 2, by - bs / 2, bs, bs);
     }
 
     

@@ -46,6 +46,8 @@ import {
   playerColours, hexInt, WASH_ALPHA as OWNED_WASH_ALPHA,
 } from '../../../web-engine/rts/palette.js';
 import { loadAtlas, rowOf, rowCount, unitScale, fallbackAtlas } from './sprites.js';
+import { createVisualSpread } from './visualSpread.js';
+import { shouldRetreat } from '../../../web-engine/rts/sim/retreat.js';
 import {
   loadBuildingAtlas, rowOf as buildingRowOf, facingFor, buildingScale, fallbackBuildingAtlas,
 } from './buildingSprites.js';
@@ -201,13 +203,39 @@ const WEAPON = {
 
 
 
-const CLUSTER_MAX = 5;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CLUSTER_MAX = 13;
 const CLUSTER = [
   [0, 0],
-  [0.688, 0.482],
-  [-0.542, 0.693],
-  [-0.704, -0.493],
-  [0.516, -0.737],
+  
+  [0.000, 0.850], [0.808, 0.263], [0.500, -0.688], [-0.500, -0.688], [-0.808, 0.263],
+  
+  [1.640, 0.790], [0.405, 1.774], [-1.135, 1.423], [-1.820, 0.000],
+  [-1.135, -1.423], [0.405, -1.774], [1.640, -0.790],
 ];
 
 
@@ -3157,7 +3185,16 @@ export async function createRenderer(canvas, match, viewSeat) {
   
   
   
-  const COUNT_TILES = 16;
+  
+  
+  
+  
+  
+  
+  
+  
+  const RETREAT_TILE = 16;
+  const COUNT_TILES = 17;
   const countTex = (() => {
     const c = document.createElement('canvas');
     const S = 64;
@@ -3167,10 +3204,35 @@ export async function createRenderer(canvas, match, viewSeat) {
     x.textBaseline = 'middle';
     for (let i = 0; i < COUNT_TILES; i += 1) {
       const cx = i * S + S / 2;
-      x.fillStyle = 'rgba(10,14,10,0.74)';
+      const retreat = i === RETREAT_TILE;
+      
+      
+      
+      x.fillStyle = retreat ? 'rgba(120,74,10,0.90)' : 'rgba(10,14,10,0.74)';
       x.beginPath();
       x.roundRect(i * S + S * 0.10, S * 0.22, S * 0.80, S * 0.56, S * 0.16);
       x.fill();
+      if (retreat) {
+        
+        
+        
+        x.strokeStyle = '#ffd65c';
+        x.lineWidth = S * 0.075;
+        x.lineCap = 'round';
+        x.lineJoin = 'round';
+        x.beginPath();
+        x.moveTo(cx - S * 0.20, S * 0.50);
+        x.lineTo(cx, S * 0.32);
+        x.lineTo(cx + S * 0.20, S * 0.50);
+        x.stroke();
+        x.beginPath();
+        x.moveTo(cx - S * 0.13, S * 0.50);
+        x.lineTo(cx - S * 0.13, S * 0.68);
+        x.lineTo(cx + S * 0.13, S * 0.68);
+        x.lineTo(cx + S * 0.13, S * 0.50);
+        x.stroke();
+        continue;
+      }
       x.font = `bold ${Math.round(S * 0.46)}px ui-monospace, monospace`;
       x.fillStyle = '#ffffff';
       x.fillText(String(i + 1), cx, S * 0.52);
@@ -3942,6 +4004,10 @@ export async function createRenderer(canvas, match, viewSeat) {
 
 
 
+  
+  const spread = createVisualSpread();
+  let lastSpreadSec = 0;
+
   let factionColours = {};
   let seatColours = playerColours(match.factions, factionColours);
   function setFactionColours(custom) {
@@ -4440,6 +4506,29 @@ export async function createRenderer(canvas, match, viewSeat) {
     firstBody.fill(-1);
     const vis = m.presence.visible;
     const sc = w.sectors.length;
+
+    
+    
+    
+    
+    
+    
+    const bodies = [];
+    for (let i = 0; i < w.u.count; i += 1) {
+      if (!w.u.alive[i]) continue;
+      const sp = unitSpec(w, i);
+      if (!sp) continue;
+      const s = w.u.sector[i];
+      if (s >= 0 && !revealAll && !vis[seat * sc + s]) continue;
+      const xm = interp ? interp.posX(w, i, alphaNow) : w.u.x[i];
+      const ym = interp ? interp.posY(w, i, alphaNow) : w.u.y[i];
+      bodies.push({
+        id: w.u.id[i], x: xm / MM, y: ym / MM, r: unitScale(sp.id, manifest) * 0.5,
+      });
+    }
+    spread.step(bodies, Math.max(0, Math.min(0.1, tSec - lastSpreadSec)));
+    lastSpreadSec = tSec;
+
     const yaw = billboardRotation();
     
     
@@ -4490,8 +4579,17 @@ export async function createRenderer(canvas, match, viewSeat) {
       
       const xMm = interp ? interp.posX(w, i, alphaNow) : w.u.x[i];
       const yMm = interp ? interp.posY(w, i, alphaNow) : w.u.y[i];
-      const ux = xMm / MM;
-      const uz = yMm / MM;
+      
+      
+      
+      
+      
+      
+      
+      
+      const nudge = spread.offsetOf(w.u.id[i]);
+      const ux = xMm / MM + nudge[0];
+      const uz = yMm / MM + nudge[1];
       
       
       
@@ -4949,6 +5047,32 @@ export async function createRenderer(canvas, match, viewSeat) {
         dummy.updateMatrix();
         counts.setMatrixAt(cn, dummy.matrix);
         countAttr.setX(cn, Math.min(15, w.u.members[i] - 1));
+        cn += 1;
+      }
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (cn < MAX_INSTANCES
+          && m.automation[w.u.owner[i]]
+          && m.automation[w.u.owner[i]].autoRetreat
+          && shouldRetreat(w, i, spec)) {
+        const size = Math.max(13, s * 0.34);
+        dummy.rotation.set(0, yaw, 0);
+        
+        
+        dummy.position.set(ux, uy + s * (1.24 + 0.9 * reach) - s * foot, uz);
+        dummy.scale.set(size, size, 1);
+        dummy.updateMatrix();
+        counts.setMatrixAt(cn, dummy.matrix);
+        countAttr.setX(cn, RETREAT_TILE);
         cn += 1;
       }
     }
@@ -5530,6 +5654,13 @@ export async function createRenderer(canvas, match, viewSeat) {
     setFactionColours(custom) { return setFactionColours(custom); },
     
     get seatColours() { return seatColours.slice(); },
+    
+
+
+
+
+
+    debugSpread(id) { return spread.offsetOf(id).slice(); },
     
 
 
