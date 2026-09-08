@@ -19,6 +19,10 @@ import { HERD, YIELD } from '../../../web-engine/rts/roster.js';
 import { MS_PER_TICK, MATCH_TICKS, TICKS_PER_SECOND } from '../../../web-engine/rts/fixed.js';
 import { seedFromString } from '../../../web-engine/rts/rng.js';
 import { landSeconds, sharePct } from '../../../web-engine/rts/territory.js';
+
+
+
+import { endTitle } from './endTitle.js';
 import { matchPoints, rankTitle } from '../../../web-engine/rts/progression.js';
 import { createMatch, stepMatch, placings } from '../../../web-engine/rts/sim/match.js';
 import { makeBot, strengthFromLevel } from '../../../web-engine/rts/sim/botBrain.js';
@@ -960,15 +964,7 @@ function showEnd() {
   const won = match.winner === SEAT;
 
   
-  
-  
-  
-  
-  $('end-title').textContent = drawn
-    ? 'Level. Neither side gave ground.'
-    : (won
-      ? (match.endReason === 'rout' ? 'A rout. The map is yours.' : 'You held the most ground.')
-      : (match.endReason === 'rout' ? 'Routed.' : 'They held more ground.'));
+  $('end-title').textContent = endTitle(match.endReason, won, drawn);
 
   let bars = '';
   for (let p = 0; p < match.playerCount; p += 1) {
