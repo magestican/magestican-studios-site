@@ -68,13 +68,40 @@ const HERD_SKIN = {
   
   panels: { forces: 'us', map: 'the ground', status: 'this one' },
   
-  rows: { train: 'more of us', build: 'we grow' },
+
+
+
+
+
+
+  rows: { train: 'animals', build: 'places' },
   
 
 
 
 
-  buttons: { attack: 'Push', capture: 'Wake', build: 'Grow', menu: '≡' },
+  buttons: { attack: 'ATTACK', capture: 'CAPTURE', build: 'BUILD', menu: '≡' },
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  coach: {
+    'capture-first': 'This ground is nobody\'s. Press {btnCapture}.',
+    'capture-more': 'Take more grey ground. Every second of it pays us.',
+    'build-first': 'Press {btnBuild}, then touch our own green.',
+    water: 'The water pays double. Take it.',
+    'enemy-seen': 'Red ground is theirs. {btnAttack} to push, {btnCapture} to take.',
+    hold: 'Hold more ground than them. That is all of it.',
+  },
   
   chips: {
     all: 'all', army: 'fighters', gather: 'hands', view: 'here',
@@ -88,6 +115,8 @@ const HERD_SKIN = {
     
     taking: 'taking this ground',
   },
+  
+  capture: { losing: 'they are taking this ground' },
   
 
 
@@ -137,8 +166,16 @@ const HERD_SKIN = {
 const YIELD_SKIN = {
   id: 'yield',
   panels: { forces: 'FORCES', map: 'SECTOR MAP', status: 'STOCK STATUS' },
-  rows: { train: 'CREW UP', build: 'BUILD' },
-  buttons: { attack: 'CONTAIN', capture: 'SECURE', build: 'BUILD', menu: '≡' },
+  rows: { train: 'CREW', build: 'BUILDINGS' },
+  buttons: { attack: 'ATTACK', capture: 'CAPTURE', build: 'BUILD', menu: '≡' },
+  coach: {
+    'capture-first': 'Unclaimed block underfoot. Press {btnCapture}.',
+    'capture-more': 'Secure more grey blocks. Each one pays per second.',
+    'build-first': 'Press {btnBuild}, then tap inside your own green.',
+    water: 'A catchment pays double. Secure one.',
+    'enemy-seen': 'Red blocks are theirs. {btnAttack} to move them off, {btnCapture} to take.',
+    hold: 'Hold more ground than they do. That is the job.',
+  },
   chips: {
     all: 'ALL', army: 'CREWS', gather: 'WORKERS', view: 'IN VIEW',
   },
@@ -148,6 +185,7 @@ const YIELD_SKIN = {
     gathering: 'WORKING', loading: 'LOADING', dead: 'OFF ROSTER',
     taking: 'SECURING SECTOR',
   },
+  capture: { losing: 'LOSING SECTOR' },
   nums: { hp: 'HP', dmg: 'DMG', pack: 'HEAD' },
   empty: { name: 'NO CREWS', hint: 'CREW UP TO BEGIN' },
   share: (pct, pts) => `${pct}% SECURED · ${pts}`,
@@ -193,7 +231,7 @@ export function skinFor(faction) {
 
 
 
-export function everyPhrase(skin) {
+export function everyPhrase(skin, skip = []) {
   const out = [];
   const walk = (v) => {
     if (typeof v === 'string') out.push(v);
@@ -202,7 +240,13 @@ export function everyPhrase(skin) {
     
     else if (v && typeof v === 'object') for (const k of Object.keys(v)) if (k !== 'id') walk(v[k]);
   };
-  walk(skin);
+  
+  
+  
+  for (const k of Object.keys(skin)) {
+    if (k === 'id' || skip.includes(k)) continue;
+    walk(skin[k]);
+  }
   return out;
 }
 
@@ -215,13 +259,38 @@ export function everyPhrase(skin) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SHARED_CAPTION_GROUPS = Object.freeze(['buttons']);
+
+
+
+
+
+
+
+
+
+
 export const CAPTION_GROUPS = Object.freeze([
-  'panels', 'rows', 'buttons', 'chips', 'res', 'doing', 'nums', 'empty',
+  'panels', 'rows', 'buttons', 'chips', 'res', 'doing', 'nums', 'empty', 'capture',
 ]);
 
 
-export function everyCaption(skin) {
-  return CAPTION_GROUPS.flatMap((g) => Object.values(skin[g]));
+export function everyCaption(skin, skip = []) {
+  return CAPTION_GROUPS.filter((g) => !skip.includes(g))
+    .flatMap((g) => Object.values(skin[g]));
 }
 
 
@@ -231,9 +300,25 @@ export function everyCaption(skin) {
 
 
 
-export function expandedPhrases(skin) {
+export function coachLine(skin, id) {
+  const raw = skin.coach[id];
+  if (!raw) return '';
+  return raw
+    .replace(/\{btnAttack\}/g, skin.buttons.attack)
+    .replace(/\{btnCapture\}/g, skin.buttons.capture)
+    .replace(/\{btnBuild\}/g, skin.buttons.build);
+}
+
+
+
+
+
+
+
+
+export function expandedPhrases(skin, skip = []) {
   return [
-    ...everyPhrase(skin),
+    ...everyPhrase(skin, skip),
     skin.share(42, '1:23'),
     skin.ticker.made('Haven'),
   ];

@@ -609,6 +609,10 @@ async function start(resumed, networked) {
     
     
     
+    onFactionColours(custom) { if (view) view.setFactionColours(custom); },
+    
+    
+    
     
     
     onJumpCamera(xMm, yMm) { view.centreOn(xMm, yMm); },

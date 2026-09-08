@@ -425,6 +425,68 @@ export function captureEta(sector, player, net, factionOf) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function captureState(sector) {
+  if (sector.owner !== null) {
+    if (sector.hold >= HOLD_MAX) {
+      return { phase: 'idle', pct: 0, owner: sector.owner, actor: null };
+    }
+    return {
+      phase: 'draining',
+      pct: Math.floor(((HOLD_MAX - sector.hold) * 100) / HOLD_MAX),
+      owner: sector.owner,
+      actor: null,
+    };
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  if (sector.claimant !== null) {
+    return {
+      phase: 'claiming',
+      pct: Math.floor((sector.claim * 100) / HOLD_MAX),
+      owner: null,
+      actor: sector.claimant,
+    };
+  }
+  return { phase: 'idle', pct: 0, owner: null, actor: null };
+}
+
+
+
+
+
+
+
+
+
+
 export const ROUT_SHARE_PCT = 85;
 export const ROUT_HOLD_TICKS = ticks(45);
 

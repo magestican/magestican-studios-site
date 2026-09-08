@@ -32,12 +32,19 @@ import {
 } from '../../../web-engine/rts/art/scatter.js';
 import { loadPropAtlas, propPlacement, fallbackPropAtlas } from './propSprites.js';
 import { HERD } from '../../../web-engine/rts/roster.js';
-import { HOLD_MAX } from '../../../web-engine/rts/territory.js';
+import { HOLD_MAX, captureState } from '../../../web-engine/rts/territory.js';
 import { facing8, BRADS } from '../../../web-engine/rts/fixed.js';
 import { UNITS, BUILDINGS } from '../../../web-engine/rts/roster.js';
 import {
   unitSpec, buildingSpec, packPct, STATE, ORDER, MAX_UNITS,
 } from '../../../web-engine/rts/sim/world.js';
+
+
+
+import {
+  washStyle, washAlphaFor, relationOf, groundColour,
+  playerColours, hexInt, WASH_ALPHA as OWNED_WASH_ALPHA,
+} from '../../../web-engine/rts/palette.js';
 import { loadAtlas, rowOf, rowCount, unitScale, fallbackAtlas } from './sprites.js';
 import {
   loadBuildingAtlas, rowOf as buildingRowOf, facingFor, buildingScale, fallbackBuildingAtlas,
@@ -2048,15 +2055,49 @@ export async function createRenderer(canvas, match, viewSeat) {
     wctx.scale(WASH_PX / GROUND_PX, WASH_PX / GROUND_PX);
     for (let sIdx = 0; sIdx < sc; sIdx += 1) {
       const sec = m.w.sectors[sIdx];
-      if (sec.owner !== null || sec.claimant === null || sec.claim <= 0) continue;
+      const st = captureState(sec);
+      if (st.phase === 'idle') continue;
       
       
       if (!revealAll && !vis[seat * sc + sIdx]) continue;
       if (!sectorPath(wctx, map, sIdx)) continue;
-      const alpha = WASH_ALPHA * (sec.claim / HOLD_MAX);
-      wctx.fillStyle = m.factions[sec.claimant] === HERD
-        ? `rgba(96,168,74,${alpha})` : `rgba(196,148,58,${alpha})`;
+
+      
+      
+      
+      
+      
+      
+      const alpha = WASH_ALPHA * (st.pct / 100);
+      if (st.phase === 'claiming') {
+        
+        
+        
+        
+        wctx.fillStyle = washStyle(st.actor, seat, m.factions, alpha, m.teams || null);
+      } else {
+        
+        
+        
+        
+        
+        
+        wctx.fillStyle = `rgba(255,214,92,${alpha})`;
+      }
       wctx.fill();
+
+      
+      
+      
+      wctx.save();
+      wctx.globalAlpha = 0.35 + 0.4 * (st.pct / 100);
+      wctx.strokeStyle = st.phase === 'claiming'
+        ? groundColour(st.actor, seat, m.factions, m.teams || null).edge
+        : '#ffd65c';
+      wctx.lineWidth = 7;
+      wctx.setLineDash([26, 18]);
+      wctx.stroke();
+      wctx.restore();
     }
     wctx.restore();
     washTex.needsUpdate = true;
@@ -2169,7 +2210,13 @@ export async function createRenderer(canvas, match, viewSeat) {
   
   
   
-  const WASH_ALPHA = 0.10;
+  
+  
+  
+  
+  
+  
+  const WASH_ALPHA = OWNED_WASH_ALPHA;
 
   function paintGround(m, seat) {
     const map = m.w.map;
@@ -2206,10 +2253,13 @@ export async function createRenderer(canvas, match, viewSeat) {
       
       for (let sIdx = 0; sIdx < m.w.sectors.length; sIdx += 1) {
         const sec = m.w.sectors[sIdx];
-        if (sec.owner === null) continue;
         if (!sectorPath(gctx, map, sIdx)) continue;
-        gctx.fillStyle = m.factions[sec.owner] === HERD
-          ? `rgba(96,168,74,${WASH_ALPHA})` : `rgba(196,148,58,${WASH_ALPHA})`;
+        
+        
+        
+        
+        const rel = relationOf(sec.owner, seat, m.teams || null);
+        gctx.fillStyle = washStyle(sec.owner, seat, m.factions, washAlphaFor(rel), m.teams || null);
         gctx.fill();
       }
     } else {
@@ -2219,10 +2269,9 @@ export async function createRenderer(canvas, match, viewSeat) {
         for (let cx = 0; cx < CELLS_PER_SIDE; cx += 1) {
           const sIdx = map.sectorOfCell[cy * CELLS_PER_SIDE + cx];
           const sec = m.w.sectors[sIdx];
-          if (sec.owner === null) continue;
           const x0 = cellEdge(cx);
-          gctx.fillStyle = m.factions[sec.owner] === HERD
-            ? `rgba(96,168,74,${WASH_ALPHA})` : `rgba(196,148,58,${WASH_ALPHA})`;
+          const rel = relationOf(sec.owner, seat, m.teams || null);
+          gctx.fillStyle = washStyle(sec.owner, seat, m.factions, washAlphaFor(rel), m.teams || null);
           gctx.fillRect(x0, y0, cellEdge(cx + 1) - x0, y1 - y0);
         }
       }
@@ -2282,9 +2331,13 @@ export async function createRenderer(canvas, match, viewSeat) {
         gctx.lineWidth = 4;
         gctx.stroke();
         const sec = m.w.sectors[sIdx];
-        if (sec.owner === null) continue;
+        
+        
+        
+        
+        
         gctx.globalAlpha = OWNER_DASH_ALPHA;
-        gctx.strokeStyle = edgeFor(m, sec);
+        gctx.strokeStyle = edgeFor(m, sec, seat);
         gctx.lineWidth = 2.5;
         gctx.setLineDash(OWNER_DASH);
         gctx.stroke();
@@ -2319,7 +2372,7 @@ export async function createRenderer(canvas, match, viewSeat) {
           if (right !== here) gctx.fillRect(x1 - 3, y0, 6, y1 - y0);
           if (down !== here) gctx.fillRect(x0, y1 - 3, x1 - x0, 6);
           gctx.globalAlpha = 0.62;
-          gctx.fillStyle = edgeFor(m, sec);
+          gctx.fillStyle = edgeFor(m, sec, seat);
           if (right !== here) gctx.fillRect(x1 - 1, y0, 3, y1 - y0);
           if (down !== here) gctx.fillRect(x0, y1 - 1, x1 - x0, 3);
           gctx.globalAlpha = 1;
@@ -2383,9 +2436,8 @@ export async function createRenderer(canvas, match, viewSeat) {
     return m.factions[sec.owner] === HERD ? PALETTE.herd : PALETTE.yield;
   }
 
-  function edgeFor(m, sec) {
-    if (sec.owner === null) return PALETTE.neutralEdge;
-    return m.factions[sec.owner] === HERD ? PALETTE.herdEdge : PALETTE.yieldEdge;
+  function edgeFor(m, sec, seat) {
+    return groundColour(sec.owner, seat, m.factions, m.teams || null).edge;
   }
 
   
@@ -3881,11 +3933,41 @@ export async function createRenderer(canvas, match, viewSeat) {
 
 
 
+  
+
+
+
+
+
+
+
+
+  let factionColours = {};
+  let seatColours = playerColours(match.factions, factionColours);
+  function setFactionColours(custom) {
+    factionColours = custom ? { ...custom } : {};
+    seatColours = playerColours(match.factions, factionColours);
+    return seatColours.slice();
+  }
+
+  
+  function lighten(hex, t) {
+    const n = hexInt(hex);
+    const r = Math.round(((n >> 16) & 255) + (255 - ((n >> 16) & 255)) * t);
+    const g = Math.round(((n >> 8) & 255) + (255 - ((n >> 8) & 255)) * t);
+    const b = Math.round((n & 255) + (255 - (n & 255)) * t);
+    return (r << 16) | (g << 8) | b;
+  }
+
   function teamTint(m, owner, seat) {
-    const herd = m.factions[owner] === HERD;
-    const mine = owner === seat;
-    if (herd) return mine ? 0xf2ffe8 : 0xd2e8c0;
-    return mine ? 0xfff2dc : 0xefd9b4;
+    
+    
+    
+    
+    
+    
+    const hex = seatColours[owner] || '#ffffff';
+    return lighten(hex, owner === seat ? 0.80 : 0.66);
   }
 
   
@@ -3896,10 +3978,11 @@ export async function createRenderer(canvas, match, viewSeat) {
 
 
   function teamMark(m, owner, seat) {
-    const herd = m.factions[owner] === HERD;
-    const mine = owner === seat;
-    if (herd) return mine ? 0x9dff62 : 0x4f9c2e;
-    return mine ? 0xffb03a : 0xc06318;
+    
+    
+    
+    
+    return hexInt(seatColours[owner] || '#ffffff');
   }
 
   
@@ -5286,8 +5369,15 @@ export async function createRenderer(canvas, match, viewSeat) {
       
       
       
-      if (s.owner === null && s.claimant !== null && s.claim > 0) {
-        progress += `${i}c${s.claimant}${Math.floor((s.claim * 5) / HOLD_MAX)}`;
+      
+      
+      
+      
+      
+      
+      const cs = captureState(s);
+      if (cs.phase !== 'idle') {
+        progress += `${i}${cs.phase[0]}${cs.actor === null ? '-' : cs.actor}${Math.floor(cs.pct / 10)}`;
       }
     }
     const vis = m.presence.visible;
@@ -5429,6 +5519,17 @@ export async function createRenderer(canvas, match, viewSeat) {
       groundKey = '';
     },
     get revealed() { return revealAll; },
+    
+
+
+
+
+
+
+
+    setFactionColours(custom) { return setFactionColours(custom); },
+    
+    get seatColours() { return seatColours.slice(); },
     
 
 

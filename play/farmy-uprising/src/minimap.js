@@ -34,6 +34,8 @@ import { FIELD_MM } from '../../../web-engine/rts/fixed.js';
 import { CELLS_PER_SIDE } from '../../../web-engine/rts/maps/mapFormat.js';
 import { HERD } from '../../../web-engine/rts/roster.js';
 import { terrainForSector, TERRAIN_RECIPE } from '../../../web-engine/rts/art/terrainRecipe.js';
+import { groundColour, playerColours } from '../../../web-engine/rts/palette.js';
+import { captureState } from '../../../web-engine/rts/territory.js';
 
 
 
@@ -67,7 +69,17 @@ const COL = {
   unknownLand: '#212824',
   unknownWater: '#15383e',
   unknownKeystone: '#31291a',
-  neutral: '#6c6248',
+  
+
+
+
+
+
+
+
+
+
+  neutral: '#75736b',
   keystone: '#c8a94e',
   herd: '#79c04a',
   yieldd: '#b9c0c8',
@@ -149,6 +161,8 @@ export function createMinimap({ canvas, match, seat, onJump, skin = 'yield' }) {
   
   const COLS = { ...COL, ...(SKIN_COL[skin] || SKIN_COL.yield) };
   const RGB = Object.fromEntries(Object.entries(COLS).map(([k, v]) => [k, rgb(v)]));
+  
+  let colourOverrides = {};
 
   
   
@@ -243,10 +257,33 @@ export function createMinimap({ canvas, match, seat, onJump, skin = 'yield' }) {
     return c;
   }
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   function ownerColour(m, s) {
-    if (s.kind === 'water') return s.pollution > 1 ? RGB.waterFoul : RGB.water;
-    if (s.owner === null || s.owner < 0) return neutralColour(s);
-    return m.factions[s.owner] === HERD ? RGB.herd : RGB.yieldd;
+    if (s.owner === null || s.owner < 0) {
+      if (s.kind === 'water') return s.pollution > 1 ? RGB.waterFoul : RGB.water;
+      return neutralColour(s);
+    }
+    const c = groundColour(s.owner, seat, m.factions, m.teams || null);
+    
+    
+    if (s.kind === 'water') {
+      return c.rgb.map((v, i) => Math.round(v * 0.6 + RGB.water[i] * 0.4));
+    }
+    return c.rgb;
   }
 
   
@@ -369,7 +406,10 @@ export function createMinimap({ canvas, match, seat, onJump, skin = 'yield' }) {
 
 
 
-  function update(m, s, view) {
+
+
+
+  function update(m, s, view, target = null) {
     if (dead) return;
     if (s !== seat) throw new Error(`minimap is bound to seat ${seat}, asked for ${s}`);
     fitCanvas();
@@ -411,17 +451,82 @@ export function createMinimap({ canvas, match, seat, onJump, skin = 'yield' }) {
     
     
     
+    
+    
+    
+    
+    {
+      const w2 = m.w;
+      const vis2 = m.presence.visible;
+      const base2 = s * sectorCount;
+      const beat = 0.45 + 0.55 * Math.abs(1 - ((now % 800) / 800) * 2);
+      for (let i = 0; i < w2.sectors.length; i += 1) {
+        if (!vis2[base2 + i]) continue;
+        const st = captureState(w2.sectors[i]);
+        if (st.phase === 'idle') continue;
+        const b = bounds[i];
+        if (!b || b.x1 < 0) continue;
+        ctx.save();
+        ctx.globalAlpha = beat;
+        
+        
+        ctx.strokeStyle = st.phase === 'claiming'
+          ? groundColour(st.actor, seat, m.factions, m.teams || null).edge
+          : '#ffd65c';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(b.x0 * px + 0.75, b.y0 * px + 0.75,
+          (b.x1 - b.x0 + 1) * px - 1.5, (b.y1 - b.y0 + 1) * px - 1.5);
+        ctx.restore();
+      }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (target !== null && target !== undefined && bounds[target] && bounds[target].x1 >= 0) {
+      const b = bounds[target];
+      const phase = (now % 1000) / 1000;
+      ctx.save();
+      ctx.globalAlpha = 0.45 + 0.45 * Math.abs(1 - phase * 2);
+      ctx.strokeStyle = COLS.flash;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 3]);
+      ctx.lineDashOffset = -phase * 14;
+      ctx.strokeRect(b.x0 * px + 1, b.y0 * px + 1,
+        (b.x1 - b.x0 + 1) * px - 2, (b.y1 - b.y0 + 1) * px - 2);
+      ctx.restore();
+    }
+
+    
+    
+    
+    
+    
+    
     const vis = m.presence.visible;
     const base = s * sectorCount;
     const w = m.w;
     const blip = Math.max(2, px * 1.35);
     const half = blip / 2;
 
-    ctx.fillStyle = COLS.theirs;
+    
+    
+    
+    const cols = playerColours(m.factions, colourOverrides);
     for (let i = 0; i < w.u.count; i += 1) {
       if (!w.u.alive[i] || w.u.owner[i] === s || w.u.owner[i] < 0) continue;
       const sec = w.u.sector[i];
       if (sec < 0 || !vis[base + sec]) continue;
+      ctx.fillStyle = cols[w.u.owner[i]] || COLS.theirs;
       ctx.fillRect((w.u.x[i] / FIELD_MM) * W - half, (w.u.y[i] / FIELD_MM) * H - half, blip, blip);
     }
     ctx.fillStyle = COLS.mine;
@@ -438,7 +543,7 @@ export function createMinimap({ canvas, match, seat, onJump, skin = 'yield' }) {
       const own = w.b.owner[i];
       const sec = w.b.sector[i];
       if (own !== s && (sec < 0 || !vis[base + sec])) continue;
-      ctx.fillStyle = own === s ? COLS.mine : COLS.theirs;
+      ctx.fillStyle = own === s ? COLS.mine : (cols[own] || COLS.theirs);
       ctx.fillRect((w.b.x[i] / FIELD_MM) * W - bs / 2, (w.b.y[i] / FIELD_MM) * H - bs / 2, bs, bs);
       ctx.strokeStyle = 'rgba(4,10,12,.8)';
       ctx.lineWidth = 1;
@@ -515,6 +620,14 @@ export function createMinimap({ canvas, match, seat, onJump, skin = 'yield' }) {
   return {
     update,
     destroy,
+    
+
+
+
+
+
+
+    setColours(c) { colourOverrides = c ? { ...c } : {}; },
     
     debug: {
       get seen() { return seen.reduce((a, b) => a + b, 0); },

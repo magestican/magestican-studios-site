@@ -216,7 +216,13 @@ export function createLobbyPanel(actions) {
         line.className = 'lob-row';
         if (r.faction) line.classList.add(r.faction === HERD ? 'herd' : 'yield');
         if (r.ready) line.classList.add('ready');
-        const who = r.observer ? 'WATCHING' : (r.faction === HERD ? 'WAKING HERD' : 'YIELD GROUP');
+        
+        
+        
+        
+        
+        
+        const who = r.observer ? 'WATCHING' : (r.faction === HERD ? 'ANIMALS' : 'FARMERS');
         line.innerHTML = `<i></i><b>${r.name}${r.isMe ? ' (you)' : ''}</b>`
           + `<span>${who}</span>`
           + `<em>${r.observer ? '' : (r.ready ? 'READY' : 'WAITING')}</em>`;

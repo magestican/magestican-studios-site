@@ -38,7 +38,7 @@
 
 import { UNITS, BUILDINGS, HERD } from '../../../web-engine/rts/roster.js';
 import { TICKS_PER_SECOND, MATCH_TICKS } from '../../../web-engine/rts/fixed.js';
-import { sharePct, landSeconds, captureEta } from '../../../web-engine/rts/territory.js';
+import { sharePct, landSeconds, captureEta, captureState } from '../../../web-engine/rts/territory.js';
 import { weightIn } from '../../../web-engine/rts/sim/presence.js';
 import { unitSpec, isGatherer, isArmy, STATE } from '../../../web-engine/rts/sim/world.js';
 import { resolveSelection } from '../../../web-engine/rts/sim/commands.js';
@@ -47,7 +47,10 @@ import { loadAtlas } from './sprites.js';
 import { loadBuildingAtlas } from './buildingSprites.js';
 import { loadPortraits, portraitRow } from './portraits.js';
 import { createMinimap } from './minimap.js';
-import { skinFor } from './hudSkin.js';
+import { nextObjective } from '../../../web-engine/rts/coach.js';
+import { FACTION_COLOUR } from '../../../web-engine/rts/palette.js';
+import { loadFactionColours, saveFactionColours } from './store.js';
+import { skinFor, coachLine } from './hudSkin.js';
 
 const $ = (id) => document.getElementById(id);
 const clock = (ticks) => {
@@ -113,10 +116,15 @@ export function createHud(match, seat, actions) {
     ticker: $('ticker'), banner: $('banner'),
     quick: $('quick'), status: $('status'), minimap: $('minimap'),
     income: $('income'),
+    objective: $('objective'), objText: $('obj-text'), objIcon: $('obj-icon'),
+    capBar: $('capture-bar'), capLabel: $('cap-label'), capFill: $('cap-fill'), capEta: $('cap-eta'),
   };
 
   
   let selection = { kind: 'none', key: null };
+
+  
+  let factionColours = loadFactionColours();
 
   
   
@@ -745,6 +753,9 @@ export function createHud(match, seat, actions) {
       st.doing.textContent = skin.empty.hint;
       st.nums.innerHTML = '';
       st.fill.style.width = '0%';
+      
+      
+      renderCaptureBar(m, -1);
       return;
     }
     const w = m.w;
@@ -781,6 +792,8 @@ export function createHud(match, seat, actions) {
     if (eta > 0) {
       st.doing.textContent += ` · ${skin.doing.taking} ${Math.ceil(eta / TICKS_PER_SECOND)}s`;
     }
+    
+    renderCaptureBar(m, w.u.sector[i]);
     st.fill.style.width = `${Math.max(0, Math.min(100, pct))}%`;
     st.bar.classList.toggle('low', pct < 40);
     
@@ -811,6 +824,11 @@ export function createHud(match, seat, actions) {
     },
   }) : null;
   if (el.minimap) el.minimap.__fuMinimap = minimap;
+  
+  
+  
+  if (minimap) minimap.setColours(factionColours);
+  if (actions.onFactionColours) actions.onFactionColours({ ...factionColours });
 
   
 
@@ -877,6 +895,28 @@ export function createHud(match, seat, actions) {
         + `<input type="range" min="0" max="100" value="${v}" data-bus="${bus}">`
         + `<em data-busval="${bus}">${v}%</em></label>`;
     }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    html += '<h3>Colours</h3>';
+    for (const [side, label] of [['herd', 'Animals'], ['yield', 'Farmers']]) {
+      const v = factionColours[side] || FACTION_COLOUR[side];
+      html += `<label class="lvl col"><span>${label}</span>`
+        + `<input type="color" value="${v}" data-colour="${side}">`
+        + `<em data-colourval="${side}">${v}</em></label>`;
+    }
     el.quick.innerHTML = html;
   }
 
@@ -907,12 +947,25 @@ export function createHud(match, seat, actions) {
   
   el.quick.addEventListener('input', (e) => {
     const bus = e.target.dataset.bus;
-    if (!bus) return;
-    const v = Number(e.target.value) / 100;
-    audioLevels[bus] = v;
-    const out = el.quick.querySelector(`[data-busval="${bus}"]`);
-    if (out) out.textContent = `${Math.round(v * 100)}%`;
-    if (actions.onAudioLevel) actions.onAudioLevel(bus, v);
+    if (bus) {
+      const v = Number(e.target.value) / 100;
+      audioLevels[bus] = v;
+      const out = el.quick.querySelector(`[data-busval="${bus}"]`);
+      if (out) out.textContent = `${Math.round(v * 100)}%`;
+      if (actions.onAudioLevel) actions.onAudioLevel(bus, v);
+      return;
+    }
+    
+    
+    
+    const side = e.target.dataset.colour;
+    if (!side) return;
+    factionColours = { ...factionColours, [side]: e.target.value };
+    saveFactionColours(factionColours);
+    const out = el.quick.querySelector(`[data-colourval="${side}"]`);
+    if (out) out.textContent = e.target.value;
+    if (minimap) minimap.setColours(factionColours);
+    if (actions.onFactionColours) actions.onFactionColours({ ...factionColours });
   });
 
   $('btn-attack').addEventListener('click', () => actions.onAttack());
@@ -934,6 +987,7 @@ export function createHud(match, seat, actions) {
   let lastRail = 0;
   let lastBuild = 0;
   let lastStatus = 0;
+  let lastObjective = 0;
 
   function update(m, now, view) {
     const bank = m.banks[seat];
@@ -961,7 +1015,11 @@ export function createHud(match, seat, actions) {
     
     
     
-    if (minimap) minimap.update(m, seat, viewFor(view));
+    
+    
+    
+    if (now - lastObjective > 250) { lastObjective = now; renderObjective(m); }
+    if (minimap) minimap.update(m, seat, viewFor(view), objective ? objective.sector : null);
 
     
     
@@ -982,6 +1040,109 @@ export function createHud(match, seat, actions) {
 
 
 
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  let enemySeenTick = null;
+  
+  let objective = null;
+
+  const OBJECTIVE_ICON = Object.freeze({
+    'capture-first': 'i-capture',
+    'capture-more': 'i-capture',
+    'build-first': 'i-build',
+    water: 'i-water',
+    'enemy-seen': 'i-attack',
+    hold: 'i-goal',
+  });
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function renderCaptureBar(m, sectorIdx) {
+    if (!el.capBar) return;
+    const sec = sectorIdx >= 0 ? m.w.sectors[sectorIdx] : null;
+    const st = sec ? captureState(sec) : { phase: 'idle' };
+    if (!sec || st.phase === 'idle') { el.capBar.classList.remove('show'); return; }
+
+    const eta = captureEtaHere(m, sectorIdx);
+    
+    
+    const mine = st.phase === 'claiming' ? st.actor === seat : eta > 0;
+    el.capBar.classList.toggle('show', true);
+    el.capBar.classList.toggle('losing', !mine);
+    el.capLabel.textContent = mine ? skin.doing.taking : skin.capture.losing;
+    el.capFill.style.width = `${Math.max(2, Math.min(100, st.pct))}%`;
+    el.capEta.textContent = eta > 0 ? `${Math.ceil(eta / TICKS_PER_SECOND)}s` : `${st.pct}%`;
+  }
+
+  function renderObjective(m) {
+    if (!el.objective || !el.objText) return;
+    const w = m.w;
+
+    if (enemySeenTick === null) {
+      for (const s of w.sectors) {
+        if (s.owner !== null && s.owner !== seat) { enemySeenTick = w.tick; break; }
+      }
+    }
+
+    
+    
+    
+    
+    let built = 0;
+    for (let i = 0; i < w.b.count; i += 1) {
+      if (w.b.alive[i] && w.b.owner[i] === seat) built += 1;
+    }
+
+    const spawn = w.map.spawns.find((s) => s.seat === seat);
+    objective = nextObjective({
+      sectors: w.sectors,
+      seat,
+      spawnSector: spawn ? spawn.sector : -1,
+      tick: w.tick,
+      playerBuildings: built,
+      enemySeenTick,
+      prev: objective,
+    });
+
+    const line = coachLine(skin, objective.id);
+    if (el.objText.textContent !== line) el.objText.textContent = line;
+    const want = `#${OBJECTIVE_ICON[objective.id] || 'i-goal'}`;
+    const use = el.objIcon && el.objIcon.firstElementChild;
+    if (use && use.getAttribute('href') !== want) use.setAttribute('href', want);
+    el.objective.classList.toggle('show', line.length > 0);
+  }
 
   function events(evs, m) {
     const t = skin.ticker;
@@ -1030,6 +1191,21 @@ export function createHud(match, seat, actions) {
       get focusName() { return st.name.textContent; },
       
       get skin() { return skin.id; },
+      
+      get factionColours() { return { ...factionColours }; },
+      
+
+
+
+
+
+
+
+      get objective() {
+        return objective
+          ? { id: objective.id, sector: objective.sector, text: el.objText.textContent }
+          : null;
+      },
       
 
 

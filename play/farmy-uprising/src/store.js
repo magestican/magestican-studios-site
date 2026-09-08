@@ -141,6 +141,39 @@ export function saveProfile(p) {
 
 
 
+
+
+
+
+
+
+const COLOURS_KEY = 'fu.colours.v1';
+const HEX6 = /^#[0-9a-fA-F]{6}$/;
+
+export function loadFactionColours() {
+  const v = readJson(COLOURS_KEY);
+  const out = {};
+  if (!v || typeof v !== 'object') return out;
+  for (const side of ['herd', 'yield']) {
+    if (typeof v[side] === 'string' && HEX6.test(v[side])) out[side] = v[side].toLowerCase();
+  }
+  return out;
+}
+
+export function saveFactionColours(c) {
+  const clean = {};
+  for (const side of ['herd', 'yield']) {
+    if (c && typeof c[side] === 'string' && HEX6.test(c[side])) clean[side] = c[side].toLowerCase();
+  }
+  return writeJson(COLOURS_KEY, clean);
+}
+
+
+
+
+
+
+
 export function recordMatch(result) {
   const before = loadProfile();
   
