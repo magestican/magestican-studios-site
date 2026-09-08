@@ -35,7 +35,7 @@ import {
   fixturesFor, visibilityFor, bakeSurface, combineLight, sampleLight, moverTint, flickerFor, levelsAt,
   LIGHT, LIGHT_MODES, transformPoints, transformNormals,
 } from '../../../../web-engine/horror/prelightDeck.mjs';
-import { flickerSchedule } from '../../../../web-engine/horror/tools/prelight.mjs';
+import { flickerSchedule } from '../../../../web-engine/ps1/prelight.mjs';
 import { placeHazards, footprint, HAZARD } from '../../../../web-engine/horror/hazards.js';
 import { runRect } from '../../../../web-engine/horror/level.js';
 import { lookState } from '../render/materials.js';

@@ -24,7 +24,7 @@ import { makeRowMap } from '../../../../web-engine/ps1/faceChart.mjs';
 import { FACE_SKIN, hash2 } from '../constants.js';
 
 
-import { palette, toHex } from '../../../../web-engine/horror/tools/texturePaint.mjs';
+import { palette, toHex } from '../../../../web-engine/ps1/texturePaint.mjs';
 
 
 import { MOVER } from '../../../../web-engine/horror/prelightDeck.mjs';

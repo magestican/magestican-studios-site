@@ -12,7 +12,7 @@
 
 
 
-import { palette, toHex } from '../../../web-engine/horror/tools/texturePaint.mjs';
+import { palette, toHex } from '../../../web-engine/ps1/texturePaint.mjs';
 
 export const XANDER_H = 1.80;
 

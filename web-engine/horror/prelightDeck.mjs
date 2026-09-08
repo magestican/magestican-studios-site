@@ -43,7 +43,7 @@
 
 
 
-import { prelight, flickerSchedule } from './tools/prelight.mjs';
+import { prelight, flickerSchedule } from '../ps1/prelight.mjs';
 import { insideLevel, runRect } from './level.js';
 
 export const LIGHT = Object.freeze({

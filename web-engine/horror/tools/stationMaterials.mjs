@@ -28,8 +28,8 @@
 import {
   createSheet, palette, fill, gradient, shade, noise, speckle, stripes, weave, twill,
   seam, rivet, scratches, crack, grime, quantise, blood, dither, hex, set, get, hash2, mulberry32,
-} from './texturePaint.mjs';
-import { paintMaterial } from './materials.mjs';
+} from '../../ps1/texturePaint.mjs';
+import { paintMaterial } from '../../ps1/materials.mjs';
 
 const R = (size, f) => Math.max(1, Math.round(size * f));
 const clampByte = (v) => Math.max(0, Math.min(255, Math.round(v)));

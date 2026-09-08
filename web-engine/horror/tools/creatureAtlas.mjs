@@ -34,7 +34,7 @@
 import {
   atlas, createSheet, palette, gradient, noise, speckle, stripes, grime,
   dither, scratches, seam, stitches, blood, to15, set, valueNoise,
-} from './texturePaint.mjs';
+} from '../../ps1/texturePaint.mjs';
 
 
 export const CREATURE_SPECIES = Object.freeze(['chicken', 'porker', 'cow', 'horse']);

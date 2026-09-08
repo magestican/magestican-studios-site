@@ -50,7 +50,7 @@
 
 
 
-import { QUANT_LEVELS } from '../../ps1/ps1Shader.mjs';
+import { QUANT_LEVELS } from './ps1Shader.mjs';
 import { mulberry32, hex } from './texturePaint.mjs';
 
 export { QUANT_LEVELS };

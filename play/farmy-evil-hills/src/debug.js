@@ -50,7 +50,7 @@ import { PS1_SNAP } from '../../shared/ps1Render/ps1Material.js';
 
 
 
-import { palette, to15 } from '../../../web-engine/horror/tools/texturePaint.mjs';
+import { palette, to15 } from '../../../web-engine/ps1/texturePaint.mjs';
 
 
 export function createDebug(ctx) {

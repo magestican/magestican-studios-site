@@ -49,6 +49,7 @@ import {
 } from '../../../web-engine/rts/palette.js';
 import { loadAtlas, rowOf, rowCount, unitScale, fallbackAtlas } from './sprites.js';
 import { createVisualSpread } from './visualSpread.js';
+import { allOwnerProps } from '../../../web-engine/rts/art/ownerProps.js';
 import { shouldRetreat } from '../../../web-engine/rts/sim/retreat.js';
 import {
   loadBuildingAtlas, rowOf as buildingRowOf, facingFor, buildingScale, fallbackBuildingAtlas,
@@ -2634,7 +2635,20 @@ export async function createRenderer(canvas, match, viewSeat) {
 
   function layProps(m, seat, yawSteps) {
     const yaw = (yawSteps * Math.PI) / 2;
-    const list = scatter.props.slice()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const list = scatter.props.concat(ownerPropList)
       .sort((a, b) => depthKey(a, yawSteps) - depthKey(b, yawSteps));
     const vis = m.presence.visible;
     const sc = m.w.sectors.length;
@@ -2705,6 +2719,8 @@ export async function createRenderer(canvas, match, viewSeat) {
     }
     propMesh.count = n;
     castProps.count = n;
+    
+    propsDrawn = n;
     propMesh.instanceMatrix.needsUpdate = true;
     castProps.instanceMatrix.needsUpdate = true;
     propTileAttr.needsUpdate = true;
@@ -4052,6 +4068,11 @@ export async function createRenderer(canvas, match, viewSeat) {
 
 
 
+
+  
+  let ownerPropList = [];
+  
+  let propsDrawn = 0;
 
   
   const spread = createVisualSpread();
@@ -5566,6 +5587,12 @@ export async function createRenderer(canvas, match, viewSeat) {
       paintGround(m, seat);
       paintWash(m, seat);
       
+      
+      
+      
+      
+      ownerPropList = allOwnerProps(m.w.map, m.w.sectors);
+      
       layProps(m, seat, view.yawSteps);
       propYaw = view.yawSteps;
     } else if (progress !== washKey) {
@@ -5710,6 +5737,14 @@ export async function createRenderer(canvas, match, viewSeat) {
 
 
     debugSpread(id) { return spread.offsetOf(id).slice(); },
+    
+
+
+
+
+
+
+    debugPropCount() { return propsDrawn; },
     
 
 

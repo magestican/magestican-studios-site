@@ -56,8 +56,8 @@
 import {
   createSheet, palette, fill, shade, stitches, seam, rivet, patch, blit, set, get, atlas,
   speckle, quantise, mulberry32,
-} from './texturePaint.mjs';
-import { paintMaterial } from './materials.mjs';
+} from '../../ps1/texturePaint.mjs';
+import { paintMaterial } from '../../ps1/materials.mjs';
 
 export const XANDER_PARTS = Object.freeze({
   torso: [128, 64], pelvis: [64, 40], leg: [32, 96], sleeve: [32, 48], trap: [48, 24],

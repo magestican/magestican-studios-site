@@ -19,7 +19,7 @@
 
 import * as THREE from 'three';
 import { stationKit, RECIPES } from '../../../../web-engine/horror/tools/stationMaterials.mjs';
-import { paintMaterial } from '../../../../web-engine/horror/tools/materials.mjs';
+import { paintMaterial } from '../../../../web-engine/ps1/materials.mjs';
 import { bindSheet, texturedMaterial } from './textures.js';
 
 const KITS = new Map();
