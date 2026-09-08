@@ -611,6 +611,10 @@ async function start(resumed, networked) {
 
   $('menu').classList.remove('show');
   $('endcard').classList.remove('show');
+  
+  
+  
+  $('pausecard').classList.remove('show');
   $('banner').classList.remove('show');
   $('buildbar').classList.remove('open');
 
@@ -817,6 +821,65 @@ $('btn-multi').addEventListener('click', () => {
 $('btn-build').addEventListener('click', () => $('buildbar').classList.toggle('open'));
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function pauseMatch(on) {
+  if (!match || match.over) return;
+  const solo = !netMatch;
+  
+  paused = on && solo;
+  $('pausecard').classList.toggle('show', !!on);
+  if (!on) return;
+  const left = Math.max(0, MATCH_TICKS - match.w.tick);
+  const mins = Math.floor(left / (60 * TICKS_PER_SECOND));
+  const secs = Math.floor(left / TICKS_PER_SECOND) % 60;
+  $('pause-clock').textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+  $('pause-title').textContent = solo ? 'Paused' : 'The match is still running';
+  $('pause-where').textContent = solo
+    ? 'Nothing moves until you come back.'
+    : 'A match against somebody else cannot be stopped from one side.';
+  const rows = [
+    ['Land held', `${landSeconds(match.score[SEAT])} pts`],
+    ['Share of the map', `${sharePct(match.w.sectors, SEAT)}%`],
+  ];
+  $('pause-stats').innerHTML = rows
+    .map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join('');
+}
+$('btn-pause').addEventListener('click', () => pauseMatch(!$('pausecard').classList.contains('show')));
+$('btn-unpause').addEventListener('click', () => pauseMatch(false));
+
+
+
+
+$('btn-give-up').addEventListener('click', () => {
+  pauseMatch(false);
+  
+  
+  
+  
+  if (match && !match.over) { match.over = true; match.winner = 1 - SEAT; match.endReason = 'gaveUp'; }
+});
+
+
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || !match || match.over) return;
+  if ($('menu').classList.contains('show') || $('endcard').classList.contains('show')) return;
+  pauseMatch(!$('pausecard').classList.contains('show'));
+});
+
+
 function unitsOnScreen() {
   const ids = [];
   const w = match.w;
@@ -878,6 +941,10 @@ function animateEndCard() {
 
 function showEnd() {
   ended = true;
+  
+  
+  $('pausecard').classList.remove('show');
+  paused = false;
   const order = placings(match);
   const total = match.score[0] + match.score[1];
   const st = match.stats[SEAT];

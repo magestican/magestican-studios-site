@@ -453,7 +453,15 @@ export function createHud(match, seat, actions) {
   function renderBuildBar(m) {
     const faction = m.factions[seat];
     const units = Object.keys(UNITS).filter((id) => UNITS[id].faction === faction).sort();
-    const builds = Object.keys(BUILDINGS).filter((id) => BUILDINGS[id].faction === faction).sort();
+    
+    
+    
+    
+    
+    
+    const builds = Object.keys(BUILDINGS)
+      .filter((id) => BUILDINGS[id].faction === faction && BUILDINGS[id].buildable !== false)
+      .sort();
 
     const trainWhy = units.map((id) => whyCannotTrain(m.w, m.banks, seat, id) || '');
     
@@ -502,7 +510,11 @@ export function createHud(match, seat, actions) {
         + `<span>${spec.name}</span><b>${cost(spec)}</b></button>`;
     });
     html += '</div></section>';
-    el.buildBar.innerHTML = html;
+    
+    
+    
+    el.buildBar.innerHTML = `<div class="qbody">${html}</div>`
+      + `<div class="qfoot"><button id="build-done" type="button">${skin.quick.done}</button></div>`;
     paintIcons(el.buildBar);
     
     
@@ -917,25 +929,26 @@ export function createHud(match, seat, actions) {
     ['autoRebuild', 'Auto-rebuild', 'walls and towers are replaced'],
   ];
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   function renderQuick(m) {
     const a = m.automation[seat];
-    let html = '<h3>Quick menu</h3>';
-    for (const [key, label, why] of TOGGLES) {
-      html += `<label class="tgl"><input type="checkbox" data-toggle="${key}"`
-        + `${a[key] ? ' checked' : ''}><span>${label}</span><em>${why}</em></label>`;
-    }
-    
-    
-    
-    
-    
-    html += '<h3>Sound</h3>';
-    for (const [bus, label] of AUDIO_BUSES) {
-      const v = Math.round((audioLevels[bus] ?? 1) * 100);
-      html += `<label class="lvl"><span>${label}</span>`
-        + `<input type="range" min="0" max="100" value="${v}" data-bus="${bus}">`
-        + `<em data-busval="${bus}">${v}%</em></label>`;
-    }
+    const group = (label, body) => `<section class="qgroup bpanel" data-label="${label}">${body}</section>`;
 
     
     
@@ -951,14 +964,43 @@ export function createHud(match, seat, actions) {
     
     
     
-    html += '<h3>Colours</h3>';
+    
+    
+    
+    let cols = '';
     for (const [side, label] of [['herd', 'Animals'], ['yield', 'Farmers']]) {
       const v = factionColours[side] || FACTION_COLOUR[side];
-      html += `<label class="lvl col"><span>${label}</span>`
+      cols += `<label class="col"><span>${label}</span>`
         + `<input type="color" value="${v}" data-colour="${side}">`
         + `<em data-colourval="${side}">${v}</em></label>`;
     }
-    el.quick.innerHTML = html;
+    let html = group(skin.quick.colours, `<div class="qcols">${cols}</div>`);
+
+    
+    
+    
+    
+    
+    let lvls = '';
+    for (const [bus, label] of AUDIO_BUSES) {
+      const v = Math.round((audioLevels[bus] ?? 1) * 100);
+      lvls += `<label class="lvl"><span>${label}</span>`
+        + `<input type="range" min="0" max="100" value="${v}" data-bus="${bus}">`
+        + `<em data-busval="${bus}">${v}%</em></label>`;
+    }
+    html += group(skin.quick.sound, lvls);
+
+    let tgls = '';
+    for (const [key, label, why] of TOGGLES) {
+      tgls += `<label class="tgl"><input type="checkbox" data-toggle="${key}"`
+        + `${a[key] ? ' checked' : ''}><span>${label}</span><em>${why}</em></label>`;
+    }
+    html += group(skin.quick.automation, tgls);
+    
+    
+    
+    el.quick.innerHTML = `<div class="qbody">${html}</div>`
+      + `<div class="qfoot"><button id="quick-done" type="button">${skin.quick.done}</button></div>`;
   }
 
   
@@ -974,6 +1016,9 @@ export function createHud(match, seat, actions) {
   el.buildBar.addEventListener('click', (e) => {
     const b = e.target.closest('button');
     if (!b) return;
+    
+    
+    if (b.id === 'build-done') { el.buildBar.classList.remove('open'); return; }
     if (b.dataset.train) actions.onTrain(b.dataset.train);
     else if (b.dataset.build) actions.onBuildPick(b.dataset.build);
   });
@@ -1012,6 +1057,12 @@ export function createHud(match, seat, actions) {
   $('btn-attack').addEventListener('click', () => actions.onAttack());
   $('btn-capture').addEventListener('click', () => actions.onCapture());
   $('btn-quick').addEventListener('click', () => el.quick.classList.toggle('open'));
+  
+  
+  
+  el.quick.addEventListener('click', (e) => {
+    if (e.target.closest('#quick-done')) el.quick.classList.remove('open');
+  });
 
   
   

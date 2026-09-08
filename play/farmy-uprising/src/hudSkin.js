@@ -68,6 +68,8 @@ const HERD_SKIN = {
   
   panels: { forces: 'us', map: 'the ground', status: 'this one' },
   
+  quick: { colours: 'our colours', sound: 'what we hear', automation: 'what we do on our own', done: 'back to it' },
+  
 
 
 
@@ -170,6 +172,8 @@ const YIELD_SKIN = {
   
   
   panels: { forces: 'FORCES', map: 'SECTOR MAP', status: 'UNIT STATUS' },
+  
+  quick: { colours: 'LIVERY', sound: 'AUDIO', automation: 'AUTOMATION', done: 'CLOSE' },
   rows: { train: 'CREW', build: 'BUILDINGS' },
   buttons: { attack: 'ATTACK', capture: 'CAPTURE', build: 'BUILD', menu: '≡' },
   coach: {
@@ -289,6 +293,10 @@ export const SHARED_CAPTION_GROUPS = Object.freeze(['buttons']);
 
 export const CAPTION_GROUPS = Object.freeze([
   'panels', 'rows', 'buttons', 'chips', 'res', 'doing', 'nums', 'empty', 'capture',
+  
+  
+  
+  'quick',
 ]);
 
 
