@@ -81,6 +81,83 @@ export function laneFor(lanes, key) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function dealLane(lanes, mates = [], role = 'rusher', rng = Math.random) {
+  if (!lanes || !lanes.length) return null;
+  const guard = role === 'guard';
+  const counts = new Map(lanes.map((l) => [l.id, 0]));
+  let held = 0;
+  for (const m of mates || []) {
+    if (!m || (m.role === 'guard') !== guard) continue;
+    if (!counts.has(m.laneId)) continue;
+    counts.set(m.laneId, counts.get(m.laneId) + 1);
+    held += 1;
+  }
+  if (!held) return lanes.find((l) => l.id === 'mid') || lanes[0];
+  let min = Infinity;
+  for (const n of counts.values()) if (n < min) min = n;
+  const candidates = lanes.filter((l) => counts.get(l.id) === min);
+  return candidates[Math.floor(rng() * candidates.length) % candidates.length];
+}
+
+
+
+
+
+
+
+
+
+
+
+export function laneById(lanes, id) {
+  if (!lanes || !lanes.length || !id) return null;
+  return lanes.find((l) => l.id === id) || null;
+}
+
+
+
+
+
+
+
+
+
 export function laneProgress(lane, x, z, fromStart = true) {
   if (!lane) return 0;
   let best = 1;

@@ -92,6 +92,61 @@ export function dealRole(taken = [], rng = Math.random) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const AWARENESS_MARGIN = 12;
+
+
+export function awarenessRange(role) {
+  return profileFor(role).engageRange + AWARENESS_MARGIN;
+}
+
+
+
+
+
+
+
+
+
+
+export function noticesFoe(role, distanceToEnemy, acquired = false) {
+  if (acquired) return true;
+  return Number.isFinite(distanceToEnemy) && distanceToEnemy <= awarenessRange(role);
+}
+
+
+
+
+
+
 export function closeDesire(role, distanceToEnemy) {
   const p = profileFor(role);
   if (!Number.isFinite(distanceToEnemy)) return p.pushiness;

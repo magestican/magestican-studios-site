@@ -89,6 +89,7 @@ import { Bot }                from './entities/bot.js';
 
 
 import { dealRole }           from '../../../web-engine/ai/botRoles.js';
+import { dealLane }           from '../../../web-engine/ai/laneTactics.js';
 import { pickSpawnSlot }      from '../../../web-engine/movement/spawnScatter.js';
 import { TracerSystem }       from './entities/tracer.js';
 import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
@@ -1540,11 +1541,19 @@ export class Game {
       if (this.bots.has(pid)) continue;
       const team = meta.team === 'red' ? 'red' : 'blue';
       const mates = [...this.bots.values()].filter((b) => b.team === team);
+      const adoptedRole = dealRole(mates.map((b) => b.role));
       const bot = new Bot({
         id: pid, name: meta.name, team, character: meta.character,
         world: this.world,
         slot: pickSpawnSlot(mates.map((b) => b.spawnSlot)),
-        role: dealRole(mates.map((b) => b.role)),
+        role: adoptedRole,
+        
+        
+        
+        
+        laneId: dealLane(this.world.lanes,
+          mates.map((b) => ({ role: b.role, laneId: b.laneId })),
+          adoptedRole)?.id ?? null,
       });
       const rp = this.remotePlayers.get(pid);
       if (rp) {
@@ -2591,7 +2600,15 @@ export class Game {
     
     
     const takenRoles = mates.map((b) => b.role);
-    const bot = Bot.make({ team, world: this.world, seed: this.seed, taken, takenRoles });
+    
+    
+    
+    
+    
+    const bot = Bot.make({
+      team, world: this.world, seed: this.seed, taken, takenRoles,
+      mates: mates.map((b) => ({ role: b.role, laneId: b.laneId })),
+    });
     this.bots.set(bot.peerId, bot);
     
     this.playerMeta.set(bot.peerId, {
