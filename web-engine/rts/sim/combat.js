@@ -353,10 +353,48 @@ export function stepCombat(w, damageBonusPct = null, eventsOut = []) {
     const target = acquire(w, i);
     if (target.kind === 0) continue;
 
-    const range = U_RANGE[kind];
     const tx = target.kind === 1 ? u.x[target.slot] : w.b.x[target.slot];
     const ty = target.kind === 1 ? u.y[target.slot] : w.b.y[target.slot];
     const d2 = dist2(u.x[i], u.y[i], tx, ty);
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const range = U_RANGE[kind];
 
     if (d2 > range * range) {
       
@@ -381,22 +419,6 @@ export function stepCombat(w, damageBonusPct = null, eventsOut = []) {
     let per = U_DAMAGE[kind];
     if (damageBonusPct) per += Math.floor((per * damageBonusPct[i]) / 100);
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     const crowd = w._crowd ? w._crowd[i] : 100;
