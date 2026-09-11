@@ -569,6 +569,12 @@ const SURFACE_SET = Object.freeze({
   straw: { heel: 'heelStraw', toe: 'toeStraw' },
 });
 
+
+
+
+
+export const STEP_LEVEL = 0.35;
+
 export function footSfx(x, z, running, surface = 'deck') {
   const ctx = audio.ensure();
   if (!ctx || !audio.running) return;
@@ -598,13 +604,13 @@ export function footSfx(x, z, running, surface = 'deck') {
   const rate = (running ? 0.94 : 1.0) * (0.94 + Math.random() * 0.12);
   if (sfxSheet.play(set.heel, {
     dest: out,
-    gain: (running ? 1.0 : 0.62) * (0.9 + Math.random() * 0.2),
+    gain: STEP_LEVEL * (running ? 1.0 : 0.62) * (0.9 + Math.random() * 0.2),
     rate,
   })) {
     sfxSheet.play(set.toe, {
       dest: out,
       when: running ? 0.055 : 0.085,
-      gain: (running ? 0.62 : 0.4) * (0.9 + Math.random() * 0.2),
+      gain: STEP_LEVEL * (running ? 0.62 : 0.4) * (0.9 + Math.random() * 0.2),
       rate: rate * (0.97 + Math.random() * 0.06),
     });
     return;
@@ -617,14 +623,14 @@ export function footSfx(x, z, running, surface = 'deck') {
   o.type = 'sine';
   o.frequency.setValueAtTime(150 * v, t);
   o.frequency.exponentialRampToValueAtTime(52 * v, t + 0.075);
-  og.gain.setValueAtTime(0.22 * hard, t);
+  og.gain.setValueAtTime(STEP_LEVEL * 0.22 * hard, t);
   og.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
   o.connect(og); og.connect(out); o.start(t); o.stop(t + 0.16);
 
   const r = ctx.createOscillator(); const rg = ctx.createGain();
   r.type = 'triangle';
   r.frequency.value = (running ? 320 : 260) * v;
-  rg.gain.setValueAtTime(0.09 * hard, t + 0.004);
+  rg.gain.setValueAtTime(STEP_LEVEL * 0.09 * hard, t + 0.004);
   rg.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
   r.connect(rg); rg.connect(out); r.start(t); r.stop(t + 0.11);
 
@@ -634,7 +640,7 @@ export function footSfx(x, z, running, surface = 'deck') {
   const n = ctx.createBufferSource(); n.buffer = b;
   const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1900;
   const ng = ctx.createGain();
-  ng.gain.setValueAtTime(0.085 / hard, t);
+  ng.gain.setValueAtTime(STEP_LEVEL * 0.085 / hard, t);
   ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
   n.connect(hp); hp.connect(ng); ng.connect(out); n.start(t); n.stop(t + 0.08);
 }

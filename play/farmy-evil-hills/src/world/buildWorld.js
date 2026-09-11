@@ -222,12 +222,7 @@ export function buildWorld(ctx, seed) {
       extraFixtures.push({ x: p.x, y: y + L.y, z: p.z, colour: hexRgb(L.colour), intensity: L.intensity, radius: L.radius, flicker: !!L.flicker });
     }
     if (p.solid && p.place !== 'ceiling' && p.solids && p.solids.length) {
-      
-      
-      
-      
-      
-      for (const sd of p.solids) ctx.solidProps.push({ x: sd.x, z: sd.z, r: sd.r, h: p.h });
+      for (const sd of p.solids) ctx.solidProps.push({ x: sd.x, z: sd.z, r: sd.r });
       const shGeo = new THREE.PlaneGeometry(1, 1);
       const shMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0, depthWrite: false });
       const sh = new THREE.Mesh(shGeo, shMat);
@@ -235,7 +230,9 @@ export function buildWorld(ctx, seed) {
       sh.position.set(p.x, 0.012, p.z);
       sh.userData.noBake = true;
       parent.add(sh);
-      ctx.props.push({ mesh: g, shadow: sh, mat: shMat, x: p.x, z: p.z, r: Math.max(0.2, p.r || 0.3), h: p.h || 0.8 });
+      
+      
+      ctx.props.push({ mesh: g, shadow: sh, mat: shMat, x: p.x, z: p.z, r: Math.max(0.2, p.r || 0.3), h: p.h || 0.8, circles: p.solids });
     }
     return g;
   };
@@ -342,6 +339,42 @@ export function buildWorld(ctx, seed) {
         
         
         baseY: 0.95, bob: 0.09, spin: 0.7,
+      });
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    {
+      const bz = cz - (cz - ctx.safeRoom.z0) * 0.5;
+      const crate = paint(new THREE.BoxGeometry(0.38, 0.30, 0.26).toNonIndexed(), 0xb5893f);
+      crate.position.set(cx, 0.88, bz);
+      ctx.deckGroup.add(crate);
+      ctx.pickups.push({
+        mesh: crate, x: cx, z: bz, ammo: true, taken: false,
+        
+        
+        baseY: 0.88, bob: 0.06, spin: 0.95,
       });
     }
 

@@ -88,6 +88,7 @@ import {
 } from '../../../web-engine/horror/dismemberment.js';
 import {
   readyWeapon, tickWeapon, canFire, fire, WEAPONS, feelOf,
+  needsReload, startReload, stepReload, cancelReload,
   createTrigger, pressTrigger, releaseTrigger, dropClicks, stepTrigger,
   HIT_STOP_SLOW, KNOCK_SECONDS, CAM_PUNCH_S,
 } from '../../../web-engine/horror/weapons.js';
@@ -119,7 +120,7 @@ import {
 
 
 
-import { DOLLY } from '../../../web-engine/horror/dollyCamera.js';
+import { DOLLY, cellAt } from '../../../web-engine/horror/dollyCamera.js';
 import {
   SETTINGS_KEYS, resolveSettings, cameraBack, stickRadius, stickForward, voxScale,
   toPercent, fromPercent,
@@ -154,6 +155,7 @@ import {
 } from '../../../web-engine/horror/creatureUv.js';
 import { FLASH_MATS, grimeTexture, panel, texturedMaterial } from './world/textures.js';
 import { buildDeck, pushOutOfPillars } from './world/deck.js';
+import { fadeProps } from './world/propFade.js';
 import { makeLeak, makeWire, sparkSprite } from './world/hazards.js';
 import {
   CHICKEN_RIG_CFG, COW_RIG, CREATURE_FACE, HORSE_RIG, PORKER_RIG, SEVER_PART, applyChickenPose,
@@ -1260,7 +1262,14 @@ export function boot(canvas, hud) {
     
     
     
-    weapon: readyWeapon('boltDriver', { ammo: 48 }),
+    
+    
+    
+    
+    
+    
+    
+    weapon: readyWeapon('boltDriver', { ammo: 8, reserve: 40 }),
     struggle: null,
     latchedBy: null,
     dead: false,
@@ -1794,6 +1803,35 @@ export function boot(canvas, hud) {
     
     
     
+    if (e.code === 'KeyR' && !e.repeat) {
+      if (player.dead || player.struggle) {
+        
+        
+        
+        
+      } else if (startReload(player.weapon)) {
+        sfxSheet.play('settle', { gain: 0.55, rate: 0.85 });
+      } else if (player.weapon.spec.ammoPerShot === 0) {
+        hud.msg('THE PROD RUNS OFF THE SUIT');
+        actCardT = 2;
+      } else if (player.weapon.reserve <= 0) {
+        
+        
+        
+        
+        hud.msg('NO BOLTS');
+        actCardT = 2;
+      }
+      return;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -2071,6 +2109,9 @@ export function boot(canvas, hud) {
   let studioBg = null;
   let soloSaved = null;
   let target = null;
+  
+  
+  let aimBearing = 0;
   let aimLatch = createAimLatch();
   let walkArmsShown = false;
   let wasGaitBranch = false;
@@ -2451,11 +2492,6 @@ export function boot(canvas, hud) {
   const gradeEl = document.getElementById('grade');
   
   const skipEl = document.getElementById('skipBtn');
-  
-  
-  
-  const introCapEl = document.getElementById('introCap');
-  const introTapEl = document.getElementById('introTap');
 
   
   
@@ -3151,12 +3187,6 @@ export function boot(canvas, hud) {
     }
     window.addEventListener('keydown', introSkipPress);
     window.addEventListener('pointerdown', introSkipPress);
-    
-    
-    
-    
-    
-    if (introTapEl) introTapEl.style.display = 'block';
   }
 
   function endIntro() {
@@ -3180,8 +3210,6 @@ export function boot(canvas, hud) {
     const tEl = document.getElementById('introTitle');
     if (tEl) tEl.style.opacity = '0';
     if (skipEl) skipEl.style.display = 'none';
-    if (introCapEl) introCapEl.style.display = 'none';
-    if (introTapEl) introTapEl.style.display = 'none';
     xRig.visible = true;
     intro = null;
     introDone = true;
@@ -3265,11 +3293,7 @@ export function boot(canvas, hud) {
     
     
     
-    
-    
-    const skipUp = intro.t > 0.8 ? 'block' : 'none';
-    if (skipEl) skipEl.style.display = skipUp;
-    if (introCapEl) introCapEl.style.display = skipUp;
+    if (skipEl) skipEl.style.display = intro.t > 0.8 ? 'block' : 'none';
 
     const shotId = INTRO_SHOTS[intro.shot].id;
     const o = INTRO_SET[shotId];
@@ -3708,14 +3732,7 @@ export function boot(canvas, hud) {
       
       setLookMode('intro');
       scene.fog = null;
-      
-      
-      
-      
-      
-      
-      
-      runIntroFrame(now, wallDt);
+      runIntroFrame(now, dt);
       requestAnimationFrame(step);
       return;
     }
@@ -4188,6 +4205,19 @@ export function boot(canvas, hud) {
     
     
     tickWeapon(player.weapon, wallDt);
+    
+    
+    
+    
+    if (player.struggle || player.dead) cancelReload(player.weapon);
+    else {
+      const rl = stepReload(player.weapon, wallDt);
+      if (rl.done) {
+        sfxSheet.play('settle', { gain: 0.8, rate: 1.15 });
+        hud.msg(rl.loaded >= player.weapon.spec.magazine ? 'RELOADED' : `${rl.loaded} LOADED`);
+        actCardT = 1.6;
+      }
+    }
     aimLowNow = aimLow || aimLowToggle || keys.has('ControlLeft') || keys.has('KeyQ');
     
     
@@ -5736,7 +5766,7 @@ export function boot(canvas, hud) {
       
       
       
-      solids: solidProps,
+      shutBay: !liftCar || liftCar.kind !== 'arrival',
     };
     let camWant = 'auto';
     
@@ -5756,8 +5786,17 @@ export function boot(canvas, hud) {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    const pastClearRadius = liftCar && Math.hypot(player.x - liftCar.x, player.z - liftCar.z) > LIFT.clearRadius;
     if (liftCar && ride.phase !== 'idle' && ride.phase !== 'opening' && ride.phase !== 'boarding'
-      && (ride.phase !== 'clear' || ride.rise > 0)) {
+      && (ride.phase !== 'clear' || (ride.rise > 0 && !pastClearRadius))) {
       camWant = 'fixed';
       camOpts.fixed = {
 
@@ -5783,7 +5822,20 @@ export function boot(canvas, hud) {
         fov: 72,
       };
     }
-    const camPlayer = { x: player.x, z: player.z, yaw: player.yaw, vx: camVel.x, vz: camVel.z };
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    if (target && target.alive) aimBearing = Math.atan2(-(target.x - player.x), target.z - player.z);
+    const camPlayer = { x: player.x, z: player.z, yaw: aimLatch.up ? aimBearing : player.yaw, vx: camVel.x, vz: camVel.z };
     
     
     if (!camState) camState = createCameraState(deck, camPlayer, camWant, camOpts);
@@ -5791,6 +5843,9 @@ export function boot(canvas, hud) {
     camMode = place.mode;
     camEye = place.eye;
     camTarget = place.target;
+    
+    
+    fadeProps(props, place.eye, player, dtCam, hideLocker ? hideLocker.mesh : null);
     
     
     
@@ -7391,7 +7446,11 @@ export function boot(canvas, hud) {
       const it = pendingPickup;
       pendingPickup = null;
       it.mesh.visible = false;
-      if (it.ammo) player.weapon.ammo += 24;
+      
+      
+      
+      
+      if (it.ammo) player.weapon.reserve += 24;
       
       
       
@@ -7556,7 +7615,19 @@ export function boot(canvas, hud) {
       
       
       const coopInside = coopNet ? coopNet.liftInside(inCar) : inCar;
-      ride = stepLift(ride, dt, { near, inside: coopInside, away: toCar > LIFT.clearRadius });
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const lensInCar = !!camEye && !!deck && cellAt(deck, camEye.x, camEye.z)?.kind === 'bay';
+      const away = toCar > LIFT.clearRadius && (!lensInCar || toCar > LIFT.clearRadius + 6);
+      ride = stepLift(ride, dt, { near, inside: coopInside, away });
       
       
       
@@ -7839,6 +7910,13 @@ export function boot(canvas, hud) {
       remaining: birds.filter((b) => b.alive && b.anim
         && b.anim.state !== 'dormant' && !(b.fatigue && b.fatigue.gaveUp)).length,
       ammo: player.weapon.ammo,
+      
+      
+      
+      
+      reserve: player.weapon.reserve,
+      reloading: player.weapon.reloading > 0,
+      needsReload: needsReload(player.weapon),
       range: Math.round(player.weapon.spec?.range ?? 0),
       
       
@@ -8138,23 +8216,6 @@ export function boot(canvas, hud) {
     getAccess() { return { ...access }; },
     introActive: () => !!(intro && !intro.done),
     
-
-
-
-
-
-
-
-
-
-
-    endIntroNow() {
-      if (!intro || intro.done) return false;
-      introOnDone = null;
-      endIntro();
-      return true;
-    },
-    
     
     
     
@@ -8162,12 +8223,6 @@ export function boot(canvas, hud) {
     
     
     beginRun() { menuUp = false; },
-    
-    
-    
-    
-    
-    runActive: () => !menuUp,
     player, birds, touch, faces, head: xHead, neck,
     
     
@@ -8434,10 +8489,10 @@ function start() {
       
       
       
+      document.body.classList.add('modalOpen', 'bootOpen');
       let resumeDeck = 0;
       
       let resumeSave = null;
-
       
       
       
@@ -8458,59 +8513,23 @@ function start() {
       
       
       
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      let menuShownAt = 0;
-      const MENU_SETTLE_MS = 350;
-      const menuSettling = () => (performance.now() - menuShownAt) < MENU_SETTLE_MS;
-      const showMenu = () => {
-        document.body.classList.remove('filmFirst');
-        $('boot').style.display = 'flex';
-        menuShownAt = performance.now();
-        
-        
-        
-        
-        
-        document.body.classList.add('modalOpen', 'bootOpen');
-      };
-      const hideMenu = () => {
-        $('boot').style.display = 'none';
-        
-        
-        document.body.classList.remove('modalOpen', 'bootOpen');
-      };
-
       const go = () => {
         if (started) return;
         
         
         
         
-        
-        
-        
-        
-        if (api.introActive && api.introActive() && api.endIntroNow) api.endIntroNow();
+        if (api.introActive && api.introActive()) return;
         started = true;
         
         
         
         
         if (api.beginRun) api.beginRun();
-        hideMenu();
+        $('boot').style.display = 'none';
+        
+        
+        document.body.classList.remove('modalOpen', 'bootOpen');
         $('hint').style.display = 'block';
         
         
@@ -8528,8 +8547,23 @@ function start() {
         
         
         
+        const seen = api.progress && api.progress() && api.progress().seenIntro;
         
         
+        
+        
+        
+        let inRoom = false;
+        try { inRoom = !!(api.debug && api.debug.coop.active); } catch { inRoom = false; }
+        if (api.beginIntro && !seen && !resumeDeck && !inRoom) {
+          
+          
+          
+          
+          if (api.markIntroSeen) api.markIntroSeen();
+          api.beginIntro(() => { startStationAudio(); });
+          return;
+        }
         if (resumeSave && api.loadSave) api.loadSave(resumeSave);
         else if (resumeDeck && api.resumeAt) api.resumeAt(resumeDeck);
         startStationAudio();
@@ -8567,23 +8601,6 @@ function start() {
         }
       }
       $('startBtn').addEventListener('click', () => { resumeDeck = 0; go(); });
-      
-      
-      
-      
-      
-      
-      
-      $('introBtn')?.addEventListener('click', (e) => {
-        e.stopPropagation();          
-        if (started) return;
-        if (api.introActive && api.introActive()) return;
-        if (!api.beginIntro) return;
-        audio.ensure();
-        if (api.markIntroSeen) api.markIntroSeen();
-        hideMenu();
-        api.beginIntro(() => { showMenu(); });
-      });
       
       {
         const prog = api.progress ? api.progress() : null;
@@ -8662,43 +8679,12 @@ function start() {
         
         
         if (e.target && e.target.closest && e.target.closest('#coop')) return;
-        
-        if (menuSettling()) return;
         go();
       });
       document.addEventListener('keydown', (e) => {
         if (document.activeElement && document.activeElement.id === 'coopCode') return;
-        
-        
-        
-        
-        
-        
-        if (api.introActive && api.introActive()) return;
-        
-        
-        
-        if (menuSettling()) return;
         if (e.code === 'Space' || e.code === 'Enter') go();
       });
-
-      
-      
-      
-      
-      
-      let wantFilm = true;
-      try { wantFilm = new URLSearchParams(location.search).get('intro') !== '0'; } catch { wantFilm = true; }
-      if (wantFilm && api.beginIntro) {
-        
-        
-        
-        
-        if (api.markIntroSeen) api.markIntroSeen();
-        api.beginIntro(() => { showMenu(); });
-      } else {
-        showMenu();
-      }
     }
   } catch (err) {
     hud.fatal(`The station did not come up.<br><small style="opacity:.6">${String(err).slice(0, 300)}</small>`);

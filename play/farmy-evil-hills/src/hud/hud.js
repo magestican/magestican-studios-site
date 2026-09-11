@@ -79,7 +79,16 @@ export const hud = {
 
     
     
-    $('wpAmmo').textContent = s.ammo == null ? '--' : s.ammo;
+    
+    
+    
+    
+    
+    
+    
+    $('wpAmmo').textContent = s.ammo == null ? '--'
+      : (s.reloading ? '\u2026'
+        : (s.reserve > 0 ? `${s.ammo}/${s.reserve}` : String(s.ammo)));
     $('wpRange').textContent = s.range == null ? '--' : `${s.range} M`;
     $('wpScreen')?.classList.toggle('empty', s.ammo === 0);
 

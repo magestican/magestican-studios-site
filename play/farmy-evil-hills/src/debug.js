@@ -635,6 +635,13 @@ export function createDebug(ctx) {
         count: ctx.props.length,
         solid: ctx.solidProps.length,
         litShadows: ctx.props.filter((p) => p.mat.opacity > 0.01).length,
+        
+        
+        
+        fade: ctx.props.map((p, i) => ({
+          i, x: p.x, z: p.z, h: p.h, circles: p.circles || null, alpha: p.alpha ?? 1,
+          swapped: !!p.fadeParts && p.fadeParts.some((q) => q.mesh.material === q.copy),
+        })),
       };
     },
     

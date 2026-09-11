@@ -134,12 +134,40 @@ export const MIN_INTERVAL = 0.09;
 
 export const CLICK_BUFFER_S = 0.2;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function weapon(w) {
   
   
   return Object.freeze({
     fireMode: 'semi',
     minInterval: MIN_INTERVAL,
+    
+    
+    
+    
+    magazine: w.ammoPerShot === 0 ? Infinity : 8,
+    reloadTime: w.ammoPerShot === 0 ? 0 : 1.4,
     ...w,
     ammoPerSecond: w.ammoPerShot * w.fireRate,
     dps: w.limbDamage * w.fireRate * w.targets,
@@ -213,6 +241,14 @@ export const WEAPONS = Object.freeze({
     burnDps: 0,
     ammoPerShot: 1,
     ammo: 'bolts',
+    
+    
+    
+    
+    
+    
+    magazine: 8,
+    reloadTime: 1.5,
     breaksGrapple: false,
     multiTarget: false,
     ignition: false,
@@ -240,6 +276,11 @@ export const WEAPONS = Object.freeze({
     
     ammoPerShot: 0,
     ammo: null,
+    
+    
+    
+    magazine: Infinity,
+    reloadTime: 0,
     
     
     
@@ -271,6 +312,12 @@ export const WEAPONS = Object.freeze({
     burnSeconds: 6,
     ammoPerShot: 1,
     ammo: 'cartridges',
+    
+    
+    
+    
+    magazine: 1,
+    reloadTime: 2.2,
     breaksGrapple: false,
     multiTarget: false,
     
@@ -324,6 +371,12 @@ export const WEAPONS = Object.freeze({
     burnDps: 0,
     ammoPerShot: 1,
     ammo: 'grain',
+    
+    
+    
+    
+    magazine: 40,
+    reloadTime: 3.4,
     breaksGrapple: false,
     multiTarget: true,
     ignition: false,
@@ -496,7 +549,74 @@ export function readyWeapon(id, opts = {}) {
     
     
     ammo: w.ammoPerShot === 0 ? Infinity : (opts.ammo ?? 0),
+    
+    
+    
+    
+    reserve: w.ammoPerShot === 0 ? 0 : (opts.reserve ?? 0),
+    
+    
+    
+    reloading: 0,
   };
+}
+
+
+
+
+
+
+
+
+
+
+export function needsReload(state) {
+  if (state.spec.ammoPerShot === 0) return false;
+  if (state.ammo === Infinity) return false;
+  return state.ammo < state.spec.magazine && state.reserve > 0;
+}
+
+
+
+
+
+
+
+
+
+export function startReload(state) {
+  if (state.reloading > 0) return false;
+  if (!needsReload(state)) return false;
+  state.reloading = state.spec.reloadTime;
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+export function stepReload(state, dt) {
+  if (!(state.reloading > 0)) return { done: false, loaded: 0 };
+  state.reloading = Math.max(0, state.reloading - Math.max(0, dt));
+  if (state.reloading > 0) return { done: false, loaded: 0 };
+  const room = state.spec.magazine - state.ammo;
+  const loaded = Math.max(0, Math.min(room, state.reserve));
+  state.ammo += loaded;
+  state.reserve -= loaded;
+  return { done: true, loaded };
+}
+
+
+export function cancelReload(state) {
+  const was = state.reloading > 0;
+  state.reloading = 0;
+  return was;
 }
 
 export function tickWeapon(state, dt) {
@@ -511,6 +631,10 @@ export function tickWeapon(state, dt) {
 
 
 export function canFire(state, { click = false } = {}) {
+  
+  
+  
+  if (state.reloading > 0) return false;
   if (state.ammo < state.spec.ammoPerShot) return false;
   if (click && state.spec.fireMode === 'semi') {
     return (state.sinceShot ?? Infinity) >= (state.spec.minInterval ?? MIN_INTERVAL);
@@ -526,7 +650,9 @@ export function canFire(state, { click = false } = {}) {
 
 export function fire(state, { click = false } = {}) {
   if (!canFire(state, { click })) {
-    return { fired: false, reason: state.ammo < state.spec.ammoPerShot ? 'empty' : 'cooling' };
+    const reason = state.reloading > 0 ? 'reloading'
+      : (state.ammo < state.spec.ammoPerShot ? 'empty' : 'cooling');
+    return { fired: false, reason };
   }
   state.cooldown = 1 / state.spec.fireRate;
   state.sinceShot = 0;

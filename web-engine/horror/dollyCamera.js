@@ -53,6 +53,8 @@
 
 
 
+
+
 import { insideLevel, progressAt, runRect } from './level.js';
 
 export const DOLLY = Object.freeze({
@@ -75,6 +77,15 @@ export const DOLLY = Object.freeze({
   
   
   targetH: 1.15,
+  
+  
+  
+  
+  
+  closeEyeH: 1.65,
+  
+  
+  closeSide: 0.35,
   
   
   
@@ -149,13 +160,59 @@ export const DOLLY = Object.freeze({
   
   
   
-  rates: Object.freeze({ eye: 8, target: 6, lead: 4, aim: 10, orbit: 3, fov: 10, pull: 14, let: 1.6 }),
   
   
   
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  rates: Object.freeze({ eye: 8, eyeIn: 2.5, target: 6, lead: 4, aim: 10, orbit: 1.5, fov: 10, pull: 14, let: 1.6 }),
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  slack: 0.25,
   maxSpeed: 9,
   maxTargetSpeed: 18,
   
@@ -184,6 +241,9 @@ export const DOLLY = Object.freeze({
   
   
   arena: 'dolly',
+  
+  
+  shutBay: false,
 });
 
 export const ORBIT = Object.freeze({
@@ -194,6 +254,10 @@ export const ORBIT = Object.freeze({
   
   
   minDist: 0.3,
+  
+  
+  
+  clear: 0.6,
 });
 
 
@@ -433,36 +497,6 @@ const eyeHeight = (level, cfg, want) => clamp(want, cfg.floorMin, (level.height 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export function easedPull(state, key, want, dt, cfg) {
   if (!state || !(dt > 0)) { if (state) state[key] = want; return want; }
   const had = state[key];
@@ -471,14 +505,6 @@ export function easedPull(state, key, want, dt, cfg) {
   const now = approach(had, want, rate, dt);
   state[key] = now;
   return now;
-}
-
-export function blockersFor(cfg, eyeY) {
-  const all = cfg.solids;
-  if (!all || !all.length) return null;
-  const out = [];
-  for (const q of all) if ((q.h ?? 0) > eyeY) out.push(q);
-  return out.length ? out : null;
 }
 
 
@@ -574,30 +600,8 @@ export function eyeInside(level, x, z, pad = DOLLY.eyePad) {
 
 
 
-
-export function insideBlockers(blockers, x, z) {
-  if (!blockers) return false;
-  for (const q of blockers) {
-    const ex = q.x - x; const ez = q.z - z;
-    if (ex * ex + ez * ez < q.r * q.r) return true;
-  }
-  return false;
-}
-
-function stepEye(level, from, dx, dz, pad, blockers = null) {
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const ok = (x, z) => eyeInside(level, x, z, pad) && !insideBlockers(blockers, x, z);
+function stepEye(level, from, dx, dz, pad) {
+  const ok = (x, z) => eyeInside(level, x, z, pad);
   if (ok(from.x + dx, from.z + dz)) return { x: from.x + dx, z: from.z + dz };
   if (ok(from.x + dx, from.z)) return { x: from.x + dx, z: from.z };
   if (ok(from.x, from.z + dz)) return { x: from.x, z: from.z + dz };
@@ -670,6 +674,43 @@ export function fixedPlacement(level, cfg = DOLLY) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function roundHim(level, eye, head, player, clear = ORBIT.clear, pad = DOLLY.eyePad) {
+  if (Math.hypot(head.x - player.x, head.z - player.z) < clear) return head;
+  const dx = head.x - eye.x; const dz = head.z - eye.z;
+  const L2 = dx * dx + dz * dz;
+  if (L2 < 1e-12) return head;
+  const t = ((player.x - eye.x) * dx + (player.z - eye.z) * dz) / L2;
+  if (t <= 0 || t >= 1) return head;
+  let nx = eye.x + dx * t - player.x; let nz = eye.z + dz * t - player.z;
+  let nl = Math.hypot(nx, nz);
+  if (nl >= clear) return head;
+  if (nl < 1e-6) { const L = Math.sqrt(L2); nx = dz / L; nz = -dx / L; nl = 1; }
+  nx /= nl; nz /= nl;
+  for (const side of [1, -1]) {
+    const w = { x: player.x + nx * side * clear, y: head.y, z: player.z + nz * side * clear };
+    if (eyeInside(level, w.x, w.z, pad)) return w;
+  }
+  return head;
+}
+
+
+
+
+
+
 export function baseMode(level, player, cfg = DOLLY) {
   if (cellAt(level, player.x, player.z)) return 'orbit';
   if (level.boss) return cfg.arena;
@@ -693,7 +734,7 @@ export function pickMode(level, player, opts = {}) {
 
 
 
-export function clampInsideLevel(level, from, eye, pad = DOLLY.eyePad, step = ORBIT.step, blockers = null) {
+export function clampInsideLevel(level, from, eye, pad = DOLLY.eyePad, step = ORBIT.step) {
   const dx = eye.x - from.x; const dz = eye.z - from.z;
   const L = Math.hypot(dx, dz);
   if (L < 1e-9) return { x: from.x, z: from.z, dist: 0, clamped: false };
@@ -704,18 +745,6 @@ export function clampInsideLevel(level, from, eye, pad = DOLLY.eyePad, step = OR
     const d = Math.min(L, i * step);
     const px = from.x + ux * d; const pz = from.z + uz * d;
     if (!eyeInside(level, px, pz, pad)) break;
-    
-    
-    
-    
-    if (blockers) {
-      let hit = false;
-      for (const q of blockers) {
-        const ex = q.x - px; const ez = q.z - pz;
-        if (ex * ex + ez * ez < q.r * q.r) { hit = true; break; }
-      }
-      if (hit) break;
-    }
     ok = d;
   }
   return { x: from.x + ux * ok, z: from.z + uz * ok, dist: ok, clamped: ok < L - 1e-9 };
@@ -737,7 +766,9 @@ export function dollyPlacement(level, player, state = null, cfg = DOLLY) {
   
   const tp = routeTangent(level, p, cfg.ease);
   const along = (player.vx || 0) * tp.x + (player.vz || 0) * tp.z;
-  const s = p + along / cfg.rates.eye - cfg.back;
+  
+  const s = Math.max(p + along / cfg.rates.eye - cfg.back,
+    cfg.shutBay ? -(level.runs[0].w / 2 - cfg.eyePad) : -Infinity);
   const c = routePoint(level, s, cfg.ease);
   const r = rightOf(routeTangent(level, s, cfg.ease));
   const lead = state ? state.lead : { x: 0, z: 0 };
@@ -767,15 +798,29 @@ export function orbitPlacement(level, player, state, cfg = DOLLY, dt = 0) {
   const dir = state && state.dir ? state.dir : facingOf(player.yaw);
   const r = rightOf(dir);
   const lead = state ? state.lead : { x: 0, z: 0 };
-  const want = {
-    x: player.x - dir.x * cfg.back + r.x * cfg.lateral,
-    z: player.z - dir.z * cfg.back + r.z * cfg.lateral,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const behindShoulder = (l) => {
+    const s = clampInsideLevel(level, player, { x: player.x + r.x * l, z: player.z + r.z * l }, cfg.eyePad, ORBIT.step);
+    return { s, c: clampInsideLevel(level, s, { x: s.x - dir.x * cfg.back, z: s.z - dir.z * cfg.back }, cfg.eyePad, ORBIT.step) };
   };
-  
-  
-  
-  const lowestEye = cfg.targetH + (cfg.eyeH - cfg.targetH) * 0.5;
-  let c = clampInsideLevel(level, player, want, cfg.eyePad, ORBIT.step, blockersFor(cfg, lowestEye));
+  let { s: shoulder, c } = behindShoulder(cfg.lateral);
+  const narrow = Math.min(cfg.lateral, c.dist * cfg.closeSide);
+  if (narrow < cfg.lateral) ({ s: shoulder, c } = behindShoulder(narrow));
   if (c.dist < ORBIT.minDist && state && state.orbitEye
     && eyeInside(level, state.orbitEye.x, state.orbitEye.z, cfg.eyePad)) {
     c = state.orbitEye;
@@ -791,19 +836,54 @@ export function orbitPlacement(level, player, state, cfg = DOLLY, dt = 0) {
   
   
   
-  const dWant = Math.hypot(want.x - player.x, want.z - player.z) || 1;
-  const rawDist = Math.hypot(c.x - player.x, c.z - player.z);
+  const rawDist = Math.hypot(c.x - shoulder.x, c.z - shoulder.z);
   const dist = easedPull(state, 'orbitPull', rawDist, dt, cfg);
-  const ux = (want.x - player.x) / dWant; const uz = (want.z - player.z) / dWant;
-  c = { ...c, x: player.x + ux * dist, z: player.z + uz * dist };
+  c = { ...c, x: shoulder.x - dir.x * dist, z: shoulder.z - dir.z * dist };
   const k = clamp(dist / cfg.back, 0, 1);
   const kh = Math.max(0.5, k);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let behind = 1; let lensDist = dist;
+  if (state && state.eye) {
+    const bx = player.x - state.eye.x; const bz = player.z - state.eye.z;
+    const bl = Math.hypot(bx, bz);
+    behind = bl > 1e-6 ? clamp((bx * dir.x + bz * dir.z) / bl, 0, 1) : 0;
+    lensDist = Math.min(dist, bl);
+  }
+  const close = clamp(1 - lensDist / (cfg.back * 0.5), 0, 1);
+  const near = close * behind;
+  const far = {
+    x: player.x + (r.x * cfg.lateral + lead.x) * k,
+    z: player.z + (r.z * cfg.lateral + lead.z) * k,
+  };
+  const ahead = {
+    x: player.x + dir.x * AIM.ahead + r.x * AIM.shoulder,
+    z: player.z + dir.z * AIM.ahead + r.z * AIM.shoulder,
+  };
   return {
-    eye: { x: c.x, y: eyeHeight(level, cfg, cfg.targetH + (cfg.eyeH - cfg.targetH) * kh), z: c.z },
+    eye: { x: c.x, y: eyeHeight(level, cfg, lerp(cfg.targetH + (cfg.eyeH - cfg.targetH) * kh, cfg.closeEyeH, close)), z: c.z },
     target: {
-      x: player.x + (r.x * cfg.lateral + lead.x) * k,
-      y: cfg.targetH,
-      z: player.z + (r.z * cfg.lateral + lead.z) * k,
+      x: lerp(far.x, ahead.x, near),
+      y: lerp(cfg.targetH, AIM.pivotH, close),
+      z: lerp(far.z, ahead.z, near),
     },
     fov: fovFor(cfg, 'orbit'),
     mode: 'orbit',
@@ -822,15 +902,8 @@ export function aimPlacement(level, player, cfg = DOLLY, state = null, dt = 0) {
     x: player.x - f.x * AIM.dist + r.x * AIM.shoulder,
     z: player.z - f.z * AIM.dist + r.z * AIM.shoulder,
   };
+  const c = clampInsideLevel(level, player, want, cfg.eyePad, ORBIT.step);
   
-  
-  
-  
-  
-  
-  
-  
-  const c = clampInsideLevel(level, player, want, cfg.eyePad, ORBIT.step, blockersFor(cfg, AIM.pivotH + AIM.rise));
   
   
   const dWant = Math.hypot(want.x - player.x, want.z - player.z) || 1;
@@ -897,8 +970,27 @@ const dist3 = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
 
 
+
+
+
+
+
+
+
+
+
+
+const SEALED = new WeakMap();
+function sealedView(level) {
+  if (!level.bays || !level.bays.some((b) => b.kind === 'arrival')) return level;
+  let v = SEALED.get(level);
+  if (!v) { v = { ...level, bays: level.bays.filter((b) => b.kind !== 'arrival') }; SEALED.set(level, v); }
+  return v;
+}
+
 export function cameraFor(level, player, mode, state, dt, opts) {
   const cfg = withOpts(opts);
+  if (cfg.shutBay) level = sealedView(level);
   const forced = mode && mode !== 'auto' ? mode : null;
   const aiming = forced ? forced === 'aim' : !!cfg.aiming;
   const base = forced && forced !== 'aim' ? forced : baseMode(level, player, cfg);
@@ -945,7 +1037,6 @@ export function cameraFor(level, player, mode, state, dt, opts) {
     };
   }
 
-  const before = state.eye ? { x: state.eye.x, z: state.eye.z } : null;
   const fresh = !state.eye;
   const relocated = !fresh && dt > 0 && dist3(state.eye, goal.eye) > cfg.snap;
   if (fresh || relocated) {
@@ -986,9 +1077,55 @@ export function cameraFor(level, player, mode, state, dt, opts) {
       const dir = cg ? 1 : -1;
       head = { x: p.x + dir * into.x * 0.6, y: goal.eye.y, z: p.z + dir * into.z * 0.6 };
     }
-    const ke = 1 - Math.exp(-cfg.rates.eye * dt);
+    if (base !== 'fixed') head = roundHim(level, state.eye, head, player);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const dEyeNow = Math.hypot(state.eye.x - player.x, state.eye.z - player.z);
+    const dEyeGoal = Math.hypot(head.x - player.x, head.z - player.z);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const closingFromExcess = base === 'dolly'
+      && dEyeGoal < dEyeNow && dEyeNow > cfg.back + cfg.slack;
+    const eyeRate = closingFromExcess ? cfg.rates.eyeIn : cfg.rates.eye;
+    const ke = 1 - Math.exp(-eyeRate * dt);
+    const key = 1 - Math.exp(-cfg.rates.eye * dt);
     let sx = (head.x - state.eye.x) * ke;
-    let sy = (goal.eye.y - state.eye.y) * ke;
+    let sy = (goal.eye.y - state.eye.y) * key;
     let sz = (head.z - state.eye.z) * ke;
     const sl = Math.hypot(sx, sy, sz);
     const cap = cfg.maxSpeed * dt;
@@ -1011,27 +1148,10 @@ export function cameraFor(level, player, mode, state, dt, opts) {
     
     
     const from = { x: state.eye.x, z: state.eye.z };
-    
-    
-    
-    const walkBlockers = base === 'fixed' ? null : blockersFor(cfg, state.eye.y);
     if (base === 'fixed' || !eyeInside(level, from.x, from.z, cfg.eyePad)) {
       state.eye = { x: from.x + sx, y: state.eye.y + sy, z: from.z + sz };
     } else {
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      let moved = stepEye(level, from, sx, sz, cfg.eyePad, walkBlockers);
-      if (walkBlockers && moved.x === from.x && moved.z === from.z && (sx || sz)) {
-        moved = stepEye(level, from, sx, sz, cfg.eyePad, null);
-      }
+      const moved = stepEye(level, from, sx, sz, cfg.eyePad);
       if (eyeInside(level, moved.x, moved.z, cfg.eyePad)) {
         state.eye = { x: moved.x, y: state.eye.y + sy, z: moved.z };
       } else {
@@ -1050,43 +1170,6 @@ export function cameraFor(level, player, mode, state, dt, opts) {
     state.fov = approach(state.fov, goal.fov, cfg.rates.fov, dt);
   }
   state.eye.y = eyeHeight(level, cfg, state.eye.y);
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const blocked = base === 'fixed' ? null : blockersFor(cfg, state.eye.y);
-  if (blocked && dt > 0 && insideBlockers(blocked, state.eye.x, state.eye.z)) {
-    const out = clampInsideLevel(level, { x: player.x, z: player.z }, state.eye, cfg.eyePad, ORBIT.step, blocked);
-    const dx = out.x - state.eye.x; const dz = out.z - state.eye.z;
-    const d = Math.hypot(dx, dz);
-    
-    
-    
-    
-    
-    
-    const spent = before ? Math.hypot(state.eye.x - before.x, state.eye.z - before.z) : 0;
-    const cap = Math.max(0, cfg.maxSpeed * dt - spent);
-    if (d > 1e-9 && cap > 0) {
-      const k = Math.min(1, cap / d);
-      state.eye.x += dx * k; state.eye.z += dz * k;
-    }
-  }
   state.mode = goal.mode;
   state.frames += 1;
   return {

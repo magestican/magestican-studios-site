@@ -31,7 +31,7 @@
 
 
 
-import { readyWeapon } from './weapons.js';
+import { readyWeapon, WEAPONS } from './weapons.js';
 
 
 
@@ -73,7 +73,16 @@ export function stockBench(bench, level, carriedId) {
   const n = { stored: { ...bench.stored } };
   for (const id of unlockedAt(level)) {
     if (id !== carriedId && !(id in n.stored)) {
-      n.stored[id] = readyWeapon(id, { ammo: FIRST_LOAD[id] ?? 0 });
+      
+      
+      
+      
+      
+      
+      
+      const load = FIRST_LOAD[id] ?? 0;
+      const mag = Math.min(load, WEAPONS[id].magazine);
+      n.stored[id] = readyWeapon(id, { ammo: mag, reserve: load - mag });
     }
   }
   return n;
