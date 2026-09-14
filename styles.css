@@ -571,6 +571,8 @@ main section:last-child { margin-bottom: 0; }
 .game-aracstory   { --accent: var(--grass); }
 .game-fighter-ex  { --accent: var(--gold); }
 
+.game-moonlife    { --accent: #9b86d6; }
+
 
 
 
@@ -747,6 +749,38 @@ main section:last-child { margin-bottom: 0; }
 
 .shot-row .shot-phone img { max-width: 178px; margin: 0 auto; }
 .shot-row figure:only-child { max-width: 760px; }
+
+
+
+
+.moonlife-intro {
+  background: linear-gradient(135deg, #efe8fb 0%, #fbeee4 100%);
+  border: 2px solid var(--ink);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: clamp(18px, 4vw, 34px);
+  margin: 0 0 28px;
+}
+.moonlife-intro h1 { margin: 10px 0 14px; }
+.moonlife-intro .lede { margin: 0; color: var(--ink); }
+.moonlife-honest { margin: 14px 0 0; font-size: 18px; color: var(--ink-soft); }
+.moonlife-status {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin: 0; padding: 4px 14px;
+  font-size: 18px; color: var(--ink);
+  background: var(--paper-lit);
+  border: 2px solid var(--ink); border-radius: 999px;
+}
+.moonlife-hero { margin: 0 0 12px; max-width: 960px; }
+.moonlife-hero img {
+  display: block; width: 100%; height: auto;
+  border: 2px solid var(--ink); border-radius: 12px;
+  box-shadow: var(--shadow); background: var(--night);
+}
+.moonlife-hero figcaption { font-size: 18px; color: var(--ink-faint); margin-top: 9px; }
+.moonlife-gallery > p { max-width: var(--measure); }
+.moonlife-gallery .shot-row + .shot-row { margin-top: 24px; }
+.moonlife-phones { grid-template-columns: repeat(2, minmax(0, 220px)); justify-content: start; }
 
 
 

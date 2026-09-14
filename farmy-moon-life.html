@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Farmy Moon Life: a cozy farming game on a tiny moon</title>
+  <meta name="description" content="A cozy life game in development: grow an orchard on a tiny seasonal moon, make jam, buy land from a cat in a hat, and light your cottage at night.">
+  <link rel="icon" href="./favicon.svg">
+  <link rel="canonical" href="https://magesticanstudios.com/farmy-moon-life.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <meta name="keywords" content="farmy moon life, cozy game, cute farming game, cozy browser game, games like animal crossing, cottagecore game, relaxing game on your phone, cozy life sim">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Farmy Moon Life: a cozy farming game on a tiny moon">
+  <meta property="og:description" content="Orchards, jam, lamps that really light up at night, and a round cat in a waistcoat who owns all the land. A cozy game in development.">
+  <meta property="og:url" content="https://magesticanstudios.com/farmy-moon-life.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/farmy-moon-life-preview.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Farmy Moon Life - a cozy game on a tiny moon">
+  <meta name="twitter:description" content="Grow an orchard, make jam, keep the neighbours happy and light your cottage at night. In development at Magestican Studios.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/farmy-moon-life-preview.jpg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Farmy Moon Life",
+    "url": "https://magesticanstudios.com/farmy-moon-life.html",
+    "description": "A cozy 3D life and farming game in development at Magestican Studios. You live on tiny, procedurally generated moons with one season each. It is designed around growing an orchard, turning fruit into juice and jam, selling to your neighbours from a shop you build, buying land from a round cat landlord in a waistcoat and hat, making neighbours happy enough to build and decorate their own homes, and lighting your moon at night. Being built for mobile browsers first. Only the graphics exist so far; nothing is playable yet.",
+    "image": "https://magesticanstudios.com/assets/farmy-moon-life-preview.jpg",
+    "author": { "@type": "Organization", "name": "Magestican Studios",
+                "url": "https://magesticanstudios.com" },
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Simulation", "Life simulation", "Casual"],
+    "gamePlatform": ["Web browser", "Mobile browser"],
+    "playMode": ["SinglePlayer"],
+    "applicationCategory": "Game",
+    "creativeWorkStatus": "In development",
+    "inLanguage": "en"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Farmy Moon Life?",
+        "acceptedAnswer": { "@type": "Answer", "text": "A cozy life and farming game from Magestican Studios, in development. You live on tiny seasonal moons, and the game is designed around growing an orchard, making juice and jam, selling to your neighbours from a shop you build, and buying land from a cat landlord in a waistcoat." }
+      },
+      {
+        "@type": "Question",
+        "name": "When can I play it?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Not yet, and there is no date. Only the graphics exist so far: the moon, the seasons, day and night, the cottage, the trees, the lamps and the cat. The game is built around them next, and this page will say so the day there is something to play." }
+      },
+      {
+        "@type": "Question",
+        "name": "Is it like Animal Crossing?",
+        "acceptedAnswer": { "@type": "Answer", "text": "In spirit, yes: gentle goals, a home to look after, neighbours to make happy, and seasons. It is its own game, with a moon instead of an island, an orchard-to-jam economy and a cat who owns the land. It is not connected to Nintendo or to Animal Crossing." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work on my phone?",
+        "acceptedAnswer": { "@type": "Answer", "text": "That is the plan. It is being built for phone browsers first, and like every Magestican Studios game it is meant to run in a browser tab with nothing to download or install." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I play with friends?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Friends visiting your moon is part of the design. A visitor can walk around but cannot change anything, and whatever they pick up goes to you. It is not built yet." }
+      }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module">
+    import { initAnalytics } from '/web-engine/analytics/analytics.js';
+    try {
+      initAnalytics({ page: 'farmy-moon-life-landing' });
+    } catch {  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="./" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="./#games">Games</a>
+      <a href="./farmyshoot.html">Farmyshoot</a>
+      <a href="./farmy-uprising.html">Uprising</a>
+      <a href="./farmy-evil-hills.html">Evil Hills</a>
+      <a href="./farmykart.html">Kart</a>
+      <a href="./farmy-scrabble.html">Scrabble</a>
+      <a href="./farmy-crosswords.html">Crosswords</a>
+      <a href="./farmy-chess.html">Chess</a>
+      <a href="./farmy-checkers.html">Checkers</a>
+      <a href="./farmy-ludo.html">Ludo</a>
+      <a href="./zelakas-in-space.html">Zelakas</a>
+      <a href="./2d-fighter-ex.html">Fighter EX</a>
+      <a href="./farmy-moon-life.html">Moon Life</a>
+      <a href="./for-remote-teams.html">For teams</a>
+      <a href="./about.html">About</a>
+      <a href="./magazine/">Magazine</a>
+      <a href="./reviews.html">Reviews</a>
+    </nav>
+  </header>
+
+  <main class="moonlife">
+    <div class="moonlife-intro">
+      <p class="moonlife-status"><span class="dot dot-yellow"></span> In development</p>
+      <h1>Farmy Moon Life: a cozy farming game on a tiny moon</h1>
+      <p class="lede">A moon small enough to walk around before your tea goes cold. A cottage
+        with the lights on, an orchard, a jam kettle, some neighbours who could be happier,
+        and a round cat in a waistcoat who, unfortunately, owns all of the land.</p>
+      <p class="moonlife-honest">Only the graphics exist so far, so there is nothing to play yet.</p>
+    </div>
+
+    <figure class="moonlife-hero">
+      <img src="./assets/shot-fml-summer-night.jpg" width="960" height="540" fetchpriority="high" decoding="async"
+           alt="Farmy Moon Life on a summer night: a cottage with a red tiled roof and warmly lit windows, a lamp post glowing over a dirt path, a round orange cat in a hat and waistcoat standing in the flowers, and a ringed planet in the purple sky">
+      <figcaption>Summer, ten at night. A real frame from the game's own renderer, not a
+        painting &mdash; and still a work in progress.</figcaption>
+    </figure>
+
+    <h2>A cozy game about a very small moon</h2>
+    <p>Farmy Moon Life is a cozy life game from Magestican Studios, and it is being built
+      right now. You live on a tiny moon, generated fresh rather than drawn once, and every
+      moon has its own season: a spring moon of pink blossom, a summer moon of long warm
+      evenings, an autumn moon ankle-deep in leaves, a winter moon tucked under snow. It is
+      small enough that the horizon curves away in front of you.</p>
+    <p>It is designed to be slow on purpose. The goals are gentle ones &mdash; a fuller
+      orchard, a better-stocked shop, a neighbour who finally looks pleased to see you
+      &mdash; and the pleasure is in watching a bare little moon turn into somewhere you
+      would actually like to live.</p>
+
+    <h2>Grow an orchard, then turn it into jam</h2>
+    <p>The planned loop is the cute farming game loop at its most satisfying. Trees grow
+      fruit. You harvest the fruit. The harvest goes into a processing building of your
+      own and comes out as juice and jam, which is the correct thing to do with fruit. One
+      small twist we are fond of: felling a tree is not a loss, because a felled tree gives
+      you seeds, and seeds are the next orchard.</p>
+    <p>Then you sell &mdash; not to a faceless market, but from a shop you build yourself,
+      to the neighbours who live on your moon. Your jam, their breakfast table.</p>
+
+    <h2>The landlord is a cat in a waistcoat</h2>
+    <p>All the land on your moon belongs to one very round, very sweet cat in a waistcoat
+      and a hat. He is not a villain. He simply has parcels, and you would like more of
+      them. Buying land from him is how your moon grows: room for more trees, a bigger shop,
+      a longer lane to line with lamps. He takes the hat extremely seriously. Nobody has
+      asked him why.</p>
+
+    <h2>Make the neighbours happy, and watch them settle in</h2>
+    <p>The neighbours start out a little unsure about living on a moon. Kindness helps:
+      a gift of money, food, or something rare you found. In the design, a happy neighbour
+      builds their own house. A happier one decorates it. The happiest plant a garden. So
+      you can tell how well you have looked after everybody just by walking down the
+      street.</p>
+
+    <h2>Light up your moon at night</h2>
+    <p>Day turns to night on every moon, and the night lighting is real rather than painted
+      on. Lamps throw warm pools across the path, windows glow, fire pits flicker. Where the
+      light goes is your choice, so a lit-up cottage at the end of a lit-up lane is
+      something you make, not something the game hands you. It is the part we keep
+      stopping to look at.</p>
+
+    <section class="moonlife-gallery">
+      <h2>What it looks like so far</h2>
+      <p>Every picture on this page is a frame from the game's own engine, captured from its
+        look-development build on 14 September 2026. There is no gameplay in them yet. This
+        is the stage where the moon, the cottage, the trees, the lamps and the cat are made
+        to look right before the game is built around them, so some of it will change &mdash;
+        the snow, for one, still needs work.</p>
+      <div class="shot-row">
+        <figure><img src="./assets/shot-fml-spring-dusk.jpg" width="800" height="450" loading="lazy" decoding="async"
+               alt="Spring at dusk: pink blossom trees along a wooden fence, a cottage with an orange tiled roof, long shadows across the grass and a peach-coloured sky">
+          <figcaption>Spring, half past six. The orchard trees are generated, not placed by hand.</figcaption></figure>
+        <figure><img src="./assets/shot-fml-autumn-day.jpg" width="800" height="450" loading="lazy" decoding="async"
+               alt="Autumn in the early afternoon: golden trees, red and orange leaves scattered over the lawn, the cottage and the cat landlord beside the path under a pale blue sky">
+          <figcaption>Autumn, one in the afternoon, with leaves all over the lawn.</figcaption></figure>
+        <figure><img src="./assets/shot-fml-winter-night.jpg" width="800" height="450" loading="lazy" decoding="async"
+               alt="Winter at night: the cottage roof under snow, snow-topped trees, a lamp post glowing warm over the path and the cat standing in the snow">
+          <figcaption>Winter, ten at night. The snow is unfinished; the lamp is not.</figcaption></figure>
+      </div>
+      <div class="shot-row moonlife-phones">
+        <figure class="shot-phone"><img src="./assets/shot-fml-summer-night-phone.jpg" width="390" height="844" loading="lazy" decoding="async"
+               alt="The phone view on a summer night: the cottage seen from above with glowing windows, a lamp by the path, stars, a small moon and a ringed planet overhead, and the cat in the flowers">
+          <figcaption>The phone view, summer night. Phones come first.</figcaption></figure>
+        <figure class="shot-phone"><img src="./assets/shot-fml-spring-dusk-phone.jpg" width="390" height="844" loading="lazy" decoding="async"
+               alt="The phone view at dusk in spring: the same cottage under a lilac and peach sky, with the lamp just lit and the cat by the path">
+          <figcaption>The same cottage at dusk in spring.</figcaption></figure>
+      </div>
+    </section>
+
+    <h2>A cozy browser game, built for your phone</h2>
+    <p>Every Magestican Studios game runs in a browser tab: you open a link and you are
+      playing, with no download, no install and no app store. Farmy Moon Life is planned the
+      same way, and it is being built for phone browsers first &mdash; held in one hand, on
+      the sofa, on the bus, in the ten minutes before bed. It will work on a computer too;
+      the phone is simply where it is designed to feel best. When it becomes a relaxing game
+      on your phone that you can actually play, this page will say so.</p>
+
+    <h2>Friends can visit, and they cannot move your lamps</h2>
+    <p>Visiting is part of the design. A friend can come to your moon, wander about and
+      admire the jam, but they cannot change anything &mdash; so the lamp you spent ten
+      minutes placing stays exactly where you put it. Anything they pick up while they are
+      there goes to you. It is a very good arrangement for the host.</p>
+
+    <h2>For people who love games like Animal Crossing and Stardew Valley</h2>
+    <p>If you have ever lost an evening rearranging an island in Animal Crossing: New
+      Horizons, played one more day of Stardew Valley at midnight, found an odd calm in
+      unboxing a life in Unpacking, or checked on your ghosts in Cozy Grove before bed, you
+      already know the feeling this game is aiming for. It is not a copy of any of them. It
+      has its own ideas: a whole moon rather than an island, an economy that runs from
+      orchard to jam jar to shop counter, and a landlord who is a cat. Call it a cottagecore
+      game in the most literal sense &mdash; a cottage, a core that is mostly fruit, and a
+      ringed planet in the sky.</p>
+
+    <h2>Where it is right now</h2>
+    <p>Honestly: only the graphics exist. The moon, the four seasons, day and night, the
+      cottage, the orchard trees, the lamps and the cat landlord have been built and
+      rendered, and that is what the pictures above show. The orchard you tend, the jam, the
+      shop, the land and the neighbours are designed but not built. There is no release date
+      and no price yet, and we would rather tell you that than make either up.</p>
+    <p>If you want something gentle to play today, <a href="./farmy-crosswords.html">Farmy
+      Crosswords</a> is four word games with no clock and no rush, from the same studio.</p>
+
+    <section class="faq">
+      <h2>Frequently asked</h2>
+      <h3>What is Farmy Moon Life?</h3>
+      <p>A cozy life and farming game from Magestican Studios, in development. You live on
+        tiny seasonal moons, and the game is designed around growing an orchard, making
+        juice and jam, selling to your neighbours from a shop you build, and buying land from
+        a cat landlord in a waistcoat.</p>
+      <h3>When can I play it?</h3>
+      <p>Not yet, and there is no date. Only the graphics exist so far: the moon, the
+        seasons, day and night, the cottage, the trees, the lamps and the cat. The game is
+        built around them next, and this page will say so the day there is something to
+        play.</p>
+      <h3>Is it like Animal Crossing?</h3>
+      <p>In spirit, yes: gentle goals, a home to look after, neighbours to make happy, and
+        seasons. It is its own game, with a moon instead of an island, an orchard-to-jam
+        economy and a cat who owns the land. It is not connected to Nintendo or to Animal
+        Crossing.</p>
+      <h3>Does it work on my phone?</h3>
+      <p>That is the plan. It is being built for phone browsers first, and like every
+        Magestican Studios game it is meant to run in a browser tab with nothing to download
+        or install.</p>
+      <h3>Can I play with friends?</h3>
+      <p>Friends visiting your moon is part of the design. A visitor can walk around but
+        cannot change anything, and whatever they pick up goes to you. It is not built
+        yet.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>
+      Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br>
+      Magestican Studios and the Magestican Studios logo are trademarks of Ultra Task Pty Ltd, Australia.
+    </p>
+    <p class="colophon">
+      <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; Site is static &middot; no cookies, anonymous counts only
+    </p>
+  </footer>
+  <script type="module" src="./assets/site.js?v=b27f8c1-20260914T131343Z"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
