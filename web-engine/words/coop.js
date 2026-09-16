@@ -312,6 +312,17 @@ export const GAME_PREFIX = Object.freeze({
   
   
   evilhills: 'feh-',
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  moonlife: 'fml-',
 });
 
 

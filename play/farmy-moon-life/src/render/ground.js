@@ -1,0 +1,129 @@
+
+
+
+
+
+
+import * as THREE from 'three';
+import { makeCozy, loadPainter, paintTexture } from './material.js';
+import * as MOON from 'moon/world/moonLayout.mjs';
+import { PATH_MAX_POINTS } from 'moon/world/moonLayout.mjs';
+import { seasonPalette, linear } from 'moon/palette/seasons.mjs';
+
+const GROUND_PARS =  `
+uniform float uFmlTopScale;
+uniform sampler2D uFmlPathMap;
+uniform float uFmlPathScale;
+uniform vec4 uFmlPath[ ${PATH_MAX_POINTS} ];
+uniform int uFmlPathCount;
+uniform float uFmlPathHalf;
+uniform vec3 uFmlPathColor;
+uniform float uFmlGrassLum;
+uniform vec4 uFmlParcel;
+float fmlSegDist( vec2 p, vec2 a, vec2 b ) {
+  vec2 pa = p - a, ba = b - a;
+  float h = clamp( dot( pa, ba ) / dot( ba, ba ), 0.0, 1.0 );
+  return length( pa - ba * h );
+}
+`;
+
+const GROUND_MAP =  `
+#ifdef USE_MAP
+  vec2 fmlUvA = vFmlWorld.xz / uFmlTopScale;
+  vec2 fmlUvB = mat2( 0.8, -0.6, 0.6, 0.8 ) * vFmlWorld.xz / ( uFmlTopScale * 2.63 );
+  vec4 sampledDiffuseColor = texture2D( map, fmlUvA ) * ( 0.62 + 0.42 * texture2D( map, fmlUvB ) );
+  diffuseColor *= sampledDiffuseColor;
+#endif
+`;
+
+const GROUND_PATH =  `
+if ( uFmlPathCount > 1 ) {
+  float fmlPd = 1e5;
+  for ( int i = 0; i < ${PATH_MAX_POINTS - 1}; i ++ ) {
+    if ( i >= uFmlPathCount - 1 ) break;
+    if ( uFmlPath[ i ].z < 0.5 ) continue;
+    fmlPd = min( fmlPd, fmlSegDist( vFmlWorld.xz, uFmlPath[ i ].xy, uFmlPath[ i + 1 ].xy ) );
+  }
+  // A ragged, crisp painted edge (three noise scales, a narrow blend) with a darker
+  // border band just inside it: the art-director review read the old 24 cm
+  // smoothstep as a blurry cut-out.
+  float fmlEdge = uFmlPathHalf + ( fmlNoise( vec3( vFmlWorld.xz * 0.8, 3.1 ) ) - 0.5 ) * 0.45
+    + ( fmlNoise( vec3( vFmlWorld.xz * 3.2, 8.2 ) ) - 0.5 ) * 0.22
+    + ( fmlNoise( vec3( vFmlWorld.xz * 9.0, 5.7 ) ) - 0.5 ) * 0.1;
+  float fmlW = 1.0 - smoothstep( fmlEdge - 0.05, fmlEdge + 0.03, fmlPd );
+  vec3 fmlPathTex = texture2D( uFmlPathMap, vFmlWorld.xz / uFmlPathScale ).rgb;
+  float fmlAO = clamp( dot( vColor.rgb, vec3( 0.2126, 0.7152, 0.0722 ) ) / uFmlGrassLum, 0.5, 1.1 );
+  float fmlCentre = smoothstep( 0.0, uFmlPathHalf, fmlPd );
+  float fmlBorder = smoothstep( fmlEdge - 0.4, fmlEdge - 0.04, fmlPd );
+  vec3 fmlPathCol = fmlPathTex * uFmlPathColor * fmlAO * ( 1.06 - 0.08 * fmlCentre ) * ( 1.0 - 0.16 * fmlBorder );
+  float fmlFringe = smoothstep( fmlEdge - 0.05, fmlEdge + 0.3, fmlPd ) * ( 1.0 - smoothstep( fmlEdge + 0.3, fmlEdge + 0.95, fmlPd ) );
+  diffuseColor.rgb *= 1.0 - 0.13 * fmlFringe;
+  diffuseColor.rgb = mix( diffuseColor.rgb, fmlPathCol, fmlW );
+  vec2 fmlPc = vFmlWorld.xz;
+  float fmlIn = smoothstep( uFmlParcel.x, uFmlParcel.x + 0.6, fmlPc.x ) * smoothstep( uFmlParcel.z, uFmlParcel.z - 0.6, fmlPc.x )
+    * smoothstep( uFmlParcel.y, uFmlParcel.y + 0.6, fmlPc.y ) * smoothstep( uFmlParcel.w, uFmlParcel.w - 0.6, fmlPc.y );
+  float fmlStripe = smoothstep( -0.3, 0.3, sin( fmlPc.x * 3.14159 / 1.25 ) );
+  diffuseColor.rgb *= 1.0 + fmlIn * ( 1.0 - fmlW ) * ( 0.02 + 0.05 * fmlStripe );
+}
+#include <alphamap_fragment>
+`;
+
+
+
+
+export async function groundMaterial({ season = 'summer', paths = true, layout = MOON } = {}) {
+  const { PATHS, PATH_HALF_WIDTH, PARCEL } = layout;
+  const winter = season === 'winter';
+  const [top, path] = await Promise.all([loadPainter(winter ? 'snow' : 'grass'), loadPainter('soil')]);
+  const [topMap, pathMap] = await Promise.all([paintTexture(top, top.SURFACE.size), paintTexture(path, path.SURFACE.size)]);
+  const pal = seasonPalette(season);
+  const pts = [];
+  for (const line of PATHS) line.forEach(([x, z], i) => pts.push(new THREE.Vector4(x, z, i < line.length - 1 ? 1 : 0, 0)));
+  const count = pts.length;
+  while (pts.length < PATH_MAX_POINTS) pts.push(new THREE.Vector4());
+  const g1 = linear(pal.grass[1]);
+  const uniforms = {
+    uFmlTopScale: { value: top.SURFACE.worldScale || 3 },
+    uFmlPathMap: { value: pathMap },
+    uFmlPathScale: { value: path.SURFACE.worldScale || 3 },
+    uFmlPath: { value: pts },
+    uFmlPathCount: { value: paths ? count : 0 },
+    uFmlPathHalf: { value: PATH_HALF_WIDTH },
+    uFmlPathColor: { value: new THREE.Color().setRGB(...linear(pal.path), THREE.LinearSRGBColorSpace) },
+    uFmlGrassLum: { value: 0.2126 * g1[0] + 0.7152 * g1[1] + 0.0722 * g1[2] },
+    uFmlParcel: { value: paths ? new THREE.Vector4(PARCEL.minX, PARCEL.minZ, PARCEL.maxX, PARCEL.maxZ) : new THREE.Vector4(1e4, 1e4, 1e4, 1e4) },
+  };
+  const material = new THREE.MeshStandardMaterial({ vertexColors: true, map: topMap, roughness: top.SURFACE.roughness ?? 0.95 });
+  material.name = `ground-${season}`;
+  return makeCozy(material, {
+    rim: 0.03,
+    key: 'ground',
+    uniforms,
+    patch: (fs) => {
+      for (const anchor of ['#include <map_fragment>', '#include <alphamap_fragment>']) {
+        if (!fs.includes(anchor)) throw new Error(`ground material: '${anchor}' not found`);
+      }
+      return fs
+        .replace('#include <common>', `#include <common>\n${GROUND_PARS}`)
+        .replace('#include <map_fragment>', GROUND_MAP)
+        .replace('#include <alphamap_fragment>', GROUND_PATH);
+    },
+  });
+}
+
+
+
+
+
+export async function viewerGround(season = 'summer') {
+  const geometry = new THREE.RingGeometry(0.05, 60, 96, 60).rotateX(-Math.PI / 2);
+  const n = geometry.attributes.position.count;
+  const colours = new Float32Array(n * 3);
+  const c = linear(seasonPalette(season).grass[1]);
+  for (let i = 0; i < n; i++) colours.set(c, i * 3);
+  geometry.setAttribute('color', new THREE.BufferAttribute(colours, 3));
+  const mesh = new THREE.Mesh(geometry, await groundMaterial({ season, paths: false }));
+  mesh.receiveShadow = true;
+  mesh.name = 'viewer-ground';
+  return mesh;
+}

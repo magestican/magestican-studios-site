@@ -130,6 +130,11 @@ export const COUNTED_GAME_IDS = Object.freeze([
   'farmy-ludo',
   'zelakas',
   '2d-fighter-ex',
+  
+  
+  
+  
+  'farmy-moon-life',
 ]);
 
 

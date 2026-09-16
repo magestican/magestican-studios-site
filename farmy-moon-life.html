@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Farmy Moon Life: a cozy farming game on a tiny moon</title>
-  <meta name="description" content="A cozy life game in development: grow an orchard on a tiny seasonal moon, make jam, buy land from a cat in a hat, and light your cottage at night.">
+  <meta name="description" content="A cozy farming game on a tiny moon, free in your browser: grow an orchard, make jam, buy land from a cat in a hat, and let a friend visit your moon.">
   <link rel="icon" href="./favicon.svg">
   <link rel="canonical" href="https://magesticanstudios.com/farmy-moon-life.html">
   
@@ -28,7 +28,7 @@
   <meta property="og:site_name" content="Magestican Studios">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Farmy Moon Life - a cozy game on a tiny moon">
-  <meta name="twitter:description" content="Grow an orchard, make jam, keep the neighbours happy and light your cottage at night. In development at Magestican Studios.">
+  <meta name="twitter:description" content="Grow an orchard, make jam, keep the neighbours happy and light your cottage at night. Free in your browser, from Magestican Studios.">
   <meta name="twitter:image" content="https://magesticanstudios.com/assets/farmy-moon-life-preview.jpg">
   <script type="application/ld+json">
   {
@@ -36,7 +36,7 @@
     "@type": "VideoGame",
     "name": "Farmy Moon Life",
     "url": "https://magesticanstudios.com/farmy-moon-life.html",
-    "description": "A cozy 3D life and farming game in development at Magestican Studios. You live on tiny, procedurally generated moons with one season each. It is designed around growing an orchard, turning fruit into juice and jam, selling to your neighbours from a shop you build, buying land from a round cat landlord in a waistcoat and hat, making neighbours happy enough to build and decorate their own homes, and lighting your moon at night. Being built for mobile browsers first. Only the graphics exist so far; nothing is playable yet.",
+    "description": "A cozy 3D life and farming game you can play in a browser tab. You live on a tiny seasonal moon: grow an orchard, press fruit into juice and jam, sell it to the neighbours from your own shop, and buy the land out from under Felice, the round cat landlord in a waistcoat and hat. Get to know the villagers, craft and place a hundred things wherever you like, fly to six other planets with a double tap of the jump button, and read out a six-character code so a friend can visit your moon and help. Free, no download, phone first.",
     "image": "https://magesticanstudios.com/assets/farmy-moon-life-preview.jpg",
     "author": { "@type": "Organization", "name": "Magestican Studios",
                 "url": "https://magesticanstudios.com" },
@@ -44,10 +44,11 @@
                    "url": "https://magesticanstudios.com" },
     "genre": ["Simulation", "Life simulation", "Casual"],
     "gamePlatform": ["Web browser", "Mobile browser"],
-    "playMode": ["SinglePlayer"],
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
-    "creativeWorkStatus": "In development",
-    "inLanguage": "en"
+    "inLanguage": "en",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
   }
   </script>
   <script type="application/ld+json">
@@ -120,19 +121,21 @@
 
   <main class="moonlife">
     <div class="moonlife-intro">
-      <p class="moonlife-status"><span class="dot dot-yellow"></span> In development</p>
+      <p class="moonlife-status"><span class="dot dot-green"></span> Playable in your browser</p>
       <h1>Farmy Moon Life: a cozy farming game on a tiny moon</h1>
       <p class="lede">A moon small enough to walk around before your tea goes cold. A cottage
         with the lights on, an orchard, a jam kettle, some neighbours who could be happier,
         and a round cat in a waistcoat who, unfortunately, owns all of the land.</p>
-      <p class="moonlife-honest">Only the graphics exist so far, so there is nothing to play yet.</p>
+      <p class="moonlife-cta"><a class="cta" href="/play/farmy-moon-life/">Play Farmy Moon Life &rarr;</a></p>
+      <p class="moonlife-honest">Free, no download and no account. It saves your moon in the
+        browser, so you can close the tab and come back to it.</p>
     </div>
 
     <figure class="moonlife-hero">
       <img src="./assets/shot-fml-summer-night.jpg" width="960" height="540" fetchpriority="high" decoding="async"
            alt="Farmy Moon Life on a summer night: a cottage with a red tiled roof and warmly lit windows, a lamp post glowing over a dirt path, a round orange cat in a hat and waistcoat standing in the flowers, and a ringed planet in the purple sky">
       <figcaption>Summer, ten at night. A real frame from the game's own renderer, not a
-        painting &mdash; and still a work in progress.</figcaption>
+        painting.</figcaption>
     </figure>
 
     <h2>A cozy game about a very small moon</h2>
@@ -276,7 +279,7 @@
       &middot; Site is static &middot; no cookies, anonymous counts only
     </p>
   </footer>
-  <script type="module" src="./assets/site.js?v=b27f8c1-20260914T131343Z"></script>
+  <script type="module" src="./assets/site.js?v=a2a43a9-20260916T201242Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {
