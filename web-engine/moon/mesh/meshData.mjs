@@ -94,11 +94,48 @@ export class MeshData {
       
       
       
+      
+      
+      if (src.sways || g.sways) {
+        const out = (g.sways ||= new Array(base).fill(0));
+        if (src.sways) for (const v of src.sways) out.push(v);
+        else for (let i = 0; i < src.positions.length / 3; i++) out.push(0);
+      }
+      
+      
+      
       for (const key of ['skinIndices', 'skinWeights']) {
         if (!src[key]) continue;
         const out = (g[key] ||= []);
         for (const v of src[key]) out.push(v);
       }
+    }
+    return this;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  sway({ perMetre = 0.02, power = 1.5 } = {}) {
+    const { min, max } = this.bounds();
+    const height = max[1] - min[1];
+    if (!(height > 0)) return this;
+    const amp = perMetre * height;
+    for (const g of this.groups.values()) {
+      const out = new Array(g.positions.length / 3);
+      for (let i = 0, j = 0; i < g.positions.length; i += 3, j++) {
+        const t = Math.min(1, Math.max(0, (g.positions[i + 1] - min[1]) / height));
+        out[j] = Math.round(amp * t ** power * 1e5) / 1e5;
+      }
+      g.sways = out;
     }
     return this;
   }
@@ -136,7 +173,7 @@ export class MeshData {
     for (const g of this.groups.values()) {
       const where = `${this.name}/${g.material}`;
       const vcount = g.positions.length / 3;
-      if (g.normals.length !== g.positions.length || g.colors.length !== g.positions.length || g.uvs.length !== vcount * 2) {
+      if (g.normals.length !== g.positions.length || g.colors.length !== g.positions.length || g.uvs.length !== vcount * 2 || (g.sways && g.sways.length !== vcount)) {
         problems.push(`${where}: attribute lengths disagree`);
       }
       if (g.indices.length % 3 !== 0) problems.push(`${where}: index count not a multiple of 3`);
@@ -204,6 +241,9 @@ export class MeshData {
         
         if (g.skinIndices) out.skinIndex = Uint16Array.from(g.skinIndices);
         if (g.skinWeights) out.skinWeight = Float32Array.from(g.skinWeights);
+        
+        
+        if (g.sways) out.sway = Float32Array.from(g.sways);
         return out;
       }),
     };

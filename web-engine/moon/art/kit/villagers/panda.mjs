@@ -258,7 +258,12 @@ export function panda({ season, lod, L, variant, rng, fuse }) {
     
     
     
-    gait: { walk: { elbow: 0.45, elbowSwing: 0.4, arm: 0.5, tilt: 0.08 }, run: { elbow: 1.1 }, pickUp: { drop: 0.72 } },
+    
+    
+    
+    
+    
+    gait: { walk: { elbow: 0.45, elbowSwing: 0.4, arm: 0.5, tilt: 0.08 }, run: { elbow: 1.1, bob: 0.018 }, pickUp: { drop: 0.72 } },
     
     
     

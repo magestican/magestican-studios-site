@@ -99,7 +99,17 @@ export function createGuideUi({ goal, markers, tip, placeOf, ndcOf, storage = nu
     draw(null, null, 0);
     rethink();
   });
-  tip.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); hideTip(); });
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   
   

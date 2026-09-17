@@ -42,6 +42,7 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
     geometry.setAttribute('normal', new THREE.BufferAttribute(g.normal, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(g.color, 3));
     geometry.setAttribute('uv', new THREE.BufferAttribute(g.uv, 2));
+    if (g.sway) geometry.setAttribute('fmlSway', new THREE.BufferAttribute(g.sway, 1)); 
     if (rig) {
       geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(g.skinIndex, 4));
       geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(g.skinWeight, 4));

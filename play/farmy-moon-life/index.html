@@ -207,10 +207,32 @@
     color: var(--peach); font: 900 15px/1 system-ui, sans-serif; }
   
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   #tip { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(232px + env(safe-area-inset-bottom)); z-index: 7;
-    width: min(360px, calc(100vw - 24px)); box-sizing: border-box; padding: 9px 14px; border-radius: 18px;
+    width: min(300px, calc(100vw - 48px)); box-sizing: border-box; padding: 7px 12px; border-radius: 15px;
     background: rgba(58, 47, 42, 0.9); color: var(--cream); text-align: center; border: 0;
-    font: 600 13px/1.35 system-ui, sans-serif; box-shadow: 0 4px 16px var(--shade); touch-action: none; }
+    font: 600 11.5px/1.3 system-ui, sans-serif; box-shadow: 0 4px 16px var(--shade); touch-action: none;
+    pointer-events: none; }
   #tip[hidden] { display: none; }
   
 
@@ -721,7 +743,7 @@
 
 
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=8023df6-20260917T214040Z"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=9a95f02-20260917T234238Z"></script>
 <script type="importmap">
 {
   "imports": {
@@ -801,6 +823,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=8023df6-20260917T214040Z"></script>
+<script type="module" src="src/play/main.js?v=9a95f02-20260917T234238Z"></script>
 </body>
 </html>

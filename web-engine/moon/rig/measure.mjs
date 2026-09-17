@@ -70,6 +70,60 @@ export function plantedFlags(heights, tolerance) {
 export const share = (flags) => flags.filter(Boolean).length / flags.length;
 
 
+
+
+
+
+
+
+
+
+
+
+export const CONTACT = 0.001;
+
+
+
+
+export function contactOf(track) {
+  const L = plantedFlags(track.L.y, CONTACT), R = plantedFlags(track.R.y, CONTACT);
+  let both = 0, neither = 0;
+  for (let i = 0; i < L.length; i++) { if (L[i] && R[i]) both++; else if (!L[i] && !R[i]) neither++; }
+  return { flags: { L, R }, share: { L: share(L), R: share(R) }, double: both / L.length, flight: neither / L.length, gap: frac(circularCentre(L) - circularCentre(R)) };
+}
+
+
+
+
+
+
+
+
+
+export function gaitMisses(clip, track, stance, { tolerance = 0.04, slide = 0.01, ground = 0.01 } = {}) {
+  const c = contactOf(track);
+  const out = [];
+  for (const side of ['L', 'R']) {
+    const s = c.share[side];
+    if (Math.abs(s - stance) > tolerance) out.push(`${side}: on the ground ${r3(s)} of the cycle, authored stance ${stance}`);
+    const low = Math.min(...track[side].y);
+    if (!(Math.abs(low) < ground)) out.push(`${side}: sole bottoms out at ${r3(low)} m, not the ground`);
+    const sk = skate(track[side].z, c.flags[side], clip.stride);
+    if (!(sk < slide)) out.push(`${side}: a planted sole slides ${r3(sk)} m`);
+  }
+  if (!(Math.abs(c.gap - 0.5) < 0.05)) out.push(`contacts ${r3(c.gap)} of a cycle apart, not half`);
+  if (stance >= 0.5) {
+    if (!(c.double > 0)) out.push('a walk has no double support');
+    if (c.flight > 0) out.push(`a walk leaves the ground for ${r3(c.flight)} of the cycle`);
+  } else {
+    if (!(c.flight > 0)) out.push('a run never leaves the ground');
+    if (c.double > 0) out.push(`a run has both feet down for ${r3(c.double)} of the cycle`);
+  }
+  return out;
+}
+const r3 = (v) => Math.round(v * 1000) / 1000;
+
+
 export function circularCentre(flags) {
   let sx = 0, sy = 0;
   flags.forEach((f, i) => {

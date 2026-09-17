@@ -288,5 +288,9 @@ export function generate({ seed = 1, season = 'summer', kind, lod = 0 } = {}) {
   if (!BUILDERS[k]) throw new Error(`unknown ground cover kind '${k}'`);
   const m = new MeshData(`groundCover-${k}-${seed}`);
   BUILDERS[k](m, new SeededRng(seed * 7919 + KINDS.indexOf(k) * 31 + 1), season, lod);
-  return m;
+  
+  
+  
+  
+  return m.sway({ perMetre: 0.12, power: 1.2 });
 }

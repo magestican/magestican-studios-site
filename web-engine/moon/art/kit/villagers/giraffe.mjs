@@ -333,7 +333,10 @@ export function giraffe({ season, lod, L, variant, rng, fuse }) {
     
     
     
-    gait: { walk: { elbow: 0.45, elbowSwing: 0.4, arm: 0.5 }, run: { elbow: 1.1, yaw: 0.1, tilt: 0.075 } },
+    
+    
+    
+    gait: { walk: { elbow: 0.45, elbowSwing: 0.4, arm: 0.5 }, run: { elbow: 1.1, yaw: 0.1, tilt: 0.075, bob: 0.028 } },
     stretch: ANIMAL_STRETCH,
   };
 }

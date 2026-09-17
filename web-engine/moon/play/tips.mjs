@@ -54,7 +54,19 @@ export const TIPS = Object.freeze([
 export const SEEN_KEY = 'fml.tips.seen';
 
 
-export const TIP_SECONDS = 7;
+
+
+
+
+
+
+
+
+
+
+
+
+export const TIP_SECONDS = 14;
 
 
 

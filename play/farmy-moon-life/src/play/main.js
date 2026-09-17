@@ -58,7 +58,7 @@
 
 
 import * as THREE from 'three';
-import { curveUniforms } from '../render/material.js';
+import { curveUniforms, windUniforms } from '../render/material.js';
 import { createSky } from '../render/sky.js';
 import { createDaylight } from '../render/daylight.js';
 import { createNightLights } from '../render/nightLights.js';
@@ -254,6 +254,9 @@ const startAnalytics = shouldStartAnalytics({
 });
 const scaleParam = Number(q.get('timescale') ?? 1);
 const animParam = Number(q.get('anim') ?? 1);
+
+
+windUniforms.uFmlWind.value = q.get('wind') === '0' ? 0 : 1;
 const state = {
   anim: Number.isFinite(animParam) && animParam > 0 ? animParam : 1,
   season: q.get('season') || 'summer',
@@ -3008,6 +3011,7 @@ function frame(now) {
   const dt = Math.min(raw, FEEL.maxFrameS);
   seconds += raw;
   animSeconds += dt * state.anim;
+  windUniforms.uFmlTime.value = animSeconds; 
 
   
   

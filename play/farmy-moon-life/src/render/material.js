@@ -43,12 +43,44 @@ export const cozyUniforms = {
   uFmlMottle: { value: 0.06 },
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const windUniforms = {
+  uFmlTime: { value: 0 },
+  uFmlWind: { value: 1 },
+};
+
 export const EMISSIVE_IDS = Object.freeze(['glass', 'lamp-glow', 'fire']);
 const EMISSIVE_DEFAULTS = { glass: ['#ffc774', 1.8], 'lamp-glow': ['#ffc473', 2.4], fire: ['#ff8f3a', 2.6] };
 const emissiveFactor = { glass: 0, 'lamp-glow': 0, fire: 1 };
 const resolved = new Map();
 
-const BEND_PARS = 'uniform float uCurve;\nuniform vec3 uCurveFocus;\n';
+const BEND_PARS =  `
+uniform float uCurve;
+uniform vec3 uCurveFocus;
+uniform float uFmlTime;
+uniform float uFmlWind;
+attribute float fmlSway;
+// Metres of sideways travel per unit of weight, in [-1, 1] on each axis: the
+// sines sum to at most 1.75, and 0.57 keeps the magnitude inside 1 so a weight
+// IS the most a vertex ever moves.
+vec2 fmlWindAt( vec2 p, float t ) {
+  float a = sin( t * 1.3 + p.x * 0.35 + p.y * 0.22 ) + 0.5 * sin( t * 2.7 - p.x * 0.6 + p.y * 0.9 ) + 0.25 * sin( t * 5.1 + p.y * 1.7 );
+  float b = 0.6 * sin( t * 1.1 + p.x * 0.28 - p.y * 0.3 ) + 0.3 * sin( t * 3.3 + p.x * 1.1 );
+  return vec2( 0.55 + 0.45 * a, b ) * 0.57;
+}
+`;
 
 function bendChunk(worldVarying) {
   return  `
@@ -60,6 +92,7 @@ vec4 fmlWorld = vec4( transformed, 1.0 );
   fmlWorld = instanceMatrix * fmlWorld;
 #endif
 fmlWorld = modelMatrix * fmlWorld;
+fmlWorld.xz += fmlWindAt( fmlWorld.xz, uFmlTime ) * ( uFmlWind * fmlSway );
 ${worldVarying ? 'vFmlWorld = fmlWorld.xyz;' : ''}
 vec2 fmlD = fmlWorld.xz - uCurveFocus.xz;
 fmlWorld.y -= dot( fmlD, fmlD ) * uCurve;
@@ -95,6 +128,8 @@ if (!THREE.ShaderChunk.tonemapping_pars_fragment.includes('fmlPastel')) {
 function bendVertex(shader, worldVarying) {
   shader.uniforms.uCurve = curveUniforms.uCurve;
   shader.uniforms.uCurveFocus = curveUniforms.uCurveFocus;
+  shader.uniforms.uFmlTime = windUniforms.uFmlTime;
+  shader.uniforms.uFmlWind = windUniforms.uFmlWind;
   let vs = BEND_PARS + (worldVarying ? 'varying vec3 vFmlWorld;\n' : '') + shader.vertexShader;
   vs = replaceOrThrow(vs, '#include <project_vertex>', bendChunk(worldVarying), 'project_vertex');
   if (vs.includes('#include <worldpos_vertex>')) vs = vs.replace('#include <worldpos_vertex>', WORLDPOS_BENT);
@@ -103,7 +138,8 @@ function bendVertex(shader, worldVarying) {
 
 export function applyBend(material) {
   material.onBeforeCompile = (shader) => bendVertex(shader, false);
-  material.customProgramCacheKey = () => 'fml-bend-v1';
+  material.customProgramCacheKey = () => 'fml-bend-v2';
+  material.defaultAttributeValues = { ...(material.defaultAttributeValues || {}), fmlSway: [0] };
   return material;
 }
 
@@ -209,7 +245,8 @@ export function makeCozy(material, { rim = 0.12, key = 'base', patch = null, uni
     if (patch) fs = patch(fs);
     shader.fragmentShader = fs;
   };
-  material.customProgramCacheKey = () => `fml-cozy-v1-${key}`;
+  material.customProgramCacheKey = () => `fml-cozy-v2-${key}`;
+  material.defaultAttributeValues = { ...(material.defaultAttributeValues || {}), fmlSway: [0] };
   return material;
 }
 

@@ -69,7 +69,9 @@ export function generate({ seed = 1, season = 'summer', stage = 'ready', lod = 0
   const key = `forage-${type}|${seed}`;
   const name = `forageSpot-${type}-${seed}-${season}-${stage}-lod${d}`;
   const ctx = { seed, season, stage, lod: d, key, name, pal: seasonPalette(season), rng: new SeededRng(seed).child(`forage-${type}`) };
-  return type === 'mushroom' ? mushroomPatch(ctx) : type === 'berries' ? berryBush(ctx) : digSpot(ctx);
+  
+  
+  return type === 'mushroom' ? mushroomPatch(ctx) : type === 'berries' ? berryBush(ctx).sway({ perMetre: 0.08, power: 1.3 }) : digSpot(ctx);
 }
 
 

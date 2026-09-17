@@ -28,9 +28,11 @@
 
 
 
+
+
 import { boneIndex, createPose, forwardKinematics, jointPosition } from './skeleton.mjs';
 import { sampleClip } from './pose.mjs';
-import { footTrack, plantedFlags, share, circularCentre, skate } from './measure.mjs';
+import { footTrack, plantedFlags, share, circularCentre, skate, CONTACT } from './measure.mjs';
 
 
 
@@ -40,10 +42,7 @@ export const SAMPLES = 240;
 
 
 
-export const CONTACT = 0.001;
-
-
-export const PLANTED = 0.015;
+export { CONTACT };
 
 const mean = (a) => { let s = 0; for (const v of a) s += v; return s / a.length; };
 
@@ -80,7 +79,7 @@ export function landOf(skeleton, clip, contacts, { samples = SAMPLES } = {}) {
   const track = footTrack(skeleton, clip, contacts, { samples });
   const out = {};
   for (const s of ['L', 'R']) {
-    const flags = plantedFlags(track[s].y, PLANTED);
+    const flags = plantedFlags(track[s].y, CONTACT);
     out[s] = { at: Math.round(circularCentre(flags) * 1000) / 1000, stance: Math.round(share(flags) * 1000) / 1000 };
   }
   return out;

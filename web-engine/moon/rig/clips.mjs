@@ -109,7 +109,9 @@ export const RUN = Object.freeze({
   
   
   
-  crouch: 0.04, bob: 0.01, low: 0.1, tilt: 0.15, beat: 2,
+  
+  
+  crouch: 0.04, bob: 0.026, low: 0.1, tilt: 0.15, beat: 2,
   
   
   
@@ -126,6 +128,9 @@ const CARRY_MASK = Object.freeze({ armUpperL: 1, armLowerL: 1, handL: 1, armUppe
 
 
 const gaitOf = (base, over) => (over ? Object.freeze({ ...base, ...over, name: base.name, speed: base.speed }) : base);
+
+
+export const gaitTable = (skeleton, name) => gaitOf(name === 'walk' ? WALK : RUN, skeleton.gait?.[name]);
 
 export function buildClips(skeleton, { walk = gaitOf(WALK, skeleton.gait?.walk), run = gaitOf(RUN, skeleton.gait?.run) } = {}) {
   const limbs = {

@@ -87,6 +87,11 @@ export function generate({ seed = 1, season = 'summer', stage, lod = 0, kind = '
   };
   BUILD[stage](ctx);
   fillCards(ctx);
+  
+  
+  
+  
+  if (stage !== 'stump') ctx.m.sway({ perMetre: 0.02, power: 1.5 });
   return ctx.m;
 }
 

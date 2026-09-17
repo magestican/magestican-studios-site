@@ -10,10 +10,10 @@ import { contractTests } from '../contract.mjs';
 import { budgetFor } from '../../../budgets.mjs';
 import { SEASONS } from '../../../palette/seasons.mjs';
 import { BIPED, MAX_BONES, JOINT_LIMITS, boneIndex, forwardKinematics, skinMatrices, carriedPoint, jointPosition } from '../../../rig/skeleton.mjs';
-import { buildClips, CLIP_NAMES } from '../../../rig/clips.mjs';
+import { buildClips, CLIP_NAMES, gaitTable } from '../../../rig/clips.mjs';
 import { sampleClip } from '../../../rig/pose.mjs';
 import { deformationReport, deform } from '../../../rig/skin.mjs';
-import { footTrack, plantedFlags, share, circularCentre, skate, DEFORMATION, EXTREMES } from '../../../rig/measure.mjs';
+import { footTrack, plantedFlags, gaitMisses, DEFORMATION, EXTREMES } from '../../../rig/measure.mjs';
 import { eulerFromQuat, frac } from '../../../rig/math.mjs';
 
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
@@ -211,15 +211,8 @@ export function villagerSpeciesTests(species, { size, height, addedBones = [], r
       }
     }
     for (const name of ['walk', 'run']) {
-      const clip = clips[name];
-      const track = footTrack(rig, clip, rig.contacts, { samples: 240 });
-      const planted = { L: plantedFlags(track.L.y, 0.015), R: plantedFlags(track.R.y, 0.015) };
-      for (const side of ['L', 'R']) {
-        assert.ok(share(planted[side]) >= 0.35, `${name} ${side}: planted ${share(planted[side])}`);
-        assert.ok(Math.abs(Math.min(...track[side].y)) < 0.012, `${name} ${side}: sole bottoms at ${Math.min(...track[side].y)}`);
-        assert.ok(skate(track[side].z, plantedFlags(track[side].y, 0.001), clip.stride) < 0.01, `${name} ${side}: skates`);
-      }
-      assert.ok(Math.abs(frac(circularCentre(planted.L) - circularCentre(planted.R)) - 0.5) < 0.05, `${name}: feet do not alternate`);
+      const track = footTrack(rig, clips[name], rig.contacts, { samples: 240 });
+      assert.deepEqual(gaitMisses(clips[name], track, gaitTable(rig, name).stance, { ground: 0.012 }), [], name);
     }
     
     const range = (clip, bone, k) => {

@@ -218,5 +218,6 @@ export function generate({ seed = 1, season = 'winter', stage, lod = 0 } = {}) {
     m.tri('leaf', ids[0], ids[1], ids[2]);
     m.tri('leaf', ids[0], ids[2], ids[3]);
   }
-  return m;
+  
+  return m.sway({ perMetre: 0.02, power: 1.5 });
 }

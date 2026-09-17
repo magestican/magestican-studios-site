@@ -60,6 +60,7 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
       geometry.setAttribute('normal', new THREE.BufferAttribute(g.normal, 3));
       geometry.setAttribute('color', new THREE.BufferAttribute(g.color, 3));
       geometry.setAttribute('uv', new THREE.BufferAttribute(g.uv, 2));
+      if (g.sway) geometry.setAttribute('fmlSway', new THREE.BufferAttribute(g.sway, 1));
       geometry.setIndex(new THREE.BufferAttribute(g.index, 1));
       const material = await cozyMaterial(g.material);
       const mesh = new THREE.InstancedMesh(geometry, material, list.length);

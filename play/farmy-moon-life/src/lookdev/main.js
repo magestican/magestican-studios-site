@@ -46,7 +46,7 @@ import { KINDS, VARIANTS, ITEM_OF_GOOD, TOOLS, TOOL_GRIP, generate as generateIt
 import { ACT_NAMES } from 'moon/rig/clips.mjs';
 import { bindCharacter } from '../render/character.js';
 import { sampleClip, blendPose } from 'moon/rig/pose.mjs';
-import { curveUniforms } from '../render/material.js';
+import { curveUniforms, windUniforms } from '../render/material.js';
 import { createSky } from '../render/sky.js';
 import { createDaylight } from '../render/daylight.js';
 import { createNightLights } from '../render/nightLights.js';
@@ -91,7 +91,11 @@ const state = {
   build: q.get('build') || '',
   type: q.get('type') || '',
   tool: q.get('tool') || '',
+  
+  
+  windT: q.get('t') === null || q.get('t') === '' ? null : Number(q.get('t')),
 };
+windUniforms.uFmlWind.value = q.get('wind') === '0' ? 0 : 1;
 
 const TOOL_OF_CLIP = { chop: 'axe', dig: 'shovel', mine: 'pickaxe', water: 'wateringCan' };
 if (state.view === 'walk' && !state.clip) state.clip = 'walk';
@@ -401,6 +405,7 @@ let seconds = 0;
 function frame(now) {
   const dt = clock.getDelta();
   seconds += dt;
+  windUniforms.uFmlTime.value = state.windT ?? seconds;
   if (state.view === 'turntable') root.rotation.y += dt * 0.6;
   if (state.move !== null) for (const pc of posed) pc.update(dt, { speed: state.move, carrying: state.carry });
   else if (state.clip && state.phase === null) for (const pc of posed) if (pc.fixedPhase === undefined) poseClip(pc, (seconds / pc.clips[state.clip].duration) % 1);
