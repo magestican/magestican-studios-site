@@ -121,6 +121,11 @@ export const HUD_BUDGET = Object.freeze({ screenPct: 10, centrePct: 0 });
 
 
 
+
+
+
+
+
 export const HUD_CEILING = Object.freeze({
   portrait: Object.freeze({
     play: Object.freeze({ screenPct: 9.9, centrePct: 0 }),
@@ -129,7 +134,7 @@ export const HUD_CEILING = Object.freeze({
   }),
   landscape: Object.freeze({
     play: Object.freeze({ screenPct: 9.5, centrePct: 0 }),
-    guiding: Object.freeze({ screenPct: 12.5, centrePct: 0 }),
+    guiding: Object.freeze({ screenPct: 13.0, centrePct: 0 }),
     card: Object.freeze({ screenPct: 32.0, centrePct: 55.9 }),
   }),
 });

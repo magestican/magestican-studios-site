@@ -78,6 +78,12 @@ export const label = (good) => String(good).replace(/([a-z])([A-Z])/g, '$1 $2').
 
 
 
+
+
+
+
+
+
 const step = (id, text, place = null) => Object.freeze({ id, text, place });
 
 
@@ -96,7 +102,7 @@ function awayStep(world, t, planet) {
   if (patch) return step(`forage:${patch.id}`, 'There is still something growing here.', { type: 'forage', id: patch.id });
   const flights = flightsHome(planet);
   return step('home',
-    `Nothing left here. Hold Jump to fly straight home to ${HOME_NAME} - it is ${flights} ${flights === 1 ? 'flight' : 'flights'} the long way round.`,
+    `Nothing left here. Hold Jump to fly home to ${HOME_NAME} - ${flights} ${flights === 1 ? 'flight' : 'flights'} round.`,
     { type: 'home' });
 }
 
@@ -108,13 +114,13 @@ function firstDayStep(world, t) {
   const carrying = sellableHeld(world);
   if (!carrying.length && stockCount(world) === 0) {
     const ripe = treesOn(world, 0).find((tree) => isRipe(tree, t));
-    return ripe ? step('first:pick', 'Pick the fruit off a tree - it is the start of everything.', { type: 'tree', id: ripe.id }) : null;
+    return ripe ? step('first:pick', 'Pick the fruit off a ripe tree - it is where everything starts.', { type: 'tree', id: ripe.id }) : null;
   }
   if (carrying.length && shelfRoom(world, carrying[0]) > 0) {
     return step('first:stock', 'Take the fruit to the shop and put it on a shelf.', { type: 'shop' });
   }
   if (stockCount(world) > 0) {
-    return step('first:wait', 'Customers come by while there is something on the shelves. Have a wander.', null);
+    return step('first:wait', 'Customers come by while the shelves have something on them.', null);
   }
   return null;
 }
@@ -144,7 +150,7 @@ export function nextStep(world, t, { planet = 0 } = {}) {
   const carrying = sellableHeld(world);
   const toShelve = carrying.find((good) => shelfRoom(world, good) > 0) || null;
   if (toShelve && stockCount(world) === 0) {
-    return step('stock', 'The shelves are empty - stock the shop and the customers will come.', { type: 'shop' });
+    return step('stock', 'The shop shelves are empty - stock them and customers come.', { type: 'shop' });
   }
 
   
