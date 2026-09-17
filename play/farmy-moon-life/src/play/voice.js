@@ -17,6 +17,7 @@
 
 
 
+
 import { activityAt, compileMumble, revealAt } from 'moon/voice/mumble.mjs';
 import { voiceOf } from 'moon/voice/voices.mjs';
 
@@ -141,7 +142,8 @@ export function createVoice({ audio, now = () => performance.now() / 1000 }) {
     if (ctx && !audio.muted) {
       const bus = ctx.createGain();
       bus.gain.value = v.gain;
-      bus.connect(audio.master);
+      
+      bus.connect(audio.voice || audio.master);
       line.bus = bus;
       line.audible = true;
       const T0 = ctx.currentTime + START_S;

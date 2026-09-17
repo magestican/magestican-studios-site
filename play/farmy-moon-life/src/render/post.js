@@ -42,33 +42,71 @@ void main() {
 `,
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function createPost(renderer, scene, camera, settings) {
-  if (!settings.bloom) {
-    return { render: () => renderer.render(scene, camera), setSize() {}, setBloom() {}, composer: null };
+  let composer = null, bloom = null, tilt = null, target = null;
+  let last = { w: 0, h: 0 };
+  let strength = 0;
+
+  function build(s) {
+    if (!s.bloom) return;          
+    const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+    target = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: s.effects >= 1 ? 4 : 2 });
+    composer = new EffectComposer(renderer, target);
+    composer.addPass(new RenderPass(scene, camera));
+    bloom = new UnrealBloomPass(new THREE.Vector2(size.x * s.bloomScale, size.y * s.bloomScale), 0.6, 0.6, 1.0);
+    composer.addPass(bloom);
+    if (s.tiltShift) {
+      tilt = new ShaderPass(TILT_SHIFT);
+      composer.addPass(tilt);
+    }
+    composer.addPass(new OutputPass());
   }
-  const size = renderer.getDrawingBufferSize(new THREE.Vector2());
-  const target = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: settings.effects >= 1 ? 4 : 2 });
-  const composer = new EffectComposer(renderer, target);
-  composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(size.x * settings.bloomScale, size.y * settings.bloomScale), 0.6, 0.6, 1.0);
-  composer.addPass(bloom);
-  let tilt = null;
-  if (settings.tiltShift) {
-    tilt = new ShaderPass(TILT_SHIFT);
-    composer.addPass(tilt);
+
+  function teardown() {
+    for (const pass of composer ? composer.passes : []) if (pass.dispose) pass.dispose();
+    if (composer && composer.dispose) composer.dispose();
+    if (target) target.dispose();
+    composer = null; bloom = null; tilt = null; target = null;
   }
-  composer.addPass(new OutputPass());
-  return {
-    composer,
-    render() { composer.render(); },
+
+  build(settings);
+
+  const api = {
+    get composer() { return composer; },
+    render() { if (composer) composer.render(); else renderer.render(scene, camera); },
     setSize(w, h) {
+      last = { w, h };
+      if (!composer) return;
       composer.setPixelRatio(renderer.getPixelRatio());
       composer.setSize(w, h);
       if (tilt) tilt.uniforms.uTexel.value.set(1 / (w * renderer.getPixelRatio()), 1 / (h * renderer.getPixelRatio()));
     },
-    setBloom(strength) {
-      bloom.strength = strength;
-      bloom.enabled = strength > 0.02;
+    setBloom(v) {
+      strength = v;
+      if (!bloom) return;
+      bloom.strength = v;
+      bloom.enabled = v > 0.02;
+    },
+    setTier(s) {
+      teardown();
+      build(s);
+      if (last.w) api.setSize(last.w, last.h);
+      api.setBloom(strength);
     },
   };
+  return api;
 }

@@ -31,6 +31,26 @@ export function createDaylight(scene, settings, { shadowExtent = 20 } = {}) {
     key,
     
     fogScale: 1,
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    setQuality(next) {
+      key.shadow.radius = next.shadowRadius;
+      if (key.shadow.mapSize.width === next.shadowMapSize) return false;
+      key.shadow.mapSize.set(next.shadowMapSize, next.shadowMapSize);
+      if (key.shadow.map) {
+        key.shadow.map.dispose();
+        key.shadow.map = null;
+      }
+      key.shadow.needsUpdate = true;
+      return true;
+    },
     apply(cycle, focus, renderer) {
       setLinear(hemi.color, cycle.hemiSky);
       setLinear(hemi.groundColor, cycle.hemiGround);

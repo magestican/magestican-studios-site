@@ -15,7 +15,21 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 
 export async function createGroundCover({ season, count, seed = 1, layout }) {
-  const items = [...scatterCover({ season, count, seed, layout }), ...scatterPathEdge({ season, seed, layout })];
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const lawn = scatterCover({ season, count, seed, layout });
+  lawn.forEach((it, i) => { it.lawnIndex = i; });
+  const items = [...lawn, ...scatterPathEdge({ season, seed, layout })];
   const group = new THREE.Group();
   group.name = 'ground-cover';
   const ref = linear(seasonPalette(season).grass[1]);
@@ -23,8 +37,15 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
   for (const it of items) {
     const key = `${it.kind}|${it.variant}`;
     if (!buckets.has(key)) buckets.set(key, []);
-    buckets.get(key).push(it);
+    const list = buckets.get(key);
+    it.ord = list.length;
+    list.push(it);
   }
+  
+  for (const [key, list] of buckets) {
+    buckets.set(key, [...list.filter((it) => it.lawnIndex === undefined), ...list.filter((it) => it.lawnIndex !== undefined)]);
+  }
+  const parts = [];
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), pos = new THREE.Vector3(), sc = new THREE.Vector3();
   const up = new THREE.Vector3(0, 1, 0), col = new THREE.Color();
   let triangles = 0;
@@ -42,12 +63,13 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
       geometry.setIndex(new THREE.BufferAttribute(g.index, 1));
       const material = await cozyMaterial(g.material);
       const mesh = new THREE.InstancedMesh(geometry, material, list.length);
-      list.forEach((it, i) => {
+      list.forEach((it, slot) => {
+        const i = it.ord;
         q.setFromAxisAngle(up, it.rotY);
         pos.set(it.x, it.y, it.z);
         sc.setScalar(it.scale);
         m4.compose(pos, q, sc);
-        mesh.setMatrixAt(i, m4);
+        mesh.setMatrixAt(slot, m4);
         const jitter = 0.94 + ((i * 7919) % 13) / 100;
         
         
@@ -56,7 +78,7 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
         } else {
           col.setRGB(jitter, jitter, jitter, THREE.LinearSRGBColorSpace);
         }
-        mesh.setColorAt(i, col);
+        mesh.setColorAt(slot, col);
       });
       mesh.instanceMatrix.needsUpdate = true;
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
@@ -65,8 +87,47 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
       mesh.castShadow = false;
       mesh.name = `cover/${key}/${g.material}`;
       group.add(mesh);
-      triangles += (g.index.length / 3) * list.length;
+      const perInstance = g.index.length / 3;
+      triangles += perInstance * list.length;
+      parts.push({
+        mesh,
+        perInstance,
+        edgeCount: list.filter((it) => it.lawnIndex === undefined).length,
+        lawnIndices: list.filter((it) => it.lawnIndex !== undefined).map((it) => it.lawnIndex),
+      });
     }
   }
-  return { group, triangles, count: items.length, problems };
+  let drawn = triangles;
+  return {
+    group,
+    triangles,
+    count: items.length,
+    problems,
+    
+    get drawnTriangles() { return drawn; },
+    
+
+
+
+
+
+
+
+
+
+
+    setDensity(fraction) {
+      const f = Math.max(0, Math.min(1, fraction));
+      const target = Math.round(lawn.length * f);
+      let total = 0;
+      for (const part of parts) {
+        let n = part.edgeCount;
+        for (const index of part.lawnIndices) if (index < target) n += 1;
+        part.mesh.count = n;
+        total += part.perInstance * n;
+      }
+      drawn = total;
+      return total;
+    },
+  };
 }

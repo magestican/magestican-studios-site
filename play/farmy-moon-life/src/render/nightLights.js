@@ -90,12 +90,13 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
   const group = new THREE.Group();
   group.name = 'night-lights';
   const lights = [];
-  for (let i = 0; i < size; i++) {
+  const addLight = () => {
     const light = new THREE.PointLight(LAMP_COLOUR, 0, 11, 1.6);
     light.castShadow = false;
     lights.push(light);
     group.add(light);
-  }
+  };
+  for (let i = 0; i < size; i++) addLight();
 
   const shared = {
     uCurve: curveUniforms.uCurve,
@@ -164,10 +165,33 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
   }
   scene.add(group);
 
-  const slots = new Int32Array(size);
+  let slots = new Int32Array(size);
   return {
     group,
     lights,
+    get size() { return size; },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    setSize(next) {
+      if (next === size || !(next > 0)) return false;
+      while (lights.length > next) {
+        const light = lights.pop();
+        light.intensity = 0;
+        group.remove(light);
+        if (light.dispose) light.dispose();
+      }
+      while (lights.length < next) addLight();
+      size = next;
+      slots = new Int32Array(size);
+      return true;
+    },
     update(cycle, focus, pixelsPerRadian) {
       const lamp = cycle.emissive['lamp-glow'], fire = cycle.emissive.fire;
       shared.uLamp.value = lamp;

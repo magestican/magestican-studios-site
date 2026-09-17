@@ -46,3 +46,177 @@ export function decideTier(samples, n, elapsedMs) {
 export function tierFromParam(value) {
   return TIERS.includes(value) ? value : null;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const WATCH = Object.freeze({
+  settleMs: 2000,        
+  windowMs: 30000,       
+  minFrames: 20,         
+  downWindows: 2,        
+  upAfterMs: 60000,      
+  upHeadroom: 0.3,       
+  upEveryMs: 300000,     
+});
+
+
+export function tierAbove(tier) {
+  const i = TIERS.indexOf(tier);
+  return i > 0 ? TIERS[i - 1] : null;
+}
+
+
+export function tierBelow(tier) {
+  const i = TIERS.indexOf(tier);
+  return i >= 0 && i < TIERS.length - 1 ? TIERS[i + 1] : null;
+}
+
+
+export function isWorse(a, b) {
+  return TIERS.indexOf(a) > TIERS.indexOf(b);
+}
+
+
+
+
+
+
+
+
+
+export function createTierWatch({ tier = 'high', startedAt = 0, config = WATCH } = {}) {
+  const c = { ...WATCH, ...config };
+  if (!TIERS.includes(tier)) throw new Error(`unknown quality tier '${tier}'`);
+  let current = tier;
+  let windowStart = null;
+  let frames = [];
+  let bad = 0;
+  let changedAt = startedAt;
+  
+  
+  let lastUpAt = -Infinity;
+  let windows = 0;
+  let lastMedian = 0;
+
+  const step = (next, reason, median, now) => {
+    const from = current;
+    current = next;
+    changedAt = now;
+    bad = 0;
+    return { tier: next, from, median, reason };
+  };
+
+  return {
+    get tier() { return current; },
+    
+    get windows() { return windows; },
+    get median() { return lastMedian; },
+    
+    get pending() { return frames.length; },
+    get badWindows() { return bad; },
+    config: Object.freeze(c),
+
+    sample(intervalMs, nowMs) {
+      if (!Number.isFinite(intervalMs) || intervalMs <= 0) return null;
+      if (nowMs - startedAt < c.settleMs) return null;
+      if (windowStart === null) windowStart = nowMs;
+      frames.push(intervalMs);
+      if (nowMs - windowStart < c.windowMs) return null;
+
+      const median = medianInterval(frames);
+      const n = frames.length;
+      frames = [];
+      windowStart = nowMs;
+      
+      
+      
+      if (n < c.minFrames) return null;
+      windows += 1;
+      lastMedian = median;
+
+      const want = tierForInterval(median);
+      if (isWorse(want, current)) {
+        bad += 1;
+        if (bad < c.downWindows) return null;
+        
+        
+        
+        return step(want, 'down', median, nowMs);
+      }
+      bad = 0;
+
+      const up = tierAbove(current);
+      if (!up) return null;
+      if (nowMs - changedAt < c.upAfterMs) return null;
+      if (nowMs - lastUpAt < c.upEveryMs) return null;
+      if (!(median <= TIER_ABOVE_MS[up] * (1 - c.upHeadroom))) return null;
+      lastUpAt = nowMs;
+      return step(up, 'up', median, nowMs);
+    },
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const TIER_KEY = 'fml.tier';
+
+
+export function readTier(storage) {
+  try {
+    const raw = storage && storage.getItem(TIER_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw);
+    if (!saved || typeof saved !== 'object') return null;
+    return tierFromParam(saved.tier);
+  } catch {
+    return null;   
+  }
+}
+
+export function writeTier(storage, tier, at = Date.now()) {
+  try {
+    if (!storage || !TIERS.includes(tier)) return false;
+    storage.setItem(TIER_KEY, JSON.stringify({ tier, at }));
+    return true;
+  } catch {
+    return false;
+  }
+}

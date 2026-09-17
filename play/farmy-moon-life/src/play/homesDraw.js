@@ -125,11 +125,10 @@ const SPARKLE_CSS = `
 @keyframes fml-sparkle{0%{transform:translate(0,0) scale(.2);opacity:1}70%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(90deg);opacity:0}}
 `;
 
-export function createHomesDraw({ scene, season = 'summer', heightAt, audio = null, voice = null, layer = null, onProblems = () => {}, onStage = () => {}, cfg = HOMES_DRAW }) {
+export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null, voice = null, layer = null, onProblems = () => {}, onStage = () => {}, cfg = HOMES_DRAW }) {
   const slots = new Map();
   let cratesObj = null, hammerObj = null, synced = false;
   const counts = { pops: 0, hammerPlays: 0, hammerSkipped: 0, voiced: 0, sparkles: 0 };
-  let tokBus = null;
 
   if (layer && !document.getElementById(SPARKLE_STYLE_ID)) {
     const style = document.createElement('style');
@@ -147,25 +146,11 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, audio = nu
     hammerObj.userData.triangles = hammer.triangleCount;
   })();
 
+  
+  
+  
   function tok() {
-    const ctx = audio && audio.ctx;
-    if (!ctx || audio.muted) { counts.hammerSkipped += 1; return; }
-    if (!tokBus) { tokBus = ctx.createGain(); tokBus.gain.value = 0.3; tokBus.connect(audio.master); }
-    const at = ctx.currentTime + 0.01;
-    for (const [freq, dur, gain] of [[210, 0.09, 0.8], [640, 0.03, 0.35]]) {
-      const osc = ctx.createOscillator();
-      const env = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, at);
-      osc.frequency.exponentialRampToValueAtTime(freq * 0.6, at + dur);
-      env.gain.setValueAtTime(0.0001, at);
-      env.gain.exponentialRampToValueAtTime(gain, at + 0.004);
-      env.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-      osc.connect(env);
-      env.connect(tokBus);
-      osc.start(at);
-      osc.stop(at + dur + 0.02);
-    }
+    if (!sfx || !sfx.play('build.hammer')) { counts.hammerSkipped += 1; return; }
     counts.hammerPlays += 1;
   }
 

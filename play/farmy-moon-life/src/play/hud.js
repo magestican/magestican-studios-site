@@ -3,17 +3,18 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 import { TREES } from 'moon/economy/tables.mjs';
-
-
-
-
-const WORD = Object.freeze({
-  harvest: 'Pick', clearStump: 'Dig up', plant: 'Plant',
-  stock: 'Stock', build: 'Build', collect: 'Collect', open: 'Open', buy: 'Buy', talk: 'Talk',
-  fell: 'Chop', mine: 'Mine', dig: 'Dig', water: 'Water', forage: 'Pick',
-});
-const TOOL_WORD = Object.freeze({ shovel: 'Dig', axe: 'Chop', pickaxe: 'Mine', wateringCan: 'Water' });
+import { REFUSAL_S, actLabel, actRefused } from 'moon/play/actButton.mjs';
 
 export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl, button, iconFor, onChooseSeed }) {
   const icons = new Map();
@@ -30,6 +31,13 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
     return c;
   };
   let sigPockets = null, sigPrompt = null, sigSeeds = null, sigButton = null, lastHold = -1, flash = null;
+  
+  
+  
+  
+  
+  
+  let said = null;
 
   function pockets(counts) {
     const entries = Object.entries(counts).filter(([, n]) => n > 0);
@@ -67,10 +75,21 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
   }
 
   
-  function say(text, nowS, forS = 1.8) { flash = { text, until: nowS + forS }; }
+  function say(text, nowS, forS = REFUSAL_S) {
+    flash = { text, until: nowS + forS };
+    said = { text, atS: nowS, forS };
+  }
 
   
-  function nope() {
+
+
+
+
+
+
+
+  function nope(why = null, nowS = 0) {
+    if (why) say(why, nowS);
     promptEl.classList.remove('nope');
     void promptEl.offsetWidth;
     promptEl.classList.add('nope');
@@ -78,9 +97,12 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
 
   function update(p, holdProgress, nowS) {
     if (flash && nowS > flash.until) flash = null;
-    let shown = null;
-    if (flash) shown = { why: flash.text };
-    else if (p) shown = { label: p.why ? '' : p.label, why: p.why || '', hold: p.hold ? p.holdLabel : '' };
+    
+    
+    
+    
+    
+    const shown = flash ? { why: flash.text } : null;
     const sig = JSON.stringify(shown);
     if (sig !== sigPrompt) {
       sigPrompt = sig;
@@ -98,12 +120,10 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
     }
     
     
-    let word = 'Pick up';
-    if (p && p.verb) word = WORD[p.verb];
-    else if (p && p.hold) word = WORD.fell;
-    else if (p && p.chosen) word = TOOL_WORD[p.chosen];
-    else if (p) word = p.target.type === 'ground' ? WORD.plant : WORD.harvest;
-    const cannot = Boolean(p && p.why && !p.hold);
+    
+    
+    const word = actLabel(p);
+    const cannot = actRefused(p);
     const bsig = `${word}|${cannot}`;
     if (bsig !== sigButton) {
       sigButton = bsig;
@@ -118,5 +138,5 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
     }
   }
 
-  return { pockets, seeds, say, nope, update };
+  return { pockets, seeds, say, nope, update, get said() { return said; } };
 }

@@ -80,7 +80,10 @@ import { createOrchardDraw } from './orchardDraw.js';
 import { createPopsDraw } from './popsDraw.js';
 import { createHud } from './hud.js';
 import { dayCycle } from 'moon/light/dayCycle.mjs';
-import { SETTINGS, tierFromParam, decideTier } from 'moon/light/quality.mjs';
+import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, writeTier } from 'moon/light/quality.mjs';
+import { createTiming, timingLine } from 'moon/play/timing.mjs';
+import { createPerfSampler } from 'moon/play/perfSample.mjs';
+import { shouldStartAnalytics } from 'moon/play/analyticsGate.mjs';
 import { CURVE_K, bendDrop } from 'moon/world/curve.mjs';
 import { heightAt, placements, ISLAND_RADIUS } from 'moon/world/moonLayout.mjs';
 import {
@@ -112,6 +115,9 @@ import { createCustomersDraw } from './customersDraw.js';
 import { createCards } from './cards.js';
 import { createWorldUi } from './worldUi.js';
 import { createCoinSound } from './coinSound.js';
+import { createSfx } from './sfx.js';
+import { CUES } from 'moon/audio/cues.mjs';
+import { PATCHES } from 'moon/audio/patches.mjs';
 import { recipeMenu, assignStations, stationViews, processorOf } from 'moon/play/processing.mjs';
 import { collectSales, customerRoute, pruneVisits } from 'moon/play/customers.mjs';
 import { MONEY, coinTarget, countStep, flightsAt, iconsFor, landedBetween, paidBetween } from 'moon/play/money.mjs';
@@ -122,6 +128,7 @@ import { toObject3D } from '../render/toMesh.js';
 import { startTalk, talkNode, choose } from 'moon/play/talk.mjs';
 import { createAudio } from './audio.js';
 import { createVoice } from './voice.js';
+import { createSoundCard } from './soundCard.js';
 import { createTalkCard } from './talkCard.js';
 import { PARCELS, ownedIds, forSale, landView, signPoint } from 'moon/world/parcels.mjs';
 import { obstacleFor as signObstacleFor } from 'moon/world/collision.mjs';
@@ -210,6 +217,16 @@ import { netWorth } from 'moon/economy/netWorth.mjs';
 import { BOARD_BEST_KEY, myRow } from 'moon/play/leaderboard.mjs';
 import { createBoardCard } from './boardCard.js';
 
+let presses = 0;               
+
+
+
+
+
+import { AUTO_HIDE, autoHideStart, autoHideStep } from 'moon/play/autoHide.mjs';
+import { refusalOf } from 'moon/play/actButton.mjs';
+import { createMenu } from './menu.js';
+
 
 const SHADOW_EXTENT_M = 22;
 
@@ -221,6 +238,11 @@ const CUT_HEIGHT_M = 0.6;
 
 const q = new URLSearchParams(location.search);
 const pinnedTier = tierFromParam(q.get('tier'));
+
+
+const startAnalytics = shouldStartAnalytics({
+  hostname: location.hostname, protocol: location.protocol, force: q.get('analytics') === '1',
+});
 const scaleParam = Number(q.get('timescale') ?? 1);
 const animParam = Number(q.get('anim') ?? 1);
 const state = {
@@ -238,14 +260,42 @@ const state = {
 };
 if (q.get('shot') === '1') document.body.classList.add('shot');
 
-const tier = pinnedTier || 'high';
-const settings = SETTINGS[tier];
+
+
+
+
+
+
+
+const deviceStorage = (() => {
+  try { return typeof localStorage === 'undefined' ? null : localStorage; } catch { return null; }
+})();
+const rememberedTier = pinnedTier ? null : readTier(deviceStorage);
+const tier = pinnedTier || rememberedTier || 'high';
+let settings = SETTINGS[tier];
 const fml = (window.__fml = {
-  ready: false, error: null, state, tier, player: { x: SPAWN.x, z: SPAWN.z, heading: SPAWN.heading, speed: 0 },
+  ready: false, error: null, state, tier, settings, rememberedTier, tierChanges: [],
+  player: { x: SPAWN.x, z: SPAWN.z, heading: SPAWN.heading, speed: 0 },
   drawCalls: 0, triangles: 0, fps: 0, pickUps: 0, carrying: state.carrying, stick: null, frames: 0, track: null,
   problems: [], missing: [], notes: [],
   interact: null, actions: 0, lastEvents: [], lastTap: null,
+  timing: {},
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+const timing = createTiming({ now: () => performance.now(), into: fml.timing });
+timing.mark('modules');
 const hudText = document.getElementById('hud');
 
 hudText.hidden = q.get('hud') !== '1';
@@ -270,6 +320,10 @@ fml.skyMask = (on) => { sky.mesh.visible = !on; scene.background = on ? new THRE
 const daylight = createDaylight(scene, settings, { shadowExtent: SHADOW_EXTENT_M });
 let night = null, post = null, character = null, collision = null, orchard = null, pops = null;
 let staticObstacles = [], baseTriangles = 0;
+
+
+
+const covers = [];
 
 
 
@@ -512,9 +566,17 @@ let shopDrawn = '', pressDrawn = '', shopObj = null, pressObj = null, buildingsL
 const buildingTris = { shop: 0, press: 0 };
 let shelvesDraw = null, customersDraw = null, cards = null, ui = null;
 
+
+
+
+
 const audio = createAudio({ muted: state.muted });
-const sound = createCoinSound({ audio });
+const sfx = createSfx({ audio, cues: CUES, patches: PATCHES });
+const sound = createCoinSound({ audio, sfx });
 const voice = createVoice({ audio });
+
+
+state.muted = audio.muted;
 
 
 let talk = null;            
@@ -1115,6 +1177,7 @@ function swingTool(swing) {
 }
 
 function press() {
+  presses += 1;
   
   if (choice.isOpen) return;
   
@@ -1129,7 +1192,11 @@ function press() {
   
   if (p && p.open) { if (card === p.open) closeCard(); else openCard(p.open, p); return; }
   if (p && p.hold) return;        
-  if (p) { hud.nope(); return; }  
+  
+  
+  
+  
+  if (p) { hud.nope(refusalOf(p), seconds); return; }
   
   character.pickUp();
   fml.pickUps += 1;
@@ -1187,14 +1254,16 @@ function tap(cx, cy) {
   if (p && p.action && !p.why) doAct(p.action); 
   else if (p && p.open === 'talk') openTalk(aim);
   else if (p && p.open) openCard(p.open, p);
-  else if (p) hud.nope();
+  else if (p) hud.nope(refusalOf(p), seconds);
 }
 
+const pickButton = document.getElementById('pick');
+const promptEl = document.getElementById('prompt');
 const hud = createHud({
-  prompt: document.getElementById('prompt'),
+  prompt: promptEl,
   pockets: document.getElementById('pockets'),
   seeds: document.getElementById('seeds'),
-  button: document.getElementById('pick'),
+  button: pickButton,
   iconFor,
   onChooseSeed: (kind) => { seedKind = kind; },
 });
@@ -1247,6 +1316,7 @@ async function buildPlanet(id) {
   
   
   
+  covers.push({ cover: built.cover, effects: built.coverEffects, counted: false });
   built.root.visible = false;
   
   
@@ -1396,7 +1466,11 @@ const input = createInput({
   
   onCraft: () => toggleCraft(),
   onTurn: () => { if (placing) placing = { ...placing, rotY: placing.rotY + Math.PI / 8 }; },
-  onCancel: () => { if (placing) stopPlacing(); else if (craftCard && craftCard.isOpen) craftCard.hide(); },
+  onCancel: () => {
+    if (menu.isOpen) { menu.hide(); return; }
+    if (placing) stopPlacing();
+    else if (craftCard && craftCard.isOpen) craftCard.hide();
+  },
 });
 
 function toggleCraft() {
@@ -1655,20 +1729,71 @@ Object.defineProperty(fml, 'money', {
     spending: ui ? ui.state.spending : 0, lastSpend: ui ? ui.state.lastSpend : '',
   }),
 });
+Object.defineProperty(fml, 'audio', {
+  enumerable: true,
+  get: () => ({ ...audio.state, sfx: sfx.state, card: { ...soundCard.stats } }),
+});
 Object.defineProperty(fml, 'buildings', {
   enumerable: true,
   get: () => ({ loading: buildingsLoading, shop: shopDrawn, press: pressDrawn, problems: plotProblems.slice() }),
 });
 
+
+
+
 const muteButton = document.getElementById('mute');
-function toggleMute() {
-  state.muted = !state.muted;
-  sound.setMuted(state.muted);
+function paintMute() {
   muteButton.classList.toggle('off', state.muted);
   muteButton.textContent = state.muted ? 'Sound off' : 'Sound on';
 }
-if (state.muted) { state.muted = false; toggleMute(); }
-muteButton.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); toggleMute(); });
+function toggleMute() {
+  state.muted = !audio.muted;
+  audio.setMuted(state.muted);
+  paintMute();
+  soundCard.paint();
+}
+const soundCard = createSoundCard({
+  el: document.getElementById('sound'),
+  button: muteButton,
+  audio,
+  onMute: toggleMute,
+  
+  onTouch: () => sfx.play('ui.tap'),
+});
+paintMute();
+muteButton.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); audio.unlock(); soundCard.toggle(); });
+
+
+
+
+
+
+
+const menu = createMenu({
+  el: document.getElementById('menusheet'),
+  button: document.getElementById('menu'),
+  onOpen: () => { soundCard.hide(); },
+  onTouch: () => { audio.unlock(); sfx.play('ui.tap'); },
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let hudAway = autoHideStart;
+let hudWokeAtS = 0;
+window.addEventListener('pointerdown', () => { hudWokeAtS = seconds; }, true);
 window.addEventListener('keydown', (e) => { if (e.code === 'KeyM' && !e.repeat) toggleMute(); });
 
 
@@ -2277,6 +2402,7 @@ function fail(e) {
 async function load() {
   
   await loadSave();
+  timing.mark('save');
   if (askAtStart) choice.show(playerBuild);
   
   
@@ -2285,6 +2411,8 @@ async function load() {
   
   const built = await buildMoonScene({ scene, state, settings, fml, skipRoles: ['tree', 'shop', 'processor'], skipModules: ['cat'] });
   night = createNightLights({ scene, sources: built.sources, size: settings.lights, groundHeight: heightAt });
+  covers.push({ cover: built.cover, effects: built.coverEffects, counted: true });
+  timing.mark('scene');
   
   character = await playerBody(playerBuild);
   
@@ -2305,6 +2433,7 @@ async function load() {
   catObj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
   scene.add(catObj);
   catTris = catData.triangleCount;
+  timing.mark('player');   
   baseTriangles = fml.triangles + (character.triangles || 0) + catTris;
   collision = homeCollision = createCollisionWorld({ obstacles: obstaclesWithoutRuntime(P) });
   
@@ -2394,12 +2523,14 @@ async function load() {
   onHomes(syncHomes(village, world, econNow()));
   villagersDraw = await createVillagersDraw({ scene, season: state.season, playerSeed: state.seed, heightAt, village });
   await villagersDraw.sync(world);
+  timing.mark('villagers');
   levelBadges = createLevelBadges({ layer });
-  homesDraw = createHomesDraw({ scene, season: state.season, heightAt, audio, voice, layer, onProblems, onStage: onHomeStage });
+  homesDraw = createHomesDraw({ scene, season: state.season, heightAt, sfx, voice, layer, onProblems, onStage: onHomeStage });
   await homesDraw.ready;
   
   for (const v of world.villagers) villagerPose(village, world, v, econNow());
   while (buildingsLoading > 0) await new Promise((r) => setTimeout(r, 20));
+  timing.mark('buildings');   
   onProblems(plotProblems);
   post = createPost(renderer, scene, camera, settings);
   
@@ -2421,6 +2552,125 @@ async function load() {
 const clock = new THREE.Clock();
 let frames = 0, fpsFrames = 0, fpsStart = 0, measureStart = 0;
 const samples = [];
+let watch = null;               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function applyTier(next, why) {
+  if (next === fml.tier || !SETTINGS[next]) return false;
+  const from = fml.tier;
+  settings = SETTINGS[next];
+  fml.tier = next;
+  fml.settings = settings;
+  fml.tierChanges.push({ from, to: next, why, atMs: Math.round(performance.now()) });
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, settings.pixelRatio));
+  daylight.setQuality(settings);                 
+  if (night) night.setSize(settings.lights);     
+  if (post) post.setTier(settings);              
+  for (const entry of covers) {
+    const before = entry.cover.drawnTriangles;
+    const after = entry.cover.setDensity(settings.effects / entry.effects);
+    if (entry.counted) baseTriangles += after - before;
+  }
+  
+  
+  
+  writeTier(deviceStorage, next);
+  resize();                                      
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+const FRAME_WINDOW = 600;
+const frameMs = [];
+let frameCursor = 0;
+const perf = createPerfSampler({
+  read: () => ({
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ready: fml.ready && (Boolean(pinnedTier) || watch !== null),
+    error: fml.error,
+    tier: fml.tier,
+    medianMs: medianInterval(frameMs),
+    loadMs: fml.timing.firstFrame,
+    dpr: window.devicePixelRatio,
+    calls: fml.drawCalls,
+  }),
+  send: sendPerfSample,
+});
+
+
+fml.perfSampleNow = () => perf.tick(Number.POSITIVE_INFINITY);
+Object.defineProperty(fml, 'perfSample', { enumerable: true, get: () => perf.payload });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function sendPerfSample(name, params) {
+  
+  
+  
+  
+  
+  
+  if (!startAnalytics) return;
+  import('../../../../web-engine/analytics/analytics.js').then((mod) => {
+    
+    
+    
+    if (typeof mod.initAnalytics === 'function') mod.initAnalytics({ page: 'farmy-moon-life' });
+    if (typeof mod.trackEvent === 'function') mod.trackEvent(name, params);
+  }).catch(() => {});
+}
 
 function frame(now) {
   const raw = clock.getDelta();
@@ -2590,6 +2840,26 @@ function frame(now) {
   post.setBloom(cycle.bloom * settings.effects);
   renderer.info.reset();
   post.render();
+  
+  
+  timing.mark('firstFrame');
+
+  
+  
+  
+  
+  const anyOpen = Boolean(card || talk || choice.isOpen || placing || menu.isOpen || soundCard.isOpen
+    || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen);
+  const nextAway = autoHideStep(hudAway, { nowS: seconds, speed: player.speed, wokeAtS: hudWokeAtS, anyOpen });
+  
+  
+  if (nextAway !== hudAway) {
+    hudAway = nextAway;
+    document.body.classList.toggle('hudaway', hudAway.hidden);
+  }
+  
+  
+  menu.setLive(visitButton.classList.contains('live'));
 
   hud.update(prompt, holdProgress, seconds);
   hud.pockets(pops.shown(world.pockets));
@@ -2787,10 +3057,31 @@ function frame(now) {
     
     open: prompt ? prompt.open : null, storeId: prompt ? prompt.storeId || null : null,
   };
+  
+  
+  
+  fml.q1 = {
+    act: pickButton.textContent,
+    actCannot: pickButton.classList.contains('cannot'),
+    refusal: promptEl.hidden ? null : promptEl.textContent,
+    
+    said: hud.said,
+    presses,
+    hudAway: hudAway.hidden,
+    walkingSinceS: hudAway.walkingSinceS,
+    wokeAtS: hudWokeAtS,
+    nowS: seconds,
+    afterS: AUTO_HIDE.afterS,
+    menu: { open: menu.isOpen, live: menu.live, ...menu.stats },
+  };
   const tr = fml.track;
   tr.minX = Math.min(tr.minX, player.x); tr.maxX = Math.max(tr.maxX, player.x);
   tr.minZ = Math.min(tr.minZ, player.z); tr.maxZ = Math.max(tr.maxZ, player.z);
   tr.maxR = Math.max(tr.maxR, Math.hypot(player.x, player.z));
+  
+  
+  
+  audio.duck(voice.state.speaking);
   fml.frames++;
   fml.drawCalls = renderer.info.render.calls;
   fml.triangles = baseTriangles + orchard.triangles + shelvesDraw.triangles + buildingTris.shop + buildingTris.press 
@@ -2806,20 +3097,50 @@ function frame(now) {
     fml.fps = Math.round((fpsFrames * 1000) / (now - fpsStart));
     fpsFrames = 0;
     fpsStart = now;
-    hudText.textContent = `tier ${fml.tier}  ${fml.fps} fps  calls ${fml.drawCalls}  tris ${fml.triangles}\nWASD/arrows walk, Shift run, E act (hold: fell), F fell, Q seed, C carry${state.carrying ? ' (carrying)' : ''}, B workshop, R turn, Esc put away, J jump (twice: fly), M sound`;
+    
+    
+    const load = timingLine(fml.timing);
+    const sample = fml.perfSample ? `  perf_sample ${JSON.stringify(fml.perfSample)}` : '';
+    hudText.textContent = `tier ${fml.tier}  ${fml.fps} fps  calls ${fml.drawCalls}  tris ${fml.triangles}  audio ${audio.contextState}${audio.muted ? ' muted' : ''}${audio.speaking ? ' ducked' : ''}\nWASD/arrows walk, Shift run, E act (hold: fell), F fell, Q seed, C carry${state.carrying ? ' (carrying)' : ''}, B workshop, R turn, Esc put away, J jump (twice: fly), M sound${load ? `\n${load}${sample}` : ''}`;
   }
 
-  if (!pinnedTier && frames > 3) {
-    if (!measureStart) measureStart = now;
-    samples.push(raw * 1000);
-    const decision = decideTier(samples, samples.length, now - measureStart);
-    if (decision && fml.tier === 'high' && decision.tier !== 'high') {
-      fml.tier = decision.tier;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, SETTINGS[decision.tier].pixelRatio));
-      resize();
+  
+  
+  
+  
+  
+  
+  
+  if (raw > 0) {
+    frameMs[frameCursor] = raw * 1000;
+    frameCursor = (frameCursor + 1) % FRAME_WINDOW;
+  }
+  perf.tick(now);
+
+  
+  
+  
+  
+  
+  
+  
+  if (!pinnedTier) {
+    if (!watch) {
+      if (frames > 3) {
+        if (!measureStart) measureStart = now;
+        samples.push(raw * 1000);
+        const decision = decideTier(samples, samples.length, now - measureStart);
+        if (decision) {
+          if (isWorse(decision.tier, fml.tier)) applyTier(decision.tier, 'load');
+          watch = createTierWatch({ tier: fml.tier, startedAt: now });
+        }
+      }
+    } else {
+      const change = watch.sample(raw * 1000, now);
+      if (change) applyTier(change.tier, change.reason);
     }
   }
-  if (++frames === 3) fml.ready = true;
+  if (++frames === 3) { fml.ready = true; timing.mark('ready'); }
   requestAnimationFrame(frame);
 }
 

@@ -206,5 +206,9 @@ export async function buildMoonScene({
   fml.triangles += props.triangleCount + ground.triangleCount + cover.triangles;
   fml.breakdown = { props: props.triangleCount, ground: ground.triangleCount, cover: cover.triangles, coverInstances: cover.count };
   scene.add(root);
-  return { root, sources, focus: FOCUS, layout };
+  
+  
+  
+  
+  return { root, sources, focus: FOCUS, layout, cover, coverEffects: settings.effects };
 }
