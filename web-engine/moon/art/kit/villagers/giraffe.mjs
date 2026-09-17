@@ -326,7 +326,14 @@ export function giraffe({ season, lod, L, variant, rng, fuse }) {
     bodyBox: [[-0.4, -0.06, -0.3], [0.4, 1.6, 0.4]],
     contacts: b.contacts,
     hold: [0, 0.6, 0.23],
-    gait: { walk: { elbow: 0.45, elbowSwing: 0.4, arm: 0.5 }, run: { elbow: 1.1 } },
+    
+    
+    
+    
+    
+    
+    
+    gait: { walk: { elbow: 0.45, elbowSwing: 0.4, arm: 0.5 }, run: { elbow: 1.1, yaw: 0.1, tilt: 0.075 } },
     stretch: ANIMAL_STRETCH,
   };
 }

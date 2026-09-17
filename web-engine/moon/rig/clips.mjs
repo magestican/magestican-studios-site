@@ -84,14 +84,39 @@ const heading = (yaw) => [Math.sin(yaw), 0, Math.cos(yaw)];
 
 export const WALK = Object.freeze({
   name: 'walk', speed: 1.3, keys: 24, stance: 0.5, lift: 0.03, rise: 2, land: 2, snapOff: 2, snapOn: 4, relax: 0,
-  crouch: 0.045, bob: 0.02, low: 0, tilt: 0,
+  crouch: 0.045, bob: 0.02, low: 0, tilt: 0, beat: 1,
   sway: 0.012, yaw: 0.16, roll: 0.05, lean: 0.05, nod: 0.035, ear: 0.12, arm: 0.42, armOut: 0.08,
   elbow: 0.18, elbowSwing: 0.22, tail: 0.3, toe: 0.2, narrow: 0.004,
 });
 export const RUN = Object.freeze({
   name: 'run', speed: 2.9, keys: 48, stance: 0.19, lift: 0.04, rise: 1.2, land: 1.2, snapOff: 3, snapOn: 5, relax: 0.2,
-  crouch: 0.04, bob: 0.01, low: 0.1, tilt: 0.15,
-  sway: 0.008, yaw: 0.2, roll: 0.035, lean: 0.1, nod: 0.05, ear: 0.24, arm: 0.8, armOut: 0.14,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  crouch: 0.04, bob: 0.01, low: 0.1, tilt: 0.15, beat: 2,
+  
+  
+  
+  
+  
+  
+  sway: 0.008, yaw: 0.16, roll: 0.035, lean: 0.1, nod: 0.05, ear: 0.24, arm: 0.8, armOut: 0.14,
   elbow: 1.0, elbowSwing: 0.3, tail: 0.45, toe: 0.25, narrow: 0.008,
 });
 const CARRY_MASK = Object.freeze({ armUpperL: 1, armLowerL: 1, handL: 1, armUpperR: 1, armLowerR: 1, handR: 1, chest: 0.5, spine: 0.35, neck: 0.3 });
@@ -353,9 +378,43 @@ function gaitFoot(p, landsAt, g, stride, rest, sx) {
   return { pos: [rest[0] - sx * g.narrow, y, rest[2] + z], yaw: 0, pitch, relax, reach: REACH };
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const dipMeans = new Map();
+function dipMean(beat) {
+  let m = dipMeans.get(beat);
+  if (m === undefined) {
+    
+    
+    let sum = 0;
+    for (let i = 0; i < 256; i++) sum += 2 * ((1 + Math.cos((TAU * i) / 256)) / 2) ** beat - 1;
+    m = sum / 256;
+    dipMeans.set(beat, m);
+  }
+  return m;
+}
+const beatDip = (b, beat) => (beat === 1 ? Math.cos(b) : 2 * ((1 + Math.cos(b)) / 2) ** beat - 1 - dipMean(beat));
+
 function gaitFrame(p, g, stride, limbs) {
   const c = Math.cos(TAU * p), s = Math.sin(TAU * p);
   const b = 2 * TAU * (p - g.low); 
+  const dip = beatDip(b, g.beat);
   const rot = {
     hips: [g.tilt, -g.yaw * c, g.roll * s],
     spine: [g.lean * 0.45, g.yaw * 0.55 * c, -g.roll * 0.55 * s],
@@ -376,7 +435,7 @@ function gaitFrame(p, g, stride, limbs) {
   };
   const feet = {};
   for (const [side, sx, landsAt] of SIDES) feet[side] = gaitFoot(p, landsAt, g, stride, limbs.legs[side].A, sx);
-  return { rot, hips: [g.sway * s, -g.crouch - g.bob * Math.cos(b), 0], feet };
+  return { rot, hips: [g.sway * s, -g.crouch - g.bob * dip, 0], feet };
 }
 
 
