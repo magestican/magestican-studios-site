@@ -89,13 +89,25 @@ export function bucketDpr(dpr) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 export function perfSamplePayload(reading = {}) {
   const r = reading && typeof reading === 'object' ? reading : {};
-  const loadMs = Number(r.loadMs);
+  const seconds = (ms) => (Number.isFinite(Number(ms)) ? Number(ms) / 1000 : NaN);
   return {
     tier: TIER_CODE[r.tier] || 0,
     median_ms: bucket(r.medianMs, MEDIAN_MS_BUCKETS),
-    load_s: bucket(Number.isFinite(loadMs) ? loadMs / 1000 : NaN, LOAD_S_BUCKETS),
+    load_s: bucket(seconds(r.loadMs), LOAD_S_BUCKETS),
+    ready_s: bucket(seconds(r.readyMs), LOAD_S_BUCKETS),
     dpr: bucketDpr(r.dpr),
     calls: bucket(r.calls, CALLS_BUCKETS),
   };

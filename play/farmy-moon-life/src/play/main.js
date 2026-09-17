@@ -82,6 +82,7 @@ import { createHud } from './hud.js';
 import { dayCycle } from 'moon/light/dayCycle.mjs';
 import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, writeTier } from 'moon/light/quality.mjs';
 import { createTiming, timingLine } from 'moon/play/timing.mjs';
+import { createDrawGate, createLoadingView } from 'moon/play/loading.mjs';
 import { createPerfSampler } from 'moon/play/perfSample.mjs';
 import { shouldStartAnalytics } from 'moon/play/analyticsGate.mjs';
 import { CURVE_K, bendDrop } from 'moon/world/curve.mjs';
@@ -274,7 +275,19 @@ const rememberedTier = pinnedTier ? null : readTier(deviceStorage);
 const tier = pinnedTier || rememberedTier || 'high';
 let settings = SETTINGS[tier];
 const fml = (window.__fml = {
-  ready: false, error: null, state, tier, settings, rememberedTier, tierChanges: [],
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  ready: false, drawing: false, warmFrames: 0,
+  error: null, state, tier, settings, rememberedTier, tierChanges: [],
   player: { x: SPAWN.x, z: SPAWN.z, heading: SPAWN.heading, speed: 0 },
   drawCalls: 0, triangles: 0, fps: 0, pickUps: 0, carrying: state.carrying, stick: null, frames: 0, track: null,
   problems: [], missing: [], notes: [],
@@ -294,7 +307,53 @@ const fml = (window.__fml = {
 
 
 
-const timing = createTiming({ now: () => performance.now(), into: fml.timing });
+
+
+
+
+
+
+
+
+
+
+
+
+
+const loadingEl = document.getElementById('loading');
+const loadingSay = document.getElementById('loadingsay');
+const loadingFill = document.getElementById('loadingfill');
+const loadingView = createLoadingView();
+fml.loading = { phase: loadingView.label, percent: 0, gone: false };
+
+
+
+
+
+
+
+function hideLoading() {
+  fml.loading = { ...fml.loading, percent: 100, gone: true };
+  if (!loadingEl || !loadingEl.isConnected) return;
+  loadingEl.classList.add('gone');
+  const drop = () => { if (loadingEl.isConnected) loadingEl.remove(); };
+  loadingEl.addEventListener('transitionend', drop, { once: true });
+  
+  
+  
+  setTimeout(drop, 1200);
+}
+
+function sayLoading() {
+  const view = loadingView.step(fml.timing);
+  if (view.done) { hideLoading(); return; }
+  if (!view.changed || !loadingEl) return;
+  fml.loading = { phase: view.label, percent: view.percent, gone: false };
+  loadingSay.textContent = view.label;
+  loadingFill.style.width = `${view.percent}%`;
+}
+
+const timing = createTiming({ now: () => performance.now(), into: fml.timing, onMark: sayLoading });
 timing.mark('modules');
 const hudText = document.getElementById('hud');
 
@@ -1177,7 +1236,11 @@ function swingTool(swing) {
 }
 
 function press() {
+  
+  
+  
   presses += 1;
+  if (!fml.ready) return;
   
   if (choice.isOpen) return;
   
@@ -1228,6 +1291,13 @@ const ctxFor = (t) => ({
 const raycaster = new THREE.Raycaster();
 const ndc = new THREE.Vector2();
 function tap(cx, cy) {
+  
+  
+  
+  
+  
+  
+  if (!fml.ready) return;
   if (!character || choice.isOpen) return;
   if (!feetOnGround(air)) return;
   
@@ -2394,10 +2464,37 @@ Object.defineProperty(fml, 'save', {
 
 function fail(e) {
   fml.error = String(e && e.stack ? e.stack : e);
+  
+  
+  
+  
+  
+  
+  
+  hideLoading();
+  stopWarming();
   hudText.hidden = false;
   hudText.textContent = `failed: ${fml.error}`;
   console.error(e);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 async function load() {
   
@@ -2435,6 +2532,29 @@ async function load() {
   catTris = catData.triangleCount;
   timing.mark('player');   
   baseTriangles = fml.triangles + (character.triangles || 0) + catTris;
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  post = createPost(renderer, scene, camera, settings);
+  resize();
+  startWarming();
+
+  await fillIn();
+}
+
+
+
+
+
+async function fillIn() {
   collision = homeCollision = createCollisionWorld({ obstacles: obstaclesWithoutRuntime(P) });
   
   for (const s of FORAGE_SPOTS) {
@@ -2532,7 +2652,6 @@ async function load() {
   while (buildingsLoading > 0) await new Promise((r) => setTimeout(r, 20));
   timing.mark('buildings');   
   onProblems(plotProblems);
-  post = createPost(renderer, scene, camera, settings);
   
   sky.planetId = planetId;
   jumpButton.hidden = false;
@@ -2553,6 +2672,88 @@ const clock = new THREE.Clock();
 let frames = 0, fpsFrames = 0, fpsStart = 0, measureStart = 0;
 const samples = [];
 let watch = null;               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const drawGate = createDrawGate();
+let warmSeconds = 0;
+
+function startWarming() {
+  
+  if (!drawGate.begin(fml.timing)) return;
+  document.body.classList.add('arriving');
+  requestAnimationFrame(warmFrame);
+}
+
+
+function stopWarming() {
+  drawGate.handOver();
+  document.body.classList.remove('arriving');
+}
+
+function warmFrame() {
+  if (!drawGate.drawing) return;
+  const raw = clock.getDelta();
+  const dt = Math.min(raw, FEEL.maxFrameS);
+  warmSeconds += raw;
+  
+  
+  
+  const aimAt = aimPoint(player, groundNow(player.x, player.z), cameraFit());
+  follow = followStep(follow, aimAt, dt);
+  const pose = cameraPose(follow, frameNow);
+  camera.position.set(pose.position.x, pose.position.y, pose.position.z);
+  target.set(pose.target.x, pose.target.y, pose.target.z);
+  camera.lookAt(target);
+  curveUniforms.uCurveFocus.value.copy(target);
+  const cycle = dayCycle(state.time);
+  daylight.apply(cycle, target, renderer);
+  sky.update(cycle, camera, target, warmSeconds, curveUniforms.uCurve.value);
+  const pixelsPerRadian = renderer.domElement.height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+  if (night) night.update(cycle, target, pixelsPerRadian);
+  post.setBloom(cycle.bloom * settings.effects);
+  renderer.info.reset();
+  post.render();
+  
+  
+  
+  timing.mark('firstFrame');
+  fml.drawing = true;
+  fml.warmFrames += 1;
+  
+  
+  fml.drawCalls = renderer.info.render.calls;
+  if (drawGate.drawing) requestAnimationFrame(warmFrame);
+}
 
 
 
@@ -2629,7 +2830,17 @@ const perf = createPerfSampler({
     error: fml.error,
     tier: fml.tier,
     medianMs: medianInterval(frameMs),
+    
+    
+    
+    
+    
+    
+    
+    
+    
     loadMs: fml.timing.firstFrame,
+    readyMs: fml.timing.ready,
     dpr: window.devicePixelRatio,
     calls: fml.drawCalls,
   }),
@@ -2842,7 +3053,8 @@ function frame(now) {
   post.render();
   
   
-  timing.mark('firstFrame');
+  
+  
 
   
   
@@ -3124,7 +3336,18 @@ function frame(now) {
   
   
   
-  if (!pinnedTier) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (!pinnedTier && fml.ready) {
     if (!watch) {
       if (frames > 3) {
         if (!measureStart) measureStart = now;
@@ -3144,4 +3367,8 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-load().then(() => requestAnimationFrame(frame), fail);
+
+
+
+
+load().then(() => { stopWarming(); requestAnimationFrame(frame); }, fail);

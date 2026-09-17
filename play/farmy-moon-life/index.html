@@ -502,6 +502,96 @@
   body.hudaway #menu, body.hudaway #toolrow, body.hudaway #pockets, body.hudaway #made, body.hudaway #seeds,
   body.hudaway #where, body.hudaway #jump, body.hudaway #placing, body.hudaway #prompt { opacity: 0; pointer-events: none; }
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #loading { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px; overflow: hidden;
+    background: radial-gradient(120% 90% at 50% 18%, #eaf1f7 0%, #fff3de 58%, #f7e6ee 100%);
+    color: #6b5a52; font: 15px/1.45 system-ui, sans-serif; text-align: center;
+    padding: 0 28px; transition: opacity 0.5s ease-out; }
+  #loading.gone { opacity: 0; pointer-events: none; }
+  
+  #loading::before, #loading::after { content: ''; position: absolute; border-radius: 50%;
+    background: #fdf1dd; box-shadow: 0 0 0 6px rgba(253, 241, 221, 0.45); pointer-events: none; }
+  #loading::before { width: 7px; height: 7px; left: 12%; top: 30%; animation: loadDrift 13s linear infinite; }
+  #loading::after { width: 5px; height: 5px; left: 22%; top: 62%; animation: loadDrift 19s linear infinite 3s; }
+  @keyframes loadDrift { from { transform: translate3d(0, 0, 0); opacity: 0; }
+    12% { opacity: 0.85; } 88% { opacity: 0.85; }
+    to { transform: translate3d(74vw, -26vh, 0); opacity: 0; } }
+  #loadingmoon { position: relative; width: 116px; height: 116px; border-radius: 50%;
+    background: radial-gradient(72% 72% at 34% 28%, #fdf1dd 0%, #f6e7d2 62%, #f0ddc4 100%);
+    box-shadow: 0 10px 26px rgba(107, 90, 82, 0.12), inset -8px -10px 0 rgba(240, 224, 200, 0.55);
+    animation: loadBob 3.6s ease-in-out infinite; }
+  #loadingmoon i { position: absolute; border-radius: 50%; background: #f0e0c8; }
+  #loadingmoon i:nth-child(1) { width: 26px; height: 26px; left: 22px; top: 34px; }
+  #loadingmoon i:nth-child(2) { width: 15px; height: 15px; left: 62px; top: 22px; }
+  #loadingmoon i:nth-child(3) { width: 34px; height: 20px; left: 52px; top: 70px; }
+  
+
+
+  #loadingmoon b { position: absolute; left: 30px; top: -9px; width: 30px; height: 22px;
+    border-radius: 50% 50% 46% 46%; background: #cfe6cb; }
+  #loadingmoon b::after { content: ''; position: absolute; left: 13px; top: 17px; width: 4px; height: 11px;
+    border-radius: 2px; background: #dcc7ad; }
+  @keyframes loadBob { 0%, 100% { transform: translateY(4px) rotate(-2deg); }
+    50% { transform: translateY(-8px) rotate(2deg); } }
+  #loadingsay { margin: 0; max-width: 300px; min-height: 2.9em; font-size: 16px; }
+  #loadingbar { position: relative; width: min(74vw, 260px); height: 12px; border-radius: 6px;
+    background: #f2e2cd; overflow: hidden; box-shadow: inset 0 1px 2px rgba(107, 90, 82, 0.1); }
+  #loadingfill { display: block; width: 0%; height: 100%; border-radius: 6px;
+    background: linear-gradient(90deg, #f3b9c6 0%, #f6cfa6 100%); transition: width 0.7s ease-out; }
+  
+
+  #loadingbar::after { content: ''; position: absolute; inset: 0; border-radius: 6px; pointer-events: none;
+    background: linear-gradient(100deg, rgba(255, 248, 236, 0) 30%, rgba(255, 248, 236, 0.85) 50%, rgba(255, 248, 236, 0) 70%);
+    transform: translateX(-100%); animation: loadSweep 2.1s ease-in-out infinite; }
+  @keyframes loadSweep { to { transform: translateX(100%); } }
+  #loadingname { margin: 0; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.66; }
+  
+
+  @media (prefers-reduced-motion: reduce) {
+    #loading::before, #loading::after, #loadingmoon, #loadingbar::after { animation: none; }
+    #loadingfill { transition: none; }
+  }
+
+  
+
+
+
+
+
+
+
+  body.arriving #menu, body.arriving #toolrow, body.arriving #pockets, body.arriving #made, body.arriving #seeds,
+  body.arriving #where, body.arriving #jump, body.arriving #placing, body.arriving #prompt, body.arriving #pick,
+  body.arriving #coins, body.arriving #ghost { opacity: 0; pointer-events: none; }
+  #pick, #coins, #ghost { transition: opacity 0.4s ease-out; }
+
   body.shot #hud, body.shot #pick, body.shot #ghost, body.shot #stick, body.shot #prompt, body.shot #pockets, body.shot #seeds, body.shot #tools,
   body.shot #coins, body.shot #mute, body.shot #sound, body.shot #worldui, body.shot #card, body.shot #talk, body.shot #who, body.shot #choose,
   body.shot #craft, body.shot #made, body.shot #workshop, body.shot #placing, body.shot #jump, body.shot #where,
@@ -513,7 +603,7 @@
 
 
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=896ae75-20260917T080822Z"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=683694b-20260917T094202Z"></script>
 <script type="importmap">
 {
   "imports": {
@@ -526,6 +616,29 @@
 </script>
 </head>
 <body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="loading" role="status" aria-live="polite">
+  <div id="loadingmoon" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+  <p id="loadingsay">Unlatching the gate</p>
+  <div id="loadingbar" aria-hidden="true"><i id="loadingfill"></i></div>
+  <p id="loadingname">Farmy Moon Life</p>
+</div>
 <canvas id="view"></canvas>
 <div id="worldui"></div>
 <div id="coins"></div>
@@ -561,6 +674,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=896ae75-20260917T080822Z"></script>
+<script type="module" src="src/play/main.js?v=683694b-20260917T094202Z"></script>
 </body>
 </html>

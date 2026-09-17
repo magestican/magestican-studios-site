@@ -30,14 +30,26 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 export const TIMING_STAGES = Object.freeze([
   'modules',    
   'save',       
   'scene',      
   'player',     
+  'firstFrame', 
   'villagers',  
   'buildings',  
-  'firstFrame', 
   'ready',      
 ]);
 
@@ -49,9 +61,20 @@ const STAGE_SET = new Set(TIMING_STAGES);
 
 
 
-export function createTiming({ now, into = {} } = {}) {
+
+
+
+
+
+
+
+
+
+
+export function createTiming({ now, into = {}, onMark = null } = {}) {
   const clock = typeof now === 'function' ? now : () => 0;
   const marks = into;
+  const tell = typeof onMark === 'function' ? onMark : null;
   let high = 0;
   return {
     marks,
@@ -63,6 +86,9 @@ export function createTiming({ now, into = {} } = {}) {
       if (!Number.isFinite(at) || at < 0) at = high;
       high = Math.max(high, at);
       marks[name] = Math.round(high * 10) / 10;
+      
+      
+      if (tell) { try { tell(name, marks); } catch {  } }
       return marks;
     },
     
