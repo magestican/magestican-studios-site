@@ -22,6 +22,7 @@ export function createInput({
   surface, ring, knob, ghost, pickButton, jumpButton = null,
   onPress = () => {}, onRelease = () => {}, onFell = () => {}, onSeed = () => {}, onTap = () => {}, onToggleCarry = () => {},
   onCraft = () => {}, onTurn = () => {}, onCancel = () => {}, onJump = () => {},
+  onJumpDown = () => {}, onJumpUp = () => {},
   cfg = STICK,
 }) {
   const pressed = new Set();
@@ -107,9 +108,14 @@ export function createInput({
       e.preventDefault();
       e.stopPropagation();
       jumpButton.classList.add('down');
+      
+      
+      
+      
+      onJumpDown(e.timeStamp);
       onJump(e.timeStamp);
     });
-    const jumpUp = () => jumpButton.classList.remove('down');
+    const jumpUp = () => { jumpButton.classList.remove('down'); onJumpUp(); };
     on(jumpButton, 'pointerup', jumpUp);
     on(jumpButton, 'pointercancel', jumpUp);
     on(jumpButton, 'pointerleave', jumpUp);
@@ -126,12 +132,15 @@ export function createInput({
     if (KEYS.craft.includes(e.code)) { onCraft(); return; }
     if (KEYS.turn.includes(e.code)) { onTurn(); return; }
     if (KEYS.cancel.includes(e.code)) { onCancel(); return; }
-    if (KEYS.jump.includes(e.code)) { onJump(e.timeStamp); return; }
+    if (KEYS.jump.includes(e.code)) { onJumpDown(e.timeStamp); onJump(e.timeStamp); return; }
     pressed.add(e.code);
   });
   on(window, 'keyup', (e) => {
     pressed.delete(e.code);
     if (KEYS.pickUp.includes(e.code) && keyDown) { keyDown = false; release(); }
+    
+    
+    if (KEYS.jump.includes(e.code)) onJumpUp();
   });
   on(window, 'blur', () => {
     pressed.clear();
@@ -139,6 +148,8 @@ export function createInput({
     taps.clear();
     draw();
     if (buttonDown || keyDown) { buttonDown = keyDown = false; onRelease(); }
+    
+    onJumpUp();
   });
 
   

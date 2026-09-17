@@ -175,7 +175,15 @@ import * as MOON from 'moon/world/moonLayout.mjs';
 import {
   GENERATED_COUNT, SYSTEM_SEED, describe as describePlanet, landingOn, layoutOf, nextPlanetId, planetAt, planetSystem,
 } from 'moon/world/planets.mjs';
-import { FLIGHT, JUMP, airStep, createJump, launch, onGround as feetOnGround, overDestination, poseOf, startHop, tapJump } from 'moon/play/flight.mjs';
+import {
+  FLIGHT, JUMP, airStep, createJump, holdAt, holdDone, holdStart, launch,
+  onGround as feetOnGround, overDestination, poseOf, startHop, tapJump,
+} from 'moon/play/flight.mjs';
+
+
+
+import { createPlaceBanner } from './placeBanner.js';
+import { createGuideUi } from './guideUi.js';
 import { EDGE_MARGIN_M, obstaclesFrom } from 'moon/world/collision.mjs';
 
 import { describeFinds, findsOnPlanet, offsetOf, systemFinds } from 'moon/world/collectibles.mjs';
@@ -1361,7 +1369,21 @@ const toolBar = createToolBar({
 
 
 const jumpButton = document.getElementById('jump');
-const whereEl = document.getElementById('where');
+
+
+
+jumpButton.replaceChildren(
+  Object.assign(document.createElement('span'), { className: 'word', textContent: 'Jump' }),
+  Object.assign(document.createElement('span'), { className: 'hint', textContent: 'x2 FLY' }),
+);
+const placeBanner = createPlaceBanner({
+  place: document.getElementById('place'),
+  where: document.getElementById('where'),
+  ring: document.getElementById('ring'),
+  arrive: document.getElementById('arrive'),
+  systemSeed: state.system,
+  count: GENERATED_COUNT,
+});
 
 async function buildPlanet(id) {
   if (visited.has(id)) return visited.get(id);
@@ -1457,10 +1479,6 @@ function arriveAt(id) {
   refreshPlantObstacles();
   sky.planetId = id;
   
-  
-  whereEl.hidden = onHome();
-  whereEl.textContent = planet.name;
-  
   document.body.classList.toggle('away', !onHome());
   
   
@@ -1470,10 +1488,43 @@ function arriveAt(id) {
   const lying = describeFinds(planet);
   const work = onHome() ? '' : describeWild(planet);
   const extra = [lying, work].filter(Boolean).join('; ');
-  hud.say(extra ? `${describePlanet(planet)} - ${extra}` : describePlanet(planet), seconds, 7);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const full = describePlanet(planet);
+  const kind = full.startsWith(`${planet.name} - `) ? full.slice(planet.name.length + 3) : full;
+  placeBanner.arriveOn(id, { name: planet.name, home: onHome(), card: { kind, here: extra } });
+  if (guideUi) guideUi.rethink();
   touchSave('travel');
 }
 
+
+
+
+
+let jumpHold = null;
+
+
+function flyHome() {
+  if (onHome()) {
+    hud.say(`You are already home on ${SYSTEM[0].name}.`, seconds, 2);
+    return;
+  }
+  if (!visit.canTravel()) {
+    hud.nope();
+    hud.say('You are visiting - you go where your host goes.', seconds);
+    return;
+  }
+  startFlight(0);
+}
 
 function doJump(nowMs) {
   if (!character || talk || choice.isOpen || placing) return;
@@ -1497,7 +1548,16 @@ function doJump(nowMs) {
     hud.say('You are visiting - you go where your host goes.', seconds);
     return;
   }
-  const to = nextPlanetId(planetId, 1, GENERATED_COUNT);
+  startFlight(nextPlanetId(planetId, 1, GENERATED_COUNT));
+}
+
+
+
+
+
+
+
+function startFlight(to) {
   jumpButton.classList.remove('again');
   flightTo = to;
   
@@ -1515,6 +1575,51 @@ function doJump(nowMs) {
   fml.actions += 1;
 }
 
+
+
+
+
+
+
+function placeOf(place) {
+  if (!place) return null;
+  const lift = (x, z, y = 1.2) => ({ x, y: groundNow(x, z) + y, z });
+  switch (place.type) {
+    case 'shop': return lift(SHOP_P.x, SHOP_P.z, 2.6);
+    case 'press': return lift(PRESS_P.x, PRESS_P.z, 2.6);
+    case 'cat': return lift(CAT_P.x, CAT_P.z, 1.1);
+    case 'tree': {
+      const tree = view.find((t) => t.id === place.id);
+      return tree ? lift(tree.x, tree.z, 1.8) : null;
+    }
+    case 'villager': {
+      const at = villagersDraw && villagersDraw.positionOf(place.id);
+      return at ? lift(at.x, at.z, 1.4) : null;
+    }
+    case 'find': {
+      const f = findsHere().find((x) => x.id === place.id);
+      return f ? lift(f.x, f.z, 0.8) : null;
+    }
+    case 'forage': {
+      const spot = targetsHere().forage.find((x) => x.id === place.id);
+      return spot ? lift(spot.x, spot.z, 0.6) : null;
+    }
+    
+    
+    
+    default: return null;
+  }
+}
+
+const guideUi = createGuideUi({
+  goal: document.getElementById('goal'),
+  markers: document.getElementById('markers'),
+  tip: document.getElementById('tip'),
+  placeOf,
+  ndcOf: (x, y, z) => fml.ndcOf(x, y, z),
+  storage: (() => { try { return window.localStorage; } catch { return null; } })(),
+});
+
 const input = createInput({
   surface: canvas,
   ring: document.getElementById('stick'),
@@ -1523,6 +1628,11 @@ const input = createInput({
   pickButton: document.getElementById('pick'),
   jumpButton,
   onJump: doJump,
+  
+  
+  
+  onJumpDown: (nowMs) => { jumpHold = holdStart(nowMs); },
+  onJumpUp: () => { jumpHold = null; jumpButton.style.setProperty('--hold', '0'); },
   onPress: () => { if (character) press(); },
   onRelease: () => { hold = null; holdProgress = 0; },
   onFell: () => {
@@ -1710,6 +1820,16 @@ fml.advance = (ms) => {
   }
   touchSave('advance');   
   return t;
+};
+
+
+
+
+
+fml.ndcOf = (x, y, z) => {
+  const f = curveUniforms.uCurveFocus.value;
+  const v = new THREE.Vector3(x, y - bendDrop(x - f.x, z - f.z, curveUniforms.uCurve.value), z).project(camera);
+  return { x: v.x, y: v.y, behind: v.z >= 1 };
 };
 fml.screenOf = (x, y, z) => {
   const f = curveUniforms.uCurveFocus.value;
@@ -2909,6 +3029,20 @@ function frame(now) {
     air = null;
   }
   document.body.classList.toggle('flying', Boolean(air && air.kind === 'flight'));
+
+  
+  
+  
+  
+  if (jumpHold) {
+    jumpButton.style.setProperty('--hold', String(Math.round(holdAt(jumpHold, now) * 50) / 50));
+    if (holdDone(jumpHold, now)) {
+      jumpHold.fired = true;
+      jumpButton.style.setProperty('--hold', '0');
+      flyHome();
+    }
+  }
+  placeBanner.tick(dt);
   if (!onHome()) applyPlanetVisibility();
 
   
@@ -3074,6 +3208,33 @@ function frame(now) {
   menu.setLive(visitButton.classList.contains('live'));
 
   hud.update(prompt, holdProgress, seconds);
+  
+  
+  
+  
+  
+  guideUi.update({
+    world,
+    t: econNow(),
+    planet: planetId,
+    player,
+    nowS: seconds,
+    dt,
+    view: { width: window.innerWidth, height: window.innerHeight },
+    tipState: {
+      canJump: !jumpButton.hidden,
+      
+      
+      
+      hasTools: toolBarState.visible,
+      placing: Boolean(placing),
+      visitOpen: panel.isOpen,
+      
+      
+      busy: Boolean(anyOpen || air || !document.getElementById('arrive').hidden
+        || document.body.classList.contains('arriving')),
+    },
+  });
   hud.pockets(pops.shown(world.pockets));
   hud.seeds(kinds, seedKind);
   
@@ -3238,6 +3399,16 @@ function frame(now) {
     y: Math.round(character.object.position.y * 1000) / 1000,
     ground: Math.round(groundY * 1000) / 1000,
   };
+  
+  
+  
+  fml.hold = {
+    
+    progress: jumpHold ? Math.round(holdAt(jumpHold, now) * 1000) / 1000 : 0,
+    fired: Boolean(jumpHold && jumpHold.fired),
+  };
+  fml.place = placeBanner.stats;
+  fml.guide = { ...guideUi.stats };
   fml.finds = {
     here: findsHere().map((f) => ({ id: f.id, kind: f.kind, good: f.good, container: f.container, style: f.style, treasure: f.treasure, ready: f.ready, x: f.x, z: f.z })),
     drawn: findsDraw ? findsDraw.stats : null,

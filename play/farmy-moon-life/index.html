@@ -95,10 +95,106 @@
     border: 3px solid #7fa9e0; opacity: 0; transform: scale(0.72); }
   #jump.again::after { opacity: 1; transform: scale(1); transition: opacity 90ms linear, transform 90ms ease-out; }
   
-  #where { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top)); transform: translateX(-50%);
-    background: rgba(255, 248, 236, 0.92); border-radius: 18px; padding: 5px 14px; box-shadow: 0 2px 8px var(--shade);
-    font: 700 15px/1.2 system-ui, sans-serif; color: var(--ink); pointer-events: none; max-width: 78vw; text-align: center; }
+
+
+
+  #jump::before { content: ''; position: absolute; inset: -9px; border-radius: 50%; pointer-events: none;
+    background: conic-gradient(#7fa9e0 calc(var(--hold, 0) * 1turn), transparent 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px)); }
+  
+
+  #jump .word { display: block; font: 700 13px/1.1 system-ui, sans-serif; }
+  #jump .hint { display: block; margin-top: 1px; font: 800 9px/1 system-ui, sans-serif; color: #6f8fc0; letter-spacing: 0.04em; }
+  
+
+
+  #place { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top)); transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; max-width: 78vw; }
+  #place[hidden] { display: none; }
+  #where { background: rgba(255, 248, 236, 0.92); border-radius: 18px; padding: 5px 14px; box-shadow: 0 2px 8px var(--shade);
+    font: 700 15px/1.2 system-ui, sans-serif; color: var(--ink); pointer-events: none; max-width: 100%; text-align: center; }
   #where[hidden] { display: none; }
+  
+
+
+
+  #ring { display: flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 14px;
+    background: rgba(255, 248, 236, 0.86); box-shadow: 0 2px 8px var(--shade); pointer-events: none; }
+  #ring[hidden] { display: none; }
+  #ring .dot { width: 9px; height: 9px; border-radius: 50%; background: #d8c4ab; }
+  #ring .dot.home { background: transparent; border: 2px solid #7fb85e; box-sizing: border-box; width: 11px; height: 11px; }
+  #ring .dot.here { width: 13px; height: 13px; background: var(--peach); border-color: var(--peach); }
+  
+
+
+
+
+  #arrive { position: fixed; left: 50%; transform: translateX(-50%); top: calc(64px + env(safe-area-inset-top)); z-index: 8;
+    width: min(340px, calc(100vw - 28px)); box-sizing: border-box; padding: 12px 16px; border-radius: 22px;
+    background: rgba(255, 248, 236, 0.97); box-shadow: 0 8px 26px var(--shade); text-align: center;
+    font: 600 14px/1.35 system-ui, sans-serif; color: var(--ink); touch-action: none; }
+  #arrive[hidden] { display: none; }
+  #arrive .name { display: block; font: 800 25px/1.1 system-ui, sans-serif; letter-spacing: -0.2px; }
+  #arrive .kind { display: block; margin-top: 3px; color: #7a6558; font-weight: 600; }
+  #arrive .here { display: block; margin-top: 7px; }
+  #arrive .way { display: block; margin-top: 7px; padding-top: 7px; border-top: 1px dashed rgba(58, 47, 42, 0.22);
+    color: #33507a; font-weight: 700; }
+  
+
+
+
+
+
+
+
+
+
+
+  #goal { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(190px + env(safe-area-inset-bottom)); z-index: 5;
+    max-width: min(340px, 86vw); box-sizing: border-box; padding: 6px 14px; border-radius: 15px; border: 0;
+    background: rgba(255, 248, 236, 0.93); box-shadow: 0 2px 10px var(--shade); color: var(--ink);
+    font: 600 13px/1.3 system-ui, sans-serif; text-align: center; touch-action: none;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    
+
+
+
+
+
+
+    pointer-events: none; }
+  #goal[hidden] { display: none; }
+  
+
+
+
+
+
+  @media (orientation: landscape) {
+    #goal { left: calc(10px + env(safe-area-inset-left)); transform: none; text-align: left;
+      bottom: auto; top: calc(112px + env(safe-area-inset-top)); max-width: min(258px, 30vw); }
+    #tip { left: calc(10px + env(safe-area-inset-left)); transform: none; text-align: left;
+      bottom: auto; top: calc(158px + env(safe-area-inset-top)); width: min(258px, 30vw); }
+  }
+  
+
+
+
+  #markers { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 4; }
+  #markers .chev { position: absolute; left: 0; top: 0; width: 28px; height: 28px; margin: -14px 0 0 -14px;
+    display: grid; place-items: center; will-change: transform; }
+  #markers .chev[hidden] { display: none; }
+  #markers .chev .arrow { width: 28px; height: 28px; border-radius: 50%; background: rgba(255, 248, 236, 0.92);
+    box-shadow: 0 2px 8px var(--shade); display: grid; place-items: center;
+    color: var(--peach); font: 900 15px/1 system-ui, sans-serif; }
+  
+
+  #tip { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(232px + env(safe-area-inset-bottom)); z-index: 7;
+    width: min(360px, calc(100vw - 24px)); box-sizing: border-box; padding: 9px 14px; border-radius: 18px;
+    background: rgba(58, 47, 42, 0.9); color: var(--cream); text-align: center; border: 0;
+    font: 600 13px/1.35 system-ui, sans-serif; box-shadow: 0 4px 16px var(--shade); touch-action: none; }
+  #tip[hidden] { display: none; }
   
 
 
@@ -170,6 +266,7 @@
   
   body.flying #pick, body.flying #prompt, body.flying #seeds, body.flying #ghost, body.flying #stick, body.flying #tools,
   body.flying #craft, body.flying #made, body.flying #workshop, body.flying #placing, body.flying #jump,
+  body.flying #goal, body.flying #tip, body.flying #markers,
   body.flying #menu, body.flying #menusheet { display: none; }
   
 
@@ -485,9 +582,11 @@
   body.placing #prompt { bottom: calc(194px + env(safe-area-inset-bottom)); }
   body.talking #pick, body.talking #prompt, body.talking #seeds, body.talking #ghost, body.talking #stick, body.talking #tools,
   body.talking #craft, body.talking #made, body.talking #workshop, body.talking #placing, body.talking #jump,
+  body.talking #goal, body.talking #tip, body.talking #markers,
   body.talking #menu { display: none; }
   body.choosing #pick, body.choosing #prompt, body.choosing #seeds, body.choosing #ghost, body.choosing #stick, body.choosing #who, body.choosing #tools,
   body.choosing #craft, body.choosing #made, body.choosing #workshop, body.choosing #placing, body.choosing #jump,
+  body.choosing #goal, body.choosing #tip, body.choosing #markers,
   body.choosing #menu { display: none; }
   
 
@@ -498,9 +597,10 @@
 
 
 
-  #menu, #toolrow, #pockets, #made, #seeds, #where, #jump, #placing, #prompt { transition: opacity 0.35s ease-out; }
+  #menu, #toolrow, #pockets, #made, #seeds, #place, #jump, #placing, #prompt, #goal, #markers { transition: opacity 0.35s ease-out; }
   body.hudaway #menu, body.hudaway #toolrow, body.hudaway #pockets, body.hudaway #made, body.hudaway #seeds,
-  body.hudaway #where, body.hudaway #jump, body.hudaway #placing, body.hudaway #prompt { opacity: 0; pointer-events: none; }
+  body.hudaway #place, body.hudaway #jump, body.hudaway #placing, body.hudaway #prompt,
+  body.hudaway #goal, body.hudaway #markers { opacity: 0; pointer-events: none; }
 
   
 
@@ -588,14 +688,15 @@
 
 
   body.arriving #menu, body.arriving #toolrow, body.arriving #pockets, body.arriving #made, body.arriving #seeds,
-  body.arriving #where, body.arriving #jump, body.arriving #placing, body.arriving #prompt, body.arriving #pick,
-  body.arriving #coins, body.arriving #ghost { opacity: 0; pointer-events: none; }
+  body.arriving #place, body.arriving #jump, body.arriving #placing, body.arriving #prompt, body.arriving #pick,
+  body.arriving #coins, body.arriving #ghost, body.arriving #goal, body.arriving #markers, body.arriving #tip { opacity: 0; pointer-events: none; }
   #pick, #coins, #ghost { transition: opacity 0.4s ease-out; }
 
   body.shot #hud, body.shot #pick, body.shot #ghost, body.shot #stick, body.shot #prompt, body.shot #pockets, body.shot #seeds, body.shot #tools,
   body.shot #coins, body.shot #mute, body.shot #sound, body.shot #worldui, body.shot #card, body.shot #talk, body.shot #who, body.shot #choose,
   body.shot #craft, body.shot #made, body.shot #workshop, body.shot #placing, body.shot #jump, body.shot #where,
-  body.shot #menu, body.shot #menusheet { display: none; }
+  body.shot #menu, body.shot #menusheet, body.shot #place, body.shot #goal, body.shot #tip, body.shot #markers,
+  body.shot #arrive { display: none; }
 </style>
 
 
@@ -603,7 +704,7 @@
 
 
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=683694b-20260917T094202Z"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=790894a-20260917T133604Z"></script>
 <script type="importmap">
 {
   "imports": {
@@ -668,12 +769,21 @@
 <div id="placing" hidden></div>
 <div id="pockets" hidden></div>
 <div id="seeds" hidden></div>
-<div id="where" hidden></div>
-<button id="jump" type="button" aria-label="Jump - tap twice to fly to the next planet" hidden>Jump</button>
+
+<div id="place" hidden>
+  <div id="where" hidden></div>
+  <div id="ring" hidden></div>
+</div>
+<div id="arrive" hidden></div>
+
+<div id="markers"></div>
+<button id="goal" type="button" aria-live="polite" hidden></button>
+<button id="tip" type="button" hidden></button>
+<button id="jump" type="button" aria-label="Jump - tap twice to fly to the next planet, hold to fly home" hidden></button>
 <div id="visit" hidden></div>
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=683694b-20260917T094202Z"></script>
+<script type="module" src="src/play/main.js?v=790894a-20260917T133604Z"></script>
 </body>
 </html>

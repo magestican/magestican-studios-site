@@ -41,6 +41,8 @@
 
 
 
+
+
 import { draw } from '../economy/math.mjs';
 import { fbm3, valueNoise2 } from '../noise.mjs';
 import * as MOON from './moonLayout.mjs';
@@ -207,6 +209,36 @@ export function planetAt(id, systemSeed = SYSTEM_SEED, count = GENERATED_COUNT) 
 export function nextPlanetId(id, step = 1, count = GENERATED_COUNT) {
   const n = count + 1;
   return (((id + step) % n) + n) % n;
+}
+
+
+
+
+
+
+
+export function flightsTo(from, to, count = GENERATED_COUNT) {
+  const n = count + 1;
+  return (((to - from) % n) + n) % n;
+}
+
+
+export const flightsHome = (id, count = GENERATED_COUNT) => flightsTo(id, 0, count);
+
+
+
+
+
+
+
+export function ringView(id, systemSeed = SYSTEM_SEED, count = GENERATED_COUNT) {
+  return planetSystem(systemSeed, count).map((planet) => ({
+    id: planet.id,
+    name: planet.name,
+    home: planet.id === 0,
+    here: planet.id === id,
+    flightsOn: flightsTo(id, planet.id, count),
+  }));
 }
 
 

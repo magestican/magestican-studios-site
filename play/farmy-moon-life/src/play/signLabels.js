@@ -51,6 +51,17 @@ export function createSignLabels({ layer, screenOf, iconFor = null, cfg = SIGN_L
       const el = document.createElement('div');
       el.className = 'fml-sign-label';
       el.setAttribute('aria-hidden', 'true');
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      el.style.display = 'none';
       const num = document.createElement('b');
       el.append(coinIcon(), num);
       layer.appendChild(el);

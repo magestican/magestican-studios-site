@@ -62,6 +62,10 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
     if (sig === sigSeeds) return;
     sigSeeds = sig;
     seedsEl.hidden = !sig;
+    
+    
+    
+    document.body.classList.toggle('seeding', Boolean(sig));
     seedsEl.replaceChildren(...(sig ? kinds.map((kind) => {
       const b = document.createElement('button');
       b.type = 'button';

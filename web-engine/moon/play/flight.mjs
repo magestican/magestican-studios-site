@@ -235,3 +235,51 @@ export function poseOf(air) {
 
 
 export const onGround = (air) => !air || air.done || poseOf(air).control;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const HOLD = Object.freeze({
+  
+  
+  
+  homeMs: 600,
+});
+
+
+export function holdStart(nowMs) {
+  return { downMs: nowMs, fired: false };
+}
+
+
+export function holdAt(hold, nowMs) {
+  if (!hold) return 0;
+  return clamp((nowMs - hold.downMs) / HOLD.homeMs, 0, 1);
+}
+
+
+
+
+
+
+export function holdDone(hold, nowMs) {
+  return Boolean(hold) && !hold.fired && holdAt(hold, nowMs) >= 1;
+}
