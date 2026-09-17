@@ -12,24 +12,30 @@
 
 
 import { BUILDINGS, GIFTS, GOODS, HAPPINESS, RECIPES, STAPLES, TREES } from './tables.mjs';
-import { BP } from './math.mjs';
-import { isRipe, stageAt } from './trees.mjs';
+import { BP, MS } from './math.mjs';
+import { isRipe, stageAt, waterReason } from './trees.mjs';
 import { buildingSlots, ownedTreeCount, treeSlots, usedBuildingSlots } from './land.mjs';
 import { discountAt, isLit, sellable, shelfRoom, shopOf, shopSpec, stockCount } from './shop.mjs';
 import { giftBasePoints, warmthAt } from './happiness.mjs';
-import { batchesDone, jobSlotsOf, readyToCollect, whyCannot } from './world.mjs';
+import { batchesDone, forageIsReady, jobSlotsOf, readyToCollect, whyCannot } from './world.mjs';
 
 export const ACTION_TIME_s = Object.freeze({
   harvest: 3, fell: 5, clearStump: 4, plant: 3, mine: 3,
   startJob: 3, collect: 2, stock: 3, unstock: 2,
   buy: 3, buyParcel: 6, build: 5, upgrade: 5, gift: 5,
+  
+  
+  
+  
+  water: 2, forage: 3, dig: 4,
   walk: 8, 
   wait: 4, 
 });
 
 export const AREA = Object.freeze({
-  harvest: 'orchard', fell: 'orchard', clearStump: 'orchard', plant: 'orchard',
-  mine: 'rocks', startJob: 'processor', collect: 'processor', stock: 'shop', unstock: 'shop',
+  harvest: 'orchard', fell: 'orchard', clearStump: 'orchard', plant: 'orchard', water: 'orchard',
+  mine: 'rocks', forage: 'forage', dig: 'forage',
+  startJob: 'processor', collect: 'processor', stock: 'shop', unstock: 'shop',
   buy: 'cat', buyParcel: 'cat', build: 'cat', upgrade: 'cat', gift: 'village',
 });
 
@@ -75,6 +81,7 @@ export function areaOf(action, world) {
 
 const COLLECT_TRIP_MIN = 8; 
 const HARVEST_ROUND_MIN = 3; 
+const FORAGE_ROUND_MIN = 4; 
 const STOCK_TRIP_MIN = 4; 
 const STOCK_TRIP_WAIT_MS = 90000;
 
@@ -132,14 +139,31 @@ export function decide(world, t, memory = {}) {
   if (stock) return stock;
   const goal = nextGoal(world);
   if (goal && !whyCannot(world, goal, t)) return goal;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const gift = giftMove(world, t, memory);
+  if (gift) return gift;
+  
+  
+  
+  
+  const pick = forageMove(world, t, memory);
+  if (pick) return pick;
   const grow = orchardMove(world, t);
   if (grow) return grow;
+  const drink = waterMove(world, t);
+  if (drink) return drink;
   for (const rock of world.rocks) {
     const mine = { type: 'mine', rock: rock.id };
     if (!whyCannot(world, mine, t)) return mine;
   }
-  const gift = giftMove(world, t, memory);
-  if (gift) return gift;
   if (anyReady) return { type: 'collect', processor: anyReady.id };
   if (ripe.length) return { type: 'harvest', tree: ripe[0].id };
   return null;
@@ -226,6 +250,73 @@ export function nextGoal(world) {
   if (world.parcels >= 3 && lowest.level < 3) return { type: 'upgrade', building: lowest.id };
   if (world.parcels >= 3 && shop.level < 3) return { type: 'upgrade', building: shop.id };
   return { type: 'buyParcel' };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function forageMove(world, t, memory) {
+  const ready = [];
+  for (let i = 0; i < world.forage.length; i++) {
+    const spot = world.forage[i];
+    
+    
+    if ((spot.planet || 0) !== 0) continue;
+    if (forageIsReady(spot, t)) ready.push(i);
+  }
+  if (!ready.length) return null;
+  if (ready.length < FORAGE_ROUND_MIN && memory.area !== 'forage') return null;
+  const spot = world.forage[ready[0]];
+  return { type: spot.type === 'dig' ? 'dig' : 'forage', spot: ready[0] };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const WATER_LOOKAHEAD_MS = 60 * MS;
+
+function waterMove(world, t) {
+  let growing = null;
+  for (const tree of world.trees) {
+    if ((tree.planet || 0) !== 0) continue;
+    if (waterReason(tree, t) || waterReason(tree, t + WATER_LOOKAHEAD_MS)) continue;
+    if (stageAt(tree, t) === 'fruiting') return { type: 'water', tree: tree.id };
+    if (!growing) growing = tree;
+  }
+  return growing ? { type: 'water', tree: growing.id } : null;
 }
 
 

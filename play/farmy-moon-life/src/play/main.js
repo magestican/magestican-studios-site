@@ -99,7 +99,7 @@ import { awayReport, createSaver } from 'moon/play/saving.mjs';
 import { openSaveStore } from './saveDb.js';
 import { BUILDINGS } from 'moon/economy/tables.mjs';
 import { shopOf } from 'moon/economy/shop.mjs';
-import { startFromPlacements } from 'moon/economy/fromLayout.mjs';
+import { homeMoon } from 'moon/world/startWorld.mjs';
 import { orchardView, diffOrchard, countByStage, fallYaw } from 'moon/play/orchard.mjs';
 import { INTERACT, chooseTarget, promptFor, pressHold, holdStep, fellAction, tapPick, seedKinds, nextSeedKind, targetKey, trunkRadius } from 'moon/play/interact.mjs';
 
@@ -349,12 +349,18 @@ const SYSTEM_FINDS = systemFinds(state.system, GENERATED_COUNT);
 
 
 const SYSTEM_WILD = systemWild(state.system, GENERATED_COUNT);
-const HOME_START = startFromPlacements(P);
+
+
+
+
+
+
+const HOME_START = homeMoon({ layout: P, spots: FORAGE_SPOTS });
 const world = newWorld({
   seed: 1, now: wallNow(),
   wildTrees: [...HOME_START.wildTrees, ...SYSTEM_WILD.trees],
   rocks: [...Array.from({ length: HOME_START.rocks }, () => ({})), ...SYSTEM_WILD.rocks],
-  forageSpots: [...FORAGE_SPOTS.map(({ type }) => ({ type })), ...SYSTEM_WILD.forage],
+  forageSpots: [...HOME_START.forageSpots, ...SYSTEM_WILD.forage],
   finds: SYSTEM_FINDS,
 });
 

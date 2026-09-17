@@ -55,6 +55,26 @@ export function simulate({ seed = 1, start = Date.UTC(2026, 8, 15, 8, 0, 0), sit
   const memory = {};
   let active_ms = 0;
   let nextSample_ms = 0;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const MAKES_GOODS = new Set(['harvest', 'fell', 'clearStump', 'forage', 'dig', 'mine', 'pickUpFind']);
+  const work = {};
 
   const check = (t) => {
     for (const [name, reached] of MILESTONES) {
@@ -116,7 +136,31 @@ export function simulate({ seed = 1, start = Date.UTC(2026, 8, 15, 8, 0, 0), sit
       
       
       if (action) {
-        act(world, action, t);
+        const acted = act(world, action, t);
+        const w = work[action.type] || (work[action.type] = { count: 0, time_s: 0, goods: {} });
+        w.count += 1;
+        w.time_s += cost_s;
+        for (const e of acted) {
+          if (e.type !== action.type) continue;
+          
+          
+          
+          if (e.type === 'collect' && e.goods) {
+            for (const [good, n] of Object.entries(e.goods)) w.goods[good] = (w.goods[good] || 0) + n;
+            continue;
+          }
+          
+          
+          
+          
+          if (e.type === 'fell' || e.type === 'clearStump') {
+            if (e.wood) w.goods.wood = (w.goods.wood || 0) + e.wood;
+            if (e.seed && e.seeds) w.goods[e.seed] = (w.goods[e.seed] || 0) + e.seeds;
+            continue;
+          }
+          if (!MAKES_GOODS.has(e.type) || !e.good || !e.count) continue;
+          w.goods[e.good] = (w.goods[e.good] || 0) + e.count;
+        }
         if (action.type === 'stock') memory.lastStockAt = t;
         if (action.type === 'gift' && action.coins) memory.giftedCoins = (memory.giftedCoins || 0) + action.coins;
       } else {
@@ -133,5 +177,5 @@ export function simulate({ seed = 1, start = Date.UTC(2026, 8, 15, 8, 0, 0), sit
     entry.netWorth = netWorth(world);
     log.push(entry);
   }
-  return { world, milestones, samples, sittings: log, active_s: Math.round(active_ms / MS) };
+  return { world, milestones, samples, sittings: log, work, active_s: Math.round(active_ms / MS) };
 }
