@@ -7,6 +7,9 @@
 
 
 
+
+
+
 import { POOL_SIZE } from './lightPool.mjs';
 
 export const TIERS = Object.freeze(['high', 'medium', 'low']);
@@ -15,9 +18,9 @@ export const MEASURE_MS = 2000;
 export const MEASURE_MIN_FRAMES = 20;
 
 export const SETTINGS = Object.freeze({
-  high: Object.freeze({ pixelRatio: 2, effects: 1, shadowMapSize: 2048, shadowRadius: 5, bloom: true, bloomScale: 0.5, lights: POOL_SIZE.high, tiltShift: true }),
-  medium: Object.freeze({ pixelRatio: 1.5, effects: 0.6, shadowMapSize: 1536, shadowRadius: 4, bloom: true, bloomScale: 0.35, lights: POOL_SIZE.medium, tiltShift: false }),
-  low: Object.freeze({ pixelRatio: 1, effects: 0.35, shadowMapSize: 1024, shadowRadius: 3, bloom: false, bloomScale: 0, lights: POOL_SIZE.low, tiltShift: false }),
+  high: Object.freeze({ pixelRatio: 2, effects: 1, shadowMapSize: 2048, shadowRadius: 5, bloom: true, bloomScale: 0.5, lights: POOL_SIZE.high, tiltShift: true, leaves: 64 }),
+  medium: Object.freeze({ pixelRatio: 1.5, effects: 0.6, shadowMapSize: 1536, shadowRadius: 4, bloom: true, bloomScale: 0.35, lights: POOL_SIZE.medium, tiltShift: false, leaves: 32 }),
+  low: Object.freeze({ pixelRatio: 1, effects: 0.35, shadowMapSize: 1024, shadowRadius: 3, bloom: false, bloomScale: 0, lights: POOL_SIZE.low, tiltShift: false, leaves: 0 }),
 });
 
 export function medianInterval(samples, n = samples.length) {

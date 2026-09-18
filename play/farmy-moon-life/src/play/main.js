@@ -62,6 +62,7 @@ import { curveUniforms, windUniforms } from '../render/material.js';
 import { createSky } from '../render/sky.js';
 import { createDaylight } from '../render/daylight.js';
 import { createNightLights } from '../render/nightLights.js';
+import { createParticles } from '../render/particles.js';
 import { createPost } from '../render/post.js';
 import { buildMoonScene } from '../lookdev/scene.js';
 
@@ -389,6 +390,7 @@ sky.anchorYaw = -CAMERA.yawRad;
 fml.skyMask = (on) => { sky.mesh.visible = !on; scene.background = on ? new THREE.Color(0xff00ff) : null; };
 const daylight = createDaylight(scene, settings, { shadowExtent: SHADOW_EXTENT_M });
 let night = null, post = null, character = null, collision = null, orchard = null, pops = null;
+let particles = null;       
 let staticObstacles = [], baseTriangles = 0;
 
 
@@ -1893,6 +1895,11 @@ Object.defineProperty(fml, 'orchard', {
   enumerable: true,
   get: () => (orchard ? { ...orchard.stats, pops: pops.active } : null),
 });
+
+Object.defineProperty(fml, 'leaves', {
+  enumerable: true,
+  get: () => (particles ? { ...particles.stats, sources: orchard ? orchard.sources().length : 0 } : null),
+});
 Object.defineProperty(fml, 'shop', {
   enumerable: true,
   get: () => (shelvesDraw ? {
@@ -2697,6 +2704,9 @@ async function fillIn() {
     onProblems: (list) => { if (list.length) fml.problems = [...new Set([...fml.problems, ...list])]; },
   });
   pops = createPopsDraw({ scene, itemObject, season: state.season });
+  
+  
+  particles = createParticles({ scene, max: settings.leaves, seed: state.seed });
   syncOrchard(econNow());
   await orchard.show(view);
   
@@ -2911,6 +2921,7 @@ function applyTier(next, why) {
   daylight.setQuality(settings);                 
   if (night) night.setSize(settings.lights);     
   if (post) post.setTier(settings);              
+  if (particles) particles.setMax(settings.leaves); 
   for (const entry of covers) {
     const before = entry.cover.drawnTriangles;
     const after = entry.cover.setDensity(settings.effects / entry.effects);
@@ -3179,6 +3190,9 @@ function frame(now) {
   curveUniforms.uCurveFocus.value.copy(target);
   pops.update(animSeconds, armsOf());
   orchard.update(animSeconds);
+  
+  
+  particles.update(dt * state.anim, animSeconds, orchard.sources(), { wind: windUniforms.uFmlWind.value });
   land.update(seconds);
   const cycle = dayCycle(state.time);
   daylight.apply(cycle, target, renderer);

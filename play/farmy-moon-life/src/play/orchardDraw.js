@@ -23,6 +23,7 @@ import { generate as generatePine } from 'moon/art/pine.mjs';
 import { artStageOfPine } from 'moon/world/wild.mjs';
 import { heightAt as homeHeightAt } from 'moon/world/moonLayout.mjs';
 import { toppleAt } from 'moon/play/orchard.mjs';
+import { sheds, leafColours } from 'moon/play/leaves.mjs';
 import { toObject3D } from '../render/toMesh.js';
 
 const disposeTree = (obj) => obj.traverse((o) => { if (o.isMesh) o.geometry.dispose(); });
@@ -46,7 +47,9 @@ export function createOrchardDraw({
   root.name = 'orchard';
   scene.add(root);
   const cache = new Map();
+  const crowns = new Map();   
   const falling = [];
+  let shed = [];              
   let merged = null, triangles = 0, rebuilds = 0, wanted = '', drawn = '', queued = null, running = null;
 
   function dataFor(v) {
@@ -70,6 +73,10 @@ export function createOrchardDraw({
       }
       onProblems(data.validate());
       cache.set(key, data);
+      
+      
+      const b = data.bounds();
+      crowns.set(key, { height: b.max[1] - b.min[1], radius: Math.max(b.max[0] - b.min[0], b.max[2] - b.min[2]) / 2 });
     }
     return data;
   }
@@ -89,6 +96,26 @@ export function createOrchardDraw({
     root.add(obj);
     triangles = data.triangleCount;
     rebuilds += 1;
+    shed = sourcesOf(view);
+  }
+
+  
+  
+  
+  
+  
+  function sourcesOf(view) {
+    const s = seasonAt();
+    const colours = leafColours(s);
+    const out = [];
+    for (const v of view) {
+      if (!sheds(v.kind, v.stage)) continue;
+      const c = crowns.get(`${v.kind}|${v.seed}|${v.stage}|${v.fruit ? 1 : 0}|${v.lod}|${s}`);
+      if (!c) continue;
+      const floor = groundAt(v.x, v.z);
+      out.push({ x: v.x, y: floor + c.height * 0.72, z: v.z, r: c.radius * 0.8, h: c.height * 0.2, kind: v.kind, stage: v.stage, season: s, floor, colours });
+    }
+    return out;
   }
 
   
@@ -144,6 +171,8 @@ export function createOrchardDraw({
 
   return {
     root, show, topple, update,
+    
+    sources: () => shed,
     get stats() { return { rebuilds, triangles, wanted, drawn, ready: wanted === drawn && !running, falling: falling.length, cached: cache.size }; },
     get triangles() { return triangles; },
   };
