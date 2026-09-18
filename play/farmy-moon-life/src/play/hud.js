@@ -13,10 +13,16 @@
 
 
 
+
+
+
+
 import { TREES } from 'moon/economy/tables.mjs';
 import { REFUSAL_S, actLabel, actRefused } from 'moon/play/actButton.mjs';
 
-export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl, button, iconFor, onChooseSeed }) {
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl, today: todayEl, button, iconFor, onChooseSeed }) {
   const icons = new Map();
   const icon = (good, size) => {
     const key = `${good}|${size}`;
@@ -76,6 +82,77 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
       b.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); onChooseSeed(kind); });
       return b;
     }) : []));
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let sigToday = null, todayParts = null;
+
+  function buildToday() {
+    const top = document.createElement('div');
+    top.className = 'top';
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 26 14');
+    svg.setAttribute('class', 'arc');
+    svg.setAttribute('aria-hidden', 'true');
+    const rail = document.createElementNS(SVG_NS, 'path');
+    rail.setAttribute('class', 'rail');
+    
+    rail.setAttribute('d', 'M2 13 A11 11 0 0 1 24 13');
+    const body = document.createElementNS(SVG_NS, 'circle');
+    body.setAttribute('class', 'body');
+    body.setAttribute('r', '3');
+    svg.append(rail, body);
+    const day = document.createElement('b');
+    top.append(svg, day);
+    const when = document.createElement('div');
+    when.className = 'when';
+    const glyph = document.createElement('i');
+    glyph.className = 'glyph';
+    glyph.setAttribute('aria-hidden', 'true');
+    const words = document.createElement('span');
+    when.append(glyph, words);
+    todayEl.replaceChildren(top, when);
+    return { body, day, glyph, words };
+  }
+
+  
+
+
+
+
+
+
+  function today(view) {
+    if (!todayEl || !view) return;
+    const sig = `${view.text}|${view.arc.up}|${Math.round(view.arc.x * 100)}`;
+    if (sig === sigToday) return;
+    sigToday = sig;
+    if (!todayParts) todayParts = buildToday();
+    const { body, day, glyph, words } = todayParts;
+    body.setAttribute('cx', (2 + view.arc.x * 22).toFixed(2));
+    body.setAttribute('cy', (13 - view.arc.y * 11).toFixed(2));
+    day.textContent = `Day ${view.day}`;
+    glyph.textContent = view.glyph;
+    words.textContent = `${view.part} - ${view.label}`;
+    
+    
+    todayEl.classList.toggle('night', !view.arc.up);
+    todayEl.setAttribute('aria-label', view.text);
+    todayEl.hidden = false;
   }
 
   
@@ -142,5 +219,5 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
     }
   }
 
-  return { pockets, seeds, say, nope, update, get said() { return said; } };
+  return { pockets, seeds, today, say, nope, update, get said() { return said; } };
 }

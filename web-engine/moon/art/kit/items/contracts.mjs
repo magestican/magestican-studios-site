@@ -36,6 +36,8 @@ export const SIZE = Object.freeze({
   berries: band(0.05, 0.14, 0.02, 0.05, 0.04, 0.1),
   carrot: band(0.11, 0.2, 0.05, 0.12, 0.03, 0.12), 
   potato: band(0.06, 0.13, 0.04, 0.085, 0.055, 0.09),
+  
+  truffle: band(0.06, 0.13, 0.04, 0.09, 0.06, 0.13),
 });
 
 export function itemContracts(kinds) {

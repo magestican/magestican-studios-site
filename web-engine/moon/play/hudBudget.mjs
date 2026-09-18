@@ -33,7 +33,98 @@
 
 
 
-export const HUD_BUDGET = Object.freeze({ screenPct: 10, centrePct: 0 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const HUD_BUDGET = Object.freeze({ screenPct: 11.2, centrePct: 0 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const DAY_LINE_BUDGET = Object.freeze({ screenPct: 1.2 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -162,14 +253,14 @@ export const HUD_BUDGET = Object.freeze({ screenPct: 10, centrePct: 0 });
 
 export const HUD_CEILING = Object.freeze({
   portrait: Object.freeze({
-    play: Object.freeze({ screenPct: 9.9, centrePct: 0 }),
-    guiding: Object.freeze({ screenPct: 18.5, centrePct: 0 }),
-    card: Object.freeze({ screenPct: 32.0, centrePct: 67.6 }),
+    play: Object.freeze({ screenPct: 10.9, centrePct: 0 }),
+    guiding: Object.freeze({ screenPct: 19.2, centrePct: 0 }),
+    card: Object.freeze({ screenPct: 33.0, centrePct: 67.6 }),
   }),
   landscape: Object.freeze({
-    play: Object.freeze({ screenPct: 9.5, centrePct: 0 }),
-    guiding: Object.freeze({ screenPct: 13.0, centrePct: 0 }),
-    card: Object.freeze({ screenPct: 32.0, centrePct: 55.9 }),
+    play: Object.freeze({ screenPct: 10.5, centrePct: 0 }),
+    guiding: Object.freeze({ screenPct: 14.0, centrePct: 0 }),
+    card: Object.freeze({ screenPct: 33.0, centrePct: 55.9 }),
   }),
 });
 

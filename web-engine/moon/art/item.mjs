@@ -20,6 +20,7 @@
 
 
 
+
 import { SeededRng } from '../../rng/seededRng.js';
 import { MeshData } from '../mesh/meshData.mjs';
 import { SEASONS } from '../palette/seasons.mjs';
@@ -30,6 +31,7 @@ import { coin, giftBox, moonRock, gem } from './kit/items/treasure.mjs';
 import { shovel, axe, pickaxe, wateringCan, TOOL_GRIP } from './kit/items/tools.mjs';
 import { wood, stone } from './kit/items/resources.mjs';
 import { mushroom, berries, carrot, potato } from './kit/items/forage.mjs';
+import { truffle } from './kit/items/underground.mjs';
 
 export const TIER = 'dressing';
 export const LODS = [0, 1, 2];
@@ -42,9 +44,9 @@ export { TOOL_GRIP };
 
 export const KINDS = Object.freeze(['seed', 'sapling', 'apple', 'peach', 'cherry', 'goldenApple',
   'juice', 'jam', 'sugar', 'coin', 'giftBox', 'moonRock', 'gem', ...TOOLS,
-  'wood', 'stone', 'mushroom', 'berries', 'carrot', 'potato']);
+  'wood', 'stone', 'mushroom', 'berries', 'carrot', 'potato', 'truffle']);
 
-const BUILDERS = { seed, sapling, apple, peach, cherry, goldenApple, juice, jam, sugar, coin, giftBox, moonRock, gem, shovel, axe, pickaxe, wateringCan, wood, stone, mushroom, berries, carrot, potato };
+const BUILDERS = { seed, sapling, apple, peach, cherry, goldenApple, juice, jam, sugar, coin, giftBox, moonRock, gem, shovel, axe, pickaxe, wateringCan, wood, stone, mushroom, berries, carrot, potato, truffle };
 
 const FRUITS = Object.freeze(['apple', 'peach', 'cherry']);
 
@@ -54,6 +56,7 @@ export const VARIANTS = Object.freeze({
   coin: [null], giftBox: [null], moonRock: [null], gem: [null],
   shovel: [null], axe: [null], pickaxe: [null], wateringCan: [null],
   wood: [null], stone: [null], mushroom: [null], berries: [null], carrot: [null], potato: [null],
+  truffle: [null],
 });
 
 
@@ -85,6 +88,8 @@ export const ITEM_OF_GOOD = Object.freeze({
   berries: { kind: 'berries', variant: null },
   carrot: { kind: 'carrot', variant: null },
   potato: { kind: 'potato', variant: null },
+  
+  truffle: { kind: 'truffle', variant: null },
 });
 
 

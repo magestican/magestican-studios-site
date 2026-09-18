@@ -53,9 +53,26 @@ export class MeshData {
     return g;
   }
 
-  vertex(material, p, n, c = [1, 1, 1], uv = [0, 0]) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  vertex(material, p, n, c = [1, 1, 1], uv = [0, 0], ripple = 0) {
     const g = this.group(material);
     const i = g.positions.length / 3;
+    if (ripple || g.ripples) {
+      const out = (g.ripples ||= new Array(i).fill(0));
+      out.push(ripple);
+    }
     g.positions.push(p[0], p[1], p[2]);
     g.normals.push(n[0], n[1], n[2]);
     g.colors.push(c[0], c[1], c[2]);
@@ -99,6 +116,15 @@ export class MeshData {
       if (src.sways || g.sways) {
         const out = (g.sways ||= new Array(base).fill(0));
         if (src.sways) for (const v of src.sways) out.push(v);
+        else for (let i = 0; i < src.positions.length / 3; i++) out.push(0);
+      }
+      
+      
+      
+      
+      if (src.ripples || g.ripples) {
+        const out = (g.ripples ||= new Array(base).fill(0));
+        if (src.ripples) for (const v of src.ripples) out.push(v);
         else for (let i = 0; i < src.positions.length / 3; i++) out.push(0);
       }
       
@@ -173,7 +199,8 @@ export class MeshData {
     for (const g of this.groups.values()) {
       const where = `${this.name}/${g.material}`;
       const vcount = g.positions.length / 3;
-      if (g.normals.length !== g.positions.length || g.colors.length !== g.positions.length || g.uvs.length !== vcount * 2 || (g.sways && g.sways.length !== vcount)) {
+      if (g.normals.length !== g.positions.length || g.colors.length !== g.positions.length || g.uvs.length !== vcount * 2
+        || (g.sways && g.sways.length !== vcount) || (g.ripples && g.ripples.length !== vcount)) {
         problems.push(`${where}: attribute lengths disagree`);
       }
       if (g.indices.length % 3 !== 0) problems.push(`${where}: index count not a multiple of 3`);
@@ -244,6 +271,8 @@ export class MeshData {
         
         
         if (g.sways) out.sway = Float32Array.from(g.sways);
+        
+        if (g.ripples) out.ripple = Float32Array.from(g.ripples);
         return out;
       }),
     };

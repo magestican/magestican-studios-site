@@ -16,6 +16,7 @@ import { lathe, emit, sweep, circleProfile } from '../../../mesh/bevel.mjs';
 import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary, mixC, paintVertex } from '../shade.mjs';
+import { RIPPLE, surfaceRamp } from '../water.mjs';
 import { bloom } from '../blooms.mjs';
 import { rod } from '../rod.mjs';
 
@@ -44,12 +45,17 @@ export function barrel(mesh, m, {
   const inside = fillColor
     ? body.p.map((p) => p[1] > H - 0.05 && Math.hypot(p[0], p[2]) < R * 0.9)
     : null;
+  
+  
+  const wet = open === 'water' && inside && !snowColor;
+  const ramp = surfaceRamp(body.p.map((p) => Math.hypot(p[0], p[2])), R * 0.9);
   emit(mesh, 'wood', body, {
     matrix: m,
     color: (p, n, uv, tag, i) => {
       const c = paintVertex(woodColor, p, n, { groundAO: 0.32, groundFade: 0.22, mottle: 0.05, seed: 3 });
       return inside && inside[i] ? mixC(c, fillColor, 0.85) : c;
     },
+    ripple: wet ? (p, n, uv, tag, i) => (inside[i] ? RIPPLE.basin * ramp[i] : 0) : 0,
   });
 
   

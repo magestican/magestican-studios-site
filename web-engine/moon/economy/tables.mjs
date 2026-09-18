@@ -122,6 +122,15 @@ export const GOODS = Object.freeze({
   
   
   
+  
+  
+  
+  
+  truffle: { kind: 'rare', sell_coins: 0, demand: 0, gift_points: 30 },
+
+  
+  
+  
   wood: { kind: 'resource', sell_coins: 0, demand: 0, gift_points: 1 },
   stone: { kind: 'resource', sell_coins: 0, demand: 0, gift_points: 1 },
   mushroom: { kind: 'food', sell_coins: 6, demand: 2, gift_points: 2 },
@@ -216,6 +225,21 @@ export const CONTAINER_KINDS = Object.freeze(Object.keys(CONTAINERS));
 
 export const STAPLES = Object.freeze({
   sugar: { buy_coins: 4 },
+});
+
+
+
+
+
+
+
+
+
+
+
+
+export const UNDERGROUND = Object.freeze({
+  truffle: { buy_coins: 45 },
 });
 
 

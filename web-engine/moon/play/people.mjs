@@ -13,10 +13,17 @@
 
 
 
+
 import { seedOf } from '../voice/mumble.mjs';
 
 
 export const CAT_NAME = 'Felice';
+
+
+
+
+
+export const MOLE_NAME = 'Cosimo';
 
 
 

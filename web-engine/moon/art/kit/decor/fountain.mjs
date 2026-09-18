@@ -18,6 +18,7 @@ import { lathe, emit, sweep, circleProfile } from '../../../mesh/bevel.mjs';
 import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary, mixC, paintVertex } from '../shade.mjs';
+import { RIPPLE, surfaceRamp, fallRamp, jetRamp } from '../water.mjs';
 
 
 function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor }) {
@@ -28,11 +29,20 @@ function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor }) {
     
     path.push([r0 + (r1 - r0) * Math.sqrt(t), y0 - (y0 - y1) * t * t, 0]);
   }
-  emit(mesh, 'bottle', sweep({
+  const ribbon = sweep({
     profile: circleProfile(w, detail === 0 ? 5 : 4), path, up: [0, 1, 0], caps: 'none',
     
     scales: (t) => 1.35 - 0.7 * t,
-  }), { matrix: compose(m, rotateY(a)), color: vc(waterColor, { groundAO: 0, underside: 0.15 }) });
+  });
+  
+  
+  
+  const fall = fallRamp(ribbon.p.map((q) => q[1]));
+  emit(mesh, 'bottle', ribbon, {
+    matrix: compose(m, rotateY(a)),
+    color: vc(waterColor, { groundAO: 0, underside: 0.15 }),
+    ripple: (p, n, uv, tag, i) => -RIPPLE.flow * fall[i],
+  });
 }
 
 
@@ -79,15 +89,42 @@ export function fountain(mesh, m, {
   
   
   const wet = basin.p.map((p) => p[1] < pool && Math.hypot(p[0], p[2]) < R * 0.84);
+  
+  
+  
+  const floorRamp = surfaceRamp(basin.p.map((p) => Math.hypot(p[0], p[2])), R * 0.84);
   emit(mesh, 'stone', basin, {
     matrix: m,
     color: (p, n, uv, tag, i) => {
       if (wet[i]) return frozen ? mixC(waterColor, [1, 1, 1], 0.25) : waterColor;
       return paintVertex(stoneColor, p, n, { groundAO: 0.2, groundFade: 0.22, mottle: 0.08, seed: 5 });
     },
+    ripple: frozen ? 0 : (p, n, uv, tag, i) => (wet[i] ? RIPPLE.pool * 0.33 * floorRamp[i] : 0),
   });
 
   if (detail === 2) return { r: R };
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const skinR = R * 0.822;
+  const skin = lathe({
+    points: [[skinR, pool], [skinR * 0.72, pool - 0.005], [skinR * 0.4, pool - 0.008], [0, pool - 0.009]],
+    sides, phase: square ? 0.125 : rng.rangeF(0, 1),
+    radiusFn: square ? (th, j, r) => r * squareR(th) : null,
+  });
+  const skinRamp = surfaceRamp(skin.p.map((p) => Math.hypot(p[0], p[2])), skinR);
+  emit(mesh, 'bottle', skin, {
+    matrix: m,
+    color: vc(frozen ? mixC(waterColor, [1, 1, 1], 0.3) : waterColor, { groundAO: 0, underside: 0.15 }),
+    ripple: frozen ? 0 : (p, n, uv, tag, i) => RIPPLE.pool * skinRamp[i],
+  });
 
   
   let below = { y: pool, r: R * 0.8 };
@@ -118,11 +155,19 @@ export function fountain(mesh, m, {
   if (jet > 0 && !frozen) {
     const top = tiers.length ? tiers[tiers.length - 1] : { y: pool, r: R * 0.5 };
     const lean = rng.rangeF(-0.06, 0.06);
-    emit(mesh, 'bottle', sweep({
+    const plume = sweep({
       profile: circleProfile(0.05, detail === 0 ? 6 : 4),
       path: [[0, top.y, 0], [lean * 0.3, top.y + jet * 0.5, 0], [lean, top.y + jet, 0]],
       up: [0, 1, 0], caps: 'round', capSegments: 1, capLength: 0.04, scales: (t) => 1 - 0.45 * t,
-    }), { matrix: m, color: vc(waterColor, { groundAO: 0, underside: 0.15 }) });
+    });
+    
+    
+    const rise = jetRamp(plume.p.map((q) => q[1]));
+    emit(mesh, 'bottle', plume, {
+      matrix: m,
+      color: vc(waterColor, { groundAO: 0, underside: 0.15 }),
+      ripple: (p, n, uv, tag, i) => -RIPPLE.jet * rise[i],
+    });
   }
 
   

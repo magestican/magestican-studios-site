@@ -58,7 +58,7 @@
 
 
 import * as THREE from 'three';
-import { curveUniforms, windUniforms } from '../render/material.js';
+import { curveUniforms, windUniforms, waterUniforms } from '../render/material.js';
 import { createSky } from '../render/sky.js';
 import { createDaylight } from '../render/daylight.js';
 import { createNightLights } from '../render/nightLights.js';
@@ -82,7 +82,8 @@ import { createInput } from './input.js';
 import { createOrchardDraw } from './orchardDraw.js';
 import { createPopsDraw } from './popsDraw.js';
 import { createHud } from './hud.js';
-import { dayCycle } from 'moon/light/dayCycle.mjs';
+import { dayCycle, wrapHours } from 'moon/light/dayCycle.mjs';
+import { dayLine } from 'moon/play/dayline.mjs';
 import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, writeTier } from 'moon/light/quality.mjs';
 import { createTiming, timingLine } from 'moon/play/timing.mjs';
 import { createDrawGate, createLoadingView } from 'moon/play/loading.mjs';
@@ -134,18 +135,31 @@ import { createAudio } from './audio.js';
 import { createVoice } from './voice.js';
 import { createSoundCard } from './soundCard.js';
 import { createTalkCard } from './talkCard.js';
-import { PARCELS, ownedIds, forSale, landView, signPoint } from 'moon/world/parcels.mjs';
+import { PARCELS, ownedIds, forSale, landView, parcelAt, signPoint } from 'moon/world/parcels.mjs';
 import { obstacleFor as signObstacleFor } from 'moon/world/collision.mjs';
 import { createLandDraw } from './landDraw.js';
+
+
+
+import { exitPlaces, homePlaces, insideSpot, inRoom, ownsHome, playerHome, roomWalls } from 'moon/play/playerHome.mjs';
+import { createInteriorDraw } from './interior.js';
 import { createSignLabels } from './signLabels.js';
 
 
 
 
 import {
-  createVillage, badgeState, homeStage, syncHomes, villagerPose, PLAYER_TUNED, PLAYER_TUNED_HEIGHT_M, playerFit,
+  createVillage, badgeState, homeOf, homeStage, syncHomes, villagerPose, PLAYER_TUNED, PLAYER_TUNED_HEIGHT_M, playerFit,
 } from 'moon/play/village.mjs';
 import { startTalk as startVillagerTalk, talkNode as villagerTalkNode, choose as chooseVillagerTalk, speakerOf } from 'moon/play/villagerTalk.mjs';
+
+
+
+
+
+import { MOLE, createMole, moleView, stepMole, surfaceMole } from 'moon/play/mole.mjs';
+import { startTalk as startMoleTalk, talkNode as moleTalkNode, choose as chooseMoleTalk } from 'moon/play/moleTalk.mjs';
+import { createMoleDraw } from '../render/mole.js';
 import { DAY_MS, hourAt, isDark } from 'moon/economy/clock.mjs';
 import { homeObstacle, homeRoomObstacle } from 'moon/world/collision.mjs';
 import { createVillagersDraw } from './villagersDraw.js';
@@ -260,6 +274,12 @@ const animParam = Number(q.get('anim') ?? 1);
 
 
 windUniforms.uFmlWind.value = q.get('wind') === '0' ? 0 : 1;
+
+
+
+
+
+const waterParam = q.get('water') === '0' ? 0 : 1;
 const state = {
   anim: Number.isFinite(animParam) && animParam > 0 ? animParam : 1,
   season: q.get('season') || 'summer',
@@ -288,6 +308,7 @@ const deviceStorage = (() => {
 const rememberedTier = pinnedTier ? null : readTier(deviceStorage);
 const tier = pinnedTier || rememberedTier || 'high';
 let settings = SETTINGS[tier];
+waterUniforms.uFmlWater.value = waterParam * settings.water;
 const fml = (window.__fml = {
   
   
@@ -389,12 +410,15 @@ const sky = createSky();
 scene.add(sky.mesh);
 sky.anchorYaw = -CAMERA.yawRad;
 
-fml.skyMask = (on) => { sky.mesh.visible = !on; scene.background = on ? new THREE.Color(0xff00ff) : null; };
+let skyMasked = false;
+fml.skyMask = (on) => { skyMasked = Boolean(on); sky.mesh.visible = !on; scene.background = on ? new THREE.Color(0xff00ff) : null; };
+
+const INSIDE_BACKDROP = new THREE.Color(0x1a1420);
 const daylight = createDaylight(scene, settings, { shadowExtent: SHADOW_EXTENT_M });
 let night = null, post = null, character = null, collision = null, orchard = null, pops = null;
-let particles = null;       
 let insects = null;         
 let birds = null;           
+let particles = null;       
 let staticObstacles = [], baseTriangles = 0;
 
 
@@ -429,11 +453,37 @@ const seasonNow = () => (onHome() ? state.season : planetAt(planetId, state.syst
 const permanent = new Set();          
 const visited = new Map();            
 let homeCollision = null;
+
+
+
+
+
+
+const worldCollision = () => (inside ? homeCollision : collision);
+
+
+
+
+
+
+let interiorDraw = null;
+let inside = null;
+let wentInAt = null;
+let goingThroughDoor = false;         
 let air = null;                       
 let jumpState = createJump();
 let flightTo = null;                  
 let flightScene = null;               
 
+
+
+
+
+const ROOM_LAYOUT = { ...MOON, heightAt: () => 0 };
+
+
+
+const INSIDE_CAM_DIST = 0.38;
 let frameNow = framing(1);
 function resize() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -508,6 +558,13 @@ const world = newWorld({
 
 
 const econNow = () => Math.max(wallNow(), world.clockAt);
+
+
+
+
+
+
+let firstPlayed = world.createdAt;
 
 const ROCK_TARGETS = rockTargets(world, P, { planet: 0 });
 const FORAGE_TARGETS = forageTargets(world, FORAGE_SPOTS, { planet: 0 });
@@ -690,11 +747,41 @@ let talkAt = null, talkWalkS = 0;
 
 let talkWith = null;
 const villagerVisits = new Map();  
+
+
+
+
+
+
+
+
+
+
+
+let moleDraw = null, mole = null, moleVisits = 0;
+let moleOwned = null, moleOwnedKey = '';
+
+
+const MOLE_BODY_M = MOLE.moundM * 0.55;
+const talkingToMole = () => Boolean(talkWith && talkWith.type === 'mole');
+function moleLand(x, z) {
+  const key = ownedIds(world).join(',');
+  if (key !== moleOwnedKey) { moleOwnedKey = key; moleOwned = new Set(ownedIds(world)); }
+  const id = parcelAt(x, z);
+  return id !== null && moleOwned.has(id);
+}
+const molePoint = () => (mole ? { x: mole.x, z: mole.z, y: groundNow(mole.x, mole.z), height: 0.35 } : null);
 const village = createVillage({ P });
 let villagersDraw = null, levelBadges = null;
 const badgeShown = new Map();      
 const talkingToVillager = () => Boolean(talkWith && talkWith.type === 'villager');
 function speakerPoint() {
+  
+  
+  if (talkingToMole()) {
+    const p = molePoint();
+    if (p) return p;
+  }
   if (talkingToVillager()) {
     const p = villagersDraw && villagersDraw.positionOf(talkWith.id);
     if (p) return p;
@@ -758,7 +845,15 @@ function openTalk(target = { type: 'cat' }) {
   if (!talkCard || talk) return;
   stopPlacing(); 
   if (craftCard) craftCard.hide();
-  if (target.type === 'villager') {
+  if (target.type === 'mole') {
+    if (!mole || !onHome()) return;
+    closeCard();
+    talk = startMoleTalk({ visits: moleVisits });
+    moleVisits += 1;
+    talkWith = { type: 'mole' };
+    
+    surfaceMole(mole, true);
+  } else if (target.type === 'villager') {
     const v = world.villagers.find((x) => x.id === target.id);
     if (!v || !villagersDraw || !villagersDraw.positionOf(v.id)) return;
     closeCard();
@@ -779,6 +874,7 @@ function openTalk(target = { type: 'cat' }) {
 }
 function closeTalk() {
   if (!talk) return;
+  if (mole) surfaceMole(mole, false);   
   talk = null;
   talkAt = null;
   talkShown = null;
@@ -789,7 +885,9 @@ function closeTalk() {
 function onTalkChoice(choice) {
   if (!talk) return;
   const outcome = choice.action && !choice.why ? doAct(choice.action) : undefined;
-  const next = talkingToVillager() ? chooseVillagerTalk(talk, choice, outcome) : choose(talk, choice, outcome);
+  const next = talkingToMole() ? chooseMoleTalk(talk, choice, outcome)
+    : talkingToVillager() ? chooseVillagerTalk(talk, choice, outcome)
+      : choose(talk, choice, outcome);
   if (next) talk = next; else closeTalk();
 }
 
@@ -800,11 +898,11 @@ function syncLand() {
   if (key === landDrawn) return null;
   landDrawn = key;
   const sale = forSale(owned);
-  for (const k of signKeys) collision.remove(k);
+  for (const k of signKeys) worldCollision().remove(k);
   signKeys.clear();
   for (const id of sale) {
     const k = `sign:${id}`;
-    collision.add(k, signObstacleFor({ module: 'parcelSign', ...PARCELS[id].sign }));
+    worldCollision().add(k, signObstacleFor({ module: 'parcelSign', ...PARCELS[id].sign }));
     signKeys.add(k);
   }
   refreshPlantObstacles(); 
@@ -822,7 +920,7 @@ function refreshPlantObstacles() {
   
   
   
-  const base = collision.obstacles.filter((o) => typeof o.key !== 'number');
+  const base = worldCollision().obstacles.filter((o) => typeof o.key !== 'number');
   if (!onHome()) {
     const spots = targetsHere().spots || [];
     staticObstacles = [
@@ -859,7 +957,7 @@ function syncBuildings() {
     shopDrawn = shopKey;
     shopAnchors = anchorsFor('shop', shopKey);
     route = customerRoute(SHOP_P, shopAnchors, { entry: CUSTOMER_ENTRY, exit: CUSTOMER_EXIT });
-    collision.add('shop', buildingObstacle(SHOP_P, shopAnchors.footprint));
+    worldCollision().add('shop', buildingObstacle(SHOP_P, shopAnchors.footprint));
     refreshPlantObstacles();
     swapBuilding('shop', SHOP_P, buildingObject('shop', { seed: SHOP_P.seed, season: state.season, stage: shopKey, lod: 0 }), shopKey);
   }
@@ -868,7 +966,7 @@ function syncBuildings() {
   if (pressKey !== pressDrawn) {
     pressDrawn = pressKey;
     pressAnchors = anchorsFor('processor', press ? pressKey : 'level1');
-    collision.add('processor', press ? buildingObstacle(PRESS_P, pressAnchors.footprint) : plotObstacle(PRESS_P));
+    worldCollision().add('processor', press ? buildingObstacle(PRESS_P, pressAnchors.footprint) : plotObstacle(PRESS_P));
     refreshPlantObstacles();
     swapBuilding('press', PRESS_P, press ? buildingObject('processor', { seed: PRESS_P.seed, season: state.season, stage: pressKey, lod: 0 }) : plotObject(), pressKey);
   }
@@ -899,6 +997,11 @@ function placesNow() {
   
   
   
+  if (inside) return exitPlaces(inside);
+  
+  
+  
+  
   
   if (!onHome()) {
     const here = targetsHere();
@@ -913,6 +1016,8 @@ function placesNow() {
     { type: 'processor', x: PRESS_P.x, z: PRESS_P.z, front: toWorld(PRESS_P, pressAnchors.front.x, pressAnchors.front.z) },
     { type: 'cat', x: CAT_P.x, z: CAT_P.z, r: FOOTPRINTS.cat.radiusM },
     
+    ...(mole ? [{ type: 'mole', x: mole.x, z: mole.z, r: MOLE_BODY_M }] : []),
+    
     ...ROCK_TARGETS, ...FORAGE_TARGETS,
     
     ...villagersHere().map((v) => ({ type: 'villager', id: v.id, x: v.x, z: v.z, r: VILLAGER_BODY_M })),
@@ -920,6 +1025,8 @@ function placesNow() {
     ...placedTargets(world, radiusOf),
     
     ...TOWN_PLACES,
+    
+    ...homePlaces(world),
   ];
 }
 
@@ -933,6 +1040,11 @@ const reachCfg = () => ({ ...INTERACT, reachM: playerFit(playerHeightNow()).reac
 const villagersHere = () => (villagersDraw ? villagersDraw.shown.filter((v) => v.visible && !v.inside) : []);
 
 function tapBoxes() {
+  
+  if (inside) {
+    const e = exitPlaces(inside)[0];
+    return [{ type: 'homeExit', x: e.x, z: e.z, rotY: 0, hx: inside.room.door.w / 2 + 0.12, hz: 0.25, h: inside.room.door.h }];
+  }
   if (!onHome()) {
     const here = targetsHere();
     return [
@@ -948,6 +1060,9 @@ function tapBoxes() {
     { type: 'shop', x: SHOP_P.x, z: SHOP_P.z, rotY: SHOP_P.rotY, hx: shopAnchors.footprint.hx, hz: shopAnchors.footprint.hz, h: 3 },
     { type: 'processor', x: PRESS_P.x, z: PRESS_P.z, rotY: PRESS_P.rotY, hx: pressAnchors.footprint.hx, hz: pressAnchors.footprint.hz, h: processorOf(world) ? 3.2 : 1.4 },
     { type: 'cat', x: CAT_P.x, z: CAT_P.z, rotY: 0, hx: 0.55, hz: 0.55, h: 1.3 },
+    
+    
+    ...(mole ? [{ type: 'mole', x: mole.x, z: mole.z, rotY: 0, hx: 0.45, hz: 0.45, h: 0.6 }] : []),
     ...ROCK_TARGETS.map((r) => ({ type: 'rock', id: r.id, x: r.x, z: r.z, rotY: 0, hx: r.r + 0.1, hz: r.r + 0.1, h: 0.4 + r.r })),
     ...FORAGE_TARGETS.map((s) => ({ type: 'forage', id: s.id, x: s.x, z: s.z, rotY: 0, hx: s.r + 0.15, hz: s.r + 0.15, h: s.spot === 'berries' ? 1.1 : 0.5 })),
     ...villagersHere().map((v) => ({ type: 'villager', id: v.id, x: v.x, z: v.z, rotY: 0, hx: 0.5, hz: 0.5, h: v.height + 0.3 })),
@@ -958,6 +1073,8 @@ function tapBoxes() {
       const c = counterAt(place.id || 'townHall');
       return { type: place.type, id: place.id, x: c.spot.x, z: c.spot.z, rotY: c.spot.rotY, hx: c.footprint.hx, hz: c.footprint.hz, h: 3.4 };
     }),
+    
+    ...homePlaces(world).map((d) => ({ type: d.type, x: d.x, z: d.z, rotY: 0, hx: 0.6, hz: 0.4, h: 2.2 })),
   ];
 }
 const screenAt = (p, local) => {
@@ -992,12 +1109,12 @@ function syncPlaced() {
   const sig = `${planetId}|${here.map((p) => `${p.id}:${p.item}:${p.spot ? `${p.spot.x},${p.spot.z}` : ''}`).join('|')}`;
   if (sig === placedSig) return;
   placedSig = sig;
-  for (const k of placedKeys) collision.remove(k);
+  for (const k of placedKeys) worldCollision().remove(k);
   placedKeys.clear();
   for (const p of here) {
     if (!p.spot || !blocksOf(p.item)) continue;
     const k = `placed:${p.id}`;
-    collision.add(k, placedObstacle(p, radiusOf(p.item)));
+    worldCollision().add(k, placedObstacle(p, radiusOf(p.item)));
     placedKeys.add(k);
   }
   refreshPlantObstacles();
@@ -1086,9 +1203,9 @@ function syncOrchard(t) {
   const d = diffOrchard(view, next);
   view = next;
   if (!d.any) return;
-  for (const v of d.removed) collision.remove(v.id);
-  for (const v of d.added) collision.add(v.id, treeObstacle(v));
-  for (const { to } of d.changed) collision.add(to.id, treeObstacle(to));
+  for (const v of d.removed) worldCollision().remove(v.id);
+  for (const v of d.added) worldCollision().add(v.id, treeObstacle(v));
+  for (const { to } of d.changed) worldCollision().add(to.id, treeObstacle(to));
   orchard.show(view).catch(fail);
 }
 
@@ -1110,8 +1227,8 @@ function onHomes(chosen) {
 }
 function onHomeStage(id, home, stage) {
   if (!collision) return;
-  if (stage === 'none') collision.remove(`home:${id}`);
-  else collision.add(`home:${id}`, homeObstacle(home));
+  if (stage === 'none') worldCollision().remove(`home:${id}`);
+  else worldCollision().add(`home:${id}`, homeObstacle(home));
   refreshPlantObstacles();
 }
 
@@ -1272,6 +1389,10 @@ function press() {
   hold = pressHold(p);
   holdStartedAt = performance.now();
   if (p && p.open === 'talk') { openTalk(p.target); return; }
+  
+  
+  if (p && p.open === 'homeIn') { goInside(); return; }
+  if (p && p.open === 'homeOut') { goOutside(); return; }
   if (p && p.action && !p.why) { doAct(p.action); return; }
   
   if (p && p.open) { if (card === p.open) closeCard(); else openCard(p.open, p); return; }
@@ -1303,7 +1424,7 @@ function putDown() {
 
 
 const ctxFor = (t) => ({
-  world, t, trees: view, seedKind, obstacles: staticObstacles,
+  world, t, trees: inside ? [] : view, seedKind, obstacles: staticObstacles,
   owned: onHome() ? ownedIds(world) : null,
   tool: choiceFor(toolChoice, targetKey(aim)),
   planet: planetId,
@@ -1333,16 +1454,18 @@ function tap(cx, cy) {
   
   
   
-  const hit = tapPick(raycaster.ray.origin, raycaster.ray.direction, { x: f.x, z: f.z }, view, { heightAt: groundNow, radius: layout.ISLAND_RADIUS, k: curveUniforms.uCurve.value, places: tapBoxes() });
+  const hit = tapPick(raycaster.ray.origin, raycaster.ray.direction, { x: f.x, z: f.z }, inside ? [] : view, { heightAt: groundNow, radius: layout.ISLAND_RADIUS, k: curveUniforms.uCurve.value, places: tapBoxes() });
   fml.lastTap = { cx, cy, hit, frame: fml.frames };
   if (!hit || hit.type === 'ground') return;
   
   prefer = hit.type === 'tree' ? hit.id : targetKey(hit);
-  const chosen = chooseTarget(aim, view, player, { canPlant: false, prefer, places: placesNow() }, reachCfg());
+  const chosen = chooseTarget(aim, inside ? [] : view, player, { canPlant: false, prefer, places: placesNow() }, reachCfg());
   if (!chosen || targetKey(chosen) !== targetKey(hit)) { hud.say('Walk a little closer.', seconds); return; }
   aim = chosen;
   const p = promptFor(aim, ctxFor(econNow()));
   if (p && p.action && !p.why) doAct(p.action); 
+  else if (p && p.open === 'homeIn') goInside();
+  else if (p && p.open === 'homeOut') goOutside();
   else if (p && p.open === 'talk') openTalk(aim);
   else if (p && p.open) openCard(p.open, p);
   else if (p) hud.nope(refusalOf(p), seconds);
@@ -1350,14 +1473,51 @@ function tap(cx, cy) {
 
 const pickButton = document.getElementById('pick');
 const promptEl = document.getElementById('prompt');
+const todayEl = document.getElementById('today');
 const hud = createHud({
   prompt: promptEl,
   pockets: document.getElementById('pockets'),
   seeds: document.getElementById('seeds'),
+  today: todayEl,
   button: pickButton,
   iconFor,
   onChooseSeed: (kind) => { seedKind = kind; },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const weatherNow = () => planetAt(planetId, state.system, GENERATED_COUNT).weather;
+const todayLine = (t) => dayLine({
+  now: t, firstPlayed, hour: state.time, weather: weatherNow(),
+});
+
+
+
+fml.l2Hour = (hour) => {
+  state.time = wrapHours(Number(hour) || 0);
+  return state.time;
+};
 
 
 const toolBar = createToolBar({
@@ -1448,20 +1608,86 @@ async function buildPlanet(id) {
 
 
 const hidden = new Map();
+
+
+
+
+
+
+const outdoors = () => onHome() && !inside;
 function applyPlanetVisibility() {
-  if (onHome()) {
+  if (outdoors()) {
     for (const [o, was] of hidden) o.visible = was;
     hidden.clear();
     for (const e of visited.values()) e.root.visible = false;
+    if (interiorDraw) interiorDraw.group.visible = false;
     return;
   }
   const here = (visited.get(planetId) || {}).root;
   for (const o of scene.children) {
+    
+    
+    
+    if (interiorDraw && o === interiorDraw.group) { o.visible = Boolean(inside); continue; }
     if (permanent.has(o)) continue;
     if (o.name && o.name.startsWith('planet-')) { o.visible = o === here; continue; }
     if (!hidden.has(o)) hidden.set(o, o.visible);
     o.visible = false;
   }
+}
+
+
+
+
+
+
+
+
+async function goInside() {
+  if (inside || goingThroughDoor || !outdoors()) return false;
+  const home = playerHome(world);
+  if (!home) return false;
+  goingThroughDoor = true;
+  try {
+    
+    
+    stopPlacing();
+    const ok = await interiorDraw.show(home);
+    if (!ok) { hud.say('The door will not open just now.', seconds); return false; }
+    wentInAt = { x: player.x, z: player.z, heading: player.heading };
+    inside = home;
+    layout = ROOM_LAYOUT;
+    collision = createCollisionWorld({ obstacles: roomWalls(home.room), walkEdgeM: 1000 });
+    const at = insideSpot(home);
+    player = createPlayer(at.x, at.z, at.heading);
+    follow = createFollow(aimPoint(player, 0, cameraFit()));
+    resetTrack(at.x, at.z);
+    aim = null;
+    prompt = null;
+    hold = null;
+    applyPlanetVisibility();
+    return true;
+  } finally {
+    goingThroughDoor = false;
+  }
+}
+
+function goOutside() {
+  if (!inside) return false;
+  const back = wentInAt || { x: inside.front.x, z: inside.front.z, heading: Math.PI };
+  inside = null;
+  wentInAt = null;
+  layout = MOON;
+  collision = homeCollision;
+  player = createPlayer(back.x, back.z, back.heading);
+  follow = createFollow(aimPoint(player, groundNow(back.x, back.z), cameraFit()));
+  resetTrack(back.x, back.z);
+  aim = null;
+  prompt = null;
+  hold = null;
+  interiorDraw.hide();
+  applyPlanetVisibility();
+  return true;
 }
 
 
@@ -1541,6 +1767,10 @@ function flyHome() {
 
 function doJump(nowMs) {
   if (!character || talk || choice.isOpen || placing) return;
+  
+  
+  
+  if (inside) { hud.say('Not indoors - step outside first.', seconds); return; }
   
   
   
@@ -1776,6 +2006,21 @@ fml.g6seek = (id, doing = 'shop') => {
   }
   return null;
 };
+
+
+
+
+
+
+
+fml.g6house = (id) => {
+  const v = world.villagers.find((x) => x.id === id);
+  if (!v) return null;
+  const t = econNow();
+  if (!v.levels.length) v.levels = [{ at: t - 2000, doneAt: t - 1000 }];
+  onHomes(syncHomes(village, world, t));
+  return homeOf(village, v);
+};
 fml.g6boost = (id, points) => {
   const v = world.villagers.find((x) => x.id === id);
   if (!v) return null;
@@ -1884,6 +2129,29 @@ Object.defineProperty(fml, 'g6c', {
     obstacles: placedKeys.size,
   }),
 });
+
+
+
+Object.defineProperty(fml, 'home', {
+  enumerable: true,
+  get: () => {
+    const home = playerHome(world);
+    return {
+      owned: ownsHome(world),
+      placed: home ? home.id : null,
+      item: home ? home.item : null,
+      species: home ? home.species : null,
+      spot: home ? { ...home.spot } : null,
+      door: home ? { ...home.door } : null,
+      front: home ? { ...home.front } : null,
+      room: home ? { hx: home.room.hx, hz: home.room.hz, wallH: home.room.wallH, door: { ...home.room.door } } : null,
+      inside: Boolean(inside),
+      
+      standingInRoom: Boolean(inside) && inRoom(inside.room, player.x, player.z),
+      drawn: interiorDraw ? { ...interiorDraw.stats } : null,
+    };
+  },
+});
 Object.defineProperty(fml, 'focus', { enumerable: true, get: () => ({ x: curveUniforms.uCurveFocus.value.x, z: curveUniforms.uCurveFocus.value.z }) });
 Object.defineProperty(fml, 'world', {
   enumerable: true,
@@ -1904,6 +2172,12 @@ Object.defineProperty(fml, 'orchard', {
   get: () => (orchard ? { ...orchard.stats, pops: pops.active } : null),
 });
 
+
+Object.defineProperty(fml, 'mole', {
+  enumerable: true,
+  get: () => (moleDraw && mole ? { ...moleDraw.stats, heading: mole.heading, trail: moleView(mole).mounds } : null),
+});
+
 Object.defineProperty(fml, 'leaves', {
   enumerable: true,
   get: () => (particles ? { ...particles.stats, sources: orchard ? orchard.sources().length : 0 } : null),
@@ -1922,6 +2196,18 @@ Object.defineProperty(fml, 'birds', {
 
 
 fml.birdsAt = () => (birds && orchard ? birds.at(orchard.sources()) : []);
+
+
+
+
+
+Object.defineProperty(fml, 'smoke', {
+  get: () => (particles ? {
+    ...particles.smokeStats,
+    sources: homesDraw ? homesDraw.smokeSources().length : 0,
+    hearths: homesDraw ? homesDraw.hearths : [],
+  } : null),
+});
 Object.defineProperty(fml, 'shop', {
   enumerable: true,
   get: () => (shelvesDraw ? {
@@ -2103,17 +2389,25 @@ const saveInfo = { on: savingOn, slot: saveSlot, kind: 'off', loaded: false, rea
 
 
 function snapshotArgs() {
+  
+  
+  
+  
+  
+  const at = inside && wentInAt ? wentInAt : player;
   return {
     world,
     homes: village.homes,
-    player: { build: playerBuild, x: player.x, z: player.z, heading: player.heading, at: planetId },
+    player: { build: playerBuild, x: at.x, z: at.z, heading: at.heading, at: planetId },
     seedKind,
     savedAt: econNow(),
+    firstPlayed,
   };
 }
 
 function saveDoc() {
-  savedSpot = { x: player.x, z: player.z };
+  const at = inside && wentInAt ? wentInAt : player;
+  savedSpot = { x: at.x, z: at.z };
   return makeSave(snapshotArgs());
 }
 
@@ -2578,6 +2872,10 @@ async function loadSave() {
   }
   const shutFor = Math.max(0, econNow() - doc.world.clockAt);
   saveInfo.filled = restoreWorld(world, doc.world).filled;
+  
+  
+  
+  if (Number.isInteger(doc.firstPlayed) && doc.firstPlayed > 0) firstPlayed = doc.firstPlayed;
   village.restoreHomes(doc.village.homes);
   if (doc.seedKind) seedKind = doc.seedKind;
   
@@ -2711,7 +3009,7 @@ async function fillIn() {
   
   for (const s of FORAGE_SPOTS) {
     const ob = forageObstacle(s);
-    if (ob) collision.add(`forage:${s.id}`, ob);
+    if (ob) homeCollision.add(`forage:${s.id}`, ob);
   }
   staticObstacles = collision.obstacles.slice();
   
@@ -2738,12 +3036,25 @@ async function fillIn() {
   
   
   birds = await createBirds({ scene, max: settings.birds, seed: state.seed, season: state.season });
+  
+  
+  
+  particles.setSmokeMax(settings.smoke);
   syncOrchard(econNow());
   await orchard.show(view);
   
   const onProblems = (list) => { if (list.length) fml.problems = [...new Set([...fml.problems, ...list])]; };
   forageDraw = createForageDraw({ scene, season: state.season, spots: FORAGE_SPOTS, heightAt, onProblems });
   forageProblems = onProblems;
+  
+  
+  
+  
+  
+  mole = createMole({ seed: state.seed, x: PARCELS[0].centre.x, z: PARCELS[0].centre.z, heading: 2.2 });
+  createMoleDraw({ scene, season: state.season, seed: state.seed, heightAt, onProblems })
+    .then((m) => { moleDraw = m; permanent.add(m.group); })
+    .catch(fail);
   
   
   
@@ -2795,6 +3106,12 @@ async function fillIn() {
     onClose: () => {},
   });
   craftButton.hidden = false;
+  
+  
+  
+  
+  interiorDraw = createInteriorDraw({ scene, season: state.season, onProblems });
+  permanent.add(interiorDraw.group);
   syncPlaced();
   talkCard = createTalkCard({ el: document.getElementById('talk'), voice, onChoose: onTalkChoice, onClose: closeTalk });
   
@@ -2955,6 +3272,8 @@ function applyTier(next, why) {
   if (particles) particles.setMax(settings.leaves); 
   if (insects) insects.setMax(settings.insects);    
   if (birds) birds.setMax(settings.birds);          
+  waterUniforms.uFmlWater.value = waterParam * settings.water; 
+  if (particles) particles.setSmokeMax(settings.smoke); 
   for (const entry of covers) {
     const before = entry.cover.drawnTriangles;
     const after = entry.cover.setDensity(settings.effects / entry.effects);
@@ -3091,7 +3410,7 @@ function frame(now) {
     }
   }
   placeBanner.tick(dt);
-  if (!onHome()) applyPlanetVisibility();
+  if (!outdoors()) applyPlanetVisibility();
 
   
   
@@ -3146,7 +3465,12 @@ function frame(now) {
   
   
   if (frameEvents.length) touchSave('world');
-  if (!savedSpot || Math.hypot(player.x - savedSpot.x, player.z - savedSpot.z) > SAVE_MOVE_M) touchSave('walk');
+  
+  
+  
+  
+  const walkAt = inside && wentInAt ? wentInAt : player;
+  if (!savedSpot || Math.hypot(walkAt.x - savedSpot.x, walkAt.z - savedSpot.z) > SAVE_MOVE_M) touchSave('walk');
   if (saver) saver.tick(now);
   if (awayLine && frames > 2) { hud.say(awayLine.text, seconds, 8); awayLine = null; }
   syncOrchard(t);
@@ -3162,12 +3486,16 @@ function frame(now) {
   
   
   
+  
+  
+  
+  
   aim = !feetOnGround(air) ? null
     : talk ? talkAim
-      : chooseTarget(aim, view, player,
+      : chooseTarget(aim, inside ? [] : view, player,
         
         
-        { canPlant: kinds.length > 0, prefer, places: placesNow() }, reachCfg());
+        { canPlant: !inside && kinds.length > 0, prefer, places: placesNow() }, reachCfg());
   if (prefer !== null && targetKey(aim) !== (typeof prefer === 'string' ? prefer : `tree:${prefer}`)) prefer = null;
   toolChoice = keepChoice(toolChoice, targetKey(aim)); 
   prompt = promptFor(aim, ctxFor(t));
@@ -3215,7 +3543,12 @@ function frame(now) {
   follow = followStep(follow, aimAt, dt);
   
   
-  const pose = cameraPose(follow, airPose.camDist === 1 ? frameNow : { ...frameNow, distanceM: frameNow.distanceM * airPose.camDist });
+  
+  
+  
+  
+  const camDist = airPose.camDist * (inside ? INSIDE_CAM_DIST : 1);
+  const pose = cameraPose(follow, camDist === 1 ? frameNow : { ...frameNow, distanceM: frameNow.distanceM * camDist });
   camera.position.set(pose.position.x, pose.position.y, pose.position.z);
   target.set(pose.target.x, pose.target.y, pose.target.z);
   camera.lookAt(target);
@@ -3223,6 +3556,10 @@ function frame(now) {
   curveUniforms.uCurveFocus.value.copy(target);
   pops.update(animSeconds, armsOf());
   orchard.update(animSeconds);
+  
+  
+  
+  
   
   
   particles.update(dt * state.anim, animSeconds, orchard.sources(), { wind: windUniforms.uFmlWind.value });
@@ -3233,11 +3570,38 @@ function frame(now) {
   
   
   if (birds) birds.update(dt * state.anim, animSeconds, orchard.sources(), { player: { x: player.x, z: player.z, speed: groundSpeed } });
+  
+  
+  
+  
+  
+  if (moleDraw) {
+    moleDraw.group.visible = onHome();
+    if (onHome() && mole) {
+      stepMole(mole, dt * state.anim, { inside: moleLand, player });
+      moleDraw.update(moleView(mole), { look: talkingToMole() ? { x: player.x, z: player.z } : null });
+    }
+  }
   land.update(seconds);
   const cycle = dayCycle(state.time);
   daylight.apply(cycle, target, renderer);
   sky.space = airPose.fade;
   sky.update(cycle, camera, target, seconds, curveUniforms.uCurve.value);
+  
+  
+  
+  
+  
+  
+  
+  
+  if (inside) {
+    sky.mesh.visible = false;
+    scene.background = INSIDE_BACKDROP;
+  } else {
+    if (scene.background === INSIDE_BACKDROP) scene.background = null;
+    if (!skyMasked) sky.mesh.visible = true;
+  }
   const pixelsPerRadian = renderer.domElement.height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
   night.update(cycle, target, pixelsPerRadian);
   post.setBloom(cycle.bloom * settings.effects);
@@ -3266,6 +3630,10 @@ function frame(now) {
   menu.setLive(visitButton.classList.contains('live'));
 
   hud.update(prompt, holdProgress, seconds);
+  
+  
+  
+  hud.today(todayLine(t));
   
   
   
@@ -3343,7 +3711,12 @@ function frame(now) {
     badgeList.push({ id: v.id, x: v.x, y: v.y + v.height, z: v.z, state: { ...badge, visible: shownNow }, drawn: v.visible });
   }
   levelBadges.update(badgeList, { screenOf: fml.screenOf, nowS: seconds });
-  homesDraw.update(world, t, { village, animS: animSeconds, dtS: dt, focus: focusNow, player, screenOf: fml.screenOf, canSpeak: () => !talk });
+  homesDraw.update(world, t, { village, animS: animSeconds, dtS: dt, focus: focusNow, player, screenOf: fml.screenOf, canSpeak: () => !talk, glass: cycle.emissive.glass });
+  
+  
+  
+  
+  particles.updateSmoke(dt * state.anim, animSeconds, homesDraw.smokeSources(), { wind: windUniforms.uFmlWind.value });
   const counterLocal = { x: shopAnchors.counter.x, y: shopAnchors.counter.y + 0.35, z: shopAnchors.counter.z };
   const counterScreen = screenAt(SHOP_P, counterLocal);
   shownCoins = countStep(shownCoins, coinTarget(world.coins, visits, t), dt);
@@ -3385,7 +3758,9 @@ function frame(now) {
     if (Math.hypot(player.x - s.x, player.z - s.z) > talkLeaveM()) closeTalk();
   }
   if (talk) {
-    talkShown = talkingToVillager() ? villagerTalkNode(talk, { world, t }) : talkNode(talk, { world, t, land: landNow() });
+    talkShown = talkingToMole() ? moleTalkNode(talk, { world, t })
+      : talkingToVillager() ? villagerTalkNode(talk, { world, t })
+        : talkNode(talk, { world, t, land: landNow() });
     talkCard.update(talkShown);
   }
   
@@ -3514,6 +3889,17 @@ function frame(now) {
     nowS: seconds,
     afterS: AUTO_HIDE.afterS,
     menu: { open: menu.isOpen, live: menu.live, ...menu.stats },
+  };
+  
+  
+  
+  
+  fml.l2 = {
+    ...todayLine(t),
+    firstPlayed,
+    shown: todayEl.hidden ? null : todayEl.getAttribute('aria-label'),
+    skyHour: state.time,
+    econHour: Math.round(hourAt(world, t) * 100) / 100,
   };
   const tr = fml.track;
   tr.minX = Math.min(tr.minX, player.x); tr.maxX = Math.max(tr.maxX, player.x);

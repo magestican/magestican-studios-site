@@ -28,7 +28,7 @@
 
 
 
-import { BUILDINGS, FINDS, FORAGE, GIFTS, GOODS, LAND, RECIPES, ROCKS, STAPLES, START, STUMP, TREES, WATER } from './tables.mjs';
+import { BUILDINGS, FINDS, FORAGE, GIFTS, GOODS, LAND, RECIPES, ROCKS, STAPLES, START, STUMP, TREES, UNDERGROUND, WATER } from './tables.mjs';
 import { MS, chance, draw, pickWeighted } from './math.mjs';
 import { isRipe, plantedAtFor, ripeAt, stageAt, stageEdges, waterReason, waterTree } from './trees.mjs';
 import { buildingSlots, freeParcelId, nextParcelPrice, ownedTreeCount, ownsParcel, treeSlots, usedBuildingSlots } from './land.mjs';
@@ -354,6 +354,13 @@ function forageApply(world, a, t, type) {
   return { type, at: t, spot: spot.id, good, count };
 }
 
+
+export function undergroundCost(a) {
+  const spec = UNDERGROUND[a.good];
+  if (!spec) return 0;
+  return a.first ? 0 : spec.buy_coins * a.count;
+}
+
 const RULES = {
   harvest: {
     check(world, a, t) {
@@ -660,6 +667,30 @@ const RULES = {
       spend(world, coins, false);
       give(world, a.good, a.count);
       events.push({ type: 'buy', at: t, good: a.good, count: a.count, coins });
+    },
+  },
+
+  
+  
+  
+  
+  
+  
+  
+  buyUnderground: {
+    check(world, a) {
+      const spec = UNDERGROUND[a.good];
+      if (!spec) return 'Nothing like that comes up from down there.';
+      if (!isCount(a.count)) return 'Take at least one.';
+      const coins = undergroundCost(a);
+      if (world.coins < coins) return `That costs ${coins} coins.`;
+      return null;
+    },
+    apply(world, a, t, events) {
+      const coins = undergroundCost(a);
+      if (coins > 0) spend(world, coins, false);
+      give(world, a.good, a.count);
+      events.push({ type: 'buyUnderground', at: t, good: a.good, count: a.count, coins });
     },
   },
 

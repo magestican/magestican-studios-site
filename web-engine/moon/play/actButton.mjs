@@ -41,6 +41,11 @@ export const ACT_WORD = Object.freeze({
   
   
   place: 'Put down',
+  
+  
+  
+  
+  goIn: 'Enter', goOut: 'Leave',
 });
 
 

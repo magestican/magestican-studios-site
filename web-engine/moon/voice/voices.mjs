@@ -122,6 +122,19 @@ export const VOICES = Object.freeze({
     wave: 'triangle', onset: { kind: 'noise', dur: 0.04, gain: 0.22, band: 2400 }, vibrato: { rateHz: 6, depth: 0.02 }, gain: 1,
   }),
   
+  
+  
+  
+  
+  mole: voice({
+    id: 'mole', label: 'mole',
+    f0: 168, f0Seed: 7, declination: 0.88, questionRise: 1.18, exclaimLift: 1.04,
+    lilt: 0.03, glide: -0.04, formant: 0.84,
+    sylDur: [0.085, 0.13], sylGap: [0.018, 0.038], commaPause: 0.16, stopPause: 0.3,
+    stressGain: 1.12, stressDur: 1.2, wobble: 0.045, maxSPerChar: 0.07,
+    wave: 'triangle', onset: { kind: 'noise', dur: 0.035, gain: 0.26, band: 520 }, vibrato: null, gain: 0.95,
+  }),
+  
   chicken: voice({
     id: 'chicken', label: 'chicken',
     f0: 430, f0Seed: 14, declination: 0.94, questionRise: 1.32, exclaimLift: 1.1,
@@ -131,6 +144,7 @@ export const VOICES = Object.freeze({
     wave: 'sawtooth', onset: { kind: 'click', dur: 0.01, gain: 0.35, band: 3200 }, vibrato: null, gain: 0.75,
   }),
 });
+
 
 
 

@@ -14,6 +14,7 @@ import { sweep, lathe, emit, circleProfile } from '../../mesh/bevel.mjs';
 import { SeededRng } from '../../../rng/seededRng.js';
 import { seasonPalette } from '../../palette/seasons.mjs';
 import { hex, vc, paintVertex, mixC } from './shade.mjs';
+import { RIPPLE, surfaceRamp } from './water.mjs';
 
 export function birdBath(mesh, m, { height = 0.78, bowl = 0.3, detail = 0, rng, stoneColor, waterColor, birdColor = null, snowColor = null }) {
   const sides = detail === 0 ? 8 : detail === 1 ? 6 : 5;
@@ -29,10 +30,18 @@ export function birdBath(mesh, m, { height = 0.78, bowl = 0.3, detail = 0, rng, 
   
   const wet = shape.p.map((p) => p[1] > H * 0.92 && Math.hypot(p[0], p[2]) < R * 0.8);
   const water = waterColor || hex('#9fd0dc');
-  emit(mesh, 'stone', shape, { matrix: m, color: (p, n, uv, tag, i) => {
-    const c = paintVertex(stoneColor, p, n, { groundAO: 0.3, groundFade: 0.3 });
-    return wet[i] ? mixC(c, water, snowColor ? 0.2 : 0.85) : c;
-  } });
+  
+  
+  
+  const ramp = surfaceRamp(shape.p.map((p) => Math.hypot(p[0], p[2])), R * 0.8);
+  emit(mesh, 'stone', shape, {
+    matrix: m,
+    color: (p, n, uv, tag, i) => {
+      const c = paintVertex(stoneColor, p, n, { groundAO: 0.3, groundFade: 0.3 });
+      return wet[i] ? mixC(c, water, snowColor ? 0.2 : 0.85) : c;
+    },
+    ripple: snowColor ? 0 : (p, n, uv, tag, i) => (wet[i] ? RIPPLE.basin * ramp[i] : 0),
+  });
   if (snowColor && detail < 2) {
     emit(mesh, 'snow', lathe({ points: [[R * 0.86, H * 0.975], [R * 0.6, H * 1.03], [R * 0.25, H * 1.05], [0, H * 1.055]], sides }), { matrix: m, color: vc(snowColor, { groundAO: 0, underside: 0.2 }) });
   }

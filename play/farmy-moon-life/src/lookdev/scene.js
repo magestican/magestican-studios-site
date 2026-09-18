@@ -53,6 +53,7 @@ const ART = Object.freeze({
   insect: () => import('moon/art/insect.mjs'),
   item: () => import('moon/art/item.mjs'),
   lamp: () => import('moon/art/lamp.mjs'),
+  mole: () => import('moon/art/mole.mjs'),
   moonGround: () => import('moon/art/moonGround.mjs'),
   parcelSign: () => import('moon/art/parcelSign.mjs'),
   peachTree: () => import('moon/art/peachTree.mjs'),

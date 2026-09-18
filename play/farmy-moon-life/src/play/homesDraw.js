@@ -22,12 +22,33 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import * as THREE from 'three';
 import { MeshData } from 'moon/mesh/meshData.mjs';
 import { HOME_STAND_IN_SCALE } from 'moon/world/collision.mjs';
-import { homeOf, homeStage } from 'moon/play/village.mjs';
+import { homeOf, homeStage, villagerPose } from 'moon/play/village.mjs';
+import { atHome, stepWarmth } from 'moon/play/smoke.mjs';
 import { speakerOf } from 'moon/play/villagerTalk.mjs';
 import { toObject3D } from '../render/toMesh.js';
+import { soloEmissive } from '../render/material.js';
 import { villagerHomeObject } from '../render/villagerHomes.js';
 
 export const HOMES_DRAW = Object.freeze({
@@ -68,6 +89,9 @@ async function homeObject(stage, { species, seed = 1, season = 'summer', lod = 1
   obj.name = `home-${species}-${stage}`;
   obj.userData.triangles = real.userData.triangles;
   obj.userData.footprint = real.userData.home.anchors.footprint;
+  
+  
+  obj.userData.smoke = real.userData.home.anchors.smoke || null;
   return obj;
 }
 
@@ -177,6 +201,15 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
     return { x: home.x + lx * c + lz * s, z: home.z - lx * s + lz * c };
   };
 
+  
+  
+  
+  const flueOf = (slot, a) => {
+    if (!a) return null;
+    const p = local(slot.home, a.x, a.z);
+    return { x: p.x, y: slot.group.position.y + a.y, z: p.z };
+  };
+
   function slotOf(village, world, v) {
     let slot = slots.get(v.id);
     if (!slot) {
@@ -188,7 +221,13 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
       group.position.set(home.x, heightAt(home.x, home.z), home.z);
       group.rotation.y = home.rotY || 0;
       scene.add(group);
-      slot = { id: v.id, species: v.species, home, group, drawn: null, obj: null, loading: null, crates: null, hammer: null, pop: null, sparkle: null, nextTok: 0, hammering: false, pops: 0 };
+      slot = {
+        id: v.id, species: v.species, home, group, drawn: null, obj: null, loading: null,
+        crates: null, hammer: null, pop: null, sparkle: null, nextTok: 0, hammering: false, pops: 0,
+        
+        
+        warmth: 0, glass: null, flue: null,
+      };
       slots.set(v.id, slot);
     }
     return slot;
@@ -200,17 +239,25 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
     onStage(slot.id, slot.home, stage);
     if (stage === 'none') {
       if (slot.obj) { slot.group.remove(slot.obj); slot.obj = null; }
+      slot.flue = null;
       return;
     }
     const want = stage;
     
     
     const celebrate = animate && stage !== 'building';
-    slot.loading = homeObject(stage, { species: slot.species, seed: slot.home.seed, season, lod: 1, onProblems }).then((obj) => {
+    slot.loading = homeObject(stage, { species: slot.species, seed: slot.home.seed, season, lod: 1, onProblems }).then(async (obj) => {
       if (slot.drawn !== want) return;
+      
+      
+      
+      if (!slot.glass) slot.glass = await soloEmissive('glass');
+      if (slot.drawn !== want) return;
+      obj.traverse((o) => { if (o.isMesh && o.material && o.material.name === 'glass') o.material = slot.glass; });
       if (slot.obj) slot.group.remove(slot.obj);
       slot.obj = obj;
       slot.group.add(obj);
+      slot.flue = flueOf(slot, obj.userData.smoke);
       if (celebrate) {
         slot.pop = { startS: animS };
         obj.scale.setScalar(0.001);
@@ -226,7 +273,7 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
     return prev;
   }
 
-  function update(world, t, { village, animS = 0, dtS = 0, focus = null, player = null, screenOf = null, canSpeak = null } = {}) {
+  function update(world, t, { village, animS = 0, dtS = 0, focus = null, player = null, screenOf = null, canSpeak = null, glass = 0 } = {}) {
     if (!cratesObj) return;
     for (const v of world.villagers) {
       const slot = slotOf(village, world, v);
@@ -283,13 +330,44 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
       }
       slot.group.visible = !focus || Math.hypot(slot.home.x - focus.x, slot.home.z - focus.z) <= cfg.drawM;
       slot.stage = hs;
+
+      
+      
+      
+      
+      slot.warmth = stepWarmth(slot.warmth, atHome(villagerPose(village, world, v, t)), dtS);
+      if (slot.glass) slot.glass.emissiveIntensity = slot.glass.userData.emissiveBase * glass * slot.warmth;
     }
     synced = true;
+  }
+
+  
+
+
+
+
+  function smokeSources() {
+    const out = [];
+    for (const slot of slots.values()) {
+      if (!slot.flue || !slot.group.visible || !(slot.warmth > 0)) continue;
+      out.push({ key: slot.id, x: slot.flue.x, y: slot.flue.y, z: slot.flue.z, warmth: slot.warmth });
+    }
+    return out;
   }
 
   return {
     ready,
     update,
+    smokeSources,
+    
+    get hearths() {
+      return [...slots.values()].map((s) => ({
+        villager: s.id, species: s.species, stage: s.drawn, visible: s.group.visible,
+        warmth: Math.round(s.warmth * 1000) / 1000,
+        lit: s.glass ? Math.round(s.glass.emissiveIntensity * 1000) / 1000 : null,
+        flue: s.flue ? { x: Math.round(s.flue.x * 100) / 100, y: Math.round(s.flue.y * 100) / 100, z: Math.round(s.flue.z * 100) / 100 } : null,
+      }));
+    },
     get triangles() {
       let n = 0;
       for (const s of slots.values()) {

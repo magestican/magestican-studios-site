@@ -137,7 +137,12 @@ export function computeNormals(shape) {
 const WHITE = [1, 1, 1];
 
 
-export function emit(mesh, material, shape, { matrix = null, color = WHITE } = {}) {
+
+
+
+
+
+export function emit(mesh, material, shape, { matrix = null, color = WHITE, ripple = 0 } = {}) {
   let s = shape;
   if (matrix) {
     s = new Shape().merge(shape);
@@ -147,7 +152,8 @@ export function emit(mesh, material, shape, { matrix = null, color = WHITE } = {
   let base = -1;
   for (let i = 0; i < s.p.length; i++) {
     const c = typeof color === 'function' ? color(s.p[i], normals[i], s.uv[i], s.tag[i], i) : color;
-    const idx = mesh.vertex(material, s.p[i], normals[i], [Math.max(0, c[0]), Math.max(0, c[1]), Math.max(0, c[2])], s.uv[i]);
+    const w = typeof ripple === 'function' ? ripple(s.p[i], normals[i], s.uv[i], s.tag[i], i) : ripple;
+    const idx = mesh.vertex(material, s.p[i], normals[i], [Math.max(0, c[0]), Math.max(0, c[1]), Math.max(0, c[2])], s.uv[i], w || 0);
     if (i === 0) base = idx;
   }
   for (let t = 0; t < s.idx.length; t += 3) mesh.tri(material, base + s.idx[t], base + s.idx[t + 1], base + s.idx[t + 2]);

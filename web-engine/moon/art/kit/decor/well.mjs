@@ -17,6 +17,7 @@ import { lathe, emit, blob } from '../../../mesh/bevel.mjs';
 import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary, mixC, paintVertex } from '../shade.mjs';
+import { RIPPLE, surfaceRamp } from '../water.mjs';
 import { rod } from '../rod.mjs';
 
 
@@ -26,7 +27,7 @@ import { rod } from '../rod.mjs';
 
 export function well(mesh, m, {
   radius = 0.52, wall = 0.62, frame = 1.35, roof = null, detail = 0, rng,
-  stoneColor, woodColor, roofColor, ropeColor, waterColor, snowColor = null, coins = false,
+  stoneColor, woodColor, roofColor, ropeColor, waterColor, snowColor = null, coins = false, frozen = false,
 }) {
   const sides = detail === 0 ? 12 : detail === 1 ? 9 : 6;
   const R = radius, H = wall;
@@ -43,12 +44,18 @@ export function well(mesh, m, {
     radiusFn: detail === 2 ? null : (th, j, r) => r * (1 + 0.016 * Math.sin(th * 5 + wob + j) + 0.008 * Math.sin(th * 11 + j * 2)),
   });
   const deep = drum.p.map((p) => p[1] < H - 0.12 && Math.hypot(p[0], p[2]) < R * 0.8);
+  
+  
+  
+  
+  const ramp = surfaceRamp(drum.p.map((p) => Math.hypot(p[0], p[2])), R * 0.8);
   emit(mesh, 'stone', drum, {
     matrix: m,
     color: (p, n, nn, tag, i) => {
       const c = paintVertex(stoneColor, p, n, { groundAO: 0.34, groundFade: 0.3, mottle: 0.09, seed: 7 });
       return deep[i] ? mixC(c, waterColor, snowColor ? 0.55 : 0.9) : c;
     },
+    ripple: frozen ? 0 : (p, n, nn, tag, i) => (deep[i] ? RIPPLE.basin * ramp[i] : 0),
   });
 
   if (detail === 2) return { top: H };
@@ -149,6 +156,9 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
     radius: st.radius, wall: st.wall, frame: st.frame, roof: st.roof, detail, rng, coins: st.coins,
     stoneColor: hex(st.stone), woodColor: hex(st.wood), roofColor: hex(st.roofC), ropeColor: hex(st.rope),
     waterColor: hex('#3f5a66'), snowColor: season === 'winter' && detail < 2 ? hex(pal.snow[0]) : null,
+    
+    
+    frozen: season === 'winter',
   });
   return mesh;
 }

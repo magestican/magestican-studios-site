@@ -273,6 +273,43 @@ const roofMetrics = (B) => {
   return { alongX, halfSpan, topAt, ridgeTop: BASE + B.wallH + topAt(0) + 0.1 };
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function smokeTop(species, B, lay) {
+  const R = roofMetrics(B);
+  
+  
+  
+  const place = (u, y, v) => (R.alongX ? { x: u, y, z: v } : { x: v, y, z: -u });
+  const wallTop = BASE + B.wallH;
+  if (species === 'human') {
+    const ch = lay.chimney, chD = 0.52, courseH = 0.3;
+    const edge = Math.abs(ch.v) + chD / 2;
+    const lowY = R.topAt(edge) - 0.28, stoneY = R.topAt(edge) - 0.05;
+    const courses = Math.max(3, Math.ceil((B.rise + 0.35 - stoneY) / courseH));
+    return place(ch.u, wallTop + lowY + (stoneY - lowY) + courses * courseH + 0.06, ch.v);
+  }
+  if (species === 'pig') {
+    const p = lay.pipe;
+    
+    return place(p.u, wallTop + R.topAt(Math.abs(p.v) + 0.08) - 0.12 + 0.95, p.v);
+  }
+  return null;
+}
+
 export function anchors({ seed = 1, species = 'human', stage = 'house' } = {}) {
   const level = levelOf(STAGES, stage);
   const { B, lay, props } = plan(seed, species);
@@ -306,13 +343,65 @@ export function anchors({ seed = 1, species = 'human', stage = 'house' } = {}) {
     hx = Math.max(hx, Math.abs(x0), Math.abs(x1));
     hz = Math.max(hz, Math.abs(z0), Math.abs(z1));
   }
+  
+  
+  const smoke = smokeTop(species, B, lay);
   return {
     footprint: { hx: round3(B.W / 2 + 0.21), hz: round3(B.D / 2 + 0.21) },
     door: { x: round3(lay.doorX), z: round3(B.D / 2 + 0.75), w: B.door.w, h: B.door.h },
     room: { hx: round3(hx), hz: round3(hz) },
     height: round3(roofMetrics(B).ridgeTop),
+    ...(smoke ? { smoke: { x: round3(smoke.x), y: round3(smoke.y), z: round3(smoke.z) } } : {}),
     obstacles,
   };
+}
+
+
+
+
+
+export const WALL_THICKNESS_M = 0.16;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function roomPlan({ seed = 1, species = 'human' } = {}) {
+  const B = BODY[speciesOf(species)];
+  const st = styleFor(species, seed);
+  const lay = layoutOf(species, st, B);
+  const W = B.W - 2 * WALL_THICKNESS_M;
+  const D = B.D - 2 * WALL_THICKNESS_M;
+  
+  
+  
+  const rise = B.rise * (D / (B.ridge === 'x' ? B.D : B.W));
+  return Object.freeze({
+    species,
+    seed,
+    hx: round3(W / 2),
+    hz: round3(D / 2),
+    wallH: round3(B.wallH),
+    rise: round3(rise),
+    
+    door: Object.freeze({ x: round3(-lay.doorX), w: B.door.w, h: B.door.h, porthole: Boolean(st.porthole) }),
+    
+    windowSide: st.side,
+    style: Object.freeze({
+      wall: st.wall, roof: st.roof, trim: st.trim, door: st.door, knob: st.knob,
+      mat: st.mat, floor: st.bench || st.mat,
+    }),
+  });
 }
 
 

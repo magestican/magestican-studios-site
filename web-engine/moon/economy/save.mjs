@@ -42,10 +42,18 @@
 
 
 
+
+
+
+
+
+
+
+
 import { WORLD_VERSION } from './world.mjs';
 
 export const SAVE_FORMAT = 'fml.save';
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 
 export const SAVE_SLOT = 'moon';
@@ -93,6 +101,33 @@ export const MIGRATIONS = Object.freeze([
       seedKind: null,
     }),
   }),
+  Object.freeze({
+    from: 1,
+    to: 2,
+    note: 'when you first played, derived from the moon you have been playing',
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    up: (doc) => ({
+      ...doc,
+      version: 2,
+      firstPlayed: isObj(doc.world) && isInt(doc.world.createdAt) ? doc.world.createdAt
+        : (isInt(doc.savedAt) ? doc.savedAt : 0),
+    }),
+  }),
 ]);
 
 
@@ -132,13 +167,22 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
 
 
 
-export function makeSave({ world, homes = {}, player = null, seedKind = null, savedAt = null } = {}) {
+export function makeSave({
+  world, homes = {}, player = null, seedKind = null, savedAt = null, firstPlayed = null,
+} = {}) {
   if (!isObj(world)) throw new Error('makeSave needs the world');
   const at = isInt(savedAt) ? savedAt : (isInt(world.clockAt) ? world.clockAt : 0);
   return {
     format: SAVE_FORMAT,
     version: SAVE_VERSION,
     savedAt: at,
+    
+    
+    
+    
+    
+    firstPlayed: isInt(firstPlayed) && firstPlayed >= 0 ? firstPlayed
+      : (isInt(world.createdAt) ? world.createdAt : at),
     world: copy(world),
     village: { homes: copy(homes) },
     player: isObj(player)
@@ -162,6 +206,7 @@ export function checkSave(doc) {
   if (doc.format !== SAVE_FORMAT) return `not a ${SAVE_FORMAT} document (format ${JSON.stringify(doc.format)})`;
   if (doc.version !== SAVE_VERSION) return `version ${doc.version}, expected ${SAVE_VERSION}`;
   if (!isInt(doc.savedAt)) return 'savedAt is not integer milliseconds';
+  if (!isInt(doc.firstPlayed) || doc.firstPlayed < 0) return 'firstPlayed is not integer milliseconds';
   if (doc.world !== null) {
     const why = checkWorld(doc.world);
     if (why) return `world: ${why}`;
