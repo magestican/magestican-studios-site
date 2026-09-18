@@ -63,6 +63,8 @@ import { createSky } from '../render/sky.js';
 import { createDaylight } from '../render/daylight.js';
 import { createNightLights } from '../render/nightLights.js';
 import { createParticles } from '../render/particles.js';
+import { createInsects } from '../render/insects.js';
+import { createBirds } from '../render/birds.js';
 import { createPost } from '../render/post.js';
 import { buildMoonScene } from '../lookdev/scene.js';
 
@@ -391,6 +393,8 @@ fml.skyMask = (on) => { sky.mesh.visible = !on; scene.background = on ? new THRE
 const daylight = createDaylight(scene, settings, { shadowExtent: SHADOW_EXTENT_M });
 let night = null, post = null, character = null, collision = null, orchard = null, pops = null;
 let particles = null;       
+let insects = null;         
+let birds = null;           
 let staticObstacles = [], baseTriangles = 0;
 
 
@@ -418,6 +422,10 @@ let planetId = 0;
 let layout = MOON;
 const groundNow = (x, z) => layout.heightAt(x, z);
 const onHome = () => planetId === 0;
+
+
+
+const seasonNow = () => (onHome() ? state.season : planetAt(planetId, state.system, GENERATED_COUNT).season);
 const permanent = new Set();          
 const visited = new Map();            
 let homeCollision = null;
@@ -1900,6 +1908,20 @@ Object.defineProperty(fml, 'leaves', {
   enumerable: true,
   get: () => (particles ? { ...particles.stats, sources: orchard ? orchard.sources().length : 0 } : null),
 });
+
+
+Object.defineProperty(fml, 'insects', {
+  enumerable: true,
+  get: () => (insects ? { ...insects.stats, player: { x: player.x, z: player.z } } : null),
+});
+
+Object.defineProperty(fml, 'birds', {
+  enumerable: true,
+  get: () => (birds ? { ...birds.stats, sources: orchard ? orchard.sources().length : 0 } : null),
+});
+
+
+fml.birdsAt = () => (birds && orchard ? birds.at(orchard.sources()) : []);
 Object.defineProperty(fml, 'shop', {
   enumerable: true,
   get: () => (shelvesDraw ? {
@@ -2700,13 +2722,22 @@ async function fillIn() {
     scene,
     season: state.season,
     heightAt: (x, z) => groundNow(x, z),
-    seasonNow: () => (onHome() ? state.season : planetAt(planetId, state.system, GENERATED_COUNT).season),
+    seasonNow,
     onProblems: (list) => { if (list.length) fml.problems = [...new Set([...fml.problems, ...list])]; },
   });
   pops = createPopsDraw({ scene, itemObject, season: state.season });
   
   
   particles = createParticles({ scene, max: settings.leaves, seed: state.seed });
+  
+  
+  
+  
+  insects = createInsects({ scene, max: settings.insects, seed: state.seed, season: state.season });
+  
+  
+  
+  birds = await createBirds({ scene, max: settings.birds, seed: state.seed, season: state.season });
   syncOrchard(econNow());
   await orchard.show(view);
   
@@ -2922,6 +2953,8 @@ function applyTier(next, why) {
   if (night) night.setSize(settings.lights);     
   if (post) post.setTier(settings);              
   if (particles) particles.setMax(settings.leaves); 
+  if (insects) insects.setMax(settings.insects);    
+  if (birds) birds.setMax(settings.birds);          
   for (const entry of covers) {
     const before = entry.cover.drawnTriangles;
     const after = entry.cover.setDensity(settings.effects / entry.effects);
@@ -3193,6 +3226,13 @@ function frame(now) {
   
   
   particles.update(dt * state.anim, animSeconds, orchard.sources(), { wind: windUniforms.uFmlWind.value });
+  
+  
+  insects.update(dt * state.anim, { x: player.x, z: player.z, season: seasonNow(), planet: planetId, heightAt: groundNow });
+  
+  
+  
+  if (birds) birds.update(dt * state.anim, animSeconds, orchard.sources(), { player: { x: player.x, z: player.z, speed: groundSpeed } });
   land.update(seconds);
   const cycle = dayCycle(state.time);
   daylight.apply(cycle, target, renderer);

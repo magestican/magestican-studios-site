@@ -50,6 +50,7 @@ const ART = Object.freeze({
   firepit: () => import('moon/art/firepit.mjs'),
   forageSpot: () => import('moon/art/forageSpot.mjs'),
   groundCover: () => import('moon/art/groundCover.mjs'),
+  insect: () => import('moon/art/insect.mjs'),
   item: () => import('moon/art/item.mjs'),
   lamp: () => import('moon/art/lamp.mjs'),
   moonGround: () => import('moon/art/moonGround.mjs'),
