@@ -8,7 +8,58 @@ import * as THREE from 'three';
 import { makeCozy, loadPainter, paintTexture } from './material.js';
 import * as MOON from 'moon/world/moonLayout.mjs';
 import { PATH_MAX_POINTS } from 'moon/world/moonLayout.mjs';
+import { LAND_MASK } from 'moon/play/landEdge.mjs';
+
+
+const LAND_OFF = typeof location !== 'undefined' && new URLSearchParams(location.search).get('land') === '0';
 import { seasonPalette, linear } from 'moon/palette/seasons.mjs';
+
+
+
+
+
+
+
+
+
+
+export const landUniforms = {
+  uFmlLandMap: { value: null },
+  
+  
+  uFmlLandRect: { value: new THREE.Vector4(-1, -1, 1, LAND_MASK.reachM) },
+  
+  uFmlLandBand: { value: new THREE.Vector4(LAND_MASK.fullM, LAND_MASK.fadeM, LAND_MASK.whisper, LAND_MASK.strength) },
+  uFmlLandShade: { value: new THREE.Vector3(...LAND_MASK.shadeMul) },
+};
+
+let landTexture = null;
+
+
+
+
+
+
+
+
+
+
+export function setLandMask(mask) {
+  if (!landTexture || landTexture.image.width !== mask.size) {
+    if (landTexture) landTexture.dispose();
+    landTexture = new THREE.DataTexture(new Uint8Array(mask.data), mask.size, mask.size, THREE.RGBAFormat);
+    landTexture.name = 'land-mask';
+    landTexture.wrapS = landTexture.wrapT = THREE.ClampToEdgeWrapping;
+    landTexture.minFilter = landTexture.magFilter = THREE.LinearFilter;
+    landTexture.generateMipmaps = false;
+  } else {
+    landTexture.image.data.set(mask.data);
+  }
+  landTexture.needsUpdate = true;
+  landUniforms.uFmlLandMap.value = landTexture;
+  landUniforms.uFmlLandRect.value.set(mask.originM, mask.originM, 1 / mask.spanM, mask.reachM);
+  return landTexture;
+}
 
 const GROUND_PARS =  `
 uniform float uFmlTopScale;
@@ -20,6 +71,11 @@ uniform float uFmlPathHalf;
 uniform vec3 uFmlPathColor;
 uniform float uFmlGrassLum;
 uniform vec4 uFmlParcel;
+uniform sampler2D uFmlLandMap;
+uniform vec4 uFmlLandRect;
+uniform vec4 uFmlLandBand;
+uniform vec3 uFmlLandShade;
+uniform float uFmlLandOn;
 float fmlSegDist( vec2 p, vec2 a, vec2 b ) {
   vec2 pa = p - a, ba = b - a;
   float h = clamp( dot( pa, ba ) / dot( ba, ba ), 0.0, 1.0 );
@@ -65,6 +121,39 @@ if ( uFmlPathCount > 1 ) {
   float fmlStripe = smoothstep( -0.3, 0.3, sin( fmlPc.x * 3.14159 / 1.25 ) );
   diffuseColor.rgb *= 1.0 + fmlIn * ( 1.0 - fmlW ) * ( 0.02 + 0.05 * fmlStripe );
 }
+`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const GROUND_LAND =  `
+if ( uFmlLandOn > 0.5 ) {
+  vec3 fmlLand = texture2D( uFmlLandMap, ( vFmlWorld.xz - uFmlLandRect.xy ) * uFmlLandRect.z ).rgb;
+  float fmlLandFar = smoothstep( 9.0, 26.0, length( vViewPosition ) );
+  float fmlLandD = fmlLand.r * uFmlLandRect.w
+    + ( fmlM - 0.5 ) * 0.5 + ( fmlHue - 0.5 ) * 0.34
+    + ( fmlNoise( vec3( vFmlWorld.xz * 2.4, 11.7 ) ) - 0.5 ) * 0.2 * ( 1.0 - fmlLandFar );
+  float fmlVerge = 1.0 - smoothstep( uFmlLandBand.x - 0.35 * fmlLandFar, uFmlLandBand.y + 0.3 * fmlLandFar, fmlLandD );
+  float fmlWhose = smoothstep( ${LAND_MASK.whoseLo.toFixed(3)}, ${LAND_MASK.whoseHi.toFixed(3)}, fmlLand.g );
+  float fmlNear = uFmlLandBand.z + ( 1.0 - uFmlLandBand.z ) * ( 1.0 - smoothstep( ${LAND_MASK.nearLo.toFixed(3)}, ${LAND_MASK.nearHi.toFixed(3)}, fmlLand.b ) );
+  diffuseColor.rgb *= mix( vec3( 1.0 ), uFmlLandShade, fmlVerge * fmlWhose * fmlNear * uFmlLandBand.w );
+}
 #include <alphamap_fragment>
 `;
 
@@ -92,6 +181,20 @@ export async function groundMaterial({ season = 'summer', paths = true, layout =
     uFmlPathColor: { value: new THREE.Color().setRGB(...linear(pal.path), THREE.LinearSRGBColorSpace) },
     uFmlGrassLum: { value: 0.2126 * g1[0] + 0.7152 * g1[1] + 0.0722 * g1[2] },
     uFmlParcel: { value: paths ? new THREE.Vector4(PARCEL.minX, PARCEL.minZ, PARCEL.maxX, PARCEL.maxZ) : new THREE.Vector4(1e4, 1e4, 1e4, 1e4) },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    uFmlLandOn: { value: paths && layout === MOON && !LAND_OFF ? 1 : 0 },
+    ...landUniforms,
   };
   const material = new THREE.MeshStandardMaterial({ vertexColors: true, map: topMap, roughness: top.SURFACE.roughness ?? 0.95 });
   material.name = `ground-${season}`;
@@ -106,7 +209,7 @@ export async function groundMaterial({ season = 'summer', paths = true, layout =
       return fs
         .replace('#include <common>', `#include <common>\n${GROUND_PARS}`)
         .replace('#include <map_fragment>', GROUND_MAP)
-        .replace('#include <alphamap_fragment>', GROUND_PATH);
+        .replace('#include <alphamap_fragment>', GROUND_PATH + GROUND_LAND);
     },
   });
 }

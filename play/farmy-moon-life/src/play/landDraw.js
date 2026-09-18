@@ -31,14 +31,21 @@
 
 
 
+
+
+
+
+
+
+
 import * as THREE from 'three';
 import { MeshData, compose, translate, rotateY } from 'moon/mesh/meshData.mjs';
 import { generate as generateSign, anchors as signAnchors, boundaryRun } from 'moon/art/parcelSign.mjs';
 import { PARCELS, parcelAt } from 'moon/world/parcels.mjs';
-import { LAND_EDGE, edgeBand, notMine, rimsAt } from 'moon/play/landEdge.mjs';
-import { seasonPalette, linear } from 'moon/palette/seasons.mjs';
+import { landMask, notMine } from 'moon/play/landEdge.mjs';
 import { FOCUS, PATH_HALF_WIDTH, heightAt, pathDistance } from 'moon/world/moonLayout.mjs';
 import { penetration } from 'moon/world/collision.mjs';
+import { setLandMask } from '../render/ground.js';
 import { toObject3D } from '../render/toMesh.js';
 
 export const LAND_DRAW = Object.freeze({
@@ -123,7 +130,9 @@ export function createLandDraw({ scene, season = 'summer', obstacles = [], onPro
   let signsObj = null, outlineObj = null, shown = [], owned = [], triangles = 0, outlineTriangles = 0, rebuilds = 0;
   let wanted = '', drawn = '', queued = null, running = null, highlighted = null, highlightToken = 0;
   
-  let edgeObj = null, edgeIds = [], edgeTriangles = 0;
+  
+  
+  let edgeIds = [], edgeTexels = 0;
 
   const lodFor = (p) => (Math.hypot(p.x - FOCUS.x, p.z - FOCUS.z) > LAND_DRAW.farLodM ? 1 : 0);
 
@@ -167,56 +176,20 @@ export function createLandDraw({ scene, season = 'summer', obstacles = [], onPro
 
 
 
-  
-  
-  
-  const groundColour = linear(seasonPalette(season).grass[1]);
-  const shade = (mul) => [groundColour[0] * mul[0], groundColour[1] * mul[1], groundColour[2] * mul[2]];
 
-  function appendEdge(data, id) {
-    const ring = edgeBand(PARCELS[id].outline);
-    if (ring.length < 3) return;
-    const N = [0, 1, 0];
-    const pts = [];
-    const idx = [];
-    for (const s of ring) {
-      const { outer, inner } = rimsAt(s);
-      for (const [p, colour] of [[outer, shade(LAND_EDGE.tintMul)], [inner, shade(LAND_EDGE.fadeMul)]]) {
-        
-        
-        
-        idx.push(data.vertex('grass', [p.x, heightAt(p.x, p.z) + LAND_EDGE.liftM, p.z], N, colour, [p.x * LAND_EDGE.uvPerM, p.z * LAND_EDGE.uvPerM]));
-        pts.push(p);
-      }
-    }
-    const up = (a, b, c) => {
-      const area = (pts[b].x - pts[a].x) * (pts[c].z - pts[a].z) - (pts[c].x - pts[a].x) * (pts[b].z - pts[a].z);
-      if (area === 0) return;                                   
-      if (area > 0) data.tri('grass', idx[a], idx[c], idx[b]);   
-      else data.tri('grass', idx[a], idx[b], idx[c]);
-    };
-    for (let i = 0; i < ring.length; i++) {
-      const j = (i + 1) % ring.length;
-      const o0 = i * 2, i0 = i * 2 + 1, o1 = j * 2, i1 = j * 2 + 1;
-      up(o0, o1, i1);
-      up(o0, i1, i0);
-    }
-  }
 
-  
+
+
+
+
+
+
   async function buildEdges(ownedIds) {
     const ids = notMine(ownedIds);
-    const data = new MeshData('land-not-yours');
-    for (const id of ids) appendEdge(data, id);
-    onProblems(data.validate());
-    
-    const obj = data.triangleCount ? await toObject3D(data, { castShadow: false }) : new THREE.Group();
-    obj.traverse((o) => { if (o.isMesh) { o.frustumCulled = false; o.castShadow = false; } });
-    if (edgeObj) { root.remove(edgeObj); disposeTree(edgeObj); }
-    edgeObj = obj;
+    const mask = landMask(ownedIds);
+    setLandMask(mask);
     edgeIds = ids;
-    edgeTriangles = data.triangleCount;
-    root.add(obj);
+    edgeTexels = mask.size * mask.size;
   }
 
   async function popSign(id) {
@@ -325,7 +298,6 @@ export function createLandDraw({ scene, season = 'summer', obstacles = [], onPro
     for (const f of pops) if (f.obj) disposeTree(f.obj);
     if (signsObj) disposeTree(signsObj);
     if (outlineObj) disposeTree(outlineObj);
-    if (edgeObj) disposeTree(edgeObj);
     scene.remove(root);
   }
 
@@ -338,8 +310,8 @@ export function createLandDraw({ scene, season = 'summer', obstacles = [], onPro
       return {
         signs: shown.length, triangles, highlightTriangles: outlineTriangles, rebuilds,
         
-        edges: edgeIds.length, edgeIds: edgeIds.slice(), edgeTriangles,
-        drawCalls: meshCount(signsObj) + meshCount(outlineObj) + meshCount(edgeObj) + pops.reduce((n, f) => n + meshCount(f.obj), 0),
+        edges: edgeIds.length, edgeIds: edgeIds.slice(), edgeTexels,
+        drawCalls: meshCount(signsObj) + meshCount(outlineObj) + pops.reduce((n, f) => n + meshCount(f.obj), 0),
         popping: pops.length, ready: wanted === drawn && !running,
       };
     },
