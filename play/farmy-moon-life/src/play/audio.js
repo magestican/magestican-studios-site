@@ -35,6 +35,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 export const BUS_NAMES = Object.freeze(['music', 'sfx', 'ambience', 'voice']);
 export const AUDIO_KEY = 'fml.audio';
 export const DEFAULT_SETTINGS = Object.freeze({ master: 0.9, music: 0.7, sfx: 1, ambience: 0.6, voice: 1 });
@@ -97,6 +107,7 @@ export function createAudio({
   target = typeof window === 'undefined' ? null : window,
   doc = typeof document === 'undefined' ? null : document,
   storage = defaultStorage(),
+  limiter = null,
 } = {}) {
   const stored = readSettings(storage);
   const levels = {};
@@ -105,7 +116,7 @@ export function createAudio({
   
   const state = { unlocked: false, muted: Boolean(muted) || stored.muted, speaking: false, suspends: 0, resumes: 0 };
 
-  let ctx = null, master = null;
+  let ctx = null, master = null, limit = null;
   const buses = {};
 
   const gainOf = (name) => (name === 'master'
@@ -131,7 +142,19 @@ export function createAudio({
       ctx = new AC();
       master = ctx.createGain();
       master.gain.value = gainOf('master');
-      master.connect(ctx.destination);
+      
+      
+      
+      limit = limiter ? ctx.createDynamicsCompressor() : null;
+      if (limit) {
+        for (const k of ['threshold', 'knee', 'ratio', 'attack', 'release']) {
+          if (limiter[k] !== undefined) limit[k].value = limiter[k];
+        }
+        master.connect(limit);
+        limit.connect(ctx.destination);
+      } else {
+        master.connect(ctx.destination);
+      }
       for (const name of BUS_NAMES) {
         const bus = ctx.createGain();
         bus.gain.value = gainOf(name);
@@ -143,6 +166,7 @@ export function createAudio({
     } catch {
       ctx = null;
       master = null;
+      limit = null;
       for (const name of BUS_NAMES) delete buses[name];
     }
   }
@@ -193,6 +217,7 @@ export function createAudio({
     unlock,
     get ctx() { return ctx; },
     get master() { return master; },
+    get limiter() { return limit; },
     get music() { return buses.music || null; },
     get sfx() { return buses.sfx || null; },
     get ambience() { return buses.ambience || null; },
@@ -204,8 +229,12 @@ export function createAudio({
     get levels() { return { ...levels }; },
     get contextState() { return ctx ? ctx.state : 'none'; },
     get state() {
+      
+      
+      
       return { unlocked: state.unlocked, muted: state.muted, speaking: state.speaking, ctx: ctx ? ctx.state : 'none',
-        levels: { ...levels }, suspends: state.suspends, resumes: state.resumes };
+        levels: { ...levels }, suspends: state.suspends, resumes: state.resumes,
+        limited: Boolean(limit), reduction: limit && typeof limit.reduction === 'number' ? limit.reduction : 0 };
     },
 
     setMuted(m) {

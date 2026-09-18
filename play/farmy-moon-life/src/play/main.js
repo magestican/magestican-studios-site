@@ -121,8 +121,15 @@ import { createCards } from './cards.js';
 import { createWorldUi } from './worldUi.js';
 import { createCoinSound } from './coinSound.js';
 import { createSfx } from './sfx.js';
+import { createMusic } from './music.js';
 import { CUES } from 'moon/audio/cues.mjs';
 import { PATCHES } from 'moon/audio/patches.mjs';
+
+
+
+
+import * as SCORE from 'moon/audio/score.mjs';
+import * as MIX from 'moon/audio/mix.mjs';
 
 
 import { cueForEvents } from 'moon/audio/verbs.mjs';
@@ -747,10 +754,14 @@ let shelvesDraw = null, customersDraw = null, cards = null, ui = null;
 
 
 
-const audio = createAudio({ muted: state.muted });
+const audio = createAudio({ muted: state.muted, limiter: MIX.LIMITER });
 const sfx = createSfx({ audio, cues: CUES, patches: PATCHES });
 const sound = createCoinSound({ audio, sfx });
 const voice = createVoice({ audio });
+
+
+
+const music = createMusic({ audio, score: SCORE, mix: MIX });
 
 
 state.muted = audio.muted;
@@ -2420,7 +2431,7 @@ Object.defineProperty(fml, 'audio', {
   
   
   
-  get: () => ({ ...audio.state, sfx: sfx.state, card: { ...soundCard.stats }, feet: feet.state }),
+  get: () => ({ ...audio.state, sfx: sfx.state, card: { ...soundCard.stats }, feet: feet.state, music: music.state }),
 });
 Object.defineProperty(fml, 'buildings', {
   enumerable: true,
@@ -4045,9 +4056,17 @@ function frame(now) {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
   const anyOpen = Boolean(card || talk || choice.isOpen || placing || menu.isOpen || soundCard.isOpen
     || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen
-    || installCard.isOpen || accountCard.isOpen || deedsCard.isOpen);
+    || deedsCard.isOpen || installCard.isOpen || accountCard.isOpen);
   const nextAway = autoHideStep(hudAway, { nowS: seconds, speed: player.speed, wokeAtS: hudWokeAtS, anyOpen });
   
   
@@ -4358,6 +4377,14 @@ function frame(now) {
   
   
   audio.duck(voice.state.speaking);
+  
+  
+  
+  
+  
+  
+  
+  music.tick({ frames: fml.frames, season: seasonNow(), night: isDark(world, t) });
   fml.frames++;
   fml.drawCalls = renderer.info.render.calls;
   fml.triangles = baseTriangles + orchard.triangles + shelvesDraw.triangles + buildingTris.shop + buildingTris.press 
