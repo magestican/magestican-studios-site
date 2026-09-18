@@ -371,21 +371,88 @@
 
 
   #tools[hidden], #pockets[hidden], #seeds[hidden], #prompt[hidden] { display: none; }
-  #tools .tool { min-width: 50px; height: 46px; padding: 0 9px; border-radius: 16px; border: 3px solid rgba(255, 248, 236, 0.9);
-    color: var(--ink); font: 700 13px/1 system-ui, sans-serif; box-shadow: 0 2px 8px var(--shade); touch-action: none; opacity: 0.86; }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #tools { display: block; }
+  #tools .glyph, #pockets .badge { position: relative; width: 44px; height: 44px; padding: 0; border-radius: 50%;
+    border: 3px solid rgba(255, 248, 236, 0.9); background: var(--cream); color: var(--ink);
+    font: 700 10px/1 system-ui, sans-serif; box-shadow: 0 2px 8px var(--shade); touch-action: none;
+    display: grid; place-items: center; box-sizing: border-box; }
+  #tools .glyph.on, #pockets .badge.on { border-color: var(--peach); background: #ffe4bf; }
+  #tools .glyph canvas.icon { width: 32px; height: 32px; display: block; pointer-events: none; }
+  #tools .glyph canvas.icon[hidden], #tools .glyph .name[hidden] { display: none; }
+  #pockets .badge .pile { display: block; width: 26px; height: 26px; pointer-events: none; }
+  #pockets .badge .pile canvas { width: 100%; height: 100%; display: block; }
+  #pockets .badge .n { position: absolute; right: -5px; bottom: -4px; min-width: 19px; height: 19px; padding: 0 4px;
+    box-sizing: border-box; border-radius: 10px; background: var(--peach); color: #fff8ec;
+    font: 800 11px/19px system-ui, sans-serif; text-align: center; pointer-events: none; }
+  #tools .tray, #pockets .tray { position: absolute; right: 0; width: 168px; box-sizing: border-box;
+    max-height: 158px; overflow-y: auto; padding: 5px; border-radius: 16px;
+    background: var(--cream); border: 3px solid var(--peach); box-shadow: 0 6px 20px var(--shade);
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; touch-action: none; z-index: 8; }
+  #tools .tray { top: 102px; }  
+  #pockets .tray { top: 50px; } 
+  #tools .tray[hidden], #pockets .tray[hidden] { display: none; }
+  #tools .tool { width: 100%; height: 44px; padding: 0; border-radius: 14px; border: 3px solid rgba(255, 248, 236, 0.9);
+    color: var(--ink); font: 700 11px/1 system-ui, sans-serif; box-shadow: 0 1px 4px var(--shade);
+    touch-action: none; opacity: 0.92; box-sizing: border-box; display: grid; place-items: center; }
   #tools .tool[data-tool=shovel] { background: #d6ecd9; }
   #tools .tool[data-tool=axe] { background: #f7dccf; }
   #tools .tool[data-tool=pickaxe] { background: #e0def3; }
   #tools .tool[data-tool=wateringCan] { background: #d3e9f3; }
-  #tools .tool.on { border-color: var(--peach); opacity: 1; transform: translateY(2px); }
+  #tools .tool.on { border-color: var(--peach); opacity: 1; }
   #tools .tool.chosen { box-shadow: 0 0 0 3px #fff8ec, 0 2px 10px var(--shade); }
-  #tools .tool canvas.icon { width: 40px; height: 40px; display: block; pointer-events: none; }
-  
-  #pockets { position: fixed; right: calc(10px + env(safe-area-inset-right)); top: calc(64px + env(safe-area-inset-top));
-    display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; max-width: 70vw; pointer-events: none; }
-  #pockets .chip { display: flex; align-items: center; gap: 4px; background: rgba(255, 248, 236, 0.9); border-radius: 18px;
-    padding: 3px 10px 3px 4px; box-shadow: 0 2px 8px var(--shade); font: 700 15px/1 system-ui, sans-serif; }
-  #pockets .icon { width: 28px; height: 28px; }
+  #tools .tool canvas.icon { width: 32px; height: 32px; display: block; pointer-events: none; }
+  #pockets .chip { position: relative; height: 44px; border-radius: 14px; background: #fffaf0;
+    border: 2px solid #f2dcbd; box-sizing: border-box; display: grid; place-items: center; }
+  #pockets .chip canvas.icon { width: 28px; height: 28px; display: block; }
+  #pockets .chip b { position: absolute; right: 3px; bottom: 1px; color: var(--ink);
+    font: 800 11px/1 system-ui, sans-serif; }
+  #pockets { position: fixed; right: calc(10px + env(safe-area-inset-right)); top: calc(62px + env(safe-area-inset-top));
+    display: block; }
   
 
 
@@ -516,6 +583,33 @@
 
   #deeds .part .det { color: #7a6558; font-style: normal; font-weight: 500; font-size: 12px; }
   #deeds .part .much { font: 800 18px/1.1 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  
+
+
+
+
+
+
+
+  body.shot #cloudopen, body.shot #cloud { display: none; }
+  body.flying #cloudopen, body.flying #cloud { display: none; }
+  #cloud { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(340px, calc(100vw - 20px)); box-sizing: border-box; z-index: 9;
+    background: rgba(255, 248, 236, 0.97); border-radius: 18px; padding: 8px 10px 10px; box-shadow: 0 6px 22px var(--shade);
+    font: 600 13px/1.35 system-ui, sans-serif; touch-action: none; max-height: calc(100vh - 40px); overflow-y: auto; }
+  #cloud button { font-family: system-ui, sans-serif; color: var(--ink); touch-action: none; }
+  #cloud .head { display: flex; align-items: center; justify-content: space-between; }
+  #cloud .title b { font: 800 16px/1.1 system-ui, sans-serif; }
+  #cloud .close { width: 44px; height: 44px; margin: -4px -6px -4px 0; border: 0; background: transparent; font: 700 26px/1 system-ui, sans-serif; }
+  #cloud .says { margin: 6px 0 0; }
+  #cloud .say { margin: 0 0 6px; color: #5b4a3f; }
+  #cloud .acts { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  
+  #cloud .acts button { min-height: 44px; padding: 0 14px; border-radius: 22px; border: 3px solid #f2dcbd;
+    background: #fffaf2; font: 800 15px/1 system-ui, sans-serif; }
+  #cloud .acts .out { border-color: #e6d3b8; background: #f7efe3; font-weight: 700; }
+  #cloud .email { min-height: 44px; padding: 0 12px; border-radius: 12px; border: 3px solid #f2dcbd;
+    background: #fffaf2; font: 600 15px/1 system-ui, sans-serif; color: var(--ink); }
   #hud { position: fixed; left: calc(8px + env(safe-area-inset-left)); top: calc(112px + env(safe-area-inset-top));
     background: rgba(255, 248, 236, 0.85); border-radius: 8px; padding: 4px 8px; white-space: pre; pointer-events: none; }
   
@@ -876,7 +970,7 @@
 
 
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=4c01c71-20260918T091942Z"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=6d3501d-20260918T122225Z"></script>
 <script type="importmap">
 {
   "imports": {
@@ -936,8 +1030,15 @@
 
 
   <button id="deedsopen" type="button" aria-label="What you have done" hidden>Deeds</button>
+  
+
+
+
+
+  <button id="cloudopen" type="button" aria-label="Sign in to keep your moon in the cloud" hidden>Sign in</button>
 </div>
 <div id="deeds" hidden></div>
+<div id="cloud" hidden></div>
 <div id="sound" hidden></div>
 <div id="choose" hidden></div>
 <div id="card" hidden></div>
@@ -966,6 +1067,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=4c01c71-20260918T091942Z"></script>
+<script type="module" src="src/play/main.js?v=6d3501d-20260918T122225Z"></script>
 </body>
 </html>

@@ -18,7 +18,8 @@
 
 
 import { TREES } from 'moon/economy/tables.mjs';
-import { REFUSAL_S, verbStep } from 'moon/play/actButton.mjs';
+import { REFUSAL_S, verbStep, actLabel, actRefused } from 'moon/play/actButton.mjs';
+import { badgeCount, pocketRows, topGood } from 'moon/play/corners.mjs';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -33,6 +34,7 @@ export function createHud({
   
   
   onVerbChange = () => {},
+  onTogglePockets = () => {},
 }) {
   const icons = new Map();
   const icon = (good, size) => {
@@ -56,22 +58,83 @@ export function createHud({
   
   let said = null;
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const badge = document.createElement('button');
+  badge.type = 'button';
+  badge.id = 'pocketbadge';
+  badge.className = 'badge';
+  badge.setAttribute('aria-haspopup', 'true');
+  badge.setAttribute('aria-expanded', 'false');
+  const badgeIcon = document.createElement('span');
+  badgeIcon.className = 'pile';
+  const badgeCountEl = document.createElement('b');
+  badgeCountEl.className = 'n';
+  badge.append(badgeIcon, badgeCountEl);
+  badge.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); onTogglePockets(); });
+  const pocketTray = document.createElement('div');
+  pocketTray.id = 'pockettray';
+  pocketTray.className = 'tray';
+  pocketTray.hidden = true;
+  
+  
+  pocketTray.addEventListener('pointerdown', (e) => e.stopPropagation());
+  pocketTray.addEventListener('pointerup', (e) => e.stopPropagation());
+  pocketsEl.replaceChildren(badge, pocketTray);
+  pocketsEl.hidden = true;
+  let badgeGood = null, pocketsOpen = false;
+
   function pockets(counts) {
-    const entries = Object.entries(counts).filter(([, n]) => n > 0);
-    const sig = JSON.stringify(entries);
+    const rows = pocketRows(counts);
+    const sig = JSON.stringify(rows);
     if (sig === sigPockets) return;
     sigPockets = sig;
-    pocketsEl.hidden = entries.length === 0;
-    pocketsEl.replaceChildren(...entries.map(([good, n]) => {
+    
+    
+    pocketsEl.hidden = rows.length === 0;
+    const total = badgeCount(counts);
+    badgeCountEl.textContent = String(total);
+    const good = topGood(counts);
+    if (good && good !== badgeGood) {
+      badgeGood = good;
+      badgeIcon.replaceChildren(iconEl(good, 48));
+    }
+    badge.setAttribute('aria-label', `Pockets, ${total} item${total === 1 ? '' : 's'}`);
+    pocketTray.replaceChildren(...rows.map(({ good: g, n }) => {
       const chip = document.createElement('div');
       chip.className = 'chip';
-      chip.dataset.good = good;
-      chip.title = good;
+      chip.dataset.good = g;
+      chip.title = g;
+      chip.setAttribute('aria-label', `${n} ${g}`);
       const count = document.createElement('b');
       count.textContent = String(n);
-      chip.append(iconEl(good, 56), count);
+      chip.append(iconEl(g, 56), count);
       return chip;
     }));
+  }
+
+  
+  function setPocketsOpen(open) {
+    const next = Boolean(open);
+    if (next === pocketsOpen) return;
+    pocketsOpen = next;
+    pocketTray.hidden = !next;
+    badge.classList.toggle('on', next);
+    badge.setAttribute('aria-expanded', String(next));
   }
 
   function seeds(kinds, chosen) {
@@ -348,7 +411,8 @@ export function createHud({
   
   
   
-  return { pockets, seeds, today, say, nope, update,
+  return { pockets, seeds, today, say, nope, update, setPocketsOpen,
+    get pocketsOpen() { return pocketsOpen; },
     get said() { return said; },
     
 

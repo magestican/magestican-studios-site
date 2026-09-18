@@ -123,6 +123,10 @@ import { createCoinSound } from './coinSound.js';
 import { createSfx } from './sfx.js';
 import { CUES } from 'moon/audio/cues.mjs';
 import { PATCHES } from 'moon/audio/patches.mjs';
+
+
+import { cueForEvents } from 'moon/audio/verbs.mjs';
+import { createFootsteps } from 'moon/audio/footsteps.mjs';
 import { recipeMenu, assignStations, stationViews, processorOf } from 'moon/play/processing.mjs';
 import { collectSales, customerRoute, pruneVisits } from 'moon/play/customers.mjs';
 import { MONEY, coinTarget, countStep, flightsAt, iconsFor, landedBetween, paidBetween } from 'moon/play/money.mjs';
@@ -170,6 +174,9 @@ import { createHomesDraw } from './homesDraw.js';
 import { forageSpots } from 'moon/world/forage.mjs';
 import { forageObstacle } from 'moon/world/collision.mjs';
 import { AUTO, chooseTool, choiceFor, forageTargets, keepChoice, rockTargets } from 'moon/play/tools.mjs';
+
+
+import { CLOSED, closeCorners, cornerIsOpen, toggleCorner } from 'moon/play/corners.mjs';
 import { forageIsReady } from 'moon/economy/world.mjs';
 import { createToolBar } from './toolBar.js';
 import { createForageDraw } from './forageDraw.js';
@@ -246,6 +253,12 @@ import { createBoardCard } from './boardCard.js';
 
 import { createDeedsCard } from './deedsCard.js';
 import { deedLines, deedsOf, tally as tallyDeeds, visitPlanet } from 'moon/play/deeds.mjs';
+
+
+
+
+import { createAccountCard } from './accountCard.js';
+import { createCloud } from './cloud.js';
 
 let presses = 0;               
 
@@ -505,7 +518,22 @@ let player = createPlayer(SPAWN.x, SPAWN.z, SPAWN.heading);
 let follow = createFollow(aimPoint(player, groundNow(player.x, player.z)));
 const target = new THREE.Vector3();
 
-const resetTrack = (x, z) => { fml.track = { minX: x, maxX: x, minZ: z, maxZ: z, maxR: Math.hypot(x, z) }; };
+
+
+
+
+
+
+
+
+
+
+
+const feet = createFootsteps();
+const resetTrack = (x, z) => {
+  fml.track = { minX: x, maxX: x, minZ: z, maxZ: z, maxR: Math.hypot(x, z) };
+  feet.reset();
+};
 resetTrack(player.x, player.z);
 
 fml.teleport = (x, z, heading = 0) => {
@@ -660,6 +688,11 @@ let craftPick = null;
 let placing = null;                   
 let placeWhy = null, placeAt = null;  
 let toolBarState = BAR_HIDDEN;        
+
+
+
+
+let corners = CLOSED;
 const placedKeys = new Set();         
 
 let view = [];              
@@ -1204,6 +1237,9 @@ function showCraft() {
 
 
 function openCard(kind, prompt = null) {
+  
+  
+  if (corners.open) { corners = closeCorners(corners); syncCorners(); }
   card = kind;
   if (kind === 'store') storeShown = (prompt && prompt.storeId) || storeShown;
 }
@@ -1294,6 +1330,14 @@ function doAct(action, { quiet = false } = {}) {
     syncPlaced();
     return { events };
   }
+  
+  
+  
+  
+  
+  
+  const actCue = cueForEvents(events);
+  if (actCue) sfx.play(actCue);
   let gesture = false;
   events.forEach((e, n) => {
     const popSeed = (fml.actions * 131 + n * 17) | 0;
@@ -1473,6 +1517,14 @@ function tap(cx, cy) {
   
   
   if (!fml.ready) return;
+  
+  
+  
+  
+  
+  
+  
+  if (corners.open) { corners = closeCorners(corners); syncCorners(); return; }
   if (!character || choice.isOpen) return;
   if (!feetOnGround(air)) return;
   
@@ -1507,15 +1559,31 @@ function tap(cx, cy) {
 const pickButton = document.getElementById('pick');
 const promptEl = document.getElementById('prompt');
 const todayEl = document.getElementById('today');
+const pocketsEl = document.getElementById('pockets');
 const hud = createHud({
   prompt: promptEl,
-  pockets: document.getElementById('pockets'),
+  pockets: pocketsEl,
   seeds: document.getElementById('seeds'),
   today: todayEl,
   button: pickButton,
   iconFor,
   onChooseSeed: (kind) => { seedKind = kind; },
+  
+  
+  
+  
+  onVerbChange: () => { sfx.play('ui.verb'); },
+  
+  onTogglePockets: () => { corners = toggleCorner(corners, 'pockets'); syncCorners(); },
 });
+
+
+
+
+function syncCorners() {
+  hud.setPocketsOpen(cornerIsOpen(corners, 'pockets'));
+  toolBar.setOpen(cornerIsOpen(corners, 'tools'));
+}
 
 
 
@@ -1553,12 +1621,21 @@ fml.l2Hour = (hour) => {
 };
 
 
+
+
 const toolBar = createToolBar({
   el: document.getElementById('tools'),
   iconFor,
   onChoose: (tool) => {
     if (!character || talk || choice.isOpen) return;
     toolChoice = chooseTool(toolChoice, tool, targetKey(aim));
+    corners = closeCorners(corners);
+    syncCorners();
+  },
+  onToggle: () => {
+    if (!character || talk || choice.isOpen) return;
+    corners = toggleCorner(corners, 'tools');
+    syncCorners();
   },
 });
 
@@ -1929,6 +2006,9 @@ const input = createInput({
   onCraft: () => toggleCraft(),
   onTurn: () => { if (placing) placing = { ...placing, rotY: placing.rotY + Math.PI / 8 }; },
   onCancel: () => {
+    
+    
+    if (corners.open) { corners = closeCorners(corners); syncCorners(); return; }
     if (menu.isOpen) { menu.hide(); return; }
     if (placing) stopPlacing();
     else if (craftCard && craftCard.isOpen) craftCard.hide();
@@ -2153,6 +2233,57 @@ Object.defineProperty(fml, 'g6b', {
 
 
 
+
+
+Object.defineProperty(fml, 'l9', {
+  enumerable: true,
+  get: () => {
+    
+    
+    
+    
+    
+    const box = (sel) => {
+      const e = document.querySelector(sel);
+      if (!e || e.closest('[hidden]')) return null;
+      const r = e.getBoundingClientRect();
+      if (!(r.width > 0 && r.height > 0)) return null;
+      return { w: r.width, h: r.height, left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+    };
+    const chips = (sel) => [...document.querySelectorAll(sel)].map((e) => e.dataset.good || e.dataset.tool);
+    return {
+      open: corners.open,
+      pockets: {
+        badge: box('#pocketbadge'),
+        count: Number((document.querySelector('#pocketbadge .n') || {}).textContent || 0),
+        tray: box('#pockettray'),
+        items: chips('#pockettray .chip'),
+        hidden: pocketsEl.hidden,
+      },
+      tools: {
+        badge: box('#toolglyph'),
+        glyph: toolBar.stats.glyph,
+        tray: box('#tooltray'),
+        items: chips('#tooltray .tool'),
+        hidden: document.getElementById('tools').hidden,
+      },
+    };
+  },
+});
+
+
+
+
+
+
+fml.l9Carry = (counts = {}, tool = null) => {
+  for (const [good, n] of Object.entries(counts)) world.pockets[good] = Number(n) || 0;
+  toolChoice = tool ? chooseTool(AUTO, tool, targetKey(aim)) : AUTO;
+  return { pockets: { ...world.pockets }, tool: toolChoice.tool };
+};
+
+
+
 fml.g6cPlace = (item) => { startPlacing(item); return placing ? { ...placing } : null; };
 fml.g6cTurn = (rad = Math.PI / 8) => { if (placing) placing = { ...placing, rotY: placing.rotY + rad }; return placing ? placing.rotY : null; };
 fml.g6cStop = () => { stopPlacing(); return true; };
@@ -2281,7 +2412,12 @@ Object.defineProperty(fml, 'money', {
 });
 Object.defineProperty(fml, 'audio', {
   enumerable: true,
-  get: () => ({ ...audio.state, sfx: sfx.state, card: { ...soundCard.stats } }),
+  
+  
+  
+  
+  
+  get: () => ({ ...audio.state, sfx: sfx.state, card: { ...soundCard.stats }, feet: feet.state }),
 });
 Object.defineProperty(fml, 'buildings', {
   enumerable: true,
@@ -2459,6 +2595,39 @@ function saveDoc() {
 
 const touchSave = (reason) => { if (saver) saver.touch(performance.now(), reason); };
 const flushSave = () => { if (saver) saver.flush(performance.now()); };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const cloud = createCloud({
+  slot: saveSlot,
+  liveSave: () => (savingOn ? saveDoc() : null),
+  readLocal: (id) => (saveStore ? saveStore.get(id) : null),
+  writeLocal: (id, doc) => (saveStore ? saveStore.put(id, doc) : undefined),
+  onChange: () => { if (accountCard) accountCard.render(); },
+});
+const accountCard = createAccountCard({
+  el: document.getElementById('cloud'),
+  button: document.getElementById('cloudopen'),
+  cloud,
+});
+
+
+
+accountCard.render();
 
 
 
@@ -2887,6 +3056,35 @@ fml.l12 = {
 
 paintDeeds();
 
+
+
+
+
+
+
+fml.l15 = {
+  get cloud() { return cloud.read(); },
+  get lines() { return accountCard.lines; },
+  get shown() {
+    const root = document.getElementById('cloud');
+    if (!root || root.hidden) return null;
+    return [...root.querySelectorAll('.say')].map((p) => p.textContent);
+  },
+  get acts() {
+    const root = document.getElementById('cloud');
+    if (!root || root.hidden) return [];
+    return [...root.querySelectorAll('button[data-act]')].map((b) => b.dataset.act);
+  },
+  card: () => ({ open: accountCard.isOpen, ...accountCard.stats }),
+  open: () => { accountCard.show(); return true; },
+  close: () => { accountCard.hide(); return true; },
+  
+  
+  
+  
+  preview: (state) => accountCard.preview(state),
+};
+
 lobbyAvailable().then((on) => { visit.lobby = on; visit.paint(); }, () => {});
 
 
@@ -2932,7 +3130,26 @@ async function loadSave() {
   saveStore = await openSaveStore();
   saveInfo.kind = saveStore.kind;
   if (saveStore.why) fml.notes.push(`save: ${saveStore.why} - this visit will not be kept`);
-  saver = createSaver({ write: () => saveStore.put(saveSlot, saveDoc()) });
+  
+  
+  
+  
+  saver = createSaver({
+    write: async () => {
+      const doc = saveDoc();
+      await saveStore.put(saveSlot, doc);
+      cloud.keep(doc);
+    },
+  });
+
+  
+  
+  
+  
+  
+  
+  
+  await cloud.beforeRestore();
 
   let raw = null;
   try {
@@ -3000,8 +3217,8 @@ async function loadSave() {
 
 
 
-window.addEventListener('pagehide', flushSave);
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushSave(); });
+window.addEventListener('pagehide', () => { flushSave(); cloud.flush(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { flushSave(); cloud.flush(); } });
 
 
 fml.saveNow = () => { touchSave('asked'); flushSave(); return true; };
@@ -3550,6 +3767,11 @@ function frame(now) {
     talkWalkS += dt;
     if (d > 0.12 && talkWalkS < TALK_WALK_MAX_S) intent = { ...intent, dirX: dx, dirZ: dz, amount: Math.max(0.3, Math.min(0.7, d / 0.8)) };
   }
+  
+  
+  
+  
+  const wasAt = { x: player.x, z: player.z };
   player = step(player, intent, dt, (x0, z0, x1, z1) => collision.move(x0, z0, x1, z1, PLAYER_RADIUS_M));
   if (talk && intent.amount === 0) {
     const s = speakerPoint();
@@ -3560,6 +3782,20 @@ function frame(now) {
   if (talk && talkingToVillager() && villagersDraw) villagersDraw.face(player);
   const groundY = groundNow(player.x, player.z);
   const groundSpeed = Math.hypot(player.vx, player.vz);
+  
+  
+  
+  
+  
+  
+  
+  if (feet.walked({
+    distanceM: Math.hypot(player.x - wasAt.x, player.z - wasAt.z),
+    speedMs: groundSpeed,
+    running: Boolean(intent.run),
+    grounded: feetOnGround(air),
+    nowS: seconds,
+  })) sfx.play('move.step');
   
   
   
@@ -3594,6 +3830,11 @@ function frame(now) {
   const walkAt = inside && wentInAt ? wentInAt : player;
   if (!savedSpot || Math.hypot(walkAt.x - savedSpot.x, walkAt.z - savedSpot.z) > SAVE_MOVE_M) touchSave('walk');
   if (saver) saver.tick(now);
+  
+  
+  
+  
+  cloud.tick(Date.now());
   if (awayLine && frames > 2) { hud.say(awayLine.text, seconds, 8); awayLine = null; }
   syncOrchard(t);
   syncBuildings();
@@ -3739,7 +3980,11 @@ function frame(now) {
   
   
   const anyOpen = Boolean(card || talk || choice.isOpen || placing || menu.isOpen || soundCard.isOpen
-    || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen || deedsCard.isOpen);
+    || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen
+    
+    
+    
+    || accountCard.isOpen || deedsCard.isOpen);
   const nextAway = autoHideStep(hudAway, { nowS: seconds, speed: player.speed, wokeAtS: hudWokeAtS, anyOpen });
   
   
@@ -3789,7 +4034,17 @@ function frame(now) {
   const chosenTool = choiceFor(toolChoice, targetKey(aim));
   toolBarState = barState(toolBarState, { tool: prompt ? prompt.tool : null, chosen: chosenTool, nowS: seconds });
   toolBar.update(prompt ? prompt.tool : null, chosenTool);
-  toolBar.setVisible(toolBarState.visible);
+  
+  
+  
+  
+  toolBar.setVisible(toolBarState.visible || cornerIsOpen(corners, 'tools'));
+  
+  
+  
+  
+  if (cornerIsOpen(corners, 'pockets') && pocketsEl.hidden) corners = closeCorners(corners);
+  syncCorners();
   syncForage(t, { x: target.x, z: target.z });
   
   

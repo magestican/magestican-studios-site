@@ -251,14 +251,90 @@ export const DAY_LINE_BUDGET = Object.freeze({ screenPct: 1.2 });
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const HUD_CEILING = Object.freeze({
   portrait: Object.freeze({
     play: Object.freeze({ screenPct: 10.9, centrePct: 0 }),
+    carrying: Object.freeze({ screenPct: 12.0, centrePct: 0 }),
     guiding: Object.freeze({ screenPct: 19.2, centrePct: 0 }),
     card: Object.freeze({ screenPct: 33.0, centrePct: 67.6 }),
   }),
   landscape: Object.freeze({
     play: Object.freeze({ screenPct: 10.5, centrePct: 0 }),
+    carrying: Object.freeze({ screenPct: 11.7, centrePct: 0 }),
     guiding: Object.freeze({ screenPct: 14.0, centrePct: 0 }),
     card: Object.freeze({ screenPct: 33.0, centrePct: 55.9 }),
   }),
