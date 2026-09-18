@@ -88,14 +88,19 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
     for (const m of s.lods[s.lod].meshes) m.castShadow = on;
   }
 
-  function update(world, t, dt, { animDt = dt, focus = null, activity = 0 } = {}) {
+  
+  
+  
+  
+  
+  function update(world, t, dt, { animDt = dt, focus = null, activity = 0, poseFor = null } = {}) {
     shown = [];
     let nearest = null, nearestD = cfg.shadowM;
     const drawn = [];
     for (const v of world.villagers) {
       const s = slots.get(v.id);
       if (!s) continue;
-      const pose = villagerPose(village, world, v, t);
+      const pose = (poseFor && poseFor(v, t)) || villagerPose(village, world, v, t);
       const isHeld = Boolean(held && held.id === v.id && s.x !== null);
       let tx = pose.x, tz = pose.z, th = pose.heading, moved = 0;
       if (isHeld) { tx = s.x; tz = s.z; th = Math.atan2(held.x - s.x, held.z - s.z); }

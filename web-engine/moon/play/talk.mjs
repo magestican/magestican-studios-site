@@ -32,6 +32,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 import { whyCannot } from '../economy/world.mjs';
 import { LAND, STAPLES } from '../economy/tables.mjs';
 import { nextParcelPrice } from '../economy/land.mjs';
@@ -39,9 +49,10 @@ import { seedOf } from '../voice/mumble.mjs';
 import { sugarToBuy } from './interact.mjs';
 import { nameOf } from './names.mjs';
 import { CAT_NAME } from './people.mjs';
+import { goalSpec, goalView, nextOffer } from './goals.mjs';
 
 export const SPEAKER = Object.freeze({ name: CAT_NAME, voice: 'cat' });
-export const NODES = Object.freeze(['welcome', 'howItWorks', 'greeting', 'land', 'confirm', 'cantAfford', 'soldOut', 'thanks', 'bye']);
+export const NODES = Object.freeze(['welcome', 'howItWorks', 'greeting', 'land', 'confirm', 'cantAfford', 'soldOut', 'thanks', 'goal', 'goalSet', 'bye']);
 
 
 
@@ -72,7 +83,7 @@ export const coinsText = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export function startTalk({ visits = 0 } = {}) {
-  return { node: 'greeting', visits, step: 0, selected: null, want: null, bought: null, error: null, seenLand: false };
+  return { node: 'greeting', visits, step: 0, selected: null, want: null, bought: null, error: null, seenLand: false, goal: null };
 }
 
 function pick(list, world, state, what) {
@@ -95,6 +106,14 @@ function sugarChoice(world, t) {
   };
 }
 
+
+
+
+function goalChoice(world) {
+  if (goalView(world)) return { key: 'goal', label: 'How is my goal going?', next: 'goal' };
+  return nextOffer(world) ? { key: 'goal', label: 'What should I be aiming for?', next: 'goal' } : null;
+}
+
 const something = { key: 'more', label: 'Something else', next: 'greeting' };
 const byeChoice = (label = 'Bye for now') => ({ key: 'bye', label, next: 'bye' });
 
@@ -107,8 +126,9 @@ const NODE = {
       choices: [
         { key: 'how', label: 'How does all this work?', next: 'howItWorks' },
         { key: 'land', label: 'About land...', next: soldOut(world, land) ? 'soldOut' : 'land' },
+        goalChoice(world),
         byeChoice('Thank you, Felice'),
-      ],
+      ].filter(Boolean),
     };
   },
 
@@ -117,9 +137,10 @@ const NODE = {
       lines: [...HOW_IT_WORKS],
       choices: [
         { key: 'land', label: 'Show me the land', next: soldOut(world, land) ? 'soldOut' : 'land' },
+        goalChoice(world),
         something,
         byeChoice('Thank you, Felice'),
-      ],
+      ].filter(Boolean),
     };
   },
 
@@ -135,8 +156,9 @@ const NODE = {
       choices: [
         sugarChoice(world, t),
         { key: 'land', label: 'About land...', next: soldOut(world, land) ? 'soldOut' : 'land' },
+        goalChoice(world),
         byeChoice(state.step > 0 ? 'That is all' : 'Just saying hello'),
-      ],
+      ].filter(Boolean),
     };
   },
 
@@ -208,6 +230,50 @@ const NODE = {
     return { lines, look: b.type === 'buyParcel' ? state.selected : null, choices: [something, byeChoice('Thanks, bye')] };
   },
 
+  
+  
+  
+  goal(state, { world, t }) {
+    const view = goalView(world, t);
+    if (view) {
+      const lines = [`You are working on ${view.title.toLowerCase()}.`];
+      lines.push(view.ready ? `${view.hint}, and it is yours.` : `${coinsText(view.have)} of ${coinsText(view.need)} ${view.unit} so far. No hurry.`);
+      return {
+        lines,
+        choices: [
+          { key: 'goal:drop', label: 'I would rather chase something else', drop: true, next: 'goal' },
+          something,
+          byeChoice('Thanks, Felice'),
+        ],
+      };
+    }
+    const offer = nextOffer(world);
+    if (!offer) {
+      return {
+        lines: ['You have done everything I could think to set you.', 'Enjoy the place. That was rather the point.'],
+        choices: [something, byeChoice('Thanks, Felice')],
+      };
+    }
+    return {
+      lines: offer.offer(world),
+      choices: [
+        { key: `goal:${offer.id}`, label: 'Yes - set me that', goal: offer.id },
+        { key: 'later', label: 'Not just now', next: 'greeting' },
+        byeChoice('Bye for now'),
+      ],
+    };
+  },
+
+  
+  
+  goalSet(state, { world, t }) {
+    const spec = goalSpec(state.goal);
+    const view = goalView(world, t);
+    const lines = spec ? [...spec.taken] : ['Right you are.'];
+    if (view && !view.ready) lines.push(`I will put it in the corner for you: ${view.text}.`);
+    return { lines, choices: [something, byeChoice('Thanks, Felice')] };
+  },
+
   bye(state, { world }) {
     return { lines: [pick(['Mind how you go.', 'Come by any time.', 'Off you go, then.'], world, state, 'bye')], choices: [], end: true };
   },
@@ -252,6 +318,11 @@ export function choose(state, choice, outcome) {
     const e = (outcome.events || []).find((x) => x.type === choice.action.type);
     return { ...base, node: 'thanks', bought: e ? { ...e } : { type: choice.action.type } };
   }
+  
+  
+  
+  if (choice.goal) return { ...base, node: 'goalSet', goal: choice.goal };
+  if (choice.drop) return { ...base, node: 'goal', goal: null };
   if (choice.select !== undefined) return { ...base, node: 'confirm', selected: choice.select };
   const next = NODES.includes(choice.next) ? choice.next : 'bye';
   return { ...base, node: next, selected: next === 'confirm' ? state.selected : null, want: null, bought: null };

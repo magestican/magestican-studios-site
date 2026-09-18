@@ -486,6 +486,49 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #quest { position: fixed; right: calc(10px + env(safe-area-inset-right)); top: calc(112px + env(safe-area-inset-top));
+    z-index: 1; display: flex; flex-direction: column; align-items: stretch; gap: 2px;
+    padding: 3px 7px 4px; border-radius: 11px;
+    background: rgba(255, 248, 236, 0.86); box-shadow: 0 2px 8px var(--shade); color: var(--ink);
+    font: 700 10px/1.15 system-ui, sans-serif; text-align: right; white-space: nowrap;
+    pointer-events: none; }
+  #quest[hidden] { display: none; }
+  #quest .what { display: block; }
+  
+
+  #quest .bar { display: block; height: 2px; border-radius: 1px; background: rgba(58, 47, 42, 0.18); overflow: hidden; }
+  #quest .bar i { display: block; height: 100%; width: 0; border-radius: 1px; background: var(--peach); }
+  #quest.ready { background: #ffe4bf; }
+  
+
+
+
   #seeds { position: fixed; right: calc(22px + env(safe-area-inset-right)); bottom: calc(194px + env(safe-area-inset-bottom)); display: flex; gap: 6px; }
   body.placing #seeds { display: none; }
   #seeds .seed { width: 44px; height: 44px; padding: 4px; border-radius: 50%; border: 3px solid transparent; background: rgba(255, 248, 236, 0.9);
@@ -500,7 +543,7 @@
   
   body.flying #pick, body.flying #prompt, body.flying #seeds, body.flying #ghost, body.flying #stick, body.flying #tools,
   body.flying #craft, body.flying #made, body.flying #workshop, body.flying #placing, body.flying #jump,
-  body.flying #goal, body.flying #tip, body.flying #markers, body.flying #today,
+  body.flying #goal, body.flying #tip, body.flying #markers, body.flying #today, body.flying #quest,
   body.flying #menu, body.flying #menusheet { display: none; }
   
 
@@ -612,6 +655,47 @@
 
   #deeds .part .det { color: #7a6558; font-style: normal; font-weight: 500; font-size: 12px; }
   #deeds .part .much { font: 800 18px/1.1 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  
+
+
+
+
+
+
+
+
+
+
+  body.shot #assembly { display: none; }
+  body.flying #assembly { display: none; }
+  #assembly { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(340px, calc(100vw - 20px)); box-sizing: border-box; z-index: 9;
+    background: rgba(255, 248, 236, 0.97); border-radius: 18px; padding: 8px 10px 10px; box-shadow: 0 6px 22px var(--shade);
+    font: 600 13px/1.35 system-ui, sans-serif; touch-action: none; max-height: calc(100vh - 40px); overflow-y: auto; }
+  #assembly[hidden] { display: none; }
+  #assembly button { font-family: system-ui, sans-serif; color: var(--ink); touch-action: none; }
+  #assembly .head { display: flex; align-items: center; justify-content: space-between; }
+  #assembly .title b { font: 800 16px/1.1 system-ui, sans-serif; }
+  #assembly .close { width: 44px; height: 44px; margin: -4px -6px -4px 0; border: 0; background: transparent; font: 700 26px/1 system-ui, sans-serif; }
+  
+  #assembly .who { color: #7a6558; font-weight: 500; font-size: 12px; margin: 2px 0 0; }
+  #assembly .motions { margin: 8px 0 0; }
+  #assembly .motion { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 6px 0; border-bottom: 1px solid #f0e2cd; }
+  #assembly .motion .what { display: flex; flex-direction: column; min-width: 0; }
+  #assembly .motion .lab { font-weight: 700; }
+  #assembly .motion .tally { color: #7a6558; font-style: normal; font-weight: 500; font-size: 12px; }
+  #assembly .vote { min-width: 76px; height: 44px; padding: 0 12px; border-radius: 14px; border: 3px solid var(--peach);
+    background: #ffe4bf; font: 800 13px/1 system-ui, sans-serif; }
+  
+  #assembly .result { margin: 8px 0 0; padding: 8px; border-radius: 12px; background: #f6ecd8; }
+  #assembly .result b { display: block; font: 800 14px/1.2 system-ui, sans-serif; }
+  #assembly .votes { margin: 6px 0 0; }
+  #assembly .vrow { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; font-size: 12px; }
+  #assembly .vrow .yes { color: #4a7c4e; font-weight: 800; }
+  #assembly .vrow .no { color: #a05a4a; font-weight: 800; }
+  #assembly .done { width: 100%; height: 44px; margin: 8px 0 0; border-radius: 14px; border: 3px solid var(--peach);
+    background: #ffe4bf; font: 800 13px/1 system-ui, sans-serif; }
   
 
 
@@ -895,11 +979,11 @@
   body.placing #prompt { bottom: calc(194px + env(safe-area-inset-bottom)); }
   body.talking #pick, body.talking #prompt, body.talking #seeds, body.talking #ghost, body.talking #stick, body.talking #tools,
   body.talking #craft, body.talking #made, body.talking #workshop, body.talking #placing, body.talking #jump,
-  body.talking #goal, body.talking #tip, body.talking #markers, body.talking #today,
+  body.talking #goal, body.talking #tip, body.talking #markers, body.talking #today, body.talking #quest,
   body.talking #menu { display: none; }
   body.choosing #pick, body.choosing #prompt, body.choosing #seeds, body.choosing #ghost, body.choosing #stick, body.choosing #who, body.choosing #tools,
   body.choosing #craft, body.choosing #made, body.choosing #workshop, body.choosing #placing, body.choosing #jump,
-  body.choosing #goal, body.choosing #tip, body.choosing #markers, body.choosing #today,
+  body.choosing #goal, body.choosing #tip, body.choosing #markers, body.choosing #today, body.choosing #quest,
   body.choosing #menu { display: none; }
   
 
@@ -910,10 +994,10 @@
 
 
 
-  #menu, #toolrow, #pockets, #made, #seeds, #place, #jump, #placing, #prompt, #goal, #markers, #today { transition: opacity 0.35s ease-out; }
+  #menu, #toolrow, #pockets, #made, #seeds, #place, #jump, #placing, #prompt, #goal, #markers, #today, #quest { transition: opacity 0.35s ease-out; }
   body.hudaway #menu, body.hudaway #toolrow, body.hudaway #pockets, body.hudaway #made, body.hudaway #seeds,
   body.hudaway #place, body.hudaway #jump, body.hudaway #placing, body.hudaway #prompt,
-  body.hudaway #goal, body.hudaway #markers { opacity: 0; pointer-events: none; }
+  body.hudaway #goal, body.hudaway #markers, body.hudaway #quest { opacity: 0; pointer-events: none; }
 
   
 
@@ -1008,14 +1092,14 @@
 
   body.arriving #menu, body.arriving #toolrow, body.arriving #pockets, body.arriving #made, body.arriving #seeds,
   body.arriving #place, body.arriving #jump, body.arriving #placing, body.arriving #prompt, body.arriving #pick,
-  body.arriving #coins, body.arriving #ghost, body.arriving #goal, body.arriving #markers, body.arriving #tip,
+  body.arriving #coins, body.arriving #ghost, body.arriving #goal, body.arriving #markers, body.arriving #tip, body.arriving #quest,
   body.arriving #today { opacity: 0; pointer-events: none; }
   #pick, #coins, #ghost { transition: opacity 0.4s ease-out; }
 
   body.shot #hud, body.shot #pick, body.shot #ghost, body.shot #stick, body.shot #prompt, body.shot #pockets, body.shot #seeds, body.shot #tools,
   body.shot #coins, body.shot #mute, body.shot #sound, body.shot #worldui, body.shot #card, body.shot #talk, body.shot #who, body.shot #choose,
   body.shot #craft, body.shot #made, body.shot #workshop, body.shot #placing, body.shot #jump, body.shot #where,
-  body.shot #menu, body.shot #menusheet, body.shot #place, body.shot #goal, body.shot #tip, body.shot #markers, body.shot #today,
+  body.shot #menu, body.shot #menusheet, body.shot #place, body.shot #goal, body.shot #tip, body.shot #markers, body.shot #today, body.shot #quest,
   body.shot #arrive { display: none; }
 </style>
 
@@ -1024,7 +1108,7 @@
 
 
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=a6f58d2-20260918T145504Z"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=1e0397a-20260918T234301Z"></script>
 <script type="importmap">
 {
   "imports": {
@@ -1097,6 +1181,11 @@
   <button id="cloudopen" type="button" aria-label="Sign in to keep your moon in the cloud" hidden>Sign in</button>
 </div>
 <div id="deeds" hidden></div>
+
+
+
+
+<div id="assembly" hidden></div>
 <div id="install" hidden></div>
 <div id="cloud" hidden></div>
 <div id="sound" hidden></div>
@@ -1111,6 +1200,12 @@
 <div id="workshop" hidden></div>
 <div id="placing" hidden></div>
 <div id="pockets" hidden></div>
+
+
+
+
+
+<div id="quest" hidden></div>
 <div id="seeds" hidden></div>
 
 <div id="place" hidden>
@@ -1127,6 +1222,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=a6f58d2-20260918T145504Z"></script>
+<script type="module" src="src/play/main.js?v=1e0397a-20260918T234301Z"></script>
 </body>
 </html>

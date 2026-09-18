@@ -17,6 +17,12 @@
 
 
 
+
+
+
+
+
+
 import { TREES } from 'moon/economy/tables.mjs';
 import { REFUSAL_S, verbStep, actLabel, actRefused } from 'moon/play/actButton.mjs';
 import { badgeCount, pocketRows, topGood } from 'moon/play/corners.mjs';
@@ -24,7 +30,7 @@ import { badgeCount, pocketRows, topGood } from 'moon/play/corners.mjs';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 export function createHud({
-  prompt: promptEl, pockets: pocketsEl, seeds: seedsEl, today: todayEl, button, iconFor, onChooseSeed,
+  prompt: promptEl, pockets: pocketsEl, seeds: seedsEl, today: todayEl, quest: questEl = null, button, iconFor, onChooseSeed,
   
   
   
@@ -201,6 +207,58 @@ export function createHud({
     when.append(glyph, words);
     todayEl.replaceChildren(top, when);
     return { body, day, glyph, words };
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  let sigQuest = null, questParts = null;
+
+  function buildQuest() {
+    const what = document.createElement('span');
+    what.className = 'what';
+    const bar = document.createElement('span');
+    bar.className = 'bar';
+    bar.setAttribute('aria-hidden', 'true');
+    const fill = document.createElement('i');
+    bar.append(fill);
+    questEl.replaceChildren(what, bar);
+    return { what, fill };
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+  function quest(view) {
+    if (!questEl) return;
+    const sig = view ? `${view.text}|${view.ready}|${Math.round(view.fraction * 100)}` : '';
+    if (sig === sigQuest) return;
+    sigQuest = sig;
+    if (!view) {
+      questEl.hidden = true;
+      return;
+    }
+    if (!questParts) questParts = buildQuest();
+    questParts.what.textContent = view.text;
+    questParts.fill.style.width = `${Math.round(view.fraction * 100)}%`;
+    questEl.classList.toggle('ready', Boolean(view.ready));
+    
+    
+    
+    questEl.setAttribute('aria-label', view.ready ? `${view.title} - ready` : `${view.title} - ${view.text}`);
+    questEl.hidden = false;
   }
 
   
@@ -411,7 +469,7 @@ export function createHud({
   
   
   
-  return { pockets, seeds, today, say, nope, update, setPocketsOpen,
+  return { pockets, seeds, today, quest, say, nope, update, setPocketsOpen,
     get pocketsOpen() { return pocketsOpen; },
     get said() { return said; },
     

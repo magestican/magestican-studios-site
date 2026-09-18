@@ -123,6 +123,15 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     
     
     deeds: { picked: {}, planted: {}, felled: 0, crafted: {}, planets: [] },
+    
+    
+    
+    
+    goals: { active: null, done: [] },
+    
+    
+    
+    assembly: { open: null, meetings: [], works: [] },
   };
   
   world.buildings.push({ id: nextId(world), type: 'shop', level: 1, builtAt: now });

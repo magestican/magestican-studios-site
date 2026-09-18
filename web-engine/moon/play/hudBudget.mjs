@@ -138,6 +138,52 @@ export const DAY_LINE_BUDGET = Object.freeze({ screenPct: 1.2 });
 
 
 
+export const GOAL_LINE_BUDGET = Object.freeze({ screenPct: 1.0 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

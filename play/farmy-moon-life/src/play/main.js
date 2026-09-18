@@ -161,7 +161,7 @@ import { createSignLabels } from './signLabels.js';
 
 
 import {
-  createVillage, badgeState, homeOf, homeStage, syncHomes, villagerPose, PLAYER_TUNED, PLAYER_TUNED_HEIGHT_M, playerFit,
+  createVillage, badgeState, homeOf, homeStage, syncHomes, villagerPose, VILLAGE, PLAYER_TUNED, PLAYER_TUNED_HEIGHT_M, playerFit,
 } from 'moon/play/village.mjs';
 import { startTalk as startVillagerTalk, talkNode as villagerTalkNode, choose as chooseVillagerTalk, speakerOf } from 'moon/play/villagerTalk.mjs';
 
@@ -260,6 +260,14 @@ import { createBoardCard } from './boardCard.js';
 
 import { createDeedsCard } from './deedsCard.js';
 import { deedLines, deedsOf, tally as tallyDeeds, visitPlanet } from 'moon/play/deeds.mjs';
+
+import { abandon as abandonGoal, accept as acceptGoal, doneLines as goalDoneLines, goalView, goalsOf, settle as settleGoals } from 'moon/play/goals.mjs';
+import {
+  ASSEMBLY, assemblyOf, assemblyView, bellAt, bellPlaces, callAssembly, closeAssembly,
+  gatherPose, gatherSpots, polyline, putToVote, settleWorks, whyNoAssembly, worksOf,
+} from 'moon/play/assembly.mjs';
+import { createAssemblyCard } from './assemblyCard.js';
+import { walkPath } from 'moon/play/walks.mjs';
 
 import { createInstallCard } from './installCard.js';
 import { createOffline } from './offline.js';
@@ -952,6 +960,11 @@ function closeTalk() {
 }
 function onTalkChoice(choice) {
   if (!talk) return;
+  
+  
+  
+  if (choice.goal) { if (acceptGoal(world, choice.goal)) touchSave('goal'); }
+  else if (choice.drop) { if (abandonGoal(world)) touchSave('goal'); }
   const outcome = choice.action && !choice.why ? doAct(choice.action) : undefined;
   const next = talkingToMole() ? chooseMoleTalk(talk, choice, outcome)
     : talkingToVillager() ? chooseVillagerTalk(talk, choice, outcome)
@@ -1095,6 +1108,8 @@ function placesNow() {
     ...TOWN_PLACES,
     
     ...homePlaces(world),
+    
+    ...bellPlaces(world, { planet: planetId }),
   ];
 }
 
@@ -1143,6 +1158,8 @@ function tapBoxes() {
     }),
     
     ...homePlaces(world).map((d) => ({ type: d.type, x: d.x, z: d.z, rotY: 0, hx: 0.6, hz: 0.4, h: 2.2 })),
+    
+    ...bellPlaces(world, { planet: planetId }).map((b) => ({ type: b.type, x: b.x, z: b.z, rotY: 0, hx: 0.5, hz: 0.5, h: 2.6 })),
   ];
 }
 const screenAt = (p, local) => {
@@ -1330,6 +1347,13 @@ function doAct(action, { quiet = false } = {}) {
   
   
   tallyDeeds(world, events);
+  
+  
+  
+  
+  
+  
+  settleTown();
   touchSave(action.type);   
   
   
@@ -1479,6 +1503,10 @@ function press() {
   
   if (p && p.open === 'homeIn') { goInside(); return; }
   if (p && p.open === 'homeOut') { goOutside(); return; }
+  
+  
+  
+  if (p && p.open === 'assembly') { if (p.why) hud.nope(p.why, seconds); else ringBell(); return; }
   if (p && p.action && !p.why) { doAct(p.action); return; }
   
   if (p && p.open) { if (card === p.open) closeCard(); else openCard(p.open, p); return; }
@@ -1565,6 +1593,7 @@ function tap(cx, cy) {
   if (p && p.action && !p.why) doAct(p.action); 
   else if (p && p.open === 'homeIn') goInside();
   else if (p && p.open === 'homeOut') goOutside();
+  else if (p && p.open === 'assembly') { if (p.why) hud.nope(p.why, seconds); else ringBell(); }
   else if (p && p.open === 'talk') openTalk(aim);
   else if (p && p.open) openCard(p.open, p);
   else if (p) hud.nope(refusalOf(p), seconds);
@@ -1579,6 +1608,8 @@ const hud = createHud({
   pockets: pocketsEl,
   seeds: document.getElementById('seeds'),
   today: todayEl,
+  
+  quest: document.getElementById('quest'),
   button: pickButton,
   iconFor,
   onChooseSeed: (kind) => { seedKind = kind; },
@@ -3082,6 +3113,125 @@ paintDeeds();
 
 
 
+let meeting = null;
+
+const assemblyCard = createAssemblyCard({
+  el: document.getElementById('assembly'),
+  onVote: (motionId) => {
+    const out = putToVote(world, motionId, econNow());
+    if (out && !out.why) { meeting = null; touchSave('assembly'); }
+    return out;
+  },
+  
+  onClose: () => { if (closeAssembly(world)) touchSave('assembly'); meeting = null; },
+});
+
+
+
+
+
+
+
+
+
+function ringBell() {
+  const t = econNow();
+  const called = callAssembly(world, t);
+  if (called.why) { hud.nope(called.why, seconds); return; }
+  const spots = gatherSpots(world.villagers.length);
+  const walks = {};
+  world.villagers.forEach((v, i) => {
+    const at = villagersDraw ? villagersDraw.positionOf(v.id) : null;
+    const from = at ? { x: at.x, z: at.z } : spots[i % spots.length];
+    const to = spots[i % spots.length];
+    let points = [from, to];
+    try {
+      const found = walkPath(village.grid(), from, to);
+      if (found && found.points && found.points.length) points = [from, ...found.points, to];
+    } catch (e) {  }
+    walks[v.id] = { poly: polyline(points), spot: to };
+  });
+  meeting = { calledAt: t, walks };
+  sfx.play('ui.open');
+  touchSave('assembly');
+  assemblyCard.show();
+  paintAssembly();
+}
+
+
+function assemblyPoseFor(v) {
+  if (!meeting) return null;
+  const walk = meeting.walks[v.id];
+  if (!walk) return null;
+  return gatherPose(walk.poly, walk.spot, econNow() - meeting.calledAt, VILLAGE.walkMps);
+}
+
+function paintAssembly() {
+  if (!assemblyCard.isOpen) return;
+  assemblyCard.render({
+    world,
+    now: econNow(),
+    poses: villagersDraw ? villagersDraw.shown.map((v) => ({ id: v.id, x: v.x, z: v.z })) : [],
+  });
+}
+
+
+
+
+
+function settleTown() {
+  const t = econNow();
+  const goals = settleGoals(world, t);
+  const works = settleWorks(world, t);
+  if (goals.length) {
+    hud.say(`Goal done: ${goals[0].done}.`, seconds);
+    sfx.play('ui.open');
+    paintDeeds();
+  }
+  if (works.length) hud.say(`The town has finished the ${works[0].name}.`, seconds);
+  if (goals.length || works.length) touchSave('goal');
+  return goals.length + works.length;
+}
+
+fml.l11 = {
+  get goals() { return goalsOf(world); },
+  
+  get goal() { return goalView(world, econNow()); },
+  
+  get shown() {
+    const el = document.getElementById('quest');
+    if (!el || el.hidden) return null;
+    const what = el.querySelector('.what');
+    return { text: what ? what.textContent : '', label: el.getAttribute('aria-label'), ready: el.classList.contains('ready') };
+  },
+  get lines() { return goalDoneLines(world); },
+  settle: () => settleTown(),
+};
+
+fml.l16 = {
+  get state() { return assemblyOf(world); },
+  get bell() { return bellAt(); },
+  get places() { return bellPlaces(world, { planet: planetId }); },
+  get why() { return whyNoAssembly(world, econNow()); },
+  get view() { return assemblyView(world, econNow(), { poses: villagersDraw ? villagersDraw.shown.map((v) => ({ id: v.id, x: v.x, z: v.z })) : [] }); },
+  get works() { return worksOf(world, econNow()); },
+  get gathering() { return meeting ? Object.keys(meeting.walks).length : 0; },
+  card: () => ({ open: assemblyCard.isOpen, result: assemblyCard.result, ...assemblyCard.stats }),
+  ring: () => { ringBell(); return assemblyCard.isOpen; },
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4066,7 +4216,7 @@ function frame(now) {
   
   const anyOpen = Boolean(card || talk || choice.isOpen || placing || menu.isOpen || soundCard.isOpen
     || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen
-    || deedsCard.isOpen || installCard.isOpen || accountCard.isOpen);
+    || deedsCard.isOpen || installCard.isOpen || accountCard.isOpen || assemblyCard.isOpen);
   const nextAway = autoHideStep(hudAway, { nowS: seconds, speed: player.speed, wokeAtS: hudWokeAtS, anyOpen });
   
   
@@ -4083,6 +4233,17 @@ function frame(now) {
   
   
   hud.today(todayLine(t));
+  
+  
+  
+  hud.quest(goalView(world, t));
+  
+  
+  
+  settleTown();
+  
+  
+  paintAssembly();
   
   
   
@@ -4148,7 +4309,14 @@ function frame(now) {
 
   
   const focusNow = { x: target.x, z: target.z };
-  villagersDraw.update(world, t, dt, { animDt: dt * state.anim, focus: focusNow, activity: talk && talkingToVillager() ? voice.activity() : 0 });
+  
+  
+  
+  
+  villagersDraw.update(world, t, dt, {
+    animDt: dt * state.anim, focus: focusNow, activity: talk && talkingToVillager() ? voice.activity() : 0,
+    poseFor: meeting ? assemblyPoseFor : null,
+  });
   
   
   let badgeId = aim && aim.type === 'villager' ? aim.id : null;

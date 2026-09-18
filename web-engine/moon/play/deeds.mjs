@@ -51,7 +51,17 @@
 
 
 
+
+
+
+
+
+
+
 import { dayOf } from './dayline.mjs';
+import { doneLines as goalDoneLines, goalsDone } from './goals.mjs';
+import { assemblyOf, meetingsHeld } from './assembly.mjs';
+import { CAT_NAME } from './people.mjs';
 
 
 export const goodName = (id) => String(id).replace(/([A-Z])/g, (m) => ` ${m.toLowerCase()}`);
@@ -199,6 +209,15 @@ export function visitPlanet(world, id) {
 }
 
 
+function builtDetail(world) {
+  const works = assemblyOf(world).works;
+  if (works.length === 0) return null;
+  const done = works.filter((w) => w.doneAt).length;
+  const names = works.slice(0, 3).map((w) => w.name).join(', ');
+  return done === works.length ? `built: ${names}` : `${done} of ${works.length} built: ${names}`;
+}
+
+
 function top(m, n) {
   return Object.entries(m)
     .filter(([, v]) => num(v) > 0)
@@ -272,6 +291,27 @@ export function deedLines({ world, firstPlayed = null, now = null, planetCount =
       value: d.planets.length,
       text: `${d.planets.length}`,
       detail: planetCount > 0 ? `of ${planetCount}` : null,
+    },
+    
+    
+    
+    {
+      key: 'goals',
+      label: `Goals from ${CAT_NAME}`,
+      value: goalsDone(world),
+      text: `${goalsDone(world)}`,
+      detail: goalDoneLines(world).filter((g) => g.finished).map((g) => g.done).join(', ') || null,
+    },
+    
+    
+    
+    
+    {
+      key: 'assembly',
+      label: 'Town assemblies called',
+      value: meetingsHeld(world),
+      text: `${meetingsHeld(world)}`,
+      detail: builtDetail(world),
     },
   ];
   return lines;

@@ -65,6 +65,9 @@
 
 
 
+
+
+
 import { whyCannot } from '../economy/world.mjs';
 import { BUILDINGS, FINDS, GOODS, STAPLES, TREES } from '../economy/tables.mjs';
 import { sellable, shelfRoom, shopOf } from '../economy/shop.mjs';
@@ -79,6 +82,7 @@ import { craftedName } from '../economy/crafting.mjs';
 import { STORES, TOWN_HALL, noticeBoard, storeOpen } from '../economy/town.mjs';
 import { hourAt } from '../economy/clock.mjs';
 import { shutSentence } from './town.mjs';
+import { whyNoAssembly } from './assembly.mjs';
 
 
 const ID_PLACES = Object.freeze(['villager', 'rock', 'forage', 'placed', 'store', 'find']);
@@ -246,6 +250,7 @@ function promptOf(target, { world, t, trees, seedKind = null, obstacles = [], ow
   if (target.type === 'forage') return foragePrompt(out, world, t, target, tool);
   if (target.type === 'find') return findPrompt(out, world, t, target, tool);
   if (target.type === 'placed') return placedPrompt(out, world, t, target, tool);
+  if (target.type === 'bell') return bellPrompt(out, world, t, tool);
   if (target.type === 'homeDoor') return homeDoorPrompt(out, tool);
   if (target.type === 'homeExit') return homeExitPrompt(out, tool);
   if (target.type === 'ground') {
@@ -435,6 +440,21 @@ function placedPrompt(out, world, t, target, tool) {
 
 
 
+
+
+
+
+
+
+
+function bellPrompt(out, world, t, tool) {
+  if (tool) return { ...out, chosen: tool, why: 'The bell rope is pulled by hand.' };
+  out.verb = 'ring';
+  out.open = 'assembly';
+  out.label = 'Ring the assembly bell';
+  out.why = whyNoAssembly(world, t);
+  return out;
+}
 
 function homeDoorPrompt(out, tool) {
   if (tool) return { ...out, chosen: tool, why: 'The door opens by hand.' };
