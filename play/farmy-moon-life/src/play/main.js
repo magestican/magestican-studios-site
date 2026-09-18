@@ -131,6 +131,7 @@ import { toPlacementFrame } from 'moon/play/shelves.mjs';
 import { generate as generateCat } from 'moon/art/cat.mjs';
 import { toObject3D } from '../render/toMesh.js';
 import { startTalk, talkNode, choose } from 'moon/play/talk.mjs';
+import { MET_CAT, MET_MOLE, meet, metList, readMet, villagerKey, visitsOf } from 'moon/play/met.mjs';
 import { createAudio } from './audio.js';
 import { createVoice } from './voice.js';
 import { createSoundCard } from './soundCard.js';
@@ -242,6 +243,9 @@ import { createVisitorsDraw } from './visitorsDraw.js';
 import { netWorth } from 'moon/economy/netWorth.mjs';
 import { BOARD_BEST_KEY, myRow } from 'moon/play/leaderboard.mjs';
 import { createBoardCard } from './boardCard.js';
+
+import { createDeedsCard } from './deedsCard.js';
+import { deedLines, deedsOf, tally as tallyDeeds, visitPlanet } from 'moon/play/deeds.mjs';
 
 let presses = 0;               
 
@@ -719,6 +723,15 @@ state.muted = audio.muted;
 let talk = null;            
 let talkShown = null;       
 let talkVisits = 0;         
+
+
+
+
+
+
+
+
+let met = readMet(null);
 let talkCard = null, catObj = null, catTris = 0, catBob = 0;
 
 const LOOK_S = 0.9;
@@ -747,6 +760,7 @@ let talkAt = null, talkWalkS = 0;
 
 let talkWith = null;
 const villagerVisits = new Map();  
+
 
 
 
@@ -850,6 +864,7 @@ function openTalk(target = { type: 'cat' }) {
     closeCard();
     talk = startMoleTalk({ visits: moleVisits });
     moleVisits += 1;
+    if (meet(met, MET_MOLE)) touchSave('met');
     talkWith = { type: 'mole' };
     
     surfaceMole(mole, true);
@@ -857,15 +872,21 @@ function openTalk(target = { type: 'cat' }) {
     const v = world.villagers.find((x) => x.id === target.id);
     if (!v || !villagersDraw || !villagersDraw.positionOf(v.id)) return;
     closeCard();
-    const n = villagerVisits.get(v.id) || 0;
+    
+    
+    const n = villagerVisits.get(v.id) ?? visitsOf(met, villagerKey(v.id));
     talk = startVillagerTalk({ villager: v, visits: n });
     villagerVisits.set(v.id, n + 1);
+    if (meet(met, villagerKey(v.id))) touchSave('met');
     talkWith = { type: 'villager', id: v.id };
     villagersDraw.hold(v.id, { x: player.x, z: player.z });
   } else {
     closeCard();
     talk = startTalk({ visits: talkVisits });
     talkVisits += 1;
+    
+    
+    if (meet(met, MET_CAT)) touchSave('met');
     talkWith = { type: 'cat' };
   }
   talkAt = talkSpot();
@@ -1252,6 +1273,13 @@ function doAct(action, { quiet = false } = {}) {
   }
   fml.actions += 1;
   fml.lastEvents = events;
+  
+  
+  
+  
+  
+  
+  tallyDeeds(world, events);
   touchSave(action.type);   
   
   
@@ -1426,6 +1454,11 @@ function putDown() {
 const ctxFor = (t) => ({
   world, t, trees: inside ? [] : view, seedKind, obstacles: staticObstacles,
   owned: onHome() ? ownedIds(world) : null,
+  
+  
+  
+  
+  forSale: onHome() ? forSale(ownedIds(world)) : null,
   tool: choiceFor(toolChoice, targetKey(aim)),
   planet: planetId,
 });
@@ -1694,6 +1727,12 @@ function goOutside() {
 function arriveAt(id) {
   const entry = visited.get(id);
   planetId = id;
+  
+  
+  
+  
+  
+  if (visitPlanet(world, id)) touchSave('visit');
   layout = entry ? entry.layout : MOON;
   collision = entry ? entry.collision : homeCollision;
   const planet = planetAt(id, state.system, GENERATED_COUNT);
@@ -2060,6 +2099,9 @@ Object.defineProperty(fml, 'talk', {
     voice: voice.state,
     bob: catBob,
     visits: talkVisits,
+    
+    
+    met: metList(met),
   }),
 });
 
@@ -2402,6 +2444,10 @@ function snapshotArgs() {
     seedKind,
     savedAt: econNow(),
     firstPlayed,
+    
+    
+    
+    met: metList(met),
   };
 }
 
@@ -2787,6 +2833,60 @@ fml.g10 = {
 
 paintBoard();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const deedsCard = createDeedsCard({
+  el: document.getElementById('deeds'),
+  button: document.getElementById('deedsopen'),
+  onOpened: () => paintDeeds(),
+});
+
+function paintDeeds() {
+  deedsCard.render({ world, firstPlayed, now: econNow() });
+}
+
+fml.l12 = {
+  get deeds() { return deedsOf(world); },
+  
+  
+  get lines() { return Object.fromEntries(deedLines({ world, firstPlayed, now: econNow() }).map((l) => [l.key, l.value])); },
+  
+  
+  get shown() {
+    const root = document.getElementById('deeds');
+    if (!root || root.hidden) return null;
+    return Object.fromEntries([...root.querySelectorAll('.part')]
+      .map((row) => [row.querySelector('.lab').textContent, row.querySelector('.much').textContent]));
+  },
+  card: () => ({ open: deedsCard.isOpen, ...deedsCard.stats }),
+  open: () => { deedsCard.show(); return true; },
+  close: () => { deedsCard.hide(); return true; },
+};
+
+
+
+
+paintDeeds();
+
 lobbyAvailable().then((on) => { visit.lobby = on; visit.paint(); }, () => {});
 
 
@@ -2876,6 +2976,12 @@ async function loadSave() {
   
   
   if (Number.isInteger(doc.firstPlayed) && doc.firstPlayed > 0) firstPlayed = doc.firstPlayed;
+  
+  
+  
+  met = readMet(doc.met);
+  talkVisits = visitsOf(met, MET_CAT);
+  moleVisits = visitsOf(met, MET_MOLE);
   village.restoreHomes(doc.village.homes);
   if (doc.seedKind) seedKind = doc.seedKind;
   
@@ -2905,6 +3011,13 @@ Object.defineProperty(fml, 'save', {
   get: () => ({
     ...saveInfo,
     dirty: saver ? saver.state.dirty : false,
+    
+    
+    
+    
+    
+    
+    writing: saver ? saver.state.writing : false,
     writes: saver ? saver.state.writes : 0,
     failures: saver ? saver.state.failures : 0,
     lastError: saver ? saver.state.lastError : null,
@@ -3146,6 +3259,15 @@ async function fillIn() {
   } else {
     applyPlanetVisibility();
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  if (visitPlanet(world, planetId)) touchSave('visit');
   resize();
 }
 
@@ -3617,7 +3739,7 @@ function frame(now) {
   
   
   const anyOpen = Boolean(card || talk || choice.isOpen || placing || menu.isOpen || soundCard.isOpen
-    || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen);
+    || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen || deedsCard.isOpen);
   const nextAway = autoHideStep(hudAway, { nowS: seconds, speed: player.speed, wokeAtS: hudWokeAtS, anyOpen });
   
   
@@ -3876,8 +3998,17 @@ function frame(now) {
   
   
   
+  
+  
+  
+  
+  fml.l8 = hud.verb;
   fml.q1 = {
-    act: pickButton.textContent,
+    
+    
+    
+    
+    act: hud.act,
     actCannot: pickButton.classList.contains('cannot'),
     refusal: promptEl.hidden ? null : promptEl.textContent,
     

@@ -74,6 +74,37 @@
   #pick.down { transform: scale(0.92); background: #ffe9c9; }
   #pick.cannot { color: rgba(58, 47, 42, 0.55); border-color: #e9c9a3; }
   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #pick { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+  #pick .icons { position: relative; display: block; height: 18px; font-size: 15px; line-height: 18px; }
+  #pick .glyph, #pick .ghost { font-style: normal; display: block; }
+  #pick .ghost { position: absolute; left: 0; right: 0; top: 0; opacity: 0; }
+  #pick .word { display: block; }
+  #pick.verbchange { background: #fff1d6; border-color: #f0b468; animation: verbBump 0.42s ease-out; }
+  #pick.verbchange .glyph { animation: verbIconIn 0.34s ease-out; }
+  #pick.verbchange .ghost { animation: verbIconOut 0.34s ease-in; }
+  #pick.verbchange .word { animation: verbWordIn 0.34s ease-out; }
+  @keyframes verbBump { 0% { transform: scale(1); } 34% { transform: scale(1.14); } 100% { transform: scale(1); } }
+  @keyframes verbIconIn { from { opacity: 0; transform: translateY(-8px) scale(0.55); } to { opacity: 1; transform: none; } }
+  @keyframes verbIconOut { from { opacity: 0.95; transform: none; } to { opacity: 0; transform: translateY(8px) scale(0.55); } }
+  @keyframes verbWordIn { from { opacity: 0.15; } to { opacity: 1; } }
+  
   #pick::after { content: ''; position: absolute; inset: -9px; border-radius: 50%; pointer-events: none;
     background: conic-gradient(var(--peach) calc(var(--hold, 0) * 1turn), transparent 0);
     -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
@@ -458,6 +489,33 @@
   #board .row { padding: 4px 8px; border-radius: 10px; font-variant-numeric: tabular-nums; }
   #board .row.me { background: #fff3de; font-weight: 800; }
   #board .row.stale { opacity: 0.55; }
+  
+
+
+
+
+
+
+
+  body.shot #deedsopen, body.shot #deeds { display: none; }
+  body.flying #deedsopen, body.flying #deeds { display: none; }
+  #deeds { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(340px, calc(100vw - 20px)); box-sizing: border-box; z-index: 9;
+    background: rgba(255, 248, 236, 0.97); border-radius: 18px; padding: 8px 10px 10px; box-shadow: 0 6px 22px var(--shade);
+    font: 600 13px/1.35 system-ui, sans-serif; touch-action: none; max-height: calc(100vh - 40px); overflow-y: auto; }
+  #deeds button { font-family: system-ui, sans-serif; color: var(--ink); touch-action: none; }
+  #deeds .head { display: flex; align-items: center; justify-content: space-between; }
+  #deeds .title b { font: 800 16px/1.1 system-ui, sans-serif; }
+  #deeds .close { width: 44px; height: 44px; margin: -4px -6px -4px 0; border: 0; background: transparent; font: 700 26px/1 system-ui, sans-serif; }
+  #deeds .parts { margin: 8px 0 0; }
+  #deeds .part { display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    padding: 5px 0; border-bottom: 1px solid #f0e2cd; }
+  #deeds .part .what { display: flex; flex-direction: column; min-width: 0; }
+  #deeds .part .lab { font-weight: 700; }
+  
+
+  #deeds .part .det { color: #7a6558; font-style: normal; font-weight: 500; font-size: 12px; }
+  #deeds .part .much { font: 800 18px/1.1 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
   #hud { position: fixed; left: calc(8px + env(safe-area-inset-left)); top: calc(112px + env(safe-area-inset-top));
     background: rgba(255, 248, 236, 0.85); border-radius: 8px; padding: 4px 8px; white-space: pre; pointer-events: none; }
   
@@ -784,6 +842,12 @@
   @media (prefers-reduced-motion: reduce) {
     #loading::before, #loading::after, #loadingmoon, #loadingbar::after { animation: none; }
     #loadingfill { transition: none; }
+    
+
+
+
+    #pick.verbchange, #pick.verbchange .glyph, #pick.verbchange .word { animation: none; }
+    #pick.verbchange .ghost { animation: none; opacity: 0; }
   }
 
   
@@ -812,7 +876,7 @@
 
 
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=808d3c7-20260918T073743Z"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=4c01c71-20260918T091942Z"></script>
 <script type="importmap">
 {
   "imports": {
@@ -867,7 +931,13 @@
   <button id="who" type="button" aria-label="Change who you play" hidden></button>
   <button id="visitopen" type="button" aria-label="Visits" hidden>Visit</button>
   <button id="boardopen" type="button" aria-label="What your farm is worth" hidden>Worth</button>
+  
+
+
+
+  <button id="deedsopen" type="button" aria-label="What you have done" hidden>Deeds</button>
 </div>
+<div id="deeds" hidden></div>
 <div id="sound" hidden></div>
 <div id="choose" hidden></div>
 <div id="card" hidden></div>
@@ -896,6 +966,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=808d3c7-20260918T073743Z"></script>
+<script type="module" src="src/play/main.js?v=4c01c71-20260918T091942Z"></script>
 </body>
 </html>

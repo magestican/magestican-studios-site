@@ -20,6 +20,18 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 import { whyCannot } from '../economy/world.mjs';
 import { LAND, STAPLES } from '../economy/tables.mjs';
 import { nextParcelPrice } from '../economy/land.mjs';
@@ -29,7 +41,27 @@ import { nameOf } from './names.mjs';
 import { CAT_NAME } from './people.mjs';
 
 export const SPEAKER = Object.freeze({ name: CAT_NAME, voice: 'cat' });
-export const NODES = Object.freeze(['greeting', 'land', 'confirm', 'cantAfford', 'soldOut', 'thanks', 'bye']);
+export const NODES = Object.freeze(['welcome', 'howItWorks', 'greeting', 'land', 'confirm', 'cantAfford', 'soldOut', 'thanks', 'bye']);
+
+
+
+
+export const WELCOME = Object.freeze({
+  greet: 'Welcome to Farmy Moon! Oh, I am so glad you came.',
+  
+  
+  
+  land: `I'm ${CAT_NAME}. The land here is all mine, and I would love to share it.`,
+  invite: 'Come, let me show you how a day goes here.',
+});
+
+
+export const HOW_IT_WORKS = Object.freeze([
+  'The orchard is yours to plant. Seeds go in, fruit comes off.',
+  'The press turns that fruit into juice and jam, worth rather more.',
+  'The shop sells it for you while you get on with your day.',
+  'And the land is mine to sell, whenever a patch takes your fancy.',
+]);
 
 export const MAX_LINE_CHARS = 72;
 
@@ -67,10 +99,36 @@ const something = { key: 'more', label: 'Something else', next: 'greeting' };
 const byeChoice = (label = 'Bye for now') => ({ key: 'bye', label, next: 'bye' });
 
 const NODE = {
+  
+  
+  welcome(state, { world, t, land }) {
+    return {
+      lines: [WELCOME.greet, WELCOME.land, WELCOME.invite],
+      choices: [
+        { key: 'how', label: 'How does all this work?', next: 'howItWorks' },
+        { key: 'land', label: 'About land...', next: soldOut(world, land) ? 'soldOut' : 'land' },
+        byeChoice('Thank you, Felice'),
+      ],
+    };
+  },
+
+  howItWorks(state, { world, land }) {
+    return {
+      lines: [...HOW_IT_WORKS],
+      choices: [
+        { key: 'land', label: 'Show me the land', next: soldOut(world, land) ? 'soldOut' : 'land' },
+        something,
+        byeChoice('Thank you, Felice'),
+      ],
+    };
+  },
+
   greeting(state, { world, t, land }) {
+    
+    
+    
     let lines;
     if (state.step > 0) lines = [pick(['Anything else?', 'What else can I do for you?', 'Something else?'], world, state, 'again')];
-    else if (state.visits === 0) lines = ['Oh. You must be the new one.', 'I own the land on this moon. All of it. I sell sugar, too.'];
     else lines = [pick(['Back again. What can I do for you?', 'Ah, you. Sugar, or something bigger?', 'Hello again. Mind the edge.'], world, state, 'hello')];
     return {
       lines,
@@ -159,6 +217,11 @@ const NODE = {
 export function talkNode(state, { world, t, land = { forSale: [], selected: null, nextPrice: null } }) {
   const view = { forSale: [], selected: null, ...land };
   let id = NODE[state.node] ? state.node : 'greeting';
+  
+  
+  
+  
+  if (id === 'greeting' && state.visits === 0 && state.step === 0) id = 'welcome';
   
   if ((id === 'land' || id === 'confirm') && soldOut(world, view)) id = 'soldOut';
   const n = NODE[id](state, { world, t, land: view });

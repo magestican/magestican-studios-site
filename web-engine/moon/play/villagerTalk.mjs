@@ -50,7 +50,15 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 
 export const GENERIC_LINES = Object.freeze({
-  hello: "Oh, hello! I'm {name}. You must be new here.",
+  
+  
+  
+  
+  
+  
+  
+  hello: "Oh, hello! I'm {name}. You must be new here!",
+  welcome: 'Welcome to Farmy Moon. You are going to love it here.',
   again: Object.freeze(['Oh, hello again!', 'Nice to see you again.', 'Oh! It is you. Hello!', 'What a lovely day for a walk.']),
   bye: Object.freeze(['Bye for now!', 'See you around, neighbour.', 'Take care now.']),
   calm: "Don't you worry about me.",
@@ -98,6 +106,7 @@ export function linesFor(species, name) {
   const merged = { ...GENERIC_LINES, ...(SPECIES_LINES[species] || {}) };
   return {
     hello: fill(merged.hello),
+    welcome: fill(merged.welcome),
     again: merged.again.map(fill),
     bye: merged.bye.map(fill),
     calm: fill(merged.calm),
@@ -143,7 +152,10 @@ const NODE = {
     const lines0 = linesFor(villager.species, villagerName(villager, world.villagers));
     let lines;
     if (state.step > 0) lines = [pick(['Anything else?', 'What else?', 'Hm?'], world, state, 'again')];
-    else if (state.visits === 0) lines = [lines0.hello, HOME_LINE[homeStage(villager, t).stage]];
+    
+    
+    
+    else if (state.visits === 0) lines = [lines0.hello, lines0.welcome, HOME_LINE[homeStage(villager, t).stage]];
     else lines = [pick(lines0.again, world, state, 'hello')];
     const goods = giftGoods(world, villager);
     return {

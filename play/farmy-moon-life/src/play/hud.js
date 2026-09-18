@@ -18,11 +18,22 @@
 
 
 import { TREES } from 'moon/economy/tables.mjs';
-import { REFUSAL_S, actLabel, actRefused } from 'moon/play/actButton.mjs';
+import { REFUSAL_S, verbStep } from 'moon/play/actButton.mjs';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl, today: todayEl, button, iconFor, onChooseSeed }) {
+export function createHud({
+  prompt: promptEl, pockets: pocketsEl, seeds: seedsEl, today: todayEl, button, iconFor, onChooseSeed,
+  
+  
+  
+  
+  
+  
+  
+  
+  onVerbChange = () => {},
+}) {
   const icons = new Map();
   const icon = (good, size) => {
     const key = `${good}|${size}`;
@@ -36,7 +47,7 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
     icon(good, size).then((src) => c.getContext('2d').drawImage(src, 0, 0, size, size));
     return c;
   };
-  let sigPockets = null, sigPrompt = null, sigSeeds = null, sigButton = null, lastHold = -1, flash = null;
+  let sigPockets = null, sigPrompt = null, sigSeeds = null, sigCannot = null, lastHold = -1, flash = null;
   
   
   
@@ -176,6 +187,71 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
     promptEl.classList.add('nope');
   }
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let parts = null, verbState = null, sigWord = null, sigIcon = null, bumping = false;
+  
+  
+  
+  
+  
+  
+  
+  let lastChange = null;
+
+  function buildButton() {
+    const box = document.createElement('span');
+    box.className = 'icons';
+    const glyph = document.createElement('i');
+    glyph.className = 'glyph';
+    glyph.setAttribute('aria-hidden', 'true');
+    
+    
+    const ghost = document.createElement('i');
+    ghost.className = 'ghost';
+    ghost.setAttribute('aria-hidden', 'true');
+    box.append(glyph, ghost);
+    const word = document.createElement('span');
+    word.className = 'word';
+    button.replaceChildren(box, word);
+    return { glyph, ghost, word };
+  }
+
+  
+
+
+
+
+
+  function bump() {
+    button.classList.remove('verbchange');
+    void button.offsetWidth;
+    button.classList.add('verbchange');
+    bumping = true;
+  }
+
   function update(p, holdProgress, nowS) {
     if (flash && nowS > flash.until) flash = null;
     
@@ -203,14 +279,62 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
     
     
     
-    const word = actLabel(p);
-    const cannot = actRefused(p);
-    const bsig = `${word}|${cannot}`;
-    if (bsig !== sigButton) {
-      sigButton = bsig;
-      button.textContent = word;
-      button.classList.toggle('cannot', cannot);
-      button.setAttribute('aria-label', word);
+    
+    
+    
+    
+    
+    
+    const next = verbStep(verbState, p, nowS);
+    if (next !== verbState) {
+      const was = verbState;
+      verbState = next;
+      if (!parts) parts = buildButton();
+      if (was && next.changes !== was.changes) {
+        
+        
+        parts.ghost.textContent = next.fromIcon || '';
+        bump();
+        
+        
+        
+        
+        
+        
+        
+        lastChange = {
+          from: next.from,
+          to: next.verb,
+          word: next.word,
+          icon: next.icon,
+          leaving: next.fromIcon,
+          label: next.label,
+          atS: nowS,
+          changes: next.changes,
+          bumped: button.classList.contains('verbchange'),
+        };
+        onVerbChange({ from: next.from, to: next.verb, word: next.word, icon: next.icon, nowS });
+      }
+      if (next.label !== sigWord) {
+        sigWord = next.label;
+        parts.word.textContent = next.label;
+        button.setAttribute('aria-label', next.label);
+      }
+      if (next.icon !== sigIcon) {
+        sigIcon = next.icon;
+        parts.glyph.textContent = next.icon;
+      }
+      if (next.cannot !== sigCannot) {
+        sigCannot = next.cannot;
+        button.classList.toggle('cannot', next.cannot);
+      }
+      
+      
+      
+      if (bumping && !next.flash) {
+        bumping = false;
+        button.classList.remove('verbchange');
+      }
     }
     const hp = Math.round(holdProgress * 50) / 50;
     if (hp !== lastHold) {
@@ -219,5 +343,44 @@ export function createHud({ prompt: promptEl, pockets: pocketsEl, seeds: seedsEl
     }
   }
 
-  return { pockets, seeds, today, say, nope, update, get said() { return said; } };
+  
+  
+  
+  
+  
+  return { pockets, seeds, today, say, nope, update,
+    get said() { return said; },
+    
+
+
+
+
+
+
+    get act() { return parts ? parts.word.textContent : button.textContent; },
+    
+
+
+
+
+
+    get verb() {
+      return {
+        verb: verbState ? verbState.verb : null,
+        word: verbState ? verbState.word : null,
+        icon: verbState ? verbState.icon : null,
+        sentence: verbState ? verbState.sentence : null,
+        label: verbState ? verbState.label : null,
+        cannot: Boolean(verbState && verbState.cannot),
+        flash: Boolean(verbState && verbState.flash),
+        changes: verbState ? verbState.changes : 0,
+        from: verbState ? verbState.from : null,
+        lastChange,
+        shownWord: parts ? parts.word.textContent : null,
+        shownIcon: parts ? parts.glyph.textContent : null,
+        leavingIcon: parts ? parts.ghost.textContent : null,
+        bumping: button.classList.contains('verbchange'),
+      };
+    },
+  };
 }

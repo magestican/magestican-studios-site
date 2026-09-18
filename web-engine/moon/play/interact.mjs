@@ -232,7 +232,7 @@ const NOTHING_HERE = Object.freeze({
   axe: 'There is nothing to chop here.', pickaxe: 'There is nothing to mine here.', wateringCan: 'There is nothing to water here.',
 });
 
-function promptOf(target, { world, t, trees, seedKind = null, obstacles = [], owned = null, tool = null, planet = 0 }) {
+function promptOf(target, { world, t, trees, seedKind = null, obstacles = [], owned = null, forSale = null, tool = null, planet = 0 }) {
   if (!target) return null;
   const out = { target, verb: null, action: null, label: '', why: null, hold: null, holdLabel: '', open: null, chosen: null };
   if (target.type === 'shop') return shopPrompt(out, world, t);
@@ -259,7 +259,9 @@ function promptOf(target, { world, t, trees, seedKind = null, obstacles = [], ow
     out.action = action;
     out.label = `Plant ${an(seedKind)} seed`;
     
-    out.why = whyNotPlantHere(target.x, target.z, { obstacles, trees, owned }) || whyCannot(world, action, t);
+    
+    
+    out.why = whyNotPlantHere(target.x, target.z, { obstacles, trees, owned, forSale }) || whyCannot(world, action, t);
     return out;
   }
   const v = trees.find((x) => x.id === target.id);

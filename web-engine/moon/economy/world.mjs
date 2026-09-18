@@ -116,6 +116,13 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     town: newTown(),
     shop: { shelves: new Array(BUILDINGS.shop.levels[0].shelves).fill(null), saturation: {}, slot: 0 },
     stats: { earned_coins: 0, spent_coins: 0, invested_coins: 0, customers: 0, sold: {}, soldFor_coins: {}, market_coins: 0, requests: 0 },
+    
+    
+    
+    
+    
+    
+    deeds: { picked: {}, planted: {}, felled: 0, crafted: {}, planets: [] },
   };
   
   world.buildings.push({ id: nextId(world), type: 'shop', level: 1, builtAt: now });

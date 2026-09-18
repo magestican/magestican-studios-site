@@ -49,7 +49,15 @@ export function spotAhead(player, cfg = PLANTING) {
 }
 
 
-export const CATS_LAND = `This is still ${CAT_NAME}'s land - buy it from him first.`;
+
+
+
+
+
+
+
+export const CATS_LAND = `This is ${CAT_NAME}'s land - ask him about it.`;
+export const CATS_LAND_FOR_SALE = `This is still ${CAT_NAME}'s land - buy it from him first.`;
 
 
 
@@ -62,11 +70,19 @@ function ownsSpot(owned, x, z) {
 }
 
 
-export function whyNotPlantHere(x, z, { obstacles = [], trees = [], owned = null } = {}, cfg = PLANTING) {
+
+function forSaleSpot(forSale, x, z) {
+  if (forSale == null) return false;
+  const id = parcelAt(x, z);
+  return id !== null && (forSale instanceof Set ? forSale.has(id) : forSale.includes(id));
+}
+
+
+export function whyNotPlantHere(x, z, { obstacles = [], trees = [], owned = null, forSale = null } = {}, cfg = PLANTING) {
   if (!Number.isFinite(x) || !Number.isFinite(z)) return 'There is no ground there.';
   if (Math.hypot(x, z) > WALK_EDGE_M - cfg.edgeMarginM) return 'Too close to the edge of the moon for a tree.';
   if (pathDistance(x, z) < PATH_HALF_WIDTH + cfg.pathClearM) return 'Trees cannot grow on the path.';
-  if (!ownsSpot(owned, x, z)) return CATS_LAND;
+  if (!ownsSpot(owned, x, z)) return forSaleSpot(forSale, x, z) ? CATS_LAND_FOR_SALE : CATS_LAND;
   let nearest = null;
   for (const t of trees) {
     const d = Math.hypot(t.x - x, t.z - z);

@@ -50,6 +50,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
 import { WORLD_VERSION } from './world.mjs';
 
 export const SAVE_FORMAT = 'fml.save';
@@ -168,7 +177,7 @@ const copy = (v) => JSON.parse(JSON.stringify(v));
 
 
 export function makeSave({
-  world, homes = {}, player = null, seedKind = null, savedAt = null, firstPlayed = null,
+  world, homes = {}, player = null, seedKind = null, savedAt = null, firstPlayed = null, met = [],
 } = {}) {
   if (!isObj(world)) throw new Error('makeSave needs the world');
   const at = isInt(savedAt) ? savedAt : (isInt(world.clockAt) ? world.clockAt : 0);
@@ -195,7 +204,22 @@ export function makeSave({
       }
       : { build: null, x: null, z: null, heading: null, at: 0 },
     seedKind: typeof seedKind === 'string' ? seedKind : null,
+    
+    
+    
+    
+    
+    
+    met: metOf(met),
   };
+}
+
+
+function metOf(met) {
+  if (!Array.isArray(met) && !(met instanceof Set)) return [];
+  const out = new Set();
+  for (const k of met) if (typeof k === 'string' && k.length > 0 && k.length <= 40) out.add(k);
+  return [...out].sort();
 }
 
 
@@ -212,6 +236,10 @@ export function checkSave(doc) {
     if (why) return `world: ${why}`;
   }
   if (!isObj(doc.village) || !isObj(doc.village.homes)) return 'village.homes is missing';
+  
+  
+  
+  if ('met' in doc && !(Array.isArray(doc.met) && doc.met.every((k) => typeof k === 'string'))) return 'met is not a list of names';
   if (!isObj(doc.player)) return 'player is missing';
   return null;
 }
@@ -225,7 +253,14 @@ export function checkSave(doc) {
 
 
 const WORLD_LISTS = ['trees', 'rocks', 'forage', 'buildings', 'villagers', 'placed', 'land'];
-const WORLD_MAPS = ['pockets', 'made', 'shop', 'stats', 'town'];
+
+
+
+
+
+
+
+const WORLD_MAPS = ['pockets', 'made', 'shop', 'stats', 'town', 'deeds'];
 const ID_LISTS = ['trees', 'rocks', 'buildings', 'villagers', 'placed'];
 
 
