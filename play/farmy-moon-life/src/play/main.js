@@ -254,6 +254,9 @@ import { createBoardCard } from './boardCard.js';
 import { createDeedsCard } from './deedsCard.js';
 import { deedLines, deedsOf, tally as tallyDeeds, visitPlanet } from 'moon/play/deeds.mjs';
 
+import { createInstallCard } from './installCard.js';
+import { createOffline } from './offline.js';
+
 
 
 
@@ -3062,6 +3065,64 @@ paintDeeds();
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let repaintInstall = () => {};
+const offline = createOffline({ onChange: () => repaintInstall() });
+const installCard = createInstallCard({
+  el: document.getElementById('install'),
+  button: document.getElementById('installopen'),
+  read: () => offline.state,
+  onInstall: () => offline.promptInstall(),
+});
+repaintInstall = () => installCard.render();
+
+
+installCard.render();
+window.addEventListener('load', () => { offline.register(); });
+
+fml.l14 = {
+  get state() { return { ...offline.state }; },
+  get line() { return offline.line; },
+  
+  
+  get shown() {
+    const root = document.getElementById('install');
+    if (!root || root.hidden) return null;
+    return {
+      title: root.querySelector('.title b').textContent,
+      state: root.querySelector('.state').textContent,
+      ready: root.querySelector('.state').dataset.ready === '1',
+      steps: [...root.querySelectorAll('.step')].map((n) => n.textContent),
+      note: root.querySelector('.note') ? root.querySelector('.note').textContent : null,
+    };
+  },
+  card: () => ({ open: installCard.isOpen, ...installCard.stats }),
+  open: () => { installCard.show(); return true; },
+  close: () => { installCard.hide(); return true; },
+};
+
+
+
+
+
+
+
 fml.l15 = {
   get cloud() { return cloud.read(); },
   get lines() { return accountCard.lines; },
@@ -3979,12 +4040,14 @@ function frame(now) {
   
   
   
+  
+  
+  
+  
+  
   const anyOpen = Boolean(card || talk || choice.isOpen || placing || menu.isOpen || soundCard.isOpen
     || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen
-    
-    
-    
-    || accountCard.isOpen || deedsCard.isOpen);
+    || installCard.isOpen || accountCard.isOpen || deedsCard.isOpen);
   const nextAway = autoHideStep(hudAway, { nowS: seconds, speed: player.speed, wokeAtS: hudWokeAtS, anyOpen });
   
   
@@ -4364,7 +4427,9 @@ function frame(now) {
       if (change) applyTier(change.tier, change.reason);
     }
   }
-  if (++frames === 3) { fml.ready = true; timing.mark('ready'); }
+  
+  
+  if (++frames === 3) { fml.ready = true; timing.mark('ready'); offline.gameReady(); }
   requestAnimationFrame(frame);
 }
 

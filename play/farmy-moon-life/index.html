@@ -7,6 +7,35 @@
 <meta name="description" content="Grow an orchard on a tiny seasonal moon, press fruit into juice and jam, sell it to the neighbours, and buy the land off Felice the cat. Craft and place a hundred things, fly to six other planets, and share a code so a friend can visit. Free, no download, no account, and it saves your moon in the browser.">
 <meta name="keywords" content="cozy farming game browser, free farm game no download, animal crossing like browser game, jam making game, moon farming game, cozy game for phone">
 <link rel="canonical" href="https://magesticanstudios.com/play/farmy-moon-life/">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="manifest" href="src/manifest.webmanifest">
+<meta name="theme-color" content="#e8a15a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Farmy Moon">
+<link rel="apple-touch-icon" href="src/install/icon-192.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Play Farmy Moon Life - a cozy farm on a tiny moon">
 <meta property="og:description" content="A moon small enough to walk around before your tea goes cold. Grow an orchard, make jam, keep the neighbours happy, decorate it however you like, and let a friend come and help.">
@@ -587,6 +616,31 @@
 
 
 
+  body.shot #installopen, body.shot #install { display: none; }
+  body.flying #installopen, body.flying #install { display: none; }
+  #install { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(340px, calc(100vw - 20px)); box-sizing: border-box; z-index: 9;
+    background: rgba(255, 248, 236, 0.97); border-radius: 18px; padding: 8px 10px 10px; box-shadow: 0 6px 22px var(--shade);
+    font: 600 13px/1.35 system-ui, sans-serif; touch-action: none; max-height: calc(100vh - 40px); overflow-y: auto; }
+  #install button { font-family: system-ui, sans-serif; color: var(--ink); touch-action: none; }
+  #install .head { display: flex; align-items: center; justify-content: space-between; }
+  #install .title b { font: 800 16px/1.1 system-ui, sans-serif; }
+  #install .close { width: 44px; height: 44px; margin: -4px -6px -4px 0; border: 0; background: transparent; font: 700 26px/1 system-ui, sans-serif; }
+  
+
+
+  #install .state { margin: 4px 0 0; padding: 5px 8px; border-radius: 9px; background: #f7ead6; color: #7a6558; font-size: 12px; }
+  #install .state[data-ready="1"] { background: #e4f1dc; color: #47693a; font-weight: 700; }
+  #install .lead { margin: 8px 0 0; }
+  #install .go { display: block; width: 100%; min-height: 44px; margin: 9px 0 0; border-radius: 22px;
+    border: 3px solid var(--peach); background: var(--cream); font: 800 15px/1.1 system-ui, sans-serif; }
+  #install .steps { margin: 9px 0 0; padding: 0 0 0 20px; }
+  #install .step { padding: 4px 0; }
+  #install .note { margin: 8px 0 0; color: #7a6558; font-size: 12px; }
+  
+
+
+
 
 
 
@@ -970,7 +1024,7 @@
 
 
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=b61e3e9-20260918T134156Z"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=f3477cf-20260918T140704Z"></script>
 <script type="importmap">
 {
   "imports": {
@@ -1034,10 +1088,16 @@
 
 
 
+  <button id="installopen" type="button" aria-label="Install Farmy Moon" hidden>Install</button>
+  
+
+
+
 
   <button id="cloudopen" type="button" aria-label="Sign in to keep your moon in the cloud" hidden>Sign in</button>
 </div>
 <div id="deeds" hidden></div>
+<div id="install" hidden></div>
 <div id="cloud" hidden></div>
 <div id="sound" hidden></div>
 <div id="choose" hidden></div>
@@ -1067,6 +1127,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=b61e3e9-20260918T134156Z"></script>
+<script type="module" src="src/play/main.js?v=f3477cf-20260918T140704Z"></script>
 </body>
 </html>
