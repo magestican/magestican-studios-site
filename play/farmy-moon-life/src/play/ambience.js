@@ -159,6 +159,9 @@ export async function renderTexture(id, {
 
 
 
+
+const CHIRP_AHEAD_S = 1.5;
+
 export function createAmbience({
   audio,
   beds,
@@ -233,24 +236,77 @@ export function createAmbience({
   }
 
   
+
+
+
+
+
+
+
+
   function startCrickets(ctx, bus, now) {
     const level = ctx.createGain();
     level.gain.setValueAtTime(FLOOR, now);
     level.connect(bus);
     const sources = [];
+    const voices = [];
     for (const c of beds.CRICKETS) {
-      const trill = ctx.createGain();
-      trill.gain.value = c.gain * 0.5;
-      sources.push(lfoOnto(ctx, trill.gain, c.trillHz, c.gain * 0.5, now, Infinity));
+      const shape = ctx.createGain();
+      
+      
+      shape.gain.setValueAtTime(0, now);
       const o = ctx.createOscillator();
       o.type = 'sine';
       o.frequency.setValueAtTime(c.hz, now);
-      o.connect(trill);
-      trill.connect(level);
+      o.connect(shape);
+      shape.connect(level);
       o.start(now);
       sources.push(o);
+      
+      
+      voices.push({ spec: c, gain: shape, at: now + 0.35 * (voices.length + 1), index: 0, chirps: 0 });
     }
-    return { level, sources, target: 0, silentSince: null };
+    return { level, sources, voices, target: 0, silentSince: null };
+  }
+
+  
+
+
+
+
+
+  function chirp(v, until) {
+    if (!v || !v.voices) return 0;
+    let laid = 0;
+    for (const voice of v.voices) {
+      const c = voice.spec;
+      
+      
+      
+      
+      
+      
+      
+      
+      const behind = until - CHIRP_AHEAD_S;
+      if (voice.at < behind - c.gapS) voice.at = behind;
+      
+      
+      for (let n = 0; n < 16 && voice.at < until; n += 1) {
+        let t = voice.at;
+        for (let i = 0; i < c.pulses; i += 1) {
+          voice.gain.gain.setValueAtTime(0, t);
+          voice.gain.gain.linearRampToValueAtTime(c.gain, t + beds.CHIRP_ATTACK_S);
+          voice.gain.gain.linearRampToValueAtTime(0, t + beds.CHIRP_ATTACK_S + beds.CHIRP_DECAY_S);
+          t += 1 / c.pulseHz;
+        }
+        voice.at += beds.chirpGap(c, voice.index);
+        voice.index += 1;
+        voice.chirps += 1;
+        laid += 1;
+      }
+    }
+    return laid;
   }
 
   
@@ -340,6 +396,9 @@ export function createAmbience({
           changed = true;
         }
         if (crickets && setLevel('crickets', crickets, targets.crickets, now)) changed = true;
+        
+        
+        if (crickets && targets.crickets > 0) chirp(crickets, now + CHIRP_AHEAD_S);
         if (targets.birds > 0 && now >= nextPhraseAt) { phrase(ctx, bus, now, targets.birds); changed = true; }
       } catch (e) {
         counts.errors += 1;

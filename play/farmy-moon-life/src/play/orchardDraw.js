@@ -81,12 +81,17 @@ export function createOrchardDraw({
     return data;
   }
 
+  let cost = { append: 0, upload: 0, trees: 0 };
+  let warmed = 0;
   const signature = (view) => view.map((v) => `${v.id}:${v.key}@${v.x},${v.z}`).join(';');
 
   async function build(view) {
     const data = new MeshData('orchard');
+    const t0 = performance.now();
     for (const v of view) data.append(dataFor(v), compose(translate(v.x, groundAt(v.x, v.z), v.z), rotateY(v.rotY)));
+    const t1 = performance.now();
     const obj = data.triangleCount ? await toObject3D(data) : new THREE.Group();
+    cost = { append: Math.round(t1 - t0), upload: Math.round(performance.now() - t1), trees: view.length };
     obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
     if (merged) {
       root.remove(merged);
@@ -116,6 +121,42 @@ export function createOrchardDraw({
       out.push({ x: v.x, y: floor + c.height * 0.72, z: v.z, r: c.radius * 0.8, h: c.height * 0.2, kind: v.kind, stage: v.stage, season: s, floor, colours });
     }
     return out;
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  async function warm(view, budgetMs = 6) {
+    let made = 0;
+    let since = performance.now();
+    for (const v of view) {
+      dataFor(v);
+      made += 1;
+      if (performance.now() - since >= budgetMs) {
+        await new Promise((r) => setTimeout(r, 0));
+        since = performance.now();
+      }
+    }
+    warmed += made;
+    return made;
   }
 
   
@@ -170,10 +211,10 @@ export function createOrchardDraw({
   }
 
   return {
-    root, show, topple, update,
+    root, show, warm, topple, update,
     
     sources: () => shed,
-    get stats() { return { rebuilds, triangles, wanted, drawn, ready: wanted === drawn && !running, falling: falling.length, cached: cache.size }; },
+    get stats() { return { rebuilds, triangles, wanted, drawn, ready: wanted === drawn && !running, falling: falling.length, cached: cache.size, cost, warmed }; },
     get triangles() { return triangles; },
   };
 }

@@ -770,7 +770,21 @@ let shelvesDraw = null, customersDraw = null, cards = null, ui = null;
 
 
 
-const audio = createAudio({ muted: state.muted, limiter: MIX.LIMITER, silenceRule: silenceOf });
+const audio = createAudio({
+  muted: state.muted,
+  limiter: MIX.LIMITER,
+  silenceRule: silenceOf,
+  
+  
+  
+  
+  
+  
+  onDead: () => {
+    if (music) music.stop();
+    if (ambience) ambience.stop();
+  },
+});
 const sfx = createSfx({ audio, cues: CUES, patches: PATCHES });
 const sound = createCoinSound({ audio, sfx });
 const voice = createVoice({ audio });
@@ -1064,7 +1078,54 @@ function swapBuilding(which, p, promise, key) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SLOW_MS = 12;
+const SLOW_KEEP = 32;
+const slowSpans = [];
+function timed(what, fn) {
+  const t0 = performance.now();
+  try {
+    return fn();
+  } finally {
+    const ms = performance.now() - t0;
+    if (ms >= SLOW_MS) {
+      slowSpans.push({ what, ms: Math.round(ms), atMs: Math.round(t0) });
+      if (slowSpans.length > SLOW_KEEP) slowSpans.shift();
+    }
+  }
+}
+Object.defineProperty(fml, 'slow', { enumerable: true, get: () => slowSpans.slice() });
+
 function syncBuildings() {
+  return timed('syncBuildings', () => syncBuildingsNow());
+}
+function syncBuildingsNow() {
   const shop = shopOf(world);
   const shopKey = `level${shop.level}`;
   if (shopKey !== shopDrawn) {
@@ -1092,6 +1153,9 @@ function syncBuildings() {
 
 
 function syncFinds(force = false) {
+  return timed('syncFinds', () => syncFindsNow(force));
+}
+function syncFindsNow(force = false) {
   if (!findsDraw) return;
   findsDraw.group.visible = !onHome();
   if (onHome()) {
@@ -1219,6 +1283,9 @@ function shopInfo(t) {
 
 let placedSig = '';
 function syncPlaced() {
+  return timed('syncPlaced', () => syncPlacedNow());
+}
+function syncPlacedNow() {
   if (!collision) return;
   
   
@@ -1317,17 +1384,22 @@ function closeCard() {
 const placementsHere = () => (onHome() ? P : layoutOf(planetAt(planetId, state.system, GENERATED_COUNT)).placements());
 
 function syncOrchard(t) {
+  return timed('syncOrchard', () => syncOrchardNow(t));
+}
+function syncOrchardNow(t) {
   
   
   
-  const next = orchardView(world, t, placementsHere(), undefined, { planet: planetId, focus: layout.FOCUS });
-  const d = diffOrchard(view, next);
+  const next = timed('syncOrchard:view', () => orchardView(world, t, placementsHere(), undefined, { planet: planetId, focus: layout.FOCUS }));
+  const d = timed('syncOrchard:diff', () => diffOrchard(view, next));
   view = next;
   if (!d.any) return;
-  for (const v of d.removed) worldCollision().remove(v.id);
-  for (const v of d.added) worldCollision().add(v.id, treeObstacle(v));
-  for (const { to } of d.changed) worldCollision().add(to.id, treeObstacle(to));
-  orchard.show(view).catch(fail);
+  timed('syncOrchard:collision', () => {
+    for (const v of d.removed) worldCollision().remove(v.id);
+    for (const v of d.added) worldCollision().add(v.id, treeObstacle(v));
+    for (const { to } of d.changed) worldCollision().add(to.id, treeObstacle(to));
+  });
+  timed('syncOrchard:show', () => orchard.show(view).catch(fail));
 }
 
 const holdPoint = new THREE.Vector3();
@@ -1782,6 +1854,22 @@ async function buildPlanet(id) {
     collision: createCollisionWorld({ obstacles, walkEdgeM: planet.radius - planet.rimWidth - EDGE_MARGIN_M }),
   };
   visited.set(id, entry);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  try {
+    await orchard.warm(orchardView(world, econNow(), planetLayout.placements(), undefined, { planet: id, focus: planetLayout.FOCUS }));
+  } catch (e) { fml.problems.push(`warm planet ${id}: ${(e && e.message) || e}`); }
   return entry;
 }
 
@@ -4286,6 +4374,12 @@ function frame(now) {
   
   
   
+  
+  
+  
+  
+  
+  audio.listen(seconds, { expecting: Boolean(music.state.playing) });
   menu.setSilent(audio.silence);
   
   if (soundCard.isOpen) soundCard.paint();
@@ -4641,7 +4735,7 @@ function frame(now) {
     
     const load = timingLine(fml.timing);
     const sample = fml.perfSample ? `  perf_sample ${JSON.stringify(fml.perfSample)}` : '';
-    hudText.textContent = `tier ${fml.tier}  ${fml.fps} fps  calls ${fml.drawCalls}  tris ${fml.triangles}  audio ${audio.contextState}${audio.muted ? ' muted' : ''}${audio.speaking ? ' ducked' : ''}\nWASD/arrows walk, Shift run, E act (hold: fell), F fell, Q seed, C carry${state.carrying ? ' (carrying)' : ''}, B workshop, R turn, Esc put away, J jump (twice: fly), M sound${load ? `\n${load}${sample}` : ''}`;
+    hudText.textContent = `tier ${fml.tier}  ${fml.fps} fps  calls ${fml.drawCalls}  tris ${fml.triangles}${(() => { const w = fml.slow.reduce((a, b) => (b.ms > (a ? a.ms : 0) ? b : a), null); return w ? `  slowest ${w.what} ${w.ms}ms` : ''; })()}  audio ${audio.contextState}${audio.muted ? ' muted' : ''}${audio.speaking ? ' ducked' : ''}\nWASD/arrows walk, Shift run, E act (hold: fell), F fell, Q seed, C carry${state.carrying ? ' (carrying)' : ''}, B workshop, R turn, Esc put away, J jump (twice: fly), M sound${load ? `\n${load}${sample}` : ''}`;
   }
 
   

@@ -56,7 +56,10 @@ export const TONAL_IDS = Object.freeze(['crickets']);
 
 
 
-export const BED_DB = Object.freeze({ wind: 0, birds: -2, crickets: -9, water: 0, rain: -1, hush: -5 });
+
+
+
+export const BED_DB = Object.freeze({ wind: 0, birds: -2, crickets: -13, water: 0, rain: -1, hush: -5 });
 
 
 export const bedPeak = (id) => CEILING.ambience * dbToGain(BED_DB[id] ?? -60);
@@ -244,7 +247,44 @@ export function phraseGap(rand, density) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const CRICKETS = Object.freeze([
-  Object.freeze({ hz: 4150, trillHz: 24, gain: 1 }),
-  Object.freeze({ hz: 4620, trillHz: 31, gain: 0.7 }),
+  Object.freeze({ hz: 4150, pulseHz: 27, pulses: 4, gapS: 1.1, gain: 1 }),
+  Object.freeze({ hz: 4620, pulseHz: 33, pulses: 3, gapS: 1.57, gain: 0.5 }),
 ]);
+
+
+export const CHIRP_ATTACK_S = 0.004;
+export const CHIRP_DECAY_S = 0.018;
+
+
+
+
+
+
+
+export function chirpGap(c, index) {
+  const wobble = 1 + 0.22 * Math.sin((Number(index) || 0) * 2.399963229728653);
+  return c.gapS * wobble;
+}
+
+
+export const chirpLength = (c) => (c.pulses - 1) / c.pulseHz + CHIRP_ATTACK_S + CHIRP_DECAY_S;
