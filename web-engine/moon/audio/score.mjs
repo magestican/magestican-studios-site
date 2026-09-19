@@ -292,11 +292,48 @@ function bassTrack(spec) {
     notes.push(note({ deg: c.deg, midi: root, at: bar * BEATS_PER_BAR, dur: 1.5, gain: LEVELS.bass }));
     
     
+    
+    
+    
+    
+    
+    
+    
     if (spec.bassPerBar > 1) {
-      notes.push(note({ deg: c.deg, midi: root, at: bar * BEATS_PER_BAR + 2.5, dur: 1, gain: LEVELS.bass * 0.7 }));
+      const last = bar % BARS_PER_CHORD === BARS_PER_CHORD - 1;
+      const next = chordAtBar(spec, bar + 1);
+      const liftDeg = last ? next.deg - 1 : c.deg + 4;
+      const lift = (!last && c.semis) ? root + 7 : degreeToMidi(liftDeg, spec.mode, BASS_OCTAVE);
+      notes.push(note({ deg: liftDeg, midi: lift, at: bar * BEATS_PER_BAR + 2.5, dur: 1, gain: LEVELS.bass * 0.7 }));
     }
   }
   return Object.freeze({ instrument: 'bass', notes: Object.freeze(notes) });
+}
+
+
+
+
+
+
+
+
+
+
+
+export const DESCANT_SECTIONS = Object.freeze(['B', 'C']);
+export const DESCANT_BEAT = 2.5;
+
+function descantTrack(spec) {
+  const notes = [];
+  const level = LEVELS.pluck * 0.4;
+  for (const sec of SECTIONS) {
+    if (!DESCANT_SECTIONS.includes(sec.name)) continue;
+    for (let b = sec.atBar; b < sec.atBar + sec.bars; b += 1) {
+      const fifth = chordMidi(chordAtBar(spec, b), spec.mode, PLUCK_OCTAVE, 3)[2];
+      notes.push(note({ deg: fifth.deg, midi: fifth.midi, at: b * BEATS_PER_BAR + DESCANT_BEAT, dur: 1, gain: level }));
+    }
+  }
+  return Object.freeze({ instrument: 'pluck', notes: Object.freeze(notes) });
 }
 
 function shakerTrack() {
@@ -319,6 +356,7 @@ export function buildArrangement(season, night) {
   if (!night) {
     tracks.push(bassTrack(spec));
     if (spec.shaker) tracks.push(shakerTrack());
+    if (spec.answers) tracks.push(descantTrack(spec));
   }
   return Object.freeze({
     id: arrangementId(season, night),

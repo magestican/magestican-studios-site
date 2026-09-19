@@ -1,0 +1,385 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const RENDER_RATE = 22050;
+
+
+
+
+
+
+export const AFTER_FRAMES = 60;
+
+
+const FLOOR = 0.0001;
+
+
+function noiseBuffer(ctx, length, seed) {
+  const buf = ctx.createBuffer(1, length, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  let n = (seed >>> 0) || 1;
+  for (let i = 0; i < d.length; i += 1) { n = (Math.imul(n, 1664525) + 1013904223) >>> 0; d[i] = (n / 4294967296) * 2 - 1; }
+  return buf;
+}
+
+const sumDepth = (lfos) => lfos.reduce((s, l) => s + l.depth, 0);
+
+
+
+
+
+
+
+function lfoOnto(ctx, param, hz, depth, at, until) {
+  const o = ctx.createOscillator();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(hz, at);
+  const g = ctx.createGain();
+  g.gain.value = depth;
+  o.connect(g);
+  g.connect(param);
+  o.start(at);
+  if (Number.isFinite(until)) o.stop(until);
+  return o;
+}
+
+
+
+
+
+
+
+
+
+
+export async function renderTexture(id, {
+  beds,
+  mix,
+  rate = RENDER_RATE,
+  Offline = (typeof globalThis === 'undefined' ? null : (globalThis.OfflineAudioContext || globalThis.webkitOfflineAudioContext)),
+  clock = (typeof performance === 'undefined' ? Date : performance),
+} = {}) {
+  if (!beds || !mix) throw new Error('renderTexture needs the ambience and mix tables from web-engine/moon/audio');
+  if (!Offline) throw new Error('renderTexture needs an OfflineAudioContext');
+  const spec = beds.TEXTURES[id];
+  if (!spec) throw new Error(`no such texture: ${id}`);
+  const t0 = clock.now();
+  const loop = Math.round(rate * spec.seconds);
+  const blend = Math.round(rate * beds.BLEND_S);
+  const length = loop + blend;
+  const total = length / rate;
+  const ctx = new Offline(1, length, rate);
+
+  
+  
+  const level = ctx.createGain();
+  level.gain.value = Math.max(0.05, 1 - sumDepth(spec.lfo));
+  level.connect(ctx.destination);
+  for (const l of spec.lfo) lfoOnto(ctx, level.gain, l.hz, l.depth, 0, total);
+
+  const src = ctx.createBufferSource();
+  src.buffer = noiseBuffer(ctx, length, spec.seed);
+  for (const layer of spec.layers) {
+    const bq = ctx.createBiquadFilter();
+    bq.type = layer.filter;
+    bq.frequency.value = layer.f;
+    bq.Q.value = layer.q;
+    const g = ctx.createGain();
+    g.gain.value = layer.gain;
+    src.connect(bq);
+    bq.connect(g);
+    g.connect(level);
+  }
+  src.start(0);
+  src.stop(total);
+
+  const rendered = await ctx.startRendering();
+  const data = rendered.getChannelData(0);
+  const blended = beds.blendLoop(data, loop, blend);
+  
+  
+  mix.normalizePeak(data, beds.bedPeak(id), loop);
+  return {
+    id,
+    buffer: rendered,
+    loopSamples: loop,
+    loopSeconds: loop / rate,
+    rate,
+    blended,
+    peak: mix.peakOf(data, loop),
+    ms: Math.round(clock.now() - t0),
+  };
+}
+
+
+
+
+
+
+
+
+export function createAmbience({
+  audio,
+  beds,
+  mix,
+  rate = RENDER_RATE,
+  fadeS,
+  afterFrames = AFTER_FRAMES,
+  render = renderTexture,
+  Offline,
+  seed = 20260919,
+} = {}) {
+  if (!beds || !mix) throw new Error('createAmbience needs the ambience and mix tables from web-engine/moon/audio');
+  const fade = fadeS ?? beds.FADE_S;
+  const textures = new Map();       
+  const ms = {};                    
+  const counts = { renders: 0, errors: 0, starts: 0, stops: 0, phrases: 0, chirps: 0 };
+  const live = new Map();           
+  let targets = beds.bedsFor({});
+  let rendering = false;
+  let renderedAll = false;
+  let lastError = '';
+
+  
+  const rand = beds.lcg(seed);
+  const voices = [beds.birdVoice(rand), beds.birdVoice(rand)];
+  let nextPhraseAt = 0;
+
+  async function renderAll() {
+    rendering = true;
+    for (const id of beds.TEXTURE_IDS) {
+      try {
+        const entry = await render(id, { beds, mix, rate, Offline });
+        textures.set(id, entry);
+        ms[id] = entry.ms;
+        counts.renders += 1;
+      } catch (e) {
+        counts.errors += 1;
+        lastError = String((e && e.message) || e);
+      }
+    }
+    rendering = false;
+    renderedAll = true;
+  }
+
+  
+  function startTexture(id, ctx, bus, now) {
+    const entry = textures.get(id);
+    if (!entry) return null;
+    const level = ctx.createGain();
+    level.gain.setValueAtTime(FLOOR, now);
+    level.connect(bus);
+    const sources = [];
+    let into = level;
+    if (id === 'wind') {
+      const gust = ctx.createGain();
+      gust.gain.value = Math.max(0.05, 1 - sumDepth(beds.GUST));
+      for (const g of beds.GUST) sources.push(lfoOnto(ctx, gust.gain, g.hz, g.depth, now, Infinity));
+      gust.connect(level);
+      into = gust;
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = entry.buffer;
+    src.loop = true;
+    src.loopStart = 0;
+    
+    
+    src.loopEnd = entry.loopSeconds;
+    src.connect(into);
+    src.start(now);
+    sources.push(src);
+    return { level, sources, target: 0, silentSince: null };
+  }
+
+  
+  function startCrickets(ctx, bus, now) {
+    const level = ctx.createGain();
+    level.gain.setValueAtTime(FLOOR, now);
+    level.connect(bus);
+    const sources = [];
+    for (const c of beds.CRICKETS) {
+      const trill = ctx.createGain();
+      trill.gain.value = c.gain * 0.5;
+      sources.push(lfoOnto(ctx, trill.gain, c.trillHz, c.gain * 0.5, now, Infinity));
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(c.hz, now);
+      o.connect(trill);
+      trill.connect(level);
+      o.start(now);
+      sources.push(o);
+    }
+    return { level, sources, target: 0, silentSince: null };
+  }
+
+  
+  function setLevel(id, v, target, now) {
+    if (Math.abs(target - v.target) < 0.01 && !(target === 0 && v.target !== 0)) return false;
+    v.target = target;
+    const to = Math.max(FLOOR, target * beds.bedPeak(id));
+    try {
+      v.level.gain.cancelScheduledValues(now);
+      v.level.gain.setValueAtTime(Math.max(FLOOR, v.level.gain.value), now);
+      v.level.gain.linearRampToValueAtTime(to, now + fade);
+    } catch {  }
+    v.silentSince = target <= 0 ? now : null;
+    return true;
+  }
+
+  
+  function sweep(now) {
+    for (const [id, v] of live) {
+      if (v.silentSince === null || now - v.silentSince < fade + beds.SILENT_STOP_S) continue;
+      for (const s of v.sources) { try { s.stop(now); } catch {  } }
+      live.delete(id);
+      counts.stops += 1;
+    }
+  }
+
+  
+  function phrase(ctx, bus, now, density) {
+    const voice = voices[rand() < 0.5 ? 0 : 1];
+    const notes = beds.chirpPhrase(rand, voice);
+    const peak = beds.bedPeak('birds') * density * (0.7 + rand() * 0.3);
+    for (const n of notes) {
+      const at = now + 0.02 + n.at;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(FLOOR, at);
+      g.gain.exponentialRampToValueAtTime(Math.max(FLOOR * 2, peak * n.gain), at + 0.008);
+      g.gain.exponentialRampToValueAtTime(FLOOR, at + n.dur);
+      g.connect(bus);
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(n.hz0, at);
+      o.frequency.exponentialRampToValueAtTime(n.hz1, at + n.dur);
+      o.connect(g);
+      o.start(at);
+      o.stop(at + n.dur + 0.02);
+    }
+    counts.phrases += 1;
+    counts.chirps += notes.length;
+    nextPhraseAt = now + beds.phraseGap(rand, density);
+  }
+
+  return {
+    
+
+
+
+
+    tick({ frames = Infinity, season = 'summer', night = false, weather = 'clear', waterM = Infinity } = {}) {
+      targets = beds.bedsFor({ season, night, weather, waterM });
+      if (frames < afterFrames) return false;
+      if (!renderedAll && !rendering) renderAll();
+
+      const ctx = audio && audio.ctx;
+      const bus = audio && audio.ambience;
+      if (!ctx || !bus) return false;
+      const now = ctx.currentTime;
+      let changed = false;
+      try {
+        sweep(now);
+        for (const id of beds.TEXTURE_IDS) {
+          let v = live.get(id);
+          if (!v) {
+            if (!(targets[id] > 0) || !textures.has(id)) continue;
+            v = startTexture(id, ctx, bus, now);
+            if (!v) continue;
+            live.set(id, v);
+            counts.starts += 1;
+            changed = true;
+          }
+          if (setLevel(id, v, targets[id], now)) changed = true;
+        }
+        let crickets = live.get('crickets');
+        if (!crickets && targets.crickets > 0) {
+          crickets = startCrickets(ctx, bus, now);
+          live.set('crickets', crickets);
+          counts.starts += 1;
+          changed = true;
+        }
+        if (crickets && setLevel('crickets', crickets, targets.crickets, now)) changed = true;
+        if (targets.birds > 0 && now >= nextPhraseAt) { phrase(ctx, bus, now, targets.birds); changed = true; }
+      } catch (e) {
+        counts.errors += 1;
+        lastError = String((e && e.message) || e);
+      }
+      return changed;
+    },
+
+    
+    get state() {
+      return {
+        targets: { ...targets },
+        live: [...live.keys()],
+        rendered: [...textures.keys()],
+        rendering,
+        rate,
+        ms: { ...ms },
+        nextPhraseAt,
+        ...counts,
+        error: lastError,
+      };
+    },
+
+    
+    prepare(id) {
+      if (!beds.TEXTURES[id]) return Promise.resolve(null);
+      if (textures.has(id)) return Promise.resolve(textures.get(id));
+      return render(id, { beds, mix, rate, Offline })
+        .then((entry) => { textures.set(id, entry); ms[id] = entry.ms; counts.renders += 1; return entry; })
+        .catch((e) => { counts.errors += 1; lastError = String((e && e.message) || e); return null; });
+    },
+
+    
+    stop() {
+      const now = audio && audio.ctx ? audio.ctx.currentTime : 0;
+      for (const v of live.values()) {
+        for (const s of v.sources) { try { s.stop(now); } catch {  } }
+      }
+      live.clear();
+      return true;
+    },
+  };
+}

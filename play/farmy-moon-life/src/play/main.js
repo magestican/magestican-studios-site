@@ -122,6 +122,7 @@ import { createWorldUi } from './worldUi.js';
 import { createCoinSound } from './coinSound.js';
 import { createSfx } from './sfx.js';
 import { createMusic } from './music.js';
+import { createAmbience } from './ambience.js';
 import { CUES } from 'moon/audio/cues.mjs';
 import { PATCHES } from 'moon/audio/patches.mjs';
 
@@ -130,6 +131,9 @@ import { PATCHES } from 'moon/audio/patches.mjs';
 
 import * as SCORE from 'moon/audio/score.mjs';
 import * as MIX from 'moon/audio/mix.mjs';
+
+
+import * as AMBIENCE from 'moon/audio/ambience.mjs';
 
 
 import { cueForEvents } from 'moon/audio/verbs.mjs';
@@ -770,6 +774,31 @@ const voice = createVoice({ audio });
 
 
 const music = createMusic({ audio, score: SCORE, mix: MIX });
+
+
+
+
+const ambience = createAmbience({ audio, beds: AMBIENCE, mix: MIX });
+
+
+
+
+
+
+function nearestWaterM() {
+  let best = Infinity;
+  for (const p of placedOn(world, planetId)) {
+    const craft = p.spot && CRAFTABLES[p.item];
+    if (!craft || craft.category !== 'water') continue;
+    const d = Math.hypot(p.spot.x - player.x, p.spot.z - player.z);
+    if (d < best) best = d;
+  }
+  if (onHome() && processorOf(world)) {
+    const d = Math.hypot(PRESS_P.x - player.x, PRESS_P.z - player.z);
+    if (d < best) best = d;
+  }
+  return best;
+}
 
 
 state.muted = audio.muted;
@@ -2462,7 +2491,7 @@ Object.defineProperty(fml, 'audio', {
   
   
   
-  get: () => ({ ...audio.state, sfx: sfx.state, card: { ...soundCard.stats }, feet: feet.state, music: music.state }),
+  get: () => ({ ...audio.state, sfx: sfx.state, card: { ...soundCard.stats }, feet: feet.state, music: music.state, ambience: ambience.state }),
 });
 Object.defineProperty(fml, 'buildings', {
   enumerable: true,
@@ -4553,6 +4582,10 @@ function frame(now) {
   
   
   music.tick({ frames: fml.frames, season: seasonNow(), night: isDark(world, t) });
+  
+  
+  
+  ambience.tick({ frames: fml.frames, season: seasonNow(), night: isDark(world, t), weather: weatherNow().id, waterM: nearestWaterM() });
   fml.frames++;
   fml.drawCalls = renderer.info.render.calls;
   fml.triangles = baseTriangles + orchard.triangles + shelvesDraw.triangles + buildingTris.shop + buildingTris.press 

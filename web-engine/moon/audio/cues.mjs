@@ -50,7 +50,10 @@ export const CUES = Object.freeze({
   
   
   
-  'move.step': cue('step', 0.16, 60, 0),
+  
+  
+  
+  'move.step': cue('step', 0.09, 60, 0),
   'ui.verb': cue('verbTick', 0.35, 30, 1),
   'tool.chop': cue('chop', 0.3, 45, 2),
   'tool.dig': cue('dig', 0.28, 50, 2),

@@ -87,9 +87,12 @@ export const PATCHES = Object.freeze({
 
   
   
+  
+  
+  
   step: patch('a soft footfall on grass', [
-    { noise: true, attack: 0.003, decay: 0.07, gain: 0.5, filter: { type: 'lowpass', f: 900, q: 0.8 } },
-    { wave: 'sine', f0: 150, f1: 92, attack: 0.004, decay: 0.085, gain: 0.35 },
+    { noise: true, attack: 0.004, decay: 0.07, gain: 0.4, filter: { type: 'lowpass', f: 620, q: 0.8 } },
+    { wave: 'sine', f0: 150, f1: 92, attack: 0.005, decay: 0.085, gain: 0.35 },
   ]),
   
   
