@@ -1141,7 +1141,7 @@
 
 
 
-<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=62f5ba1-20260919T072401Z"></script>
+<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=a53ff7d-20260919T075339Z"></script>
 
 
 
@@ -1242,21 +1242,32 @@
     if (!window.__fml) window.__fml = { ready: false, error: null };
     return window.__fml;
   }
-  function stop(why) {
+  
+  
+  
+  
+  
+  var BLOCKED_SAY = 'Something on this network blocked a file the game needs.';
+  var BLOCKED_MORE = 'Farmy Moon Life is meant to run anywhere - it has no adverts and'
+    + ' loads nothing from anyone else. If you are on a work or school network,'
+    + ' allowing this site should be all it takes. Reloading often works too.';
+  var SLOW_SAY = 'This is taking much longer than it should.';
+  var SLOW_MORE = 'Nothing here has gone wrong - the moon is just being built very slowly on this'
+    + ' device. Reloading usually fixes it, and the next visit is faster because'
+    + ' most of it is kept.';
+  function stop(why, said, more) {
     var fml = live();
     if (fml.ready || fml.error) return;
     fml.error = String(why || 'the game could not start');
     var box = document.getElementById('loading');
     if (!box) return;
     var say = document.getElementById('loadingsay');
-    if (say) say.textContent = 'Something on this network blocked a file the game needs.';
+    if (say) say.textContent = said || BLOCKED_SAY;
     var bar = document.getElementById('loadingbar');
     if (bar) bar.hidden = true;
     var p = document.createElement('p');
     p.id = 'loadingwhy';
-    p.textContent = 'Farmy Moon Life is meant to run anywhere - it has no adverts and'
-      + ' loads nothing from anyone else. If you are on a work or school network,'
-      + ' allowing this site should be all it takes. Reloading often works too.';
+    p.textContent = more || BLOCKED_MORE;
     box.appendChild(p);
   }
   
@@ -1318,7 +1329,46 @@
   
   
   
-  setTimeout(function () { stop('the game did not start in time'); }, 45000);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  var BOOT_MS = 45000, BOOT_WAITS = 4, waited = 0;
+  function drewAFrame() {
+    var fml = live();
+    return Boolean(fml.timing && fml.timing.firstFrame > 0);
+  }
+  function bootCheck() {
+    var fml = live();
+    if (fml.ready || fml.error) return;
+    var drew = drewAFrame();
+    if (drew && waited < BOOT_WAITS) {
+      waited += 1;
+      var say = document.getElementById('loadingsay');
+      if (say) say.textContent = 'Still working - this moon is taking a while to build.';
+      setTimeout(bootCheck, BOOT_MS);
+      return;
+    }
+    stop('the game did not start in time', drew ? SLOW_SAY : null, drew ? SLOW_MORE : null);
+  }
+  setTimeout(bootCheck, BOOT_MS);
 }());
 </script>
 </head>
@@ -1424,6 +1474,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=62f5ba1-20260919T072401Z"></script>
+<script type="module" src="src/play/main.js?v=a53ff7d-20260919T075339Z"></script>
 </body>
 </html>
