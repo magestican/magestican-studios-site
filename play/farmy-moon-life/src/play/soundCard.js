@@ -17,6 +17,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
 const BUSES = Object.freeze([
   ['music', 'Music'],
   ['sfx', 'Effects'],
@@ -32,7 +41,7 @@ export function createSoundCard({ el, button, audio, onMute = () => {}, onTouch 
     return n;
   };
   const sliders = new Map();
-  let open = false, muteButton = null;
+  let open = false, muteButton = null, whyLine = null;
   const stats = { open: false, moves: 0 };
 
   
@@ -72,7 +81,9 @@ export function createSoundCard({ el, button, audio, onMute = () => {}, onTouch 
     });
 
     muteButton = tapButton('mute', 'mute', 'Sound on', () => { onMute(); paint(); });
-    el.replaceChildren(head, ...rows, muteButton);
+    whyLine = node('p', 'why');
+    whyLine.dataset.why = '';
+    el.replaceChildren(head, ...rows, muteButton, whyLine);
   }
 
   
@@ -82,6 +93,14 @@ export function createSoundCard({ el, button, audio, onMute = () => {}, onTouch 
     if (muteButton) {
       muteButton.classList.toggle('off', audio.muted);
       muteButton.textContent = audio.muted ? 'Sound off' : 'Sound on';
+    }
+    
+    
+    if (whyLine) {
+      const why = audio.silence || { silent: false, reason: null, line: '' };
+      whyLine.textContent = why.line || '';
+      whyLine.dataset.why = why.silent ? String(why.reason || 'muted') : 'ok';
+      whyLine.hidden = !why.line;
     }
   }
 

@@ -31,8 +31,23 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function createMenu({ el, button, onOpen = () => {}, onTouch = () => {} }) {
-  let open = false, live = false;
+  let open = false, live = false, silentWhy = null;
+  const baseLabel = button.getAttribute('aria-label') || 'Menu';
   const stats = { opens: 0, picks: 0 };
 
   
@@ -86,6 +101,20 @@ export function createMenu({ el, button, onOpen = () => {}, onTouch = () => {} }
       button.classList.toggle('live', live);
     },
     get live() { return live; },
+    
+
+
+
+
+
+    setSilent(s) {
+      const why = s && s.silent ? String(s.reason || 'muted') : null;
+      if (why === silentWhy) return;
+      silentWhy = why;
+      if (why) button.dataset.silent = why; else delete button.dataset.silent;
+      button.setAttribute('aria-label', why && s.short ? `${baseLabel} - ${s.short}` : baseLabel);
+    },
+    get silent() { return silentWhy; },
     stats,
   };
 }

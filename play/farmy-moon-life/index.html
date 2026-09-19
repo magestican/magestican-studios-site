@@ -776,6 +776,23 @@
 
   #menu.live::after { content: ''; position: absolute; right: -3px; top: -3px; width: 13px; height: 13px;
     border-radius: 50%; background: #7fb85e; border: 2px solid var(--cream); }
+  
+
+
+
+
+
+
+
+
+  #menu[data-silent]::before { content: ''; position: absolute; right: -4px; bottom: -4px;
+    width: 19px; height: 19px; border-radius: 50%; background: var(--peach);
+    border: 2px solid var(--cream); box-sizing: border-box;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2.6 6.1h2.3L8.4 3v10L4.9 9.9H2.6z' fill='%23fffaf0'/%3E%3Cpath d='M10.9 5.9l4 4.2M14.9 5.9l-4 4.2' stroke='%23fffaf0' stroke-width='1.7' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: 50% 50%; background-size: 12px 12px; }
+  
+
+  #menu[data-silent="locked"]::before { opacity: 0.72; }
   #menusheet { position: fixed; left: calc(10px + env(safe-area-inset-left)); top: calc(112px + env(safe-area-inset-top));
     z-index: 9; width: 196px; box-sizing: border-box; padding: 8px; border-radius: 18px;
     background: var(--cream); border: 3px solid var(--peach); box-shadow: 0 6px 20px var(--shade);
@@ -788,6 +805,12 @@
   
 
   #mute.off { color: rgba(58, 47, 42, 0.6); }
+  
+
+
+  #sound .why { margin: 8px 2px 0; font: 600 12px/1.35 system-ui, sans-serif; color: rgba(58, 47, 42, 0.72); }
+  #sound .why[hidden] { display: none; }
+  #sound .why:not([data-why="ok"]) { color: var(--ink); }
   #mute.open { background: #ffe4bf; }
   
 
@@ -1118,7 +1141,7 @@
 
 
 
-<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=22ab2db-20260919T063900Z"></script>
+<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=62f5ba1-20260919T072401Z"></script>
 
 
 
@@ -1401,6 +1424,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=22ab2db-20260919T063900Z"></script>
+<script type="module" src="src/play/main.js?v=62f5ba1-20260919T072401Z"></script>
 </body>
 </html>

@@ -131,6 +131,7 @@ import { PATCHES } from 'moon/audio/patches.mjs';
 
 import * as SCORE from 'moon/audio/score.mjs';
 import * as MIX from 'moon/audio/mix.mjs';
+import { silenceOf } from 'moon/audio/silence.mjs';
 
 
 import * as AMBIENCE from 'moon/audio/ambience.mjs';
@@ -767,7 +768,9 @@ let shelvesDraw = null, customersDraw = null, cards = null, ui = null;
 
 
 
-const audio = createAudio({ muted: state.muted, limiter: MIX.LIMITER });
+
+
+const audio = createAudio({ muted: state.muted, limiter: MIX.LIMITER, silenceRule: silenceOf });
 const sfx = createSfx({ audio, cues: CUES, patches: PATCHES });
 const sound = createCoinSound({ audio, sfx });
 const voice = createVoice({ audio });
@@ -4278,6 +4281,14 @@ function frame(now) {
   
   
   menu.setLive(visitButton.classList.contains('live'));
+  
+  
+  
+  
+  
+  menu.setSilent(audio.silence);
+  
+  if (soundCard.isOpen) soundCard.paint();
 
   hud.update(prompt, holdProgress, seconds);
   

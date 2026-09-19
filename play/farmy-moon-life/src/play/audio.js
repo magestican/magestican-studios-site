@@ -45,7 +45,46 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const BUS_NAMES = Object.freeze(['music', 'sfx', 'ambience', 'voice']);
+
+
+
+
+export const RUNNING = 'running';
 export const AUDIO_KEY = 'fml.audio';
 export const DEFAULT_SETTINGS = Object.freeze({ master: 0.9, music: 0.7, sfx: 1, ambience: 0.6, voice: 1 });
 
@@ -108,6 +147,12 @@ export function createAudio({
   doc = typeof document === 'undefined' ? null : document,
   storage = defaultStorage(),
   limiter = null,
+  
+  
+  
+  
+  
+  silenceRule = null,
 } = {}) {
   const stored = readSettings(storage);
   const levels = {};
@@ -161,7 +206,8 @@ export function createAudio({
         bus.connect(master);
         buses[name] = bus;
       }
-      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      watchContext();
+      if (ctx.state !== RUNNING) { try { ctx.resume().catch(() => {}); } catch {  } }
       state.unlocked = true;
     } catch {
       ctx = null;
@@ -176,38 +222,79 @@ export function createAudio({
   
   const GESTURES = ['pointerdown', 'keydown', 'touchend'];
   let armed = false;
+  
+  
+  
+  const isRunning = () => Boolean(ctx) && ctx.state === RUNNING;
   function disarm() {
     if (!armed || !target) return;
     armed = false;
     for (const type of GESTURES) target.removeEventListener(type, onGesture, true);
-  }
-  function onGesture() {
-    unlock();
-    if (ctx && ctx.state === 'suspended') { state.resumes += 1; ctx.resume().catch(() => {}); }
-    if (ctx && ctx.state !== 'suspended') disarm();
   }
   function arm() {
     if (armed || !target) return;
     armed = true;
     for (const type of GESTURES) target.addEventListener(type, onGesture, true);
   }
+  
+  function settle() {
+    if (isRunning()) disarm(); else arm();
+  }
+  function tryResume() {
+    if (!ctx || isRunning()) return false;
+    state.resumes += 1;
+    try {
+      const r = ctx.resume();
+      if (r && typeof r.catch === 'function') r.catch(() => {});
+    } catch {  }
+    
+    settle();
+    return true;
+  }
+  function onGesture() {
+    unlock();
+    tryResume();
+    settle();
+  }
   arm();
 
+  
+  
+  
+  function watchContext() {
+    if (!ctx) return;
+    try { ctx.onstatechange = settle; } catch {  }
+  }
+
+  
+  
+  
+  
+  function onShown() {
+    if (!ctx) return;
+    tryResume();
+    arm();
+  }
   function onVisibility() {
     if (!ctx) return;
     if (doc && doc.hidden) {
       state.suspends += 1;
       try { ctx.suspend(); } catch {  }
+      arm();
       return;
     }
-    
-    
-    
-    state.resumes += 1;
-    try { ctx.resume().catch(() => {}); } catch {  }
-    arm();
+    onShown();
   }
   if (doc && doc.addEventListener) doc.addEventListener('visibilitychange', onVisibility);
+  if (target && target.addEventListener) {
+    target.addEventListener('pageshow', onShown);
+    target.addEventListener('focus', onShown);
+  }
+
+  function silenceNow() {
+    const now = { muted: state.muted, unlocked: state.unlocked, ctxState: ctx ? ctx.state : 'none', master: levels.master };
+    return silenceRule ? silenceRule(now) : { silent: state.muted, reason: state.muted ? 'muted' : null, short: '', line: '' };
+  }
 
   function persist() {
     writeSettings(storage, { ...levels, muted: state.muted });
@@ -228,13 +315,20 @@ export function createAudio({
     get speaking() { return state.speaking; },
     get levels() { return { ...levels }; },
     get contextState() { return ctx ? ctx.state : 'none'; },
+    
+
+
+
+
+    get silence() { return silenceNow(); },
     get state() {
       
       
       
       return { unlocked: state.unlocked, muted: state.muted, speaking: state.speaking, ctx: ctx ? ctx.state : 'none',
         levels: { ...levels }, suspends: state.suspends, resumes: state.resumes,
-        limited: Boolean(limit), reduction: limit && typeof limit.reduction === 'number' ? limit.reduction : 0 };
+        limited: Boolean(limit), reduction: limit && typeof limit.reduction === 'number' ? limit.reduction : 0,
+        silence: silenceNow() };
     },
 
     setMuted(m) {
