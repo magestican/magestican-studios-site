@@ -124,7 +124,7 @@
   <script type="module">
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
     import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
-    import { initAnalytics } from '/web-engine/analytics/analytics.js';
+    import { initAnalytics } from '/web-engine/visits/visits.js';
     import { recordSession, accountSummary, syncFromCloud } from '/web-engine/account/account.js';
     import { mountAccountBadge } from '/web-engine/account/accountBadge.js';
     startVersionChecker({ label: 'A new version of Zelakas In Space is available.' });
@@ -182,6 +182,33 @@
     const MUTE_KEY = 'zelakas.muted';
 
     window.addEventListener("load", () => {
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (!window.RufflePlayer || typeof window.RufflePlayer.newest !== "function") {
+        const stage = document.getElementById("stage");
+        if (stage) {
+          const say = document.createElement("p");
+          say.className = "ruffle-missing";
+          say.textContent = "The Flash player this game runs in could not be "
+            + "downloaded. Something on this network blocked it - on a work or "
+            + "school connection, allowing unpkg.com is usually all it takes. "
+            + "The other games on this site do not need it.";
+          stage.appendChild(say);
+        }
+        return;
+      }
       
       const ruffle = window.RufflePlayer.newest();
       const player = ruffle.createPlayer();

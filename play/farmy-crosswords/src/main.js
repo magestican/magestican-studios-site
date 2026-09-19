@@ -16,7 +16,7 @@
 
 
 
-import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
+import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { GAMES, saveKey, puzzleForDay, LAST_KEY } from '../../../web-engine/words/puzzlePick.js';

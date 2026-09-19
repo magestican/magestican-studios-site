@@ -178,7 +178,7 @@
        guard caught exactly that. -->
   <script type="module">
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
-    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     import('/assets/studioBanner.js').catch(() => {});
     startVersionChecker();
     initAnalytics({ page: 'magazine/farmyshoot-for-people-who-dont-play-games' });

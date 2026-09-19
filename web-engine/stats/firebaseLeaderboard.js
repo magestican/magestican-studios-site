@@ -31,7 +31,7 @@ import { toPublicDto, fromPublicDto, isPublishable, playerKey } from './leaderbo
 
 import {
   PLAY_COUNTS_COLLECTION, isCountedGameId, shouldCountPlay, COUNTED_GAME_IDS,
-} from '../analytics/playCounts.js';
+} from '../visits/playCounts.js';
 
 let _state = null;      
 

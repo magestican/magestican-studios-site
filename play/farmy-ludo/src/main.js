@@ -39,7 +39,7 @@
 
 
 
-import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
+import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import * as sfx from './sfx.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { tick } from '../../../web-engine/words/frameLoop.js';

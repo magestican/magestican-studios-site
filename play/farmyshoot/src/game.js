@@ -18,7 +18,7 @@ import {
 import {
   createFrameGuard, frameOk, frameFailed,
 } from '../../../web-engine/render/frameGuard.js';
-import { showBanner, hideBanner } from '../../../web-engine/updater/banner.js';
+import { showBanner, hideBanner } from '../../../web-engine/updater/updateNotice.js';
 
 
 const GFX_BANNER = 'fs-graphics-banner';

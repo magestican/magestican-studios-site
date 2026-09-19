@@ -152,7 +152,13 @@ export function createAccountCard({ el: root, button: opener, cloud, onOpened = 
         
         acts.append(button('go', 'use', 'Load the newer moon from the cloud', () => {
           stats.taps += 1;
-          cloud.useNewer();
+          
+          
+          
+          
+          
+          
+          cloud.useNewer().then(() => card.render(), () => card.render());
         }));
       }
       if (v.can.signOut) {

@@ -43,7 +43,7 @@
 
 
 
-import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
+import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { routeKey } from '../../../web-engine/words/keyRouter.js';

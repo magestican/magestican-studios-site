@@ -33,7 +33,7 @@ import { flightsHome, ringView } from 'moon/world/planets.mjs';
 export const ARRIVE_SECONDS = 6;
 const MAX_FRAME_S = 0.1;
 
-export function createPlaceBanner({ place, where, ring, arrive, systemSeed, count }) {
+export function createPlaceNotice({ place, where, ring, arrive, systemSeed, count }) {
   let ringSig = null;
   let showing = 0; 
 

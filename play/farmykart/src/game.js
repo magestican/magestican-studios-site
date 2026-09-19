@@ -93,7 +93,7 @@ import { createFrameGuard, frameOk, frameFailed, restartFrameGuard } from '../..
 
 
 
-import { showBanner as showPageBanner, hideBanner as hidePageBanner } from '../../../web-engine/updater/banner.js';
+import { showBanner as showPageBanner, hideBanner as hidePageBanner } from '../../../web-engine/updater/updateNotice.js';
 import { trackById, itemStopsFor } from './tracks/tracks.js';
 import { buildTrackMesh, buildFences, SHOULDER } from './render/trackMesh.js';
 import { buildScenery } from './render/props.js';

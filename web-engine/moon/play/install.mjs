@@ -52,7 +52,7 @@
 
 
 export const CACHE_PREFIX = 'farmy-moon-';
-export const CACHE_VERSION = 'l14-1';
+export const CACHE_VERSION = 'l19-1';
 export const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 
 
@@ -65,7 +65,13 @@ export const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 
 
 
-export const CDN_HOSTS = Object.freeze(['unpkg.com']);
+
+
+
+
+
+
+export const CDN_HOSTS = Object.freeze([]);
 
 
 

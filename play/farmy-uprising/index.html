@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="build" content="1e0397a-20260918T234301Z">
+<meta name="build" content="73ae659-20260919T013915Z">
 <title>Play Farmy Uprising — free browser strategy game, no download | Magestican Studios</title>
 <meta name="description" content="Play Farmy Uprising free in your browser. Mother Nature woke the animals up and they want the farms gone. Ten-minute asymmetrical strategy: farmers against animals, a map cut into sectors, and a score measured in land-seconds. Phone, desktop and controller. No download, no install, no account.">
 <link rel="canonical" href="https://magesticanstudios.com/play/farmy-uprising/">
@@ -1743,11 +1743,19 @@ html[data-skin=yield] #end-title{font-family:var(--mono);letter-spacing:2px;text
 
 
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=1e0397a-20260918T234301Z"></script>
+
+
+
+
+
+
+
+
+<script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=73ae659-20260919T013915Z"></script>
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.161.0/build/three.module.js"
+    "three": "../../web-engine/vendor/three-0.161.0/three.module.js"
   }
 }
 </script>
@@ -1755,12 +1763,12 @@ html[data-skin=yield] #end-title{font-family:var(--mono);letter-spacing:2px;text
 
 
 <script type="module">
-  import { initAnalytics, trackPlayClicks } from '../../web-engine/analytics/analytics.js';
+  import { initAnalytics, trackPlayClicks } from '../../web-engine/visits/visits.js';
   try {
     initAnalytics({ page: 'farmy-uprising' });
     trackPlayClicks();
   } catch {  }
 </script>
-<script type="module" src="./src/main.js?v=1e0397a-20260918T234301Z"></script>
+<script type="module" src="./src/main.js?v=73ae659-20260919T013915Z"></script>
 </body>
 </html>

@@ -53,7 +53,7 @@
 
 
 
-<link rel="modulepreload" href="../../web-engine/analytics/analytics.js">
+<link rel="modulepreload" href="../../web-engine/visits/visits.js">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1108,16 +1108,158 @@
 
 
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=1e0397a-20260918T234301Z"></script>
+
+
+
+
+
+
+
+
+
+
+<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=73ae659-20260919T013915Z"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.186.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.186.0/examples/jsm/",
+    "three": "../../web-engine/vendor/three-0.186.0/three.module.js",
+    "three/addons/": "../../web-engine/vendor/three-0.186.0/addons/",
     "moon/": "../../web-engine/moon/",
     "net/": "../../web-engine/net/"
   }
 }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.google-analytics.com; media-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self' https://*.googleapis.com https://www.google-analytics.com https://*.google-analytics.com https://*.peerjs.com wss://*.peerjs.com; frame-ancestors 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+(function () {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  window.__fmlBlocked = window.__fmlBlocked || [];
+  window.__fml = window.__fml || { ready: false, error: null };
+  function live() {
+    if (!window.__fml) window.__fml = { ready: false, error: null };
+    return window.__fml;
+  }
+  function stop(why) {
+    var fml = live();
+    if (fml.ready || fml.error) return;
+    fml.error = String(why || 'the game could not start');
+    var box = document.getElementById('loading');
+    if (!box) return;
+    var say = document.getElementById('loadingsay');
+    if (say) say.textContent = 'Something on this network blocked a file the game needs.';
+    var bar = document.getElementById('loadingbar');
+    if (bar) bar.hidden = true;
+    var p = document.createElement('p');
+    p.id = 'loadingwhy';
+    p.textContent = 'Farmy Moon Life is meant to run anywhere - it has no adverts and'
+      + ' loads nothing from anyone else. If you are on a work or school network,'
+      + ' allowing this site should be all it takes. Reloading often works too.';
+    box.appendChild(p);
+  }
+  
+  
+  
+  
+  window.addEventListener('error', function (e) {
+    var t = e && e.target;
+    if (t && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
+      var url = t.src || t.href || '';
+      if (url) window.__fmlBlocked.push(String(url));
+      if (t.tagName === 'SCRIPT') stop('a script was blocked: ' + url);
+      return;
+    }
+    if (e && e.message) stop(e.message);
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e && e.reason;
+    stop((r && r.message) || r || 'a background task failed');
+  });
+  
+  
+  
+  
+  setTimeout(function () { stop('the game did not start in time'); }, 45000);
+}());
 </script>
 </head>
 <body>
@@ -1222,6 +1364,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=1e0397a-20260918T234301Z"></script>
+<script type="module" src="src/play/main.js?v=73ae659-20260919T013915Z"></script>
 </body>
 </html>

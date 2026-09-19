@@ -56,9 +56,19 @@
 
 
 
-const CACHE = 'farmy-moon-l14-1';
+
+
+
+
+
+
+const CACHE = 'farmy-moon-l19-1';
 const CACHE_PREFIX = 'farmy-moon-';
-const CDN_HOSTS = ['unpkg.com'];
+
+
+
+
+const CDN_HOSTS = [];
 
 
 const SHELL = ['./'];

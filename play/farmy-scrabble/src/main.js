@@ -39,7 +39,7 @@
 
 
 
-import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
+import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 
 
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';

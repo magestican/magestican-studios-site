@@ -115,7 +115,7 @@
       <li><strong>No cookies and no stored identifier.</strong> Analytics runs with <code>client_storage: 'none'</code>, so nothing is written to your browser and you are not recognised on a later visit. The trade-off is ours to wear: our "users" figure is really a "page opens" figure, and we would rather under-count you than identify you.</li>
       <li><strong>IP anonymisation on.</strong> Google truncates your IP address before logging it. We never see it.</li>
       <li><strong>Google Signals off, ad personalisation off.</strong> The data cannot be joined to an advertising profile and cannot be used to build an ad audience.</li>
-      <li><strong>No personal data in events.</strong> The measurement code refuses to send player names, room codes, peer ids, or email addresses — the filter is in the source at <code>web-engine/analytics/analytics.js</code> and is covered by an automated test.</li>
+      <li><strong>No personal data in events.</strong> The measurement code refuses to send player names, room codes, peer ids, or email addresses — the filter is in the source at <code>web-engine/visits/visits.js</code> and is covered by an automated test.</li>
     </ul>
     <p>The events we record are: a page view; <code>play_click</code> (someone followed a link to a game); <code>game_start</code> (map, mode, bot count, host or joiner, phone or desktop); and <code>match_end</code> (map, mode, duration, score margin, and whether the reporting player's team won). None of them carries anything about you.</p>
     <p>Analytics is loaded from Google's servers, so Google receives the request. Google's handling of it is covered by the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>. If you would rather send nothing at all, any content blocker or your browser's "Do Not Track"/tracking-protection setting will stop the script loading, and the site works exactly the same without it.</p>
@@ -160,13 +160,13 @@
   <script type="module">
     import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
     import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
-    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     startVersionChecker();
     mountDeviceQr({ label: 'Open this page on your phone' });
     initAnalytics({ page: 'privacy' });
     trackPlayClicks();
   </script>
-  <script type="module" src="./assets/studioBanner.js?v=1e0397a-20260918T234301Z"></script>
+  <script type="module" src="./assets/studioBanner.js?v=73ae659-20260919T013915Z"></script>
   <script>
     
     

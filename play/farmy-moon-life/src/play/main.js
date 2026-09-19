@@ -88,7 +88,7 @@ import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, i
 import { createTiming, timingLine } from 'moon/play/timing.mjs';
 import { createDrawGate, createLoadingView } from 'moon/play/loading.mjs';
 import { createPerfSampler } from 'moon/play/perfSample.mjs';
-import { shouldStartAnalytics } from 'moon/play/analyticsGate.mjs';
+import { shouldStartAnalytics } from 'moon/play/liveHostGate.mjs';
 import { CURVE_K, bendDrop } from 'moon/world/curve.mjs';
 import { heightAt, placements, ISLAND_RADIUS } from 'moon/world/moonLayout.mjs';
 import {
@@ -214,7 +214,7 @@ import {
 
 
 
-import { createPlaceBanner } from './placeBanner.js';
+import { createPlaceNotice } from './placeNotice.js';
 import { createGuideUi } from './guideUi.js';
 import { EDGE_MARGIN_M, obstaclesFrom } from 'moon/world/collision.mjs';
 
@@ -1704,7 +1704,7 @@ jumpButton.replaceChildren(
   Object.assign(document.createElement('span'), { className: 'word', textContent: 'Jump' }),
   Object.assign(document.createElement('span'), { className: 'hint', textContent: 'x2 FLY' }),
 );
-const placeBanner = createPlaceBanner({
+const placeNotice = createPlaceNotice({
   place: document.getElementById('place'),
   where: document.getElementById('where'),
   ring: document.getElementById('ring'),
@@ -1901,7 +1901,7 @@ function arriveAt(id) {
   
   const full = describePlanet(planet);
   const kind = full.startsWith(`${planet.name} - `) ? full.slice(planet.name.length + 3) : full;
-  placeBanner.arriveOn(id, { name: planet.name, home: onHome(), card: { kind, here: extra } });
+  placeNotice.arriveOn(id, { name: planet.name, home: onHome(), card: { kind, here: extra } });
   if (guideUi) guideUi.rethink();
   touchSave('travel');
 }
@@ -3921,7 +3921,7 @@ function sendPerfSample(name, params) {
   
   
   if (!startAnalytics) return;
-  import('../../../../web-engine/analytics/analytics.js').then((mod) => {
+  import('../../../../web-engine/visits/visits.js').then((mod) => {
     
     
     
@@ -3970,7 +3970,7 @@ function frame(now) {
       flyHome();
     }
   }
-  placeBanner.tick(dt);
+  placeNotice.tick(dt);
   if (!outdoors()) applyPlanetVisibility();
 
   
@@ -4467,7 +4467,7 @@ function frame(now) {
     progress: jumpHold ? Math.round(holdAt(jumpHold, now) * 1000) / 1000 : 0,
     fired: Boolean(jumpHold && jumpHold.fired),
   };
-  fml.place = placeBanner.stats;
+  fml.place = placeNotice.stats;
   fml.guide = { ...guideUi.stats };
   fml.finds = {
     here: findsHere().map((f) => ({ id: f.id, kind: f.kind, good: f.good, container: f.container, style: f.style, treasure: f.treasure, ready: f.ready, x: f.x, z: f.z })),
