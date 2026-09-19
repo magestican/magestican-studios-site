@@ -19,6 +19,15 @@ export const CUSTOMERS_DRAW = Object.freeze({
   spareLooks: 1,
   
   lod: 1,
+  
+  
+  
+  
+  
+  
+  
+  
+  shadowM: 4.5,
 });
 
 export async function createCustomersDraw({ scene, season, worldSeed = 1, heightAt, count = CUSTOMER.maxWalkers, cfg = CUSTOMERS_DRAW }) {
@@ -27,14 +36,26 @@ export async function createCustomersDraw({ scene, season, worldSeed = 1, height
     const pc = await villagerObject(look.species, { seed: look.seed, season, lod: cfg.lod, build: look.build });
     pc.object.visible = false;
     pc.object.name = `customer-${look.key}`;
+    
+    pc.meshes = [];
+    pc.object.traverse((o) => { if (o.isMesh) { o.castShadow = false; pc.meshes.push(o); } });
     scene.add(pc.object);
-    pool.push({ pc, look, visit: null, name: '' });
+    pool.push({ pc, look, visit: null, name: '', shadow: false });
   }
   const triangles = pool.reduce((n, p) => n + (p.pc.object.userData.triangles || 0), 0);
   let shown = [];
 
+  function castShadows(slot, on) {
+    if (slot.shadow === on) return;
+    slot.shadow = on;
+    for (const m of slot.pc.meshes) m.castShadow = on;
+  }
+
   
-  function update(visits, route, now, dt) {
+
+
+
+  function update(visits, route, now, dt, { focus = null } = {}) {
     const walking = route ? live(visits, now) : [];
     const ids = new Set(walking.map((v) => v.id));
     for (const slot of pool) if (slot.visit && !ids.has(slot.visit)) slot.visit = null;
@@ -47,21 +68,29 @@ export async function createCustomersDraw({ scene, season, worldSeed = 1, height
       pool[i].name = customerName(v.id, pool[i].look.build);
     }
     shown = [];
+    let nearest = null, nearestD = cfg.shadowM;
     for (const slot of pool) {
       const v = slot.visit && walking.find((w) => w.id === slot.visit);
-      if (!v) { slot.pc.object.visible = false; continue; }
+      if (!v) { slot.pc.object.visible = false; castShadows(slot, false); continue; }
       const pose = walkerPose(v, route, now);
       const o = slot.pc.object;
       o.visible = pose.scale > 0.001;
       o.position.set(pose.x, heightAt(pose.x, pose.z), pose.z);
       o.rotation.y = pose.heading;
       o.scale.setScalar(Math.max(0.001, pose.scale));
-      slot.pc.update(dt, { speed: pose.speed });
+      
+      
+      if (o.visible) slot.pc.update(dt, { speed: pose.speed });
+      if (o.visible && focus) {
+        const d = Math.hypot(pose.x - focus.x, pose.z - focus.z);
+        if (d < nearestD) { nearestD = d; nearest = slot; }
+      }
       shown.push({
         id: v.id, name: slot.name, species: slot.look.species, build: slot.look.build || null, seed: slot.look.seed,
         x: pose.x, z: pose.z, phase: pose.phase, good: v.good, coins: v.coins, triangles: o.userData.triangles || 0,
       });
     }
+    for (const slot of pool) if (slot.visit) castShadows(slot, slot === nearest);
   }
 
   return {

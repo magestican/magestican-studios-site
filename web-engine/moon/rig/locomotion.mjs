@@ -14,7 +14,20 @@
 
 
 
-import { createPose, copyPose } from './skeleton.mjs';
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { createPose } from './skeleton.mjs';
 import { sampleClip, blendPose } from './pose.mjs';
 import { smoothstep, lerp, frac, clamp } from './math.mjs';
 
@@ -27,12 +40,25 @@ export const LOCOMOTION = Object.freeze({
   maxStep: 0.5, 
 });
 
-export function createLocomotion(skeleton, clips) {
+
+
+
+
+
+
+
+
+export function animPhase(seed) {
+  return Number.isFinite(seed) ? frac(Math.abs(seed) * 0.6180339887498949) : 0;
+}
+
+export function createLocomotion(skeleton, clips, { phase = 0 } = {}) {
   const { idle, walk, run, carry } = clips;
-  const scratch = { idle: createPose(skeleton), walk: createPose(skeleton), run: createPose(skeleton), carry: createPose(skeleton), shot: createPose(skeleton) };
+  const scratch = { walk: createPose(skeleton), run: createPose(skeleton), carry: createPose(skeleton), shot: createPose(skeleton) };
   const pose = createPose(skeleton);
   const speeds = Object.freeze({ walk: walk.speed, run: run.speed });
-  const state = { time: 0, cycles: 0, phase: 0, speed: 0, move: 0, run: 0, carry: 0, carryTime: 0, oneShot: null };
+  const p = frac(Number.isFinite(phase) ? phase : 0);
+  const state = { time: p * idle.duration, cycles: p, phase: p, speed: 0, move: 0, run: 0, carry: 0, carryTime: p * carry.duration, oneShot: null };
 
   function update(dt, { speed = 0, carrying = false } = {}) {
     dt = Number.isFinite(dt) ? clamp(dt, 0, LOCOMOTION.maxStep) : 0;
@@ -46,11 +72,28 @@ export function createLocomotion(skeleton, clips) {
     state.carry += ((carrying ? 1 : 0) - state.carry) * (1 - Math.exp(-dt / LOCOMOTION.carryEase));
     state.carryTime += dt;
 
-    copyPose(sampleClip(skeleton, idle, state.time / idle.duration, scratch.idle), pose);
+    
+    
+    
+    
+    
+    
+    
+    const gaitOnly = state.move >= 1;
     if (state.move > 0) {
-      sampleClip(skeleton, walk, state.phase, scratch.walk);
-      if (state.run > 0) blendPose(skeleton, scratch.walk, scratch.walk, sampleClip(skeleton, run, state.phase, scratch.run), state.run);
-      blendPose(skeleton, pose, pose, scratch.walk, state.move);
+      const into = gaitOnly ? pose : scratch.walk;
+      if (state.run >= 1) {
+        sampleClip(skeleton, run, state.phase, into);
+      } else {
+        sampleClip(skeleton, walk, state.phase, into);
+        if (state.run > 0) blendPose(skeleton, into, into, sampleClip(skeleton, run, state.phase, scratch.run), state.run);
+      }
+      if (!gaitOnly) {
+        sampleClip(skeleton, idle, state.time / idle.duration, pose);
+        blendPose(skeleton, pose, pose, into, state.move);
+      }
+    } else {
+      sampleClip(skeleton, idle, state.time / idle.duration, pose);
     }
     if (state.carry > 1e-4) {
       sampleClip(skeleton, carry, state.carryTime / carry.duration, scratch.carry);
@@ -79,12 +122,29 @@ export function createLocomotion(skeleton, clips) {
     state.oneShot = { name, time: 0 };
   }
 
+  
+  
+  
+  
+  
+  
+  
+  function adopt(from) {
+    if (!from) return state;
+    for (const k of ['time', 'cycles', 'phase', 'speed', 'move', 'run', 'carry', 'carryTime']) {
+      if (Number.isFinite(from[k])) state[k] = from[k];
+    }
+    state.oneShot = from.oneShot ? { name: from.oneShot.name, time: from.oneShot.time } : null;
+    return state;
+  }
+
   return {
     state,
     pose,
     speeds,
     update,
     act,
+    adopt,
     pickUp() { act('pickUp'); },
     get busy() { return state.oneShot !== null; },
     

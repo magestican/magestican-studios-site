@@ -4355,11 +4355,14 @@ function frame(now) {
   placedDraw.update(world, { x: target.x, z: target.z });
 
   
-  shelvesDraw.show(world.shop.shelves, shopAnchors, SHOP_P);
-  customersDraw.update(visits, route, t, dt * state.anim);
-
+  
+  
   
   const focusNow = { x: target.x, z: target.z };
+  shelvesDraw.show(world.shop.shelves, shopAnchors, SHOP_P);
+  customersDraw.update(visits, route, t, dt * state.anim, { focus: focusNow });
+
+  
   
   
   

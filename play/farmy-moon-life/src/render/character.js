@@ -33,9 +33,9 @@ import { toObject3D, applyPose } from './toMesh.js';
 
 
 
-export async function createCharacter({ seed = 1, season = 'summer', lod = 0, species = 'pig', build } = {}) {
+export async function createCharacter({ seed = 1, season = 'summer', lod = 0, species = 'pig', build, phase = 0 } = {}) {
   const data = generate({ seed, season, lod, species, ...(species === 'human' && build ? { build } : {}) });
-  return bindCharacter(data, await toObject3D(data));
+  return bindCharacter(data, await toObject3D(data), { phase });
 }
 
 
@@ -52,11 +52,16 @@ export function placeInGrip(object, { at, axis, face }) {
 }
 
 
-export function bindCharacter(data, object) {
+
+
+
+
+
+export function bindCharacter(data, object, { phase = 0 } = {}) {
   const skin = object.userData.rig;
   if (!skin || !data.rig) throw new Error('bindCharacter: the mesh has no rig');
   const clips = buildClips(data.rig);
-  const locomotion = createLocomotion(data.rig, clips);
+  const locomotion = createLocomotion(data.rig, clips, { phase });
 
   const hold = new THREE.Object3D();
   hold.name = 'hold';

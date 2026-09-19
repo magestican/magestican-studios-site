@@ -32,7 +32,17 @@
 
 
 
+
+
+
+
+
+
+
+
 import { villagerPose } from 'moon/play/village.mjs';
+import { animStepS } from 'moon/play/animRate.mjs';
+import { villagerGesture } from 'moon/play/gestures.mjs';
 import { villagerBuild } from 'moon/play/people.mjs';
 import { villagerObject } from '../render/villager.js';
 import { villagerSource } from '../render/villagerSource.js';
@@ -88,6 +98,13 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
   const slots = new Map();
   const meshes = source || villagerSource();
   let shown = [], held = null;
+  
+  
+  
+  let animS = 0;
+  
+  
+  let fullPoses = 0;
 
   
   
@@ -125,6 +142,9 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
         
         height: lods[0].height_m || lods[0].height || 1,
         x: null, z: null, heading: 0, scale: 0, bob: 0,
+        
+        
+        animAcc: 0, animDist: 0, poses: 0, gestureKey: null,
       });
     }
   }
@@ -142,6 +162,7 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
   
   function update(world, t, dt, { animDt = dt, focus = null, activity = 0, poseFor = null } = {}) {
     shown = [];
+    animS += animDt;
     let nearest = null, nearestD = cfg.shadowM;
     const drawn = [];
     for (const v of world.villagers) {
@@ -174,6 +195,13 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       if (lod !== s.lod) {
         castShadows(s, false);
         s.lods[s.lod].object.visible = false;
+        
+        
+        
+        
+        
+        
+        s.lods[lod].locomotion.adopt(s.lods[s.lod].locomotion.state);
         s.lod = lod;
         s.shadow = null;
       }
@@ -188,12 +216,52 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       const k = s.scale;
       o.scale.set(k * (1 - 0.03 * s.bob), k * (1 + 0.06 * s.bob), k * (1 - 0.03 * s.bob));
       const speed = dt > 0 ? moved / dt : 0;
-      if (o.visible) pc.update(animDt, { speed });
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const step = animStepS(fromFocus, { near: isHeld });
+      if (!o.visible) {
+        
+        
+        s.animAcc = 0;
+        s.animDist = 0;
+      } else {
+        fullPoses += 1;
+        s.animAcc += animDt;
+        s.animDist += dt > 0 ? moved * (animDt / dt) : 0;
+        if (s.animAcc >= step) {
+          pc.update(s.animAcc, { speed: s.animAcc > 0 ? s.animDist / s.animAcc : 0 });
+          s.poses += 1;
+          s.animAcc = 0;
+          s.animDist = 0;
+        }
+      }
+      
+      
+      
+      
+      const gesture = isHeld ? null : villagerGesture(v, pose, animS);
+      if (gesture && gesture.key !== s.gestureKey && s.gestureKey !== null && o.visible && !pc.busy) pc.act(gesture.clip);
+      s.gestureKey = gesture ? gesture.key : null;
       drawn.push({ s, isHeld });
       shown.push({
         id: v.id, species: v.species, build: s.build, x: s.x, z: s.z, y: o.position.y, heading: s.heading, speed,
         doing: isHeld ? 'talking' : pose.doing, place: pose.place, inside: pose.inside && s.scale < 0.001,
         visible: o.visible, height: s.height, lod: LODS[s.lod], bob: s.bob, shadow: false,
+        
+        
+        animStepS: step, gesture: pc.action, poses: s.poses,
         triangles: o.visible ? o.userData.triangles || 0 : 0,
       });
     }
@@ -212,6 +280,18 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
     release() { held = null; },
     get held() { return held ? held.id : null; },
     get shown() { return shown; },
+    
+
+
+
+
+
+
+    get poses() {
+      let done = 0;
+      for (const s2 of slots.values()) done += s2.poses;
+      return { done, full: fullPoses };
+    },
     
     get drawnTriangles() { return shown.reduce((n, v) => n + v.triangles, 0); },
     positionOf(id) {
