@@ -178,7 +178,8 @@ import { startTalk as startMoleTalk, talkNode as moleTalkNode, choose as chooseM
 import { createMoleDraw } from '../render/mole.js';
 import { DAY_MS, hourAt, isDark } from 'moon/economy/clock.mjs';
 import { homeObstacle, homeRoomObstacle } from 'moon/world/collision.mjs';
-import { createVillagersDraw } from './villagersDraw.js';
+import { createVillagersDraw, villagerSpecs } from './villagersDraw.js';
+import { villagerSource } from '../render/villagerSource.js';
 import { createLevelBadges } from './levelBadge.js';
 import { createHomesDraw } from './homesDraw.js';
 
@@ -2425,6 +2426,16 @@ Object.defineProperty(fml, 'mole', {
   get: () => (moleDraw && mole ? { ...moleDraw.stats, heading: mole.heading, trail: moleView(mole).mounds } : null),
 });
 
+
+
+
+
+
+Object.defineProperty(fml, 'meshes', {
+  enumerable: true,
+  get: () => ({ ...villagerSource().stats }),
+});
+
 Object.defineProperty(fml, 'leaves', {
   enumerable: true,
   get: () => (particles ? { ...particles.stats, sources: orchard ? orchard.sources().length : 0 } : null),
@@ -3531,6 +3542,17 @@ async function load() {
   
   await loadSave();
   timing.mark('save');
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  villagerSource().warm(villagerSpecs(world, { season: state.season, playerSeed: state.seed })).catch(() => {});
   if (askAtStart) choice.show(playerBuild);
   
   
@@ -4657,7 +4679,16 @@ function frame(now) {
   }
   
   
-  if (++frames === 3) { fml.ready = true; timing.mark('ready'); offline.gameReady(); }
+  if (++frames === 3) {
+    fml.ready = true;
+    timing.mark('ready');
+    offline.gameReady();
+    
+    
+    
+    
+    villagerSource().sweep().catch(() => {});
+  }
   requestAnimationFrame(frame);
 }
 

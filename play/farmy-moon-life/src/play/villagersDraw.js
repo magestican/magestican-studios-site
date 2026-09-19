@@ -35,6 +35,7 @@
 import { villagerPose } from 'moon/play/village.mjs';
 import { villagerBuild } from 'moon/play/people.mjs';
 import { villagerObject } from '../render/villager.js';
+import { villagerSource } from '../render/villagerSource.js';
 
 export const VILLAGERS_DRAW = Object.freeze({
   catchUpMps: 2.4,
@@ -52,21 +53,67 @@ export const VILLAGERS_DRAW = Object.freeze({
 
 const LODS = [1, 2];
 
-export async function createVillagersDraw({ scene, season, playerSeed, heightAt, village, cfg = VILLAGERS_DRAW }) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function villagerSpecs(world, { season, playerSeed, cfg = VILLAGERS_DRAW } = {}) {
+  const out = [];
+  let i = 0;
+  for (const v of world.villagers) {
+    i += 1;
+    let seed = cfg.seedBase + i - 1;
+    if (seed === playerSeed) seed += 20;
+    const build = villagerBuild(v, world.villagers);
+    for (const lod of LODS) out.push({ id: v.id, species: v.species, seed, season, lod, build });
+  }
+  return out;
+}
+
+export async function createVillagersDraw({ scene, season, playerSeed, heightAt, village, cfg = VILLAGERS_DRAW, source = null }) {
   const slots = new Map();
+  const meshes = source || villagerSource();
   let shown = [], held = null;
 
+  
+  
+  function missing(world) {
+    const by = new Map();
+    for (const spec of villagerSpecs(world, { season, playerSeed, cfg })) {
+      if (slots.has(spec.id)) continue;
+      if (!by.has(spec.id)) by.set(spec.id, { v: world.villagers.find((w) => w.id === spec.id), seed: spec.seed, build: spec.build, specs: [] });
+      by.get(spec.id).specs.push(spec);
+    }
+    return [...by.values()];
+  }
+
   async function sync(world) {
-    let i = 0;
-    for (const v of world.villagers) {
-      i += 1;
-      if (slots.has(v.id)) continue;
-      let seed = cfg.seedBase + i - 1;
-      if (seed === playerSeed) seed += 20;
-      const build = villagerBuild(v, world.villagers);
+    const todo = missing(world);
+    
+    
+    
+    
+    
+    
+    meshes.prefetch(todo.flatMap((t) => t.specs));
+    for (const { v, seed, build } of todo) {
       const lods = [];
       for (const lod of LODS) {
-        const pc = await villagerObject(v.species, { seed, season, lod, build });
+        const pc = await villagerObject(v.species, { seed, season, lod, build, source: meshes });
         pc.object.visible = false;
         pc.meshes = [];
         pc.object.traverse((o) => { if (o.isMesh) { o.castShadow = false; pc.meshes.push(o); } });

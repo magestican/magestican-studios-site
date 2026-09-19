@@ -40,6 +40,20 @@ import { generate as generatePlayer } from './player.mjs';
 
 export { BUILDS };
 
+
+
+
+
+
+
+
+
+
+
+
+
+export const VILLAGER_VERSION = 1;
+
 export const TIER = 'heroCharacter';
 
 
