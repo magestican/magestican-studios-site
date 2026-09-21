@@ -65,7 +65,7 @@
 
   <main>
     <h1>Privacy Policy</h1>
-    <p class="updated">Last updated: 22 August 2026 · <em>Applies to magesticanstudios.com and all Magestican Studios games.</em></p>
+    <p class="updated">Last updated: 21 September 2026 · <em>Applies to magesticanstudios.com, all Magestican Studios games, and the Multi Game Madness app for iOS.</em></p>
 
     <p>This policy explains what personal information Magestican Studios (a trading name of Ultra Task Pty Ltd, an Australian proprietary limited company, hereafter "we" or "us") collects, why, and how you can exercise your rights over it. This policy is written to satisfy the Australian Privacy Act 1988 (Cth) and, where our audience overlaps, the EU General Data Protection Regulation (GDPR).</p>
 
@@ -127,6 +127,18 @@
     <p>Google, in two roles: analytics as described above, and — only if you choose to save your progress to an account — Firebase Authentication and Cloud Firestore, which hold the anonymous identifier and the progress document described under "Accounts and saved progress". The other game-support service a browser game needs is a WebRTC signalling broker, so two players' browsers can find each other; it carries no account, no profile and no name.</p>
     <p>The site is hosted by a static-file provider (currently expected to be Cloudflare Pages or GitHub Pages) that operates under its own privacy policy. If you follow an external link from our site or games (for example, to a game's store page on itch.io or Steam) the destination site handles your data under its own policy.</p>
 
+    <h2>Multi Game Madness (the iOS app)</h2>
+    <p><strong>Multi Game Madness</strong> is our game pack on the App Store. Every game in it is built into the app and served from inside your device, so the pack plays with no network at all — and this section is only about the app, since everything above describes the website.</p>
+    <ul>
+      <li><strong>No account and nothing to sign in to.</strong> There is no login anywhere in the app.</li>
+      <li><strong>No ads, no in-app purchases, and no advertising identifier.</strong> The analytics SDK is compiled without advertising-identifier support, so there is no IDFA to collect and no App Tracking Transparency prompt, because there is nothing to ask you to allow.</li>
+      <li><strong>What the app records:</strong> which screens you open, which game you start, how long you spend in it, and if a game fails to load. Alongside that, Google Analytics derives a device model, an OS version and an approximate country from your IP address. None of it is linked to you and none of it is used to track you across other apps or websites.</li>
+      <li><strong>Saved progress stays on the device.</strong> Each game keeps its settings and progress in the app's own storage, exactly as it would in a browser.</li>
+      <li><strong>Online play</strong> works the same way as on the website: a WebRTC signalling broker introduces two devices to each other, and it carries no account, no profile and no name.</li>
+      <li><strong>Camera and microphone:</strong> the app carries the iOS permission descriptions because a game could ask for them for a voice or video chat, but no game in the current version does, so you will not see those prompts. If one ever does, the audio and video go directly between the two players and never to us.</li>
+    </ul>
+    <p>The app's analytics data is processed by Google LLC under the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>. The App Store itself is Apple's, and Apple handles your download and any App Store data under its own policy.</p>
+
     <h2>Children</h2>
     <p>Our games are suitable for a general audience but we do not knowingly collect personal information from anyone under 13.</p>
 
@@ -140,7 +152,8 @@
     <p>Send those requests to the contact address published on our website. If we ever store personal information subject to the GDPR, EU residents also have the rights to portability, restriction of processing, and to lodge a complaint with your national data protection authority.</p>
 
     <h2>Contact</h2>
-    <p><strong>Ultra Task Pty Ltd</strong>, Australia — trading as <strong>Magestican Studios</strong>. Contact address and ACN will be added here once registration is complete.</p>
+    <p><strong>Ultra Task Pty Ltd</strong>, Gold Coast, Queensland 4226, Australia — trading as <strong>Magestican Studios</strong>. ABN 93&nbsp;700&nbsp;712&nbsp;910, ACN 700&nbsp;712&nbsp;910.</p>
+    <p>Email <a href="mailto:support@ultratask.com.au">support@ultratask.com.au</a> for anything in this policy, including a privacy request under "Your rights" above. It is a real inbox and a person reads it.</p>
 
     <h2>Changes to this policy</h2>
     <p>We will update this page if what we do with data changes, and bump the "Last updated" date at the top. Material changes (anything that broadens what we collect or how we share it) will also be flagged on the site's home page for a reasonable period.</p>
@@ -166,7 +179,7 @@
     initAnalytics({ page: 'privacy' });
     trackPlayClicks();
   </script>
-  <script type="module" src="./assets/studioBanner.js?v=9002838-20260921T085528Z"></script>
+  <script type="module" src="./assets/studioBanner.js?v=d9ea315-20260921T100356Z"></script>
   <script>
     
     
