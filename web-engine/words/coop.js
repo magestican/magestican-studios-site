@@ -613,11 +613,19 @@ export function describeFind({ by, value, me } = {}) {
 
 
 
+
+
+
+
+
+
+
+
 export const GAME_NAMES = Object.freeze({
-  wordle: 'Wordle',
-  bee: 'Spelling Bee',
-  connections: 'Connections',
-  strands: 'Strands',
+  wordle: 'Farmy Five',
+  bee: 'Farmy Hive',
+  connections: 'Farmy Herds',
+  strands: 'Farmy Furrows',
 });
 
 
