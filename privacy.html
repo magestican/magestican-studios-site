@@ -127,17 +127,18 @@
     <p>Google, in two roles: analytics as described above, and — only if you choose to save your progress to an account — Firebase Authentication and Cloud Firestore, which hold the anonymous identifier and the progress document described under "Accounts and saved progress". The other game-support service a browser game needs is a WebRTC signalling broker, so two players' browsers can find each other; it carries no account, no profile and no name.</p>
     <p>The site is hosted by a static-file provider (currently expected to be Cloudflare Pages or GitHub Pages) that operates under its own privacy policy. If you follow an external link from our site or games (for example, to a game's store page on itch.io or Steam) the destination site handles your data under its own policy.</p>
 
-    <h2>Multi Game Madness (the iOS app)</h2>
-    <p><strong>Multi Game Madness</strong> is our game pack on the App Store. Every game in it is built into the app and served from inside your device, so the pack plays with no network at all — and this section is only about the app, since everything above describes the website.</p>
+    <h2>Our apps for iOS</h2>
+    <p>We publish two apps on the App Store: <strong>Multi Game Madness</strong> (rated 9+) and <strong>Multi Game Madness After Dark</strong> (rated 17+). Everything in this section applies to both. Every game is built into the app and served from inside your device, so each pack plays with no network connection at all — everything above this section describes the website instead.</p>
     <ul>
-      <li><strong>No account and nothing to sign in to.</strong> There is no login anywhere in the app.</li>
-      <li><strong>No ads, no in-app purchases, and no advertising identifier.</strong> The analytics SDK is compiled without advertising-identifier support, so there is no IDFA to collect and no App Tracking Transparency prompt, because there is nothing to ask you to allow.</li>
+      <li><strong>No account and nothing to sign in to.</strong> There is no login anywhere in either app.</li>
+      <li><strong>No ads, no in-app purchases, and no advertising identifier.</strong> The analytics SDK is compiled without advertising-identifier support, so there is no IDFA to collect and no App Tracking Transparency prompt — because there is nothing to ask you to allow.</li>
       <li><strong>What the app records:</strong> which screens you open, which game you start, how long you spend in it, and if a game fails to load. Alongside that, Google Analytics derives a device model, an OS version and an approximate country from your IP address. None of it is linked to you and none of it is used to track you across other apps or websites.</li>
-      <li><strong>Saved progress stays on the device.</strong> Each game keeps its settings and progress in the app's own storage, exactly as it would in a browser.</li>
-      <li><strong>Online play</strong> works the same way as on the website: a WebRTC signalling broker introduces two devices to each other, and it carries no account, no profile and no name.</li>
-      <li><strong>Camera and microphone:</strong> the app carries the iOS permission descriptions because a game could ask for them for a voice or video chat, but no game in the current version does, so you will not see those prompts. If one ever does, the audio and video go directly between the two players and never to us.</li>
+      <li><strong>Saved progress stays on the device.</strong> Each game keeps its settings and progress in the app's own storage, exactly as it would in a browser. We never receive it.</li>
+      <li><strong>Game updates are downloaded from us.</strong> On launch the app asks <code>magesticanstudios.com</code> whether a newer version of any of its games has been published, and downloads the files that changed. That request is an ordinary web request, so our host sees what any web server sees: your IP address, the time, and which files you asked for. We do not build a profile from it, and there is no identifier in the request that says which installation you are. You can stop it entirely by turning off network access for the app in iOS Settings — every game still works, at the version the app shipped with.</li>
+      <li><strong>Online play</strong> works the same way as on the website: a WebRTC signalling broker introduces two devices to each other so they can talk directly, and it carries no account, no profile and no name.</li>
+      <li><strong>Camera and microphone are refused outright.</strong> The apps declare no camera or microphone permission and actively deny any request for one from game content. You will never see those prompts, and no audio or video is ever captured.</li>
     </ul>
-    <p>The app's analytics data is processed by Google LLC under the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>. The App Store itself is Apple's, and Apple handles your download and any App Store data under its own policy.</p>
+    <p>The apps' analytics data is processed by Google LLC under the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>. The App Store itself is Apple's, and Apple handles your download and any App Store data under its own policy. The licence that governs the apps is <a href="./terms.html#eula">Appendix A of our Terms of Use</a>.</p>
 
     <h2>Children</h2>
     <p>Our games are suitable for a general audience but we do not knowingly collect personal information from anyone under 13.</p>
@@ -179,7 +180,7 @@
     initAnalytics({ page: 'privacy' });
     trackPlayClicks();
   </script>
-  <script type="module" src="./assets/studioBanner.js?v=802332e-20260921T120154Z"></script>
+  <script type="module" src="./assets/studioBanner.js?v=b30be2b-20260921T135219Z"></script>
   <script>
     
     
