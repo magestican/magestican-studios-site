@@ -66,7 +66,7 @@ export function describeWordle({ answer, guesses, typed = '', puzzle = 1, given 
       : `${MAX_GUESSES - guesses.length} guesses left. Type a five letter word.`);
   }
   return {
-    title: `Farmy Wordle, puzzle ${puzzle}`,
+    title: `Farmy Five, puzzle ${puzzle}`,
     status: won
       ? `Solved in ${guesses.length}.`
       : (out ? `Out of guesses. The word was ${answer.toUpperCase()}.` : 'In play.'),
@@ -87,7 +87,7 @@ export function describeBee({ puzzle, found, typed = '', index = 1 }) {
   ];
   if (typed) lines.push(`Typing: ${[...typed].join(' ')}.`);
   return {
-    title: `Farmy Spelling Bee, hive ${index}`,
+    title: `Farmy Hive, hive ${index}`,
     status: found.length === puzzle.answers.length ? 'Every word found.' : 'In play.',
     lines,
   };
@@ -115,7 +115,7 @@ export function describeConnections({ puzzle, state, board, picked = [], index =
     lines.push(toGo === 1 ? '1 group to go.' : `${toGo} groups to go.`);
   }
   return {
-    title: `Farmy Connections, set ${index}`,
+    title: `Farmy Herds, set ${index}`,
     status: state.won ? 'All four groups found.' : (state.lost ? 'Out of guesses.' : 'In play.'),
     lines,
   };
@@ -134,7 +134,7 @@ export function describeStrands({ puzzle, found, bonus = [], hintsUsed = 0, trai
   if (trail.length) lines.push(`Tracing: ${trail.join('')}.`);
   lines.push(`Hints available: ${state.hintsAvailable}.`);
   return {
-    title: `Farmy Strands, puzzle ${index}: ${puzzle.theme}`,
+    title: `Farmy Furrows, puzzle ${index}: ${puzzle.theme}`,
     status: state.won ? 'Every word found.' : 'In play.',
     lines,
   };

@@ -105,7 +105,7 @@ initAnalytics({ page: 'farmy-scrabble' });
 sfx.install();
 startVersionChecker({
   versionUrl: './version.json',
-  label: 'A new version of Farmy Scrabble is available.',
+  label: 'A new version of Farmy Tiles is available.',
 });
 
 
@@ -584,7 +584,7 @@ function drawBar(now) {
   
   const leftmost = barRects.reduce((m, b) => Math.min(m, b.x), app.width);
   const room = Math.max(120, leftmost - 24);
-  paint.text(g, 'Farmy Scrabble', { x: 12, y: 6, width: room, height: 44 }, {
+  paint.text(g, 'Farmy Tiles', { x: 12, y: 6, width: room, height: 44 }, {
     size: SIZES.h2, colour: COLORS.ink, align: 'left', fit: true, maxWidth: room,
   });
   

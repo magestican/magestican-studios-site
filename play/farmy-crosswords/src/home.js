@@ -81,9 +81,9 @@ const FAMILY = [
   },
   {
     id: 'scrabble',
-    name: 'Farmy Scrabble',
+    name: 'Farmy Tiles',
     blurb: 'The whole board. Play a bot, or two to four people.',
-    url: '/play/farmy-scrabble/',
+    url: '/play/farmy-tiles/',
   },
   {
     id: 'checkers',

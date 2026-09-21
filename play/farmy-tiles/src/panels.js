@@ -183,7 +183,7 @@ function card(app, {
 export function help(app, { lines, keys, onClose }) {
   return card(app, {
     id: 'help',
-    title: () => 'How to play Farmy Scrabble',
+    title: () => 'How to play Farmy Tiles',
     lines: () => [...lines, keys],
     buttons: () => [{ id: 'close', label: 'Close', tone: 'blue', run: onClose }],
     describe: () => ({ status: 'How to play.' }),
@@ -381,7 +381,7 @@ export function bots(app, { state, onAdd, onRemove, onClose }) {
 export function menu(app, { items }) {
   return card(app, {
     id: 'menu',
-    title: () => 'Farmy Scrabble',
+    title: () => 'Farmy Tiles',
     lines: () => [],
     buttons: () => items,
     describe: () => ({ status: 'The menu.' }),

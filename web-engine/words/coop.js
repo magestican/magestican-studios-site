@@ -71,6 +71,39 @@ export const KINDS = Object.freeze({
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+export const PUBLIC_GAME = Object.freeze({
+  wordle: 'five',
+  bee: 'hive',
+  connections: 'herds',
+  strands: 'furrows',
+});
+
+const PUBLIC_TO_KIND = Object.freeze(Object.fromEntries(
+  Object.entries(PUBLIC_GAME).map(([kind, pub]) => [pub, kind]),
+));
+
+
+
+
+
+
+
+
+
+
+
+
 export function orderMoves(moves) {
   return [...moves].sort((a, b) => (a.seq - b.seq) || (a.by < b.by ? -1 : a.by > b.by ? 1 : 0));
 }
@@ -424,24 +457,38 @@ export function joinIdFrom(href) {
 export function shareLinkFor(href, id, { game, index } = {}) {
   const url = new URL(href);
   url.searchParams.set('join', id);
-  if (game) url.searchParams.set('g', game);
+  
+  
+  
+  if (game) url.searchParams.set('g', PUBLIC_GAME[game] ?? game);
   if (Number.isInteger(index)) url.searchParams.set('p', String(index + 1));
   url.hash = '';
   return url.toString();
 }
 
 
+
+
+
+
+
+
+
 export function puzzleFrom(href) {
   try {
     const url = new URL(href);
-    const game = url.searchParams.get('g');
+    const raw = url.searchParams.get('g');
     const p = Number(url.searchParams.get('p'));
+    
+    
+    const kind = raw ? (PUBLIC_TO_KIND[raw] ?? (KINDS[raw] ? raw : null)) : null;
     return {
-      game: game && KINDS[game] ? game : null,
+      game: kind,
       index: Number.isInteger(p) && p >= 1 ? p - 1 : null,
+      legacy: Boolean(kind) && raw !== PUBLIC_GAME[kind],
     };
   } catch {
-    return { game: null, index: null };
+    return { game: null, index: null, legacy: false };
   }
 }
 

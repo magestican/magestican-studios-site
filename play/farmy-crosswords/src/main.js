@@ -45,7 +45,7 @@ import {
 import { createNet, canPlayTogether } from './net.js';
 import {
   puzzleKey, mergeMoves, movesFromState, stateFromMoves, nextSeq,
-  nameFor, colourFor, describeRoom, joinIdFrom, shareLinkFor, puzzleFrom,
+  nameFor, colourFor, describeRoom, joinIdFrom, shareLinkFor, puzzleFrom, PUBLIC_GAME,
   creditFor, creditForGroup, describeFind, describeSaying, sayingText,
   scoreboard, winnerOf, GAME_NAMES, MODES, movesForBoard, displayName, cleanName, chipsFor,
   seating, isObserver, watchingText, MAX_PLAYERS,
@@ -2131,6 +2131,21 @@ const linkRoom = joinIdFrom(globalThis.location.href);
 if (linkPuzzle.game && MODULES[linkPuzzle.game]) {
   if (Number.isInteger(linkPuzzle.index) && linkPuzzle.index < MODULES[linkPuzzle.game].count()) {
     indexFor[linkPuzzle.game] = linkPuzzle.index;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  if (linkPuzzle.legacy) {
+    try {
+      const fixed = new URL(globalThis.location.href);
+      fixed.searchParams.set('g', PUBLIC_GAME[linkPuzzle.game]);
+      globalThis.history?.replaceState?.(null, '', fixed.toString());
+    } catch {  }
   }
   openGame(linkPuzzle.game);
 } else if (last.game && MODULES[last.game]) {

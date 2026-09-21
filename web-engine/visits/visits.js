@@ -252,6 +252,14 @@ export function trackPlayClicks(root = globalThis.document) {
 
 const SLUG_TO_GAME_ID = Object.freeze({
   farmyshoot: 'team-bonding',
+  
+  
+  
+  
+  
+  
+  
+  'farmy-tiles': 'farmy-scrabble',
 });
 
 export function gameIdFromPath(href = '') {
