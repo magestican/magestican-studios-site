@@ -59,7 +59,9 @@ export { BUILDS };
 
 
 
-export const VILLAGER_VERSION = 2;
+
+
+export const VILLAGER_VERSION = 3;
 
 export const TIER = 'heroCharacter';
 

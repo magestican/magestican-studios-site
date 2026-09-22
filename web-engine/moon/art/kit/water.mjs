@@ -33,6 +33,8 @@ export const RIPPLE = Object.freeze({
   flow: 0.03,
   
   jet: 0.045,
+  
+  flame: 0.06,
 });
 
 

@@ -83,7 +83,12 @@ import { createOrchardDraw } from './orchardDraw.js';
 import { createPopsDraw } from './popsDraw.js';
 import { createHud } from './hud.js';
 import { dayCycle, wrapHours } from 'moon/light/dayCycle.mjs';
+import { flicker } from 'moon/light/flicker.mjs';
+
+
+const FIRE_FLICKER_SEED = 4.7;
 import { dayLine } from 'moon/play/dayline.mjs';
+import { localHour } from 'moon/play/localClock.mjs';
 import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, writeTier, rendererFlags, isCapturing } from 'moon/light/quality.mjs';
 import { createTiming, timingLine } from 'moon/play/timing.mjs';
 import { createDrawGate, createLoadingView } from 'moon/play/loading.mjs';
@@ -192,6 +197,7 @@ import { createVillagersDraw, villagerSpecs } from './villagersDraw.js';
 import { villagerSource } from '../render/villagerSource.js';
 import { createLevelBadges } from './levelBadge.js';
 import { createHomesDraw } from './homesDraw.js';
+import { createPondsDraw } from './pondsDraw.js';
 
 import { forageSpots } from 'moon/world/forage.mjs';
 import { forageObstacle } from 'moon/world/collision.mjs';
@@ -357,10 +363,18 @@ windUniforms.uFmlWind.value = q.get('wind') === '0' ? 0 : 1;
 
 
 const waterParam = q.get('water') === '0' ? 0 : 1;
+
+
+
+
+
+const timeParam = q.get('time');
+const tzOffsetMin = q.get('shot') === '1' && q.get('tz') !== null ? Number(q.get('tz')) : new Date().getTimezoneOffset();
+const localNowMs = () => (q.get('shot') === '1' && q.get('now') !== null ? Number(q.get('now')) : Date.now());
 const state = {
   anim: Number.isFinite(animParam) && animParam > 0 ? animParam : 1,
   season: q.get('season') || 'summer',
-  time: Number(q.get('time') ?? 13),
+  time: timeParam !== null ? Number(timeParam) : localHour(localNowMs(), tzOffsetMin),
   seed: Number(q.get('seed') || 1),
   carrying: q.get('carry') === '1',
   timescale: Number.isFinite(scaleParam) && scaleParam >= 0 ? scaleParam : 1,
@@ -556,6 +570,10 @@ renderer.info.autoReset = false;
 curveUniforms.uCurve.value = CURVE_K;
 
 const scene = new THREE.Scene();
+
+
+
+const pondsDraw = createPondsDraw({ scene });
 const camera = new THREE.PerspectiveCamera(CAMERA.landscape.fovDeg, 1, 0.1, 700);
 const sky = createSky();
 scene.add(sky.mesh);
@@ -716,6 +734,7 @@ const world = newWorld({
   rocks: [...Array.from({ length: HOME_START.rocks }, () => ({})), ...SYSTEM_WILD.rocks],
   forageSpots: [...HOME_START.forageSpots, ...SYSTEM_WILD.forage],
   finds: SYSTEM_FINDS,
+  tzOffsetMin,
 });
 
 
@@ -1604,6 +1623,7 @@ function syncPonds() {
     pondKeys.add(k);
   });
   if (homeCollision === collision) staticObstacles = collision.obstacles.slice();
+  pondsDraw.sync(ponds, { season: state.season });
 }
 
 
@@ -2168,19 +2188,9 @@ function syncCorners() {
 
 
 
-
-
-
-
-
-
-
-
-
-
 const weatherNow = () => planetAt(planetId, state.system, GENERATED_COUNT).weather;
 const todayLine = (t) => dayLine({
-  now: t, firstPlayed, hour: state.time, weather: weatherNow(),
+  now: t, firstPlayed, hour: state.time, weather: weatherNow(), tzOffsetMin,
 });
 
 
@@ -2926,6 +2936,10 @@ Object.defineProperty(fml, 'l17', {
       parcel: onHome() && !inside ? parcelAt(player.x, player.z) : null,
       owned: ownedIds(world),
       pondObstacles: pondKeys.size,
+      
+      
+      
+      pondWater: { ...pondsDraw.stats },
       card: shapeCard ? { open: shapeCard.isOpen, ...shapeCard.stats } : null,
     };
   },
@@ -3579,6 +3593,7 @@ function adoptHostWorld(doc) {
   const why = fitsMoon(doc.world, world);
   if (why) { visit.say(`That moon is not one this game can draw - ${why}`); return; }
   restoreWorld(world, doc.world);
+  world.tzOffsetMin = tzOffsetMin; 
   onHomes(syncHomes(village, world, econNow()));
   syncOrchard(econNow());
   syncBuildings();
@@ -4219,6 +4234,10 @@ async function loadSave() {
   saveInfo.filled = restoreWorld(world, doc.world).filled;
   
   
+  
+  world.tzOffsetMin = tzOffsetMin;
+  
+  
   applyTerrain({ rebuild: false });
   
   
@@ -4659,6 +4678,12 @@ function warmFrame() {
   camera.lookAt(target);
   curveUniforms.uCurveFocus.value.copy(target);
   const cycle = dayCycle(state.time);
+  
+  
+  
+  
+  
+  cycle.emissive.fire *= flicker(animSeconds, FIRE_FLICKER_SEED);
   daylight.apply(cycle, target, renderer);
   sky.update(cycle, camera, target, warmSeconds, curveUniforms.uCurve.value);
   const pixelsPerRadian = renderer.domElement.height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
@@ -4833,6 +4858,9 @@ function frame(now) {
   seconds += raw;
   animSeconds += dt * state.anim;
   windUniforms.uFmlTime.value = animSeconds; 
+  
+  
+  if (timeParam === null) state.time = localHour(localNowMs(), tzOffsetMin);
 
   
   
@@ -5093,6 +5121,7 @@ function frame(now) {
   }
   land.update(seconds);
   const cycle = dayCycle(state.time);
+  cycle.emissive.fire *= flicker(animSeconds, FIRE_FLICKER_SEED);
   daylight.apply(cycle, target, renderer);
   sky.space = airPose.fade;
   sky.update(cycle, camera, target, seconds, curveUniforms.uCurve.value);

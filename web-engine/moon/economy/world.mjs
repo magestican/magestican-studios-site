@@ -81,7 +81,7 @@ const newTree = (fields) => ({ ...fields, waterShift_ms: 0, wateredStage: null, 
 export const HOME_PLANET = 0;
 const planetOf = (e) => (Number.isInteger(e && e.planet) ? e.planet : HOME_PLANET);
 
-export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots = [], finds = [], villagers = START.villagers, coins = START.coins } = {}) {
+export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots = [], finds = [], villagers = START.villagers, coins = START.coins, tzOffsetMin = 0 } = {}) {
   if (!Number.isInteger(seed) || seed <= 0 || seed >= 2 ** 32) throw new Error(`seed must be a positive 32-bit integer, got ${seed}`);
   if (!Number.isInteger(now)) throw new Error(`now must be integer milliseconds, got ${now}`);
   const world = {
@@ -89,6 +89,10 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     seed,
     createdAt: now,
     clockAt: now,
+    
+    
+    
+    tzOffsetMin,
     coins,
     pockets: {},
     

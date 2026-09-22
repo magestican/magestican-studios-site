@@ -54,6 +54,8 @@ import { createPost } from '../render/post.js';
 import { viewerGround } from '../render/ground.js';
 import { buildMoonScene, lightSourcesOf } from './scene.js';
 import { dayCycle } from 'moon/light/dayCycle.mjs';
+import { flicker } from 'moon/light/flicker.mjs';
+const FIRE_FLICKER_SEED = 4.7; 
 import { SETTINGS, tierFromParam, decideTier, rendererFlags, isCapturing } from 'moon/light/quality.mjs';
 import { CURVE_K } from 'moon/world/curve.mjs';
 import { heightAt } from 'moon/world/moonLayout.mjs';
@@ -174,6 +176,12 @@ if (state.asset === 'item') {
 
 const root = new THREE.Group();
 scene.add(root);
+
+
+
+
+
+fml.setWaterVisible = (v) => { scene.traverse((o) => { if (o.isMesh && o.material && o.material.name === 'water') o.visible = v; }); };
 
 function resize() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -425,6 +433,11 @@ function frame(now) {
   controls.update();
   curveUniforms.uCurveFocus.value.copy(controls.target);
   const cycle = dayCycle(state.time);
+  
+  
+  
+  fml.fireFlicker = flicker(windUniforms.uFmlTime.value, FIRE_FLICKER_SEED);
+  cycle.emissive.fire *= fml.fireFlicker;
   if (daylight) {
     daylight.apply(cycle, controls.target, renderer);
     sky.update(cycle, camera, controls.target, seconds, curveUniforms.uCurve.value);

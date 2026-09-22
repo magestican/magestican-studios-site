@@ -42,6 +42,21 @@ export function birdBath(mesh, m, { height = 0.78, bowl = 0.3, detail = 0, rng, 
     },
     ripple: snowColor ? 0 : (p, n, uv, tag, i) => (wet[i] ? RIPPLE.basin * ramp[i] : 0),
   });
+  
+  
+  
+  
+  
+  if (!snowColor) {
+    const skinR = R * 0.78;
+    const skin = lathe({ points: [[skinR, H * 0.93], [skinR * 0.55, H * 0.928], [0, H * 0.925]], sides, phase: rng.child('water').rangeF(0, 1) });
+    const skinRamp = surfaceRamp(skin.p.map((p) => Math.hypot(p[0], p[2])), skinR);
+    emit(mesh, 'water', skin, {
+      matrix: m,
+      color: vc(water, { groundAO: 0, underside: 0.15 }),
+      ripple: (p, n, uv, tag, i) => RIPPLE.basin * skinRamp[i],
+    });
+  }
   if (snowColor && detail < 2) {
     emit(mesh, 'snow', lathe({ points: [[R * 0.86, H * 0.975], [R * 0.6, H * 1.03], [R * 0.25, H * 1.05], [0, H * 1.055]], sides }), { matrix: m, color: vc(snowColor, { groundAO: 0, underside: 0.2 }) });
   }

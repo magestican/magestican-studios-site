@@ -33,8 +33,11 @@
 
 
 
+
+
+
 import { SUNRISE, SUNSET, wrapHours } from '../light/dayCycle.mjs';
-import { DAY_MS } from '../economy/clock.mjs';
+import { localDay } from './localClock.mjs';
 
 
 
@@ -94,12 +97,13 @@ const CLEAR_GLYPH = '☀';
 
 
 
-export function dayOf(now, firstPlayed, dayMs = DAY_MS) {
+
+
+export function dayOf(now, firstPlayed, tzOffsetMin = 0) {
   if (!Number.isFinite(now) || !Number.isFinite(firstPlayed)) return 1;
-  if (!Number.isFinite(dayMs) || dayMs <= 0) return 1;
-  const since = now - firstPlayed;
-  if (!(since > 0)) return 1;
-  return Math.floor(since / dayMs) + 1;
+  if (!Number.isFinite(tzOffsetMin)) tzOffsetMin = 0;
+  const days = localDay(now, tzOffsetMin) - localDay(firstPlayed, tzOffsetMin);
+  return days > 0 ? days + 1 : 1;
 }
 
 
@@ -159,8 +163,9 @@ export function weatherGlyph(id) {
 
 
 
-export function dayLine({ now, firstPlayed, hour, weather, dayMs = DAY_MS } = {}) {
-  const day = dayOf(now, firstPlayed, dayMs);
+
+export function dayLine({ now, firstPlayed, hour, weather, tzOffsetMin = 0 } = {}) {
+  const day = dayOf(now, firstPlayed, tzOffsetMin);
   const part = partOfDay(hour);
   const id = (weather && weather.id) || 'clear';
   const label = (weather && weather.label) || 'clear';

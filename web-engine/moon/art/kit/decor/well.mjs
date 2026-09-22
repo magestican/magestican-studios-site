@@ -58,6 +58,31 @@ export function well(mesh, m, {
     ripple: frozen ? 0 : (p, n, nn, tag, i) => (deep[i] ? RIPPLE.basin * ramp[i] : 0),
   });
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (!frozen) {
+    const wellSkinR = R * 0.78;
+    const wellSkin = lathe({
+      points: [[wellSkinR, H - 0.13], [wellSkinR * 0.6, H - 0.135], [0, H - 0.14]],
+      sides, phase: rng.child('water').rangeF(0, 1),
+    });
+    const wellSkinRamp = surfaceRamp(wellSkin.p.map((p) => Math.hypot(p[0], p[2])), wellSkinR);
+    emit(mesh, 'water', wellSkin, {
+      matrix: m,
+      color: vc(waterColor, { groundAO: 0, underside: 0.15 }),
+      ripple: (p, n, nn, tag, i) => RIPPLE.basin * wellSkinRamp[i],
+    });
+  }
+
   if (detail === 2) return { top: H };
 
   

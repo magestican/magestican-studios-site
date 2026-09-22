@@ -251,7 +251,7 @@ export function deedLines({ world, firstPlayed = null, now = null, planetCount =
   const planted = sum(d.planted);
   const crafted = sum(d.crafted);
   const sold = sum(isObj(stats.sold) ? stats.sold : {});
-  const day = dayOf(num(now), num(firstPlayed));
+  const day = dayOf(num(now), num(firstPlayed), isObj(world) ? world.tzOffsetMin : 0);
   const lines = [
     {
       key: 'picked',

@@ -57,6 +57,21 @@ export function barrel(mesh, m, {
     },
     ripple: wet ? (p, n, uv, tag, i) => (inside[i] ? RIPPLE.basin * ramp[i] : 0) : 0,
   });
+  
+  
+  
+  
+  
+  if (wet) {
+    const skinR = R * 0.86;
+    const skin = lathe({ points: [[skinR, H - 0.055], [skinR * 0.55, H - 0.058], [0, H - 0.06]], sides, phase: rng.child('water').rangeF(0, 1) });
+    const skinRamp = surfaceRamp(skin.p.map((p) => Math.hypot(p[0], p[2])), skinR);
+    emit(mesh, 'water', skin, {
+      matrix: m,
+      color: vc(fillColor, { groundAO: 0, underside: 0.15 }),
+      ripple: (p, n, uv, tag, i) => RIPPLE.basin * skinRamp[i],
+    });
+  }
 
   
   

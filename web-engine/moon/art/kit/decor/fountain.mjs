@@ -13,6 +13,7 @@
 
 
 
+
 import { MeshData, IDENTITY, compose, scale, translate, rotateY } from '../../../mesh/meshData.mjs';
 import { lathe, emit, sweep, circleProfile } from '../../../mesh/bevel.mjs';
 import { SeededRng } from '../../../../rng/seededRng.js';
@@ -38,7 +39,7 @@ function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor }) {
   
   
   const fall = fallRamp(ribbon.p.map((q) => q[1]));
-  emit(mesh, 'bottle', ribbon, {
+  emit(mesh, 'water', ribbon, {
     matrix: compose(m, rotateY(a)),
     color: vc(waterColor, { groundAO: 0, underside: 0.15 }),
     ripple: (p, n, uv, tag, i) => -RIPPLE.flow * fall[i],
@@ -120,7 +121,7 @@ export function fountain(mesh, m, {
     radiusFn: square ? (th, j, r) => r * squareR(th) : null,
   });
   const skinRamp = surfaceRamp(skin.p.map((p) => Math.hypot(p[0], p[2])), skinR);
-  emit(mesh, 'bottle', skin, {
+  emit(mesh, 'water', skin, {
     matrix: m,
     color: vc(frozen ? mixC(waterColor, [1, 1, 1], 0.3) : waterColor, { groundAO: 0, underside: 0.15 }),
     ripple: frozen ? 0 : (p, n, uv, tag, i) => RIPPLE.pool * skinRamp[i],
@@ -163,7 +164,7 @@ export function fountain(mesh, m, {
     
     
     const rise = jetRamp(plume.p.map((q) => q[1]));
-    emit(mesh, 'bottle', plume, {
+    emit(mesh, 'water', plume, {
       matrix: m,
       color: vc(waterColor, { groundAO: 0, underside: 0.15 }),
       ripple: (p, n, uv, tag, i) => -RIPPLE.jet * rise[i],

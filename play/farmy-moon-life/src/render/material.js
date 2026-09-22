@@ -115,6 +115,12 @@ uniform vec3 uCurveFocus;
 uniform float uFmlTime;
 uniform float uFmlWind;
 uniform float uFmlWater;
+// W6: PER-MATERIAL SPEED on the flow term - fire licks and twists faster than
+// water falls. Bound once per compiled program (material.userData.uFmlFlowRate,
+// set at build() time in this file), not a second shader: every material still
+// shares the one fmlFlowAt below, multiplying its own clock by its own rate.
+// Water's rate is 1 (its arcs and jet keep the speed they always had).
+uniform float uFmlFlowRate;
 attribute float fmlSway;
 attribute float fmlRipple;
 // A FALLING STREAM (fmlRipple < 0): a wave travelling DOWN it - phase 6 t - 7 y,
@@ -122,8 +128,9 @@ attribute float fmlRipple;
 // and pulses it up and down by half that. A straight tube of water is the thing
 // that reads as dead; a ribbon with a wave in it reads as falling.
 vec3 fmlFlowAt( vec3 p, float t, float w ) {
-  float ph = t * 6.0 - p.y * 7.0;
-  return vec3( w * sin( ph ), w * 0.45 * sin( t * 4.4 + p.y * 3.0 ), w * cos( ph * 0.83 + 1.7 ) );
+  float rt = t * uFmlFlowRate;
+  float ph = rt * 6.0 - p.y * 7.0;
+  return vec3( w * sin( ph ), w * 0.45 * sin( rt * 4.4 + p.y * 3.0 ), w * cos( ph * 0.83 + 1.7 ) );
 }
 // The whole water term for one vertex, in metres of world displacement.
 vec3 fmlWaterAt( vec3 p, float t, float w ) {
@@ -185,12 +192,13 @@ if (!THREE.ShaderChunk.tonemapping_pars_fragment.includes('fmlPastel')) {
   ) + PASTEL_GLSL + 'vec3 NeutralToneMapping( vec3 color ) { return fmlPastel( fmlNeutralBase( color ) ); }\n';
 }
 
-function bendVertex(shader, worldVarying) {
+function bendVertex(shader, worldVarying, flowRate) {
   shader.uniforms.uCurve = curveUniforms.uCurve;
   shader.uniforms.uCurveFocus = curveUniforms.uCurveFocus;
   shader.uniforms.uFmlTime = windUniforms.uFmlTime;
   shader.uniforms.uFmlWind = windUniforms.uFmlWind;
   shader.uniforms.uFmlWater = waterUniforms.uFmlWater;
+  shader.uniforms.uFmlFlowRate = flowRate;
   let vs = BEND_PARS + (worldVarying ? 'varying vec3 vFmlWorld;\nvarying float vFmlRipple;\n' : '') + shader.vertexShader;
   vs = replaceOrThrow(vs, '#include <project_vertex>', bendChunk(worldVarying), 'project_vertex');
   if (vs.includes('#include <worldpos_vertex>')) vs = vs.replace('#include <worldpos_vertex>', WORLDPOS_BENT);
@@ -198,7 +206,8 @@ function bendVertex(shader, worldVarying) {
 }
 
 export function applyBend(material) {
-  material.onBeforeCompile = (shader) => bendVertex(shader, false);
+  material.userData.uFmlFlowRate = material.userData.uFmlFlowRate || { value: 1 };
+  material.onBeforeCompile = (shader) => bendVertex(shader, false, material.userData.uFmlFlowRate);
   material.customProgramCacheKey = () => 'fml-bend-v3';
   material.defaultAttributeValues = { ...(material.defaultAttributeValues || {}), fmlSway: [0], fmlRipple: [0] };
   return material;
@@ -296,6 +305,36 @@ outgoingLight += uFmlRimColor * fmlFres * uFmlRim * ( 0.4 + 0.6 * diffuseColor.r
 #include <opaque_fragment>
 `;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+const WATER_TINT =  `
+diffuseColor.rgb *= mix( 0.72, 1.0, clamp( vFmlRipple / 0.02, 0.0, 1.0 ) );
+`;
+const WATER_ALPHA =  `
+diffuseColor.a = clamp( diffuseColor.a * mix( 0.85, 1.2, fmlFres ), 0.0, 1.0 );
+#include <opaque_fragment>
+`;
+function waterPatch(fs) {
+  fs = replaceOrThrow(
+    fs,
+    'diffuseColor.rgb *= 1.0 + 0.12 * uFmlWater * fmlSwellAt( vFmlWorld.xz, uFmlTime ).x;\n}',
+    'diffuseColor.rgb *= 1.0 + 0.12 * uFmlWater * fmlSwellAt( vFmlWorld.xz, uFmlTime ).x;\n}' + WATER_TINT,
+    'water: the crest/trough line (anchor for the depth tint)',
+  );
+  return replaceOrThrow(fs, '#include <opaque_fragment>', WATER_ALPHA, 'water: opaque_fragment (the fresnel alpha)');
+}
+
 const KEEP_NORMALS =  `
 #ifndef FLAT_SHADED
   normal = normalize( vNormal );
@@ -327,10 +366,11 @@ if ( vFmlRipple > 0.0 ) {
 
 
 
-export function makeCozy(material, { rim = 0.12, key = 'base', patch = null, uniforms = {}, keepNormals = false } = {}) {
+export function makeCozy(material, { rim = 0.12, key = 'base', patch = null, uniforms = {}, keepNormals = false, flowRate = 1 } = {}) {
   material.userData.uFmlRim = { value: rim };
+  material.userData.uFmlFlowRate = { value: flowRate };
   material.onBeforeCompile = (shader) => {
-    bendVertex(shader, true);
+    bendVertex(shader, true, material.userData.uFmlFlowRate);
     Object.assign(shader.uniforms, cozyUniforms, { uFmlRim: material.userData.uFmlRim }, uniforms);
     let fs = shader.fragmentShader;
     fs = replaceOrThrow(fs, '#include <common>', '#include <common>\n' + COZY_PARS, 'common');
@@ -483,6 +523,7 @@ const PAINTERS = Object.freeze({
   snow: () => import('moon/paint/snow.mjs'),
   soil: () => import('moon/paint/soil.mjs'),
   stone: () => import('moon/paint/stone.mjs'),
+  water: () => import('moon/paint/water.mjs'),
   wood: () => import('moon/paint/wood.mjs'),
 });
 
@@ -517,11 +558,23 @@ async function build(id) {
     alphaToCoverage: Boolean(surface.alphaTest),
     emissive: new THREE.Color(surface.emissive || defColour),
     emissiveMap: emissiveId ? map : null,
+    transparent: Boolean(surface.transparent),
+    opacity: surface.opacity ?? 1,
+    depthWrite: !surface.transparent,
   });
   material.name = id;
   
   material.userData.emissiveBase = emissiveId ? (surface.emissiveIntensity || defIntensity) : (surface.emissiveIntensity ?? 0);
   material.emissiveIntensity = material.userData.emissiveBase * (emissiveId ? emissiveFactor[id] : 1);
   material.userData.depthMaterial = bentDepthMaterial({ map, alphaTest: surface.alphaTest ?? 0, side: material.side });
-  return makeCozy(material, { rim: surface.rim ?? (id === 'fur' ? 0.35 : 0.12), key: id, keepNormals: id === 'grass' || id === 'petal' });
+  return makeCozy(material, {
+    rim: surface.rim ?? (id === 'fur' ? 0.35 : 0.12),
+    key: id,
+    keepNormals: id === 'grass' || id === 'petal',
+    patch: id === 'water' ? waterPatch : null,
+    
+    
+    
+    flowRate: id === 'fire' ? 3.5 : 1,
+  });
 }

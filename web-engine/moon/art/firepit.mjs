@@ -15,6 +15,7 @@ import { seasonPalette } from '../palette/seasons.mjs';
 import { valueNoise3 } from '../noise.mjs';
 import { hex, mixC, paintVertex, vary, vc } from './kit/shade.mjs';
 import { rockShape } from './rock.mjs';
+import { RIPPLE, jetRamp } from './kit/water.mjs';
 
 export const TIER = 'dressing';
 export const LODS = [0, 1, 2];
@@ -100,9 +101,15 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
     bend(flame, { along: 1, dir: 0, from: 0, length: h, amount: rng.rangeF(-0.08, 0.08) });
     bend(flame, { along: 1, dir: 2, from: 0, length: h, amount: rng.rangeF(-0.05, 0.05) });
     const off = f === 0 ? [0, 0] : [rng.rangeF(-0.12, 0.12), rng.rangeF(-0.12, 0.12)];
+    
+    
+    
+    
+    const flameRamp = jetRamp(flame.p.map((q) => q[1]));
     emit(mesh, 'fire', flame, {
       matrix: compose(translate(off[0], 0.06, off[1]), rotateY(rng.rangeF(0, Math.PI * 2))),
       color: (p) => { const t = Math.min(1, Math.max(0, (p[1] - 0.06) / h)); return t < 0.45 ? mixC(root, midC, t / 0.45) : mixC(midC, tip, (t - 0.45) / 0.55); },
+      ripple: (p, n, uv, tag, i) => -RIPPLE.flame * flameRamp[i],
     });
   }
   return mesh;
