@@ -11,6 +11,13 @@ import { CLOCK } from './tables.mjs';
 import { MS } from './math.mjs';
 
 export const DAY_MS = CLOCK.day_s * MS;
+
+
+
+
+
+
+export const WORK_DAY_MS = DAY_MS;
 const START_MS = Math.round((CLOCK.startHour / 24) * DAY_MS);
 const DAWN_MS = Math.round((SUNRISE / 24) * DAY_MS);
 const DUSK_MS = Math.round((SUNSET / 24) * DAY_MS);

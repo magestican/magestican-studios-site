@@ -57,7 +57,7 @@
 
 
 import { CRAFTABLES } from '../economy/craftables.mjs';
-import { DAY_MS } from '../economy/clock.mjs';
+import { WORK_DAY_MS } from '../economy/clock.mjs';
 import { PLAZA } from '../world/moonLayout.mjs';
 import { seedOf } from '../voice/mumble.mjs';
 import { ITALIAN_NAMES, villagerName } from './people.mjs';
@@ -168,7 +168,7 @@ export function bellPlaces(world, { planet = 0 } = {}) {
 }
 
 
-export const dayOf = (world, t) => Math.floor((num(t) - num(world.createdAt)) / DAY_MS);
+export const dayOf = (world, t) => Math.floor((num(t) - num(world.createdAt)) / WORK_DAY_MS);
 
 
 
@@ -416,14 +416,14 @@ export function worksOf(world, t) {
   const a = assemblyOf(world);
   const now = num(t);
   return a.works.map((w) => {
-    const span = Math.max(1, num(w.days)) * DAY_MS;
+    const span = Math.max(1, num(w.days)) * WORK_DAY_MS;
     const gone = Math.max(0, now - num(w.startedAt));
     const finished = Boolean(w.doneAt) || gone >= span;
     return {
       ...w,
       done: finished,
       progress: finished ? 1 : Math.min(1, gone / span),
-      daysLeft: finished ? 0 : Math.max(1, Math.ceil((span - gone) / DAY_MS)),
+      daysLeft: finished ? 0 : Math.max(1, Math.ceil((span - gone) / WORK_DAY_MS)),
     };
   });
 }
@@ -438,7 +438,7 @@ export function settleWorks(world, t) {
   const out = [];
   for (const w of a.works) {
     if (w.doneAt) continue;
-    const span = Math.max(1, num(w.days)) * DAY_MS;
+    const span = Math.max(1, num(w.days)) * WORK_DAY_MS;
     if (now - num(w.startedAt) < span) continue;
     w.doneAt = now;
     out.push({ ...w });

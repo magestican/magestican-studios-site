@@ -17,6 +17,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 export const MATERIALS = Object.freeze([
   'bark', 'leaf', 'blossom', 'fruit', 'snow',
   'fur', 'eye', 'cloth',
@@ -69,6 +79,7 @@ export class MeshData {
     this.name = name;
     this.groups = new Map();
     this.rig = null;
+    this.morphs = {};
   }
 
   group(material) {
@@ -110,6 +121,17 @@ export class MeshData {
 
   tri(material, a, b, c) {
     this.group(material).indices.push(a, b, c);
+  }
+
+  
+  
+  
+  
+  
+  morphDelta(name, material, index, [dx, dy, dz]) {
+    const m = (this.morphs[name] ||= { group: material, index: new Map() });
+    if (m.group !== material) throw new Error(`morph '${name}' spans two groups ('${m.group}' and '${material}')`);
+    m.index.set(index, [dx, dy, dz]);
   }
 
   
@@ -256,6 +278,15 @@ export class MeshData {
         if (!Array.isArray(b.head) || b.head.length !== 3 || !b.head.every(Number.isFinite)) problems.push(`${this.name}: bone ${b.name} has no finite head`);
       });
     }
+    for (const [name, m] of Object.entries(this.morphs)) {
+      const g = this.groups.get(m.group);
+      if (!g) { problems.push(`morph '${name}': group '${m.group}' does not exist`); continue; }
+      const vcount = g.positions.length / 3;
+      for (const [i, d] of m.index) {
+        if (!Number.isInteger(i) || i < 0 || i >= vcount) problems.push(`morph '${name}': index ${i} out of range for '${m.group}' (${vcount} vertices)`);
+        else if (!d.every(Number.isFinite)) problems.push(`morph '${name}': non-finite delta at vertex ${i}`);
+      }
+    }
     return problems;
   }
 
@@ -303,6 +334,14 @@ export class MeshData {
         if (g.ripples) out.ripple = Float32Array.from(g.ripples);
         return out;
       }),
+      
+      
+      morphs: Object.fromEntries(Object.entries(this.morphs).map(([name, m]) => {
+        const vcount = this.groups.get(m.group).positions.length / 3;
+        const deltas = new Float32Array(vcount * 3);
+        for (const [i, [dx, dy, dz]] of m.index) { deltas[i * 3] = dx; deltas[i * 3 + 1] = dy; deltas[i * 3 + 2] = dz; }
+        return [name, { group: m.group, deltas }];
+      })),
     };
   }
 }

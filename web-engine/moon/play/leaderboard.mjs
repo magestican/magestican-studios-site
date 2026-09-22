@@ -30,7 +30,7 @@
 
 
 import { netWorth, worthText } from '../economy/netWorth.mjs';
-import { DAY_MS } from '../economy/clock.mjs';
+import { WORK_DAY_MS } from '../economy/clock.mjs';
 import { ITALIAN_NAMES, PLAYER_NAMES } from './people.mjs';
 
 export const BOARD = Object.freeze({
@@ -73,7 +73,7 @@ export function normaliseName(raw) {
 export const defaultName = (build) => PLAYER_NAMES[build] || ITALIAN_NAMES[0];
 
 
-export const dayOf = (world) => (world ? Math.max(1, Math.floor((world.clockAt - world.createdAt) / DAY_MS) + 1) : 1);
+export const dayOf = (world) => (world ? Math.max(1, Math.floor((world.clockAt - world.createdAt) / WORK_DAY_MS) + 1) : 1);
 
 
 

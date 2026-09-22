@@ -76,6 +76,12 @@ const HOME_LINE = Object.freeze({
 });
 
 
+
+
+
+export const knockLine = (villager, villagers = []) => `${villagerName(villager, villagers)} peers through the window. "Not today, thank you."`;
+
+
 export const HINTS = Object.freeze({
   appleJuice: "I'd do anything for a cold bottle of apple juice.",
   peachJam: "Peach jam on toast. That's my perfect morning.",

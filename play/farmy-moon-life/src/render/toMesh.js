@@ -24,6 +24,7 @@ import { cozyMaterial, curveUniforms } from './material.js';
 import { cullPad } from 'moon/world/curve.mjs';
 import { NO_SHADOW_MATERIALS } from 'moon/mesh/meshData.mjs';
 import { boneAxes } from 'moon/rig/skeleton.mjs';
+import { MORPH_NAMES } from 'moon/rig/face.mjs';
 
 
 const POSE_MARGIN = 0.35;
@@ -45,6 +46,19 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
     geometry.setAttribute('uv', new THREE.BufferAttribute(g.uv, 2));
     if (g.sway) geometry.setAttribute('fmlSway', new THREE.BufferAttribute(g.sway, 1)); 
     if (g.ripple) geometry.setAttribute('fmlRipple', new THREE.BufferAttribute(g.ripple, 1)); 
+    
+    
+    
+    
+    
+    const hasMorph = Object.values(arrays.morphs).some((m) => m.group === g.material);
+    if (hasMorph) {
+      geometry.morphAttributes.position = MORPH_NAMES.map((n) => {
+        const m = arrays.morphs[n];
+        const deltas = m && m.group === g.material ? m.deltas : new Float32Array(g.position.length);
+        return new THREE.BufferAttribute(deltas, 3);
+      });
+    }
     if (rig) {
       geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(g.skinIndex, 4));
       geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(g.skinWeight, 4));
@@ -64,6 +78,7 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
     } else {
       mesh = new THREE.Mesh(geometry, material);
     }
+    if (hasMorph) mesh.morphTargetInfluences = new Array(MORPH_NAMES.length).fill(0);
     if (material.userData.depthMaterial) mesh.customDepthMaterial = material.userData.depthMaterial;
     mesh.name = `${arrays.name}/${g.material}`;
     

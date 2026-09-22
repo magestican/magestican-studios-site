@@ -342,6 +342,10 @@ export const HAPPINESS = Object.freeze({
   overflow_bp: 2500,
   warmthHalfLife_s: 3600,
   warmthCap_points: 300,
+  
+  
+  
+  enterHearts: 1,
 });
 
 export const GIFTS = Object.freeze({
@@ -367,13 +371,18 @@ export const ROCKS = Object.freeze({
 
 
 
+
+
+
+
+
 export const START = Object.freeze({
   coins: 0,
   villagers: [
     { species: 'elephant', favourite: 'appleJuice' },
     { species: 'giraffe', favourite: 'peachJam' },
     { species: 'panda', favourite: 'apple' },
-    { species: 'human', favourite: 'orchardJuice' },
+    { species: 'human', favourite: 'orchardJuice', home: 'cottage' },
     { species: 'pig', favourite: 'appleJam' },
   ],
 });

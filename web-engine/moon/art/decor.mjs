@@ -20,6 +20,7 @@
 
 
 
+
 import { CRAFTABLES } from '../economy/craftables.mjs';
 import * as flowerPot from './kit/flowerPot.mjs';
 import * as flowerBed from './kit/flowerBed.mjs';
@@ -135,3 +136,17 @@ export const anchorsOf = (item) => anchors(artOf(item));
 
 
 export const generateOf = (item, { season = 'summer', lod = 0 } = {}) => generate({ ...artOf(item), season, lod });
+
+
+
+
+
+
+
+export function uses({ kind, seed = 1, variant = null, stage = null } = {}) {
+  const mod = moduleOf(kind);
+  return mod.uses ? mod.uses({ seed, variant, stage }) : [];
+}
+
+
+export const usesOf = (item) => uses(artOf(item));

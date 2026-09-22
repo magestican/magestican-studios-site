@@ -171,7 +171,11 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     world.finds.push({ id, planet, kind, takenAt: null, takes: 0 });
   });
   for (const v of villagers) {
-    world.villagers.push({ id: nextId(world), species: v.species, favourite: v.favourite, points: 0, warmth_cp: 0, warmthAt: now, levels: [] });
+    
+    
+    
+    const levels = v.home ? [{ at: now, doneAt: now }] : [];
+    world.villagers.push({ id: nextId(world), species: v.species, favourite: v.favourite, home: v.home || null, points: 0, warmth_cp: 0, warmthAt: now, levels });
   }
   return world;
 }

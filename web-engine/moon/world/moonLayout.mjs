@@ -40,6 +40,13 @@ export const PARCEL = Object.freeze({ minX: -10.5, maxX: 1.5, minZ: -15.5, maxZ:
 
 
 
+
+
+
+export const COTTAGE_SPOT = Object.freeze({ x: -4.6, z: -11.2, rotY: 0.06, seed: 1 });
+
+
+
 export const PATH_MAX_POINTS = 24;
 export const PATH_HALF_WIDTH = 1.05;
 
@@ -208,7 +215,8 @@ export function placements() {
   const P = [];
   const put = (module, x, z, extra = {}) => P.push({ module, x, z, y: heightAt(x, z), rotY: 0, seed: 1, ...extra });
 
-  put('cottage', -4.6, -11.2, { seed: 1, rotY: 0.06 });
+  
+  
   
   put('cat', 1.35, -3.9, { seed: 1, rotY: 0.35 });
 

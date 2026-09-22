@@ -36,7 +36,6 @@
 
 import { BP, draw, pickWeighted } from './math.mjs';
 import { GOODS, STAPLES } from './tables.mjs';
-import { DAY_MS } from './clock.mjs';
 
 export const TOWN = Object.freeze({
   
@@ -119,9 +118,14 @@ export const newTown = () => ({ points: 0, filled: 0, lastDay: -1 });
 
 
 
-const startMs = (hour) => Math.round((hour / 24) * DAY_MS);
-export function townDay(world, t, startHour = 8) {
-  return Math.floor((t - world.createdAt + startMs(startHour)) / DAY_MS);
+
+
+
+
+const REAL_DAY_MS = 24 * 60 * 60 * 1000;
+const localDayNum = (t, tzOffsetMin) => Math.floor((t - (tzOffsetMin || 0) * 60000) / REAL_DAY_MS);
+export function townDay(world, t) {
+  return localDayNum(t, world.tzOffsetMin) - localDayNum(world.createdAt, world.tzOffsetMin);
 }
 
 export const townOf = (world) => world.town || newTown();

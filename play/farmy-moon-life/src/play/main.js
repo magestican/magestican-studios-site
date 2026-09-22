@@ -182,7 +182,11 @@ import { createSignLabels } from './signLabels.js';
 import {
   createVillage, badgeState, homeOf, homeStage, syncHomes, villagerPose, VILLAGE, PLAYER_TUNED, PLAYER_TUNED_HEIGHT_M, playerFit,
 } from 'moon/play/village.mjs';
-import { startTalk as startVillagerTalk, talkNode as villagerTalkNode, choose as chooseVillagerTalk, speakerOf } from 'moon/play/villagerTalk.mjs';
+import { startTalk as startVillagerTalk, talkNode as villagerTalkNode, choose as chooseVillagerTalk, speakerOf, knockLine } from 'moon/play/villagerTalk.mjs';
+
+
+
+import { mayEnter, villagerHomePlaces } from 'moon/play/enterable.mjs';
 
 
 
@@ -1428,6 +1432,8 @@ function placesNow() {
     
     ...homePlaces(world),
     
+    ...villagerHomePlaces(world, village, econNow()),
+    
     ...bellPlaces(world, { planet: planetId }),
   ];
 }
@@ -1477,6 +1483,8 @@ function tapBoxes() {
     }),
     
     ...homePlaces(world).map((d) => ({ type: d.type, x: d.x, z: d.z, rotY: 0, hx: 0.6, hz: 0.4, h: 2.2 })),
+    
+    ...villagerHomePlaces(world, village, econNow()).map((d) => ({ type: d.type, id: d.id, x: d.x, z: d.z, rotY: 0, hx: 0.6, hz: 0.4, h: 2.2 })),
     
     ...bellPlaces(world, { planet: planetId }).map((b) => ({ type: b.type, x: b.x, z: b.z, rotY: 0, hx: 0.5, hz: 0.5, h: 2.6 })),
   ];
@@ -1706,6 +1714,12 @@ function paintShape() {
 
 function startPlacing(item) {
   if (talk || choice.isOpen) return;
+  
+  
+  
+  
+  
+  if (inside && inside.kind !== 'player') { hud.say('There is nothing to put down in here.', seconds); return; }
   
   
   
@@ -2045,6 +2059,10 @@ function press() {
   if (p && p.open === 'homeOut') { goOutside(); return; }
   
   
+  if (p && p.open === 'villagerIn') { goInsideVillager(p.target.id); return; }
+  if (p && p.open === 'knock') { knockAt(p.target.id); return; }
+  
+  
   
   if (p && p.open === 'assembly') { if (p.why) hud.nope(p.why, seconds); else ringBell(); return; }
   if (p && p.action && !p.why) { doAct(p.action); return; }
@@ -2138,6 +2156,8 @@ function tap(cx, cy) {
   if (p && p.action && !p.why) doAct(p.action); 
   else if (p && p.open === 'homeIn') goInside();
   else if (p && p.open === 'homeOut') goOutside();
+  else if (p && p.open === 'villagerIn') goInsideVillager(p.target.id);
+  else if (p && p.open === 'knock') knockAt(p.target.id);
   else if (p && p.open === 'assembly') { if (p.why) hud.nope(p.why, seconds); else ringBell(); }
   else if (p && p.open === 'talk') openTalk(aim);
   else if (p && p.open) openCard(p.open, p);
@@ -2349,9 +2369,14 @@ function applyPlanetVisibility() {
 
 
 
-async function goInside() {
+
+
+
+
+
+async function enterHome(buildHome) {
   if (inside || goingThroughDoor || !outdoors()) return false;
-  const home = playerHome(world);
+  const home = buildHome();
   if (!home) return false;
   goingThroughDoor = true;
   try {
@@ -2362,7 +2387,8 @@ async function goInside() {
     
     
     
-    if (placing && !isFurnitureItem(placing.item)) stopPlacing();
+    
+    if (home.kind === 'player') { if (placing && !isFurnitureItem(placing.item)) stopPlacing(); } else stopPlacing();
     const ok = await interiorDraw.show(home);
     if (!ok) { hud.say('The door will not open just now.', seconds); return false; }
     wentInAt = { x: player.x, z: player.z, heading: player.heading };
@@ -2381,6 +2407,38 @@ async function goInside() {
   } finally {
     goingThroughDoor = false;
   }
+}
+
+async function goInside() {
+  return enterHome(() => {
+    const home = playerHome(world);
+    return home ? { ...home, kind: 'player' } : null;
+  });
+}
+
+
+
+
+async function goInsideVillager(villagerId) {
+  return enterHome(() => {
+    const v = world.villagers.find((x) => x.id === villagerId);
+    if (!v) return null;
+    const t = econNow();
+    if (!mayEnter(v, homeStage(v, t))) return null;
+    const place = villagerHomePlaces(world, village, t).find((p) => p.id === villagerId);
+    if (!place || !place.room) return null;
+    return {
+      id: `villager:${villagerId}`, kind: 'villager', villagerId, species: place.species, seed: place.seed,
+      front: place.front, room: place.room,
+    };
+  });
+}
+
+
+function knockAt(villagerId) {
+  const v = world.villagers.find((x) => x.id === villagerId);
+  if (!v) return;
+  hud.say(knockLine(v, world.villagers), seconds);
 }
 
 function goOutside() {
@@ -5319,7 +5377,8 @@ function frame(now) {
     const badge = badgeState(villager, { distance, wasVisible: badgeShown.get(v.id) || false, playerHeightM: playerHeightNow() });
     const shownNow = badge.visible && v.visible && !v.inside && v.id === badgeId;
     badgeShown.set(v.id, shownNow);
-    badgeList.push({ id: v.id, x: v.x, y: v.y + v.height, z: v.z, state: { ...badge, visible: shownNow }, drawn: v.visible });
+    const door = mayEnter(villager, homeStage(villager, t));
+    badgeList.push({ id: v.id, x: v.x, y: v.y + v.height, z: v.z, state: { ...badge, visible: shownNow, door }, drawn: v.visible });
   }
   levelBadges.update(badgeList, { screenOf: fml.screenOf, nowS: seconds });
   homesDraw.update(world, t, { village, animS: animSeconds, dtS: dt, focus: focusNow, player, screenOf: fml.screenOf, canSpeak: () => !talk, glass: cycle.emissive.glass });

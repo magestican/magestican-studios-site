@@ -71,7 +71,11 @@ const MILESTONES = [
   ['first planted tree fruiting', (w, t) => w.trees.some((tree) => !tree.wild && stageAt(tree, t) === 'fruiting')],
   ['first parcel bought', (w) => w.parcels >= 2],
   ['shop level 2', (w) => shopOf(w).level >= 2],
-  ['first villager house (L1)', (w) => w.villagers.some((v) => v.levels.length >= 1)],
+  
+  
+  
+  
+  ['first villager house (L1)', (w) => w.villagers.some((v) => v.levels.length >= 1 && v.home !== 'cottage')],
   ['parcel 3', (w) => w.parcels >= 3],
   ['orchard juice (press level 3)', (w) => w.buildings.some((b) => b.type === 'processor' && b.level >= 3)],
   ['parcel 5', (w) => w.parcels >= 5],

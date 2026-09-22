@@ -259,7 +259,21 @@ export function giraffe({ season, lod, L, variant, rng, fuse }) {
 
   
   const onSkin = (x, y, lift) => { const q = frontPoint(face, x, y); return add(q, mul(S.normalAt(face, ...q), lift)); };
-  strands.push({ name: 'smile', pts: [[-0.04, 1.15], [-0.012, 1.14], [0.018, 1.143], [0.045, 1.156]].map(([x, y]) => onSkin(x, y, 0.002)), radii: [0.0024, 0.0038, 0.0036, 0.002], color: INK, bone: 'head' });
+  
+  
+  
+  
+  
+  
+  const mouthXY = [[-0.04, 1.15], [-0.012, 1.14], [0.018, 1.143], [0.045, 1.156]];
+  const mouthPts = (dy) => mouthXY.map(([x, y], i) => onSkin(x, y + dy[i], 0.002));
+  strands.push({
+    name: 'smile', pts: mouthPts([0, 0, 0, 0]), radii: [0.0024, 0.0038, 0.0036, 0.002], color: INK, bone: 'head',
+    morphs: {
+      mouthSmile: { pts: mouthPts([0.012, -0.006, -0.006, 0.012]) },
+      mouthFrown: { pts: mouthPts([-0.01, 0.006, 0.006, -0.01]) },
+    },
+  });
   
   const ER = [0.032, 0.04, 0.022];
   eyeAt.forEach((e, i) => {

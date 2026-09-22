@@ -44,6 +44,8 @@ import { villagerPose } from 'moon/play/village.mjs';
 import { animStepS } from 'moon/play/animRate.mjs';
 import { villagerGesture } from 'moon/play/gestures.mjs';
 import { villagerBuild } from 'moon/play/people.mjs';
+import { faceAt, faceInfluences } from 'moon/rig/face.mjs';
+import { PERSONALITIES, personalityOf } from 'moon/play/personality.mjs';
 import { villagerObject } from '../render/villager.js';
 import { villagerSource } from '../render/villagerSource.js';
 
@@ -249,6 +251,27 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
           s.poses += 1;
           s.animAcc = 0;
           s.animDist = 0;
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          const life = pc.locomotion.state.life;
+          const personality = PERSONALITIES[personalityOf(v)];
+          const face = faceAt({ expression: personality.baseline, intensity: personality.intensity, since: 10, blink: life ? life.blink : 0, talking: isHeld, activity: isHeld ? activity : 0 });
+          const infl = faceInfluences(face);
+          for (const m of pc.meshes) {
+            if (!m.morphTargetInfluences) continue;
+            for (let i = 0; i < infl.length; i++) m.morphTargetInfluences[i] = infl[i];
+          }
         }
       }
       

@@ -57,11 +57,16 @@
 
 
 
+
+
+
+
 import { CLOCK, HAPPINESS } from '../economy/tables.mjs';
 import { MS } from '../economy/math.mjs';
-import { DAY_MS, isDark } from '../economy/clock.mjs';
+import { WORK_DAY_MS as DAY_MS } from '../economy/clock.mjs';
+import { localHour } from './localClock.mjs';
 import { SUNRISE, SUNSET } from '../light/dayCycle.mjs';
-import { PATH_HALF_WIDTH, PLAZA, TOWN_SPOTS, pathDistance, placements } from '../world/moonLayout.mjs';
+import { COTTAGE_SPOT, PATH_HALF_WIDTH, PLAZA, TOWN_SPOTS, pathDistance, placements } from '../world/moonLayout.mjs';
 import {
   BUILDING_ROLES, HOME_ROOM, PLAYER_RADIUS_M, WALK_EDGE_M, createCollisionWorld, homeDoor, homeObstacle, homeRoomObstacle,
   obstacleFor, obstaclesWithoutRuntime, penetration, plotObstacle, roomObstacle, toWorld, townBlockObstacles, TOWN_ROLES,
@@ -76,6 +81,22 @@ import { CAMERA } from './followCamera.mjs';
 import { INTERACT } from './interact.mjs';
 import { COUNTERS } from '../economy/town.mjs';
 import { anchors as townAnchors } from '../art/townBuilding.mjs';
+
+
+
+
+
+const NIGHT_FROM_HOUR = 22;
+const NIGHT_TO_HOUR = 6;
+export const isNightHour = (h) => h >= NIGHT_FROM_HOUR || h < NIGHT_TO_HOUR;
+
+
+export function isNightOwl(world, villagerId) {
+  const list = world.villagers || [];
+  if (list.length === 0) return false;
+  const idx = seedOf(`${world.seed}|nightOwl`) % list.length;
+  return list[idx] && list[idx].id === villagerId;
+}
 
 export const VILLAGE = Object.freeze({
   
@@ -757,11 +778,13 @@ export function syncHomes(village, world, t) {
   const chosen = [];
   for (const v of world.villagers || []) {
     if (village.homes[v.id] || !(v.levels && v.levels.length)) continue;
-    const spot = chooseHomeSpot(village, world, v, t);
+    
+    const spot = v.home === 'cottage' ? { ...COTTAGE_SPOT, chosenAt: t, candidate: -1 } : chooseHomeSpot(village, world, v, t);
     if (spot) chosen.push({ villager: v.id, spot: village.setHome(v.id, spot), candidate: spot.candidate });
   }
   return chosen;
 }
+
 
 
 
@@ -779,7 +802,8 @@ export function villagerPose(village, world, villager, t) {
   if (ms < plan.wake || ms >= plan.homeAt || plan.segs.length === 0) {
     if (plan.home) {
       const houseUp = HOUSE_STAGES.includes(homeStage(villager, t).stage);
-      return { x: plan.night.x, z: plan.night.z, heading: plan.home.rotY || 0, speed: 0, doing: 'home', place: plan.own, inside: houseUp && isDark(world, t) };
+      const night = isNightHour(localHour(t, world.tzOffsetMin || 0)) && !isNightOwl(world, villager.id);
+      return { x: plan.night.x, z: plan.night.z, heading: plan.home.rotY || 0, speed: 0, doing: 'home', place: plan.own, inside: houseUp && night };
     }
     const heading = Math.atan2(plan.nightLook.x - plan.night.x, plan.nightLook.z - plan.night.z);
     return { x: plan.night.x, z: plan.night.z, heading, speed: 0, doing: 'resting', place: plan.own, inside: false };

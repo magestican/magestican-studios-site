@@ -218,10 +218,31 @@ export function elephant({ season, lod, L, variant, rng, fuse }) {
 
   
   const onSkin = (p, lift) => { const q = frontPoint(face, p[0], p[1]); return add(q, mul(S.normalAt(face, ...q), lift)); };
-  strands.push({ name: 'smile', pts: [[0.05, 0.786], [0.07, 0.781], [0.092, 0.795]].map(([x, y]) => onSkin([x, y, 0.4], 0.002)), radii: [0.0028, 0.0042, 0.0024], color: INK, bone: 'head' });
+  
+  
+  
+  
+  const mouthXY = [[0.05, 0.786], [0.07, 0.781], [0.092, 0.795]];
+  const mouthPts = (dy) => mouthXY.map(([x, y], i) => onSkin([x, y + dy[i], 0.4], 0.002));
+  strands.push({
+    name: 'smile', pts: mouthPts([0, 0, 0]), radii: [0.0028, 0.0042, 0.0024], color: INK, bone: 'head',
+    morphs: {
+      mouthSmile: { pts: mouthPts([0.01, -0.008, 0.012]) },
+      mouthFrown: { pts: mouthPts([-0.008, 0.006, -0.01]) },
+    },
+  });
   for (const side of [1, -1]) {
-    const pts = [[0.09, 1.02], [0.128, 1.032], [0.168, 1.018]].map(([x, y]) => onSkin([side * x, y + (side < 0 ? 0.006 : 0), 0.5], 0.004));
-    strands.push({ name: 'brow', pts, radii: [0.005, 0.0072, 0.003], color: mul(C.skin, 0.6), bone: 'head' });
+    const lift = side < 0 ? 0.006 : 0;
+    const browXY = [[0.09, 1.02], [0.128, 1.032], [0.168, 1.018]];
+    const browPts = (dy) => browXY.map(([x, y], i) => onSkin([side * x, y + lift + dy[i], 0.5], 0.004));
+    strands.push({
+      name: 'brow', pts: browPts([0, 0, 0]), radii: [0.005, 0.0072, 0.003], color: mul(C.skin, 0.6), bone: 'head',
+      morphs: {
+        browsUp: { pts: browPts([0.012, 0.012, 0.012]) },
+        browsDown: { pts: browPts([-0.01, -0.01, -0.01]) },
+        browsSad: { pts: browPts([0.01, 0.002, -0.006]) },
+      },
+    });
   }
 
   

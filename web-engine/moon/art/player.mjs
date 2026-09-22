@@ -41,6 +41,7 @@ import { budgetFor } from '../budgets.mjs';
 import { createSkeleton, kneeBetween, boneIndex } from '../rig/skeleton.mjs';
 import { partWeights, rigidWeights, setSkin } from '../rig/skin.mjs';
 import { smooth, mix, add, sub, mul, dot, norm, cross, dist, mirror, densify, distToPolyline, strand } from './kit/character.mjs';
+import { strandWithMorphs } from './kit/face.mjs';
 import { generate as generateVillager } from './villager.mjs';
 
 export const TIER = 'heroCharacter';
@@ -470,12 +471,35 @@ export function generate({ seed = 1, season = 'summer', lod = 0, species = 'pig'
     return add(s, mul(S.normalAt(skull, ...s), lift));
   };
   track(md, rigid('head'), () => {
-    strand(md, [[-0.044, 0.514], [-0.021, 0.504], [0, 0.503], [0.021, 0.506], [0.048, 0.52]].map(([x, y]) => onSkin([x, y, 0.35], 0.002)),
-      [0.0026, 0.004, 0.0044, 0.004, 0.0024], INK, L.sides);
+    
+    
+    
+    
+    
+    
+    
+    const mouthXY = [[-0.044, 0.514], [-0.021, 0.504], [0, 0.503], [0.021, 0.506], [0.048, 0.52]];
+    const mouthPts = (dy) => mouthXY.map(([x, y], i) => onSkin([x, y + dy[i], 0.35], 0.002));
+    strandWithMorphs(md, {
+      pts: mouthPts([0, 0, 0, 0, 0]), radii: [0.0026, 0.004, 0.0044, 0.004, 0.0024], color: INK, sides: L.sides, material: 'fur',
+      morphs: {
+        mouthSmile: { pts: mouthPts([0.012, -0.006, -0.008, -0.006, 0.012]) },
+        mouthFrown: { pts: mouthPts([-0.01, 0.006, 0.008, 0.006, -0.01]) },
+      },
+    });
     for (const side of [1, -1]) {
       
-      const pts = [[0.1, 0.938], [0.142, 0.945], [0.184, 0.925]].map(([x, y]) => onSkin([side * x, y + (side < 0 ? 0.005 : 0), 0.5], 0.004));
-      strand(md, pts, [0.0055, 0.008, 0.0032], V.coat === 'berkshire' ? mul(C.pale, 0.9) : mul(C.skin, 0.55), L.sides);
+      const browXY = [[0.1, 0.938], [0.142, 0.945], [0.184, 0.925]];
+      const lift = side < 0 ? 0.005 : 0;
+      const browPts = (dy) => browXY.map(([x, y], i) => onSkin([side * x, y + lift + dy[i], 0.5], 0.004));
+      strandWithMorphs(md, {
+        pts: browPts([0, 0, 0]), radii: [0.0055, 0.008, 0.0032], color: V.coat === 'berkshire' ? mul(C.pale, 0.9) : mul(C.skin, 0.55), sides: L.sides, material: 'fur',
+        morphs: {
+          browsUp: { pts: browPts([0.012, 0.012, 0.012]) },
+          browsDown: { pts: browPts([-0.01, -0.01, -0.01]) },
+          browsSad: { pts: browPts([0.01, 0.002, -0.006]) },
+        },
+      });
     }
   });
 

@@ -24,8 +24,13 @@ const CSS = `
 .fml-badge .off path{fill:#f4e2d0;stroke:#d9b99c}
 .fml-badge .plus{position:absolute;left:50%;top:-3px;transform:translate(-50%,-100%);color:#e8577b;font:900 17px/1 system-ui,sans-serif;
   text-shadow:0 1px 0 #fff,0 -1px 0 #fff,1px 0 0 #fff,-1px 0 0 #fff}
+.fml-badge .door path{fill:none;stroke:#8a6a4a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 `;
 const HEART = 'M12 21s-7.4-4.5-9.9-9.2C.5 8.6 2.4 4.2 6.4 4.2c2.2 0 3.8 1.2 5.6 3.3 1.8-2.1 3.4-3.3 5.6-3.3 4 0 5.9 4.4 4.3 7.6C19.4 16.5 12 21 12 21z';
+
+
+
+const DOOR = 'M5 21V4.5A1.5 1.5 0 0 1 6.5 3h7A1.5 1.5 0 0 1 15 4.5V21M3 21h14M12.3 12a.9.9 0 1 1-1.8 0 .9.9 0 0 1 1.8 0z';
 
 export const LEVEL_BADGE = Object.freeze({ liftM: 0.62, gainShowS: 1.8 });
 
@@ -57,6 +62,17 @@ export function createLevelBadges({ layer, cfg = LEVEL_BADGE }) {
     return { wrap, svgs };
   }
 
+  function doorEl() {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 18 24');
+    svg.setAttribute('class', 'door');
+    svg.hidden = true;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', DOOR);
+    svg.appendChild(path);
+    return svg;
+  }
+
   function entry(id, heartsOf) {
     let e = pool.get(id);
     if (!e) {
@@ -67,12 +83,13 @@ export function createLevelBadges({ layer, cfg = LEVEL_BADGE }) {
       const lv = document.createElement('b');
       lv.className = 'lv';
       const { wrap, svgs } = heartsEl(heartsOf);
+      const door = doorEl();
       const plus = document.createElement('span');
       plus.className = 'plus';
       plus.hidden = true;
-      el.append(lv, wrap, plus);
+      el.append(lv, wrap, door, plus);
       layer.appendChild(el);
-      e = { el, lv, svgs, plus, sig: '', shown: true, w: 0, h: 0, x: NaN, y: NaN, points: null, flashUntil: -1 };
+      e = { el, lv, svgs, door, plus, sig: '', shown: true, w: 0, h: 0, x: NaN, y: NaN, points: null, flashUntil: -1 };
       pool.set(id, e);
     }
     return e;
@@ -98,11 +115,12 @@ export function createLevelBadges({ layer, cfg = LEVEL_BADGE }) {
       if (e.plus.hidden === flashing) e.plus.hidden = !flashing;
       const c = (s.visible || flashing) && v.drawn !== false ? screenOf(v.x, v.y + cfg.liftM, v.z) : null;
       if (!c || !c.inView) { hide(e); continue; }
-      const sig = `${s.level}|${s.hearts}`;
+      const sig = `${s.level}|${s.hearts}|${s.door}`;
       if (sig !== e.sig) {
         e.sig = sig;
         e.lv.textContent = String(s.level);
         e.svgs.forEach((svg, i) => svg.setAttribute('class', i < s.hearts ? 'on' : 'off'));
+        e.door.hidden = !s.door;
         e.w = 0;
       }
       if (!e.shown) { e.el.style.display = ''; e.shown = true; e.w = 0; }

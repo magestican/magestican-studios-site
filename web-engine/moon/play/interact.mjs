@@ -85,7 +85,7 @@ import { shutSentence } from './town.mjs';
 import { whyNoAssembly } from './assembly.mjs';
 
 
-const ID_PLACES = Object.freeze(['villager', 'rock', 'forage', 'placed', 'store', 'find']);
+const ID_PLACES = Object.freeze(['villager', 'rock', 'forage', 'placed', 'store', 'find', 'villagerDoor']);
 
 export const INTERACT = Object.freeze({
   
@@ -253,6 +253,7 @@ function promptOf(target, { world, t, trees, seedKind = null, obstacles = [], ow
   if (target.type === 'bell') return bellPrompt(out, world, t, tool);
   if (target.type === 'homeDoor') return homeDoorPrompt(out, tool);
   if (target.type === 'homeExit') return homeExitPrompt(out, tool);
+  if (target.type === 'villagerDoor') return villagerDoorPrompt(out, target, tool);
   if (target.type === 'ground') {
     if (tool && tool !== 'shovel') return { ...out, chosen: tool, why: NOTHING_HERE[tool] };
     if (!seedKind) return { ...out, why: 'You have no seeds - fell a tree for some.' };
@@ -461,6 +462,26 @@ function homeDoorPrompt(out, tool) {
   out.verb = 'goIn';
   out.open = 'homeIn';
   out.label = 'Go inside';
+  return out;
+}
+
+
+
+
+
+
+
+function villagerDoorPrompt(out, target, tool) {
+  if (tool) return { ...out, chosen: tool, why: 'The door opens by hand.' };
+  if (target.open) {
+    out.verb = 'goIn';
+    out.open = 'villagerIn';
+    out.label = 'Go inside';
+  } else {
+    out.verb = 'knock';
+    out.open = 'knock';
+    out.label = 'Knock';
+  }
   return out;
 }
 

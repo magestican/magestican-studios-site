@@ -67,6 +67,21 @@ const STYLES = [
   { width: 1.45, wood: '#c9955f', frame: '#6b4a3a' },
 ];
 
+
+
+
+
+
+
+export function uses({ seed = 1 } = {}) {
+  const width = seed >= 1 && seed <= 3 ? STYLES[seed - 1].width : STYLES[0].width;
+  const x = width * 0.28;
+  return [
+    { kind: 'seat', at: { x: -x, z: 0 }, heading: 0, clip: 'sit', count: 1 },
+    { kind: 'seat', at: { x, z: 0 }, heading: 0, clip: 'sit', count: 1 },
+  ];
+}
+
 export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
   const detail = Math.max(0, Math.min(2, lod | 0));
   const rng = new SeededRng(seed).child('bench');

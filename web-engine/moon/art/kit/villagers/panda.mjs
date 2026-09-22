@@ -204,7 +204,20 @@ export function panda({ season, lod, L, variant, rng, fuse }) {
   rigid.push({ name: 'nose', node: nose, box: [sub(noseAt, [0.06, 0.06, 0.06]), add(noseAt, [0.06, 0.06, 0.06])], cell: L.small, tris: L.noseT, bone: 'head', material: 'eye', aoMin: 0.8 });
 
   const onSkin = (p, lift) => { const q = frontPoint(skull, p[0], p[1]); return add(q, mul(S.normalAt(skull, ...q), lift)); };
-  strands.push({ name: 'mouth', pts: [[-0.04, 0.624], [-0.02, 0.612], [0.002, 0.618], [0.022, 0.61], [0.046, 0.63]].map(([x, y]) => onSkin(P([x, y, 0.4]), 0.002)), radii: [0.0024, 0.0036, 0.004, 0.0036, 0.0022], color: INK, bone: 'head' });
+  
+  
+  
+  
+  
+  const mouthXY = [[-0.04, 0.624], [-0.02, 0.612], [0.002, 0.618], [0.022, 0.61], [0.046, 0.63]];
+  const mouthPts = (dy) => mouthXY.map(([x, y], i) => onSkin(P([x, y + dy[i], 0.4]), 0.002));
+  strands.push({
+    name: 'mouth', pts: mouthPts([0, 0, 0, 0, 0]), radii: [0.0024, 0.0036, 0.004, 0.0036, 0.0022], color: INK, bone: 'head',
+    morphs: {
+      mouthSmile: { pts: mouthPts([0.012, -0.004, -0.008, -0.004, 0.012]) },
+      mouthFrown: { pts: mouthPts([-0.01, 0.004, 0.008, 0.004, -0.01]) },
+    },
+  });
   strands.push({ name: 'philtrum', pts: [[0.005, 0.664], [0.003, 0.618]].map(([x, y]) => onSkin(P([x, y, 0.4]), 0.002)), radii: [0.0034, 0.003], color: INK, bone: 'head' });
 
   

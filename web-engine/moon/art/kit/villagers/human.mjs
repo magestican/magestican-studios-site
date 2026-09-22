@@ -608,16 +608,47 @@ export function human({ season, lod, L, variant, rng, fuse, role = 'villager', b
   
   const onSkin = (x, y, lift) => { const q = frontPoint(face, x * HS, hy(y)); return add(q, mul(S.normalAt(face, ...q), lift)); };
   if (!beard) {
-    const smile = [[-0.035, 0.715], [-0.012, 0.703], [0.014, 0.705], [0.04, 0.72]].map(([x, y]) => onSkin(x, y, 0.002));
-    strands.push({ name: 'smile', pts: smile, radii: [0.0022, 0.0036, 0.0034, 0.002], color: F.lips ? LIP : INK, bone: 'head', material: 'skin' });
+    
+    
+    
+    
+    
+    
+    
+    const mouthXs = [-0.035, -0.012, 0.014, 0.04];
+    const mouthBaseY = [0.715, 0.703, 0.705, 0.72];
+    const mouthPts = (dy) => mouthXs.map((x, i) => onSkin(x, mouthBaseY[i] + dy[i], 0.002));
+    const smile = mouthPts([0, 0, 0, 0]);
+    strands.push({
+      name: 'smile', pts: smile, radii: [0.0022, 0.0036, 0.0034, 0.002], color: F.lips ? LIP : INK, bone: 'head', material: 'skin',
+      morphs: {
+        mouthSmile: { pts: mouthPts([0.012, -0.006, -0.006, 0.012]) },
+        mouthFrown: { pts: mouthPts([-0.01, 0.006, 0.006, -0.01]) },
+      },
+    });
     
     if (F.lips) strands.push({ name: 'lip', pts: [[-0.015, 0.694], [0.001, 0.689], [0.017, 0.695]].map(([x, y]) => onSkin(x, y, 0.002)), radii: [0.0028, 0.0046, 0.0026], color: LIP_SOFT, bone: 'head', material: 'skin' });
   }
   for (const side of [1, -1]) {
     const lift = side < 0 ? 0.006 : 0;
     const by = F.brow.dy ?? 0;
-    const pts = [[0.045, 0.892 + by], [0.072, 0.902 + by + F.brow.arch], [0.1, 0.89 + by]].map(([x, y]) => onSkin(side * x, y + lift, 0.004));
-    strands.push({ name: 'brow', pts, radii: [0.0042, 0.006, 0.0026].map((r) => r * F.brow.r), color: mul(C.hair, 0.85), bone: 'head', material: 'fur' });
+    
+    
+    
+    
+    
+    const browXs = [0.045, 0.072, 0.1];
+    const browBaseY = [0.892 + by, 0.902 + by + F.brow.arch, 0.89 + by];
+    const browPts = (dy) => browXs.map((x, i) => onSkin(side * x, browBaseY[i] + dy[i] + lift, 0.004));
+    const pts = browPts([0, 0, 0]);
+    strands.push({
+      name: 'brow', pts, radii: [0.0042, 0.006, 0.0026].map((r) => r * F.brow.r), color: mul(C.hair, 0.85), bone: 'head', material: 'fur',
+      morphs: {
+        browsUp: { pts: browPts([0.012, 0.012, 0.012]) },
+        browsDown: { pts: browPts([-0.01, -0.01, -0.01]) },
+        browsSad: { pts: browPts([0.01, 0.002, -0.006]) },
+      },
+    });
   }
   const ER = F.ER.map((r) => r * HS);
   if (F.lashes) {

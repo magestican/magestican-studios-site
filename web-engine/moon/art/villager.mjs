@@ -31,7 +31,8 @@ import { linear, SEASONS } from '../palette/seasons.mjs';
 import { budgetFor } from '../budgets.mjs';
 import { createSkeleton, boneIndex } from '../rig/skeleton.mjs';
 import { partWeights, rigidWeights, setSkin } from '../rig/skin.mjs';
-import { smooth, mix, add, sub, mul, norm, strand } from './kit/character.mjs';
+import { smooth, mix, add, sub, mul, norm } from './kit/character.mjs';
+import { strandWithMorphs } from './kit/face.mjs';
 import { elephant } from './kit/villagers/elephant.mjs';
 import { giraffe } from './kit/villagers/giraffe.mjs';
 import { panda } from './kit/villagers/panda.mjs';
@@ -61,7 +62,22 @@ export { BUILDS };
 
 
 
-export const VILLAGER_VERSION = 3;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const VILLAGER_VERSION = 7;
 
 export const TIER = 'heroCharacter';
 
@@ -110,6 +126,9 @@ export function generate({ seed = 1, season = 'summer', lod = 0, species, role =
   const fig = BUILDERS[species]({ seed, season, lod, L, variant, rng, fuse: lod > 0, role, build: humanBuild });
   return assemble(species, { seed, season, lod, L, budget, role, build: humanBuild }, fig);
 }
+
+
+
 
 
 
@@ -181,7 +200,10 @@ function assemble(species, { seed, season, lod, L, budget, role = 'villager', bu
     part(c.name, c.node, c.box[0], c.box[1], L.cloth, c.tris, { scene: fig.scene, uvScale: 0.1, material: 'cloth' }, { soft });
   }
   for (const s of fig.strands) {
-    track(s.soft ? { soft: partsFor(s.soft) } : { bone: s.bone || 'head' }, () => strand(md, s.pts, s.radii, s.color, L.sides, s.material || skinMaterial), s.name || 'strand');
+    const material = s.material || skinMaterial;
+    track(s.soft ? { soft: partsFor(s.soft) } : { bone: s.bone || 'head' },
+      () => strandWithMorphs(md, { pts: s.pts, radii: s.radii, color: s.color, sides: L.sides, material, morphs: s.morphs }),
+      s.name || 'strand');
   }
 
   
