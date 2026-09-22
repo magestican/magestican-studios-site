@@ -98,7 +98,13 @@ function mushroomPatch(ctx) {
   let cushion = S.ellipsoid([0, 0, 0], [rx, ry, rz]);
   cushion = S.union(0.05, cushion, S.ellipsoid([rx * 0.35 * Math.sign(lean), 0.005, -rz * 0.15], [rx * 0.55, ry * 1.2, rz * 0.6]));
   cushion = S.displace(cushion, (x, y, z) => 0.009 * (fbm3(x * 14, y * 14, z * 14, { octaves: 2, seed: ns }) - 0.5) * 2 - 0.004 * valueNoise3(x * 60, y * 60, z * 60, ns + 1), 0.013);
-  cushion = ground(cushion);
+  
+  
+  
+  
+  
+  
+  cushion = ground(cushion, 0.016);
   const g0 = linear(pal.grass[0]), g1 = linear(pal.grass[1]), g2 = linear(pal.grass[2]);
   const cushionNode = S.paint(cushion, { material: 'grass', color: (x, y, z) => mix(mix(g2, g1, smooth(0, 0.03, y)), g0, 0.5 * smooth(0.035, 0.07, y) * valueNoise3(x * 30, y * 30, z * 30, ns + 2)) });
   const parts = [{ key: `${key}|cushion${season === 'winter' ? '-w' : ''}`, node: cushionNode, min: [-rx - 0.1, -0.01, -rz - 0.1], max: [rx + 0.1, 0.12, rz + 0.1], cell: 0.0055, share: 0.36, material: 'grass', uvScale: 0.1, maxCoarsen: 3 }];
@@ -114,18 +120,52 @@ function mushroomPatch(ctx) {
       mushrooms.push(S.transform(mushroomLocal(m, rng), { translate: [c.x, topAt(c.x, c.z) - 0.012, c.z], rotate: [0, c.yaw, 0] }));
     }
   } else {
-    const cream = linear(look.stem), cut = scl(linear(look.stem), 0.85);
+    
+    
+    
+    
+    
+    
+    
+    
+    const cream = linear(look.stem);
+    const cut = scl(linear(look.stem), 0.94);
+    const bruise = mix(linear(look.stem), linear(look.color), 0.42);
     caps.slice(0, 3).forEach((c, i) => {
-      const r = c.capR * (look.fat ? 0.4 : 0.3), h = 0.018 + 0.006 * i, y0 = topAt(c.x, c.z) - 0.01;
-      const stub = S.intersect(0.002, S.capsule([c.x, y0 - 0.01, c.z], [c.x + c.bend * 0.2, y0 + h + 0.02, c.z], r), S.plane([0.08, 1, 0.05], y0 + h));
-      mushrooms.push(S.paint(stub, { material: 'fruit', color: (x, y) => mix(cream, cut, smooth(y0 + h - 0.004, y0 + h, y)) }));
+      const r = c.capR * (look.fat ? 0.52 : 0.42);
+      
+      
+      
+      
+      
+      
+      const h = c.stemH * 0.58 + 0.023;
+      const y0 = topAt(c.x, c.z) - 0.012;
+      
+      
+      const tilt = [rng.rangeF(-0.24, 0.24), 1, rng.rangeF(-0.24, 0.24)];
+      const stub = S.intersect(0.0025, S.capsule([c.x, y0 - 0.01, c.z], [c.x + c.bend * 0.45, y0 + h + 0.02, c.z], r), S.plane(tilt, y0 + h));
+      mushrooms.push(S.paint(stub, {
+        material: 'fruit',
+        color: (x, y) => {
+          const near = smooth(y0 + h - 0.016, y0 + h - 0.005, y);
+          const face = smooth(y0 + h - 0.005, y0 + h, y);
+          return mix(mix(cream, bruise, 0.6 * near), cut, face);
+        },
+      }));
     });
+    
+    
+    
     const b = caps[caps.length - 1];
-    mushrooms.push(S.transform(mushroomLocal({ capR: 0.012, capH: 0.009, stemH: 0.012, stemR: 0.004, bend: 0.001, color: look.color, stem: look.stem }, rng), { translate: [b.x, topAt(b.x, b.z) - 0.006, b.z], rotate: [0, b.yaw, 0] }));
+    mushrooms.push(S.transform(mushroomLocal({ capR: 0.017, capH: 0.013, stemH: 0.018, stemR: 0.006, bend: 0.0015, color: look.color, stem: look.stem }, rng), { translate: [b.x, topAt(b.x, b.z) - 0.007, b.z], rotate: [0, b.yaw, 0] }));
   }
   const group = S.union(0.004, mushrooms);
   const tallest = Math.max(...caps.map((c) => c.stemH + c.capR * 1.6)) + ry + 0.02;
-  parts.push({ key: `${key}|${stage}${season === 'winter' ? '-w' : ''}`, node: group, min: [-0.2, -0.01, -0.14], max: [0.2, tallest, 0.16], cell: look.conical ? 0.0028 : 0.0034, share: stage === 'ready' ? 0.5 : 0.3, material: 'fruit', uvScale: 0.05, maxCoarsen: 4 });
+  
+  
+  
+  parts.push({ key: `${key}|${stage}${season === 'winter' ? '-w' : ''}`, node: group, min: [-0.2, -0.01, -0.14], max: [0.2, tallest, 0.16], cell: look.conical ? 0.0028 : 0.0034, share: stage === 'ready' ? 0.5 : 0.38, material: 'fruit', uvScale: 0.05, maxCoarsen: 4 });
   if (season === 'winter') {
     const white = linear(pal.snow[0]);
     const snow = [snowOn(cushion, ry * 0.55, ns, white)];

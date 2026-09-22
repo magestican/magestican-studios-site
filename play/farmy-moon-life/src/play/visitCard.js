@@ -40,6 +40,7 @@ export function createVisitCard({
   el: root, button: opener,
   onHost = () => {}, onJoin = () => {}, onLeave = () => {},
   onApprove = () => {}, onRefuse = () => {}, onOpened = () => {},
+  onShare = null,
 }) {
   let open = false;
   let typed = '';
@@ -50,7 +51,7 @@ export function createVisitCard({
   
   let codeWhy = '';
   let last = null;
-  const stats = { opens: 0, renders: 0, approves: 0, refuses: 0, joins: 0 };
+  const stats = { opens: 0, renders: 0, approves: 0, refuses: 0, joins: 0, shares: 0 };
 
   
   
@@ -59,12 +60,29 @@ export function createVisitCard({
   root.addEventListener('pointerdown', (e) => e.stopPropagation());
   root.addEventListener('pointerup', (e) => e.stopPropagation());
 
-  function head(title, sub) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  function head(title, sub, shareKind = null) {
     const h = el('div', 'head');
     const t = el('div', 'title');
     t.append(el('b', null, title));
     if (sub) t.append(el('span', 'sub', sub));
-    h.append(t, button('close', '×', () => card.hide(), { aria: 'Close' }));
+    h.append(t);
+    if (shareKind && onShare) {
+      h.append(button('share', 'Share', () => { stats.shares += 1; onShare(shareKind); },
+        { aria: 'Share a link to this game' }));
+    }
+    h.append(button('close', '×', () => card.hide(), { aria: 'Close' }));
     return h;
   }
 
@@ -204,7 +222,10 @@ export function createVisitCard({
         parts.push(el('div', 'why', 'Waiting for them to let you in.'));
         parts.push(row(button('leave', 'Never mind', () => onLeave())));
       } else if (s.mode === 'hosting' || s.mode === 'opening') {
-        parts.push(head('Your moon is open', null));
+        
+        
+        
+        parts.push(head('Your moon is open', null, s.code ? 'moon' : 'game'));
         if (s.code) parts.push(codeRow(s.code));
         const knocks = s.knocks || [];
         
@@ -217,7 +238,7 @@ export function createVisitCard({
         parts.push(...knockRows(knocks));
         parts.push(row(button('leave', 'Close my moon', () => onLeave())));
       } else {
-        parts.push(head('Visit', null));
+        parts.push(head('Visit', null, 'game'));
         parts.push(el('div', 'why', 'Open your moon so a friend can come and help, or go and see somebody else\'s.'));
         parts.push(row(button('host', 'Open my moon', () => onHost())));
         parts.push(joinRow());

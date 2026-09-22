@@ -241,7 +241,11 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
         s.animAcc += animDt;
         s.animDist += dt > 0 ? moved * (animDt / dt) : 0;
         if (s.animAcc >= step) {
-          pc.update(s.animAcc, { speed: s.animAcc > 0 ? s.animDist / s.animAcc : 0 });
+          
+          
+          
+          
+          pc.update(s.animAcc, { speed: s.animAcc > 0 ? s.animDist / s.animAcc : 0, faceYaw: isHeld ? err : 0 });
           s.poses += 1;
           s.animAcc = 0;
           s.animDist = 0;

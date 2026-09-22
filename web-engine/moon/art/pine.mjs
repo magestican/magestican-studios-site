@@ -62,11 +62,19 @@ export function generate({ seed = 1, season = 'winter', stage, lod = 0 } = {}) {
   const tr = rng.child('trunk');
   const r0 = tr.rangeF(0.13, 0.17) * (young ? 0.65 : 1), ph = tr.rangeF(0, TAU);
   const bark = pal.bark.map(linear);
-  const trunkPts = [0, 0.3, 0.65, 1].map((t) => { const y = -0.15 + t * (H + 0.15); const l = lean(Math.max(0, y)); return [l[0], y, l[1]]; });
+  
+  
+  
+  
+  
+  
+  
+  const trunkTop = H * 0.93;
+  const trunkPts = [0, 0.3, 0.65, 1].map((t) => { const y = -0.15 + t * (trunkTop + 0.15); const l = lean(Math.max(0, y)); return [l[0], y, l[1]]; });
   loft(m, 'bark', {
     points: trunkPts, sides: L.trunkSides, rings: L.trunkRings, distribution: 1.5, twist: 0.4, end: 'point',
     radius: (t, a) => {
-      const y = Math.max(0, -0.15 + t * (H + 0.15));
+      const y = Math.max(0, -0.15 + t * (trunkTop + 0.15));
       return r0 * (1 - 0.85 * t) + r0 * 0.8 * Math.exp(-y / 0.22) + r0 * 0.6 * Math.max(0, Math.cos(3 * a + ph)) ** 4 * Math.exp(-y / 0.16);
     },
     color: (t, a, p) => scl(mix(bark[1], bark[0], 0.4 + 0.3 * smooth(0, 1.5, p[1])), 0.8 + 0.2 * smooth(-0.1, 0.4, p[1])),
@@ -185,6 +193,86 @@ export function generate({ seed = 1, season = 'winter', stage, lod = 0 } = {}) {
       t.snowEdge = edge;
     }
   }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const topTier = tiers[tiers.length - 1];
+  const ldr = rng.child('leader');
+  const tipY = H + ldr.rangeF(0.01, 0.05) * scale;
+  
+  
+  
+  
+  
+  
+  const tierGap = tiers.length > 1 ? topTier.c[1] - tiers[tiers.length - 2].c[1] : topTier.thick * 4;
+  const baseY = topTier.c[1] - tierGap * ldr.rangeF(0.52, 0.66);
+  const lR = topTier.R * ldr.rangeF(0.5, 0.66);
+  const lLobes = ldr.rangeI(4, 6), lPh = ldr.rangeF(0, TAU), lSeed = ldr.rangeI(1, 999);
+  const nodAz = ldr.rangeF(0, TAU), nod = ldr.rangeF(0.02, 0.06) * scale;
+  const leaderPts = [0, 0.4, 0.75, 1].map((t) => {
+    const y = baseY + t * (tipY - baseY);
+    const l = lean(y);
+    return [l[0] + Math.cos(nodAz) * nod * t * t, y, l[1] + Math.sin(nodAz) * nod * t * t];
+  });
+  const leaderR = (t, a) => {
+    const lobe = Math.abs(Math.sin(a * lLobes * 0.5 + lPh)) ** 0.7;
+    const n = valueNoise3(Math.cos(a) * 2.2, Math.sin(a) * 2.2, 7.3, lSeed);
+    
+    
+    
+    const waist = 0.72 + 0.28 * smooth(0, 0.3, t);
+    return lR * (1 - t) ** 0.82 * waist * (0.82 + 0.26 * lobe + 0.1 * (n - 0.5));
+  };
+  const leaderSides = L.trunkSides + (lod === 0 ? 2 : 1);
+  const leaderRings = Math.max(2, L.top + 1);
+  loft(m, 'leaf', {
+    points: leaderPts, sides: leaderSides, rings: leaderRings, distribution: 1.15, twist: 0.6, end: 'point',
+    radius: leaderR,
+    color: (t, a, p) => {
+      
+      
+      const lobe = Math.abs(Math.sin(a * lLobes * 0.5 + lPh)) ** 0.7;
+      const lit = smooth(0, 1, 0.6 + 0.4 * t) * (0.7 + 0.3 * lobe);
+      let c = mix(tints[2], tints[1], 0.35 + 0.65 * lit);
+      c = mix(c, tints[0], smooth(0.5, 1, lit) * 0.55);
+      return scl(c, 0.94 + 0.12 * smooth(0, 1, t));
+    },
+    vPerMetre: 1.6,
+  });
+
+  if (season === 'winter' && lod < 2) {
+    
+    
+    loft(m, 'snow', {
+      points: leaderPts.slice(1), sides: Math.max(5, leaderSides - 2), rings: Math.max(2, leaderRings - 1),
+      distribution: 1.1, twist: 0.6, end: 'point',
+      radius: (t, a) => leaderR(0.4 + 0.6 * t, a) * 1.04 + 0.012 * (1 - t) ** 0.6,
+      color: (t) => mix(snow[0], snow[1], smooth(0.2, 1, 1 - t)),
+      vPerMetre: 1.2,
+    });
+  }
+
+  
+  
+  tiers.push({
+    i: tiers.length, f: 1, c: [leaderPts[1][0], leaderPts[1][1], leaderPts[1][2]],
+    R: lR * 0.72, droop: 0.2, thick: 0.04 * scale, lobes: lLobes, ph: lPh,
+    tilt: [0, 0], nSeed: lSeed,
+  });
 
   
   const remaining = Math.floor((budgetFor(TIER, lod) - m.triangleCount - 2) / 2);

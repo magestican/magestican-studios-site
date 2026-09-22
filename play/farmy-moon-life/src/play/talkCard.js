@@ -45,6 +45,9 @@ export function createTalkCard({ el, voice, onChoose, onClose }) {
   el.replaceChildren(stack);
 
   let open = false, current = null, lineIndex = 0, shownN = -1, choiceSig = '', highlighted = 0, live = null;
+  
+  
+  let finishes = 0, lastFinish = null, lastAdvance = null;
 
   const lines = () => (current ? current.lines : []);
   const onLastLine = () => current && lineIndex >= current.lines.length - 1;
@@ -89,7 +92,55 @@ export function createTalkCard({ el, voice, onChoose, onClose }) {
 
   function advance(source = 'key') {
     if (!open || !current) return;
-    if (voice.typing) { voice.finish(); return; }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const lineLen = (lines()[lineIndex] || '').length;
+    
+    
+    
+    
+    
+    lastAdvance = { line: lineIndex, revealed: voice.revealed(), len: lineLen, typing: voice.typing, source };
+    if (voice.typing || (lineLen > 0 && voice.revealed() < lineLen)) {
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      finishes += 1;
+      const len = lineLen;
+      const shown = voice.revealed();
+      voice.finish();
+      
+      
+      
+      
+      
+      
+      lastFinish = { line: lineIndex, shown, then: voice.revealed(), len, source };
+      return;
+    }
     if (!onLastLine()) { lineIndex += 1; sayLine(); return; }
     if (choicesShown()) {
       if (source === 'key') pick(live.choices[Math.min(highlighted, live.choices.length - 1)].key);
@@ -173,6 +224,11 @@ export function createTalkCard({ el, voice, onChoose, onClose }) {
         text: lines()[lineIndex] || '',
         shown: shownN < 0 ? 0 : shownN,
         typing: voice.typing,
+        
+        
+        finishes,
+        lastFinish,
+        lastAdvance,
         choices: choicesShown() ? live.choices.map((c) => ({ key: c.key, label: c.label, why: c.why || null })) : [],
         highlighted,
       };

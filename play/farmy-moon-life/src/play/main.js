@@ -84,11 +84,12 @@ import { createPopsDraw } from './popsDraw.js';
 import { createHud } from './hud.js';
 import { dayCycle, wrapHours } from 'moon/light/dayCycle.mjs';
 import { dayLine } from 'moon/play/dayline.mjs';
-import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, writeTier } from 'moon/light/quality.mjs';
+import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, writeTier, rendererFlags, isCapturing } from 'moon/light/quality.mjs';
 import { createTiming, timingLine } from 'moon/play/timing.mjs';
 import { createDrawGate, createLoadingView } from 'moon/play/loading.mjs';
 import { createPerfSampler } from 'moon/play/perfSample.mjs';
 import { shouldStartAnalytics } from 'moon/play/liveHostGate.mjs';
+import { createFunnel } from 'moon/play/funnel.mjs';
 import { CURVE_K, bendDrop } from 'moon/world/curve.mjs';
 import { heightAt, placements, setTerrainDelta, ISLAND_RADIUS } from 'moon/world/moonLayout.mjs';
 import {
@@ -151,6 +152,14 @@ import { MET_CAT, MET_MOLE, meet, metList, readMet, villagerKey, visitsOf } from
 import { createAudio } from './audio.js';
 import { createVoice } from './voice.js';
 import { createSoundCard } from './soundCard.js';
+
+
+
+
+import { slowLine, spanKeep, spanThreshold } from './spanBudget.js';
+
+
+import { createCardBack } from './cardBack.js';
 import { createTalkCard } from './talkCard.js';
 import { PARCELS, ownedIds, forSale, landView, parcelAt, signPoint } from 'moon/world/parcels.mjs';
 import { obstacleFor as signObstacleFor } from 'moon/world/collision.mjs';
@@ -198,6 +207,7 @@ import { CRAFTABLES, CRAFT_CATEGORIES } from 'moon/economy/tables.mjs';
 import { craftedName } from 'moon/economy/crafting.mjs';
 import { craftMenu, madeCount, madeTray } from 'moon/play/craft.mjs';
 import { placeSpot, placedFootprints, placedObstacle, placedTargets, whyNotPlaceHere } from 'moon/play/placing.mjs';
+import { heftOf } from 'moon/play/heft.mjs';
 import { placedLightSources } from 'moon/light/placedLights.mjs';
 
 
@@ -275,6 +285,11 @@ import { createVisitorsDraw } from './visitorsDraw.js';
 
 
 
+import { doShare, joinCodeOf, sharePayload, shareParams } from 'moon/play/sharing.mjs';
+
+
+
+
 
 import { netWorth } from 'moon/economy/netWorth.mjs';
 import { BOARD_BEST_KEY, myRow } from 'moon/play/leaderboard.mjs';
@@ -310,6 +325,10 @@ let presses = 0;
 import { AUTO_HIDE, autoHideStart, autoHideStep } from 'moon/play/autoHide.mjs';
 import { refusalOf } from 'moon/play/actButton.mjs';
 import { createMenu } from './menu.js';
+
+
+
+import { createScreenFit } from './screenFit.js';
 
 
 const SHADOW_EXTENT_M = 22;
@@ -409,6 +428,65 @@ const fml = (window.__fml = {
 
 
 
+const funnel = createFunnel({ send: sendPerfSample });
+
+
+
+
+fml.funnel = funnel;
+
+
+const SALE_EVENTS = new Set([
+  'sale',         
+  'sellTo',       
+  'fillRequest',  
+]);
+
+
+
+
+
+
+
+
+
+
+
+
+function noteEconomyEvents(events) {
+  if (!events || !events.length) return;
+  for (const e of events) {
+    if (SALE_EVENTS.has(e.type)) {
+      funnel.sale({ coins: Math.round(Number(e.coins) || 0) });
+    } else if (e.type === 'buyParcel') {
+      
+      
+      funnel.parcelBought(e.parcel, { parcels: e.parcels, coins: Math.round(Number(e.coins) || 0) });
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -453,7 +531,18 @@ const hudText = document.getElementById('hud');
 hudText.hidden = q.get('hud') !== '1';
 
 const canvas = document.getElementById('view');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+
+
+
+
+
+const flags = rendererFlags({
+  settings,
+  devicePixelRatio: window.devicePixelRatio,
+  coarsePointer: typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches,
+  capturing: isCapturing(q, navigator),
+});
+const renderer = new THREE.WebGLRenderer({ canvas, ...flags });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, settings.pixelRatio));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.NeutralToneMapping;
@@ -1150,9 +1239,30 @@ function swapBuilding(which, p, promise, key) {
 
 
 
-const SLOW_MS = 12;
-const SLOW_KEEP = 32;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SLOW_MS = spanThreshold(q.get('spanms'));
+const SLOW_KEEP = spanKeep(q.get('spankeep'));
 const slowSpans = [];
+
+
+
+
+let worstSpan = null;
+let slowCount = 0;
 function timed(what, fn) {
   const t0 = performance.now();
   try {
@@ -1160,12 +1270,36 @@ function timed(what, fn) {
   } finally {
     const ms = performance.now() - t0;
     if (ms >= SLOW_MS) {
-      slowSpans.push({ what, ms: Math.round(ms), atMs: Math.round(t0) });
+      
+      
+      
+      
+      
+      
+      
+      const span = { what, ms: Math.round(ms * 100) / 100, atMs: Math.round(t0) };
+      slowCount += 1;
+      slowSpans.push(span);
       if (slowSpans.length > SLOW_KEEP) slowSpans.shift();
+      if (!worstSpan || span.ms > worstSpan.ms) worstSpan = span;
     }
   }
 }
 Object.defineProperty(fml, 'slow', { enumerable: true, get: () => slowSpans.slice() });
+
+
+
+
+Object.defineProperty(fml, 'spans', {
+  enumerable: true,
+  get: () => ({
+    thresholdMs: SLOW_MS,
+    keep: SLOW_KEEP,
+    count: slowCount,
+    last: slowSpans.length ? { ...slowSpans[slowSpans.length - 1] } : null,
+    worst: worstSpan ? { ...worstSpan } : null,
+  }),
+});
 
 function syncBuildings() {
   return timed('syncBuildings', () => syncBuildingsNow());
@@ -1690,6 +1824,11 @@ function doAct(action, { quiet = false } = {}) {
   
   
   
+  noteEconomyEvents(events);
+  
+  
+  
+  
   
   
   tallyDeeds(world, events);
@@ -1792,6 +1931,16 @@ function doAct(action, { quiet = false } = {}) {
     if (e.type === 'fell') {
       pops.launch({ good: e.seed, count: e.seeds, from: { x: v.x, y: g + CUT_HEIGHT_M, z: v.z }, seed: popSeed + 7, nowS: animSeconds + 0.15 });
       if (e.wood) pops.launch({ good: 'wood', count: Math.min(e.wood, POP_SHOWN_MAX), from: { x: v.x, y: g + CUT_HEIGHT_M, z: v.z }, seed: popSeed + 13, nowS: animSeconds + 0.3 });
+      
+      
+      
+      
+      
+      
+      if (before && particles) {
+        const [crown] = orchard.sourcesOf([before]);
+        if (crown) particles.burst(crown);
+      }
       if (before) orchard.topple(before, fallYaw(before, player)).catch(fail);
     }
     
@@ -2941,10 +3090,20 @@ muteButton.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPr
 
 
 
+
+
+
+
+
+
+
+
+
+let repaintFit = () => {};
 const menu = createMenu({
   el: document.getElementById('menusheet'),
   button: document.getElementById('menu'),
-  onOpen: () => { soundCard.hide(); },
+  onOpen: () => { soundCard.hide(); repaintFit(); },
   onTouch: () => { audio.unlock(); sfx.play('ui.tap'); },
 });
 
@@ -3173,9 +3332,49 @@ const visit = {
   },
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const shares = { clicks: 0, shared: 0, copied: 0, dismissed: 0, failed: 0, last: null, how: null };
+
+function shareFrom(kind) {
+  const hosting = visit.mode === 'hosting' || visit.mode === 'opening';
+  const code = hosting ? visit.code : null;
+  const worth = kind === 'worth' ? netWorth(world).total : null;
+  const day = kind === 'worth' ? myBoardRow().day : null;
+  const payload = sharePayload({ kind, href: location.href, code, worth, day });
+  shares.clicks += 1;
+  shares.last = payload;
+  sendSiteEvent('share_click', shareParams({ kind, code }));
+  
+  
+  doShare(payload, { nav: navigator }).then((how) => {
+    shares.how = how;
+    if (how in shares) shares[how] += 1;
+    if (how === 'copied') hud.say('Link copied - paste it to a friend.', seconds, 5);
+    if (how === 'failed') hud.say('This browser would not share the link.', seconds, 5);
+  }, () => { shares.how = 'failed'; shares.failed += 1; });
+}
+
 const panel = createVisitCard({
   el: visitEl,
   button: visitButton,
+  onShare: shareFrom,
   onOpened: () => { poll.now(); poll.tick().catch(() => {}); },
   onHost: () => { openMoon().catch((e) => { endVisit(); visit.say(String(e.message || e)); }); },
   onJoin: (code) => { goVisit(code).catch((e) => { endVisit(); visit.say(String(e.message || e)); }); },
@@ -3273,6 +3472,11 @@ async function openMoon() {
     },
   });
   visit.mode = 'hosting';
+  
+  
+  
+  
+  funnel.visitHosted(visit.code);
   visit.unpublish = publishMoon({
     code: visit.code,
     players: () => 1 + (visit.session ? visit.session.others.length : 0),
@@ -3300,6 +3504,11 @@ async function goVisit(code) {
     on: {
       approved: ({ host }) => {
         visit.mode = 'visiting';
+        
+        
+        
+        
+        funnel.visitJoined(code);
         hud.say(`${host.name} has let you in.`, seconds, 6);
         visit.paint();
       },
@@ -3463,6 +3672,7 @@ function paintBoard() {
 const boardCard = createBoardCard({
   el: boardEl,
   button: boardButton,
+  onShare: shareFrom,
   onOpened: () => paintBoard(),
   onName: (name) => {
     boardState.name = name;
@@ -3531,6 +3741,38 @@ shapeCard = createShapeCard({
   onChoose: (kind) => { chooseBrush(kind); paintShape(); },
   onOpened: () => paintShape(),
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const cardBack = createCardBack({
+  history: window.history,
+  panels: [
+    { name: 'menu', isOpen: () => menu.isOpen, hide: () => menu.hide() },
+    { name: 'sound', isOpen: () => soundCard.isOpen, hide: () => soundCard.hide() },
+    { name: 'account', isOpen: () => accountCard.isOpen, hide: () => accountCard.hide() },
+    { name: 'visit', isOpen: () => panel.isOpen, hide: () => panel.hide() },
+    { name: 'worth', isOpen: () => boardCard.isOpen, hide: () => boardCard.hide() },
+    { name: 'deeds', isOpen: () => deedsCard.isOpen, hide: () => deedsCard.hide() },
+    { name: 'install', isOpen: () => installCard.isOpen, hide: () => installCard.hide() },
+    { name: 'assembly', isOpen: () => assemblyCard.isOpen, hide: () => assemblyCard.hide() },
+    { name: 'workshop', isOpen: () => Boolean(craftCard && craftCard.isOpen), hide: () => craftCard.hide() },
+    
+    
+    { name: 'shape', isOpen: () => Boolean(shapeCard && shapeCard.isOpen), hide: () => shapeCard.hide() },
+  ],
+});
+window.addEventListener('popstate', () => { cardBack.popped(); });
 
 fml.l12 = {
   get deeds() { return deedsOf(world); },
@@ -3738,6 +3980,62 @@ fml.l14 = {
 
 
 
+
+
+
+
+
+
+const screenFit = createScreenFit({
+  open: document.getElementById('fitopen'),
+  lock: document.getElementById('fitlock'),
+  note: document.getElementById('fitnote'),
+  onRoute: (where) => { if (where === 'install') installCard.show(); },
+});
+repaintFit = () => screenFit.apply();
+
+
+
+
+fml.q5 = fml.q6 = {
+  get state() { return screenFit.state; },
+  
+  
+  
+  get bumps() { return hud.bumps; },
+  
+  
+  
+  press: () => { screenFit.pressOpen(); return true; },
+  pressLock: () => { screenFit.pressLock(); return true; },
+  offerFor: (e) => screenFit.offerFor(e),
+  
+  
+  
+  
+  get text() {
+    const read = (sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return null;
+      return Math.round(parseFloat(window.getComputedStyle(el).fontSize) * 100) / 100;
+    };
+    return {
+      coins: read('#coins'),
+      today: read('#today'),
+      pick: read('#pick'),
+      goal: read('#goal'),
+      sheet: read('#menusheet button'),
+      prompt: read('#prompt'),
+    };
+  },
+};
+
+
+
+
+
+
+
 fml.l15 = {
   get cloud() { return cloud.read(); },
   get lines() { return accountCard.lines; },
@@ -3799,6 +4097,39 @@ fml.g9 = {
   card: () => ({ open: panel.isOpen, ...panel.stats }),
   open: () => { panel.show(); return true; },
   close: () => { panel.hide(); return true; },
+};
+
+
+
+
+
+
+
+
+
+
+
+fml.i13 = {
+  link: null,
+  opened: 0,
+  get clicks() { return shares.clicks; },
+  get how() { return shares.how; },
+  get counts() { return { shared: shares.shared, copied: shares.copied, dismissed: shares.dismissed, failed: shares.failed }; },
+  get payload() { return shares.last; },
+  get buttons() {
+    
+    
+    const on = (id) => {
+      const root = document.getElementById(id);
+      if (!root || root.hidden) return null;
+      const b = root.querySelector('.share');
+      if (!b) return null;
+      const r = b.getBoundingClientRect();
+      return { text: b.textContent, w: Math.round(r.width), h: Math.round(r.height) };
+    };
+    return { visit: on('visit'), worth: on('board') };
+  },
+  share: (kind) => { shareFrom(kind); return true; },
 };
 
 async function loadSave() {
@@ -3900,6 +4231,31 @@ window.addEventListener('pagehide', () => { flushSave(); cloud.flush(); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { flushSave(); cloud.flush(); } });
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const endedWith = () => (world ? { parcels: world.parcels } : {});
+window.addEventListener('pagehide', () => { funnel.endSession(endedWith()); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') funnel.endSession(endedWith());
+});
+
+
 fml.saveNow = () => { touchSave('asked'); flushSave(); return true; };
 fml.clearSave = () => { if (saveStore) saveStore.remove(saveSlot); return true; };
 Object.defineProperty(fml, 'save', {
@@ -3923,6 +4279,13 @@ Object.defineProperty(fml, 'save', {
 
 function fail(e) {
   fml.error = String(e && e.stack ? e.stack : e);
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -4427,6 +4790,22 @@ function sendPerfSample(name, params) {
   }).catch(() => {});
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const sendSiteEvent = sendPerfSample;
+
 function frame(now) {
   const raw = clock.getDelta();
   const dt = Math.min(raw, FEEL.maxFrameS);
@@ -4518,16 +4897,25 @@ function frame(now) {
   
   
   
-  const lift = airPose.lift;
+  
+  
+  
+  
+  const lift = airPose.lift + character.hop.lift;
   character.object.position.set(player.x, groundY + lift, player.z);
   character.object.rotation.y = player.heading;
   character.object.rotation.x = airPose.flip;
   
   
-  const squashY = airPose.squash;
+  const squashY = airPose.squash * character.hop.squash;
   const squashXZ = 1 / Math.sqrt(squashY);
   character.object.scale.set(squashXZ, squashY, squashXZ);
-  character.update(dt, { speed: groundSpeed, carrying: state.carrying });
+  
+  
+  
+  
+  
+  character.update(dt, { speed: groundSpeed, carrying: state.carrying, heft: placing ? heftOf(placing.item) : 0 });
   
   if (toolInHand && (toolInHand.pc !== character || toolInHand.pc.action !== toolInHand.swing)) {
     toolInHand.pc.holdTool(null);
@@ -4539,6 +4927,11 @@ function frame(now) {
   const t = econNow();
   const frameEvents = advance(world, t);
   visits = collectSales(visits, frameEvents, route);
+  
+  
+  
+  
+  noteEconomyEvents(frameEvents);
   
   
   if (frameEvents.length) touchSave('world');
@@ -4728,6 +5121,11 @@ function frame(now) {
     || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen
     || deedsCard.isOpen || installCard.isOpen || accountCard.isOpen || assemblyCard.isOpen
     || Boolean(shaping) || Boolean(shapeCard && shapeCard.isOpen));
+  
+  
+  
+  
+  cardBack.sync();
   const nextAway = autoHideStep(hudAway, { nowS: seconds, speed: player.speed, wokeAtS: hudWokeAtS, anyOpen });
   
   
@@ -5061,6 +5459,12 @@ function frame(now) {
     nowS: seconds,
     afterS: AUTO_HIDE.afterS,
     menu: { open: menu.isOpen, live: menu.live, ...menu.stats },
+    
+    
+    
+    
+    
+    back: { ...cardBack.stats, armed: cardBack.armed, historyLength: window.history.length },
   };
   
   
@@ -5112,7 +5516,13 @@ function frame(now) {
     
     const load = timingLine(fml.timing);
     const sample = fml.perfSample ? `  perf_sample ${JSON.stringify(fml.perfSample)}` : '';
-    hudText.textContent = `tier ${fml.tier}  ${fml.fps} fps  calls ${fml.drawCalls}  tris ${fml.triangles}${(() => { const w = fml.slow.reduce((a, b) => (b.ms > (a ? a.ms : 0) ? b : a), null); return w ? `  slowest ${w.what} ${w.ms}ms` : ''; })()}  audio ${audio.contextState}${audio.muted ? ' muted' : ''}${audio.speaking ? ' ducked' : ''}\nWASD/arrows walk, Shift run, E act (hold: fell), F fell, Q seed, C carry${state.carrying ? ' (carrying)' : ''}, B workshop, R turn, Esc put away, J jump (twice: fly), M sound${load ? `\n${load}${sample}` : ''}`;
+    
+    
+    
+    
+    
+    
+    hudText.textContent = `tier ${fml.tier}  ${fml.fps} fps  calls ${fml.drawCalls}  tris ${fml.triangles}${slowLine(fml.spans)}  audio ${audio.contextState}${audio.muted ? ' muted' : ''}${audio.speaking ? ' ducked' : ''}\nWASD/arrows walk, Shift run, E act (hold: fell), F fell, Q seed, C carry${state.carrying ? ' (carrying)' : ''}, B workshop, R turn, Esc put away, J jump (twice: fly), M sound${load ? `\n${load}${sample}` : ''}`;
   }
 
   
@@ -5168,6 +5578,40 @@ function frame(now) {
     fml.ready = true;
     timing.mark('ready');
     offline.gameReady();
+    openJoinLink();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    funnel.gameStart({ tier: fml.tier });
     
     
     
@@ -5182,3 +5626,39 @@ function frame(now) {
 
 
 load().then(() => { stopWarming(); requestAnimationFrame(frame); }, fail);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function openJoinLink() {
+  const code = joinCodeOf(location.search);
+  fml.i13.link = code;
+  if (!code) return;
+  fml.i13.opened += 1;
+  panel.show();
+  goVisit(code).catch((e) => { endVisit(); visit.say(String(e.message || e)); });
+}

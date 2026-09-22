@@ -30,6 +30,8 @@
 import { createPose } from './skeleton.mjs';
 import { sampleClip, blendPose } from './pose.mjs';
 import { smoothstep, lerp, frac, clamp } from './math.mjs';
+import { idleLifeAt, applyIdleLife } from './idleLife.mjs';
+import { applyCarryHeft, pickUpHopAt } from './heftPose.mjs';
 
 export const LOCOMOTION = Object.freeze({
   idleBelow: 0.04, 
@@ -52,15 +54,31 @@ export function animPhase(seed) {
   return Number.isFinite(seed) ? frac(Math.abs(seed) * 0.6180339887498949) : 0;
 }
 
-export function createLocomotion(skeleton, clips, { phase = 0 } = {}) {
+
+
+
+
+
+
+
+
+
+export function createLocomotion(skeleton, clips, { phase = 0, life = null } = {}) {
   const { idle, walk, run, carry } = clips;
+  const lifeSeed = Number.isFinite(life) ? life : null;
   const scratch = { walk: createPose(skeleton), run: createPose(skeleton), carry: createPose(skeleton), shot: createPose(skeleton) };
   const pose = createPose(skeleton);
   const speeds = Object.freeze({ walk: walk.speed, run: run.speed });
   const p = frac(Number.isFinite(phase) ? phase : 0);
-  const state = { time: p * idle.duration, cycles: p, phase: p, speed: 0, move: 0, run: 0, carry: 0, carryTime: p * carry.duration, oneShot: null };
+  const state = { time: p * idle.duration, cycles: p, phase: p, speed: 0, move: 0, run: 0, carry: 0, carryTime: p * carry.duration, oneShot: null, life: null };
 
-  function update(dt, { speed = 0, carrying = false } = {}) {
+  
+  
+  
+  
+  const hop = { lift: 0, squash: 1 };
+
+  function update(dt, { speed = 0, carrying = false, faceYaw = 0, heft = 0 } = {}) {
     dt = Number.isFinite(dt) ? clamp(dt, 0, LOCOMOTION.maxStep) : 0;
     speed = Number.isFinite(speed) ? Math.max(0, speed) : 0;
     state.time += dt;
@@ -95,11 +113,27 @@ export function createLocomotion(skeleton, clips, { phase = 0 } = {}) {
     } else {
       sampleClip(skeleton, idle, state.time / idle.duration, pose);
     }
+    
+    
+    
+    
+    if (lifeSeed !== null && state.move < 1) {
+      state.life = idleLifeAt(lifeSeed, state.time, { faceYaw });
+      applyIdleLife(skeleton, pose, state.life, 1 - state.move);
+    } else {
+      state.life = null;
+    }
     if (state.carry > 1e-4) {
       sampleClip(skeleton, carry, state.carryTime / carry.duration, scratch.carry);
       blendPose(skeleton, pose, pose, scratch.carry, state.carry, carry.mask);
+      
+      
+      
+      applyCarryHeft(skeleton, pose, heft, state.carry);
     }
     const shot = state.oneShot;
+    hop.lift = 0;
+    hop.squash = 1;
     if (shot) {
       shot.time += dt;
       const clip = clips[shot.name];
@@ -109,6 +143,13 @@ export function createLocomotion(skeleton, clips, { phase = 0 } = {}) {
       } else {
         const w = smoothstep(0, LOCOMOTION.oneShotIn, shot.time) * (1 - smoothstep(d - LOCOMOTION.oneShotOut, d, shot.time));
         blendPose(skeleton, pose, pose, sampleClip(skeleton, clip, shot.time / d, scratch.shot), w);
+        
+        
+        if (shot.name === 'pickUp') {
+          const h = pickUpHopAt(shot.time / d, heft);
+          hop.lift = h.lift;
+          hop.squash = h.squash;
+        }
       }
     }
     return pose;
@@ -142,6 +183,9 @@ export function createLocomotion(skeleton, clips, { phase = 0 } = {}) {
     state,
     pose,
     speeds,
+    
+    
+    hop,
     update,
     act,
     adopt,

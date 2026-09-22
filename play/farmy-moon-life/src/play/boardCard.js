@@ -45,11 +45,11 @@ function button(className, label, fn, { aria = null } = {}) {
 }
 
 export function createBoardCard({
-  el: root, button: opener, onName = () => {}, onOpened = () => {},
+  el: root, button: opener, onName = () => {}, onOpened = () => {}, onShare = null,
 }) {
   let open = false;
   let last = null;
-  const stats = { opens: 0, renders: 0, names: 0 };
+  const stats = { opens: 0, renders: 0, names: 0, shares: 0 };
 
   
   
@@ -93,7 +93,26 @@ export function createBoardCard({
       const head = el('div', 'head');
       const title = el('div', 'title');
       title.append(el('b', null, 'What your farm is worth'));
-      head.append(title, button('close', '×', () => card.hide(), { aria: 'Close' }));
+      head.append(title);
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (onShare) {
+        head.append(button('share', 'Share', () => { stats.shares += 1; onShare('worth'); },
+          { aria: 'Share what your farm is worth' }));
+      }
+      head.append(button('close', '×', () => card.hide(), { aria: 'Close' }));
       parts.push(head);
 
       

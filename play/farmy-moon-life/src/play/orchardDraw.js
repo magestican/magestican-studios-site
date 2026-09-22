@@ -214,6 +214,11 @@ export function createOrchardDraw({
     root, show, warm, topple, update,
     
     sources: () => shed,
+    
+    
+    
+    
+    sourcesOf,
     get stats() { return { rebuilds, triangles, wanted, drawn, ready: wanted === drawn && !running, falling: falling.length, cached: cache.size, cost, warmed }; },
     get triangles() { return triangles; },
   };

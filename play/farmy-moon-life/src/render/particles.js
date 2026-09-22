@@ -28,7 +28,7 @@
 
 import * as THREE from 'three';
 import { makeCozy, curveUniforms } from './material.js';
-import { LEAF, createLeafPool, setLeafMax, emitLeaves, stepLeaves, leafPose } from 'moon/play/leaves.mjs';
+import { LEAF, createLeafPool, setLeafMax, emitLeaves, stepLeaves, leafPose, burstLeaves } from 'moon/play/leaves.mjs';
 import { SMOKE, createSmokePool, setSmokeMax as smokeCeiling, emitSmoke, stepSmoke, puffPose } from 'moon/play/smoke.mjs';
 
 
@@ -235,6 +235,10 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, se
 
   return {
     mesh, update, setMax,
+    
+    
+    
+    burst: (source, count = 0) => burstLeaves(pool, source, count),
     smokeMesh, updateSmoke, setSmokeMax,
     get stats() { return { alive: pool.alive, emitted: pool.emitted, max: pool.max, capacity }; },
     get smokeStats() {

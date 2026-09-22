@@ -38,11 +38,23 @@ export const GLOW_HEIGHT_M = Object.freeze({
   firePit: 0.45,
   postLantern: 1.55,
   lampPost: 2.2,
+  
+  
+  
+  
+  
+  torch: 1.3,
 });
 
 
 
-const FIRE_KINDS = Object.freeze(['firePit']);
+
+
+
+
+
+
+const FIRE_KINDS = Object.freeze(['firePit', 'torch']);
 
 
 export function artKindOf(item) {

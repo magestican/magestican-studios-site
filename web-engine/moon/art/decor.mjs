@@ -44,12 +44,41 @@ import * as picnicTable from './kit/decor/picnicTable.mjs';
 
 
 import * as furniture from './kit/decor/furniture.mjs';
+
+
+
+
+import * as hedge from './kit/decor/hedge.mjs';
+import * as statue from './kit/decor/statue.mjs';
+import * as torch from './kit/decor/torch.mjs';
+import * as hayBale from './kit/decor/hayBale.mjs';
+import * as arch from './kit/decor/arch.mjs';
+import * as bridge from './kit/decor/bridge.mjs';
+import * as mailbox from './kit/decor/mailbox.mjs';
+import * as windmill from './kit/decor/windmill.mjs';
+import * as marketStall from './kit/decor/marketStall.mjs';
+
+
+
+
+
+
+
+
+
+
+import * as scarecrow from './kit/decor/scarecrow.mjs';
+import * as birdhouse from './kit/decor/birdhouse.mjs';
+import * as cart from './kit/decor/cart.mjs';
+import * as planter from './kit/decor/planter.mjs';
 import * as house from './villagerHome.mjs';
 
 const MODULES = Object.freeze({
   flowerPot, flowerBed, footpath, bench, postLantern, birdBath,
   fence, firePit, lampPost, stone,
   fountain, well, barrel, crate, signpost, picnicTable, furniture,
+  hedge, statue, torch, hayBale, arch, bridge, mailbox, windmill, marketStall,
+  scarecrow, birdhouse, cart, planter,
   house,
 });
 

@@ -240,3 +240,74 @@ export function writeTier(storage, tier, at = Date.now()) {
     return false;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function rendererFlags({
+  settings,
+  devicePixelRatio = 1,
+  coarsePointer = false,
+  capturing = false,
+} = {}) {
+  const cap = settings && settings.pixelRatio > 0 ? settings.pixelRatio : 1;
+  const dpr = devicePixelRatio > 0 ? devicePixelRatio : 1;
+  const effectivePixelRatio = Math.min(dpr, cap);
+  return {
+    antialias: !(coarsePointer && effectivePixelRatio >= 2),
+    preserveDrawingBuffer: Boolean(capturing),
+  };
+}
+
+
+
+
+
+
+export function isCapturing(search, nav) {
+  const shot = search && typeof search.get === 'function' && search.get('shot') === '1';
+  const driven = Boolean(nav && nav.webdriver);
+  return shot || driven;
+}

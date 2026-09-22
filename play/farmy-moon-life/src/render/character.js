@@ -57,11 +57,15 @@ export function placeInGrip(object, { at, axis, face }) {
 
 
 
-export function bindCharacter(data, object, { phase = 0 } = {}) {
+
+
+
+
+export function bindCharacter(data, object, { phase = 0, life = null } = {}) {
   const skin = object.userData.rig;
   if (!skin || !data.rig) throw new Error('bindCharacter: the mesh has no rig');
   const clips = buildClips(data.rig);
-  const locomotion = createLocomotion(data.rig, clips, { phase });
+  const locomotion = createLocomotion(data.rig, clips, { phase, life });
 
   const hold = new THREE.Object3D();
   hold.name = 'hold';
@@ -94,9 +98,18 @@ export function bindCharacter(data, object, { phase = 0 } = {}) {
     clips,
     locomotion,
     get busy() { return locomotion.busy; },
-    update(dt, { speed = 0, carrying = false } = {}) {
-      applyPose(skin, locomotion.update(dt, { speed, carrying }));
+    
+    
+    
+    
+    
+    update(dt, { speed = 0, carrying = false, faceYaw = 0, heft = 0 } = {}) {
+      applyPose(skin, locomotion.update(dt, { speed, carrying, faceYaw, heft }));
     },
+    
+    
+    
+    get hop() { return locomotion.hop; },
     pickUp() { locomotion.pickUp(); },
     tool,
     get action() { return locomotion.action; },

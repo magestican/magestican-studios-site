@@ -115,6 +115,55 @@ export const CRAFTABLES = Object.freeze({
   
   
   
+  
+  
+  
+  
+  
+  
+  boxHedge: { name: 'clipped box hedge', category: 'garden', art: { kind: 'hedge', seed: 1 }, cost: { wood: 3, food: 3 }, blocks: true },
+  hareStatue: { name: 'stone hare statue', category: 'garden', art: { kind: 'statue', seed: 1 }, cost: { stone: 12 }, blocks: true },
+  sundial: { name: 'stone sundial', category: 'garden', art: { kind: 'statue', seed: 2 }, cost: { stone: 14, coins: 40 }, blocks: true },
+  gardenTorch: { name: 'garden torch', category: 'lights', art: { kind: 'torch', seed: 1 }, cost: { wood: 3, coins: 20 }, blocks: false, light: true },
+  roundHayBale: { name: 'round hay bale', category: 'rustic', art: { kind: 'hayBale', seed: 1 }, cost: { wood: 2, food: 5 }, blocks: true },
+  roseArch: { name: 'rose arch', category: 'garden', art: { kind: 'arch', seed: 1 }, cost: { wood: 8, food: 2 }, blocks: false },
+  plankBridge: { name: 'arched plank bridge', category: 'paths', art: { kind: 'bridge', seed: 1 }, cost: { wood: 14, stone: 2 }, blocks: false },
+  letterbox: { name: 'letterbox', category: 'rustic', art: { kind: 'mailbox', seed: 1 }, cost: { wood: 4, stone: 1 }, blocks: false },
+  gardenWindmill: { name: 'garden windmill', category: 'rustic', art: { kind: 'windmill', seed: 1 }, cost: { wood: 18, stone: 6 }, blocks: true },
+  marketStall: { name: 'market stall', category: 'rustic', art: { kind: 'marketStall', seed: 1 }, cost: { wood: 16, food: 4 }, blocks: true },
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  strawScarecrow: { name: 'straw scarecrow', category: 'rustic', art: { kind: 'scarecrow', seed: 1 }, cost: { wood: 6, food: 3 }, blocks: true },
+  ragScarecrow: { name: 'tall rag scarecrow', category: 'rustic', art: { kind: 'scarecrow', seed: 3 }, cost: { wood: 7, food: 3 }, blocks: true },
+  birdhouse: { name: 'birdhouse on a post', category: 'garden', art: { kind: 'birdhouse', seed: 1 }, cost: { wood: 5 }, blocks: false },
+  nestBox: { name: 'green nest box', category: 'garden', art: { kind: 'birdhouse', seed: 2 }, cost: { wood: 6 }, blocks: false },
+  handCart: { name: 'hand cart', category: 'rustic', art: { kind: 'cart', seed: 1 }, cost: { wood: 12, stone: 1 }, blocks: true },
+  paintedCart: { name: 'little painted cart', category: 'rustic', art: { kind: 'cart', seed: 2 }, cost: { wood: 11, stone: 2 }, blocks: true },
+  troughPlanter: { name: 'pine trough planter', category: 'garden', art: { kind: 'planter', seed: 1 }, cost: { wood: 7, food: 2 }, blocks: true },
+  cappedPlanter: { name: 'wide capped planter', category: 'garden', art: { kind: 'planter', seed: 3 }, cost: { wood: 9, food: 3 }, blocks: true },
+  berryHedge: { name: 'berried hedge', category: 'garden', art: { kind: 'hedge', seed: 2 }, cost: { wood: 3, food: 4 }, blocks: true },
+  squareHayBale: { name: 'square straw bale', category: 'rustic', art: { kind: 'hayBale', seed: 2 }, cost: { wood: 1, food: 4 }, blocks: true },
+
+  
+  
+  
   humanHouse: { name: 'cottage', category: 'houses', art: { kind: 'house', variant: 'human', stage: 'house' }, cost: { wood: 40, stone: 25 }, blocks: true },
   pigHouse: { name: 'snug gable house', category: 'houses', art: { kind: 'house', variant: 'pig', stage: 'house' }, cost: { wood: 36, stone: 22 }, blocks: true },
   pandaHouse: { name: 'round cosy house', category: 'houses', art: { kind: 'house', variant: 'panda', stage: 'house' }, cost: { wood: 38, stone: 24 }, blocks: true },

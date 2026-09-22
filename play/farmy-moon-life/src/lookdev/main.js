@@ -54,7 +54,7 @@ import { createPost } from '../render/post.js';
 import { viewerGround } from '../render/ground.js';
 import { buildMoonScene, lightSourcesOf } from './scene.js';
 import { dayCycle } from 'moon/light/dayCycle.mjs';
-import { SETTINGS, tierFromParam, decideTier } from 'moon/light/quality.mjs';
+import { SETTINGS, tierFromParam, decideTier, rendererFlags, isCapturing } from 'moon/light/quality.mjs';
 import { CURVE_K } from 'moon/world/curve.mjs';
 import { heightAt } from 'moon/world/moonLayout.mjs';
 
@@ -117,7 +117,17 @@ for (const [k, v] of Object.entries(state)) {
 
 const TONEMAPS = { neutral: THREE.NeutralToneMapping, aces: THREE.ACESFilmicToneMapping, agx: THREE.AgXToneMapping, none: THREE.NoToneMapping };
 const canvas = document.getElementById('view');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+
+
+
+
+const flags = rendererFlags({
+  settings,
+  devicePixelRatio: window.devicePixelRatio,
+  coarsePointer: typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches,
+  capturing: isCapturing(q, navigator),
+});
+const renderer = new THREE.WebGLRenderer({ canvas, ...flags });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, settings.pixelRatio));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = TONEMAPS[state.tonemap] ?? THREE.NeutralToneMapping;

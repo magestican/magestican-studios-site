@@ -566,14 +566,37 @@
   
 
 
-  #visit { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+
+
+
+
+
+
+
+
+
+
+
+  #visit { position: fixed; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom)); transform: translateX(-50%);
     width: min(340px, calc(100vw - 20px)); box-sizing: border-box; z-index: 9;
-    background: rgba(255, 248, 236, 0.97); border-radius: 18px; padding: 8px 10px 10px; box-shadow: 0 6px 22px var(--shade);
-    font: 600 13px/1.3 system-ui, sans-serif; touch-action: none; max-height: calc(100vh - 40px); overflow-y: auto; }
+    background: rgba(255, 248, 236, 0.97); border-radius: 22px 22px 18px 18px; padding: 8px 10px 10px; box-shadow: 0 -4px 22px var(--shade);
+    font: 600 13px/1.3 system-ui, sans-serif; touch-action: none; max-height: calc(100vh - 80px); overflow-y: auto; }
   #visit button { font-family: system-ui, sans-serif; color: var(--ink); touch-action: none; }
   #visit .head { display: flex; align-items: center; justify-content: space-between; }
   #visit .title b { font: 800 16px/1.1 system-ui, sans-serif; }
   #visit .close { width: 44px; height: 44px; margin: -4px -6px -4px 0; border: 0; background: transparent; font: 700 26px/1 system-ui, sans-serif; }
+  
+
+
+
+
+
+
+
+  #visit .head .title, #board .head .title { flex: 1 1 auto; min-width: 0; }
+  #visit .share, #board .share { min-height: 44px; margin: -4px 8px -4px 0; padding: 0 14px;
+    border-radius: 22px; border: 3px solid var(--peach); background: #fff3de;
+    font: 800 13px/1 system-ui, sans-serif; white-space: nowrap; }
   #visit .sub, #visit .why, #visit .hint { color: #7a6558; font-weight: 500; }
   #visit .why, #visit .hint { margin: 4px 0; }
   
@@ -606,10 +629,15 @@
   body.shot #boardopen, body.shot #board { display: none; }
   body.flying #boardopen, body.flying #board { display: none; }
   
-  #board { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+
+
+
+
+
+  #board { position: fixed; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom)); transform: translateX(-50%);
     width: min(340px, calc(100vw - 20px)); box-sizing: border-box; z-index: 9;
-    background: rgba(255, 248, 236, 0.97); border-radius: 18px; padding: 8px 10px 10px; box-shadow: 0 6px 22px var(--shade);
-    font: 600 13px/1.35 system-ui, sans-serif; touch-action: none; max-height: calc(100vh - 40px); overflow-y: auto; }
+    background: rgba(255, 248, 236, 0.97); border-radius: 22px 22px 18px 18px; padding: 8px 10px 10px; box-shadow: 0 -4px 22px var(--shade);
+    font: 600 13px/1.35 system-ui, sans-serif; touch-action: none; max-height: calc(100vh - 80px); overflow-y: auto; }
   #board button { font-family: system-ui, sans-serif; color: var(--ink); touch-action: none; }
   #board .head { display: flex; align-items: center; justify-content: space-between; }
   #board .title b { font: 800 16px/1.1 system-ui, sans-serif; }
@@ -1144,6 +1172,107 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #coins { font-size: max(11px, calc(21px * var(--fit, 1))); }
+  #today { font-size: max(11px, calc(11px * var(--fit, 1))); }
+  #pick { font-size: max(11px, calc(13px * var(--fit, 1))); }
+  #pick .icons { font-size: max(11px, calc(15px * var(--fit, 1))); }
+  #jump .word { font-size: max(11px, calc(13px * var(--fit, 1))); }
+  #where { font-size: max(11px, calc(15px * var(--fit, 1))); }
+  #goal { font-size: max(11px, calc(13px * var(--fit, 1))); }
+  #prompt { font-size: max(11px, calc(14px * var(--fit, 1))); }
+  #menusheet button { font-size: max(11px, calc(14px * var(--fit, 1))); }
+  #arrive { font-size: max(11px, calc(14px * var(--fit, 1))); }
+  #arrive .name { font-size: max(11px, calc(25px * var(--fit, 1))); }
+  #talk .text { font-size: max(11px, calc(19px * var(--fit, 1))); }
+  #talk .choice { font-size: max(11px, calc(16px * var(--fit, 1))); }
+  #talk .plate { font-size: max(11px, calc(16px * var(--fit, 1))); }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #pockets .badge .n.bumped, #pockets .chip b.bumped { animation: bump 0.38s ease-out; }
+  @media (prefers-reduced-motion: reduce) {
+    
+
+    #coins.bump, #pockets .badge .n.bumped, #pockets .chip b.bumped { animation: none; }
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #menusheet .fitnote { margin: 1px 2px 2px; color: #7a6558; font: 500 11px/1.3 system-ui, sans-serif; }
+  #menusheet .fitnote[hidden] { display: none; }
+  #fitlock.on { border-color: var(--peach); background: #ffe4bf; }
+  
+
+
+
+
+
+
+  
+
+  #menusheet { max-height: calc(100vh - 124px - env(safe-area-inset-bottom)); overflow-y: auto; }
+  #menusheet { max-height: calc(100dvh - 124px - env(safe-area-inset-bottom)); }
+
+  
+
+
+
+
+
+
+
   body.arriving #menu, body.arriving #toolrow, body.arriving #pockets, body.arriving #made, body.arriving #seeds,
   body.arriving #place, body.arriving #jump, body.arriving #placing, body.arriving #prompt, body.arriving #pick,
   body.arriving #coins, body.arriving #ghost, body.arriving #goal, body.arriving #markers, body.arriving #tip, body.arriving #quest,
@@ -1172,7 +1301,7 @@
 
 
 
-<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=51f6a67-20260922T033257Z"></script>
+<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=b306107-20260922T062336Z"></script>
 
 
 
@@ -1465,6 +1594,20 @@
 
 
 
+
+
+
+
+
+
+  <button id="fitopen" type="button" aria-label="Full screen" hidden>Full screen</button>
+  <button id="fitlock" type="button" aria-label="Keep this way up" hidden>Keep this way up</button>
+  <p id="fitnote" class="fitnote" hidden></p>
+  
+
+
+
+
   <button id="cloudopen" type="button" aria-label="Sign in to keep your moon in the cloud" hidden>Sign in</button>
 </div>
 <div id="deeds" hidden></div>
@@ -1513,6 +1656,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=51f6a67-20260922T033257Z"></script>
+<script type="module" src="src/play/main.js?v=b306107-20260922T062336Z"></script>
 </body>
 </html>

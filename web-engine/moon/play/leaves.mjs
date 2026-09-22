@@ -131,6 +131,61 @@ export function setLeafMax(pool, max) {
 
 
 
+
+
+
+
+function newLeaf(s, rng) {
+  const a = rng.rangeF(0, TAU);
+  const rr = s.r * (0.55 + 0.45 * rng.next());
+  return {
+    x: s.x + Math.cos(a) * rr,
+    y: s.y + s.h * rng.rangeF(-0.6, 0.5),
+    z: s.z + Math.sin(a) * rr,
+    floor: s.floor,
+    colour: pickColour(s.colours, rng),
+    fall: rng.rangeF(LEAF.fallMps[0], LEAF.fallMps[1]),
+    flutterHz: rng.rangeF(LEAF.flutterHz[0], LEAF.flutterHz[1]),
+    phase: rng.rangeF(0, TAU),
+    rx: rng.rangeF(0, TAU), ry: rng.rangeF(0, TAU), rz: rng.rangeF(0, TAU),
+    sx: rng.rangeF(LEAF.spinRps[0], LEAF.spinRps[1]) * (rng.chance(0.5) ? 1 : -1),
+    sz: rng.rangeF(LEAF.spinRps[0], LEAF.spinRps[1]) * (rng.chance(0.5) ? 1 : -1),
+    restT: -1, 
+  };
+}
+
+
+export const CHOP_LEAVES = Object.freeze({ min: 3, max: 6 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function burstLeaves(pool, source, count = 0) {
+  if (!pool || !source || pool.alive >= pool.max) return 0;
+  const { rng } = pool;
+  const want = count > 0
+    ? Math.floor(count)
+    : CHOP_LEAVES.min + Math.floor(rng.next() * (CHOP_LEAVES.max - CHOP_LEAVES.min + 1));
+  let n = 0;
+  for (let i = 0; i < want && pool.alive < pool.max; i++) {
+    pool.leaves[pool.alive++] = newLeaf(source, rng);
+    pool.emitted++;
+    n++;
+  }
+  return n;
+}
+
 export function emitLeaves(pool, sources, dt, t, windScale = 1) {
   const step = Math.min(dt, LEAF.maxDtS);
   if (!(step > 0) || !(windScale > 0) || pool.alive >= pool.max) return 0;
@@ -141,23 +196,7 @@ export function emitLeaves(pool, sources, dt, t, windScale = 1) {
     if (!sheds(s.kind, s.stage)) continue;
     const rate = shedRate(s.season, gustAt(s.x, s.z, t)) * windScale;
     if (rate === 0 || rng.next() >= rate * step) continue;
-    const a = rng.rangeF(0, TAU);
-    const rr = s.r * (0.55 + 0.45 * rng.next());
-    const leaf = {
-      x: s.x + Math.cos(a) * rr,
-      y: s.y + s.h * rng.rangeF(-0.6, 0.5),
-      z: s.z + Math.sin(a) * rr,
-      floor: s.floor,
-      colour: pickColour(s.colours, rng),
-      fall: rng.rangeF(LEAF.fallMps[0], LEAF.fallMps[1]),
-      flutterHz: rng.rangeF(LEAF.flutterHz[0], LEAF.flutterHz[1]),
-      phase: rng.rangeF(0, TAU),
-      rx: rng.rangeF(0, TAU), ry: rng.rangeF(0, TAU), rz: rng.rangeF(0, TAU),
-      sx: rng.rangeF(LEAF.spinRps[0], LEAF.spinRps[1]) * (rng.chance(0.5) ? 1 : -1),
-      sz: rng.rangeF(LEAF.spinRps[0], LEAF.spinRps[1]) * (rng.chance(0.5) ? 1 : -1),
-      restT: -1, 
-    };
-    pool.leaves[pool.alive++] = leaf;
+    pool.leaves[pool.alive++] = newLeaf(s, rng);
     pool.emitted++;
     n++;
   }

@@ -44,7 +44,12 @@ export async function villagerObject(species, { seed = 1, season = 'summer', lod
   
   
   
-  const v = bindCharacter(data, object, { phase: animPhase(seed) });
+  
+  
+  
+  
+  
+  const v = bindCharacter(data, object, { phase: animPhase(seed), life: seed });
   v.species = species;
   v.height_m = data.rig.height_m;
   v.top_m = data.rig.top_m;

@@ -32,6 +32,11 @@
 
 
 const TAU = Math.PI * 2;
+
+
+
+import { takeOffSquash } from '../rig/heftPose.mjs';
+
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const smooth = (t) => t * t * (3 - 2 * t);
 
@@ -200,7 +205,13 @@ export function poseOf(air) {
   if (!air) return Object.freeze({ phase: 'ground', lift: 0, y: 0, flip: 0, squash: 1, fade: 0, camDist: 1, control: true });
   if (air.kind === 'hop') {
     const landT = air.t - JUMP.hopS;
-    const squash = landT <= 0 ? 1 : 1 - JUMP.squash * (1 - smooth(clamp(landT / JUMP.squashS, 0, 1)));
+    
+    
+    
+    
+    
+    
+    const squash = landT <= 0 ? takeOffSquash(air.t) : 1 - JUMP.squash * (1 - smooth(clamp(landT / JUMP.squashS, 0, 1)));
     const lift = hopLift(air.t);
     return { phase: 'hop', lift, y: air.groundY + lift, flip: 0, squash, fade: 0, camDist: 1, control: true };
   }

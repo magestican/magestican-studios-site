@@ -103,12 +103,48 @@ export function createHud({
   pocketsEl.replaceChildren(badge, pocketTray);
   pocketsEl.hidden = true;
   let badgeGood = null, pocketsOpen = false;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let lastCounts = Object.create(null), bumps = 0;
+
+  
+
+
+
+
+
+
+
+  function restartBump(el) {
+    if (!el) return;
+    el.classList.remove('bumped');
+    void el.offsetWidth;
+    el.classList.add('bumped');
+    bumps += 1;
+  }
 
   function pockets(counts) {
     const rows = pocketRows(counts);
     const sig = JSON.stringify(rows);
     if (sig === sigPockets) return;
     sigPockets = sig;
+    
+    
+    
+    const now = counts || Object.create(null);
+    const rose = new Set();
+    for (const [good, n] of Object.entries(now)) {
+      if ((Number(n) || 0) > (Number(lastCounts[good]) || 0)) rose.add(good);
+    }
+    const totalRose = badgeCount(now) > badgeCount(lastCounts);
+    lastCounts = { ...now };
     
     
     pocketsEl.hidden = rows.length === 0;
@@ -128,9 +164,18 @@ export function createHud({
       chip.setAttribute('aria-label', `${n} ${g}`);
       const count = document.createElement('b');
       count.textContent = String(n);
+      
+      
+      
+      if (rose.has(g)) { count.className = 'bumped'; bumps += 1; }
       chip.append(iconEl(g, 56), count);
       return chip;
     }));
+    
+    
+    
+    
+    if (totalRose) restartBump(badgeCountEl);
   }
 
   
@@ -471,6 +516,15 @@ export function createHud({
   
   return { pockets, seeds, today, quest, say, nope, update, setPocketsOpen,
     get pocketsOpen() { return pocketsOpen; },
+    
+
+
+
+
+
+    get bumps() {
+      return { count: bumps, badgeBumping: badgeCountEl.classList.contains('bumped') };
+    },
     get said() { return said; },
     
 
