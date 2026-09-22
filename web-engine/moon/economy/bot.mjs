@@ -11,13 +11,13 @@
 
 
 
-import { BUILDINGS, GIFTS, GOODS, HAPPINESS, RECIPES, STAPLES, TREES } from './tables.mjs';
+import { BUILDINGS, FINDS, GIFTS, GOODS, HAPPINESS, RECIPES, STAPLES, TREES } from './tables.mjs';
 import { BP, MS } from './math.mjs';
 import { isRipe, stageAt, waterReason } from './trees.mjs';
 import { buildingSlots, ownedTreeCount, treeSlots, usedBuildingSlots } from './land.mjs';
 import { discountAt, isLit, sellable, shelfRoom, shopOf, shopSpec, stockCount } from './shop.mjs';
 import { giftBasePoints, warmthAt } from './happiness.mjs';
-import { batchesDone, forageIsReady, jobSlotsOf, readyToCollect, whyCannot } from './world.mjs';
+import { batchesDone, findIsReady, forageIsReady, jobSlotsOf, readyToCollect, whyCannot } from './world.mjs';
 
 export const ACTION_TIME_s = Object.freeze({
   harvest: 3, fell: 5, clearStump: 4, plant: 3, mine: 3,
@@ -28,13 +28,17 @@ export const ACTION_TIME_s = Object.freeze({
   
   
   water: 2, forage: 3, dig: 4,
+  
+  
+  
+  pickUpFind: 3,
   walk: 8, 
   wait: 4, 
 });
 
 export const AREA = Object.freeze({
   harvest: 'orchard', fell: 'orchard', clearStump: 'orchard', plant: 'orchard', water: 'orchard',
-  mine: 'rocks', forage: 'forage', dig: 'forage',
+  mine: 'rocks', forage: 'forage', dig: 'forage', pickUpFind: 'finds',
   startJob: 'processor', collect: 'processor', stock: 'shop', unstock: 'shop',
   buy: 'cat', buyParcel: 'cat', build: 'cat', upgrade: 'cat', gift: 'village',
 });
@@ -150,6 +154,12 @@ export function decide(world, t, memory = {}) {
   
   const gift = giftMove(world, t, memory);
   if (gift) return gift;
+  
+  
+  
+  
+  const lid = findMove(world, t, memory);
+  if (lid) return lid;
   
   
   
@@ -280,6 +290,50 @@ function forageMove(world, t, memory) {
   if (ready.length < FORAGE_ROUND_MIN && memory.area !== 'forage') return null;
   const spot = world.forage[ready[0]];
   return { type: spot.type === 'dig' ? 'dig' : 'forage', spot: ready[0] };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const FIND_ROUND_MIN = 2;
+
+function findMove(world, t, memory) {
+  const finds = world.finds || [];
+  const ready = [];
+  for (let i = 0; i < finds.length; i++) {
+    const find = finds[i];
+    if ((find.planet || 0) !== 0) continue; 
+    if (findIsReady(find, t)) ready.push(i);
+  }
+  if (!ready.length) return null;
+  const treasure = ready.find((i) => FINDS[finds[i].kind].treasure);
+  if (treasure !== undefined) return { type: 'pickUpFind', find: treasure };
+  if (ready.length < FIND_ROUND_MIN && memory.area !== 'finds') return null;
+  return { type: 'pickUpFind', find: ready[0] };
 }
 
 

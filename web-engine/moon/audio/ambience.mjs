@@ -288,3 +288,175 @@ export function chirpGap(c, index) {
 
 
 export const chirpLength = (c) => (c.pulses - 1) / c.pulseHz + CHIRP_ATTACK_S + CHIRP_DECAY_S;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const CRICKET_FIELD = Object.freeze({
+  
+  
+  
+  min: 4,
+  max: 6,
+  
+  
+  
+  nearM: 3.5,
+  farM: 13,
+  
+  
+  spacingM: 2.0,
+  
+  candidates: 16,
+  
+  
+  
+  
+  resiteM: 18,
+});
+
+
+export const CRICKET_NEAR_M = 4;
+
+export const CRICKET_FAR_M = 20;
+
+
+
+
+
+
+
+export function cricketGain(distanceM) {
+  const d = Number(distanceM);
+  if (!Number.isFinite(d) || d >= CRICKET_FAR_M) return 0;
+  if (d <= CRICKET_NEAR_M) return 1;
+  const x = 1 - (d - CRICKET_NEAR_M) / (CRICKET_FAR_M - CRICKET_NEAR_M);
+  return x * x;
+}
+
+const wrapPi = (a) => ((a + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function cricketPan(dx, dz, heading = 0) {
+  const x = Number(dx) || 0;
+  const z = Number(dz) || 0;
+  if (x === 0 && z === 0) return 0;
+  return Math.sin(wrapPi(Math.atan2(x, z) - (Number(heading) || 0)));
+}
+
+
+
+
+
+
+
+
+
+
+export function siteCrickets({ x = 0, z = 0, seed = 1, isGrass = null, count = CRICKET_FIELD.max, field = CRICKET_FIELD } = {}) {
+  const rand = lcg(seed);
+  const want = Math.max(0, Math.min(field.max, Math.round(count)));
+  const out = [];
+  const grass = typeof isGrass === 'function' ? isGrass : () => true;
+  for (let i = 0; i < want; i += 1) {
+    for (let k = 0; k < field.candidates; k += 1) {
+      const a = rand() * Math.PI * 2;
+      
+      
+      const r = Math.sqrt(field.nearM ** 2 + rand() * (field.farM ** 2 - field.nearM ** 2));
+      const sx = Math.round((x + Math.sin(a) * r) * 100) / 100;
+      const sz = Math.round((z + Math.cos(a) * r) * 100) / 100;
+      if (out.some((s) => Math.hypot(s.x - sx, s.z - sz) < field.spacingM)) continue;
+      let ok = false;
+      try { ok = grass(sx, sz) === true; } catch { ok = false; }
+      if (!ok) continue;
+      out.push(Object.freeze({ x: sx, z: sz, spec: out.length % CRICKETS.length }));
+      break;
+    }
+  }
+  return Object.freeze(out);
+}
+
+
+
+
+
+
+
+export function cricketField(pool, { x = 0, z = 0, heading = 0 } = {}) {
+  return Object.freeze((pool || []).map((s) => {
+    const dx = s.x - x;
+    const dz = s.z - z;
+    const distanceM = Math.hypot(dx, dz);
+    return Object.freeze({
+      x: s.x, z: s.z, spec: s.spec, distanceM,
+      pan: cricketPan(dx, dz, heading),
+      gain: cricketGain(distanceM) * (CRICKETS[s.spec] ? CRICKETS[s.spec].gain : 1),
+    });
+  }));
+}
+
+
+export function poolIsStale(pool, at, { x = 0, z = 0 } = {}, field = CRICKET_FIELD) {
+  if (!pool || pool.length === 0) return true;
+  if (!at) return true;
+  return Math.hypot(x - at.x, z - at.z) > field.resiteM;
+}
+
+
+
+
+
+
+export const cricketsArePositional = (tier) => tier !== 'low';

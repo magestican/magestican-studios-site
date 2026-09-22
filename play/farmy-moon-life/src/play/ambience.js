@@ -162,6 +162,13 @@ export async function renderTexture(id, {
 
 const CHIRP_AHEAD_S = 1.5;
 
+
+
+
+
+const RESITE_EVERY_S = 2;
+const PLACE_TAU_S = 0.2;
+
 export function createAmbience({
   audio,
   beds,
@@ -172,6 +179,12 @@ export function createAmbience({
   render = renderTexture,
   Offline,
   seed = 20260919,
+  
+  
+  
+  
+  
+  isGrass = null,
 } = {}) {
   if (!beds || !mix) throw new Error('createAmbience needs the ambience and mix tables from web-engine/moon/audio');
   const fade = fadeS ?? beds.FADE_S;
@@ -264,9 +277,78 @@ export function createAmbience({
       sources.push(o);
       
       
-      voices.push({ spec: c, gain: shape, at: now + 0.35 * (voices.length + 1), index: 0, chirps: 0 });
+      voices.push({ spec: c, gain: shape, peak: c.gain, at: now + 0.35 * (voices.length + 1), index: 0, chirps: 0 });
     }
-    return { level, sources, voices, target: 0, silentSince: null };
+    return { level, sources, voices, positional: false, target: 0, silentSince: null };
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function startCricketField(ctx, bus, now, pool, at) {
+    if (!ctx.createStereoPanner) return null;
+    const level = ctx.createGain();
+    level.gain.setValueAtTime(FLOOR, now);
+    level.connect(bus);
+    const sources = [];
+    const voices = [];
+    pool.forEach((spot, i) => {
+      const c = beds.CRICKETS[spot.spec] || beds.CRICKETS[0];
+      const place = ctx.createGain();
+      place.gain.setValueAtTime(0, now);
+      const panner = ctx.createStereoPanner();
+      panner.pan.setValueAtTime(0, now);
+      const shape = ctx.createGain();
+      shape.gain.setValueAtTime(0, now);
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(c.hz, now);
+      o.connect(shape);
+      shape.connect(panner);
+      panner.connect(place);
+      place.connect(level);
+      o.start(now);
+      sources.push(o);
+      voices.push({ spec: c, gain: shape, peak: 1, place, panner, at: now + 0.35 * (i + 1), index: 0, chirps: 0 });
+    });
+    return { level, sources, voices, positional: true, pool, at, checkedAt: 0, field: [], target: 0, silentSince: null };
+  }
+
+  
+
+
+
+
+  function placeCrickets(v, where, now) {
+    if (!v || !v.positional) return;
+    const field = beds.cricketField(v.pool, where);
+    v.field = field;
+    for (let i = 0; i < v.voices.length && i < field.length; i += 1) {
+      const voice = v.voices[i];
+      const s = field[i];
+      try {
+        voice.place.gain.setTargetAtTime(s.gain, now, PLACE_TAU_S);
+        voice.panner.pan.setTargetAtTime(s.pan, now, PLACE_TAU_S);
+      } catch {  }
+    }
   }
 
   
@@ -296,7 +378,7 @@ export function createAmbience({
         let t = voice.at;
         for (let i = 0; i < c.pulses; i += 1) {
           voice.gain.gain.setValueAtTime(0, t);
-          voice.gain.gain.linearRampToValueAtTime(c.gain, t + beds.CHIRP_ATTACK_S);
+          voice.gain.gain.linearRampToValueAtTime(voice.peak === undefined ? c.gain : voice.peak, t + beds.CHIRP_ATTACK_S);
           voice.gain.gain.linearRampToValueAtTime(0, t + beds.CHIRP_ATTACK_S + beds.CHIRP_DECAY_S);
           t += 1 / c.pulseHz;
         }
@@ -327,10 +409,34 @@ export function createAmbience({
   function sweep(now) {
     for (const [id, v] of live) {
       if (v.silentSince === null || now - v.silentSince < fade + beds.SILENT_STOP_S) continue;
-      for (const s of v.sources) { try { s.stop(now); } catch {  } }
+      stopBed(v, now);   
       live.delete(id);
-      counts.stops += 1;
     }
+  }
+
+  
+
+
+
+
+
+  function stopBed(v, now) {
+    if (!v) return;
+    for (const s of v.sources) { try { s.stop(now); } catch {  } }
+    try { v.level.disconnect(); } catch {  }
+    counts.stops += 1;
+  }
+
+  
+  function cricketState() {
+    const v = live.get('crickets');
+    if (!v) return { live: false, positional: false, sources: [] };
+    return {
+      live: true,
+      positional: !!v.positional,
+      at: v.at ? { ...v.at } : null,
+      sources: (v.field || []).map((s) => ({ pan: s.pan, gain: s.gain, distanceM: s.distanceM, x: s.x, z: s.z })),
+    };
   }
 
   
@@ -364,7 +470,8 @@ export function createAmbience({
 
 
 
-    tick({ frames = Infinity, season = 'summer', night = false, weather = 'clear', waterM = Infinity } = {}) {
+    tick({ frames = Infinity, season = 'summer', night = false, weather = 'clear', waterM = Infinity,
+      x = 0, z = 0, heading = 0, tier = null } = {}) {
       targets = beds.bedsFor({ season, night, weather, waterM });
       if (frames < afterFrames) return false;
       if (!renderedAll && !rendering) renderAll();
@@ -388,14 +495,57 @@ export function createAmbience({
           }
           if (setLevel(id, v, targets[id], now)) changed = true;
         }
+        
+        
+        const wantField = beds.cricketsArePositional(tier);
+        const where = { x, z, heading };
         let crickets = live.get('crickets');
+        
+        
+        
+        if (crickets && crickets.positional !== wantField && !(wantField && !crickets.pool)) {
+          stopBed(crickets, now);
+          live.delete('crickets');
+          crickets = null;
+        }
         if (!crickets && targets.crickets > 0) {
-          crickets = startCrickets(ctx, bus, now);
+          const pool = wantField ? beds.siteCrickets({ x, z, seed: seed + 1, isGrass }) : [];
+          crickets = (pool.length ? startCricketField(ctx, bus, now, pool, { x, z }) : null) || startCrickets(ctx, bus, now);
           live.set('crickets', crickets);
           counts.starts += 1;
           changed = true;
         }
         if (crickets && setLevel('crickets', crickets, targets.crickets, now)) changed = true;
+        if (crickets && targets.crickets > 0) {
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          const flatButWanted = wantField && !crickets.positional;
+          if ((crickets.positional || flatButWanted) && now - (crickets.checkedAt || 0) > RESITE_EVERY_S) {
+            crickets.checkedAt = now;
+            if (beds.poolIsStale(crickets.pool, crickets.at, where)) {
+              const next = beds.siteCrickets({ x, z, seed: seed + 1, isGrass });
+              if (next.length && next.length === (crickets.pool || []).length) {
+                crickets.pool = next;
+                crickets.at = { x, z };
+              } else if (next.length !== (crickets.pool || []).length) {
+                
+                
+                stopBed(crickets, now);
+                live.delete('crickets');
+                crickets = null;
+                changed = true;
+              }
+            }
+          }
+          if (crickets && crickets.positional) placeCrickets(crickets, where, now);
+        }
         
         
         if (crickets && targets.crickets > 0) chirp(crickets, now + CHIRP_AHEAD_S);
@@ -418,6 +568,10 @@ export function createAmbience({
         ms: { ...ms },
         nextPhraseAt,
         ...counts,
+        
+        
+        
+        crickets: cricketState(),
         error: lastError,
       };
     },

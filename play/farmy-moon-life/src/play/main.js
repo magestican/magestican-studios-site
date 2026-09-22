@@ -402,6 +402,10 @@ const fml = (window.__fml = {
   error: null, state, tier, settings, rememberedTier, tierChanges: [],
   player: { x: SPAWN.x, z: SPAWN.z, heading: SPAWN.heading, speed: 0 },
   drawCalls: 0, triangles: 0, fps: 0, pickUps: 0, carrying: state.carrying, stick: null, frames: 0, track: null,
+  
+  
+  
+  memory: null,
   problems: [], missing: [], notes: [],
   interact: null, actions: 0, lastEvents: [], lastTap: null,
   timing: {},
@@ -930,7 +934,24 @@ const music = createMusic({ audio, score: SCORE, mix: MIX });
 
 
 
-const ambience = createAmbience({ audio, beds: AMBIENCE, mix: MIX });
+
+
+
+
+
+
+
+
+
+
+const isGrassAt = (x, z) => {
+  if (!onHome()) return true;
+  if (Math.hypot(x, z) > MOON.ISLAND_RADIUS - MOON.RIM_WIDTH) return false;
+  if (MOON.pathDistance(x, z) < MOON.PATH_HALF_WIDTH + 0.5) return false;
+  if (MOON.plazaDistance(x, z) < 0) return false;
+  return true;
+};
+const ambience = createAmbience({ audio, beds: AMBIENCE, mix: MIX, isGrass: isGrassAt });
 
 
 
@@ -5496,9 +5517,31 @@ function frame(now) {
   
   
   
-  ambience.tick({ frames: fml.frames, season: seasonNow(), night: isDark(world, t), weather: weatherNow().id, waterM: nearestWaterM() });
+  
+  
+  
+  ambience.tick({
+    frames: fml.frames, season: seasonNow(), night: isDark(world, t), weather: weatherNow().id, waterM: nearestWaterM(),
+    x: player.x, z: player.z, heading: player.heading, tier: fml.tier,
+  });
   fml.frames++;
   fml.drawCalls = renderer.info.render.calls;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  fml.memory = {
+    geometries: renderer.info.memory.geometries,
+    textures: renderer.info.memory.textures,
+    programs: renderer.info.programs ? renderer.info.programs.length : null,
+  };
   fml.triangles = baseTriangles + orchard.triangles + shelvesDraw.triangles + buildingTris.shop + buildingTris.press 
     + customersDraw.drawnTriangles
     + villagersDraw.drawnTriangles + homesDraw.triangles 

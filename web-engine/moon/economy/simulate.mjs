@@ -7,6 +7,7 @@
 
 import { act, advance, jobSlotsOf, netWorth, newWorld } from './world.mjs';
 import { ACTION_TIME_s, areaOf, decide, walkTime_s } from './bot.mjs';
+import { FINDS } from './tables.mjs';
 import { MS } from './math.mjs';
 import { isDark } from './clock.mjs';
 import { footfallAt, isLit, shopOf, stockCount } from './shop.mjs';
@@ -27,6 +28,39 @@ export const PATTERNS = Object.freeze({
     return sittings;
   },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const HOME_CONTAINERS = Object.freeze([
+  Object.freeze({ planet: 0, kind: 'goldenApple' }),
+  Object.freeze({ planet: 0, kind: 'wood' }),
+  Object.freeze({ planet: 0, kind: 'stone' }),
+  Object.freeze({ planet: 0, kind: 'mushroom' }),
+  Object.freeze({ planet: 0, kind: 'berries' }),
+]);
 
 const MILESTONES = [
   ['first sale', (w) => w.stats.customers > 0],
@@ -75,6 +109,20 @@ export function simulate({ seed = 1, start = Date.UTC(2026, 8, 15, 8, 0, 0), sit
   
   const MAKES_GOODS = new Set(['harvest', 'fell', 'clearStump', 'forage', 'dig', 'mine', 'pickUpFind']);
   const work = {};
+
+  
+  
+  
+  
+  
+  
+  
+  
+  const rowOf = (action) => {
+    if (action.type !== 'pickUpFind') return action.type;
+    const find = (world.finds || [])[action.find];
+    return find ? FINDS[find.kind].container : action.type;
+  };
 
   const check = (t) => {
     for (const [name, reached] of MILESTONES) {
@@ -136,8 +184,12 @@ export function simulate({ seed = 1, start = Date.UTC(2026, 8, 15, 8, 0, 0), sit
       
       
       if (action) {
+        
+        
+        
+        const row = rowOf(action);
         const acted = act(world, action, t);
-        const w = work[action.type] || (work[action.type] = { count: 0, time_s: 0, goods: {} });
+        const w = work[row] || (work[row] = { count: 0, time_s: 0, goods: {} });
         w.count += 1;
         w.time_s += cost_s;
         for (const e of acted) {
