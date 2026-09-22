@@ -15,23 +15,48 @@
 
 
 import { MeshData, IDENTITY, compose, scale, translate, rotateY } from '../../../mesh/meshData.mjs';
-import { lathe, emit, sweep, circleProfile } from '../../../mesh/bevel.mjs';
+import { lathe, emit, sweep, circleProfile, blob } from '../../../mesh/bevel.mjs';
 import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary, mixC, paintVertex } from '../shade.mjs';
 import { RIPPLE, surfaceRamp, fallRamp, jetRamp } from '../water.mjs';
 
 
-function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor }) {
+
+
+
+const ribbonProfile = (w) => circleProfile(w, 3, 0, w * 0.28);
+
+
+
+
+
+
+
+function dropBeads(mesh, at, { rng, key, waterColor, n = 4 }) {
+  const r = rng.child(`beads-${key}`);
+  for (let i = 0; i < n; i++) {
+    const br = r.rangeF(0.006, 0.013);
+    const off = [r.rangeF(-0.03, 0.03), r.rangeF(-0.04, 0.005), r.rangeF(-0.03, 0.03)];
+    const bead = blob({ radii: [br, br, br], subdiv: 1, seed: r.rangeI(1, 1e6), lump: 0.08 });
+    emit(mesh, 'water', bead, {
+      matrix: compose(at, translate(off[0], off[1], off[2])),
+      color: vc(waterColor, { groundAO: 0, underside: 0.15 }),
+    });
+  }
+}
+
+
+function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor, rng, beads = true, steps = null }) {
   const path = [];
-  const steps = detail === 0 ? 4 : 3;
+  if (steps === null) steps = detail === 0 ? 4 : 3;
   for (let i = 0; i <= steps; i++) {
     const t = i / steps;
     
     path.push([r0 + (r1 - r0) * Math.sqrt(t), y0 - (y0 - y1) * t * t, 0]);
   }
   const ribbon = sweep({
-    profile: circleProfile(w, detail === 0 ? 5 : 4), path, up: [0, 1, 0], caps: 'none',
+    profile: ribbonProfile(w), path, up: [0, 1, 0], caps: 'none',
     
     scales: (t) => 1.35 - 0.7 * t,
   });
@@ -39,11 +64,16 @@ function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor }) {
   
   
   const fall = fallRamp(ribbon.p.map((q) => q[1]));
+  const at = compose(m, rotateY(a));
   emit(mesh, 'water', ribbon, {
-    matrix: compose(m, rotateY(a)),
+    matrix: at,
     color: vc(waterColor, { groundAO: 0, underside: 0.15 }),
     ripple: (p, n, uv, tag, i) => -RIPPLE.flow * fall[i],
   });
+  if (beads && detail === 0 && rng) {
+    const tail = path[path.length - 1];
+    dropBeads(mesh, compose(at, translate(tail[0], tail[1], tail[2])), { rng, waterColor });
+  }
 }
 
 
@@ -145,7 +175,12 @@ export function fountain(mesh, m, {
         arc(mesh, m, {
           a: base + (k / n) * Math.PI * 2 + rng.rangeF(-0.3, 0.3),
           r0: t.r * 0.94, y0: t.y - 0.015, r1: below.r * rng.rangeF(0.45, 0.62), y1: below.y + 0.02,
-          w: 0.036 - i * 0.005, detail, waterColor,
+          w: 0.036 - i * 0.005, detail, waterColor, rng, key: `tier${i}-${k}`,
+          
+          
+          
+          
+          beads: i === 0 && k === 0,
         });
       }
     }
@@ -153,11 +188,14 @@ export function fountain(mesh, m, {
   });
 
   
+  
+  
+  
   if (jet > 0 && !frozen) {
     const top = tiers.length ? tiers[tiers.length - 1] : { y: pool, r: R * 0.5 };
     const lean = rng.rangeF(-0.06, 0.06);
     const plume = sweep({
-      profile: circleProfile(0.05, detail === 0 ? 6 : 4),
+      profile: circleProfile(0.032, detail === 0 ? 6 : 4),
       path: [[0, top.y, 0], [lean * 0.3, top.y + jet * 0.5, 0], [lean, top.y + jet, 0]],
       up: [0, 1, 0], caps: 'round', capSegments: 1, capLength: 0.04, scales: (t) => 1 - 0.45 * t,
     });
@@ -169,6 +207,22 @@ export function fountain(mesh, m, {
       color: vc(waterColor, { groundAO: 0, underside: 0.15 }),
       ripple: (p, n, uv, tag, i) => -RIPPLE.jet * rise[i],
     });
+    
+    
+    
+    if (detail === 0) {
+      const cr = rng.child('jetCrown');
+      const tipAt = compose(m, translate(lean, top.y + jet, 0));
+      const crownN = cr.rangeI(4, 5);
+      const crownBase = cr.rangeF(0, Math.PI * 2);
+      for (let k = 0; k < crownN; k++) {
+        arc(mesh, tipAt, {
+          a: crownBase + (k / crownN) * Math.PI * 2 + cr.rangeF(-0.15, 0.15),
+          r0: 0, y0: 0.01, r1: jet * cr.rangeF(0.12, 0.22), y1: -jet * cr.rangeF(0.04, 0.1),
+          w: 0.016, detail, waterColor, rng: cr, key: `crown${k}`, beads: false, steps: 2,
+        });
+      }
+    }
   }
 
   
@@ -179,7 +233,7 @@ export function fountain(mesh, m, {
       sides: detail === 0 ? 8 : 5, phase: 0.125, radiusFn: (th, j, r) => r * squareR(th),
     });
     emit(mesh, 'stone', wall, { matrix: compose(m, compose(translate(Math.sin(a) * R * 0.86, 0, Math.cos(a) * R * 0.86), rotateY(a))), color: vc(vary(rng, stoneColor, 0.04), { groundAO: 0.25 }) });
-    if (!frozen) arc(mesh, m, { a: a + Math.PI, r0: R * 0.66, y0: H + 0.42, r1: R * 0.25, y1: pool + 0.02, w: 0.04, detail, waterColor });
+    if (!frozen) arc(mesh, m, { a: a + Math.PI, r0: R * 0.66, y0: H + 0.42, r1: R * 0.25, y1: pool + 0.02, w: 0.04, detail, waterColor, rng, key: 'spout' });
   }
 
   if (snowColor) {
