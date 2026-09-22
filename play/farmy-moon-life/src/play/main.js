@@ -1557,6 +1557,18 @@ function syncNightLights() {
 
 
 
+function fireSources() {
+  if (!night) return [];
+  return night.sources
+    .filter((s) => s.kind === 'fire')
+    .map((s) => ({ key: s.id != null ? `p${s.id}` : `${s.x.toFixed(2)}:${s.z.toFixed(2)}`, x: s.x, y: s.y, z: s.z }));
+}
+
+
+
+
+
+
 
 
 
@@ -3109,6 +3121,10 @@ Object.defineProperty(fml, 'smoke', {
     hearths: homesDraw ? homesDraw.hearths : [],
   } : null),
 });
+
+Object.defineProperty(fml, 'embers', {
+  get: () => (particles ? { ...particles.emberStats, sources: fireSources().length } : null),
+});
 Object.defineProperty(fml, 'shop', {
   enumerable: true,
   get: () => (shelvesDraw ? {
@@ -4536,6 +4552,8 @@ async function fillIn() {
   
   
   particles.setSmokeMax(settings.smoke);
+  
+  particles.setEmberMax(settings.embers);
   syncOrchard(econNow());
   await orchard.show(view);
   
@@ -4799,6 +4817,7 @@ function applyTier(next, why) {
   if (birds) birds.setMax(settings.birds);          
   waterUniforms.uFmlWater.value = waterParam * settings.water; 
   if (particles) particles.setSmokeMax(settings.smoke); 
+  if (particles) particles.setEmberMax(settings.embers); 
   for (const entry of covers) {
     const before = entry.cover.drawnTriangles;
     const after = entry.cover.setDensity(settings.effects / entry.effects);
@@ -5387,6 +5406,9 @@ function frame(now) {
   
   
   particles.updateSmoke(dt * state.anim, animSeconds, homesDraw.smokeSources(), { wind: windUniforms.uFmlWind.value });
+  
+  
+  particles.updateEmbers(dt * state.anim, animSeconds, fireSources(), { wind: windUniforms.uFmlWind.value });
   const counterLocal = { x: shopAnchors.counter.x, y: shopAnchors.counter.y + 0.35, z: shopAnchors.counter.z };
   const counterScreen = screenAt(SHOP_P, counterLocal);
   shownCoins = countStep(shownCoins, coinTarget(world.coins, visits, t), dt);

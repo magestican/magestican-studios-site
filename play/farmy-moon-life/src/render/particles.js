@@ -30,6 +30,7 @@ import * as THREE from 'three';
 import { makeCozy, curveUniforms } from './material.js';
 import { LEAF, createLeafPool, setLeafMax, emitLeaves, stepLeaves, leafPose, burstLeaves } from 'moon/play/leaves.mjs';
 import { SMOKE, createSmokePool, setSmokeMax as smokeCeiling, emitSmoke, stepSmoke, puffPose } from 'moon/play/smoke.mjs';
+import { createEmberPool, setEmberMax as emberCeiling, emitEmbers, stepEmbers, emberPose } from 'moon/play/embers.mjs';
 
 
 
@@ -120,7 +121,60 @@ function puffGeometry() {
 
 
 
-export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, seed = 1 }) {
+
+
+
+
+
+
+const EMBER_HOT = new THREE.Color('#fff2b0');
+const EMBER_COOL = new THREE.Color('#ff5a1f');
+
+const EMBER_VERT =  `
+uniform float uCurve;
+uniform vec3 uCurveFocus;
+varying vec2 vLocal;
+varying float vAlpha;
+varying float vHeat;
+void main() {
+  mat4 m = modelMatrix * instanceMatrix;
+  vec4 w = m * vec4( 0.0, 0.0, 0.0, 1.0 );
+  vec2 d = w.xz - uCurveFocus.xz;
+  w.y -= dot( d, d ) * uCurve;
+  float r = length( ( m * vec4( 1.0, 0.0, 0.0, 0.0 ) ).xyz );
+  vec4 mv = viewMatrix * w;
+  mv.xy += position.xy * r;
+  vLocal = position.xy;
+  vAlpha = instanceColor.x;
+  vHeat = instanceColor.y;
+  gl_Position = projectionMatrix * mv;
+}
+`;
+
+const EMBER_FRAG =  `
+uniform vec3 uHotColour;
+uniform vec3 uCoolColour;
+varying vec2 vLocal;
+varying float vAlpha;
+varying float vHeat;
+void main() {
+  float core = pow( max( 0.0, 1.0 - length( vLocal ) ), 3.0 );
+  float a = core * vAlpha;
+  if ( a <= 0.004 ) discard;
+  vec3 c = mix( uCoolColour, uHotColour, vHeat );
+  gl_FragColor = vec4( c * a, 1.0 );
+}
+`;
+
+
+
+
+
+
+
+
+
+export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, embersMax = 32, seed = 1 }) {
   const capacity = 64;
   const pool = createLeafPool({ max: capacity, seed });
   setLeafMax(pool, max);
@@ -170,6 +224,37 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, se
   for (let i = 0; i < smokeCapacity; i++) smokeMesh.setColorAt(i, white);   
   smokeMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
   scene.add(smokeMesh);
+
+  
+  
+  const emberCapacity = 32;
+  const emberPool = createEmberPool({ max: emberCapacity, seed: seed + 211 });
+  emberCeiling(emberPool, embersMax);
+  const emberMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uCurve: curveUniforms.uCurve,
+      uCurveFocus: curveUniforms.uCurveFocus,
+      uHotColour: { value: EMBER_HOT.clone() },
+      uCoolColour: { value: EMBER_COOL.clone() },
+    },
+    vertexShader: EMBER_VERT,
+    fragmentShader: EMBER_FRAG,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  emberMaterial.name = 'particle-embers';
+  const emberMesh = new THREE.InstancedMesh(puffGeometry(), emberMaterial, emberCapacity);
+  emberMesh.name = 'embers';
+  emberMesh.count = 0;
+  emberMesh.frustumCulled = false;   
+  emberMesh.castShadow = false;
+  emberMesh.receiveShadow = false;
+  emberMesh.renderOrder = 7;         
+  emberMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  for (let i = 0; i < emberCapacity; i++) emberMesh.setColorAt(i, white);   
+  emberMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
+  scene.add(emberMesh);
 
   const dummy = new THREE.Object3D();
   const colour = new THREE.Color();
@@ -228,10 +313,38 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, se
   }
 
   
+
+
+
+
+  function updateEmbers(dt, t, sources, { wind = 1 } = {}) {
+    emitEmbers(emberPool, sources, dt, t);
+    stepEmbers(emberPool, dt, t, wind);
+    for (let i = 0; i < emberPool.alive; i++) {
+      const p = emberPose(emberPool.embers[i]);
+      dummy.position.set(p.x, p.y, p.z);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.setScalar(Math.max(0.001, p.r));
+      dummy.updateMatrix();
+      emberMesh.setMatrixAt(i, dummy.matrix);
+      emberMesh.setColorAt(i, colour.setRGB(p.alpha, p.heat, 0));
+    }
+    emberMesh.count = emberPool.alive;
+    emberMesh.visible = emberPool.alive > 0;
+    if (emberPool.alive) {
+      emberMesh.instanceMatrix.needsUpdate = true;
+      emberMesh.instanceColor.needsUpdate = true;
+    }
+  }
+
+  
   function setMax(n) { setLeafMax(pool, n); }
 
   
   function setSmokeMax(n) { smokeCeiling(smokePool, n); }
+
+  
+  function setEmberMax(n) { emberCeiling(emberPool, n); }
 
   return {
     mesh, update, setMax,
@@ -240,11 +353,18 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, se
     
     burst: (source, count = 0) => burstLeaves(pool, source, count),
     smokeMesh, updateSmoke, setSmokeMax,
+    emberMesh, updateEmbers, setEmberMax,
     get stats() { return { alive: pool.alive, emitted: pool.emitted, max: pool.max, capacity }; },
     get smokeStats() {
       return {
         alive: smokePool.alive, emitted: smokePool.emitted, max: smokePool.max,
         capacity: smokeCapacity, chimneys: smokePool.due.size, lifeS: SMOKE.lifeS,
+      };
+    },
+    get emberStats() {
+      return {
+        alive: emberPool.alive, emitted: emberPool.emitted, max: emberPool.max,
+        capacity: emberCapacity, fires: emberPool.due.size,
       };
     },
   };
