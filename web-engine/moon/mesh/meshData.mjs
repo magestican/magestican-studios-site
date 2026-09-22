@@ -36,6 +36,30 @@ export const MATERIALS = Object.freeze([
   'skin',
 ]);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const NO_SHADOW_MATERIALS = Object.freeze(['glass', 'lamp-glow', 'fire']);
+
 export class MeshData {
   constructor(name) {
     this.name = name;

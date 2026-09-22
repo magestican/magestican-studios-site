@@ -90,7 +90,7 @@ import { createDrawGate, createLoadingView } from 'moon/play/loading.mjs';
 import { createPerfSampler } from 'moon/play/perfSample.mjs';
 import { shouldStartAnalytics } from 'moon/play/liveHostGate.mjs';
 import { CURVE_K, bendDrop } from 'moon/world/curve.mjs';
-import { heightAt, placements, ISLAND_RADIUS } from 'moon/world/moonLayout.mjs';
+import { heightAt, placements, setTerrainDelta, ISLAND_RADIUS } from 'moon/world/moonLayout.mjs';
 import {
   createCollisionWorld, treeObstacle, PLAYER_RADIUS_M, FOOTPRINTS,
   obstaclesWithoutRuntime, buildingObstacle, plotObstacle, roomObstacle, toWorld,
@@ -198,6 +198,22 @@ import { CRAFTABLES, CRAFT_CATEGORIES } from 'moon/economy/tables.mjs';
 import { craftedName } from 'moon/economy/crafting.mjs';
 import { craftMenu, madeCount, madeTray } from 'moon/play/craft.mjs';
 import { placeSpot, placedFootprints, placedObstacle, placedTargets, whyNotPlaceHere } from 'moon/play/placing.mjs';
+import { placedLightSources } from 'moon/light/placedLights.mjs';
+
+
+
+
+
+import {
+  furnishSpot, furnishedSpot, furnitureFootprints, furnitureObstacle, furnitureTargets,
+  isFurnitureItem, roomOf, whyNotFurnishHere,
+} from 'moon/play/furnishing.mjs';
+
+
+
+import {
+  BRUSHES, BRUSH_NAMES, TERRAFORM, applyBrush, deltaField, pondObstacle, terrainOf, whyNotShape,
+} from 'moon/world/terraform.mjs';
 import { BAR_HIDDEN, barState } from 'moon/play/tools.mjs';
 import { anchorsOf } from 'moon/art/decor.mjs';
 import { decorIconFor } from '../render/icons.js';
@@ -265,6 +281,7 @@ import { BOARD_BEST_KEY, myRow } from 'moon/play/leaderboard.mjs';
 import { createBoardCard } from './boardCard.js';
 
 import { createDeedsCard } from './deedsCard.js';
+import { createShapeCard } from './shapeCard.js';
 import { deedLines, deedsOf, tally as tallyDeeds, visitPlanet } from 'moon/play/deeds.mjs';
 
 import { abandon as abandonGoal, accept as acceptGoal, doneLines as goalDoneLines, goalView, goalsOf, settle as settleGoals } from 'moon/play/goals.mjs';
@@ -457,6 +474,10 @@ fml.skyMask = (on) => { skyMasked = Boolean(on); sky.mesh.visible = !on; scene.b
 const INSIDE_BACKDROP = new THREE.Color(0x1a1420);
 const daylight = createDaylight(scene, settings, { shadowExtent: SHADOW_EXTENT_M });
 let night = null, post = null, character = null, collision = null, orchard = null, pops = null;
+
+
+
+let staticSources = [];
 let insects = null;         
 let birds = null;           
 let particles = null;       
@@ -718,6 +739,30 @@ let toolBarState = BAR_HIDDEN;
 
 let corners = CLOSED;
 const placedKeys = new Set();         
+
+
+
+
+let shaping = null;                   
+let shapeWhy = null, shapeAt = null;
+
+
+
+
+
+
+
+let shapeCard = null;                 
+let homeScene = null;                 
+let terrainField = null;              
+let terrainSig = null;                
+const pondKeys = new Set();           
+
+
+
+let roomDraw = null;
+const sizeOf = (item) => anchorsOf(item);
+const furnitureKeys = new Set();
 
 let view = [];              
 let aim = null;             
@@ -1175,7 +1220,10 @@ function placesNow() {
   
   
   
-  if (inside) return exitPlaces(inside);
+  
+  
+  
+  if (inside) return [...exitPlaces(inside), ...furnitureTargets(world, inside.id, sizeOf)];
   
   
   
@@ -1290,7 +1338,10 @@ function syncPlacedNow() {
   
   
   
-  const here = placedOn(world, planetId);
+  
+  
+  
+  const here = placedOn(world, planetId).filter((p) => roomOf(p) === null);
   const sig = `${planetId}|${here.map((p) => `${p.id}:${p.item}:${p.spot ? `${p.spot.x},${p.spot.z}` : ''}`).join('|')}`;
   if (sig === placedSig) return;
   placedSig = sig;
@@ -1303,6 +1354,178 @@ function syncPlacedNow() {
     placedKeys.add(k);
   }
   refreshPlantObstacles();
+  
+  
+  
+  syncNightLights();
+  syncVillagePlaced();
+}
+
+
+function syncNightLights() {
+  if (!night) return;
+  night.setSources([
+    ...staticSources,
+    ...placedLightSources(placedOn(world, planetId), { planet: planetId, heightAt }),
+  ]);
+}
+
+
+
+
+
+
+
+
+
+function syncVillagePlaced() {
+  village.setPlaced(placedOn(world, 0)
+    .filter((p) => p.spot && blocksOf(p.item))
+    .map((p) => ({ id: p.id, x: p.spot.x, z: p.spot.z, r: radiusOf(p.item) })));
+}
+
+
+const furnitureHere = () => (inside ? world.placed.filter((p) => roomOf(p) === inside.id) : []);
+
+
+
+
+
+
+
+let furnitureSig = '';
+function syncFurniture() {
+  if (!collision) return;
+  const mine = furnitureHere();
+  const sig = inside ? `${inside.id}|${mine.map((p) => `${p.id}:${p.item}:${p.spot.x},${p.spot.z},${p.spot.rotY || 0}`).join('|')}` : '';
+  if (sig === furnitureSig) return;
+  furnitureSig = sig;
+  for (const k of furnitureKeys) collision.remove(k);
+  furnitureKeys.clear();
+  if (!inside) return;
+  for (const p of mine) {
+    const a = sizeOf(p.item);
+    const k = `furniture:${p.id}`;
+    collision.add(k, furnitureObstacle(p, { hx: a.hx, hz: a.hz }));
+    furnitureKeys.add(k);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function applyTerrain({ rebuild = true } = {}) {
+  const sig = JSON.stringify(world.terrain || {});
+  if (sig === terrainSig) return;
+  const first = terrainSig === null;
+  terrainSig = sig;
+  terrainField = deltaField(terrainOf(world));
+  setTerrainDelta(terrainField.empty ? null : terrainField.at);
+  syncPonds();
+  if (rebuild && !first && homeScene) homeScene.reground().catch(fail);
+}
+
+
+function syncPonds() {
+  if (!homeCollision) return;
+  for (const k of pondKeys) homeCollision.remove(k);
+  pondKeys.clear();
+  const ponds = terrainField ? terrainField.ponds : [];
+  ponds.forEach((pond, i) => {
+    const k = `pond:${i}`;
+    homeCollision.add(k, pondObstacle(pond));
+    pondKeys.add(k);
+  });
+  if (homeCollision === collision) staticObstacles = collision.obstacles.slice();
+}
+
+
+const terraformBlockers = () => [
+  ...staticObstacles.map((o) => ({ x: o.x, z: o.z, r: o.reach || 0 })),
+  ...view.map((v) => ({ x: v.x, z: v.z, r: trunkRadius(v) })),
+  ...placedFootprints(world, radiusOf, blocksOf, null, { planet: 0 }),
+];
+
+
+function shapingNow() {
+  if (inside || !onHome()) return { spot: null, why: 'This is the shaping of your own land - go back to the moon first.' };
+  const spot = placeSpot(player, { r: 0.4 });
+  const why = whyNotShape(shaping, spot.x, spot.z, {
+    world, terrain: terrainOf(world), blockers: terraformBlockers(),
+  });
+  return { spot, why };
+}
+
+
+function shapingPrompt() {
+  if (!shaping || !shapeAt) return null;
+  return {
+    target: null, verb: 'shape', open: null, chosen: null, tool: null, hold: null, holdLabel: '',
+    action: shapeWhy ? null : { type: 'shapeHere' },
+    label: shaping === 'pond' ? 'Dig a pond here' : `${BRUSH_NAMES[shaping]} the ground here`,
+    why: shapeWhy,
+  };
+}
+
+
+function useBrush() {
+  if (!shaping || !shapeAt) return;
+  if (shapeWhy) { hud.nope(shapeWhy, seconds); return; }
+  const parcel = parcelAt(shapeAt.x, shapeAt.z);
+  const next = applyBrush(terrainOf(world), {
+    kind: shaping, x: shapeAt.x, z: shapeAt.z, parcel, blockers: terraformBlockers(),
+  });
+  const r = doAct({ type: 'terraform', parcel, brush: shaping, cells: next[parcel].cells, ponds: next[parcel].ponds });
+  if (r.error) { hud.say(r.error, seconds); return; }
+  applyTerrain();
+}
+
+
+function chooseBrush(kind) {
+  shaping = kind && BRUSHES.includes(kind) ? kind : null;
+  shapeWhy = null;
+  shapeAt = null;
+  if (shaping) stopPlacing();
+}
+
+let shapePainted = null;
+function paintShape() {
+  if (!shapeCard) return;
+  const on = onHome() && !inside ? parcelAt(player.x, player.z) : null;
+  
+  
+  
+  
+  const sig = `${on}|${shaping}|${inside ? 'in' : 'out'}|${ownedIds(world).join(',')}`;
+  if (sig === shapePainted && shapeCard.isOpen) return;
+  shapePainted = sig;
+  const mine = on !== null && ownedIds(world).includes(on);
+  shapeCard.render({
+    brushes: BRUSHES.map((kind) => ({
+      kind,
+      label: kind === 'pond' ? 'Dig a pond' : `${BRUSH_NAMES[kind]} the ground`,
+      hint: kind === 'pond'
+        ? 'A pool of water, as wide as the spot will allow'
+        : `${Math.round(TERRAFORM.riseM * 100)} cm a press, up to ${kind === 'raise' ? TERRAFORM.maxRiseM : TERRAFORM.maxLowerM} m`,
+      on: shaping === kind,
+    })),
+    note: inside ? 'Step outside first - this is for the land, not the floor.'
+      : on === null ? 'Stand on the moon to shape it.'
+        : mine ? `You are on ${PARCELS[on].label}, and it is yours. Walk to a spot and press the button.`
+          : `${PARCELS[on].label} is not yours yet - buy it from the cat first.`,
+  });
 }
 
 
@@ -1316,6 +1539,8 @@ function startPlacing(item) {
   
   if ((world.made[item] || 0) < 1) { hud.say(`There is no ${craftedName(item)} to place.`, seconds); return; }
   
+  if (shaping) chooseBrush(null);
+  
   placing = { item, rotY: player.heading + Math.PI };
   if (craftCard) craftCard.hide();
   closeCard();
@@ -1326,11 +1551,27 @@ function stopPlacing() {
   placeWhy = null;
   placeAt = null;
   if (placedDraw) placedDraw.ghost(null, null);
+  if (roomDraw) roomDraw.ghost(null, null);
 }
 
 
 function placingNow() {
   if (!placing) return null;
+  
+  
+  
+  
+  if (inside) {
+    const a = sizeOf(placing.item);
+    const size = { hx: a.hx, hz: a.hz, rotY: placing.rotY };
+    const spot = furnishSpot(player, inside.room, size);
+    const why = isFurnitureItem(placing.item)
+      ? whyNotFurnishHere(spot.x, spot.z, {
+        room: inside.room, ...size, placed: furnitureFootprints(world, inside.id, sizeOf, null),
+      })
+      : `A ${craftedName(placing.item)} belongs outside - only furniture goes in the house.`;
+    return { spot: { ...spot, rotY: placing.rotY }, why };
+  }
   const r = radiusOf(placing.item);
   const spot = placeSpot(player, { r });
   const why = whyNotPlaceHere(spot.x, spot.z, {
@@ -1348,7 +1589,7 @@ function placingPrompt() {
   return {
     target: null, verb: 'place', open: null, chosen: null, tool: null, hold: null, holdLabel: '',
     action: placeWhy ? null : { type: 'place', item: placing.item, spot: placeAt, planet: planetId },
-    label: `Put the ${name} here`,
+    label: inside ? `Put the ${name} down here` : `Put the ${name} here`,
     why: placeWhy,
   };
 }
@@ -1600,6 +1841,10 @@ function press() {
   if (talk) { talkCard.advance('key'); return; }
   
   if (placing) { putDown(); return; }
+  
+  
+  
+  if (shaping) { useBrush(); return; }
   const p = prompt;
   hold = pressHold(p);
   holdStartedAt = performance.now();
@@ -1633,7 +1878,12 @@ function putDown() {
   if (!placing || !placeAt) return;
   if (placeWhy) { hud.say(placeWhy, seconds); return; }
   const item = placing.item;
-  const r = doAct({ type: 'place', item, spot: { ...placeAt }, planet: planetId });
+  
+  
+  
+  
+  const spot = inside ? furnishedSpot(inside, placeAt.x, placeAt.z, placeAt.rotY || 0) : { ...placeAt };
+  const r = doAct({ type: 'place', item, spot, planet: planetId });
   if (r.error) { hud.say(r.error, seconds); return; }
   if ((world.made[item] || 0) < 1) stopPlacing();
 }
@@ -1926,8 +2176,13 @@ async function goInside() {
   goingThroughDoor = true;
   try {
     
+    if (shaping) chooseBrush(null);
     
-    stopPlacing();
+    
+    
+    
+    
+    if (placing && !isFurnitureItem(placing.item)) stopPlacing();
     const ok = await interiorDraw.show(home);
     if (!ok) { hud.say('The door will not open just now.', seconds); return false; }
     wentInAt = { x: player.x, z: player.z, heading: player.heading };
@@ -2467,6 +2722,61 @@ Object.defineProperty(fml, 'g6c', {
     bar: { ...toolBarState, shown: toolBar.stats.visible },
     obstacles: placedKeys.size,
   }),
+});
+
+
+
+
+
+fml.l17Brush = (kind = null) => { chooseBrush(kind); paintShape(); return shaping; };
+fml.l17Shape = () => {
+  if (!shaping) return { ok: false, why: 'no brush in hand' };
+  const sh = shapingNow();
+  shapeAt = sh.spot;
+  shapeWhy = sh.why;
+  if (shapeWhy) return { ok: false, why: shapeWhy, spot: shapeAt };
+  useBrush();
+  return { ok: true, why: null, spot: shapeAt };
+};
+Object.defineProperty(fml, 'l17', {
+  enumerable: true,
+  get: () => {
+    const field = terrainField || deltaField({});
+    return {
+      brush: shaping,
+      why: shapeWhy,
+      spot: shapeAt ? { ...shapeAt } : null,
+      nodes: field.size,
+      ponds: field.ponds.map((q) => ({ x: q.x, z: q.z, r: q.r, y: q.y, parcel: q.parcel })),
+      
+      
+      
+      groundY: onHome() && !inside ? groundNow(player.x, player.z) : null,
+      deltaHere: onHome() && !inside ? field.at(player.x, player.z) : null,
+      parcel: onHome() && !inside ? parcelAt(player.x, player.z) : null,
+      owned: ownedIds(world),
+      pondObstacles: pondKeys.size,
+      card: shapeCard ? { open: shapeCard.isOpen, ...shapeCard.stats } : null,
+    };
+  },
+});
+
+
+
+Object.defineProperty(fml, 'l18', {
+  enumerable: true,
+  get: () => {
+    const home = playerHome(world);
+    const mine = home ? world.placed.filter((q) => roomOf(q) === home.id) : [];
+    return {
+      home: home ? home.id : null,
+      inside: Boolean(inside),
+      pieces: mine.map((q) => ({ id: q.id, item: q.item, x: q.spot.x, z: q.spot.z, rotY: q.spot.rotY || 0 })),
+      obstacles: furnitureKeys.size,
+      drawn: roomDraw ? { ...roomDraw.stats } : null,
+      floor: home ? { ...home.room.floor } : null,
+    };
+  },
 });
 
 
@@ -3043,6 +3353,9 @@ function adoptHostWorld(doc) {
   syncOrchard(econNow());
   syncBuildings();
   syncPlaced();
+  
+  
+  applyTerrain();
   syncFinds(true);
   fml.g9.adopted += 1;
 }
@@ -3208,6 +3521,16 @@ const deedsCard = createDeedsCard({
 function paintDeeds() {
   deedsCard.render({ world, firstPlayed, now: econNow() });
 }
+
+
+
+
+shapeCard = createShapeCard({
+  el: document.getElementById('shape'),
+  button: document.getElementById('shapeopen'),
+  onChoose: (kind) => { chooseBrush(kind); paintShape(); },
+  onOpened: () => paintShape(),
+});
 
 fml.l12 = {
   get deeds() { return deedsOf(world); },
@@ -3544,6 +3867,9 @@ async function loadSave() {
   saveInfo.filled = restoreWorld(world, doc.world).filled;
   
   
+  applyTerrain({ rebuild: false });
+  
+  
   
   if (Number.isInteger(doc.firstPlayed) && doc.firstPlayed > 0) firstPlayed = doc.firstPlayed;
   
@@ -3650,8 +3976,19 @@ async function load() {
   for (const o of scene.children) permanent.add(o);
   
   
+  
+  
+  
+  
+  applyTerrain({ rebuild: false });
   const built = await buildMoonScene({ scene, state, settings, fml, skipRoles: ['tree', 'shop', 'processor'], skipModules: ['cat'] });
-  night = createNightLights({ scene, sources: built.sources, size: settings.lights, groundHeight: heightAt });
+  
+  
+  
+  homeScene = built;
+  staticSources = built.sources;
+  night = createNightLights({ scene, sources: built.sources.slice(), size: settings.lights, groundHeight: heightAt });
+  syncNightLights();
   covers.push({ cover: built.cover, effects: built.coverEffects, counted: true });
   timing.mark('scene');
   
@@ -3706,6 +4043,10 @@ async function fillIn() {
     if (ob) homeCollision.add(`forage:${s.id}`, ob);
   }
   staticObstacles = collision.obstacles.slice();
+  
+  
+  syncPonds();
+  paintShape();
   
   
   
@@ -3783,7 +4124,13 @@ async function fillIn() {
   
   
   
-  placedDraw = createPlacedDraw({ scene, season: state.season, heightAt: (x, z) => groundNow(x, z), onProblems });
+  placedDraw = createPlacedDraw({
+    scene, season: state.season, heightAt: (x, z) => groundNow(x, z), onProblems,
+    
+    
+    
+    select: (item) => roomOf(item) === null,
+  });
   
   
   
@@ -3806,6 +4153,14 @@ async function fillIn() {
   
   interiorDraw = createInteriorDraw({ scene, season: state.season, onProblems });
   permanent.add(interiorDraw.group);
+  
+  
+  
+  
+  roomDraw = createPlacedDraw({
+    scene: interiorDraw.group, season: state.season, heightAt: () => 0, onProblems,
+    name: 'furniture', select: (item) => inside !== null && roomOf(item) === inside.id,
+  });
   syncPlaced();
   talkCard = createTalkCard({ el: document.getElementById('talk'), voice, onChoose: onTalkChoice, onClose: closeTalk });
   
@@ -4238,6 +4593,19 @@ function frame(now) {
     placeAt = null;
     placeWhy = null;
   }
+  
+  
+  
+  if (shaping) {
+    const sh = shapingNow();
+    shapeAt = sh.spot;
+    shapeWhy = sh.why;
+    prompt = shapingPrompt() || prompt;
+    hold = null;
+  } else if (shapeAt) {
+    shapeAt = null;
+    shapeWhy = null;
+  }
   if (hold) {
     
     const h = holdStep(hold, Math.max(0, (performance.now() - holdStartedAt) / 1000 - hold.s), prompt);
@@ -4358,7 +4726,8 @@ function frame(now) {
   
   const anyOpen = Boolean(card || talk || choice.isOpen || placing || menu.isOpen || soundCard.isOpen
     || (craftCard && craftCard.isOpen) || panel.isOpen || boardCard.isOpen
-    || deedsCard.isOpen || installCard.isOpen || accountCard.isOpen || assemblyCard.isOpen);
+    || deedsCard.isOpen || installCard.isOpen || accountCard.isOpen || assemblyCard.isOpen
+    || Boolean(shaping) || Boolean(shapeCard && shapeCard.isOpen));
   const nextAway = autoHideStep(hudAway, { nowS: seconds, speed: player.speed, wokeAtS: hudWokeAtS, anyOpen });
   
   
@@ -4456,8 +4825,16 @@ function frame(now) {
   craftButton.classList.toggle('on', craftCard.isOpen || Boolean(placing));
   placingEl.hidden = !placing;
   document.body.classList.toggle('placing', Boolean(placing));
-  placedDraw.ghost(placing ? placing.item : null, placeAt, !placeWhy);
+  
+  
+  placedDraw.ghost(placing && !inside ? placing.item : null, inside ? null : placeAt, !placeWhy);
   placedDraw.update(world, { x: target.x, z: target.z });
+  if (roomDraw) {
+    roomDraw.ghost(placing && inside ? placing.item : null, inside ? placeAt : null, !placeWhy);
+    roomDraw.update(world, inside ? { x: player.x, z: player.z } : { x: 0, z: 0 });
+  }
+  syncFurniture();
+  if (shapeCard && shapeCard.isOpen) paintShape();
 
   
   

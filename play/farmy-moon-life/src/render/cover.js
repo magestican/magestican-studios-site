@@ -93,6 +93,7 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
       triangles += perInstance * list.length;
       parts.push({
         mesh,
+        list,
         perInstance,
         edgeCount: list.filter((it) => it.lawnIndex === undefined).length,
         lawnIndices: list.filter((it) => it.lawnIndex !== undefined).map((it) => it.lawnIndex),
@@ -100,11 +101,30 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
     }
   }
   let drawn = triangles;
+  const reheight = (heightAt) => {
+    
+    
+    
+    
+    
+    for (const part of parts) {
+      part.list.forEach((it, slot) => {
+        it.y = heightAt(it.x, it.z);
+        q.setFromAxisAngle(up, it.rotY);
+        pos.set(it.x, it.y, it.z);
+        sc.setScalar(it.scale);
+        m4.compose(pos, q, sc);
+        part.mesh.setMatrixAt(slot, m4);
+      });
+      part.mesh.instanceMatrix.needsUpdate = true;
+    }
+  };
   return {
     group,
     triangles,
     count: items.length,
     problems,
+    reheight,
     
     get drawnTriangles() { return drawn; },
     

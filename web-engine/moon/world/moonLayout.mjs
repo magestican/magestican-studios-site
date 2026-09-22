@@ -133,9 +133,44 @@ export function rimDrop(r) {
   return RIM_WIDTH * (1 - Math.sqrt(1 - c * c)) * 0.9;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let terrainDelta = null;
+
+
+export function setTerrainDelta(fn) {
+  terrainDelta = typeof fn === 'function' ? fn : null;
+}
+
+
+export function terrainDeltaAt(x, z) {
+  return terrainDelta ? terrainDelta(x, z) : 0;
+}
+
 export function heightAt(x, z) {
   const r = Math.hypot(x, z);
-  return surfaceHeight(x, z) * (1 - smoothstep(ISLAND_RADIUS - RIM_WIDTH * 1.4, ISLAND_RADIUS, r)) - rimDrop(r);
+  
+  
+  
+  
+  return surfaceHeight(x, z) * (1 - smoothstep(ISLAND_RADIUS - RIM_WIDTH * 1.4, ISLAND_RADIUS, r)) - rimDrop(r)
+    + terrainDeltaAt(x, z);
 }
 
 export function normalAt(x, z, e = 0.25) {

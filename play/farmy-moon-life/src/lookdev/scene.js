@@ -195,11 +195,43 @@ export async function buildMoonScene({
     root.add(obj);
   }
 
-  const ground = generateGround({ seed: 1, season, lod: settings.effects >= 0.6 ? 0 : 1, layout });
+  const groundLod = settings.effects >= 0.6 ? 0 : 1;
+  const ground = generateGround({ seed: 1, season, lod: groundLod, layout });
   fml.problems.push(...ground.validate());
-  const groundObj = await toObject3D(ground, { materials: { grass: groundMaterial({ season, layout }) }, castShadow: false });
+  let groundObj = await toObject3D(ground, { materials: { grass: groundMaterial({ season, layout }) }, castShadow: false });
   groundObj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
   root.add(groundObj);
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  async function reground() {
+    const next = generateGround({ seed: 1, season, lod: groundLod, layout });
+    const obj = await toObject3D(next, { materials: { grass: groundMaterial({ season, layout }) }, castShadow: false });
+    obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
+    const old = groundObj;
+    groundObj = obj;
+    root.add(obj);
+    root.remove(old);
+    old.traverse((o) => { if (o.isMesh && o.geometry) o.geometry.dispose(); });
+    cover.reheight(layout.heightAt);
+    return next.triangleCount;
+  }
 
   const cover = await createGroundCover({ season, count: Math.round(coverCount * settings.effects), layout });
   fml.problems.push(...cover.problems);
@@ -212,5 +244,5 @@ export async function buildMoonScene({
   
   
   
-  return { root, sources, focus: FOCUS, layout, cover, coverEffects: settings.effects };
+  return { root, sources, focus: FOCUS, layout, cover, coverEffects: settings.effects, reground };
 }

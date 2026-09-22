@@ -23,6 +23,7 @@
 
 import { PATH_HALF_WIDTH, pathDistance } from '../world/moonLayout.mjs';
 import { WALK_EDGE_M, PLAYER_RADIUS_M, penetration } from '../world/collision.mjs';
+import { roomOf } from './furnishing.mjs';
 
 export const PLACING = Object.freeze({
   
@@ -96,8 +97,15 @@ export function placedObstacle(p, r) {
 
 
 
+
+
+
+
+
+
+
 const onPlanet = (world, planet) => (world.placed || [])
-  .filter((p) => (Number.isInteger(p.planet) ? p.planet : 0) === planet);
+  .filter((p) => (Number.isInteger(p.planet) ? p.planet : 0) === planet && roomOf(p) === null);
 
 export function placedTargets(world, radiusOf, { planet = 0 } = {}) {
   return onPlanet(world, planet).filter((p) => p.spot).map((p) => Object.freeze({

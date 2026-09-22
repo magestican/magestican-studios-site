@@ -255,6 +255,16 @@ const START_MS = Math.round((CLOCK.startHour / 24) * DAY_MS);
 const U32 = 4294967296;
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 const homeKey = (id) => `home:${id}`;
+const placedKey = (id) => `placed:${id}`;
+
+
+
+
+
+
+
+
+export const placedRouteObstacle = ({ x, z, r }) => ({ shape: 'circle', module: 'placed', x, z, r, reach: r });
 const workKey = (place) => `work:${place}`;
 
 
@@ -376,25 +386,32 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
   const orchardTree = P.filter((p) => p.role === 'tree').reduce((best, p) => (!best || nearOrchard(p) < nearOrchard(best) ? p : best), null);
   const LOOK = { shop: shopP, firepit: firepitP, orchard: orchardTree };
   const homes = {};
+  
+  
+  
+  const placed = new Map();
   let version = 0;
 
   let grid = null, cost = null;
-  function closeHouse(spot) {
+  
+  
+  
+  function closeHouse(spot, g = grid) {
     const house = homeObstacle(spot);
     const r = house.reach + cfg.radiusM;
-    for (let j = 0; j < grid.nz; j++) {
-      const z = grid.minZ + j * grid.cellM;
+    for (let j = 0; j < g.nz; j++) {
+      const z = g.minZ + j * g.cellM;
       if (Math.abs(z - house.z) > r) continue;
-      for (let i = 0; i < grid.nx; i++) {
-        const x = grid.minX + i * grid.cellM;
+      for (let i = 0; i < g.nx; i++) {
+        const x = g.minX + i * g.cellM;
         if (Math.abs(x - house.x) > r) continue;
-        if (penetration(house, x, z, cfg.radiusM).depth > 1e-6) grid.open[j * grid.nx + i] = 0;
+        if (penetration(house, x, z, cfg.radiusM).depth > 1e-6) g.open[j * g.nx + i] = 0;
       }
     }
   }
   function gridOf() {
     if (grid) return grid;
-    grid = walkGrid(createCollisionWorld({ obstacles: staticObstacles }), { ...cfg.bounds, cellM: cfg.cellM, radius: cfg.radiusM });
+    grid = walkGrid(createCollisionWorld({ obstacles: [...staticObstacles, ...placed.values()] }), { ...cfg.bounds, cellM: cfg.cellM, radius: cfg.radiusM });
     cost = new Float32Array(grid.open.length);
     for (let j = 0; j < grid.nz; j++) {
       for (let i = 0; i < grid.nx; i++) {
@@ -404,6 +421,18 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
     for (const spot of Object.values(homes)) closeHouse(spot);
     return grid;
   }
+  
+  
+  
+  
+  let unplaced = null;
+  function unplacedGrid() {
+    if (unplaced) return unplaced;
+    unplaced = walkGrid(createCollisionWorld({ obstacles: staticObstacles }), { ...cfg.bounds, cellM: cfg.cellM, radius: cfg.radiusM });
+    for (const spot of Object.values(homes)) closeHouse(spot, unplaced);
+    return unplaced;
+  }
+
   const costAt = (x, z) => {
     const i = Math.max(0, Math.min(grid.nx - 1, Math.round((x - grid.minX) / grid.cellM)));
     const j = Math.max(0, Math.min(grid.nz - 1, Math.round((z - grid.minZ) / grid.cellM)));
@@ -465,7 +494,17 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
     else {
       const g = gridOf();
       const from = nodeAt(a), to = nodeAt(b);
-      const found = walkPath(g, from, to, { cost });
+      let found = walkPath(g, from, to, { cost });
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      if (!found && placed.size) found = walkPath(unplacedGrid(), from, to, { cost });
       if (!found) throw new Error(`village: no walk from ${a} to ${b}`);
       poly = polyOf([{ x: from.x, z: from.z }, ...smooth(found.points), { x: to.x, z: to.z }]);
     }
@@ -604,15 +643,68 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
     homes[id] = h;
     collision.add(homeKey(id), homeObstacle(h));
     if (grid) closeHouse(h);
+    if (unplaced) closeHouse(h, unplaced);
     routes.clear();
     days.clear();
     version += 1;
     return h;
   }
 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function setPlaced(items = []) {
+    const next = new Map();
+    for (const it of items) {
+      if (!it || !Number.isFinite(it.x) || !Number.isFinite(it.z)) continue;
+      const r = Number.isFinite(it.r) && it.r > 0 ? it.r : cfg.radiusM;
+      next.set(it.id, placedRouteObstacle({ x: it.x, z: it.z, r }));
+    }
+    const same = next.size === placed.size
+      && [...next].every(([id, ob]) => {
+        const was = placed.get(id);
+        return was && was.x === ob.x && was.z === ob.z && was.r === ob.r;
+      });
+    if (same) return false;
+    for (const id of placed.keys()) collision.remove(placedKey(id));
+    placed.clear();
+    for (const [id, ob] of next) {
+      placed.set(id, ob);
+      collision.add(placedKey(id), ob);
+    }
+    grid = null;
+    cost = null;
+    routes.clear();
+    days.clear();
+    version += 1;
+    return true;
+  }
+
   return {
     cfg, P, collision, staticObstacles, spots: SPOTS, forage, workplaces, work, grid: gridOf, route, standPoint, timeline, lookAt, setHome,
-    homes,
+    homes, setPlaced,
+    
+    get placed() { return [...placed.values()]; },
     
     restoreHomes(saved = {}) { for (const [id, spot] of Object.entries(saved)) setHome(Number(id), spot); },
     get version() { return version; },

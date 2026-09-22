@@ -265,7 +265,12 @@ const WORLD_LISTS = ['trees', 'rocks', 'forage', 'buildings', 'villagers', 'plac
 
 
 
-const WORLD_MAPS = ['pockets', 'made', 'shop', 'stats', 'town', 'deeds', 'goals', 'assembly'];
+
+
+
+
+
+const WORLD_MAPS = ['pockets', 'made', 'shop', 'stats', 'town', 'deeds', 'goals', 'assembly', 'terrain'];
 const ID_LISTS = ['trees', 'rocks', 'buildings', 'villagers', 'placed'];
 
 

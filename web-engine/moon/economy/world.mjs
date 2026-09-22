@@ -131,6 +131,14 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     
     
     
+    
+    
+    
+    
+    terrain: {},
+    
+    
+    
     assembly: { open: null, meetings: [], works: [] },
   };
   
@@ -877,6 +885,40 @@ const RULES = {
       world.placed = world.placed.filter((p) => p.id !== a.placed);
       world.made[placed.item] = (world.made[placed.item] || 0) + 1;
       events.push({ type: 'takeBack', at: t, placed: a.placed, item: placed.item });
+    },
+  },
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  terraform: {
+    check(world, a) {
+      if (!Number.isInteger(a.parcel) || a.parcel < 0) return 'That is not a piece of land.';
+      const land = Array.isArray(world.land) ? world.land : [];
+      if (!land.includes(a.parcel)) return 'This is not your land yet - buy it from the cat first.';
+      if (!a.cells || typeof a.cells !== 'object' || Array.isArray(a.cells)) return 'There is nothing to shape there.';
+      return null;
+    },
+    apply(world, a, t, events) {
+      if (!world.terrain || typeof world.terrain !== 'object') world.terrain = {};
+      const ponds = (Array.isArray(a.ponds) ? a.ponds : []).map((p) => ({ x: p.x, z: p.z, r: p.r, y: p.y }));
+      world.terrain[a.parcel] = { cells: { ...a.cells }, ponds };
+      events.push({
+        type: 'terraform', at: t, parcel: a.parcel, brush: typeof a.brush === 'string' ? a.brush : null,
+        nodes: Object.keys(a.cells).length, ponds: ponds.length,
+      });
     },
   },
 };

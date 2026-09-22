@@ -65,6 +65,11 @@ export const GUEST_MAY_NOT = Object.freeze([
   
   'fell', 'clearStump', 'plant', 'mine', 'place', 'takeBack', 'build', 'upgrade',
   
+  
+  
+  
+  'terraform',
+  
   'buy', 'buyParcel', 'craft', 'gift', 'stock', 'unstock', 'startJob', 'collect',
   'buyFrom', 'sellTo', 'fillRequest',
   

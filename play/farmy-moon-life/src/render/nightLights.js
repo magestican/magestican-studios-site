@@ -107,10 +107,23 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
     uFire: { value: 0 },
   };
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let sourceList = sources;
   let halos = null, pools = null;
-  if (sources.length) {
-    const hp = new Float32Array(sources.length * 3), hs = new Float32Array(sources.length), hk = new Float32Array(sources.length);
-    sources.forEach((s, i) => {
+  function buildFaked() {
+    if (!sourceList.length) return;
+    const hp = new Float32Array(sourceList.length * 3), hs = new Float32Array(sourceList.length), hk = new Float32Array(sourceList.length);
+    sourceList.forEach((s, i) => {
       hp.set([s.x, s.y, s.z], i * 3);
       hs[i] = s.kind === 'fire' ? 2.4 : 1.7;
       hk[i] = s.kind === 'fire' ? 1 : 0;
@@ -130,7 +143,7 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
 
     
     const N = 8, positions = [], uvs = [], kinds = [], index = [];
-    for (const s of sources) {
+    for (const s of sourceList) {
       const radius = s.kind === 'fire' ? 4.2 : 3.4;
       const base = positions.length / 3;
       for (let j = 0; j <= N; j++) {
@@ -163,6 +176,20 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
     pools.renderOrder = 4;
     group.add(pools);
   }
+
+  
+  
+  function disposeFaked() {
+    for (const mesh of [halos, pools]) {
+      if (!mesh) continue;
+      group.remove(mesh);
+      if (mesh.geometry) mesh.geometry.dispose();
+      if (mesh.material) mesh.material.dispose();
+    }
+    halos = pools = null;
+  }
+
+  buildFaked();
   scene.add(group);
 
   let slots = new Int32Array(size);
@@ -170,6 +197,17 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
     group,
     lights,
     get size() { return size; },
+    get sources() { return sourceList; },
+    
+    
+    
+    
+    setSources(next) {
+      sourceList = next || [];
+      disposeFaked();
+      buildFaked();
+      return sourceList.length;
+    },
     
     
     
@@ -200,10 +238,10 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
         halos.material.uniforms.uPixels.value = pixelsPerRadian;
         halos.visible = pools.visible = Math.max(lamp, shared.uFire.value) > 0.01;
       }
-      assignLights(sources, focus, size, slots);
+      assignLights(sourceList, focus, size, slots);
       for (let i = 0; i < size; i++) {
         const light = lights[i];
-        const s = slots[i] >= 0 ? sources[slots[i]] : null;
+        const s = slots[i] >= 0 ? sourceList[slots[i]] : null;
         if (!s) { light.intensity = 0; continue; }
         const amount = s.kind === 'fire' ? shared.uFire.value : lamp;
         light.color.copy(s.kind === 'fire' ? FIRE_COLOUR : LAMP_COLOUR);

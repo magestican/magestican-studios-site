@@ -30,12 +30,24 @@ export const PLACED = Object.freeze({
 
 const lodFor = (d, cfg) => (d < cfg.lod1M ? 0 : d < cfg.lod2M ? 1 : 2);
 
-export function createPlacedDraw({ scene, season, heightAt, objectFor = decorObject, cfg = PLACED, onProblems = () => {} }) {
+
+
+
+
+
+
+
+
+
+export function createPlacedDraw({
+  scene, season, heightAt, objectFor = decorObject, cfg = PLACED,
+  select = () => true, name = 'placed', onProblems = () => {},
+}) {
   const group = new THREE.Group();
-  group.name = 'placed';
+  group.name = name;
   scene.add(group);
   const ghostGroup = new THREE.Group();
-  ghostGroup.name = 'placed-ghost';
+  ghostGroup.name = `${name}-ghost`;
   scene.add(ghostGroup);
 
   const slots = new Map(); 
@@ -78,7 +90,7 @@ export function createPlacedDraw({ scene, season, heightAt, objectFor = decorObj
 
   
   function update(world, focus) {
-    const list = (world.placed || []).filter((p) => p.spot);
+    const list = (world.placed || []).filter((p) => p.spot && select(p));
     stats.placed = list.length;
     
     const near = list

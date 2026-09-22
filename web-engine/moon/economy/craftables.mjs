@@ -27,7 +27,12 @@
 
 
 
-export const CRAFT_CATEGORIES = Object.freeze(['pots', 'garden', 'paths', 'seats', 'lights', 'water', 'rustic', 'houses']);
+
+
+
+
+
+export const CRAFT_CATEGORIES = Object.freeze(['pots', 'garden', 'paths', 'seats', 'lights', 'water', 'rustic', 'furniture', 'houses']);
 
 export const CRAFTABLES = Object.freeze({
   
@@ -95,6 +100,17 @@ export const CRAFTABLES = Object.freeze({
   armSignpost: { name: 'signpost', category: 'rustic', art: { kind: 'signpost', seed: 1 }, cost: { wood: 4 }, blocks: false },
   crossSignpost: { name: 'crossroads signpost', category: 'rustic', art: { kind: 'signpost', seed: 2 }, cost: { wood: 6 }, blocks: false },
   boardSign: { name: 'standing board sign', category: 'rustic', art: { kind: 'signpost', seed: 3 }, cost: { wood: 5 }, blocks: false },
+
+  
+  
+  
+  
+  
+  
+  
+  sideTable: { name: 'little side table', category: 'furniture', art: { kind: 'furniture', seed: 1 }, cost: { wood: 6 }, blocks: true },
+  roundStool: { name: 'three-legged stool', category: 'furniture', art: { kind: 'furniture', seed: 2 }, cost: { wood: 4 }, blocks: true },
+  bookShelf: { name: 'open bookshelf', category: 'furniture', art: { kind: 'furniture', seed: 3 }, cost: { wood: 9 }, blocks: true },
 
   
   

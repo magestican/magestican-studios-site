@@ -16,7 +16,7 @@ import { RESOURCE_KINDS, costOf, craftPlan, craftedName, resourceHeld } from '..
 
 export const CATEGORY_LABELS = Object.freeze({
   pots: 'Pots', garden: 'Beds', paths: 'Paths', seats: 'Seats',
-  lights: 'Lights', water: 'Water', rustic: 'Rustic', houses: 'Houses',
+  lights: 'Lights', water: 'Water', rustic: 'Rustic', furniture: 'Indoors', houses: 'Houses',
 });
 
 export const itemsIn = (category) => Object.keys(CRAFTABLES).filter((id) => CRAFTABLES[id].category === category);

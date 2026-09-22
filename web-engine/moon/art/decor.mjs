@@ -37,12 +37,19 @@ import * as barrel from './kit/decor/barrel.mjs';
 import * as crate from './kit/decor/crate.mjs';
 import * as signpost from './kit/decor/signpost.mjs';
 import * as picnicTable from './kit/decor/picnicTable.mjs';
+
+
+
+
+
+
+import * as furniture from './kit/decor/furniture.mjs';
 import * as house from './villagerHome.mjs';
 
 const MODULES = Object.freeze({
   flowerPot, flowerBed, footpath, bench, postLantern, birdBath,
   fence, firePit, lampPost, stone,
-  fountain, well, barrel, crate, signpost, picnicTable,
+  fountain, well, barrel, crate, signpost, picnicTable, furniture,
   house,
 });
 

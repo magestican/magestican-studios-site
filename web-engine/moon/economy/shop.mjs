@@ -16,6 +16,7 @@ import { BP, MS, decay, draw, pickWeighted } from './math.mjs';
 import { isDark } from './clock.mjs';
 import { villageBonusAt } from './happiness.mjs';
 import { townBonusAt } from './town.mjs';
+import { placedLightCount } from '../light/placedLights.mjs';
 
 const SLOT_MS = CUSTOMERS.slot_s * MS;
 const HALF_LIFE_MS = CUSTOMERS.saturationHalfLife_s * MS;
@@ -24,10 +25,19 @@ export const shopOf = (world) => world.buildings.find((b) => b.type === 'shop');
 export const shopSpec = (world) => BUILDINGS.shop.levels[shopOf(world).level - 1];
 export const sellable = (good) => Boolean(GOODS[good]) && GOODS[good].sell_coins > 0;
 
+
+
+
+
+
+
+
+
+
 export function lightLevel(world) {
   let light = 0;
   for (const b of world.buildings) light += BUILDINGS[b.type].light || 0;
-  return light;
+  return light + placedLightCount(world.placed || [], 0);
 }
 
 export const isLit = (world) => lightLevel(world) >= CUSTOMERS.lightsForLitShop;

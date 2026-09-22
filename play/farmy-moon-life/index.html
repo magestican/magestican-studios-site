@@ -664,6 +664,36 @@
 
 
 
+  body.shot #shapeopen, body.shot #shape { display: none; }
+  body.flying #shapeopen, body.flying #shape { display: none; }
+  #shape { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(340px, calc(100vw - 20px)); box-sizing: border-box; z-index: 9;
+    background: rgba(255, 248, 236, 0.97); border-radius: 18px; padding: 8px 10px 10px; box-shadow: 0 6px 22px var(--shade);
+    font: 600 13px/1.35 system-ui, sans-serif; touch-action: none; max-height: calc(100vh - 40px); overflow-y: auto; }
+  #shape button { font-family: system-ui, sans-serif; color: var(--ink); touch-action: none; }
+  #shape .head { display: flex; align-items: center; justify-content: space-between; }
+  #shape .title b { font: 800 16px/1.1 system-ui, sans-serif; }
+  #shape .close { width: 44px; height: 44px; margin: -4px -6px -4px 0; border: 0; background: transparent; font: 700 26px/1 system-ui, sans-serif; }
+  #shape .parts { margin: 8px 0 0; }
+  #shape .part { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 5px 0; border-bottom: 1px solid #f0e2cd; }
+  #shape .part .what { display: flex; flex-direction: column; min-width: 0; }
+  #shape .part .lab { font-weight: 700; }
+  #shape .part .det { color: #7a6558; font-style: normal; font-weight: 500; font-size: 12px; }
+  #shape .pick { min-height: 34px; padding: 6px 12px; border-radius: 12px; border: 2px solid var(--peach);
+    background: var(--cream); font: 700 13px/1 system-ui, sans-serif; }
+  #shape .pick.on { background: #ffe4bf; }
+  #shape .why { color: #7a6558; font-weight: 500; margin: 6px 0; }
+  #shape .away { width: 100%; min-height: 40px; border-radius: 12px; border: 2px solid #e4d4bb;
+    background: #fffaf1; font: 700 13px/1 system-ui, sans-serif; }
+  
+
+
+
+
+
+
+
 
 
 
@@ -1142,7 +1172,7 @@
 
 
 
-<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=6682f7e-20260922T013836Z"></script>
+<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=51f6a67-20260922T033257Z"></script>
 
 
 
@@ -1414,6 +1444,10 @@
 <div id="menusheet" hidden>
   <button id="mute" type="button" aria-label="Sound">Sound on</button>
   <button id="who" type="button" aria-label="Change who you play" hidden></button>
+  
+
+
+  <button id="shapeopen" type="button" aria-label="Shape the land you own" hidden>Shape</button>
   <button id="visitopen" type="button" aria-label="Visits" hidden>Visit</button>
   <button id="boardopen" type="button" aria-label="What your farm is worth" hidden>Worth</button>
   
@@ -1434,6 +1468,10 @@
   <button id="cloudopen" type="button" aria-label="Sign in to keep your moon in the cloud" hidden>Sign in</button>
 </div>
 <div id="deeds" hidden></div>
+
+
+
+<div id="shape" hidden></div>
 
 
 
@@ -1475,6 +1513,6 @@
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=6682f7e-20260922T013836Z"></script>
+<script type="module" src="src/play/main.js?v=51f6a67-20260922T033257Z"></script>
 </body>
 </html>
