@@ -161,6 +161,10 @@ export const RESIDENT = Object.freeze({
   bedFrom: 0, bedTo: 6,
   
   lidsBed: 0.6, lidsRug: 0,
+  
+  
+  
+  lieFootM: 0.25, lieTopY: 0.6,
 });
 const LAMP_BULB_M = 1.35;   
 const STOVE_MOUTH_M = 0.3;  
@@ -187,7 +191,17 @@ export function homeResident(home, pose, hour, cfg = RESIDENT) {
   const fx = home.room.plan.fixtures;
   const rug = fx.find((f) => f.kind === 'rug' && LIVING_ROOMS.includes(f.room)) || fx.find((f) => f.kind === 'rug');
   const bed = fx.find((f) => f.kind === 'bed');
-  const bedTime = hour >= cfg.bedFrom && hour < cfg.bedTo;
+  
+  
+  
+  
+  
+  if (bed && typeof pose.asleep === 'boolean' && pose.asleep) {
+    const r = bed.rotY || 0, out = bed.d / 2 - cfg.lieFootM;
+    const lie = Object.freeze({ topY: cfg.lieTopY, headingOf: r });
+    return Object.freeze({ x: bed.x + Math.sin(r) * out, z: bed.z + Math.cos(r) * out, heading: r, on: 'bed', lie, clip: 'sleep', lids: 1 });
+  }
+  const bedTime = typeof pose.asleep === 'boolean' ? false : hour >= cfg.bedFrom && hour < cfg.bedTo;
   if (bed && (bedTime || !rug)) {
     const [seat] = fixtureUses(bed);
     return Object.freeze({ x: seat.at.x, z: seat.at.z, heading: seat.heading, on: 'bed', seat, lids: cfg.lidsBed });

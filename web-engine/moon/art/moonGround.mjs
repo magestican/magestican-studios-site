@@ -65,8 +65,14 @@ function aoAt(x, z, occ) {
 
 
 
-export function lawnColour(x, z, { season = 'summer', seed = 1 } = {}) {
-  const g = seasonPalette(season).grass.map(linear);
+export function lawnColour(x, z, { season = 'summer', seed = 1, tint = null, tintK = 0 } = {}) {
+  
+  
+  
+  
+  const t = tint ? linear(tint) : null;
+  const lean = season === 'winter' ? tintK * 0.5 : tintK;
+  const g = seasonPalette(season).grass.map(linear).map((c) => (t ? mix3(c, t, lean) : c));
   const n1 = fbm3(x / 9, seed * 1.7, z / 9, { octaves: 3, seed: 100 + seed });
   const n2 = valueNoise2(x / 2.2, z / 2.2, 200 + seed);
   const c = n1 < 0.5 ? mix3(g[2], g[1], smoothstep(0.36, 0.5, n1)) : mix3(g[1], g[0], smoothstep(0.52, 0.64, n1));
@@ -74,8 +80,16 @@ export function lawnColour(x, z, { season = 'summer', seed = 1 } = {}) {
   return [c[0] * k, c[1] * k, c[2] * k];
 }
 
+
+export function groundTintOf(layout) {
+  const p = layout && layout.planet;
+  if (!p || !p.tint || !(p.tintK > 0)) return {};
+  return { tint: p.tint, tintK: p.tintK };
+}
+
 export function generate({ seed = 1, season = 'summer', lod = 0, layout = MOON } = {}) {
   const m = new MeshData(`moonGround-${season}-${seed}`);
+  const tinted = groundTintOf(layout);
   const pal = seasonPalette(season);
   const { heightAt, normalAt, rimDrop, RIM_WIDTH } = layout;
   const occ = occluders(layout);
@@ -85,7 +99,7 @@ export function generate({ seed = 1, season = 'summer', lod = 0, layout = MOON }
   const s = SPACING[lod] * Math.min(1, R / MOON.ISLAND_RADIUS + 0.35);
 
   const lawn = (x, z) => {
-    const c = lawnColour(x, z, { season, seed });
+    const c = lawnColour(x, z, { season, seed, ...tinted });
     const k = aoAt(x, z, occ);
     return [c[0] * k, c[1] * k, c[2] * k];
   };

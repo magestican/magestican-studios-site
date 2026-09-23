@@ -40,10 +40,14 @@
 
 
 
-import { villagerPose } from 'moon/play/village.mjs';
+
+import { villagerPose, badgeState } from 'moon/play/village.mjs';
+import { greetFor, pairFor, pairMeet, followFor, followPoint, catchUp, isTeleport, noticedBy, CATCH_UP } from 'moon/play/activities.mjs';
+
+const level = (v) => { const b = badgeState(v); return b.level * b.heartsOf + b.hearts; };
 import { animStepS } from 'moon/play/animRate.mjs';
 import { villagerGesture } from 'moon/play/gestures.mjs';
-import { seatClip, seatedRootY } from 'moon/rig/clips.mjs';
+import { seatClip, seatedRootY, eatClipFor } from 'moon/rig/clips.mjs';
 import { villagerBuild } from 'moon/play/people.mjs';
 import { faceAt, faceInfluences } from 'moon/rig/face.mjs';
 import { faceMeter } from './faceMeter.js';
@@ -53,8 +57,9 @@ import { villagerObject } from '../render/villager.js';
 import { villagerSource } from '../render/villagerSource.js';
 
 export const VILLAGERS_DRAW = Object.freeze({
-  catchUpMps: 2.4,
-  snapM: 4,
+  
+  
+  catchUpMps: CATCH_UP.mps,
   turnPerS: 9,
   fadeS: 0.5,
   drawM: 30,
@@ -114,6 +119,13 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
   
   
   let fullPoses = 0;
+  
+  let waves = 0;
+  
+  
+  
+  let pair = null, lastPairHour = null, pairs = 0, follows = 0, snaps = 0, notices = 0;
+  let lastT = null, forceTeleport = false, realS = 0;
 
   
   
@@ -173,32 +185,68 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
   
   
   
-  function update(world, t, dt, { animDt = dt, focus = null, activity = 0, poseFor = null, raining = false, useFor = null } = {}) {
+  
+  
+  
+  function update(world, t, dt, { animDt = dt, focus = null, activity = 0, poseFor = null, raining = false, useFor = null, player = null } = {}) {
     shown = [];
     animS += animDt;
+    realS += dt; 
     let nearest = null, nearestD = cfg.shadowM;
     const drawn = [];
+    const jump = isTeleport({ lastT, t, dt, forced: forceTeleport });
+    lastT = t;
+    forceTeleport = false;
+    const poses = new Map();
+    for (const v of world.villagers) {
+      if (slots.has(v.id)) poses.set(v.id, (poseFor && poseFor(v, t)) || villagerPose(village, world, v, t, { activities: true, raining }));
+    }
+    
+    
+    if (pair && (realS >= pair.untilS || [pair.a, pair.b].some((id) => { const p = poses.get(id); return !p || p.inside || (held && held.id === id); }))) pair = null;
+    if (!pair && !poseFor && !jump) {
+      const cand = [];
+      for (const [id, p] of poses) {
+        const s = slots.get(id);
+        if (s.x !== null && s.visible && !(held && held.id === id)) cand.push({ id, x: s.x, z: s.z, doing: p.doing });
+      }
+      const pf = pairFor(cand, t / 3_600_000, lastPairHour, { seed: world.seed || 0 });
+      if (pf) {
+        const A = slots.get(pf.a), B = slots.get(pf.b);
+        const meet = pairMeet({ x: A.x, z: A.z }, { x: B.x, z: B.z });
+        pair = { a: pf.a, b: pf.b, chatS: pf.chatS, untilS: realS + 30, met: new Set(), at: { [pf.a]: meet.a, [pf.b]: meet.b } };
+        lastPairHour = pf.hour;
+        pairs += 1;
+      }
+    }
     for (const v of world.villagers) {
       const s = slots.get(v.id);
       if (!s) continue;
-      const pose = (poseFor && poseFor(v, t)) || villagerPose(village, world, v, t);
+      const pose = poses.get(v.id);
       const isHeld = Boolean(held && held.id === v.id && s.x !== null);
       let tx = pose.x, tz = pose.z, th = pose.heading, moved = 0;
-      const use = !isHeld && useFor ? useFor(v, pose) : null;
+      const pairing = pair && pair.at[v.id] && !isHeld ? pair.at[v.id] : null;
+      
+      const free = Boolean(player) && !isHeld && !pairing && !pose.inside && pose.speed === 0 && !pose.use && pose.doing !== 'working';
+      const fol = followFor({ personality: personalityOf(v), hearts: level(v), distM: player && s.x !== null ? Math.hypot(s.x - player.x, s.z - player.z) : Infinity, nowS: realS, free, state: s.follow || null });
+      s.follow = fol.state;
+      const following = fol.following && player && s.x !== null;
+      if (following && !s.wasFollowing) follows += 1;
+      s.wasFollowing = following;
+      const use = !isHeld && !pairing && !following && useFor ? useFor(v, pose) : null;
       if (use) { tx = use.at.x; tz = use.at.z; th = use.heading; }
+      if (pairing) { tx = pairing.x; tz = pairing.z; th = pairing.heading; }
+      if (following) { const f = followPoint(player, s); tx = f.x; tz = f.z; th = f.heading; }
       if (isHeld) { tx = s.x; tz = s.z; th = Math.atan2(held.x - s.x, held.z - s.z); }
-      if (s.x === null || Math.hypot(tx - s.x, tz - s.z) > cfg.snapM) {
-        s.x = tx; s.z = tz; s.heading = th;
-      } else {
-        const d = Math.hypot(tx - s.x, tz - s.z);
-        if (d > 1e-6) {
-          const k = Math.min(d, cfg.catchUpMps * dt);
-          
-          if (d - k > 0.05) th = Math.atan2(tx - s.x, tz - s.z);
-          s.x += ((tx - s.x) / d) * k;
-          s.z += ((tz - s.z) / d) * k;
-          moved = k;
-        }
+      const stepTo = catchUp(s, { x: tx, z: tz }, dt, { teleport: jump || !s.visible });
+      if (stepTo.snapped) {
+        if (s.x !== null && Math.hypot(tx - s.x, tz - s.z) > 1e-3) snaps += 1;
+        s.x = stepTo.x; s.z = stepTo.z; s.heading = th;
+      } else if (stepTo.moved > 0) {
+        
+        if (Math.hypot(tx - stepTo.x, tz - stepTo.z) > 0.05) th = Math.atan2(tx - s.x, tz - s.z);
+        s.x = stepTo.x; s.z = stepTo.z;
+        moved = stepTo.moved;
       }
       const err = Math.atan2(Math.sin(th - s.heading), Math.cos(th - s.heading));
       s.heading += err * Math.min(1, dt * cfg.turnPerS);
@@ -223,14 +271,29 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       const pc = s.lods[s.lod];
       const o = pc.object;
       o.visible = s.scale > 0.001 && fromFocus <= cfg.drawM;
+      s.visible = o.visible;
       if (o.visible && !isHeld && fromFocus < nearestD) { nearestD = fromFocus; nearest = s; }
       
       
       
       const arrived = use && Math.hypot(use.at.x - s.x, use.at.z - s.z) < 0.05;
-      const clip = arrived ? (use.kind === 'seat' ? seatClip(pc.rig, use.seatY) : use.clip) : null;
+      
+      
+      
+      
+      const onMeet = pairing && Math.hypot(pairing.x - s.x, pairing.z - s.z) < 0.05;
+      
+      if (onMeet && !pair.met.has(v.id)) { pair.met.add(v.id); if (pair.met.size === 2) pair.untilS = realS + pair.chatS; }
+      const own = onMeet && pc.clips.chat ? 'chat'
+        : !use && !isHeld && !pairing && !following && pose.speed === 0 && pose.use == null && pose.clip && pose.clip !== 'sit'
+          && pc.clips[pose.clip] && pc.clips[pose.clip].loop ? pose.clip : null;
+      
+      const seatC = arrived && use.kind === 'seat' ? seatClip(pc.rig, use.seatY) : null;
+      const seated = seatC && pose.wants === 'eat' && pc.clips[eatClipFor(seatC)] ? eatClipFor(seatC) : seatC;
+      const clip = arrived ? (seated || use.clip) : own;
       if (clip !== pc.using) pc.use(clip);
-      if (clip) s.rise = use.kind === 'seat' ? seatedRootY(pc.rig, pc.clips[clip], use.seatY) : 0;
+      
+      if (clip) s.rise = use && use.kind === 'seat' ? seatedRootY(pc.rig, pc.clips[clip], use.seatY) : 0;
       o.position.set(s.x, heightAt(s.x, s.z) + (s.rise || 0) * pc.useWeight, s.z);
       o.rotation.y = s.heading;
       
@@ -288,7 +351,9 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
           const personality = PERSONALITIES[personalityOf(v)];
           
           
-          const mood = moodNow(ledgers.get(v.id) || EMPTY_LEDGER, t / 1000, { raining, nowMs: t, tzOffsetMin: world.tzOffsetMin || 0, personality });
+          
+          
+          const mood = moodNow(ledgers.get(v.id) || EMPTY_LEDGER, t / 1000, { raining, nowMs: t, tzOffsetMin: world.tzOffsetMin || 0, personality: pose.mood ? { ...personality, baseline: pose.mood } : personality });
           const face = faceAt({ expression: mood, intensity: personality.intensity, since: 10, blink: life ? life.blink : 0, talking: isHeld, activity: isHeld ? activity : 0 });
           const infl = faceInfluences(face);
           for (const m of pc.meshes) {
@@ -306,11 +371,20 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       const gesture = isHeld || use ? null : villagerGesture(v, pose, animS);
       if (gesture && gesture.key !== s.gestureKey && s.gestureKey !== null && o.visible && !pc.busy) pc.act(gesture.clip);
       s.gestureKey = gesture ? gesture.key : null;
+      
+      
+      if (!isHeld && !(use && use.kind === 'seat') && o.visible && focus && !pc.busy && pc.clips.wave
+        && greetFor({ distM: fromFocus, hearts: level(v), lastWaveS: s.waveS ?? null, nowS: animS })) {
+        pc.act('wave');
+        s.waveS = animS;
+        waves += 1;
+      }
       drawn.push({ s, isHeld });
       shown.push({
         id: v.id, species: v.species, build: s.build, x: s.x, z: s.z, y: o.position.y, heading: s.heading, speed,
         doing: isHeld ? 'talking' : pose.doing, place: pose.place, inside: pose.inside && s.scale < 0.001,
-        clip: pc.using, use: use ? use.id : null,
+        clip: pc.using, use: use ? use.id : null, activity: pose.activity || null,
+        following: Boolean(following), pairing: Boolean(pairing), wants: pose.wants || null,
         visible: o.visible, height: s.height, lod: LODS[s.lod], bob: s.bob, shadow: false,
         
         
@@ -346,6 +420,27 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
 
 
 
+    get waves() { return waves; },
+    
+    get life() { return { pairs, follows, snaps, notices, pair: pair ? { a: pair.a, b: pair.b, at: pair.at } : null }; },
+    
+    teleport() { forceTeleport = true; },
+    
+    forcePair(a, b, chatS = 15) {
+      const A = slots.get(a), B = slots.get(b);
+      if (!A || !B || A.x === null || B.x === null) return null;
+      const meet = pairMeet({ x: A.x, z: A.z }, { x: B.x, z: B.z });
+      pair = { a, b, chatS, untilS: realS + 30, met: new Set(), at: { [a]: meet.a, [b]: meet.b } };
+      pairs += 1;
+      return { a: meet.a, b: meet.b, apartM: Math.hypot(A.x - B.x, A.z - B.z) };
+    },
+    
+    notice(at, tMs) {
+      const ids = noticedBy(shown, at);
+      for (const id of ids) ledgers.set(id, applyEvent(ledgers.get(id) || EMPTY_LEDGER, 'placedNear', tMs / 1000));
+      notices += ids.length;
+      return ids;
+    },
     get poses() {
       let done = 0;
       for (const s2 of slots.values()) done += s2.poses;

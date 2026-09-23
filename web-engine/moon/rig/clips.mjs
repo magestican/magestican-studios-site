@@ -46,7 +46,16 @@ export const USE_CLIP_NAMES = Object.freeze(['sit', 'sitSwing', 'lean', 'warmHan
 
 
 export const GESTURE_CLIP_NAMES = Object.freeze(['cheer', 'bow']);
-export const CLIP_NAMES = Object.freeze(['idle', 'walk', 'run', 'carry', 'pickUp', ...ACT_NAMES, ...USE_CLIP_NAMES, ...GESTURE_CLIP_NAMES]);
+
+
+export const ACTIVITY_CLIP_NAMES = Object.freeze(['sweep', 'fish']);
+
+
+
+export const REST_CLIP_NAMES = Object.freeze(['sleep', 'eat', 'eatSwing']);
+export const CLIP_NAMES = Object.freeze(['idle', 'walk', 'run', 'carry', 'pickUp', ...ACT_NAMES, ...USE_CLIP_NAMES, ...GESTURE_CLIP_NAMES, ...ACTIVITY_CLIP_NAMES, ...REST_CLIP_NAMES]);
+
+export const eatClipFor = (seat) => (seat === 'sitSwing' ? 'eatSwing' : 'eat');
 const SIDES = [['L', 1, 0], ['R', -1, 0.5]]; 
 const LEG_BONES = ['legUpperL', 'legLowerL', 'footL', 'legUpperR', 'legLowerR', 'footR'];
 const ARM_BONES = ['armUpperL', 'armLowerL', 'armUpperR', 'armLowerR'];
@@ -153,6 +162,7 @@ export function buildClips(skeleton, { walk = gaitOf(WALK, skeleton.gait?.walk),
     ...Object.fromEntries(ACT_NAMES.map((name) => [name, actClip(skeleton, limbs, name)])),
     ...useClips(skeleton, limbs),
     ...gestureClips(skeleton, limbs),
+    ...activityClips(skeleton, limbs),
   };
 }
 
@@ -195,6 +205,50 @@ export function gestureClips(skeleton, limbs) {
   return {
     cheer: b('cheer', 1.3, inclusive(26), cheer),
     bow: b('bow', 1.4, inclusive(28), bow),
+  };
+}
+
+
+
+
+
+
+
+
+
+export function activityClips(skeleton, limbs) {
+  const { L, R } = limbs.legs;
+  const rest = { L: { pos: L.A }, R: { pos: R.A } };
+  const sin = (p, off = 0) => Math.sin(TAU * p + off);
+  const sweep = (p) => {
+    const s = sin(p);
+    return {
+      hips: [0.01 * s, -0.01, 0],
+      rot: {
+        spine: [0.16, 0.1 * s, 0], chest: [0.1, 0.18 * s, 0], head: [0.2, -0.08 * s, 0],
+        armUpperL: [-0.55, 0.1, 0.2 + 0.08 * s], armLowerL: [-0.7, 0, 0],
+        armUpperR: [-0.3, -0.1, -0.2 + 0.08 * s], armLowerR: [-0.45, 0, 0],
+      },
+      feet: rest,
+    };
+  };
+  const fish = (p) => {
+    const lift = 0.5 - 0.5 * Math.cos(TAU * p);
+    const twitch = 0.03 * Math.sin(5 * TAU * p) * smoothstep(0.55, 0.7, p) * (1 - smoothstep(0.75, 0.9, p));
+    return {
+      hips: [0, -0.005, 0],
+      rot: {
+        chest: [0.04, 0, 0], head: [0.12 - 0.08 * lift, 0, 0],
+        armUpperL: [-0.75 - 0.2 * lift, 0.15, 0.15], armLowerL: [-0.9 - twitch, 0, 0],
+        armUpperR: [-0.7 - 0.2 * lift, -0.15, -0.15], armLowerR: [-0.95 - twitch, 0, 0],
+      },
+      feet: rest,
+    };
+  };
+  const b = (name, duration, times, frame) => bake(skeleton, limbs, { name, loop: true, duration, times, frame });
+  return {
+    sweep: b('sweep', 1.6, uniform(24), sweep),
+    fish: b('fish', 4.0, uniform(40), fish),
   };
 }
 
@@ -304,6 +358,7 @@ function bake(skeleton, limbs, { name, loop, duration, times, frame, extra = {},
         const fk = forwardKinematics(skeleton, ik);
         for (const [s, sx] of SIDES) {
           const h = f.hands[s];
+          if (!h) continue; 
           const pos = h.relTo ? carriedPoint(skeleton, fk, boneIndex(skeleton, h.relTo), h.point) : h.point;
           solveLimb(skeleton, ik, limbs.arms[s], { pos, pole: h.pole || [sx * 0.8, -0.35, -0.45] });
         }
@@ -916,8 +971,44 @@ export function useClips(skeleton, limbs) {
     },
     feet: rest,
   });
+  
+  
+  
+  
+  
+  
+  const eatOf = (seatFrame) => (p) => {
+    const f = seatFrame(p);
+    const bite = smoothstep(0.1, 0.35, p) * (1 - smoothstep(0.6, 0.85, p));
+    const mix = (a, b) => a.map((v, k) => v + (b[k] - v) * bite);
+    return {
+      ...f,
+      rot: {
+        ...f.rot,
+        head: [0.08 * bite - 0.04, 0, 0],
+        armUpperR: mix([-0.55, 0.05, -0.1], [-1.15, 0.35, 0.25]),
+        armLowerR: mix([-0.55, 0, 0], [-1.95, 0, 0]),
+        handR: mix([0, 0, 0], [-0.35, 0, 0]),
+      },
+      hands: { weight: f.hands.weight, L: f.hands.L },
+    };
+  };
+  
+  
+  
+  
+  const sleep = (p) => ({
+    hips: [0, 0, 0],
+    rot: {
+      spine: [-0.02, 0, 0], chest: [-0.03 - 0.03 * sin(p), 0, 0], neck: [0.05, 0, 0], head: [0.12, 0.35, 0.05],
+      armUpperL: [0.05, 0, 0.12], armLowerL: [-0.25, 0, 0], armUpperR: [0.05, 0, -0.12], armLowerR: [-0.25, 0, 0],
+    },
+  });
   const b = (name, loop, duration, times, frame) => bake(skeleton, limbs, { name, loop, duration, times, frame });
   return {
+    sleep: b('sleep', true, 4.5, uniform(30), sleep),
+    eat: b('eat', true, 2.6, uniform(26), eatOf(sit)),
+    eatSwing: b('eatSwing', true, 2.6, uniform(26), eatOf(sitSwing)),
     sit: b('sit', true, 3.2, uniform(32), sit),
     sitSwing: b('sitSwing', true, 2.4, uniform(24), sitSwing),
     lean: b('lean', true, 4.0, uniform(40), lean),

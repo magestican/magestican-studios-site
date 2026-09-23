@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { generate } from 'moon/art/groundCover.mjs';
 import { scatterCover, scatterPathEdge } from 'moon/world/coverScatter.mjs';
 import { seasonPalette, linear } from 'moon/palette/seasons.mjs';
+import { groundTintOf } from 'moon/art/moonGround.mjs';
 import { cozyMaterial } from './material.js';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -33,6 +34,10 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
   const group = new THREE.Group();
   group.name = 'ground-cover';
   const ref = linear(seasonPalette(season).grass[1]);
+  
+  
+  
+  const [lo, hi] = groundTintOf(layout).tint ? [0.3, 3] : [0.6, 1.4];
   const buckets = new Map();
   for (const it of items) {
     const key = `${it.kind}|${it.variant}`;
@@ -76,7 +81,7 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
         
         
         if (g.material === 'grass' || g.material === 'snow') {
-          col.setRGB(clamp(it.tint[0] / ref[0], 0.6, 1.4) * jitter, clamp(it.tint[1] / ref[1], 0.6, 1.4) * jitter, clamp(it.tint[2] / ref[2], 0.6, 1.4) * jitter, THREE.LinearSRGBColorSpace);
+          col.setRGB(clamp(it.tint[0] / ref[0], lo, hi) * jitter, clamp(it.tint[1] / ref[1], lo, hi) * jitter, clamp(it.tint[2] / ref[2], lo, hi) * jitter, THREE.LinearSRGBColorSpace);
         } else {
           col.setRGB(jitter, jitter, jitter, THREE.LinearSRGBColorSpace);
         }

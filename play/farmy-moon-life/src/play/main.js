@@ -89,7 +89,8 @@ import { flicker } from 'moon/light/flicker.mjs';
 
 const FIRE_FLICKER_SEED = 4.7;
 import { dayLine } from 'moon/play/dayline.mjs';
-import { econStartAt, localHour } from 'moon/play/localClock.mjs';
+import { econStartAt, localHour, localDay } from 'moon/play/localClock.mjs';
+import { scheduleFor } from 'moon/play/activities.mjs';
 import { grantAllowed, grantCoins, grantGoodsUpTo } from 'moon/play/probeGrant.mjs';
 import { createIndoorCurve } from 'moon/play/indoorCurve.mjs';
 import { placingRotY } from 'moon/economy/houseFacing.mjs';
@@ -113,7 +114,7 @@ import { newWorld, act, advance, jobSlotsOf, summarize, upgradeCost, whyCannot }
 
 
 
-import { SAVE_SLOT, fitsMoon, legacyDoc, makeSave, readSave, restoreWorld } from 'moon/economy/save.mjs';
+import { SAVE_SLOT, fitsMoon, legacyDoc, makeSave, readSave, relaidLine, restoreWorld } from 'moon/economy/save.mjs';
 import { awayReport, createSaver } from 'moon/play/saving.mjs';
 import { openSaveStore } from './saveDb.js';
 import { BUILDINGS } from 'moon/economy/tables.mjs';
@@ -190,7 +191,7 @@ import { createSignLabels } from './signLabels.js';
 
 
 import {
-  createVillage, badgeState, homeOf, homeStage, syncHomes, villagerPose, VILLAGE, PLAYER_TUNED, PLAYER_TUNED_HEIGHT_M, playerFit, keeperOf,
+  createVillage, badgeState, homeOf, homeStage, syncHomes, villagerPose, VILLAGE, PLAYER_TUNED, PLAYER_TUNED_HEIGHT_M, playerFit, keeperOf, isNightOwl,
 } from 'moon/play/village.mjs';
 import { startTalk as startVillagerTalk, talkNode as villagerTalkNode, choose as chooseVillagerTalk, speakerOf, knockLine } from 'moon/play/villagerTalk.mjs';
 
@@ -265,7 +266,7 @@ import { townOf } from 'moon/economy/town.mjs';
 
 import * as MOON from 'moon/world/moonLayout.mjs';
 import {
-  GENERATED_COUNT, SYSTEM_SEED, describe as describePlanet, landingOn, layoutOf, nextPlanetId, planetAt, planetSystem,
+  GENERATED_COUNT, PLANET_LAYOUT_VERSION, SYSTEM_SEED, describe as describePlanet, landingOn, layoutOf, nextPlanetId, planetAt, planetSystem, washCycle,
 } from 'moon/world/planets.mjs';
 import {
   FLIGHT, JUMP, airStep, createJump, holdAt, holdDone, holdStart, launch,
@@ -288,7 +289,7 @@ import { createFindsDraw } from './findsDraw.js';
 
 
 
-import { artStageOfPine, describeWild, forageOffsetOf, systemWild } from 'moon/world/wild.mjs';
+import { artStageOfPine, describeWild, forageOffsetOf, systemWild, wildBlocks } from 'moon/world/wild.mjs';
 import { forageOn as economyForageOn, placedOn, rocksOn, treesOn } from 'moon/economy/world.mjs';
 import { forageOn as planetForage } from 'moon/world/planets.mjs';
 
@@ -647,6 +648,12 @@ const SYSTEM = planetSystem(state.system, GENERATED_COUNT);
 
 
 
+
+
+const weatherNowCycle = () => washCycle(dayCycle(state.time), planetId ? SYSTEM[planetId].weather : null);
+
+
+
 let planetId = 0;
 let layout = MOON;
 const groundNow = (x, z) => layout.heightAt(x, z);
@@ -792,7 +799,11 @@ const world = newWorld({
   forageSpots: [...HOME_START.forageSpots, ...SYSTEM_WILD.forage],
   finds: SYSTEM_FINDS,
   tzOffsetMin,
+  
+  planetLayout: PLANET_LAYOUT_VERSION,
 });
+
+const wildBlocksPlaced = (id, p) => wildBlocks(planetAt(id, state.system, GENERATED_COUNT), p.spot.x, p.spot.z, radiusOf(p.item));
 
 
 
@@ -1137,6 +1148,11 @@ function noteMoodEvents(events) {
       const v = i === null ? null : world.villagers[i];
       if (v) villagerMood(v.id, 'sale');
     } else if (e.type === 'gift' && e.villager && (e.points || 0) > 0) villagerMood(e.villager, 'giftLiked');
+    else if (e.type === 'place' && villagersDraw && onHome()) {
+      
+      const pl = (world.placed || []).find((p) => p.id === e.placed);
+      if (pl && pl.spot) villagersDraw.notice(pl.spot, econNow());
+    }
   }
 }
 
@@ -2646,6 +2662,14 @@ async function buildPlanet(id) {
   
   
   const obstacles = obstaclesFrom(planetLayout.placements().filter((x) => x.module && x.role !== 'tree'));
+  
+  
+  
+  const lakes = planetLayout.LAKES || [];
+  if (lakes.length) {
+    createPondsDraw({ scene: built.root }).sync(lakes, { season: planet.season });
+    obstacles.push(...lakes.map(pondObstacle));
+  }
   const entry = {
     planet,
     layout: planetLayout,
@@ -2820,7 +2844,7 @@ function syncRoomKeeper(t, dt) {
   roomResident = null;
   if (!room || room.keeper || inside.kind !== 'villager') {  } else {
     const rv = world.villagers.find((x) => x.id === inside.villagerId) || null;
-    roomResident = rv ? homeResident(inside, villagerPose(village, world, rv, t), localHour(t, world.tzOffsetMin || 0)) : null;
+    roomResident = rv ? homeResident(inside, villagerPose(village, world, rv, t, { activities: true, raining: weatherNow().id === 'rainy' }), localHour(t, world.tzOffsetMin || 0)) : null;
     if (roomResident) { v = rv; spot = roomResident; }
   }
   if (roomKeeper.pc) roomKeeper.pc.object.visible = Boolean(v) && roomKeeper.id === v.id;
@@ -2841,10 +2865,15 @@ function syncRoomKeeper(t, dt) {
   }
   const pc = roomKeeper.pc;
   const seat = roomResident && roomResident.seat;
-  const clip = seat ? seatClip(pc.rig, seat.seatY) : null;
+  
+  
+  const lie = roomResident && roomResident.lie;
+  const clip = lie ? 'sleep' : seat ? seatClip(pc.rig, seat.seatY) : null;
   if (clip !== pc.using) pc.use(clip);
-  const rise = seat ? seatedRootY(pc.rig, pc.clips[clip], seat.seatY) * pc.useWeight : 0;
+  const rise = lie ? lie.topY : seat ? seatedRootY(pc.rig, pc.clips[clip], seat.seatY) * pc.useWeight : 0;
   pc.object.position.set(spot.x, rise, spot.z);
+  pc.object.rotation.order = 'YXZ';
+  pc.object.rotation.x = lie ? -Math.PI / 2 : 0;
   pc.object.rotation.y = spot.heading;
   pc.update(dt, { speed: 0 });
   if (roomResident) {
@@ -2908,6 +2937,7 @@ function goOutside() {
   hold = null;
   interiorDraw.hide();
   applyPlanetVisibility();
+  if (villagersDraw) villagersDraw.teleport(); 
   return true;
 }
 
@@ -2933,6 +2963,7 @@ function arriveAt(id) {
   follow = createFollow(aimPoint(player, groundNow(at.x, at.z), cameraFit()));
   resetTrack(at.x, at.z);
   applyPlanetVisibility();
+  if (villagersDraw) villagersDraw.teleport(); 
   syncFinds(true);
   
   
@@ -3156,6 +3187,10 @@ placingEl.replaceChildren(
 
 fml.act = (action, opts) => doAct(action, opts);
 
+fml.l3pair = (a, b, chatS) => (villagersDraw ? villagersDraw.forcePair(a, b, chatS) : null);
+
+fml.l3days = () => world.villagers.map((v) => ({ id: v.id, blocks: scheduleFor(v, localDay(econNow(), world.tzOffsetMin || 0), world, { owl: isNightOwl(world, v.id) }) }));
+
 
 
 fml.g8c = {
@@ -3289,9 +3324,18 @@ Object.defineProperty(fml, 'village', {
           build: s ? s.build || null : null, height: s ? s.height : null, lod: s ? s.lod : null, shadow: s ? s.shadow : false,
           
           use: s ? s.use || null : null, clip: s ? s.clip || null : null,
+          
+          activity: s ? s.activity || null : null,
+          
+          following: s ? Boolean(s.following) : false, pairing: s ? Boolean(s.pairing) : false,
+          personality: personalityOf(v),
         };
       }),
+      
+      life: villagersDraw ? villagersDraw.life : null,
       badges: levelBadges ? levelBadges.stats : { visible: [], gains: 0, last: null },
+      
+      waves: villagersDraw ? villagersDraw.waves : 0,
       homes: homesDraw ? homesDraw.stats : null,
       
       
@@ -3541,7 +3585,7 @@ Object.defineProperty(fml, 'n5', {
       doors: onHome() && !inside ? villagerHomePlaces(world, village, econNow()).map((d) => ({ id: d.id, open: d.open, x: d.x, z: d.z, front: { ...d.front } })) : [],
       inside: inside ? { kind: inside.kind, villagerId: inside.villagerId ?? null } : null,
       resident: roomResident ? { ...roomResident, seat: undefined } : null,
-      figure: pc ? { id: roomKeeper.id, visible: pc.object.visible, inRoom: pc.object.parent === (interiorDraw && interiorDraw.group), clip: pc.using || null, x: pc.object.position.x, y: pc.object.position.y, z: pc.object.position.z } : null,
+      figure: pc ? { id: roomKeeper.id, visible: pc.object.visible, inRoom: pc.object.parent === (interiorDraw && interiorDraw.group), clip: pc.using || null, x: pc.object.position.x, y: pc.object.position.y, z: pc.object.position.z, tipX: pc.object.rotation.x } : null,
       lit: night ? night.lit : [],
       nightShown: night ? night.group.visible : false,
       lights: inside ? roomLights(inside.room) : [],
@@ -3863,7 +3907,7 @@ const saveSlot = savingOn && saveParam ? saveParam : SAVE_SLOT;
 
 const SAVE_MOVE_M = 8;
 let saveStore = null, saver = null, awayLine = null, savedSpot = null;
-const saveInfo = { on: savingOn, slot: saveSlot, kind: 'off', loaded: false, reason: null, steps: [], filled: [], away: null };
+const saveInfo = { on: savingOn, slot: saveSlot, kind: 'off', loaded: false, reason: null, steps: [], filled: [], away: null, relaid: null };
 
 
 
@@ -4215,7 +4259,7 @@ function endVisit() {
 function adoptHostWorld(doc) {
   const why = fitsMoon(doc.world, world);
   if (why) { visit.say(`That moon is not one this game can draw - ${why}`); return; }
-  restoreWorld(world, doc.world);
+  restoreWorld(world, doc.world, { blockedAt: wildBlocksPlaced });
   world.tzOffsetMin = tzOffsetMin; 
   onHomes(syncHomes(village, world, econNow()));
   syncOrchard(econNow());
@@ -4854,8 +4898,11 @@ async function loadSave() {
     return;
   }
   const shutFor = Math.max(0, econNow() - doc.world.clockAt);
-  const restored = restoreWorld(world, doc.world);
+  const restored = restoreWorld(world, doc.world, { blockedAt: wildBlocksPlaced });
   saveInfo.filled = restored.filled;
+  
+  saveInfo.relaid = restored.relaid;
+  if (relaidLine(restored.relaid)) fml.notes.push(`save: ${relaidLine(restored.relaid)}`);
   
   saveInfo.facedFront = restored.facedFront;
   if (restored.facedFront) fml.notes.push(`save: ${restored.facedFront} house(s) turned to face the square`);
@@ -4886,7 +4933,7 @@ async function loadSave() {
     planetId = doc.player.at;
   }
   if (doc.player.x !== null && doc.player.z !== null && !planetId) fml.teleport(doc.player.x, doc.player.z, doc.player.heading || 0);
-  awayLine = awayReport(summarize(advance(world, econNow())), shutFor);
+  awayLine = awayReport(summarize(advance(world, econNow())), shutFor, { also: relaidLine(restored.relaid) });
   world.tzOffsetMin = tzOffsetMin;
   saveInfo.loaded = true;
   saveInfo.away = awayLine;
@@ -5312,7 +5359,7 @@ function warmFrame() {
   target.set(pose.target.x, pose.target.y, pose.target.z);
   camera.lookAt(target);
   curveUniforms.uCurveFocus.value.copy(target);
-  const cycle = dayCycle(state.time);
+  const cycle = weatherNowCycle();
   
   
   
@@ -5801,7 +5848,7 @@ function frame(now) {
     }
   }
   land.update(seconds);
-  const cycle = dayCycle(state.time);
+  const cycle = weatherNowCycle();
   cycle.emissive.fire *= flicker(animSeconds, FIRE_FLICKER_SEED);
   daylight.apply(cycle, target, renderer);
   sky.space = airPose.fade;
@@ -6005,6 +6052,8 @@ function frame(now) {
     
     
     raining: weatherNow().id === 'rainy',
+    
+    player: onHome() && !inside && !meeting ? { x: player.x, z: player.z } : null,
   });
   useRegistry = frameUses;
   

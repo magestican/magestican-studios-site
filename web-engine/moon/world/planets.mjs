@@ -57,6 +57,25 @@ export const SYSTEM_SEED = 20260916;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const PLANET_LAYOUT_VERSION = 2;
+
+
+
 export const HOME_NAME = 'Lunetta';
 export const PLANET_NAMES = Object.freeze([
   'Mirtillo', 'Nocciola', 'Pesca', 'Fiorella', 'Brina', 'Castagna',
@@ -86,6 +105,52 @@ const WEATHER_BY_SEASON = Object.freeze({
   autumn: Object.freeze(['misty', 'windy', 'rainy', 'clear']),
   winter: Object.freeze(['snowy', 'snowy', 'snowy', 'misty']),
 });
+
+
+
+
+
+
+
+
+
+export const WASH_K = 0.22;
+export function washCycle(cycle, weather) {
+  if (!weather || (weather.fog === 1 && !weather.tint)) return cycle;
+  const out = { ...cycle, fogDensity: cycle.fogDensity * weather.fog };
+  if (weather.tint) {
+    const t = linearOf(weather.tint);
+    const wash = (c) => c.map((v, i) => v + (t[i] - v) * WASH_K);
+    for (const k of ['skyZenith', 'skyHorizon', 'skyBelow', 'fogColor']) if (Array.isArray(cycle[k])) out[k] = wash(cycle[k]);
+  }
+  return out;
+}
+const linearOf = (hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  });
+};
+
+
+
+
+
+
+
+
+
+
+export const BIOMES = Object.freeze({
+  rolling: Object.freeze({ id: 'rolling', label: 'rolling', tint: '#a8e0a0', tintK: 0.3 }),
+  cratered: Object.freeze({ id: 'cratered', label: 'cratered', tint: '#b8aed6', tintK: 0.55 }),
+  mesa: Object.freeze({ id: 'mesa', label: 'mesa', tint: '#e0a070', tintK: 0.55 }),
+  ridged: Object.freeze({ id: 'ridged', label: 'ridged', tint: '#62c0b0', tintK: 0.5 }),
+  dunes: Object.freeze({ id: 'dunes', label: 'dune', tint: '#ecd28a', tintK: 0.6 }),
+  lakes: Object.freeze({ id: 'lakes', label: 'lake', tint: '#6cc8a8', tintK: 0.45 }),
+});
+export const BIOME_IDS = Object.freeze(Object.keys(BIOMES));
 
 
 
@@ -149,6 +214,7 @@ export function makePlanet(id, systemSeed = SYSTEM_SEED) {
   const elements = unit(seed, 'elementCount') < 0.65
     ? Object.freeze([first, second])
     : Object.freeze([first]);
+  const biome = BIOME_IDS[(id - 1 + (draw(systemSeed, 'biomes') % BIOME_IDS.length)) % BIOME_IDS.length];
   return Object.freeze({
     id,
     home: false,
@@ -164,6 +230,12 @@ export function makePlanet(id, systemSeed = SYSTEM_SEED) {
     season,
     weather,
     elements,
+    
+    
+    
+    biome,
+    tint: BIOMES[biome].tint,
+    tintK: BIOMES[biome].tintK,
   });
 }
 
@@ -179,6 +251,9 @@ export const HOME = Object.freeze({
   season: null,          
   weather: WEATHERS.clear,
   elements: Object.freeze(['orchard', 'meadow']),
+  biome: null,            
+  tint: null,
+  tintK: 0,
   layout: MOON,
 });
 
@@ -245,13 +320,104 @@ export function ringView(id, systemSeed = SYSTEM_SEED, count = GENERATED_COUNT) 
 
 
 
-function surfaceOf(planet) {
+function rollingOf(planet) {
   const { seed, radius, undulation } = planet;
   const big = radius / 3.2;
   const fine = radius / 9;
   return (x, z) => (fbm3(x / big, seed % 97 / 13, z / big, { octaves: 3, seed: 400 + (seed % 1000) }) - 0.5) * 2 * undulation
     + (valueNoise2(x / fine, z / fine, 500 + (seed % 997)) - 0.5) * 0.22 * undulation;
 }
+
+
+
+
+
+function featuresOf(planet, kind, count, minR, maxR) {
+  const { seed, radius } = planet;
+  const inner = CLEARING_RADIUS_M + CLEARING_FEATHER_M;
+  const outer = radius - planet.rimWidth - EDGE_MARGIN_M;
+  const out = [];
+  for (let k = 0; k < count * 30 && out.length < count; k++) {
+    const r = Math.round((minR + unit(seed, kind, k, 'r') * (maxR - minR)) * 100) / 100;
+    const lo = inner + r * 0.6, hi = outer - r * 0.4;
+    if (hi <= lo) continue;
+    const a = unit(seed, kind, k, 'a') * TAU;
+    const d = lo + unit(seed, kind, k, 'd') * (hi - lo);
+    const x = Math.round(Math.sin(a) * d * 100) / 100, z = Math.round(Math.cos(a) * d * 100) / 100;
+    if (out.some((f) => Math.hypot(f.x - x, f.z - z) < f.r + r + 0.8)) continue;
+    out.push(Object.freeze({ x, z, r }));
+  }
+  return Object.freeze(out);
+}
+
+
+
+
+
+function surfaceOf(planet) {
+  const rolling = rollingOf(planet);
+  const { seed, radius, undulation } = planet;
+  switch (planet.biome) {
+    case 'cratered': {
+      const craters = featuresOf(planet, 'crater', Math.max(2, Math.round(radius / 6)), 1.6, Math.min(3.6, radius / 5));
+      const depth = 0.45 + undulation * 0.4;
+      return (x, z) => {
+        let h = rolling(x, z) * 0.55;
+        for (const c of craters) {
+          const q = Math.hypot(x - c.x, z - c.z) / c.r;
+          if (q < 1) h -= depth * (1 - q * q) ** 1.5;
+          h += depth * 0.4 * Math.exp(-(((q - 1) / 0.28) ** 2));
+        }
+        return h;
+      };
+    }
+    case 'mesa': {
+      
+      const step = 0.5 + undulation * 0.2;
+      return (x, z) => {
+        const t = (rolling(x, z) * 1.7 + undulation) / step;
+        const f = Math.floor(t);
+        return (f + smoothstep(0.78, 1, t - f)) * step - undulation;
+      };
+    }
+    case 'ridged': {
+      const big = radius / 2.6;
+      return (x, z) => {
+        const n = fbm3(x / big, seed % 89 / 11, z / big, { octaves: 3, seed: 600 + (seed % 1000) });
+        const r = 1 - Math.abs(2 * n - 1);
+        return (r * r - 0.45) * 2.2 * undulation;
+      };
+    }
+    case 'dunes': {
+      const a = unit(seed, 'wind') * Math.PI;
+      const ca = Math.cos(a), sa = Math.sin(a);
+      const wave = 3.4;
+      const amp = 0.25 + undulation * 0.45;
+      return (x, z) => {
+        const u = x * ca + z * sa;
+        const warp = valueNoise2(x / 4, z / 4, 700 + (seed % 991)) * 2.6;
+        const s = Math.sin((u / wave) * TAU + warp) * 0.5 + 0.5;
+        return (s ** 1.6 - 0.4) * amp + rolling(x, z) * 0.35;
+      };
+    }
+    case 'lakes': {
+      const basins = lakeBasinsOf(planet);
+      return (x, z) => {
+        let h = rolling(x, z) * 0.7;
+        for (const b of basins) {
+          const k = smoothstep(b.r, b.r * 0.5, Math.hypot(x - b.x, z - b.z));
+          h = h * (1 - k) - b.depth * k;
+        }
+        return h;
+      };
+    }
+    default:
+      return rolling;
+  }
+}
+
+const lakeBasinsOf = (planet) => featuresOf(planet, 'lake', Math.max(1, Math.round(planet.radius / 9)), 2.2, Math.min(4.2, planet.radius / 4.5))
+  .map((b) => Object.freeze({ ...b, depth: 0.7 + planet.undulation * 0.3 }));
 
 
 
@@ -305,9 +471,24 @@ function buildLayout(planet) {
     return [nx / l, ny / l, nz / l];
   };
 
+  
+  
+  
+  
+  const LAKES = Object.freeze((planet.biome === 'lakes' ? lakeBasinsOf(planet) : []).map((b) => {
+    const r = Math.round(b.r * 0.78 * 100) / 100;
+    let y = Infinity;
+    for (let i = 0; i < 24; i++) {
+      const a = (i / 24) * TAU;
+      y = Math.min(y, heightAt(b.x + Math.sin(a) * r, b.z + Math.cos(a) * r));
+    }
+    return Object.freeze({ x: b.x, z: b.z, r, y: Math.round(y * 1000) / 1000 });
+  }));
+
   let placed = null;
   const layout = {
     planet,
+    LAKES,
     ISLAND_RADIUS: R,
     RIM_WIDTH: RIM,
     UNDULATION: planet.undulation,
@@ -352,6 +533,9 @@ export function placementsOf(planet, heightAt = layoutOf(planet).heightAt) {
   const maxR = radius - planet.rimWidth - EDGE_MARGIN_M;
   const out = [];
   
+  
+  const basins = planet.biome === 'lakes' ? lakeBasinsOf(planet) : [];
+  
   const area = Math.PI * (maxR * maxR - CLEARING_RADIUS_M * CLEARING_RADIUS_M);
   for (const id of planet.elements) {
     const el = ELEMENTS[id];
@@ -365,6 +549,7 @@ export function placementsOf(planet, heightAt = layoutOf(planet).heightAt) {
       const x = Math.round(Math.sin(a) * d * 100) / 100;
       const z = Math.round(Math.cos(a) * d * 100) / 100;
       if (out.some((p) => Math.hypot(p.x - x, p.z - z) < Math.max(el.minGap, p.minGap || 0))) continue;
+      if (basins.some((b) => Math.hypot(b.x - x, b.z - z) < b.r * 0.9)) continue;
       if (el.role === 'forage') {
         out.push(Object.freeze({
           module: null, role: 'forage', kind: FORAGE_KINDS[draw(seed, id, k, 'kind') % FORAGE_KINDS.length],

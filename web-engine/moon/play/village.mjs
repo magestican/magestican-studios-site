@@ -64,7 +64,8 @@
 import { CLOCK, HAPPINESS } from '../economy/tables.mjs';
 import { MS } from '../economy/math.mjs';
 import { WORK_DAY_MS as DAY_MS } from '../economy/clock.mjs';
-import { localHour } from './localClock.mjs';
+import { localHour, localDay } from './localClock.mjs';
+import { scheduleFor, blockAt, activityOf, asleepAt, standDrift } from './activities.mjs';
 import { SUNRISE, SUNSET } from '../light/dayCycle.mjs';
 import { COTTAGE_SPOT, PATH_HALF_WIDTH, PLAZA, TOWN_SPOTS, pathDistance, placements } from '../world/moonLayout.mjs';
 import {
@@ -740,6 +741,86 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
 }
 
 
+
+
+
+
+
+export function activityPlace(village, world, villager, where, plan, localDayIndex, t) {
+  if (SPOTS[where]) return where;
+  if (where === 'home') return plan.own;
+  if (where === 'shelter') return plan.home && HOUSE_STAGES.includes(homeStage(villager, t).stage) ? plan.own : 'shop';
+  if (where === 'friend') {
+    const friends = (world.villagers || []).filter((v) => v.id !== villager.id && village.homes[v.id]);
+    if (!friends.length) return 'town';
+    return homeKey(friends[seedOf(`${world.seed}|friend|${villager.id}|${localDayIndex}`) % friends.length].id);
+  }
+  throw new Error(`village: activity place '${where}' is not on the layout`);
+}
+
+function activityPose(village, world, villager, t, plan, ms, { raining = false, weather = null } = {}) {
+  const tz = world.tzOffsetMin || 0;
+  const owl = isNightOwl(world, villager.id);
+  const today = localDay(t, tz);
+  const sched = scheduleFor(villager, today, world, { weather: weather || (raining ? 'rain' : 'clear'), owl });
+  const minute = localHour(t, tz) * 60;
+  const { block, prev } = blockAt(sched, minute);
+  const row = activityOf(block.id);
+  if (!row) return null; 
+  
+  
+  
+  if (block.id !== 'evening' && block.id !== 'sleep') {
+    const seg = plan.segs.find((s) => ms >= s.t0 && ms < s.t1);
+    if (seg && (seg.work || (seg.kind === 'walk' && String(seg.to).startsWith('work:')))) return null;
+  }
+  const slot = Math.max(0, (world.villagers || []).findIndex((v) => v.id === villager.id));
+  const key = activityPlace(village, world, villager, row.where, plan, today, t);
+  const houseUp = plan.home && HOUSE_STAGES.includes(homeStage(villager, t).stage);
+  
+  
+  const inside = row.id === 'sleep' ? (plan.home ? Boolean(houseUp) : true) : Boolean(row.indoors && key === plan.own && houseUp);
+  const doing = row.id === 'sleep' ? (plan.home ? 'home' : 'resting')
+    : SPOTS[key] ? key : key === plan.own ? (plan.home ? 'home' : 'resting') : 'visiting';
+  const base = { activity: row.id, use: row.use, clip: row.clip, mood: row.mood, place: key, inside, asleep: asleepAt(block, minute), wants: row.wants || null };
+  
+  const prevRow = prev ? activityOf(prev.id) : null;
+  if (prevRow && prevRow.id !== 'sleep') {
+    const from = activityPlace(village, world, villager, prevRow.where, plan, today, t);
+    if (from !== key) {
+      const poly = village.route(from, key);
+      const d = (((minute - block.from) * 60000) / MS) * village.cfg.walkMps;
+      if (d < poly.total) {
+        const p = pointOn(poly, d);
+        return { ...base, x: p.x, z: p.z, heading: p.heading, speed: village.cfg.walkMps, doing: 'walking', inside: false, clip: null, use: null };
+      }
+    }
+  }
+  const at = village.standPoint(key, slot, plan.own);
+  
+  const look = key === 'town' ? PLAZA : village.lookAt(key);
+  let heading = key === plan.own && plan.home ? plan.home.rotY || 0 : Math.atan2(look.x - at.x, look.z - at.z);
+  
+  
+  
+  if (!row.use && !inside && row.id !== 'sleep') {
+    const elapsedS = ((minute - block.from) * 60000) / MS;
+    const dr = standDrift(`${world.seed}|${villager.id}|${today}|${block.from}`, elapsedS, village.cfg.walkMps);
+    
+    
+    const g = village.grid();
+    const p = [[dr.dx, dr.dz], [-dr.dx, -dr.dz], [dr.dz, -dr.dx], [-dr.dz, dr.dx]]
+      .map(([dx, dz]) => ({ x: at.x + dx, z: at.z + dz })).find((q) => openAt(g, q.x, q.z));
+    if (p) {
+      if (dr.moving) return { ...base, x: p.x, z: p.z, heading: dr.heading, speed: village.cfg.walkMps, doing, clip: null, drift: dr.index };
+      if (!(key === plan.own && plan.home)) heading = Math.atan2(look.x - p.x, look.z - p.z);
+      return { ...base, x: p.x, z: p.z, heading, speed: 0, doing, drift: dr.index };
+    }
+  }
+  return { ...base, x: at.x, z: at.z, heading, speed: 0, doing, drift: 0 };
+}
+
+
 export function homeOf(village, villager) {
   const h = village.homes[villager.id];
   return h ? { ...h, door: homeDoor(h) } : null;
@@ -800,12 +881,19 @@ export function syncHomes(village, world, t) {
 
 
 
-export function villagerPose(village, world, villager, t) {
+export function villagerPose(village, world, villager, t, opts = {}) {
   const { cfg } = village;
   const day = dayOf(world, t);
   const ms = t - dayStart(world, day);
   const plan = village.timeline(world, villager, day);
   const restDoing = plan.home ? 'home' : 'resting';
+  
+  
+  
+  if (opts.activities) {
+    const act = activityPose(village, world, villager, t, plan, ms, opts);
+    if (act) return act;
+  }
   
   
   

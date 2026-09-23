@@ -59,11 +59,22 @@
 
 
 
+
+
+
+
+
+
+
+
 import { WORLD_VERSION } from './world.mjs';
 import { faceHousesFront } from './houseFacing.mjs';
 
 export const SAVE_FORMAT = 'fml.save';
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
+
+
+export const LAYOUT_BEFORE_STAMP = 1;
 
 
 export const SAVE_SLOT = 'moon';
@@ -83,6 +94,8 @@ const planetOf = (e) => (Number.isInteger(e && e.planet) ? e.planet : HOME);
 const isInt = (v) => Number.isInteger(v);
 const isNum = (v) => Number.isFinite(v);
 
+export const layoutStamp = (w) => (isObj(w) && isInt(w.planetLayout) && w.planetLayout >= 1 ? w.planetLayout : LAYOUT_BEFORE_STAMP);
+
 
 export function legacyDoc(build) {
   if (typeof build !== 'string' || !build) return null;
@@ -93,12 +106,45 @@ export function legacyDoc(build) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const V3_FIELDS = Object.freeze([
+  Object.freeze({
+    field: 'world.planetLayout',
+    up: (doc) => (isObj(doc.world) && !isInt(doc.world.planetLayout)
+      ? { ...doc, world: { ...doc.world, planetLayout: LAYOUT_BEFORE_STAMP } }
+      : doc),
+  }),
+]);
+
 export const MIGRATIONS = Object.freeze([
   Object.freeze({
     from: 0,
     to: 1,
     note: 'the build kept in localStorage becomes a save with no moon in it',
-    up: (doc) => ({
+    
+    
+    up: ({ build, ...rest }) => ({
+      ...rest,
       format: SAVE_FORMAT,
       version: 1,
       savedAt: 0,
@@ -107,7 +153,7 @@ export const MIGRATIONS = Object.freeze([
       
       world: null,
       village: { homes: {} },
-      player: { build: doc.build, x: null, z: null, heading: null, at: 0 },
+      player: { build, x: null, z: null, heading: null, at: 0 },
       seedKind: null,
     }),
   }),
@@ -137,6 +183,14 @@ export const MIGRATIONS = Object.freeze([
       firstPlayed: isObj(doc.world) && isInt(doc.world.createdAt) ? doc.world.createdAt
         : (isInt(doc.savedAt) ? doc.savedAt : 0),
     }),
+  }),
+  Object.freeze({
+    from: 2,
+    to: 3,
+    note: 'the wild planets the save was derived from are named (layout 1), so a new layout can re-lay them',
+    
+    
+    up: (doc) => ({ ...V3_FIELDS.reduce((d, f) => f.up(d), doc), version: 3 }),
   }),
 ]);
 
@@ -284,6 +338,7 @@ export function checkWorld(w) {
   if (w.clockAt < w.createdAt) return 'clockAt is before createdAt';
   if (!isNum(w.coins)) return 'coins is not a number';
   if (!isInt(w.nextId) || w.nextId < 1) return 'no nextId';
+  if ('planetLayout' in w && !(isInt(w.planetLayout) && w.planetLayout >= 1)) return 'planetLayout is not a positive integer';
   for (const k of WORLD_LISTS) if (k in w && !Array.isArray(w[k])) return `${k} is not an array`;
   for (const k of WORLD_MAPS) if (k in w && !isObj(w[k])) return `${k} is not an object`;
   
@@ -362,6 +417,16 @@ export function fitsMoon(saved, fresh) {
   
   
   
+  
+  
+  
+  const savedLayout = layoutStamp(saved);
+  const freshLayout = layoutStamp(fresh);
+  if (savedLayout > freshLayout) return `the save's planets are layout ${savedLayout} and this build draws layout ${freshLayout} - it was written by a newer build`;
+  if (savedLayout < freshLayout) return null;
+  
+  
+  
   for (const which of ['rocks', 'forage']) {
     const savedWild = (saved[which] || []).filter((e) => planetOf(e) !== HOME);
     if (!savedWild.length) continue;
@@ -404,7 +469,13 @@ export function fitsMoon(saved, fresh) {
 
 
 
-export function restoreWorld(fresh, saved) {
+
+
+
+
+
+
+export function restoreWorld(fresh, saved, { blockedAt = null } = {}) {
   const why = checkWorld(saved);
   if (why) throw new Error(`cannot restore: ${why}`);
   const defaults = { ...fresh };
@@ -416,10 +487,107 @@ export function restoreWorld(fresh, saved) {
   
   
   fresh.version = WORLD_VERSION;
+  const savedLayout = layoutStamp(from);
+  const freshLayout = layoutStamp(defaults);
+  const relaid = savedLayout < freshLayout ? relayWild(fresh, defaults, { from: savedLayout, to: freshLayout, blockedAt }) : null;
+  
+  
+  if (savedLayout <= freshLayout) fresh.planetLayout = freshLayout;
   const adopted = adoptWildPlanets(fresh, defaults);
   
   const facedFront = faceHousesFront(fresh);
-  return { filled, extra, adopted, facedFront };
+  return { filled, extra, adopted, facedFront, relaid };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function relayWild(world, fresh, { from, to, blockedAt }) {
+  const planets = new Set();
+  const wildOf = (which) => (which === 'trees'
+    ? (e) => isObj(e) && e.wild === true && planetOf(e) !== HOME
+    : (e) => isObj(e) && planetOf(e) !== HOME);
+  const kindOf = (which, e) => (which === 'trees' ? `${e.kind}|${e.spot}` : which === 'forage' ? e.type : which === 'finds' ? e.kind : '');
+  for (const which of ['trees', 'rocks', 'forage', 'finds']) {
+    const mine = Array.isArray(world[which]) ? world[which] : [];
+    const theirs = Array.isArray(fresh[which]) ? fresh[which] : [];
+    const wild = wildOf(which);
+    const order = [];
+    for (const e of theirs) if (wild(e) && !order.includes(planetOf(e))) order.push(planetOf(e));
+    for (const e of mine) if (wild(e) && !order.includes(planetOf(e))) order.push(planetOf(e));
+    const out = mine.filter((e) => !wild(e));
+    for (const p of order) {
+      const a = mine.filter((e) => wild(e) && planetOf(e) === p);
+      const b = theirs.filter((e) => wild(e) && planetOf(e) === p);
+      if (a.length === b.length && a.every((e, i) => kindOf(which, e) === kindOf(which, b[i]))) {
+        out.push(...a);
+        continue;
+      }
+      
+      
+      if (a.length) planets.add(p);
+      for (const e of b) {
+        const c = copy(e);
+        if (which === 'trees' || which === 'rocks') {
+          c.id = world.nextId;
+          world.nextId += 1;
+        }
+        out.push(c);
+      }
+    }
+    if (which === 'forage' || which === 'finds') out.forEach((e, i) => { e.id = i; });
+    if (which in world || theirs.length) world[which] = out;
+  }
+  
+  const returnedItems = {};
+  let returned = 0;
+  if (typeof blockedAt === 'function' && Array.isArray(world.placed)) {
+    world.placed = world.placed.filter((p) => {
+      const at = planetOf(p);
+      
+      
+      
+      
+      if (at === HOME || !isObj(p.spot) || !blockedAt(at, p)) return true;
+      if (!isObj(world.made)) world.made = {};
+      world.made[p.item] = (world.made[p.item] || 0) + 1;
+      returnedItems[p.item] = (returnedItems[p.item] || 0) + 1;
+      returned += 1;
+      return false;
+    });
+  }
+  return { from, to, planets: [...planets].sort((x, y) => x - y), returned, returnedItems };
+}
+
+
+export function relaidLine(relaid) {
+  if (!relaid || !relaid.planets.length) return '';
+  const n = relaid.planets.length;
+  const head = `${n} planet${n === 1 ? '' : 's'} changed shape since your last visit`;
+  if (!relaid.returned) return `${head}.`;
+  const r = relaid.returned;
+  return `${head} - ${r} thing${r === 1 ? '' : 's'} you had put down there ${r === 1 ? 'is' : 'are'} back in your pockets.`;
 }
 
 

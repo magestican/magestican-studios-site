@@ -30,6 +30,8 @@ export const EVENT_MOODS = Object.freeze({
   giftLiked: Object.freeze({ mood: 'amazement', seconds: 8 }),
   shutOrUnaffordable: Object.freeze({ mood: 'frustration', seconds: 4 }),
   bumped: Object.freeze({ mood: 'anger', seconds: 3 }),
+  
+  placedNear: Object.freeze({ mood: 'interest', seconds: 5 }),
   chestOpened: Object.freeze({
     mood: 'interest', seconds: 2,
     then: Object.freeze({ mood: 'amazement', seconds: 6 }),

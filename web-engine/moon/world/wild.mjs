@@ -28,6 +28,7 @@
 
 
 import { GENERATED_COUNT, SYSTEM_SEED, layoutOf, planetSystem } from './planets.mjs';
+import { obstacleFor, penetration } from './collision.mjs';
 
 
 
@@ -131,6 +132,27 @@ function offsetIn(which, planetId, systemSeed, count) {
 export const treeOffsetOf = (planetId, systemSeed = SYSTEM_SEED, count = GENERATED_COUNT) => offsetIn('trees', planetId, systemSeed, count);
 export const rockOffsetOf = (planetId, systemSeed = SYSTEM_SEED, count = GENERATED_COUNT) => offsetIn('rocks', planetId, systemSeed, count);
 export const forageOffsetOf = (planetId, systemSeed = SYSTEM_SEED, count = GENERATED_COUNT) => offsetIn('forage', planetId, systemSeed, count);
+
+
+
+
+
+
+
+
+
+
+export function wildBlocks(planet, x, z, r = 0.4) {
+  if (!planet || planet.home || !Number.isFinite(x) || !Number.isFinite(z)) return false;
+  
+  for (const l of layoutOf(planet).LAKES || []) if (Math.hypot(x - l.x, z - l.z) < l.r + r) return true;
+  for (const p of layoutOf(planet).placements()) {
+    if (p.role !== 'tree' && p.role !== 'rock') continue;
+    const ob = obstacleFor(p);
+    if (ob && penetration(ob, x, z, r).depth > 0) return true;
+  }
+  return false;
+}
 
 
 export function describeWild(planet) {

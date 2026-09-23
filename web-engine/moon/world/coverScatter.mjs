@@ -12,7 +12,7 @@
 import { SeededRng } from '../../rng/seededRng.js';
 import { fbm3 } from '../noise.mjs';
 import { COVER_SETS } from '../art/groundCover.mjs';
-import { lawnColour } from '../art/moonGround.mjs';
+import { groundTintOf, lawnColour } from '../art/moonGround.mjs';
 import * as MOON from './moonLayout.mjs';
 
 
@@ -81,7 +81,7 @@ export function scatterCover({ season = 'summer', count = 1000, seed = 1, varian
       x, y: heightAt(x, z), z,
       rotY: rng.next() * Math.PI * 2,
       scale: rng.rangeF(1.0, 1.5),
-      tint: lawnColour(x, z, { season, seed: 1 }),
+      tint: lawnColour(x, z, { season, seed: 1, ...groundTintOf(layout) }),
     });
   }
   return out;
@@ -96,7 +96,7 @@ export function scatterPathEdge({ season = 'summer', seed = 1, variants = 2, ste
   const out = [];
   const push = (kind, x, z, scale) => out.push({
     kind, variant: rng.rangeI(0, variants - 1), x, y: heightAt(x, z), z,
-    rotY: rng.next() * Math.PI * 2, scale, tint: lawnColour(x, z, { season, seed: 1 }),
+    rotY: rng.next() * Math.PI * 2, scale, tint: lawnColour(x, z, { season, seed: 1, ...groundTintOf(layout) }),
   });
   for (const line of PATHS) {
     for (let i = 0; i < line.length - 1; i++) {

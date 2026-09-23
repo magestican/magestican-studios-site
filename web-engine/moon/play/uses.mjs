@@ -109,7 +109,9 @@ export const STAY_USE = Object.freeze({ firepit: 'warm', town: 'seat' });
 
 
 export function villagerUse(slots, registry, pose, withinM = 4) {
-  const kind = STAY_USE[pose.doing];
+  
+  
+  const kind = pose.use !== undefined ? pose.use : STAY_USE[pose.doing];
   if (!kind || pose.speed > 0 || pose.inside) return null;
   return useForStay(slots, registry, pose, kind, withinM);
 }

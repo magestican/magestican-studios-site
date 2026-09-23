@@ -126,21 +126,27 @@ export function createSaver({ write, policy = SAVE_POLICY } = {}) {
 
 
 
-export function awayReport(summary, awayMs, { minAwayMs = 60000 } = {}) {
+
+
+
+
+
+export function awayReport(summary, awayMs, { minAwayMs = 60000, also = '' } = {}) {
   if (!summary) return null;
   const coins = summary.coins || 0;
   const sales = summary.sales || 0;
   const ripe = summary.ripe || 0;
   const built = summary.built || 0;
   const batches = summary.batches || 0;
-  if (awayMs < minAwayMs && coins === 0 && ripe === 0 && built === 0 && batches === 0) return null;
+  if (!also && awayMs < minAwayMs && coins === 0 && ripe === 0 && built === 0 && batches === 0) return null;
   const bits = [];
   if (sales > 0) bits.push(`${sales} sold for ${coins} coins`);
   if (batches > 0) bits.push(`${batches} ready to collect`);
   if (ripe > 0) bits.push(`${ripe} ripened`);
   if (built > 0) bits.push(built === 1 ? 'a villager finished building' : `${built} villagers finished building`);
   const how = awayFor(awayMs);
-  const text = bits.length ? `While you were away (${how}): ${bits.join(', ')}.` : `Welcome back - ${how} away.`;
+  const base = bits.length ? `While you were away (${how}): ${bits.join(', ')}.` : `Welcome back - ${how} away.`;
+  const text = also ? `${base} ${also}` : base;
   return { text, awayMs, coins, sales, ripe, built, batches };
 }
 
