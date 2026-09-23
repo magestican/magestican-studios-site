@@ -7,7 +7,7 @@
 import * as THREE from 'three';
 import { makeCozy, loadPainter, paintTexture } from './material.js';
 import * as MOON from 'moon/world/moonLayout.mjs';
-import { PATH_MAX_POINTS } from 'moon/world/moonLayout.mjs';
+import { PATH_FIELD, pathField } from 'moon/world/pathField.mjs';
 import { LAND_MASK } from 'moon/play/landEdge.mjs';
 
 
@@ -65,7 +65,8 @@ const GROUND_PARS =  `
 uniform float uFmlTopScale;
 uniform sampler2D uFmlPathMap;
 uniform float uFmlPathScale;
-uniform vec4 uFmlPath[ ${PATH_MAX_POINTS} ];
+uniform sampler2D uFmlPathField;
+uniform vec4 uFmlPathRect;
 uniform int uFmlPathCount;
 uniform float uFmlPathHalf;
 uniform vec3 uFmlPathColor;
@@ -94,12 +95,9 @@ const GROUND_MAP =  `
 
 const GROUND_PATH =  `
 if ( uFmlPathCount > 1 ) {
-  float fmlPd = 1e5;
-  for ( int i = 0; i < ${PATH_MAX_POINTS - 1}; i ++ ) {
-    if ( i >= uFmlPathCount - 1 ) break;
-    if ( uFmlPath[ i ].z < 0.5 ) continue;
-    fmlPd = min( fmlPd, fmlSegDist( vFmlWorld.xz, uFmlPath[ i ].xy, uFmlPath[ i + 1 ].xy ) );
-  }
+  // I1: ONE texture read (moon/world/pathField.mjs, pathDistance baked per texel),
+  // not a loop over every segment - measured +17 % of a phone-tier frame at 69 points.
+  float fmlPd = texture2D( uFmlPathField, ( vFmlWorld.xz - uFmlPathRect.xy ) * uFmlPathRect.z ).r * uFmlPathRect.w;
   // A ragged, crisp painted edge (three noise scales, a narrow blend) with a darker
   // border band just inside it: the art-director review read the old 24 cm
   // smoothstep as a blurry cut-out.
@@ -159,6 +157,28 @@ if ( uFmlLandOn > 0.5 ) {
 
 
 
+const PATH_TEXTURES = new Map();
+function fieldTexture(data, size) {
+  const t = new THREE.DataTexture(data, size, size, THREE.RedFormat, THREE.UnsignedByteType);
+  t.magFilter = THREE.LinearFilter;
+  t.minFilter = THREE.LinearFilter;
+  t.generateMipmaps = false;
+  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  t.needsUpdate = true;
+  return t;
+}
+function pathFieldTexture(layout) {
+  if (!PATH_TEXTURES.has(layout)) {
+    const f = pathField(layout);
+    PATH_TEXTURES.set(layout, fieldTexture(f.data, f.size));
+  }
+  return PATH_TEXTURES.get(layout);
+}
+let BLANK = null;
+const blankField = () => (BLANK ||= fieldTexture(new Uint8Array(1).fill(255), 1));
+
+
+
 
 export async function groundMaterial({ season = 'summer', paths = true, layout = MOON } = {}) {
   const { PATHS, PATH_HALF_WIDTH, PARCEL } = layout;
@@ -166,16 +186,15 @@ export async function groundMaterial({ season = 'summer', paths = true, layout =
   const [top, path] = await Promise.all([loadPainter(winter ? 'snow' : 'grass'), loadPainter('soil')]);
   const [topMap, pathMap] = await Promise.all([paintTexture(top, top.SURFACE.size), paintTexture(path, path.SURFACE.size)]);
   const pal = seasonPalette(season);
-  const pts = [];
-  for (const line of PATHS) line.forEach(([x, z], i) => pts.push(new THREE.Vector4(x, z, i < line.length - 1 ? 1 : 0, 0)));
-  const count = pts.length;
-  while (pts.length < PATH_MAX_POINTS) pts.push(new THREE.Vector4());
+  const count = PATHS.reduce((n, line) => n + line.length, 0);
+  const pathMask = paths && count > 1 ? pathFieldTexture(layout) : blankField();
   const g1 = linear(pal.grass[1]);
   const uniforms = {
     uFmlTopScale: { value: top.SURFACE.worldScale || 3 },
     uFmlPathMap: { value: pathMap },
     uFmlPathScale: { value: path.SURFACE.worldScale || 3 },
-    uFmlPath: { value: pts },
+    uFmlPathField: { value: pathMask },
+    uFmlPathRect: { value: new THREE.Vector4(PATH_FIELD.originM, PATH_FIELD.originM, 1 / PATH_FIELD.spanM, PATH_FIELD.maxM) },
     uFmlPathCount: { value: paths ? count : 0 },
     uFmlPathHalf: { value: PATH_HALF_WIDTH },
     uFmlPathColor: { value: new THREE.Color().setRGB(...linear(pal.path), THREE.LinearSRGBColorSpace) },

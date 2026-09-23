@@ -48,7 +48,8 @@ export const COTTAGE_SPOT = Object.freeze({ x: -4.6, z: -11.2, rotY: 0, seed: 1 
 
 
 
-export const PATH_MAX_POINTS = 24;
+
+export const PATH_MAX_POINTS = 96;
 export const PATH_HALF_WIDTH = 1.05;
 
 
@@ -78,7 +79,29 @@ export const PATHS = Object.freeze([
   Object.freeze([[3.6, 3.6], [2.2, 8.5], [0.4, 14], [-2.5, 21]]),
   Object.freeze([[-0.6, -2.0], [-5.2, 0.4], [-11, 0.2], [-17, -3.5], [-23, -5], [-25.4, -5.4], [-27.4, -5.7]]),
   Object.freeze([[-27.4, -5.7], [-24.25, -4.25], [-24.35, -8.67]]),
+  
+  
+  
+  
+  
+  Object.freeze([[-30, -3.9], [-29.456, -3.972], [-28.95, -4.181], [-28.515, -4.515], [-28.181, -4.95], [-27.972, -5.456], [-27.9, -6], [-27.972, -6.544], [-28.181, -7.05], [-28.515, -7.485], [-28.95, -7.819], [-29.456, -8.028], [-30, -8.1], [-30.544, -8.028], [-31.05, -7.819], [-31.485, -7.485], [-31.819, -7.05], [-32.028, -6.544], [-32.1, -6], [-32.028, -5.456], [-31.819, -4.95], [-31.485, -4.515], [-31.05, -4.181], [-30.544, -3.972], [-30, -3.9]]),
+  
+  Object.freeze([[-6.655, 0.35], [-6.64, -1.69]]), 
+  Object.freeze([[2.245, 2.438], [3.63, 1.022], [4.03, 0.422]]), 
+  Object.freeze([[-1, -5.2], [-3, -6.645], [-4.6, -6.845]]), 
+  Object.freeze([[-24.25, -4.25], [-23.38, -2.79], [-23.38, -1.79], [-25.58, 3.21], [-26.38, 3.81], [-33.78, 3.81], [-35.58, 3.21], [-36.18, 2.61], [-37.98, -0.19], [-38.18, -1.19], [-37.78, -1.99], [-36.78, -2.99], [-35.58, -2.99], [-35.58, -2.79]]), 
+  Object.freeze([[-27.55, 3.81], [-27.55, 3.045]]), 
+  Object.freeze([[-29.602, -8.047], [-29.533, -8.965]]), 
+  
 ]);
+
+
+
+
+const PATH_BOXES = PATHS.map((line) => {
+  const xs = line.map((p) => p[0]), zs = line.map((p) => p[1]);
+  return [Math.min(...xs), Math.min(...zs), Math.max(...xs), Math.max(...zs)];
+});
 
 
 
@@ -126,7 +149,10 @@ function segDist(px, pz, ax, az, bx, bz) {
 
 export function pathDistance(x, z) {
   let d = Infinity;
-  for (const line of PATHS) {
+  for (let k = 0; k < PATHS.length; k++) {
+    const line = PATHS[k], b = PATH_BOXES[k];
+    const bx = Math.max(b[0] - x, 0, x - b[2]), bz = Math.max(b[1] - z, 0, z - b[3]);
+    if (bx * bx + bz * bz >= d * d) continue;
     for (let i = 0; i < line.length - 1; i++) {
       d = Math.min(d, segDist(x, z, line[i][0], line[i][1], line[i + 1][0], line[i + 1][1]));
     }
