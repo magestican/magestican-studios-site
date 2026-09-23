@@ -158,6 +158,7 @@ import { INDOOR_DISPLAY_SCALE } from 'moon/art/workRoom.mjs';
 
 import { generate as generateCat } from 'moon/art/cat.mjs';
 import { restingFace } from 'moon/rig/face.mjs';
+import { faceMeter } from './faceMeter.js';
 import { blinkAt } from 'moon/rig/idleLife.mjs';
 import { PERSONALITIES, personalityOf } from 'moon/play/personality.mjs';
 import { toObject3D } from '../render/toMesh.js';
@@ -1010,6 +1011,15 @@ const voice = createVoice({ audio });
 
 
 
+
+fml.voiceSay = (text, voiceId, opts) => {
+  const c = voice.say(text, voiceId, opts);
+  const f0 = c.events.filter((e) => !e.interjection).map((e) => e.f0);
+  return { total: c.total, lead: c.lead, meanF0: f0.reduce((s, x) => s + x, 0) / Math.max(1, f0.length), state: voice.state };
+};
+
+
+
 const music = createMusic({ audio, score: SCORE, mix: MIX });
 
 
@@ -1432,6 +1442,11 @@ Object.defineProperty(fml, 'spans', {
     worst: worstSpan ? { ...worstSpan } : null,
   }),
 });
+
+
+
+Object.defineProperty(fml, 'faceCost', { enumerable: true, get: () => faceMeter.reading() });
+fml.resetFaceCost = () => faceMeter.reset();
 
 function syncBuildings() {
   return timed('syncBuildings', () => syncBuildingsNow());
@@ -2714,8 +2729,10 @@ function syncRoomKeeper(t, dt) {
   pc.object.rotation.y = spot.heading;
   pc.update(dt, { speed: 0 });
   if (roomResident) {
+    const faceT0 = faceMeter.start();
     const face = restingFace({ personality: PERSONALITIES[personalityOf(v)], blink: blinkAt(3 + world.villagers.indexOf(v), seconds), lidsBase: roomResident.lids });
     pc.object.traverse((o) => { if (o.isMesh && o.morphTargetInfluences) for (let k = 0; k < face.length; k++) o.morphTargetInfluences[k] = face[k]; });
+    faceMeter.stop(faceT0);
   }
 }
 
@@ -5341,6 +5358,7 @@ function sendPerfSample(name, params) {
 const sendSiteEvent = sendPerfSample;
 
 function frame(now) {
+  faceMeter.frame(); 
   const raw = clock.getDelta();
   const dt = Math.min(raw, FEEL.maxFrameS);
   seconds += raw;
@@ -5485,7 +5503,7 @@ function frame(now) {
   noteEconomyEvents(frameEvents);
   noteMoodEvents(frameEvents);
   
-  if (character.face) character.face(moodNow(playerLedger, t / 1000, {}), now / 1000);
+  if (character.face) { const faceT0 = faceMeter.start(); character.face(moodNow(playerLedger, t / 1000, {}), now / 1000); faceMeter.stop(faceT0); }
   
   
   if (frameEvents.length) touchSave('world');
@@ -5644,7 +5662,9 @@ function frame(now) {
       stepMole(mole, dt * state.anim, { inside: moleLand, player });
       const moleTalk = !!talk && talkingToMole();
       
+      const faceT0 = faceMeter.start();
       const face = restingFace({ personality: PERSONALITIES.shy, blink: blinkAt(2, seconds), talking: moleTalk, activity: moleTalk ? voice.activity() : 0, lidsBase: 0.3 });
+      faceMeter.stop(faceT0);
       moleDraw.update(moleView(mole), { look: talkingToMole() ? { x: player.x, z: player.z } : null, face });
     }
   }
@@ -5952,8 +5972,10 @@ function frame(now) {
     catObj.rotation.z = 0.05 * catBob * Math.sin(seconds * 7);
     
     const catTalk = !!talk && !talkingToVillager() && !talkingToMole();
+    const faceT0 = faceMeter.start();
     const face = restingFace({ personality: PERSONALITIES.bossy, blink: blinkAt(CAT_P.seed || 1, seconds), talking: catTalk, activity: catTalk ? voice.activity() : 0 });
     catObj.traverse((o) => { if (o.isMesh && o.morphTargetInfluences) face.forEach((v, i) => { o.morphTargetInfluences[i] = v; }); });
+    faceMeter.stop(faceT0);
   }
 
   if (card === 'press' && (!pr || !aim || aim.type !== 'processor')) closeCard();

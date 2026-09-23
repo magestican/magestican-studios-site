@@ -67,4 +67,21 @@ export const CUES = Object.freeze({
 export const CUE_IDS = Object.freeze(Object.keys(CUES));
 
 
+
+
+
+
+
+
+
+
+export const VOICE_CUES = Object.freeze({
+  'voice.laugh': 'laugh',
+  'voice.gasp': 'gasp',
+  'voice.sigh': 'sigh',
+  'voice.grumble': 'grumble',
+  'voice.hum': 'hum',
+});
+
+
 export const cueOf = (id) => CUES[id] || null;

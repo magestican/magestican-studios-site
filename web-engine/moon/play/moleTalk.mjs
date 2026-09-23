@@ -34,6 +34,7 @@
 
 import { whyCannot } from '../economy/world.mjs';
 import { UNDERGROUND } from '../economy/tables.mjs';
+import { MOLE_PERSONALITY } from './personality.mjs';
 import { seedOf } from '../voice/mumble.mjs';
 import { nameOf } from './names.mjs';
 import { MOLE_NAME } from './people.mjs';
@@ -220,6 +221,8 @@ export function talkNode(state, { world, t }) {
     key: `${id}|${state.step}`,
     speaker: SPEAKER.name,
     voice: SPEAKER.voice,
+    
+    personality: MOLE_PERSONALITY,
     lines: n.lines,
     moods: n.lines.map(() => MOLE_MOODS[id] || 'concern'),
     choices: n.choices,

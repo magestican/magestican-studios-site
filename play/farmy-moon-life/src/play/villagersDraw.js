@@ -46,6 +46,7 @@ import { villagerGesture } from 'moon/play/gestures.mjs';
 import { seatClip, seatedRootY } from 'moon/rig/clips.mjs';
 import { villagerBuild } from 'moon/play/people.mjs';
 import { faceAt, faceInfluences } from 'moon/rig/face.mjs';
+import { faceMeter } from './faceMeter.js';
 import { PERSONALITIES, personalityOf } from 'moon/play/personality.mjs';
 import { EMPTY_LEDGER, applyEvent, applyLine, moodNow } from 'moon/play/moods.mjs';
 import { villagerObject } from '../render/villager.js';
@@ -282,6 +283,7 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
           
           
           
+          const faceT0 = faceMeter.start(); 
           const life = pc.locomotion.state.life;
           const personality = PERSONALITIES[personalityOf(v)];
           
@@ -294,6 +296,7 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
             for (let i = 0; i < infl.length; i++) m.morphTargetInfluences[i] = infl[i];
           }
           faces.set(v.id, { expression: mood, lidsClose: face.lidsClose || 0, mouthO: face.mouthO || 0 });
+          faceMeter.stop(faceT0);
         }
       }
       

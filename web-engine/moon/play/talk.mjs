@@ -49,6 +49,7 @@ import { seedOf } from '../voice/mumble.mjs';
 import { sugarToBuy } from './interact.mjs';
 import { nameOf } from './names.mjs';
 import { CAT_NAME } from './people.mjs';
+import { CAT_PERSONALITY } from './personality.mjs';
 import { goalSpec, goalView, nextOffer } from './goals.mjs';
 
 export const SPEAKER = Object.freeze({ name: CAT_NAME, voice: 'cat' });
@@ -304,6 +305,8 @@ export function talkNode(state, { world, t, land = { forSale: [], selected: null
     key: `${id}|${state.step}`,
     speaker: SPEAKER.name,
     voice: SPEAKER.voice,
+    
+    personality: CAT_PERSONALITY,
     lines: n.lines,
     
     moods: n.lines.map(() => CAT_MOODS[n.id || id] || 'concern'),

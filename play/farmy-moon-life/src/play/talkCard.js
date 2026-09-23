@@ -21,6 +21,8 @@
 
 
 
+import { interjectionFor } from 'moon/voice/moods.mjs';
+
 const UP = new Set(['ArrowUp', 'KeyW']);
 const DOWN = new Set(['ArrowDown', 'KeyS']);
 
@@ -55,10 +57,15 @@ export function createTalkCard({ el, voice, onChoose, onClose, onLine = () => {}
 
   function sayLine() {
     const line = lines()[lineIndex] || '';
-    voice.say(line, current.voice);
+    const mood = (current.moods && current.moods[lineIndex]) || 'neutral';
     
     
-    onLine((current.moods && current.moods[lineIndex]) || 'neutral', lineIndex);
+    
+    const interjection = interjectionFor(mood, lineIndex > 0 ? current.moods[lineIndex - 1] || 'neutral' : null);
+    voice.say(line, current.voice, { mood, personality: current.personality, interjection });
+    
+    
+    onLine(mood, lineIndex);
     shownN = -1;
     text.dataset.full = line;
     el.dataset.line = String(lineIndex);
@@ -171,7 +178,7 @@ export function createTalkCard({ el, voice, onChoose, onClose, onLine = () => {}
     live = nextNode;
     if (!current || current.key !== nextNode.key) {
       
-      current = { key: nextNode.key, id: nextNode.id, lines: nextNode.lines.slice(), moods: (nextNode.moods || []).slice(), voice: nextNode.voice, end: nextNode.end };
+      current = { key: nextNode.key, id: nextNode.id, lines: nextNode.lines.slice(), moods: (nextNode.moods || []).slice(), voice: nextNode.voice, personality: nextNode.personality || null, end: nextNode.end };
       lineIndex = 0;
       highlighted = 0;
       choiceSig = '';

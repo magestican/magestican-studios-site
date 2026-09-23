@@ -18,7 +18,9 @@
 
 
 
-import { activityAt, compileMumble, revealAt } from 'moon/voice/mumble.mjs';
+
+import { activityAt, revealAt } from 'moon/voice/mumble.mjs';
+import { compileLine, cueOfInterjection } from 'moon/voice/moods.mjs';
 import { voiceOf } from 'moon/voice/voices.mjs';
 
 
@@ -29,6 +31,10 @@ export function createVoice({ audio, now = () => performance.now() / 1000 }) {
   let line = null;
   let noise = null;
   const counts = { lines: 0, syllables: 0, skipped: 0 };
+  
+  
+  const cues = {};
+  let last = null;
 
   function noiseBuffer(ctx) {
     if (noise && noise.sampleRate === ctx.sampleRate) return noise;
@@ -132,12 +138,17 @@ export function createVoice({ audio, now = () => performance.now() / 1000 }) {
     } catch {  }
   }
 
-  function say(text, voiceId = 'cat') {
+  
+  
+  
+  function say(text, voiceId = 'cat', { mood = 'neutral', personality = null, interjection = null } = {}) {
     silence();
-    const v = voiceOf(voiceId);
-    const compiled = compileMumble(text, v);
+    const compiled = compileLine(text, voiceOf(voiceId), { mood, personality, interjection });
+    const v = compiled.voice;
     line = { text, v, compiled, startS: now(), counted: 0, finished: false, bus: null };
     counts.lines += 1;
+    last = { mood, personality, interjection, cue: interjection ? cueOfInterjection(interjection) : null, lead: compiled.lead, total: compiled.total };
+    if (last.cue) cues[last.cue] = (cues[last.cue] || 0) + 1;
     const ctx = audio.ctx;
     if (ctx && !audio.muted) {
       const bus = ctx.createGain();
@@ -191,6 +202,8 @@ export function createVoice({ audio, now = () => performance.now() / 1000 }) {
         unlocked: audio.unlocked, muted: audio.muted, ...counts,
         speaking: Boolean(line && !line.finished && elapsed() < line.compiled.total),
         voice: line ? line.v.id : null,
+        cues: { ...cues },
+        last,
       };
     },
   };

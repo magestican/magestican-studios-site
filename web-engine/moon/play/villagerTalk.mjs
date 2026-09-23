@@ -390,6 +390,8 @@ export function talkNode(state, { world, t }) {
     voice: speaker.voice,
     villager: villager.id,
     
+    personality: personalityOf(villager),
+    
     
     lines: n.said.map((l) => l.text),
     moods: n.said.map((l) => l.mood),
