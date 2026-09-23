@@ -62,6 +62,7 @@ import { PLAZA } from '../world/moonLayout.mjs';
 import { seedOf } from '../voice/mumble.mjs';
 import { ITALIAN_NAMES, villagerName } from './people.mjs';
 import { ownsHome } from './playerHome.mjs';
+import { personalityOf } from './personality.mjs';
 
 export const ASSEMBLY = Object.freeze({
   
@@ -234,31 +235,33 @@ export function gatherSpots(n, cfg = ASSEMBLY) {
 
 
 
-export const TRAITS = Object.freeze(['builder', 'gardener', 'host', 'thrifty', 'dreamer']);
 
 
 
 
-const LEAN = Object.freeze({
-  builder: Object.freeze({ building: 2, path: 1, villager: 0 }),
-  gardener: Object.freeze({ building: -1, path: 2, villager: 0 }),
-  host: Object.freeze({ building: 0, path: 0, villager: 2 }),
-  thrifty: Object.freeze({ building: -2, path: -1, villager: -1 }),
-  dreamer: Object.freeze({ building: 1, path: -1, villager: 2 }),
+
+
+
+
+export const LEAN = Object.freeze({
+  cheerful: Object.freeze({ building: 1, path: 1, villager: 2 }),
+  grumpy: Object.freeze({ building: -2, path: -1, villager: -1 }),
+  shy: Object.freeze({ building: -1, path: -1, villager: -2 }),
+  dreamy: Object.freeze({ building: 1, path: -1, villager: 2 }),
+  bossy: Object.freeze({ building: 2, path: 1, villager: 0 }),
+  curious: Object.freeze({ building: 1, path: 1, villager: 1 }),
+  gentle: Object.freeze({ building: -1, path: 1, villager: 1 }),
 });
 
 const BECAUSE = Object.freeze({
-  builder: Object.freeze({ building: 'loves a building site', path: 'likes a job with an end to it', villager: 'has no strong feeling' }),
-  gardener: Object.freeze({ building: 'would rather keep the grass', path: 'is tired of muddy boots', villager: 'has no strong feeling' }),
-  host: Object.freeze({ building: 'has no strong feeling', path: 'has no strong feeling', villager: 'would love the company' }),
-  thrifty: Object.freeze({ building: 'thinks it dear', path: 'thinks the lane does', villager: 'worries about the room' }),
-  dreamer: Object.freeze({ building: 'likes the look of it', path: 'likes the square as it is', villager: 'wants somebody new to talk to' }),
+  cheerful: Object.freeze({ building: 'likes anything new', path: 'likes a tidy lane', villager: 'would love the company' }),
+  grumpy: Object.freeze({ building: 'thinks it dear', path: 'thinks the lane does', villager: 'worries about the room' }),
+  shy: Object.freeze({ building: 'would rather keep the grass', path: 'would rather keep the quiet', villager: 'dreads a crowd' }),
+  dreamy: Object.freeze({ building: 'likes the look of it', path: 'likes the square as it is', villager: 'wants somebody new to talk to' }),
+  bossy: Object.freeze({ building: 'loves a building site', path: 'likes a job with an end to it', villager: 'has no strong feeling' }),
+  curious: Object.freeze({ building: 'wants to see it built', path: 'wonders where it goes', villager: 'wants to hear their stories' }),
+  gentle: Object.freeze({ building: 'would rather keep the grass', path: 'is tired of muddy boots', villager: 'would make them welcome' }),
 });
-
-
-export function traitOf(villager) {
-  return TRAITS[seedOf(`trait|${villager.species}|${villager.id}`) % TRAITS.length];
-}
 
 
 
@@ -277,17 +280,19 @@ export const fondness = (villager) => Math.max(0, Math.min(2, (villager.levels |
 
 
 
+
 export function voteOf(villager, motion, villagers = []) {
-  const trait = traitOf(villager);
-  const lean = num(LEAN[trait][motion.kind]);
+  const personality = personalityOf(villager);
+  const lean = num(LEAN[personality][motion.kind]);
   const fond = fondness(villager);
   const weight = lean + fond;
   const yes = weight >= 1;
-  const feeling = BECAUSE[trait][motion.kind];
+  const feeling = BECAUSE[personality][motion.kind];
   return {
     id: villager.id,
     name: villagerName(villager, villagers),
-    trait,
+    personality,
+    trait: personality,
     yes,
     weight,
     because: fond > 0 && lean <= 0 && yes ? `${feeling}, but is fond of you` : feeling,

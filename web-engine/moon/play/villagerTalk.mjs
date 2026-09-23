@@ -33,6 +33,7 @@ import { VILLAGER_SPECIES, VOICES } from '../voice/voices.mjs';
 import { seedOf } from '../voice/mumble.mjs';
 import { nameOf } from './names.mjs';
 import { villagerName } from './people.mjs';
+import { PERSONALITIES, personalityOf } from './personality.mjs';
 import { MAX_LINE_CHARS, coinsText } from './talk.mjs';
 import { homeStage } from './village.mjs';
 
@@ -66,6 +67,119 @@ export const GENERIC_LINES = Object.freeze({
 
 
 export const SPECIES_LINES = Object.freeze({});
+
+
+
+
+
+
+
+
+
+const say = (text, mood) => Object.freeze({ text, mood });
+export const PERSONALITY_LINES = Object.freeze({
+  cheerful: Object.freeze({
+    hello: say("Oh! Hello, hello! I'm {name}. What a lovely day to meet somebody new!", 'happy'),
+    welcome: say("Welcome to Farmy Moon! You'll love it here. Everyone does.", 'happy'),
+    again: Object.freeze([say('There you are! What a lovely day for a walk.', 'happy'), say('Oh, hello again! I was just thinking about you.', 'happy')]),
+    bye: Object.freeze([say('Bye for now! Come back soon!', 'happy')]),
+    calm: say("Don't you worry about me. I'm always fine!", 'happy'),
+    more: say("Anything else? I've got all day!", 'happy'),
+    gift: say('Coins? For me? Oh, how kind! How many?', 'amazement'),
+    goods: say('A present! Ooh, I love presents. What is it?', 'amazement'),
+    double: say('And a favourite thing counts twice, you know!', 'happy'),
+    favourite: say("And it's my very favourite, too!", 'amazement'),
+  }),
+  grumpy: Object.freeze({
+    hello: say("Hm. You're new. I'm {name}. Mind the grass.", 'frustration'),
+    welcome: say('Farmy Moon, they call it. It was quieter before.', 'neutral'),
+    again: Object.freeze([say('Oh. You again.', 'neutral'), say('Back in my day, people knocked.', 'frustration')]),
+    bye: Object.freeze([say('Yes, yes. Off you go.', 'neutral')]),
+    calm: say("I'm fine. I'm always fine. Stop asking.", 'frustration'),
+    more: say('Well? Anything else?', 'neutral'),
+    gift: say('Coins. Hm. Go on then, how many?', 'neutral'),
+    goods: say("A present? Let's see it, then.", 'interest'),
+    double: say("Get it right and it counts twice. Most people don't.", 'neutral'),
+    favourite: say("...That's my favourite. Don't tell anyone I smiled.", 'happy'),
+  }),
+  shy: Object.freeze({
+    hello: say("Oh - um, hello. I'm {name}. You're new, aren't you?", 'concern'),
+    welcome: say("Welcome to Farmy Moon. It's quiet here. I like that.", 'neutral'),
+    again: Object.freeze([say('Oh - um, hello.', 'concern'), say("Hello again. I'm glad it's you.", 'happy')]),
+    bye: Object.freeze([say('Bye... come again, if you like.', 'happy')]),
+    calm: say("It's all right. Really. Please don't worry.", 'concern'),
+    more: say('Was there... something else?', 'concern'),
+    gift: say("Oh, you shouldn't. How many, um?", 'concern'),
+    goods: say('For me? Oh... what is it?', 'amazement'),
+    double: say('A favourite thing means twice as much. To me, anyway.', 'neutral'),
+    favourite: say("Oh! That's my favourite. How did you know?", 'amazement'),
+  }),
+  dreamy: Object.freeze({
+    hello: say("Oh, hello. I'm {name}. Did you fall from a star?", 'amazement'),
+    welcome: say('Welcome to Farmy Moon. The nights here are something else.', 'happy'),
+    again: Object.freeze([say('Do you ever just... look at the sky?', 'amazement'), say("Oh, it's you. I was miles away.", 'neutral')]),
+    bye: Object.freeze([say('Goodbye... mind the stars on your way.', 'happy')]),
+    calm: say("Never mind me. My head's in the clouds again.", 'neutral'),
+    more: say('Hm? Oh - was there more?', 'interest'),
+    gift: say('Coins? They shine like little moons. How many?', 'amazement'),
+    goods: say('A present... I wonder what it is. Show me?', 'interest'),
+    double: say('A favourite thing is worth twice as much. Like starlight.', 'happy'),
+    favourite: say("My favourite! It's as if you read my dreams.", 'amazement'),
+  }),
+  bossy: Object.freeze({
+    hello: say("Ah, a new face. I'm {name}. I keep this town in order.", 'interest'),
+    welcome: say('Welcome to Farmy Moon. Read the notice board. Every day.', 'neutral'),
+    again: Object.freeze([say('Someone has to keep this town in order.', 'concern'), say('There you are. Keeping busy, I hope?', 'interest')]),
+    bye: Object.freeze([say("Right. Off you go, and don't dawdle.", 'neutral')]),
+    calm: say("No fuss. I've handled worse before breakfast.", 'neutral'),
+    more: say('Next item. What else?', 'neutral'),
+    gift: say('Coins? Sensible. How many are we talking?', 'interest'),
+    goods: say('A present? Let me have a proper look.', 'interest'),
+    double: say('Rule one: a favourite thing counts twice. Remember that.', 'neutral'),
+    favourite: say("And it's my favourite. Well done, you.", 'happy'),
+  }),
+  curious: Object.freeze({
+    hello: say("Ooh, a new face! I'm {name}. Where did you come from?", 'interest'),
+    welcome: say("Welcome to Farmy Moon! There's so much to find here.", 'happy'),
+    again: Object.freeze([say("Ooh, what's that? Oh - it's you! Hello!", 'amazement'), say('Back again! Found anything good?', 'interest')]),
+    bye: Object.freeze([say('Bye! Tell me everything next time.', 'happy')]),
+    calm: say('No harm done. I wanted to see what happens anyway.', 'interest'),
+    more: say('Ooh, and what else?', 'interest'),
+    gift: say('Coins? What are they for? How many?', 'interest'),
+    goods: say("What's in your pockets? Show me, show me!", 'amazement'),
+    double: say("Did you know a favourite thing counts twice? It's true!", 'interest'),
+    favourite: say('My favourite! How did you find out?', 'amazement'),
+  }),
+  gentle: Object.freeze({
+    hello: say("Hello there. I'm {name}. It's good to have you here.", 'happy'),
+    welcome: say("Welcome to Farmy Moon. Settle in slowly. We'll look after you.", 'happy'),
+    again: Object.freeze([say("Take your time, there's no rush.", 'happy'), say('Hello again, dear. How are you keeping?', 'interest')]),
+    bye: Object.freeze([say('Look after yourself. See you soon.', 'happy')]),
+    calm: say("It's quite all right. These things happen.", 'happy'),
+    more: say('Is there anything else, dear?', 'neutral'),
+    gift: say('Oh, you are kind. How many, dear?', 'happy'),
+    goods: say("A present? You needn't have. What is it?", 'amazement'),
+    double: say('A favourite thing means twice as much. Keep that in mind.', 'neutral'),
+    favourite: say('And my favourite, too. Thank you, dear.', 'happy'),
+  }),
+});
+
+
+
+
+export const LINE_MOODS = Object.freeze({ thanks: 'happy', levelUp: 'amazement', cantGive: 'concern', home: null, hint: null, generic: 'neutral' });
+
+
+
+const GENERIC_MOODS = Object.freeze({
+  hello: 'happy', welcome: 'happy', again: 'happy', bye: 'happy', calm: 'neutral',
+  more: 'neutral', gift: 'amazement', goods: 'amazement', double: 'neutral', favourite: 'amazement',
+});
+const GENERIC_NODE_TEXT = Object.freeze({
+  more: Object.freeze(['Anything else?', 'What else?', 'Hm?']),
+  gift: Object.freeze(["Coins? That's so kind. How many?", 'Oh, for me? How much?']),
+  goods: Object.freeze(['A present? For me? What is it?', "Ooh, what's in your pockets?"]),
+});
 
 const HOME_LINE = Object.freeze({
   none: 'I sleep under the stars for now. One day, a house!',
@@ -107,16 +221,31 @@ const LEVEL_UP = Object.freeze({
 });
 
 
-export function linesFor(species, name) {
+
+
+
+
+export function saysFor(species, name, personality) {
   const fill = (s) => s.replaceAll('{name}', name || 'your neighbour').replaceAll('{species}', species || 'villager');
-  const merged = { ...GENERIC_LINES, ...(SPECIES_LINES[species] || {}) };
-  return {
-    hello: fill(merged.hello),
-    welcome: fill(merged.welcome),
-    again: merged.again.map(fill),
-    bye: merged.bye.map(fill),
-    calm: fill(merged.calm),
+  const generic = { ...GENERIC_LINES, ...GENERIC_NODE_TEXT, double: DOUBLE_LINE, favourite: FAVOURITE_LINE, ...(SPECIES_LINES[species] || {}) };
+  const own = PERSONALITY_LINES[personality] || {};
+  const one = (k) => {
+    const o = own[k];
+    if (o) return Array.isArray(o) ? o.map((l) => say(fill(l.text), l.mood)) : say(fill(o.text), o.mood);
+    const g = generic[k];
+    return Array.isArray(g) ? g.map((s) => say(fill(s), GENERIC_MOODS[k])) : say(fill(g), GENERIC_MOODS[k]);
   };
+  const list = (k) => [].concat(one(k));
+  return {
+    hello: one('hello'), welcome: one('welcome'), again: list('again'), bye: list('bye'), calm: one('calm'),
+    more: list('more'), gift: list('gift'), goods: list('goods'), double: one('double'), favourite: one('favourite'),
+  };
+}
+
+
+export function linesFor(species, name, personality) {
+  const s = saysFor(species, name, personality);
+  return { hello: s.hello.text, welcome: s.welcome.text, again: s.again.map((l) => l.text), bye: s.bye.map((l) => l.text), calm: s.calm.text };
 }
 
 
@@ -155,17 +284,17 @@ export const NO_GOODS = 'You have nothing in your pockets they would like.';
 
 const NODE = {
   greeting(state, { world, t, villager }) {
-    const lines0 = linesFor(villager.species, villagerName(villager, world.villagers));
-    let lines;
-    if (state.step > 0) lines = [pick(['Anything else?', 'What else?', 'Hm?'], world, state, 'again')];
+    const s = saysOf(villager, world);
+    let said;
+    if (state.step > 0) said = [pick(s.more, world, state, 'again')];
     
     
     
-    else if (state.visits === 0) lines = [lines0.hello, lines0.welcome, HOME_LINE[homeStage(villager, t).stage]];
-    else lines = [pick(lines0.again, world, state, 'hello')];
+    else if (state.visits === 0) said = [s.hello, s.welcome, say(HOME_LINE[homeStage(villager, t).stage], ownMood(villager, 'home'))];
+    else said = [pick(s.again, world, state, 'hello')];
     const goods = giftGoods(world, villager);
     return {
-      lines,
+      said,
       choices: [
         { key: 'coins', label: 'Give some coins', next: 'gift' },
         { key: 'goods', label: 'Give a present', next: 'goods', why: goods.length ? null : NO_GOODS, want: goods.length ? null : { kind: 'nothing' } },
@@ -177,7 +306,7 @@ const NODE = {
 
   gift(state, { world, t, villager }) {
     return {
-      lines: [pick(["Coins? That's so kind. How many?", 'Oh, for me? How much?'], world, state, 'gift')],
+      said: [pick(saysOf(villager, world).gift, world, state, 'gift')],
       choices: [
         ...COIN_GIFTS.map((coins) => {
           const action = { type: 'gift', villager: villager.id, coins };
@@ -192,7 +321,7 @@ const NODE = {
     const goods = giftGoods(world, villager);
     if (!goods.length) return { ...NODE.cantGive({ ...state, want: { kind: 'nothing' }, error: NO_GOODS }, { world, t, villager }), id: 'cantGive' };
     return {
-      lines: [pick(['A present? For me? What is it?', "Ooh, what's in your pockets?"], world, state, 'goods')],
+      said: [pick(saysOf(villager, world).goods, world, state, 'goods')],
       choices: [
         ...goods.map(({ good, count, favourite }) => {
           const action = { type: 'gift', villager: villager.id, good, count };
@@ -203,22 +332,22 @@ const NODE = {
     };
   },
 
-  hint(state, { villager }) {
-    return { lines: [hintFor(villager.favourite), DOUBLE_LINE], choices: [{ key: 'goods', label: 'Give a present', next: 'goods' }, something, byeChoice()] };
+  hint(state, { world, villager }) {
+    return { said: [say(hintFor(villager.favourite), ownMood(villager, 'hint')), saysOf(villager, world).double], choices: [{ key: 'goods', label: 'Give a present', next: 'goods' }, something, byeChoice()] };
   },
 
-  thanks(state, { world }) {
+  thanks(state, { world, villager }) {
     const g = state.gave || { points: 0 };
     const tier = THANKS.find(([below]) => g.points < below)[1];
-    const lines = [pick(tier, world, state, 'thanks')];
-    if (g.favourite) lines.push(FAVOURITE_LINE);
-    return { lines, choices: [something, byeChoice('Bye for now')] };
+    const said = [say(pick(tier, world, state, 'thanks'), LINE_MOODS.thanks)];
+    if (g.favourite) said.push(saysOf(villager, world).favourite);
+    return { said, choices: [something, byeChoice('Bye for now')] };
   },
 
   levelUp(state, { world, t, villager }) {
     const n = NODE.thanks(state, { world, t, villager });
     const up = state.gave && state.gave.levelUp;
-    return { ...n, lines: [...n.lines, ...(LEVEL_UP[up && up.event] || ["I'm so happy!"])] };
+    return { ...n, said: [...n.said, ...(LEVEL_UP[up && up.event] || ["I'm so happy!"]).map((l) => say(l, LINE_MOODS.levelUp))] };
   },
 
   cantGive(state, { world, villager }) {
@@ -228,20 +357,29 @@ const NODE = {
     else if (want.kind === 'good' && (world.pockets[want.good] || 0) < want.count) first = `That's sweet, but you only have ${nameOf(want.good, world.pockets[want.good] || 0)}.`;
     else if (want.kind === 'nothing') first = "That's sweet, but there's nothing in your pockets for me.";
     else first = `Oh! ${state.error || 'Not just now.'}`;
-    return { lines: [first, linesFor(villager.species, villagerName(villager, world.villagers)).calm], choices: [something, byeChoice('Bye for now')] };
+    return { said: [say(first, LINE_MOODS.cantGive), saysOf(villager, world).calm], choices: [something, byeChoice('Bye for now')] };
   },
 
   bye(state, { world, villager }) {
-    return { lines: [pick(linesFor(villager.species, villagerName(villager, world.villagers)).bye, world, state, 'bye')], choices: [], end: true };
+    return { said: [pick(saysOf(villager, world).bye, world, state, 'bye')], choices: [], end: true };
   },
 };
+
+
+function saysOf(villager, world) {
+  return saysFor(villager.species, villagerName(villager, world.villagers || []), personalityOf(villager));
+}
+
+function ownMood(villager, what) {
+  return LINE_MOODS[what] || PERSONALITIES[personalityOf(villager)].baseline;
+}
 
 
 export function talkNode(state, { world, t }) {
   const villager = villagerOf(world, state);
   const speaker = speakerOf(villager || { species: state.species }, world.villagers || []);
   if (!villager) {
-    return { id: 'bye', key: `bye|${state.step}`, speaker: speaker.name, voice: speaker.voice, villager: state.villager, lines: ['...'], choices: [], look: null, end: true };
+    return { id: 'bye', key: `bye|${state.step}`, speaker: speaker.name, voice: speaker.voice, villager: state.villager, lines: ['...'], moods: ['neutral'], choices: [], look: null, end: true };
   }
   const id = NODE[state.node] ? state.node : 'greeting';
   const n = NODE[id](state, { world, t, villager });
@@ -251,7 +389,10 @@ export function talkNode(state, { world, t }) {
     speaker: speaker.name,
     voice: speaker.voice,
     villager: villager.id,
-    lines: n.lines,
+    
+    
+    lines: n.said.map((l) => l.text),
+    moods: n.said.map((l) => l.mood),
     choices: n.choices,
     look: null,
     end: Boolean(n.end),

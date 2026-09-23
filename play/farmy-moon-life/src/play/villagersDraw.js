@@ -46,7 +46,7 @@ import { villagerGesture } from 'moon/play/gestures.mjs';
 import { villagerBuild } from 'moon/play/people.mjs';
 import { faceAt, faceInfluences } from 'moon/rig/face.mjs';
 import { PERSONALITIES, personalityOf } from 'moon/play/personality.mjs';
-import { EMPTY_LEDGER, moodNow } from 'moon/play/moods.mjs';
+import { EMPTY_LEDGER, applyEvent, applyLine, moodNow } from 'moon/play/moods.mjs';
 import { villagerObject } from '../render/villager.js';
 import { villagerSource } from '../render/villagerSource.js';
 
@@ -99,6 +99,10 @@ export function villagerSpecs(world, { season, playerSeed, cfg = VILLAGERS_DRAW 
 
 export async function createVillagersDraw({ scene, season, playerSeed, heightAt, village, cfg = VILLAGERS_DRAW, source = null }) {
   const slots = new Map();
+  
+  
+  const ledgers = new Map();
+  const faces = new Map();
   const meshes = source || villagerSource();
   let shown = [], held = null;
   
@@ -264,19 +268,18 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
           
           
           
-          
-          
-          
-          
           const life = pc.locomotion.state.life;
           const personality = PERSONALITIES[personalityOf(v)];
-          const mood = moodNow(EMPTY_LEDGER, t, { raining, nowMs: t, tzOffsetMin: world.tzOffsetMin || 0, personality });
+          
+          
+          const mood = moodNow(ledgers.get(v.id) || EMPTY_LEDGER, t / 1000, { raining, nowMs: t, tzOffsetMin: world.tzOffsetMin || 0, personality });
           const face = faceAt({ expression: mood, intensity: personality.intensity, since: 10, blink: life ? life.blink : 0, talking: isHeld, activity: isHeld ? activity : 0 });
           const infl = faceInfluences(face);
           for (const m of pc.meshes) {
             if (!m.morphTargetInfluences) continue;
             for (let i = 0; i < infl.length; i++) m.morphTargetInfluences[i] = infl[i];
           }
+          faces.set(v.id, { expression: mood, lidsClose: face.lidsClose || 0, mouthO: face.mouthO || 0 });
         }
       }
       
@@ -311,6 +314,12 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
     face(point) { if (held) { held.x = point.x; held.z = point.z; } },
     release() { held = null; },
     get held() { return held ? held.id : null; },
+    
+    moodEvent(id, kind, tMs) { ledgers.set(id, applyEvent(ledgers.get(id) || EMPTY_LEDGER, kind, tMs / 1000)); },
+    
+    lineMood(id, mood, tMs) { ledgers.set(id, applyLine(ledgers.get(id) || EMPTY_LEDGER, mood, tMs / 1000)); },
+    
+    get faces() { return Object.fromEntries(faces); },
     get shown() { return shown; },
     
 

@@ -280,6 +280,14 @@ const NODE = {
 };
 
 
+
+
+
+export const CAT_MOODS = Object.freeze({
+  welcome: 'happy', howItWorks: 'interest', greeting: 'interest', land: 'interest', confirm: 'interest',
+  cantAfford: 'frustration', soldOut: 'sad', thanks: 'happy', goal: 'interest', goalSet: 'happy', bye: 'neutral',
+});
+
 export function talkNode(state, { world, t, land = { forSale: [], selected: null, nextPrice: null } }) {
   const view = { forSale: [], selected: null, ...land };
   let id = NODE[state.node] ? state.node : 'greeting';
@@ -297,6 +305,8 @@ export function talkNode(state, { world, t, land = { forSale: [], selected: null
     speaker: SPEAKER.name,
     voice: SPEAKER.voice,
     lines: n.lines,
+    
+    moods: n.lines.map(() => CAT_MOODS[n.id || id] || 'concern'),
     choices: n.choices,
     look: n.look ?? null,
     end: Boolean(n.end),

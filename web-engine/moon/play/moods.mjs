@@ -69,3 +69,37 @@ export function moodNow(ledger, t, { raining = false, nowMs, tzOffsetMin = 0, pe
   if (Number.isFinite(nowMs) && isNightHour(localHour(nowMs, tzOffsetMin))) return 'sleepy';
   return (personality && personality.baseline) || 'neutral';
 }
+
+
+
+
+export const LINE_SECONDS = 6;
+
+export const CHEST_NEAR_M = 6;
+
+
+
+
+
+
+export function applyLine(ledger, mood, t) {
+  if (!mood || mood === 'neutral') return ledger || EMPTY_LEDGER;
+  return { mood, since: t, expiresAt: t + LINE_SECONDS, then: null };
+}
+
+
+
+const REACT = Object.freeze({ anger: 'concern', frustration: 'concern', sleepy: 'neutral', sad: 'concern' });
+
+export const reactTo = (mood) => REACT[mood] || mood || 'neutral';
+
+
+export const ECONOMY_EVENT_KINDS = Object.freeze({ sellTo: 'sale', gift: 'giftLiked' });
+
+
+
+
+
+export function nearChest(villagers, at, near = CHEST_NEAR_M) {
+  return (villagers || []).filter((v) => Math.hypot(v.x - at.x, v.z - at.z) <= near).map((v) => v.id);
+}

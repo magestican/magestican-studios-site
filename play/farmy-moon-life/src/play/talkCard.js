@@ -24,7 +24,7 @@
 const UP = new Set(['ArrowUp', 'KeyW']);
 const DOWN = new Set(['ArrowDown', 'KeyS']);
 
-export function createTalkCard({ el, voice, onChoose, onClose }) {
+export function createTalkCard({ el, voice, onChoose, onClose, onLine = () => {} }) {
   const node = (tag, cls, text) => {
     const n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -56,6 +56,9 @@ export function createTalkCard({ el, voice, onChoose, onClose }) {
   function sayLine() {
     const line = lines()[lineIndex] || '';
     voice.say(line, current.voice);
+    
+    
+    onLine((current.moods && current.moods[lineIndex]) || 'neutral', lineIndex);
     shownN = -1;
     text.dataset.full = line;
     el.dataset.line = String(lineIndex);
@@ -168,7 +171,7 @@ export function createTalkCard({ el, voice, onChoose, onClose }) {
     live = nextNode;
     if (!current || current.key !== nextNode.key) {
       
-      current = { key: nextNode.key, id: nextNode.id, lines: nextNode.lines.slice(), voice: nextNode.voice, end: nextNode.end };
+      current = { key: nextNode.key, id: nextNode.id, lines: nextNode.lines.slice(), moods: (nextNode.moods || []).slice(), voice: nextNode.voice, end: nextNode.end };
       lineIndex = 0;
       highlighted = 0;
       choiceSig = '';
@@ -222,6 +225,7 @@ export function createTalkCard({ el, voice, onChoose, onClose }) {
         line: lineIndex,
         lines: current ? current.lines.length : 0,
         text: lines()[lineIndex] || '',
+        mood: (current && current.moods && current.moods[lineIndex]) || null,
         shown: shownN < 0 ? 0 : shownN,
         typing: voice.typing,
         

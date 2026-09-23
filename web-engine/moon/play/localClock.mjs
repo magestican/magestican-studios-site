@@ -27,3 +27,12 @@ export function localHour(nowMs, tzOffsetMin = 0) {
 export function localDay(nowMs, tzOffsetMin = 0) {
   return Math.floor(localMs(nowMs, tzOffsetMin) / DAY_MS);
 }
+
+
+
+
+
+
+export function econStartAt(nowMs, tzOffsetMin = 0, hour = 0) {
+  return Math.round(localDay(nowMs, tzOffsetMin) * DAY_MS + tzOffsetMin * 60000 + hour * 3_600_000);
+}

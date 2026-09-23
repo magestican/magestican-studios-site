@@ -206,6 +206,12 @@ const NODE = {
 };
 
 
+
+
+export const MOLE_MOODS = Object.freeze({
+  greeting: 'concern', likes: 'happy', dislikes: 'sad', truffle: 'interest', thanks: 'amazement', cantAfford: 'concern', bye: 'happy',
+});
+
 export function talkNode(state, { world, t }) {
   const id = NODE[state.node] ? state.node : 'greeting';
   const n = NODE[id](state, { world, t });
@@ -215,6 +221,7 @@ export function talkNode(state, { world, t }) {
     speaker: SPEAKER.name,
     voice: SPEAKER.voice,
     lines: n.lines,
+    moods: n.lines.map(() => MOLE_MOODS[id] || 'concern'),
     choices: n.choices,
     look: null,
     end: Boolean(n.end),

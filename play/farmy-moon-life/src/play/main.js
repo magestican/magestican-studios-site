@@ -88,7 +88,7 @@ import { flicker } from 'moon/light/flicker.mjs';
 
 const FIRE_FLICKER_SEED = 4.7;
 import { dayLine } from 'moon/play/dayline.mjs';
-import { localHour } from 'moon/play/localClock.mjs';
+import { econStartAt, localHour } from 'moon/play/localClock.mjs';
 import { grantAllowed, grantCoins } from 'moon/play/probeGrant.mjs';
 import { createIndoorCurve } from 'moon/play/indoorCurve.mjs';
 import { placingRotY } from 'moon/economy/houseFacing.mjs';
@@ -184,7 +184,7 @@ import { createSignLabels } from './signLabels.js';
 
 
 import {
-  createVillage, badgeState, homeOf, homeStage, syncHomes, villagerPose, VILLAGE, PLAYER_TUNED, PLAYER_TUNED_HEIGHT_M, playerFit,
+  createVillage, badgeState, homeOf, homeStage, syncHomes, villagerPose, VILLAGE, PLAYER_TUNED, PLAYER_TUNED_HEIGHT_M, playerFit, keeperOf,
 } from 'moon/play/village.mjs';
 import { startTalk as startVillagerTalk, talkNode as villagerTalkNode, choose as chooseVillagerTalk, speakerOf, knockLine } from 'moon/play/villagerTalk.mjs';
 
@@ -199,9 +199,10 @@ import { mayEnter, villagerHomePlaces } from 'moon/play/enterable.mjs';
 import { MOLE, createMole, moleView, stepMole, surfaceMole } from 'moon/play/mole.mjs';
 import { startTalk as startMoleTalk, talkNode as moleTalkNode, choose as chooseMoleTalk } from 'moon/play/moleTalk.mjs';
 import { createMoleDraw } from '../render/mole.js';
-import { DAY_MS, hourAt, isDark } from 'moon/economy/clock.mjs';
+import { DAY_MS, REAL_DAY_MS, hourAt, isDark } from 'moon/economy/clock.mjs';
 import { homeObstacle, homeRoomObstacle } from 'moon/world/collision.mjs';
 import { createVillagersDraw, villagerSpecs } from './villagersDraw.js';
+import { EMPTY_LEDGER, applyEvent, applyLine, moodNow, nearChest, reactTo } from 'moon/play/moods.mjs';
 import { villagerSource } from '../render/villagerSource.js';
 import { createLevelBadges } from './levelBadge.js';
 import { createHomesDraw } from './homesDraw.js';
@@ -718,7 +719,17 @@ const P = placements();
 
 
 const FOUNTAINS = P.filter((p) => p.module === 'kit/decor/fountain');
-const clock0 = Date.now(), wall0 = performance.now();
+
+
+
+
+
+
+
+const clock0 = timeParam !== null && Number.isFinite(Number(timeParam))
+  ? econStartAt(localNowMs(), tzOffsetMin, Number(timeParam))
+  : localNowMs();
+const wall0 = performance.now();
 let skippedMs = 0;
 const wallNow = () => Math.floor(clock0 + (performance.now() - wall0) * state.timescale + skippedMs);
 
@@ -1024,6 +1035,36 @@ let talkVisits = 0;
 
 let met = readMet(null);
 let talkCard = null, catObj = null, catTris = 0, catBob = 0;
+
+
+let playerLedger = EMPTY_LEDGER;
+let bumpContacts = new Set();
+const moodT = () => econNow() / 1000;
+function playerMood(kind) { playerLedger = applyEvent(playerLedger, kind, moodT()); }
+function villagerMood(id, kind) { if (villagersDraw && id) villagersDraw.moodEvent(id, kind, econNow()); }
+
+Object.defineProperty(fml, 'faces', {
+  enumerable: true,
+  get() { return { ...(villagersDraw ? villagersDraw.faces : {}), player: character ? character.lastFace : null }; },
+});
+
+fml.moodEvent = (id, kind) => (id === 'player' ? playerMood(kind) : villagerMood(id, kind));
+
+function onTalkLine(mood) {
+  if (talkWith && talkWith.type === 'villager' && villagersDraw) villagersDraw.lineMood(talkWith.id, mood, econNow());
+  playerLedger = applyLine(playerLedger, reactTo(mood), moodT());
+}
+
+
+function noteMoodEvents(events) {
+  for (const e of events || []) {
+    if (e.type === 'sellTo') {
+      const i = keeperOf('market', hourAt(world, econNow()));
+      const v = i === null ? null : world.villagers[i];
+      if (v) villagerMood(v.id, 'sale');
+    } else if (e.type === 'gift' && e.villager && (e.points || 0) > 0) villagerMood(e.villager, 'giftLiked');
+  }
+}
 
 const LOOK_S = 0.9;
 let lookBlend = 0, lookPoint = null;
@@ -1937,6 +1978,7 @@ function doAct(action, { quiet = false } = {}) {
     events = act(world, action, t);
   } catch (e) {
     hud.nope();
+    playerMood('shutOrUnaffordable');   
     hud.say(e.message, seconds);
     return { error: e.message };
   }
@@ -1947,6 +1989,7 @@ function doAct(action, { quiet = false } = {}) {
   
   
   noteEconomyEvents(events);
+  noteMoodEvents(events);
   
   
   
@@ -2034,6 +2077,8 @@ function doAct(action, { quiet = false } = {}) {
       
       const f = findsHere().find((x) => x.id === e.find);
       if (f) pops.launch({ good: e.good, count: Math.min(e.count, POP_SHOWN_MAX), from: { x: f.x, y: f.y + 0.5, z: f.z }, seed: popSeed, nowS: animSeconds });
+      
+      if (f && f.container === 'chest') for (const id of nearChest(villagersHere(), f)) villagerMood(id, 'chestOpened');
       gesture = true;
     } else if (['stock', 'startJob', 'build', 'upgrade'].includes(e.type)) {
       gesture = true;
@@ -2140,7 +2185,8 @@ function press() {
   
   
   
-  if (p) { hud.nope(refusalOf(p), seconds); return; }
+  
+  if (p) { hud.nope(refusalOf(p), seconds); playerMood('shutOrUnaffordable'); return; }
   
   character.pickUp();
   fml.pickUps += 1;
@@ -2261,8 +2307,6 @@ function syncCorners() {
   hud.setPocketsOpen(cornerIsOpen(corners, 'pockets'));
   toolBar.setOpen(cornerIsOpen(corners, 'tools'));
 }
-
-
 
 
 
@@ -2824,13 +2868,31 @@ let homesDraw = null;
 
 
 
+
+
 fml.g6dHour = (hour) => {
   const t0 = econNow();
   const now = hourAt(world, t0);
   const ahead = ((hour - now) % 24 + 24) % 24;
-  const ms = Math.round((ahead / 24) * DAY_MS);
+  const ms = Math.round((ahead / 24) * REAL_DAY_MS);
   if (ms > 0) fml.advance(ms);
   return Math.round(hourAt(world, econNow()) * 100) / 100;
+};
+
+
+
+
+fml.t1 = () => {
+  const t = econNow();
+  const poses = world.villagers.map((v) => ({ id: v.id, ...villagerPose(village, world, v, t) }));
+  return {
+    econHour: Math.round(hourAt(world, t) * 100) / 100,
+    dark: isDark(world, t),
+    tz: world.tzOffsetMin,
+    emporioOpen: storeView(world, t, 'emporium').open,
+    outside: poses.filter((p) => !p.inside).map((p) => ({ id: p.id, doing: p.doing })),
+    villagers: poses.length,
+  };
 };
 
 fml.g6dCounters = () => Object.fromEntries(TOWN_PLACES.map((place) => {
@@ -3013,6 +3075,13 @@ fml.l9Carry = (counts = {}, tool = null) => {
 
 if (grantAllowed(q)) {
   fml.grant = (opts) => ({ coins: grantCoins(world, opts) });
+  
+  
+  fml.talkToVillager = (id) => {
+    const p = villagersDraw && villagersDraw.positionOf(id);
+    if (p) player = { ...player, x: p.x, z: p.z + 1.2 };
+    openTalk({ type: 'villager', id });
+  };
 }
 
 
@@ -4387,7 +4456,8 @@ async function loadSave() {
   
   
   
-  world.tzOffsetMin = tzOffsetMin;
+  
+  
   
   
   applyTerrain({ rebuild: false });
@@ -4411,6 +4481,7 @@ async function loadSave() {
   }
   if (doc.player.x !== null && doc.player.z !== null && !planetId) fml.teleport(doc.player.x, doc.player.z, doc.player.heading || 0);
   awayLine = awayReport(summarize(advance(world, econNow())), shutFor);
+  world.tzOffsetMin = tzOffsetMin;
   saveInfo.loaded = true;
   saveInfo.away = awayLine;
 }
@@ -4721,7 +4792,7 @@ async function fillIn() {
     name: 'furniture', select: (item) => inside !== null && roomOf(item) === inside.id,
   });
   syncPlaced();
-  talkCard = createTalkCard({ el: document.getElementById('talk'), voice, onChoose: onTalkChoice, onClose: closeTalk });
+  talkCard = createTalkCard({ el: document.getElementById('talk'), voice, onChoose: onTalkChoice, onClose: closeTalk, onLine: onTalkLine });
   
   land = createLandDraw({ scene, season: state.season, obstacles: staticObstacles, onProblems });
   signLabels = createSignLabels({ layer: document.getElementById('worldui'), screenOf: fml.screenOf, iconFor });
@@ -5078,6 +5149,12 @@ function frame(now) {
   
   const wasAt = { x: player.x, z: player.z };
   player = step(player, intent, dt, (x0, z0, x1, z1) => collision.move(x0, z0, x1, z1, PLAYER_RADIUS_M));
+  
+  if (villagersDraw) {
+    const touching = new Set(nearChest(villagersHere(), player, PLAYER_RADIUS_M + VILLAGER_BODY_M));
+    if (intent.amount > 0) for (const id of touching) if (!bumpContacts.has(id)) villagerMood(id, 'bumped');
+    bumpContacts = touching;
+  }
   if (talk && intent.amount === 0) {
     const s = speakerPoint();
     const want = Math.atan2(s.x - player.x, s.z - player.z);
@@ -5139,6 +5216,9 @@ function frame(now) {
   
   
   noteEconomyEvents(frameEvents);
+  noteMoodEvents(frameEvents);
+  
+  if (character.face) character.face(moodNow(playerLedger, t / 1000, {}), now / 1000);
   
   
   if (frameEvents.length) touchSave('world');

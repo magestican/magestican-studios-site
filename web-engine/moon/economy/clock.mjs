@@ -6,29 +6,36 @@
 
 
 
+
+
+
+
+
+
+
 import { SUNRISE, SUNSET } from '../light/dayCycle.mjs';
 import { CLOCK } from './tables.mjs';
 import { MS } from './math.mjs';
 
+
+
+
 export const DAY_MS = CLOCK.day_s * MS;
-
-
-
-
-
-
 export const WORK_DAY_MS = DAY_MS;
-const START_MS = Math.round((CLOCK.startHour / 24) * DAY_MS);
-const DAWN_MS = Math.round((SUNRISE / 24) * DAY_MS);
-const DUSK_MS = Math.round((SUNSET / 24) * DAY_MS);
+
+export const REAL_DAY_MS = 86_400_000;
+const HOUR_MS = 3_600_000;
+const DAWN_MS = Math.round(SUNRISE * HOUR_MS);
+const DUSK_MS = Math.round(SUNSET * HOUR_MS);
+
 
 export function msIntoDay(world, t) {
-  const m = (t - world.createdAt + START_MS) % DAY_MS;
-  return m < 0 ? m + DAY_MS : m;
+  return ((t - (world.tzOffsetMin || 0) * 60000) % REAL_DAY_MS + REAL_DAY_MS) % REAL_DAY_MS;
 }
 
+
 export function hourAt(world, t) {
-  return (msIntoDay(world, t) / DAY_MS) * 24;
+  return msIntoDay(world, t) / HOUR_MS;
 }
 
 export function isDark(world, t) {
@@ -38,5 +45,5 @@ export function isDark(world, t) {
 
 
 export function nextDusk(world, t) {
-  return t + ((DUSK_MS - msIntoDay(world, t) + DAY_MS) % DAY_MS);
+  return t + ((DUSK_MS - msIntoDay(world, t) + REAL_DAY_MS) % REAL_DAY_MS);
 }

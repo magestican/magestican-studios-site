@@ -29,6 +29,8 @@ import * as THREE from 'three';
 import { generate } from 'moon/art/player.mjs';
 import { buildClips, gripBasis } from 'moon/rig/clips.mjs';
 import { createLocomotion } from 'moon/rig/locomotion.mjs';
+import { faceAt, faceInfluences } from 'moon/rig/face.mjs';
+import { blinkAt } from 'moon/rig/idleLife.mjs';
 import { toObject3D, applyPose } from './toMesh.js';
 
 
@@ -88,6 +90,7 @@ export function bindCharacter(data, object, { phase = 0, life = null } = {}) {
   tool.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(...g.X), new THREE.Vector3(...g.Y), new THREE.Vector3(...g.Z)));
   skin.bones[handR].add(tool);
   applyPose(skin, locomotion.update(0));
+  let faceMeshes = null, lastFace = null;
 
   return {
     object,
@@ -106,6 +109,19 @@ export function bindCharacter(data, object, { phase = 0, life = null } = {}) {
     update(dt, { speed = 0, carrying = false, faceYaw = 0, heft = 0 } = {}) {
       applyPose(skin, locomotion.update(dt, { speed, carrying, faceYaw, heft }));
     },
+    
+    
+    
+    
+    face(expression, timeS, { intensity } = {}) {
+      const f = faceAt({ expression, intensity, since: 10, blink: blinkAt(1, timeS), talking: false });
+      const infl = faceInfluences(f);
+      if (!faceMeshes) { faceMeshes = []; object.traverse((o) => { if (o.isMesh && o.morphTargetInfluences) faceMeshes.push(o); }); }
+      for (const m of faceMeshes) for (let i = 0; i < infl.length; i++) m.morphTargetInfluences[i] = infl[i];
+      lastFace = { expression, lidsClose: f.lidsClose || 0, mouthO: f.mouthO || 0 };
+      return lastFace;
+    },
+    get lastFace() { return lastFace; },
     
     
     

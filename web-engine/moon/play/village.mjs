@@ -253,10 +253,13 @@ export const WORKPLACES = Object.freeze({
 
 
 
+
 export const WORK = Object.freeze([
   Object.freeze({ villager: 0, place: 'landOffice', fromHour: 9, toHour: 12 }),
   Object.freeze({ villager: 1, place: 'pressYard', fromHour: 13, toHour: 16 }),
-  ...COUNTERS.map((c) => Object.freeze({ villager: c.keeper, place: c.id, fromHour: c.openHour, toHour: c.closeHour })),
+  
+  
+  ...COUNTERS.map((c) => Object.freeze({ villager: c.keeper, place: c.id, fromHour: c.shift[0], toHour: c.shift[1] })),
 ]);
 
 
@@ -803,12 +806,25 @@ export function villagerPose(village, world, villager, t) {
   const ms = t - dayStart(world, day);
   const plan = village.timeline(world, villager, day);
   const restDoing = plan.home ? 'home' : 'resting';
-  if (ms < plan.wake || ms >= plan.homeAt || plan.segs.length === 0) {
+  
+  
+  
+  
+  
+  
+  
+  
+  if (isNightHour(localHour(t, world.tzOffsetMin || 0)) && !isNightOwl(world, villager.id)) {
     if (plan.home) {
       const houseUp = HOUSE_STAGES.includes(homeStage(villager, t).stage);
-      const night = isNightHour(localHour(t, world.tzOffsetMin || 0)) && !isNightOwl(world, villager.id);
-      return { x: plan.night.x, z: plan.night.z, heading: plan.home.rotY || 0, speed: 0, doing: 'home', place: plan.own, inside: houseUp && night };
+      return { x: plan.night.x, z: plan.night.z, heading: plan.home.rotY || 0, speed: 0, doing: 'home', place: plan.own, inside: houseUp };
     }
+    const heading = Math.atan2(plan.nightLook.x - plan.night.x, plan.nightLook.z - plan.night.z);
+    return { x: plan.night.x, z: plan.night.z, heading, speed: 0, doing: 'resting', place: plan.own, inside: true };
+  }
+  if (ms < plan.wake || ms >= plan.homeAt || plan.segs.length === 0) {
+    
+    if (plan.home) return { x: plan.night.x, z: plan.night.z, heading: plan.home.rotY || 0, speed: 0, doing: 'home', place: plan.own, inside: false };
     const heading = Math.atan2(plan.nightLook.x - plan.night.x, plan.nightLook.z - plan.night.z);
     return { x: plan.night.x, z: plan.night.z, heading, speed: 0, doing: 'resting', place: plan.own, inside: false };
   }

@@ -44,12 +44,10 @@ export const TOWN = Object.freeze({
   
   
   
-  
-  
   request: Object.freeze({
     
     
-    openHour: 11,
+    openHour: 7,
     minCount: 3,
     maxCount: 9,
     coins_bp: 16000,
@@ -72,10 +70,19 @@ export const TOWN = Object.freeze({
 
 
 
+
+
+
+
+
+
+
+
+
 export const STORES = Object.freeze({
   emporium: Object.freeze({
     id: 'emporium', name: 'Emporio', label: 'the Emporio', keeper: 2,
-    openHour: 9, closeHour: 14,
+    openHour: 7, closeHour: 22, shift: Object.freeze([9, 14]),
     
     
     sells: Object.freeze({ sugar: STAPLES.sugar.buy_coins, wood: 8, stone: 10, appleSeed: 15, peachSeed: 22 }),
@@ -83,7 +90,7 @@ export const STORES = Object.freeze({
   }),
   market: Object.freeze({
     id: 'market', name: 'Mercato', label: 'the Mercato', keeper: 3,
-    openHour: 12, closeHour: 17,
+    openHour: 7, closeHour: 22, shift: Object.freeze([12, 17]),
     sells: null,
     buys: true,
   }),
@@ -91,7 +98,7 @@ export const STORES = Object.freeze({
 
 export const TOWN_HALL = Object.freeze({
   id: 'townHall', name: 'Municipio', label: 'the Municipio', keeper: 4,
-  openHour: 10, closeHour: 16,
+  openHour: 7, closeHour: 22, shift: Object.freeze([10, 16]),
 });
 
 
