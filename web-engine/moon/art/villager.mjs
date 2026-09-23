@@ -32,7 +32,11 @@ import { budgetFor } from '../budgets.mjs';
 import { createSkeleton, boneIndex } from '../rig/skeleton.mjs';
 import { partWeights, rigidWeights, setSkin } from '../rig/skin.mjs';
 import { smooth, mix, add, sub, mul, norm } from './kit/character.mjs';
-import { strandWithMorphs } from './kit/face.mjs';
+import { strandWithMorphs, eyeVertexCount, eyeMorphs, blushMorph, cheekPoints } from './kit/face.mjs';
+
+
+
+const DEFAULT_BLUSH = linear('#f2b4ae');
 import { elephant } from './kit/villagers/elephant.mjs';
 import { giraffe } from './kit/villagers/giraffe.mjs';
 import { panda } from './kit/villagers/panda.mjs';
@@ -77,7 +81,14 @@ export { BUILDS };
 
 
 
-export const VILLAGER_VERSION = 8;
+
+
+
+
+
+
+
+export const VILLAGER_VERSION = 9;
 
 export const TIER = 'heroCharacter';
 
@@ -175,7 +186,8 @@ function assemble(species, { seed, season, lod, L, budget, role = 'villager', bu
     const f = S.frameFromNormal(n, [0, 1, 0]);
     const lid = (o) => S.plane([side * 0.35, -1, 0], o);
     const eyeC = sub(onHead, mul(n, ER[2] * 0.42));
-    const lens = S.place(S.paint(S.intersect(0.007, S.ellipsoid([0, 0, 0], ER), lid(ER[1] * 0.77)), { material: 'eye', color: (x, y) => mix(EYE, EYE_LOW, smooth(-0.004, -ER[1] * 0.8, y) * 0.8) }), eyeC, f.X, f.Y, f.Z);
+    const eyeFrom = eyeVertexCount(md);
+    const lens =S.place(S.paint(S.intersect(0.007, S.ellipsoid([0, 0, 0], ER), lid(ER[1] * 0.77)), { material: 'eye', color: (x, y) => mix(EYE, EYE_LOW, smooth(-0.004, -ER[1] * 0.8, y) * 0.8) }), eyeC, f.X, f.Y, f.Z);
     const [lo, hi] = around(eyeC, ER[1] * 1.6);
     part('eye', lens, lo, hi, L.small, L.eyeT, { scene: skull, uvScale: 0.1, material: 'eye', aoMin: 0.7 }, eyeBone);
     const rimC = sub(eyeC, mul(n, ER[2] * 0.35));
@@ -188,6 +200,7 @@ function assemble(species, { seed, season, lod, L, budget, role = 'villager', bu
       const hiNode = S.place(S.paint(S.ellipsoid([0, 0, 0], r), { material: 'eye', color: HIGHLIGHT }), c, f.X, f.Y, f.Z);
       part('highlight', hiNode, ...around(c, 0.03), Math.min(L.small, 0.0035), L.hiT, { uvScale: 0.1, material: 'eye', aoMin: 1 }, eyeBone);
     }
+    eyeMorphs(md, { from: eyeFrom, c: eyeC, X: f.X, Y: f.Y, ER }); 
   });
 
   for (const r of fig.rigid) {
@@ -214,6 +227,12 @@ function assemble(species, { seed, season, lod, L, budget, role = 'villager', bu
   part('body', wearer, fig.bodyBox[0], fig.bodyBox[1], fig.bodyCell ?? L.body, budget - md.triangleCount - 4, {
     scene: fig.scene, uvScale: 0.28, material: skinMaterial, tint: groundAO, ao: { reach: 0.12, strength: 1.1 }, aoMin: 0.55,
   }, { soft: skinParts });
+
+  
+  
+  const bodyRun = plan[plan.length - 1];
+  const cheeks = fig.blush || { ...cheekPoints(fig.eyes.at, ER), pink: DEFAULT_BLUSH };
+  blushMorph(md, { group: skinMaterial, from: bodyRun.before.get(skinMaterial) || 0, to: bodyRun.after.get(skinMaterial), ...cheeks });
 
   
   for (const { before, after, rule } of plan) {

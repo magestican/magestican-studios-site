@@ -260,6 +260,7 @@ export function panda({ season, lod, L, variant, rng, fuse }) {
   const lift = (p) => p;
   return {
     joints, tails, parts, body, fused, skull, cloth, rigid, strands, scene,
+    blush: { at: blushAt, inner: R(0.024), outer: R(0.052), pink: BLUSH }, 
     crown: [S.projectToSurface(skull, P([0, 1.3, 0])), S.projectToSurface(earL.outer, add(tails.earL, P([0, 0.2, 0]))), S.projectToSurface(earR.outer, add(tails.earR, P([0, 0.2, 0])))],
     eyes: { at: eyeAt, ER: [0.037, 0.046, 0.026].map(R) },
     bodyBox: [P([-0.45, -0.06, -0.34]), P([0.45, 1.12, 0.4])],

@@ -202,8 +202,16 @@ function bendVertex(shader, worldVarying, flowRate) {
   let vs = BEND_PARS + (worldVarying ? 'varying vec3 vFmlWorld;\nvarying float vFmlRipple;\n' : '') + shader.vertexShader;
   vs = replaceOrThrow(vs, '#include <project_vertex>', bendChunk(worldVarying), 'project_vertex');
   if (vs.includes('#include <worldpos_vertex>')) vs = vs.replace('#include <worldpos_vertex>', WORLDPOS_BENT);
+  if (vs.includes('#include <morphcolor_vertex>')) vs = vs.replace('#include <morphcolor_vertex>', MORPHCOLOR_FIXED);
   shader.vertexShader = vs;
 }
+
+
+
+
+
+
+const MORPHCOLOR_FIXED = THREE.ShaderChunk.morphcolor_vertex.replace('vColor += getMorph( gl_VertexID, i, 2 ).rgb', 'vColor.rgb += getMorph( gl_VertexID, i, 2 ).rgb');
 
 export function applyBend(material) {
   material.userData.uFmlFlowRate = material.userData.uFmlFlowRate || { value: 1 };

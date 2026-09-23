@@ -22,6 +22,7 @@
 
 
 import { MeshData } from '../mesh/meshData.mjs';
+import { eyeVertexCount, eyeMorphs } from './kit/face.mjs';
 import * as S from '../mesh/sdf.mjs';
 import { SeededRng } from '../../rng/seededRng.js';
 import { fbm3 } from '../noise.mjs';
@@ -340,7 +341,8 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
     const lid = (o) => S.plane([side * 0.35, -1, 0], o);
     const shape = S.intersect(0.008, S.ellipsoid([0, 0, 0], ER), lid(0.045 * ES));
     const eyeC = sub(onHead, mul(n, 0.012));
-    const eye = S.place(S.paint(shape, { material: 'eye', color: (x, y) => mix(EYE, EYE_LOW, smooth(-0.005, -0.045, y) * 0.8) }), eyeC, f.X, f.Y, f.Z);
+    const eyeFrom = eyeVertexCount(md);
+    const eye =S.place(S.paint(shape, { material: 'eye', color: (x, y) => mix(EYE, EYE_LOW, smooth(-0.005, -0.045, y) * 0.8) }), eyeC, f.X, f.Y, f.Z);
     part('eye', eye, sub(eyeC, [0.08, 0.08, 0.08]), add(eyeC, [0.08, 0.08, 0.08]), L.small, L.eyeT, { scene: head, uvScale: 0.1, material: 'eye', aoMin: 0.7 });
     
     
@@ -356,6 +358,7 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
       const hi = S.place(S.paint(S.ellipsoid([0, 0, 0], r), { material: 'eye', color: HIGHLIGHT }), c, f.X, f.Y, f.Z);
       part('highlight', hi, sub(c, [0.03, 0.03, 0.03]), add(c, [0.03, 0.03, 0.03]), Math.min(L.small, 0.0035), L.hiT, { uvScale: 0.1, material: 'eye', aoMin: 1 });
     }
+    eyeMorphs(md, { from: eyeFrom, c: eyeC, X: f.X, Y: f.Y, ER }); 
   }
   
   {

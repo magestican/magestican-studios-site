@@ -136,6 +136,15 @@ export class MeshData {
 
   
   
+  
+  morphColor(name, material, index, [dr, dg, db]) {
+    const m = (this.morphs[name] ||= { group: material, index: new Map() });
+    if (m.group !== material) throw new Error(`morph '${name}' spans two groups ('${m.group}' and '${material}')`);
+    (m.color ||= new Map()).set(index, [dr, dg, db]);
+  }
+
+  
+  
   append(other, m = IDENTITY) {
     const nm = normalMatrix(m);
     for (const src of other.groups.values()) {
@@ -340,7 +349,10 @@ export class MeshData {
         const vcount = this.groups.get(m.group).positions.length / 3;
         const deltas = new Float32Array(vcount * 3);
         for (const [i, [dx, dy, dz]] of m.index) { deltas[i * 3] = dx; deltas[i * 3 + 1] = dy; deltas[i * 3 + 2] = dz; }
-        return [name, { group: m.group, deltas }];
+        if (!m.color) return [name, { group: m.group, deltas }];
+        const colorDeltas = new Float32Array(vcount * 3);
+        for (const [i, [dr, dg, db]] of m.color) { colorDeltas[i * 3] = dr; colorDeltas[i * 3 + 1] = dg; colorDeltas[i * 3 + 2] = db; }
+        return [name, { group: m.group, deltas, colorDeltas }];
       })),
     };
   }

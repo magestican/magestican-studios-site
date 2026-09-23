@@ -41,7 +41,7 @@ import { budgetFor } from '../budgets.mjs';
 import { createSkeleton, kneeBetween, boneIndex } from '../rig/skeleton.mjs';
 import { partWeights, rigidWeights, setSkin } from '../rig/skin.mjs';
 import { smooth, mix, add, sub, mul, dot, norm, cross, dist, mirror, densify, distToPolyline, strand } from './kit/character.mjs';
-import { strandWithMorphs } from './kit/face.mjs';
+import { strandWithMorphs, eyeVertexCount, eyeMorphs, blushMorph, cheekPoints } from './kit/face.mjs';
 import { generate as generateVillager } from './villager.mjs';
 
 export const TIER = 'heroCharacter';
@@ -77,6 +77,7 @@ const EYE_LOW = linear('#36498f');
 const HIGHLIGHT = linear('#fff8ec');
 const NOSTRIL = linear('#6e4a5a'); 
 const BRASS = linear('#e3b25a');
+const PIG_BLUSH = linear('#f2a0a8'); 
 
 
 
@@ -442,6 +443,7 @@ export function generate({ seed = 1, season = 'summer', lod = 0, species = 'pig'
     const ER = [0.037, 0.047, 0.026];
     const lid = (o) => S.plane([side * 0.35, -1, 0], o);
     const eyeC = sub(onHead, mul(n, 0.011));
+    const eyeFrom = eyeVertexCount(md);
     const lens = S.place(S.paint(S.intersect(0.007, S.ellipsoid([0, 0, 0], ER), lid(0.036)), { material: 'eye', color: (x, y) => mix(EYE, EYE_LOW, smooth(-0.004, -0.038, y) * 0.8) }), eyeC, f.X, f.Y, f.Z);
     part('eye', lens, sub(eyeC, [0.07, 0.07, 0.07]), add(eyeC, [0.07, 0.07, 0.07]), L.small, L.eyeT, { scene: skull, uvScale: 0.1, material: 'eye', aoMin: 0.7 }, rigid('head'));
     const rimC = sub(eyeC, mul(n, 0.009));
@@ -454,6 +456,7 @@ export function generate({ seed = 1, season = 'summer', lod = 0, species = 'pig'
       const hi = S.place(S.paint(S.ellipsoid([0, 0, 0], r), { material: 'eye', color: HIGHLIGHT }), c, f.X, f.Y, f.Z);
       part('highlight', hi, sub(c, [0.03, 0.03, 0.03]), add(c, [0.03, 0.03, 0.03]), Math.min(L.small, 0.0035), L.hiT, { uvScale: 0.1, material: 'eye', aoMin: 1 }, rigid('head'));
     }
+    eyeMorphs(md, { from: eyeFrom, c: eyeC, X: f.X, Y: f.Y, ER }); 
   }
 
   
@@ -523,6 +526,10 @@ export function generate({ seed = 1, season = 'summer', lod = 0, species = 'pig'
   part('body', wearer, [-0.42, -0.05, -0.36], [0.42, top, 0.4], L.body, budget - md.triangleCount - detailTris - 4, {
     scene, uvScale: 0.28, material: 'fur', tint: groundAO, ao: { reach: 0.12, strength: 1.1 }, aoMin: 0.55,
   }, SOFT);
+
+  
+  const bodyRun = plan[plan.length - 1];
+  blushMorph(md, { group: 'fur', from: bodyRun.before.get('fur') || 0, to: bodyRun.after.get('fur'), ...cheekPoints(eyeAt, [0.037, 0.047, 0.026]), pink: PIG_BLUSH });
 
   
   for (const { into, before, after, rule } of plan) {

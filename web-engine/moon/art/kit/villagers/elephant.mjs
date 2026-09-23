@@ -298,6 +298,8 @@ export function elephant({ season, lod, L, variant, rng, fuse }) {
   const scene = S.union(0, [body, jumperNode, ...(scarf ? [scarf] : []), ...(accessory ? [accessory] : [])]);
   return {
     joints, tails, extra, parts, body, fused, skull: face, cloth, rigid, strands, scene,
+    blush: { at: blushAt, inner: 0.024, outer: 0.06, pink: C.blush }, 
+
     crown: [S.projectToSurface(S.union(0.06, cranium, dome), [0.01, 1.5, 0.02]), earL.outer, earR.outer].map((n, i) => (i === 0 ? n : S.projectToSurface(n, add(i === 1 ? rootL : rootR, [0, 0.4, 0])))),
     eyes: { at: eyeAt, ER: [0.037, 0.047, 0.026] },
     bodyBox: [[-0.66, -0.06, -0.42], [0.66, hat && lod === 2 ? 1.36 : 1.26, 0.56]],

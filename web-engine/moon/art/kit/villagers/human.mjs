@@ -617,13 +617,15 @@ export function human({ season, lod, L, variant, rng, fuse, role = 'villager', b
     
     const mouthXs = [-0.035, -0.012, 0.014, 0.04];
     const mouthBaseY = [0.715, 0.703, 0.705, 0.72];
-    const mouthPts = (dy) => mouthXs.map((x, i) => onSkin(x, mouthBaseY[i] + dy[i], 0.002));
+    const mouthPts = (dy, dx = [0, 0, 0, 0]) => mouthXs.map((x, i) => onSkin(x + dx[i], mouthBaseY[i] + dy[i], 0.002));
     const smile = mouthPts([0, 0, 0, 0]);
+    const mouthR = [0.0022, 0.0036, 0.0034, 0.002];
     strands.push({
-      name: 'smile', pts: smile, radii: [0.0022, 0.0036, 0.0034, 0.002], color: F.lips ? LIP : INK, bone: 'head', material: 'skin',
+      name: 'smile', pts: smile, radii: mouthR, color: F.lips ? LIP : INK, bone: 'head', material: 'skin',
       morphs: {
         mouthSmile: { pts: mouthPts([0.012, -0.006, -0.006, 0.012]) },
         mouthFrown: { pts: mouthPts([-0.01, 0.006, 0.006, -0.01]) },
+        mouthO: { pts: mouthPts([0, -0.010, -0.010, 0],[0.006, 0, 0, -0.006]), radii: mouthR.map((r) => r * 1.3) },
       },
     });
     
@@ -687,6 +689,7 @@ export function human({ season, lod, L, variant, rng, fuse, role = 'villager', b
   const crown = [S.projectToSurface(S.union(0.02, cranium, hairShape), [0.02, 1.4, -0.02])];
   return {
     joints, tails, extra, parts, body, fused, skull: face, cloth: cloths, rigid, strands, scene, crown,
+    blush: { at: blushAt, inner: 0.018, outer: 0.042, pink: C.blush }, 
     eyes: { at: eyeAt, ER },
     bodyBox: [[-0.34, -0.06, -0.34], [0.34, 1.18, 0.3]],
     

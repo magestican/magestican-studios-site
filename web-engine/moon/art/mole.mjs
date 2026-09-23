@@ -46,6 +46,7 @@ import { fbm3, valueNoise3 } from '../noise.mjs';
 import { linear, SEASONS, seasonPalette } from '../palette/seasons.mjs';
 import { budgetFor } from '../budgets.mjs';
 import { smooth, mix, add, sub, mul, norm, strand } from './kit/character.mjs';
+import { eyeVertexCount, eyeMorphs } from './kit/face.mjs';
 
 export const TIER = 'heroCharacter';
 export const MOUND_TIER = 'dressing';
@@ -260,13 +261,15 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
     const lens = S.transform(S.ellipsoid([0, 0, 0], ER), { rotate: [0, 0, side * -0.22] });
     const c = add(onHead, mul(n, 0.002));
     eyeCentres.push(c);
-    const eye = S.place(S.paint(lens, { material: 'eye', color: (x, y) => mix(IRIS, mul(IRIS, 2.1), smooth(-ER[1], ER[1], y)) }), c, f.X, f.Y, f.Z);
+    const eyeFrom = eyeVertexCount(md);
+    const eye =S.place(S.paint(lens, { material: 'eye', color: (x, y) => mix(IRIS, mul(IRIS, 2.1), smooth(-ER[1], ER[1], y)) }), c, f.X, f.Y, f.Z);
     part('eye', eye, sub(c, [0.05, 0.05, 0.05]), add(c, [0.05, 0.05, 0.05]), L.small, L.eyeT, { scene: skin, uvScale: 0.08, material: 'eye', aoMin: 0.72 });
     if (L.glintT > 0) {
       const g = add(c, add(mul(f.X, side * 0.008), add(mul(f.Y, ER[1] * 0.45), mul(f.Z, ER[2] * 0.8))));
       const glint = S.place(S.paint(S.ellipsoid([0, 0, 0], [0.005, 0.003, 0.0026]), { material: 'eye', color: GLINT }), g, f.X, f.Y, f.Z);
       part('glint', glint, sub(g, [0.02, 0.02, 0.02]), add(g, [0.02, 0.02, 0.02]), Math.min(L.small, 0.002), L.glintT, { uvScale: 0.08, material: 'eye', aoMin: 1 });
     }
+    eyeMorphs(md, { from: eyeFrom, c, X: f.X, Y: f.Y, ER }); 
   }
 
   
@@ -351,7 +354,9 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
 
   
   
+  
   for (const g of md.groups.values()) for (let i = 0; i < g.positions.length; i++) g.positions[i] *= SCALE;
+  for (const m of Object.values(md.morphs)) for (const d of m.index.values()) for (let k = 0; k < 3; k++) d[k] *= SCALE;
   const minY = md.bounds().min[1];
   for (const g of md.groups.values()) for (let i = 1; i < g.positions.length; i += 3) g.positions[i] -= minY;
   return md;

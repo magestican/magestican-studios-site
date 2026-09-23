@@ -58,6 +58,15 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
         const deltas = m && m.group === g.material ? m.deltas : new Float32Array(g.position.length);
         return new THREE.BufferAttribute(deltas, 3);
       });
+      
+      
+      
+      if (MORPH_NAMES.some((n) => arrays.morphs[n]?.group === g.material && arrays.morphs[n].colorDeltas)) {
+        geometry.morphAttributes.color = MORPH_NAMES.map((n) => {
+          const m = arrays.morphs[n];
+          return new THREE.BufferAttribute(m && m.group === g.material && m.colorDeltas ? m.colorDeltas : new Float32Array(g.position.length), 3);
+        });
+      }
     }
     if (rig) {
       geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(g.skinIndex, 4));
