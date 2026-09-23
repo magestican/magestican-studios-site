@@ -77,8 +77,10 @@ export function uses({ seed = 1 } = {}) {
   const width = seed >= 1 && seed <= 3 ? STYLES[seed - 1].width : STYLES[0].width;
   const x = width * 0.28;
   return [
-    { kind: 'seat', at: { x: -x, z: 0 }, heading: 0, clip: 'sit', count: 1 },
-    { kind: 'seat', at: { x, z: 0 }, heading: 0, clip: 'sit', count: 1 },
+    
+    
+    { kind: 'seat', at: { x: -x, z: 0 }, heading: 0, clip: 'sit', count: 1, seatY: SEAT_Y },
+    { kind: 'seat', at: { x, z: 0 }, heading: 0, clip: 'sit', count: 1, seatY: SEAT_Y },
   ];
 }
 

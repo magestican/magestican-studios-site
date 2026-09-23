@@ -16,6 +16,7 @@ import { SeededRng } from '../../rng/seededRng.js';
 import { seasonPalette } from '../palette/seasons.mjs';
 import { hex, vc } from './kit/shade.mjs';
 import { rockShape } from './rock.mjs';
+import { leanAt } from './kit/useSlots.mjs';
 
 export const TIER = 'dressing';
 export const LODS = [0, 1, 2];
@@ -79,6 +80,11 @@ function scroll(cx, cy, r0, turns, dir, n) {
     path.push([cx + dir * r * Math.cos(a) * -1 * -1, cy + r * Math.sin(a), 0]);
   }
   return path;
+}
+
+
+export function uses() {
+  return [leanAt(0, 0, 0)];
 }
 
 export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {

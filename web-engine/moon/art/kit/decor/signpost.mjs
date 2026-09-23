@@ -17,6 +17,7 @@ import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary } from '../shade.mjs';
 import { rod } from '../rod.mjs';
+import { leanAt } from '../useSlots.mjs';
 
 
 export function signBoard(mesh, m, { y, bearing, length = 0.62, height = 0.2, thickness = 0.05, detail = 0, rng, boardColor, inkColor, snowColor = null }) {
@@ -56,6 +57,11 @@ const STYLES = [
   { kind: 'arm', height: 1.72, arms: [{ f: 0.88, len: 0.6, h: 0.19 }, { f: 0.64, len: 0.7, h: 0.23 }], post: '#8f6a48', board: '#cfe0d0', ink: '#41564a' },
   { kind: 'board', height: 1.15, arms: [{ f: 0.74, len: 0.8, h: 0.52 }], post: '#b9895a', board: '#f6ecd8', ink: '#6a4f3a' },
 ];
+
+
+export function uses() {
+  return [leanAt(0, 0, 0)];
+}
 
 export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
   const detail = Math.max(0, Math.min(2, lod | 0));

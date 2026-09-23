@@ -130,6 +130,11 @@ export function bindCharacter(data, object, { phase = 0, life = null } = {}) {
     tool,
     get action() { return locomotion.action; },
     act(name) { locomotion.act(name); },
+    
+    
+    use(name) { locomotion.use(name); },
+    get using() { return locomotion.using; },
+    get useWeight() { return locomotion.useWeight; },
     holdTool(object, grip = null) {
       tool.clear();
       if (!object) return null;

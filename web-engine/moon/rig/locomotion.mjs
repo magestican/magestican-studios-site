@@ -40,6 +40,7 @@ export const LOCOMOTION = Object.freeze({
   oneShotIn: 0.12, 
   oneShotOut: 0.22, 
   maxStep: 0.5, 
+  useEase: 0.18, 
 });
 
 
@@ -66,11 +67,11 @@ export function animPhase(seed) {
 export function createLocomotion(skeleton, clips, { phase = 0, life = null } = {}) {
   const { idle, walk, run, carry } = clips;
   const lifeSeed = Number.isFinite(life) ? life : null;
-  const scratch = { walk: createPose(skeleton), run: createPose(skeleton), carry: createPose(skeleton), shot: createPose(skeleton) };
+  const scratch = { walk: createPose(skeleton), run: createPose(skeleton), carry: createPose(skeleton), shot: createPose(skeleton), use: createPose(skeleton) };
   const pose = createPose(skeleton);
   const speeds = Object.freeze({ walk: walk.speed, run: run.speed });
   const p = frac(Number.isFinite(phase) ? phase : 0);
-  const state = { time: p * idle.duration, cycles: p, phase: p, speed: 0, move: 0, run: 0, carry: 0, carryTime: p * carry.duration, oneShot: null, life: null };
+  const state = { time: p * idle.duration, cycles: p, phase: p, speed: 0, move: 0, run: 0, carry: 0, carryTime: p * carry.duration, oneShot: null, life: null, use: null };
 
   
   
@@ -131,6 +132,20 @@ export function createLocomotion(skeleton, clips, { phase = 0, life = null } = {
       
       applyCarryHeft(skeleton, pose, heft, state.carry);
     }
+    
+    
+    
+    const u = state.use;
+    if (u) {
+      u.time += dt;
+      u.w += ((u.on ? 1 : 0) - u.w) * (1 - Math.exp(-dt / LOCOMOTION.useEase));
+      if (!u.on && u.w < 1e-3) {
+        state.use = null;
+      } else {
+        const clip = clips[u.name];
+        blendPose(skeleton, pose, pose, sampleClip(skeleton, clip, u.time / clip.duration, scratch.use), u.w);
+      }
+    }
     const shot = state.oneShot;
     hop.lift = 0;
     hop.squash = 1;
@@ -176,7 +191,19 @@ export function createLocomotion(skeleton, clips, { phase = 0, life = null } = {
       if (Number.isFinite(from[k])) state[k] = from[k];
     }
     state.oneShot = from.oneShot ? { name: from.oneShot.name, time: from.oneShot.time } : null;
+    state.use = from.use ? { ...from.use } : null;
     return state;
+  }
+
+  
+  
+  
+  function use(name) {
+    if (name == null) { if (state.use) state.use.on = false; return; }
+    const clip = clips[name];
+    if (!clip || !clip.loop) throw new Error(`locomotion: '${name}' is not a looping use clip`);
+    if (state.use && state.use.name === name) { state.use.on = true; return; }
+    state.use = { name, time: 0, w: state.use ? state.use.w : 0, on: true };
   }
 
   return {
@@ -189,6 +216,11 @@ export function createLocomotion(skeleton, clips, { phase = 0, life = null } = {
     update,
     act,
     adopt,
+    use,
+    
+    get using() { return state.use && state.use.on ? state.use.name : null; },
+    
+    get useWeight() { return state.use ? state.use.w : 0; },
     pickUp() { act('pickUp'); },
     get busy() { return state.oneShot !== null; },
     

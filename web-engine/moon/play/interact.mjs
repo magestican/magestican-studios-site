@@ -83,9 +83,10 @@ import { STORES, TOWN_HALL, noticeBoard, storeOpen } from '../economy/town.mjs';
 import { hourAt } from '../economy/clock.mjs';
 import { shutSentence } from './town.mjs';
 import { whyNoAssembly } from './assembly.mjs';
+import { useLabel } from './uses.mjs';
 
 
-const ID_PLACES = Object.freeze(['villager', 'rock', 'forage', 'placed', 'store', 'find', 'villagerDoor']);
+const ID_PLACES = Object.freeze(['villager', 'rock', 'forage', 'placed', 'store', 'find', 'villagerDoor', 'use']);
 
 export const INTERACT = Object.freeze({
   
@@ -254,6 +255,14 @@ function promptOf(target, { world, t, trees, seedKind = null, obstacles = [], ow
   if (target.type === 'homeDoor') return homeDoorPrompt(out, tool);
   if (target.type === 'homeExit') return homeExitPrompt(out, tool);
   if (target.type === 'villagerDoor') return villagerDoorPrompt(out, target, tool);
+  
+  
+  if (target.type === 'use') {
+    const label = useLabel(target.id);
+    if (!label) return null;
+    if (tool) return { ...out, chosen: tool, why: NOTHING_HERE[tool] || null };
+    return { ...out, verb: 'use', open: 'use', label };
+  }
   if (target.type === 'ground') {
     if (tool && tool !== 'shovel') return { ...out, chosen: tool, why: NOTHING_HERE[tool] };
     if (!seedKind) return { ...out, why: 'You have no seeds - fell a tree for some.' };

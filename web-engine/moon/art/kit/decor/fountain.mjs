@@ -20,6 +20,7 @@ import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary, mixC, paintVertex } from '../shade.mjs';
 import { RIPPLE, surfaceRamp, fallRamp, jetRamp } from '../water.mjs';
+import { slot, turned } from '../useSlots.mjs';
 
 
 
@@ -302,6 +303,19 @@ function build({ seed = 1, season = 'summer', lod = 0, lands = null } = {}) {
     snowColor: winter && detail < 2 ? hex(pal.snow[0]) : null, frozen: winter, lands,
   });
   return mesh;
+}
+
+
+
+
+
+export function uses({ seed = 1 } = {}) {
+  const rng = new SeededRng(seed).child('fountain');
+  const st = seed >= 1 && seed <= 3 ? STYLES[seed - 1] : { ...rng.pick(STYLES), radius: rng.rangeF(0.8, 1.0) };
+  const yaw = rng.rangeF(0, Math.PI * 2);
+  const w = st.wide || 1, r = st.radius * 0.93;
+  const sides = [[r * w, 0], [-r * w, 0], [0, r / w], [0, -r / w]];
+  return sides.map(([x, z]) => turned(slot('seat', x, z, Math.atan2(x, z), 'sit', { seatY: st.kerb }), yaw));
 }
 
 export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {

@@ -15,6 +15,7 @@ import { seasonPalette } from '../palette/seasons.mjs';
 import { valueNoise3 } from '../noise.mjs';
 import { hex, mixC, paintVertex, vary, vc } from './kit/shade.mjs';
 import { rockShape } from './rock.mjs';
+import { ring, slot } from './kit/useSlots.mjs';
 import { RIPPLE, jetRamp } from './kit/water.mjs';
 
 export const TIER = 'dressing';
@@ -22,6 +23,12 @@ export const LODS = [0, 1, 2];
 
 const BARK = '#6b4630', RING_LIGHT = '#e2bd86', RING_DARK = '#c29058', PITH = '#e8c690', CHAR = '#3b3038', SOOT = '#5a4f58';
 const FIRE_ROOT = '#ffe9a6', FIRE_MID = '#ffb347', FIRE_TIP = '#ff6f3c';
+
+
+export const WARM_RING = Object.freeze({ count: 6, r: 0.9 });
+export function uses() {
+  return ring(WARM_RING.count, WARM_RING.r, Math.PI / WARM_RING.count, (x, z, a) => slot('warm', x, z, a + Math.PI, 'warmHands', { facing: 'centre' }));
+}
 
 export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
   const rng = new SeededRng(seed).child('firepit');

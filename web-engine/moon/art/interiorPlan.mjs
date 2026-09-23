@@ -36,6 +36,7 @@
 
 import { SeededRng } from '../../rng/seededRng.js';
 import { roomPlan, SPECIES } from './villagerHome.mjs';
+import { slot, turned } from './kit/useSlots.mjs';
 
 export { SPECIES };
 
@@ -328,4 +329,24 @@ export function wallsOf(plan) {
     out.push(box('fixture', f.x, f.z, f.hx, f.hz));
   }
   return Object.freeze(out);
+}
+
+
+
+
+
+
+export const FIXTURE_USES = Object.freeze({
+  stool: (f) => [slot('seat', 0, 0, 0, 'sit', { seatY: 0.4 })],
+  bed: (f) => [slot('seat', f.w / 2 - 0.12, 0.15, Math.PI / 2, 'sit', { seatY: 0.48 })],
+  tub: (f) => [slot('seat', 0, 0, Math.PI / 2, 'sit', { seatY: 0.3 })],
+});
+
+export function fixtureUses(f) {
+  const make = FIXTURE_USES[f.kind];
+  if (!make) return [];
+  return make(f).map((s) => {
+    const t = turned(s, f.rotY || 0);
+    return Object.freeze({ ...t, at: Object.freeze({ x: Math.round((t.at.x + f.x) * 1e4) / 1e4, z: Math.round((t.at.z + f.z) * 1e4) / 1e4 }) });
+  });
 }

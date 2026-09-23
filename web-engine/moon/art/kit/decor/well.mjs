@@ -18,6 +18,7 @@ import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary, mixC, paintVertex } from '../shade.mjs';
 import { RIPPLE, surfaceRamp } from '../water.mjs';
+import { slot, leanAt } from '../useSlots.mjs';
 import { rod } from '../rod.mjs';
 
 
@@ -86,9 +87,13 @@ export function well(mesh, m, {
   if (detail === 2) return { top: H };
 
   
-  const axis = rng.rangeF(0, Math.PI * 2);
+  
+  
+  
+  
+  
+  const { axis, lean } = uprightsOf(rng);
   const ux = Math.sin(axis) * R * 0.86, uz = Math.cos(axis) * R * 0.86;
-  const lean = [rng.rangeF(-0.04, 0.02), rng.rangeF(-0.02, 0.05)];
   [1, -1].forEach((s, i) => {
     emit(mesh, 'wood', rod({
       path: [[s * ux, H - 0.1, s * uz], [s * ux * (1 + lean[i]), frame, s * uz * (1 + lean[i])]],
@@ -171,13 +176,39 @@ const STYLES = [
   { radius: 0.5, wall: 0.68, frame: 1.5, roof: { height: 0.44, span: 0.62 }, stone: '#b9b3c0', wood: '#8f6c4a', roofC: '#7f8fb0', rope: '#e2c06a', coins: true },
 ];
 
-export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
-  const detail = Math.max(0, Math.min(2, lod | 0));
+function uprightsOf(rng) {
+  const up = rng.child('uprights');
+  return { axis: up.rangeF(0, Math.PI * 2), lean: [up.rangeF(-0.04, 0.02), up.rangeF(-0.02, 0.05)] };
+}
+
+
+
+function frameOf(seed) {
   const rng = new SeededRng(seed).child('well');
   const st = seed >= 1 && seed <= 3 ? STYLES[seed - 1] : { ...rng.pick(STYLES), radius: rng.rangeF(0.48, 0.6) };
+  const yaw = rng.rangeF(0, Math.PI * 2);
+  return { rng, st, yaw, uprightsYaw: yaw + uprightsOf(rng).axis };
+}
+
+
+export function uses({ seed = 1 } = {}) {
+  const { st, uprightsYaw: a } = frameOf(seed);
+  const post = st.radius * 0.86;
+  const stand = st.radius + 0.14;
+  
+  
+  const s = leanAt(Math.sin(a) * post, Math.cos(a) * post, a, 0);
+  const shift = stand - post;
+  return [slot('lean', s.at.x + Math.sin(a) * shift, s.at.z + Math.cos(a) * shift, a, 'lean')];
+}
+
+export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
+  const detail = Math.max(0, Math.min(2, lod | 0));
+  const { rng, st, yaw, uprightsYaw } = frameOf(seed);
   const pal = seasonPalette(season);
   const mesh = new MeshData(`well-${seed}-${season}-lod${detail}`);
-  well(mesh, compose(IDENTITY, rotateY(rng.rangeF(0, Math.PI * 2))), {
+  mesh.uprightsYaw = uprightsYaw;
+  well(mesh, compose(IDENTITY, rotateY(yaw)), {
     radius: st.radius, wall: st.wall, frame: st.frame, roof: st.roof, detail, rng, coins: st.coins,
     stoneColor: hex(st.stone), woodColor: hex(st.wood), roofColor: hex(st.roofC), ropeColor: hex(st.rope),
     waterColor: hex('#3f5a66'), snowColor: season === 'winter' && detail < 2 ? hex(pal.snow[0]) : null,

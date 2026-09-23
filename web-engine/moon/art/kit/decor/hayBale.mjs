@@ -20,6 +20,7 @@ import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary, paintVertex } from '../shade.mjs';
 import { rod } from '../rod.mjs';
+import { slot } from '../useSlots.mjs';
 
 
 
@@ -69,6 +70,17 @@ const STYLES = [
   { girth: 0.24, length: 0.78, squat: 1.15, e: 5, extra: null, straw: '#e4cd8c', twine: '#9d8f6e' },
   { girth: 0.38, length: 0.6, squat: 1, e: 2.8, extra: { girth: 0.21, length: 0.4 }, straw: '#d2b26a', twine: '#c0ab84' },
 ];
+
+
+
+
+
+export function uses({ seed = 1 } = {}) {
+  const rng = new SeededRng(seed).child('hayBale');
+  const st = seed >= 1 && seed <= 3 ? STYLES[seed - 1] : { ...rng.pick(STYLES), girth: rng.rangeF(0.24, 0.38) };
+  const yaw = rng.rangeF(0, Math.PI * 2);
+  return [slot('seat', 0, 0, yaw, 'sit', { seatY: Math.round(2 * st.girth * 1e4) / 1e4 })];
+}
 
 export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
   const detail = Math.max(0, Math.min(2, lod | 0));

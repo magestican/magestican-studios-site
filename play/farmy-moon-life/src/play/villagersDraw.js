@@ -43,6 +43,7 @@
 import { villagerPose } from 'moon/play/village.mjs';
 import { animStepS } from 'moon/play/animRate.mjs';
 import { villagerGesture } from 'moon/play/gestures.mjs';
+import { seatClip, seatedRootY } from 'moon/rig/clips.mjs';
 import { villagerBuild } from 'moon/play/people.mjs';
 import { faceAt, faceInfluences } from 'moon/rig/face.mjs';
 import { PERSONALITIES, personalityOf } from 'moon/play/personality.mjs';
@@ -167,7 +168,11 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
   
   
   
-  function update(world, t, dt, { animDt = dt, focus = null, activity = 0, poseFor = null, raining = false } = {}) {
+  
+  
+  
+  
+  function update(world, t, dt, { animDt = dt, focus = null, activity = 0, poseFor = null, raining = false, useFor = null } = {}) {
     shown = [];
     animS += animDt;
     let nearest = null, nearestD = cfg.shadowM;
@@ -178,6 +183,8 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       const pose = (poseFor && poseFor(v, t)) || villagerPose(village, world, v, t);
       const isHeld = Boolean(held && held.id === v.id && s.x !== null);
       let tx = pose.x, tz = pose.z, th = pose.heading, moved = 0;
+      const use = !isHeld && useFor ? useFor(v, pose) : null;
+      if (use) { tx = use.at.x; tz = use.at.z; th = use.heading; }
       if (isHeld) { tx = s.x; tz = s.z; th = Math.atan2(held.x - s.x, held.z - s.z); }
       if (s.x === null || Math.hypot(tx - s.x, tz - s.z) > cfg.snapM) {
         s.x = tx; s.z = tz; s.heading = th;
@@ -216,7 +223,14 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       const o = pc.object;
       o.visible = s.scale > 0.001 && fromFocus <= cfg.drawM;
       if (o.visible && !isHeld && fromFocus < nearestD) { nearestD = fromFocus; nearest = s; }
-      o.position.set(s.x, heightAt(s.x, s.z), s.z);
+      
+      
+      
+      const arrived = use && Math.hypot(use.at.x - s.x, use.at.z - s.z) < 0.05;
+      const clip = arrived ? (use.kind === 'seat' ? seatClip(pc.rig, use.seatY) : use.clip) : null;
+      if (clip !== pc.using) pc.use(clip);
+      if (clip) s.rise = use.kind === 'seat' ? seatedRootY(pc.rig, pc.clips[clip], use.seatY) : 0;
+      o.position.set(s.x, heightAt(s.x, s.z) + (s.rise || 0) * pc.useWeight, s.z);
       o.rotation.y = s.heading;
       
       s.bob += ((isHeld ? activity : 0) - s.bob) * Math.min(1, dt * 20);
@@ -286,13 +300,14 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       
       
       
-      const gesture = isHeld ? null : villagerGesture(v, pose, animS);
+      const gesture = isHeld || use ? null : villagerGesture(v, pose, animS);
       if (gesture && gesture.key !== s.gestureKey && s.gestureKey !== null && o.visible && !pc.busy) pc.act(gesture.clip);
       s.gestureKey = gesture ? gesture.key : null;
       drawn.push({ s, isHeld });
       shown.push({
         id: v.id, species: v.species, build: s.build, x: s.x, z: s.z, y: o.position.y, heading: s.heading, speed,
         doing: isHeld ? 'talking' : pose.doing, place: pose.place, inside: pose.inside && s.scale < 0.001,
+        clip: pc.using, use: use ? use.id : null,
         visible: o.visible, height: s.height, lod: LODS[s.lod], bob: s.bob, shadow: false,
         
         

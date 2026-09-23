@@ -240,7 +240,9 @@ import {
   BRUSHES, BRUSH_NAMES, TERRAFORM, applyBrush, deltaField, pondObstacle, terrainOf, whyNotShape,
 } from 'moon/world/terraform.mjs';
 import { BAR_HIDDEN, barState } from 'moon/play/tools.mjs';
-import { anchorsOf } from 'moon/art/decor.mjs';
+import { anchorsOf, uses as decorUses, usesOf } from 'moon/art/decor.mjs';
+import { worldSlots, usePlaces, contestUse, releaseUse, takeUse, villagerUse, placedSlots, PLAYER_USE } from 'moon/play/uses.mjs';
+import { seatClip, seatedRootY } from 'moon/rig/clips.mjs';
 import { decorIconFor } from '../render/icons.js';
 import { createPlacedDraw } from './placedDraw.js';
 import { createCraftCard } from './craftCard.js';
@@ -903,6 +905,24 @@ const sizeOf = (item) => anchorsOf(item);
 const furnitureKeys = new Set();
 
 let view = [];              
+
+
+
+const USE_KIND_OF_MODULE = Object.freeze({
+  lamp: 'lampPost', firepit: 'firePit', 'kit/decor/fountain': 'fountain', 'kit/decor/signpost': 'signpost',
+  'kit/decor/picnicTable': 'picnicTable', 'kit/decor/well': 'well', 'kit/decor/hayBale': 'hayBale', 'kit/bench': 'bench',
+});
+let useRegistry = {};
+let frameUses = {};         
+let useHolds = {};          
+
+function villagerUseFor(v, pose) {
+  const slot = villagerUse(homeUses, frameUses, pose);
+  if (slot) frameUses = takeUse(frameUses, slot.id, `villager:${v.id}`);
+  return slot;
+}
+let playerUse = null;       
+let useRootY = 0;           
 let aim = null;             
 let prompt = null;          
 let hold = null, holdProgress = 0;
@@ -1445,6 +1465,36 @@ function syncFindsNow(force = false) {
   }
 }
 
+
+
+
+
+
+
+function startUse(id) {
+  const slot = homeUses.find((s) => s.id === id);
+  if (!slot || !character) return;
+  const won = contestUse(homeUses, useRegistry, id, PLAYER_USE);
+  useRegistry = won.registry;
+  
+  
+  if (won.displaced && Object.values(useHolds).includes(won.displaced)) {
+    useHolds = Object.fromEntries(Object.entries(useRegistry).filter(([, o]) => o === won.displaced));
+  }
+  const clip = slot.kind === 'seat' ? seatClip(character.rig, slot.seatY) : slot.clip;
+  playerUse = { id, clip, x: slot.at.x, z: slot.at.z, heading: slot.heading, displaced: won.displaced };
+  useRootY = slot.kind === 'seat' ? seatedRootY(character.rig, character.clips[clip], slot.seatY) : 0;
+  player = { ...player, x: slot.at.x, z: slot.at.z, heading: slot.heading, vx: 0, vz: 0 };
+  character.use(clip);
+  fml.lastUse = { id, kind: slot.kind, clip, displaced: won.displaced };
+}
+function standUp() {
+  if (!playerUse) return;
+  useRegistry = releaseUse(useRegistry, PLAYER_USE);
+  playerUse = null;
+  if (character) character.use(null);
+}
+
 function placesNow() {
   
   
@@ -1487,10 +1537,18 @@ function placesNow() {
     ...villagerHomePlaces(world, village, econNow()),
     
     ...bellPlaces(world, { planet: planetId }),
+    
+    
+    ...(playerUse ? [] : usePlaces(homeUses)),
   ];
 }
 
 const TOWN_PLACES = townPlaces();
+
+const TOWN_USES = worldSlots(P.filter((p) => USE_KIND_OF_MODULE[p.module]), (p) => decorUses({ kind: USE_KIND_OF_MODULE[p.module], seed: p.seed }));
+
+
+let homeUses = TOWN_USES;
 const TOWN_P = Object.fromEntries(Object.keys(TOWN_SPOTS).map((id) => [id, P.find((p) => p.role === 'town' && p.stage === id)]));
 
 const VILLAGER_BODY_M = 0.35;
@@ -2177,6 +2235,7 @@ function press() {
   
   
   if (p && p.open === 'assembly') { if (p.why) hud.nope(p.why, seconds); else ringBell(); return; }
+  if (p && p.open === 'use') { startUse(p.target.id); return; }
   if (p && p.action && !p.why) { doAct(p.action); return; }
   
   if (p && p.open) { if (card === p.open) closeCard(); else openCard(p.open, p); return; }
@@ -2272,6 +2331,7 @@ function tap(cx, cy) {
   else if (p && p.open === 'villagerIn') goInsideVillager(p.target.id);
   else if (p && p.open === 'knock') knockAt(p.target.id);
   else if (p && p.open === 'assembly') { if (p.why) hud.nope(p.why, seconds); else ringBell(); }
+  else if (p && p.open === 'use') startUse(p.target.id);
   else if (p && p.open === 'talk') openTalk(aim);
   else if (p && p.open) openCard(p.open, p);
   else if (p) hud.nope(refusalOf(p), seconds);
@@ -2948,6 +3008,8 @@ Object.defineProperty(fml, 'village', {
           x: s ? s.x : null, z: s ? s.z : null, speed: s ? s.speed : 0, doing: s ? s.doing : null,
           visible: s ? s.visible : false, inside: s ? s.inside : false, stage: homeStage(v, t).stage,
           build: s ? s.build || null : null, height: s ? s.height : null, lod: s ? s.lod : null, shadow: s ? s.shadow : false,
+          
+          use: s ? s.use || null : null, clip: s ? s.clip || null : null,
         };
       }),
       badges: levelBadges ? levelBadges.stats : { visible: [], gains: 0, last: null },
@@ -3075,6 +3137,8 @@ fml.l9Carry = (counts = {}, tool = null) => {
 
 if (grantAllowed(q)) {
   fml.grant = (opts) => ({ coins: grantCoins(world, opts) });
+  
+  fml.useHold = (id, owner) => { useHolds = { ...useHolds, [id]: owner }; useRegistry = { ...useRegistry, [id]: owner }; return useRegistry; };
   
   
   fml.talkToVillager = (id) => {
@@ -5148,7 +5212,13 @@ function frame(now) {
   
   
   const wasAt = { x: player.x, z: player.z };
-  player = step(player, intent, dt, (x0, z0, x1, z1) => collision.move(x0, z0, x1, z1, PLAYER_RADIUS_M));
+  
+  
+  
+  
+  if (playerUse && (heardIntent.amount > 0.15 || talk || !onHome())) standUp();
+  if (playerUse) player = { ...player, x: playerUse.x, z: playerUse.z, heading: playerUse.heading, vx: 0, vz: 0 };
+  else player = step(player, intent, dt, (x0, z0, x1, z1) => collision.move(x0, z0, x1, z1, PLAYER_RADIUS_M));
   
   if (villagersDraw) {
     const touching = new Set(nearChest(villagersHere(), player, PLAYER_RADIUS_M + VILLAGER_BODY_M));
@@ -5186,7 +5256,9 @@ function frame(now) {
   
   
   const lift = airPose.lift + character.hop.lift;
-  character.object.position.set(player.x, groundY + lift, player.z);
+  
+  const seatRise = useRootY * (character.useWeight || 0);
+  character.object.position.set(player.x, groundY + lift + seatRise, player.z);
   character.object.rotation.y = player.heading;
   character.object.rotation.x = airPose.flip;
   
@@ -5535,13 +5607,21 @@ function frame(now) {
   
   
   
+  
+  
+  
+  homeUses = (world.placed || []).length ? [...TOWN_USES, ...placedSlots(world, usesOf)] : TOWN_USES;
+  frameUses = playerUse ? { [playerUse.id]: PLAYER_USE } : {};
+  for (const [id, owner] of Object.entries(useHolds)) if (!frameUses[id]) frameUses[id] = owner;
   villagersDraw.update(world, t, dt, {
     animDt: dt * state.anim, focus: focusNow, activity: talk && talkingToVillager() ? voice.activity() : 0,
     poseFor: meeting ? assemblyPoseFor : null,
+    useFor: onHome() && !meeting ? villagerUseFor : null,
     
     
     raining: weatherNow().id === 'rainy',
   });
+  useRegistry = frameUses;
   
   
   let badgeId = aim && aim.type === 'villager' ? aim.id : null;
@@ -5676,7 +5756,11 @@ function frame(now) {
   fml.player = {
     x: player.x, z: player.z, heading: player.heading, speed: groundSpeed,
     species: character.rig ? character.rig.species : null, build: drawnBuild, name: PLAYER_NAMES[drawnBuild] || null, height: playerHeightNow(),
+    
+    clip: character.using || (groundSpeed > 0.4 ? 'walk' : 'idle'), use: playerUse ? playerUse.id : null,
   };
+  
+  fml.uses = { registry: useRegistry, slots: homeUses, rise: Math.round(useRootY * (character.useWeight || 0) * 1000) / 1000 };
   
   
   

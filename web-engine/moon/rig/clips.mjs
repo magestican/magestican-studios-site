@@ -33,13 +33,17 @@
 
 import { boneIndex, createPose, forwardKinematics, jointPosition, carriedPoint } from './skeleton.mjs';
 import { keySpan } from './pose.mjs';
-import { quatFromEuler, quatNlerp, eulerFromQuat, eulerFromMat3, mat3FromEuler, mat3Mul, mat3Apply, mat3Transpose, mat3FromColumns, clamp, frac, v3 } from './math.mjs';
+import { quatFromEuler, quatNlerp, eulerFromQuat, eulerFromMat3, mat3FromEuler, mat3Mul, mat3Apply, mat3Transpose, mat3FromColumns, clamp, frac, smoothstep, v3 } from './math.mjs';
 
 const TAU = Math.PI * 2;
 
 
 export const ACT_NAMES = Object.freeze(['chop', 'dig', 'mine', 'water']);
-export const CLIP_NAMES = Object.freeze(['idle', 'walk', 'run', 'carry', 'pickUp', ...ACT_NAMES]);
+
+
+
+export const USE_CLIP_NAMES = Object.freeze(['sit', 'sitSwing', 'lean', 'warmHands', 'wave', 'chat']);
+export const CLIP_NAMES = Object.freeze(['idle', 'walk', 'run', 'carry', 'pickUp', ...ACT_NAMES, ...USE_CLIP_NAMES]);
 const SIDES = [['L', 1, 0], ['R', -1, 0.5]]; 
 const LEG_BONES = ['legUpperL', 'legLowerL', 'footL', 'legUpperR', 'legLowerR', 'footR'];
 const ARM_BONES = ['armUpperL', 'armLowerL', 'armUpperR', 'armLowerR'];
@@ -144,6 +148,7 @@ export function buildClips(skeleton, { walk = gaitOf(WALK, skeleton.gait?.walk),
     carry: carryClip(skeleton, limbs),
     pickUp: pickUpClip(skeleton, limbs),
     ...Object.fromEntries(ACT_NAMES.map((name) => [name, actClip(skeleton, limbs, name)])),
+    ...useClips(skeleton, limbs),
   };
 }
 
@@ -757,6 +762,140 @@ function actClip(skeleton, limbs, name) {
     };
   };
   return bake(skeleton, limbs, { name, loop: false, duration, times: inclusive(Math.round(duration * 40)), frame });
+}
+
+
+
+
+
+
+
+
+export function useClips(skeleton, limbs) {
+  const { L, R } = limbs.legs;
+  const legLen = L.L1 + L.L2;
+  const hipY = L.H[1];
+  const chestY = skeleton.bones[boneIndex(skeleton, 'chest')].head[1];
+  const armLen = limbs.arms.L.L1 + limbs.arms.L.L2;
+  const rest = { L: { pos: L.A }, R: { pos: R.A } };
+  const sin = (p, off = 0) => Math.sin(TAU * p + off);
+  const seatHands = (drop) => {
+    
+    
+    
+    const y = hipY - drop - 0.02, z = 0.28 * legLen;
+    return { weight: 1, L: { point: [Math.max(0.09, L.H[0]), y, z] }, R: { point: [Math.min(-0.09, R.H[0]), y, z] } };
+  };
+  const sitRot = (p) => ({ spine: [0.06, 0, 0], chest: [0.05 + 0.02 * sin(p), 0, 0], head: [-0.04, 0, 0] });
+  const sitDrop = 0.48 * legLen, swingDrop = 0.15 * legLen;
+  
+  
+  
+  
+  
+  
+  const sitFoot = (s) => {
+    const g = limbs.legs[s];
+    const rest0 = Math.acos(clamp(-v3.dot(g.u1, g.u2) / (g.L1 * g.L2), -1, 1));
+    const inner = rest0 - Math.PI / 2;
+    const d2 = g.L1 * g.L1 + g.L2 * g.L2 - 2 * g.L1 * g.L2 * Math.cos(inner);
+    const v = g.H[1] - sitDrop - g.A[1];
+    const reach = Math.sqrt(Math.max(0, d2 - v * v));
+    return { pos: [g.A[0], g.A[1], g.H[2] - 0.06 + reach], pitch: 0 };
+  };
+  const sit = (p) => ({
+    hips: [0, -sitDrop, -0.06],
+    rot: sitRot(p),
+    feet: { L: sitFoot('L'), R: sitFoot('R') },
+    hands: seatHands(sitDrop),
+  });
+  const sitSwing = (p) => ({
+    hips: [0, -swingDrop, -0.04],
+    rot: {
+      ...sitRot(p),
+      legUpperL: [-1.35, 0, 0.08], legUpperR: [-1.35, 0, -0.08],
+      legLowerL: [0.95 + 0.3 * sin(p), 0, 0], legLowerR: [0.95 + 0.3 * sin(p, Math.PI), 0, 0],
+      footL: [0.2, 0, 0], footR: [0.2, 0, 0],
+    },
+    hands: seatHands(swingDrop),
+  });
+  const lean = (p) => ({
+    hips: [0.05, -0.012, -0.02],
+    rot: {
+      spine: [0.02, 0, 0.14], chest: [0.03, -0.1, 0.06 + 0.01 * sin(p)], head: [0, 0.15, -0.06],
+      armUpperR: [-0.55, 0.25, -1.05], armLowerR: [-0.45, 0, 0], handR: [0, 0, 0.3],
+      armUpperL: [0.1, 0, -0.15], armLowerL: [-0.35, 0, 0],
+    },
+    feet: { L: { pos: [L.A[0] + 0.06, L.A[1], L.A[2] - 0.05] }, R: rest.R },
+  });
+  
+  
+  
+  
+  
+  const warmZ = Math.min(0.3, 0.8 * armLen);
+  const warmX = Math.max(0.11, 0.6 * limbs.arms.L.H[0]);
+  const warmHands = (p) => {
+    const rub = 0.03 * pulse(p, 0.5, 0.06);
+    return {
+      hips: [0, -0.01, 0.01],
+      rot: { chest: [0.08, 0, 0], head: [0.06, 0, 0], handL: [-0.9, 0, 0], handR: [-0.9, 0, 0] },
+      feet: rest,
+      hands: { weight: 1, L: { point: [warmX - rub, chestY - 0.04, warmZ] }, R: { point: [-warmX + rub, chestY - 0.04, warmZ] } },
+    };
+  };
+  
+  
+  const wave = (p) => {
+    const e = smoothstep(0, 0.2, p) * (1 - smoothstep(0.85, 1, p));
+    const u = clamp((p - 0.2) / 0.6, 0, 1);
+    return {
+      hips: [0, 0, 0],
+      rot: {
+        armUpperR: [-1.95 * e, 0.2 * e, -0.55 * e],
+        armLowerR: [e * (-0.5 - 0.45 * (0.5 - 0.5 * Math.cos(3 * TAU * u))), 0, 0],
+        handR: [0, 0, 0.35 * e * Math.sin(3 * TAU * u)],
+        head: [0.02 * e, 0.1 * e, 0.08 * e], chest: [0, 0.06 * e, 0.04 * e],
+      },
+      feet: rest,
+    };
+  };
+  const chat = (p) => ({
+    hips: [0, 0, 0.005 * sin(p)],
+    rot: {
+      armUpperL: [-0.35 - 0.2 * sin(p), 0.1, -0.25], armLowerL: [-0.9 - 0.3 * sin(p), 0, 0],
+      armUpperR: [-0.3 - 0.2 * sin(p, Math.PI), -0.1, 0.25], armLowerR: [-0.85 - 0.3 * sin(p, Math.PI), 0, 0],
+      handL: [0, 0, 0.2], handR: [0, 0, -0.2],
+      head: [0.04 * Math.sin(2 * TAU * p), 0.05 * sin(p), 0], chest: [0.02, 0, 0],
+    },
+    feet: rest,
+  });
+  const b = (name, loop, duration, times, frame) => bake(skeleton, limbs, { name, loop, duration, times, frame });
+  return {
+    sit: b('sit', true, 3.2, uniform(32), sit),
+    sitSwing: b('sitSwing', true, 2.4, uniform(24), sitSwing),
+    lean: b('lean', true, 4.0, uniform(40), lean),
+    warmHands: b('warmHands', true, 3.0, uniform(30), warmHands),
+    wave: b('wave', false, 1.1, inclusive(22), wave),
+    chat: b('chat', true, 2.4, uniform(24), chat),
+  };
+}
+
+
+
+export function seatClip(skeleton, seatY) {
+  const legLen = legLengthOf(skeleton);
+  return legLen < seatY + 0.05 ? 'sitSwing' : 'sit';
+}
+export function legLengthOf(skeleton) {
+  const g = limbGeometry(skeleton, 'legUpperL', 'legLowerL', 'footL', 1);
+  return g.L1 + g.L2;
+}
+
+
+export function seatedRootY(skeleton, clip, seatY) {
+  const hipY = skeleton.bones[boneIndex(skeleton, 'legUpperL')].head[1];
+  return seatY - (hipY + clip.hips[0][1]);
 }
 
 

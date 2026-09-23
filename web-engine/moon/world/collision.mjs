@@ -127,7 +127,8 @@ export const FOOTPRINTS = Object.freeze({
   
   
   'kit/decor/fountain': Object.freeze({ shape: 'circle', radiusM: 0.893, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.8]), anchored: true }),
-  'kit/decor/well': Object.freeze({ shape: 'circle', radiusM: 0.884, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.8]), anchored: true }),
+  
+  'kit/decor/well': Object.freeze({ shape: 'circle', radiusM: 0.875, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.8]), anchored: true }),
   'kit/decor/picnicTable': Object.freeze({ shape: 'circle', radiusM: 0.873, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 0.8]), anchored: true }),
   
   

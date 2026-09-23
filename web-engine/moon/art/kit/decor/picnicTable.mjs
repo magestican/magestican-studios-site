@@ -16,6 +16,7 @@ import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary } from '../shade.mjs';
 import { rod } from '../rod.mjs';
+import { slot, turned } from '../useSlots.mjs';
 
 const TOP_Y = 0.72, SEAT_Y = 0.44;
 
@@ -125,6 +126,21 @@ const STYLES = [
   { kind: 'long', length: 1.44, width: 0.7, wood: '#8fb9a8', top: '#f0e3cb', frame: '#5f8b7c' },
   { kind: 'round', radius: 0.46, stools: 3, wood: '#cf9c68', top: '#e3bd86', frame: '#9c7048' },
 ];
+
+
+
+
+
+export function uses({ seed = 1 } = {}) {
+  const rng = new SeededRng(seed).child('picnicTable');
+  const st = seed >= 1 && seed <= 3 ? STYLES[seed - 1] : { ...rng.pick(STYLES) };
+  if (st.kind !== 'long') return [];
+  const yaw = rng.rangeF(-0.1, 0.1);
+  const out = st.width / 2 + 0.32;
+  const out4 = [];
+  for (const t of [1, -1]) for (const x of [-0.25, 0.25]) out4.push(turned(slot('seat', x * st.length, t * out, t > 0 ? Math.PI : 0, 'sit', { seatY: SEAT_Y, facing: 'centre' }), yaw));
+  return out4;
+}
 
 export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
   const detail = Math.max(0, Math.min(2, lod | 0));
