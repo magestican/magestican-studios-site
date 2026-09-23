@@ -248,7 +248,8 @@ import {
   BRUSHES, BRUSH_NAMES, TERRAFORM, applyBrush, deltaField, pondObstacle, terrainOf, whyNotShape,
 } from 'moon/world/terraform.mjs';
 import { BAR_HIDDEN, barState } from 'moon/play/tools.mjs';
-import { anchorsOf, uses as decorUses, usesOf } from 'moon/art/decor.mjs';
+import { anchorsOf, uses as decorUses, usesOf, landsOf } from 'moon/art/decor.mjs';
+import { landingsInWorld, pourSource } from 'moon/play/splash.mjs';
 import { worldSlots, usePlaces, contestUse, releaseUse, takeUse, villagerUse, placedSlots, PLAYER_USE } from 'moon/play/uses.mjs';
 import { seatClip, seatedRootY } from 'moon/rig/clips.mjs';
 import { decorIconFor } from '../render/icons.js';
@@ -382,6 +383,9 @@ windUniforms.uFmlWind.value = q.get('wind') === '0' ? 0 : 1;
 
 
 const waterParam = q.get('water') === '0' ? 0 : 1;
+
+
+const foamParam = q.get('foam') !== '0';
 
 
 
@@ -740,6 +744,12 @@ const P = placements();
 const FOUNTAINS = P.filter((p) => p.module === 'kit/decor/fountain');
 
 
+const TOWN_WATER = [
+  ...FOUNTAINS.map((p) => ({ x: p.x, z: p.z, r: AMBIENCE.TOWN_WATER_R.fountain })),
+  ...P.filter((p) => p.module === 'kit/decor/well').map((p) => ({ x: p.x, z: p.z, r: AMBIENCE.TOWN_WATER_R.well })),
+];
+
+
 
 
 
@@ -1049,18 +1059,34 @@ const ambience = createAmbience({ audio, beds: AMBIENCE, mix: MIX, isGrass: isGr
 
 
 
-function nearestWaterM() {
-  let best = Infinity;
+
+
+
+
+
+
+function waterSourcesNow() {
+  const out = [];
   for (const p of placedOn(world, planetId)) {
     const craft = p.spot && CRAFTABLES[p.item];
     if (!craft || craft.category !== 'water') continue;
-    const d = Math.hypot(p.spot.x - player.x, p.spot.z - player.z);
-    if (d < best) best = d;
+    out.push({ x: p.spot.x, z: p.spot.z, r: 0 });
   }
-  if (onHome() && processorOf(world)) {
-    const d = Math.hypot(PRESS_P.x - player.x, PRESS_P.z - player.z);
-    if (d < best) best = d;
+  if (onHome()) {
+    for (const p of TOWN_WATER) out.push(p);
+    if (processorOf(world)) out.push({ x: PRESS_P.x, z: PRESS_P.z, r: 0 });
+    for (const pond of (terrainField ? terrainField.ponds : [])) out.push({ x: pond.x, z: pond.z, r: pond.r || 0 });
   }
+  return out;
+}
+function nearestWaterM(sources = waterSourcesNow()) {
+  return AMBIENCE.nearestWaterEdgeM(sources, player.x, player.z);
+}
+
+
+function nearestFireM() {
+  let best = Infinity;
+  for (const s of fireSources()) best = Math.min(best, Math.hypot(s.x - player.x, s.z - player.z));
   return best;
 }
 
@@ -1746,30 +1772,36 @@ function fireSources() {
 
 
 
-let splashSourcesSeason = null;
+
+
+
+
+
+
+
+
+let splashSourcesSig = null;
 let splashSourcesCache = [];
+let pourAt = null;          
 function splashSources() {
-  if (!onHome() || !FOUNTAINS.length) return [];
+  const pour = pourSource(pourAt, animSeconds);
+  const home = onHome() && FOUNTAINS.length;
+  const placedF = placedOn(world, planetId).filter((p) => p.spot && CRAFTABLES[p.item] && CRAFTABLES[p.item].art && CRAFTABLES[p.item].art.kind === 'fountain');
   const season = seasonNow();
-  if (season !== splashSourcesSeason) {
-    splashSourcesSeason = season;
+  const sig = `${season}|${home ? 1 : 0}|${placedF.map((p) => `${p.id}:${p.item}:${p.spot.x},${p.spot.z},${p.spot.rotY || 0}`).join('|')}`;
+  if (sig !== splashSourcesSig) {
+    splashSourcesSig = sig;
     const out = [];
-    for (const p of FOUNTAINS) {
-      const rot = p.rotY || 0;
-      const c = Math.cos(rot), s = Math.sin(rot);
-      const pts = fountainLands({ seed: p.seed, season, lod: 0 });
-      pts.forEach((l, i) => {
-        out.push({
-          key: `${p.x}:${p.z}:${i}`,
-          x: p.x + l.x * c + l.z * s,
-          y: (p.y || 0) + l.y,
-          z: p.z + (-l.x * s + l.z * c),
-        });
-      });
+    if (home) {
+      for (const p of FOUNTAINS) out.push(...landingsInWorld(p, fountainLands({ seed: p.seed, season, lod: 0 }), `${p.x}:${p.z}`));
+    }
+    for (const p of placedF) {
+      const at = { x: p.spot.x, y: groundNow(p.spot.x, p.spot.z), z: p.spot.z, rotY: p.spot.rotY || 0 };
+      out.push(...landingsInWorld(at, landsOf(p.item, { season, lod: 0 }), `placed${p.id}`));
     }
     splashSourcesCache = out;
   }
-  return splashSourcesCache;
+  return pour ? [...splashSourcesCache, pour] : splashSourcesCache;
 }
 
 
@@ -2225,6 +2257,8 @@ function doAct(action, { quiet = false } = {}) {
     }
     
     if (e.type === 'clearStump' && e.wood) pops.launch({ good: 'wood', count: e.wood, from: { x: v.x, y: g + 0.3, z: v.z }, seed: popSeed + 17, nowS: animSeconds });
+    
+    if (e.type === 'water') pourAt = { x: v.x, y: g + 0.05, z: v.z, atS: animSeconds };
     if (['harvest', 'fell', 'clearStump', 'plant', 'water'].includes(e.type)) gesture = true;
   }
   
@@ -3540,7 +3574,7 @@ Object.defineProperty(fml, 'embers', {
 });
 
 Object.defineProperty(fml, 'splash', {
-  get: () => (particles ? { ...particles.splashStats, sources: splashSources().length } : null),
+  get: () => (particles ? { ...particles.splashStats, sources: splashSources().length, lands: splashSources().map((s) => ({ key: s.key, x: s.x, y: s.y, z: s.z })) } : null),
 });
 Object.defineProperty(fml, 'shop', {
   enumerable: true,
@@ -5909,7 +5943,7 @@ function frame(now) {
   if (!inside) particles.updateEmbers(dt * state.anim, animSeconds, fireSources(), { wind: windUniforms.uFmlWind.value });
   
   
-  if (!inside) particles.updateSplash(dt * state.anim, animSeconds, splashSources(), { wind: windUniforms.uFmlWind.value });
+  if (!inside) particles.updateSplash(dt * state.anim, animSeconds, splashSources(), { wind: windUniforms.uFmlWind.value, foam: foamParam });
   const counterLocal = { x: shopAnchors.counter.x, y: shopAnchors.counter.y + 0.35, z: shopAnchors.counter.z };
   const counterScreen = screenAt(SHOP_P, counterLocal);
   shownCoins = countStep(shownCoins, coinTarget(world.coins, visits, t), dt);
@@ -6141,9 +6175,12 @@ function frame(now) {
   
   
   
+  const waterNow = waterSourcesNow();
   ambience.tick({
-    frames: fml.frames, season: seasonNow(), night: isDark(world, t), weather: weatherNow().id, waterM: nearestWaterM(),
+    frames: fml.frames, season: seasonNow(), night: isDark(world, t), weather: weatherNow().id, waterM: nearestWaterM(waterNow),
     x: player.x, z: player.z, heading: player.heading, tier: fml.tier,
+    
+    waterSources: waterNow, fireM: nearestFireM(),
   });
   fml.frames++;
   fml.drawCalls = renderer.info.render.calls;

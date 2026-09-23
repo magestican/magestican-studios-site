@@ -32,6 +32,7 @@ import { LEAF, createLeafPool, setLeafMax, emitLeaves, stepLeaves, leafPose, bur
 import { SMOKE, createSmokePool, setSmokeMax as smokeCeiling, emitSmoke, stepSmoke, puffPose } from 'moon/play/smoke.mjs';
 import { createEmberPool, setEmberMax as emberCeiling, emitEmbers, stepEmbers, emberPose } from 'moon/play/embers.mjs';
 import { createSplashPool, setSplashMax as splashCeiling, emitSplash, stepSplash, splashPose } from 'moon/play/splash.mjs';
+import { FOAM_HOLE, createFoamPool, setFoamMax, emitFoam, stepFoam, foamPose } from 'moon/play/foam.mjs';
 
 
 
@@ -181,28 +182,44 @@ uniform float uCurve;
 uniform vec3 uCurveFocus;
 varying vec2 vLocal;
 varying float vAlpha;
+varying float vFlat;
 void main() {
   mat4 m = modelMatrix * instanceMatrix;
   vec4 w = m * vec4( 0.0, 0.0, 0.0, 1.0 );
   vec2 d = w.xz - uCurveFocus.xz;
   w.y -= dot( d, d ) * uCurve;
   float r = length( ( m * vec4( 1.0, 0.0, 0.0, 0.0 ) ).xyz );
+  float lay = instanceColor.y;
+  // y -> -z, not +z: the quad's winding then faces UP (+y). Mapped y -> +z it
+  // faced down and FrontSide culled every ring seen from above (measured
+  // 2026-09-24: 16 rings alive, 0 pixels drawn).
+  w.xz += vec2( position.x, -position.y ) * r * lay;
   vec4 mv = viewMatrix * w;
-  mv.xy += position.xy * r;
+  mv.xy += position.xy * r * ( 1.0 - lay );
   vLocal = position.xy;
   vAlpha = instanceColor.x;
+  vFlat = lay;
   gl_Position = projectionMatrix * mv;
 }
 `;
 
+
+
+
+
 const SPLASH_FRAG =  `
 uniform vec3 uColour;
+uniform float uHole;
 varying vec2 vLocal;
 varying float vAlpha;
+varying float vFlat;
 void main() {
-  float a = smoothstep( 1.0, 0.1, length( vLocal ) ) * vAlpha;
+  float l = length( vLocal );
+  float drop = smoothstep( 1.0, 0.1, l );
+  float ring = smoothstep( uHole - 0.1, uHole + 0.05, l ) * smoothstep( 1.0, 0.85, l );
+  float a = mix( drop, ring, vFlat ) * vAlpha;
   if ( a <= 0.004 ) discard;
-  gl_FragColor = vec4( uColour, a );
+  gl_FragColor = vec4( mix( uColour, vec3( 1.0 ), vFlat ), a );
 }
 `;
 
@@ -300,14 +317,24 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, em
   
   
   
-  const splashCapacity = 48;
-  const splashPool = createSplashPool({ max: splashCapacity, seed: seed + 331 });
+  
+  
+  const dropCapacity = 48;
+  const foamCapacity = 24;
+  const splashCapacity = dropCapacity + foamCapacity;
+  const splashPool = createSplashPool({ max: dropCapacity, seed: seed + 331 });
   splashCeiling(splashPool, splashMax);
+  const foamPool = createFoamPool({ max: foamCapacity, seed: seed + 347 });
+  
+  
+  const foamCeiling = (n) => setFoamMax(foamPool, Math.min(foamCapacity, Math.round((n | 0) / 2)));
+  foamCeiling(splashMax);
   const splashMaterial = new THREE.ShaderMaterial({
     uniforms: {
       uCurve: curveUniforms.uCurve,
       uCurveFocus: curveUniforms.uCurveFocus,
       uColour: { value: SPLASH_COLOUR.clone() },
+      uHole: { value: FOAM_HOLE },
     },
     vertexShader: SPLASH_VERT,
     fragmentShader: SPLASH_FRAG,
@@ -415,21 +442,33 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, em
 
 
 
-  function updateSplash(dt, t, sources, { wind = 1 } = {}) {
+  function updateSplash(dt, t, sources, { wind = 1, foam = true } = {}) {
     emitSplash(splashPool, sources, dt, t);
     stepSplash(splashPool, dt, t, wind);
-    for (let i = 0; i < splashPool.alive; i++) {
-      const p = splashPose(splashPool.drops[i]);
+    
+    emitFoam(foamPool, foam ? sources : [], dt);
+    stepFoam(foamPool, dt);
+    dummy.rotation.set(0, 0, 0);
+    const rings = foamPool.alive;
+    for (let i = 0; i < rings; i++) {
+      const p = foamPose(foamPool.rings[i]);
       dummy.position.set(p.x, p.y, p.z);
-      dummy.rotation.set(0, 0, 0);
       dummy.scale.setScalar(Math.max(0.001, p.r));
       dummy.updateMatrix();
       splashMesh.setMatrixAt(i, dummy.matrix);
-      splashMesh.setColorAt(i, colour.setRGB(p.alpha, p.alpha, p.alpha));
+      splashMesh.setColorAt(i, colour.setRGB(p.alpha, 1, 0));
     }
-    splashMesh.count = splashPool.alive;
-    splashMesh.visible = splashPool.alive > 0;
-    if (splashPool.alive) {
+    for (let i = 0; i < splashPool.alive; i++) {
+      const p = splashPose(splashPool.drops[i]);
+      dummy.position.set(p.x, p.y, p.z);
+      dummy.scale.setScalar(Math.max(0.001, p.r));
+      dummy.updateMatrix();
+      splashMesh.setMatrixAt(rings + i, dummy.matrix);
+      splashMesh.setColorAt(rings + i, colour.setRGB(p.alpha, 0, 0));
+    }
+    splashMesh.count = rings + splashPool.alive;
+    splashMesh.visible = splashMesh.count > 0;
+    if (splashMesh.count) {
       splashMesh.instanceMatrix.needsUpdate = true;
       splashMesh.instanceColor.needsUpdate = true;
     }
@@ -445,7 +484,7 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, em
   function setEmberMax(n) { emberCeiling(emberPool, n); }
 
   
-  function setSplashMax(n) { splashCeiling(splashPool, n); }
+  function setSplashMax(n) { splashCeiling(splashPool, n); foamCeiling(n); }
 
   return {
     mesh, update, setMax,
@@ -472,7 +511,11 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, em
     get splashStats() {
       return {
         alive: splashPool.alive, emitted: splashPool.emitted, max: splashPool.max,
-        capacity: splashCapacity, landings: splashPool.due.size,
+        capacity: dropCapacity, landings: splashPool.due.size,
+        foam: { alive: foamPool.alive, emitted: foamPool.emitted, max: foamPool.max, capacity: foamCapacity },
+        
+        drawn: splashMesh.count, visible: splashMesh.visible, inScene: !!splashMesh.parent,
+        ring0: foamPool.alive ? foamPose(foamPool.rings[0]) : null,
       };
     },
   };

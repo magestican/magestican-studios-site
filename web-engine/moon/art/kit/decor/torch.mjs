@@ -25,6 +25,7 @@ import { MeshData, IDENTITY, compose, translate, rotateY, rotateZ } from '../../
 import { emit, lathe, sweep, circleProfile } from '../../../mesh/bevel.mjs';
 import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
+import { RIPPLE, jetRamp } from '../water.mjs';
 import { hex, vc, vary, mixC, paintVertex } from '../shade.mjs';
 import { rod } from '../rod.mjs';
 
@@ -43,7 +44,15 @@ export function flame(mesh, m, { height = 0.24, radius = 0.075, detail = 0, rng,
     path, up: [0, 0, 1], caps: ['round', 'round'], capSegments: 1, capLength: radius * 0.5,
     scales: (t) => 0.55 + 0.75 * Math.sin(Math.PI * Math.min(1, t * 1.05)) * (1 - t * 0.55),
   });
-  emit(mesh, 'fire', shape, { matrix: m, color: (p) => mixC(hot, cool, Math.min(1, Math.max(0, p[1] / Math.max(0.01, height)))) });
+  
+  
+  
+  const ramp = jetRamp(shape.p.map((q) => q[1]));
+  emit(mesh, 'fire', shape, {
+    matrix: m,
+    color: (p) => mixC(hot, cool, Math.min(1, Math.max(0, p[1] / Math.max(0.01, height)))),
+    ripple: (p, n, uv, tag, i) => -RIPPLE.flame * ramp[i],
+  });
 }
 
 export const TIER = 'dressing';

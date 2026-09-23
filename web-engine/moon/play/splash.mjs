@@ -166,3 +166,32 @@ export function splashPose(p) {
     alpha: SPLASH.alpha * Math.min(1, p.ageS / SPLASH.fadeInS) * out,
   };
 }
+
+
+
+
+
+
+
+
+
+export function landingsInWorld({ x, y = 0, z, rotY = 0 }, local, keyPrefix) {
+  const c = Math.cos(rotY), s = Math.sin(rotY);
+  return local.map((l, i) => ({
+    key: `${keyPrefix}:${i}`,
+    x: x + l.x * c + l.z * s,
+    y: y + l.y,
+    z: z + (-l.x * s + l.z * c),
+  }));
+}
+
+
+
+
+export const POUR_S = 0.7;
+
+
+export function pourSource(pour, nowS) {
+  if (!pour || !(nowS >= pour.atS) || nowS >= pour.atS + POUR_S) return null;
+  return { key: 'pour', x: pour.x, y: pour.y, z: pour.z };
+}

@@ -44,8 +44,8 @@
 
 import { CEILING, dbToGain } from './mix.mjs';
 
-export const BED_IDS = Object.freeze(['wind', 'birds', 'crickets', 'water', 'rain', 'hush']);
-export const TEXTURE_IDS = Object.freeze(['wind', 'water', 'rain', 'hush']);
+export const BED_IDS = Object.freeze(['wind', 'birds', 'crickets', 'water', 'rain', 'hush', 'fire']);
+export const TEXTURE_IDS = Object.freeze(['wind', 'water', 'rain', 'hush', 'fire']);
 export const SCHEDULED_IDS = Object.freeze(['birds']);
 export const TONAL_IDS = Object.freeze(['crickets']);
 
@@ -59,7 +59,7 @@ export const TONAL_IDS = Object.freeze(['crickets']);
 
 
 
-export const BED_DB = Object.freeze({ wind: 0, birds: -2, crickets: -13, water: 0, rain: -1, hush: -5 });
+export const BED_DB = Object.freeze({ wind: 0, birds: -2, crickets: -13, water: 0, rain: -1, hush: -5, fire: -6 });
 
 
 export const bedPeak = (id) => CEILING.ambience * dbToGain(BED_DB[id] ?? -60);
@@ -104,6 +104,88 @@ export function waterGain(distanceM) {
   return x * x;
 }
 
+
+
+
+
+
+export const FIRE_NEAR_M = 1.5;
+
+export const FIRE_FAR_M = 9;
+
+
+export function fireGain(distanceM) {
+  const d = Number(distanceM);
+  if (!Number.isFinite(d) || d >= FIRE_FAR_M) return 0;
+  if (d <= FIRE_NEAR_M) return 1;
+  const x = 1 - (d - FIRE_NEAR_M) / (FIRE_FAR_M - FIRE_NEAR_M);
+  return x * x;
+}
+
+
+
+
+
+
+export function popTimes({ seconds, perS, dur_s }, seed) {
+  const rand = lcg(seed);
+  const out = [];
+  let t = 0.05 + rand() * 0.1;
+  while (t + dur_s < seconds) {
+    out.push(Math.round(t * 10000) / 10000);
+    t += 1 / (perS[0] + rand() * (perS[1] - perS[0]));
+  }
+  return Object.freeze(out);
+}
+
+
+
+
+
+
+export const TOWN_WATER_R = Object.freeze({ fountain: 1.6, well: 0.9 });
+
+
+export function nearestWaterEdgeM(sources, x, z) {
+  let best = Infinity;
+  for (const s of sources || []) {
+    const d = Math.max(0, Math.hypot(s.x - x, s.z - z) - (s.r || 0));
+    if (d < best) best = d;
+  }
+  return best;
+}
+
+
+export const WATER_FIELD_MAX = 4;
+
+
+
+
+
+export function siteWater({ x = 0, z = 0, sources = [] } = {}) {
+  return Object.freeze((sources || [])
+    .map((s) => ({ x: s.x, z: s.z, r: s.r || 0, d: Math.max(0, Math.hypot(s.x - x, s.z - z) - (s.r || 0)) }))
+    .filter((s) => s.d < WATER_FAR_M)
+    .sort((a, b) => a.d - b.d)
+    .slice(0, WATER_FIELD_MAX)
+    .map((s) => Object.freeze({ x: s.x, z: s.z, r: s.r })));
+}
+
+
+
+
+
+
+export function waterField(pool, { x = 0, z = 0, heading = 0 } = {}) {
+  const n = (pool || []).length;
+  const share = n ? 1 / Math.sqrt(n) : 0;
+  return Object.freeze((pool || []).map((s) => {
+    const dx = s.x - x, dz = s.z - z;
+    const distanceM = Math.max(0, Math.hypot(dx, dz) - (s.r || 0));
+    return Object.freeze({ x: s.x, z: s.z, distanceM, pan: cricketPan(dx, dz, heading), gain: waterGain(distanceM) * share });
+  }));
+}
+
 const clamp01 = (v) => Math.max(0, Math.min(1, Number.isFinite(v) ? v : 0));
 
 
@@ -111,7 +193,7 @@ const clamp01 = (v) => Math.max(0, Math.min(1, Number.isFinite(v) ? v : 0));
 
 
 
-export function bedsFor({ season = 'summer', night = false, weather = 'clear', waterM = Infinity } = {}) {
+export function bedsFor({ season = 'summer', night = false, weather = 'clear', waterM = Infinity, fireM = Infinity } = {}) {
   const wind = WIND_BY_WEATHER[weather] ?? WIND_BY_WEATHER.clear;
   const rain = weather === 'rainy' ? 1 : 0;
   const snow = weather === 'snowy' ? 1 : 0;
@@ -124,6 +206,7 @@ export function bedsFor({ season = 'summer', night = false, weather = 'clear', w
     water: clamp01(waterGain(waterM)),
     rain,
     hush: clamp01(snow ? 1 : (season === 'winter' ? 0.5 : 0)),
+    fire: clamp01(fireGain(fireM)),
   });
 }
 
@@ -151,7 +234,22 @@ export const TEXTURES = Object.freeze({
   water: texture(6, [layer('bandpass', 1500, 0.8, 1), layer('bandpass', 3100, 1.6, 0.45)], [lfo(3.1, 0.22), lfo(5.3, 0.18)], 2202),
   rain: texture(8, [layer('bandpass', 4200, 0.6, 1), layer('lowpass', 500, 0.5, 0.4)], [lfo(0.21, 0.14)], 3303),
   hush: texture(8, [layer('lowpass', 140, 0.6, 1)], [lfo(0.05, 0.3)], 4404),
+  
+  
+  fire: Object.freeze({
+    ...texture(5, [layer('lowpass', 900, 0.5, 1), layer('bandpass', 2600, 2.5, 0.35)], [lfo(1.7, 0.28), lfo(4.3, 0.18)], 5505),
+    pops: Object.freeze({ perS: Object.freeze([3, 6]), dur_s: 0.012, gain: 0.8, attack_s: 0.002 }),
+  }),
 });
+
+
+export const texturePops = (id) => {
+  const t = TEXTURES[id];
+  return t && t.pops ? popTimes({ seconds: t.seconds, perS: t.pops.perS, dur_s: t.pops.dur_s }, t.seed + 1) : Object.freeze([]);
+};
+
+
+export const fieldsArePositional = (tier) => tier !== 'low';
 
 
 export const BLEND_S = 0.25;

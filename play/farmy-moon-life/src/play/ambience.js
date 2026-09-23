@@ -131,6 +131,20 @@ export async function renderTexture(id, {
     bq.connect(g);
     g.connect(level);
   }
+  
+  
+  
+  if (spec.pops && beds.texturePops) {
+    const gate = ctx.createGain();
+    gate.gain.setValueAtTime(0, 0);
+    for (const at of beds.texturePops(id)) {
+      gate.gain.setValueAtTime(0, at);
+      gate.gain.linearRampToValueAtTime(spec.pops.gain, at + spec.pops.attack_s);
+      gate.gain.linearRampToValueAtTime(0, at + spec.pops.dur_s);
+    }
+    src.connect(gate);
+    gate.connect(ctx.destination);
+  }
   src.start(0);
   src.stop(total);
 
@@ -193,6 +207,7 @@ export function createAmbience({
   const counts = { renders: 0, errors: 0, starts: 0, stops: 0, phrases: 0, chirps: 0 };
   const live = new Map();           
   let targets = beds.bedsFor({});
+  let lastFireM = Infinity;         
   let rendering = false;
   let renderedAll = false;
   let lastError = '';
@@ -337,6 +352,55 @@ export function createAmbience({
 
 
 
+
+
+
+  function startWaterField(ctx, bus, now, pool, at) {
+    const entry = textures.get('water');
+    if (!ctx.createStereoPanner || !entry) return null;
+    const level = ctx.createGain();
+    level.gain.setValueAtTime(FLOOR, now);
+    level.connect(bus);
+    const sources = [];
+    const voices = [];
+    pool.forEach((spot, i) => {
+      const place = ctx.createGain();
+      place.gain.setValueAtTime(0, now);
+      const panner = ctx.createStereoPanner();
+      panner.pan.setValueAtTime(0, now);
+      const src = ctx.createBufferSource();
+      src.buffer = entry.buffer;
+      src.loop = true;
+      src.loopStart = 0;
+      src.loopEnd = entry.loopSeconds;
+      src.connect(panner);
+      panner.connect(place);
+      place.connect(level);
+      src.start(now, (entry.loopSeconds * i) / Math.max(1, pool.length));
+      sources.push(src);
+      voices.push({ place, panner });
+    });
+    return { level, sources, voices, positional: true, pool, at, checkedAt: now, field: [], target: 0, silentSince: null };
+  }
+
+  
+  function placeWater(v, where, now) {
+    if (!v || !v.positional) return;
+    const field = beds.waterField(v.pool, where);
+    v.field = field;
+    for (let i = 0; i < v.voices.length && i < field.length; i += 1) {
+      try {
+        v.voices[i].place.gain.setTargetAtTime(field[i].gain, now, PLACE_TAU_S);
+        v.voices[i].panner.pan.setTargetAtTime(field[i].pan, now, PLACE_TAU_S);
+      } catch {  }
+    }
+  }
+
+  
+
+
+
+
   function placeCrickets(v, where, now) {
     if (!v || !v.positional) return;
     const field = beds.cricketField(v.pool, where);
@@ -428,6 +492,17 @@ export function createAmbience({
   }
 
   
+  function waterState() {
+    const v = live.get('water');
+    if (!v) return { live: false, positional: false, sources: [] };
+    return {
+      live: true,
+      positional: !!v.positional,
+      sources: (v.field || []).map((s) => ({ pan: s.pan, gain: s.gain, distanceM: s.distanceM, x: s.x, z: s.z })),
+    };
+  }
+
+  
   function cricketState() {
     const v = live.get('crickets');
     if (!v) return { live: false, positional: false, sources: [] };
@@ -471,8 +546,9 @@ export function createAmbience({
 
 
     tick({ frames = Infinity, season = 'summer', night = false, weather = 'clear', waterM = Infinity,
-      x = 0, z = 0, heading = 0, tier = null } = {}) {
-      targets = beds.bedsFor({ season, night, weather, waterM });
+      x = 0, z = 0, heading = 0, tier = null, waterSources = null, fireM = Infinity } = {}) {
+      targets = beds.bedsFor({ season, night, weather, waterM, fireM });
+      lastFireM = fireM;
       if (frames < afterFrames) return false;
       if (!renderedAll && !rendering) renderAll();
 
@@ -483,8 +559,14 @@ export function createAmbience({
       let changed = false;
       try {
         sweep(now);
+        
+        
+        const wantWaterField = beds.fieldsArePositional(tier) && Array.isArray(waterSources)
+          && !!ctx.createStereoPanner && textures.has('water');
         for (const id of beds.TEXTURE_IDS) {
+          if (id === 'water' && wantWaterField) continue;
           let v = live.get(id);
+          if (v && v.positional) continue;   
           if (!v) {
             if (!(targets[id] > 0) || !textures.has(id)) continue;
             v = startTexture(id, ctx, bus, now);
@@ -499,6 +581,31 @@ export function createAmbience({
         
         const wantField = beds.cricketsArePositional(tier);
         const where = { x, z, heading };
+        let water = live.get('water');
+        if (water && !!water.positional !== wantWaterField) {
+          
+          stopBed(water, now);
+          live.delete('water');
+          water = null;
+          changed = true;
+        }
+        if (wantWaterField) {
+          if (water && now - water.checkedAt > RESITE_EVERY_S) {
+            water.checkedAt = now;
+            const next = beds.siteWater({ x, z, sources: waterSources });
+            if (next.length === water.pool.length) water.pool = next;
+            else { stopBed(water, now); live.delete('water'); water = null; changed = true; }
+          }
+          if (!water && targets.water > 0) {
+            const pool = beds.siteWater({ x, z, sources: waterSources });
+            water = pool.length ? startWaterField(ctx, bus, now, pool, { x, z }) : null;
+            if (water) { live.set('water', water); counts.starts += 1; changed = true; }
+          }
+          if (water) {
+            if (setLevel('water', water, targets.water > 0 ? 1 : 0, now)) changed = true;
+            placeWater(water, where, now);
+          }
+        }
         let crickets = live.get('crickets');
         
         
@@ -572,6 +679,8 @@ export function createAmbience({
         
         
         crickets: cricketState(),
+        water: waterState(),
+        fireM: Number.isFinite(lastFireM) ? Math.round(lastFireM * 100) / 100 : null,
         error: lastError,
       };
     },

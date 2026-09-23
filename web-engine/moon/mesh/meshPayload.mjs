@@ -35,7 +35,19 @@
 
 
 
-export const PAYLOAD_VERSION = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+export const PAYLOAD_VERSION = 2;
 
 
 
@@ -71,7 +83,24 @@ export function toPayload(meshData) {
     
     rig: meshData.rig,
     groups: arrays.groups,
+    
+    
+    
+    morphs: arrays.morphs || {},
   };
+}
+
+
+function payloadArrays(payload) {
+  const out = [];
+  for (const g of payload.groups) {
+    for (const val of Object.values(g)) if (val && val.BYTES_PER_ELEMENT) out.push(val);
+  }
+  for (const m of Object.values(payload.morphs || {})) {
+    if (m && m.deltas && m.deltas.BYTES_PER_ELEMENT) out.push(m.deltas);
+    if (m && m.colorDeltas && m.colorDeltas.BYTES_PER_ELEMENT) out.push(m.colorDeltas);
+  }
+  return out;
 }
 
 
@@ -81,10 +110,8 @@ export function toPayload(meshData) {
 
 export function payloadBuffers(payload) {
   const out = [];
-  for (const g of payload.groups) {
-    for (const val of Object.values(g)) {
-      if (val && val.buffer instanceof ArrayBuffer && !out.includes(val.buffer)) out.push(val.buffer);
-    }
+  for (const val of payloadArrays(payload)) {
+    if (val.buffer instanceof ArrayBuffer && !out.includes(val.buffer)) out.push(val.buffer);
   }
   return out;
 }
@@ -92,11 +119,7 @@ export function payloadBuffers(payload) {
 
 export function payloadBytes(payload) {
   let bytes = 0;
-  for (const g of payload.groups) {
-    for (const val of Object.values(g)) {
-      if (val && val.BYTES_PER_ELEMENT) bytes += val.byteLength;
-    }
-  }
+  for (const val of payloadArrays(payload)) bytes += val.byteLength;
   return bytes;
 }
 
@@ -105,7 +128,7 @@ export function payloadBytes(payload) {
 
 
 export function fromPayload(payload) {
-  const arrays = { name: payload.name, triangles: payload.triangles, groups: payload.groups };
+  const arrays = { name: payload.name, triangles: payload.triangles, groups: payload.groups, morphs: payload.morphs };
   const bounds = payload.bounds;
   return {
     name: payload.name,
@@ -182,6 +205,28 @@ export function validatePayload(payload) {
         }
         if (bad) break;
         if (Math.abs(sum - 1) > 1e-3) { problems.push(`${at}: skin weights sum to ${sum} at vertex ${v}`); break; }
+      }
+    }
+  }
+
+  
+  
+  
+  const morphs = payload.morphs;
+  if (!morphs || typeof morphs !== 'object' || Array.isArray(morphs)) problems.push(`${where}: no morphs object`);
+  else {
+    const vcounts = new Map(payload.groups.map((g) => [g.material, g.position && g.position.length / 3]));
+    for (const [name, m] of Object.entries(morphs)) {
+      const at = `${where}: morph '${name}'`;
+      if (!m || !vcounts.has(m.group)) { problems.push(`${at} names no group (${m && m.group})`); continue; }
+      const want = vcounts.get(m.group) * 3;
+      for (const key of ['deltas', 'colorDeltas']) {
+        const a = m[key];
+        if (!a) { if (key === 'deltas') problems.push(`${at}: no deltas`); continue; }
+        if (!a.BYTES_PER_ELEMENT || a.length !== want) { problems.push(`${at}: ${key} has ${a.length} values, expected ${want}`); continue; }
+        for (let i = 0; i < a.length; i++) {
+          if (!Number.isFinite(a[i])) { problems.push(`${at}: ${key} ${i} is ${a[i]}`); break; }
+        }
       }
     }
   }
