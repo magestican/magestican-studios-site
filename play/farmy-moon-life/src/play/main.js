@@ -5433,6 +5433,9 @@ function frame(now) {
   villagersDraw.update(world, t, dt, {
     animDt: dt * state.anim, focus: focusNow, activity: talk && talkingToVillager() ? voice.activity() : 0,
     poseFor: meeting ? assemblyPoseFor : null,
+    
+    
+    raining: weatherNow().id === 'rainy',
   });
   
   

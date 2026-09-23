@@ -46,6 +46,7 @@ import { villagerGesture } from 'moon/play/gestures.mjs';
 import { villagerBuild } from 'moon/play/people.mjs';
 import { faceAt, faceInfluences } from 'moon/rig/face.mjs';
 import { PERSONALITIES, personalityOf } from 'moon/play/personality.mjs';
+import { EMPTY_LEDGER, moodNow } from 'moon/play/moods.mjs';
 import { villagerObject } from '../render/villager.js';
 import { villagerSource } from '../render/villagerSource.js';
 
@@ -162,7 +163,7 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
   
   
   
-  function update(world, t, dt, { animDt = dt, focus = null, activity = 0, poseFor = null } = {}) {
+  function update(world, t, dt, { animDt = dt, focus = null, activity = 0, poseFor = null, raining = false } = {}) {
     shown = [];
     animS += animDt;
     let nearest = null, nearestD = cfg.shadowM;
@@ -264,9 +265,13 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
           
           
           
+          
+          
+          
           const life = pc.locomotion.state.life;
           const personality = PERSONALITIES[personalityOf(v)];
-          const face = faceAt({ expression: personality.baseline, intensity: personality.intensity, since: 10, blink: life ? life.blink : 0, talking: isHeld, activity: isHeld ? activity : 0 });
+          const mood = moodNow(EMPTY_LEDGER, t, { raining, nowMs: t, tzOffsetMin: world.tzOffsetMin || 0, personality });
+          const face = faceAt({ expression: mood, intensity: personality.intensity, since: 10, blink: life ? life.blink : 0, talking: isHeld, activity: isHeld ? activity : 0 });
           const infl = faceInfluences(face);
           for (const m of pc.meshes) {
             if (!m.morphTargetInfluences) continue;
