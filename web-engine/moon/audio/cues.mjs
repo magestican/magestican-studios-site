@@ -62,6 +62,17 @@ export const CUES = Object.freeze({
   'pick.crop': cue('pluck', 0.3, 60, 2),
   'pick.find': cue('pocket', 0.28, 40, 2),
   'make.place': cue('place', 0.3, 35, 2),
+
+  
+  
+  
+  
+  
+  
+  'gesture.wave': cue('verbTick', 0.3, 40, 2),
+  'gesture.cheer': cue('coinBig', 0.14, 60, 2),
+  'gesture.bow': cue('place', 0.22, 30, 2),
+  'gesture.toss': cue('water', 0.28, 50, 2),
 });
 
 export const CUE_IDS = Object.freeze(Object.keys(CUES));

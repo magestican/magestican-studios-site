@@ -109,6 +109,9 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     finds: [],
     
     
+    luck: null,
+    
+    
     
     
     made: {},
@@ -387,6 +390,23 @@ function forageApply(world, a, t, type) {
 }
 
 
+export const LUCK_MS = 86400000;
+export const LUCK_ODDS = 1 / 8;
+const TREASURES = Object.freeze(Object.keys(FINDS).filter((k) => FINDS[k].treasure).map((k) => FINDS[k].good));
+
+
+
+
+
+
+export function luckFor(world, t) {
+  const luck = world.luck;
+  if (!luck || !Number.isInteger(luck.key) || !(t <= luck.until)) return null;
+  const lucky = (luck.key >>> 0) / 2 ** 32 < LUCK_ODDS;
+  return { lucky, treasure: TREASURES[draw(luck.key, 'treasure') % TREASURES.length] };
+}
+
+
 export function undergroundCost(a) {
   const spec = UNDERGROUND[a.good];
   if (!spec) return 0;
@@ -509,7 +529,37 @@ const RULES = {
       give(world, spec.good, count);
       find.takes += 1;
       find.takenAt = t;
-      events.push({ type: 'pickUpFind', at: t, find: find.id, planet: find.planet, good: spec.good, count });
+      const event = { type: 'pickUpFind', at: t, find: find.id, planet: find.planet, good: spec.good, count };
+      
+      
+      const luck = luckFor(world, t);
+      if (luck) {
+        world.luck = null;
+        if (luck.lucky) {
+          give(world, luck.treasure, 1);
+          event.treasure = luck.treasure;
+        }
+      }
+      events.push(event);
+    },
+  },
+
+  
+  
+  
+  
+  
+  
+  tossCoin: {
+    check(world) {
+      if (world.coins < 1) return 'You have no coin to toss.';
+      return null;
+    },
+    apply(world, a, t, events) {
+      world.coins -= 1;
+      world.stats.coinsTossed = (world.stats.coinsTossed || 0) + 1;
+      world.luck = { key: draw(world.seed, 'luck', world.stats.coinsTossed), until: t + LUCK_MS };
+      events.push({ type: 'tossCoin', at: t, coins: -1 });
     },
   },
 

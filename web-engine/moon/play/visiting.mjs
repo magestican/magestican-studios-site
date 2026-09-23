@@ -75,6 +75,10 @@ export const GUEST_MAY_NOT = Object.freeze([
   
   
   
+  'tossCoin',
+  
+  
+  
   
   'buyUnderground',
 ]);

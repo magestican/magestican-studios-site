@@ -151,6 +151,19 @@
     width: 62px; height: 62px; border-radius: 50%; border: 4px solid #a9c8ef; background: #eaf3ff; color: #33507a;
     font: 700 13px/1.1 system-ui, sans-serif; box-shadow: 0 4px 14px var(--shade); touch-action: none; padding: 0; z-index: 6; }
   #jump.down { transform: scale(0.92); background: #d9e9ff; }
+  
+
+
+  #gestures { position: fixed; right: calc(70px + env(safe-area-inset-right)); bottom: calc(74px + env(safe-area-inset-bottom)); width: 0; height: 0; z-index: 7; }
+  #gestures[hidden] { display: none; }
+  #gestures .gesture { position: absolute; left: -32px; top: -32px; width: 64px; height: 64px; border-radius: 50%;
+    border: 3px solid var(--peach); background: var(--cream); color: var(--ink); font: 800 12px/1.1 system-ui, sans-serif;
+    box-shadow: 0 3px 10px var(--shade); padding: 0 4px; transform: translate(var(--gx), var(--gy)); }
+  #gestures .gesture:active { background: #ffe9c9; }
+  #gesture { position: fixed; right: calc(48px + env(safe-area-inset-right)); bottom: calc(132px + env(safe-area-inset-bottom));
+    width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--peach); background: var(--cream); color: var(--ink);
+    font: 800 11px/1 system-ui, sans-serif; box-shadow: 0 3px 10px var(--shade); padding: 0; z-index: 6; }
+  #gesture[hidden] { display: none; }
   #jump[hidden] { display: none; }
   #jump::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; pointer-events: none;
     border: 3px solid #7fa9e0; opacity: 0; transform: scale(0.72); }
@@ -1301,7 +1314,7 @@
 
 
 
-<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=848e032-20260923T170114Z"></script>
+<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=982926f-20260923T172925Z"></script>
 
 
 
@@ -1655,7 +1668,8 @@
 <div id="visit" hidden></div>
 <div id="board" hidden></div>
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
+<button id="gesture" type="button" aria-label="Gestures - wave, cheer, bow" hidden>Hi!</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=848e032-20260923T170114Z"></script>
+<script type="module" src="src/play/main.js?v=982926f-20260923T172925Z"></script>
 </body>
 </html>

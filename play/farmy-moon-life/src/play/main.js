@@ -251,6 +251,8 @@ import { BAR_HIDDEN, barState } from 'moon/play/tools.mjs';
 import { anchorsOf, uses as decorUses, usesOf, landsOf } from 'moon/art/decor.mjs';
 import { landingsInWorld, pourSource } from 'moon/play/splash.mjs';
 import { worldSlots, usePlaces, contestUse, releaseUse, takeUse, villagerUse, placedSlots, PLAYER_USE } from 'moon/play/uses.mjs';
+import { GESTURES, gestureAllowed, reactionTo, seenBy, nextCheers, coinWaterNear, TOSS_LABEL } from 'moon/play/playerGestures.mjs';
+import { createGestureWheel } from './gestures.js';
 import { seatClip, seatedRootY } from 'moon/rig/clips.mjs';
 import { decorIconFor } from '../render/icons.js';
 import { createPlacedDraw } from './placedDraw.js';
@@ -1552,6 +1554,85 @@ function standUp() {
   if (character) character.use(null);
 }
 
+
+
+
+
+
+
+
+
+const GESTURE_WHEEL = ['wave', 'cheer', 'bow'];
+
+const GESTURE_CUES = ['gesture.wave', 'gesture.cheer', 'gesture.bow'];
+
+const COIN_WATERS = [
+  ...FOUNTAINS.map((p) => ({ id: 'fountain', x: p.x, z: p.z })),
+  ...P.filter((p) => p.module === 'kit/decor/well').map((p) => ({ id: 'well', x: p.x, z: p.z })),
+];
+const cheersIn = new Map();   
+let tossAt = null;            
+fml.lastGesture = null;
+fml.lastToss = null;
+function coinWaterHere() {
+  return onHome() && !inside ? coinWaterNear(COIN_WATERS, player) : null;
+}
+function doGesture(id) {
+  if (!character || !fml.ready) return { error: 'not ready' };
+  const why = gestureAllowed(id, { inOwnHome: Boolean(inside && inside.kind === 'player'), busy: Boolean(character.action) });
+  if (why || !GESTURE_WHEEL.includes(id)) {
+    const say = why || 'Not yet.';
+    hud.say(say, seconds);
+    return { error: say };
+  }
+  const spec = GESTURES[id];
+  standUp();
+  character.act(spec.clip);
+  playerLedger = applyLine(playerLedger, spec.face, moodT());
+  if (GESTURE_CUES.includes(spec.cue)) sfx.play(spec.cue);
+  const answered = [];
+  for (const vid of seenBy(villagersHere(), player)) {
+    const villager = world.villagers.find((v) => v.id === vid);
+    if (!villager || !villagersDraw) continue;
+    const r = reactionTo({ gesture: id, personality: personalityOf(villager), hearts: badgeState(villager, {}).hearts, cheersBefore: cheersIn.get(vid) || 0 });
+    cheersIn.set(vid, nextCheers(cheersIn.get(vid), id));
+    if (r.clip) villagersDraw.gesture(vid, r.clip);
+    villagersDraw.lineMood(vid, r.mood, econNow());
+    answered.push({ id: vid, ...r });
+  }
+  fml.lastGesture = { id, clip: spec.clip, answered, atS: animSeconds };
+  return fml.lastGesture;
+}
+function tossCoinHere() {
+  const water = coinWaterHere();
+  if (!water) { hud.say('Find the fountain or the well to toss a coin in.', seconds); return { error: 'no water' }; }
+  const before = world.coins;
+  const r = doAct({ type: 'tossCoin' });
+  if (r.error) return r;
+  if (character && !character.action) character.act('wave');
+  tossAt = { x: water.x, y: groundNow(water.x, water.z) + 0.45, z: water.z, atS: animSeconds };
+  fml.lastToss = { water: water.id, coins: [before, world.coins], luck: Boolean(world.luck) };
+  return fml.lastToss;
+}
+const gestureWheel = createGestureWheel({
+  onPick: (id) => (id === 'toss' ? tossCoinHere() : doGesture(id)),
+});
+function toggleGestures() {
+  if (!fml.ready || !character) return;
+  if (talk || choice.isOpen || placing) return;
+  const items = GESTURE_WHEEL.map((id) => ({ id, label: GESTURES[id].label }));
+  if (coinWaterHere()) items.push({ id: 'toss', label: TOSS_LABEL });
+  gestureWheel.toggle(items);
+}
+fml.gesture = (id) => doGesture(id);
+fml.tossCoin = () => tossCoinHere();
+fml.gestureWheel = () => { toggleGestures(); return gestureWheel.isOpen; };
+fml.villagerClip = (id) => (villagersDraw ? villagersDraw.clipOf(id) : null);
+fml.coinWaters = COIN_WATERS;
+
+
+Object.defineProperty(fml, 'animSeconds', { get: () => animSeconds });
+
 function placesNow() {
   
   
@@ -1801,7 +1882,11 @@ function splashSources() {
     }
     splashSourcesCache = out;
   }
-  return pour ? [...splashSourcesCache, pour] : splashSourcesCache;
+  
+  
+  const toss = pourSource(tossAt, animSeconds);
+  const extra = [...(pour ? [pour] : []), ...(toss ? [{ ...toss, key: 'toss' }] : [])];
+  return extra.length ? [...splashSourcesCache, ...extra] : splashSourcesCache;
 }
 
 
@@ -3686,6 +3771,19 @@ let hudAway = autoHideStart;
 let hudWokeAtS = 0;
 window.addEventListener('pointerdown', () => { hudWokeAtS = seconds; }, true);
 window.addEventListener('keydown', (e) => { if (e.code === 'KeyM' && !e.repeat) toggleMute(); });
+
+window.addEventListener('keydown', (e) => {
+  if (e.repeat || (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName))) return;
+  if (e.code === 'KeyG') toggleGestures();
+  else if (e.code === 'Escape' && gestureWheel.isOpen) gestureWheel.close();
+});
+const gestureButton = document.getElementById('gesture');
+if (gestureButton) {
+  
+  
+  gestureButton.hidden = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  gestureButton.addEventListener('click', (e) => { e.stopPropagation(); toggleGestures(); });
+}
 
 
 

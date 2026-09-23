@@ -43,7 +43,10 @@ export const ACT_NAMES = Object.freeze(['chop', 'dig', 'mine', 'water']);
 
 
 export const USE_CLIP_NAMES = Object.freeze(['sit', 'sitSwing', 'lean', 'warmHands', 'wave', 'chat']);
-export const CLIP_NAMES = Object.freeze(['idle', 'walk', 'run', 'carry', 'pickUp', ...ACT_NAMES, ...USE_CLIP_NAMES]);
+
+
+export const GESTURE_CLIP_NAMES = Object.freeze(['cheer', 'bow']);
+export const CLIP_NAMES = Object.freeze(['idle', 'walk', 'run', 'carry', 'pickUp', ...ACT_NAMES, ...USE_CLIP_NAMES, ...GESTURE_CLIP_NAMES]);
 const SIDES = [['L', 1, 0], ['R', -1, 0.5]]; 
 const LEG_BONES = ['legUpperL', 'legLowerL', 'footL', 'legUpperR', 'legLowerR', 'footR'];
 const ARM_BONES = ['armUpperL', 'armLowerL', 'armUpperR', 'armLowerR'];
@@ -149,6 +152,49 @@ export function buildClips(skeleton, { walk = gaitOf(WALK, skeleton.gait?.walk),
     pickUp: pickUpClip(skeleton, limbs),
     ...Object.fromEntries(ACT_NAMES.map((name) => [name, actClip(skeleton, limbs, name)])),
     ...useClips(skeleton, limbs),
+    ...gestureClips(skeleton, limbs),
+  };
+}
+
+
+
+
+
+
+
+export function gestureClips(skeleton, limbs) {
+  const { L, R } = limbs.legs;
+  const rest = { L: { pos: L.A }, R: { pos: R.A } };
+  const env = (p) => smoothstep(0, 0.2, p) * (1 - smoothstep(0.85, 1, p));
+  const cheer = (p) => {
+    const e = env(p);
+    const u = clamp((p - 0.2) / 0.65, 0, 1);
+    const pump = 0.5 - 0.5 * Math.cos(2 * TAU * u);
+    return {
+      hips: [0, 0, 0],
+      rot: {
+        armUpperL: [-1.95 * e, -0.15 * e, 0.4 * e], armLowerL: [e * (-0.25 - 0.35 * pump), 0, 0],
+        armUpperR: [-1.95 * e, 0.15 * e, -0.4 * e], armLowerR: [e * (-0.25 - 0.35 * pump), 0, 0],
+        chest: [-0.08 * e, 0, 0], head: [-0.12 * e, 0, 0],
+      },
+      feet: rest,
+    };
+  };
+  const bow = (p) => {
+    const e = env(p);
+    return {
+      hips: [0, 0, -0.02 * e],
+      rot: {
+        spine: [0.3 * e, 0, 0], chest: [0.22 * e, 0, 0], head: [0.18 * e, 0, 0],
+        armUpperL: [0.12 * e, 0, 0.05 * e], armUpperR: [0.12 * e, 0, -0.05 * e],
+      },
+      feet: rest,
+    };
+  };
+  const b = (name, duration, times, frame) => bake(skeleton, limbs, { name, loop: false, duration, times, frame });
+  return {
+    cheer: b('cheer', 1.3, inclusive(26), cheer),
+    bow: b('bow', 1.4, inclusive(28), bow),
   };
 }
 

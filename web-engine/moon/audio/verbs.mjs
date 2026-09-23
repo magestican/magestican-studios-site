@@ -41,6 +41,8 @@ export const CUE_OF_EVENT = Object.freeze({
   craft: 'make.place',
   takeBack: 'pick.find',
   stock: 'make.place',
+  
+  tossCoin: 'gesture.toss',
 });
 
 

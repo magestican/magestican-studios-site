@@ -358,6 +358,26 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       return v ? { x: v.x, z: v.z, y: v.y, height: v.height, visible: v.visible, inside: v.inside } : null;
     },
     
+
+
+
+
+    gesture(id, clip) {
+      const s = slots.get(id);
+      if (!s || !clip) return false;
+      const pc = s.lods[s.lod];
+      if (!pc.clips[clip] || pc.clips[clip].loop) return false;
+      pc.act(clip);
+      return true;
+    },
+    
+    clipOf(id) {
+      const s = slots.get(id);
+      if (!s) return null;
+      const pc = s.lods[s.lod];
+      return pc.action || pc.using || null;
+    },
+    
     objectOf(id) {
       const s = slots.get(id);
       return s ? s.lods[s.lod].object : null;
