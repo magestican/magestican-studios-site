@@ -22,7 +22,7 @@
 
 
 
-import { solve, ARCH } from '../../../2d-fighter-ex/src/animeRig.mjs';
+import { solve, ARCH } from '../../../../web-engine/ps1/animeRig.mjs';
 import { gaitPose, standPose, gripOf, cycleTravel, STRUGGLE_CYCLE } from '../../../../web-engine/horror/gait.js';
 
 

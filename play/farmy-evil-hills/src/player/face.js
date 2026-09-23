@@ -8,7 +8,7 @@
 
 
 import * as THREE from 'three';
-import { solve, ARCH } from '../../../2d-fighter-ex/src/animeRig.mjs';
+import { solve, ARCH } from '../../../../web-engine/ps1/animeRig.mjs';
 import { standPose } from '../../../../web-engine/horror/gait.js';
 import { humanise, XANDER_RIG } from '../../../../web-engine/horror/xanderRig.js';
 
