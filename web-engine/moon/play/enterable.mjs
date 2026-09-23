@@ -25,7 +25,7 @@
 
 import { HAPPINESS } from '../economy/tables.mjs';
 import { anchors as roomAnchors } from '../art/houseRoom.mjs';
-import { storeysFor } from '../art/interiorPlan.mjs';
+import { fixtureUses, storeysFor } from '../art/interiorPlan.mjs';
 import { stockAnchors } from '../art/workRoom.mjs';
 import { HOME_DOOR_M, PLAYER_RADIUS_M, toWorld } from '../world/collision.mjs';
 import { BADGE, HOUSE_STAGES, badgeState, homeOf, homeStage } from './village.mjs';
@@ -138,6 +138,70 @@ export function buildingDoorPlaces(buildings) {
     }));
   }
   return out;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const RESIDENT = Object.freeze({
+  
+  
+  bedFrom: 0, bedTo: 6,
+  
+  lidsBed: 0.6, lidsRug: 0,
+});
+const LAMP_BULB_M = 1.35;   
+const STOVE_MOUTH_M = 0.3;  
+const STOVE_OUT_M = 0.08;   
+
+export function roomLights(room) {
+  const plan = room && room.plan;
+  if (!plan) return [];
+  const out = [];
+  for (const f of plan.fixtures) {
+    if (f.kind === 'lamp') out.push(Object.freeze({ x: f.x, y: LAMP_BULB_M, z: f.z, kind: 'lamp', fixture: 'lamp' }));
+    if (f.kind === 'stove') {
+      const out0 = f.d / 2 + STOVE_OUT_M;
+      out.push(Object.freeze({ x: f.x + Math.sin(f.rotY) * out0, y: STOVE_MOUTH_M, z: f.z + Math.cos(f.rotY) * out0, kind: 'fire', fixture: 'stove' }));
+    }
+  }
+  return out;
+}
+
+const LIVING_ROOMS = ['hall', 'living', 'landing'];
+
+export function homeResident(home, pose, hour, cfg = RESIDENT) {
+  if (!home || home.kind !== 'villager' || !home.room || !home.room.plan || !pose || !pose.inside) return null;
+  const fx = home.room.plan.fixtures;
+  const rug = fx.find((f) => f.kind === 'rug' && LIVING_ROOMS.includes(f.room)) || fx.find((f) => f.kind === 'rug');
+  const bed = fx.find((f) => f.kind === 'bed');
+  const bedTime = hour >= cfg.bedFrom && hour < cfg.bedTo;
+  if (bed && (bedTime || !rug)) {
+    const [seat] = fixtureUses(bed);
+    return Object.freeze({ x: seat.at.x, z: seat.at.z, heading: seat.heading, on: 'bed', seat, lids: cfg.lidsBed });
+  }
+  if (!rug) return null;
+  
+  return Object.freeze({ x: rug.x, z: rug.z, heading: 0, on: 'rug', lids: cfg.lidsRug });
+}
+
+
+const PANE_HORIZON = 0.4;
+export function windowSky(cycle) {
+  const h = cycle.skyHorizon, z = cycle.skyZenith;
+  return [0, 1, 2].map((i) => z[i] + (h[i] - z[i]) * PANE_HORIZON);
 }
 
 

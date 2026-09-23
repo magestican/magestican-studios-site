@@ -165,7 +165,12 @@ function candidates(trees, places, player, keep, cfg) {
     if (s !== null) out.push({ key, target: { type: 'tree', id: v.id }, s });
   }
   for (const p of places) {
-    const target = ID_PLACES.includes(p.type) ? { type: p.type, id: p.id } : { type: p.type };
+    
+    
+    
+    
+    const target = !ID_PLACES.includes(p.type) ? { type: p.type }
+      : p.type === 'villagerDoor' ? { type: p.type, id: p.id, open: Boolean(p.open) } : { type: p.type, id: p.id };
     const key = targetKey(target);
     const s = scoreGap(measurePlace(p, player, cfg), keep(key), cfg);
     if (s !== null) out.push({ key, target, s });

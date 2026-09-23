@@ -120,6 +120,8 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
   
   let sourceList = sources;
   let halos = null, pools = null;
+  
+  let ground = groundHeight, poolScale = 1;
   function buildFaked() {
     if (!sourceList.length) return;
     const hp = new Float32Array(sourceList.length * 3), hs = new Float32Array(sourceList.length), hk = new Float32Array(sourceList.length);
@@ -144,13 +146,13 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
     
     const N = 8, positions = [], uvs = [], kinds = [], index = [];
     for (const s of sourceList) {
-      const radius = s.kind === 'fire' ? 4.2 : 3.4;
+      const radius = (s.kind === 'fire' ? 4.2 : 3.4) * poolScale;
       const base = positions.length / 3;
       for (let j = 0; j <= N; j++) {
         for (let i = 0; i <= N; i++) {
           const u = (i / N) * 2 - 1, v = (j / N) * 2 - 1;
           const x = s.x + u * radius, z = s.z + v * radius;
-          positions.push(x, groundHeight(x, z) + 0.04, z);
+          positions.push(x, ground(x, z) + 0.04, z);
           uvs.push(u, v);
           kinds.push(s.kind === 'fire' ? 1 : 0);
         }
@@ -199,11 +201,22 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
     get size() { return size; },
     get sources() { return sourceList; },
     
+    get lit() {
+      const out = [];
+      for (let i = 0; i < size; i++) {
+        const s = slots[i] >= 0 ? sourceList[slots[i]] : null;
+        if (s && lights[i] && lights[i].intensity > 0) out.push({ kind: s.kind, fixture: s.fixture || null, x: s.x, z: s.z, intensity: lights[i].intensity });
+      }
+      return out;
+    },
     
     
     
-    setSources(next) {
+    
+    setSources(next, { ground: g = groundHeight, poolScale: k = 1 } = {}) {
       sourceList = next || [];
+      ground = g;
+      poolScale = k;
       disposeFaked();
       buildFaked();
       return sourceList.length;

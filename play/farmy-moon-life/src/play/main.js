@@ -159,7 +159,7 @@ import { INDOOR_DISPLAY_SCALE } from 'moon/art/workRoom.mjs';
 import { generate as generateCat } from 'moon/art/cat.mjs';
 import { restingFace } from 'moon/rig/face.mjs';
 import { blinkAt } from 'moon/rig/idleLife.mjs';
-import { PERSONALITIES } from 'moon/play/personality.mjs';
+import { PERSONALITIES, personalityOf } from 'moon/play/personality.mjs';
 import { toObject3D } from '../render/toMesh.js';
 import { startTalk, talkNode, choose } from 'moon/play/talk.mjs';
 import { MET_CAT, MET_MOLE, meet, metList, readMet, villagerKey, visitsOf } from 'moon/play/met.mjs';
@@ -195,7 +195,7 @@ import { startTalk as startVillagerTalk, talkNode as villagerTalkNode, choose as
 
 
 
-import { mayEnter, villagerHomePlaces, buildingDoorPlaces, counterPlaces, indoorShelves } from 'moon/play/enterable.mjs';
+import { mayEnter, villagerHomePlaces, buildingDoorPlaces, counterPlaces, indoorShelves, homeResident, roomLights, windowSky } from 'moon/play/enterable.mjs';
 
 
 
@@ -204,6 +204,8 @@ import { mayEnter, villagerHomePlaces, buildingDoorPlaces, counterPlaces, indoor
 import { MOLE, createMole, moleView, stepMole, surfaceMole } from 'moon/play/mole.mjs';
 import { startTalk as startMoleTalk, talkNode as moleTalkNode, choose as chooseMoleTalk } from 'moon/play/moleTalk.mjs';
 import { createMoleDraw } from '../render/mole.js';
+import { createSilhouette } from '../render/silhouette.js';
+import { occludedBy } from 'moon/play/occlusion.mjs';
 import { DAY_MS, REAL_DAY_MS, hourAt, isDark } from 'moon/economy/clock.mjs';
 import { homeObstacle, homeRoomObstacle } from 'moon/world/collision.mjs';
 import { createVillagersDraw, villagerSpecs } from './villagersDraw.js';
@@ -434,6 +436,9 @@ const fml = (window.__fml = {
   drawCalls: 0, triangles: 0, fps: 0, pickUps: 0, carrying: state.carrying, stick: null, frames: 0, track: null,
   
   
+  silhouette: { visible: false, by: null, off: false },
+  
+  
   
   memory: null,
   problems: [], missing: [], notes: [],
@@ -603,6 +608,8 @@ fml.skyMask = (on) => { skyMasked = Boolean(on); sky.mesh.visible = !on; scene.b
 const INSIDE_BACKDROP = new THREE.Color(0x1a1420);
 const daylight = createDaylight(scene, settings, { shadowExtent: SHADOW_EXTENT_M });
 let night = null, post = null, character = null, collision = null, orchard = null, pops = null;
+const silhouette = createSilhouette(); 
+const talkSilhouette = createSilhouette({ shadow: false }); 
 
 
 
@@ -1681,6 +1688,14 @@ function syncPlacedNow() {
 
 function syncNightLights() {
   if (!night) return;
+  
+  
+  
+  
+  if (inside) {
+    night.setSources(roomLights(inside.room), { ground: () => 0, poolScale: 0.45 });
+    return;
+  }
   night.setSources([
     ...staticSources,
     ...placedLightSources(placedOn(world, planetId), { planet: planetId, heightAt }),
@@ -2547,10 +2562,14 @@ function applyPlanetVisibility() {
     hidden.clear();
     for (const e of visited.values()) e.root.visible = false;
     if (interiorDraw) interiorDraw.group.visible = false;
+    if (night) night.group.visible = true;
     return;
   }
   const here = (visited.get(planetId) || {}).root;
   for (const o of scene.children) {
+    
+    
+    if (night && o === night.group) { o.visible = Boolean(inside); continue; }
     
     
     
@@ -2593,6 +2612,7 @@ async function enterHome(buildHome) {
     if (!ok) { hud.say('The door will not open just now.', seconds); return false; }
     wentInAt = { x: player.x, z: player.z, heading: player.heading };
     inside = home;
+    syncNightLights();
     indoorCurve.enter();
     layout = ROOM_LAYOUT;
     collision = createCollisionWorld({ obstacles: wallsOf(home.room.plan), walkEdgeM: 1000 });
@@ -2651,11 +2671,24 @@ async function goInsideBuilding(kind) {
 
 
 
+
+
+
+
 let roomKeeper = { id: null, pc: null, loading: false };
+let roomResident = null;
+let indoorLeak = []; 
 function syncRoomKeeper(t, dt) {
   const room = inside ? inside.room : null;
   const i = room && room.keeper ? keeperOf(room.work, hourAt(world, t)) : null;
-  const v = i === null || i === undefined ? null : world.villagers[i] || null;
+  let v = i === null || i === undefined ? null : world.villagers[i] || null;
+  let spot = v ? room.keeper : null;
+  roomResident = null;
+  if (!room || room.keeper || inside.kind !== 'villager') {  } else {
+    const rv = world.villagers.find((x) => x.id === inside.villagerId) || null;
+    roomResident = rv ? homeResident(inside, villagerPose(village, world, rv, t), localHour(t, world.tzOffsetMin || 0)) : null;
+    if (roomResident) { v = rv; spot = roomResident; }
+  }
   if (roomKeeper.pc) roomKeeper.pc.object.visible = Boolean(v) && roomKeeper.id === v.id;
   if (!v || !interiorDraw) return;
   if (roomKeeper.id !== v.id) {
@@ -2672,9 +2705,18 @@ function syncRoomKeeper(t, dt) {
     }).catch((e) => { roomKeeper.loading = false; fml.problems = [...new Set([...fml.problems, `room keeper: ${e && e.message ? e.message : e}`])]; });
     return;
   }
-  roomKeeper.pc.object.position.set(room.keeper.x, 0, room.keeper.z);
-  roomKeeper.pc.object.rotation.y = room.keeper.heading;
-  roomKeeper.pc.update(dt, { speed: 0 });
+  const pc = roomKeeper.pc;
+  const seat = roomResident && roomResident.seat;
+  const clip = seat ? seatClip(pc.rig, seat.seatY) : null;
+  if (clip !== pc.using) pc.use(clip);
+  const rise = seat ? seatedRootY(pc.rig, pc.clips[clip], seat.seatY) * pc.useWeight : 0;
+  pc.object.position.set(spot.x, rise, spot.z);
+  pc.object.rotation.y = spot.heading;
+  pc.update(dt, { speed: 0 });
+  if (roomResident) {
+    const face = restingFace({ personality: PERSONALITIES[personalityOf(v)], blink: blinkAt(3 + world.villagers.indexOf(v), seconds), lidsBase: roomResident.lids });
+    pc.object.traverse((o) => { if (o.isMesh && o.morphTargetInfluences) for (let k = 0; k < face.length; k++) o.morphTargetInfluences[k] = face[k]; });
+  }
 }
 
 
@@ -2698,6 +2740,7 @@ async function takeStairs(to) {
     const ok = await interiorDraw.show(next);
     if (!ok) { hud.say('The stairs creak, but you stay put.', seconds); return false; }
     inside = next;
+    syncNightLights();
     collision = createCollisionWorld({ obstacles: wallsOf(next.room.plan), walkEdgeM: 1000 });
     const at = stairsArrival(next.room);
     player = createPlayer(at.x, at.z, at.heading);
@@ -2716,6 +2759,7 @@ function goOutside() {
   if (!inside) return false;
   const back = wentInAt || { x: inside.front.x, z: inside.front.z, heading: Math.PI };
   inside = null;
+  syncNightLights();
   indoorCurve.leave();
   wentInAt = null;
   layout = MOON;
@@ -3349,6 +3393,27 @@ Object.defineProperty(fml, 'workRooms', {
       ? { id: roomKeeper.id, x: roomKeeper.pc.object.position.x, z: roomKeeper.pc.object.position.z, spot: inside.room.keeper ? { ...inside.room.keeper } : null }
       : null,
   }),
+});
+
+
+
+Object.defineProperty(fml, 'n5', {
+  enumerable: true,
+  get: () => {
+    const pc = roomKeeper.pc;
+    return {
+      doors: onHome() && !inside ? villagerHomePlaces(world, village, econNow()).map((d) => ({ id: d.id, open: d.open, x: d.x, z: d.z, front: { ...d.front } })) : [],
+      inside: inside ? { kind: inside.kind, villagerId: inside.villagerId ?? null } : null,
+      resident: roomResident ? { ...roomResident, seat: undefined } : null,
+      figure: pc ? { id: roomKeeper.id, visible: pc.object.visible, inRoom: pc.object.parent === (interiorDraw && interiorDraw.group), clip: pc.using || null, x: pc.object.position.x, y: pc.object.position.y, z: pc.object.position.z } : null,
+      lit: night ? night.lit : [],
+      nightShown: night ? night.group.visible : false,
+      lights: inside ? roomLights(inside.room) : [],
+      panes: interiorDraw ? interiorDraw.stats.panes : 0,
+      pane: interiorDraw ? interiorDraw.paneMaterial.color.toArray() : null,
+      outdoor: inside ? indoorLeak : [],
+    };
+  },
 });
 
 
@@ -5529,6 +5594,22 @@ function frame(now) {
   camera.position.set(pose.position.x, pose.position.y, pose.position.z);
   target.set(pose.target.x, pose.target.y, pose.target.z);
   camera.lookAt(target);
+  
+  
+  
+  
+  
+  
+  const hidBy = inside || !character || !settings.silhouette || fml.silhouette.off ? null
+    : occludedBy(camera.position, { x: player.x, z: player.z, y: character.object.position.y, height: playerHeightNow() }, worldCollision().obstacles);
+  silhouette.update(character && !fml.silhouette.off ? character.object : null, hidBy !== null);
+  fml.silhouette.visible = silhouette.visible;
+  fml.silhouette.by = hidBy ? hidBy.module : null;
+  
+  const talkBody = !inside && talkWith && talkWith.type === 'villager' && villagersDraw ? villagersDraw.positionOf(talkWith.id) : null;
+  const talkHid = talkBody && talkBody.visible && settings.silhouette ? occludedBy(camera.position, talkBody, worldCollision().obstacles) : null;
+  talkSilhouette.update(talkBody ? villagersDraw.objectOf(talkWith.id) : null, talkHid !== null);
+  fml.silhouette.talk = talkBody ? { id: talkWith.id, visible: talkSilhouette.visible, by: talkHid ? talkHid.module : null, attached: Boolean(talkSilhouette.mesh) } : null;
 
   curveUniforms.uCurveFocus.value.copy(target);
   pops.update(animSeconds, armsOf());
@@ -5539,14 +5620,19 @@ function frame(now) {
   
   
   
-  particles.update(dt * state.anim, animSeconds, orchard.sources(), { wind: windUniforms.uFmlWind.value });
-  
-  
-  insects.update(dt * state.anim, { x: player.x, z: player.z, season: seasonNow(), planet: planetId, heightAt: groundNow });
   
   
   
-  if (birds) birds.update(dt * state.anim, animSeconds, orchard.sources(), { player: { x: player.x, z: player.z, speed: groundSpeed } });
+  
+  
+  if (!inside) particles.update(dt * state.anim, animSeconds, orchard.sources(), { wind: windUniforms.uFmlWind.value });
+  
+  
+  if (!inside) insects.update(dt * state.anim, { x: player.x, z: player.z, season: seasonNow(), planet: planetId, heightAt: groundNow });
+  
+  
+  
+  if (birds && !inside) birds.update(dt * state.anim, animSeconds, orchard.sources(), { player: { x: player.x, z: player.z, speed: groundSpeed } });
   
   
   
@@ -5579,6 +5665,12 @@ function frame(now) {
   if (inside) {
     sky.mesh.visible = false;
     scene.background = INSIDE_BACKDROP;
+    interiorDraw.sky(windowSky(cycle)); 
+    
+    
+    
+    
+    indoorLeak = scene.children.filter((o) => o.visible && !permanent.has(o) && o !== night.group).map((o) => o.name || o.type);
   } else {
     if (scene.background === INSIDE_BACKDROP) scene.background = null;
     if (!skyMasked) sky.mesh.visible = true;
@@ -5790,13 +5882,14 @@ function frame(now) {
   
   
   
-  particles.updateSmoke(dt * state.anim, animSeconds, homesDraw.smokeSources(), { wind: windUniforms.uFmlWind.value });
+  
+  if (!inside) particles.updateSmoke(dt * state.anim, animSeconds, homesDraw.smokeSources(), { wind: windUniforms.uFmlWind.value });
   
   
-  particles.updateEmbers(dt * state.anim, animSeconds, fireSources(), { wind: windUniforms.uFmlWind.value });
+  if (!inside) particles.updateEmbers(dt * state.anim, animSeconds, fireSources(), { wind: windUniforms.uFmlWind.value });
   
   
-  particles.updateSplash(dt * state.anim, animSeconds, splashSources(), { wind: windUniforms.uFmlWind.value });
+  if (!inside) particles.updateSplash(dt * state.anim, animSeconds, splashSources(), { wind: windUniforms.uFmlWind.value });
   const counterLocal = { x: shopAnchors.counter.x, y: shopAnchors.counter.y + 0.35, z: shopAnchors.counter.z };
   const counterScreen = screenAt(SHOP_P, counterLocal);
   shownCoins = countStep(shownCoins, coinTarget(world.coins, visits, t), dt);

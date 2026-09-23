@@ -206,7 +206,8 @@ export function obstacleFor(p) {
   const z = p.z + (-f.offsetXM * sin + f.offsetZM * cos) * s;
   if (f.shape === 'circle') {
     const r = f.radiusM * s;
-    return { shape: 'circle', module: p.module, x, z, r, reach: r };
+    
+    return p.stage && !FOOTPRINTS[p.module].shape ? { shape: 'circle', module: p.module, stage: p.stage, x, z, r, reach: r } : { shape: 'circle', module: p.module, x, z, r, reach: r };
   }
   const hx = (f.halfXM ?? ((p.segment || 2) / 2 + FENCE_JOINT_OVERLAP_M)) * s;
   const hz = f.halfZM * s;

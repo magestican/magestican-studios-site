@@ -354,5 +354,10 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       const v = shown.find((x) => x.id === id);
       return v ? { x: v.x, z: v.z, y: v.y, height: v.height, visible: v.visible, inside: v.inside } : null;
     },
+    
+    objectOf(id) {
+      const s = slots.get(id);
+      return s ? s.lods[s.lod].object : null;
+    },
   };
 }

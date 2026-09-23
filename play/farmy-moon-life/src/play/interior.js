@@ -36,9 +36,21 @@ export function createInteriorDraw({ scene, season = 'summer', objectFor = house
   group.visible = false;
   scene.add(group);
 
-  const stats = { species: null, seed: null, shown: false, loading: 0, triangles: 0, builds: 0, key: null };
+  const stats = { species: null, seed: null, shown: false, loading: 0, triangles: 0, builds: 0, key: null, panes: 0 };
   let obj = null;
   let token = 0;
+  
+  
+  
+  
+  
+  const paneMaterial = new THREE.MeshBasicMaterial({ color: 0xbfe2f2, fog: false });
+  paneMaterial.name = 'window-sky';
+  const panesOf = (root) => {
+    let n = 0;
+    root.traverse((o) => { if (o.isMesh && o.material && o.material.name === 'glass') { o.material = paneMaterial; n += 1; } });
+    return n;
+  };
 
   
 
@@ -64,6 +76,7 @@ export function createInteriorDraw({ scene, season = 'summer', objectFor = house
       if (obj) group.remove(obj);
       next.position.set(0, 0, 0);
       next.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } });
+      stats.panes = panesOf(next);
       group.add(next);
       obj = next;
       stats.key = key;
@@ -87,5 +100,10 @@ export function createInteriorDraw({ scene, season = 'summer', objectFor = house
     stats.shown = false;
   }
 
-  return { show, hide, group, stats };
+  
+  function sky(rgb) {
+    paneMaterial.color.setRGB(rgb[0], rgb[1], rgb[2]);
+  }
+
+  return { show, hide, sky, group, stats, paneMaterial };
 }

@@ -45,9 +45,9 @@ export const MEASURE_MS = 2000;
 export const MEASURE_MIN_FRAMES = 20;
 
 export const SETTINGS = Object.freeze({
-  high: Object.freeze({ pixelRatio: 2, effects: 1, shadowMapSize: 2048, shadowRadius: 5, bloom: true, bloomScale: 0.5, bloomKind: 'mip', lights: POOL_SIZE.high, tiltShift: true, leaves: 64, insects: 3, birds: 5, water: 1, smoke: 48, embers: 32, splash: 48 }),
-  medium: Object.freeze({ pixelRatio: 1.5, effects: 0.6, shadowMapSize: 1536, shadowRadius: 4, bloom: true, bloomScale: 0.35, lights: POOL_SIZE.medium, tiltShift: false, leaves: 32, insects: 2, birds: 3, water: 1, smoke: 24, embers: 16, splash: 24 }),
-  low: Object.freeze({ pixelRatio: 1, effects: 0.35, shadowMapSize: 1024, shadowRadius: 3, bloom: false, bloomScale: 0, lights: POOL_SIZE.low, tiltShift: false, leaves: 0, insects: 0, birds: 0, water: 0, smoke: 0, embers: 0, splash: 0 }),
+  high: Object.freeze({ pixelRatio: 2, effects: 1, shadowMapSize: 2048, shadowRadius: 5, bloom: true, bloomScale: 0.5, bloomKind: 'mip', lights: POOL_SIZE.high, tiltShift: true, leaves: 64, insects: 3, birds: 5, water: 1, smoke: 48, embers: 32, splash: 48, silhouette: 1 }),
+  medium: Object.freeze({ pixelRatio: 1.5, effects: 0.6, shadowMapSize: 1536, shadowRadius: 4, bloom: true, bloomScale: 0.35, lights: POOL_SIZE.medium, tiltShift: false, leaves: 32, insects: 2, birds: 3, water: 1, smoke: 24, embers: 16, splash: 24, silhouette: 1 }),
+  low: Object.freeze({ pixelRatio: 1, effects: 0.35, shadowMapSize: 1024, shadowRadius: 3, bloom: false, bloomScale: 0, lights: POOL_SIZE.low, tiltShift: false, leaves: 0, insects: 0, birds: 0, water: 0, smoke: 0, embers: 0, splash: 0, silhouette: 1 }),
 });
 
 
