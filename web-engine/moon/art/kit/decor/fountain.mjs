@@ -47,7 +47,22 @@ function dropBeads(mesh, at, { rng, key, waterColor, n = 4 }) {
 }
 
 
-function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor, rng, beads = true, steps = null }) {
+
+
+function applyM(m, p) {
+  return [
+    m[0] * p[0] + m[1] * p[1] + m[2] * p[2] + m[3],
+    m[4] * p[0] + m[5] * p[1] + m[6] * p[2] + m[7],
+    m[8] * p[0] + m[9] * p[1] + m[10] * p[2] + m[11],
+  ];
+}
+
+
+
+
+
+
+function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor, rng, beads = true, steps = null, lands = null }) {
   const path = [];
   if (steps === null) steps = detail === 0 ? 4 : 3;
   for (let i = 0; i <= steps; i++) {
@@ -70,9 +85,13 @@ function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor, rng, be
     color: vc(waterColor, { groundAO: 0, underside: 0.15 }),
     ripple: (p, n, uv, tag, i) => -RIPPLE.flow * fall[i],
   });
+  const tail = path[path.length - 1];
   if (beads && detail === 0 && rng) {
-    const tail = path[path.length - 1];
     dropBeads(mesh, compose(at, translate(tail[0], tail[1], tail[2])), { rng, waterColor });
+  }
+  if (lands) {
+    const [x, y, z] = applyM(at, tail);
+    lands.push({ x, y, z });
   }
 }
 
@@ -82,7 +101,7 @@ function arc(mesh, m, { a, r0, y0, r1, y1, w = 0.03, detail, waterColor, rng, be
 
 export function fountain(mesh, m, {
   radius = 0.95, kerb = 0.34, tiers = [], jet = 0, square = false, detail = 0, rng,
-  stoneColor, waterColor, snowColor = null, frozen = false,
+  stoneColor, waterColor, snowColor = null, frozen = false, lands = null,
 }) {
   const sides = square ? (detail === 0 ? 16 : detail === 1 ? 12 : 8) : detail === 0 ? 12 : detail === 1 ? 9 : 6;
   
@@ -181,6 +200,7 @@ export function fountain(mesh, m, {
           
           
           beads: i === 0 && k === 0,
+          lands,
         });
       }
     }
@@ -210,6 +230,10 @@ export function fountain(mesh, m, {
     
     
     
+    
+    
+    
+    
     if (detail === 0) {
       const cr = rng.child('jetCrown');
       const tipAt = compose(m, translate(lean, top.y + jet, 0));
@@ -233,7 +257,7 @@ export function fountain(mesh, m, {
       sides: detail === 0 ? 8 : 5, phase: 0.125, radiusFn: (th, j, r) => r * squareR(th),
     });
     emit(mesh, 'stone', wall, { matrix: compose(m, compose(translate(Math.sin(a) * R * 0.86, 0, Math.cos(a) * R * 0.86), rotateY(a))), color: vc(vary(rng, stoneColor, 0.04), { groundAO: 0.25 }) });
-    if (!frozen) arc(mesh, m, { a: a + Math.PI, r0: R * 0.66, y0: H + 0.42, r1: R * 0.25, y1: pool + 0.02, w: 0.04, detail, waterColor, rng, key: 'spout' });
+    if (!frozen) arc(mesh, m, { a: a + Math.PI, r0: R * 0.66, y0: H + 0.42, r1: R * 0.25, y1: pool + 0.02, w: 0.04, detail, waterColor, rng, key: 'spout', lands });
   }
 
   if (snowColor) {
@@ -255,7 +279,13 @@ const STYLES = [
   { radius: 0.88, kerb: 0.46, square: false, tiers: [{ y: 0.88, r: 0.44 }, { y: 1.42, r: 0.27 }], jet: 0.3, stone: '#d6d1dc', water: '#b8e6f2' },
 ];
 
-export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
+
+
+
+
+
+
+function build({ seed = 1, season = 'summer', lod = 0, lands = null } = {}) {
   const detail = Math.max(0, Math.min(2, lod | 0));
   const rng = new SeededRng(seed).child('fountain');
   const st = seed >= 1 && seed <= 3 ? STYLES[seed - 1] : { ...rng.pick(STYLES), radius: rng.rangeF(0.8, 1.0) };
@@ -269,7 +299,26 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
   fountain(mesh, at, {
     radius: st.radius, kerb: st.kerb, tiers: st.tiers, jet: st.jet, square: st.square, detail, rng,
     stoneColor: hex(st.stone), waterColor: hex(winter ? '#cfe4ea' : st.water),
-    snowColor: winter && detail < 2 ? hex(pal.snow[0]) : null, frozen: winter,
+    snowColor: winter && detail < 2 ? hex(pal.snow[0]) : null, frozen: winter, lands,
   });
   return mesh;
+}
+
+export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
+  return build({ seed, season, lod });
+}
+
+
+
+
+
+
+
+
+
+
+export function lands({ seed = 1, season = 'summer', lod = 0 } = {}) {
+  const out = [];
+  build({ seed, season, lod, lands: out });
+  return out;
 }

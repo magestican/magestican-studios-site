@@ -31,6 +31,7 @@ import { makeCozy, curveUniforms } from './material.js';
 import { LEAF, createLeafPool, setLeafMax, emitLeaves, stepLeaves, leafPose, burstLeaves } from 'moon/play/leaves.mjs';
 import { SMOKE, createSmokePool, setSmokeMax as smokeCeiling, emitSmoke, stepSmoke, puffPose } from 'moon/play/smoke.mjs';
 import { createEmberPool, setEmberMax as emberCeiling, emitEmbers, stepEmbers, emberPose } from 'moon/play/embers.mjs';
+import { createSplashPool, setSplashMax as splashCeiling, emitSplash, stepSplash, splashPose } from 'moon/play/splash.mjs';
 
 
 
@@ -173,8 +174,48 @@ void main() {
 
 
 
+const SPLASH_COLOUR = new THREE.Color('#dff3f8');
 
-export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, embersMax = 32, seed = 1 }) {
+const SPLASH_VERT =  `
+uniform float uCurve;
+uniform vec3 uCurveFocus;
+varying vec2 vLocal;
+varying float vAlpha;
+void main() {
+  mat4 m = modelMatrix * instanceMatrix;
+  vec4 w = m * vec4( 0.0, 0.0, 0.0, 1.0 );
+  vec2 d = w.xz - uCurveFocus.xz;
+  w.y -= dot( d, d ) * uCurve;
+  float r = length( ( m * vec4( 1.0, 0.0, 0.0, 0.0 ) ).xyz );
+  vec4 mv = viewMatrix * w;
+  mv.xy += position.xy * r;
+  vLocal = position.xy;
+  vAlpha = instanceColor.x;
+  gl_Position = projectionMatrix * mv;
+}
+`;
+
+const SPLASH_FRAG =  `
+uniform vec3 uColour;
+varying vec2 vLocal;
+varying float vAlpha;
+void main() {
+  float a = smoothstep( 1.0, 0.1, length( vLocal ) ) * vAlpha;
+  if ( a <= 0.004 ) discard;
+  gl_FragColor = vec4( uColour, a );
+}
+`;
+
+
+
+
+
+
+
+
+
+
+export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, embersMax = 32, splashMax = 48, seed = 1 }) {
   const capacity = 64;
   const pool = createLeafPool({ max: capacity, seed });
   setLeafMax(pool, max);
@@ -255,6 +296,37 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, em
   for (let i = 0; i < emberCapacity; i++) emberMesh.setColorAt(i, white);   
   emberMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
   scene.add(emberMesh);
+
+  
+  
+  
+  const splashCapacity = 48;
+  const splashPool = createSplashPool({ max: splashCapacity, seed: seed + 331 });
+  splashCeiling(splashPool, splashMax);
+  const splashMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uCurve: curveUniforms.uCurve,
+      uCurveFocus: curveUniforms.uCurveFocus,
+      uColour: { value: SPLASH_COLOUR.clone() },
+    },
+    vertexShader: SPLASH_VERT,
+    fragmentShader: SPLASH_FRAG,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.NormalBlending,
+  });
+  splashMaterial.name = 'particle-splash';
+  const splashMesh = new THREE.InstancedMesh(puffGeometry(), splashMaterial, splashCapacity);
+  splashMesh.name = 'splash';
+  splashMesh.count = 0;
+  splashMesh.frustumCulled = false;   
+  splashMesh.castShadow = false;
+  splashMesh.receiveShadow = false;
+  splashMesh.renderOrder = 6;         
+  splashMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  for (let i = 0; i < splashCapacity; i++) splashMesh.setColorAt(i, white);   
+  splashMesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
+  scene.add(splashMesh);
 
   const dummy = new THREE.Object3D();
   const colour = new THREE.Color();
@@ -338,6 +410,32 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, em
   }
 
   
+
+
+
+
+
+  function updateSplash(dt, t, sources, { wind = 1 } = {}) {
+    emitSplash(splashPool, sources, dt, t);
+    stepSplash(splashPool, dt, t, wind);
+    for (let i = 0; i < splashPool.alive; i++) {
+      const p = splashPose(splashPool.drops[i]);
+      dummy.position.set(p.x, p.y, p.z);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.setScalar(Math.max(0.001, p.r));
+      dummy.updateMatrix();
+      splashMesh.setMatrixAt(i, dummy.matrix);
+      splashMesh.setColorAt(i, colour.setRGB(p.alpha, p.alpha, p.alpha));
+    }
+    splashMesh.count = splashPool.alive;
+    splashMesh.visible = splashPool.alive > 0;
+    if (splashPool.alive) {
+      splashMesh.instanceMatrix.needsUpdate = true;
+      splashMesh.instanceColor.needsUpdate = true;
+    }
+  }
+
+  
   function setMax(n) { setLeafMax(pool, n); }
 
   
@@ -345,6 +443,9 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, em
 
   
   function setEmberMax(n) { emberCeiling(emberPool, n); }
+
+  
+  function setSplashMax(n) { splashCeiling(splashPool, n); }
 
   return {
     mesh, update, setMax,
@@ -354,6 +455,7 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, em
     burst: (source, count = 0) => burstLeaves(pool, source, count),
     smokeMesh, updateSmoke, setSmokeMax,
     emberMesh, updateEmbers, setEmberMax,
+    splashMesh, updateSplash, setSplashMax,
     get stats() { return { alive: pool.alive, emitted: pool.emitted, max: pool.max, capacity }; },
     get smokeStats() {
       return {
@@ -365,6 +467,12 @@ export function createParticles({ scene, max = LEAF.max ?? 64, smokeMax = 48, em
       return {
         alive: emberPool.alive, emitted: emberPool.emitted, max: emberPool.max,
         capacity: emberCapacity, fires: emberPool.due.size,
+      };
+    },
+    get splashStats() {
+      return {
+        alive: splashPool.alive, emitted: splashPool.emitted, max: splashPool.max,
+        capacity: splashCapacity, landings: splashPool.due.size,
       };
     },
   };

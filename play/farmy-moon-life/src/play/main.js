@@ -97,6 +97,7 @@ import { shouldStartAnalytics } from 'moon/play/liveHostGate.mjs';
 import { createFunnel } from 'moon/play/funnel.mjs';
 import { CURVE_K, bendDrop } from 'moon/world/curve.mjs';
 import { heightAt, placements, setTerrainDelta, ISLAND_RADIUS } from 'moon/world/moonLayout.mjs';
+import { lands as fountainLands } from 'moon/art/kit/decor/fountain.mjs';
 import {
   createCollisionWorld, treeObstacle, PLAYER_RADIUS_M, FOOTPRINTS,
   obstaclesWithoutRuntime, buildingObstacle, plotObstacle, roomObstacle, toWorld,
@@ -707,6 +708,11 @@ fml.teleport = (x, z, heading = 0) => {
 
 
 const P = placements();
+
+
+
+
+const FOUNTAINS = P.filter((p) => p.module === 'kit/decor/fountain');
 const clock0 = Date.now(), wall0 = performance.now();
 let skippedMs = 0;
 const wallNow = () => Math.floor(clock0 + (performance.now() - wall0) * state.timescale + skippedMs);
@@ -1562,6 +1568,49 @@ function fireSources() {
   return night.sources
     .filter((s) => s.kind === 'fire')
     .map((s) => ({ key: s.id != null ? `p${s.id}` : `${s.x.toFixed(2)}:${s.z.toFixed(2)}`, x: s.x, y: s.y, z: s.z }));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let splashSourcesSeason = null;
+let splashSourcesCache = [];
+function splashSources() {
+  if (!onHome() || !FOUNTAINS.length) return [];
+  const season = seasonNow();
+  if (season !== splashSourcesSeason) {
+    splashSourcesSeason = season;
+    const out = [];
+    for (const p of FOUNTAINS) {
+      const rot = p.rotY || 0;
+      const c = Math.cos(rot), s = Math.sin(rot);
+      const pts = fountainLands({ seed: p.seed, season, lod: 0 });
+      pts.forEach((l, i) => {
+        out.push({
+          key: `${p.x}:${p.z}:${i}`,
+          x: p.x + l.x * c + l.z * s,
+          y: (p.y || 0) + l.y,
+          z: p.z + (-l.x * s + l.z * c),
+        });
+      });
+    }
+    splashSourcesCache = out;
+  }
+  return splashSourcesCache;
 }
 
 
@@ -3125,6 +3174,10 @@ Object.defineProperty(fml, 'smoke', {
 Object.defineProperty(fml, 'embers', {
   get: () => (particles ? { ...particles.emberStats, sources: fireSources().length } : null),
 });
+
+Object.defineProperty(fml, 'splash', {
+  get: () => (particles ? { ...particles.splashStats, sources: splashSources().length } : null),
+});
 Object.defineProperty(fml, 'shop', {
   enumerable: true,
   get: () => (shelvesDraw ? {
@@ -4554,6 +4607,8 @@ async function fillIn() {
   particles.setSmokeMax(settings.smoke);
   
   particles.setEmberMax(settings.embers);
+  
+  particles.setSplashMax(settings.splash);
   syncOrchard(econNow());
   await orchard.show(view);
   
@@ -4818,6 +4873,7 @@ function applyTier(next, why) {
   waterUniforms.uFmlWater.value = waterParam * settings.water; 
   if (particles) particles.setSmokeMax(settings.smoke); 
   if (particles) particles.setEmberMax(settings.embers); 
+  if (particles) particles.setSplashMax(settings.splash); 
   for (const entry of covers) {
     const before = entry.cover.drawnTriangles;
     const after = entry.cover.setDensity(settings.effects / entry.effects);
@@ -5409,6 +5465,9 @@ function frame(now) {
   
   
   particles.updateEmbers(dt * state.anim, animSeconds, fireSources(), { wind: windUniforms.uFmlWind.value });
+  
+  
+  particles.updateSplash(dt * state.anim, animSeconds, splashSources(), { wind: windUniforms.uFmlWind.value });
   const counterLocal = { x: shopAnchors.counter.x, y: shopAnchors.counter.y + 0.35, z: shopAnchors.counter.z };
   const counterScreen = screenAt(SHOP_P, counterLocal);
   shownCoins = countStep(shownCoins, coinTarget(world.coins, visits, t), dt);

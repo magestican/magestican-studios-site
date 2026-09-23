@@ -150,3 +150,19 @@ export function uses({ kind, seed = 1, variant = null, stage = null } = {}) {
 
 
 export const usesOf = (item) => uses(artOf(item));
+
+
+
+
+
+
+
+
+
+export function lands({ kind, seed = 1, season = 'summer', lod = 0 } = {}) {
+  const mod = moduleOf(kind);
+  return mod.lands ? mod.lands({ seed, season, lod }) : [];
+}
+
+
+export const landsOf = (item, { season = 'summer', lod = 0 } = {}) => lands({ ...artOf(item), season, lod });
