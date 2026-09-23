@@ -42,6 +42,7 @@ import { CRAFTABLES } from '../economy/craftables.mjs';
 import { anchorsOf } from '../art/decor.mjs';
 import { anchors as houseAnchors } from '../art/villagerHome.mjs';
 import { anchors as roomAnchors } from '../art/houseRoom.mjs';
+import { roomAt, wallsOf } from '../art/interiorPlan.mjs';
 import { PLAYER_RADIUS_M, toWorld } from '../world/collision.mjs';
 import { ownedIds, parcelAt } from '../world/parcels.mjs';
 
@@ -51,8 +52,6 @@ export const PLAYER_HOME = Object.freeze({
   
   doorGapM: 0.35,
   
-  
-  wallM: 0.25,
 });
 
 
@@ -153,20 +152,13 @@ export function exitPlaces(home) {
 
 
 
-export function roomWalls(room, cfg = PLAYER_HOME) {
-  const t = cfg.wallM;
-  const box = (x, z, hx, hz) => Object.freeze({
-    shape: 'box', module: 'houseWall', x, z, cos: 1, sin: 0, hx, hz, reach: Math.hypot(hx, hz),
-  });
-  return Object.freeze([
-    box(0, -room.hz - t, room.hx + t * 2, t),
-    box(0, room.hz + t, room.hx + t * 2, t),
-    box(-room.hx - t, 0, t, room.hz + t * 2),
-    box(room.hx + t, 0, t, room.hz + t * 2),
-  ]);
-}
+
+export { wallsOf };
 
 
 export function inRoom(room, x, z) {
   return Math.abs(x) <= room.hx + 1e-9 && Math.abs(z) <= room.hz + 1e-9;
 }
+
+
+export const roomNameAt = (room, x, z) => roomAt(room.plan, x, z);

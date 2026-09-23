@@ -60,6 +60,7 @@
 
 
 import { WORLD_VERSION } from './world.mjs';
+import { faceHousesFront } from './houseFacing.mjs';
 
 export const SAVE_FORMAT = 'fml.save';
 export const SAVE_VERSION = 2;
@@ -416,7 +417,9 @@ export function restoreWorld(fresh, saved) {
   
   fresh.version = WORLD_VERSION;
   const adopted = adoptWildPlanets(fresh, defaults);
-  return { filled, extra, adopted };
+  
+  const facedFront = faceHousesFront(fresh);
+  return { filled, extra, adopted, facedFront };
 }
 
 

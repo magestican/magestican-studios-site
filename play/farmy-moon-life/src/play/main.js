@@ -89,6 +89,9 @@ import { flicker } from 'moon/light/flicker.mjs';
 const FIRE_FLICKER_SEED = 4.7;
 import { dayLine } from 'moon/play/dayline.mjs';
 import { localHour } from 'moon/play/localClock.mjs';
+import { grantAllowed, grantCoins } from 'moon/play/probeGrant.mjs';
+import { createIndoorCurve } from 'moon/play/indoorCurve.mjs';
+import { placingRotY } from 'moon/economy/houseFacing.mjs';
 import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, writeTier, rendererFlags, isCapturing } from 'moon/light/quality.mjs';
 import { createTiming, timingLine } from 'moon/play/timing.mjs';
 import { createDrawGate, createLoadingView } from 'moon/play/loading.mjs';
@@ -173,7 +176,7 @@ import { createLandDraw } from './landDraw.js';
 
 
 
-import { exitPlaces, homePlaces, insideSpot, inRoom, ownsHome, playerHome, roomWalls } from 'moon/play/playerHome.mjs';
+import { exitPlaces, homePlaces, insideSpot, inRoom, ownsHome, playerHome, roomNameAt, wallsOf } from 'moon/play/playerHome.mjs';
 import { createInteriorDraw } from './interior.js';
 import { createSignLabels } from './signLabels.js';
 
@@ -573,6 +576,8 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.info.autoReset = false;
 curveUniforms.uCurve.value = CURVE_K;
+
+const indoorCurve = createIndoorCurve(curveUniforms.uCurve);
 
 const scene = new THREE.Scene();
 
@@ -1791,7 +1796,8 @@ function startPlacing(item) {
   
   if (shaping) chooseBrush(null);
   
-  placing = { item, rotY: player.heading + Math.PI };
+  
+  placing = { item, rotY: placingRotY(item, player.heading) };
   if (craftCard) craftCard.hide();
   closeCard();
 }
@@ -2454,8 +2460,9 @@ async function enterHome(buildHome) {
     if (!ok) { hud.say('The door will not open just now.', seconds); return false; }
     wentInAt = { x: player.x, z: player.z, heading: player.heading };
     inside = home;
+    indoorCurve.enter();
     layout = ROOM_LAYOUT;
-    collision = createCollisionWorld({ obstacles: roomWalls(home.room), walkEdgeM: 1000 });
+    collision = createCollisionWorld({ obstacles: wallsOf(home.room.plan), walkEdgeM: 1000 });
     const at = insideSpot(home);
     player = createPlayer(at.x, at.z, at.heading);
     follow = createFollow(aimPoint(player, 0, cameraFit()));
@@ -2506,6 +2513,7 @@ function goOutside() {
   if (!inside) return false;
   const back = wentInAt || { x: inside.front.x, z: inside.front.z, heading: Math.PI };
   inside = null;
+  indoorCurve.leave();
   wentInAt = null;
   layout = MOON;
   collision = homeCollision;
@@ -3003,6 +3011,11 @@ fml.l9Carry = (counts = {}, tool = null) => {
 };
 
 
+if (grantAllowed(q)) {
+  fml.grant = (opts) => ({ coins: grantCoins(world, opts) });
+}
+
+
 
 fml.g6cPlace = (item) => { startPlacing(item); return placing ? { ...placing } : null; };
 fml.g6cTurn = (rad = Math.PI / 8) => { if (placing) placing = { ...placing, rotY: placing.rotY + rad }; return placing ? placing.rotY : null; };
@@ -3077,7 +3090,7 @@ Object.defineProperty(fml, 'l18', {
       pieces: mine.map((q) => ({ id: q.id, item: q.item, x: q.spot.x, z: q.spot.z, rotY: q.spot.rotY || 0 })),
       obstacles: furnitureKeys.size,
       drawn: roomDraw ? { ...roomDraw.stats } : null,
-      floor: home ? { ...home.room.floor } : null,
+      floor: home ? { ...home.room.floor.find((f) => f.room === 'hall') } : null,
     };
   },
 });
@@ -3096,10 +3109,18 @@ Object.defineProperty(fml, 'home', {
       spot: home ? { ...home.spot } : null,
       door: home ? { ...home.door } : null,
       front: home ? { ...home.front } : null,
-      room: home ? { hx: home.room.hx, hz: home.room.hz, wallH: home.room.wallH, door: { ...home.room.door } } : null,
+      room: home ? {
+        hx: home.room.hx, hz: home.room.hz, wallH: home.room.wallH, door: { ...home.room.door },
+        
+        rooms: home.room.plan.rooms, doorways: home.room.plan.doorways,
+      } : null,
       inside: Boolean(inside),
       
+      roomName: inside ? roomNameAt(inside.room, player.x, player.z) : null,
+      
       standingInRoom: Boolean(inside) && inRoom(inside.room, player.x, player.z),
+      
+      curve: curveUniforms.uCurve.value,
       drawn: interiorDraw ? { ...interiorDraw.stats } : null,
     };
   },
@@ -4358,7 +4379,11 @@ async function loadSave() {
     return;
   }
   const shutFor = Math.max(0, econNow() - doc.world.clockAt);
-  saveInfo.filled = restoreWorld(world, doc.world).filled;
+  const restored = restoreWorld(world, doc.world);
+  saveInfo.filled = restored.filled;
+  
+  saveInfo.facedFront = restored.facedFront;
+  if (restored.facedFront) fml.notes.push(`save: ${restored.facedFront} house(s) turned to face the square`);
   
   
   

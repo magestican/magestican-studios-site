@@ -13,7 +13,13 @@
 import { surface, sweep, roundedRectProfile, deform, clamp } from '../../mesh/bevel.mjs';
 import { valueNoise3 } from '../../noise.mjs';
 
-export function wallPanel({ width, height, plankH = 0.26, lap = 0.045, detail = 0, rng, gable = null, bulge = 0.03, cols = 6 }) {
+
+
+
+
+export function wallPanel({ width, height, plankH = 0.26, lap = 0.045, detail = 0, rng, gable = null, bulge = 0.03, cols = 6, flat = false }) {
+  if (flat) bulge = 0;
+  const wobK = flat ? 0 : 1;
   const topY = gable ? gable.ridgeY - 0.1 : height;
   const eaveY = gable ? gable.eaveY : height;
   const halfWidth = (y) => (y <= eaveY || !gable ? width / 2 : (width / 2) * Math.max(0.05, (gable.ridgeY - y) / (gable.ridgeY - eaveY)));
@@ -24,7 +30,7 @@ export function wallPanel({ width, height, plankH = 0.26, lap = 0.045, detail = 
     const y0 = k * plankH;
     const jit = rng.rangeF(0.75, 1.25), shade = rng.rangeF(0.92, 1.06);
     const tilt = rng.rangeF(-1, 1) * lap * 0.4, droop = rng.rangeF(0, 0.012);
-    const add = (y, z, ao) => { if (y < topY - 0.02) rows.push({ y, z, ao: ao * shade, tilt, droop, v: y / tileH }); };
+    const add = (y, z, ao) => { if (y < topY - 0.02) rows.push({ y, z, ao: ao * shade, tilt: tilt * wobK, droop: droop * wobK, v: y / tileH }); };
     if (detail === 0) {
       add(y0, 0, 0.62);
       add(y0 + 0.07 * plankH, lap * 0.72 * jit, 0.92);
@@ -55,7 +61,7 @@ export function wallPanel({ width, height, plankH = 0.26, lap = 0.045, detail = 
       const r = rows[j];
       const x = u * halfWidth(r.y);
       const belly = bulge * (1 - u * u) * Math.sin(Math.PI * clamp(r.y / topY));
-      const wob = (valueNoise3(x * 1.3, r.y * 3.1, 0, seed) - 0.5) * 0.012;
+      const wob = (valueNoise3(x * 1.3, r.y * 3.1, 0, seed) - 0.5) * 0.012 * wobK;
       return [x, r.y - r.droop * (1 - u * u) + wob, r.z + r.tilt * u + belly];
     },
     uv: (u, j, p) => [p[0] / tileH, rows[j].v],

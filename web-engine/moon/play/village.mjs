@@ -121,7 +121,10 @@ export const VILLAGE = Object.freeze({
   offPathCost: 1.6,
   
   smoothSlack: 1.02,
-  bounds: Object.freeze({ minX: -37, maxX: 37, minZ: -33, maxZ: 33 }),
+  
+  
+  
+  bounds: Object.freeze({ minX: -41, maxX: 37, minZ: -33, maxZ: 33 }),
   
   
   
@@ -660,7 +663,8 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
 
   
   function setHome(id, spot) {
-    const h = Object.freeze({ x: spot.x, z: spot.z, rotY: spot.rotY || 0, seed: spot.seed || 1, chosenAt: spot.chosenAt ?? null });
+    
+    const h = Object.freeze({ x: spot.x, z: spot.z, rotY: 0, seed: spot.seed || 1, chosenAt: spot.chosenAt ?? null });
     homes[id] = h;
     collision.add(homeKey(id), homeObstacle(h));
     if (grid) closeHouse(h);

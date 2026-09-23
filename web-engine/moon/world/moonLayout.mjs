@@ -43,7 +43,8 @@ export const PARCEL = Object.freeze({ minX: -10.5, maxX: 1.5, minZ: -15.5, maxZ:
 
 
 
-export const COTTAGE_SPOT = Object.freeze({ x: -4.6, z: -11.2, rotY: 0.06, seed: 1 });
+
+export const COTTAGE_SPOT = Object.freeze({ x: -4.6, z: -11.2, rotY: 0, seed: 1 });
 
 
 
@@ -99,10 +100,21 @@ export const plazaDistance = (x, z) => Math.hypot(x - PLAZA.x, z - PLAZA.z) - PL
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 export const TOWN_SPOTS = Object.freeze({
   townHall: Object.freeze({ x: -30, z: -12.4, rotY: 0, seed: 1 }),
-  emporium: Object.freeze({ x: -37.0, z: -6.0, rotY: Math.PI / 2, seed: 1 }),
-  market: Object.freeze({ x: -30, z: 0.5, rotY: Math.PI, seed: 2 }),
+  emporium: Object.freeze({ x: -37.0, z: -5.8, rotY: 0, seed: 1 }),
+  market: Object.freeze({ x: -30, z: 0.5, rotY: 0, seed: 2 }),
 });
 
 function segDist(px, pz, ax, az, bx, bz) {

@@ -52,8 +52,10 @@
 
 
 
+
 import { CRAFTABLES } from '../economy/craftables.mjs';
 import { PLAYER_RADIUS_M } from '../world/collision.mjs';
+import { wallsOf } from '../art/interiorPlan.mjs';
 
 export const FURNISH = Object.freeze({
   
@@ -67,7 +69,7 @@ export const FURNISH = Object.freeze({
   
   doorGapM: 0.45,
   
-  fillM: 0.05,
+  fillM: 0.1,
 });
 
 
@@ -106,14 +108,33 @@ export function turnedBox(hx, hz, rotY = 0) {
 export function furnishSpot(player, room, { hx = 0.2, hz = 0.2, rotY = 0 } = {}, cfg = FURNISH) {
   const h = player.heading || 0;
   const box = turnedBox(hx, hz, rotY);
-  const limX = Math.max(0, room.floor.hx - box.hx - cfg.wallGapM);
-  const limZ = Math.max(0, room.floor.hz - box.hz - cfg.wallGapM);
-  const clamp = (v, lim) => Math.max(-lim, Math.min(lim, v));
+  
+  
+  const r = floorRectAt(room, player.x, player.z);
+  const limX = Math.max(0, r.hx - box.hx - cfg.wallGapM);
+  const limZ = Math.max(0, r.hz - box.hz - cfg.wallGapM);
+  const clamp = (v, c, lim) => Math.max(c - lim, Math.min(c + lim, v));
   return {
-    x: clamp(player.x + Math.sin(h) * cfg.aheadM, limX),
-    z: clamp(player.z + Math.cos(h) * cfg.aheadM, limZ),
+    x: clamp(player.x + Math.sin(h) * cfg.aheadM, r.x, limX),
+    z: clamp(player.z + Math.cos(h) * cfg.aheadM, r.z, limZ),
   };
 }
+
+
+
+
+
+export function floorRectAt(room, x, z) {
+  let best = null, bd = Infinity;
+  for (const r of room.floor) {
+    const d = Math.hypot(Math.max(0, Math.abs(x - r.x) - r.hx), Math.max(0, Math.abs(z - r.z) - r.hz));
+    if (d < bd) { bd = d; best = r; }
+  }
+  return best;
+}
+
+
+const builtIn = (room) => (room.plan ? wallsOf(room.plan).filter((w) => w.module !== 'houseWall') : []);
 
 
 
@@ -125,9 +146,14 @@ export function whyNotFurnishHere(x, z, { room, hx = 0.2, hz = 0.2, rotY = 0, pl
   if (!room) return 'You have no house to put that in yet.';
   if (!Number.isFinite(x) || !Number.isFinite(z)) return 'There is no floor there.';
   const box = turnedBox(hx, hz, rotY);
-  if (Math.abs(x) + box.hx + cfg.wallGapM > room.floor.hx + 1e-9
-    || Math.abs(z) + box.hz + cfg.wallGapM > room.floor.hz + 1e-9) {
+  const fits = (r) => Math.abs(x - r.x) + box.hx + cfg.wallGapM <= r.hx + 1e-9 && Math.abs(z - r.z) + box.hz + cfg.wallGapM <= r.hz + 1e-9;
+  if (!room.floor.some(fits)) {
     return 'That will not fit against the wall - stand further into the room.';
+  }
+  for (const f of builtIn(room)) {
+    if (f.module === 'fixture' && Math.abs(f.x - x) < box.hx + f.hx + cfg.gapM && Math.abs(f.z - z) < box.hz + f.hz + cfg.gapM) {
+      return 'The house has something standing there already.';
+    }
   }
   if (Math.hypot(x - room.atDoor.x, z - room.atDoor.z) < cfg.doorGapM + Math.max(box.hx, box.hz)) {
     return 'Keep the doorway clear - you have to be able to get out.';
@@ -151,44 +177,54 @@ export function whyNotFurnishHere(x, z, { room, hx = 0.2, hz = 0.2, rotY = 0, pl
 
 
 export function floorStaysOneRoom(room, placed, cfg = FURNISH) {
+  
+  
+  
+  
+  const fixed = builtIn(room).map((b) => ({ x: b.x, z: b.z, hx: b.hx, hz: b.hz }));
+  const pieces = placed.map((p) => ({ x: p.x, z: p.z, ...turnedBox(p.hx, p.hz, p.rotY || 0) }));
+  const after = flood(room, [...fixed, ...pieces], cfg);
+  if (!after) return false;
+  const before = pieces.length ? flood(room, fixed, cfg) : after;
+  if (!before) return true;
+  for (const k of before.seen) if (after.free(k) && !after.seen.has(k)) return false;
+  return true;
+}
+
+
+
+function flood(room, boxes, cfg) {
   const step = cfg.fillM;
   const R = PLAYER_RADIUS_M;
   const limX = room.hx - R, limZ = room.hz - R;
-  if (limX <= 0 || limZ <= 0) return true;
-  const boxes = placed.map((p) => ({ x: p.x, z: p.z, ...turnedBox(p.hx, p.hz, p.rotY || 0) }));
+  if (limX <= 0 || limZ <= 0) return { seen: new Set(), free: () => false };
   const nx = Math.floor(limX / step), nz = Math.floor(limZ / step);
-  const free = (i, j) => {
+  const open = (i, j) => {
     const x = i * step, z = j * step;
     if (Math.abs(x) > limX || Math.abs(z) > limZ) return false;
     for (const b of boxes) if (Math.abs(b.x - x) < b.hx + R && Math.abs(b.z - z) < b.hz + R) return false;
     return true;
   };
-  
-  
   let seed = null, best = Infinity;
   for (let i = -nx; i <= nx; i++) {
     for (let j = -nz; j <= nz; j++) {
-      if (!free(i, j)) continue;
       const d = Math.hypot(i * step - room.atDoor.x, j * step - room.atDoor.z);
-      if (d < best) { best = d; seed = [i, j]; }
+      if (d < best && d <= cfg.doorGapM + step && open(i, j)) { best = d; seed = [i, j]; }
     }
   }
-  if (!seed) return false;
-  if (best > cfg.doorGapM + step) return false;
+  if (!seed) return null;
   const seen = new Set([`${seed[0]},${seed[1]}`]);
   const queue = [seed];
   while (queue.length) {
     const [i, j] = queue.pop();
     for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const a = i + di, b = j + dj, k = `${a},${b}`;
-      if (seen.has(k) || !free(a, b)) continue;
+      if (seen.has(k) || !open(a, b)) continue;
       seen.add(k);
       queue.push([a, b]);
     }
   }
-  let total = 0;
-  for (let i = -nx; i <= nx; i++) for (let j = -nz; j <= nz; j++) if (free(i, j)) total += 1;
-  return seen.size === total;
+  return { seen, free: (k) => { const [i, j] = k.split(',').map(Number); return open(i, j); } };
 }
 
 

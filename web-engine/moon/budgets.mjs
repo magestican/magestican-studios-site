@@ -7,6 +7,9 @@ export const BUDGETS = Object.freeze({
   heroBuilding: 8000,
   tree: 3000,
   house: 4000,
+  
+  
+  interior: 9000,
   dressing: 800,
   groundClump: 60,
 });
