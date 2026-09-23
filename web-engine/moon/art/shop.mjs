@@ -166,6 +166,9 @@ export function anchors({ seed = 1, stage = 'level1' } = {}) {
   return {
     footprint: { hx: round3(hx), hz: round3(hz) },
     front: P(first.x, zFront + 0.6),
+    
+    
+    door: P(first.x > (xMin + xMax) / 2 ? xMin + 0.7 : xMax - 0.7, zFront),
     shelves,
     counter: { x: stop.x, y: d.counter.height, z: stop.z, rotY: Math.PI },
     customerPath: [P(start, zFront + 2.2), P(first.x, zFront + 1.25), stop, P(away, zFront + 2.2)],

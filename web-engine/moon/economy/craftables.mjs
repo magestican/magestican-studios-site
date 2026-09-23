@@ -174,4 +174,10 @@ export const CRAFTABLES = Object.freeze({
   pandaGardenHouse: { name: 'round house with a garden', category: 'houses', art: { kind: 'house', variant: 'panda', stage: 'garden' }, cost: { wood: 52, stone: 34, food: 8 }, blocks: true },
   elephantGardenHouse: { name: 'arched house with a garden', category: 'houses', art: { kind: 'house', variant: 'elephant', stage: 'garden' }, cost: { wood: 62, stone: 40, food: 8 }, blocks: true },
   giraffeGardenHouse: { name: 'tall house with a garden', category: 'houses', art: { kind: 'house', variant: 'giraffe', stage: 'garden' }, cost: { wood: 58, stone: 38, food: 8 }, blocks: true },
+  
+  humanUpstairsHouse: { name: 'cottage with an upstairs', category: 'houses', art: { kind: 'house', variant: 'human', stage: 'upstairs' }, cost: { wood: 75, stone: 48, food: 8 }, blocks: true },
+  pigUpstairsHouse: { name: 'snug house with an upstairs', category: 'houses', art: { kind: 'house', variant: 'pig', stage: 'upstairs' }, cost: { wood: 68, stone: 44, food: 8 }, blocks: true },
+  pandaUpstairsHouse: { name: 'round house with an upstairs', category: 'houses', art: { kind: 'house', variant: 'panda', stage: 'upstairs' }, cost: { wood: 71, stone: 46, food: 8 }, blocks: true },
+  elephantUpstairsHouse: { name: 'arched house with an upstairs', category: 'houses', art: { kind: 'house', variant: 'elephant', stage: 'upstairs' }, cost: { wood: 84, stone: 54, food: 8 }, blocks: true },
+  giraffeUpstairsHouse: { name: 'tall house with an upstairs', category: 'houses', art: { kind: 'house', variant: 'giraffe', stage: 'upstairs' }, cost: { wood: 79, stone: 51, food: 8 }, blocks: true },
 });

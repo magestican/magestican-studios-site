@@ -86,7 +86,7 @@ import { whyNoAssembly } from './assembly.mjs';
 import { useLabel } from './uses.mjs';
 
 
-const ID_PLACES = Object.freeze(['villager', 'rock', 'forage', 'placed', 'store', 'find', 'villagerDoor', 'use']);
+const ID_PLACES = Object.freeze(['villager', 'rock', 'forage', 'placed', 'store', 'find', 'villagerDoor', 'use', 'homeStairs', 'buildingDoor']);
 
 export const INTERACT = Object.freeze({
   
@@ -254,7 +254,13 @@ function promptOf(target, { world, t, trees, seedKind = null, obstacles = [], ow
   if (target.type === 'bell') return bellPrompt(out, world, t, tool);
   if (target.type === 'homeDoor') return homeDoorPrompt(out, tool);
   if (target.type === 'homeExit') return homeExitPrompt(out, tool);
+  if (target.type === 'homeStairs') return homeStairsPrompt(out, target, tool);
   if (target.type === 'villagerDoor') return villagerDoorPrompt(out, target, tool);
+  
+  if (target.type === 'buildingDoor') {
+    if (tool) return { ...out, chosen: tool, why: 'The door opens by hand.' };
+    return { ...out, verb: 'goIn', open: 'buildingIn', label: 'Go inside' };
+  }
   
   
   if (target.type === 'use') {
@@ -499,6 +505,16 @@ function homeExitPrompt(out, tool) {
   out.verb = 'goOut';
   out.open = 'homeOut';
   out.label = 'Go outside';
+  return out;
+}
+
+
+
+function homeStairsPrompt(out, target, tool) {
+  if (tool) return { ...out, chosen: tool, why: 'You climb stairs on foot.' };
+  out.verb = target.id > 0 ? 'goUp' : 'goDown';
+  out.open = 'homeStairs';
+  out.label = target.id > 0 ? 'Go upstairs' : 'Go downstairs';
   return out;
 }
 

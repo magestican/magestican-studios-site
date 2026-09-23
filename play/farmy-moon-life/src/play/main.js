@@ -60,6 +60,7 @@
 import * as THREE from 'three';
 import { curveUniforms, windUniforms, waterUniforms } from '../render/material.js';
 import { createSky } from '../render/sky.js';
+import { villagerObject } from '../render/villager.js';
 import { createDaylight } from '../render/daylight.js';
 import { createNightLights } from '../render/nightLights.js';
 import { createParticles } from '../render/particles.js';
@@ -89,7 +90,7 @@ import { flicker } from 'moon/light/flicker.mjs';
 const FIRE_FLICKER_SEED = 4.7;
 import { dayLine } from 'moon/play/dayline.mjs';
 import { econStartAt, localHour } from 'moon/play/localClock.mjs';
-import { grantAllowed, grantCoins } from 'moon/play/probeGrant.mjs';
+import { grantAllowed, grantCoins, grantGoodsUpTo } from 'moon/play/probeGrant.mjs';
 import { createIndoorCurve } from 'moon/play/indoorCurve.mjs';
 import { placingRotY } from 'moon/economy/houseFacing.mjs';
 import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, writeTier, rendererFlags, isCapturing } from 'moon/light/quality.mjs';
@@ -149,10 +150,11 @@ import * as AMBIENCE from 'moon/audio/ambience.mjs';
 
 import { cueForEvents } from 'moon/audio/verbs.mjs';
 import { createFootsteps } from 'moon/audio/footsteps.mjs';
-import { recipeMenu, assignStations, stationViews, processorOf } from 'moon/play/processing.mjs';
+import { recipeMenu, assignStations, stationViews, processorOf, pressSummary } from 'moon/play/processing.mjs';
 import { collectSales, customerRoute, pruneVisits } from 'moon/play/customers.mjs';
 import { MONEY, coinTarget, countStep, flightsAt, iconsFor, landedBetween, paidBetween } from 'moon/play/money.mjs';
-import { toPlacementFrame } from 'moon/play/shelves.mjs';
+import { SHELF, toPlacementFrame } from 'moon/play/shelves.mjs';
+import { INDOOR_DISPLAY_SCALE } from 'moon/art/workRoom.mjs';
 
 import { generate as generateCat } from 'moon/art/cat.mjs';
 import { restingFace } from 'moon/rig/face.mjs';
@@ -179,7 +181,7 @@ import { createLandDraw } from './landDraw.js';
 
 
 
-import { exitPlaces, homePlaces, insideSpot, inRoom, ownsHome, playerHome, roomNameAt, wallsOf } from 'moon/play/playerHome.mjs';
+import { exitPlaces, homePlaces, insideSpot, inRoom, onFloor, ownsHome, playerHome, roomNameAt, stairsArrival, wallsOf } from 'moon/play/playerHome.mjs';
 import { createInteriorDraw } from './interior.js';
 import { createSignLabels } from './signLabels.js';
 
@@ -193,7 +195,7 @@ import { startTalk as startVillagerTalk, talkNode as villagerTalkNode, choose as
 
 
 
-import { mayEnter, villagerHomePlaces } from 'moon/play/enterable.mjs';
+import { mayEnter, villagerHomePlaces, buildingDoorPlaces, counterPlaces, indoorShelves } from 'moon/play/enterable.mjs';
 
 
 
@@ -234,7 +236,7 @@ import { placedLightSources } from 'moon/light/placedLights.mjs';
 
 import {
   furnishSpot, furnishedSpot, furnitureFootprints, furnitureObstacle, furnitureTargets,
-  isFurnitureItem, roomOf, whyNotFurnishHere,
+  inHouseFloor, isFurnitureItem, roomOf, whyNotFurnishHere,
 } from 'moon/play/furnishing.mjs';
 
 
@@ -656,6 +658,10 @@ const worldCollision = () => (inside ? homeCollision : collision);
 
 
 let interiorDraw = null;
+
+let indoorGoodsDraw = null, indoorGoodsView = [];
+const ROOM_ORIGIN = Object.freeze({ x: 0, y: 0, z: 0, rotY: 0 });
+const INDOOR_SHELF = Object.freeze({ ...SHELF, displayScale: INDOOR_DISPLAY_SCALE });
 let inside = null;
 let wentInAt = null;
 let goingThroughDoor = false;         
@@ -1506,7 +1512,8 @@ function placesNow() {
   
   
   
-  if (inside) return [...exitPlaces(inside), ...furnitureTargets(world, inside.id, sizeOf)];
+  
+  if (inside) return [...exitPlaces(inside), ...counterPlaces(inside.room), ...furnitureTargets(world, inside.id, sizeOf, inside.floor || 0)];
   
   
   
@@ -1539,6 +1546,8 @@ function placesNow() {
     
     ...villagerHomePlaces(world, village, econNow()),
     
+    ...buildingDoorsNow(),
+    
     ...bellPlaces(world, { planet: planetId }),
     
     
@@ -1547,6 +1556,15 @@ function placesNow() {
 }
 
 const TOWN_PLACES = townPlaces();
+
+function buildingDoorsNow() {
+  const shop = shopOf(world);
+  return buildingDoorPlaces([
+    { kind: 'shop', placement: SHOP_P, door: shopAnchors.door, seed: SHOP_P.seed, level: shop ? shop.level : 1 },
+    ...(processorOf(world) ? [{ kind: 'press', placement: PRESS_P, door: pressAnchors.door, seed: PRESS_P.seed }] : []),
+    ...['emporium', 'market', 'townHall'].map((id) => ({ kind: id, placement: TOWN_SPOTS[id], door: counterAt(id).doorLocal, seed: TOWN_SPOTS[id].seed })),
+  ]);
+}
 
 const TOWN_USES = worldSlots(P.filter((p) => USE_KIND_OF_MODULE[p.module]), (p) => decorUses({ kind: USE_KIND_OF_MODULE[p.module], seed: p.seed }));
 
@@ -1563,8 +1581,10 @@ const villagersHere = () => (villagersDraw ? villagersDraw.shown.filter((v) => v
 function tapBoxes() {
   
   if (inside) {
-    const e = exitPlaces(inside)[0];
-    return [{ type: 'homeExit', x: e.x, z: e.z, rotY: 0, hx: inside.room.door.w / 2 + 0.12, hz: 0.25, h: inside.room.door.h }];
+    
+    return exitPlaces(inside).map((e) => (e.type === 'homeExit'
+      ? { type: 'homeExit', x: e.x, z: e.z, rotY: 0, hx: inside.room.door.w / 2 + 0.12, hz: 0.25, h: inside.room.door.h }
+      : { type: e.type, id: e.id, x: e.x, z: e.z, rotY: 0, hx: 0.5, hz: 0.5, h: 1.2 }));
   }
   if (!onHome()) {
     const here = targetsHere();
@@ -1598,6 +1618,8 @@ function tapBoxes() {
     ...homePlaces(world).map((d) => ({ type: d.type, x: d.x, z: d.z, rotY: 0, hx: 0.6, hz: 0.4, h: 2.2 })),
     
     ...villagerHomePlaces(world, village, econNow()).map((d) => ({ type: d.type, id: d.id, x: d.x, z: d.z, rotY: 0, hx: 0.6, hz: 0.4, h: 2.2 })),
+    
+    ...buildingDoorsNow().map((d) => ({ type: d.type, id: d.id, x: d.x, z: d.z, rotY: 0, hx: 0.55, hz: 0.35, h: 2.2 })),
     
     ...bellPlaces(world, { planet: planetId }).map((b) => ({ type: b.type, x: b.x, z: b.z, rotY: 0, hx: 0.5, hz: 0.5, h: 2.6 })),
   ];
@@ -1735,7 +1757,7 @@ function syncVillagePlaced() {
 }
 
 
-const furnitureHere = () => (inside ? world.placed.filter((p) => roomOf(p) === inside.id) : []);
+const furnitureHere = () => (inside ? world.placed.filter((p) => inHouseFloor(p, inside.id, inside.floor || 0)) : []);
 
 
 
@@ -1925,7 +1947,7 @@ function placingNow() {
     const spot = furnishSpot(player, inside.room, size);
     const why = isFurnitureItem(placing.item)
       ? whyNotFurnishHere(spot.x, spot.z, {
-        room: inside.room, ...size, placed: furnitureFootprints(world, inside.id, sizeOf, null),
+        room: inside.room, ...size, placed: furnitureFootprints(world, inside.id, sizeOf, null, inside.floor || 0),
       })
       : `A ${craftedName(placing.item)} belongs outside - only furniture goes in the house.`;
     return { spot: { ...spot, rotY: placing.rotY }, why };
@@ -2230,9 +2252,11 @@ function press() {
   
   if (p && p.open === 'homeIn') { goInside(); return; }
   if (p && p.open === 'homeOut') { goOutside(); return; }
+  if (p && p.open === 'homeStairs') { takeStairs(p.target.id); return; }
   
   
   if (p && p.open === 'villagerIn') { goInsideVillager(p.target.id); return; }
+  if (p && p.open === 'buildingIn') { goInsideBuilding(p.target.id); return; }
   if (p && p.open === 'knock') { knockAt(p.target.id); return; }
   
   
@@ -2331,7 +2355,9 @@ function tap(cx, cy) {
   if (p && p.action && !p.why) doAct(p.action); 
   else if (p && p.open === 'homeIn') goInside();
   else if (p && p.open === 'homeOut') goOutside();
+  else if (p && p.open === 'homeStairs') takeStairs(p.target.id);
   else if (p && p.open === 'villagerIn') goInsideVillager(p.target.id);
+  else if (p && p.open === 'buildingIn') goInsideBuilding(p.target.id);
   else if (p && p.open === 'knock') knockAt(p.target.id);
   else if (p && p.open === 'assembly') { if (p.why) hud.nope(p.why, seconds); else ringBell(); }
   else if (p && p.open === 'use') startUse(p.target.id);
@@ -2610,10 +2636,80 @@ async function goInsideVillager(villagerId) {
 }
 
 
+
+async function goInsideBuilding(kind) {
+  return enterHome(() => {
+    const place = buildingDoorsNow().find((p) => p.id === kind);
+    if (!place) return null;
+    return { id: `building:${kind}`, kind: 'building', work: kind, species: 'human', seed: place.seed, front: place.front, room: place.room };
+  });
+}
+
+
+
+
+
+
+
+let roomKeeper = { id: null, pc: null, loading: false };
+function syncRoomKeeper(t, dt) {
+  const room = inside ? inside.room : null;
+  const i = room && room.keeper ? keeperOf(room.work, hourAt(world, t)) : null;
+  const v = i === null || i === undefined ? null : world.villagers[i] || null;
+  if (roomKeeper.pc) roomKeeper.pc.object.visible = Boolean(v) && roomKeeper.id === v.id;
+  if (!v || !interiorDraw) return;
+  if (roomKeeper.id !== v.id) {
+    if (roomKeeper.loading) return;
+    const spec = villagerSpecs(world, { season: state.season, playerSeed: state.seed }).find((s) => s.id === v.id && s.lod === 1);
+    if (!spec) return;
+    roomKeeper.loading = true;
+    villagerObject(v.species, { seed: spec.seed, season: state.season, lod: 1, build: spec.build }).then((pc) => {
+      if (roomKeeper.pc) interiorDraw.group.remove(roomKeeper.pc.object);
+      pc.object.traverse((o) => { if (o.isMesh) o.castShadow = false; });
+      pc.object.name = `roomKeeper-${v.id}`;
+      interiorDraw.group.add(pc.object);
+      roomKeeper = { id: v.id, pc, loading: false };
+    }).catch((e) => { roomKeeper.loading = false; fml.problems = [...new Set([...fml.problems, `room keeper: ${e && e.message ? e.message : e}`])]; });
+    return;
+  }
+  roomKeeper.pc.object.position.set(room.keeper.x, 0, room.keeper.z);
+  roomKeeper.pc.object.rotation.y = room.keeper.heading;
+  roomKeeper.pc.update(dt, { speed: 0 });
+}
+
+
 function knockAt(villagerId) {
   const v = world.villagers.find((x) => x.id === villagerId);
   if (!v) return;
   hud.say(knockLine(v, world.villagers), seconds);
+}
+
+
+
+
+
+
+async function takeStairs(to) {
+  if (!inside || goingThroughDoor || !inside.room.stairs) return false;
+  const next = onFloor(inside, to);
+  goingThroughDoor = true;
+  try {
+    stopPlacing();
+    const ok = await interiorDraw.show(next);
+    if (!ok) { hud.say('The stairs creak, but you stay put.', seconds); return false; }
+    inside = next;
+    collision = createCollisionWorld({ obstacles: wallsOf(next.room.plan), walkEdgeM: 1000 });
+    const at = stairsArrival(next.room);
+    player = createPlayer(at.x, at.z, at.heading);
+    follow = createFollow(aimPoint(player, 0, cameraFit()));
+    resetTrack(at.x, at.z);
+    aim = null;
+    prompt = null;
+    hold = null;
+    return true;
+  } finally {
+    goingThroughDoor = false;
+  }
 }
 
 function goOutside() {
@@ -3141,6 +3237,8 @@ fml.l9Carry = (counts = {}, tool = null) => {
 if (grantAllowed(q)) {
   fml.grant = (opts) => ({ coins: grantCoins(world, opts) });
   
+  fml.grantGoods = (want) => grantGoodsUpTo(world, want);
+  
   fml.useHold = (id, owner) => { useHolds = { ...useHolds, [id]: owner }; useRegistry = { ...useRegistry, [id]: owner }; return useRegistry; };
   
   
@@ -3231,6 +3329,28 @@ Object.defineProperty(fml, 'l18', {
   },
 });
 
+Object.defineProperty(fml, 'workRooms', {
+  enumerable: true,
+  get: () => ({
+    doors: onHome() && !inside ? buildingDoorsNow().map((d) => ({ id: d.id, x: d.x, z: d.z, front: { ...d.front } })) : [],
+    inside: inside ? inside.work || null : null,
+    counter: inside && inside.room.counter ? { ...inside.room.counter } : null,
+    atDoor: inside ? { ...inside.room.atDoor } : null,
+    hx: inside ? inside.room.hx : null, hz: inside ? inside.room.hz : null,
+    roomName: inside ? roomNameAt(inside.room, player.x, player.z) : null,
+    player: { x: player.x, z: player.z },
+    triangles: interiorDraw ? interiorDraw.stats.triangles : 0,
+    
+    goods: inside && inside.room.work ? indoorGoodsView.map((v) => ({ good: v.good, count: v.count, shown: v.shown })) : [],
+    goodsTriangles: indoorGoodsDraw ? indoorGoodsDraw.triangles : 0,
+    stockAt: inside && inside.room.work ? indoorShelves(inside.room).anchors.map((a) => ({ x: a.x, z: a.z })) : [],
+    
+    keeper: roomKeeper.pc && roomKeeper.pc.object.visible && inside
+      ? { id: roomKeeper.id, x: roomKeeper.pc.object.position.x, z: roomKeeper.pc.object.position.z, spot: inside.room.keeper ? { ...inside.room.keeper } : null }
+      : null,
+  }),
+});
+
 
 
 Object.defineProperty(fml, 'home', {
@@ -3248,9 +3368,14 @@ Object.defineProperty(fml, 'home', {
       room: home ? {
         hx: home.room.hx, hz: home.room.hz, wallH: home.room.wallH, door: { ...home.room.door },
         
-        rooms: home.room.plan.rooms, doorways: home.room.plan.doorways,
+        
+        rooms: (inside && inside.id === home.id ? inside.room : home.room).plan.rooms,
+        doorways: (inside && inside.id === home.id ? inside.room : home.room).plan.doorways,
       } : null,
       inside: Boolean(inside),
+      
+      floor: inside ? inside.floor || 0 : null,
+      stairs: inside && inside.room.stairs ? { ...inside.room.stairs } : null,
       
       roomName: inside ? roomNameAt(inside.room, player.x, player.z) : null,
       
@@ -3351,7 +3476,7 @@ Object.defineProperty(fml, 'press', {
   get: () => {
     const pr = processorOf(world);
     return {
-      built: Boolean(pr), level: pr ? pr.level : 0, jobs: pr ? pr.jobs.map((j) => ({ ...j })) : [],
+      built: Boolean(pr), id: pr ? pr.id : null, level: pr ? pr.level : 0, jobs: pr ? pr.jobs.map((j) => ({ ...j })) : [],
       card, selected: cards ? cards.selected : null, drawn: pressDrawn, timers: ui ? ui.state.timers : [],
     };
   },
@@ -4849,6 +4974,8 @@ async function fillIn() {
   
   
   interiorDraw = createInteriorDraw({ scene, season: state.season, onProblems });
+  
+  indoorGoodsDraw = createShelvesDraw({ scene: interiorDraw.group, season: state.season, onProblems });
   permanent.add(interiorDraw.group);
   
   
@@ -4856,7 +4983,7 @@ async function fillIn() {
   
   roomDraw = createPlacedDraw({
     scene: interiorDraw.group, season: state.season, heightAt: () => 0, onProblems,
-    name: 'furniture', select: (item) => inside !== null && roomOf(item) === inside.id,
+    name: 'furniture', select: (item) => inside !== null && inHouseFloor(item, inside.id, inside.floor || 0),
   });
   syncPlaced();
   talkCard = createTalkCard({ el: document.getElementById('talk'), voice, onChoose: onTalkChoice, onClose: closeTalk, onLine: onTalkLine });
@@ -5606,6 +5733,14 @@ function frame(now) {
   
   const focusNow = { x: target.x, z: target.z };
   shelvesDraw.show(world.shop.shelves, shopAnchors, SHOP_P);
+  
+  
+  if (inside && indoorGoodsDraw) {
+    const press = processorOf(world);
+    const ig = indoorShelves(inside.room, { shop: world.shop.shelves, pressGoods: press ? pressSummary(world, press, t).goods : {} });
+    indoorGoodsView = indoorGoodsDraw.show(ig.shelves, { shelves: ig.anchors }, ROOM_ORIGIN, INDOOR_SHELF, inside.id).view;
+  }
+  syncRoomKeeper(t, dt * state.anim);
   customersDraw.update(visits, route, t, dt * state.anim, { focus: focusNow });
 
   

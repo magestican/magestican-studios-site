@@ -142,6 +142,9 @@ export function anchors({ seed = 1, stage = 'level1' } = {}) {
   return {
     footprint: { hx: round3(hx), hz: round3(hz) },
     front: P(d.press.x, hz - oz + 0.6),
+    
+    
+    door: P(d.press.x > -ox ? -hx - ox + 0.7 : hx - ox - 0.7, hz - oz),
     stations,
     outputs,
   };

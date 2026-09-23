@@ -46,7 +46,11 @@ export function createInteriorDraw({ scene, season = 'summer', objectFor = house
 
 
   async function show(home) {
-    const key = `${home.species}|${home.seed}`;
+    
+    const storeys = (home.room && home.room.storeys) || 1, storey = (home.room && home.room.storey) || 0;
+    
+    const work = (home.room && home.room.work) || null, level = (home.room && home.room.level) || 1;
+    const key = work ? `work|${work}|${home.seed}|l${level}` : storeys === 2 ? `${home.species}|${home.seed}|floor${storey}` : `${home.species}|${home.seed}`;
     if (obj && stats.key === key) {
       group.visible = true;
       stats.shown = true;
@@ -55,7 +59,7 @@ export function createInteriorDraw({ scene, season = 'summer', objectFor = house
     const mine = ++token;
     stats.loading += 1;
     try {
-      const next = await objectFor(home.species, { seed: home.seed, season, lod: 0 });
+      const next = await objectFor(home.species, { seed: home.seed, season, lod: 0, ...(storeys === 2 ? { storeys, storey } : {}), ...(work ? { work, level } : {}) });
       if (mine !== token) return false;
       if (obj) group.remove(obj);
       next.position.set(0, 0, 0);

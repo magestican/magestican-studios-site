@@ -25,7 +25,7 @@ import { vc, vary, mixC, scaleC } from './shade.mjs';
 
 export const FIXTURE_KINDS = Object.freeze([
   'stove', 'counter', 'sink', 'shelf', 'table', 'stool',
-  'tub', 'basin', 'mirror', 'towelRail', 'bed', 'wardrobe', 'bedside',
+  'tub', 'basin', 'mirror', 'towelRail', 'bed', 'wardrobe', 'bedside', 'stairs',
 ]);
 
 const TAU = Math.PI * 2;
@@ -134,13 +134,16 @@ function sink(mesh, m, { h, detail, rng, c }) {
   }
 }
 
-function shelf(mesh, m, { w, d, detail, rng, c }) {
+
+
+function shelf(mesh, m, { w, d, detail, rng, c, bare = false }) {
   const sagM = rng.rangeF(0.006, 0.016);
   emit(mesh, 'wood', rod({ path: [[-w / 2, 0, d / 2 - 0.02], [0, -sagM, d / 2 - 0.02], [w / 2, 0.002, d / 2 - 0.02]], w: 0.035, h: d, detail, up: [0, 1, 0], caps: 'round', capSegments: 0 }), { matrix: compose(m, translate(0, 0, -d / 2 + 0.02)), color: vc(c.wood, { groundAO: 0 }) });
   if (detail > 0) return;
   for (const [bx, lean] of [[-w / 2 + 0.12 + rng.rangeF(0, 0.05), rng.rangeF(-0.02, 0.02)], [w / 2 - 0.1 - rng.rangeF(0, 0.08), rng.rangeF(-0.02, 0.02)]]) {
     emit(mesh, 'wood', rod({ path: [[bx, -0.2, -d / 2 + 0.02], [bx + lean, -0.03, d / 2 - 0.05]], w: 0.03, detail, up: [1, 0, 0], caps: 'round' }), { matrix: m, color: vc(c.darkWood, { groundAO: 0 }) });
   }
+  if (bare) return;
   
   let x = -w / 2 + 0.1;
   for (let k = 0; k < 3; k++) {
@@ -284,7 +287,45 @@ function bedside(mesh, m, { w, d, h, detail, rng, c }) {
   emit(mesh, 'canvas', rod({ path: [[-0.09, h + 0.02, 0], [0.09, h + 0.02, 0]], w: 0.035, h: 0.13, detail, up: [0, 1, 0], caps: 'round' }), { matrix: compose(m, compose(translate(0.08, 0, 0.02), rotateY(rng.rangeF(-0.5, 0.5)))), color: vc(c.book, { groundAO: 0 }) });
 }
 
-const BUILD = Object.freeze({ stove, counter, sink, shelf, table, stool, tub, basin, mirror, towelRail, bed, wardrobe, bedside });
+
+
+
+
+
+
+
+function stairs(mesh, m, { w, d, h, detail, rng, c, foot = 1, steps = 8, down = false }) {
+  const f = foot < 0 ? -1 : 1, n = Math.max(3, steps);
+  const run = w / n, zi = -d / 2 + 0.03, zo = d / 2 - 0.03;
+  const wood = vc(c.wood, { groundAO: 0.25 }), dark = vc(c.darkWood, { groundAO: 0.2 }), trim = vc(c.trim, { groundAO: 0.1 });
+  const board = (x, y, dx) => emit(mesh, 'wood', rod({
+    path: [[x + rng.rangeF(-0.008, 0.008), y + rng.rangeF(-0.004, 0.004), zi], [x + rng.rangeF(-0.008, 0.008), y + rng.rangeF(-0.004, 0.004), zo]],
+    w: 0.045, h: dx, detail, up: [0, 1, 0], caps: 'none',
+  }), { matrix: m, color: wood });
+  const post = (x, z, top) => emit(mesh, 'wood', rod({ path: [[x, 0, z], [x + rng.rangeF(-0.006, 0.006), top, z]], w: 0.07, h: 0.07, detail, up: [1, 0, 0], caps: 'round' }), { matrix: m, color: trim });
+  if (!down) {
+    for (let i = 0; i < n; i++) board(f * (w / 2 - (i + 0.5) * run), h * (i + 1) / n - 0.022, run - 0.012);
+    for (const z of [zi, zo]) {
+      emit(mesh, 'wood', rod({ path: [[f * (w / 2 - 0.08), 0, z], [0, h / 2 + rng.rangeF(-0.01, 0.01), z], [-f * (w / 2 - 0.08), h, z]], w: 0.2, h: 0.05, detail, up: [0, 1, 0], caps: 'none' }), { matrix: m, color: dark });
+    }
+    const nx = f * (w / 2 - 0.05);
+    post(nx, zo, 0.98);
+    emit(mesh, 'wood', rod({ path: [[nx, 0.95, zo], [0, 0.95 + h / 2 + 0.01, zo], [-f * (w / 2 - 0.08), h + 0.9, zo]], w: 0.06, h: 0.05, detail, up: [0, 1, 0], caps: 'round' }), { matrix: m, color: trim });
+    if (detail === 0) for (const t of [0.3, 0.55, 0.8]) { const x = nx - f * t * (w - 0.13); post(x, zo, 0.93 + h * t); }
+    return;
+  }
+  
+  const pad = loft({ w: w - 0.02, d: d - 0.02, e: 10, detail: 2, rng, rows: [[1, 0.003], [0, 0.004]] });
+  emit(mesh, 'wood', pad, { matrix: m, color: vc(scaleC(c.darkWood, 0.45), { groundAO: 0.5 }) });
+  board(-f * (w / 2 - run / 2), 0.012, run - 0.012);
+  const y = 0.92, hx = w / 2 - 0.035, hz = d / 2 - 0.035;
+  const rail = [[-f * hx, y, -hz], [f * hx, y + 0.006, -hz], [f * hx, y, hz], [-f * hx, y - 0.004, hz]];
+  emit(mesh, 'wood', rod({ path: rail, w: 0.06, h: 0.05, detail, up: [0, 1, 0], caps: 'round', corner: 0 }), { matrix: m, color: trim });
+  for (const [x, , z] of rail) post(x, z, y);
+  if (detail === 0) for (const t of [0.33, 0.66]) for (const z of [-hz, hz]) post(-f * hx + f * t * 2 * hx, z, y);
+}
+
+const BUILD = Object.freeze({ stove, counter, sink, shelf, table, stool, tub, basin, mirror, towelRail, bed, wardrobe, bedside, stairs });
 
 
 

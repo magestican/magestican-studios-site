@@ -257,6 +257,14 @@ export function anchors({ seed = 1, stage = KINDS[0] } = {}) {
     footprint: { hx: round3(hx), hz: round3(hz) },
     blocks,
     front: P(c.x, zFront + 0.55),
+    
+    
+    
+    
+    
+    door: d.body && d.body.door
+      ? P(d.body.door.x, zFront)
+      : P(c.x > -ox ? -hx - ox + 0.8 : hx - ox - 0.8, zFront),
     counter: { x: stop.x, y: c.height, z: stop.z, rotY: Math.PI },
     keeper: { ...P(d.keeper.x, d.keeper.z), heading: 0 },
     notice: d.notice ? { ...P(d.notice.x, d.notice.z), y: round3(0.52 + d.notice.height / 2), rotY: d.notice.rotY } : null,

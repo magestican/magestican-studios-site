@@ -79,7 +79,7 @@ import { wreath, bunting, doormat } from './kit/homeDecor.mjs';
 import { timberFrame, scaffold, plankStack } from './kit/buildingSite.mjs';
 
 export const TIER = 'house';
-export const STAGES = Object.freeze(['building', 'house', 'decorated', 'garden']);
+export const STAGES = Object.freeze(['building', 'house', 'decorated', 'garden', 'upstairs']);
 export const SPECIES = Object.freeze(['elephant', 'giraffe', 'panda', 'human', 'pig']);
 export const LODS = Object.freeze([0, 1, 2]);
 export const DEFAULT_PROGRESS = 0.65;
@@ -257,12 +257,39 @@ function propsFor(species, st, B, lay) {
   return P;
 }
 
-function plan(seed, species) {
+
+
+
+
+
+export const STOREY_M = 1.3;
+
+
+
+
+
+
+const UPSTAIRS_PLANK_M = 0.44;
+const UPSTAIRS_LEVEL = STAGES.indexOf('upstairs') + 1;
+function storeyUp(B, lay) {
+  const top = BASE + B.wallH;
+  
+  
+  
+  const windows = lay.windows.map((w) => (w.y >= top - 0.05 ? { ...w, y: w.y + STOREY_M } : w));
+  for (const w of lay.windows) if (w.y < top - 0.05 && !w.minor) windows.push({ ...w, y: w.y + STOREY_M, box: false, upper: true });
+  return { B: { ...B, wallH: B.wallH + STOREY_M }, lay: { ...lay, windows } };
+}
+
+function plan(seed, species, stage = 'house') {
   speciesOf(species);
-  const B = BODY[species];
   const st = styleFor(species, seed);
-  const lay = layoutOf(species, st, B);
-  return { B, st, lay, props: propsFor(species, st, B, lay) };
+  let B = BODY[species];
+  let lay = layoutOf(species, st, B);
+  
+  const props = propsFor(species, st, B, lay);
+  if (stage === 'upstairs') ({ B, lay } = storeyUp(B, lay));
+  return { B, st, lay, props };
 }
 
 const roofMetrics = (B) => {
@@ -312,7 +339,7 @@ function smokeTop(species, B, lay) {
 
 export function anchors({ seed = 1, species = 'human', stage = 'house' } = {}) {
   const level = levelOf(STAGES, stage);
-  const { B, lay, props } = plan(seed, species);
+  const { B, lay, props } = plan(seed, species, stage);
   const live = props.filter((p) => p.level <= level && (p.upto ?? 9) >= level);
   
   const obstacles = live.filter((p) => p.block).map((p) => {
@@ -444,7 +471,7 @@ function houseBody(mesh, c) {
   walls.forEach((w, i) => {
     
     const cols = st.patch ? 6 : w.width > 3.2 ? 5 : 4;
-    const panel = wallPanel({ width: w.width + 0.02, height: wallH, plankH: 0.26, detail: w.d, rng: rng.child(`wall${i}`), gable: w.gable ? gable : null, cols, bulge: 0.018 });
+    const panel = wallPanel({ width: w.width + 0.02, height: wallH, plankH: c.level >= UPSTAIRS_LEVEL ? UPSTAIRS_PLANK_M : 0.26, detail: w.d, rng: rng.child(`wall${i}`), gable: w.gable ? gable : null, cols, bulge: 0.018 });
     emit(mesh, 'plank', panel, { matrix: w.m, color: wallColour });
   });
   const postRng = rng.child('posts');
@@ -460,10 +487,11 @@ function houseBody(mesh, c) {
   const winRng = rng.child('windows');
   for (const w of lay.windows) {
     if (w.small && (detail === 2 || (detail === 1 && w.minor))) continue;
+    if (w.upper && (detail === 2 || w.small)) continue; 
     const boxed = w.box && c.level >= 3;
     windowUnit(mesh, faceMatrix(B, w.face, w.u, w.y, 0.075), {
-      width: w.w, height: w.h ?? w.w, kind: w.kind || 'rect', muntins: w.muntins || 'cross', detail: w.small ? d1 : detail, rng: winRng,
-      frameColor: trimC, glassColor: hex('#7fb0d8'), shutters: w.shutters, shutterColor: hex(st.door), snowColor: boxed ? null : snow, sill: w.kind !== 'round',
+      width: w.w, height: w.h ?? w.w, kind: w.kind || 'rect', muntins: w.muntins || 'cross', detail: w.upper ? 2 : w.small ? d1 : detail, rng: winRng,
+      frameColor: trimC, glassColor: hex('#7fb0d8'), shutters: w.shutters, shutterColor: hex(st.door), snowColor: boxed ? null : snow, sill: w.kind !== 'round' && !w.upper,
     });
   }
 
@@ -752,7 +780,7 @@ function buildingSite(mesh, c, progress) {
 
 export function generate({ seed = 1, season = 'summer', lod = 0, species = 'human', stage = 'house', progress = DEFAULT_PROGRESS } = {}) {
   const level = levelOf(STAGES, stage);
-  const { B, st, lay, props } = plan(seed, species);
+  const { B, st, lay, props } = plan(seed, species, stage);
   const detail = Math.max(0, Math.min(2, lod | 0));
   const pal = seasonPalette(season);
   const snow = season === 'winter' ? hex(pal.snow[0]) : null;

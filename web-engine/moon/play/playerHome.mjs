@@ -42,7 +42,7 @@ import { CRAFTABLES } from '../economy/craftables.mjs';
 import { anchorsOf } from '../art/decor.mjs';
 import { anchors as houseAnchors } from '../art/villagerHome.mjs';
 import { anchors as roomAnchors } from '../art/houseRoom.mjs';
-import { roomAt, wallsOf } from '../art/interiorPlan.mjs';
+import { roomAt, wallsOf, storeysFor } from '../art/interiorPlan.mjs';
 import { PLAYER_RADIUS_M, toWorld } from '../world/collision.mjs';
 import { ownedIds, parcelAt } from '../world/parcels.mjs';
 
@@ -98,7 +98,8 @@ export function playerHome(world, cfg = PLAYER_HOME) {
   const r = anchorsOf(p.item).r;
   
   const outside = houseAnchors({ seed: art.seed, species: art.species, stage: art.stage });
-  const room = roomAnchors({ seed: art.seed, species: art.species });
+  
+  const room = roomAnchors({ seed: art.seed, species: art.species, storeys: storeysFor(art.stage), storey: 0 });
   
   const out = r + PLAYER_RADIUS_M + cfg.doorGapM;
   return Object.freeze({
@@ -106,8 +107,20 @@ export function playerHome(world, cfg = PLAYER_HOME) {
     spot: Object.freeze(spot), radiusM: r,
     door: Object.freeze(toWorld(spot, outside.door.x, outside.footprint.hz + 0.08)),
     front: Object.freeze(toWorld(spot, outside.door.x * 0.5, out)),
-    room,
+    room, floor: 0,
   });
+}
+
+
+
+
+
+
+export function onFloor(home, floor) {
+  const storeys = home.room.storeys || 1;
+  if (!(floor >= 0 && floor < storeys)) throw new Error(`floor ${floor} of a ${storeys}-storey house`);
+  const room = roomAnchors({ seed: home.seed, species: home.species, storeys, storey: floor });
+  return Object.freeze({ ...home, floor, room });
 }
 
 
@@ -140,11 +153,21 @@ export function insideSpot(home) {
 
 
 export function exitPlaces(home) {
-  const a = home.room.atDoor;
+  const a = home.room.atDoor, st = home.room.stairs;
   
   
   
-  return [Object.freeze({ type: 'homeExit', x: a.x, z: a.z, r: 0.12 })];
+  const out = home.room.door.none ? [] : [Object.freeze({ type: 'homeExit', x: a.x, z: a.z, r: 0.12 })];
+  
+  
+  if (st) out.push(Object.freeze({ type: 'homeStairs', id: st.to, x: st.x, z: st.z, r: 0.35 }));
+  return out;
+}
+
+
+export function stairsArrival(room) {
+  const st = room.stairs;
+  return Object.freeze({ x: st.x, z: st.z, heading: room.storey ? Math.PI : 0 });
 }
 
 

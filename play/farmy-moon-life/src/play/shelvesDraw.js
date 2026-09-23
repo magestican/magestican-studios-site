@@ -57,11 +57,12 @@ export function createShelvesDraw({ scene, season, onProblems = () => {} }) {
   }
 
   
-  function show(shelves, anchors, placement) {
+  
+  function show(shelves, anchors, placement, cfg = SHELF, key = "") {
     
     const heightOf = (good) => { const b = dataFor(good, 0).bounds(); return b.max[1] - b.min[1]; };
-    const view = shelvesView(shelves, anchors.shelves, SHELF, heightOf);
-    const sig = `${shelvesSignature(view)}#${anchors.shelves.length}`;
+    const view = shelvesView(shelves, anchors.shelves, cfg, heightOf);
+    const sig = `${shelvesSignature(view)}#${anchors.shelves.length}${key}`;
     if (sig === drawn && !running) return { view, changed: false };
     queued = { placement, view, sig };
     if (!running) {

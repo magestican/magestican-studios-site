@@ -49,6 +49,8 @@ export function counterAt(id) {
     counter: toWorld(spot, a.counter.x, a.counter.z),
     keeper: { ...toWorld(spot, a.keeper.x, a.keeper.z), heading: spot.rotY + a.keeper.heading },
     notice: a.notice ? { ...toWorld(spot, a.notice.x, a.notice.z), y: a.notice.y } : null,
+    
+    doorLocal: a.door,
   });
   cache.set(id, out);
   return out;

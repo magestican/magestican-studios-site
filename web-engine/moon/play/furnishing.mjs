@@ -85,11 +85,22 @@ export const isFurnitureItem = (item) => FURNITURE_ITEMS.includes(item);
 export const roomOf = (p) => (p && p.spot && Number.isInteger(p.spot.room) ? p.spot.room : null);
 
 
-export const furnishedSpot = (home, x, z, rotY = 0) => ({ x, z, rotY, room: home.id });
 
 
-export function furnitureIn(world, homeId) {
-  return (world.placed || []).filter((p) => roomOf(p) === homeId).sort((a, b) => a.id - b.id);
+
+
+
+export const floorOf = (p) => (p && p.spot && Number.isInteger(p.spot.floor) ? p.spot.floor : 0);
+
+
+export const furnishedSpot = (home, x, z, rotY = 0) => ({ x, z, rotY, room: home.id, ...(home.floor ? { floor: home.floor } : {}) });
+
+
+export const inHouseFloor = (p, homeId, floor = 0) => roomOf(p) === homeId && floorOf(p) === floor;
+
+
+export function furnitureIn(world, homeId, floor = 0) {
+  return (world.placed || []).filter((p) => inHouseFloor(p, homeId, floor)).sort((a, b) => a.id - b.id);
 }
 
 
@@ -231,16 +242,16 @@ function flood(room, boxes, cfg) {
 
 
 
-export function furnitureFootprints(world, homeId, sizeOf, skip = null) {
-  return furnitureIn(world, homeId).filter((p) => p.id !== skip).map((p) => {
+export function furnitureFootprints(world, homeId, sizeOf, skip = null, floor = 0) {
+  return furnitureIn(world, homeId, floor).filter((p) => p.id !== skip).map((p) => {
     const a = sizeOf(p.item);
     return { id: p.id, x: p.spot.x, z: p.spot.z, rotY: p.spot.rotY || 0, hx: a.hx, hz: a.hz };
   });
 }
 
 
-export function furnitureTargets(world, homeId, sizeOf) {
-  return furnitureIn(world, homeId).map((p) => Object.freeze({
+export function furnitureTargets(world, homeId, sizeOf, floor = 0) {
+  return furnitureIn(world, homeId, floor).map((p) => Object.freeze({
     type: 'placed', id: p.id, item: p.item, x: p.spot.x, z: p.spot.z, r: Math.max(sizeOf(p.item).hx, sizeOf(p.item).hz),
   }));
 }

@@ -43,6 +43,7 @@ import { doormat } from './kit/homeDecor.mjs';
 import { rod } from './kit/rod.mjs';
 import { fixture, FIXTURE_KINDS } from './kit/interiorFixtures.mjs';
 import { interiorPlan, INTERIOR, SPECIES } from './interiorPlan.mjs';
+import { workPlan } from './workRoom.mjs';
 
 export const TIER = 'interior';
 export const LODS = Object.freeze([0, 1, 2]);
@@ -62,14 +63,27 @@ const TURN = (n) => (n[1] === 1 ? 0 : n[1] === -1 ? Math.PI : n[0] === 1 ? Math.
 
 
 
-export function anchors({ seed = 1, species = 'human' } = {}) {
-  const p = interiorPlan({ seed, species });
+
+
+
+
+
+
+const planOf = ({ seed, species, storeys, storey, work, level }) =>
+  (work ? workPlan({ kind: work, seed, level }) : interiorPlan({ seed, species, storeys, storey }));
+
+export function anchors({ seed = 1, species = 'human', storeys = 1, storey = 0, work = null, level = 1 } = {}) {
+  const p = planOf({ seed, species, storeys, storey, work, level });
+  const up = storeys === 2 && storey === 1;
+  const st = p.stairs || null;
   return Object.freeze({
-    species, seed,
+    species, seed, storeys, storey,
     hx: p.hx, hz: p.hz, wallH: p.wallH,
     door: p.door,
-    spawn: Object.freeze({ x: r3(p.door.x), z: r3(-p.hz + 0.62), heading: 0 }),
-    atDoor: Object.freeze({ x: r3(p.door.x), z: r3(-p.hz + 0.05) }),
+    spawn: up ? Object.freeze({ x: st.x, z: st.z, heading: Math.PI }) : Object.freeze({ x: r3(p.door.x), z: r3(-p.hz + 0.62), heading: 0 }),
+    atDoor: up ? Object.freeze({ x: st.x, z: st.z }) : Object.freeze({ x: r3(p.door.x), z: r3(-p.hz + 0.05) }),
+    stairs: st,
+    ...(work ? { work, level, counter: p.counter, keeper: p.keeper } : {}),
     floor: p.floor,
     plan: p,
   });
@@ -130,7 +144,7 @@ function wallsOf(mesh, c) {
   
   
   const dw = p.door.w + JAMB * 2, dh = p.door.h + JAMB;
-  if (H - dh > 0.08) face(mesh, c, { n: [0, 1], along: p.door.x, faceAt: -p.hz, width: dw, height: H - dh, y0: dh, key: 'lintel', detail: Math.min(2, detail + 1) });
+  if (!p.door.none && H - dh > 0.08) face(mesh, c, { n: [0, 1], along: p.door.x, faceAt: -p.hz, width: dw, height: H - dh, y0: dh, key: 'lintel', detail: Math.min(2, detail + 1) });
   for (const [i, d] of p.doorways.entries()) {
     if (H - d.h > 0.06) {
       for (const s of [1, -1]) face(mesh, c, { n: [s, 0], along: d.z, faceAt: d.at + s * PT / 2, width: d.w, height: H - d.h, y0: d.h, key: `head-${i}-${s}`, detail: Math.min(2, detail + 1) });
@@ -155,6 +169,7 @@ function wallsOf(mesh, c) {
 
 function doorOf(mesh, c) {
   const { p, detail } = c;
+  if (p.door.none) return; 
   door(mesh, compose(translate(p.door.x, 0, -p.hz + 0.02), rotateY(0)), {
     width: p.door.w, height: p.door.h, detail, rng: c.rng.child('door'),
     color: c.doorC, frameColor: c.trimC, knobColor: hex(p.style.knob), ironColor: hex('#4a4658'),
@@ -241,25 +256,26 @@ function fixturesOf(mesh, c) {
     if (!FIXTURE_KINDS.includes(f.kind)) continue;
     
     
-    if (detail === 2 && !['stove', 'counter', 'tub', 'bed', 'table'].includes(f.kind)) continue;
+    if (detail === 2 && !['stove', 'counter', 'tub', 'bed', 'table', 'stairs'].includes(f.kind)) continue;
     
     
     const m = compose(translate(f.x, f.y, f.z), rotateY(f.rotY));
     fixture(mesh, f.kind, m, {
       size: { w: f.w, d: f.d, h: f.h }, detail, rng: c.rng.child(`fx-${f.kind}-${i}`), c: c.fx,
-      spin: f.spin || 0, flueTop: p.wallH - 0.08,
+      spin: f.spin || 0, flueTop: p.wallH - 0.08, foot: f.foot, steps: f.steps, down: f.down, bare: Boolean(f.stock) && !c.jarsOnStock,
     });
   }
 }
 
 
 
-export function generate({ seed = 1, season = 'summer', lod = 0, species = 'human' } = {}) {
+
+export function generate({ seed = 1, season = 'summer', lod = 0, species = 'human', storeys = 1, storey = 0, work = null, level = 1, jarsOnStock = false } = {}) {
   if (!SPECIES.includes(species)) throw new Error(`unknown house species '${species}' (species: ${SPECIES.join(', ')})`);
   const detail = Math.max(0, Math.min(2, lod | 0));
-  const p = interiorPlan({ seed, species });
+  const p = planOf({ seed, species, storeys, storey, work, level });
   const pal = seasonPalette(season);
-  const rng = new SeededRng(seed).child(`houseRoom-${species}`);
+  const rng = new SeededRng(seed).child(work ? `workRoom-${work}` : `houseRoom-${species}`);
   
   
   
@@ -267,7 +283,7 @@ export function generate({ seed = 1, season = 'summer', lod = 0, species = 'huma
   const tone = (col, k, mix = 0.12) => mixC(scaleC(hex(col), k), warm, mix);
   const s = p.style;
   const c = {
-    p, detail, rng,
+    p, detail, rng, jarsOnStock,
     wallC: tone(s.wall, 0.88),
     floorC: tone(s.floor, 0.82, 0.1),
     trimC: tone(s.trim, 0.94, 0.16),
@@ -297,7 +313,7 @@ export function generate({ seed = 1, season = 'summer', lod = 0, species = 'huma
     jarB: tone(s.door, 0.9, 0.1),
     book: tone(s.wall, 0.7, 0.05),
   };
-  const mesh = new MeshData(`houseRoom-${species}-${seed}-${season}-lod${detail}`);
+  const mesh = new MeshData(work ? `workRoom-${work}-${seed}-l${level}-${season}-lod${detail}` : `houseRoom-${species}-${seed}-${season}-lod${detail}${storeys === 2 ? `-floor${storey}` : ''}`);
   floorOf(mesh, c);
   wallsOf(mesh, c);
   doorOf(mesh, c);
