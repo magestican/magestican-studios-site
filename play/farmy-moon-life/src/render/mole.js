@@ -73,6 +73,8 @@ export async function createMoleDraw({ scene, season = 'summer', seed = 1, heigh
   body.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
   body.visible = false;
   group.add(body);
+  const faceMeshes = [];
+  body.traverse((o) => { if (o.isMesh && o.morphTargetInfluences) faceMeshes.push(o); });
 
   const liveMound = await toObject3D(liveData);
   liveMound.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
@@ -105,8 +107,10 @@ export async function createMoleDraw({ scene, season = 'summer', seed = 1, heigh
 
 
 
-  function update(view, { look = null } = {}) {
+  function update(view, { look = null, face = null } = {}) {
     if (!view) return;
+    
+    if (face && view.up > 0.001) for (const mesh of faceMeshes) face.forEach((v, i) => { mesh.morphTargetInfluences[i] = v; });
     const groundY = heightAt(view.x, view.z);
 
     

@@ -22,7 +22,7 @@
 
 
 import { MeshData } from '../mesh/meshData.mjs';
-import { eyeVertexCount, eyeMorphs } from './kit/face.mjs';
+import { eyeVertexCount, eyeMorphs, strandWithMorphs } from './kit/face.mjs';
 import * as S from '../mesh/sdf.mjs';
 import { SeededRng } from '../../rng/seededRng.js';
 import { fbm3 } from '../noise.mjs';
@@ -41,7 +41,6 @@ const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const mul = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const norm = (a) => mul(a, 1 / (Math.hypot(a[0], a[1], a[2]) || 1));
-const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
 const VARIANTS = [
@@ -377,14 +376,39 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
   };
   const sides = L.sides;
   const mouthY = 0.712;
-  strand(md, [[-0.058, 0.719], [-0.04, 0.699], [-0.018, 0.697], [0, mouthY], [0, 0.738]].map(([x, y]) => onSkin([x, y, 0.45], 0.002)),
-    [0.0028, 0.0042, 0.0045, 0.0045, 0.0025], INK, sides);
-  strand(md, [[0, mouthY], [0.02, 0.697], [0.043, 0.701], [0.064, 0.726]].map(([x, y]) => onSkin([x, y, 0.45], 0.002)),
-    [0.0045, 0.0045, 0.0042, 0.0026], INK, sides);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const MOUTH_K = 2.3;
+  const moveTo = (xy, dx, dy) => xy.map(([x, y], i) => onSkin([x + dx[i], y + dy[i] * MOUTH_K, 0.45], 0.002));
+  const MOUTH_L = [[-0.058, 0.719], [-0.04, 0.699], [-0.018, 0.697], [0, mouthY], [0, 0.738]];
+  const MOUTH_R = [[0, mouthY], [0.02, 0.697], [0.043, 0.701], [0.064, 0.726]];
+  const RL = [0.0028, 0.0042, 0.0045, 0.0045, 0.0025], RR = [0.0045, 0.0045, 0.0042, 0.0026];
+  const Z5 = [0, 0, 0, 0, 0], Z4 = [0, 0, 0, 0];
+  strand(md, moveTo(MOUTH_L, Z5, Z5), RL, INK, sides, 'fur', {
+    mouthSmile: { pts: moveTo(MOUTH_L, [-0.004, -0.002, 0, 0, 0], [0.012, 0.005, 0, -0.002, -0.002]) },
+    mouthFrown: { pts: moveTo(MOUTH_L, [0.002, 0.001, 0, 0, 0], [-0.014, -0.004, 0.001, 0, 0]) },
+    mouthO: { pts: moveTo(MOUTH_L, [0.006, 0.003, 0, 0, 0], [0, -0.006, -0.009, -0.010, -0.004]), radii: RL.map((r) => r * 1.3) },
+  });
+  strand(md, moveTo(MOUTH_R, Z4, Z4), RR, INK, sides, 'fur', {
+    mouthSmile: { pts: moveTo(MOUTH_R, [0, 0, 0.002, 0.004], [-0.002, 0, 0.005, 0.012]) },
+    mouthFrown: { pts: moveTo(MOUTH_R, [0, 0, -0.001, -0.002], [0, 0.001, -0.004, -0.014]) },
+    mouthO: { pts: moveTo(MOUTH_R, [0, 0, -0.003, -0.006], [-0.010, -0.009, -0.006, 0]), radii: RR.map((r) => r * 1.3) },
+  });
   for (const side of [1, -1]) {
     
-    const pts = [[0.074, 0.924], [0.119, 0.938], [0.162, 0.922]].map(([x, y]) => onSkin([side * x, y + (side < 0 ? 0.005 : 0), 0.5], 0.004));
-    strand(md, pts, [0.006, 0.0085, 0.0035], C.brow, sides);
+    const browPts = (dy) => [[0.074, 0.924], [0.119, 0.938], [0.162, 0.922]].map(([x, y], i) => onSkin([side * x, y + dy[i] + (side < 0 ? 0.005 : 0), 0.5], 0.004));
+    strand(md, browPts([0, 0, 0]), [0.006, 0.0085, 0.0035], C.brow, sides, 'fur', {
+      browsUp: { pts: browPts([0.010, 0.010, 0.010]) },
+      browsDown: { pts: browPts([-0.012, -0.008, -0.008]) },
+      browsSad: { pts: browPts([0.008, 0.001, -0.006]) },
+    });
   }
   const whiskerSpecs = [
     [1, 0.735, 0.1, 0.2], [1, 0.718, -0.02, 0.21], [1, 0.702, -0.14, 0.18],
@@ -527,41 +551,10 @@ function distToPolyline(p, pts) {
 
 
 
-function strand(md, pts, radii, color, sides, material = 'fur') {
-  const n = pts.length;
-  const rings = [];
-  let N = null;
-  let len = 0;
-  for (let i = 0; i < n - 1; i++) {
-    const t = norm(sub(pts[Math.min(i + 1, n - 1)], pts[Math.max(i - 1, 0)]));
-    if (!N) {
-      const a = Math.abs(t[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
-      N = norm(sub(a, mul(t, dot(a, t))));
-    } else {
-      N = norm(sub(N, mul(t, dot(N, t))));
-    }
-    const B = cross(t, N);
-    if (i > 0) len += dist(pts[i], pts[i - 1]);
-    const ring = [];
-    for (let j = 0; j < sides; j++) {
-      const ang = (j / sides) * Math.PI * 2;
-      const dir = add(mul(N, Math.cos(ang)), mul(B, Math.sin(ang)));
-      ring.push(md.vertex(material, add(pts[i], mul(dir, radii[i])), dir, color, [j / sides, len * 10]));
-    }
-    rings.push({ ring, t });
-  }
-  for (let i = 0; i < rings.length - 1; i++) {
-    const r0 = rings[i].ring, r1 = rings[i + 1].ring;
-    for (let j = 0; j < sides; j++) {
-      const j1 = (j + 1) % sides;
-      md.tri(material, r0[j], r0[j1], r1[j1]);
-      md.tri(material, r0[j], r1[j1], r1[j]);
-    }
-  }
-  const last = rings[rings.length - 1];
-  const tip = md.vertex(material, pts[n - 1], norm(sub(pts[n - 1], pts[n - 2])), color, [0.5, (len + dist(pts[n - 1], pts[n - 2])) * 10]);
-  for (let j = 0; j < sides; j++) md.tri(material, last.ring[j], last.ring[(j + 1) % sides], tip);
-  const first = rings[0];
-  const cap = md.vertex(material, sub(pts[0], mul(first.t, radii[0] * 0.5)), mul(first.t, -1), color, [0.5, 0]);
-  for (let j = 0; j < sides; j++) md.tri(material, cap, first.ring[(j + 1) % sides], first.ring[j]);
+
+
+
+
+function strand(md, pts, radii, color, sides, material = 'fur', morphs = null) {
+  strandWithMorphs(md, { pts, radii, color, sides, material, morphs });
 }

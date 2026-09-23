@@ -53,6 +53,12 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
     
     const hasMorph = Object.values(arrays.morphs).some((m) => m.group === g.material);
     if (hasMorph) {
+      
+      
+      
+      
+      
+      geometry.morphTargetsRelative = true;
       geometry.morphAttributes.position = MORPH_NAMES.map((n) => {
         const m = arrays.morphs[n];
         const deltas = m && m.group === g.material ? m.deltas : new Float32Array(g.position.length);

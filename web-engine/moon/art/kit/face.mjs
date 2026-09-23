@@ -126,6 +126,29 @@ export function cheekPoints(eyesAt, ER) {
   };
 }
 
+
+
+
+
+
+
+
+
+export function mouthCornerLift(md, morph = 'mouthSmile') {
+  const m = md.morphs?.[morph];
+  const g = m && md.groups.get(m.group);
+  if (!g || !m.index?.size) return null;
+  const p = g.positions;
+  const rows = [...m.index].map(([i, d]) => ({ x: p[3 * i], dy: d[1] }));
+  const xs = rows.map((r) => r.x);
+  const lo = Math.min(...xs), hi = Math.max(...xs), cx = (lo + hi) / 2, reach = (hi - lo) / 2 * 0.2;
+  const mean = (a) => a.reduce((s, r) => s + r.dy, 0) / (a.length || 1);
+  const left = rows.filter((r) => r.x <= lo + reach && r.x < cx);
+  const right = rows.filter((r) => r.x >= hi - reach && r.x > cx);
+  if (!left.length || !right.length) return null;
+  return Math.min(mean(left), mean(right));
+}
+
 export function strandWithMorphs(md, { pts, radii, color, sides, material, morphs }) {
   const start = md.group(material).positions.length / 3;
   strand(md, pts, radii, color, sides, material);

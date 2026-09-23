@@ -482,7 +482,12 @@ export function generate({ seed = 1, season = 'summer', lod = 0, species = 'pig'
     
     
     const mouthXY = [[-0.044, 0.514], [-0.021, 0.504], [0, 0.503], [0.021, 0.506], [0.048, 0.52]];
-    const mouthPts = (dy) => mouthXY.map(([x, y], i) => onSkin([x, y + dy[i], 0.35], 0.002));
+    
+    
+    
+    
+    const MOUTH_K = 3.5;
+    const mouthPts = (dy) => mouthXY.map(([x, y], i) => onSkin([x, y + dy[i] * MOUTH_K, 0.35], 0.002));
     strandWithMorphs(md, {
       pts: mouthPts([0, 0, 0, 0, 0]), radii: [0.0026, 0.004, 0.0044, 0.004, 0.0024], color: INK, sides: L.sides, material: 'fur',
       morphs: {

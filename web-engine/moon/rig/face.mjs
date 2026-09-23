@@ -106,6 +106,19 @@ export function faceAt({ seed = 0, t = 0, expression = 'neutral', intensity, fro
 }
 
 
+
+
+
+
+
+
+export function restingFace({ personality, blink = 0, talking = false, activity = 0, lidsBase = 0 } = {}) {
+  const f = faceAt({ expression: personality?.baseline || 'neutral', intensity: personality?.intensity, since: 10, blink, talking, activity });
+  f.lidsClose = Math.max(f.lidsClose, clamp(lidsBase, 0, 1));
+  return faceInfluences(f);
+}
+
+
 export function faceInfluences(face) {
   return MORPH_NAMES.map((n) => face[n] || 0);
 }

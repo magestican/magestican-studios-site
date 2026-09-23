@@ -155,6 +155,9 @@ import { MONEY, coinTarget, countStep, flightsAt, iconsFor, landedBetween, paidB
 import { toPlacementFrame } from 'moon/play/shelves.mjs';
 
 import { generate as generateCat } from 'moon/art/cat.mjs';
+import { restingFace } from 'moon/rig/face.mjs';
+import { blinkAt } from 'moon/rig/idleLife.mjs';
+import { PERSONALITIES } from 'moon/play/personality.mjs';
 import { toObject3D } from '../render/toMesh.js';
 import { startTalk, talkNode, choose } from 'moon/play/talk.mjs';
 import { MET_CAT, MET_MOLE, meet, metList, readMet, villagerKey, visitsOf } from 'moon/play/met.mjs';
@@ -5426,7 +5429,10 @@ function frame(now) {
     moleDraw.group.visible = onHome();
     if (onHome() && mole) {
       stepMole(mole, dt * state.anim, { inside: moleLand, player });
-      moleDraw.update(moleView(mole), { look: talkingToMole() ? { x: player.x, z: player.z } : null });
+      const moleTalk = !!talk && talkingToMole();
+      
+      const face = restingFace({ personality: PERSONALITIES.shy, blink: blinkAt(2, seconds), talking: moleTalk, activity: moleTalk ? voice.activity() : 0, lidsBase: 0.3 });
+      moleDraw.update(moleView(mole), { look: talkingToMole() ? { x: player.x, z: player.z } : null, face });
     }
   }
   land.update(seconds);
@@ -5716,6 +5722,10 @@ function frame(now) {
     catBob += ((talk && !talkingToVillager() ? voice.activity() : 0) - catBob) * Math.min(1, dt * 20);
     catObj.scale.set(1 - 0.03 * catBob, 1 + 0.06 * catBob, 1 - 0.03 * catBob);
     catObj.rotation.z = 0.05 * catBob * Math.sin(seconds * 7);
+    
+    const catTalk = !!talk && !talkingToVillager() && !talkingToMole();
+    const face = restingFace({ personality: PERSONALITIES.bossy, blink: blinkAt(CAT_P.seed || 1, seconds), talking: catTalk, activity: catTalk ? voice.activity() : 0 });
+    catObj.traverse((o) => { if (o.isMesh && o.morphTargetInfluences) face.forEach((v, i) => { o.morphTargetInfluences[i] = v; }); });
   }
 
   if (card === 'press' && (!pr || !aim || aim.type !== 'processor')) closeCard();

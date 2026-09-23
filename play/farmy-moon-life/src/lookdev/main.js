@@ -59,6 +59,7 @@ const FIRE_FLICKER_SEED = 4.7;
 import { SETTINGS, tierFromParam, decideTier, rendererFlags, isCapturing } from 'moon/light/quality.mjs';
 import { CURVE_K } from 'moon/world/curve.mjs';
 import { heightAt } from 'moon/world/moonLayout.mjs';
+import { EXPRESSIONS, faceAt, faceInfluences } from 'moon/rig/face.mjs';
 
 const q = new URLSearchParams(location.search);
 const pinnedTier = tierFromParam(q.get('tier'));
@@ -87,6 +88,10 @@ const state = {
   variant: q.get('variant') || '',
   size: Number(q.get('size') || 128),
   compare: q.get('compare') || '',
+  
+  
+  
+  expression: q.get('expression') || '',
   species: q.get('species') || (q.get('asset') === 'villager' ? 'elephant' : ''),
   progress: q.get('progress') === null || q.get('progress') === '' ? undefined : Number(q.get('progress')),
   role: q.get('role') || '',
@@ -157,6 +162,7 @@ const isScene = state.view === 'scene';
 
 const BUILDING_ASSETS = ['shop', 'processor', 'villagerHome'];
 const isHomes = state.asset === 'villagerHome' && state.view === 'homes';
+const faceLineup = state.expression === 'all' && state.view === 'lineup';
 let sky = null, daylight = null, night = null, post = null;
 
 if (state.silhouette) {
@@ -242,6 +248,7 @@ function poseClip(pc, phase) {
 
 
 function assetSpecs(mod) {
+  if (faceLineup) return Object.keys(EXPRESSIONS).map((expression) => ({ seed: state.seed, expression }));
   if (isHomes) return mod.SPECIES.flatMap((species, row) => mod.STAGES.map((stage) => ({ seed: state.seed, species, stage, row })));
   const isItem = state.asset === 'item';
   
@@ -346,6 +353,14 @@ async function loadAssets() {
     } else if (state.clip || state.move !== null) {
       if (!specs.some((s) => s.asset)) throw new Error(`clip/move: ${state.asset} has no rig`);
     }
+    const expression = spec.expression || (state.expression !== 'all' ? state.expression : '');
+    if (expression) {
+      if (!EXPRESSIONS[expression]) throw new Error(`unknown expression '${expression}' (${Object.keys(EXPRESSIONS).join(', ')})`);
+      const inf = faceInfluences(faceAt({ expression, since: 10 }));
+      let faces = 0;
+      obj.traverse((o) => { if (o.isMesh && o.morphTargetInfluences) { inf.forEach((v, i) => { o.morphTargetInfluences[i] = v; }); faces++; } });
+      if (!faces) fml.problems.push(`${data.name}: expression '${expression}' but no mesh carries morphs`);
+    }
     if (state.silhouette) obj.traverse((o) => { if (o.isMesh) o.material = inkFor(o.material); });
     const b = data.bounds();
     if (q.get('goods') === '1' && !state.silhouette && !spec.asset && gen.anchors) await placeAnchorGoods(obj, gen.anchors({ seed, stage: spec.stage || state.stage || undefined }));
@@ -353,7 +368,7 @@ async function loadAssets() {
   }
   
   const isItem = state.asset === 'item';
-  const gap = isItem ? Math.max(0.03, 0.45 * Math.max(...parts.map((p) => p.width))) : 1.2;
+  const gap = isItem ? Math.max(0.03, 0.45 * Math.max(...parts.map((p) => p.width))) : faceLineup ? 0.12 : 1.2;
   const isForageTypes = state.asset === 'forageSpot' && state.view === 'types';
   const rowDepth = isItem ? Math.max(...parts.map((p) => p.depth)) * 1.9 : isHomes || isForageTypes ? Math.max(...parts.map((p) => p.depth)) * 1.7 : 0;
   for (const row of new Set(parts.map((p) => p.row))) {
@@ -382,8 +397,15 @@ async function loadAssets() {
   for (const p of parts) box.expandByObject(p.obj);
   const size = box.getSize(new THREE.Vector3());
   const center = box.getCenter(new THREE.Vector3());
+  if (faceLineup) {
+    
+    const headH = size.y * 0.4;
+    const fitF = Math.max(headH, size.x / camera.aspect) * 0.5 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    frameCamera(new THREE.Vector3(center.x, box.max.y - headH * 0.5, center.z), 4, fitF * 1.08, THREE.MathUtils.degToRad(state.yaw));
+    return;
+  }
   const gameplay = state.camera === 'gameplay';
-  const fit = Math.max(size.y, size.x / camera.aspect, isHomes ? size.z * 0.75 : 0) * 0.5 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const fit =Math.max(size.y, size.x / camera.aspect, isHomes ? size.z * 0.75 : 0) * 0.5 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   const dist = gameplay ? Math.max(14, fit * 1.2) : fit * 1.35;
   frameCamera(new THREE.Vector3(center.x, gameplay ? box.min.y + 1 : center.y, center.z), gameplay ? 35 : 12, dist, THREE.MathUtils.degToRad(state.yaw));
 }

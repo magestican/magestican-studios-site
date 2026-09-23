@@ -15,6 +15,7 @@ import { sampleClip } from '../../../rig/pose.mjs';
 import { deformationReport, deform } from '../../../rig/skin.mjs';
 import { footTrack, plantedFlags, gaitMisses, DEFORMATION, EXTREMES } from '../../../rig/measure.mjs';
 import { eulerFromQuat, frac } from '../../../rig/math.mjs';
+import { mouthCornerLift } from '../face.mjs';
 
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
@@ -145,6 +146,31 @@ export function villagerSpeciesTests(species, { size, height, addedBones = [], r
           assert.ok(m.rig.top_m >= m.rig.height_m - 1e-9, `${where}: top_m ${m.rig.top_m} under height_m ${m.rig.height_m}`);
         }
       }
+    }
+  });
+
+  
+  
+  
+  
+  test(`${label}: face - eye and brow morphs at every LOD; mouthSmile lifts both mouth corners >= 8 mm`, () => {
+    for (const lod of [0, 1, 2]) {
+      let mouths = 0;
+      for (const seed of [1, 2, 3]) {
+        const m = mod.generate({ seed, season: 'summer', lod });
+        const where = `${label} seed ${seed} lod ${lod}`;
+        
+        
+        
+        const brows = species === 'panda' || species === 'giraffe' ? [] : ['browsUp', 'browsDown', 'browsSad'];
+        const mouth = species === 'human' ? [] : ['mouthSmile', 'mouthFrown']; 
+        for (const k of ['lidsClose', 'eyesWide', ...mouth, ...brows]) assert.ok(m.morphs[k]?.index.size > 0, `${where}: no ${k}`);
+        const lift = mouthCornerLift(m);
+        if (lift === null && species === 'human') continue;
+        assert.ok(lift !== null && lift >= 0.008, `${where}: mouth corners rise ${lift === null ? 'no mouth' : (lift * 1000).toFixed(1) + ' mm'} < 8 mm`);
+        mouths++;
+      }
+      assert.ok(mouths >= 1, `${label} lod ${lod}: no seed has a mouth`);
     }
   });
 

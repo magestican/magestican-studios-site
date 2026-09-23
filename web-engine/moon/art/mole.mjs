@@ -46,7 +46,10 @@ import { fbm3, valueNoise3 } from '../noise.mjs';
 import { linear, SEASONS, seasonPalette } from '../palette/seasons.mjs';
 import { budgetFor } from '../budgets.mjs';
 import { smooth, mix, add, sub, mul, norm, strand } from './kit/character.mjs';
-import { eyeVertexCount, eyeMorphs } from './kit/face.mjs';
+import { eyeVertexCount, eyeMorphs, strandWithMorphs } from './kit/face.mjs';
+
+
+export const FACE_K = 0.7;
 
 export const TIER = 'heroCharacter';
 export const MOUND_TIER = 'dressing';
@@ -301,13 +304,33 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
     const browC = mul(C.coat, 0.42);
     for (const side of [1, -1]) {
       const y0 = 0.3825 + (side < 0 ? 0.003 : 0);
-      const pts = [[side * 0.03, y0 - 0.004], [side * 0.055, y0], [side * 0.078, y0 - 0.005]]
-        .map(([x, y]) => onSkin([x, y, 0.135], 0.002));
-      strand(md, pts, [0.0026, 0.0042, 0.0022], browC, L.sides);
+      
+      
+      
+      
+      const browPts = (dy) => [[side * 0.03, y0 - 0.004], [side * 0.055, y0], [side * 0.078, y0 - 0.005]]
+        .map(([x, y], i) => onSkin([x, y + dy[i] * FACE_K, 0.135], 0.002));
+      strandWithMorphs(md, {
+        pts: browPts([0, 0, 0]), radii: [0.0026, 0.0042, 0.0022], color: browC, sides: L.sides, material: 'fur',
+        morphs: {
+          browsUp: { pts: browPts([0.010, 0.010, 0.010]) },
+          browsDown: { pts: browPts([-0.012, -0.008, -0.008]) },
+          browsSad: { pts: browPts([0.008, 0.001, -0.006]) },
+        },
+      });
     }
-    const mouth = [[-0.03, 0.296], [-0.012, 0.288], [0.006, 0.289], [0.028, 0.298]]
-      .map(([x, y]) => onSkin([x, y, 0.16], 0.002));
-    strand(md, mouth, [0.0022, 0.0032, 0.0032, 0.002], INK, L.sides);
+    const mouthPts = (dx, dy) => [[-0.03, 0.296], [-0.012, 0.288], [0.006, 0.289], [0.028, 0.298]]
+      .map(([x, y], i) => onSkin([x + dx[i] * FACE_K, y + dy[i] * FACE_K, 0.16], 0.002));
+    const mouthR = [0.0022, 0.0032, 0.0032, 0.002];
+    const Z4 = [0, 0, 0, 0];
+    strandWithMorphs(md, {
+      pts: mouthPts(Z4, Z4), radii: mouthR, color: INK, sides: L.sides, material: 'fur',
+      morphs: {
+        mouthSmile: { pts: mouthPts([-0.004, 0, 0, 0.004], [0.012, -0.002, -0.002, 0.012]) },
+        mouthFrown: { pts: mouthPts([0.002, 0, 0, -0.002], [-0.014, 0, 0, -0.014]) },
+        mouthO: { pts: mouthPts([0.006, 0, 0, -0.006], [0, -0.010, -0.010, 0]), radii: mouthR.map((r) => r * 1.3) },
+      },
+    });
   }
   const whiskerSpecs = [
     [1, 0.318, 0.16, 0.115], [1, 0.304, 0.0, 0.128], [1, 0.291, -0.16, 0.104], [1, 0.33, 0.3, 0.09],
