@@ -23,6 +23,7 @@
 import * as THREE from 'three';
 import { itemObject } from '../render/items.js';
 import { CARRY_LIFT, containerObject } from '../render/container.js';
+import { stepPart, REST } from 'moon/play/parts.mjs';
 
 
 
@@ -55,7 +56,14 @@ export function createFindsDraw({ scene, season, drawM = FIND_DRAW_M, drawMax = 
   let slots = [];
   let planetToken = 0;
   let triangles = 0;
-  const stats = { planet: null, drawn: 0, loading: 0, ready: 0, taken: 0, changes: 0 };
+  
+  const stats = { planet: null, drawn: 0, loading: 0, ready: 0, taken: 0, changes: 0, lid: 0 };
+  const lidAxis = new THREE.Vector3();
+  const lidOf = (box) => {
+    let bone = null;
+    box.traverse((o) => { if (!bone && o.userData.part && o.userData.part.name === 'lid') bone = o; });
+    return bone;
+  };
 
   function drop(slot) {
     if (slot.box) stats.drawn -= 1;
@@ -81,6 +89,16 @@ export function createFindsDraw({ scene, season, drawM = FIND_DRAW_M, drawMax = 
   
   function build(slot, state) {
     if (slot.want === state) return;
+    
+    
+    
+    if (slot.want === 'full' && state === 'empty' && slot.box && slot.find.container === 'chest' && lidOf(slot.box)) {
+      slot.want = state;
+      slot.lid = { bone: lidOf(slot.box), state: REST };
+      if (slot.halo) { group.remove(slot.halo); slot.halo.material.dispose(); slot.halo = null; }
+      return;
+    }
+    slot.lid = null;
     slot.want = state;
     stats.changes += 1;
     const token = ++slot.token;
@@ -201,6 +219,14 @@ export function createFindsDraw({ scene, season, drawM = FIND_DRAW_M, drawMax = 
         if (slot.carry) {
           slot.carry.position.y = f.y + slot.carryLift + Math.sin(seconds * 2 + slot.phase) * CARRY_BOB_M;
           slot.carry.rotation.y = slot.phase + seconds * CARRY_SPIN_PER_S;
+        }
+        if (slot.lid) {
+          const { bone, state: prev } = slot.lid;
+          const p = bone.userData.part;
+          slot.lid.state = stepPart(p.clip, prev, { t: seconds, dt: Math.min(0.1, Math.max(0, seconds - (slot.lid.t ?? seconds))), open: 1 });
+          slot.lid.t = seconds;
+          bone.quaternion.setFromAxisAngle(lidAxis.set(p.axis[0], p.axis[1], p.axis[2]), slot.lid.state.angle);
+          stats.lid = Math.max(stats.lid, slot.lid.state.angle);
         }
         if (slot.halo) slot.halo.material.opacity = 0.14 + 0.1 * (0.5 + 0.5 * Math.sin(seconds * 2 + slot.phase));
       }

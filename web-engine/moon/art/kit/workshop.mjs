@@ -19,11 +19,16 @@
 
 
 import { sweep, lathe, emit, roundedRectProfile, circleProfile, deform } from '../../mesh/bevel.mjs';
-import { compose, translate } from '../../mesh/meshData.mjs';
+import { compose, translate, applyPoint, applyDir } from '../../mesh/meshData.mjs';
 import { valueNoise3 } from '../../noise.mjs';
 import { chimney } from './chimney.mjs';
 import { pillow, archOutline } from './door.mjs';
 import { vc, vary, scaleC } from './shade.mjs';
+
+
+
+export const SCREW_TURN = Object.freeze({ kind: 'spin', rate: 0.7, gate: true });
+export const FIRE_FLICKER = Object.freeze({ kind: 'flicker', amp: 0.08, rate: 1.7 });
 
 
 export const PRESS = Object.freeze({ top: 1.76, halfWidth: 0.72, back: 0.7, front: 1.1 });
@@ -117,10 +122,13 @@ export function fruitPress(mesh, m, { detail = 0, rng, wood, darkWood, iron }) {
   
   
   
+  
+  
+  const screw = mesh.part('screw', { pivot: applyPoint(m, [0, 0, 0]), axis: applyDir(m, [0, 1, 0]), clip: SCREW_TURN });
   const core = lathe({ points: [[0, 0.26], [0.055, 0.26], [0.055, 1.58], [0, 1.58]], sides: detail === 0 ? 6 : 4 });
-  emit(mesh, 'metal', core, { matrix: m, color: ironC });
+  emit(screw, 'metal', core, { matrix: m, color: ironC });
   const knob = lathe({ points: [[0, 1.55], [0.075, 1.57], [0.09, 1.64], [0.07, 1.72], [0, PRESS.top]], sides: detail === 0 ? 8 : detail === 1 ? 6 : 5 });
-  emit(mesh, 'metal', knob, { matrix: m, color: ironC });
+  emit(screw, 'metal', knob, { matrix: m, color: ironC });
   const hubY = 1.34;
   if (detail === 0) {
     const turns = 3, per = 5;
@@ -130,27 +138,27 @@ export function fruitPress(mesh, m, { detail = 0, rng, wood, darkWood, iron }) {
       const t = k / (turns * per), a = t * turns * Math.PI * 2;
       path.push([0.07 * Math.cos(a), y0 + (y1 - y0) * t, 0.07 * Math.sin(a)]);
     }
-    emit(mesh, 'metal', sweep({ profile: circleProfile(0.022, 3), path, up: [0, 1, 0], caps: 'round', capSegments: 0, capLength: 0.012 }), { matrix: m, color: vc(scaleC(iron, 1.2), { groundAO: 0 }) });
+    emit(screw, 'metal', sweep({ profile: circleProfile(0.022, 3), path, up: [0, 1, 0], caps: 'round', capSegments: 0, capLength: 0.012 }), { matrix: m, color: vc(scaleC(iron, 1.2), { groundAO: 0 }) });
   }
   const hub = lathe({ points: [[0, hubY - 0.06], [0.1, hubY - 0.06], [0.13, hubY], [0.1, hubY + 0.06], [0, hubY + 0.06]], sides: detail === 0 ? 8 : detail === 1 ? 6 : 5 });
-  emit(mesh, 'metal', hub, { matrix: m, color: ironC });
+  emit(screw, 'metal', hub, { matrix: m, color: ironC });
   const R = 0.56, tilt = rng.rangeF(0.01, 0.025);
   const wy = (a) => hubY + tilt * Math.sin(a + ph);
   const rimN = detail === 0 ? 14 : detail === 1 ? 9 : 6;
   const rim = [];
   for (let k = 0; k < rimN; k++) { const a = (k / rimN) * Math.PI * 2; rim.push([R * Math.cos(a), wy(a), R * Math.sin(a)]); }
-  emit(mesh, 'wood', sweep({ profile: roundedRectProfile(0.1, 0.085, 0.032, 0), path: rim, closed: true, up: [0, 1, 0] }), { matrix: m, color: W(darkWood, 0.04, { underside: 0.35 }) });
+  emit(screw, 'wood', sweep({ profile: roundedRectProfile(0.1, 0.085, 0.032, 0), path: rim, closed: true, up: [0, 1, 0] }), { matrix: m, color: W(darkWood, 0.04, { underside: 0.35 }) });
   const spokes = [];
   const nSpokes = detail === 2 ? 3 : 5;
   for (let k = 0; k < nSpokes; k++) spokes.push(ph + (k * Math.PI * 2) / nSpokes + rng.rangeF(-0.12, 0.12));
   for (const a of spokes) {
     const path = [[0.1 * Math.cos(a), hubY, 0.1 * Math.sin(a)], [(R - 0.03) * Math.cos(a), wy(a), (R - 0.03) * Math.sin(a)]];
-    emit(mesh, 'wood', sweep({ profile: roundedRectProfile(0.065, 0.055, 0.02, 0), path, up: [0, 1, 0], caps: 'none' }), { matrix: m, color: W(wood, 0.05) });
+    emit(screw, 'wood', sweep({ profile: roundedRectProfile(0.065, 0.055, 0.02, 0), path, up: [0, 1, 0], caps: 'none' }), { matrix: m, color: W(wood, 0.05) });
   }
   if (detail < 2) {
     const a = spokes[0] + Math.PI / 5;
     const gx = R * Math.cos(a), gz = R * Math.sin(a);
-    emit(mesh, 'wood', sweep({ profile: circleProfile(0.04, detail === 0 ? 6 : 4), path: [[gx, wy(a) + 0.03, gz], [gx * 1.02, wy(a) + 0.24, gz * 1.02]], up: [1, 0, 0], caps: 'round', capSegments: 1, capLength: 0.035 }), { matrix: m, color: W(wood) });
+    emit(screw, 'wood', sweep({ profile: circleProfile(0.04, detail === 0 ? 6 : 4), path: [[gx, wy(a) + 0.03, gz], [gx * 1.02, wy(a) + 0.24, gz * 1.02]], up: [1, 0, 0], caps: 'round', capSegments: 1, capLength: 0.035 }), { matrix: m, color: W(wood) });
   }
   return { top: PRESS.top };
 }
@@ -167,7 +175,8 @@ export function stoveKettle(mesh, m, { detail = 0, rng, stone, copper, iron, woo
   
   
   const bed = pillow({ outline: (d) => archOutline(0.24, 0.21, d, segs), insets: detail === 0 ? [0, 0.04] : [0], zs: [0, 0.01], centre: [0, 0.08], centreZ: 0.016, uv: ([x, y]) => [x / 0.24 + 0.5, y / 0.21] });
-  emit(mesh, 'glass', bed, { matrix: compose(m, translate(0, 0.07, 0.37)), color: fire });
+  const flame = mesh.part('fire', { pivot: applyPoint(m, [0, 0.07, 0.37]), axis: applyDir(m, [0, 0, 1]), clip: FIRE_FLICKER });
+  emit(flame, 'glass', bed, { matrix: compose(m, translate(0, 0.07, 0.37)), color: fire });
 
   const seed = rng.rangeI(1, 1e6);
   const sides = detail === 0 ? 11 : detail === 1 ? 8 : 6;

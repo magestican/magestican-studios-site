@@ -150,7 +150,7 @@ const SPARKLE_CSS = `
 @keyframes fml-sparkle{0%{transform:translate(0,0) scale(.2);opacity:1}70%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(90deg);opacity:0}}
 `;
 
-export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null, voice = null, layer = null, onProblems = () => {}, onStage = () => {}, cfg = HOMES_DRAW }) {
+export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null, voice = null, layer = null, onProblems = () => {}, onStage = () => {}, cfg = HOMES_DRAW, parts = null }) {
   const slots = new Map();
   let cratesObj = null, hammerObj = null, buntingObj = null, synced = false;
   const counts = { pops: 0, hammerPlays: 0, hammerSkipped: 0, voiced: 0, sparkles: 0 };
@@ -244,7 +244,7 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
     slot.drawn = stage;
     onStage(slot.id, slot.home, stage);
     if (stage === 'none') {
-      if (slot.obj) { slot.group.remove(slot.obj); slot.obj = null; }
+      if (slot.obj) { if (parts) parts.release(slot.obj); slot.group.remove(slot.obj); slot.obj = null; }
       slot.flue = null;
       return;
     }
@@ -260,9 +260,10 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
       if (!slot.glass) slot.glass = await soloEmissive('glass');
       if (slot.drawn !== want) return;
       obj.traverse((o) => { if (o.isMesh && o.material && o.material.name === 'glass') o.material = slot.glass; });
-      if (slot.obj) slot.group.remove(slot.obj);
+      if (slot.obj) { if (parts) parts.release(slot.obj); slot.group.remove(slot.obj); }
       slot.obj = obj;
       slot.group.add(obj);
+      if (parts) parts.adopt(obj); 
       slot.flue = flueOf(slot, obj.userData.smoke);
       if (celebrate) {
         slot.pop = { startS: animS };

@@ -5,8 +5,13 @@
 
 
 import { Shape, sweep, lathe, roundedRectProfile, circleProfile, emit } from '../../mesh/bevel.mjs';
-import { compose, translate, rotateX } from '../../mesh/meshData.mjs';
+import { compose, translate, rotateX, applyPoint, applyDir } from '../../mesh/meshData.mjs';
 import { vc } from './shade.mjs';
+
+
+
+
+export const DOOR_HINGE = Object.freeze({ kind: 'hinge', max: 1.5, speed: 2.5 });
 
 
 export function pillow({ outline, insets, zs, centre, centreZ, uv }) {
@@ -33,7 +38,9 @@ export function archOutline(w, h, d, arcSegs) {
   return pts;
 }
 
-export function door(mesh, m, { width = 0.95, height = 1.9, detail = 0, rng, color, frameColor, knobColor, ironColor, glassColor, porthole = false }) {
+export function door(mesh, m, { width = 0.95, height = 1.9, detail = 0, rng, color, frameColor, knobColor, ironColor, glassColor, porthole = false, part = null }) {
+  const frame = mesh;
+  if (part) mesh = frame.part(part, { pivot: applyPoint(m, [-width / 2, 0, 0.04]), axis: applyDir(m, [0, 1, 0]), clip: DOOR_HINGE });
   const arcSegs = detail === 0 ? 6 : detail === 1 ? 4 : 2;
   const insets = detail === 0 ? [0, 0.035, 0.085] : detail === 1 ? [0, 0.06] : [0];
   const zs = [0.015, 0.06, 0.075];
@@ -54,7 +61,7 @@ export function door(mesh, m, { width = 0.95, height = 1.9, detail = 0, rng, col
   }
   path.push([fw, -0.02, 0]);
   const frameProfile = roundedRectProfile(0.12, 0.14, 0.04, detail === 0 ? 1 : 0).map(([x, y]) => [x + 0.045, y]);
-  emit(mesh, 'wood', sweep({ profile: frameProfile, path, up: [0, 0, 1], caps: 'none' }), { matrix: m, color: vc(frameColor) });
+  emit(frame, 'wood', sweep({ profile: frameProfile, path, up: [0, 0, 1], caps: 'none' }), { matrix: m, color: vc(frameColor) });
 
   if (detail < 2) {
     const knob = lathe({ points: [[0, 0], [0.03, 0.004], [0.042, 0.035], [0.03, 0.06], [0, 0.066]], sides: detail === 0 ? 7 : 5 });

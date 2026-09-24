@@ -41,7 +41,7 @@ const lodFor = (d, cfg) => (d < cfg.lod1M ? 0 : d < cfg.lod2M ? 1 : 2);
 
 export function createPlacedDraw({
   scene, season, heightAt, objectFor = decorObject, cfg = PLACED,
-  select = () => true, name = 'placed', onProblems = () => {},
+  select = () => true, name = 'placed', onProblems = () => {}, parts = null,
 }) {
   const group = new THREE.Group();
   group.name = name;
@@ -57,6 +57,7 @@ export function createPlacedDraw({
 
   function clear(slot) {
     if (!slot.obj) return;
+    if (parts) parts.release(slot.obj);
     group.remove(slot.obj);
     triangles -= slot.obj.userData.triangles || 0;
     slot.obj = null;
@@ -81,6 +82,7 @@ export function createPlacedDraw({
         obj.position.set(p.spot.x, heightAt(p.spot.x, p.spot.z), p.spot.z);
         obj.rotation.y = p.spot.rotY || 0;
         group.add(obj);
+        if (parts) parts.adopt(obj); 
         slot.obj = obj;
         triangles += obj.userData.triangles || 0;
       })

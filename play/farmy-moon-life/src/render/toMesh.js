@@ -30,6 +30,9 @@ import { MORPH_NAMES } from 'moon/rig/face.mjs';
 const POSE_MARGIN = 0.35;
 
 
+export const PARTS_WHOLE_MAX_TRIS = 40000;
+
+
 
 
 
@@ -43,7 +46,15 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
     group.add(...rig.roots);
     group.userData.rig = rig;
   }
-  for (const g of arrays.groups) {
+  
+  
+  
+  
+  
+  
+  const whole = Boolean(arrays.movingParts && arrays.movingParts.length && !meshData.rig
+    && !Object.keys(arrays.morphs || {}).length && arrays.triangles <= PARTS_WHOLE_MAX_TRIS);
+  for (const g of whole ? [] : arrays.groups) {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(g.position, 3));
     geometry.setAttribute('normal', new THREE.BufferAttribute(g.normal, 3));
@@ -110,17 +121,89 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
   }
   
   
+  
+  
+  
   const partObjects = [];
-  for (const p of arrays.movingParts || []) {
-    const child = await toObject3D({ name: `${arrays.name}:${p.name}`, rig: null, toArrays: () => ({ name: `${arrays.name}:${p.name}`, triangles: p.triangles, groups: p.groups, morphs: {} }) }, { materials, castShadow, receiveShadow });
-    child.position.set(p.pivot[0], p.pivot[1], p.pivot[2]);
-    child.userData.part = { name: p.name, axis: p.axis, clip: p.clip };
+  if (arrays.movingParts && arrays.movingParts.length) {
+    const child = await toObject3D(partsRig(arrays, whole), { materials, castShadow, receiveShadow });
+    const { bones, skeleton } = child.userData.rig;
+    bones.slice(whole ? 1 : 0).forEach((b, i) => {
+      const p = arrays.movingParts[i];
+      b.userData.part = { name: p.name, axis: p.axis, clip: p.clip };
+      partObjects.push(b);
+    });
+    
+    
+    delete child.userData.rig;
+    
+    
+    
+    
+    const inverses = skeleton.boneInverses;
+    child.clone = function cloneParts(recursive = true) {
+      const c = THREE.Group.prototype.clone.call(this, recursive);
+      const own = new THREE.Skeleton(c.children.filter((o) => o.isBone), inverses.map((m) => m.clone()));
+      c.traverse((o) => { if (o.isSkinnedMesh) o.bind(own, new THREE.Matrix4()); });
+      c.clone = cloneParts;
+      return c;
+    };
     group.add(child);
-    partObjects.push(child);
   }
-  group.userData.parts = partObjects;
+  
+  Object.defineProperty(group.userData, 'parts', { value: partObjects, enumerable: false, configurable: true, writable: true });
   group.userData.triangles = arrays.triangles;
   return group;
+}
+
+
+
+
+
+function partsRig(arrays, whole = false) {
+  
+  const pieces = whole ? [{ name: 'static', pivot: [0, 0, 0], groups: arrays.groups }, ...arrays.movingParts] : arrays.movingParts;
+  const byMat = new Map();
+  pieces.forEach((p, bone) => {
+    for (const g of p.groups) {
+      if (!byMat.has(g.material)) byMat.set(g.material, []);
+      byMat.get(g.material).push({ g, bone, pivot: p.pivot });
+    }
+  });
+  const groups = [];
+  for (const [material, list] of byMat) {
+    const nv = list.reduce((s, e) => s + e.g.position.length / 3, 0);
+    const ni = list.reduce((s, e) => s + e.g.index.length, 0);
+    const sway = list.some((e) => e.g.sway);
+    const ripple = list.some((e) => e.g.ripple);
+    const out = {
+      material, position: new Float32Array(nv * 3), normal: new Float32Array(nv * 3), color: new Float32Array(nv * 3),
+      uv: new Float32Array(nv * 2), index: new Uint32Array(ni), skinIndex: new Uint16Array(nv * 4), skinWeight: new Float32Array(nv * 4),
+      ...(sway ? { sway: new Float32Array(nv) } : {}),
+      ...(ripple ? { ripple: new Float32Array(nv) } : {}),
+    };
+    let v = 0, i = 0;
+    for (const { g, bone, pivot } of list) {
+      const n = g.position.length / 3;
+      for (let k = 0; k < n; k++) {
+        for (let c = 0; c < 3; c++) out.position[(v + k) * 3 + c] = g.position[k * 3 + c] + pivot[c];
+        out.skinIndex[(v + k) * 4] = bone;
+        out.skinWeight[(v + k) * 4] = 1;
+      }
+      out.normal.set(g.normal, v * 3);
+      out.color.set(g.color, v * 3);
+      out.uv.set(g.uv, v * 2);
+      if (sway && g.sway) out.sway.set(g.sway, v);
+      if (ripple && g.ripple) out.ripple.set(g.ripple, v);
+      for (let k = 0; k < g.index.length; k++) out.index[i + k] = g.index[k] + v;
+      v += n; i += g.index.length;
+    }
+    groups.push(out);
+  }
+  const name = `${arrays.name}:parts`;
+  const rig = { bones: pieces.map((p) => ({ name: p.name, parent: -1, head: p.pivot })) };
+  const triangles = whole ? arrays.triangles : arrays.movingParts.reduce((s, p) => s + p.triangles, 0);
+  return { name, rig, toArrays: () => ({ name, triangles, groups, morphs: {} }) };
 }
 
 

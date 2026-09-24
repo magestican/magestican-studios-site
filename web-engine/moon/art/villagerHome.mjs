@@ -482,7 +482,7 @@ function houseBody(mesh, c) {
 
   doorUnit(mesh, translate(lay.doorX, BASE, D / 2 + 0.07), {
     width: B.door.w, height: B.door.h, detail, rng: rng.child('door'), color: hex(st.door), frameColor: trimC,
-    knobColor: hex(st.knob), ironColor: hex('#4a4658'), glassColor: hex('#7fb0d8'), porthole: Boolean(st.porthole),
+    knobColor: hex(st.knob), ironColor: hex('#4a4658'), glassColor: hex('#7fb0d8'), porthole: Boolean(st.porthole), part: 'door',
   });
   const winRng = rng.child('windows');
   for (const w of lay.windows) {

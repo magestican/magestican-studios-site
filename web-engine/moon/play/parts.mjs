@@ -35,7 +35,10 @@ export function stepPart(clip, prev = REST, ctx = {}) {
   const wind = ctx.wind === undefined ? 1 : Math.max(0, ctx.wind);
   switch (clip.kind) {
     case 'spin': {
-      const a = prev.angle + clip.rate * (clip.wind ? wind : 1) * dt;
+      
+      
+      const gate = clip.gate ? Math.min(1, Math.max(0, ctx.open || 0)) : 1;
+      const a = prev.angle + clip.rate * (clip.wind ? wind : 1) * gate * dt;
       return { angle: a - TAU * Math.floor(a / TAU), scale: 1 };
     }
     case 'swing': {

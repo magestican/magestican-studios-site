@@ -77,7 +77,7 @@ export function canvasAwning(mesh, m, {
       uv: (j, f, p) => [p[0] * 1.4, arc[j] * 1.4],
     });
     const base = colors[k % colors.length];
-    emit(mesh, 'canvas', strip, { matrix: m, color: vc(vary(rng, base, 0.03), { groundAO: 0, underside: 0.3, mottle: 0.05 }) });
+    mesh.swayPiece({ perMetre: 0.06, hang: true }, (p) => emit(p, 'canvas', strip, { matrix: m, color: vc(vary(rng, base, 0.03), { groundAO: 0, underside: 0.3, mottle: 0.05 }) })); 
   }
 
   if (barColor && detail < 2) {

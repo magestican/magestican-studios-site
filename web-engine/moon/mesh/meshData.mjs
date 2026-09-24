@@ -153,6 +153,9 @@ export class MeshData {
       const out = (g.ripples ||= new Array(i).fill(0));
       out.push(ripple);
     }
+    
+    
+    if (g.sways) g.sways.push(0);
     g.positions.push(p[0], p[1], p[2]);
     g.normals.push(n[0], n[1], n[2]);
     g.colors.push(c[0], c[1], c[2]);
@@ -265,7 +268,21 @@ export class MeshData {
   
   
   
-  sway({ perMetre = 0.02, power = 1.5 } = {}) {
+  
+  
+  
+  
+  swayPiece(opts, build) {
+    const piece = new MeshData(this.name);
+    build(piece);
+    this.append(piece.sway(opts));
+    return this;
+  }
+
+  
+  
+  
+  sway({ perMetre = 0.02, power = 1.5, hang = false } = {}) {
     const { min, max } = this.bounds();
     const height = max[1] - min[1];
     if (!(height > 0)) return this;
@@ -273,7 +290,8 @@ export class MeshData {
     for (const g of this.groups.values()) {
       const out = new Array(g.positions.length / 3);
       for (let i = 0, j = 0; i < g.positions.length; i += 3, j++) {
-        const t = Math.min(1, Math.max(0, (g.positions[i + 1] - min[1]) / height));
+        const y = hang ? max[1] - g.positions[i + 1] : g.positions[i + 1] - min[1];
+        const t = Math.min(1, Math.max(0, y / height));
         out[j] = Math.round(amp * t ** power * 1e5) / 1e5;
       }
       g.sways = out;
@@ -462,6 +480,15 @@ export function rotateX(a) {
 export function rotateZ(a) {
   const c = Math.cos(a), s = Math.sin(a);
   return [c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0];
+}
+
+
+
+export function applyPoint(m, [x, y, z]) {
+  return [0, 1, 2].map((r) => m[r * 4] * x + m[r * 4 + 1] * y + m[r * 4 + 2] * z + m[r * 4 + 3]);
+}
+export function applyDir(m, [x, y, z]) {
+  return [0, 1, 2].map((r) => m[r * 4] * x + m[r * 4 + 1] * y + m[r * 4 + 2] * z);
 }
 
 

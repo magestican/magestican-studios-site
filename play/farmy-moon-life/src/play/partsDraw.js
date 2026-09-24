@@ -58,6 +58,28 @@ export function createPartsDraw({ settings } = {}) {
   }
 
   
+  
+  
+  function near(name, x, z, r) {
+    let opened = 0;
+    for (const e of live) {
+      if (e.name !== name) continue;
+      if (!e.at) e.at = e.obj.getWorldPosition(new THREE.Vector3());
+      e.open = Math.hypot(e.at.x - x, e.at.z - z) <= r ? 1 : 0;
+      opened += e.open;
+    }
+    return opened;
+  }
+
+  
+  function where(name) {
+    return live.filter((e) => e.name === name).map((e) => {
+      const p = e.obj.getWorldPosition(new THREE.Vector3());
+      return { x: Math.round(p.x * 100) / 100, z: Math.round(p.z * 100) / 100 };
+    });
+  }
+
+  
   function ring(name, t) {
     for (const e of live) if (e.name === name) e.rungAt = t;
   }
@@ -67,8 +89,11 @@ export function createPartsDraw({ settings } = {}) {
   }
 
   function stats() {
-    return { live: live.length, ticked, enabled, names: [...new Set(live.map((e) => e.name))] };
+    
+    const angles = {};
+    for (const e of live) angles[e.name] = Math.max(angles[e.name] || 0, Math.round(Math.abs(e.state.angle) * 1000) / 1000);
+    return { live: live.length, ticked, enabled, names: [...new Set(live.map((e) => e.name))], angles };
   }
 
-  return { adopt, release, tick, open, ring, setSettings, stats };
+  return { adopt, release, tick, open, near, where, ring, setSettings, stats };
 }

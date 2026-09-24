@@ -51,7 +51,7 @@ export function buildingBody(mesh, {
 
   const front = (x, y, z = 0) => R(translate(x, y, frontZ + z));
   if (door) {
-    doorUnit(mesh, front(door.x, base, 0.075), { width: 0.98, height: 1.8, detail, rng: rng.child('door'), color: doorColor, frameColor: trimColor, knobColor, ironColor, glassColor, porthole: Boolean(door.porthole) });
+    doorUnit(mesh, front(door.x, base, 0.075), { width: 0.98, height: 1.8, detail, rng: rng.child('door'), color: doorColor, frameColor: trimColor, knobColor, ironColor, glassColor, porthole: Boolean(door.porthole), part: 'door' });
   }
   const winRng = rng.child('windows');
   const flowers = rng.child('flowers');
@@ -64,7 +64,7 @@ export function buildingBody(mesh, {
     for (const sgn of [1, -1]) {
       const onGable = R(compose(translate((sgn * W) / 2, 0, cz), rotateY((sgn * Math.PI) / 2)));
       if (sgn === sideDoor) {
-        doorUnit(mesh, compose(onGable, translate(-sgn * D * 0.16, base, 0.075)), { width: 0.92, height: 1.78, detail: d1, rng: rng.child('sideDoor'), color: doorColor, frameColor: trimColor, knobColor, ironColor, glassColor });
+        doorUnit(mesh, compose(onGable, translate(-sgn * D * 0.16, base, 0.075)), { width: 0.92, height: 1.78, detail: d1, rng: rng.child('sideDoor'), color: doorColor, frameColor: trimColor, knobColor, ironColor, glassColor, part: 'sideDoor' });
       } else {
         windowUnit(mesh, compose(onGable, translate(sgn * 0.2, base + 1.22, 0.08)), { width: 0.7, height: 0.8, detail: 2, rng: winRng, frameColor: trimColor, glassColor, snowColor: snow, muntins: 'cross' });
       }

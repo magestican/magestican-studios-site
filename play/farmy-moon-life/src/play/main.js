@@ -445,6 +445,32 @@ waterUniforms.uFmlWater.value = waterParam * settings.water;
 
 const partsSettings = () => (q.get('parts') === '0' ? { ...settings, parts: 0 } : settings);
 const partsDraw = createPartsDraw({ settings: partsSettings() });
+
+
+
+
+
+const DOOR_OPEN_M = 3; 
+let bellHour = null;
+function pressRunning(t = econNow()) {
+  const pr = processorOf(world);
+  return Boolean(pr && pr.jobs.length && stationViews(pr, t, assignment).some((v) => v.batches > v.done));
+}
+function driveParts() {
+  partsDraw.near('door', player.x, player.z, DOOR_OPEN_M);
+  partsDraw.near('sideDoor', player.x, player.z, DOOR_OPEN_M);
+  partsDraw.open('screw', pressRunning() ? 1 : 0);
+  const hour = Math.floor(state.time);
+  if (bellHour !== null && hour !== bellHour) partsDraw.ring('bell', animSeconds);
+  bellHour = hour;
+}
+
+function pressSmokeSources() {
+  const kettle = pressAnchors.stations[1];
+  if (!kettle || !pressDrawn || !pressRunning()) return [];
+  const w = toPlacementFrame(PRESS_P, { x: kettle.x, y: kettle.y + 0.7, z: kettle.z });
+  return [{ key: 'press-kettle', x: w.x, y: w.y, z: w.z, warmth: 1 }];
+}
 const fml = (window.__fml = {
   
   
@@ -4075,6 +4101,7 @@ Object.defineProperty(fml, 'smoke', {
   get: () => (particles ? {
     ...particles.smokeStats,
     sources: homesDraw ? homesDraw.smokeSources().length : 0,
+    press: pressSmokeSources().length, 
     hearths: homesDraw ? homesDraw.hearths : [],
   } : null),
 });
@@ -4965,6 +4992,7 @@ function settleTown() {
   const works = settleWorks(world, t);
   if (goals.length) {
     hud.say(`Goal done: ${goals[0].done}.`, seconds);
+    partsDraw.ring('bell', animSeconds); 
     sfx.play('ui.open');
     paintDeeds();
   }
@@ -5459,6 +5487,8 @@ async function load() {
   homeScene = built;
   partsDraw.adopt(built.root); 
   fml.parts = partsDraw.stats; 
+  fml.partsWhere = partsDraw.where; 
+  fml.pressRunning = () => pressRunning(); 
   staticSources = built.sources;
   night = createNightLights({ scene, sources: built.sources.slice(), size: settings.lights, groundHeight: heightAt });
   syncNightLights();
@@ -5603,7 +5633,7 @@ async function fillIn() {
   
   
   placedDraw = createPlacedDraw({
-    scene, season: state.season, heightAt: (x, z) => groundNow(x, z), onProblems,
+    scene, season: state.season, heightAt: (x, z) => groundNow(x, z), onProblems, parts: partsDraw,
     
     
     
@@ -5670,7 +5700,7 @@ async function fillIn() {
   await villagersDraw.sync(world);
   timing.mark('villagers');
   levelBadges = createLevelBadges({ layer });
-  homesDraw = createHomesDraw({ scene, season: state.season, heightAt, sfx, voice, layer, onProblems, onStage: onHomeStage });
+  homesDraw = createHomesDraw({ scene, season: state.season, heightAt, sfx, voice, layer, onProblems, onStage: onHomeStage, parts: partsDraw });
   await homesDraw.ready;
   
   for (const v of world.villagers) villagerPose(village, world, v, econNow());
@@ -5955,6 +5985,7 @@ function frame(now) {
   animSeconds += dt * state.anim;
   windUniforms.uFmlTime.value = animSeconds; 
   partsDraw.tick({ t: animSeconds, dt: dt * state.anim, wind: windUniforms.uFmlWind.value }); 
+  driveParts(); 
   
   
   if (timeParam === null) state.time = localHour(localNowMs(), tzOffsetMin);
@@ -6499,7 +6530,7 @@ function frame(now) {
   
   
   
-  if (!inside) particles.updateSmoke(dt * state.anim, animSeconds, homesDraw.smokeSources(), { wind: windUniforms.uFmlWind.value });
+  if (!inside) particles.updateSmoke(dt * state.anim, animSeconds, [...homesDraw.smokeSources(), ...pressSmokeSources()], { wind: windUniforms.uFmlWind.value }); 
   
   
   if (!inside) particles.updateEmbers(dt * state.anim, animSeconds, fireSources(), { wind: windUniforms.uFmlWind.value });

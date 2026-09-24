@@ -42,9 +42,11 @@ export function birthdayBunting({ seed = 1, lod = 0, cfg = BIRTHDAY_BUNTING } = 
     emit(mesh, 'wood', rod({ path: [[side * x, 0, z], [side * x + lean * 0.5, h * 0.55, z], [side * x + lean, h, z]], w: 0.06, sides: detail === 0 ? 6 : 4, detail, caps: 'round', scales: [1, 0.85, 0.7] }),
       { matrix: translate(0, 0, 0), color: vc(hex(cfg.post), { groundAO: 0.2 }) });
   }
-  bunting(mesh, translate(0, 0, 0), {
+  
+  
+  mesh.swayPiece({ perMetre: 0.25, hang: true }, (piece) => bunting(piece, translate(0, 0, 0), {
     from: [-x, h - 0.04, z], to: [x, h - 0.04, z], sag: cfg.sag, flags: cfg.flags, flagH: 0.22, detail,
     rng, colors: cfg.colors, stringColor: hex(cfg.string), material: 'petal',
-  });
+  }));
   return mesh;
 }

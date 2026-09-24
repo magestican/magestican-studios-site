@@ -58,7 +58,7 @@ export function wallLantern(mesh, m, { reach = 0.34, detail = 0, rng, ironColor,
   const k = 0.9;
   const at = compose(m, translate(droop, -0.02 - 0.39 * k - 0.05, reach));
   if (detail < 2) emit(mesh, 'metal', sweep({ profile: superellipseProfile(0.008, 0.008, 2, 3, 0), path: [[0, 0, 0], [droop, -0.07, 0]], up: [0, 0, 1], caps: 'none' }), { matrix: compose(m, translate(0, -0.015, reach)), color: vc(ironColor, { groundAO: 0 }) });
-  lanternHead(mesh, at, { k, detail, ironColor, glowColor, capColor, snowColor });
+  mesh.swayPiece({ perMetre: 0.1, hang: true }, (piece) => lanternHead(piece, at, { k, detail, ironColor, glowColor, capColor, snowColor })); 
 }
 
 export const TIER = 'dressing';

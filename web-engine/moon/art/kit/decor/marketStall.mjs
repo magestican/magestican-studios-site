@@ -54,7 +54,8 @@ export function awning(mesh, m, {
     path, up: [0, 1, 0], caps: 'none',
     scales: (t) => (t < 0.5 ? endA : endB),
   });
-  emit(mesh, 'canvas', shape, {
+  
+  mesh.swayPiece({ perMetre: 0.05, hang: true }, (piece) => emit(piece, 'canvas', shape, {
     matrix: m,
     
     
@@ -63,7 +64,7 @@ export function awning(mesh, m, {
       const base = band % 2 === 0 ? cloth : stripe;
       return paintVertex(base, p, n, { groundAO: 0, groundFade: 0.2, underside: 0.55, mottle: 0.04, seed: 41 });
     },
-  });
+  }));
   return { zFront: zFront + overhang, zBack: zBack - overhang * 0.7, top: eave + rise };
 }
 

@@ -54,7 +54,7 @@
 
 
 
-import { MeshData, compose, translate, rotateX, rotateY, rotateZ } from '../mesh/meshData.mjs';
+import { MeshData, compose, translate, rotateX, rotateY, rotateZ, applyPoint, applyDir } from '../mesh/meshData.mjs';
 import { emit, sweep, roundedRectProfile, circleProfile, lathe, roundedBox, taper } from '../mesh/bevel.mjs';
 import { SeededRng } from '../../rng/seededRng.js';
 import { seasonPalette } from '../palette/seasons.mjs';
@@ -277,6 +277,9 @@ export function anchors({ seed = 1, stage = KINDS[0] } = {}) {
 
 
 
+
+export const BELL_SWING = Object.freeze({ kind: 'swing', amp: 0.45, period: 1.6, decay: 5, idle: 0.03 });
+
 function bellTower(mesh, m, { spec, detail, rng, wallC, roofC, trimC, stoneC, ironC, snow }) {
   const { half, halfTop, shaft, belfry, spire, clock } = spec;
   const R = Math.SQRT2;
@@ -320,7 +323,10 @@ function bellTower(mesh, m, { spec, detail, rng, wallC, roofC, trimC, stoneC, ir
       }
     }
     const bell = lathe({ points: [[0.005, 0], [0.15, 0.025], [0.175, 0.12], [0.125, 0.28], [0.05, 0.35], [0.022, 0.37]], sides: detail === 0 ? 8 : 6 });
-    emit(mesh, 'copper', bell, { matrix: compose(m, translate(0, by + belfry * 0.26, 0)), color: vc(hex('#c98a4a'), { groundAO: 0, underside: 0.3 }) });
+    
+    
+    const hung = mesh.part('bell', { pivot: applyPoint(m, [0, by + belfry * 0.26 + 0.37, 0]), axis: applyDir(m, [1, 0, 0]), clip: BELL_SWING });
+    emit(hung, 'copper', bell, { matrix: compose(m, translate(0, by + belfry * 0.26, 0)), color: vc(hex('#c98a4a'), { groundAO: 0, underside: 0.3 }) });
     const yoke = sweep({ profile: roundedRectProfile(0.05, 0.05, 0.015, 0), path: [[-bw * 0.7, by + belfry * 0.78, 0], [bw * 0.7, by + belfry * 0.77, 0]], up: [0, 1, 0], caps: 'round', capSegments: 1, capLength: 0.03 });
     emit(mesh, 'metal', yoke, { matrix: m, color: vc(ironC, { groundAO: 0 }) });
   } else {

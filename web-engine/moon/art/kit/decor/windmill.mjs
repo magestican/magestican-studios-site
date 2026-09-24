@@ -22,12 +22,15 @@
 
 
 
-import { MeshData, IDENTITY, compose, translate, rotateY, rotateZ, rotateX } from '../../../mesh/meshData.mjs';
+import { MeshData, IDENTITY, compose, translate, rotateY, rotateZ, rotateX, applyPoint, applyDir } from '../../../mesh/meshData.mjs';
 import { emit, lathe, sweep, superellipseProfile, roundedRectProfile } from '../../../mesh/bevel.mjs';
 import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
 import { hex, vc, vary, paintVertex } from '../shade.mjs';
 import { rod } from '../rod.mjs';
+
+
+export const SAIL_SPIN = Object.freeze({ kind: 'spin', rate: 0.9, wind: true });
 
 
 export function tower(mesh, m, { radius = 0.42, height = 1.6, capRise = 0.34, detail = 0, rng, wallColor, capColor }) {
@@ -93,6 +96,8 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
 
   
   const n = detail === 0 ? st.sails : Math.max(2, st.sails - 1);
+  
+  const sails = mesh.part('sails', { pivot: applyPoint(hub, [0, 0, 0]), axis: applyDir(hub, [0, 0, 1]), clip: SAIL_SPIN });
   const runt = rng.rangeI(0, n - 1);
   for (let i = 0; i < n; i++) {
     const a = (i / n) * Math.PI * 2 + rng.rangeF(-0.16, 0.16);
@@ -100,13 +105,13 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
     const pitch = rng.rangeF(0.12, 0.26) * (rng.chance(0.5) ? 1 : -1);
     const at = compose(hub, compose(rotateZ(a), rotateY(pitch)));
     
-    emit(mesh, 'wood', rod({
+    emit(sails, 'wood', rod({
       path: [[0.05, 0, 0.02], [len * 0.55, 0, 0.02], [len, 0, 0.02]],
       w: 0.045, h: 0.03, detail: detail === 0 ? 1 : 2, up: [0, 0, 1], caps: ['none', 'round'], capLength: 0.02,
       scales: (t) => 1 - 0.3 * t,
     }), { matrix: at, color: vc(vary(rng, trim, 0.06), { groundAO: 0, underside: 0.45 }) });
     
-    emit(mesh, 'canvas', sweep({
+    emit(sails, 'canvas', sweep({
       profile: roundedRectProfile(len * 0.24, 0.012, 0.01, 0),
       path: [[len * 0.26, 0, -0.012], [len * 0.62, 0, -0.016], [len * 0.97, 0, -0.012]],
       up: [0, 0, 1], caps: 'none',

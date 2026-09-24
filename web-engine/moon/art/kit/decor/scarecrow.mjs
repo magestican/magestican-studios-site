@@ -159,11 +159,12 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
     armEnds.forEach((end, k) => {
       const side = k === 0 ? -1 : 1;
       const cuff = [end[0] + side * 0.05, end[1] - 0.06 - 0.05 * k, end[2] + rng.rangeF(-0.05, 0.05)];
-      emit(mesh, 'cloth', rod({
+      
+      mesh.swayPiece({ perMetre: 0.15, hang: true }, (piece) => emit(piece, 'cloth', rod({
         path: [[side * st.chest * 0.55, shoulderY - 0.02, drift * 0.4], [(end[0] + side * st.chest * 0.5) * 0.5, (end[1] + shoulderY) * 0.5, end[2] * 0.6], cuff],
         w: 0.072 - 0.006 * k, detail: detail === 0 ? 0 : 1, up: [0, 1, 0], caps: ['none', 'round'], capLength: 0.02,
         scales: (t) => 1 - 0.22 * t,
-      }), { matrix: m, color: (p, n) => paintVertex(vary(rng, mixC(cloth, trim, 0.12 * k), 0.04), p, n, { groundAO: 0.1, groundFade: 0.4, underside: 0.45, mottle: 0.08, seed: 37 + k }) });
+      }), { matrix: m, color: (p, n) => paintVertex(vary(rng, mixC(cloth, trim, 0.12 * k), 0.04), p, n, { groundAO: 0.1, groundFade: 0.4, underside: 0.45, mottle: 0.08, seed: 37 + k }) }));
 
       
       const tufts = detail === 0 ? st.tufts[k] : Math.max(1, st.tufts[k] - 1);

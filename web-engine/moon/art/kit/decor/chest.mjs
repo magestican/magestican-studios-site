@@ -28,7 +28,7 @@
 
 
 
-import { MeshData, IDENTITY, compose, scale, translate, rotateX, rotateY } from '../../../mesh/meshData.mjs';
+import { MeshData, IDENTITY, compose, scale, translate, rotateX, rotateY, applyPoint, applyDir } from '../../../mesh/meshData.mjs';
 import { emit, roundedBox, transform } from '../../../mesh/bevel.mjs';
 import { SeededRng } from '../../../../rng/seededRng.js';
 import { seasonPalette } from '../../../palette/seasons.mjs';
@@ -43,6 +43,8 @@ export const STAGES = Object.freeze(['shut', 'open']);
 
 
 export const LID_OPEN_RAD = Math.PI * 0.62;
+
+export const LID_HINGE = Object.freeze({ kind: 'hinge', max: LID_OPEN_RAD, speed: 3 });
 
 const STYLES = [
   
@@ -111,7 +113,11 @@ export function chestBody(mesh, m, {
   
   const hingeZ = -hd - 0.006;
   const lidFrame = compose(m, compose(translate(0, rimY + 0.012, hingeZ), open ? rotateX(-LID_OPEN_RAD) : IDENTITY));
-  const onLid = (shape, color, material = 'plank') => emit(mesh, material, shape, { matrix: lidFrame, color });
+  
+  
+  
+  const lidMesh = open ? mesh : mesh.part('lid', { pivot: applyPoint(m, [0, rimY + 0.012, hingeZ]), axis: applyDir(m, [-1, 0, 0]), clip: LID_HINGE });
+  const onLid = (shape, color, material = 'plank') => emit(lidMesh, material, shape, { matrix: lidFrame, color });
   const lidSpanX = W * 0.99;
 
   onLid(rod({

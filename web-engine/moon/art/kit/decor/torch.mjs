@@ -48,11 +48,12 @@ export function flame(mesh, m, { height = 0.24, radius = 0.075, detail = 0, rng,
   
   
   const ramp = jetRamp(shape.p.map((q) => q[1]));
-  emit(mesh, 'fire', shape, {
+  
+  mesh.swayPiece({ perMetre: 0.2 }, (piece) => emit(piece, 'fire', shape, {
     matrix: m,
     color: (p) => mixC(hot, cool, Math.min(1, Math.max(0, p[1] / Math.max(0.01, height)))),
     ripple: (p, n, uv, tag, i) => -RIPPLE.flame * ramp[i],
-  });
+  }));
 }
 
 export const TIER = 'dressing';

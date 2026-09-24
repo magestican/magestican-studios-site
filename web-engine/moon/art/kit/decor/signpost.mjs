@@ -31,7 +31,7 @@ export function signBoard(mesh, m, { y, bearing, length = 0.62, height = 0.2, th
     path: [[x0, 0, 0], [x1 * 0.62, rng.rangeF(-0.004, 0.004), 0], [x1 * 0.84, 0, 0], [x1, 0, 0]],
     up: [0, 1, 0], caps: 'none', scales: (t, i) => [1, 1, 0.92, 0.12][i],
   });
-  emit(mesh, 'plank', shape, { matrix: at, color: vc(vary(rng, boardColor, 0.05), { groundAO: 0.1, underside: 0.4 }) });
+  mesh.swayPiece({ perMetre: 0.05, hang: true }, (p) => emit(p, 'plank', shape, { matrix: at, color: vc(vary(rng, boardColor, 0.05), { groundAO: 0.1, underside: 0.4 }) })); 
   
   if (detail === 0) {
     const n = rng.rangeI(3, 5);

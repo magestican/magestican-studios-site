@@ -109,7 +109,7 @@ export function generate({ seed = 1, season = 'summer', lod = 0 } = {}) {
   const doorH = st.awning ? 1.85 : 1.8;
   door(mesh, front(st.doorX, base, 0.075), {
     width: 0.98, height: doorH, detail, rng: rng.child('door'), color: hex(st.door), frameColor: trimC,
-    knobColor: hex(st.knob), ironColor: ironC, glassColor: glassC, porthole: st.porthole,
+    knobColor: hex(st.knob), ironColor: ironC, glassColor: glassC, porthole: st.porthole, part: 'door',
   });
 
   const winRng = rng.child('windows');

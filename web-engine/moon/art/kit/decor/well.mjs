@@ -126,7 +126,7 @@ export function well(mesh, m, {
     sides: detail === 0 ? 7 : 5, phase: rng.rangeF(0, 1),
   });
   const bucketAt = compose(m, compose(translate(bx, by, bz), rotateY(rng.rangeF(0, 6))));
-  emit(mesh, 'wood', bucket, { matrix: bucketAt, color: vc(vary(rng, woodColor, 0.08), { groundAO: 0.2, underside: 0.4 }) });
+  mesh.swayPiece({ perMetre: 0.12, hang: true }, (p) => emit(p, 'wood', bucket, { matrix: bucketAt, color: vc(vary(rng, woodColor, 0.08), { groundAO: 0.2, underside: 0.4 }) })); 
   if (!onCoping) {
     emit(mesh, 'cloth', rod({
       path: [[bx, by + 0.2, bz], [bx + hang * 0.04, barrelY - 0.05, bz]], w: 0.018, detail: 1, up: [0, 1, 0], caps: 'none',
