@@ -90,6 +90,12 @@ export const ITEM_OF_GOOD = Object.freeze({
   potato: { kind: 'potato', variant: null },
   
   truffle: { kind: 'truffle', variant: null },
+  
+  
+  
+  moonBerries: { kind: 'berries', variant: null },
+  tombJewel: { kind: 'gem', variant: null },
+  foxCurio: { kind: 'giftBox', variant: null },
 });
 
 

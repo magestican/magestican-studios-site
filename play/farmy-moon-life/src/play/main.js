@@ -64,6 +64,7 @@ import { villagerObject } from '../render/villager.js';
 import { createDaylight } from '../render/daylight.js';
 import { createNightLights } from '../render/nightLights.js';
 import { createParticles } from '../render/particles.js';
+import { createPartsDraw } from './partsDraw.js';
 import { createInsects } from '../render/insects.js';
 import { createBirds } from '../render/birds.js';
 import { createPost } from '../render/post.js';
@@ -90,6 +91,10 @@ import { flicker } from 'moon/light/flicker.mjs';
 const FIRE_FLICKER_SEED = 4.7;
 import { dayLine } from 'moon/play/dayline.mjs';
 import { econStartAt, localHour, localDay } from 'moon/play/localClock.mjs';
+import { GUESTS, rollGuest, forceGuest, dismissGuest, guestKey } from 'moon/play/guests.mjs';
+
+import { startTalk as startGuestTalk, talkNode as guestTalkNode, choose as chooseGuestTalk } from 'moon/play/guestTalk.mjs';
+import { createGuestDraw } from './guestsDraw.js';
 import { scheduleFor } from 'moon/play/activities.mjs';
 import { grantAllowed, grantCoins, grantGoodsUpTo } from 'moon/play/probeGrant.mjs';
 import { createIndoorCurve } from 'moon/play/indoorCurve.mjs';
@@ -426,6 +431,10 @@ const rememberedTier = pinnedTier ? null : readTier(deviceStorage);
 const tier = pinnedTier || rememberedTier || 'high';
 let settings = SETTINGS[tier];
 waterUniforms.uFmlWater.value = waterParam * settings.water;
+
+
+const partsSettings = () => (q.get('parts') === '0' ? { ...settings, parts: 0 } : settings);
+const partsDraw = createPartsDraw({ settings: partsSettings() });
 const fml = (window.__fml = {
   
   
@@ -854,6 +863,9 @@ let forageDraw = null;
 
 
 const wildForageDraws = new Map();
+
+const guestDraw = createGuestDraw({ scene, heightAt: (x, z) => groundNow(x, z) });
+fml.guestDraw = guestDraw.stats;
 let forageProblems = () => {};
 function forageHere() {
   if (onHome()) return null;
@@ -1137,6 +1149,7 @@ fml.moodEvent = (id, kind) => (id === 'player' ? playerMood(kind) : villagerMood
 
 function onTalkLine(mood) {
   if (talkWith && talkWith.type === 'villager' && villagersDraw) villagersDraw.lineMood(talkWith.id, mood, econNow());
+  if (talkWith && talkWith.type === 'guest') guestDraw.lineMood(mood); 
   playerLedger = applyLine(playerLedger, reactTo(mood), moodT());
 }
 
@@ -1211,7 +1224,13 @@ const village = createVillage({ P });
 let villagersDraw = null, levelBadges = null;
 const badgeShown = new Map();      
 const talkingToVillager = () => Boolean(talkWith && talkWith.type === 'villager');
+const talkingToGuest = () => Boolean(talkWith && talkWith.type === 'guest');
 function speakerPoint() {
+  
+  if (talkingToGuest()) {
+    const p = guestDraw.positionOf();
+    if (p) return p;
+  }
   
   
   if (talkingToMole()) {
@@ -1243,6 +1262,7 @@ const cameraFit = () => ({ ...CAMERA, aimHeightM: playerFit(playerHeightNow()).a
 
 
 function talkHeightM() {
+  if (talkingToGuest()) { const g = guestDraw.positionOf(); return g && g.height > 0 ? g.height : playerHeightNow(); }
   if (!talkingToVillager()) return playerHeightNow();
   const p = villagersDraw && villagersDraw.positionOf(talkWith.id);
   return p && p.height > 0 ? p.height : playerHeightNow();
@@ -1281,7 +1301,18 @@ function openTalk(target = { type: 'cat' }) {
   if (!talkCard || talk) return;
   stopPlacing(); 
   if (craftCard) craftCard.hide();
-  if (target.type === 'mole') {
+  if (target.type === 'guest') {
+    
+    
+    
+    const g = world.guest;
+    if (!g || onHome() || !guestDraw.positionOf()) return;
+    closeCard();
+    talk = startGuestTalk({ kind: g.kind, visits: visitsOf(met, guestKey(g.kind)) });
+    if (meet(met, guestKey(g.kind))) touchSave('met');
+    talkWith = { type: 'guest', kind: g.kind };
+    guestDraw.hold({ x: player.x, z: player.z });
+  } else if (target.type === 'mole') {
     if (!mole || !onHome()) return;
     closeCard();
     talk = startMoleTalk({ visits: moleVisits });
@@ -1318,6 +1349,18 @@ function openTalk(target = { type: 'cat' }) {
 function closeTalk() {
   if (!talk) return;
   if (mole) surfaceMole(mole, false);   
+  
+  
+  
+  
+  if (talkingToGuest()) {
+    if (world.guest && world.guest.gave) {
+      dismissGuest(world);
+      fml.guest = null;
+      guestDraw.leave();
+      touchSave('guest');
+    } else guestDraw.release();
+  }
   talk = null;
   talkAt = null;
   talkShown = null;
@@ -1333,7 +1376,8 @@ function onTalkChoice(choice) {
   if (choice.goal) { if (acceptGoal(world, choice.goal)) touchSave('goal'); }
   else if (choice.drop) { if (abandonGoal(world)) touchSave('goal'); }
   const outcome = choice.action && !choice.why ? doAct(choice.action) : undefined;
-  const next = talkingToMole() ? chooseMoleTalk(talk, choice, outcome)
+  const next = talkingToGuest() ? chooseGuestTalk(talk, choice, outcome)
+    : talkingToMole() ? chooseMoleTalk(talk, choice, outcome)
     : talkingToVillager() ? chooseVillagerTalk(talk, choice, outcome)
       : choose(talk, choice, outcome);
   if (next) talk = next; else closeTalk();
@@ -1389,8 +1433,9 @@ function swapBuilding(which, p, promise, key) {
     obj.rotation.y = p.rotY;
     obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
     const old = which === 'shop' ? shopObj : pressObj;
-    if (old) scene.remove(old);
+    if (old) { partsDraw.release(old); scene.remove(old); }
     scene.add(obj);
+    partsDraw.adopt(obj); 
     if (which === 'shop') shopObj = obj; else pressObj = obj;
     buildingTris[which] = obj.userData.triangles || 0;
   }).catch(fail).finally(() => { buildingsLoading -= 1; });
@@ -1666,7 +1711,10 @@ function placesNow() {
   
   if (!onHome()) {
     const here = targetsHere();
+    const g = guestDraw.positionOf();
     return [
+      
+      ...(g && world.guest ? [{ type: 'guest', x: g.x, z: g.z, r: 0.35 }] : []),
       ...findPlaces(),
       ...here.rocks, ...here.forage,
       ...placedTargets(world, radiusOf, { planet: planetId }),
@@ -1736,6 +1784,7 @@ function tapBoxes() {
     return [
       ...findsHere().filter((f) => f.ready)
         .map((f) => ({ type: 'find', id: f.id, x: f.x, z: f.z, rotY: 0, hx: f.r + 0.25, hz: f.r + 0.25, h: 0.7 })),
+      ...(guestDraw.positionOf() && world.guest ? [(({ x, z, height }) => ({ type: 'guest', x, z, rotY: 0, hx: 0.5, hz: 0.5, h: height + 0.3 }))(guestDraw.positionOf())] : []),
       ...here.rocks.map((r) => ({ type: 'rock', id: r.id, x: r.x, z: r.z, rotY: 0, hx: r.r + 0.1, hz: r.r + 0.1, h: 0.4 + r.r })),
       ...here.forage.map((sp) => ({ type: 'forage', id: sp.id, x: sp.x, z: sp.z, rotY: 0, hx: sp.r + 0.15, hz: sp.r + 0.15, h: sp.spot === 'berries' ? 1.1 : 0.5 })),
       ...placedTargets(world, radiusOf, { planet: planetId })
@@ -2641,7 +2690,7 @@ async function buildPlanet(id) {
   
   const area = (planet.radius * planet.radius) / (MOON.ISLAND_RADIUS * MOON.ISLAND_RADIUS);
   const built = await buildMoonScene({
-    scene, state, settings, fml,
+    scene, state, settings: partsSettings(), fml,
     layout: planetLayout,
     season: planet.season,
     coverCount: Math.round(1500 * Math.max(0.25, area) * planet.weather.cover),
@@ -2658,6 +2707,7 @@ async function buildPlanet(id) {
   
   covers.push({ cover: built.cover, effects: built.coverEffects, counted: false });
   built.root.visible = false;
+  partsDraw.adopt(built.root); 
   
   
   
@@ -2974,6 +3024,14 @@ function arriveAt(id) {
   
   
   refreshPlantObstacles();
+  
+  
+  
+  const guestDay = localDay(localNowMs(), tzOffsetMin);
+  const forcedGuest = q.get('shot') === '1' ? q.get('guest') : null;
+  const guest = forcedGuest ? forceGuest(world, forcedGuest, id, guestDay) : rollGuest(world, id, guestDay);
+  fml.guest = guest ? { ...guest, personality: GUESTS[guest.kind].personality } : null;
+  guestDraw.show(guest, at, planet.season).catch((e) => console.warn('guest', e));
   sky.planetId = id;
   
   document.body.classList.toggle('away', !onHome());
@@ -3244,6 +3302,29 @@ let homesDraw = null;
 
 
 
+fml.drawList = () => {
+  camera.updateMatrixWorld();
+  const frustum = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  const out = {};
+  scene.traverseVisible((o) => {
+    if (!(o.isMesh || o.isPoints || o.isLine || o.isSprite)) return;
+    if (o.frustumCulled && o.geometry && !o.isSkinnedMesh && !o.isInstancedMesh) {
+      if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+      if (!frustum.intersectsObject(o)) return;
+    }
+    const names = [];
+    for (let p = o; p && p !== scene; p = p.parent) if (p.name) names.unshift(p.name);
+    const key = names.slice(0, 2).join('/') || '(unnamed)';
+    const n = Array.isArray(o.material) ? o.material.length : 1;
+    out[key] = (out[key] || 0) + n;
+  });
+  return out;
+};
+
+
+
+
+
 fml.g6dHour = (hour) => {
   const t0 = econNow();
   const now = hourAt(world, t0);
@@ -3471,6 +3552,15 @@ if (grantAllowed(q)) {
     if (p) player = { ...player, x: p.x, z: p.z + 1.2 };
     openTalk({ type: 'villager', id });
   };
+  
+  fml.talkToGuest = () => {
+    const p = guestDraw.positionOf();
+    if (p) player = { ...player, x: p.x, z: p.z + 1.2 };
+    openTalk({ type: 'guest' });
+    return Boolean(talk) && talkingToGuest();
+  };
+  
+  fml.guestAgain = () => rollGuest(world, planetId, localDay(localNowMs(), tzOffsetMin));
 }
 
 
@@ -5060,11 +5150,13 @@ async function load() {
   
   
   applyTerrain({ rebuild: false });
-  const built = await buildMoonScene({ scene, state, settings, fml, skipRoles: ['tree', 'shop', 'processor'], skipModules: ['cat'] });
+  const built = await buildMoonScene({ scene, state, settings: partsSettings(), fml, skipRoles: ['tree', 'shop', 'processor'], skipModules: ['cat'] });
   
   
   
   homeScene = built;
+  partsDraw.adopt(built.root); 
+  fml.parts = partsDraw.stats; 
   staticSources = built.sources;
   night = createNightLights({ scene, sources: built.sources.slice(), size: settings.lights, groundHeight: heightAt });
   syncNightLights();
@@ -5412,6 +5504,7 @@ function applyTier(next, why) {
   settings = SETTINGS[next];
   fml.tier = next;
   fml.settings = settings;
+  partsDraw.setSettings(partsSettings()); 
   fml.tierChanges.push({ from, to: next, why, atMs: Math.round(performance.now()) });
 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, settings.pixelRatio));
@@ -5543,6 +5636,7 @@ function frame(now) {
   seconds += raw;
   animSeconds += dt * state.anim;
   windUniforms.uFmlTime.value = animSeconds; 
+  partsDraw.tick({ t: animSeconds, dt: dt * state.anim, wind: windUniforms.uFmlWind.value }); 
   
   
   if (timeParam === null) state.time = localHour(localNowMs(), tzOffsetMin);
@@ -6045,6 +6139,7 @@ function frame(now) {
   homeUses = (world.placed || []).length ? [...TOWN_USES, ...placedSlots(world, usesOf)] : TOWN_USES;
   frameUses = playerUse ? { [playerUse.id]: PLAYER_USE } : {};
   for (const [id, owner] of Object.entries(useHolds)) if (!frameUses[id]) frameUses[id] = owner;
+  guestDraw.update(dt * state.anim, fml.drawCalls); 
   villagersDraw.update(world, t, dt, {
     animDt: dt * state.anim, focus: focusNow, activity: talk && talkingToVillager() ? voice.activity() : 0,
     poseFor: meeting ? assemblyPoseFor : null,
@@ -6132,7 +6227,8 @@ function frame(now) {
     if (Math.hypot(player.x - s.x, player.z - s.z) > talkLeaveM()) closeTalk();
   }
   if (talk) {
-    talkShown = talkingToMole() ? moleTalkNode(talk, { world, t })
+    talkShown = talkingToGuest() ? guestTalkNode(talk, { world, t })
+      : talkingToMole() ? moleTalkNode(talk, { world, t })
       : talkingToVillager() ? villagerTalkNode(talk, { world, t })
         : talkNode(talk, { world, t, land: landNow() });
     talkCard.update(talkShown);
@@ -6148,11 +6244,11 @@ function frame(now) {
   ui.updateSpends(animSeconds, speakerScreen());
   if (catObj) {
     
-    catBob += ((talk && !talkingToVillager() ? voice.activity() : 0) - catBob) * Math.min(1, dt * 20);
+    catBob += ((talk && !talkingToVillager() && !talkingToGuest() ? voice.activity() : 0) - catBob) * Math.min(1, dt * 20);
     catObj.scale.set(1 - 0.03 * catBob, 1 + 0.06 * catBob, 1 - 0.03 * catBob);
     catObj.rotation.z = 0.05 * catBob * Math.sin(seconds * 7);
     
-    const catTalk = !!talk && !talkingToVillager() && !talkingToMole();
+    const catTalk = !!talk && !talkingToVillager() && !talkingToMole() && !talkingToGuest();
     const faceT0 = faceMeter.start();
     const face = restingFace({ personality: PERSONALITIES.bossy, blink: blinkAt(CAT_P.seed || 1, seconds), talking: catTalk, activity: catTalk ? voice.activity() : 0 });
     catObj.traverse((o) => { if (o.isMesh && o.morphTargetInfluences) face.forEach((v, i) => { o.morphTargetInfluences[i] = v; }); });

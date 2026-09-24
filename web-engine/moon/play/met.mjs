@@ -37,6 +37,8 @@ export const MET_MOLE = 'mole';
 
 export const villagerKey = (id) => `villager:${id}`;
 
+export { guestKey } from './guests.mjs';
+
 const ok = (k) => typeof k === 'string' && k.length > 0 && k.length <= 40;
 
 

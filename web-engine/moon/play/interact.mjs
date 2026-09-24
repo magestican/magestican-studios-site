@@ -76,7 +76,7 @@ import { marchRay, CURVE_K } from '../world/curve.mjs';
 import { spotAhead, whyNotPlantHere, PLANTING } from './planting.mjs';
 import { pressSummary, processorOf } from './processing.mjs';
 import { listOf, nameOf } from './names.mjs';
-import { CAT_NAME, MOLE_NAME, villagerName } from './people.mjs';
+import { CAT_NAME, GUEST_NAMES, MOLE_NAME, villagerName } from './people.mjs';
 import { toolFor } from './tools.mjs';
 import { craftedName } from '../economy/crafting.mjs';
 import { STORES, TOWN_HALL, noticeBoard, storeOpen } from '../economy/town.mjs';
@@ -251,6 +251,7 @@ function promptOf(target, { world, t, trees, seedKind = null, obstacles = [], ow
   if (target.type === 'processor') return pressPrompt(out, world, t);
   if (target.type === 'cat') return catPrompt(out, world, t);
   if (target.type === 'mole') return molePrompt(out);
+  if (target.type === 'guest') return guestPrompt(out, world);
   if (target.type === 'villager') return villagerPrompt(out, world, target);
   if (target.type === 'rock') return rockPrompt(out, world, t, target, tool);
   if (target.type === 'forage') return foragePrompt(out, world, t, target, tool);
@@ -642,6 +643,16 @@ function molePrompt(out) {
   out.verb = 'talk';
   out.open = 'talk';
   out.label = `Talk to ${MOLE_NAME}`;
+  return out;
+}
+
+
+
+function guestPrompt(out, world) {
+  const kind = world.guest && world.guest.kind;
+  out.verb = 'talk';
+  out.open = 'talk';
+  out.label = GUEST_NAMES[kind] ? `Talk to ${GUEST_NAMES[kind]}` : 'Talk';
   return out;
 }
 

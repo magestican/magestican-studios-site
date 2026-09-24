@@ -74,12 +74,53 @@ export const MATERIALS = Object.freeze([
 
 export const NO_SHADOW_MATERIALS = Object.freeze(['glass', 'lamp-glow', 'fire', 'water']);
 
+
+export const PART_CLIP_KINDS = Object.freeze(['spin', 'swing', 'hinge', 'flicker']);
+
 export class MeshData {
   constructor(name) {
     this.name = name;
     this.groups = new Map();
     this.rig = null;
     this.morphs = {};
+    
+    this.movingParts = [];
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  part(name, { pivot, axis = [0, 1, 0], clip = null } = {}) {
+    if (typeof name !== 'string' || !name) throw new Error(`${this.name}: a part needs a name`);
+    if (this.movingParts.some((p) => p.name === name)) throw new Error(`${this.name}: part '${name}' already exists`);
+    if (!Array.isArray(pivot) || pivot.length !== 3) throw new Error(`${this.name}: part '${name}' needs a pivot [x, y, z]`);
+    const len = Math.hypot(axis[0], axis[1], axis[2]);
+    const mesh = new MeshData(`${this.name}:${name}`);
+    this.movingParts.push({ name, pivot: [...pivot], axis: len > 0 ? axis.map((v) => v / len) : [...axis], clip, mesh });
+    return mesh;
+  }
+
+  
+  
+  bakeParts() {
+    const out = new MeshData(this.name);
+    out.append(this);
+    for (const p of this.movingParts) out.append(p.mesh);
+    out.movingParts = [];
+    out.rig = this.rig;
+    out.morphs = this.morphs;
+    return out;
   }
 
   group(material) {
@@ -195,6 +236,21 @@ export class MeshData {
         for (const v of src[key]) out.push(v);
       }
     }
+    
+    for (const p of other.movingParts || []) {
+      const [x, y, z] = p.pivot;
+      const ax = m[0] * p.axis[0] + m[1] * p.axis[1] + m[2] * p.axis[2];
+      const ay = m[4] * p.axis[0] + m[5] * p.axis[1] + m[6] * p.axis[2];
+      const az = m[8] * p.axis[0] + m[9] * p.axis[1] + m[10] * p.axis[2];
+      const len = Math.hypot(ax, ay, az) || 1;
+      this.movingParts.push({
+        name: p.name,
+        pivot: [m[0] * x + m[1] * y + m[2] * z + m[3], m[4] * x + m[5] * y + m[6] * z + m[7], m[8] * x + m[9] * y + m[10] * z + m[11]],
+        axis: [ax / len, ay / len, az / len],
+        clip: p.clip,
+        mesh: new MeshData(p.mesh.name).append(p.mesh, m),
+      });
+    }
     return this;
   }
 
@@ -228,6 +284,7 @@ export class MeshData {
   get triangleCount() {
     let t = 0;
     for (const g of this.groups.values()) t += g.indices.length / 3;
+    for (const p of this.movingParts) t += p.mesh.triangleCount;
     return t;
   }
 
@@ -248,6 +305,10 @@ export class MeshData {
           if (v > max[k]) max[k] = v;
         }
       }
+    }
+    for (const p of this.movingParts) {
+      const b = p.mesh.bounds();
+      for (let k = 0; k < 3; k++) { if (b.min[k] < min[k]) min[k] = b.min[k]; if (b.max[k] > max[k]) max[k] = b.max[k]; }
     }
     return { min, max };
   }
@@ -295,6 +356,17 @@ export class MeshData {
         if (!Number.isInteger(i) || i < 0 || i >= vcount) problems.push(`morph '${name}': index ${i} out of range for '${m.group}' (${vcount} vertices)`);
         else if (!d.every(Number.isFinite)) problems.push(`morph '${name}': non-finite delta at vertex ${i}`);
       }
+    }
+    
+    if (this.movingParts.length && this.rig) problems.push(`${this.name}: moving parts on a rigged mesh (a rig moves by bones)`);
+    for (const p of this.movingParts) {
+      const where = `${this.name} part '${p.name}'`;
+      if (!p.pivot.every(Number.isFinite)) problems.push(`${where}: non-finite pivot`);
+      if (Math.abs(Math.hypot(...p.axis) - 1) > 1e-6) problems.push(`${where}: axis is not a direction`);
+      if (p.clip && !PART_CLIP_KINDS.includes(p.clip.kind)) problems.push(`${where}: unknown clip '${p.clip.kind}'`);
+      if (p.mesh.movingParts.length) problems.push(`${where}: a part may not have parts`);
+      if (p.mesh.groups.size === 0) problems.push(`${where}: empty`);
+      problems.push(...p.mesh.validate());
     }
     return problems;
   }
@@ -354,6 +426,15 @@ export class MeshData {
         for (const [i, [dr, dg, db]] of m.color) { colorDeltas[i * 3] = dr; colorDeltas[i * 3 + 1] = dg; colorDeltas[i * 3 + 2] = db; }
         return [name, { group: m.group, deltas, colorDeltas }];
       })),
+      
+      
+      
+      ...(this.movingParts.length ? {
+        movingParts: this.movingParts.map((p) => {
+          const local = new MeshData(p.mesh.name).append(p.mesh, translate(-p.pivot[0], -p.pivot[1], -p.pivot[2])).toArrays();
+          return { name: p.name, pivot: [...p.pivot], axis: [...p.axis], clip: p.clip, triangles: local.triangles, groups: local.groups };
+        }),
+      } : {}),
     };
   }
 }

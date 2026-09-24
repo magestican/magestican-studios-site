@@ -28,9 +28,10 @@
 
 
 
-import { BUILDINGS, FINDS, FORAGE, GIFTS, GOODS, LAND, RECIPES, ROCKS, STAPLES, START, STUMP, TREES, UNDERGROUND, WATER } from './tables.mjs';
+
+import { BUILDINGS, FINDS, FORAGE, GIFTS, GOODS, GUEST_GIFTS, LAND, RECIPES, ROCKS, STAPLES, START, STUMP, TREES, UNDERGROUND, WATER } from './tables.mjs';
 import { MS, chance, draw, pickWeighted } from './math.mjs';
-import { isRipe, plantedAtFor, ripeAt, stageAt, stageEdges, waterReason, waterTree } from './trees.mjs';
+import { isRipe, plantedAtFor, ripeAt, stageAt, stageEndAt, stageEdges, waterReason, waterTree } from './trees.mjs';
 import { buildingSlots, freeParcelId, nextParcelPrice, ownedTreeCount, ownsParcel, treeSlots, usedBuildingSlots } from './land.mjs';
 import { putOnShelves, runCustomers, sellable, shelfRoom } from './shop.mjs';
 import { applyGift, giftBasePoints } from './happiness.mjs';
@@ -47,6 +48,33 @@ const isCount = (n) => Number.isInteger(n) && n >= 1;
 const cap = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 const listOfGood = (good) => good.replace(/([A-Z])/g, (m) => ` ${m.toLowerCase()}`);
 const shutReason = (counter) => `${cap(counter.label)} is shut - it opens at ${counter.openHour} and closes at ${counter.closeHour}.`;
+
+
+
+
+
+
+
+
+function grantWish(world, wish, t, dry = false) {
+  let moved = 0;
+  for (const tree of world.trees) {
+    if (planetOf(tree) !== HOME_PLANET) continue;
+    const stage = stageAt(tree, t);
+    if (stage === 'stump') continue;
+    if (wish === 'ripen' && stage === 'fruiting' && !isRipe(tree, t)) {
+      if (dry) { moved += 1; continue; }
+      const had = tree.wateredCrop === tree.crops ? tree.ripenShift_ms || 0 : 0;
+      tree.ripenShift_ms = had + (ripeAt(tree) - t);
+      tree.wateredCrop = tree.crops;
+      moved += 1;
+    } else if (wish === 'growth' && stage !== 'fruiting') {
+      if (!dry) tree.waterShift_ms = (tree.waterShift_ms || 0) + (stageEndAt(tree, t) - t);
+      moved += 1;
+    }
+  }
+  return moved;
+}
 
 function give(world, good, n) {
   if (n > 0) world.pockets[good] = held(world, good) + n;
@@ -116,6 +144,11 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     
     
     luck: null,
+    
+    
+    
+    guestDay: null,
+    guest: null,
     
     
     
@@ -779,6 +812,47 @@ const RULES = {
       if (coins > 0) spend(world, coins, false);
       give(world, a.good, a.count);
       events.push({ type: 'buyUnderground', at: t, good: a.good, count: a.count, coins });
+    },
+  },
+
+  
+  
+  
+  
+  
+  
+  guestGift: {
+    check(world, a, t) {
+      const g = world.guest;
+      const spec = GUEST_GIFTS[a.kind];
+      if (!spec || !g || g.kind !== a.kind) return 'There is nobody like that here.';
+      if (g.gave) return 'You have had your gift today.';
+      if (spec.wishes && !spec.wishes.includes(a.wish)) return 'That is not a wish she can grant.';
+      if (spec.wishes && grantWish(world, a.wish, t, true) === 0) {
+        return a.wish === 'ripen' ? 'Every fruiting tree at home is ripe already.' : 'Nothing at home is young enough to grow.';
+      }
+      for (const [good, n] of Object.entries(spec.price || {})) {
+        if (held(world, good) < n) return `That costs ${n === 1 ? 'one' : n} ${listOfGood(good)}${n === 1 ? '' : 's'}, and you have ${held(world, good) ? 'too few' : 'none'}.`;
+      }
+      return null;
+    },
+    apply(world, a, t, events) {
+      const spec = GUEST_GIFTS[a.kind];
+      const g = world.guest;
+      const event = { type: 'guestGift', at: t, kind: a.kind, good: null, count: 0, paid: null, wish: null, trees: 0 };
+      for (const [good, n] of Object.entries(spec.price || {})) take(world, good, n);
+      if (spec.price) event.paid = { ...spec.price };
+      if (spec.wishes) {
+        event.wish = a.wish;
+        event.trees = grantWish(world, a.wish, t);
+      } else {
+        const [lo, hi] = spec.count;
+        event.good = spec.good;
+        event.count = lo + (draw(world.seed, 'guestGift', a.kind, g.day, g.planet) % (hi - lo + 1));
+        give(world, spec.good, event.count);
+      }
+      g.gave = true;
+      events.push(event);
     },
   },
 

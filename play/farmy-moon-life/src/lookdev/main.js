@@ -248,7 +248,7 @@ function poseClip(pc, phase) {
 
 
 function assetSpecs(mod) {
-  if (faceLineup) return Object.keys(EXPRESSIONS).map((expression) => ({ seed: state.seed, expression }));
+  if (faceLineup) return Object.keys(EXPRESSIONS).map((expression) => ({ seed: state.seed, expression, ...(state.asset === 'guest' ? { kind: state.kind } : {}) }));
   if (isHomes) return mod.SPECIES.flatMap((species, row) => mod.STAGES.map((stage) => ({ seed: state.seed, species, stage, row })));
   const isItem = state.asset === 'item';
   
@@ -265,8 +265,16 @@ function assetSpecs(mod) {
     const all = [...Object.values(ITEM_OF_GOOD), { kind: 'coin' }, { kind: 'giftBox' }];
     return all.map((it, i) => ({ seed: state.seed, kind: it.kind, variant: it.variant ?? undefined, row: Math.floor(i / Math.ceil(all.length / 3)) }));
   }
+  
+  
+  if (state.asset === 'guest') {
+    const one = mod.GUEST_BODY_KINDS.includes(state.kind) ? state.kind : 'fox';
+    const kinds = state.view === 'lineup' && state.expression !== 'all' ? mod.GUEST_BODY_KINDS : [one];
+    if (state.view === 'walk') return [0, 0.125, 0.25, 0.375, 0.5].map((phase) => ({ seed: state.seed, phase, kind: one }));
+    return kinds.map((kind) => ({ seed: state.seed, kind }));
+  }
   if (state.view === 'walk') return [0, 0.125, 0.25, 0.375, 0.5].map((phase) => ({ seed: state.seed, phase }));
-  const seeds = state.view === 'lineup' ? [state.seed, state.seed + 1, state.seed + 2] : [state.seed];
+  const seeds =state.view === 'lineup' ? [state.seed, state.seed + 1, state.seed + 2] : [state.seed];
   if (isDecor) return seeds.map((seed) => ({ seed, kind: state.kind || 'fountain', variant: state.variant || undefined }));
   return seeds.map((seed) => (isItem ? { seed, kind: state.kind, variant: state.variant || (VARIANTS[state.kind] || [])[0] || undefined } : { seed }));
 }

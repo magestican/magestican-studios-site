@@ -29,8 +29,13 @@ import { MORPH_NAMES } from 'moon/rig/face.mjs';
 
 const POSE_MARGIN = 0.35;
 
-export async function toObject3D(meshData, { materials = {}, castShadow = true, receiveShadow = true } = {}) {
-  const arrays = meshData.toArrays();
+
+
+
+
+export async function toObject3D(meshData, { materials = {}, castShadow = true, receiveShadow = true, parts = true } = {}) {
+  const baked = !parts && meshData.movingParts && meshData.movingParts.length;
+  const arrays = (baked ? meshData.bakeParts() : meshData).toArrays();
   const group = new THREE.Group();
   group.name = arrays.name;
   const rig = meshData.rig && arrays.groups.length && arrays.groups.every((g) => g.skinIndex && g.skinWeight) ? buildRig(meshData.rig) : null;
@@ -103,6 +108,17 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
     mesh.receiveShadow = receiveShadow;
     group.add(mesh);
   }
+  
+  
+  const partObjects = [];
+  for (const p of arrays.movingParts || []) {
+    const child = await toObject3D({ name: `${arrays.name}:${p.name}`, rig: null, toArrays: () => ({ name: `${arrays.name}:${p.name}`, triangles: p.triangles, groups: p.groups, morphs: {} }) }, { materials, castShadow, receiveShadow });
+    child.position.set(p.pivot[0], p.pivot[1], p.pivot[2]);
+    child.userData.part = { name: p.name, axis: p.axis, clip: p.clip };
+    group.add(child);
+    partObjects.push(child);
+  }
+  group.userData.parts = partObjects;
   group.userData.triangles = arrays.triangles;
   return group;
 }

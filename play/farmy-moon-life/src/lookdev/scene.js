@@ -59,6 +59,7 @@ const ART = Object.freeze({
   peachTree: () => import('moon/art/peachTree.mjs'),
   pine: () => import('moon/art/pine.mjs'),
   player: () => import('moon/art/player.mjs'),
+  guest: () => import('moon/art/guest.mjs'), 
   processor: () => import('moon/art/processor.mjs'),
   rock: () => import('moon/art/rock.mjs'),
   shop: () => import('moon/art/shop.mjs'),
@@ -190,7 +191,9 @@ export async function buildMoonScene({
   const root = new THREE.Group();
   root.name = name;
   if (props.triangleCount) {
-    const obj = await toObject3D(props);
+    
+    
+    const obj = await toObject3D(props, { parts: !settings || settings.parts !== 0 });
     obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
     root.add(obj);
   }

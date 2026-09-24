@@ -92,7 +92,12 @@ export { BUILDS };
 
 
 
-export const VILLAGER_VERSION = 10;
+
+
+
+
+
+export const VILLAGER_VERSION = 12;
 
 export const TIER = 'heroCharacter';
 
@@ -273,6 +278,12 @@ function assemble(species, { seed, season, lod, L, budget, role = 'villager', bu
     ...(build ? { build } : {}),
   };
   return md;
+}
+
+
+
+export function assembleFigure(species, opts, fig) {
+  return assemble(species, opts, fig);
 }
 
 

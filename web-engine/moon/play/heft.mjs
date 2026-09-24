@@ -37,6 +37,10 @@ export const HEFT_OF_GOOD = Object.freeze({
   moonRock: 0.75, 
   stone: 1, 
   wood: 0.8,
+  
+  moonBerries: 0.12,
+  tombJewel: 0.1,
+  foxCurio: 0.35,
 });
 
 

@@ -81,6 +81,9 @@ export const GUEST_MAY_NOT = Object.freeze([
   
   
   'buyUnderground',
+  
+  
+  'guestGift',
 ]);
 
 const MAY = new Set(GUEST_MAY);

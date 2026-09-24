@@ -68,6 +68,9 @@ const ATTRIBUTES = Object.freeze([
 
 
 export function toPayload(meshData) {
+  
+  
+  if (meshData.movingParts && meshData.movingParts.length) throw new Error(`${meshData.name}: payload v${PAYLOAD_VERSION} does not carry moving parts`);
   const arrays = meshData.toArrays();
   return {
     v: PAYLOAD_VERSION,

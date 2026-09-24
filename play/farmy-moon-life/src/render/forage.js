@@ -23,6 +23,20 @@ export function forageMeshData(type, { seed = 1, season = 'summer', stage = 'rea
   return generate({ type, seed, season, stage, lod });
 }
 
+
+
+const meshes = new Map();
+export function forageMeshCached(type, opts = {}) {
+  const key = forageKey(type, opts);
+  if (!meshes.has(key)) {
+    const data = forageMeshData(type, opts);
+    const problems = data.validate();
+    if (problems.length) throw new Error(`forage ${key}: ${problems.join('; ')}`);
+    meshes.set(key, data);
+  }
+  return meshes.get(key);
+}
+
 export async function forageObject(type, { seed = 1, season = 'summer', stage = 'ready', lod = 0 } = {}) {
   const key = forageKey(type, { seed, season, stage, lod });
   if (!built.has(key)) {

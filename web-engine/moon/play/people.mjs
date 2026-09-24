@@ -26,6 +26,9 @@ export const CAT_NAME = 'Felice';
 export const MOLE_NAME = 'Cosimo';
 
 
+export const GUEST_NAMES = Object.freeze({ fairy: 'Stellina', mummy: 'Amenofi', werewolf: 'Ugo', fox: 'Rinaldo' });
+
+
 
 export const PLAYER_BUILDS = Object.freeze(['female', 'male']);
 export const PLAYER_NAMES = Object.freeze({ female: 'Aurora', male: 'Luca' });

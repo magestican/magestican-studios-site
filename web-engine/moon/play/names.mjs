@@ -27,6 +27,10 @@ const TABLE = Object.freeze({
   potato: ['potatoes', 'a potato', 'potatoes'],
   
   truffle: ['truffles', 'a truffle', 'truffles'],
+  
+  moonBerries: ['moon berries', 'a handful of moon berries', 'handfuls of moon berries'],
+  tombJewel: ['tomb jewels', 'a tomb jewel', 'tomb jewels'],
+  foxCurio: ['curios', 'a curio', 'curios'],
 });
 
 const words = (good) => good.replace(/([A-Z])/g, ' $1').toLowerCase();

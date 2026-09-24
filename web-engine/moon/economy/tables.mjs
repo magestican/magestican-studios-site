@@ -137,6 +137,33 @@ export const GOODS = Object.freeze({
   berries: { kind: 'food', sell_coins: 4, demand: 2, gift_points: 2 },
   carrot: { kind: 'food', sell_coins: 5, demand: 2, gift_points: 2 },
   potato: { kind: 'food', sell_coins: 5, demand: 2, gift_points: 2 },
+
+  
+  
+  
+  
+  
+  
+  
+  
+  moonBerries: { kind: 'rare', sell_coins: 60, demand: 1, gift_points: 12 },
+  tombJewel: { kind: 'rare', sell_coins: 0, demand: 0, gift_points: 35 },
+  foxCurio: { kind: 'rare', sell_coins: 0, demand: 0, gift_points: 20 },
+});
+
+
+
+
+
+
+
+
+
+export const GUEST_GIFTS = Object.freeze({
+  fairy: Object.freeze({ wishes: Object.freeze(['ripen', 'growth']) }),
+  mummy: Object.freeze({ good: 'tombJewel', count: Object.freeze([1, 1]) }),
+  werewolf: Object.freeze({ good: 'moonBerries', count: Object.freeze([2, 3]) }),
+  fox: Object.freeze({ good: 'foxCurio', count: Object.freeze([1, 1]), price: Object.freeze({ apple: 1 }) }),
 });
 
 

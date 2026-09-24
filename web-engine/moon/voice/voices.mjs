@@ -135,6 +135,44 @@ export const VOICES = Object.freeze({
     wave: 'triangle', onset: { kind: 'noise', dur: 0.035, gain: 0.26, band: 520 }, vibrato: null, gain: 0.95,
   }),
   
+  
+  
+  fairy: voice({
+    id: 'fairy', label: 'fairy',
+    f0: 330, f0Seed: 11, declination: 0.95, questionRise: 1.3, exclaimLift: 1.08,
+    lilt: 0.07, glide: 0.03, formant: 1.2,
+    sylDur: [0.07, 0.105], sylGap: [0.014, 0.03], commaPause: 0.15, stopPause: 0.26,
+    stressGain: 1.08, stressDur: 1.14, wobble: 0.03, maxSPerChar: 0.058,
+    wave: 'triangle', onset: { kind: 'noise', dur: 0.04, gain: 0.2, band: 3000 }, vibrato: { rateHz: 6.5, depth: 0.025 }, gain: 0.9,
+  }),
+  
+  mummy: voice({
+    id: 'mummy', label: 'mummy',
+    f0: 150, f0Seed: 5, declination: 0.87, questionRise: 1.14, exclaimLift: 1.04,
+    lilt: 0.02, glide: -0.05, formant: 0.88,
+    sylDur: [0.07, 0.1], sylGap: [0.016, 0.032], commaPause: 0.15, stopPause: 0.3,
+    stressGain: 1.16, stressDur: 1.12, wobble: 0.05, maxSPerChar: 0.062,
+    wave: 'sawtooth', onset: { kind: 'noise', dur: 0.035, gain: 0.24, band: 900 }, vibrato: null, gain: 0.85,
+  }),
+  
+  werewolf: voice({
+    id: 'werewolf', label: 'werewolf',
+    f0: 132, f0Seed: 6, declination: 0.93, questionRise: 1.2, exclaimLift: 1.05,
+    lilt: 0.04, glide: 0.01, formant: 0.8,
+    sylDur: [0.085, 0.12], sylGap: [0.016, 0.034], commaPause: 0.16, stopPause: 0.28,
+    stressGain: 1.1, stressDur: 1.16, wobble: 0.03, maxSPerChar: 0.066,
+    wave: 'triangle', onset: { kind: 'purr', dur: 0.035, gain: 0.22, band: 420, rateHz: 12 }, vibrato: null, gain: 1,
+  }),
+  
+  fox: voice({
+    id: 'fox', label: 'fox',
+    f0: 276, f0Seed: 13, declination: 0.95, questionRise: 1.34, exclaimLift: 1.1,
+    lilt: 0.07, glide: 0.03, formant: 1.12,
+    sylDur: [0.05, 0.075], sylGap: [0.008, 0.02], commaPause: 0.11, stopPause: 0.2,
+    stressGain: 1.2, stressDur: 1.1, wobble: 0.035, maxSPerChar: 0.046,
+    wave: 'sawtooth', onset: { kind: 'click', dur: 0.012, gain: 0.25, band: 2600 }, vibrato: null, gain: 0.85,
+  }),
+  
   chicken: voice({
     id: 'chicken', label: 'chicken',
     f0: 430, f0Seed: 14, declination: 0.94, questionRise: 1.32, exclaimLift: 1.1,
