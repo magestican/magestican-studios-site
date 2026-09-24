@@ -107,12 +107,11 @@ export const FOOTPRINTS = Object.freeze({
   
   
   
-  
-  crystalCluster: Object.freeze({ shape: 'circle', radiusM: 0.69, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.0]), scaled: true }),
-  iceSpike: Object.freeze({ shape: 'circle', radiusM: 0.66, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.0]), scaled: true }),
-  cactus: Object.freeze({ shape: 'circle', radiusM: 0.27, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 0.5]), scaled: true }),
-  deadTree: Object.freeze({ shape: 'circle', radiusM: 0.27, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.0]), scaled: true }),
-  giantMushroom: Object.freeze({ shape: 'circle', radiusM: 0.22, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.0]), scaled: true }),
+  crystalCluster: Object.freeze({ shape: 'circle', radiusM: 0.69, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.0]) }),
+  iceSpike: Object.freeze({ shape: 'circle', radiusM: 0.66, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.0]) }),
+  cactus: Object.freeze({ shape: 'circle', radiusM: 0.27, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 0.5]) }),
+  deadTree: Object.freeze({ shape: 'circle', radiusM: 0.27, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.0]) }),
+  giantMushroom: Object.freeze({ shape: 'circle', radiusM: 0.22, offsetXM: 0, offsetZM: 0, bandM: Object.freeze([0.0, 1.0]) }),
   
   
   

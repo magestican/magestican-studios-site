@@ -61,7 +61,6 @@ import { WORK_DAY_MS } from '../economy/clock.mjs';
 import { PLAZA } from '../world/moonLayout.mjs';
 import { seedOf } from '../voice/mumble.mjs';
 import { ITALIAN_NAMES, villagerName } from './people.mjs';
-import { inviteNewcomer } from './newcomers.mjs';
 import { ownsHome } from './playerHome.mjs';
 import { personalityOf } from './personality.mjs';
 
@@ -447,10 +446,6 @@ export function settleWorks(world, t) {
     const span = Math.max(1, num(w.days)) * WORK_DAY_MS;
     if (now - num(w.startedAt) < span) continue;
     w.doneAt = now;
-    
-    
-    
-    if (w.kind === 'villager') w.invited = Boolean(inviteNewcomer(world, now, w.name));
     out.push({ ...w });
   }
   return out;

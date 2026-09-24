@@ -76,7 +76,6 @@ export const foodPayment = (world, n) => payment(world, 'food', n);
 
 export function craftPlan(world, item, count = 1) {
   if (!isCraftable(item)) return { why: `There is no '${item}' to make.` };
-  if (CRAFTABLES[item].giftOnly) return { why: 'Only a friend can give you this.' }; 
   if (!Number.isInteger(count) || count < 1) return { why: 'Make at least one.' };
   const cost = costOf(item);
   const goods = [];

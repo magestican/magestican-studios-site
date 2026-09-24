@@ -70,10 +70,9 @@
 import { WORLD_VERSION } from './world.mjs';
 import { faceHousesFront } from './houseFacing.mjs';
 import { pathsOf, withSpurs } from '../world/mayor.mjs';
-import { standingOf } from './town.mjs';
 
 export const SAVE_FORMAT = 'fml.save';
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 4;
 
 
 export const LAYOUT_BEFORE_STAMP = 1;
@@ -213,25 +212,6 @@ export const MIGRATIONS = Object.freeze([
       return { ...doc, version: 4, world: { ...doc.world, paths: withSpurs(pathsOf(doc.world), homes) } };
     },
   }),
-  Object.freeze({
-    from: 4,
-    to: 5,
-    note: 'the town standing an old moon already reached counts as answered (L6 world.newcomers)',
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    up: (doc) => {
-      if (!isObj(doc.world) || isObj(doc.world.newcomers)) return { ...doc, version: 5 };
-      const points = isObj(doc.world.town) && Number.isFinite(doc.world.town.points) ? doc.world.town.points : 0;
-      return { ...doc, version: 5, world: { ...doc.world, newcomers: { seen: standingOf(points).level, due: [] } } };
-    },
-  }),
 ]);
 
 
@@ -365,7 +345,7 @@ const WORLD_LISTS = ['trees', 'rocks', 'forage', 'buildings', 'villagers', 'plac
 
 
 
-const WORLD_MAPS = ['pockets', 'made', 'shop', 'stats', 'town', 'deeds', 'goals', 'assembly', 'terrain', 'favours', 'newcomers'];
+const WORLD_MAPS = ['pockets', 'made', 'shop', 'stats', 'town', 'deeds', 'goals', 'assembly', 'terrain'];
 const ID_LISTS = ['trees', 'rocks', 'buildings', 'villagers', 'placed'];
 
 
