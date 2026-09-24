@@ -22,13 +22,15 @@ export function createPartsDraw({ settings } = {}) {
   let ticked = 0;
   let enabled = !settings || settings.parts !== 0;
 
-  function adopt(root) {
+  
+  
+  function adopt(root, owner = null) {
     if (!root) return 0;
     let n = 0;
     root.traverse((o) => {
       const p = o.userData && o.userData.part;
       if (!p || live.some((e) => e.obj === o)) return;
-      live.push({ obj: o, root, name: p.name, clip: p.clip, axis: new THREE.Vector3(p.axis[0], p.axis[1], p.axis[2]), state: REST, open: 0, rungAt: null });
+      live.push({ obj: o, root, owner, name: p.name, clip: p.clip, axis: new THREE.Vector3(p.axis[0], p.axis[1], p.axis[2]), state: REST, open: 0, rungAt: null });
       n += 1;
     });
     return n;
@@ -60,12 +62,14 @@ export function createPartsDraw({ settings } = {}) {
   
   
   
-  function near(name, x, z, r) {
+  
+  
+  function near(name, x, z, r, may = null) {
     let opened = 0;
     for (const e of live) {
       if (e.name !== name) continue;
       if (!e.at) e.at = e.obj.getWorldPosition(new THREE.Vector3());
-      e.open = Math.hypot(e.at.x - x, e.at.z - z) <= r ? 1 : 0;
+      e.open = Math.hypot(e.at.x - x, e.at.z - z) <= r && (!may || may(e.owner)) ? 1 : 0;
       opened += e.open;
     }
     return opened;
@@ -75,7 +79,7 @@ export function createPartsDraw({ settings } = {}) {
   function where(name) {
     return live.filter((e) => e.name === name).map((e) => {
       const p = e.obj.getWorldPosition(new THREE.Vector3());
-      return { x: Math.round(p.x * 100) / 100, z: Math.round(p.z * 100) / 100 };
+      return { x: Math.round(p.x * 100) / 100, z: Math.round(p.z * 100) / 100, angle: Math.round(e.state.angle * 1000) / 1000, villager: e.owner ? e.owner.villager : null };
     });
   }
 

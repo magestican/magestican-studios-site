@@ -56,7 +56,7 @@ export async function villagerHomeObject(species, { seed = 1, season = 'summer',
       const data = home.generate({ seed, season, lod, species, stage, progress: stage === 'building' ? stepProgress(stage, progress) : undefined });
       const problems = data.validate();
       if (problems.length) throw new Error(`villager home ${key}: ${problems.join('; ')}`);
-      const obj = await toObject3D(data);
+      const obj = await toObject3D(data, { shadowProxy: true });
       obj.name = `villagerHome:${key}`;
       Object.assign(obj.userData, { home: { species, stage, key, anchors: home.anchors({ seed, species, stage }) }, triangles: data.triangleCount });
       return obj;

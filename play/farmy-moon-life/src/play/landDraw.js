@@ -153,7 +153,7 @@ export function createLandDraw({ scene, season = 'summer', obstacles = [], onPro
       const p = signPlacement(id);
       data.append(signData(p.seed, lodFor(p)), compose(translate(p.x, p.y, p.z), rotateY(p.rotY)));
     }
-    const obj = data.triangleCount ? await toObject3D(data) : new THREE.Group();
+    const obj = data.triangleCount ? await toObject3D(data, { shadowProxy: true }) : new THREE.Group();
     obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
     if (signsObj) { root.remove(signsObj); disposeTree(signsObj); }
     signsObj = obj;

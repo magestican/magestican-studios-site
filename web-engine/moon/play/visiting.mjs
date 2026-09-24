@@ -77,6 +77,9 @@ export const GUEST_MAY_NOT = Object.freeze([
   'buyFrom', 'sellTo', 'fillRequest',
   
   
+  'acceptFavour', 'completeFavour',
+  
+  
   
   'tossCoin',
   

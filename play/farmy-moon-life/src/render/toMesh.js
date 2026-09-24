@@ -20,7 +20,7 @@
 
 
 import * as THREE from 'three';
-import { cozyMaterial, curveUniforms } from './material.js';
+import { cozyMaterial, curveUniforms, bentDepthMaterial } from './material.js';
 import { cullPad } from 'moon/world/curve.mjs';
 import { NO_SHADOW_MATERIALS } from 'moon/mesh/meshData.mjs';
 import { boneAxes } from 'moon/rig/skeleton.mjs';
@@ -36,7 +36,51 @@ export const PARTS_WHOLE_MAX_TRIS = 40000;
 
 
 
-export async function toObject3D(meshData, { materials = {}, castShadow = true, receiveShadow = true, parts = true } = {}) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export class ShadowCaster extends THREE.Mesh {
+  constructor(geometry, material) {
+    super(geometry, material);
+    this.isShadowCaster = true;
+  }
+
+  
+  
+  get frustumCulled() { return true; }
+
+  set frustumCulled(_) {  }
+
+  
+  intersectsFrustum(frustum) {
+    if (!this.castShadow || frustum.planes[0].normal.dot(frustum.planes[1].normal) > -0.9999) return false;
+    return super.intersectsFrustum(frustum);
+  }
+
+  copy(source, recursive) {
+    super.copy(source, recursive);
+    
+    this.customDepthMaterial = source.customDepthMaterial;
+    return this;
+  }
+}
+
+export async function toObject3D(meshData, { materials = {}, castShadow = true, receiveShadow = true, parts = true, shadowProxy = false } = {}) {
   const baked = !parts && meshData.movingParts && meshData.movingParts.length;
   const arrays = (baked ? meshData.bakeParts() : meshData).toArrays();
   const group = new THREE.Group();
@@ -54,6 +98,7 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
   
   const whole = Boolean(arrays.movingParts && arrays.movingParts.length && !meshData.rig
     && !Object.keys(arrays.morphs || {}).length && arrays.triangles <= PARTS_WHOLE_MAX_TRIS);
+  const proxied = [];
   for (const g of whole ? [] : arrays.groups) {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(g.position, 3));
@@ -118,7 +163,10 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
     mesh.castShadow = castShadow && !NO_SHADOW_MATERIALS.includes(g.material);
     mesh.receiveShadow = receiveShadow;
     group.add(mesh);
+    if (shadowProxy && mesh.castShadow && !rig && !hasMorph && material.side === THREE.FrontSide
+      && !(material.userData.depthMaterial && material.userData.depthMaterial.alphaTest > 0)) proxied.push([mesh, g]);
   }
+  if (proxied.length > 1) group.add(shadowCaster(arrays.name, proxied));
   
   
   
@@ -154,6 +202,38 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
   Object.defineProperty(group.userData, 'parts', { value: partObjects, enumerable: false, configurable: true, writable: true });
   group.userData.triangles = arrays.triangles;
   return group;
+}
+
+
+
+function shadowCaster(name, proxied) {
+  const verts = proxied.reduce((n, [, g]) => n + g.position.length / 3, 0);
+  const position = new Float32Array(verts * 3), sway = new Float32Array(verts), ripple = new Float32Array(verts);
+  const index = new Uint32Array(proxied.reduce((n, [, g]) => n + g.index.length, 0));
+  let v = 0, i = 0;
+  for (const [mesh, g] of proxied) {
+    position.set(g.position, v * 3);
+    if (g.sway) sway.set(g.sway, v);
+    if (g.ripple) ripple.set(g.ripple, v);
+    for (let k = 0; k < g.index.length; k += 1) index[i + k] = g.index[k] + v;
+    v += g.position.length / 3;
+    i += g.index.length;
+    mesh.castShadow = false;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
+  geometry.setAttribute('fmlSway', new THREE.BufferAttribute(sway, 1));
+  geometry.setAttribute('fmlRipple', new THREE.BufferAttribute(ripple, 1));
+  geometry.setIndex(new THREE.BufferAttribute(index, 1));
+  geometry.computeBoundingSphere();
+  geometry.boundingSphere.radius += cullPad(geometry.boundingSphere.radius + 60, curveUniforms.uCurve.value);
+  const depth = bentDepthMaterial();
+  const caster = new ShadowCaster(geometry, depth);
+  caster.customDepthMaterial = depth;
+  caster.name = `${name}/shadow`;
+  caster.castShadow = true;
+  caster.receiveShadow = false;
+  return caster;
 }
 
 

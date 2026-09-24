@@ -900,7 +900,50 @@ export function syncHomes(village, world, t) {
 
 
 
+
+
+
+
+
+export const ARRIVAL = Object.freeze({ from: Object.freeze({ x: -17, z: -3.5 }), greetS: 600 });
+
+
+export function arrivalWalk(village, cfg = ARRIVAL) {
+  const hit = arrivalWalks.get(village);
+  if (hit && hit.cfg === cfg) return hit.poly;
+  const to = SPOTS.town;
+  const pts = village.walkBetween(cfg.from, to);
+  const poly = polyOf(pts && pts.length >= 2 ? pts : [cfg.from, to]);
+  arrivalWalks.set(village, { cfg, poly });
+  return poly;
+}
+
+const arrivalWalks = new WeakMap();
+
+
+
+
+
+
+export function arrivalPose(village, villager, t, cfg = ARRIVAL) {
+  const at = villager && villager.arrivedAt;
+  if (!Number.isFinite(at) || t < at) return null;
+  const walk = arrivalWalk(village, cfg);
+  const mps = village.cfg.walkMps;
+  const s = (t - at) / MS;
+  const walkS = walk.total / mps;
+  if (s < walkS) {
+    const p = pointOn(walk, s * mps);
+    return { x: p.x, z: p.z, heading: p.heading, speed: mps, doing: 'arriving', place: 'town', inside: false };
+  }
+  if (s >= walkS + cfg.greetS) return null;
+  const to = SPOTS.town;
+  return { x: to.x, z: to.z, heading: Math.atan2(PLAZA.x - to.x, PLAZA.z - to.z), speed: 0, doing: 'arriving', place: 'town', inside: false };
+}
+
 export function villagerPose(village, world, villager, t, opts = {}) {
+  const arriving = arrivalPose(village, villager, t);
+  if (arriving) return arriving;
   const { cfg } = village;
   const day = dayOf(world, t);
   const ms = t - dayStart(world, day);

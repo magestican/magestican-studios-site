@@ -43,7 +43,7 @@ export function createShelvesDraw({ scene, season, onProblems = () => {} }) {
         data.append(dataFor(shelf.good, i % 3), compose(translate(w.x, w.y, w.z), compose(rotateY(w.rotY + turn), scale(spot.scale || 1))));
       });
     }
-    const obj = data.triangleCount ? await toObject3D(data) : new THREE.Group();
+    const obj = data.triangleCount ? await toObject3D(data, { shadowProxy: true }) : new THREE.Group();
     obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
     if (merged) {
       root.remove(merged);

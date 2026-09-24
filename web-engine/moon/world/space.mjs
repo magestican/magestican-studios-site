@@ -101,10 +101,48 @@ export function asteroidTracks(seed = ASTEROIDS.seed, cfg = ASTEROIDS) {
 
 const trackCache = new Map();
 const tracksFor = (seed, cfg) => {
-  if (cfg !== ASTEROIDS) return asteroidTracks(seed, cfg);
-  if (!trackCache.has(seed)) trackCache.set(seed, asteroidTracks(seed, cfg));
-  return trackCache.get(seed);
+  
+  
+  const key = `${seed}|${cfg.count}|${cfg.sizeRad.join(',')}|${cfg.speedRadPerS.join(',')}|${cfg.spinRadPerS.join(',')}`;
+  if (!trackCache.has(key)) trackCache.set(key, asteroidTracks(seed, cfg));
+  return trackCache.get(key);
 };
+
+
+
+
+
+
+
+
+
+
+export const SKIES = Object.freeze({
+  rolling: Object.freeze({ count: 6, sizeK: 1 }),
+  cratered: Object.freeze({ count: 16, sizeK: 1.5 }),
+  mesa: Object.freeze({ count: 9, sizeK: 1.25 }),
+  ridged: Object.freeze({ count: 10, sizeK: 0.8 }),
+  dunes: Object.freeze({ count: 3, sizeK: 0.8 }),
+  lakes: Object.freeze({ count: 5, sizeK: 1 }),
+});
+
+const skyCache = new Map();
+
+export function skyOf(planet) {
+  if (!planet || planet.home || !planet.biome || !SKIES[planet.biome]) return { seed: ASTEROIDS.seed, cfg: ASTEROIDS };
+  const key = `${planet.seed}|${planet.biome}`;
+  if (!skyCache.has(key)) {
+    const s = SKIES[planet.biome];
+    const cfg = Object.freeze({ ...ASTEROIDS, count: s.count, sizeRad: Object.freeze(ASTEROIDS.sizeRad.map((r) => r * s.sizeK)) });
+    skyCache.set(key, Object.freeze({ seed: draw(planet.seed, 'sky', 'asteroids') % 1000000, cfg }));
+  }
+  return skyCache.get(key);
+}
+
+
+export function skyOfId(id, system = planetSystem()) {
+  return skyOf(id === null || id === undefined ? null : system.find((p) => p.id === id));
+}
 
 
 

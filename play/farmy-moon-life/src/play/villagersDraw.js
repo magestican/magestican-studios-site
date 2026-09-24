@@ -55,6 +55,9 @@ import { PERSONALITIES, personalityOf } from 'moon/play/personality.mjs';
 import { EMPTY_LEDGER, applyEvent, applyLine, moodNow } from 'moon/play/moods.mjs';
 import { villagerObject } from '../render/villager.js';
 import { villagerSource } from '../render/villagerSource.js';
+import { NO_SHADOW_MATERIALS } from 'moon/mesh/meshData.mjs';
+
+const materialOf = (m) => m.name.slice(m.name.lastIndexOf('/') + 1);
 
 export const VILLAGERS_DRAW = Object.freeze({
   
@@ -173,7 +176,7 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
   function castShadows(s, on) {
     if (s.shadow === on) return;
     s.shadow = on;
-    for (const m of s.lods[s.lod].meshes) m.castShadow = on;
+    for (const m of s.lods[s.lod].meshes) m.castShadow = on && !NO_SHADOW_MATERIALS.includes(materialOf(m));
   }
 
   

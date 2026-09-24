@@ -21,7 +21,7 @@
 
 import * as THREE from 'three';
 import { horizonDip } from 'moon/world/curve.mjs';
-import { ASTEROIDS, SKY_FURNITURE, SKY_PLANETS_MAX, skyPlanetsFrom, visibleAsteroids } from 'moon/world/space.mjs';
+import { ASTEROIDS, SKY_FURNITURE, SKY_PLANETS_MAX, skyOfId, skyPlanetsFrom, visibleAsteroids } from 'moon/world/space.mjs';
 
 const VERT =  `
 varying vec3 vDir;
@@ -292,7 +292,7 @@ export function createSky() {
         uniforms.uBodyNext.value[i] = b.next ? 1 : 0;
       });
       
-      const rocks = cycle.stars > 0.02 || this.space > 0.02 ? visibleAsteroids(seconds, { horizonY: dip }) : [];
+      const rocks = cycle.stars > 0.02 || this.space > 0.02 ? visibleAsteroids(seconds, { horizonY: dip, ...skyOfId(this.planetId) }) : []; 
       uniforms.uRockCount.value = Math.min(rocks.length, ASTEROIDS.maxDrawn);
       rocks.slice(0, ASTEROIDS.maxDrawn).forEach((r, i) => {
         uniforms.uRocks.value[i].set(r.dir[0], r.dir[1], r.dir[2], r.size);

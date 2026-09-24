@@ -13,6 +13,9 @@ import * as THREE from 'three';
 import { CUSTOMER, live, walkerPose } from 'moon/play/customers.mjs';
 import { customerLookFor, customerLooks, customerName } from 'moon/play/people.mjs';
 import { villagerObject } from '../render/villager.js';
+import { NO_SHADOW_MATERIALS } from 'moon/mesh/meshData.mjs';
+
+const materialOf = (m) => m.name.slice(m.name.lastIndexOf('/') + 1);
 
 export const CUSTOMERS_DRAW = Object.freeze({
   
@@ -48,7 +51,7 @@ export async function createCustomersDraw({ scene, season, worldSeed = 1, height
   function castShadows(slot, on) {
     if (slot.shadow === on) return;
     slot.shadow = on;
-    for (const m of slot.pc.meshes) m.castShadow = on;
+    for (const m of slot.pc.meshes) m.castShadow = on && !NO_SHADOW_MATERIALS.includes(materialOf(m));
   }
 
   

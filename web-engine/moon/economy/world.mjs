@@ -35,6 +35,7 @@ import { isRipe, plantedAtFor, ripeAt, stageAt, stageEndAt, stageEdges, waterRea
 import { buildingSlots, freeParcelId, nextParcelPrice, ownedTreeCount, ownsParcel, treeSlots, usedBuildingSlots } from './land.mjs';
 import { putOnShelves, runCustomers, sellable, shelfRoom } from './shop.mjs';
 import { applyGift, giftBasePoints } from './happiness.mjs';
+import { FAVOURS, acceptFavour, completeFavour, favourPoints, openFavour, whyNotAccept, whyNotComplete } from './favours.mjs';
 import { CRAFTABLES } from './craftables.mjs';
 import { craftPlan, craftedName } from './crafting.mjs';
 import { CALENDAR, STORES, TOWN_HALL, isBirthday, isMayor, marketPrice, newTown, noticeBoard, storeOpen, storePrice } from './town.mjs';
@@ -159,6 +160,10 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     villagers: [],
     
     
+    
+    newcomers: { seen: 0, due: [] },
+    
+    
     town: newTown(),
     shop: { shelves: new Array(BUILDINGS.shop.levels[0].shelves).fill(null), saturation: {}, slot: 0 },
     stats: { earned_coins: 0, spent_coins: 0, invested_coins: 0, customers: 0, sold: {}, soldFor_coins: {}, market_coins: 0, requests: 0 },
@@ -195,6 +200,10 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     paths: [],
     lights: [],
     cleared: [],
+    
+    
+    
+    favours: { open: {}, asked: {}, done: {}, photo: {} },
   };
   
   world.buildings.push({ id: nextId(world), type: 'shop', level: 1, builtAt: now });
@@ -229,6 +238,22 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     world.villagers.push({ id: nextId(world), species: v.species, favourite: v.favourite, home: v.home || null, points: 0, warmth_cp: 0, warmthAt: now, levels });
   }
   return world;
+}
+
+
+
+
+
+
+
+
+
+export function moveIn(world, { species, favourite, name, build = null }, at) {
+  if (!GOODS[favourite]) throw new Error(`a newcomer's favourite must be a good, got '${favourite}'`);
+  const v = { id: nextId(world), species, favourite, home: null, points: 0, warmth_cp: 0, warmthAt: at, levels: [], name, arrivedAt: at };
+  if (build) v.build = build;
+  world.villagers.push(v);
+  return v;
 }
 
 
@@ -911,6 +936,37 @@ const RULES = {
       if (a.coins !== undefined) spend(world, a.coins, false);
       else take(world, a.good, a.count);
       const event = { type: 'gift', at: t, villager: villager.id, base, points: 0, birthday };
+      events.push(event);
+      event.points = applyGift(villager, base, t, events);
+    },
+  },
+
+  
+  acceptFavour: {
+    check(world, a, t) {
+      return whyNotAccept(world, byId(world.villagers, a.villager), t);
+    },
+    apply(world, a, t, events) {
+      const offer = acceptFavour(world, byId(world.villagers, a.villager), t);
+      events.push({ type: 'favourAccepted', at: t, villager: a.villager, kind: offer.kind, good: offer.good, count: offer.count });
+    },
+  },
+  completeFavour: {
+    check(world, a) {
+      return whyNotComplete(world, byId(world.villagers, a.villager));
+    },
+    apply(world, a, t, events) {
+      const villager = byId(world.villagers, a.villager);
+      const open = openFavour(world, villager);
+      if (open.kind === 'fetch') take(world, open.good, open.count);
+      const { done, photo } = completeFavour(world, villager);
+      world.coins += FAVOURS.coins;
+      world.stats.earned_coins += FAVOURS.coins;
+      if (photo) world.made[FAVOURS.photo] = (world.made[FAVOURS.photo] || 0) + 1;
+      
+      
+      const base = favourPoints(villager);
+      const event = { type: 'favour', at: t, villager: villager.id, kind: open.kind, good: open.good, count: open.count, base, points: 0, coins: FAVOURS.coins, done, photo };
       events.push(event);
       event.points = applyGift(villager, base, t, events);
     },

@@ -47,7 +47,7 @@ export async function buildingObject(type, { seed = 1, season = 'summer', stage 
       const data = buildingMeshData(type, { seed, season, stage, lod });
       const problems = data.validate();
       if (problems.length) throw new Error(`building ${key}: ${problems.join('; ')}`);
-      const obj = await toObject3D(data);
+      const obj = await toObject3D(data, { shadowProxy: true });
       obj.name = `building:${key}`;
       Object.assign(obj.userData, { building: { type, key, stage, anchors: buildingAnchors(type, { seed, stage }) }, triangles: data.triangleCount });
       return obj;

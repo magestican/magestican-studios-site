@@ -72,7 +72,12 @@ export const MATERIALS = Object.freeze([
 
 
 
-export const NO_SHADOW_MATERIALS = Object.freeze(['glass', 'lamp-glow', 'fire', 'water']);
+
+
+
+
+
+export const NO_SHADOW_MATERIALS = Object.freeze(['glass', 'lamp-glow', 'fire', 'water', 'eye']);
 
 
 export const PART_CLIP_KINDS = Object.freeze(['spin', 'swing', 'hinge', 'flicker']);

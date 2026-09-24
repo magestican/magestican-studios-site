@@ -53,6 +53,26 @@ export const FINDS_BY_ELEMENT = Object.freeze({
 
 
 
+
+
+
+
+
+
+
+
+export const FINDS_BY_BIOME = Object.freeze({
+  rolling: 'berries',
+  cratered: 'gem',
+  mesa: 'stone',
+  ridged: 'moonRock',
+  dunes: 'wood',
+  lakes: 'mushroom',
+});
+export const BIOME_FIND_K = 2;
+
+
+
 export const FIND_KINDS = Object.freeze(Object.keys(FINDS));
 
 export const COLLECTIBLES = Object.freeze({
@@ -93,8 +113,15 @@ export function kindsOn(planet) {
   if (planet.home) return Object.freeze([]);
   const all = new Set();
   for (const e of planet.elements) for (const k of FINDS_BY_ELEMENT[ELEMENTS[e].id]) all.add(k);
+  const own = biomeFindOn(planet);
+  if (own) all.add(own);
   return Object.freeze(FIND_KINDS.filter((k) => all.has(k))
-    .map((kind) => Object.freeze({ kind, treasure: Boolean(FINDS[kind].treasure) })));
+    .map((kind) => Object.freeze({ kind, treasure: Boolean(FINDS[kind].treasure), biome: kind === own })));
+}
+
+
+export function biomeFindOn(planet) {
+  return (!planet.home && planet.biome && FINDS_BY_BIOME[planet.biome]) || null;
 }
 
 
@@ -122,8 +149,8 @@ function place(planet, cfg) {
   const maxR = planet.radius - planet.rimWidth - cfg.edgeMarginM;
   const area = Math.PI * (maxR * maxR - CLEARING_RADIUS_M * CLEARING_RADIUS_M);
   const out = [];
-  for (const { kind, treasure } of kindsOn(planet)) {
-    const density = treasure ? cfg.treasureDensity : cfg.commonDensity;
+  for (const { kind, treasure, biome } of kindsOn(planet)) {
+    const density = (treasure ? cfg.treasureDensity : cfg.commonDensity) * (biome ? BIOME_FIND_K : 1);
     const want = Math.max(cfg.minPerKind, Math.min(cfg.maxPerKind, Math.round(area * density)));
     let found = 0;
     
