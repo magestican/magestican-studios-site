@@ -180,4 +180,10 @@ export const CRAFTABLES = Object.freeze({
   pandaUpstairsHouse: { name: 'round house with an upstairs', category: 'houses', art: { kind: 'house', variant: 'panda', stage: 'upstairs' }, cost: { wood: 71, stone: 46, food: 8 }, blocks: true },
   elephantUpstairsHouse: { name: 'arched house with an upstairs', category: 'houses', art: { kind: 'house', variant: 'elephant', stage: 'upstairs' }, cost: { wood: 84, stone: 54, food: 8 }, blocks: true },
   giraffeUpstairsHouse: { name: 'tall house with an upstairs', category: 'houses', art: { kind: 'house', variant: 'giraffe', stage: 'upstairs' }, cost: { wood: 79, stone: 51, food: 8 }, blocks: true },
+  
+  
+  
+  
+  
+  framedPhoto: { name: 'framed photo of the two of you', category: 'rustic', art: { kind: 'signpost', seed: 4 }, cost: { wood: 5 }, blocks: false, giftOnly: true },
 });

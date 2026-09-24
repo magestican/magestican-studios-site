@@ -78,7 +78,7 @@ import { createCharacter } from '../render/character.js';
 import { itemObject } from '../render/items.js';
 import { TOOL_GRIP } from 'moon/art/item.mjs';
 import { iconFor, portraitOf } from '../render/icons.js';
-import { PLAYER_BUILD_KEY, PLAYER_BUILDS, PLAYER_NAMES, choosePlayerBuild } from 'moon/play/people.mjs';
+import { PLAYER_BUILD_KEY, PLAYER_BUILDS, PLAYER_NAMES, choosePlayerBuild, villagerName } from 'moon/play/people.mjs';
 import { createPlayerChoice } from './playerChoice.js';
 import { createInput } from './input.js';
 import { createOrchardDraw } from './orchardDraw.js';
@@ -205,7 +205,7 @@ import { startTalk as startVillagerTalk, talkNode as villagerTalkNode, choose as
 
 
 
-import { mayEnter, villagerHomePlaces, buildingDoorPlaces, counterPlaces, indoorShelves, homeResident, roomLights, windowSky } from 'moon/play/enterable.mjs';
+import { doorMaySwing, mayEnter, villagerHomePlaces, buildingDoorPlaces, counterPlaces, indoorShelves, homeResident, roomLights, windowSky } from 'moon/play/enterable.mjs';
 
 
 
@@ -236,6 +236,7 @@ import { createToolBar } from './toolBar.js';
 import { createForageDraw } from './forageDraw.js';
 
 import { CRAFTABLES, CRAFT_CATEGORIES } from 'moon/economy/tables.mjs';
+import { favoursOf } from 'moon/economy/favours.mjs';
 import { craftedName } from 'moon/economy/crafting.mjs';
 import { craftMenu, madeCount, madeTray } from 'moon/play/craft.mjs';
 import { placeSpot, placedFootprints, placedObstacle, placedTargets, whyNotPlaceHere } from 'moon/play/placing.mjs';
@@ -348,6 +349,9 @@ import {
   ASSEMBLY, assemblyOf, assemblyView, bellAt, bellPlaces, callAssembly, closeAssembly,
   gatherPose, gatherSpots, polyline, putToVote, settleWorks, whyNoAssembly, worksOf,
 } from 'moon/play/assembly.mjs';
+
+import { NEWCOMERS, newcomerFor, newcomersOf, settleNewcomers } from 'moon/play/newcomers.mjs';
+import { moveIn } from 'moon/economy/world.mjs';
 import { createAssemblyCard } from './assemblyCard.js';
 import { walkPath } from 'moon/play/walks.mjs';
 
@@ -457,8 +461,11 @@ function pressRunning(t = econNow()) {
   return Boolean(pr && pr.jobs.length && stationViews(pr, t, assignment).some((v) => v.batches > v.done));
 }
 function driveParts() {
-  partsDraw.near('door', player.x, player.z, DOOR_OPEN_M);
-  partsDraw.near('sideDoor', player.x, player.z, DOOR_OPEN_M);
+  
+  const t = econNow();
+  const may = (owner) => doorMaySwing(owner, world, t);
+  partsDraw.near('door', player.x, player.z, DOOR_OPEN_M, may);
+  partsDraw.near('sideDoor', player.x, player.z, DOOR_OPEN_M, may);
   partsDraw.open('screw', pressRunning() ? 1 : 0);
   const hour = Math.floor(state.time);
   if (bellHour !== null && hour !== bellHour) partsDraw.ring('bell', animSeconds);
@@ -3577,6 +3584,20 @@ fml.drawList = () => {
 
 
 
+fml.shadowList = () => {
+  const out = {};
+  scene.traverseVisible((o) => {
+    if (!o.isMesh || !o.castShadow) return;
+    const names = [];
+    for (let p = o; p && p !== scene; p = p.parent) if (p.name) names.unshift(p.name);
+    const key = names.slice(0, 2).join('/') || '(unnamed)';
+    out[key] = (out[key] || 0) + (Array.isArray(o.material) ? o.material.length : 1);
+  });
+  return out;
+};
+
+
+
 
 
 fml.g6dHour = (hour) => {
@@ -3653,7 +3674,7 @@ Object.defineProperty(fml, 'village', {
       villagers: world.villagers.map((v) => {
         const s = villagersDraw ? villagersDraw.shown.find((x) => x.id === v.id) : null;
         return {
-          id: v.id, species: v.species, favourite: v.favourite, points: v.points, level: v.levels.length, voice: speakerOf(v).voice,
+          id: v.id, name: villagerName(v, world.villagers), species: v.species, favourite: v.favourite, points: v.points, level: v.levels.length, voice: speakerOf(v).voice,
           x: s ? s.x : null, z: s ? s.z : null, speed: s ? s.speed : 0, doing: s ? s.doing : null,
           visible: s ? s.visible : false, inside: s ? s.inside : false, stage: homeStage(v, t).stage,
           build: s ? s.build || null : null, height: s ? s.height : null, lod: s ? s.lod : null, shadow: s ? s.shadow : false,
@@ -4051,6 +4072,8 @@ Object.defineProperty(fml, 'world', {
     byStage: countByStage(view),
     seedKind,
     seedKinds: seedKinds(world),
+    
+    favours: favoursOf(world),
   }),
 });
 Object.defineProperty(fml, 'orchard', {
@@ -4996,9 +5019,22 @@ function settleTown() {
     sfx.play('ui.open');
     paintDeeds();
   }
-  if (works.length) hud.say(`The town has finished the ${works[0].name}.`, seconds);
-  if (goals.length || works.length) touchSave('goal');
-  return goals.length + works.length;
+  if (works.length) hud.say(works[0].kind === 'villager'
+    ? (works[0].invited ? `${works[0].name} is packing - they arrive tomorrow morning.` : `There is no room in town for ${works[0].name} just now.`)
+    : `The town has finished the ${works[0].name}.`, seconds);
+  
+  const incoming = settleNewcomers(world, t);
+  if (incoming.due.length) hud.say('Word has got round - somebody is moving to town tomorrow morning.', seconds);
+  if (incoming.arrived.length) onNewcomers(incoming.arrived);
+  if (goals.length || works.length || incoming.due.length || incoming.arrived.length) touchSave('goal');
+  return goals.length + works.length + incoming.arrived.length;
+}
+
+
+function onNewcomers(arrived) {
+  if (villagersDraw) villagersDraw.sync(world).catch(fail);
+  const v = arrived[arrived.length - 1];
+  hud.say(`${villagerName(v, world.villagers)} has moved to town - say hello on the square!`, seconds);
 }
 
 fml.l11 = {
@@ -5014,6 +5050,20 @@ fml.l11 = {
   },
   get lines() { return goalDoneLines(world); },
   settle: () => settleTown(),
+};
+
+
+
+
+fml.l6n = {
+  get state() { return JSON.parse(JSON.stringify(newcomersOf(world))); },
+  get cap() { return NEWCOMERS.cap; },
+  get count() { return world.villagers.length; },
+  arrive: () => {
+    const v = moveIn(world, newcomerFor(world), econNow());
+    onNewcomers([v]);
+    return { id: v.id, name: villagerName(v, world.villagers), species: v.species, favourite: v.favourite, build: v.build || null, arrivedAt: v.arrivedAt };
+  },
 };
 
 fml.l16 = {
@@ -5447,6 +5497,12 @@ async function load() {
   
   await loadSave();
   timing.mark('save');
+  
+  
+  
+  
+  const forceNew = Math.max(0, Math.min(4, Math.floor(Number(q.get('newcomers')) || 0)));
+  for (let i = 0; i < forceNew; i++) moveIn(world, newcomerFor(world), econNow() - 3_600_000);
   
   
   

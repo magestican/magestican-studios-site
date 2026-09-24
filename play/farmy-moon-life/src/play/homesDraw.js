@@ -263,7 +263,9 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
       if (slot.obj) { if (parts) parts.release(slot.obj); slot.group.remove(slot.obj); }
       slot.obj = obj;
       slot.group.add(obj);
-      if (parts) parts.adopt(obj); 
+      
+      
+      if (parts) parts.adopt(obj, { villager: slot.id });
       slot.flue = flueOf(slot, obj.userData.smoke);
       if (celebrate) {
         slot.pop = { startS: animS };

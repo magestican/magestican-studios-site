@@ -28,6 +28,7 @@
 
 
 import { whyCannot } from '../economy/world.mjs';
+import { favourOffer, openFavour } from '../economy/favours.mjs';
 import { GIFTS, GOODS } from '../economy/tables.mjs';
 import { VILLAGER_SPECIES, VOICES } from '../voice/voices.mjs';
 import { seedOf } from '../voice/mumble.mjs';
@@ -41,7 +42,7 @@ import { noticeBoard } from '../economy/town.mjs';
 import { hourAt } from '../economy/clock.mjs';
 
 export { MAX_LINE_CHARS };
-export const NODES = Object.freeze(['greeting', 'gift', 'goods', 'hint', 'thanks', 'levelUp', 'cantGive', 'bye']);
+export const NODES = Object.freeze(['greeting', 'gift', 'goods', 'hint', 'thanks', 'levelUp', 'cantGive', 'bye', 'favour', 'favourTaken']);
 
 export const COIN_GIFTS = Object.freeze([GIFTS.coinsPerPoint, 50, 200]);
 
@@ -303,6 +304,7 @@ const NODE = {
       choices: [
         { key: 'coins', label: 'Give some coins', next: 'gift' },
         { key: 'goods', label: 'Give a present', next: 'goods', why: goods.length ? null : NO_GOODS, want: goods.length ? null : { kind: 'nothing' } },
+        ...favourChoices(world, villager, t),
         { key: 'hint', label: 'What do you like?', next: 'hint' },
         byeChoice(state.step > 0 ? 'That is all' : 'Just saying hello'),
       ],
@@ -345,6 +347,8 @@ const NODE = {
     const g = state.gave || { points: 0 };
     const tier = THANKS.find(([below]) => g.points < below)[1];
     const said = [say(pick(tier, world, state, 'thanks'), LINE_MOODS.thanks)];
+    if (g.favour) said.unshift(say(FAVOUR_LINES.done, LINE_MOODS.thanks));
+    if (g.photo) said.push(say(FAVOUR_LINES.photo, LINE_MOODS.levelUp));
     if (g.favourite) said.push(saysOf(villager, world).favourite);
     return { said, choices: [something, byeChoice('Bye for now')] };
   },
@@ -368,7 +372,46 @@ const NODE = {
   bye(state, { world, villager }) {
     return { said: [pick(saysOf(villager, world).bye, world, state, 'bye')], choices: [], end: true };
   },
+
+  
+  favour(state, { world, t, villager }) {
+    const offer = favourOffer(world, villager, t);
+    if (!offer) return { said: [say(FAVOUR_LINES.none, LINE_MOODS.generic)], choices: [something, byeChoice('Bye for now')] };
+    const action = { type: 'acceptFavour', villager: villager.id };
+    return {
+      said: [say(FAVOUR_LINES.ask(nameOf(offer.good, offer.count)), 'interest')],
+      choices: [
+        { key: 'favour:yes', label: "I'll bring them", action, why: whyCannot(world, action, t), want: { kind: 'favour' } },
+        { key: 'back', label: 'Not today', next: 'greeting' },
+      ],
+    };
+  },
+
+  favourTaken(state, { world, villager }) {
+    const f = openFavour(world, villager);
+    return { said: [say(FAVOUR_LINES.taken(f ? nameOf(f.good, f.count) : 'them'), LINE_MOODS.thanks)], choices: [something, byeChoice('Bye for now')] };
+  },
 };
+
+
+
+export const FAVOUR_LINES = Object.freeze({
+  ask: (goods) => `Could you do me a favour? I need ${goods}.`,
+  taken: (goods) => `Thank you! Bring me ${goods} when you can.`,
+  none: "That's kind - there's nothing I need today.",
+  done: 'You remembered! Thank you for doing that for me.',
+  photo: 'Here - a photo of the two of us. Put it somewhere nice.',
+});
+
+
+function favourChoices(world, villager, t) {
+  const open = openFavour(world, villager);
+  if (open) {
+    const action = { type: 'completeFavour', villager: villager.id };
+    return [{ key: 'favour:done', label: `Here are the ${nameOf(open.good, open.count)}`, action, why: whyCannot(world, action, t), want: { kind: 'good', good: open.good, count: open.count } }];
+  }
+  return favourOffer(world, villager, t) ? [{ key: 'favour', label: 'Can I help with anything?', next: 'favour' }] : [];
+}
 
 
 function saysOf(villager, world) {
@@ -418,7 +461,10 @@ export function choose(state, choice, outcome) {
   if (choice.action) {
     if (!outcome || outcome.error) return { ...base, node: 'cantGive', want: choice.want || null, error: outcome ? outcome.error : 'Nothing happened.' };
     const events = outcome.events || [];
-    const gift = events.find((e) => e.type === 'gift' && e.villager === choice.action.villager);
+    
+    if (choice.action.type === 'acceptFavour') return { ...base, node: 'favourTaken', want: null, gave: null };
+    const favour = events.find((e) => e.type === 'favour' && e.villager === choice.action.villager);
+    const gift = favour || events.find((e) => e.type === 'gift' && e.villager === choice.action.villager);
     const ups = events.filter((e) => e.type === 'levelUp' && e.villager === choice.action.villager);
     const up = ups[ups.length - 1] || null;
     return {
@@ -434,6 +480,8 @@ export function choose(state, choice, outcome) {
         count: choice.action.count ?? null,
         levelUp: up ? { level: up.level, event: up.event, doneAt: up.doneAt } : null,
         levels: ups.map((e) => e.level),
+        favour: Boolean(favour),
+        photo: Boolean(favour && favour.photo),
       },
     };
   }

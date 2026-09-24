@@ -44,6 +44,18 @@ export function mayEnter(villager, home, cfg = HAPPINESS) {
 
 
 
+
+
+export function doorMaySwing(owner, world, t, cfg = HAPPINESS) {
+  if (!owner || owner.villager == null) return true;
+  const v = (world.villagers || []).find((x) => x.id === owner.villager);
+  return Boolean(v) && mayEnter(v, homeStage(v, t), cfg);
+}
+
+
+
+
+
 const DOOR_GAP_M = 0.35;
 
 
