@@ -15,7 +15,7 @@ import { BUILDINGS, CUSTOMERS, GOODS } from './tables.mjs';
 import { BP, MS, decay, draw, pickWeighted } from './math.mjs';
 import { isDark } from './clock.mjs';
 import { villageBonusAt } from './happiness.mjs';
-import { townBonusAt } from './town.mjs';
+import { CALENDAR, isMarketDay, townBonusAt } from './town.mjs';
 import { placedLightCount } from '../light/placedLights.mjs';
 
 const SLOT_MS = CUSTOMERS.slot_s * MS;
@@ -59,6 +59,8 @@ export function priceAt(world, good, t) {
 export function footfallAt(world, t) {
   let bp = shopSpec(world).footfall_bp;
   bp = Math.floor((bp * (BP + villageBonusAt(world, t) + townBonusAt(world))) / BP);
+  
+  if (isMarketDay(world, t)) bp = Math.floor((bp * CALENDAR.marketFootfall_bp) / BP);
   if (isDark(world, t)) bp = Math.floor((bp * (isLit(world) ? CUSTOMERS.nightLit_bp : CUSTOMERS.nightUnlit_bp)) / BP);
   return bp;
 }

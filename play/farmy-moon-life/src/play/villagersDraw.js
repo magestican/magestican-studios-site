@@ -383,7 +383,7 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
       shown.push({
         id: v.id, species: v.species, build: s.build, x: s.x, z: s.z, y: o.position.y, heading: s.heading, speed,
         doing: isHeld ? 'talking' : pose.doing, place: pose.place, inside: pose.inside && s.scale < 0.001,
-        clip: pc.using, use: use ? use.id : null, activity: pose.activity || null,
+        clip: pc.using, use: use ? use.id : null, activity: pose.activity || null, mood: pose.mood || null,
         following: Boolean(following), pairing: Boolean(pairing), wants: pose.wants || null,
         visible: o.visible, height: s.height, lod: LODS[s.lod], bob: s.bob, shadow: false,
         

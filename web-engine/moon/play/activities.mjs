@@ -37,6 +37,7 @@
 
 import { seedOf } from '../voice/mumble.mjs';
 import { personalityOf } from './personality.mjs';
+import { EVENT_HOURS, eventFor } from './calendar.mjs';
 
 export const MINUTES_PER_DAY = 1440;
 
@@ -87,6 +88,11 @@ export const ACTIVITIES = Object.freeze(Object.fromEntries([
   { id: 'evening', kind: 'use', where: 'firepit', use: 'warm', clip: 'warmHands', mood: 'happy', minutes: [0, 0], outdoor: true, weight: always },
   { id: 'shelter', indoors: true, kind: 'home', where: 'shelter', use: null, clip: null, mood: 'concern', minutes: [20, 40], outdoor: false, weight: always },
   
+  
+  
+  { id: 'birthday', kind: 'spot', where: 'town', use: null, clip: null, mood: 'happy', minutes: [0, 0], outdoor: false, weight: always },
+  { id: 'marketGather', kind: 'spot', where: 'town', use: null, clip: null, mood: 'interest', minutes: [0, 0], outdoor: true, weight: always },
+  
   { id: 'chatNearest', kind: 'pair', where: 'town', use: null, clip: 'chat', mood: 'happy', minutes: [10, 20], outdoor: true,
     weight: w({ cheerful: 4, curious: 1, gentle: 1 }) },
   { id: 'feedBirds', kind: 'spot', where: 'orchard', use: null, clip: 'pickUp', mood: 'happy', minutes: [15, 25], outdoor: true,
@@ -126,7 +132,7 @@ export const ACTIVITIES = Object.freeze(Object.fromEntries([
     weight: w({ gentle: 3, cheerful: 1 }) },
 ].map((row) => [row.id, Object.freeze(row)])));
 
-export const FIXED = Object.freeze(['sleep', 'breakfast', 'morningWalk', 'lunch', 'evening', 'shelter']);
+export const FIXED = Object.freeze(['sleep', 'breakfast', 'morningWalk', 'lunch', 'evening', 'shelter', 'birthday', 'marketGather']);
 export const HOBBIES = Object.freeze(Object.keys(ACTIVITIES).filter((id) => !FIXED.includes(id)));
 
 
@@ -148,7 +154,9 @@ const cache = new Map();
 
 
 export function scheduleFor(villager, localDay, world, { weather = 'clear', owl = false } = {}) {
-  const key = `${world.seed}|${villager.id}|${villager.species}|${localDay}|${weather}|${owl}`;
+  
+  const event = eventFor(villager, localDay, world);
+  const key = `${world.seed}|${villager.id}|${villager.species}|${localDay}|${weather}|${owl}|${event}`;
   if (cache.has(key)) return cache.get(key);
   const personality = personalityOf(villager);
   const unit = (what) => (seedOf(`${world.seed}|l3|${villager.id}|${localDay}|${what}`) % 10007) / 10007;
@@ -191,6 +199,10 @@ export function scheduleFor(villager, localDay, world, { weather = 'clear', owl 
   push('breakfast', wake + span(ACTIVITIES.breakfast.minutes, 'breakfast'));
   push(sheltered('morningWalk'), cursor + span(ACTIVITIES.morningWalk.minutes, 'walk'));
   const lunchAt = span(ANCHORS.lunch, 'lunch');
+  if (event) {
+    fill(EVENT_HOURS[event].from);
+    push(sheltered(event), lunchAt);
+  }
   fill(lunchAt);
   push(sheltered('lunch'), lunchAt + span(ACTIVITIES.lunch.minutes, 'lunchLen'));
   const eveningAt = span(ANCHORS.evening, 'evening') - (weather === 'snow' ? ANCHORS.snowEveningEarlierMin : 0);

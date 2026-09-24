@@ -73,6 +73,11 @@ export const CUES = Object.freeze({
   'gesture.cheer': cue('coinBig', 0.14, 60, 2),
   'gesture.bow': cue('place', 0.22, 30, 2),
   'gesture.toss': cue('water', 0.28, 50, 2),
+
+  
+  
+  
+  'town.market': cue('coinBig', 0.16, 40, 2),
 });
 
 export const CUE_IDS = Object.freeze(Object.keys(CUES));

@@ -770,7 +770,8 @@ function activityPose(village, world, villager, t, plan, ms, { raining = false, 
   
   
   
-  if (block.id !== 'evening' && block.id !== 'sleep') {
+  
+  if (block.id !== 'evening' && block.id !== 'sleep' && block.id !== 'birthday') {
     const seg = plan.segs.find((s) => ms >= s.t0 && ms < s.t1);
     if (seg && (seg.work || (seg.kind === 'walk' && String(seg.to).startsWith('work:')))) return null;
   }

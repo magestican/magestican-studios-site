@@ -27,6 +27,12 @@ import { toWorld } from '../world/collision.mjs';
 import { anchors as townAnchors } from '../art/townBuilding.mjs';
 import { nameOf } from './names.mjs';
 import { villagerName } from './people.mjs';
+import { calendarDay, calendarNotice } from './calendar.mjs';
+
+const askerName = (world, id) => {
+  const v = (world.villagers || []).find((x) => x.id === id);
+  return v ? villagerName(v, world.villagers) : null;
+};
 
 const cache = new Map();
 
@@ -140,7 +146,11 @@ export function noticeView(world, t) {
       held: board.held,
       short: Math.max(0, board.count - board.held),
       kind: GOODS[board.good].kind,
+      
+      asker: board.villager === null ? null : askerName(world, board.villager),
     },
+    
+    calendar: calendarNotice(world, calendarDay(world, t), villagerName),
     standing: standingOf(town.points),
     filledCount: town.filled,
   };

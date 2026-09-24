@@ -218,7 +218,7 @@ export function createCards({ el, iconFor, onAct, onChoose, onClose }) {
         const line = node('div', `rowline${view.request.short ? ' cannot' : ''}`);
         line.dataset.good = view.request.good;
         const what = node('span', 'what');
-        what.append(iconEl(view.request.good, 26), node('span', 'name', `Wanted: ${cap(view.request.name)}`));
+        what.append(iconEl(view.request.good, 26), node('span', 'name', view.request.asker ? `${view.request.asker} needs ${view.request.name}` : `Wanted: ${cap(view.request.name)}`));
         const price = node('span', 'price', String(view.request.coins));
         price.append(iconEl('coin', 14, 'coin-icon'));
         line.append(what, price);
@@ -231,6 +231,13 @@ export function createCards({ el, iconFor, onAct, onChoose, onClose }) {
         const row = node('div', 'row');
         row.append(node('span', 'why', noticeSentence(view)));
         body.append(row);
+      }
+      
+      
+      if (view.calendar) {
+        const cal = node('div', 'row');
+        cal.append(node('span', 'why', view.calendar));
+        body.append(cal);
       }
       const foot = node('div', 'foot');
       const standing = view.standing;

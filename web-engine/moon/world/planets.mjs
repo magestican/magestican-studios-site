@@ -72,7 +72,9 @@ export const SYSTEM_SEED = 20260916;
 
 
 
-export const PLANET_LAYOUT_VERSION = 2;
+
+
+export const PLANET_LAYOUT_VERSION = 3;
 
 
 
@@ -176,6 +178,21 @@ export const ELEMENTS = Object.freeze({
   meadow: Object.freeze({ id: 'meadow', label: 'meadow', modules: Object.freeze([]), role: 'forage', density: 0.045, minGap: 2.8 }),
 });
 export const ELEMENT_IDS = Object.freeze(Object.keys(ELEMENTS));
+
+
+
+
+
+
+
+
+
+export const PROPS = Object.freeze({
+  rolling: 'giantMushroom', lakes: 'giantMushroom', cratered: 'crystalCluster',
+  ridged: 'iceSpike', dunes: 'cactus', mesa: 'deadTree',
+});
+export const PROP_MODULES = Object.freeze([...new Set(Object.values(PROPS))].sort());
+export const PROP = Object.freeze({ density: 0.012, min: 5, max: 12, minGap: 2.0 });
 
 
 
@@ -570,6 +587,28 @@ export function placementsOf(planet, heightAt = layoutOf(planet).heightAt) {
           minGap: el.minGap,
         }));
       }
+      found += 1;
+    }
+  }
+  
+  const module = planet.biome ? PROPS[planet.biome] : null;
+  if (module) {
+    const want = Math.max(PROP.min, Math.min(PROP.max, Math.round(area * PROP.density)));
+    let found = 0;
+    for (let k = 0; k < want * 40 && found < want; k++) {
+      const a = unit(seed, 'prop', k, 'angle') * TAU;
+      const u = unit(seed, 'prop', k, 'radius');
+      const d = Math.sqrt((CLEARING_RADIUS_M + 1) ** 2 + u * (maxR ** 2 - (CLEARING_RADIUS_M + 1) ** 2));
+      const x = Math.round(Math.sin(a) * d * 100) / 100;
+      const z = Math.round(Math.cos(a) * d * 100) / 100;
+      if (out.some((p) => Math.hypot(p.x - x, p.z - z) < PROP.minGap)) continue;
+      if (basins.some((b) => Math.hypot(b.x - x, b.z - z) < b.r + 0.8)) continue;
+      out.push(Object.freeze({
+        module, role: 'prop', x, z, y: heightAt(x, z),
+        rotY: Math.round(unit(seed, 'prop', k, 'rotY') * TAU * 1000) / 1000,
+        seed: 1 + (draw(seed, 'prop', k, 'variant') % 3),
+        minGap: PROP.minGap,
+      }));
       found += 1;
     }
   }

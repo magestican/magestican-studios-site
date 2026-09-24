@@ -92,6 +92,9 @@ const FIRE_FLICKER_SEED = 4.7;
 import { dayLine } from 'moon/play/dayline.mjs';
 import { econStartAt, localHour, localDay } from 'moon/play/localClock.mjs';
 import { GUESTS, rollGuest, forceGuest, dismissGuest, guestKey } from 'moon/play/guests.mjs';
+import { birthdayOf, birthdayOnDay, calendarDay, isMarketDayNum, marketStallsOn, marketStallSpots } from 'moon/play/calendar.mjs';
+import { MeshData, compose, rotateY as rotateYm, translate as translateM } from 'moon/mesh/meshData.mjs';
+import { decorMeshData } from '../render/decor.js';
 
 import { startTalk as startGuestTalk, talkNode as guestTalkNode, choose as chooseGuestTalk } from 'moon/play/guestTalk.mjs';
 import { createGuestDraw } from './guestsDraw.js';
@@ -920,6 +923,11 @@ const findPlaces = () => findsHere().filter((f) => f.ready).map((f) => ({ type: 
 const radiusOf = (item) => anchorsOf(item).r;
 const blocksOf = (item) => Boolean(CRAFTABLES[item] && CRAFTABLES[item].blocks);
 let placedDraw = null, craftCard = null;
+
+
+
+let calendarDraw = null, calendarSig = '', calendarCues = 0, calendarFirst = null;
+const calendarKeys = new Set();
 let craftTab = CRAFT_CATEGORIES[0];   
 let craftPick = null;                 
 let placing = null;                   
@@ -1963,9 +1971,39 @@ function splashSources() {
 
 
 function syncVillagePlaced() {
-  village.setPlaced(placedOn(world, 0)
+  village.setPlaced([...placedOn(world, 0), ...calendarStalls()]
     .filter((p) => p.spot && blocksOf(p.item))
     .map((p) => ({ id: p.id, x: p.spot.x, z: p.spot.z, r: radiusOf(p.item) })));
+}
+
+
+const calendarToday = () => calendarDay(world, econNow());
+function calendarStalls() { return marketStallsOn(calendarToday()); }
+function calendarBirthday() {
+  const v = onHome() ? birthdayOnDay(world, calendarToday()) : null;
+  return v ? v.id : null;
+}
+
+function syncCalendar() {
+  const today = calendarToday();
+  const sig = `${today}|${planetId}`;
+  if (sig === calendarSig || !collision) return;
+  const first = calendarSig === '';
+  calendarSig = sig;
+  for (const k of calendarKeys) worldCollision().remove(k);
+  calendarKeys.clear();
+  if (onHome()) {
+    for (const p of calendarStalls()) {
+      const k = `calendar:${p.id}`;
+      worldCollision().add(k, placedObstacle(p, radiusOf(p.item)));
+      calendarKeys.add(k);
+    }
+  }
+  syncVillagePlaced();
+  
+  
+  if (onHome() && isMarketDayNum(today)) { sfx.play('town.market'); calendarCues += 1; }
+  if (first) calendarFirst = today;
 }
 
 
@@ -2626,6 +2664,18 @@ const weatherNow = () => planetAt(planetId, state.system, GENERATED_COUNT).weath
 const todayLine = (t) => dayLine({
   now: t, firstPlayed, hour: state.time, weather: weatherNow(), tzOffsetMin,
 });
+
+
+
+fml.calendar = () => {
+  const today = calendarToday();
+  return {
+    today, market: isMarketDayNum(today), birthday: calendarBirthday(), cues: calendarCues, first: calendarFirst,
+    stalls: calendarDraw ? { placed: calendarStalls().length, drawn: calendarDraw.visible ? marketStallSpots().length : 0 } : null,
+    bunting: homesDraw ? homesDraw.stats.homes.filter((h) => h.bunting).map((h) => h.villager) : [],
+    birthdays: world.villagers.map((v) => ({ id: v.id, next: today + ((((birthdayOf(world, v.id) - today) % 28) + 28) % 28), stage: homeStage(v, econNow()).stage })),
+  };
+};
 
 
 
@@ -3406,7 +3456,7 @@ Object.defineProperty(fml, 'village', {
           
           use: s ? s.use || null : null, clip: s ? s.clip || null : null,
           
-          activity: s ? s.activity || null : null,
+          activity: s ? s.activity || null : null, mood: s ? s.mood || null : null,
           
           following: s ? Boolean(s.following) : false, pairing: s ? Boolean(s.pairing) : false,
           personality: personalityOf(v),
@@ -5310,6 +5360,21 @@ async function fillIn() {
   
   
   permanent.add(placedDraw.group);
+  
+  
+  
+  {
+    const md = new MeshData('market-day-stalls');
+    for (const p of marketStallSpots()) {
+      md.append(decorMeshData(p.item, { season: state.season, lod: 1 }), compose(translateM(p.spot.x, MOON.heightAt(p.spot.x, p.spot.z), p.spot.z), rotateYm(p.spot.rotY)));
+    }
+    onProblems(md.validate());
+    calendarDraw = await toObject3D(md);
+    calendarDraw.name = 'market-day-stalls';
+    calendarDraw.visible = false;
+    scene.add(calendarDraw);
+    permanent.add(calendarDraw);
+  }
   craftCard = createCraftCard({
     el: document.getElementById('workshop'),
     trayEl: document.getElementById('made'),
@@ -6105,6 +6170,8 @@ function frame(now) {
   
   placedDraw.ghost(placing && !inside ? placing.item : null, inside ? null : placeAt, !placeWhy);
   placedDraw.update(world, { x: target.x, z: target.z });
+  syncCalendar();
+  if (calendarDraw) calendarDraw.visible = onHome() && calendarStalls().length > 0;
   if (roomDraw) {
     roomDraw.ghost(placing && inside ? placing.item : null, inside ? placeAt : null, !placeWhy);
     roomDraw.update(world, inside ? { x: player.x, z: player.z } : { x: 0, z: 0 });
@@ -6173,7 +6240,7 @@ function frame(now) {
     badgeList.push({ id: v.id, x: v.x, y: v.y + v.height, z: v.z, state: { ...badge, visible: shownNow, door }, drawn: v.visible });
   }
   levelBadges.update(badgeList, { screenOf: fml.screenOf, nowS: seconds });
-  homesDraw.update(world, t, { village, animS: animSeconds, dtS: dt, focus: focusNow, player, screenOf: fml.screenOf, canSpeak: () => !talk, glass: cycle.emissive.glass });
+  homesDraw.update(world, t, { village, animS: animSeconds, dtS: dt, focus: focusNow, player, screenOf: fml.screenOf, canSpeak: () => !talk, birthday: calendarBirthday(), glass: cycle.emissive.glass });
   
   
   

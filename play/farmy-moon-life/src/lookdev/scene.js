@@ -45,6 +45,12 @@ const FAR_LOD_DISTANCE = 24;
 const ART = Object.freeze({
   cat: () => import('moon/art/cat.mjs'),
   cottage: () => import('moon/art/cottage.mjs'),
+  
+  cactus: () => import('moon/art/cactus.mjs'),
+  crystalCluster: () => import('moon/art/crystalCluster.mjs'),
+  deadTree: () => import('moon/art/deadTree.mjs'),
+  giantMushroom: () => import('moon/art/giantMushroom.mjs'),
+  iceSpike: () => import('moon/art/iceSpike.mjs'),
   decor: () => import('moon/art/decor.mjs'),
   fence: () => import('moon/art/fence.mjs'),
   firepit: () => import('moon/art/firepit.mjs'),

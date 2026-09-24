@@ -36,6 +36,9 @@ import { villagerName } from './people.mjs';
 import { PERSONALITIES, personalityOf } from './personality.mjs';
 import { MAX_LINE_CHARS, coinsText } from './talk.mjs';
 import { homeStage } from './village.mjs';
+import { calendarLines } from './calendar.mjs';
+import { noticeBoard } from '../economy/town.mjs';
+import { hourAt } from '../economy/clock.mjs';
 
 export { MAX_LINE_CHARS };
 export const NODES = Object.freeze(['greeting', 'gift', 'goods', 'hint', 'thanks', 'levelUp', 'cantGive', 'bye']);
@@ -292,6 +295,8 @@ const NODE = {
     
     else if (state.visits === 0) said = [s.hello, s.welcome, say(HOME_LINE[homeStage(villager, t).stage], ownMood(villager, 'home'))];
     else said = [pick(s.again, world, state, 'hello')];
+    
+    if (state.step === 0) said = [...calendarLines(world, villager, t, noticeBoard(world, t, hourAt(world, t)), nameOf), ...said];
     const goods = giftGoods(world, villager);
     return {
       said,

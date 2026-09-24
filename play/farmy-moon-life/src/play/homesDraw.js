@@ -50,6 +50,7 @@ import { speakerOf } from 'moon/play/villagerTalk.mjs';
 import { toObject3D } from '../render/toMesh.js';
 import { soloEmissive } from '../render/material.js';
 import { villagerHomeObject } from '../render/villagerHomes.js';
+import { birthdayBunting } from 'moon/art/kit/birthdayBunting.mjs';
 
 export const HOMES_DRAW = Object.freeze({
   popS: 0.7,
@@ -151,7 +152,7 @@ const SPARKLE_CSS = `
 
 export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null, voice = null, layer = null, onProblems = () => {}, onStage = () => {}, cfg = HOMES_DRAW }) {
   const slots = new Map();
-  let cratesObj = null, hammerObj = null, synced = false;
+  let cratesObj = null, hammerObj = null, buntingObj = null, synced = false;
   const counts = { pops: 0, hammerPlays: 0, hammerSkipped: 0, voiced: 0, sparkles: 0 };
 
   if (layer && !document.getElementById(SPARKLE_STYLE_ID)) {
@@ -168,6 +169,11 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
     hammerObj = await toObject3D(hammer);
     cratesObj.userData.triangles = crates.triangleCount;
     hammerObj.userData.triangles = hammer.triangleCount;
+    const bunting = birthdayBunting({ seed: 1, lod: 0 });
+    onProblems(bunting.validate());
+    buntingObj = await toObject3D(bunting);
+    buntingObj.name = 'birthday-bunting';
+    buntingObj.userData.triangles = bunting.triangleCount;
   })();
 
   
@@ -273,7 +279,7 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
     return prev;
   }
 
-  function update(world, t, { village, animS = 0, dtS = 0, focus = null, player = null, screenOf = null, canSpeak = null, glass = 0 } = {}) {
+  function update(world, t, { village, animS = 0, dtS = 0, focus = null, player = null, screenOf = null, canSpeak = null, glass = 0, birthday = null } = {}) {
     if (!cratesObj) return;
     for (const v of world.villagers) {
       const slot = slotOf(village, world, v);
@@ -328,6 +334,12 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
           slot.sparkle.el.style.display = c.inView ? '' : 'none';
         }
       }
+      
+      
+      
+      const wantBunting = Boolean(buntingObj && birthday === slot.id && slot.drawn && slot.drawn !== 'none');
+      if (wantBunting && !slot.bunting) { slot.bunting = buntingObj.clone(); slot.group.add(slot.bunting); }
+      if (!wantBunting && slot.bunting) { slot.group.remove(slot.bunting); slot.bunting = null; }
       slot.group.visible = !focus || Math.hypot(slot.home.x - focus.x, slot.home.z - focus.z) <= cfg.drawM;
       slot.stage = hs;
 
@@ -385,6 +397,7 @@ export function createHomesDraw({ scene, season = 'summer', heightAt, sfx = null
           stage: s.stage ? s.stage.stage : 'none', progress: s.stage ? s.stage.progress : 0, building: Boolean(s.stage && s.stage.building),
           drawn: s.drawn, shown: Boolean(s.obj), scale: s.obj ? s.obj.scale.x / HOME_STAND_IN_SCALE : 0,
           crates: Boolean(s.crates), hammering: s.hammering, pops: s.pops, sparkle: Boolean(s.sparkle), visible: s.group.visible,
+          bunting: Boolean(s.bunting),
         })),
       };
     },

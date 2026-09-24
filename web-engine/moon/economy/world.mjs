@@ -37,7 +37,7 @@ import { putOnShelves, runCustomers, sellable, shelfRoom } from './shop.mjs';
 import { applyGift, giftBasePoints } from './happiness.mjs';
 import { CRAFTABLES } from './craftables.mjs';
 import { craftPlan, craftedName } from './crafting.mjs';
-import { STORES, TOWN_HALL, marketPrice, newTown, noticeBoard, storeOpen, storePrice } from './town.mjs';
+import { CALENDAR, STORES, TOWN_HALL, isBirthday, marketPrice, newTown, noticeBoard, storeOpen, storePrice } from './town.mjs';
 import { hourAt } from './clock.mjs';
 
 export const WORLD_VERSION = 1;
@@ -896,10 +896,12 @@ const RULES = {
     },
     apply(world, a, t, events) {
       const villager = byId(world.villagers, a.villager);
-      const base = giftBasePoints(villager, a);
+      
+      const birthday = isBirthday(world, villager.id, t);
+      const base = giftBasePoints(villager, a) * (birthday ? CALENDAR.birthdayGift_x : 1);
       if (a.coins !== undefined) spend(world, a.coins, false);
       else take(world, a.good, a.count);
-      const event = { type: 'gift', at: t, villager: villager.id, base, points: 0 };
+      const event = { type: 'gift', at: t, villager: villager.id, base, points: 0, birthday };
       events.push(event);
       event.points = applyGift(villager, base, t, events);
     },
@@ -1008,7 +1010,14 @@ const RULES = {
       world.town.points += board.points;
       world.town.filled += 1;
       world.town.lastDay = board.day;
-      events.push({ type: 'fillRequest', at: t, good: board.good, count: board.count, coins: board.coins, points: board.points, standing: world.town.points });
+      
+      
+      
+      
+      const asker = board.villager === null ? null : byId(world.villagers, board.villager);
+      const villagerPoints = asker && GOODS[board.good].gift_points > 0
+        ? applyGift(asker, giftBasePoints(asker, { good: board.good, count: board.count }), t, events) : 0;
+      events.push({ type: 'fillRequest', at: t, good: board.good, count: board.count, coins: board.coins, points: board.points, standing: world.town.points, villager: board.villager, villagerPoints });
     },
   },
 

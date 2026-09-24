@@ -139,6 +139,53 @@ export const townOf = (world) => world.town || newTown();
 
 
 
+
+
+
+
+
+
+
+
+
+
+export const CALENDAR = Object.freeze({
+  cycleDays: 28,
+  birthdaySlots: Object.freeze([0, 6, 11, 17, 22, 3, 14]),
+  
+  epochWeekday: 4,
+  marketWeekday: 0,
+  marketFootfall_bp: 13000,
+  birthdayGift_x: 3,
+});
+
+const mod = (n, m) => ((n % m) + m) % m;
+
+export const calendarDay = (world, t) => localDayNum(t, world.tzOffsetMin);
+
+export const weekdayOf = (day) => mod(day + CALENDAR.epochWeekday, 7);
+
+export function birthdayOf(world, villagerId) {
+  const i = (world.villagers || []).findIndex((v) => v.id === villagerId);
+  if (i < 0) return -1;
+  const turn = draw(world.seed, 'calendar', 'birthday') % CALENDAR.cycleDays;
+  const slot = CALENDAR.birthdaySlots[i % CALENDAR.birthdaySlots.length] + Math.floor(i / CALENDAR.birthdaySlots.length);
+  return mod(turn + slot, CALENDAR.cycleDays);
+}
+
+export function birthdayOnDay(world, day) {
+  const d = mod(day, CALENDAR.cycleDays);
+  return (world.villagers || []).find((v) => birthdayOf(world, v.id) === d) || null;
+}
+export const isBirthday = (world, villagerId, t) => {
+  const b = birthdayOf(world, villagerId);
+  return b >= 0 && mod(calendarDay(world, t), CALENDAR.cycleDays) === b;
+};
+export const isMarketDayNum = (day) => weekdayOf(day) === CALENDAR.marketWeekday;
+export const isMarketDay = (world, t) => isMarketDayNum(calendarDay(world, t));
+
+
+
 export function storeOpen(hour, counter) {
   return hour >= counter.openHour && hour < counter.closeHour;
 }
@@ -162,13 +209,17 @@ export function storePrice(store, good) {
 
 
 
-export function requestForDay(seed, day) {
+export function requestForDay(seed, day, villagers = []) {
   const weights = day < TOWN.request.plainDays ? PLAIN_WEIGHTS : REQUEST_WEIGHTS;
   const good = REQUESTABLE[pickWeighted(weights, seed, 'townRequest', day, 'good')];
   const span = TOWN.request.maxCount - TOWN.request.minCount + 1;
   const count = TOWN.request.minCount + (draw(seed, 'townRequest', day, 'count') % span);
   const coins = Math.max(1, Math.floor((GOODS[good].sell_coins * count * TOWN.request.coins_bp) / BP));
-  return { day, good, count, coins, points: TOWN.request.points };
+  
+  
+  
+  const villager = villagers.length ? villagers[draw(seed, 'townRequest', day, 'villager') % villagers.length].id : null;
+  return { day, good, count, coins, points: TOWN.request.points, villager };
 }
 
 
@@ -178,7 +229,7 @@ export function requestForDay(seed, day) {
 
 export function noticeBoard(world, t, hour) {
   const day = townDay(world, t);
-  const req = requestForDay(world.seed, day);
+  const req = requestForDay(world.seed, day, world.villagers || []);
   const town = townOf(world);
   return {
     ...req,
