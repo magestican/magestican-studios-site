@@ -256,6 +256,13 @@ import {
 import {
   BRUSHES, BRUSH_NAMES, TERRAFORM, applyBrush, deltaField, pondObstacle, terrainOf, whyNotShape,
 } from 'moon/world/terraform.mjs';
+
+import {
+  MAYOR, clearedOf, homeSpur, layoutLampId, lampNear, lightsOf, mayorShaping, pathLines, pathNear, pathsOf,
+  whyNotErase, whyNotLight, whyNotPath,
+} from 'moon/world/mayor.mjs';
+import { MAYOR_LEVEL, MAYOR_TITLE, TOWN, isMayor } from 'moon/economy/town.mjs';
+import { setExtraPaths } from 'moon/world/moonLayout.mjs';
 import { BAR_HIDDEN, barState } from 'moon/play/tools.mjs';
 import { anchorsOf, uses as decorUses, usesOf, landsOf } from 'moon/art/decor.mjs';
 import { landingsInWorld, pourSource } from 'moon/play/splash.mjs';
@@ -1973,7 +1980,9 @@ function splashSources() {
 function syncVillagePlaced() {
   village.setPlaced([...placedOn(world, 0), ...calendarStalls()]
     .filter((p) => p.spot && blocksOf(p.item))
-    .map((p) => ({ id: p.id, x: p.spot.x, z: p.spot.z, r: radiusOf(p.item) })));
+    .map((p) => ({ id: p.id, x: p.spot.x, z: p.spot.z, r: radiusOf(p.item) }))
+    
+    .concat(lightsOf(world).map((l) => ({ id: `mlamp${l.id}`, x: l.x, z: l.z, r: MAYOR.lampRadiusM }))));
 }
 
 
@@ -2075,18 +2084,34 @@ function syncPonds() {
 }
 
 
-const terraformBlockers = () => [
-  ...staticObstacles.map((o) => ({ x: o.x, z: o.z, r: o.reach || 0 })),
-  ...view.map((v) => ({ x: v.x, z: v.z, r: trunkRadius(v) })),
-  ...placedFootprints(world, radiusOf, blocksOf, null, { planet: 0 }),
-];
+
+
+
+const terraformBlockers = () => (mayorNow()
+  ? [
+    ...(homeCollision ? homeCollision.obstacles : staticObstacles).filter((o) => o.module !== 'pond').map((o) => ({ x: o.x, z: o.z, r: (o.reach || 0) + MAYOR.standingPadM })),
+    ...view.map((v) => ({ x: v.x, z: v.z, r: trunkRadius(v) + MAYOR.standingPadM })),
+    ...placedFootprints(world, radiusOf, blocksOf, null, { planet: 0 }).map((b) => ({ ...b, r: (b.r || 0) + MAYOR.standingPadM })),
+  ]
+  : [
+    ...staticObstacles.map((o) => ({ x: o.x, z: o.z, r: o.reach || 0 })),
+    ...view.map((v) => ({ x: v.x, z: v.z, r: trunkRadius(v) })),
+    ...placedFootprints(world, radiusOf, blocksOf, null, { planet: 0 }),
+  ]);
+
+const mayorNow = () => Boolean(world) && isMayor(world);
+const MAYOR_SHAPING = mayorShaping();
 
 
 function shapingNow() {
   if (inside || !onHome()) return { spot: null, why: 'This is the shaping of your own land - go back to the moon first.' };
-  const spot = placeSpot(player, { r: 0.4 });
+  return shapingAt(placeSpot(player, { r: 0.4 }));
+}
+
+function shapingAt(spot) {
+  if (MAYOR_BRUSHES.includes(shaping)) return { spot, why: mayorBrushWhy(shaping, spot) };
   const why = whyNotShape(shaping, spot.x, spot.z, {
-    world, terrain: terrainOf(world), blockers: terraformBlockers(),
+    world, terrain: terrainOf(world), blockers: terraformBlockers(), mayor: mayorNow() ? MAYOR_SHAPING : null,
   });
   return { spot, why };
 }
@@ -2097,7 +2122,10 @@ function shapingPrompt() {
   return {
     target: null, verb: 'shape', open: null, chosen: null, tool: null, hold: null, holdLabel: '',
     action: shapeWhy ? null : { type: 'shapeHere' },
-    label: shaping === 'pond' ? 'Dig a pond here' : `${BRUSH_NAMES[shaping]} the ground here`,
+    label: shaping === 'pond' ? 'Dig a pond here'
+      : shaping === 'path' ? (pathFrom ? 'End the path here' : 'Start a path here')
+        : shaping === 'light' ? (shapeAt && lampNear(world, layoutLamps(), shapeAt.x, shapeAt.z) ? 'Take this lamp down' : 'Put a lamp up here')
+          : `${BRUSH_NAMES[shaping]} the ground here`,
     why: shapeWhy,
   };
 }
@@ -2106,9 +2134,10 @@ function shapingPrompt() {
 function useBrush() {
   if (!shaping || !shapeAt) return;
   if (shapeWhy) { hud.nope(shapeWhy, seconds); return; }
+  if (MAYOR_BRUSHES.includes(shaping)) { useMayorBrush(shaping, shapeAt); return; }
   const parcel = parcelAt(shapeAt.x, shapeAt.z);
   const next = applyBrush(terrainOf(world), {
-    kind: shaping, x: shapeAt.x, z: shapeAt.z, parcel, blockers: terraformBlockers(),
+    kind: shaping, x: shapeAt.x, z: shapeAt.z, parcel, blockers: terraformBlockers(), mayor: mayorNow() ? MAYOR_SHAPING : null,
   });
   const r = doAct({ type: 'terraform', parcel, brush: shaping, cells: next[parcel].cells, ponds: next[parcel].ponds });
   if (r.error) { hud.say(r.error, seconds); return; }
@@ -2116,10 +2145,147 @@ function useBrush() {
 }
 
 
+
+
+
+
+
+
+const MAYOR_BRUSHES = Object.freeze(['path', 'light']);
+const MAYOR_BRUSH_NAMES = Object.freeze({ path: 'Lay a path', light: 'Put up or take down a lamp' });
+let pathFrom = null;                  
+let mayorSig = null;                  
+let mayorBusy = 0;                    
+const mayorStats = { paths: 0, lights: 0, cleared: 0, rebakes: 0, reprops: 0, lastMs: 0 };
+
+
+const standingObstacles = () => (homeCollision ? homeCollision.obstacles : staticObstacles).filter((o) => o.module !== 'pond');
+const layoutLamps = () => placements().filter((p) => p.role === 'lamp');
+
+function mayorBrushWhy(kind, spot) {
+  if (!mayorNow()) return `Only the ${MAYOR_TITLE} may do that - raise the town's standing to the top first.`;
+  if (kind === 'path') {
+    if (!pathFrom) return null;
+    if (Math.hypot(spot.x - pathFrom.x, spot.z - pathFrom.z) < 0.8) {
+      const p = pathNear(world, spot.x, spot.z);
+      return p ? whyNotErase(world, p.id, { nameOfHome: villagerNameOf }) : null;
+    }
+    return whyNotPath([pathFrom.x, pathFrom.z], [spot.x, spot.z], { obstacles: standingObstacles(), world });
+  }
+  if (lampNear(world, layoutLamps(), spot.x, spot.z)) return null;
+  return whyNotLight(spot.x, spot.z, { obstacles: standingObstacles(), world });
+}
+function villagerNameOf(id) {
+  const v = (world.villagers || []).find((x) => x.id === id);
+  return v && v.name ? v.name : 'A villager';
+}
+
+function useMayorBrush(kind, spot) {
+  let r = null;
+  if (kind === 'path') {
+    if (!pathFrom) { pathFrom = { x: spot.x, z: spot.z }; hud.say('Walk to where the path should end, and press again.', seconds); return; }
+    const from = pathFrom;
+    pathFrom = null;
+    if (Math.hypot(spot.x - from.x, spot.z - from.z) < 0.8) {
+      const p = pathNear(world, spot.x, spot.z);
+      if (!p) { hud.say('Path cancelled.', seconds); return; }
+      r = doAct({ type: 'erasePath', path: p.id });
+    } else {
+      const round = (v) => Math.round(v * 1000) / 1000;
+      r = doAct({ type: 'layPath', pts: [[round(from.x), round(from.z)], [round(spot.x), round(spot.z)]] });
+    }
+  } else {
+    const hit = lampNear(world, layoutLamps(), spot.x, spot.z);
+    r = hit ? doAct({ type: 'removeLight', ...(hit.own ? { light: hit.own } : { layout: hit.layout }) })
+      : doAct({ type: 'placeLight', x: Math.round(spot.x * 100) / 100, z: Math.round(spot.z * 100) / 100 });
+  }
+  if (r && r.error) { hud.say(r.error, seconds); return; }
+  applyMayor().catch(fail);
+}
+
+
+
+
+
+
+
+
+
+async function applyMayor({ rebuild = true } = {}) {
+  if (!world) return;
+  const homes = village ? village.homes : {};
+  const have = new Set(pathsOf(world).filter((p) => p.kind === 'spur').map((p) => String(p.home)));
+  const spurs = Object.keys(homes).filter((id) => !have.has(String(id)))
+    .map((id) => ({ home: Number(id), pts: homeSpur(homes[id]) })).filter((s) => s.pts);
+  if (spurs.length) doAct({ type: 'spurHomes', spurs }, { quiet: true });
+  const sig = JSON.stringify([world.paths || [], world.lights || [], world.cleared || []]);
+  if (sig === mayorSig) return;
+  const first = mayorSig === null;
+  const was = first ? null : JSON.parse(mayorSig);
+  mayorSig = sig;
+  const t0 = performance.now();
+  mayorBusy += 1;
+  try {
+  const pathsChanged = setExtraPaths(pathLines(world));
+  mayorStats.paths = pathsOf(world).length;
+  mayorStats.lights = lightsOf(world).length;
+  mayorStats.cleared = clearedOf(world).length;
+  syncMayorCollision();
+  if (village) syncVillagePlaced();
+  if (pathsChanged && village) village.repath();
+  if (rebuild && !first && homeScene) {
+    if (pathsChanged) { await homeScene.reground(); mayorStats.rebakes += 1; }
+    const lampsChanged = !was || JSON.stringify([was[1], was[2]]) !== JSON.stringify([world.lights || [], world.cleared || []]);
+    if (lampsChanged) {
+      staticSources = await homeScene.reprops(mayorLampProps(), mayorDrops());
+      partsDraw.release(homeScene.root);
+      partsDraw.adopt(homeScene.root);
+      mayorStats.reprops += 1;
+      syncNightLights();
+    }
+  }
+  mayorStats.lastMs = Math.round(performance.now() - t0);
+  } finally { mayorBusy -= 1; }
+}
+
+
+function mayorLampProps() {
+  return lightsOf(world).map((l) => ({ module: 'lamp', x: l.x, z: l.z, y: heightAt(l.x, l.z), rotY: (l.id * 1.7) % (Math.PI * 2), seed: 1 + (l.id % 3), role: 'lamp' }));
+}
+
+function mayorDrops() {
+  const gone = new Set(clearedOf(world));
+  return gone.size ? (p) => p.role === 'lamp' && gone.has(layoutLampId(p)) : null;
+}
+
+const mayorLampKeys = new Set();
+const clearedLampObs = [];
+function syncMayorCollision() {
+  if (!homeCollision) return;
+  for (const k of mayorLampKeys) homeCollision.remove(k);
+  mayorLampKeys.clear();
+  for (const l of lightsOf(world)) {
+    const k = `mlamp:${l.id}`;
+    homeCollision.add(k, signObstacleFor({ module: 'lamp', x: l.x, z: l.z, rotY: 0 }));
+    mayorLampKeys.add(k);
+  }
+  
+  for (const ob of clearedLampObs.splice(0)) homeCollision.obstacles.push(ob);
+  const gone = new Set(clearedOf(world));
+  for (let i = homeCollision.obstacles.length - 1; i >= 0; i--) {
+    const ob = homeCollision.obstacles[i];
+    if (ob.module !== 'lamp' || ob.key) continue;
+    if (gone.has(layoutLampId(ob))) clearedLampObs.push(...homeCollision.obstacles.splice(i, 1));
+  }
+  if (homeCollision === collision) staticObstacles = collision.obstacles.slice();
+}
+
+
 function chooseBrush(kind) {
-  shaping = kind && BRUSHES.includes(kind) ? kind : null;
+  shaping = kind && (BRUSHES.includes(kind) || MAYOR_BRUSHES.includes(kind)) ? kind : null;
   shapeWhy = null;
   shapeAt = null;
+  pathFrom = null;
   if (shaping) stopPlacing();
 }
 
@@ -2131,12 +2297,13 @@ function paintShape() {
   
   
   
-  const sig = `${on}|${shaping}|${inside ? 'in' : 'out'}|${ownedIds(world).join(',')}`;
+  const mayor = mayorNow();
+  const sig = `${on}|${shaping}|${inside ? 'in' : 'out'}|${ownedIds(world).join(',')}|${mayor}`;
   if (sig === shapePainted && shapeCard.isOpen) return;
   shapePainted = sig;
   const mine = on !== null && ownedIds(world).includes(on);
   shapeCard.render({
-    brushes: BRUSHES.map((kind) => ({
+    brushes: [...BRUSHES.map((kind) => ({
       kind,
       label: kind === 'pond' ? 'Dig a pond' : `${BRUSH_NAMES[kind]} the ground`,
       hint: kind === 'pond'
@@ -2144,10 +2311,18 @@ function paintShape() {
         : `${Math.round(TERRAFORM.riseM * 100)} cm a press, up to ${kind === 'raise' ? TERRAFORM.maxRiseM : TERRAFORM.maxLowerM} m`,
       on: shaping === kind,
     })),
+    
+    ...(mayor ? MAYOR_BRUSHES.map((kind) => ({
+      kind,
+      label: MAYOR_BRUSH_NAMES[kind],
+      hint: kind === 'path' ? 'Press where it starts, then where it ends; twice on one spot erases it' : 'Press by a lamp to take it down, anywhere else to put one up',
+      on: shaping === kind,
+    })) : [])],
     note: inside ? 'Step outside first - this is for the land, not the floor.'
       : on === null ? 'Stand on the moon to shape it.'
-        : mine ? `You are on ${PARCELS[on].label}, and it is yours. Walk to a spot and press the button.`
-          : `${PARCELS[on].label} is not yours yet - buy it from the cat first.`,
+        : mayor ? `You are the ${MAYOR_TITLE} - the whole island is yours to shape, except the square, the paths and the landing spot.`
+          : mine ? `You are on ${PARCELS[on].label}, and it is yours. Walk to a spot and press the button.`
+            : `${PARCELS[on].label} is not yours yet - buy it from the cat first.`,
   });
 }
 
@@ -2287,6 +2462,9 @@ function armsOf() {
 function onHomes(chosen) {
   if (chosen.length && collision) refreshPlantObstacles();
   if (chosen.length) touchSave('home');   
+  
+  
+  if (onHome() && homeScene) applyMayor().catch(fail);
   return chosen;
 }
 function onHomeStage(id, home, stage) {
@@ -3638,6 +3816,69 @@ Object.defineProperty(fml, 'g6c', {
 
 
 
+
+
+
+
+fml.i2 = {
+  press(kind) {
+    if (shaping !== kind) chooseBrush(kind);
+    const sh = shapingNow();
+    shapeAt = sh.spot;
+    shapeWhy = sh.why;
+    if (shapeWhy) return { ok: false, why: shapeWhy, spot: shapeAt };
+    useBrush();
+    return { ok: true, why: null, spot: shapeAt, pathFrom };
+  },
+  
+  pressAt(kind, x, z, { dry = false } = {}) {
+    if (shaping !== kind) chooseBrush(kind);
+    if (inside || !onHome()) return { ok: false, why: 'not on the home moon' };
+    const sh = shapingAt({ x, z });
+    if (dry || sh.why) return { ok: !sh.why, why: sh.why, spot: sh.spot };
+    shapeAt = sh.spot;
+    shapeWhy = null;
+    useBrush();
+    return { ok: true, why: null, spot: shapeAt, pathFrom };
+  },
+  
+  buried() {
+    const field = terrainField || deltaField({});
+    const at = (x, z) => Math.abs(field.at(x, z)) > 1e-9;
+    return standingObstacles().filter((o) => at(o.x, o.z)).length
+      + view.filter((v) => at(v.x, v.z)).length
+      + placedOn(world, 0).filter((p) => p.spot && at(p.spot.x, p.spot.z)).length;
+  },
+  nodes: () => (terrainField ? terrainField.size : 0),
+  idle: () => mayorBusy === 0,
+  state: () => ({
+    mayor: mayorNow(),
+    standing: townOf(world).points,
+    paths: pathsOf(world),
+    lights: lightsOf(world),
+    cleared: clearedOf(world),
+    stats: { ...mayorStats },
+    sources: night ? night.sources.length : 0,
+    lamps: layoutLamps().map((p) => ({ id: layoutLampId(p), x: p.x, z: p.z })),
+    brushes: mayorNow() ? [...BRUSHES, ...MAYOR_BRUSHES] : [...BRUSHES],
+  }),
+  pathDistance: (x, z) => MOON.pathDistance(x, z),
+  groundY: (x, z) => heightAt(x, z),
+  
+  onPath(ax, az, bx, bz) {
+    const w = village.walkBetween({ x: ax, z: az }, { x: bx, z: bz });
+    const pts = w && w.points;
+    if (!pts || pts.length < 2) return null;
+    let on = 0, all = 0;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const len = Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].z - pts[i].z);
+      const mx = (pts[i].x + pts[i + 1].x) / 2, mz = (pts[i].z + pts[i + 1].z) / 2;
+      all += len;
+      if (MOON.pathDistance(mx, mz) <= MOON.PATH_HALF_WIDTH) on += len;
+    }
+    return all > 0 ? on / all : null;
+  },
+};
 fml.l17Brush = (kind = null) => { chooseBrush(kind); paintShape(); return shaping; };
 fml.l17Shape = () => {
   if (!shaping) return { ok: false, why: 'no brush in hand' };
@@ -5199,8 +5440,19 @@ async function load() {
   
   
   
+  
+  
+  if (q.get('shot') === '1' && q.get('standing') === 'max') {
+    world.town = { ...townOf(world), points: Math.max(townOf(world).points, TOWN.standings[MAYOR_LEVEL].points) };
+  }
+  
+  
+  await applyMayor({ rebuild: false });
   applyTerrain({ rebuild: false });
-  const built = await buildMoonScene({ scene, state, settings: partsSettings(), fml, skipRoles: ['tree', 'shop', 'processor'], skipModules: ['cat'] });
+  const built = await buildMoonScene({
+    scene, state, settings: partsSettings(), fml, skipRoles: ['tree', 'shop', 'processor'], skipModules: ['cat'],
+    extraProps: mayorLampProps(), dropProp: mayorDrops(),
+  });
   
   
   
@@ -5258,6 +5510,7 @@ async function load() {
 
 async function fillIn() {
   collision = homeCollision = createCollisionWorld({ obstacles: obstaclesWithoutRuntime(P) });
+  syncMayorCollision(); 
   
   for (const s of FORAGE_SPOTS) {
     const ob = forageObstacle(s);

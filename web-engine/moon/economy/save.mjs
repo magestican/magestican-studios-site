@@ -69,9 +69,10 @@
 
 import { WORLD_VERSION } from './world.mjs';
 import { faceHousesFront } from './houseFacing.mjs';
+import { pathsOf, withSpurs } from '../world/mayor.mjs';
 
 export const SAVE_FORMAT = 'fml.save';
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 
 export const LAYOUT_BEFORE_STAMP = 1;
@@ -192,6 +193,25 @@ export const MIGRATIONS = Object.freeze([
     
     up: (doc) => ({ ...V3_FIELDS.reduce((d, f) => f.up(d), doc), version: 3 }),
   }),
+  Object.freeze({
+    from: 3,
+    to: 4,
+    note: 'a path to each villager home that already stands (I2 world.paths)',
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    up: (doc) => {
+      if (!isObj(doc.world)) return { ...doc, version: 4 };
+      const homes = isObj(doc.village) && isObj(doc.village.homes) ? doc.village.homes : {};
+      return { ...doc, version: 4, world: { ...doc.world, paths: withSpurs(pathsOf(doc.world), homes) } };
+    },
+  }),
 ]);
 
 
@@ -307,7 +327,7 @@ export function checkSave(doc) {
 
 
 
-const WORLD_LISTS = ['trees', 'rocks', 'forage', 'buildings', 'villagers', 'placed', 'land'];
+const WORLD_LISTS = ['trees', 'rocks', 'forage', 'buildings', 'villagers', 'placed', 'land', 'paths', 'lights', 'cleared'];
 
 
 

@@ -733,6 +733,24 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
     cfg, P, collision, staticObstacles, spots: SPOTS, forage, workplaces, work, grid: gridOf, route, standPoint, timeline, lookAt, setHome,
     homes, setPlaced,
     
+
+
+
+
+    
+    walkBetween(from, to) {
+      const g = gridOf();
+      return walkPath(g, from, to, { cost }) || null;
+    },
+    repath() {
+      grid = null;
+      cost = null;
+      unplaced = null;
+      routes.clear();
+      days.clear();
+      version += 1;
+    },
+    
     get placed() { return [...placed.values()]; },
     
     restoreHomes(saved = {}) { for (const [id, spot] of Object.entries(saved)) setHome(Number(id), spot); },

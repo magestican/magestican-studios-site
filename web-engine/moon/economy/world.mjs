@@ -37,7 +37,7 @@ import { putOnShelves, runCustomers, sellable, shelfRoom } from './shop.mjs';
 import { applyGift, giftBasePoints } from './happiness.mjs';
 import { CRAFTABLES } from './craftables.mjs';
 import { craftPlan, craftedName } from './crafting.mjs';
-import { CALENDAR, STORES, TOWN_HALL, isBirthday, marketPrice, newTown, noticeBoard, storeOpen, storePrice } from './town.mjs';
+import { CALENDAR, STORES, TOWN_HALL, isBirthday, isMayor, marketPrice, newTown, noticeBoard, storeOpen, storePrice } from './town.mjs';
 import { hourAt } from './clock.mjs';
 
 export const WORLD_VERSION = 1;
@@ -186,6 +186,15 @@ export function newWorld({ seed = 1, now, wildTrees = [], rocks = 0, forageSpots
     
     
     assembly: { open: null, meetings: [], works: [] },
+    
+    
+    
+    
+    
+    
+    paths: [],
+    lights: [],
+    cleared: [],
   };
   
   world.buildings.push({ id: nextId(world), type: 'shop', level: 1, builtAt: now });
@@ -1054,7 +1063,9 @@ const RULES = {
     check(world, a) {
       if (!Number.isInteger(a.parcel) || a.parcel < 0) return 'That is not a piece of land.';
       const land = Array.isArray(world.land) ? world.land : [];
-      if (!land.includes(a.parcel)) return 'This is not your land yet - buy it from the cat first.';
+      
+      
+      if (!land.includes(a.parcel) && !isMayor(world)) return 'This is not your land yet - buy it from the cat first.';
       if (!a.cells || typeof a.cells !== 'object' || Array.isArray(a.cells)) return 'There is nothing to shape there.';
       return null;
     },
@@ -1068,7 +1079,91 @@ const RULES = {
       });
     },
   },
+
+  
+  
+  
+  
+  
+  layPath: {
+    check(world, a) {
+      if (!isMayor(world)) return 'Only the Mayor lays new paths - raise the town\'s standing first.';
+      if (!isLine(a.pts)) return 'Choose where the path starts and ends.';
+      return null;
+    },
+    apply(world, a, t, events) {
+      const paths = Array.isArray(world.paths) ? world.paths : [];
+      const id = paths.reduce((m, p) => Math.max(m, Number.isInteger(p.id) ? p.id : 0), 0) + 1;
+      world.paths = [...paths, { id, kind: 'laid', pts: a.pts.map((p) => [p[0], p[1]]) }];
+      events.push({ type: 'layPath', at: t, path: id });
+    },
+  },
+  erasePath: {
+    check(world, a) {
+      if (!isMayor(world)) return 'Only the Mayor changes the paths.';
+      const p = (Array.isArray(world.paths) ? world.paths : []).find((q) => q.id === a.path);
+      if (!p) return 'There is no path of yours there.';
+      if (p.kind !== 'laid') return 'That path leads to a villager\'s home - it stays.';
+      return null;
+    },
+    apply(world, a, t, events) {
+      world.paths = world.paths.filter((p) => p.id !== a.path);
+      events.push({ type: 'erasePath', at: t, path: a.path });
+    },
+  },
+  
+  
+  spurHomes: {
+    check(world, a) {
+      if (!Array.isArray(a.spurs) || !a.spurs.every((s) => s && s.home !== undefined && isLine(s.pts))) return 'There is no path to lay.';
+      return null;
+    },
+    apply(world, a, t, events) {
+      const paths = Array.isArray(world.paths) ? world.paths.slice() : [];
+      const have = new Set(paths.filter((p) => p.kind === 'spur').map((p) => String(p.home)));
+      for (const s of a.spurs) {
+        if (have.has(String(s.home))) continue;
+        const id = paths.reduce((m, p) => Math.max(m, Number.isInteger(p.id) ? p.id : 0), 0) + 1;
+        paths.push({ id, kind: 'spur', home: s.home, pts: s.pts.map((p) => [p[0], p[1]]) });
+        have.add(String(s.home));
+        events.push({ type: 'spurHome', at: t, path: id, home: s.home });
+      }
+      world.paths = paths;
+    },
+  },
+  placeLight: {
+    check(world, a) {
+      if (!isMayor(world)) return 'Only the Mayor puts up the town\'s lamps.';
+      if (!Number.isFinite(a.x) || !Number.isFinite(a.z)) return 'There is no ground there.';
+      return null;
+    },
+    apply(world, a, t, events) {
+      const lights = Array.isArray(world.lights) ? world.lights : [];
+      const id = lights.reduce((m, l) => Math.max(m, Number.isInteger(l.id) ? l.id : 0), 0) + 1;
+      world.lights = [...lights, { id, x: a.x, z: a.z }];
+      events.push({ type: 'placeLight', at: t, light: id });
+    },
+  },
+  removeLight: {
+    check(world, a) {
+      if (!isMayor(world)) return 'Only the Mayor takes the town\'s lamps down.';
+      if (Number.isInteger(a.light)) return (world.lights || []).some((l) => l.id === a.light) ? null : 'There is no lamp of yours there.';
+      if (typeof a.layout === 'string' && a.layout.startsWith('lamp@')) return (world.cleared || []).includes(a.layout) ? 'That lamp is already gone.' : null;
+      return 'There is no lamp there.';
+    },
+    apply(world, a, t, events) {
+      if (Number.isInteger(a.light)) world.lights = world.lights.filter((l) => l.id !== a.light);
+      else world.cleared = [...(Array.isArray(world.cleared) ? world.cleared : []), a.layout];
+      events.push({ type: 'removeLight', at: t, light: Number.isInteger(a.light) ? a.light : a.layout });
+    },
+  },
 };
+
+
+function isLine(pts) {
+  return Array.isArray(pts) && pts.length >= 2 && pts.length <= 64
+    && pts.every((p) => Array.isArray(p) && p.length === 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]));
+}
 
 
 

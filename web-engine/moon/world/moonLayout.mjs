@@ -146,11 +146,10 @@ function segDist(px, pz, ax, az, bx, bz) {
   return Math.hypot(px - (ax + vx * t), pz - (az + vz * t));
 }
 
-
-export function pathDistance(x, z) {
+function linesDistance(lines, boxes, x, z) {
   let d = Infinity;
-  for (let k = 0; k < PATHS.length; k++) {
-    const line = PATHS[k], b = PATH_BOXES[k];
+  for (let k = 0; k < lines.length; k++) {
+    const line = lines[k], b = boxes[k];
     const bx = Math.max(b[0] - x, 0, x - b[2]), bz = Math.max(b[1] - z, 0, z - b[3]);
     if (bx * bx + bz * bz >= d * d) continue;
     for (let i = 0; i < line.length - 1; i++) {
@@ -158,6 +157,43 @@ export function pathDistance(x, z) {
     }
   }
   return d;
+}
+
+
+export const layoutPathDistance = (x, z) => linesDistance(PATHS, PATH_BOXES, x, z);
+
+
+
+
+
+
+
+
+let extraLines = [];
+let extraBoxes = [];
+let extraSig = '';
+
+export function setExtraPaths(lines = []) {
+  const clean = (Array.isArray(lines) ? lines : []).filter((l) => Array.isArray(l) && l.length >= 2);
+  const sig = JSON.stringify(clean);
+  if (sig === extraSig) return false;
+  extraSig = sig;
+  extraLines = clean;
+  extraBoxes = clean.map((line) => {
+    const xs = line.map((p) => p[0]), zs = line.map((p) => p[1]);
+    return [Math.min(...xs), Math.min(...zs), Math.max(...xs), Math.max(...zs)];
+  });
+  return true;
+}
+
+export const extraPaths = () => extraLines;
+
+export const extraPathsSig = () => extraSig;
+
+
+export function pathDistance(x, z) {
+  const d = linesDistance(PATHS, PATH_BOXES, x, z);
+  return extraLines.length ? Math.min(d, linesDistance(extraLines, extraBoxes, x, z)) : d;
 }
 
 
@@ -179,7 +215,7 @@ export function surfaceHeight(x, z) {
   const hills = (fbm3(x / 16, 0.37, z / 16, { octaves: 3, seed: 11 }) - 0.5) * 2 * UNDULATION
     + (valueNoise2(x / 5.5, z / 5.5, 23) - 0.5) * 0.18;
   const parcelFlat = smoothstep(0, 4, parcelDistance(x, z));
-  const pd = pathDistance(x, z);
+  const pd = layoutPathDistance(x, z);
   const pathFlat = 0.45 + 0.55 * smoothstep(PATH_HALF_WIDTH, PATH_HALF_WIDTH + 2.5, pd);
   const pathDip = -0.05 * (1 - smoothstep(PATH_HALF_WIDTH * 0.6, PATH_HALF_WIDTH + 0.3, pd));
   const parcelLevel = 0.04;

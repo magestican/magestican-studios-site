@@ -250,3 +250,13 @@ export function standingOf(points) {
 
 
 export const townBonusAt = (world) => standingOf(townOf(world).points).footfall_bp;
+
+
+
+
+
+export const MAYOR_TITLE = 'Mayor';
+export const MAYOR_LEVEL = TOWN.standings.length - 1;
+export const isMayorAt = (points) => standingOf(points).level >= MAYOR_LEVEL;
+
+export const isMayor = (world) => isMayorAt(townOf(world).points);

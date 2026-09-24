@@ -232,7 +232,7 @@ export const pondObstacle = (p) => Object.freeze({ shape: 'circle', module: 'pon
 
 
 
-export function nodeEditable(parcel, ix, iz, { blockers = [], cfg = TERRAFORM } = {}) {
+export function nodeEditable(parcel, ix, iz, { blockers = [], cfg = TERRAFORM, exclude = null } = {}) {
   const p = PARCELS[parcel];
   if (!p) return false;
   const { x, z } = nodeAt(ix, iz, cfg);
@@ -241,6 +241,9 @@ export function nodeEditable(parcel, ix, iz, { blockers = [], cfg = TERRAFORM } 
   for (const b of blockers) {
     if (Math.hypot(b.x - x, b.z - z) < REACH_M + (b.r || 0) + cfg.clearM) return false;
   }
+  
+  
+  if (exclude && exclude(x, z, REACH_M)) return false;
   return true;
 }
 
@@ -259,7 +262,7 @@ export function brushNodes(x, z, cfg = TERRAFORM) {
 }
 
 
-export function editableNodes(parcel, { blockers = [], cfg = TERRAFORM } = {}) {
+export function editableNodes(parcel, { blockers = [], cfg = TERRAFORM, exclude = null } = {}) {
   const p = PARCELS[parcel];
   if (!p) return [];
   let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
@@ -270,7 +273,7 @@ export function editableNodes(parcel, { blockers = [], cfg = TERRAFORM } = {}) {
   const s = cfg.stepM, out = [];
   for (let ix = Math.ceil(minX / s); ix <= Math.floor(maxX / s); ix++) {
     for (let iz = Math.ceil(minZ / s); iz <= Math.floor(maxZ / s); iz++) {
-      if (nodeEditable(parcel, ix, iz, { blockers, cfg })) out.push({ ix, iz, ...nodeAt(ix, iz, cfg) });
+      if (nodeEditable(parcel, ix, iz, { blockers, cfg, exclude })) out.push({ ix, iz, ...nodeAt(ix, iz, cfg) });
     }
   }
   return out;
@@ -290,21 +293,33 @@ const ownsParcel = (world, id) => id !== null && ownedIds(world).includes(id);
 
 
 export function whyNotShape(kind, x, z, {
-  world, terrain = {}, blockers = [], ground = heightAt, cfg = TERRAFORM,
+  world, terrain = {}, blockers = [], ground = heightAt, cfg = TERRAFORM, mayor = null,
 } = {}) {
   if (!BRUSHES.includes(kind)) return `There is no '${kind}' to shape with.`;
   if (!Number.isFinite(x) || !Number.isFinite(z)) return 'There is no ground there.';
   const parcel = parcelAt(x, z);
   if (parcel === null) return 'That is off the edge of the moon.';
-  if (!ownsParcel(world, parcel)) return 'This is not your land yet - buy it from the cat first.';
+  
+  
+  
+  
+  
+  
+  
+  const exclude = mayor && typeof mayor.exclude === 'function' ? mayor.exclude : null;
+  if (!ownsParcel(world, parcel) && !exclude) return 'This is not your land yet - buy it from the cat first.';
+  if (exclude) {
+    const why = exclude(x, z, 0);
+    if (why) return why;
+  }
   const ponds = pondsOf(terrain);
-  if (kind === 'pond') return pondFit(x, z, parcel, { ponds, blockers, ground, cfg }).why;
+  if (kind === 'pond') return pondFit(x, z, parcel, { ponds, blockers, ground, cfg, exclude }).why;
   
   
   for (const p of ponds) {
     if (Math.hypot(p.x - x, p.z - z) < p.r + REACH_M + cfg.brushM) return 'The pond is here - shape the ground away from the water.';
   }
-  if (brushLift(x, z, parcel, { blockers, cfg }) < cfg.riseM * cfg.minFall) {
+  if (brushLift(x, z, parcel, { blockers, cfg, exclude }) < cfg.riseM * cfg.minFall) {
     return 'There is no room to shape here - move further inside your land, clear of the fences and the trees.';
   }
   return null;
@@ -321,10 +336,10 @@ export function whyNotShape(kind, x, z, {
 
 
 
-export function brushLift(x, z, parcel = parcelAt(x, z), { blockers = [], cfg = TERRAFORM } = {}) {
+export function brushLift(x, z, parcel = parcelAt(x, z), { blockers = [], cfg = TERRAFORM, exclude = null } = {}) {
   const cells = {};
   for (const n of brushNodes(x, z, cfg)) {
-    if (nodeEditable(parcel, n.ix, n.iz, { blockers, cfg })) cells[nodeKey(n.ix, n.iz)] = n.fall * cfg.riseM * 100;
+    if (nodeEditable(parcel, n.ix, n.iz, { blockers, cfg, exclude })) cells[nodeKey(n.ix, n.iz)] = n.fall * cfg.riseM * 100;
   }
   return deltaField({ brush: { cells, ponds: [] } }, cfg).at(x, z);
 }
@@ -341,7 +356,7 @@ export function brushLift(x, z, parcel = parcelAt(x, z), { blockers = [], cfg = 
 
 
 export function pondFit(x, z, parcel = parcelAt(x, z), {
-  ponds = [], blockers = [], ground = heightAt, cfg = TERRAFORM,
+  ponds = [], blockers = [], ground = heightAt, cfg = TERRAFORM, exclude = null,
 } = {}) {
   const none = (why) => ({ r: 0, why });
   const p = PARCELS[parcel];
@@ -362,7 +377,7 @@ export function pondFit(x, z, parcel = parcelAt(x, z), {
   
   const nodes = pondNodes(x, z, r, cfg);
   for (const n of nodes) {
-    if (!nodeEditable(parcel, n.ix, n.iz, { blockers, cfg })) return none('A pond needs more room inside your land than there is here.');
+    if (!nodeEditable(parcel, n.ix, n.iz, { blockers, cfg, exclude })) return none('A pond needs more room inside your land than there is here.');
   }
   const basin = ground(x, z) - cfg.pondDepthM;
   for (const n of nodes) {
@@ -391,8 +406,9 @@ export function pondNodes(x, z, radius, cfg = TERRAFORM) {
 
 
 export function applyBrush(terrain, {
-  kind, x, z, parcel = parcelAt(x, z), blockers = [], ground = heightAt, cfg = TERRAFORM,
+  kind, x, z, parcel = parcelAt(x, z), blockers = [], ground = heightAt, cfg = TERRAFORM, mayor = null,
 }) {
+  const exclude = mayor && typeof mayor.exclude === 'function' ? mayor.exclude : null;
   const next = {};
   for (const id of Object.keys(terrain)) next[id] = { cells: { ...terrain[id].cells }, ponds: terrain[id].ponds.map((p) => ({ ...p })) };
   const key = String(parcel);
@@ -406,7 +422,7 @@ export function applyBrush(terrain, {
   const now = (ix, iz) => (rec.cells[nodeKey(ix, iz)] || 0) / 100;
 
   if (kind === 'pond') {
-    const fit = pondFit(x, z, parcel, { ponds: pondsOf(terrain), blockers, ground, cfg });
+    const fit = pondFit(x, z, parcel, { ponds: pondsOf(terrain), blockers, ground, cfg, exclude });
     if (fit.why) return next;
     const basin = ground(x, z) - cfg.pondDepthM;
     for (const n of pondNodes(x, z, fit.r, cfg)) put(n.ix, n.iz, basin - ground(n.x, n.z));
@@ -415,7 +431,7 @@ export function applyBrush(terrain, {
   }
   const sign = kind === 'raise' ? 1 : -1;
   for (const n of brushNodes(x, z, cfg)) {
-    if (!nodeEditable(parcel, n.ix, n.iz, { blockers, cfg })) continue;
+    if (!nodeEditable(parcel, n.ix, n.iz, { blockers, cfg, exclude })) continue;
     put(n.ix, n.iz, now(n.ix, n.iz) + sign * cfg.riseM * n.fall);
   }
   return next;

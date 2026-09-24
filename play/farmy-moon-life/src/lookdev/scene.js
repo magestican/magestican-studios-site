@@ -139,7 +139,7 @@ export function lightSourcesOf(data, m, kind) {
 
 export async function buildMoonScene({
   scene, state, settings, fml, skipRoles = [], skipModules = [],
-  layout = MOON, season = state.season, coverCount = COVER_COUNT, name = 'moon',
+  layout = MOON, season = state.season, coverCount = COVER_COUNT, name = 'moon', extraProps = [], dropProp = null,
 }) {
   const skip = new Set(skipRoles);
   const skipModule = new Set(skipModules);
@@ -154,11 +154,20 @@ export async function buildMoonScene({
     if (r.mod) mods[n] = r.mod; else fml.missing.push(r.missing);
   }));
 
-  const props = new MeshData('moon-props');
+  
+  
+  
+  
+  
+  
   const cache = new Map();
+  let counts = {};
+  function mergeProps(extra = [], drop = null) {
+  const props = new MeshData('moon-props');
   const sources = [];
-  const counts = {};
-  for (const p of P) {
+  counts = {};
+  const list = [...(drop ? P.filter((p) => !drop(p)) : P), ...extra.filter((p) => p.module && mods[p.module])];
+  for (const p of list) {
     const mod = mods[p.module];
     if (!mod) continue;
     const lod = Math.hypot(p.x - FOCUS.x, p.z - FOCUS.z) > FAR_LOD_DISTANCE ? 1 : 0;
@@ -191,17 +200,41 @@ export async function buildMoonScene({
     counts[p.module] = (counts[p.module] || 0) + 1;
     if (p.role === 'lamp' || p.role === 'fire') sources.push(...lightSourcesOf(data, m, p.role === 'lamp' ? 'lamp' : 'fire'));
   }
+  return { props, sources };
+  }
+  const { props, sources } = mergeProps(extraProps, dropProp);
   fml.problems = [...new Set(fml.problems)];
   fml.placed = counts;
 
   const root = new THREE.Group();
   root.name = name;
+  let propsObj = null;
   if (props.triangleCount) {
     
     
     const obj = await toObject3D(props, { parts: !settings || settings.parts !== 0 });
     obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
     root.add(obj);
+    propsObj = obj;
+  }
+
+  
+
+
+
+
+  async function reprops(extra = [], drop = null) {
+    const next = mergeProps(extra, drop);
+    const obj = await toObject3D(next.props, { parts: !settings || settings.parts !== 0 });
+    obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
+    root.add(obj);
+    if (propsObj) {
+      root.remove(propsObj);
+      propsObj.traverse((o) => { if (o.isMesh && o.geometry) o.geometry.dispose(); });
+    }
+    propsObj = obj;
+    fml.placed = counts;
+    return next.sources;
   }
 
   const groundLod = settings.effects >= 0.6 ? 0 : 1;
@@ -253,5 +286,5 @@ export async function buildMoonScene({
   
   
   
-  return { root, sources, focus: FOCUS, layout, cover, coverEffects: settings.effects, reground };
+  return { root, sources, focus: FOCUS, layout, cover, coverEffects: settings.effects, reground, reprops };
 }

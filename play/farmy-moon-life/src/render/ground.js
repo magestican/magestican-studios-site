@@ -167,12 +167,18 @@ function fieldTexture(data, size) {
   t.needsUpdate = true;
   return t;
 }
+
+
+
+
 function pathFieldTexture(layout) {
-  if (!PATH_TEXTURES.has(layout)) {
-    const f = pathField(layout);
-    PATH_TEXTURES.set(layout, fieldTexture(f.data, f.size));
+  const extra = typeof layout.extraPaths === 'function' ? layout.extraPaths() : [];
+  const key = extra.length ? `${layout === MOON ? 'moon' : 'planet'}|${layout.extraPathsSig()}` : layout;
+  if (!PATH_TEXTURES.has(key)) {
+    const f = pathField(extra.length ? { PATHS: [...layout.PATHS, ...extra], pathDistance: layout.pathDistance } : layout);
+    PATH_TEXTURES.set(key, fieldTexture(f.data, f.size));
   }
-  return PATH_TEXTURES.get(layout);
+  return PATH_TEXTURES.get(key);
 }
 let BLANK = null;
 const blankField = () => (BLANK ||= fieldTexture(new Uint8Array(1).fill(255), 1));

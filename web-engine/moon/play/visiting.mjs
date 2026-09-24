@@ -70,6 +70,9 @@ export const GUEST_MAY_NOT = Object.freeze([
   
   'terraform',
   
+  
+  'layPath', 'erasePath', 'placeLight', 'removeLight', 'spurHomes',
+  
   'buy', 'buyParcel', 'craft', 'gift', 'stock', 'unstock', 'startJob', 'collect',
   'buyFrom', 'sellTo', 'fillRequest',
   
