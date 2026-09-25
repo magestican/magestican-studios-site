@@ -1,0 +1,18 @@
+import { register, go, fitStage } from './ui.js';
+import { unlockAudio } from './audio.js';
+import hub from './screens/hub.js';
+import orders from './screens/orders.js';
+import sketch from './screens/sketch.js';
+import cut from './screens/cut.js';
+import sew from './screens/sew.js';
+import embellish from './screens/embellish.js';
+import reveal from './screens/reveal.js';
+import market from './screens/market.js';
+import gallery from './screens/gallery.js';
+
+Object.entries({ hub, orders, sketch, cut, sew, embellish, reveal, market, gallery }).forEach(([k, v]) => register(k, v));
+window.addEventListener('resize', fitStage);
+window.addEventListener('pointerdown', unlockAudio, { once: false });
+window.addEventListener('keydown', unlockAudio);
+fitStage();
+go('hub');

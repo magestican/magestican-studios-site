@@ -1,0 +1,59 @@
+import { state, save, level } from '../state.js';
+import { go, toast, tagBars, matchLine, $ } from '../ui.js';
+import { dressSVG } from '../art.js';
+import { TRIMS, ZONES } from '../data.js';
+import { computeTags } from '../logic.js';
+import { sfx } from '../audio.js';
+
+export default {
+  enter(root) {
+    const job = state.job;
+    if (!job) { go('hub'); return; }
+    const d = job.design;
+    d.trims = d.trims || {};
+    const lvl = level();
+    const zones = ZONES.filter((z) => z.id !== 'sleeves' || d.sleeve !== 'none');
+    root.innerHTML = `<div class="book"><div class="page left paper" style="flex:0 0 520px;padding:0"><div class="emb-dress" id="dress"></div></div>
+      <div class="page right paper" style="padding:16px 20px"><h2>Embellish</h2><div class="sub">One pack of trim decorates one area. Too much and the dress becomes unwearable!</div>
+      <div id="zones"></div><div id="tags" style="margin-top:10px"></div><div id="match"></div>
+      <div class="draft-row" style="margin-top:12px"><button class="btn gold" id="done">Finish &amp; reveal</button></div></div></div>`;
+
+    const used = (id, except) => Object.entries(d.trims).filter(([z, t]) => t === id && z !== except).length;
+
+    function refresh() {
+      $('#dress', root).innerHTML = dressSVG(d, { quality: job.quality ?? 1 });
+      $('#zones', root).innerHTML = zones.map((z) => {
+        const opts = TRIMS.filter((t) => t.zones.includes(z.id) && t.lvl <= lvl);
+        return `<div class="zone"><span class="zn">${z.name}</span><div class="chips">
+          <button class="chip ${!d.trims[z.id] ? 'on' : ''}" data-z="${z.id}" data-t="">None</button>
+          ${opts.map((t) => { const left = (state.trims[t.id] || 0) - used(t.id, z.id); return `<button class="chip ${d.trims[z.id] === t.id ? 'on' : ''}" data-z="${z.id}" data-t="${t.id}" ${left <= 0 && d.trims[z.id] !== t.id ? 'disabled' : ''} title="${Object.keys(t.tags).join(', ')}">${t.name} <small>x${Math.max(0, left)}</small></button>`; }).join('')}
+        </div></div>`;
+      }).join('');
+      const tags = computeTags(d);
+      $('#tags', root).innerHTML = tagBars(tags, job.order, { only: true });
+      const extra = ['Elaborate', 'Unwearable'].filter((t) => !job.order.wants.some((w) => w.tag === t) && !job.order.avoid.some((a) => a.tag === t));
+      if (extra.length) $('#tags', root).innerHTML += tagBars(tags, { wants: [], avoid: [{ tag: 'Unwearable', max: 0 }] }, { only: true });
+      $('#match', root).innerHTML = matchLine(tags, job.order);
+      root.querySelectorAll('.chip').forEach((c) => {
+        c.onclick = () => {
+          if (c.disabled) return;
+          const z = c.dataset.z, t = c.dataset.t;
+          if (t) d.trims[z] = t; else delete d.trims[z];
+          if (t && /pearls|crystals|sequins|jet/.test(t)) sfx.sparkle(); else sfx.click();
+          save(); refresh();
+        };
+      });
+    }
+    $('#done', root).onclick = () => {
+      for (const [z, t] of Object.entries(d.trims)) if (!t) delete d.trims[z];
+      const need = {};
+      for (const t of Object.values(d.trims)) need[t] = (need[t] || 0) + 1;
+      for (const t in need) if ((state.trims[t] || 0) < need[t]) { toast('Not enough trim packs', 'bad'); return; }
+      for (const t in need) state.trims[t] -= need[t];
+      job.trimCost = Object.entries(need).reduce((a, [t, n]) => a + TRIMS.find((x) => x.id === t).price * n, 0);
+      job.step = 'reveal'; save();
+      go('reveal');
+    };
+    refresh();
+  },
+};
