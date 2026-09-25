@@ -59,7 +59,9 @@ export function auntNote(step) {
   if (!needsNote(state.notes, step)) return;
   state.notes = { ...(state.notes || {}), [step]: true };
   save();
-  letter(`<h2>${AUNT[step].title}</h2><p class="letter-body">${AUNT[step].body}</p>`, 'Thank you, Auntie');
+  
+  const n = AUNT[step], touchOnly = n.touch && matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
+  letter(`<h2>${n.title}</h2><p class="letter-body">${touchOnly ? n.touch : n.body}</p>`, 'Thank you, Auntie');
 }
 
 
@@ -68,6 +70,20 @@ export const tipData = (name, tags, note = '') => `${name}||${tagText(tags)}${no
 export const tip = (name, tags, note = '') => ` data-tip="${esc(tipData(name, tags, note))}"`;
 let tipEl = null, tipFor = null;
 
+
+
+
+
+
+
+let counted = false;
+export function countPlay() {
+  if (counted) return;
+  counted = true;
+  import('/web-engine/stats/firebaseLeaderboard.js')
+    .then((m) => m.countPlay('silk-and-seam', { isHost: true }))
+    .catch(() => {});
+}
 
 export const isMobile = () => $('#stage').classList.contains('mobile');
 export const isPortrait = () => $('#stage').classList.contains('port');

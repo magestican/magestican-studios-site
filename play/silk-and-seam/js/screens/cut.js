@@ -11,6 +11,10 @@ const LOOK = 14;
 
 
 let W = 1280, H = 664, MAT, SHEET, STACK, PS = 1, PAD = { x: 140, y: 120 }, SC;
+
+
+let TS = 1;
+const font = (n, style = '') => `${style}${Math.round(n * TS)}px Georgia, serif`;
 function layout(bw, bh, port, desk) {
   if (port) { W = 520; H = Math.max(560, Math.round(520 * bh / bw)); } else { H = 664; W = desk ? 1280 : Math.max(900, Math.round(664 * bw / bh)); }
   if (port) {
@@ -25,6 +29,7 @@ function layout(bw, bh, port, desk) {
     STACK = { x: W - 140, y: H - 124 };   
   }
   SC = { x: SHEET.x + SHEET.w / 2, y: SHEET.y + SHEET.h / 2 };
+  TS = desk ? 1 : Math.min(2.2, Math.max(1, W / bw));
 }
 
 let raf = 0, cleanup = null;
@@ -47,14 +52,14 @@ function matCanvas(K) {
   for (let y = my0; y <= my1; y += 20) { g.beginPath(); g.moveTo(mx0, y); g.lineTo(mx1, y); g.stroke(); }
   g.strokeStyle = 'rgba(240,220,120,.35)';
   for (let x = mx0; x <= mx1; x += 100) { g.beginPath(); g.moveTo(x, my0); g.lineTo(x, my1); g.stroke(); }
-  g.fillStyle = 'rgba(240,230,200,.5)'; g.font = '11px serif';
+  g.fillStyle = 'rgba(240,230,200,.5)'; g.font = font(11);
   for (let i = 0; mx0 + i * 100 < mx1 - 20; i++) g.fillText(String(i * 5), mx0 + 3 + i * 100, my0 + 12);
   
   g.save(); g.translate(STACK.x, STACK.y - 30 * PS); g.rotate(-0.04); g.scale(PS, PS);
   g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-92, -78, 190, 170);
   g.fillStyle = '#e9dcc3'; g.fillRect(-96, -84, 190, 170);
   g.strokeStyle = 'rgba(150,110,70,.35)'; g.setLineDash([4, 4]); g.strokeRect(-88, -76, 174, 154); g.setLineDash([]);
-  g.fillStyle = 'rgba(110,80,50,.7)'; g.font = 'italic 14px Georgia'; g.textAlign = 'center'; g.fillText('cut pieces', 0, 78);
+  g.fillStyle = 'rgba(110,80,50,.7)'; g.font = font(14 / PS, 'italic '); g.textAlign = 'center'; g.fillText('cut pieces', 0, 78);
   g.restore();
   return c;
 }

@@ -1,5 +1,5 @@
 import { state, save, fillOrders } from '../state.js';
-import { go, modal, money, orderSummary } from '../ui.js';
+import { go, modal, money, orderSummary, countPlay } from '../ui.js';
 import { portraitSVG } from '../art.js';
 import { defaultDesign, seasonFor, seasonLeft } from '../logic.js';
 import { DYES, SEASONS, SEASON_BONUS } from '../data.js';
@@ -49,6 +49,7 @@ export default {
         const start = () => {
           sfx.page();
           state.job = { order: o, design: defaultDesign(), step: 'sketch' };
+          countPlay();
           save();
           go('sketch');
         };

@@ -1,5 +1,5 @@
 import { state, save, resetGame, fillOrders } from '../state.js';
-import { go, modal, letter, money, openAchievements, $ } from '../ui.js';
+import { go, modal, letter, money, openAchievements, countPlay, $ } from '../ui.js';
 import { roomSVG, dressSVG } from '../art.js';
 import { defaultDesign, windowLeft } from '../logic.js';
 import { sfx } from '../audio.js';
@@ -54,6 +54,7 @@ export default {
         if (state.job) return;
         sfx.page();
         state.job = { order: windowOrder(), design: defaultDesign(), step: 'sketch' };
+        countPlay();
         save(); go('sketch');
       };
     }

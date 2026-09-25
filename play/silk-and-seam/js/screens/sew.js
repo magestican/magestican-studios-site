@@ -8,6 +8,9 @@ import { sfx, machineHum } from '../audio.js';
 
 
 let W = 1280, H = 664;
+
+let TS = 1;
+const font = (n, style = '') => `${style}${Math.round(n * TS)}px Georgia, serif`;
 let NX = 520, NY = 390;              
 let FW = 560;                        
 const TILE = 700;                    
@@ -15,6 +18,7 @@ function layout(bw, bh, port, desk) {
   if (port) { W = 520; H = Math.max(600, Math.round(520 * bh / bw)); NX = 260; NY = 400; FW = 440; } else {
     H = 664; W = desk ? 1280 : Math.max(900, Math.round(664 * bw / bh)); NX = desk ? 520 : Math.round(W * 0.42); NY = 390; FW = 560;
   }
+  TS = desk ? 1 : Math.min(2.2, Math.max(1, W / bw));
 }
 const SPEEDS = [0, 70, 120, 175];    
 const STITCH = 9;
@@ -207,7 +211,7 @@ export default {
       }
       g.stroke(); g.setLineDash([]);
       const endY = NY + (cur.len - cur.fed);
-      if (endY < H) { g.fillStyle = cur.chalk; g.font = 'italic 16px Georgia'; g.fillText('end of seam', NX + cur.fx + sx(cur.len) + 12, endY); g.fillRect(NX + cur.fx + sx(cur.len) - 10, endY, 20, 2); }
+      if (endY < H) { g.fillStyle = cur.chalk; g.font = font(16, 'italic '); g.fillText('end of seam', NX + cur.fx + sx(cur.len) + 12, endY); g.fillRect(NX + cur.fx + sx(cur.len) - 10, endY, 20, 2); }
       
       g.strokeStyle = cur.thread; g.lineWidth = 2.2; g.lineCap = 'round';
       for (const st of cur.stitches) {
@@ -247,7 +251,7 @@ export default {
         const pul = 0.5 + 0.5 * Math.sin(t / 140);
         g.strokeStyle = `rgba(230,196,106,${0.5 + pul * 0.5})`; g.lineWidth = 3;
         g.beginPath(); g.arc(BOB.x, BOB.y, BOB.r + 5 + pul * 4, 0, Math.PI * 2); g.stroke();
-        g.fillStyle = '#f7e3b5'; g.font = 'italic bold 15px Georgia'; g.textAlign = 'center';
+        g.fillStyle = '#f7e3b5'; g.font = font(15, 'italic bold '); g.textAlign = 'center';
         g.strokeStyle = 'rgba(40,20,10,.85)'; g.lineWidth = 4; g.strokeText((isMobile() ? 'tap to wind a bobbin' : 'click to wind a bobbin'), BOB.x, BOB.y + BOB.r + 22);
         g.fillText((isMobile() ? 'tap to wind a bobbin' : 'click to wind a bobbin'), BOB.x, BOB.y + BOB.r + 22); g.textAlign = 'start';
       }
@@ -269,20 +273,22 @@ export default {
       
       const a = acc();
       const col = a > 0.85 ? '#3ea65a' : a > 0.65 ? '#e0a53a' : '#d0463c';
-      g.lineWidth = 7; g.strokeStyle = 'rgba(40,20,10,.55)'; g.beginPath(); g.arc(NX - 70, NY - 30, 30, 0, Math.PI * 2); g.stroke();
-      g.strokeStyle = col; g.beginPath(); g.arc(NX - 70, NY - 30, 30, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * a); g.stroke();
-      g.fillStyle = '#fbf2de'; g.beginPath(); g.arc(NX - 70, NY - 30, 25, 0, Math.PI * 2); g.fill();
-      g.fillStyle = '#3a2618'; g.font = 'bold 17px Georgia'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText(`${Math.round(a * 100)}%`, NX - 70, NY - 30); g.textAlign = 'start'; g.textBaseline = 'alphabetic';
+      
+      const RR = Math.min(TS, 1.6), RX = NX - 40 - 30 * RR, RY = NY - 30;
+      g.lineWidth = 7 * RR; g.strokeStyle = 'rgba(40,20,10,.55)'; g.beginPath(); g.arc(RX, RY, 30 * RR, 0, Math.PI * 2); g.stroke();
+      g.strokeStyle = col; g.beginPath(); g.arc(RX, RY, 30 * RR, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * a); g.stroke();
+      g.fillStyle = '#fbf2de'; g.beginPath(); g.arc(RX, RY, 25 * RR, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#3a2618'; g.font = `bold ${Math.round(17 * RR)}px Georgia, serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(`${Math.round(a * 100)}%`, RX, RY); g.textAlign = 'start'; g.textBaseline = 'alphabetic';
       
       g.fillStyle = 'rgba(30,15,5,.6)'; g.fillRect(40, H - 34, 380, 12);
       g.fillStyle = '#e6c46a'; g.fillRect(40, H - 34, 380 * Math.min(1, cur.fed / cur.len), 12);
-      g.font = W < 700 ? '19px Georgia' : '15px Georgia'; g.strokeStyle = 'rgba(40,20,10,.8)'; g.lineWidth = 3; g.strokeText(`${cur.pc.name} seam`, 40, H - 42);
+      g.font = font(15); g.strokeStyle = 'rgba(40,20,10,.8)'; g.lineWidth = 3; g.strokeText(`${cur.pc.name} seam`, 40, H - 42);
       g.fillStyle = '#fbf2de'; g.fillText(`${cur.pc.name} seam`, 40, H - 42);
       
       const err = cur.fx + sx(cur.fed);
       if (Math.abs(err) > 16) {
-        g.fillStyle = '#d0463c'; g.font = 'bold 28px Georgia'; g.textAlign = 'center';
+        g.fillStyle = '#d0463c'; g.font = font(28, 'bold '); g.textAlign = 'center';
         g.fillText(err > 0 ? '◀' : '▶', NX + (err > 0 ? -130 : 60), NY + 30); g.textAlign = 'start';
       }
     }
