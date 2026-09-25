@@ -1,5 +1,6 @@
 import { register, go, fitStage, applyMotion, checkAchievements } from './ui.js';
 import { unlockAudio } from './audio.js';
+import { installSkin } from './skin.js';
 import hub from './screens/hub.js';
 import orders from './screens/orders.js';
 import sketch from './screens/sketch.js';
@@ -14,6 +15,7 @@ Object.entries({ hub, orders, sketch, cut, sew, embellish, reveal, market, galle
 window.addEventListener('resize', fitStage);
 window.addEventListener('pointerdown', unlockAudio, { once: false });
 window.addEventListener('keydown', unlockAudio);
+installSkin();
 applyMotion();
 
 
