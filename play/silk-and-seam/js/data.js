@@ -102,6 +102,7 @@ export const BODY_SHAPES = [
   { id: 'curvy', name: 'Hourglass', sh: 1.04, bu: 1.17, wa: 1.0, hi: 1.18 },
   { id: 'pear', name: 'Pear', sh: 0.96, bu: 0.98, wa: 1.05, hi: 1.26 },
   { id: 'full', name: 'Full figure', sh: 1.1, bu: 1.27, wa: 1.36, hi: 1.3 },
+  { id: 'plus', name: 'Plus size', sh: 1.2, bu: 1.5, wa: 1.72, hi: 1.6 },
 ];
 
 export const ZONES = [

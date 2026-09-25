@@ -4,6 +4,9 @@ import { dressSVG } from '../art.js';
 import { TRIMS, ZONES } from '../data.js';
 import { computeTags } from '../logic.js';
 import { sfx } from '../audio.js';
+import { vignetteHTML, mountVignette } from '../scene.js';
+
+let scene = null;
 
 export default {
   enter(root) {
@@ -13,7 +16,7 @@ export default {
     d.trims = d.trims || {};
     const lvl = level();
     const zones = ZONES.filter((z) => z.id !== 'sleeves' || d.sleeve !== 'none');
-    root.innerHTML = `<div class="book"><div class="page left paper emb-left"><div class="emb-dress" id="dress"></div></div>
+    root.innerHTML = `<div class="book"><div class="page left paper emb-left"><div class="emb-dress" id="dress">${vignetteHTML(dressSVG(d, { quality: job.quality ?? 1 }), { lights: true })}</div></div>
       <div class="page right paper emb-right"><h2>Embellish</h2><div class="sub">One pack of trim decorates one area. Too much and the dress becomes unwearable!</div>
       <div id="zones"></div><div id="tags" class="emb-tags"></div><div id="match"></div>
       <div class="draft-row emb-done"><button class="btn gold" id="done">Finish &amp; reveal</button></div></div></div>`;
@@ -21,7 +24,7 @@ export default {
     const used = (id, except) => Object.entries(d.trims).filter(([z, t]) => t === id && z !== except).length;
 
     function refresh() {
-      $('#dress', root).innerHTML = dressSVG(d, { quality: job.quality ?? 1 });
+      if (scene) scene.setDress(dressSVG(d, { quality: job.quality ?? 1 }), d);
       $('#zones', root).innerHTML = zones.map((z) => {
         const opts = TRIMS.filter((t) => t.zones.includes(z.id) && t.lvl <= lvl);
         return `<div class="zone"><span class="zn">${z.name}</span><div class="chips">
@@ -56,7 +59,10 @@ export default {
       job.step = 'reveal'; save();
       go('reveal');
     };
+    scene?.leave();
+    scene = mountVignette($('.sc-vig', root), { design: d });
     refresh();
     auntNote('embellish');
   },
+  leave() { scene?.leave(); scene = null; },
 };

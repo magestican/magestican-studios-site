@@ -1,7 +1,7 @@
 import { state, save, fillOrders } from '../state.js';
-import { go, modal, money, orderSummary, countPlay } from '../ui.js';
+import { go, modal, money, orderSummary, countPlay, toast, renderHud } from '../ui.js';
 import { portraitSVG } from '../art.js';
-import { defaultDesign, seasonFor, seasonLeft, part, bodyShape } from '../logic.js';
+import { defaultDesign, seasonFor, seasonLeft, part, bodyShape, declinePenalty } from '../logic.js';
 import { DYES, SEASONS, SEASON_BONUS } from '../data.js';
 
 
@@ -49,7 +49,30 @@ export default {
         ${orderSummary(o)}
         <div class="terms"><span>Fee <b>${money(o.fee)}</b>${o.bonus ? ` <small class="bonus">incl. ${money(o.bonus)} ${SEASONS.find((x) => x.id === o.season).event} bonus</small>` : ''}${o.premiumBonus ? ` <small class="bonus">incl. ${money(o.premiumBonus)} premium</small>` : ''}</span><span>Materials up to <b>${money(o.budget)}</b></span></div>
         <button class="btn gold" data-i="${i}">${state.job?.order.id === o.id ? 'Continue' : 'Accept commission'}</button>
+        <button class="btn small ghost decline" data-no="${i}">${state.job?.order.id === o.id ? 'Give up this commission' : 'Decline politely'}</button>
       </div>`).join('')}</div></div>`;
+    
+    root.querySelectorAll('[data-no]').forEach((b) => {
+      b.onclick = () => {
+        const o = state.orders[+b.dataset.no];
+        const started = state.job?.order.id === o.id;
+        const pen = declinePenalty(o, { money: state.money, rep: state.rep, started });
+        const cost = [pen.money ? `a ${money(pen.money)} goodwill gift` : '', pen.rep ? `${pen.rep} reputation` : ''].filter(Boolean).join(' and ') || 'nothing this time';
+        modal(`<h2>${started ? 'Give up' : 'Decline'} ${o.client}'s commission?</h2><p>A polite note goes back with ${cost}.${started ? ' Anything already cut for this dress is lost.' : ''} A new letter will arrive on the desk.</p>`, [
+          { label: 'Keep it' },
+          { label: started ? 'Give it up' : 'Decline', kind: 'gold', onClick: () => {
+            state.money -= pen.money;
+            state.rep = pen.repAfter;
+            state.orders = state.orders.filter((x) => x.id !== o.id);
+            if (started) state.job = null;
+            state.stats = { ...state.stats, declined: (state.stats?.declined || 0) + 1 };
+            sfx.page(); save(); renderHud();
+            toast(`${o.client} has been sent a polite note`, 'bad');
+            go('orders');
+          } },
+        ]);
+      };
+    });
     root.querySelectorAll('[data-i]').forEach((b) => {
       b.onclick = () => {
         const o = state.orders[+b.dataset.i];

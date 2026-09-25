@@ -4,6 +4,9 @@ import { dressSVG, swatchSVG } from '../art.js';
 import { makeAccessory, accessoryPrice, fabric } from '../logic.js';
 import { ACCESSORIES } from '../data.js';
 import { sfx } from '../audio.js';
+import { vignetteHTML, mountVignette } from '../scene.js';
+
+let scene = null;
 
 const xml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -63,10 +66,27 @@ function workbench() {
 export default {
   enter(root) {
     const items = state.gallery.slice(-24).reverse();
-    root.innerHTML = `<div class="gallery"><h1>Gallery of Gowns</h1><div class="gal-wrap"><div class="gal-main">${items.length ? `<div class="grid">${items.map((g, i) => `
-      <div class="frame"><div class="inner">${dressSVG(g.design, { quality: g.quality })}<div class="cap"><b>${g.name}</b><br>${g.window ? 'sold from the window' : g.client}<br>${g.window ? '' : starRow(g.stars)} ${money(g.pay)}</div>
+    root.innerHTML = `<div class="gallery"><h1>Gallery of Gowns</h1><div class="gal-wrap">${items.length ? `<div class="gal-form">${vignetteHTML(dressSVG(items[0].design, { quality: items[0].quality }), { lights: true, label: `On the form: <b>${items[0].name}</b>` })}</div>` : ''}<div class="gal-main">${items.length ? `<div class="grid">${items.map((g, i) => `
+      <div class="frame${i ? '' : ' on'}" data-g="${i}" title="Put it on the form"><div class="inner">${dressSVG(g.design, { quality: g.quality })}<div class="cap"><b>${g.name}</b><br>${g.window ? 'sold from the window' : g.client}<br>${g.window ? '' : starRow(g.stars)} ${money(g.pay)}</div>
       <button class="btn small ghost png" data-png="${i}">Save as PNG</button></div></div>`).join('')}</div>`
       : '<div class="empty">No dresses yet. Take a commission and your finished work will hang here.</div>'}</div><div id="bench"></div></div></div>`;
+    
+    scene?.leave(); scene = null;
+    if (items.length) {
+      scene = mountVignette($('.gal-form .sc-vig', root), { design: items[0].design });
+      root.querySelectorAll('.frame[data-g]').forEach((fr) => {
+        fr.onclick = (e) => {
+          if (e.target.closest('[data-png]')) return;
+          const g = items[+fr.dataset.g];
+          root.querySelectorAll('.frame.on').forEach((x) => x.classList.remove('on'));
+          fr.classList.add('on');
+          scene.setDress(dressSVG(g.design, { quality: g.quality }), g.design);
+          $('.gal-form .sc-vig-label', root).innerHTML = `On the form: <b>${g.name}</b>`;
+          sfx.shelf();
+          if (window.matchMedia('(max-width: 999px), (orientation: portrait)').matches) $('.gal-form', root).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+      });
+    }
     root.querySelectorAll('[data-png]').forEach((b) => {
       b.onclick = async () => {
         sfx.click(); b.disabled = true;
@@ -93,4 +113,5 @@ export default {
     };
     bench();
   },
+  leave() { scene?.leave(); scene = null; },
 };

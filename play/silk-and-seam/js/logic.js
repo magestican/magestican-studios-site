@@ -380,6 +380,16 @@ const clampQ = (q) => Math.max(0, Math.min(1, Number.isFinite(q) ? q : 0.7));
 export function repAfter(rep, starCount) {
   return Math.max(0, (rep || 0) + (REP_GAIN[starCount] ?? 0));
 }
+
+
+
+export const DECLINE = { fee: 0.05, feeStarted: 0.15, rep: 1, repStarted: 2, min: 5 };
+export function declinePenalty(order, { money = 0, rep = 0, started = false } = {}) {
+  const share = started ? DECLINE.feeStarted : DECLINE.fee;
+  const gift = Math.min(Math.max(0, Math.floor(money)), Math.max(DECLINE.min, Math.round((order?.fee || 0) * share)));
+  const lose = started ? DECLINE.repStarted : DECLINE.rep;
+  return { money: gift, rep: Math.min(Math.max(0, rep || 0), lose), repAfter: Math.max(0, (rep || 0) - lose) };
+}
 export function repTier(rep) {
   let i = 0;
   REP_TIERS.forEach((t, k) => { if ((rep || 0) >= t.at) i = k; });

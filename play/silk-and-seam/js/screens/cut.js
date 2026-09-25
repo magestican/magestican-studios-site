@@ -1,8 +1,9 @@
 
 import { state, save } from '../state.js';
 import { go, toast, auntNote, calm, isMobile, isPortrait, $ } from '../ui.js';
-import { pieceOutlines, sample, fabricSheet, svgImage, lum, shade } from '../art.js';
+import { dressSVG, pieceOutlines, sample, fabricSheet, svgImage, lum, shade } from '../art.js';
 import { dye, tolerances, cutAccuracy, scrapsFrom, addScraps } from '../logic.js';
+import { vignetteHTML, mountVignette } from '../scene.js';
 import { sfx } from '../audio.js';
 
 const LOOK = 14;
@@ -32,7 +33,7 @@ function layout(bw, bh, port, desk) {
   TS = desk ? 1 : Math.min(2.2, Math.max(1, W / bw));
 }
 
-let raf = 0, cleanup = null;
+let raf = 0, cleanup = null, view = null;
 
 function segDist(p, a, b) {
   const dx = b.x - a.x, dy = b.y - a.y, L = dx * dx + dy * dy || 1;
@@ -106,10 +107,13 @@ export default {
     root.innerHTML = `<div class="workshop"><div class="ws-cv"><canvas></canvas></div>
       <div class="ws-panel paper"><h2>Cutting Table</h2><div class="ws-steps" id="steps"></div>
       <p class="ws-how">Press on the <b style="color:#c0392b">●</b> and drag the scissors along the chalk line all the way round.</p>
-      <div class="ws-score"><div class="big" id="acc">-</div><p>accuracy on this piece</p></div></div>
+      <div class="ws-score"><div class="big" id="acc">-</div><p>accuracy on this piece</p></div>
+      <div class="ws-view">${vignetteHTML(dressSVG(d), { label: 'The dress you are cutting' })}</div></div>
       <button class="btn small ghost ws-skip" id="skip" style="color:#f3e6cf;border-color:#a88">Let the apprentice cut (70%)</button></div>`;
     const cv = $('canvas', root), g = cv.getContext('2d');
     const box = $('.ws-cv', root);
+    view?.leave();
+    view = mountVignette($('.ws-view .sc-vig', root), { design: d });
     layout(box.clientWidth || 1280, box.clientHeight || 664, isPortrait(), !isMobile());
     
     const K = Math.min(2.5, Math.max(1, (box.clientWidth || W) * (window.devicePixelRatio || 1) / W));
@@ -349,5 +353,5 @@ export default {
     cleanup = () => cancelAnimationFrame(raf);
     auntNote('cut');
   },
-  leave() { if (cleanup) cleanup(); cleanup = null; },
+  leave() { if (cleanup) cleanup(); cleanup = null; view?.leave(); view = null; },
 };

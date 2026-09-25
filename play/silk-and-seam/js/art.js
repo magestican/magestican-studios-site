@@ -45,10 +45,53 @@ export function warpPath(d, fn) {
   return out.join(' ');
 }
 
+
+const FORM_LEFT = (() => {
+  const segs = [[[186, 88], [170, 96], [146, 100], [136, 112]], [[136, 112], [130, 122], [134, 150], [148, 170]], [[148, 170], [156, 190], [164, 210], [168, 226]]];
+  const pts = [];
+  for (const [a, b, c, e] of segs) for (let i = 0; i <= 40; i++) {
+    const t = i / 40, u = 1 - t;
+    pts.push([u * u * u * a[0] + 3 * u * u * t * b[0] + 3 * u * t * t * c[0] + t * t * t * e[0], u * u * u * a[1] + 3 * u * u * t * b[1] + 3 * u * t * t * c[1] + t * t * t * e[1]]);
+  }
+  const tab = [];
+  for (let y = 88; y <= 226; y++) {
+    let x = Infinity;
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+      if ((y0 - y) * (y1 - y) <= 0 && y0 !== y1) x = Math.min(x, x0 + (x1 - x0) * (y - y0) / (y1 - y0));
+    }
+    tab.push(x);
+  }
+  return tab;
+})();
+export function formLeftX(y, id = 'classic') {
+  if (y < 88 || y > 226) return null;
+  const i = Math.floor(y - 88), f = y - 88 - i;
+  const x = FORM_LEFT[i] + ((FORM_LEFT[Math.min(i + 1, FORM_LEFT.length - 1)] - FORM_LEFT[i]) * f);
+  return contourX(x, y, id, { zone: 'body' });
+}
+
+
+
+export const FIT_REACH = 22, FIT_EASE = 1.5;
+export function fitToForm(x, y, id = 'classic') {
+  const fl = formLeftX(y, id);
+  if (fl === null || y < 104) return x;   
+  const left = x < 200, edge = left ? fl - FIT_EASE : 400 - fl + FIT_EASE;
+  const inside = left ? x - edge : edge - x;          
+  if (inside <= 0 || inside >= FIT_REACH) return x;
+  const t = Math.min(1, (FIT_REACH - inside) / (FIT_REACH / 2));
+  return x + (edge - x) * t;
+}
+
+
 export function bodyWarper(bodyId, cling = 0.5) {
   const id = bodyShape(bodyId).id;
-  if (id === 'classic') return (d) => d;
-  return (d, zone = 'body') => (d ? warpPath(d, (x, y) => [contourX(x, y, id, { zone, cling }), y]) : d);
+  return (d, zone = 'body') => {
+    if (!d) return d;
+    if (zone === 'fit') return warpPath(d, (x, y) => [fitToForm(contourX(x, y, id, { zone: 'body', cling }), y, id), y]);
+    return id === 'classic' ? d : warpPath(d, (x, y) => [contourX(x, y, id, { zone, cling }), y]);
+  };
 }
 
 
@@ -710,8 +753,8 @@ export function dressSVG(design, opts = {}) {
   }
   const raw = BODICE[design.bodice] || BODICE.square;
   const bod = { ...raw };
-  for (const k of ['d', 'neck', 'hole', 'band', 'waist', 'tail']) if (raw[k]) bod[k] = W(raw[k]);
-  for (const k of ['details', 'bandDetails']) if (raw[k]) bod[k] = raw[k].map((d) => W(d));
+  for (const k of ['d', 'neck', 'hole', 'band', 'waist', 'tail']) if (raw[k]) bod[k] = W(raw[k], 'fit');
+  for (const k of ['details', 'bandDetails']) if (raw[k]) bod[k] = raw[k].map((d) => W(d, 'fit'));
   const neckY = NECK_Y[design.bodice] || 150;
   const layers = skirtLayers(design.skirt, q).map((L) => {
     const z = L.over || L.behind ? 'body' : 'skirt';
@@ -946,12 +989,20 @@ const COLLAR_PIECE = {
   jabot: 'M186,92 L214,92 C226,120 232,150 232,178 Q224,186 216,180 Q208,190 200,182 Q192,190 184,180 Q176,186 168,178 C168,150 174,120 186,92 Z',
   medici: MEDICI.d,
 };
+
+
+
 export function pieceOutlines(design) {
-  const out = [{ name: 'Bodice', d: (BODICE[design.bodice] || BODICE.square).d, slot: 1, part: ['bodice', design.bodice] }];
+  const f1 = fabric(design.fab1) || fabric('cotton');
+  const W = bodyWarper(design.body, drapeOf(f1.tex).cling);
+  const out = [{ name: 'Bodice', d: W((BODICE[design.bodice] || BODICE.square).d, 'fit'), slot: 1, part: ['bodice', design.bodice] }];
   const layers = skirtLayers(design.skirt, 1);
-  if (layers.length) out.push({ name: 'Skirt', d: (layers.find((L) => L.main) || layers[layers.length - 1]).d, slot: 1, part: ['skirt', design.skirt] });
-  if (SLEEVE[design.sleeve]) out.push({ name: 'Sleeve', d: SLEEVE[design.sleeve].d, slot: 2, part: ['sleeve', design.sleeve] });
-  if (COLLAR_PIECE[design.collar]) out.push({ name: 'Collar', d: COLLAR_PIECE[design.collar], slot: 2, part: ['collar', design.collar] });
+  if (layers.length) {
+    const L = layers.find((x) => x.main) || layers[layers.length - 1];
+    out.push({ name: 'Skirt', d: W(L.d, L.over || L.behind ? 'body' : 'skirt'), slot: 1, part: ['skirt', design.skirt] });
+  }
+  if (SLEEVE[design.sleeve]) out.push({ name: 'Sleeve', d: W(SLEEVE[design.sleeve].d, 'arm'), slot: 2, part: ['sleeve', design.sleeve] });
+  if (COLLAR_PIECE[design.collar]) out.push({ name: 'Collar', d: W(COLLAR_PIECE[design.collar]), slot: 2, part: ['collar', design.collar] });
   return out;
 }
 

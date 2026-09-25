@@ -1,8 +1,9 @@
 
 import { state, save } from '../state.js';
 import { go, toast, auntNote, calm, isMobile, isPortrait, $ } from '../ui.js';
-import { pieceOutlines, fabricSheet, svgImage, lum, shade } from '../art.js';
+import { dressSVG, pieceOutlines, fabricSheet, svgImage, lum, shade } from '../art.js';
 import { dye, part, bobbinRunOut, threadTension, tolerances, stitchAcc } from '../logic.js';
+import { vignetteHTML, mountVignette } from '../scene.js';
 import { sfx, machineHum } from '../audio.js';
 
 
@@ -23,7 +24,7 @@ function layout(bw, bh, port, desk) {
 const SPEEDS = [0, 70, 120, 175];    
 const STITCH = 9;
 
-let raf = 0, cleanup = null;
+let raf = 0, cleanup = null, view = null;
 
 function tableCanvas(K) {
   const c = document.createElement('canvas'); c.width = Math.round(W * K); c.height = Math.round(H * K);
@@ -77,10 +78,13 @@ export default {
       <p class="desk-only">Move the mouse (or <span class="keys"><kbd>A</kbd><kbd>D</kbd></span>) to keep the chalk line under the needle.</p>
       <p class="desk-only"><span class="keys"><kbd>W</kbd><kbd>S</kbd></span> change speed, or hold the mouse button to sew. On a touch screen, hold a finger on the cloth and drag to steer.</p>
       <p class="ws-how mobile-only">Hold a finger on the cloth to sew, and drag to keep the chalk line under the needle.</p>
-      <div class="ws-score"><div class="big" id="spd">Stopped</div></div></div>
+      <div class="ws-score"><div class="big" id="spd">Stopped</div></div>
+      <div class="ws-view">${vignetteHTML(dressSVG(d), { label: 'The dress you are sewing' })}</div></div>
       <button class="btn small ghost ws-skip" id="skip" style="color:#3a2a1a;border-color:#6b4a33">Let the apprentice sew (70%)</button></div>`;
     const cv = $('canvas', root), g = cv.getContext('2d');
     const box = $('.ws-cv', root);
+    view?.leave();
+    view = mountVignette($('.ws-view .sc-vig', root), { design: d });
     layout(box.clientWidth || 1280, box.clientHeight || 664, isPortrait(), !isMobile());
     const K = Math.min(2.5, Math.max(1, (box.clientWidth || W) * (window.devicePixelRatio || 1) / W));
     cv.width = Math.round(W * K); cv.height = Math.round(H * K); g.scale(K, K);
@@ -334,5 +338,5 @@ export default {
     if (!state.seenSew) { state.seenSew = true; save(); toast(isMobile() ? 'Hold a finger on the cloth to sew' : 'Press W to start the machine'); }
     auntNote('sew');
   },
-  leave() { if (cleanup) cleanup(); cleanup = null; },
+  leave() { if (cleanup) cleanup(); cleanup = null; view?.leave(); view = null; },
 };

@@ -204,7 +204,7 @@ button { font-family: inherit; cursor: pointer; }
 .emb-tags { margin-top: 10px; }
 .emb-done { margin-top: 12px; }
 .emb-dress { position: absolute; left: 0; top: 0; width: 520px; height: 640px; }
-.emb-dress svg { width: 100%; height: 100%; }
+.emb-dress > svg { width: 100%; height: 100%; }
 .zones { position: absolute; left: 540px; top: 16px; right: 18px; bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
 .zone { display: flex; align-items: center; gap: 8px; border-bottom: 1px dashed #cdb799; padding-bottom: 6px; }
 .zone .zn { width: 104px; font-size: 16px; font-style: italic; }
@@ -686,7 +686,7 @@ body.calm .dx-glide { display: none; }
 
 .sc-shelf { position: absolute; left: -21%; bottom: 29%; width: 42%; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 3%; z-index: 2; }
 .sc-plank { position: absolute; left: 0; right: 0; bottom: -7px; height: 8px; border-radius: 2px; background: linear-gradient(#a2744a, #5e3c22); box-shadow: 0 4px 6px rgba(0,0,0,.4); pointer-events: none; }
-.sc-mini { position: relative; width: 17%; aspect-ratio: 164 / 600; background: none; border: 0; padding: 0; cursor: pointer; opacity: .78; transition: transform .2s, opacity .2s, filter .2s; -webkit-tap-highlight-color: transparent; }
+.sc-mini { position: relative; width: 15%; aspect-ratio: 164 / 600; background: none; border: 0; padding: 0; cursor: pointer; opacity: .78; transition: transform .2s, opacity .2s, filter .2s; -webkit-tap-highlight-color: transparent; }
 .sc-mini svg { width: 100%; height: 100%; display: block; }
 .sc-mini:hover { opacity: 1; transform: translateY(-2px); }
 .sc-mini.on { opacity: 1; transform: translateY(-4px); filter: drop-shadow(0 0 5px rgba(255,230,168,.9)); }

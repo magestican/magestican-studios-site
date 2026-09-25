@@ -254,22 +254,27 @@ function birdCall(t) {
     o.connect(g); g.connect(outdoor); o.start(s); o.stop(s + 0.12);
   }
 }
+
+
+
+export const CRICKET_PEAK = 0.006;
 function cricket(t) {
-  const f = 4300 + Math.random() * 500;
-  for (let k = 0; k < 3; k++) {
+  const f = 3900 + Math.random() * 400, n = 2 + (Math.random() < 0.4 ? 1 : 0);
+  for (let k = 0; k < n; k++) {
     const s = t + k * 0.16;
-    const o = ac.createOscillator(), am = ac.createOscillator(), ag = ac.createGain(), g = ac.createGain();
-    o.frequency.value = f; am.frequency.value = 42; ag.gain.value = 0.5;
-    am.connect(ag); ag.connect(g.gain);
-    g.gain.setValueAtTime(0.0001, s); g.gain.linearRampToValueAtTime(0.02, s + 0.02); g.gain.linearRampToValueAtTime(0.0001, s + 0.1);
-    o.connect(g); g.connect(outdoor); o.start(s); am.start(s); o.stop(s + 0.12); am.stop(s + 0.12);
+    const o = ac.createOscillator(), am = ac.createOscillator(), ag = ac.createGain(), trill = ac.createGain(), g = ac.createGain();
+    o.frequency.value = f; am.frequency.value = 42;
+    trill.gain.value = 0.5; ag.gain.value = 0.5;   
+    am.connect(ag); ag.connect(trill.gain);
+    g.gain.setValueAtTime(0.0001, s); g.gain.linearRampToValueAtTime(CRICKET_PEAK, s + 0.02); g.gain.linearRampToValueAtTime(0.0001, s + 0.1);
+    o.connect(trill); trill.connect(g); g.connect(outdoor); o.start(s); am.start(s); o.stop(s + 0.12); am.stop(s + 0.12);
   }
 }
 function ambienceTick() {
   const t = ac.currentTime;
   if (t >= nextCall) {
     if (scene.night) cricket(t + 0.05); else birdCall(t + 0.05);
-    nextCall = t + (scene.night ? 0.9 + Math.random() * 1.4 : 1.8 + Math.random() * 4.5) / (scene.open ? 1.6 : 1);
+    nextCall = t + (scene.night ? 2.4 + Math.random() * 3.2 : 1.8 + Math.random() * 4.5) / (scene.open ? 1.3 : 1);
   }
   
   if (scene.open && !breeze) {

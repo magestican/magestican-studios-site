@@ -18,6 +18,33 @@
   <meta name="twitter:title" content="Play Silk &amp; Seam - a cosy dressmaking game">
   <meta name="twitter:description" content="Sketch, cut, sew and embellish dresses for your clients, then buy finer fabrics and grow your atelier. A free browser dressmaking game.">
   <meta name="twitter:image" content="https://magesticanstudios.com/assets/silk-and-seam-preview.jpg">
+  
+
+
+
+
+
+  <meta name="build" content="19bdd95-20260925T115739Z">
+  <script>
+    (function () {
+      var FILES = ['js/art.js', 'js/audio.js', 'js/data.js', 'js/logic.js', 'js/main.js', 'js/scene.js', 'js/state.js', 'js/ui.js',
+        'js/screens/cut.js', 'js/screens/embellish.js', 'js/screens/gallery.js', 'js/screens/hub.js', 'js/screens/market.js',
+        'js/screens/orders.js', 'js/screens/reveal.js', 'js/screens/sew.js', 'js/screens/sketch.js'];
+      var CSS = ['css/style.css', 'css/scene-frames.css'];
+      var v = (document.querySelector('meta[name="build"]') || {}).content || 'dev';
+      var q = v === 'dev' ? '' : '?v=' + encodeURIComponent(v);
+      if (q && window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap')) {
+        var map = { imports: {} };
+        
+        for (var i = 0; i < FILES.length; i++) map.imports[new URL(FILES[i], document.baseURI).href] = new URL(FILES[i] + q, document.baseURI).href;
+        var s = document.createElement('script');
+        s.type = 'importmap';
+        s.textContent = JSON.stringify(map);
+        document.currentScript.after(s);
+      }
+      for (var k = 0; k < CSS.length; k++) document.write('<link rel="stylesheet" href="' + CSS[k] + q + '">');
+    })();
+  </script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M12 4h8l-1 6 6 3-3 15H10L7 13l6-3z' fill='%23d25a6e'/%3E%3C/svg%3E">
   
 
@@ -29,7 +56,6 @@
     initAnalytics({ page: 'silk-and-seam' });
     trackEvent('game_start', { game: 'silk-and-seam' });
   </script>
-  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div id="stage">
@@ -37,6 +63,6 @@
     <div id="screen" class="screen"></div>
   </div>
   <noscript>Silk &amp; Seam needs JavaScript to run.</noscript>
-  <script type="module" src="js/main.js?v=85ccc45-20260925T085821Z"></script>
+  <script type="module" src="js/main.js?v=19bdd95-20260925T115739Z"></script>
 </body>
 </html>

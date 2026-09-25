@@ -13,7 +13,7 @@
 import { state, save } from './state.js';
 import { windAt, springStep, drapeOf, fabric, isNightHour } from './logic.js';
 import { BODY_SHAPES } from './data.js';
-import { miniFormSVG } from './art.js';
+import { miniFormSVG, roomSVG } from './art.js';
 import { sfx, setScene, setWind } from './audio.js';
 import { calm } from './ui.js';
 
@@ -119,6 +119,42 @@ export function sceneHTML(dressSvg, { shelf = null } = {}) {
       <g class="sc-sunrays">${BEAMS.map((b, i) => `<polygon class="sc-beam" style="animation-delay:${i * 1.3}s" points="${pts(b)}" fill="url(#sc-ray)"/>`).join('')}<polygon points="${pts(FLOOR)}" fill="#fff0c4" fill-opacity=".32"/></g>
       <g class="sc-moonrays">${BEAMS.slice(0, 2).map((b) => `<polygon points="${pts(b)}" fill="url(#sc-mray)"/>`).join('')}</g>
     </svg><canvas class="sc-dust"></canvas></div>`;
+}
+
+
+
+
+
+export const LIGHTS = [
+  { id: 'day', name: 'Daylight' },
+  { id: 'golden', name: 'Golden hour' },
+  { id: 'night', name: 'Lamplight' },
+];
+export function vignetteHTML(dressSvg, { cls = '', lights = false, label = '' } = {}) {
+  return `<div class="sc-vig ${cls}">${roomSVG()}<div class="sc-vig-box">${sceneHTML(dressSvg)}</div>` +
+    (label ? `<div class="sc-vig-label">${label}</div>` : '') +
+    (lights ? `<div class="sc-lights" role="group" aria-label="Light">${LIGHTS.map((l) => `<button class="chip" data-light="${l.id}">${l.name}</button>`).join('')}</div>` : '') + '</div>';
+}
+
+export function mountVignette(vig, opts = {}) {
+  const sc = mountScene(vig.querySelector('.sc-vig-box'), { ...opts, screen: vig });
+  const s = sceneState();
+  const mark = () => {
+    const cur = vig.classList.contains('golden') ? 'golden' : isNight() ? 'night' : 'day';
+    vig.querySelectorAll('[data-light]').forEach((b) => { const on = b.dataset.light === cur; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  };
+  sc.setLight = (id) => {
+    const night = id === 'night';
+    if (night !== isNight()) { night ? sfx.toNight() : sfx.toDay(); if (night) setTimeout(() => sfx.lampOn(), 450); }
+    vig.classList.toggle('golden', id === 'golden');
+    s.night = night; save();
+    sc.apply(); mark();
+  };
+  vig.querySelectorAll('[data-light]').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); sc.setLight(b.dataset.light); }; });
+  
+  vig.querySelector('.sc-sky')?.addEventListener('click', () => { vig.classList.remove('golden'); mark(); });
+  mark();
+  return sc;
 }
 
 
@@ -249,6 +285,7 @@ export function mountScene(el, { design, onBody, screen } = {}) {
   raf = requestAnimationFrame(frame);
   return {
     leave() { cancelAnimationFrame(raf); setWind(0); },
+    apply,
     setDress(html, design2) {
       el.querySelector('.sc-dress').innerHTML = html;
       cur = design2; P = parts(); springs = newSprings();

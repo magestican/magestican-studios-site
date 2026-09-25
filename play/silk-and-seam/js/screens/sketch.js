@@ -1,10 +1,10 @@
 import { state, save, level } from '../state.js';
-import { go, toast, money, tagBars, matchLine, auntNote, tip, tipData, touchedRecently, renderHud, stageScale, $ } from '../ui.js';
+import { go, modal, toast, money, tagBars, matchLine, auntNote, tip, tipData, touchedRecently, renderHud, stageScale, $ } from '../ui.js';
 import { dressSVG, swatchSVG } from '../art.js';
 import { PARTS, FABRICS, DYES } from '../data.js';
 import { computeTags, fabricNeeds, totalMetres, materialCost, shortages, consume, fabric, part, dye as dyeOf, sketchKey, dyeCost, dyePrice, shopValue } from '../logic.js';
 import { sfx } from '../audio.js';
-import { shelfHTML, wireShelf } from '../scene.js';
+import { shelfHTML, wireShelf, vignetteHTML, mountVignette } from '../scene.js';
 
 const SLOT_LABEL = { bodice: 'Bodice', collar: 'Collar', sleeve: 'Sleeves', skirt: 'Skirt' };
 
@@ -27,7 +27,7 @@ export default {
       <div class="page left paper"><h2>${job.order.client}</h2><div class="sub">${job.order.window ? 'for walk-in buyers &middot; design anything you like' : `${job.order.occasion} &middot; fee ${money(job.order.fee)}`}</div>
         <div id="tags"></div><div id="match"></div></div>
       <div class="page right paper">${DRAFTING}<div class="sketch-stage">${shelfHTML(d.body || 'classic')}<div class="sketch-dress" id="dress"></div><div class="pencil"></div><div class="match-mini" id="match-mini"></div>
-        <button class="btn small ghost preview-toggle" id="view">View in fabric</button></div>
+        <button class="btn small ghost preview-toggle" id="view">View in fabric</button><button class="btn small ghost light-toggle" id="light">See it in the light</button></div>
         <div class="controls">
           ${['bodice', 'collar', 'sleeve', 'skirt'].map((s) => `<div class="carousel kb" data-slot="${s}" tabindex="0" role="group" aria-label="${SLOT_LABEL[s]}"><span class="lbl">${SLOT_LABEL[s]}</span><button class="arrow" data-d="-1" tabindex="-1">◀</button><div class="val"></div><button class="arrow" data-d="1" tabindex="-1">▶</button></div>`).join('')}
           <div class="swatches">
@@ -189,6 +189,12 @@ export default {
     
     wireShelf($('.sketch-stage', root), (id) => { d.body = id; save(); refresh(); });
     $('#view', root).onclick = () => { view = view === 'sketch' ? 'final' : 'sketch'; $('#view', root).textContent = view === 'sketch' ? 'View in fabric' : 'View sketch'; sfx.page(); refresh(); };
+    
+    $('#light', root).onclick = () => {
+      sfx.page();
+      modal(`<h2>In the light</h2>${vignetteHTML(dressSVG(d), { lights: true, cls: 'preview', label: 'Tap the window to open it, the sun or moon to change the hour' })}`, [{ label: 'Back to the sketch', onClick: () => pv?.leave() }]);
+      const pv = mountVignette(document.querySelector('.modal .sc-vig'), { design: d });
+    };
     $('#back', root).onclick = () => { sfx.page(); go('orders'); };
     $('#draft', root).onclick = () => {
       if (shortages(state, d).length) { sfx.error(); toast('Not enough fabric - visit the market', 'bad'); return; }
