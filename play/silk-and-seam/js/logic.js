@@ -2,7 +2,7 @@
 import {
   TAGS, PARTS, SLOTS, FABRICS, TRIMS, DYES, LEVEL_XP, MAX_LEVEL, CLIENTS, SEASONS, SEASON_LENGTH, SEASON_BONUS,
   REP_GAIN, REP_TIERS, PREMIUM_FEE, NATURAL_DYES, DYE_PRICE, RARE_DYE_PRICE, RARE_DYE_LVL, WINDOW_WAIT, SALE_EVERY,
-  UPGRADES, ACCESSORIES, ACHIEVEMENTS, BODY_SHAPES,
+  UPGRADES, ACCESSORIES, ACHIEVEMENTS, BODY_SHAPES, CHARITY_REP,
 } from './data.js';
 
 export const byId = (list, id) => list.find((x) => x.id === id);
@@ -149,7 +149,8 @@ export function payout(order, match, quality, matCost) {
   
   const loyal = order.repeat?.mood === 'happy' && match >= 0.6 ? Math.round(order.fee * LOYALTY_TIP) : 0;
   const tip = perfect + loyal;
-  const xp = Math.round(15 + order.fee * 0.6 * match * (0.5 + 0.5 * quality));
+  
+  const xp = Math.round(15 + (order.xpFee ?? order.fee) * 0.6 * match * (0.5 + 0.5 * quality));
   return { fee, materials, tip, loyal, total: fee + materials + tip, xp };
 }
 
@@ -217,6 +218,29 @@ export function generateOrder(lvl, rng, excludeNames = [], opts = {}) {
     : premium.length && roll < 0.55 ? pick(premium, rng)
       : returning.length && roll < 0.75 ? pick(returning, rng)
         : pick(pool.length ? pool : CLIENTS.filter((c) => (c.minLvl || 1) <= lvl && !c.season && !c.premium), rng);
+  const order = briefFor(client, lvl, rng);
+  order.fee = Math.round(25 + 18 * lvl + rng() * 12);
+  if (client.season) {
+    order.season = client.season;
+    order.bonus = Math.round(order.fee * SEASON_BONUS);
+    order.fee += order.bonus;
+  }
+  if (client.premium) {
+    order.premium = true;
+    order.premiumBonus = Math.round(order.fee * (PREMIUM_FEE - 1));
+    order.fee += order.premiumBonus;
+  }
+  const back = repeatTerms(history[client.name]);
+  if (back) order.repeat = back;
+  order.budget = Math.round(30 + 28 * lvl * (0.8 + 0.4 * rng()));
+  order.id = Math.floor(rng() * 1e9).toString(36);
+  return order;
+}
+
+
+
+
+export function briefFor(client, lvl, rng) {
   const samples = [];
   for (let i = 0; i < 500; i++) samples.push(computeTags(randomDesign(lvl, rng)));
   const best = (tag) => Math.max(...samples.map((s) => s[tag]));
@@ -233,21 +257,6 @@ export function generateOrder(lvl, rng, excludeNames = [], opts = {}) {
     if (top >= 0.97) break;
     for (const w of order.wants) w.min = Math.max(1, Math.round(w.min * 0.85 * 2) / 2);
   }
-  order.fee = Math.round(25 + 18 * lvl + rng() * 12);
-  if (client.season) {
-    order.season = client.season;
-    order.bonus = Math.round(order.fee * SEASON_BONUS);
-    order.fee += order.bonus;
-  }
-  if (client.premium) {
-    order.premium = true;
-    order.premiumBonus = Math.round(order.fee * (PREMIUM_FEE - 1));
-    order.fee += order.premiumBonus;
-  }
-  const back = repeatTerms(history[client.name]);
-  if (back) order.repeat = back;
-  order.budget = Math.round(30 + 28 * lvl * (0.8 + 0.4 * rng()));
-  order.id = Math.floor(rng() * 1e9).toString(36);
   return order;
 }
 
@@ -377,8 +386,11 @@ const round2 = (v) => Math.round(v * 100) / 100;
 const clampQ = (q) => Math.max(0, Math.min(1, Number.isFinite(q) ? q : 0.7));
 
 
-export function repAfter(rep, starCount) {
-  return Math.max(0, (rep || 0) + (REP_GAIN[starCount] ?? 0));
+
+
+export function repAfter(rep, starCount, order = null) {
+  const gain = REP_GAIN[starCount] ?? 0;
+  return Math.max(0, (rep || 0) + (order?.charity ? Math.max(0, gain) + CHARITY_REP : gain));
 }
 
 
@@ -538,6 +550,11 @@ const RULES = {
   equipped: (s) => UPGRADES.every((u) => s.upgrades.includes(u.id)),
   darling: (s) => s.rep >= 45,
   loyal: (s) => Object.values(s.clients).some((c) => (c.visits || 0) >= 3),
+  
+  kind: (s) => (s.town?.charity || 0) >= 1,
+  gossip: (s) => (s.town?.known?.length || 0) >= 15,
+  bravo: (s) => (s.town?.kinds?.opera || 0) >= 1,
+  noble: (s) => (s.town?.kinds?.noble || 0) >= 1,
 };
 export function achievementsEarned(st) {
   const s = { made: 0, xp: 0, money: 0, rep: 0, upgrades: [], clients: {}, ...st, stats: { ...freshStats(), ...(st?.stats || {}) } };

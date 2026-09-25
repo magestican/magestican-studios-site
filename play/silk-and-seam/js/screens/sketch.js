@@ -24,7 +24,7 @@ export default {
     const lvl = level();
     let view = 'sketch';
     root.innerHTML = `<div class="book">
-      <div class="page left paper"><h2>${job.order.client}</h2><div class="sub">${job.order.window ? 'for walk-in buyers &middot; design anything you like' : `${job.order.occasion} &middot; fee ${money(job.order.fee)}`}</div>
+      <div class="page left paper"><h2>${job.order.client}</h2><div class="sub">${job.order.window ? 'for walk-in buyers &middot; design anything you like' : `${job.order.occasion} &middot; ${job.order.charity ? "free, for notice" : `fee ${money(job.order.fee)}`}`}</div>
         <div id="tags"></div><div id="match"></div></div>
       <div class="page right paper">${DRAFTING}<div class="sketch-stage">${shelfHTML(d.body || 'classic')}<div class="sketch-dress" id="dress"></div><div class="pencil"></div><div class="match-mini" id="match-mini"></div>
         <button class="btn small ghost preview-toggle" id="view">View in fabric</button><button class="btn small ghost light-toggle" id="light">See it in the light</button></div>
@@ -74,7 +74,7 @@ export default {
       const cost = materialCost(d), dc = dyeCost(d);
       $('#req', root).innerHTML = `Approx. ${totalMetres(d).toFixed(2)}m fabric required` +
         `<small>${Object.entries(needs).map(([id, m]) => { const ok = (state.fabrics[id] || 0) >= m; return `<span class="${ok ? 'ok' : ''}">${fabric(id).name} ${m.toFixed(2)}m / ${(state.fabrics[id] || 0).toFixed(1)}m</span>`; }).join(' &middot; ')}</small>` +
-        `<small>Materials worth ${money(cost)} &middot; dyes ${dc ? money(dc) : 'free'} <i>(paid when you draft)</i> &middot; ${job.order.window ? `a buyer would pay about ${money(shopValue(d, 0.85))}` : `client covers up to ${money(job.order.budget)}`}</small>`;
+        `<small>Materials worth ${money(cost)} &middot; dyes ${dc ? money(dc) : 'free'} <i>(paid when you draft)</i> &middot; ${job.order.window ? `a buyer would pay about ${money(shopValue(d, 0.85))}` : job.order.charity ? "free work - the materials are your gift" : `client covers up to ${money(job.order.budget)}`}</small>`;
       const btn = $('#draft', root);
       const broke = state.money < dc;
       btn.disabled = short.length > 0 || broke;

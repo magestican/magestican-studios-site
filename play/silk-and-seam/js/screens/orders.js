@@ -2,7 +2,8 @@ import { state, save, fillOrders } from '../state.js';
 import { go, modal, money, orderSummary, countPlay, toast, renderHud } from '../ui.js';
 import { portraitSVG } from '../art.js';
 import { defaultDesign, seasonFor, seasonLeft, part, bodyShape, declinePenalty } from '../logic.js';
-import { DYES, SEASONS, SEASON_BONUS } from '../data.js';
+import { DYES, SEASONS, SEASON_BONUS, CHARITY_REP } from '../data.js';
+import { REQUEST_KINDS } from '../town.js';
 
 
 const GARMENT_LINE = {
@@ -15,6 +16,8 @@ import { sfx } from '../audio.js';
 const OPENERS = ['Dearest dressmaker,', 'To the new atelier on Thimble Lane,', 'Good day!', 'Dear Madam,', 'Hello there,'];
 
 function letterText(o, i) {
+  
+  if (o.town) return `<i class="spoken">${o.note}</i>${o.from && o.from !== o.client ? ` <small>(asked by ${o.from})</small>` : ''}`;
   const want = o.wants.map((w) => w.tag.toLowerCase());
   const list = want.length > 1 ? `${want.slice(0, -1).join(', ')} and ${want[want.length - 1]}` : want[0];
   const avoid = o.avoid.map((a) => a.tag.toLowerCase()).join(' or ');
@@ -41,16 +44,18 @@ function seasonBanner() {
 export default {
   enter(root) {
     fillOrders();
-    root.innerHTML = `<div class="desk"><h1>Commissions</h1>${seasonBanner()}<div class="letters">${state.orders.map((o, i) => `
-      <div class="letter paper${o.season ? ` season-${o.season}` : ''}${o.premium ? ' premium' : ''}">${o.premium ? '<div class="premium-badge">&#9830; Premium client</div>' : ''}
+    root.innerHTML = `<div class="desk"><h1>Commissions</h1>${seasonBanner()}${state.orders.some((o) => o.town) ? "" : `<div class="town-hint">Want different work? <button class="btn small ghost" data-town>Go into town</button> - talk to people, hear the gossip, and win requests of your own.</div>`}<div class="letters">${state.orders.map((o, i) => `
+      <div class="letter paper${o.season ? ` season-${o.season}` : ''}${o.premium ? ' premium' : ''}${o.town ? ` town-req kind-${o.kind}` : ''}">${o.premium ? '<div class="premium-badge">&#9830; Premium client</div>' : ''}${o.town ? `<div class="premium-badge town-badge">${REQUEST_KINDS[o.kind].badge}</div>` : ''}
         <div class="seal">${o.season ? SEASONS.find((x) => x.id === o.season).icon : '❦'}</div>${o.repeat ? `<div class="returning ${o.repeat.mood}">Returning client ${'&#9733;'.repeat(o.repeat.stars)}</div>` : ''}
         <div class="who">${portraitSVG(o.look, DYES[(o.look * 3) % DYES.length].hex)}<div><h3>${o.client}</h3><small>for ${o.occasion}${o.body ? ` &middot; ${bodyShape(o.body).name.toLowerCase()} figure` : ''}</small></div></div>
         <p>${letterText(o, i)}</p>
         ${orderSummary(o)}
-        <div class="terms"><span>Fee <b>${money(o.fee)}</b>${o.bonus ? ` <small class="bonus">incl. ${money(o.bonus)} ${SEASONS.find((x) => x.id === o.season).event} bonus</small>` : ''}${o.premiumBonus ? ` <small class="bonus">incl. ${money(o.premiumBonus)} premium</small>` : ''}</span><span>Materials up to <b>${money(o.budget)}</b></span></div>
+        ${o.charity ? `<div class="terms"><span>Fee <b>none</b> <small class="bonus">word gets round: reputation +${CHARITY_REP} and notice</small></span><span>Materials <b>yours</b></span></div>` : `<div class="terms"><span>Fee <b>${money(o.fee)}</b>${o.bonus ? ` <small class="bonus">incl. ${money(o.bonus)} ${SEASONS.find((x) => x.id === o.season).event} bonus</small>` : ''}${o.premiumBonus ? ` <small class="bonus">incl. ${money(o.premiumBonus)} premium</small>` : ''}</span><span>Materials up to <b>${money(o.budget)}</b></span></div>`}
         <button class="btn gold" data-i="${i}">${state.job?.order.id === o.id ? 'Continue' : 'Accept commission'}</button>
         <button class="btn small ghost decline" data-no="${i}">${state.job?.order.id === o.id ? 'Give up this commission' : 'Decline politely'}</button>
       </div>`).join('')}</div></div>`;
+    const tb = root.querySelector('[data-town]');
+    if (tb) tb.onclick = () => { sfx.page(); go('town'); };
     
     root.querySelectorAll('[data-no]').forEach((b) => {
       b.onclick = () => {

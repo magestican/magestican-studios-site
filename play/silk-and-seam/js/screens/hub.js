@@ -5,6 +5,7 @@ import { defaultDesign, windowLeft } from '../logic.js';
 import { sfx } from '../audio.js';
 import { AUNT, ACHIEVEMENTS } from '../data.js';
 import { sceneHTML, mountScene, sceneState } from '../scene.js';
+import { talksLeft } from '../town.js';
 
 const STEP_NAMES = { sketch: 'Sketch book', cut: 'Cutting table', sew: 'Sewing machine', embellish: 'Embellishing', reveal: 'The reveal' };
 
@@ -42,6 +43,7 @@ export default {
       <div class="hub-menu">
         ${job ? `<button class="plaque hot" data-a="job"><b>Continue ${job.order.window ? 'window dress' : 'commission'}</b><small>${job.order.client} &middot; ${STEP_NAMES[job.step]}</small></button>` : ''}
         <button class="plaque${job ? '' : ' hot'}" data-a="orders"><b>Commissions</b><small>${state.orders.length} letters waiting on the desk</small></button>
+        <button class="plaque" data-a="town"><b>Into Town</b><small>Gossip, new clients &amp; favours &middot; ${talksLeft(state.town, state.made) || 'no'} talk${talksLeft(state.town, state.made) === 1 ? '' : 's'} left today</small></button>
         <button class="plaque" data-a="market"><b>Fabric Market</b><small>Bolts, trims, sales &amp; workshop tools</small></button>
         <button class="plaque" data-a="gallery"><b>Gallery &amp; Workbench</b><small>${state.gallery.length} dress${state.gallery.length === 1 ? '' : 'es'} made${nScrap >= 0.2 ? ` &middot; ${nScrap.toFixed(1)} m of scraps` : ''}</small></button>
       </div>
@@ -59,6 +61,7 @@ export default {
     });
     root.querySelector('[data-a=orders]').onclick = () => { sfx.page(); go('orders'); };
     root.querySelector('[data-a=market]').onclick = () => { sfx.page(); go('market'); };
+    root.querySelector('[data-a=town]').onclick = () => { sfx.page(); go('town'); };
     root.querySelector('[data-a=gallery]').onclick = () => { sfx.page(); go('gallery'); };
     root.querySelector('[data-a=ach]').onclick = () => { sfx.click(); openAchievements(); };
     const win = root.querySelector('[data-a=window]');

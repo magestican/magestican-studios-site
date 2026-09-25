@@ -217,6 +217,8 @@ export const REP_TIERS = [
 ];
 export const PREMIUM_FEE = 1.5;
 
+export const CHARITY_REP = 3;
+
 
 
 export const NATURAL_DYES = ['ivory'];
@@ -262,6 +264,10 @@ export const ACHIEVEMENTS = [
   { id: 'equipped', name: 'Fully Equipped', desc: 'Own every workshop upgrade.' },
   { id: 'darling', name: 'Society Darling', desc: 'Reach 45 reputation.' },
   { id: 'loyal', name: 'Old Friends', desc: 'Dress the same client three times.' },
+  { id: 'kind', name: 'A Kind Needle', desc: 'Make a dress for free for someone who cannot pay.' },
+  { id: 'gossip', name: 'Ear to the Ground', desc: 'Hear fifteen pieces of town gossip.' },
+  { id: 'bravo', name: 'Bravo!', desc: 'Dress a singer for the opera.' },
+  { id: 'noble', name: 'By Appointment', desc: "Finish a noblewoman's gown." },
 ];
 
 

@@ -10,8 +10,9 @@ import embellish from './screens/embellish.js';
 import reveal from './screens/reveal.js';
 import market from './screens/market.js';
 import gallery from './screens/gallery.js';
+import town from './screens/town.js';
 
-Object.entries({ hub, orders, sketch, cut, sew, embellish, reveal, market, gallery }).forEach(([k, v]) => register(k, v));
+Object.entries({ hub, orders, sketch, cut, sew, embellish, reveal, market, gallery, town }).forEach(([k, v]) => register(k, v));
 window.addEventListener('resize', fitStage);
 window.addEventListener('pointerdown', unlockAudio, { once: false });
 window.addEventListener('keydown', unlockAudio);

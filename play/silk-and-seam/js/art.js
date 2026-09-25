@@ -1065,6 +1065,22 @@ const LOOKS = [
   { hair: '#16110e', skin: '#d9aa82', style: 'chignon', flower: '#f0c24e' },
   { hair: '#120f0d', skin: '#e0b690', style: 'long', ear: 'stud' },
   { hair: '#241a14', skin: '#8d5b3c', style: 'long', ear: 'jhumka' },
+  
+  { hair: '#b9a58a', skin: '#f1d2bb', style: 'kerchief', scarf: '#b8423a' },                 
+  { hair: '#2a1d17', skin: '#c79a78', style: 'hijab', scarf: '#4f7a68' },                    
+  { hair: '#141112', skin: '#eccfa8', style: 'chignon', pins: true },                        
+  { hair: '#1b1512', skin: '#5e3a28', style: 'gele', scarf: '#e0902a', ear: 'hoop' },        
+  { hair: '#d8d4cc', skin: '#e9c9ae', style: 'short', kippah: '#1f2c4a', beard: '#e4e0d8', glasses: true }, 
+  { hair: '#6b4a2f', skin: '#f0cfb2', style: 'short', hat: '#2b2320', mustache: '#6b4a2f' }, 
+  { hair: '#d4cfc6', skin: '#ecc9b0', style: 'bun', shawl: '#6f5b4a' },                     
+  { hair: '#8a5a2b', skin: '#f3d3bc', style: 'short', cap: '#5a5f4a' },                      
+  { hair: '#1c1412', skin: '#d9a57c', style: 'bun', flower: '#c0392b', ear: 'hoop' },        
+  { hair: '#e8d08a', skin: '#f6dcc8', style: 'chignon', tiara: true, ear: 'stud' },          
+  { hair: '#15110f', skin: '#a8704c', style: 'plait', ear: 'jhumka', tikka: true },          
+  { hair: '#7a2a1e', skin: '#f3d8c6', style: 'chignon', feather: '#3a2a4a', ear: 'stud' },   
+  { hair: '#3b3330', skin: '#e5c3a4', style: 'short', glasses: true, mustache: '#3b3330' },  
+  { hair: '#120f0d', skin: '#d8a77f', style: 'bun', flower: '#b565c9' },                     
+  { hair: '#1a1310', skin: '#8f5d3f', style: 'long', bindi: true, ear: 'jhumka' },           
 ];
 export function portraitSVG(look, dyeHex = '#b9a4d8', mood = 'neutral') {
   const L = LOOKS[look % LOOKS.length];
@@ -1080,15 +1096,36 @@ export function portraitSVG(look, dyeHex = '#b9a4d8', mood = 'neutral') {
   const ear = L.ear === 'jhumka' ? [-22, 22].map((x) => `<circle cx="${x}" cy="10" r="1.6" fill="#d9b04a"/><path d="M${x - 4},20 Q${x},12 ${x + 4},20 Z" fill="#d9b04a"/><circle cx="${x}" cy="21.5" r="1.2" fill="#e8d59a"/>`).join('')
     : L.ear === 'hoop' ? [-22, 22].map((x) => `<circle cx="${x}" cy="15" r="5" fill="none" stroke="#d9b04a" stroke-width="1.4"/>`).join('')
       : L.ear === 'stud' ? [-22, 22].map((x) => `<circle cx="${x}" cy="10" r="1.7" fill="#f2ecdf"/>`).join('') : '';
+  if (L.style === 'hijab') hairBack = `<path d="M-30,-8 C-32,-42 32,-42 30,-8 C32,20 30,40 38,58 L-38,58 C-30,40 -32,20 -30,-8 Z" fill="${L.scarf}"/>`;
+  
+  const sc = L.scarf, sd = sc ? shade(sc, -0.25) : '';
+  const top = (L.style === 'hijab' ? `<path fill-rule="evenodd" fill="${sc}" d="M-27,4 C-29,-34 29,-34 27,4 C25,22 14,32 0,34 C-14,32 -25,22 -27,4 Z M-20,3 C-20,-17 20,-17 20,3 C20,18 10,26 0,26 C-10,26 -20,18 -20,3 Z"/><path d="M-20,-4 C-10,-16 10,-16 20,-4" stroke="${sd}" stroke-width="1.2" fill="none"/>` : '') +
+    (L.style === 'kerchief' ? `<path d="M-27,2 C-30,-34 30,-34 27,2 C18,-14 -18,-14 -27,2 Z" fill="${sc}"/><path d="M-24,2 C-24,16 -14,26 -3,30 M24,2 C24,16 14,26 3,30" stroke="${sc}" stroke-width="4" fill="none"/><path d="M-4,28 L-9,38 L0,32 L9,38 L4,28 Z" fill="${sc}"/>` +
+      [[-14, -18], [0, -24], [14, -18], [-20, -6], [20, -6], [-7, -12], [7, -12]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="#f4e6c8"/>`).join('') : '') +
+    (L.style === 'gele' ? `<path d="M-28,-4 C-36,-30 -22,-50 0,-50 C24,-52 38,-34 30,-4 C20,-18 -18,-18 -28,-4 Z" fill="${sc}"/><path d="M6,-48 C22,-62 42,-54 38,-34 C32,-42 20,-46 6,-48 Z" fill="${shade(sc, 0.15)}"/>` +
+      `<path d="M-24,-14 C-12,-24 14,-26 28,-16 M-22,-28 C-8,-38 12,-40 26,-30 M-12,-42 C0,-46 12,-46 20,-42" stroke="${sd}" stroke-width="1.3" fill="none"/>` : '') +
+    (L.kippah ? `<ellipse cx="0" cy="-29" rx="12" ry="4.5" fill="${L.kippah}"/><path d="M-9,-29 H9" stroke="#c9b26a" stroke-width=".8"/>` : '') +
+    (L.hat ? `<rect x="-16" y="-52" width="32" height="24" fill="${L.hat}"/><rect x="-16" y="-34" width="32" height="4" fill="#6b2a2a"/><rect x="-27" y="-30" width="54" height="5" rx="2.5" fill="${L.hat}"/>` : '') +
+    (L.cap ? `<path d="M-25,-12 C-27,-34 22,-37 26,-16 L35,-11 C20,-8 -10,-10 -25,-12 Z" fill="${L.cap}"/><path d="M-20,-18 C-6,-28 12,-28 24,-18" stroke="${shade(L.cap, -0.3)}" stroke-width="1" fill="none"/>` : '') +
+    (L.tiara ? `<path d="M-13,-27 L-9,-35 L-5,-28 L0,-39 L5,-28 L9,-35 L13,-27 Z" fill="#ecd07a" stroke="#a8812f" stroke-width=".7"/><circle cx="0" cy="-33" r="1.8" fill="#8fd0f0"/>` : '') +
+    (L.tikka ? `<path d="M0,-31 V-18" stroke="#d9b04a" stroke-width="1"/><circle cx="0" cy="-15" r="2.8" fill="#d9b04a"/><circle cx="0" cy="-15" r="1.3" fill="#b3263a"/>` : '') +
+    (L.feather ? `<path d="M10,-34 C22,-56 38,-60 42,-52 C34,-50 22,-44 10,-34 Z" fill="${L.feather}"/><path d="M11,-34 C22,-48 32,-54 41,-52" stroke="#c9b26a" stroke-width=".8" fill="none"/><circle cx="11" cy="-33" r="2.4" fill="#ecd07a"/>` : '') +
+    (L.pins ? `<path d="M4,-42 L26,-22 M-3,-40 L19,-18" stroke="#8a2a2a" stroke-width="1.8" stroke-linecap="round"/><circle cx="26" cy="-22" r="2" fill="#d9b04a"/>` : '');
+  const man = L.style === 'short';
   return `<svg xmlns="${NS}" viewBox="-50 -52 100 110" class="portrait"><circle cx="0" cy="3" r="50" fill="#efe3cf"/>` + hairBack +
     `<path d="M-40,58 C-36,36 -18,30 0,30 C18,30 36,36 40,58 Z" fill="${dyeHex}"/><path d="M-10,30 L0,40 L10,30" fill="none" stroke="${shade(dyeHex, -0.35)}" stroke-width="1.5"/>` +
+    (L.shawl ? `<path d="M-41,58 C-36,34 -16,28 0,42 C16,28 36,34 41,58 Z" fill="${L.shawl}"/><path d="M0,42 L-4,56 M0,42 L4,56" stroke="${shade(L.shawl, -0.3)}" stroke-width="1.2"/>` : '') +
+    (man ? `<path d="M-40,58 C-36,38 -20,32 -8,31 L0,44 L8,31 C20,32 36,38 40,58 Z" fill="${shade(dyeHex, -0.2)}"/><path d="M-5,33 L0,44 L5,33 Z" fill="#f4efe4"/>` : '') +
     `<rect x="-7" y="18" width="14" height="14" fill="${shade(L.skin, -0.08)}"/><ellipse cx="0" cy="2" rx="22" ry="25" fill="${L.skin}"/>` +
     `<path d="M-23,0 C-26,-26 -8,-32 0,-30 C12,-32 28,-24 23,0 C20,-14 10,-18 0,-16 C-10,-18 -20,-12 -23,0 Z" fill="${L.hair}"/>` +
     (L.style === 'bob' ? `<path d="M-23,0 C-26,14 -22,20 -16,22 L-18,2 Z M23,0 C26,14 22,20 16,22 L18,2 Z" fill="${L.hair}"/>` : '') +
-    ear + flower + (L.bindi ? `<circle cx="0" cy="-7" r="1.7" fill="#b3263a"/>` : '') +
+    (L.style === 'hijab' ? '' : ear) + flower + (L.bindi ? `<circle cx="0" cy="-7" r="1.7" fill="#b3263a"/>` : '') + top +
     `<ellipse cx="-8" cy="3" rx="2.4" ry="3" fill="#2d2320"/><ellipse cx="8" cy="3" rx="2.4" ry="3" fill="#2d2320"/><circle cx="-7.2" cy="2" r=".8" fill="#fff"/><circle cx="8.8" cy="2" r=".8" fill="#fff"/>` +
-    `<ellipse cx="-13" cy="11" rx="4" ry="2.4" fill="#e88" fill-opacity=".35"/><ellipse cx="13" cy="11" rx="4" ry="2.4" fill="#e88" fill-opacity=".35"/>` +
-    `<path d="${mouth}" fill="none" stroke="#9a4a4a" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+    (L.glasses ? `<g fill="none" stroke="#5a4a3a" stroke-width="1.2"><circle cx="-8" cy="3" r="5.5"/><circle cx="8" cy="3" r="5.5"/><path d="M-2.5,2 Q0,0 2.5,2 M-13.5,2 L-21,0 M13.5,2 L21,0"/></g>` : '') +
+    (man ? '' : `<ellipse cx="-13" cy="11" rx="4" ry="2.4" fill="#e88" fill-opacity=".35"/><ellipse cx="13" cy="11" rx="4" ry="2.4" fill="#e88" fill-opacity=".35"/>`) +
+    (L.beard ? `<path d="M-21,4 C-21,30 -8,37 0,37 C8,37 21,30 21,4 C15,17 8,20 0,20 C-8,20 -15,17 -21,4 Z" fill="${L.beard}"/>` : '') +
+    `<path d="${mouth}" fill="none" stroke="#9a4a4a" stroke-width="1.8" stroke-linecap="round"/>` +
+    (L.mustache ? `<path d="M-9,12.5 C-5,8.5 -1,9.5 0,11.5 C1,9.5 5,8.5 9,12.5 C4,14 -4,14 -9,12.5 Z" fill="${L.mustache}"/>` : '') + `</svg>`;
 }
 
 

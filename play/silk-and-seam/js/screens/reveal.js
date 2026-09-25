@@ -1,7 +1,8 @@
 import { state, save, fillOrders, level } from '../state.js';
 import { go, modal, money, starRow, renderHud, auntNote, calm, toast, checkAchievements, $ } from '../ui.js';
 import { dressSVG, roomSVG, portraitSVG } from '../art.js';
-import { computeTags, clientMatch, sameAsLast, rememberClient, stars, payout, levelFor, unlockedAt, part, fabric, dye, repAfter, repTier, recordDress, windowLeft, placeInWindow, shopValue } from '../logic.js';
+import { recordServed, noticeFor } from '../town.js';
+import { computeTags, clientMatch, sameAsLast, rememberClient, stars, payout, levelFor, unlockedAt, part, fabric, trim, dye, repAfter, repTier, recordDress, windowLeft, placeInWindow, shopValue } from '../logic.js';
 import { WINDOW_WAIT } from '../data.js';
 import { DYES } from '../data.js';
 import { sfx } from '../audio.js';
@@ -32,13 +33,15 @@ export default {
     const q = job.quality ?? 0.7;
     const cost = (job.matCost || 0) + (job.trimCost || 0);
     const pay = payout(o, m, q, cost);
-    const lines = LINES[st];
+    
+    const lines = o.charity ? (st >= 4 ? ['I have never had anything so lovely. I don\'t know how to thank you.', 'Everyone is going to ask where it came from. I will tell them all.']
+      : st >= 3 ? ['It is lovely. Thank you - truly.', 'I shall wear it until it falls apart.'] : ['It is... thank you. It was kind of you to try.', 'Thank you. I know you did it for nothing.']) : LINES[st];
     const rep = o.repeat;
     
     const repLine = !rep ? '' : sameAsLast(o, d) ? ' And yet... it is the very same cut as last time.'
       : rep.mood === 'happy' && st >= 3 ? ' You have never once let me down.' : rep.mood === 'unhappy' && st >= 4 ? ' You have quite redeemed yourself!' : '';
     const mood = st >= 4 ? 'happy' : st <= 2 ? 'sad' : 'neutral';
-    const repDelta = repAfter(state.rep, st) - (state.rep || 0);
+    const repDelta = repAfter(state.rep, st, o) - (state.rep || 0);
     root.innerHTML = `<div class="reveal">${roomSVG()}
       <div class="dress"><div class="cam"><div class="rv-scene">${sceneHTML(dressSVG(d, { quality: q }))}</div></div></div>
       <div class="curtain l"></div><div class="curtain r"></div>
@@ -56,6 +59,8 @@ export default {
           <tr class="total"><td>Total</td><td>${money(pay.total)}</td></tr>
           <tr><td>Experience</td><td>+${pay.xp} XP</td></tr>
           <tr><td>Reputation</td><td>${repDelta >= 0 ? '+' : ''}${repDelta}</td></tr>
+          ${o.charity ? `<tr><td>Notice <small>(word of mouth - opens doors in town)</small></td><td>+${noticeFor(st)}</td></tr>` : ''}
+          ${o.gift ? `<tr><td>A keepsake <small>(in your trims)</small></td><td>${o.gift.n} &times; ${trim(o.gift.id)?.name || o.gift.id}</td></tr>` : ''}
         </table>
         <div class="modal-btns"><button class="btn gold" id="collect">Collect payment</button></div>
       </div></div>`;
@@ -93,7 +98,11 @@ export default {
       state.xp += pay.xp;
       state.made++;
       const repBefore = repTier(state.rep).index;
-      state.rep = repAfter(state.rep, st);
+      state.rep = repAfter(state.rep, st, o);
+      
+      if (o.town) state.town = recordServed(state.town, o, st);
+      if (o.gift) state.trims[o.gift.id] = (state.trims[o.gift.id] || 0) + o.gift.n;
+      if (o.charity) setTimeout(() => toast(`Word gets round about ${o.client}'s dress. Doors open in town.`, 'good', 2800), 400);
       state.stats = recordDress(state.stats, st, d.bodice);
       state.gallery.push({ design: d, client: o.client, occasion: o.occasion, stars: st, pay: pay.total, quality: q, name: dressName(d) });
       if (state.gallery.length > 60) state.gallery.shift();
