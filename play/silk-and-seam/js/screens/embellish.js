@@ -41,7 +41,7 @@ export default {
           if (c.disabled) return;
           const z = c.dataset.z, t = c.dataset.t;
           if (t) d.trims[z] = t; else delete d.trims[z];
-          if (t && /pearls|crystals|sequins|jet/.test(t)) sfx.sparkle(); else sfx.click();
+          if (t && /pearls|crystals|sequins|jet|rhinestones/.test(t)) sfx.sparkle(); else if (t) sfx.pin(); else sfx.click();
           save(); refresh();
         };
       });

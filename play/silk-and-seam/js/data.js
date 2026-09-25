@@ -19,6 +19,10 @@ export const PARTS = {
     
     { id: 'halter', name: 'Keyhole Halter', lvl: 2, m: { p: 1.0, s: 0 }, diff: 1, tags: { Glamour: 2, Risqué: 1, Eveningwear: 1, Playful: 1 } },
     { id: 'empire', name: 'Empire Waist Bodice', lvl: 4, m: { p: 1.1, s: 0 }, diff: 1, tags: { Romantic: 2, Elegant: 1, Daywear: 1, Whimsical: 1 } },
+    
+    
+    { id: 'choli', name: 'Choli Blouse', lvl: 3, m: { p: 0.8, s: 0 }, diff: 2, tags: { Elegant: 1, Romantic: 1, Glamour: 1, Risqué: 1 } },
+    { id: 'sabai', name: 'Thai Sabai Drape', lvl: 3, m: { p: 1.4, s: 0 }, diff: 2, tags: { Elegant: 2, Formal: 1, Romantic: 1 } },
     { id: 'offshoulder', name: 'Off-Shoulder Bodice', lvl: 7, m: { p: 1.3, s: 0 }, diff: 2, tags: { Eveningwear: 2, Romantic: 1, Risqué: 1, Glamour: 1, Elegant: 1 } },
   ],
   collar: [
@@ -53,6 +57,10 @@ export const PARTS = {
     { id: 'tea', name: 'Tea-Length Circle Skirt', lvl: 3, m: { p: 3.5, s: 0.8 }, diff: 1, tags: { Daywear: 2, Cute: 1, Romantic: 1, Casual: 1 } },
     { id: 'highlow', name: 'High-Low Skirt', lvl: 5, m: { p: 3.5, s: 0 }, diff: 2, tags: { Eclectic: 1, Glamour: 1, Playful: 1, Risqué: 1, Eveningwear: 1 } },
     { id: 'bubble', name: 'Bubble Skirt', lvl: 6, m: { p: 3.0, s: 0 }, diff: 2, tags: { Playful: 2, Cute: 2, Whimsical: 1, Eclectic: 1 } },
+    
+    
+    { id: 'saree', name: 'Saree Drape', lvl: 3, m: { p: 5.5, s: 0.8 }, diff: 2, tags: { Elegant: 2, Formal: 1, Romantic: 1, Elaborate: 1 } },
+    { id: 'phasin', name: 'Pha Sin Wrap', lvl: 2, m: { p: 2.0, s: 0.4 }, diff: 1, tags: { Daywear: 1, Elegant: 1, Patterned: 1, Formal: 1 } },
     { id: 'bustle', name: 'Bustle Skirt', lvl: 8, m: { p: 4.5, s: 1.5 }, diff: 3, tags: { Elaborate: 2, Formal: 2, Gothic: 1, Romantic: 1 } },
   ],
 };
@@ -79,6 +87,21 @@ export const FABRICS = [
   { id: 'lame', name: 'Gold Lamé', price: 26, lvl: 9, tex: 'lame', tags: { Shimmering: 3, Glamour: 3, Eveningwear: 1 } },
   
   { id: 'couture', name: 'Maison Couture Lace', price: 42, lvl: 10, tex: 'guipure', tags: { Elegant: 3, Elaborate: 2, Romantic: 2, Formal: 1, Glamour: 1 } },
+  
+  
+  { id: 'ankara', name: 'Ankara Wax Print', price: 7, lvl: 2, tex: 'wax', tags: { Patterned: 3, Playful: 1, Eclectic: 1, Daywear: 1 } },
+  { id: 'banarasi', name: 'Banarasi Silk', price: 22, lvl: 3, tex: 'zari', tags: { Elaborate: 2, Shimmering: 2, Formal: 1, Elegant: 1 } },
+  { id: 'thaisilk', name: 'Thai Shot Silk', price: 16, lvl: 3, tex: 'shot', tags: { Elegant: 2, Shimmering: 1, Formal: 1 } },
+];
+
+
+
+export const BODY_SHAPES = [
+  { id: 'classic', name: 'Classic', sh: 1, bu: 1, wa: 1, hi: 1 },
+  { id: 'slender', name: 'Slender', sh: 0.95, bu: 0.9, wa: 0.9, hi: 0.9 },
+  { id: 'curvy', name: 'Hourglass', sh: 1.04, bu: 1.17, wa: 1.0, hi: 1.18 },
+  { id: 'pear', name: 'Pear', sh: 0.96, bu: 0.98, wa: 1.05, hi: 1.26 },
+  { id: 'full', name: 'Full figure', sh: 1.1, bu: 1.27, wa: 1.36, hi: 1.3 },
 ];
 
 export const ZONES = [
@@ -166,6 +189,19 @@ export const CLIENTS = [
   { name: 'Signora Valentina Rossi', occasion: 'the premiere of her new film', wants: ['Glamour', 'Eveningwear', 'Romantic'], avoid: ['Simple'], look: 2, premium: true, minRep: 20 },
   { name: 'Lady Seraphina Blythe', occasion: 'her engagement portrait', wants: ['Romantic', 'Elegant', 'Flowers'], avoid: ['Gothic'], look: 3, premium: true, minRep: 45 },
   { name: 'Madame Celeste Lorraine', occasion: 'the Paris couture week', wants: ['Elaborate', 'Glamour', 'Formal'], avoid: ['Casual'], look: 5, premium: true, minRep: 80 },
+  
+  
+  { name: 'Mrs Adaeze Okafor', occasion: "her daughter's naming ceremony", wants: ['Patterned', 'Elegant', 'Formal'], avoid: ['Risqué'], look: 6, body: 'full' },
+  { name: 'Dr Imani Brooks', occasion: 'her graduation as a surgeon', wants: ['Professional', 'Elegant'], avoid: ['Playful'], look: 8, body: 'slender' },
+  { name: 'Miss Zawadi Mensah', occasion: 'a jazz night at the Blue Lantern', wants: ['Glamour', 'Eveningwear', 'Shimmering'], avoid: ['Simple'], look: 7, body: 'curvy', minLvl: 3 },
+  { name: 'Chioma Adeyemi', occasion: 'the summer carnival parade', wants: ['Playful', 'Patterned', 'Eclectic'], avoid: ['Gothic'], look: 7, body: 'pear', season: 'summer' },
+  { name: 'Miss Ananya Iyer', occasion: "her cousin's sangeet night", wants: ['Romantic', 'Playful', 'Shimmering'], avoid: ['Professional'], look: 13, body: 'slender', minLvl: 3, garment: { slot: 'skirt', id: 'saree' } },
+  { name: 'Mrs Priya Raman', occasion: 'Diwali with the whole family', wants: ['Elegant', 'Shimmering'], avoid: ['Gothic'], look: 9, body: 'curvy', minLvl: 3, season: 'autumn', garment: { slot: 'skirt', id: 'saree' } },
+  { name: 'Mrs Kavita Sharma', occasion: 'a wedding reception in Jaipur', wants: ['Formal', 'Elaborate', 'Glamour'], avoid: ['Casual'], look: 10, body: 'full', minLvl: 5, garment: { slot: 'skirt', id: 'saree' } },
+  { name: 'Khun Malai Srisuk', occasion: 'Songkran with her grandmother', wants: ['Daywear', 'Patterned'], avoid: ['Eveningwear'], look: 11, body: 'slender', minLvl: 2, season: 'spring', garment: { slot: 'skirt', id: 'phasin' } },
+  { name: 'Khun Ploy Chaiyaporn', occasion: 'a temple wedding in Chiang Mai', wants: ['Elegant', 'Formal', 'Romantic'], avoid: ['Risqué'], look: 12, body: 'classic', minLvl: 3, garment: { slot: 'bodice', id: 'sabai' } },
+  { name: 'Khun Dao Rattanakul', occasion: 'Loy Krathong night by the river', wants: ['Romantic', 'Shimmering', 'Eveningwear'], avoid: ['Casual'], look: 11, body: 'curvy', minLvl: 2, season: 'autumn', garment: { slot: 'skirt', id: 'phasin' } },
+  { name: 'Ms Keisha Monroe', occasion: 'the city arts awards, where she is nominated', wants: ['Glamour', 'Elegant', 'Eveningwear'], avoid: ['Casual'], look: 8, body: 'full', premium: true, minRep: 20 },
 ];
 
 

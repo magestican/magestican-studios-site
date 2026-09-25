@@ -2,7 +2,7 @@
 import {
   TAGS, PARTS, SLOTS, FABRICS, TRIMS, DYES, LEVEL_XP, MAX_LEVEL, CLIENTS, SEASONS, SEASON_LENGTH, SEASON_BONUS,
   REP_GAIN, REP_TIERS, PREMIUM_FEE, NATURAL_DYES, DYE_PRICE, RARE_DYE_PRICE, RARE_DYE_LVL, WINDOW_WAIT, SALE_EVERY,
-  UPGRADES, ACCESSORIES, ACHIEVEMENTS,
+  UPGRADES, ACCESSORIES, ACHIEVEMENTS, BODY_SHAPES,
 } from './data.js';
 
 export const byId = (list, id) => list.find((x) => x.id === id);
@@ -226,7 +226,8 @@ export function generateOrder(lvl, rng, excludeNames = [], opts = {}) {
     .map((tag) => ({ tag, min: Math.max(1, Math.round(Math.min(target, best(tag) * 0.85) * 2) / 2) }));
   if (!wants.length) wants = [{ tag: 'Daywear', min: 2 }];
   const avoid = client.avoid.map((tag) => ({ tag, max: Math.max(1.5, 3.5 - lvl * 0.2) }));
-  const order = { client: client.name, occasion: client.occasion, look: client.look, wants, avoid };
+  const order = { client: client.name, occasion: client.occasion, look: client.look, wants, avoid, body: bodyFor(client) };
+  if (client.garment) order.garment = { ...client.garment };
   for (let tries = 0; tries < 8; tries++) {
     const top = Math.max(...samples.map((s) => matchScore(s, order)));
     if (top >= 0.97) break;
@@ -282,7 +283,8 @@ export function sameAsLast(order, design) {
   return !!df && design.bodice === df.bodice && design.skirt === df.skirt;
 }
 export function clientMatch(tags, order, design) {
-  const m = matchScore(tags, order);
+  let m = matchScore(tags, order);
+  if (design && missingGarment(order, design)) m *= GARMENT_PENALTY;
   return design && sameAsLast(order, design) ? m * REPEAT_PENALTY : m;
 }
 
@@ -351,14 +353,17 @@ export function sketchKey(key, row, rows) {
 }
 
 
-export const DEFAULT_SETTINGS = { master: 0.8, sfx: 1, motion: 'auto' };
+export const DEFAULT_SETTINGS = { master: 0.8, sfx: 1, music: 0.55, ambience: 0.7, motion: 'auto' };
 export function reducedMotion(motion, systemPrefers) {
   return motion === 'on' ? true : motion === 'off' ? false : !!systemPrefers;
 }
 const clamp01 = (v, d) => (Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : d);
 export function gains(settings, muted) {
   const s = { ...DEFAULT_SETTINGS, ...(settings || {}) };
-  return { master: muted ? 0 : 0.625 * clamp01(s.master, DEFAULT_SETTINGS.master), sfx: clamp01(s.sfx, DEFAULT_SETTINGS.sfx) };
+  return {
+    master: muted ? 0 : 0.625 * clamp01(s.master, DEFAULT_SETTINGS.master), sfx: clamp01(s.sfx, DEFAULT_SETTINGS.sfx),
+    music: clamp01(s.music, DEFAULT_SETTINGS.music), ambience: clamp01(s.ambience, DEFAULT_SETTINGS.ambience),
+  };
 }
 
 
@@ -531,4 +536,166 @@ export function achievementsEarned(st) {
 export function newAchievements(st) {
   const have = st?.achievements || {};
   return achievementsEarned(st).filter((id) => !have[id]);
+}
+
+
+
+export const GARMENT_PENALTY = 0.55;
+export function missingGarment(order, design) {
+  return !!(order?.garment && design && design[order.garment.slot] !== order.garment.id);
+}
+
+
+
+
+
+
+const hashStr = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+export function bodyFor(client) {
+  if (client?.body && BODY_SHAPES.some((b) => b.id === client.body)) return client.body;
+  return BODY_SHAPES[hashStr(client?.name || '') % BODY_SHAPES.length].id;
+}
+export const bodyShape = (id) => BODY_SHAPES.find((b) => b.id === id) || BODY_SHAPES[0];
+
+const FORM_HW = [[40, 8], [88, 14], [112, 64], [150, 60], [170, 52], [226, 32], [300, 40], [620, 40]];
+export const HIP_Y = 300;
+function knotLerp(knots, y) {
+  if (y <= knots[0][0]) return knots[0][1];
+  for (let i = 1; i < knots.length; i++) {
+    const [y1, v1] = knots[i];
+    if (y <= y1) {
+      const [y0, v0] = knots[i - 1];
+      const t = (y - y0) / (y1 - y0), s = t * t * (3 - 2 * t);   
+      return v0 + (v1 - v0) * s;
+    }
+  }
+  return knots[knots.length - 1][1];
+}
+export const formHalfWidth = (y) => knotLerp(FORM_HW, y);
+export function bodyScale(id, y) {
+  const b = bodyShape(id);
+  return knotLerp([[88, 1], [112, b.sh], [165, b.bu], [226, b.wa], [HIP_Y, b.hi], [620, 1 + (b.hi - 1) * 0.8]], y);
+}
+
+export const bodyGrowth = (id, y) => formHalfWidth(y) * (bodyScale(id, y) - 1);
+
+
+
+
+const DRAPE = {
+  weave: [0.45, 0.55], slub: [0.3, 0.45], check: [0.4, 0.55], floral: [0.3, 0.45], sheen: [0.5, 0.5],
+  net: [0.2, 0.95], velvet: [0.55, 0.25], silk: [0.9, 0.8], sparkle: [0.6, 0.45], brocade: [0.1, 0.2],
+  chiffon: [0.85, 1], organza: [0.15, 0.9], tartan: [0.25, 0.3], lame: [0.6, 0.45], damask: [0.35, 0.4],
+  guipure: [0.4, 0.45], wax: [0.35, 0.5], zari: [0.6, 0.6], shot: [0.45, 0.6],
+};
+export function drapeOf(tex) {
+  const [cling, flutter] = DRAPE[tex] || DRAPE.weave;
+  return { cling, flutter };
+}
+
+
+
+
+export function contourX(x, y, id, { zone = 'body', cling = 0.5 } = {}) {
+  if (!id || id === 'classic') return x;
+  const dx = x - 200, sgn = dx < 0 ? -1 : 1;
+  if (zone === 'arm') return x - bodyGrowth(id, Math.min(y, 226));
+  let g;
+  if (zone === 'skirt' && y > HIP_Y) {
+    const gh = bodyGrowth(id, HIP_Y), t = Math.min(1, (y - HIP_Y) / 320);
+    g = gh * (1 - cling * 0.45 * t) + gh * (1 - cling) * 0.25 * t;
+  } else g = bodyGrowth(id, y);
+  const k = Math.min(1, Math.abs(dx) / Math.max(1, formHalfWidth(y)));
+  return x + sgn * g * k;
+}
+
+
+
+
+export function windAt(t, open = true) {
+  if (!open) return 0;
+  const swell = 0.32 + 0.14 * Math.sin(t * 0.63) + 0.08 * Math.sin(t * 1.71 + 1.3);
+  const P = 6.7, k = Math.floor(t / P), ph = t - k * P;
+  const size = 0.35 + 0.65 * Math.abs(Math.sin(k * 12.9898 + 4.1));
+  const gust = size * Math.exp(-((ph - 2.2) ** 2) / 0.9);
+  return Math.max(0, Math.min(1.2, swell + gust));
+}
+
+export function springStep(s, target, dt, stiff = 14, damp = 4.2) {
+  const h = Math.min(0.05, Math.max(0, dt));
+  const v = s.v + (stiff * (target - s.x) - damp * s.v) * h;
+  return { x: s.x + v * h, v };
+}
+
+
+export const isNightHour = (h) => h >= 19 || h < 6;
+
+
+
+
+
+
+
+
+
+export const DEVICE_LINE = 'Hearing nothing? On a phone, the silent switch or Do Not Disturb silences web pages too - turn it off to hear the music.';
+const SILENCES = {
+  muted: { short: 'Sound is off', line: 'Sound is off. Tap the speaker to bring it back.' },
+  down: { short: 'Sound is turned down', line: 'The master volume is at zero. Raise it to hear anything.' },
+  locked: { short: 'Tap to start the sound', line: 'Your browser holds sound back until the page is touched. Tap anywhere and it will start.' },
+  interrupted: { short: 'Sound paused - tap to bring it back', line: 'The sound stopped when the page went into the background. Tap anywhere to bring it back.' },
+  dead: { short: 'Sound lost - tap to bring it back', line: 'Your phone took the sound away while the page was in the background. Tap anywhere and the game starts it again; if it stays quiet, reload.' },
+};
+export const SILENCE_REASONS = Object.keys(SILENCES);
+export function silenceOf({ muted = false, unlocked = false, ctxState = 'none', master = 1, dead = false } = {}) {
+  const reason = muted ? 'muted' : !(master > 0) ? 'down' : !unlocked || ctxState === 'none' ? 'locked'
+    : ctxState !== 'running' ? 'interrupted' : dead ? 'dead' : null;
+  if (!reason) return { silent: false, reason: null, short: 'Sound is on', line: DEVICE_LINE };
+  return { silent: true, reason, ...SILENCES[reason] };
+}
+
+
+
+
+
+const TUNES = {
+  day: { bpm: 92, scale: [0, 2, 4, 5, 7, 9, 11].map((n) => n + 65), chords: [[53, 'M'], [50, 'm'], [46, 'M'], [48, 'M'], [53, 'M'], [45, 'm'], [43, 'm'], [48, 'M']] },
+  night: { bpm: 64, scale: [0, 2, 3, 5, 7, 8, 10].map((n) => n + 69), chords: [[45, 'm'], [41, 'M'], [48, 'M'], [43, 'M'], [45, 'm'], [50, 'm'], [52, 'm'], [45, 'm']] },
+};
+export const tuneOf = (mood) => TUNES[mood] || TUNES.day;
+export function musicBar(mood, bar) {
+  const T = tuneOf(mood), [root, q] = T.chords[((bar % 8) + 8) % 8];
+  const tones = q === 'M' ? [0, 4, 7] : [0, 3, 7];
+  const rng = mulberry32(hashStr(`${mood}|${bar % 8}|${Math.floor(bar / 8) % 2}`));
+  const notes = [];
+  const night = mood === 'night';
+  notes.push({ t: 0, midi: root, dur: 3, voice: 'pad', vel: night ? 0.9 : 0.6 });
+  notes.push({ t: 0, midi: root + 12 + tones[1], dur: 3, voice: 'pad', vel: night ? 0.7 : 0.45 });
+  if (!night) {
+    notes.push({ t: 0, midi: root - 12, dur: 1.2, voice: 'harp', vel: 0.9 });
+    for (const b of [1, 2]) for (const k of [1, 2]) notes.push({ t: b, midi: root + 12 + tones[k], dur: 0.9, voice: 'harp', vel: 0.55 });
+  } else {
+    notes.push({ t: 0, midi: root, dur: 2, voice: 'harp', vel: 0.6 }, { t: 1.5, midi: root + 12 + tones[2], dur: 1.4, voice: 'harp', vel: 0.4 });
+  }
+  
+  const rhythms = night ? [[0, 1.5], [0], [0, 2], [1]] : [[0, 1, 2], [0, 2], [0, 1, 1.5, 2], [0, 1.5, 2], [0, 1, 2, 2.5]];
+  const rest = (bar % 8 === 7) || rng() < (night ? 0.25 : 0.08);
+  if (!rest) {
+    const beats = rhythms[Math.floor(rng() * rhythms.length)];
+    const chordPcs = tones.map((n) => (root + n) % 12);
+    const inScale = T.scale.concat(T.scale.map((n) => n + 12));
+    let i = Math.max(0, inScale.findIndex((n) => chordPcs.includes(n % 12) && n >= T.scale[2]));
+    for (const b of beats) {
+      if (b % 1 === 0) {
+        
+        for (let d = 0; d < inScale.length; d++) {
+          if (i + d < inScale.length && chordPcs.includes(inScale[i + d] % 12)) { i += d; break; }
+          if (i - d >= 0 && chordPcs.includes(inScale[i - d] % 12)) { i -= d; break; }
+        }
+      }
+      notes.push({ t: b, midi: inScale[i], dur: night ? 1.6 : 0.8, voice: 'bell', vel: night ? 0.55 : 0.7 });
+      i = Math.max(0, Math.min(inScale.length - 2, i + (rng() < 0.5 ? -1 : 1) * (rng() < 0.7 ? 1 : 2)));
+    }
+  }
+  return notes;
 }

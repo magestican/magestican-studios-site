@@ -5,6 +5,7 @@ import { computeTags, clientMatch, sameAsLast, rememberClient, stars, payout, le
 import { WINDOW_WAIT } from '../data.js';
 import { DYES } from '../data.js';
 import { sfx } from '../audio.js';
+import { sceneHTML, mountScene } from '../scene.js';
 
 const LINES = {
   5: ['It is perfect. Utterly perfect. I may cry.', 'Everyone will ask who made this. I shall tell them!', 'You have outdone yourself - here, take a little extra.'],
@@ -39,7 +40,7 @@ export default {
     const mood = st >= 4 ? 'happy' : st <= 2 ? 'sad' : 'neutral';
     const repDelta = repAfter(state.rep, st) - (state.rep || 0);
     root.innerHTML = `<div class="reveal">${roomSVG()}
-      <div class="dress"><div class="cam">${dressSVG(d, { quality: q })}</div></div>
+      <div class="dress"><div class="cam"><div class="rv-scene">${sceneHTML(dressSVG(d, { quality: q }))}</div></div></div>
       <div class="curtain l"></div><div class="curtain r"></div>
       <div class="dress-name">${dressName(d)}<small>for ${o.client} &middot; ${o.occasion}</small></div>
       <div class="verdict paper">
@@ -59,6 +60,7 @@ export default {
         <div class="modal-btns"><button class="btn gold" id="collect">Collect payment</button></div>
       </div></div>`;
     setTimeout(() => sfx.fanfare(), 900);
+    mountReveal(root, d);
     
     
     const rv = $('.reveal', root);
@@ -70,7 +72,7 @@ export default {
       later(note, 4700);
     }
     
-    const svg = $('.cam svg', root);
+    const svg = $('.cam .sc-dress svg', root);
     if (svg) {
       const pts = [];
       for (const el of svg.querySelectorAll('.twinkle')) {
@@ -112,7 +114,17 @@ export default {
       } else go('hub');
     };
   },
+  leave() { scene?.leave(); scene = null; },
 };
+
+
+
+let scene = null;
+function mountReveal(root, design) {
+  scene?.leave();
+  scene = mountScene($('.rv-scene', root), { design, screen: $('.reveal', root) });
+  setTimeout(() => scene?.puff(), 700);
+}
 
 
 
@@ -134,7 +146,7 @@ function windowReveal(root, job) {
   const xp = Math.round(10 + value * 0.15);
   const name = dressName(d);
   root.innerHTML = `<div class="reveal skip">${roomSVG()}
-    <div class="dress"><div class="cam">${dressSVG(d, { quality: q })}</div></div>
+    <div class="dress"><div class="cam"><div class="rv-scene">${sceneHTML(dressSVG(d, { quality: q }))}</div></div></div>
     <div class="dress-name">${name}<small>for the shop window</small></div>
     <div class="verdict paper"><h3 style="margin:0 0 6px">Dressing the window</h3>
       <blockquote>"Passers-by are already slowing down to look. A buyer will come in before long."</blockquote>
@@ -148,6 +160,7 @@ function windowReveal(root, job) {
       <div class="modal-btns"><button class="btn gold" id="collect">Put it in the window</button></div>
     </div></div>`;
   setTimeout(() => sfx.fanfare(), 300);
+  mountReveal(root, d);
   $('#collect', root).onclick = () => {
     const before = levelFor(state.xp);
     state.xp += xp;

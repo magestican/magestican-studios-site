@@ -26,6 +26,7 @@ function fresh() {
     scraps: {},                      
     stats: freshStats(),             
     achievements: {},                
+    scene: { night: null, open: false, body: null }, 
   };
 }
 

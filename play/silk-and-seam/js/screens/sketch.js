@@ -4,6 +4,7 @@ import { dressSVG, swatchSVG } from '../art.js';
 import { PARTS, FABRICS, DYES } from '../data.js';
 import { computeTags, fabricNeeds, totalMetres, materialCost, shortages, consume, fabric, part, dye as dyeOf, sketchKey, dyeCost, dyePrice, shopValue } from '../logic.js';
 import { sfx } from '../audio.js';
+import { shelfHTML, wireShelf } from '../scene.js';
 
 const SLOT_LABEL = { bodice: 'Bodice', collar: 'Collar', sleeve: 'Sleeves', skirt: 'Skirt' };
 
@@ -25,7 +26,7 @@ export default {
     root.innerHTML = `<div class="book">
       <div class="page left paper"><h2>${job.order.client}</h2><div class="sub">${job.order.window ? 'for walk-in buyers &middot; design anything you like' : `${job.order.occasion} &middot; fee ${money(job.order.fee)}`}</div>
         <div id="tags"></div><div id="match"></div></div>
-      <div class="page right paper">${DRAFTING}<div class="sketch-stage"><div class="sketch-dress" id="dress"></div><div class="pencil"></div><div class="match-mini" id="match-mini"></div>
+      <div class="page right paper">${DRAFTING}<div class="sketch-stage">${shelfHTML(d.body || 'classic')}<div class="sketch-dress" id="dress"></div><div class="pencil"></div><div class="match-mini" id="match-mini"></div>
         <button class="btn small ghost preview-toggle" id="view">View in fabric</button></div>
         <div class="controls">
           ${['bodice', 'collar', 'sleeve', 'skirt'].map((s) => `<div class="carousel kb" data-slot="${s}" tabindex="0" role="group" aria-label="${SLOT_LABEL[s]}"><span class="lbl">${SLOT_LABEL[s]}</span><button class="arrow" data-d="-1" tabindex="-1">◀</button><div class="val"></div><button class="arrow" data-d="1" tabindex="-1">▶</button></div>`).join('')}
@@ -98,7 +99,7 @@ export default {
         const key = el.dataset.fab;
         const i = fabs.findIndex((f) => f.id === d[key]);
         d[key] = fabs[(i + (e.shiftKey ? -1 : 1) + fabs.length) % fabs.length].id;
-        sfx.click(); save(); refresh();
+        sfx.rustle(0.35); save(); refresh();
       };
       el.oncontextmenu = (e) => { e.preventDefault(); if (!touchedRecently()) el.onclick({ shiftKey: true }); };
       el.title = 'Click for the next fabric (right-click for previous)';
@@ -185,6 +186,8 @@ export default {
     padRaf = requestAnimationFrame(pollPad);
     cleanup = () => { window.removeEventListener('keydown', onKey); cancelAnimationFrame(padRaf); };
     root.addEventListener('click', (e) => { if (!e.target.closest('.palette')) root.querySelector('.palette')?.remove(); });
+    
+    wireShelf($('.sketch-stage', root), (id) => { d.body = id; save(); refresh(); });
     $('#view', root).onclick = () => { view = view === 'sketch' ? 'final' : 'sketch'; $('#view', root).textContent = view === 'sketch' ? 'View in fabric' : 'View sketch'; sfx.page(); refresh(); };
     $('#back', root).onclick = () => { sfx.page(); go('orders'); };
     $('#draft', root).onclick = () => {

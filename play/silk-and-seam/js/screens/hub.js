@@ -4,6 +4,7 @@ import { roomSVG, dressSVG } from '../art.js';
 import { defaultDesign, windowLeft } from '../logic.js';
 import { sfx } from '../audio.js';
 import { AUNT, ACHIEVEMENTS } from '../data.js';
+import { sceneHTML, mountScene, sceneState } from '../scene.js';
 
 const STEP_NAMES = { sketch: 'Sketch book', cut: 'Cutting table', sew: 'Sewing machine', embellish: 'Embellishing', reveal: 'The reveal' };
 
@@ -30,10 +31,14 @@ export default {
     const last = state.gallery[state.gallery.length - 1];
     const job = state.job;
     const shown = job && job.step !== 'sketch' ? job.design : last?.design;
+    
+    const sc = sceneState();
+    const bodyNow = () => (job ? job.design.body : sc.body) || (shown?.body) || 'classic';
+    const drawDress = () => (shown ? dressSVG(shown, { quality: job ? 1 : last.quality, body: bodyNow() }) : dressSVG({ body: bodyNow() }, { formOnly: true, body: bodyNow() }));
     const nAch = ACHIEVEMENTS.filter((a) => state.achievements?.[a.id]).length;
     const nScrap = Object.values(state.scraps || {}).reduce((a, b) => a + b, 0);
     root.innerHTML = `<div class="hub-room">${roomSVG()}</div>
-      <div class="hub-dress">${shown ? dressSVG(shown, { quality: job ? 1 : last.quality }) : dressSVG({}, { formOnly: true })}</div>
+      <div class="hub-dress">${sceneHTML(drawDress(), { shelf: bodyNow() })}</div>
       <div class="hub-menu">
         ${job ? `<button class="plaque hot" data-a="job"><b>Continue ${job.order.window ? 'window dress' : 'commission'}</b><small>${job.order.client} &middot; ${STEP_NAMES[job.step]}</small></button>` : ''}
         <button class="plaque${job ? '' : ' hot'}" data-a="orders"><b>Commissions</b><small>${state.orders.length} letters waiting on the desk</small></button>
@@ -44,6 +49,14 @@ export default {
       <div class="hub-sign paper"><h3>The Atelier</h3>${last ? `Your last piece, for <i>${last.client}</i>, earned ${'★'.repeat(last.stars)}.` : 'Your great-aunt left you her dress shop, a sewing machine and a few bolts of cotton. Time to make a name for yourself.'}
         <button class="btn small ghost ach-btn" data-a="ach">&#9733; Achievements ${nAch}/${ACHIEVEMENTS.length}</button></div>
       <button class="hub-reset">reset save</button>`;
+    scene = mountScene($('.hub-dress', root), {
+      design: shown, screen: root,
+      onBody: (id) => {
+        if (job) job.design.body = id; else sc.body = id;
+        save();
+        scene.setDress(drawDress(), shown);
+      },
+    });
     root.querySelector('[data-a=orders]').onclick = () => { sfx.page(); go('orders'); };
     root.querySelector('[data-a=market]').onclick = () => { sfx.page(); go('market'); };
     root.querySelector('[data-a=gallery]').onclick = () => { sfx.page(); go('gallery'); };
@@ -67,7 +80,10 @@ export default {
       
       state.seenIntro = true; save();
       letter(`<h2>${AUNT.intro.title}</h2><p class="letter-body">${AUNT.intro.body}</p>
-        <ol class="letter-steps"><li><b>Sketch</b> the design</li><li><b>Cut</b> the pieces</li><li><b>Sew</b> the seams</li><li><b>Embellish</b></li><li><b>Reveal</b> &amp; get paid</li></ol>`, 'Open the shop');
+        <ol class="letter-steps"><li><b>Sketch</b> the design</li><li><b>Cut</b> the pieces</li><li><b>Sew</b> the seams</li><li><b>Embellish</b></li><li><b>Reveal</b> &amp; get paid</li></ol>
+        <p class="letter-body"><small>P.S. Open the window behind the dress form for a breeze, tap the sun to see your work by lamplight, and try the little forms on the shelf to fit any figure.</small></p>`, 'Open the shop');
     }
   },
+  leave() { scene?.leave(); scene = null; },
 };
+let scene = null;

@@ -1,10 +1,121 @@
 
 
-import { fabric, dye, part, looseThreads, designSeed } from './logic.js';
+import { fabric, dye, part, looseThreads, designSeed, contourX, drapeOf, bodyShape, bodyScale } from './logic.js';
 
 let uid = 0;
 const NS = 'http://www.w3.org/2000/svg';
 const INK = '#5b3b2a';
+
+
+
+
+const r1 = (v) => (Math.round(v * 10) / 10).toString();
+export function warpPath(d, fn) {
+  const t = String(d).match(/[MmLlHhVvCcSsQqTtAaZz]|-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/g) || [];
+  let i = 0, cmd = '', cx = 0, cy = 0, sx = 0, sy = 0;
+  const out = [];
+  const isCmd = (s) => /^[a-zA-Z]$/.test(s);
+  const n = () => parseFloat(t[i++]);
+  const P = (x, y) => { const [a, b] = fn(x, y); return `${r1(a)},${r1(b)}`; };
+  while (i < t.length) {
+    if (isCmd(t[i])) cmd = t[i++];
+    else if (!cmd) break;
+    const rel = cmd !== cmd.toUpperCase(), C = cmd.toUpperCase();
+    const ox = rel ? cx : 0, oy = rel ? cy : 0;
+    if (C === 'Z') { out.push('Z'); cx = sx; cy = sy; if (i < t.length && !isCmd(t[i])) break; continue; }
+    if (C === 'M' || C === 'L' || C === 'T') {
+      const x = n() + ox, y = n() + oy;
+      out.push(`${C}${P(x, y)}`);
+      cx = x; cy = y;
+      if (C === 'M') { sx = x; sy = y; cmd = rel ? 'l' : 'L'; }
+    } else if (C === 'H') { const x = n() + ox; out.push(`L${P(x, cy)}`); cx = x; }
+    else if (C === 'V') { const y = n() + oy; out.push(`L${P(cx, y)}`); cy = y; }
+    else if (C === 'C') {
+      const a = [n() + ox, n() + oy, n() + ox, n() + oy, n() + ox, n() + oy];
+      out.push(`C${P(a[0], a[1])} ${P(a[2], a[3])} ${P(a[4], a[5])}`); cx = a[4]; cy = a[5];
+    } else if (C === 'S' || C === 'Q') {
+      const a = [n() + ox, n() + oy, n() + ox, n() + oy];
+      out.push(`${C}${P(a[0], a[1])} ${P(a[2], a[3])}`); cx = a[2]; cy = a[3];
+    } else if (C === 'A') {
+      const rx = n(), ry = n(), rot = n(), la = n(), sw = n(), x = n() + ox, y = n() + oy;
+      out.push(`A${rx},${ry} ${rot} ${la} ${sw} ${P(x, y)}`); cx = x; cy = y;
+    } else break;
+    if (Number.isNaN(cx) || Number.isNaN(cy)) return String(d);   
+  }
+  return out.join(' ');
+}
+
+export function bodyWarper(bodyId, cling = 0.5) {
+  const id = bodyShape(bodyId).id;
+  if (id === 'classic') return (d) => d;
+  return (d, zone = 'body') => (d ? warpPath(d, (x, y) => [contourX(x, y, id, { zone, cling }), y]) : d);
+}
+
+
+
+
+
+
+let globalDefs = false;
+const GRAIN = {};
+function grainTile(kind) {
+  if (GRAIN[kind] !== undefined) return GRAIN[kind];
+  try {
+    const S = 96, cv = document.createElement('canvas');
+    cv.width = cv.height = S;
+    const g = cv.getContext('2d');
+    let a = 1234567 + kind.length * 99;
+    const rnd = () => { a = (a * 16807) % 2147483647; return a / 2147483647; };
+    if (kind === 'weave') {
+      for (let y = 0; y < S; y += 2) { g.fillStyle = `rgba(0,0,0,${0.05 + rnd() * 0.07})`; g.fillRect(0, y, S, 1); }
+      for (let x = 0; x < S; x += 2) { g.fillStyle = `rgba(255,255,255,${0.03 + rnd() * 0.06})`; g.fillRect(x, 0, 1, S); }
+      for (let k = 0; k < 90; k++) { g.fillStyle = `rgba(0,0,0,${rnd() * 0.12})`; g.fillRect(rnd() * S, rnd() * S, 1 + rnd() * 5, 1); }
+    } else if (kind === 'pile') {
+      for (let k = 0; k < 2600; k++) { const w = rnd() < 0.5; g.fillStyle = w ? `rgba(255,255,255,${rnd() * 0.12})` : `rgba(0,0,0,${rnd() * 0.2})`; g.fillRect(rnd() * S, rnd() * S, 1, 1 + rnd() * 1.5); }
+    } else {   
+      for (let x = 0; x < S; x++) { const v = rnd(); g.fillStyle = v > 0.5 ? `rgba(255,255,255,${(v - 0.5) * 0.14})` : `rgba(0,0,0,${(0.5 - v) * 0.12})`; g.fillRect(x, 0, 1, S); }
+      for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(255,255,255,${rnd() * 0.12})`; g.fillRect(rnd() * S, rnd() * S, 1, 8 + rnd() * 30); }
+    }
+    GRAIN[kind] = cv.toDataURL('image/png');
+  } catch (e) { GRAIN[kind] = null; }
+  return GRAIN[kind];
+}
+const GRAIN_OF = { weave: 'weave', slub: 'weave', check: 'weave', floral: 'weave', tartan: 'weave', wax: 'weave', net: null, organza: null, chiffon: 'streak', velvet: 'pile', sheen: 'streak', silk: 'streak', shot: 'streak', zari: 'streak', lame: 'streak', damask: 'streak', brocade: 'weave', sparkle: null, guipure: null };
+function ensureGlobalDefs() {
+  if (globalDefs || typeof document === 'undefined' || !document.body) return;
+  globalDefs = true;
+  const grains = ['weave', 'pile', 'streak'].map((k) => { const u = grainTile(k); return u ? `<pattern id="dxg-${k}" width="96" height="96" patternUnits="userSpaceOnUse"><image href="${u}" width="96" height="96"/></pattern>` : ''; }).join('');
+  const lin = (id, x1, x2, stops) => `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${x1}" y1="0" x2="${x2}" y2="0">${stops.map(([o, c, a]) => `<stop offset="${o}" stop-color="${c}" stop-opacity="${a}"/>`).join('')}</linearGradient>`;
+  const rad = (id, cx, cy, r, stops) => `<radialGradient id="${id}" gradientUnits="userSpaceOnUse" cx="${cx}" cy="${cy}" r="${r}">${stops.map(([o, c, a]) => `<stop offset="${o}" stop-color="${c}" stop-opacity="${a}"/>`).join('')}</radialGradient>`;
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('width', '0'); svg.setAttribute('height', '0'); svg.setAttribute('aria-hidden', 'true');
+  svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+  svg.innerHTML = `<defs>${grains}` +
+    rad('dx-kd', 300, 40, 600, [[0, '#fff8e6', 0.2], [0.45, '#fff8e6', 0], [1, '#1c1410', 0.18]]) +
+    rad('dx-kn', 30, 160, 540, [[0, '#ffcf8a', 0.34], [0.5, '#ffcf8a', 0.05], [1, '#120c26', 0.42]]) +
+    lin('dx-rd', 40, 360, [[0, '#fff1c9', 0.9], [0.2, '#fff1c9', 0], [0.8, '#fff1c9', 0], [1, '#fff1c9', 0.9]]) +
+    lin('dx-rn', 40, 360, [[0, '#ffc27a', 0.55], [0.24, '#ffc27a', 0], [0.76, '#9fb7ff', 0], [1, '#9fb7ff', 0.7]]) +
+    `<linearGradient id="dx-glide" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="170" y2="100"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".44" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset=".56" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>` +
+    `<animateTransform attributeName="gradientTransform" type="translate" values="-460 -270; 520 300" dur="7s" repeatCount="indefinite"/></linearGradient></defs>`;
+  document.body.appendChild(svg);
+}
+const SHINY_TEX = ['sheen', 'silk', 'lame', 'shot', 'zari', 'damask', 'sparkle'];
+
+function hueShift(c, deg) {
+  const [r, g, b] = rgb(c).map((v) => v / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, dd = mx - mn;
+  let h = 0, s = 0;
+  if (dd) {
+    s = l > 0.5 ? dd / (2 - mx - mn) : dd / (mx + mn);
+    h = mx === r ? (g - b) / dd + (g < b ? 6 : 0) : mx === g ? (b - r) / dd + 2 : (r - g) / dd + 4;
+    h /= 6;
+  }
+  h = (h + deg / 360 + 1) % 1;
+  s = Math.max(s, 0.35);
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+  const f = (t) => { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < 0.5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; };
+  return hex(f(h + 1 / 3) * 255, f(h) * 255, f(h - 1 / 3) * 255);
+}
 
 
 function rgb(hex) { const n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
@@ -38,7 +149,7 @@ export function sample(d, spacing) {
 }
 
 
-const NECK_Y = { bustier: 154, square: 150, highneck: 86, vneck: 176, corset: 148, halter: 82, empire: 146, offshoulder: 132 };
+const NECK_Y = { bustier: 154, square: 150, highneck: 86, vneck: 176, corset: 148, halter: 82, empire: 146, offshoulder: 132, choli: 150, sabai: 150 };
 
 const BODICE = {
   bustier: {
@@ -91,6 +202,25 @@ const BODICE = {
     bandDetails: ['M132,129 C131,136 132,142 134,149', 'M150,132 C149,139 150,145 152,152', 'M170,134 C169,141 170,147 172,154', 'M190,134 C189,141 190,148 191,155', 'M210,134 C211,141 210,148 209,155', 'M230,134 C231,141 230,147 228,154', 'M250,132 C251,139 250,145 248,152', 'M268,129 C269,136 268,142 266,149'],
     details: ['M176,156 C180,182 174,205 178,227', 'M224,156 C220,182 226,205 222,227', 'M200,156 L200,227'],
     sleeveShift: [-6, 32],
+  },
+  
+  
+  choli: {
+    d: 'M146,114 L168,112 C172,138 186,150 200,152 C214,150 228,138 232,112 L254,114 C256,140 252,160 249,178 C236,187 218,191 200,191 C182,191 164,187 151,178 C148,160 144,140 146,114 Z',
+    neck: 'M168,112 C172,138 186,150 200,152 C214,150 228,138 232,112',
+    details: ['M176,150 C178,160 180,170 182,182', 'M224,150 C222,160 220,170 218,182', 'M153,170 C170,179 230,179 247,170'],
+    band: 'M151,178 C164,187 182,191 200,191 C218,191 236,187 249,178 L248,171 C236,180 218,184 200,184 C182,184 164,180 152,171 Z', bandColor: 3,
+    waist: 'M152,184 C176,191 224,191 248,184', crop: 191,
+  },
+  
+  
+  
+  sabai: {
+    d: 'M150,160 C168,152 186,150 204,146 C220,132 226,112 232,96 L251,111 C257,136 253,164 247,180 L237,227 L163,227 L154,180 C150,172 148,166 150,160 Z',
+    neck: 'M150,160 C168,152 186,150 204,146 C220,132 226,112 232,96',
+    details: ['M156,177 C180,169 206,163 227,146', 'M160,195 C186,185 214,177 239,158', 'M162,213 C190,203 220,193 245,174', 'M232,98 C240,120 244,150 244,176'],
+    tail: 'M234,97 C262,104 274,130 272,170 L264,318 Q256,330 247,318 L252,172 C253,142 247,120 236,108 Z',
+    edge: true,
   },
 };
 
@@ -188,6 +318,32 @@ function skirtLayers(id, q) {
     apron.lights.push('M166,254 Q200,274 234,254', 'M154,280 Q200,314 246,280');
     return [{ ...back, slot: 2, ball: true }, { ...under, slot: 1, main: true }, { ...apron, slot: 2, band: apron.hem }];
   }
+  
+  
+  
+  if (id === 'saree') {
+    const under = skirtShape({ tl: 166, tr: 234, ty: 224, hl: 116, hr: 284, hy: 558, R: [248, 300, 266, 430], L: [134, 430, 152, 300], waves: 6, amp: 3 * wob, drop: 6 });
+    const pl = { d: 'M186,232 L214,232 L246,556 Q230,562 214,556 Q200,562 186,556 Q170,562 154,556 Z', hem: 'M154,556 Q170,562 186,556 Q200,562 214,556 Q230,562 246,556', folds: [], lights: [] };
+    for (let i = 0; i < 7; i++) {
+      const x0 = 188 + i * 4, x1 = 156 + i * 14.5;
+      pl.folds.push(`M${x0},236 L${x1.toFixed(1)},552`);
+      pl.lights.push(`M${x0 + 2},240 L${(x1 + 7).toFixed(1)},548`);
+    }
+    const pallu = { d: 'M150,246 C186,214 214,168 234,106 C244,102 256,108 264,118 C250,176 222,236 196,272 C182,290 166,298 150,300 C144,284 144,262 150,246 Z', hem: 'M264,118 C250,176 222,236 196,272 C182,290 166,298 150,300', folds: ['M160,262 C192,232 218,184 240,118', 'M164,282 C200,250 226,200 250,122'], lights: ['M156,252 C188,222 214,178 236,114', 'M168,288 C204,258 232,206 256,126'] };
+    const tail = { d: 'M250,110 C282,120 293,160 291,222 L286,424 Q271,436 256,424 L262,222 C264,172 258,138 244,124 Z', hem: 'M286,424 Q271,436 256,424', folds: ['M268,140 C276,200 274,320 272,420'], lights: ['M262,150 C268,220 266,330 264,418'] };
+    return [{ ...under, slot: 1, main: true, band: under.hem }, { ...pl, slot: 1, band: pl.hem }, { ...pallu, slot: 2, over: true, band: pallu.hem }, { ...tail, slot: 2, behind: true, band: tail.hem }];
+  }
+  
+  
+  if (id === 'phasin') {
+    const tube = skirtShape({ tl: 166, tr: 234, ty: 224, hl: 132, hr: 268, hy: 562, R: [252, 300, 264, 430], L: [136, 430, 148, 300], waves: 4, amp: 2 * wob, drop: 4 });
+    tube.folds.push('M216,232 C220,340 224,450 228,560');
+    tube.lights.push('M222,236 C226,340 230,450 234,556');
+    const tin = skirtShape({ tl: 134, tr: 266, ty: 506, hl: 132, hr: 268, hy: 562, R: [266, 520, 268, 540], L: [132, 540, 134, 520], waves: 4, amp: 2 * wob, drop: 4 });
+    tin.folds = []; tin.lights = [];
+    const hua = { d: 'M164,222 L236,222 L237,246 C212,249 188,249 163,246 Z', hem: 'M163,246 C188,249 212,249 237,246', folds: [], lights: [] };
+    return [{ ...tube, slot: 1, main: true }, { ...tin, slot: 2, stripes: [516, 530, 546] }, { ...hua, slot: 2, band: hua.hem }];
+  }
   return [];
 }
 
@@ -233,13 +389,37 @@ function texturePattern(id, tex, c) {
       `<path d="M0,0 L7,7 M30,0 L23,7 M0,30 L7,23 M30,30 L23,23" stroke="${lt}" stroke-opacity=".55" stroke-width="1.1"/>` +
       `<circle cx="0" cy="15" r="2.4" fill="${dk}" fill-opacity=".45"/><circle cx="30" cy="15" r="2.4" fill="${dk}" fill-opacity=".45"/><circle cx="15" cy="0" r="2.4" fill="${dk}" fill-opacity=".45"/><circle cx="15" cy="30" r="2.4" fill="${dk}" fill-opacity=".45"/>` +
       `<circle cx="0" cy="0" r="1.3" fill="#fff" fill-opacity=".7"/><circle cx="30" cy="30" r="1.3" fill="#fff" fill-opacity=".7"/><circle cx="30" cy="0" r="1.3" fill="#fff" fill-opacity=".7"/><circle cx="0" cy="30" r="1.3" fill="#fff" fill-opacity=".7"/>`);
+    
+    
+    
+    
+    case 'wax': {
+      const k1 = lum(c) > 0.55 ? shade(c, -0.6) : shade(c, 0.62), k2 = hueShift(c, 180);
+      return P(48, 48,
+        `<g fill="none" stroke="${k1}" stroke-opacity=".7"><circle cx="12" cy="12" r="9" stroke-width="2.4"/><circle cx="12" cy="12" r="4.5" stroke-width="1.6"/><circle cx="36" cy="36" r="9" stroke-width="2.4"/><circle cx="36" cy="36" r="4.5" stroke-width="1.6"/></g>` +
+        `<circle cx="12" cy="12" r="1.8" fill="${k2}" fill-opacity=".85"/><circle cx="36" cy="36" r="1.8" fill="${k2}" fill-opacity=".85"/>` +
+        `<path d="M36,4 C44,8 44,18 36,20 C28,18 28,8 36,4 Z M12,28 C20,32 20,42 12,44 C4,42 4,32 12,28 Z" fill="${k2}" fill-opacity=".62"/><path d="M36,5 L36,19 M12,29 L12,43" stroke="${k1}" stroke-opacity=".6" stroke-width="1"/>` +
+        `<path d="M22,24 l4,-3 M26,26 l-3,4 M2,40 l5,1 M44,20 l-3,3" stroke="${k1}" stroke-opacity=".28" stroke-width=".6"/>`);
+    }
+    case 'zari': {
+      const au = '#e2bf62';
+      return P(34, 40,
+        `<path d="M0,1.5H34" stroke="${au}" stroke-opacity=".75" stroke-width="1.4"/><path d="M0,4H34" stroke="${au}" stroke-opacity=".35" stroke-width=".6"/>` +
+        `<g fill="${au}" fill-opacity=".85"><path d="M17,14 C22,15 23,21 19,24 C17,25.5 14,24 15,21.5 C16,19.5 18.5,20.5 18,22 C21,19 20,15.5 17,14 Z"/><circle cx="12.5" cy="18" r="1"/><circle cx="21.5" cy="27" r="1"/>` +
+        `<path d="M0,32 C3,33 4,36.5 1.5,38.5 C0.5,39 -0.5,38 0,37 M34,32 C37,33 38,36.5 35.5,38.5 C34.5,39 33.5,38 34,37"/></g>` +
+        `<path d="M0,20H34" stroke="${shade(c, -0.35)}" stroke-opacity=".1" stroke-width="12"/>`);
+    }
+    case 'shot': {
+      const w = hueShift(c, 140);
+      return P(3, 3, `<path d="M0,.5H3" stroke="${w}" stroke-opacity=".32" stroke-width=".8"/><path d="M.5,0V3" stroke="${dk}" stroke-opacity=".14" stroke-width=".5"/>`);
+    }
     default: return '';
   }
 }
 
 
 const SHEER = { net: 0.82, chiffon: 0.74, organza: 0.64 };
-function shadeKind(tex) { return tex === 'sheen' || tex === 'silk' || tex === 'organza' || tex === 'damask' ? 'sheen' : tex === 'velvet' ? 'velvet' : tex === 'sparkle' ? 'sheen' : tex === 'lame' ? 'metal' : 'cyl'; }
+function shadeKind(tex) { return tex === 'sheen' || tex === 'silk' || tex === 'organza' || tex === 'damask' || tex === 'shot' || tex === 'zari' ? 'sheen' : tex === 'velvet' ? 'velvet' : tex === 'sparkle' ? 'sheen' : tex === 'lame' ? 'metal' : 'cyl'; }
 const shiny = (tex) => ['sheen', 'metal'].includes(shadeKind(tex));
 
 function commonDefs(p) {
@@ -263,6 +443,7 @@ function commonDefs(p) {
 function paintShape(ctx, d, slot, opts = {}) {
   const { p, mode, f1, f2, c1, c2 } = ctx;
   const f = slot === 2 ? f2 : f1, c = opts.color || (slot === 2 ? c2 : c1);
+  if (ctx.warpAll) d = ctx.W(d);   
   if (mode === 'sketch') {
     return `<path d="${d}" fill="${mix(c, '#fbf6ee', 0.12)}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>`;
   }
@@ -271,14 +452,24 @@ function paintShape(ctx, d, slot, opts = {}) {
   const alpha = SHEER[f.tex] ? ` fill-opacity="${SHEER[f.tex]}"` : '';
   let s = `<path d="${d}" fill="${c}"${alpha}/>`;
   if (ctx.tex[slot]) s += `<path d="${d}" fill="url(#${texId})"/>`;
+  if (ctx.lit && ctx.grain[slot]) s += `<path d="${d}" fill="url(#dxg-${ctx.grain[slot]})"/>`;
   s += `<path d="${d}" fill="url(#${p}${kind})"/>`;
   if (opts.top) s += `<path d="${d}" fill="url(#${p}top)"/>`;
+  if (ctx.lit) {
+    
+    if (f.tex === 'shot') s += `<path d="${d}" fill="url(#${p}shot${slot})"/>`;
+    
+    s += `<path class="lit-d" d="${d}" fill="url(#dx-kd)"/><path class="lit-n" d="${d}" fill="url(#dx-kn)"/>`;
+    if (SHINY_TEX.includes(f.tex) && !opts.noGlide) s += `<path class="dx-glide" d="${d}" fill="url(#dx-glide)"/>`;
+  }
   s += `<path d="${d}" fill="none" stroke="${shade(c, -0.45)}" stroke-width="1.1" stroke-opacity=".8" stroke-linejoin="round"/>`;
+  if (ctx.lit) s += `<path class="lit-d" d="${d}" fill="none" stroke="url(#dx-rd)" stroke-width="2.2" stroke-linejoin="round"/><path class="lit-n" d="${d}" fill="none" stroke="url(#dx-rn)" stroke-width="2" stroke-linejoin="round"/>`;
   return s;
 }
 
 function details(ctx, list, c) {
   if (!list || !list.length) return '';
+  if (ctx.warpAll) list = list.map((d) => ctx.W(d));
   if (ctx.mode === 'sketch') return list.map((d) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.1" stroke-opacity=".55"/>`).join('');
   return list.map((d) => `<path d="${d}" fill="none" stroke="${shade(c, -0.5)}" stroke-width="1.3" stroke-opacity=".45"/>`).join('');
 }
@@ -387,7 +578,7 @@ function renderTrims(ctx, design, geo) {
   const tr = design.trims || {};
   const accent = c3;
   let back = '', front = '';
-  const waist = geo.bodice.waist || (design.bodice === 'corset' ? 'M162,230 L200,242 L238,230' : 'M162,226 L238,226');
+  const waist = geo.bodice.waist || ctx.W(design.bodice === 'corset' ? 'M162,230 L200,242 L238,230' : 'M162,226 L238,226');
   const waistY = design.bodice === 'empire' ? 174 : 226;
   
   if (tr.seams) {
@@ -441,7 +632,7 @@ function renderTrims(ctx, design, geo) {
     else if (t === 'fringe') front += fringe(waist, accent, 22);
     else if (t === 'rhinestones') front += `<g transform="translate(0,-3)">${rhinestones(waist, p, 5)}</g><g transform="translate(0,4)">${rhinestones(waist, p, 5)}</g>`;
     else if (t === 'smocking') {
-      const band = `M160,${waistY - 12} C185,${waistY - 10} 215,${waistY - 10} 240,${waistY - 12} L240,${waistY + 12} C215,${waistY + 14} 185,${waistY + 14} 160,${waistY + 12} Z`;
+      const band = ctx.W(`M160,${waistY - 12} C185,${waistY - 10} 215,${waistY - 10} 240,${waistY - 12} L240,${waistY + 12} C215,${waistY + 14} 185,${waistY + 14} 160,${waistY + 12} Z`);
       front += paintShape(ctx, band, 1) + smockRows(160, 240, waistY - 8, 3, c1, accent);
     }
   }
@@ -460,17 +651,28 @@ function sleeveTrim(ctx, sl, t) {
 }
 
 
+
+const FORM_TORSO = 'M186,56 L186,88 C170,96 146,100 136,112 C130,122 134,150 148,170 C156,190 164,210 168,226 C160,250 156,280 160,302 L240,302 C244,280 240,250 232,226 C236,210 244,190 252,170 C266,150 270,122 264,112 C254,100 230,96 214,88 L214,56 Z';
 function formBack(ctx) {
   const sk = ctx.mode === 'sketch';
   const fill = sk ? '#f7f0e4' : `url(#${ctx.p}form)`, st = sk ? '#b9a58c' : '#a88b67';
+  const W = ctx.W || ((d) => d);
   return `<g>` +
+    (sk ? '' : `<ellipse cx="200" cy="610" rx="78" ry="9" fill="#000" fill-opacity=".28" filter="url(#${ctx.p}soft)"/>`) +
     `<path d="M196,300 L196,590 L204,590 L204,300 Z" fill="${sk ? '#e2d5c2' : '#6b4a2f'}" stroke="${st}" stroke-width=".8"/>` +
     `<path d="M200,586 L146,612 M200,586 L254,612 M200,586 L200,614" stroke="${sk ? '#c8b69c' : '#5a3c24'}" stroke-width="6" stroke-linecap="round"/>` +
-    `<path d="M186,56 L186,88 C170,96 146,100 136,112 C130,122 134,150 148,170 C156,190 164,210 168,226 C160,250 156,280 160,302 L240,302 C244,280 240,250 232,226 C236,210 244,190 252,170 C266,150 270,122 264,112 C254,100 230,96 214,88 L214,56 Z" fill="${fill}" stroke="${st}" stroke-width="1"/>` +
-    (sk ? '' : `<path d="M200,95 L200,300" stroke="#b39676" stroke-width=".8" stroke-dasharray="3 3"/><path d="M168,226 C185,230 215,230 232,226" stroke="#b39676" stroke-width=".8" fill="none"/>`) +
+    `<path d="${W(FORM_TORSO)}" fill="${fill}" stroke="${st}" stroke-width="1"/>` +
+    (sk ? '' : `<path d="M200,95 L200,300" stroke="#b39676" stroke-width=".8" stroke-dasharray="3 3"/><path d="${W('M168,226 C185,230 215,230 232,226')}" stroke="#b39676" stroke-width=".8" fill="none"/>` +
+      `<path class="lit-d" d="${W(FORM_TORSO)}" fill="url(#dx-kd)"/><path class="lit-n" d="${W(FORM_TORSO)}" fill="url(#dx-kn)"/>`) +
     `<ellipse cx="200" cy="56" rx="17" ry="5.5" fill="${sk ? '#e8dccb' : '#8a5a36'}" stroke="${st}"/>` +
     `<path d="M196,52 L196,36 L204,36 L204,52 Z" fill="${sk ? '#e8dccb' : '#7a4e2e'}"/><circle cx="200" cy="32" r="8" fill="${sk ? '#e8dccb' : '#8e5c38'}" stroke="${st}"/>` +
     (sk ? '' : `<circle cx="197" cy="29" r="2.5" fill="#fff" fill-opacity=".3"/>`) + `</g>`;
+}
+
+export function miniFormSVG(bodyId, fill = '#e9dcc6') {
+  const W = bodyWarper(bodyId);
+  return `<svg xmlns="${NS}" viewBox="118 20 164 600" class="mini-form" aria-hidden="true"><path d="${W(FORM_TORSO)}" fill="${fill}" stroke="#7a5a3a" stroke-width="3"/>` +
+    `<path d="M196,300 L196,590 L204,590 L204,300 Z M200,586 L150,612 L250,612 Z" fill="#6b4a2f"/><circle cx="200" cy="32" r="9" fill="#8e5c38"/><path d="M196,52 L196,36 L204,36 L204,52 Z" fill="#7a4e2e"/></svg>`;
 }
 
 
@@ -480,81 +682,145 @@ export function dressSVG(design, opts = {}) {
   const f1 = fabric(design.fab1) || fabric('cotton'), f2 = fabric(design.fab2) || f1;
   const c1 = dye(design.dye1)?.hex || '#ddd', c2 = dye(design.dye2)?.hex || c1, c3 = dye(design.dye3)?.hex || c2;
   const q = opts.quality ?? 1;
-  const ctx = { p, mode, f1, f2, c1, c2, c3, tex: {} };
-  if (opts.formOnly) return `<svg xmlns="${NS}" viewBox="0 0 400 620" class="dress-svg"><defs>${commonDefs(p)}</defs>${formBack(ctx)}</svg>`;
+  const hasDoc = typeof document !== 'undefined';
+  
+  
+  const bodyId = bodyShape(opts.body || design.body).id;
+  const W = bodyWarper(bodyId, drapeOf(f1.tex).cling);
+  const lit = mode === 'final' && hasDoc && opts.light !== false;
+  if (lit) ensureGlobalDefs();
+  const grainOf = (f) => { const k = GRAIN_OF[f.tex]; return k && GRAIN[k] ? k : null; };
+  const ctx = { p, mode, f1, f2, c1, c2, c3, tex: {}, W, lit, grain: lit ? { 1: grainOf(f1), 2: grainOf(f2) } : {} };
+  const open = `<svg xmlns="${NS}" viewBox="0 0 400 620"${opts.width ? ` width="${opts.width}"` : ''}${opts.height ? ` height="${opts.height}"` : ''} class="dress-svg" data-body="${bodyId}">`;
+  if (opts.formOnly) return `${open}<defs>${commonDefs(p)}</defs>${formBack(ctx)}</svg>`;
   let defs = mode === 'final' ? commonDefs(p) : '';
   if (mode === 'final') {
     const t1 = texturePattern(`${p}tx1`, f1.tex, c1), t2 = texturePattern(`${p}tx2`, f2.tex, c2);
     if (t1) { defs += t1; ctx.tex[1] = true; }
     if (t2) { defs += t2; ctx.tex[2] = true; }
   }
-  const bod = BODICE[design.bodice] || BODICE.square;
+  if (lit) {
+    [[1, f1, c1], [2, f2, c2]].forEach(([slot, f, c]) => {
+      if (f.tex !== 'shot') return;
+      const w = hueShift(c, 140);
+      defs += `<linearGradient id="${p}shot${slot}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="400" y2="120">` +
+        [0, 0.2, 0.4, 0.6, 0.8, 1].map((o, i) => `<stop offset="${o}" stop-color="${w}" stop-opacity="${i % 2 ? 0.3 : 0}"/>`).join('') +
+        `<animateTransform attributeName="gradientTransform" type="translate" values="-160 0; 160 0; -160 0" dur="11s" repeatCount="indefinite"/></linearGradient>`;
+    });
+  }
+  const raw = BODICE[design.bodice] || BODICE.square;
+  const bod = { ...raw };
+  for (const k of ['d', 'neck', 'hole', 'band', 'waist', 'tail']) if (raw[k]) bod[k] = W(raw[k]);
+  for (const k of ['details', 'bandDetails']) if (raw[k]) bod[k] = raw[k].map((d) => W(d));
   const neckY = NECK_Y[design.bodice] || 150;
-  const layers = skirtLayers(design.skirt, q);
-  const sl = SLEEVE[design.sleeve];
+  const layers = skirtLayers(design.skirt, q).map((L) => {
+    const z = L.over || L.behind ? 'body' : 'skirt';
+    return { ...L, d: W(L.d, z), hem: W(L.hem, z), band: L.band && W(L.band, z), folds: L.folds.map((d) => W(d, z)), lights: L.lights.map((d) => W(d, z)) };
+  });
+  const rawSl = SLEEVE[design.sleeve];
+  let sl = null;
+  if (rawSl) {
+    sl = { ...rawSl };
+    for (const k of ['d', 'cuff', 'inner', 'puff', 'cuffBand']) if (rawSl[k]) sl[k] = W(rawSl[k], 'arm');
+    sl.details = (rawSl.details || []).map((d) => W(d, 'arm'));
+  }
+
+  function layerMarkup(L, i) {
+    const c = L.slot === 2 ? c2 : c1;
+    const clipId = `${p}sk${i}`;
+    defs += `<clipPath id="${clipId}"><path d="${L.d}"/></clipPath>`;
+    let s = `<g${mode === 'final' && i === 0 ? ` filter="url(#${p}drop)"` : ''}>${paintShape(ctx, L.d, L.slot, { top: true, ball: L.ball })}${L.dark ? `<path d="${L.d}" fill="#000" fill-opacity="${mode === 'sketch' ? 0.08 : 0.3}"/>` : ''}${folds(ctx, L, c, clipId)}</g>`;
+    if (L.tuck) s += `<path d="${L.hem}" fill="none" stroke="${mode === 'sketch' ? INK : shade(c, -0.4)}" stroke-width="${mode === 'sketch' ? 1.2 : 12}" stroke-opacity="${mode === 'sketch' ? 0.6 : 0.5}" transform="translate(0,-5)"/>` +
+      (mode === 'sketch' ? '' : `<path d="${L.hem}" fill="none" stroke="${shade(c, 0.25)}" stroke-width="3" stroke-opacity=".5" transform="translate(0,-9)"/>`);
+    if (L.ruffle) {
+      const rc = shade(c1, 0.12);
+      s += `<path d="${L.hem}" fill="none" stroke="${shade(rc, -0.3)}" stroke-width="15" transform="translate(0,-2)"/><path d="${L.hem}" fill="none" stroke="${rc}" stroke-width="13" transform="translate(0,-2)"/>` +
+        `<path d="${L.hem}" fill="none" stroke="${c3}" stroke-width="3" stroke-dasharray="6 3" transform="translate(0,4)"/>` +
+        `<g clip-path="url(#${clipId})"><path d="${L.hem}" fill="none" stroke="${shade(rc, -0.3)}" stroke-width="13" transform="translate(0,-40)"/><path d="${L.hem}" fill="none" stroke="${rc}" stroke-width="11" transform="translate(0,-40)"/><path d="${L.hem}" fill="none" stroke="${c3}" stroke-width="2.5" stroke-dasharray="5 3" transform="translate(0,-34)"/></g>`;
+    }
+    if (L.band) s += `<path d="${L.band}" fill="none" stroke="${shade(c3, -0.2)}" stroke-width="7" transform="translate(0,-4)"/><path d="${L.band}" fill="none" stroke="${c3}" stroke-width="4" stroke-dasharray="3 2" transform="translate(0,-4)"/>`;
+    if (L.stripes) s += `<g clip-path="url(#${clipId})">${L.stripes.map((y, k) => `<path d="M100,${y} H300" stroke="${k === 1 ? c3 : shade(c3, -0.25)}" stroke-width="${k === 1 ? 5 : 2.2}"${k === 1 ? ' stroke-dasharray="6 3"' : ''}/>`).join('')}</g>`;
+    if (mode === 'final' && (L.main || layers.length === 1)) {
+      
+      s += `<g clip-path="url(#${clipId})"><path d="${L.hem}" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="22" transform="translate(0,8)" filter="url(#${p}soft)"/></g>` +
+        `<path d="${L.hem}" fill="none" stroke="${shade(c, -0.42)}" stroke-width=".9" stroke-opacity=".75" stroke-dasharray="3.2 2.4" transform="translate(0,-7)"/>`;
+    }
+    return s;
+  }
+
   let body = '';
   
-  if (design.collar === 'medici') body += mediciCollar(ctx);
+  if (design.collar === 'medici') { ctx.warpAll = true; body += mediciCollar(ctx); ctx.warpAll = false; }
+  let tail = '';
+  layers.forEach((L, i) => { if (L.behind) tail += layerMarkup(L, i); });
+  if (bod.tail) tail += paintShape(ctx, bod.tail, 1, { top: true }) + details(ctx, [W('M254,130 C262,200 260,260 256,312')], c1) +
+    (mode === 'sketch' ? '' : `<path d="${bod.tail}" fill="none" stroke="${c3}" stroke-width="3" stroke-opacity=".8"/>`);
+  if (tail) body += `<g class="dx-tail">${tail}</g>`;
   if (opts.form !== false) body += formBack(ctx);
 
   
   const geo = { bodice: bod, neck: bod.neck, neckY, hem: '', seams: [] };
-  layers.forEach((L, i) => {
-    const c = L.slot === 2 ? c2 : c1;
-    const clipId = `${p}sk${i}`;
-    defs += `<clipPath id="${clipId}"><path d="${L.d}"/></clipPath>`;
-    body += `<g${mode === 'final' && i === 0 ? ` filter="url(#${p}drop)"` : ''}>${paintShape(ctx, L.d, L.slot, { top: true, ball: L.ball })}${L.dark ? `<path d="${L.d}" fill="#000" fill-opacity="${mode === 'sketch' ? 0.08 : 0.3}"/>` : ''}${folds(ctx, L, c, clipId)}</g>`;
-    if (L.tuck) body += `<path d="${L.hem}" fill="none" stroke="${mode === 'sketch' ? INK : shade(c, -0.4)}" stroke-width="${mode === 'sketch' ? 1.2 : 12}" stroke-opacity="${mode === 'sketch' ? 0.6 : 0.5}" transform="translate(0,-5)"/>` +
-      (mode === 'sketch' ? '' : `<path d="${L.hem}" fill="none" stroke="${shade(c, 0.25)}" stroke-width="3" stroke-opacity=".5" transform="translate(0,-9)"/>`);
-    if (L.ruffle) {
-      const rc = shade(c1, 0.12);
-      body += `<path d="${L.hem}" fill="none" stroke="${shade(rc, -0.3)}" stroke-width="15" transform="translate(0,-2)"/><path d="${L.hem}" fill="none" stroke="${rc}" stroke-width="13" transform="translate(0,-2)"/>` +
-        `<path d="${L.hem}" fill="none" stroke="${c3}" stroke-width="3" stroke-dasharray="6 3" transform="translate(0,4)"/>` +
-        `<g clip-path="url(#${clipId})"><path d="${L.hem}" fill="none" stroke="${shade(rc, -0.3)}" stroke-width="13" transform="translate(0,-40)"/><path d="${L.hem}" fill="none" stroke="${rc}" stroke-width="11" transform="translate(0,-40)"/><path d="${L.hem}" fill="none" stroke="${c3}" stroke-width="2.5" stroke-dasharray="5 3" transform="translate(0,-34)"/></g>`;
-    }
-    if (L.band) body += `<path d="${L.band}" fill="none" stroke="${shade(c3, -0.2)}" stroke-width="7" transform="translate(0,-4)"/><path d="${L.band}" fill="none" stroke="${c3}" stroke-width="4" stroke-dasharray="3 2" transform="translate(0,-4)"/>`;
-  });
-  const outer = layers[layers.length - 1];
-  const main = layers.find((L) => L.main);
-  geo.hem = (main || layers[0]).hem;
-  geo.seams = (main ? main.folds : design.skirt === 'odette' ? layers[0].folds : outer.folds).filter((_, i) => i % 2 === 1);
-
-  const trims = typeof document !== 'undefined' ? renderTrims(ctx, design, geo) : { back: '', front: '' };
-  body += trims.back;
+  const hang = layers.filter((L) => !L.over && !L.behind);
+  const outer = hang[hang.length - 1];
+  const main = hang.find((L) => L.main);
+  geo.hem = (main || hang[0]).hem;
+  geo.seams = (main ? main.folds : design.skirt === 'odette' ? hang[0].folds : outer.folds).filter((_, i) => i % 2 === 1);
+  const trims = hasDoc ? renderTrims(ctx, design, geo) : { back: '', front: '' };
+  let skirt = '';
+  layers.forEach((L, i) => { if (!L.over && !L.behind) skirt += `<g class="dx-l">${layerMarkup(L, i)}</g>`; });
+  if (mode === 'final') {
+    
+    const mi = layers.indexOf(main || hang[0]);
+    skirt += `<g clip-path="url(#${p}sk${mi})"><path d="${W('M146,229 C178,236 222,236 254,229', 'skirt')}" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="16" filter="url(#${p}soft)"/></g>`;
+  }
+  skirt += trims.back;
+  if (mode === 'final' && hasDoc) skirt += threadMarks(design, q, geo, c1);
+  body += `<g class="dx-skirt">${skirt}</g>`;
 
   
-  const sleeveMarkup = (() => {
-    if (!sl) return '';
+  if (sl) {
     const inner = sl.inner ? (mode === 'sketch' ? `<path d="${sl.inner}" fill="${mix(c2, INK, 0.25)}" stroke="${INK}" stroke-width="1"/>` : `<path d="${sl.inner}" fill="${shade(c2, -0.45)}"/><path d="${sl.inner}" fill="url(#${p}top)"/>`) : '';
     let one = paintShape(ctx, sl.d, 2, { ball: sl.ball }) + inner +
       (sl.puff ? paintShape(ctx, sl.puff, 2, { ball: true }) : '') +
       (sl.cuffBand ? paintShape(ctx, sl.cuffBand, 2, { color: c3 }) : '') +
-      details(ctx, sl.details, c2) + (typeof document !== 'undefined' ? sleeveTrim(ctx, sl, (design.trims || {}).sleeves) : '');
+      details(ctx, sl.details, c2) + (hasDoc ? sleeveTrim(ctx, sl, (design.trims || {}).sleeves) : '');
     if (bod.sleeveShift) one = `<g transform="translate(${bod.sleeveShift.join(',')})">${one}</g>`;
-    return `<g>${one}</g><g transform="translate(400,0) scale(-1,1)">${one}</g>`;
-  })();
-  body += sleeveMarkup;
+    body += `<g class="dx-sleeve">${one}</g><g transform="translate(400,0) scale(-1,1)"><g class="dx-sleeve">${one}</g></g>`;
+  }
 
   
   body += paintShape(ctx, bod.d, 1) + details(ctx, bod.details, c1);
+  if (lit) {
+    
+    const bx = 22 * bodyScale(bodyId, 165), by = Math.max(neckY + 18, 160);
+    defs += `<clipPath id="${p}bc"><path d="${bod.d}"/></clipPath>`;
+    body += `<g clip-path="url(#${p}bc)"><g filter="url(#${p}soft)"><ellipse cx="${(200 - bx).toFixed(1)}" cy="${by}" rx="15" ry="11" fill="#fff" fill-opacity=".13"/><ellipse cx="${(200 + bx).toFixed(1)}" cy="${by}" rx="15" ry="11" fill="#fff" fill-opacity=".1"/>` +
+      `<path d="M${(200 - bx - 18).toFixed(1)},${by + 20} Q${(200 - bx).toFixed(1)},${by + 30} 200,${by + 22} Q${(200 + bx).toFixed(1)},${by + 30} ${(200 + bx + 18).toFixed(1)},${by + 20}" fill="none" stroke="#000" stroke-opacity=".16" stroke-width="6"/></g></g>`;
+  }
   if (bod.hole) body += `<path d="${bod.hole}" fill="${mode === 'sketch' ? '#f7f0e4' : `url(#${p}form)`}" stroke="${mode === 'sketch' ? INK : shade(c1, -0.45)}" stroke-width="${mode === 'sketch' ? 2 : 1.1}"/>`;
   if (bod.band) {
     const bc = bod.bandColor === 3 ? c3 : c1;
     body += paintShape(ctx, bod.band, 1, { color: bod.bandColor === 3 ? c3 : undefined, top: true }) + details(ctx, bod.bandDetails, bc);
     if (bod.bandColor === 3 && mode === 'final') body += `<path d="${bod.waist}" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="2" transform="translate(0,-4)"/>`;
   }
-  if (bod.buttons && !(design.trims || {}).bodice) body += [0, 1, 2, 3, 4, 5, 6].map((i) => `<circle cx="200" cy="${96 + i * 18}" r="2.6" fill="${shade(c1, -0.2)}" stroke="${mode === 'sketch' ? INK : shade(c1, -0.5)}" stroke-width=".8"/>`).join('');
+  if (bod.edge) body += `<path d="${bod.neck}" fill="none" stroke="${mode === 'sketch' ? INK : shade(c3, -0.25)}" stroke-width="${mode === 'sketch' ? 1.4 : 7}"/>` +
+    (mode === 'sketch' ? '' : `<path d="${bod.neck}" fill="none" stroke="${c3}" stroke-width="4.5"/><path d="${bod.neck}" fill="none" stroke="#f3dc98" stroke-width="1.2" stroke-dasharray="2 2.5"/>`);
+  if (bod.buttons && !(design.trims || {}).bodice) body += [0, 1, 2, 3, 4, 5, 6].map((i) => `<circle cx="200" cy="${96 + i * 18}" r="2.6" fill="${shade(c1, -0.2)}" stroke="${mode === 'sketch' ? INK : shade(c1, -0.5)}" stroke-width=".8"/>${lit ? `<circle cx="199.2" cy="${95.2 + i * 18}" r=".8" fill="#fff" fill-opacity=".7"/>` : ''}`).join('');
   if (bod.lacing) {
     let l = '';
     for (let y = 154; y < 232; y += 11) l += `<path d="M194,${y} L206,${y + 11} M206,${y} L194,${y + 11}" stroke="${mode === 'sketch' ? INK : shade(c3, -0.1)}" stroke-width="1.6"/><circle cx="194" cy="${y}" r="1.4" fill="#d9c08a"/><circle cx="206" cy="${y}" r="1.4" fill="#d9c08a"/>`;
     body += l;
   }
   
+  ctx.warpAll = true;
   body += collarMarkup(ctx, design.collar, neckY);
+  ctx.warpAll = false;
+  
+  let drape = '';
+  layers.forEach((L, i) => { if (L.over) drape += layerMarkup(L, i); });
+  if (drape) body += `<g class="dx-drape">${drape}</g>`;
   body += trims.front;
-  if (mode === 'final' && typeof document !== 'undefined') body += threadMarks(design, q, geo, c1);
-  const w = opts.width ? ` width="${opts.width}"` : '', h = opts.height ? ` height="${opts.height}"` : '';
-  return `<svg xmlns="${NS}" viewBox="0 0 400 620"${w}${h} class="dress-svg"><defs>${defs}</defs>${body}</svg>`;
+  return `${open}<defs>${defs}</defs>${body}</svg>`;
 }
 
 
@@ -590,7 +856,7 @@ function collarMarkup(ctx, id, neckY) {
   if (id === 'bertha') {
     const d = 'M140,112 C160,108 180,112 200,120 C220,112 240,108 260,112 C268,126 266,140 258,150 C238,152 218,160 200,172 C182,160 162,152 142,150 C134,140 132,126 140,112 Z';
     let s = paintShape(ctx, d, 2);
-    if (typeof document !== 'undefined') s += lace(sample('M142,150 C162,152 182,160 200,172 C218,160 238,152 258,150', 7), 1);
+    if (typeof document !== 'undefined') s += lace(sample(ctx.W('M142,150 C162,152 182,160 200,172 C218,160 238,152 258,150'), 7), 1);
     s += details(ctx, ['M150,124 C168,128 186,136 200,146 C214,136 232,128 250,124'], c2);
     return s;
   }
@@ -607,8 +873,8 @@ function collarMarkup(ctx, id, neckY) {
   if (id === 'sailor') {
     const stripe = mode === 'sketch' ? INK : c3;
     const one = paintShape(ctx, SAILOR_FLAP, 2) +
-      `<path d="M140,113 L147,143 C166,151 184,161 196,172" fill="none" stroke="${stripe}" stroke-width="${mode === 'sketch' ? 1 : 2.4}"/>` +
-      `<path d="M145,110 L151,139 C169,147 185,156 195,164" fill="none" stroke="${stripe}" stroke-width="${mode === 'sketch' ? 1 : 1.4}"/>` +
+      `<path d="${ctx.W('M140,113 L147,143 C166,151 184,161 196,172')}" fill="none" stroke="${stripe}" stroke-width="${mode === 'sketch' ? 1 : 2.4}"/>` +
+      `<path d="${ctx.W('M145,110 L151,139 C169,147 185,156 195,164')}" fill="none" stroke="${stripe}" stroke-width="${mode === 'sketch' ? 1 : 1.4}"/>` +
       details(ctx, ['M178,96 C166,110 158,124 155,134'], c2);
     const tc = mode === 'sketch' ? mix(c3, '#fbf6ee', 0.12) : c3, tk = mode === 'sketch' ? INK : shade(c3, -0.4);
     const tie = `<path d="M196,184 L184,218 L192,214 L196,220 Z M204,184 L216,218 L208,214 L204,220 Z" fill="${tc}" stroke="${tk}" stroke-width="1"/>` +
@@ -631,7 +897,7 @@ function collarMarkup(ctx, id, neckY) {
       d += ` C${x0 - 2},${bot - 12} ${x0 + 2},${top + 10} ${200 - hw * 0.45},${top} Z`;
       s += paintShape(ctx, d, 2, { top: true }) +
         details(ctx, [-0.6, -0.2, 0.2, 0.6].map((t) => `M${(200 + t * hw * 0.45).toFixed(1)},${top + 2} Q${(200 + t * hw * 0.8).toFixed(1)},${top + 16} ${(200 + t * hw).toFixed(1)},${bot + 3}`), c2);
-      if (mode === 'final' && typeof document !== 'undefined') s += lace(sample(edge, 5), 1).replace(/r="4.4"/g, 'r="3"').replace(/r="1.3"/g, 'r=".9"');
+      if (mode === 'final' && typeof document !== 'undefined') s += lace(sample(ctx.W(edge), 5), 1).replace(/r="4.4"/g, 'r="3"').replace(/r="1.3"/g, 'r=".9"');
     }
     s += paintShape(ctx, 'M180,84 C190,90 210,90 220,84 L220,94 C210,99 190,99 180,94 Z', 2);
     s += mode === 'sketch' ? `<circle cx="200" cy="95" r="4.5" fill="#fbf6ee" stroke="${INK}"/>` : `<circle cx="200" cy="95" r="5" fill="${shade(c3, -0.3)}"/><circle cx="200" cy="95" r="3.8" fill="url(#${ctx.p}pearl)"/>`;
@@ -665,8 +931,8 @@ function mediciCollar(ctx) {
   if (mode === 'sketch') return s + details(ctx, MEDICI.ribs, c2);
   s += MEDICI.ribs.map((d) => `<path d="${d}" stroke="#fbf6ea" stroke-opacity=".75" stroke-width="1.6"/>`).join('');
   s += MEDICI.rings.map(([x, y]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.6" fill="none" stroke="#fbf6ea" stroke-opacity=".8" stroke-width="1.1"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.1" fill="#fbf6ea" fill-opacity=".8"/>`).join('');
-  if (typeof document !== 'undefined') s += lace(sample(MEDICI.outer, 6), -1);
-  s += `<path d="${MEDICI.outer}" fill="none" stroke="#d9c08a" stroke-width="1.2"/>`;
+  if (typeof document !== 'undefined') s += lace(sample(ctx.W(MEDICI.outer), 6), -1);
+  s += `<path d="${ctx.W(MEDICI.outer)}" fill="none" stroke="#d9c08a" stroke-width="1.2"/>`;
   return `<g filter="url(#${ctx.p}drop)">${s}</g>`;
 }
 const SAILOR_FLAP = 'M184,84 C168,90 150,98 135,108 L143,148 C164,156 186,166 200,180 C196,150 190,118 184,84 Z';
@@ -739,16 +1005,36 @@ const LOOKS = [
   { hair: '#6b3f26', skin: '#c99576', style: 'long' },
   { hair: '#d65f7a', skin: '#f5d8c4', style: 'bun' },
   { hair: '#3b2a22', skin: '#8f5f45', style: 'bob' },
+  
+  { hair: '#1b1512', skin: '#6b4331', style: 'afro', ear: 'hoop' },
+  { hair: '#2a1d17', skin: '#8a5a3f', style: 'braids', ear: 'stud' },
+  { hair: '#1a1411', skin: '#4f3024', style: 'coils', ear: 'stud' },
+  { hair: '#15110f', skin: '#b07a55', style: 'plait', ear: 'jhumka', bindi: true },
+  { hair: '#1a1310', skin: '#9a6645', style: 'bun', ear: 'jhumka', flower: '#f7f3e4' },
+  { hair: '#16110e', skin: '#d9aa82', style: 'chignon', flower: '#f0c24e' },
+  { hair: '#120f0d', skin: '#e0b690', style: 'long', ear: 'stud' },
+  { hair: '#241a14', skin: '#8d5b3c', style: 'long', ear: 'jhumka' },
 ];
 export function portraitSVG(look, dyeHex = '#b9a4d8', mood = 'neutral') {
   const L = LOOKS[look % LOOKS.length];
   const mouth = mood === 'happy' ? 'M-7,14 Q0,21 7,14' : mood === 'sad' ? 'M-6,17 Q0,12 6,17' : 'M-5,15 Q0,17 5,15';
-  const hairBack = L.style === 'long' ? `<path d="M-30,-6 C-34,30 -30,56 -22,62 L22,62 C30,56 34,30 30,-6 Z" fill="${L.hair}"/>` : L.style === 'bun' ? `<circle cx="0" cy="-34" r="13" fill="${L.hair}"/>` : '';
+  const hl = shade(L.hair, 0.22);
+  let hairBack = L.style === 'long' ? `<path d="M-30,-6 C-34,30 -30,56 -22,62 L22,62 C30,56 34,30 30,-6 Z" fill="${L.hair}"/>` : L.style === 'bun' ? `<circle cx="0" cy="-34" r="13" fill="${L.hair}"/>` : '';
+  if (L.style === 'afro') hairBack = `<circle cx="0" cy="-8" r="38" fill="${L.hair}"/>` + [...Array(14)].map((_, i) => { const a = (i / 14) * Math.PI * 2; return `<circle cx="${(Math.cos(a) * 33).toFixed(1)}" cy="${(-8 + Math.sin(a) * 33).toFixed(1)}" r="7" fill="${L.hair}"/>`; }).join('');
+  if (L.style === 'coils') hairBack = [...Array(11)].map((_, i) => { const a = Math.PI + (i / 10) * Math.PI; return `<circle cx="${(Math.cos(a) * 24).toFixed(1)}" cy="${(-6 + Math.sin(a) * 26).toFixed(1)}" r="7.5" fill="${L.hair}"/>`; }).join('');
+  if (L.style === 'braids') hairBack = [-26, -20, -14, 14, 20, 26].map((x) => `<path d="M${x},-10 C${x * 1.1},20 ${x * 1.05},44 ${x * 0.9},64" stroke="${L.hair}" stroke-width="6.5" stroke-linecap="round" fill="none"/><path d="M${x},-4 C${x * 1.1},22 ${x * 1.05},44 ${x * 0.9},62" stroke="${hl}" stroke-width="1.2" stroke-dasharray="3 3" fill="none"/>`).join('');
+  if (L.style === 'plait') hairBack = `<path d="M18,-4 C30,10 28,34 22,58" stroke="${L.hair}" stroke-width="11" stroke-linecap="round" fill="none"/>` + [0, 1, 2, 3, 4].map((i) => `<path d="M${(20 + i * 0.6).toFixed(1)},${8 + i * 11} l6,5 M${(27 - i * 0.6).toFixed(1)},${8 + i * 11} l-6,5" stroke="${hl}" stroke-width="1.2"/>`).join('');
+  if (L.style === 'chignon') hairBack = `<ellipse cx="0" cy="-30" rx="17" ry="11" fill="${L.hair}"/><path d="M-12,-32 C-4,-38 6,-38 12,-30" stroke="${hl}" stroke-width="1.4" fill="none"/>`;
+  const flower = L.flower ? [0, 72, 144, 216, 288].map((r) => `<ellipse cx="0" cy="-4" rx="3" ry="5" fill="${L.flower}" transform="translate(${L.style === 'chignon' ? '14,-34' : '12,-40'}) rotate(${r})"/>`).join('') + `<circle cx="${L.style === 'chignon' ? 14 : 12}" cy="${L.style === 'chignon' ? -34 : -40}" r="2" fill="#d98f2b"/>` : '';
+  const ear = L.ear === 'jhumka' ? [-22, 22].map((x) => `<circle cx="${x}" cy="10" r="1.6" fill="#d9b04a"/><path d="M${x - 4},20 Q${x},12 ${x + 4},20 Z" fill="#d9b04a"/><circle cx="${x}" cy="21.5" r="1.2" fill="#e8d59a"/>`).join('')
+    : L.ear === 'hoop' ? [-22, 22].map((x) => `<circle cx="${x}" cy="15" r="5" fill="none" stroke="#d9b04a" stroke-width="1.4"/>`).join('')
+      : L.ear === 'stud' ? [-22, 22].map((x) => `<circle cx="${x}" cy="10" r="1.7" fill="#f2ecdf"/>`).join('') : '';
   return `<svg xmlns="${NS}" viewBox="-50 -52 100 110" class="portrait"><circle cx="0" cy="3" r="50" fill="#efe3cf"/>` + hairBack +
     `<path d="M-40,58 C-36,36 -18,30 0,30 C18,30 36,36 40,58 Z" fill="${dyeHex}"/><path d="M-10,30 L0,40 L10,30" fill="none" stroke="${shade(dyeHex, -0.35)}" stroke-width="1.5"/>` +
     `<rect x="-7" y="18" width="14" height="14" fill="${shade(L.skin, -0.08)}"/><ellipse cx="0" cy="2" rx="22" ry="25" fill="${L.skin}"/>` +
     `<path d="M-23,0 C-26,-26 -8,-32 0,-30 C12,-32 28,-24 23,0 C20,-14 10,-18 0,-16 C-10,-18 -20,-12 -23,0 Z" fill="${L.hair}"/>` +
     (L.style === 'bob' ? `<path d="M-23,0 C-26,14 -22,20 -16,22 L-18,2 Z M23,0 C26,14 22,20 16,22 L18,2 Z" fill="${L.hair}"/>` : '') +
+    ear + flower + (L.bindi ? `<circle cx="0" cy="-7" r="1.7" fill="#b3263a"/>` : '') +
     `<ellipse cx="-8" cy="3" rx="2.4" ry="3" fill="#2d2320"/><ellipse cx="8" cy="3" rx="2.4" ry="3" fill="#2d2320"/><circle cx="-7.2" cy="2" r=".8" fill="#fff"/><circle cx="8.8" cy="2" r=".8" fill="#fff"/>` +
     `<ellipse cx="-13" cy="11" rx="4" ry="2.4" fill="#e88" fill-opacity=".35"/><ellipse cx="13" cy="11" rx="4" ry="2.4" fill="#e88" fill-opacity=".35"/>` +
     `<path d="${mouth}" fill="none" stroke="#9a4a4a" stroke-width="1.8" stroke-linecap="round"/></svg>`;

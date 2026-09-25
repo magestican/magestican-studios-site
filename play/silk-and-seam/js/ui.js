@@ -1,8 +1,8 @@
 
 import { state, save, level } from './state.js';
-import { levelProgress, clientMatch, sameAsLast, stars, tagText, reducedMotion, needsNote, repTier, newAchievements, shopValue } from './logic.js';
+import { levelProgress, clientMatch, sameAsLast, stars, tagText, reducedMotion, needsNote, repTier, newAchievements, shopValue, part, missingGarment, DEVICE_LINE } from './logic.js';
 import { TAGS, AUNT, ACHIEVEMENTS } from './data.js';
-import { sfx, setMuted, unlockAudio, applyVolume } from './audio.js';
+import { sfx, setMuted, unlockAudio, applyVolume, soundStatus, onSoundStatus } from './audio.js';
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -145,8 +145,12 @@ document.addEventListener('focusout', () => { if (!touchedRecently()) hideTip();
 export function openSettings() {
   const s = state.settings;
   const pct = (v) => Math.round(v * 100);
+  const st = soundStatus();
   const w = modal(`<h2>Settings</h2><div class="settings">
+    <p class="sound-line ${st.silent ? 'off' : ''}" id="sound-line"><b>${st.short}.</b> ${st.silent ? st.line : DEVICE_LINE}</p>
     <label>Master volume <input type="range" min="0" max="100" value="${pct(s.master)}" data-k="master"><output>${pct(s.master)}%</output></label>
+    <label>Music <input type="range" min="0" max="100" value="${pct(s.music ?? 0.55)}" data-k="music"><output>${pct(s.music ?? 0.55)}%</output></label>
+    <label>Room <small>(birds, crickets, breeze)</small> <input type="range" min="0" max="100" value="${pct(s.ambience ?? 0.7)}" data-k="ambience"><output>${pct(s.ambience ?? 0.7)}%</output></label>
     <label>Effects <small>(snips, chimes)</small> <input type="range" min="0" max="100" value="${pct(s.sfx)}" data-k="sfx"><output>${pct(s.sfx)}%</output></label>
     <div class="motion-row">Motion <span class="seg">${[['auto', 'Follow system'], ['on', 'Reduced'], ['off', 'Full']].map(([k, l]) => `<button class="chip ${s.motion === k ? 'on' : ''}" data-m="${k}">${l}</button>`).join('')}</span></div>
     <p class="hint">${mq ? `Your system currently ${mq.matches ? 'asks for' : 'does not ask for'} reduced motion.` : ''}</p></div>`, [{ label: 'Done', kind: 'gold' }]);
@@ -195,12 +199,41 @@ export function renderHud() {
     <div class="hud-level" title="${lp.span ? `${lp.into} / ${lp.span} XP to next level` : 'Max level'}">
       <span class="lv">Lv ${lp.lvl}</span><span class="xpbar"><i style="width:${(lp.frac * 100).toFixed(1)}%"></i></span>
     </div>
-    <button class="hud-btn" data-mute title="Sound on/off">${state.muted ? '🔇' : '🔊'}</button>
+    ${soundButton()}
     <button class="hud-btn gear" data-settings title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6zm8.4 5.1-1.9-.3a6.8 6.8 0 0 1-.7 1.7l1.1 1.6-1.6 1.6-1.6-1.1c-.5.3-1.1.6-1.7.7l-.3 1.9h-2.3l-.3-1.9a6.8 6.8 0 0 1-1.7-.7l-1.6 1.1-1.6-1.6 1.1-1.6c-.3-.5-.6-1.1-.7-1.7l-1.9-.3v-2.3l1.9-.3c.1-.6.4-1.2.7-1.7L5.7 6.8l1.6-1.6 1.6 1.1c.5-.3 1.1-.6 1.7-.7l.3-1.9h2.3l.3 1.9c.6.1 1.2.4 1.7.7l1.6-1.1 1.6 1.6-1.1 1.6c.3.5.6 1.1.7 1.7l1.9.3z" fill="#e6c46a" stroke="#6b4a1c" stroke-width=".8"/></svg></button>`;
   $('[data-go=hub]', $('#hud')).onclick = () => { sfx.click(); go('hub'); };
   $('[data-settings]', $('#hud')).onclick = () => { unlockAudio(); sfx.click(); openSettings(); };
-  $('[data-mute]', $('#hud')).onclick = () => { unlockAudio(); setMuted(!state.muted); save(); renderHud(); };
+  wireSoundButton();
 }
+
+
+
+
+
+
+function soundButton() {
+  const s = soundStatus();
+  const ico = s.reason === 'muted' || s.reason === 'down' ? '&#128263;' : s.silent ? '&#128264;' : '&#128266;';
+  return `<button class="hud-btn snd${s.silent ? ` silent ${s.reason}` : ''}" data-mute title="${s.short}" aria-label="${s.short}">${ico}${s.silent && s.reason !== 'muted' ? '<i class="snd-badge">!</i>' : ''}</button>`;
+}
+function wireSoundButton() {
+  const b = $('[data-mute]', $('#hud'));
+  if (!b) return;
+  b.onclick = () => {
+    const s = soundStatus();
+    unlockAudio();
+    
+    if (!s.silent || s.reason === 'muted') { setMuted(!state.muted); save(); }
+    refreshSound();
+  };
+}
+export function refreshSound() {
+  const b = $('[data-mute]', $('#hud'));
+  if (b) { b.outerHTML = soundButton(); wireSoundButton(); }
+  const line = $('#sound-line');
+  if (line) { const s = soundStatus(); line.className = `sound-line ${s.silent ? 'off' : ''}`; line.innerHTML = `<b>${s.short}.</b> ${s.silent ? s.line : DEVICE_LINE}`; }
+}
+onSoundStatus(() => refreshSound());
 
 export function toast(msg, kind = '', ms = 1800) {
   const t = document.createElement('div');
@@ -279,14 +312,16 @@ export function matchLine(tags, order, design, quality = 0.85) {
   
   if (order?.window) return `<div class="matchline">Window value <b>${money(shopValue(design, quality))}</b> <small>at ${Math.round(quality * 100)}% craft</small></div>`;
   const m = clientMatch(tags, order, design);
-  const same = design && sameAsLast(order, design) ? `<div class="repeat-warn">Same bodice and skirt as her last dress - she asked for something different</div>` : '';
+  const same = (design && sameAsLast(order, design) ? `<div class="repeat-warn">Same bodice and skirt as her last dress - she asked for something different</div>` : '') +
+    (design && missingGarment(order, design) ? `<div class="repeat-warn">She asked for a ${part(order.garment.slot, order.garment.id)?.name || order.garment.id}</div>` : '');
   return `<div class="matchline">Client match ${starRow(stars(m))} <small>${Math.round(m * 100)}%</small></div>${same}`;
 }
 
 export function orderSummary(o) {
   return `<ul class="wants">${o.wants.map((w) => `<li class="w">♥ ${w.tag} <small>${w.min}+</small></li>`).join('')}` +
     `${o.avoid.map((a) => `<li class="a">✕ ${a.tag} <small>≤ ${a.max}</small></li>`).join('')}` +
-    `${o.repeat?.differ ? `<li class="a">✕ Not the same bodice and skirt as last time</li>` : ''}</ul>`;
+    `${o.repeat?.differ ? `<li class="a">✕ Not the same bodice and skirt as last time</li>` : ''}` +
+    `${o.garment ? `<li class="w g">♥ Must be a ${part(o.garment.slot, o.garment.id)?.name || o.garment.id}</li>` : ''}</ul>`;
 }
 
 export { level };
