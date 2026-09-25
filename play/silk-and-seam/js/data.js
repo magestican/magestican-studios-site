@@ -16,6 +16,10 @@ export const PARTS = {
     { id: 'highneck', name: 'Buttoned High Neck', lvl: 1, m: { p: 1.5, s: 0 }, diff: 2, tags: { Professional: 2, Formal: 1, Daywear: 1, Elegant: 1 } },
     { id: 'vneck', name: 'V-Neck Bodice', lvl: 2, m: { p: 1.3, s: 0 }, diff: 1, tags: { Elegant: 1, Risqué: 2, Eveningwear: 1, Glamour: 1 } },
     { id: 'corset', name: 'Laced Corset', lvl: 3, m: { p: 1.4, s: 0 }, diff: 3, tags: { Gothic: 2, Risqué: 2, Elaborate: 2, Glamour: 1 } },
+    
+    { id: 'halter', name: 'Keyhole Halter', lvl: 2, m: { p: 1.0, s: 0 }, diff: 1, tags: { Glamour: 2, Risqué: 1, Eveningwear: 1, Playful: 1 } },
+    { id: 'empire', name: 'Empire Waist Bodice', lvl: 4, m: { p: 1.1, s: 0 }, diff: 1, tags: { Romantic: 2, Elegant: 1, Daywear: 1, Whimsical: 1 } },
+    { id: 'offshoulder', name: 'Off-Shoulder Bodice', lvl: 7, m: { p: 1.3, s: 0 }, diff: 2, tags: { Eveningwear: 2, Romantic: 1, Risqué: 1, Glamour: 1, Elegant: 1 } },
   ],
   collar: [
     { id: 'none', name: 'No Collar', lvl: 1, m: { p: 0, s: 0 }, diff: 0, tags: { Simple: 1 } },
@@ -23,6 +27,10 @@ export const PARTS = {
     { id: 'bow', name: 'Neck Bow', lvl: 2, m: { p: 0, s: 0.3 }, diff: 1, tags: { Cute: 2, Playful: 1, Romantic: 1 } },
     { id: 'bertha', name: 'Lace Bertha', lvl: 2, m: { p: 0, s: 0.6 }, diff: 2, tags: { Romantic: 2, Elegant: 1, Elaborate: 1, Formal: 1 } },
     { id: 'ruffle', name: 'Ruffled Collar', lvl: 3, m: { p: 0, s: 0.5 }, diff: 2, tags: { Whimsical: 2, Elaborate: 1, Gothic: 1, Playful: 1 } },
+    
+    { id: 'sailor', name: 'Sailor Collar', lvl: 3, m: { p: 0, s: 0.5 }, diff: 2, tags: { Playful: 2, Cute: 1, Casual: 1, Daywear: 1 } },
+    { id: 'jabot', name: 'Lace Jabot', lvl: 5, m: { p: 0, s: 0.4 }, diff: 2, tags: { Elaborate: 1, Formal: 1, Professional: 1, Romantic: 1 } },
+    { id: 'medici', name: 'Medici Lace Collar', lvl: 9, m: { p: 0, s: 0.7 }, diff: 3, tags: { Elaborate: 2, Gothic: 1, Formal: 1, Glamour: 1 } },
   ],
   sleeve: [
     { id: 'none', name: 'Sleeveless', lvl: 1, m: { p: 0, s: 0 }, diff: 0, tags: { Simple: 1, Casual: 1 } },
@@ -30,6 +38,10 @@ export const PARTS = {
     { id: 'puff', name: 'Puff Sleeve', lvl: 1, m: { p: 0, s: 0.8 }, diff: 1, tags: { Cute: 2, Playful: 1, Romantic: 1 } },
     { id: 'bishop', name: 'Bishop Sleeve', lvl: 1, m: { p: 0, s: 1.4 }, diff: 2, tags: { Daywear: 1, Professional: 1, Elegant: 1, Formal: 1 } },
     { id: 'angel', name: 'Angel Sleeve', lvl: 2, m: { p: 0, s: 1.6 }, diff: 2, tags: { Romantic: 3, Elaborate: 1, Eveningwear: 1, Whimsical: 1 } },
+    
+    { id: 'flutter', name: 'Flutter Sleeve', lvl: 2, m: { p: 0, s: 0.5 }, diff: 1, tags: { Cute: 1, Playful: 1, Romantic: 1, Daywear: 1 } },
+    { id: 'juliet', name: 'Juliet Sleeve', lvl: 4, m: { p: 0, s: 1.3 }, diff: 3, tags: { Romantic: 2, Formal: 1, Elaborate: 1, Elegant: 1 } },
+    { id: 'bell', name: 'Bell Sleeve', lvl: 6, m: { p: 0, s: 1.2 }, diff: 2, tags: { Whimsical: 1, Romantic: 1, Eclectic: 1, Elegant: 1 } },
   ],
   skirt: [
     { id: 'aline', name: 'A-Line Skirt', lvl: 1, m: { p: 2.5, s: 0 }, diff: 1, tags: { Daywear: 2, Casual: 2, Simple: 1, Professional: 1 } },
@@ -37,6 +49,11 @@ export const PARTS = {
     { id: 'ballgown', name: 'Ball Gown Skirt', lvl: 2, m: { p: 6.0, s: 0 }, diff: 2, tags: { Formal: 2, Eveningwear: 2, Elegant: 2, Glamour: 1 } },
     { id: 'odette', name: 'Odette Skirt', lvl: 3, m: { p: 5.0, s: 3.0 }, diff: 3, tags: { Romantic: 2, Elaborate: 3, Eveningwear: 2, Formal: 1, Whimsical: 1 } },
     { id: 'mermaid', name: 'Mermaid Skirt', lvl: 4, m: { p: 4.0, s: 0 }, diff: 3, tags: { Glamour: 3, Risqué: 2, Eveningwear: 2 } },
+    
+    { id: 'tea', name: 'Tea-Length Circle Skirt', lvl: 3, m: { p: 3.5, s: 0.8 }, diff: 1, tags: { Daywear: 2, Cute: 1, Romantic: 1, Casual: 1 } },
+    { id: 'highlow', name: 'High-Low Skirt', lvl: 5, m: { p: 3.5, s: 0 }, diff: 2, tags: { Eclectic: 1, Glamour: 1, Playful: 1, Risqué: 1, Eveningwear: 1 } },
+    { id: 'bubble', name: 'Bubble Skirt', lvl: 6, m: { p: 3.0, s: 0 }, diff: 2, tags: { Playful: 2, Cute: 2, Whimsical: 1, Eclectic: 1 } },
+    { id: 'bustle', name: 'Bustle Skirt', lvl: 8, m: { p: 4.5, s: 1.5 }, diff: 3, tags: { Elaborate: 2, Formal: 2, Gothic: 1, Romantic: 1 } },
   ],
 };
 
@@ -54,6 +71,14 @@ export const FABRICS = [
   { id: 'silk', name: 'Silk Charmeuse', price: 20, lvl: 4, tex: 'silk', tags: { Elegant: 3, Glamour: 2, Eveningwear: 1 } },
   { id: 'sequin', name: 'Sequin Mesh', price: 24, lvl: 5, tex: 'sparkle', tags: { Shimmering: 4, Glamour: 3, Eveningwear: 1 } },
   { id: 'brocade', name: 'Gold Brocade', price: 32, lvl: 6, tex: 'brocade', tags: { Elaborate: 3, Formal: 2, Patterned: 2, Glamour: 1 } },
+  
+  { id: 'chiffon', name: 'Silk Chiffon', price: 9, lvl: 2, tex: 'chiffon', tags: { Romantic: 2, Whimsical: 1, Elegant: 1 } },
+  { id: 'organza', name: 'Crystal Organza', price: 10, lvl: 4, tex: 'organza', tags: { Whimsical: 1, Elegant: 1, Romantic: 1, Shimmering: 1 } },
+  { id: 'tartan', name: 'Wool Tartan', price: 7, lvl: 6, tex: 'tartan', tags: { Patterned: 3, Casual: 1, Professional: 1, Eclectic: 1 } },
+  { id: 'damask', name: 'Silk Damask', price: 18, lvl: 7, tex: 'damask', tags: { Patterned: 2, Formal: 2, Elegant: 1, Gothic: 1 } },
+  { id: 'lame', name: 'Gold Lamé', price: 26, lvl: 9, tex: 'lame', tags: { Shimmering: 3, Glamour: 3, Eveningwear: 1 } },
+  
+  { id: 'couture', name: 'Maison Couture Lace', price: 42, lvl: 10, tex: 'guipure', tags: { Elegant: 3, Elaborate: 2, Romantic: 2, Formal: 1, Glamour: 1 } },
 ];
 
 export const ZONES = [
@@ -77,6 +102,11 @@ export const TRIMS = [
   { id: 'sequins', name: 'Sequins', price: 7, lvl: 4, zones: ['bodice', 'hem'], tags: { Shimmering: 3, Glamour: 1 } },
   { id: 'embroidery', name: 'Gold Embroidery', price: 10, lvl: 5, zones: ['bodice', 'hem'], tags: { Elaborate: 2, Formal: 1, Patterned: 1 } },
   { id: 'crystals', name: 'Crystals', price: 14, lvl: 6, zones: ['neckline', 'bodice', 'seams'], tags: { Shimmering: 3, Glamour: 2, Eveningwear: 1 } },
+  
+  { id: 'fringe', name: 'Silk Fringe', price: 4, lvl: 3, zones: ['waist', 'hem', 'sleeves'], tags: { Playful: 1, Eclectic: 1, Glamour: 1 } },
+  { id: 'smocking', name: 'Smocking', price: 5, lvl: 5, zones: ['bodice', 'waist'], tags: { Cute: 1, Daywear: 1, Elaborate: 1 } },
+  { id: 'feathers', name: 'Ostrich Feathers', price: 9, lvl: 7, zones: ['neckline', 'hem', 'sleeves'], tags: { Glamour: 2, Whimsical: 2 } },
+  { id: 'rhinestones', name: 'Rhinestone Chain', price: 12, lvl: 8, zones: ['neckline', 'waist', 'seams'], tags: { Shimmering: 2, Glamour: 2, Formal: 1 } },
 ];
 
 export const DYES = [
@@ -122,4 +152,99 @@ export const CLIENTS = [
   { name: 'Mrs Beatrice Plum', occasion: 'the village fete', wants: ['Simple', 'Daywear', 'Cute'], avoid: ['Glamour'], look: 4 },
   { name: 'Lenore Ashgrove', occasion: 'a poetry reading by candlelight', wants: ['Gothic', 'Romantic'], avoid: ['Playful'], look: 2, minLvl: 3 },
   { name: 'Miss Poppy Lark', occasion: 'the spring flower show', wants: ['Flowers', 'Patterned', 'Romantic'], avoid: ['Gothic'], look: 0, minLvl: 2 },
+  
+  { name: 'Miss Daisy Fenwick', occasion: 'the Spring Garden party', wants: ['Flowers', 'Daywear', 'Romantic'], avoid: ['Gothic'], look: 1, season: 'spring' },
+  { name: 'Lady Primrose Ashby', occasion: 'the Easter bonnet parade', wants: ['Cute', 'Playful', 'Flowers'], avoid: ['Eveningwear'], look: 4, season: 'spring' },
+  { name: 'Coral Bellweather', occasion: 'the seaside regatta', wants: ['Casual', 'Playful', 'Daywear'], avoid: ['Formal'], look: 5, season: 'summer' },
+  { name: 'Mrs Sunniva Grey', occasion: 'a midsummer ball on the lawn', wants: ['Whimsical', 'Romantic', 'Eveningwear'], avoid: ['Professional'], look: 3, season: 'summer' },
+  { name: 'Hazel Thornbury', occasion: 'the harvest dance in the tithe barn', wants: ['Casual', 'Patterned', 'Cute'], avoid: ['Glamour'], look: 0, season: 'autumn' },
+  { name: 'Mistress Rowan Vesper', occasion: 'the Hallowe\'en masque', wants: ['Gothic', 'Whimsical', 'Elaborate'], avoid: ['Cute'], look: 2, season: 'autumn' },
+  { name: 'Countess Ivy Frost', occasion: 'the Winter Masquerade', wants: ['Eveningwear', 'Elaborate', 'Glamour'], avoid: ['Casual'], look: 1, season: 'winter' },
+  { name: 'Miss Holly Winterbourne', occasion: 'the Christmas Eve carol concert', wants: ['Elegant', 'Formal', 'Romantic'], avoid: ['Risqué'], look: 3, season: 'winter' },
+  
+  { name: 'The Duchess of Albury', occasion: 'a state banquet at the palace', wants: ['Formal', 'Elegant', 'Elaborate'], avoid: ['Casual'], look: 1, premium: true, minRep: 20 },
+  { name: 'Signora Valentina Rossi', occasion: 'the premiere of her new film', wants: ['Glamour', 'Eveningwear', 'Romantic'], avoid: ['Simple'], look: 2, premium: true, minRep: 20 },
+  { name: 'Lady Seraphina Blythe', occasion: 'her engagement portrait', wants: ['Romantic', 'Elegant', 'Flowers'], avoid: ['Gothic'], look: 3, premium: true, minRep: 45 },
+  { name: 'Madame Celeste Lorraine', occasion: 'the Paris couture week', wants: ['Elaborate', 'Glamour', 'Formal'], avoid: ['Casual'], look: 5, premium: true, minRep: 80 },
 ];
+
+
+
+export const REP_GAIN = { 1: -3, 2: 0, 3: 1, 4: 3, 5: 5 };
+export const REP_TIERS = [
+  { at: 0, name: 'Unknown atelier' },
+  { at: 10, name: 'Local favourite' },
+  { at: 20, name: 'Talk of the town' },
+  { at: 45, name: 'Society darling' },
+  { at: 80, name: 'Couture house' },
+];
+export const PREMIUM_FEE = 1.5;
+
+
+
+export const NATURAL_DYES = ['ivory'];
+export const DYE_PRICE = 2, RARE_DYE_PRICE = 4, RARE_DYE_LVL = 4;
+
+
+export const WINDOW_WAIT = 2;
+
+
+export const SALE_EVERY = 3;
+
+
+export const UPGRADES = [
+  { id: 'pinking', name: 'Pinking Shears', price: 35, lvl: 1, fx: { cutSlack: 2 }, blurb: 'Zig-zag blades forgive a wobble: +2 px of slack on every cut.' },
+  { id: 'service', name: 'Machine Service', price: 50, lvl: 1, fx: { sewSlack: 3 }, blurb: 'Oiled, re-timed and tensioned: the seam forgives 3 px more drift.' },
+  { id: 'mat', name: 'Big Cutting Mat', price: 90, lvl: 2, fx: { cutTol: 4 }, blurb: 'Room to turn the cloth: the scissors keep cutting 4 px further off the chalk.' },
+  { id: 'lamp', name: 'Daylight Lamp', price: 70, lvl: 3, fx: { sewSpan: 6 }, blurb: 'You can see the chalk: stitches off the line lose accuracy more slowly.' },
+  { id: 'deluxe', name: 'Electric Deluxe Machine', price: 240, lvl: 5, needs: 'service', fx: { sewSlack: 4, sewSpan: 6 }, blurb: 'A modern motor and a wide presser foot: the widest sewing tolerance.' },
+];
+
+
+export const ACCESSORIES = [
+  { id: 'scrunchie', name: 'Scrunchie', need: 0.2, base: 3 },
+  { id: 'bow', name: 'Hair Bow', need: 0.3, base: 4 },
+  { id: 'pouch', name: 'Drawstring Pouch', need: 0.6, base: 7 },
+  { id: 'cushion', name: 'Cushion Cover', need: 1.0, base: 11 },
+];
+
+
+export const ACHIEVEMENTS = [
+  { id: 'first', name: 'First Stitches', desc: 'Finish your first commission.' },
+  { id: 'five_star', name: 'Five Stars', desc: 'Earn a five-star verdict.' },
+  { id: 'five_fives', name: 'Darling of the Season', desc: 'Earn five five-star verdicts.' },
+  { id: 'ten', name: 'Busy Atelier', desc: 'Finish ten commissions.' },
+  { id: 'year', name: 'All Four Seasons', desc: 'Sew through a whole year (20 commissions).' },
+  { id: 'bodices', name: 'Pattern Collector', desc: 'Make a dress with every bodice.' },
+  { id: 'level5', name: 'Journeywoman', desc: 'Reach level 5.' },
+  { id: 'level10', name: 'Maison', desc: 'Reach level 10.' },
+  { id: 'rich', name: 'Well-Heeled', desc: 'Hold £1,000 at once.' },
+  { id: 'window', name: 'Window Shopper', desc: 'Sell a dress from the shop window.' },
+  { id: 'scraps', name: 'Waste Not', desc: 'Sell three accessories made from scraps.' },
+  { id: 'upgrade', name: 'Tools of the Trade', desc: 'Buy a workshop upgrade.' },
+  { id: 'equipped', name: 'Fully Equipped', desc: 'Own every workshop upgrade.' },
+  { id: 'darling', name: 'Society Darling', desc: 'Reach 45 reputation.' },
+  { id: 'loyal', name: 'Old Friends', desc: 'Dress the same client three times.' },
+];
+
+
+
+export const SEASON_LENGTH = 5;
+export const SEASON_BONUS = 0.15;
+export const SEASONS = [
+  { id: 'spring', name: 'Spring', event: 'Spring Garden', icon: '&#10047;', line: 'With the Spring Garden season upon us and every hedge in blossom,' },
+  { id: 'summer', name: 'Summer', event: 'Midsummer Revels', icon: '&#9728;', line: 'The long summer evenings are here at last, and' },
+  { id: 'autumn', name: 'Autumn', event: 'Harvest Balls', icon: '&#10086;', line: 'The leaves are turning and the harvest balls begin, so' },
+  { id: 'winter', name: 'Winter', event: 'Winter Masquerade', icon: '&#10052;', line: 'Snow is on the lane and the Winter Masquerade approaches;' },
+];
+
+
+
+export const AUNT = {
+  intro: { title: 'My dearest,', body: 'The shop is yours now: my old machine, a few bolts of cotton and a desk that is never short of letters. Each client writes asking for a dress with a certain <b>feel</b> - cute, elegant, gothic. Choose a letter from <b>Commissions</b>, and I shall leave a note at every step the first time you reach it. Spend what you earn on finer cloth at the <b>Fabric Market</b>.' },
+  sketch: { title: 'The sketch book', body: 'Every bodice, collar, sleeve, skirt, fabric and dye carries <b>tags</b> - hover over one to read them. Fill the meters on the left until each <b>&#9829;</b> reaches its gold mark, and keep the <b>&#10005;</b> tags out of the red. Mind the metres of cloth: you cannot draft a pattern you have no fabric for. Arrow keys and <kbd>Enter</kbd> work too.' },
+  cut: { title: 'At the cutting table', body: 'Press on the <b style="color:#c0392b">red dot</b> and draw the scissors along the chalk line all the way round. Neat cuts make a neat dress; wander off the line and it will show at the hem. If your hand is tired, the apprentice will cut for you - adequately.' },
+  sew: { title: 'The sewing machine', body: 'Press <kbd>W</kbd> to start her (or hold the mouse), <kbd>S</kbd> to slow down. Steer with the mouse or <kbd>A</kbd> <kbd>D</kbd> to keep the chalk seam under the needle - the fabric drags a little, as real cloth does. She will run out of bobbin thread once; click the bobbin (or press <kbd>R</kbd>) to wind a fresh one.' },
+  embellish: { title: 'Embellishing', body: 'One pack of trim dresses one area. Lace and pearls add romance and poise, but pile on too much and a gown becomes <i>unwearable</i>. Watch the meters, and buy more trim at the market.' },
+  reveal: { title: 'The reveal', body: 'Your client decides how well you matched her wishes; your cutting and sewing decide the craft. Loose threads and a wavering hem cost you. A perfect match, finely made, often earns a tip. Collect your payment and a fresh letter will arrive.' },
+};

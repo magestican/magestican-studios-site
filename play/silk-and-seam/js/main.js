@@ -1,4 +1,4 @@
-import { register, go, fitStage } from './ui.js';
+import { register, go, fitStage, applyMotion, checkAchievements } from './ui.js';
 import { unlockAudio } from './audio.js';
 import hub from './screens/hub.js';
 import orders from './screens/orders.js';
@@ -14,5 +14,8 @@ Object.entries({ hub, orders, sketch, cut, sew, embellish, reveal, market, galle
 window.addEventListener('resize', fitStage);
 window.addEventListener('pointerdown', unlockAudio, { once: false });
 window.addEventListener('keydown', unlockAudio);
+document.querySelector('#rotate-hint button')?.addEventListener('click', () => document.getElementById('rotate-hint').remove());
+applyMotion();
 fitStage();
 go('hub');
+checkAchievements();

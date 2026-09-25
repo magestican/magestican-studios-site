@@ -1,12 +1,12 @@
 
 import { START } from './data.js';
-import { generateOrder, levelFor } from './logic.js';
+import { generateOrder, levelFor, seasonFor, DEFAULT_SETTINGS, TUTORIAL_STEPS, repFromGallery, statsFromGallery, freshStats, achievementsEarned } from './logic.js';
 
 const KEY = 'silkseam.v1';
 
 function fresh() {
   return {
-    v: 1,
+    v: 3,
     money: START.money,
     xp: 0,
     fabrics: { ...START.fabrics },
@@ -17,6 +17,15 @@ function fresh() {
     muted: false,
     made: 0,
     seenIntro: false,
+    notes: {},                       
+    settings: { ...DEFAULT_SETTINGS }, 
+    clients: {},                     
+    rep: 0,                          
+    window: null,                    
+    upgrades: [],                    
+    scraps: {},                      
+    stats: freshStats(),             
+    achievements: {},                
   };
 }
 
@@ -25,7 +34,22 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.v === 1) return { ...fresh(), ...s };
+      
+      
+      
+      
+      if (s && (s.v === 1 || s.v === 2 || s.v === 3)) {
+        const out = { ...fresh(), ...s, v: 3, clients: { ...(s.clients || {}) }, settings: { ...DEFAULT_SETTINGS, ...(s.settings || {}) } };
+        
+        if (!s.notes && s.made > 0) out.notes = Object.fromEntries(TUTORIAL_STEPS.map((k) => [k, true]));
+        if (s.v < 3) {
+          out.rep = repFromGallery(s.gallery);
+          out.stats = statsFromGallery(s.gallery);
+          out.achievements = Object.fromEntries(achievementsEarned(out).map((id) => [id, true]));
+        }
+        out.stats = { ...freshStats(), ...(out.stats || {}) };
+        return out;
+      }
     }
   } catch (e) {  }
   return fresh();
@@ -49,6 +73,6 @@ export const level = () => levelFor(state.xp);
 
 export function fillOrders() {
   while (state.orders.length < 3) {
-    state.orders.push(generateOrder(level(), Math.random, state.orders.map((o) => o.client)));
+    state.orders.push(generateOrder(level(), Math.random, state.orders.map((o) => o.client), { season: seasonFor(state.made).id, history: state.clients, rep: state.rep }));
   }
 }

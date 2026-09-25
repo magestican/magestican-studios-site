@@ -135,6 +135,10 @@ export const COUNTED_GAME_IDS = Object.freeze([
   
   
   'farmy-moon-life',
+  
+  
+  
+  'silk-and-seam',
 ]);
 
 

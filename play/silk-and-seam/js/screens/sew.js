@@ -1,8 +1,8 @@
 
 import { state, save } from '../state.js';
-import { go, toast, $ } from '../ui.js';
+import { go, toast, auntNote, calm, $ } from '../ui.js';
 import { pieceOutlines, fabricSheet, svgImage, lum, shade } from '../art.js';
-import { dye, part } from '../logic.js';
+import { dye, part, bobbinRunOut, threadTension, tolerances, stitchAcc } from '../logic.js';
 import { sfx, machineHum } from '../audio.js';
 
 const W = 1280, H = 664;
@@ -58,16 +58,36 @@ export default {
     const d = job.design;
     const pieces = pieceOutlines(d);
     job.sew = job.sew || [];
+    const tol = tolerances(state.upgrades);   
     root.innerHTML = `<div class="workshop"><canvas width="${W}" height="${H}"></canvas>
       <div class="ws-panel paper"><h2>Sewing Machine</h2><div class="ws-steps" id="steps"></div>
       <p>Move the mouse (or <span class="keys"><kbd>A</kbd><kbd>D</kbd></span>) to keep the chalk line under the needle.</p>
-      <p><span class="keys"><kbd>W</kbd><kbd>S</kbd></span> change speed, or hold the mouse button to sew.</p>
+      <p><span class="keys"><kbd>W</kbd><kbd>S</kbd></span> change speed, or hold the mouse button to sew. On a touch screen, hold a finger on the cloth and drag to steer.</p>
       <div class="big" id="spd">Stopped</div></div>
       <button class="btn small ghost ws-skip" id="skip" style="color:#3a2a1a;border-color:#6b4a33">Let the apprentice sew (70%)</button></div>`;
     const cv = $('canvas', root), g = cv.getContext('2d');
     const table = tableCanvas(), machine = machineCanvas();
     let idx = job.sew.length, cur = null, last = performance.now();
     const keys = {};
+    const seamLen = (pc) => 1100 + (part(pc.part[0], pc.part[1])?.diff || 1) * 350;
+    
+    if (!job.bobbin) { job.bobbin = bobbinRunOut(pieces.map(seamLen), Math.random); save(); }
+    const bob = job.bobbin;
+    const BOB = { x: NX + 100, y: 150, r: 19 };
+    let wind = 0;   
+
+    function refill() {
+      if (!cur || !cur.empty || wind) return;
+      sfx.wind(); wind = performance.now();
+      setTimeout(() => { if (cur) cur.empty = false; bob.used = true; wind = 0; save(); toast('Fresh bobbin - carry on', 'good'); }, calm() ? 50 : 520);
+    }
+    
+    const bobbinLeft = () => {
+      if (!bob || bob.used) return 1;
+      if (cur?.empty) return 0;
+      if (idx < bob.seam) return 1;
+      return Math.max(0.04, 1 - (cur ? cur.fed : 0) / bob.at);
+    };
 
     function setup() {
       if (idx >= pieces.length) { finish(); return; }
@@ -81,7 +101,7 @@ export default {
         a1: 30 + diff * 22, f1: 0.0035 + diff * 0.0012, p1: r(), a2: 10 + diff * 8, f2: 0.011, p2: r(),
         img: svgImage(fabricSheet(fabId, dyeId, FW, TILE)),
         thread: lum(hex) > 0.5 ? '#3a2a22' : '#f3e6cf', chalk: lum(hex) > 0.55 ? 'rgba(70,50,40,.75)' : 'rgba(255,250,235,.85)', edge: shade(hex, -0.3),
-        done: 0, mouseDown: false,
+        done: 0, mouseDown: false, vel: 0, tilt: 0, empty: false, tension: 0,
       };
       cur.tx = -sx(0); cur.fx = cur.tx;
       steps();
@@ -106,16 +126,29 @@ export default {
 
     function tick(dt, t) {
       if (!cur || cur.done) return;
+      if (document.querySelector('.modal-wrap')) { machineHum(0); return; }   
       if (keys.a) cur.tx -= 260 * dt;
       if (keys.d) cur.tx += 260 * dt;
-      cur.fx += (cur.tx - cur.fx) * Math.min(1, dt * 10);
-      const sp = cur.mouseDown ? Math.max(cur.speed, 2) : cur.speed;
+      let sp = cur.mouseDown ? Math.max(cur.speed, 2) : cur.speed;
+      if (cur.empty) sp = 0;
+      
+      
+      const px = cur.fx;
+      cur.fx += (cur.tx - cur.fx) * Math.min(1, dt * (10 - sp * 1.6));
+      cur.vel += ((cur.fx - px) / Math.max(dt, 1e-3) - cur.vel) * Math.min(1, dt * 8);
+      cur.tilt = calm() ? 0 : Math.max(-0.07, Math.min(0.07, -cur.vel * 0.00045));
+      cur.tension = threadTension(cur.fx + sx(cur.fed), sp);
       machineHum(sp);
-      $('#spd', root).textContent = ['Stopped', 'Slow', 'Steady', 'Fast'][sp];
+      $('#spd', root).textContent = cur.empty ? 'Bobbin empty!' : ['Stopped', 'Slow', 'Steady', 'Fast'][sp];
+      if (bob && !bob.used && idx === bob.seam && !cur.empty && cur.fed + SPEEDS[sp] * dt >= bob.at) {
+        cur.fed = bob.at; cur.empty = true; cur.speed = 0; machineHum(0);
+        sfx.bobbinOut(); toast('The bobbin ran dry! Click it (or press R) to wind a new one', 'bad');
+        return;
+      }
       cur.fed += SPEEDS[sp] * dt;
       while (cur.fed >= cur.nextStitch && cur.nextStitch <= cur.len) {
         const err = Math.abs(cur.fx + sx(cur.nextStitch));
-        cur.accs.push(Math.max(0, 1 - Math.max(0, err - 3) / 30));
+        cur.accs.push(stitchAcc(err, tol));
         cur.stitches.push({ x: -cur.fx, y: cur.nextStitch });
         cur.nextStitch += STITCH;
       }
@@ -137,6 +170,7 @@ export default {
       if (!cur) return;
       const left = NX + cur.fx - FW / 2;
       const top0 = NY - cur.fed;             
+      g.save(); g.translate(NX, NY); g.rotate(cur.tilt); g.translate(-NX, -NY);   
       
       g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(left + 8, 0, FW, H);
       const first = Math.floor((0 - top0) / TILE) - 1;
@@ -169,14 +203,51 @@ export default {
         g.beginPath(); g.moveTo(x - 5, y - 4); g.lineTo(x, y + 1); g.lineTo(x + 5, y - 4); g.stroke();
       }
       
+      const push = Math.max(-1, Math.min(1, cur.vel / 260));
+      if (Math.abs(push) > 0.12 && !calm()) {
+        g.strokeStyle = `rgba(0,0,0,${(Math.abs(push) * 0.22).toFixed(3)})`; g.lineWidth = 2.2;
+        for (let i = 0; i < 4; i++) {
+          const x = NX - Math.sign(push) * (26 + i * 13), y = NY + 6 + i * 5;
+          g.beginPath(); g.moveTo(x, y - 18); g.quadraticCurveTo(x + Math.sign(push) * 6, y, x, y + 22); g.stroke();
+        }
+      }
+      g.restore();
+      
       g.drawImage(machine, 0, 0);
       
-      const sp = cur.mouseDown ? Math.max(cur.speed, 2) : cur.speed;
-      const bob = sp ? (Math.sin(t / (60 - sp * 12)) + 1) * 7 : 0;
-      g.fillStyle = '#c8c8cc'; g.fillRect(NX - 4, 215, 8, NY - 229 + bob);
-      g.strokeStyle = '#eee'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(NX, NY - 14 + bob); g.lineTo(NX, NY - 2 + bob); g.stroke();
+      const tn = cur.tension, jit = calm() ? 0 : Math.sin(t / 23) * tn * 0.12;
+      g.strokeStyle = tn > 0.7 ? '#d0463c' : '#3a3634'; g.lineWidth = 2.2; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(NX + 20, 88); g.lineTo(NX + 20 + Math.cos(-2.4 + tn * 1.7 + jit) * 10, 88 + Math.sin(-2.4 + tn * 1.7 + jit) * 10); g.stroke();
       
-      g.strokeStyle = cur.thread === '#3a2a22' ? '#6a4a3a' : '#e9dcc2'; g.lineWidth = 1; g.beginPath(); g.moveTo(NX + 2, 200); g.lineTo(NX + 120, 40); g.stroke();
+      const left01 = bobbinLeft(), bt = wind ? Math.min(1, (t - wind) / 500) : 0;
+      g.save(); g.translate(BOB.x, BOB.y);
+      g.fillStyle = '#9a9690'; g.fillRect(-3, -BOB.r - 6, 6, 8);
+      g.rotate(wind ? bt * 14 : cur.empty ? 0 : cur.fed / 40);
+      g.fillStyle = '#d8d4cc'; g.strokeStyle = '#6a655e'; g.lineWidth = 1.5;
+      g.beginPath(); g.arc(0, 0, BOB.r, 0, Math.PI * 2); g.fill(); g.stroke();
+      const wound = wind ? bt : left01;
+      if (wound > 0) { g.fillStyle = cur.thread === '#3a2a22' ? '#6a4a3a' : '#efe3cc'; g.beginPath(); g.arc(0, 0, 6 + (BOB.r - 8) * wound, 0, Math.PI * 2); g.fill(); g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 0.6; for (let r = 7; r < 6 + (BOB.r - 8) * wound; r += 2.2) { g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.stroke(); } }
+      g.fillStyle = '#6a655e'; for (let i = 0; i < 3; i++) { const a = (i / 3) * Math.PI * 2; g.beginPath(); g.arc(Math.cos(a) * 4, Math.sin(a) * 4, 1.6, 0, Math.PI * 2); g.fill(); }
+      g.restore();
+      if (cur.empty && !wind) {
+        const pul = 0.5 + 0.5 * Math.sin(t / 140);
+        g.strokeStyle = `rgba(230,196,106,${0.5 + pul * 0.5})`; g.lineWidth = 3;
+        g.beginPath(); g.arc(BOB.x, BOB.y, BOB.r + 5 + pul * 4, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = '#f7e3b5'; g.font = 'italic bold 15px Georgia'; g.textAlign = 'center';
+        g.strokeStyle = 'rgba(40,20,10,.85)'; g.lineWidth = 4; g.strokeText('click to wind a bobbin', BOB.x, BOB.y + BOB.r + 22);
+        g.fillText('click to wind a bobbin', BOB.x, BOB.y + BOB.r + 22); g.textAlign = 'start';
+      }
+      
+      const sp = cur.empty ? 0 : cur.mouseDown ? Math.max(cur.speed, 2) : cur.speed;
+      const nb = sp ? (Math.sin(t / (60 - sp * 12)) + 1) * 7 : 0;
+      g.fillStyle = '#c8c8cc'; g.fillRect(NX - 4, 215, 8, NY - 229 + nb);
+      g.strokeStyle = '#eee'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(NX, NY - 14 + nb); g.lineTo(NX, NY - 2 + nb); g.stroke();
+      
+      
+      const slack = cur.empty ? 1 : 1 - tn;
+      const hum = calm() ? 0 : Math.sin(t / (14 + (1 - tn) * 20)) * (1.2 + tn * 4.5) * (sp ? 1 : 0.2);
+      g.strokeStyle = cur.thread === '#3a2a22' ? '#6a4a3a' : '#e9dcc2'; g.lineWidth = 1 + tn * 0.4;
+      g.beginPath(); g.moveTo(NX + 2, 200 + nb * 0.5); g.quadraticCurveTo(NX + 61 + slack * 14 + hum, 120 + slack * 10, NX + 120, 40); g.stroke();
       
       g.fillStyle = '#d8b35c'; g.strokeStyle = '#8a6a2a'; g.lineWidth = 1.5;
       g.beginPath(); g.roundRect(NX - 14, NY - 10, 28, 24, 6); g.fill(); g.stroke();
@@ -203,14 +274,21 @@ export default {
 
     const pos = (e) => { const r = cv.getBoundingClientRect(); return ((e.clientX - r.left) * W) / r.width; };
     const onMove = (e) => { if (cur) cur.tx = (pos(e) - NX) * 1.0; };
-    const onDown = (e) => { if (cur) { cur.mouseDown = true; onMove(e); } };
+    const onDown = (e) => {
+      if (!cur) return;
+      const r = cv.getBoundingClientRect(), y = ((e.clientY - r.top) * H) / r.height;
+      if (Math.hypot(pos(e) - BOB.x, y - BOB.y) < BOB.r + 10) { refill(); return; }   
+      cur.mouseDown = true; onMove(e);
+    };
     const onUp = () => { if (cur) cur.mouseDown = false; };
+    cv.style.touchAction = 'none';   
     const onKey = (e) => {
       const k = e.key.toLowerCase();
       if (!cur) return;
       if (e.type === 'keydown' && !e.repeat) {
         if (k === 'w' || k === 'arrowup') cur.speed = Math.min(3, cur.speed + 1);
         if (k === 's' || k === 'arrowdown') cur.speed = Math.max(0, cur.speed - 1);
+        if (k === 'r') refill();
       }
       if (k === 'a' || k === 'arrowleft') keys.a = e.type === 'keydown';
       if (k === 'd' || k === 'arrowright') keys.d = e.type === 'keydown';
@@ -218,19 +296,22 @@ export default {
     cv.addEventListener('pointermove', onMove);
     cv.addEventListener('pointerdown', onDown);
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
     window.addEventListener('keydown', onKey);
     window.addEventListener('keyup', onKey);
     $('#skip', root).onclick = () => { while (idx < pieces.length) { job.sew.push(0.7); idx++; } save(); finish(); };
     setup();
-    window.__sew = () => cur && { ...cur, sx };   
+    window.__sew = () => cur && { ...cur, sx, refill, bobbin: bob };   
     raf = requestAnimationFrame(draw);
     cleanup = () => {
       cancelAnimationFrame(raf); machineHum(0);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('keyup', onKey);
     };
     if (!state.seenSew) { state.seenSew = true; save(); toast('Press W to start the machine'); }
+    auntNote('sew');
   },
   leave() { if (cleanup) cleanup(); cleanup = null; },
 };

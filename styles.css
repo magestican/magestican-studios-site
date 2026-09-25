@@ -572,6 +572,7 @@ main section:last-child { margin-bottom: 0; }
 .game-fighter-ex  { --accent: var(--gold); }
 
 .game-moonlife    { --accent: #9b86d6; }
+.game-silk        { --accent: #d25a6e; }
 
 
 

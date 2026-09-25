@@ -1,5 +1,9 @@
 
-import { TAGS, PARTS, SLOTS, FABRICS, TRIMS, DYES, LEVEL_XP, MAX_LEVEL, CLIENTS } from './data.js';
+import {
+  TAGS, PARTS, SLOTS, FABRICS, TRIMS, DYES, LEVEL_XP, MAX_LEVEL, CLIENTS, SEASONS, SEASON_LENGTH, SEASON_BONUS,
+  REP_GAIN, REP_TIERS, PREMIUM_FEE, NATURAL_DYES, DYE_PRICE, RARE_DYE_PRICE, RARE_DYE_LVL, WINDOW_WAIT, SALE_EVERY,
+  UPGRADES, ACCESSORIES, ACHIEVEMENTS,
+} from './data.js';
 
 export const byId = (list, id) => list.find((x) => x.id === id);
 export const part = (slot, id) => byId(PARTS[slot], id);
@@ -140,9 +144,13 @@ export function payout(order, match, quality, matCost) {
   const qm = 0.7 + 0.4 * quality;
   const fee = Math.round(order.fee * mm * qm);
   const materials = Math.round(Math.min(matCost * 1.25, order.budget) * mm);
-  const tip = match >= 0.95 && quality >= 0.9 ? Math.round(order.fee * 0.2) : 0;
+  const perfect = match >= 0.95 && quality >= 0.9 ? Math.round(order.fee * 0.2) : 0;
+  
+  
+  const loyal = order.repeat?.mood === 'happy' && match >= 0.6 ? Math.round(order.fee * LOYALTY_TIP) : 0;
+  const tip = perfect + loyal;
   const xp = Math.round(15 + order.fee * 0.6 * match * (0.5 + 0.5 * quality));
-  return { fee, materials, tip, total: fee + materials + tip, xp };
+  return { fee, materials, tip, loyal, total: fee + materials + tip, xp };
 }
 
 export function levelFor(xp) {
@@ -193,9 +201,22 @@ export function defaultDesign() {
 }
 
 
-export function generateOrder(lvl, rng, excludeNames = []) {
-  const pool = CLIENTS.filter((c) => (c.minLvl || 1) <= lvl && !excludeNames.includes(c.name));
-  const client = pick(pool.length ? pool : CLIENTS.filter((c) => (c.minLvl || 1) <= lvl), rng);
+
+
+export function generateOrder(lvl, rng, excludeNames = [], opts = {}) {
+  const history = opts.history || {};
+  const rep = opts.rep || 0;
+  
+  const eligible = (c) => (c.minLvl || 1) <= lvl && (!c.season || c.season === opts.season) && (!c.premium || rep >= c.minRep);
+  const pool = CLIENTS.filter((c) => eligible(c) && !excludeNames.includes(c.name));
+  const seasonal = pool.filter((c) => c.season);
+  const premium = pool.filter((c) => c.premium);
+  const returning = pool.filter((c) => history[c.name]);
+  const roll = rng();
+  const client = seasonal.length && roll < 0.35 ? pick(seasonal, rng)
+    : premium.length && roll < 0.55 ? pick(premium, rng)
+      : returning.length && roll < 0.75 ? pick(returning, rng)
+        : pick(pool.length ? pool : CLIENTS.filter((c) => (c.minLvl || 1) <= lvl && !c.season && !c.premium), rng);
   const samples = [];
   for (let i = 0; i < 500; i++) samples.push(computeTags(randomDesign(lvl, rng)));
   const best = (tag) => Math.max(...samples.map((s) => s[tag]));
@@ -212,7 +233,302 @@ export function generateOrder(lvl, rng, excludeNames = []) {
     for (const w of order.wants) w.min = Math.max(1, Math.round(w.min * 0.85 * 2) / 2);
   }
   order.fee = Math.round(25 + 18 * lvl + rng() * 12);
+  if (client.season) {
+    order.season = client.season;
+    order.bonus = Math.round(order.fee * SEASON_BONUS);
+    order.fee += order.bonus;
+  }
+  if (client.premium) {
+    order.premium = true;
+    order.premiumBonus = Math.round(order.fee * (PREMIUM_FEE - 1));
+    order.fee += order.premiumBonus;
+  }
+  const back = repeatTerms(history[client.name]);
+  if (back) order.repeat = back;
   order.budget = Math.round(30 + 28 * lvl * (0.8 + 0.4 * rng()));
   order.id = Math.floor(rng() * 1e9).toString(36);
   return order;
+}
+
+
+export function seasonFor(made) {
+  return SEASONS[Math.floor(Math.max(0, made || 0) / SEASON_LENGTH) % SEASONS.length];
+}
+
+export function seasonLeft(made) {
+  return SEASON_LENGTH - (Math.max(0, made || 0) % SEASON_LENGTH);
+}
+
+
+export const LOYALTY_TIP = 0.15;
+export const REPEAT_PENALTY = 0.7;
+
+export function rememberClient(history, name, rec) {
+  const prev = (history || {})[name];
+  return { ...(history || {}), [name]: { stars: rec.stars, dress: rec.dress, bodice: rec.bodice, skirt: rec.skirt, visits: (prev?.visits || 0) + 1 } };
+}
+
+export function repeatTerms(mem) {
+  if (!mem) return null;
+  const mood = mem.stars >= 4 ? 'happy' : mem.stars <= 2 ? 'unhappy' : 'neutral';
+  const out = { mood, stars: mem.stars, dress: mem.dress, visits: mem.visits || 1 };
+  if (mood === 'unhappy') out.differ = { bodice: mem.bodice, skirt: mem.skirt };
+  return out;
+}
+
+
+export function sameAsLast(order, design) {
+  const df = order?.repeat?.differ;
+  return !!df && design.bodice === df.bodice && design.skirt === df.skirt;
+}
+export function clientMatch(tags, order, design) {
+  const m = matchScore(tags, order);
+  return design && sameAsLast(order, design) ? m * REPEAT_PENALTY : m;
+}
+
+
+
+
+
+export function designSeed(design) {
+  const s = [design.bodice, design.collar, design.sleeve, design.skirt, design.fab1, design.dye1].join('|');
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+
+
+export const NEAT_QUALITY = 0.85;
+export function looseThreads(quality, seed = 1) {
+  const q = Math.max(0, Math.min(1, quality ?? 1));
+  if (q >= NEAT_QUALITY) return [];
+  const n = Math.min(9, Math.ceil((NEAT_QUALITY - q) * 18));
+  const rng = mulberry32(seed);
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    out.push({
+      t: 0.06 + ((i + rng() * 0.8) / n) * 0.88,
+      len: 10 + rng() * 12 + (NEAT_QUALITY - q) * 24,
+      curl: (rng() < 0.5 ? -1 : 1) * (0.6 + rng() * 0.8),
+      where: i % 3 === 2 ? 'seam' : 'hem',
+    });
+  }
+  return out;
+}
+
+
+export function tagText(tags) {
+  return Object.entries(tags || {}).filter(([, v]) => v)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([t, v]) => `${t} ${v > 0 ? '+' : ''}${v}`).join(', ') || 'no tags';
+}
+
+
+
+export const BOBBIN_WINDOW = [0.35, 0.7];
+export function bobbinRunOut(seamLens, rng) {
+  if (!seamLens || !seamLens.length) return null;
+  let seam = 0;
+  seamLens.forEach((l, i) => { if (l > seamLens[seam]) seam = i; });
+  const [a, b] = BOBBIN_WINDOW;
+  return { seam, at: Math.round(seamLens[seam] * (a + rng() * (b - a))) };
+}
+
+
+export function threadTension(err, speed) {
+  return Math.min(1, (Math.abs(err) / 40) * 0.7 + (Math.max(0, speed) / 3) * 0.3);
+}
+
+
+export function sketchKey(key, row, rows) {
+  if (key === 'ArrowDown') return { row: (row + 1) % rows };
+  if (key === 'ArrowUp') return { row: (row - 1 + rows) % rows };
+  if (key === 'ArrowLeft') return { row, step: -1 };
+  if (key === 'ArrowRight') return { row, step: 1 };
+  if (key === 'Enter' || key === ' ') return { row, activate: true };
+  return null;
+}
+
+
+export const DEFAULT_SETTINGS = { master: 0.8, sfx: 1, motion: 'auto' };
+export function reducedMotion(motion, systemPrefers) {
+  return motion === 'on' ? true : motion === 'off' ? false : !!systemPrefers;
+}
+const clamp01 = (v, d) => (Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : d);
+export function gains(settings, muted) {
+  const s = { ...DEFAULT_SETTINGS, ...(settings || {}) };
+  return { master: muted ? 0 : 0.625 * clamp01(s.master, DEFAULT_SETTINGS.master), sfx: clamp01(s.sfx, DEFAULT_SETTINGS.sfx) };
+}
+
+
+export const TUTORIAL_STEPS = ['sketch', 'cut', 'sew', 'embellish', 'reveal'];
+export function needsNote(seen, step) {
+  return TUTORIAL_STEPS.includes(step) && !(seen && seen[step]);
+}
+
+
+const round2 = (v) => Math.round(v * 100) / 100;
+const clampQ = (q) => Math.max(0, Math.min(1, Number.isFinite(q) ? q : 0.7));
+
+
+export function repAfter(rep, starCount) {
+  return Math.max(0, (rep || 0) + (REP_GAIN[starCount] ?? 0));
+}
+export function repTier(rep) {
+  let i = 0;
+  REP_TIERS.forEach((t, k) => { if ((rep || 0) >= t.at) i = k; });
+  const next = REP_TIERS[i + 1];
+  return { ...REP_TIERS[i], index: i, next: next ? next.at : null, nextName: next ? next.name : null };
+}
+
+export function repFromGallery(gallery) {
+  return (gallery || []).reduce((r, g) => repAfter(r, g.stars), 0);
+}
+
+
+
+
+export function dyesUsed(design) {
+  const out = new Set([design.dye1]);
+  if (usesSecondary(design)) out.add(design.dye2);
+  out.add(design.dye3);
+  return [...out].filter((id) => dye(id));
+}
+export function dyePrice(id) {
+  const d = dye(id);
+  if (!d || NATURAL_DYES.includes(id)) return 0;
+  return d.lvl >= RARE_DYE_LVL ? RARE_DYE_PRICE : DYE_PRICE;
+}
+export function dyeCost(design) {
+  return dyesUsed(design).reduce((a, id) => a + dyePrice(id), 0);
+}
+
+
+
+
+export function shopValue(design, quality) {
+  const t = computeTags(design);
+  const vals = TAGS.filter((k) => k !== 'Unwearable' && k !== 'Simple').map((k) => t[k]).sort((a, b) => b - a);
+  const appeal = Math.max(0, vals[0] + vals[1] + vals[2] - t.Unwearable * 3);
+  const mats = materialCost(design) + dyeCost(design);
+  return Math.max(5, Math.round(mats * 1.15 + appeal * 3.2 * (0.55 + 0.6 * clampQ(quality))));
+}
+export function placeInWindow(design, quality, made, name = '') {
+  return { design, quality: clampQ(quality), value: shopValue(design, quality), name, placedAt: made || 0, sellsAt: (made || 0) + WINDOW_WAIT };
+}
+
+export function windowLeft(win, made) {
+  return win ? Math.max(0, win.sellsAt - (made || 0)) : null;
+}
+
+
+export function weeklySales(made, lvl) {
+  const week = Math.floor(Math.max(0, made || 0) / SALE_EVERY);
+  const rng = mulberry32(week * 7919 + 101);
+  const shuffle = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pcts = [20, 25, 30, 40];
+  const fabrics = {}, trims = {};
+  for (const f of shuffle(avail(FABRICS, lvl)).slice(0, 2)) fabrics[f.id] = pick(pcts, rng);
+  for (const t of shuffle(avail(TRIMS, lvl)).slice(0, 2)) trims[t.id] = pick(pcts, rng);
+  return { week, left: SALE_EVERY - (Math.max(0, made || 0) % SALE_EVERY), fabrics, trims };
+}
+
+export function saleCost(price, qty, pct = 0) {
+  return Math.max(1, Math.round(price * qty * (100 - (pct || 0)) / 100));
+}
+
+
+export const BASE_TOL = { cutTol: 16, cutSlack: 3, sewSlack: 3, sewSpan: 30 };
+export const upgrade = (id) => byId(UPGRADES, id);
+export function tolerances(owned) {
+  const t = { ...BASE_TOL };
+  for (const id of owned || []) { const u = upgrade(id); if (u) for (const k in u.fx) t[k] += u.fx[k]; }
+  return t;
+}
+
+export function upgradeBlock(owned, id, lvl, money) {
+  const u = upgrade(id);
+  if (!u) return 'unknown';
+  if ((owned || []).includes(id)) return 'owned';
+  if (u.lvl > lvl) return `level ${u.lvl}`;
+  if (u.needs && !(owned || []).includes(u.needs)) return `needs ${upgrade(u.needs).name}`;
+  if ((money || 0) < u.price) return 'money';
+  return '';
+}
+
+export function stitchAcc(err, tol = BASE_TOL) {
+  return Math.max(0, 1 - Math.max(0, Math.abs(err) - tol.sewSlack) / tol.sewSpan);
+}
+
+export function cutAccuracy(devs, wobble, tol = BASE_TOL) {
+  if (!devs.length) return 1;
+  const m = devs.reduce((a, b) => a + (1 - Math.min(Math.max(0, b - tol.cutSlack), tol.cutTol) / tol.cutTol), 0) / devs.length;
+  return Math.max(0.3, Math.min(1, m * 0.85 + 0.15 - (wobble || 0) * 0.04));
+}
+
+
+
+export function scrapsFrom(design, cutAcc) {
+  const out = {};
+  const needs = fabricNeeds(design);
+  const k = 0.06 + 0.08 * clampQ(cutAcc);
+  for (const id in needs) out[id] = round2(needs[id] * k);
+  return out;
+}
+export function addScraps(scraps, add) {
+  const out = { ...(scraps || {}) };
+  for (const id in add) out[id] = round2((out[id] || 0) + add[id]);
+  return out;
+}
+export const accessory = (id) => byId(ACCESSORIES, id);
+export function accessoryPrice(accId, fabId) {
+  const a = accessory(accId), f = fabric(fabId);
+  return a && f ? Math.round(a.base + f.price * a.need * 1.6) : 0;
+}
+
+export function makeAccessory(scraps, accId, fabId) {
+  const a = accessory(accId);
+  if (!a || (scraps?.[fabId] || 0) + 1e-9 < a.need) return null;
+  const left = round2(scraps[fabId] - a.need);
+  const out = { ...scraps, [fabId]: left };
+  if (left < 0.05) delete out[fabId];
+  return { scraps: out, price: accessoryPrice(accId, fabId) };
+}
+
+
+export function freshStats() {
+  return { bodices: {}, fiveStars: 0, windowSold: 0, accessories: 0 };
+}
+export function recordDress(stats, starCount, bodice) {
+  const s = { ...freshStats(), ...(stats || {}) };
+  return { ...s, bodices: { ...s.bodices, [bodice]: true }, fiveStars: s.fiveStars + (starCount === 5 ? 1 : 0) };
+}
+export function statsFromGallery(gallery) {
+  return (gallery || []).reduce((s, g) => recordDress(s, g.stars, g.design?.bodice), freshStats());
+}
+const RULES = {
+  first: (s) => s.made >= 1,
+  five_star: (s) => s.stats.fiveStars >= 1,
+  five_fives: (s) => s.stats.fiveStars >= 5,
+  ten: (s) => s.made >= 10,
+  year: (s) => s.made >= SEASON_LENGTH * SEASONS.length,
+  bodices: (s) => PARTS.bodice.every((p) => s.stats.bodices[p.id]),
+  level5: (s) => levelFor(s.xp) >= 5,
+  level10: (s) => levelFor(s.xp) >= 10,
+  rich: (s) => s.money >= 1000,
+  window: (s) => s.stats.windowSold >= 1,
+  scraps: (s) => s.stats.accessories >= 3,
+  upgrade: (s) => s.upgrades.length >= 1,
+  equipped: (s) => UPGRADES.every((u) => s.upgrades.includes(u.id)),
+  darling: (s) => s.rep >= 45,
+  loyal: (s) => Object.values(s.clients).some((c) => (c.visits || 0) >= 3),
+};
+export function achievementsEarned(st) {
+  const s = { made: 0, xp: 0, money: 0, rep: 0, upgrades: [], clients: {}, ...st, stats: { ...freshStats(), ...(st?.stats || {}) } };
+  return ACHIEVEMENTS.filter((a) => RULES[a.id] && RULES[a.id](s)).map((a) => a.id);
+}
+export function newAchievements(st) {
+  const have = st?.achievements || {};
+  return achievementsEarned(st).filter((id) => !have[id]);
 }
