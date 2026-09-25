@@ -16,6 +16,11 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: #221a15; font-family: var(--serif); color: var(--ink); }
 
+html, body { touch-action: pan-x pan-y; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+* { touch-action: pan-x pan-y; }   
+canvas, canvas * { touch-action: none; }
+img, svg { -webkit-user-drag: none; }
+
 
 body { position: fixed; inset: 0; }
 button { font-family: inherit; cursor: pointer; }

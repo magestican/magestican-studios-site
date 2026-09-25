@@ -15,6 +15,19 @@ window.addEventListener('resize', fitStage);
 window.addEventListener('pointerdown', unlockAudio, { once: false });
 window.addEventListener('keydown', unlockAudio);
 applyMotion();
+
+
+
+
+
+const stop = (e) => { if (e.cancelable) e.preventDefault(); };
+['gesturestart', 'gesturechange', 'gestureend'].forEach((t) => document.addEventListener(t, stop, { passive: false }));
+document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) stop(e); }, { passive: false });
+document.addEventListener('dblclick', stop, { passive: false });
+window.addEventListener('wheel', (e) => { if (e.ctrlKey) stop(e); }, { passive: false });
+window.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) stop(e); });
+document.addEventListener('contextmenu', (e) => { if (!e.target.closest('input')) stop(e); });
+
 fitStage();
 go('hub');
 checkAchievements();
