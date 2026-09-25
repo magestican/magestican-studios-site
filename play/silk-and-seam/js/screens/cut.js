@@ -1,13 +1,31 @@
 
 import { state, save } from '../state.js';
-import { go, toast, auntNote, calm, $ } from '../ui.js';
+import { go, toast, auntNote, calm, isMobile, isPortrait, $ } from '../ui.js';
 import { pieceOutlines, sample, fabricSheet, svgImage, lum, shade } from '../art.js';
 import { dye, tolerances, cutAccuracy, scrapsFrom, addScraps } from '../logic.js';
 import { sfx } from '../audio.js';
 
-const W = 1280, H = 664, LOOK = 14;
-const SHEET = { x: 110, y: 40, w: 820, h: 584 };
-const STACK = { x: 1140, y: 540 };   
+const LOOK = 14;
+
+
+
+
+let W = 1280, H = 664, MAT, SHEET, STACK, PS = 1, PAD = { x: 140, y: 120 }, SC;
+function layout(bw, bh, port, desk) {
+  if (port) { W = 520; H = Math.max(560, Math.round(520 * bh / bw)); } else { H = 664; W = desk ? 1280 : Math.max(900, Math.round(664 * bw / bh)); }
+  if (port) {
+    PS = 0.62; PAD = { x: 50, y: 60 };
+    MAT = { x: 10, y: 10, w: W - 20, h: H - 150 };
+    SHEET = { x: MAT.x + 12, y: MAT.y + 24, w: MAT.w - 24, h: MAT.h - 36 };
+    STACK = { x: Math.round(W * 0.3), y: H - 50 };
+  } else {
+    PS = 1; PAD = { x: 140, y: 120 };
+    MAT = { x: 70, y: 14, w: W - 380, h: H - 28 };
+    SHEET = { x: MAT.x + 40, y: MAT.y + 26, w: MAT.w - 80, h: MAT.h - 52 };
+    STACK = { x: W - 140, y: H - 124 };   
+  }
+  SC = { x: SHEET.x + SHEET.w / 2, y: SHEET.y + SHEET.h / 2 };
+}
 
 let raf = 0, cleanup = null;
 
@@ -17,21 +35,22 @@ function segDist(p, a, b) {
   return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
 }
 
-function matCanvas() {
-  const c = document.createElement('canvas'); c.width = W; c.height = H;
-  const g = c.getContext('2d');
+function matCanvas(K) {
+  const c = document.createElement('canvas'); c.width = Math.round(W * K); c.height = Math.round(H * K);
+  const g = c.getContext('2d'); g.scale(K, K);
+  const mx0 = MAT.x, my0 = MAT.y, mx1 = MAT.x + MAT.w, my1 = MAT.y + MAT.h;
   const wood = g.createLinearGradient(0, 0, 0, H); wood.addColorStop(0, '#6d4a30'); wood.addColorStop(1, '#4b3120');
   g.fillStyle = wood; g.fillRect(0, 0, W, H);
-  g.fillStyle = '#2f5a4a'; g.fillRect(70, 14, 900, 636);
+  g.fillStyle = '#2f5a4a'; g.fillRect(MAT.x, MAT.y, MAT.w, MAT.h);
   g.strokeStyle = 'rgba(220,240,230,.18)'; g.lineWidth = 1;
-  for (let x = 70; x <= 970; x += 20) { g.beginPath(); g.moveTo(x, 14); g.lineTo(x, 650); g.stroke(); }
-  for (let y = 14; y <= 650; y += 20) { g.beginPath(); g.moveTo(70, y); g.lineTo(970, y); g.stroke(); }
+  for (let x = mx0; x <= mx1; x += 20) { g.beginPath(); g.moveTo(x, my0); g.lineTo(x, my1); g.stroke(); }
+  for (let y = my0; y <= my1; y += 20) { g.beginPath(); g.moveTo(mx0, y); g.lineTo(mx1, y); g.stroke(); }
   g.strokeStyle = 'rgba(240,220,120,.35)';
-  for (let x = 70; x <= 970; x += 100) { g.beginPath(); g.moveTo(x, 14); g.lineTo(x, 650); g.stroke(); }
+  for (let x = mx0; x <= mx1; x += 100) { g.beginPath(); g.moveTo(x, my0); g.lineTo(x, my1); g.stroke(); }
   g.fillStyle = 'rgba(240,230,200,.5)'; g.font = '11px serif';
-  for (let i = 0; i <= 9; i++) g.fillText(String(i * 5), 73 + i * 100, 26);
+  for (let i = 0; mx0 + i * 100 < mx1 - 20; i++) g.fillText(String(i * 5), mx0 + 3 + i * 100, my0 + 12);
   
-  g.save(); g.translate(STACK.x, STACK.y - 30); g.rotate(-0.04);
+  g.save(); g.translate(STACK.x, STACK.y - 30 * PS); g.rotate(-0.04); g.scale(PS, PS);
   g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-92, -78, 190, 170);
   g.fillStyle = '#e9dcc3'; g.fillRect(-96, -84, 190, 170);
   g.strokeStyle = 'rgba(150,110,70,.35)'; g.setLineDash([4, 4]); g.strokeRect(-88, -76, 174, 154); g.setLineDash([]);
@@ -79,13 +98,18 @@ export default {
     const TOL = tol.cutTol;
     let touch = false;
     const reach = () => TOL + (touch ? 6 : 0);
-    root.innerHTML = `<div class="workshop"><canvas width="${W}" height="${H}"></canvas>
+    root.innerHTML = `<div class="workshop"><div class="ws-cv"><canvas></canvas></div>
       <div class="ws-panel paper"><h2>Cutting Table</h2><div class="ws-steps" id="steps"></div>
-      <p>Press on the <b style="color:#c0392b">●</b> and drag the scissors along the chalk line all the way round.</p>
-      <div class="big" id="acc">-</div><p style="text-align:center;margin:0">accuracy on this piece</p></div>
+      <p class="ws-how">Press on the <b style="color:#c0392b">●</b> and drag the scissors along the chalk line all the way round.</p>
+      <div class="ws-score"><div class="big" id="acc">-</div><p>accuracy on this piece</p></div></div>
       <button class="btn small ghost ws-skip" id="skip" style="color:#f3e6cf;border-color:#a88">Let the apprentice cut (70%)</button></div>`;
     const cv = $('canvas', root), g = cv.getContext('2d');
-    const mat = matCanvas();
+    const box = $('.ws-cv', root);
+    layout(box.clientWidth || 1280, box.clientHeight || 664, isPortrait(), !isMobile());
+    
+    const K = Math.min(2.5, Math.max(1, (box.clientWidth || W) * (window.devicePixelRatio || 1) / W));
+    cv.width = Math.round(W * K); cv.height = Math.round(H * K); g.scale(K, K);
+    const mat = matCanvas(K);
     let idx = job.cut.length, cur = null;
     const stack = [], bits = [];
 
@@ -95,8 +119,8 @@ export default {
       const raw = sample(pc.d, 1.5);
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
       for (const q of raw) { x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y); }
-      const s = Math.min((SHEET.w - 140) / (x1 - x0), (SHEET.h - 120) / (y1 - y0), 4);
-      const cx = SHEET.x + SHEET.w / 2, cy = SHEET.y + SHEET.h / 2;
+      const s = Math.min((SHEET.w - PAD.x) / (x1 - x0), (SHEET.h - PAD.y) / (y1 - y0), 4);
+      const cx = SC.x, cy = SC.y;
       const tf = (q) => ({ x: cx + (q.x - (x0 + x1) / 2) * s, y: cy + (q.y - (y0 + y1) / 2) * s });
       
       const all = raw.map(tf);
@@ -110,12 +134,12 @@ export default {
     
     function toStack(gm, t0, instant) {
       const path = new Path2D();
-      gm.pts.forEach((q, i) => (i ? path.lineTo(q.x - 520, q.y - 332) : path.moveTo(q.x - 520, q.y - 332)));
+      gm.pts.forEach((q, i) => (i ? path.lineTo(q.x - SC.x, q.y - SC.y) : path.moveTo(q.x - SC.x, q.y - SC.y)));
       path.closePath();
       const n = stack.length;
-      const s = Math.min(118 / gm.w, 96 / gm.h);
-      stack.push({ path, img: gm.img, t0: instant ? -1e9 : t0, from: { x: 514, y: 318, s: 1, r: 0 },
-        to: { x: STACK.x + ((n * 37) % 23) - 11, y: STACK.y - 24 - n * 7, s, r: (((n * 53) % 40) - 20) / 100 }, edge: shade(dye(gm.dyeId).hex, -0.35) });
+      const s = Math.min(118 / gm.w, 96 / gm.h) * PS;
+      stack.push({ path, img: gm.img, t0: instant ? -1e9 : t0, from: { x: SC.x - 6, y: SC.y - 14, s: 1, r: 0 },
+        to: { x: STACK.x + (((n * 37) % 23) - 11) * PS, y: STACK.y - (24 + n * 7) * PS, s, r: (((n * 53) % 40) - 20) / 100 }, edge: shade(dye(gm.dyeId).hex, -0.35) });
     }
     for (let i = 0; i < idx && i < pieces.length; i++) toStack(geom(i), 0, true);
 
@@ -156,10 +180,13 @@ export default {
       if (!cur.down) return;
       
       let best = -1, bd = Infinity;
-      for (let j = cur.prog; j <= Math.min(cur.pts.length - 1, cur.prog + LOOK); j++) {
+      
+      
+      
+      for (let j = Math.max(1, cur.prog - 3); j <= Math.min(cur.pts.length - 1, cur.prog + LOOK); j++) {
         const dd = Math.hypot(p.x - cur.pts[j].x, p.y - cur.pts[j].y);
         if (dd < reach() && j > best && j > cur.prog) best = j;
-        if (j > cur.prog) bd = Math.min(bd, segDist(p, cur.pts[j - 1], cur.pts[j]));
+        bd = Math.min(bd, segDist(p, cur.pts[j - 1], cur.pts[j]));
       }
       
       if (best > 0) {
@@ -214,7 +241,7 @@ export default {
         g.fillStyle = it.edge; g.fill(it.path);
         g.shadowColor = 'transparent';
         g.clip(it.path);
-        if (it.img.complete) g.drawImage(it.img, SHEET.x - 520, SHEET.y - 332);
+        if (it.img.complete) g.drawImage(it.img, SHEET.x - SC.x, SHEET.y - SC.y);
         g.restore();
         g.save(); g.translate(x, y); g.rotate(r); g.scale(s, s);
         g.strokeStyle = it.edge; g.lineWidth = 1.5 / s; g.stroke(it.path); g.restore();
@@ -237,7 +264,7 @@ export default {
     function draw(t) {
       raf = requestAnimationFrame(draw);
       const dt = Math.min(0.05, (t - last) / 1000); last = t;
-      g.drawImage(mat, 0, 0);
+      g.drawImage(mat, 0, 0, W, H);
       if (!cur) return;
       
       g.save(); g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 16; g.shadowOffsetY = 6;
@@ -294,7 +321,9 @@ export default {
       if (Math.hypot(p.x - start.x, p.y - start.y) > TOL * (touch ? 3.5 : 1.6)) { toast('Start at the red dot'); return; }
       cur.down = true; cv.setPointerCapture(e.pointerId); move(p);
     };
-    const onMove = (e) => move(pos(e));
+    
+    
+    const onMove = (e) => { const evs = e.getCoalescedEvents?.(); if (evs && evs.length > 1) evs.forEach((x) => move(pos(x))); else move(pos(e)); };
     const onUp = () => { if (cur) cur.down = false; };
     const onLeave = () => { if (cur && !cur.down) cur.mouse = null; };
     cv.addEventListener('pointerdown', onDown);
@@ -309,7 +338,8 @@ export default {
       save(); finish();
     };
     setup();
-    window.__cut = () => cur;   
+    
+    window.__cut = () => cur && Object.assign(cur, { W, H });
     raf = requestAnimationFrame(draw);
     cleanup = () => cancelAnimationFrame(raf);
     auntNote('cut');

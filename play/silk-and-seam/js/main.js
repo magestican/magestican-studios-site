@@ -14,7 +14,6 @@ Object.entries({ hub, orders, sketch, cut, sew, embellish, reveal, market, galle
 window.addEventListener('resize', fitStage);
 window.addEventListener('pointerdown', unlockAudio, { once: false });
 window.addEventListener('keydown', unlockAudio);
-document.querySelector('#rotate-hint button')?.addEventListener('click', () => document.getElementById('rotate-hint').remove());
 applyMotion();
 fitStage();
 go('hub');

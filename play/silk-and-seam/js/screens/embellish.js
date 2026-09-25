@@ -13,10 +13,10 @@ export default {
     d.trims = d.trims || {};
     const lvl = level();
     const zones = ZONES.filter((z) => z.id !== 'sleeves' || d.sleeve !== 'none');
-    root.innerHTML = `<div class="book"><div class="page left paper" style="flex:0 0 520px;padding:0"><div class="emb-dress" id="dress"></div></div>
-      <div class="page right paper" style="padding:16px 20px"><h2>Embellish</h2><div class="sub">One pack of trim decorates one area. Too much and the dress becomes unwearable!</div>
-      <div id="zones"></div><div id="tags" style="margin-top:10px"></div><div id="match"></div>
-      <div class="draft-row" style="margin-top:12px"><button class="btn gold" id="done">Finish &amp; reveal</button></div></div></div>`;
+    root.innerHTML = `<div class="book"><div class="page left paper emb-left"><div class="emb-dress" id="dress"></div></div>
+      <div class="page right paper emb-right"><h2>Embellish</h2><div class="sub">One pack of trim decorates one area. Too much and the dress becomes unwearable!</div>
+      <div id="zones"></div><div id="tags" class="emb-tags"></div><div id="match"></div>
+      <div class="draft-row emb-done"><button class="btn gold" id="done">Finish &amp; reveal</button></div></div></div>`;
 
     const used = (id, except) => Object.entries(d.trims).filter(([z, t]) => t === id && z !== except).length;
 

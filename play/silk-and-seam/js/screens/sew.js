@@ -1,21 +1,29 @@
 
 import { state, save } from '../state.js';
-import { go, toast, auntNote, calm, $ } from '../ui.js';
+import { go, toast, auntNote, calm, isMobile, isPortrait, $ } from '../ui.js';
 import { pieceOutlines, fabricSheet, svgImage, lum, shade } from '../art.js';
 import { dye, part, bobbinRunOut, threadTension, tolerances, stitchAcc } from '../logic.js';
 import { sfx, machineHum } from '../audio.js';
 
-const W = 1280, H = 664;
-const NX = 520, NY = 390;            
-const FW = 560, TILE = 700;          
+
+
+let W = 1280, H = 664;
+let NX = 520, NY = 390;              
+let FW = 560;                        
+const TILE = 700;                    
+function layout(bw, bh, port, desk) {
+  if (port) { W = 520; H = Math.max(600, Math.round(520 * bh / bw)); NX = 260; NY = 400; FW = 440; } else {
+    H = 664; W = desk ? 1280 : Math.max(900, Math.round(664 * bw / bh)); NX = desk ? 520 : Math.round(W * 0.42); NY = 390; FW = 560;
+  }
+}
 const SPEEDS = [0, 70, 120, 175];    
 const STITCH = 9;
 
 let raf = 0, cleanup = null;
 
-function tableCanvas() {
-  const c = document.createElement('canvas'); c.width = W; c.height = H;
-  const g = c.getContext('2d');
+function tableCanvas(K) {
+  const c = document.createElement('canvas'); c.width = Math.round(W * K); c.height = Math.round(H * K);
+  const g = c.getContext('2d'); g.scale(K, K);
   const wood = g.createLinearGradient(0, 0, W, H); wood.addColorStop(0, '#b8844f'); wood.addColorStop(1, '#8a5c34');
   g.fillStyle = wood; g.fillRect(0, 0, W, H);
   g.strokeStyle = 'rgba(80,45,20,.25)'; g.lineWidth = 2;
@@ -25,9 +33,10 @@ function tableCanvas() {
   return c;
 }
 
-function machineCanvas() {
-  const c = document.createElement('canvas'); c.width = W; c.height = 230;
-  const g = c.getContext('2d');
+function machineCanvas(K) {
+  const c = document.createElement('canvas'); c.width = Math.round(W * K); c.height = Math.round(230 * K);
+  const g = c.getContext('2d'); g.scale(K, K);
+  const narrow = W - NX < 560;   
   const body = g.createLinearGradient(0, 0, 0, 220); body.addColorStop(0, '#2a2426'); body.addColorStop(0.6, '#141012'); body.addColorStop(1, '#070506');
   g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.roundRect(NX - 70, 20, 780, 190, 40); g.fill();
   g.fillStyle = body;
@@ -40,7 +49,7 @@ function machineCanvas() {
   const scroll = (x, y, s) => { g.beginPath(); g.moveTo(x, y); g.bezierCurveTo(x + 20 * s, y - 20, x + 50 * s, y + 10, x + 30 * s, y + 18); g.bezierCurveTo(x + 18 * s, y + 22, x + 14 * s, y + 8, x + 24 * s, y + 6); g.stroke(); };
   for (let i = 0; i < 5; i++) { scroll(NX + 100 + i * 110, 70, 1); scroll(NX + 190 + i * 110, 110, -1); }
   scroll(NX - 40, 120, 1); scroll(NX + 40, 120, -1);
-  g.fillStyle = '#d6b060'; g.font = 'italic 26px Georgia, serif'; g.fillText('Marguerite', NX + 250, 150);
+  g.fillStyle = '#d6b060'; g.font = narrow ? 'italic 21px Georgia, serif' : 'italic 26px Georgia, serif'; g.fillText('Marguerite', NX + (narrow ? 132 : 250), narrow ? 160 : 150);
   
   g.fillStyle = '#b9b4ac'; g.beginPath(); g.arc(NX + 20, 88, 14, 0, Math.PI * 2); g.fill();
   g.strokeStyle = '#6a655e'; g.lineWidth = 2; g.stroke();
@@ -59,14 +68,19 @@ export default {
     const pieces = pieceOutlines(d);
     job.sew = job.sew || [];
     const tol = tolerances(state.upgrades);   
-    root.innerHTML = `<div class="workshop"><canvas width="${W}" height="${H}"></canvas>
+    root.innerHTML = `<div class="workshop"><div class="ws-cv"><canvas></canvas></div>
       <div class="ws-panel paper"><h2>Sewing Machine</h2><div class="ws-steps" id="steps"></div>
-      <p>Move the mouse (or <span class="keys"><kbd>A</kbd><kbd>D</kbd></span>) to keep the chalk line under the needle.</p>
-      <p><span class="keys"><kbd>W</kbd><kbd>S</kbd></span> change speed, or hold the mouse button to sew. On a touch screen, hold a finger on the cloth and drag to steer.</p>
-      <div class="big" id="spd">Stopped</div></div>
+      <p class="desk-only">Move the mouse (or <span class="keys"><kbd>A</kbd><kbd>D</kbd></span>) to keep the chalk line under the needle.</p>
+      <p class="desk-only"><span class="keys"><kbd>W</kbd><kbd>S</kbd></span> change speed, or hold the mouse button to sew. On a touch screen, hold a finger on the cloth and drag to steer.</p>
+      <p class="ws-how mobile-only">Hold a finger on the cloth to sew, and drag to keep the chalk line under the needle.</p>
+      <div class="ws-score"><div class="big" id="spd">Stopped</div></div></div>
       <button class="btn small ghost ws-skip" id="skip" style="color:#3a2a1a;border-color:#6b4a33">Let the apprentice sew (70%)</button></div>`;
     const cv = $('canvas', root), g = cv.getContext('2d');
-    const table = tableCanvas(), machine = machineCanvas();
+    const box = $('.ws-cv', root);
+    layout(box.clientWidth || 1280, box.clientHeight || 664, isPortrait(), !isMobile());
+    const K = Math.min(2.5, Math.max(1, (box.clientWidth || W) * (window.devicePixelRatio || 1) / W));
+    cv.width = Math.round(W * K); cv.height = Math.round(H * K); g.scale(K, K);
+    const table = tableCanvas(K), machine = machineCanvas(K);
     let idx = job.sew.length, cur = null, last = performance.now();
     const keys = {};
     const seamLen = (pc) => 1100 + (part(pc.part[0], pc.part[1])?.diff || 1) * 350;
@@ -142,7 +156,7 @@ export default {
       $('#spd', root).textContent = cur.empty ? 'Bobbin empty!' : ['Stopped', 'Slow', 'Steady', 'Fast'][sp];
       if (bob && !bob.used && idx === bob.seam && !cur.empty && cur.fed + SPEEDS[sp] * dt >= bob.at) {
         cur.fed = bob.at; cur.empty = true; cur.speed = 0; machineHum(0);
-        sfx.bobbinOut(); toast('The bobbin ran dry! Click it (or press R) to wind a new one', 'bad');
+        sfx.bobbinOut(); toast(isMobile() ? 'The bobbin ran dry! Tap it to wind a new one' : 'The bobbin ran dry! Click it (or press R) to wind a new one', 'bad');
         return;
       }
       cur.fed += SPEEDS[sp] * dt;
@@ -166,7 +180,7 @@ export default {
       raf = requestAnimationFrame(draw);
       const dt = Math.min(0.05, (t - last) / 1000); last = t;
       tick(dt, t);
-      g.drawImage(table, 0, 0);
+      g.drawImage(table, 0, 0, W, H);
       if (!cur) return;
       const left = NX + cur.fx - FW / 2;
       const top0 = NY - cur.fed;             
@@ -213,7 +227,7 @@ export default {
       }
       g.restore();
       
-      g.drawImage(machine, 0, 0);
+      g.drawImage(machine, 0, 0, W, 230);
       
       const tn = cur.tension, jit = calm() ? 0 : Math.sin(t / 23) * tn * 0.12;
       g.strokeStyle = tn > 0.7 ? '#d0463c' : '#3a3634'; g.lineWidth = 2.2; g.lineCap = 'round';
@@ -234,8 +248,8 @@ export default {
         g.strokeStyle = `rgba(230,196,106,${0.5 + pul * 0.5})`; g.lineWidth = 3;
         g.beginPath(); g.arc(BOB.x, BOB.y, BOB.r + 5 + pul * 4, 0, Math.PI * 2); g.stroke();
         g.fillStyle = '#f7e3b5'; g.font = 'italic bold 15px Georgia'; g.textAlign = 'center';
-        g.strokeStyle = 'rgba(40,20,10,.85)'; g.lineWidth = 4; g.strokeText('click to wind a bobbin', BOB.x, BOB.y + BOB.r + 22);
-        g.fillText('click to wind a bobbin', BOB.x, BOB.y + BOB.r + 22); g.textAlign = 'start';
+        g.strokeStyle = 'rgba(40,20,10,.85)'; g.lineWidth = 4; g.strokeText((isMobile() ? 'tap to wind a bobbin' : 'click to wind a bobbin'), BOB.x, BOB.y + BOB.r + 22);
+        g.fillText((isMobile() ? 'tap to wind a bobbin' : 'click to wind a bobbin'), BOB.x, BOB.y + BOB.r + 22); g.textAlign = 'start';
       }
       
       const sp = cur.empty ? 0 : cur.mouseDown ? Math.max(cur.speed, 2) : cur.speed;
@@ -263,7 +277,8 @@ export default {
       
       g.fillStyle = 'rgba(30,15,5,.6)'; g.fillRect(40, H - 34, 380, 12);
       g.fillStyle = '#e6c46a'; g.fillRect(40, H - 34, 380 * Math.min(1, cur.fed / cur.len), 12);
-      g.fillStyle = '#fbf2de'; g.font = '15px Georgia'; g.fillText(`${cur.pc.name} seam`, 40, H - 42);
+      g.font = W < 700 ? '19px Georgia' : '15px Georgia'; g.strokeStyle = 'rgba(40,20,10,.8)'; g.lineWidth = 3; g.strokeText(`${cur.pc.name} seam`, 40, H - 42);
+      g.fillStyle = '#fbf2de'; g.fillText(`${cur.pc.name} seam`, 40, H - 42);
       
       const err = cur.fx + sx(cur.fed);
       if (Math.abs(err) > 16) {
@@ -301,7 +316,7 @@ export default {
     window.addEventListener('keyup', onKey);
     $('#skip', root).onclick = () => { while (idx < pieces.length) { job.sew.push(0.7); idx++; } save(); finish(); };
     setup();
-    window.__sew = () => cur && { ...cur, sx, refill, bobbin: bob };   
+    window.__sew = () => cur && { ...cur, sx, refill, bobbin: bob, W, H, NX, NY };   
     raf = requestAnimationFrame(draw);
     cleanup = () => {
       cancelAnimationFrame(raf); machineHum(0);
@@ -310,7 +325,7 @@ export default {
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('keyup', onKey);
     };
-    if (!state.seenSew) { state.seenSew = true; save(); toast('Press W to start the machine'); }
+    if (!state.seenSew) { state.seenSew = true; save(); toast(isMobile() ? 'Hold a finger on the cloth to sew' : 'Press W to start the machine'); }
     auntNote('sew');
   },
   leave() { if (cleanup) cleanup(); cleanup = null; },

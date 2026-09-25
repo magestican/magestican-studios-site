@@ -9,7 +9,7 @@ export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 export const money = (n) => `£${Math.round(n).toLocaleString('en-GB')}`;
 
 const screens = {};
-let current = null, currentName = '';
+let current = null, currentName = '', currentParams = {};
 export function register(name, mod) { screens[name] = mod; }
 
 
@@ -35,9 +35,11 @@ function pageTurn(from) {
 export function go(name, params) {
   if (current && current.leave) current.leave();
   const from = currentName;
+  currentParams = params || {};
   const root = $('#screen');
   root.innerHTML = '';
   root.className = `screen screen-${name}`;
+  root.scrollTop = 0;   
   current = screens[name];
   currentName = name;
   hideTip();
@@ -65,19 +67,23 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').repl
 export const tipData = (name, tags, note = '') => `${name}||${tagText(tags)}${note ? `||${note}` : ''}`;
 export const tip = (name, tags, note = '') => ` data-tip="${esc(tipData(name, tags, note))}"`;
 let tipEl = null, tipFor = null;
-function stageScale() { return $('#stage').getBoundingClientRect().width / 1280; }
+
+
+export const isMobile = () => $('#stage').classList.contains('mobile');
+export const isPortrait = () => $('#stage').classList.contains('port');
+export function stageScale() { const st = $('#stage'); return st.getBoundingClientRect().width / st.offsetWidth; }
 function showTip(el, x, y) {
   if (!tipEl) { tipEl = document.createElement('div'); tipEl.className = 'tip'; $('#stage').appendChild(tipEl); }
   if (!tipEl.isConnected) $('#stage').appendChild(tipEl);
   const [name, tags, note] = el.dataset.tip.split('||');
   tipEl.innerHTML = `<b>${name}</b><span>${tags}</span>${note ? `<small>${note}</small>` : ''}`;
   tipFor = el;
-  const sr = $('#stage').getBoundingClientRect(), sc = stageScale();
+  const st = $('#stage'), sr = st.getBoundingClientRect(), sc = stageScale(), SW = st.offsetWidth, SH = st.offsetHeight;
   let px = (x - sr.left) / sc + 16, py = (y - sr.top) / sc + 18;
   tipEl.style.display = 'block';
   const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
-  if (px + w > 1270) px = Math.max(10, px - w - 28);
-  if (py + h > 710) py = Math.max(60, py - h - 30);
+  if (px + w > SW - 10) px = Math.max(10, Math.min(px - w - 28, SW - w - 10));
+  if (py + h > SH - 10) py = Math.max(60, py - h - 30);
   tipEl.style.left = `${px}px`; tipEl.style.top = `${py}px`;
 }
 export function hideTip() { if (tipEl) tipEl.style.display = 'none'; tipFor = null; }
@@ -137,10 +143,30 @@ export function openSettings() {
   });
 }
 
+
+
+
+
+
+export function stageMode(w = window.innerWidth, h = window.innerHeight) {
+  if (w >= 1000 && h >= 600 && w >= h) return 'desk';
+  return h >= w ? 'port' : 'land';
+}
 export function fitStage() {
   const stage = $('#stage');
-  const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
-  stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+  const mode = stageMode();
+  const was = stage.dataset.mode;
+  stage.dataset.mode = mode;
+  stage.classList.toggle('mobile', mode !== 'desk');
+  stage.classList.toggle('port', mode === 'port');
+  stage.classList.toggle('land', mode === 'land');
+  document.body.classList.toggle('mobile', mode !== 'desk');
+  if (mode === 'desk') {
+    const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+  } else stage.style.transform = '';
+  
+  if (was && was !== mode && currentName) go(currentName, currentParams);
 }
 
 export function renderHud() {
@@ -166,7 +192,7 @@ export function toast(msg, kind = '', ms = 1800) {
   t.textContent = msg;
   
   const n = $$('.toast:not(.out)').length;
-  if (n) t.style.top = `${80 + n * 52}px`;
+  if (n) t.style.top = `calc(var(--toast-top, 80px) + ${n * 52}px)`;
   $('#stage').appendChild(t);
   setTimeout(() => t.classList.add('out'), ms);
   setTimeout(() => t.remove(), ms + 500);

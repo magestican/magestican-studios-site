@@ -1,5 +1,5 @@
 import { state, save, level } from '../state.js';
-import { go, toast, money, tagBars, matchLine, auntNote, tip, tipData, touchedRecently, renderHud, $ } from '../ui.js';
+import { go, toast, money, tagBars, matchLine, auntNote, tip, tipData, touchedRecently, renderHud, stageScale, $ } from '../ui.js';
 import { dressSVG, swatchSVG } from '../art.js';
 import { PARTS, FABRICS, DYES } from '../data.js';
 import { computeTags, fabricNeeds, totalMetres, materialCost, shortages, consume, fabric, part, dye as dyeOf, sketchKey, dyeCost, dyePrice, shopValue } from '../logic.js';
@@ -25,8 +25,8 @@ export default {
     root.innerHTML = `<div class="book">
       <div class="page left paper"><h2>${job.order.client}</h2><div class="sub">${job.order.window ? 'for walk-in buyers &middot; design anything you like' : `${job.order.occasion} &middot; fee ${money(job.order.fee)}`}</div>
         <div id="tags"></div><div id="match"></div></div>
-      <div class="page right paper">${DRAFTING}<div class="sketch-dress" id="dress"></div><div class="pencil"></div>
-        <button class="btn small ghost preview-toggle" id="view">View in fabric</button>
+      <div class="page right paper">${DRAFTING}<div class="sketch-stage"><div class="sketch-dress" id="dress"></div><div class="pencil"></div><div class="match-mini" id="match-mini"></div>
+        <button class="btn small ghost preview-toggle" id="view">View in fabric</button></div>
         <div class="controls">
           ${['bodice', 'collar', 'sleeve', 'skirt'].map((s) => `<div class="carousel kb" data-slot="${s}" tabindex="0" role="group" aria-label="${SLOT_LABEL[s]}"><span class="lbl">${SLOT_LABEL[s]}</span><button class="arrow" data-d="-1" tabindex="-1">◀</button><div class="val"></div><button class="arrow" data-d="1" tabindex="-1">▶</button></div>`).join('')}
           <div class="swatches">
@@ -44,6 +44,8 @@ export default {
       const tags = computeTags(d);
       $('#tags', root).innerHTML = tagBars(tags, job.order);
       $('#match', root).innerHTML = matchLine(tags, job.order, d);
+      
+      $('#match-mini', root).innerHTML = matchLine(tags, job.order, d);
       $('#dress', root).innerHTML = dressSVG(d, { mode: view });
       for (const el of root.querySelectorAll('.carousel')) {
         const slot = el.dataset.slot, list = avail(slot), i = list.findIndex((p) => p.id === d[slot]);
@@ -109,10 +111,11 @@ export default {
         pal.className = 'palette';
         pal.innerHTML = DYES.map((dy) => `<button style="background:${dy.hex}" aria-label="${dy.name}" data-name="${dy.name}${dy.lvl > lvl ? ` (level ${dy.lvl})` : ''}"${tip(dy.name, dy.tags, dy.lvl > lvl ? `unlocks at level ${dy.lvl}` : '')} data-id="${dy.id}" class="${dy.lvl > lvl ? 'lock' : ''}${dy.id === d[el.dataset.dye] ? ' cur' : ''}"></button>`).join('');
         const r = el.getBoundingClientRect(), pr = root.getBoundingClientRect();
-        const sc = pr.width / 1280;
-        pal.style.left = `${Math.min(900, (r.left - pr.left) / sc - 160)}px`;
-        pal.style.top = `${(r.bottom - pr.top) / sc + 6}px`;
+        const sc = stageScale(), rw = root.clientWidth;
         root.appendChild(pal);
+        
+        pal.style.left = `${Math.max(6, Math.min(rw - pal.offsetWidth - 6, (r.left - pr.left) / sc - 160))}px`;
+        pal.style.top = `${(r.bottom - pr.top) / sc + root.scrollTop + 6}px`;
         pal.onclick = (e2) => {
           const b = e2.target.closest('button');
           if (!b) return;
