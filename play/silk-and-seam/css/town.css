@@ -223,6 +223,8 @@
 .nb-trouble li.got { color: #2f5a3a; }
 .nb-next { font-size: 14px; }
 .tm-legend .lg-mend { color: #2c4f80; font-weight: bold; }
+.tm-legend > span { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.tm-legend .lg-ic { height: 18px; flex: none; overflow: visible; }
 .tm-badge.mend { filter: drop-shadow(0 0 6px rgba(160,200,255,.9)); }
 .tm-badge.sleep { animation: tm-bob 3.4s ease-in-out infinite; opacity: .9; }
 .ti-person.mend .ti-go { background: #3a6aa8; color: #fff; }

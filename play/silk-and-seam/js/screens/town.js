@@ -16,7 +16,7 @@ import { portraitSVG } from '../art.js';
 import { DYES } from '../data.js';
 import { sfx, setScene, speak, stopSpeaking } from '../audio.js';
 import { trim } from '../logic.js';
-import { townMapSVG, interiorSVG, LAYOUT, MAP_W, MAP_H } from '../townmap.js';
+import { townMapSVG, interiorSVG, legendIcon, LAYOUT, MAP_W, MAP_H } from '../townmap.js';
 import { sceneState, isNight } from '../scene.js';
 import {
   PEOPLE, BUILDINGS, GOSSIP, APPROACHES, REQUEST_KINDS, TALKS_PER_DAY, CONFLICTS, person, gossip, building,
@@ -94,7 +94,7 @@ function bar() {
 function mapView() {
   return `<div class="town-map-view"><div class="tm-wrap"><div class="tm-canvas">${townMapSVG(BUILDINGS, buildingStatus, { night: isNight() })}</div></div>
     <div class="tm-top"><h1>Thimblebury</h1>${bar()}</div>
-    <div class="tm-legend"><span class="lg-mend">&#9774; mend</span><span class="lg-work">! work</span><span>&hellip; talk</span><span>&#10003; visited</span><span class="lg-shut">&#128274; shut</span>${isNight() ? '<span>zZ asleep</span>' : ''}</div>
+    <div class="tm-legend">${[['mend', 'mend', 'lg-mend'], ['work', 'work', 'lg-work'], ['talk', 'talk'], ['done', 'visited'], ['closed', 'shut', 'lg-shut'], ...(isNight() ? [['sleep', 'asleep', 'lg-sleep']] : [])].map(([st, w, c]) => `<span${c ? ` class="${c}"` : ''}>${legendIcon(st)}${w}</span>`).join('')}</div>
     <div class="tm-card paper" hidden></div></div>`;
 }
 function cardHTML(b) {

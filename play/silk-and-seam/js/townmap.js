@@ -206,7 +206,19 @@ export function badgeSVG(b, st) {
   
   const roofH = { gable: 58, pagoda: 62, thai: 66, mansard: 44, flat: 34, shed: 34, stall: 44, church: 80 }[L.roof] || 40;
   const y = b.id === 'opera' ? 70 : L.y - L.h - roofH + 4, x = L.roof === 'church' ? L.x + 18 : L.x;
-  const icon = {
+  
+  return `<g transform="translate(${x},${y})"><g class="tm-badge ${st}">${BADGE_ICONS[st] || ''}</g></g>`;
+}
+
+
+
+export function legendIcon(st) {
+  const vb = LEGEND_BOX[st];
+  return BADGE_ICONS[st] ? `<svg class="lg-ic" viewBox="${vb}" style="width:${(18 * +vb.split(' ')[2] / +vb.split(' ')[3]).toFixed(1)}px" aria-hidden="true">${BADGE_ICONS[st]}</svg>` : '';
+}
+
+const LEGEND_BOX = { work: '-16 -42 32 34', talk: '-25 -45 50 38', done: '-15 -45 30 30', closed: '-13 -47 26 33', home: '-17 -47 34 34', mend: '-18 -48 36 36', sleep: '-16 -60 40 48' };
+const BADGE_ICONS = {
     work: `<path d="M-14,-40 h28 v22 l-14,8 l-14,-8 Z" fill="#b28a35" stroke="#f7e3b5" stroke-width="2"/><text y="-22" font-size="18" font-weight="bold" font-family="Georgia,serif" text-anchor="middle" fill="#fff8e6">!</text>`,
     talk: `<path d="M-18,-44 h36 a6,6 0 0 1 6,6 v16 a6,6 0 0 1 -6,6 h-20 l-10,8 v-8 h-6 a6,6 0 0 1 -6,-6 v-16 a6,6 0 0 1 6,-6 Z" fill="#fffaf0" stroke="#6b4a2f" stroke-width="2"/><circle cx="-9" cy="-30" r="2.6" fill="#6b4a2f"/><circle cx="0" cy="-30" r="2.6" fill="#6b4a2f"/><circle cx="9" cy="-30" r="2.6" fill="#6b4a2f"/>`,
     done: `<circle cy="-30" r="13" fill="#e8e0d0" stroke="#8a7a6a" stroke-width="2"/><path d="M-6,-30 l4,5 l8,-10" stroke="#6a7a5a" stroke-width="3" fill="none" stroke-linecap="round"/>`,
@@ -216,10 +228,7 @@ export function badgeSVG(b, st) {
     mend: `<circle cy="-30" r="16" fill="#3a6aa8" stroke="#f7e3b5" stroke-width="2"/><path d="M-9,-28 q5,-8 12,-6 l6,-5 l-1,6 q2,5 -4,8 q-7,3 -13,-3 Z" fill="#fff"/><circle cx="4" cy="-33" r="1.2" fill="#3a6aa8"/>`,
     
     sleep: `<text x="-14" y="-16" font-family="Georgia,serif" font-weight="bold" font-size="30" fill="#e8e0f8" stroke="#2a2440" stroke-width="1.2">z</text><text x="6" y="-38" font-family="Georgia,serif" font-weight="bold" font-size="22" fill="#e8e0f8" stroke="#2a2440" stroke-width=".6">Z</text>`,
-  }[st];
-  
-  return `<g transform="translate(${x},${y})"><g class="tm-badge ${st}">${icon || ''}</g></g>`;
-}
+};
 
 
 export function townMapSVG(buildings, statusOf = () => '', { night = false } = {}) {
