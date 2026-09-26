@@ -123,7 +123,7 @@ function grainTile(kind) {
   } catch (e) { GRAIN[kind] = null; }
   return GRAIN[kind];
 }
-const GRAIN_OF = { weave: 'weave', slub: 'weave', check: 'weave', floral: 'weave', tartan: 'weave', wax: 'weave', net: null, organza: null, chiffon: 'streak', velvet: 'pile', sheen: 'streak', silk: 'streak', shot: 'streak', zari: 'streak', lame: 'streak', damask: 'streak', brocade: 'weave', sparkle: null, guipure: null };
+const GRAIN_OF = { weave: 'weave', slub: 'weave', check: 'weave', floral: 'weave', tartan: 'weave', wax: 'weave', net: null, organza: null, chiffon: 'streak', velvet: 'pile', sheen: 'streak', silk: 'streak', shot: 'streak', zari: 'streak', lame: 'streak', damask: 'streak', brocade: 'weave', sparkle: null, guipure: null, batik: 'weave', songket: 'weave', clouds: 'streak' };
 function ensureGlobalDefs() {
   if (globalDefs || typeof document === 'undefined' || !document.body) return;
   globalDefs = true;
@@ -142,7 +142,7 @@ function ensureGlobalDefs() {
     `<animateTransform attributeName="gradientTransform" type="translate" values="-460 -270; 520 300" dur="7s" repeatCount="indefinite"/></linearGradient></defs>`;
   document.body.appendChild(svg);
 }
-const SHINY_TEX = ['sheen', 'silk', 'lame', 'shot', 'zari', 'damask', 'sparkle'];
+const SHINY_TEX = ['sheen', 'silk', 'lame', 'shot', 'zari', 'damask', 'sparkle', 'songket', 'clouds'];
 
 function hueShift(c, deg) {
   const [r, g, b] = rgb(c).map((v) => v / 255);
@@ -192,7 +192,7 @@ export function sample(d, spacing) {
 }
 
 
-const NECK_Y = { bustier: 154, square: 150, highneck: 86, vneck: 176, corset: 148, halter: 82, empire: 146, offshoulder: 132, choli: 150, sabai: 150 };
+const NECK_Y = { bustier: 154, square: 150, highneck: 86, vneck: 176, corset: 148, halter: 82, empire: 146, offshoulder: 132, choli: 150, sabai: 150, qipao: 80, jeogori: 104, kebaya: 108 };
 
 const BODICE = {
   bustier: {
@@ -265,6 +265,38 @@ const BODICE = {
     tail: 'M234,97 C262,104 274,130 272,170 L264,318 Q256,330 247,318 L252,172 C253,142 247,120 236,108 Z',
     edge: true,
   },
+  
+  
+  
+  qipao: {
+    d: 'M180,80 C188,84 212,84 220,80 L224,98 C238,103 250,108 256,114 C257,140 251,165 246,178 L237,227 L163,227 L154,178 C149,165 143,140 144,114 C150,108 162,103 176,98 Z',
+    neck: 'M178,78 C188,74 212,74 222,78',
+    band: 'M178,78 C188,74 212,74 222,78 L224,98 C212,102 188,102 176,98 Z',
+    details: ['M172,110 C178,150 172,200 178,227', 'M228,118 C222,150 228,200 222,227'],
+    piping: ['M178,78 C188,74 212,74 222,78', 'M200,100 C214,104 232,106 252,116', 'M252,116 C254,134 252,156 247,176'],
+    frogs: [[211, 103], [227, 106], [243, 111], [251, 134], [249, 156]],
+  },
+  
+  
+  
+  jeogori: {
+    d: 'M146,114 L178,102 L204,158 L222,102 L254,114 C256,140 253,160 250,180 C236,188 218,192 200,192 C182,192 164,188 150,180 C147,160 144,140 146,114 Z',
+    neck: 'M178,102 L204,158 L222,102',
+    band: 'M170,105 L182,100 L208,154 L203,166 Z', bandColor: 3,
+    waist: 'M152,186 C176,193 224,193 248,186', crop: 192,
+    details: ['M160,130 C166,150 168,166 168,184', 'M240,130 C234,150 232,166 232,184'],
+    ribbon: ['M208,166 C205,208 203,250 199,300 L210,302 C212,252 214,210 214,168 Z', 'M214,166 C221,212 227,252 232,294 L242,290 C236,248 228,208 220,166 Z'],
+  },
+  
+  
+  kebaya: {
+    d: 'M146,114 L176,106 C184,140 194,170 200,186 C206,170 216,140 224,106 L254,114 C257,140 253,165 250,185 L256,262 C236,256 214,254 200,266 C186,254 164,256 144,262 L150,185 C147,165 143,140 146,114 Z',
+    neck: 'M176,106 C184,140 194,170 200,186 C206,170 216,140 224,106',
+    band: 'M176,106 C184,140 194,170 200,186 C206,170 216,140 224,106 C212,113 188,113 176,106 Z', bandColor: 2,
+    details: ['M166,128 C170,170 166,220 168,258', 'M234,128 C230,170 234,220 232,258', 'M156,196 C170,206 184,212 196,214', 'M244,196 C230,206 216,212 204,214'],
+    edgeLace: true,
+    brooches: [[200, 198], [200, 220], [200, 242]],
+  },
 };
 
 const SLEEVE = {
@@ -275,6 +307,8 @@ const SLEEVE = {
   
   flutter: { d: 'M148,112 C130,106 112,114 104,132 Q106,142 112,141 Q116,152 124,148 Q130,157 137,150 Q144,154 148,144 C151,134 151,122 148,112 Z', cuff: 'M104,132 Q106,142 112,141 Q116,152 124,148 Q130,157 137,150 Q144,154 148,144', details: ['M142,114 C134,122 128,134 124,146', 'M132,112 C122,120 116,130 112,140', 'M147,122 C143,132 140,142 137,150', 'M147,114 C134,113 120,118 110,127'], ball: false },
   bell: { d: 'M146,114 C130,116 120,128 118,150 L114,206 C104,236 88,270 74,300 Q86,312 99,305 Q112,316 125,307 Q138,315 150,302 C146,270 142,236 140,206 L145,168 C149,146 150,128 146,114 Z', cuff: 'M74,300 Q86,312 99,305 Q112,316 125,307 Q138,315 150,302', inner: 'M77,301 C98,292 128,292 149,302 Q138,309 125,303 Q112,310 99,302 Q88,307 77,301 Z', details: ['M114,206 C122,211 132,211 140,206', 'M120,212 C110,244 96,272 86,304', 'M130,212 C124,246 116,278 112,308', 'M137,212 C136,248 136,280 138,310', 'M132,124 C126,150 124,180 126,204'], ball: false },
+  
+  terno: { d: 'M148,112 C142,92 126,78 104,82 C96,100 102,122 114,136 C126,147 140,147 150,140 C149,130 149,122 148,112 Z', cuff: 'M104,82 C96,100 102,122 114,136 C126,147 140,147 150,140', details: ['M146,114 C136,100 122,90 108,88', 'M146,122 C132,112 118,106 102,106', 'M147,132 C134,126 120,124 108,124'], ball: false },
   juliet: { d: 'M148,112 C128,104 104,112 100,136 C98,152 104,160 112,162 L106,284 C106,296 112,302 122,302 L132,302 C140,302 143,296 143,286 L146,156 C149,148 150,144 150,140 Z', puff: 'M148,112 C128,104 104,112 100,136 C98,156 112,168 128,164 C140,160 148,150 150,140 Z', cuff: 'M106,300 C116,305 134,305 143,300', cuffBand: 'M107,278 L143,278 L143,298 C132,304 116,304 106,298 Z', details: ['M140,112 C132,118 128,126 126,134', 'M128,110 C118,118 114,128 114,138', 'M116,114 C108,122 106,132 108,142', 'M103,148 C110,160 124,163 139,155', 'M130,168 L126,278', 'M111,222 C120,226 132,225 141,220'], ball: false },
 };
 
@@ -387,6 +421,36 @@ function skirtLayers(id, q) {
     const hua = { d: 'M164,222 L236,222 L237,246 C212,249 188,249 163,246 Z', hem: 'M163,246 C188,249 212,249 237,246', folds: [], lights: [] };
     return [{ ...tube, slot: 1, main: true }, { ...tin, slot: 2, stripes: [516, 530, 546] }, { ...hua, slot: 2, band: hua.hem }];
   }
+  
+  
+  if (id === 'chima') {
+    const s = skirtShape({ tl: 158, tr: 242, ty: 182, hl: 46, hr: 354, hy: 560, R: [298, 232, 354, 380], L: [46, 380, 102, 232], waves: 12, amp: 5 * wob, drop: 10 });
+    const band = { d: 'M156,176 L244,176 L245,198 C215,201 185,201 155,198 Z', hem: 'M155,198 C185,201 215,201 245,198', folds: [], lights: [] };
+    return [{ ...s, slot: 1, main: true }, { ...band, slot: 2 }];
+  }
+  
+  
+  if (id === 'aodai') {
+    const back = skirtShape({ tl: 164, tr: 236, ty: 226, hl: 124, hr: 276, hy: 540, R: [252, 300, 270, 440], L: [130, 440, 148, 300], waves: 4, amp: 3 * wob, drop: 4 });
+    const trousers = { d: 'M168,224 L232,224 C246,320 256,450 262,566 Q246,574 230,566 L203,300 L197,300 L170,566 Q154,574 138,566 C144,450 154,320 168,224 Z', hem: 'M138,566 Q154,574 170,566', folds: ['M200,232 L200,300', 'M184,320 L160,560', 'M216,320 L240,560'], lights: ['M178,300 L150,556', 'M222,300 L250,556'] };
+    const front = skirtShape({ tl: 168, tr: 232, ty: 224, hl: 146, hr: 254, hy: 534, R: [242, 300, 252, 440], L: [148, 440, 158, 300], waves: 4, amp: 3 * wob, drop: 4 });
+    return [{ ...back, slot: 1, dark: true }, { ...trousers, slot: 2 }, { ...front, slot: 1, main: true }];
+  }
+  
+  if (id === 'sarong') {
+    const tube = skirtShape({ tl: 166, tr: 234, ty: 224, hl: 136, hr: 264, hy: 562, R: [250, 300, 262, 430], L: [138, 430, 150, 300], waves: 4, amp: 2 * wob, drop: 4 });
+    const wiron = { d: 'M182,228 L200,228 L198,562 Q189,567 180,562 Z', hem: 'M180,562 Q189,567 198,562', folds: [0, 1, 2, 3].map((i) => `M${185 + i * 4},230 L${182 + i * 4.5},560`), lights: [0, 1, 2].map((i) => `M${187 + i * 4},232 L${184.5 + i * 4.5},556`) };
+    return [{ ...tube, slot: 1, main: true }, { ...wiron, slot: 1, band: wiron.hem }];
+  }
+  
+  
+  
+  if (id === 'lehenga') {
+    const s = skirtShape({ tl: 164, tr: 236, ty: 224, hl: 44, hr: 356, hy: 556, R: [300, 262, 356, 380], L: [44, 380, 100, 262], waves: 14, amp: 6 * wob, drop: 14 });
+    const dupatta = { d: 'M140,112 C152,104 168,104 176,110 C196,170 226,236 262,282 C268,300 264,318 256,330 C232,300 200,250 176,200 C160,168 148,138 140,112 Z', hem: 'M256,330 C232,300 200,250 176,200 C160,168 148,138 140,112', folds: ['M156,118 C176,180 206,240 244,296', 'M166,112 C186,176 216,236 254,288'], lights: ['M160,126 C180,186 210,244 248,300'] };
+    const tail = { d: 'M142,114 C120,130 112,170 114,230 L118,420 Q132,432 146,420 L142,230 C142,180 148,140 156,118 Z', hem: 'M118,420 Q132,432 146,420', folds: ['M132,140 C126,220 128,330 130,418'], lights: ['M138,150 C132,230 134,330 136,414'] };
+    return [{ ...s, slot: 1, main: true, band: s.hem, stripes: [506, 522, 540] }, { ...dupatta, slot: 2, over: true, band: dupatta.hem }, { ...tail, slot: 2, behind: true, band: tail.hem }];
+  }
   return [];
 }
 
@@ -456,13 +520,36 @@ function texturePattern(id, tex, c) {
       const w = hueShift(c, 140);
       return P(3, 3, `<path d="M0,.5H3" stroke="${w}" stroke-opacity=".32" stroke-width=".8"/><path d="M.5,0V3" stroke="${dk}" stroke-opacity=".14" stroke-width=".5"/>`);
     }
+    
+    
+    
+    
+    case 'batik': {
+      const br = mix(c, '#5a2f16', 0.62), k = lum(c) > 0.55 ? shade(c, -0.5) : shade(c, 0.6);
+      return P(36, 36,
+        `<path d="M-6,42 L42,-6" stroke="${br}" stroke-opacity=".5" stroke-width="9"/><path d="M-6,24 L24,-6 M12,42 L42,12" stroke="${br}" stroke-opacity=".22" stroke-width="2"/>` +
+        [0, 1, 2].map((i) => { const x = 6 + i * 12, y = 30 - i * 12; return `<path d="M${x - 4},${y + 3} q1,-7 5,-6 q4,1 3,-6" fill="none" stroke="${k}" stroke-opacity=".75" stroke-width="1.6"/>`; }).join('') +
+        `<g fill="${k}" fill-opacity=".45"><ellipse cx="27" cy="27" rx="2.4" ry="4.4"/><ellipse cx="27" cy="27" rx="4.4" ry="2.4"/></g><circle cx="27" cy="27" r="1.1" fill="${br}"/>` +
+        `<g fill="${k}" fill-opacity=".45"><ellipse cx="9" cy="9" rx="2.4" ry="4.4"/><ellipse cx="9" cy="9" rx="4.4" ry="2.4"/></g><circle cx="9" cy="9" r="1.1" fill="${br}"/>` +
+        `<path d="M20,6 l3,2 M30,14 l-2,3 M4,22 l3,-1" stroke="${br}" stroke-opacity=".3" stroke-width=".5"/>`);
+    }
+    case 'songket': {
+      const au = '#e2bf62';
+      return P(24, 24,
+        `<path d="M0,12 L12,0 L24,12 L12,24 Z" fill="none" stroke="${au}" stroke-opacity=".8" stroke-width="1.3"/><path d="M6,12 L12,6 L18,12 L12,18 Z" fill="${au}" fill-opacity=".28"/>` +
+        `<path d="M12,8.5 L13,11 L15.5,12 L13,13 L12,15.5 L11,13 L8.5,12 L11,11 Z" fill="${au}" fill-opacity=".9"/><circle cx="0" cy="0" r="1.4" fill="${au}"/><circle cx="24" cy="24" r="1.4" fill="${au}"/><circle cx="24" cy="0" r="1.4" fill="${au}"/><circle cx="0" cy="24" r="1.4" fill="${au}"/>` +
+        `<path d="M0,3H24M0,21H24" stroke="${dk}" stroke-opacity=".12" stroke-width=".6"/>`);
+    }
+    case 'clouds': return P(44, 34,
+      `<g fill="none" stroke="${lt}" stroke-opacity=".6" stroke-width="1.3"><path d="M6,15 c0,-6 8,-7 9,-1 c1,-6 10,-6 10,0 c4,-1 5,6 0,6 h-18 c-4,0 -4,-5 -1,-5 z"/><path d="M10,15 c2,-3 5,-2 5,1 M20,14 c2,-3 5,-2 5,1"/>` +
+      `<path d="M28,31 c0,-5 7,-6 7,-1 c1,-5 8,-5 8,0 c3,0 3,5 0,5 h-14 c-3,0 -3,-4 -1,-4 z"/></g><circle cx="35" cy="8" r="1.2" fill="${lt}" fill-opacity=".6"/>`);
     default: return '';
   }
 }
 
 
 const SHEER = { net: 0.82, chiffon: 0.74, organza: 0.64 };
-function shadeKind(tex) { return tex === 'sheen' || tex === 'silk' || tex === 'organza' || tex === 'damask' || tex === 'shot' || tex === 'zari' ? 'sheen' : tex === 'velvet' ? 'velvet' : tex === 'sparkle' ? 'sheen' : tex === 'lame' ? 'metal' : 'cyl'; }
+function shadeKind(tex) { return tex === 'sheen' || tex === 'silk' || tex === 'organza' || tex === 'damask' || tex === 'shot' || tex === 'zari' || tex === 'songket' || tex === 'clouds' ? 'sheen' : tex === 'velvet' ? 'velvet' : tex === 'sparkle' ? 'sheen' : tex === 'lame' ? 'metal' : 'cyl'; }
 const shiny = (tex) => ['sheen', 'metal'].includes(shadeKind(tex));
 
 function commonDefs(p) {
@@ -754,7 +841,7 @@ export function dressSVG(design, opts = {}) {
   const raw = BODICE[design.bodice] || BODICE.square;
   const bod = { ...raw };
   for (const k of ['d', 'neck', 'hole', 'band', 'waist', 'tail']) if (raw[k]) bod[k] = W(raw[k], 'fit');
-  for (const k of ['details', 'bandDetails']) if (raw[k]) bod[k] = raw[k].map((d) => W(d, 'fit'));
+  for (const k of ['details', 'bandDetails', 'piping', 'ribbon']) if (raw[k]) bod[k] = raw[k].map((d) => W(d, 'fit'));
   const neckY = NECK_Y[design.bodice] || 150;
   const layers = skirtLayers(design.skirt, q).map((L) => {
     const z = L.over || L.behind ? 'body' : 'skirt';
@@ -842,12 +929,29 @@ export function dressSVG(design, opts = {}) {
   }
   if (bod.hole) body += `<path d="${bod.hole}" fill="${mode === 'sketch' ? '#f7f0e4' : `url(#${p}form)`}" stroke="${mode === 'sketch' ? INK : shade(c1, -0.45)}" stroke-width="${mode === 'sketch' ? 2 : 1.1}"/>`;
   if (bod.band) {
-    const bc = bod.bandColor === 3 ? c3 : c1;
-    body += paintShape(ctx, bod.band, 1, { color: bod.bandColor === 3 ? c3 : undefined, top: true }) + details(ctx, bod.bandDetails, bc);
+    const bc = bod.bandColor === 3 ? c3 : bod.bandColor === 2 ? c2 : c1;
+    body += paintShape(ctx, bod.band, bod.bandColor === 2 ? 2 : 1, { color: bod.bandColor === 3 ? c3 : undefined, top: true }) + details(ctx, bod.bandDetails, bc);
     if (bod.bandColor === 3 && mode === 'final') body += `<path d="${bod.waist}" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="2" transform="translate(0,-4)"/>`;
   }
   if (bod.edge) body += `<path d="${bod.neck}" fill="none" stroke="${mode === 'sketch' ? INK : shade(c3, -0.25)}" stroke-width="${mode === 'sketch' ? 1.4 : 7}"/>` +
     (mode === 'sketch' ? '' : `<path d="${bod.neck}" fill="none" stroke="${c3}" stroke-width="4.5"/><path d="${bod.neck}" fill="none" stroke="#f3dc98" stroke-width="1.2" stroke-dasharray="2 2.5"/>`);
+  const sk = mode === 'sketch';
+  
+  
+  if (bod.piping) body += bod.piping.map((d) => `<path d="${d}" fill="none" stroke="${sk ? INK : shade(c3, -0.25)}" stroke-width="${sk ? 1.3 : 4.5}" stroke-linecap="round"/>` +
+    (sk ? '' : `<path d="${d}" fill="none" stroke="${c3}" stroke-width="2.6" stroke-linecap="round"/>`)).join('');
+  if (bod.frogs) body += bod.frogs.map(([x, y]) => `<path d="M${x - 9},${y} q2.5,-4.5 5.5,-1 q2,2 3.5,1 M${x + 9},${y} q-2.5,4.5 -5.5,1 q-2,-2 -3.5,-1" fill="none" stroke="${sk ? INK : shade(c3, -0.1)}" stroke-width="${sk ? 1 : 1.8}" stroke-linecap="round"/>` +
+    `<circle cx="${x}" cy="${y}" r="2.6" fill="${sk ? '#fbf6ee' : c3}" stroke="${sk ? INK : shade(c3, -0.45)}" stroke-width=".8"/>`).join('');
+  if (bod.edgeLace) {
+    body += `<path d="${bod.neck}" fill="none" stroke="${sk ? INK : shade(c3, -0.2)}" stroke-width="${sk ? 1.4 : 5}"/>` + (sk ? '' : `<path d="${bod.neck}" fill="none" stroke="${c3}" stroke-width="3" stroke-dasharray="2.5 2"/>`);
+    if (hasDoc && !sk) body += lace(sample(bod.neck, 7), 1);
+  }
+  if (bod.brooches) body += bod.brooches.map(([x, y]) => sk ? `<circle cx="${x}" cy="${y}" r="5" fill="#fbf6ee" stroke="${INK}"/>`
+    : `<circle cx="${x}" cy="${y}" r="6" fill="#c7a04a" stroke="#7a5a1e" stroke-width="1"/><circle cx="${x}" cy="${y}" r="3.4" fill="url(#${p}rhin)"/>${[0, 72, 144, 216, 288].map((r) => `<circle cx="${x}" cy="${y - 5}" r="1.2" fill="#f3e3b0" transform="rotate(${r} ${x} ${y})"/>`).join('')}`).join('');
+  if (bod.ribbon) {
+    body += bod.ribbon.map((d) => paintShape(ctx, d, 2, { color: c3, top: true })).join('');
+    body += bowMark(211, 166, 0.8, sk ? mix(c3, '#fbf6ee', 0.12) : c3);
+  }
   if (bod.buttons && !(design.trims || {}).bodice) body += [0, 1, 2, 3, 4, 5, 6].map((i) => `<circle cx="200" cy="${96 + i * 18}" r="2.6" fill="${shade(c1, -0.2)}" stroke="${mode === 'sketch' ? INK : shade(c1, -0.5)}" stroke-width=".8"/>${lit ? `<circle cx="199.2" cy="${95.2 + i * 18}" r=".8" fill="#fff" fill-opacity=".7"/>` : ''}`).join('');
   if (bod.lacing) {
     let l = '';
@@ -1087,6 +1191,13 @@ const LOOKS = [
   { hair: '#3b3330', skin: '#e5c3a4', style: 'short', glasses: true, mustache: '#3b3330', face: 'square', eye: 'hooded', iris: '#6f7a80' }, 
   { hair: '#120f0d', skin: '#d8a77f', style: 'bun', flower: '#b565c9', face: 'diamond' },                  
   { hair: '#1a1310', skin: '#8f5d3f', style: 'long', bindi: true, ear: 'jhumka', face: 'oval', part: 'center' }, 
+  
+  { hair: '#cfc8c0', skin: '#f1d0ba', style: 'bun', glasses: true, face: 'long', eye: 'hooded', iris: '#6f8a5a', old: true }, 
+  { hair: '#1c1512', skin: '#c9946c', style: 'chignon', flower: '#f7f3e4', ear: 'stud', face: 'round' },  
+  { hair: '#15110f', skin: '#e3b891', style: 'long', part: 'center', ear: 'stud', face: 'oval', eye: 'mono', nose: 'button' }, 
+  { hair: '#1a1310', skin: '#b98260', style: 'chignon', shawl: '#c42a2f', ear: 'jhumka', face: 'square', eye: 'hooded' }, 
+  { hair: '#1a1411', skin: '#c68e62', style: 'hijab', scarf: '#c86a8e', face: 'round' },                  
+  { hair: '#1a1515', skin: '#f0d3b8', style: 'long', part: 'bangs', face: 'heart', eye: 'mono', nose: 'button' }, 
 ];
 
 const FACES = {

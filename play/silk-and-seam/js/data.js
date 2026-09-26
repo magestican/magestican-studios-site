@@ -24,6 +24,12 @@ export const PARTS = {
     { id: 'choli', name: 'Choli Blouse', lvl: 3, m: { p: 0.8, s: 0 }, diff: 2, tags: { Elegant: 1, Romantic: 1, Glamour: 1, Risqué: 1 } },
     { id: 'sabai', name: 'Thai Sabai Drape', lvl: 3, m: { p: 1.4, s: 0 }, diff: 2, tags: { Elegant: 2, Formal: 1, Romantic: 1 } },
     { id: 'offshoulder', name: 'Off-Shoulder Bodice', lvl: 7, m: { p: 1.3, s: 0 }, diff: 2, tags: { Eveningwear: 2, Romantic: 1, Risqué: 1, Glamour: 1, Elegant: 1 } },
+    
+    
+    
+    { id: 'qipao', name: 'Qipao Bodice', lvl: 2, m: { p: 1.3, s: 0 }, diff: 3, tags: { Elegant: 2, Formal: 1, Glamour: 1, Professional: 1 } },
+    { id: 'jeogori', name: 'Hanbok Jeogori', lvl: 2, m: { p: 0.9, s: 0 }, diff: 2, tags: { Cute: 1, Elegant: 1, Formal: 1, Romantic: 1 } },
+    { id: 'kebaya', name: 'Kebaya Blouse', lvl: 2, m: { p: 1.2, s: 0 }, diff: 2, tags: { Elegant: 2, Romantic: 1, Formal: 1, Elaborate: 1 } },
   ],
   collar: [
     { id: 'none', name: 'No Collar', lvl: 1, m: { p: 0, s: 0 }, diff: 0, tags: { Simple: 1 } },
@@ -46,6 +52,8 @@ export const PARTS = {
     { id: 'flutter', name: 'Flutter Sleeve', lvl: 2, m: { p: 0, s: 0.5 }, diff: 1, tags: { Cute: 1, Playful: 1, Romantic: 1, Daywear: 1 } },
     { id: 'juliet', name: 'Juliet Sleeve', lvl: 4, m: { p: 0, s: 1.3 }, diff: 3, tags: { Romantic: 2, Formal: 1, Elaborate: 1, Elegant: 1 } },
     { id: 'bell', name: 'Bell Sleeve', lvl: 6, m: { p: 0, s: 1.2 }, diff: 2, tags: { Whimsical: 1, Romantic: 1, Eclectic: 1, Elegant: 1 } },
+    
+    { id: 'terno', name: 'Terno Butterfly Sleeve', lvl: 3, m: { p: 0, s: 0.7 }, diff: 3, tags: { Formal: 2, Elegant: 1, Elaborate: 1, Romantic: 1 } },
   ],
   skirt: [
     { id: 'aline', name: 'A-Line Skirt', lvl: 1, m: { p: 2.5, s: 0 }, diff: 1, tags: { Daywear: 2, Casual: 2, Simple: 1, Professional: 1 } },
@@ -62,6 +70,14 @@ export const PARTS = {
     { id: 'saree', name: 'Saree Drape', lvl: 3, m: { p: 5.5, s: 0.8 }, diff: 2, tags: { Elegant: 2, Formal: 1, Romantic: 1, Elaborate: 1 } },
     { id: 'phasin', name: 'Pha Sin Wrap', lvl: 2, m: { p: 2.0, s: 0.4 }, diff: 1, tags: { Daywear: 1, Elegant: 1, Patterned: 1, Formal: 1 } },
     { id: 'bustle', name: 'Bustle Skirt', lvl: 8, m: { p: 4.5, s: 1.5 }, diff: 3, tags: { Elaborate: 2, Formal: 2, Gothic: 1, Romantic: 1 } },
+    
+    
+    
+    
+    { id: 'chima', name: 'Hanbok Chima', lvl: 2, m: { p: 5.0, s: 0.3 }, diff: 2, tags: { Romantic: 2, Elegant: 1, Formal: 1, Whimsical: 1 } },
+    { id: 'aodai', name: 'Ao Dai Panels', lvl: 2, m: { p: 3.0, s: 2.2 }, diff: 2, tags: { Elegant: 3, Daywear: 1, Formal: 1 } },
+    { id: 'sarong', name: 'Batik Sarong (Kain)', lvl: 1, m: { p: 2.2, s: 0 }, diff: 1, tags: { Daywear: 1, Elegant: 1, Patterned: 1, Casual: 1 } },
+    { id: 'lehenga', name: 'Lehenga & Dupatta', lvl: 3, m: { p: 6.0, s: 2.0 }, diff: 3, tags: { Elaborate: 3, Glamour: 2, Romantic: 1, Formal: 1, Shimmering: 1 } },
   ],
 };
 
@@ -92,6 +108,12 @@ export const FABRICS = [
   { id: 'ankara', name: 'Ankara Wax Print', price: 7, lvl: 2, tex: 'wax', tags: { Patterned: 3, Playful: 1, Eclectic: 1, Daywear: 1 } },
   { id: 'banarasi', name: 'Banarasi Silk', price: 22, lvl: 3, tex: 'zari', tags: { Elaborate: 2, Shimmering: 2, Formal: 1, Elegant: 1 } },
   { id: 'thaisilk', name: 'Thai Shot Silk', price: 16, lvl: 3, tex: 'shot', tags: { Elegant: 2, Shimmering: 1, Formal: 1 } },
+  
+  
+  
+  { id: 'batik', name: 'Javanese Batik', price: 8, lvl: 1, tex: 'batik', tags: { Patterned: 3, Elegant: 1, Daywear: 1 } },
+  { id: 'songket', name: 'Songket', price: 26, lvl: 4, tex: 'songket', tags: { Elaborate: 2, Shimmering: 2, Formal: 2 } },
+  { id: 'cloudsilk', name: 'Cloud Brocade Silk', price: 18, lvl: 2, tex: 'clouds', tags: { Elegant: 2, Patterned: 1, Formal: 1, Shimmering: 1 } },
 ];
 
 
@@ -150,6 +172,9 @@ export const DYES = [
   { id: 'black', name: 'Midnight Black', hex: '#1e1b21', lvl: 4, tags: { Gothic: 3, Eveningwear: 1, Formal: 1 } },
   { id: 'champagne', name: 'Champagne', hex: '#ead6b4', lvl: 4, tags: { Elegant: 2, Glamour: 1 } },
   { id: 'gold', name: 'Antique Gold', hex: '#c7a04a', lvl: 5, tags: { Glamour: 2, Elaborate: 1 } },
+  
+  { id: 'vermilion', name: 'Wedding Red', hex: '#c42a2f', lvl: 2, tags: { Romantic: 1, Formal: 1, Glamour: 1 } },
+  { id: 'jade', name: 'Jade', hex: '#3f9a7e', lvl: 2, tags: { Elegant: 1, Daywear: 1 } },
 ];
 
 
@@ -203,6 +228,20 @@ export const CLIENTS = [
   { name: 'Khun Ploy Chaiyaporn', occasion: 'a temple wedding in Chiang Mai', wants: ['Elegant', 'Formal', 'Romantic'], avoid: ['Risqué'], look: 12, body: 'classic', minLvl: 3, garment: { slot: 'bodice', id: 'sabai' } },
   { name: 'Khun Dao Rattanakul', occasion: 'Loy Krathong night by the river', wants: ['Romantic', 'Shimmering', 'Eveningwear'], avoid: ['Casual'], look: 11, body: 'curvy', minLvl: 2, season: 'autumn', garment: { slot: 'skirt', id: 'phasin' } },
   { name: 'Ms Keisha Monroe', occasion: 'the city arts awards, where she is nominated', wants: ['Glamour', 'Elegant', 'Eveningwear'], avoid: ['Casual'], look: 8, body: 'full', premium: true, minRep: 20 },
+  
+  
+  { name: 'Miss Lin Yue', occasion: 'the Lunar New Year banquet', wants: ['Elegant', 'Shimmering', 'Formal'], avoid: ['Casual'], look: 12, body: 'slender', minLvl: 2, season: 'winter', garment: { slot: 'bodice', id: 'qipao' } },
+  { name: 'Mrs Nguyen Thu Ha', occasion: 'Tet at her mother\'s house', wants: ['Elegant', 'Formal', 'Romantic'], avoid: ['Risqué'], look: 2, body: 'classic', minLvl: 2, garment: { slot: 'skirt', id: 'aodai' } },
+  { name: 'Miss Pham Lan', occasion: 'her first day teaching at the girls\' school', wants: ['Elegant', 'Professional', 'Daywear'], avoid: ['Glamour'], look: 34, body: 'slender', minLvl: 2, garment: { slot: 'skirt', id: 'aodai' } },
+  { name: 'Miss Kim Seo-yeon', occasion: 'Chuseok with her grandparents', wants: ['Cute', 'Elegant', 'Romantic'], avoid: ['Risqué'], look: 34, body: 'slender', minLvl: 2, season: 'autumn', garment: { slot: 'bodice', id: 'jeogori' } },
+  { name: 'Mrs Park Ji-woo', occasion: 'her son\'s first birthday, the doljanchi', wants: ['Romantic', 'Elegant', 'Formal'], avoid: ['Gothic'], look: 12, body: 'pear', minLvl: 2, garment: { slot: 'skirt', id: 'chima' } },
+  { name: 'Puan Siti Aminah', occasion: 'her Hari Raya open house', wants: ['Elegant', 'Patterned', 'Formal'], avoid: ['Risqué'], look: 33, body: 'curvy', minLvl: 2, garment: { slot: 'bodice', id: 'kebaya' } },
+  { name: 'Ibu Ratna Wulandari', occasion: 'Kartini Day at the Indonesian society', wants: ['Patterned', 'Daywear', 'Elegant'], avoid: ['Glamour'], look: 11, body: 'full', garment: { slot: 'skirt', id: 'sarong' } },
+  { name: 'Miss Harleen Sandhu', occasion: 'her sister\'s mehndi night', wants: ['Shimmering', 'Playful', 'Elaborate'], avoid: ['Professional'], look: 9, body: 'curvy', minLvl: 3, garment: { slot: 'skirt', id: 'lehenga' } },
+  { name: 'Mrs Maricel Reyes', occasion: 'the Philippine Independence Day ball', wants: ['Formal', 'Elegant', 'Elaborate'], avoid: ['Casual'], look: 11, body: 'classic', minLvl: 3, garment: { slot: 'sleeve', id: 'terno' } },
+  { name: 'Khun Rin Suwannarat', occasion: 'her cousin\'s engagement in Bangkok', wants: ['Elegant', 'Shimmering', 'Formal'], avoid: ['Casual'], look: 12, body: 'slender', minLvl: 3, garment: { slot: 'bodice', id: 'sabai' } },
+  { name: 'Madame Wu Yifan', occasion: 'the premiere of her Shanghai picture', wants: ['Glamour', 'Elegant', 'Shimmering'], avoid: ['Casual'], look: 2, body: 'curvy', minLvl: 2, premium: true, minRep: 20, garment: { slot: 'bodice', id: 'qipao' } },
+  { name: 'Datin Nurul Aisyah', occasion: 'a royal Malay wedding reception', wants: ['Elaborate', 'Formal', 'Shimmering'], avoid: ['Risqué'], look: 33, body: 'full', minLvl: 2, premium: true, minRep: 45, garment: { slot: 'bodice', id: 'kebaya' } },
 ];
 
 
@@ -268,6 +307,8 @@ export const ACHIEVEMENTS = [
   { id: 'gossip', name: 'Ear to the Ground', desc: 'Hear fifteen pieces of town gossip.' },
   { id: 'bravo', name: 'Bravo!', desc: 'Dress a singer for the opera.' },
   { id: 'noble', name: 'By Appointment', desc: "Finish a noblewoman's gown." },
+  { id: 'bride', name: 'Here Comes the Bride', desc: 'Make a bride\'s gown for a church wedding.' },
+  { id: 'double', name: 'Double Happiness', desc: 'Dress a bride for an Asian wedding.' },
 ];
 
 

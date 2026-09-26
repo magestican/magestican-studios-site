@@ -7,7 +7,11 @@
 
 
 
-import { briefFor } from './logic.js';
+
+
+
+import { briefFor, part } from './logic.js';
+import { WEDDING_PEOPLE, SECOND_VISITS } from './townfolk.js';
 
 export const APPROACHES = {
   warm: 'kindness and a listening ear',
@@ -29,7 +33,11 @@ export const REQUEST_KINDS = {
   opera: { name: 'Opera costume', badge: 'The Opera House', feeMult: 1.8, budgetMult: 1.5 },
   noble: { name: "Noblewoman's gown", badge: 'A noble house', feeMult: 1.6, budgetMult: 1.4 },
   society: { name: 'Society debut', badge: 'Society', feeMult: 1.4, budgetMult: 1.3 },
-  wedding: { name: 'Wedding dress', badge: 'A wedding', feeMult: 1.3, budgetMult: 1.2 },
+  
+  
+  church: { name: "Bride's gown", badge: 'A church wedding', feeMult: 1.7, budgetMult: 1.5 },
+  asianwedding: { name: "Bride's wedding dress", badge: 'An Asian wedding', feeMult: 1.7, budgetMult: 1.5 },
+  wedding: { name: 'Wedding outfit', badge: 'A wedding', feeMult: 1.3, budgetMult: 1.2 },
   festival: { name: 'Festival dress', badge: 'A festival', feeMult: 1.25, budgetMult: 1.1 },
   stage: { name: 'Stage costume', badge: 'The Blue Lantern', feeMult: 1.35, budgetMult: 1.2 },
   charity: { name: 'A kindness', badge: 'Free work - for notice', feeMult: 0, budgetMult: 0 },
@@ -46,7 +54,7 @@ export const PLACES = [
 
 
 
-export const PEOPLE = [
+const FIRST_PEOPLE = [
   {
     id: 'nowak', name: 'Mrs Wiktoria Nowak', role: 'baker, Market Square', place: 'square', look: 14,
     likes: ['warm', 'curious'], dislikes: 'boast',
@@ -80,7 +88,7 @@ export const PEOPLE = [
     },
     bye: 'Well. Come back when you are hungry.',
     requests: [
-      { kind: 'wedding', client: 'Miss Zofia Nowak', occasion: 'her wedding at St Casimir\'s', look: 1, body: 'classic', wants: ['Romantic', 'Elegant', 'Flowers'], avoid: ['Risqué'],
+      { kind: 'church', client: 'Miss Zofia Nowak', occasion: 'her wedding at St Casimir\'s', look: 1, body: 'classic', wants: ['Romantic', 'Elegant', 'Flowers'], avoid: ['Risqué'],
         line: 'You know what? You make Zofia\'s dress. I pay, she smiles, everybody dances. I will send the measurements.' },
     ],
   },
@@ -228,8 +236,8 @@ export const PEOPLE = [
     },
     bye: 'Thank you for visiting. The tea is always here.',
     requests: [
-      { kind: 'wedding', client: 'Miss Chen Jia', occasion: 'her wedding-morning tea ceremony', look: 16, body: 'slender', wants: ['Elegant', 'Formal', 'Romantic'], avoid: ['Gothic'],
-        line: 'I would like you to make Jia\'s dress for the tea ceremony. The one her grandmother will see. Please make it beautiful.' },
+      { kind: 'asianwedding', client: 'Miss Chen Jia', occasion: 'her wedding-morning tea ceremony', look: 16, body: 'slender', wants: ['Elegant', 'Formal', 'Romantic'], avoid: ['Gothic'], garment: { slot: 'bodice', id: 'qipao' },
+        line: 'I would like you to make Jia\'s qipao for the tea ceremony, in red. The one her grandmother will see. Please make it beautiful.' },
     ],
   },
   {
@@ -599,6 +607,19 @@ export const PEOPLE = [
 
 
 
+function joinVisits(people, more) {
+  return people.map((p) => {
+    const m = more[p.id] || {};
+    const gossip = [...p.gossip, ...(m.gossip || [])];
+    const at = (g) => (typeof g === 'string' ? gossip.findIndex((x) => x.id === g) : g);
+    const chats = [...(p.chats || []), ...(m.chats || [])].map((set) => set.map((t) => (t.g == null ? t : { ...t, g: at(t.g) })));
+    return { ...p, again: m.again || p.again, gossip, chats, requests: [...p.requests, ...(m.requests || [])] };
+  });
+}
+export const PEOPLE = joinVisits([...FIRST_PEOPLE, ...WEDDING_PEOPLE], SECOND_VISITS);
+
+
+
 export const BUILDINGS = [
   { id: 'atelier', name: 'Your atelier', sign: 'Silk & Seam', place: 'square', people: [], home: true, hint: 'Your shop on Thimble Lane, with the dress form in the window.' },
   { id: 'bakery', name: "Nowak's Bakery", sign: 'Piekarnia Nowak', place: 'square', people: ['nowak'], hint: 'Poppy-seed rolls and plum cake in the window. The baker knows everyone\'s business.' },
@@ -614,6 +635,8 @@ export const BUILDINGS = [
   { id: 'opera', name: 'The Thimblebury Opera', sign: 'Opera', place: 'crescent', people: ['wick', 'dupre'], hint: 'Posters for The Magic Flute and Tosca. The wardrobe master and the prima donna are inside.' },
   { id: 'ashcombe', name: 'Ashcombe House', sign: 'Ashcombe House', place: 'crescent', people: ['philippa'], hint: 'A crest over the door and a butler at it. Lady Philippa receives only the talk of the town.' },
   { id: 'ninecrescent', name: 'Number Nine, the Crescent', sign: 'No. 9', place: 'crescent', people: ['devika'], hint: 'A peacock-blue door. The visiting Rani weaves and asks questions.' },
+  { id: 'stanne', name: "St Anne's Church", sign: "St Anne's", place: 'square', people: ['pennington', 'santos'], hint: 'Bells, lilies on the altar and a choir rehearsing. The flower lady and the choir mistress run every wedding here.' },
+  { id: 'lotus', name: 'The Lotus Wedding House', sign: 'Lotus Weddings', place: 'lantern', people: ['tran', 'kaur'], hint: 'A red bridal ao dai and a gold-bordered lehenga in the window. Eleven weddings this season - Vietnamese, Korean, Chinese, Malay, Sikh.' },
 ];
 export const building = (id) => BUILDINGS.find((b) => b.id === id);
 export const buildingOf = (personId) => BUILDINGS.find((b) => b.people.includes(personId));
@@ -654,46 +677,67 @@ export function startRapport(p, town) {
   const friend = (mem?.served || 0) > 0 && (mem?.stars || 0) >= 3 ? 2 : 0;
   return Math.min(2, Math.floor((town?.notice || 0) / 3)) + friend;
 }
+
+export const conversationsOf = (p) => [p.topics, ...(p.chats || [])];
+
+export function talksWith(town, id) {
+  const mem = town?.people?.[id];
+  return mem?.talks ?? (mem?.met ? 1 : 0);
+}
+
+export function conversationIndex(p, town) {
+  const n = talksWith(town, p.id), all = conversationsOf(p).length;
+  return n < all ? n : all > 1 ? 1 + ((n - 1) % (all - 1)) : 0;
+}
+export const topicsOf = (p, talk) => conversationsOf(p)[talk?.set || 0] || p.topics;
 export function startTalk(p, town) {
-  return { id: p.id, round: 0, rapport: startRapport(p, town), heard: [], log: [], done: false };
+  return { id: p.id, set: conversationIndex(p, town), round: 0, rapport: startRapport(p, town), heard: [], log: [], done: false };
 }
 
 export function talkStep(talk, p, i) {
-  const topic = p.topics[talk.round];
+  const topics = topicsOf(p, talk);
+  const topic = topics[talk.round];
   const reply = topic.replies[i];
   const kind = reactionOf(p, reply.a);
   const heard = [...talk.heard];
   if (reply.a === 'curious' && kind !== 'disliked' && topic.g != null && p.gossip[topic.g]) heard.push(p.gossip[topic.g].id);
   const round = talk.round + 1;
-  return { ...talk, round, rapport: talk.rapport + SCORE[kind], heard, log: [...talk.log, { a: reply.a, kind }], done: round >= p.topics.length, last: kind };
+  return { ...talk, round, rapport: talk.rapport + SCORE[kind], heard, log: [...talk.log, { a: reply.a, kind }], done: round >= topics.length, last: kind };
 }
 export const needOf = (p) => p.need || NEED;
 
 
 
-export function requestReady(p, town, { made = 0, orders = [], job = null } = {}) {
-  if (!p.requests?.length) return false;
+export function requestReady(p, town, { made = 0, orders = [], job = null, lvl = 99 } = {}) {
+  if (!nextRequest(p, town, lvl)) return false;
   const mem = town?.people?.[p.id];
   if (orders.some((o) => o.townPerson === p.id) || job?.order?.townPerson === p.id) return false;
   if (orders.filter((o) => o.town).length >= MAX_TOWN_LETTERS) return false;
   return mem?.lastReq == null || made >= mem.lastReq + REQUEST_COOLDOWN;
 }
-export function nextRequest(p, town) {
-  const n = town?.people?.[p.id]?.reqs || 0;
-  return p.requests[n % p.requests.length];
+
+
+export function nextRequest(p, town, lvl = 99) {
+  const n = town?.people?.[p.id]?.reqs || 0, list = p.requests || [];
+  for (let k = 0; k < list.length; k++) {
+    const r = list[(n + k) % list.length];
+    if (!r.garment || (part(r.garment.slot, r.garment.id)?.lvl || 1) <= lvl) return r;
+  }
+  return null;
 }
 
 export function talkOutcome(talk, p, town, ctx = {}) {
   const good = talk.rapport >= needOf(p);
   const known = new Set([...(town?.known || []), ...talk.heard]);
   const parting = talk.rapport >= 3 ? p.gossip.find((g) => !known.has(g.id)) : null;
-  const request = good && requestReady(p, town, ctx) ? nextRequest(p, town) : null;
+  const request = good && requestReady(p, town, ctx) ? nextRequest(p, town, ctx.lvl) : null;
   return { good, request, parting: parting ? parting.id : null };
 }
 
 export function recordTalk(town, talk, outcome, made) {
   const t = { ...freshTown(), ...(town || {}) };
   const mem = { ...(t.people[talk.id] || {}) };
+  mem.talks = talksWith(t, talk.id) + 1;
   mem.met = true;
   mem.best = Math.max(mem.best ?? -99, talk.rapport);
   const known = [...t.known];

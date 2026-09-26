@@ -11,9 +11,12 @@ import { DYES } from '../data.js';
 import { sfx } from '../audio.js';
 import { trim } from '../logic.js';
 import { townMapSVG, interiorSVG, LAYOUT, MAP_W, MAP_H } from '../townmap.js';
+import { sceneState, isNight } from '../scene.js';
+import { setScene } from '../audio.js';
 import {
   PLACES, PEOPLE, BUILDINGS, GOSSIP, APPROACHES, REQUEST_KINDS, TALKS_PER_DAY, person, gossip, building, buildingOf,
-  townDay, talksLeft, cannotTalk, spendTalk, startTalk, talkStep, talkOutcome, recordTalk, needOf,
+  townDay, talksLeft, cannotTalk, spendTalk, startTalk, talkStep, talkOutcome, recordTalk, needOf, topicsOf,
+  conversationsOf, talksWith,
   requestReady, requestOrder, answerRequest, knownTemper, standing, reactionOf, REQUEST_COOLDOWN, MAX_TOWN_LETTERS,
 } from '../town.js';
 
@@ -25,7 +28,7 @@ const look = (p, mood) => portraitSVG(p.look, DYES[(p.look * 3) % DYES.length].h
 const pick = (arr, seed) => arr[Math.abs(seed) % arr.length];
 
 const pr = (p) => (p.he ? { s: 'he', S: 'He', o: 'him', p: 'his', P: 'His' } : { s: 'she', S: 'She', o: 'her', p: 'her', P: 'Her' });
-const ctx = () => ({ made: state.made, rep: state.rep, orders: state.orders, job: state.job });
+const ctx = () => ({ made: state.made, rep: state.rep, orders: state.orders, job: state.job, lvl: level() });
 
 
 function personStatus(p) {
@@ -36,7 +39,9 @@ function personStatus(p) {
   if (why === 'tired') return { key: 'done', text: 'It is getting late - finish a commission and come back' };
   const ready = requestReady(p, t, ctx());
   const mem = t.people?.[p.id];
-  return { key: ready ? 'work' : 'talk', text: !mem?.met ? (ready ? `A stranger - ${pr(p).s} may have work` : 'A stranger') : ready ? 'Might have work for you' : p.requests.length ? 'Nothing for you just now - but talk anyway' : 'Always has gossip' };
+  
+  const fresh = mem?.met && talksWith(t, p.id) < conversationsOf(p).length;
+  return { key: ready ? 'work' : 'talk', text: !mem?.met ? (ready ? `A stranger - ${pr(p).s} may have work` : 'A stranger') : ready ? (fresh ? `Has news - and might have work for you` : 'Might have work for you') : fresh ? `Has something new to tell you` : p.requests.length ? 'Nothing for you just now - but talk anyway' : 'Always has gossip' };
 }
 function buildingStatus(b) {
   if (b.home) return 'home';
@@ -57,12 +62,13 @@ function bar() {
     <span class="tb-talks" title="Conversations left until you finish another commission">${[...Array(TALKS_PER_DAY)].map((_, i) => `<i class="${i < left ? 'on' : ''}"></i>`).join('')} ${left ? `${left} talk${left === 1 ? '' : 's'} left today` : 'The day is done - finish a commission'}</span>
     <span class="tb-notice" title="Notice: word of mouth from free work. Each point counts as 3 reputation at the Crescent's doors">Notice <b>${t.notice || 0}</b> &middot; standing <b>${standing(state.rep, t.notice)}</b></span>
     <button class="btn small" data-notes>&#128220; Notebook <b>${(t.known || []).length}/${GOSSIP.length}</b></button>
+    <button class="btn small tb-light" data-light title="${isNight() ? 'Bring back the day' : 'Let the night fall - the lamps come on'}">${isNight() ? '&#9728; Day' : '&#9790; Night'}</button>
   </div>`;
 }
 
 
 function mapView() {
-  return `<div class="town-map-view"><div class="tm-wrap"><div class="tm-canvas">${townMapSVG(BUILDINGS, buildingStatus)}</div></div>
+  return `<div class="town-map-view"><div class="tm-wrap"><div class="tm-canvas">${townMapSVG(BUILDINGS, buildingStatus, { night: isNight() })}</div></div>
     <div class="tm-top"><h1>Thimblebury</h1>${bar()}</div>
     <div class="tm-legend"><span class="lg-work">! work</span><span>&hellip; talk</span><span>&#10003; visited</span><span class="lg-shut">&#128274; shut</span></div>
     <div class="tm-card paper" hidden></div></div>`;
@@ -126,9 +132,11 @@ function talkView() {
   const warmth = `<div class="warmth" title="How warmly ${pr(p).s} feels towards you - reach ${need} for ${pr(p).o} to trust you with work">${[...Array(need)].map((_, i) => `<i class="${i < tk.rapport ? 'on' : ''}"></i>`).join('')}<small>${tk.rapport >= need ? `${pr(p).s} likes you` : 'warmth'}</small></div>`;
   let body;
   if (tk.stage === 'topic') {
-    const topic = p.topics[tk.round];
+    const topic = topicsOf(p, tk)[tk.round];
     const order = [0, 1, 2].map((i) => (i + state.made + tk.round + p.id.length) % 3);
-    body = `<p class="said">${tk.round === 0 ? `${esc(p.hello)} ` : ''}${esc(topic.say)}</p>
+    
+    const hello = tk.set ? p.again || p.hello : p.hello;
+    body = `<p class="said">${tk.round === 0 ? `${esc(hello)} ` : ''}${esc(topic.say)}</p>
       <div class="replies">${order.map((i) => `<button class="btn reply" data-r="${i}">&ldquo;${esc(topic.replies[i].t)}&rdquo;</button>`).join('')}</div>`;
   } else if (tk.stage === 'react') {
     const heard = tk.newHeard ? gossip(tk.newHeard) : null;
@@ -177,7 +185,7 @@ function notebook() {
 function render(root) {
   state.town = townDay(state.town, state.made);
   const b = view.b && building(view.b);
-  root.innerHTML = `<div class="town">${view.talk ? talkView() : b ? insideView(b) : mapView()}</div>`;
+  root.innerHTML = `<div class="town${isNight() ? ' night' : ''}">${view.talk ? talkView() : b ? insideView(b) : mapView()}</div>`;
   root.scrollTop = 0;
   wire(root);
   if (!b && !view.talk) {
@@ -190,6 +198,18 @@ function render(root) {
 function wire(root) {
   const on = (sel, fn) => root.querySelectorAll(sel).forEach((el) => { el.onclick = (e) => fn(el, e); });
   on('[data-notes]', () => { sfx.page(); notebook(); });
+  
+  on('[data-light]', () => {
+    const night = !isNight();
+    sceneState().night = night;
+    save();
+    night ? sfx.toNight() : sfx.toDay();
+    if (night) setTimeout(() => sfx.lampOn(), 450);
+    setScene({ night });
+    const wrap = $('.tm-wrap', root);
+    if (wrap) mapScroll = wrap.scrollLeft;
+    render(root);
+  });
   on('[data-back]', (el) => {
     sfx.page();
     const back = el.dataset.back;

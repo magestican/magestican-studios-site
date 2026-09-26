@@ -10,8 +10,8 @@ export const MAP_W = 1600, MAP_H = 830;
 
 
 export const LAYOUT = {
-  silks: { x: 150, y: 405, w: 150, h: 175, wall: '#c2553a', trim: '#f2c14e', roof: 'flat', awning: ['#e0902a', '#f6d27a'], display: 'silks', floors: 3, garland: true },
-  chophouse: { x: 345, y: 405, w: 165, h: 150, wall: '#e2a04a', trim: '#2f6b3a', roof: 'shed', awning: ['#2f8a4a', '#f4e6c0'], display: 'pot', floors: 2, chimney: true, garland: true },
+  silks: { x: 118, y: 405, w: 150, h: 175, wall: '#c2553a', trim: '#f2c14e', roof: 'flat', awning: ['#e0902a', '#f6d27a'], display: 'silks', floors: 3, garland: true },
+  chophouse: { x: 303, y: 405, w: 165, h: 150, wall: '#e2a04a', trim: '#2f6b3a', roof: 'shed', awning: ['#2f8a4a', '#f4e6c0'], display: 'pot', floors: 2, chimney: true, garland: true },
   bakery: { x: 610, y: 525, w: 150, h: 175, wall: '#e9c9a0', trim: '#b8423a', roof: 'gable', awning: ['#b8423a', '#f7ecd8'], display: 'bread', floors: 2, chimney: true },
   herald: { x: 965, y: 525, w: 150, h: 200, wall: '#8a9aa8', trim: '#2b2f38', roof: 'mansard', awning: null, display: 'papers', floors: 3 },
   teahouse: { x: 1125, y: 575, w: 150, h: 160, wall: '#8c2f36', trim: '#e8b84a', roof: 'pagoda', awning: null, display: 'tea', floors: 2, lanterns: true },
@@ -24,7 +24,15 @@ export const LAYOUT = {
   ashcombe: { x: 1400, y: 290, w: 150, h: 175, wall: '#e8dfcf', trim: '#3a4a3a', roof: 'mansard', awning: null, display: 'crest', floors: 3, grand: true },
   ninecrescent: { x: 1545, y: 295, w: 115, h: 170, wall: '#e4dac6', trim: '#1f6b7a', roof: 'mansard', awning: null, display: 'peacock', floors: 3, grand: true, door: '#1f7a8a' },
   atelier: { x: 850, y: 795, w: 175, h: 160, wall: '#3f4d3d', trim: '#e2c06b', roof: 'gable', awning: ['#d25a6e', '#f7e3e6'], display: 'dress', floors: 2, chimney: true },
+  
+  
+  stanne: { x: 488, y: 395, w: 112, h: 150, wall: '#d8cfc0', trim: '#6b5a4a', roof: 'church', awning: null, display: 'church', floors: 1 },
+  lotus: { x: 1385, y: 800, w: 160, h: 150, wall: '#b8242c', trim: '#f2c14e', roof: 'pagoda', awning: ['#f2c14e', '#b8242c'], display: 'wedding', floors: 2, lanterns: true },
 };
+
+
+
+export const LAMPS = [[700, 598], [872, 604], [590, 505], [1010, 640], [1215, 612], [1390, 618], [440, 700], [300, 468], [1030, 420], [960, 770], [1100, 330]];
 
 const shade = (hex, amt) => {
   const n = parseInt(hex.slice(1), 16);
@@ -58,6 +66,14 @@ function display(kind, x, y, w, h) {
     case 'opera': return '';
     case 'crest': return `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="#f6e8c8"/><path d="M${f(x)},${f(y)} q${f(w * 0.2)},${f(h * 0.5)} 0,${f(h)} Z M${f(x + w)},${f(y)} q${f(-w * 0.2)},${f(h * 0.5)} 0,${f(h)} Z" fill="#8a2f3a"/><path d="M${f(cx - 8)},${f(by - 4)} q-4,-18 8,-26 q12,8 8,26 Z" fill="#3a6a8a"/><path d="M${f(cx)},${f(by - 30)} q-8,-12 0,-16 q8,4 0,16" fill="#d25a6e"/>`;
     case 'peacock': return `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="#f4ecd8"/>` + [-40, -20, 0, 20, 40].map((r) => `<g transform="rotate(${r} ${f(cx)} ${f(by - 4)})"><path d="M${f(cx)},${f(by - 4)} V${f(y + 12)}" stroke="#6a8a3a" stroke-width="1.2"/><ellipse cx="${f(cx)}" cy="${f(y + 12)}" rx="6" ry="8" fill="#1f7a6a"/><ellipse cx="${f(cx)}" cy="${f(y + 13)}" rx="3.2" ry="4.4" fill="#2a4aa8"/><circle cx="${f(cx)}" cy="${f(y + 14)}" r="1.6" fill="#e8b84a"/></g>`).join('');
+    
+    case 'wedding': {
+      const a = x + w * 0.28, b = x + w * 0.72;
+      return `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="#fbe9d2"/>` +
+        [...Array(12)].map((_, i) => `<circle cx="${f(x + 4 + i * (w - 8) / 11)}" cy="${f(y + 4 + Math.sin(i / 11 * Math.PI) * 5)}" r="2.6" fill="${i % 2 ? '#f29a1f' : '#f5c43a'}"/>`).join('') +
+        `<path d="M${f(a)},${f(y + 10)} v4" stroke="#6b4a2f" stroke-width="2"/><path d="M${f(a - 6)},${f(y + 15)} q6,-3 12,0 l1,12 h-14 Z" fill="#c42a2f"/><path d="M${f(a - 7)},${f(y + 27)} h14 l2,${f(h - 30)} h-18 Z" fill="#c42a2f"/><path d="M${f(a - 3)},${f(y + 27)} v${f(h - 30)}" stroke="#f2d060" stroke-width="1.2"/><path d="M${f(a - 11)},${f(by - 3)} l2,-14 M${f(a + 11)},${f(by - 3)} l-2,-14" stroke="#f4efe2" stroke-width="3"/>` +
+        `<path d="M${f(b)},${f(y + 10)} v4" stroke="#6b4a2f" stroke-width="2"/><path d="M${f(b - 6)},${f(y + 15)} q6,-3 12,0 l1,10 h-14 Z" fill="#d9a93e"/><path d="M${f(b - 7)},${f(y + 25)} h14 l${f(w * 0.12)},${f(h - 28)} h${f(-w * 0.24 - 14)} Z" fill="#b8242c"/><path d="M${f(b - 7 - w * 0.11)},${f(by - 8)} h${f(w * 0.22 + 14)}" stroke="#f2c14e" stroke-width="4"/>`;
+    }
     case 'dress': return `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="#f7e6d0" fill-opacity=".6"/><path d="M${f(cx)},${f(y + 4)} v4" stroke="#6b4a2f" stroke-width="2"/><path d="M${f(cx - 8)},${f(y + 10)} q8,-4 16,0 l2,14 q-10,2 -20,0 Z" fill="#d25a6e"/><path d="M${f(cx - 10)},${f(y + 24)} q10,3 20,0 l${f(w * 0.22)},${f(h - 30)} q${f(-w * 0.22 - 10)},6 ${f(-w * 0.44 - 20)},0 Z" fill="#e37a8c"/><path d="M${f(cx - 10)},${f(y + 24)} q10,3 20,0" stroke="#f7e3b5" stroke-width="2" fill="none"/>`;
     default: return '';
   }
@@ -86,12 +102,18 @@ function roofOf(L, x0, top) {
   }
 }
 
-function windowsOf(L, x0, top) {
-  const rows = L.floors - 1, out = [];
-  const n = L.w > 160 ? 3 : 2;
-  for (let r = 0; r < rows; r++) for (let k = 0; k < n; k++) {
-    const wx = x0 + (L.w / n) * (k + 0.5) - 14, wy = top + 18 + r * 58;
-    const lit = (r + k + L.x) % 3 === 0;
+
+
+function windowSpots(L) {
+  const x0 = L.x - L.w / 2, top = L.y - L.h, n = L.w > 160 ? 3 : 2, out = [];
+  for (let r = 0; r < L.floors - 1; r++) for (let k = 0; k < n; k++) {
+    out.push({ r, k, x: x0 + (L.w / n) * (k + 0.5) - 14, y: top + 18 + r * 58, lit: (r + k + L.x) % 3 === 0, night: (r * 7 + k * 3 + L.x) % 5 !== 0 });
+  }
+  return out;
+}
+function windowsOf(L) {
+  const out = [];
+  for (const { r, k, x: wx, y: wy, lit } of windowSpots(L)) {
     out.push(`<rect x="${f(wx)}" y="${f(wy)}" width="28" height="36" rx="${L.roof === 'pagoda' || L.lanterns ? 14 : 2}" fill="${lit ? '#fbe6a8' : '#a9c3cc'}" stroke="${shade(L.wall, -0.4)}" stroke-width="3"/>` +
       `<path d="M${f(wx + 14)},${f(wy)} v36 M${f(wx)},${f(wy + 18)} h28" stroke="${shade(L.wall, -0.4)}" stroke-width="2"/><rect x="${f(wx - 3)}" y="${f(wy + 36)}" width="34" height="4" fill="${shade(L.wall, 0.3)}"/>` +
       (L.grand ? '' : `<rect x="${f(wx - 10)}" y="${f(wy)}" width="8" height="36" fill="${L.trim}" fill-opacity=".85"/><rect x="${f(wx + 30)}" y="${f(wy)}" width="8" height="36" fill="${L.trim}" fill-opacity=".85"/>`) +
@@ -104,6 +126,7 @@ export function buildingSVG(b, badge = '') {
   const L = LAYOUT[b.id];
   if (!L) return '';
   if (b.id === 'opera') return operaSVG(b, L, badge);
+  if (L.roof === 'church') return churchSVG(b, L, badge);
   const x0 = L.x - L.w / 2, top = L.y - L.h;
   const wall = `<rect x="${x0}" y="${top}" width="${L.w}" height="${L.h}" fill="${L.wall}"/><rect x="${x0}" y="${top}" width="${L.w}" height="${L.h}" fill="url(#tm-wallshade)"/>` +
     (L.roof !== 'stall' ? `<rect x="${x0}" y="${top}" width="${L.w}" height="${L.h}" fill="url(#tm-brick)" opacity=".25"/>` : '');
@@ -132,7 +155,7 @@ export function buildingSVG(b, badge = '') {
     `<text x="${L.x}" y="${signY + 15.5}" font-family="Georgia,serif" font-style="italic" font-size="${b.sign.length > 16 ? 10 : 13}" text-anchor="middle" fill="${L.neon ? '#8fd8ff' : '#f7e3b5'}"${L.neon ? ' class="tm-neon"' : ''}>${b.sign.replace(/&/g, '&amp;')}</text>`;
   const laundry = L.display === 'laundry' ? `<path d="M${x0 - 60},${top + 10} Q${x0 - 30},${top + 24} ${x0},${top + 10}" stroke="#6b5a4a" stroke-width="1.5" fill="none"/>` + ['#f4f4ee', '#cfe0ea', '#f4d8d8'].map((c, i) => `<rect class="tm-flap" x="${x0 - 56 + i * 18}" y="${top + 14 + (i === 1 ? 4 : 0)}" width="14" height="20" fill="${c}"/>`).join('') : '';
   const shadow = `<ellipse cx="${L.x}" cy="${L.y + 2}" rx="${L.w * 0.62}" ry="10" fill="#000" fill-opacity=".18"/>`;
-  return `<g class="tm-b${b.home ? ' home' : ''}" data-b="${b.id}" tabindex="0" role="button" aria-label="${b.name.replace(/"/g, '')}">${shadow}${chimney}${wall}${roofOf(L, x0, top)}${windowsOf(L, x0, top)}${ground}${sign}${laundry}` +
+  return `<g class="tm-b${b.home ? ' home' : ''}" data-b="${b.id}" tabindex="0" role="button" aria-label="${b.name.replace(/"/g, '')}">${shadow}${chimney}${wall}${roofOf(L, x0, top)}${windowsOf(L)}${ground}${sign}${laundry}` +
     `<rect x="${x0 - 14}" y="${top - 70}" width="${L.w + 28}" height="${L.h + 76}" fill="transparent"/>${badge}</g>`;
 }
 
@@ -153,12 +176,36 @@ function operaSVG(b, L, badge) {
 }
 
 
+
+function churchSVG(b, L, badge) {
+  const x0 = L.x - L.w / 2, top = L.y - L.h, tx = x0 - 16, tw = 44, tt = top - 50;
+  const glass = ['#c0392b', '#2c5aa0', '#e8b84a', '#3a8a5a'];
+  const lancet = (x, y, h) => `<path d="M${x - 9},${y + h} V${y + 9} a9,9 0 0 1 18,0 V${y + h} Z" fill="#2a2a3a" stroke="#8a7a6a" stroke-width="3"/>` +
+    [0, 1, 2].map((i) => `<rect x="${x - 7}" y="${y + 6 + i * (h - 6) / 3}" width="14" height="${f((h - 8) / 3)}" fill="${glass[(i + x) % 4]}" fill-opacity=".8"/>`).join('') + `<path d="M${x},${y + 2} V${y + h}" stroke="#8a7a6a" stroke-width="1.5"/>`;
+  return `<g class="tm-b" data-b="${b.id}" tabindex="0" role="button" aria-label="${b.name.replace(/"/g, '')}"><ellipse cx="${L.x - 8}" cy="${L.y + 2}" rx="${L.w * 0.72}" ry="10" fill="#000" fill-opacity=".18"/>` +
+    
+    `<rect x="${tx}" y="${tt}" width="${tw}" height="${L.y - tt}" fill="${shade(L.wall, -0.06)}"/><rect x="${tx}" y="${tt}" width="${tw}" height="${L.y - tt}" fill="url(#tm-brick)" opacity=".2"/>` +
+    `<path d="M${tx - 4},${tt} L${tx + tw / 2},${tt - 96} L${tx + tw + 4},${tt} Z" fill="#4a5462"/><path d="M${tx + tw / 2},${tt - 96} v-16 M${tx + tw / 2 - 6},${tt - 106} h12" stroke="${L.trim}" stroke-width="3"/>` +
+    `<path d="M${tx + 12},${tt + 38} v-12 a10,10 0 0 1 20,0 v12 Z" fill="#3a3040"/><path d="M${tx + 16},${tt + 36} q6,-8 12,0" stroke="#c9a86a" stroke-width="2.5" fill="none"/><circle cx="${tx + tw / 2}" cy="${tt + 58}" r="9" fill="#f6ecd4" stroke="#6b5a4a" stroke-width="2.5"/><path d="M${tx + tw / 2},${tt + 58} v-6 M${tx + tw / 2},${tt + 58} l4,2" stroke="#3a2a22" stroke-width="1.6"/>` +
+    
+    `<rect x="${x0}" y="${top}" width="${L.w}" height="${L.h}" fill="${L.wall}"/><rect x="${x0}" y="${top}" width="${L.w}" height="${L.h}" fill="url(#tm-wallshade)"/><rect x="${x0}" y="${top}" width="${L.w}" height="${L.h}" fill="url(#tm-brick)" opacity=".2"/>` +
+    `<path d="M${x0 - 8},${top + 4} L${L.x},${top - 62} L${x0 + L.w + 8},${top + 4} Z" fill="${L.wall}" stroke="#4a5462" stroke-width="7" stroke-linejoin="round"/>` +
+    `<circle class="tm-rose" cx="${L.x}" cy="${top - 14}" r="17" fill="#2a2a3a" stroke="#8a7a6a" stroke-width="3"/>` + [0, 45, 90, 135, 180, 225, 270, 315].map((r, i) => `<path d="M${L.x},${top - 14} L${L.x},${top - 29}" stroke="${glass[i % 4]}" stroke-width="6" stroke-opacity=".85" transform="rotate(${r} ${L.x} ${top - 14})"/>`).join('') + `<circle cx="${L.x}" cy="${top - 14}" r="4" fill="#e8b84a"/>` +
+    lancet(x0 + 24, top + 24, 60) + lancet(x0 + L.w - 24, top + 24, 60) +
+    `<path d="M${L.x - 20},${L.y} V${L.y - 46} a20,20 0 0 1 40,0 V${L.y} Z" fill="#5a3a2a" stroke="#8a7a6a" stroke-width="4"/><path d="M${L.x},${L.y - 64} V${L.y}" stroke="#3a2618" stroke-width="2"/><circle cx="${L.x - 5}" cy="${L.y - 26}" r="2" fill="#e2c06b"/><circle cx="${L.x + 5}" cy="${L.y - 26}" r="2" fill="#e2c06b"/>` +
+    [-1, 1].map((s) => `<g transform="translate(${L.x + s * 36},${L.y - 4})"><path d="M-8,0 h16 l-3,-14 h-10 Z" fill="#8a6a4a"/>${[-5, 0, 5].map((dx, i) => `<path d="M${dx},-14 q${dx * 0.4},-10 ${dx * 0.8},-18" stroke="#4a7a3a" stroke-width="1.6" fill="none"/><ellipse cx="${f(dx * 1.8)}" cy="${-33 - (i % 2) * 4}" rx="4" ry="6" fill="#fbf6ea"/>`).join('')}</g>`).join('') +
+    `<rect x="${L.x - 48}" y="${top + 90}" width="96" height="20" rx="3" fill="#3a2612" stroke="${L.trim}" stroke-width="2"/><text x="${L.x}" y="${top + 104}" font-family="Georgia,serif" font-style="italic" font-size="13" text-anchor="middle" fill="#f7e3b5">${b.sign.replace(/&/g, '&amp;')}</text>` +
+    `<rect x="${tx - 8}" y="${tt - 112}" width="${x0 + L.w - tx + 20}" height="${L.y - tt + 118}" fill="transparent"/>${badge}</g>`;
+}
+
+
 export function badgeSVG(b, st) {
   const L = LAYOUT[b.id];
   if (!L || !st) return '';
   
-  const roofH = { gable: 58, pagoda: 62, thai: 66, mansard: 44, flat: 34, shed: 34, stall: 44 }[L.roof] || 40;
-  const y = b.id === 'opera' ? 70 : L.y - L.h - roofH + 4, x = L.x;
+  
+  const roofH = { gable: 58, pagoda: 62, thai: 66, mansard: 44, flat: 34, shed: 34, stall: 44, church: 80 }[L.roof] || 40;
+  const y = b.id === 'opera' ? 70 : L.y - L.h - roofH + 4, x = L.roof === 'church' ? L.x + 18 : L.x;
   const icon = {
     work: `<path d="M-14,-40 h28 v22 l-14,8 l-14,-8 Z" fill="#b28a35" stroke="#f7e3b5" stroke-width="2"/><text y="-22" font-size="18" font-weight="bold" font-family="Georgia,serif" text-anchor="middle" fill="#fff8e6">!</text>`,
     talk: `<path d="M-18,-44 h36 a6,6 0 0 1 6,6 v16 a6,6 0 0 1 -6,6 h-20 l-10,8 v-8 h-6 a6,6 0 0 1 -6,-6 v-16 a6,6 0 0 1 6,-6 Z" fill="#fffaf0" stroke="#6b4a2f" stroke-width="2"/><circle cx="-9" cy="-30" r="2.6" fill="#6b4a2f"/><circle cx="0" cy="-30" r="2.6" fill="#6b4a2f"/><circle cx="9" cy="-30" r="2.6" fill="#6b4a2f"/>`,
@@ -195,24 +242,72 @@ export function townMapSVG(buildings, statusOf = () => '', { night = false } = {
     return s;
   };
   const marigolds = (x1, y1, x2, y2) => [...Array(22)].map((_, i) => { const t = i / 21, x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t + Math.sin(t * Math.PI) * 24; return `<circle cx="${f(x)}" cy="${f(y)}" r="4.5" fill="${i % 2 ? '#f29a1f' : '#f5c43a'}"/>`; }).join('');
-  const trees = [[40, 470], [470, 420], [700, 700], [990, 700], [1560, 690], [1320, 780], [500, 500], [1000, 800], [30, 800]].map(([x, y], i) => tree(x, y, 0.8 + (i % 3) * 0.15)).join('');
+  const trees = [[40, 470], [385, 520], [700, 700], [990, 700], [1560, 690], [1545, 812], [500, 500], [1000, 800], [30, 800]].map(([x, y], i) => tree(x, y, 0.8 + (i % 3) * 0.15)).join('');
   const labels = [['Spice Row', 250, 452], ['Market Square', 785, 625], ['Lantern Street', 1300, 632], ['The Harbour', 150, 590], ['The Crescent', 1420, 340], ['Thimble Lane', 1010, 790]]
     .map(([t, x, y]) => `<g class="tm-label" transform="translate(${x},${y})"><rect x="${-t.length * 4.6 - 10}" y="-14" width="${t.length * 9.2 + 20}" height="24" rx="4" fill="#fff4dc" fill-opacity=".92" stroke="#6b4a2f" stroke-width="1.5"/><text y="4" font-family="Georgia,serif" font-style="italic" font-size="15" text-anchor="middle" fill="#3a2612">${t}</text></g>`).join('');
   const order = [...buildings].sort((a, b) => (LAYOUT[a.id]?.y || 0) - (LAYOUT[b.id]?.y || 0));
+  
+  const lamps = LAMPS.map(([x, y]) => `<g><path d="M${x},${y} v-44" stroke="#2f2a28" stroke-width="3.5"/><path d="M${x - 5},${y} h10" stroke="#2f2a28" stroke-width="4"/><path d="M${x - 7},${y - 44} h14 l-3,-12 h-8 Z" fill="#3a3430"/><path d="M${x - 4},${y - 46} h8 l-2,-8 h-4 Z" fill="#cfd8d0" class="tm-lampglass"/></g>`).join('');
+  
+  
+  const badges = order.map((b) => badgeSVG(b, statusOf(b))).join('');
   return `<svg class="townmap${night ? ' night' : ''}" viewBox="0 0 ${MAP_W} ${MAP_H}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"><defs>` +
     `<linearGradient id="tm-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fcbe0"/><stop offset=".7" stop-color="#f4dcae"/></linearGradient>` +
+    `<linearGradient id="tm-nsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c1230"/><stop offset=".6" stop-color="#2a2f5e"/><stop offset="1" stop-color="#5a4a6e"/></linearGradient>` +
+    `<radialGradient id="tm-glow"><stop offset="0" stop-color="#ffd98a" stop-opacity=".75"/><stop offset=".4" stop-color="#ffc760" stop-opacity=".28"/><stop offset="1" stop-color="#ffc760" stop-opacity="0"/></radialGradient>` +
+    `<radialGradient id="tm-redglow"><stop offset="0" stop-color="#ff7a4a" stop-opacity=".7"/><stop offset="1" stop-color="#ff4a2a" stop-opacity="0"/></radialGradient>` +
+    `<radialGradient id="tm-blueglow"><stop offset="0" stop-color="#8fd8ff" stop-opacity=".6"/><stop offset="1" stop-color="#6ab0e8" stop-opacity="0"/></radialGradient>` +
+    `<radialGradient id="tm-moonglow"><stop offset=".3" stop-color="#fff6d8" stop-opacity=".5"/><stop offset="1" stop-color="#fff6d8" stop-opacity="0"/></radialGradient>` +
     `<linearGradient id="tm-wallshade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></linearGradient>` +
     `<linearGradient id="tm-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/></linearGradient>` +
     `<pattern id="tm-brick" width="24" height="12" patternUnits="userSpaceOnUse"><path d="M0,12 H24 M0,6 H24 M12,0 V6 M0,6 V12 M24,6 V12" stroke="#000" stroke-width=".8"/></pattern>` +
-    `</defs><rect width="${MAP_W}" height="${MAP_H}" fill="url(#tm-sky)"/>` +
+    `</defs><rect width="${MAP_W}" height="${MAP_H}" fill="url(#tm-sky)"/><rect class="tm-nightsky" width="${MAP_W}" height="420" fill="url(#tm-nsky)"/>` +
     `<g class="tm-clouds"><path d="M120,90 q20,-30 50,-14 q20,-24 50,-4 q30,-4 30,20 q0,18 -30,18 h-90 q-26,0 -10,-20 Z" fill="#fff" fill-opacity=".85"/><path d="M760,60 q18,-24 44,-10 q22,-18 44,2 q26,0 24,18 h-110 q-18,-4 -2,-10 Z" fill="#fff" fill-opacity=".75"/><path d="M1260,120 q20,-24 44,-12 q22,-20 46,0 q24,2 22,20 h-112 q-16,-2 0,-8 Z" fill="#fff" fill-opacity=".8"/></g>` +
     `<path d="M0,300 C200,220 380,260 560,240 C760,215 900,260 1100,230 C1300,200 1450,240 1600,220 V420 H0 Z" fill="#b7c99a"/><path d="M0,340 C240,300 420,330 620,310 C820,290 980,330 1600,300 V830 H0 Z" fill="#a7bf86"/>` +
     `<rect y="380" width="1600" height="450" fill="#b9c58e"/>${hill}${roads}${square}${water}${trees}` +
     bunting(535, 420, 700, 440, ['#d25a6e', '#e8c46a', '#6aa0c8', '#7fb069']) + bunting(870, 440, 1040, 420, ['#7fb069', '#d25a6e', '#e8c46a', '#6aa0c8']) +
-    marigolds(70, 300, 430, 290) + lanterns(1050, 470, 1390, 455) + lanterns(1220, 480, 1550, 470) +
-    order.filter((b) => LAYOUT[b.id]?.y < 530).map((b) => buildingSVG(b, badgeSVG(b, statusOf(b)))).join('') + clock +
-    order.filter((b) => LAYOUT[b.id]?.y >= 530).map((b) => buildingSVG(b, badgeSVG(b, statusOf(b)))).join('') + labels +
-    `<rect class="tm-nightveil" width="${MAP_W}" height="${MAP_H}" fill="#1a2040"/></svg>`;
+    marigolds(70, 300, 430, 290) + lanterns(1050, 470, 1390, 455) + lanterns(1220, 480, 1550, 470) + lamps +
+    order.filter((b) => LAYOUT[b.id]?.y < 530).map((b) => buildingSVG(b)).join('') + clock +
+    order.filter((b) => LAYOUT[b.id]?.y >= 530).map((b) => buildingSVG(b)).join('') +
+    `<rect class="tm-nightveil" width="${MAP_W}" height="${MAP_H}" fill="#3a4480"/>${nightLights(order)}${labels}<g class="tm-badges">${badges}</g></svg>`;
+}
+
+
+
+
+function nightLights(order) {
+  let s = `<circle cx="640" cy="92" r="70" fill="url(#tm-moonglow)"/><circle cx="640" cy="92" r="26" fill="#fbf2d4"/><circle cx="650" cy="86" r="23" fill="#fbf2d4"/><circle cx="632" cy="84" r="4" fill="#e8dcb8"/><circle cx="646" cy="102" r="5.5" fill="#e8dcb8"/>`;
+  
+  const boxes = [[10, 10, 440, 190], [540, 10, 1080, 200], [1270, 8, 1600, 55], [440, 10, 540, 90]];
+  let k = 7;
+  const rnd = () => ((k = (k * 16807) % 2147483647) / 2147483647);
+  for (const [x0, y0, x1, y1] of boxes) {
+    const n = Math.round((x1 - x0) * (y1 - y0) / 2600);
+    for (let i = 0; i < n; i++) {
+      const x = x0 + rnd() * (x1 - x0), y = y0 + rnd() * (y1 - y0), r = 0.8 + rnd() * 1.6;
+      if (Math.hypot(x - 640, y - 92) < 60) continue;
+      s += `<circle class="tm-star" cx="${f(x)}" cy="${f(y)}" r="${f(r)}" fill="#fff8e0" style="animation-delay:${f(rnd() * 4)}s"/>`;
+    }
+  }
+  for (const b of order) {
+    const L = LAYOUT[b.id];
+    if (!L) continue;
+    
+    for (const w of windowSpots(L)) if (w.night && w.y + 36 < L.y - 108) s += `<rect x="${f(w.x)}" y="${f(w.y)}" width="28" height="36" rx="${L.roof === 'pagoda' || L.lanterns ? 14 : 2}" fill="#ffd98a" fill-opacity=".9"/><circle cx="${f(w.x + 14)}" cy="${f(w.y + 18)}" r="34" fill="url(#tm-glow)"/>`;
+    if (b.id === 'opera') s += [0, 1, 2].map((i) => `<rect x="${f(L.x - 50 + i * 36)}" y="${L.y - 70}" width="28" height="70" rx="14" fill="#ffd27a" fill-opacity=".55"/>`).join('') + `<ellipse cx="${L.x}" cy="${L.y - 40}" rx="${L.w * 0.6}" ry="60" fill="url(#tm-glow)"/>`;
+    else if (L.roof === 'church') s += `<circle cx="${L.x}" cy="${L.y - L.h - 14}" r="36" fill="url(#tm-glow)"/>` + [L.x - L.w / 2 + 24, L.x + L.w / 2 - 24].map((x) => `<ellipse cx="${x}" cy="${L.y - L.h + 54}" rx="16" ry="38" fill="url(#tm-glow)"/>`).join('');
+    else if (L.roof !== 'stall') {
+      const sw = L.w * 0.56, sx = L.x - L.w / 2 + 12, sy = L.y - 74;
+      s += `<rect x="${f(sx)}" y="${sy}" width="${f(sw)}" height="58" fill="#ffcf7a" fill-opacity=".42" style="mix-blend-mode:screen"/><ellipse cx="${f(sx + sw / 2)}" cy="${L.y}" rx="${f(sw * 0.7)}" ry="14" fill="#ffcf7a" fill-opacity=".25"/>`;
+    }
+    if (L.neon) s += `<ellipse cx="${L.x}" cy="${L.y - 95}" rx="90" ry="30" fill="url(#tm-blueglow)"/>`;
+  }
+  s += LAMPS.map(([x, y]) => `<ellipse cx="${x}" cy="${y + 2}" rx="34" ry="9" fill="#ffd98a" fill-opacity=".22"/><circle cx="${x}" cy="${y - 50}" r="30" fill="url(#tm-glow)"/><path d="M${x - 4},${y - 46} h8 l-2,-8 h-4 Z" fill="#fff2bf"/>`).join('');
+  
+  for (const [x1, y1, x2, y2] of [[1050, 470, 1390, 455], [1220, 480, 1550, 470]]) {
+    for (let i = 1; i < 8; i++) { const t = i / 8, x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t + Math.sin(t * Math.PI) * 20; s += `<circle cx="${f(x)}" cy="${f(y + 13)}" r="18" fill="url(#tm-redglow)"/><ellipse cx="${f(x)}" cy="${f(y + 13)}" rx="5" ry="8" fill="#ffb07a" fill-opacity=".8"/>`; }
+  }
+  return `<g class="tm-lights">${s}</g>`;
 }
 
 function tree(x, y, s = 1) {
@@ -236,6 +331,8 @@ const INSIDE = {
   opera: { wall: '#6a1f28', floor: '#3a1a18', shelf: 'opera' },
   ashcombe: { wall: '#dfe6d8', floor: '#8a6a4a', shelf: 'crest' },
   ninecrescent: { wall: '#d6ebe8', floor: '#8a6a4a', shelf: 'peacock' },
+  stanne: { wall: '#e4dccb', floor: '#7a6a5a', shelf: 'church' },
+  lotus: { wall: '#f6dcc4', floor: '#7a2a24', shelf: 'wedding' },
 };
 export function interiorSVG(id) {
   const I = INSIDE[id] || INSIDE.bakery;
@@ -245,6 +342,16 @@ export function interiorSVG(id) {
     back = `<path d="M0,0 H1280 V120 Q640,200 0,120 Z" fill="#8a2030"/>` + [...Array(8)].map((_, i) => `<path d="M${i * 160},0 q40,90 0,500" stroke="#5a1018" stroke-width="6" fill="none" stroke-opacity=".5"/>`).join('') +
       `<rect x="160" y="160" width="960" height="340" fill="#1a0c10"/><ellipse cx="640" cy="480" rx="300" ry="40" fill="#ffd98a" fill-opacity=".25"/>` +
       [...Array(7)].map((_, i) => `<g transform="translate(${260 + i * 125},260)"><path d="M-16,-50 v10 M16,-50 v10" stroke="#8a6a4a" stroke-width="2"/><path d="M-26,-40 h52 v70 h-52 Z" fill="${['#b02030', '#2c3e6a', '#e8c46a', '#3a6a4a'][i % 4]}"/><circle cy="-46" r="10" fill="#e8d6c0"/></g>`).join('');
+  } else if (I.shelf === 'church') {
+    
+    
+    const glass = ['#c0392b', '#2c5aa0', '#e8b84a', '#3a8a5a', '#7a3e8a'];
+    back = `<rect width="1280" height="520" fill="${wall}"/><rect width="1280" height="520" fill="url(#ti-wallshade)"/>` +
+      [340, 640, 940].map((x, w) => `<path d="M${x - 70},470 V120 a70,70 0 0 1 140,0 V470 Z" fill="#2a2a3a" stroke="#9a8a7a" stroke-width="10"/>` +
+        [...Array(6)].map((_, r) => [0, 1, 2].map((c) => `<rect x="${x - 62 + c * 42}" y="${126 + r * 57}" width="38" height="52" fill="${glass[(r + c + w) % 5]}" fill-opacity=".75"/>`).join('')).join('') +
+        `<path d="M${x},60 V470 M${x - 70},300 H${x + 70}" stroke="#9a8a7a" stroke-width="5"/>`).join('') +
+      `<rect x="520" y="430" width="240" height="90" fill="#f4efe2" stroke="#b8a888" stroke-width="4"/><path d="M640,396 v34 M626,408 h28" stroke="#c7a04a" stroke-width="6"/>` +
+      [560, 720].map((x) => `<path d="M${x - 16},430 h32 l-6,-40 h-20 Z" fill="#8a6a4a"/>` + [-18, -8, 2, 12, 22].map((dx, i) => `<path d="M${x},392 q${dx * 0.5},-30 ${dx},-${50 + (i % 2) * 14}" stroke="#4a7a3a" stroke-width="3" fill="none"/><ellipse cx="${x + dx}" cy="${338 - (i % 2) * 14}" rx="9" ry="14" fill="#fbf6ea"/>`).join('')).join('');
   } else if (I.shelf === 'laundry') {
     back = [...Array(4)].map((_, r) => `<path d="M0,${90 + r * 70} Q640,${130 + r * 70} 1280,${90 + r * 70}" stroke="#6b5a4a" stroke-width="2" fill="none"/>` + [...Array(12)].map((_, i) => `<rect class="tm-flap" x="${40 + i * 104}" y="${96 + r * 70 + Math.sin(i / 11 * Math.PI) * 30}" width="60" height="44" fill="${['#f4f4ee', '#cfe0ea', '#f4d8d8', '#e8f0d8'][(i + r) % 4]}"/>`).join('')).join('') +
       `<g class="tm-steam">${[200, 520, 900, 1120].map((x) => `<circle cx="${x}" cy="460" r="60" fill="#fff" fill-opacity=".25"/>`).join('')}</g>`;
@@ -256,7 +363,9 @@ export function interiorSVG(id) {
     back = `<rect width="1280" height="520" fill="${wall}"/><rect width="1280" height="520" fill="url(#ti-wallshade)"/>${shelves}` +
       `<rect x="1060" y="40" width="160" height="96" rx="6" fill="#bfe0ee" stroke="${shade(wall, -0.45)}" stroke-width="10"/><path d="M1140,40 v96 M1060,88 h160" stroke="${shade(wall, -0.45)}" stroke-width="5"/>`;
   }
-  const counter = I.shelf === 'opera' ? '' : `<rect x="0" y="560" width="1280" height="40" fill="${shade(I.floor, 0.15)}"/><rect x="0" y="600" width="1280" height="120" fill="${shade(I.floor, -0.15)}"/><path d="M0,600 H1280" stroke="${shade(I.floor, -0.45)}" stroke-width="4"/>` +
+  const pews = I.shelf === 'church' ? `<path d="M560,720 L610,520 H670 L720,720 Z" fill="#f4efe2" fill-opacity=".85"/>` +
+    [0, 1, 2, 3].map((r) => [-1, 1].map((s) => { const y = 540 + r * 46, x = s < 0 ? 40 : 700 + r * 14; return `<rect x="${s < 0 ? x + r * 14 : x}" y="${y}" width="${540 - r * 14}" height="18" fill="#5a3a2a"/><rect x="${s < 0 ? x + r * 14 : x}" y="${y + 18}" width="${540 - r * 14}" height="10" fill="#3a2618"/>`; }).join('')).join('') : '';
+  const counter = I.shelf === 'opera' || I.shelf === 'church' ? pews : `<rect x="0" y="560" width="1280" height="40" fill="${shade(I.floor, 0.15)}"/><rect x="0" y="600" width="1280" height="120" fill="${shade(I.floor, -0.15)}"/><path d="M0,600 H1280" stroke="${shade(I.floor, -0.45)}" stroke-width="4"/>` +
     [...Array(8)].map((_, i) => `<rect x="${20 + i * 160}" y="616" width="130" height="90" rx="4" fill="none" stroke="${shade(I.floor, -0.35)}" stroke-width="3"/>`).join('');
   return `<svg class="interior" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ti-wallshade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".15"/><stop offset=".5" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient></defs>` +
     `<rect width="1280" height="720" fill="${I.floor}"/>${back}<rect y="520" width="1280" height="200" fill="${I.floor}"/>` +

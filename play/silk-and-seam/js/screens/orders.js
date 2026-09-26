@@ -10,6 +10,14 @@ const GARMENT_LINE = {
   saree: 'It must be a <b>saree</b> - six yards, pleated just so, with the pallu over my shoulder.',
   phasin: 'I would like a <b>pha sin</b>, the long wrapped skirt, with a proper woven border at the hem.',
   sabai: 'Please make it with a <b>sabai</b> across the shoulder, the way my mother wore hers.',
+  qipao: 'It must be a <b>qipao</b> - the high mandarin collar, the frog buttons across to the shoulder.',
+  jeogori: 'I should like a proper <b>jeogori</b>, short, with the white collar and a long ribbon tied at the front.',
+  kebaya: 'Please make me a <b>kebaya</b>, fitted, with the edge in lace and brooches down the front.',
+  chima: 'The skirt must be a <b>chima</b>, tied high and falling full, like my grandmother\'s.',
+  aodai: 'It must be an <b>ao dai</b> - the long panels, split to the waist, over silk trousers.',
+  sarong: 'I would like a <b>sarong</b>, the kain wrapped with the little fan of pleats at the front.',
+  lehenga: 'It has to be a <b>lehenga</b>, with the heavy border, and a dupatta over my shoulder.',
+  terno: 'It must have <b>terno sleeves</b> - the butterfly sleeves that stand up at the shoulder.',
 };
 import { sfx } from '../audio.js';
 

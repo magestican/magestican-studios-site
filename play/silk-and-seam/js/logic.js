@@ -555,6 +555,8 @@ const RULES = {
   gossip: (s) => (s.town?.known?.length || 0) >= 15,
   bravo: (s) => (s.town?.kinds?.opera || 0) >= 1,
   noble: (s) => (s.town?.kinds?.noble || 0) >= 1,
+  bride: (s) => (s.town?.kinds?.church || 0) >= 1,
+  double: (s) => (s.town?.kinds?.asianwedding || 0) >= 1,
 };
 export function achievementsEarned(st) {
   const s = { made: 0, xp: 0, money: 0, rep: 0, upgrades: [], clients: {}, ...st, stats: { ...freshStats(), ...(st?.stats || {}) } };
@@ -614,6 +616,7 @@ const DRAPE = {
   net: [0.2, 0.95], velvet: [0.55, 0.25], silk: [0.9, 0.8], sparkle: [0.6, 0.45], brocade: [0.1, 0.2],
   chiffon: [0.85, 1], organza: [0.15, 0.9], tartan: [0.25, 0.3], lame: [0.6, 0.45], damask: [0.35, 0.4],
   guipure: [0.4, 0.45], wax: [0.35, 0.5], zari: [0.6, 0.6], shot: [0.45, 0.6],
+  batik: [0.55, 0.6], songket: [0.2, 0.25], clouds: [0.6, 0.55],
 };
 export function drapeOf(tex) {
   const [cling, flutter] = DRAPE[tex] || DRAPE.weave;
