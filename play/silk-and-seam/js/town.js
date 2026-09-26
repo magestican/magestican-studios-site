@@ -85,7 +85,7 @@ export const PEOPLE = [
     ],
   },
   {
-    id: 'crane', name: 'Mr Tobias Crane', role: 'society columnist, the Thimblebury Herald', place: 'square', look: 19,
+    id: 'crane', he: true, name: 'Mr Tobias Crane', role: 'society columnist, the Thimblebury Herald', place: 'square', look: 19,
     likes: ['witty', 'boast'], dislikes: 'craft',
     hello: 'Ah! The new needle in town. Tobias Crane, the Herald, page six. Say something quotable.',
     topics: [
@@ -307,7 +307,7 @@ export const PEOPLE = [
     ],
   },
   {
-    id: 'rosen', name: 'Mr Abraham Rosen', role: 'haberdasher and retired tailor, Lantern Street', place: 'lantern', look: 18,
+    id: 'rosen', he: true, name: 'Mr Abraham Rosen', role: 'haberdasher and retired tailor, Lantern Street', place: 'lantern', look: 18,
     likes: ['craft', 'witty'], dislikes: 'flatter',
     hello: 'The new dressmaker. My customers talk. Let me see your hands. Hm. Needle calluses. Good.',
     topics: [
@@ -420,7 +420,7 @@ export const PEOPLE = [
     ],
   },
   {
-    id: 'alfie', name: 'Alfie Pike', role: 'lamplighter\'s boy, knows everything', place: 'harbour', look: 21,
+    id: 'alfie', he: true, name: 'Alfie Pike', role: 'lamplighter\'s boy, knows everything', place: 'harbour', look: 21,
     likes: ['witty', 'boast'], dislikes: 'warm',
     hello: 'Oi, dressmaker! Want to know something? Everything\'s got a price. Mine\'s a laugh.',
     topics: [
@@ -454,7 +454,7 @@ export const PEOPLE = [
     requests: [],
   },
   {
-    id: 'wick', name: 'Mr Ignatius Wick', role: 'wardrobe master, the Thimblebury Opera', place: 'crescent', look: 26, minStanding: 6,
+    id: 'wick', he: true, name: 'Mr Ignatius Wick', role: 'wardrobe master, the Thimblebury Opera', place: 'crescent', look: 26, minStanding: 6,
     likes: ['craft', 'witty'], dislikes: 'flatter',
     hello: 'You are standing on a Valkyrie. No - the cloak. Step off, please. Now, who are you?',
     topics: [
@@ -596,6 +596,27 @@ export const PEOPLE = [
     ],
   },
 ];
+
+
+
+export const BUILDINGS = [
+  { id: 'atelier', name: 'Your atelier', sign: 'Silk & Seam', place: 'square', people: [], home: true, hint: 'Your shop on Thimble Lane, with the dress form in the window.' },
+  { id: 'bakery', name: "Nowak's Bakery", sign: 'Piekarnia Nowak', place: 'square', people: ['nowak'], hint: 'Poppy-seed rolls and plum cake in the window. The baker knows everyone\'s business.' },
+  { id: 'herald', name: 'The Thimblebury Herald', sign: 'The Herald', place: 'square', people: ['crane'], hint: 'Today\'s paper in the window: "Rani Arrives at the Crescent!" The society columnist is in.' },
+  { id: 'silks', name: "Pillai's Silks", sign: 'Pillai Silks', place: 'spice', people: ['pillai'], hint: 'Bolts of Kanchipuram silk with gold borders. The owner talks cloth, not compliments.' },
+  { id: 'chophouse', name: "Mama Folake's Chop House", sign: "Mama Folake's", place: 'spice', people: ['folake'], hint: 'Jollof steam at the door and a hymn from the kitchen. Everyone leaves fed.' },
+  { id: 'teahouse', name: 'The Jade Kettle', sign: 'Jade Kettle', place: 'lantern', people: ['chen'], hint: 'An old iron kettle on the shelf and oolong on the stove. A wedding is being planned.' },
+  { id: 'orchid', name: 'The Golden Orchid', sign: 'Golden Orchid', place: 'lantern', people: ['nok'], hint: 'Green curry, orchids and laughter. The cook practises a dance between orders.' },
+  { id: 'bluelantern', name: 'The Blue Lantern', sign: 'Blue Lantern', place: 'lantern', people: ['ortega'], hint: 'A red spotlight and a flamenco poster: "Marisol Ortega - Six Nights a Week".' },
+  { id: 'haberdashery', name: "Rosen's Haberdashery", sign: 'A. Rosen - Buttons & Thread', place: 'lantern', people: ['rosen'], hint: 'Button cards and thread by the weight and the twist. An old tailor minds the counter.' },
+  { id: 'fishmarket', name: 'The Fish Quay', sign: 'Fish Quay', place: 'harbour', people: ['briggs', 'alfie'], hint: 'Herring a penny, cod tuppence. A fishwife, and a boy who hears everything.' },
+  { id: 'washhouse', name: 'The Washhouse', sign: 'Public Washhouse', place: 'harbour', people: ['haddad'], hint: 'Steam, sheets on the lines, and a laundress who once embroidered wedding gowns.' },
+  { id: 'opera', name: 'The Thimblebury Opera', sign: 'Opera', place: 'crescent', people: ['wick', 'dupre'], hint: 'Posters for The Magic Flute and Tosca. The wardrobe master and the prima donna are inside.' },
+  { id: 'ashcombe', name: 'Ashcombe House', sign: 'Ashcombe House', place: 'crescent', people: ['philippa'], hint: 'A crest over the door and a butler at it. Lady Philippa receives only the talk of the town.' },
+  { id: 'ninecrescent', name: 'Number Nine, the Crescent', sign: 'No. 9', place: 'crescent', people: ['devika'], hint: 'A peacock-blue door. The visiting Rani weaves and asks questions.' },
+];
+export const building = (id) => BUILDINGS.find((b) => b.id === id);
+export const buildingOf = (personId) => BUILDINGS.find((b) => b.people.includes(personId));
 
 export const person = (id) => PEOPLE.find((p) => p.id === id);
 export const GOSSIP = PEOPLE.flatMap((p) => p.gossip.map((g) => ({ ...g, from: p.id })));
