@@ -18,6 +18,17 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 import { state } from './state.js';
 import { gains, silenceOf, musicBar, tuneOf, babblePlan } from './logic.js';
 
@@ -31,7 +42,11 @@ const listeners = new Set();
 export function onSoundStatus(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 export function soundStatus() {
   const g = gains(state.settings, false);
-  return silenceOf({ muted: state.muted, unlocked: !!ac, ctxState: ac ? ac.state : 'none', master: g.master, dead: snd.dead });
+  return silenceOf({ muted: state.muted, unlocked: !!ac, ctxState: ac ? ac.state : 'none', master: g.master, dead: snd.dead, stale: snd.stale });
+}
+const TOUCH = typeof navigator !== 'undefined' && (navigator.maxTouchPoints > 0 || 'ontouchstart' in window);
+function mediaSession() {
+  try { if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback'; } catch (e) {  }
 }
 let lastReason;
 function notify() {
@@ -44,6 +59,7 @@ function notify() {
 function build() {
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return false;
+  mediaSession();
   try {
     ac = new AC();
     const g = gains(state.settings, state.muted);
@@ -66,19 +82,37 @@ let armed = false;
 function onGesture() { unlockAudio(); }
 function arm() { if (armed) return; armed = true; for (const t of GESTURES) window.addEventListener(t, onGesture, true); }
 function disarm() { if (!armed) return; armed = false; for (const t of GESTURES) window.removeEventListener(t, onGesture, true); }
-function settle() { if (ac && ac.state === 'running' && !snd.rebuild) disarm(); else arm(); }
+function settle() { if (ac && ac.state === 'running' && !snd.rebuild && !snd.stale) disarm(); else arm(); }
 arm();
 
+
+
+let healedAt = -1e9;
+export const justHealed = () => performance.now() - healedAt < 1000;
 export function unlockAudio() {
+  const was = soundStatus();
+  if (was.silent && was.reason !== 'muted' && was.reason !== 'down') healedAt = performance.now();
+  
+  if (snd.stale) { snd.stale = false; snd.rebuild = true; }
   if (snd.rebuild) { snd.rebuild = false; try { ac && ac.close(); } catch (e) {  } ac = null; }
   if (!ac) { if (!build()) return; startMusic(); }
   if (ac.state !== 'running') { try { const r = ac.resume(); if (r && r.catch) r.catch(() => {}); } catch (e) {  } }
   settle(); notify();
 }
-function onShown() { if (!ac) return; try { ac.resume().catch(() => {}); } catch (e) {  } arm(); notify(); }
+function onShown() {
+  if (!ac || document.hidden) return;
+  mediaSession();
+  try { ac.resume().catch(() => {}); } catch (e) {  }
+  snd.quietSince = null; snd.lastTime = null;
+  arm(); notify();
+}
 document.addEventListener('visibilitychange', () => {
   if (!ac) return;
-  if (document.hidden) { try { ac.suspend(); } catch (e) {  } arm(); notify(); return; }
+  if (document.hidden) {
+    if (TOUCH) snd.stale = true;
+    try { ac.suspend(); } catch (e) {  }
+    arm(); notify(); return;
+  }
   onShown();
 });
 window.addEventListener('pageshow', onShown);
@@ -86,14 +120,17 @@ window.addEventListener('focus', onShown);
 
 
 setInterval(() => {
-  if (!ac || !tap || document.hidden) return;
+  if (!ac || !tap || document.hidden || snd.stale) return;
   const g = gains(state.settings, state.muted);
   const expecting = g.master > 0 && g.music > 0 && ac.state === 'running';
   let peak = 0;
   try { tap.getFloatTimeDomainData(taps); for (let i = 0; i < taps.length; i++) { const v = Math.abs(taps[i]); if (v > peak) peak = v; } } catch (e) { return; }
   const now = performance.now() / 1000;
   snd.peak = peak;
-  if (!expecting || peak > QUIET) { snd.quietSince = null; if (snd.dead) { snd.dead = false; notify(); } return; }
+  
+  const stalled = expecting && snd.lastTime !== null && snd.lastTime !== undefined && ac.currentTime === snd.lastTime;
+  snd.lastTime = ac.currentTime;
+  if (!expecting || (peak > QUIET && !stalled)) { snd.quietSince = null; if (snd.dead) { snd.dead = false; notify(); } return; }
   if (snd.quietSince === null) snd.quietSince = now;
   if (now - snd.quietSince >= DEAD_S && !snd.dead) {
     snd.dead = true; snd.deaths++; notify();
@@ -331,4 +368,4 @@ export function setScene({ night, open }) {
 export function setWind(w) { scene.wind = w; }
 
 
-window.__sound = () => ({ ...soundStatus(), ctx: ac ? ac.state : 'none', peak: snd.peak || 0, deaths: snd.deaths, night: scene.night, open: scene.open });
+window.__sound = () => ({ ...soundStatus(), ctx: ac ? ac.state : 'none', peak: snd.peak || 0, deaths: snd.deaths, stale: !!snd.stale, session: navigator.audioSession ? navigator.audioSession.type : null, night: scene.night, open: scene.open });

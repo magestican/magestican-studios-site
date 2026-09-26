@@ -46,7 +46,8 @@ export default {
       $('#tags', root).innerHTML = tagBars(tags, job.order);
       $('#match', root).innerHTML = matchLine(tags, job.order, d);
       
-      $('#match-mini', root).innerHTML = matchLine(tags, job.order, d);
+      
+      $('#match-mini', root).innerHTML = tagBars(tags, job.order, { only: true }) + matchLine(tags, job.order, d);
       $('#dress', root).innerHTML = dressSVG(d, { mode: view });
       for (const el of root.querySelectorAll('.carousel')) {
         const slot = el.dataset.slot, list = avail(slot), i = list.findIndex((p) => p.id === d[slot]);

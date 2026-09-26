@@ -2,7 +2,7 @@
 import { state, save, level } from './state.js';
 import { levelProgress, clientMatch, sameAsLast, stars, tagText, reducedMotion, needsNote, repTier, newAchievements, shopValue, part, missingGarment, DEVICE_LINE } from './logic.js';
 import { TAGS, AUNT, ACHIEVEMENTS } from './data.js';
-import { sfx, setMuted, unlockAudio, applyVolume, soundStatus, onSoundStatus } from './audio.js';
+import { sfx, setMuted, unlockAudio, applyVolume, soundStatus, onSoundStatus, justHealed } from './audio.js';
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -223,7 +223,8 @@ function wireSoundButton() {
     const s = soundStatus();
     unlockAudio();
     
-    if (!s.silent || s.reason === 'muted') { setMuted(!state.muted); save(); }
+    
+    if ((!s.silent || s.reason === 'muted') && !justHealed()) { setMuted(!state.muted); save(); }
     refreshSound();
   };
 }

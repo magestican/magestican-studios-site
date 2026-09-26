@@ -515,6 +515,16 @@ canvas { touch-action: none; }
 .mobile .preview-toggle { left: auto; right: 8px; top: 8px; bottom: auto; z-index: 2; background: rgba(244,234,217,.9); }
 .mobile .match-mini { display: block; position: absolute; left: 0; right: 0; bottom: 0; text-align: center; background: rgba(244,234,217,.88); padding: 2px 6px 4px; }
 .mobile .match-mini .matchline { margin: 0; font-size: 16px; }
+.mobile .match-mini .tagbars { gap: 2px; margin: 2px 4px 2px; text-align: left; }
+.mobile .match-mini .tagrow { height: 18px; padding: 0 6px; }
+.mobile .match-mini .tagrow .tn { width: 108px; font-size: 13px; }
+.mobile .match-mini .track { height: 9px; }
+
+@media (max-width: 639.98px) {
+  .mobile .sketch-stage { height: auto; padding-top: min(34vh, 290px); }
+  .mobile .sketch-dress { height: calc(min(34vh, 290px) - 12px); }
+  .mobile .match-mini { position: relative; padding: 0 8px 4px; }
+}
 .mobile .controls { position: relative; left: auto; top: auto; right: auto; bottom: auto; padding-top: 10px; gap: 10px; }
 .mobile .carousel .lbl { width: 64px; font-size: 14px; flex: none; }
 .mobile .carousel .arrow { width: 44px; height: 44px; font-size: 28px; flex: none; }

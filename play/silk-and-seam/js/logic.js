@@ -668,7 +668,9 @@ export const isNightHour = (h) => h >= 19 || h < 6;
 
 
 
-export const DEVICE_LINE = 'Hearing nothing? On a phone, the silent switch or Do Not Disturb silences web pages too - turn it off to hear the music.';
+
+
+export const DEVICE_LINE = 'Hearing nothing? Check the phone\'s volume. On an older iPhone the silent switch silences web pages too - turn it off to hear the music.';
 const SILENCES = {
   muted: { short: 'Sound is off', line: 'Sound is off. Tap the speaker to bring it back.' },
   down: { short: 'Sound is turned down', line: 'The master volume is at zero. Raise it to hear anything.' },
@@ -677,9 +679,12 @@ const SILENCES = {
   dead: { short: 'Sound lost - tap to bring it back', line: 'Your phone took the sound away while the page was in the background. Tap anywhere and the game starts it again; if it stays quiet, reload.' },
 };
 export const SILENCE_REASONS = Object.keys(SILENCES);
-export function silenceOf({ muted = false, unlocked = false, ctxState = 'none', master = 1, dead = false } = {}) {
+
+
+
+export function silenceOf({ muted = false, unlocked = false, ctxState = 'none', master = 1, dead = false, stale = false } = {}) {
   const reason = muted ? 'muted' : !(master > 0) ? 'down' : !unlocked || ctxState === 'none' ? 'locked'
-    : ctxState !== 'running' ? 'interrupted' : dead ? 'dead' : null;
+    : ctxState !== 'running' || stale ? 'interrupted' : dead ? 'dead' : null;
   if (!reason) return { silent: false, reason: null, short: 'Sound is on', line: DEVICE_LINE };
   return { silent: true, reason, ...SILENCES[reason] };
 }
