@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es-419">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmyshoot, para quienes no juegan videojuegos — devlog de Farmyshoot</title>
+  <meta name="description" content="Farmyshoot es un shooter de vóxeles en el navegador para equipos remotos: un enlace, sin descargar, bots y rondas que caben en una reunión.">
+  <link rel="canonical" href="https://magesticanstudios.com/es/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="es_LA">
+  <meta property="og:title" content="Farmyshoot, para quienes no juegan videojuegos — devlog de Farmyshoot">
+  <meta property="og:description" content="Farmyshoot es un shooter de vóxeles en el navegador para equipos remotos: un enlace, sin descargar, bots y rondas que caben en una reunión.">
+  <meta property="og:url" content="https://magesticanstudios.com/es/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta property="article:published_time" content="2026-08-30">
+  <meta property="article:section" content="Development log">
+  <meta property="article:tag" content="Farmyshoot">
+  <meta property="article:tag" content="Remote teams">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Farmyshoot, para quienes no juegan videojuegos — devlog de Farmyshoot">
+  <meta name="twitter:description" content="Farmyshoot es un shooter de vóxeles en el navegador para equipos remotos: un enlace, sin descargar, bots y rondas que caben en una reunión.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Farmyshoot, para gente que no juega videojuegos",
+  "description": "Farmyshoot es un shooter de vóxeles en el navegador para equipos remotos: un enlace, sin descargar, bots y rondas que caben en una reunión.",
+  "datePublished": "2026-08-30",
+  "dateModified": "2026-08-30",
+  "author": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://magesticanstudios.com/favicon.svg"
+    }
+  },
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "inLanguage": "es-419",
+  "keywords": "Farmyshoot, Equipos remotos",
+  "articleSection": "Diario de desarrollo",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "La revista de Magestican Studios",
+    "url": "https://magesticanstudios.com/es/magazine/"
+  },
+  "about": {
+    "@type": "VideoGame",
+    "name": "Farmyshoot",
+    "url": "https://magesticanstudios.com/es/farmyshoot.html"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://magesticanstudios.com/es/magazine/farmyshoot-for-people-who-dont-play-games.html"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Magestican Studios",
+      "item": "https://magesticanstudios.com/es/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Revista",
+      "item": "https://magesticanstudios.com/es/magazine/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Farmyshoot, para gente que no juega videojuegos",
+      "item": "https://magesticanstudios.com/es/magazine/farmyshoot-for-people-who-dont-play-games.html"
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/magazine.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body class="mag-body">
+  <header class="site-header">
+    <a href="/es/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/es/#games">Juegos</a>
+      <a href="/es/farmyshoot.html">Farmyshoot</a>
+      <a href="/es/farmy-uprising.html">Uprising</a>
+      <a href="/es/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/es/farmykart.html">Kart</a>
+      <a href="/es/farmy-tiles.html">Fichas</a>
+      <a href="/es/farmy-crosswords.html">Crucigramas</a>
+      <a href="/es/ajedrez-online-gratis.html">Ajedrez</a>
+      <a href="/es/farmy-checkers.html">Damas</a>
+      <a href="/es/parchis-online-con-amigos.html">Ludo</a>
+      <a href="/es/zelakas-in-space.html">Zelakas</a>
+      <a href="/es/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/es/farmy-moon-life.html">Moon Life</a>
+      <a href="/es/silk-and-seam.html">Silk & Seam</a>
+      <a href="/es/for-remote-teams.html">Para equipos</a>
+      <a href="/es/about.html">Acerca de</a>
+      <a href="/es/magazine/">Revista</a>
+      <a href="/es/reviews.html">Reseñas</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Idioma: Español"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>ES</span></summary><ul><li><a href="/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="es" lang="es-419" data-lang="es" aria-current="page">Español</a></li><li><a href="/pt/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="tl" lang="tl" data-lang="tl">Tagalog</a></li></ul></details>
+  </header>
+
+  <main>
+    <p class="mag-crumb"><a href="/es/">Magestican Studios</a> &rsaquo; <a href="/es/magazine/">Revista</a></p>
+
+    <article class="mag-article">
+      <h1>Farmyshoot, para gente que no juega videojuegos</h1>
+      <p class="mag-meta">
+        <time datetime="2026-08-30">30 de agosto de 2026</time>
+        <span class="mag-tag">Farmyshoot</span>
+        <span>4 min de lectura</span>
+      </p>
+      <p class="mag-lede">Un shooter por equipos hecho para las once personas de la reunión que nunca han tenido un control en las manos, y para la que juega todas las noches. Todos tienen que disfrutar los mismos veinte minutos.</p>
+
+      <p>Farmyshoot es un shooter por equipos en vóxeles que se abre en una pestaña del navegador. Existe porque a los equipos remotos se les sigue pidiendo que hagan algo juntos, y las opciones son un quiz, una videollamada con sombrero puesto o un juego que la mitad de la sala no puede instalar.</p>
+      <h2>Lo difícil es lo distinta que es la gente de la sala</h2>
+      <p>Un equipo de trabajo no es un público. En cualquier grupo de una docena hay alguien que juega de forma competitiva y alguien que de verdad nunca ha movido un personaje con las dos manos, y los dos están en los mismos veinte minutos. Un juego que es divertido para uno es humillante o aburrido para el otro.</p>
+      <p>Casi todo el diseño busca achicar esa brecha sin ofender a nadie. Nada que aprender antes de empezar. Nada que comprar. Ningún personaje que armar, ningún equipamiento que elegir, ninguna progresión en la que quedarse atrás. Apareces con lo que necesitas en la mano.</p>
+      <p>Apuntar es indulgente, y los mapas son de espacios cerrados a propósito, porque la diferencia entre un buen jugador y uno nuevo es mayor a larga distancia y menor en un pasillo. Un objetivo de equipo en lugar de un conteo de bajas significa que alguien que no está disparando bien igual puede ser, claramente, la razón por la que su bando ganó.</p>
+      <h2>Nadie espera a que se llene la sala</h2>
+      <p>Abres una sala y envías un enlace. Quien hace clic entra. Los bots llenan los lugares vacíos de inmediato, así que una ronda empieza cuando las primeras dos personas están listas y no cuando la última encuentra el mensaje. Cuando llega una persona real, un bot se retira y le cede su lugar.</p>
+      <p>Suena como una pequeña comodidad y es toda la diferencia entre jugar y no jugar. Cualquier juego que necesita que lleguen ocho personas antes de que pase algo se juega una sola vez.</p>
+      <h2>Construido a partir de una semilla</h2>
+      <p>Los mapas se generan en lugar de venir empaquetados. Una semilla construye una ciudad, una granja nevada, una pista de patinaje; la misma semilla siempre construye el mismo lugar, así que un equipo puede volver a un mapa que le gustó, y la descarga es tan pequeña que el juego arranca en más o menos un segundo.</p>
+      <p>También significa que podemos cambiar los mapas cuando queramos. Cuando resulta que un mapa tiene un rincón donde todos se esconden, el arreglo es un número y no volver a exportar todo.</p>
+      <h2>Lo que no es</h2>
+      <p>No es un shooter competitivo y no intenta serlo. No hay ranking, ni temporadas, ni nada que farmear. Son veinte minutos que una sala de compañeros de trabajo puede compartir sin que nadie tenga que haber jugado nada antes.</p>
+      <p>Si a tu equipo le sobran diez minutos al final de una llamada, está a un enlace de distancia.</p>
+
+      <p class="mag-endnote">
+        <a class="mag-readon" href="/play/farmyshoot/">Juega Farmyshoot en tu navegador &rarr;</a> &middot; <a href="/es/farmyshoot.html">Sobre Farmyshoot</a> &middot; <a href="/es/reviews.html">Lo que pensamos de nuestros propios juegos</a>
+      </p>
+    </article>
+
+    <section class="mag-more">
+      <h2>Más de la revista</h2>
+      <ul>
+        <li><a href="/es/magazine/five-games-one-tab.html">Cinco juegos, una pestaña, sin descargar</a></li>
+        <li><a href="/es/magazine/farmy-kart-cliffs-and-gliders.html">Farmy Kart: acantilados, planeadores y cuatro karts muy distintos</a></li>
+      </ul>
+      <p><a class="mag-readon" href="/es/magazine/">Todos los artículos &rarr;</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Todos los derechos reservados.<br> Magestican Studios y el logotipo de Magestican Studios son marcas comerciales de Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">Sitio estático &middot; Sin cookies, solo conteos anónimos (<a href="/es/privacy.html">cómo</a>)</p>
+    <p class="footer-browse">Explorar: <a href="/es/2-player-games-online.html">Juegos online para 2 jugadores</a> &middot; <a href="/es/multiplayer-browser-games.html">Juegos multijugador en el navegador</a> &middot; <a href="/es/board-games-with-friends.html">Juegos de mesa con amigos</a> &middot; <a href="/es/word-games.html">Juegos de palabras gratis</a></p>
+  </footer>
+
+  <!-- The studio banner is imported below. Explained in render.mjs rather than
+       here: a comment written into this template is emitted into every article
+       and shipped, because buildPublic.mjs's stripper works on source files and
+       cannot reach inside an inline script it generated. The publicSurface
+       guard caught exactly that. -->
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    import('/assets/studioBanner.js').catch(() => {});
+    startVersionChecker();
+    initAnalytics({ page: 'es-magazine-farmyshoot-for-people-who-dont-play-games' });
+    trackPlayClicks();
+  </script>
+  <p class="lang-note">Esta página está en español. Los juegos en sí están en inglés; el ajedrez, las damas y el ludo casi no tienen texto.</p>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="tl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2D Fighter EX — isang eksperimento sa animation na puwede mong laruin</title>
+  <meta name="description" content="Libreng eksperimento sa browser: labang kinuha frame by frame mula sa screen recording, ginampanan ng cel-anime fighters sa kalyeng mula sa seed.">
+  <meta name="keywords" content="2d fighter ex, animation experiment, browser animation, procedural tile art, free browser game, magestican studios, frame by frame animation recovery">
+  <link rel="canonical" href="https://magesticanstudios.com/tl/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/2d-fighter-ex.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tl_PH">
+  <meta property="og:title" content="2D Fighter EX — isang eksperimento sa animation na puwede mong laruin">
+  <meta property="og:description" content="Isang labanang binawi frame por frame mula sa recording, muling ipinalabas sa procedurally generated na tile art. I-scrub ito, pabagalin, palitan ang seed ng kalye.">
+  <meta property="og:url" content="https://magesticanstudios.com/tl/2d-fighter-ex.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/fighter-ex-preview.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="2D Fighter EX — isang eksperimento sa animation na puwede mong laruin">
+  <meta name="twitter:description" content="84 na binawing frame, muling ipinalabas sa procedural na tile art. I-scrub ito, pabagalin, palitan ang seed ng kalye.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/fighter-ex-preview.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "2D Fighter EX",
+  "url": "https://magesticanstudios.com/tl/2d-fighter-ex.html",
+  "description": "Isang eksperimento sa animation. Binawi frame por frame mula sa screen recording ang isang fight animation, pinasimple sa data ng timing, camera at posisyon, at muling ipinapalabas sa browser gamit ang mga cel-anime na karakter na istilong dekada 90 sa isa sa tatlong procedurally generated na mundo: pyudal na Japan, isang neon na hinaharap at isang tiwangwang na lupain.",
+  "image": "https://magesticanstudios.com/assets/fighter-ex-preview.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "genre": [
+    "Eksperimental",
+    "Animation",
+    "Labanan"
+  ],
+  "gamePlatform": [
+    "Web browser"
+  ],
+  "playMode": "SinglePlayer",
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "tl",
+  "datePublished": "2026",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="/tl/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/tl/#games">Mga laro</a>
+      <a href="/tl/farmyshoot.html">Farmyshoot</a>
+      <a href="/tl/farmy-uprising.html">Uprising</a>
+      <a href="/tl/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/tl/farmykart.html">Kart</a>
+      <a href="/tl/farmy-tiles.html">Tiles</a>
+      <a href="/tl/farmy-crosswords.html">Crosswords</a>
+      <a href="/tl/farmy-chess.html">Chess</a>
+      <a href="/tl/farmy-checkers.html">Checkers</a>
+      <a href="/tl/farmy-ludo.html">Ludo</a>
+      <a href="/tl/zelakas-in-space.html">Zelakas</a>
+      <a href="/tl/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/tl/farmy-moon-life.html">Moon Life</a>
+      <a href="/tl/silk-and-seam.html">Silk & Seam</a>
+      <a href="/tl/for-remote-teams.html">Para sa mga team</a>
+      <a href="/tl/about.html">Tungkol sa amin</a>
+      <a href="/tl/magazine/">Magazine</a>
+      <a href="/tl/reviews.html">Mga review</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Wika: Tagalog"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>TL</span></summary><ul><li><a href="/2d-fighter-ex.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/2d-fighter-ex.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/2d-fighter-ex.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/2d-fighter-ex.html" hreflang="tl" lang="tl" data-lang="tl" aria-current="page">Tagalog</a></li></ul></details>
+  </header>
+
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <h1>2D Fighter EX &mdash; isang eksperimento sa animation na puwede mong laruin</h1>
+        <p class="lede">Ang EX ay pinaikling experiment. Isang fight animation, binawi frame por frame mula sa screen recording, muling ipinalabas ng browser na iginuguhit ito bilang mga anime na karakter sa isang stage na binubuo nito mula sa seed.</p>
+        <p><a class="cta cta-primary" href="/play/2d-fighter-ex/">Buksan ang eksperimento</a></p>
+        <img src="/assets/fighter-ex-preview.png" width="1200" height="630"
+             alt="Dalawang cel-anime na manlalaban sa gitna ng palitan ng suntok sa isang kulay-abong kalye sa ilalim ng nakaangat na riles ng tren, may maliwanag na kislap ng tama sa pagitan nila.">
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section>
+      <h2>Ang nangyari</h2>
+      <p>May gumawa ng fight animation sa Pivot Animator. Nawala na ang project file — ang tanging natira ay isang screen recording habang pinapalabas ito.</p>
+      <p>Kaya binuo itong muli mula sa mga pixel. Itinapat ang bawat frame ng recording sa unang frame, inihiwalay ang mga gumagalaw na pigura sa backdrop, at ang lumabas sa kabilang dulo ay ang nasa ilalim ng video: <strong>84 na frame</strong> ng timing, isang camera track na lumalapit hanggang bahagyang lampas sa 2&times;, at kung saan nakatayo ang bawat manlalaban sa bawat isa sa mga ito.</p>
+      <p>Wala ni isa sa orihinal na art ang naitago — hindi iyon amin para gamitin. Ang sulit na itago ay ang pagganap.</p>
+    </section>
+    <section class="reveal">
+      <h2>Ano ang itsura nito</h2>
+      <div class="shot-row">
+        <figure><a class="art-play shot-play" href="/play/2d-fighter-ex/" aria-label="Buksan ang 2D Fighter EX"><img src="/assets/shot-fighter.webp" width="1024" height="538" loading="lazy" decoding="async"
+               alt="Dalawang cel-anime na manlalaban sa gitna ng palitan ng suntok sa isang kulay-abong kalye, may nakaangat na riles ng tren at matataas na gusali sa likod nila"><span class="art-play-badge" aria-hidden="true">&#9654; Laruin</span></a>
+          
+          <figcaption>Frame 41 ng 84. Ang mga posisyon, ang timing at ang camera ay pawang mga sukat na kinuha mula sa recording; ang art lang ang bago.</figcaption></figure>
+      </div>
+    </section>
+
+
+    <section class="reveal">
+      <h2>Bakit ganito ang itsura nito</h2>
+      <p>Binubuo ang stage sa paraang binubuo ng <strong>Aracstory</strong> ang isang dungeon — mula sa seed. Palitan ang seed at ibang kalye ang makukuha mo na may parehong labanan, at may tatlong mundong puwedeng pagguhitan nito: pyudal na Japan, isang neon na hinaharap at isang tiwangwang na lupain. Ang dinala mula sa proyektong iyon ay ang ideya, hindi ang itsura: apat na layer ng mga puno ang gumagalaw sa magkakaibang bilis sa ilalim ng binawing camera, at iyon ang nagpapabago sa walong-segundong pan tungo sa isang lugar na may lalim.</p>
+      <p>Ang istilo ay <strong>cel animation ng dekada 90</strong>, at sinukat ang kulay sa halip na hulaan. Kumuha kami ng color statistics mula sa sampung CC-licensed na litrato ng totoong production cel ng Dragon Ball at AKIRA: ang pintura ng cel noong dekada 90 ay nasa humigit-kumulang <em>doble</em> ng saturation ng malambot na modernong itsura, at halos itim ang tinta nito sa halip na mainit na kayumanggi. Pareho itong inilapat dito.</p>
+      <p>Iginuhit ang mga manlalaban ayon sa sarili naming nakasulat na anime recipe — ang parehong binabasa ng Blender pipeline ng studio. Malalaki at malalambot na iris na dalawang-katlo ng taas ng mata, isang malaking specular highlight sa kaliwang itaas at isang maliit sa kanang ibaba, makapal na linya ng pilikmata sa itaas at wala sa ibaba, sinadyang malaking ulo, at linyang mainit na maitim na kayumanggi sa halip na itim. Sinusundan ng mga pupil ang kinakalaban nila, at may damit sila — kuwelyo, manggas, sinturon — sa halip na iwan bilang mga mannequin.</p>
+      <p>Sinukat ang proporsiyon ng mata sa halip na hulaan. Nagpatakbo kami ng anime-face detector sa siyam na bersyon ng iisang karakter mula sa siyam na magkakaibang artist: ang isang mata ay humigit-kumulang isang-katlo ng lapad ng mukha, bahagyang mas mataas kaysa sa lapad nito, at ang pagitan ng dalawang mata ay <em>mas makitid</em> kaysa sa isang mata — kabaligtaran ng dating sinasabi ng sarili naming style guide.</p>
+      <p>Walang anuman sa art ang pinili sa tantiya lang: ang bawat kulay sa isang manlalaban ay halo ng dalawang value mula sa anime palette ng studio, at may test na magpapabagsak sa build kapag hindi na ito totoo.</p>
+      <p>Walang anuman dito ang manu-manong inayos ang pose. Ang bawat posisyon, bawat hinto at bawat galaw ng camera ay sukat na kinuha mula sa orihinal na recording.</p>
+    </section>
+
+    <section class="reveal">
+      <h2>Mga puwedeng subukan</h2>
+      <ul>
+        <li>Pabagalin ito sa 0.1&times; at panoorin ang hinto bago ang hagis — iyon ang pinakamahabang frame sa buong piyesa, at iyon ang dahilan kung bakit tumatama ang sandaling iyon.</li>
+        <li>Isa-isahin ang frame 53. Doon tumatama ang malakas na suntok.</li>
+        <li>Pindutin nang ilang beses ang button na reseed. Hindi kailanman nagbabago ang labanan.</li>
+      </ul>
+      <p><a class="cta" href="/play/2d-fighter-ex/">Buksan ang eksperimento</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Nakalaan ang lahat ng karapatan.<br> Ang Magestican Studios at ang logo ng Magestican Studios ay mga trademark ng Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">
+      <a href="/tl/about.html">Tungkol sa amin</a> &middot; <a href="/tl/privacy.html">Privacy</a> &middot; <a href="/tl/terms.html">Mga tuntunin</a> &middot; <a href="https://www.youtube.com/@ameliagurl">Si Amelia sa YouTube</a> &middot; Static ang site &middot; walang cookies, anonymous na bilang lang</p>
+    
+    <p class="footer-browse">Tumingin: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a> &middot; <a href="/tl/word-games.html">Libreng word games</a></p>
+    
+  </footer>
+  <script type="module" src="/assets/site.js?v=70fbb79-20260926T064643Z"></script>
+
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    initAnalytics({ page: 'tl-2d-fighter-ex' });
+    trackPlayClicks();
+  </script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <p class="lang-note">Nasa Tagalog ang pahinang ito. Nasa English ang mismong mga laro; halos walang text ang chess, checkers at ludo.</p>
+</body>
+</html>

@@ -1,131 +1,937 @@
 <!doctype html>
-<html lang="es" dir="ltr">
+<html lang="es-419">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Juegos online gratis sin registro — Magestican Studios</title>
-  <meta name="description" content="Juegos de mesa y de palabras gratis en el navegador. Sin registro, sin descargas y sin cronómetro. Juega solo o con hasta cuatro personas en una sala.">
+  <meta name="description" content="Juegos online gratis, sin descargar y sin registro: FPS por equipos, karts, survival horror, ajedrez, ludo, juegos de palabras y estrategia. Abre un enlace y juega.">
+  <meta name="keywords" content="browser games, no download games, remote team game, work from home game, office game, WebRTC multiplayer, free multiplayer browser game, chromebook game, magestican studios, Farmyshoot">
   <link rel="canonical" href="https://magesticanstudios.com/es/">
   <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/">
   <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/">
   <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/">
   <link rel="alternate" hreflang="de" href="https://magesticanstudios.com/de/">
   <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/">
+  
+
+  
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
   <meta name="mobile-web-app-capable" content="yes">
+  
+
+
   <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
   <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Magestican Studios">
-  <meta property="og:locale" content="es">
+  <meta property="og:locale" content="es_LA">
   <meta property="og:title" content="Juegos online gratis sin registro — Magestican Studios">
-  <meta property="og:description" content="Juegos de mesa y de palabras gratis en el navegador. Sin registro, sin descargas y sin cronómetro. Juega solo o con hasta cuatro personas en una sala.">
+  <meta property="og:description" content="Juegos online gratis sin descargar y sin registro: FPS por equipos, karts, survival horror, ajedrez, ludo, juegos de palabras y estrategia de diez minutos.">
   <meta property="og:url" content="https://magesticanstudios.com/es/">
-  <meta property="og:image" content="https://magesticanstudios.com/assets/farmy-chess-preview.png">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Juegos online gratis sin registro — Magestican Studios">
-  <meta name="twitter:description" content="Juegos de mesa y de palabras gratis en el navegador. Sin registro, sin descargas y sin cronómetro. Juega solo o con hasta cuatro personas en una sala.">
-  <meta name="twitter:image" content="https://magesticanstudios.com/assets/farmy-chess-preview.png">
-  <meta name="build" content="495bb05-20260926T044312Z">
-  <link rel="stylesheet" href="/styles.css">
-  <script type="module">
-    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
-    try {
-      initAnalytics({ page: 'es-index' });
-      trackPlayClicks();
-    } catch { /* never block a page on telemetry */ }
+  <meta name="twitter:description" content="Sin descargar, sin registro, solo un código de sala.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Magestican Studios",
+  "url": "https://magesticanstudios.com/es/",
+  "logo": "https://magesticanstudios.com/favicon.svg",
+  "description": "Un estudio pequeño que hace juegos gratis para el navegador que no requieren descargar nada ni registrarse."
+}
   </script>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "VideoGame",
-  "name": "Juegos online gratis, sin registro",
+  "@type": "WebSite",
+  "name": "Magestican Studios",
   "url": "https://magesticanstudios.com/es/",
-  "description": "Juegos de mesa y de palabras gratis en el navegador. Sin registro, sin descargas y sin cronómetro. Juega solo o con hasta cuatro personas en una sala.",
-  "inLanguage": "es",
-  "publisher": {
-    "@type": "Organization",
-    "name": "Magestican Studios",
-    "url": "https://magesticanstudios.com"
-  },
-  "gamePlatform": [
-    "Web browser",
-    "Mobile browser"
-  ],
-  "applicationCategory": "Game",
-  "operatingSystem": "Any (browser)",
-  "playMode": [
-    "SinglePlayer",
-    "MultiPlayer"
-  ],
-  "numberOfPlayers": {
-    "@type": "QuantitativeValue",
-    "minValue": 1,
-    "maxValue": 4
-  },
-  "offers": {
-    "@type": "Offer",
-    "price": 0,
-    "priceCurrency": "USD",
-    "availability": "https://schema.org/InStock"
-  },
-  "accessibilityFeature": [
-    "highContrastDisplay",
-    "largePrint",
-    "structuralNavigation"
-  ],
-  "accessibilityHazard": [
-    "noFlashingHazard",
-    "noMotionSimulationHazard"
+  "inLanguage": "es-419"
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Juegos de Magestican Studios",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmyshoot",
+        "url": "https://magesticanstudios.com/es/farmyshoot.html",
+        "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+        "genre": [
+          "Multijugador",
+          "Disparos en primera persona",
+          "Captura la bandera"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": "MultiPlayer",
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmy Uprising",
+        "url": "https://magesticanstudios.com/es/farmy-uprising.html",
+        "image": "https://magesticanstudios.com/assets/farmy-uprising-preview.png",
+        "genre": [
+          "Estrategia",
+          "Estrategia en tiempo real",
+          "Casual"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": [
+          "SinglePlayer"
+        ],
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmy Evil Hills",
+        "url": "https://magesticanstudios.com/es/farmy-evil-hills.html",
+        "image": "https://magesticanstudios.com/assets/feh-corridor.png",
+        "genre": [
+          "Survival horror",
+          "Acción",
+          "Tercera persona"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": [
+          "SinglePlayer"
+        ],
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmy Kart",
+        "url": "https://magesticanstudios.com/es/farmykart.html",
+        "image": "https://magesticanstudios.com/assets/farmykart-race.png",
+        "genre": [
+          "Carreras",
+          "Carreras de karts",
+          "Arcade"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": [
+          "SinglePlayer",
+          "MultiPlayer"
+        ],
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 5,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmy Tiles",
+        "url": "https://magesticanstudios.com/es/farmy-tiles.html",
+        "image": "https://magesticanstudios.com/assets/farmy-tiles-preview.png",
+        "genre": [
+          "Palabras",
+          "De mesa",
+          "Casual"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": [
+          "SinglePlayer",
+          "MultiPlayer"
+        ],
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 6,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmy Crosswords",
+        "url": "https://magesticanstudios.com/es/farmy-crosswords.html",
+        "image": "https://magesticanstudios.com/assets/farmy-crosswords-preview.png",
+        "genre": [
+          "Palabras",
+          "Rompecabezas",
+          "Casual"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": [
+          "SinglePlayer",
+          "MultiPlayer",
+          "CoOp"
+        ],
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 7,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmy Chess",
+        "url": "https://magesticanstudios.com/es/ajedrez-online-gratis.html",
+        "image": "https://magesticanstudios.com/assets/farmy-chess-preview.png",
+        "genre": [
+          "De mesa",
+          "Estrategia",
+          "Casual"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": [
+          "SinglePlayer",
+          "MultiPlayer"
+        ],
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 8,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmy Checkers",
+        "url": "https://magesticanstudios.com/es/farmy-checkers.html",
+        "image": "https://magesticanstudios.com/assets/farmy-checkers-preview.png",
+        "genre": [
+          "De mesa",
+          "Estrategia",
+          "Casual"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": [
+          "SinglePlayer",
+          "MultiPlayer"
+        ],
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 9,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmy Ludo",
+        "url": "https://magesticanstudios.com/es/parchis-online-con-amigos.html",
+        "image": "https://magesticanstudios.com/assets/farmy-ludo-preview.png",
+        "genre": [
+          "De mesa",
+          "Familiar",
+          "Casual"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": [
+          "SinglePlayer",
+          "MultiPlayer"
+        ],
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 10,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Zelakas In Space",
+        "url": "https://magesticanstudios.com/es/zelakas-in-space.html",
+        "image": "https://magesticanstudios.com/assets/zelakas-ingame.png",
+        "genre": [
+          "Arcade",
+          "Shoot 'em up",
+          "Espacio"
+        ],
+        "gamePlatform": [
+          "Web browser"
+        ],
+        "playMode": "SinglePlayer",
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 11,
+      "item": {
+        "@type": "VideoGame",
+        "name": "2D Fighter EX",
+        "url": "https://magesticanstudios.com/es/2d-fighter-ex.html",
+        "image": "https://magesticanstudios.com/assets/fighter-ex-preview.png",
+        "genre": [
+          "Experimental",
+          "Animación",
+          "Peleas"
+        ],
+        "gamePlatform": [
+          "Web browser"
+        ],
+        "playMode": "SinglePlayer",
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 12,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Farmy Moon Life",
+        "url": "https://magesticanstudios.com/es/farmy-moon-life.html",
+        "image": "https://magesticanstudios.com/assets/farmy-moon-life-preview.jpg",
+        "genre": [
+          "Simulación",
+          "Simulación de vida",
+          "Casual"
+        ],
+        "gamePlatform": [
+          "Web browser",
+          "Mobile browser"
+        ],
+        "playMode": [
+          "SinglePlayer",
+          "MultiPlayer"
+        ],
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 13,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Silk & Seam",
+        "url": "https://magesticanstudios.com/es/silk-and-seam.html",
+        "image": "https://magesticanstudios.com/assets/silk-and-seam-preview.jpg",
+        "genre": [
+          "Simulación",
+          "Casual"
+        ],
+        "gamePlatform": [
+          "Web browser"
+        ],
+        "playMode": "SinglePlayer",
+        "applicationCategory": "Game",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 14,
+      "item": {
+        "@type": "VideoGame",
+        "name": "Aracstory",
+        "url": "https://magesticanstudios.com/es/#games",
+        "image": "https://magesticanstudios.com/assets/aracstory-preview.png",
+        "genre": [
+          "Aventura",
+          "Roguelike"
+        ],
+        "gamePlatform": [
+          "Web browser"
+        ],
+        "playMode": "SinglePlayer",
+        "applicationCategory": "Game"
+      }
+    }
   ]
 }
   </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/es/"><img src="/assets/logo.svg" alt="Magestican Studios" width="32" height="32"><span class="brand-name">Magestican Studios</span></a>
-    <nav aria-label="Juegos">
-      <a href="/es/" aria-current="page">Inicio</a>
+    <a href="/es/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/es/#games">Juegos</a>
+      <a href="/es/farmyshoot.html">Farmyshoot</a>
+      <a href="/es/farmy-uprising.html">Uprising</a>
+      <a href="/es/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/es/farmykart.html">Kart</a>
+      <a href="/es/farmy-tiles.html">Fichas</a>
+      <a href="/es/farmy-crosswords.html">Crucigramas</a>
       <a href="/es/ajedrez-online-gratis.html">Ajedrez</a>
-      <a href="/es/parchis-online-con-amigos.html">Parchís</a>
-      <a href="/">English</a>
+      <a href="/es/farmy-checkers.html">Damas</a>
+      <a href="/es/parchis-online-con-amigos.html">Ludo</a>
+      <a href="/es/zelakas-in-space.html">Zelakas</a>
+      <a href="/es/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/es/farmy-moon-life.html">Moon Life</a>
+      <a href="/es/silk-and-seam.html">Silk & Seam</a>
+      <a href="/es/for-remote-teams.html">Para equipos</a>
+      <a href="/es/about.html">Acerca de</a>
+      <a href="/es/magazine/">Revista</a>
+      <a href="/es/reviews.html">Reseñas</a>
     </nav>
+    <details class="lang-switch"><summary aria-label="Idioma: Español"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>ES</span></summary><ul><li><a href="/" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/" hreflang="es" lang="es-419" data-lang="es" aria-current="page">Español</a></li><li><a href="/pt/" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/" hreflang="tl" lang="tl" data-lang="tl">Tagalog</a></li></ul></details>
   </header>
-  <main class="page" style="max-width: 52rem; margin: 0 auto; padding: 2rem 1.25rem;">
-    <h1>Juegos online gratis, sin registro</h1>
-    <p class="lead">Se abren en la pestaña que ya tienes. No hay que instalar nada, no hay que crear una cuenta y no hay ningún reloj corriendo.</p>
-    <p>
-      <a class="cta" href="/play/farmy-chess/">Jugar ahora</a>
-    </p>
-    <ul class="badges">
-      <li>Gratis</li>
-      <li>Sin descargas</li>
-      <li>Sin registro</li>
-      <li>Cualquier navegador</li>
-    </ul>
-      <section>
-        <h2>Nada que instalar</h2>
-        <p>Todo funciona en el navegador, en un ordenador, una tablet o un teléfono. También se puede instalar como aplicación si quieres jugar sin conexión.</p>
-      </section>
-      <section>
-        <h2>Sin cuenta y sin anuncios</h2>
-        <p>No pedimos correo ni contraseña. Para jugar con alguien se comparte un código de sala y ya está.</p>
-      </section>
-      <section>
-        <h2>Pensados para leerse bien</h2>
-        <p>Letra grande, mucho contraste y nada que dependa solo del color. Sin partidas cronometradas.</p>
-      </section>
-    <p class="note">Las páginas están en español; los juegos en sí están en inglés, aunque el ajedrez y el parchís apenas tienen texto.</p>
+
+  
+
+
+
+
+  <div class="hero-band hero-band--tall">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero-grid">
+        <div class="hero">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          <h1>Juegos online gratis, sin registro</h1>
+          <p class="tagline"><span class="hand-underline">Mundos procedurales, corazones dibujados a mano.</span> Juegos pequeños hechos a mano a partir de una semilla, y juegos de navegador para jugar con amigos; todos se abren en la pestaña en la que ya estás.</p>
+          <ul class="hero-facts">
+            <li>Gratis</li>
+            <li>Sin descargar</li>
+            <li>Sin registro</li>
+            <li>Cualquier navegador</li>
+          </ul>
+          <div class="cta-row">
+            <a class="cta cta-primary" href="/play/farmyshoot/">Jugar a Farmyshoot</a>
+            
+
+
+
+
+
+
+
+            <a class="cta cta-secondary" href="/es/#games">Ver los catorce juegos</a>
+          </div>
+        </div>
+        <figure class="hero-shot">
+          <a class="art-play" href="/play/farmyshoot/" aria-label="Jugar a Farmyshoot"><img src="/assets/shot-farmyshoot.webp" width="1024" height="576" fetchpriority="high" decoding="async"
+               alt="Farmyshoot, Central Park Rink al atardecer: un quiosco de madera sobre adoquines hexagonales, faroles del parque encendidos y detrás el horizonte de una ciudad de vóxeles con ventanas iluminadas"><span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span></a>
+          <figcaption>Farmyshoot — Central Park Rink al atardecer, uno de cinco mapas de vóxeles generados a partir de una semilla. La misma semilla siempre construye la misma ciudad.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <section id="games" class="games">
+      <div class="section-head">
+        <h2>Juegos</h2>
+        
+
+
+
+
+
+
+        <p class="section-note">Doce que puedes jugar en esta pestaña, ahora mismo. Uno llega a su pantalla de título pero no más allá, y otro todavía está en construcción.</p>
+      </div>
+      <hr class="wobble-rule">
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <div class="game-grid">
+        <article class="game-card game-teambonding reveal" data-game="team-bonding">
+          <div class="game-art">
+            <a class="art-play" href="/play/farmyshoot/" aria-label="Jugar a Farmyshoot">
+            <img src="/assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async" data-par="20"
+                 alt="Farmyshoot, el mapa Farm Maze: un soldado granjero con cabeza de espantapájaros de pie en un pasillo entre paredes de maíz alto">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Farmyshoot</h3>
+            <p class="game-meta">FPS 3D de vóxeles · multijugador P2P · WASD + mouse</p>
+            <p>Un FPS para el navegador con movimiento deslizante sobre hielo, soldados animales de granja, mapas de vóxeles generados por semilla y red P2P (sin servidor). Captura 5 banderas para ganar, a menos que el equipo perdedor resuelva un anagrama (en inglés) en 10 segundos. ¿Vaca, gallina, cerdo u oveja?</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador · <a class="play-link" href="/play/farmyshoot/">Jugar ahora →</a> · <a href="/es/farmyshoot.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-uprising reveal" data-game="farmy-uprising">
+          <div class="game-art">
+            <a class="art-play" href="/play/farmy-uprising/" aria-label="Jugar a Farmy Uprising">
+            <img src="/assets/farmy-uprising-preview.png" width="884" height="555" loading="lazy" decoding="async" data-par="16"
+                 alt="Farmy Uprising visto desde arriba: un potrero verde en manos de los animales junto a terreno neutral pálido y zonas oscuras sin explorar, una bandada de gallinas en el centro y una barra arriba que muestra alimento, agua y el marcador">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Farmy Uprising</h3>
+            <p class="game-meta">Estrategia de diez minutos &middot; animales contra granjeros &middot; celular, computadora y control</p>
+            <p>La Madre Naturaleza despertó a los animales y quieren que las granjas desaparezcan. El mapa está dividido en sectores y cada segundo que controlas uno te paga, así que el puntaje se mide en terreno controlado y no en bajas. The Herd lo toma todo y no retiene nada; The Yield lo toma despacio y nunca lo devuelve. Los dos quieren el río.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador &middot; <a class="play-link" href="/play/farmy-uprising/">Jugar ahora &rarr;</a> &middot; <a href="/es/farmy-uprising.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-feh reveal" data-game="farmy-evil-hills">
+          <div class="game-art">
+            <a class="art-play" href="/play/farmy-evil-hills/" aria-label="Jugar a Farmy Evil Hills">
+            <img src="/assets/feh-corridor.png" width="1084" height="605" loading="lazy" decoding="async" data-par="20"
+                 alt="Farmy Evil Hills: un pasillo manchado de sangre en una estación granja de Venus, visto desde arriba y detrás de un granjero con overol, con una gallina mutante delante de él">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Farmy Evil Hills</h3>
+            <p class="game-meta">Survival horror al estilo PS1 &middot; Venus &middot; celular y computadora</p>
+            <p>La estación Hesper-4 no ha reportado en tres ciclos, y la Agencia de Agricultura Espacial manda a un solo inspector porque uno sale más barato que dos. Algo que viaja por el aire pasó por el ganado y no afecta a los humanos, lo cual es peor: Xander no está enfermo, es comida. Apunta abajo &mdash; una gallina sin una pata deja de correr más rápido que tú.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador &middot; <a class="play-link" href="/play/farmy-evil-hills/">Jugar ahora &rarr;</a> &middot; <a href="/es/farmy-evil-hills.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-farmykart reveal" data-game="farmykart">
+          <div class="game-art">
+            <a class="art-play" href="/play/farmykart/" aria-label="Jugar a Farmy Kart">
+            <img src="/assets/kart-sheep.webp" width="720" height="405" loading="lazy" decoding="async" data-par="20"
+                 alt="Farmy Kart: un kart en la línea de salida con una oveja al volante, un alerón rojo detrás y un granero a lo lejos">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Farmy Kart</h3>
+            <p class="game-meta">Carreras de karts en 3D · turbos de derrape · compite con amigos por enlace</p>
+            <p>La granja de Farmyshoot, en karts. Derrapa en una curva para cargar un mini-turbo, lánzale una bosta de vaca a quien vaya ganando y reza para que a nadie detrás de ti le toque el tractor desbocado. Seis circuitos en dos copas, parrillas de ocho karts y una conducción en la que la trompa y la dirección de avance pueden no coincidir.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador · <a class="play-link" href="/play/farmykart/">Jugar ahora →</a> · <a href="/es/farmykart.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <article class="game-card game-crosswords reveal" data-game="farmy-crosswords">
+          <div class="game-art">
+            <a class="art-play" href="/play/farmy-crosswords/" aria-label="Jugar a los juegos de palabras Farmy">
+            <img src="/assets/farmy-crosswords-preview.png" width="1164" height="885" loading="lazy" decoding="async" data-par="20"
+                 alt="Farmy Crosswords jugando Strands: una cuadrícula de seis por ocho con fichas de letras de contorno negro sobre papel crema, y una cinta azul trazada sobre seis de ellas mientras se dibuja una palabra con el mouse">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Farmy Crosswords</h3>
+            <p class="game-meta">Cinco juegos de palabras en inglés tras una sola puerta &middot; 223 acertijos &middot; jueguen juntos en una sala</p>
+            <p>Todo el estante de juegos de palabras (en inglés) se abre desde aquí. Farmy Five, Farmy Hive, Farmy Herds y Farmy Furrows están en el menú al que llegas; Farmy Tiles, el tablero completo de quince por quince con la bolsa real de cien fichas, está una fila más abajo. Arrastra sobre las letras y una cinta sigue tu mano, o simplemente empieza a escribir, en cualquier momento, sin hacer clic en nada antes. Hecho para ojos que ya no tienen veinte años: nada menor a 18px, nada que se presione menor a 48px, cada color respaldado por una forma y sin reloj en ningún lado. Presiona Play together y otra persona se une al mismo acertijo: encuentran las palabras entre los dos, y no es una carrera.</p>
+            <p>Cada uno tiene además su propia página: <a href="/es/farmy-five.html">Farmy Five</a> (227 palabras), <a href="/es/farmy-hive.html">Farmy Hive</a> (53 colmenas), <a href="/es/farmy-herds.html">Farmy Herds</a> (90 juegos), <a href="/es/farmy-furrows.html">Farmy Furrows</a> (96 cuadrículas) y <a href="/es/farmy-tiles.html">Farmy Tiles</a>.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador &middot; <a class="play-link" href="/play/farmy-crosswords/">Jugar ahora &rarr;</a> &middot; <a href="/es/farmy-crosswords.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-chess reveal" data-game="farmy-chess">
+          <div class="game-art">
+            <a class="art-play" href="/play/farmy-chess/" aria-label="Jugar a Farmy Chess">
+            <img src="/assets/farmy-chess-preview.png" width="1164" height="885" loading="lazy" decoding="async" data-par="20"
+                 alt="Farmy Chess en la posición inicial: un tablero crema y café con las filas y columnas impresas, piezas grandes en contorno, una lista de jugadas al lado y la frase You to move debajo">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Farmy Chess</h3>
+            <p class="game-meta">Ajedrez completo &middot; un bot o un enlace compartido &middot; sin reloj en ningún lado</p>
+            <p>El juego completo, no una parte: enroque por ambos lados, captura al paso, coronación a cualquier pieza y las tablas que no son por ahogado. El tablero trae sus propias filas y columnas, el estado se escribe en una oración debajo, y deshacer una jugada está en la pantalla en lugar de escondido. No hay temporizador por jugada, ni por partida, ni nada con cuenta regresiva en el borde, que es la razón por la que la mayoría de quienes dejaron de jugar ajedrez online lo dejaron.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador &middot; <a class="play-link" href="/play/farmy-chess/">Jugar ahora &rarr;</a> &middot; <a href="/es/ajedrez-online-gratis.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-checkers reveal" data-game="farmy-checkers">
+          <div class="game-art">
+            <a class="art-play" href="/play/farmy-checkers/" aria-label="Jugar a Farmy Checkers">
+            <img src="/assets/farmy-checkers-preview.png" width="1200" height="630" loading="lazy" decoding="async" data-par="20"
+                 alt="Farmy Checkers en la posición inicial: caras de vaca rellenas en las tres filas de arriba y caras de oveja en contorno en las tres de abajo, en un tablero cuyas casillas oscuras están rayadas en lugar de rellenas">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Farmy Checkers</h3>
+            <p class="game-meta">Damas inglesas &middot; captura obligatoria &middot; un bot o un enlace compartido</p>
+            <p>Doce ovejas contra doce vacas. La captura es obligatoria, un salto que deja listo otro sigue en el mismo turno, y una pieza que llega a la última fila se corona. Los dos bandos son animales distintos en lugar de dos colores del mismo disco, y las casillas oscuras están rayadas en lugar de rellenas, así que el tablero se entiende en un celular bajo el sol y aunque no distingas los dos tonos. Deshacer está en la pantalla. Sin reloj.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador &middot; <a class="play-link" href="/play/farmy-checkers/">Jugar ahora &rarr;</a> &middot; <a href="/es/farmy-checkers.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-ludo reveal" data-game="farmy-ludo">
+          <div class="game-art">
+            <a class="art-play" href="/play/farmy-ludo/" aria-label="Jugar a Farmy Ludo">
+            <img src="/assets/farmy-ludo-preview.png" width="1164" height="885" loading="lazy" decoding="async" data-par="20"
+                 alt="Farmy Ludo durante la preparación: el tablero en forma de cruz con cuatro equipos llamados Sheep, Geese, Pigs y Cows (ovejas, gansos, cerdos y vacas), cada uno con su propia forma (círculo, triángulo, cuadrado y rombo) y flechas en el recorrido que indican la dirección de avance">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Farmy Ludo</h3>
+            <p class="game-meta">Cuatro equipos &middot; contra la computadora o por un enlace &middot; sin reloj</p>
+            <p>Un seis para salir, captura al caer sobre un rival solo y una tirada exacta para llegar a casa. Los cuatro equipos son ovejas, gansos, cerdos y vacas, y cada uno lleva su propia forma además de su propio color (un círculo, un triángulo, un cuadrado y un rombo), porque cuatro discos de colores es lo estándar, y es lo estándar lo que falla con luz intensa. El recorrido lleva flechas, así que la dirección de avance está dibujada en lugar de tener que recordarla.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador &middot; <a class="play-link" href="/play/farmy-ludo/">Jugar ahora &rarr;</a> &middot; <a href="/es/parchis-online-con-amigos.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-zelakas reveal" data-game="zelakas">
+          <div class="game-art">
+            <a class="art-play" href="/play/zelakas/" aria-label="Jugar a Zelakas In Space">
+            <img src="/assets/shot-zelakas.webp" width="1024" height="547" loading="lazy" decoding="async" data-par="20"
+                 alt="Pantalla de título de Zelakas In Space: una nave alienígena morada junto a un planeta oscuro, con el menú en verde neón sobre un campo de estrellas">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Zelakas In Space</h3>
+            <p class="game-meta">Shooter arcade 2D · tres finales · teclado</p>
+            <p>Esquiva asteroides, agujeros negros y drones. Tres finales según cuánto despejes. Hecho en 2014 con Gonzalo y Christian en ActionScript 3; hoy se puede jugar en un navegador moderno gracias a Ruffle, y se está rehaciendo en Godot 4.</p>
+            <p class="game-status"><span class="dot dot-yellow"></span> La pantalla de título funciona, los niveles todavía no arrancan — lo estamos arreglando · <a class="play-link" href="/play/zelakas/">Abrirlo →</a> · <a href="/es/zelakas-in-space.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-fighter-ex reveal" data-game="2d-fighter-ex">
+          <div class="game-art">
+            <a class="art-play" href="/play/2d-fighter-ex/" aria-label="Jugar a 2D Fighter EX">
+            <img src="/assets/shot-fighter.webp" width="1024" height="538" loading="lazy" decoding="async" data-par="20"
+                 alt="2D Fighter EX: dos peleadores de anime cel en pleno intercambio en una calle gris, con una vía de tren y edificios altos detrás">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>2D Fighter EX</h3>
+            <p class="game-meta">Experimento de animación · escenario generado por semilla · recórrelo cuadro por cuadro</p>
+            <p>EX es la abreviatura de experimento. Una animación de pelea cuyo archivo de proyecto se perdió, recuperada cuadro por cuadro a partir de una grabación de pantalla — 84 cuadros de sincronización, una cámara que se acerca hasta el doble de tamaño y dónde estaba parado cada peleador — y luego reproducida con personajes de anime cel de los años noventa en un bosque generado a partir de una semilla.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Funciona en el navegador · <a class="play-link" href="/play/2d-fighter-ex/">Abrirlo →</a> · <a href="/es/2d-fighter-ex.html">Sobre este experimento</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-moonlife reveal" data-game="farmy-moon-life">
+          <div class="game-art">
+            <a class="art-play" href="/play/farmy-moon-life/" aria-label="Jugar a Farmy Moon Life">
+            <img src="/assets/shot-fml-summer-night.jpg" width="960" height="540" loading="lazy" decoding="async" data-par="20"
+                 alt="Farmy Moon Life en una noche de verano: una casita con ventanas iluminadas, un farol encendido sobre el camino, un gato naranja y redondo con sombrero y chaleco, y un planeta con anillos en el cielo morado">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Farmy Moon Life</h3>
+            <p class="game-meta">Juego acogedor de vida &middot; huertos, mermelada y un gato terrateniente &middot; pensado primero para celular</p>
+            <p>Una luna diminuta con estaciones, una casita, un huerto y un gato redondo con chaleco llamado Felice que es dueño de toda la tierra. Cultiva fruta, prénsala para hacer jugo y mermelada, véndesela a los vecinos y gasta lo que ganes comprándole el terreno bajo sus patas. Hay aldeanos que conocer, cien cosas que construir y colocar donde quieras, otros seis planetas a un doble toque del botón de salto, y un código de seis caracteres que deja que un amigo llegue a tu luna y te ayude a cosechar el huerto.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador &middot; <a class="play-link" href="/play/farmy-moon-life/">Jugar ahora &rarr;</a> &middot; <a href="/es/farmy-moon-life.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-silk reveal" data-game="silk-and-seam">
+          <div class="game-art">
+            <a class="art-play" href="/play/silk-and-seam/" aria-label="Jugar a Silk &amp; Seam">
+            <img src="/assets/silk-and-seam-preview.jpg" width="1200" height="630" loading="lazy" decoding="async" data-par="20"
+                 alt="Silk &amp; Seam: un vestido de gala de satén rosa con perlas y dobladillo de encaje, y un vestido sirena de terciopelo azul marino, sobre maniquíes en un taller con paneles de madera">
+              <span class="art-play-badge" aria-hidden="true">&#9654; Jugar</span>
+            </a>
+          </div>
+          <div class="game-copy">
+            <h3>Silk &amp; Seam</h3>
+            <p class="game-meta">Juego acogedor de costura y confección &middot; boceta, corta, cose, presenta &middot; un jugador</p>
+            <p>Acepta encargos de clientes y confecciona el vestido que cada uno pidió: boceta el corpiño, el cuello, las mangas y la falda, elige la tela y los tintes, corta el patrón, cose las costuras en una máquina antigua y termínalo con encaje, perlas y moños. Luego se abre el telón sobre el maniquí y te pagan. Ve al pueblo a enterarte de los chismes y gana encargos de trajes de ópera, vestidos de la nobleza, bodas y saris de festival, y gasta lo que ganes en satén, terciopelo, seda y brocado de oro.</p>
+            <p class="game-status"><span class="dot dot-green"></span> Se juega en el navegador &middot; <a class="play-link" href="/play/silk-and-seam/">Jugar ahora &rarr;</a> &middot; <a href="/es/silk-and-seam.html">Sobre este juego</a></p>
+          </div>
+        </article>
+
+        <article class="game-card game-aracstory reveal" data-game="aracstory">
+          <div class="game-art">
+            <img src="/assets/shot-aracstory.webp" width="1024" height="717" loading="lazy" decoding="async" data-par="20"
+                 alt="Una sección de mundo generada de Aracstory: salas y pasillos verdes trazados a partir de una semilla, con el jugador en el punto de aparición y dos portales de salida">
+          </div>
+          <div class="game-copy">
+            <h3>Aracstory</h3>
+            <p class="game-meta">Aventura 2D · mundos de varias secciones generados por semilla · WASD</p>
+            <p>Una aventura a través de cinco mundos conectados, todos generados a partir de una sola semilla. Misma semilla, mismo mundo; nueva semilla, nueva partida. Empezó originalmente en Unity en 2013 con Nikhil V; se está rehaciendo en Godot 4.</p>
+            <p class="game-status"><span class="dot dot-yellow"></span> En desarrollo</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="about-short reveal">
+      <h2>Quiénes somos</h2>
+      <p>Magestican Studios es el sello con el que Bryan Arbelo firma juegos pequeños con mucha generación procedural y arte dibujado a mano. El motor reparte las cartas de un mazo con semilla; una persona diseña cada carta.</p>
+      <p>Sin servidores, sin launcher, sin nada en qué registrarse. Un juego es un enlace, y el enlace funciona en una laptop de trabajo bloqueada, en una Chromebook y en un celular.</p>
+      <p>También está <a href="https://www.youtube.com/@ameliagurl">Amelia</a>, que los juega en YouTube (en inglés) y no le pagan por hablar bien de ellos.</p>
+      <p><a href="/es/about.html" class="more-link">Lee la versión larga →</a></p>
+    </section>
   </main>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <nav class="browse-by" aria-labelledby="browse-head">
+    <h2 id="browse-head">Explorar por</h2>
+    <ul class="browse-by-list">
+      <li data-hub="two-player"><a href="/es/2-player-games-online.html">Juegos online para 2 jugadores</a></li>
+      <li data-hub="multiplayer"><a href="/es/multiplayer-browser-games.html">Juegos multijugador en el navegador</a></li>
+      <li data-hub="board"><a href="/es/board-games-with-friends.html">Juegos de mesa con amigos</a></li>
+      <li data-hub="word"><a href="/es/word-games.html">Juegos de palabras gratis</a></li>
+    </ul>
+  </nav>
+  
+
+  <nav class="site-map" aria-labelledby="sitemap-head">
+    <h2 id="sitemap-head">Todos los juegos, directo</h2>
+    <ul class="site-map-list">
+      <li data-sitemap="team-bonding"><a href="/es/farmyshoot.html">Farmyshoot</a> &middot; <a href="/play/farmyshoot/">jugar</a></li>
+      <li data-sitemap="farmy-uprising"><a href="/es/farmy-uprising.html">Farmy Uprising</a> &middot; <a href="/play/farmy-uprising/">jugar</a></li>
+      <li data-sitemap="farmy-evil-hills"><a href="/es/farmy-evil-hills.html">Farmy Evil Hills</a> &middot; <a href="/play/farmy-evil-hills/">jugar</a></li>
+      <li data-sitemap="farmykart"><a href="/es/farmykart.html">Farmy Kart</a> &middot; <a href="/play/farmykart/">jugar</a></li>
+      <li data-sitemap="farmy-scrabble"><a href="/es/farmy-tiles.html">Farmy Tiles</a> &middot; <a href="/play/farmy-tiles/">jugar</a></li>
+      <li data-sitemap="farmy-crosswords"><a href="/es/farmy-crosswords.html">Farmy Crosswords</a> &middot; <a href="/play/farmy-crosswords/">jugar</a></li>
+      <li data-sitemap="farmy-chess"><a href="/es/ajedrez-online-gratis.html">Farmy Chess</a> &middot; <a href="/play/farmy-chess/">jugar</a></li>
+      <li data-sitemap="farmy-checkers"><a href="/es/farmy-checkers.html">Farmy Checkers</a> &middot; <a href="/play/farmy-checkers/">jugar</a></li>
+      <li data-sitemap="farmy-ludo"><a href="/es/parchis-online-con-amigos.html">Farmy Ludo</a> &middot; <a href="/play/farmy-ludo/">jugar</a></li>
+      <li data-sitemap="zelakas"><a href="/es/zelakas-in-space.html">Zelakas In Space</a> &middot; <a href="/play/zelakas/">jugar</a></li>
+      <li data-sitemap="2d-fighter-ex"><a href="/es/2d-fighter-ex.html">2D Fighter EX</a> &middot; <a href="/play/2d-fighter-ex/">jugar</a></li>
+      <li data-sitemap="farmy-moon-life"><a href="/es/farmy-moon-life.html">Farmy Moon Life</a> &middot; <a href="/play/farmy-moon-life/">jugar</a></li>
+      <li data-sitemap="silk-and-seam"><a href="/es/silk-and-seam.html">Silk & Seam</a> &middot; <a href="/play/silk-and-seam/">jugar</a></li>
+      <li data-sitemap="farmy-five"><a href="/es/farmy-five.html">Farmy Five</a> &middot; <a href="/play/farmy-crosswords/?g=five">jugar</a></li>
+      <li data-sitemap="farmy-hive"><a href="/es/farmy-hive.html">Farmy Hive</a> &middot; <a href="/play/farmy-crosswords/?g=hive">jugar</a></li>
+      <li data-sitemap="farmy-herds"><a href="/es/farmy-herds.html">Farmy Herds</a> &middot; <a href="/play/farmy-crosswords/?g=herds">jugar</a></li>
+      <li data-sitemap="farmy-furrows"><a href="/es/farmy-furrows.html">Farmy Furrows</a> &middot; <a href="/play/farmy-crosswords/?g=furrows">jugar</a></li>
+    </ul>
+  </nav>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright © 2026 Ultra Task Pty Ltd. Todos los derechos reservados.<br> Magestican Studios y el logotipo de Magestican Studios son marcas comerciales de Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">Sitio estático · Sin cookies, solo conteos anónimos (<a href="/es/privacy.html">cómo</a>) · <a href="/es/licence.html">El código de los juegos tiene licencia MIT</a> · <a href="https://www.youtube.com/@ameliagurl">Amelia en YouTube</a><span id="support-slot"></span>
+    </p>
+    
+    <p class="footer-browse">Explorar: <a href="/es/2-player-games-online.html">Juegos online para 2 jugadores</a> &middot; <a href="/es/multiplayer-browser-games.html">Juegos multijugador en el navegador</a> &middot; <a href="/es/board-games-with-friends.html">Juegos de mesa con amigos</a> &middot; <a href="/es/word-games.html">Juegos de palabras gratis</a></p>
+    
+  </footer>
+
+  <script type="module" src="/assets/site.js?v=70fbb79-20260926T064643Z"></script>
+
+  
+
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { mountDeviceQr } from '/web-engine/ui/deviceQr.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    import { mountSupportLink } from '/web-engine/support/support.js';
+    import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
+    startVersionChecker();
+    mountDeviceQr({ label: 'Open on your phone' });
+    
+    
+    mountSupportLink(document.getElementById('support-slot'));
+    
+    
+    initAnalytics({ page: 'es-index' });
+    trackPlayClicks();
+    
+    
+    
+    
+    
+    
+    mountLeaderboard({ place: 'site', showChip: false });
+  </script>
   <script>
+    
+    
+    
+    
     if ('serviceWorker' in navigator) {
-      addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
     }
   </script>
+  <p class="lang-note">Esta página está en español. Los juegos en sí están en inglés; el ajedrez, las damas y el ludo casi no tienen texto.</p>
 </body>
 </html>

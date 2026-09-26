@@ -1,64 +1,69 @@
 <!doctype html>
-<html lang="pt-BR" dir="ltr">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Xadrez online grátis para 2, sem cadastro — Magestican</title>
-  <meta name="description" content="Xadrez completo no navegador: roque, en passant, promoção, xeque-mate e todos os empates. Grátis, sem cadastro e com sala para duas pessoas.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Xadrez online grátis para 2, sem cadastro — Farmy Chess</title>
+  <meta name="description" content="Xadrez completo e grátis no navegador: roque, en passant, promoção e todos os empates. Peças grandes e de alto contraste, sem relógio, sem conta.">
+  <link rel="icon" href="/favicon.svg">
   <link rel="canonical" href="https://magesticanstudios.com/pt/xadrez-online-gratis.html">
   <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/farmy-chess.html">
   <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/ajedrez-online-gratis.html">
   <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/xadrez-online-gratis.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/farmy-chess.html">
   <link rel="alternate" hreflang="de" href="https://magesticanstudios.com/de/schach-online-kostenlos.html">
   <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/farmy-chess.html">
+  
+
+  
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
   <meta name="mobile-web-app-capable" content="yes">
+  
+
+
   <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
   <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  <meta name="keywords" content="farmy chess, free browser chess, chess no download, chess without an account, large print chess, chess for older players, chess with no timer, play chess with a friend online, chess against the computer free">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Magestican Studios">
   <meta property="og:locale" content="pt_BR">
-  <meta property="og:title" content="Xadrez online grátis para 2, sem cadastro — Magestican">
-  <meta property="og:description" content="Xadrez completo no navegador: roque, en passant, promoção, xeque-mate e todos os empates. Grátis, sem cadastro e com sala para duas pessoas.">
+  <meta property="og:title" content="Farmy Chess - xadrez grátis no navegador, peças grandes e sem relógio">
+  <meta property="og:description" content="Xadrez completo, jogado numa aba do navegador. Peças grandes de alto contraste, nenhum cronômetro, um adversário que joga no seu nível e um link que você pode enviar para duas pessoas dividirem um tabuleiro.">
   <meta property="og:url" content="https://magesticanstudios.com/pt/xadrez-online-gratis.html">
   <meta property="og:image" content="https://magesticanstudios.com/assets/farmy-chess-preview.png">
+  <meta property="og:site_name" content="Magestican Studios">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Xadrez online grátis para 2, sem cadastro — Magestican">
-  <meta name="twitter:description" content="Xadrez completo no navegador: roque, en passant, promoção, xeque-mate e todos os empates. Grátis, sem cadastro e com sala para duas pessoas.">
+  <meta name="twitter:title" content="Farmy Chess - xadrez online grátis no navegador, sem baixar">
+  <meta name="twitter:description" content="Todas as regras, incluindo en passant e os empates. Peças grandes, alto contraste, sem relógio, sem conta.">
   <meta name="twitter:image" content="https://magesticanstudios.com/assets/farmy-chess-preview.png">
-  <meta name="build" content="495bb05-20260926T044312Z">
-  <link rel="stylesheet" href="/styles.css">
-  <script type="module">
-    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
-    try {
-      initAnalytics({ page: 'pt-xadrez-online-gratis' });
-      trackPlayClicks();
-    } catch { /* never block a page on telemetry */ }
-  </script>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "VideoGame",
-  "name": "Xadrez online grátis, para 2",
-  "url": "https://magesticanstudios.com/pt/xadrez-online-gratis.html",
-  "description": "Xadrez completo no navegador: roque, en passant, promoção, xeque-mate e todos os empates. Grátis, sem cadastro e com sala para duas pessoas.",
-  "inLanguage": "pt-BR",
+  "name": "Farmy Chess",
+  "url": "https://magesticanstudios.com/play/farmy-chess/",
+  "description": "Um jogo de xadrez completo e grátis no navegador: roque, en passant, promoção, xeque-mate, afogamento e todos os empates que as regras definem. Feito para olhos que já não têm vinte anos - peças grandes, alto contraste e nenhum cronômetro. Um adversário que joga no seu nível e uma sala peer-to-peer para duas pessoas dividirem um tabuleiro sem que nenhuma delas precise criar uma conta.",
+  "image": "https://magesticanstudios.com/assets/farmy-chess-preview.png",
   "publisher": {
     "@type": "Organization",
     "name": "Magestican Studios",
     "url": "https://magesticanstudios.com"
   },
+  "genre": [
+    "Tabuleiro",
+    "Estratégia",
+    "Casual"
+  ],
   "gamePlatform": [
     "Web browser",
     "Mobile browser"
   ],
-  "applicationCategory": "Game",
-  "operatingSystem": "Any (browser)",
   "playMode": [
     "SinglePlayer",
     "MultiPlayer"
@@ -68,12 +73,9 @@
     "minValue": 1,
     "maxValue": 2
   },
-  "offers": {
-    "@type": "Offer",
-    "price": 0,
-    "priceCurrency": "USD",
-    "availability": "https://schema.org/InStock"
-  },
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "pt-BR",
   "accessibilityFeature": [
     "highContrastDisplay",
     "largePrint",
@@ -82,50 +84,169 @@
   "accessibilityHazard": [
     "noFlashingHazard",
     "noMotionSimulationHazard"
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "O Farmy Chess é grátis?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim. Grátis, sem anúncios, sem cadastro e nada para instalar. Abre na aba do navegador que você já tem, no computador, no tablet ou no celular."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Ele segue todas as regras do xadrez?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim, todas. Roque dos dois lados e as quatro condições que o proíbem, en passant, promoção para qualquer peça, xeque, xeque-mate, afogamento, a regra dos cinquenta lances, a tripla repetição e o material insuficiente. Um lance que deixaria o seu próprio rei em xeque não pode ser jogado."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Tem relógio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não, e isso é de propósito. Não há tempo por jogada, não há tempo por partida e nada fazendo contagem regressiva na tela. Você pode sair do tabuleiro no meio de uma jogada e voltar depois."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Posso jogar xadrez contra o computador?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim. O adversário joga no seu nível em vez de numa força fixa, então é uma partida de verdade, e não uma demonstração."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Posso jogar xadrez online com um amigo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim. Crie uma sala e você recebe um link; envie para quem você quiser jogar e a pessoa abre no navegador. Nenhum de vocês precisa de conta e não há nada para instalar. Os dois navegadores se comunicam diretamente."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "O Farmy Chess é fácil de enxergar?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Esse é justamente o objetivo. As peças são desenhadas grandes e com formas que se distinguem pelo contorno, e não só pela cor, o tabuleiro tem alto contraste e nada importante aparece em letra pequena. Foi feito para olhos mais velhos e para quem joga no celular sob luz forte."
+      }
+    }
   ]
 }
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    try {
+      initAnalytics({ page: 'pt-farmy-chess' });
+      trackPlayClicks();
+    } catch {  }
   </script>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/pt/"><img src="/assets/logo.svg" alt="Magestican Studios" width="32" height="32"><span class="brand-name">Magestican Studios</span></a>
-    <nav aria-label="Jogos">
-      <a href="/pt/">Início</a>
-      <a href="/pt/xadrez-online-gratis.html" aria-current="page">Xadrez</a>
+    <a href="/pt/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/pt/#games">Jogos</a>
+      <a href="/pt/farmyshoot.html">Farmyshoot</a>
+      <a href="/pt/farmy-uprising.html">Uprising</a>
+      <a href="/pt/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/pt/farmykart.html">Kart</a>
+      <a href="/pt/farmy-tiles.html">Tiles</a>
+      <a href="/pt/farmy-crosswords.html">Palavras cruzadas</a>
+      <a href="/pt/xadrez-online-gratis.html">Xadrez</a>
+      <a href="/pt/farmy-checkers.html">Damas</a>
       <a href="/pt/ludo-online-com-amigos.html">Ludo</a>
-      <a href="/farmy-chess.html">English</a>
+      <a href="/pt/zelakas-in-space.html">Zelakas</a>
+      <a href="/pt/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/pt/farmy-moon-life.html">Moon Life</a>
+      <a href="/pt/silk-and-seam.html">Silk & Seam</a>
+      <a href="/pt/for-remote-teams.html">Para equipes</a>
+      <a href="/pt/about.html">Sobre</a>
+      <a href="/pt/magazine/">Revista</a>
+      <a href="/pt/reviews.html">Análises</a>
     </nav>
+    <details class="lang-switch"><summary aria-label="Idioma: Português"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>PT</span></summary><ul><li><a href="/farmy-chess.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/ajedrez-online-gratis.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/xadrez-online-gratis.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt" aria-current="page">Português</a></li><li><a href="/tl/farmy-chess.html" hreflang="tl" lang="tl" data-lang="tl">Tagalog</a></li></ul></details>
   </header>
-  <main class="page" style="max-width: 52rem; margin: 0 auto; padding: 2rem 1.25rem;">
-    <h1>Xadrez online grátis, para 2</h1>
-    <p class="lead">As regras completas do xadrez, contra o computador ou contra outra pessoa. Sem conta, sem download e sem relógio.</p>
-    <p>
-      <a class="cta" href="/play/farmy-chess/">Jogar agora</a>
-    </p>
-    <ul class="badges">
-      <li>Grátis</li>
-      <li>Sem download</li>
-      <li>Sem cadastro</li>
-      <li>Qualquer navegador</li>
-    </ul>
-      <section>
-        <h2>As regras completas</h2>
-        <p>Roque pequeno e grande, en passant, promoção para qualquer peça, xeque-mate, afogamento, regra dos cinquenta lances, repetição tripla e material insuficiente.</p>
-      </section>
-      <section>
-        <h2>Para duas pessoas</h2>
-        <p>Abra uma sala, compartilhe o link e joguem no mesmo tabuleiro. Ninguém precisa de conta.</p>
-      </section>
-      <section>
-        <h2>Sem relógio</h2>
-        <p>Não há tempo por lance nem por partida. Você pode sair no meio e voltar depois.</p>
-      </section>
-    <p class="note">As páginas estão em português; os jogos em si estão em inglês, embora xadrez e ludo quase não tenham texto.</p>
+
+  <main>
+    <h1>Farmy Chess &mdash; xadrez online com um amigo, sem cadastro, sem cronômetro</h1>
+    <p class="lede">Xadrez completo, com peças que dá para reconhecer do outro lado da sala e nenhum relógio perto do tabuleiro.</p>
+
+    <p><a class="cta" href="/play/farmy-chess/">Jogue Farmy Chess no navegador &rarr;</a></p>
+
+    <img src="/assets/farmy-chess-preview.png" width="1164" height="885" loading="lazy" decoding="async"
+         alt="Farmy Chess no meio de uma partida: um tabuleiro de alto contraste com peças grandes, cada uma com uma forma que se reconhece pelo contorno e também pela cor, e nenhum relógio na tela">
+
+    <h2>Todas as regras, incluindo as que costumam ser puladas</h2>
+    <p>Muito xadrez grátis é quase xadrez. Move as peças corretamente e depois omite em silêncio as partes que só aparecem uma vez por mês: en passant, a diferença entre os dois roques, a promoção para algo que não seja dama e os empates que não são afogamento.</p>
+    <p>O Farmy Chess joga o jogo inteiro. Roque dos dois lados, com as quatro condições que o proíbem aplicadas de fato, e não presumidas. En passant, no único lance em que é permitido. Promoção para qualquer peça, então a subpromoção que ganha a posição está à sua disposição. Xeque, xeque-mate e afogamento, e os empates por cinquenta lances, por tripla repetição e por material insuficiente. Um lance que deixaria o seu próprio rei em xeque simplesmente não é oferecido.</p>
+
+    <h2>Não há relógio</h2>
+    <p>Nada neste tabuleiro faz contagem regressiva. Não há cronômetro no lance, não há cronômetro na partida e nenhuma barra se esvaziando discretamente no canto da tela enquanto você pensa. Você pode parar no meio de um lance, olhar outra coisa e voltar.</p>
+    <p>Isso é o que mais pedem as pessoas que pararam de jogar xadrez online: elas não pararam porque as partidas eram difíceis demais, pararam porque um relógio transforma pensar em punição.</p>
+
+    <h2>Feito para olhos que já não têm vinte anos</h2>
+    <p>As peças são desenhadas grandes, e com formas que permitem distingui-las só pelo contorno — um cavalo tem uma silhueta diferente de um bispo, quer você consiga ver o detalhe de cada um ou não. O tabuleiro tem alto contraste. Nada de que você precisa está escrito em letra pequena, e nada importante é indicado só pela cor.</p>
+    <p>O mesmo cuidado vale para os outros jogos de tabuleiro do estúdio, e é o motivo de eles existirem: a maioria dos jogos de tabuleiro para navegador é criada num monitor grande por alguém que enxerga perfeitamente.</p>
+
+    <h2>Um adversário que joga no seu nível</h2>
+    <p>O adversário do computador se ajusta a você em vez de ficar numa força fixa. Um bot que sempre ganha é uma demonstração e um bot que sempre perde é um brinquedo; de qualquer jeito, você para depois de duas partidas. Este tenta te dar uma partida de verdade.</p>
+
+    <h2>Ou jogue com alguém</h2>
+    <p>Crie uma sala e você recebe um link. Envie para quem você quiser jogar — por mensagem, por e-mail, do jeito que vocês já conversam — e a pessoa abre no navegador. Nenhum de vocês se cadastra, nenhum de vocês instala nada, e os dois navegadores se comunicam diretamente, e não por um servidor que guarda a sua partida.</p>
+
+    <h2>Sem conta, sem login, nada guardado</h2>
+    <p>Não há conta para criar, então não há nada para verificar, nada para lembrar e nada para apagar depois. O site não usa cookies e guarda apenas contagens anônimas.</p>
+
+    <h2>Os outros jogos de tabuleiro</h2>
+    <p>O mesmo tabuleiro, as mesmas peças grandes e a mesma ausência de relógio em <a href="/pt/farmy-checkers.html">Farmy Checkers</a> e <a href="/pt/ludo-online-com-amigos.html">Farmy Ludo</a>. Se você prefere palavras, <a href="/pt/farmy-crosswords.html">Farmy Crosswords</a> reúne palavras cruzadas, um jogo de adivinhar palavras de cinco letras, uma colmeia, um quebra-cabeça de agrupar palavras e um caça-palavras temático, todos em inglês, e <a href="/pt/farmy-tiles.html">Farmy Tiles</a> é um tabuleiro próprio.</p>
+
+    <p><a class="cta" href="/play/farmy-chess/">Jogue Farmy Chess no navegador &rarr;</a></p>
+    
+    <p class="more-like-this">Mais assim: <a href="/pt/2-player-games-online.html">Jogos online para 2 jogadores</a> &middot; <a href="/pt/multiplayer-browser-games.html">Jogos multijogador no navegador</a> &middot; <a href="/pt/board-games-with-friends.html">Jogos de tabuleiro com amigos</a></p>
+    
   </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Todos os direitos reservados.<br> Magestican Studios e o logotipo da Magestican Studios são marcas registradas da Ultra Task Pty Ltd, Austrália.</p>
+    <p class="colophon">
+      <a href="/pt/about.html">Sobre</a> &middot; <a href="/pt/privacy.html">Privacidade</a> &middot; <a href="/pt/terms.html">Termos</a> &middot; <a href="https://www.youtube.com/@ameliagurl">Amelia no YouTube</a> &middot; Site estático &middot; sem cookies, apenas contagens anônimas</p>
+    
+    <p class="footer-browse">Navegue: <a href="/pt/2-player-games-online.html">Jogos online para 2 jogadores</a> &middot; <a href="/pt/multiplayer-browser-games.html">Jogos multijogador no navegador</a> &middot; <a href="/pt/board-games-with-friends.html">Jogos de tabuleiro com amigos</a> &middot; <a href="/pt/word-games.html">Jogos de palavras grátis</a></p>
+    
+  </footer>
+  <script type="module" src="/assets/site.js?v=70fbb79-20260926T064643Z"></script>
   <script>
+    
+    
+    
+    
     if ('serviceWorker' in navigator) {
-      addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
     }
   </script>
+  <p class="lang-note">Esta página está em português. Os jogos em si estão em inglês; xadrez, damas e ludo quase não têm texto.</p>
 </body>
 </html>

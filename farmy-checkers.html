@@ -7,6 +7,11 @@
   <meta name="description" content="Free English draughts in your browser: twelve sheep against twelve cows, compulsory takes, multiple jumps and crowned kings. No clock, no account.">
   <link rel="icon" href="./favicon.svg">
   <link rel="canonical" href="https://magesticanstudios.com/farmy-checkers.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/farmy-checkers.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/farmy-checkers.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/farmy-checkers.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/farmy-checkers.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/farmy-checkers.html">
   
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
@@ -111,6 +116,7 @@
       <a href="./magazine/">Magazine</a>
       <a href="./reviews.html">Reviews</a>
     </nav>
+    <details class="lang-switch"><summary aria-label="Language: English"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>EN</span></summary><ul><li><a href="/farmy-checkers.html" hreflang="en" lang="en" data-lang="en" aria-current="page">English</a></li><li><a href="/es/farmy-checkers.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/farmy-checkers.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/farmy-checkers.html" hreflang="tl" lang="tl" data-lang="tl">Tagalog</a></li></ul></details>
   </header>
 
   <main>
@@ -192,7 +198,7 @@
     <p class="footer-browse">Browse: <a href="/2-player-games-online.html">2-player games online</a> &middot; <a href="/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/board-games-with-friends.html">Board games with friends</a> &middot; <a href="/word-games.html">Free word games</a></p>
     
   </footer>
-  <script type="module" src="./assets/site.js?v=495bb05-20260926T044312Z"></script>
+  <script type="module" src="./assets/site.js?v=70fbb79-20260926T064643Z"></script>
   <script>
     
     
@@ -204,5 +210,16 @@
       });
     }
   </script>
+<script>
+(function(){try{var T={"es":{"href":"/es/farmy-checkers.html","text":"Ver esta página en español","close":"Cerrar"},"pt":{"href":"/pt/farmy-checkers.html","text":"Ver esta página em português","close":"Fechar"},"tl":{"href":"/tl/farmy-checkers.html","text":"Tingnan ang pahinang ito sa Tagalog","close":"Isara"}};
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.lang-switch a[data-lang]');if(a)localStorage.setItem('ms-lang',a.getAttribute('data-lang'));});
+var chosen=localStorage.getItem('ms-lang');if(chosen)return;
+var langs=navigator.languages||[navigator.language||''];var code=null;
+for(var i=0;i<langs.length&&!code;i++){var p=String(langs[i]).toLowerCase().split('-')[0];if(p==='en')break;if(p==='fil')p='tl';if(T[p])code=p;}
+if(!code)return;var t=T[code];var bar=document.createElement('div');bar.className='lang-suggest';bar.setAttribute('role','region');bar.setAttribute('aria-label',t.text);
+var a=document.createElement('a');a.href=t.href;a.textContent=t.text;a.setAttribute('data-lang',code);a.addEventListener('click',function(){localStorage.setItem('ms-lang',code);});
+var x=document.createElement('button');x.type='button';x.textContent=t.close;x.addEventListener('click',function(){localStorage.setItem('ms-lang','en');bar.remove();});
+bar.appendChild(a);bar.appendChild(x);document.body.insertBefore(bar,document.body.firstChild);}catch(e){}})();
+</script>
 </body>
 </html>

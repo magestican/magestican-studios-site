@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="tl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmyshoot, para sa mga hindi naglalaro ng games — Farmyshoot devlog</title>
+  <meta name="description" content="Voxel shooter sa browser ang Farmyshoot para sa remote teams: isang link, walang download, may bots, at round na kasya sa isang meeting.">
+  <link rel="canonical" href="https://magesticanstudios.com/tl/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="tl_PH">
+  <meta property="og:title" content="Farmyshoot, para sa mga hindi naglalaro ng games — Farmyshoot devlog">
+  <meta property="og:description" content="Voxel shooter sa browser ang Farmyshoot para sa remote teams: isang link, walang download, may bots, at round na kasya sa isang meeting.">
+  <meta property="og:url" content="https://magesticanstudios.com/tl/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta property="article:published_time" content="2026-08-30">
+  <meta property="article:section" content="Development log">
+  <meta property="article:tag" content="Farmyshoot">
+  <meta property="article:tag" content="Remote teams">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Farmyshoot, para sa mga hindi naglalaro ng games — Farmyshoot devlog">
+  <meta name="twitter:description" content="Voxel shooter sa browser ang Farmyshoot para sa remote teams: isang link, walang download, may bots, at round na kasya sa isang meeting.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Farmyshoot, para sa mga taong hindi naglalaro ng games",
+  "description": "Voxel shooter sa browser ang Farmyshoot para sa remote teams: isang link, walang download, may bots, at round na kasya sa isang meeting.",
+  "datePublished": "2026-08-30",
+  "dateModified": "2026-08-30",
+  "author": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://magesticanstudios.com/favicon.svg"
+    }
+  },
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "inLanguage": "tl",
+  "keywords": "Farmyshoot, Remote teams",
+  "articleSection": "Development log",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Ang magazine ng Magestican Studios",
+    "url": "https://magesticanstudios.com/tl/magazine/"
+  },
+  "about": {
+    "@type": "VideoGame",
+    "name": "Farmyshoot",
+    "url": "https://magesticanstudios.com/tl/farmyshoot.html"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://magesticanstudios.com/tl/magazine/farmyshoot-for-people-who-dont-play-games.html"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Magestican Studios",
+      "item": "https://magesticanstudios.com/tl/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Magazine",
+      "item": "https://magesticanstudios.com/tl/magazine/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Farmyshoot, para sa mga taong hindi naglalaro ng games",
+      "item": "https://magesticanstudios.com/tl/magazine/farmyshoot-for-people-who-dont-play-games.html"
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/magazine.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body class="mag-body">
+  <header class="site-header">
+    <a href="/tl/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/tl/#games">Mga laro</a>
+      <a href="/tl/farmyshoot.html">Farmyshoot</a>
+      <a href="/tl/farmy-uprising.html">Uprising</a>
+      <a href="/tl/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/tl/farmykart.html">Kart</a>
+      <a href="/tl/farmy-tiles.html">Tiles</a>
+      <a href="/tl/farmy-crosswords.html">Crosswords</a>
+      <a href="/tl/farmy-chess.html">Chess</a>
+      <a href="/tl/farmy-checkers.html">Checkers</a>
+      <a href="/tl/farmy-ludo.html">Ludo</a>
+      <a href="/tl/zelakas-in-space.html">Zelakas</a>
+      <a href="/tl/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/tl/farmy-moon-life.html">Moon Life</a>
+      <a href="/tl/silk-and-seam.html">Silk & Seam</a>
+      <a href="/tl/for-remote-teams.html">Para sa mga team</a>
+      <a href="/tl/about.html">Tungkol sa amin</a>
+      <a href="/tl/magazine/">Magazine</a>
+      <a href="/tl/reviews.html">Mga review</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Wika: Tagalog"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>TL</span></summary><ul><li><a href="/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="tl" lang="tl" data-lang="tl" aria-current="page">Tagalog</a></li></ul></details>
+  </header>
+
+  <main>
+    <p class="mag-crumb"><a href="/tl/">Magestican Studios</a> &rsaquo; <a href="/tl/magazine/">Magazine</a></p>
+
+    <article class="mag-article">
+      <h1>Farmyshoot, para sa mga taong hindi naglalaro ng games</h1>
+      <p class="mag-meta">
+        <time datetime="2026-08-30">30 Agosto 2026</time>
+        <span class="mag-tag">Farmyshoot</span>
+        <span>4 minutong basa</span>
+      </p>
+      <p class="mag-lede">Isang team shooter na ginawa para sa labing-isang tao sa meeting na hindi pa nakakahawak ng controller, at sa isang naglalaro gabi-gabi. Kailangang pareho nilang ma-enjoy ang parehong dalawampung minuto.</p>
+
+      <p>Ang Farmyshoot ay voxel na team shooter na bumubukas sa isang browser tab. Umiiral ito dahil paulit-ulit na hinihilingan ang mga remote team na gumawa ng isang bagay nang magkakasama, at ang mga pagpipilian ay quiz, video call na may suot na sombrero, o larong hindi ma-install ng kalahati ng grupo.</p>
+      <h2>Ang mahirap ay ang pagkakaiba-iba ng grupo</h2>
+      <p>Hindi manonood ang isang team sa trabaho. Sa anumang grupo ng isang dosena, may taong naglalaro nang pangkompetisyon at may taong talagang hindi pa nakakapagpagalaw ng karakter gamit ang dalawang kamay, at pareho silang nasa iisang dalawampung minuto. Ang larong masaya para sa isa ay nakakahiya o nakakabagot para sa isa pa.</p>
+      <p>Karamihan ng disenyo ay tungkol sa pagpapaliit ng agwat na iyon nang walang iniinsulto. Walang kailangang pag-aralan bago magsimula. Walang bibilhin. Walang karakter na bubuuin, walang loadout na pipiliin, walang progression na mahuhulihan mo. Nag-i-spawn ka nang hawak na ang kailangan mo.</p>
+      <p>Mapagbigay ang pag-asinta, at sinadyang masikip ang mga mapa, dahil ang pagkakaiba ng magaling na manlalaro at ng baguhan ay pinakamalaki sa malayuan at pinakamaliit sa pasilyo. Dahil layunin ng team ang sukatan sa halip na bilang ng napatay, ang taong hindi magaling bumaril ay puwede pa ring maging malinaw na dahilan kung bakit nanalo ang panig nila.</p>
+      <h2>Walang naghihintay na mapuno ang room</h2>
+      <p>Magbubukas ka ng room at magpapadala ng iisang link. Ang sinumang mag-click nito ay pasok na. Agad pinupunan ng mga bot ang mga bakanteng upuan, kaya nagsisimula ang round kapag handa na ang unang dalawang tao sa halip na kapag nahanap na ng huling tao ang mensahe. Kapag may dumating na totoong tao, umaatras ang isang bot at ibinibigay ang puwesto nito.</p>
+      <p>Parang maliit na kaginhawahan lang iyon pero iyon ang buong pagkakaiba ng paglalaro at hindi paglalaro. Ang anumang larong nangangailangan ng walong taong dumating bago may mangyari ay lalaruin nang isang beses lang.</p>
+      <h2>Binuo mula sa isang seed</h2>
+      <p>Binubuo ang mga mapa sa halip na ipadala nang buo. Ang isang seed ay bumubuo ng lungsod, bukid na nababalot ng niyebe, o rink; laging parehong lugar ang binubuo ng parehong seed, kaya puwedeng balikan ng isang team ang mapang nagustuhan nila, at nananatiling sapat na maliit ang download para magsimula ang laro sa loob ng humigit-kumulang isang segundo.</p>
+      <p>Ibig sabihin din nito ay kami ang may kontrol sa pagbabago ng mga mapa. Kapag lumabas na may sulok ang isang mapa na pinagtataguan ng lahat, isang numero lang ang ayos sa halip na muling pag-export.</p>
+      <h2>Kung ano ang hindi ito</h2>
+      <p>Hindi ito competitive na shooter at hindi rin nito sinusubukang maging ganoon. Walang ranking, walang season, walang kailangang i-grind. Dalawampung minuto ito na mapagsasaluhan ng isang grupo ng magkakatrabaho nang hindi kailangang nakapaglaro ng kahit ano dati ang sinuman.</p>
+      <p>Kung may sampung minuto ang team mo sa dulo ng isang call, isang link lang ang layo nito.</p>
+
+      <p class="mag-endnote">
+        <a class="mag-readon" href="/play/farmyshoot/">Laruin ang Farmyshoot sa browser mo &rarr;</a> &middot; <a href="/tl/farmyshoot.html">Tungkol sa Farmyshoot</a> &middot; <a href="/tl/reviews.html">Ang tingin namin sa sarili naming mga laro</a>
+      </p>
+    </article>
+
+    <section class="mag-more">
+      <h2>Iba pa mula sa magazine</h2>
+      <ul>
+        <li><a href="/tl/magazine/five-games-one-tab.html">Limang laro, isang tab, walang download</a></li>
+        <li><a href="/tl/magazine/farmy-kart-cliffs-and-gliders.html">Farmy Kart: mga bangin, glider at apat na kart na ibang-iba sa isa't isa</a></li>
+      </ul>
+      <p><a class="mag-readon" href="/tl/magazine/">Lahat ng artikulo &rarr;</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Nakalaan ang lahat ng karapatan.<br> Ang Magestican Studios at ang logo ng Magestican Studios ay mga trademark ng Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">Static ang site &middot; Walang cookies, anonymous na bilang lang (<a href="/tl/privacy.html">paano</a>)</p>
+    <p class="footer-browse">Tumingin: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a> &middot; <a href="/tl/word-games.html">Libreng word games</a></p>
+  </footer>
+
+  <!-- The studio banner is imported below. Explained in render.mjs rather than
+       here: a comment written into this template is emitted into every article
+       and shipped, because buildPublic.mjs's stripper works on source files and
+       cannot reach inside an inline script it generated. The publicSurface
+       guard caught exactly that. -->
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    import('/assets/studioBanner.js').catch(() => {});
+    startVersionChecker();
+    initAnalytics({ page: 'tl-magazine-farmyshoot-for-people-who-dont-play-games' });
+    trackPlayClicks();
+  </script>
+  <p class="lang-note">Nasa Tagalog ang pahinang ito. Nasa English ang mismong mga laro; halos walang text ang chess, checkers at ludo.</p>
+</body>
+</html>

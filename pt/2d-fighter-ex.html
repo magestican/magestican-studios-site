@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2D Fighter EX — um experimento de animação para você mexer</title>
+  <meta name="description" content="Experimento grátis no navegador: uma luta extraída quadro a quadro de uma gravação, reencenada por lutadores de anime cel numa rua gerada.">
+  <meta name="keywords" content="2d fighter ex, animation experiment, browser animation, procedural tile art, free browser game, magestican studios, frame by frame animation recovery">
+  <link rel="canonical" href="https://magesticanstudios.com/pt/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/2d-fighter-ex.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/2d-fighter-ex.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:title" content="2D Fighter EX — um experimento de animação para você mexer">
+  <meta property="og:description" content="Uma luta recuperada quadro a quadro de uma gravação, reencenada em arte de tiles gerada proceduralmente. Avance e volte, deixe em câmera lenta, gere a rua com outra semente.">
+  <meta property="og:url" content="https://magesticanstudios.com/pt/2d-fighter-ex.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/fighter-ex-preview.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="2D Fighter EX — um experimento de animação para você mexer">
+  <meta name="twitter:description" content="84 quadros recuperados, reencenados em arte de tiles procedural. Avance e volte, deixe em câmera lenta, gere a rua com outra semente.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/fighter-ex-preview.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "2D Fighter EX",
+  "url": "https://magesticanstudios.com/pt/2d-fighter-ex.html",
+  "description": "Um experimento de animação. Uma animação de luta foi recuperada quadro a quadro de uma gravação de tela, reduzida a dados de tempo, câmera e posição, e é reencenada no navegador com personagens de anime cel dos anos 1990 sobre um de três mundos gerados proceduralmente: o Japão feudal, um futuro neon e uma terra devastada.",
+  "image": "https://magesticanstudios.com/assets/fighter-ex-preview.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "genre": [
+    "Experimental",
+    "Animação",
+    "Luta"
+  ],
+  "gamePlatform": [
+    "Web browser"
+  ],
+  "playMode": "SinglePlayer",
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "pt-BR",
+  "datePublished": "2026",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="/pt/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/pt/#games">Jogos</a>
+      <a href="/pt/farmyshoot.html">Farmyshoot</a>
+      <a href="/pt/farmy-uprising.html">Uprising</a>
+      <a href="/pt/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/pt/farmykart.html">Kart</a>
+      <a href="/pt/farmy-tiles.html">Tiles</a>
+      <a href="/pt/farmy-crosswords.html">Palavras cruzadas</a>
+      <a href="/pt/xadrez-online-gratis.html">Xadrez</a>
+      <a href="/pt/farmy-checkers.html">Damas</a>
+      <a href="/pt/ludo-online-com-amigos.html">Ludo</a>
+      <a href="/pt/zelakas-in-space.html">Zelakas</a>
+      <a href="/pt/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/pt/farmy-moon-life.html">Moon Life</a>
+      <a href="/pt/silk-and-seam.html">Silk & Seam</a>
+      <a href="/pt/for-remote-teams.html">Para equipes</a>
+      <a href="/pt/about.html">Sobre</a>
+      <a href="/pt/magazine/">Revista</a>
+      <a href="/pt/reviews.html">Análises</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Idioma: Português"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>PT</span></summary><ul><li><a href="/2d-fighter-ex.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/2d-fighter-ex.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/2d-fighter-ex.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt" aria-current="page">Português</a></li><li><a href="/tl/2d-fighter-ex.html" hreflang="tl" lang="tl" data-lang="tl">Tagalog</a></li></ul></details>
+  </header>
+
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <h1>2D Fighter EX &mdash; um experimento de animação para você mexer</h1>
+        <p class="lede">EX é abreviação de experimento. Uma animação de luta, recuperada quadro a quadro de uma gravação de tela, reencenada por um navegador que a desenha como personagens de anime num cenário que ele gera a partir de uma semente.</p>
+        <p><a class="cta cta-primary" href="/play/2d-fighter-ex/">Abra o experimento</a></p>
+        <img src="/assets/fighter-ex-preview.png" width="1200" height="630"
+             alt="Dois lutadores de anime cel no meio de uma troca de golpes numa rua cinza sob uma linha de trem elevada, com um clarão de impacto entre eles.">
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section>
+      <h2>O que aconteceu</h2>
+      <p>Alguém fez uma animação de luta no Pivot Animator. O arquivo do projeto se perdeu — tudo o que sobrou foi uma gravação de tela dela sendo reproduzida.</p>
+      <p>Então ela foi reconstruída a partir dos pixels. Cada quadro da gravação foi alinhado ao primeiro, as figuras em movimento foram separadas do fundo, e o que saiu do outro lado foi o que estava por baixo do vídeo: <strong>84 quadros</strong> de tempo, um movimento de câmera que aproxima até pouco mais de 2&times; e a posição de cada lutador em cada um deles.</p>
+      <p>Nada da arte original pôde ser mantido — não era nosso para usar. O que valia a pena manter era a atuação.</p>
+    </section>
+    <section class="reveal">
+      <h2>Como ele é</h2>
+      <div class="shot-row">
+        <figure><a class="art-play shot-play" href="/play/2d-fighter-ex/" aria-label="Jogar 2D Fighter EX"><img src="/assets/shot-fighter.webp" width="1024" height="538" loading="lazy" decoding="async"
+               alt="Dois lutadores de anime cel no meio de uma troca de golpes numa rua cinza, com uma linha de trem elevada e prédios altos atrás deles"><span class="art-play-badge" aria-hidden="true">&#9654; Jogar</span></a>
+          
+          <figcaption>Quadro 41 de 84. As posições, o tempo e a câmera são todos medidas tiradas da gravação; só a arte é nova.</figcaption></figure>
+      </div>
+    </section>
+
+
+    <section class="reveal">
+      <h2>Por que tem esta aparência</h2>
+      <p>O cenário é gerado do jeito que o <strong>Aracstory</strong> gera uma masmorra — a partir de uma semente. Mude a semente e você tem uma rua diferente com a mesma luta, e há três mundos em que ela pode ser desenhada: o Japão feudal, um futuro neon e uma terra devastada. O que veio daquele projeto foi a ideia, não o visual: quatro camadas de árvores rolam em velocidades diferentes sob a câmera recuperada, e é isso que transforma uma panorâmica de oito segundos num lugar com profundidade.</p>
+      <p>O estilo é <strong>animação em cel dos anos 1990</strong>, e a cor é medida, não chutada. Tiramos estatísticas de cor de dez fotografias com licença CC de cels de produção reais de Dragon Ball e AKIRA: a tinta de cel dos anos 90 tem cerca do <em>dobro</em> da saturação do visual moderno suave, e o contorno é quase preto, e não marrom quente. As duas coisas são aplicadas aqui.</p>
+      <p>Os lutadores são desenhados segundo a nossa própria receita escrita de anime — a mesma que o pipeline de Blender do estúdio lê. Íris grandes e suaves com dois terços da altura do olho, um brilho especular grande no alto à esquerda e um pequeno embaixo à direita, uma linha de cílios superior grossa e nenhuma inferior, uma cabeça propositalmente grande demais e um traço marrom-escuro quente em vez de preto. As pupilas seguem quem eles estão enfrentando, e eles estão vestidos — gola, mangas, cinto — em vez de ficarem como manequins.</p>
+      <p>As proporções dos olhos são medidas, não chutadas. Rodamos um detector de rostos de anime em nove versões de um mesmo personagem feitas por nove artistas diferentes: um olho tem cerca de um terço da largura do rosto, é um pouco mais alto do que largo, e o espaço entre os olhos é <em>mais estreito</em> do que um olho — o contrário do que o nosso próprio guia de estilo dizia.</p>
+      <p>Nada na arte é escolhido no olho: cada cor de um lutador é uma mistura de dois valores da paleta de anime do estúdio, e um teste faz o build falhar se isso deixar de ser verdade.</p>
+      <p>Nada aqui foi posado à mão. Cada posição, cada pausa e cada movimento de câmera é a medida tirada da gravação original.</p>
+    </section>
+
+    <section class="reveal">
+      <h2>Coisas para experimentar</h2>
+      <ul>
+        <li>Reduza para 0.1&times; e observe a pausa antes do arremesso — é o quadro mais longo da peça, e é por causa dele que aquele momento funciona.</li>
+        <li>Avance quadro a quadro até o 53. É nele que o golpe pesado acerta.</li>
+        <li>Aperte o botão de nova semente algumas vezes. A luta nunca muda.</li>
+      </ul>
+      <p><a class="cta" href="/play/2d-fighter-ex/">Abra o experimento</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Todos os direitos reservados.<br> Magestican Studios e o logotipo da Magestican Studios são marcas registradas da Ultra Task Pty Ltd, Austrália.</p>
+    <p class="colophon">
+      <a href="/pt/about.html">Sobre</a> &middot; <a href="/pt/privacy.html">Privacidade</a> &middot; <a href="/pt/terms.html">Termos</a> &middot; <a href="https://www.youtube.com/@ameliagurl">Amelia no YouTube</a> &middot; Site estático &middot; sem cookies, apenas contagens anônimas</p>
+    
+    <p class="footer-browse">Navegue: <a href="/pt/2-player-games-online.html">Jogos online para 2 jogadores</a> &middot; <a href="/pt/multiplayer-browser-games.html">Jogos multijogador no navegador</a> &middot; <a href="/pt/board-games-with-friends.html">Jogos de tabuleiro com amigos</a> &middot; <a href="/pt/word-games.html">Jogos de palavras grátis</a></p>
+    
+  </footer>
+  <script type="module" src="/assets/site.js?v=70fbb79-20260926T064643Z"></script>
+
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    initAnalytics({ page: 'pt-2d-fighter-ex' });
+    trackPlayClicks();
+  </script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <p class="lang-note">Esta página está em português. Os jogos em si estão em inglês; xadrez, damas e ludo quase não têm texto.</p>
+</body>
+</html>

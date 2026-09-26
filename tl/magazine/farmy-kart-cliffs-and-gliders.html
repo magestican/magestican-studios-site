@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="tl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmy Kart: bangin, glider at apat na ibang-ibang kart — devlog</title>
+  <meta name="description" content="Bago sa Farmy Kart: tatlong bangin na i-glide, apat na kart na iba ang handling, drift smoke, tyre marks at phone controls na kita na.">
+  <link rel="canonical" href="https://magesticanstudios.com/tl/magazine/farmy-kart-cliffs-and-gliders.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/magazine/farmy-kart-cliffs-and-gliders.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/magazine/farmy-kart-cliffs-and-gliders.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/magazine/farmy-kart-cliffs-and-gliders.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/magazine/farmy-kart-cliffs-and-gliders.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/magazine/farmy-kart-cliffs-and-gliders.html">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="tl_PH">
+  <meta property="og:title" content="Farmy Kart: bangin, glider at apat na ibang-ibang kart — devlog">
+  <meta property="og:description" content="Bago sa Farmy Kart: tatlong bangin na i-glide, apat na kart na iba ang handling, drift smoke, tyre marks at phone controls na kita na.">
+  <meta property="og:url" content="https://magesticanstudios.com/tl/magazine/farmy-kart-cliffs-and-gliders.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta property="article:published_time" content="2026-08-30">
+  <meta property="article:section" content="Development log">
+  <meta property="article:tag" content="Farmy Kart">
+  <meta property="article:tag" content="Update">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Farmy Kart: bangin, glider at apat na ibang-ibang kart — devlog">
+  <meta name="twitter:description" content="Bago sa Farmy Kart: tatlong bangin na i-glide, apat na kart na iba ang handling, drift smoke, tyre marks at phone controls na kita na.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Farmy Kart: mga bangin, glider at apat na kart na ibang-iba sa isa't isa",
+  "description": "Bago sa Farmy Kart: tatlong bangin na i-glide, apat na kart na iba ang handling, drift smoke, tyre marks at phone controls na kita na.",
+  "datePublished": "2026-08-30",
+  "dateModified": "2026-08-30",
+  "author": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://magesticanstudios.com/favicon.svg"
+    }
+  },
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "inLanguage": "tl",
+  "keywords": "Farmy Kart, Update",
+  "articleSection": "Development log",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Ang magazine ng Magestican Studios",
+    "url": "https://magesticanstudios.com/tl/magazine/"
+  },
+  "about": {
+    "@type": "VideoGame",
+    "name": "Farmy Kart",
+    "url": "https://magesticanstudios.com/tl/farmykart.html"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://magesticanstudios.com/tl/magazine/farmy-kart-cliffs-and-gliders.html"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Magestican Studios",
+      "item": "https://magesticanstudios.com/tl/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Magazine",
+      "item": "https://magesticanstudios.com/tl/magazine/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Farmy Kart: mga bangin, glider at apat na kart na ibang-iba sa isa't isa",
+      "item": "https://magesticanstudios.com/tl/magazine/farmy-kart-cliffs-and-gliders.html"
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/magazine.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body class="mag-body">
+  <header class="site-header">
+    <a href="/tl/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/tl/#games">Mga laro</a>
+      <a href="/tl/farmyshoot.html">Farmyshoot</a>
+      <a href="/tl/farmy-uprising.html">Uprising</a>
+      <a href="/tl/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/tl/farmykart.html">Kart</a>
+      <a href="/tl/farmy-tiles.html">Tiles</a>
+      <a href="/tl/farmy-crosswords.html">Crosswords</a>
+      <a href="/tl/farmy-chess.html">Chess</a>
+      <a href="/tl/farmy-checkers.html">Checkers</a>
+      <a href="/tl/farmy-ludo.html">Ludo</a>
+      <a href="/tl/zelakas-in-space.html">Zelakas</a>
+      <a href="/tl/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/tl/farmy-moon-life.html">Moon Life</a>
+      <a href="/tl/silk-and-seam.html">Silk & Seam</a>
+      <a href="/tl/for-remote-teams.html">Para sa mga team</a>
+      <a href="/tl/about.html">Tungkol sa amin</a>
+      <a href="/tl/magazine/">Magazine</a>
+      <a href="/tl/reviews.html">Mga review</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Wika: Tagalog"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>TL</span></summary><ul><li><a href="/magazine/farmy-kart-cliffs-and-gliders.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/magazine/farmy-kart-cliffs-and-gliders.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/magazine/farmy-kart-cliffs-and-gliders.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/magazine/farmy-kart-cliffs-and-gliders.html" hreflang="tl" lang="tl" data-lang="tl" aria-current="page">Tagalog</a></li></ul></details>
+  </header>
+
+  <main>
+    <p class="mag-crumb"><a href="/tl/">Magestican Studios</a> &rsaquo; <a href="/tl/magazine/">Magazine</a></p>
+
+    <article class="mag-article">
+      <h1>Farmy Kart: mga bangin, glider at apat na kart na ibang-iba sa isa't isa</h1>
+      <p class="mag-meta">
+        <time datetime="2026-08-30">30 Agosto 2026</time>
+        <span class="mag-tag">Farmy Kart</span>
+        <span>4 minutong basa</span>
+      </p>
+      <p class="mag-lede">Nagkaroon ang bukid ng bulkan, lagoon na may mga pating at nagyelong bangin — at kapag lumampas ka sa gilid, naglalabas ng pakpak ang kart mo.</p>
+
+      <p>Ang Farmy Kart ay kart racer sa bakuran ng bukid na bumubukas sa mismong tab na bukas mo na. Tatlong circuit, walong kart sa grid, at tae ng baka at bunton ng dayami na maihahagis mo sa sinumang nangunguna. Ito ang pinakamalaking update na natanggap nito, at karamihan dito ay tungkol sa lupang nasa ilalim mo.</p>
+      <h2>Lumaki ang mga circuit, at nagkaroon ng bangin</h2>
+      <p>Mas malapad at mas diretso na ang bawat circuit kaysa dati. Parang pagbaba iyon ng kalidad pero kabaligtaran ang totoo: mas mabilis na ang mga kart ngayon, at ang kurbadang masaya sa isandaan ay pader na lang sa dalawandaan. Mas maraming kalsadang magagamit, mas maraming espasyo para magkatabi kayong pumasok sa kurbada, at mas malaking tsansang makaligtas sa pagkakamali.</p>
+      <p>May bangin din ang bawat circuit.</p>
+      <p>Umaakyat ang Sunflower Circuit sa gilid ng isang bulkan at bumabagsak sa caldera. Tumatalon ang Muddy Bottom sa isang lagoon na may mga pating, na sumusunggab sa iyo habang dumadaan ka pero hindi ka talaga naaabot. Tumatawid ang Frostfield sa isang nagyeyelong bangin. Sa bawat isa, basta na lang natatapos ang kalsada, at ang susunod na bahagi nito ay malayo sa ibaba at malayo sa unahan.</p>
+      <h2>Wala kang pipindutin para mag-glide</h2>
+      <p>Kapag lumampas ka sa bangin, maglalabas ng glider ang kart mo. Walang button at walang timing na kailangang pag-aralan: kung sapat ang layo ng lupa sa ibaba mo, lalabas ang mga pakpak, at titiklop ang mga ito pagbaba mo. Kapag nagmaniobra ka habang nasa itaas, malaki ang magiging pagbabago sa kung saan ka babagsak.</p>
+      <p>Umaatras at tumataas ang camera habang nagla-glide ka, kaya nakikita mo ang lalapagan sa halip na ang ilalim ng sarili mong kart. Unti-unti itong gumagalaw papasok at palabas sa halip na biglang lumipat, na mas mahalaga kaysa sa inaakala mo kapag sinusubukan mong itapat ang paglapag nang mabilis.</p>
+      <p>Sa pag-glide din nagsisimulang maramdaman kung gaano talaga kaiba ang apat na karakter, dahil ang bilis mo pagdating sa gilid ng bangin ang nagpapasya kung gaano kalayo ang aabutin mo.</p>
+      <h2>Apat na kart, hindi iisang kart sa apat na kulay</h2>
+      <p>May sariling makina na ngayon ang bawat driver, at makikilala mo sila mula sa likod habang mabilis na nagkakarera, na siyang tanging tanaw na mahalaga.</p>
+      <p>Si Bramble na tupa ang nagmamaneho ng Woolpacker, ang balanse at pinakamadaling matutunan. Nasa manok na si Kettle ang Cluckcannon: makitid, sobrang tangkad, maliliit na gulong sa harap at napakalalaki sa likod, bangis sa simula pero nauubusan ng lakas sa pinakamataas na bilis. Si Dozer na baka ang nagmamaneho ng Bulldozer, ang pinakamalapad sa grid, na may bull bar at dalawang tambutsong nakausli sa gilid at walang rear wing. Nasa baboy na si Truffle ang Mudlark, mahaba at mababa na mas malapad ang likurang gulong kaysa sa harap, at mas matagal nitong kayang panatilihin ang slide kaysa sa kahit ano pa.</p>
+      <p>Sinusunod ng mga hugis ang mga statistic sa halip na palamuti lang. Kapag mas mabigat ang kart, mas malapad ito. Kapag mas mabilis sa simula, mas malaki ang pagkakaiba ng gulong sa harap at likod. Kung mukhang magaling ang isang kart sa isang bagay, magaling nga ito roon.</p>
+      <h2>Alikabok, usok at ang mga markang iniiwan mo</h2>
+      <p>Kapag nag-drift ka ngayon, nag-iiwan ka ng marka ng goma sa kalsada at may usok na lumalabas sa likurang gulong. Kapag lumabas ka sa lupa, nag-aangat ka ng alikabok sa likod mo, at tama ang kulay ng alikabok para sa circuit na kinaroroonan mo. Magpaputok ng mini-turbo at may reaksiyon ang tambutso.</p>
+      <p>Wala sa mga iyon ang nagbabago sa handling ng mga kart. Pero lahat ng iyon ay nagpapadali nang husto sa pagbasa kung ano ang ginagawa ng kart sa harap mo, at iyon ang nagbabago sa paraan ng pagkakarera mo.</p>
+      <h2>Sa phone, nakikita mo na ang mga kontrol</h2>
+      <p>Dati, ang touch controls ay mga di-nakikitang bahagi ng screen na may tatlong salita ng teksto sa ibabaw. Ngayon, may manibelang umiikot habang nagmamaniobra ka, accelerator na napipindot, at malilinaw na button para sa pag-drift at sa item na hawak mo.</p>
+      <p>Hindi nagbago ang steering sa ilalim. Puwede pa ring lumapag ang hinlalaki mo kahit saan sa kaliwa at mag-slide; nandoon ang manibela para ipakita kung ano ang ginagawa mo, hindi para asintahin. Mas masama sa phone ang manibelang kailangan mong tamaan nang eksakto kaysa sa bahaging hindi mo mamimintis.</p>
+      <h2>Saan magsisimula</h2>
+      <p>Sunflower Circuit, Bramble, tatlong lap. Diinan ang accelerator, dumaan sa malapad na linya, at i-drift ang mabagal na kaliwang kurbada sa likurang bahagi ng lap hanggang magbago ng kulay ang mga kislap — iyon ang turbo mo, at iyon ang buong laro sa iisang kurbada. Pagkatapos, hanapin ang bulkan.</p>
+
+      <p class="mag-endnote">
+        <a class="mag-readon" href="/play/farmykart/">Laruin ang Farmy Kart sa browser mo &rarr;</a> &middot; <a href="/tl/farmykart.html">Tungkol sa Farmy Kart</a> &middot; <a href="/tl/reviews.html">Ang tingin namin sa sarili naming mga laro</a>
+      </p>
+    </article>
+
+    <section class="mag-more">
+      <h2>Iba pa mula sa magazine</h2>
+      <ul>
+        <li><a href="/tl/magazine/farmyshoot-for-people-who-dont-play-games.html">Farmyshoot, para sa mga taong hindi naglalaro ng games</a></li>
+        <li><a href="/tl/magazine/five-games-one-tab.html">Limang laro, isang tab, walang download</a></li>
+      </ul>
+      <p><a class="mag-readon" href="/tl/magazine/">Lahat ng artikulo &rarr;</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Nakalaan ang lahat ng karapatan.<br> Ang Magestican Studios at ang logo ng Magestican Studios ay mga trademark ng Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">Static ang site &middot; Walang cookies, anonymous na bilang lang (<a href="/tl/privacy.html">paano</a>)</p>
+    <p class="footer-browse">Tumingin: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a> &middot; <a href="/tl/word-games.html">Libreng word games</a></p>
+  </footer>
+
+  <!-- The studio banner is imported below. Explained in render.mjs rather than
+       here: a comment written into this template is emitted into every article
+       and shipped, because buildPublic.mjs's stripper works on source files and
+       cannot reach inside an inline script it generated. The publicSurface
+       guard caught exactly that. -->
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    import('/assets/studioBanner.js').catch(() => {});
+    startVersionChecker();
+    initAnalytics({ page: 'tl-magazine-farmy-kart-cliffs-and-gliders' });
+    trackPlayClicks();
+  </script>
+  <p class="lang-note">Nasa Tagalog ang pahinang ito. Nasa English ang mismong mga laro; halos walang text ang chess, checkers at ludo.</p>
+</body>
+</html>

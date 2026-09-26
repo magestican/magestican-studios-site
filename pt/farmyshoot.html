@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmyshoot — captura de bandeira grátis para equipes | Magestican Studios</title>
+  <meta name="description" content="Captura de bandeira grátis no navegador para equipes remotas. Compartilhe o código da sala e jogue em 30 segundos: sem baixar, sem cadastro.">
+  <meta name="keywords" content="browser game, no download, capture the flag, remote team game, office friendly game, work team game, WebRTC multiplayer, free browser fps, farm animal game, magestican studios">
+  <link rel="canonical" href="https://magesticanstudios.com/pt/farmyshoot.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/farmyshoot.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/farmyshoot.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/farmyshoot.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/farmyshoot.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/farmyshoot.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:title" content="Farmyshoot — captura de bandeira grátis no navegador para equipes remotas">
+  <meta property="og:description" content="Sem baixar. Sem instalar. Captura de bandeira com bichos da fazenda para equipes que compartilham um link e jogam em 30 segundos.">
+  <meta property="og:url" content="https://magesticanstudios.com/pt/farmyshoot.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Farmyshoot — captura de bandeira grátis no navegador para equipes remotas">
+  <meta name="twitter:description" content="Sem baixar. É só compartilhar um código de sala. Feito para escritórios que bloqueiam instalações.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Farmyshoot",
+  "description": "Um jogo de captura de bandeira grátis no navegador para equipes remotas. Personagens bichos da fazenda, movimento deslizando no gelo, sem precisar baixar.",
+  "url": "https://magesticanstudios.com/pt/farmyshoot.html",
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "genre": [
+    "Multijogador",
+    "Tiro em primeira pessoa",
+    "Captura de bandeira"
+  ],
+  "gamePlatform": [
+    "Web browser",
+    "Mobile browser"
+  ],
+  "playMode": "MultiPlayer",
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  },
+  "aggregateRating": null
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Farmyshoot é grátis mesmo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim. Grátis, sem anúncios, sem precisar de cadastro. Entrar com o Google é opcional e só serve para lembrar seu nome de jogador."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Farmyshoot precisa de servidor ou instalador?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nenhum dos dois. Farmyshoot é ponto a ponto via WebRTC, então os navegadores dos jogadores conversam diretamente entre si. Nada é instalado."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Funciona num navegador bloqueado do trabalho?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim. Se o navegador abre a página, ele roda o jogo: Chrome, Edge, Firefox e Safari no Windows, macOS ou num Chromebook, sem permissão de administrador e sem baixar nada."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quantas pessoas podem jogar Farmyshoot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De 2 a 16 humanos numa partida. Com menos de quatro jogadores, você pode completar os dois times com bots de IA."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Posso jogar Farmyshoot no celular?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim. Os controles por toque já vêm embutidos, e um celular pode entrar no mesmo código de sala que um notebook."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Meus dados são coletados?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Não há conta nem servidor de jogo. O site conta visualizações de página e eventos de partida de forma anônima e sem cookies, sem nenhum identificador ligado a você."
+      }
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+  <header class="site-header">
+    <a href="/pt/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/pt/#games">Jogos</a>
+      <a href="/pt/farmyshoot.html">Farmyshoot</a>
+      <a href="/pt/farmy-uprising.html">Uprising</a>
+      <a href="/pt/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/pt/farmykart.html">Kart</a>
+      <a href="/pt/farmy-tiles.html">Tiles</a>
+      <a href="/pt/farmy-crosswords.html">Palavras cruzadas</a>
+      <a href="/pt/xadrez-online-gratis.html">Xadrez</a>
+      <a href="/pt/farmy-checkers.html">Damas</a>
+      <a href="/pt/ludo-online-com-amigos.html">Ludo</a>
+      <a href="/pt/zelakas-in-space.html">Zelakas</a>
+      <a href="/pt/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/pt/farmy-moon-life.html">Moon Life</a>
+      <a href="/pt/silk-and-seam.html">Silk & Seam</a>
+      <a href="/pt/for-remote-teams.html">Para equipes</a>
+      <a href="/pt/about.html">Sobre</a>
+      <a href="/pt/magazine/">Revista</a>
+      <a href="/pt/reviews.html">Análises</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Idioma: Português"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>PT</span></summary><ul><li><a href="/farmyshoot.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/farmyshoot.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/farmyshoot.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt" aria-current="page">Português</a></li><li><a href="/tl/farmyshoot.html" hreflang="tl" lang="tl" data-lang="tl">Tagalog</a></li></ul></details>
+  </header>
+
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <p class="breadcrumb"><a href="/pt/">Magestican Studios</a> › Farmyshoot</p>
+        <h1>Jogue um FPS multiplayer completo com sua equipe em 30 segundos — sem baixar, sem instalar, sem cadastro.</h1>
+        <p class="tagline">Farmyshoot é um jogo de captura de bandeira grátis no navegador, feito para equipes remotas e escritórios que bloqueiam a instalação de programas. Personagens bichos da fazenda, movimento deslizando no gelo, funciona em qualquer notebook ou celular no trabalho.</p>
+        <div class="cta-row">
+          <a class="cta cta-primary" href="/play/farmyshoot/">▶ Jogue agora (grátis, sem cadastro)</a>
+          <a class="cta cta-secondary" href="/pt/for-remote-teams.html">Para equipes remotas →</a>
+        </div>
+        <p class="hero-note">Roda inteiramente no seu navegador via WebRTC. Sem servidor. Sem conta. Sem instalar.</p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section class="value-grid reveal">
+      <div class="value-card">
+        <h3>Zero instalação</h3>
+        <p>Sua equipe de TI bloqueia instaladores .exe? Farmyshoot roda no Chrome, Safari, Firefox e Edge. Nada para baixar, nunca.</p>
+      </div>
+      <div class="value-card">
+        <h3>Compartilhe um link</h3>
+        <p>O anfitrião clica em “New game”. Todo mundo cola o código de sala de 6 caracteres. Times completos jogando antes de a daily acabar.</p>
+      </div>
+      <div class="value-card">
+        <h3>Funciona em qualquer aparelho</h3>
+        <p>Notebook da empresa, celular pessoal, tablet — o mesmo jogo, a mesma sala, sem aquela chatice de launcher multiplataforma. Controles por toque embutidos.</p>
+      </div>
+      <div class="value-card">
+        <h3>Sem conta</h3>
+        <p>Entrar com o Google é opcional, para lembrar seu nome entre partidas. Todo o resto funciona sem nunca coletar seus dados.</p>
+      </div>
+      <div class="value-card">
+        <h3>Bots sob demanda</h3>
+        <p>Só 2 pessoas online? Adicione até 15 bots de IA para completar os dois times. Farmyshoot fica ótimo de 2 a 16 jogadores, em qualquer mistura de pessoas e bots.</p>
+      </div>
+      <div class="value-card">
+        <h3>Justo, sem ser tryhard</h3>
+        <p>Bichos da fazenda (vaca, galinha, porco, ovelha). Pás que arremessam cocô. Física escorregadia de gelo. Superarma de galinha no estilingue. Ninguém se sente mal por perder para uma galinha.</p>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <h2>Como ele é</h2>
+      <div class="shot-row">
+        <figure><a class="art-play shot-play" href="/play/farmyshoot/" aria-label="Jogar Farmyshoot"><img src="/assets/shot-tb-lobby.webp" width="900" height="616" loading="lazy" decoding="async"
+               alt="O lobby do Farmyshoot: uma vaca 3D numa plataforma giratória, os cinco mapas, os quatro modos e um botão Host a new game"><span class="art-play-badge" aria-hidden="true">&#9654; Jogar</span></a>
+          
+          <figcaption>O lobby. Vaca, galinha, porco ou ovelha; cinco mapas; quatro modos; um botão.</figcaption></figure>
+        <figure><a class="art-play shot-play" href="/play/farmyshoot/" aria-label="Jogar Farmyshoot"><img src="/assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async"
+               alt="Farmyshoot, o mapa Farm Maze: um soldado fazendeiro num corredor entre paredes de milho alto"><span class="art-play-badge" aria-hidden="true">&#9654; Jogar</span></a>
+          
+          <figcaption>Farm Maze. Você atravessa com pulos duplos por cima das sebes, e os power-ups ficam lá em cima.</figcaption></figure>
+        <figure class="shot-phone">
+          <img src="/assets/shot-tb-phone.webp" width="390" height="844" loading="lazy" decoding="async"
+               alt="Farmyshoot num celular com os controles por toque sobre o jogo">
+          <figcaption>No celular, com controles por toque. O mesmo código de sala dos notebooks.</figcaption>
+        </figure>
+      </div>
+    </section>
+    <section class="reveal">
+      <h2>Cinco lugares, todos construídos a partir de um número</h2>
+      <p>Cada mapa é gerado a partir de uma semente, então a mesma semente sempre constrói o mesmo mundo &mdash; e todo mundo na sala está no mesmo. Estas são a câmera, as luzes, a neblina e o céu do próprio jogo.</p>
+      <div class="map-strip">
+        <figure><img src="/assets/map-snow-farm.webp" width="720" height="405" loading="lazy" decoding="async" alt="Snow Farm: dois celeiros, um campo congelado e uma estradinha de trator, com gansos parados por ali"><figcaption><strong>Snow Farm</strong>Dois celeiros, um campo congelado e uma estradinha de trator. O original.</figcaption></figure>
+        <figure><img src="/assets/map-icy-mountain.webp" width="720" height="405" loading="lazy" decoding="async" alt="Icy Mountain: terraços de granito em degraus com pinheiros brotando da rocha e cabras numa saliência"><figcaption><strong>Icy Mountain</strong>Terraços de granito em degraus e um colo varrido pelo vento. A altura é a cobertura.</figcaption></figure>
+        <figure><img src="/assets/map-central-park-rink.webp" width="720" height="405" loading="lazy" decoding="async" alt="Central Park Rink: piso hexagonal e bancos de parque ao entardecer, com um horizonte de cidade em voxels e pombos"><figcaption><strong>Central Park Rink</strong>Uma pista de gelo ao ar livre no parque, ao entardecer. O gelo é a arena.</figcaption></figure>
+        <figure><img src="/assets/map-arctic-floe.webp" width="720" height="405" loading="lazy" decoding="async" alt="Arctic Floe: banquisa e cristas de pressão sob um sol baixo, com pinguins parados, imóveis"><figcaption><strong>Arctic Floe</strong>Banquisa sob um sol que não se põe. E pinguins, te observando.</figcaption></figure>
+        <figure><img src="/assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async" alt="Farm Maze: um corredor entre paredes de milho alto com um soldado fazendeiro"><figcaption><strong>Farm Maze</strong>Um labirinto de milho que você atravessa com pulos duplos por cima das sebes. Tem alguma coisa aqui dentro com você.</figcaption></figure>
+      </div>
+    </section>
+
+
+    <section class="faq reveal">
+      <h2>Perguntas frequentes</h2>
+      <h3>É grátis mesmo?</h3>
+      <p>Sim. Grátis, sem anúncios, sem precisar de cadastro. Entrar com o Google é opcional e só serve para lembrar seu nome de jogador.</p>
+      <h3>Precisa de servidor ou instalador?</h3>
+      <p>Nenhum dos dois. Farmyshoot é ponto a ponto via WebRTC. Os navegadores de todos os jogadores conversam diretamente entre si. Nada é instalado.</p>
+      <h3>Funciona no navegador bloqueado da minha empresa?</h3>
+      <p>Se o seu navegador abre <a href="https://magesticanstudios.com/play/farmyshoot/">este link</a>, sim. Chrome, Edge, Firefox, Safari, no Windows, Mac ou num Chromebook — tudo certo.</p>
+      <h3>Quantas pessoas podem jogar?</h3>
+      <p>De 2 a 16 humanos. Com menos de 4, você pode completar os times com bots de IA.</p>
+      <h3>Posso jogar no celular?</h3>
+      <p>Sim — os controles por toque já vêm embutidos, e um celular pode entrar no mesmo código de sala que um notebook. Se preferir algo só de teclado e para um jogador, experimente <a href="/pt/zelakas-in-space.html">Zelakas In Space</a>.</p>
+      <h3>Meus dados são coletados?</h3>
+      <p>Sem servidor de jogo, e nada ligado a você, a menos que você nos peça para salvar seu progresso. Contamos visualizações de página e resultados de partidas (mapa, modo, número de bots) de forma anônima e sem cookies, para sabermos quais partes do jogo as pessoas jogam. Veja nossas <a href="/pt/privacy.html">notas de privacidade</a>.</p>
+    </section>
+
+    <section class="cta-band reveal">
+      <p>Pronto para ser uma galinha com estilingue?</p>
+      <a class="cta cta-primary" href="/play/farmyshoot/">Jogue Farmyshoot agora</a>
+    </section>
+    
+    <p class="more-like-this">Mais assim: <a href="/pt/2-player-games-online.html">Jogos online para 2 jogadores</a> &middot; <a href="/pt/multiplayer-browser-games.html">Jogos multijogador no navegador</a></p>
+    
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Todos os direitos reservados.<br> Magestican Studios e o logotipo da Magestican Studios são marcas registradas da Ultra Task Pty Ltd, Austrália.</p>
+    <p class="colophon">
+      <a href="/pt/about.html">Sobre</a> &middot; <a href="/pt/privacy.html">Privacidade</a> &middot; <a href="/pt/terms.html">Termos</a> &middot; <a href="https://www.youtube.com/@ameliagurl">Amelia no YouTube</a> &middot; Site estático &middot; sem cookies, apenas contagens anônimas</p>
+    
+    <p class="footer-browse">Navegue: <a href="/pt/2-player-games-online.html">Jogos online para 2 jogadores</a> &middot; <a href="/pt/multiplayer-browser-games.html">Jogos multijogador no navegador</a> &middot; <a href="/pt/board-games-with-friends.html">Jogos de tabuleiro com amigos</a> &middot; <a href="/pt/word-games.html">Jogos de palavras grátis</a></p>
+    
+  </footer>
+  
+
+
+
+
+
+
+  <script type="module" src="/assets/site.js?v=70fbb79-20260926T064643Z"></script>
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
+    initAnalytics({ page: 'pt-farmyshoot' });
+    trackPlayClicks();
+    
+    
+    
+    mountLeaderboard({ place: 'site', showChip: true });
+  </script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <p class="lang-note">Esta página está em português. Os jogos em si estão em inglês; xadrez, damas e ludo quase não têm texto.</p>
+</body>
+</html>

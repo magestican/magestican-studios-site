@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="tl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Farmy Chess - libreng chess sa browser, malalaking piyesa, walang orasan</title>
+  <meta name="description" content="Libre at kumpletong chess sa browser mo: castling, en passant, promotion at lahat ng draw. Malalaki at high-contrast na piyesa, walang orasan, walang account.">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="canonical" href="https://magesticanstudios.com/tl/farmy-chess.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/farmy-chess.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/ajedrez-online-gratis.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/xadrez-online-gratis.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/farmy-chess.html">
+  <link rel="alternate" hreflang="de" href="https://magesticanstudios.com/de/schach-online-kostenlos.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/farmy-chess.html">
+  
+
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  <meta name="keywords" content="farmy chess, free browser chess, chess no download, chess without an account, large print chess, chess for older players, chess with no timer, play chess with a friend online, chess against the computer free">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tl_PH">
+  <meta property="og:title" content="Farmy Chess - libreng chess sa browser, malilinaw na piyesa, walang orasan">
+  <meta property="og:description" content="Kumpletong chess, nilalaro sa isang browser tab. Malalaki at high-contrast na piyesa, walang timer kahit saan, kalabang naglalaro ayon sa level mo, at link na maipapadala mo para magsalo ang dalawang tao sa iisang board.">
+  <meta property="og:url" content="https://magesticanstudios.com/tl/farmy-chess.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/farmy-chess-preview.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Farmy Chess - libreng chess online sa browser, walang download">
+  <meta name="twitter:description" content="Lahat ng patakaran, kasama ang en passant at ang mga draw. Malalaking piyesa, high contrast, walang orasan, walang account.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/farmy-chess-preview.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Farmy Chess",
+  "url": "https://magesticanstudios.com/play/farmy-chess/",
+  "description": "Libre at kumpletong larong chess sa browser: castling, en passant, promotion, checkmate, stalemate at bawat draw na itinatakda ng mga patakaran. Ginawa para sa mga matang hindi na bente anyos - malalaking iginuhit na piyesa, high contrast, at walang timer kahit saan. May kalabang naglalaro ayon sa level mo, at peer-to-peer na room para magsalo ang dalawang tao sa iisang board nang hindi gumagawa ng account ang sinuman sa kanila.",
+  "image": "https://magesticanstudios.com/assets/farmy-chess-preview.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "genre": [
+    "Board game",
+    "Estratehiya",
+    "Casual"
+  ],
+  "gamePlatform": [
+    "Web browser",
+    "Mobile browser"
+  ],
+  "playMode": [
+    "SinglePlayer",
+    "MultiPlayer"
+  ],
+  "numberOfPlayers": {
+    "@type": "QuantitativeValue",
+    "minValue": 1,
+    "maxValue": 2
+  },
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "tl",
+  "accessibilityFeature": [
+    "highContrastDisplay",
+    "largePrint",
+    "structuralNavigation"
+  ],
+  "accessibilityHazard": [
+    "noFlashingHazard",
+    "noMotionSimulationHazard"
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Libre ba ang Farmy Chess?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo. Libre, walang ads, walang sign-up at walang ii-install. Bumubukas ito sa browser tab na mayroon ka na, sa computer, tablet o phone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Sinusunod ba nito ang buong patakaran ng chess?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo, lahat. Castling sa magkabilang panig at ang apat na kondisyong nagbabawal dito, en passant, promotion sa kahit anong piyesa, check, checkmate, stalemate, ang fifty-move rule, threefold repetition at insufficient material. Hindi puwedeng laruin ang galaw na mag-iiwan sa sarili mong hari na naka-check."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "May orasan ba?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Wala, at sinadya iyon. Walang timer sa bawat galaw, walang timer sa buong laro at walang anumang nagbibilang pababa saanman sa screen. Puwede mong iwan ang board sa gitna ng isang galaw at balikan ito."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Puwede ba akong maglaro ng chess laban sa computer?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo. Naglalaro ang kalaban ayon sa level mo sa halip na sa iisang nakapirming lakas, kaya tunay itong laro at hindi demonstrasyon."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Puwede ba akong maglaro ng chess online kasama ang kaibigan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo. Magsimula ng room at bibigyan ka ng link; ipadala ito sa gusto mong makalaro at bubuksan nila ito sa kanilang browser. Walang kailangang account ang sinuman sa inyo at walang kailangang i-install. Direktang nag-uusap ang dalawang browser."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Madali bang makita ang Farmy Chess?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Iyan mismo ang layunin nito. Malalaki ang pagkakaguhit ng mga piyesa at hinubog para makilala sa balangkas at hindi lang sa kulay, high contrast ang board, at walang mahalagang bagay na nakasulat sa maliit na letra. Ginawa ito para sa mas matatandang mata at para sa sinumang naglalaro sa phone sa ilalim ng maliwanag na ilaw."
+      }
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    try {
+      initAnalytics({ page: 'tl-farmy-chess' });
+      trackPlayClicks();
+    } catch {  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <a href="/tl/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/tl/#games">Mga laro</a>
+      <a href="/tl/farmyshoot.html">Farmyshoot</a>
+      <a href="/tl/farmy-uprising.html">Uprising</a>
+      <a href="/tl/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/tl/farmykart.html">Kart</a>
+      <a href="/tl/farmy-tiles.html">Tiles</a>
+      <a href="/tl/farmy-crosswords.html">Crosswords</a>
+      <a href="/tl/farmy-chess.html">Chess</a>
+      <a href="/tl/farmy-checkers.html">Checkers</a>
+      <a href="/tl/farmy-ludo.html">Ludo</a>
+      <a href="/tl/zelakas-in-space.html">Zelakas</a>
+      <a href="/tl/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/tl/farmy-moon-life.html">Moon Life</a>
+      <a href="/tl/silk-and-seam.html">Silk & Seam</a>
+      <a href="/tl/for-remote-teams.html">Para sa mga team</a>
+      <a href="/tl/about.html">Tungkol sa amin</a>
+      <a href="/tl/magazine/">Magazine</a>
+      <a href="/tl/reviews.html">Mga review</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Wika: Tagalog"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>TL</span></summary><ul><li><a href="/farmy-chess.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/ajedrez-online-gratis.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/xadrez-online-gratis.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/farmy-chess.html" hreflang="tl" lang="tl" data-lang="tl" aria-current="page">Tagalog</a></li></ul></details>
+  </header>
+
+  <main>
+    <h1>Farmy Chess &mdash; online chess kasama ang kaibigan, walang sign-up, walang timer</h1>
+    <p class="lede">Kumpletong chess, sa mga piyesang mababasa mo kahit mula sa kabilang dulo ng kuwarto, at walang orasan saanman malapit sa board.</p>
+
+    <p><a class="cta" href="/play/farmy-chess/">Laruin ang Farmy Chess sa browser mo &rarr;</a></p>
+
+    <img src="/assets/farmy-chess-preview.png" width="1164" height="885" loading="lazy" decoding="async"
+         alt="Farmy Chess sa gitna ng laro: high-contrast na board na may malalaking iginuhit na piyesa, bawat isa ay hinubog para makilala sa balangkas at sa kulay, at walang orasan saanman sa screen">
+
+    <h2>Lahat ng patakaran, kasama ang mga madalas nilalaktawan</h2>
+    <p>Maraming libreng chess ang halos chess lang. Tama ang galaw ng mga piyesa pero tahimik na inaalis ang mga bahaging minsan lang sa isang buwan lumalabas: en passant, ang pagkakaiba ng dalawang castle, promotion sa piyesang hindi reyna, at ang mga draw na hindi stalemate.</p>
+    <p>Buong laro ang nilalaro ng Farmy Chess. Castling sa magkabilang panig, at ipinapatupad talaga ang apat na kondisyong nagbabawal dito sa halip na ipagpalagay lang. En passant, sa iisang galaw kung kailan ito legal. Promotion sa kahit anong piyesa, kaya magagamit mo ang under-promotion na magpapanalo sa posisyon. Check, checkmate at stalemate, at ang mga draw dahil sa fifty moves, threefold repetition at insufficient material. Ang galaw na mag-iiwan sa sarili mong hari na naka-check ay hindi na lang iniaalok.</p>
+
+    <h2>Walang orasan</h2>
+    <p>Walang nagbibilang pababa sa board na ito. Walang timer sa bawat galaw, walang timer sa laro, at walang bar na tahimik na nauubos sa gilid ng screen habang nag-iisip ka. Puwede kang huminto sa gitna ng galaw, tumingin sa iba at bumalik.</p>
+    <p>Ito ang pinakamadalas hilingin ng mga taong tumigil maglaro ng chess online: hindi sila tumigil dahil masyadong mahirap ang mga laro, tumigil sila dahil ginagawang parusa ng orasan ang pag-iisip.</p>
+
+    <h2>Ginawa para sa mga matang hindi na bente anyos</h2>
+    <p>Malalaki ang pagkakaguhit ng mga piyesa, at hinubog ang mga ito para makilala mo sa balangkas pa lang — magkaiba ang silweta ng knight at bishop kahit hindi mo maaninag ang detalye ng alinman sa dalawa. High contrast ang board. Walang kailangan mong nakasulat sa maliit na letra, at walang mahalagang ipinapahiwatig ng kulay lamang.</p>
+    <p>Ganito rin kaingat ang iba pang board game ng studio, at ito ang dahilan kung bakit sila umiiral: karamihan ng board game sa browser ay dinisenyo sa malaking monitor ng taong perpekto ang paningin.</p>
+
+    <h2>Isang kalaban na naglalaro sa level mo</h2>
+    <p>Umaangkop sa iyo ang kalabang computer sa halip na manatili sa iisang nakapirming lakas. Ang bot na laging nananalo ay demonstrasyon at ang bot na laging natatalo ay laruan; alinman doon, titigil ka pagkatapos ng dalawang laro. Sinusubukan ng isang ito na bigyan ka ng tunay na laro.</p>
+
+    <h2>O maglaro kasama ang iba</h2>
+    <p>Magsimula ng room at bibigyan ka ng link. Ipadala ito sa gusto mong makalaro — sa message, sa email, kung paano man kayo karaniwang nag-uusap — at bubuksan nila ito sa kanilang browser. Walang magsa-sign up sa inyo, walang mag-i-install ng kahit ano, at direktang nag-uusap ang dalawang browser sa halip na dumaan sa server na nag-iimbak ng laro ninyo.</p>
+
+    <h2>Walang account, walang sign-in, walang itinatago</h2>
+    <p>Walang account na gagawin, kaya walang ive-verify, walang tatandaan at walang buburahin mamaya. Walang cookie na inilalagay ang site at anonymous na bilang lang ang itinatala nito.</p>
+
+    <h2>Ang iba pang board games</h2>
+    <p>Parehong board, parehong malalaking piyesa at parehong walang orasan, sa <a href="/tl/farmy-checkers.html">Farmy Checkers</a> at <a href="/tl/farmy-ludo.html">Farmy Ludo</a>. Kung mas hilig mo ang mga salita, ang <a href="/tl/farmy-crosswords.html">Farmy Crosswords</a> ay may crossword, hulaan ng limang-letrang salita, honeycomb, puzzle ng pagpapangkat ng mga salita at themed na word search (lahat sa English), at ang <a href="/tl/farmy-tiles.html">Farmy Tiles</a> ay may sarili nitong board.</p>
+
+    <p><a class="cta" href="/play/farmy-chess/">Laruin ang Farmy Chess sa browser mo &rarr;</a></p>
+    
+    <p class="more-like-this">Iba pang katulad nito: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a></p>
+    
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Nakalaan ang lahat ng karapatan.<br> Ang Magestican Studios at ang logo ng Magestican Studios ay mga trademark ng Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">
+      <a href="/tl/about.html">Tungkol sa amin</a> &middot; <a href="/tl/privacy.html">Privacy</a> &middot; <a href="/tl/terms.html">Mga tuntunin</a> &middot; <a href="https://www.youtube.com/@ameliagurl">Si Amelia sa YouTube</a> &middot; Static ang site &middot; walang cookies, anonymous na bilang lang</p>
+    
+    <p class="footer-browse">Tumingin: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a> &middot; <a href="/tl/word-games.html">Libreng word games</a></p>
+    
+  </footer>
+  <script type="module" src="/assets/site.js?v=70fbb79-20260926T064643Z"></script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <p class="lang-note">Nasa Tagalog ang pahinang ito. Nasa English ang mismong mga laro; halos walang text ang chess, checkers at ludo.</p>
+</body>
+</html>

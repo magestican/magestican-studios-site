@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="tl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmyshoot — libreng browser CTF para sa remote team | Magestican Studios</title>
+  <meta name="description" content="Libreng capture-the-flag game sa browser para sa remote team. Ibahagi ang room code at maglaro sa 30 segundo: walang download, install o signup, laptop o phone.">
+  <meta name="keywords" content="browser game, no download, capture the flag, remote team game, office friendly game, work team game, WebRTC multiplayer, free browser fps, farm animal game, magestican studios">
+  <link rel="canonical" href="https://magesticanstudios.com/tl/farmyshoot.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/farmyshoot.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/farmyshoot.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/farmyshoot.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/farmyshoot.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/farmyshoot.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tl_PH">
+  <meta property="og:title" content="Farmyshoot — libreng browser CTF para sa remote team">
+  <meta property="og:description" content="Walang download. Walang install. Capture-the-flag na may mga hayop-bukid para sa mga team na nagbabahagi ng link at naglalaro sa loob ng 30 segundo.">
+  <meta property="og:url" content="https://magesticanstudios.com/tl/farmyshoot.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Farmyshoot — libreng browser CTF para sa remote team">
+  <meta name="twitter:description" content="Walang download. Ibahagi lang ang room code. Ginawa para sa mga opisinang nagbabawal ng pag-install.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Farmyshoot",
+  "description": "Isang libreng capture-the-flag game sa browser para sa mga remote team. Mga karakter na hayop-bukid, galaw na dumudulas na parang sa yelo, walang kailangang i-download.",
+  "url": "https://magesticanstudios.com/tl/farmyshoot.html",
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "genre": [
+    "Multiplayer",
+    "First-person shooter",
+    "Capture the Flag"
+  ],
+  "gamePlatform": [
+    "Web browser",
+    "Mobile browser"
+  ],
+  "playMode": "MultiPlayer",
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  },
+  "aggregateRating": null
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Libre ba talaga ang Farmyshoot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo. Libre, walang ads, walang kailangang signup. Opsyonal ang Sign in with Google at ang pangalan mo lang bilang player ang tinatandaan nito."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kailangan ba ng Farmyshoot ng server o installer?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hindi pareho. Peer-to-peer ang Farmyshoot gamit ang WebRTC, kaya direktang nag-uusap ang mga browser ng mga player. Walang ini-install."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Gagana ba ito sa naka-lock na browser sa trabaho?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo. Kung kayang buksan ng browser ang page, kaya nitong patakbuhin ang laro: Chrome, Edge, Firefox at Safari sa Windows, macOS o Chromebook, walang admin rights at walang download."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Ilang tao ang puwedeng maglaro ng Farmyshoot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "2 hanggang 16 na tao sa isang match. Kapag kulang sa apat na player, puwede mong punan ng mga AI bot ang dalawang team."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Puwede ko bang laruin ang Farmyshoot sa phone?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo. May built-in na touch controls, at puwedeng sumali ang phone sa parehong room code ng laptop."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kinokolekta ba ang data ko?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Walang account at walang game server. Binibilang ng site ang mga anonymous na page view at match event nang walang cookie at walang identifier na nakakabit sa iyo."
+      }
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+  <header class="site-header">
+    <a href="/tl/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/tl/#games">Mga laro</a>
+      <a href="/tl/farmyshoot.html">Farmyshoot</a>
+      <a href="/tl/farmy-uprising.html">Uprising</a>
+      <a href="/tl/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/tl/farmykart.html">Kart</a>
+      <a href="/tl/farmy-tiles.html">Tiles</a>
+      <a href="/tl/farmy-crosswords.html">Crosswords</a>
+      <a href="/tl/farmy-chess.html">Chess</a>
+      <a href="/tl/farmy-checkers.html">Checkers</a>
+      <a href="/tl/farmy-ludo.html">Ludo</a>
+      <a href="/tl/zelakas-in-space.html">Zelakas</a>
+      <a href="/tl/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/tl/farmy-moon-life.html">Moon Life</a>
+      <a href="/tl/silk-and-seam.html">Silk & Seam</a>
+      <a href="/tl/for-remote-teams.html">Para sa mga team</a>
+      <a href="/tl/about.html">Tungkol sa amin</a>
+      <a href="/tl/magazine/">Magazine</a>
+      <a href="/tl/reviews.html">Mga review</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Wika: Tagalog"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>TL</span></summary><ul><li><a href="/farmyshoot.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/farmyshoot.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/farmyshoot.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/farmyshoot.html" hreflang="tl" lang="tl" data-lang="tl" aria-current="page">Tagalog</a></li></ul></details>
+  </header>
+
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <p class="breadcrumb"><a href="/tl/">Magestican Studios</a> › Farmyshoot</p>
+        <h1>Maglaro ng buong multiplayer FPS kasama ang team mo sa loob ng 30 segundo — walang download, walang install, walang signup.</h1>
+        <p class="tagline">Ang Farmyshoot ay isang libreng capture-the-flag game sa browser na ginawa para sa mga remote team at mga opisinang nagbabawal ng pag-install ng software. Mga karakter na hayop-bukid, galaw na dumudulas na parang sa yelo, gumagana sa kahit anong laptop o phone sa trabaho.</p>
+        <div class="cta-row">
+          <a class="cta cta-primary" href="/play/farmyshoot/">▶ Maglaro na (libre, walang signup)</a>
+          <a class="cta cta-secondary" href="/tl/for-remote-teams.html">Para sa mga remote team →</a>
+        </div>
+        <p class="hero-note">Tumatakbo nang buo sa browser mo gamit ang WebRTC. Walang server. Walang account. Walang install.</p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section class="value-grid reveal">
+      <div class="value-card">
+        <h3>Zero install</h3>
+        <p>Bawal ba ng IT team ninyo ang mga .exe installer? Tumatakbo ang Farmyshoot sa Chrome, Safari, Firefox at Edge. Walang ida-download, kailanman.</p>
+      </div>
+      <div class="value-card">
+        <h3>Magbahagi ng link</h3>
+        <p>I-click ng host ang “New game”. I-paste ng lahat ng iba ang 6-character na room code. Buo na ang mga team at naglalaro na bago matapos ang standup.</p>
+      </div>
+      <div class="value-card">
+        <h3>Gumagana sa kahit anong device</h3>
+        <p>Laptop ng kompanya, sariling phone, tablet — parehong laro, parehong room, walang kalokohang cross-platform launcher. May built-in na touch controls.</p>
+      </div>
+      <div class="value-card">
+        <h3>Walang account</h3>
+        <p>Opsyonal na Sign in with Google para matandaan ang pangalan mo sa bawat laro. Gumagana ang lahat ng iba nang hindi kailanman kinokolekta ang mga detalye mo.</p>
+      </div>
+      <div class="value-card">
+        <h3>Mga bot kapag kailangan</h3>
+        <p>2 tao lang ang online? Magdagdag ng hanggang 15 AI bot para punan ang dalawang team. Masarap laruin ang Farmyshoot mula 2 hanggang 16 na player, sa kahit anong halo ng tao at bot.</p>
+      </div>
+      <div class="value-card">
+        <h3>Patas, hindi nakaka-stress</h3>
+        <p>Mga hayop-bukid (baka, manok, baboy, tupa). Mga palang pambato ng dumi. Physics na madulas na parang yelo. Super-weapon na manok sa tirador. Walang nahihiyang matalo sa isang manok.</p>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <h2>Ano ang itsura nito</h2>
+      <div class="shot-row">
+        <figure><a class="art-play shot-play" href="/play/farmyshoot/" aria-label="Laruin ang Farmyshoot"><img src="/assets/shot-tb-lobby.webp" width="900" height="616" loading="lazy" decoding="async"
+               alt="Ang lobby ng Farmyshoot: isang 3D na baka sa umiikot na plataporma, ang limang mapa, ang apat na mode, at ang button na Host a new game"><span class="art-play-badge" aria-hidden="true">&#9654; Laruin</span></a>
+          
+          <figcaption>Ang lobby. Baka, manok, baboy o tupa; limang mapa; apat na mode; isang button.</figcaption></figure>
+        <figure><a class="art-play shot-play" href="/play/farmyshoot/" aria-label="Laruin ang Farmyshoot"><img src="/assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async"
+               alt="Farmyshoot, ang mapang Farm Maze: isang magsasakang sundalo sa daanan sa pagitan ng mga pader ng matataas na mais"><span class="art-play-badge" aria-hidden="true">&#9654; Laruin</span></a>
+          
+          <figcaption>Farm Maze. Tinatawid mo ito sa pag-double jump sa mga halamang-bakod, at nasa ibabaw ang mga power-up.</figcaption></figure>
+        <figure class="shot-phone">
+          <img src="/assets/shot-tb-phone.webp" width="390" height="844" loading="lazy" decoding="async"
+               alt="Farmyshoot sa phone na nakapatong ang touch controls sa laro">
+          <figcaption>Sa phone, may touch controls. Parehong room code ng mga laptop.</figcaption>
+        </figure>
+      </div>
+    </section>
+    <section class="reveal">
+      <h2>Limang lugar, lahat binuo mula sa isang numero</h2>
+      <p>Binubuo ang bawat mapa mula sa isang seed, kaya laging parehong mundo ang nabubuo ng parehong seed &mdash; at iisang mundo ang kinatatayuan ng lahat sa room. Ito ang sariling camera, ilaw, hamog at langit ng laro.</p>
+      <div class="map-strip">
+        <figure><img src="/assets/map-snow-farm.webp" width="720" height="405" loading="lazy" decoding="async" alt="Snow Farm: dalawang kamalig, isang nagyelong bukid at daan ng traktora, na may mga gansang nakatayo-tayo"><figcaption><strong>Snow Farm</strong>Dalawang kamalig, isang nagyelong bukid at daan ng traktora. Ang orihinal.</figcaption></figure>
+        <figure><img src="/assets/map-icy-mountain.webp" width="720" height="405" loading="lazy" decoding="async" alt="Icy Mountain: mga baitang na terasang granite na may mga pine na tumutubo sa bato, at mga kambing sa isang gilid ng bangin"><figcaption><strong>Icy Mountain</strong>Mga baitang na terasang granite at isang saddle na kinayod ng hangin. Ang taas ang iyong kanlungan.</figcaption></figure>
+        <figure><img src="/assets/map-central-park-rink.webp" width="720" height="405" loading="lazy" decoding="async" alt="Central Park Rink: mga heksagonal na paver at bangko ng parke sa takipsilim na may voxel na skyline ng lungsod at mga kalapati"><figcaption><strong>Central Park Rink</strong>Isang outdoor rink sa parke sa takipsilim. Ang yelo ang arena.</figcaption></figure>
+        <figure><img src="/assets/map-arctic-floe.webp" width="720" height="405" loading="lazy" decoding="async" alt="Arctic Floe: makapal na yelo at mga umbok ng yelo sa ilalim ng mababang araw, na may mga penguin na nakatayo nang hindi gumagalaw"><figcaption><strong>Arctic Floe</strong>Makapal na yelo sa ilalim ng araw na ayaw lumubog. At mga penguin, nakatingin sa iyo.</figcaption></figure>
+        <figure><img src="/assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async" alt="Farm Maze: isang daanan sa pagitan ng mga pader ng matataas na mais na may magsasakang sundalo"><figcaption><strong>Farm Maze</strong>Isang maze ng mais na tinatawid mo sa pag-double jump sa mga halamang-bakod. May kasama ka rito.</figcaption></figure>
+      </div>
+    </section>
+
+
+    <section class="faq reveal">
+      <h2>Mga madalas itanong</h2>
+      <h3>Libre ba talaga ito?</h3>
+      <p>Oo. Libre, walang ads, walang kailangang signup. Opsyonal ang Sign in with Google at ang pangalan mo lang bilang player ang tinatandaan nito.</p>
+      <h3>Kailangan ba nito ng server o installer?</h3>
+      <p>Hindi pareho. Peer-to-peer ang Farmyshoot gamit ang WebRTC. Direktang nag-uusap ang mga browser ng lahat ng player. Walang ini-install.</p>
+      <h3>Gagana ba ito sa naka-lock na browser ng kompanya namin?</h3>
+      <p>Kung kayang buksan ng browser mo ang <a href="https://magesticanstudios.com/play/farmyshoot/">link na ito</a>, oo. Chrome, Edge, Firefox, Safari, sa Windows, Mac, o Chromebook — lahat ayos.</p>
+      <h3>Ilang tao ang puwedeng maglaro?</h3>
+      <p>2 hanggang 16 na tao. Kapag kulang sa 4, puwede mong punan ng mga AI bot ang mga team.</p>
+      <h3>Puwede ba akong maglaro sa phone?</h3>
+      <p>Oo — may built-in na touch controls, at puwedeng sumali ang phone sa parehong room code ng laptop. Kung gusto mo ng keyboard lang at single-player, subukan ang <a href="/tl/zelakas-in-space.html">Zelakas In Space</a>.</p>
+      <h3>Kinokolekta ba ang data ko?</h3>
+      <p>Walang game server, at walang nakakabit sa iyo maliban kung hilingin mong i-save namin ang progress mo. Binibilang namin ang mga anonymous na page view at resulta ng match (mapa, mode, bilang ng bot) nang walang cookie para malaman namin kung aling bahagi ng laro ang nilalaro ng mga tao. Tingnan ang aming <a href="/tl/privacy.html">mga tala sa privacy</a>.</p>
+    </section>
+
+    <section class="cta-band reveal">
+      <p>Handa ka na bang maging manok na may tirador?</p>
+      <a class="cta cta-primary" href="/play/farmyshoot/">Laruin na ang Farmyshoot</a>
+    </section>
+    
+    <p class="more-like-this">Iba pang katulad nito: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a></p>
+    
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Nakalaan ang lahat ng karapatan.<br> Ang Magestican Studios at ang logo ng Magestican Studios ay mga trademark ng Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">
+      <a href="/tl/about.html">Tungkol sa amin</a> &middot; <a href="/tl/privacy.html">Privacy</a> &middot; <a href="/tl/terms.html">Mga tuntunin</a> &middot; <a href="https://www.youtube.com/@ameliagurl">Si Amelia sa YouTube</a> &middot; Static ang site &middot; walang cookies, anonymous na bilang lang</p>
+    
+    <p class="footer-browse">Tumingin: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a> &middot; <a href="/tl/word-games.html">Libreng word games</a></p>
+    
+  </footer>
+  
+
+
+
+
+
+
+  <script type="module" src="/assets/site.js?v=70fbb79-20260926T064643Z"></script>
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
+    initAnalytics({ page: 'tl-farmyshoot' });
+    trackPlayClicks();
+    
+    
+    
+    mountLeaderboard({ place: 'site', showChip: true });
+  </script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <p class="lang-note">Nasa Tagalog ang pahinang ito. Nasa English ang mismong mga laro; halos walang text ang chess, checkers at ludo.</p>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="tl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zelakas In Space — libreng 2D arcade shooter sa browser | Magestican Studios</title>
+  <meta name="description" content="Flash arcade shooter mula 2014, sa browser gamit ang Ruffle. Iwasan ang asteroid, blackhole at drone. Hindi pa nagsisimula ang mga level.">
+  <meta name="keywords" content="zelakas in space, free browser arcade shooter, play flash games in browser, ruffle flash emulator, 2d space shooter no download, asteroid dodging game, old flash game playable, indie space shooter">
+  <link rel="canonical" href="https://magesticanstudios.com/tl/zelakas-in-space.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/zelakas-in-space.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/zelakas-in-space.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/zelakas-in-space.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/zelakas-in-space.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/zelakas-in-space.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tl_PH">
+  <meta property="og:title" content="Zelakas In Space — libreng arcade shooter sa browser">
+  <meta property="og:description" content="Iwasan ang mga asteroid, blackhole at drone. Tatlong ending. Isang Flash game mula 2014, buhay muli sa modernong browser.">
+  <meta property="og:url" content="https://magesticanstudios.com/tl/zelakas-in-space.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/zelakas-ingame.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Zelakas In Space — libreng arcade shooter sa browser">
+  <meta name="twitter:description" content="Tatlong ending, isang barko, napakaraming asteroid. Tumatakbo sa browser mo, walang plugin.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/zelakas-ingame.png">
+  
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Zelakas In Space",
+  "description": "Isang 2D arcade shooter: iwasan ang mga asteroid, blackhole at drone sa tatlong ending. Inilabas noong 2014 sa ActionScript 3, nalalaro ngayon sa anumang browser gamit ang Ruffle Flash emulator.",
+  "url": "https://magesticanstudios.com/tl/zelakas-in-space.html",
+  "image": "https://magesticanstudios.com/assets/zelakas-ingame.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Bryan Arbelo"
+    },
+    {
+      "@type": "Person",
+      "name": "Gonzalo"
+    },
+    {
+      "@type": "Person",
+      "name": "Christian"
+    }
+  ],
+  "genre": [
+    "Arcade",
+    "Shoot 'em up",
+    "Kalawakan"
+  ],
+  "gamePlatform": [
+    "Web browser"
+  ],
+  "playMode": "SinglePlayer",
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "tl",
+  "datePublished": "2014",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kailangan ko ba ng Flash Player para malaro ang Zelakas In Space?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hindi. Itinigil na ang Flash Player noong 2020. Pinatatakbo ng page na ito ang orihinal na SWF gamit ang Ruffle, isang open-source na Flash emulator na isinulat sa Rust at tumatakbo bilang WebAssembly sa loob ng browser mo. Walang ini-install."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Libre ba ang Zelakas In Space?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oo. Libre ito, walang ads, at walang kailangang account. Buksan ang page at maglaro."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Ilan ang ending ng Zelakas In Space?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tatlo. Kung alin ang makukuha mo ay depende sa kung gaano karami sa field ang malinis mo bago matapos ang run."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Ano ang mga kontrol?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Keyboard lang: arrow keys para lumipad, at fire key para bumaril. Isa itong desktop Flash game mula 2014, kaya kailangan ng pisikal na keyboard."
+      }
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+  <header class="site-header">
+    <a href="/tl/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/tl/#games">Mga laro</a>
+      <a href="/tl/farmyshoot.html">Farmyshoot</a>
+      <a href="/tl/farmy-uprising.html">Uprising</a>
+      <a href="/tl/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/tl/farmykart.html">Kart</a>
+      <a href="/tl/farmy-tiles.html">Tiles</a>
+      <a href="/tl/farmy-crosswords.html">Crosswords</a>
+      <a href="/tl/farmy-chess.html">Chess</a>
+      <a href="/tl/farmy-checkers.html">Checkers</a>
+      <a href="/tl/farmy-ludo.html">Ludo</a>
+      <a href="/tl/zelakas-in-space.html">Zelakas</a>
+      <a href="/tl/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/tl/farmy-moon-life.html">Moon Life</a>
+      <a href="/tl/silk-and-seam.html">Silk & Seam</a>
+      <a href="/tl/for-remote-teams.html">Para sa mga team</a>
+      <a href="/tl/about.html">Tungkol sa amin</a>
+      <a href="/tl/magazine/">Magazine</a>
+      <a href="/tl/reviews.html">Mga review</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Wika: Tagalog"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>TL</span></summary><ul><li><a href="/zelakas-in-space.html" hreflang="en" lang="en" data-lang="en">English</a></li><li><a href="/es/zelakas-in-space.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/zelakas-in-space.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/zelakas-in-space.html" hreflang="tl" lang="tl" data-lang="tl" aria-current="page">Tagalog</a></li></ul></details>
+  </header>
+
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <p class="breadcrumb"><a href="/tl/">Magestican Studios</a> › Zelakas In Space</p>
+        <h1>Isang Flash game mula 2014 na hindi namatay. Laruin ang Zelakas In Space sa browser mo.</h1>
+        <p class="tagline">Iwasan ang mga asteroid, blackhole at drone sa isang libreng 2D arcade shooter. Tatlong ending, depende sa kung gaano karami sa field ang malinis mo. Walang plugin, walang download, walang account — tumatakbo ang orihinal na SWF sa loob ng modernong browser gamit ang Ruffle emulator.</p>
+        <div class="cta-row">
+          <a class="cta cta-primary" href="/play/zelakas/">▶ Laruin ang Zelakas In Space (libre)</a>
+          <a class="cta cta-secondary" href="/tl/farmyshoot.html">Subukan ang Farmyshoot →</a>
+        </div>
+        <p>Kailangan ng keyboard. Desktop o laptop — mas nauna pa ito sa mga touchscreen.</p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section class="value-grid reveal">
+      <div class="value-card">
+        <h3>Tatlong ending</h3>
+        <p>Kapag nalinis mo ang sapat na bahagi ng field, iba ang pagtatapos ng run. Karamihan ng manlalaro ay nakikita lang ang unang ending at hindi na nalalamang may dalawa pa.</p>
+      </div>
+      <div class="value-card">
+        <h3>Walang Flash Player</h3>
+        <p>Namatay ang Flash noong 2020. Ang Ruffle — isang open-source na Flash emulator na na-compile sa WebAssembly — ang ligtas na nagpapatakbo ng orihinal na file, nang walang plugin na kailangang i-install.</p>
+      </div>
+      <div class="value-card">
+        <h3>Libre, walang account</h3>
+        <p>Walang sign-up, walang ads, walang launcher.</p>
+        <p class="lede"><strong>Alam naming may sira, at mas gusto naming dito mo ito unang malaman.</strong> Tumatakbo ang orihinal na Flash mula 2014 gamit ang Ruffle, at sa ngayon ay umaabot ito sa title screen at sa pagpili ng difficulty, pagkatapos ay humihinto sa loading bar kapag pinindot mo ang PLAY. Ang binary na ipinapadala namin ay ang orihinal, byte por byte; sa emulator ito natitigil. Inaayos pa ito.</p>
+      </div>
+      <div class="value-card">
+        <h3>Ginawa noong 2014</h3>
+        <p>Binuo sa ActionScript 3 ni Bryan Arbelo kasama sina Gonzalo at Christian. Iniingatan ito rito nang eksakto kung paano ito inilabas, kasama ang lahat ng bug.</p>
+      </div>
+      <div class="value-card">
+        <h3>May paparating na remake</h3>
+        <p>Nasa bukas na workshop repo ng studio ang isang native na port sa Godot 4. Mananatili ang Flash build anuman ang mangyari — preserbasyon muna.</p>
+      </div>
+      <div class="value-card">
+        <h3>Iginuhit ng kamay</h3>
+        <p>Ang bawat barko, bato at drone dito ay iginuhit ng isang tao noong 2014. Ang mga larong ginagawa namin ngayon ay bumubuo ng karamihan ng kanilang art sa code, at ang sukatan namin sa bawat asset ay ang resulta at hindi ang tool: kailangan itong mabasa sa silweta, bumagay sa palette, at hindi mapahiya sa tabi ng mga kasama nitong inilalabas.</p>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <h2>Ano ang itsura nito</h2>
+      <div class="shot-row">
+        <figure><a class="art-play shot-play" href="/play/zelakas/" aria-label="Laruin ang Zelakas In Space"><img src="/assets/shot-zelakas.webp" width="1024" height="547" loading="lazy" decoding="async"
+               alt="Title screen ng Zelakas In Space: isang lilang sasakyang alien sa tabi ng madilim na planeta, neon green na menu sa ibabaw ng mga bituin"><span class="art-play-badge" aria-hidden="true">&#9654; Laruin</span></a>
+          
+          <figcaption>Ang title screen mula 2014, tumatakbo nang walang pagbabago sa modernong browser gamit ang Ruffle.</figcaption></figure>
+        <figure><a class="art-play shot-play" href="/play/zelakas/" aria-label="Laruin ang Zelakas In Space"><img src="/assets/cover-zelakas.webp" width="512" height="512" loading="lazy" decoding="async"
+               alt="Cover art ng Zelakas In Space: isang maliit na barko sa gitna ng mga kalat sa kalawakan"><span class="art-play-badge" aria-hidden="true">&#9654; Laruin</span></a>
+          
+          <figcaption>Ang bawat barko, bato at drone ay iginuhit ng isang tao noong 2014, at wala ni isa rito ang iginuhit muli mula noon.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="faq reveal">
+      <h2>Mga madalas itanong</h2>
+      <h3>Kailangan ko ba ng Flash Player?</h3>
+      <p>Hindi. Itinigil na ang Flash Player noong 2020 at wala nang browser na magpapatakbo nito. Nilo-load ng page na ito ang orihinal na <code>ZelakasInSpace.swf</code> gamit ang <a href="https://ruffle.rs/">Ruffle</a>, isang open-source na Flash emulator na isinulat sa Rust at na-compile sa WebAssembly. Tumatakbo ito sa sariling sandbox ng page; walang ini-install.</p>
+      <h3>Libre ba ito?</h3>
+      <p>Oo — libre, walang ads, walang sign-up.</p>
+      <h3>Ilan ang ending?</h3>
+      <p>Tatlo, depende sa kung gaano karami sa field ang malinis mo bago matapos ang run.</p>
+      <h3>Ano ang mga kontrol?</h3>
+      <p>Keyboard lang: arrows para lumipad, fire key para bumaril. Ang desktop game mula 2014 ay may desktop na kontrol mula 2014. Kung gusto mo ng gumagana sa phone, may built-in na touch controls ang <a href="/tl/farmyshoot.html">Farmyshoot</a> <a href="/tl/farmy-uprising.html">Uprising</a>.</p>
+      <h3>Gagana ba ito sa work laptop ko?</h3>
+      <p>Kung bumubukas ang browser, oo. Walang installer at walang kailangang admin rights — tingnan ang <a href="/tl/no-download-office-friendly.html">mga larong walang download para sa computer sa opisina</a>.</p>
+      <h3>Kinokolekta ba ang data ko?</h3>
+      <p>Walang account, walang profile, walang advertising. Binibilang namin ang anonymous na page view nang walang cookie para malaman namin kung aling mga laro ang natatagpuan ng mga tao. Tingnan ang <a href="/tl/privacy.html">privacy policy</a>.</p>
+    </section>
+
+    <section class="cta-band reveal">
+      <p>Isang barko. Napakaraming asteroid. Tatlong paraan ng pagtatapos.</p>
+      <a class="cta cta-primary" href="/play/zelakas/">Laruin na ang Zelakas In Space</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Nakalaan ang lahat ng karapatan.<br> Ang Magestican Studios at ang logo ng Magestican Studios ay mga trademark ng Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">
+      <a href="/tl/about.html">Tungkol sa amin</a> &middot; <a href="/tl/privacy.html">Privacy</a> &middot; <a href="/tl/terms.html">Mga tuntunin</a> &middot; <a href="https://www.youtube.com/@ameliagurl">Si Amelia sa YouTube</a> &middot; Static ang site &middot; walang cookies, anonymous na bilang lang</p>
+    
+    <p class="footer-browse">Tumingin: <a href="/tl/2-player-games-online.html">2-player games online</a> &middot; <a href="/tl/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/tl/board-games-with-friends.html">Board games kasama ang mga kaibigan</a> &middot; <a href="/tl/word-games.html">Libreng word games</a></p>
+    
+  </footer>
+  
+
+
+
+
+
+
+  <script type="module" src="/assets/site.js?v=70fbb79-20260926T064643Z"></script>
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    initAnalytics({ page: 'tl-zelakas-in-space' });
+    trackPlayClicks();
+  </script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <p class="lang-note">Nasa Tagalog ang pahinang ito. Nasa English ang mismong mga laro; halos walang text ang chess, checkers at ludo.</p>
+</body>
+</html>
