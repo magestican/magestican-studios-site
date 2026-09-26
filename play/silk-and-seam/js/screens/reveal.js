@@ -7,6 +7,7 @@ import { WINDOW_WAIT } from '../data.js';
 import { DYES } from '../data.js';
 import { sfx } from '../audio.js';
 import { sceneHTML, mountScene } from '../scene.js';
+import { upgradeDress } from '../dress3d.js';
 
 const LINES = {
   5: ['It is perfect. Utterly perfect. I may cry.', 'Everyone will ask who made this. I shall tell them!', 'You have outdone yourself - here, take a little extra.'],
@@ -133,6 +134,7 @@ function mountReveal(root, design) {
   scene?.leave();
   scene = mountScene($('.rv-scene', root), { design, screen: $('.reveal', root) });
   setTimeout(() => scene?.puff(), 700);
+  upgradeDress($('.sc-dress', root), design);      
 }
 
 
