@@ -185,3 +185,54 @@
 .mobile .said { font-size: 17px; }
 .mobile .replies .btn.reply { font-size: 16px; min-height: 44px; }
 @media (min-width: 640px) { .mobile .ti-folk { flex-direction: row; justify-content: center; } }
+
+
+
+.talk-face { position: relative; flex: none; display: block; }
+.talk-face > svg { display: block; transform-origin: 50% 90%; }
+.talk-face.em-love > svg, .talk-face.em-joy > svg { animation: em-bounce .5s ease-out; }
+.talk-face.em-laugh > svg { animation: em-laugh .6s ease-in-out; }
+.talk-face.em-angry > svg { animation: em-shake .45s ease-in-out; }
+.talk-face.em-hurt > svg { animation: em-droop .8s ease-out both; }
+.talk-face.em-cold > svg { animation: em-turn .7s ease-out both; }
+.talk-face.em-hmm > svg { animation: em-tilt .7s ease-in-out; }
+@keyframes em-bounce { 0% { transform: translateY(0) scale(1); } 35% { transform: translateY(-10px) scale(1.04); } 70% { transform: translateY(0) scale(.98); } 100% { transform: none; } }
+@keyframes em-laugh { 0%, 100% { transform: none; } 20%, 60% { transform: rotate(-4deg) translateY(-3px); } 40%, 80% { transform: rotate(4deg) translateY(-3px); } }
+@keyframes em-shake { 0%, 100% { transform: none; } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+@keyframes em-droop { to { transform: translateY(5px) rotate(-3deg); filter: saturate(.8); } }
+@keyframes em-turn { to { transform: rotate(4deg) scaleX(.97); } }
+@keyframes em-tilt { 0%, 100% { transform: none; } 50% { transform: rotate(-5deg); } }
+.emote { position: absolute; right: -6px; top: -8px; width: 46px; height: 46px; border-radius: 50%; background: #fffaf0; border: 2px solid #6b4a2f; box-shadow: 0 4px 8px rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center; animation: em-pop .45s cubic-bezier(.3,1.6,.5,1) both; }
+.talk-who .emote svg { width: 30px; height: 30px; }
+.emote.em-angry { background: #fff0ec; border-color: #b8342f; }
+.emote.em-hurt { background: #eef6fc; }
+@keyframes em-pop { 0% { transform: scale(0) translateY(10px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.said .complaint { font-style: italic; color: #8a3a2f; }
+.mediate { margin: 10px 0; padding: 10px 14px; border-radius: 8px; background: rgba(58,106,168,.1); border-left: 4px solid #3a6aa8; }
+.mediate b { color: #2c4f80; font-size: 18px; }
+.mediate p { margin: 6px 0; }
+.heard.mended { background: rgba(58,106,168,.14); }
+.offer .mend-badge { background: #3a6aa8; }
+.offer .night-badge { background: #2a2440; }
+.tb-trouble { margin-left: 4px; padding: 0 6px; border-radius: 8px; background: #b8342f; color: #fff; font-size: 12px; }
+.nb-trouble { margin: 8px 0; padding: 8px 12px; border-radius: 8px; background: rgba(184,52,47,.07); border-left: 4px solid #b8342f; }
+.nb-trouble.mended { background: rgba(58,106,168,.08); border-left-color: #3a6aa8; }
+.nb-trouble p { margin: 4px 0; }
+.nb-trouble ul { margin: 4px 0; padding-left: 18px; }
+.nb-trouble li { margin: 3px 0; }
+.nb-trouble li.got { color: #2f5a3a; }
+.nb-next { font-size: 14px; }
+.tm-legend .lg-mend { color: #2c4f80; font-weight: bold; }
+.tm-badge.mend { filter: drop-shadow(0 0 6px rgba(160,200,255,.9)); }
+.tm-badge.sleep { animation: tm-bob 3.4s ease-in-out infinite; opacity: .9; }
+.ti-person.mend .ti-go { background: #3a6aa8; color: #fff; }
+.ti-person.mend .ti-go::before { content: '\262E  '; }
+.ti-person.sleep .ti-portrait svg { filter: brightness(.55) saturate(.6) drop-shadow(0 8px 10px rgba(0,0,0,.35)); }
+.ti-portrait { position: relative; }
+.ti-zz { position: absolute; right: 10px; top: 6px; font: bold 34px Georgia, serif; color: #e8e0f8; text-shadow: 0 2px 4px #2a2440; animation: tm-bob 3s ease-in-out infinite; }
+.ti-empty { max-width: 560px; margin: 40px auto 0; padding: 14px 18px; border-radius: 8px; text-align: center; font-style: italic; }
+.tc-away { font-size: 13px; font-style: italic; color: #5a4632; margin: 4px 0; }
+.calm .talk-face > svg, .calm .emote, .calm .ti-zz { animation: none; }
+
+.talk-wrap { max-height: 100%; box-sizing: border-box; overflow-y: auto; }
+.mediate .nb-g { font-size: 14px; margin: 4px 0; }

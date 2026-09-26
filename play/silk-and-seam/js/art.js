@@ -1229,7 +1229,8 @@ const both = (fn) => fn(-1) + fn(1);
 export function portraitSVG(look, dyeHex = '#b9a4d8', mood = 'neutral') {
   const L = LOOKS[look % LOOKS.length], p = `pt${++uid}_`;
   const F = FACES[L.face] || FACES.oval, { top, chin } = F, fw = -F.pts[2][0];
-  const man = L.style === 'short', old = !!L.old, happy = mood === 'happy', sad = mood === 'sad';
+  
+  const man = L.style === 'short', old = !!L.old, happy = mood === 'happy', sad = mood === 'sad', angry = mood === 'angry';
   const sk = L.skin, skL = shade(sk, 0.14), skD = shade(sk, -0.16), skDD = shade(sk, -0.34);
   const hair = L.hair, hl = shade(hair, lum(hair) > 0.6 ? 0.35 : 0.3), hd = shade(hair, -0.28), ink = '#2a1b17';
   const ex = n1(fw * 0.4), ey = 2, noseY = n1(10.5 + (chin - 28) * 0.4), my = n1(chin - 10.3);
@@ -1329,7 +1330,7 @@ export function portraitSVG(look, dyeHex = '#b9a4d8', mood = 'neutral') {
   const brow = (s) => {
     const cx = s * ex, t = man ? 2.3 : L.young ? 1.8 : 1.5, by = ey - 6.6 - (happy ? 1 : 0) - (et === 'hooded' ? -0.3 : 0);
     const ix = n1(cx - s * 4.2), ox = n1(cx + s * 5.6), ax = n1(cx + s * 1.2);
-    const iy = by + (sad ? -2.2 : man ? 0.6 : 0.3), oy = by + 1.3 + (sad ? 0.7 : 0), ay = by - (happy ? 2 : sad ? 0.2 : 1.3);
+    const iy = by + (sad ? -2.2 : angry ? 2.6 : man ? 0.6 : 0.3), oy = by + 1.3 + (sad ? 0.7 : angry ? -1.6 : 0), ay = by - (happy ? 2 : sad ? 0.2 : angry ? 0.6 : 1.3);
     return `<path class="pt-brow" d="M${ix},${n1(iy - t / 2)} Q${ax},${n1(ay - t)} ${ox},${n1(oy)} Q${ax},${n1(ay + t * 0.6)} ${ix},${n1(iy + t / 2)}Z" fill="${shade(hair, lum(hair) > 0.55 ? -0.4 : -0.2)}" stroke="${shade(hair, lum(hair) > 0.55 ? -0.4 : -0.2)}" stroke-width=".5" stroke-linejoin="round"/>`;
   };
   const nw = { button: 2.4, broad: 3.7, long: 2.7 }[L.nose] || 3, nb = L.nose === 'long' ? 1 : 3;
@@ -1346,7 +1347,7 @@ export function portraitSVG(look, dyeHex = '#b9a4d8', mood = 'neutral') {
       `<path d="M-2.8,${n1(my + 4.3)}Q0,${n1(my + 2.6)} 2.8,${n1(my + 4.3)}" fill="#c9606c"/><path d="${open}" fill="none" stroke="${lip}" stroke-width="1.3" stroke-linejoin="round"/>` +
       both((s) => `<path d="M${n1(s * (w + 0.4))},${n1(my - 2.2)} q${s * 0.8},1 0,2" stroke="${skDD}" stroke-width=".7" stroke-opacity=".6" fill="none"/>`);
   } else {
-    const c = sad ? 1.5 : -0.3, lh = man ? 2.6 : 3.6;
+    const c = sad ? 1.5 : angry ? 1.1 : -0.3, lh = man ? 2.6 : angry ? 2.2 : 3.6;
     lips = `<path d="M${-mw},${n1(my + c)}C${n1(-mw * 0.55)},${n1(my - 1.4)} -1.3,${n1(my - 2.3)} 0,${n1(my - 1.3)}C1.3,${n1(my - 2.3)} ${n1(mw * 0.55)},${n1(my - 1.4)} ${mw},${n1(my + c)}C${n1(mw * 0.4)},${n1(my + 0.3)} ${n1(-mw * 0.4)},${n1(my + 0.3)} ${-mw},${n1(my + c)}Z" fill="${lipU}"/>` +
       `<path d="M${n1(-mw + 0.6)},${n1(my + c)}C${n1(-mw * 0.4)},${n1(my + 0.5)} ${n1(mw * 0.4)},${n1(my + 0.5)} ${n1(mw - 0.6)},${n1(my + c)}C${n1(mw * 0.5)},${n1(my + lh)} ${n1(-mw * 0.5)},${n1(my + lh)} ${n1(-mw + 0.6)},${n1(my + c)}Z" fill="${lip}"/>` +
       `<path d="M${-mw},${n1(my + c)}C${n1(-mw * 0.4)},${n1(my + 0.3)} ${n1(mw * 0.4)},${n1(my + 0.3)} ${mw},${n1(my + c)}" stroke="${shade(lip, -0.45)}" stroke-width=".8" fill="none"/>` +

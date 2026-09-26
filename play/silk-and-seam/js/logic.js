@@ -729,3 +729,41 @@ export function musicBar(mood, bar) {
   }
   return notes;
 }
+
+
+
+
+
+
+export const EMOTION_VOICE = {
+  love: { p: 1.12, r: 1.08, end: 2, v: 1 }, laugh: { p: 1.2, r: 1.25, end: 3, v: 1.05 }, joy: { p: 1.18, r: 1.12, end: 4, v: 1.1 },
+  hmm: { p: 1, r: 1, end: 0, v: 0.9 }, cold: { p: 0.95, r: 0.9, end: -1, v: 0.8 },
+  hurt: { p: 0.86, r: 0.72, end: -4, v: 0.75 }, angry: { p: 1.05, r: 1.35, end: -2, v: 1.3 },
+};
+export const BABBLE_MAX = 30;
+export function babblePlan(voice, text, emotion = 'hmm') {
+  const e = EMOTION_VOICE[emotion] || EMOTION_VOICE.hmm;
+  const v = { pitch: 240, rate: 9, vowel: 1, wobble: 0.1, vib: 0, ...(voice || {}) };
+  let h = 7;
+  for (const ch of String(text)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const rnd = mulberry32(h);
+  const step = 1 / (v.rate * e.r), notes = [];
+  let t = 0;
+  const words = String(text).match(/[A-Za-zÀ-ɏ']+[^A-Za-zÀ-ɏ']*/g) || [];
+  for (const w of words) {
+    const syl = Math.max(1, Math.min(4, (w.toLowerCase().match(/[aeiouy]+/g) || []).length));
+    for (let s = 0; s < syl && notes.length < BABBLE_MAX; s++) {
+      const semis = (rnd() * 2 - 1) * v.wobble * 12;
+      notes.push({ t, dur: step * (0.62 + rnd() * 0.3), freq: v.pitch * e.p * 2 ** (semis / 12), formant: [650, 950, 1350, 420][Math.floor(rnd() * 4)] * v.vowel, vol: 0.11 * e.v });
+      t += step;
+    }
+    if (/[,;:-]/.test(w)) t += step * 1.4;
+    if (/[.!?]/.test(w)) t += step * 2.4;
+    if (notes.length >= BABBLE_MAX) break;
+  }
+  
+  const n = notes.length;
+  notes.forEach((x, i) => { x.freq *= 2 ** ((e.end * (i / Math.max(1, n - 1))) / 12); });
+  if (n && /\?\s*$/.test(text)) notes[n - 1].freq *= 2 ** (4 / 12);
+  return { notes, dur: t, vib: v.vib, wave: v.wave || 'triangle' };
+}

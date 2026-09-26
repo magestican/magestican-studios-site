@@ -12,6 +12,8 @@
 
 import { briefFor, part } from './logic.js';
 import { WEDDING_PEOPLE, SECOND_VISITS } from './townfolk.js';
+import { VOICES, NIGHT, CONFLICTS } from './townlife.js';
+export { CONFLICTS };
 
 export const APPROACHES = {
   warm: 'kindness and a listening ear',
@@ -607,13 +609,23 @@ const FIRST_PEOPLE = [
 
 
 
+
+
+
 function joinVisits(people, more) {
   return people.map((p) => {
-    const m = more[p.id] || {};
-    const gossip = [...p.gossip, ...(m.gossip || [])];
+    const m = more[p.id] || {}, n = NIGHT[p.id] || {};
+    const clues = CONFLICTS.flatMap((c) => c.holders[p.id] || []);
+    const gossip = [...p.gossip, ...(m.gossip || []), ...(n.nightGossip || []), ...clues];
     const at = (g) => (typeof g === 'string' ? gossip.findIndex((x) => x.id === g) : g);
-    const chats = [...(p.chats || []), ...(m.chats || [])].map((set) => set.map((t) => (t.g == null ? t : { ...t, g: at(t.g) })));
-    return { ...p, again: m.again || p.again, gossip, chats, requests: [...p.requests, ...(m.requests || [])] };
+    const fix = (set) => set.map((t) => (t.g == null ? t : { ...t, g: at(t.g) }));
+    const chats = [...(p.chats || []), ...(m.chats || [])].map(fix);
+    const mended = CONFLICTS.flatMap((c) => c.requests[p.id] || []);
+    return {
+      ...p, again: m.again || p.again, gossip, chats, voice: VOICES[p.id],
+      hours: n.hours || 'both', nightAt: n.nightAt, nightHello: n.nightHello, nightChat: n.nightChat && fix(n.nightChat),
+      requests: [...p.requests, ...(m.requests || []), ...(n.nightRequests || []), ...mended],
+    };
   });
 }
 export const PEOPLE = joinVisits([...FIRST_PEOPLE, ...WEDDING_PEOPLE], SECOND_VISITS);
@@ -641,13 +653,20 @@ export const BUILDINGS = [
 export const building = (id) => BUILDINGS.find((b) => b.id === id);
 export const buildingOf = (personId) => BUILDINGS.find((b) => b.people.includes(personId));
 
+
+
+
+export const awake = (p, night) => !night || p.hours !== 'day';
+export const whereIs = (p, night) => (night && p.nightAt ? building(p.nightAt) : buildingOf(p.id));
+export const peopleIn = (b, night) => PEOPLE.filter((p) => whereIs(p, night)?.id === b.id).map((p) => p.id);
+
 export const person = (id) => PEOPLE.find((p) => p.id === id);
 export const GOSSIP = PEOPLE.flatMap((p) => p.gossip.map((g) => ({ ...g, from: p.id })));
 export const gossip = (id) => GOSSIP.find((g) => g.id === id);
 
 
 export function freshTown() {
-  return { day: 0, talks: 0, people: {}, known: [], notice: 0, charity: 0, kinds: {} };
+  return { day: 0, talks: 0, people: {}, known: [], notice: 0, charity: 0, kinds: {}, trouble: { seen: [], mended: [], tried: {} } };
 }
 
 export function townDay(town, made) {
@@ -660,7 +679,8 @@ export const receives = (p, rep, notice) => standing(rep, notice) >= (p.minStand
 export const talkedToday = (town, id, made) => town?.people?.[id]?.last === made;
 
 
-export function cannotTalk(p, town, { made = 0, rep = 0 } = {}) {
+export function cannotTalk(p, town, { made = 0, rep = 0, night = false } = {}) {
+  if (!awake(p, night)) return 'asleep';
   if (!receives(p, rep, town?.notice)) return 'closed';
   if (talkedToday(town, p.id, made)) return 'talked';
   if (!talksLeft(town, made)) return 'tired';
@@ -689,9 +709,62 @@ export function conversationIndex(p, town) {
   const n = talksWith(town, p.id), all = conversationsOf(p).length;
   return n < all ? n : all > 1 ? 1 + ((n - 1) % (all - 1)) : 0;
 }
-export const topicsOf = (p, talk) => conversationsOf(p)[talk?.set || 0] || p.topics;
-export function startTalk(p, town) {
-  return { id: p.id, set: conversationIndex(p, town), round: 0, rapport: startRapport(p, town), heard: [], log: [], done: false };
+
+export const topicsOf = (p, talk) => (talk?.set === 'night' ? p.nightChat : conversationsOf(p)[talk?.set || 0] || p.topics);
+export function startTalk(p, town, { night = false } = {}) {
+  const set = night && p.nightChat && !town?.people?.[p.id]?.nightHeard ? 'night' : conversationIndex(p, town);
+  return { id: p.id, set, night, round: 0, rapport: startRapport(p, town), heard: [], log: [], done: false };
+}
+
+export const helloOf = (p, talk) => (talk.set === 'night' || (talk.night && p.nightHello && talk.set) ? p.nightHello : talk.set ? p.again || p.hello : p.hello);
+
+
+
+
+export function emotionOf(p, kind, approach) {
+  if (kind === 'liked') return approach === 'witty' ? 'laugh' : 'love';
+  if (kind === 'disliked') return p.voice?.temper || 'cold';
+  if (kind === 'joy') return 'joy';
+  return 'hmm';
+}
+export const moodOf = (emotion) => ({ love: 'happy', laugh: 'happy', joy: 'happy', hurt: 'sad', angry: 'angry' }[emotion] || 'neutral');
+
+
+
+
+
+export const MEND_NOTICE = 2;
+export const conflict = (id) => CONFLICTS.find((c) => c.id === id);
+export const troublesOf = (id) => CONFLICTS.filter((c) => c.a === id || c.b === id);
+const trouble = (town) => ({ seen: [], mended: [], tried: {}, ...(town?.trouble || {}) });
+export const isMended = (town, id) => trouble(town).mended.includes(id);
+export const isSeen = (town, id) => trouble(town).seen.includes(id);
+
+export function clueSource(gid) {
+  for (const p of PEOPLE) {
+    const g = p.gossip.find((x) => x.id === gid);
+    if (g) return { who: p.id, night: !!g.night };
+  }
+  return null;
+}
+export const hasClues = (town, c) => c.clues.every((g) => (town?.known || []).includes(g));
+
+export function canMediate(p, town, made = 0) {
+  return CONFLICTS.find((c) => c.mediator === p.id && isSeen(town, c.id) && !isMended(town, c.id) && hasClues(town, c) && trouble(town).tried[c.id] !== made) || null;
+}
+
+export const complaintOf = (p, town) => troublesOf(p.id).filter((c) => !isMended(town, c.id)).map((c) => c.complaint[p.id]).filter(Boolean)[0] || null;
+
+
+export function mediate(town, c, p, i, rapport, made) {
+  const t = { ...freshTown(), ...(town || {}) };
+  const tr = trouble(t);
+  const kind = reactionOf(p, c.tell[i].a);
+  const ok = kind === 'liked' || (kind === 'neutral' && rapport >= needOf(p));
+  if (!ok) return { ok, kind, town: { ...t, trouble: { ...tr, tried: { ...tr.tried, [c.id]: made } } } };
+  const people = { ...t.people };
+  for (const id of [c.a, c.b]) people[id] = { ...(people[id] || {}), lastReq: null };
+  return { ok, kind, town: { ...t, people, notice: (t.notice || 0) + MEND_NOTICE, trouble: { ...tr, mended: [...tr.mended, c.id] } } };
 }
 
 export function talkStep(talk, p, i) {
@@ -708,8 +781,8 @@ export const needOf = (p) => p.need || NEED;
 
 
 
-export function requestReady(p, town, { made = 0, orders = [], job = null, lvl = 99 } = {}) {
-  if (!nextRequest(p, town, lvl)) return false;
+export function requestReady(p, town, { made = 0, orders = [], job = null, lvl = 99, night = false } = {}) {
+  if (!nextRequest(p, town, lvl, night)) return false;
   const mem = town?.people?.[p.id];
   if (orders.some((o) => o.townPerson === p.id) || job?.order?.townPerson === p.id) return false;
   if (orders.filter((o) => o.town).length >= MAX_TOWN_LETTERS) return false;
@@ -717,11 +790,16 @@ export function requestReady(p, town, { made = 0, orders = [], job = null, lvl =
 }
 
 
-export function nextRequest(p, town, lvl = 99) {
-  const n = town?.people?.[p.id]?.reqs || 0, list = p.requests || [];
+
+
+export function nextRequest(p, town, lvl = 99, night = false) {
+  const mem = town?.people?.[p.id] || {}, n = mem.reqs || 0, list = p.requests || [];
+  const can = (r) => (!r.garment || (part(r.garment.slot, r.garment.id)?.lvl || 1) <= lvl) && (r.when !== 'night' || night) && (!r.after || isMended(town, r.after));
+  const fresh = list.find((r) => r.after && can(r) && !(mem.afterTaken || []).includes(r.after));
+  if (fresh) return fresh;
   for (let k = 0; k < list.length; k++) {
     const r = list[(n + k) % list.length];
-    if (!r.garment || (part(r.garment.slot, r.garment.id)?.lvl || 1) <= lvl) return r;
+    if (can(r)) return r;
   }
   return null;
 }
@@ -729,20 +807,27 @@ export function nextRequest(p, town, lvl = 99) {
 export function talkOutcome(talk, p, town, ctx = {}) {
   const good = talk.rapport >= needOf(p);
   const known = new Set([...(town?.known || []), ...talk.heard]);
-  const parting = talk.rapport >= 3 ? p.gossip.find((g) => !known.has(g.id)) : null;
-  const request = good && requestReady(p, town, ctx) ? nextRequest(p, town, ctx.lvl) : null;
+  
+  
+  const open = (g) => !known.has(g.id) && (!g.night || ctx.night);
+  const clue = CONFLICTS.filter((c) => isSeen(town, c.id) && !isMended(town, c.id)).flatMap((c) => c.clues);
+  const parting = talk.rapport >= 3 ? p.gossip.find((g) => open(g) && clue.includes(g.id)) || p.gossip.find(open) : null;
+  const request = good && requestReady(p, town, ctx) ? nextRequest(p, town, ctx.lvl, ctx.night) : null;
   return { good, request, parting: parting ? parting.id : null };
 }
 
 export function recordTalk(town, talk, outcome, made) {
   const t = { ...freshTown(), ...(town || {}) };
   const mem = { ...(t.people[talk.id] || {}) };
-  mem.talks = talksWith(t, talk.id) + 1;
+  if (talk.set === 'night') mem.nightHeard = true; else mem.talks = talksWith(t, talk.id) + 1;
   mem.met = true;
   mem.best = Math.max(mem.best ?? -99, talk.rapport);
   const known = [...t.known];
   for (const g of [...talk.heard, outcome?.parting].filter(Boolean)) if (!known.includes(g)) known.push(g);
-  return { ...t, known, people: { ...t.people, [talk.id]: mem } };
+  const tr = trouble(t);
+  const seen = [...tr.seen];
+  for (const c of troublesOf(talk.id)) if (!seen.includes(c.id)) seen.push(c.id);
+  return { ...t, known, people: { ...t.people, [talk.id]: mem }, trouble: { ...tr, seen } };
 }
 
 export function spendTalk(town, id, made) {
@@ -780,10 +865,11 @@ export function requestOrder(p, req, lvl, rng) {
   return order;
 }
 
-export function answerRequest(town, id, made, accepted) {
+export function answerRequest(town, id, made, accepted, req = null) {
   const t = { ...freshTown(), ...(town || {}) };
   const mem = { ...(t.people[id] || {}) };
   if (accepted) { mem.reqs = (mem.reqs || 0) + 1; mem.lastReq = made; } else mem.lastReq = made + 1 - REQUEST_COOLDOWN;
+  if (accepted && req?.after) mem.afterTaken = [...(mem.afterTaken || []), req.after];
   return { ...t, people: { ...t.people, [id]: mem } };
 }
 

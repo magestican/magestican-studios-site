@@ -212,6 +212,10 @@ export function badgeSVG(b, st) {
     done: `<circle cy="-30" r="13" fill="#e8e0d0" stroke="#8a7a6a" stroke-width="2"/><path d="M-6,-30 l4,5 l8,-10" stroke="#6a7a5a" stroke-width="3" fill="none" stroke-linecap="round"/>`,
     closed: `<rect x="-11" y="-34" width="22" height="18" rx="3" fill="#8a7a6a"/><path d="M-6,-34 v-6 a6,6 0 0 1 12,0 v6" stroke="#8a7a6a" stroke-width="3.5" fill="none"/><circle cy="-25" r="2.6" fill="#e8e0d0"/>`,
     home: `<circle cy="-30" r="15" fill="#d25a6e" stroke="#f7e3e6" stroke-width="2"/><path d="M-7,-26 v-6 l7,-6 l7,6 v6 Z" fill="#fff"/>`,
+    
+    mend: `<circle cy="-30" r="16" fill="#3a6aa8" stroke="#f7e3b5" stroke-width="2"/><path d="M-9,-28 q5,-8 12,-6 l6,-5 l-1,6 q2,5 -4,8 q-7,3 -13,-3 Z" fill="#fff"/><circle cx="4" cy="-33" r="1.2" fill="#3a6aa8"/>`,
+    
+    sleep: `<text x="-14" y="-16" font-family="Georgia,serif" font-weight="bold" font-size="30" fill="#e8e0f8" stroke="#2a2440" stroke-width="1.2">z</text><text x="6" y="-38" font-family="Georgia,serif" font-weight="bold" font-size="22" fill="#e8e0f8" stroke="#2a2440" stroke-width=".6">Z</text>`,
   }[st];
   
   return `<g transform="translate(${x},${y})"><g class="tm-badge ${st}">${icon || ''}</g></g>`;

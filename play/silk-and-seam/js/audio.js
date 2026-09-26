@@ -19,7 +19,7 @@
 
 
 import { state } from './state.js';
-import { gains, silenceOf, musicBar, tuneOf } from './logic.js';
+import { gains, silenceOf, musicBar, tuneOf, babblePlan } from './logic.js';
 
 const DEAD_S = 3, QUIET = 1e-4;
 let ac = null, master = null, fx = null, music = null, amb = null, outdoor = null, outLp = null, machine = null, tap = null, taps = null;
@@ -150,6 +150,32 @@ function noise(dur, freq, q, vol = 0.3, when = 0, to = fx, attack = 0.005) {
   src.connect(f); f.connect(g); g.connect(to);
   src.start(t, Math.random()); src.stop(t + dur + 0.05);
 }
+
+
+
+let talking = [];
+export function speak(voice, text, emotion) {
+  if (!ac || ac.state !== 'running') return;
+  for (const o of talking) { try { o.stop(); } catch (e) {  } }
+  talking = [];
+  const plan = babblePlan(voice, text, emotion);
+  const t0 = ac.currentTime + 0.03;
+  for (const n of plan.notes) {
+    const t = t0 + n.t;
+    const o = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain();
+    o.type = plan.wave;
+    o.frequency.setValueAtTime(n.freq * (1 + plan.vib), t);
+    o.frequency.linearRampToValueAtTime(n.freq * (1 - plan.vib), t + n.dur);
+    f.type = 'bandpass'; f.frequency.value = n.formant; f.Q.value = 1.6;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(n.vol * 2.2, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + n.dur);
+    o.connect(f); f.connect(g); g.connect(fx);
+    o.start(t); o.stop(t + n.dur + 0.02);
+    talking.push(o);
+  }
+}
+export const stopSpeaking = () => { for (const o of talking) { try { o.stop(); } catch (e) {  } } talking = []; };
 
 export const sfx = {
   click: () => tone(880, 0.05, 'triangle', 0.12),
