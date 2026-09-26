@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Reviews — our own games, honestly, including what is broken</title>
+  <title>Reviews — our own games, honestly | Magestican Studios</title>
   <meta name="description" content="Magestican Studios reviews its own games: what each one is, what works, and what is still wrong with it. No star ratings, and no player quotes until real ones exist.">
   <link rel="canonical" href="https://magesticanstudios.com/reviews.html">
   <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/reviews.html">
@@ -114,7 +114,7 @@
       <a href="/magazine/">Magazine</a>
       <a href="/reviews.html">Reviews</a>
     </nav>
-    <details class="lang-switch"><summary aria-label="Language: English"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>EN</span></summary><ul><li><a href="/reviews.html" hreflang="en" lang="en" data-lang="en" aria-current="page">English</a></li><li><a href="/es/reviews.html" hreflang="es" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/reviews.html" hreflang="pt-BR" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/reviews.html" hreflang="tl" lang="tl" data-lang="tl">Tagalog</a></li></ul></details>
+    <details class="lang-switch"><summary aria-label="Language: English"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>EN</span></summary><ul><li><a href="/reviews.html" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en" aria-current="page">English</a></li><li><a href="/es/reviews.html" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/reviews.html" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/reviews.html" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl">Tagalog</a></li></ul></details>
   </header>
 
   <main>
@@ -582,7 +582,7 @@
     initAnalytics({ page: 'reviews' });
     trackPlayClicks();
   </script>
-  <script type="module" src="./assets/studioBanner.js?v=e1c6f61-20260926T105907Z"></script>
+  <script type="module" src="./assets/studioBanner.js?v=f111aa9-20260926T113658Z"></script>
   <script>
     
     
@@ -598,12 +598,10 @@
 (function(){try{var T={"es":{"href":"/es/reviews.html","text":"Ver esta página en español","close":"Cerrar"},"pt":{"href":"/pt/reviews.html","text":"Ver esta página em português","close":"Fechar"},"tl":{"href":"/tl/reviews.html","text":"Tingnan ang pahinang ito sa Tagalog","close":"Isara"}};
 document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.lang-switch a[data-lang]');if(a)localStorage.setItem('ms-lang',a.getAttribute('data-lang'));});
 var chosen=localStorage.getItem('ms-lang');if(chosen)return;
+if(/bot|crawl|spider|slurp|google-inspectiontool|lighthouse|headlesschrome/i.test(navigator.userAgent||''))return;
 var langs=navigator.languages||[navigator.language||''];var code=null;
 for(var i=0;i<langs.length&&!code;i++){var p=String(langs[i]).toLowerCase().split('-')[0];if(p==='en')break;if(p==='fil')p='tl';if(T[p])code=p;}
-if(!code)return;var t=T[code];var bar=document.createElement('div');bar.className='lang-suggest';bar.setAttribute('role','region');bar.setAttribute('aria-label',t.text);
-var a=document.createElement('a');a.href=t.href;a.textContent=t.text;a.setAttribute('data-lang',code);a.addEventListener('click',function(){localStorage.setItem('ms-lang',code);});
-var x=document.createElement('button');x.type='button';x.textContent=t.close;x.addEventListener('click',function(){localStorage.setItem('ms-lang','en');bar.remove();});
-bar.appendChild(a);bar.appendChild(x);document.body.insertBefore(bar,document.body.firstChild);}catch(e){}})();
+if(!code)return;location.replace(T[code].href+location.search+location.hash);}catch(e){}})();
 </script>
 </body>
 </html>
