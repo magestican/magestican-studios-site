@@ -11,6 +11,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { MipBloomPass } from './mipBloom.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 
 const TILT_SHIFT = {
   uniforms: { tDiffuse: { value: null }, uTexel: { value: new THREE.Vector2(1 / 1280, 1 / 720) }, uStart: { value: 0.9 } },
@@ -61,9 +62,15 @@ export function createPost(renderer, scene, camera, settings) {
   let composer = null, bloom = null, tilt = null, target = null;
   let last = { w: 0, h: 0 };
   let strength = 0;
+  let pending = null;   
 
-  function build(s) {
-    if (!s.bloom) return;          
+  
+  
+  
+  function make(s) {
+    let composer = null, bloom = null, tilt = null, target = null;
+    const chain = () => ({ composer, bloom, tilt, target });
+    if (!s.bloom) return chain();          
     const size = renderer.getDrawingBufferSize(new THREE.Vector2());
     target = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: s.effects >= 1 ? 4 : 2 });
     composer = new EffectComposer(renderer, target);
@@ -78,13 +85,59 @@ export function createPost(renderer, scene, camera, settings) {
       composer.addPass(tilt);
     }
     composer.addPass(new OutputPass());
+    return chain();
   }
 
-  function teardown() {
+  function build(s) {
+    const ready = pending && pending.s === s ? pending.chain : null;
+    if (pending && !ready) drop(pending.chain);
+    pending = null;
+    if (!s.bloom) return;          
+    ({ composer, bloom, tilt, target } = ready || make(s));
+  }
+
+  function drop(chain) {
+    const { composer, target } = chain;
     for (const pass of composer ? composer.passes : []) if (pass.dispose) pass.dispose();
     if (composer && composer.dispose) composer.dispose();
     if (target) target.dispose();
+  }
+  function teardown() {
+    drop({ composer, target });
     composer = null; bloom = null; tilt = null; target = null;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  function warmChain(chainComposer, shaderWarm) {
+    if (!chainComposer) return Promise.resolve([]);
+    const into = chainComposer.readBuffer;
+    const eye = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const jobs = [];
+    const seen = new Set();
+    for (const pass of chainComposer.passes) {
+      if (pass instanceof RenderPass || pass instanceof OutputPass) continue;
+      const own = [];
+      for (const v of Object.values(pass)) {
+        if (v && v.isMaterial) own.push(v);
+        else if (Array.isArray(v)) for (const m of v) if (m && m.isMaterial) own.push(m);
+      }
+      for (const material of own) {
+        if (seen.has(material)) continue;
+        seen.add(material);
+        
+        
+        const mesh = new FullScreenQuad(material)._mesh;
+        jobs.push(shaderWarm.warm(mesh, `post ${pass.constructor.name}`, { into: pass.renderToScreen ? null : into, alone: true, camera: eye }));
+      }
+    }
+    return Promise.all(jobs);
   }
 
   build(settings);
@@ -110,6 +163,34 @@ export function createPost(renderer, scene, camera, settings) {
       build(s);
       if (last.w) api.setSize(last.w, last.h);
       api.setBloom(strength);
+    },
+    
+
+
+
+
+
+    warm(shaderWarm) {
+      return warmChain(composer, shaderWarm);
+    },
+    
+
+
+
+
+
+
+
+    prepare(s, shaderWarm) {
+      if (pending && pending.s === s) return pending.ready;
+      if (pending) drop(pending.chain);
+      const chain = make(s);
+      if (last.w && chain.composer) {
+        chain.composer.setPixelRatio(renderer.getPixelRatio());
+        chain.composer.setSize(last.w, last.h);
+      }
+      pending = { s, chain, ready: warmChain(chain.composer, shaderWarm) };
+      return pending.ready;
     },
   };
   return api;

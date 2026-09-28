@@ -65,6 +65,18 @@ export function decorIconFor(item, { size = 128, lod = 1 } = {}) {
   return cached(`decor:${item}|${lod}`, item, size, () => decorObject(item, { season: 'summer', lod }));
 }
 
+
+
+
+
+
+
+
+export function warmIconShaders(obj) {
+  stage ||= makeStage();
+  return stage.renderer.compileAsync(obj, stage.camera, stage.scene);
+}
+
 function cached(key, name, size, build) {
   const k = `${key}|${size}`;
   if (!icons.has(k)) {

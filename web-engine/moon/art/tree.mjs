@@ -603,6 +603,13 @@ function hangFruit(ctx, canopy, count) {
   const { shape } = canopy;
   const fr = HABIT[ctx.kind].fruitR;
   const az0 = Math.PI / 2 + rng.rangeF(-0.35, 0.35);
+  
+  
+  
+  
+  
+  
+  const spans = ctx.fruit ? (ctx.m.fruitSpans ||= []) : null;
   for (let k = 0; k < count; k++) {
     const off = k === 0 ? 0 : (k % 2 ? 1 : -1) * Math.ceil(k / 2);
     const az = az0 + off * (TAU / Math.max(count, 5)) * 1.05 + rng.rangeF(-0.2, 0.2);
@@ -615,7 +622,9 @@ function hangFruit(ctx, canopy, count) {
     const c = add(add(surf, mul(e, fr * 0.55)), [0, -fr * 0.35, 0]);
     const size = fr * rng.rangeF(0.88, 1.12);
     const mesh = fruitMesh(ctx, size, rng);
+    const starts = spans ? [...mesh.groups.keys()].map((mat) => [mat, ctx.m.groups.has(mat) ? ctx.m.groups.get(mat).positions.length / 3 : 0]) : null;
     ctx.m.append(mesh, compose(translate(...c), compose(rotateY(rng.rangeF(0, TAU)), rotateZ(rng.rangeF(-0.25, 0.25)))));
+    if (spans) for (const [material, start] of starts) spans.push({ material, start, count: mesh.groups.get(material).positions.length / 3 });
   }
 }
 

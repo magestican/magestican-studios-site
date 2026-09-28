@@ -195,10 +195,30 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
   scene.add(group);
 
   let slots = new Int32Array(size);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let away = false;
+  const darken = () => {
+    for (const light of lights) light.intensity = 0;
+    if (halos) halos.visible = pools.visible = false;
+  };
   return {
     group,
     lights,
     get size() { return size; },
+    get away() { return away; },
+    setAway(on) {
+      away = Boolean(on);
+      if (away) darken();
+      return away;
+    },
     get sources() { return sourceList; },
     
     get lit() {
@@ -244,6 +264,7 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
       return true;
     },
     update(cycle, focus, pixelsPerRadian) {
+      if (away) { darken(); return; }
       const lamp = cycle.emissive['lamp-glow'], fire = cycle.emissive.fire;
       shared.uLamp.value = lamp;
       shared.uFire.value = fire * (cycle.sunUp ? 0.25 : 1);

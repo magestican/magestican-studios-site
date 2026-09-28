@@ -21,7 +21,7 @@
 
 
 import * as THREE from 'three';
-import { itemObject } from '../render/items.js';
+import { itemObject, primeItem } from '../render/items.js';
 import { CARRY_LIFT, containerObject } from '../render/container.js';
 import { stepPart, REST } from 'moon/play/parts.mjs';
 
@@ -40,6 +40,12 @@ export const CARRY_BOB_M = 0.025;
 export const CARRY_SPIN_PER_S = Math.PI * 0.35;
 const HALO_RADIUS_M = 0.5;
 const HALO_COLOUR = 0xfff0c0;
+
+
+
+
+
+export const findItemSeed = (find) => 1 + (find.id % 3);
 
 export function createFindsDraw({ scene, season, drawM = FIND_DRAW_M, drawMax = FIND_DRAW_MAX, onProblems = () => {} }) {
   const group = new THREE.Group();
@@ -122,7 +128,7 @@ export function createFindsDraw({ scene, season, drawM = FIND_DRAW_M, drawMax = 
 
         
         if (state === 'full' && f.container !== 'chest') {
-          const item = await itemObject(f.good, { seed: 1 + (f.id % 3), season });
+          const item = await itemObject(f.good, { seed: findItemSeed(f), season });
           if (token !== slot.token || planet !== planetToken) return;
           const lift = (box.userData.top || 0.4) * (CARRY_LIFT[f.container] ?? 1);
           item.position.set(f.x, f.y + lift, f.z);
@@ -158,6 +164,53 @@ export function createFindsDraw({ scene, season, drawM = FIND_DRAW_M, drawMax = 
         shown: slots.filter((s) => s.box).map((s) => s.find.id),
         full: slots.filter((s) => s.want === 'full').map((s) => s.find.id),
       };
+    },
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    async prime(finds, { near = () => true } = {}) {
+      const boxes = new Map();
+      const wanted = new Map();
+      for (const f of finds) {
+        for (const open of f.container === 'chest' ? [false, true] : [false]) {
+          const key = `${f.container}|${f.style}|${open}`;
+          if (!boxes.has(key)) boxes.set(key, containerObject(f.container, { style: f.style, season, open }).catch(() => null));
+        }
+        if (f.container === 'chest') continue;
+        const seed = findItemSeed(f);
+        const key = `${f.good}|${seed}`;
+        const was = wanted.get(key);
+        if (was) { was.near = was.near || near(f); continue; }
+        wanted.set(key, { good: f.good, seed, near: near(f), job: primeItem(f.good, { seed, season }) });
+      }
+      const collect = async (list) => {
+        const out = new THREE.Group();
+        out.name = 'finds-warm';
+        for (const w of list) {
+          if (!(await w.job)) continue;
+          try { out.add(await itemObject(w.good, { seed: w.seed, season })); } catch {  }
+        }
+        return out;
+      };
+      const all = [...wanted.values()];
+      const now = await collect(all.filter((w) => w.near));
+      for (const box of await Promise.all(boxes.values())) if (box) now.add(box);
+      now.add(new THREE.Mesh(haloGeometry, haloMaterial));
+      return { now, rest: collect(all.filter((w) => !w.near)) };
     },
 
     

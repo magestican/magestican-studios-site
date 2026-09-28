@@ -59,6 +59,7 @@
 
 import * as THREE from 'three';
 import { curveUniforms, windUniforms, waterUniforms } from '../render/material.js';
+import { builtCozyMaterials } from '../render/material.js';
 import { createSky } from '../render/sky.js';
 import { villagerObject } from '../render/villager.js';
 import { createDaylight } from '../render/daylight.js';
@@ -75,9 +76,17 @@ import { buildMoonScene } from '../lookdev/scene.js';
 
 
 import { createCharacter } from '../render/character.js';
-import { itemObject } from '../render/items.js';
+import { itemObject, primeItem, prewarmItems, setItemWorker } from '../render/items.js';
 import { TOOL_GRIP } from 'moon/art/item.mjs';
-import { iconFor, portraitOf } from '../render/icons.js';
+import { createWorkerPool } from 'moon/play/meshSource.mjs';
+import { createShaderWarm } from './shaderWarm.js';
+import { within } from './warmWait.js';
+
+
+
+const FLIGHT_WARM_CAP_MS = 8000;
+const DOOR_WARM_CAP_MS = 3000;
+import { iconFor, portraitOf, warmIconShaders } from '../render/icons.js';
 import { PLAYER_BUILD_KEY, PLAYER_BUILDS, PLAYER_NAMES, choosePlayerBuild, villagerName } from 'moon/play/people.mjs';
 import { createPlayerChoice } from './playerChoice.js';
 import { createInput } from './input.js';
@@ -297,8 +306,8 @@ import { EDGE_MARGIN_M, obstaclesFrom } from 'moon/world/collision.mjs';
 
 import { describeFinds, findsOnPlanet, offsetOf, systemFinds } from 'moon/world/collectibles.mjs';
 import { findIsReady } from 'moon/economy/world.mjs';
-import { FINDS } from 'moon/economy/tables.mjs';
-import { createFindsDraw } from './findsDraw.js';
+import { FINDS, TREES, FORAGE } from 'moon/economy/tables.mjs';
+import { createFindsDraw, FIND_DRAW_M, findItemSeed } from './findsDraw.js';
 
 
 
@@ -658,6 +667,41 @@ const scene = new THREE.Scene();
 
 const pondsDraw = createPondsDraw({ scene });
 const camera = new THREE.PerspectiveCamera(CAMERA.landscape.fovDeg, 1, 0.1, 700);
+
+
+
+
+
+
+
+
+renderer.debug.checkShaderErrors = q.get('shaderchecks') === '0' ? false
+  : Boolean(q.get('probe') || q.get('debug') || location.hostname === '127.0.0.1' || location.hostname === 'localhost');
+
+
+
+
+
+const shaderWarm = createShaderWarm({
+  renderer, camera, scene,
+  target: () => (post && post.composer ? post.composer.readBuffer : null),
+});
+fml.shaderWarm = shaderWarm.stats;
+
+
+
+
+
+let itemPool;
+if (q.get('itemworker') !== '0') {
+  setItemWorker((spec) => {
+    if (itemPool === undefined) {
+      const cores = (navigator && navigator.hardwareConcurrency) || 2;
+      itemPool = createWorkerPool({ url: new URL('./itemWorker.js', import.meta.url), size: cores >= 6 ? 2 : 1 });
+    }
+    return itemPool ? itemPool.run(spec) : Promise.reject(new Error('no item worker'));
+  });
+}
 const sky = createSky();
 scene.add(sky.mesh);
 sky.anchorYaw = -CAMERA.yawRad;
@@ -787,6 +831,11 @@ const resetTrack = (x, z) => {
 };
 resetTrack(player.x, player.z);
 
+
+
+
+fml.programKeys = () => renderer.info.programs.map((p) => p.cacheKey);
+
 fml.teleport = (x, z, heading = 0) => {
   player = createPlayer(x, z, heading);
   follow = createFollow(aimPoint(player, groundNow(x, z), cameraFit()));
@@ -907,7 +956,8 @@ let forageDraw = null;
 
 const wildForageDraws = new Map();
 
-const guestDraw = createGuestDraw({ scene, heightAt: (x, z) => groundNow(x, z) });
+
+const guestDraw = createGuestDraw({ scene, heightAt: (x, z) => groundNow(x, z), prepare: (o) => within(shaderWarm.warm(o, 'guest'), DOOR_WARM_CAP_MS) });
 fml.guestDraw = guestDraw.stats;
 let forageProblems = () => {};
 function forageHere() {
@@ -944,10 +994,14 @@ function syncForage(t, focus) {
 let findsDraw = null;
 let findsShown = '';        
 function findsHere() {
-  if (onHome()) return [];
-  const base = offsetOf(planetId, state.system, GENERATED_COUNT);
+  return onHome() ? [] : findsOn(planetId);
+}
+
+
+function findsOn(id) {
+  const base = offsetOf(id, state.system, GENERATED_COUNT);
   const t = econNow();
-  return findsOnPlanet(planetAt(planetId, state.system, GENERATED_COUNT)).map((f) => {
+  return findsOnPlanet(planetAt(id, state.system, GENERATED_COUNT)).map((f) => {
     const record = world.finds[base + f.id];
     return {
       id: base + f.id, kind: f.kind, good: FINDS[f.kind].good, treasure: Boolean(FINDS[f.kind].treasure),
@@ -3012,7 +3066,126 @@ async function buildPlanet(id) {
   try {
     await orchard.warm(orchardView(world, econNow(), planetLayout.placements(), undefined, { planet: id, focus: planetLayout.FOCUS }));
   } catch (e) { fml.problems.push(`warm planet ${id}: ${(e && e.message) || e}`); }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const arrival = (async () => {
+    const at = landingOn(planet);
+    const primed = await primeFinds(id, (f) => Math.hypot(f.x - at.x, f.z - at.z) <= FIND_DRAW_M + 4);
+    await shaderWarm.warm(built.root, `planet ${id}`);
+    
+    
+    await shaderWarm.warmMaterials(await builtCozyMaterials(), `materials planet ${id}`);
+    if (primed) {
+      await shaderWarm.warm(primed.now, `finds ${id}`);
+      primed.rest.then((g) => shaderWarm.warm(g, `finds ${id} rest`)).catch(() => {});
+    }
+  })().catch((e) => { fml.problems.push(`warm shaders ${id}: ${(e && e.message) || e}`); });
+  if ((await within(arrival, FLIGHT_WARM_CAP_MS, 'capped')) === 'capped') fml.problems.push(`warm planet ${id}: capped at ${FLIGHT_WARM_CAP_MS} ms`);
+  
+  
+  prewarmItems(popGoods(id), { season: state.season }).catch((e) => fml.problems.push(`warm pops ${id}: ${(e && e.message) || e}`));
   return entry;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let homeWarm = null;
+function startHomeWarm() {
+  homeWarm = 'running';
+  fml.homeWarmAt = { frame: frames, atMs: Math.round(performance.now()), decided: Boolean(watch), pinned: Boolean(pinnedTier) };
+  warmHome()
+    .catch((e) => fml.problems.push(`warm home: ${(e && e.message) || e}`))
+    .finally(() => { homeWarm = 'done'; fml.homeWarmAt.doneMs = Math.round(performance.now()); });
+}
+async function warmHome() {
+  await shaderWarm.warm(scene, 'home');
+  
+  
+  
+  if (post) await post.warm(shaderWarm);
+  await shaderWarm.warmMaterials(await builtCozyMaterials(), 'materials home');
+  const season = state.season;
+  const wanted = [];
+  const want = (good, seed = 1) => { if (!wanted.some((w) => w.good === good && w.seed === seed)) wanted.push({ good, seed }); };
+  want('apple'); want('wood'); want('stone');
+  for (let id = 1; id <= GENERATED_COUNT; id += 1) {
+    for (const f of findsOn(id)) if (f.container !== 'chest') want(f.good, findItemSeed(f));
+  }
+  for (const good of ['goldenApple', 'appleSeed', 'gem', 'potato', 'appleJuice']) want(good);
+  
+  
+  
+  
+  await prewarmItems(treeGoods(0), { season });
+  for (const w of wanted) {
+    if (!(await primeItem(w.good, { seed: w.seed, season }))) continue;
+    const obj = await itemObject(w.good, { seed: w.seed, season });
+    await Promise.all([shaderWarm.warm(obj, `item ${w.good}`), warmIconShaders(obj).catch(() => {})]);
+  }
+  
+  
+  
+  await prewarmItems(popGoods(0), { season });
+}
+
+
+function treeGoods(id) {
+  const out = [];
+  for (const tree of world.trees) {
+    if ((Number.isInteger(tree.planet) ? tree.planet : 0) !== id) continue;
+    const spec = TREES[tree.kind];
+    if (!spec) continue;
+    if (spec.fruit) out.push(spec.fruit);
+    if (spec.rare) out.push(spec.rare.good);
+    if (spec.seed) out.push(spec.seed);
+  }
+  return out;
+}
+
+
+
+
+function popGoods(id) {
+  const out = treeGoods(id);
+  if (id === 0) {
+    for (const f of Object.values(FORAGE)) {
+      if (f.good) out.push(f.good);
+      if (f.weights) out.push(...Object.keys(f.weights));
+    }
+    out.push('stone', 'moonRock', 'gem');
+  } else {
+    for (const f of findsOn(id)) out.push(f.good);
+  }
+  out.push('wood');
+  return out;
+}
+
+
+
+function primeFinds(id, near) {
+  return findsDraw ? findsDraw.prime(findsOn(id), { near }) : null;
 }
 
 
@@ -3039,14 +3212,17 @@ function applyPlanetVisibility() {
     hidden.clear();
     for (const e of visited.values()) e.root.visible = false;
     if (interiorDraw) interiorDraw.group.visible = false;
-    if (night) night.group.visible = true;
+    if (night) { night.group.visible = true; night.setAway(false); }
     return;
   }
   const here = (visited.get(planetId) || {}).root;
   for (const o of scene.children) {
     
     
-    if (night && o === night.group) { o.visible = Boolean(inside); continue; }
+    
+    
+    
+    if (night && o === night.group) { o.visible = true; night.setAway(!inside); continue; }
     
     
     
@@ -3087,6 +3263,9 @@ async function enterHome(buildHome) {
     if (home.kind === 'player') { if (placing && !isFurnitureItem(placing.item)) stopPlacing(); } else stopPlacing();
     const ok = await interiorDraw.show(home);
     if (!ok) { hud.say('The door will not open just now.', seconds); return false; }
+    
+    
+    await within(shaderWarm.warm(interiorDraw.group, 'interior'), DOOR_WARM_CAP_MS);
     wentInAt = { x: player.x, z: player.z, heading: player.heading };
     inside = home;
     syncNightLights();
@@ -4024,7 +4203,7 @@ Object.defineProperty(fml, 'n5', {
       resident: roomResident ? { ...roomResident, seat: undefined } : null,
       figure: pc ? { id: roomKeeper.id, visible: pc.object.visible, inRoom: pc.object.parent === (interiorDraw && interiorDraw.group), clip: pc.using || null, x: pc.object.position.x, y: pc.object.position.y, z: pc.object.position.z, tipX: pc.object.rotation.x } : null,
       lit: night ? night.lit : [],
-      nightShown: night ? night.group.visible : false,
+      nightShown: night ? night.group.visible && !night.away : false,
       lights: inside ? roomLights(inside.room) : [],
       panes: interiorDraw ? interiorDraw.stats.panes : 0,
       pane: interiorDraw ? interiorDraw.paneMaterial.color.toArray() : null,
@@ -5911,8 +6090,53 @@ function warmFrame() {
 
 
 
+
+
+if (q.get('probe')) fml.applyTier = (next) => applyTier(next, 'probe');
+
+
+
+
+
+
+
+
+
+
+
+let tierAhead = null;        
+let tierLinked = null;       
+let tierToken = 0;
+let tierScratch = null;
+function linkTierAhead(next, why) {
+  if (tierAhead && tierAhead.next === next) return;
+  const token = ++tierToken;
+  tierAhead = { next, token };
+  const s = SETTINGS[next];
+  tierScratch ||= new THREE.WebGLRenderTarget(1, 1);
+  const into = s.bloom ? (post && post.composer ? post.composer.readBuffer : tierScratch) : null;
+  const now = settings.lights;
+  Promise.all([
+    shaderWarm.warm(scene, `tier ${next} ahead`, {
+      into,
+      setup: () => { if (night) night.setSize(s.lights); return () => { if (night) night.setSize(now); }; },
+    }),
+    
+    post ? post.prepare(s, shaderWarm) : null,
+  ]).catch((e) => fml.problems.push(`warm tier ahead: ${(e && e.message) || e}`)).then(() => {
+    if (!tierAhead || tierAhead.token !== token) return;
+    tierAhead = null;
+    tierLinked = next;
+    try { applyTier(next, why); } finally { tierLinked = null; }
+  });
+}
 function applyTier(next, why) {
   if (next === fml.tier || !SETTINGS[next]) return false;
+  
+  
+  
+  
+  if (tierLinked !== next && why !== 'load') { linkTierAhead(next, why); return true; }
   const from = fml.tier;
   settings = SETTINGS[next];
   fml.tier = next;
@@ -5941,6 +6165,12 @@ function applyTier(next, why) {
   
   writeTier(deviceStorage, next);
   resize();                                      
+  
+  
+  
+  
+  shaderWarm.warm(scene, 'tier').catch((e) => fml.problems.push(`warm tier: ${(e && e.message) || e}`));
+  if (post) post.warm(shaderWarm).catch((e) => fml.problems.push(`warm post: ${(e && e.message) || e}`));
   return true;
 }
 
@@ -6923,11 +7153,16 @@ function frame(now) {
         samples.push(raw * 1000);
         const decision = decideTier(samples, samples.length, now - measureStart);
         if (decision) {
+          
+          
+          fml.tierDecision = { tier: decision.tier, median: Math.round(decision.median * 100) / 100, frames: samples.length, homeWarmBefore: homeWarm !== null };
           if (isWorse(decision.tier, fml.tier)) applyTier(decision.tier, 'load');
           watch = createTierWatch({ tier: fml.tier, startedAt: now });
         }
       }
-    } else {
+    } else if (homeWarm !== 'running') {
+      
+      
       const change = watch.sample(raw * 1000, now);
       if (change) applyTier(change.tier, change.reason);
     }
@@ -6978,6 +7213,13 @@ function frame(now) {
     
     villagerSource().sweep().catch(() => {});
   }
+  
+  
+  
+  
+  
+  
+  if (frames >= 3 && !homeWarm && (pinnedTier || watch)) startHomeWarm();
   requestAnimationFrame(frame);
 }
 

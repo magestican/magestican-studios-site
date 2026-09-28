@@ -8,7 +8,12 @@
 
 
 
-import { createPop, popItemAt, landedCount, popDone } from 'moon/play/pop.mjs';
+import { createPop, popItemAt, landedCount, popDone, popSeed, POP_VARIANTS } from 'moon/play/pop.mjs';
+
+
+
+
+export { POP_VARIANTS, popSeed };
 
 export function createPopsDraw({ scene, itemObject, season }) {
   const active = [];
@@ -20,7 +25,7 @@ export function createPopsDraw({ scene, itemObject, season }) {
     const entry = { pop: createPop({ from, count, seed, startS: nowS, good }), objects: [], landed: 0 };
     active.push(entry);
     for (let i = 0; i < count; i++) {
-      const obj = await itemObject(good, { seed: seed + i, season, lod: 0 });
+      const obj = await itemObject(good, { seed: popSeed(seed, i), season, lod: 0 });
       obj.visible = false;
       scene.add(obj);
       entry.objects.push(obj);

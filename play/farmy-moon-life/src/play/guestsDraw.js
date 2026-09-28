@@ -22,7 +22,10 @@ import { FADE_S, fadeAt, guestBeat, guestLift, guestStand } from 'moon/play/gues
 import { EMPTY_LEDGER, applyLine, guestFace } from 'moon/play/guestTalk.mjs';
 import { guestObject } from '../render/guest.js';
 
-export function createGuestDraw({ scene, heightAt, objectFor = guestObject }) {
+
+
+
+export function createGuestDraw({ scene, heightAt, objectFor = guestObject, prepare = null }) {
   const group = new THREE.Group();
   group.name = 'guest';
   scene.add(group);
@@ -53,6 +56,10 @@ export function createGuestDraw({ scene, heightAt, objectFor = guestObject }) {
     stats.kind = guest.kind;
     const v = await objectFor(guest.kind, { seed: guest.day % 97 + 1, season });
     if (mine !== token) return;
+    if (prepare) {
+      try { await prepare(v.object); } catch {  }
+      if (mine !== token) return;
+    }
     stats.loading = false;
     const stand = guestStand(at, guest.spot);
     v.object.visible = false;

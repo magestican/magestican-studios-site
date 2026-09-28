@@ -27,6 +27,7 @@
 import * as THREE from 'three';
 import { CURVE_K } from 'moon/world/curve.mjs';
 import { PASTEL_GLSL } from 'moon/palette/pastel.mjs';
+import { cozyProgramKey } from './programKey.js';
 
 export const curveUniforms = {
   uCurve: { value: CURVE_K },
@@ -394,7 +395,8 @@ export function makeCozy(material, { rim = 0.12, key = 'base', patch = null, uni
     if (patch) fs = patch(fs);
     shader.fragmentShader = fs;
   };
-  material.customProgramCacheKey = () => `fml-cozy-v3-${key}`;
+  const programKey = cozyProgramKey(key, { keepNormals, patch });
+  material.customProgramCacheKey = () => programKey;
   material.defaultAttributeValues = { ...(material.defaultAttributeValues || {}), fmlSway: [0], fmlRipple: [0] };
   return material;
 }
@@ -407,6 +409,17 @@ export function bentDepthMaterial({ map = null, alphaTest = 0, side = THREE.Fron
 export function cozyMaterial(id) {
   if (!resolved.has(id)) resolved.set(id, build(id));
   return resolved.get(id);
+}
+
+
+
+
+
+
+
+export async function builtCozyMaterials() {
+  const all = await Promise.all([...resolved.values()].map((p) => p.catch(() => null)));
+  return all.filter(Boolean);
 }
 
 

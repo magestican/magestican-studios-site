@@ -26,6 +26,17 @@ export const POP = Object.freeze({
 
 
 
+
+
+
+
+
+
+export const POP_VARIANTS = 3;
+export const popSeed = (seed, i) => 1 + ((((seed + i) % POP_VARIANTS) + POP_VARIANTS) % POP_VARIANTS);
+
+
+
 function unit(seed, i, salt) {
   let h = Math.imul((seed | 0) ^ 0x27d4eb2d, 0x165667b1) ^ Math.imul(i + 1, 0x9e3779b1) ^ Math.imul(salt, 0x85ebca77);
   h ^= h >>> 15;
