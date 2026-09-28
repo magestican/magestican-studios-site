@@ -20,7 +20,7 @@
 
 
 import * as THREE from 'three';
-import { cozyMaterial, curveUniforms, bentDepthMaterial } from './material.js';
+import { cozyMaterial, curveUniforms, bentDepthMaterial, adoptDrawVariant } from './material.js';
 import { cullPad } from 'moon/world/curve.mjs';
 import { NO_SHADOW_MATERIALS } from 'moon/mesh/meshData.mjs';
 import { boneAxes } from 'moon/rig/skeleton.mjs';
@@ -156,6 +156,7 @@ export async function toObject3D(meshData, { materials = {}, castShadow = true, 
     }
     if (hasMorph) mesh.morphTargetInfluences = new Array(MORPH_NAMES.length).fill(0);
     if (material.userData.depthMaterial) mesh.customDepthMaterial = material.userData.depthMaterial;
+    adoptDrawVariant(mesh); 
     mesh.name = `${arrays.name}/${g.material}`;
     
     

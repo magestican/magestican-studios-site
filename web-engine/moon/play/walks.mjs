@@ -27,15 +27,41 @@ const STEPS = (() => {
 })();
 
 
+export function cellOpen(world, x, z, radius) {
+  if (Math.hypot(x, z) > world.walkEdgeM - radius) return 0;
+  return world.deepest(x, z, radius) ? 0 : 1;
+}
+
+
 export function walkGrid(world, { minX, maxX, minZ, maxZ, cellM = 0.2, radius = PLAYER_RADIUS_M } = {}) {
   const nx = Math.floor((maxX - minX) / cellM) + 1;
   const nz = Math.floor((maxZ - minZ) / cellM) + 1;
   const open = new Uint8Array(nx * nz);
   for (let j = 0; j < nz; j++) {
     for (let i = 0; i < nx; i++) {
-      const x = minX + i * cellM, z = minZ + j * cellM;
-      if (Math.hypot(x, z) > world.walkEdgeM - radius) continue;
-      open[j * nx + i] = world.deepest(x, z, radius) ? 0 : 1;
+      open[j * nx + i] = cellOpen(world, minX + i * cellM, minZ + j * cellM, radius);
+    }
+  }
+  return { cellM, minX, minZ, nx, nz, open };
+}
+
+
+
+
+
+
+
+
+
+
+export function patchGrid(grid, world, boxes, radius = PLAYER_RADIUS_M) {
+  const open = grid.open.slice();
+  const { cellM, minX, minZ, nx, nz } = grid;
+  for (const b of boxes) {
+    const i0 = Math.max(0, Math.floor((b.minX - radius - minX) / cellM) - 1), i1 = Math.min(nx - 1, Math.ceil((b.maxX + radius - minX) / cellM) + 1);
+    const j0 = Math.max(0, Math.floor((b.minZ - radius - minZ) / cellM) - 1), j1 = Math.min(nz - 1, Math.ceil((b.maxZ + radius - minZ) / cellM) + 1);
+    for (let j = j0; j <= j1; j++) {
+      for (let i = i0; i <= i1; i++) open[j * nx + i] = cellOpen(world, minX + i * cellM, minZ + j * cellM, radius);
     }
   }
   return { cellM, minX, minZ, nx, nz, open };
@@ -138,7 +164,21 @@ export function walkDistance(grid, from, goal) {
 
 
 
-export function walkPath(grid, from, to, { cost = null } = {}) {
+export function walkPath(grid, from, to, opts = {}) {
+  const steps = walkPathSteps(grid, from, to, opts);
+  let r = steps.next();
+  while (!r.done) r = steps.next();
+  return r.value;
+}
+
+
+
+
+
+
+
+
+export function* walkPathSteps(grid, from, to, { cost = null, every = 1024 } = {}) {
   const { nx, nz, open, cellM, minX, minZ } = grid;
   const start = nearestOpen(grid, from.x, from.z);
   const goal = nearestOpen(grid, to.x, to.z);
@@ -149,7 +189,9 @@ export function walkPath(grid, from, to, { cost = null } = {}) {
   const q = heap();
   q.push(0, start);
   let found = start === goal;
+  let pops = 0;
   while (q.size && !found) {
+    if (++pops % every === 0) yield;
     const [d, k] = q.pop();
     if (d > dist[k]) continue;
     if (k === goal) { found = true; break; }

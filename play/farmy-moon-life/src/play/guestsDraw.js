@@ -35,7 +35,7 @@ export function createGuestDraw({ scene, heightAt, objectFor = guestObject, prep
   
   
   const left = [];
-  const stats = { kind: null, shown: false, cost: 0, loading: false, clip: null, x: null, z: null, why: null, held: false, leaving: false, face: null, lift: 0, fade: 1, left };
+  const stats = { kind: null, shown: false, cost: 0, loading: false, clip: null, x: null, z: null, why: null, held: false, leaving: false, face: null, lift: 0, fade: 1, left, prefetched: 0, fromAhead: 0 };
 
   function clear() {
     token += 1;
@@ -44,22 +44,54 @@ export function createGuestDraw({ scene, heightAt, objectFor = guestObject, prep
     Object.assign(stats, { kind: null, shown: false, cost: 0, loading: false, clip: null, x: null, z: null, why: null, held: false, leaving: false, face: null, lift: 0 });
   }
 
+  const keyOf = (guest, season) => (guest ? `${guest.kind}|${guest.planet}|${guest.day}|${season}` : null);
+
+  
+  async function make(guest, season) {
+    const v = await objectFor(guest.kind, { seed: guest.day % 97 + 1, season });
+    if (prepare) {
+      try { await prepare(v.object); } catch {  }
+    }
+    return v;
+  }
+
+  
+  
+  
+  
+  
+  let ahead = null;   
+  function dropAhead() {
+    if (!ahead) return;
+    const old = ahead;
+    ahead = null;
+    old.job.then((v) => { if (v && v.dispose) v.dispose(); }, () => {});
+  }
+  function prefetch(guest, season) {
+    const key = keyOf(guest, season);
+    if (!key || (cur && cur.key === key)) return null;
+    if (ahead && ahead.key === key) return ahead.job;
+    dropAhead();
+    ahead = { key, job: make(guest, season) };
+    ahead.job.catch(() => {});
+    stats.prefetched += 1;
+    return ahead.job;
+  }
+
   
   async function show(guest, at, season) {
-    const key = guest ? `${guest.kind}|${guest.planet}|${guest.day}` : null;
+    const key = keyOf(guest, season);
     if (cur && cur.key === key) return;
     if (cur && cur.leftAt !== null && !guest) return; 
     clear();
+    let job = null;
+    if (ahead && ahead.key === key) { job = ahead.job; ahead = null; stats.fromAhead += 1; } else dropAhead();
     if (!guest) return;
     const mine = token;
     stats.loading = true;
     stats.kind = guest.kind;
-    const v = await objectFor(guest.kind, { seed: guest.day % 97 + 1, season });
-    if (mine !== token) return;
-    if (prepare) {
-      try { await prepare(v.object); } catch {  }
-      if (mine !== token) return;
-    }
+    const v = await (job || make(guest, season));
+    if (mine !== token) { if (v.dispose) v.dispose(); return; }
     stats.loading = false;
     const stand = guestStand(at, guest.spot);
     v.object.visible = false;
@@ -126,5 +158,5 @@ export function createGuestDraw({ scene, heightAt, objectFor = guestObject, prep
     Object.assign(stats, { clip: pose.speed > 0 ? 'walk' : 'idle', x: pose.x, z: pose.z, lift });
   }
 
-  return { show, update, clear, hold, release, lineMood, leave, positionOf, stats, group };
+  return { show, prefetch, update, clear, hold, release, lineMood, leave, positionOf, stats, group };
 }

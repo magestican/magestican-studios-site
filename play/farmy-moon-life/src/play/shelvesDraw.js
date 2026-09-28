@@ -25,7 +25,7 @@ export function createShelvesDraw({ scene, season, onProblems = () => {} }) {
   const dataFor = (good, variant) => {
     const key = `${good}|${variant}`;
     if (!cache.has(key)) {
-      const data = itemMeshData(good, { seed: 1 + variant, season, lod: LOD });
+      const data = itemMeshData(good, { seed: 1 + variant, season, lod: LOD }, 'shelves');
       onProblems(data.validate());
       cache.set(key, data);
     }

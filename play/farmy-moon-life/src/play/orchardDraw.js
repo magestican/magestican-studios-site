@@ -94,8 +94,7 @@ export function createOrchardDraw({
   let shed = [];              
   let merged = null, triangles = 0, rebuilds = 0, wanted = '', drawn = '', queued = null, running = null;
 
-  function dataFor(v) {
-    const s = seasonAt();
+  function dataFor(v, s = seasonAt()) {
     const key = `${v.kind}|${v.seed}|${v.stage}|${v.fruit ? 1 : 0}|${v.lod}|${s}`;
     let data = cache.get(key);
     if (!data) {
@@ -131,18 +130,15 @@ export function createOrchardDraw({
   let layout = null;
   let patches = 0, lastPatchMs = 0;
 
-  async function build(view) {
+  
+  
+  async function assemble(view, { ground, season, sliced }) {
     const data = new MeshData('orchard');
     const t0 = performance.now();
-    
-    
-    
-    const sliced = Boolean(layout) && view.some((v) => layout.ids.has(v.id));
-    const season = seasonAt();
     const trees = [];
     let since = performance.now(), yielded = 0;
     for (const v of view) {
-      const range = appendTree(data, dataFor(bearing(v)), compose(translate(v.x, groundAt(v.x, v.z), v.z), rotateY(v.rotY)));
+      const range = appendTree(data, dataFor(bearing(v), season), compose(translate(v.x, ground(v.x, v.z), v.z), rotateY(v.rotY)));
       trees.push({ shape: shapeKey(v), fruit: Boolean(v.fruit), range });
       if (sliced && performance.now() - since >= SLICE_MS) {
         yielded += performance.now() - since;
@@ -157,19 +153,65 @@ export function createOrchardDraw({
       captureRest(arrays, t.range);
       if (!t.fruit) setFruit(arrays, t.range, false);
     }
-    cost = { append: Math.round(sliced ? yielded + (t1 - since) : t1 - t0), upload: Math.round(performance.now() - t1), trees: view.length, sliced };
     obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
+    const c = { append: Math.round(sliced ? yielded + (t1 - since) : t1 - t0), upload: Math.round(performance.now() - t1), trees: view.length, sliced };
+    return { obj, trees, arrays, triangles: data.triangleCount, season, ids: new Set(view.map((v) => v.id)), cost: c };
+  }
+
+  
+  function swapIn(made, view) {
     if (merged) {
       root.remove(merged);
       disposeTree(merged);
     }
-    merged = obj;
-    root.add(obj);
-    layout = { trees, season, arrays, ids: new Set(view.map((v) => v.id)) };
-    triangles = data.triangleCount;
+    merged = made.obj;
+    root.add(made.obj);
+    layout = { trees: made.trees, season: made.season, arrays: made.arrays, ids: made.ids };
+    triangles = made.triangles;
+    cost = made.cost;
     rebuilds += 1;
     shed = sourcesOf(view);
   }
+
+  async function build(view) {
+    
+    
+    
+    
+    if (aheadMade && aheadMade.sig === signature(view) && aheadMade.season === seasonAt()) {
+      const made = aheadMade;
+      aheadMade = null;
+      aheadSwaps += 1;
+      swapIn(made, view);
+      return;
+    }
+    
+    
+    
+    const sliced = Boolean(layout) && view.some((v) => layout.ids.has(v.id));
+    swapIn(await assemble(view, { ground: groundAt, season: seasonAt(), sliced }), view);
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+  async function ahead(view, { heightAt: ground, season: s }) {
+    const mine = ++aheadToken;
+    const made = await assemble(view, { ground, season: s, sliced: true });
+    if (mine !== aheadToken) { disposeTree(made.obj); return false; }
+    if (aheadMade) disposeTree(aheadMade.obj);
+    aheadMade = { ...made, sig: signature(view) };
+    return true;
+  }
+  let aheadMade = null, aheadToken = 0, aheadSwaps = 0;
 
   
 
@@ -314,7 +356,7 @@ export function createOrchardDraw({
   }
 
   return {
-    root, show, warm, topple, update,
+    root, show, warm, ahead, topple, update,
     
     sources: () => shed,
     
@@ -322,7 +364,7 @@ export function createOrchardDraw({
     
     
     sourcesOf,
-    get stats() { return { rebuilds, triangles, wanted, drawn, ready: wanted === drawn && !running, falling: falling.length, cached: cache.size, cost, warmed, patches, lastPatchMs }; },
+    get stats() { return { rebuilds, triangles, wanted, drawn, ready: wanted === drawn && !running, falling: falling.length, cached: cache.size, cost, warmed, patches, lastPatchMs, aheadSwaps, aheadReady: Boolean(aheadMade) }; },
     get triangles() { return triangles; },
   };
 }

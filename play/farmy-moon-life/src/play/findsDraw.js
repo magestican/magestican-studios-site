@@ -194,8 +194,15 @@ export function createFindsDraw({ scene, season, drawM = FIND_DRAW_M, drawMax = 
         const seed = findItemSeed(f);
         const key = `${f.good}|${seed}`;
         const was = wanted.get(key);
-        if (was) { was.near = was.near || near(f); continue; }
-        wanted.set(key, { good: f.good, seed, near: near(f), job: primeItem(f.good, { seed, season }) });
+        
+        
+        
+        if (was) {
+          if (!was.near && near(f)) Object.assign(was, { near: true, job: primeItem(f.good, { seed, season }) });
+          continue;
+        }
+        const close = near(f);
+        wanted.set(key, { good: f.good, seed, near: close, job: primeItem(f.good, { seed, season }, { background: !close }) });
       }
       const collect = async (list) => {
         const out = new THREE.Group();

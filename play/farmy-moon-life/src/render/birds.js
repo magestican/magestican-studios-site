@@ -22,6 +22,7 @@ import * as THREE from 'three';
 import { parts, BIRD_HEIGHT_M } from 'moon/art/bird.mjs';
 import { BIRD, createFlock, setBirdMax, stepBirds, birdPose, flockStats, perchKey } from 'moon/play/birds.mjs';
 import { toObject3D } from './toMesh.js';
+import { adoptDrawVariant } from './material.js';
 
 
 
@@ -65,6 +66,7 @@ export async function createBirds({ scene, max = BIRD.perMoon, seed = 1, season 
         im.instanceColor.setUsage(THREE.DynamicDrawUsage);
         tinted.push(im);
       }
+      adoptDrawVariant(im); 
       root.add(im);
       meshes.push({ mesh: im, perBird: count / capacity });
     }

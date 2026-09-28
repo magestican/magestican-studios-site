@@ -122,6 +122,23 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
   let halos = null, pools = null;
   
   let ground = groundHeight, poolScale = 1;
+  
+  
+  
+  
+  
+  
+  
+  const haloMaterial = new THREE.ShaderMaterial({
+    uniforms: { ...shared, uPixels: { value: 800 } },
+    vertexShader: HALO_VERT, fragmentShader: HALO_FRAG,
+    blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
+  });
+  const poolMaterial = new THREE.ShaderMaterial({
+    uniforms: shared, vertexShader: POOL_VERT, fragmentShader: POOL_FRAG,
+    blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+  });
   function buildFaked() {
     if (!sourceList.length) return;
     const hp = new Float32Array(sourceList.length * 3), hs = new Float32Array(sourceList.length), hk = new Float32Array(sourceList.length);
@@ -134,11 +151,7 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
     hg.setAttribute('position', new THREE.BufferAttribute(hp, 3));
     hg.setAttribute('aSize', new THREE.BufferAttribute(hs, 1));
     hg.setAttribute('aKind', new THREE.BufferAttribute(hk, 1));
-    halos = new THREE.Points(hg, new THREE.ShaderMaterial({
-      uniforms: { ...shared, uPixels: { value: 800 } },
-      vertexShader: HALO_VERT, fragmentShader: HALO_FRAG,
-      blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
-    }));
+    halos = new THREE.Points(hg, haloMaterial);
     halos.frustumCulled = false;
     halos.renderOrder = 5;
     group.add(halos);
@@ -169,11 +182,7 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
     pg.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
     pg.setAttribute('aKind', new THREE.Float32BufferAttribute(kinds, 1));
     pg.setIndex(index);
-    pools = new THREE.Mesh(pg, new THREE.ShaderMaterial({
-      uniforms: shared, vertexShader: POOL_VERT, fragmentShader: POOL_FRAG,
-      blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
-      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
-    }));
+    pools = new THREE.Mesh(pg, poolMaterial);
     pools.frustumCulled = false;
     pools.renderOrder = 4;
     group.add(pools);
@@ -181,12 +190,12 @@ export function createNightLights({ scene, sources, size, groundHeight = () => 0
 
   
   
+  
   function disposeFaked() {
     for (const mesh of [halos, pools]) {
       if (!mesh) continue;
       group.remove(mesh);
       if (mesh.geometry) mesh.geometry.dispose();
-      if (mesh.material) mesh.material.dispose();
     }
     halos = pools = null;
   }

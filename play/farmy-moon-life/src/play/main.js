@@ -59,7 +59,8 @@
 
 import * as THREE from 'three';
 import { curveUniforms, windUniforms, waterUniforms } from '../render/material.js';
-import { builtCozyMaterials } from '../render/material.js';
+import { builtCozyMaterials, setPaintWorker, paintStats } from '../render/material.js';
+import { pathMaskStats } from '../render/ground.js';
 import { createSky } from '../render/sky.js';
 import { villagerObject } from '../render/villager.js';
 import { createDaylight } from '../render/daylight.js';
@@ -76,15 +77,20 @@ import { buildMoonScene } from '../lookdev/scene.js';
 
 
 import { createCharacter } from '../render/character.js';
-import { itemObject, primeItem, prewarmItems, setItemWorker } from '../render/items.js';
+import { itemObject, primeItem, prewarmItems, setItemWorker, itemStats } from '../render/items.js';
 import { TOOL_GRIP } from 'moon/art/item.mjs';
 import { createWorkerPool } from 'moon/play/meshSource.mjs';
 import { createShaderWarm } from './shaderWarm.js';
-import { within } from './warmWait.js';
+import { within, tierWatchPaused } from './warmWait.js';
+import { createFrameMeter, meterLine } from './frameMeter.js';
 
 
 
 const FLIGHT_WARM_CAP_MS = 8000;
+
+
+
+const FLIGHT_HOLD_CAP_MS = 10000;
 const DOOR_WARM_CAP_MS = 3000;
 import { iconFor, portraitOf, warmIconShaders } from '../render/icons.js';
 import { PLAYER_BUILD_KEY, PLAYER_BUILDS, PLAYER_NAMES, choosePlayerBuild, villagerName } from 'moon/play/people.mjs';
@@ -107,11 +113,12 @@ import { decorMeshData } from '../render/decor.js';
 
 import { startTalk as startGuestTalk, talkNode as guestTalkNode, choose as chooseGuestTalk } from 'moon/play/guestTalk.mjs';
 import { createGuestDraw } from './guestsDraw.js';
+import { setGuestWorker } from '../render/guest.js';
 import { scheduleFor } from 'moon/play/activities.mjs';
 import { grantAllowed, grantCoins, grantGoodsUpTo } from 'moon/play/probeGrant.mjs';
 import { createIndoorCurve } from 'moon/play/indoorCurve.mjs';
 import { placingRotY } from 'moon/economy/houseFacing.mjs';
-import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, writeTier, rendererFlags, isCapturing } from 'moon/light/quality.mjs';
+import { SETTINGS, tierFromParam, decideTier, medianInterval, createTierWatch, isWorse, readTier, readTierHistory, readTierTrial, writeTier, rendererFlags, isCapturing } from 'moon/light/quality.mjs';
 import { createTiming, timingLine } from 'moon/play/timing.mjs';
 import { createDrawGate, createLoadingView } from 'moon/play/loading.mjs';
 import { createPerfSampler } from 'moon/play/perfSample.mjs';
@@ -242,7 +249,8 @@ import { AUTO, chooseTool, choiceFor, forageTargets, keepChoice, rockTargets } f
 import { CLOSED, closeCorners, cornerIsOpen, toggleCorner } from 'moon/play/corners.mjs';
 import { forageIsReady } from 'moon/economy/world.mjs';
 import { createToolBar } from './toolBar.js';
-import { createForageDraw } from './forageDraw.js';
+import { createForageDraw, FORAGE_DRAW_M } from './forageDraw.js';
+import { primeForage, setForageWorker } from '../render/forage.js';
 
 import { CRAFTABLES, CRAFT_CATEGORIES } from 'moon/economy/tables.mjs';
 import { favoursOf } from 'moon/economy/favours.mjs';
@@ -264,7 +272,7 @@ import {
 
 
 import {
-  BRUSHES, BRUSH_NAMES, TERRAFORM, applyBrush, deltaField, pondObstacle, terrainOf, whyNotShape,
+  BRUSHES, BRUSH_NAMES, TERRAFORM, applyBrush, changedRegion, deltaField, pondObstacle, terrainOf, whyNotShape,
 } from 'moon/world/terraform.mjs';
 
 import {
@@ -451,6 +459,12 @@ const deviceStorage = (() => {
   try { return typeof localStorage === 'undefined' ? null : localStorage; } catch { return null; }
 })();
 const rememberedTier = pinnedTier ? null : readTier(deviceStorage);
+
+const rememberedHistory = pinnedTier ? null : readTierHistory(deviceStorage);
+
+
+
+const rememberedTrial = pinnedTier ? null : readTierTrial(deviceStorage);
 const tier = pinnedTier || rememberedTier || 'high';
 let settings = SETTINGS[tier];
 waterUniforms.uFmlWater.value = waterParam * settings.water;
@@ -657,6 +671,12 @@ renderer.toneMapping = THREE.NeutralToneMapping;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.info.autoReset = false;
+
+
+const frameMeter = createFrameMeter({ now: () => performance.now(), gl: renderer.getContext(), enabled: q.get('hud') === '1' });
+fml.frameMeter = frameMeter;
+fml.cpuMs = null;
+fml.gpuMs = null;
 curveUniforms.uCurve.value = CURVE_K;
 
 const indoorCurve = createIndoorCurve(curveUniforms.uCurve);
@@ -692,16 +712,48 @@ fml.shaderWarm = shaderWarm.stats;
 
 
 
+
+
+
+
+const ITEM_JOB_MS = 60000;
+const PAINT_JOB_MS = 20000;
 let itemPool;
 if (q.get('itemworker') !== '0') {
-  setItemWorker((spec) => {
+  const itemRun = (spec) => {
     if (itemPool === undefined) {
       const cores = (navigator && navigator.hardwareConcurrency) || 2;
-      itemPool = createWorkerPool({ url: new URL('./itemWorker.js', import.meta.url), size: cores >= 6 ? 2 : 1 });
+      itemPool = createWorkerPool({ url: new URL('./itemWorker.js', import.meta.url), size: cores >= 6 ? 2 : 1, jobMs: ITEM_JOB_MS });
     }
     return itemPool ? itemPool.run(spec) : Promise.reject(new Error('no item worker'));
+  };
+  
+  
+  
+  setItemWorker(itemRun, { live: () => itemPool === undefined || Boolean(itemPool && !itemPool.dead) });
+  
+  
+  setGuestWorker(itemRun);
+  setForageWorker(itemRun, { live: () => itemPool === undefined || Boolean(itemPool && !itemPool.dead) }); 
+}
+
+
+
+
+
+
+let paintPool;
+if (q.get('paintworker') !== '0') {
+  setPaintWorker((spec) => {
+    if (paintPool === undefined) {
+      const cores = (navigator && navigator.hardwareConcurrency) || 2;
+      paintPool = createWorkerPool({ url: new URL('../render/paintWorker.js', import.meta.url), size: cores >= 6 ? 2 : 1, jobMs: PAINT_JOB_MS });
+    }
+    return paintPool ? paintPool.run(spec) : Promise.reject(new Error('no paint worker'));
   });
 }
+fml.paint = paintStats;
+fml.pathMask = pathMaskStats; 
 const sky = createSky();
 scene.add(sky.mesh);
 sky.anchorYaw = -CAMERA.yawRad;
@@ -786,6 +838,15 @@ let air = null;
 let jumpState = createJump();
 let flightTo = null;                  
 let flightScene = null;               
+
+
+
+
+
+
+
+
+let flightBuilt = null;
 
 
 
@@ -960,17 +1021,32 @@ const wildForageDraws = new Map();
 const guestDraw = createGuestDraw({ scene, heightAt: (x, z) => groundNow(x, z), prepare: (o) => within(shaderWarm.warm(o, 'guest'), DOOR_WARM_CAP_MS) });
 fml.guestDraw = guestDraw.stats;
 let forageProblems = () => {};
+
+
+
+
+function wildSpotsOf(id) {
+  const planet = planetAt(id, state.system, GENERATED_COUNT);
+  const base = FORAGE_SPOTS.length + forageOffsetOf(id, state.system, GENERATED_COUNT);
+  return planetForage(planet).map((sp) => ({ ...sp, id: base + sp.id }));
+}
+
+
+async function primeWildForage(id, near) {
+  const season = planetAt(id, state.system, GENERATED_COUNT).season;
+  const jobs = (sp) => ['ready', 'picked'].map((stage) => primeForage(sp.type, { seed: sp.id + 1, season, stage }));
+  const spots = wildSpotsOf(id);
+  await Promise.all(spots.filter(near).flatMap(jobs));
+  const later = (sp) => ['ready', 'picked'].map((stage) => primeForage(sp.type, { seed: sp.id + 1, season, stage }, { background: true }));
+  (async () => { for (const sp of spots.filter((x) => !near(x))) await Promise.all(later(sp)); })().catch(() => {});
+}
 function forageHere() {
   if (onHome()) return null;
   if (!wildForageDraws.has(planetId)) {
     const planet = planetAt(planetId, state.system, GENERATED_COUNT);
-    
-    
-    
-    const base = FORAGE_SPOTS.length + forageOffsetOf(planetId, state.system, GENERATED_COUNT);
-    const spots = planetForage(planet).map((sp) => ({ ...sp, id: base + sp.id }));
     const draw = createForageDraw({
-      scene, season: planet.season, spots, heightAt: (x, z) => groundNow(x, z), onProblems: forageProblems,
+      scene, season: planet.season, spots: wildSpotsOf(planetId), heightAt: (x, z) => groundNow(x, z), onProblems: forageProblems,
+      prime: primeForage, 
     });
     permanent.add(draw.group);
     wildForageDraws.set(planetId, draw);
@@ -1049,7 +1125,8 @@ let shapeWhy = null, shapeAt = null;
 let shapeCard = null;                 
 let homeScene = null;                 
 let terrainField = null;              
-let terrainSig = null;                
+let terrainVersion = 0;               
+let appliedTerrainVersion = -1;       
 const pondKeys = new Set();           
 
 
@@ -2069,7 +2146,7 @@ function syncVillagePlaced() {
     .filter((p) => p.spot && blocksOf(p.item))
     .map((p) => ({ id: p.id, x: p.spot.x, z: p.spot.z, r: radiusOf(p.item) }))
     
-    .concat(lightsOf(world).map((l) => ({ id: `mlamp${l.id}`, x: l.x, z: l.z, r: MAYOR.lampRadiusM }))));
+    .concat(lightsOf(world).map((l) => ({ id: `mlamp${l.id}`, x: l.x, z: l.z, r: MAYOR.lampRadiusM }))), { staged: true });
 }
 
 
@@ -2144,15 +2221,30 @@ function syncFurniture() {
 
 
 
-function applyTerrain({ rebuild = true } = {}) {
-  const sig = JSON.stringify(world.terrain || {});
-  if (sig === terrainSig) return;
-  const first = terrainSig === null;
-  terrainSig = sig;
-  terrainField = deltaField(terrainOf(world));
+
+
+
+
+
+
+
+
+
+
+
+
+function applyTerrain({ rebuild = true, region = null } = {}) {
+  if (terrainVersion === appliedTerrainVersion) return;
+  const first = appliedTerrainVersion === -1;
+  appliedTerrainVersion = terrainVersion;
+  const was = terrainField;
+  terrainField = timed('deltaField', () => deltaField(terrainOf(world)));
   setTerrainDelta(terrainField.empty ? null : terrainField.at);
-  syncPonds();
-  if (rebuild && !first && homeScene) homeScene.reground().catch(fail);
+  timed('syncPonds', () => syncPonds());
+  if (!rebuild || first || !homeScene) return;
+  const moved = region && was ? changedRegion(was, terrainField, region) : null;
+  if (region && was && !moved) return; 
+  timed('reground', () => (moved ? homeScene.reground({ region: moved }) : homeScene.reground())).catch(fail);
 }
 
 
@@ -2167,7 +2259,7 @@ function syncPonds() {
     pondKeys.add(k);
   });
   if (homeCollision === collision) staticObstacles = collision.obstacles.slice();
-  pondsDraw.sync(ponds, { season: state.season });
+  timed('pondsDraw.sync', () => { pondsDraw.sync(ponds, { season: state.season }); });
 }
 
 
@@ -2222,13 +2314,16 @@ function useBrush() {
   if (!shaping || !shapeAt) return;
   if (shapeWhy) { hud.nope(shapeWhy, seconds); return; }
   if (MAYOR_BRUSHES.includes(shaping)) { useMayorBrush(shaping, shapeAt); return; }
-  const parcel = parcelAt(shapeAt.x, shapeAt.z);
-  const next = applyBrush(terrainOf(world), {
-    kind: shaping, x: shapeAt.x, z: shapeAt.z, parcel, blockers: terraformBlockers(), mayor: mayorNow() ? MAYOR_SHAPING : null,
+  timed('useBrush', () => {
+    const parcel = parcelAt(shapeAt.x, shapeAt.z);
+    const next = timed('applyBrush', () => applyBrush(terrainOf(world), {
+      kind: shaping, x: shapeAt.x, z: shapeAt.z, parcel, blockers: terraformBlockers(), mayor: mayorNow() ? MAYOR_SHAPING : null,
+    }));
+    const r = timed('doAct', () => doAct({ type: 'terraform', parcel, brush: shaping, cells: next[parcel].cells, ponds: next[parcel].ponds }));
+    if (r.error) { hud.say(r.error, seconds); return; }
+    
+    applyTerrain({ region: { x: shapeAt.x, z: shapeAt.z, r: TERRAFORM.brushM } });
   });
-  const r = doAct({ type: 'terraform', parcel, brush: shaping, cells: next[parcel].cells, ponds: next[parcel].ponds });
-  if (r.error) { hud.say(r.error, seconds); return; }
-  applyTerrain();
 }
 
 
@@ -2319,9 +2414,11 @@ async function applyMayor({ rebuild = true } = {}) {
   mayorStats.cleared = clearedOf(world).length;
   syncMayorCollision();
   if (village) syncVillagePlaced();
-  if (pathsChanged && village) village.repath();
+  if (pathsChanged && village) village.repath({ staged: true }); 
   if (rebuild && !first && homeScene) {
-    if (pathsChanged) { await homeScene.reground(); mayorStats.rebakes += 1; }
+    
+    
+    if (pathsChanged) { await homeScene.repath(); mayorStats.rebakes += 1; }
     const lampsChanged = !was || JSON.stringify([was[1], was[2]]) !== JSON.stringify([world.lights || [], world.cleared || []]);
     if (lampsChanged) {
       staticSources = await homeScene.reprops(mayorLampProps(), mayorDrops());
@@ -2582,6 +2679,9 @@ function doAct(action, { quiet = false } = {}) {
   }
   fml.actions += 1;
   fml.lastEvents = events;
+  
+  
+  if (Array.isArray(events) && events.some((e) => e && e.type === 'terraform')) terrainVersion += 1;
   
   
   
@@ -3063,9 +3163,6 @@ async function buildPlanet(id) {
   
   
   
-  try {
-    await orchard.warm(orchardView(world, econNow(), planetLayout.placements(), undefined, { planet: id, focus: planetLayout.FOCUS }));
-  } catch (e) { fml.problems.push(`warm planet ${id}: ${(e && e.message) || e}`); }
   
   
   
@@ -3074,23 +3171,43 @@ async function buildPlanet(id) {
   
   
   
-  
-  
-  
-  
-  const arrival = (async () => {
-    const at = landingOn(planet);
-    const primed = await primeFinds(id, (f) => Math.hypot(f.x - at.x, f.z - at.z) <= FIND_DRAW_M + 4);
-    await shaderWarm.warm(built.root, `planet ${id}`);
+  const settle = (async () => {
+    try {
+      await orchard.warm(orchardView(world, econNow(), planetLayout.placements(), undefined, { planet: id, focus: planetLayout.FOCUS }));
+    } catch (e) { fml.problems.push(`warm planet ${id}: ${(e && e.message) || e}`); }
     
     
-    await shaderWarm.warmMaterials(await builtCozyMaterials(), `materials planet ${id}`);
-    if (primed) {
-      await shaderWarm.warm(primed.now, `finds ${id}`);
-      primed.rest.then((g) => shaderWarm.warm(g, `finds ${id} rest`)).catch(() => {});
-    }
-  })().catch((e) => { fml.problems.push(`warm shaders ${id}: ${(e && e.message) || e}`); });
-  if ((await within(arrival, FLIGHT_WARM_CAP_MS, 'capped')) === 'capped') fml.problems.push(`warm planet ${id}: capped at ${FLIGHT_WARM_CAP_MS} ms`);
+    await orchardAhead(id);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const arrival = (async () => {
+      const at = landingOn(planet);
+      const primed = await primeFinds(id, (f) => Math.hypot(f.x - at.x, f.z - at.z) <= FIND_DRAW_M + 4);
+      
+      
+      await primeWildForage(id, (sp) => Math.hypot(sp.x - at.x, sp.z - at.z) <= FORAGE_DRAW_M + 4);
+      await shaderWarm.warm(built.root, `planet ${id}`);
+      
+      
+      await shaderWarm.warmMaterials(await builtCozyMaterials(), `materials planet ${id}`);
+      if (primed) {
+        await shaderWarm.warm(primed.now, `finds ${id}`);
+        primed.rest.then((g) => shaderWarm.warm(g, `finds ${id} rest`)).catch(() => {});
+      }
+    })().catch((e) => { fml.problems.push(`warm shaders ${id}: ${(e && e.message) || e}`); });
+    if ((await within(arrival, FLIGHT_WARM_CAP_MS, 'capped')) === 'capped') fml.problems.push(`warm planet ${id}: capped at ${FLIGHT_WARM_CAP_MS} ms`);
+  })().catch((e) => { fml.problems.push(`warm planet ${id}: ${(e && e.message) || e}`); });
+  if ((await within(settle, FLIGHT_HOLD_CAP_MS, 'capped')) === 'capped') fml.problems.push(`hold planet ${id}: capped at ${FLIGHT_HOLD_CAP_MS} ms`);
   
   
   prewarmItems(popGoods(id), { season: state.season }).catch((e) => fml.problems.push(`warm pops ${id}: ${(e && e.message) || e}`));
@@ -3111,9 +3228,19 @@ async function buildPlanet(id) {
 
 
 
+
+
 let homeWarm = null;
+let homeWarmSince = 0;
 function startHomeWarm() {
   homeWarm = 'running';
+  homeWarmSince = performance.now();
+  
+  
+  if (forageDraw) {
+    forageDraw.enablePrime();
+    forageDraw.primeAll({ x: player.x, z: player.z }).catch((e) => fml.problems.push(`prime forage: ${(e && e.message) || e}`));
+  }
   fml.homeWarmAt = { frame: frames, atMs: Math.round(performance.now()), decided: Boolean(watch), pinned: Boolean(pinnedTier) };
   warmHome()
     .catch((e) => fml.problems.push(`warm home: ${(e && e.message) || e}`))
@@ -3126,6 +3253,9 @@ async function warmHome() {
   
   if (post) await post.warm(shaderWarm);
   await shaderWarm.warmMaterials(await builtCozyMaterials(), 'materials home');
+  
+  
+  homeWarm = 'items';
   const season = state.season;
   const wanted = [];
   const want = (good, seed = 1) => { if (!wanted.some((w) => w.good === good && w.seed === seed)) wanted.push({ good, seed }); };
@@ -3140,9 +3270,10 @@ async function warmHome() {
   
   await prewarmItems(treeGoods(0), { season });
   for (const w of wanted) {
-    if (!(await primeItem(w.good, { seed: w.seed, season }))) continue;
+    if (!(await primeItem(w.good, { seed: w.seed, season }, { background: true }))) continue;
     const obj = await itemObject(w.good, { seed: w.seed, season });
     await Promise.all([shaderWarm.warm(obj, `item ${w.good}`), warmIconShaders(obj).catch(() => {})]);
+    shaderWarm.keep(obj); 
   }
   
   
@@ -3180,6 +3311,45 @@ function popGoods(id) {
   }
   out.push('wood');
   return out;
+}
+
+
+
+
+
+
+async function orchardAhead(id) {
+  try {
+    if (!orchard || id === planetId) return false;
+    const entry = id === 0 ? null : visited.get(id);
+    if (id !== 0 && !entry) return false;
+    const lay = id === 0 ? MOON : entry.layout;
+    const season = id === 0 ? state.season : entry.planet.season;
+    const placements = id === 0 ? P : lay.placements();
+    const next = orchardView(world, econNow(), placements, undefined, { planet: id, focus: lay.FOCUS });
+    return await timed('orchardAhead', () => orchard.ahead(next, { heightAt: (x, z) => lay.heightAt(x, z), season }));
+  } catch (e) {
+    fml.problems.push(`orchard ahead ${id}: ${(e && e.message) || e}`);
+    return false;
+  }
+}
+
+
+
+
+
+
+
+
+function guestAhead(to) {
+  if (to === 0) return;
+  try {
+    const guestDay = localDay(localNowMs(), tzOffsetMin);
+    const forcedGuest = q.get('shot') === '1' ? q.get('guest') : null;
+    const copy = { seed: world.seed, guestDay: world.guestDay, guest: world.guest };
+    const guest = forcedGuest ? forceGuest(copy, forcedGuest, to, guestDay) : rollGuest(copy, to, guestDay);
+    if (guest) guestDraw.prefetch(guest, planetAt(to, state.system, GENERATED_COUNT).season);
+  } catch (e) { fml.problems.push(`guest ahead ${to}: ${(e && e.message) || e}`); }
 }
 
 
@@ -3567,11 +3737,15 @@ function doJump(nowMs) {
 function startFlight(to) {
   jumpButton.classList.remove('again');
   flightTo = to;
+  flightBuilt = null;
   
   
   const landY = to === 0 ? MOON.heightAt(SPAWN.x, SPAWN.z) : 0;
   air = launch(air, { from: planetId, to, groundY: groundNow(player.x, player.z), landY });
-  flightScene = (to === 0 ? Promise.resolve(null) : buildPlanet(to)).then((entry) => entry, (e) => {
+  flightScene = (to === 0 ? Promise.resolve(null) : buildPlanet(to)).then((entry) => {
+    if (flightTo === to) flightBuilt = to;
+    return entry;
+  }, (e) => {
     
     
     
@@ -3579,6 +3753,11 @@ function startFlight(to) {
     flightTo = 0;
     return null;
   });
+  
+  
+  
+  if (to === 0 || visited.has(to)) orchardAhead(to);
+  guestAhead(to);
   fml.actions += 1;
 }
 
@@ -3692,6 +3871,8 @@ placingEl.replaceChildren(
 );
 
 fml.act = (action, opts) => doAct(action, opts);
+
+fml.items = itemStats;
 
 fml.l3pair = (a, b, chatS) => (villagersDraw ? villagersDraw.forcePair(a, b, chatS) : null);
 
@@ -4879,6 +5060,7 @@ function adoptHostWorld(doc) {
   const why = fitsMoon(doc.world, world);
   if (why) { visit.say(`That moon is not one this game can draw - ${why}`); return; }
   restoreWorld(world, doc.world, { blockedAt: wildBlocksPlaced });
+  terrainVersion += 1; 
   world.tzOffsetMin = tzOffsetMin; 
   onHomes(syncHomes(village, world, econNow()));
   syncOrchard(econNow());
@@ -5546,6 +5728,7 @@ async function loadSave() {
   }
   const shutFor = Math.max(0, econNow() - doc.world.clockAt);
   const restored = restoreWorld(world, doc.world, { blockedAt: wildBlocksPlaced });
+  terrainVersion += 1; 
   saveInfo.filled = restored.filled;
   
   saveInfo.relaid = restored.relaid;
@@ -6106,28 +6289,37 @@ if (q.get('probe')) fml.applyTier = (next) => applyTier(next, 'probe');
 
 let tierAhead = null;        
 let tierLinked = null;       
+
+
+
+
+let tierPrelinked = null;
 let tierToken = 0;
 let tierScratch = null;
-function linkTierAhead(next, why) {
-  if (tierAhead && tierAhead.next === next) return;
+function linkTierAhead(next, why, { apply = true } = {}) {
+  if (tierAhead && tierAhead.next === next) { if (apply) Object.assign(tierAhead, { apply: true, why }); return; }
   const token = ++tierToken;
-  tierAhead = { next, token };
+  tierAhead = { next, token, apply, why };
   const s = SETTINGS[next];
   tierScratch ||= new THREE.WebGLRenderTarget(1, 1);
   const into = s.bloom ? (post && post.composer ? post.composer.readBuffer : tierScratch) : null;
   const now = settings.lights;
+  const setup = () => { if (night) night.setSize(s.lights); return () => { if (night) night.setSize(now); }; };
   Promise.all([
-    shaderWarm.warm(scene, `tier ${next} ahead`, {
-      into,
-      setup: () => { if (night) night.setSize(s.lights); return () => { if (night) night.setSize(now); }; },
-    }),
+    shaderWarm.warm(scene, `tier ${next} ahead`, { into, setup }),
+    
+    
+    
+    shaderWarm.warmKept(`tier ${next} ahead kept`, { into, setup }),
     
     post ? post.prepare(s, shaderWarm) : null,
   ]).catch((e) => fml.problems.push(`warm tier ahead: ${(e && e.message) || e}`)).then(() => {
     if (!tierAhead || tierAhead.token !== token) return;
+    const ahead = tierAhead;
     tierAhead = null;
+    if (!ahead.apply) { tierPrelinked = next; return; } 
     tierLinked = next;
-    try { applyTier(next, why); } finally { tierLinked = null; }
+    try { applyTier(next, ahead.why); } finally { tierLinked = null; }
   });
 }
 function applyTier(next, why) {
@@ -6136,7 +6328,8 @@ function applyTier(next, why) {
   
   
   
-  if (tierLinked !== next && why !== 'load') { linkTierAhead(next, why); return true; }
+  if (tierLinked !== next && tierPrelinked !== next && why !== 'load') { linkTierAhead(next, why); return true; }
+  tierPrelinked = null;
   const from = fml.tier;
   settings = SETTINGS[next];
   fml.tier = next;
@@ -6163,15 +6356,33 @@ function applyTier(next, why) {
   
   
   
-  writeTier(deviceStorage, next);
+  rememberTier(next);
   resize();                                      
   
   
   
   
   shaderWarm.warm(scene, 'tier').catch((e) => fml.problems.push(`warm tier: ${(e && e.message) || e}`));
+  shaderWarm.warmKept('tier kept').catch((e) => fml.problems.push(`warm tier kept: ${(e && e.message) || e}`));
   if (post) post.warm(shaderWarm).catch((e) => fml.problems.push(`warm post: ${(e && e.message) || e}`));
   return true;
+}
+
+
+
+
+let rememberedAs = null;
+function rememberTier(next, trial = false) {
+  const r = watch ? watch.remember : null;
+  const isTrial = Boolean(trial || (r && r.tier === next && r.trial));
+  writeTier(deviceStorage, next, Date.now(), r ? r.history : rememberedHistory, isTrial);
+  rememberedAs = `${next}|${isTrial}`;
+}
+
+
+function prelinkTier(next) {
+  if (next === fml.tier || tierPrelinked === next || (tierAhead && tierAhead.next === next)) return;
+  linkTierAhead(next, 'prelink', { apply: false });
 }
 
 
@@ -6274,6 +6485,9 @@ const sendSiteEvent = sendPerfSample;
 
 function frame(now) {
   faceMeter.frame(); 
+  
+  
+  frameMeter.begin();
   const raw = clock.getDelta();
   const dt = Math.min(raw, FEEL.maxFrameS);
   seconds += raw;
@@ -6289,12 +6503,16 @@ function frame(now) {
   
   
   
-  const waitingForWorld = Boolean(air && air.kind === 'flight' && air.t >= FLIGHT.swapS && flightTo !== null && flightTo !== 0 && !visited.has(flightTo));
+  const waitingForWorld = Boolean(air && air.kind === 'flight' && air.t >= FLIGHT.swapS && flightTo !== null && flightTo !== 0 && flightBuilt !== flightTo);
   if (air && !waitingForWorld) air = airStep(air, dt);
   const airPose = poseOf(air);
   
+  
+  
+  const screenHidden = Boolean(air && air.kind === 'flight' && (waitingForWorld || airPose.fade >= 0.98));
+  
   if (air && air.kind === 'flight' && overDestination(air) && flightTo !== null && planetId !== flightTo) {
-    if (flightTo === 0 || visited.has(flightTo)) {
+    if (flightTo === 0 || flightBuilt === flightTo) {
       arriveAt(flightTo);
       flightTo = null;
       flightScene = null;
@@ -6616,7 +6834,9 @@ function frame(now) {
   night.update(cycle, target, pixelsPerRadian);
   post.setBloom(cycle.bloom * settings.effects);
   renderer.info.reset();
+  frameMeter.beginGpu(); 
   post.render();
+  frameMeter.endGpu();
   
   
   
@@ -6743,7 +6963,7 @@ function frame(now) {
   craftCard.tray(madeTray(world), placing ? placing.item : null);
   if (craftCard.isOpen) showCraft();
   craftButton.classList.toggle('on', craftCard.isOpen || Boolean(placing));
-  placingEl.hidden = !placing;
+  if (placingEl.hidden !== !placing) placingEl.hidden = !placing; 
   document.body.classList.toggle('placing', Boolean(placing));
   
   
@@ -6786,6 +7006,9 @@ function frame(now) {
   frameUses = playerUse ? { [playerUse.id]: PLAYER_USE } : {};
   for (const [id, owner] of Object.entries(useHolds)) if (!frameUses[id]) frameUses[id] = owner;
   guestDraw.update(dt * state.anim, fml.drawCalls); 
+  
+  
+  if (village && village.staging) timed('village:settle', () => village.settle(4));
   villagersDraw.update(world, t, dt, {
     animDt: dt * state.anim, focus: focusNow, activity: talk && talkingToVillager() ? voice.activity() : 0,
     poseFor: meeting ? assemblyPoseFor : null,
@@ -7112,7 +7335,7 @@ function frame(now) {
     
     
     
-    hudText.textContent = `tier ${fml.tier}  ${fml.fps} fps  calls ${fml.drawCalls}  tris ${fml.triangles}${slowLine(fml.spans)}  audio ${audio.contextState}${audio.muted ? ' muted' : ''}${audio.speaking ? ' ducked' : ''}\nWASD/arrows walk, Shift run, E act (hold: fell), F fell, Q seed, C carry${state.carrying ? ' (carrying)' : ''}, B workshop, R turn, Esc put away, J jump (twice: fly), M sound${load ? `\n${load}${sample}` : ''}`;
+    hudText.textContent = `tier ${fml.tier}  ${fml.fps} fps  ${meterLine(frameMeter)}  calls ${fml.drawCalls}  tris ${fml.triangles}${slowLine(fml.spans)}  audio ${audio.contextState}${audio.muted ? ' muted' : ''}${audio.speaking ? ' ducked' : ''}\nWASD/arrows walk, Shift run, E act (hold: fell), F fell, Q seed, C carry${state.carrying ? ' (carrying)' : ''}, B workshop, R turn, Esc put away, J jump (twice: fly), M sound${load ? `\n${load}${sample}` : ''}`;
   }
 
   
@@ -7157,14 +7380,23 @@ function frame(now) {
           
           fml.tierDecision = { tier: decision.tier, median: Math.round(decision.median * 100) / 100, frames: samples.length, homeWarmBefore: homeWarm !== null };
           if (isWorse(decision.tier, fml.tier)) applyTier(decision.tier, 'load');
-          watch = createTierWatch({ tier: fml.tier, startedAt: now });
+          watch = createTierWatch({ tier: fml.tier, startedAt: now, history: rememberedHistory, trial: rememberedTrial });
+          if (rememberedTrial) rememberTier(watch.remember.tier, watch.remember.trial);
         }
       }
-    } else if (homeWarm !== 'running') {
+    } else if (!tierWatchPaused(homeWarm, homeWarmSince, now)) {
       
       
-      const change = watch.sample(raw * 1000, now);
+      
+      
+      
+      const waiting = watch.waiting;
+      const change = watch.sample(raw * 1000, now, { hidden: Boolean(screenHidden && waiting && tierPrelinked === waiting.tier) });
       if (change) applyTier(change.tier, change.reason);
+      const after = watch.waiting;
+      if (after) prelinkTier(after.tier);
+      const r = watch.remember;
+      if (`${r.tier}|${r.trial}` !== rememberedAs) rememberTier(r.tier, r.trial);
     }
   }
   
@@ -7220,6 +7452,8 @@ function frame(now) {
   
   
   if (frames >= 3 && !homeWarm && (pinnedTier || watch)) startHomeWarm();
+  frameMeter.end();
+  if (frameMeter.enabled) { fml.cpuMs = frameMeter.cpuMs; fml.gpuMs = frameMeter.gpuMs; }
   requestAnimationFrame(frame);
 }
 

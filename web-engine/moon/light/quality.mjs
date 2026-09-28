@@ -127,6 +127,9 @@ export function tierFromParam(value) {
 
 
 
+
+
+
 export const WATCH = Object.freeze({
   settleMs: 2000,        
   windowMs: 30000,       
@@ -135,7 +138,78 @@ export const WATCH = Object.freeze({
   upAfterMs: 60000,      
   upHeadroom: 0.3,       
   upEveryMs: 300000,     
+  
+  cadenceSpread: 1.1,    
+  cadenceDrops: 0.05,    
+  cadenceRoom: 0.9,      
+  probationWindows: 2,   
+  failWithinMs: 300000,  
+  retryBaseMs: 1800000,  
+  retryMaxMs: 604800000, 
+  keptMs: 600000,        
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function heldCadence(frames, config = WATCH) {
+  const c = { ...WATCH, ...config };
+  const xs = frames.filter((x) => x > 0).sort((a, b) => a - b);
+  if (xs.length < c.minFrames) return null;
+  const cadence = xs[Math.floor(xs.length * 0.1)];
+  const median = xs[Math.floor(xs.length / 2)];
+  if (!(median <= cadence * c.cadenceSpread)) return null;
+  const drops = xs.filter((x) => x >= cadence * 1.5).length / xs.length;
+  if (drops > c.cadenceDrops) return null;
+  return cadence;
+}
+
+
+
+
+
+
+
+
+
+
+
+export function cleanHistory(h, now = Date.now(), maxMs = WATCH.retryMaxMs) {
+  const out = { fails: {}, retryAfter: {} };
+  if (!h || typeof h !== 'object') return out;
+  for (const t of TIERS) {
+    const f = h.fails && Number(h.fails[t]);
+    const r = h.retryAfter && Number(h.retryAfter[t]);
+    if (Number.isFinite(f) && f > 0) out.fails[t] = Math.min(64, Math.floor(f));
+    if (Number.isFinite(r) && r > 0) out.retryAfter[t] = Math.min(r, now + maxMs);
+  }
+  return out;
+}
 
 
 export function tierAbove(tier) {
@@ -162,7 +236,26 @@ export function isWorse(a, b) {
 
 
 
-export function createTierWatch({ tier = 'high', startedAt = 0, config = WATCH } = {}) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function createTierWatch({ tier = 'high', startedAt = 0, config = WATCH, history = null, wall = () => Date.now(), trial = null } = {}) {
   const c = { ...WATCH, ...config };
   if (!TIERS.includes(tier)) throw new Error(`unknown quality tier '${tier}'`);
   let current = tier;
@@ -175,6 +268,9 @@ export function createTierWatch({ tier = 'high', startedAt = 0, config = WATCH }
   let lastUpAt = -Infinity;
   let windows = 0;
   let lastMedian = 0;
+  
+  const hist = cleanHistory(history, wall());
+  let climbed = null;   
 
   const step = (next, reason, median, now) => {
     const from = current;
@@ -183,6 +279,38 @@ export function createTierWatch({ tier = 'high', startedAt = 0, config = WATCH }
     bad = 0;
     return { tier: next, from, median, reason };
   };
+  const failClimb = (to) => {
+    const n = (hist.fails[to] || 0) + 1;
+    hist.fails[to] = n;
+    hist.retryAfter[to] = wall() + Math.min(c.retryMaxMs, c.retryBaseMs * 2 ** (n - 1));
+  };
+  
+  
+  const failsClimb = (want, decidedMs) => Boolean(climbed && decidedMs - climbed.at <= c.failWithinMs && isWorse(want, climbed.to) === true);
+  const down = (want, median, nowMs, decidedMs = nowMs) => {
+    let reason = 'down';
+    if (failsClimb(want, decidedMs)) {
+      failClimb(climbed.to);
+      reason = 'failed-climb';
+    }
+    climbed = null;
+    return step(want, reason, median, nowMs);
+  };
+  const climb = (up, reason, median, nowMs) => {
+    lastUpAt = nowMs;
+    climbed = { to: up, at: nowMs, windows: 0 };
+    return step(up, reason, median, nowMs);
+  };
+  
+  
+  
+  if (trial && TIERS.includes(trial) && trial !== tier) {
+    if (isWorse(tier, trial)) failClimb(trial);
+  } else if (trial && trial === tier) {
+    lastUpAt = startedAt;
+    climbed = { to: trial, at: startedAt, windows: 0 };
+  }
+  let waiting = null;   
 
   return {
     get tier() { return current; },
@@ -192,17 +320,58 @@ export function createTierWatch({ tier = 'high', startedAt = 0, config = WATCH }
     
     get pending() { return frames.length; },
     get badWindows() { return bad; },
+    
+    get history() { return cleanHistory(hist, wall()); },
+    
+    get waiting() { return waiting ? { kind: waiting.kind, tier: waiting.tier, reason: waiting.reason } : null; },
+    
+
+
+
+
+
+    get remember() {
+      const h = cleanHistory(hist, wall());
+      if (waiting && waiting.kind === 'up') return { tier: waiting.tier, trial: true, history: h };
+      if (waiting && waiting.kind === 'down') {
+        if (failsClimb(waiting.tier, waiting.at)) {
+          const to = climbed.to;
+          const n = (h.fails[to] || 0) + 1;
+          h.fails[to] = n;
+          h.retryAfter[to] = wall() + Math.min(c.retryMaxMs, c.retryBaseMs * 2 ** (n - 1));
+        }
+        return { tier: waiting.tier, trial: false, history: h };
+      }
+      return { tier: current, trial: Boolean(climbed && climbed.windows <= c.probationWindows), history: h };
+    },
     config: Object.freeze(c),
 
-    sample(intervalMs, nowMs) {
+    sample(intervalMs, nowMs, { hidden = true } = {}) {
       if (!Number.isFinite(intervalMs) || intervalMs <= 0) return null;
       if (nowMs - startedAt < c.settleMs) return null;
+      
+      
+      if (waiting && hidden) {
+        const w = waiting;
+        waiting = null;
+        if (w.kind === 'up' && wall() >= (hist.retryAfter[w.tier] || 0) && tierAbove(current) === w.tier) {
+          frames = [];
+          windowStart = null;
+          return climb(w.tier, w.reason, w.median, nowMs);
+        }
+        if (w.kind === 'down' && isWorse(w.tier, current)) {
+          frames = [];
+          windowStart = null;
+          return down(w.tier, w.median, nowMs, w.at);
+        }
+      }
       if (windowStart === null) windowStart = nowMs;
       frames.push(intervalMs);
       if (nowMs - windowStart < c.windowMs) return null;
 
       const median = medianInterval(frames);
       const n = frames.length;
+      const closed = frames;
       frames = [];
       windowStart = nowMs;
       
@@ -211,25 +380,56 @@ export function createTierWatch({ tier = 'high', startedAt = 0, config = WATCH }
       if (n < c.minFrames) return null;
       windows += 1;
       lastMedian = median;
+      if (climbed) climbed.windows += 1;
 
       const want = tierForInterval(median);
       if (isWorse(want, current)) {
         bad += 1;
-        if (bad < c.downWindows) return null;
+        if (waiting && waiting.kind === 'up') waiting = null; 
+        
+        const onTrial = climbed && climbed.windows <= c.probationWindows;
+        if (bad < c.downWindows && !onTrial) return null;
+        
+        
+        if (bad < c.downWindows && !hidden) {
+          waiting = { kind: 'down', tier: want, reason: 'failed-climb', median, at: nowMs };
+          return null;
+        }
+        waiting = null;
         
         
         
-        return step(want, 'down', median, nowMs);
+        return down(want, median, nowMs);
       }
       bad = 0;
+      
+      
+      waiting = null;
+      
+      if (climbed && nowMs - climbed.at >= c.keptMs) {
+        delete hist.fails[climbed.to];
+        delete hist.retryAfter[climbed.to];
+        climbed = null;
+      }
 
       const up = tierAbove(current);
       if (!up) return null;
       if (nowMs - changedAt < c.upAfterMs) return null;
       if (nowMs - lastUpAt < c.upEveryMs) return null;
-      if (!(median <= TIER_ABOVE_MS[up] * (1 - c.upHeadroom))) return null;
-      lastUpAt = nowMs;
-      return step(up, 'up', median, nowMs);
+      const roomy = median <= TIER_ABOVE_MS[up] * (1 - c.upHeadroom);
+      
+      
+      const cadence = roomy ? null : heldCadence(closed, c);
+      const held = cadence !== null && cadence <= TIER_ABOVE_MS[up] * c.cadenceRoom;
+      if (!roomy && !held) return null;
+      if (wall() < (hist.retryAfter[up] || 0)) return null;
+      const reason = roomy ? 'up' : 'up-held';
+      
+      if (!hidden) {
+        waiting = { kind: 'up', tier: up, reason, median, at: nowMs };
+        return null;
+      }
+      return climb(up, reason, median, nowMs);
     },
   };
 }
@@ -261,13 +461,42 @@ export function readTier(storage) {
   }
 }
 
-export function writeTier(storage, tier, at = Date.now()) {
+
+export function readTierHistory(storage) {
+  try {
+    const raw = storage && storage.getItem(TIER_KEY);
+    const saved = raw ? JSON.parse(raw) : null;
+    return cleanHistory(saved && typeof saved === 'object' ? saved.history : null);
+  } catch {
+    return cleanHistory(null);
+  }
+}
+
+
+
+
+export function writeTier(storage, tier, at = Date.now(), history = null, trial = false) {
   try {
     if (!storage || !TIERS.includes(tier)) return false;
-    storage.setItem(TIER_KEY, JSON.stringify({ tier, at }));
+    const h = cleanHistory(history, at);
+    const any = Object.keys(h.fails).length || Object.keys(h.retryAfter).length;
+    const saved = any ? { tier, at, history: h } : { tier, at };
+    if (trial) saved.trial = true;
+    storage.setItem(TIER_KEY, JSON.stringify(saved));
     return true;
   } catch {
     return false;
+  }
+}
+
+
+export function readTierTrial(storage) {
+  try {
+    const raw = storage && storage.getItem(TIER_KEY);
+    const saved = raw ? JSON.parse(raw) : null;
+    return saved && typeof saved === 'object' && saved.trial === true ? tierFromParam(saved.tier) : null;
+  } catch {
+    return null;
   }
 }
 

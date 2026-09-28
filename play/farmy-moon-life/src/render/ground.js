@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { makeCozy, loadPainter, paintTexture } from './material.js';
 import * as MOON from 'moon/world/moonLayout.mjs';
 import { PATH_FIELD, pathField } from 'moon/world/pathField.mjs';
+import { createPathMasks } from './pathMask.js';
 import { LAND_MASK } from 'moon/play/landEdge.mjs';
 
 
@@ -171,6 +172,26 @@ function fieldTexture(data, size) {
 
 
 
+
+
+
+
+
+
+
+const HOME_MASKS = createPathMasks({
+  makeTexture: (img) => fieldTexture(img.data, img.width),
+  bakeInline: (job) => {
+    const f = pathField({ PATHS: [...MOON.PATHS, ...job.extra], pathDistance: MOON.pathDistanceWith(job.extra) });
+    return { data: f.data, width: f.size, height: f.size };
+  },
+});
+export const pathMaskStats = HOME_MASKS.stats;
+
+export function homePathMask() {
+  const extra = MOON.extraPaths();
+  return HOME_MASKS.request('moon', `moon|${MOON.extraPathsSig()}`, { kind: 'pathField', extra });
+}
 function pathFieldTexture(layout) {
   const extra = typeof layout.extraPaths === 'function' ? layout.extraPaths() : [];
   const key = extra.length ? `${layout === MOON ? 'moon' : 'planet'}|${layout.extraPathsSig()}` : layout;
@@ -193,13 +214,23 @@ export async function groundMaterial({ season = 'summer', paths = true, layout =
   const [topMap, pathMap] = await Promise.all([paintTexture(top, top.SURFACE.size), paintTexture(path, path.SURFACE.size)]);
   const pal = seasonPalette(season);
   const count = PATHS.reduce((n, line) => n + line.length, 0);
-  const pathMask = paths && count > 1 ? pathFieldTexture(layout) : blankField();
+  let pathUniform = null;
+  if (paths && count > 1 && layout === MOON) {
+    const mask = homePathMask();
+    if (!mask.uniform.value) await mask.ready;
+    
+    
+    if (!mask.uniform.value) mask.uniform.value = blankField();
+    pathUniform = mask.uniform;
+  } else {
+    pathUniform = { value: paths && count > 1 ? pathFieldTexture(layout) : blankField() };
+  }
   const g1 = linear(pal.grass[1]);
   const uniforms = {
     uFmlTopScale: { value: top.SURFACE.worldScale || 3 },
     uFmlPathMap: { value: pathMap },
     uFmlPathScale: { value: path.SURFACE.worldScale || 3 },
-    uFmlPathField: { value: pathMask },
+    uFmlPathField: pathUniform,
     uFmlPathRect: { value: new THREE.Vector4(PATH_FIELD.originM, PATH_FIELD.originM, 1 / PATH_FIELD.spanM, PATH_FIELD.maxM) },
     uFmlPathCount: { value: paths ? count : 0 },
     uFmlPathHalf: { value: PATH_HALF_WIDTH },

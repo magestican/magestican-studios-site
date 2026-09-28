@@ -28,6 +28,8 @@ import * as THREE from 'three';
 import { CURVE_K } from 'moon/world/curve.mjs';
 import { PASTEL_GLSL } from 'moon/palette/pastel.mjs';
 import { cozyProgramKey } from './programKey.js';
+import { paintOnce, paintPixels } from './paintCache.js';
+import { markShared } from './drawVariant.js';
 
 export const curveUniforms = {
   uCurve: { value: CURVE_K },
@@ -401,6 +403,11 @@ export function makeCozy(material, { rim = 0.12, key = 'base', patch = null, uni
   return material;
 }
 
+
+
+export { adoptDrawVariant, variantMaterial, baseMaterial, drawVariantKey } from './drawVariant.js';
+
+
 export function bentDepthMaterial({ map = null, alphaTest = 0, side = THREE.FrontSide } = {}) {
   const depth = new THREE.MeshDepthMaterial({ map: alphaTest ? map : null, alphaTest, side });
   return applyBend(depth);
@@ -473,23 +480,20 @@ export function setEmissiveFactors(factors) {
 
 
 
+export { bleedTransparent, setPaintWorker, paintStats } from './paintCache.js';
 
 
-export function bleedTransparent(data) {
-  let r = 0, g = 0, b = 0, n = 0, cut = false;
-  for (let i = 0; i < data.length; i += 4) {
-    if (data[i + 3] > 127) { r += data[i]; g += data[i + 1]; b += data[i + 2]; n++; } else if (data[i + 3] < 32) cut = true;
-  }
-  if (!cut || !n) return;
-  r /= n; g /= n; b /= n;
-  for (let i = 0; i < data.length; i += 4) {
-    if (data[i + 3] < 32) { data[i] = r; data[i + 1] = g; data[i + 2] = b; }
-  }
-}
+
+
+
 
 export async function paintTexture(mod, size) {
-  const img = mod.paint({ size });
-  bleedTransparent(img.data);
+  const id = PAINTER_ID.get(mod);
+  if (id === undefined) return dataTexture(paintPixels(mod, size));
+  return paintOnce(id, mod, size, dataTexture);
+}
+
+function dataTexture(img) {
   const map = new THREE.DataTexture(img.data, img.width, img.height, THREE.RGBAFormat);
   map.colorSpace = THREE.SRGBColorSpace;
   map.wrapS = map.wrapT = THREE.RepeatWrapping;
@@ -551,11 +555,17 @@ const PAINTERS = Object.freeze({
 
 export const PAINTER_IDS = Object.freeze(Object.keys(PAINTERS));
 
+
+
+const PAINTER_ID = new WeakMap();
+
 export async function loadPainter(id) {
   const load = PAINTERS[id];
   if (!load) return {};
   try {
-    return await load();
+    const mod = await load();
+    PAINTER_ID.set(mod, id);
+    return mod;
   } catch {
     
     return {};
@@ -588,6 +598,8 @@ async function build(id) {
   material.userData.emissiveBase = emissiveId ? (surface.emissiveIntensity || defIntensity) : (surface.emissiveIntensity ?? 0);
   material.emissiveIntensity = material.userData.emissiveBase * (emissiveId ? emissiveFactor[id] : 1);
   material.userData.depthMaterial = bentDepthMaterial({ map, alphaTest: surface.alphaTest ?? 0, side: material.side });
+  
+  markShared(material, material.userData.depthMaterial);
   return makeCozy(material, {
     rim: surface.rim ?? (id === 'fur' ? 0.35 : 0.12),
     key: id,

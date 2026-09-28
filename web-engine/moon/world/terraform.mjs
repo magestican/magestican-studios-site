@@ -217,6 +217,31 @@ export function deltaField(terrain, cfg = TERRAFORM) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+export function changedRegion(before, after, { x, z, r = 0 }) {
+  let far = -1;
+  const visit = (key) => {
+    if ((before.nodes.get(key) || 0) === (after.nodes.get(key) || 0)) return;
+    const [ix, iz] = nodeOf(key);
+    const n = nodeAt(ix, iz);
+    far = Math.max(far, Math.hypot(n.x - x, n.z - z));
+  };
+  for (const key of before.nodes.keys()) visit(key);
+  for (const key of after.nodes.keys()) if (!before.nodes.has(key)) visit(key);
+  return far < 0 ? null : { x, z, r: Math.max(r, far + REACH_M) };
+}
+
+
 export function pondAt(ponds, x, z) {
   for (const p of ponds) if (Math.hypot(p.x - x, p.z - z) <= p.r) return p;
   return null;

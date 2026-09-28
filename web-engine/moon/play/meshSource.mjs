@@ -96,7 +96,17 @@ export function villagerKey({ species, seed = 1, season = 'summer', lod = 0, bui
 
 
 
-export function createWorkerPool({ url, size = poolSize(globalThis.navigator?.hardwareConcurrency), Worker = globalThis.Worker } = {}) {
+
+
+
+
+
+
+
+
+
+
+export function createWorkerPool({ url, size = poolSize(globalThis.navigator?.hardwareConcurrency), Worker = globalThis.Worker, jobMs = 0 } = {}) {
   if (!Worker || !url || size < 1) return null;
   const workers = [];
   try {
@@ -116,7 +126,7 @@ export function createWorkerPool({ url, size = poolSize(globalThis.navigator?.ha
     
     
     dead = true;
-    for (const { reject } of pending.values()) reject(new Error(reason));
+    for (const { reject, timer } of pending.values()) { if (timer) clearTimeout(timer); reject(new Error(reason)); }
     pending.clear();
     for (const { reject } of waiting.splice(0)) reject(new Error(reason));
     for (const w of workers) { try { w.worker.terminate(); } catch {  } }
@@ -128,6 +138,7 @@ export function createWorkerPool({ url, size = poolSize(globalThis.navigator?.ha
       const job = pending.get(id);
       if (!job) return;
       pending.delete(id);
+      if (job.timer) clearTimeout(job.timer);
       slot.busy = false;
       if (error) job.reject(new Error(error));
       else job.resolve({ payload, ms: e.data.ms });
@@ -146,10 +157,12 @@ export function createWorkerPool({ url, size = poolSize(globalThis.navigator?.ha
       const job = waiting.shift();
       const id = nextId++;
       slot.busy = true;
-      pending.set(id, { resolve: job.resolve, reject: job.reject, slot });
+      const timer = jobMs > 0 ? setTimeout(() => fail(`the worker hung (no answer in ${jobMs} ms)`), jobMs) : null;
+      pending.set(id, { resolve: job.resolve, reject: job.reject, slot, timer });
       try {
         slot.worker.postMessage({ id, spec: job.spec });
       } catch (e) {
+        if (timer) clearTimeout(timer);
         pending.delete(id);
         slot.busy = false;
         job.reject(e);
@@ -160,6 +173,8 @@ export function createWorkerPool({ url, size = poolSize(globalThis.navigator?.ha
   return {
     size: workers.length,
     get queued() { return waiting.length; },
+    
+    get dead() { return dead; },
     run(spec) {
       if (dead) return Promise.reject(new Error('the villager worker stopped'));
       return new Promise((resolve, reject) => { waiting.push({ spec, resolve, reject }); pump(); });

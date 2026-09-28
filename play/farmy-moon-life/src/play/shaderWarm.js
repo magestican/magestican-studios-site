@@ -73,7 +73,9 @@ export function createShaderWarm({ renderer, camera, scene, target = () => null 
     if (!renderer.shadowMap.enabled) return [];
     const reps = new Map();
     root.traverse((o) => {
-      if (!o.castShadow || !(o.isMesh || o.isLine || o.isPoints) || !o.material) return;
+      
+      
+      if (!(o.castShadow || (o.userData && o.userData.fmlMayCast)) || !(o.isMesh || o.isLine || o.isPoints) || !o.material) return;
       for (const m of Array.isArray(o.material) ? o.material : [o.material]) {
         if (!m) continue;
         const depth = o.customDepthMaterial || plainDepth;
@@ -196,5 +198,38 @@ export function createShaderWarm({ renderer, camera, scene, target = () => null 
     return warm(group, label);
   }
 
-  return { warm, warmMaterials, stats };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const keptObjects = [];
+  
+  function keep(obj) {
+    if (obj) keptObjects.push(obj.clone());
+  }
+  
+  function warmKept(label, opts = {}) {
+    const group = new THREE.Group();
+    if (proxied.size && proxyGeometry) {
+      for (const m of proxied) {
+        const mesh = new THREE.Mesh(proxyGeometry, m);
+        if (m.userData && m.userData.depthMaterial) mesh.customDepthMaterial = m.userData.depthMaterial;
+        mesh.castShadow = true;
+        group.add(mesh);
+      }
+    }
+    for (const o of keptObjects) group.add(o.clone());
+    if (!group.children.length) return Promise.resolve({ ms: 0, programsAdded: 0 });
+    return warm(group, label, opts);
+  }
+
+  return { warm, warmMaterials, keep, warmKept, stats };
 }

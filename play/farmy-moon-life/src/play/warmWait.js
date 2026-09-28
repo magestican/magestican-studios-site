@@ -17,6 +17,12 @@
 export const WARM_WAIT_MS = 5000;
 
 
+
+
+
+export const WORKER_WAIT_MS = 15000;
+
+
 export function programSettled(p) {
   if (!p || p.program === undefined || p.program === null) return true;
   try {
@@ -42,6 +48,22 @@ export function waitForPrograms(programs, {
       await wait(pollMs);
     }
   })();
+}
+
+
+
+
+
+
+
+
+
+
+export const HOME_WARM_WATCH_CAP_MS = 10000;
+
+
+export function tierWatchPaused(phase, sinceMs, nowMs, capMs = HOME_WARM_WATCH_CAP_MS) {
+  return phase === 'running' && nowMs - sinceMs < capMs;
 }
 
 

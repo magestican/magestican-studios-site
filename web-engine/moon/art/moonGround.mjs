@@ -179,3 +179,80 @@ export function generate({ seed = 1, season = 'summer', lod = 0, layout = MOON }
   for (let i = 0; i < nb; i++) m.tri('soil', tip, bprev[i], bprev[(i + 1) % nb]);
   return m;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function topXZ(mesh) {
+  const g = mesh.groups.get('grass');
+  const n = g.positions.length / 3;
+  const xz = new Float64Array(n * 2);
+  for (let i = 0; i < n; i++) {
+    xz[i * 2] = g.positions[i * 3];
+    xz[i * 2 + 1] = g.positions[i * 3 + 2];
+  }
+  return xz;
+}
+
+
+export const RESHAPE_PAD_M = 1;
+
+
+
+
+
+
+
+
+
+
+export function reshapeTop({ position, normal, xz, layout = MOON, region }) {
+  const { heightAt, normalAt } = layout;
+  const R = layout.ISLAND_RADIUS;
+  const reach = region.r + RESHAPE_PAD_M;
+  const runs = [];
+  let start = -1, prev = -2, count = 0;
+  const n = xz.length / 2;
+  for (let i = 0; i < n; i++) {
+    const x = xz[i * 2], z = xz[i * 2 + 1];
+    const dx = x - region.x, dz = z - region.z;
+    if (Math.abs(dx) > reach || Math.abs(dz) > reach || Math.hypot(dx, dz) > reach) continue;
+    position[i * 3 + 1] = heightAt(x, z);
+    
+    if (Math.hypot(x, z) < R - 1e-6) {
+      const nrm = normalAt(x, z);
+      normal[i * 3] = nrm[0];
+      normal[i * 3 + 1] = nrm[1];
+      normal[i * 3 + 2] = nrm[2];
+    }
+    count++;
+    if (i !== prev + 1) {
+      if (start >= 0) runs.push([start, prev - start + 1]);
+      start = i;
+    }
+    prev = i;
+  }
+  if (start >= 0) runs.push([start, prev - start + 1]);
+  return { runs, count };
+}

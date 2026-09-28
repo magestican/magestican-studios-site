@@ -8,7 +8,7 @@ import { generate } from 'moon/art/groundCover.mjs';
 import { scatterCover, scatterPathEdge } from 'moon/world/coverScatter.mjs';
 import { seasonPalette, linear } from 'moon/palette/seasons.mjs';
 import { groundTintOf } from 'moon/art/moonGround.mjs';
-import { cozyMaterial } from './material.js';
+import { cozyMaterial, adoptDrawVariant } from './material.js';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -89,6 +89,7 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
       });
       mesh.instanceMatrix.needsUpdate = true;
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      adoptDrawVariant(mesh); 
       mesh.frustumCulled = false;
       mesh.receiveShadow = true;
       mesh.castShadow = false;
@@ -106,21 +107,33 @@ export async function createGroundCover({ season, count, seed = 1, layout }) {
     }
   }
   let drawn = triangles;
-  const reheight = (heightAt) => {
+  const reheight = (heightAt, region = null) => {
     
     
     
     
     
+    
+    
+    
+    
+    
+    const reach = region ? region.r + 1 : Infinity;
     for (const part of parts) {
+      let lo = Infinity, hi = -1;
       part.list.forEach((it, slot) => {
+        if (region && Math.hypot(it.x - region.x, it.z - region.z) > reach) return;
         it.y = heightAt(it.x, it.z);
         q.setFromAxisAngle(up, it.rotY);
         pos.set(it.x, it.y, it.z);
         sc.setScalar(it.scale);
         m4.compose(pos, q, sc);
         part.mesh.setMatrixAt(slot, m4);
+        if (slot < lo) lo = slot;
+        if (slot > hi) hi = slot;
       });
+      if (hi < 0) continue;
+      if (region) part.mesh.instanceMatrix.addUpdateRange(lo * 16, (hi - lo + 1) * 16);
       part.mesh.instanceMatrix.needsUpdate = true;
     }
   };

@@ -60,10 +60,19 @@ export const GOAL_SECONDS = 9;
 
 export const THINK_S = 0.25;
 
+
+
+
+
+
+export function setHidden(el, v) {
+  if (el.hidden !== v) el.hidden = v;
+}
+
 export function createGuideUi({ goal, markers, tip, placeOf, ndcOf, storage = null }) {
   const chev = document.createElement('div');
   chev.className = 'chev';
-  chev.hidden = true;
+  setHidden(chev, true);
   const arrow = document.createElement('div');
   arrow.className = 'arrow';
   
@@ -72,6 +81,7 @@ export function createGuideUi({ goal, markers, tip, placeOf, ndcOf, storage = nu
   arrow.textContent = String.fromCharCode(0x25B6);
   chev.append(arrow);
   markers.append(chev);
+  let chevTransform = ''; 
 
   let dismissed = null;
   let shownId = null;
@@ -114,7 +124,7 @@ export function createGuideUi({ goal, markers, tip, placeOf, ndcOf, storage = nu
   
   
   function say(step, dt, far = null) {
-    if (!step) { lineId = null; lineLeft = 0; goal.hidden = true; stats.line = null; return; }
+    if (!step) { lineId = null; lineLeft = 0; setHidden(goal, true); stats.line = null; return; }
     if (step.id !== lineId) { lineId = step.id; lineLeft = GOAL_SECONDS; }
     if (lineLeft > 0) {
       
@@ -123,12 +133,12 @@ export function createGuideUi({ goal, markers, tip, placeOf, ndcOf, storage = nu
       
       const text = far === null ? step.text : `${step.text}  ${far}`;
       if (goal.textContent !== text) goal.textContent = text;
-      goal.hidden = false;
+      setHidden(goal, false);
       
       
       
       lineLeft -= Math.min(dt, 0.1);
-      if (lineLeft <= 0) goal.hidden = true;
+      if (lineLeft <= 0) setHidden(goal, true);
     }
     stats.line = goal.hidden ? null : lineId;
   }
@@ -139,7 +149,7 @@ export function createGuideUi({ goal, markers, tip, placeOf, ndcOf, storage = nu
     stats.place = step && step.place ? step.place.type : null;
     stats.distanceM = distanceM;
     say(step, dt, distanceM === null ? null : distanceLabel(distanceM));
-    if (!step) { chev.hidden = true; stats.chevron = false; }
+    if (!step) { setHidden(chev, true); stats.chevron = false; }
   }
 
   function hideTip() {
@@ -170,8 +180,8 @@ export function createGuideUi({ goal, markers, tip, placeOf, ndcOf, storage = nu
     
     
     if (tipState && tipState.busy) {
-      goal.hidden = true;
-      chev.hidden = true;
+      setHidden(goal, true);
+      setHidden(chev, true);
       lineId = null;
       
       
@@ -218,10 +228,10 @@ export function createGuideUi({ goal, markers, tip, placeOf, ndcOf, storage = nu
 
     
     const point = shown.place ? placeOf(shown.place) : null;
-    if (!point) { draw(shown, null, dt); chev.hidden = true; stats.chevron = false; return; }
+    if (!point) { draw(shown, null, dt); setHidden(chev, true); stats.chevron = false; return; }
     const metres = Math.hypot(point.x - player.x, point.z - player.z);
     draw(shown, metres, dt);
-    if (arrived(metres)) { chev.hidden = true; stats.chevron = false; return; }
+    if (arrived(metres)) { setHidden(chev, true); stats.chevron = false; return; }
     const ndc = ndcOf(point.x, point.y, point.z);
     const m = markerAt({
       x: ndc.x, y: ndc.y, behind: ndc.behind,
@@ -238,9 +248,10 @@ export function createGuideUi({ goal, markers, tip, placeOf, ndcOf, storage = nu
     });
     
     
-    if (m.onScreen) { chev.hidden = true; stats.chevron = false; return; }
-    chev.hidden = false;
-    chev.style.transform = `translate(${m.x}px, ${m.y}px) rotate(${m.angleRad}rad)`;
+    if (m.onScreen) { setHidden(chev, true); stats.chevron = false; return; }
+    setHidden(chev, false);
+    const transform = `translate(${m.x}px, ${m.y}px) rotate(${m.angleRad}rad)`;
+    if (transform !== chevTransform) { chevTransform = transform; chev.style.transform = transform; }
     stats.chevron = true;
   }
 

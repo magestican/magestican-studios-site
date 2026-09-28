@@ -77,7 +77,7 @@ import { forageSpots } from '../world/forage.mjs';
 import { forageObstacle } from '../world/collision.mjs';
 import { seedOf } from '../voice/mumble.mjs';
 import { orchardView } from './orchard.mjs';
-import { openAt, walkGrid, walkPath } from './walks.mjs';
+import { openAt, patchGrid, walkGrid, walkPath, walkPathSteps } from './walks.mjs';
 import { CAMERA } from './followCamera.mjs';
 import { INTERACT } from './interact.mjs';
 import { COUNTERS } from '../economy/town.mjs';
@@ -417,7 +417,7 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
   
   
   
-  const placed = new Map();
+  let placed = new Map();
   let version = 0;
 
   let grid = null, cost = null;
@@ -437,13 +437,15 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
       }
     }
   }
+  
+  const costOfCell = (g, i, j) => (pathDistance(g.minX + i * g.cellM, g.minZ + j * g.cellM) <= PATH_HALF_WIDTH ? 1 : cfg.offPathCost);
   function gridOf() {
     if (grid) return grid;
     grid = walkGrid(createCollisionWorld({ obstacles: [...staticObstacles, ...placed.values()] }), { ...cfg.bounds, cellM: cfg.cellM, radius: cfg.radiusM });
     cost = new Float32Array(grid.open.length);
     for (let j = 0; j < grid.nz; j++) {
       for (let i = 0; i < grid.nx; i++) {
-        cost[j * grid.nx + i] = pathDistance(grid.minX + i * grid.cellM, grid.minZ + j * grid.cellM) <= PATH_HALF_WIDTH ? 1 : cfg.offPathCost;
+        cost[j * grid.nx + i] = costOfCell(grid, i, j);
       }
     }
     for (const spot of Object.values(homes)) closeHouse(spot);
@@ -509,20 +511,29 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
     return homeDoor(h);
   };
 
-  const routes = new Map();
+  let routes = new Map();
   
   function route(a, b) {
+    const steps = routeSteps(a, b);
+    let r = steps.next();
+    while (!r.done) r = steps.next();
+    return r.value;
+  }
+  
+  
+  
+  function* routeSteps(a, b) {
     const key = `${a}|${b}`;
     if (routes.has(key)) return routes.get(key);
     let poly;
     
     
     
-    if (a > b) poly = polyOf([...route(b, a).points].reverse());
+    if (a > b) poly = polyOf([...(yield* routeSteps(b, a)).points].reverse());
     else {
       const g = gridOf();
       const from = nodeAt(a), to = nodeAt(b);
-      let found = walkPath(g, from, to, { cost });
+      let found = yield* walkPathSteps(g, from, to, { cost });
       
       
       
@@ -532,7 +543,7 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
       
       
       
-      if (!found && placed.size) found = walkPath(unplacedGrid(), from, to, { cost });
+      if (!found && placed.size) found = yield* walkPathSteps(unplacedGrid(), from, to, { cost });
       if (!found) throw new Error(`village: no walk from ${a} to ${b}`);
       poly = polyOf([{ x: from.x, z: from.z }, ...smooth(found.points), { x: to.x, z: to.z }]);
     }
@@ -667,6 +678,7 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
 
   
   function setHome(id, spot) {
+    flushStage(); 
     
     const h = Object.freeze({ x: spot.x, z: spot.z, rotY: 0, seed: spot.seed || 1, chosenAt: spot.chosenAt ?? null });
     homes[id] = h;
@@ -702,25 +714,33 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
 
 
 
-  function setPlaced(items = []) {
+  function setPlaced(items = [], { staged = false } = {}) {
     const next = new Map();
     for (const it of items) {
       if (!it || !Number.isFinite(it.x) || !Number.isFinite(it.z)) continue;
       const r = Number.isFinite(it.r) && it.r > 0 ? it.r : cfg.radiusM;
       next.set(it.id, placedRouteObstacle({ x: it.x, z: it.z, r }));
     }
-    const same = next.size === placed.size
+    
+    const newest = stage ? stage.next : placed;
+    const same = next.size === newest.size
       && [...next].every(([id, ob]) => {
-        const was = placed.get(id);
+        const was = newest.get(id);
         return was && was.x === ob.x && was.z === ob.z && was.r === ob.r;
       });
     if (same) return false;
-    for (const id of placed.keys()) collision.remove(placedKey(id));
-    placed.clear();
-    for (const [id, ob] of next) {
-      placed.set(id, ob);
-      collision.add(placedKey(id), ob);
+    
+    
+    
+    
+    
+    if (stage && stage.repath) flushStage(); 
+    if (staged && grid) {
+      stageFor(next);
+      return true;
     }
+    stage = null;
+    commitPlaced(next);
     grid = null;
     cost = null;
     routes.clear();
@@ -729,9 +749,128 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
     return true;
   }
 
+  function commitPlaced(next) {
+    for (const id of placed.keys()) collision.remove(placedKey(id));
+    placed = new Map();
+    for (const [id, ob] of next) {
+      placed.set(id, ob);
+      collision.add(placedKey(id), ob);
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let stage = null;
+  function stageFor(next) {
+    const moved = [];
+    const box = (ob) => ({ minX: ob.x - ob.r, maxX: ob.x + ob.r, minZ: ob.z - ob.r, maxZ: ob.z + ob.r });
+    for (const [id, ob] of next) {
+      const was = placed.get(id);
+      if (!was || was.x !== ob.x || was.z !== ob.z || was.r !== ob.r) { moved.push(box(ob)); if (was) moved.push(box(was)); }
+    }
+    for (const [id, was] of placed) if (!next.has(id)) moved.push(box(was));
+    const world = createCollisionWorld({ obstacles: [...staticObstacles, ...next.values()] });
+    const g = patchGrid(grid, world, moved, cfg.radiusM);
+    for (const spot of Object.values(homes)) closeHouse(spot, g);
+    stage = { next, grid: g, cost: null, routes: new Map(), keys: [...routes.keys()], i: 0, job: null };
+  }
+  function stageRepath() {
+    stage = { next: placed, grid, cost: new Float32Array(grid.open.length), row: 0, repath: true, routes: new Map(), keys: [...routes.keys()], i: 0, job: null };
+  }
+
+  
+
+
+
+
+  function settle(budgetMs = 4, clock = () => (globalThis.performance ? globalThis.performance.now() : Date.now())) {
+    if (!stage) return true;
+    const t0 = clock();
+    if (stage.cost && stage.row < stage.grid.nz) {
+      const g = stage.grid;
+      while (stage.row < g.nz && clock() - t0 < budgetMs) {
+        for (let i = 0; i < g.nx; i++) stage.cost[stage.row * g.nx + i] = costOfCell(g, i, stage.row);
+        stage.row += 1;
+      }
+      if (stage.row < g.nz) return false;
+    }
+    const live = { grid, routes, placed, cost };
+    grid = stage.grid;
+    routes = stage.routes;
+    placed = stage.next;
+    if (stage.cost) cost = stage.cost;
+    try {
+      
+      
+      
+      while (stage.i < stage.keys.length) {
+        if (!stage.job) {
+          const [a, b] = stage.keys[stage.i].split('|');
+          stage.job = routeSteps(a, b);
+        }
+        let r = stage.job.next();
+        while (!r.done && clock() - t0 < budgetMs) r = stage.job.next();
+        if (!r.done) break;
+        stage.job = null;
+        stage.i += 1;
+        if (clock() - t0 >= budgetMs) break;
+      }
+    } finally {
+      grid = live.grid;
+      routes = live.routes;
+      placed = live.placed;
+      cost = live.cost;
+    }
+    if (stage.i < stage.keys.length) return false;
+    const done = stage;
+    stage = null;
+    commitPlaced(done.next);
+    grid = done.grid;
+    if (done.cost) cost = done.cost;
+    routes = done.routes;
+    days.clear();
+    version += 1;
+    return true;
+  }
+
+  
+  function flushStage() {
+    if (!stage) return;
+    const done = stage;
+    stage = null;
+    commitPlaced(done.next);
+    grid = null;
+    cost = null;
+    if (done.repath) unplaced = null;
+    routes.clear();
+    days.clear();
+    version += 1;
+  }
+
   return {
     cfg, P, collision, staticObstacles, spots: SPOTS, forage, workplaces, work, grid: gridOf, route, standPoint, timeline, lookAt, setHome,
-    homes, setPlaced,
+    homes, setPlaced, settle,
+    
+    get staging() { return Boolean(stage); },
     
 
 
@@ -742,7 +881,14 @@ export function createVillage({ P = placements(), cfg = VILLAGE, work = WORK, wo
       const g = gridOf();
       return walkPath(g, from, to, { cost }) || null;
     },
-    repath() {
+    repath({ staged = false } = {}) {
+      
+      
+      if (staged && grid && (!stage || stage.repath)) {
+        stageRepath();
+        return;
+      }
+      flushStage();
       grid = null;
       cost = null;
       unplaced = null;

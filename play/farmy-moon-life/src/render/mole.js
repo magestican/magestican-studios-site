@@ -23,7 +23,7 @@
 import * as THREE from 'three';
 import { generate, generateMound } from 'moon/art/mole.mjs';
 import { MOLE, trailMounds } from 'moon/play/mole.mjs';
-import { cozyMaterial } from './material.js';
+import { cozyMaterial, adoptDrawVariant } from './material.js';
 import { toObject3D } from './toMesh.js';
 
 
@@ -91,6 +91,7 @@ export async function createMoleDraw({ scene, season = 'summer', seed = 1, heigh
   trailMesh.castShadow = false;
   trailMesh.receiveShadow = true;
   trailMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  adoptDrawVariant(trailMesh); 
   group.add(trailMesh);
 
   const m = new THREE.Matrix4();

@@ -11,9 +11,11 @@
 import * as THREE from 'three';
 import { MeshData, compose, translate, rotateY, scale } from 'moon/mesh/meshData.mjs';
 import * as MOON from 'moon/world/moonLayout.mjs';
-import { generate as generateGround } from 'moon/art/moonGround.mjs';
+import { generate as generateGround, topXZ, reshapeTop } from 'moon/art/moonGround.mjs';
+import { cullPad } from 'moon/world/curve.mjs';
 import { toObject3D } from '../render/toMesh.js';
-import { groundMaterial } from '../render/ground.js';
+import { curveUniforms } from '../render/material.js';
+import { groundMaterial, homePathMask } from '../render/ground.js';
 import { createGroundCover } from '../render/cover.js';
 
 
@@ -240,6 +242,9 @@ export async function buildMoonScene({
   const groundLod = settings.effects >= 0.6 ? 0 : 1;
   const ground = generateGround({ seed: 1, season, lod: groundLod, layout });
   fml.problems.push(...ground.validate());
+  
+  
+  const groundXZ = topXZ(ground);
   let groundObj = await toObject3D(ground, { materials: { grass: groundMaterial({ season, layout }) }, castShadow: false });
   groundObj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
   root.add(groundObj);
@@ -262,9 +267,49 @@ export async function buildMoonScene({
 
 
 
-  async function reground() {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let rebuilding = null; 
+  async function reground({ region = null } = {}) {
+    if (region) {
+      
+      
+      if (rebuilding) return rebuilding.then(() => reground({ region }));
+      const mesh = groundObj.children.find((o) => o.isMesh && o.name.endsWith('/grass'));
+      if (!mesh) return reground(); 
+      const geometry = mesh.geometry;
+      const position = geometry.getAttribute('position'), normal = geometry.getAttribute('normal');
+      const { runs } = reshapeTop({ position: position.array, normal: normal.array, xz: groundXZ, layout, region });
+      for (const [start, count] of runs) {
+        position.addUpdateRange(start * 3, count * 3);
+        normal.addUpdateRange(start * 3, count * 3);
+      }
+      if (runs.length) {
+        position.needsUpdate = true;
+        normal.needsUpdate = true;
+        
+        
+        geometry.boundingBox = null; 
+        geometry.computeBoundingSphere();
+        geometry.boundingSphere.radius += cullPad(geometry.boundingSphere.radius + 60, curveUniforms.uCurve.value);
+      }
+      cover.reheight(layout.heightAt, region);
+      return ground.triangleCount;
+    }
     const next = generateGround({ seed: 1, season, lod: groundLod, layout });
-    const obj = await toObject3D(next, { materials: { grass: groundMaterial({ season, layout }) }, castShadow: false });
+    const job = toObject3D(next, { materials: { grass: groundMaterial({ season, layout }) }, castShadow: false });
+    rebuilding = job;
+    let obj;
+    try { obj = await job; } finally { if (rebuilding === job) rebuilding = null; }
     obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
     const old = groundObj;
     groundObj = obj;
@@ -273,6 +318,18 @@ export async function buildMoonScene({
     old.traverse((o) => { if (o.isMesh && o.geometry) o.geometry.dispose(); });
     cover.reheight(layout.heightAt);
     return next.triangleCount;
+  }
+
+  
+
+
+
+
+
+
+
+  function repath() {
+    return layout === MOON ? homePathMask().ready : reground();
   }
 
   const cover = await createGroundCover({ season, count: Math.round(coverCount * settings.effects), layout });
@@ -286,5 +343,5 @@ export async function buildMoonScene({
   
   
   
-  return { root, sources, focus: FOCUS, layout, cover, coverEffects: settings.effects, reground, reprops };
+  return { root, sources, focus: FOCUS, layout, cover, coverEffects: settings.effects, reground, repath, reprops };
 }

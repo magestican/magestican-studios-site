@@ -157,7 +157,10 @@ export async function createVillagersDraw({ scene, season, playerSeed, heightAt,
         const pc = await villagerObject(v.species, { seed, season, lod, build, source: meshes });
         pc.object.visible = false;
         pc.meshes = [];
-        pc.object.traverse((o) => { if (o.isMesh) { o.castShadow = false; pc.meshes.push(o); } });
+        
+        
+        
+        pc.object.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.userData.fmlMayCast = !NO_SHADOW_MATERIALS.includes(materialOf(o)); pc.meshes.push(o); } });
         scene.add(pc.object);
         lods.push(pc);
       }

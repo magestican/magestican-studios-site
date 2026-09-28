@@ -63,10 +63,13 @@ export function placeInGrip(object, { at, axis, face }) {
 
 
 
-export function bindCharacter(data, object, { phase = 0, life = null } = {}) {
+
+
+
+export function bindCharacter(data, object, { phase = 0, life = null, clips: made = null } = {}) {
   const skin = object.userData.rig;
   if (!skin || !data.rig) throw new Error('bindCharacter: the mesh has no rig');
-  const clips = buildClips(data.rig);
+  const clips = made || buildClips(data.rig);
   const locomotion = createLocomotion(data.rig, clips, { phase, life });
 
   const hold = new THREE.Object3D();

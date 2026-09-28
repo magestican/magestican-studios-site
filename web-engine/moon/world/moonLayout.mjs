@@ -197,6 +197,25 @@ export function pathDistance(x, z) {
 }
 
 
+
+
+
+
+
+
+
+export function pathDistanceWith(lines = []) {
+  const boxes = lines.map((line) => {
+    const xs = line.map((p) => p[0]), zs = line.map((p) => p[1]);
+    return [Math.min(...xs), Math.min(...zs), Math.max(...xs), Math.max(...zs)];
+  });
+  return (x, z) => {
+    const d = linesDistance(PATHS, PATH_BOXES, x, z);
+    return lines.length ? Math.min(d, linesDistance(lines, boxes, x, z)) : d;
+  };
+}
+
+
 export function parcelDistance(x, z) {
   const cx = (PARCEL.minX + PARCEL.maxX) / 2, cz = (PARCEL.minZ + PARCEL.maxZ) / 2;
   const hx = (PARCEL.maxX - PARCEL.minX) / 2, hz = (PARCEL.maxZ - PARCEL.minZ) / 2;

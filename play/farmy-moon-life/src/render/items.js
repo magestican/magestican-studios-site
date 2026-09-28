@@ -23,8 +23,23 @@ export function itemKey(good, { seed = 1, season = 'summer', lod = 0 } = {}) {
 }
 
 
-export function itemMeshData(good, { seed = 1, season = 'summer', lod = 0 } = {}) {
+
+
+
+
+
+
+
+
+
+export const itemStats = { onMainThread: 0, keys: [], skipped: 0 };
+
+
+export function itemMeshData(good, { seed = 1, season = 'summer', lod = 0 } = {}, by = 'itemMeshData') {
   const { kind, variant } = itemOf(good);
+  itemStats.onMainThread += 1;
+  itemStats.keys.push(`${by}:${good}|${seed}|${season}|${lod}`);
+  if (itemStats.keys.length > 20) itemStats.keys.shift();
   return generate({ kind, variant, seed, season, lod });
 }
 
@@ -45,9 +60,33 @@ function remember(key, job) {
 
 export async function itemObject(good, { seed = 1, season = 'summer', lod = 0 } = {}) {
   const key = itemKey(good, { seed, season, lod });
-  if (!built.has(key)) remember(key, (async () => objectOf(good, key, itemMeshData(good, { seed, season, lod })))());
-  return (await built.get(key)).clone();
+  const make = () => { if (!built.has(key)) remember(key, (async () => objectOf(good, key, itemMeshData(good, { seed, season, lod }, 'itemObject')))()); };
+  make();
+  try {
+    return (await built.get(key)).clone();
+  } catch (e) {
+    
+    
+    if (!(e && e.message === SKIPPED)) throw e;
+    make();
+    return (await built.get(key)).clone();
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -64,18 +103,30 @@ export async function itemObject(good, { seed = 1, season = 'summer', lod = 0 } 
 
 
 let offThread = null;
-export function setItemWorker(run) { offThread = run; }
+let workerLive = () => true;
+export function setItemWorker(run, { live = () => true } = {}) { offThread = run; workerLive = live; }
 
-export function primeItem(good, { seed = 1, season = 'summer', lod = 0 } = {}) {
+export function itemWorkerLive() {
+  if (!offThread) return false;
+  try { return workerLive() !== false; } catch { return false; }
+}
+
+
+
+const SKIPPED = 'background item skipped: no live item worker';
+
+export function primeItem(good, { seed = 1, season = 'summer', lod = 0 } = {}, { background = false } = {}) {
   const key = itemKey(good, { seed, season, lod });
   if (built.has(key)) return built.get(key).then(() => true, () => false);
+  if (background && !itemWorkerLive()) { itemStats.skipped += 1; return Promise.resolve(false); }
   const run = offThread;
   const job = (async () => {
     let data = null;
-    if (run) {
+    if (run && itemWorkerLive()) {
       try { data = fromPayload((await run({ good, seed, season, lod })).payload); } catch { data = null; }
     }
-    return objectOf(good, key, data || itemMeshData(good, { seed, season, lod }));
+    if (!data && background) { itemStats.skipped += 1; throw new Error(SKIPPED); }
+    return objectOf(good, key, data || itemMeshData(good, { seed, season, lod }, 'primeItem'));
   })();
   remember(key, job);
   return job.then(() => true, () => false);
@@ -90,8 +141,9 @@ export function primeItem(good, { seed = 1, season = 'summer', lod = 0 } = {}) {
 export async function prewarmItems(goods, { season = 'summer' } = {}) {
   for (const good of new Set(goods)) {
     for (let v = 1; v <= POP_VARIANTS; v += 1) {
+      if (!itemWorkerLive()) return;
       if (itemPrimed(good, { seed: v, season, lod: 0 })) continue;
-      await primeItem(good, { seed: v, season, lod: 0 });
+      await primeItem(good, { seed: v, season, lod: 0 }, { background: true });
       await new Promise((r) => setTimeout(r, 0));
     }
   }
