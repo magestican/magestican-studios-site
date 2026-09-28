@@ -26,7 +26,14 @@ const off = (layer) => thickOf(layer) + GAP;
 
 
 const halfPerim = (a, b) => (PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)))) / 2;
-const cols = (lenCm, spacing) => Math.max(3, Math.round(lenCm / spacing) + 1);
+
+
+let SCALE = 1;
+const cols = (lenCm, spacing) => Math.max(3, Math.round(lenCm / (spacing * SCALE)) + 1);
+const capped = (n) => Math.max(3, Math.round(n / SCALE));
+
+
+const colsFull = (lenCm, spacing) => Math.max(3, Math.round(lenCm / (spacing * Math.sqrt(SCALE))) + 1);
 const clamp01 = (t) => (t < 0 ? 0 : t > 1 ? 1 : t);
 const sm = (t) => { t = clamp01(t); return t * t * (3 - 2 * t); };
 
@@ -168,7 +175,7 @@ function strap(form, name, xc, { yF = 150, yB = 150, width = 5, layer = 1, spaci
 
 
 
-function sash(form, name, ctrl, { width = 16, layer = 2, spacing = 2.5, tight = 1, thickAt = null, part, role }) {
+function sash(form, name, ctrl, { width = 16, layer = 2, spacing = 2.5, tight = 1, part, role }) {
   const pts = [];
   const surf = (xu, y, side) => {
     const X = xu * U;
@@ -196,10 +203,8 @@ function sash(form, name, ctrl, { width = 16, layer = 2, spacing = 2.5, tight = 
   };
   const nv = cols(len, spacing), nu = Math.max(3, Math.round(width / spacing) + 1);
   const N = [0, 0, 0, 1];
-  const th = (y) => thickAt ? thickAt(y) : 0;
   return {
     name, part, role, layer, nu, nv, support: 'auto', arms: false,
-    thickAt: thickAt ? (p) => thickOf(layer) + th(toDressY(p[1])) : null,
     rest: (u0, v0, u1, v1) => (v0 !== v1 ? tight : 1),
     place: (u, v) => {
       const { p, t } = at(v * len);
@@ -207,7 +212,7 @@ function sash(form, name, ctrl, { width = 16, layer = 2, spacing = 2.5, tight = 
       let sx = N[1] * t[2] - N[2] * t[1], sy = N[2] * t[0] - N[0] * t[2], sz = N[0] * t[1] - N[1] * t[0];
       const l = Math.hypot(sx, sy, sz) || 1; sx /= l; sy /= l; sz /= l;
       const q = [p[0] + sx * (u - 0.5) * width, p[1] + sy * (u - 0.5) * width, p[2] + sz * (u - 0.5) * width];
-      return projectOut(form, q, off(layer) + th(toDressY(q[1])), false);
+      return projectOut(form, q, off(layer), false);
     },
   };
 }
@@ -221,7 +226,7 @@ function sash(form, name, ctrl, { width = 16, layer = 2, spacing = 2.5, tight = 
 
 
 
-function skirtPanel(form, name, { phi0, phi1, top = WAIST_Y, hem, width = null, k = 0.27, kz = null, layer = 1, spacing = 5, vspacing = 4, folds = 9, hang = 0.72, extra = 1, seed = 1, tuck = null, tightTop = 1, part = 'skirt', role, fab = null, anchorTop = false, maxCols = 34, aspect = null, gathered = extra > 1 }) {
+function skirtPanel(form, name, { phi0, phi1, top = WAIST_Y, hem, width = null, k = 0.27, kz = null, layer = 1, spacing = 5, vspacing = 4, folds = 9, hang = 0.72, extra = 1, seed = 1, tuck = null, tightTop = 1, part = 'skirt', role, fab = null, anchorTop = false, maxCols = 34, aspect = null, gathered = extra > 1, standOff = 0 }) {
   
   const T = typeof top === 'function' ? top : () => top, top0 = T(PI / 2);
   const o = off(layer), kzz = kz ?? k;
@@ -230,7 +235,8 @@ function skirtPanel(form, name, { phi0, phi1, top = WAIST_Y, hem, width = null, 
   const place = (u, v) => {
     const phi = phi0 + u * (phi1 - phi0), t0 = T(phi), y = t0 + v * (hem(phi) - t0);
     const s = section(form, y), drop = (y - t0) * U, fb = Math.cos(phi) >= 0;
-    const fa = s.a + o, fz = (fb ? s.f : s.b) + o;
+    
+    const so = o + standOff * sm(drop / 15), fa = s.a + so, fz = (fb ? s.f : s.b) + so;
     let ap, bp;
     if (width) { const W = width(y); ap = Math.max(fa, W); bp = Math.max(fz, W * (aspect ? (fb ? aspect.f : aspect.b) : (fb ? w.f : w.b) / w.a)); }
     else { ap = Math.max(fa, w.a + o + drop * k); bp = Math.max(fz, (fb ? w.f : w.b) + o + drop * kzz); }
@@ -243,11 +249,11 @@ function skirtPanel(form, name, { phi0, phi1, top = WAIST_Y, hem, width = null, 
   const sp = place(0.5, 1), rr = Math.hypot(sp[0], sp[2]);
   
   
-  const nu = Math.min(maxCols, cols((rr * Math.abs(phi1 - phi0)) * Math.max(1, Math.sqrt(extra)), spacing));
-  const nv = Math.min(30, cols(dh, vspacing));
+  const nu = Math.min(capped(maxCols), cols((rr * Math.abs(phi1 - phi0)) * Math.max(1, Math.sqrt(extra)), spacing));
+  const nv = Math.min(capped(30), cols(dh, vspacing));
   const dv = 1 / (nv - 1);
   return {
-    name, part, role, layer, nu, nv, place, fab, tether: 'top', gathered,
+    name, part, role, layer, nu, nv, place, fab, tether: 'top', gathered, folds,
     anchor: anchorTop ? (u, v) => v === 0 : null,
     rest: (u0, v0, u1, v1) => {
       if (v0 !== v1) return 1;
@@ -288,8 +294,8 @@ function sleeve(form, name, sideSign, { s1, R = () => 0, layer = 1, spacing = 2,
   const s0 = -0.75 * r;
   let maxR = 0;
   for (let k = 0; k <= 20; k++) maxR = Math.max(maxR, R(s0 + (k / 20) * (s1 - s0), k / 20));
-  const nu = Math.max(10, cols(TAU * (r + o + maxR * 0.7), spacing) - 1);
-  const nv = cols(s1 - s0, spacing), dv = 1 / (nv - 1);
+  const nu = Math.max(10, colsFull(TAU * (r + o + maxR * 0.7), spacing) - 1);
+  const nv = colsFull(s1 - s0, spacing), dv = 1 / (nv - 1);
   return {
     name, part, role: sideSign > 0 ? 'left' : 'right', layer, nu, nv, fab, wrap: true, support: 'auto', tether: 'top',
     place: (u, v) => {
@@ -310,19 +316,20 @@ const pairOf = (form, name, opts) => ({ panels: [sleeve(form, `${name}.L`, 1, op
 
 
 
-function collar(form, name, { gap = 0.14, len, y0 = 88, layer = 2, spacing = 2, outer = 1, fullFrom = 0.25, neck = 0.97, pinTop = false, fab = null, part = 'collar' }) {
+function collar(form, name, { gap = 0.14, len, y0 = 88, layer = 2, spacing = 2, outer = 1, fullFrom = 0.25, neck = 0.97, pinTop = false, fab = null, part = 'collar', support, flat = false }) {
   const o = off(layer);
   const s = section(form, y0 + 20);
   const nu = cols(halfPerim(s.a, (s.f + s.b) / 2) * 2 * (1 - gap / PI), spacing);
   let mx = 0; for (let k = 0; k <= 16; k++) mx = Math.max(mx, len(gap + (k / 16) * (TAU - 2 * gap)));
   const nv = cols(mx * U, spacing);
   return {
-    name, part, layer, nu, nv, fab, support: pinTop ? null : 'auto', arms: false, pinNeck: pinTop, gathered: outer > 1,
+    name, part, layer, nu, nv, fab, support: support !== undefined ? support : pinTop ? null : 'auto', arms: false, pinNeck: pinTop, gathered: outer > 1,
     pin: pinTop ? (u, v) => v === 0 : null,
     place: (u, v) => { const phi = gap + u * (TAU - 2 * gap); return surfacePoint(form, phi, y0 + v * len(phi), o); },
     
     
-    rest: (u0, v0, u1, v1) => (v0 !== v1 ? 1 : v0 === 0 ? neck : 1 + (outer - 1) * sm((v0 - fullFrom) / (1 - fullFrom))),
+    
+    rest: (u0, v0, u1, v1) => (v0 !== v1 ? 1 : flat ? outer : v0 === 0 ? neck : 1 + (outer - 1) * sm((v0 - fullFrom) / (1 - fullFrom))),
   };
 }
 
@@ -472,7 +479,7 @@ const SKIRTS = {
   },
   odette(form, o) {
     const base = fullSkirt(form, 'skirt', { top: o.top, hem: flat(552), k: 0.42, folds: 11, hang: 0.6, seed: o.seed, tightTop: o.band });
-    const over = skirtPanel(form, 'skirt.over', { phi0: 0.4, phi1: TAU - 0.4, top: o.top, hem: (phi) => 546 - 20 * Math.cos(phi), k: 0.46, layer: 2, folds: 13, hang: 0.55, seed: o.seed + 3, anchorTop: true });
+    const over = skirtPanel(form, 'skirt.over', { phi0: 0.4, phi1: TAU - 0.4, top: o.top, hem: (phi) => 546 - 20 * Math.cos(phi), k: 0.46, layer: 2, folds: 13, hang: 0.55, standOff: 2.5, seed: o.seed + 3, anchorTop: true });
     return { panels: [...base.panels, over], seams: base.seams, waist: base.waist };
   },
   tea: (form, o) => fullSkirt(form, 'skirt', { top: o.top, hem: flat(466), k: 0.55, folds: 12, hang: 0.62, seed: o.seed, tightTop: o.band }),
@@ -501,7 +508,7 @@ const SKIRTS = {
   saree(form, o) {
     const under = fullSkirt(form, 'skirt', { top: o.top, hem: flat(566), k: 0.08, folds: 6, hang: 0.85, seed: o.seed, tightTop: o.band });
     const pleats = skirtPanel(form, 'skirt.pleats', { phi0: -0.5, phi1: 0.5, top: o.top, hem: flat(564), k: 0.1, layer: 2, folds: 44, hang: 0.9, extra: 2.2, seed: o.seed + 1, spacing: 1.5, vspacing: 5, anchorTop: true, maxCols: 44 });
-    const pallu = sash(form, 'skirt.pallu', [[-40, 250, 'f'], [30, 0, 'r'], [30, 430, 'b']], { width: 22, layer: 3, part: 'skirt', role: 'pallu', thickAt: (y) => (y > WAIST_Y ? (y - WAIST_Y) * U * 0.09 + 0.6 : 0) });
+    const pallu = sash(form, 'skirt.pallu', [[-40, 250, 'f'], [30, 0, 'r'], [30, 430, 'b']], { width: 22, layer: 3, part: 'skirt', role: 'pallu' });
     return { panels: [...under.panels, pleats, pallu], seams: under.seams, waist: under.waist };
   },
   
@@ -513,7 +520,7 @@ const SKIRTS = {
   
   lehenga(form, o) {
     const sk = fullSkirt(form, 'skirt', { top: o.top, hem: flat(574), k: 0.45, folds: 13, hang: 0.6, seed: o.seed, tightTop: o.band });
-    const dup = sash(form, 'skirt.dupatta', [[-46, 200, 'f'], [32, 0, 'r'], [32, 360, 'b']], { width: 20, layer: 3, part: 'skirt', role: 'dupatta', thickAt: (y) => (y > WAIST_Y ? (y - WAIST_Y) * U * 0.3 + 0.8 : 0) });
+    const dup = sash(form, 'skirt.dupatta', [[-46, 200, 'f'], [32, 0, 'r'], [32, 360, 'b']], { width: 20, layer: 3, part: 'skirt', role: 'dupatta' });
     return { panels: [...sk.panels, dup], seams: sk.seams, waist: sk.waist };
   },
 };
@@ -534,7 +541,14 @@ const COLLARS = {
   peterpan: (form) => ({ panels: [collar(form, 'collar', { len: (phi) => (Math.cos(phi) > 0 ? 22 : 15) })], seams: [] }),
   bertha: (form) => ({ panels: [collar(form, 'collar', { gap: 0.05, len: () => 52, outer: 1.35, spacing: 2.2, neck: 0.93 })], seams: [] }),
   
-  ruffle: (form) => ({ panels: [collar(form, 'collar', { gap: 0.05, len: () => 22, outer: 1.7, spacing: 1.6, fullFrom: 0.3, pinTop: true })], seams: [] }),
+  
+  ruffle: (form) => ({
+    panels: [
+      collar(form, 'collar', { gap: 0.05, len: () => 5, spacing: 1.6, pinTop: true }),
+      collar(form, 'collar.frill', { gap: 0.05, y0: 93, len: () => 18, outer: 1.7, flat: true, spacing: 1.6, support: null }),
+    ],
+    seams: [{ name: 'collar.frill', a: ['collar.frill', 'top'], b: ['collar', 'bottom'] }],
+  }),
   
   sailor: (form) => ({ panels: [collar(form, 'collar', { gap: 0.3, len: (phi) => { const b = Math.abs(((phi % TAU) + TAU) % TAU - PI); return b < 1.05 ? 72 : 26 + 20 * (1 - Math.min(1, b / PI)); } })], seams: [] }),
   
@@ -574,7 +588,11 @@ export const DRAFTED = { bodice: Object.keys(BODICES), skirt: Object.keys(SKIRTS
 
 
 
-export function draft(design, form) {
+export function draft(design, form, { scale = 1 } = {}) {
+  SCALE = scale;
+  try { return draftAt(design, form); } finally { SCALE = 1; }
+}
+function draftAt(design, form) {
   const out = { panels: [], seams: [], meta: {} };
   const seed = (hashStr(`${design.bodice}|${design.skirt}|${design.seed ?? ''}`) % 997) / 97;
   const b = BODICES[design.bodice]?.(form);

@@ -5,6 +5,7 @@ import { TRIMS, ZONES } from '../data.js';
 import { computeTags } from '../logic.js';
 import { sfx } from '../audio.js';
 import { vignetteHTML, mountVignette } from '../scene.js';
+import { warm } from '../dress3d.js';
 
 let scene = null;
 
@@ -12,6 +13,7 @@ export default {
   enter(root) {
     const job = state.job;
     if (!job) { go('hub'); return; }
+    warm(job.design);   
     const d = job.design;
     d.trims = d.trims || {};
     const lvl = level();

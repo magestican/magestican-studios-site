@@ -362,7 +362,8 @@ export function sketchKey(key, row, rows) {
 }
 
 
-export const DEFAULT_SETTINGS = { master: 0.8, sfx: 1, music: 0.55, ambience: 0.7, motion: 'auto' };
+
+export const DEFAULT_SETTINGS = { master: 0.8, sfx: 1, music: 0.55, ambience: 0.7, motion: 'auto', quality: 'auto' };
 export function reducedMotion(motion, systemPrefers) {
   return motion === 'on' ? true : motion === 'off' ? false : !!systemPrefers;
 }

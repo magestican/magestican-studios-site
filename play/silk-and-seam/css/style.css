@@ -323,7 +323,7 @@ button { font-family: inherit; cursor: pointer; }
 .settings label small { color: var(--ink-soft); font-size: 12px; display: block; grid-column: 1; grid-row: 2; margin-top: -10px; }   
 .settings input[type=range] { accent-color: var(--leather); width: 100%; }
 .settings output { font-size: 15px; text-align: right; }
-.settings .motion-row { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+.settings .motion-row, .settings .quality-row { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
 .settings .seg { display: flex; gap: 6px; }
 .settings .chip { font-size: 15px; padding: 5px 12px; }
 .settings .hint { font-size: 13px; color: var(--ink-soft); font-style: italic; margin: 8px 0 0; }
@@ -460,7 +460,7 @@ canvas { touch-action: none; }
 .mobile .settings label small { display: inline; font-size: 14px; grid-column: auto; grid-row: auto; margin-top: 0; }
 .mobile .settings input[type=range] { flex: 1 1 200px; min-height: 44px; }
 .mobile .settings output { font-size: 16px; }
-.mobile .settings .motion-row, .mobile .settings .seg { flex-wrap: wrap; }
+.mobile .settings .motion-row, .mobile .settings .quality-row, .mobile .settings .seg { flex-wrap: wrap; }
 .mobile .settings .hint { font-size: 14px; }
 .mobile .ach-modal h2 small { font-size: 16px; }
 .mobile .ach-list { grid-template-columns: 1fr; max-height: none; overflow: visible; }

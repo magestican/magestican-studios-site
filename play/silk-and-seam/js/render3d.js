@@ -5,6 +5,8 @@
 import * as THREE from './vendor/three.module.min.js';
 import { formMesh, sdf, toY, ARM } from './form3d.js';
 import { normals } from './cloth.js';
+import { init, renderer, mount, onRestore, mark } from './gfx.js';
+import { lightScene } from './env3d.js';
 
 export const hasWebGL2 = () => {
   try { return !!document.createElement('canvas').getContext('webgl2'); } catch { return false; }
@@ -96,17 +98,19 @@ function occlusion(c, form, out) {
   return out;
 }
 
+
+
 export function garmentMesh(g, color = '#c8a27a') {
-  const c = g.cloth;
+  const c = g.cloth, n = c ? c.n : g.n;
   const geo = new THREE.BufferGeometry();
-  const pos = new Float32Array(c.n * 3);
-  for (let i = 0; i < c.n * 3; i++) pos[i] = c.pos[i];
+  let pos = g.pos;
+  if (c) { pos = new Float32Array(n * 3); for (let i = 0; i < n * 3; i++) pos[i] = c.pos[i]; }
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute('normal', new THREE.BufferAttribute(normals(c), 3));
-  const ao = occlusion(c, g.form, new Float32Array(c.n)), col = new Float32Array(c.n * 3), base = new THREE.Color(color);
-  for (let i = 0; i < c.n; i++) { col[i * 3] = base.r * ao[i]; col[i * 3 + 1] = base.g * ao[i]; col[i * 3 + 2] = base.b * ao[i]; }
+  geo.setAttribute('normal', new THREE.BufferAttribute(c ? normals(c) : g.nrm, 3));
+  const ao = c ? occlusion(c, g.form, new Float32Array(n)) : g.ao, col = new Float32Array(n * 3), base = new THREE.Color(color);
+  for (let i = 0; i < n; i++) { col[i * 3] = base.r * ao[i]; col[i * 3 + 1] = base.g * ao[i]; col[i * 3 + 2] = base.b * ao[i]; }
   geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  geo.setIndex(c.tris.flat());
+  geo.setIndex(c ? c.tris.flat() : new THREE.BufferAttribute(g.index, 1));
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, side: THREE.DoubleSide });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = mesh.receiveShadow = true;
@@ -114,47 +118,44 @@ export function garmentMesh(g, color = '#c8a27a') {
 }
 
 
-export function createViewer(canvas, { night = false } = {}) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+
+export async function createViewer(canvas, { night = false, mood = null, quality = 'auto', dof = false } = {}) {
+  const t0 = performance.now();
+  const tier = await init(quality);
+  mark('init', performance.now() - t0);
+  if (tier === 'off') throw new Error('WebGL2 unavailable');
+  const R = renderer(), md = mood || (night ? 'lamp' : 'day');
   const scene = new THREE.Scene();
   const cam = new THREE.PerspectiveCamera(24, 1, 10, 2000);
-  const hemi = new THREE.HemisphereLight(night ? '#8a93c8' : '#fff4e2', night ? '#2a2233' : '#b59a7a', night ? 0.5 : 1.1);
-  const key = new THREE.DirectionalLight(night ? '#ffb56b' : '#fff1d6', night ? 2.2 : 2.6);
-  key.position.set(-120, 260, 220); key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 6; key.shadow.bias = -0.0008; key.shadow.normalBias = 1.2;
-  Object.assign(key.shadow.camera, { left: -120, right: 120, top: 260, bottom: -10, near: 10, far: 800 });
-  const rim = new THREE.DirectionalLight(night ? '#9fb4ff' : '#ffe0b0', night ? 1.2 : 0.9);
-  rim.position.set(160, 200, -200);
-  scene.add(hemi, key, rim);
+  const t1 = performance.now();
+  lightScene(R, scene, md);
+  mark('env', performance.now() - t1);
+  const offRestore = onRestore(() => lightScene(R, scene, md));
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), new THREE.ShadowMaterial({ opacity: 0.22 }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
   const root = new THREE.Group(); scene.add(root);
   let formG = null, garm = null, yaw = 0, target = 120, dist = 640;
-  const aim = () => {
+  const gv = mount(canvas, scene, cam, { mood: md, dof: dof ? { focus: dist, range: 300 } : null });
+  gv.before = () => {
     cam.position.set(Math.sin(yaw) * dist, target + 20, Math.cos(yaw) * dist);
     cam.lookAt(0, target, 0);
+    if (gv.opts.dof) gv.opts.dof.focus = dist;
   };
-  const render = () => {
-    const w = canvas.clientWidth || canvas.width, h = canvas.clientHeight || canvas.height;
-    if (canvas.width !== Math.round(w * renderer.getPixelRatio())) renderer.setSize(w, h, false);
-    cam.aspect = w / h; cam.updateProjectionMatrix(); aim();
-    renderer.render(scene, cam);
-  };
+  gv.tick = (dt) => { yaw += dt * 0.6; };          
   return {
-    three: THREE, scene, cam, renderer,
-    setForm(form) { if (formG) root.remove(formG); formG = formGroup(form); root.add(formG); },
+    three: THREE, scene, cam, renderer: R, gfxView: gv,
+    setForm(form) { if (formG) root.remove(formG); formG = formGroup(form); root.add(formG); gv.invalidate(); },
     setGarment(g, color) {
       if (garm) { root.remove(garm); garm.geometry.dispose(); }
-      if (g) { garm = garmentMesh(g, color); root.add(garm); }
+      garm = g ? garmentMesh(g, color) : null;
+      if (garm) root.add(garm);
+      gv.invalidate();
     },
-    view({ yaw: y = yaw, target: t = target, dist: d = dist } = {}) { yaw = y; target = t; dist = d; },
-    render,
-    dispose() { renderer.dispose(); renderer.forceContextLoss(); },
+    view({ yaw: y = yaw, target: t = target, dist: d = dist } = {}) { yaw = y; target = t; dist = d; gv.invalidate(); },
+    render: () => gv.render(),
+    invalidate: () => gv.invalidate(),
+    dispose() { gv.unmount(); offRestore(); if (garm) garm.geometry.dispose(); },
   };
 }
 export { ARM };

@@ -4,7 +4,7 @@
 
 
 
-import { sdf, sdfNormal } from './form3d.js';
+import { sdf, sdfNormal, toDressY } from './form3d.js';
 
 export const GRAVITY = -981;                    
 
@@ -23,6 +23,9 @@ export function createCloth(capacity = 4096) {
     thick: new Float64Array(capacity),          
     fric: new Float64Array(capacity),
     noArm: new Uint8Array(capacity),            
+    layer: new Uint8Array(capacity),            
+    limb: new Uint8Array(capacity),             
+    self: new Uint8Array(capacity),             
     cons: [],                                   
     tris: [],                                   
     panels: [],                                 
@@ -70,14 +73,96 @@ function tethers(c) {
   }
 }
 
-export function addParticle(c, x, y, z, { mass = 1, thick = 0.3, fric = 0.6, noArms = false } = {}) {
+export function addParticle(c, x, y, z, { mass = 1, thick = 0.3, fric = 0.6, noArms = false, layer = 1, limb = false, self = 0 } = {}) {
   const i = c.n++;
   if (i >= c.w.length) throw new Error('cloth capacity exceeded');
   c.pos[i * 3] = c.prev[i * 3] = c.rest[i * 3] = x;
   c.pos[i * 3 + 1] = c.prev[i * 3 + 1] = c.rest[i * 3 + 1] = y;
   c.pos[i * 3 + 2] = c.prev[i * 3 + 2] = c.rest[i * 3 + 2] = z;
   c.w[i] = mass > 0 ? 1 / mass : 0; c.thick[i] = thick; c.fric[i] = fric; c.noArm[i] = noArms ? 1 : 0;
+  c.layer[i] = layer; c.limb[i] = limb ? 1 : 0; c.self[i] = self;
   return i;
+}
+
+
+
+
+
+
+
+
+
+
+export const HULL = { from: 150, to: 604, dy: 4, na: 128, gap: 0.25, every: 3, push: 1 };
+const HNY = Math.ceil((HULL.to - HULL.from) / HULL.dy) + 1, TAU = Math.PI * 2;
+const hullY = (Y) => (toDressY(Y) - HULL.from) / HULL.dy;
+const hullA = (x, z) => { const a = (Math.atan2(x, z) / TAU) * HULL.na; return a < 0 ? a + HULL.na : a; };
+export function hullWanted(c) {
+  for (let i = 0; i < c.n; i++) if (c.layer[i] >= 2 && !c.limb[i]) return true;
+  return false;
+}
+export function buildHull(c) {
+  const na = HULL.na, R = c.hull || (c.hull = new Float32Array(2 * HNY * na));
+  R.fill(0);
+  const { pos, layer, limb } = c;
+  const put = (x, Y, z, L) => {
+    const yb = Math.round(hullY(Y));
+    if (yb < 0 || yb >= HNY) return;
+    const ab = Math.round(hullA(x, z)) % na, r = Math.hypot(x, z);
+    for (let g = Math.max(0, L - 1); g < 2; g++) { const q = (g * HNY + yb) * na + ab; if (r > R[q]) R[q] = r; }
+  };
+  for (const [a, b, d] of c.tris) {
+    const L = layer[a];
+    if (L >= 3 || limb[a]) continue;
+    const A = a * 3, B = b * 3, D = d * 3;
+    if (Math.min(hullY(pos[A + 1]), hullY(pos[B + 1]), hullY(pos[D + 1])) > HNY || Math.max(hullY(pos[A + 1]), hullY(pos[B + 1]), hullY(pos[D + 1])) < -1) continue;
+    const e = Math.max(Math.hypot(pos[A] - pos[B], pos[A + 1] - pos[B + 1], pos[A + 2] - pos[B + 2]), Math.hypot(pos[A] - pos[D], pos[A + 1] - pos[D + 1], pos[A + 2] - pos[D + 2]), Math.hypot(pos[B] - pos[D], pos[B + 1] - pos[D + 1], pos[B + 2] - pos[D + 2]));
+    const k = Math.min(12, Math.max(1, Math.ceil(e)));      
+    for (let i = 0; i <= k; i++) for (let j = 0; j <= k - i; j++) {
+      const u = i / k, v = j / k, w = 1 - u - v;
+      put(w * pos[A] + u * pos[B] + v * pos[D], w * pos[A + 1] + u * pos[B + 1] + v * pos[D + 1], w * pos[A + 2] + u * pos[B + 2] + v * pos[D + 2], L);
+    }
+  }
+  return R;
+}
+
+
+export function hullAt(c, L, x, Y, z) {
+  const y = hullY(Y);
+  if (!c.hull || L < 2 || y < 0 || y > HNY - 1) return 0;
+  const na = HULL.na, a = hullA(x, z), y0 = Math.min(HNY - 2, Math.floor(y)), a0 = Math.floor(a) % na, a1 = (a0 + 1) % na;
+  const fy = y - y0, fa = a - Math.floor(a), base = Math.min(L - 2, 1) * HNY;
+  let s = 0, ws = 0;
+  const add = (yy, aa, w) => { const v = c.hull[(base + yy) * na + aa]; if (v > 0 && w > 0) { s += v * w; ws += w; } };
+  add(y0, a0, (1 - fy) * (1 - fa)); add(y0, a1, (1 - fy) * fa); add(y0 + 1, a0, fy * (1 - fa)); add(y0 + 1, a1, fy * fa);
+  return ws > 0 ? s / ws : 0;
+}
+function hullCollide(c) {
+  const { pos, w, layer, limb, n } = c;
+  for (let i = 0; i < n; i++) {
+    if (layer[i] < 2 || limb[i] || w[i] === 0 || c.hfree[i]) continue;
+    const k = i * 3, x = pos[k], z = pos[k + 2];
+    const R = hullAt(c, layer[i], x, pos[k + 1], z);
+    if (!R) continue;
+    const r = Math.hypot(x, z), t = R + HULL.gap;
+    
+    
+    
+    if (r < t && r > 1e-6) { const f = Math.min(t, r + HULL.push) / r; pos[k] = x * f; pos[k + 2] = z * f; }
+  }
+}
+
+
+export function hullDepth(c) {
+  if (!hullWanted(c)) return 0;
+  buildHull(c);
+  let worst = 0;
+  for (let i = 0; i < c.n; i++) {
+    if (c.layer[i] < 2 || c.limb[i] || c.hfree?.[i]) continue;
+    const R = hullAt(c, c.layer[i], c.pos[i * 3], c.pos[i * 3 + 1], c.pos[i * 3 + 2]);
+    if (R) worst = Math.max(worst, R - Math.hypot(c.pos[i * 3], c.pos[i * 3 + 2]));
+  }
+  return worst;
 }
 
 export const dist = (c, i, j) => Math.hypot(c.pos[i * 3] - c.pos[j * 3], c.pos[i * 3 + 1] - c.pos[j * 3 + 1], c.pos[i * 3 + 2] - c.pos[j * 3 + 2]);
@@ -107,6 +192,11 @@ export function finalize(c) {
     c.sti = new Int32Array(c.st.length * 3); c.stt = new Float64Array(c.st.length);
     c.st.forEach(([i, j, k, t], n) => { c.sti[n * 3] = i; c.sti[n * 3 + 1] = j; c.sti[n * 3 + 2] = k; c.stt[n] = t; });
   }
+  
+  
+  
+  c.hfree = new Uint8Array(c.n);
+  for (const [i, j, k] of c.st || []) if (c.layer[i] !== c.layer[j] || c.layer[i] !== c.layer[k]) c.hfree[i] = c.hfree[j] = c.hfree[k] = 1;
   return c;
 }
 
@@ -132,6 +222,7 @@ export function step(c, dt, { form = null, iters = 10, damping = 0.98, wind = nu
     if (form && (it & 1) === 1) collide(c, form, arms, false);
   }
   if (form) collide(c, form, arms, true);
+  if (c.hull) hullCollide(c);
   stitches(c);   
   if (floor != null) for (let i = 0; i < n; i++) if (pos[i * 3 + 1] < floor + 0.2) pos[i * 3 + 1] = floor + 0.2;
 }
@@ -191,12 +282,43 @@ function collide(c, form, arms, friction) {
 }
 
 
+
+
+export const SELF_R = 0.4;
+function selfCollide(c) {
+  const { pos, w, n } = c, sid = c.self, h = SELF_R * 2, cells = new Map();
+  const cell = (x, y, z) => ((Math.floor(x / h) + 512) * 1024 + (Math.floor(y / h) + 512)) * 1024 + Math.floor(z / h) + 512;
+  for (let i = 0; i < n; i++) if (sid[i]) { const k = cell(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]); const l = cells.get(k); if (l) l.push(i); else cells.set(k, [i]); }
+  let hits = 0;
+  for (let i = 0; i < n; i++) {
+    if (!sid[i]) continue;
+    const x = pos[i * 3], y = pos[i * 3 + 1], z = pos[i * 3 + 2], cx = Math.floor(x / h), cy = Math.floor(y / h), cz = Math.floor(z / h);
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let d = -1; d <= 1; d++) {
+      const l = cells.get(((cx + a + 512) * 1024 + (cy + b + 512)) * 1024 + cz + d + 512);
+      if (l) for (const j of l) {
+        if (j <= i || sid[j] !== sid[i]) continue;
+        const dx = pos[j * 3] - pos[i * 3], dy = pos[j * 3 + 1] - pos[i * 3 + 1], dz = pos[j * 3 + 2] - pos[i * 3 + 2], L = Math.sqrt(dx * dx + dy * dy + dz * dz), ws = w[i] + w[j];
+        if (L >= SELF_R || L < 1e-9 || ws === 0) continue;
+        const s = (SELF_R - L) / (L * ws);
+        pos[i * 3] -= dx * s * w[i]; pos[i * 3 + 1] -= dy * s * w[i]; pos[i * 3 + 2] -= dz * s * w[i];
+        pos[j * 3] += dx * s * w[j]; pos[j * 3 + 1] += dy * s * w[j]; pos[j * 3 + 2] += dz * s * w[j];
+        hits++;
+      }
+    }
+  }
+  return hits;
+}
+
+
 export function settle(c, opts = {}) {
   const { steps = 90, dt = 1 / 60, tol = 0.004, onStep = null, substeps = 1 } = opts;
   const sub = { ...opts, iters: Math.max(1, Math.round((opts.iters ?? 10) / substeps)) };
   let s = 0, moved = Infinity;
+  const layered = opts.hull !== false && hullWanted(c);
   for (; s < steps; s++) {
+    if (layered && s % HULL.every === 0) buildHull(c);
     for (let k = 0; k < substeps; k++) step(c, dt / substeps, sub);
+    if (opts.self) c.selfHits = (c.selfHits || 0) + selfCollide(c);
     if (onStep) onStep(c, s);
     if (s > 20 && s % 5 === 0) {
       moved = 0;
@@ -204,6 +326,8 @@ export function settle(c, opts = {}) {
       if (moved < tol) { s++; break; }
     }
   }
+  
+  if (layered) { buildHull(c); hullCollide(c); stitches(c); }
   return { steps: s, moved };
 }
 

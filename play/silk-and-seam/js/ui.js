@@ -142,6 +142,12 @@ document.addEventListener('focusin', (e) => {
 document.addEventListener('focusout', () => { if (!touchedRecently()) hideTip(); });
 
 
+function qualityLine() {
+  const g = window.__gfx?.();
+  if (!window.WebGL2RenderingContext) return 'This device cannot draw 3D; the dresses are drawn by hand.';
+  if (!g || !g.tier) return 'Auto measures this device the first time a dress is shown in 3D.';
+  return g.tier === 'off' ? 'This device cannot draw 3D; the dresses are drawn by hand.' : `Drawing at ${g.tier} quality${g.override === 'auto' ? ' (measured)' : ''}.`;
+}
 export function openSettings() {
   const s = state.settings;
   const pct = (v) => Math.round(v * 100);
@@ -153,12 +159,24 @@ export function openSettings() {
     <label>Room <small>(birds, crickets, breeze)</small> <input type="range" min="0" max="100" value="${pct(s.ambience ?? 0.7)}" data-k="ambience"><output>${pct(s.ambience ?? 0.7)}%</output></label>
     <label>Effects <small>(snips, chimes)</small> <input type="range" min="0" max="100" value="${pct(s.sfx)}" data-k="sfx"><output>${pct(s.sfx)}%</output></label>
     <div class="motion-row">Motion <span class="seg">${[['auto', 'Follow system'], ['on', 'Reduced'], ['off', 'Full']].map(([k, l]) => `<button class="chip ${s.motion === k ? 'on' : ''}" data-m="${k}">${l}</button>`).join('')}</span></div>
-    <p class="hint">${mq ? `Your system currently ${mq.matches ? 'asks for' : 'does not ask for'} reduced motion.` : ''}</p></div>`, [{ label: 'Done', kind: 'gold' }]);
+    <p class="hint">${mq ? `Your system currently ${mq.matches ? 'asks for' : 'does not ask for'} reduced motion.` : ''}</p>
+    <div class="quality-row">3D quality <span class="seg">${[['auto', 'Auto'], ['high', 'High'], ['low', 'Low']].map(([k, l]) => `<button class="chip ${(s.quality || 'auto') === k ? 'on' : ''}" data-q="${k}">${l}</button>`).join('')}</span></div>
+    <p class="hint" id="quality-line">${qualityLine()}</p></div>`, [{ label: 'Done', kind: 'gold' }]);
   $$('input[type=range]', w).forEach((inp) => {
     inp.oninput = () => { unlockAudio(); s[inp.dataset.k] = inp.value / 100; inp.nextElementSibling.textContent = `${inp.value}%`; applyVolume(); save(); };
     inp.onchange = () => sfx.snip();
   });
-  $$('[data-m]', w).forEach((b) => {
+  
+  
+  $('[data-q]', w).forEach((b) => {
+    b.onclick = () => {
+      s.quality = b.dataset.q; save(); sfx.click();
+      $('[data-q]', w).forEach((x) => x.classList.toggle('on', x === b));
+      const done = () => { const l = $('#quality-line', w); if (l) l.textContent = qualityLine(); };
+      if (window.__gfx) import('./gfx.js').then((g) => { g.setQuality(s.quality); done(); }); else done();
+    };
+  });
+  $('[data-m]', w).forEach((b) => {
     b.onclick = () => { s.motion = b.dataset.m; save(); applyMotion(); sfx.click(); $$('[data-m]', w).forEach((x) => x.classList.toggle('on', x === b)); };
   });
 }

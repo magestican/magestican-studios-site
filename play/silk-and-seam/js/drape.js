@@ -7,6 +7,9 @@ import { createCloth, addParticle, addConstraint, addTether, addStitch, finalize
 import { formOf, UNDER_OF, sdfNormal, formDistance, toDressY } from './form3d.js';
 const NR = [0, 0, 0, 1];
 import { draft } from './patterns.js';
+import { PARTICLES } from './gfxrules.js';
+import { normals } from './cloth.js';
+import { sdf } from './form3d.js';
 
 
 export const STIFF = { stretch: 1, shear: 0.6, bend: 0.12, seam: 1 };
@@ -31,7 +34,7 @@ function buildPanel(c, spec, fab, form) {
   for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
     const u = i / (nu - 1), v = j / (nv - 1), p = spec.place(u, v);
     if (!keep[j * nu + i]) continue;
-    const k = addParticle(c, p[0], p[1], p[2], { mass: spec.pin && spec.pin(u, v) ? 0 : 1, thick: spec.thickAt ? spec.thickAt(p) : thick, fric: fab.fric, noArms: spec.arms === false });
+    const k = addParticle(c, p[0], p[1], p[2], { mass: spec.pin && spec.pin(u, v) ? 0 : 1, thick, fric: fab.fric, noArms: spec.arms === false, layer: spec.layer ?? 1, limb: spec.part === 'sleeve', self: (spec.folds || 0) > 12 ? spec.layer ?? 1 : 0 });
     idx[j * nu + i] = k;
     
     
@@ -39,17 +42,22 @@ function buildPanel(c, spec, fab, form) {
       sdfNormal(form, p[0], p[1], p[2], spec.arms !== false, NR);
       
       
-      if (NR[1] > 0.5 && toDressY(p[1]) < 200 && formDistance(form, p[0], p[1], p[2], spec.arms !== false) < thick + 0.6) auto.push(k);
+      if (NR[1] > 0.5 && formDistance(form, p[0], p[1], p[2], spec.arms !== false) < thick + 0.6) auto.push(k);
     }
   }
   const at = (i, j) => (i < 0 || j < 0 || i >= nu || j >= nv ? -1 : idx[j * nu + i]);
   
   
   
-  if (spec.mask) for (let j = 0; j < nv; j++) for (let i = 1; i < nu - 1; i++) {
+  
+  if (spec.mask) for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
     const k = at(i, j);
     if (k < 0) continue;
-    const dir = [[0, -1], [0, 1], [-1, 0], [1, 0]].find(([di, dj]) => j + dj >= 0 && j + dj < nv && at(i + di, j + dj) < 0);
+    
+    
+    const seamCol = i === 0 || i === nu - 1;
+    if (seamCol && toDressY(c.pos[k * 3 + 1]) <= 112) continue;
+    const dir = [[0, -1], [0, 1], [-1, 0], [1, 0]].find(([di, dj]) => (!seamCol || di === 0) && i + di >= 0 && i + di < nu && j + dj >= 0 && j + dj < nv && at(i + di, j + dj) < 0);
     if (!dir) continue;
     const u0 = i / (nu - 1), v0 = j / (nv - 1), u1 = (i + dir[0]) / (nu - 1), v1 = (j + dir[1]) / (nv - 1);
     let lo = 0, hi = 1;
@@ -75,11 +83,16 @@ function buildPanel(c, spec, fab, form) {
     if (i1 < nu) { con(i, j, i1, j + 1, K.SHEAR, fab.shear); con(i1, j, i, j + 1, K.SHEAR, fab.shear); }
     if (i2 < nu) con(i, j, i2, j, K.BEND, fab.bend);
     con(i, j, i, j + 2, K.BEND, spec.boned ? 1 : fab.bend);
-    if (spec.boned) con(i, j, i, j + 3, K.BEND, 1);          
+    
+    
     if (i1 < nu) {
       const a = at(i, j), b = at(i1, j), d = at(i, j + 1), e = at(i1, j + 1);
       if (a >= 0 && b >= 0 && d >= 0) c.tris.push([a, d, b]);
       if (b >= 0 && d >= 0 && e >= 0) c.tris.push([b, d, e]);
+      
+      
+      if (b < 0 && a >= 0 && d >= 0 && e >= 0) c.tris.push([a, d, e]);
+      if (d < 0 && a >= 0 && b >= 0 && e >= 0) c.tris.push([a, e, b]);
     }
   }
   
@@ -196,9 +209,21 @@ function supportTethers(c, anchors, seams) {
 export const FAB_DEFAULT = { stretch: 1, shear: 0.6, bend: 0.12, fric: 1.5 };
 
 
-export function buildGarment(design, body = design.body || 'classic', fab = FAB_DEFAULT) {
+export const BUDGET = PARTICLES;
+
+
+
+export function buildGarment(design, body = design.body || 'classic', fab = FAB_DEFAULT, budget = Infinity) {
+  let g = buildAt(design, body, fab, 1);
+  for (let scale = 1, tries = 0; g.cloth.n > budget && tries < 12; tries++) {
+    scale = Math.max(scale * 1.04, Math.sqrt(g.cloth.n / budget) * scale);
+    g = buildAt(design, body, fab, scale);
+  }
+  return g;
+}
+function buildAt(design, body, fab, scale) {
   const form = formOf(body, UNDER_OF[design.skirt] || null);
-  const d = draft(design, form);
+  const d = draft(design, form, { scale });
   const c = createCloth(d.capacity || 6000);
   const byName = {};
   for (const spec of d.panels) byName[spec.name] = buildPanel(c, spec, { ...fab, ...(spec.fab || {}) }, form);
@@ -217,16 +242,29 @@ export function buildGarment(design, body = design.body || 'classic', fab = FAB_
   }
   supportTethers(c, Object.values(byName).flatMap((p) => p.anchors), seams);
   finalize(c);
-  return { cloth: c, form, seams, panels: byName, draft: d };
+  return { cloth: c, form, seams, panels: byName, draft: d, scale };
 }
 
 
 export function drape(design, body, opts = {}) {
   const t0 = now();
-  const g = buildGarment(design, body, opts.fab);
+  const g = buildGarment(design, body, opts.fab, opts.budget ?? BUDGET[opts.tier] ?? Infinity);
   const t1 = now();
-  const r = settle(g.cloth, { form: g.form, iters: opts.iters ?? 8, substeps: opts.substeps ?? 8, steps: opts.steps ?? 36, damping: opts.damping ?? 0.9, arms: true });
+  const r = settle(g.cloth, { form: g.form, iters: opts.iters ?? 8, substeps: opts.substeps ?? 8, steps: opts.steps ?? 36, damping: opts.damping ?? 0.9, arms: true, self: opts.tier === 'high' });   
   const t2 = now();
-  return { ...g, build: t1 - t0, settleMs: t2 - t1, steps: r.steps, moved: r.moved, hash: hashCloth(g.cloth) };
+  return { ...g, build: t1 - t0, settleMs: t2 - t1, steps: r.steps, moved: r.moved, hash: hashCloth(g.cloth), selfHits: g.cloth.selfHits || 0 };
 }
+
+
+
+
+export function bake(g) {
+  const c = g.cloth, n = c.n;
+  const pos = new Float32Array(n * 3), ao = new Float32Array(n), index = new Uint32Array(c.tris.length * 3);
+  for (let i = 0; i < n * 3; i++) pos[i] = c.pos[i];
+  for (let i = 0; i < n; i++) ao[i] = 0.72 + 0.28 * Math.min(1, Math.max(0, sdf(g.form, c.pos[i * 3], c.pos[i * 3 + 1], c.pos[i * 3 + 2], true)) / 6);
+  c.tris.forEach((t, q) => { index[q * 3] = t[0]; index[q * 3 + 1] = t[1]; index[q * 3 + 2] = t[2]; });
+  return { n, pos, nrm: normals(c), ao, index, hash: g.hash ?? hashCloth(c), settleMs: Math.round(g.settleMs || 0), scale: g.scale ?? 1 };
+}
+export const bakedBuffers = (b) => [b.pos.buffer, b.nrm.buffer, b.ao.buffer, b.index.buffer];
 const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
