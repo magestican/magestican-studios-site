@@ -2557,6 +2557,14 @@ function doAct(action, { quiet = false } = {}) {
   visits = collectSales(visits, events, route);
   onHomes(syncHomes(village, world, t));
   if (quiet) {
+    
+    
+    
+    
+    
+    
+    
+    if (!homeCollision) return { events };
     syncOrchard(t);
     syncBuildings();
     syncPlaced();
