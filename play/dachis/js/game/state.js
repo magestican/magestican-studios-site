@@ -68,5 +68,6 @@ export function objective() {
   if (!G.flags.starter) return 'Run down the road to the priests — the X on your map';
   if (!G.flags.initiated) return 'Run to the Shrine Village — the X on your map';
   if (!G.flags.kumabo) return 'Return to Kazan Village and see Kumabo';
+  if (!G.flags.boss_ashlo) return 'Something burns on Tomo Coast... face Cinderwarden Ashlo'; 
   return `Befriend every dachi — ${caughtCount()} / ${SPECIES.length}`;
 }

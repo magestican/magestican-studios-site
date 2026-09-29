@@ -20,6 +20,7 @@ import { spawnNpcs, updateNpcs, drawNpcs, nearestNpc, separateCrowd } from './fe
 import { updateWilds, drawWilds, drawWildAlerts } from './features/world/wilds.js';
 import { CHAR_SCALE } from './features/world/crowd.js';
 import { spotUnderKid, pickUp, hintPickup } from './features/pickups/pickups.js';
+import { updateBossLairs, drawBossLairs } from './features/world/bossLair.js';
 import { B, startBattle, updateBattle, orderSpecial, orderStance, orderFinisher, orderParry, STANCES, startRitual, useTonic, cycleSwap, tryRun, setFinishHandler } from './features/battle/battle.js';
 import { onBattleFinished } from './features/battle/battleEnd.js';
 import { placeFighters, drawBattleOverlay, battleFocus } from './features/battle/battleView.js';
@@ -186,6 +187,7 @@ function frame(now) {
         const touched = updateWilds(dt, { active: !!G.flags.starter });
         separateCrowd(dt); 
         updateStory(dt);
+        updateBossLairs(); 
         worldActions();
         if (touched && G.mode === 'world') startBattle(touched);
       }
@@ -200,6 +202,7 @@ function frame(now) {
     worldView.update(t);
     drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
     drawNpcs(t);
+    drawBossLairs(t, B);
     drawWilds(t, B ? (w => w === B.wild || inArena(w.x, w.y, B, -0.8)) : null);
     if (B) placeFighters(t);
     updateSeeThrough(dt, B, G.mode === 'world' && S.dialog.active ? nearestNpc(G.player.x, G.player.y, 1.6) : null); 

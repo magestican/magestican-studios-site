@@ -17,9 +17,10 @@
 
 import * as THREE from 'three';
 import { createPixelPass } from '../../engine/iso/pixelPass.js';
-import { requestModel, requestJob, material, geometries } from './dachiActor.js';
+import { requestModel, requestJob, material, geometries, modelKeyOf } from './dachiActor.js';
 import { modelKey } from './dachiModel.js';
 import { kidKey, KID_RIG } from './kidModel.js';
+import { humanRig, seatVertex, SEAT } from './humanRig.js';
 import { ELDER_KEY, ELDER_RIG } from './elderModel.js';
 import { aerowingKey } from './aerowingModel.js';
 import { speciesById } from '../data/species.js';
@@ -155,7 +156,7 @@ function entry(k, px) {
 
 
 export function dachiPortrait(spId, opts = {}, px = 32, mode = 'fit') {
-  const geo = { bandage: !!opts.bandage, hat: !!opts.hat }, variant = opts.corrupt ? 'c' : 'n';
+  const geo = { bandage: !!opts.bandage, hat: !!opts.hat }, variant = speciesById(spId).boss ? 'b' : opts.corrupt ? 'c' : 'n'; 
   const k = `d${modelKey(spId, geo)}${variant}${opts.silhouette ? 's' : ''}|${px}|${mode}`;
   const e = entry(k, px);
   if (e.started) return e;
@@ -171,7 +172,7 @@ export function dachiPortrait(spId, opts = {}, px = 32, mode = 'fit') {
     return e;
   }
   const stageN = speciesById(spId).stage;
-  requestModel(spId, geo, (arr) => { renderParts(geometries(modelKey(spId, geo), arr), variant, e.canvas, mode, stageN); e.done(); });
+  requestModel(spId, geo, (arr) => { renderParts(geometries(modelKeyOf(spId, geo), arr), variant, e.canvas, mode, stageN); e.done(); });
   return e;
 }
 
@@ -219,18 +220,38 @@ export function castFigure(kind, gender, px = 96, view = 'front') {
 
 
 
-export const RIDE = { scale: 0.33, hip: [0, 0.82, -0.66], pitch: -0.3 }; 
+export const RIDE = { scale: 0.33, hip: [0, 0.82, -0.66], pitch: -0.3, seat: true }; 
 const RIDE_VIEW = new THREE.Vector3(-0.22, 0.8, 0.8).normalize();
-export function aerowingRidePortrait(frame = 1, px = 200, gender = 'boy') {
-  const ak = aerowingKey(frame), kk = kidKey({ gender }), e = entry(`r${ak}${kk}|${px}`, px);
+
+
+const SEATED = new Map(), SEAT_RIG = humanRig({});
+function seated(key, parts) {
+  if (SEATED.has(key)) return SEATED.get(key);
+  const out = parts.map(({ geo, id }) => {
+    const g = geo.clone(), P = g.attributes.position, N = g.attributes.normal, T = g.attributes.rigTag;
+    const pos = P.array.slice(), nor = N.array.slice();
+    for (let i = 0; i < P.count; i++) {
+      const rest = [pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]], tag = T ? Math.round(T.array[i]) : 0;
+      const p = seatVertex(SEAT_RIG, rest, rest, tag), n = seatVertex(SEAT_RIG, [nor[i * 3], nor[i * 3 + 1], nor[i * 3 + 2]], rest, tag, SEAT, false);
+      P.array.set(p, i * 3); N.array.set(n, i * 3);
+    }
+    P.needsUpdate = N.needsUpdate = true; g.computeBoundingSphere();
+    return { geo: g, id };
+  });
+  SEATED.set(key, out);
+  return out;
+}
+
+export function aerowingRidePortrait(frame = 1, px = 200, gender = 'boy', view = null) {
+  const ak = aerowingKey(frame), kk = kidKey({ gender }), e = entry(`r${ak}${kk}|${px}|${RIDE.seat}|${view ? view.join() : ''}`, px);
   if (e.started) return e;
   e.started = true;
   requestJob({ key: kk, kind: 'kid', opts: { gender } }, (karr) => requestJob({ key: ak, kind: 'aerowing', opts: { frame } }, (aarr) => {
     const m = new THREE.Matrix4().compose(new THREE.Vector3(...RIDE.hip),
       new THREE.Quaternion().setFromEuler(new THREE.Euler(RIDE.pitch, 0, 0)), new THREE.Vector3(RIDE.scale, RIDE.scale, RIDE.scale))
       .multiply(new THREE.Matrix4().makeTranslation(0, -KID_HIP, 0));
-    const parts = [...geometries(ak, aarr), ...geometries(kk, karr).map((p) => ({ ...p, m }))];
-    renderParts(parts, 'n', e.canvas, 'fit', 1, { view: RIDE_VIEW, grade: false });
+    const parts = [...geometries(ak, aarr), ...(RIDE.seat ? seated(kk, geometries(kk, karr)) : geometries(kk, karr)).map((p) => ({ ...p, m }))];
+    renderParts(parts, 'n', e.canvas, 'fit', 1, { view: view ? new THREE.Vector3(...view).normalize() : RIDE_VIEW, grade: false });
     e.done();
   }));
   return e;

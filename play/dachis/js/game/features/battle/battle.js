@@ -9,10 +9,10 @@
 import { U } from '../../../engine/core/util.js';
 import { toast } from '../../../engine/ui/dialog.js';
 import { G, S } from '../../state.js';
-import { speciesById, statsOf, TYPES, capsFor, ATTR_COLOR, attrOf } from '../../data/species.js';
+import { speciesById, statsOf, TYPES, capsFor, ATTR_COLOR, attrOf, bossSpecies, makeDachi } from '../../data/species.js';
 import {
   calcDamage, finalDamage, hpFraction, CAPTURE_HP, BASIC_POWER, maxMp, mpCost, mpRegen, canUse,
-  finisherGain, finisherOf, bondOf, hesitateChance, nextAi, RANGE, BATTLE_PACE,
+  finisherGain, finisherOf, bondOf, hesitateChance, nextAi, RANGE, BATTLE_PACE, capHit, bossCapturable,
 } from './rules.js';
 import {
   BEAM_TIME, BEAM_TICK, BEAM_SHARE, BEAM_LEN, BEAM_HALF, FLURRY_HITS, FLURRY_GAP, FLURRY_SHARE, SLAM_TIME, SLAM_R,
@@ -20,7 +20,8 @@ import {
   hasStatus, speedMult, missChance, parryOutcome, canParry, PARRY_WINDOW, PARRY_CD, PARRY_COUNTER, PARRY_STUN,
   TELL, impactIn, dodgeChance, WILD_PARRY, reflects, interrupts, segDist, turnToward, slamZ, trapSpot, STATUS_COLOR,
 } from './techniques.js';
-import { arenaRadii, arenaCentre, clampToArena, maxBattleVh } from './arena.js';
+import { arenaRadii, arenaCentre, clampToArena, maxBattleVh, inArena } from './arena.js';
+import { pushApart, BATTLE_AIR, fighterR, reachPlus } from '../world/crowd.js';
 import { sectionById } from '../world/sections.js';
 import { makePattern } from '../capture/ritual.js';
 import { dachiBillboard } from '../../art/billboards.js';
@@ -41,6 +42,7 @@ function fighter(d, x, y, side) {
   };
 }
 const spOf = f => speciesById(f.d.sp);
+const reach = (f, o) => reachPlus(fighterR(spOf(f).stage, !!spOf(f).boss), fighterR(spOf(o).stage, !!spOf(o).boss));
 
 
 export function startBattle(wild, opts = {}) {
@@ -55,19 +57,31 @@ export function startBattle(wild, opts = {}) {
   for (let k = 0; k < 10 && !W.walkable(cx, cy, 0.3); k++) { cx += (p.x - cx) * 0.2; cy += (p.y - cy) * 0.2; }
   let dx = cx - p.x, dy = cy - p.y; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
   B = {
-    t: 0, cx, cy, ru, rv, maxVh, wild, opts, script: opts.script || null, state: 'intro', timer: INTRO, swapCd: 0,
+    t: 0, cx, cy, ru, rv, maxVh, wild, opts, script: opts.script || null, boss: speciesById(wild.d.sp).boss || null, state: 'intro', timer: INTRO, swapCd: 0,
     activeIdx: Math.max(0, G.party.indexOf(allyD)), stance: 'attack',
     ally: fighter(allyD, p.x + dx * 1.3, p.y + dy * 1.3, 0),
     enemy: fighter(wild.d, cx + dx * Math.min(3, dl), cy + dy * Math.min(3, dl), 1),
     proj: [], fx: [], nums: [], callouts: [], shout: { text: opts.script ? 'W-whoa!!' : `Go, ${speciesById(allyD.sp).name}!`, t: 1.6 },
     ritual: null, capture: null, result: null, shake: 0, used: new Set(), mines: [], parries: 0,
   };
+  if (B.boss) { B.enemy.x = wild.x; B.enemy.y = wild.y; } 
   clampArena(B.enemy);
-  G.dex.seen[wild.d.sp] = 1;
+  
+  for (let k = 0; k < 12 && !W.walkable(B.enemy.x, B.enemy.y, 0.3); k++) { B.enemy.x += (p.x - B.enemy.x) * 0.15; B.enemy.y += (p.y - B.enemy.y) * 0.15; }
+  if (B.boss) callout(B.enemy, speciesById(wild.d.sp).name, '#ff2a3a', true); 
+  else G.dex.seen[wild.d.sp] = 1; 
   G.mode = 'battle';
   S.sfx.play('start');
   music.battle(true);
   return true;
+}
+
+
+
+export function startBossBattle(bossId, { x, y, lvl = null, onEnd } = {}) {
+  const s = bossSpecies(bossId);
+  const d = makeDachi(s.id, lvl ?? Math.max(s.level, capsFor(G.cycle).enemyFloor)); d.corrupt = true;
+  return startBattle({ x, y, d, boss: bossId }, onEnd ? { onEnd } : {});
 }
 
 function clampArena(f) { [f.x, f.y] = clampToArena(f.x, f.y, B); }
@@ -159,7 +173,7 @@ function useSpecial(f, target, k) {
   callout(f, m.name, TYPES[m.type]);
   S.sfx.play(m.kind);
 }
-function label(f, text, color, dy = 70) { B.fx.push({ kind: 'label', x: f.x, y: f.y, text, color, t: 0, life: 1.1, dy }); }
+function label(f, text, color, dy = 70) { B.fx.push({ kind: 'label', f, x: f.x, y: f.y, text, color, t: 0, life: 1.1, dy }); }
 function buffFx(f, color) { for (let i = 0; i < 5; i++) B.fx.push({ kind: 'up', x: f.x + (i - 2) * 0.22, y: f.y, color, t: -i * 0.08, life: 0.8 }); }
 
 
@@ -225,7 +239,7 @@ function hit(att, def, power, type, { big = false, kind = 'basic', m = null, pro
   }
   let { dmg, eff, attr, crit } = calcDamage(att.d, def.d, power * (att.rage > 0 ? 1.5 : 1), type, Math.random, G.cycle);
   if (B.script === 'guardian' && att.side === 0) { dmg = capsFor(G.cycle).maxDamage; crit = true; }
-  else dmg = Math.max(1, Math.round(dmg * BATTLE_PACE));
+  else dmg = capHit(Math.max(1, Math.round(dmg * BATTLE_PACE)), statsOf(def.d).maxHp, big || kind === 'finisher'); 
   const guarded = counters && (def.guard > 0 || def.shield > 0 || (def.side === 0 && B.stance === 'guard'));   
   const st = statusOf(m);
   if (st && !(B.script && def.side === 1)) { def.status = applyStatus(def.status, st); label(def, st === 'burn' ? 'Burned!' : st === 'slow' ? 'Slowed!' : 'Dizzy!', STATUS_COLOR[st], 10); }
@@ -246,15 +260,15 @@ function hit(att, def, power, type, { big = false, kind = 'basic', m = null, pro
   const dx = def.x - att.x, dy = def.y - att.y, dl = Math.hypot(dx, dy) || 1, push = big ? 7 : kind === 'flurry' || kind === 'beam' ? 1 : 3;
   def.vx += dx / dl * push; def.vy += dy / dl * push;
   popNum(def, String(dmg), crit || big ? '#ffe14a' : eff > 1 ? '#ff8a5a' : eff < 1 ? '#b8c4d0' : '#ffffff', crit || eff > 1 || big);
-  if (eff > 1) B.fx.push({ kind: 'label', x: def.x, y: def.y, text: 'Super effective!', color: '#ffb04a', t: 0, life: 1.1, dy: 70 });
-  if (guarded) B.fx.push({ kind: 'label', x: def.x, y: def.y, text: 'Guard', color: '#9fd8ff', t: 0, life: 0.8, dy: 70 });
+  if (eff > 1) B.fx.push({ kind: 'label', f: def, x: def.x, y: def.y, text: 'Super effective!', color: '#ffb04a', t: 0, life: 1.1, dy: 70 });
+  if (guarded) B.fx.push({ kind: 'label', f: def, x: def.x, y: def.y, text: 'Guard', color: '#9fd8ff', t: 0, life: 0.8, dy: 70 });
   sparkle(def, TYPES[type], big ? 30 : 10);
   B.fx.push({ kind: 'burst', x: def.x, y: def.y, color: TYPES[type], t: 0, life: big ? 0.5 : 0.24, big: crit || big }); 
   if (big) { B.fx.push({ kind: 'ring', x: def.x, y: def.y, color: TYPES[type], t: 0, life: 0.7, r: 3.2 }); B.shake = 0.5; S.flash = Math.max(S.flash, 0.35); }
   else if (crit) B.shake = 0.3;
   S.sfx.play(crit || big ? 'crit' : 'hit');
 }
-function popNum(f, text, color, big) { B.nums.push({ x: f.x, y: f.y, text, color, t: 0, big }); }
+function popNum(f, text, color, big) { B.nums.push({ f, x: f.x, y: f.y, text, color, t: 0, big }); }
 function sparkle(f, color, n) {
   for (let i = 0; i < n; i++) {
     const a = Math.random() * 6.28, s = 1 + Math.random() * 2.5;
@@ -339,7 +353,7 @@ function updateFighter(f, o, dt) {
     f.wind -= dt;
     if (f.wind <= 0) {
       f.lunge = 1; f.basic = Math.max(0.55, 1.35 - statsOf(f.d).spd / 250);
-      if (dist < 1.45) {
+      if (dist < 1.45 + reach(f, o)) {
         if (Math.random() < missChance(f.status)) { label(f, 'Miss', '#b8c4d0', 40); S.sfx.play('miss'); }
         else hit(f, o, BASIC_POWER, spOf(f).types[0], { kind: 'basic' });
       }
@@ -352,7 +366,7 @@ function updateFighter(f, o, dt) {
     const v = 10 * dt;
     moveBy(f, dx / dist * Math.min(v, dist), dy / dist * Math.min(v, dist)); f.walking = true;
     if (Math.random() < 0.6) B.fx.push({ kind: 'trail', x: f.x, y: f.y, color: TYPES[f.dash.m.type], t: 0, life: 0.3 });
-    if (dist < 0.85) {
+    if (dist < 0.85 + reach(f, o)) { 
       const m = f.dash.m; f.dash = null; f.lunge = 1;
       if (m.kind === 'flurry') { f.flurry = { m, n: FLURRY_HITS, t: 0 }; return; }
       hit(f, o, m.power, m.type, { kind: 'dash', m }); f.basic = Math.max(f.basic, 0.5); f.ai = { mode: 'back', t: 0.6 };
@@ -398,7 +412,7 @@ function updateFighter(f, o, dt) {
   const nx = dx / dist, ny = dy / dist;
   if (f.ai.mode === 'close') {
     mx = nx; my = ny; pace = spd * 1.5;
-    if (dist < 1.0 && f.basic <= 0) { f.wind = TELL; return; }   
+    if (dist < 1.0 + reach(f, o) && f.basic <= 0) { f.wind = TELL; return; }   
   } else if (f.ai.mode === 'back') { mx = -nx; my = -ny; pace = spd * 1.2; }
   else {
     const R = RANGE[stance] * (f.ai.r || 1), k = Math.max(-1, Math.min(1, (dist - R) / 1.2));
@@ -407,7 +421,7 @@ function updateFighter(f, o, dt) {
     pace = spd * (stance === 'away' && dist < R - 1 ? 1.3 : 0.8);
     if (Math.random() < dt * 0.25) f.orbit *= -1;          
     
-    if (stance === 'guard' && dist < 1.2 && f.basic <= 0) {
+    if (stance === 'guard' && dist < 1.2 + reach(f, o) && f.basic <= 0) {
       hit(f, o, BASIC_POWER, spOf(f).types[0], { kind: 'counter' }); f.lunge = 1; f.basic = 1.1;
     }
   }
@@ -456,6 +470,7 @@ export function updateBattle(dt) {
     updateCounters(B.ally, B.enemy); updateCounters(B.enemy, B.ally);
     updateFighter(B.ally, B.enemy, dt);
     updateFighter(B.enemy, B.ally, dt);
+    if (SEPARATE.on) separateFighters();
     for (const p of B.proj) {
       
       if (!p.rolled && !p.big && U.dist(p.x, p.y, p.target.x, p.target.y) < 1.5) {
@@ -506,6 +521,27 @@ export function updateBattle(dt) {
   else if (B.state === 'end') { B.timer -= dt; if (B.timer <= 0) finishBattle(); }
 }
 
+
+
+
+export const SEPARATE = { on: true }; 
+function separateFighters() {
+  const pad = f => fighterR(spOf(f).stage, !!spOf(f).boss);
+  const a = B.ally, e = B.enemy, bodies = [{ x: a.x, y: a.y, f: a, pad: pad(a) }, { x: e.x, y: e.y, f: e, pad: pad(e), m: spOf(e).boss ? 3 : 1 }, { x: G.player.x, y: G.player.y, fixed: true, pad: 0.22 }];
+  
+  
+  
+  const stuck = !S.W.walkable(a.x, a.y, 0.25) || !S.W.walkable(e.x, e.y, 0.25);
+  const skip = (p, q) => (p.f && (p.f.leap || p.f.z > 0.3)) || (q.f && (q.f.leap || q.f.z > 0.3)) || (B.capture && (p.f === e || q.f === e));
+  pushApart(bodies, { gap: BATTLE_AIR, turn: true, skip, ok: (x, y) => (stuck || S.W.walkable(x, y, 0.25)) && inArena(x, y, B, 0.4) });
+  
+  
+  if (Math.hypot(bodies[0].x - bodies[1].x, bodies[0].y - bodies[1].y) < bodies[0].pad + bodies[1].pad && !skip(bodies[0], bodies[1])) {
+    pushApart(bodies, { gap: BATTLE_AIR, turn: true, skip, ok: (x, y) => inArena(x, y, B, 0.4) });
+  }
+  for (const o of bodies) if (o.f) { o.f.x = o.x; o.f.y = o.y; }
+}
+
 function swapTo(i, forced) {
   const d = G.party[i];
   if (!d || d.hp <= 0 || d === B.ally.d) return;
@@ -536,15 +572,17 @@ export function useTonic() {
 }
 export function tryRun() {
   if (!B || B.state !== 'fight' || B.script) return;
+  if (B.boss && !B.ritual) { toast(`${spOf(B.enemy).name} blocks the way! There is no running from this one.`); return; }
   if (B.ritual) { B.ritual = null; toast('Ritual cancelled.'); return; }
   if (Math.random() < 0.8) { toast('Got away safely!'); B.result = 'run'; finishBattle(); }
   else { toast("Couldn't escape!"); B.swapCd = 1; }
 }
 
 
-export const canRitual = () => !!B && B.state === 'fight' && !B.ritual && !B.script && B.enemy.d.hp > 0 && (hpFraction(B.enemy.d) < CAPTURE_HP || G.items.seal > 0);
+export const canRitual = () => !!B && B.state === 'fight' && !B.ritual && !B.script && B.enemy.d.hp > 0 && (!B.boss || bossCapturable(G.cycle)) && (hpFraction(B.enemy.d) < CAPTURE_HP || G.items.seal > 0);
 export function startRitual() {
   if (!B || B.state !== 'fight' || B.ritual || B.script) return;
+  if (B.boss && !bossCapturable(G.cycle)) { toast(`${spOf(B.enemy).name} cannot be befriended... not yet. (New Game+)`); return; }
   const low = hpFraction(B.enemy.d) < CAPTURE_HP;
   if (!low && G.items.seal <= 0) { toast('Too strong to befriend! Get its HP below 25% first.'); return; }
   const seal = !low;

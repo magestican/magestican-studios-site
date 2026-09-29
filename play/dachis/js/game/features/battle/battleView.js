@@ -10,11 +10,16 @@ import { B, INTRO, canRitual, startRitual, parryReady } from './battle.js';
 import { STATUS_COLOR, statusOf, BEAM_LEN, TRAP_ARM } from './techniques.js';
 import { speciesById } from '../../data/species.js';
 const spStage = f => speciesById(f.d.sp).stage;
+
+const tallOf = f => (f && f.d && speciesById(f.d.sp).boss ? 1.6 : 1);
+
+export const OVERLAY = { stack: true };
 import { setDachiLook } from '../../art/billboards.js';
 import { ART } from '../../art/characters.js';
 import { createPixelLayer } from '../../../engine/ui/pixelLayer.js';
 import { hpFraction, CAPTURE_HP } from './rules.js';
 import { frameView, maxBattleVh } from './arena.js';
+import { stackLabels } from './overlayLayout.js';
 import { CHAR_SCALE, VIEW_ZOOM } from '../world/crowd.js';
 import { toUV, fromUV, screenS, sectionById, viewFor } from '../world/sections.js';
 
@@ -130,10 +135,7 @@ export function drawBattleOverlay(ctx, t) {
     } else if (e.kind === 'ring') { 
       L.alpha(1 - k); groundRing(e.x, e.y, Math.max(0.05, e.r * k), e.color, k < 0.5 ? 3 : 2, 32, 0.05);
       L.alpha((1 - k) * 0.5); groundRing(e.x, e.y, Math.max(0.05, e.r * k * 0.75), '#ffffff', 1, 32, 0.05);
-    } else if (e.kind === 'label') {
-      const [px, py] = P(e.x, e.y, 1.6 * CHAR_SCALE);
-      L.alpha(1 - k * k); L.text(e.text, px, py - k * 12 - 8 + (e.dy || 0) / L.k, e.color, { s: 2 });
-    }
+    } 
   }
   L.alpha(1);
   drawG12Over(L, P, groundRing, u, t);
@@ -148,32 +150,51 @@ export function drawBattleOverlay(ctx, t) {
     L.heart(x, y, 2, cap.seal ? '#ff4fa3' : '#ff7ab8');
   }
   
+  
+  const words = [], bands = { top: Math.round(L.h * 0.12), bottom: Math.round(L.h * 0.84), width: L.w };
+  if (B.shout) { 
+    const [bx, by] = scr(G.player.x, G.player.y, 1.8 * CHAR_SCALE), bw = (B.shout.text.length * 7 + 16) / L.k;
+    words.push({ kind: 'bubble', x: bx / L.k, y: (by - 30) / L.k, w: bw, h: 22 / L.k, fixed: true });
+  }
+  
   for (const cl of B.callouts) {
     
-    const f = cl.f, s = Math.max(1, Math.min(cl.big ? 4 : 3, Math.floor(L.w / 100), Math.floor((L.w - 30) / (cl.text.length * 4 + 6)))), k = cl.t / cl.life;
-    const [fx0, fy0] = P(f.x, f.y, 2.1);
-    const w = L.textWidth(cl.text, s) + s * 6, h = 5 * s + s * 5, grow = Math.min(1, cl.t / 0.1);
+    const f = cl.f, s = Math.max(1, Math.min(cl.big ? 4 : 3, Math.floor(L.w / 100), Math.floor((L.w - 30) / (cl.text.length * 4 + 6))));
+    const [fx0, fy0] = P(f.x, f.y, 2.1 * tallOf(f));
+    const w = L.textWidth(cl.text, s) + s * 6, h = 5 * s + s * 5;
     
     const x = cl.big ? Math.round(L.w / 2) : Math.round(Math.max(w / 2 + 4, Math.min(L.w - w / 2 - 4, fx0)));
     const y = cl.big ? Math.round(L.h * 0.2 + h / 2) : Math.round(Math.max(L.h * 0.17 + h / 2, fy0 - 10));
-    const ww = Math.round(w * grow);
-    L.alpha(k > 0.8 ? (1 - k) * 5 : 1);
-    L.rect(x - ww / 2 - 2, y - h / 2 - 2, ww + 4, h + 4, '#1c1830');
-    L.rect(x - ww / 2, y - h / 2, ww, h, cl.big ? '#ffe14a' : cl.color);
-    L.rect(x - ww / 2 + s, y - h / 2 + s, ww - 2 * s, h - 2 * s, '#2a2244');
-    if (grow >= 1) L.text(cl.text, x, y - 2.5 * s, cl.big ? '#ffe14a' : '#ffffff', { s });
-    if (cl.big) for (let i = 0; i < 6; i++) { const yy = y - h / 2 + (i + 0.5) * h / 6; L.rect(x - ww / 2 - 10 - ((i * 7 + Math.floor(t * 40)) % 12), yy, 6, 1, '#ffe14a'); L.rect(x + ww / 2 + 4 + ((i * 5 + Math.floor(t * 40)) % 12), yy, 6, 1, '#ffe14a'); }
+    words.push({ kind: 'callout', cl, s, x, y: y - h / 2 - 2, w: w + 4, h: h + 4, fixed: cl.big });
   }
+  for (const e of B.fx) if (e.kind === 'label') {
+    const k = e.t / e.life, [px, py] = P(e.x, e.y, 1.6 * CHAR_SCALE * tallOf(e.f));
+    words.push({ kind: 'label', e, k, x: px, y: Math.round(py - k * 12 - 8 + (e.dy || 0) / L.k), w: L.textWidth(e.text, 2) + 4, h: 12 });
+  }
+  for (const n of B.nums) { 
+    const [px, py] = P(n.x, n.y, 1.4 * CHAR_SCALE * tallOf(n.f)), s = (n.big ? 4 : 3) + (n.t < 0.08 ? 1 : 0);
+    words.push({ kind: 'num', n, s, x: px, y: Math.round(py - Math.min(n.t, 0.5) * 40 - 5 * s), w: L.textWidth(String(n.text), s) + 4, h: 5 * s + 3 });
+  }
+  const at = OVERLAY.stack ? stackLabels(words, bands) : words.map(w => ({ x: w.x, y: w.y }));
+  if (window.__recordRects) window.__battleRects = words.map((w, i) => ({ kind: w.kind, x: at[i].x, y: at[i].y, w: w.w, h: w.h }));
+  words.forEach((wd, i) => {
+    const { x, y } = at[i];
+    if (wd.kind === 'callout') {
+      const { cl, s } = wd, k = cl.t / cl.life, h = wd.h - 4, ww = Math.round((wd.w - 4) * Math.min(1, cl.t / 0.1)), yc = y + 2 + h / 2;
+      L.alpha(k > 0.8 ? (1 - k) * 5 : 1);
+      L.rect(x - ww / 2 - 2, yc - h / 2 - 2, ww + 4, h + 4, '#1c1830');
+      L.rect(x - ww / 2, yc - h / 2, ww, h, cl.big ? '#ffe14a' : cl.color);
+      L.rect(x - ww / 2 + s, yc - h / 2 + s, ww - 2 * s, h - 2 * s, '#2a2244');
+      if (cl.t >= 0.1) L.text(cl.text, x, yc - 2.5 * s, cl.big ? '#ffe14a' : '#ffffff', { s });
+      if (cl.big) for (let j = 0; j < 6; j++) { const yy = yc - h / 2 + (j + 0.5) * h / 6; L.rect(x - ww / 2 - 10 - ((j * 7 + Math.floor(t * 40)) % 12), yy, 6, 1, '#ffe14a'); L.rect(x + ww / 2 + 4 + ((j * 5 + Math.floor(t * 40)) % 12), yy, 6, 1, '#ffe14a'); }
+    } else if (wd.kind === 'label') { L.alpha(1 - wd.k * wd.k); L.text(wd.e.text, x, y, wd.e.color, { s: 2 }); }
+    else if (wd.kind === 'num' && !(wd.n.t > 0.85 && Math.floor(wd.n.t * 20) % 2)) { L.alpha(1); L.text(wd.n.text, x, y, wd.n.color, { s: wd.s }); }
+  });
   L.alpha(1);
   
   if (B.ally.hes > 0) {
     const [px, py] = P(B.ally.x, B.ally.y, 1.5 * CHAR_SCALE);
     L.text('?', px, py - 12 - Math.round(Math.abs(Math.sin(t * 10)) * 4), '#ffe14a', { s: 5 });
-  }
-  for (const n of B.nums) { 
-    const [px, py] = P(n.x, n.y, 1.4 * CHAR_SCALE), s = (n.big ? 4 : 3) + (n.t < 0.08 ? 1 : 0);
-    if (n.t > 0.85 && Math.floor(n.t * 20) % 2) continue;
-    L.text(n.text, px, py - Math.min(n.t, 0.5) * 40 - 5 * s, n.color, { s });
   }
   L.end(ctx, S.stage.w, S.stage.h, Math.min(2, devicePixelRatio || 1));
   if (B.shout) { const [px, py] = scr(G.player.x, G.player.y, 1.8 * CHAR_SCALE); ART.speech(ctx, px, py, B.shout.text); }

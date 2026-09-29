@@ -148,15 +148,18 @@ export function kidNode({ gender = 'boy' } = {}) {
       const knee = Math.exp(-(((y - r.knee) / (0.22 * H)) ** 2)) * sm(0, 0.2 * H, z) * 0.7;
       return mix(denim, fade, Math.min(1, thigh * 0.8 + knee));
     };
-    const jp = [S.intersect(0.05 * H, S.offset(ell([0, r.hip + 0.16 * H, -0.01 * H], [r.hipHalf, 0.34 * H, r.hipDepth]), 0.04 * H), S.field((x, y) => (y - belt) * 0.9))];
+    const jl = [], jp = [S.intersect(0.05 * H, S.offset(ell([0, r.hip + 0.16 * H, -0.01 * H], [r.hipHalf, 0.34 * H, r.hipDepth]), 0.04 * H), S.field((x, y) => (y - belt) * 0.9))];
     for (const s of [-1, 1]) {
-      const lx = s * r.legX, A = [lx, r.hip + 0.04 * H, 0], K = [s * (r.legX + 0.01 * H), r.knee, kz], F = [s * (r.legX + 0.02 * H), r.ankle + 0.5 * H, 0];
+      const lx = s * r.jeansX, A = [lx, r.hip + 0.04 * H, 0], K = [s * (r.jeansX + 0.01 * H), r.knee, kz], F = [s * (r.jeansX + 0.02 * H), r.ankle + 0.5 * H, 0];
       
-      jp.push(S.roundCone(A, K, r.thighR + 0.05 * H, 0.19 * H), S.roundCone(K, F, 0.19 * H, 0.21 * H));
-      body.push(fur(S.roundCylinder([F[0], r.ankle + 0.47 * H, 0], 0.22 * H, 0.22 * H, 0.06 * H, 0.03 * H), mix(fade, lin('#ffffff'), 0.1))); 
+      
+      const leg = [S.roundCone(A, K, r.jeansThigh, r.jeansKnee), S.roundCone(K, F, r.jeansKnee, r.jeansHem),
+        S.transform(S.torus([0, 0, 0], r.jeansHem - 0.02 * H, 0.035 * H), { translate: [F[0], r.ankle + 0.72 * H, 0.01 * H], rotate: [0.12, 0, 0] })];
+      jl.push(S.union(0.08 * H, jp[0], ...leg));
+      body.push(fur(S.roundCylinder([F[0], r.ankle + 0.47 * H, 0], r.jeansHem + 0.01 * H, 0.22 * H, 0.06 * H, 0.03 * H), mix(fade, lin('#ffffff'), 0.1))); 
       body.push(fur(S.capsule([F[0], 0.35 * H, -0.03 * H], [F[0], r.ankle + 0.5 * H, 0], 0.13 * H), hex('#f4f2ec'))); 
     }
-    body.push(fur(S.union(0.08 * H, ...jp), jeansCol));
+    body.push(fur(S.union(0, ...jl), jeansCol));
     body.push(fur(S.transform(S.torus([0, 0, 0], r.hipHalf + 0.04 * H, 0.035 * H), { translate: [0, belt, -0.01 * H], scale: [1, 1, (r.hipDepth + 0.04 * H) / (r.hipHalf + 0.04 * H)] }), hex(legs.belt)));
   } else { 
     const shortsCol = hex(legs.shorts);

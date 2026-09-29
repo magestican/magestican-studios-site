@@ -8,6 +8,17 @@ export const BASIC_POWER = 36;
 
 export const BATTLE_PACE = 0.7;
 
+
+
+
+
+
+
+export const ADV_CAP = 2;      
+export const HIT_CAP = 0.2;    
+export const matchup = (eff, attr) => Math.min(ADV_CAP, eff * attr);
+export const capHit = (dmg, maxHp, big = false) => (big ? dmg : Math.min(dmg, Math.max(1, Math.ceil(maxHp * HIT_CAP))));
+
 export const xpToNext = L => Math.floor(8 * L + 0.8 * L * L);
 
 export function calcDamage(attacker, defender, power, moveType, rng = Math.random, cycle = 1) {
@@ -19,7 +30,7 @@ export function calcDamage(attacker, defender, power, moveType, rng = Math.rando
   const attr = attrMult(attrOf(attacker), attrOf(defender));
   const crit = rng() < 0.07 ? 1.6 : 1;
   const base = ((2 * attacker.lvl / 5 + 2) * power * (a.atk / Math.max(1, df.def))) / 42 + 2;
-  const dmg = Math.min(capsFor(cycle).maxDamage, Math.max(1, Math.floor(base * stab * eff * attr * crit * (0.85 + rng() * 0.15))));
+  const dmg = Math.min(capsFor(cycle).maxDamage, Math.max(1, Math.floor(base * stab * matchup(eff, attr) * crit * (0.85 + rng() * 0.15))));
   return { dmg, eff, attr, crit: crit > 1 };
 }
 
@@ -106,4 +117,6 @@ export function nextAi(ai, { stance = 'attack', ready = false, struck = false, r
   if (ai.mode === 'back') return ai.t <= 0 ? { mode: 'circle', t: 0.9 + rng() * 1.6, r: 0.7 + rng() * 0.7 } : ai;
   return { mode: 'circle', t: 1, r: 1 };
 }
+
+export const bossCapturable = (cycle = 1) => cycle >= 2;
 export const isCapturable = (d, seals) => d.hp > 0 && (hpFraction(d) < CAPTURE_HP || seals > 0);

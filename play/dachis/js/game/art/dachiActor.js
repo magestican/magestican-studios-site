@@ -16,7 +16,7 @@ import { hash2 } from '../../vendor/arbelo/paint/texturePaint.js';
 import { dachiArrays, modelKey, DECAL_UV } from './dachiModel.js';
 import { kidArrays } from './kidModel.js';
 import { elderArrays } from './elderModel.js';
-import { bossArrays } from './bossModel.js';
+import { bossArrays, bossKey, bossById } from './bossModel.js';
 import { aerowingArrays } from './aerowingModel.js';
 import { speciesById } from '../data/species.js';
 import { dachiFx } from './dachiFx.js';
@@ -68,9 +68,14 @@ function pump() {
 }
 
 export function requestModel(spId, opts, cb, lowPri = false) {
-  const geo = { bandage: !!opts.bandage, hat: !!opts.hat };
+  const geo = { bandage: !!opts.bandage, hat: !!opts.hat }, boss = speciesById(spId).boss;
+  
+  
+  if (boss) return requestJob({ key: bossKey(boss), kind: 'boss', opts: { boss } }, cb, lowPri);
   return requestJob({ key: modelKey(spId, geo), kind: 'dachi', spId, opts: geo }, cb, lowPri);
 }
+
+export const modelKeyOf = (spId, geo = {}) => { const b = speciesById(spId).boss; return b ? bossKey(b) : modelKey(spId, geo); };
 
 export function requestJob(job, cb, lowPri = false) {
   const key = job.key;
@@ -121,6 +126,35 @@ const crackGlow = () => page(72, (x, y) => { if (atDecal(x, y)) return 0.7; cons
 
 const crackSkin = () => page(73, (x, y) => { if (atDecal(x, y)) return 1; const e = crackValue(x, y); return e < 1.6 ? 0.1 : 0.5 + (tn(x, y, 8, 73) - 0.5) * 0.4; }, ['#1c0408', '#4e2238', '#5a2840', '#68304a', '#ffffff']);
 
+
+
+
+
+
+const BOSS_CRACK = 0.42, BOSS_SCORCH = 1.5; 
+function page64(fn) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+  const g = cv.getContext('2d'), img = g.createImageData(64, 64);
+  for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) {
+    const [r, gg, b] = fn(x / 2, y / 2, x, y), i = (y * 64 + x) * 4;
+    img.data[i] = r; img.data[i + 1] = gg; img.data[i + 2] = b; img.data[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.colorSpace = THREE.SRGBColorSpace;
+  tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
+  return tex;
+}
+const decal64 = (x, y) => atDecal(Math.floor(x), Math.floor(y));
+const bossGlow = () => page64((x, y) => (decal64(x, y) ? [150, 10, 20] : crackValue(x, y) < BOSS_CRACK ? [184, 12, 22] : [0, 0, 0]));
+const bossFur = () => page64((x, y, px, py) => {
+  if (decal64(x, y)) return [255, 255, 255];
+  const e = crackValue(x, y), f = 0.6 + (tn(Math.floor(x), Math.floor(y), 8, 91) - 0.5) * 0.5 + (hash2(px, py, 93) - 0.5) * 0.12;
+  const v = Math.round(207 + Math.max(0, Math.min(1, f)) * 48); 
+  const k = e < BOSS_CRACK ? 0.5 : e < BOSS_SCORCH ? 0.5 + 0.42 * (e - BOSS_CRACK) / (BOSS_SCORCH - BOSS_CRACK) : 1;
+  return [v * k, v * k * 0.96, v * k * 0.94];
+});
+
 function cozy(key, { map = null, color = '#ffffff', emissive = '#000000', emissiveMap = null, emissiveIntensity = 1, roughness = 0.92, metalness = 0, vertexGlow = false }) {
   const m = new THREE.MeshStandardMaterial({ vertexColors: true, map, color, emissive, emissiveMap, emissiveIntensity, roughness, metalness });
   if (map) pixelTexture(map);
@@ -155,7 +189,7 @@ export function material(variant, id, tint) {
   if (id === 'lamp-glow') m = cozy('glow', { color: c ? '#ff8080' : '#ffffff', emissive: '#ffffff', emissiveIntensity: c ? 1.1 : 0.95, vertexGlow: true });
   else if (id === 'metal') m = c ? cozy('metal-c', { map: TEX.skin, color: '#f0e4e8', emissive: '#ff1a2a', emissiveMap: TEX.glow, roughness: 0.55, metalness: 0.3 })
     : cozy('metal', { map: TEX.metal, roughness: 0.5, metalness: 0.12 }); 
-  else if (variant === 'b') m = cozy('fur-b', { map: TEX.fur, emissive: '#ff1a2a', emissiveMap: TEX.glow, emissiveIntensity: 0.75 }); 
+  else if (variant === 'b') m = cozy('fur-b', { map: TEX.bossFur ||= bossFur(), emissive: '#ff1a2a', emissiveMap: TEX.bossGlow ||= bossGlow(), emissiveIntensity: 0.75 }); 
   else m = c ? cozy('fur-c', { map: TEX.skin, color: '#ffffff', emissive: '#ff1a2a', emissiveMap: TEX.glow })
     : cozy('fur', { map: TEX.fur });
   MATS.set(key, m);
@@ -224,13 +258,13 @@ export class DachiActor {
   }
   setLook(spId, opts = {}) {
     this.targetSide = opts.flip ? -1 : 1;
-    const variant = opts.corrupt ? 'c' : 'n', key = modelKey(spId, opts) + variant;
+    const boss = speciesById(spId).boss, variant = boss ? 'b' : opts.corrupt ? 'c' : 'n', key = modelKeyOf(spId, opts) + variant; 
     if (key === this.key) return;
     const sp = speciesById(spId);
-    this.key = key; this.variant = variant; this.stage = sp.stage;
+    this.key = key; this.variant = variant; this.stage = sp.stage; this.bossScale = boss ? bossById(boss).scale : 0;
     this.plan = sp.stage >= 2 ? sp.look.plan || 'round' : 'round'; 
     this.fx = { aura: sp.stage >= 3 ? sp.color : null, flame: sp.look.tail === 'flame' }; 
-    const mk = modelKey(spId, opts);
+    const mk = modelKeyOf(spId, opts);
     requestModel(spId, opts, (arr) => { if (!this.disposed && this.key === key) this.show(geometries(mk, arr)); });
   }
   show(parts) {
@@ -243,7 +277,7 @@ export class DachiActor {
       this.body.add(mesh);
     }
   }
-  get scale() { return this.size * R_PX * STAGE_R[this.stage - 1] * this.world; }
+  get scale() { return (this.bossScale || this.size * R_PX * STAGE_R[this.stage - 1]) * this.world; }
   place(x, y, ground, lift = 0) {
     const now = performance.now(), dt = Math.min(0.1, (now - this.last) / 1000); this.last = now;
     let d = this.targetYaw - this.yaw;

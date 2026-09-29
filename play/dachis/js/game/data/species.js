@@ -409,7 +409,69 @@ extraLine(208, ['Sarumage', 'Sarupaladin', 'Sarugallant'], ['Beast', 'Spirit'], 
   { hp: 62, atk: 68, def: 64, spd: 62 }, [16, 36], [M('Beast', 'Pounce', 'dash', 70), M('Spirit', 'Soul Tap', 'drain', 65), M('Beast', 'Feral Rage', 'rage')],
   'ADVENTURE. Half monkey, half wizard knight. Always first through the door.');
 
-export const speciesById = id => (id > 200 ? EXTRA.find(s => s.id === id) : SPECIES[id - 1]);
+export const speciesById = id => (id > 300 ? BOSS_SPECIES[id - 301] : id > 200 ? EXTRA.find(s => s.id === id) : SPECIES[id - 1]);
+
+
+
+
+
+
+
+
+export const BOSSES = [
+  { id: 'ashlo', name: 'Cinderwarden Ashlo', region: 1, scale: 0.62, types: ['Ember', 'Beast'], color: '#6d6674', accent: '#ff8a2a',
+    look: { shape: 'pear', plan: 'biped', ears: 'cat', tail: 'fluffy', eyes: 'fierce', eyeStyle: 'fierce', pattern: 'belly', wings: false,
+      split: { mode: 'vertical', mat: 'bone', side: -1 }, signature: 'mane', metal: 'copper' },
+    moves: [['Beast', 'Furnace Charge', 'dash', 85], ['Ember', 'Ash Maw', 'beam', 80], ['Ember', 'Cinder Snare', 'trap', 70]],
+    creed: 'Everything that burns ends in ash. Better to burn toward something than to smoulder here forever.' },
+  { id: 'leviathrum', name: 'Leviathrum', region: 2, scale: 0.6, types: ['Tide', 'Metal'], color: '#2f5478', accent: '#39e6ff',
+    look: { shape: 'long', plan: 'fish', ears: 'fins', tail: 'fins', eyes: 'visor', eyeStyle: 'visor', pattern: 'belly', wings: false,
+      split: { mode: 'horizontal', mat: 'metal', side: 1 }, signature: 'fin', metal: 'gunmetal' },
+    moves: [['Metal', 'Sonar Lance', 'beam', 85], ['Tide', 'Depth Charge', 'trap', 80], ['Tide', 'Ballast Slam', 'slam', 90]],
+    creed: 'The tide erases every footprint. Only those who leave are remembered.' },
+  { id: 'bramble', name: 'Mother Bramble', region: 3, scale: 0.6, types: ['Leaf', 'Spirit'], color: '#5a7a3a', accent: '#ffcf40',
+    look: { shape: 'pear', plan: 'biped', ears: 'none', tail: 'leaf', eyes: 'sleepy', eyeStyle: 'sleepy', pattern: 'belly', wings: false,
+      split: { mode: 'part', mat: 'bone', side: 1, part: 'mask' }, signature: 'antlers', metal: 'jade steel' },
+    moves: [['Leaf', 'Root Snare', 'trap', 75], ['Spirit', 'Rot Bloom', 'hex', 70], ['Leaf', 'Sap Drain', 'drain', 75]],
+    creed: 'Growth needs rot. Your world is our soil; the new world will be our garden.' },
+  { id: 'kingshade', name: 'Kingshade', region: 4, scale: 0.64, types: ['Beast', 'Shadow'], color: '#4a4058', accent: '#9a6cff',
+    look: { shape: 'pear', plan: 'biped', ears: 'bear', tail: 'none', eyes: 'fierce', eyeStyle: 'fierce', pattern: 'belly', wings: false, armor: true,
+      split: { mode: 'part', mat: 'metal', side: 1, part: 'arm' }, signature: null, metal: 'violet titanium' },
+    moves: [['Beast', 'Obsidian Fists', 'flurry', 85], ['Shadow', 'Throne Slam', 'slam', 90], ['Shadow', "Knight's Oath", 'shield']],
+    creed: 'A ruler protects his people by leading them out. Staying is cowardice dressed as loyalty.' },
+  { id: 'quartz', name: 'The Quartz Hermit', region: 5, scale: 0.58, types: ['Stone', 'Light'], color: '#7a6a8c', accent: '#a8f0ff',
+    look: { shape: 'pear', plan: 'biped', ears: 'none', tail: 'none', eyes: 'beady', eyeStyle: 'beady', pattern: 'belly', wings: false,
+      split: { mode: 'horizontal', mat: 'bone', side: -1 }, signature: 'goggles', metal: 'brass' },
+    moves: [['Light', 'Lens Ray', 'beam', 85], ['Stone', 'Crystal Mine', 'trap', 80], ['Light', 'Glare', 'hex', 70]],
+    creed: 'Light is a story told to those afraid of the dark. The god shows us the true dark, and it is peaceful.' },
+  { id: 'glacius', name: 'Glacius Rex', region: 6, scale: 0.56, types: ['Frost', 'Metal'], color: '#a8bfd6', accent: '#5fe8ff',
+    look: { shape: 'long', plan: 'quadruped', ears: 'none', topper: 'floppy', tail: 'lizard', eyes: 'beady', eyeStyle: 'beady', pattern: 'belly', wings: false,
+      split: { mode: 'horizontal', mat: 'metal', side: 1 }, signature: 'trunk', metal: 'chrome blue' },
+    moves: [['Metal', 'Tusk Charge', 'dash', 90], ['Frost', 'Frozen Roar', 'burst', 85], ['Frost', 'Permafrost', 'hex', 70]],
+    creed: 'Preservation. Freeze the world before it decays; what cannot change cannot suffer.' },
+  { id: 'pyrecrown', name: 'Pyrecrown', region: 7, scale: 0.6, types: ['Ember', 'Spirit'], color: '#ff6a2a', accent: '#ffd070',
+    look: { shape: 'pear', plan: 'bird', ears: 'none', tail: 'flame', eyes: 'fierce', eyeStyle: 'fierce', pattern: 'belly', wings: false,
+      split: { mode: 'vertical', mat: 'bone', side: -1 }, signature: null, metal: 'gold' },
+    moves: [['Ember', 'Phoenix Dive', 'slam', 95], ['Ember', "Herald's Pyre", 'burst', 90], ['Spirit', 'Soul Toll', 'drain', 80]],
+    creed: 'Suffering is the price of passage. Every dachi that fades pays our fare to paradise.' },
+  { id: 'oblivar', name: 'Oblivar, the Hollow Sky', region: 8, scale: 0.66, types: ['Shadow', 'Spirit'], color: '#3a2450', accent: '#ff2a3a',
+    look: { shape: 'round', plan: 'ghost', ears: 'horns', tail: 'none', eyes: 'cute', eyeStyle: 'cyclops', pattern: 'belly', wings: false,
+      split: { mode: 'vertical', mat: 'metal', side: 1 }, signature: null, metal: 'gunmetal' },
+    moves: [['Shadow', 'Hollow Beam', 'beam', 95], ['Spirit', 'Void Hex', 'hex', 80], ['Shadow', 'Promised Land', 'shield']],
+    creed: 'Your world had you. Ours had only each other, and it was not enough. Let me in.' },
+];
+
+
+export const BOSS_LEVEL = [18, 26, 32, 38, 44, 50, 56, 64];
+export const BOSS_BASE = { hp: 100, atk: 84, def: 78, spd: 62 };
+export const BOSS_HP_MUL = 3;
+export const BOSS_SPECIES = BOSSES.map((b, i) => ({
+  id: 301 + i, fam: 300 + i, stage: 3, name: b.name, types: b.types, color: b.color, accent: b.accent, look: b.look,
+  base: { ...BOSS_BASE }, hpMul: BOSS_HP_MUL, evolveAt: null, evolvesTo: null, attribute: 'virus',
+  moves: b.moves.map(([type, name, kind, power]) => M(type, name, kind, power)), rarity: 'boss', blurb: b.creed, boss: b.id, level: BOSS_LEVEL[b.region - 1],
+}));
+export const bossSpecies = (bossId) => BOSS_SPECIES.find((s) => s.boss === bossId);
+export const isBoss = (d) => !!speciesById(d.sp).boss;
 export const GUARDIAN = 201;
 export const STARTERS = { power: 202, wisdom: 205, adventure: 208 };
 
@@ -430,7 +492,7 @@ export function statsOf(d) {
   const s = speciesById(d.sp), L = d.lvl;
   return {
     
-    maxHp: d.maxHpOverride || Math.floor(s.base.hp * 2 * L / 100) + L * 2 + 30,
+    maxHp: d.maxHpOverride || Math.floor((Math.floor(s.base.hp * 2 * L / 100) + L * 2 + 30) * (s.hpMul || 1)), 
     atk: Math.floor(s.base.atk * 2 * L / 100) + 5,
     def: Math.floor(s.base.def * 2 * L / 100) + 5,
     spd: Math.floor(s.base.spd * 2 * L / 100) + 5,

@@ -11,6 +11,7 @@
 import * as S from '../../vendor/fml/moon/mesh/sdf.js';
 import { lin, fur, metal, glow, ell, dachiNode, buildArrays, dark, light, mix, IVORY, DECAL_UV } from './dachiModel.js';
 import { planLayout, SWING } from './dachiPlans.js';
+import { BOSSES } from '../data/species.js';
 
 const add = (a, b, s = 1) => [a[0] + b[0] * s, a[1] + b[1] * s, a[2] + b[2] * s];
 const tubeOf = (pts, r, paint) => paint(S.union(0.02, ...pts.slice(1).map((q, i) => S.capsule(pts[i], q, typeof r === 'function' ? r(i / (pts.length - 2 || 1)) : r))));
@@ -18,32 +19,8 @@ const BONE = IVORY, EMBER = lin('#ff7a1a'), CYAN = lin('#39e6ff'), OBSIDIAN = li
 const DARKM = lin('#3c4652'), LEAF = lin('#5fc864'), BARK = lin('#5a3c26'), GOLDC = lin('#ffcf40'), RED = lin('#ff2a3a');
 
 
-export const BOSSES = [
-  { id: 'ashlo', name: 'Cinderwarden Ashlo', region: 1, scale: 0.62, types: ['Ember', 'Beast'], color: '#6d6674', accent: '#ff8a2a',
-    look: { shape: 'pear', plan: 'biped', ears: 'cat', tail: 'fluffy', eyes: 'fierce', eyeStyle: 'fierce', pattern: 'belly', wings: false,
-      split: { mode: 'vertical', mat: 'bone', side: -1 }, signature: 'mane', metal: 'copper' } },
-  { id: 'leviathrum', name: 'Leviathrum', region: 2, scale: 0.6, types: ['Water', 'Metal'], color: '#2f5478', accent: '#39e6ff',
-    look: { shape: 'long', plan: 'fish', ears: 'fins', tail: 'fins', eyes: 'visor', eyeStyle: 'visor', pattern: 'belly', wings: false,
-      split: { mode: 'horizontal', mat: 'metal', side: 1 }, signature: 'fin', metal: 'gunmetal' } },
-  { id: 'bramble', name: 'Mother Bramble', region: 3, scale: 0.6, types: ['Leaf', 'Spirit'], color: '#5a7a3a', accent: '#ffcf40',
-    look: { shape: 'pear', plan: 'biped', ears: 'none', tail: 'leaf', eyes: 'sleepy', eyeStyle: 'sleepy', pattern: 'belly', wings: false,
-      split: { mode: 'part', mat: 'bone', side: 1, part: 'mask' }, signature: 'antlers', metal: 'jade steel' } },
-  { id: 'kingshade', name: 'Kingshade', region: 4, scale: 0.64, types: ['Beast', 'Shadow'], color: '#4a4058', accent: '#9a6cff',
-    look: { shape: 'pear', plan: 'biped', ears: 'bear', tail: 'none', eyes: 'fierce', eyeStyle: 'fierce', pattern: 'belly', wings: false, armor: true,
-      split: { mode: 'part', mat: 'metal', side: 1, part: 'arm' }, signature: null, metal: 'violet titanium' } },
-  { id: 'quartz', name: 'The Quartz Hermit', region: 5, scale: 0.58, types: ['Stone', 'Light'], color: '#7a6a8c', accent: '#a8f0ff',
-    look: { shape: 'pear', plan: 'biped', ears: 'none', tail: 'none', eyes: 'beady', eyeStyle: 'beady', pattern: 'belly', wings: false,
-      split: { mode: 'horizontal', mat: 'bone', side: -1 }, signature: 'goggles', metal: 'brass' } },
-  { id: 'glacius', name: 'Glacius Rex', region: 6, scale: 0.56, types: ['Ice', 'Metal'], color: '#a8bfd6', accent: '#5fe8ff',
-    look: { shape: 'long', plan: 'quadruped', ears: 'none', topper: 'floppy', tail: 'lizard', eyes: 'beady', eyeStyle: 'beady', pattern: 'belly', wings: false,
-      split: { mode: 'horizontal', mat: 'metal', side: 1 }, signature: 'trunk', metal: 'chrome blue' } },
-  { id: 'pyrecrown', name: 'Pyrecrown', region: 7, scale: 0.6, types: ['Ember', 'Spirit'], color: '#ff6a2a', accent: '#ffd070',
-    look: { shape: 'pear', plan: 'bird', ears: 'none', tail: 'flame', eyes: 'fierce', eyeStyle: 'fierce', pattern: 'belly', wings: false,
-      split: { mode: 'vertical', mat: 'bone', side: -1 }, signature: null, metal: 'gold' } },
-  { id: 'oblivar', name: 'Oblivar, the Hollow Sky', region: 8, scale: 0.66, types: ['Shadow', 'Spirit'], color: '#3a2450', accent: '#ff2a3a',
-    look: { shape: 'round', plan: 'ghost', ears: 'horns', tail: 'none', eyes: 'cute', eyeStyle: 'cyclops', pattern: 'belly', wings: false,
-      split: { mode: 'vertical', mat: 'metal', side: 1 }, signature: null, metal: 'gunmetal' } },
-];
+
+export { BOSSES };
 export const bossById = (id) => BOSSES.find((b) => b.id === id);
 export const bossKey = (id) => `boss-${id}`;
 const BOSS_CELL = 0.058, BOSS_TRIS = 4200; 

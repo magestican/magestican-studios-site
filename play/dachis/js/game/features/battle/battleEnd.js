@@ -28,6 +28,10 @@ export function onBattleFinished(b) {
       const joined = addDachi(enemy);
       msgs.push(joined ? `${es.name} joined your companions!` : `${es.name} went to your Dachi Den. (Friends: ${G.box.length})`);
     }
+    if (b.boss && res === 'win') { 
+      G.flags['boss_' + b.boss] = true;
+      msgs.unshift({ text: `"${speciesById(enemy.sp).blurb}"`, who: speciesById(enemy.sp).name }, `The red fractures dim... ${speciesById(enemy.sp).name} sinks into the ash and is gone. For now.`);
+    }
     if (Math.random() < 0.25) { G.items.tonic++; msgs.push('Found a Berry Tonic!'); }
     removeWild(wild);
   } else if (res === 'lose') {
@@ -38,6 +42,6 @@ export function onBattleFinished(b) {
     healParty();
   } else if (res === 'run') wild.stun = 3;
   saveGame();
-  if (msgs.length) S.dialog.say(msgs.map(text => ({ text })), () => checkEvolutions());
+  if (msgs.length) S.dialog.say(msgs.map(m => (typeof m === 'string' ? { text: m } : m)), () => checkEvolutions());
   else checkEvolutions();
 }

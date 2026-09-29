@@ -75,6 +75,8 @@ if (view === 'lineup' && set === 'story') {
   rows = [[['kid', { gender: 'boy' }, tag], ['kid', { gender: 'girl' }, tag], ['elder', {}, tag]]];
 } else if (view === 'lineup' && set === 'turns') { 
   rows = [[['kid', { gender: 'boy' }], ['kid', { gender: 'girl' }], ['elder', {}]].flatMap(([k, o]) => ['front', 'q3', 'right'].map((t) => [k, o, t]))];
+} else if (view === 'lineup' && set === 'outfits') { 
+  rows = [[['kid', { gender: 'boy' }, 'front'], ['kid', { gender: 'boy' }, 'q3'], ['elder', {}, 'front'], ['elder', {}, 'q3']]];
 } else if (view === 'lineup' && set === 'bosses') { 
   const ids = q.get('pick') ? q.get('pick').split(',') : BOSSES.map((b) => b.id);
   rows = [ids.slice(0, 4), ids.slice(4)].filter((r) => r.length).map((r) => r.map((id) => ['boss', { boss: id }, q.get('tag') || 'front']));

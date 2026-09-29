@@ -39,6 +39,10 @@ const W = {
   upperArmR: 0.15, foreArmR: 0.12, handHalf: 0.1, jacketOff: 0.06,
   splay: 0.1, 
   foreArmFwd: 0.14, 
+  
+  
+  
+  jeansX: 0.32, jeansThigh: 0.3, jeansKnee: 0.26, jeansHem: 0.28,
 };
 
 
@@ -59,6 +63,7 @@ export function humanRig({ height = KID_HEIGHT, heads = KID_HEADS } = {}) {
     legX: k(W.legX), thighR: k(W.thighR), kneeR: k(W.kneeR), calfR: k(W.calfR), ankleR: k(W.ankleR),
     upperArmR: k(W.upperArmR), foreArmR: k(W.foreArmR), handHalf: k(W.handHalf), jacketOff: k(W.jacketOff),
     elbow, wrist, fingertip: at(F.fingertip),
+    jeansX: k(W.jeansX), jeansThigh: k(W.jeansThigh), jeansKnee: k(W.jeansKnee), jeansHem: k(W.jeansHem),
     
     
     armLine: { sx, sy: shoulder, dx: dir[0] / len, dy: dir[1] / len, len, rTop: k(0.16), rBot: k(0.17), band: k(0.07) },
@@ -111,3 +116,29 @@ export const KID_OUTFITS = {
     tapePlayer: { body: '#27d6c6', panel: '#2b2d36', window: '#1a1418', reels: '#e8e4dc', worn: 'belt', side: -1 },
   },
 };
+
+
+
+
+
+
+export const SEAT = { hip: 1.35, knee: 1.5, astride: 0.42, shoulder: 0.75, elbow: 0.55 };
+const turnX = (v, a, py, pz) => { const c = Math.cos(a), s = Math.sin(a), y = v[1] - py, z = v[2] - pz; return [v[0], c * y - s * z + py, s * y + c * z + pz]; };
+const turnY = (v, a, px, pz) => { const c = Math.cos(a), s = Math.sin(a), x = v[0] - px, z = v[2] - pz; return [c * x + s * z + px, v[1], -s * x + c * z + pz]; };
+const ss = (a, b, v) => { const u = Math.max(0, Math.min(1, (v - a) / (b - a))); return u * u * (3 - 2 * u); };
+
+
+export function seatVertex(rig, v, pos, tag = 0, pose = SEAT, point = true) {
+  const [x, y] = pos, side = x < 0 ? -1 : 1, k = point ? 1 : 0;
+  const isArm = tag === 1 ? 1 : 0, isBody = tag === 2 ? 1 : 0;
+  const armW = isArm + (1 - isArm - isBody) * armWeight(rig, x, y);
+  const A = rig.armLine, along = (Math.abs(x) - A.sx) * A.dx + (y - A.sy) * A.dy;
+  const foreW = armW * ss(rig.upperArm - 0.12 * rig.hh, rig.upperArm + 0.06 * rig.hh, along);
+  const legW = (1 - ss(rig.hip - rig.legBlend, rig.hip, y)) * (1 - armW) * (1 - isBody);
+  const shinW = legW * (1 - ss(rig.knee - rig.kneeBlend, rig.knee + rig.kneeBlend, y));
+  let p = turnX(v, -pose.elbow * foreW, rig.elbow[1] * k, rig.elbow[2] * k);
+  p = turnX(p, -pose.shoulder * armW, rig.shoulder * k, 0);
+  p = turnX(p, pose.knee * shinW, rig.knee * k, 0.05 * rig.hh * k);
+  p = turnX(p, -pose.hip * legW, rig.hip * k, 0);
+  return turnY(p, side * pose.astride * legW, side * rig.legX * k, 0);
+}
