@@ -139,6 +139,10 @@ export const COUNTED_GAME_IDS = Object.freeze([
   
   
   'silk-and-seam',
+  
+  
+  
+  'dachis',
 ]);
 
 
