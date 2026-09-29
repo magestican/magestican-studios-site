@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zelakas In Space — ブラウザで遊べる無料の2Dアーケードシューター | Magestican Studios</title>
+  <meta name="description" content="2014年制作のFlashアーケードシューターが、Ruffleを通じて最新のブラウザで動作します。小惑星、ブラックホール、ドローンを避けて進みます。タイトル画面は動作しますが、レベルはまだ開始できません。">
+  <meta name="keywords" content="zelakas in space, free browser arcade shooter, play flash games in browser, ruffle flash emulator, 2d space shooter no download, asteroid dodging game, old flash game playable, indie space shooter">
+  <link rel="canonical" href="https://magesticanstudios.com/ja/zelakas-in-space.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/zelakas-in-space.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/zelakas-in-space.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/zelakas-in-space.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/zelakas-in-space.html">
+  <link rel="alternate" hreflang="ja" href="https://magesticanstudios.com/ja/zelakas-in-space.html">
+  <link rel="alternate" hreflang="ko" href="https://magesticanstudios.com/ko/zelakas-in-space.html">
+  <link rel="alternate" hreflang="id" href="https://magesticanstudios.com/id/zelakas-in-space.html">
+  <link rel="alternate" hreflang="vi" href="https://magesticanstudios.com/vi/zelakas-in-space.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/zelakas-in-space.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
+  
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:title" content="Zelakas In Space — 無料ブラウザ アーケードシューター">
+  <meta property="og:description" content="小惑星、ブラックホール、ドローンを避けよう。3つのエンディング。2014年のFlashゲームが、最新のブラウザで再び動く。">
+  <meta property="og:url" content="https://magesticanstudios.com/ja/zelakas-in-space.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/zelakas-ingame.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Zelakas In Space — 無料ブラウザ アーケードシューター">
+  <meta name="twitter:description" content="3つのエンディング、1機の宇宙船、無数の小惑星。ブラウザで動作、プラグイン不要。">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/zelakas-ingame.png">
+  
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Zelakas In Space",
+  "description": "2Dアーケードシューター:小惑星、ブラックホール、ドローンを避けながら、3つのエンディングを目指します。2014年にActionScript 3で制作され、今日ではRuffle Flashエミュレーターを通じてどのブラウザでもプレイできます。",
+  "url": "https://magesticanstudios.com/ja/zelakas-in-space.html",
+  "image": "https://magesticanstudios.com/assets/zelakas-ingame.png",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Bryan Arbelo"
+    },
+    {
+      "@type": "Person",
+      "name": "Gonzalo"
+    },
+    {
+      "@type": "Person",
+      "name": "Christian"
+    }
+  ],
+  "genre": [
+    "アーケード",
+    "シューティング",
+    "スペース"
+  ],
+  "gamePlatform": [
+    "Web browser"
+  ],
+  "playMode": "SinglePlayer",
+  "operatingSystem": "Any (browser)",
+  "applicationCategory": "Game",
+  "inLanguage": "ja",
+  "datePublished": "2014",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Zelakas In Spaceをプレイするのにフラッシュプレイヤーは必要ですか?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "いいえ。Flash Playerは2020年にサポートを終了しました。このページでは、Rustで書かれたオープンソースのFlashエミュレーター「Ruffle」を通じて、オリジナルのSWFファイルをブラウザ内のWebAssemblyとして動かしています。何もインストールされません。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Zelakas In Spaceは無料ですか?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "はい。無料で、広告もなく、アカウントも不要です。ページを開けばすぐにプレイできます。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Zelakas In Spaceにはいくつのエンディングがありますか?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "3つあります。どのエンディングになるかは、プレイが終わるまでにどれだけフィールドを片付けたかによって決まります。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "操作方法は?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "キーボードのみ:矢印キーで飛行、ファイアキーで射撃。2014年制作のデスクトップ向けFlashゲームのため、物理キーボードが必要です。"
+      }
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+  <header class="site-header">
+    <a href="/ja/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/ja/#games">ゲーム</a>
+      <a href="/ja/farmyshoot.html">Farmyshoot</a>
+      <a href="/ja/farmy-uprising.html">アップライジング</a>
+      <a href="/ja/farmy-evil-hills.html">イービルヒルズ</a>
+      <a href="/ja/farmykart.html">カート</a>
+      <a href="/ja/farmy-tiles.html">タイル</a>
+      <a href="/ja/farmy-crosswords.html">クロスワード</a>
+      <a href="/ja/farmy-chess.html">チェス</a>
+      <a href="/ja/farmy-checkers.html">チェッカー</a>
+      <a href="/ja/farmy-ludo.html">ルド</a>
+      <a href="/ja/zelakas-in-space.html">ゼラカス</a>
+      <a href="/ja/2d-fighter-ex.html">ファイターEX</a>
+      <a href="/ja/farmy-moon-life.html">ムーンライフ</a>
+      <a href="/ja/silk-and-seam.html">Silk & Seam</a>
+      <a href="/ja/for-remote-teams.html">チーム向け</a>
+      <a href="/ja/about.html">スタジオについて</a>
+      <a href="/ja/magazine/">マガジン</a>
+      <a href="/ja/reviews.html">レビュー</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="言語: 日本語"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>JA</span></summary><ul><li><a href="/zelakas-in-space.html" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en">English</a></li><li><a href="/es/zelakas-in-space.html" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/zelakas-in-space.html" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/zelakas-in-space.html" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl">Tagalog</a></li><li><a href="/ja/zelakas-in-space.html" hreflang="ja" onclick="try{localStorage.setItem('ms-lang','ja')}catch(e){}" lang="ja" data-lang="ja" aria-current="page">日本語</a></li><li><a href="/ko/zelakas-in-space.html" hreflang="ko" onclick="try{localStorage.setItem('ms-lang','ko')}catch(e){}" lang="ko" data-lang="ko">한국어</a></li><li><a href="/id/zelakas-in-space.html" hreflang="id" onclick="try{localStorage.setItem('ms-lang','id')}catch(e){}" lang="id" data-lang="id">Bahasa Indonesia</a></li><li><a href="/vi/zelakas-in-space.html" hreflang="vi" onclick="try{localStorage.setItem('ms-lang','vi')}catch(e){}" lang="vi" data-lang="vi">Tiếng Việt</a></li></ul></details>
+  </header>
+
+  <div class="hero-band">
+    <div class="scene" aria-hidden="true">
+      <span class="l-sun" data-par="0.16"></span>
+      <span class="l-clouds" data-par="0.13"></span>
+      <span class="l-ridge" data-par="0.09"></span>
+      <span class="l-hills" data-par="0.05"></span>
+      <span class="l-fence" data-par="-0.05"></span>
+    </div>
+    <div class="hero-inner">
+      <div class="hero">
+        <p class="breadcrumb"><a href="/ja/">Magestican Studios</a> › Zelakas In Space</p>
+        <h1>決して消えなかった2014年のFlashゲーム。ブラウザでZelakas In Spaceをプレイしよう。</h1>
+        <p class="tagline">無料の2Dアーケードシューターで、小惑星、ブラックホール、ドローンを避けて進みます。フィールドをどれだけ片付けたかで決まる3つのエンディング。プラグイン不要、ダウンロード不要、アカウント不要——オリジナルのSWFファイルが、Ruffleエミュレーターを通じて最新のブラウザ内で動作します。</p>
+        <div class="cta-row">
+          <a class="cta cta-primary" href="/play/zelakas/">▶ Zelakas In Spaceをプレイ(無料)</a>
+          <a class="cta cta-secondary" href="/ja/farmyshoot.html">Farmyshootを試す →</a>
+        </div>
+        <p>キーボードが必要です。デスクトップまたはノートPC——このゲームはタッチスクリーンより前のものです。</p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section class="value-grid reveal">
+      <div class="value-card">
+        <h3>3つのエンディング</h3>
+        <p>フィールドを十分に片付けると、プレイの終わり方が変わります。ほとんどのプレイヤーは最初のエンディングだけを見て、残り2つがあることを知りません。</p>
+      </div>
+      <div class="value-card">
+        <h3>フラッシュプレイヤー不要</h3>
+        <p>Flashは2020年に終了しました。WebAssemblyにコンパイルされたオープンソースのFlashエミュレーター「Ruffle」が、プラグインのインストールなしでオリジナルファイルを安全に動かします。</p>
+      </div>
+      <div class="value-card">
+        <h3>無料、登録不要 ゲーム</h3>
+        <p>登録不要、広告なし、ランチャー不要。</p>
+        <p class="lede"><strong>既知の不具合について、隠さずお伝えします。</strong> 2014年のFlashオリジナル版はRuffleを通じて動作しますが、現在はタイトル画面と難易度選択までは進み、PLAYを押すとロード画面で止まってしまいます。配信しているファイル自体は一切改変されていないオリジナルそのもので、止まっているのはエミュレーター側です。現在対応中です。</p>
+      </div>
+      <div class="value-card">
+        <h3>2014年制作</h3>
+        <p>Bryan ArbeloがGonzalo、Christianと共にActionScript 3で制作しました。バグも含めて、公開当時のまま保存されています。</p>
+      </div>
+      <div class="value-card">
+        <h3>リメイクが予定されています</h3>
+        <p>ネイティブのGodot 4ポート版が、スタジオの公開ワークショップリポジトリにあります。Flash版はそれとは関係なく公開を続けます——保存を最優先しています。</p>
+      </div>
+      <div class="value-card">
+        <h3>手描き</h3>
+        <p>この作品に登場する船、岩、ドローンはすべて2014年に人の手で描かれました。私たちが現在作っているゲームは、その代わりにコードでアートの大部分を生成していますが、どのアセットに求めている基準も、使う手法ではなく結果です:シルエットとして読み取れること、パレットに収まること、隣に並ぶものと違和感がないこと。</p>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <h2>どんな見た目か</h2>
+      <div class="shot-row">
+        <figure><a class="art-play shot-play" href="/play/zelakas/" aria-label="Zelakas In Spaceをプレイ"><img src="/assets/shot-zelakas.webp" width="1024" height="547" loading="lazy" decoding="async"
+               alt="Zelakas In Spaceのタイトル画面。暗い惑星の横に紫色の宇宙船、星空にネオングリーンのメニュー文字"><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a>
+          
+          <figcaption>2014年のタイトル画面が、Ruffleを通じて最新のブラウザで無改造のまま動作しています。</figcaption></figure>
+        <figure><a class="art-play shot-play" href="/play/zelakas/" aria-label="Zelakas In Spaceをプレイ"><img src="/assets/cover-zelakas.webp" width="512" height="512" loading="lazy" decoding="async"
+               alt="Zelakas In Spaceのカバーアート:宇宙のデブリの中に浮かぶ小さな宇宙船"><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a>
+          
+          <figcaption>船、岩、ドローンはすべて2014年に人の手で描かれ、それ以降一度も描き直されていません。</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="faq reveal">
+      <h2>よくある質問</h2>
+      <h3>フラッシュプレイヤーは必要ですか?</h3>
+      <p>いいえ。Flash Playerは2020年にサポートを終了し、現在どのブラウザでも動作しません。このページでは、Rustで書かれWebAssemblyにコンパイルされたオープンソースのFlashエミュレーター<a href="https://ruffle.rs/">Ruffle</a>を通じて、オリジナルの<code>ZelakasInSpace.swf</code>を読み込んでいます。ページ自体のサンドボックス内で動作し、何もインストールされません。</p>
+      <h3>無料ですか?</h3>
+      <p>はい——無料、広告なし、登録不要。</p>
+      <h3>エンディングはいくつありますか?</h3>
+      <p>3つあり、プレイが終わるまでにどれだけフィールドを片付けたかで決まります。</p>
+      <h3>操作方法は?</h3>
+      <p>キーボードのみ:矢印キーで飛行、ファイアキーで射撃。2014年制作のデスクトップゲームには、2014年当時のデスクトップ操作が採用されています。スマートフォンで動くものをお探しなら、<a href="/ja/farmyshoot.html">Farmyshoot</a> <a href="/ja/farmy-uprising.html">Uprising</a>にはタッチ操作が標準搭載されています。</p>
+      <h3>職場のノートPCでも動きますか?</h3>
+      <p>ブラウザが開けるなら動作します。インストーラーも管理者権限も不要です——詳しくは<a href="/ja/no-download-office-friendly.html">オフィスPC向けのダウンロード不要ゲーム</a>をご覧ください。</p>
+      <h3>自分のデータは収集されますか?</h3>
+      <p>アカウントなし、プロフィールなし、広告なし。どのゲームが見つけられているかを知るために、匿名でクッキーを使わないページビューのみを集計しています。詳しくは<a href="/ja/privacy.html">プライバシーポリシー</a>をご覧ください。</p>
+    </section>
+
+    <section class="cta-band reveal">
+      <p>1機の宇宙船。無数の小惑星。3通りの結末。</p>
+      <a class="cta cta-primary" href="/play/zelakas/">今すぐZelakas In Spaceをプレイ</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><span class="footer-mark" aria-hidden="true">M</span></p>
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. All rights reserved.<br> Magestican StudiosおよびMagestican Studiosのロゴは、オーストラリアのUltra Task Pty Ltdの商標です。</p>
+    <p class="colophon">
+      <a href="/ja/about.html">スタジオについて</a> &middot; <a href="/ja/privacy.html">プライバシー</a> &middot; <a href="/ja/terms.html">利用規約</a> &middot; <a href="https://www.youtube.com/@ameliagurl">YouTubeのAmelia</a> &middot; 本サイトは静的サイトです &middot; クッキーなし、匿名の集計のみ</p>
+    
+    <p class="footer-browse">ブラウズ: <a href="/ja/2-player-games-online.html">オンライン 2人 ゲーム</a> &middot; <a href="/ja/multiplayer-browser-games.html">マルチプレイヤー ブラウザゲーム</a> &middot; <a href="/ja/board-games-with-friends.html">友達と遊べるボードゲーム</a> &middot; <a href="/ja/word-games.html">無料ワードゲーム</a></p>
+    
+  </footer>
+  
+
+
+
+
+
+
+  <script type="module" src="/assets/site.js?v=babe1d4-20260929T000908Z"></script>
+
+  <script type="module">
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    initAnalytics({ page: 'ja-zelakas-in-space' });
+    trackPlayClicks();
+  </script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+  <p class="lang-note">このページは日本語です。ゲーム本体は英語ですが、チェス・チェッカー・ルドーには文字がほとんどありません。</p>
+</body>
+</html>
