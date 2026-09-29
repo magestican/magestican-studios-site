@@ -1314,7 +1314,7 @@
 
 
 
-<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=babe1d4-20260929T000908Z"></script>
+<script defer src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=ba08d57-20260929T074339Z"></script>
 
 
 
@@ -1482,6 +1482,31 @@
     
     catch (_) { return false; }
   }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  var RETRY_KEY = 'fmlBootRetry', RETRY_MAX = 2, RETRY_MS = 120000, retrying = false;
+  function retried() {
+    if (retrying) return true;
+    try {
+      var now = Date.now();
+      var seen = JSON.parse(window.sessionStorage.getItem(RETRY_KEY) || 'null');
+      var n = seen && now - seen.t < RETRY_MS ? seen.n : 0;
+      if (n >= RETRY_MAX) return false;
+      window.sessionStorage.setItem(RETRY_KEY, JSON.stringify({ n: n + 1, t: now }));
+    } catch (_) { return false; }
+    retrying = true;
+    var say = document.getElementById('loadingsay');
+    if (say) say.textContent = 'Fetching a piece that went missing';
+    location.reload();
+    return true;
+  }
   window.addEventListener('error', function (e) {
     var t = e && e.target;
     if (t && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
@@ -1489,7 +1514,7 @@
       
       
       if (url) window.__fmlBlocked.push(String(url));
-      if (t.tagName === 'SCRIPT' && needful(url)) stop('a script was blocked: ' + url);
+      if (t.tagName === 'SCRIPT' && needful(url) && !live().ready && !live().error && !retried()) stop('a script was blocked: ' + url);
       return;
     }
     if (e && e.message) stop(e.message);
@@ -1670,6 +1695,6 @@
 <button id="pick" type="button" aria-label="Pick up">Pick up</button>
 <button id="gesture" type="button" aria-label="Gestures - wave, cheer, bow" hidden>Hi!</button>
 <div id="hud" hidden>loading the moon</div>
-<script type="module" src="src/play/main.js?v=babe1d4-20260929T000908Z"></script>
+<script type="module" src="src/play/main.js?v=ba08d57-20260929T074339Z"></script>
 </body>
 </html>
