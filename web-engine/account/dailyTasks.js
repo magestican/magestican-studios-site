@@ -97,8 +97,9 @@
 
 import { SeededRng } from '../rng/seededRng.js';
 import {
-  GAME_IDS, GAME_NAMES, isGameId, gameOfTheDay, goalDeckFor, COMPLETION_METRIC,
+  GAME_NAMES, isGameId, gameOfTheDay, goalDeckFor, COMPLETION_METRIC,
 } from './dailyChallenge.js';
+import { CLOUD_GAME_IDS } from '../progress/gameIds.js';
 
 
 export const TASK_SLOTS = Object.freeze(['warmup', 'main', 'wildcard']);
@@ -119,7 +120,15 @@ export const TASK_XP = Object.freeze({ warmup: 15, main: 45, wildcard: 30 });
 export const DAY_COMPLETE_XP = 60;
 
 
-const GRADED = GAME_IDS.filter((id) => goalDeckFor(id).length > 1);
+
+
+
+
+
+
+
+
+const GRADED = CLOUD_GAME_IDS.filter((id) => goalDeckFor(id).length > 1);
 
 
 
@@ -243,13 +252,19 @@ function dealWildcard(rng, ctx) {
 
 
 
+
+
+
+
+
+
 function pickPair(rng, featured) {
-  const others = GAME_IDS.filter((id) => id !== featured);
+  const others = CLOUD_GAME_IDS.filter((id) => id !== featured);
   const other = rng.pick(others);
   
   
   
-  return GAME_IDS.filter((id) => id === featured || id === other);
+  return CLOUD_GAME_IDS.filter((id) => id === featured || id === other);
 }
 
 function task(slot, kind, target, text, extra) {
@@ -297,10 +312,16 @@ function countFor(task, ledger) {
       return num(l[task.gameId]?.[task.metric]);
     case 'featured-play':
       return completions(l, task.gameId);
+    
+    
+    
+    
+    
+    
     case 'any-completion':
-      return GAME_IDS.reduce((n, id) => n + completions(l, id), 0);
+      return CLOUD_GAME_IDS.reduce((n, id) => n + completions(l, id), 0);
     case 'distinct-games':
-      return GAME_IDS.filter((id) => completions(l, id) > 0).length;
+      return CLOUD_GAME_IDS.filter((id) => completions(l, id) > 0).length;
     case 'game-pair':
       return (task.pair ?? []).filter((id) => completions(l, id) > 0).length;
     default:

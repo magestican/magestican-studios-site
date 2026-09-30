@@ -84,8 +84,12 @@
 
 
 import { GAME_IDS, GAME_NAMES } from './dailyChallenge.js';
-import { RANKS, rankFor, normaliseProfile } from './profile.js';
+import { rankFor, normaliseProfile, awardBadgeXp, awardTrophyXp } from './profile.js';
 import { daysBetween } from './dayKey.js';
+import { TOUR_GAME_IDS, PROFILE_GAME_IDS, PROFILE_GAME_NAMES, CLOUD_GAME_IDS } from '../progress/gameIds.js';
+import { masteryOf, MASTERY_MAX } from '../progress/mastery.js';
+import { levelFromXp } from './playerLevel.js';
+import { seasonTierAt } from './season.js';
 
 
 
@@ -241,7 +245,42 @@ export const STATS = Object.freeze([
   'fkLapSunflowerMs', 'fkLapMuddybottomMs', 'fkLapFrostfieldMs',
   'fxPlays',
   'zkPlays',
+  
+  'gamesPlayed', 'gamesWon', 'nightOwl', 'weekender', 'onlineMatches', 'ratedMatchesBest',
+  
+  
+  ...PROFILE_GAME_IDS.flatMap((id) => [`wins:${id}`, `mastery:${id}`]),
 ]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const DEVICE_ONLY_STATS = Object.freeze([
+  'gamesPlayed', 'gamesWon', 'nightOwl', 'weekender', 'onlineMatches', 'ratedMatchesBest',
+  ...PROFILE_GAME_IDS.filter((id) => !CLOUD_GAME_IDS.includes(id))
+    .flatMap((id) => [`wins:${id}`, `mastery:${id}`]),
+]);
+
+
 
 
 
@@ -276,6 +315,18 @@ export const STAT_FIELD = Object.freeze({
   fkLapFrostfieldMs: 'fkBestLapMs',
   fxPlays: 'plays',
   zkPlays: 'plays',
+  
+  
+  
+  ...Object.fromEntries(PROFILE_GAME_IDS.flatMap((id) => (CLOUD_GAME_IDS.includes(id)
+    ? [[`wins:${id}`, 'wins'], [`mastery:${id}`, 'plays']]
+    : [[`wins:${id}`, null], [`mastery:${id}`, null]]))),
+  gamesPlayed: null,
+  gamesWon: null,
+  nightOwl: null,
+  weekender: null,
+  onlineMatches: null,
+  ratedMatchesBest: null,
 });
 
 
@@ -315,7 +366,55 @@ export const PAR_LAP_MS = Object.freeze({
 
 
 
+
+
+
+
+
 const A = (o) => Object.freeze(o);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const LEGACY_RANK_BADGES = Object.freeze([
+  Object.freeze({ id: 'rank-drover', name: 'Drover', at: 500, tier: 'common' }),
+  Object.freeze({ id: 'rank-stockhand', name: 'Stockhand', at: 1500, tier: 'uncommon' }),
+  Object.freeze({ id: 'rank-boss', name: 'Ranch Boss', at: 4000, tier: 'rare' }),
+  Object.freeze({ id: 'rank-legend', name: 'Barn Legend', at: 10000, tier: 'legendary' }),
+]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const NO_WIN_GAME_IDS = Object.freeze(['silk-and-seam', 'farmy-moon-life']);
 
 export const ACHIEVEMENTS = Object.freeze([
   
@@ -331,22 +430,14 @@ export const ACHIEVEMENTS = Object.freeze([
     id: 'tried-all', name: 'Whole Farm', game: 'all', tier: 'uncommon', glyph: '✲',
     desc: 'Play all four games.', stat: 'gamesTried', atLeast: 4,
   }),
-  A({
-    id: 'rank-drover', name: 'Drover', game: 'all', tier: 'common', glyph: '★',
-    desc: `Reach the rank of ${RANKS[1].name}.`, stat: 'rankIndex', atLeast: 1,
-  }),
-  A({
-    id: 'rank-stockhand', name: 'Stockhand', game: 'all', tier: 'uncommon', glyph: '★',
-    desc: `Reach the rank of ${RANKS[2].name}.`, stat: 'rankIndex', atLeast: 2,
-  }),
-  A({
-    id: 'rank-boss', name: 'Ranch Boss', game: 'all', tier: 'rare', glyph: '★',
-    desc: `Reach the rank of ${RANKS[3].name}.`, stat: 'rankIndex', atLeast: 3,
-  }),
-  A({
-    id: 'rank-legend', name: 'Barn Legend', game: 'all', tier: 'legendary', glyph: '★',
-    desc: `Reach the rank of ${RANKS[4].name}.`, stat: 'rankIndex', atLeast: 4,
-  }),
+  
+  
+  
+  ...LEGACY_RANK_BADGES.map((b) => A({
+    id: b.id, name: b.name, game: 'all', tier: b.tier, glyph: '★',
+    desc: `Earn ${b.at.toLocaleString('en-US')} XP - a rank on the original farm ladder.`,
+    stat: 'xp', atLeast: b.at,
+  })),
 
   
   
@@ -548,6 +639,76 @@ export const ACHIEVEMENTS = Object.freeze([
     id: 'zk-40', name: 'Space Commuter', game: 'zelakas', tier: 'rare', glyph: '△',
     desc: 'Take forty flights.', stat: 'zkPlays', atLeast: 40, hidden: true,
   }),
+
+  
+  
+  
+  
+  
+  
+  A({
+    id: 'explorer', name: 'Explorer', game: 'all', tier: 'common', glyph: '✧',
+    desc: 'Play three different games.', stat: 'gamesPlayed', atLeast: 3,
+  }),
+  A({
+    id: 'collector', name: 'Collector', game: 'all', tier: 'uncommon', glyph: '❖',
+    desc: 'Play eight different games.', stat: 'gamesPlayed', atLeast: 8,
+  }),
+  A({
+    id: 'polymath', name: 'Polymath', game: 'all', tier: 'rare', glyph: '✪',
+    desc: 'Win in five different games.', stat: 'gamesWon', atLeast: 5,
+  }),
+  
+  A({
+    id: 'night-owl', name: 'Night Owl', game: 'all', tier: 'common', glyph: '☾',
+    desc: 'Finish a match between midnight and four in the morning.', stat: 'nightOwl', atLeast: 1,
+    hidden: true,
+  }),
+  
+  
+  
+  
+  
+  A({
+    id: 'social', name: 'Social', game: 'all', tier: 'uncommon', glyph: '☺',
+    desc: 'Play ten online matches with other people.', stat: 'onlineMatches', atLeast: 10,
+  }),
+  A({
+    id: 'rival', name: 'Rival', game: 'all', tier: 'rare', glyph: '⚔',
+    desc: 'Play twenty-five rated matches of one game.', stat: 'ratedMatchesBest', atLeast: 25,
+  }),
+  A({
+    id: 'weekender', name: 'Weekender', game: 'all', tier: 'common', glyph: '☀',
+    desc: 'Play on a Saturday and the Sunday after it.', stat: 'weekender', atLeast: 1,
+  }),
+
+  
+  
+  
+  
+  
+  
+  
+  
+  ...PROFILE_GAME_IDS.flatMap((id) => {
+    const game = PROFILE_GAME_NAMES[id] ?? id;
+    const master = A({
+      id: `${id}-master`, name: `${game}: Master`, game: id, tier: 'legendary', glyph: '♛',
+      desc: `Reach mastery ${MASTERY_MAX} in ${game}.`, stat: `mastery:${id}`, atLeast: MASTERY_MAX,
+    });
+    if (NO_WIN_GAME_IDS.includes(id)) return [master];
+    return [
+      A({
+        id: `${id}-first-win`, name: `${game}: First Win`, game: id, tier: 'common', glyph: '⚑',
+        desc: `Win a match of ${game}.`, stat: `wins:${id}`, atLeast: 1,
+      }),
+      A({
+        id: `${id}-ten-wins`, name: `${game}: Ten Wins`, game: id, tier: 'uncommon', glyph: '⚑',
+        desc: `Win ten matches of ${game}.`, stat: `wins:${id}`, atLeast: 10,
+      }),
+      master,
+    ];
+  }),
 ]);
 
 
@@ -591,10 +752,37 @@ export function statsFor(profile, { today = null, kartRecords = null } = {}) {
   const raced = ['sunflower', 'muddybottom', 'frostfield']
     .filter((id) => lap(id) > 0).length;
 
+  
+  
+  
+  
+  
+  
+  
+  const played = Object.keys(p.games).filter((id) => n(p.games[id].plays) > 0);
+  const wonIn = Object.keys(p.games).filter((id) => n(p.games[id].wins) > 0);
+  const ratings = Object.values(p.ratings ?? {});
+  const perGame = {};
+  for (const id of PROFILE_GAME_IDS) {
+    const gg = g(id);
+    perGame[`wins:${id}`] = n(gg.wins);
+    
+    
+    perGame[`mastery:${id}`] = n(gg.plays) + n(gg.wins) > 0 ? masteryOf(gg).tier : 0;
+  }
+
   return {
     accountAgeDays: age === null || age < 0 ? 0 : age,
-    totalPlays: GAME_IDS.reduce((t, id) => t + n(g(id).plays), 0),
-    gamesTried: GAME_IDS.filter((id) => n(g(id).plays) > 0).length,
+    
+    
+    
+    
+    
+    
+    
+    
+    totalPlays: TOUR_GAME_IDS.reduce((t, id) => t + n(g(id).plays), 0),
+    gamesTried: TOUR_GAME_IDS.filter((id) => n(g(id).plays) > 0).length,
     xp: n(p.xp),
     rankIndex: rankFor(p.xp).index,
     streakBest: n(p.streak.best),
@@ -614,6 +802,30 @@ export function statsFor(profile, { today = null, kartRecords = null } = {}) {
     fkLapFrostfieldMs: lap('frostfield'),
     fxPlays: n(g('2d-fighter-ex').plays),
     zkPlays: n(g('zelakas').plays),
+    
+    gamesPlayed: played.length,
+    gamesWon: wonIn.length,
+    nightOwl: n(p.feats.nightOwl),
+    weekender: n(p.feats.weekender),
+    onlineMatches: n(p.feats.onlineMatches),
+    ratedMatchesBest: ratings.reduce((m, r) => Math.max(m, n(r.n)), 0),
+    ...perGame,
+    
+    
+    level: levelFromXp(p.xp).level,
+    playedGames: played,
+    onlineWins: n(p.feats.onlineWins),
+    
+    eloPeak: ratings.reduce((m, r) => Math.max(m, n(r.peak)), 0),
+    seasonId: Number.isInteger(p.season.id) ? p.season.id : null,
+    
+    seasonTier: Number.isInteger(p.season.id) ? seasonTierAt(p.season.xp) : 0,
+    seasonsTopped: [...p.feats.seasonsTopped],
+    
+    
+    
+    
+    trophyAt: { ...p.feats.trophyAt },
   };
 }
 
@@ -715,6 +927,88 @@ export function evaluate(stats, { synced = false, saveSync = false, rulesLanded 
       unlockedDay: unlocked ? (Number.isInteger(seen?.[a.id]) ? seen[a.id] : null) : null,
     };
   });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function settleBadgeXp(profile, rowsBefore, rowsFor, maxRounds = 6,
+  { trophiesBefore = null, trophiesFor = null } = {}) {
+  const wasLocked = new Set((rowsBefore ?? []).filter((r) => !r.unlocked).map((r) => r.id));
+  
+  
+  const withTrophies = typeof trophiesFor === 'function' && Array.isArray(trophiesBefore);
+  
+  
+  
+  
+  
+  const trophyHeld = new Set((withTrophies ? trophiesBefore : []).filter((r) => r?.unlocked).map((r) => r.id));
+  const trophyWasLocked = { has: (id) => !trophyHeld.has(id) };
+  const paid = new Set();
+  const paidTrophies = new Set();
+  const events = [];
+  let p = profile;
+  let rows = rowsFor(p);
+  let trophies = withTrophies ? trophiesFor(p) : [];
+  for (let round = 0; round < maxRounds; round++) {
+    
+    
+    
+    const due = [];
+    for (const r of rows) {
+      if (r.unlocked && wasLocked.has(r.id) && !paid.has(r.id)) { due.push(r); paid.add(r.id); }
+    }
+    const dueTrophies = [];
+    for (const t of trophies) {
+      if (t.unlocked && trophyWasLocked.has(t.id) && !paidTrophies.has(t.id)) {
+        dueTrophies.push(t); paidTrophies.add(t.id);
+      }
+    }
+    if (!due.length && !dueTrophies.length) break;
+    if (due.length) {
+      const res = awardBadgeXp(p, due);
+      p = res.profile;
+      events.push(...res.events);
+    }
+    if (dueTrophies.length) {
+      const res = awardTrophyXp(p, dueTrophies);
+      p = res.profile;
+      events.push(...res.events);
+    }
+    rows = rowsFor(p);
+    if (withTrophies) trophies = trophiesFor(p);
+  }
+  return {
+    profile: p,
+    rows,
+    events,
+    justUnlocked: rows.filter((r) => r.unlocked && wasLocked.has(r.id)),
+    trophies,
+    justUnlockedTrophies: trophies.filter((t) => t.unlocked && trophyWasLocked.has(t.id)),
+  };
 }
 
 

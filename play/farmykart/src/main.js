@@ -29,7 +29,7 @@ import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderbo
 
 
 import { recordSession, syncFromCloud, accountSummary } from '../../../web-engine/account/account.js';
-import { levelFrom, totalsFromSummary } from '../../../web-engine/account/playerLevel.js';
+import { levelFromXp } from '../../../web-engine/account/playerLevel.js';
 import { sessionLines } from '../../../web-engine/account/accountBadge.js';
 import { mountProfilePanel } from '../../../web-engine/account/accountUi.js';
 import { shareCard } from '../../../web-engine/account/shareCard.js';
@@ -1422,6 +1422,11 @@ function refreshAccountPanel() {
 
 
 
+
+
+
+
+
 function refreshLoginChip() {
   const chip = $('login-chip');
   if (!chip) return;
@@ -1429,7 +1434,7 @@ function refreshLoginChip() {
   try { summary = accountSummary(); } catch {  }
   chip.hidden = false;
   if (summary && summary.linked) {
-    const lvl = levelFrom(totalsFromSummary(summary));
+    const lvl = levelFromXp(summary.rank?.xp);
     chip.classList.add('level');
     chip.innerHTML = '';
     const b = document.createElement('b');
@@ -1438,7 +1443,7 @@ function refreshLoginChip() {
     chip.appendChild(document.createTextNode(
       ` ${summary.name ? String(summary.name).slice(0, 14) : ''}`,
     ));
-    chip.title = `${lvl.intoLevel}/${lvl.forNext} xp to level ${lvl.level + 1}`;
+    chip.title = `${lvl.xpIntoLevel}/${lvl.xpForNext} xp to level ${lvl.level + 1}`;
   } else {
     chip.classList.remove('level');
     chip.textContent = 'Log in';
