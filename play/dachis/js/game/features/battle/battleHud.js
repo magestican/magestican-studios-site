@@ -4,6 +4,7 @@
 
 
 import { G } from '../../state.js';
+import { icon } from '../../../engine/ui/icons.js';
 import { speciesById, statsOf, TYPES, ATTR_COLOR, attrOf } from '../../data/species.js';
 import { B, orderSpecial, orderStance, orderFinisher, orderParry, parryReady, finisherReady, startRitual, useTonic, cycleSwap, tryRun, canRitual } from './battle.js';
 import { KIND_LABEL } from './techniques.js';
@@ -44,14 +45,14 @@ export function updateBattleHud() {
   if (!B) { btnKey = ''; return; }
   wire();
   const e = B.enemy, es = speciesById(e.d.sp), f = hpFraction(e.d);
-  const nameHtml = `${e.d.corrupt ? '<span class="corrupt">CORRUPTED</span> ' : ''}${es.name} <span class="lv">Lv ${e.d.lvl}</span> ${attrBadge(attrOf(e.d))} ${typeChips(es.types)} ${G.dex.caught[es.id] ? '<span class="owned" title="Already befriended">♥</span>' : ''} <span class="rarity r-${es.rarity}">${es.rarity}</span>`;
+  const nameHtml = `${e.d.corrupt ? '<span class="corrupt">CORRUPTED</span> ' : ''}${es.name} <span class="lv">Lv ${e.d.lvl}</span> ${attrBadge(attrOf(e.d))} ${typeChips(es.types)} ${G.dex.caught[es.id] ? '<span class="owned" title="Already befriended">' + icon('heart') + '</span>' : ''} <span class="rarity r-${es.rarity}">${es.rarity}</span>`;
   if ($('enemyName').dataset.h !== nameHtml) { $('enemyName').innerHTML = nameHtml; $('enemyName').dataset.h = nameHtml; }
   bars(e, 'enemy');
   const low = f < CAPTURE_HP && e.d.hp > 0 && !B.script;
   $('capTag').classList.toggle('hidden', !low || !!B.ritual);
   const a = B.ally, s = speciesById(a.d.sp);
   const bond = bondOf(a.d);
-  const allyHtml = `${s.name} <span class="lv">Lv ${a.d.lvl}</span> ${attrBadge(attrOf(a.d))} ${typeChips(s.types)} <span class="bond${bond < 50 ? ' low' : ''}" title="Bond: below 50 it may hesitate on your orders">♥ ${bond}</span>`;
+  const allyHtml = `${s.name} <span class="lv">Lv ${a.d.lvl}</span> ${attrBadge(attrOf(a.d))} ${typeChips(s.types)} <span class="bond${bond < 50 ? ' low' : ''}" title="Bond: below 50 it may hesitate on your orders">${icon('heart')} ${bond}</span>`;
   if ($('allyName').dataset.h !== allyHtml) { $('allyName').innerHTML = allyHtml; $('allyName').dataset.h = allyHtml; }
   bars(a, 'ally');
   const key = a.d.uid + ':' + a.d.sp;
@@ -69,7 +70,7 @@ export function updateBattleHud() {
     });
     const fb = document.createElement('button'); fb.className = 'special finisher tappable'; fb.id = 'finBtn';
     fb.style.setProperty('--tc', TYPES[fin.type]); fb.dataset.key = 'F'; fb.dataset.pad = 'A';
-    fb.innerHTML = `<div class="mn">★ ${fin.name}</div><div class="mk">finishing move</div><div class="cdv"></div>`;
+    fb.innerHTML = `<div class="mn">${icon('star')} ${fin.name}</div><div class="mk">finishing move</div><div class="cdv"></div>`;
     fb.onclick = () => orderFinisher();
     bar.appendChild(fb);
   }
@@ -99,7 +100,7 @@ export function updateBattleHud() {
   const ritualOk = canRitual();
   $('befriendBtn').classList.toggle('glow', low && !B.ritual);
   $('befriendBtn').disabled = !ritualOk;
-  $('befriendBtn').innerHTML = `♥ ${low ? 'Befriend!' : 'Heart Seal'} <small>${low ? 'ritual' : 'x' + G.items.seal}</small>`;
-  $('tonicBtn').innerHTML = `☕ Tonic <small>x${G.items.tonic}</small>`;
-  $('runBtn').innerHTML = B.ritual ? '✕ Stop ritual' : '↶ Run';
+  $('befriendBtn').innerHTML = `${icon('heart')} ${low ? 'Befriend!' : 'Heart Seal'} <small>${low ? 'ritual' : 'x' + G.items.seal}</small>`;
+  $('tonicBtn').innerHTML = `${icon('cup')} Tonic <small>x${G.items.tonic}</small>`;
+  $('runBtn').innerHTML = B.ritual ? icon('close') + ' Stop ritual' : icon('back') + ' Run';
 }

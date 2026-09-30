@@ -5,6 +5,7 @@ import { createStage } from '../engine/iso/stage.js';
 import { createInput, PAD } from '../engine/input/input.js';
 import { createHints } from '../engine/ui/hints.js';
 import { createDialog, toast } from '../engine/ui/dialog.js';
+import { hydrateIcons } from '../engine/ui/icons.js';
 import { createSfx } from '../engine/audio/sfx.js';
 import { G, S, hasSave, loadGame, saveGame, healParty } from './state.js';
 import { SOUNDS } from './sounds.js';
@@ -66,10 +67,11 @@ S.input = createInput({
     befriend: [PAD.RT], tonic: [PAD.LT], swap: [PAD.LB], flee: [PAD.BACK],
     stance1: [PAD.UP], stance2: [PAD.DOWN], stance3: [PAD.LEFT, PAD.RIGHT], finisher: [PAD.A], parry: [PAD.B],
   },
-  glyphs: { action: { key: 'E', pad: 'A' }, befriend: { key: 'C', pad: 'RT' }, menu: { key: 'Esc', pad: '≡' } },
+  glyphs: { action: { key: 'E', pad: 'A' }, befriend: { key: 'C', pad: 'RT' }, menu: { key: 'Esc', pad: 'Start' } },
   stickZone: $('touchZone'),
   canStartStick: e => G.mode === 'world' && !S.dialog.active && !S.hints.hit(e.clientX, e.clientY),
 });
+hydrateIcons(document); 
 S.hints = createHints(S.input);
 S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onBlip: () => S.sfx.play('blip'), format: s => s.replace(/\{name\}/g, G.name) });
 S.flash = 0;

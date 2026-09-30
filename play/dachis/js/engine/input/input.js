@@ -17,7 +17,8 @@ export const PAD = { A: 0, B: 1, X: 2, Y: 3, LB: 4, RB: 5, LT: 6, RT: 7, BACK: 8
 export function createInput({ bindings, padBindings = {}, glyphs = {}, stickZone = null, canStartStick = () => true }) {
   const bus = new InputBus(window);
   bus.bindings = { ...bindings };
-  let mode = 'keys';
+  
+  let mode = window.matchMedia && matchMedia('(pointer: coarse) and (hover: none)').matches ? 'touch' : 'keys';
   const modeListeners = new Set();
   const setMode = m => {
     if (m === mode) return;
@@ -26,7 +27,7 @@ export function createInput({ bindings, padBindings = {}, glyphs = {}, stickZone
     document.body.classList.add('input-' + m);
     modeListeners.forEach(f => f(m));
   };
-  document.body.classList.add('input-keys');
+  document.body.classList.add('input-' + mode);
   window.addEventListener('keydown', () => setMode('keys'));
   window.addEventListener('pointerdown', e => setMode(e.pointerType === 'touch' ? 'touch' : mode === 'touch' ? 'keys' : mode), true);
 

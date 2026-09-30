@@ -1,6 +1,7 @@
 
 
 import { toast } from '../../../engine/ui/dialog.js';
+import { icon } from '../../../engine/ui/icons.js';
 import { mountSoundToggle } from '../../../vendor/arbelo/ui/muteButton.js';
 import { G, S, saveGame, deleteSave } from '../../state.js';
 import { SPECIES, speciesById, statsOf, TYPES, capsFor, attrOf } from '../../data/species.js';
@@ -56,7 +57,7 @@ function party(body) {
   detail.appendChild(sprite(d.sp, 128));
   const info = document.createElement('div');
   const evo = s.evolvesTo ? `Evolves into <b>${G.dex.seen[s.evolvesTo] ? speciesById(s.evolvesTo).name : '???'}</b> at Lv ${s.evolveAt}` : 'Final form';
-  info.innerHTML = `<h3>${s.id > 200 ? '★' : '#' + String(s.id).padStart(3, '0')} ${s.name} <span class="lv">Lv ${d.lvl} / ${capsFor(G.cycle).maxLevel}</span></h3>
+  info.innerHTML = `<h3>${s.id > 200 ? icon('star') : '#' + String(s.id).padStart(3, '0')} ${s.name} <span class="lv">Lv ${d.lvl} / ${capsFor(G.cycle).maxLevel}</span></h3>
     <div class="types">${attrBadge(attrOf(d))} ${chips(s.types)} <span class="rarity r-${s.rarity}">${s.rarity}</span></div>
     <p>HP ${d.hp}/${st.maxHp} · ATK ${st.atk} · DEF ${st.def} · SPD ${st.spd}</p>
     <p>XP ${d.xp} / ${d.lvl >= capsFor(G.cycle).maxLevel ? 'MAX' : xpToNext(d.lvl)} · ${evo}</p>
@@ -96,10 +97,10 @@ function dex(body) {
 
 function items(body) {
   const list = document.createElement('div'); list.className = 'items';
-  for (const [k, it] of Object.entries(ITEMS)) list.insertAdjacentHTML('beforeend', `<div class="item"><span class="ico">${it.icon}</span><div><b>${it.name} x${G.items[k] || 0}</b><p>${it.text}</p></div></div>`);
-  if (G.items.charm) list.insertAdjacentHTML('beforeend', '<div class="item"><span class="ico">⚘</span><div><b>Kumabo’s Lucky Charm</b><p>A tiny warm bolt tied with a pink ribbon. Kumabo gave it to you after your initiation.</p></div></div>');
-  if (G.items.egg) list.insertAdjacentHTML('beforeend', '<div class="item"><span class="ico">\u{1F95A}</span><div><b>Guardian Egg</b><p>Hibone’s egg. It is warm, and it feels like it is listening.</p></div></div>');
-  list.insertAdjacentHTML('beforeend', '<div class="item"><span class="ico">♡</span><div><b>Bond Ritual · always ready</b><p>Tap a wild dachi below 25% HP during battle and trace the pattern.</p></div></div>');
+  for (const [k, it] of Object.entries(ITEMS)) list.insertAdjacentHTML('beforeend', `<div class="item"><span class="ico">${icon(it.icon)}</span><div><b>${it.name} x${G.items[k] || 0}</b><p>${it.text}</p></div></div>`);
+  if (G.items.charm) list.insertAdjacentHTML('beforeend', '<div class="item"><span class="ico">' + icon('flower') + '</span><div><b>Kumabo’s Lucky Charm</b><p>A tiny warm bolt tied with a pink ribbon. Kumabo gave it to you after your initiation.</p></div></div>');
+  if (G.items.egg) list.insertAdjacentHTML('beforeend', '<div class="item"><span class="ico">' + icon('egg') + '</span><div><b>Guardian Egg</b><p>Hibone’s egg. It is warm, and it feels like it is listening.</p></div></div>');
+  list.insertAdjacentHTML('beforeend', '<div class="item"><span class="ico">' + icon('heartOutline') + '</span><div><b>Bond Ritual · always ready</b><p>Tap a wild dachi below 25% HP during battle and trace the pattern.</p></div></div>');
   body.appendChild(list);
   const b = document.createElement('button'); b.className = 'tappable'; b.textContent = `Berry Tonic on every companion (${G.items.tonic} left)`;
   b.onclick = () => {

@@ -12,12 +12,12 @@
 
 
 
-  <meta name="build" content="737fd45-20260930T095819Z">
+  <meta name="build" content="0125e3b-20260930T132516Z">
   <script>
     (function () {
       var FILES = ['js/engine/audio/sfx.js', 'js/engine/core/save.js', 'js/engine/core/util.js', 'js/engine/input/input.js',
         'js/engine/iso/billboard.js', 'js/engine/iso/cozyStage.js', 'js/engine/iso/groundPaths.js', 'js/engine/iso/pixelPass.js', 'js/engine/iso/seeThrough.js', 'js/engine/iso/stage.js', 'js/engine/iso/terrain.js', 'js/engine/iso/water.js',
-        'js/engine/ui/dialog.js', 'js/engine/ui/hints.js', 'js/engine/ui/pixelLayer.js',
+        'js/engine/ui/dialog.js', 'js/engine/ui/hints.js', 'js/engine/ui/icons.js', 'js/engine/ui/pixelLayer.js',
         'js/game/art/aerowingModel.js', 'js/game/art/billboards.js', 'js/game/art/bossModel.js', 'js/game/art/castActor.js', 'js/game/art/characters.js', 'js/game/art/dachiActor.js', 'js/game/art/dachiFx.js', 'js/game/art/dachiModel.js', 'js/game/art/dachiPlans.js', 'js/game/art/dachiWorker.js',
         'js/game/art/elderModel.js', 'js/game/art/humanModel.js', 'js/game/art/humanRig.js', 'js/game/art/kidModel.js', 'js/game/art/lookdev.js', 'js/game/art/portraitRender.js', 'js/game/art/portraits.js',
         'js/game/art/scenery/fences.js', 'js/game/art/scenery/flowerBeds.js', 'js/game/art/scenery/formPack.js', 'js/game/art/scenery/growth.js', 'js/game/art/scenery/huts.js', 'js/game/art/scenery/kit.js', 'js/game/art/scenery/lavaCrater.js',
@@ -57,7 +57,7 @@
   <div id="hud" class="hidden">
     <div id="locBar"><span id="locName">Kazan Village</span><small id="objective"></small></div>
     <div id="minimap"><canvas id="miniCanvas" width="190" height="190"></canvas></div>
-    <button id="skullBtn" class="tappable" title="Options" aria-label="Options menu" data-key="Esc" data-pad="&#8801;">
+    <button id="skullBtn" class="tappable" title="Options" aria-label="Options menu" data-key="Esc" data-pad="Start">
       <svg viewBox="0 0 64 48" aria-hidden="true">
         <path d="M6 22 C6 10 18 4 32 5 C44 6 52 10 57 17 L61 17 C63 19 62 23 59 24 L56 25 C55 30 52 33 47 34 L46 40 L42 36 L40 42 L36 37 L33 43 L30 37 L26 41 L24 35 C16 34 8 30 6 22 Z" fill="#f4ecd8" stroke="#2a1f14" stroke-width="2.5" stroke-linejoin="round"/>
         <path d="M14 8 L8 1 L19 6 M24 5 L22 -2 L29 5" fill="#f4ecd8" stroke="#2a1f14" stroke-width="2" stroke-linejoin="round"/>
@@ -84,22 +84,22 @@
         <div class="bar big"><b id="enemyHp"></b><i class="mark25" title="Below this line it can be befriended"></i><span id="enemyHpTxt"></span></div>
         <div class="bar mp"><b id="enemyMp"></b><span id="enemyMpTxt"></span></div>
         <div class="bar fin"><b id="enemyFin"></b><span>FINISH</span></div>
-        <div id="capTag" class="hidden">&#9829; Weak enough to befriend &mdash; tap it!</div>
+        <div id="capTag" class="hidden"><i data-icon="heart"></i> Weak enough to befriend &mdash; tap it!</div>
       </div>
     </div>
     <div id="cmdBar">
       <div id="stances">
-        <button id="stAttack" class="stance tappable" data-key="4" data-pad="&#8593;">&#9876; Attack</button>
-        <button id="stGuard" class="stance tappable" data-key="5" data-pad="&#8595;">&#9670; Guard</button>
-        <button id="stAway" class="stance tappable" data-key="6" data-pad="&#8592;">&#187; Keep away</button>
-        <button id="parryBtn" class="stance parry tappable" data-key="G" data-pad="B" title="Press as a hit lands: melee is countered, shots are reflected">&#9889; Parry</button>
+        <button id="stAttack" class="stance tappable" data-key="4" data-pad="Up"><i data-icon="sword"></i> Attack</button>
+        <button id="stGuard" class="stance tappable" data-key="5" data-pad="Down"><i data-icon="guard"></i> Guard</button>
+        <button id="stAway" class="stance tappable" data-key="6" data-pad="Left"><i data-icon="away"></i> Keep away</button>
+        <button id="parryBtn" class="stance parry tappable" data-key="G" data-pad="B" title="Press as a hit lands: melee is countered, shots are reflected"><i data-icon="bolt"></i> Parry</button>
       </div>
       <div id="specials"></div>
     </div>
     <div id="battleBtns">
       <button id="befriendBtn" class="tappable" data-key="C" data-pad="RT"></button>
       <button id="tonicBtn" class="tappable" data-key="T" data-pad="LT"></button>
-      <button id="swapBtn" class="tappable" data-key="Q" data-pad="LB">&#8646; Switch</button>
+      <button id="swapBtn" class="tappable" data-key="Q" data-pad="LB"><i data-icon="swap"></i> Switch</button>
       <button id="runBtn" class="tappable" data-key="R" data-pad="Back"></button>
     </div>
   </div>
@@ -107,16 +107,16 @@
     <div class="ritualTitle">Befriending Ritual</div>
     <canvas id="ritualCanvas"></canvas>
     <div id="ritualInfo"></div>
-    <div class="ritualHelp"><span class="k">Press 1 2 3 as each ring closes</span><span class="p">X Y B or flick a stick &larr; &uarr; &rarr;</span><span class="t">Drag your finger through the glowing node</span></div>
+    <div class="ritualHelp"><span class="k">Press 1 2 3 as each ring closes</span><span class="p">X Y B or flick a stick left, up or right</span><span class="t">Drag your finger through the glowing node</span></div>
   </div>
 
   
   <div id="dialog" class="hidden">
     <canvas id="dlgPortrait" width="84" height="84"></canvas>
     <div class="dlgBody"><div id="dlgName"></div><div id="dlgText"></div><div id="choices"></div></div>
-    <div id="dlgNext" class="hidden">&#9660;</div>
+    <div id="dlgNext" class="hidden"><i data-icon="next"></i></div>
   </div>
-  <button id="skipBtn" class="hidden tappable" data-key="Esc">Skip &#9654;&#9654;</button>
+  <button id="skipBtn" class="hidden tappable" data-key="Esc">Skip <i data-icon="skip"></i></button>
 
   
   <div id="menu" class="hidden">
@@ -126,7 +126,7 @@
         <button class="tab tappable" data-tab="dex">Dachidex</button>
         <button class="tab tappable" data-tab="items">Items</button>
         <button class="tab tappable" data-tab="system">System</button>
-        <button id="menuClose" class="tappable" aria-label="Close" data-key="Esc">&#10005;</button>
+        <button id="menuClose" class="tappable" aria-label="Close" data-key="Esc"><i data-icon="close"></i></button>
       </div>
       <div id="menuBody"></div>
     </div>
@@ -153,6 +153,6 @@
   </div>
   <div id="toasts"></div>
 
-  <script type="module" src="js/game/main.js?v=737fd45-20260930T095819Z"></script>
+  <script type="module" src="js/game/main.js?v=0125e3b-20260930T132516Z"></script>
 </body>
 </html>

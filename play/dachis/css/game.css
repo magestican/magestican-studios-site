@@ -20,6 +20,14 @@ body.input-pad [data-pad]::after { content: attr(data-pad); background: #2f7d3b;
 body.input-touch .tappable:active { transform: scale(0.96); }
 
 
+.ic { display: inline-block; width: 1em; height: 1em; vertical-align: -0.14em; flex: none; }
+.item .ico .ic { width: 28px; height: 28px; color: #5a3c1e; }
+.item .ico .ic-heart, .item .ico .ic-heartOutline, #battleHud .ic-heart { color: #e0457b; }
+.item .ico .ic-sparkle, .ic-star { color: #e8a317; }
+.item .ico .ic-flower { color: #ef7fb0; }
+.item .ico .ic-egg { color: #e9dcc0; stroke: #8a6a3a; stroke-width: 1; }
+
+
 #hud { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
 #hud > * { pointer-events: auto; }
 #locBar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); padding: 7px 22px 6px; border-radius: 0 0 18px 18px; text-align: center;
@@ -230,7 +238,7 @@ button.big { display: block; width: 100%; margin: 8px 0; padding: 12px; border-r
   #battleBtns { right: auto; left: 6px; bottom: 150px; flex-direction: row; gap: 4px; width: calc(100vw - 12px); }
   #battleBtns button { width: auto; flex: 1 1 0; padding: 5px 4px; font-size: 12px; text-align: center; }
   #battleBtns button small { display: none; }
-  #ritual { right: auto; left: 50%; top: 42%; transform: translate(-50%, -50%); }
+  #ritual { right: auto; left: 50%; top: 42%; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 44px)); } 
   #title { overflow: auto; align-items: flex-start; padding: 8px 0; }
   .titleCard { padding: 10px 18px; }
   .logo { font-size: 40px; }
@@ -241,4 +249,40 @@ button.big { display: block; width: 100%; margin: 8px 0; padding: 12px; border-r
   #dlgText { font-size: 14px; min-height: 36px; }
   .choice canvas { width: 40px; height: 40px; }
   #ritualCanvas { height: 180px; }
+}
+
+
+
+body.input-keys #cmdBar, body.input-pad #cmdBar { gap: 12px; }
+body.input-keys #stances, body.input-pad #stances { gap: 10px; }
+body.input-keys #battleBtns, body.input-pad #battleBtns { gap: 12px; }
+
+body.input-keys .stance, body.input-pad .stance { padding-right: 30px; }
+body.input-pad .stance { padding-right: 40px; } 
+body.input-keys #battleBtns button, body.input-pad #battleBtns button { padding-right: 28px; }
+@media (min-width: 761px) and (min-height: 521px) { body.input-keys #battleBtns button, body.input-pad #battleBtns button { width: 168px; } }
+
+body:has(#dialog:not(.hidden)) #companions, body:has(#dialog:not(.hidden)) #actionBtn { visibility: hidden; }
+
+body:has(#menu:not(.hidden)) #hud, body:has(#menu:not(.hidden)) #actionBtn, body:has(#title:not(.hidden)) #actionBtn { visibility: hidden; }
+
+body:has(#ritual:not(.hidden)) #cmdBar, body:has(#ritual:not(.hidden)) #befriendBtn,
+body:has(#ritual:not(.hidden)) #tonicBtn, body:has(#ritual:not(.hidden)) #swapBtn { display: none; }
+@media (max-width: 760px), (max-height: 520px) {
+  
+  #toasts { top: 190px; width: calc(100vw - 16px); }
+  .toast { text-align: center; }
+}
+@media (min-width: 761px) and (max-width: 1060px) and (min-height: 521px) {
+  
+
+  #specials { display: grid; grid-template-columns: 150px 150px; }
+  
+  #cmdBar { left: calc(50% - 40px); }
+}
+@media (max-height: 520px) {
+  
+  #ritual { top: 84px; bottom: auto; transform: translateX(-50%); }
+  #ritualCanvas { height: 140px; }
+  body:has(#ritual:not(.hidden)) #battleBtns { bottom: 6px; }
 }

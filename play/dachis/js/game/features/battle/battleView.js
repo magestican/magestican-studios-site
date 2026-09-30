@@ -26,6 +26,26 @@ import { toUV, fromUV, screenS, sectionById, viewFor } from '../world/sections.j
 const scr = (x, y, lift = 0) => S.stage.toScreen(x, y, S.W.groundAt(x, y) + lift);
 let layer = null;
 
+
+
+const HUD_IDS = ['allyPanel', 'enemyPanel', 'stances', 'specials', 'battleBtns', 'ritual'];
+let hudCache = { t: -1, w: 0, boxes: [] };
+function hudBoxes(L) {
+  const now = performance.now();
+  if (now - hudCache.t < 250 && hudCache.w === L.w) return hudCache.boxes;
+  const f = L.w / innerWidth, boxes = [];
+  for (const id of HUD_IDS) {
+    const el = document.getElementById(id);
+    if (!el || el.closest('.hidden') || getComputedStyle(el).display === 'none') continue;
+    const r = el.getBoundingClientRect();
+    
+    const m = id === 'ritual' ? 10 : 0, md = id === 'ritual' ? 18 : 0;
+    if (r.width > 0 && r.height > 0) boxes.push({ x: (r.left - m + (r.width + m + md) / 2) * f, y: (r.top - m) * f, w: (r.width + m + md) * f, h: (r.height + m + md) * f });
+  }
+  hudCache = { t: now, w: L.w, boxes };
+  return boxes;
+}
+
 const fits = (pts, f, aspect) => pts.every(p => Math.abs(p.u - f.u) <= f.vh * aspect / 2 && Math.abs(p.s - f.s) <= f.vh / 2);
 
 export function battleFocus() {
@@ -175,8 +195,9 @@ export function drawBattleOverlay(ctx, t) {
     const [px, py] = P(n.x, n.y, 1.4 * CHAR_SCALE * tallOf(n.f)), s = (n.big ? 4 : 3) + (n.t < 0.08 ? 1 : 0);
     words.push({ kind: 'num', n, s, x: px, y: Math.round(py - Math.min(n.t, 0.5) * 40 - 5 * s), w: L.textWidth(String(n.text), s) + 4, h: 5 * s + 3 });
   }
+  bands.avoid = hudBoxes(L);
   const at = OVERLAY.stack ? stackLabels(words, bands) : words.map(w => ({ x: w.x, y: w.y }));
-  if (window.__recordRects) window.__battleRects = words.map((w, i) => ({ kind: w.kind, x: at[i].x, y: at[i].y, w: w.w, h: w.h }));
+  if (window.__recordRects) window.__battleRects = words.map((w, i) => ({ kind: w.kind, x: at[i].x, y: at[i].y, w: w.w, h: w.h, layerW: L.w }));
   words.forEach((wd, i) => {
     const { x, y } = at[i];
     if (wd.kind === 'callout') {
@@ -197,7 +218,12 @@ export function drawBattleOverlay(ctx, t) {
     L.text('?', px, py - 12 - Math.round(Math.abs(Math.sin(t * 10)) * 4), '#ffe14a', { s: 5 });
   }
   L.end(ctx, S.stage.w, S.stage.h, Math.min(2, devicePixelRatio || 1));
-  if (B.shout) { const [px, py] = scr(G.player.x, G.player.y, 1.8 * CHAR_SCALE); ART.speech(ctx, px, py, B.shout.text); }
+  if (B.shout) { 
+    let [px, py] = scr(G.player.x, G.player.y, 1.8 * CHAR_SCALE);
+    const bi = words.findIndex(w => w.kind === 'bubble');
+    if (bi >= 0) { px += (at[bi].x - words[bi].x) * L.k; py += (at[bi].y - words[bi].y) * L.k; }
+    ART.speech(ctx, px, py, B.shout.text);
+  }
 
   
   if (canRitual() && !B.ritual) {
