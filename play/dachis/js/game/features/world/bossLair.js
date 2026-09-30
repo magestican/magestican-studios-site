@@ -5,17 +5,19 @@
 
 
 
+
 import { U } from '../../../engine/core/util.js';
 import { G, S } from '../../state.js';
 import { fromUV } from './sections.js';
 import { dachiBillboard, setDachiLook } from '../../art/billboards.js';
 import { bossSpecies, speciesById } from '../../data/species.js';
 import { startBossBattle } from '../battle/battle.js';
+import { LAIRS, MEET, lairOpen, nextLair, meetLines } from './lairs.js';
 
 
 
-export const LAIRS = [{ boss: 'ashlo', uv: [13, 78], after: 'kumabo' }]; 
-const MEET = 2.3; 
+export { LAIRS };
+
 
 let lairs = null;
 function spot(uv) { 
@@ -26,7 +28,7 @@ function spot(uv) {
   }
   return { x: x0, y: y0 };
 }
-const open = (l) => G.flags[l.after] && !G.flags['boss_' + l.boss];
+const open = (l) => lairOpen(l, G.flags);
 
 export function updateBossLairs() {
   if (!S.W) return;
@@ -40,11 +42,7 @@ export function updateBossLairs() {
     if (l.met) continue;
     l.met = true;
     const name = l.sp.name;
-    S.dialog.say([
-      { who: name, text: `So the Bridge child walks the ash. Listen, little one: "${l.sp.blurb}"` },
-      { who: name, text: 'The god opens the way to the promised land. You will not close it.' },
-      { who: G.name || 'You', text: 'Nobody is burning this island. Not while we are here!' },
-    ], () => { l.met = true; if (startBossBattle(l.boss, { x: l.at.x, y: l.at.y })) S.sfx.play('rage'); });
+    S.dialog.say(meetLines(l, l.sp.blurb).map(([who, text]) => ({ who: who === 'kid' ? G.name || 'You' : name, text })), () => { l.met = true; if (startBossBattle(l.boss, { x: l.at.x, y: l.at.y })) S.sfx.play('rage'); });
   }
 }
 
@@ -62,7 +60,14 @@ export function drawBossLairs(t, battle) {
 }
 
 
+export function lairBodies() {
+  const out = [];
+  if (lairs) for (const l of lairs) if (l.bb && l.at && open(l)) out.push({ id: 'boss-' + l.boss, x: l.at.x, y: l.at.y, bb: l.bb });
+  return out;
+}
+
+
 export function nextBoss() {
-  const l = LAIRS.find((x) => G.flags[x.after] && !G.flags['boss_' + x.boss]);
+  const l = nextLair(G.flags);
   return l ? speciesById(bossSpecies(l.boss).id) : null;
 }

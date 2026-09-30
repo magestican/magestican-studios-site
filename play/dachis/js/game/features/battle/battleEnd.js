@@ -7,6 +7,7 @@ import { giveXp, xpReward, bondAfter, BOND_NEW_FRIEND } from './rules.js';
 import { removeWild } from '../world/wilds.js';
 import { checkEvolutions } from '../party/evolution.js';
 import { VOLC, SHRINE, RESPAWN } from '../world/mapgen.js';
+import { lairOf, fallLine } from '../world/lairs.js';
 
 export function onBattleFinished(b) {
   if (b.opts.onEnd) { b.opts.onEnd(b.result, b); return; }
@@ -30,7 +31,7 @@ export function onBattleFinished(b) {
     }
     if (b.boss && res === 'win') { 
       G.flags['boss_' + b.boss] = true;
-      msgs.unshift({ text: `"${speciesById(enemy.sp).blurb}"`, who: speciesById(enemy.sp).name }, `The red fractures dim... ${speciesById(enemy.sp).name} sinks into the ash and is gone. For now.`);
+      msgs.unshift({ text: `"${speciesById(enemy.sp).blurb}"`, who: speciesById(enemy.sp).name }, fallLine(lairOf(b.boss), speciesById(enemy.sp).name)); 
     }
     if (Math.random() < 0.25) { G.items.tonic++; msgs.push('Found a Berry Tonic!'); }
     removeWild(wild);

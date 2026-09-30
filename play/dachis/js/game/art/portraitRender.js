@@ -221,7 +221,13 @@ export function castFigure(kind, gender, px = 96, view = 'front') {
 
 
 export const RIDE = { scale: 0.33, hip: [0, 0.82, -0.66], pitch: -0.3, seat: true }; 
-const RIDE_VIEW = new THREE.Vector3(-0.22, 0.8, 0.8).normalize();
+
+
+
+
+
+
+export const RIDE_SHOT = { view: [0.85, 0.3, 0.3], frame: { c: [0, -0.2, 0], h: 5.3 } };
 
 
 const SEATED = new Map(), SEAT_RIG = humanRig({});
@@ -243,7 +249,7 @@ function seated(key, parts) {
 }
 
 export function aerowingRidePortrait(frame = 1, px = 200, gender = 'boy', view = null) {
-  const ak = aerowingKey(frame), kk = kidKey({ gender }), e = entry(`r${ak}${kk}|${px}|${RIDE.seat}|${view ? view.join() : ''}`, px);
+  const ak = aerowingKey(frame), kk = kidKey({ gender }), e = entry(`r${ak}${kk}|${px}|${RIDE.seat}|${view ? view.join() : JSON.stringify(RIDE_SHOT)}`, px);
   if (e.started) return e;
   e.started = true;
   requestJob({ key: kk, kind: 'kid', opts: { gender } }, (karr) => requestJob({ key: ak, kind: 'aerowing', opts: { frame } }, (aarr) => {
@@ -251,7 +257,8 @@ export function aerowingRidePortrait(frame = 1, px = 200, gender = 'boy', view =
       new THREE.Quaternion().setFromEuler(new THREE.Euler(RIDE.pitch, 0, 0)), new THREE.Vector3(RIDE.scale, RIDE.scale, RIDE.scale))
       .multiply(new THREE.Matrix4().makeTranslation(0, -KID_HIP, 0));
     const parts = [...geometries(ak, aarr), ...(RIDE.seat ? seated(kk, geometries(kk, karr)) : geometries(kk, karr)).map((p) => ({ ...p, m }))];
-    renderParts(parts, 'n', e.canvas, 'fit', 1, { view: view ? new THREE.Vector3(...view).normalize() : RIDE_VIEW, grade: false });
+    renderParts(parts, 'n', e.canvas, 'fit', 1, view ? { view: new THREE.Vector3(...view).normalize(), grade: false }
+      : { view: new THREE.Vector3(...RIDE_SHOT.view).normalize(), frame: RIDE_SHOT.frame, grade: false });
     e.done();
   }));
   return e;

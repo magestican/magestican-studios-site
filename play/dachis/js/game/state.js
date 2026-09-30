@@ -3,6 +3,7 @@
 import { createSaveSlot } from '../engine/core/save.js';
 import { statsOf, SPECIES } from './data/species.js';
 import { SPAWN, RESPAWN } from './features/world/mapgen.js';
+import { nextLair } from './features/world/lairs.js';
 
 export const G = {
   mode: 'title',        
@@ -68,6 +69,7 @@ export function objective() {
   if (!G.flags.starter) return 'Run down the road to the priests — the X on your map';
   if (!G.flags.initiated) return 'Run to the Shrine Village — the X on your map';
   if (!G.flags.kumabo) return 'Return to Kazan Village and see Kumabo';
-  if (!G.flags.boss_ashlo) return 'Something burns on Tomo Coast... face Cinderwarden Ashlo'; 
+  const lair = nextLair(G.flags); 
+  if (lair) return lair.hint;
   return `Befriend every dachi — ${caughtCount()} / ${SPECIES.length}`;
 }

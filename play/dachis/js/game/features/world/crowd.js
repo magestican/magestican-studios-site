@@ -30,6 +30,45 @@ export const fighterR = (stage, boss = false) => (boss ? BOSS_R : FIGHTER_R[Math
 
 export const reachPlus = (ra, rb) => Math.max(0, ra + rb + BATTLE_AIR - 0.8);
 
+
+
+
+
+
+
+export const SEE_PAD = 0.18;
+export const seeWindow = (tall, half = 0) => ({ mid: tall * 0.5, r: Math.max(tall * 0.62, Math.hypot(half, tall * 0.5)) + SEE_PAD });
+
+
+export const BOSS_TALL_K = 4.2, BOSS_HALF_K = 2.36;
+export const bossBody = (bossScale) => ({ tall: bossScale * CHAR_SCALE * BOSS_TALL_K, half: bossScale * CHAR_SCALE * BOSS_HALF_K });
+
+
+
+
+
+
+
+export const BOSS_REF_HALF = bossBody(0.62).half; 
+export const bossGroundR = (half) => BOSS_R * half / BOSS_REF_HALF;
+export const lairBody = (x, y, half) => { const r = bossGroundR(half); return { kind: 'boss', fixed: true, x, y, r, pad: Math.max(0, r - BODY_R.dachi) }; };
+
+
+export const SEE_NPC_NEAR = 7;
+
+
+
+export function seeOrder({ core = [], bosses = [], npcs = [] }, max, from) {
+  const out = core.slice(0, max);
+  for (const b of bosses) if (out.length < max) out.push(b);
+  if (out.length >= max || !npcs.length) return out;
+  const near = [];
+  for (const n of npcs) { const d = Math.hypot(n.x - from.x, n.y - from.y); if (d < SEE_NPC_NEAR) near.push([d, n]); }
+  near.sort((a, b) => a[0] - b[0]);
+  for (const [, n] of near) { if (out.length >= max) break; out.push(n); }
+  return out;
+}
+
 export const FOLLOW = 1.3;
 
 

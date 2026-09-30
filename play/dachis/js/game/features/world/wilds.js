@@ -4,7 +4,8 @@ import { U } from '../../../engine/core/util.js';
 import { G, S, caughtCount } from '../../state.js';
 import { VOLC, npcStepClear } from './mapgen.js';
 import { CHAR_SCALE, GAP, BODY_R } from './crowd.js';
-import { makeDachi, speciesById, capsFor } from '../../data/species.js';
+import { makeDachi, speciesById, capsFor, wildFamiliesOf } from '../../data/species.js';
+import { sectionById } from './sections.js';
 import { dachiBillboard, setDachiLook } from '../../art/billboards.js';
 
 
@@ -20,6 +21,14 @@ const tilesHere = () => {
   return secTiles.get(id);
 };
 
+const tables = new Map();
+const WILD_TABLE_SHARE = 0.75; 
+const tableHere = () => {
+  const sec = sectionById(S.cam && S.cam.sec);
+  if (!tables.has(sec)) tables.set(sec, sec && sec.wildTypes ? wildFamiliesOf(sec.wildTypes) : []);
+  return tables.get(sec);
+};
+
 export function spawnWild(near = null) {
   const W = S.W, p = G.player, tiles = tilesHere();
   if (!near && !tiles.length) return null;
@@ -32,7 +41,10 @@ export function spawnWild(near = null) {
     const floor = capsFor(G.cycle).enemyFloor;   
     const lvl = floor || U.clamp(Math.floor(2 + far / 6.75 + caughtCount() * 0.15 + Math.random() * 2.5), 2, top + (G.flags.initiated ? 2 : 0));
     
-    const fam = Math.random() < 0.05 ? 1 + Math.floor(Math.random() * 3) : [0, ...Array.from({ length: 37 }, (_, i) => i + 4)][Math.floor(Math.random() * 38)];
+    let fam = Math.random() < 0.05 ? 1 + Math.floor(Math.random() * 3) : [0, ...Array.from({ length: 37 }, (_, i) => i + 4)][Math.floor(Math.random() * 38)];
+    
+    const table = tableHere();
+    if (table.length && (fam === 0 || fam > 3) && Math.random() < WILD_TABLE_SHARE) fam = table[Math.floor(Math.random() * table.length)];
     const stage = lvl > 9 && Math.random() < 0.15 ? 2 : lvl > 30 && Math.random() < 0.1 ? 3 : 1;
     const d = makeDachi(fam * 3 + stage, lvl);
     if (Math.random() < U.clamp((far - 15) / 90, 0.05, 0.35)) d.corrupt = true;

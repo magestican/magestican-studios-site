@@ -11,6 +11,7 @@
 import * as THREE from 'three';
 import { makeCozy } from '../../vendor/fml/render/material.js';
 import { pixelTexture } from '../../engine/iso/cozyStage.js';
+import { seeActorMaterial } from '../../engine/iso/seeThrough.js';
 import { page, tn } from './scenery/kit.js';
 import { hash2 } from '../../vendor/arbelo/paint/texturePaint.js';
 import { dachiArrays, modelKey, DECAL_UV } from './dachiModel.js';
@@ -197,6 +198,17 @@ export function material(variant, id, tint) {
 }
 
 
+export function modelExtent(parts) {
+  let x = 0, z = 0, y0 = Infinity, y1 = -Infinity;
+  for (const { geo } of parts) {
+    if (!geo.boundingBox) geo.computeBoundingBox();
+    const b = geo.boundingBox;
+    x = Math.max(x, -b.min.x, b.max.x); z = Math.max(z, -b.min.z, b.max.z); y0 = Math.min(y0, b.min.y); y1 = Math.max(y1, b.max.y);
+  }
+  return y1 > y0 ? { tall: y1 - Math.min(0, y0), half: Math.max(x, z) } : null;
+}
+
+
 const GEO = new Map();
 export function geometries(key, arr) {
   let g = GEO.get(key);
@@ -246,8 +258,8 @@ export function planMotion(plan, t, gait, moving) {
 }
 
 export class DachiActor {
-  constructor(scene, { size = 1.47, world = 1 } = {}) { 
-    this.scene = scene; this.size = size; this.world = world;
+  constructor(scene, { size = 1.47, world = 1, see = false } = {}) { 
+    this.scene = scene; this.size = size; this.world = world; this.see = see; this.ext = null;
     this.root = new THREE.Group(); this.root.name = 'dachi';
     this.body = new THREE.Group(); this.root.add(this.body);
     scene.add(this.root);
@@ -270,8 +282,9 @@ export class DachiActor {
   show(parts) {
     this.body.clear();
     this.parts = parts;
+    this.ext = modelExtent(parts);
     for (const { geo, id } of parts) {
-      const mesh = new THREE.Mesh(geo, material(this.variant, id, this.tint));
+      const mesh = new THREE.Mesh(geo, this.mat(id, this.tint));
       mesh.userData.dachiMat = id;
       mesh.castShadow = id !== 'lamp-glow'; mesh.receiveShadow = true;
       this.body.add(mesh);
@@ -303,7 +316,11 @@ export class DachiActor {
     const tint = '#' + t;
     if (tint === this.tint) return;
     this.tint = tint;
-    for (const m of this.body.children) m.material = material(this.variant, m.userData.dachiMat, tint);
+    for (const m of this.body.children) m.material = this.mat(m.userData.dachiMat, tint);
   }
+  mat(id, tint) { const m = material(this.variant, id, tint); return this.see ? seeActorMaterial(m) : m; }
+  
+  
+  extent() { const e = this.ext, s = this.scale; return e ? { tall: e.tall * s, half: e.half * s } : null; }
   dispose(scene) { this.disposed = true; (scene || this.scene).remove(this.root); }
 }

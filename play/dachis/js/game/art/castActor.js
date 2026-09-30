@@ -7,6 +7,7 @@
 
 import * as THREE from 'three';
 import { requestJob, material, geometries } from './dachiActor.js';
+import { seeActorMaterial } from '../../engine/iso/seeThrough.js';
 import { CAST_UNIT, KID_RIG, kidKey } from './kidModel.js';
 import { KID_HEIGHT, KID_WORLD_H, ELDER_HEIGHT, ELDER_WORLD_H, WALK } from './humanRig.js';
 
@@ -102,6 +103,7 @@ export class CastActor {
     
     
     this.worldK = opts.world ?? 1;
+    this.see = !!opts.see && kind !== 'kid'; 
     this.body.scale.setScalar(this.worldK * (kind === 'kid' ? KID_WORLD_H / KID_HEIGHT : kind === 'elder' ? ELDER_WORLD_H / ELDER_HEIGHT : kind === 'boss' ? bossById(opts.boss).scale : CAST_UNIT * 1.36));
     scene.add(this.root);
     this.yaw = this.targetYaw = FACE_CAMERA; this.last = performance.now(); this.phase = Math.random() * 6;
@@ -119,13 +121,14 @@ export class CastActor {
       if (this.disposed || this.key !== key) return;
       this.body.clear();
       for (const { geo, id } of geometries(key, arr)) {
-        const mesh = new THREE.Mesh(geo, this.kind === 'kid' ? poseMaterial(id, this.uniforms) : material(this.kind === 'boss' ? (id === 'fur' ? 'b' : 'n') : 'n', id, '#ffffff'));
+        const mesh = new THREE.Mesh(geo, this.kind === 'kid' ? poseMaterial(id, this.uniforms) : this.mat(material(this.kind === 'boss' ? (id === 'fur' ? 'b' : 'n') : 'n', id, '#ffffff')));
         mesh.castShadow = id !== 'lamp-glow'; mesh.receiveShadow = true;
         if (this.kind === 'kid') mesh.customDepthMaterial = this.depthMat ??= poseDepthMaterial(this.uniforms);
         this.body.add(mesh);
       }
     });
   }
+  mat(m) { return this.see ? seeActorMaterial(m) : m; }
   
   faceDir(dx, dy) { if (dx || dy) this.targetYaw = Math.atan2(dx, dy); }
   faceCamera() { this.targetYaw = FACE_CAMERA; }

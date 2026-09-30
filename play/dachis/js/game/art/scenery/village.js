@@ -5,7 +5,7 @@
 
 import { Batch, buildStats, setPointScale } from './kit.js';
 import { placeHuts } from './huts.js';
-import { placeRimStones, placeLedges } from './rocks.js';
+import { placeRimStones, placeLedges, placePillars } from './rocks.js';
 import { placeSteps } from './steps.js';
 import { placeTorches, createTorchFire } from './torches.js';
 import { placeFences } from './fences.js';
@@ -15,7 +15,7 @@ import { placeCraterRim, createLava } from './lavaCrater.js';
 import { placeGrowth } from './growth.js';
 import { placeTemple } from './temple.js';
 
-const PLACERS = [placeHuts, placeRimStones, placeLedges, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple];
+const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple];
 
 export function buildScenery(stage, W, { crater, craterRadius, lavaHeight, sections }) {
   const { scene } = stage;

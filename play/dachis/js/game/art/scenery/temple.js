@@ -70,11 +70,15 @@ function gateNode() {
 }
 export const gateForm = () => form('gate', gateNode, { min: [-1.55, -0.03, -0.2], max: [1.55, 2.1, 0.2], cell: 0.03, tris: 320 });
 
+
+
+const DROWNED = { wood: [0.5, 1.15, 1.2], plank: [0.72, 0.9, 1.0], roof: [0.75, 0.95, 1.1], stone: [0.72, 0.93, 1.1] };
 export function placeTemple(batch, W) {
   for (const o of W.objects) {
-    const at = { x: o.x, h: W.groundAt(o.x, o.y) - 0.02, y: o.y, rot: o.rot || 0 };
-    if (o.kind === 'temple') batch.add(templeForm(), at);
-    else if (o.kind === 'lantern') batch.add(lanternForm(), at);
-    else if (o.kind === 'gate') batch.add(gateForm(), at);
+    const sunk = o.flavor === 'coral', tint = sunk ? DROWNED : {};
+    const at = { x: o.x, h: W.groundAt(o.x, o.y) - (sunk ? 0.14 : 0.02), y: o.y, rot: o.rot || 0 };
+    if (o.kind === 'temple') batch.add(templeForm(), at, tint);
+    else if (o.kind === 'lantern') batch.add(lanternForm(), at, tint);
+    else if (o.kind === 'gate') batch.add(gateForm(), at, tint);
   }
 }

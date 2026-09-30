@@ -17,7 +17,9 @@ export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}
     hide() { D.active = false; D.cur = null; $('dialog').classList.add('hidden'); $('choices').innerHTML = ''; D.choosing = false; },
     advance() {
       if (!D.active || D.choosing) return;
-      if (D.cur && D.shown < D.cur.text.length) { D.shown = D.cur.text.length; return; }
+      
+      
+      if (D.cur && D.shown < D.cur.text.length) { D.shown = D.cur.text.length; $('dlgText').textContent = D.cur.text; return; }
       D.next();
     },
     next() {

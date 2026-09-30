@@ -12,7 +12,7 @@ import { U } from '../../../engine/core/util.js';
 import { SECTIONS, toUV, fromUV, sectionAtUV, sectionById, edgeDepth, nearestSection, sectionWindows, screenS } from './sections.js';
 
 export const MAP = 96;
-export const T = { DEEP: 0, SHALLOW: 1, SAND: 2, GRASS: 3, TALL: 4, PATH: 5, ROCK: 6, LAVA: 7, PLAZA: 8, WOOD: 9, CLIFF: 10, JUNGLE: 11 };
+export const T = { DEEP: 0, SHALLOW: 1, SAND: 2, GRASS: 3, TALL: 4, PATH: 5, ROCK: 6, LAVA: 7, PLAZA: 8, WOOD: 9, CLIFF: 10, JUNGLE: 11, REEF: 12, KELP: 13, RUIN: 14 };
 
 export const BLOCKED = new Set([T.DEEP, T.SHALLOW, T.LAVA, T.WOOD, T.CLIFF]);
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
@@ -36,9 +36,15 @@ export const PATH_POINTS = uvPts([[0, 44.2], [0, 48.8], [-2.4, 50.4], [2.2, 52.3
 
 export const COAST_PATH = uvPts([[1.5, 79], [6, 78.4], [10.5, 78], [15, 77.6]]);
 
+
+
+export const CORAL_PATH = uvPts([[15, 77.6], [16.6, 81.5], [16.4, 86], [17.4, 90.5], [18.2, 92.6]]);
+export const CORAL = { plaza: at(19.4, 95.4), plazaR: 3.2, temple: at(13.4, 90.4) };
+
 const A = (u, v) => { const p = fromUV(u, v); return p; };
 export const AMBUSH = { ...at(-1.2, 75.6), rocks: [A(1.2, 75.0), A(1.9, 75.7), A(0.9, 76.2)], from: at(2.5, 75.3) };
 
+const CORAL_RECT = sectionById('coral').rect;
 const smooth = (t) => t * t * (3 - 2 * t);
 function landValue(x, y, u, v) {
   const d = U.dist(u, v, ISLAND.u, ISLAND.v), n = U.fbm(x * 0.07, y * 0.07, 7);
@@ -46,6 +52,10 @@ function landValue(x, y, u, v) {
   land = Math.min(land, (U.dist(u, v, BAY.u, BAY.v) - BAY.r) / 8);
   if (U.dist(x, y, VOLC.x, VOLC.y) < 16) land = Math.max(land, 0.5);
   if (U.dist(x, y, SHRINE.x, SHRINE.y) < 9) land = Math.max(land, 0.4);
+  
+  
+  const cr = CORAL_RECT;
+  if (u > cr.u[0] - 2.5 && u < cr.u[1] + 2.5 && v > cr.v[0] - 5 && v < cr.v[1] + 2.5) land = Math.max(land, U.clamp((v - cr.v[0] + 5) / 3, 0, 1) * 0.3);
   return land;
 }
 
@@ -80,6 +90,9 @@ function heightAtPoint(x, y) {
   if (U.dist(x, y, CRATER.x, CRATER.y) < 1.8) h = PLATEAU_H - 0.35;
   
   if (ds < 5) h = 0.85; else if (ds < 6.5) h = U.lerp(0.85, h, (ds - 5) / 1.5);
+  
+  const dp = U.dist(x, y, CORAL.plaza.x, CORAL.plaza.y);
+  if (dp < 4.6) h = 0.3; else if (dp < 6) h = U.lerp(0.3, h, (dp - 4.6) / 1.4);
   return h;
 }
 
@@ -93,7 +106,7 @@ function distToLine(pts, x, y) {
   }
   return best;
 }
-export const distToRoads = (x, y) => Math.min(distToLine(PATH_POINTS, x, y), distToLine(COAST_PATH, x, y));
+export const distToRoads = (x, y) => Math.min(distToLine(PATH_POINTS, x, y), distToLine(COAST_PATH, x, y), distToLine(CORAL_PATH, x, y));
 
 function tileTypeFor(x, y) {
   const [u, v] = toUV(x, y), land = landValue(x, y, u, v);
@@ -106,7 +119,12 @@ function tileTypeFor(x, y) {
   if (sec.id === 'kazan') return dv < 5.3 || road < 1.2 ? T.ROCK : T.CLIFF;
   if (sec.id === 'slope') return road < 1.5 ? T.ROCK : T.CLIFF;
   const inset = sec.wall + (U.fbm(x * 0.25, y * 0.25, 5) - 0.5) * 1.6;
-  if (edgeDepth(sec.rect, u, v).depth < inset && road > 1.9) return T.WOOD;
+  if (edgeDepth(sec.rect, u, v).depth < inset && road > 1.9) return sec.id === 'coral' ? T.CLIFF : T.WOOD; 
+  if (sec.id === 'coral') {
+    const dp = U.dist(x, y, CORAL.plaza.x, CORAL.plaza.y);
+    if (dp < CORAL.plazaR || U.dist(x, y, CORAL.temple.x, CORAL.temple.y) < 2.6) return T.RUIN;
+    return dp > CORAL.plazaR + 1.2 && U.fbm(x * 0.2, y * 0.2, 23) > 0.44 ? T.KELP : T.REEF;
+  }
   if (sec.id === 'jungle') return U.fbm(x * 0.2, y * 0.2, 21) > 0.56 ? T.TALL : T.JUNGLE;
   if (sec.id === 'road') return U.fbm(x * 0.16, y * 0.16, 21) > 0.47 ? T.TALL : T.GRASS;
   if (sec.id === 'coast') return U.dist(u, v, BAY.u, BAY.v) < BAY.r + 4.5 || land < 0.1 ? T.SAND : T.GRASS;
@@ -127,7 +145,7 @@ export function generateMap() {
   for (let j = 0; j < V; j++) for (let i = 0; i < V; i++) W.vh[j * V + i] = heightAtPoint(i, j);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) W.type[idx(i, j)] = tileTypeFor(i + 0.5, j + 0.5);
   
-  for (const pts of [PATH_POINTS, COAST_PATH]) for (let k = 0; k < pts.length - 1; k++) {
+  for (const pts of [PATH_POINTS, COAST_PATH, CORAL_PATH]) for (let k = 0; k < pts.length - 1; k++) {
     const [ax, ay] = pts[k], [bx, by] = pts[k + 1];
     const steps = Math.ceil(U.dist(ax, ay, bx, by) * 3);
     for (let s = 0; s <= steps; s++) {
@@ -187,7 +205,8 @@ export function generateMap() {
     return true;
   };
   placeSpots(W);
-  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) if (W.type[idx(i, j)] === T.TALL && W.reach[idx(i, j)]) W.wildTiles.push([i + 0.5, j + 0.5]);
+  
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const t = W.type[idx(i, j)]; if ((t === T.TALL || t === T.KELP) && W.reach[idx(i, j)]) W.wildTiles.push([i + 0.5, j + 0.5]); }
   return W;
 }
 
@@ -330,23 +349,25 @@ function placeShrine(W, r) {
 
 
 
+
+
+function shadesKid(W, x, y) {
+  const reachAt = (a, b) => { const i = Math.floor(a), j = Math.floor(b); return W.inMap(i, j) && W.reach[W.idx(i, j)] === 1; };
+  for (let back = 1.0; back <= 2.2; back += 0.4) for (const side of [-0.4, 0, 0.4]) {
+    const [u, v] = toUV(x, y), [bx, by] = fromUV(u + side, v - back);
+    if (reachAt(bx, by)) return true;
+  }
+  return false;
+}
 function placeGrowth(W, r) {
   const N = W.N, V = VOLC, S = SHRINE;
-  const reachAt = (x, y) => { const i = Math.floor(x), j = Math.floor(y); return W.inMap(i, j) && W.reach[W.idx(i, j)] === 1; };
-  
-  
-  const shades = (x, y) => {
-    for (let back = 1.0; back <= 2.2; back += 0.4) for (const side of [-0.4, 0, 0.4]) {
-      const [u, v] = toUV(x, y), [bx, by] = fromUV(u + side, v - back);
-      if (reachAt(bx, by)) return true;
-    }
-    return false;
-  };
+  const shades = (x, y) => shadesKid(W, x, y);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     const t = W.type[W.idx(i, j)];
     const x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28;
     if (!W.onScreen(x, y, 1.2, 2.6)) continue;
     const near = nearestSection(x, y).section.id;
+    if (near === 'coral') continue; 
     if (t === T.WOOD) {
       if (shades(x, y)) { if (k < 0.75) addObj(W, { kind: 'bush', x, y, solid: 0, s: 0.8 + s * 0.5, rot, flavor: near }); continue; }
       if (near === 'coast') { if (k < 0.45) addObj(W, { kind: 'palm', x, y, solid: 0, s: 0.9 + s * 0.4, rot }); else if (k < 0.8) addObj(W, { kind: 'bush', x, y, solid: 0, s: 0.9 + s * 0.4, rot, flavor: near }); continue; }
@@ -373,12 +394,51 @@ function placeGrowth(W, r) {
   }
 }
 
+
+
+const CORAL_COLORS = ['#ff7a8a', '#ff9a5a', '#c78cff', '#ffc2d8', '#5fe0d0'];
+function placeCoral(W) {
+  const r = U.rng(2215), C = CORAL, P = C.plaza;
+  const inCoral = (x, y) => nearestSection(x, y).section.id === 'coral';
+  
+  {
+    const [ax, ay] = CORAL_PATH[2], [bx, by] = CORAL_PATH[3], L = U.dist(ax, ay, bx, by), dx = (bx - ax) / L, dy = (by - ay) / L;
+    addObj(W, { kind: 'gate', x: U.lerp(ax, bx, 0.2), y: U.lerp(ay, by, 0.2), solid: 0, rot: Math.atan2(dx, dy), flavor: 'coral' });
+    const x = U.lerp(ax, bx, 0.62), y = U.lerp(ay, by, 0.62);
+    for (const side of [-1, 1]) addObj(W, { kind: 'lantern', x: x - dy * side * 1.25, y: y + dx * side * 1.25, solid: 0.25, rot: Math.atan2(dx, dy), flavor: 'coral' });
+  }
+  
+  addObj(W, { kind: 'temple', x: C.temple.x, y: C.temple.y, solid: 1.9, rot: Math.PI / 4, flavor: 'coral' });
+  for (let k = 0; k < 11; k++) {
+    const a = k / 11 * Math.PI * 2 + 0.2, x = P.x + Math.cos(a) * (C.plazaR + 0.35), y = P.y + Math.sin(a) * (C.plazaR + 0.35);
+    if (distToRoads(x, y) < 1.5 || U.dist(x, y, C.temple.x, C.temple.y) < 2.6 || BLOCKED.has(W.tileType(x, y))) continue;
+    addObj(W, { kind: 'pillar', x, y, solid: 0.3, rot: r() * 6.28, v: k % 3, s: 0.9 + r() * 0.2 });
+    if (r() < 0.5) addObj(W, { kind: 'rimstone', x: x + (r() - 0.5) * 1.2, y: y + (r() - 0.5) * 1.2, solid: 0, s: 0.45 + r() * 0.3, rot: r() * 6.28, v: Math.floor(r() * 4), flavor: 'coral' });
+  }
+  for (let j = 0; j < W.N; j++) for (let i = 0; i < W.N; i++) {
+    const t = W.type[W.idx(i, j)];
+    const x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28, c = CORAL_COLORS[Math.floor(r() * CORAL_COLORS.length)];
+    if (!inCoral(x, y) || !W.onScreen(x, y, 1.2, 2.6)) continue;
+    if (t === T.WOOD || t === T.CLIFF) { 
+      if (shadesKid(W, x, y)) { if (k < 0.7) addObj(W, { kind: 'coral', x, y, solid: 0, s: 0.8 + s * 0.4, rot, c }); continue; }
+      if (k < 0.45) addObj(W, { kind: 'crag', x, y, solid: 0, s: 1.2 + s * 1.2, rot, v: Math.floor(s * 4), flavor: 'coral' });
+      else if (k < 0.85) addObj(W, { kind: 'coral', x, y, solid: 0, s: 1.3 + s * 0.8, rot, c });
+      continue;
+    }
+    const road = distToRoads(x, y);
+    if (t === T.RUIN || road < 1.1 || U.dist(x, y, P.x, P.y) < C.plazaR + 1) continue;
+    if (t === T.REEF && k < 0.06) addObj(W, { kind: 'coral', x, y, solid: 0.3, s: 0.7 + s * 0.4, rot, c });
+    else if (t === T.REEF && k < 0.085) addObj(W, { kind: 'rock', x, y, solid: 0.3, s: 0.5 + s * 0.4, rot, flavor: 'coral' });
+    else if (t === T.KELP && k < 0.28) addObj(W, { kind: 'fern', x, y, solid: 0, s: 0.9 + s * 0.7, rot, flavor: 'kelp' });
+  }
+}
+
 function placeObjects(W) {
   const r = U.rng(4242), N = W.N;
   const kazanPaths = placeKazan(W, r);
   const shrinePaths = placeShrine(W, r);
   
-  W.paths = [{ pts: PATH_POINTS.map(p => [...p]), half: 0.75 }, { pts: COAST_PATH.map(p => [...p]), half: 0.6 }, ...kazanPaths, ...shrinePaths];
+  W.paths = [{ pts: PATH_POINTS.map(p => [...p]), half: 0.75 }, { pts: COAST_PATH.map(p => [...p]), half: 0.6 }, { pts: CORAL_PATH.map(p => [...p]), half: 0.6 }, ...kazanPaths, ...shrinePaths];
   AMBUSH.rocks.forEach(([x, y], i) => addObj(W, { kind: 'rock', x, y, solid: 0.35, s: 1.2 + i * 0.25, rot: i * 2 }));
   
   
@@ -392,6 +452,7 @@ function placeObjects(W) {
   }
   placeTerraces(W, r);
   placeGrowth(W, r);
+  placeCoral(W);
   W.grid =Array.from({ length: N * N }, () => []);
   for (const o of W.objects) {
     if (!o.solid) continue;

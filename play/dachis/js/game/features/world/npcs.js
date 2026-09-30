@@ -5,7 +5,7 @@ import { G, S } from '../../state.js';
 import { NPC_POSTS, NPC_HOMES, pickNpcSpot, npcSpotOk, npcStepClear } from './mapgen.js';
 import { dachiBillboard, setDachiLook, elderBillboard } from '../../art/billboards.js';
 import { speciesById, KUMABO } from '../../data/species.js';
-import { pushApart, GAP, BODY_R } from './crowd.js';
+import { pushApart, GAP, BODY_R, lairBody, bossBody } from './crowd.js';
 
 const VILLAGER_LINES = [
   ['The red hand came through the spiral again last night. It took three of us.', 'We used to believe the spirals were doors for friends. Now they only bring pain.'],
@@ -73,14 +73,17 @@ export function updateNpcs(dt) {
 
 
 
-export function separateCrowd(dt) {
+
+
+export function separateCrowd(dt, bosses = []) {
   const W = S.W, p = G.player, bodies = [{ ref: p, kind: 'kid', m: 8, x: p.x, y: p.y, r: BODY_R.kid }];
+  for (const b of bosses) if (Math.abs(b.x - p.x) + Math.abs(b.y - p.y) < 12) bodies.push(lairBody(b.x, b.y, (b.bb.extent() || bossBody(b.bb.bossScale)).half));
   if (G.party[0]) bodies.push({ ref: G.follower, kind: 'pet', x: G.follower.x, y: G.follower.y, r: BODY_R.dachi });
   for (const n of G.npcs) if (Math.abs(n.x - p.x) + Math.abs(n.y - p.y) < 12) bodies.push({ ref: n, kind: 'npc', fixed: !!n.still, x: n.x, y: n.y, r: n.kind === 'elder' ? BODY_R.elder : BODY_R.dachi });
   for (const w of G.wilds) if (!w.scripted) bodies.push({ ref: w, kind: 'wild', x: w.x, y: w.y, r: BODY_R.dachi });
   const wildKid = (a, b) => (a.kind === 'kid' && b.kind === 'wild') || (a.kind === 'wild' && b.kind === 'kid');
   pushApart(bodies, { k: 1, ok: (x, y) => W.walkable(x, y, BODY_R.dachi), skip: wildKid });
-  for (const b of bodies) { b.ref.x = b.x; b.ref.y = b.y; }
+  for (const b of bodies) if (b.ref) { b.ref.x = b.x; b.ref.y = b.y; }
 }
 
 export function drawNpcs(t) {

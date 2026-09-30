@@ -13,10 +13,10 @@ export function setKidFrame(actor, { gender, moving, walk, shout, dir = null, fa
   actor.pose({ moving, walk, shout });
 }
 
-export function elderBillboard(scene) { return new CastActor(scene, 'elder', { world: CHAR_SCALE }); }
+export function elderBillboard(scene) { return new CastActor(scene, 'elder', { world: CHAR_SCALE, see: true }); }
 
 
 
 export const dachiSize = stage => 1.25 + stage * 0.22;
-export function dachiBillboard(scene, stage = 1) { return new DachiActor(scene, { size: dachiSize(stage), world: CHAR_SCALE }); }
+export function dachiBillboard(scene, stage = 1) { return new DachiActor(scene, { size: dachiSize(stage), world: CHAR_SCALE, see: true }); }
 export function setDachiLook(actor, spId, opts = {}) { actor.setLook(spId, opts); }

@@ -66,7 +66,7 @@ function paintTreasureMap(W) {
   ctx.strokeStyle = 'rgba(70,90,110,0.25)'; ctx.lineWidth = 1;
   for (let y = 6; y < MINI; y += 7) { ctx.beginPath(); for (let x = 0; x < MINI; x += 6) ctx.lineTo(x, y + Math.sin(x * 0.3) * 1.5); ctx.stroke(); }
   const land = t => t > T.SHALLOW;
-  const INK = { [T.ROCK]: '#9c7a58', [T.LAVA]: '#9c7a58', [T.CLIFF]: '#8a6a4c', [T.SAND]: '#ead3a0', [T.TALL]: '#98a860', [T.WOOD]: '#7f9450', [T.JUNGLE]: '#6f8a48' };
+  const INK = { [T.ROCK]: '#9c7a58', [T.LAVA]: '#9c7a58', [T.CLIFF]: '#8a6a4c', [T.SAND]: '#ead3a0', [T.TALL]: '#98a860', [T.WOOD]: '#7f9450', [T.JUNGLE]: '#6f8a48', [T.REEF]: '#d8c8b0', [T.KELP]: '#6a9a8a', [T.RUIN]: '#9aa6aa' };
   for (let j = 0; j < W.N; j++) for (let i = 0; i < W.N; i++) {
     const t = W.type[W.idx(i, j)]; if (!land(t)) continue;
     const [x, y] = miniXY(i + 0.5, j + 0.5);

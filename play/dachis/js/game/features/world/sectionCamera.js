@@ -6,8 +6,8 @@
 
 import { G, S } from '../../state.js';
 import { sectionById, nextSection, viewFor, clampView, targetFor, toUV, screenS } from './sections.js';
-import { VIEW_ZOOM, CHAR_SCALE } from './crowd.js';
-import { setSeeTargets } from '../../../engine/iso/seeThrough.js';
+import { VIEW_ZOOM, CHAR_SCALE, seeWindow, seeOrder, bossBody } from './crowd.js';
+import { setSeeTargets, SEE_MAX } from '../../../engine/iso/seeThrough.js';
 import { KID_WORLD_H, ELDER_WORLD_H } from '../../art/humanRig.js';
 
 const FADE = 0.16;   
@@ -66,14 +66,29 @@ export function updateCamera(dt, focus) {
 
 
 
-export function updateSeeThrough(dt, battle = null, talking = null) {
+
+
+
+
+
+
+const SEE_BOSS_NEAR = 12; 
+
+
+const sized = (id, f, tall, half = 0, actor = false) => ({ id, x: f.x, y: f.y, tall, half, actor });
+const bossSized = (id, f, bb) => { const e = bb.extent() || bossBody(bb.bossScale); return sized(id, f, e.tall, e.half); };
+export function updateSeeThrough(dt, battle = null, bosses = []) {
   const W = S.W, p = G.player, T = [];
-  const body = (id, x, y, tall) => T.push({ id, x, y, h: W.groundAt(x, y) + tall * 0.5, r: tall * 0.62 + 0.18 });
   if (G.mode !== 'title' && G.mode !== 'cutscene') {
-    body('kid', p.x, p.y, KID_WORLD_H * CHAR_SCALE);
-    if (battle) { body('ally', battle.ally.x, battle.ally.y, 1.1 * CHAR_SCALE); body('enemy', battle.enemy.x, battle.enemy.y, 1.1 * CHAR_SCALE); }
-    else if (G.party[0]) body('pet', G.follower.x, G.follower.y, 1.0 * CHAR_SCALE);
-    if (talking) body('talk', talking.x, talking.y, (talking.kind === 'elder' ? ELDER_WORLD_H : 1.0) * CHAR_SCALE);
+    const core = [sized('kid', p, KID_WORLD_H * CHAR_SCALE, 0, true)];
+    if (battle) for (const [id, f] of [['ally', battle.ally], ['enemy', battle.enemy]]) core.push(f.bb.bossScale ? bossSized(id, f, f.bb) : sized(id, f, 1.1 * CHAR_SCALE));
+    else if (G.party[0]) core.push(sized('pet', G.follower, 1.0 * CHAR_SCALE));
+    const bs = [];
+    for (const b of bosses) if (Math.hypot(b.x - p.x, b.y - p.y) < SEE_BOSS_NEAR) bs.push(bossSized(b.id, b, b.bb));
+    for (const o of seeOrder({ core, bosses: bs, npcs: G.npcs }, SEE_MAX, p)) {
+      const npc = o.tall === undefined, w = npc ? seeWindow((o.kind === 'elder' ? ELDER_WORLD_H : 1.0) * CHAR_SCALE) : seeWindow(o.tall, o.half);
+      T.push({ id: npc ? o : o.id, x: o.x, y: o.y, h: W.groundAt(o.x, o.y) + w.mid, r: w.r, actor: o.actor });
+    }
   }
   setSeeTargets(S.stage, T, dt);
 }

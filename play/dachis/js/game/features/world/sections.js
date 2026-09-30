@@ -34,6 +34,9 @@ export const SECTIONS = [
   { id: 'road', name: 'Whispering Grass Road', rect: { u: [-9, 9], v: [70.5, 87] }, zoom: 8.5, wall: 2.0 },
   { id: 'coast', name: 'Tomo Coast', rect: { u: [9, 23], v: [72, 85] }, zoom: 8.5, wall: 1.6, sea: true, extend: [0, 3.5, 0, 0] },
   { id: 'shrine', name: 'Shrine Village — Temple of the Priest Dachis', rect: { u: [-9, 9], v: [87, 101] }, zoom: 8.5, wall: 2.0 },
+  
+  
+  { id: 'coral', name: 'Coral Deep — The Sunken City', rect: { u: [9.5, 26], v: [85, 102] }, zoom: 8.5, wall: 1.8, chapter: 2, wildTypes: ['Tide', 'Frost', 'Metal'] },
 ];
 export const sectionById = (id) => SECTIONS.find((s) => s.id === id) || null;
 

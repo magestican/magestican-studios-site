@@ -472,6 +472,9 @@ export const BOSS_SPECIES = BOSSES.map((b, i) => ({
 }));
 export const bossSpecies = (bossId) => BOSS_SPECIES.find((s) => s.boss === bossId);
 export const isBoss = (d) => !!speciesById(d.sp).boss;
+
+
+export const wildFamiliesOf = (types) => [0, ...Array.from({ length: FAMILY_COUNT - 4 }, (_, i) => i + 4)].filter((f) => SPECIES[f * 3].types.some((t) => types.includes(t)));
 export const GUARDIAN = 201;
 export const STARTERS = { power: 202, wisdom: 205, adventure: 208 };
 
