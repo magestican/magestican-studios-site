@@ -6,6 +6,7 @@ import { VOLC, npcStepClear } from './mapgen.js';
 import { CHAR_SCALE, GAP, BODY_R } from './crowd.js';
 import { makeDachi, speciesById, capsFor, wildFamiliesOf } from '../../data/species.js';
 import { sectionById } from './sections.js';
+import { wildLevel } from './wildLevel.js';
 import { dachiBillboard, setDachiLook } from '../../art/billboards.js';
 
 
@@ -38,8 +39,9 @@ export function spawnWild(near = null) {
     const far = U.dist(x, y, VOLC.x, VOLC.y);
     
     const top = G.party.reduce((m, d) => Math.max(m, d.lvl), 1);
-    const floor = capsFor(G.cycle).enemyFloor;   
-    const lvl = floor || U.clamp(Math.floor(2 + far / 6.75 + caughtCount() * 0.15 + Math.random() * 2.5), 2, top + (G.flags.initiated ? 2 : 0));
+    const sec = sectionById(S.cam && S.cam.sec);
+    const lvl = wildLevel({ far, caught: caughtCount(), rand: Math.random(), top, initiated: !!G.flags.initiated,
+      floor: capsFor(G.cycle).enemyFloor, chapter: (sec && sec.chapter) || 1 });
     
     let fam = Math.random() < 0.05 ? 1 + Math.floor(Math.random() * 3) : [0, ...Array.from({ length: 37 }, (_, i) => i + 4)][Math.floor(Math.random() * 38)];
     

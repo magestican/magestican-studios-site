@@ -37,12 +37,19 @@ export const SECTIONS = [
   
   
   { id: 'coral', name: 'Coral Deep — The Sunken City', rect: { u: [9.5, 26], v: [85, 102] }, zoom: 8.5, wall: 1.8, chapter: 2, wildTypes: ['Tide', 'Frost', 'Metal'] },
+  
+  
+  { id: 'verdant', name: 'Verdant Wilds — The Old Grove', rect: { u: [-27, -9], v: [57, 75] }, zoom: 8.5, wall: 2.0, chapter: 3, wildTypes: ['Leaf', 'Spirit'] },
 ];
 export const sectionById = (id) => SECTIONS.find((s) => s.id === id) || null;
 
+
+
+export const BASE_SECTIONS = SECTIONS.filter((s) => !(s.chapter >= 3));
+
 const inRect = (r, u, v, grow = 0) => u >= r.u[0] - grow && u <= r.u[1] + grow && v >= r.v[0] - grow && v <= r.v[1] + grow;
-export function sectionAtUV(u, v) {
-  for (const s of SECTIONS) if (inRect(s.rect, u, v)) return s;
+export function sectionAtUV(u, v, list = SECTIONS) {
+  for (const s of list) if (inRect(s.rect, u, v)) return s;
   return null;
 }
 export const sectionAt = (x, y) => sectionAtUV(...toUV(x, y));
@@ -53,10 +60,10 @@ export function edgeDepth(r, u, v) {
   return { depth: d[k], edge: ['left', 'right', 'top', 'bottom'][k] };
 }
 
-export function nearestSection(x, y) {
+export function nearestSection(x, y, list = SECTIONS) {
   const [u, v] = toUV(x, y);
   let best = null, bd = Infinity;
-  for (const s of SECTIONS) {
+  for (const s of list) {
     const du = Math.max(s.rect.u[0] - u, 0, u - s.rect.u[1]), dv = Math.max(s.rect.v[0] - v, 0, v - s.rect.v[1]);
     const d = Math.hypot(du, dv);
     if (d < bd) { bd = d; best = s; }
@@ -91,9 +98,9 @@ export function sectionWindow(W, sec) {
   const e = sec.extend || [0, 0, 0, 0];
   return { u: [u0 - MARGIN.side - e[0], u1 + MARGIN.side + e[1]], s: [s0 - MARGIN.top - e[2], s1 + MARGIN.bottom + e[3]] };
 }
-export function sectionWindows(W) {
+export function sectionWindows(W, list = SECTIONS) {
   const out = {};
-  for (const s of SECTIONS) out[s.id] = sectionWindow(W, s);
+  for (const s of list) out[s.id] = sectionWindow(W, s);
   return out;
 }
 

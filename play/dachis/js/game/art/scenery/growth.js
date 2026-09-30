@@ -13,7 +13,7 @@
 
 import { S, form, lin, mixLin, jit } from './kit.js';
 import { fbm3 } from '../../../vendor/fml/moon/noise.js';
-import { stoneForm, SEA_WORN } from './rocks.js';
+import { stoneForm, SEA_WORN, MOSSY } from './rocks.js';
 
 
 
@@ -113,6 +113,27 @@ function coral() {
 }
 export const coralForm = () => form('coral', coral, { min: [-0.6, -0.05, -0.6], max: [0.6, 0.85, 0.6], cell: 0.03, tris: 320 });
 
+
+
+function bramble() {
+  const canes = [], leaves = [], berries = [];
+  for (let k = 0; k < 6; k++) {
+    const a = k / 6 * Math.PI * 2 + jit(k, 7) * 0.6, dx = Math.sin(a), dz = Math.cos(a), L = 0.45 + jit(k, 8) * 0.2, H = 0.42 + jit(k, 9) * 0.22;
+    const p0 = [dx * 0.05, 0.08, dz * 0.05], p1 = [dx * L * 0.45, H, dz * L * 0.45], p2 = [dx * L * 0.85, H * 0.8, dz * L * 0.85], p3 = [dx * L * 1.1, 0.02, dz * L * 1.1];
+    canes.push(S.roundCone(p0, p1, 0.035, 0.028), S.roundCone(p1, p2, 0.028, 0.022), S.roundCone(p2, p3, 0.022, 0.014));
+    
+    for (const t of [0.35, 0.7]) { const q = [U3(p1, p2, t)]; canes.push(S.roundCone(q[0], [q[0][0] + dz * 0.05, q[0][1] + 0.06, q[0][2] - dx * 0.05], 0.012, 0.002)); }
+    leaves.push(S.ellipsoid(U3(p0, p1, 0.8), [0.11, 0.07, 0.11]), S.ellipsoid(U3(p1, p2, 0.6), [0.09, 0.06, 0.09]));
+    if (k % 2 === 0) berries.push(S.sphere([p2[0], p2[1] - 0.06, p2[2]], 0.035), S.sphere([p2[0] + 0.05, p2[1] - 0.09, p2[2]], 0.03), S.sphere([p2[0], p2[1] - 0.1, p2[2] + 0.05], 0.03));
+  }
+  const cane = S.paint(S.union(0.03, S.ellipsoid([0, 0.1, 0], [0.18, 0.12, 0.18]), ...canes), { material: 'bark', color: (x, y) => mixLin(lin('#4a3a2a'), lin('#6a7a3a'), Math.min(1, y * 1.6)) });
+  const leaf = S.paint(S.displace(S.union(0.05, ...leaves), lumps(9, 0.04, 51), 0.03), { material: 'leaf', color: crownPaint(JUNGLE_LO, lin('#6cb44a'), 0.05, 0.6, 52) });
+  const fruit = S.paint(S.union(0.01, ...berries), { material: 'petal', color: lin('#4a2a5a') });
+  return S.union(0.02, cane, leaf, fruit);
+}
+const U3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+export const brambleForm = () => form('bramble', bramble, { min: [-0.8, -0.05, -0.8], max: [0.8, 0.8, 0.8], cell: 0.03, tris: 420 });
+
 function fern() {
   const fronds = [0, 1, 2, 3, 4, 5, 6].map((k) => {
     const a = k / 7 * Math.PI * 2 + jit(k, 1), dx = Math.sin(a), dz = Math.cos(a), L = 0.5 + jit(k, 2) * 0.2;
@@ -135,9 +156,11 @@ export const flowerForm = () => form('flowers', flowers, { min: [-0.2, -0.03, -0
 
 
 const tintOf = (hex) => lin(hex);
-const BUSH_TINT = { coast: { leaf: [1.05, 1.12, 0.8] }, jungle: { leaf: [0.72, 0.9, 0.85] }, shrine: { leaf: [1, 1.05, 0.95] } };
 
-export const FLAVOR_TINT = { coral: SEA_WORN, kelp: { leaf: [0.5, 0.95, 1.1] } };
+const VERDANT_LEAF = { leaf: [0.66, 0.92, 0.78] };
+const BUSH_TINT = { coast: { leaf: [1.05, 1.12, 0.8] }, jungle: { leaf: [0.72, 0.9, 0.85] }, shrine: { leaf: [1, 1.05, 0.95] }, verdant: VERDANT_LEAF };
+
+export const FLAVOR_TINT = { coral: SEA_WORN, kelp: { leaf: [0.5, 0.95, 1.1] }, verdant: VERDANT_LEAF, moss: MOSSY };
 
 export function placeGrowth(batch, W) {
   const G = (o) => W.groundAt(o.x, o.y);
@@ -146,11 +169,12 @@ export function placeGrowth(batch, W) {
     switch (o.kind) {
       case 'tree': batch.add(treeForm(), at); break;
       case 'blossom': batch.add(blossomForm(), at); break;
-      case 'jtree': batch.add(jungleTreeForm(), at); break;
+      case 'jtree': batch.add(jungleTreeForm(), at, FLAVOR_TINT[o.flavor] || {}); break;
       case 'palm': batch.add(palmForm(), { ...at, tilt: [0, 0] }); break;
       case 'bush': batch.add(bushForm(), at, BUSH_TINT[o.flavor] || {}); break;
       case 'fern': batch.add(fernForm(), at, FLAVOR_TINT[o.flavor] || {}); break;
       case 'coral': batch.add(coralForm(), at, { petal: tintOf(o.c) }); break;
+      case 'bramble': batch.add(brambleForm(), at); break;
       case 'flower': batch.add(flowerForm(), { ...at, s: 1.4 }, { petal: tintOf(o.c) }); break;
       case 'crag': batch.add(stoneForm(o.v, 'dark'), { ...at, h: G(o) - 0.15 * o.s, s: [o.s * 1.1, o.s * 0.9, o.s] }, FLAVOR_TINT[o.flavor] || {}); break;
       case 'rock': batch.add(stoneForm(Math.floor(o.rot * 3) % 4, o.dark ? 'dark' : 'grey'), { ...at, h: G(o) - 0.05 * o.s, s: [o.s, o.s * 0.8, o.s * 0.9] }, FLAVOR_TINT[o.flavor] || {}); break;

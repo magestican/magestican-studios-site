@@ -26,6 +26,13 @@ export const LAIRS = [
       ['boss', 'This city sank waiting for someone to save it. Nobody came. The god will carry us where no tide can follow.'],
       ['kid', 'Then I\'m the somebody. Surface, you big tin whale!']],
     fall: 'Its sonar fades to a whisper... {name} sinks into the deep and is gone. For now.' },
+  
+  { boss: 'bramble', sec: 'verdant', uv: [-19.6, 66.6], after: 'boss_leviathrum',
+    hint: 'Face Mother Bramble in the Verdant Wilds', 
+    meet: [['boss', 'Hush, little seed. Everything here grew out of something that fell. Listen: "{creed}"'],
+      ['boss', 'Your island rots from the root, Bridge child. Let it go to soil, and the god will plant us something new.'],
+      ['kid', 'Nobody is getting planted! Let go of this forest, lady!']],
+    fall: 'The thorns wilt and the moss goes still... {name} sinks into the roots and is gone. For now.' },
 ];
 export const MEET = 2.3; 
 export const lairOf = (boss) => LAIRS.find((l) => l.boss === boss) || null;

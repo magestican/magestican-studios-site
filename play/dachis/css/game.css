@@ -23,7 +23,8 @@ body.input-touch .tappable:active { transform: scale(0.96); }
 #hud { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
 #hud > * { pointer-events: auto; }
 #locBar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); padding: 7px 22px 6px; border-radius: 0 0 18px 18px; text-align: center;
-  background: linear-gradient(#fff9e6, #f1d9a2); border: 3px solid #5a3c1e; box-shadow: 0 4px 0 rgba(0,0,0,.3); font-weight: bold; color: #5a3c1e; max-width: 70vw; }
+  background: linear-gradient(#fff9e6, #f1d9a2); border: 3px solid #5a3c1e; box-shadow: 0 4px 0 rgba(0,0,0,.3); font-weight: bold; color: #5a3c1e;
+  max-width: min(70vw, calc(100vw - 420px)); } 
 #locBar small { display: block; font-size: 12px; color: #8a5a2a; font-weight: normal; }
 #locBar.pop { animation: pop .5s ease-out; }
 @keyframes pop { from { transform: translateX(-50%) scale(1.15); } to { transform: translateX(-50%) scale(1); } }
@@ -207,7 +208,12 @@ button.big { display: block; width: 100%; margin: 8px 0; padding: 12px; border-r
   .comp .types, .comp .bar.xp { display: none; }
   .cn { font-size: 11px; }
   #companions { gap: 3px; bottom: 6px; left: 6px; }
-  #locBar { font-size: 13px; padding: 5px 12px; top: 0; }
+  
+
+  #locBar { font-size: 13px; padding: 5px 12px; top: 0; left: 6px; right: 136px; width: fit-content; margin: 0 auto; max-width: none; transform: none; }
+  #locBar small { font-size: 11px; }
+  #locBar.pop { animation-name: popStrip; }
+  @keyframes popStrip { from { transform: scale(1.05); } to { transform: scale(1); } }
   
   #bTop { top: 4px; gap: 4px; width: calc(100vw - 8px); }
   .bPanel { padding: 3px 6px 4px; font-size: 11px; border-width: 2px; }

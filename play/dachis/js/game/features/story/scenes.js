@@ -5,7 +5,7 @@ import { U } from '../../../engine/core/util.js';
 import { G } from '../../state.js';
 import { KUMABO } from '../../data/species.js';
 import { ART } from '../../art/characters.js';
-import { dachiPortrait, aerowingPortrait, aerowingRidePortrait, castFigure } from '../../art/portraitRender.js';
+import { dachiPortrait, aerowingPortrait, aerowingRidePortrait, castFigure, RIDE_SHOT } from '../../art/portraitRender.js';
 
 
 
@@ -15,9 +15,13 @@ const crowd = (id, opts) => dachiPortrait(id, opts, CROWD_PX, 'fixed').canvas;
 
 const AERO_PX = 200, AERO_CSS = 300;
 const FLAP = (t) => [0, 1, 2, 1][Math.floor(t * 8) % 4];
-const aero = (t) => aerowingPortrait(FLAP(t), AERO_PX).canvas;
 
 const RIDE_PX = 220, RIDE_CSS = 340;
+
+
+
+export const SWOOP = { shot: RIDE_SHOT, px: RIDE_PX, css: RIDE_CSS }; 
+const aero = (t) => aerowingPortrait(FLAP(t), SWOOP.px, 'fit', SWOOP.shot).canvas;
 const ride = (t) => aerowingRidePortrait(FLAP(t), RIDE_PX, G.gender).canvas;
 
 
@@ -212,7 +216,7 @@ export const SCENES = [
     },
   },
   { 
-    prewarm() { for (const f of [0, 1, 2]) { aerowingPortrait(f, AERO_PX); aerowingRidePortrait(f, RIDE_PX, G.gender); } },
+    prewarm() { for (const f of [0, 1, 2]) { aerowingPortrait(f, SWOOP.px, 'fit', SWOOP.shot); aerowingRidePortrait(f, RIDE_PX, G.gender); } },
     lines: () => [
       Object.assign({}, NARR, { text: 'Right before impact, a winged creature snatches you out of the sky!', fx: c => { c.t = 0; } }),
       { who: 'Winged Dachi', portrait: 'aerowing', text: 'Kyaaaaa!!' },
@@ -228,7 +232,7 @@ export const SCENES = [
         ctx.drawImage(ride(t), bx - RIDE_CSS / 2, by - RIDE_CSS / 2, RIDE_CSS, RIDE_CSS);
       } else { 
         ctx.restore(); ctx.save(); ctx.translate(w / 2, h * 0.5); ctx.rotate(Math.sin(t * 3) * 0.6); kid3d(ctx, 0, 30, 2.2); ctx.restore(); ctx.save(); ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(aero(t), bx - AERO_CSS / 2, by - AERO_CSS / 2, AERO_CSS, AERO_CSS);
+        ctx.drawImage(aero(t), bx - SWOOP.css / 2, by - SWOOP.css / 2, SWOOP.css, SWOOP.css);
       }
       ctx.restore();
     },

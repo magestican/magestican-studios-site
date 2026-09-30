@@ -80,11 +80,14 @@ export function placeLedges(batch, W) {
 
 export const SEA_WORN = { stone: [0.72, 0.93, 1.1] };
 
+export const MOSSY = { stone: [0.68, 0.98, 0.62] };
+const STONE_TINT = { coral: SEA_WORN, moss: MOSSY };
+
 
 export function placeRimStones(batch, W) {
   for (const o of W.objects) {
     if (o.kind !== 'rimstone') continue;
-    batch.add(stoneForm(o.v), { x: o.x, h: W.groundAt(o.x, o.y) - 0.1 * o.s, y: o.y, rot: o.rot, s: [o.s * 1.1, o.s * 1.05, o.s] }, o.flavor === 'coral' ? SEA_WORN : {});
+    batch.add(stoneForm(o.v), { x: o.x, h: W.groundAt(o.x, o.y) - 0.1 * o.s, y: o.y, rot: o.rot, s: [o.s * 1.1, o.s * 1.05, o.s] }, STONE_TINT[o.flavor] || {});
   }
 }
 
@@ -109,6 +112,6 @@ export const pillarForm = (v) => form(`pillar-${v % 3}`, () => pillarNode(v % 3)
 export function placePillars(batch, W) {
   for (const o of W.objects) {
     if (o.kind !== 'pillar') continue;
-    batch.add(pillarForm(o.v), { x: o.x, h: W.groundAt(o.x, o.y) - 0.04, y: o.y, rot: o.rot, s: o.s }, SEA_WORN);
+    batch.add(pillarForm(o.v), { x: o.x, h: W.groundAt(o.x, o.y) - 0.04, y: o.y, rot: o.rot, s: o.s }, STONE_TINT[o.flavor] || SEA_WORN); 
   }
 }

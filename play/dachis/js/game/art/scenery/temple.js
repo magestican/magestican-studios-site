@@ -73,9 +73,11 @@ export const gateForm = () => form('gate', gateNode, { min: [-1.55, -0.03, -0.2]
 
 
 const DROWNED = { wood: [0.5, 1.15, 1.2], plank: [0.72, 0.9, 1.0], roof: [0.75, 0.95, 1.1], stone: [0.72, 0.93, 1.1] };
+
+const OVERGROWN = { wood: [0.55, 0.95, 0.5], plank: [0.75, 0.95, 0.7], roof: [0.7, 1.0, 0.7], stone: [0.68, 0.98, 0.62] };
 export function placeTemple(batch, W) {
   for (const o of W.objects) {
-    const sunk = o.flavor === 'coral', tint = sunk ? DROWNED : {};
+    const sunk = o.flavor === 'coral', tint = sunk ? DROWNED : o.flavor === 'moss' ? OVERGROWN : {};
     const at = { x: o.x, h: W.groundAt(o.x, o.y) - (sunk ? 0.14 : 0.02), y: o.y, rot: o.rot || 0 };
     if (o.kind === 'temple') batch.add(templeForm(), at, tint);
     else if (o.kind === 'lantern') batch.add(lanternForm(), at, tint);

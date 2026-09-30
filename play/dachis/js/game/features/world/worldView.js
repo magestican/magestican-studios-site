@@ -19,6 +19,8 @@ const TILE_COLOR = {
   [T.WOOD]: '#3f8a3a', [T.CLIFF]: '#6e625a', [T.JUNGLE]: '#338a3e',
   
   [T.REEF]: '#e8d2bc', [T.KELP]: '#3f8a7a', [T.RUIN]: '#a9b4b8',
+  
+  [T.GLADE]: '#2f7a3a', [T.THICKET]: '#27663a', [T.MOSS]: '#7fa06a',
 };
 
 
@@ -73,23 +75,32 @@ export function buildWorld(stage, W) {
       '#include <begin_vertex>\n  float ph = instanceMatrix[3].x * 0.7 + instanceMatrix[3].z * 0.5;\n  transformed.x += sin(uTime * 2.2 + ph) * 0.09 * position.y;\n  transformed.z += cos(uTime * 1.7 + ph) * 0.05 * position.y;');
   };
   
-  const tmat = tuftMat('#cfe3bd'), kelpMat = tuftMat('#7fd8c8');
+  const tmat = tuftMat('#cfe3bd'), kelpMat = tuftMat('#7fd8c8'), wildMat = tuftMat('#9fd08a');
   
   const tufts = {};
   const r = U.rng(99);
   const bySec = Object.fromEntries(SECTIONS.map((sec) => [sec.id, []]));
+  
+  
+  const rl = U.rng(1616), tall = (t) => t === T.TALL || t === T.KELP || t === T.THICKET;
+  const tuftsOf = (t, rr, i, j) => {
+    const n = tall(t) ? 5 : t === T.GRASS ? (rr() < 0.45 ? 1 : 0) : t === T.JUNGLE || t === T.GLADE ? (rr() < 0.3 ? 1 : 0) : t === T.WOOD ? (rr() < 0.5 ? 1 : 0) : 0, out = [];
+    for (let k = 0; k < n; k++) out.push([i + rr(), j + rr(), tall(t) ? 1 + rr() * 0.5 : 0.55 + rr() * 0.3, rr() * 6.28]);
+    return out;
+  };
   for (let j = 0; j < W.N; j++) for (let i = 0; i < W.N; i++) {
-    const t = W.type[W.idx(i, j)];
-    const n = t === T.TALL || t === T.KELP ? 5 : t === T.GRASS ? (r() < 0.45 ? 1 : 0) : t === T.JUNGLE ? (r() < 0.3 ? 1 : 0) : t === T.WOOD ? (r() < 0.5 ? 1 : 0) : 0;
-    if (!n) continue;
+    const t = W.type[W.idx(i, j)], tb = W.baseType[W.idx(i, j)];
+    let list = tuftsOf(tb, r, i, j);
+    if (t !== tb) list = tuftsOf(t, rl, i, j);
+    if (!list.length) continue;
     const ids = W.windowsOf(i + 0.5, j + 0.5, 0.6);
-    for (let k = 0; k < n; k++) { const tuft = [i + r(), j + r(), t === T.TALL || t === T.KELP ? 1 + r() * 0.5 : 0.55 + r() * 0.3, r() * 6.28]; for (const id of ids) bySec[id].push(tuft); }
+    for (const tuft of list) for (const id of ids) bySec[id].push(tuft);
   }
   const o = new THREE.Object3D();
   for (const id in bySec) {
     const spots = bySec[id];
     if (!spots.length) continue;
-    const im = new THREE.InstancedMesh(tuft, id === 'coral' ? kelpMat : tmat, spots.length);
+    const im = new THREE.InstancedMesh(tuft, id === 'coral' ? kelpMat : id === 'verdant' ? wildMat : tmat, spots.length);
     spots.forEach(([x, y, s, rot], k) => { o.position.set(x, W.groundAt(x, y), y); o.scale.set(s, s, s); o.rotation.set(0, rot, 0); o.updateMatrix(); im.setMatrixAt(k, o.matrix); });
     im.computeBoundingSphere();
     im.receiveShadow = true;

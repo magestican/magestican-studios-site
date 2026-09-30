@@ -191,11 +191,13 @@ export function castPortrait(kind, opts = {}, px = 56, mode = 'bust') {
 
 
 
-export function aerowingPortrait(frame = 1, px = 112, mode = 'fit') {
-  const k = aerowingKey(frame), e = entry(`a${k}|${px}|${mode}`, px);
+
+export function aerowingPortrait(frame = 1, px = 112, mode = 'fit', shot = null) {
+  const k = aerowingKey(frame), e = entry(`a${k}|${px}|${mode}|${shot ? JSON.stringify(shot) : ''}`, px);
   if (e.started) return e;
   e.started = true;
-  requestJob({ key: k, kind: 'aerowing', opts: { frame } }, (arr) => { renderParts(geometries(k, arr), 'n', e.canvas, mode, 1, { grade: false }); e.done(); }); 
+  const o = shot ? { view: new THREE.Vector3(...shot.view).normalize(), frame: shot.frame, grade: false } : { grade: false };
+  requestJob({ key: k, kind: 'aerowing', opts: { frame } }, (arr) => { renderParts(geometries(k, arr), 'n', e.canvas, mode, 1, o); e.done(); }); 
   return e;
 }
 
