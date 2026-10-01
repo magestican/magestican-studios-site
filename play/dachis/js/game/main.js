@@ -99,7 +99,7 @@ function sizeOverlay() {
   octx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 addEventListener('resize', sizeOverlay); sizeOverlay();
-window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame };
+window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state };
 
 
 $('touchZone').addEventListener('pointerdown', e => {
@@ -193,6 +193,7 @@ function frame(now) {
   I.update(); S.hints.begin(); S.dialog.update(dt);
   S.flash = Math.max(0, S.flash - dt * 1.4);
   octx.clearRect(0, 0, innerWidth, innerHeight);
+  music.update(G.mode, B, S.cam && S.cam.sec); 
 
   if (G.mode === 'cutscene') {
     Cutscene.update(dt);
