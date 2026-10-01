@@ -6,6 +6,11 @@ import { G } from '../../state.js';
 import { KUMABO } from '../../data/species.js';
 import { ART } from '../../art/characters.js';
 import { dachiPortrait, aerowingPortrait, aerowingRidePortrait, castFigure, RIDE_SHOT } from '../../art/portraitRender.js';
+import { lookName } from '../../art/look/celRules.js';
+import * as SKY from '../../art/look/celSky.js';
+
+
+const CEL = typeof location !== 'undefined' && lookName(location.search) === 'cel';
 
 
 
@@ -54,6 +59,7 @@ function drawAlley(ctx, w, h, t) {
   let g = ctx.createLinearGradient(0, 0, 0, bot);
   g.addColorStop(0, '#07041a'); g.addColorStop(1, '#3a1a4a');
   ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  if (CEL) SKY.bands(ctx, 0, 0, w, bot, ['#07041a', '#1d0f35', '#3a1a4a'], Math.max(6, Math.round(h / 90)));
   
   for (const [a, b] of [[0, 0.4], [0.12, 0.7], [0.3, 0.55], [0.5, 0.85], [0.7, 0.5], [0.85, 0.75]]) {
     const bx = inL + (inR - inL) * a, bw = (inR - inL) * 0.22, bh = (bot - top) * b;
@@ -120,7 +126,9 @@ function drawAlley(ctx, w, h, t) {
 }
 
 const CLOUDS = Array.from({ length: 18 }, (_, i) => [U.ih(i, 1, 3), U.ih(i, 2, 3), 0.5 + U.ih(i, 3, 3)]);
+const WAVES = Array.from({ length: 40 }, (_, k) => [U.ih(k, 9, 1), U.ih(k, 8, 1)]);
 function drawIslandFromAbove(ctx, w, h, t, zoom) {
+  if (CEL) { SKY.ocean(ctx, w, h, t, WAVES); SKY.island(ctx, w / 2, h / 2, Math.min(w, h) * 0.12 * zoom, Math.max(2, h / 220)); return; }
   let g = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, Math.max(w, h));
   g.addColorStop(0, '#1fa0d8'); g.addColorStop(1, '#0a4f8a');
   ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
@@ -140,11 +148,14 @@ function drawClouds(ctx, w, h, t, speed) {
   for (const [a, b, s] of CLOUDS) {
     const y = ((b * h * 1.5 - t * speed * s) % (h * 1.5) + h * 1.5) % (h * 1.5) - h * 0.25;
     const x = a * w;
+    if (CEL) { SKY.cloud(ctx, x, y, s, Math.max(2, h / 240)); continue; }
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
     for (let k = 0; k < 4; k++) { U.ellipse(ctx, x + k * 30 * s - 45 * s, y + Math.sin(k) * 10, 50 * s, 26 * s); ctx.fill(); }
   }
 }
+const STREAKS = Array.from({ length: 30 }, (_, k) => [U.ih(k, 4, 7), U.ih(k, 5, 7)]);
 function drawSpeedLines(ctx, w, h, t) {
+  if (CEL) { SKY.speedLines(ctx, w, h, t, STREAKS); return; }
   ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2;
   for (let k = 0; k < 30; k++) { const x = U.ih(k, 4, 7) * w, y = ((U.ih(k, 5, 7) * h - t * 1500) % h + h) % h; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 80); ctx.stroke(); }
 }
@@ -256,6 +267,7 @@ export const SCENES = [
       let g = ctx.createLinearGradient(0, 0, 0, h * 0.6);
       g.addColorStop(0, '#5a3c8c'); g.addColorStop(0.5, '#ff8a6a'); g.addColorStop(1, '#ffd08a');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      if (CEL) SKY.sunset(ctx, w, h);
       ctx.fillStyle = '#3a7ac0'; ctx.fillRect(0, h * 0.5, w, h * 0.1);
       ctx.fillStyle = 'rgba(255,240,200,0.5)'; for (let k = 0; k < 12; k++) ctx.fillRect(U.ih(k, 1, 2) * w, h * 0.5 + U.ih(k, 2, 2) * h * 0.1, 30, 2);
       
@@ -263,7 +275,12 @@ export const SCENES = [
       
       g = ctx.createLinearGradient(0, h * 0.55, 0, h);
       g.addColorStop(0, '#6a3a2a'); g.addColorStop(0.3, '#8a6a5a'); g.addColorStop(1, '#b8a890');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(0, h * 0.6); ctx.quadraticCurveTo(w * 0.5, h * 0.52, w, h * 0.6); ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.fill();
+      ctx.fillStyle = CEL ? '#9a7a62' : g; ctx.beginPath(); ctx.moveTo(0, h * 0.6); ctx.quadraticCurveTo(w * 0.5, h * 0.52, w, h * 0.6); ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.fill();
+      if (CEL) { 
+        ctx.save(); ctx.clip(); SKY.dots(ctx, 0, h * 0.53, w, h * 0.08, '#6a3a2a', Math.max(6, Math.round(h / 90)), false); ctx.restore();
+        ctx.beginPath(); ctx.moveTo(0, h * 0.6); ctx.quadraticCurveTo(w * 0.5, h * 0.52, w, h * 0.6);
+        ctx.lineWidth = Math.max(2, h / 220); ctx.strokeStyle = '#0d0a14'; ctx.stroke();
+      }
       ctx.fillStyle = `rgba(255,110,40,${0.5 + 0.2 * Math.sin(t * 3)})`; U.ellipse(ctx, w * 0.18, h * 0.6, w * 0.08, h * 0.015); ctx.fill();
       ART.hut(ctx, w * 0.35, h * 0.63, 1.6, '#d8763a');
       ART.hut(ctx, w * 0.62, h * 0.61, 1.4, '#c9543a');

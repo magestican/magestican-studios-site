@@ -21,6 +21,7 @@ import { patchSeeThrough } from '../../../engine/iso/seeThrough.js';
 import { applyLook } from '../../../engine/iso/cozyStage.js';
 import * as R from './celRules.js';
 import { CEL_PARS_V, celMainV, CEL_PARS_F, CEL_MAIN_F, hullVertex, HULL_FRAG } from './celGlsl.js';
+import { SURFACES, surfaceFrom, made as surfaces } from './celSurfaces.js';
 
 const LIT = new Set(['MeshLambertMaterial', 'MeshPhongMaterial', 'MeshStandardMaterial']);
 
@@ -31,6 +32,8 @@ export const celUniforms = {
   uCelCrackScale: { value: R.CRACK_SCALE },
   uCelRes: { value: new THREE.Vector2(1, 1) },
   uCelPx: { value: 1 },
+  uCelTime: { value: 0 }, 
+  uCelInk: { value: new THREE.Color(R.INK) },
 };
 const INK = new THREE.Color(R.INK);
 
@@ -67,8 +70,11 @@ function celFrom(src) {
 }
 
 
+
 function wants(src) {
-  if (!src || !LIT.has(src.type) || src.userData.look === false) return false;
+  if (!src || src.userData.look === false) return false;
+  if (src.userData.look && SURFACES.has(src.userData.look.role)) return true;
+  if (!LIT.has(src.type)) return false;
   return !src.userData.uFmlRim || !!src.userData.look;
 }
 
@@ -100,7 +106,9 @@ function decorate(mesh, see) {
   let h = mesh.userData.celHull;
   if (h === undefined) {
     const info = mesh.material.userData.look || {};
-    if (mesh.isInstancedMesh || info.glow || info.hull === false) { mesh.userData.celHull = null; return; }
+    
+    
+    if (mesh.isInstancedMesh || info.glow || info.hull === false || SURFACES.has(info.role)) { mesh.userData.celHull = null; return; }
     const kind = mesh.material.userData.seeThrough ? (see ? 'scenery' : 'actor') : see ? 'scenery' : null;
     h = new THREE.Mesh(mesh.geometry, hullMat(false, kind, mesh.material.userData.pose));
     h.userData.hull = true; h.raycast = () => {}; h.castShadow = h.receiveShadow = false;
@@ -144,14 +152,17 @@ function sizeUniforms(w, h, boost = 1) {
 let ACTIVE = null;
 export function activeLook() { return ACTIVE; }
 
+export const extra = [];
+
 export function celLook({ phone = false } = {}) {
   if (ACTIVE) return ACTIVE;
   ACTIVE = {
     name: 'cel', phone,
     post: { toneMapping: THREE.NoToneMapping, dither: 0, pixelHeight: R.PIXEL_HEIGHT },
-    material: (src) => (wants(src) ? celFrom(src) : null),
+    material: (src) => (!wants(src) ? null : SURFACES.has(src.userData.look && src.userData.look.role) ? surfaceFrom(src, celUniforms) : celFrom(src)),
     decorate, decorateBatch,
     beforeRender(stage) {
+      celUniforms.uCelTime.value = performance.now() / 1000;
       const t = stage.pixel && stage.pixel.enabled ? stage.pixel.target : null;
       if (t) sizeUniforms(t.width, t.height);
       else { const b = stage.renderer.getDrawingBufferSize(new THREE.Vector2()); sizeUniforms(b.x, b.y); }
@@ -185,6 +196,8 @@ export function celLook({ phone = false } = {}) {
       }
       applyLook(tmp, ACTIVE);
       for (const see of [null, 'actor', 'scenery']) tmp.add(new THREE.Mesh(geo, hullMat(false, see)));
+      
+      for (const m of [...surfaces, ...extra]) tmp.add(new THREE.Mesh(geo, m));
       const prev = renderer.getRenderTarget();
       renderer.setRenderTarget(pixel && pixel.enabled ? pixel.target : null);
       renderer.compile(scene, camera);

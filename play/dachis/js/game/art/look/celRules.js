@@ -131,4 +131,74 @@ export function hullLod(groups, { cells = HULL_CELLS, cellMin = HULL_CELL_MIN, f
   return { pos, nor, idx: Uint32Array.from(tris), size };
 }
 
+
+
+
+
+
+export const GROUND_CLASSES = ['grass', 'tall', 'sand', 'rock', 'lava', 'plaza', 'shallow', 'deep', 'wood', 'cliff',
+  'jungle', 'reef', 'kelp', 'ruin', 'glade', 'thicket', 'moss'];
+export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant'];
+
+
+export const GROUND_BASE = {
+  grass: ['#59ad46', '#87cf61'], tall: ['#357f2e', '#4f9f38'], sand: ['#e8c98a', '#f6e2a8'], rock: ['#7d7266', '#9a8f7e'],
+  lava: ['#3a1c18', '#5a2a1e'], plaza: ['#74b04a', '#9ad35e'], shallow: ['#e3c98c', '#f0dca4'], deep: ['#d0b67c', '#e0c890'],
+  wood: ['#2f7a34', '#3f9640'], cliff: ['#6a5c56', '#857468'], jungle: ['#2c7d3a', '#3f9a46'], reef: ['#e6c8b0', '#f4dcc6'],
+  kelp: ['#2f7f74', '#43a08e'], ruin: ['#97a6b4', '#b4c2cc'], glade: ['#2a6f38', '#3a8a40'], thicket: ['#1f5a32', '#2c7038'],
+  moss: ['#6f9a54', '#8cb866'], path: ['#e6bf8f', '#fff4dc'],
+};
+export const GROUND_REGION = {
+  
+  kazan: { grass: ['#7f9e3c', '#a9c453'], plaza: ['#8aa848', '#b2cb62'], rock: ['#6e5a50', '#8c7466'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
+  slope: { grass: ['#7f9e3c', '#a9c453'], tall: ['#5a7f2e', '#7a9c3a'], rock: ['#76675c', '#988574'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
+  jungle: { grass: ['#3f9a3a', '#6cbf48'], jungle: ['#21703a', '#36924a'], tall: ['#2a7430', '#3f9238'] },
+  road: {},
+  coast: { sand: ['#f0d48e', '#fde9b4'], shallow: ['#ecd294', '#f8e4b0'], grass: ['#5fb04a', '#8fd25e'] },
+  
+  shrine: { plaza: ['#d6b98a', '#ead2a4'], grass: ['#4fa65a', '#7fcc78'], path: ['#ead0a8', '#ffffff'] },
+  
+  coral: { reef: ['#a8d8d0', '#c6ece4'], kelp: ['#1f7f80', '#2fa0a0'], ruin: ['#7f9cb4', '#a0bed2'], sand: ['#b8dcd0', '#d4eee4'],
+    grass: ['#3a9a86', '#5cbca0'], tall: ['#287c70', '#3a9a86'], path: ['#c8e6e0', '#ffffff'] },
+  verdant: { grass: ['#3a8f34', '#6cc044'], glade: ['#1f6a34', '#3a9a3c'], thicket: ['#164f2e', '#256a36'], moss: ['#5f9a4a', '#8cc65a'] },
+};
+
+export function groundPalette(region) {
+  return { ...GROUND_BASE, ...(GROUND_REGION[region] || {}) };
+}
+
+export function groundPaletteBytes(regions = GROUND_REGIONS, classes = GROUND_CLASSES) {
+  const W = classes.length + 1, H = regions.length * 2, out = new Uint8Array(W * H * 4);
+  regions.forEach((r, ri) => {
+    const p = groundPalette(r);
+    [...classes, 'path'].forEach((c, ci) => {
+      for (let k = 0; k < 2; k++) {
+        const o = ((ri * 2 + k) * W + ci) * 4, [R, G, B] = hexRgb(p[c][k]);
+        out[o] = R; out[o + 1] = G; out[o + 2] = B; out[o + 3] = 255;
+      }
+    });
+  });
+  return { data: out, width: W, height: H };
+}
+
+export function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+export function luma(h) { const [r, g, b] = hexRgb(h); return 0.2126 * r + 0.7152 * g + 0.0722 * b; }
+
+export function classByte(cls) { const i = GROUND_CLASSES.indexOf(cls); return i < 0 ? 0 : i; }
+export function regionByte(region) { const i = GROUND_REGIONS.indexOf(region); return i < 0 ? GROUND_REGIONS.indexOf('road') : i; }
+
+
+
+
+export const WATER_BANDS = [[0.035, '#ffffff'], [0.2, '#5fe8d6'], [0.5, '#19a7e0'], [Infinity, '#1257b8']];
+export const WATER_ALPHA = [1, 0.8, 0.94, 0.97];
+export const WATER_EDGE = '#0b3f8f'; 
+
+export const GROUND_INK = 1.0;
+export function waterBand(depth) { let i = 0; while (depth >= WATER_BANDS[i][0]) i++; return i; }
+
+export const LAVA = { base: '#ff6a1a', hot: '#ffb02e', core: '#ffe46a' };
+
+export const SPRING = { base: '#8fe8de', rim: '#3cb8b4', ring: '#ffffff' };
+
 function norm(v) { const l = Math.hypot(v[0], v[1], v[2]); return v.map((x) => x / l); }

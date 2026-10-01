@@ -12,6 +12,20 @@ import { buildScenery } from '../../art/scenery/village.js';
 import { bakePathField, pathGroundMaterial } from '../../../engine/iso/groundPaths.js';
 import { T, CRATER, PLATEAU_H } from './mapgen.js';
 import { SECTIONS, sectionById, edgeDepth, toUV } from './sections.js';
+import { lookName, groundPaletteBytes } from '../../art/look/celRules.js';
+import { classPage } from '../../art/look/worldRules.js';
+import { createTags } from '../../art/look/tags.js';
+
+const CEL = typeof location !== 'undefined' && lookName(location.search) === 'cel';
+
+function pageTexture(data, w, h, srgb = false) {
+  const t = new THREE.DataTexture(data, w, h, THREE.RGBAFormat);
+  t.minFilter = t.magFilter = THREE.NearestFilter; t.generateMipmaps = false;
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  t.needsUpdate = true;
+  return t;
+}
+function paletteTexture() { const p = groundPaletteBytes(); return pageTexture(p.data, p.width, p.height, true); }
 
 const TILE_COLOR = {
   [T.SAND]: '#f2dea6', [T.GRASS]: '#5cc24e', [T.TALL]: '#46a83f', [T.PATH]: '#5cc24e',
@@ -50,11 +64,19 @@ export function buildWorld(stage, W) {
   const field = bakePathField(W.paths, W.N);
   
   
-  scene.add(createTerrain({ n: W.N, heightAt: W.heightAt, colorAt, sub: 2, detail: paintPixelDetail(),
+  const ground = createTerrain({ n: W.N, heightAt: W.heightAt, colorAt, sub: 2, detail: paintPixelDetail(),
     keepQuad: (x, y) => W.onScreen(x + 0.25, y + 0.25, 1.2, 1.2),
-    material: (map) => pathGroundMaterial({ map, field, span: W.N }) }));
+    material: (map) => pathGroundMaterial({ map, field, span: W.N }) });
+  scene.add(ground);
   const water = createWater({ center: [W.N / 2, W.N / 2], depthAt: W.heightAt, mapN: W.N });
   scene.add(water.mesh);
+  
+  
+  
+  if (CEL) {
+    ground.material.userData.look = { role: 'ground', classes: pageTexture(classPage(W), W.N, W.N), palette: paletteTexture(), field, n: W.N };
+    water.mesh.material.userData.look = { role: 'water' };
+  }
 
   
   const tuftTimes = { value: 0 };
@@ -62,8 +84,11 @@ export function buildWorld(stage, W) {
   const bx = blades.getContext('2d');
   for (let k = 0; k < 16; k++) {
     const x = 4 + k * 3.7, h = 36 + Math.sin(k * 2.3) * 16;
-    const g = bx.createLinearGradient(0, 64, 0, 64 - h); g.addColorStop(0, '#2c7a2c'); g.addColorStop(1, '#b8f27a');
+    const g = bx.createLinearGradient(0, 64, 0, 64 - h);
+    
+    for (const [at, c] of CEL ? [[0, '#3f8f2f'], [0.5, '#3f8f2f'], [0.5, '#8fd65a'], [1, '#8fd65a']] : [[0, '#2c7a2c'], [1, '#b8f27a']]) g.addColorStop(at, c);
     bx.fillStyle = g; bx.beginPath(); bx.moveTo(x - 2.5, 64); bx.quadraticCurveTo(x + 2, 64 - h * 0.6, x + Math.sin(k) * 6, 64 - h); bx.lineTo(x + 2.5, 64); bx.fill();
+    if (CEL) { bx.strokeStyle = '#0d0a14'; bx.lineWidth = 1.2; bx.stroke(); }
   }
   const tex = new THREE.CanvasTexture(blades); tex.colorSpace = THREE.SRGBColorSpace;
   const tuft = crossedQuads(0.55, 0.5);
@@ -112,6 +137,8 @@ export function buildWorld(stage, W) {
   const scenery = buildScenery(stage, W, { crater: CRATER, craterRadius: 1.6, lavaHeight: PLATEAU_H + 0.03, sections: SECTIONS.map((sec) => sec.id) });
   
   for (const id in scenery.groups) scenery.groups[id].userData.seeThrough = true;
+  
+  if (CEL) createTags(W, scenery.groups);
 
   return {
     water, scenery, tufts,
