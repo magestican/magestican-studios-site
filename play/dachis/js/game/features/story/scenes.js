@@ -164,6 +164,7 @@ const VILLAGE_EXTRAS = [[0.12, 0.66, 7, true], [0.86, 0.6, 13, true], [0.74, 0.7
 
 export const SCENES = [
   { 
+    mood: 'alley', 
     prewarm() { castFigure('kid', G.gender, FIG_PX, 'back'); castFigure('kid', G.gender, FIG_PX); },
     lines: () => [
       Object.assign({}, NARR, { text: 'New York City. Summer, 1992.' }),
@@ -184,6 +185,7 @@ export const SCENES = [
     },
   },
   { 
+    mood: 'spiral', 
     lines: () => [
       Object.assign(KID(), { text: "...What's that noise? It sounds like... breathing?" }),
       Object.assign({}, NARR, { text: 'The wall beside you warps. A black circle spirals open like a whirlpool.' }),
@@ -213,6 +215,7 @@ export const SCENES = [
     },
   },
   { 
+    mood: 'fall', 
     lines: () => [
       Object.assign(KID(), { text: 'AAAAAAAAAAHHHHHH!!!', fx: () => { CS.flashed = false; } }),
       Object.assign({}, NARR, { text: 'Sky. Wind. Endless ocean. You are falling toward a tiny island at incredible speed!' }),
@@ -227,6 +230,7 @@ export const SCENES = [
     },
   },
   { 
+    mood: 'wonder', 
     prewarm() { for (const f of [0, 1, 2]) { aerowingPortrait(f, SWOOP.px, 'fit', SWOOP.shot); aerowingRidePortrait(f, RIDE_PX, G.gender); } },
     lines: () => [
       Object.assign({}, NARR, { text: 'Right before impact, a winged creature snatches you out of the sky!', fx: c => { c.t = 0; } }),
@@ -249,6 +253,7 @@ export const SCENES = [
     },
   },
   { 
+    mood: 'wonder', 
     prewarm() { castFigure('elder', G.gender, FIG_PX); VILLAGE_EXTRAS.forEach(([, , id, band]) => crowd(id, { bandage: band })); crowd(KUMABO, { bandage: true }); },
     lines: () => [
       Object.assign({}, ELDER, { text: 'At last... You have come. I have been expecting you, child of the other world.' }),

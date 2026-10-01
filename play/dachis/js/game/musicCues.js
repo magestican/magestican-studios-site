@@ -4,7 +4,12 @@
 
 
 
-export const LOOPS = ['menu', 'town', 'field', 'battle', 'boss'];
+
+
+
+export const INTRO_MOODS = ['alley', 'spiral', 'fall', 'wonder']; 
+export const INTRO_CUES = INTRO_MOODS.map((m) => 'intro-' + m);
+export const LOOPS = ['menu', 'town', 'field', 'battle', 'boss', ...INTRO_CUES];
 export const STINGERS = ['victory', 'defeat'];
 export const CUES = [...LOOPS, ...STINGERS];
 
@@ -13,11 +18,12 @@ export const TOWNS = ['kazan', 'shrine'];
 
 
 
-export function cueFor({ mode, battle = null, sec = null } = {}) {
+export function cueFor({ mode, battle = null, sec = null, mood = null } = {}) {
   if (battle) {
     if (battle.state === 'end') return battle.result === 'lose' ? 'defeat' : battle.result === 'win' || battle.result === 'capture' ? 'victory' : 'stop';
     return battle.boss ? 'boss' : 'battle';
   }
+  if (mode === 'cutscene' && INTRO_MOODS.includes(mood)) return 'intro-' + mood;
   if (mode === 'title' || mode === 'cutscene') return 'menu';
   if (mode === 'world') return TOWNS.includes(sec) ? 'town' : 'field';
   return null;
@@ -28,6 +34,7 @@ export const isLoop = (cue) => LOOPS.includes(cue);
 
 export function preloadFor(cue) {
   if (cue === 'menu') return ['menu'];
+  if (INTRO_CUES.includes(cue)) { const i = INTRO_CUES.indexOf(cue); return INTRO_CUES.slice(i, i + 2); } 
   if (cue === 'town' || cue === 'field') return ['town', 'field'];
   if (cue === 'battle' || cue === 'boss' || STINGERS.includes(cue)) return ['battle', 'boss', 'victory', 'defeat'];
   return [];

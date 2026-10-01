@@ -213,7 +213,8 @@ function frame(now) {
   I.update(); S.hints.begin(); S.dialog.update(dt); tapHint.update(); youTag.update(dt);
   S.flash = Math.max(0, S.flash - dt * 1.4);
   octx.clearRect(0, 0, innerWidth, innerHeight);
-  music.update(G.mode, B, S.cam && S.cam.sec); 
+  const csc = G.mode === 'cutscene' && Cutscene.scenes ? Cutscene.scenes[Math.min(Cutscene.scene, Cutscene.scenes.length - 1)] : null;
+  music.update(G.mode, B, S.cam && S.cam.sec, csc && csc.mood); 
   ambience.update(B ? 'battle' : G.mode, S.cam && S.cam.sec); 
 
   if (G.mode === 'cutscene') {

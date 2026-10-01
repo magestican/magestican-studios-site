@@ -122,8 +122,9 @@ export const music = {
   
   lofi: { isOn: () => on, toggle: () => setOn(!on), setOn, wasOn: pref },
   
-  update(mode, B, sec) {
-    const cue = cueFor({ mode, battle: B ? { boss: !!(B.boss || B.script === 'guardian'), state: B.state, result: B.result } : null, sec });
+  
+  update(mode, B, sec, mood = null) {
+    const cue = cueFor({ mode, battle: B ? { boss: !!(B.boss || B.script === 'guardian'), state: B.state, result: B.result } : null, sec, mood });
     if (cue === null || cue === current) return;
     current = cue;
     if (on) start(cue);
