@@ -61,7 +61,8 @@ vec3 kidPose( vec3 v, vec3 pos, float isPoint ) {
 function poseMaterial(id, uniforms) {
   const base = material('n', id, '#ffffff');
   const m = base.clone(); 
-  m.defaultAttributeValues = base.defaultAttributeValues; m.userData = base.userData;
+  m.defaultAttributeValues = base.defaultAttributeValues;
+  m.userData = { ...base.userData, pose: { glsl: POSE_GLSL, uniforms } }; 
   m.customProgramCacheKey = () => base.customProgramCacheKey() + '|kidpose';
   m.onBeforeCompile = (sh, r) => {
     base.onBeforeCompile(sh, r);

@@ -16,6 +16,7 @@ import * as S from '../../../vendor/fml/moon/mesh/sdf.js';
 import { MeshData, NO_SHADOW_MATERIALS } from '../../../vendor/fml/moon/mesh/meshData.js';
 import { createSheet, set, hash2, bayer, hex } from '../../../vendor/arbelo/paint/texturePaint.js';
 import { unpackForms } from './formPack.js';
+import { hullFor, hwByte, hullLod, hullMaterial } from '../look/celRules.js';
 
 export { S };
 
@@ -110,6 +111,7 @@ export function materialFor(id) {
   
   else if (id === 'bark') m = new THREE.MeshLambertMaterial({ vertexColors: true, map: PAINTERS.bark(), emissive: '#2a200e', emissiveIntensity: 1 });
   else m = new THREE.MeshLambertMaterial({ vertexColors: true, map: PAINTERS[id] ? PAINTERS[id]() : null });
+  if (id === 'fire' || id === 'lamp-glow') m.userData.look = { role: 'scenery', glow: true, hull: false };
   materials.set(id, m);
   return m;
 }
@@ -117,14 +119,16 @@ export function materialFor(id) {
 
 const M = new THREE.Matrix4(), N3 = new THREE.Matrix3(), Q = new THREE.Quaternion(), E = new THREE.Euler();
 const P = new THREE.Vector3(), SC = new THREE.Vector3(), V = new THREE.Vector3();
+const hullLods = new WeakMap(); 
 export class Batch {
-  constructor(name) { this.name = name; this.groups = new Map(); }
+  constructor(name) { this.name = name; this.groups = new Map(); this.hull = { pos: [], nor: [], hw: [], idx: [] }; }
   
   add(arrays, at, tint = {}) {
     const s = at.s ?? 1, [sx, sy, sz] = Array.isArray(s) ? s : [s, s, s];
     E.set(at.tilt ? at.tilt[0] : 0, at.rot || 0, at.tilt ? at.tilt[1] : 0, 'YXZ');
     M.compose(P.set(at.x, at.h, at.y), Q.setFromEuler(E), SC.set(sx, sy, sz));
     N3.getNormalMatrix(M);
+    this.addHull(arrays, Math.max(Math.abs(sx), Math.abs(sy), Math.abs(sz)));
     for (const g of arrays.groups) {
       let out = this.groups.get(g.material);
       if (!out) this.groups.set(g.material, out = { pos: [], nor: [], col: [], uv: [], idx: [] });
@@ -140,8 +144,25 @@ export class Batch {
     }
     return this;
   }
+  
+  
+  
+  addHull(arrays, scale) {
+    let lod = hullLods.get(arrays);
+    if (!lod) hullLods.set(arrays, lod = hullLod(arrays.groups, { keep: hullMaterial }));
+    const hb = hwByte(hullFor(lod.size * scale));
+    if (!hb || !lod.idx.length) return;
+    const h = this.hull, base = h.pos.length / 3, p = lod.pos, n = lod.nor;
+    for (let v = 0; v < p.length; v += 3) {
+      V.set(p[v], p[v + 1], p[v + 2]).applyMatrix4(M); h.pos.push(V.x, V.y, V.z);
+      V.set(n[v], n[v + 1], n[v + 2]).applyMatrix3(N3).normalize(); h.nor.push(Math.round(V.x * 127), Math.round(V.y * 127), Math.round(V.z * 127));
+      h.hw.push(hb);
+    }
+    for (let k = 0; k < lod.idx.length; k++) h.idx.push(lod.idx[k] + base);
+  }
   toGroup() {
     const root = new THREE.Group(); root.name = this.name;
+    root.userData.batch = true; 
     for (const [id, o] of this.groups) {
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.Float32BufferAttribute(o.pos, 3));
@@ -151,11 +172,13 @@ export class Batch {
       geo.setIndex(o.idx);
       geo.computeBoundingSphere();
       const mesh = new THREE.Mesh(geo, materialFor(id));
-      mesh.name = `${this.name}:${id}`;
+      mesh.name = `${this.name}:${id}`; mesh.userData.matId = id;
       mesh.castShadow = !NO_SHADOW_MATERIALS.includes(id) && id !== 'fire';
       mesh.receiveShadow = true;
       root.add(mesh);
     }
+    const h = this.hull; 
+    if (h.idx.length) root.userData.hullArrays = { pos: Float32Array.from(h.pos), nor: Int8Array.from(h.nor), hw: Uint8Array.from(h.hw), idx: Uint32Array.from(h.idx) };
     return root;
   }
 }

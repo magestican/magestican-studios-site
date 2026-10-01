@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import { makeCozy } from '../../vendor/fml/render/material.js';
 import { pixelTexture } from '../../engine/iso/cozyStage.js';
 import { seeActorMaterial } from '../../engine/iso/seeThrough.js';
+import { castMode } from './look/celRules.js';
 import { page, tn } from './scenery/kit.js';
 import { hash2 } from '../../vendor/arbelo/paint/texturePaint.js';
 import { dachiArrays, modelKey, DECAL_UV } from './dachiModel.js';
@@ -193,6 +194,9 @@ export function material(variant, id, tint) {
   else if (variant === 'b') m = cozy('fur-b', { map: TEX.bossFur ||= bossFur(), emissive: '#ff1a2a', emissiveMap: TEX.bossGlow ||= bossGlow(), emissiveIntensity: 0.75 }); 
   else m = c ? cozy('fur-c', { map: TEX.skin, color: '#ffffff', emissive: '#ff1a2a', emissiveMap: TEX.glow })
     : cozy('fur', { map: TEX.fur });
+  
+  const mode = castMode(variant, id);
+  m.userData.look = { role: 'cast', ...mode, hull: !mode.glow };
   MATS.set(key, m);
   return m;
 }

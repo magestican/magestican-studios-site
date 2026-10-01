@@ -24,6 +24,7 @@ import { humanRig, seatVertex, SEAT } from './humanRig.js';
 import { ELDER_KEY, ELDER_RIG } from './elderModel.js';
 import { aerowingKey } from './aerowingModel.js';
 import { speciesById } from '../data/species.js';
+import { activeLook } from './look/celLook.js';
 
 const OUTLINE = [28, 24, 48]; 
 const KID_HIP = KID_RIG.hip;
@@ -79,12 +80,15 @@ let UNGRADED = null;
 function renderParts(parts, variant, out, mode, stageN, o = {}) {
   setup(); syncLight();
   const px = out.width, root = new THREE.Group(), view = o.view || (mode === 'bust' ? BUST_VIEW : VIEW);
+  const look = activeLook(); 
   for (const { geo, id, m } of parts) {
     const mesh = new THREE.Mesh(geo, material(variant, id, '#ffffff'));
     if (m) { mesh.matrixAutoUpdate = false; mesh.matrix.copy(m); }
     root.add(mesh);
+    if (look) look.portrait(mesh);
   }
-  if (o.grade === false) R.toneMapping = UNGRADED ??= ungradedToneMapping();
+  if (look) { R.toneMapping = THREE.NoToneMapping; pass.setDither(0); look.portraitSize(px); }
+  else if (o.grade === false) R.toneMapping = UNGRADED ??= ungradedToneMapping();
   scene.add(root);
   
   cam.position.copy(view).multiplyScalar(40); cam.up.set(0, 1, 0); cam.lookAt(0, 0, 0); cam.updateMatrixWorld();

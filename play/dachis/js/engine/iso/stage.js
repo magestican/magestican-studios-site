@@ -7,7 +7,7 @@
 
 
 import * as THREE from 'three';
-import { createCozyLight, cozify } from './cozyStage.js';
+import { createCozyLight, cozify, applyLook } from './cozyStage.js';
 import { createPixelPass } from './pixelPass.js';
 
 const ISO_DIR = new THREE.Vector3(1, 1.2, 1).normalize();
@@ -50,10 +50,20 @@ export function createStage(canvas, { viewHeight = 15, shadows = true, hours = 1
       camera.position.copy(target).addScaledVector(ISO_DIR, 80);
       camera.lookAt(target);
     },
+    
+    
+    look: null,
+    setLook(look) {
+      st.look = look || null;
+      const p = (look && look.post) || {};
+      renderer.toneMapping = p.toneMapping ?? THREE.NeutralToneMapping;
+      pixel.setDither(p.dither ?? 0.9);
+      pixel.setHeight(p.pixelHeight ?? pixelHeight, st.w, st.h);
+    },
     render() {
       
       
-      cozify(scene);
+      if (st.look) { applyLook(scene, st.look); if (st.look.beforeRender) st.look.beforeRender(st); } else cozify(scene);
       light.apply(target.x, target.y, target.z);
       pixel.render(scene, camera);
     },

@@ -50,6 +50,7 @@ export function createSpringWater(scene, W) {
   const list = W.objects.filter((o) => o.kind === 'spring');
   const map = ripplePage();
   const mat = new THREE.MeshLambertMaterial({ color: '#8fe0dc', emissive: '#2a8a90', emissiveIntensity: 0.55, map });
+  mat.userData.look = false; 
   const geo = new THREE.CircleGeometry(R - 0.02, 24).rotateX(-Math.PI / 2);
   
   const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) - 0.5) * 1.4, (uv.getY(i) - 0.5) * 1.4);

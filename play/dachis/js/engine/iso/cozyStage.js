@@ -13,7 +13,7 @@ import * as THREE from 'three';
 import { makeCozy, curveUniforms } from '../../vendor/fml/render/material.js';
 import { createDaylight } from '../../vendor/fml/render/daylight.js';
 import { dayCycle } from '../../vendor/fml/moon/light/dayCycle.js';
-import { patchSeeThrough } from './seeThrough.js';
+import { patchSeeThrough, seeActorMaterial, seeSceneryMaterial, seeSourceOf } from './seeThrough.js';
 
 
 
@@ -110,6 +110,46 @@ export function cozify(root, { rim = 0.18 } = {}) {
 
 
 const swappedSeeSrc = new WeakMap();
+
+
+
+
+
+
+
+
+
+
+const lookState = new WeakMap();
+export function applyLook(root, look) {
+  let C = lookState.get(look);
+  if (!C) lookState.set(look, C = { out: new WeakMap(), made: new WeakSet(), batches: new WeakSet() });
+  const conv = (m, see) => {
+    if (!m) return m;
+    if (C.made.has(m)) return see && !m.userData.seeThrough ? keep(seeSceneryMaterial(m)) : m;
+    const copy = seeSourceOf(m), base = copy ? copy.src : m;
+    let out = C.out.get(base);
+    if (out === undefined) { out = look.material(base) || null; C.out.set(base, out); if (out) C.made.add(out); }
+    if (!out) return m;
+    if (copy && copy.kind === 'actor' && !see) return keep(seeActorMaterial(out));
+    return see ? keep(seeSceneryMaterial(out)) : out;
+  };
+  const keep = (m) => { C.made.add(m); return m; };
+  const walk = (o, see, batch) => {
+    if (o.userData.hull) return;
+    see = see || !!o.userData.seeThrough;
+    if (o.userData.batch && !C.batches.has(o)) { C.batches.add(o); if (look.decorateBatch) look.decorateBatch(o, see); }
+    batch = batch || !!o.userData.batch;
+    if (o.isMesh && !o.userData.keepMaterial) {
+      if (Array.isArray(o.material)) o.material = o.material.map((m) => conv(m, see));
+      else o.material = conv(o.material, see);
+      if (!batch && look.decorate && !Array.isArray(o.material) && C.made.has(o.material)) look.decorate(o, see);
+    }
+    for (let i = 0; i < o.children.length; i++) walk(o.children[i], see, batch);
+  };
+  walk(root, false, false);
+  return root;
+}
 
 export function pixelTexture(tex) {
   tex.magFilter = THREE.NearestFilter;

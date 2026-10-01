@@ -96,17 +96,29 @@ export function patchSeeThrough(m, { actor = false } = {}) {
 
 
 
-const actorCopies = new WeakMap();
-export function seeActorMaterial(src) {
-  let m = actorCopies.get(src);
-  if (m) return m;
-  m = src.clone(); 
+const actorCopies = new WeakMap(), sceneryCopies = new WeakMap(), copySource = new WeakMap();
+function seeCopy(src, actor) {
+  const m = src.clone(); 
   m.userData = { ...src.userData }; m.defaultAttributeValues = src.defaultAttributeValues;
   m.onBeforeCompile = src.onBeforeCompile; m.customProgramCacheKey = src.customProgramCacheKey;
-  patchSeeThrough(m, { actor: true });
-  actorCopies.set(src, m);
+  patchSeeThrough(m, { actor });
+  copySource.set(m, { src, kind: actor ? 'actor' : 'scenery' });
   return m;
 }
+export function seeActorMaterial(src) {
+  let m = actorCopies.get(src);
+  if (!m) actorCopies.set(src, m = seeCopy(src, true));
+  return m;
+}
+
+export function seeSceneryMaterial(src) {
+  let m = sceneryCopies.get(src);
+  if (!m) sceneryCopies.set(src, m = seeCopy(src, false));
+  return m;
+}
+
+
+export function seeSourceOf(m) { return copySource.get(m) || null; }
 
 const eased = new Map(); 
 const tmp = new THREE.Vector3();

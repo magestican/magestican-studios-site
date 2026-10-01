@@ -12,6 +12,10 @@ import { SOUNDS } from './sounds.js';
 import { music } from './music.js';
 import { paintPortrait, paintChoiceIcon } from './art/portraits.js';
 import { setPortraitStage, prewarmDex } from './art/portraitRender.js';
+import { celLook } from './art/look/celLook.js';
+import { lookName } from './art/look/celRules.js';
+import { material as castMaterial } from './art/dachiActor.js';
+import { seeActorMaterial } from '../engine/iso/seeThrough.js';
 import { generateMap, VOLC } from './features/world/mapgen.js';
 import { buildWorld } from './features/world/worldView.js';
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough } from './features/world/sectionCamera.js';
@@ -49,6 +53,15 @@ S.W = generateMap();
   await loadBakedForms('assets/scenery-forms.bin' + (build && build !== 'dev' ? '?v=' + encodeURIComponent(build) : ''));
 }
 const worldView = buildWorld(S.stage, S.W);
+
+
+
+if (lookName(location.search) === 'cel') {
+  S.stage.setLook(celLook({ phone: matchMedia('(pointer: coarse)').matches }));
+  const cast = [];
+  for (const v of ['n', 'c', 'b']) for (const id of ['fur', 'metal', 'lamp-glow']) { const m = castMaterial(v, id, '#ffffff'); cast.push(m, seeActorMaterial(m)); }
+  celLook().prewarm(S.stage, cast);
+}
 S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => worldView.showSection(id);
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: SOUNDS });
 S.input = createInput({
