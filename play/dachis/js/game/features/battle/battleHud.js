@@ -11,7 +11,9 @@ import { KIND_LABEL } from './techniques.js';
 import { hpFraction, CAPTURE_HP, maxMp, mpCost, finisherOf, bondOf } from './rules.js';
 
 const $ = id => document.getElementById(id);
-export const hpColor = f => (f > 0.5 ? 'linear-gradient(#7dff9a,#2fbf55)' : f > 0.25 ? 'linear-gradient(#ffe46a,#e0a020)' : 'linear-gradient(#ff8a8a,#d8283c)');
+
+const stripes = (a, b) => `repeating-linear-gradient(-60deg, ${a} 0 8px, ${b} 8px 12px)`;
+export const hpColor = f => (f > 0.5 ? stripes('#2fd27a', '#8ff0b4') : f > 0.25 ? stripes('#ffd21a', '#fff09a') : stripes('#ff2a3a', '#ff8a94'));
 const typeChips = types => types.map(t => `<i style="background:${TYPES[t]}">${t}</i>`).join('');
 
 export const attrBadge = a => (a ? `<b class="attr" style="background:${ATTR_COLOR[a]}" title="Vaccine beats virus, virus beats program, program is neutral">${a.toUpperCase()}</b>` : '');

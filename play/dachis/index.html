@@ -12,7 +12,7 @@
 
 
 
-  <meta name="build" content="ceaa4f3-20261001T065639Z">
+  <meta name="build" content="5d7ed95-20261001T085651Z">
   <script>
     (function () {
       var FILES = ['js/engine/audio/sfx.js', 'js/engine/core/save.js', 'js/engine/core/util.js', 'js/engine/input/input.js',
@@ -25,7 +25,7 @@
         'js/game/data/species.js',
         'js/game/features/battle/arena.js', 'js/game/features/battle/overlayLayout.js', 'js/game/features/battle/battle.js', 'js/game/features/battle/battleEnd.js', 'js/game/features/battle/battleHud.js', 'js/game/features/battle/battleView.js', 'js/game/features/battle/rules.js', 'js/game/features/battle/techniques.js',
         'js/game/features/capture/ritual.js', 'js/game/features/capture/ritualView.js',
-        'js/game/features/hud/hud.js', 'js/game/features/menu/menu.js', 'js/game/features/party/evolution.js', 'js/game/features/pickups/pickups.js', 'js/game/features/pvp/pvpRules.js',
+        'js/game/features/hud/hud.js', 'js/game/features/hud/transit.js','js/game/features/menu/menu.js', 'js/game/features/party/evolution.js', 'js/game/features/pickups/pickups.js', 'js/game/features/pvp/pvpRules.js',
         'js/game/features/story/beats.js', 'js/game/features/story/cutscene.js', 'js/game/features/story/scenes.js',
         'js/game/features/world/crowd.js', 'js/game/features/world/bossLair.js', 'js/game/features/world/lairs.js', 'js/game/features/world/mapgen.js', 'js/game/features/world/npcs.js', 'js/game/features/world/player.js', 'js/game/features/world/sectionCamera.js', 'js/game/features/world/sections.js', 'js/game/features/world/wildLevel.js', 'js/game/features/world/wilds.js','js/game/features/world/worldView.js',
         'js/game/main.js', 'js/game/music.js', 'js/game/sounds.js', 'js/game/state.js',
@@ -56,15 +56,14 @@
   
   <div id="hud" class="hidden">
     <div id="locBar"><span id="locName">Kazan Village</span><small id="objective"></small></div>
-    <div id="minimap"><canvas id="miniCanvas" width="190" height="190"></canvas></div>
+    <button id="minimap" class="tappable" title="DACHI TRANSIT - the whole map" aria-label="Open the map" data-key="N"><canvas id="miniCanvas" width="380" height="380"></canvas></button>
+    
     <button id="skullBtn" class="tappable" title="Options" aria-label="Options menu" data-key="Esc" data-pad="Start">
-      <svg viewBox="0 0 64 48" aria-hidden="true">
-        <path d="M6 22 C6 10 18 4 32 5 C44 6 52 10 57 17 L61 17 C63 19 62 23 59 24 L56 25 C55 30 52 33 47 34 L46 40 L42 36 L40 42 L36 37 L33 43 L30 37 L26 41 L24 35 C16 34 8 30 6 22 Z" fill="#f4ecd8" stroke="#2a1f14" stroke-width="2.5" stroke-linejoin="round"/>
-        <path d="M14 8 L8 1 L19 6 M24 5 L22 -2 L29 5" fill="#f4ecd8" stroke="#2a1f14" stroke-width="2" stroke-linejoin="round"/>
-        <ellipse cx="27" cy="18" rx="7" ry="6" fill="#2a1f14"/><circle cx="29" cy="17" r="2" fill="#ff5a3a"/>
-        <path d="M45 16 L49 14 M44 21 L50 21" stroke="#2a1f14" stroke-width="2" stroke-linecap="round"/>
-        <path d="M24 34 L28 30 L31 34 L35 30 L38 34 L42 30 L45 33" fill="none" stroke="#2a1f14" stroke-width="1.8" stroke-linejoin="round"/>
-      </svg>
+      <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="#ff3ea5"/><circle cx="50" cy="50" r="47" fill="none" stroke="#fff" stroke-width="5"/>
+        <path d="M22 52 C18 30 34 16 52 17 C72 18 84 32 80 50 L88 58 L76 62 L74 72 L62 70 L60 80 L50 76 L40 80 L38 70 L28 72 L27 62 Z" fill="#fff" stroke="#111" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M30 34 L20 20 M72 34 L84 20" stroke="#111" stroke-width="6" stroke-linecap="round"/>
+        <ellipse cx="40" cy="46" rx="8" ry="9" fill="#111"/><ellipse cx="62" cy="46" rx="8" ry="9" fill="#111"/><path d="M48 58 L51 52 L54 58 Z" fill="#111"/>
+        <path d="M40 66 L40 72 M47 66 L47 73 M54 66 L54 73 M61 66 L61 72" stroke="#111" stroke-width="3"/></svg>
     </button>
     <div id="companions"></div>
   </div>
@@ -132,6 +131,9 @@
     </div>
   </div>
 
+  
+  <div id="bigMap" class="hidden"><canvas id="bigCanvas" width="1280" height="1280"></canvas><p>Tap anywhere to close</p></div>
+
   <div id="evolve" class="hidden">
     <canvas id="evoCanvas" width="256" height="256"></canvas>
     <p id="evoText"></p>
@@ -153,6 +155,6 @@
   </div>
   <div id="toasts"></div>
 
-  <script type="module" src="js/game/main.js?v=ceaa4f3-20261001T065639Z"></script>
+  <script type="module" src="js/game/main.js?v=5d7ed95-20261001T085651Z"></script>
 </body>
 </html>

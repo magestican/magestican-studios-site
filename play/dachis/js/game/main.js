@@ -35,7 +35,7 @@ import { updateRitual } from './features/capture/ritualView.js';
 import { Cutscene } from './features/story/cutscene.js';
 import { SCENES } from './features/story/scenes.js';
 import { afterIntro, updateStory, storyLocksMovement, talkTo } from './features/story/beats.js';
-import { updateHud, refreshHud } from './features/hud/hud.js';
+import { updateHud, refreshHud, openMap, closeMap, mapOpen } from './features/hud/hud.js';
 import { openMenu, closeMenu } from './features/menu/menu.js';
 
 const $ = id => document.getElementById(id);
@@ -67,7 +67,7 @@ S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: SOUNDS });
 S.input = createInput({
   bindings: {
     up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
-    run: ['ShiftLeft', 'ShiftRight'], action: ['KeyE', 'Space', 'Enter'], menu: ['Escape', 'KeyM'],
+    run: ['ShiftLeft', 'ShiftRight'], action: ['KeyE', 'Space', 'Enter'], menu: ['Escape', 'KeyM'], map: ['KeyN'],
     special1: ['Digit1', 'Numpad1'], special2: ['Digit2', 'Numpad2'], special3: ['Digit3', 'Numpad3'],
     rit1: ['Digit1', 'Numpad1'], rit2: ['Digit2', 'Numpad2'], rit3: ['Digit3', 'Numpad3'],
     befriend: ['KeyC'], tonic: ['KeyT'], swap: ['KeyQ', 'Tab'], flee: ['KeyR'], cancel: ['Escape', 'Backspace'],
@@ -108,6 +108,8 @@ $('touchZone').addEventListener('pointerdown', e => {
 $('dialog').addEventListener('click', () => S.dialog.advance());
 $('skipBtn').onclick = () => Cutscene.skip();
 $('skullBtn').onclick = () => (G.mode === 'menu' ? closeMenu() : openMenu());
+$('minimap').onclick = () => openMap();          
+$('bigMap').onclick = () => closeMap();
 $('actionBtn').addEventListener('pointerdown', e => { e.preventDefault(); S.input.tap('action'); });
 
 
@@ -132,6 +134,7 @@ function enterWorld() { resetCamera(); G.mode = 'world';$('hud').classList.remov
 function worldActions() {
   const I = S.input;
   if (I.pressed('menu')) return openMenu();
+  if (I.pressed('map')) return openMap();
   if (!I.pressed('action')) return;
   const spot = spotUnderKid();
   if (spot) return pickUp(spot);
@@ -209,7 +212,10 @@ function frame(now) {
     } else if (G.mode === 'battle') {
       if (S.dialog.active) dialogActions(); else battleActions();
       updateBattle(dt);
-    } else if (G.mode === 'menu') { if (I.pressed('menu') || I.pressed('cancel')) closeMenu(); }
+    } else if (G.mode === 'menu') {
+      if (mapOpen()) { if (I.pressed('map') || I.pressed('menu') || I.pressed('cancel') || I.pressed('action')) closeMap(); }
+      else if (I.pressed('menu') || I.pressed('cancel')) closeMenu();
+    }
     else if (G.mode === 'evolve') { if (I.pressed('cancel') && S.evolveCancel) S.evolveCancel(); }
     
     if (G.mode === 'title') { const a = t * 0.12; updateCamera(dt, { x: VOLC.x + Math.cos(a) * 3.5, y: VOLC.y + Math.sin(a) * 3.5 }); }

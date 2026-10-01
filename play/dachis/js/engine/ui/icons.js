@@ -28,10 +28,15 @@ const P = {
 
 export const ICON_NAMES = Object.keys(P);
 
+
+
+
+const CUT = '<g fill="#fff" stroke="#fff" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round">%</g>'
+  + '<g stroke="#111" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round">%</g>';
 export function icon(name, cls = '') {
   const body = P[name];
   if (!body) throw new Error('unknown icon ' + name);
-  return `<svg class="ic ic-${name}${cls ? ' ' + cls : ''}" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">${body}</svg>`;
+  return `<svg class="ic ic-${name}${cls ? ' ' + cls : ''}" viewBox="-2 -2 20 20" fill="currentColor" aria-hidden="true" focusable="false">${CUT.split('%').join(body)}</svg>`;
 }
 
 export function hydrateIcons(root = document) {
