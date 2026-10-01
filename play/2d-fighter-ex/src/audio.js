@@ -1239,24 +1239,6 @@ export function createMusic(audio) {
   };
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import {
-  mountSoundToggle, onSoundChange, syncSoundToggles, soundLabel,
-} from '../../shared/ui/muteButton.js';
-
 export function installAudio({ mount = null, search = '' } = {}) {
   const audio = createAudio();
   audio.muted = preferredMuted(search);
@@ -1273,35 +1255,6 @@ export function installAudio({ mount = null, search = '' } = {}) {
 
   const doc = globalThis.document;
   let button = null;
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  const labelNow = () => {
-    if (!audio.muted && !isAudible(audio)) return 'Tap for sound';
-    return soundLabel(audio.muted);
-  };
-  const describeNow = () => {
-    if (!audio.muted && !isAudible(audio)) {
-      return 'The browser has not let the sound start yet. Press to start it.';
-    }
-    return audio.muted
-      ? 'Sound is off. Press to turn the sound on.'
-      : 'Sound is on. Press to turn the sound off.';
-  };
-
   const paint = () => {
     if (!button) return;
     
@@ -1316,8 +1269,8 @@ export function installAudio({ mount = null, search = '' } = {}) {
     
     
     
-    button.textContent = labelNow();
-    button.setAttribute('aria-label', describeNow());
+    if (!audio.muted && !isAudible(audio)) button.textContent = 'Tap for sound';
+    else button.textContent = audio.muted ? 'Sound: off' : 'Sound: on';
     button.setAttribute('aria-pressed', String(isAudible(audio)));
   };
   const toggle = () => {
@@ -1331,12 +1284,7 @@ export function installAudio({ mount = null, search = '' } = {}) {
     
     if (wasAudible || audio.muted) setMuted(audio, !audio.muted);
     wakeMusic();
-    
-    
-    
-    
     paint();
-    syncSoundToggles();
   };
 
   if (doc) {
@@ -1349,31 +1297,7 @@ export function installAudio({ mount = null, search = '' } = {}) {
       button.addEventListener('click', toggle);
       host.appendChild(button);
       paint();
-      
-      
-      onSoundChange(paint);
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    mountSoundToggle({
-      doc,
-      host: doc.getElementById('fxbar'),
-      id: 'sound-option',
-      isMuted: () => !!audio.muted,
-      setMuted: () => toggle(),
-      label: labelNow,
-      describe: describeNow,
-    });
     
     
     

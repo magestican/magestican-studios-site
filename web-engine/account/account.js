@@ -40,10 +40,8 @@
 
 
 import {
-  loadProfile, saveProfile, recordPlay, profileSummary, clearProfile, normaliseProfile, stampUnlocks,
+  loadProfile, saveProfile, recordPlay, profileSummary, clearProfile, normaliseProfile,
 } from './profile.js';
-import { applyMatch } from '../progress/reportModel.js';
-import { isFleet } from '../progress/fleet.js';
 import { localDayNumber } from './dayKey.js';
 import { toCloudDto } from './profileDto.js';
 import { checkPassword, checkEmail } from './passwordPolicy.js';
@@ -64,9 +62,7 @@ import {
   reconcileAll, resolveConflict, makeSnapshot, pushBackup, normaliseBackups,
   restoreInto, backupLines, classifyConflict, BACKUP_KEY,
 } from './saveConflict.js';
-import { statsFor, evaluate, tally, rulesLandedIn, settleBadgeXp } from './achievements.js';
-import { trophyRows } from '../progress/trophies.js';
-import { PROFILE_GAME_IDS } from '../progress/gameIds.js';
+import { statsFor, evaluate, tally, rulesLandedIn } from './achievements.js';
 import {
   shouldOffer, noteAsk, noteNever, normalisePromptState, PROMPT_KEY,
 } from './signupMoment.js';
@@ -82,16 +78,9 @@ export const SEEN_KEY = 'arbelo.account.badges.v1';
 
 
 
-
-
-
-
-
-
-let pinnedStore;
 function store() {
   try {
-    const s = pinnedStore !== undefined ? pinnedStore : globalThis.localStorage;
+    const s = globalThis.localStorage;
     s.setItem('arbelo.account.probe', '1');
     s.removeItem('arbelo.account.probe');
     return s;
@@ -249,110 +238,37 @@ function noteSeen(rows, day) {
 
 
 
-export function recordSession(args = {}) {
-  
-  
-  const pin = args && Object.prototype.hasOwnProperty.call(args, 'storage');
-  if (pin) pinnedStore = args.storage;
-  try {
-    
-    
-    
-    
-    
-    const a = args ?? {};
-    if (isFleet(a.location, a.session)) return nothingHappened(a.nowMs, 'fleet');
-    return recordSessionIn(a);
-  } finally {
-    if (pin) pinnedStore = undefined;
-  }
-}
-
-
-function nothingHappened(clock, blocked) {
-  const nowMs = Number.isInteger(clock) && clock > 0 ? clock : now();
-  let profile = null;
-  try { profile = currentProfile(); } catch {  }
-  return {
-    events: [], summary: accountSummary(nowMs), profile,
-    rows: [], justUnlocked: [], offer: { offer: false, reason: null, blocked },
-    before: null, records: null,
-  };
-}
-
-
-
-
-function recordSessionIn({
-  gameId, metrics = {}, won = false, name, online = false, humans = 0, seconds,
-  
-  
-  
-  appGameIds = PROFILE_GAME_IDS,
-  
-  
-  
-  
-  
-  match, nowMs: clock, tzOffsetMinutes,
-} = {}) {
-  const nowMs = Number.isInteger(clock) && clock > 0 ? clock : now();
-  const day = localDayNumber(nowMs, tzOffsetMinutes);
+export function recordSession({ gameId, metrics = {}, won = false, name } = {}) {
+  const nowMs = now();
+  const day = dayOf(nowMs);
   try {
     const before = currentProfile();
     const records = currentRecords();
     
     
-    const statsBefore = statsFor(before, { today: day, kartRecords: records });
     const rowsBefore = evaluate(
-      statsBefore,
+      statsFor(before, { today: day, kartRecords: records }),
       { synced: !!before.linked, saveSync: SAVE_SYNC_ENABLED, rulesLanded: RULES_LANDED },
     );
-    
-    const trophiesBefore = trophyRows(statsBefore, { appGameIds });
-    
-    
-    const played = match
-      ? applyMatch(before, match, nowMs, tzOffsetMinutes)
-      : recordPlay(before, { gameId, nowMs, metrics, won, name, online, humans, seconds });
-    const events = played.events;
+    const { profile, events, changed } = recordPlay(before, { gameId, nowMs, metrics, won, name });
+    if (changed) saveProfile(store(), profile);
 
     
     
     
     const after = currentRecords();
-    const seen = readJson(SEEN_KEY, {}) ?? {};
-    const rowsFor = (p) => evaluate(
-      statsFor(p, { today: day, kartRecords: after }),
-      { synced: !!p.linked, saveSync: SAVE_SYNC_ENABLED, rulesLanded: RULES_LANDED, seen },
-    );
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    const trophiesFor = (p) => trophyRows(statsFor(p, { today: day, kartRecords: after }), { appGameIds });
-    const settled = settleBadgeXp(played.profile, rowsBefore, rowsFor, 6, { trophiesBefore, trophiesFor });
-    
-    
-    
-    const profile = played.changed ? stampUnlocks(settled.profile, settled.events, nowMs) : settled.profile;
-    events.push(...settled.events);
-    if (played.changed || profile.xp !== played.profile.xp) saveProfile(store(), profile);
-
     const summary = profileSummary(profile, nowMs);
-    const rowsAfter = settled.rows;
-    const justUnlocked = settled.justUnlocked;
+    const rowsAfter = evaluate(
+      statsFor(profile, { today: day, kartRecords: after }),
+      {
+        synced: !!summary.linked,
+        saveSync: SAVE_SYNC_ENABLED,
+        rulesLanded: RULES_LANDED,
+        seen: readJson(SEEN_KEY, {}) ?? {},
+      },
+    );
+    const wasLocked = new Set(rowsBefore.filter((r) => !r.unlocked).map((r) => r.id));
+    const justUnlocked = rowsAfter.filter((r) => r.unlocked && wasLocked.has(r.id));
     noteSeen(rowsAfter, day);
 
     maybePush(profile, after, nowMs);
@@ -367,16 +283,12 @@ function recordSessionIn({
       syncEnabled: isSyncEnabled(),
     });
 
-    
-    
-    
-    return { events, summary, profile, rows: rowsAfter, justUnlocked, offer, before, records: after };
+    return { events, summary, profile, rows: rowsAfter, justUnlocked, offer };
   } catch (_) {
     
     return {
       events: [], summary: accountSummary(nowMs), profile: currentProfile(),
       rows: [], justUnlocked: [], offer: { offer: false, reason: null, blocked: 'error' },
-      before: null, records: null,
     };
   }
 }

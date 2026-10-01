@@ -98,26 +98,7 @@ export function updateRacer(progress, id, s, time, dt) {
 
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const wantLap = Math.floor(r.distance / path.length);
+  const wantLap = Math.floor(r.distance / path.length) + 1;
   if (wantLap > r.lap && r.visited.size >= progress.checkpoints) {
     const start = r.lapTimes.reduce((a, b) => a + b, 0);
     const lapTime = time - start;

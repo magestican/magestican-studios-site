@@ -57,31 +57,6 @@ const MUSIC_LEVEL_SYNTH = 0.34;
 const DUCK_DEPTH = 0.28;
 const DUCK_RELEASE_MS = 320;
 
-
-
-
-
-
-
-
-
-
-
-
-
-const MUTE_KEY = 'tb.muted';
-
-
-
-
-
-function readMutePref() {
-  try { return localStorage.getItem(MUTE_KEY) === '1'; } catch { return false; }
-}
-function writeMutePref(muted) {
-  try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch {  }
-}
-
 export class Chiptune {
   
   
@@ -90,11 +65,7 @@ export class Chiptune {
   
   
   constructor({ seed = 0, map } = {}) {
-    
-    
-    
-    
-    this.muted = readMutePref();
+    this.muted = localStorage.getItem('tb.muted') === '1';
     this._songKey = `${map || ''}#${seed}`;
     this._map = map;
     this._seed = seed;
@@ -400,7 +371,7 @@ export class Chiptune {
 
   setMuted(muted) {
     this.muted = muted;
-    writeMutePref(muted);
+    localStorage.setItem('tb.muted', muted ? '1' : '0');
     this._duckUntil = 0;
     this._applyLevel();
   }

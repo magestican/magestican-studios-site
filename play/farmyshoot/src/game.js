@@ -18,7 +18,7 @@ import {
 import {
   createFrameGuard, frameOk, frameFailed,
 } from '../../../web-engine/render/frameGuard.js';
-import { showBanner, hideBanner } from '../../../web-engine/updater/updateNotice.js';
+import { showBanner, hideBanner } from '../../../web-engine/updater/banner.js';
 
 
 const GFX_BANNER = 'fs-graphics-banner';
@@ -50,13 +50,7 @@ import { Player }           from './entities/player.js';
 import { WeaponSystem, WEAPON_DEFS } from './entities/weapon.js';
 import { computeAimAssist } from 'arbelo/aim-assist';
 import { attachRightClickMove } from 'arbelo/rmb-move';
-import { stepProjectile, sweepHitWorld } from '../../../web-engine/combat/projectileHit.js';
-
-
-
-import {
-  HitFlash, FLASH, flashDuration, hitStopFor, addHitStop, stepHitStop,
-} from '../../../web-engine/combat/impactFeel.js';
+import { stepProjectile } from '../../../web-engine/combat/projectileHit.js';
 import { shotSolid } from '../../../web-engine/combat/shotWorld.js';
 import { Chat } from './ui/chat.js';
 import { KillAnnouncer, shouldHear } from './audio/killAnnouncer.js';
@@ -71,10 +65,6 @@ import { pickWord, scramble } from './util/anagram.js';
 import { TouchControls }     from './touchControls.js';
 import { Chiptune }           from './audio/chiptune.js';
 import * as SFX               from './audio/sfx.js';
-
-
-
-import { syncSoundToggles, soundDescription } from '../../shared/ui/muteButton.js';
 import { callFor, shouldCall, loudnessFor, emptyVoiceState, peerDeathLoudness }
   from '../../../web-engine/audio/animalVoice.js';
 import { HazardSystem, makeHostSchedule } from './entities/hazard.js';
@@ -89,7 +79,6 @@ import { Bot }                from './entities/bot.js';
 
 
 import { dealRole }           from '../../../web-engine/ai/botRoles.js';
-import { dealLane }           from '../../../web-engine/ai/laneTactics.js';
 import { pickSpawnSlot }      from '../../../web-engine/movement/spawnScatter.js';
 import { TracerSystem }       from './entities/tracer.js';
 import { FirstPersonWeapon }  from './entities/firstPersonWeapon.js';
@@ -111,8 +100,6 @@ import { isInsideHay }        from '../../../web-engine/physics/hidingChecks.js'
 import { hitBearingDeg }      from '../../../web-engine/input/hitMath.js';
 import { KillFeed, killFeedEntry, toText } from '../../../web-engine/ui/killFeed.js';
 import { iconFor } from '../../../web-engine/ui/characterIcon.js';
-import { itemClockEntries, itemClockKey, ITEM_RESPAWN_MS }
-  from '../../../web-engine/ui/itemClock.js';
 import { flagKeysFor, hasFlags, flagHome, neutralFlagHome, objectiveMarkers,
          OBJECTIVE_IDS } from '../../../web-engine/modes/objective.js';
 import { GoreSystem }         from './entities/gore.js';
@@ -153,7 +140,6 @@ import {
   OBSERVER_TEAM, isObserver, isPlaying, enemyOf, teamCounts, playingCount,
   seatChange, rejoinTeam,
 } from '../../../web-engine/match/observer.js';
-import { podiumFrom, placeOf } from '../../../web-engine/match/podium.js';
 import { fovFor, detectTouch } from '../../../web-engine/render/cameraFov.js';
 import { kindForHit, shouldSpatter } from '../../../web-engine/combat/impactDebris.js';
 import { createBreakState, damageVoxel, isBreakable, voxelAtImpact } from '../../../web-engine/combat/breakable.js';
@@ -593,61 +579,24 @@ export class Game {
       for (let i = 0; i < want; i++) this.addBot();
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    const muteBtn = document.getElementById('mute-btn');
-    const paintMute = () => {
-      muteBtn.textContent = this.audio.muted ? '🔇' : '🔊';
-      
-      
-      muteBtn.setAttribute('aria-label', soundDescription(this.audio.muted));
-    };
-    this._setSound = (muted) => {
-      const on = !!muted;
-      this.audio.setMuted(on);   
-      try { SFX.setSfxMuted(on); } catch (_) {  }
-      
-      
-      try { window.__tbLobbyMusic?.setMuted?.(on); } catch (_) {}
-      paintMute();
-      
-      
-      
-      
-      this._paintSoundSettings?.();
-      syncSoundToggles();
-    };
-    paintMute();
 
     
     
     
+    const muteBtn = document.getElementById('mute-btn');
+    const paintMute = () => { muteBtn.textContent = this.audio.muted ? '🔇' : '🔊'; };
+    paintMute();
     const handleMuteToggle = (e) => {
       if (e) e.preventDefault();
       
       
       if (!this.audio.isPlaying) {
-        this._setSound(false);
+        this.audio.setMuted(false);
+        paintMute();
         this._tryStartAudio();
       } else {
-        this._setSound(!this.audio.muted);
+        this.audio.toggleMuted();
+        paintMute();
       }
     };
     muteBtn.addEventListener('click', handleMuteToggle);
@@ -661,14 +610,6 @@ export class Game {
       addBotBtn.addEventListener('click', onAddBot);
       addBotBtn.addEventListener('touchstart', onAddBot, { passive: false });
     }
-
-    
-    
-    
-    
-    
-    
-    this.reducedMotion = localStorage.getItem('tb.reducedMotion') === '1';
 
     
     
@@ -693,39 +634,25 @@ export class Game {
     const settingsClose = document.getElementById('settings-close');
     const volSlider     = document.getElementById('volume-slider');
     const volValue      = document.getElementById('volume-value');
-    
-    
-    let savedVolRaw = '35';
-    try { savedVolRaw = localStorage.getItem('tb.vol') || '35'; } catch (_) {  }
-    const savedVol = parseInt(savedVolRaw, 10);
+    const muteCheck     = document.getElementById('music-mute');
+    const savedVol = parseInt(localStorage.getItem('tb.vol') || '35', 10);
     volSlider.value = String(savedVol); volValue.textContent = String(savedVol);
+    muteCheck.checked = this.audio.muted;
     const applyVolume = () => {
       const v = parseInt(volSlider.value, 10);
       volValue.textContent = String(v);
-      try { localStorage.setItem('tb.vol', String(v)); } catch (_) {  }
+      localStorage.setItem('tb.vol', String(v));
       
       if (this.audio._audio) this.audio._audio.volume = (this.audio.muted ? 0 : v / 100);
       if (this.audio.master) this.audio.master.gain.value = (this.audio.muted ? 0 : v / 200);
     };
     applyVolume();
     volSlider.addEventListener('input', applyVolume);
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    this._paintSoundSettings = applyVolume;
+    muteCheck.addEventListener('change', () => {
+      this.audio.setMuted(muteCheck.checked);
+      paintMute();
+      applyVolume();
+    });
     
     
     this.chat = new Chat({
@@ -788,16 +715,12 @@ export class Game {
         localStorage.setItem('tb.rmbmove', this.rmbMove ? '1' : '0');
       });
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    void settingsBtn; void settingsClose;
+    const openSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.add('visible'); };
+    const closeSettings = (e) => { if (e) e.preventDefault(); settingsModal.classList.remove('visible'); };
+    settingsBtn.addEventListener('click', openSettings);
+    settingsBtn.addEventListener('touchstart', openSettings, { passive: false });
+    settingsClose.addEventListener('click', closeSettings);
+    settingsClose.addEventListener('touchstart', closeSettings, { passive: false });
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeSettings();
     });
@@ -1013,36 +936,24 @@ export class Game {
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
   _buildChickenPickup() {
-    const p = new ChickenPickup(this._arena || this.scene, this.world.hillSpawn, {
+    return new ChickenPickup(this._arena || this.scene, this.world.hillSpawn, {
       onPickup: (peerId) => {
         
-        this._broadcast({ t: MSG.CHICKEN_PICK, by: peerId, respawnAt: Date.now() + ITEM_RESPAWN_MS });
+        this._broadcast({ t: MSG.CHICKEN_PICK, by: peerId, respawnAt: Date.now() + 30000 });
         this._grantChicken(peerId);
       },
     });
-    p.listener = this.camera.position;
-    return p;
   }
 
   _buildPowerUpPickups() {
-    const p = new PowerUpPickups(this._arena || this.scene, this.world.powerUpSpawns, {
+    return new PowerUpPickups(this._arena || this.scene, this.world.powerUpSpawns, {
       onPickup: (id, peerId) => {
         this._broadcast({ t: MSG.POWERUP_PICK, id, by: peerId,
-                          respawnAt: Date.now() + ITEM_RESPAWN_MS });
+                          respawnAt: Date.now() + 30000 });
         this._grantPowerUp(id, peerId);
       },
     });
-    p.listener = this.camera.position;
-    return p;
   }
 
   _buildFlagMesh(pos, color) {
@@ -1123,26 +1034,6 @@ export class Game {
     this.gore    = new GoreSystem(this.scene);
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    this.hitFlash = new HitFlash(new THREE.MeshBasicMaterial({
-      color: FLASH.COLOR, fog: false,
-    }));
-    
-    this._hitStop = 0;
-    
-    
     this.scene.add(this.camera);
     this.viewmodel = new FirstPersonWeapon(this.camera);
     
@@ -1211,16 +1102,6 @@ export class Game {
     
     
     this.powerUpPickups = this._buildPowerUpPickups();
-    
-    
-    
-    
-    
-    if (this._pendingPickupState) {
-      const pending = this._pendingPickupState;
-      this._pendingPickupState = null;
-      this._applyPickupState(pending);
-    }
     this.powerUpState = emptyPowerUpState();
     
     
@@ -1541,19 +1422,11 @@ export class Game {
       if (this.bots.has(pid)) continue;
       const team = meta.team === 'red' ? 'red' : 'blue';
       const mates = [...this.bots.values()].filter((b) => b.team === team);
-      const adoptedRole = dealRole(mates.map((b) => b.role));
       const bot = new Bot({
         id: pid, name: meta.name, team, character: meta.character,
         world: this.world,
         slot: pickSpawnSlot(mates.map((b) => b.spawnSlot)),
-        role: adoptedRole,
-        
-        
-        
-        
-        laneId: dealLane(this.world.lanes,
-          mates.map((b) => ({ role: b.role, laneId: b.laneId })),
-          adoptedRole)?.id ?? null,
+        role: dealRole(mates.map((b) => b.role)),
       });
       const rp = this.remotePlayers.get(pid);
       if (rp) {
@@ -1590,16 +1463,8 @@ export class Game {
     
     
     
-    
-    
-    
-    
-    
-    
     const steaks = this._steakStateMsg();
     if (steaks) this.mesh.send(peerId, steaks);
-    const pickups = this._pickupStateMsg();
-    if (pickups) this.mesh.send(peerId, pickups);
     
     
     
@@ -1628,59 +1493,6 @@ export class Game {
       };
     }
     return { t: MSG.STEAK_STATE, statuses };
-  }
-
-  
-  
-  
-  _pickupStateMsg() {
-    const states = [];
-    if (this.chickenPickup) states.push(this.chickenPickup.clockState());
-    if (this.powerUpPickups) states.push(...this.powerUpPickups.clockStates());
-    if (!states.length) return null;
-    const now = performance.now();
-    const items = {};
-    for (const st of states) {
-      
-      
-      items[st.id] = {
-        available: !!st.available,
-        respawnAt: st.available ? 0 : Date.now() + Math.max(0, st.nextSpawnAt - now),
-      };
-    }
-    return { t: MSG.PICKUP_STATE, items };
-  }
-
-  
-  _applyPickupState(items) {
-    if (!items) return;
-    
-    
-    
-    
-    
-    if (!this.chickenPickup && !this.powerUpPickups) {
-      this._pendingPickupState = items;
-      return;
-    }
-    for (const [id, incoming] of Object.entries(items)) {
-      if (!incoming) continue;
-      
-      
-      
-      const at = incoming.available
-        ? performance.now()
-        : (incoming.respawnAt - Date.now()) + performance.now();
-      if (id === 'chicken') {
-        if (!this.chickenPickup) continue;
-        this.chickenPickup.available = !!incoming.available;
-        this.chickenPickup.mesh.visible = !!incoming.available;
-        this.chickenPickup._nextSpawnAt = at;
-      } else if (this.powerUpPickups) {
-        if (incoming.available) this.powerUpPickups.markAvailable(id);
-        else this.powerUpPickups.markTaken(id, at);
-      }
-    }
   }
 
   
@@ -2061,49 +1873,16 @@ export class Game {
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   _damageCover(point, dir, damage) {
-    if (!this.grid) return;
+    if (!this.isHost || !this.grid) return;
     const c = voxelAtImpact(point, dir);
     if (!c) return;
-    
-    
-    
-    if (!isBreakable(this.grid.get(c.x, c.y, c.z))) return;
-    if (!this.isHost) {
-      this._broadcast({ t: MSG.COVER, at: [c.x, c.y, c.z], dmg: damage });
-      return;
-    }
-    this._applyCoverDamage(c.x, c.y, c.z, damage);
-  }
-
-  
-  
-  
-  
-  
-  _applyCoverDamage(x, y, z, damage) {
-    if (!this.isHost || !this.grid) return;
-    const vox = this.grid.get(x, y, z);
+    const vox = this.grid.get(c.x, c.y, c.z);
     if (!isBreakable(vox)) return;
-    const res = damageVoxel(this.breaks, vox, x, y, z, damage);
+    const res = damageVoxel(this.breaks, vox, c.x, c.y, c.z, damage);
     if (!res.broken) return;
-    this._breakVoxel(x, y, z);
-    this._broadcast({ t: MSG.BREAK, at: [x, y, z] });
+    this._breakVoxel(c.x, c.y, c.z);
+    this._broadcast({ t: MSG.BREAK, at: [c.x, c.y, c.z] });
   }
 
   
@@ -2600,15 +2379,7 @@ export class Game {
     
     
     const takenRoles = mates.map((b) => b.role);
-    
-    
-    
-    
-    
-    const bot = Bot.make({
-      team, world: this.world, seed: this.seed, taken, takenRoles,
-      mates: mates.map((b) => ({ role: b.role, laneId: b.laneId })),
-    });
+    const bot = Bot.make({ team, world: this.world, seed: this.seed, taken, takenRoles });
     this.bots.set(bot.peerId, bot);
     
     this.playerMeta.set(bot.peerId, {
@@ -2852,36 +2623,6 @@ export class Game {
         if (target.distanceTo(closest) < 0.7 && t < bestT) { bestT = t; best = { kind: 'self' }; }
       }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    const solid = this.grid ? shotSolid(this.grid) : null;
-    if (solid) {
-      const far = origin.clone().addScaledVector(dir, 60);
-      const tWorld = sweepHitWorld(
-        { x: origin.x, y: origin.y, z: origin.z },
-        { x: far.x, y: far.y, z: far.z }, solid);
-      
-      
-      
-      if (tWorld !== null && (!best || tWorld * 60 < bestT)) {
-        const at = origin.clone().addScaledVector(dir, tWorld * 60);
-        this._damageCover({ x: at.x, y: at.y, z: at.z },
-                          { x: dir.x, y: dir.y, z: dir.z }, s.damage);
-      }
-    }
-
     if (!best) return;
     if (best.kind === 'self') this._takeDamage(s.damage, s.ownerId, s.weaponId);
     else if (best.kind === 'remote') {
@@ -2947,13 +2688,6 @@ export class Game {
   
   
   _flashHitmarker(dmg = 0, killed = false, headshot = false) {
-    
-    
-    
-    
-    
-    
-    try { SFX.hitmarker({ loudness: killed ? 1.0 : 0.85 }); } catch (_) {}
     const el = document.getElementById('hitmarker');
     if (el) {
       el.classList.remove('visible');
@@ -3493,44 +3227,6 @@ export class Game {
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  _paintItemClock() {
-    const root = this._itemClockEl
-      || (this._itemClockEl = document.getElementById('itemclock'));
-    if (!root) return;
-    const items = [];
-    
-    
-    if (this.chickenPickup) items.push(this.chickenPickup.clockState());
-    if (this.powerUpPickups) items.push(...this.powerUpPickups.clockStates());
-    const entries = itemClockEntries(items, performance.now());
-    const key = itemClockKey(entries);
-    
-    
-    
-    if (key === this._itemClockKey) return;
-    this._itemClockKey = key;
-    if (!entries.length) { root.style.display = 'none'; return; }
-    root.style.display = '';
-    root.innerHTML = entries.map((e) => (
-      `<div class="ic-pill ic-${e.phase}">`
-      + `<span class="ic-icon">${e.icon}</span>`
-      + `<span class="ic-name">${e.label}</span>`
-      + `<span class="ic-time">${e.text}</span>`
-      + '</div>'
-    )).join('');
-  }
-
   _paintCompass() {
     if (!this.player) return;
     const markers = objectiveMarkers(this.mode, {
@@ -3669,38 +3365,7 @@ export class Game {
     }
   }
 
-  _broadcast(msg) {
-    
-    
-    
-    
-    
-    
-    
-    if (msg && msg.t === MSG.HIT) this._flashTarget(msg.target, msg.dmg, msg.head);
-    this.mesh.broadcast(msg);
-  }
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-  _flashTarget(targetId, dmg = 0, headshot = false, killed = false) {
-    if (!targetId || targetId === this.myId || !this.hitFlash) return 0;
-    const rp = this.remotePlayers.get(targetId);
-    if (!rp) return 0;
-    const d = flashDuration({ damage: dmg, killed, headshot: !!headshot });
-    return this.hitFlash.flash(rp.idlePivot || rp.group, d);
-  }
+  _broadcast(msg) { this.mesh.broadcast(msg); }
 
   _onMessage(fromTransport, msg) {
     if (!msg || !msg.t) return;
@@ -3833,29 +3498,11 @@ export class Game {
       }
       case MSG.HIT: {
         if (msg.target === this.myId) this._takeDamage(msg.dmg, msg.by, msg.weapon);
-        
-        
-        
-        
-        else this._flashTarget(msg.target, msg.dmg, msg.head);
         break;
       }
       case MSG.BREAK: {
         
         this._breakVoxel(msg.at[0], msg.at[1], msg.at[2]);
-        break;
-      }
-      case MSG.COVER: {
-        
-        
-        
-        
-        
-        
-        
-        
-        if (!Array.isArray(msg.at) || msg.at.length < 3) break;
-        this._applyCoverDamage(msg.at[0], msg.at[1], msg.at[2], msg.dmg ?? 10);
         break;
       }
       case MSG.WORM: {
@@ -3966,11 +3613,6 @@ export class Game {
         
         
         this._applySteakState(msg.statuses);
-        break;
-      case MSG.PICKUP_STATE:
-        
-        
-        this._applyPickupState(msg.items);
         break;
       case MSG.POWERUP_PICK:
         
@@ -4095,27 +3737,6 @@ export class Game {
   
   
   _frame(dt, { render = true } = {}) {
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    const sleep = stepHitStop(this._hitStop, dt);
-    this._hitStop = sleep.remaining;
-    dt = sleep.step;
-    
-    
-    
-    
-    this.hitFlash?.update(dt);
     if (!this.gameOver) {
       try { this._tick(dt); }
       catch (err) {
@@ -4260,10 +3881,6 @@ export class Game {
   
   
   _cameraKick() {
-    
-    
-    
-    if (this.reducedMotion) return null;
     const a = this.explosions?.shakeOffset?.() || null;
     const b = this.hazards?.explosions?.shakeOffset?.() || null;
     if (!a) return b;
@@ -4434,7 +4051,6 @@ export class Game {
     }
     this._updatePowerUpEffect();
     this._paintCompass();
-    this._paintItemClock();
     this._paintHayHide();
 
     
@@ -4596,12 +4212,7 @@ export class Game {
     
     
     if (this.wormCharges > 0) { this._refreshViewmodel(); return; }
-    const before = this.weapons.slot;
     this.weapons.selectSlot(i);
-    
-    
-    
-    if (this.weapons.slot !== before) { try { SFX.weaponSwitch(); } catch (_) {} }
     
     
     
@@ -5461,13 +5072,6 @@ export class Game {
     const hpLeft = bot ? bot.hp - dmg
                  : (rp && rp.hp != null ? rp.hp - dmg : null);
     this._flashHitmarker(dmg, hpLeft != null && hpLeft <= 0, headshot);
-    
-    
-    
-    if (headshot) {
-      this._hitStop = addHitStop(this._hitStop,
-        hitStopFor({ headshot: true, mine: true }));
-    }
     if (headshot) { try { SFX.chirp(); } catch (_) {} }
     SFX.splat();
     
@@ -6000,21 +5604,6 @@ export class Game {
   _creditKill(killerId, victimId) {
     
     
-    
-    
-    
-    
-    
-    
-    if (killerId === this.myId && victimId !== this.myId) {
-      this._hitStop = addHitStop(this._hitStop,
-        hitStopFor({ killed: true, mine: true }));
-      
-      
-      this._flashTarget(victimId, 0, false, true);
-    }
-    
-    
     this._tallyKill(killerId, victimId);
     if (!this.isHost || this.gameOver) return;
     
@@ -6179,15 +5768,6 @@ export class Game {
       spectator: (this.team !== losingTeam) };
     const wrap = document.getElementById('anagramWrap');
     const input = document.getElementById('anagramInput');
-    
-    
-    
-    
-    
-    for (const id of ['podium', 'podiumMine']) {
-      const el = document.getElementById(id);
-      if (el) { el.hidden = true; if (id === 'podium') el.textContent = ''; }
-    }
     document.getElementById('scrambled').textContent = scrambled;
     document.getElementById('anagramTitle').textContent = this._anagram.spectator
       ? `The ${losingTeam} team is trying to steal the win…`
@@ -6229,86 +5809,6 @@ export class Game {
     tick();
   }
 
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-  _paintPodium() {
-    const host = document.getElementById('podium');
-    const mine = document.getElementById('podiumMine');
-    if (!host) return;
-    try {
-      const rows = scoreboardRows({
-        players: this._scoreboardPlayers(), tally: this._tally, myId: this.myId,
-      });
-      const all = [...rows.red, ...rows.blue].map((r) => ({
-        ...r, character: this.playerMeta.get(r.id)?.character,
-      }));
-      const top = podiumFrom(all, { myId: this.myId });
-      host.textContent = '';
-      for (const p of top) {
-        const slot = document.createElement('div');
-        slot.className = `podium-slot${p.isMe ? ' is-me' : ''}`;
-        slot.dataset.place = String(p.place);
-        if (p.isMe) {
-          const you = document.createElement('div');
-          you.className = 'podium-you';
-          you.textContent = 'YOU';
-          slot.appendChild(you);
-        }
-        const fig = document.createElement('div');
-        fig.className = 'podium-figure';
-        
-        
-        
-        
-        fig.textContent = iconFor(p.character);
-        const name = document.createElement('div');
-        name.className = 'podium-name';
-        name.textContent = p.name;
-        const kills = document.createElement('div');
-        kills.className = 'podium-kills';
-        kills.textContent = `${p.kills} kills / ${p.deaths} deaths`;
-        const step = document.createElement('div');
-        step.className = 'podium-step';
-        step.textContent = String(p.place);
-        slot.append(fig, name, kills, step);
-        host.appendChild(slot);
-      }
-      host.hidden = top.length === 0;
-
-      if (mine) {
-        const at = placeOf(all, this.myId);
-        const onPodium = top.some((p) => p.isMe);
-        if (at && !onPodium) {
-          mine.textContent = '';
-          mine.append(document.createTextNode('You finished '));
-          const b = document.createElement('b');
-          b.textContent = `${at.place} of ${at.of}`;
-          mine.append(b, document.createTextNode('.'));
-          mine.hidden = false;
-        } else {
-          mine.hidden = true;
-        }
-      }
-    } catch (err) {
-      
-      host.hidden = true;
-      if (mine) mine.hidden = true;
-      console.warn('[tb] podium failed to paint', err);
-    }
-  }
-
   _endAnagram({ winner, by }) {
     
     
@@ -6330,7 +5830,6 @@ export class Game {
     if (by) msg.textContent = `${this._name(by)} solved "${this._anagram?.word}" and stole the win for ${winner}.`;
     else    msg.textContent = `Time's up. ${winner.toUpperCase()} team keeps the score-based win.`;
     this._anagram = null;
-    this._paintPodium();
 
     
     
@@ -6902,11 +6401,6 @@ export class Game {
     
     this.critters = null;
     this.snow = null;
-    
-    
-    
-    try { this.chickenPickup?.pad?.dispose?.(); } catch (_) {  }
-    try { this.powerUpPickups?.disposePads?.(); } catch (_) {  }
     this.chickenPickup = null;
     this.powerUpPickups = null;
     

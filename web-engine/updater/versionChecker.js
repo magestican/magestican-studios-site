@@ -26,7 +26,7 @@
 
 
 
-import { showBanner, hideBanner } from './updateNotice.js';
+import { showBanner, hideBanner } from './banner.js';
 
 
 const BANNER_ID = 'vc-banner';

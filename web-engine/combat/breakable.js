@@ -41,42 +41,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { VOX } from '../voxel/voxelGrid.js';
 
 
@@ -91,7 +55,7 @@ import { VOX } from '../voxel/voxelGrid.js';
 
 
 export const BREAK_HP = Object.freeze({
-  [VOX.CRATE]: 26,
+  [VOX.WOOD]: 26,
 });
 
 

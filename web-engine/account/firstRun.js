@@ -58,19 +58,10 @@
 
 
 
-import { GAME_IDS, GAME_NAMES, isGameId } from './dailyChallenge.js';
+import { GAME_IDS, GAME_NAMES } from './dailyChallenge.js';
 
 
-
-
-
-
-
-
-
-
-
-export const NEW_GAME_XP = 50;
+export const NEW_GAME_XP = 120;
 
 
 export const OPENING_STEPS = Object.freeze(['first-round', 'second-game', 'come-back']);
@@ -88,11 +79,7 @@ export function unplayedGames(profile) {
 
 
 export function isFirstPlayOf(profile, gameId) {
-  
-  
-  
-  
-  if (!isGameId(gameId)) return false;
+  if (!GAME_IDS.includes(gameId)) return false;
   return (profile?.games?.[gameId]?.plays ?? 0) === 0;
 }
 

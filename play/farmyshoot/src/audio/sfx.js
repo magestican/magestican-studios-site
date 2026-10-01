@@ -40,40 +40,7 @@ let _voice = null;
 let _limiter = null;
 let _verb = null;
 let _verbSend = null;
-
-
-
-
-
-
-export const MUTE_KEY = 'tb.muted';
-
-
-
-
-let _sessionMuted = false;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function _muted() {
-  try {
-    const raw = localStorage.getItem(MUTE_KEY);
-    if (raw != null) return raw === '1';
-  } catch {  }
-  return _sessionMuted;
-}
+let _muted = () => localStorage.getItem('tb.muted') === '1';
 
 function ensureCtx() {
   if (!_ctx) {
@@ -81,12 +48,7 @@ function ensureCtx() {
     if (!Ctx) return null;
     _ctx = new Ctx();
     _master = _ctx.createGain();
-    
-    
-    
-    
-    
-    _master.gain.value = _muted() ? 0 : SFX_LEVEL;
+    _master.gain.value = SFX_LEVEL;
     
     
     _limiter = _ctx.createDynamicsCompressor();
@@ -113,7 +75,7 @@ function ensureCtx() {
     
     
     _voice = _ctx.createGain();
-    _voice.gain.value = _muted() ? 0 : 1.0;
+    _voice.gain.value = 1.0;
     _voice.connect(_limiter);
     
     
@@ -129,41 +91,11 @@ function ensureCtx() {
   return _ctx;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-export function sfxBus({ create = false } = {}) {
-  
-  
-  
-  
-  
-  
-  
-  if (create) ensureCtx();
-  return { ctx: _ctx, master: _master };
-}
-
 export function setSfxMuted(muted) {
-  const on = !!muted;
-  
-  
-  
-  _sessionMuted = on;
-  try { localStorage.setItem(MUTE_KEY, on ? '1' : '0'); } catch {  }
+  _muted = () => muted;
   _sfxDuckUntil = 0;
-  if (_master) _master.gain.value = on ? 0 : SFX_LEVEL;
-  if (_voice) _voice.gain.value = on ? 0 : 1.0;
+  if (_master) _master.gain.value = muted ? 0 : SFX_LEVEL;
+  if (_voice) _voice.gain.value = muted ? 0 : 1.0;
 }
 
 

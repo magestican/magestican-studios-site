@@ -111,29 +111,6 @@ export function localDayNumber(nowMs, tzOffsetMinutes) {
 }
 
 
-
-
-
-
-
-
-
-
-
-export function localHour(nowMs, tzOffsetMinutes) {
-  const t = Number(nowMs);
-  if (!Number.isFinite(t)) return null;
-  if (tzOffsetMinutes == null) {
-    const h = new Date(t).getHours();
-    return Number.isFinite(h) ? h : null;
-  }
-  const off = Number(tzOffsetMinutes);
-  if (!Number.isFinite(off)) return null;
-  const h = new Date(t - off * 60000).getUTCHours();
-  return Number.isFinite(h) ? h : null;
-}
-
-
 export function utcDayNumber(nowMs) {
   const t = Number(nowMs);
   if (!Number.isFinite(t)) return null;

@@ -18,7 +18,6 @@ import { nearestOnBranch, sampleAt, trackSurface } from 'arbelo/trackPath';
 import { PALETTE } from '../palette.js';
 import { makeRoadTexture, makeGrassTexture, makeShortcutTexture, makeGroundNormal } from './textures.js';
 import { surface, addGroundDetail, applyShadows } from './materials.js';
-import { themeOf } from './themes.js';
 
 import { NORMAL_SCALE } from '../../../../web-engine/render/lookGrade.js';
 import { inSpan, RESPAWNS } from 'arbelo/trackHazards';
@@ -241,20 +240,8 @@ function buildRoad(path, theme) {
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  const wet = themeOf(theme).wet;
   const mesh = new THREE.Mesh(geo, addGroundDetail(
-    surface({
-      map, normalMap, rim: false, unique: true,
-      roughness: wet ? wet.roughness : 0.94,
-      ...(wet ? { envMapIntensity: wet.envMapIntensity } : {}),
-    }),
+    surface({ map, normalMap, roughness: 0.94, rim: false, unique: true }),
     { scale: 0.020, strength: 0.20 },
   ));
   if (normalMap) mesh.material.normalScale.set(NORMAL_SCALE.road, NORMAL_SCALE.road);
@@ -405,7 +392,9 @@ function buildVerge(path, track) {
   
   
   
-  const colour = themeOf(theme).shoulder;
+  const colour = theme === 'snow' ? 0xccd9e6
+    : theme === 'mud' ? PALETTE.mud
+      : PALETTE.shoulder;
 
   
   
@@ -616,9 +605,9 @@ function buildGround(path, track) {
   
   
   
-  const row = themeOf(theme);
-  const rock = new THREE.Color(row.rock);
-  const ash = new THREE.Color(row.ash);
+  const cold = theme === 'snow';
+  const rock = new THREE.Color(cold ? PALETTE.rockCold : PALETTE.rock);
+  const ash = new THREE.Color(cold ? 0x8f9aa4 : 0x4c443c);
   const plain = new THREE.Color(0xffffff);
   const colors = new Float32Array(pos.count * 3);
   const step = Math.max(grid.w / grid.seg, grid.h / grid.seg);
@@ -866,9 +855,9 @@ function buildChasmWalls(path, track) {
   group.name = 'chasmWalls';
   const zones = chasmZonesOf(path);
   if (!zones.length) return group;
-  const cliff = themeOf(track.theme).cliff;
-  const faceCol = new THREE.Color(cliff.face);
-  const lipCol = new THREE.Color(cliff.lip);
+  const cold = (track.theme ?? 'summer') === 'snow';
+  const faceCol = new THREE.Color(cold ? PALETTE.rockCold : PALETTE.rock);
+  const lipCol = new THREE.Color(cold ? PALETTE.rockLipCold : PALETTE.rockLip);
 
   let seed = (0x51ce ^ Math.floor(path.length * 7)) >>> 0 || 1;
   const rng = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; };
@@ -1161,11 +1150,11 @@ function buildMarkerPosts(path, theme) {
     
     
     
-    color: themeOf(theme).marker.post,
+    color: theme === 'snow' ? PALETTE.night : PALETTE.marker,
     flatShading: true,
   });
   const capMat = surface({
-    color: themeOf(theme).marker.cap, flatShading: true,
+    color: theme === 'snow' ? PALETTE.barnRed : PALETTE.markerWarn, flatShading: true,
   });
 
   const posts = new THREE.InstancedMesh(postGeo, postMat, count);
@@ -1523,6 +1512,8 @@ function buildEdgeGuards(path, track) {
   const guards = trackGuards(path, track);
   if (!guards.spans.length) return group;
 
+  const theme = track.theme ?? 'summer';
+  const cold = theme === 'snow';
   
   
   
@@ -1530,11 +1521,11 @@ function buildEdgeGuards(path, track) {
   
   
   
-  const row = themeOf(track.theme);
-  const bank = row.bank;
-  const bankCol = new THREE.Color(bank.bank);
-  const crestCol = new THREE.Color(bank.crest);
-  const faceCol = new THREE.Color(bank.face);
+  const bankCol = new THREE.Color(cold ? PALETTE.packedSnow
+    : theme === 'mud' ? PALETTE.mud : PALETTE.grassDark);
+  const crestCol = new THREE.Color(cold ? PALETTE.snowCrest
+    : theme === 'mud' ? PALETTE.hedgeMud : PALETTE.grass);
+  const faceCol = new THREE.Color(cold ? PALETTE.rockCold : PALETTE.rock);
 
   
   const positions = [];
@@ -1811,7 +1802,7 @@ function buildEdgeGuards(path, track) {
   const stoneGeo = new THREE.IcosahedronGeometry(0.46, 0);
   stoneGeo.translate(0, 0.16, 0);
   place(dressed.stones, [stoneGeo],
-    [surface({ color: row.rock, flatShading: true })],
+    [surface({ color: cold ? PALETTE.rockCold : PALETTE.rock, flatShading: true })],
     (r) => ({
       sx: 0.75 + r() * 0.55, sy: 0.6 + r() * 0.5, sz: 0.75 + r() * 0.55,
       lean: 0.5, turn: 2.4, lift: -0.16,
@@ -1839,8 +1830,8 @@ function buildEdgeGuards(path, track) {
   const capGeo = new THREE.BoxGeometry(1.3, 0.2, 0.76);
   capGeo.translate(0, 0.88, 0);
   place(dressed.wall, [blockGeo, capGeo], [
-    surface({ color: row.cliff.face, flatShading: true }),
-    surface({ color: row.cliff.lip, flatShading: true }),
+    surface({ color: cold ? PALETTE.rockCold : PALETTE.rock, flatShading: true }),
+    surface({ color: cold ? PALETTE.rockLipCold : PALETTE.rockLip, flatShading: true }),
   ], (r) => ({
     sx: 0.94 + r() * 0.18, sy: 0.88 + r() * 0.26, sz: 1,
     lean: 0.09, turn: 0.12, lift: -0.06,

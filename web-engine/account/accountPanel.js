@@ -73,7 +73,7 @@ export function panelModel({
     synced: !!summary?.linked, saveSync, rulesLanded, seen,
   });
   const t = tally(all);
-  const rank = summary?.rank ?? { name: 'Apprentice', xp: 0, nextName: null, toNext: 0, fraction: 0 };
+  const rank = summary?.rank ?? { name: 'Farmhand', xp: 0, nextName: null, toNext: 0, fraction: 0 };
 
   const shown = filter === 'unlocked' ? all.filter((r) => r.unlocked)
     : filter === 'locked' ? all.filter((r) => !r.unlocked)

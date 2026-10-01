@@ -21,17 +21,6 @@ export async function mountDeviceQr(opts = {}) {
   const url = opts.url || location.href;
   const label = opts.label || 'Play on your phone';
   const sublabel = opts.sublabel || 'Point your camera at this code to open this exact page on your phone.';
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const collapsed = !!opts.collapsed;
 
   injectStyles();
 
@@ -50,8 +39,7 @@ export async function mountDeviceQr(opts = {}) {
   btn.className = 'device-qr-summon';
   btn.textContent = '📱 QR';
   btn.title = 'Show phone QR code';
-  btn.style.display = collapsed ? 'block' : 'none';
-  if (collapsed) el.style.display = 'none';
+  btn.style.display = 'none';
   document.body.appendChild(btn);
 
   el.querySelector('.device-qr-close').addEventListener('click', () => {
@@ -79,11 +67,7 @@ export async function mountDeviceQr(opts = {}) {
   } catch (err) {
     console.error('QR generation failed', err);
     
-    
-    
-    
     el.style.display = 'none';
-    btn.style.display = 'none';
   }
 
   return () => { el.remove(); btn.remove(); };

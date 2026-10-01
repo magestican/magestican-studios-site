@@ -42,7 +42,6 @@
 
 import * as THREE from 'three';
 import { PALETTE } from '../palette.js';
-import { themeOf } from './themes.js';
 
 
 
@@ -180,7 +179,7 @@ export function createSpeedFx(scene, theme = 'summer') {
     transparent: true,
     opacity: 0.55,
     depthWrite: false,
-    blending: themeOf(theme).speedAdditive ? THREE.AdditiveBlending : THREE.NormalBlending,
+    blending: theme === 'snow' ? THREE.AdditiveBlending : THREE.NormalBlending,
     side: THREE.DoubleSide,
     fog: false,
   });

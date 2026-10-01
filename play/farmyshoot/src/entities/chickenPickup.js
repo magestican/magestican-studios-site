@@ -11,10 +11,8 @@
 
 
 import * as THREE from 'three';
-import { ITEM_RESPAWN_MS, ITEM_FIRST_SPAWN_MS }
-  from '../../../../web-engine/ui/itemClock.js';
-import { createPickupPad } from './pickupPad.js';
 
+const RESPAWN_MS = 30_000;   
 const PICKUP_RADIUS = 1.6;
 
 export class ChickenPickup {
@@ -28,13 +26,7 @@ export class ChickenPickup {
     this.mesh.visible = false;
     scene.add(this.mesh);
     this._bobT = 0;
-    this._nextSpawnAt = performance.now() + ITEM_FIRST_SPAWN_MS;
-    
-    
-    
-    this.pad = createPickupPad(0xffffff);
-    this.pad.group.position.set(this.spawnAt.x, this.spawnAt.y + 0.06, this.spawnAt.z);
-    scene.add(this.pad.group);
+    this._nextSpawnAt = performance.now() + 3000;   
   }
 
   update(dt, hostPlayers) {
@@ -50,11 +42,6 @@ export class ChickenPickup {
       this.mesh.visible = true;
     }
     
-    
-    
-    this.pad?.setRemaining(this.available ? null : Math.max(0, this._nextSpawnAt - now));
-    this.pad?.faceCamera(this.listener);
-    
     if (this.available && hostPlayers) {
       for (const p of hostPlayers) {
         const dx = p.pos.x - this.spawnAt.x;
@@ -62,7 +49,7 @@ export class ChickenPickup {
         if (Math.hypot(dx, dz) < PICKUP_RADIUS) {
           this.available = false;
           this.mesh.visible = false;
-          this._nextSpawnAt = now + ITEM_RESPAWN_MS;
+          this._nextSpawnAt = now + RESPAWN_MS;
           this.onPickup(p.peerId);
           break;
         }
@@ -72,11 +59,6 @@ export class ChickenPickup {
 
   isAvailable() { return this.available; }
   position() { return this.spawnAt; }
-  
-  
-  clockState() {
-    return { id: 'chicken', available: this.available, nextSpawnAt: this._nextSpawnAt };
-  }
 }
 
 function buildChickenMesh() {

@@ -63,30 +63,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import { isGameId } from './dailyChallenge.js';
-import { CLOUD_GAME_IDS } from '../progress/gameIds.js';
+import { GAME_IDS, isGameId } from './dailyChallenge.js';
 import { normaliseProfile, normaliseName, LIMITS } from './profile.js';
 import { MS_PER_DAY, dayNumberToMs, msToDayNumber } from './dayKey.js';
 
@@ -121,7 +98,7 @@ const dayValue = (ms) => {
 
 function gameMap(source, pick, max) {
   const out = {};
-  for (const id of CLOUD_GAME_IDS) out[id] = int(pick(source?.[id]), max);
+  for (const id of GAME_IDS) out[id] = int(pick(source?.[id]), max);
   return out;
 }
 
@@ -136,7 +113,7 @@ function gameMap(source, pick, max) {
 
 export function toCloudDto(profile) {
   const p = normaliseProfile(profile);
-  const totalPlays = CLOUD_GAME_IDS.reduce((n, id) => n + (p.games[id]?.plays ?? 0), 0);
+  const totalPlays = GAME_IDS.reduce((n, id) => n + (p.games[id]?.plays ?? 0), 0);
   if (totalPlays <= 0) return null;
   return {
     name: normaliseName(p.name),
@@ -167,7 +144,7 @@ export function toCloudDto(profile) {
 export function fromCloudDto(doc) {
   if (!doc || typeof doc !== 'object') return null;
   const games = {};
-  for (const id of CLOUD_GAME_IDS) {
+  for (const id of GAME_IDS) {
     if (!isGameId(id)) continue;
     games[id] = {
       plays: int(doc.plays?.[id], LIMITS.maxCount),
@@ -194,11 +171,7 @@ export function fromCloudDto(doc) {
       stamps: int(doc.tourStamps, LIMITS.maxTour),
       lastAwardDay: dayValue(doc.tourLastAwardDayMs),
     },
-  
-  
-  
-  
-  }, { floor: false });
+  });
 }
 
 
@@ -245,8 +218,8 @@ export function isSyncable(dto) {
     const m = dto[field];
     if (!m || typeof m !== 'object') return false;
     const keys = Object.keys(m);
-    if (keys.length !== CLOUD_GAME_IDS.length) return false;
-    for (const id of CLOUD_GAME_IDS) {
+    if (keys.length !== GAME_IDS.length) return false;
+    for (const id of GAME_IDS) {
       if (!Number.isInteger(m[id]) || m[id] < 0) return false;
       if (field === 'lastDayMs' && m[id] % MS_PER_DAY !== 0) return false;
       if (field !== 'lastDayMs' && m[id] > LIMITS.maxCount) return false;

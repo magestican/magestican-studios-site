@@ -238,19 +238,3 @@ if (typeof reduceMotion.addEventListener === 'function') reduceMotion.addEventLi
 else if (typeof reduceMotion.addListener === 'function') reduceMotion.addListener(onPreferenceChange);
 
 markCurrentNavLink();
-
-
-
-
-
-
-
-
-
-
-
-
-
-import('./studioBanner.js').catch(() => {
-  
-});

@@ -103,9 +103,6 @@
 
 
 
-
-
-
 import { elbow, knee } from '../ps1/limbSolve.mjs';
 
 
@@ -160,16 +157,7 @@ export const XANDER_RIG = Object.freeze({
 
 
 
-
-
-
-
-
-
-
-
-
-  headZ: 0.943,
+  headZ: 0.9346,
   
 
 
@@ -178,11 +166,7 @@ export const XANDER_RIG = Object.freeze({
 
 
 
-
-
-
-
-  headR: 0.0580,
+  headR: 0.0594,
   
   upperArm: 0.186,
   
@@ -224,6 +208,7 @@ export const XANDER_RIG = Object.freeze({
 
 
 
+export const XANDER_SPANS = Object.freeze({ shoulder: 0.262, hip: 0.153 });
 
 
 
@@ -234,50 +219,7 @@ export const XANDER_RIG = Object.freeze({
 
 
 
-
-
-
-
-
-
-
-export const XANDER_SPANS = Object.freeze({ shoulder: 0.224, hip: 0.150 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export const XANDER_DEPTHS = Object.freeze({ chest: 0.150, waist: 0.120, pelvis: 0.140 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const XANDER_DEPTHS = Object.freeze({ chest: 0.163, waist: 0.126, pelvis: 0.145 });
 
 
 
@@ -321,10 +263,10 @@ export const XANDER_DEPTHS = Object.freeze({ chest: 0.150, waist: 0.120, pelvis:
 
 
 export const XANDER_SEG = Object.freeze({
-  upperArm: [0.064, 0.064],
-  foreArm: [0.058, 0.058],
-  thigh: [0.104, 0.106],
-  shin: [0.074, 0.076],
+  upperArm: [0.072, 0.072],
+  foreArm: [0.060, 0.060],
+  thigh: [0.112, 0.114],
+  shin: [0.079, 0.081],
   neck: [0.058, 0.061],
 });
 

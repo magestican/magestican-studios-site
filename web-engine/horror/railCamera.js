@@ -55,11 +55,7 @@ export const RAIL = Object.freeze({
   
   
   
-  
-  
-  
-  
-  height: 2.5,
+  height: 3.15,
   
   
   
@@ -190,8 +186,7 @@ export const SAFE_CAM = Object.freeze({
   
   
   
-  
-  height: 2.45,
+  height: 2.9,
   
   
   

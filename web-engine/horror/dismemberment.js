@@ -58,8 +58,6 @@
 
 
 
-
-
 import { closestApproach } from '../combat/hitZones.js';
 
 
@@ -79,22 +77,7 @@ import { closestApproach } from '../combat/hitZones.js';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export const TORSO_RESISTANCE = 0.45;
+export const TORSO_RESISTANCE = 0.15;
 
 
 
@@ -260,28 +243,6 @@ export function legAimHeight(speciesId) {
   
   
   return legs.reduce((a, l) => a + l.y, 0) / legs.length;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export function centreMassHeight(speciesId) {
-  const spec = BESTIARY[speciesId];
-  if (!spec || !spec.torso) return 0.5;
-  return spec.torso.y;
 }
 
 export const MOBILITY_GROUPS = Object.freeze(['legs']);
@@ -537,24 +498,6 @@ export function canSense(creature) {
 
 
 
-
-
-
-
-
-
-export function limbFraction(creature) {
-  let have = 0;
-  let max = 0;
-  for (const l of Object.values(creature.limbs)) {
-    max += l.max;
-    have += l.severed ? 0 : l.integrity;
-  }
-  return max > 0 ? have / max : 1;
-}
-
-
-
 export function statusOf(creature) {
   return {
     alive: creature.alive,
@@ -565,7 +508,6 @@ export function statusOf(creature) {
     severed: [...severedGroups(creature)],
     severedLimbs: Object.values(creature.limbs).filter((l) => l.severed).map((l) => l.id),
     torsoFraction: creature.torso.integrity / creature.torso.max,
-    limbFraction: limbFraction(creature),
   };
 }
 

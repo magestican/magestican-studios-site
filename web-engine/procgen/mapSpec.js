@@ -574,14 +574,7 @@ export const MAPS = Object.freeze({
     terrain: 'terraces',
     centre: { vox: VOX.ROCK, style: 'summit' },
     base: { style: 'cabin', sign: 'CAMP' },
-    
-    
-    
-    
-    
-    
-    
-    cover: ['spire', 'iceWall', 'boulder', 'crate'],
+    cover: ['spire', 'iceWall', 'boulder'],
     
     
     
@@ -658,12 +651,7 @@ export const MAPS = Object.freeze({
     terrain: 'floes',
     centre: { vox: VOX.IGLOO, style: 'berg' },
     base: { style: 'igloo', sign: 'IGLOO' },
-    
-    
-    
-    
-    
-    cover: ['berg', 'ridge', 'boulder', 'crate'],
+    cover: ['berg', 'ridge', 'boulder'],
     
     
     

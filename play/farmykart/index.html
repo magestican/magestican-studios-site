@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta name="robots" content="noindex">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="mobile-web-app-capable" content="yes">
@@ -92,62 +91,6 @@
       max-width: 940px; margin: auto; display: flex; flex-direction: column;
       align-items: stretch; min-height: 100%; justify-content: flex-start;
     }
-
-    
-
-
-
-
-
-
-
-
-
-    #driver-air { height: 34vh; min-height: 190px; pointer-events: none; flex: none; }
-
-    
-
-
-    .menu-group { border: 1px solid #3a352e; border-radius: 12px; margin: 14px 0 0;
-      background: rgba(24,21,18,0.55); overflow: hidden; }
-    .menu-group > summary {
-      cursor: pointer; list-style: none; padding: 13px 16px; min-height: 44px;
-      font: 600 16px Georgia, serif; color: #e6dcc6;
-      display: flex; align-items: center; gap: 10px;
-    }
-    
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-    .menu-group .grp-caret { margin-left: auto; color: #9a8f7a; font-size: 13px;
-      transition: transform .15s ease; }
-    .menu-group[open] .grp-caret { transform: rotate(180deg); }
-    .menu-group > summary:hover { background: rgba(244,201,93,0.10); }
-    .menu-group .grp-icon { font-size: 18px; color: var(--gold); }
-    .menu-group summary em { font-style: normal; color: #9a8f7a; font-size: 13px; font-weight: 400; }
-    
-
-
-
-
-
-    .menu-group:not([open]) .menu-group-body { display: none; }
-    .menu-group-body { padding: 0 16px 14px; }
-    .menu-group-body h2:first-child { margin-top: 4px; }
     .title { font-family: Georgia, serif; font-size: clamp(30px, 7vw, 46px); letter-spacing: 0.01em; margin: 10px 0 2px; }
     .title em { font-style: normal; color: var(--gold); }
     .sub { color: #a79f90; font-size: clamp(13px, 2.6vw, 16px); margin-bottom: 14px; }
@@ -378,7 +321,6 @@
     .track-thumb.theme-summer { background: #2e3a20; }
     .track-thumb.theme-mud { background: #2b2620; }
     .track-thumb.theme-snow { background: #26313b; }
-    .track-thumb.theme-rain { background: #232a2e; }
 
     
 
@@ -553,19 +495,7 @@
 
 
     .hud-tl { position: absolute; top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); }
-    
-
-
-
-
-
-
-
-
-
-
-
-    .hud-tr { position: absolute; top: calc(max(10px, env(safe-area-inset-top)) + 52px); right: max(10px, env(safe-area-inset-right)); text-align: right; }
+    .hud-tr { position: absolute; top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); text-align: right; }
     .hud-tc { position: absolute; top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); text-align: center; }
     
 
@@ -720,31 +650,6 @@
     }
     #login-chip.level { background: #f6f1e6; }
     #login-chip.level b { color: #b0743a; font-size: 17px; }
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @media (max-width: 1060px) {
-      #login-chip { right: 68px; }
-      #menu .sub { margin-top: 18px; }
-    }
     #hud-biglap {
       text-align: center; margin-top: 6px; pointer-events: none;
       font-family: Georgia, serif; color: #f6f1e6;
@@ -1061,13 +966,10 @@
       .hud-rule { margin: 5px 0; }
     }
 
-    
-
-
     #pause-btn, #mute-btn {
       pointer-events: auto; font: inherit; font-size: 12px; background: var(--panel);
       color: #c9c0ae; border: 1px solid var(--edge); border-radius: 8px;
-      padding: 9px 13px; cursor: pointer; min-height: 44px;
+      padding: 9px 13px; cursor: pointer; min-height: 40px;
     }
 
     
@@ -1410,14 +1312,9 @@
 
 
 
-      
+      <p class="join-note">Opens a room and gives you a link to send. They open it and they are on the grid &mdash; no signup, no download, and bots fill the empty seats.</p>
       <p id="join-note" class="join-note"></p>
 
-      
-      <div id="driver-air" aria-hidden="true"></div>
-      
-
-      <p class="join-note">Opens a room and gives you a link to send. They open it and they are on the grid &mdash; no signup, no download, and bots fill the empty seats.</p>
       <h2>Driver</h2>
       
 
@@ -1454,37 +1351,19 @@
       <p id="cup-note" class="cup-note"></p>
       <div id="track-grid" class="grid"></div>
 
-      
+      <h2>Opponents</h2>
+      <div id="difficulty-row" class="row"></div>
 
+      <h2>Distance</h2>
+      <div id="lap-row" class="row"></div>
 
-
-
-
-
-
-
-      <details class="menu-group">
-        <summary><span class="grp-icon">&#9881;</span>Race setup
-          <em id="setup-summary"></em><span class="grp-caret" aria-hidden="true">&#9662;</span></summary>
-        <div class="menu-group-body">
-          <h2>Opponents</h2>
-          <div id="difficulty-row" class="row"></div>
-
-          <h2>Distance</h2>
-          <div id="lap-row" class="row"></div>
-
-          <h2>Assist</h2>
-          <div id="assist-row" class="row"></div>
+      <h2>Assist</h2>
+      <div id="assist-row" class="row"></div>
       <p class="join-note">Steer assist keeps you on the road when you are not
         turning enough. It will not drive for you, it cannot out-steer you, and
         it is slower than a good lap &mdash; so turn it off once the circuit is
         familiar.</p>
-        </div>
-      </details>
 
-      <details class="menu-group">
-        <summary><span class="grp-icon">&#9733;</span>Your progress &amp; board<span class="grp-caret" aria-hidden="true">&#9662;</span></summary>
-        <div class="menu-group-body">
       <h2>Leaderboard</h2>
       
 
@@ -1515,11 +1394,9 @@
 
       <h2>Items</h2>
       <div id="item-legend"></div>
-        </div>
-      </details>
 
       <h2>Controls</h2>
-      <p class="howto" id="fk-controls-body">
+      <p class="howto">
         <b>Keyboard</b> &mdash; <kbd>&uarr;</kbd> or <kbd>W</kbd> accelerate,
         <kbd>&darr;</kbd> or <kbd>S</kbd> brake and reverse,
         <kbd>&larr;</kbd><kbd>&rarr;</kbd> steer,
@@ -1564,15 +1441,6 @@
 
       <button id="lobby-start" class="primary">Race</button>
       <button id="lobby-ready" class="primary alt">I&rsquo;m ready</button>
-
-      
-
-
-
-
-
-
-      <div id="lobby-sound-row" class="row"></div>
 
       <h2>In the room</h2>
       <ul id="lobby-players" class="players"></ul>
@@ -1882,25 +1750,17 @@
 
 
 
-  
-
-
-
-
-
-
-
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=3faf29e-20260930T224510Z"></script>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js?v=c33b5c8-20261001T033810Z"></script>
 
   <script type="importmap">
   {
     "imports": {
-      "three": "../../web-engine/vendor/three-0.161.0/three.module.js",
-      "three/addons/": "../../web-engine/vendor/three-0.161.0/addons/",
-      "three/addons/loaders/GLTFLoader.js": "../../web-engine/vendor/three-0.161.0/addons/loaders/GLTFLoader.js",
+      "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/",
+      "three/addons/loaders/GLTFLoader.js": "https://unpkg.com/three@0.161.0/examples/jsm/loaders/GLTFLoader.js",
       "arbelo/rng":           "../../web-engine/rng/seededRng.js",
       "arbelo/tickPolicy":    "../../web-engine/loop/tickPolicy.js",
-      "arbelo/analytics":     "../../web-engine/visits/visits.js",
+      "arbelo/analytics":     "../../web-engine/analytics/analytics.js",
       "arbelo/trackPath":     "../../web-engine/kart/trackPath.js",
       "arbelo/racingLine":    "../../web-engine/kart/racingLine.js",
       "arbelo/kartPhysics":   "../../web-engine/kart/kartPhysics.js",
@@ -1953,20 +1813,6 @@
     window.__fkImportMap = true;
   </script>
 
-  <script type="module" src="./src/main.js?v=3faf29e-20260930T224510Z"></script>
-
-  
-
-
-
-
-
-  <script type="module">
-    import { installInfo } from '../shared/ui/infoButton.js';
-    installInfo({
-      title: "Farmy Kart - controls",
-      contentFrom: "#fk-controls-body",
-    });
-  </script>
+  <script type="module" src="./src/main.js?v=c33b5c8-20261001T033810Z"></script>
 </body>
 </html>

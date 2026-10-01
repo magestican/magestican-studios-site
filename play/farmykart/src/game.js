@@ -93,7 +93,7 @@ import { createFrameGuard, frameOk, frameFailed, restartFrameGuard } from '../..
 
 
 
-import { showBanner as showPageBanner, hideBanner as hidePageBanner } from '../../../web-engine/updater/updateNotice.js';
+import { showBanner as showPageBanner, hideBanner as hidePageBanner } from '../../../web-engine/updater/banner.js';
 import { trackById, itemStopsFor } from './tracks/tracks.js';
 import { buildTrackMesh, buildFences, SHOULDER } from './render/trackMesh.js';
 import { buildScenery } from './render/props.js';
@@ -126,16 +126,11 @@ import {
   createFx, updateFx, driftSparks, boostFlame, groundDust, hitBurst, pickupBurst, createShieldBubble,
 } from './render/fx.js';
 import { createSpeedFx, updateSpeedFx } from './render/speedFx.js';
-import { createRain, updateRain } from './render/rainFx.js';
 import { buildItemBoxMesh, animateItemBox, buildHazardMesh, animateHazard } from './render/itemMesh.js';
 import { createHud, updateHud, showBanner, tickBanner, gapText } from './ui/hud.js';
 import { createMinimap, drawMinimap } from './ui/minimapView.js';
-import { createControls, readControls, consumeItemPress, showTouchOverlay } from './input/controls.js';
-import { raceFov, fovCeiling } from '../../../web-engine/kart/raceFov.js';
+import { createControls, readControls, consumeItemPress } from './input/controls.js';
 import { createRaceNet } from './net/raceNet.js';
-
-
-import { countPlay } from 'arbelo/leaderboard';
 import { createAudio, resumeAudio, startEngine, updateEngine, updateRivals, updateAirshipDrone, stopEngine, SFX, setMuted } from './audio/sfx.js';
 import { startMusic, stopMusic, setMusicIntensity, duckMusic } from './audio/music.js';
 import { PALETTE } from './palette.js';
@@ -167,31 +162,6 @@ export function createRace(options) {
     
     resume = null,
   } = options;
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  countPlay('farmykart', { isHost: !session || session.isHost === true });
 
   const authored = trackById(trackId);
   
@@ -286,24 +256,9 @@ export function createRace(options) {
   configureRenderer(renderer);
 
   const scene = new THREE.Scene();
-  
-  
-  scene.fog = fogFor(track.theme, track.sky);
-  
-  
-  
-  
-  
-  
-  
-  const touch = showTouchOverlay();
-  const camera = new THREE.PerspectiveCamera(
-    raceFov(window.innerWidth, window.innerHeight, { touch }),
-    window.innerWidth / window.innerHeight, 0.4, 1200);
-  const chase = createChaseCamera(camera, {
-    baseFov: raceFov(window.innerWidth, window.innerHeight, { touch }),
-    ceiling: fovCeiling(window.innerWidth, window.innerHeight),
-  });
+  scene.fog = fogFor(track.theme);
+  const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.4, 1200);
+  const chase = createChaseCamera(camera);
 
   
   
@@ -311,23 +266,15 @@ export function createRace(options) {
   
   
   
-  
-  
-  
-  
-  
-  
-  const skyKind = track.sky ?? 'day';
-  const lights = buildLights(skyKind);
+  const lights = buildLights(track.theme);
   scene.add(lights);
   const sunDir = lights.userData.sun.position.clone().normalize();
-  const sky = buildSky(skyKind, sunDir);
+  const sky = buildSky(track.sky ?? 'day', sunDir);
   scene.add(sky);
   
   
-  
-  const sunDisc = buildSun(lights, skyKind);
-  if (sunDisc) scene.add(sunDisc);
+  const sunDisc = buildSun(lights);
+  scene.add(sunDisc);
   
   
   
@@ -376,24 +323,11 @@ export function createRace(options) {
   const fx = createFx(scene, { theme: track.theme, path });
   
   
-  
-  
-  
-  
-  
-  
-  
-  const sunOffset = sunDisc ? sunDisc.position.clone() : null;
+  const sunOffset = sunDisc.position.clone();
   
   
   
   const speedFx = createSpeedFx(scene, track.theme);
-
-  
-  
-  
-  
-  const rain = createRain(scene, track.theme);
 
   
   
@@ -659,18 +593,6 @@ export function createRace(options) {
     renderer.setSize(window.innerWidth, window.innerHeight, false);
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     camera.aspect = window.innerWidth / window.innerHeight;
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    chase.baseFov = raceFov(window.innerWidth, window.innerHeight, { touch });
-    chase.ceiling = fovCeiling(window.innerWidth, window.innerHeight);
     camera.updateProjectionMatrix();
   };
   window.addEventListener('resize', onResize);
@@ -1611,12 +1533,8 @@ export function createRace(options) {
     focusShadow(lights, you.kart.x, you.kart.z);
     
     
-    
-    
-    if (sunDisc) {
-      sunDisc.position.copy(camera.position).add(sunOffset);
-      updateSun(sunDisc, camera, dt);
-    }
+    sunDisc.position.copy(camera.position).add(sunOffset);
+    updateSun(sunDisc, camera, dt);
     
     
     
@@ -1637,7 +1555,6 @@ export function createRace(options) {
       ? sampleAt(path, (playerSurface.s + 26) % path.length)
       : null;
     updateSpeedFx(speedFx, you.kart, camera, dt, ahead);
-    updateRain(rain, dt, camera, you.kart);
     
     
     
@@ -1732,13 +1649,8 @@ export function createRace(options) {
     
     if (ceremony) {
       if (ceremony.camera) {
-        
-        
-        
-        const shot = ceremony.cameraFor
-          ? ceremony.cameraFor(camera.aspect) : ceremony.camera;
-        camera.position.copy(shot.pos);
-        camera.lookAt(shot.look);
+        camera.position.copy(ceremony.camera.pos);
+        camera.lookAt(ceremony.camera.look);
       }
       ceremony.update(clock);
     }

@@ -21,11 +21,10 @@
 
 import * as THREE from 'three';
 import { POWER_UPS } from './powerUpSpec.js';
-import { createPickupPad } from './pickupPad.js';
-import { ITEM_RESPAWN_MS, ITEM_FIRST_SPAWN_MS }
-  from '../../../../web-engine/ui/itemClock.js';
 
+const RESPAWN_MS = 30_000;     
 const PICKUP_RADIUS = 1.6;
+const FIRST_SPAWN_MS = 3_000;
 const FLOAT_ABOVE_DECK = 1.2;  
 
 export class PowerUpPickups {
@@ -42,15 +41,10 @@ export class PowerUpPickups {
       mesh.position.set(at.x, at.y + FLOAT_ABOVE_DECK, at.z);
       mesh.visible = false;
       scene.add(mesh);
-      
-      
-      const pad = createPickupPad(POWER_UPS[id].tint);
-      pad.group.position.set(at.x, at.y + 0.06, at.z);
-      scene.add(pad.group);
       this.items.set(id, {
-        id, mesh, pad, at: { ...at },
+        id, mesh, at: { ...at },
         available: false,
-        nextSpawnAt: now + ITEM_FIRST_SPAWN_MS,
+        nextSpawnAt: now + FIRST_SPAWN_MS,
       });
     }
   }
@@ -72,14 +66,10 @@ export class PowerUpPickups {
         it.available = true;
         it.mesh.visible = true;
       }
-      it.pad?.setRemaining(it.available ? null : Math.max(0, it.nextSpawnAt - now));
-      
-      
-      it.pad?.faceCamera(this.listener);
       if (it.available && hostPlayers) {
         for (const p of hostPlayers) {
           if (Math.hypot(p.pos.x - it.at.x, p.pos.z - it.at.z) < PICKUP_RADIUS) {
-            this.markTaken(it.id, now + ITEM_RESPAWN_MS);
+            this.markTaken(it.id, now + RESPAWN_MS);
             this.onPickup(it.id, p.peerId);
             break;
           }
@@ -100,39 +90,9 @@ export class PowerUpPickups {
     return true;
   }
 
-  
-  
-  
-  
-  markAvailable(id) {
-    const it = this.items.get(id);
-    if (!it) return false;
-    it.available = true;
-    it.mesh.visible = true;
-    it.pad?.setRemaining(null);
-    return true;
-  }
-
-  
-  
-  
-  
-  disposePads() {
-    for (const it of this.items.values()) { try { it.pad?.dispose?.(); } catch (_) {  } }
-  }
-
   isAvailable(id) { return this.items.get(id)?.available === true; }
   position(id) { return this.items.get(id)?.at ?? null; }
   nextSpawnAt(id) { return this.items.get(id)?.nextSpawnAt ?? 0; }
-
-  
-  
-  
-  clockStates() {
-    return [...this.items.values()].map((it) => ({
-      id: it.id, available: it.available, nextSpawnAt: it.nextSpawnAt,
-    }));
-  }
 }
 
 

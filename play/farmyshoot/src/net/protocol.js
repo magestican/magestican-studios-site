@@ -22,21 +22,6 @@ export const MSG = Object.freeze({
   
   
   BREAK:      'break',       
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  COVER:      'cover',       
   DEATH:      'death',       
   FLAG_PICK:  'flagPick',    
   FLAG_DROP:  'flagDrop',    
@@ -110,25 +95,6 @@ export const MSG = Object.freeze({
   
   SPLASH:       'splash',
   POWERUP_PICK: 'powerPick',  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  PICKUP_STATE: 'pickState',  
 
   
   

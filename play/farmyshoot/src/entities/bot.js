@@ -14,8 +14,7 @@
 
 
 import * as THREE from 'three';
-import { laneFor, laneById, dealLane, nextWaypoint, guardPost, nearestChoke,
-  usesSpring, springApproach }
+import { laneFor, nextWaypoint, guardPost, nearestChoke, usesSpring, springApproach }
   from '../../../../web-engine/ai/laneTactics.js';
 
 
@@ -29,7 +28,7 @@ import { acquireTarget, emptyAcquisition }
   from '../../../../web-engine/ai/targetAcquisition.js';
 import { stepBot }        from '../../../../web-engine/ai/botStep.js';
 import { botGoalFor }    from '../../../../web-engine/modes/objective.js';
-import { dealRole, profileFor, closeDesire, offLeash, mayFire, noticesFoe }
+import { dealRole, profileFor, closeDesire, offLeash, mayFire }
   from '../../../../web-engine/ai/botRoles.js';
 import { chooseObjective, OBJECTIVE_POWER_UP }
   from '../../../../web-engine/ai/objective.js';
@@ -64,30 +63,21 @@ export class Bot {
   
   
   
-  static make({ team, world, seed, taken = [], takenRoles = [], mates = [] }) {
+  static make({ team, world, seed, taken = [], takenRoles = [] }) {
     const id = `bot-${(seed ^ (++_botId << 5)).toString(36).slice(-6)}`;
     const character = CHARACTERS[(_botId + (team === 'red' ? 0 : 2)) % CHARACTERS.length];
     const name = NAMES[_botId % NAMES.length];
-    
-    
-    
-    
-    
-    const role = dealRole(takenRoles);
-    const lane = dealLane(world?.lanes, mates, role);
     return new Bot({
       id, name, team, character, world,
       slot: pickSpawnSlot(taken),
-      laneId: lane ? lane.id : null,
       
       
       
-      role,
+      role: dealRole(takenRoles),
     });
   }
 
-  constructor({ id, name, team, character, world, slot = null, role = 'rusher',
-                laneId = null }) {
+  constructor({ id, name, team, character, world, slot = null, role = 'rusher' }) {
     this.peerId = id;
     this.name = name;
     this.team = team;
@@ -104,13 +94,6 @@ export class Bot {
     
     this.role = role;
     this.roleProfile = profileFor(role);
-    
-    
-    
-    
-    
-    
-    this.laneId = laneId;
     const off = this._spawnOffset();
     this.pos   = new THREE.Vector3(spawn.x + off.x, spawn.y, spawn.z + off.z);
     this.yaw   = team === 'red' ? Math.PI / 4 : Math.PI + Math.PI / 4;
@@ -177,37 +160,6 @@ export class Bot {
     this._path.wanderT = 0;
     this._path.stuckRef = null;
     this._path.stuckT = 0;
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    this._lane = null;
-    this._post = null;
   }
 
   
@@ -310,22 +262,12 @@ export class Bot {
         
         
         
-        
-        
-        
-        
-        
-        
-        const mine = laneById(lanes, this.laneId);
-        this._post = this._post
-          || (mine ? { x: mine.choke.x, z: mine.choke.z, laneId: mine.id } : null)
-          || guardPost(lanes, this._laneSlot());
+        this._post = this._post || guardPost(lanes, this._laneSlot());
         if (this._post) { gx = this._post.x; gz = this._post.z; }
       } else {
         
         
-        this._lane = this._lane || laneById(lanes, this.laneId)
-                  || laneFor(lanes, this.peerId);
+        this._lane = this._lane || laneFor(lanes, this.peerId);
         
         
         const wp = nextWaypoint(lanes, this._lane, this.pos,
@@ -349,22 +291,9 @@ export class Bot {
       }
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    const acquired = !!this._aim?.targetPos;
     const foe = this._aim?.targetPos || nearestPos(this.pos, ctx.enemyPlayers);
-    const dFoe = foe ? Math.hypot(foe.x - this.pos.x, foe.z - this.pos.z) : Infinity;
-    if (foe && noticesFoe(this.role, dFoe, acquired)) {
-      const dEnemy = dFoe;
+    if (foe) {
+      const dEnemy = Math.hypot(foe.x - this.pos.x, foe.z - this.pos.z);
       const desire = closeDesire(this.role, dEnemy);
       if (desire < 0) {
         

@@ -82,9 +82,6 @@ export function trackFacts(track) {
     
     
     boat: zones.some((z) => drivableWater(z)),
-    
-    
-    boatShare: zones.reduce((a, z) => a + (drivableWater(z) ? (z.to - z.from) : 0), 0),
     lava: zones.some((z) => z.kind === 'lava'),
     
     
@@ -126,14 +123,7 @@ export function trackFacts(track) {
 export function trackBadges(track) {
   const f = trackFacts(track);
   const out = [];
-  
-  
-  
-  
-  
-  
-  
-  if (f.boatShare >= 0.12) out.push('long boat run');
+  if (f.boat) out.push('boat water');
   if (f.lava) out.push('lava');
   if (f.slippery) out.push('slippery');
   return out.slice(0, 3);
