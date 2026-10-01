@@ -25,6 +25,7 @@ import { statsFor } from '../account/achievements.js';
 import { localDayNumber } from '../account/dayKey.js';
 import { snapshotOf, SNAPSHOT_KEY } from './snapshot.js';
 import { trophyRows } from './trophies.js';
+import { trophySvg } from './trophyArt.js';
 import { PROFILE_GAME_IDS } from './gameIds.js';
 import { youModel } from './youModel.js';
 import { CHIP_SEEN_KEY } from './levelChip.js';
@@ -149,7 +150,12 @@ function cabinet(doc, m) {
   const ul = el(doc, 'ul', 'you-trophies');
   for (const t of m.trophies) {
     const li = el(doc, 'li', t.unlocked ? 'you-trophy' : 'you-trophy locked');
-    li.append(el(doc, 'div', 'cup', t.unlocked ? '\u{1F3C6}' : '♔'), el(doc, 'b', null, t.name),
+    
+    
+    
+    const art = el(doc, 'div', 'cup');
+    art.innerHTML = trophySvg({ id: t.id, unlocked: t.unlocked }, { size: 56 });
+    li.append(art, el(doc, 'b', null, t.name),
       el(doc, 'span', null, t.unlocked ? 'Earned' : `${t.percent}% there`));
     li.setAttribute('aria-label', `${t.name}: ${t.unlocked ? 'earned' : `locked, ${t.percent}% there`}`);
     ul.append(li);
