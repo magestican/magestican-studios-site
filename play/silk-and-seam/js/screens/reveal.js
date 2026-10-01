@@ -2,7 +2,7 @@ import { state, save, fillOrders, level } from '../state.js';
 import { go, modal, money, starRow, renderHud, auntNote, calm, toast, checkAchievements, $ } from '../ui.js';
 import { dressSVG, roomSVG, portraitSVG } from '../art.js';
 import { recordServed, noticeFor } from '../town.js';
-import { computeTags, clientMatch, sameAsLast, rememberClient, stars, payout, levelFor, unlockedAt, part, fabric, trim, dye, repAfter, repTier, recordDress, windowLeft, placeInWindow, shopValue } from '../logic.js';
+import { computeTags, clientMatch, sameAsLast, rememberClient, stars, payout, levelFor, unlockedAt, part, fabric, trim, dye, repAfter, repTier, recordDress, commissionResult, windowLeft, placeInWindow, shopValue } from '../logic.js';
 import { WINDOW_WAIT } from '../data.js';
 import { DYES } from '../data.js';
 import { sfx } from '../audio.js';
@@ -94,6 +94,7 @@ export default {
       }
     }
     $('#collect', root).onclick = () => {
+      if (state.job !== job) return; 
       const before = levelFor(state.xp);
       state.money += pay.total;
       state.xp += pay.xp;
@@ -112,6 +113,13 @@ export default {
       state.job = null;
       sellFromWindow();
       fillOrders(); save();
+      
+      
+      
+      const result = commissionResult(o, pay);
+      import('/web-engine/progress/report.js')
+        .then((m) => m.reportMatch({ game: 'silk-and-seam', outcome: result.outcome, mode: result.mode }))
+        .catch(() => {});
       sfx.coin(); renderHud();
       if (repTier(state.rep).index > repBefore) setTimeout(() => toast(`Your atelier is now the ${repTier(state.rep).name}!`, 'good', 2600), 200);
       checkAchievements();

@@ -154,6 +154,14 @@ export function payout(order, match, quality, matCost) {
   return { fee, materials, tip, loyal, total: fee + materials + tip, xp };
 }
 
+
+
+
+export function commissionResult(order, pay) {
+  const paid = !order.charity && (pay?.total || 0) > 0;
+  return { outcome: paid ? 'win' : 'done', mode: 'solo' };
+}
+
 export function levelFor(xp) {
   let lvl = 1;
   for (let i = 0; i < LEVEL_XP.length; i++) if (xp >= LEVEL_XP[i]) lvl = i + 1;

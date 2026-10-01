@@ -28,7 +28,12 @@ import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderbo
 
 
 
-import { recordSession, syncFromCloud, accountSummary } from '../../../web-engine/account/account.js';
+import { syncFromCloud, accountSummary } from '../../../web-engine/account/account.js';
+
+import { reportMatch } from '../../../web-engine/progress/report.js';
+import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
+import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import { kartMatch } from './kartReport.js';
 import { levelFromXp } from '../../../web-engine/account/playerLevel.js';
 import { sessionLines } from '../../../web-engine/account/accountBadge.js';
 import { mountProfilePanel } from '../../../web-engine/account/accountUi.js';
@@ -212,6 +217,9 @@ function boot() {
   
   mountMenuSoundToggles();
   syncMuteButton();
+  
+  
+  mountLevelChip(document.querySelector('#menu .footer'));
   buildNameField();
   refreshBoard();
 
@@ -1048,6 +1056,22 @@ function quitRace() {
   refreshBoard();
 }
 
+
+
+
+
+function paintAccountLines() {
+  const list = $('results-notable');
+  if (!list) return;
+  for (const old of list.querySelectorAll('li.fk-account')) old.remove();
+  for (const line of state.accountLines ?? []) {
+    const li = document.createElement('li');
+    li.className = 'fk-account';
+    li.textContent = line;
+    list.appendChild(li);
+  }
+}
+
 function showResults(result) {
   hide('hud');
   hide('touch-hints');
@@ -1118,18 +1142,38 @@ function showResults(result) {
   
   
   const onPodium = result.position <= 3 && result.fieldSize >= 4;
-  const session = recordSession({
-    gameId: 'farmykart',
+  
+  
+  
+  
+  
+  
+  
+  
+  const reportArg = kartMatch({
+    result,
     metrics: {
       races: 1,
       wins: won ? 1 : 0,
       podiums: onPodium ? 1 : 0,
       points: model.playerRow?.points ?? 0,
     },
-    won,
     name: state.name,
+    myId: state.session?.myId ?? null,
+    cardFor: (id) => CARDS.get(id),
+    myDev: deviceId(),
+    
+    hosting: !!state.session?.isHost,
   });
-  state.accountLines = sessionLines(session.events);
+  state.accountLines = [];
+  const resultsToken = (state.resultsToken = (state.resultsToken ?? 0) + 1);
+  if (reportArg) {
+    reportMatch(reportArg).then((events) => {
+      if (state.resultsToken !== resultsToken) return;
+      state.accountLines = sessionLines(events);
+      paintAccountLines();
+    });
+  }
 
   $('results-title').textContent =
     `${ordinal(result.position)} of ${result.fieldSize} · ${formatPoints(model.playerRow?.points ?? 0)}`;
@@ -1158,12 +1202,8 @@ function showResults(result) {
   
   
   
-  for (const line of state.accountLines ?? []) {
-    const li = document.createElement('li');
-    li.className = 'fk-account';
-    li.textContent = line;
-    $('results-notable').appendChild(li);
-  }
+  
+  paintAccountLines();
 
   
   

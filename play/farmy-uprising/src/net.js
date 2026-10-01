@@ -49,6 +49,7 @@
 
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
+import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
 import { GAME_PREFIX, roomCode, normaliseCode, gameOfCode, nameFor } from '../../../web-engine/words/coop.js';
 import { createMeshTransport } from '../../../web-engine/rts/net/meshTransport.js';
 import { seedFromString } from '../../../web-engine/rts/rng.js';
@@ -161,6 +162,9 @@ export function createNet({ onRoom, onStatus, onStart, onError = () => {} }) {
   
 
   function wire() {
+    
+    
+    exchangeCards(mesh, 'farmy-uprising');
     mesh.addEventListener('open', (e) => {
       myId = e.detail.id;
       if (hosting) {

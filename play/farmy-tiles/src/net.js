@@ -48,6 +48,7 @@
 
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
+import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
 import { roomCode, normaliseCode, sayingText } from '../../../web-engine/words/coop.js';
 import { SMSG } from '../../../web-engine/words/scrabbleMatch.js';
 import { GAME_PREFIX, gameOfCode } from '../../../web-engine/words/coop.js';
@@ -115,6 +116,9 @@ export function createNet({
   }
 
   function wire() {
+    
+    
+    exchangeCards(mesh, 'farmy-scrabble');
     mesh.addEventListener('open', (e) => {
       myId = e.detail.id;
       onPeers(peers(), myId);

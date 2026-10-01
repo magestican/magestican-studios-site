@@ -183,6 +183,18 @@ body {
   .studio-bar { height: 44px; font-size: 17px; gap: 8px; }
   .studio-home img { width: 30px; height: 30px; }
   .studio-music { width: 44px; height: 40px; }
+  
+
+
+
+
+
+
+
+  .studio-home { flex: 0 0 auto; }
+  .studio-home span { width: 0; overflow: hidden; }
+  .studio-bar .studio-live { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+  .studio-bar .studio-live span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
 canvas#board {

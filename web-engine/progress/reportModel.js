@@ -69,6 +69,9 @@ export function normaliseMatch(m) {
     place: finite(m.place) ? m.place : null,
     seconds: finite(m.seconds) ? m.seconds : undefined,
     metrics: m.metrics && typeof m.metrics === 'object' && !Array.isArray(m.metrics) ? m.metrics : {},
+    
+    
+    name: typeof m.name === 'string' ? m.name : undefined,
   };
 }
 
@@ -95,6 +98,7 @@ export function sessionArgsOf(match) {
     humans,
     seconds: match.seconds,
     metrics: match.metrics,
+    name: match.name,
   };
 }
 

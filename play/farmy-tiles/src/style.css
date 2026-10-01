@@ -258,7 +258,17 @@ body {
 
 
   .studio-home span { width: 0; overflow: hidden; }
-  .studio-back { font-size: 16px; }
+  
+
+
+
+  .studio-back { font-size: 16px; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  
+
+
+  .studio-home { flex: 0 0 auto; }
+  .studio-bar .studio-live { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+  .studio-bar .studio-live span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
 

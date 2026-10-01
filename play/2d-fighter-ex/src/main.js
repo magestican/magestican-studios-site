@@ -7,7 +7,11 @@ import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 
 
 
-import { recordSession, accountSummary, syncFromCloud } from '../../../web-engine/account/account.js';
+import { accountSummary, syncFromCloud } from '../../../web-engine/account/account.js';
+
+import { reportMatch } from '../../../web-engine/progress/report.js';
+import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import { fightMatch } from './fightReport.js';
 import { mountAccountBadge } from '../../../web-engine/account/accountBadge.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { CANVAS } from './choreography.js';
@@ -235,7 +239,10 @@ function recordFightWatched() {
   if (fightCounted) return;
   fightCounted = true;
   try {
-    recordSession({ gameId: '2d-fighter-ex', metrics: { fights: 1 } });
+    
+    
+    
+    reportMatch(fightMatch(totalMs())).then(() => paintAccount(true));
     paintAccount(true);
   } catch (_) {  }
 }
@@ -368,6 +375,9 @@ countPlay('2d-fighter-ex', { isHost: true });
 
 try { Promise.resolve(syncFromCloud()).catch(() => {}); } catch (_) {  }
 paintAccount(true);
+
+
+mountLevelChip(document.querySelector('header'));
 
 
 

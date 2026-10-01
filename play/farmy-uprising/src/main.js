@@ -47,7 +47,17 @@ import {
   levelProgress,
 } from './store.js';
 
+
+import { reportMatch } from '../../../web-engine/progress/report.js';
+import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
+import { uprisingMatch } from './uprisingReport.mjs';
+
 const params = new URLSearchParams(location.search);
+
+
+
+mountLevelChip(document.querySelector('#menu-chip'));
 
 
 
@@ -345,6 +355,8 @@ let netPayload = null;
 let lobbyUi = null;
 let observing = false;
 
+let droppedSeats = new Set();
+
 let pendingFlash = -1;
 let stallShown = false;
 
@@ -533,7 +545,7 @@ async function start(resumed, networked) {
         console.warn("[fu] desync", d);
       },
       onResync() { hud.say("Resynchronised."); },
-      onDrop(seat) { hud.say(`${seatName(seat)} dropped out. A bot has their farm.`); },
+      onDrop(seat) { droppedSeats.add(seat); hud.say(`${seatName(seat)} dropped out. A bot has their farm.`); },
       
       
       
@@ -606,6 +618,7 @@ async function start(resumed, networked) {
   }
   pendingFlash = -1;
   stallShown = false;
+  droppedSeats = new Set();
   lastSavedTick = match.w.tick;
   selection = { kind: 'all', key: null };
   sequence = 0;
@@ -997,6 +1010,17 @@ function showEnd() {
 
   
   clearSave();
+  
+  
+  
+  
+  const arg = uprisingMatch({
+    playerCount: match.playerCount, mySeat: SEAT, winner: match.winner, order,
+    observing, seats: netPayload ? netPayload.seats : null,
+    cardFor: (id) => CARDS.get(id), myDev: deviceId(), dropped: droppedSeats,
+    seconds: match.w.tick / TICKS_PER_SECOND,
+  });
+  if (arg) reportMatch(arg);
   
   
   

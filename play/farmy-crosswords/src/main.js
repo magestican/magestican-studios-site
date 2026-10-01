@@ -57,6 +57,13 @@ import { mountLiveBadge } from '../../shared/ui/liveBadge.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { LIVE_PATH } from '../../../web-engine/net/presence.js';
 
+import { reportMatch } from '../../../web-engine/progress/report.js';
+import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import { cardMatch, sessionMatch, createPuzzleLedger } from './wordReport.js';
+
+let reportLedger = createPuzzleLedger(null);
+try { reportLedger = createPuzzleLedger(globalThis.localStorage); } catch {  }
+
 initAnalytics({ page: 'farmy-crosswords' });
 
 
@@ -1211,6 +1218,13 @@ function openGame(id, firstLetter) {
     
     if (roomState.shownResult === puzzleKey(id, index)) return;
     roomState.shownResult = puzzleKey(id, index);
+    
+    
+    
+    
+    
+    const arg = cardMatch({ card: id, inRoom: inRoom(), watching: watching() });
+    if (arg && reportLedger.take(puzzleKey(id, index))) reportMatch(arg);
     if (inRoom()) net?.here();
     
     
@@ -1706,6 +1720,12 @@ function endMatch() {
   if (match.startedAt === null) return;
   match.startedAt = null;
   match.pausedAt = null;
+  
+  
+  
+  
+  const sessionArg = sessionMatch({ minutes: match.minutes, watching: watching() });
+  if (sessionArg) reportMatch(sessionArg);
   party.start();
   app.sound('win');
   announce('Time. Here is how everybody did.');
@@ -2054,6 +2074,10 @@ function wireLiveBadge() {
   });
 }
 wireLiveBadge();
+
+
+
+mountLevelChip(document.querySelector('.studio-bar'));
 
 globalThis.__fc = {
   get room() {

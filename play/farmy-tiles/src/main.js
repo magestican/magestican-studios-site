@@ -79,6 +79,12 @@ import { roomPresence } from '../../shared/net/roomPresence.js';
 import { mountLiveBadge } from '../../shared/ui/liveBadge.js';
 import { LIVE_PATH } from '../../../web-engine/net/presence.js';
 
+import { reportMatch } from '../../../web-engine/progress/report.js';
+import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
+import { createReportGate } from '../../../web-engine/progress/matchArgs.js';
+import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import { tilesMatch } from './tilesReport.js';
+
 
 
 
@@ -265,8 +271,26 @@ let barHoverAt = 0;
 const finder = createFinder({ words: commonWords(), isWord });
 
 
+
+
+
+
+
+
+const reportGate = createReportGate();
+let gateSeed = null;
+let gameStartedAt = Date.now();
+function noteGame() {
+  if (match.seed === gateSeed) return;
+  gateSeed = match.seed;
+  gameStartedAt = Date.now();
+  reportGate.begin(match.seats);
+  if (derived.over) reportGate.settle();
+}
+
 function rederive() {
   derived = replay(match, isWord);
+  noteGame();
   if (!roomState.active) writeJson(SAVE_KEY, match);
   screen?.reload?.();
   checkFinished();
@@ -420,6 +444,16 @@ function checkFinished() {
   const won = winnerOf(derived);
   if (won && won.id === app.me) { party.start(); invalidate(); }
   trackEvent('scrabble_finished', { seats: derived.seats.length });
+  
+  if (reportGate.take()) {
+    const arg = tilesMatch({
+      rows: standings(derived), me: app.me, isBot: isBotSeat,
+      cardFor: (id) => CARDS.get(id), online: roomState.active,
+      myDev: deviceId(), hosting: !!net?.hosting,
+      seconds: (Date.now() - gameStartedAt) / 1000,
+    });
+    if (arg) reportMatch(arg);
+  }
   setTimeout(openResults, 700);
 }
 
@@ -1046,6 +1080,9 @@ watchViewport(resize, canvas);
 wireMusicButton({ music, announce, sound: (e) => sfx.play(e) });
 
 
+mountLevelChip(document.querySelector('.studio-bar'));
+
+
 
 
 
@@ -1153,6 +1190,9 @@ if (saved && Array.isArray(saved.seats) && saved.seats.length && Array.isArray(s
   
   if (!roomState.active) writeJson(SAVE_KEY, match);
 }
+
+
+noteGame();
 
 screen = boardScreen.create(app);
 keysAre(screen.keys);

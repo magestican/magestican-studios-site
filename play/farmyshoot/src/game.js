@@ -125,8 +125,12 @@ import { publishScores, fetchTopPlayers, isGlobalEnabled, countMatch } from 'arb
 
 
 
-import { recordSession, syncFromCloud } from '../../../web-engine/account/account.js';
+import { syncFromCloud } from '../../../web-engine/account/account.js';
 import { sessionLines } from '../../../web-engine/account/accountBadge.js';
+
+import { reportMatch } from '../../../web-engine/progress/report.js';
+import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
+import { shootMatch } from './shootReport.js';
 import { emptyTally, tallyKill, scoreboardRows, teamTotals, resultCopy,
          captureFanfare }     from '../../../web-engine/match/matchFlow.js';
 
@@ -1776,6 +1780,7 @@ export class Game {
     setTimeout(() => {
       if (this.matchState === 'countdown') {
         this.matchState = 'playing';
+        this._snapRoundStart();
         
         
         this._animalCall('spawn');
@@ -3220,6 +3225,9 @@ export class Game {
     
     
     this._recordCareerMatch();
+    
+    
+    if (!anagramComing) this._reportRoundToProfile(this._scoreWinner());
     const r = resultCopy({ scores: this.scores, myTeam: this.team,
                            anagramDue: !!anagramComing });
     try { SFX.announce(r.outcome === 'win' ? 'CAPTURE' : 'CONCEDED'); } catch (_) {}
@@ -3246,6 +3254,24 @@ export class Game {
   _hideRoundResult() { document.getElementById('round-result')?.remove(); }
 
   
+  
+  
+  _paintAccountLines() {
+    try {
+      const body = document.querySelector('#round-result .rr-body');
+      if (!body) return;
+      for (const old of body.querySelectorAll('.rr-account')) old.remove();
+      const hint = body.querySelector('.rr-hint');
+      for (const line of this._accountLines ?? []) {
+        const div = document.createElement('div');
+        div.className = 'rr-account';
+        div.textContent = line;
+        body.insertBefore(div, hint);
+      }
+    } catch (_) {  }
+  }
+
+  
 
   
   
@@ -3264,8 +3290,7 @@ export class Game {
       const players = [...rows.red, ...rows.blue].map((r) => ({
         name: r.name, team: r.team, kills: r.kills, deaths: r.deaths, bot: r.bot,
       }));
-      const winner = this.scores.red === this.scores.blue ? null
-                   : (this.scores.red > this.scores.blue ? 'red' : 'blue');
+      const winner = this._scoreWinner();
       const next = recordMatch(loadCareer(localStorage), {
         players, winner, endedAt: Date.now(),
       });
@@ -3284,27 +3309,90 @@ export class Game {
       
       
       if (this.isHost) { try { countMatch(); } catch (_) {} }
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      const me = [...rows.red, ...rows.blue].find((r) => r.isMe);
-      const session = recordSession({
-        gameId: 'farmyshoot',
-        metrics: { matches: 1, kills: me?.kills ?? 0, wins: (winner && me?.team === winner) ? 1 : 0 },
-        won: !!winner && me?.team === winner,
-        name: me?.name,
-      });
-      this._accountLines = sessionLines(session.events);
     } catch (_) {
       
     }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  _reportRoundToProfile(winner) {
+    if (this._profileReported) return;
+    this._profileReported = true;
+    try {
+      const rows = scoreboardRows({
+        players: this._scoreboardPlayers(), tally: this._tally, myId: this.myId,
+      });
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      const all = [...rows.red, ...rows.blue];
+      const me = all.find((r) => r.isMe);
+      this._accountLines = [];
+      const reportArg = shootMatch({
+        rows: all,
+        winner,
+        metrics: { matches: 1, kills: me?.kills ?? 0, wins: (winner && me?.team === winner) ? 1 : 0 },
+        name: me?.name,
+        cardFor: (id) => CARDS.get(id),
+        myDev: deviceId(),
+        
+        hosting: !!this.isHost,
+        
+        
+        startIds: this._roundStartIds ?? null,
+      });
+      
+      if (!reportArg) return;
+      const round = (this._reportRound = (this._reportRound ?? 0) + 1);
+      reportMatch(reportArg).then((events) => {
+        if (this._reportRound !== round) return;
+        this._accountLines = sessionLines(events);
+        this._paintAccountLines();
+      });
+    } catch (_) {
+      
+    }
+  }
+
+  
+  
+  
+  
+  
+  _scoreWinner() {
+    return this.scores.red === this.scores.blue ? null
+         : (this.scores.red > this.scores.blue ? 'red' : 'blue');
+  }
+
+  _snapRoundStart() {
+    this._roundStartIds = [...this.playerMeta.keys()];
   }
 
   
@@ -3779,6 +3867,8 @@ export class Game {
       }
 
       case MSG.MATCH_STATE:
+        
+        if (msg.state === 'playing' && this.matchState !== 'playing') this._snapRoundStart();
         this.matchState = msg.state;
         this._matchEndsAt = msg.endsAt || 0;
         this._updateLobbyBanner();
@@ -6321,6 +6411,9 @@ export class Game {
     
     
     if (this.isHost) setTimeout(() => this._startVote(), RESTART_DELAY_MS);
+    
+    
+    this._reportRoundToProfile(winner);
     const wrap = document.getElementById('anagramWrap');
     const msg  = document.getElementById('anagramMsg');
     const timer = document.getElementById('anagramTimer');
@@ -7338,6 +7431,11 @@ export class Game {
       
       
       
+      
+      
+      
+      if (this._roundResultShown) this._reportRoundToProfile(this._scoreWinner());
+      this._profileReported = false;
       this.scores = scores ? { ...scores } : { red: 0, blue: 0 };
       this.gameOver = false;
       this._roundResultShown = false;
@@ -7363,6 +7461,7 @@ export class Game {
     } finally {
       
       this.matchState = 'playing';
+      this._snapRoundStart();
       
       
       this._animalCall('spawn');

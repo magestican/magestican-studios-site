@@ -106,6 +106,7 @@ import { gatesFor, OPENING_FIRE } from '../../../web-engine/horror/gates.js';
 
 
 import { SAVE_KEY, makeSave, normaliseSave, describeSave } from '../../../web-engine/horror/saveGame.js';
+import { fehMatch, noteCoopTab, isMyTab } from './fehReport.mjs';
 import { createFatigue, tickFatigue } from '../../../web-engine/horror/chaseFatigue.js';
 import { createEntrance, stepEntrance, isProtectedPhase, emergeAt, emergeY } from '../../../web-engine/horror/entrance.js';
 import { createDirector, stepDirector, returnToDirector } from '../../../web-engine/horror/director.js';
@@ -1445,6 +1446,7 @@ export function boot(canvas, hud) {
     player.dead = true;
     hud.dead();
     feh_track('run_death', { deck: (o && o.level) || level, act: actFor(level) });
+    reportRun('died');
   }
 
   
@@ -1557,6 +1559,9 @@ export function boot(canvas, hud) {
   
   let coopStatusPaint = null;
   function paintCoopStatus(rt) {
+    
+    
+    try { if (rt && rt.session && rt.session.id) noteCoopTab(localStorage, rt.session.id); } catch {  }
     if (!coopHud) coopHud = createSplitHud();
     if (coopStatusPaint) coopStatusPaint(rt);
   }
@@ -2289,11 +2294,54 @@ export function boot(canvas, hud) {
       
       
       
-      if (typeof a.recordSession === 'function') {
-        a.recordSession({ gameId: 'farmy-evil-hills', metrics: { deck: save.deck } });
-      }
+      
       return false;
     } catch { return false; }
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let runReported = false;
+  function reportRun(ending) {
+    if (runReported) return;
+    runReported = true;
+    const pid = coopNet && coopNet.partnerId ? coopNet.partnerId() : null;
+    let store = null;
+    try { store = localStorage; } catch { store = null; }
+    if (coopNet && coopNet.session) noteCoopTab(store, coopNet.session.id);
+    const arg = fehMatch({
+      ending, deck: level,
+      coop: {
+        active: !!(coopNet && coopNet.active), watching: !!(coopNet && coopNet.watching),
+        local: !!(coopNet && coopNet.local), partner: !!pid,
+        twin: !!pid && isMyTab(store, pid),
+        hosting: !!coopNet && coopNet.mode === 'host',
+      },
+    });
+    if (!arg) return;
+    import('../../../web-engine/progress/report.js').then((m) => m.reportMatch(arg)).catch(() => {});
   }
 
   async function cloudPull() {
@@ -5688,6 +5736,7 @@ export function boot(canvas, hud) {
       
       
       feh_track('run_death', { deck: level, act: actFor(level) });
+      reportRun('died');
     }
 
     
@@ -7430,7 +7479,7 @@ export function boot(canvas, hud) {
     }
     if (bossWonIn > 0) {
       bossWonIn -= dt;
-      if (bossWonIn <= 0) { hud.won(); feh_track('run_win', { deck: level }); }
+      if (bossWonIn <= 0 && !player.dead) { hud.won(); feh_track('run_win', { deck: level }); reportRun('won'); }
     }
 
     
@@ -8600,6 +8649,12 @@ function start() {
           });
         }
       }
+      
+      
+      
+      
+      import('../../../web-engine/progress/levelChip.js')
+        .then((m) => m.mountLevelChip(document.getElementById('bootChip'))).catch(() => {});
       $('startBtn').addEventListener('click', () => { resumeDeck = 0; go(); });
       
       {

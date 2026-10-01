@@ -105,6 +105,12 @@ import { flicker } from 'moon/light/flicker.mjs';
 
 const FIRE_FLICKER_SEED = 4.7;
 import { dayLine } from 'moon/play/dayline.mjs';
+import { createSessionTracker } from 'moon/play/sessionReport.mjs';
+
+
+
+
+const sessionTracker = createSessionTracker();
 import { econStartAt, localHour, localDay } from 'moon/play/localClock.mjs';
 import { GUESTS, rollGuest, forceGuest, dismissGuest, guestKey } from 'moon/play/guests.mjs';
 import { birthdayOf, birthdayOnDay, calendarDay, isMarketDayNum, marketStallsOn, marketStallSpots } from 'moon/play/calendar.mjs';
@@ -4968,7 +4974,7 @@ async function openMoon() {
     },
     on: {
       knock: () => { hud.say('Somebody would like to visit.', seconds, 6); visit.paint(); },
-      arrived: (p) => { hud.say(`${p.name} has come to visit.`, seconds, 6); visit.paint(); },
+      arrived: (p) => { sessionTracker.visitStarted(Date.now()); hud.say(`${p.name} has come to visit.`, seconds, 6); visit.paint(); },
       left: (p) => { hud.say(`${p.name} has gone home.`, seconds, 6); visit.paint(); },
       problem: (why) => fml.notes.push(`visit: ${why}`),
     },
@@ -5006,6 +5012,7 @@ async function goVisit(code) {
     on: {
       approved: ({ host }) => {
         visit.mode = 'visiting';
+        sessionTracker.visitStarted(Date.now()); 
         
         
         
@@ -5038,6 +5045,9 @@ async function goVisit(code) {
 
 function endVisit() {
   const wasGuest = visit.amGuest();
+  
+  
+  const sent = reportSession(sessionTracker.visitEnded(Date.now()));
   if (visit.session) visit.session.leave();
   if (visit.unpublish) { visit.unpublish(); visit.unpublish = null; }
   try { if (visit.mesh) visit.mesh.destroy(); } catch {  }
@@ -5051,8 +5061,26 @@ function endVisit() {
   
   
   
-  if (wasGuest) { location.reload(); return; }
+  
+  
+  if (wasGuest) {
+    Promise.race([sent, new Promise((r) => setTimeout(r, 1500))]).then(() => location.reload());
+    return;
+  }
   visit.paint();
+}
+
+
+
+
+
+
+
+function reportSession(r) {
+  if (!r) return Promise.resolve();
+  return import('/web-engine/progress/report.js')
+    .then((m) => m.reportMatch({ game: 'farmy-moon-life', outcome: r.outcome, mode: r.mode, seconds: r.seconds }))
+    .catch(() => {});
 }
 
 
@@ -5800,6 +5828,23 @@ window.addEventListener('pagehide', () => { funnel.endSession(endedWith()); });
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') funnel.endSession(endedWith());
 });
+
+
+
+
+
+
+
+
+
+
+
+function reportOnHide(e) {
+  if (document.visibilityState === 'hidden' || e.type === 'pagehide') reportSession(sessionTracker.hidden(Date.now()));
+  else sessionTracker.shown(Date.now());
+}
+window.addEventListener('pagehide', reportOnHide);
+document.addEventListener('visibilitychange', reportOnHide);
 
 
 fml.saveNow = () => { touchSave('asked'); flushSave(); return true; };
@@ -6898,6 +6943,10 @@ function frame(now) {
   
   
   hud.today(todayLine(t));
+  
+  
+  const dayDone = sessionTracker.tick(Date.now());
+  if (dayDone) reportSession(dayDone);
   
   
   

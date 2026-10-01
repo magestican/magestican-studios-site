@@ -27,6 +27,7 @@
 
 
 import { PeerMesh } from 'arbelo/net';
+import { exchangeCards } from '../../../../web-engine/progress/peerCards.js';
 import {
   KART_MSG, buildSeats, seatOf, releaseSeat, claimSeat, reassignBots,
 } from 'arbelo/netRace';
@@ -85,6 +86,11 @@ export async function createSession({ mode, hostId, name, characterId, settings 
   });
 
   const session = new KartSession({ mesh, myId, mode, hostId, name, characterId, settings });
+  
+  
+  
+  
+  exchangeCards(mesh, 'farmykart');
   if (mode === 'host') mesh.host();
   else mesh.connectTo(hostId);
   return session;

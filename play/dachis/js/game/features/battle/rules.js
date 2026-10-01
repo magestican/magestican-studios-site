@@ -120,3 +120,13 @@ export function nextAi(ai, { stance = 'attack', ready = false, struck = false, r
 
 export const bossCapturable = (cycle = 1) => cycle >= 2;
 export const isCapturable = (d, seals) => d.hp > 0 && (hpFraction(d) < CAPTURE_HP || seals > 0);
+
+
+
+
+export function battleReport(result, battleSeconds) {
+  const outcome = result === 'win' || result === 'capture' ? 'win' : result === 'lose' || result === 'run' ? 'loss' : null;
+  if (!outcome) return null;
+  const seconds = Number.isFinite(battleSeconds) && battleSeconds > 0 ? Math.round(battleSeconds) : 0;
+  return { outcome, mode: 'solo', seconds };
+}

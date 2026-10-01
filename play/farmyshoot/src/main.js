@@ -34,6 +34,10 @@ import { mountSoundToggle, syncSoundToggles, onSoundChange } from '../../shared/
 import { createLobbyMusic } from '../../../web-engine/audio/lobbyMusic.js';
 
 
+import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
+
+
 
 
 
@@ -543,6 +547,14 @@ function mutedNow() {
   }
 }
 
+
+
+
+
+
+
+mountLevelChip(document.querySelector('#menu .lobby-head'));
+
 const soundSetting = document.getElementById('sound-setting');
 if (soundSetting) {
   mountSoundToggle({
@@ -778,6 +790,9 @@ async function startGame(hostIdToJoin) {
     : undefined;
 
   const mesh = new PeerMesh({ hostIdHint });
+  
+  
+  exchangeCards(mesh, 'team-bonding');
 
   
   const myId = await new Promise((resolve, reject) => {

@@ -450,6 +450,11 @@ export function createRace(options) {
     })
     : null;
   const fieldCount = net ? seats.length : fieldSize;
+  
+  
+  
+  
+  const startSeats = net ? seats.map((s) => ({ id: s.id, owner: s.owner ?? null, bot: !!s.bot })) : null;
 
   const grid = startGrid(path, fieldCount);
   
@@ -1868,6 +1873,17 @@ export function createRace(options) {
         trackId: track.id,
         characterId: you.character.id,
         difficulty,
+        
+        
+        
+        
+        
+        
+        seats: net ? (net.seats ?? []).map((s) => ({ id: s.id, owner: s.owner ?? null, bot: !!s.bot })) : null,
+        
+        
+        startSeats,
+        joinedMidRace: !!resume,
         table: table.map((t) => {
           const r = racers.find((x) => x.id === t.id);
           return {

@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "5d7ed95-20261001T085651Z",
+ "buildId": "a7a5df4-20261001T092609Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -37,7 +37,7 @@
    "ageNote": "Frequent cartoon shooting between farm animals. No gore and no realistic weapons, but it is a first-person shooter and is rated as one.",
    "order": 0,
    "addedAt": "2026-08-30",
-   "bytes": 11963441
+   "bytes": 11967488
   },
   {
    "id": "farmy-uprising",
@@ -66,7 +66,7 @@
    "ageNote": "Infrequent or mild cartoon violence - animals versus farms, no blood, no injury detail.",
    "order": 1,
    "addedAt": "2026-09-06",
-   "bytes": 10768163
+   "bytes": 10771204
   },
   {
    "id": "farmy-evil-hills",
@@ -95,7 +95,7 @@
    "ageNote": "Frequent and intense horror themes: body horror, dread, jump scares and sustained tension. This is the game the pack is rated for.",
    "order": 2,
    "addedAt": "2026-08-31",
-   "bytes": 7790318
+   "bytes": 7792868
   },
   {
    "id": "farmykart",
@@ -124,7 +124,7 @@
    "ageNote": null,
    "order": 3,
    "addedAt": "2026-08-28",
-   "bytes": 6499490
+   "bytes": 6503125
   },
   {
    "id": "farmy-tiles",
@@ -153,7 +153,7 @@
    "ageNote": null,
    "order": 4,
    "addedAt": "2026-09-21",
-   "bytes": 93191
+   "bytes": 96330
   },
   {
    "id": "farmy-crosswords",
@@ -182,7 +182,7 @@
    "ageNote": null,
    "order": 5,
    "addedAt": "2026-09-04",
-   "bytes": 208508
+   "bytes": 210896
   },
   {
    "id": "farmy-chess",
@@ -298,7 +298,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-09-14",
-   "bytes": 777834
+   "bytes": 778878
   },
   {
    "id": "silk-and-seam",
@@ -327,7 +327,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-09-25",
-   "bytes": 1487551
+   "bytes": 1488023
   },
   {
    "id": "dachis",
@@ -356,7 +356,7 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-09-30",
-   "bytes": 3165923
+   "bytes": 3166568
   },
   {
    "id": "farmy-five",
@@ -385,7 +385,7 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-09-21",
-   "bytes": 208508
+   "bytes": 210896
   },
   {
    "id": "farmy-hive",
@@ -414,7 +414,7 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-09-21",
-   "bytes": 208508
+   "bytes": 210896
   },
   {
    "id": "farmy-herds",
@@ -443,7 +443,7 @@
    "ageNote": null,
    "order": 17,
    "addedAt": "2026-09-21",
-   "bytes": 208508
+   "bytes": 210896
   },
   {
    "id": "farmy-furrows",
@@ -472,7 +472,7 @@
    "ageNote": null,
    "order": 18,
    "addedAt": "2026-09-21",
-   "bytes": 208508
+   "bytes": 210896
   }
  ]
 }

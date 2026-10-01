@@ -3,13 +3,23 @@
 import { U } from '../../../engine/core/util.js';
 import { G, S, saveGame, healParty, addDachi } from '../../state.js';
 import { speciesById, statsOf } from '../../data/species.js';
-import { giveXp, xpReward, bondAfter, BOND_NEW_FRIEND } from './rules.js';
+import { giveXp, xpReward, bondAfter, BOND_NEW_FRIEND, battleReport } from './rules.js';
 import { removeWild } from '../world/wilds.js';
 import { checkEvolutions } from '../party/evolution.js';
 import { VOLC, SHRINE, RESPAWN } from '../world/mapgen.js';
 import { lairOf, fallLine } from '../world/lairs.js';
 
 export function onBattleFinished(b) {
+  
+  
+  
+  
+  const report = battleReport(b.result, b.t);
+  if (report) {
+    import('/web-engine/progress/report.js')
+      .then((m) => m.reportMatch({ game: 'dachis', outcome: report.outcome, mode: report.mode, seconds: report.seconds }))
+      .catch(() => {});
+  }
   if (b.opts.onEnd) { b.opts.onEnd(b.result, b); return; }
   const res = b.result, enemy = b.enemy.d, wild = b.wild, msgs = [];
   if (res === 'win' || res === 'capture') {
