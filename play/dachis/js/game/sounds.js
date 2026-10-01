@@ -1,6 +1,9 @@
 
 export const SOUNDS = {
   blip: ({ tone }) => tone(660, 0.04, 'square', 0.02),
+  
+  voice: ({ tone }) => tone(330 + Math.random() * 150, 0.035, 'triangle', 0.016),
+  thought: ({ tone }) => tone(880 + Math.random() * 120, 0.03, 'sine', 0.008),
   step: ({ noise }) => noise(0.04, 0.015, 900),
   hit: ({ tone, noise }) => { tone(180, 0.12, 'sawtooth', 0.05, -120); noise(0.08, 0.04, 700); },
   crit: ({ tone, noise }) => { tone(120, 0.25, 'sawtooth', 0.07, -80); tone(900, 0.1, 'square', 0.03); noise(0.15, 0.06, 500); },

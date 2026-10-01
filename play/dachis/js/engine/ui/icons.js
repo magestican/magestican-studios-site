@@ -24,6 +24,9 @@ const P = {
   sparkle: '<path d="M8 0.5 L9.6 6.4 L15.5 8 L9.6 9.6 L8 15.5 L6.4 9.6 L0.5 8 L6.4 6.4 Z"/>',
   flower: '<circle cx="8" cy="3.6" r="2.6"/><circle cx="12.2" cy="6.8" r="2.6"/><circle cx="10.6" cy="11.8" r="2.6"/><circle cx="5.4" cy="11.8" r="2.6"/><circle cx="3.8" cy="6.8" r="2.6"/><circle cx="8" cy="8" r="2" fill="#fff6c8"/>',
   egg: '<path d="M8 1 C11.2 1 13.5 6 13.5 9.6 C13.5 12.8 11.1 15 8 15 C4.9 15 2.5 12.8 2.5 9.6 C2.5 6 4.8 1 8 1 Z"/>',
+  
+  dice: '<path d="M3.5 1.5 L12.5 1.5 C13.6 1.5 14.5 2.4 14.5 3.5 L14.5 12.5 C14.5 13.6 13.6 14.5 12.5 14.5 L3.5 14.5 C2.4 14.5 1.5 13.6 1.5 12.5 L1.5 3.5 C1.5 2.4 2.4 1.5 3.5 1.5 Z"/><circle cx="5" cy="5" r="1.3" fill="#111"/><circle cx="11" cy="5" r="1.3" fill="#111"/><circle cx="8" cy="8" r="1.3" fill="#111"/><circle cx="5" cy="11" r="1.3" fill="#111"/><circle cx="11" cy="11" r="1.3" fill="#111"/>',
+  play: '<path d="M3.5 1.5 L14 8 L3.5 14.5 Z"/>',
 };
 
 export const ICON_NAMES = Object.keys(P);

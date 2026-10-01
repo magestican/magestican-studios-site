@@ -35,6 +35,27 @@ export function preloadFor(cue) {
 
 
 
+
+export const AMBIENCE = {
+  kazan: { wind: 0.5, rumble: 0.7, birds: 0.25 },
+  slope: { wind: 0.8, rumble: 0.3, birds: 0.35 },
+  jungle: { bugs: 0.8, birds: 0.7, wind: 0.2 },
+  road: { wind: 0.5, birds: 0.6, bugs: 0.3 },
+  coast: { surf: 0.9, wind: 0.5, birds: 0.3 },
+  shrine: { chimes: 0.7, wind: 0.4, birds: 0.3 },
+  coral: { surf: 0.6, wind: 0.2, bugs: 0.2 },
+  verdant: { bugs: 0.7, birds: 0.8, wind: 0.3 },
+};
+export const AMBIENCE_LAYERS = ['wind', 'surf', 'bugs', 'birds', 'rumble', 'chimes'];
+export function ambienceFor(mode, sec) {
+  const mix = mode === 'world' || mode === 'menu' ? AMBIENCE[sec] : null;
+  const out = {};
+  for (const l of AMBIENCE_LAYERS) out[l] = (mix && mix[l]) || 0;
+  return out;
+}
+
+
+
 export function fileFor(cue, canPlay = () => '') {
   if (!CUES.includes(cue)) return '';
   if (canPlay('audio/webm; codecs="opus"')) return 'assets/music/' + cue + '.webm';

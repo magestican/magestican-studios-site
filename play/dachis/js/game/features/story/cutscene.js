@@ -9,17 +9,23 @@ const $ = id => document.getElementById(id);
 
 export const Cutscene = {
   scenes: null, scene: 0, li: 0, done: null, prevMode: 'world',
-  play(scenes, onDone) {
-    this.scenes = scenes; this.scene = 0; this.done = onDone;
+  
+  play(scenes, onDone, opts = {}) {
+    this.scenes = scenes; this.scene = 0; this.done = onDone; this.onLine = opts.onLine || null;
     this.prevMode = G.mode; G.mode = 'cutscene';
     for (const sc of scenes) if (sc.prewarm) sc.prewarm(); 
     $('skipBtn').classList.remove('hidden');
-    this.playScene();
+    const st = opts.start;
+    if (st && st.scene > 0 && st.scene < scenes.length) this.scene = st.scene;
+    this.playScene(st && st.scene === this.scene ? st.li : 0);
   },
-  playScene() {
+  playScene(from = 0) {
     const sc = this.scenes[this.scene];
     CS.t = 0; this.li = 0; CS.flashed = false;
-    const lines = sc.lines().map((l, i) => Object.assign({}, l, { onShow: () => { this.li = i; if (l.fx) l.fx(CS); } }));
+    const all = sc.lines(), n = this.scene;
+    from = Math.max(0, Math.min(all.length - 1, from));
+    for (let i = 0; i < from; i++) if (all[i].fx) all[i].fx(CS); 
+    const lines = all.map((l, i) => Object.assign({}, l, { onShow: () => { this.li = i; if (l.fx) l.fx(CS); if (this.onLine) this.onLine(n, i); } })).slice(from);
     S.dialog.say(lines, () => {
       this.scene++;
       if (this.scene >= this.scenes.length) this.finish(); else this.playScene();

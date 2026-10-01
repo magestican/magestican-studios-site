@@ -18,7 +18,10 @@ export const cam = {
 };
 
 
-export function resetCamera() { cam.sec = null; cam.pending = null; cam.fade = 0; cam.snap = true; }
+export function resetCamera() { cam.sec = null; cam.pending = null; cam.fade = 0; cam.snap = true; cam.zoomIn = null; }
+
+
+export function zoomInFromIntro(k) { cam.zoomIn = { t: 0, k }; }
 
 function enter(id) {
   cam.sec = id; cam.snap = true;
@@ -48,8 +51,14 @@ export function updateCamera(dt, focus) {
     
     wu = fu; ws = screenS(fv, W.groundAt(focus.x, focus.y)) - 0.4;
   }
+  let follow = false;
+  if (cam.zoomIn && !focus.vh) {
+    cam.zoomIn.t += dt;
+    const k = cam.zoomIn.k(cam.zoomIn.t);
+    if (k >= 1) cam.zoomIn = null; else { view = { vh: view.vh * k, vw: view.vw * k }; follow = true; }
+  }
   
-  if (cam.snap || !cam.vh) cam.vh = view.vh;
+  if (cam.snap || !cam.vh || follow) cam.vh = view.vh;
   else cam.vh += (view.vh - cam.vh) * Math.min(1, dt * (focus.vh ? 5 : 3));
   if (Math.abs(cam.vh - stage.viewHeight) > 1e-4) stage.setViewHeight(cam.vh);
   const eased = { vh: cam.vh, vw: cam.vh * aspect };

@@ -10,6 +10,7 @@ import { createSfx } from '../engine/audio/sfx.js';
 import { G, S, hasSave, loadGame, saveGame, healParty } from './state.js';
 import { SOUNDS } from './sounds.js';
 import { music } from './music.js';
+import { ambience } from './ambience.js';
 import { paintPortrait, paintChoiceIcon } from './art/portraits.js';
 import { setPortraitStage, prewarmDex } from './art/portraitRender.js';
 import { celLook, setLineRole } from './art/look/celLook.js';
@@ -19,7 +20,7 @@ import { material as castMaterial } from './art/dachiActor.js';
 import { seeActorMaterial } from '../engine/iso/seeThrough.js';
 import { generateMap, VOLC } from './features/world/mapgen.js';
 import { buildWorld } from './features/world/worldView.js';
-import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough } from './features/world/sectionCamera.js';
+import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
 import { loadBakedForms } from './art/scenery/kit.js';
 import { createPlayerView, updatePlayer, drawPlayer } from './features/world/player.js';
 import { spawnNpcs, updateNpcs, drawNpcs, nearestNpc, separateCrowd } from './features/world/npcs.js';
@@ -35,6 +36,9 @@ import { updateBattleHud } from './features/battle/battleHud.js';
 import { updateRitual } from './features/capture/ritualView.js';
 import { Cutscene } from './features/story/cutscene.js';
 import { SCENES } from './features/story/scenes.js';
+import { lineKind, lineText, introZoomK } from './features/onboarding/rules.js';
+import { tapHint, installTapAnywhere, setupNames, startWithWipe, intro, showResume, youTag } from './features/onboarding/onboarding.js';
+import { attract } from './features/onboarding/attract.js';
 import { afterIntro, updateStory, storyLocksMovement, talkTo } from './features/story/beats.js';
 import { updateHud, refreshHud, openMap, closeMap, mapOpen } from './features/hud/hud.js';
 import { openMenu, closeMenu } from './features/menu/menu.js';
@@ -66,6 +70,7 @@ if (lookName(location.search) === 'cel') {
 }
 S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => worldView.showSection(id);
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: SOUNDS });
+ambience.init(() => S.sfx.muted);
 S.input = createInput({
   bindings: {
     up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
@@ -88,7 +93,10 @@ S.input = createInput({
 });
 hydrateIcons(document); 
 S.hints = createHints(S.input);
-S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onBlip: () => S.sfx.play('blip'), format: s => s.replace(/\{name\}/g, G.name) });
+S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onBlip: () => S.sfx.play('blip'), format: s => s.replace(/\{name\}/g, G.name),
+  
+  kindOf: lineKind, textOf: lineText, onAdvance: () => tapHint.learned(),
+  onType: (l) => { const k = lineKind(l); if (k !== 'narrate') S.sfx.play(k === 'think' ? 'thought' : 'voice'); } });
 S.flash = 0;
 setFinishHandler(onBattleFinished);
 createPlayerView();
@@ -103,11 +111,11 @@ window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: mu
 
 
 $('touchZone').addEventListener('pointerdown', e => {
-  if (S.dialog.active) { if (G.mode !== 'title') S.dialog.advance(); return; }
+  if (S.dialog.active) return; 
   const h = S.hints.hit(e.clientX, e.clientY);
   if (h) { h.onTap(); e.preventDefault(); }
 });
-$('dialog').addEventListener('click', () => S.dialog.advance());
+installTapAnywhere();
 $('skipBtn').onclick = () => Cutscene.skip();
 $('skullBtn').onclick = () => (G.mode === 'menu' ? closeMenu() : openMenu());
 $('minimap').onclick = () => openMap();          
@@ -118,18 +126,30 @@ $('actionBtn').addEventListener('pointerdown', e => { e.preventDefault(); S.inpu
 document.querySelectorAll('.gbtn').forEach(b => {
   b.onclick = () => { document.querySelectorAll('.gbtn').forEach(x => x.classList.remove('on')); b.classList.add('on'); G.gender = b.dataset.g; };
 });
+setupNames(); 
 if (hasSave()) $('contBtn').classList.remove('hidden');
 function leaveTitle() {
   $('title').classList.add('hidden');
   if (music.lofi.wasOn()) music.lofi.setOn(true);
 }
+
+function playIntro(start) {
+  Cutscene.play(SCENES, () => {
+    intro.clear(); enterWorld(); afterIntro();
+    zoomInFromIntro(introZoomK); youTag.start(); 
+  }, { start, onLine: (sc, li) => intro.save(sc, li) });
+}
 $('newBtn').onclick = () => {
   if (hasSave() && !confirm('Start a new game? Your current save will be replaced.')) return;
-  G.name = ($('nameInput').value.trim() || (G.gender === 'girl' ? 'Dana' : 'Danny')).slice(0, 14);
-  leaveTitle();
-  Cutscene.play(SCENES, () => { enterWorld(); afterIntro(); });
+  G.name = ($('nameInput').value.trim() || $('nameInput').placeholder || 'Ace').slice(0, 14);
+  startWithWipe($('newBtn'), () => { intro.clear(); leaveTitle(); playIntro(null); });
 };
-$('contBtn').onclick = () => { if (loadGame()) { leaveTitle(); enterWorld(); spawnNpcs(); } };
+showResume(SCENES, (p) => {
+  G.name = p.name; G.gender = p.gender;
+  startWithWipe($('resumeBtn'), () => { leaveTitle(); playIntro({ scene: p.scene, li: p.li }); });
+});
+attract.init(paintPortrait); 
+$('contBtn').onclick = () => { if (loadGame()) startWithWipe($('contBtn'), () => { intro.clear(); leaveTitle(); enterWorld(); spawnNpcs(); }); };
 function enterWorld() { resetCamera(); G.mode = 'world';$('hud').classList.remove('hidden'); refreshHud(); }
 
 
@@ -190,10 +210,11 @@ function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   G.t += dt;
   const t = G.t, I = S.input;
-  I.update(); S.hints.begin(); S.dialog.update(dt);
+  I.update(); S.hints.begin(); S.dialog.update(dt); tapHint.update(); youTag.update(dt);
   S.flash = Math.max(0, S.flash - dt * 1.4);
   octx.clearRect(0, 0, innerWidth, innerHeight);
   music.update(G.mode, B, S.cam && S.cam.sec); 
+  ambience.update(B ? 'battle' : G.mode, S.cam && S.cam.sec); 
 
   if (G.mode === 'cutscene') {
     Cutscene.update(dt);

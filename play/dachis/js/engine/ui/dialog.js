@@ -3,7 +3,9 @@
 
 const $ = id => document.getElementById(id);
 
-export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}, format = s => s }) {
+
+
+export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}, format = s => s, kindOf = () => 'say', textOf = l => l.text, onAdvance = () => {}, onType = () => {} }) {
   const D = {
     queue: [], cur: null, shown: 0, onDone: null, active: false, choosing: false,
     say(lines, onDone) {
@@ -17,6 +19,7 @@ export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}
     hide() { D.active = false; D.cur = null; $('dialog').classList.add('hidden'); $('choices').innerHTML = ''; D.choosing = false; },
     advance() {
       if (!D.active || D.choosing) return;
+      onAdvance();
       
       
       if (D.cur && D.shown < D.cur.text.length) { D.shown = D.cur.text.length; $('dlgText').textContent = D.cur.text; return; }
@@ -25,8 +28,9 @@ export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}
     next() {
       if (!D.queue.length) { const f = D.onDone; D.onDone = null; D.hide(); if (f) f(); return; }
       const l = D.queue.shift();
-      D.cur = Object.assign({}, l, { text: format(l.text) });
+      D.cur = Object.assign({}, l, { text: format(textOf(l)), kind: kindOf(l) });
       D.shown = 0;
+      $('dialog').dataset.kind = D.cur.kind;
       $('dlgName').textContent = D.cur.who || '';
       $('dlgName').style.display = D.cur.who ? '' : 'none';
       const pc = $('dlgPortrait');
@@ -55,8 +59,11 @@ export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}
     update(dt) {
       if (!D.active || !D.cur) return;
       $('dlgNext').classList.toggle('hidden', D.choosing || D.shown < D.cur.text.length);
+      $('dialog').classList.toggle('typing', D.shown < D.cur.text.length);
       if (D.shown >= D.cur.text.length) return;
+      const was = Math.floor(D.shown / 4);
       D.shown = Math.min(D.cur.text.length, D.shown + dt * 55);
+      if (Math.floor(D.shown / 4) !== was) onType(D.cur); 
       $('dlgText').textContent = D.cur.text.slice(0, Math.floor(D.shown));
     },
   };

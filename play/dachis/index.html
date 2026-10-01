@@ -12,7 +12,7 @@
 
 
 
-  <meta name="build" content="d97222a-20261001T121022Z">
+  <meta name="build" content="f0e7cb5-20261001T122947Z">
   <script>
     (function () {
       var FILES = ['js/engine/audio/sfx.js', 'js/engine/core/save.js', 'js/engine/core/util.js', 'js/engine/input/input.js',
@@ -28,7 +28,7 @@
         'js/game/features/hud/hud.js', 'js/game/features/hud/transit.js','js/game/features/menu/menu.js', 'js/game/features/party/evolution.js', 'js/game/features/pickups/pickups.js', 'js/game/features/pvp/pvpRules.js',
         'js/game/features/story/beats.js', 'js/game/features/story/cutscene.js', 'js/game/features/story/scenes.js',
         'js/game/features/world/crowd.js', 'js/game/features/world/bossLair.js', 'js/game/features/world/lairs.js', 'js/game/features/world/mapgen.js', 'js/game/features/world/npcs.js', 'js/game/features/world/player.js', 'js/game/features/world/sectionCamera.js', 'js/game/features/world/sections.js', 'js/game/features/world/wildLevel.js', 'js/game/features/world/wilds.js','js/game/features/world/worldView.js',
-        'js/game/main.js', 'js/game/music.js', 'js/game/musicCues.js','js/game/sounds.js', 'js/game/state.js',
+        'js/game/main.js', 'js/game/music.js', 'js/game/musicCues.js', 'js/game/ambience.js', 'js/game/features/onboarding/rules.js', 'js/game/features/onboarding/onboarding.js', 'js/game/features/onboarding/attract.js','js/game/sounds.js', 'js/game/state.js',
         'js/vendor/arbelo/audio/chiptune.js', 'js/vendor/arbelo/audio/iosUnlock.js', 'js/vendor/arbelo/audio/lofi.js', 'js/vendor/arbelo/audio/scenarioMusic.js', 'js/vendor/arbelo/audio/songSpec.js',
         'js/vendor/arbelo/input/inputBus.js', 'js/vendor/arbelo/paint/texturePaint.js', 'js/vendor/arbelo/rng/seededRng.js', 'js/vendor/arbelo/ui/muteButton.js', 'js/vendor/arbelo/words/lofi.js',
         'js/vendor/fml/moon/light/dayCycle.js', 'js/vendor/fml/moon/mesh/bevel.js', 'js/vendor/fml/moon/mesh/loft.js', 'js/vendor/fml/moon/mesh/meshData.js', 'js/vendor/fml/moon/mesh/meshPayload.js', 'js/vendor/fml/moon/mesh/sdf.js',
@@ -116,6 +116,9 @@
     <div id="dlgNext" class="hidden"><i data-icon="next"></i></div>
   </div>
   <button id="skipBtn" class="hidden tappable" data-key="Esc">Skip <i data-icon="skip"></i></button>
+  <div id="tapHint" class="hidden" aria-hidden="true"><i data-icon="next"></i><b>TAP ANYWHERE</b></div>
+  <div id="startWipe" class="hidden" aria-hidden="true"><b>LET'S GO!</b></div>
+  <div id="youTag" class="hidden" aria-hidden="true"><b>THAT'S YOU!</b></div>
 
   
   <div id="menu" class="hidden">
@@ -146,15 +149,28 @@
       <div class="logo">DACHIS</div>
       <div class="sub">tomodachi &middot; friends</div>
       <p class="blurb">New York City, 1992. One wrong turn down an alley, a red hand, a black spiral &mdash; and you are falling toward an island full of monsters that were always meant to be friends.</p>
-      <label>Your name <input id="nameInput" maxlength="14" placeholder="Danny" autocomplete="off"></label>
+      <label for="nameInput">Your name</label>
+      <div class="nameRow"><input id="nameInput" maxlength="14" autocomplete="off"><button id="diceBtn" class="tappable" type="button" aria-label="Random name" title="Random name"><i data-icon="dice"></i></button></div>
       <div class="genders"><button class="gbtn on tappable" data-g="boy">Boy</button><button class="gbtn tappable" data-g="girl">Girl</button></div>
+      <button id="resumeBtn" class="resume hidden tappable" type="button"><canvas id="resumeFrame" width="320" height="180"></canvas><span class="resumeLabel"><i data-icon="play"></i> Resume intro</span></button>
       <button id="newBtn" class="big tappable">New Game</button>
       <button id="contBtn" class="big hidden tappable">Continue</button>
       <p class="small">Keyboard, gamepad or touch &middot; a Magestican Studios game</p>
     </div>
   </div>
+  
+  <div id="attract" class="hidden">
+    <div class="panel p-studio" data-i="0"><small>MAGESTICAN STUDIOS</small><b>PRESENTS</b></div>
+    <div class="panel p-logo" data-i="1"><div class="burst"></div><b>DACHIS</b><small>tomodachi &middot; friends</small></div>
+    <div class="panel p-premise" data-i="2"><div class="cap">NEW YORK CITY, 1992.</div><div class="cap c2">ONE WRONG TURN...</div><div class="cap c3">...AND YOU FALL INTO A WORLD OF MONSTERS.</div></div>
+    <div class="panel p-friends" data-i="3"><b>MAKE FRIENDS</b><div class="stickers"><canvas width="120" height="120" data-p="aerowing"></canvas><canvas width="120" height="120" data-p="kumabo"></canvas><canvas width="120" height="120" data-p="elder"></canvas></div><small>BEFRIEND 120+ DACHIS</small></div>
+    <div class="panel p-fight" data-i="4"><div class="burst"></div><b>KRAK!</b><small>REAL-TIME COMIC BATTLES</small></div>
+    <div class="panel p-island" data-i="5"><b>EXPLORE THE ISLAND</b><small>VOLCANO &middot; JUNGLE &middot; CORAL DEEP &middot; THE SHRINE</small></div>
+    <div class="panel p-start" data-i="6"><b>PRESS START</b></div>
+    <button id="attractSkip" class="tappable" type="button">Skip <i data-icon="skip"></i></button>
+  </div>
   <div id="toasts"></div>
 
-  <script type="module" src="js/game/main.js?v=d97222a-20261001T121022Z"></script>
+  <script type="module" src="js/game/main.js?v=f0e7cb5-20261001T122947Z"></script>
 </body>
 </html>

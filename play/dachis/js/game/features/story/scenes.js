@@ -168,7 +168,7 @@ export const SCENES = [
     lines: () => [
       Object.assign({}, NARR, { text: 'New York City. Summer, 1992.' }),
       Object.assign(KID(), { text: 'Mom? ...Dad? You were right behind me at the hot dog cart...' }),
-      Object.assign(KID(), { text: 'Maybe this alley cuts back to the avenue. It has to.' }),
+      Object.assign(KID(), { text: '(Maybe this alley cuts back to the avenue. It has to.)' }), 
     ],
     draw(ctx, w, h, t) {
       drawAlley(ctx, w, h, t);
@@ -259,7 +259,7 @@ export const SCENES = [
       { who: 'Kumabo', portrait: 'kumabo', text: '...Ku...ma... bo...' },
       Object.assign({}, ELDER, { text: 'There is no time for that! We are Dachis — friends of humans, or so all Dachis are meant to be. But something is turning our world against itself.' }),
       Object.assign({}, ELDER, { text: 'You must run to the next village. The Priest Dachis are waiting for you, for your initiation ceremony.' }),
-      Object.assign(KID(), { text: "Initiation...? I don't understand any of this..." }),
+      Object.assign(KID(), { text: "(Initiation...? I don't understand any of this...)" }),
       Object.assign({}, ELDER, { text: 'Do this, and there may yet be hope for little Kumabo. For all of us.' }),
       Object.assign(KID(), { text: '*sniff* ...All right. I’ll do it.' }),
     ],
