@@ -276,7 +276,7 @@ export function room(app, {
       : [`Code so far: ${typed || 'nothing typed'}.`]),
     buttons: () => (state.active
       ? [
-        { id: 'copy', label: state.copied ? 'Link copied' : 'Copy the link', run: onCopy },
+        { id: 'copy', label: state.copied ? 'Link copied' : 'Invite', run: onCopy },
         { id: 'leave', label: 'Leave the room', run: onLeave },
         { id: 'close', label: 'Back to the board', run: onClose },
       ]

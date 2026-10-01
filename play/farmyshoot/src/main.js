@@ -12,6 +12,7 @@ import { Game } from './game.js';
 
 
 import { CHARACTERS as ROSTER } from '../../../web-engine/stats/careerStats.js';
+import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { MAPS, MAP_IDS, DEFAULT_MAP } from 'arbelo/mapspec';
 import { MODES, MODE_IDS, DEFAULT_MODE } from 'arbelo/modes';
 import { PeerMesh } from 'arbelo/net';
@@ -36,6 +37,7 @@ import { createLobbyMusic } from '../../../web-engine/audio/lobbyMusic.js';
 
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
+import { publishShootRoom } from './shootRoom.js';
 
 
 
@@ -553,7 +555,7 @@ function mutedNow() {
 
 
 
-mountLevelChip(document.querySelector('#menu .lobby-head'));
+mountLevelChip(document.querySelector('#menu .lobby-head'), { share: 'Farmyshoot' });
 
 const soundSetting = document.getElementById('sound-setting');
 if (soundSetting) {
@@ -761,7 +763,11 @@ $('hostBtn').addEventListener('click', async () => {
 
 $('joinBtn').addEventListener('click', async () => {
   if (!validate()) return;
-  const hostId = $('joinIdInput').value.trim();
+  
+  
+  
+  
+  const hostId = $('joinIdInput').value.trim().toLowerCase();
   if (!hostId) { alert('Enter the room code your host sent you.'); return; }
   state.mode = 'join';
   await startGame(hostId);
@@ -818,9 +824,12 @@ async function startGame(hostIdToJoin) {
     link.searchParams.set('join', myId);
     $('linkOutWrap').style.display = 'block';
     $('linkOut').textContent = link.toString();
+    
+    
+    
+    
     $('linkOut').addEventListener('click', () => {
-      navigator.clipboard.writeText(link.toString());
-      $('linkOut').textContent = link.toString() + '  (copied!)';
+      shareLink({ link: link.toString(), gameName: 'Farmyshoot', code: String(myId), button: $('linkOut') });
     });
 
     
@@ -843,17 +852,16 @@ async function startGame(hostIdToJoin) {
       shareWrap.style.display = 'block';
       shareUrl.value = link.toString();
       shareUrl.addEventListener('focus', () => shareUrl.select());
-      shareCopy?.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(link.toString());
-          shareCopy.textContent = 'Copied!';
-        } catch (_) {
-          
-          
-          shareUrl.select();
-          shareCopy.textContent = 'Press Ctrl+C';
-        }
-        setTimeout(() => { shareCopy.textContent = 'Copy'; }, 1800);
+      
+      
+      
+      
+      
+      shareCopy?.addEventListener('click', () => {
+        shareLink({
+          link: link.toString(), gameName: 'Farmyshoot', code: String(myId),
+          button: shareCopy, field: shareUrl,
+        });
       });
     }
   } else {
@@ -911,6 +919,9 @@ async function startGame(hostIdToJoin) {
   });
 
   window.__tbGame = game;   
+
+  
+  if (state.mode === 'host') publishShootRoom(game, mesh, myId);
 
   
   

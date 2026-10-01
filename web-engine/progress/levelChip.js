@@ -23,6 +23,7 @@ import { loadProfile, PROFILE_KEY } from '../account/profile.js';
 import { snapshotOf, SNAPSHOT_KEY } from './snapshot.js';
 import { chipModel } from './youModel.js';
 import { installProgressToast, PROGRESS_EVENT } from './toast.js';
+import { mountShareGame } from '../share/shareGame.js';
 
 const STYLE_ID = 'mg-level-chip-style';
 
@@ -104,6 +105,9 @@ export function mountLevelChip(host, opts = {}) {
     const doc = host?.ownerDocument ?? globalThis.document;
     if (!host || !doc) return null;
     if (opts?.toast !== false) installProgressToast(doc);
+    
+    
+    if (opts?.share) mountShareGame(host, String(opts.share));
     let chip = null;
     const paint = () => {
       const model = chipModel(liveSnapshot());

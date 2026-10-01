@@ -25,6 +25,7 @@
 
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
+import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
 import {
   MSG, mergeMoves, puzzleKey, roomCode, normaliseCode, sayingText, gameOfCode,
 } from '../../../web-engine/words/coop.js';
@@ -81,6 +82,10 @@ export function createNet({
   const announce = (s) => { try { onStatus(s); } catch {  } };
 
   function wire() {
+    
+    
+    
+    exchangeCards(mesh, 'farmy-crosswords');
     mesh.addEventListener('open', (e) => {
       myId = e.detail.id;
       onPeers(peers(), myId);

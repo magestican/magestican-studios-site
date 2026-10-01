@@ -46,6 +46,7 @@
 
 
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
+import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { routeKey } from '../../../web-engine/words/keyRouter.js';
@@ -823,13 +824,21 @@ function openRoom() {
     },
     onCopy: () => {
       const link = shareLinkFor(globalThis.location.href, net?.id ?? '', {});
-      try {
-        globalThis.navigator?.clipboard?.writeText(link);
-        roomState.copied = true;
-        announce('Link copied. Send it to whoever you want to play with.');
-      } catch {
-        announce(`Copy this: ${link}`);
-      }
+      
+      
+      
+      
+      shareLink({ link, gameName: 'Farmy Checkers', code: net?.id ? String(net.id).toUpperCase() : null })
+        .then((res) => {
+          if (res?.via === 'clipboard') {
+            roomState.copied = true;
+            announce('Link copied. Send it to whoever you want to play with.');
+          } else if (res?.via === 'manual') {
+            announce(`Copy this: ${res.url}`);
+          }
+          overlay?.refresh();
+          invalidate();
+        }, () => announce(`Copy this: ${link}`));
       overlay?.refresh();
       invalidate();
     },
@@ -875,6 +884,9 @@ const presence = roomPresence({
   game: 'checkers',
   net: () => net,
   players: () => new Set([roomState.me, ...roomState.peers].filter(Boolean)).size || 1,
+  
+  
+  ids: () => [roomState.me, ...roomState.peers].filter(Boolean),
 });
 
 function startNet() {
@@ -1007,7 +1019,7 @@ watchViewport(resize, canvas);
 
 wireMusicButton({ music, announce });
 
-mountLevelChip(document.querySelector('.studio-bar'));
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Farmy Checkers' });
 
 
 

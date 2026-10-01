@@ -30,6 +30,7 @@ import { LOBBY_PHASE, FIELD_SIZES, LAP_OPTIONS, botCount, canStart } from 'arbel
 import { hex } from '../palette.js';
 import { createShowcaseView, freshCanvas } from '../render/showcase.js';
 import { pageContexts } from '../../../../web-engine/render/contextBudget.js';
+import { shareLink } from '../../../../web-engine/share/shareInvite.js';
 import { driverPanelHtml } from './driverPanel.js';
 
 const $ = (id) => document.getElementById(id);
@@ -189,19 +190,15 @@ export function createLobbyUi({ tracks, difficulties, onClaim, onReady, onSettin
   $('lobby-ready').addEventListener('click', (e) => onReady(e.currentTarget.dataset.next === '1'));
   $('lobby-leave').addEventListener('click', () => onLeave());
 
-  $('lobby-copy').addEventListener('click', async () => {
+  
+  
+  
+  
+  $('lobby-copy').addEventListener('click', () => {
     const link = $('lobby-link');
-    try {
-      await navigator.clipboard.writeText(link.value);
-      $('lobby-copy').textContent = 'Copied';
-    } catch {
-      
-      
-      link.focus();
-      link.select();
-      $('lobby-copy').textContent = 'Ctrl+C';
-    }
-    setTimeout(() => { $('lobby-copy').textContent = 'Copy'; }, 1800);
+    let code = null;
+    try { code = new URL(link.value).searchParams.get('join') || null; } catch {  }
+    shareLink({ link: link.value, gameName: 'Farmy Kart', code, button: $('lobby-copy'), field: link });
   });
 
   return {

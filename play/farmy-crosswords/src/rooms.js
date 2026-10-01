@@ -70,7 +70,7 @@ export function room(app, {
         
         { id: 'together', label: 'Together', x, y: box.y + 54, w: w / 2 - 4, h: h - 6 },
         { id: 'race', label: 'Race', x: x + w / 2 + 4, y: box.y + 54, w: w / 2 - 4, h: h - 6 },
-        { id: 'copy', label: 'Copy the link', x, y: bottom - h * 3 - 24, w, h },
+        { id: 'copy', label: 'Invite', x, y: bottom - h * 3 - 24, w, h },
         { id: 'leave', label: 'Leave the room', x, y: bottom - h * 2 - 12, w, h },
         { id: 'close', label: 'Close', x, y: bottom - h, w, h },
       ]

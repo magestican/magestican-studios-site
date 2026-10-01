@@ -40,6 +40,7 @@
 
 
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
+import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import * as sfx from './sfx.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { tick } from '../../../web-engine/words/frameLoop.js';
@@ -1191,13 +1192,21 @@ function openRoom() {
     },
     onCopy: () => {
       const link = shareLinkFor(globalThis.location.href, net?.id ?? '');
-      try {
-        globalThis.navigator?.clipboard?.writeText(link);
-        room.copied = true;
-        say('Link copied. Send it to whoever you want to play with.');
-      } catch {
-        say(`Copy this: ${link}`);
-      }
+      
+      
+      
+      
+      shareLink({ link, gameName: 'Farmy Ludo', code: net?.id ? String(net.id).toUpperCase() : null })
+        .then((res) => {
+          if (res?.via === 'clipboard') {
+            room.copied = true;
+            say('Link copied. Send it to whoever you want to play with.');
+          } else if (res?.via === 'manual') {
+            say(`Copy this: ${res.url}`);
+          }
+          overlay?.relayout();
+          invalidate();
+        }, () => say(`Copy this: ${link}`));
       overlay?.relayout();
       invalidate();
     },
@@ -1286,6 +1295,9 @@ const presence = roomPresence({
   
   
   players: () => new Set([room.me, ...room.peers].filter(Boolean)).size || 1,
+  
+  
+  ids: () => [room.me, ...room.peers].filter(Boolean),
   
   
   
@@ -1517,7 +1529,7 @@ watchViewport(resize, canvas);
 
 wireMusicButton({ music, announce, sound: (e) => sfx.play(e) });
 
-mountLevelChip(document.querySelector('.studio-bar'));
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Farmy Ludo' });
 
 
 

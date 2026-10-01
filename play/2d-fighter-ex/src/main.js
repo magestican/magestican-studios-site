@@ -377,7 +377,7 @@ try { Promise.resolve(syncFromCloud()).catch(() => {}); } catch (_) {  }
 paintAccount(true);
 
 
-mountLevelChip(document.querySelector('header'));
+mountLevelChip(document.querySelector('header'), { share: '2D Fighter EX' });
 
 
 

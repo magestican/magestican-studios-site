@@ -31,11 +31,38 @@
 
 
 import { LEADERBOARD_CONFIG, isConfigured } from '../stats/leaderboardConfig.js';
-import { REFRESH_MS, roomDoc, LIVE_GAMES, isFresh } from './presence.js';
+import {
+  REFRESH_MS, roomDoc, LIVE_GAMES, isFresh, isPublishableCode,
+} from './presence.js';
 
 
 export const ROOMS_COLLECTION = 'openRooms';
 
+function pickExtras(data) {
+  const extra = roomDoc({ game: 'x', code: 'x', players: 0, now: 0, host: data.host, level: data.level, mode: data.mode });
+  const out = {};
+  for (const k of ['host', 'level', 'mode']) if (k in extra) out[k] = extra[k];
+  return out;
+}
+
+
+
+
+
+
+
+let _shared = { at: -Infinity, rooms: null, pending: null };
+export function fetchOpenRoomsShared({ maxAgeMs = 15_000, now = Date.now, fetch = fetchOpenRooms } = {}) {
+  const t = now();
+  if (_shared.pending) return _shared.pending;
+  if (_shared.rooms && t - _shared.at < maxAgeMs) return Promise.resolve(_shared.rooms);
+  _shared.pending = Promise.resolve()
+    .then(() => fetch())
+    .catch(() => [])
+    .then((rooms) => { _shared = { at: now(), rooms, pending: null }; return rooms; });
+  return _shared.pending;
+}
+export function _resetSharedForTests() { _shared = { at: -Infinity, rooms: null, pending: null }; }
 
 
 
@@ -45,7 +72,13 @@ export const ROOMS_COLLECTION = 'openRooms';
 
 
 
-export const ROOMS_LIMIT = 40;
+
+export const ROOMS_LIMIT = 20;
+
+
+
+
+
 
 let _state = null;      
 
@@ -116,8 +149,8 @@ export async function fetchOpenRooms(cfg = LEADERBOARD_CONFIG) {
   const s = await ready(cfg);
   if (!s) return [];
   try {
-    const { collection, getDocs, query, limit } = s.store;
-    const snap = await getDocs(query(collection(s.db, ROOMS_COLLECTION), limit(ROOMS_LIMIT)));
+    const { collection, getDocs, query, limit, orderBy } = s.store;
+    const snap = await getDocs(query(collection(s.db, ROOMS_COLLECTION), orderBy('updatedAt', 'desc'), limit(ROOMS_LIMIT)));
     const out = [];
     snap.forEach((d) => {
       const data = d.data();
@@ -134,6 +167,8 @@ export async function fetchOpenRooms(cfg = LEADERBOARD_CONFIG) {
         
         bots: Number(data.bots) || 0,
         updatedAt: Number(data.updatedAt) || 0,
+        
+        ...pickExtras(data),
       });
     });
     return out;
@@ -195,8 +230,19 @@ export async function sweepStaleRooms(rooms, { now = Date.now(), limit = 1 } = {
 
 
 
-export function publishRoom({ game, code, players, bots = 0 }, cfg = LEADERBOARD_CONFIG) {
+export function publishRoom({
+  game, code, players, bots = 0, host, level, mode,
+}, cfg = LEADERBOARD_CONFIG) {
+  
+  
+  if (!isPublishableCode(game, code)) {
+    const noop = async () => {};
+    noop.refresh = () => {};
+    return noop;
+  }
   const countOf = typeof players === 'function' ? players : () => players;
+  
+  const val = (v) => (typeof v === 'function' ? v() : v);
   
   
   
@@ -212,7 +258,10 @@ export function publishRoom({ game, code, players, bots = 0 }, cfg = LEADERBOARD
       const { doc, setDoc } = s.store;
       await setDoc(
         doc(s.db, ROOMS_COLLECTION, code),
-        roomDoc({ game, code, players: countOf(), bots: botsOf(), now: Date.now() }),
+        roomDoc({
+          game, code, players: countOf(), bots: botsOf(), now: Date.now(),
+          host: val(host), level: val(level), mode: val(mode),
+        }),
       );
     } catch (_) {  }
   };
@@ -224,7 +273,7 @@ export function publishRoom({ game, code, players, bots = 0 }, cfg = LEADERBOARD
   write();
   timer = setInterval(write, REFRESH_MS);
 
-  return async function stop() {
+  const stop = async function stop() {
     if (stopped) return;
     stopped = true;
     if (timer) { clearInterval(timer); timer = null; }
@@ -235,4 +284,8 @@ export function publishRoom({ game, code, players, bots = 0 }, cfg = LEADERBOARD
       await deleteDoc(doc(s.db, ROOMS_COLLECTION, code));
     } catch (_) {  }
   };
+  
+  
+  stop.refresh = () => { if (!stopped) write(); };
+  return stop;
 }

@@ -28,6 +28,7 @@
 
 import { PeerMesh } from 'arbelo/net';
 import { exchangeCards } from '../../../../web-engine/progress/peerCards.js';
+import { publishKartRoom } from './kartRoom.js';
 import {
   KART_MSG, buildSeats, seatOf, releaseSeat, claimSeat, reassignBots,
 } from 'arbelo/netRace';
@@ -93,6 +94,7 @@ export async function createSession({ mode, hostId, name, characterId, settings 
   exchangeCards(mesh, 'farmykart');
   if (mode === 'host') mesh.host();
   else mesh.connectTo(hostId);
+  if (mode === 'host') publishKartRoom(session, myId);
   return session;
 }
 
@@ -228,6 +230,8 @@ export class KartSession extends EventTarget {
   }
 
   destroy() {
+    
+    try { this._presence?.withdraw(); } catch {  }
     this.bye();
     this.mesh.destroy();
   }

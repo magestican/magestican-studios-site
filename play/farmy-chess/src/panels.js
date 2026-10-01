@@ -310,7 +310,7 @@ export function room(app, {
     },
     buttons: () => (state.active
       ? [
-        { id: 'copy', label: state.copied ? 'Link copied' : 'Copy the link', tone: 'blue', run: onCopy },
+        { id: 'copy', label: state.copied ? 'Link copied' : 'Invite', tone: 'blue', run: onCopy },
         ...(typed.length === 6 ? [{ id: 'join', label: `Join ${typed}`, run: () => onJoin(normaliseCode(typed)) }] : []),
         { id: 'leave', label: 'Leave the room', run: onLeave },
         { id: 'close', label: 'Back to the board', run: onClose },

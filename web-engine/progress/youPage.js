@@ -29,6 +29,7 @@ import { trophySvg } from './trophyArt.js';
 import { PROFILE_GAME_IDS } from './gameIds.js';
 import { youModel } from './youModel.js';
 import { CHIP_SEEN_KEY } from './levelChip.js';
+import { shareInvite } from '../share/shareInvite.js';
 
 const STYLE_ID = 'mg-you-style';
 
@@ -95,20 +96,16 @@ export function readYou(nowMs = Date.now()) {
 function share(doc, model, out) {
   const { text, url } = model.share;
   const say = (msg) => { out.textContent = msg; };
+  
+  
+  
+  
   try {
-    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-      navigator.share({ title: 'Magestican Studios', text, url }).catch((e) => {
-        
-        if (e?.name !== 'AbortError') say(`${text} ${url}`);
-      });
-      return;
-    }
-    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(`${text} ${url}`).then(() => say('Copied - paste it anywhere.'), () => say(`${text} ${url}`));
-      return;
-    }
-  } catch {  }
-  say(`${text} ${url}`);
+    shareInvite({ url, title: 'Magestican Studios', text }).then((res) => {
+      if (res?.via === 'clipboard') say('Copied - paste it anywhere.');
+      else if (res?.via === 'manual') say(`${text} ${url}`);
+    }, () => say(`${text} ${url}`));
+  } catch { say(`${text} ${url}`); }
 }
 
 function hero(doc, m) {

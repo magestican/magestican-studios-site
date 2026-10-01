@@ -17,6 +17,7 @@
 
 
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
+import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { GAMES, saveKey, puzzleForDay, LAST_KEY } from '../../../web-engine/words/puzzlePick.js';
@@ -1068,6 +1069,9 @@ const presence = roomPresence({
   
   
   players: () => new Set([roomState.me, ...roomState.peers].filter(Boolean)).size || 1,
+  
+  
+  ids: () => [roomState.me, ...roomState.peers].filter(Boolean),
 });
 
 function startNet() {
@@ -1557,13 +1561,21 @@ function openRoom() {
         game: current === HOME ? null : current,
         index: current === HOME ? null : indexFor[current],
       });
-      try {
-        globalThis.navigator?.clipboard?.writeText(link);
-        roomState.copied = true;
-        announce('Link copied. Send it to whoever you want to play with.');
-      } catch {
-        announce(`Copy this: ${link}`);
-      }
+      
+      
+      
+      
+      shareLink({ link, gameName: 'Farmy Crosswords', code: net?.id ? String(net.id).toUpperCase() : null })
+        .then((res) => {
+          if (res?.via === 'clipboard') {
+            roomState.copied = true;
+            announce('Link copied. Send it to whoever you want to play with.');
+          } else if (res?.via === 'manual') {
+            announce(`Copy this: ${res.url}`);
+          }
+          overlay?.refresh();
+          invalidate();
+        }, () => announce(`Copy this: ${link}`));
       relayout();
       invalidate();
     },
@@ -2077,7 +2089,7 @@ wireLiveBadge();
 
 
 
-mountLevelChip(document.querySelector('.studio-bar'));
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Farmy Crosswords' });
 
 globalThis.__fc = {
   get room() {

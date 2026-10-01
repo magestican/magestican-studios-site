@@ -32,6 +32,7 @@ import { syncFromCloud, accountSummary } from '../../../web-engine/account/accou
 
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
+import { shareInvite, publicUrlFor } from '../../../web-engine/share/shareInvite.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { kartMatch } from './kartReport.js';
 import { levelFromXp } from '../../../web-engine/account/playerLevel.js';
@@ -219,7 +220,7 @@ function boot() {
   syncMuteButton();
   
   
-  mountLevelChip(document.querySelector('#menu .footer'));
+  mountLevelChip(document.querySelector('#menu .footer'), { share: 'Farmy Kart' });
   buildNameField();
   refreshBoard();
 
@@ -1517,10 +1518,19 @@ function copyDayCard() {
       streak: s.streak,
       season: s.season,
     });
-    navigator.clipboard.writeText(text).then(() => {
-      if (note) note.textContent = 'Copied - paste it anywhere';
-    }).catch(() => {
-      
+    
+    
+    
+    
+    
+    const page = new URL(publicUrlFor(location.href));
+    page.searchParams.delete('join');
+    shareInvite({ url: page.toString(), title: 'Farmy Kart', text }).then((res) => {
+      if (!note) return;
+      if (res?.via === 'clipboard') note.textContent = 'Copied - paste it anywhere';
+      else if (res?.via === 'manual') note.textContent = text;
+      else if (res?.via === 'share') note.textContent = '';
+    }, () => {
       
       if (note) note.textContent = text;
     });

@@ -155,6 +155,9 @@ export function createNet({ onRoom, onStatus, onStart, onError = () => {} }) {
     
     
     players: () => (lobby ? Math.max(1, roster(lobby).length) : 1),
+    
+    ids: () => (lobby ? roster(lobby) : []),
+    mode: () => (lobby && lobby.phase !== PHASE.OPEN ? 'playing' : 'open'),
   });
 
   

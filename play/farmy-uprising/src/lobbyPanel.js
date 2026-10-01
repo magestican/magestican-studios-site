@@ -29,6 +29,7 @@
 import { HERD } from '../../../web-engine/rts/roster.js';
 import { MAPS, PLAYABLE_MAP_IDS } from '../../../web-engine/rts/maps/index.js';
 import { whoIsIn } from '../../../web-engine/net/presence.js';
+import { shareLink } from '../../../web-engine/share/shareInvite.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -140,21 +141,31 @@ export function createLobbyPanel(actions) {
   el.back.addEventListener('click', () => actions.onBack());
   el.map.addEventListener('change', () => actions.onMap(el.map.value));
 
-  el.copy.addEventListener('click', async () => {
+  el.copy.addEventListener('click', () => {
     const url = new URL(location.href);
     url.searchParams.set('join', last?.code ?? '');
     url.hash = '';
-    try {
-      await navigator.clipboard.writeText(url.toString());
-      el.copy.textContent = 'COPIED';
-    } catch {
+    
+    
+    
+    
+    shareLink({
+      link: url.toString(),
+      gameName: 'Farmy Uprising',
+      code: last?.code ? String(last.code).toUpperCase() : null,
+      button: el.copy,
+    }).then((res) => {
+      
+      
+      if (res?.via === 'clipboard') el.copy.textContent = 'LINK COPIED';
       
       
       
-      
-      el.copy.textContent = 'READ THE CODE OUT';
-    }
-    setTimeout(() => { el.copy.textContent = 'COPY LINK'; }, 2200);
+      else if (res?.via === 'manual') {
+        el.copy.textContent = 'READ THE CODE OUT';
+        setTimeout(() => { el.copy.textContent = 'INVITE'; }, 2200);
+      }
+    }, () => {});
   });
 
   return {

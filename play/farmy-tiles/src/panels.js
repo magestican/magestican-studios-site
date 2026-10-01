@@ -284,7 +284,7 @@ export function room(app, {
     },
     buttons: () => (state.active
       ? [
-        { id: 'copy', label: state.copied ? 'Link copied' : 'Copy the link', tone: 'blue', run: onCopy },
+        { id: 'copy', label: state.copied ? 'Link copied' : 'Invite', tone: 'blue', run: onCopy },
         ...(state.canStart ? [{ id: 'start', label: 'Start a new game with everybody', tone: 'green', run: onStart }] : []),
         ...(typed.length === 6 ? [{ id: 'join', label: `Join ${typed}`, run: () => onJoin(normaliseCode(typed)) }] : []),
         { id: 'leave', label: 'Leave the room', run: onLeave },

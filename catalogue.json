@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "78db4da-20261001T112500Z",
+ "buildId": "329b945-20261001T113656Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -37,7 +37,7 @@
    "ageNote": "Frequent cartoon shooting between farm animals. No gore and no realistic weapons, but it is a first-person shooter and is rated as one.",
    "order": 0,
    "addedAt": "2026-08-30",
-   "bytes": 11967488
+   "bytes": 11968379
   },
   {
    "id": "farmy-uprising",
@@ -66,7 +66,7 @@
    "ageNote": "Infrequent or mild cartoon violence - animals versus farms, no blood, no injury detail.",
    "order": 1,
    "addedAt": "2026-09-06",
-   "bytes": 10771204
+   "bytes": 10771651
   },
   {
    "id": "farmy-evil-hills",
@@ -124,7 +124,7 @@
    "ageNote": null,
    "order": 3,
    "addedAt": "2026-08-28",
-   "bytes": 6503125
+   "bytes": 6504786
   },
   {
    "id": "farmy-tiles",
@@ -153,7 +153,7 @@
    "ageNote": null,
    "order": 4,
    "addedAt": "2026-09-21",
-   "bytes": 96330
+   "bytes": 96772
   },
   {
    "id": "farmy-crosswords",
@@ -182,7 +182,7 @@
    "ageNote": null,
    "order": 5,
    "addedAt": "2026-09-04",
-   "bytes": 210896
+   "bytes": 211483
   },
   {
    "id": "farmy-chess",
@@ -211,7 +211,7 @@
    "ageNote": null,
    "order": 6,
    "addedAt": "2026-09-06",
-   "bytes": 89539
+   "bytes": 89981
   },
   {
    "id": "farmy-checkers",
@@ -240,7 +240,7 @@
    "ageNote": null,
    "order": 7,
    "addedAt": "2026-09-06",
-   "bytes": 83010
+   "bytes": 83458
   },
   {
    "id": "farmy-ludo",
@@ -269,7 +269,7 @@
    "ageNote": null,
    "order": 8,
    "addedAt": "2026-09-06",
-   "bytes": 83783
+   "bytes": 84209
   },
   {
    "id": "farmy-moon-life",
@@ -385,7 +385,7 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-09-21",
-   "bytes": 210896
+   "bytes": 211483
   },
   {
    "id": "farmy-hive",
@@ -414,7 +414,7 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-09-21",
-   "bytes": 210896
+   "bytes": 211483
   },
   {
    "id": "farmy-herds",
@@ -443,7 +443,7 @@
    "ageNote": null,
    "order": 17,
    "addedAt": "2026-09-21",
-   "bytes": 210896
+   "bytes": 211483
   },
   {
    "id": "farmy-furrows",
@@ -472,7 +472,7 @@
    "ageNote": null,
    "order": 18,
    "addedAt": "2026-09-21",
-   "bytes": 210896
+   "bytes": 211483
   }
  ]
 }

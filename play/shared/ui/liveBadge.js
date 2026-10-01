@@ -48,9 +48,10 @@
 
 
 import {
-  liveRooms, badgeText, roomLine, whoIsIn, readNow, LIVE_GAMES, LIVE_PATH, REFRESH_MS,
+  liveRooms, badgeText, roomLine, whoIsIn, readNow, LIVE_GAMES, LIVE_PATH, REFRESH_MS, displayCode,
 } from '../../../web-engine/net/presence.js';
-import { fetchOpenRooms, sweepStaleRooms } from '../../../web-engine/net/firebaseRooms.js';
+import { fetchOpenRoomsShared, sweepStaleRooms } from '../../../web-engine/net/firebaseRooms.js';
+import { shareLink, shareInvite } from '../../../web-engine/share/shareInvite.js';
 
 
 export const POLL_MS = Math.round(REFRESH_MS * (2 / 3));
@@ -185,7 +186,9 @@ export function mountLiveBadge({
   host,
   doc = host?.ownerDocument ?? globalThis.document,
   mine = () => null,
-  fetch = fetchOpenRooms,
+  
+  
+  fetch = () => fetchOpenRoomsShared(),
   now = () => Date.now(),
   pollMs = POLL_MS,
   onJoin = null,
@@ -273,10 +276,27 @@ export function mountLiveBadge({
         code.className = 'live-code';
         code.textContent = `Read this out: ${String(own).toUpperCase()}`;
         b.appendChild(code);
-        b.setAttribute('aria-label', `Your room, code ${String(own).toUpperCase()}. Press to copy it.`);
+        b.setAttribute('aria-label', `Your room, code ${String(own).toUpperCase()}. Press to share it.`);
+        
+        
+        
+        
+        
         b.addEventListener('click', () => {
-          try { globalThis.navigator?.clipboard?.writeText(String(own).toUpperCase()); } catch {  }
-          code.textContent = 'Copied';
+          const upper = String(own).toUpperCase();
+          const loc = globalThis.location;
+          const game = Object.keys(LIVE_PATH).find((g) => loc?.pathname?.startsWith(LIVE_PATH[g]));
+          const done = (res) => {
+            if (res?.via === 'clipboard') code.textContent = 'Copied';
+            else if (res?.via === 'manual') code.textContent = `Read this out: ${upper}`;
+          };
+          if (game) {
+            shareLink({
+              link: `${loc.origin}${LIVE_PATH[game]}?join=${own}`, gameName: LIVE_GAMES[game] ?? 'Farmy game', code: upper,
+            }).then(done, () => {});
+          } else {
+            shareInvite({ url: loc?.href ?? '', text: upper }).then(done, () => {});
+          }
         });
         li.appendChild(b);
         list.appendChild(li);
@@ -300,7 +320,7 @@ export function mountLiveBadge({
       b.append(doc.createTextNode(`${name} - ${whoIsIn(room)}`));
       const code = doc.createElement('span');
       code.className = 'live-code';
-      code.textContent = `Room ${String(room.code).toUpperCase()}`;
+      code.textContent = `Room ${displayCode(room)}`;
       b.appendChild(code);
       
       

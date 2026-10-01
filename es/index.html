@@ -589,6 +589,12 @@
     </div>
   </div>
 
+  
+
+
+
+  <div id="live-now"></div>
+
   <main>
     <section id="games" class="games">
       <div class="section-head">
@@ -942,7 +948,7 @@
     
   </footer>
 
-  <script type="module" src="/assets/site.js?v=78db4da-20261001T112500Z"></script>
+  <script type="module" src="/assets/site.js?v=329b945-20261001T113656Z"></script>
 
   
 
@@ -952,6 +958,8 @@
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     import { mountSupportLink } from '/web-engine/support/support.js';
     import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
+    import { mountLiveStrip } from '/web-engine/ui/liveStrip.js';
+    mountLiveStrip({ host: document.getElementById('live-now') });
     startVersionChecker();
     mountDeviceQr({ label: 'Open on your phone' });
     

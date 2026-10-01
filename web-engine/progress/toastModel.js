@@ -38,6 +38,22 @@ const xpSub = (xp) => (posInt(xp) > 0 ? `+${posInt(xp)} XP` : null);
 
 
 
+
+
+
+export function shareTextFor(item) {
+  if (!isObj(item)) return null;
+  const t = String(item.title ?? '');
+  if (item.kind === 'level' && /^Level \d+$/.test(t)) return `I just reached ${t} on Magestican Studios - free games, no download:`;
+  if (item.kind === 'trophy' && t.startsWith('Trophy: ')) return `I just won the ${t.slice(8)} trophy on Magestican Studios - free games, no download:`;
+  if (item.kind === 'badge' && t.startsWith('Badge: ')) return `I just earned the ${t.slice(7)} badge on Magestican Studios - free games, no download:`;
+  return null;
+}
+
+
+
+
+
 export function queueFrom(events) {
   if (!Array.isArray(events)) return [];
   const list = events.filter(isObj);

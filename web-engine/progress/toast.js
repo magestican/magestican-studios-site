@@ -14,7 +14,8 @@
 
 
 
-import { queueFrom } from './toastModel.js';
+import { queueFrom, shareTextFor } from './toastModel.js';
+import { shareInvite, publicUrlFor, announceShare } from '../share/shareInvite.js';
 import { TIER_COLOUR } from '../account/achievements.js';
 
 
@@ -24,6 +25,8 @@ import { TIER_COLOUR } from '../account/achievements.js';
 export const PROGRESS_EVENT = 'magestican:progress';
 
 export const TOAST_MS = 2400;
+
+export const SHARE_TOAST_MS = 4500;
 const STYLE_ID = 'mg-progress-toast-style';
 const FLAG = '__mgProgressToast';
 
@@ -44,6 +47,9 @@ function injectStyle(doc) {
 .mg-toast-art{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
   font-size:15px;background:#f6f1e6;color:#1c1a17}
 .mg-toast-sub{display:block;font-weight:400;font-size:12px;opacity:.8}
+.mg-toast-share{pointer-events:auto;flex:none;margin-left:4px;min-height:32px;padding:4px 12px;border-radius:999px;
+  border:1px solid rgba(255,251,242,.5);background:transparent;color:#fffbf2;font:700 12px/1 system-ui,sans-serif;cursor:pointer}
+.mg-toast-share:hover,.mg-toast-share:focus-visible{background:rgba(255,251,242,.15);outline:none}
 @keyframes mg-toast-in{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 @keyframes mg-toast-out{to{opacity:0;transform:translateY(-8px)}}
 @media (prefers-reduced-motion: reduce){.mg-toast,.mg-toast.mg-out{animation:none}}
@@ -70,6 +76,34 @@ function render(doc, host, item) {
     text.appendChild(sub);
   }
   el.append(art, text);
+  
+  
+  const words = shareTextFor(item);
+  if (words) {
+    const btn = doc.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mg-toast-share';
+    btn.textContent = 'Share';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      try {
+        const u = new URL(publicUrlFor(globalThis.location?.href ?? ''));
+        u.searchParams.delete('join');
+        u.hash = '';
+        shareInvite({ url: u.toString(), title: 'Magestican Studios', text: words })
+          .then((res) => {
+            
+            
+            if (res?.via === 'manual') {
+              try { globalThis.prompt?.('Copy this link:', res.url); } catch {  }
+              return;
+            }
+            announceShare(res, { button: btn, idle: 'Share' });
+          }, () => {});
+      } catch {  }
+    });
+    el.appendChild(btn);
+  }
   host.replaceChildren(el);
   return el;
 }
@@ -88,6 +122,7 @@ export function installProgressToast(doc = globalThis.document) {
       const item = queue.shift();
       if (!item) { busy = false; host?.replaceChildren(); return; }
       busy = true;
+      let ms = TOAST_MS;
       try {
         injectStyle(doc);
         if (!host || !host.isConnected) {
@@ -97,9 +132,10 @@ export function installProgressToast(doc = globalThis.document) {
           doc.body.appendChild(host);
         }
         const el = render(doc, host, item);
-        setTimeout(() => { el.classList.add('mg-out'); }, TOAST_MS - 220);
+        ms = shareTextFor(item) ? SHARE_TOAST_MS : TOAST_MS;
+        setTimeout(() => { el.classList.add('mg-out'); }, ms - 220);
       } catch {  }
-      setTimeout(next, TOAST_MS);
+      setTimeout(next, ms);
     };
 
     doc.addEventListener(PROGRESS_EVENT, (ev) => {
