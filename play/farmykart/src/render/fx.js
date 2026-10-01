@@ -18,6 +18,7 @@
 import * as THREE from 'three';
 import { PALETTE, DRIFT_TIER_COLOURS } from '../palette.js';
 import { getQuality } from './materials.js';
+import { themeOf, THEMES } from './themes.js';
 import { groundMeshHeightAt } from './trackMesh.js';
 import { vehicleFor } from '../../../../web-engine/kart/vehicles.js';
 
@@ -57,35 +58,9 @@ const POOL = 420;
 
 
 
-const DUST_THEMES = {
-  summer: {
-    road: { colour: 0xb5a184, rate: 18, size: 0.22, life: 0.38, additive: false },
-    off: { colour: PALETTE.dust, rate: 44, size: 0.50, life: 0.72, additive: false },
-  },
-  mud: {
-    road: { colour: 0x7a6a52, rate: 20, size: 0.22, life: 0.40, additive: false },
-    off: { colour: PALETTE.mudDark, rate: 46, size: 0.48, life: 0.80, additive: false },
-  },
-  overcast: {
-    road: { colour: 0x7a6a52, rate: 20, size: 0.22, life: 0.40, additive: false },
-    off: { colour: PALETTE.mudDark, rate: 46, size: 0.48, life: 0.80, additive: false },
-  },
-  snow: {
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    road: { colour: PALETTE.snowHollow, rate: 22, size: 0.24, life: 0.42, additive: false },
-    off: { colour: PALETTE.snowRut, rate: 44, size: 0.46, life: 0.72, additive: false },
-  },
-};
+
+
+
 
 
 
@@ -227,7 +202,7 @@ export function createFx(scene, { theme = 'summer', path = null } = {}) {
   return {
     scene, glow, smoke, parts, cursor: 0,
     theme, path,
-    dust: DUST_THEMES[theme] ?? DUST_THEMES.summer,
+    dust: themeOf(theme).dust,
     marks, markPool, markCap, markCursor: 0,
     wake, wakePool, wakeCap, wakeCursor: 0,
     
@@ -263,7 +238,7 @@ export function createFx(scene, { theme = 'summer', path = null } = {}) {
 export function setFxTrack(fx, { theme, path } = {}) {
   if (theme) {
     fx.theme = theme;
-    fx.dust = DUST_THEMES[theme] ?? DUST_THEMES.summer;
+    fx.dust = themeOf(theme).dust;
   }
   if (path) fx.path = path;
   return fx;
@@ -784,7 +759,7 @@ export function groundDust(fx, kart, onRoad, dt) {
   const speed = Math.abs(kart.speed ?? 0);
   if (speed < 6) return;
   const spec = specFor(fx, kart);
-  const set = (fx.dust ?? DUST_THEMES.summer)[onRoad ? 'road' : 'off'];
+  const set = (fx.dust ?? THEMES.summer.dust)[onRoad ? 'road' : 'off'];
   const slip = Math.abs(kart.slip ?? 0);
   
   const busy = (0.45 + Math.min(1, speed / 45) * 0.55) * (1 + Math.min(1, slip / 0.24) * 1.1);
@@ -865,16 +840,11 @@ const WAKE_CAP_LOW = 96;
 
 
 
-const SPRAY_THEMES = {
-  summer: { colour: 0xe8f0f4, additive: false, rate: 30, size: 0.30, life: 0.55 },
-  mud: { colour: 0xcfd3b6, additive: false, rate: 30, size: 0.32, life: 0.60 },
-  overcast: { colour: 0xcfd3b6, additive: false, rate: 30, size: 0.32, life: 0.60 },
-  snow: { colour: PALETTE.snowHollow, additive: false, rate: 32, size: 0.30, life: 0.58 },
-};
+
 
 
 function sprayFor(fx) {
-  return SPRAY_THEMES[fx.theme] ?? SPRAY_THEMES.summer;
+  return themeOf(fx.theme).spray;
 }
 
 

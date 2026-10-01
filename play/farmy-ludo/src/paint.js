@@ -1,0 +1,1053 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { COLORS, FONT_STACK, SIZES, STATES } from '../../../web-engine/words/style.js';
+import {
+  GRID, TRACK, YARD, boardLayout, boxPx, cellRect, homeCell, homeRun, isSafe,
+  RING, entryIndex, yardBox, yardSlots,
+} from '../../../web-engine/board/ludoBoard.js';
+import { TEAMS } from '../../../web-engine/board/ludoTeams.js';
+
+const ink = (key) => COLORS[key] ?? key;
+
+
+export function roundRect(g, x, y, w, h, r = SIZES.radius) {
+  const rad = Math.max(0, Math.min(r, w / 2, h / 2));
+  g.beginPath();
+  g.moveTo(x + rad, y);
+  g.arcTo(x + w, y, x + w, y + h, rad);
+  g.arcTo(x + w, y + h, x, y + h, rad);
+  g.arcTo(x, y + h, x, y, rad);
+  g.arcTo(x, y, x + w, y, rad);
+  g.closePath();
+}
+
+
+export const font = (size, weight = 700) => `${weight} ${Math.round(size)}px ${FONT_STACK}`;
+
+
+
+
+
+
+
+
+
+
+
+export function text(g, string, box, {
+  size = SIZES.base, weight = 700, colour = COLORS.ink,
+  align = 'center', baseline = 'middle', fit = false, maxWidth = null, floor = SIZES.min,
+} = {}) {
+  let s = Math.max(SIZES.min, size);
+  let shown = String(string ?? '');
+  const w = box.w ?? box.width;
+  const h = box.h ?? box.height;
+  if (fit) {
+    const limit = maxWidth ?? w;
+    g.font = font(s, weight);
+    while (s > floor && g.measureText(shown).width > limit) {
+      s -= 1;
+      g.font = font(s, weight);
+    }
+    if (g.measureText(shown).width > limit) {
+      
+      
+      
+      
+      if (shown.length <= 1) {
+        while (s > 10 && g.measureText(shown).width > limit) { s -= 1; g.font = font(s, weight); }
+      } else {
+        while (shown.length > 1 && g.measureText(`${shown}…`).width > limit) shown = shown.slice(0, -1);
+        shown = `${shown.trimEnd()}…`;
+      }
+    }
+  }
+  g.font = font(s, weight);
+  g.fillStyle = colour;
+  g.textAlign = align;
+  g.textBaseline = baseline;
+  const x = align === 'left' ? box.x : (align === 'right' ? box.x + w : box.x + w / 2);
+  const y = baseline === 'top' ? box.y : box.y + h / 2;
+  g.fillText(shown, Math.round(x), Math.round(y));
+  return s;
+}
+
+
+
+
+
+
+
+
+
+
+export function wrap(g, string, maxWidth, { size = SIZES.small, weight = 400 } = {}) {
+  g.font = font(Math.max(SIZES.min, size), weight);
+  const out = [];
+  let line = '';
+  for (const word of String(string ?? '').split(/\s+/).filter(Boolean)) {
+    const next = line ? `${line} ${word}` : word;
+    if (line && g.measureText(next).width > maxWidth) { out.push(line); line = word; } else line = next;
+  }
+  if (line) out.push(line);
+  return out;
+}
+
+
+export function surface(g, r, {
+  fill = COLORS.card, edge = COLORS.ink, offset = SIZES.shadow,
+  border = SIZES.border, radius = SIZES.radius, dx = 0, dy = 0, alpha = 1,
+} = {}) {
+  const x = r.x + dx;
+  const y = r.y + dy;
+  g.save();
+  g.globalAlpha = alpha;
+  if (offset > 0) {
+    g.fillStyle = COLORS.ink;
+    roundRect(g, x + offset, y + offset, r.w, r.h, radius);
+    g.fill();
+  }
+  g.fillStyle = fill;
+  roundRect(g, x, y, r.w, r.h, radius);
+  g.fill();
+  if (border > 0) {
+    g.lineWidth = border;
+    g.strokeStyle = edge;
+    roundRect(g, x + border / 2, y + border / 2, r.w - border, r.h - border, radius);
+    g.stroke();
+  }
+  g.restore();
+}
+
+
+export function focusRing(g, r, colour = COLORS.blue, grow = 5) {
+  g.save();
+  g.lineWidth = 4;
+  g.strokeStyle = colour;
+  roundRect(g, r.x - grow, r.y - grow, r.w + grow * 2, r.h + grow * 2, SIZES.radius + grow);
+  g.stroke();
+  g.restore();
+}
+
+
+export function button(g, r, {
+  label = '', hover = 0, press = 0, disabled = false, tone = null, size = SIZES.base,
+  icon = null,
+} = {}) {
+  const fill = tone ? ink(tone) : COLORS.card;
+  const on = tone ? COLORS.card : (disabled ? COLORS.slate : COLORS.ink);
+  surface(g, r, {
+    fill,
+    offset: disabled ? 0 : Math.max(0, SIZES.shadow + hover - press),
+    dy: press,
+    alpha: disabled ? 0.6 : 1,
+  });
+  
+  
+  const pad = icon && label ? Math.min(26, r.h * 0.6) : 0;
+  if (icon === 'people') {
+    
+    
+    
+    peopleIcon(g, label
+      ? { x: r.x + 6, y: r.y + press, w: pad, h: r.h }
+      : { x: r.x, y: r.y + press, w: r.w, h: r.h }, on);
+  }
+  text(g, label, { x: r.x + pad, y: r.y + press, w: r.w - pad, h: r.h }, {
+    size, colour: on, fit: true, maxWidth: r.w - pad - (String(label).length <= 1 ? 6 : 16),
+  });
+}
+
+
+export function clear(g, width, height) {
+  g.fillStyle = COLORS.paper;
+  g.fillRect(0, 0, width, height);
+}
+
+
+export function scrim(g, width, height, alpha = 0.82) {
+  g.save();
+  g.globalAlpha = alpha;
+  g.fillStyle = COLORS.paper;
+  g.fillRect(0, 0, width, height);
+  g.restore();
+}
+
+
+export function rule(g, x, y, width) {
+  g.save();
+  g.fillStyle = COLORS.ink;
+  g.fillRect(x, y, width, SIZES.border);
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function bevel(g, x, y, w, h, radius, {
+  light = COLORS.card, shade = COLORS.ink,
+  lightAlpha = 0.3, shadeAlpha = 0.16, width = 2, sunken = false,
+} = {}) {
+  const bw = Math.max(1, width);
+  if (w <= bw * 2.5 || h <= bw * 2.5) return;
+  const l = x + bw / 2;
+  const t = y + bw / 2;
+  const rt = x + w - bw / 2;
+  const b = y + h - bw / 2;
+  g.save();
+  roundRect(g, x, y, w, h, radius);
+  g.clip();
+  g.lineWidth = bw;
+  const topLeft = sunken ? [shade, shadeAlpha] : [light, lightAlpha];
+  const bottomRight = sunken ? [light, lightAlpha] : [shade, shadeAlpha];
+  if (topLeft[1] > 0) {
+    g.globalAlpha = topLeft[1];
+    g.strokeStyle = topLeft[0];
+    g.beginPath();
+    g.moveTo(l, b); g.lineTo(l, t); g.lineTo(rt, t);
+    g.stroke();
+  }
+  if (bottomRight[1] > 0) {
+    g.globalAlpha = bottomRight[1];
+    g.strokeStyle = bottomRight[0];
+    g.beginPath();
+    g.moveTo(rt, t); g.lineTo(rt, b); g.lineTo(l, b);
+    g.stroke();
+  }
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function chevron(g, cx, cy, dx, dy, size, colour, alpha) {
+  
+  
+  
+  
+  const px = -dy;
+  const py = dx;
+  g.save();
+  g.globalAlpha = alpha;
+  g.fillStyle = colour;
+  g.beginPath();
+  g.moveTo(cx + dx * size, cy + dy * size);
+  g.lineTo(cx - dx * size * 0.68 + px * size * 0.86, cy - dy * size * 0.68 + py * size * 0.86);
+  g.lineTo(cx - dx * size * 0.68 - px * size * 0.86, cy - dy * size * 0.68 - py * size * 0.86);
+  g.closePath();
+  g.fill();
+  g.restore();
+}
+
+
+function stepDir(from, to) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  return { dx: dx / len, dy: dy / len };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function shapePath(g, shape, cx, cy, r) {
+  g.beginPath();
+  if (shape === 'circle') {
+    g.arc(cx, cy, r, 0, Math.PI * 2);
+  } else if (shape === 'square') {
+    
+    
+    const s = r * 0.86;
+    g.rect(cx - s, cy - s, s * 2, s * 2);
+  } else if (shape === 'diamond') {
+    g.moveTo(cx, cy - r);
+    g.lineTo(cx + r, cy);
+    g.lineTo(cx, cy + r);
+    g.lineTo(cx - r, cy);
+  } else {
+    
+    
+    const k = r * 1.12;
+    g.moveTo(cx, cy - k + r * 0.16);
+    g.lineTo(cx + k * 0.92, cy + k * 0.72 + r * 0.16);
+    g.lineTo(cx - k * 0.92, cy + k * 0.72 + r * 0.16);
+  }
+  g.closePath();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function relief(g, shape, x, y, r) {
+  const far = r * 2.2;
+  const band = Math.max(1.5, r * 0.28);
+  
+  
+  
+  const base = g.globalAlpha;
+  
+  const halves = [
+    
+    
+    
+    
+    [[-far, -far], [far, -far], [-far, far], COLORS.card, 0.5],
+    [[far, -far], [far, far], [-far, far], COLORS.ink, 0.36],
+  ];
+  for (const [a, b, c, colour, alpha] of halves) {
+    g.save();
+    shapePath(g, shape, x, y, r);
+    g.clip();
+    g.beginPath();
+    g.moveTo(x + a[0], y + a[1]);
+    g.lineTo(x + b[0], y + b[1]);
+    g.lineTo(x + c[0], y + c[1]);
+    g.closePath();
+    g.clip();
+    g.globalAlpha = alpha * base;
+    g.strokeStyle = colour;
+    g.lineWidth = band;
+    shapePath(g, shape, x, y, r * 0.87);
+    g.stroke();
+    g.restore();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function token(g, spot, {
+  lift = 0, legal = false, chosen = false, dim = false, moving = false,
+} = {}) {
+  const team = TEAMS[spot.team];
+  const r = spot.r;
+  
+  
+  
+  
+  
+  const drop = Math.max(0, Math.max(2, r * 0.17) + lift);
+  g.save();
+  if (dim) g.globalAlpha = 0.4;
+  g.fillStyle = COLORS.ink;
+  shapePath(g, team.shape, spot.x + drop * 0.7, spot.y + drop, r);
+  g.fill();
+  g.fillStyle = ink(team.colour);
+  shapePath(g, team.shape, spot.x, spot.y, r);
+  g.fill();
+  relief(g, team.shape, spot.x, spot.y, r);
+  g.lineWidth = Math.max(2, r * 0.16);
+  g.strokeStyle = COLORS.ink;
+  shapePath(g, team.shape, spot.x, spot.y, r);
+  g.stroke();
+  g.restore();
+
+  
+  
+  
+  if (r >= 15 && !dim) {
+    text(g, String(spot.token + 1), { x: spot.x - r, y: spot.y - r + (team.shape === 'triangle' ? r * 0.35 : 0), w: r * 2, h: r * 2 }, {
+      size: SIZES.min, colour: COLORS.card,
+    });
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (legal || chosen) {
+    g.save();
+    g.lineWidth = chosen ? Math.max(3, r * 0.26) : Math.max(2.5, r * 0.22);
+    g.strokeStyle = COLORS.blue;
+    if (!chosen && !moving) g.setLineDash([Math.max(4, r * 0.5), Math.max(3, r * 0.35)]);
+    g.beginPath();
+    g.arc(spot.x, spot.y, r + Math.max(3, r * 0.32), 0, Math.PI * 2);
+    g.stroke();
+    g.restore();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function ghost(g, shape, x, y, r) {
+  g.save();
+  g.globalAlpha = 0.16;
+  g.fillStyle = COLORS.blue;
+  shapePath(g, shape, x, y, r);
+  g.fill();
+  g.globalAlpha = 0.9;
+  g.lineWidth = Math.max(2.5, r * 0.16);
+  g.strokeStyle = COLORS.blue;
+  g.setLineDash([Math.max(5, r * 0.42), Math.max(4, r * 0.32)]);
+  shapePath(g, shape, x, y, r);
+  g.stroke();
+  g.restore();
+}
+
+
+
+
+
+
+function star(g, cx, cy, r, colour = COLORS.ink) {
+  g.save();
+  g.fillStyle = colour;
+  g.beginPath();
+  for (let i = 0; i < 10; i += 1) {
+    const rad = i % 2 ? r * 0.44 : r;
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const x = cx + Math.cos(a) * rad;
+    const y = cy + Math.sin(a) * rad;
+    if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+  }
+  g.closePath();
+  g.fill();
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+export function board(g, box, { tokens = null } = {}) {
+  const L = boardLayout(box);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  surface(g, { x: L.x - 6, y: L.y - 6, w: L.size + 12, h: L.size + 12 },
+    { fill: COLORS.wood, offset: SIZES.shadow + 2, radius: 10 });
+  
+  bevel(g, L.x - 6 + SIZES.border, L.y - 6 + SIZES.border,
+    L.size + 12 - SIZES.border * 2, L.size + 12 - SIZES.border * 2, 8, {
+      light: COLORS.woodLit, shade: COLORS.woodShade,
+      lightAlpha: 0.9, shadeAlpha: 0.9, width: Math.max(2, L.cell * 0.12),
+    });
+
+  
+  
+  
+  const gap = Math.max(1, Math.round(L.cell * 0.06));
+
+  
+  
+  
+  for (let t = 0; t < TEAMS.length; t += 1) {
+    const team = TEAMS[t];
+    const pen4 = yardBox(t);
+    
+    
+    const cell6 = boxPx(L, { x: pen4.x - 1, y: pen4.y - 1, w: pen4.w + 2, h: pen4.h + 2 });
+    const box6 = {
+      x: cell6.x + gap, y: cell6.y + gap, w: cell6.w - gap * 2, h: cell6.h - gap * 2,
+    };
+    surface(g, { x: box6.x, y: box6.y, w: box6.w, h: box6.h },
+      { fill: ink(team.colour), offset: 0, radius: 8 });
+    
+    
+    
+    
+    bevel(g, box6.x + 2, box6.y + 2, box6.w - 4, box6.h - 4, 7, {
+      lightAlpha: 0.34, shadeAlpha: 0.32, width: Math.max(3, L.cell * 0.22),
+    });
+    const pen = boxPx(L, pen4);
+    surface(g, { x: pen.x, y: pen.y, w: pen.w, h: pen.h },
+      { fill: COLORS.card, offset: 0, radius: 8 });
+    bevel(g, pen.x + 2, pen.y + 2, pen.w - 4, pen.h - 4, 7, {
+      sunken: true,
+      light: COLORS.woodLit, shade: COLORS.ink,
+      lightAlpha: 0, shadeAlpha: 0.16, width: Math.max(2, L.cell * 0.18),
+    });
+    
+    
+    
+    
+    
+    yardSlots(t).forEach((slot, i) => {
+      
+      
+      
+      if (tokens && tokens[t][i] <= YARD) return;
+      const p = { x: L.x + slot.x * L.cell, y: L.y + slot.y * L.cell };
+      g.save();
+      g.lineWidth = 2;
+      g.strokeStyle = COLORS.slate;
+      g.setLineDash([5, 4]);
+      g.beginPath();
+      g.arc(p.x, p.y, L.cell * 0.3, 0, Math.PI * 2);
+      g.stroke();
+      g.restore();
+    });
+    
+    
+    
+    const band = { x: box6.x, y: box6.y, w: box6.w, h: L.cell };
+    text(g, team.name.toUpperCase(), band,
+      { size: Math.max(SIZES.min, L.cell * 0.5), colour: COLORS.card, fit: true, maxWidth: box6.w - 12 });
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  const paver = (r, fill, coloured) => {
+    const p = { x: r.x + gap, y: r.y + gap, w: r.w - gap * 2, h: r.h - gap * 2 };
+    surface(g, p, { fill, offset: 0, border: 2, radius: 4 });
+    bevel(g, p.x + 2, p.y + 2, p.w - 4, p.h - 4, 3, {
+      lightAlpha: coloured ? 0.26 : 0,
+      shadeAlpha: coloured ? 0.2 : 0.13,
+      width: Math.max(1.5, L.cell * 0.11),
+    });
+  };
+
+  
+  for (let i = 0; i < RING.length; i += 1) {
+    const r = cellRect(L, RING[i]);
+    const owner = TEAMS.findIndex((unused, t) => entryIndex(t) === i);
+    paver(r, owner >= 0 ? ink(TEAMS[owner].colour) : COLORS.card, owner >= 0);
+    
+    
+    
+    if (!isSafe(i) && L.cell >= 18) {
+      const dir = stepDir(RING[i], RING[(i + 1) % TRACK]);
+      chevron(g, r.x + r.w / 2, r.y + r.h / 2, dir.dx, dir.dy, L.cell * 0.18,
+        owner >= 0 ? COLORS.card : COLORS.ink, owner >= 0 ? 0.45 : 0.2);
+    }
+    if (isSafe(i)) {
+      
+      
+      
+      
+      
+      
+      
+      
+      star(g, r.x + r.w / 2, r.y + r.h / 2, r.w * 0.32,
+        owner >= 0 ? COLORS.card : COLORS.inkSoft);
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  for (let t = 0; t < TEAMS.length; t += 1) {
+    for (const c of homeRun(t)) {
+      const r = cellRect(L, c);
+      paver(r, ink(TEAMS[t].colour), true);
+      text(g, STATES[TEAMS[t].state].mark, { x: r.x, y: r.y, w: r.w, h: r.h },
+        { size: SIZES.min, colour: COLORS.card });
+    }
+  }
+
+  
+  
+  const mid = { x: L.x + 7.5 * L.cell, y: L.y + 7.5 * L.cell };
+  
+  
+  
+  const half = 1.5 * L.cell - gap;
+  const corners = [
+    [{ x: -half, y: half }, { x: half, y: half }],      
+    [{ x: -half, y: -half }, { x: -half, y: half }],    
+    [{ x: -half, y: -half }, { x: half, y: -half }],    
+    [{ x: half, y: -half }, { x: half, y: half }],      
+  ];
+  corners.forEach(([a, b], t) => {
+    g.save();
+    g.beginPath();
+    g.moveTo(mid.x, mid.y);
+    g.lineTo(mid.x + a.x, mid.y + a.y);
+    g.lineTo(mid.x + b.x, mid.y + b.y);
+    g.closePath();
+    g.fillStyle = ink(TEAMS[t].colour);
+    g.fill();
+    
+    
+    
+    
+    
+    g.clip();
+    
+    
+    
+    
+    g.globalAlpha = t === 2 || t === 1 ? 0.2 : 0.14;
+    g.strokeStyle = t === 2 || t === 1 ? COLORS.card : COLORS.ink;
+    g.lineWidth = Math.max(3, L.cell * 0.2);
+    g.beginPath();
+    g.moveTo(mid.x + a.x, mid.y + a.y);
+    g.lineTo(mid.x + b.x, mid.y + b.y);
+    g.stroke();
+    g.restore();
+    g.save();
+    g.lineWidth = 3;
+    g.strokeStyle = COLORS.ink;
+    g.beginPath();
+    g.moveTo(mid.x, mid.y);
+    g.lineTo(mid.x + a.x, mid.y + a.y);
+    g.lineTo(mid.x + b.x, mid.y + b.y);
+    g.closePath();
+    g.stroke();
+    g.restore();
+    const home = cellRect(L, homeCell(t));
+    text(g, STATES[TEAMS[t].state].mark, home, { size: SIZES.min, colour: COLORS.card });
+  });
+
+  
+  g.save();
+  g.lineWidth = SIZES.border;
+  g.strokeStyle = COLORS.ink;
+  roundRect(g, L.x - 6, L.y - 6, L.size + 12, L.size + 12, 10);
+  g.stroke();
+  g.restore();
+  return L;
+}
+
+
+
+
+
+const PIPS = {
+  1: [[0.5, 0.5]],
+  2: [[0.28, 0.28], [0.72, 0.72]],
+  3: [[0.26, 0.26], [0.5, 0.5], [0.74, 0.74]],
+  4: [[0.28, 0.28], [0.72, 0.28], [0.28, 0.72], [0.72, 0.72]],
+  5: [[0.26, 0.26], [0.74, 0.26], [0.5, 0.5], [0.26, 0.74], [0.74, 0.74]],
+  6: [[0.28, 0.24], [0.72, 0.24], [0.28, 0.5], [0.72, 0.5], [0.28, 0.76], [0.72, 0.76]],
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function pip(g, cx, cy, radius) {
+  g.beginPath();
+  g.arc(cx, cy, radius, 0, Math.PI * 2);
+  g.fillStyle = COLORS.ink;
+  g.fill();
+  g.save();
+  g.clip();
+  g.globalAlpha = 0.5;
+  g.beginPath();
+  g.arc(cx + radius * 0.34, cy + radius * 0.34, radius * 0.82, 0, Math.PI * 2);
+  g.fillStyle = COLORS.slate ?? '#4A4438';
+  g.fill();
+  g.restore();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function die(g, r, { face = null, tumble = 1, hover = 0, press = 0, hint = null } = {}) {
+  const rolling = face !== null && tumble < 1;
+  const shown = face === null ? null
+    : (tumble >= 1 ? face : ((Math.floor(tumble * 24) * 5 + 1) % 6) + 1);
+
+  if (shown === null) {
+    surface(g, r, {
+      fill: COLORS.card,
+      offset: Math.max(0, SIZES.shadow + hover - press),
+      dy: press,
+      radius: 10,
+    });
+    text(g, hint ?? 'ROLL', { x: r.x, y: r.y + press, w: r.w, h: r.h },
+      { size: SIZES.h2, colour: COLORS.ink, fit: true, maxWidth: r.w - 14 });
+    return;
+  }
+
+  const cx = r.x + r.w / 2;
+  const cy = r.y + r.h / 2;
+
+  
+  
+  
+  const air = rolling ? Math.sin(tumble * Math.PI) : 0;
+  const hop = air * r.h * 0.38;
+
+  if (air > 0.01) {
+    g.save();
+    g.globalAlpha = 0.16 * (1 - air * 0.7);
+    g.fillStyle = COLORS.ink;
+    g.beginPath();
+    g.ellipse(cx, r.y + r.h + 4, (r.w / 2) * (1 - air * 0.35), 5 * (1 - air * 0.5), 0, 0, Math.PI * 2);
+    g.fill();
+    g.restore();
+  }
+
+  
+  
+  const spin = rolling ? (1 - tumble) ** 2 * Math.PI * 2.4 : 0;
+  
+  const land = rolling && tumble > 0.8 ? Math.sin((tumble - 0.8) / 0.2 * Math.PI) : 0;
+
+  
+  
+  
+  
+  
+  
+  
+  const fit = 1 / (Math.abs(Math.cos(spin)) + Math.abs(Math.sin(spin)));
+
+  g.save();
+  g.translate(cx, cy - hop + land * r.h * 0.05);
+  g.rotate(spin);
+  g.scale(fit * (1 + land * 0.09), fit * (1 - land * 0.09));
+  g.translate(-cx, -cy);
+
+  surface(g, r, {
+    fill: COLORS.card,
+    offset: Math.max(0, SIZES.shadow + hover - press + air * 5),
+    dy: press,
+    radius: 10,
+  });
+
+  
+  
+  
+  g.save();
+  roundRect(g, r.x + 2, r.y + press + 2, r.w - 4, r.h - 4, 8);
+  g.clip();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const bw = Math.max(2, r.w * 0.07);
+  const l = r.x + 2 + bw / 2;
+  const t = r.y + press + 2 + bw / 2;
+  const rt = r.x + r.w - 2 - bw / 2;
+  const b = r.y + press + r.h - 2 - bw / 2;
+  g.lineWidth = bw;
+  g.strokeStyle = '#FFFFFF';
+  g.beginPath();
+  g.moveTo(l, b);
+  g.lineTo(l, t);
+  g.lineTo(rt, t);
+  g.stroke();
+  g.globalAlpha = 0.55;
+  g.strokeStyle = '#C6BEAB';
+  g.beginPath();
+  g.moveTo(rt, t);
+  g.lineTo(rt, b);
+  g.lineTo(l, b);
+  g.stroke();
+  g.restore();
+
+  const radius = Math.max(4, r.w * 0.1);
+  for (const [px, py] of PIPS[shown]) {
+    pip(g, r.x + px * r.w, r.y + press + py * r.h, radius);
+  }
+  g.restore();
+}
+
+
+
+
+
+
+
+
+export function seat(g, r, {
+  team, who, done = 0, total = 4, active = false, finished = false, compact = false,
+}) {
+  const t = TEAMS[team];
+  surface(g, r, {
+    fill: active ? COLORS.card : COLORS.paper,
+    offset: active ? SIZES.shadow : 0,
+    border: SIZES.border,
+    edge: active ? COLORS.blue : COLORS.ink,
+  });
+  const pad = compact ? 8 : 12;
+  const size = Math.min(r.h * 0.32, compact ? 15 : 18);
+  shapePath(g, t.shape, r.x + pad + size, r.y + r.h / 2, size);
+  g.fillStyle = ink(t.colour);
+  g.fill();
+  g.lineWidth = 3;
+  g.strokeStyle = COLORS.ink;
+  shapePath(g, t.shape, r.x + pad + size, r.y + r.h / 2, size);
+  g.stroke();
+
+  const left = r.x + pad + size * 2 + (compact ? 8 : 12);
+  const width = r.w - (left - r.x) - pad;
+
+  
+  
+  
+  
+  
+  
+  
+  if (compact) {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    const forCount = 40;
+    text(g, `${active ? '▸ ' : ''}${t.name}`,
+      { x: left, y: r.y + 5, w: width - forCount, h: r.h / 2 - 4 },
+      { size: SIZES.min, colour: COLORS.ink, align: 'left', fit: true, maxWidth: width - forCount });
+    text(g, finished ? 'HOME' : `${done}/${total}`,
+      { x: left, y: r.y + 5, w: width, h: r.h / 2 - 4 },
+      { size: SIZES.min, weight: 400, colour: COLORS.inkSoft, align: 'right', fit: true, maxWidth: forCount });
+    text(g, who, { x: left, y: r.y + r.h / 2 - 2, w: width, h: r.h / 2 },
+      { size: SIZES.min, weight: 400, colour: active ? COLORS.blue : COLORS.inkSoft, align: 'left', fit: true, maxWidth: width });
+    return;
+  }
+  text(g, `${t.name}: ${who}`,
+    { x: left, y: r.y + 6, w: width, h: r.h / 2 - 4 },
+    { size: SIZES.min, colour: COLORS.ink, align: 'left', fit: true, maxWidth: width });
+  const tail = finished ? 'FINISHED' : `${done} of ${total} home${active ? ' - to play' : ''}`;
+  text(g, tail, { x: left, y: r.y + r.h / 2 - 2, w: width, h: r.h / 2 },
+    { size: SIZES.min, weight: 400, colour: active ? COLORS.blue : COLORS.inkSoft, align: 'left', fit: true, maxWidth: width });
+}
+
+
+export const BOARD_CELLS = GRID;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function peopleIcon(g, r, colour = COLORS.ink) {
+  const s = Math.min(r.w, r.h);
+  const cx = r.x + r.w / 2;
+  const cy = r.y + r.h / 2;
+  const head = s * 0.17;
+  g.save();
+  g.fillStyle = colour;
+  g.strokeStyle = colour;
+  g.lineWidth = Math.max(1.5, s * 0.09);
+  g.lineCap = 'round';
+  
+  
+  for (const [dx, dy, scale] of [[s * 0.20, -s * 0.06, 0.82], [-s * 0.16, s * 0.04, 1]]) {
+    const hx = cx + dx;
+    const hy = cy + dy - s * 0.16;
+    g.beginPath();
+    g.arc(hx, hy, head * scale, 0, Math.PI * 2);
+    g.fill();
+    g.beginPath();
+    g.arc(hx, hy + head * scale * 2.5, head * scale * 1.85, Math.PI * 1.15, Math.PI * 1.85);
+    g.stroke();
+  }
+  g.restore();
+}

@@ -167,21 +167,59 @@ function udder(n = 6) {
 
 
 
-function tentacle(side, n = 4) {
+const TENTACLE_RINGS = 8;
+
+
+
+
+function tentacleCentre(side, i) {
   const { lo, hi } = ZONES.udder;
-  const N = 8;
+  const t = i / (TENTACLE_RINGS - 1);
+  return {
+    
+    z: hi - 0.02 - t * (hi - lo + 0.06),
+    r: 0.042 * (1 - t * 0.72),
+    
+    y: side * (0.150 + Math.sin(t * Math.PI * 0.8) * 0.115),
+    x: 0.130 + Math.sin(t * 2.4) * 0.085 + t * 0.055,
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const TENTACLE_SEGMENT_ROWS = Object.freeze([[0, 3], [3, 5], [5, 7]]);
+
+function tentacleSegment(side, seg, n = 4) {
+  const [a, b] = TENTACLE_SEGMENT_ROWS[seg];
   const rings = [];
-  for (let i = 0; i < N; i += 1) {
-    const t = i / (N - 1);
-    
-    const z = hi - 0.02 - t * (hi - lo + 0.06);
-    const r = 0.042 * (1 - t * 0.72);
-    
-    const y = side * (0.150 + Math.sin(t * Math.PI * 0.8) * 0.115);
-    const x = 0.130 + Math.sin(t * 2.4) * 0.085 + t * 0.055;
-    rings.push(ring(z, r, r, n, { cx: x, cy: y }));
+  for (let i = a; i <= b; i += 1) {
+    const c = tentacleCentre(side, i);
+    rings.push(ring(c.z, c.r, c.r, n, { cx: c.x, cy: c.y }));
   }
   return stackMesh(rings, { capFirst: true, capLast: true });
+}
+
+
+
+
+export function tentacleJoints(side) {
+  return TENTACLE_SEGMENT_ROWS.map(([a]) => {
+    const c = tentacleCentre(side, a);
+    return [c.x, c.y, c.z];
+  });
 }
 
 
@@ -230,8 +268,23 @@ export function buildCow() {
     { name: 'earL', zone: 'head', mesh: ear(-1) },
     { name: 'earR', zone: 'head', mesh: ear(+1) },
     
-    { name: 'tentacleL', zone: 'tentacles', mesh: tentacle(-1) },
-    { name: 'tentacleR', zone: 'tentacles', mesh: tentacle(+1) },
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    { name: 'tentacleL', zone: 'tentacles', mesh: tentacleSegment(-1, 0) },
+    { name: 'tentacleL1', zone: 'tentacles', mesh: tentacleSegment(-1, 1) },
+    { name: 'tentacleL2', zone: 'tentacles', mesh: tentacleSegment(-1, 2) },
+    { name: 'tentacleR', zone: 'tentacles', mesh: tentacleSegment(+1, 0) },
+    { name: 'tentacleR1', zone: 'tentacles', mesh: tentacleSegment(+1, 1) },
+    { name: 'tentacleR2', zone: 'tentacles', mesh: tentacleSegment(+1, 2) },
     { name: 'legL', zone: 'legs', mesh: leg(-1) },
     { name: 'legR', zone: 'legs', mesh: leg(+1) },
     { name: 'tail', zone: 'torso', mesh: tail() },

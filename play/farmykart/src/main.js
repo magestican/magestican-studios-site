@@ -29,7 +29,7 @@ import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderbo
 
 
 import { recordSession, syncFromCloud, accountSummary } from '../../../web-engine/account/account.js';
-import { levelFrom, totalsFromSummary } from '../../../web-engine/account/playerLevel.js';
+import { levelFromXp } from '../../../web-engine/account/playerLevel.js';
 import { sessionLines } from '../../../web-engine/account/accountBadge.js';
 import { mountProfilePanel } from '../../../web-engine/account/accountUi.js';
 import { shareCard } from '../../../web-engine/account/shareCard.js';
@@ -39,6 +39,7 @@ import { SeededRng } from 'arbelo/rng';
 import { renderPodium, renderCupLine, renderNextUp } from './ui/podium.js';
 import { createShowcaseView, freshCanvas } from './render/showcase.js';
 import { setMusicMuted, musicClock, musicNow } from './audio/music.js';
+import { createLobbyMusic } from '../../../web-engine/audio/lobbyMusic.js';
 import { EMOTES, EMOTE_TIME } from 'arbelo/emotes';
 import { renderKartBoard } from './ui/kartBoard.js';
 
@@ -55,6 +56,14 @@ import { drawItemIcon } from './render/itemMesh.js';
 import { hex, PALETTE } from './palette.js';
 import { showTouchOverlay } from './input/controls.js';
 import { createAudio, installAudioUnlock, setMuted as setAudioMuted, audioState, SFX } from './audio/sfx.js';
+
+
+
+
+
+
+
+import { mountSoundToggle, soundLabel, syncSoundToggles } from '../../shared/ui/muteButton.js';
 
 
 
@@ -125,6 +134,7 @@ const audio = createAudio();
 function boot() {
   initAnalytics();
   installAudioUnlock(audio);
+  armMenuBed();
   
   
   
@@ -144,6 +154,9 @@ function boot() {
   
   window.__fkAudio = () => ({
     ...audioState(audio), musicClock: musicClock(audio), musicNow: musicNow(audio),
+    
+    
+    lobby: lobbyMusic ? lobbyMusic.state() : null,
   });
   state.progress = loadProgress(safeLocalStorage());
   
@@ -195,6 +208,9 @@ function boot() {
   
   
   syncSelection();
+  
+  
+  mountMenuSoundToggles();
   syncMuteButton();
   buildNameField();
   refreshBoard();
@@ -254,6 +270,13 @@ function boot() {
   
   
   
+  window.addEventListener('mg-info-open', () => {
+    if (state.race && !$('pause').classList.contains('show')) pauseRace();
+  });
+
+  
+  
+  
   state.lobbyUi = createLobbyUi({
     tracks: TRACKS,
     difficulties: Object.values(DIFFICULTIES),
@@ -264,6 +287,8 @@ function boot() {
     onLeave: leaveRoom,
   });
 
+  
+  installHistoryRouter();
   window.__fkBooted = true;
   $('boot-gate')?.remove();
 
@@ -1188,6 +1213,15 @@ function showResults(result) {
     track: result.trackId, position: result.position, field: result.fieldSize,
   });
   publishRace();
+  
+  
+  
+  
+  
+  
+  
+  hide('hud');
+  hide('touch-hints');
   show('results');
 }
 
@@ -1285,12 +1319,22 @@ function buildNameField() {
 
 
 
-function toggleMute() {
-  state.muted = !state.muted;
+
+
+
+
+
+
+
+
+
+function setMuted(muted) {
+  state.muted = !!muted;
   
   
   
   setMusicMuted(audio, state.muted);
+  menuBed()?.setMuted(state.muted);
   localStorageSet('farmykart.muted', state.muted ? '1' : '0');
   
   
@@ -1300,10 +1344,47 @@ function toggleMute() {
   syncMuteButton();
 }
 
+function toggleMute() { setMuted(!state.muted); }
+
 function syncMuteButton() {
   const b = $('mute-btn');
-  b.textContent = state.muted ? 'Sound off' : 'Sound on';
+  
+  
+  
+  
+  b.textContent = soundLabel(state.muted);
   b.setAttribute('aria-pressed', String(state.muted));
+  
+  syncSoundToggles();
+}
+
+
+
+
+
+
+
+
+
+
+
+function mountMenuSoundToggles() {
+  const read = () => state.muted;
+  const write = (m) => setMuted(m);
+  const pauseRow = document.querySelector('#pause .row');
+  if (pauseRow) {
+    mountSoundToggle({
+      host: pauseRow, id: 'pause-sound', className: 'chip', isMuted: read, setMuted: write,
+    });
+  }
+  
+  
+  const lobbyRow = document.getElementById('lobby-sound-row');
+  if (lobbyRow) {
+    mountSoundToggle({
+      host: lobbyRow, id: 'lobby-sound', className: 'chip', isMuted: read, setMuted: write,
+    });
+  }
 }
 
 
@@ -1341,6 +1422,11 @@ function refreshAccountPanel() {
 
 
 
+
+
+
+
+
 function refreshLoginChip() {
   const chip = $('login-chip');
   if (!chip) return;
@@ -1348,7 +1434,7 @@ function refreshLoginChip() {
   try { summary = accountSummary(); } catch {  }
   chip.hidden = false;
   if (summary && summary.linked) {
-    const lvl = levelFrom(totalsFromSummary(summary));
+    const lvl = levelFromXp(summary.rank?.xp);
     chip.classList.add('level');
     chip.innerHTML = '';
     const b = document.createElement('b');
@@ -1357,7 +1443,7 @@ function refreshLoginChip() {
     chip.appendChild(document.createTextNode(
       ` ${summary.name ? String(summary.name).slice(0, 14) : ''}`,
     ));
-    chip.title = `${lvl.intoLevel}/${lvl.forNext} xp to level ${lvl.level + 1}`;
+    chip.title = `${lvl.xpIntoLevel}/${lvl.xpForNext} xp to level ${lvl.level + 1}`;
   } else {
     chip.classList.remove('level');
     chip.textContent = 'Log in';
@@ -1403,8 +1489,71 @@ function copyDayCard() {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let lobbyMusic = null;
+function menuBed() {
+  if (lobbyMusic) return lobbyMusic;
+  if (!audio.ctx || !audio.master) return null;
+  lobbyMusic = createLobbyMusic({
+    ctx: audio.ctx,
+    
+    
+    destination: audio.master,
+    manifestUrl: new URL('../assets/music/music.json', import.meta.url),
+  });
+  lobbyMusic.setMuted(state.muted);
+  return lobbyMusic;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function armMenuBed() {
+  const tryStart = () => {
+    const onMenu = $('menu')?.classList.contains('show')
+      || $('lobby')?.classList.contains('show');
+    if (onMenu) menuBed()?.play();
+  };
+  for (const t of ['pointerdown', 'touchend', 'keydown', 'click']) {
+    window.addEventListener(t, tryStart, true);
+  }
+}
+
 const show = (id) => {
   $(id)?.classList.add('show');
+  
+  
+  if (id === 'menu' || id === 'lobby' || id === 'results') markScreen(id);
   if (id === 'menu') refreshAccountPanel();
   
   
@@ -1416,8 +1565,80 @@ const show = (id) => {
   
   
   if (id === 'menu') buildCharacterShowcase();
+  
+  
+  
+  if (id === 'menu' || id === 'lobby') menuBed()?.play();
+  if (id === 'hud') menuBed()?.stop();
 };
 const hide = (id) => $(id)?.classList.remove('show');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SCREEN_STATE = 'fk-screen';
+
+function markScreen(id) {
+  try {
+    const at = window.history.state;
+    
+    
+    if (at && at[SCREEN_STATE] === id) return;
+    window.history.pushState({ [SCREEN_STATE]: id }, '');
+  } catch {  }
+}
+
+function routeTo(id) {
+  
+  
+  if (id === 'lobby' && state.session) { hide('menu'); hide('results'); show('lobby'); return; }
+  if (id === 'results') { hide('menu'); hide('hud'); hide('touch-hints'); show('results'); return; }
+  hide('lobby'); hide('results'); hide('hud'); hide('touch-hints');
+  if (state.race) { state.race.dispose(); state.race = null; }
+  show('menu');
+}
+
+function installHistoryRouter() {
+  try {
+    
+    
+    window.history.replaceState({ [SCREEN_STATE]: 'menu' }, '');
+    window.history.pushState({ [SCREEN_STATE]: 'menu' }, '');
+  } catch {  }
+  window.addEventListener('popstate', (e) => {
+    const id = e.state && e.state[SCREEN_STATE];
+    if (!id) {
+      
+      
+      try { window.history.pushState({ [SCREEN_STATE]: 'menu' }, ''); } catch {  }
+      routeTo('menu');
+      return;
+    }
+    routeTo(id);
+  });
+}
 
 
 

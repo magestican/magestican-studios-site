@@ -1,0 +1,21 @@
+{
+  "name": "Farmy Moon Life",
+  "short_name": "Farmy Moon",
+  "description": "A cozy farm on a tiny seasonal moon. Grow an orchard, press fruit into juice and jam, sell it to the neighbours, and fly to six other planets. It plays with no connection once you have opened it once.",
+  "id": "../",
+  "start_url": "../",
+  "scope": "../",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "landscape-primary",
+  "background_color": "#fff3de",
+  "theme_color": "#e8a15a",
+  "categories": ["games", "entertainment"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    { "src": "install/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "install/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "install/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

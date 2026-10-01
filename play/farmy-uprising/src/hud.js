@@ -1,0 +1,1338 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { UNITS, BUILDINGS, HERD } from '../../../web-engine/rts/roster.js';
+import { TICKS_PER_SECOND, MATCH_TICKS } from '../../../web-engine/rts/fixed.js';
+import { sharePct, landSeconds, captureEta, captureState } from '../../../web-engine/rts/territory.js';
+import { weightIn } from '../../../web-engine/rts/sim/presence.js';
+import { unitSpec, isGatherer, isArmy, STATE } from '../../../web-engine/rts/sim/world.js';
+import { resolveSelection } from '../../../web-engine/rts/sim/commands.js';
+import { whyCannotTrain } from '../../../web-engine/rts/sim/production.js';
+import { loadAtlas } from './sprites.js';
+import { loadBuildingAtlas } from './buildingSprites.js';
+import { loadPortraits, portraitRow } from './portraits.js';
+import { createMinimap } from './minimap.js';
+import { nextObjective } from '../../../web-engine/rts/coach.js';
+import { FACTION_COLOUR } from '../../../web-engine/rts/palette.js';
+import { loadFactionColours, saveFactionColours } from './store.js';
+import { skinFor, coachLine } from './hudSkin.js';
+
+const $ = (id) => document.getElementById(id);
+const clock = (ticks) => {
+  const left = Math.max(0, MATCH_TICKS - ticks);
+  const s = Math.floor(left / TICKS_PER_SECOND);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const ICON_FACING = 2;
+
+
+
+
+
+
+
+
+const DOING_KEY = {
+  [STATE.IDLE]: 'idle',
+  [STATE.MOVING]: 'moving',
+  [STATE.ATTACKING]: 'attacking',
+  [STATE.GATHERING]: 'gathering',
+  [STATE.LOADING]: 'loading',
+  [STATE.DEAD]: 'dead',
+};
+
+
+const POP_GAP_MS = 650;
+
+
+const ROLL = 0.22;
+
+export function createHud(match, seat, actions) {
+  
+  
+  
+  
+  
+  const skin = skinFor(match.factions[seat]);
+
+  const el = {
+    feed: $('feed'), water: $('water'), clock: $('clock'),
+    bar: $('scorebar'), share: $('share'),
+    rail: $('rail'), buildBar: $('buildbar'),
+    ticker: $('ticker'), banner: $('banner'),
+    quick: $('quick'), status: $('status'), minimap: $('minimap'),
+    income: $('income'),
+    objective: $('objective'), objText: $('obj-text'), objIcon: $('obj-icon'),
+    capBar: $('capture-bar'), capLabel: $('cap-label'), capFill: $('cap-fill'), capEta: $('cap-eta'),
+  };
+
+  
+  let selection = { kind: 'none', key: null };
+
+  
+  let factionColours = loadFactionColours();
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (typeof document !== 'undefined') document.documentElement.dataset.skin = skin.id;
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function dressIcons(root = document) {
+    if (typeof document === 'undefined' || !root) return;
+    for (const use of root.querySelectorAll('use')) {
+      const href = use.getAttribute('href') || '';
+      const base = href.replace(/^#/, '').replace(/-(herd|yield)$/, '');
+      if (!base.startsWith('i-')) continue;
+      const want = `${base}-${skin.id}`;
+      if (document.getElementById(want)) use.setAttribute('href', `#${want}`);
+      else if (href !== `#${base}`) use.setAttribute('href', `#${base}`);
+    }
+  }
+  dressIcons();
+
+  
+  
+  
+  
+  
+  const cap = (id, text) => {
+    const n = $(id);
+    if (!n) return;
+    const c = n.querySelector('.cap');
+    if (c) c.textContent = text; else n.textContent = text;
+  };
+  const label = (id, text) => { const n = $(id); if (n) n.dataset.label = text; };
+  label('p-forces', skin.panels.forces);
+  label('p-map', skin.panels.map);
+  label('p-status', skin.panels.status);
+  cap('btn-attack', skin.buttons.attack);
+  cap('btn-capture', skin.buttons.capture);
+  cap('btn-build', skin.buttons.build);
+  cap('btn-quick', skin.buttons.menu);
+  
+  
+  
+  
+  const hint = (id, text) => { const n = $(id); if (n) n.title = text; };
+  hint('btn-attack', 'Send what is selected at the nearest thing worth fighting');
+  hint('btn-capture', 'Send what is selected to take the nearest ground');
+  hint('btn-build', 'Open what you can make');
+  if (document.querySelector('.res.feed em')) {
+    document.querySelector('.res.feed em').textContent = skin.res.feed;
+  }
+  if (document.querySelector('.res.water em')) {
+    document.querySelector('.res.water em').textContent = skin.res.water;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let atlas = null;
+  let buildingAtlas = null;
+  let portraits = null;
+  const iconCache = new Map();
+
+  loadAtlas().then((a) => {
+    atlas = a;
+    iconCache.clear();
+    buildKey = '';          
+    drawPortrait();
+  }).catch(() => {  });
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  loadBuildingAtlas().then((a) => {
+    buildingAtlas = a;
+    iconCache.clear();
+    buildKey = '';
+    drawPortrait();
+  }).catch(() => {  });
+
+  
+  
+  
+  
+  
+  loadPortraits().then((p) => {
+    portraits = p;
+    drawPortrait();
+  }).catch(() => {  });
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  function iconFor(id, px) {
+    const key = `${id}@${px}`;
+    const hit = iconCache.get(key);
+    if (hit) return hit;
+    const c = document.createElement('canvas');
+    c.width = px;
+    c.height = px;
+    const g = c.getContext('2d');
+    const row = atlas && atlas.manifest.rows[id];
+    const brow = buildingAtlas && buildingAtlas.manifest.rows[id];
+    if (row) {
+      const tile = atlas.manifest.tile;
+      const facings = atlas.manifest.facings || 8;
+      g.drawImage(atlas.image,
+        Math.min(ICON_FACING, facings - 1) * tile, row.row * tile, tile, tile,
+        0, 0, px, px);
+    } else if (brow) {
+      const tile = buildingAtlas.manifest.tile;
+      g.drawImage(buildingAtlas.image, 0, brow.row * tile, tile, tile, 0, 0, px, px);
+    } else {
+      const spec = UNITS[id] || BUILDINGS[id];
+      
+      
+      
+      
+      const words = spec ? String(spec.name).split(' ').filter(Boolean) : [];
+      const initials = (words.length > 1
+        ? words.map((wd) => wd[0]).join('')
+        : String(words[0] || id).slice(0, 2)).slice(0, 3).toUpperCase();
+      g.fillStyle = 'rgba(63,184,166,.10)';
+      g.fillRect(0, 0, px, px);
+      g.strokeStyle = spec && spec.faction === HERD ? '#79c04a' : '#b9c0c8';
+      g.lineWidth = Math.max(1, px / 16);
+      g.strokeRect(px * 0.16, px * 0.16, px * 0.68, px * 0.68);
+      g.fillStyle = '#8ff2e0';
+      g.font = `700 ${Math.round(px * 0.32)}px ui-monospace,Consolas,monospace`;
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText(initials, px / 2, px / 2 + px * 0.02);
+    }
+    iconCache.set(key, c);
+    return c;
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+  let iconsDrawnWith = { units: false, buildings: false };
+  function paintIcons(root) {
+    for (const c of root.querySelectorAll('canvas[data-icon]')) {
+      c.getContext('2d').drawImage(iconFor(c.dataset.icon, c.width), 0, 0);
+    }
+    
+    
+    
+    for (const c of root.querySelectorAll('canvas[data-portrait]')) portraitInto(c, c.dataset.portrait);
+    iconsDrawnWith = { units: !!atlas, buildings: !!buildingAtlas };
+  }
+
+  
+  function portraitInto(c, id) {
+    const g = c.getContext('2d');
+    const px = c.width;
+    g.clearRect(0, 0, px, px);
+    const row = portraits ? portraitRow(portraits.manifest, id) : -1;
+    if (row >= 0) {
+      const tile = portraits.manifest.tile;
+      g.drawImage(portraits.image, 0, row * tile, tile, tile, 0, 0, px, px);
+      return;
+    }
+    g.drawImage(iconFor(id, px), 0, 0);
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  function groupsFor(m) {
+    const w = m.w;
+    const byKind = new Map();
+    for (let i = 0; i < w.u.count; i += 1) {
+      if (!w.u.alive[i] || w.u.owner[i] !== seat) continue;
+      const spec = unitSpec(w, i);
+      let g = byKind.get(spec.id);
+      if (!g) {
+        g = { id: spec.id, name: spec.name, units: 0, members: 0, hurt: 0 };
+        byKind.set(spec.id, g);
+      }
+      g.units += 1;
+      g.members += w.u.members[i];
+      if (w.u.members[i] < spec.packSize) g.hurt += 1;
+    }
+    
+    return [...byKind.values()].sort((a, b) => a.id.localeCompare(b.id));
+  }
+
+  function renderRail(m) {
+    const groups = groupsFor(m);
+    const chips = [
+      { key: 'all', label: skin.chips.all, n: groups.reduce((a, g) => a + g.units, 0) },
+      { key: 'army', label: skin.chips.army, n: countWhere(m, isArmy) },
+      { key: 'gather', label: skin.chips.gather, n: countWhere(m, isGatherer) },
+      { key: 'view', label: skin.chips.view, n: -1 },
+    ];
+    let html = '';
+    for (const c of chips) {
+      const on = selection.kind === c.key ? ' on' : '';
+      html += `<button class="chip${on}" data-kind="${c.key}">${c.label}`
+        + `${c.n >= 0 ? `<b>${c.n}</b>` : ''}</button>`;
+    }
+    html += '<span class="railsep"></span>';
+    for (const g of groups) {
+      const on = selection.kind === 'group' && selection.key === g.id ? ' on' : '';
+      
+      
+      
+      html += `<button class="chip grp${on}" data-kind="group" data-id="${g.id}">`
+        + `<canvas data-portrait="${g.id}" width="44" height="44" aria-hidden="true"></canvas>`
+        + `${g.name}<b>${g.members}</b>${g.hurt ? '<i class="hurt"></i>' : ''}</button>`;
+    }
+    el.rail.innerHTML = html;
+    dressIcons(el.rail);
+    paintIcons(el.rail);
+  }
+
+  
+
+
+
+
+  function flashSelection() {
+    
+    
+    if (match && !el.rail.querySelector('.chip.on')) renderRail(match);
+    for (const c of el.rail.querySelectorAll('.chip.on')) {
+      c.classList.remove('ack');
+      void c.offsetWidth;
+      c.classList.add('ack');
+    }
+  }
+
+  function countWhere(m, pred) {
+    const w = m.w;
+    let n = 0;
+    for (let i = 0; i < w.u.count; i += 1) {
+      if (w.u.alive[i] && w.u.owner[i] === seat && pred(unitSpec(w, i))) n += 1;
+    }
+    return n;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let buildKey = '';
+
+  function renderBuildBar(m) {
+    const faction = m.factions[seat];
+    const units = Object.keys(UNITS).filter((id) => UNITS[id].faction === faction).sort();
+    
+    
+    
+    
+    
+    
+    const builds = Object.keys(BUILDINGS)
+      .filter((id) => BUILDINGS[id].faction === faction && BUILDINGS[id].buildable !== false)
+      .sort();
+
+    const trainWhy = units.map((id) => whyCannotTrain(m.w, m.banks, seat, id) || '');
+    
+    
+    
+    
+    
+    
+    const bank = m.banks[seat].display();
+    const buildWhy = builds.map((id) => {
+      const spec = BUILDINGS[id];
+      return bank.feed < spec.cost.feed || bank.water < (spec.cost.water || 0) ? 'cost' : '';
+    });
+
+    const key = `${units.join()}|${trainWhy.map((w) => (w ? 1 : 0)).join()}`
+      + `|${builds.join()}|${buildWhy.map((w) => (w ? 1 : 0)).join()}`
+      + `|${atlas ? 1 : 0}${buildingAtlas ? 1 : 0}|${skin.id}`;
+    if (key === buildKey) return;
+    buildKey = key;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    const cost = (spec) => `${spec.cost.feed}${spec.cost.water ? `/${spec.cost.water}` : ''}`;
+    let html = `<section class="bpanel buildpanel" data-label="${skin.rows.train}">`
+      + '<div class="buildrow">';
+    units.forEach((id, i) => {
+      const spec = UNITS[id];
+      html += `<button class="bbtn${trainWhy[i] ? ' off' : ''}" data-train="${id}"`
+        + ` title="${trainWhy[i] || spec.name}">`
+        + `<canvas data-icon="${id}" width="64" height="64"></canvas>`
+        + `<span>${spec.name}</span><b>${cost(spec)}</b></button>`;
+    });
+    html += `</div></section><section class="bpanel buildpanel" data-label="${skin.rows.build}">`
+      + '<div class="buildrow">';
+    builds.forEach((id, i) => {
+      const spec = BUILDINGS[id];
+      html += `<button class="bbtn bld${buildWhy[i] ? ' off' : ''}" data-build="${id}"`
+        + ` title="${spec.name}">`
+        + `<canvas data-icon="${id}" width="64" height="64"></canvas>`
+        + `<span>${spec.name}</span><b>${cost(spec)}</b></button>`;
+    });
+    html += '</div></section>';
+    
+    
+    
+    el.buildBar.innerHTML = `<div class="qbody">${html}</div>`
+      + `<div class="qfoot"><button id="build-done" type="button">${skin.quick.done}</button></div>`;
+    paintIcons(el.buildBar);
+    
+    
+    dressIcons(el.buildBar);
+    updateRowCues();
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function updateRowCues() {
+    for (const r of el.buildBar.querySelectorAll('.buildrow')) {
+      const max = r.scrollWidth - r.clientWidth;
+      r.classList.toggle('more-r', max > 1 && r.scrollLeft < max - 1);
+      r.classList.toggle('more-l', max > 1 && r.scrollLeft > 1);
+    }
+  }
+
+  
+  
+  
+  
+  el.buildBar.addEventListener('scroll', updateRowCues, true);
+  window.addEventListener('resize', updateRowCues);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const INCOME_WINDOW_TICKS = 3 * TICKS_PER_SECOND;
+  let incomeMark = null;
+
+  function renderIncome(m) {
+    if (!el.income) return;
+    const bank = m.banks[seat];
+    const tick = m.w.tick;
+    if (!incomeMark || tick < incomeMark.tick || tick - incomeMark.tick > INCOME_WINDOW_TICKS) {
+      incomeMark = { tick, feed: bank.earnedFeed, water: bank.earnedWater, feedRate: 0, waterRate: 0 };
+    }
+    const dt = tick - incomeMark.tick;
+    if (dt >= TICKS_PER_SECOND) {
+      
+      
+      
+      incomeMark.feedRate = ((bank.earnedFeed - incomeMark.feed) * TICKS_PER_SECOND) / (dt * 1000);
+      incomeMark.waterRate = ((bank.earnedWater - incomeMark.water) * TICKS_PER_SECOND) / (dt * 1000);
+    }
+    const f = incomeMark.feedRate.toFixed(1);
+    const w = incomeMark.waterRate.toFixed(1);
+    const next = `<span class="f">${skin.res.feed} <b>+${f}</b>/s</span>`
+      + `<span class="w">${skin.res.water} <b>+${w}</b>/s</span>`;
+    
+    
+    
+    if (el.income.dataset.v !== next) {
+      el.income.dataset.v = next;
+      el.income.innerHTML = next;
+    }
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const pill = (n) => (n && n.parentElement ? n.parentElement : null);
+  const money = {
+    feed: { out: el.feed, pill: pill(el.feed), shown: -1, earned: -1, pending: 0, popAt: 0, glow: 0, pops: 0 },
+    water: { out: el.water, pill: pill(el.water), shown: -1, earned: -1, pending: 0, popAt: 0, glow: 0, pops: 0 },
+  };
+
+  
+
+
+
+
+
+
+
+  function popGain(s, n) {
+    if (!s.pill) return;
+    const e = document.createElement('i');
+    e.className = 'pop';
+    e.textContent = `+${n}`;
+    
+    
+    e.addEventListener('animationend', () => e.remove());
+    s.pill.appendChild(e);
+    const live = s.pill.querySelectorAll('.pop');
+    for (let i = 0; i < live.length - 3; i += 1) live[i].remove();
+    s.pill.classList.add('gain');
+    clearTimeout(s.glow);
+    s.glow = setTimeout(() => s.pill.classList.remove('gain'), 320);
+    s.pops += 1;
+  }
+
+  
+
+
+
+
+
+
+
+  function rollCounter(s, target, earnedMilli, now) {
+    if (!s.out) return;
+    const whole = Math.floor(earnedMilli / 1000);
+    
+    
+    if (s.earned < 0 || whole < s.earned) { s.earned = whole; s.pending = 0; }
+    if (whole > s.earned) { s.pending += whole - s.earned; s.earned = whole; }
+    if (s.pending >= 1 && now - s.popAt >= POP_GAP_MS) {
+      popGain(s, s.pending);
+      s.pending = 0;
+      s.popAt = now;
+    }
+    if (s.shown < 0 || target < s.shown) s.shown = target;
+    else if (s.shown < target) s.shown = Math.min(target, s.shown + Math.max(1, (target - s.shown) * ROLL));
+    const txt = String(Math.floor(s.shown));
+    if (s.out.textContent !== txt) s.out.textContent = txt;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  el.status.innerHTML = '<div class="st-head">'
+    + '<canvas class="st-por" width="64" height="64"></canvas>'
+    + '<div class="st-txt"><div class="st-name"></div><div class="st-doing"></div></div>'
+    + '</div><div class="st-bar"><i style="width:100%"></i></div>'
+    + '<div class="st-nums"></div>';
+  const st = {
+    por: el.status.querySelector('.st-por'),
+    name: el.status.querySelector('.st-name'),
+    doing: el.status.querySelector('.st-doing'),
+    bar: el.status.querySelector('.st-bar'),
+    fill: el.status.querySelector('.st-bar i'),
+    nums: el.status.querySelector('.st-nums'),
+  };
+  let portraitId = null;
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  function drawPortrait() {
+    if (!portraitId || !st.por) return;
+    const g = st.por.getContext('2d');
+    const px = st.por.width;
+    g.clearRect(0, 0, px, px);
+    const row = portraits ? portraitRow(portraits.manifest, portraitId) : -1;
+    if (row >= 0) {
+      const tile = portraits.manifest.tile;
+      g.drawImage(portraits.image, 0, row * tile, tile, tile, 0, 0, px, px);
+      return;
+    }
+    g.drawImage(iconFor(portraitId, px), 0, 0);
+  }
+
+  
+
+
+
+
+
+
+
+
+
+  function focusUnit(m) {
+    const w = m.w;
+    const rankOf = (i) => {
+      if (w.u.state[i] === STATE.ATTACKING) return 3;
+      if (w.u.state[i] === STATE.MOVING) return 2;
+      if (w.u.state[i] === STATE.GATHERING) return 1;
+      return 0;
+    };
+    let best = -1;
+    let bestRank = -1;
+    const picked = resolveSelection(m, seat, selection);
+    if (picked.length) {
+      for (const i of picked) {
+        const r = rankOf(i);
+        if (r > bestRank) { bestRank = r; best = i; }
+      }
+      return best;
+    }
+    for (let i = 0; i < w.u.count; i += 1) {
+      if (!w.u.alive[i] || w.u.owner[i] !== seat) continue;
+      const r = rankOf(i);
+      if (r > bestRank) { bestRank = r; best = i; }
+    }
+    return best;
+  }
+
+  
+
+
+
+
+
+
+  function captureEtaHere(m, sec) {
+    if (sec < 0 || !m.presence) return -1;
+    const pc = m.presence.playerCount;
+    let total = 0;
+    let best = 0;
+    let bestId = null;
+    for (let p = 0; p < pc; p += 1) {
+      const v = weightIn(m.presence, sec, p);
+      if (v <= 0) continue;
+      total += v;
+      if (v > best) { best = v; bestId = p; }
+    }
+    if (bestId !== seat) return -1;
+    return captureEta(m.w.sectors[sec], seat, best - (total - best), m.factions);
+  }
+
+  function renderStatus(m) {
+    const i = focusUnit(m);
+    if (i < 0) {
+      st.name.textContent = skin.empty.name;
+      st.doing.textContent = skin.empty.hint;
+      st.nums.innerHTML = '';
+      st.fill.style.width = '0%';
+      
+      
+      renderCaptureBar(m, -1);
+      return;
+    }
+    const w = m.w;
+    const spec = unitSpec(w, i);
+    if (portraitId !== spec.id) { portraitId = spec.id; drawPortrait(); }
+
+    
+    
+    
+    
+    
+    const total = Math.max(0, (w.u.members[i] - 1) * spec.hp + w.u.hp[i]);
+    
+    
+    
+    
+    
+    
+    
+    const max = Math.max(w.u.members[i], spec.packSize) * spec.hp;
+    const pct = max > 0 ? Math.round((total * 100) / max) : 0;
+    
+    
+    
+    
+    st.name.textContent = skin.id === 'herd' ? spec.name : spec.name.toUpperCase();
+    st.doing.textContent = skin.doing[DOING_KEY[w.u.state[i]]] || skin.doing.idle;
+    
+    
+    
+    
+    
+    const eta = captureEtaHere(m, w.u.sector[i]);
+    if (eta > 0) {
+      st.doing.textContent += ` · ${skin.doing.taking} ${Math.ceil(eta / TICKS_PER_SECOND)}s`;
+    }
+    
+    renderCaptureBar(m, w.u.sector[i]);
+    st.fill.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+    st.bar.classList.toggle('low', pct < 40);
+    
+    
+    
+    
+    st.nums.innerHTML = `<span>${skin.nums.hp} <b>${total}</b>/${max}</span>`
+      + `<span>${skin.nums.dmg} <b>${spec.damage}</b></span>`
+      + `<span>${skin.nums.pack} <b>${w.u.members[i]}</b></span>`;
+  }
+
+  
+  
+  
+  
+  
+  
+  if (el.minimap && el.minimap.__fuMinimap) el.minimap.__fuMinimap.destroy();
+  const minimap = el.minimap ? createMinimap({
+    canvas: el.minimap,
+    match,
+    seat,
+    
+    
+    skin: skin.id,
+    onJump(xMm, yMm) {
+      if (actions.onJumpCamera) actions.onJumpCamera(xMm, yMm);
+    },
+  }) : null;
+  if (el.minimap) el.minimap.__fuMinimap = minimap;
+  
+  
+  
+  if (minimap) minimap.setColours(factionColours);
+  if (actions.onFactionColours) actions.onFactionColours({ ...factionColours });
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  let viewBridged = false;
+  function viewFor(passed) {
+    if (passed) return passed;
+    viewBridged = true;
+    return null;
+  }
+
+  
+  
+  
+  
+  
+  
+  
+  const AUDIO_BUSES = [
+    ['voice', 'Voices'],
+    ['sfx', 'Effects'],
+    ['music', 'Music'],
+  ];
+  const audioLevels = { music: 0.5, sfx: 0.75, voice: 1 };
+
+  const TOGGLES = [
+    ['autoRally', 'Auto-rally', 'new fighters walk to the front'],
+    ['autoGather', 'Auto-gather', 'new workers find ground to work'],
+    ['autoEngage', 'Auto-engage', 'idle fighters defend where they stand'],
+    ['autoRetreat', 'Auto-retreat', 'broken packs pull back to a Haven'],
+    ['autoRebuild', 'Auto-rebuild', 'walls and towers are replaced'],
+  ];
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function renderQuick(m) {
+    const a = m.automation[seat];
+    const group = (label, body) => `<section class="qgroup bpanel" data-label="${label}">${body}</section>`;
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    let cols = '';
+    for (const [side, label] of [['herd', 'Animals'], ['yield', 'Farmers']]) {
+      const v = factionColours[side] || FACTION_COLOUR[side];
+      cols += `<label class="col"><span>${label}</span>`
+        + `<input type="color" value="${v}" data-colour="${side}">`
+        + `<em data-colourval="${side}">${v}</em></label>`;
+    }
+    let html = group(skin.quick.colours, `<div class="qcols">${cols}</div>`);
+
+    
+    
+    
+    
+    
+    let lvls = '';
+    for (const [bus, label] of AUDIO_BUSES) {
+      const v = Math.round((audioLevels[bus] ?? 1) * 100);
+      lvls += `<label class="lvl"><span>${label}</span>`
+        + `<input type="range" min="0" max="100" value="${v}" data-bus="${bus}">`
+        + `<em data-busval="${bus}">${v}%</em></label>`;
+    }
+    html += group(skin.quick.sound, lvls);
+
+    let tgls = '';
+    for (const [key, label, why] of TOGGLES) {
+      tgls += `<label class="tgl"><input type="checkbox" data-toggle="${key}"`
+        + `${a[key] ? ' checked' : ''}><span>${label}</span><em>${why}</em></label>`;
+    }
+    html += group(skin.quick.automation, tgls);
+    
+    
+    
+    el.quick.innerHTML = `<div class="qbody">${html}</div>`
+      + `<div class="qfoot"><button id="quick-done" type="button">${skin.quick.done}</button></div>`;
+  }
+
+  
+  el.rail.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    selection = { kind: b.dataset.kind, key: b.dataset.id || null };
+    actions.onSelect(selection);
+    renderRail(match);
+    renderStatus(match);
+  });
+
+  el.buildBar.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    
+    
+    if (b.id === 'build-done') { el.buildBar.classList.remove('open'); return; }
+    if (b.dataset.train) actions.onTrain(b.dataset.train);
+    else if (b.dataset.build) actions.onBuildPick(b.dataset.build);
+  });
+
+  el.quick.addEventListener('change', (e) => {
+    const t = e.target.dataset.toggle;
+    if (t) actions.onToggle(t, e.target.checked);
+  });
+
+  
+  
+  
+  el.quick.addEventListener('input', (e) => {
+    const bus = e.target.dataset.bus;
+    if (bus) {
+      const v = Number(e.target.value) / 100;
+      audioLevels[bus] = v;
+      const out = el.quick.querySelector(`[data-busval="${bus}"]`);
+      if (out) out.textContent = `${Math.round(v * 100)}%`;
+      if (actions.onAudioLevel) actions.onAudioLevel(bus, v);
+      return;
+    }
+    
+    
+    
+    const side = e.target.dataset.colour;
+    if (!side) return;
+    factionColours = { ...factionColours, [side]: e.target.value };
+    saveFactionColours(factionColours);
+    const out = el.quick.querySelector(`[data-colourval="${side}"]`);
+    if (out) out.textContent = e.target.value;
+    if (minimap) minimap.setColours(factionColours);
+    if (actions.onFactionColours) actions.onFactionColours({ ...factionColours });
+  });
+
+  $('btn-attack').addEventListener('click', () => actions.onAttack());
+  $('btn-capture').addEventListener('click', () => actions.onCapture());
+  $('btn-quick').addEventListener('click', () => el.quick.classList.toggle('open'));
+  
+  
+  
+  el.quick.addEventListener('click', (e) => {
+    if (e.target.closest('#quick-done')) el.quick.classList.remove('open');
+  });
+
+  
+  
+  
+  
+  
+  const lines = [];
+  function say(text) {
+    lines.push(text);
+    while (lines.length > 3) lines.shift();
+    el.ticker.innerHTML = lines.map((l) => `<span>${l}</span>`).join('');
+  }
+
+  let lastRail = 0;
+  let lastBuild = 0;
+  let lastStatus = 0;
+  let lastObjective = 0;
+
+  function update(m, now, view) {
+    const bank = m.banks[seat];
+    const held = bank.display();
+    rollCounter(money.feed, held.feed, bank.earnedFeed, now);
+    rollCounter(money.water, held.water, bank.earnedWater, now);
+    el.clock.textContent = clock(m.w.tick);
+
+    
+    
+    
+    let total = 0;
+    for (let p = 0; p < m.playerCount; p += 1) total += m.score[p];
+    let html = '';
+    for (let p = 0; p < m.playerCount; p += 1) {
+      const w = total > 0 ? Math.round((m.score[p] * 100) / total) : (100 / m.playerCount);
+      const cls = m.factions[p] === HERD ? 'herd' : 'yield';
+      html += `<i class="${cls}${p === seat ? ' me' : ''}" style="width:${w}%"></i>`;
+    }
+    el.bar.innerHTML = html;
+    el.share.textContent = skin.share(sharePct(m.w.sectors, seat), landSeconds(m.score[seat]));
+    renderIncome(m);
+
+    
+    
+    
+    
+    
+    
+    
+    if (now - lastObjective > 250) { lastObjective = now; renderObjective(m); }
+    if (minimap) minimap.update(m, seat, viewFor(view), objective ? objective.sector : null);
+
+    
+    
+    
+    
+    
+    if (now - lastRail > 500) { lastRail = now; renderRail(m); }
+    if (now - lastBuild > 500) { lastBuild = now; renderBuildBar(m); }
+    if (now - lastStatus > 250) { lastStatus = now; renderStatus(m); }
+  }
+
+  
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  let enemySeenTick = null;
+  
+  let objective = null;
+
+  const OBJECTIVE_ICON = Object.freeze({
+    'capture-first': 'i-capture',
+    'capture-more': 'i-capture',
+    'build-first': 'i-build',
+    water: 'i-water',
+    'enemy-seen': 'i-attack',
+    hold: 'i-goal',
+  });
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function renderCaptureBar(m, sectorIdx) {
+    if (!el.capBar) return;
+    const sec = sectorIdx >= 0 ? m.w.sectors[sectorIdx] : null;
+    const st = sec ? captureState(sec) : { phase: 'idle' };
+    if (!sec || st.phase === 'idle') { el.capBar.classList.remove('show'); return; }
+
+    const eta = captureEtaHere(m, sectorIdx);
+    
+    
+    const mine = st.phase === 'claiming' ? st.actor === seat : eta > 0;
+    el.capBar.classList.toggle('show', true);
+    el.capBar.classList.toggle('losing', !mine);
+    el.capLabel.textContent = mine ? skin.doing.taking : skin.capture.losing;
+    el.capFill.style.width = `${Math.max(2, Math.min(100, st.pct))}%`;
+    el.capEta.textContent = eta > 0 ? `${Math.ceil(eta / TICKS_PER_SECOND)}s` : `${st.pct}%`;
+  }
+
+  function renderObjective(m) {
+    if (!el.objective || !el.objText) return;
+    const w = m.w;
+
+    if (enemySeenTick === null) {
+      for (const s of w.sectors) {
+        if (s.owner !== null && s.owner !== seat) { enemySeenTick = w.tick; break; }
+      }
+    }
+
+    
+    
+    
+    
+    let built = 0;
+    for (let i = 0; i < w.b.count; i += 1) {
+      if (w.b.alive[i] && w.b.owner[i] === seat) built += 1;
+    }
+
+    const spawn = w.map.spawns.find((s) => s.seat === seat);
+    objective = nextObjective({
+      sectors: w.sectors,
+      seat,
+      spawnSector: spawn ? spawn.sector : -1,
+      tick: w.tick,
+      playerBuildings: built,
+      enemySeenTick,
+      prev: objective,
+    });
+
+    const line = coachLine(skin, objective.id);
+    if (el.objText.textContent !== line) el.objText.textContent = line;
+    const want = `#${OBJECTIVE_ICON[objective.id] || 'i-goal'}`;
+    const use = el.objIcon && el.objIcon.firstElementChild;
+    if (use && use.getAttribute('href') !== want) use.setAttribute('href', want);
+    el.objective.classList.toggle('show', line.length > 0);
+  }
+
+  function events(evs, m) {
+    const t = skin.ticker;
+    for (const ev of evs) {
+      if (ev.type === 'captured' && ev.to === seat) say(t.captured);
+      else if (ev.type === 'lost' && ev.from === seat) say(t.lost);
+      else if (ev.type === 'faded' && ev.from === seat) say(t.faded);
+      else if (ev.type === 'buildingDone' && ev.owner === seat) say(t.made(BUILDINGS[ev.building].name));
+      else if (ev.type === 'stockRecovered' && ev.owner === seat) say(t.stockLost);
+      else if (ev.type === 'stockRecovered' && ev.by === seat) say(t.stockTaken);
+      else if (ev.type === 'waterPolluted') say(t.waterPolluted);
+      else if (ev.type === 'waterCleaned') say(t.waterCleaned);
+      else if (ev.type === 'matchOver') {
+        el.banner.textContent = ev.winner === seat ? t.won : t.lostMatch;
+        el.banner.classList.add('show');
+      }
+    }
+  }
+
+  renderQuick(match);
+  renderRail(match);
+  renderBuildBar(match);
+  renderStatus(match);
+
+  const api = {
+    update,
+    events,
+    say,
+    flashSelection,
+    get selection() { return selection; },
+    setSelection(s) { selection = s; renderStatus(match); if (match) renderRail(match); },
+    minimap,
+    
+    
+    
+    debug: {
+      get viewBridged() { return viewBridged; },
+      get atlasReady() { return !!atlas; },
+      get buildingAtlasReady() { return !!buildingAtlas; },
+      get portraitsReady() { return !!portraits; },
+      
+      get iconsDrawnWith() { return iconsDrawnWith; },
+      get portraitId() { return portraitId; },
+      get tile() { return atlas ? atlas.manifest.tile : 0; },
+      get minimap() { return minimap ? minimap.debug : null; },
+      get focusName() { return st.name.textContent; },
+      
+      get skin() { return skin.id; },
+      
+      get factionColours() { return { ...factionColours }; },
+      
+
+
+
+
+
+
+
+      get objective() {
+        return objective
+          ? { id: objective.id, sector: objective.sector, text: el.objText.textContent }
+          : null;
+      },
+      
+
+
+
+
+
+
+
+
+      get income() {
+        return {
+          pops: money.feed.pops + money.water.pops,
+          feedPops: money.feed.pops,
+          waterPops: money.water.pops,
+          shownFeed: Math.floor(Math.max(0, money.feed.shown)),
+          shownWater: Math.floor(Math.max(0, money.water.shown)),
+          live: document.querySelectorAll('#top .pop').length,
+        };
+      },
+    },
+  };
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (typeof window !== 'undefined') {
+    window.__fu = window.__fu || {};
+    window.__fu.hud = api;
+  }
+
+  return api;
+}

@@ -60,7 +60,22 @@ export const PLAYER_HP = 100;
 
 
 
-export const SIGHTLINE = Object.freeze({ p25: 6.5, median: 13.6, p75: 28.6, p90: 48.6 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const SIGHTLINE = Object.freeze({ p25: 5.1, median: 10.9, p75: 19.4, p90: 33.7 });
 
 
 

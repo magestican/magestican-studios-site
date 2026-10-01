@@ -24,7 +24,16 @@ import { mountEscRouter } from 'arbelo/esc-router';
 import { randomLoadout, assertPlayable } from '../../../web-engine/ui/quickPlay.js';
 import { loadCareer, saveCareer, rememberCharacters } from 'arbelo/career';
 import { LOBBY_OPTIONS, readOption, writeOption } from '../../../web-engine/ui/lobbyOptions.js';
-import { setSfxMuted } from './audio/sfx.js';
+import { setSfxMuted, sfxBus } from './audio/sfx.js';
+
+
+
+import { mountSoundToggle, syncSoundToggles, onSoundChange } from '../../shared/ui/muteButton.js';
+
+
+import { createLobbyMusic } from '../../../web-engine/audio/lobbyMusic.js';
+
+
 
 
 
@@ -60,6 +69,127 @@ installPointerLockPromise(window);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+let lobbyMusic = null;
+function lobbyBed() {
+  if (lobbyMusic) return lobbyMusic;
+  const { ctx, master } = sfxBus({ create: true });
+  if (!ctx || !master) return null;
+  lobbyMusic = createLobbyMusic({
+    ctx,
+    
+    destination: master,
+    manifestUrl: new URL('../assets/music/music.json', import.meta.url),
+    gain: 0.30,
+  });
+  lobbyMusic.setMuted(localStorage.getItem('tb.muted') === '1');
+  return lobbyMusic;
+}
+
+
+
+
+
+
+
+
+
+let starts = 0;
+function armLobbyBed() {
+  
+  
+  
+  
+  
+  
+  
+  const tryStart = () => {
+    const hud = document.getElementById('hud');
+    const inMatch = hud && hud.style.display === 'block';
+    if (!inMatch) { starts += 1; lobbyBed()?.play(); }
+  };
+  for (const t of ['pointerdown', 'touchend', 'keydown', 'click']) {
+    window.addEventListener(t, tryStart, true);
+  }
+  
+  window.__tbLobbyMusic = () => (lobbyMusic ? { ...lobbyMusic.state(), starts } : { starts });
+}
+armLobbyBed();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const SCREEN = 'tb-screen';
+
+function markInMatch() {
+  try { history.pushState({ [SCREEN]: 'match' }, ''); } catch (_) {  }
+}
+
+function lobbyUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('join');
+  return url.toString();
+}
+
+function installLobbyRouter() {
+  try {
+    history.replaceState({ [SCREEN]: 'lobby' }, '');
+    history.pushState({ [SCREEN]: 'lobby' }, '');
+  } catch (_) { return; }
+  window.addEventListener('popstate', (e) => {
+    const to = e.state && e.state[SCREEN];
+    const inMatch = document.getElementById('hud')?.style.display === 'block';
+    if (inMatch) { window.location.replace(lobbyUrl()); return; }
+    
+    
+    if (to !== 'match') {
+      try { history.pushState({ [SCREEN]: 'lobby' }, ''); } catch (_) {  }
+    }
+  });
+}
+installLobbyRouter();
+
+
+
+
+
+
+
+
 window.__tbBooted = true;
 
 
@@ -69,7 +199,27 @@ startVersionChecker({ label: 'A new version of Farmyshoot is available.' });
 
 
 
-mountDeviceQr({ label: 'Play on your phone', sublabel: 'Scan this to open Farmyshoot (and any join code) on your phone.' });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const removeDeviceQr = mountDeviceQr({
+  label: 'Play on your phone',
+  sublabel: 'Scan this to open Farmyshoot (and any join code) on your phone.',
+  collapsed: true,
+});
 
 
 
@@ -319,6 +469,91 @@ function paintCharacter(id, { fromCarousel = false } = {}) {
 
 
 
+
+
+
+
+
+
+function applyMute(on) {
+  writeOption(localStorage, 'muted', on);
+  
+  
+  
+  const game = window.__tbGame;
+  if (game?._setSound) { try { game._setSound(on); } catch (_) {} }
+  else {
+    try { setSfxMuted(on); } catch (_) {}
+    try { window.__tbGame?.audio?.setMuted?.(on); } catch (_) {}
+  }
+  try { lobbyBed()?.setMuted(on); } catch (_) {}
+  try { syncSoundToggles(); } catch (_) {}
+}
+
+
+
+
+
+
+
+
+
+function mutedNow() {
+  const audio = window.__tbGame?.audio;
+  if (audio && typeof audio.muted === 'boolean') return !!audio.muted;
+  return readOption(localStorage, 'muted');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+  const gear = document.getElementById('settings-btn');
+  const modal = document.getElementById('settings-modal');
+  const close = document.getElementById('settings-close');
+  const open = (e) => { if (e) e.preventDefault(); modal?.classList.add('visible'); };
+  const shut = (e) => { if (e) e.preventDefault(); modal?.classList.remove('visible'); };
+  if (gear && modal) {
+    gear.addEventListener('click', open);
+    
+    
+    gear.addEventListener('touchstart', open, { passive: false });
+    close?.addEventListener('click', shut);
+    close?.addEventListener('touchstart', shut, { passive: false });
+  }
+}
+
+const soundSetting = document.getElementById('sound-setting');
+if (soundSetting) {
+  mountSoundToggle({
+    host: soundSetting,
+    id: 'sound-toggle',
+    className: 'sound-toggle',
+    isMuted: mutedNow,
+    setMuted: applyMute,
+  });
+}
+
 const optsEl = document.getElementById('lobbyOptions');
 if (optsEl) {
   for (const opt of LOBBY_OPTIONS) {
@@ -344,6 +579,11 @@ if (optsEl) {
       b.setAttribute('aria-checked', on ? 'true' : 'false');
     };
     paint(readOption(localStorage, opt.id));
+    
+    
+    
+    
+    if (opt.id === 'muted') onSoundChange(() => paint(readOption(localStorage, 'muted')));
 
     b.addEventListener('click', () => {
       const on = !readOption(localStorage, opt.id);
@@ -352,10 +592,7 @@ if (optsEl) {
       
       
       
-      if (opt.id === 'muted') {
-        try { setSfxMuted(on); } catch (_) {}
-        try { window.__tbGame?.audio?.setMuted?.(on); } catch (_) {}
-      }
+      if (opt.id === 'muted') applyMute(on);
     });
     optsEl.appendChild(b);
   }
@@ -617,9 +854,23 @@ async function startGame(hostIdToJoin) {
 
   
   const goInGame = () => {
+    lobbyBed()?.stop();
+    markInMatch();
     $('menu').style.display = 'none';
     $('hud').style.display = 'block';
     $('loading').classList.add('done');
+    
+    
+    
+    
+    
+    
+    
+    document.body.classList.add('in-match');
+    
+    
+    
+    Promise.resolve(removeDeviceQr).then((off) => off?.()).catch(() => {});
     
     
     

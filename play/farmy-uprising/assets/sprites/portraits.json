@@ -1,0 +1,121 @@
+{
+  "tile": 128,
+  "rows": {
+    "bowser": {
+      "row": 0,
+      "kind": "unit"
+    },
+    "combine": {
+      "row": 1,
+      "kind": "unit"
+    },
+    "cropDuster": {
+      "row": 2,
+      "kind": "unit"
+    },
+    "duckRaft": {
+      "row": 3,
+      "kind": "unit"
+    },
+    "elephant": {
+      "row": 4,
+      "kind": "unit"
+    },
+    "farmhand": {
+      "row": 5,
+      "kind": "unit"
+    },
+    "flock": {
+      "row": 6,
+      "kind": "unit"
+    },
+    "foodTruck": {
+      "row": 7,
+      "kind": "unit"
+    },
+    "harvester": {
+      "row": 8,
+      "kind": "unit"
+    },
+    "horseHerd": {
+      "row": 9,
+      "kind": "unit"
+    },
+    "poundWagon": {
+      "row": 10,
+      "kind": "unit"
+    },
+    "pride": {
+      "row": 11,
+      "kind": "unit"
+    },
+    "quadBike": {
+      "row": 12,
+      "kind": "unit"
+    },
+    "skulk": {
+      "row": 13,
+      "kind": "unit"
+    },
+    "sounder": {
+      "row": 14,
+      "kind": "unit"
+    },
+    "tractor": {
+      "row": 15,
+      "kind": "unit"
+    },
+    "wing": {
+      "row": 16,
+      "kind": "unit"
+    },
+    "electricFence": {
+      "row": 17,
+      "kind": "building"
+    },
+    "greatTree": {
+      "row": 18,
+      "kind": "building"
+    },
+    "greatWarren": {
+      "row": 19,
+      "kind": "building"
+    },
+    "haven": {
+      "row": 20,
+      "kind": "building"
+    },
+    "machineShed": {
+      "row": 21,
+      "kind": "building"
+    },
+    "mudWall": {
+      "row": 22,
+      "kind": "building"
+    },
+    "pesticideBattery": {
+      "row": 23,
+      "kind": "building"
+    },
+    "processingPlant": {
+      "row": 24,
+      "kind": "building"
+    },
+    "pumpStation": {
+      "row": 25,
+      "kind": "building"
+    },
+    "reedbed": {
+      "row": 26,
+      "kind": "building"
+    },
+    "sanctuary": {
+      "row": 27,
+      "kind": "building"
+    },
+    "watchtower": {
+      "row": 28,
+      "kind": "building"
+    }
+  }
+}

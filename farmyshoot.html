@@ -4,9 +4,33 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Farmyshoot — a free browser CTF for remote teams | Magestican Studios</title>
-  <meta name="description" content="Farmyshoot is a free browser-based capture-the-flag game for remote teams. No download, no install, no signup — just share a room code and play in 30 seconds. Farm-animal characters, ice-drift movement, works on any laptop or phone at work.">
+  <meta name="description" content="A free browser capture-the-flag game for remote teams. Share a room code and play in thirty seconds: no download, no install, no signup, laptop or phone.">
   <meta name="keywords" content="browser game, no download, capture the flag, remote team game, office friendly game, work team game, WebRTC multiplayer, free browser fps, farm animal game, magestican studios">
   <link rel="canonical" href="https://magesticanstudios.com/farmyshoot.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/farmyshoot.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/farmyshoot.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/farmyshoot.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/farmyshoot.html">
+  <link rel="alternate" hreflang="ja" href="https://magesticanstudios.com/ja/farmyshoot.html">
+  <link rel="alternate" hreflang="ko" href="https://magesticanstudios.com/ko/farmyshoot.html">
+  <link rel="alternate" hreflang="id" href="https://magesticanstudios.com/id/farmyshoot.html">
+  <link rel="alternate" hreflang="vi" href="https://magesticanstudios.com/vi/farmyshoot.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/farmyshoot.html">
+  
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f1e6" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Magestican">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+
+
+  <link rel="preconnect" href="https://0.peerjs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  
   
   <meta property="og:type" content="website">
   <meta property="og:title" content="Farmyshoot — free browser CTF for remote teams">
@@ -61,28 +85,31 @@
   </script>
   <link rel="stylesheet" href="./styles.css">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <style>
-    .landing-hero { padding: 44px 0 20px; }
-    .landing-hero h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.1; margin: 0 0 10px; }
-    .landing-hero p.tagline { font-size: 18px; color: #cbd3e1; max-width: 640px; }
-    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 22px 0 8px; }
-    .cta { display: inline-block; padding: 12px 22px; border-radius: 999px;
-      font: 700 15px system-ui, sans-serif; text-decoration: none; }
-    .cta-primary { background: #f4c95d; color: #1c1a17; }
-    .cta-primary:hover { background: #ffd97a; }
-    .cta-secondary { background: rgba(255,255,255,0.06); color: #e8ecf1; border: 1px solid rgba(255,255,255,0.20); }
-    .value-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 18px; margin: 30px 0; }
-    .value-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 12px; padding: 18px; }
-    .value-card h3 { font-size: 17px; margin: 0 0 6px; color: #f4c95d; }
-    .value-card p { font-size: 14px; color: #cbd3e1; line-height: 1.5; margin: 0; }
-    .faq h3 { margin: 20px 0 6px; font-size: 17px; color: #e8ecf1; }
-    .faq p { color: #cbd3e1; margin: 0 0 14px; }
-    .shot-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; margin: 22px 0; }
-    .shot-row img { width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.10); }
-    .breadcrumb { font-size: 13px; color: #7f8798; margin: 8px 0 20px; }
-    .breadcrumb a { color: #cbd3e1; text-decoration: none; }
-  </style>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </head>
 <body>
   <header class="site-header">
@@ -93,14 +120,25 @@
     <nav>
       <a href="./#games">Games</a>
       <a href="./farmyshoot.html">Farmyshoot</a>
-      <a href="./farmykart.html">Farmy Kart</a>
+      <a href="./farmy-uprising.html">Uprising</a>
+      <a href="./farmy-evil-hills.html">Evil Hills</a>
+      <a href="./farmykart.html">Kart</a>
+      <a href="./farmy-tiles.html">Tiles</a>
+      <a href="./farmy-crosswords.html">Crosswords</a>
+      <a href="./farmy-chess.html">Chess</a>
+      <a href="./farmy-checkers.html">Checkers</a>
+      <a href="./farmy-ludo.html">Ludo</a>
       <a href="./zelakas-in-space.html">Zelakas</a>
       <a href="./2d-fighter-ex.html">Fighter EX</a>
+      <a href="./farmy-moon-life.html">Moon Life</a>
+      <a href="./silk-and-seam.html">Silk & Seam</a>
+      <a href="./dachis.html">Dachis</a>
       <a href="./for-remote-teams.html">For teams</a>
       <a href="./about.html">About</a>
       <a href="./magazine/">Magazine</a>
       <a href="./reviews.html">Reviews</a>
     </nav>
+    <details class="lang-switch"><summary aria-label="Language: English"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>EN</span></summary><ul><li><a href="/farmyshoot.html" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en" aria-current="page">English</a></li><li><a href="/es/farmyshoot.html" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/farmyshoot.html" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/farmyshoot.html" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl">Tagalog</a></li><li><a href="/ja/farmyshoot.html" hreflang="ja" onclick="try{localStorage.setItem('ms-lang','ja')}catch(e){}" lang="ja" data-lang="ja">日本語</a></li><li><a href="/ko/farmyshoot.html" hreflang="ko" onclick="try{localStorage.setItem('ms-lang','ko')}catch(e){}" lang="ko" data-lang="ko">한국어</a></li><li><a href="/id/farmyshoot.html" hreflang="id" onclick="try{localStorage.setItem('ms-lang','id')}catch(e){}" lang="id" data-lang="id">Bahasa Indonesia</a></li><li><a href="/vi/farmyshoot.html" hreflang="vi" onclick="try{localStorage.setItem('ms-lang','vi')}catch(e){}" lang="vi" data-lang="vi">Tiếng Việt</a></li></ul></details>
   </header>
 
   <div class="hero-band">
@@ -146,7 +184,7 @@
       </div>
       <div class="value-card">
         <h3>Bots on demand</h3>
-        <p>Only 2 people online? Add up to 4 AI bots to balance the teams. Farmyshoot plays great from 2 to 16 humans.</p>
+        <p>Only 2 people online? Add up to 15 AI bots to fill both teams. Farmyshoot plays great from 2 to 16 players, in any mix of people and bots.</p>
       </div>
       <div class="value-card">
         <h3>Fair, not sweaty</h3>
@@ -157,16 +195,14 @@
     <section class="reveal">
       <h2>What it looks like</h2>
       <div class="shot-row">
-        <figure>
-          <img src="./assets/shot-tb-lobby.webp" width="900" height="616" loading="lazy" decoding="async"
-               alt="The Farmyshoot lobby: a 3D cow on a turntable, the five maps, the four modes, and a Host a new game button">
-          <figcaption>The lobby. Cow, chicken, pig or sheep; five maps; four modes; one button.</figcaption>
-        </figure>
-        <figure>
-          <img src="./assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async"
-               alt="Farmyshoot, the Farm Maze map: a farmer soldier in a lane between walls of tall corn">
-          <figcaption>Farm Maze. You cross it by double-jumping the hedges, and the power-ups sit on top.</figcaption>
-        </figure>
+        <figure><a class="art-play shot-play" href="/play/farmyshoot/" aria-label="Play Farmyshoot"><img src="./assets/shot-tb-lobby.webp" width="900" height="616" loading="lazy" decoding="async"
+               alt="The Farmyshoot lobby: a 3D cow on a turntable, the five maps, the four modes, and a Host a new game button"><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a>
+          
+          <figcaption>The lobby. Cow, chicken, pig or sheep; five maps; four modes; one button.</figcaption></figure>
+        <figure><a class="art-play shot-play" href="/play/farmyshoot/" aria-label="Play Farmyshoot"><img src="./assets/map-farm-maze.webp" width="720" height="405" loading="lazy" decoding="async"
+               alt="Farmyshoot, the Farm Maze map: a farmer soldier in a lane between walls of tall corn"><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a>
+          
+          <figcaption>Farm Maze. You cross it by double-jumping the hedges, and the power-ups sit on top.</figcaption></figure>
         <figure class="shot-phone">
           <img src="./assets/shot-tb-phone.webp" width="390" height="844" loading="lazy" decoding="async"
                alt="Farmyshoot on a phone with the touch controls overlaid on the game">
@@ -207,6 +243,9 @@
       <p>Ready to be a chicken with a slingshot?</p>
       <a class="cta cta-primary" href="/play/farmyshoot/">Play Farmyshoot now</a>
     </section>
+    
+    <p class="more-like-this">More like this: <a href="./2-player-games-online.html">2-player games online</a> &middot; <a href="./multiplayer-browser-games.html">Multiplayer browser games</a></p>
+    
   </main>
 
   <footer class="site-footer">
@@ -217,16 +256,24 @@
     </p>
     <p class="colophon">
       <a href="./about.html">About</a> &middot; <a href="./privacy.html">Privacy</a> &middot; <a href="./terms.html">Terms</a>
+      &middot; <a href="https://www.youtube.com/@ameliagurl">Amelia on YouTube</a>
       &middot; Site is static &middot; no cookies, anonymous counts only
     </p>
+    
+    <p class="footer-browse">Browse: <a href="/2-player-games-online.html">2-player games online</a> &middot; <a href="/multiplayer-browser-games.html">Multiplayer browser games</a> &middot; <a href="/board-games-with-friends.html">Board games with friends</a> &middot; <a href="/word-games.html">Free word games</a></p>
+    
   </footer>
   
 
 
-  <script type="module" src="./assets/site.js?v=c33b5c8-20261001T033810Z"></script>
+
+
+
+
+  <script type="module" src="./assets/site.js?v=424249d-20261001T034025Z"></script>
 
   <script type="module">
-    import { initAnalytics, trackPlayClicks } from '/web-engine/analytics/analytics.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     import { mountLeaderboard } from '/web-engine/ui/leaderboardPanel.js';
     initAnalytics({ page: 'farmyshoot-landing' });
     trackPlayClicks();
@@ -235,5 +282,25 @@
     
     mountLeaderboard({ place: 'site', showChip: true });
   </script>
+  <script>
+    
+    
+    
+    
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+<script>
+(function(){try{var T={"es":{"href":"/es/farmyshoot.html","text":"Ver esta página en español","close":"Cerrar"},"pt":{"href":"/pt/farmyshoot.html","text":"Ver esta página em português","close":"Fechar"},"tl":{"href":"/tl/farmyshoot.html","text":"Tingnan ang pahinang ito sa Tagalog","close":"Isara"},"ja":{"href":"/ja/farmyshoot.html","text":"このページを日本語で見る","close":"閉じる"},"ko":{"href":"/ko/farmyshoot.html","text":"이 페이지를 한국어로 보기","close":"닫기"},"id":{"href":"/id/farmyshoot.html","text":"Lihat halaman ini dalam Bahasa Indonesia","close":"Tutup"},"vi":{"href":"/vi/farmyshoot.html","text":"Xem trang này bằng tiếng Việt","close":"Đóng"}};
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.lang-switch a[data-lang]');if(a)localStorage.setItem('ms-lang',a.getAttribute('data-lang'));});
+var chosen=localStorage.getItem('ms-lang');if(chosen)return;
+if(/bot|crawl|spider|slurp|google-inspectiontool|lighthouse|headlesschrome/i.test(navigator.userAgent||''))return;
+var langs=navigator.languages||[navigator.language||''];var code=null;
+for(var i=0;i<langs.length&&!code;i++){var p=String(langs[i]).toLowerCase().split('-')[0];if(p==='en')break;if(p==='fil')p='tl';if(p==='in')p='id';if(T[p])code=p;}
+if(!code)return;location.replace(T[code].href+location.search+location.hash);}catch(e){}})();
+</script>
 </body>
 </html>

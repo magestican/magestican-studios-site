@@ -65,6 +65,26 @@ export const VOX = Object.freeze({
   
   
   TRACK:     23,
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  CRATE:     24,
 });
 
 
@@ -87,6 +107,10 @@ export const VOX_COLOR = Object.freeze({
   [VOX.DIRT]:           [0x7a, 0x5c, 0x3d],
   [VOX.ICE]:            [0xb8, 0xe0, 0xef],
   [VOX.WOOD]:           [0x8a, 0x5a, 0x2b],
+  
+  
+  
+  [VOX.CRATE]:          [0xc9, 0x9a, 0x5c],
   [VOX.BASE_RED]:       [0xb7, 0x3a, 0x2a],
   [VOX.BASE_BLUE]:      [0x33, 0x6b, 0xbf],
   [VOX.FLAG_STAND_RED]: [0xd0, 0x50, 0x3e],

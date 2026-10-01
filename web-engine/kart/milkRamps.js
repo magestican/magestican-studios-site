@@ -230,6 +230,81 @@ function inSpan(at, from, to, pad = 0) {
 
 
 
+export const RAMP_CHAMFER = 0.6;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function rampLift(ramps, frac, lateral, width, lapLength) {
+  if (!ramps || !ramps.length || !(lapLength > 0)) return 0;
+  
+  
+  
+  const half = (RAMP_LENGTH / 2) / lapLength;
+  const halfWidth = (width * RAMP_WIDTH_FRAC) / 2;
+  const across = Math.abs(lateral ?? 0);
+  
+  if (across >= halfWidth + RAMP_CHAMFER) return 0;
+
+  for (let i = 0; i < ramps.length; i += 1) {
+    const at = ramps[i] ? ramps[i].at : null;
+    if (at === null || at === undefined) continue;
+    
+    let d = frac - at;
+    if (d > 0.5) d -= 1;
+    if (d < -0.5) d += 1;
+    if (d < -half || d > half) continue;
+
+    
+    
+    
+    const along = (d + half) / (2 * half);
+    let lift = along * rampHeight();
+
+    
+    
+    if (across > halfWidth) {
+      const t = 1 - (across - halfWidth) / RAMP_CHAMFER;
+      lift *= t * t * (3 - 2 * t);
+    }
+    return lift;
+  }
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
 
 export function crossedRamp(ramps, prev, now, speed, opts = {}) {
   if (!ramps || !ramps.length || prev == null) return null;
@@ -241,8 +316,13 @@ export function crossedRamp(ramps, prev, now, speed, opts = {}) {
   if (moved <= 0) return null;
   const min = opts.minSpeed ?? RAMP_MIN_SPEED;
 
+  
+  
+  
+  
+  const lipOffset = opts.lapLength > 0 ? (RAMP_LENGTH / 2) / opts.lapLength : 0;
   for (const ramp of ramps) {
-    const toRamp = wrapFrac(ramp.at - prev);
+    const toRamp = wrapFrac(ramp.at + lipOffset - prev);
     if (toRamp < 0 || toRamp > moved) continue;
     
     

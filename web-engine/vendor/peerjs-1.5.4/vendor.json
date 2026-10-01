@@ -1,0 +1,10 @@
+{
+  "upstream": "https://unpkg.com/peerjs@1.5.4/dist",
+  "fetched": "2026-09-18",
+  "files": {
+    "peerjs.min.js": {
+      "bytes": 92865,
+      "sha256": "ad5d8870d1e389914f9cba8d35be313c4327c69ee0a221e482e9bf7621136fe5"
+    }
+  }
+}

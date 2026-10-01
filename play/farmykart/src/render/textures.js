@@ -54,6 +54,7 @@ import { PALETTE } from '../palette.js';
 
 import { roadRecipe, fieldRecipe } from '../../../../web-engine/render/groundRecipe.js';
 import { getQuality } from './materials.js';
+import { themeOf } from './themes.js';
 
 const SIZE = 128;
 
@@ -497,10 +498,8 @@ export function makePaintTexture() {
 export function makeShortcutTexture(theme = 'summer') {
   const S = GROUND;
   const c = canvas(S); const g = c.getContext('2d');
-  const rng = seedRng(theme === 'snow' ? 0x5c07c3 : theme === 'mud' ? 0x5c07c2 : 0x5c07c1);
-  const base = theme === 'snow' ? PALETTE.packedSnow : theme === 'mud' ? PALETTE.mudDark : PALETTE.shortcut;
-  const dark = theme === 'snow' ? PALETTE.snowRut : theme === 'mud' ? PALETTE.mudWet : PALETTE.shortcutDark;
-  const tuft = theme === 'snow' ? PALETTE.snowHollow : PALETTE.shortcutTuft;
+  const { seed, base, dark, tuft } = themeOf(theme).shortcut;
+  const rng = seedRng(seed);
 
   g.fillStyle = css(base);
   g.fillRect(0, 0, S, S);
@@ -581,6 +580,16 @@ const GROUND_THEMES = {
     base: 0xe2eef8, light: PALETTE.snowCrest, dark: PALETTE.snowHollow,
     accent: PALETTE.stubble, field: 0xdfeaf6, fieldDark: 0xbcd0e4,
     hedge: 0x6f8494, seed: 0x51102,
+  },
+  
+  
+  
+  
+  
+  rain: {
+    base: 0x4b6844, light: 0x87a471, dark: 0x22301e,
+    accent: 0x7c7a58, field: 0x8b9668, fieldDark: 0x2a4023,
+    hedge: 0x1f2c1c, seed: 0x51104,
   },
 };
 
@@ -1074,4 +1083,87 @@ export function makeSunFaceTexture() {
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function makeMilkTexture(seed = 0x31c4) {
+  if (typeof document === 'undefined') return null;
+  const SZ = 256;
+  const rnd = seedRng(seed);
+
+  const albedo = canvas(SZ);
+  const a = albedo.getContext('2d');
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  a.fillStyle = '#c2c8c2';
+  a.fillRect(0, 0, SZ, SZ);
+
+  const rough = canvas(SZ);
+  const r = rough.getContext('2d');
+  
+  
+  r.fillStyle = '#8a8a8a';
+  r.fillRect(0, 0, SZ, SZ);
+
+  
+  for (let i = 0; i < 14; i += 1) {
+    const x = rnd() * SZ; const y = rnd() * SZ;
+    const rad = 18 + rnd() * 46;
+    wrapDraw(x, y, SZ, (px, py) => {
+      const ga = a.createRadialGradient(px, py, 0, px, py, rad);
+      ga.addColorStop(0, 'rgba(243,246,242,0.95)');
+      ga.addColorStop(1, 'rgba(243,246,242,0)');
+      a.fillStyle = ga;
+      a.beginPath(); a.arc(px, py, rad, 0, Math.PI * 2); a.fill();
+
+      
+      const gr = r.createRadialGradient(px, py, 0, px, py, rad);
+      gr.addColorStop(0, 'rgba(40,40,40,0.9)');
+      gr.addColorStop(1, 'rgba(40,40,40,0)');
+      r.fillStyle = gr;
+      r.beginPath(); r.arc(px, py, rad, 0, Math.PI * 2); r.fill();
+    });
+  }
+
+  
+  
+  for (let i = 0; i < 10; i += 1) {
+    const x = rnd() * SZ; const y = rnd() * SZ;
+    const rad = 10 + rnd() * 34;
+    wrapDraw(x, y, SZ, (px, py) => {
+      a.strokeStyle = 'rgba(168,176,168,0.8)';
+      a.lineWidth = 1.5 + rnd() * 2;
+      a.beginPath(); a.arc(px, py, rad, 0, Math.PI * 2); a.stroke();
+      
+      r.strokeStyle = 'rgba(220,220,220,0.8)';
+      r.lineWidth = 2 + rnd() * 2.5;
+      r.beginPath(); r.arc(px, py, rad, 0, Math.PI * 2); r.stroke();
+    });
+  }
+
+  return { map: toTexture(albedo, 1), roughnessMap: toTexture(rough, 1) };
 }

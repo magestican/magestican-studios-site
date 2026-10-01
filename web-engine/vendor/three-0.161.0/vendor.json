@@ -1,0 +1,18 @@
+{
+  "upstream": "https://unpkg.com/three@0.161.0",
+  "fetched": "2026-09-18",
+  "files": {
+    "addons/loaders/GLTFLoader.js": {
+      "bytes": 108522,
+      "sha256": "d073b438e6a07e1359741dd5d6c76c953420cc0d4fd84eb1bdde94315540e6a3"
+    },
+    "addons/utils/BufferGeometryUtils.js": {
+      "bytes": 31554,
+      "sha256": "b0c64fe6f3b9907262921b73fafc4ade874c07ba6b4876e164c87a830c2c2113"
+    },
+    "three.module.js": {
+      "bytes": 1280747,
+      "sha256": "e7348ab8c7bf7a41f7afc5fe503c20a0ed090d9536aacf1ee975d7aaee24d394"
+    }
+  }
+}

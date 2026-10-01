@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Farmyshoot, dành cho những người không chơi game — Nhật ký phát triển Farmyshoot</title>
+  <meta name="description" content="Farmyshoot là game bắn súng voxel trên trình duyệt cho nhóm làm từ xa: chỉ một link, không tải, có bot lấp chỗ trống, vòng chơi ngắn lồng vào cuộc họp.">
+  <link rel="canonical" href="https://magesticanstudios.com/vi/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="en" href="https://magesticanstudios.com/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="es" href="https://magesticanstudios.com/es/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="pt-BR" href="https://magesticanstudios.com/pt/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="tl" href="https://magesticanstudios.com/tl/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="ja" href="https://magesticanstudios.com/ja/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="ko" href="https://magesticanstudios.com/ko/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="id" href="https://magesticanstudios.com/id/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="vi" href="https://magesticanstudios.com/vi/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <link rel="alternate" hreflang="x-default" href="https://magesticanstudios.com/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:title" content="Farmyshoot, dành cho những người không chơi game — Nhật ký phát triển Farmyshoot">
+  <meta property="og:description" content="Farmyshoot là game bắn súng voxel trên trình duyệt cho nhóm làm từ xa: chỉ một link, không tải, có bot lấp chỗ trống, vòng chơi ngắn lồng vào cuộc họp.">
+  <meta property="og:url" content="https://magesticanstudios.com/vi/magazine/farmyshoot-for-people-who-dont-play-games.html">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta property="article:published_time" content="2026-08-30">
+  <meta property="article:section" content="Development log">
+  <meta property="article:tag" content="Farmyshoot">
+  <meta property="article:tag" content="Remote teams">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Farmyshoot, dành cho những người không chơi game — Nhật ký phát triển Farmyshoot">
+  <meta name="twitter:description" content="Farmyshoot là game bắn súng voxel trên trình duyệt cho nhóm làm từ xa: chỉ một link, không tải, có bot lấp chỗ trống, vòng chơi ngắn lồng vào cuộc họp.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/tb-menu-with-bots.png">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Farmyshoot, dành cho những người không chơi game",
+  "description": "Farmyshoot là game bắn súng voxel trên trình duyệt cho nhóm làm từ xa: chỉ một link, không tải, có bot lấp chỗ trống, vòng chơi ngắn lồng vào cuộc họp.",
+  "datePublished": "2026-08-30",
+  "dateModified": "2026-08-30",
+  "author": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Magestican Studios",
+    "url": "https://magesticanstudios.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://magesticanstudios.com/favicon.svg"
+    }
+  },
+  "image": "https://magesticanstudios.com/assets/tb-menu-with-bots.png",
+  "inLanguage": "vi",
+  "keywords": "Farmyshoot, Nhóm làm việc từ xa",
+  "articleSection": "Nhật ký phát triển",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Tạp chí của Magestican Studios",
+    "url": "https://magesticanstudios.com/vi/magazine/"
+  },
+  "about": {
+    "@type": "VideoGame",
+    "name": "Farmyshoot",
+    "url": "https://magesticanstudios.com/vi/farmyshoot.html"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://magesticanstudios.com/vi/magazine/farmyshoot-for-people-who-dont-play-games.html"
+  }
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Magestican Studios",
+      "item": "https://magesticanstudios.com/vi/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Tạp chí",
+      "item": "https://magesticanstudios.com/vi/magazine/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Farmyshoot, dành cho những người không chơi game",
+      "item": "https://magesticanstudios.com/vi/magazine/farmyshoot-for-people-who-dont-play-games.html"
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/magazine.css">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body class="mag-body">
+  <header class="site-header">
+    <a href="/vi/" class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">Magestican Studios</span>
+    </a>
+    <nav>
+      <a href="/vi/#games">Game</a>
+      <a href="/vi/farmyshoot.html">Farmyshoot</a>
+      <a href="/vi/farmy-uprising.html">Uprising</a>
+      <a href="/vi/farmy-evil-hills.html">Evil Hills</a>
+      <a href="/vi/farmykart.html">Kart</a>
+      <a href="/vi/farmy-tiles.html">Tiles</a>
+      <a href="/vi/farmy-crosswords.html">Crosswords</a>
+      <a href="/vi/co-vua-online.html">Chess</a>
+      <a href="/vi/farmy-checkers.html">Checkers</a>
+      <a href="/vi/co-ca-ngua-online.html">Ludo</a>
+      <a href="/vi/zelakas-in-space.html">Zelakas</a>
+      <a href="/vi/2d-fighter-ex.html">Fighter EX</a>
+      <a href="/vi/farmy-moon-life.html">Moon Life</a>
+      <a href="/vi/silk-and-seam.html">Silk & Seam</a>
+      <a href="/vi/dachis.html">Dachis</a>
+      <a href="/vi/for-remote-teams.html">Cho các nhóm</a>
+      <a href="/vi/about.html">Về chúng tôi</a>
+      <a href="/vi/magazine/">Tạp chí</a>
+      <a href="/vi/reviews.html">Đánh giá</a>
+    </nav>
+    <details class="lang-switch"><summary aria-label="Ngôn ngữ: Tiếng Việt"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>VI</span></summary><ul><li><a href="/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en">English</a></li><li><a href="/es/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl">Tagalog</a></li><li><a href="/ja/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="ja" onclick="try{localStorage.setItem('ms-lang','ja')}catch(e){}" lang="ja" data-lang="ja">日本語</a></li><li><a href="/ko/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="ko" onclick="try{localStorage.setItem('ms-lang','ko')}catch(e){}" lang="ko" data-lang="ko">한국어</a></li><li><a href="/id/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="id" onclick="try{localStorage.setItem('ms-lang','id')}catch(e){}" lang="id" data-lang="id">Bahasa Indonesia</a></li><li><a href="/vi/magazine/farmyshoot-for-people-who-dont-play-games.html" hreflang="vi" onclick="try{localStorage.setItem('ms-lang','vi')}catch(e){}" lang="vi" data-lang="vi" aria-current="page">Tiếng Việt</a></li></ul></details>
+  </header>
+
+  <main>
+    <p class="mag-crumb"><a href="/vi/">Magestican Studios</a> &rsaquo; <a href="/vi/magazine/">Tạp chí</a></p>
+
+    <article class="mag-article">
+      <h1>Farmyshoot, dành cho những người không chơi game</h1>
+      <p class="mag-meta">
+        <time datetime="2026-08-30">30 tháng 8 năm 2026</time>
+        <span class="mag-tag">Farmyshoot</span>
+        <span>4 phút đọc</span>
+      </p>
+      <p class="mag-lede">Một game bắn súng đồng đội được thiết kế cho mười một người trong cuộc họp chưa từng cầm tay cầm, và cả người chơi game mỗi tối. Cả hai đều phải thấy vui trong cùng hai mươi phút đó.</p>
+
+      <p>Farmyshoot là một game bắn súng đồng đội theo phong cách voxel, mở ngay trong một tab trình duyệt. Nó ra đời vì các nhóm làm việc từ xa liên tục được yêu cầu cùng nhau làm một điều gì đó, trong khi các lựa chọn thường chỉ là một trò đố vui, một cuộc gọi video đội thêm mũ vui nhộn, hoặc một game mà một nửa phòng họp không cài đặt nổi.</p>
+      <h2>Phần khó nhất là sự đa dạng của những người trong phòng họp</h2>
+      <p>Một nhóm làm việc không phải là một khán giả đồng nhất. Trong bất kỳ nhóm mười hai người nào cũng có người chơi game cạnh tranh chuyên nghiệp và người chưa từng thực sự điều khiển một nhân vật bằng cả hai tay, và cả hai người đó đều ở chung trong cùng hai mươi phút đó. Một game vui với người này có thể khiến người kia thấy xấu hổ hoặc nhàm chán.</p>
+      <p>Phần lớn thiết kế của game là để thu hẹp khoảng cách đó mà không làm ai cảm thấy bị xem thường. Không có gì cần học trước khi bắt đầu. Không có gì cần mua. Không cần xây dựng nhân vật, không cần chọn trang bị, không có hệ thống tiến trình để ai đó bị bỏ lại phía sau. Bạn xuất hiện với đầy đủ những gì mình cần.</p>
+      <p>Việc ngắm bắn khá dễ dàng, và các bản đồ được thiết kế có chủ đích ở cự ly gần, vì khoảng cách giữa một người chơi giỏi và một người mới lớn nhất ở tầm xa và nhỏ nhất trong một hành lang hẹp. Một mục tiêu đồng đội thay vì đếm số hạ gục có nghĩa là ai đó bắn không giỏi vẫn có thể rõ ràng là lý do khiến đội mình thắng.</p>
+      <h2>Không ai phải chờ phòng chơi đầy người</h2>
+      <p>Bạn mở một phòng chơi và gửi một đường link. Bất cứ ai bấm vào đó đều được vào chơi ngay. Bot lấp đầy các chỗ trống ngay lập tức, nên một vòng chơi bắt đầu ngay khi hai người đầu tiên sẵn sàng thay vì phải chờ người cuối cùng đọc được tin nhắn. Khi một người thật xuất hiện, một con bot sẽ rút lui và nhường lại vị trí của nó.</p>
+      <p>Nghe có vẻ chỉ là một tiện ích nhỏ, nhưng đó lại là toàn bộ khác biệt giữa việc được chơi và không được chơi. Bất kỳ game nào cần tám người có mặt trước khi mọi thứ bắt đầu sẽ chỉ được chơi đúng một lần.</p>
+      <h2>Được xây dựng từ một hạt giống ngẫu nhiên</h2>
+      <p>Các bản đồ được sinh ra chứ không đóng gói sẵn. Một hạt giống ngẫu nhiên xây dựng nên một thành phố, một nông trại phủ tuyết, một sân băng; cùng một hạt giống luôn tạo ra cùng một nơi chốn, nên một nhóm có thể quay lại bản đồ họ thích, và dung lượng tải vẫn đủ nhỏ để game khởi động chỉ trong khoảng một giây.</p>
+      <p>Điều đó cũng có nghĩa là các bản đồ hoàn toàn do chúng tôi kiểm soát để thay đổi. Khi một bản đồ có một góc mà ai cũng trốn vào đó, cách sửa chỉ là thay đổi một con số thay vì xuất lại toàn bộ bản đồ.</p>
+      <h2>Đây không phải là game gì</h2>
+      <p>Đây không phải một game bắn súng cạnh tranh, và nó cũng không cố trở thành như vậy. Không có bảng xếp hạng, không có mùa giải, không có gì cần cày cuốc. Đây chỉ là hai mươi phút mà một phòng đồng nghiệp có thể cùng chia sẻ mà không ai cần từng chơi game trước đó.</p>
+      <p>Nếu nhóm của bạn có mười phút rảnh ở cuối một cuộc gọi, chỉ cần một đường link là đủ.</p>
+
+      <p class="mag-endnote">
+        <a class="mag-readon" href="/play/farmyshoot/">Chơi Farmyshoot ngay trên trình duyệt &rarr;</a> &middot; <a href="/vi/farmyshoot.html">Giới thiệu Farmyshoot</a> &middot; <a href="/vi/reviews.html">Chúng tôi nghĩ gì về các game của mình</a>
+      </p>
+    </article>
+
+    <section class="mag-more">
+      <h2>Thêm bài viết từ tạp chí</h2>
+      <ul>
+        <li><a href="/vi/magazine/five-games-one-tab.html">Năm game, một tab, không cần tải xuống</a></li>
+        <li><a href="/vi/magazine/farmy-kart-cliffs-and-gliders.html">Farmy Kart: vách đá, tàu lượn và bốn chiếc kart rất khác nhau</a></li>
+      </ul>
+      <p><a class="mag-readon" href="/vi/magazine/">Tất cả bài viết &rarr;</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright &copy; 2026 Ultra Task Pty Ltd. Bảo lưu mọi quyền.<br> Magestican Studios và logo Magestican Studios là thương hiệu của Ultra Task Pty Ltd, Australia.</p>
+    <p class="colophon">Trang tĩnh &middot; Không cookie, chỉ đếm số liệu ẩn danh (<a href="/vi/privacy.html">xem cách</a>)</p>
+    <p class="footer-browse">Khám phá thêm: <a href="/vi/2-player-games-online.html">Game 2 người chơi online</a> &middot; <a href="/vi/multiplayer-browser-games.html">Game nhiều người chơi trên trình duyệt</a> &middot; <a href="/vi/board-games-with-friends.html">Game cờ bàn chơi cùng bạn bè</a> &middot; <a href="/vi/word-games.html">Game chữ miễn phí</a></p>
+  </footer>
+
+  <!-- The studio banner is imported below. Explained in render.mjs rather than
+       here: a comment written into this template is emitted into every article
+       and shipped, because buildPublic.mjs's stripper works on source files and
+       cannot reach inside an inline script it generated. The publicSurface
+       guard caught exactly that. -->
+  <script type="module">
+    import { startVersionChecker } from '/web-engine/updater/versionChecker.js';
+    import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
+    import('/assets/studioBanner.js').catch(() => {});
+    startVersionChecker();
+    initAnalytics({ page: 'vi-magazine-farmyshoot-for-people-who-dont-play-games' });
+    trackPlayClicks();
+  </script>
+  <p class="lang-note">Trang này bằng tiếng Việt. Bản thân các trò chơi bằng tiếng Anh; cờ vua, cờ đam và cờ cá ngựa hầu như không có chữ.</p>
+</body>
+</html>

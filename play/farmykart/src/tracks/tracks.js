@@ -588,6 +588,17 @@ export const TRACKS = [
         side: 'both', beyond: 1.25, depth: 24, bank: 0.30, level: 15,
         creatures: { kind: 'shark', count: 11, lungeHeight: 6, period: 3.6 },
       },
+      {
+        
+        
+        
+        
+        
+        
+        id: 'muddy-wallow', kind: 'water', from: 0.300, to: 0.400,
+        side: 'left', beyond: 1.25, depth: 5.0, bank: 0.80, level: 1.8,
+        drivable: true, shores: [{ from: 0.370, to: 0.400 }],
+      },
     ],
     
     
@@ -799,6 +810,17 @@ export const TRACKS = [
     scenery: {
       sunflowers: 0, trees: 66, bales: 34, fencePosts: 230, barns: 2, silos: 2, snowmen: 26,
       hedgerows: 12, landmark: { kind: 'church', at: 0.86, side: 1, out: 66 },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      city: { blocks: 64, spread: 44, seed: 0xf1057 },
     },
     sky: 'snow',
   },
@@ -913,7 +935,15 @@ export const TRACKS = [
       
       
       {
-        id: 'millrace-pond', kind: 'water', from: 0.21, to: 0.30,
+        
+        
+        
+        
+        
+        
+        
+        
+        id: 'millrace-pond', kind: 'water', from: 0.21, to: 0.36,
         side: 'left', beyond: 1.25, depth: 6, bank: 0.70, level: 2.2,
         drivable: true, shores: [{ from: 0.275, to: 0.300 }],
       },
@@ -946,6 +976,18 @@ export const TRACKS = [
     scenery: {
       sunflowers: 120, trees: 60, bales: 52, fencePosts: 240, barns: 2, silos: 2,
       hedgerows: 16, landmark: { kind: 'windmill', at: 0.26, side: 1, out: 70 },
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      city: { blocks: 76, spread: 38, seed: 0x0117e },
     },
     sky: 'dusk',
   },
@@ -958,11 +1000,22 @@ export const TRACKS = [
     
     locked: true,
     name: 'Saltmarsh Run',
-    tagline: 'Off the sea wall in the first ten seconds, then out onto the flats.',
+    tagline: 'Weather in off the sea, and the flats hold every drop of it.',
     
     
     
-    theme: 'snow',
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    theme: 'rain',
     laps: 3,
     
     
@@ -1111,7 +1164,7 @@ export const TRACKS = [
       snowmen: 0, hedgerows: 22,
       landmark: { kind: 'watertower', at: 0.45, side: 1, out: 62 },
     },
-    sky: 'day',
+    sky: 'rain',
   },
   {
     id: 'canyon',

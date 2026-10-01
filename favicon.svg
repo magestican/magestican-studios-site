@@ -1,4 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="10" fill="#1c1a17"/>
-  <text x="32" y="46" font-family="Georgia, serif" font-weight="700" font-size="42" text-anchor="middle" fill="#f6f1e6" transform="rotate(-3 32 32)">M</text>
+  <!--
+    THE SAME MARK AS assets/logo.svg, cut down for 16px.
+
+    Not the same file, and not a shrunk copy either: a favicon is drawn at
+    sixteen pixels a side in a browser tab, where the logo's cream card with an
+    ink border would be a pale blob with the border eating most of it.
+    Inverted - ink tile, cream gables - it stays a shape. No shadow and no
+    horizon, because both are one pixel at that size and one pixel is dirt.
+
+    It replaces the letter M set in Georgia, which was a placeholder that had
+    stopped looking like one.
+  -->
+  <rect width="64" height="64" rx="12" fill="#1c1a17"/>
+  <g transform="rotate(-2.5 32 32)">
+    <path d="M17.5 47.5 L21.5 18.5 L32 34.5"
+          fill="none" stroke="#f6f1e6" stroke-width="7.2"
+          stroke-linecap="round" stroke-linejoin="miter" stroke-miterlimit="7"/>
+    <path d="M32 34.5 L43 19 L46.5 47"
+          fill="none" stroke="#f6f1e6" stroke-width="6.5"
+          stroke-linecap="round" stroke-linejoin="miter" stroke-miterlimit="7"/>
+  </g>
 </svg>

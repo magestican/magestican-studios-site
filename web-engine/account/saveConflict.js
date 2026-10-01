@@ -247,6 +247,11 @@ export function resolveConflict(local, cloud, resolution, {
   localRecords = null, cloudRecords = null,
 } = {}) {
   const l = normaliseProfile(local);
+  
+  
+  
+  
+  
   const c = normaliseProfile(cloud);
   const lr = normaliseRecords(localRecords);
   const cr = normaliseRecords(cloudRecords);

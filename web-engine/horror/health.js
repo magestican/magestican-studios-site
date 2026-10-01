@@ -157,7 +157,7 @@ export function endGrapple(vitals) {
 
 
 
-export function tickVitals(vitals, dt, mode = 'walk') {
+export function tickVitals(vitals, dt, mode = 'walk', incoming = 1) {
   if (!vitals.alive) return vitals;
   const step = Math.max(0, dt);
 
@@ -165,7 +165,11 @@ export function tickVitals(vitals, dt, mode = 'walk') {
     const t0 = vitals.grappleTime;
     const t1 = t0 + step;
     vitals.grappleTime = t1;
-    const cost = drainBetween(vitals.grappledBy, t0, t1);
+    
+    
+    
+    
+    const cost = drainBetween(vitals.grappledBy, t0, t1) * incoming;
     vitals.health = Math.max(0, vitals.health - cost);
     if (vitals.health <= 0) kill(vitals, vitals.grappledBy);
     return vitals;

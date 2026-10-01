@@ -31,6 +31,25 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const XP_PER_PLAY = 10;
 export const XP_PER_WIN = 40;
 
@@ -71,6 +90,30 @@ export function levelFrom(totals) {
     intoLevel: xp - floor,
     forNext: ceil - floor,
     progress: (xp - floor) / (ceil - floor),
+  };
+}
+
+
+
+
+
+
+
+export function levelFromXp(xp) {
+  const n = Math.floor(Number(xp));
+  const v = Number.isFinite(n) && n > 0 ? n : 0;
+  let level = 1;
+  
+  
+  while (xpForLevel(level + 1) <= v) level += 1;
+  const floor = xpForLevel(level);
+  const ceil = xpForLevel(level + 1);
+  return {
+    level,
+    xp: v,
+    xpIntoLevel: v - floor,
+    xpForNext: ceil - floor,
+    fraction: (v - floor) / (ceil - floor),
   };
 }
 

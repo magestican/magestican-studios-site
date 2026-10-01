@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Silk &amp; Seam - Play the Free Sewing &amp; Dressmaking Game</title>
+  <meta name="description" content="A cosy seamstress game in your browser: sketch a dress, cut it, sew it on the machine, add lace and pearls, and dress a whole town. Free, no download.">
+  <meta name="theme-color" content="#3f4d3d">
+  <link rel="canonical" href="https://magesticanstudios.com/play/silk-and-seam/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Silk &amp; Seam - a free sewing and dressmaking game">
+  <meta property="og:description" content="Read your clients' letters, sketch a gown, cut and sew it on a vintage machine, dress it in lace and pearls, and win opera costumes, weddings and festival sarees in town. Free, in the browser, no account.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/silk-and-seam/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/silk-and-seam-preview.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Silk &amp; Seam - a free sewing and dressmaking game">
+  <meta name="twitter:description" content="A cosy seamstress game in your browser: sketch, cut, sew and embellish dresses for a whole town, from opera gowns to festival sarees. Free, no sign-up.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/silk-and-seam-preview.jpg">
+  
+
+
+
+
+
+  <meta name="build" content="424249d-20261001T034025Z">
+  <script>
+    (function () {
+      var FILES = ['js/art.js', 'js/audio.js', 'js/cloth.js', 'js/data.js', 'js/drape.js', 'js/drape.worker.js', 'js/dress3d.js', 'js/env3d.js', 'js/form3d.js', 'js/gfx.js', 'js/gfxrules.js', 'js/logic.js', 'js/main.js', 'js/patterns.js', 'js/post3d.js', 'js/render3d.js', 'js/scene.js', 'js/skin.js', 'js/state.js', 'js/town.js', 'js/townfolk.js', 'js/townlife.js', 'js/townmap.js', 'js/ui.js',
+        'js/screens/cut.js', 'js/screens/embellish.js', 'js/screens/gallery.js', 'js/screens/hub.js', 'js/screens/market.js',
+        'js/screens/orders.js', 'js/screens/reveal.js', 'js/screens/sew.js', 'js/screens/sketch.js', 'js/screens/town.js',
+        'js/vendor/three.core.min.js', 'js/vendor/three.module.min.js'];
+      var CSS = ['css/style.css', 'css/scene-frames.css', 'css/skin.css', 'css/town.css'];
+      var v = (document.querySelector('meta[name="build"]') || {}).content || 'dev';
+      var q = v === 'dev' ? '' : '?v=' + encodeURIComponent(v);
+      if (q && window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap')) {
+        var map = { imports: {} };
+        
+        for (var i = 0; i < FILES.length; i++) map.imports[new URL(FILES[i], document.baseURI).href] = new URL(FILES[i] + q, document.baseURI).href;
+        var s = document.createElement('script');
+        s.type = 'importmap';
+        s.textContent = JSON.stringify(map);
+        document.currentScript.after(s);
+      }
+      for (var k = 0; k < CSS.length; k++) document.write('<link rel="stylesheet" href="' + CSS[k] + q + '">');
+    })();
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M12 4h8l-1 6 6 3-3 15H10L7 13l6-3z' fill='%23d25a6e'/%3E%3C/svg%3E">
+  
+
+
+
+  <link rel="modulepreload" href="/web-engine/visits/visits.js">
+  <script type="module">
+    import { initAnalytics, trackEvent } from '/web-engine/visits/visits.js';
+    initAnalytics({ page: 'silk-and-seam' });
+    trackEvent('game_start', { game: 'silk-and-seam' });
+  </script>
+</head>
+<body>
+  <div id="stage">
+    <div id="hud"></div>
+    <div id="screen" class="screen"></div>
+  </div>
+  <noscript>Silk &amp; Seam needs JavaScript to run.</noscript>
+  <script type="module" src="js/main.js?v=424249d-20261001T034025Z"></script>
+</body>
+</html>

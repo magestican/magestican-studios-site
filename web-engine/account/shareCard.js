@@ -49,7 +49,8 @@
 
 
 
-import { dailyChallenge, GAME_NAMES, GAME_IDS, isGameId } from './dailyChallenge.js';
+import { dailyChallenge, GAME_NAMES, isGameId } from './dailyChallenge.js';
+import { CLOUD_GAME_IDS } from '../progress/gameIds.js';
 import { dayNumberToKey } from './dayKey.js';
 
 
@@ -253,8 +254,14 @@ export function seedInvite(utcDay, gameId, origin = 'magesticanstudios.com') {
 }
 
 
+
+
+
+
+
+
 export function seedCodesFor(utcDay) {
-  return GAME_IDS
+  return CLOUD_GAME_IDS
     .map((id) => ({ id, name: GAME_NAMES[id], code: dailySeedCode(utcDay, id) }))
     .filter((e) => e.code !== null);
 }

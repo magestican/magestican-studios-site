@@ -1,0 +1,187 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { CRAFTABLES } from '../economy/craftables.mjs';
+import { anchorsOf } from '../art/decor.mjs';
+import { anchors as houseAnchors } from '../art/villagerHome.mjs';
+import { anchors as roomAnchors } from '../art/houseRoom.mjs';
+import { roomAt, wallsOf, storeysFor } from '../art/interiorPlan.mjs';
+import { PLAYER_RADIUS_M, toWorld } from '../world/collision.mjs';
+import { ownedIds, parcelAt } from '../world/parcels.mjs';
+
+export const PLAYER_HOME = Object.freeze({
+  
+  planet: 0,
+  
+  doorGapM: 0.35,
+  
+});
+
+
+export const HOUSE_ITEMS = Object.freeze(Object.keys(CRAFTABLES).filter((id) => CRAFTABLES[id].category === 'houses'));
+
+
+export const isHouseItem = (item) => HOUSE_ITEMS.includes(item);
+
+
+export function houseArt(item) {
+  const spec = CRAFTABLES[item];
+  if (!spec || spec.category !== 'houses') throw new Error(`'${item}' is not a house`);
+  return Object.freeze({ species: spec.art.variant || 'human', stage: spec.art.stage || 'house', seed: spec.art.seed || 1 });
+}
+
+
+export function ownsSpot(world, x, z) {
+  const id = parcelAt(x, z);
+  return id !== null && ownedIds(world).includes(id);
+}
+
+const planetOf = (e) => (Number.isInteger(e && e.planet) ? e.planet : PLAYER_HOME.planet);
+
+
+
+
+
+
+export function ownedHouses(world) {
+  return (world.placed || [])
+    .filter((p) => p.spot && isHouseItem(p.item) && planetOf(p) === PLAYER_HOME.planet && ownsSpot(world, p.spot.x, p.spot.z))
+    .sort((a, b) => (a.placedAt - b.placedAt) || (a.id - b.id));
+}
+
+
+
+
+
+export function playerHome(world, cfg = PLAYER_HOME) {
+  const p = ownedHouses(world)[0];
+  if (!p) return null;
+  const art = houseArt(p.item);
+  const spot = { x: p.spot.x, z: p.spot.z, rotY: p.spot.rotY || 0 };
+  const r = anchorsOf(p.item).r;
+  
+  const outside = houseAnchors({ seed: art.seed, species: art.species, stage: art.stage });
+  
+  const room = roomAnchors({ seed: art.seed, species: art.species, storeys: storeysFor(art.stage), storey: 0 });
+  
+  const out = r + PLAYER_RADIUS_M + cfg.doorGapM;
+  return Object.freeze({
+    id: p.id, item: p.item, species: art.species, stage: art.stage, seed: art.seed,
+    spot: Object.freeze(spot), radiusM: r,
+    door: Object.freeze(toWorld(spot, outside.door.x, outside.footprint.hz + 0.08)),
+    front: Object.freeze(toWorld(spot, outside.door.x * 0.5, out)),
+    room, floor: 0,
+  });
+}
+
+
+
+
+
+
+export function onFloor(home, floor) {
+  const storeys = home.room.storeys || 1;
+  if (!(floor >= 0 && floor < storeys)) throw new Error(`floor ${floor} of a ${storeys}-storey house`);
+  const room = roomAnchors({ seed: home.seed, species: home.species, storeys, storey: floor });
+  return Object.freeze({ ...home, floor, room });
+}
+
+
+export const ownsHome = (world) => ownedHouses(world).length > 0;
+
+
+
+
+
+export function homePlaces(world, { planet = PLAYER_HOME.planet } = {}) {
+  if (planet !== PLAYER_HOME.planet) return [];
+  const home = playerHome(world);
+  if (!home) return [];
+  return [Object.freeze({ type: 'homeDoor', x: home.door.x, z: home.door.z, front: home.front })];
+}
+
+
+
+
+
+
+
+export function insideSpot(home) {
+  const s = home.room.spawn;
+  return Object.freeze({ x: s.x, z: s.z, heading: s.heading });
+}
+
+
+
+
+
+export function exitPlaces(home) {
+  const a = home.room.atDoor, st = home.room.stairs;
+  
+  
+  
+  const out = home.room.door.none ? [] : [Object.freeze({ type: 'homeExit', x: a.x, z: a.z, r: 0.12 })];
+  
+  
+  if (st) out.push(Object.freeze({ type: 'homeStairs', id: st.to, x: st.x, z: st.z, r: 0.35 }));
+  return out;
+}
+
+
+export function stairsArrival(room) {
+  const st = room.stairs;
+  return Object.freeze({ x: st.x, z: st.z, heading: room.storey ? Math.PI : 0 });
+}
+
+
+
+
+
+
+
+export { wallsOf };
+
+
+export function inRoom(room, x, z) {
+  return Math.abs(x) <= room.hx + 1e-9 && Math.abs(z) <= room.hz + 1e-9;
+}
+
+
+export const roomNameAt = (room, x, z) => roomAt(room.plan, x, z);

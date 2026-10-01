@@ -51,7 +51,7 @@
     min-width: 0;
     flex-wrap: wrap;
     gap: 10px 16px;
-    font-size: 14px;
+    font-size: 18px;
   }
   .mag-body main { padding-left: 20px; padding-right: 20px; }
   .mag-body .site-footer { padding-left: 20px; padding-right: 20px; }
@@ -60,7 +60,7 @@
 
 
 .mag-crumb {
-  font-size: 14px;
+  font-size: 18px;
   color: var(--ink-soft, #4a463f);
   margin: 0 0 22px;
   letter-spacing: 0.02em;
@@ -90,7 +90,7 @@
   border: 1px solid var(--line, #d9d2c1);
   border-radius: 999px;
   background: #fffbf1;
-  font-size: 12px;
+  font-size: 18px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-soft, #4a463f);
@@ -125,16 +125,23 @@ a.mag-tag:hover { border-color: var(--ink, #1c1a17); color: var(--ink, #1c1a17);
   align-items: center;
   gap: 10px;
   margin: 0 0 12px;
-  font-size: 14px;
+  font-size: 18px;
   color: var(--ink-soft, #4a463f);
 }
 .mag-meta time { white-space: nowrap; }
 
+
+
+
+
+
+
+
 .mag-readon {
-  color: var(--accent-z, #b73a2a);
-  font-weight: 500;
+  color: var(--barn-text, #8f2a1a);
+  font-weight: 700;
   text-decoration: none;
-  font-size: 15px;
+  font-size: 18px;
 }
 .mag-readon:hover { text-decoration: underline; }
 
@@ -183,7 +190,7 @@ a.mag-tag:hover { border-color: var(--ink, #1c1a17); color: var(--ink, #1c1a17);
   border-radius: 6px;
   overflow-x: auto;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: 13.5px;
+  font-size: 18px;
   line-height: 1.65;
   white-space: pre;
   color: var(--ink, #1c1a17);
@@ -206,7 +213,7 @@ a.mag-tag:hover { border-color: var(--ink, #1c1a17); color: var(--ink, #1c1a17);
   background: #fffbf1;
   border: 1px dashed var(--line, #d9d2c1);
   border-radius: 6px;
-  font-size: 15.5px;
+  font-size: 18px;
   color: var(--ink-soft, #4a463f);
 }
 .mag-note p { margin: 0 0 10px; }
@@ -217,7 +224,7 @@ a.mag-tag:hover { border-color: var(--ink, #1c1a17); color: var(--ink, #1c1a17);
   margin: 46px 0 0;
   padding-top: 22px;
   border-top: 1px dashed var(--line, #d9d2c1);
-  font-size: 15px;
+  font-size: 18px;
   color: var(--ink-soft, #4a463f);
 }
 
@@ -264,7 +271,7 @@ a.mag-tag:hover { border-color: var(--ink, #1c1a17); color: var(--ink, #1c1a17);
 }
 .rev-game .mag-meta { margin-bottom: 16px; }
 .rev-game h3 {
-  font-size: 17px;
+  font-size: 19px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--ink-soft, #4a463f);
@@ -283,11 +290,16 @@ a.mag-tag:hover { border-color: var(--ink, #1c1a17); color: var(--ink, #1c1a17);
   border-radius: 6px;
 }
 .rev-verdict p { margin: 0; }
-.rev-verdict strong { display: block; margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase; font-size: 13px; color: var(--ink-soft, #4a463f); }
+
+
+
+.rev-verdict strong { display: block; margin-bottom: 6px; letter-spacing: 0.01em; font-size: 18px; color: var(--ink-soft, #4a463f); }
+
+
 
 .rev-play {
-  color: var(--accent-z, #b73a2a);
-  font-weight: 500;
+  color: var(--barn-text, #8f2a1a);
+  font-weight: 700;
   text-decoration: none;
 }
 .rev-play:hover { text-decoration: underline; }
@@ -297,7 +309,7 @@ a.mag-tag:hover { border-color: var(--ink, #1c1a17); color: var(--ink, #1c1a17);
 @media (max-width: 640px) {
   .mag-article { max-width: none; }
   .mag-masthead { margin-bottom: 30px; }
-  .mag-data { font-size: 12px; padding: 12px 13px; }
+  .mag-data { padding: 12px 13px; }
   .mag-pull { font-size: 19px; }
   .mag-lede { font-size: 18px; }
 }

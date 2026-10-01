@@ -129,6 +129,33 @@ export const ROAD_RECIPE = {
       { id: 'gritLight', colour: 0xf2f8ff, alpha: 0.50, coverage: 0.05, scaleMetres: [0.15, 0.15] },
     ],
   },
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  rain: {
+    base: 0x3f4240,
+    marks: [
+      { id: 'bandDark', colour: 0x2e3130, alpha: 0.34, coverage: 0.22, scaleMetres: [26, 2.0] },
+      { id: 'bandLight', colour: 0x585c5a, alpha: 0.34, coverage: 0.22, scaleMetres: [26, 2.0] },
+      { id: 'dryPatch', colour: 0x63676a, alpha: 0.34, coverage: 0.07, scaleMetres: [3.5, 4.5] },
+      { id: 'gravel', colour: 0x242725, alpha: 0.40, coverage: 0.09, scaleMetres: [2.0, 3.0] },
+      { id: 'rut', colour: 0x2e3130, alpha: 0.95, coverage: 0.17, scaleMetres: [2.2, 8] },
+      { id: 'rutDeep', colour: 0x1e2120, alpha: 0.85, coverage: 0.07, scaleMetres: [0.9, 8] },
+      { id: 'rutLip', colour: 0x63676a, alpha: 0.55, coverage: 0.05, scaleMetres: [0.5, 8] },
+      { id: 'puddle', colour: 0x1c1f1e, alpha: 0.62, coverage: 0.17, scaleMetres: [2.6, 1.4] },
+      { id: 'puddleSky', colour: 0xa8b1b8, alpha: 0.44, coverage: 0.09, scaleMetres: [1.8, 0.7] },
+      { id: 'grit', colour: 0x242725, alpha: 0.50, coverage: 0.05, scaleMetres: [0.15, 0.15] },
+      { id: 'gritLight', colour: 0x63676a, alpha: 0.50, coverage: 0.05, scaleMetres: [0.15, 0.15] },
+    ],
+  },
 };
 
 
@@ -178,6 +205,26 @@ export const FIELD_RECIPE = {
       { id: 'clumpLight', colour: 0xf2f8ff, alpha: 0.34, coverage: 0.20, scaleMetres: [1.2, 1.0] },
       { id: 'clumpDark', colour: 0xa8c0da, alpha: 0.38, coverage: 0.20, scaleMetres: [1.2, 1.0] },
       { id: 'stubble', colour: 0xc2b174, alpha: 0.34, coverage: 0.08, scaleMetres: [0.6, 0.6] },
+    ],
+  },
+  
+  
+  
+  
+  
+  
+  
+  
+  rain: {
+    base: 0x4b6844,
+    marks: [
+      { id: 'fieldWarm', colour: 0x8b9668, alpha: 0.38, coverage: 0.20, scaleMetres: [14, 10] },
+      { id: 'fieldDark', colour: 0x2a4023, alpha: 0.44, coverage: 0.22, scaleMetres: [14, 10] },
+      { id: 'plough', colour: 0x1e2b1a, alpha: 0.32, coverage: 0.10, scaleMetres: [1.0, 12] },
+      { id: 'hedge', colour: 0x1f2c1c, alpha: 0.58, coverage: 0.07, scaleMetres: [0.6, 20] },
+      { id: 'clumpLight', colour: 0x87a471, alpha: 0.38, coverage: 0.20, scaleMetres: [1.2, 1.0] },
+      { id: 'clumpDark', colour: 0x22301e, alpha: 0.38, coverage: 0.20, scaleMetres: [1.2, 1.0] },
+      { id: 'stubble', colour: 0x7c7a58, alpha: 0.26, coverage: 0.06, scaleMetres: [0.6, 0.6] },
     ],
   },
 };
@@ -258,10 +305,10 @@ export function compositeMean(recipe) {
 
 
 
-export const MIN_ROAD_FIELD_GAP = { summer: 25, mud: 12, snow: 25 };
+export const MIN_ROAD_FIELD_GAP = { summer: 25, mud: 12, snow: 25, rain: 22 };
 
 
-export const RECIPE_THEMES = ['summer', 'mud', 'snow'];
+export const RECIPE_THEMES = ['summer', 'mud', 'snow', 'rain'];
 
 export const roadRecipe = (theme) => ROAD_RECIPE[theme] ?? ROAD_RECIPE.summer;
 export const fieldRecipe = (theme) => FIELD_RECIPE[theme] ?? FIELD_RECIPE.summer;

@@ -53,20 +53,25 @@
 
 
 
-import { localDayNumber, utcDayNumber, daysBetween } from './dayKey.js';
+import { localDayNumber, localHour, utcDayNumber, daysBetween, weekdayIndex } from './dayKey.js';
 import { emptyStreak, normaliseStreak, recordDay, streakStatus, MAX_STREAK } from './streak.js';
 import {
-  GAME_IDS, isGameId, metricsFor, dailyChallenge, challengeProgress, gameOfTheDay,
+  GAME_IDS, STORAGE_GAME_IDS, isGameId, metricsFor, dailyChallenge, challengeProgress,
+  gameOfTheDay,
 } from './dailyChallenge.js';
+import { TOUR_GAME_IDS, PROFILE_GAME_IDS } from '../progress/gameIds.js';
+import { ELO, mergeRating } from '../progress/elo.js';
 import { dailyTaskBoard, boardStatus, DAY_COMPLETE_XP } from './dailyTasks.js';
 import {
   emptyWeek, normaliseWeek, recordWeekPlay, weeklyBoardForDay, weeklyStatus,
   WEEK_COMPLETE_XP,
 } from './weeklyGoals.js';
 import {
-  emptySeason, normaliseSeason, recordSeasonXp, seasonStatus,
+  emptySeason, normaliseSeason, recordSeasonXp, seasonStatus, SEASON_TIERS, seasonTierAt,
 } from './season.js';
-import { openingRun, isFirstPlayOf, unplayedGames, NEW_GAME_XP } from './firstRun.js';
+import { openingRun, isFirstPlayOf, unplayedGames } from './firstRun.js';
+import { xpFrom, xpForLevel, levelFromXp } from './playerLevel.js';
+import { RANK_TITLES } from '../progress/ranks.js';
 
 
 
@@ -81,25 +86,62 @@ export const LIMITS = Object.freeze({
   maxCount: 1000000,
   maxStreak: MAX_STREAK,
   maxTour: 10000,
+  
+  
+  
+  
+  maxSecondsPerMatch: 21600,
+  maxSeconds: 1000000000,
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 export const XP = Object.freeze({
-  play: 10,          
-  win: 15,           
-  tour: 200,         
+  play: 10,
+  win: 40,
+  online: 10,
+  discovery: 50,
+  tour: 200,
+  badge: Object.freeze({ common: 25, uncommon: 50, rare: 100, legendary: 250 }),
+  trophy: 250,
+  grindCapPerGameDay: 30,
+  grindXp: 2,
 });
 
 
 
 
-export const RANKS = Object.freeze([
-  Object.freeze({ at: 0, name: 'Farmhand' }),
-  Object.freeze({ at: 500, name: 'Drover' }),
-  Object.freeze({ at: 1500, name: 'Stockhand' }),
-  Object.freeze({ at: 4000, name: 'Ranch Boss' }),
-  Object.freeze({ at: 10000, name: 'Barn Legend' }),
-]);
+
+
+
+
+
+export const RANKS = Object.freeze(RANK_TITLES.map((r) => Object.freeze({
+  at: xpForLevel(r.level), level: r.level, name: r.name,
+})));
 
 
 export const TOUR_WINDOW_DAYS = 7;
@@ -121,6 +163,8 @@ export function emptyProfile() {
     createdDay: null,
     streak: emptyStreak(),
     
+    
+    
     games: {},
     
     
@@ -136,7 +180,201 @@ export function emptyProfile() {
     
     
     season: emptySeason(),
+    
+    
+    
+    
+    
+    
+    xpMigrated: 0,
+    
+    
+    grind: { day: null, counts: {} },
+    
+    
+    
+    
+    ratings: {},
+    
+    
+    
+    
+    feats: emptyFeats(),
   };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const MAX_SEASONS_TOPPED = 1000;
+
+export function emptyFeats() {
+  return {
+    nightOwl: 0, weekender: 0, onlineMatches: 0, onlineWins: 0, seasonsTopped: [],
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    trophyAt: {}, badgeAt: {}, playedAt: {},
+  };
+}
+
+
+
+const TIME_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
+
+const MAX_TIME_KEYS = 2000;
+
+function normaliseTimes(raw, keep = null) {
+  const out = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  let n = 0;
+  for (const [id, v] of Object.entries(raw)) {
+    if (n >= MAX_TIME_KEYS) break;
+    if (!TIME_ID.test(id) || (keep && !keep(id))) continue;
+    if (!Number.isInteger(v) || v <= 0) continue;
+    out[id] = v;
+    n += 1;
+  }
+  return out;
+}
+
+function mergeTimes(a, b, pick) {
+  const out = { ...a };
+  for (const [id, v] of Object.entries(b)) out[id] = id in out ? pick(out[id], v) : v;
+  return out;
+}
+
+
+
+
+
+
+
+
+export function stampUnlocks(profile, events, nowMs) {
+  const p = normaliseProfile(profile);
+  if (!Number.isInteger(nowMs) || nowMs <= 0 || !Array.isArray(events)) return p;
+  const trophyAt = { ...p.feats.trophyAt };
+  const badgeAt = { ...p.feats.badgeAt };
+  for (const e of events) {
+    if (!e || typeof e.id !== 'string' || !TIME_ID.test(e.id)) continue;
+    if (e.type === 'trophy' && !(e.id in trophyAt)) trophyAt[e.id] = nowMs;
+    if (e.type === 'badge' && !(e.id in badgeAt)) badgeAt[e.id] = nowMs;
+  }
+  return { ...p, feats: { ...p.feats, trophyAt, badgeAt } };
+}
+
+function normaliseSeasonIds(raw) {
+  if (!Array.isArray(raw)) return [];
+  const ids = [...new Set(raw.filter((v) => Number.isInteger(v) && v >= 0))].sort((a, b) => a - b);
+  return ids.slice(-MAX_SEASONS_TOPPED);
+}
+
+function normaliseFeats(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return emptyFeats();
+  
+  
+  const flag = (v) => (typeof v === 'number' && v >= 1 ? 1 : 0);
+  return {
+    nightOwl: flag(raw.nightOwl),
+    weekender: flag(raw.weekender),
+    onlineMatches: clampInt(raw.onlineMatches, LIMITS.maxCount),
+    onlineWins: clampInt(raw.onlineWins, LIMITS.maxCount),
+    seasonsTopped: normaliseSeasonIds(raw.seasonsTopped),
+    trophyAt: normaliseTimes(raw.trophyAt),
+    badgeAt: normaliseTimes(raw.badgeAt),
+    playedAt: normaliseTimes(raw.playedAt, (id) => PROFILE_GAME_IDS.includes(id)),
+  };
+}
+
+function mergeFeats(a, b) {
+  const x = normaliseFeats(a);
+  const y = normaliseFeats(b);
+  return {
+    nightOwl: Math.max(x.nightOwl, y.nightOwl),
+    weekender: Math.max(x.weekender, y.weekender),
+    onlineMatches: Math.max(x.onlineMatches, y.onlineMatches),
+    onlineWins: Math.max(x.onlineWins, y.onlineWins),
+    seasonsTopped: normaliseSeasonIds([...x.seasonsTopped, ...y.seasonsTopped]),
+    trophyAt: mergeTimes(x.trophyAt, y.trophyAt, Math.min),
+    badgeAt: mergeTimes(x.badgeAt, y.badgeAt, Math.min),
+    playedAt: mergeTimes(x.playedAt, y.playedAt, Math.max),
+  };
+}
+
+
+
+
+
+
+
+
+
+function normaliseRatings(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  const clampR = (v) => Math.min(ELO.ceil, Math.max(ELO.floor, Math.round(v)));
+  const nonNegInt = (v) => (Number.isInteger(v) && v >= 0 ? v : 0);
+  for (const id of PROFILE_GAME_IDS) {
+    const g = raw[id];
+    if (!g || typeof g !== 'object' || !Number.isFinite(g.r)) continue;
+    const r = clampR(g.r);
+    out[id] = {
+      r,
+      n: nonNegInt(g.n),
+      peak: Number.isFinite(g.peak) ? Math.max(r, clampR(g.peak)) : r,
+      at: nonNegInt(g.at),
+    };
+  }
+  return out;
+}
+
+
+
+function mergeRatings(a, b) {
+  const out = {};
+  for (const id of PROFILE_GAME_IDS) {
+    const m = mergeRating(a?.[id], b?.[id]);
+    if (m) out[id] = m;
+  }
+  return out;
 }
 
 const clampInt = (v, max) => {
@@ -172,13 +410,18 @@ export function normaliseName(raw) {
 
 
 
-export function normaliseProfile(raw) {
+export function normaliseProfile(raw, { floor = true } = {}) {
   const base = emptyProfile();
   if (!raw || typeof raw !== 'object') return base;
   const day = (v) => (Number.isInteger(v) && v >= 0 ? v : null);
 
+  
+  
+  
+  
+  
   const games = {};
-  for (const id of GAME_IDS) {
+  for (const id of STORAGE_GAME_IDS) {
     const g = raw.games?.[id];
     if (!g || typeof g !== 'object') continue;
     const totals = {};
@@ -188,13 +431,14 @@ export function normaliseProfile(raw) {
       wins: clampInt(g.wins, LIMITS.maxCount),
       lastDay: day(g.lastDay),
       totals,
+      seconds: clampInt(g.seconds, LIMITS.maxSeconds),
     };
   }
 
   const dailyDay = day(raw.daily?.day);
   const progress = {};
   if (dailyDay !== null && raw.daily?.progress && typeof raw.daily.progress === 'object') {
-    for (const id of GAME_IDS) {
+    for (const id of STORAGE_GAME_IDS) {
       const p = raw.daily.progress[id];
       if (!p || typeof p !== 'object') continue;
       const kept = {};
@@ -206,12 +450,54 @@ export function normaliseProfile(raw) {
     ? [...new Set(raw.daily.done.filter(isGameId))] : [];
 
   const streak = normaliseStreak(raw.streak);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  let xp = clampInt(raw.xp, LIMITS.maxXp);
+  let plays = 0; let wins = 0;
+  for (const g of Object.values(games)) { plays += g.plays; wins += g.wins; }
+  let xpMigrated = raw.xpMigrated === 1 ? 1 : 0;
+  if (xpMigrated !== 1 && floor) {
+    xp = Math.min(LIMITS.maxXp, Math.max(xp, xpFrom({ plays, wins })));
+    
+    
+    
+    xpMigrated = plays > 0 ? 1 : 0;
+  }
+
+  
+  const grindDay = day(raw.grind?.day);
+  const grindCounts = {};
+  if (grindDay !== null && raw.grind?.counts && typeof raw.grind.counts === 'object') {
+    for (const id of STORAGE_GAME_IDS) {
+      const n = clampInt(raw.grind.counts[id], XP.grindCapPerGameDay);
+      if (n) grindCounts[id] = n;
+    }
+  }
+
   return {
     version: 1,
     uid: typeof raw.uid === 'string' && raw.uid.length > 0 && raw.uid.length <= 128 ? raw.uid : null,
     linked: raw.linked === true,
     name: normaliseName(raw.name),
-    xp: clampInt(raw.xp, LIMITS.maxXp),
+    xp,
     
     
     
@@ -227,7 +513,30 @@ export function normaliseProfile(raw) {
     },
     week: normaliseWeek(raw.week),
     season: normaliseSeason(raw.season),
+    xpMigrated,
+    grind: { day: grindDay, counts: grindCounts },
+    ratings: normaliseRatings(raw.ratings),
+    feats: withToppedSeason(normaliseFeats(raw.feats), normaliseSeason(raw.season)),
   };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function withToppedSeason(feats, season) {
+  if (!Number.isInteger(season.id) || seasonTierAt(season.xp) < SEASON_TIERS) return feats;
+  if (feats.seasonsTopped.includes(season.id)) return feats;
+  return { ...feats, seasonsTopped: normaliseSeasonIds([...feats.seasonsTopped, season.id]) };
 }
 
 function earliestDay(streak, games) {
@@ -254,6 +563,9 @@ export function rankFor(xp) {
     index,
     name: RANKS[index].name,
     xp: v,
+    
+    
+    level: levelFromXp(v).level,
     nextName: next ? next.name : null,
     nextAt: next ? next.at : null,
     toNext: next ? next.at - v : 0,
@@ -284,7 +596,12 @@ export function tourStatus(profile, today) {
   const p = normaliseProfile(profile);
   const played = [];
   const missing = [];
-  for (const id of GAME_IDS) {
+  
+  
+  
+  
+  
+  for (const id of TOUR_GAME_IDS) {
     const last = p.games[id]?.lastDay;
     const gap = Number.isInteger(today) ? daysBetween(last, today) : null;
     if (gap !== null && gap >= 0 && gap < TOUR_WINDOW_DAYS) played.push(id);
@@ -321,6 +638,7 @@ export function tourStatus(profile, today) {
 
 export function recordPlay(profile, {
   gameId, nowMs = 0, tzOffsetMinutes, metrics = {}, won = false, name,
+  online = false, humans = 0, seconds,
 } = {}) {
   const before = normaliseProfile(profile);
   if (!isGameId(gameId)) return { profile: before, events: [], changed: false };
@@ -335,6 +653,9 @@ export function recordPlay(profile, {
     tour: { ...before.tour },
     week: before.week,
     season: before.season,
+    grind: { day: before.grind.day, counts: { ...before.grind.counts } },
+    
+    xpMigrated: 1,
   };
 
   
@@ -350,7 +671,7 @@ export function recordPlay(profile, {
 
   
   const allowed = metricsFor(gameId);
-  const prev = before.games[gameId] ?? { plays: 0, wins: 0, lastDay: null, totals: {} };
+  const prev = before.games[gameId] ?? { plays: 0, wins: 0, lastDay: null, totals: {}, seconds: 0 };
   const totals = { ...prev.totals };
   for (const m of allowed) {
     const add = clampInt(metrics[m], LIMITS.maxCount);
@@ -363,11 +684,60 @@ export function recordPlay(profile, {
     
     lastDay: today ?? prev.lastDay,
     totals,
+    
+    
+    seconds: Math.min(LIMITS.maxSeconds,
+      (prev.seconds ?? 0) + clampInt(seconds, LIMITS.maxSecondsPerMatch)),
   };
-  let xp = XP.play + (won ? XP.win : 0);
+  
+  
+  
+  
+  
+  
+  
+  if (today !== null && p.grind.day !== today) p.grind = { day: today, counts: {} };
+  const awardedToday = today === null ? 0 : (p.grind.counts[gameId] ?? 0);
+  let xp;
+  if (awardedToday >= XP.grindCapPerGameDay) {
+    xp = XP.grindXp;
+    events.push({ type: 'grind', gameId, xp: XP.grindXp, cap: XP.grindCapPerGameDay });
+  } else {
+    
+    
+    
+    const withPeople = online === true && Number.isFinite(humans) && humans >= 1;
+    xp = XP.play + (won ? XP.win : 0) + (withPeople ? XP.online : 0);
+    if (today !== null) p.grind.counts[gameId] = awardedToday + 1;
+  }
   if (firstEver) {
-    xp += NEW_GAME_XP;
-    events.push({ type: 'new-game', gameId, xp: NEW_GAME_XP });
+    xp += XP.discovery;
+    events.push({ type: 'new-game', gameId, xp: XP.discovery });
+  }
+
+  
+  
+  
+  
+  {
+    const f = { ...before.feats };
+    const hour = localHour(nowMs, tzOffsetMinutes);
+    if (hour !== null && hour < 4) f.nightOwl = 1;
+    
+    
+    if (today !== null && weekdayIndex(today) === 6 && before.streak.lastDay === today - 1) {
+      f.weekender = 1;
+    }
+    if (online === true && Number.isFinite(humans) && humans >= 1) {
+      f.onlineMatches = Math.min(LIMITS.maxCount, f.onlineMatches + 1);
+      if (won) f.onlineWins = Math.min(LIMITS.maxCount, f.onlineWins + 1);
+    }
+    
+    
+    if (Number.isInteger(nowMs) && nowMs > 0) {
+      f.playedAt = { ...f.playedAt, [gameId]: Math.max(f.playedAt[gameId] ?? 0, nowMs) };
+    }
+    p.feats = f;
   }
 
   
@@ -504,6 +874,12 @@ export function recordPlay(profile, {
     if (sr.tiersGained > 0) {
       events.push({ type: 'season-tier', tier: sr.tier, gainedTiers: sr.tiersGained });
     }
+    
+    
+    if (sr.tier >= SEASON_TIERS && Number.isInteger(p.season.id)
+      && !p.feats.seasonsTopped.includes(p.season.id)) {
+      p.feats = { ...p.feats, seasonsTopped: normaliseSeasonIds([...p.feats.seasonsTopped, p.season.id]) };
+    }
   }
 
   
@@ -562,6 +938,7 @@ export function profileSummary(profile, nowMs = 0, tzOffsetMinutes) {
         id,
         plays: g.plays,
         wins: g.wins,
+        seconds: g.seconds ?? 0,
         challenge,
         progress: challengeProgress(challenge, dayProgress),
         done: p.daily.day === utcToday && p.daily.done.includes(id),
@@ -600,7 +977,15 @@ export function profileSummary(profile, nowMs = 0, tzOffsetMinutes) {
 
 export function reconcileProfiles(local, cloud) {
   const l = normaliseProfile(local);
-  const c = normaliseProfile(cloud);
+  
+  
+  
+  
+  
+  
+  
+  
+  const c = normaliseProfile(cloud, { floor: l.xpMigrated !== 1 });
   const max = (m, n) => Math.max(m ?? 0, n ?? 0);
   const laterDay = (m, n) => {
     if (!Number.isInteger(m)) return Number.isInteger(n) ? n : null;
@@ -613,8 +998,13 @@ export function reconcileProfiles(local, cloud) {
     return Math.min(m, n);
   };
 
+  
+  
+  
+  
+  
   const games = {};
-  for (const id of GAME_IDS) {
+  for (const id of STORAGE_GAME_IDS) {
     const g = l.games[id];
     const h = c.games[id];
     if (!g && !h) continue;
@@ -628,6 +1018,8 @@ export function reconcileProfiles(local, cloud) {
       wins: max(g?.wins, h?.wins),
       lastDay: laterDay(g?.lastDay ?? null, h?.lastDay ?? null),
       totals,
+      
+      seconds: g?.seconds ?? 0,
     };
   }
 
@@ -659,6 +1051,22 @@ export function reconcileProfiles(local, cloud) {
     
     week: l.week,
     season: l.season,
+    
+    
+    
+    
+    
+    xpMigrated: Object.values(games).some((g) => g.plays > 0) ? 1 : 0,
+    grind: l.grind,
+    
+    
+    
+    
+    ratings: mergeRatings(l.ratings, c.ratings),
+    
+    
+    
+    feats: mergeFeats(l.feats, c.feats),
   });
 }
 
@@ -713,8 +1121,10 @@ export function mergeProfiles(a, b) {
     return Math.min(m, n);
   };
 
+  
+  
   const games = {};
-  for (const id of GAME_IDS) {
+  for (const id of STORAGE_GAME_IDS) {
     const g = x.games[id];
     const h = y.games[id];
     if (!g && !h) continue;
@@ -727,6 +1137,8 @@ export function mergeProfiles(a, b) {
       wins: sum(g?.wins, h?.wins, LIMITS.maxCount),
       lastDay: laterDay(g?.lastDay ?? null, h?.lastDay ?? null),
       totals,
+      
+      seconds: sum(g?.seconds, h?.seconds, LIMITS.maxSeconds),
     };
   }
 
@@ -770,7 +1182,96 @@ export function mergeProfiles(a, b) {
       bestTier: Math.max(x.season.bestTier, y.season.bestTier),
       seasons: x.season.seasons + y.season.seasons,
     },
+    
+    
+    
+    xpMigrated: Object.values(games).some((g) => g.plays > 0) ? 1 : 0,
+    grind: mergeGrind(x.grind, y.grind),
+    
+    
+    
+    ratings: mergeRatings(x.ratings, y.ratings),
+    
+    
+    feats: mergeFeats(x.feats, y.feats),
   });
+}
+
+
+
+
+
+
+
+
+
+function mergeGrind(a, b) {
+  const da = a.day ?? -1;
+  const db = b.day ?? -1;
+  if (da !== db) return da > db ? a : b;
+  const counts = { ...a.counts };
+  for (const [id, n] of Object.entries(b.counts)) {
+    counts[id] = Math.max(counts[id] ?? 0, n);
+  }
+  return { day: a.day, counts };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function awardBadgeXp(profile, rows) {
+  const before = normaliseProfile(profile);
+  const list = Array.isArray(rows) ? rows.filter((r) => r && typeof r === 'object') : [];
+  if (!list.length) return { profile: before, events: [], changed: false };
+  const events = [];
+  let gained = 0;
+  for (const r of list) {
+    const tier = Object.prototype.hasOwnProperty.call(XP.badge, r.tier) ? r.tier : 'common';
+    gained += XP.badge[tier];
+    events.push({ type: 'badge', id: r.id, tier, xp: XP.badge[tier] });
+  }
+  const rankBefore = rankFor(before.xp);
+  const p = { ...before, xp: Math.min(LIMITS.maxXp, before.xp + gained) };
+  const rankAfter = rankFor(p.xp);
+  if (rankAfter.index > rankBefore.index) {
+    events.push({ type: 'rank', name: rankAfter.name, index: rankAfter.index });
+  }
+  return { profile: p, events, changed: p.xp !== before.xp };
+}
+
+
+
+
+
+
+
+
+
+export function awardTrophyXp(profile, rows) {
+  const before = normaliseProfile(profile);
+  const list = Array.isArray(rows) ? rows.filter((r) => r && typeof r === 'object') : [];
+  if (!list.length) return { profile: before, events: [], changed: false };
+  const events = list.map((r) => ({ type: 'trophy', id: r.id, xp: XP.trophy }));
+  const rankBefore = rankFor(before.xp);
+  const p = { ...before, xp: Math.min(LIMITS.maxXp, before.xp + XP.trophy * list.length) };
+  const rankAfter = rankFor(p.xp);
+  if (rankAfter.index > rankBefore.index) {
+    events.push({ type: 'rank', name: rankAfter.name, index: rankAfter.index });
+  }
+  return { profile: p, events, changed: p.xp !== before.xp };
 }
 
 

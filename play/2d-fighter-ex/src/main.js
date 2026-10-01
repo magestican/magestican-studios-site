@@ -1,6 +1,9 @@
 
 
-import { initAnalytics, trackEvent } from '../../../web-engine/analytics/analytics.js';
+import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
+
+
+import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 
 
 
@@ -345,6 +348,20 @@ canvas.height = CANVAS.height;
 ctx.imageSmoothingEnabled = false;
 
 trackEvent('game_start', { game: '2d-fighter-ex', seed });
+
+
+
+
+
+
+
+
+
+
+
+
+
+countPlay('2d-fighter-ex', { isHost: true });
 
 
 

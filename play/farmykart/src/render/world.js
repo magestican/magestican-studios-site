@@ -9,7 +9,9 @@
 import * as THREE from 'three';
 import { PALETTE } from '../palette.js';
 import { makeSunFaceTexture } from './textures.js';
-import { buildSkyMaterial } from './materials.js';
+import { buildSkyMaterial, skyPalette } from './materials.js';
+import { themeOf } from './themes.js';
+import { BASE_FOV, V_FOV_CEILING } from '../../../../web-engine/kart/raceFov.js';
 
 
 
@@ -37,8 +39,12 @@ import { rigFor, SHADOW } from '../../../../web-engine/render/lightRig.js';
 
 
 
-export function sunDirFor(theme = 'summer') {
-  return new THREE.Vector3(...rigFor(theme).keyPos).normalize();
+
+
+
+
+export function sunDirFor(sky = 'day') {
+  return new THREE.Vector3(...rigFor(sky).keyPos).normalize();
 }
 
 
@@ -66,7 +72,7 @@ export function updateSky(sky, elapsed) {
   if (u) u.uTime.value = elapsed;
 }
 
-export function buildLights(theme) {
+export function buildLights(sky) {
   const group = new THREE.Group();
   group.name = 'lights';
 
@@ -109,7 +115,7 @@ export function buildLights(theme) {
   
   
   
-  const rig = rigFor(theme);
+  const rig = rigFor(sky);
   const sun = new THREE.DirectionalLight(rig.keyColour, rig.keyIntensity);
   
   
@@ -203,7 +209,21 @@ export function buildLights(theme) {
 
 
 
-export function buildSun(lights) {
+export function buildSun(lights, sky = 'day') {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  if (sky === 'rain') return null;
   const key = lights.userData.sun;
   const dir = key.position.clone().normalize();
   
@@ -294,15 +314,41 @@ export function focusShadow(lights, x, z, heading = null) {
   sun.target.updateMatrixWorld();
 }
 
-export function fogFor(theme) {
+export function fogFor(theme, sky = null) {
   
   
   
   
   
-  if (theme === 'snow') return new THREE.Fog(0xe9f2fb, 300, 900);
-  if (theme === 'mud' || theme === 'overcast') return new THREE.Fog(0xc9cdd2, 260, 820);
-  return new THREE.Fog(0xd3e8fb, 340, 980);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const { fog } = themeOf(theme);
+  const colour = sky ? skyPalette(sky).haze : fog.colour;
+  return new THREE.Fog(colour, fog.near, fog.far);
 }
 
 
@@ -320,12 +366,19 @@ export function fogFor(theme) {
 
 
 
-export function createChaseCamera(camera) {
+export function createChaseCamera(camera, { baseFov = BASE_FOV, ceiling = V_FOV_CEILING } = {}) {
   return {
     camera,
     x: 0, y: 4, z: 0,
     yaw: 0,
-    fov: 62,
+    
+    
+    
+    
+    
+    baseFov,
+    ceiling,
+    fov: baseFov,
     shake: 0,
     
     
@@ -545,7 +598,11 @@ export function updateChase(cam, kart, dt, { back = 7.4, height = 3.3, look = 5.
   
   
   
-  const wantFov = 60 + fast * 22 + (kart.boost ? 12 : 0);
+  
+  
+  
+  
+  const wantFov = Math.min(cam.ceiling, cam.baseFov + fast * 22 + (kart.boost ? 12 : 0));
   cam.fov += (wantFov - cam.fov) * Math.min(1, dt * 5);
   if (Math.abs(cam.camera.fov - cam.fov) > 0.01) {
     cam.camera.fov = cam.fov;

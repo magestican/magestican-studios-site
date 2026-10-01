@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Farmy Crosswords - four word games, big clear letters</title>
+  <meta name="description" content="Farmy Crosswords is four free word games in your browser: Farmy Five, Farmy Hive, Farmy Herds and Farmy Furrows, with a farm flavour. Big letters, high contrast, no timer, no account, more than fifty puzzles in each game, and a room you can share so two people work one puzzle together.">
+  <meta name="keywords" content="farmy crosswords, free word games browser, five letter word guess, honeycomb word game, word grouping puzzle, themed word search, large print word puzzles, accessible word games no download">
+  <meta name="build" content="424249d-20261001T034025Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/farmy-crosswords/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Farmy Crosswords - four word games, big clear letters">
+  <meta property="og:description" content="Farmy Five, Farmy Hive, Farmy Herds and Farmy Furrows, with a farm flavour. Big letters, no timer, no account, fifty-plus puzzles in each - and you can play them with somebody else.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/farmy-crosswords/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/farmy-crosswords-preview.png">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Farmy Crosswords - four word games, big clear letters">
+  <meta name="twitter:description" content="Four word puzzles on one page: Farmy Five, Farmy Hive, Farmy Herds and Farmy Furrows. Fifty-plus playsets each, and nothing is on a clock.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/farmy-crosswords-preview.png">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./src/style.css">
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Farmy Crosswords",
+    "url": "https://magesticanstudios.com/play/farmy-crosswords/",
+    "description": "Four word puzzles under one roof - Farmy Five, Farmy Hive, Farmy Herds and Farmy Furrows - with a farm flavour, more than fifty playsets in each, and a design built for older eyes: large type, high contrast, marks as well as colours, and no timer anywhere. Two people can share a puzzle in a peer-to-peer room.",
+    "image": "https://magesticanstudios.com/assets/farmy-crosswords-preview.png",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Word", "Puzzle", "Casual"],
+    "gamePlatform": ["Web browser"],
+    "playMode": "SinglePlayer",
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": "en",
+    "datePublished": "2026",
+    "accessibilityFeature": ["highContrastDisplay", "largePrint", "structuralNavigation"],
+    "accessibilityHazard": ["noFlashingHazard", "noMotionSimulationHazard"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+</head>
+<body>
+  
+
+
+
+
+
+
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+
+    
+
+
+
+
+
+
+
+    
+
+
+
+
+
+    <button id="family-back" class="studio-back-btn" type="button" hidden>&larr; Games</button>
+
+    <button id="music-btn" class="studio-music" type="button"
+            aria-pressed="false" aria-label="Play music" title="Play music">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        
+        <path class="mg-note" d="M18 6.5 L27 4.5 V17.2" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="mg-note" cx="15.4" cy="18.6" r="3.4" fill="currentColor"/>
+        <circle class="mg-note" cx="24.4" cy="16.6" r="3.4" fill="currentColor"/>
+        <path d="M3 12.5 H6.5 L11 8.5 V23.5 L6.5 19.5 H3 Z" fill="currentColor"/>
+        <path class="mg-slash" d="M4 27 L28 5" fill="none" stroke="currentColor"
+              stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  
+
+
+
+
+  <canvas id="board" tabindex="0" role="application"
+          aria-label="Farmy Crosswords. Four word games. Use the arrow keys to move, Enter to choose, and type letters to play."></canvas>
+
+  
+
+
+
+
+
+
+
+
+
+  <iframe id="family" class="family-frame" title="Farmy game" hidden></iframe>
+
+  
+
+
+
+
+
+  <p id="family-loading" class="family-loading" role="status" hidden>Opening the game...</p>
+
+  <noscript>
+    <p>Farmy Crosswords needs JavaScript, and there is nothing else to
+    download. Four word games - Farmy Five, Farmy Hive, Farmy Herds and
+    Farmy Furrows - with big letters and no clock.
+    <a href="../../farmy-crosswords.html">Read about the game</a>.</p>
+  </noscript>
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=424249d-20261001T034025Z"></script>
+
+  <script type="module" src="./src/main.js?v=424249d-20261001T034025Z"></script>
+</body>
+</html>

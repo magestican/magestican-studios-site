@@ -36,6 +36,9 @@
 
 
 import { SeededRng } from '../rng/seededRng.js';
+import {
+  PROFILE_GAME_IDS, PROFILE_GAME_NAMES, CLOUD_GAME_IDS,
+} from '../progress/gameIds.js';
 
 
 
@@ -43,19 +46,56 @@ import { SeededRng } from '../rng/seededRng.js';
 
 
 
-export const GAME_IDS = Object.freeze([
-  'team-bonding', 'farmykart', '2d-fighter-ex', 'zelakas',
-]);
+
+
+
+
+
+
+
+
+
+
+
+
+export const GAME_IDS = PROFILE_GAME_IDS;
+
+
+
+
+
+
 
 export const GAME_NAMES = Object.freeze({
-  'team-bonding': 'Farmyshoot',
-  farmykart: 'Farmy Kart',
-  '2d-fighter-ex': '2D Fighter EX',
+  ...PROFILE_GAME_NAMES,
   zelakas: 'Zelakas In Space',
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const STORAGE_GAME_IDS = Object.freeze([...new Set([...GAME_IDS, ...CLOUD_GAME_IDS])]);
+
 export function isGameId(id) {
-  return typeof id === 'string' && GAME_IDS.includes(id);
+  return typeof id === 'string' && STORAGE_GAME_IDS.includes(id);
 }
 
 
@@ -147,11 +187,20 @@ export const DAILY_XP = 40;
 
 
 
+
+
+
+
+
+
+
+
+
 export function gameOfTheDay(utcDay) {
   if (!Number.isInteger(utcDay) || utcDay < 0) return null;
-  const block = Math.floor(utcDay / GAME_IDS.length);
-  const slot = utcDay - block * GAME_IDS.length;
-  const order = new SeededRng(hash32(`arbelo-gotd-v1:${block}`)).shuffle([...GAME_IDS]);
+  const block = Math.floor(utcDay / CLOUD_GAME_IDS.length);
+  const slot = utcDay - block * CLOUD_GAME_IDS.length;
+  const order = new SeededRng(hash32(`arbelo-gotd-v1:${block}`)).shuffle([...CLOUD_GAME_IDS]);
   return order[slot];
 }
 
@@ -189,8 +238,14 @@ export function dailyChallenge(utcDay, gameId) {
 }
 
 
+
+
+
+
+
+
 export function dailyBoard(utcDay) {
-  return GAME_IDS.map((id) => dailyChallenge(utcDay, id)).filter(Boolean);
+  return CLOUD_GAME_IDS.map((id) => dailyChallenge(utcDay, id)).filter(Boolean);
 }
 
 

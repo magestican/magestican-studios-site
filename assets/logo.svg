@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" role="img" aria-labelledby="mgTitle">
+  <title id="mgTitle">Magestican Studios</title>
+  <!--
+    THE MARK, DRAWN RATHER THAN SET.
+
+    Bryan, 2026-09-04: "Make me a really good hand made logo for Magestican
+    studios". What was there was the letter M in Georgia inside a rounded box -
+    a placeholder that had stopped looking like one.
+
+    THE FIRST ATTEMPT IS WORTH RECORDING BECAUSE IT FAILED. It was an ink tile
+    with a cream M and a gold sun in the notch between the two peaks. Rendered
+    at four sizes and looked at, it read as a CROWN with a jewel in it - the sun
+    sat exactly where a crown's centre stone goes - and at 24px it was a blob.
+    The dark tile also fought everything else the studio makes, which is ink on
+    cream paper.
+
+    So this one is made of the studio's actual material:
+
+      * A CREAM CARD WITH AN INK BORDER AND A HARD INK SHADOW. That is not a
+        decoration, it is the exact object every tile, key and button in every
+        game is drawn as. The logo is cut from the same stock.
+      * The M is two GABLES - barn roofs - mitred to a point rather than
+        rounded, because a rounded shoulder reads as a typeface and a mitre
+        reads as a roof.
+      * It stands on a GOLD HORIZON that runs the width of the card and is
+        CROSSED by the barns' feet. The first cut had it short and tucked under
+        the M, where it read as a strike-through rather than as ground -
+        rendered and looked at, which is the only way that is ever visible.
+      * The two halves are drawn at different weights and every point is nudged
+        off where geometry would put it. A symmetrical M is a font; an
+        asymmetric one is something somebody drew.
+
+    Two colours plus the paper. No gradients, no filters, no fine detail:
+    everything is at least 3 units thick in a 72 unit box, so it survives 24px,
+    greyscale and a black and white printer. About 1 KB.
+  -->
+  <g transform="rotate(-2.5 36 36)">
+    <!-- The card and its hard shadow: SIZES.shadow, the same offset every
+         playing surface in every game sits on. -->
+    <rect x="9" y="12" width="56" height="54" rx="12" fill="#1c1a17"/>
+    <rect x="6" y="8" width="56" height="54" rx="12" fill="#f6f1e6" stroke="#1c1a17" stroke-width="3.4"/>
+
+    <!-- The horizon, behind the barns and running past them, so the mark has
+         ground rather than an underline. -->
+    <path d="M9.4 49.2 L58.8 48.3" fill="none" stroke="#c8942e"
+          stroke-width="3.6" stroke-linecap="round"/>
+
+    <!-- The left gable, a shade heavier than the right - the side a
+         right-handed pen presses on. -->
+    <path d="M17.2 53.4 L21.4 21.8 L34.4 38.4"
+          fill="none" stroke="#1c1a17" stroke-width="6.8"
+          stroke-linecap="round" stroke-linejoin="miter" stroke-miterlimit="7"/>
+    <!-- The right gable, lighter, its peak a hair lower and its foot a hair
+         shorter. -->
+    <path d="M34.4 38.4 L47.2 22.6 L51.2 52.8"
+          fill="none" stroke="#1c1a17" stroke-width="6.1"
+          stroke-linecap="round" stroke-linejoin="miter" stroke-miterlimit="7"/>
+  </g>
+</svg>

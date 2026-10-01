@@ -51,7 +51,9 @@ import { makeBarnTexture } from './textures.js';
 
 
 import { SHOULDER, GUARD_WIDTH, groundMeshHeightAt } from './trackMesh.js';
-import { surface } from './materials.js';
+import { surface, skyPalette } from './materials.js';
+import { themeOf } from './themes.js';
+import { buildCity } from './cityMesh.js';
 
 function rngFrom(seed) {
   let s = seed >>> 0 || 1;
@@ -279,7 +281,7 @@ export function buildScenery(path, track) {
   const s = track.scenery ?? {};
   const theme = track.theme ?? 'summer';
 
-  group.add(buildBackdrop(path, theme));
+  group.add(buildBackdrop(path, theme, track.sky));
   group.add(buildHedgerows(path, rng, s.hedgerows ?? 14, theme));
   if (s.sunflowers) group.add(buildSunflowers(path, rng, s.sunflowers));
   if (s.trees) group.add(buildTrees(path, rng, s.trees, theme));
@@ -288,6 +290,10 @@ export function buildScenery(path, track) {
   if (s.barns) group.add(buildBarns(path, rng, s.barns));
   if (s.silos) group.add(buildSilos(path, rng, s.silos));
   if (s.landmark) group.add(buildLandmark(path, s.landmark, theme));
+  
+  
+  
+  if (s.city) group.add(buildCity(path, track));
   return group;
 }
 
@@ -295,11 +301,10 @@ export function buildScenery(path, track) {
 
 
 
-const BACKDROP_THEMES = {
-  summer: { near: PALETTE.hillNear, fog: 0xd3e8fb },
-  mud: { near: PALETTE.hillMud, fog: 0xc9cdd2 },
-  snow: { near: PALETTE.hillSnow, fog: 0xe9f2fb },
-};
+
+
+
+
 
 
 function towardFog(colour, fogColour, t) {
@@ -337,10 +342,21 @@ function towardFog(colour, fogColour, t) {
 
 
 
-function buildBackdrop(path, theme) {
+function buildBackdrop(path, theme, sky = null) {
   const group = new THREE.Group();
   group.name = 'backdrop';
-  const c = BACKDROP_THEMES[theme] ?? BACKDROP_THEMES.summer;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const c = themeOf(theme).backdrop;
+  const haze = sky ? skyPalette(sky).haze : c.fog;
   const b = path.bounds;
   const cx = (b.minX + b.maxX) / 2;
   const cz = (b.minZ + b.maxZ) / 2;
@@ -391,7 +407,7 @@ function buildBackdrop(path, theme) {
     
     
     const mat = new THREE.MeshBasicMaterial({
-      color: towardFog(c.near, c.fog, ring.blend), side: THREE.DoubleSide, fog: false,
+      color: towardFog(c.near, haze, ring.blend), side: THREE.DoubleSide, fog: false,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.name = 'hills';
@@ -411,7 +427,7 @@ function buildBackdrop(path, theme) {
       const millMat = new THREE.MeshBasicMaterial({
         
         
-        color: towardFog(c.near, c.fog, 0.34), side: THREE.DoubleSide, fog: false,
+        color: towardFog(c.near, haze, 0.34), side: THREE.DoubleSide, fog: false,
       });
       for (let m = 0; m < 6; m += 1) {
         
@@ -463,7 +479,7 @@ function buildHedgerows(path, rng, count, theme) {
   const group = new THREE.Group();
   group.name = 'hedgerows';
   if (!count) return group;
-  const colour = theme === 'snow' ? 0x7f93a3 : theme === 'mud' ? PALETTE.hedgeMud : PALETTE.hedge;
+  const colour = themeOf(theme).hedge;
   const perRow = 14;
   const total = count * perRow;
   const geo = new THREE.BoxGeometry(3.4, 2.1, 1.5);
@@ -565,7 +581,7 @@ function buildTrees(path, rng, count, theme) {
   const nBare = Math.round(count * mix.bare);
   const nBroad = Math.max(1, count - nConifer - nBare);
 
-  const leaf = theme === 'snow' ? 0x4a6b52 : theme === 'mud' ? 0x3a5c2c : PALETTE.tree;
+  const leaf = themeOf(theme).leaf;
   const trunkMat = surface({ color: PALETTE.treeTrunk, flatShading: true });
   const leafMat = surface({ color: leaf, flatShading: true });
   const pineMat = surface({ color: PALETTE.pine, flatShading: true });
@@ -608,7 +624,7 @@ function buildTrees(path, rng, count, theme) {
   const pineTrunks = instanced(pineTrunkGeo, trunkMat, nConifer);
   const coneLow = instanced(coneLowGeo, pineMat, nConifer);
   const coneHigh = instanced(coneHighGeo, pineMat, nConifer);
-  const caps = theme === 'snow' ? instanced(capGeo, snowMat, nConifer) : null;
+  const caps = themeOf(theme).snowCaps ? instanced(capGeo, snowMat, nConifer) : null;
   for (let i = 0; i < nConifer; i += 1) {
     const p = besideTrack(path, rng, 6, 150, { minClear: 5 });
     const yaw = rng() * Math.PI * 2;
@@ -661,7 +677,7 @@ function buildBales(path, rng, count, theme) {
   const geo = new THREE.CylinderGeometry(0.95, 0.95, 1.5, 10);
   geo.rotateZ(Math.PI / 2);
   geo.translate(0, 0.95, 0);
-  const colour = theme === 'snow' ? 0xcbb87f : PALETTE.haybale;
+  const colour = themeOf(theme).bale;
   const bales = instanced(geo, surface({ color: colour, flatShading: true }), count);
   for (let i = 0; i < count; i += 1) {
     const p = besideTrack(path, rng, 1.5, 26);

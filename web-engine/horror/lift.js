@@ -55,9 +55,54 @@ export const LIFT = Object.freeze({
   
   
   
+  clearRadius: 9.0,
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   apron: 1.4,
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const LEAF = Object.freeze({
+  
+  halfThick: 0.045,
+  
+  
+  
+  pad: 0.4,
+  
+  
+  
+  
+  reopenAfter: 0.1,
 });
 
 
@@ -100,6 +145,10 @@ const ease = (u) => (u < 0.5 ? 2 * u * u : 1 - ((-2 * u + 2) ** 2) / 2);
 
 
 
+export function easeInv(e) {
+  const v = clamp01(e);
+  return v < 0.5 ? Math.sqrt(v / 2) : 1 - Math.sqrt((1 - v) * 2) / 2;
+}
 
 
 
@@ -108,8 +157,19 @@ const ease = (u) => (u < 0.5 ? 2 * u * u : 1 - ((-2 * u + 2) ** 2) / 2);
 
 
 
-export function stepLift(l, dt, { near = false, inside = false } = {}) {
-  const n = { ...l, t: l.t + Math.max(0, dt), event: null };
+
+
+
+
+
+
+
+
+
+
+export function stepLift(l, dt, { near = false, inside = false, away = !near } = {}) {
+  const step = Math.max(0, dt);
+  const n = { ...l, t: l.t + step, event: null };
 
   switch (l.phase) {
     case 'idle':
@@ -143,7 +203,27 @@ export function stepLift(l, dt, { near = false, inside = false } = {}) {
       
       
       n.sealed = true;
-      if (n.t >= LIFT.doorTime) { n.phase = 'held'; n.t = 0; n.door = 0; n.event = 'shut'; }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      n.outFor = inside ? 0 : (l.outFor || 0) + step;
+      if (n.outFor > LEAF.reopenAfter) {
+        n.phase = 'opening';
+        
+        n.t = LIFT.doorTime * easeInv(n.door);
+        n.sealed = false;
+        n.outFor = 0;
+        n.event = 'reopen';
+      } else if (n.t >= LIFT.doorTime) { n.phase = 'held'; n.t = 0; n.door = 0; n.event = 'shut'; }
       break;
 
     case 'held':
@@ -179,7 +259,8 @@ export function stepLift(l, dt, { near = false, inside = false } = {}) {
       n.sealed = false;
       
       
-      if (!inside && !near) { n.phase = 'idle'; n.t = 0; n.rise = 0; }
+      
+      if (!inside && away) { n.phase = 'idle'; n.t = 0; n.rise = 0; }
       break;
 
     default:
@@ -208,9 +289,136 @@ export function mapRise(l, deckGap) {
 
 
 
-export function insideCar(car, x, z, pad = 0) {
-  return Math.abs(x - car.x) <= LIFT.width / 2 - pad
-    && Math.abs(z - car.z) <= LIFT.depth / 2 - pad;
+
+
+
+
+
+
+
+
+export function carFrame(car) {
+  const f = car.face || { x: 0, z: -1 };
+  return { fx: f.x, fz: f.z, rx: -f.z, rz: f.x };
+}
+
+
+export function carLocal(car, x, z) {
+  const { fx, fz, rx, rz } = carFrame(car);
+  const dx = x - car.x; const dz = z - car.z;
+  return { u: dx * fx + dz * fz, v: dx * rx + dz * rz };
+}
+
+
+export function carWorld(car, u, v) {
+  const { fx, fz, rx, rz } = carFrame(car);
+  return { x: car.x + u * fx + v * rx, z: car.z + u * fz + v * rz };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function insideCar(car, x, z, pad = 0, doorPad = pad) {
+  const { u, v } = carLocal(car, x, z);
+  return u <= LIFT.depth / 2 - doorPad
+    && u >= -(LIFT.depth / 2 - pad)
+    && Math.abs(v) <= LIFT.width / 2 - pad;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function leafRects(car, door, pad = LEAF.pad) {
+  const { fx, fz, rx, rz } = carFrame(car);
+  const half = LIFT.width / 2;
+  const d = Math.max(0, Math.min(1, door));
+  const out = [];
+  for (const side of [-1, 1]) {
+    const v0 = half * d;                       
+    const halfLen = Math.max(0, (half - v0) / 2);
+    const vc = side * (v0 + half) / 2;
+    const w = carWorld(car, LIFT.depth / 2, vc);
+    out.push({
+      x: w.x, z: w.z, ax: rx, az: rz, fx, fz,
+      halfLen, halfThick: LEAF.halfThick, r: halfLen > 0 ? pad : 0, side,
+    });
+  }
+  return out;
+}
+
+
+
+
+
+
+
+
+
+export function sealedRect(car, pad = LEAF.pad) {
+  if (!car) return OFF_RECT;
+  const { fx, fz, rx, rz } = carFrame(car);
+  const w = carWorld(car, LIFT.depth / 2 + 0.1, 0);
+  return {
+    x: w.x, z: w.z, ax: rx, az: rz, fx, fz,
+    halfLen: LIFT.width / 2, halfThick: LEAF.halfThick, r: pad, side: 0,
+  };
+}
+
+
+export const OFF_RECT = Object.freeze({
+  x: 0, z: 0, ax: 1, az: 0, fx: 0, fz: 1, halfLen: 0, halfThick: LEAF.halfThick, r: 0, side: 0,
+});
+
+
+
+
+
+
+
+
+export function leafContact(rects, x, z, slack = 0.02) {
+  for (const o of rects) {
+    if (!(o.halfLen > 0) || !(o.r > 0)) continue;
+    const dx = x - o.x; const dz = z - o.z;
+    const a = dx * o.ax + dz * o.az;
+    const f = dx * o.fx + dz * o.fz;
+    const qa = Math.max(0, Math.abs(a) - o.halfLen);
+    const qf = Math.max(0, Math.abs(f) - o.halfThick);
+    if (Math.hypot(qa, qf) < o.r - slack) return true;
+  }
+  return false;
 }
 
 
@@ -253,11 +461,18 @@ export function insideCar(car, x, z, pad = 0) {
 
 
 export function carBounds(car, pad = 0) {
+  
+  
+  
+  
+  const f = car.face || { x: 0, z: -1 };
+  const hx = (f.x !== 0 ? LIFT.depth : LIFT.width) / 2 + pad;
+  const hz = (f.x !== 0 ? LIFT.width : LIFT.depth) / 2 + pad;
   return {
-    x0: car.x - LIFT.width / 2 - pad,
-    x1: car.x + LIFT.width / 2 + pad,
-    z0: car.z - LIFT.depth / 2 - LIFT.apron - pad,
-    z1: car.z + LIFT.depth / 2 + pad,
+    x0: car.x - hx - (f.x < 0 ? LIFT.apron : 0),
+    x1: car.x + hx + (f.x > 0 ? LIFT.apron : 0),
+    z0: car.z - hz - (f.z < 0 ? LIFT.apron : 0),
+    z1: car.z + hz + (f.z > 0 ? LIFT.apron : 0),
   };
 }
 
@@ -279,6 +494,15 @@ export function clearOfCar(car, x, z, pad = 0) {
 export function keepOut(car, x, z, pad = 0) {
   if (clearOfCar(car, x, z, pad)) return { x, z, moved: false };
   const b = carBounds(car, pad);
+  
+  
+  
+  
+  
+  const f = car.face || { x: 0, z: -1 };
+  if (f.x > 0) return { x: b.x1 + 0.001, z, moved: true };
+  if (f.x < 0) return { x: b.x0 - 0.001, z, moved: true };
+  if (f.z > 0) return { x, z: b.z1 + 0.001, moved: true };
   return { x, z: b.z0 - 0.001, moved: true };
 }
 

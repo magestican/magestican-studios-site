@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta name="robots" content="noindex">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Play 2D Fighter EX — a rebuilt fight in your browser</title>
@@ -18,7 +19,7 @@
   <meta name="twitter:description" content="A two-minute hand-built fight: ground, air and flight, slow motion, a stand-off, and a finisher. Scrub it, slow it down, reseed the street.">
   <meta name="twitter:image" content="https://magesticanstudios.com/assets/fighter-ex-preview.png">
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
-  <link rel="modulepreload" href="../../web-engine/analytics/analytics.js">
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -67,14 +68,25 @@
       display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
       justify-content: center; margin-top: 12px; max-width: 760px;
     }
+    
+
+
+
     button {
       background: var(--panel); color: var(--ink); border: 1px solid #2f4030;
       padding: 7px 14px; border-radius: 4px; cursor: pointer; font: inherit; font-size: .9rem;
+      min-height: 44px;
     }
     button:hover { border-color: var(--accent); }
     label { color: var(--muted); font-size: .85rem; display: flex; align-items: center; gap: 6px; }
+    
+
+
+
+
+
     .readout {
-      display: flex; gap: 18px; margin-top: 10px; color: var(--muted);
+      display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; color: var(--muted);
       font-size: .8rem; font-variant-numeric: tabular-nums;
     }
     .readout b { color: var(--ink); font-weight: 600; }
@@ -180,7 +192,15 @@
     <label><input type="checkbox" id="fxShadow" checked> Shadows</label>
     <label><input type="checkbox" id="fxWeather" checked> Weather</label>
     <label><input type="checkbox" id="fxImpact" checked> Impact FX</label>
-    <label><input type="checkbox" id="fxWords" checked> Sound words</label>
+    
+
+
+
+
+
+
+
+    <label><input type="checkbox" id="fxWords" checked> Impact words</label>
   </div>
 
   <div class="readout">
@@ -198,7 +218,11 @@
   <div class="readout" id="account"></div>
 
   <footer>
-    <p>Space to play or pause. Arrow keys to step.<br>
+    
+
+
+
+    <p><span id="fx-controls-body">Space to play or pause. Arrow keys to step.</span><br>
     <a href="../../2d-fighter-ex.html">What this is</a> &middot;
     <a href="../../">Magestican Studios</a></p>
   </footer>
@@ -218,9 +242,32 @@
     }());
   </script>
 
+  
+
+
+
+
+
+
+
   <script type="importmap">
-  {"imports":{"three":"https://unpkg.com/three@0.161.0/build/three.module.js"}}
+  {"imports":{"three":"../../web-engine/vendor/three-0.161.0/three.module.js"}}
   </script>
-  <script type="module" src="./src/main.js?v=c33b5c8-20261001T033810Z"></script>
+  <script type="module" src="./src/main.js?v=424249d-20261001T034025Z"></script>
+
+  
+
+
+
+
+
+  <script type="module">
+    import { installInfo } from '../shared/ui/infoButton.js';
+    installInfo({
+      title: "2D Fighter EX - controls",
+      contentFrom: "#fx-controls-body",
+    });
+  </script>
+
 </body>
 </html>

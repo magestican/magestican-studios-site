@@ -1,0 +1,54 @@
+{
+  "tile": 96,
+  "facings": 8,
+  "slots": 4,
+  "faction": "herd",
+  "kinds": {
+    "walk": {
+      "offset": 0,
+      "frames": 4
+    },
+    "attack": {
+      "offset": 1,
+      "frames": 2
+    },
+    "die": {
+      "offset": 2,
+      "frames": 3
+    }
+  },
+  "rows": {
+    "duckRaft": {
+      "row": 0,
+      "worldSize": 1.287
+    },
+    "elephant": {
+      "row": 3,
+      "worldSize": 6.153
+    },
+    "flock": {
+      "row": 6,
+      "worldSize": 1.142
+    },
+    "horseHerd": {
+      "row": 9,
+      "worldSize": 3.008
+    },
+    "pride": {
+      "row": 12,
+      "worldSize": 3.105
+    },
+    "skulk": {
+      "row": 15,
+      "worldSize": 2.123
+    },
+    "sounder": {
+      "row": 18,
+      "worldSize": 2.016
+    },
+    "wing": {
+      "row": 21,
+      "worldSize": 5.475
+    }
+  }
+}

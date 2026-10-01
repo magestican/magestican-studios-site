@@ -66,8 +66,9 @@
 import { SeededRng } from '../rng/seededRng.js';
 import { weekNumber, weekStartDay, daysLeftInWeek, DAYS_PER_WEEK } from './dayKey.js';
 import {
-  GAME_IDS, GAME_NAMES, isGameId, goalDeckFor, COMPLETION_METRIC,
+  STORAGE_GAME_IDS, GAME_NAMES, isGameId, goalDeckFor, COMPLETION_METRIC,
 } from './dailyChallenge.js';
+import { CLOUD_GAME_IDS } from '../progress/gameIds.js';
 
 
 export const GOALS_TO_COMPLETE_WEEK = 2;
@@ -79,7 +80,9 @@ export const WEEK_COMPLETE_XP = 180;
 
 export const WEEK_LIMITS = Object.freeze({ maxCount: 1000000, maxDays: DAYS_PER_WEEK });
 
-const GRADED = GAME_IDS.filter((id) => goalDeckFor(id).length > 1);
+
+
+const GRADED = CLOUD_GAME_IDS.filter((id) => goalDeckFor(id).length > 1);
 
 
 
@@ -115,7 +118,12 @@ export function weeklyBoard(utcWeek) {
   
   
   const volumeTarget = Math.max(volumeGoal.min + 1, volumeGoal.max * 3);
-  const breadthTarget = rng.rangeI(3, GAME_IDS.length);
+  
+  
+  
+  
+  
+  const breadthTarget = rng.rangeI(3, CLOUD_GAME_IDS.length);
 
   const goals = [
     goal('rhythm', 'days-played', rhythmTarget,
@@ -124,7 +132,7 @@ export function weeklyBoard(utcWeek) {
       `${volumeGoal.verb} ${volumeTarget} ${volumeTarget === 1 ? volumeGoal.noun : volumeGoal.nouns} in ${GAME_NAMES[volumeGame]} this week`,
       { gameId: volumeGame, metric: volumeGoal.metric }),
     goal('breadth', 'distinct-games', breadthTarget,
-      breadthTarget >= GAME_IDS.length
+      breadthTarget >= CLOUD_GAME_IDS.length
         ? 'Play all four games this week'
         : `Play ${breadthTarget} of the four games this week`, {}),
   ];
@@ -176,7 +184,10 @@ export function normaliseWeek(raw) {
   if (week === null) return base;
   const progress = {};
   if (raw.progress && typeof raw.progress === 'object') {
-    for (const id of GAME_IDS) {
+    
+    
+    
+    for (const id of STORAGE_GAME_IDS) {
       const p = raw.progress[id];
       if (!p || typeof p !== 'object') continue;
       const kept = {};
@@ -245,7 +256,11 @@ export function weeklyProgress(goal, ledger) {
   if (goal.kind === 'days-played') have = w.days;
   else if (goal.kind === 'game-metric') have = clamp(w.progress[goal.gameId]?.[goal.metric], WEEK_LIMITS.maxCount);
   else if (goal.kind === 'distinct-games') {
-    have = GAME_IDS.filter((id) => clamp(w.progress[id]?.[COMPLETION_METRIC[id]], WEEK_LIMITS.maxCount) > 0).length;
+    
+    
+    
+    have = STORAGE_GAME_IDS
+      .filter((id) => clamp(w.progress[id]?.[COMPLETION_METRIC[id]], WEEK_LIMITS.maxCount) > 0).length;
   }
   return {
     have: Math.min(have, target),

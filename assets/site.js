@@ -238,3 +238,44 @@ if (typeof reduceMotion.addEventListener === 'function') reduceMotion.addEventLi
 else if (typeof reduceMotion.addListener === 'function') reduceMotion.addListener(onPreferenceChange);
 
 markCurrentNavLink();
+
+
+
+
+
+
+
+
+
+
+
+
+
+import('./studioBanner.js').catch(() => {
+  
+});
+
+
+
+
+
+
+
+
+
+
+try {
+  if (localStorage.getItem('arbelo.account.v1') !== null) {
+    const mountChip = () => {
+      const header = document.querySelector('.site-header');
+      if (!header) return;
+      import('/web-engine/progress/levelChip.js')
+        .then((m) => m.mountLevelChip(header, { toast: false }))
+        .catch(() => {});
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(mountChip, { timeout: 2000 });
+    else setTimeout(mountChip, 300);
+  }
+} catch (_) {
+  
+}

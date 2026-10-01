@@ -27,10 +27,51 @@ import { characterById } from 'arbelo/kartTuning';
 import { surface, paintedSurface, applyShadows } from './materials.js';
 import { loadDriver } from './kartMesh.js';
 import { PALETTE } from '../palette.js';
+import { ceremonyFraming } from '../../../../web-engine/kart/ceremonyFraming.js';
 
 
 const SLOT_X = [0, -1.7, 1.7];
 const STEP_H = [0.95, 0.62, 0.4];
+
+
+const YOU_MARKER_LIFT = 1.5;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function buildYouMarker() {
+  const g = new THREE.Group();
+  g.name = 'youMarker';
+  
+  
+  
+  const bar = new THREE.BoxGeometry(0.5, 0.13, 0.13);
+  const mat = new THREE.MeshBasicMaterial({ color: PALETTE.gold, toneMapped: false });
+  for (const sign of [-1, 1]) {
+    const arm = new THREE.Mesh(bar, mat);
+    arm.position.x = sign * 0.17;
+    arm.rotation.z = sign * -0.7;
+    g.add(arm);
+  }
+  return g;
+}
 
 function buildStep(place, width = 1.45) {
   const h = STEP_H[place - 1] ?? 0.4;
@@ -136,9 +177,22 @@ export function buildCeremony({ path, steps }) {
     step.position.x = SLOT_X[i] ?? 0;
     group.add(step);
     const fig = buildFigure(s.character);
+    
+    
+    
+    
+    
+    
+    
+    fig.rotation.y = Math.PI;
     fig.position.set(SLOT_X[i] ?? 0, step.userData.height, 0);
     group.add(fig);
-    slots.push({ fig, isPlayer: !!s.isPlayer, emote: null, emoteStart: 0 });
+    let marker = null;
+    if (s.isPlayer) {
+      marker = buildYouMarker();
+      group.add(marker);
+    }
+    slots.push({ fig, marker, isPlayer: !!s.isPlayer, emote: null, emoteStart: 0 });
   });
 
   applyShadows(group, 'ceremony');
@@ -146,6 +200,27 @@ export function buildCeremony({ path, steps }) {
   return {
     group,
     
+    
+
+
+
+
+
+    cameraFor(aspect) {
+      const f = ceremonyFraming(aspect);
+      return {
+        pos: new THREE.Vector3(
+          cx + Math.sin(yaw) * f.dist + p.nx * f.side,
+          (p.y ?? 0) + 2.0,
+          cz + Math.cos(yaw) * f.dist + p.nz * f.side,
+        ),
+        look: new THREE.Vector3(
+          cx - p.nx * f.lookBias,
+          (p.y ?? 0) + 0.55,
+          cz - p.nz * f.lookBias,
+        ),
+      };
+    },
     camera: {
       pos: new THREE.Vector3(
         cx + Math.sin(yaw) * 7.5 + p.nx * -1.2,
@@ -185,6 +260,19 @@ export function buildCeremony({ path, steps }) {
         if (body) {
           const base = body.userData.baseScale ?? 1;
           body.scale.set(pose.stretch * base, pose.squash * base, pose.stretch * base);
+        }
+        
+        
+        
+        
+        
+        if (s.marker) {
+          s.marker.position.set(
+            s.fig.position.x,
+            s.fig.position.y + YOU_MARKER_LIFT + Math.sin(now * 2.2) * 0.09,
+            s.fig.position.z,
+          );
+          s.marker.rotation.y = now * 1.1;
         }
       });
     },

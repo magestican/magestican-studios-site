@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Progress</title>
+
+
+
+
+
+
+
+
+
+
+</head>
+<body><script>
+(function () {
+  var text = '{}';
+  try {
+    var raw = window.localStorage.getItem('magestican.progress.snapshot.v1');
+    if (raw) { JSON.parse(raw); text = raw; }
+  } catch (e) { text = '{}'; }
+  document.body.textContent = text;
+})();
+</script></body>
+</html>

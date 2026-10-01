@@ -1,0 +1,124 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const OBSCENE = Object.freeze([
+  'ANILINGUS', 'ANUS', 'ANUSES', 'ARSE', 'ARSED', 'ARSEHOLE', 'ARSEHOLES', 'ARSES',
+  'BALLSACK', 'BASTARD', 'BASTARDS', 'BESTIALITY', 'BITCH', 'BITCHED', 'BITCHES',
+  'BITCHING', 'BLOWJOB', 'BLOWJOBS', 'BOLLOCK', 'BOLLOCKS', 'BONER', 'BONERS',
+  'BOOB', 'BOOBIES', 'BOOBS', 'BUGGER', 'BUGGERED', 'BUGGERING', 'BUGGERS',
+  'BUKKAKE', 'BULLSHIT', 'CLIT', 'CLITORIS', 'CLITS', 'COCKSUCKER', 'COCKSUCKERS',
+  'COITUS', 'COPULATE', 'COPULATED', 'COPULATES', 'COPULATING', 'CUM', 'CUMMING',
+  'CUMS', 'CUNNILINGUS', 'CUNT', 'CUNTS', 'DILDO', 'DILDOS', 'DOUCHEBAG',
+  'EJACULATE', 'EJACULATED', 'EJACULATES', 'EJACULATING', 'EJACULATION',
+  'FELLATIO', 'FORNICATE', 'FORNICATED', 'FORNICATES', 'FORNICATING',
+  'FORNICATION', 'FUCK', 'FUCKED', 'FUCKER', 'FUCKERS', 'FUCKING', 'FUCKS',
+  'GENITAL', 'GENITALIA', 'GENITALS', 'HANDJOB', 'HANDJOBS', 'INCEST',
+  'INCESTUOUS', 'JISM', 'JIZZ', 'LABIA', 'MASTURBATE', 'MASTURBATED',
+  'MASTURBATES', 'MASTURBATING', 'MASTURBATION', 'MOLEST', 'MOLESTED',
+  'MOLESTER', 'MOLESTERS', 'MOLESTING', 'MOLESTS', 'ORGASM', 'ORGASMS',
+  'ORGIES', 'ORGY', 'PAEDOPHILE', 'PAEDOPHILES', 'PEDOPHILE', 'PEDOPHILES',
+  'PENIS', 'PENISES', 'PIMP', 'PIMPED', 'PIMPING', 'PIMPS', 'PISS', 'PISSED',
+  'PISSES', 'PISSING', 'PORN', 'PORNO', 'PORNOGRAPHIC', 'PORNOGRAPHY', 'PORNOS',
+  'PUBIC', 'PUSSIES', 'PUSSY', 'RAPE', 'RAPED', 'RAPES', 'RAPING', 'RAPIST',
+  'RAPISTS', 'SCROTUM', 'SCROTUMS', 'SEMEN', 'SHAG', 'SHAGGED', 'SHAGGING',
+  'SHAGS', 'SHIT', 'SHITE', 'SHITS', 'SHITTED', 'SHITTING', 'SHITTY', 'SLUT',
+  'SLUTS', 'SLUTTY', 'SODOMISE', 'SODOMISED', 'SODOMY', 'SPERM', 'SPUNK',
+  'TESTICLE', 'TESTICLES', 'TIT', 'TITS', 'TITTIES', 'TITTY', 'TURD', 'TURDS',
+  'VAGINA', 'VAGINAL', 'VAGINAS', 'VULVA', 'VULVAS', 'WANK', 'WANKED', 'WANKER',
+  'WANKERS', 'WANKING', 'WANKS', 'WHORE', 'WHORES', 'WHORING',
+]);
+
+
+
+
+
+
+
+
+export const CRUDE = Object.freeze([
+  'ASS', 'ASSES', 'BALLS', 'BOLLOX', 'BUM', 'BUMHOLE', 'BUMS',
+  'COCK', 'COCKS', 'CRAP', 'CRAPPED', 'CRAPPER', 'CRAPPING', 'CRAPPY', 'CRAPS',
+  'DAMN', 'DAMNED', 'DAMNING', 'DAMNS', 'DICK', 'DICKHEAD', 'DICKS', 'FART',
+  'FARTED', 'FARTING', 'FARTS', 'HELL', 'HELLS', 'KNOB', 'KNOBS', 'PEE',
+  'PEED', 'PEEING', 'PEES', 'POO', 'POOED', 'POOING', 'POOP', 'POOPED',
+  'POOPING', 'POOPS', 'POOS', 'PRICK', 'PRICKS', 'SNOT', 'SNOTS', 'SNOTTY',
+  'WILLIES', 'WILLY',
+]);
+
+
+export const BLOCKED = Object.freeze([...new Set([...OBSCENE, ...CRUDE])].sort());
+
+const SET = new Set(BLOCKED);
+
+
+export function isBlocked(word) {
+  return SET.has(String(word ?? '').toUpperCase());
+}
+
+
+export const blockedSet = () => new Set(SET);
+
+
+
+
+
+
+
+export function withoutBlocked(words) {
+  return words.filter((w) => !isBlocked(w));
+}

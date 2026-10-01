@@ -360,7 +360,11 @@ export function stepRacer({
     
     
     const onRoad = (now.overBy ?? 0) <= SHOULDER;
-    const milk = onRoad ? crossedRamp(track.ramps, jumpFrac, nowFrac, k.speed) : null;
+    
+    
+    const milk = onRoad
+      ? crossedRamp(track.ramps, jumpFrac, nowFrac, k.speed, { lapLength: path.length })
+      : null;
     if (nextJumpFrac === jumpFrac) nextJumpFrac = nowFrac;
     if (milk) {
       
