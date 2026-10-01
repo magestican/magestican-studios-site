@@ -21,6 +21,8 @@ import {
   TELL, impactIn, dodgeChance, WILD_PARRY, reflects, interrupts, segDist, turnToward, slamZ, trapSpot, STATUS_COLOR,
 } from './techniques.js';
 import { arenaRadii, arenaCentre, clampToArena, maxBattleVh, inArena } from './arena.js';
+import { hitWord } from './comic.js';
+let hitCount = 0; 
 import { pushApart, BATTLE_AIR, fighterR, reachPlus } from '../world/crowd.js';
 import { sectionById } from '../world/sections.js';
 import { makePattern } from '../capture/ritual.js';
@@ -263,7 +265,10 @@ function hit(att, def, power, type, { big = false, kind = 'basic', m = null, pro
   if (eff > 1) B.fx.push({ kind: 'label', f: def, x: def.x, y: def.y, text: 'Super effective!', color: '#ffb04a', t: 0, life: 1.1, dy: 70 });
   if (guarded) B.fx.push({ kind: 'label', f: def, x: def.x, y: def.y, text: 'Guard', color: '#9fd8ff', t: 0, life: 0.8, dy: 70 });
   sparkle(def, TYPES[type], big ? 30 : 10);
-  B.fx.push({ kind: 'burst', x: def.x, y: def.y, color: TYPES[type], t: 0, life: big ? 0.5 : 0.24, big: crit || big }); 
+  
+  const word = hitWord({ big, crit, eff, n: hitCount++ });
+  B.fx.push({ kind: 'burst', x: def.x, y: def.y, color: TYPES[type], t: 0, life: big ? 0.5 : word ? 0.34 : 0.24, big: crit || big, corrupt: !!def.d.corrupt, f: def });
+  if (word) B.fx.push({ kind: 'word', f: def, x: def.x, y: def.y, text: word, big, color: TYPES[type], t: 0, life: big ? 0.95 : 0.7 });
   if (big) { B.fx.push({ kind: 'ring', x: def.x, y: def.y, color: TYPES[type], t: 0, life: 0.7, r: 3.2 }); B.shake = 0.5; S.flash = Math.max(S.flash, 0.35); }
   else if (crit) B.shake = 0.3;
   S.sfx.play(crit || big ? 'crit' : 'hit');

@@ -144,13 +144,16 @@ function decorateBatch(group, see) {
 
 
 function sizeUniforms(w, h, boost = 1) {
-  const k = R.pxScale(h) * boost;
+  const k = R.pxScale(h);
   celUniforms.uCelRes.value.set(w, h);
-  celUniforms.uCelPx.value = k;
+  celUniforms.uCelPx.value = k * boost;
   celUniforms.uCelCell.value = Math.max(3, R.HALFTONE_CELL * k);
 }
 let ACTIVE = null;
 export function activeLook() { return ACTIVE; }
+
+let lineRole = 'world';
+export function setLineRole(role) { lineRole = role; }
 
 export const extra = [];
 
@@ -164,8 +167,9 @@ export function celLook({ phone = false } = {}) {
     beforeRender(stage) {
       celUniforms.uCelTime.value = performance.now() / 1000;
       const t = stage.pixel && stage.pixel.enabled ? stage.pixel.target : null;
-      if (t) sizeUniforms(t.width, t.height);
-      else { const b = stage.renderer.getDrawingBufferSize(new THREE.Vector2()); sizeUniforms(b.x, b.y); }
+      const z = R.lineZoom(lineRole);
+      if (t) sizeUniforms(t.width, t.height, z);
+      else { const b = stage.renderer.getDrawingBufferSize(new THREE.Vector2()); sizeUniforms(b.x, b.y, z); }
     },
     
     portrait(mesh) {
@@ -175,7 +179,7 @@ export function celLook({ phone = false } = {}) {
     
     
     portraitSize(px) {
-      const line = Math.max(0.8, px / 80);
+      const line = R.portraitLine(px);
       celUniforms.uCelRes.value.set(px, px);
       celUniforms.uCelPx.value = line / R.HULL;
       celUniforms.uCelCell.value = Math.max(3, px / 28);
@@ -197,7 +201,8 @@ export function celLook({ phone = false } = {}) {
       applyLook(tmp, ACTIVE);
       for (const see of [null, 'actor', 'scenery']) tmp.add(new THREE.Mesh(geo, hullMat(false, see)));
       
-      for (const m of [...surfaces, ...extra]) tmp.add(new THREE.Mesh(geo, m));
+      
+      for (const m of [...surfaces, ...extra]) tmp.add(m.isInstancedMesh ? new THREE.InstancedMesh(m.geometry, m.material, 1) : new THREE.Mesh(geo, m));
       const prev = renderer.getRenderTarget();
       renderer.setRenderTarget(pixel && pixel.enabled ? pixel.target : null);
       renderer.compile(scene, camera);

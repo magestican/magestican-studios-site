@@ -37,6 +37,15 @@ export const CRACK_SCALE = 7;
 export function pxScale(h) { return Math.max(0.5, h / REF_H); }
 
 
+
+
+export const LINE_ZOOM = { world: 1, battle: 1.15, portrait: 1.3 };
+export function lineZoom(role) { return LINE_ZOOM[role] || 1; }
+
+
+export function portraitLine(px) { return Math.max(0.8, px / 80) * (px >= 96 ? LINE_ZOOM.portrait : 1); }
+
+
 export function hullFor(size) {
   if (!(size >= NO_HULL_BELOW)) return 0;
   return size < THIN_BELOW ? HULL_THIN : HULL;

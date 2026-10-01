@@ -21,6 +21,103 @@ import { hpFraction, CAPTURE_HP } from './rules.js';
 import { frameView, maxBattleVh } from './arena.js';
 import { stackLabels } from './overlayLayout.js';
 import { CHAR_SCALE, VIEW_ZOOM } from '../world/crowd.js';
+import { COMIC_PX, COMIC_TILT, HIT_WORDS, comicPx, tiltedBox, lungePose } from './comic.js';
+
+
+
+
+
+const celOn = () => !!(S.stage.look && S.stage.look.name === 'cel');
+let comicFonts = 0; 
+function comicReady() {
+  if (comicFonts === 0 && typeof document !== 'undefined' && document.fonts) {
+    comicFonts = 1;
+    Promise.all([document.fonts.load('400 40px Bangers'), document.fonts.load('400 20px "Permanent Marker"')])
+      .then((r) => { comicFonts = r.every((f) => f.length) ? 2 : 0; if (comicFonts === 2) setTimeout(prewarmComic, 1500); }, () => { comicFonts = 0; });
+  }
+  return comicFonts === 2 && celOn();
+}
+comicReady(); 
+const fontOf = (kind, px) => `400 ${px}px ${COMIC_PX[kind].font === 'Bangers' ? 'Bangers' : '"Permanent Marker"'}`;
+const INK = '#0d0a14';
+
+
+
+const sprites = new Map(), SPRITES_MAX = 240; 
+function comicSprite(kind, text, px, color, big) {
+  const key = kind + '|' + text + '|' + px + '|' + color + '|' + (big ? 1 : 0);
+  let sp = sprites.get(key);
+  if (sp) return sp;
+  const dpr = Math.min(2, devicePixelRatio || 1), cv = document.createElement('canvas'), c = cv.getContext('2d');
+  c.font = fontOf(kind, px);
+  const sh = Math.max(2, px * 0.07), m = Math.max(2, px * 0.12);
+  let tw = c.measureText(text).width + px * 0.34, th = px * 1.12;
+  if (kind === 'callout') { tw += px * 0.8; th = px * 1.6; } 
+  const out = kind === 'callout' ? m * 2 + sh * 1.4 + 2 : sh + 2; 
+  const b = tiltedBox(tw + out, th + out, COMIC_TILT[kind]);
+  cv.width = Math.ceil(b.w * dpr); cv.height = Math.ceil(b.h * dpr);
+  c.scale(dpr, dpr); c.translate(b.w / 2 - sh * 0.5, b.h / 2 - sh * 0.5); c.rotate(COMIC_TILT[kind]);
+  c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round'; c.font = fontOf(kind, px);
+  if (kind === 'callout') { 
+    const r = th * 0.22;
+    const plate = (x, y, ww, hh, rr, col) => { c.fillStyle = col; c.beginPath(); c.roundRect(x - ww / 2, y - hh / 2, ww, hh, rr); c.fill(); };
+    plate(sh * 1.4, sh * 1.4, tw + m * 2, th + m * 2, r + m, 'rgba(13,10,20,0.55)');
+    plate(0, 0, tw + m * 2, th + m * 2, r + m, '#ffffff');
+    plate(0, 0, tw + 2, th + 2, r, INK);
+    plate(0, 0, tw - 2, th - 2, r - 1, big ? '#ffe14a' : color);
+    c.lineWidth = px * 0.16; c.strokeStyle = INK; c.strokeText(text, 0, px * 0.04);
+    c.fillStyle = '#ffffff'; c.fillText(text, 0, px * 0.04);
+  } else {
+    c.fillStyle = INK; c.fillText(text, sh, sh);                       
+    c.lineWidth = Math.max(2, px * (kind === 'label' ? 0.12 : 0.16)); c.strokeStyle = INK; c.strokeText(text, 0, 0);
+    c.fillStyle = color; c.fillText(text, 0, 0);
+  }
+  sp = { cv, w: b.w, h: b.h, adv: tw - px * 0.34 };
+  if (sprites.size >= SPRITES_MAX) sprites.delete(sprites.keys().next().value);
+  sprites.set(key, sp);
+  return sp;
+}
+
+
+
+function comicBox(L, kind, text, big, color) {
+  const px = comicPx(kind, { big, viewW: innerWidth, viewH: innerHeight });
+  if (kind === 'num') {
+    const glyphs = [...text].map((ch) => comicSprite(kind, ch, px, color, big));
+    const adv = glyphs.reduce((s, g) => s + g.adv, 0), b = tiltedBox(adv + px * 0.5, glyphs[0].h, 0);
+    return { glyphs, adv, tilt: COMIC_TILT.num, w: Math.ceil(b.w / L.k), h: Math.ceil(b.h / L.k) };
+  }
+  const sp = comicSprite(kind, text, px, color, big);
+  return { sp, w: Math.ceil(sp.w / L.k), h: Math.ceil(sp.h / L.k) };
+}
+
+function drawComic(c, wd, cx, cy) {
+  const cb = wd.cb, k = wd.pop || 1, a = wd.alpha == null ? 1 : wd.alpha;
+  if (a <= 0) return;
+  const ga = c.globalAlpha; c.globalAlpha = Math.min(1, a);
+  if (cb.glyphs) {
+    let x = cx - cb.adv * k / 2;
+    for (const g of cb.glyphs) {
+      const gx = x + g.adv * k / 2, gy = cy + (gx - cx) * Math.sin(cb.tilt);
+      c.drawImage(g.cv, gx - g.w * k / 2, gy - g.h * k / 2, g.w * k, g.h * k);
+      x += g.adv * k;
+    }
+  } else c.drawImage(cb.sp.cv, cx - cb.sp.w * k / 2, cy - cb.sp.h * k / 2, cb.sp.w * k, cb.sp.h * k);
+  c.globalAlpha = ga;
+}
+
+
+const NUM_COLORS = ['#ffe14a', '#ff8a5a', '#b8c4d0', '#ffffff', '#7dff9a'];
+function prewarmComic(i = 0) {
+  if (!celOn() || i > NUM_COLORS.length * 2) return;
+  if (i === NUM_COLORS.length * 2) { 
+    for (const [kind, list] of Object.entries(HIT_WORDS)) for (const w of list) comicSprite('hit', w, comicPx('hit', { big: kind === 'big', viewW: innerWidth, viewH: innerHeight }), '#ffe14a', kind === 'big');
+    return;
+  }
+  const big = i >= NUM_COLORS.length, px = comicPx('num', { big, viewW: innerWidth, viewH: innerHeight });
+  for (const ch of '0123456789+') comicSprite('num', ch, px, NUM_COLORS[i % NUM_COLORS.length], big);
+  setTimeout(() => prewarmComic(i + 1), 120);
+}
 import { toUV, fromUV, screenS, sectionById, viewFor } from '../world/sections.js';
 
 const scr = (x, y, lift = 0) => S.stage.toScreen(x, y, S.W.groundAt(x, y) + lift);
@@ -67,14 +164,23 @@ export function battleFocus() {
   return { u: eu + (f.u - eu) * m, s: es + (f.s - es) * m, vh: minVh * 0.55 + (f.vh - minVh * 0.55) * m, h };
 }
 
+let leanQ = null, leanAxis = null;
 export function placeFighters(t) {
+  if (!leanQ) { leanQ = new S.stage.THREE.Quaternion(); leanAxis = new S.stage.THREE.Vector3(); }
   for (const f of [B.ally, B.enemy]) {
     const hidden = f === B.enemy && (B.result === 'capture' || (B.capture && B.capture.t > 0.6));
     f.bb.setVisible(!hidden);
     setDachiLook(f.bb, f.d.sp, { corrupt: f.d.corrupt, flip: f.face < 0 });
     const bob = f.walking ? Math.abs(Math.sin(t * 12 + f.side)) * 0.1 : Math.sin(t * 4 + f.side * 2) * 0.03;
     const lx = f.lunge * 0.25 * f.face;
+    f.bb.root.rotation.x = f.bb.root.rotation.z = 0; 
     f.bb.place(f.x + lx * 0.7, f.y - lx * 0.7, S.W.groundAt(f.x, f.y), bob + (f.z || 0));   
+    if (celOn()) { 
+      const o = f === B.ally ? B.enemy : B.ally, p = lungePose(f.lunge, f.hurt);
+      const dx = o.x - f.x, dz = o.y - f.y, dl = Math.hypot(dx, dz);
+      if (dl > 1e-3 && Math.abs(p.lean) > 1e-3) f.bb.root.quaternion.premultiply(leanQ.setFromAxisAngle(leanAxis.set(dz / dl, 0, -dx / dl), p.lean));
+      f.bb.body.scale.x *= p.sx; f.bb.body.scale.z *= p.sx; f.bb.body.scale.y *= p.sy;
+    }
     f.bb.setTint(f.flash > 0 ? '#ffb0b0' : f.charge > 0 && Math.floor(t * 16) % 2 ? '#fff0a0' : f.rage > 0 ? '#ffd0c0' : '#ffffff');
   }
 }
@@ -82,6 +188,7 @@ export function placeFighters(t) {
 export function drawBattleOverlay(ctx, t) {
   const ppu = S.stage.pxPerUnit(), low = S.stage.pixel.low;
   const L = layer || (layer = createPixelLayer());
+  const cel = celOn(), comic = comicReady(); 
   L.begin(S.stage.w, S.stage.h, low.x, low.y);
   const P = (x, y, lift = 0) => L.at(...scr(x, y, lift)), u = ppu / L.k; 
   const pulse = 0.5 + 0.5 * Math.sin(t * 4);
@@ -144,7 +251,7 @@ export function drawBattleOverlay(ctx, t) {
       const r = (1 - k) * 1.8, [px, py] = P(e.x + Math.cos(e.a) * r, e.y + Math.sin(e.a) * r, 0.6 + (1 - k) * 0.8);
       L.alpha(0.5 + k * 0.5); L.rect(px - 1, py - 1, 3, 3, k > 0.7 ? '#ffffff' : e.color);
     }
-    else if (e.kind === 'burst') { 
+    else if (e.kind === 'burst' && !cel) { 
       const [px, py] = P(e.x, e.y, 0.55), r0 = u * (e.big ? 0.95 : 0.65) * (0.45 + k * 0.8);
       L.alpha(1 - k * k);
       for (let i = 0; i < 8; i++) {
@@ -181,26 +288,46 @@ export function drawBattleOverlay(ctx, t) {
     
     const f = cl.f, s = Math.max(1, Math.min(cl.big ? 4 : 3, Math.floor(L.w / 100), Math.floor((L.w - 30) / (cl.text.length * 4 + 6))));
     const [fx0, fy0] = P(f.x, f.y, 2.1 * tallOf(f));
-    const w = L.textWidth(cl.text, s) + s * 6, h = 5 * s + s * 5;
+    const cb = comic ? comicBox(L, 'callout', cl.text, cl.big, cl.color) : null;
+    const w = cb ? cb.w - 4 : L.textWidth(cl.text, s) + s * 6, h = cb ? cb.h - 4 : 5 * s + s * 5;
     
     const x = cl.big ? Math.round(L.w / 2) : Math.round(Math.max(w / 2 + 4, Math.min(L.w - w / 2 - 4, fx0)));
     const y = cl.big ? Math.round(L.h * 0.2 + h / 2) : Math.round(Math.max(L.h * 0.17 + h / 2, fy0 - 10));
-    words.push({ kind: 'callout', cl, s, x, y: y - h / 2 - 2, w: w + 4, h: h + 4, fixed: cl.big });
+    const k = cl.t / cl.life;
+    words.push({ kind: 'callout', cl, s, cb, text: cl.text, color: cl.color, big: cl.big, alpha: k > 0.8 ? (1 - k) * 5 : 1, pop: Math.min(1, 0.4 + cl.t / 0.1 * 0.6), x, y: y - h / 2 - 2, w: w + 4, h: h + 4, fixed: cl.big });
+  }
+  
+  for (const e of B.fx) if (e.kind === 'word') {
+    const k = e.t / e.life, [px, py] = P(e.x, e.y, 1.25 * CHAR_SCALE * tallOf(e.f));
+    const cb = comic ? comicBox(L, 'hit', e.text, e.big, '#ffe14a') : null, w = cb ? cb.w : L.textWidth(e.text, 3) + 4, h = cb ? cb.h : 18;
+    const pop = e.t < 0.06 ? 0.6 + e.t / 0.06 * 0.6 : e.t < 0.12 ? 1.2 - (e.t - 0.06) / 0.06 * 0.2 : 1;
+    words.push({ kind: 'hit', e, cb, text: e.text, color: '#ffe14a', big: e.big, pop, alpha: k > 0.75 ? (1 - k) * 4 : 1, x: px - Math.round(w * 0.2), y: Math.round(py - h), w, h });
   }
   for (const e of B.fx) if (e.kind === 'label') {
     const k = e.t / e.life, [px, py] = P(e.x, e.y, 1.6 * CHAR_SCALE * tallOf(e.f));
-    words.push({ kind: 'label', e, k, x: px, y: Math.round(py - k * 12 - 8 + (e.dy || 0) / L.k), w: L.textWidth(e.text, 2) + 4, h: 12 });
+    const cb = comic ? comicBox(L, 'label', e.text, false, e.color) : null;
+    words.push({ kind: 'label', e, k, cb, text: e.text, color: e.color, alpha: 1 - k * k, x: px, y: Math.round(py - k * 12 - 8 + (e.dy || 0) / L.k), w: cb ? cb.w : L.textWidth(e.text, 2) + 4, h: cb ? cb.h : 12 });
   }
   for (const n of B.nums) { 
     const [px, py] = P(n.x, n.y, 1.4 * CHAR_SCALE * tallOf(n.f)), s = (n.big ? 4 : 3) + (n.t < 0.08 ? 1 : 0);
-    words.push({ kind: 'num', n, s, x: px, y: Math.round(py - Math.min(n.t, 0.5) * 40 - 5 * s), w: L.textWidth(String(n.text), s) + 4, h: 5 * s + 3 });
+    const cb = comic ? comicBox(L, 'num', String(n.text), n.big, n.color) : null, h = cb ? cb.h : 5 * s + 3;
+    words.push({ kind: 'num', n, s, cb, text: String(n.text), color: n.color, pop: n.t < 0.08 ? 1.25 : 1, x: px, y: Math.round(py - Math.min(n.t, 0.5) * 40 - (cb ? h : 5 * s)), w: cb ? cb.w : L.textWidth(String(n.text), s) + 4, h });
   }
   bands.avoid = hudBoxes(L);
+  
+  
+  for (const b of bands.avoid) {
+    if (b.y + b.h < L.h * 0.35) bands.top = Math.max(bands.top, Math.round(b.y + b.h + 2));
+    else if (b.y > L.h * 0.4) bands.bottom = Math.min(bands.bottom, Math.round(b.y - 11 / L.k * 1.2 - 2)); 
+  }
+  if (bands.bottom - bands.top > 20) for (const w of words) if (!w.fixed) w.y = Math.max(bands.top, Math.min(bands.bottom - w.h, w.y));
   const at = OVERLAY.stack ? stackLabels(words, bands) : words.map(w => ({ x: w.x, y: w.y }));
   if (window.__recordRects) window.__battleRects = words.map((w, i) => ({ kind: w.kind, x: at[i].x, y: at[i].y, w: w.w, h: w.h, layerW: L.w }));
   words.forEach((wd, i) => {
     const { x, y } = at[i];
-    if (wd.kind === 'callout') {
+    if (wd.cb) return; 
+    if (wd.kind === 'hit') { L.alpha(wd.alpha); L.text(wd.text, x, y, '#ffe14a', { s: 3 }); }
+    else if (wd.kind === 'callout') {
       const { cl, s } = wd, k = cl.t / cl.life, h = wd.h - 4, ww = Math.round((wd.w - 4) * Math.min(1, cl.t / 0.1)), yc = y + 2 + h / 2;
       L.alpha(k > 0.8 ? (1 - k) * 5 : 1);
       L.rect(x - ww / 2 - 2, yc - h / 2 - 2, ww + 4, h + 4, '#1c1830');
@@ -218,6 +345,10 @@ export function drawBattleOverlay(ctx, t) {
     L.text('?', px, py - 12 - Math.round(Math.abs(Math.sin(t * 10)) * 4), '#ffe14a', { s: 5 });
   }
   L.end(ctx, S.stage.w, S.stage.h, Math.min(2, devicePixelRatio || 1));
+  if (comic) words.forEach((wd, i) => { 
+    if (!wd.cb || (wd.kind === 'num' && wd.n.t > 0.85 && Math.floor(wd.n.t * 20) % 2)) return;
+    drawComic(ctx, wd, at[i].x * L.k, (at[i].y + wd.h / 2) * L.k);
+  });
   if (B.shout) { 
     let [px, py] = scr(G.player.x, G.player.y, 1.8 * CHAR_SCALE);
     const bi = words.findIndex(w => w.kind === 'bubble');

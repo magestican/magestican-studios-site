@@ -12,7 +12,8 @@ import { SOUNDS } from './sounds.js';
 import { music } from './music.js';
 import { paintPortrait, paintChoiceIcon } from './art/portraits.js';
 import { setPortraitStage, prewarmDex } from './art/portraitRender.js';
-import { celLook } from './art/look/celLook.js';
+import { celLook, setLineRole } from './art/look/celLook.js';
+import { initBattleFx, updateBattleFx } from './features/battle/battleFx3d.js';
 import { lookName } from './art/look/celRules.js';
 import { material as castMaterial } from './art/dachiActor.js';
 import { seeActorMaterial } from '../engine/iso/seeThrough.js';
@@ -58,6 +59,7 @@ const worldView = buildWorld(S.stage, S.W);
 
 if (lookName(location.search) === 'cel') {
   S.stage.setLook(celLook({ phone: matchMedia('(pointer: coarse)').matches }));
+  initBattleFx(S.stage); 
   const cast = [];
   for (const v of ['n', 'c', 'b']) for (const id of ['fur', 'metal', 'lamp-glow']) { const m = castMaterial(v, id, '#ffffff'); cast.push(m, seeActorMaterial(m)); }
   celLook().prewarm(S.stage, cast);
@@ -226,6 +228,7 @@ function frame(now) {
     drawBossLairs(t, B);
     drawWilds(t, B ? (w => w === B.wild || inArena(w.x, w.y, B, -0.8)) : null);
     if (B) placeFighters(t);
+    updateBattleFx(B); setLineRole(B ? 'battle' : 'world'); 
     updateSeeThrough(dt, B, lairBodies()); 
     S.stage.render();
     
