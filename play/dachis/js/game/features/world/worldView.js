@@ -44,6 +44,8 @@ const MOUNTAIN = new Set(['kazan', 'slope']);
 
 export function buildWorld(stage, W) {
   const { scene } = stage;
+  
+  const before = new Set(scene.children), ownTextures = [];
   const c = new THREE.Color(), tmp = new THREE.Color();
   const colorAt = (x, y) => {
     c.setRGB(0, 0, 0);
@@ -138,10 +140,29 @@ export function buildWorld(stage, W) {
   
   for (const id in scenery.groups) scenery.groups[id].userData.seeThrough = true;
   
-  if (CEL) createTags(W, scenery.groups);
+  if (CEL) ownTextures.push(createTags(W, scenery.groups).atlas);
+  ownTextures.push(tex);
+  const owned = scene.children.filter((o) => !before.has(o));
 
   return {
     water, scenery, tufts,
+    
+    
+    
+    
+    
+    dispose() {
+      for (const o of owned) {
+        scene.remove(o);
+        o.traverse((m) => { if (m.geometry) m.geometry.dispose(); if (m.isInstancedMesh) m.dispose(); });
+      }
+      for (const t of ownTextures) t.dispose();
+      for (const m of [ground.material, water.mesh.material]) {
+        const u = m.userData && m.userData.look;
+        if (u) for (const k of ['classes', 'palette', 'field']) if (u[k] && u[k].dispose) u[k].dispose();
+      }
+      owned.length = 0;
+    },
     update(t) {
       water.update(t); tuftTimes.value = t; scenery.update(t);
     },

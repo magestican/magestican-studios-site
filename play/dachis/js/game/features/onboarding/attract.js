@@ -6,6 +6,7 @@
 
 
 import { ATTRACT, attractAt } from './rules.js';
+import { G } from '../../state.js';
 
 const $ = (id) => document.getElementById(id);
 const IDLE_S = 45;
@@ -14,16 +15,20 @@ let t0 = 0, raf = 0, on = false, idle = null, painter = null;
 function show(i) {
   for (const el of document.querySelectorAll('#attract .panel')) el.classList.toggle('show', Number(el.dataset.i) === i);
 }
+let lastPanel = -1;
 function frame() {
   if (!on) return;
+  if (G.mode !== 'title') { attract.stop(); return; } 
   const t = (performance.now() - t0) / 1000, a = attractAt(t);
+  
+  if (a.panel !== lastPanel) { lastPanel = a.panel; if (a.id === 'friends') paintStickers(); }
   show(a.panel);
   $('attract').classList.toggle('end', a.done);
   raf = requestAnimationFrame(frame);
 }
 function paintStickers() { 
   const cvs = [...document.querySelectorAll('#attract canvas[data-p]')];
-  cvs.forEach((cv, i) => setTimeout(() => painter && painter(cv, cv.dataset.p), 200 + i * 900));
+  cvs.forEach((cv, i) => setTimeout(() => painter && painter(cv, cv.dataset.p), 100 + i * 700));
 }
 function armIdle() {
   clearTimeout(idle);

@@ -85,13 +85,18 @@ function strip(cols, rows, rect, at) {
 }
 
 
+let tagMats = null;
 export function createTags(W, groups) {
   const spots = tagSpots(W), cells = tagCells(spots);
   const rows = Math.ceil(cells.length / COLS);
   const cv = document.createElement('canvas'); cv.width = CW * COLS; cv.height = CH * rows;
   const atlas = new THREE.CanvasTexture(cv);
   atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = 4;
-  const ground = decalMaterial(atlas, false), wall = decalMaterial(atlas, true);
+  
+  
+  if (!tagMats) tagMats = { ground: decalMaterial(atlas, false), wall: decalMaterial(atlas, true) };
+  else { tagMats.ground.map = atlas; tagMats.wall.map = atlas; }
+  const { ground, wall } = tagMats;
   
   const rect = (k) => { const c = k % COLS, r = Math.floor(k / COLS); return [c / COLS, 1 - (r + 1) / rows, 1 / COLS, 1 / rows]; };
   for (const s of spots) {

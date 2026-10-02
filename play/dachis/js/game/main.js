@@ -58,7 +58,15 @@ S.W = generateMap();
   const build = document.querySelector('meta[name=build]')?.content;
   await loadBakedForms('assets/scenery-forms.bin' + (build && build !== 'dev' ? '?v=' + encodeURIComponent(build) : ''));
 }
-const worldView = buildWorld(S.stage, S.W);
+let worldView = buildWorld(S.stage, S.W);
+
+
+function rebuildWorld() {
+  worldView.dispose();
+  worldView = buildWorld(S.stage, S.W);
+  S.scenery = worldView.scenery;
+  if (cam.sec) worldView.showSection(cam.sec);
+}
 
 
 
@@ -108,7 +116,7 @@ function sizeOverlay() {
   octx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 addEventListener('resize', sizeOverlay); sizeOverlay();
-window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state };
+window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state, rebuildWorld };
 
 
 $('touchZone').addEventListener('pointerdown', e => {
