@@ -10,15 +10,21 @@ import { RESPAWN } from './mapgen.js';
 import { HOME, regionById } from './regions.js';
 import * as testbed from './regionMaps/testbed.js';
 import * as ember from './regionMaps/emberTube.js';
+import * as village from './regionMaps/kazanVillage.js';
 
 export const PERCHES = [
-  { id: 'kazan', region: HOME, name: 'Kazan Village', at: RESPAWN.kazan, opens: 'boss_ashlo', respawn: null },
+  
+  
+  { id: 'kazan', region: village.ID, name: 'Kazan Village', at: village.LANDING, opens: 'boss_ashlo', respawn: null },
   { id: 'shrine', region: HOME, name: 'Shrine Village', at: RESPAWN.shrine, opens: 'boss_ashlo', respawn: 'initiated' },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },
 ];
 export const perchById = (id) => PERCHES.find((p) => p.id === id) || null;
+
+
+const WAKE_POINTS = [{ region: HOME, at: RESPAWN.kazan, respawn: null }];
 export const VISIT_R = 3;     
 export const PERCH_R = 2.4;   
 
@@ -67,7 +73,7 @@ export function flightPhase(t, ready) {
 
 export function respawnPoint(region, flags = {}, x = 0, y = 0) {
   let best = null, bd = Infinity;
-  for (const p of PERCHES) {
+  for (const p of [...PERCHES, ...WAKE_POINTS]) {
     if (p.region !== region || (p.respawn && !flags[p.respawn])) continue;
     const d = Math.hypot(p.at.x - x, p.at.y - y);
     if (d < bd) { best = p.at; bd = d; }

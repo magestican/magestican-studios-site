@@ -618,6 +618,7 @@ export function locationName(W, x, y, region = 'Kazan Isle') {
 
 export const NPC_CLEAR = { body: 0.45, crater: CRATER_FENCE + 0.45, rimIn: RIM.r - 0.75 };
 export function npcSpotOk(W, x, y, rad = NPC_CLEAR.body) {
+  if (W.npcOk) return W.npcOk(x, y, rad); 
   if (!W.walkable(x, y, rad)) return false;
   if (U.dist(x, y, CRATER.x, CRATER.y) < NPC_CLEAR.crater - (NPC_CLEAR.body - rad)) return false;
   const dv = U.dist(x, y, VOLC.x, VOLC.y);

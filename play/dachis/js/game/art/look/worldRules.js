@@ -34,7 +34,8 @@ export const RIGHT = [Math.SQRT1_2, -Math.SQRT1_2];
 
 
 export const HUT_BAYS = [1.26, 2.52, -1.26, -2.52];
-export const HUT_WALL = { r: 0.73, y0: 0.1, y1: 0.47, arc: 1.0 }; 
+export const HUT_WALL = { r: 0.73, y0: 0.12, y1: 0.75, arc: 1.0 }; 
+export const HUT_THATCH = 1.02; 
 const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 

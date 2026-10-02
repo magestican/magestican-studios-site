@@ -22,7 +22,7 @@ export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, pl
 
 
 
-export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight, sections }, slice = async () => {}) {
+export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight, craterSection = 'kazan', sections }, slice = async () => {}) {
   const { scene } = stage;
   const groups = {};
   for (const id of sections) {
@@ -39,7 +39,7 @@ export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight,
       }
       else { place(batch, view); await slice('place ' + id + ' ' + place.name); }
     }
-    if (id === 'kazan' && crater) placeCraterRim(batch, W, crater, craterRadius);
+    if (id === craterSection && crater) placeCraterRim(batch, W, crater, craterRadius);
     const group = batch.toGroup();
     await slice('batch ' + id);
     scene.add(group);

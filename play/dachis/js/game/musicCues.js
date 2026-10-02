@@ -13,7 +13,7 @@ export const LOOPS = ['menu', 'town', 'field', 'battle', 'boss', ...INTRO_CUES];
 export const STINGERS = ['victory', 'defeat'];
 export const CUES = [...LOOPS, ...STINGERS];
 
-export const TOWNS = ['kazan', 'shrine'];
+export const TOWNS = ['kazan', 'village', 'shrine']; 
 
 
 
@@ -46,6 +46,7 @@ export function preloadFor(cue) {
 
 export const AMBIENCE = {
   kazan: { wind: 0.5, rumble: 0.7, birds: 0.25 },
+  village: { wind: 0.5, rumble: 0.7, birds: 0.25 },
   slope: { wind: 0.8, rumble: 0.3, birds: 0.35 },
   jungle: { bugs: 0.8, birds: 0.7, wind: 0.2 },
   road: { wind: 0.5, birds: 0.6, bugs: 0.3 },

@@ -148,7 +148,9 @@ export async function buildWorld(stage, W, slice = noSlice) {
     await slice('tuft mesh ' + id);
   }
 
-  const scenery = await buildScenery(stage, W, { crater: kazan ? CRATER : null, craterRadius: 1.6, lavaHeight: PLATEAU_H + 0.03, sections: SECS.map((sec) => sec.id) }, slice);
+  
+  const cr = kazan ? { x: CRATER.x, y: CRATER.y, r: 1.6, h: PLATEAU_H + 0.03, section: 'kazan' } : W.crater || null;
+  const scenery = await buildScenery(stage, W, { crater: cr, craterRadius: cr ? cr.r : 0, lavaHeight: cr ? cr.h : 0, craterSection: cr ? cr.section : null, sections: SECS.map((sec) => sec.id) }, slice);
   
   for (const id in scenery.groups) scenery.groups[id].userData.seeThrough = true;
   

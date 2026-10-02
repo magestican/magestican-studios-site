@@ -194,7 +194,9 @@ export function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16
 export function luma(h) { const [r, g, b] = hexRgb(h); return 0.2126 * r + 0.7152 * g + 0.0722 * b; }
 
 export function classByte(cls) { const i = GROUND_CLASSES.indexOf(cls); return i < 0 ? 0 : i; }
-export function regionByte(region) { const i = GROUND_REGIONS.indexOf(region); return i < 0 ? GROUND_REGIONS.indexOf('road') : i; }
+
+const GROUND_ALIAS = { village: 'kazan' };
+export function regionByte(region) { const i = GROUND_REGIONS.indexOf(GROUND_ALIAS[region] || region); return i < 0 ? GROUND_REGIONS.indexOf('road') : i; }
 
 
 

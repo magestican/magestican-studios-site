@@ -1,5 +1,5 @@
 {
- "hash": "d758157e",
+ "hash": "cbc46f53",
  "regions": {
   "kazan-isle": {
    "forms": [
@@ -85,6 +85,32 @@
     "stone-grey-2",
     "stone-grey-3",
     "torch"
+   ],
+   "pack": null,
+   "extra": []
+  },
+  "kazan-village": {
+   "forms": [
+    "bush",
+    "fence-post",
+    "fence-rail",
+    "flower-bed",
+    "flower-clump",
+    "flowers",
+    "hut",
+    "palm",
+    "spring-basin",
+    "step-slab",
+    "stone-dark-0",
+    "stone-dark-1",
+    "stone-dark-2",
+    "stone-dark-3",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "torch",
+    "tree"
    ],
    "pack": null,
    "extra": []

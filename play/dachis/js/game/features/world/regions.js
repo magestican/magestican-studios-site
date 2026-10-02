@@ -10,6 +10,7 @@ import { SECTIONS } from './sections.js';
 import { MAP, SPAWN, RESPAWN, generateMap } from './mapgen.js';
 import * as testbed from './regionMaps/testbed.js';
 import * as ember from './regionMaps/emberTube.js';
+import * as village from './regionMaps/kazanVillage.js';
 
 export const HOME = 'kazan-isle';
 export const REGIONS = [
@@ -34,6 +35,14 @@ export const REGIONS = [
     pack: null,
     transit: false, objective: 'Follow the torches through the Ember Tube',
   },
+  
+  
+  {
+    id: village.ID, name: 'Kazan Village', chapters: [1], size: village.SIZE, interior: false, reachable: true,
+    sections: village.SECTIONS.map((s) => s.id), entry: village.GATE, spring: village.LANDING, home: village.SPAWN,
+    pack: null,
+    transit: false, objective: null,
+  },
 ];
 export const regionById = (id) => REGIONS.find((r) => r.id === id) || null;
 
@@ -44,12 +53,12 @@ export function regionOf(sectionId) {
 
 export const saveRegion = (s) => (s && regionById(s.region) ? s.region : HOME);
 
-const GENERATORS = { [HOME]: generateMap, [testbed.ID]: testbed.generateTestbed, [ember.ID]: ember.generateEmberTube };
+const GENERATORS = { [HOME]: generateMap, [testbed.ID]: testbed.generateTestbed, [ember.ID]: ember.generateEmberTube, [village.ID]: village.generateKazanVillage };
 export function generateRegion(id) { const g = GENERATORS[id]; if (!g) throw new Error('no map for region ' + id); return g(); }
 
 
 
-const STEPS = { [testbed.ID]: testbed.testbedSteps, [ember.ID]: ember.emberTubeSteps };
+const STEPS = { [testbed.ID]: testbed.testbedSteps, [ember.ID]: ember.emberTubeSteps, [village.ID]: village.kazanVillageSteps };
 export async function generateRegionSliced(id, slice) {
   if (!STEPS[id]) return generateRegion(id);
   const it = STEPS[id]();

@@ -6,6 +6,8 @@ import { NPC_POSTS, NPC_HOMES, pickNpcSpot, npcSpotOk, npcStepClear } from './ma
 import { dachiBillboard, setDachiLook, elderBillboard } from '../../art/billboards.js';
 import { speciesById, KUMABO } from '../../data/species.js';
 import { pushApart, GAP, BODY_R, lairBody, bossBody } from './crowd.js';
+import { HOME } from './regions.js';
+import * as village from './regionMaps/kazanVillage.js';
 
 const VILLAGER_LINES = [
   ['The red hand came through the spiral again last night. It took three of us.', 'We used to believe the spirals were doors for friends. Now they only bring pain.'],
@@ -26,22 +28,26 @@ export function spawnNpcs() {
   G.npcs = [];
   const r = U.rng(31);
   const add = n => { n.bb = n.kind === 'elder' ? elderBillboard(S.stage.scene) : dachiBillboard(S.stage.scene, speciesById(n.sp).stage); n.face = 1; n.walk = 0; G.npcs.push(n); return n; };
-  const P = NPC_POSTS, K = NPC_HOMES.kazan, SH = NPC_HOMES.shrine;
-  add({ kind: 'elder', ...P.elder, still: true });
-  add({ kind: 'kumabo', sp: KUMABO, bandage: !G.flags.initiated, ...P.kumabo, still: true });
+  
+  
+  const inVillage = G.region === village.ID, P = NPC_POSTS, K = inVillage ? village.HOME_DISC : NPC_HOMES.kazan, SH = NPC_HOMES.shrine;
+  const kazanPeople = inVillage, shrinePeople = !G.region || G.region === HOME;
+  const keep = (n, ok) => { if (!ok) { G.npcs.pop(); n.bb?.dispose(S.stage.scene); } };
+  keep(add({ kind: 'elder', ...(inVillage ? village.POSTS.elder : P.elder), still: true }), kazanPeople);
+  keep(add({ kind: 'kumabo', sp: KUMABO, bandage: !G.flags.initiated, ...(inVillage ? village.POSTS.kumabo : P.kumabo), still: true }), kazanPeople);
   
   
   const spot = (home) => pickNpcSpot(S.W, r, home, home.r, 1.2, [...G.npcs, G.player]) || pickNpcSpot(S.W, r, home, home.r) || { x: home.x, y: home.y };
   for (let i = 0; i < 6; i++) {
     const fam = 4 + Math.floor(r() * 37), sp = fam * 3 + 1 + (r() < 0.3 ? 1 : 0), bandage = r() < 0.6, { x, y } = spot(K);
-    add({ kind: 'villager', id: 'kazan-v' + i, sp, bandage, x, y, home: K, radius: K.r, lines: VILLAGER_LINES[i], tx: x, ty: y, wait: r() * 3 });
+    keep(add({ kind: 'villager', id: 'kazan-v' + i, sp, bandage, x, y, home: K, radius: K.r, lines: VILLAGER_LINES[i], tx: x, ty: y, wait: r() * 3 }), kazanPeople);
   }
   G.priestSp = 3 * (4 + Math.floor(r() * 37)) + 2;
-  add({ kind: 'priest', head: true, sp: G.priestSp, hat: true, ...P.priest, still: true });
-  for (const a of P.acolytes) add({ kind: 'priest', sp: 3 * (4 + Math.floor(r() * 37)) + 1, hat: true, ...a, still: true });
+  keep(add({ kind: 'priest', head: true, sp: G.priestSp, hat: true, ...P.priest, still: true }), shrinePeople);
+  for (const a of P.acolytes) keep(add({ kind: 'priest', sp: 3 * (4 + Math.floor(r() * 37)) + 1, hat: true, ...a, still: true }), shrinePeople);
   for (let i = 0; i < 3; i++) {
     const sp = 3 * (4 + Math.floor(r() * 37)) + 1, { x, y } = spot(SH);
-    add({ kind: 'villager', id: 'shrine-v' + i, sp, x, y, home: SH, radius: SH.r, lines: [SHRINE_LINES[i]], tx: x, ty: y, wait: r() * 3 });
+    keep(add({ kind: 'villager', id: 'shrine-v' + i, sp, x, y, home: SH, radius: SH.r, lines: [SHRINE_LINES[i]], tx: x, ty: y, wait: r() * 3 }), shrinePeople);
   }
 }
 

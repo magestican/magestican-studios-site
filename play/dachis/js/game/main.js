@@ -25,6 +25,7 @@ import { HOME, regionById, generateRegionSliced, mapsToDrop } from './features/w
 import { slicer } from '../engine/core/slicer.js';
 import { perchById, perchAt, perchesOpen, visit, flightPhase, VISIT_R } from './features/world/travel.js';
 import { doorAt } from './features/world/doors.js';
+import * as kazanVillage from './features/world/regionMaps/kazanVillage.js';
 import { openPerchMenu, closePerchMenu, perchMenuOpen, pickPerch, installPerchMenu } from './features/hud/perchMenu.js';
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
 import { loadBakedForms } from './art/scenery/kit.js';
@@ -101,7 +102,7 @@ function loadRegion(id, at = null) {
     S.scenery = worldView.scenery;
     const p = at || r.entry;
     G.player.x = p.x; G.player.y = p.y; G.follower.x = p.x; G.follower.y = p.y - 0.6;
-    if (id === HOME) spawnNpcs();
+    if (id === HOME || id === kazanVillage.ID) spawnNpcs();
     
     for (const k in worldView.scenery.groups) worldView.scenery.groups[k].visible = true;
     for (const k in worldView.tufts) worldView.tufts[k].visible = true;
@@ -315,8 +316,11 @@ function leaveTitle() {
 
 function playIntro(start) {
   Cutscene.play(SCENES, () => {
-    intro.clear(); enterWorld(); afterIntro();
-    zoomInFromIntro(introZoomK); youTag.start(); 
+    intro.clear(); enterWorld();
+    loadRegion(kazanVillage.ID, kazanVillage.SPAWN).then(() => {
+      afterIntro();
+      zoomInFromIntro(introZoomK); youTag.start(); 
+    });
   }, { start, onLine: (sc, li) => intro.save(sc, li) });
 }
 $('newBtn').onclick = () => {
@@ -384,7 +388,7 @@ function worldHints() {
   }
   
   const door = doorAt(G.flags, G.region, p.x, p.y);
-  if (door) {
+  if (door && !door.auto) {
     const [x, y] = S.stage.toScreen(door.at.x, door.at.y, S.W.groundAt(door.at.x, door.at.y));
     S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.7, action: 'action', label: door.label, color: '#ffb347', onTap: () => { if (doorAt(G.flags, G.region, G.player.x, G.player.y) === door) loadRegion(door.to, door.toAt); } });
     return;
@@ -427,6 +431,9 @@ function frame(now) {
         separateCrowd(dt, G.region === HOME ? lairBodies() : []); 
         if (G.region === HOME) { updateStory(dt); updateBossLairs(); } 
         visit(G.flags, G.region, G.player.x, G.player.y); 
+        
+        const auto = doorAt(G.flags, G.region, G.player.x, G.player.y);
+        if (auto && auto.auto) loadRegion(auto.to, auto.toAt);
         worldActions();
         if (touched && G.mode === 'world') startBattle(touched);
       }

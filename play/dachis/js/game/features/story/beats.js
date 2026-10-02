@@ -6,6 +6,7 @@ import { G, S, saveGame, healParty, addDachi, caughtCount } from '../../state.js
 import { speciesById, makeDachi, GUARDIAN, STARTERS, SPECIES } from '../../data/species.js';
 import { AMBUSH, SHRINE, SPAWN } from '../world/mapgen.js';
 import { spawnNpcs } from '../world/npcs.js';
+import { HOME } from '../world/regions.js';
 import { spawnWild, removeWild } from '../world/wilds.js';
 import { startBattle } from '../battle/battle.js';
 import { KID, ELDER, NARR } from './scenes.js';
@@ -23,8 +24,8 @@ export const storyLocksMovement = () => !!scene;
 
 export function afterIntro() {
   G.flags.started = true;
-  G.player.x = SPAWN.x; G.player.y = SPAWN.y;
-  spawnNpcs();
+  
+  if (G.region === HOME) { G.player.x = SPAWN.x; G.player.y = SPAWN.y; spawnNpcs(); }
   say([
     L(ELDER, 'Go now, child. Follow the road down the mountain — the X on your map is the Shrine Village.'),
     L(ELDER, 'Be careful. Since the spirals began to open, some of our kind have… changed.'),
