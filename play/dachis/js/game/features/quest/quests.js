@@ -45,7 +45,7 @@ export const QUESTS = [
     steps: [
       { kind: 'talk', npc: 'kazan-v0', text: 'Talk to the villager who saw the red hand',
         say: ['Last night the red hand came through a spiral down on Tomo Coast.', 'Go and look, Tamer. Tell me what is left there.'] },
-      { kind: 'visit', sec: 'coast', text: 'Look for the spiral scorch on Tomo Coast',
+      { kind: 'visit', sec: 'tomo-coast', text: 'Look for the spiral scorch on Tomo Coast', 
         say: ['The sand here is burned black in a spiral. A splinter of dark glass glints in the middle.'] },
       { kind: 'talk', npc: 'kazan-v0', text: 'Tell the villager what you found on Tomo Coast',
         say: ['Glass from a spiral... The Elder has one like it, from the first one.', 'Keep it. You are the Bridge; maybe it will listen to you.'] },

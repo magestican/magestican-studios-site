@@ -78,7 +78,7 @@ const OVERGROWN = { wood: [0.55, 0.95, 0.5], plank: [0.75, 0.95, 0.7], roof: [0.
 export function placeTemple(batch, W) {
   for (const o of W.objects) {
     const sunk = o.flavor === 'coral', tint = sunk ? DROWNED : o.flavor === 'moss' ? OVERGROWN : {};
-    const at = { x: o.x, h: W.groundAt(o.x, o.y) - (sunk ? 0.14 : 0.02), y: o.y, rot: o.rot || 0 };
+    const at = { x: o.x, h: W.groundAt(o.x, o.y) - (sunk ? 0.14 : 0.02), y: o.y, rot: o.rot || 0, s: o.s || 1 }; 
     if (o.kind === 'temple') batch.add(templeForm(), at, tint);
     else if (o.kind === 'lantern') batch.add(lanternForm(), at, tint);
     else if (o.kind === 'gate') batch.add(gateForm(), at, tint);

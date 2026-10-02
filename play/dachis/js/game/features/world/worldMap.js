@@ -18,6 +18,10 @@ export const WORLD_PLACES = [
   { region: 'ember-tube', name: 'Ember Tube', at: [0.86, 0.2], r: 0.1, glyph: 'volcano' },
   
   { region: 'kazan-village', name: 'Kazan Village', at: [0.52, 0.17], r: 0.08, glyph: 'volcano' },
+  
+  { region: 'shrine-village', name: 'Shrine Village', at: [0.52, 0.93], r: 0.07, glyph: 'meadow' },
+  
+  { region: 'tomo-coast', name: 'Tomo Coast', at: [0.9, 0.62], r: 0.08, glyph: 'meadow' },
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 
