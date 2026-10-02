@@ -4,6 +4,8 @@
 import { T, VOLC, PATH_POINTS, COAST_PATH, CORAL_PATH, VERDANT_PATH, npcSpotOk } from '../../features/world/mapgen.js';
 import { classByte, regionByte } from './celRules.js';
 import { PATH as TESTBED_PATH } from '../../features/world/regionMaps/testbed.js';
+import { LANE as VILLAGE_LANE } from '../../features/world/regionMaps/kazanVillage.js';
+import { PATH as EMBER_PATH } from '../../features/world/regionMaps/emberTube.js';
 
 
 
@@ -149,7 +151,17 @@ const testbedTags = (W) => [
   roadTag(W, TESTBED_PATH, 'testbed-a', 'FAR FIELD', 'arrow'),
   roadTag(W, TESTBED_PATH, 'testbed-b', 'TESTBED 92', 'teal', false),
 ];
-const TAG_LISTS = { [HOME_REGION]: kazanTags, testbed: testbedTags };
+
+
+const villageTags = (W) => [
+  wallTag(W, 'village', 'DACHI', 'pink'),
+  roadTag(W, VILLAGE_LANE.slice().reverse(), 'village', 'SHRINE', 'arrow'),
+];
+const emberTags = (W) => [
+  roadTag(W, EMBER_PATH, 'ember-a', 'MAGMA HALL', 'arrow'),
+  roadTag(W, EMBER_PATH, 'ember-b', 'EMBER 92', 'teal', false),
+];
+const TAG_LISTS = { [HOME_REGION]: kazanTags, testbed: testbedTags, 'kazan-village': villageTags, 'ember-tube': emberTags };
 
 export function tagCells(spots) {
   const keys = [];

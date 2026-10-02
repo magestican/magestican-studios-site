@@ -21,7 +21,7 @@ const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 export const PLAZA = at(0, 41);
 export const CRATER = { ...at(0, 31.5), r: 3.2 }; 
 export const CRATER_FENCE = CRATER.r + 0.9;
-export const GATE = at(0, 51.4);     
+export const GATE = at(-0.6, 50.0); 
 export const ENTRY = GATE;
 export const SPRING = at(3.4, 38.4); 
 export const SPAWN = at(0.6, 44.6);  
@@ -31,7 +31,7 @@ export const POSTS = { elder: at(-0.6, 41.6), kumabo: at(1.4, 42.4) };
 export const HOME_DISC = { ...PLAZA, r: 7.5 };
 
 
-const LANE = [[0, 51.4], [-1.3, 49.2], [0.9, 46.6], [-0.5, 44.0], [0, 41]].map(([u, v]) => { const p = at(u, v); return [p.x, p.y]; });
+export const LANE = [[0, 51.4], [-1.3, 49.2], [0.9, 46.6], [-0.5, 44.0], [0, 41]].map(([u, v]) => { const p = at(u, v); return [p.x, p.y]; });
 
 
 
