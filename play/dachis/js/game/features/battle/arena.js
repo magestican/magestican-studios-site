@@ -7,7 +7,7 @@
 
 
 
-import { toUV, fromUV, SIN_E } from '../world/sections.js';
+import { toUV, fromUV, SIN_E, COS_E } from '../world/sections.js';
 
 export const ARENA_MAX = 8.5, ARENA_MIN = 4.2;   
 export const FIGHTER_H = 1.5;        
@@ -36,6 +36,48 @@ export function arenaCentre(px, py, wx, wy, ru, rv, edge = 0.78) {
   
   const r = 1 / Math.hypot(du / ru, dv / rv);
   return fromUV(pu + du * r * edge, pv + dv * r * edge);
+}
+
+
+
+export function arenaOverflow(cu, cs, ru, rv, win, maxVh, aspect, bands = bandsFor(aspect)) {
+  const u0 = cu - ru - bands.side, u1 = cu + ru + bands.side;
+  const s0 = cs - rv * SIN_E - FIGHTER_H - bands.top * maxVh, s1 = cs + rv * SIN_E + bands.bottom * maxVh;
+  return Math.max(0, win.u[0] - u0) + Math.max(0, u1 - win.u[1]) + Math.max(0, win.s[0] - s0) + Math.max(0, s1 - win.s[1]);
+}
+
+
+
+
+
+
+
+
+export const PLACE = { reach: 9, step: 1, wOverflow: 6, wOpen: 4, wRoad: 0.6, wDist: 0.12 };
+export function placeArena(map, sec, px, py, wx, wy, ru, rv, win, maxVh, aspect) {
+  const [c0x, c0y] = arenaCentre(px, py, wx, wy, ru, rv);
+  const [pu, pv] = toUV(px, py), score = (x, y) => {
+    const [u, v] = toUV(x, y), cs = v * SIN_E - map.groundAt(x, y) * COS_E;
+    const over = arenaOverflow(u, cs, ru, rv, win, maxVh, aspect);
+    let ok = 0, n = 0;
+    for (const k of [0.45, 0.85]) for (let a = 0; a < 12; a++) {
+      const [sx, sy] = fromUV(u + Math.cos(a * 0.5236) * ru * k, v + Math.sin(a * 0.5236) * rv * k);
+      n++; if (map.walkable(sx, sy, 0.3) && map.sectionAt(sx, sy) === sec) ok++;
+    }
+    const open = ok / n;
+    return { s: -over * PLACE.wOverflow + open * PLACE.wOpen + (map.road(x, y) ? PLACE.wRoad : 0) - Math.hypot(u - pu, v - pv) * PLACE.wDist, over, open };
+  };
+  let best = null;
+  const consider = (x, y) => {
+    if (!map.reachable(x, y) || !map.walkable(x, y, 0.3) || map.sectionAt(x, y) !== sec) return;
+    const r = score(x, y);
+    if (!best || r.s > best.s) best = { ...r, cx: x, cy: y };
+  };
+  consider(c0x, c0y);
+  const R = PLACE.reach, st = PLACE.step;
+  for (let du = -R; du <= R; du += st) for (let dv = -R; dv <= R; dv += st) { const [x, y] = fromUV(pu + du, pv + dv); consider(x, y); }
+  if (!best) return { cx: c0x, cy: c0y, overflow: null, open: null };
+  return { cx: best.cx, cy: best.cy, overflow: best.over, open: best.open };
 }
 
 

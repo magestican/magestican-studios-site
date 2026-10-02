@@ -20,11 +20,12 @@ import {
   hasStatus, speedMult, missChance, parryOutcome, canParry, PARRY_WINDOW, PARRY_CD, PARRY_COUNTER, PARRY_STUN,
   TELL, impactIn, dodgeChance, WILD_PARRY, reflects, interrupts, segDist, turnToward, slamZ, trapSpot, STATUS_COLOR,
 } from './techniques.js';
-import { arenaRadii, arenaCentre, clampToArena, maxBattleVh, inArena } from './arena.js';
+import { arenaRadii, arenaCentre, clampToArena, maxBattleVh, inArena, placeArena } from './arena.js';
+import { mapForArena } from './arenaMap.js';
 import { hitWord } from './comic.js';
 let hitCount = 0; 
 import { pushApart, BATTLE_AIR, fighterR, reachPlus } from '../world/crowd.js';
-import { sectionById } from '../world/sections.js';
+import { sectionById, toUV, fromUV } from '../world/sections.js';
 import { makePattern } from '../capture/ritual.js';
 import { dachiBillboard } from '../../art/billboards.js';
 import { music } from '../../music.js';
@@ -56,12 +57,31 @@ export function startBattle(wild, opts = {}) {
   const { ru, rv } = arenaRadii(maxVh, aspect);
   let [cx, cy] = arenaCentre(p.x, p.y, wild.x, wild.y, ru, rv);
   
+  
+  
+  
+  let run = null;
+  const isBoss = !!speciesById(wild.d.sp).boss;
+  if (win && !opts.script && !isBoss) {
+    const pl = placeArena(mapForArena(W), sec, p.x, p.y, wild.x, wild.y, ru, rv, win, maxVh, aspect);
+    if (Math.hypot(pl.cx - cx, pl.cy - cy) > 0.5) {
+      const [qu, qv] = toUV(p.x, p.y), [wu, wv] = toUV(wild.x, wild.y), [nu, nv] = toUV(pl.cx, pl.cy);
+      let du = wu - qu, dv = wv - qv; const l = Math.hypot(du, dv) || 1; du /= l; dv /= l;
+      const r = 1 / Math.hypot(du / ru, dv / rv);
+      let [kx, ky] = fromUV(nu - du * r * 0.6, nv - dv * r * 0.6); 
+      for (let k = 0; k < 10 && !W.walkable(kx, ky, 0.3); k++) { kx += (pl.cx - kx) * 0.25; ky += (pl.cy - ky) * 0.25; }
+      run = { fx: p.x, fy: p.y, tx: kx, ty: ky, t: 0 };
+      cx = pl.cx; cy = pl.cy;
+    }
+  }
+  
   for (let k = 0; k < 10 && !W.walkable(cx, cy, 0.3); k++) { cx += (p.x - cx) * 0.2; cy += (p.y - cy) * 0.2; }
-  let dx = cx - p.x, dy = cy - p.y; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
+  const kx0 = run ? run.tx : p.x, ky0 = run ? run.ty : p.y;
+  let dx = cx - kx0, dy = cy - ky0; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
   B = {
     t: 0, cx, cy, ru, rv, maxVh, wild, opts, script: opts.script || null, boss: speciesById(wild.d.sp).boss || null, state: 'intro', timer: INTRO, swapCd: 0,
     activeIdx: Math.max(0, G.party.indexOf(allyD)), stance: 'attack',
-    ally: fighter(allyD, p.x + dx * 1.3, p.y + dy * 1.3, 0),
+    ally: fighter(allyD, kx0 + dx * 1.3, ky0 + dy * 1.3, 0), run,
     enemy: fighter(wild.d, cx + dx * Math.min(3, dl), cy + dy * Math.min(3, dl), 1),
     proj: [], fx: [], nums: [], callouts: [], shout: { text: opts.script ? 'W-whoa!!' : `Go, ${speciesById(allyD.sp).name}!`, t: 1.6 },
     ritual: null, capture: null, result: null, shake: 0, used: new Set(), mines: [], parries: 0,
@@ -69,7 +89,7 @@ export function startBattle(wild, opts = {}) {
   if (B.boss) { B.enemy.x = wild.x; B.enemy.y = wild.y; } 
   clampArena(B.enemy);
   
-  for (let k = 0; k < 12 && !W.walkable(B.enemy.x, B.enemy.y, 0.3); k++) { B.enemy.x += (p.x - B.enemy.x) * 0.15; B.enemy.y += (p.y - B.enemy.y) * 0.15; }
+  for (let k = 0; k < 12 && !W.walkable(B.enemy.x, B.enemy.y, 0.3); k++) { B.enemy.x += (kx0 - B.enemy.x) * 0.15; B.enemy.y += (ky0 - B.enemy.y) * 0.15; }
   if (B.boss) callout(B.enemy, speciesById(wild.d.sp).name, '#ff2a3a', true); 
   else G.dex.seen[wild.d.sp] = 1; 
   G.mode = 'battle';
@@ -471,6 +491,13 @@ export function updateBattle(dt) {
   for (const e of B.fx) { e.t += dt; if (e.kind === 'spark') { e.x += e.vx * dt; e.y += e.vy * dt; e.z += e.vz * dt; e.vz -= 6 * dt; } }
   B.fx = B.fx.filter(e => e.t < e.life);
   if (B.state === 'intro') { B.timer -= dt; if (B.timer <= 0) B.state = 'fight'; }
+  if (B.run && B.run.t < 1) { 
+    const R = B.run, p = G.player; R.t = Math.min(1, R.t + dt / (INTRO * 0.8));
+    const e = R.t * R.t * (3 - 2 * R.t), nx = R.fx + (R.tx - R.fx) * e, ny = R.fy + (R.ty - R.fy) * e;
+    p.vx = (nx - p.x) / Math.max(dt, 1e-3); p.vy = (ny - p.y) / Math.max(dt, 1e-3); p.moving = R.t < 1; p.walk = (p.walk || 0) + dt * 14;
+    p.x = nx; p.y = ny;
+    if (R.t >= 1) { p.vx = p.vy = 0; G.follower.x = p.x; G.follower.y = p.y - 0.6; }
+  }
   else if (B.state === 'fight') {
     updateCounters(B.ally, B.enemy); updateCounters(B.enemy, B.ally);
     updateFighter(B.ally, B.enemy, dt);
