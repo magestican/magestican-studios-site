@@ -12,7 +12,7 @@ import { SOUNDS } from './sounds.js';
 import { music } from './music.js';
 import { ambience } from './ambience.js';
 import { paintPortrait, paintChoiceIcon } from './art/portraits.js';
-import { setPortraitStage, prewarmDex } from './art/portraitRender.js';
+import { setPortraitStage, prewarmDex, aerowingRidePortrait } from './art/portraitRender.js';
 import { celLook, setLineRole } from './art/look/celLook.js';
 import { initBattleFx, updateBattleFx } from './features/battle/battleFx3d.js';
 import { lookName } from './art/look/celRules.js';
@@ -22,6 +22,8 @@ import { generateMap, VOLC } from './features/world/mapgen.js';
 import { buildWorld } from './features/world/worldView.js';
 import { HOME, regionById, generateRegionSliced, mapsToDrop } from './features/world/regions.js';
 import { slicer } from '../engine/core/slicer.js';
+import { perchById, perchAt, perchesOpen, visit, flightPhase, VISIT_R } from './features/world/travel.js';
+import { openPerchMenu, closePerchMenu, perchMenuOpen, pickPerch, installPerchMenu } from './features/hud/perchMenu.js';
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
 import { loadBakedForms } from './art/scenery/kit.js';
 import { createPlayerView, updatePlayer, drawPlayer } from './features/world/player.js';
@@ -113,6 +115,7 @@ function loadRegion(id, at = null) {
     await slice('first frame');
     S.lastRegionLoad = { id, ms: Math.round(performance.now() - t0), slices: slice.stats(), progBuilt, progWarm };
     if (G.mode === 'world') saveGame();
+    if (cover.flight) await flightLanded(); 
     cover.hold = false;
     performance.mark('region:reveal ' + id);
     await coverTo(0);
@@ -122,12 +125,100 @@ function loadRegion(id, at = null) {
   return regionJob;
 }
 const unloadRegion = () => loadRegion(HOME, regionById(HOME).home);
+
+
+
+
+
+const RIDE_PX = 220;
+const rideFrames = () => [0, 1, 2].map((f) => aerowingRidePortrait(f, RIDE_PX, G.gender).canvas);
+function flightLanded() {
+  cover.flight.ready = true;
+  return new Promise((r) => { cover.flight.land = r; });
+}
+async function flyTo(id) {
+  const p = perchById(id);
+  if (!p || regionJob || cover.flight) return null;
+  const t0 = performance.now(), frames = rideFrames(); 
+  G.mode = 'travel'; document.body.classList.add('flying'); 
+  cover.flight = { to: p, t0, ready: false, land: null, frames };
+  cover.label = p.name;
+  S.sfx.play('dash');
+  if (p.region !== G.region) await loadRegion(p.region, p.at);
+  else {
+    await coverTo(1);
+    for (const w of G.wilds.slice()) removeWild(w);
+    G.player.x = p.at.x; G.player.y = p.at.y; G.follower.x = p.at.x; G.follower.y = p.at.y - 0.6;
+    resetCamera(); updateCamera(0, G.player);
+    await flightLanded();
+    await coverTo(0);
+  }
+  cover.flight = null; document.body.classList.remove('flying');
+  G.mode = 'world';
+  visit(G.flags, G.region, G.player.x, G.player.y);
+  saveGame(); refreshHud();
+  toast(`Aerowing sets you down at ${p.name}.`);
+  S.lastFlight = { id, ms: Math.round(performance.now() - t0), load: S.lastRegionLoad };
+  return S.lastFlight;
+}
+const travelOpts = () => ({ dev: !!S.devTravel });
+
+function restAtSpring() {
+  const healed = 'The warm spring restores your companions!';
+  healParty(); refreshHud(); S.sfx.play('heal');
+  const perch = perchAt(G.region, G.player.x, G.player.y, VISIT_R + 2);
+  if (perch) visit(G.flags, G.region, perch.at.x, perch.at.y);
+  saveGame();
+  if (!perch || !perchesOpen(G.flags, travelOpts()).some((q) => q.id === perch.id)) { toast(healed); return; }
+  
+  const menu = (note) => { rideFrames(); return openPerchMenu(perch.id, flyTo, travelOpts(), note); };
+  if (G.flags.aerowingLent) { if (!menu(healed)) toast(healed); return; }
+  toast(healed);
+  G.flags.aerowingLent = true; saveGame();
+  S.dialog.say([
+    { who: 'Aerowing', portrait: 'aerowing', text: 'Kyaaa!' },
+    { who: '', text: 'Aerowing swoops down onto the perch by the spring. The Elder has lent you a ride: from any spring you have rested at, it will fly you to another.' },
+  ], () => menu());
+}
+function drawFlight(ctx, f) {
+  const W = innerWidth, H = innerHeight, t = (performance.now() - f.t0) / 1000;
+  ctx.save(); ctx.globalAlpha = cover.a;
+  
+  const bands = ['#3fb8ff', '#6fd0ff', '#a8e6ff', '#fff1c4'];
+  bands.forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(0, (H * i) / bands.length, W, H / bands.length + 1); });
+  
+  ctx.lineWidth = 3; ctx.strokeStyle = '#111'; ctx.fillStyle = '#fff';
+  for (let i = 0; i < 6; i++) {
+    const sp = 90 + i * 37, y = H * (0.12 + ((i * 0.37) % 0.8)), w = 70 + (i % 3) * 40;
+    const x = ((t * sp + i * 260) % (W + w * 2)) - w;
+    ctx.beginPath(); ctx.ellipse(x, y, w, w * 0.32, 0, 0, 6.3); ctx.fill(); ctx.stroke();
+  }
+  
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 2;
+  for (let i = 0; i < 9; i++) {
+    const y = H * ((i * 0.113 + 0.05) % 1), x = ((t * 900 + i * 173) % (W + 200)) - 100;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 60 + (i % 3) * 30, y); ctx.stroke();
+  }
+  const css = Math.min(340, Math.min(W, H) * 0.8), img = f.frames[[0, 1, 2, 1][Math.floor(t * 8) % 4]];
+  const bob = Math.sin(t * 3) * 10;
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, W / 2 - css / 2, H / 2 - css / 2 + bob, css, css);
+  ctx.textAlign = 'center'; ctx.font = '400 26px "Permanent Marker", cursive';
+  ctx.lineWidth = 5; ctx.strokeStyle = '#111'; ctx.fillStyle = '#ffe14a';
+  const label = 'To ' + f.to.name;
+  ctx.strokeText(label, W / 2, H * 0.14); ctx.fillText(label, W / 2, H * 0.14);
+  ctx.restore();
+  ctx.textAlign = 'left';
+}
 function drawCover(ctx, dt) {
   if (cover.a !== cover.target) {
     cover.a = cover.target > cover.a ? Math.min(cover.target, cover.a + dt / 0.25) : Math.max(cover.target, cover.a - dt / 0.25);
   }
   if (cover.a === cover.target && cover.done) { const d = cover.done; cover.done = null; d(); }
+  const f = cover.flight;
+  if (f && f.land && flightPhase((performance.now() - f.t0) / 1000, f.ready).phase === 'land') { const l = f.land; f.land = null; l(); }
   if (cover.a <= 0) return;
+  if (f) { drawFlight(ctx, f); return; }
   ctx.fillStyle = `rgba(13,10,20,${cover.a})`; ctx.fillRect(0, 0, innerWidth, innerHeight);
   if (cover.hold && cover.label) {
     ctx.fillStyle = '#ffe45a'; ctx.font = '700 22px system-ui, sans-serif'; ctx.textAlign = 'center';
@@ -146,7 +237,8 @@ if (lookName(location.search) === 'cel') {
   for (const v of ['n', 'c', 'b']) for (const id of ['fur', 'metal', 'lamp-glow']) { const m = castMaterial(v, id, '#ffffff'); cast.push(m, seeActorMaterial(m)); }
   celLook().prewarm(S.stage, cast);
 }
-S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => worldView.showSection(id);
+
+S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.showSection(id); if (G.mode === 'world') saveGame(); };
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: SOUNDS });
 ambience.init(() => S.sfx.muted);
 S.input = createInput({
@@ -185,7 +277,8 @@ function sizeOverlay() {
   octx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 addEventListener('resize', sizeOverlay); sizeOverlay();
-window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state, rebuildWorld, loadRegion, unloadRegion };
+window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state, rebuildWorld, loadRegion, unloadRegion, flyTo, rest: restAtSpring, devTravel: (on = true) => { S.devTravel = on; } };
+installPerchMenu();
 
 
 $('touchZone').addEventListener('pointerdown', e => {
@@ -247,7 +340,7 @@ function worldActions() {
   const n = nearestNpc(G.player.x, G.player.y);
   if (n) return talkTo(n);
   const spring = S.W.objects.find(o => o.heal && U.dist(G.player.x, G.player.y, o.x, o.y) < 1.7);
-  if (spring) { healParty(); refreshHud(); S.sfx.play('heal'); toast('The warm spring restores your companions!'); saveGame(); }
+  if (spring) restAtSpring();
 }
 function battleActions() {
   const I = S.input;
@@ -282,7 +375,7 @@ function worldHints() {
   const spring = S.W.objects.find(o => o.heal && U.dist(p.x, p.y, o.x, o.y) < 2.4);
   if (spring) {
     const [x, y] = S.stage.toScreen(spring.x, spring.y, S.W.groundAt(spring.x, spring.y));
-    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.8, action: 'action', label: 'Rest', color: '#8ff0ff', onTap: () => { healParty(); refreshHud(); S.sfx.play('heal'); toast('The warm spring restores your companions!'); saveGame(); } });
+    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.8, action: 'action', label: 'Rest', color: '#8ff0ff', onTap: restAtSpring });
   }
 }
 
@@ -316,6 +409,7 @@ function frame(now) {
         const touched = updateWilds(dt, { active: !!G.flags.starter });
         separateCrowd(dt, G.region === HOME ? lairBodies() : []); 
         if (G.region === HOME) { updateStory(dt); updateBossLairs(); } 
+        visit(G.flags, G.region, G.player.x, G.player.y); 
         worldActions();
         if (touched && G.mode === 'world') startBattle(touched);
       }
@@ -323,7 +417,8 @@ function frame(now) {
       if (S.dialog.active) dialogActions(); else battleActions();
       updateBattle(dt);
     } else if (G.mode === 'menu') {
-      if (mapOpen()) { if (I.pressed('map') || I.pressed('menu') || I.pressed('cancel') || I.pressed('action')) closeMap(); }
+      if (perchMenuOpen()) { for (let k = 0; k < 3; k++) if (I.pressed('special' + (k + 1))) pickPerch(k); if (I.pressed('menu') || I.pressed('cancel')) closePerchMenu(); }
+      else if (mapOpen()) { if (I.pressed('map') || I.pressed('menu') || I.pressed('cancel') || I.pressed('action')) closeMap(); }
       else if (I.pressed('menu') || I.pressed('cancel')) closeMenu();
     }
     else if (G.mode === 'evolve') { if (I.pressed('cancel') && S.evolveCancel) S.evolveCancel(); }

@@ -28,6 +28,7 @@ export function activityOf(mode, { dialog = false, ritual = false } = {}) {
   if (mode === 'battle') return ritual ? 'ritual' : dialog ? 'dialog' : 'battle';
   if (mode === 'menu') return 'menu';
   if (mode === 'world') return dialog ? 'dialog' : 'world';
+  if (mode === 'travel') return 'world'; 
   return null;
 }
 

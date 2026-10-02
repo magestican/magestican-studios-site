@@ -299,6 +299,18 @@ body.battling #hud { display: none; }
 body.input-keys .ritualHelp .k, body.input-pad .ritualHelp .p, body.input-touch .ritualHelp .t { display: inline; }
 
 
+
+#perchMenu { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: radial-gradient(rgba(43,26,74,.45), rgba(11,6,32,.75)); }
+.perchCard { width: min(420px, 90vw); max-height: 86vh; overflow: auto; padding: 14px 16px 16px; border-radius: 10px; border: 4px solid var(--ink); background: var(--cream);
+  box-shadow: 0 0 0 6px #fff, 9px 11px 0 6px rgba(0,0,0,.5); display: flex; flex-direction: column; gap: 10px; }
+.perchCard h2 { margin: 0; font: 400 30px var(--tag); color: var(--pink); -webkit-text-stroke: 1px var(--ink); text-shadow: 3px 3px 0 var(--ink); }
+.perchCard p { margin: 0; font: 500 14px var(--body); color: #5a4a6a; }
+#perchList { display: flex; flex-direction: column; gap: 10px; }
+.perchBtn { display: flex; flex-direction: column; align-items: flex-start; padding: 8px 12px; min-height: 48px; border-radius: 6px; border: 3px solid var(--ink); background: #fff; box-shadow: var(--sticker-sm); text-align: left; }
+.perchBtn b { font: 400 19px var(--marker); } .perchBtn small { font: 500 12px var(--body); color: #5a4a8a; }
+.perchBtn:not(.here):nth-child(odd) { background: var(--yellow); }
+.perchBtn.here { opacity: .6; border-style: dashed; box-shadow: none; }
+#perchStay { align-self: center; padding: 6px 18px; min-height: 44px; border-radius: 6px; border: 3px solid var(--ink); background: var(--pink); color: #fff; font: 400 16px var(--marker); box-shadow: var(--sticker-sm); }
 #menu { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: radial-gradient(rgba(43,26,74,.55), rgba(11,6,32,.8)); }
 .menuCard { width: min(920px, 96vw); height: min(640px, 92vh); display: flex; flex-direction: column; border-radius: 10px; border: 4px solid var(--ink); background: var(--cream);
   box-shadow: 0 0 0 6px #fff, 9px 11px 0 6px rgba(0,0,0,.5); overflow: hidden; }
@@ -443,7 +455,8 @@ body.input-keys #battleBtns button, body.input-pad #battleBtns button { padding-
 body:has(#dialog:not(.hidden)) #companions, body:has(#dialog:not(.hidden)) #actionBtn { visibility: hidden; }
 
 body:has(#menu:not(.hidden)) #hud, body:has(#menu:not(.hidden)) #actionBtn, body:has(#title:not(.hidden)) #actionBtn,
-body:has(#bigMap:not(.hidden)) #hud, body:has(#bigMap:not(.hidden)) #actionBtn { visibility: hidden; }
+body:has(#bigMap:not(.hidden)) #hud, body:has(#bigMap:not(.hidden)) #actionBtn,
+body:has(#perchMenu:not(.hidden)) #hud, body:has(#perchMenu:not(.hidden)) #actionBtn, body.flying #hud, body.flying #actionBtn { visibility: hidden; }
 
 body:has(#ritual:not(.hidden)) #cmdBar, body:has(#ritual:not(.hidden)) #befriendBtn,
 body:has(#ritual:not(.hidden)) #tonicBtn, body:has(#ritual:not(.hidden)) #swapBtn { display: none; }

@@ -1,12 +1,11 @@
 
 
-import { U } from '../../../engine/core/util.js';
 import { G, S, saveGame, healParty, addDachi } from '../../state.js';
 import { speciesById, statsOf } from '../../data/species.js';
 import { giveXp, xpReward, bondAfter, BOND_NEW_FRIEND, battleReport } from './rules.js';
 import { removeWild } from '../world/wilds.js';
 import { checkEvolutions } from '../party/evolution.js';
-import { VOLC, SHRINE, RESPAWN } from '../world/mapgen.js';
+import { respawnPoint } from '../world/travel.js';
 import { lairOf, fallLine } from '../world/lairs.js';
 
 export function onBattleFinished(b) {
@@ -48,7 +47,7 @@ export function onBattleFinished(b) {
   } else if (res === 'lose') {
     msgs.push('Your companions are exhausted... You carry them back to the nearest hot spring.');
     const p = G.player;
-    const home = G.flags.initiated && U.dist(p.x, p.y, SHRINE.x, SHRINE.y) < U.dist(p.x, p.y, VOLC.x, VOLC.y) ? RESPAWN.shrine : RESPAWN.kazan;
+    const home = respawnPoint(G.region, G.flags, p.x, p.y); 
     p.x = home.x; p.y = home.y; G.follower.x = p.x; G.follower.y = p.y - 0.6;
     healParty();
   } else if (res === 'run') wild.stun = 3;

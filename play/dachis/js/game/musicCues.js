@@ -26,6 +26,7 @@ export function cueFor({ mode, battle = null, sec = null, mood = null } = {}) {
   if (mode === 'cutscene' && INTRO_MOODS.includes(mood)) return 'intro-' + mood;
   if (mode === 'title' || mode === 'cutscene') return 'menu';
   if (mode === 'world') return TOWNS.includes(sec) ? 'town' : 'field';
+  if (mode === 'travel') return 'field'; 
   return null;
 }
 export const isLoop = (cue) => LOOPS.includes(cue);

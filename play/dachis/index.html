@@ -14,7 +14,7 @@
 
 
 
-  <meta name="build" content="53343d5-20261002T083235Z">
+  <meta name="build" content="0bfcedf-20261002T092330Z">
   <script>
     (function () {
       var FILES = ['js/engine/audio/sfx.js', 'js/engine/core/save.js', 'js/engine/core/util.js', 'js/engine/core/slicer.js', 'js/engine/core/growBuf.js', 'js/engine/input/input.js',
@@ -25,9 +25,9 @@
         'js/game/art/scenery/fences.js', 'js/game/art/scenery/flowerBeds.js', 'js/game/art/scenery/formPack.js', 'js/game/art/scenery/growth.js', 'js/game/art/scenery/huts.js', 'js/game/art/scenery/kit.js', 'js/game/art/scenery/lavaCrater.js',
         'js/game/art/scenery/rocks.js', 'js/game/art/scenery/spring.js', 'js/game/art/scenery/steps.js', 'js/game/art/scenery/temple.js', 'js/game/art/scenery/torches.js', 'js/game/art/scenery/village.js',
         'js/game/data/species.js',
-        'js/game/features/battle/arena.js', 'js/game/features/battle/overlayLayout.js', 'js/game/features/battle/battle.js', 'js/game/features/battle/battleEnd.js', 'js/game/features/battle/battleHud.js', 'js/game/features/battle/battleView.js', 'js/game/features/battle/comic.js', 'js/game/features/clock/clock.js', 'js/game/features/world/regions.js', 'js/game/features/world/regionMaps/testbed.js', 'js/game/features/battle/battleFx3d.js', 'js/game/features/battle/rules.js', 'js/game/features/battle/ringRules.js', 'js/game/features/battle/orderRing.js', 'js/game/features/battle/techniques.js',
+        'js/game/features/battle/arena.js', 'js/game/features/battle/overlayLayout.js', 'js/game/features/battle/battle.js', 'js/game/features/battle/battleEnd.js', 'js/game/features/battle/battleHud.js', 'js/game/features/battle/battleView.js', 'js/game/features/battle/comic.js', 'js/game/features/clock/clock.js', 'js/game/features/world/regions.js', 'js/game/features/world/regionMaps/testbed.js', 'js/game/features/world/travel.js', 'js/game/features/battle/battleFx3d.js', 'js/game/features/battle/rules.js', 'js/game/features/battle/ringRules.js', 'js/game/features/battle/orderRing.js', 'js/game/features/battle/techniques.js',
         'js/game/features/capture/ritual.js', 'js/game/features/capture/ritualView.js',
-        'js/game/features/hud/hud.js', 'js/game/features/hud/transit.js','js/game/features/menu/menu.js', 'js/game/features/party/evolution.js', 'js/game/features/pickups/pickups.js', 'js/game/features/pvp/pvpRules.js',
+        'js/game/features/hud/hud.js', 'js/game/features/hud/transit.js', 'js/game/features/hud/perchMenu.js','js/game/features/menu/menu.js', 'js/game/features/party/evolution.js', 'js/game/features/pickups/pickups.js', 'js/game/features/pvp/pvpRules.js',
         'js/game/features/story/beats.js', 'js/game/features/story/cutscene.js', 'js/game/features/story/scenes.js',
         'js/game/features/world/crowd.js', 'js/game/features/world/bossLair.js', 'js/game/features/world/lairs.js', 'js/game/features/world/mapgen.js', 'js/game/features/world/npcs.js', 'js/game/features/world/player.js', 'js/game/features/world/sectionCamera.js', 'js/game/features/world/sections.js', 'js/game/features/world/wildLevel.js', 'js/game/features/world/wilds.js','js/game/features/world/worldView.js',
         'js/game/main.js', 'js/game/music.js', 'js/game/musicCues.js', 'js/game/ambience.js', 'js/game/features/onboarding/rules.js', 'js/game/features/onboarding/onboarding.js', 'js/game/features/onboarding/attract.js','js/game/sounds.js', 'js/game/state.js',
@@ -139,6 +139,14 @@
   </div>
 
   
+  <div id="perchMenu" class="hidden">
+    <div class="perchCard">
+      <h2>Call Aerowing</h2>
+      <p id="perchNote">Fly to a perch you have visited.</p>
+      <div id="perchList"></div>
+      <button id="perchStay" class="tappable" data-key="Esc">Stay here</button>
+    </div>
+  </div>
   <div id="bigMap" class="hidden"><canvas id="bigCanvas" width="1280" height="1280"></canvas><p>Tap anywhere to close</p></div>
 
   <div id="evolve" class="hidden">
@@ -175,6 +183,6 @@
   </div>
   <div id="toasts"></div>
 
-  <script type="module" src="js/game/main.js?v=53343d5-20261002T083235Z"></script>
+  <script type="module" src="js/game/main.js?v=0bfcedf-20261002T092330Z"></script>
 </body>
 </html>
