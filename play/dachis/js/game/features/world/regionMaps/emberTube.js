@@ -44,6 +44,8 @@ export function* emberTubeSteps() {
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) W.type[W.idx(i, j)] = tileFor(i + 0.5, j + 0.5);
   yield 'tiles';
   carvePath(W, W.type, PATH);
+  
+  for (let k = 0; k < W.type.length; k++) if (W.type[k] === T.PATH) W.type[k] = T.ROCK;
   mapQueries(W);
   W.reach = floodReach(W, W.type, ENTRY);
   yield 'reach';
