@@ -22,6 +22,8 @@ export const skinD = (u, v) => (Math.hypot((u - BUBBLE.u) / BUBBLE.ru, (v - BUBB
 export const PLAZA = { ...at(0.6, 39.6), r: 3.0 };
 export const GATE = at(-12.4, 42.6);       
 export const ENTRY = GATE;
+export const EAST_GATE = at(13.0, 40.2);   
+export const EAST_BACK = at(10.8, 40.6);   
 export const SPRING = at(2.2, 38.4);       
 export const LANDING = at(0.8, 40.6);      
 export const POSTS = { elder: at(-1.4, 37.6) };
@@ -122,6 +124,8 @@ export function* shellhavenSteps() {
   for (const h of huts) addObj(W, { kind: 'hut', x: h.x, y: h.y, solid: 0.83 * h.s, roof: ROOFS[h.i], rot: h.rot, s: h.s });
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   for (const [u, v] of LANTERNS) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
+  
+  for (const side of [-1, 1]) { const p = at(13.0, 40.2 + side * 1.3); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   
   for (const side of [-1, 1]) { const p = at(-12.2, 42.6 + side * 1.4); addObj(W, { kind: 'rimstone', x: p.x, y: p.y, solid: 0.4, s: 1.5, rot: side * 1.3, v: side > 0 ? 1 : 2, flavor: 'coral' }); }
   

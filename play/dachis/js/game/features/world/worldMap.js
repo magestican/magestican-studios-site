@@ -24,6 +24,7 @@ export const WORLD_PLACES = [
   { region: 'tomo-coast', name: 'Tomo Coast', at: [0.9, 0.62], r: 0.08, glyph: 'meadow' },
   
   { region: 'shellhaven', name: 'Shellhaven', at: [0.86, 0.86], r: 0.07, glyph: 'meadow' },
+  { region: 'kelp-maze', name: 'The Kelp Maze', at: [0.95, 0.78], r: 0.045, glyph: 'meadow' },
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 

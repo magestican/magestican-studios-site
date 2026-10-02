@@ -14,6 +14,7 @@ import * as village from './regionMaps/kazanVillage.js';
 import * as shrine from './regionMaps/shrineVillage.js';
 import * as coast from './regionMaps/tomoCoast.js';
 import * as shell from './regionMaps/shellhaven.js';
+import * as kelp from './regionMaps/kelpMaze.js';
 
 export const HOME = 'kazan-isle';
 export const REGIONS = [
@@ -68,6 +69,13 @@ export const REGIONS = [
     pack: null,
     transit: false, objective: null,
   },
+  
+  {
+    id: kelp.ID, name: 'The Kelp Maze', chapters: [2], size: kelp.SIZE, interior: false, reachable: true,
+    sections: kelp.SECTIONS.map((s) => s.id), entry: kelp.ENTRY, spring: kelp.POOL_LANDING, home: kelp.ENTRY,
+    pack: null,
+    transit: false, objective: 'Find the pearl pool at the far end of the Kelp Maze',
+  },
 ];
 export const regionById = (id) => REGIONS.find((r) => r.id === id) || null;
 
@@ -78,12 +86,12 @@ export function regionOf(sectionId) {
 
 export const saveRegion = (s) => (s && regionById(s.region) ? s.region : HOME);
 
-const GENERATORS = { [HOME]: generateMap, [testbed.ID]: testbed.generateTestbed, [ember.ID]: ember.generateEmberTube, [village.ID]: village.generateKazanVillage, [shrine.ID]: shrine.generateShrineVillage, [coast.ID]: coast.generateTomoCoast, [shell.ID]: shell.generateShellhaven };
+const GENERATORS = { [HOME]: generateMap, [testbed.ID]: testbed.generateTestbed, [ember.ID]: ember.generateEmberTube, [village.ID]: village.generateKazanVillage, [shrine.ID]: shrine.generateShrineVillage, [coast.ID]: coast.generateTomoCoast, [shell.ID]: shell.generateShellhaven, [kelp.ID]: kelp.generateKelpMaze };
 export function generateRegion(id) { const g = GENERATORS[id]; if (!g) throw new Error('no map for region ' + id); return g(); }
 
 
 
-const STEPS = { [testbed.ID]: testbed.testbedSteps, [ember.ID]: ember.emberTubeSteps, [village.ID]: village.kazanVillageSteps, [shrine.ID]: shrine.shrineVillageSteps, [coast.ID]: coast.tomoCoastSteps, [shell.ID]: shell.shellhavenSteps };
+const STEPS = { [testbed.ID]: testbed.testbedSteps, [ember.ID]: ember.emberTubeSteps, [village.ID]: village.kazanVillageSteps, [shrine.ID]: shrine.shrineVillageSteps, [coast.ID]: coast.tomoCoastSteps, [shell.ID]: shell.shellhavenSteps, [kelp.ID]: kelp.kelpMazeSteps };
 export async function generateRegionSliced(id, slice) {
   if (!STEPS[id]) return generateRegion(id);
   const it = STEPS[id]();

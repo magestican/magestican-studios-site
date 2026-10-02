@@ -61,7 +61,8 @@ export const AMBIENCE = {
   shrine: { chimes: 0.7, wind: 0.4, birds: 0.3 },
   'shrine-village': { chimes: 0.7, wind: 0.4, birds: 0.3 },
   coral: { surf: 0.6, wind: 0.2, bugs: 0.2 },
-  shellhaven: { surf: 0.5, chimes: 0.35, wind: 0.1 }, 
+  shellhaven: { surf: 0.5, chimes: 0.35, wind: 0.1 },
+  'kelp-maze': { surf: 0.7, bugs: 0.15 }, 
   verdant: { bugs: 0.7, birds: 0.8, wind: 0.3 },
 };
 export const AMBIENCE_LAYERS = ['wind', 'surf', 'bugs', 'birds', 'rumble', 'chimes'];
