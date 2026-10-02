@@ -5,7 +5,7 @@ import { U } from '../../../engine/core/util.js';
 import { G } from '../../state.js';
 import { KUMABO } from '../../data/species.js';
 import { ART } from '../../art/characters.js';
-import { dachiPortrait, aerowingPortrait, aerowingRidePortrait, castFigure, RIDE_SHOT } from '../../art/portraitRender.js';
+import { dachiPortrait, aerowingPortrait, aerowingRidePortrait, castFigure, RIDE_SHOT, kidFallFigure, FALL_FRAMES } from '../../art/portraitRender.js';
 import { lookName } from '../../art/look/celRules.js';
 import * as SKY from '../../art/look/celSky.js';
 
@@ -42,6 +42,17 @@ function figure(ctx, kind, x, y, cssH, o = {}) {
   ctx.restore();
 }
 const kid3d = (ctx, x, y, scale, o) => figure(ctx, 'kid', x, y, KID_H * scale, o);
+
+
+function kidFalling(ctx, w, h, t, cssH) {
+  const f = Math.floor(t * 7) % FALL_FRAMES, e = kidFallFigure(G.gender, FIG_PX, f);
+  if (!e.ready) { ctx.save(); ctx.translate(w / 2, h * 0.5); ctx.rotate(Math.sin(t * 3) * 0.6); kid3d(ctx, 0, 30, cssH / KID_H); ctx.restore(); return; }
+  ctx.save(); ctx.translate(w / 2 + Math.sin(t * 1.7) * 14, h * 0.5 + Math.sin(t * 2.3) * 8);
+  ctx.rotate(t * 1.4 + Math.sin(t * 2.1) * 0.5); 
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(e.canvas, -cssH / 2, -cssH / 2, cssH, cssH);
+  ctx.restore();
+}
 
 
 export const CS = { t: 0, flash: 0 };
@@ -216,6 +227,7 @@ export const SCENES = [
   },
   { 
     mood: 'fall', 
+    prewarm() { for (let f = 0; f < FALL_FRAMES; f++) kidFallFigure(G.gender, FIG_PX, f); },
     lines: () => [
       Object.assign(KID(), { text: 'AAAAAAAAAAHHHHHH!!!', fx: () => { CS.flashed = false; } }),
       Object.assign({}, NARR, { text: 'Sky. Wind. Endless ocean. You are falling toward a tiny island at incredible speed!' }),
@@ -225,8 +237,7 @@ export const SCENES = [
     draw(ctx, w, h, t) {
       drawIslandFromAbove(ctx, w, h, t, 0.4 + t * 0.12);
       drawClouds(ctx, w, h, t, 700); drawSpeedLines(ctx, w, h, t);
-      ctx.save(); ctx.translate(w / 2, h * 0.5); ctx.rotate(Math.sin(t * 3) * 0.6);
-      kid3d(ctx, 0, 30, 2.6); ctx.restore();
+      kidFalling(ctx, w, h, t, KID_H * 2.6 * 1.25);
     },
   },
   { 
@@ -246,7 +257,7 @@ export const SCENES = [
       if (li >= 1 || k >= 1) { 
         ctx.drawImage(ride(t), bx - RIDE_CSS / 2, by - RIDE_CSS / 2, RIDE_CSS, RIDE_CSS);
       } else { 
-        ctx.restore(); ctx.save(); ctx.translate(w / 2, h * 0.5); ctx.rotate(Math.sin(t * 3) * 0.6); kid3d(ctx, 0, 30, 2.2); ctx.restore(); ctx.save(); ctx.imageSmoothingEnabled = false;
+        ctx.restore(); kidFalling(ctx, w, h, t, KID_H * 2.2 * 1.25); ctx.save(); ctx.imageSmoothingEnabled = false;
         ctx.drawImage(aero(t), bx - SWOOP.css / 2, by - SWOOP.css / 2, SWOOP.css, SWOOP.css);
       }
       ctx.restore();

@@ -20,9 +20,15 @@
 
 
 
-export const KID_HEADS = 6.0; 
+
+
+
+
+export const KID_HEADS = 5.2; 
+export const KID_BODY_W = 0.85;
+export const KID_SPLAY = 0.17; 
 export const KID_HEIGHT = 7.6; 
-export const KID_WORLD_H = 1.6; 
+export const KID_WORLD_H = 1.4; 
 export const ELDER_HEADS = 5.8; 
 export const ELDER_HEIGHT = 8.2;
 export const ELDER_WORLD_H = 1.8;
@@ -46,17 +52,17 @@ const W = {
 };
 
 
-export function humanRig({ height = KID_HEIGHT, heads = KID_HEADS } = {}) {
-  const hh = height / heads, at = (f) => f * height, k = (w) => w * hh;
+export function humanRig({ height = KID_HEIGHT, heads = KID_HEADS, bodyW = 1, splay = W.splay } = {}) {
+  const hh = height / heads, at = (f) => f * height, k = (w) => w * hh * bodyW; 
   const crown = height, eye = crown - 0.5 * hh, chin = crown - hh;
   const shoulder = chin - F.shoulderGap * hh; 
-  const tanA = Math.tan(W.splay), sx = k(W.shoulderX);
+  const tanA = Math.tan(splay), sx = k(W.shoulderX);
   const elbowY = at(F.elbow), wristY = at(F.wrist);
   const elbow = [sx + (shoulder - elbowY) * tanA, elbowY, -k(0.02)];
   const wrist = [elbow[0] + (elbowY - wristY) * tanA * 1.1, wristY, k(W.foreArmFwd)];
   const dir = [wrist[0] - sx, wrist[1] - shoulder], len = Math.hypot(dir[0], dir[1]);
   return {
-    H: height, heads, hh, crown, eye, chin, shoulder,
+    H: height, heads, hh, bodyW, crown, eye, chin, shoulder,
     chest: at(F.chest), waist: at(F.waist), hip: at(F.hip), crotch: at(F.crotch), knee: at(F.knee), ankle: at(F.ankle),
     shoulderX: sx, chestHalf: k(W.chestHalf), chestDepth: k(W.chestDepth), waistHalf: k(W.waistHalf), waistDepth: k(W.waistDepth),
     hipHalf: k(W.hipHalf), hipDepth: k(W.hipDepth), neckR: k(W.neckR),
@@ -71,7 +77,7 @@ export function humanRig({ height = KID_HEIGHT, heads = KID_HEADS } = {}) {
     armLow: at(F.fingertip) - k(0.1), 
     legBlend: k(0.2), 
     kneeBlend: k(0.1), 
-    headR: k(0.37), 
+    headR: 0.37 * hh, 
   };
 }
 
@@ -127,6 +133,32 @@ const turnX = (v, a, py, pz) => { const c = Math.cos(a), s = Math.sin(a), y = v[
 const turnY = (v, a, px, pz) => { const c = Math.cos(a), s = Math.sin(a), x = v[0] - px, z = v[2] - pz; return [c * x + s * z + px, v[1], -s * x + c * z + pz]; };
 const ss = (a, b, v) => { const u = Math.max(0, Math.min(1, (v - a) / (b - a))); return u * u * (3 - 2 * u); };
 
+
+
+
+
+
+
+export const FALL = [
+  { arm: [2.2, 2.7], elbow: [0.6, 0.2], leg: [0.45, 0.2], knee: [0.5, 1.1] },
+  { arm: [2.6, 2.3], elbow: [0.3, 0.7], leg: [0.3, 0.5], knee: [1.0, 0.6] },
+  { arm: [2.4, 2.0], elbow: [0.8, 0.4], leg: [0.55, 0.35], knee: [0.7, 0.9] },
+];
+const turnZ = (v, a, px, py) => { const c = Math.cos(a), s = Math.sin(a), x = v[0] - px, y = v[1] - py; return [c * x - s * y + px, s * x + c * y + py, v[2]]; };
+
+export function fallVertex(rig, v, pos, tag = 0, frame = 0, point = true) {
+  const f = FALL[frame % FALL.length], [x, y] = pos, side = x < 0 ? -1 : 1, i = side < 0 ? 0 : 1, k = point ? 1 : 0;
+  const isArm = tag === 1 ? 1 : 0, isBody = tag === 2 ? 1 : 0;
+  const armW = isArm + (1 - isArm - isBody) * armWeight(rig, x, y);
+  const A = rig.armLine, along = (Math.abs(x) - A.sx) * A.dx + (y - A.sy) * A.dy;
+  const foreW = armW * ss(rig.upperArm - 0.12 * rig.hh, rig.upperArm + 0.06 * rig.hh, along);
+  const legW = (1 - ss(rig.hip - rig.legBlend, rig.hip, y)) * (1 - armW) * (1 - isBody);
+  const shinW = legW * (1 - ss(rig.knee - rig.kneeBlend, rig.knee + rig.kneeBlend, y));
+  let p = turnZ(v, side * f.elbow[i] * foreW, side * rig.elbow[0] * k, rig.elbow[1] * k);
+  p = turnZ(p, side * f.arm[i] * armW, side * rig.shoulderX * k, rig.shoulder * k);
+  p = turnX(p, f.knee[i] * shinW, rig.knee * k, 0.05 * rig.hh * k);
+  return turnZ(p, side * f.leg[i] * legW, side * rig.legX * k, rig.hip * k);
+}
 
 export function seatVertex(rig, v, pos, tag = 0, pose = SEAT, point = true) {
   const [x, y] = pos, side = x < 0 ? -1 : 1, k = point ? 1 : 0;

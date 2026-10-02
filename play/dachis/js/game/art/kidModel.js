@@ -27,12 +27,12 @@
 
 import * as S from '../../vendor/fml/moon/mesh/sdf.js';
 import { lin, fur, buildArrays, dark, light, mix, ell } from './dachiModel.js';
-import { humanRig, KID_HEIGHT, KID_HEADS, KID_OUTFITS } from './humanRig.js';
+import { humanRig, KID_HEIGHT, KID_HEADS, KID_BODY_W, KID_SPLAY, KID_OUTFITS } from './humanRig.js';
 import { hex, surf, normalOf, part, finePart, tube, spline, humanHead, humanEyes, humanHand, highTop, neckPhones, tapePlayer, outfitColours, overlay, onSurface } from './humanModel.js';
 
 export const CAST_UNIT = 0.2;
 export const RIG_ARM = 1, RIG_BODY = 2;
-const RIG = humanRig({ height: KID_HEIGHT, heads: KID_HEADS });
+const RIG = humanRig({ height: KID_HEIGHT, heads: KID_HEADS, bodyW: KID_BODY_W, splay: KID_SPLAY });
 
 export const KID_RIG = {
   eye: RIG.eye, hh: RIG.hh, hip: RIG.hip, shoulder: RIG.shoulder, knee: RIG.knee, elbow: RIG.elbow, upperArm: RIG.upperArm,

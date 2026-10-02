@@ -20,7 +20,7 @@ import { createPixelPass } from '../../engine/iso/pixelPass.js';
 import { requestModel, requestJob, material, geometries, modelKeyOf } from './dachiActor.js';
 import { modelKey, hatGeo } from './dachiModel.js';
 import { kidKey, KID_RIG } from './kidModel.js';
-import { humanRig, seatVertex, SEAT } from './humanRig.js';
+import { humanRig, seatVertex, fallVertex, FALL, SEAT, KID_BODY_W, KID_SPLAY } from './humanRig.js';
 import { ELDER_KEY, ELDER_RIG } from './elderModel.js';
 import { aerowingKey } from './aerowingModel.js';
 import { speciesById } from '../data/species.js';
@@ -236,7 +236,7 @@ export const RIDE = { scale: 0.33, hip: [0, 0.82, -0.66], pitch: -0.3, seat: tru
 export const RIDE_SHOT = { view: [0.85, 0.3, 0.3], frame: { c: [0, -0.2, 0], h: 5.3 } };
 
 
-const SEATED = new Map(), SEAT_RIG = humanRig({});
+const SEATED = new Map(), SEAT_RIG = humanRig({ bodyW: KID_BODY_W, splay: KID_SPLAY });
 function seated(key, parts) {
   if (SEATED.has(key)) return SEATED.get(key);
   const out = parts.map(({ geo, id }) => {
@@ -253,6 +253,37 @@ function seated(key, parts) {
   SEATED.set(key, out);
   return out;
 }
+
+
+export const FALL_FRAMES = FALL.length;
+const FALLEN = new Map();
+export function kidFallFigure(gender, px = 110, frame = 0) {
+  const k = kidKey({ gender }), e = entry(`fall${k}|${px}|${frame}`, px);
+  if (e.started) return e;
+  e.started = true;
+  requestJob({ key: k, kind: 'kid', opts: { gender } }, (arr) => {
+    const fk = k + '|' + frame;
+    let parts = FALLEN.get(fk);
+    if (!parts) {
+      parts = geometries(k, arr).map(({ geo, id }) => {
+        const g = geo.clone(), P = g.attributes.position, N = g.attributes.normal, T = g.attributes.rigTag;
+        const pos = P.array.slice(), nor = N.array.slice();
+        for (let i = 0; i < P.count; i++) {
+          const rest = [pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]], tag = T ? Math.round(T.array[i]) : 0;
+          P.array.set(fallVertex(SEAT_RIG, rest, rest, tag, frame), i * 3);
+          N.array.set(fallVertex(SEAT_RIG, [nor[i * 3], nor[i * 3 + 1], nor[i * 3 + 2]], rest, tag, frame, false), i * 3);
+        }
+        P.needsUpdate = N.needsUpdate = true; g.computeBoundingSphere();
+        return { geo: g, id };
+      });
+      FALLEN.set(fk, parts);
+    }
+    renderParts(parts, 'n', e.canvas, 'fit', 1, { view: VIEW, grade: false });
+    e.done();
+  });
+  return e;
+}
+
 
 export function aerowingRidePortrait(frame = 1, px = 200, gender = 'boy', view = null) {
   const ak = aerowingKey(frame), kk = kidKey({ gender }), e = entry(`r${ak}${kk}|${px}|${RIDE.seat}|${view ? view.join() : JSON.stringify(RIDE_SHOT)}`, px);

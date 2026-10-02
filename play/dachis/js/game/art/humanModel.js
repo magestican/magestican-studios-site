@@ -202,7 +202,7 @@ export function neckPhones(rig, c, o = {}) {
     S.field((x, y, z) => z - z0 - 0.04 * H));
   const parts = [fur(band, hex(c.band))];
   let jack = null;
-  const cx = (o.x ?? nr + 0.1) * H;
+  const cx = (o.x ?? nr + 0.1 * (rig.bodyW ?? 1)) * H; 
   for (const s of [-1, 1]) {
     
     
