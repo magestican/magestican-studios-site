@@ -18,6 +18,8 @@ export function slicer(budget = 8) {
     if (span > longest) { longest = span; where = label; }
     if (span < budget) return;
     yields++;
+    
+    if (typeof performance.mark === 'function') performance.mark('slice:' + label);
     await pause();
     t0 = performance.now();
   };

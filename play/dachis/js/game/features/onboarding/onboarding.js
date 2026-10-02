@@ -10,7 +10,7 @@
 
 
 import { G, S } from '../../state.js';
-import { rollName, INTRO_KEY, introProgress, resumable } from './rules.js';
+import { rollName, INTRO_KEY, introProgress, resumable, showTapCue } from './rules.js';
 
 const $ = (id) => document.getElementById(id);
 const store = {
@@ -20,15 +20,19 @@ const store = {
 };
 
 
-const TAP_KEY = 'dachis.tapLearned', LEARN_AFTER = 3;
-let taps = Number(store.get(TAP_KEY)) || 0;
+
+
+let advanced = false, waitLine = null, waitFrom = 0;
 export const tapHint = {
-  learned() { if (taps < LEARN_AFTER) { taps++; store.set(TAP_KEY, taps); } },
+  learned() { advanced = true; },
   
   update() {
     const el = $('tapHint');
     if (!el) return;
-    const show = taps < LEARN_AFTER && S.dialog.active && !S.dialog.choosing && S.dialog.cur && S.dialog.shown >= S.dialog.cur.text.length;
+    const d = S.dialog, waiting = d.active && !d.choosing && d.cur && d.shown >= d.cur.text.length;
+    if (!waiting) waitLine = null;
+    else if (waitLine !== d.cur) { waitLine = d.cur; waitFrom = performance.now(); }
+    const show = !!waiting && showTapCue(advanced, performance.now() - waitFrom);
     el.classList.toggle('hidden', !show);
     if (show) {
       const b = document.body.classList, txt = b.contains('input-pad') ? 'PRESS A' : b.contains('input-keys') ? 'PRESS SPACE' : 'TAP ANYWHERE';

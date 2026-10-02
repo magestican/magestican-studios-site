@@ -20,7 +20,7 @@ import { material as castMaterial } from './art/dachiActor.js';
 import { seeActorMaterial } from '../engine/iso/seeThrough.js';
 import { generateMap, VOLC } from './features/world/mapgen.js';
 import { buildWorld } from './features/world/worldView.js';
-import { HOME, regionById, generateRegion } from './features/world/regions.js';
+import { HOME, regionById, generateRegionSliced, mapsToDrop } from './features/world/regions.js';
 import { slicer } from '../engine/core/slicer.js';
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
 import { loadBakedForms } from './art/scenery/kit.js';
@@ -35,6 +35,7 @@ import { onBattleFinished } from './features/battle/battleEnd.js';
 import { placeFighters, drawBattleOverlay, battleFocus } from './features/battle/battleView.js';
 import { inArena } from './features/battle/arena.js';
 import { updateBattleHud } from './features/battle/battleHud.js';
+import { installOrderRing, updateOrderRing } from './features/battle/orderRing.js';
 import { updateRitual } from './features/capture/ritualView.js';
 import { Cutscene } from './features/story/cutscene.js';
 import { SCENES } from './features/story/scenes.js';
@@ -56,10 +57,8 @@ if (PX === 0) S.stage.pixel.enabled = false;
 setPortraitStage(S.stage); 
 S.W = generateMap();
 
-{
-  const build = document.querySelector('meta[name=build]')?.content;
-  await loadBakedForms('assets/scenery-forms.bin' + (build && build !== 'dev' ? '?v=' + encodeURIComponent(build) : ''));
-}
+const packUrl = (file) => { const build = document.querySelector('meta[name=build]')?.content; return file + (build && build !== 'dev' ? '?v=' + encodeURIComponent(build) : ''); };
+await loadBakedForms(packUrl(regionById(HOME).pack));
 let worldView = await buildWorld(S.stage, S.W); 
 
 
@@ -67,6 +66,7 @@ let worldView = await buildWorld(S.stage, S.W);
 
 
 const maps = new Map([[HOME, S.W]]);
+const packsIn = new Set([regionById(HOME).pack]); 
 const cover = { a: 0, target: 0, hold: false, done: null, label: '' };
 const coverTo = (v) => new Promise((r) => { cover.target = v; cover.done = r; });
 let regionJob = null;
@@ -78,12 +78,15 @@ function loadRegion(id, at = null) {
     cover.label = r.name;
     await coverTo(1);
     cover.hold = true;
+    performance.mark('region:build ' + id);
     const slice = slicer(8), t0 = performance.now();
     for (const w of G.wilds.slice()) removeWild(w);
     clearNpcs();
     worldView.dispose();
     await slice('dispose');
-    if (!maps.has(id)) maps.set(id, generateRegion(id));
+    if (r.pack && !packsIn.has(r.pack)) { packsIn.add(r.pack); await loadBakedForms(packUrl(r.pack)); slice.mark(); }
+    for (const k of mapsToDrop([...maps.keys()], id)) maps.delete(k);
+    if (!maps.has(id)) maps.set(id, await generateRegionSliced(id, slice));
     S.W = maps.get(id); G.region = id;
     await slice('map');
     worldView = await buildWorld(S.stage, S.W, slice);
@@ -111,7 +114,9 @@ function loadRegion(id, at = null) {
     S.lastRegionLoad = { id, ms: Math.round(performance.now() - t0), slices: slice.stats(), progBuilt, progWarm };
     if (G.mode === 'world') saveGame();
     cover.hold = false;
+    performance.mark('region:reveal ' + id);
     await coverTo(0);
+    performance.mark('region:shown ' + id);
     return S.lastRegionLoad;
   })().finally(() => { regionJob = null; });
   return regionJob;
@@ -189,6 +194,7 @@ $('touchZone').addEventListener('pointerdown', e => {
   if (h) { h.onTap(); e.preventDefault(); }
 });
 installTapAnywhere();
+installOrderRing($('touchZone')); 
 $('skipBtn').onclick = () => Cutscene.skip();
 $('skullBtn').onclick = () => (G.mode === 'menu' ? closeMenu() : openMenu());
 $('minimap').onclick = () => openMap();          
@@ -339,7 +345,7 @@ function frame(now) {
     if (G.mode === 'battle') updateRitual(dt); else updateRitual(0);
     S.hints.draw(octx, t);
     drawFade(octx, innerWidth, innerHeight);
-    if (G.mode !== 'title') { updateHud(dt); updateBattleHud(); }
+    if (G.mode !== 'title') { updateHud(dt); updateBattleHud(); updateOrderRing(); }
     $('actionBtn').classList.toggle('hidden', !(G.mode === 'world' && I.mode === 'touch'));
   }
   drawCover(octx, dt);

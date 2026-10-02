@@ -4,6 +4,7 @@
 
 
 import { Batch, buildStats, setPointScale } from './kit.js';
+import { clearPool } from '../../../engine/core/growBuf.js';
 import { placeHuts } from './huts.js';
 import { placeRimStones, placeLedges, placePillars } from './rocks.js';
 import { placeSteps } from './steps.js';
@@ -16,7 +17,8 @@ import { placeGrowth } from './growth.js';
 import { placeTemple } from './temple.js';
 
 const GROWTH_RUN = 120;
-const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple];
+
+export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple];
 
 
 
@@ -43,6 +45,7 @@ export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight,
     scene.add(group);
     groups[id] = group;
   }
+  clearPool(); 
   const fire = createTorchFire(scene, W);
   const water = createSpringWater(scene, W);
   const lava = crater ? createLava(scene, crater, craterRadius, lavaHeight) : { update() {} };

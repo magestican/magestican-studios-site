@@ -85,13 +85,24 @@ function strip(cols, rows, rect, at) {
 }
 
 
+
+
+
+
 let tagMats = null;
+const atlases = new Map(), ATLAS_KEEP = 2; 
 export function createTags(W, groups) {
   const spots = tagSpots(W), cells = tagCells(spots);
-  const rows = Math.ceil(cells.length / COLS);
-  const cv = document.createElement('canvas'); cv.width = CW * COLS; cv.height = CH * rows;
-  const atlas = new THREE.CanvasTexture(cv);
-  atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = 4;
+  const rows = Math.ceil(cells.length / COLS), key = cells.join(';');
+  let atlas = atlases.get(key), cv = null;
+  if (atlas) atlases.delete(key); 
+  else {
+    cv = document.createElement('canvas'); cv.width = CW * COLS; cv.height = CH * rows;
+    atlas = new THREE.CanvasTexture(cv);
+    atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = 4;
+  }
+  atlases.set(key, atlas);
+  while (atlases.size > ATLAS_KEEP) { const [k, old] = atlases.entries().next().value; atlases.delete(k); old.dispose(); }
   
   
   if (!tagMats) tagMats = { ground: decalMaterial(atlas, false), wall: decalMaterial(atlas, true) };
@@ -124,7 +135,7 @@ export function createTags(W, groups) {
     mesh.castShadow = mesh.receiveShadow = false; mesh.raycast = () => {};
     g.add(mesh);
   }
-  loadTagFonts().then(() => {
+  if (cv) loadTagFonts().then(() => {
     const x = cv.getContext('2d');
     cells.forEach((key, k) => { const [style, text] = key.split('|'); spray(x, (k % COLS) * CW, Math.floor(k / COLS) * CH, text, style); });
     atlas.needsUpdate = true;

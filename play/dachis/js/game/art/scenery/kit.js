@@ -17,6 +17,7 @@ import { MeshData, NO_SHADOW_MATERIALS } from '../../../vendor/fml/moon/mesh/mes
 import { createSheet, set, hash2, bayer, hex } from '../../../vendor/arbelo/paint/texturePaint.js';
 import { unpackForms } from './formPack.js';
 import { hullFor, hwByte, hullLod, hullMaterial } from '../look/celRules.js';
+import { takeBuf, giveBuf } from '../../../engine/core/growBuf.js';
 
 export { S };
 
@@ -46,7 +47,11 @@ export async function loadBakedForms(url) {
   } catch (e) { console.warn('[scenery] baked forms not loaded, building live', e); return false; }
 }
 
+
+let formLog = null;
+export function logForms(set) { formLog = set; }
 export function form(name, build, { min, max, cell = 0.05, tris = 600, uvScale = 1, ao } = {}) {
+  if (formLog) formLog.add(name);
   if (forms.has(name)) return forms.get(name);
   const t0 = performance.now();
   const md = new MeshData(name);
@@ -119,9 +124,12 @@ export function materialFor(id) {
 
 const M = new THREE.Matrix4(), N3 = new THREE.Matrix3(), Q = new THREE.Quaternion(), E = new THREE.Euler();
 const P = new THREE.Vector3(), SC = new THREE.Vector3(), V = new THREE.Vector3();
+const newGroupBufs = (m) => ({ pos: takeBuf(Float32Array, m + ':pos'), nor: takeBuf(Float32Array, m + ':nor'), col: takeBuf(Float32Array, m + ':col'), uv: takeBuf(Float32Array, m + ':uv'), idx: takeBuf(Uint32Array, m + ':idx') });
 const hullLods = new WeakMap(); 
 export class Batch {
-  constructor(name) { this.name = name; this.groups = new Map(); this.hull = { pos: [], nor: [], hw: [], idx: [] }; }
+  
+  
+  constructor(name) { this.name = name; this.groups = new Map(); this.hull = { pos: takeBuf(Float32Array, 'hull:pos'), nor: takeBuf(Int8Array, 'hull:nor'), hw: takeBuf(Uint8Array, 'hull:hw'), idx: takeBuf(Uint32Array, 'hull:idx') }; }
   
   add(arrays, at, tint = {}) {
     const s = at.s ?? 1, [sx, sy, sz] = Array.isArray(s) ? s : [s, s, s];
@@ -131,16 +139,17 @@ export class Batch {
     this.addHull(arrays, Math.max(Math.abs(sx), Math.abs(sy), Math.abs(sz)));
     for (const g of arrays.groups) {
       let out = this.groups.get(g.material);
-      if (!out) this.groups.set(g.material, out = { pos: [], nor: [], col: [], uv: [], idx: [] });
-      const base = out.pos.length / 3, t = tint[g.material] || null;
-      for (let v = 0; v < g.position.length; v += 3) {
-        V.set(g.position[v], g.position[v + 1], g.position[v + 2]).applyMatrix4(M); out.pos.push(V.x, V.y, V.z);
-        V.set(g.normal[v], g.normal[v + 1], g.normal[v + 2]).applyMatrix3(N3).normalize(); out.nor.push(V.x, V.y, V.z);
-        if (t) out.col.push(g.color[v] * t[0], g.color[v + 1] * t[1], g.color[v + 2] * t[2]);
-        else out.col.push(g.color[v], g.color[v + 1], g.color[v + 2]);
+      if (!out) this.groups.set(g.material, out = newGroupBufs(g.material));
+      const base = out.pos.n / 3, t = tint[g.material] || null, nv = g.position.length;
+      out.pos.need(nv); out.nor.need(nv); out.col.need(nv); out.uv.need(g.uv.length); out.idx.need(g.index.length);
+      for (let v = 0; v < nv; v += 3) {
+        V.set(g.position[v], g.position[v + 1], g.position[v + 2]).applyMatrix4(M); out.pos.push3(V.x, V.y, V.z);
+        V.set(g.normal[v], g.normal[v + 1], g.normal[v + 2]).applyMatrix3(N3).normalize(); out.nor.push3(V.x, V.y, V.z);
+        if (t) out.col.push3(g.color[v] * t[0], g.color[v + 1] * t[1], g.color[v + 2] * t[2]);
+        else out.col.push3(g.color[v], g.color[v + 1], g.color[v + 2]);
       }
-      for (let v = 0; v < g.uv.length; v++) out.uv.push(g.uv[v]);
-      for (let k = 0; k < g.index.length; k++) out.idx.push(g.index[k] + base);
+      for (let v = 0; v < g.uv.length; v++) out.uv.push1(g.uv[v]);
+      for (let k = 0; k < g.index.length; k++) out.idx.push1(g.index[k] + base);
     }
     return this;
   }
@@ -152,24 +161,32 @@ export class Batch {
     if (!lod) hullLods.set(arrays, lod = hullLod(arrays.groups, { keep: hullMaterial }));
     const hb = hwByte(hullFor(lod.size * scale));
     if (!hb || !lod.idx.length) return;
-    const h = this.hull, base = h.pos.length / 3, p = lod.pos, n = lod.nor;
+    const h = this.hull, base = h.pos.n / 3, p = lod.pos, n = lod.nor;
+    h.pos.need(p.length); h.nor.need(p.length); h.hw.need(p.length / 3); h.idx.need(lod.idx.length);
     for (let v = 0; v < p.length; v += 3) {
-      V.set(p[v], p[v + 1], p[v + 2]).applyMatrix4(M); h.pos.push(V.x, V.y, V.z);
-      V.set(n[v], n[v + 1], n[v + 2]).applyMatrix3(N3).normalize(); h.nor.push(Math.round(V.x * 127), Math.round(V.y * 127), Math.round(V.z * 127));
-      h.hw.push(hb);
+      V.set(p[v], p[v + 1], p[v + 2]).applyMatrix4(M); h.pos.push3(V.x, V.y, V.z);
+      V.set(n[v], n[v + 1], n[v + 2]).applyMatrix3(N3).normalize(); h.nor.push3(Math.round(V.x * 127), Math.round(V.y * 127), Math.round(V.z * 127));
+      h.hw.push1(hb);
     }
-    for (let k = 0; k < lod.idx.length; k++) h.idx.push(lod.idx[k] + base);
+    for (let k = 0; k < lod.idx.length; k++) h.idx.push1(lod.idx[k] + base);
+  }
+  
+  release() {
+    for (const o of this.groups.values()) for (const k in o) giveBuf(o[k]);
+    for (const k in this.hull) giveBuf(this.hull[k]);
+    this.groups.clear();
   }
   toGroup() {
     const root = new THREE.Group(); root.name = this.name;
     root.userData.batch = true; 
     for (const [id, o] of this.groups) {
       const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(o.pos, 3));
-      geo.setAttribute('normal', new THREE.Float32BufferAttribute(o.nor, 3));
-      geo.setAttribute('color', new THREE.Float32BufferAttribute(o.col, 3));
-      geo.setAttribute('uv', new THREE.Float32BufferAttribute(o.uv, 2));
-      geo.setIndex(o.idx);
+      geo.setAttribute('position', new THREE.BufferAttribute(o.pos.copy(), 3));
+      geo.setAttribute('normal', new THREE.BufferAttribute(o.nor.copy(), 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(o.col.copy(), 3));
+      geo.setAttribute('uv', new THREE.BufferAttribute(o.uv.copy(), 2));
+      geo.setIndex(new THREE.BufferAttribute(o.idx.copy(), 1));
+      for (const k in o) giveBuf(o[k]);
       geo.computeBoundingSphere();
       const mesh = new THREE.Mesh(geo, materialFor(id));
       mesh.name = `${this.name}:${id}`; mesh.userData.matId = id;
@@ -178,7 +195,9 @@ export class Batch {
       root.add(mesh);
     }
     const h = this.hull; 
-    if (h.idx.length) root.userData.hullArrays = { pos: Float32Array.from(h.pos), nor: Int8Array.from(h.nor), hw: Uint8Array.from(h.hw), idx: Uint32Array.from(h.idx) };
+    if (h.idx.n) root.userData.hullArrays = { pos: h.pos.copy(), nor: h.nor.copy(), hw: h.hw.copy(), idx: h.idx.copy() };
+    for (const k in h) giveBuf(h[k]);
+    this.groups.clear();
     return root;
   }
 }

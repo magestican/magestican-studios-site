@@ -8,6 +8,7 @@ import { dachiCanvas } from '../../art/portraitRender.js';
 import { hpColor, attrBadge } from '../battle/battleHud.js';
 import { T, locationName } from '../world/mapgen.js';
 import { MINI, miniXY, transitPlan } from './transit.js';
+import { regionById, HOME } from '../world/regions.js';
 
 export { miniXY };
 const $ = id => document.getElementById(id);
@@ -20,15 +21,20 @@ if (typeof document !== 'undefined' && document.fonts) {
     .then(() => { fontsIn = true; baseKey = ''; }).catch(() => {});
 }
 
+
+const here = () => regionById(G.region) || regionById(HOME);
 export function updateHud(dt) {
-  const loc = locationName(S.W, G.player.x, G.player.y);
+  const R = here();
+  const loc = locationName(S.W, G.player.x, G.player.y, R.name);
   if (loc !== lastLoc) { lastLoc = loc; $('locName').textContent = loc; const b = $('locBar'); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
   
   const sec = S.W.sectionAt(G.player.x, G.player.y);
   if (sec) { const seen = G.flags.seen || (G.flags.seen = {}); if (!seen[sec]) { seen[sec] = 1; baseKey = ''; } }
   $('objective').textContent = objective();
+  const mini = $('minimap');
+  if (mini.hidden === R.transit) mini.hidden = !R.transit; 
   miniTimer -= dt;
-  if (miniTimer <= 0) { miniTimer = 0.1; drawMinimap(); }
+  if (R.transit && miniTimer <= 0) { miniTimer = 0.1; drawMinimap(); }
   companions();
 }
 
@@ -132,7 +138,7 @@ function paintTransit(W, plan, size, big) {
 
 
 export function openMap() {
-  if (G.mode !== 'world' || S.dialog.active) return;
+  if (G.mode !== 'world' || S.dialog.active || !here().transit) return;
   G.mode = 'menu';
   $('bigMap').classList.remove('hidden');
   const c = $('bigCanvas'), ctx = c.getContext('2d');

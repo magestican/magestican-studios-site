@@ -37,13 +37,20 @@ function tileFor(x, y) {
   return T.GRASS;
 }
 
-export function generateTestbed() {
+
+
+
+export function generateTestbed() { const it = testbedSteps(); let s; while (!(s = it.next()).done); return s.value; }
+const BAND = 16; 
+export function* testbedSteps() {
   const N = SIZE, V = N + 1, W = newMap(N, ID, SECTIONS);
-  for (let j = 0; j < V; j++) for (let i = 0; i < V; i++) W.vh[j * V + i] = heightAtPoint(i, j);
+  for (let j = 0; j < V; j++) { for (let i = 0; i < V; i++) W.vh[j * V + i] = heightAtPoint(i, j); if (j % BAND === BAND - 1) yield 'heights'; }
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) W.type[W.idx(i, j)] = tileFor(i + 0.5, j + 0.5);
+  yield 'tiles';
   carvePath(W, W.type, PATH);
   mapQueries(W);
   W.reach = floodReach(W, W.type, ENTRY);
+  yield 'reach';
   W.windows = sectionWindows(W, SECTIONS);
   W.windowsOf = lookIn(W, W.windows);
   W.onScreen = (x, y, pad = 1, padBelow = pad) => W.windowsOf(x, y, pad, padBelow).length > 0;
@@ -55,6 +62,7 @@ export function generateTestbed() {
   const road = (x, y) => { let d = Infinity; for (let k = 0; k < PATH.length - 1; k++) d = Math.min(d, segDist(PATH[k], PATH[k + 1], x, y)); return d; };
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    if (i === 0 && j && j % BAND === 0) yield 'props';
     const t = W.type[W.idx(i, j)];
     const x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28;
     if (!W.windowsOf(x, y, 1.2, 2.6).length) continue;
@@ -70,7 +78,9 @@ export function generateTestbed() {
     else if (t === T.GRASS && k < 0.04 && rd > 1) addObj(W, { kind: 'rock', x, y, solid: 0.3, s: 0.5 + s * 0.4, rot });
     else if ((t === T.GRASS || t === T.TALL) && k < 0.12) addObj(W, { kind: 'flower', x, y, solid: 0, c: U.pick(r, ['#fff7a8', '#ff9fd0', '#ffffff', '#b9a0ff']) });
   }
+  yield 'props';
   buildGrid(W);
+  yield 'grid';
   
   const rs = U.rng(8181);
   for (let t = 0; W.spots.length < 8 && t < 4000; t++) {

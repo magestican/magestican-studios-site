@@ -607,9 +607,9 @@ function placeSpots(W) {
 }
 const LATE_SPOTS = 5;
 
-export function locationName(W, x, y) {
+export function locationName(W, x, y, region = 'Kazan Isle') {
   const id = W.sectionAt(x, y);
-  return id ? sectionById(id).name : 'Kazan Isle';
+  return id ? sectionById(id).name : region; 
 }
 
 

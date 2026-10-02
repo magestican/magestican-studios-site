@@ -67,3 +67,9 @@ export function lineText(line) {
   const t = String((line && line.text) || '');
   return lineKind(line) === 'think' ? t.trim().replace(/^\(\s*/, '').replace(/\s*\)$/, '') : t;
 }
+
+
+
+
+export const TAP_IDLE_MS = 20000;
+export const showTapCue = (advancedThisSession, waitingMs) => !advancedThisSession || waitingMs >= TAP_IDLE_MS;

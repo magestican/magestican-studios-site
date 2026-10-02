@@ -1,0 +1,70 @@
+{
+ "hash": "d758157e",
+ "regions": {
+  "kazan-isle": {
+   "forms": [
+    "blossom",
+    "bramble",
+    "bush",
+    "coral",
+    "fence-post",
+    "fence-rail",
+    "fern",
+    "flower-bed",
+    "flower-clump",
+    "flowers",
+    "gate",
+    "hut",
+    "jtree",
+    "lantern",
+    "ledge-0",
+    "ledge-1",
+    "ledge-2",
+    "palm",
+    "pillar-0",
+    "pillar-1",
+    "pillar-2",
+    "spring-basin",
+    "step-slab",
+    "stone-basalt-0",
+    "stone-basalt-1",
+    "stone-basalt-2",
+    "stone-basalt-3",
+    "stone-dark-0",
+    "stone-dark-1",
+    "stone-dark-2",
+    "stone-dark-3",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "temple",
+    "torch",
+    "tree"
+   ],
+   "pack": "assets/scenery-forms.bin",
+   "extra": []
+  },
+  "testbed": {
+   "forms": [
+    "bush",
+    "fence-post",
+    "fence-rail",
+    "flower-bed",
+    "flower-clump",
+    "flowers",
+    "hut",
+    "spring-basin",
+    "step-slab",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "torch",
+    "tree"
+   ],
+   "pack": null,
+   "extra": []
+  }
+ }
+}

@@ -14,10 +14,10 @@
 
 
 
-  <meta name="build" content="b420931-20261002T034821Z">
+  <meta name="build" content="53343d5-20261002T083235Z">
   <script>
     (function () {
-      var FILES = ['js/engine/audio/sfx.js', 'js/engine/core/save.js', 'js/engine/core/util.js', 'js/engine/core/slicer.js', 'js/engine/input/input.js',
+      var FILES = ['js/engine/audio/sfx.js', 'js/engine/core/save.js', 'js/engine/core/util.js', 'js/engine/core/slicer.js', 'js/engine/core/growBuf.js', 'js/engine/input/input.js',
         'js/engine/iso/billboard.js', 'js/engine/iso/cozyStage.js', 'js/engine/iso/groundPaths.js', 'js/engine/iso/pixelPass.js', 'js/engine/iso/seeThrough.js', 'js/engine/iso/stage.js', 'js/engine/iso/terrain.js', 'js/engine/iso/water.js',
         'js/engine/ui/dialog.js', 'js/engine/ui/hints.js', 'js/engine/ui/icons.js', 'js/engine/ui/pixelLayer.js',
         'js/game/art/aerowingModel.js', 'js/game/art/billboards.js', 'js/game/art/bossModel.js', 'js/game/art/castActor.js', 'js/game/art/characters.js', 'js/game/art/dachiActor.js', 'js/game/art/dachiFx.js', 'js/game/art/dachiModel.js', 'js/game/art/dachiPlans.js', 'js/game/art/dachiWorker.js',
@@ -25,7 +25,7 @@
         'js/game/art/scenery/fences.js', 'js/game/art/scenery/flowerBeds.js', 'js/game/art/scenery/formPack.js', 'js/game/art/scenery/growth.js', 'js/game/art/scenery/huts.js', 'js/game/art/scenery/kit.js', 'js/game/art/scenery/lavaCrater.js',
         'js/game/art/scenery/rocks.js', 'js/game/art/scenery/spring.js', 'js/game/art/scenery/steps.js', 'js/game/art/scenery/temple.js', 'js/game/art/scenery/torches.js', 'js/game/art/scenery/village.js',
         'js/game/data/species.js',
-        'js/game/features/battle/arena.js', 'js/game/features/battle/overlayLayout.js', 'js/game/features/battle/battle.js', 'js/game/features/battle/battleEnd.js', 'js/game/features/battle/battleHud.js', 'js/game/features/battle/battleView.js', 'js/game/features/battle/comic.js', 'js/game/features/clock/clock.js', 'js/game/features/world/regions.js', 'js/game/features/world/regionMaps/testbed.js', 'js/game/features/battle/battleFx3d.js', 'js/game/features/battle/rules.js', 'js/game/features/battle/techniques.js',
+        'js/game/features/battle/arena.js', 'js/game/features/battle/overlayLayout.js', 'js/game/features/battle/battle.js', 'js/game/features/battle/battleEnd.js', 'js/game/features/battle/battleHud.js', 'js/game/features/battle/battleView.js', 'js/game/features/battle/comic.js', 'js/game/features/clock/clock.js', 'js/game/features/world/regions.js', 'js/game/features/world/regionMaps/testbed.js', 'js/game/features/battle/battleFx3d.js', 'js/game/features/battle/rules.js', 'js/game/features/battle/ringRules.js', 'js/game/features/battle/orderRing.js', 'js/game/features/battle/techniques.js',
         'js/game/features/capture/ritual.js', 'js/game/features/capture/ritualView.js',
         'js/game/features/hud/hud.js', 'js/game/features/hud/transit.js','js/game/features/menu/menu.js', 'js/game/features/party/evolution.js', 'js/game/features/pickups/pickups.js', 'js/game/features/pvp/pvpRules.js',
         'js/game/features/story/beats.js', 'js/game/features/story/cutscene.js', 'js/game/features/story/scenes.js',
@@ -95,6 +95,7 @@
         <button id="stAway" class="stance tappable" data-key="6" data-pad="Left"><i data-icon="away"></i> Keep away</button>
         <button id="parryBtn" class="stance parry tappable" data-key="G" data-pad="B" title="Press as a hit lands: melee is countered, shots are reflected"><i data-icon="bolt"></i> Parry</button>
       </div>
+      <div id="ringHint"><b>Hold</b> anywhere and slide: orders</div>
       <div id="specials"></div>
     </div>
     <div id="battleBtns">
@@ -104,6 +105,7 @@
       <button id="runBtn" class="tappable" data-key="R" data-pad="Back"></button>
     </div>
   </div>
+  <div id="orderRing" class="hidden"></div>
   <div id="ritual" class="hidden">
     <div class="ritualTitle">Befriending Ritual</div>
     <canvas id="ritualCanvas"></canvas>
@@ -173,6 +175,6 @@
   </div>
   <div id="toasts"></div>
 
-  <script type="module" src="js/game/main.js?v=b420931-20261002T034821Z"></script>
+  <script type="module" src="js/game/main.js?v=53343d5-20261002T083235Z"></script>
 </body>
 </html>

@@ -13,7 +13,7 @@ import { bakePathField, pathGroundMaterial } from '../../../engine/iso/groundPat
 import { T, CRATER, PLATEAU_H } from './mapgen.js';
 import { SECTIONS, sectionById, edgeDepth, toUV } from './sections.js';
 import { lookName, groundPaletteBytes } from '../../art/look/celRules.js';
-import { classPage } from '../../art/look/worldRules.js';
+import { classPage, tagSpots } from '../../art/look/worldRules.js';
 import { createTags } from '../../art/look/tags.js';
 import { noSlice } from '../../../engine/core/slicer.js';
 import { HOME } from './regions.js';
@@ -153,7 +153,8 @@ export async function buildWorld(stage, W, slice = noSlice) {
   for (const id in scenery.groups) scenery.groups[id].userData.seeThrough = true;
   
   
-  if (CEL && kazan) { ownTextures.push(createTags(W, scenery.groups).atlas); await slice('tags'); }
+  
+  if (CEL && tagSpots(W).length) { createTags(W, scenery.groups); await slice('tags'); }
   ownTextures.push(tex);
   const owned = scene.children.filter((o) => !before.has(o));
 

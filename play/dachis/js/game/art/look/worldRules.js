@@ -3,6 +3,7 @@
 
 import { T, VOLC, PATH_POINTS, COAST_PATH, CORAL_PATH, VERDANT_PATH, npcSpotOk } from '../../features/world/mapgen.js';
 import { classByte, regionByte } from './celRules.js';
+import { PATH as TESTBED_PATH } from '../../features/world/regionMaps/testbed.js';
 
 
 
@@ -123,8 +124,14 @@ function plazaTag(W, sec, text, style) {
 }
 
 
+
 export function tagSpots(W) {
-  const out = [
+  const list = TAG_LISTS[W.region || HOME_REGION];
+  return list ? list(W).filter(Boolean) : [];
+}
+const HOME_REGION = 'kazan-isle';
+function kazanTags(W) {
+  return [
     wallTag(W, 'kazan', 'DACHI', 'pink'),
     plazaTag(W, 'kazan', 'KAZAN 92', 'teal'),
     roadTag(W, PATH_POINTS, 'slope', 'SHRINE', 'arrow'),
@@ -135,8 +142,13 @@ export function tagSpots(W) {
     roadTag(W, CORAL_PATH, 'coral', 'DEEP', 'arrow'),
     roadTag(W, VERDANT_PATH, 'verdant', 'GROVE', 'arrow'),
   ];
-  return out.filter(Boolean);
 }
+
+const testbedTags = (W) => [
+  roadTag(W, TESTBED_PATH, 'testbed-a', 'FAR FIELD', 'arrow'),
+  roadTag(W, TESTBED_PATH, 'testbed-b', 'TESTBED 92', 'teal', false),
+];
+const TAG_LISTS = { [HOME_REGION]: kazanTags, testbed: testbedTags };
 
 export function tagCells(spots) {
   const keys = [];

@@ -5,7 +5,7 @@ import { statsOf, SPECIES } from './data/species.js';
 import { SPAWN, RESPAWN } from './features/world/mapgen.js';
 import { nextLair } from './features/world/lairs.js';
 import { newClock, fixClock } from './features/clock/clock.js';
-import { HOME, saveRegion } from './features/world/regions.js';
+import { HOME, saveRegion, regionById } from './features/world/regions.js';
 
 export const G = {
   mode: 'title',        
@@ -74,6 +74,9 @@ export function addDachi(d) {
 }
 export const caughtCount = () => Object.keys(G.dex.caught).length;
 export function objective() {
+  
+  const r = G.region && G.region !== HOME ? regionById(G.region) : null;
+  if (r && r.objective) return r.objective;
   if (!G.flags.starter) return 'Run down the road to the priests — the X on your map';
   if (!G.flags.initiated) return 'Run to the Shrine Village — the X on your map';
   if (!G.flags.kumabo) return 'Return to Kazan Village and see Kumabo';
