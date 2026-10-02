@@ -28,6 +28,7 @@ uniform float uSwing;
 uniform float uShout;
 uniform float uCheer; // 2026-10-03: both arms thrown up (a won fight, a new friend)
 uniform float uIdle;  // standing still: a slow arm sway with the breath
+uniform float uLand;  // a landing: arms thrown forward for balance (the body squashes in place())
 uniform vec2 uGait; // G13: cos(walk phase) eased, moving 0..1
 attribute float rigTag;
 vec3 kidHinge( vec3 v, float a, float py, float pz ) { // a turn about the X axis through (0, py, pz)
@@ -53,7 +54,7 @@ vec3 kidPose( vec3 v, vec3 pos, float isPoint ) {
   float knee = uGait.y * ( ${f3(WALK.kneeRest)} + ${f3(WALK.knee)} * max( 0.0, -kc * side ) );
   float elbow = -uGait.y * ( ${f3(WALK.elbowRest)} + ${f3(WALK.elbow)} * max( 0.0, legA ) / ${f3(WALK.leg)} );
   v = kidHinge( v, elbow * foreW, ${f3(KID_RIG.elbow[1])} * isPoint, ${f3(KID_RIG.elbow[2])} * isPoint );
-  v = kidHinge( v, ( -legA * ${ARM_K.toFixed(3)} + ( pos.x > 0.0 ? -2.3 * uShout : 0.0 ) - 2.7 * uCheer + uIdle * side ) * armW, ${f3(KID_RIG.shoulder)} * isPoint, 0.0 );
+  v = kidHinge( v, ( -legA * ${ARM_K.toFixed(3)} + ( pos.x > 0.0 ? -2.3 * uShout : 0.0 ) - 2.7 * uCheer - 1.2 * uLand + uIdle * side ) * armW, ${f3(KID_RIG.shoulder)} * isPoint, 0.0 );
   v = kidHinge( v, knee * shinW, ${f3(KID_RIG.knee)} * isPoint, ${f3(0.05 * KH)} * isPoint );
   return kidHinge( v, legA * legW, ${f3(KID_RIG.hip)} * isPoint, 0.0 );
 }
@@ -110,9 +111,9 @@ export class CastActor {
     this.body.scale.setScalar(this.worldK * (kind === 'kid' ? KID_WORLD_H / KID_HEIGHT : kind === 'elder' ? ELDER_WORLD_H / ELDER_HEIGHT : kind === 'boss' ? bossById(opts.boss).scale : CAST_UNIT * 1.36));
     scene.add(this.root);
     this.yaw = this.targetYaw = FACE_CAMERA; this.last = performance.now(); this.phase = Math.random() * 6;
-    this.uniforms = { uSwing: { value: 0 }, uShout: { value: 0 }, uCheer: { value: 0 }, uIdle: { value: 0 }, uGait: { value: new THREE.Vector2(0, 0) } };
+    this.uniforms = { uSwing: { value: 0 }, uShout: { value: 0 }, uCheer: { value: 0 }, uIdle: { value: 0 }, uLand: { value: 0 }, uGait: { value: new THREE.Vector2(0, 0) } };
     this.gaitC = 0; this.gaitM = 0;
-    this.swing = 0; this.shout = 0; this.cheer = 0; this.moving = false; this.walk = 0; this.wantShout = false; this.wantCheer = false;
+    this.swing = 0; this.shout = 0; this.cheer = 0; this.land = 0; this.moving = false; this.walk = 0; this.wantShout = false; this.wantCheer = false;
     this.key = null; this.disposed = false;
     this.setLook(opts);
   }
@@ -135,7 +136,7 @@ export class CastActor {
   
   faceDir(dx, dy) { if (dx || dy) this.targetYaw = Math.atan2(dx, dy); }
   faceCamera() { this.targetYaw = FACE_CAMERA; }
-  pose({ moving = false, walk = 0, shout = false, cheer = false } = {}) { this.moving = moving; this.walk = walk; this.wantShout = shout; this.wantCheer = cheer; }
+  pose({ moving = false, walk = 0, shout = false, cheer = false, land = 0 } = {}) { this.moving = moving; this.walk = walk; this.wantShout = shout; this.wantCheer = cheer; this.land = land; }
   place(x, y, ground, lift = 0) {
     const now = performance.now(), dt = Math.min(0.1, (now - this.last) / 1000); this.last = now;
     let d = this.targetYaw - this.yaw;
@@ -149,7 +150,7 @@ export class CastActor {
     this.cheer += ((this.wantCheer ? 1 : 0) - this.cheer) * Math.min(1, dt * 9);
     
     this.uniforms.uIdle.value = (1 - this.gaitM) * (1 - this.cheer) * Math.sin(now / 1000 * 1.1 + this.phase) * 0.07;
-    this.uniforms.uCheer.value = this.cheer;
+    this.uniforms.uCheer.value = this.cheer; this.uniforms.uLand.value = this.land;
     this.uniforms.uSwing.value = this.swing; this.uniforms.uShout.value = this.shout; this.uniforms.uGait.value.set(this.gaitC, this.gaitM);
     
     
@@ -158,7 +159,9 @@ export class CastActor {
     this.root.position.set(x, ground + lift + bob, y);
     this.root.rotation.y = this.yaw;
     const breathe = 1 + Math.sin(now / 1000 * 2.2 + this.phase) * 0.012;
-    this.root.scale.set(2 - breathe, breathe, 2 - breathe);
+    
+    const squash = breathe - this.land * 0.14;
+    this.root.scale.set(2 - squash, squash, 2 - squash);
   }
   setVisible(v) { this.root.visible = v; }
   dispose(scene) { this.disposed = true; (scene || this.scene).remove(this.root); }

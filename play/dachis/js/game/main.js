@@ -223,7 +223,7 @@ function drawCover(ctx, dt) {
   }
   if (cover.a === cover.target && cover.done) { const d = cover.done; cover.done = null; d(); }
   const f = cover.flight;
-  if (f && f.land && flightPhase((performance.now() - f.t0) / 1000, f.ready).phase === 'land') { const l = f.land; f.land = null; l(); }
+  if (f && f.land && flightPhase((performance.now() - f.t0) / 1000, f.ready).phase === 'land') { const l = f.land; f.land = null; l(); S.landAt = performance.now() + 200; } 
   if (cover.a <= 0) return;
   if (f) { drawFlight(ctx, f); return; }
   ctx.fillStyle = `rgba(13,10,20,${cover.a})`; ctx.fillRect(0, 0, innerWidth, innerHeight);
@@ -454,7 +454,8 @@ function frame(now) {
     
     
     const cheer = (B && B.state === 'end' && B.result !== 'lose') || (!B && S.cheerUntil > performance.now());
-    drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), cheer, hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
+    const sinceLand = (performance.now() - (S.landAt || -1e9)) / 1000, land = sinceLand >= 0 && sinceLand < 0.6 ? Math.sin(Math.min(1, sinceLand / 0.6) * Math.PI) : 0;
+    drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), cheer, land, hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
     drawNpcs(t);
     if (G.region === HOME) drawBossLairs(t, B);
     drawWilds(t, B ? (w => w === B.wild || inArena(w.x, w.y, B, -0.8)) : null);

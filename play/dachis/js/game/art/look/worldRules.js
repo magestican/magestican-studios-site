@@ -151,7 +151,7 @@ function kazanTags(W) {
     roadTag(W, PATH_POINTS, 'jungle', 'SHRINE', 'arrow'),
     roadTag(W, PATH_POINTS, 'road', 'SHRINE', 'arrow'),
     roadTag(W, COAST_PATH, 'coast', 'TOMO 92', 'teal', false),
-    wallTag(W, 'shrine', 'DACHI', 'pink'),
+    
     roadTag(W, CORAL_PATH, 'coral', 'DEEP', 'arrow'),
     roadTag(W, VERDANT_PATH, 'verdant', 'GROVE', 'arrow'),
   ];

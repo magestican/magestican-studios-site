@@ -47,11 +47,11 @@ export function updatePlayer(dt, canMove) {
 }
 
 
-export function drawPlayer(t, { hidden = false, shout = false, cheer = false, hidePet = false, lookAt = null } = {}) {
+export function drawPlayer(t, { hidden = false, shout = false, cheer = false, land = 0, hidePet = false, lookAt = null } = {}) {
   const p = G.player, W = S.W;
   kid.setVisible(!hidden);
   const dir = p.moving ? S.stage.screenDirToWorld(p.vx, p.vy) : lookAt ? [lookAt.x - p.x, lookAt.y - p.y] : null;
-  setKidFrame(kid, { gender: G.gender, walk: p.walk, moving: p.moving, shout: shout && !cheer, cheer: cheer && !p.moving, dir });
+  setKidFrame(kid, { gender: G.gender, walk: p.walk, moving: p.moving, shout: shout && !cheer, cheer: cheer && !p.moving, land, dir });
   kid.place(p.x, p.y, W.groundAt(p.x, p.y));
   const lead = G.party[0];
   if (lead && !pet) pet = dachiBillboard(S.stage.scene, speciesById(lead.sp).stage);
