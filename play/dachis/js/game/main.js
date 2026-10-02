@@ -39,6 +39,7 @@ import { SCENES } from './features/story/scenes.js';
 import { lineKind, lineText, introZoomK } from './features/onboarding/rules.js';
 import { tapHint, installTapAnywhere, setupNames, startWithWipe, intro, showResume, youTag } from './features/onboarding/onboarding.js';
 import { attract } from './features/onboarding/attract.js';
+import { tick as clockTick, activityOf, chapterOf, newClock } from './features/clock/clock.js';
 import { afterIntro, updateStory, storyLocksMovement, talkTo } from './features/story/beats.js';
 import { updateHud, refreshHud, openMap, closeMap, mapOpen } from './features/hud/hud.js';
 import { openMenu, closeMenu } from './features/menu/menu.js';
@@ -142,6 +143,7 @@ function playIntro(start) {
 $('newBtn').onclick = () => {
   if (hasSave() && !confirm('Start a new game? Your current save will be replaced.')) return;
   G.name = ($('nameInput').value.trim() || $('nameInput').placeholder || 'Ace').slice(0, 14);
+  G.clock = newClock(); 
   startWithWipe($('newBtn'), () => { intro.clear(); leaveTitle(); playIntro(null); });
 };
 showResume(SCENES, (p) => {
@@ -216,6 +218,7 @@ function frame(now) {
   const csc = G.mode === 'cutscene' && Cutscene.scenes ? Cutscene.scenes[Math.min(Cutscene.scene, Cutscene.scenes.length - 1)] : null;
   music.update(G.mode, B, S.cam && S.cam.sec, csc && csc.mood); 
   ambience.update(B ? 'battle' : G.mode, S.cam && S.cam.sec); 
+  clockTick(G.clock, dt, activityOf(G.mode, { dialog: S.dialog.active, ritual: !!(B && B.ritual) }), chapterOf(G.flags)); 
 
   if (G.mode === 'cutscene') {
     Cutscene.update(dt);

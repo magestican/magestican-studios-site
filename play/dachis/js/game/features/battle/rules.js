@@ -37,9 +37,12 @@ export function calcDamage(attacker, defender, power, moveType, rng = Math.rando
 
 export const finalDamage = (dmg, guarded, cycle = 1) => Math.min(capsFor(cycle).maxDamage, guarded ? Math.ceil(dmg * 0.5) : dmg);
 
+
+
+export const XP_RATE = 1.5;
 export function xpReward(enemy) {
   const s = speciesById(enemy.sp);
-  return Math.floor(enemy.lvl * 9 * (1 + (s.stage - 1) * 0.5));
+  return Math.floor(enemy.lvl * 9 * (1 + (s.stage - 1) * 0.5) * XP_RATE);
 }
 
 

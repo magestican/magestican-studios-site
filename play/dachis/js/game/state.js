@@ -4,11 +4,13 @@ import { createSaveSlot } from '../engine/core/save.js';
 import { statsOf, SPECIES } from './data/species.js';
 import { SPAWN, RESPAWN } from './features/world/mapgen.js';
 import { nextLair } from './features/world/lairs.js';
+import { newClock, fixClock } from './features/clock/clock.js';
 
 export const G = {
   mode: 'title',        
   cycle: 1,             
-  name: 'Danny', gender: 'boy', t: 0,
+  name: 'Ace', gender: 'boy', t: 0,
+  clock: newClock(),    
   player: { x: SPAWN.x, y: SPAWN.y, vx: 0, vy: 1, walk: 0, moving: false },
   follower: { x: SPAWN.x, y: SPAWN.y - 0.8, walk: 0, moving: false, face: 1 },
   party: [],            
@@ -34,21 +36,23 @@ export function migrateSave(s) {
   if (s.v < 3) {
     s = { ...s, box: (s.box || []).map(d => (typeof d.bond === 'number' ? d : { ...d, bond: 50 })), v: 3 };
   }
+  
+  if (s.v < 4) s = { ...s, clock: fixClock(s.clock), v: 4 };
   return s;
 }
-const slot = createSaveSlot('dachis.v1', 3, migrateSave);
+const slot = createSaveSlot('dachis.v1', 4, migrateSave);
 export const hasSave = () => slot.exists();
 export function saveGame() {
   if (!G.flags.started) return;
   slot.save({
     name: G.name, gender: G.gender, cycle: G.cycle, x: G.player.x, y: G.player.y,
-    box: G.box, party: G.party.map(d => d.uid), items: G.items, dex: G.dex, flags: G.flags,
+    box: G.box, party: G.party.map(d => d.uid), items: G.items, dex: G.dex, flags: G.flags, clock: G.clock,
   });
 }
 export function loadGame() {
   const s = slot.load();
   if (!s) return false;
-  Object.assign(G, { name: s.name, gender: s.gender, cycle: s.cycle || 1, box: s.box, items: { candy: 0, ...s.items }, dex: s.dex, flags: { taken: {}, ...s.flags } });
+  Object.assign(G, { name: s.name, gender: s.gender, cycle: s.cycle || 1, box: s.box, items: { candy: 0, ...s.items }, dex: s.dex, flags: { taken: {}, ...s.flags }, clock: fixClock(s.clock) });
   for (const d of G.box) d.hp = Math.max(0, Math.min(d.hp, statsOf(d).maxHp));
   G.party = s.party.map(uid => G.box.find(d => d.uid === uid)).filter(Boolean);
   G.player.x = s.x; G.player.y = s.y;

@@ -13,6 +13,7 @@ import { ITEMS } from '../pickups/pickups.js';
 import { checkEvolutions } from '../party/evolution.js';
 import { refreshHud } from '../hud/hud.js';
 import { music } from '../../music.js';
+import { fmt } from '../clock/clock.js';
 
 const $ = id => document.getElementById(id);
 let tab = 'party', selUid = null, wired = false;
@@ -117,7 +118,10 @@ function system(body) {
     <p><b>Battle:</b> 1 2 3 shout specials · 4 5 6 stance · F finisher · G parry (as a hit lands: counter / reflect) · C befriend (tap the weak dachi) · T tonic · Q switch · R run</p>
     <p><b>Gamepad:</b> left stick walk · A action · Start menu · X Y RB specials · B parry · RT befriend · LT tonic · LB switch · Back run. Ritual: X Y B or flick a stick left / up / right.</p>
     <p><b>Touch:</b> drag anywhere on the left to walk · tap people, items and glowing things · in the ritual, drag your finger through the nodes.</p>
-    <p>Playthrough ${G.cycle}: levels go up to ${capsFor(G.cycle).maxLevel}; damage is capped at ${capsFor(G.cycle).maxDamage}. New Game+ raises both (twice).</p></div>`);
+    <p>Playthrough ${G.cycle}: levels go up to ${capsFor(G.cycle).maxLevel}; damage is capped at ${capsFor(G.cycle).maxDamage}. New Game+ raises both (twice).</p></div>
+    <div class="controls clock"><h3>Time played: ${fmt(G.clock.total)}</h3>
+    <p>Exploring ${fmt(G.clock.mode.world)} · Battles ${fmt(G.clock.mode.battle + G.clock.mode.ritual)} · Talking ${fmt(G.clock.mode.dialog)} · Story ${fmt(G.clock.mode.cutscene)} · Menus ${fmt(G.clock.mode.menu)}</p>
+    <p>${Object.entries(G.clock.chapter).map(([c, s]) => 'Chapter ' + c.slice(1) + ' ' + fmt(s)).join(' · ') || 'Chapter 1 0:00'}</p></div>`);
   const row = document.createElement('div'); row.className = 'row'; body.appendChild(row);
   mountSoundToggle({ host: row, isMuted: () => S.sfx.muted, setMuted: m => S.sfx.setMuted(m), className: 'tappable' });
   const mus = document.createElement('button'); mus.className = 'tappable';
