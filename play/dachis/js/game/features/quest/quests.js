@@ -82,6 +82,35 @@ export const QUESTS = [
         say: ['That is Kumabo\'s gear, all right. It will want you to keep it, you know. For luck.', 'And take a Heart Seal. Down in that tube you will need every friend you can make.'] },
     ],
     reward: { collectible: 'c17', items: { seal: 1 } } },
+  
+  { id: 'bubble-mend', region: 'shellhaven', giver: 'shell-v0', name: 'A Thin Spot', after: 'boss_ashlo',
+    steps: [
+      { kind: 'talk', npc: 'shell-v0', text: 'Talk to the fish folk keeper by the gate in Shellhaven',
+        say: ['See how the skin ripples there? A thin spot. If it pops, the sea comes in.', 'Frost dachis can breathe a bubble hard as ice. Make friends with one and bring it here?'] },
+      { kind: 'befriend', type: 'Frost', text: 'Befriend a Frost dachi',
+        say: ['Your new friend puffs a breath of frost. A little bubble freezes in the air and drops into your hand.'] },
+      { kind: 'talk', npc: 'shell-v0', text: 'Bring your Frost friend back to Shellhaven',
+        say: ['Oh, look at that - the skin went smooth the moment it breathed on it!', 'Keep the frozen one. A bit of our air, for when you are far from the sea.'] },
+    ],
+    reward: { collectible: 'c32' } },
+  { id: 'clam-pearl', region: 'shellhaven', giver: 'shell-v1', name: 'The Quiet Clam', after: 'boss_ashlo',
+    steps: [
+      { kind: 'talk', npc: 'shell-v1', text: 'Talk to the fish folk by the giant clam',
+        say: ['The clam has not opened all day. It sulks when nobody feeds it.', 'It loves sweets. Do you have a Sweet Candy? Just one.'] },
+      { kind: 'deliver', npc: 'shell-v1', item: 'candy', n: 1, text: 'Bring a Sweet Candy to the clam keeper in Shellhaven',
+        say: ['The clam opens wide - and spits out a shell, right at your head. That means thank you, in clam.', 'Wear it! You look like one of us now.'] },
+    ],
+    reward: { collectible: 'c40', items: { tonic: 1 } } },
+  { id: 'city-song', region: 'shellhaven', giver: 'shell-v3', name: 'The City That Sang', after: 'boss_ashlo',
+    steps: [
+      { kind: 'talk', npc: 'shell-v3', text: 'Talk to the fish folk who listens to Memory Stones',
+        say: ['Grandmother says the drowned temple up in Coral Deep still sings when the tide moves through it.', 'I have never been brave enough to go. Would you listen for me?'] },
+      { kind: 'visit', sec: 'coral', text: 'Listen at the drowned temple in Coral Deep',
+        say: ['The tide breathes through the temple\'s broken windows. It sounds like a choir that forgot the words.'] },
+      { kind: 'talk', npc: 'shell-v3', text: 'Tell the fish folk in Shellhaven what you heard',
+        say: ['It really sings? Then the city is not all gone.', 'You should keep the song. You heard it first.'] },
+    ],
+    reward: { collectible: 'c37' } },
 ];
 export const questById = (id) => QUESTS.find((q) => q.id === id) || null;
 export const SIDE = QUESTS.filter((q) => !q.main);

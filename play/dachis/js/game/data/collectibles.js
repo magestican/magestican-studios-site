@@ -22,7 +22,7 @@ export const PER_REGION = 15;
 
 
 const spot = (sec, u, v, map) => ({ spot: map ? { sec, uv: [u, v], map } : { sec, uv: [u, v] } });
-const SHRINE_V = 'shrine-village', COAST = 'tomo-coast'; 
+const SHRINE_V = 'shrine-village', COAST = 'tomo-coast', SHELL = 'shellhaven'; 
 export const COLLECTIBLES = [
   
   { id: 'c1', region: HOME, kind: 'relic', name: 'Spiral Shard', from: { quest: 'spiral-watch' },
@@ -86,6 +86,38 @@ export const COLLECTIBLES = [
     text: 'A memory: Ashlo, eyes already red at the edges, carrying the bell\'s clapper down into the dark so no warning would ever ring.' },
   { id: 'c30', region: TUBE, kind: 'stone', name: 'Ember and Ash', from: spot('ember-a', -3.5, 52.3),
     text: 'A memory: Ashlo licking the burned paw of a village child, long ago, whispering that fire is for keeping people warm.' },
+  
+  
+  { id: 'c31', region: SHELL, kind: 'relic', name: 'Pearl Doorknob', from: spot('shellhaven', -8.0, 38.6),
+    text: 'A doorknob of pearl from a house in the drowned city. The door it opened is long gone; the knob still turns.' },
+  { id: 'c32', region: SHELL, kind: 'relic', name: 'Frozen Bubble', from: { quest: 'bubble-mend' },
+    text: 'A bubble a Frost dachi breathed on until it froze solid. Inside it, a little of Shellhaven\'s air, forever.' },
+  { id: 'c33', region: SHELL, kind: 'relic', name: 'Drowned Coin', from: spot('shellhaven', 5.0, 30.8),
+    text: 'A coin from the city\'s market, green with the sea. One side shows a whale; the other side has worn away.' },
+  { id: 'c34', region: SHELL, kind: 'relic', name: 'Harbour Bell', from: spot('shellhaven', 11.0, 40.2),
+    text: 'A small brass bell that once hung on the harbour wall. It rang when the boats came home.' },
+  { id: 'c35', region: SHELL, kind: 'relic', name: 'Mosaic Tile', from: spot('coral', 13.0, 99.0, HOME),
+    text: 'A blue tile from the temple floor, painted with a child riding a whale. Someone polished it, a long time after the flood.' },
+  { id: 'c36', region: SHELL, kind: 'shell', name: 'Bubble Song', cue: 'town', from: spot('shellhaven', -5.0, 50.0),
+    text: 'The hum of the bubble\'s skin, the clam breathing, fish folk laughing. Home, under the sea.' },
+  { id: 'c37', region: SHELL, kind: 'shell', name: 'Drowned Choir', cue: 'cave', from: { quest: 'city-song' },
+    text: 'The drowned temple singing to itself as the tide moves through it. It sounds like people who are not there.' },
+  { id: 'c38', region: SHELL, kind: 'shell', name: 'Leviathrum\'s Lament', cue: 'boss', from: { boss: 'leviathrum' },
+    text: 'The great guardian\'s call, the one he sent out every night for a hundred years. Somebody finally heard it.' },
+  { id: 'c39', region: SHELL, kind: 'hat', name: 'Kelp Beanie', geo: 'beanie', from: spot('shellhaven', 8.0, 34.2),
+    text: 'A beanie knitted from dried kelp. It smells like the sea and it is a little bit crunchy.' },
+  { id: 'c40', region: SHELL, kind: 'hat', name: 'Conch Helmet', geo: 'helmet', from: { quest: 'clam-pearl' },
+    text: 'Half a conch shell, worn as a helmet. The giant clam spat it out to say thank you.' },
+  { id: 'c41', region: SHELL, kind: 'hat', name: 'Diving Goggles', geo: 'goggles', from: spot('shellhaven', -11.0, 39.4),
+    text: 'Round brass diving goggles from the drowned city. Through them the whole world looks like an aquarium.' },
+  { id: 'c42', region: SHELL, kind: 'hat', name: 'Coral Horns', geo: 'horns', from: spot('coral', 14.0, 95.6, HOME),
+    text: 'Two little branches of pink coral on a band. Fish folk children wear them to play Leviathrum.' },
+  { id: 'c43', region: SHELL, kind: 'stone', name: 'The Last Boat', from: spot('shellhaven', 9.0, 46.2),
+    text: 'A memory: the last boat leaving the city as the water rose, and Leviathrum promising the crying children he would keep their homes until they came back.' },
+  { id: 'c44', region: SHELL, kind: 'stone', name: 'A Hundred Tides', from: spot('shellhaven', -6.0, 33.8),
+    text: 'A memory: Leviathrum sweeping the empty streets every morning for a hundred years, so they would be clean when his people returned.' },
+  { id: 'c45', region: SHELL, kind: 'stone', name: 'The Red Tide', from: spot('coral', 12.2, 94.0, HOME),
+    text: 'A memory: a red hand reaching down through the water and whispering that no one was coming back. Leviathrum believed it.' },
 ];
 export const collectibleById = (id) => COLLECTIBLES.find((c) => c.id === id) || null;
 export const found = (flags, id) => !!(flags && flags.found && flags.found[id]);
@@ -120,7 +152,7 @@ export function whereToLook(c) {
   if (f.quest) return 'Someone in need will thank you with it.';
   if (f.boss) return 'It sleeps inside a corrupted guardian.';
   return { jungle: 'Somewhere under the jungle leaves.', road: 'Somewhere along the old road.', coast: 'Somewhere the tide reaches.',
-    shrine: 'Somewhere among the shrine lanterns.', 'tomo-coast': 'Somewhere the tide reaches.', 'shrine-village': 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.',
+    shrine: 'Somewhere among the shrine lanterns.', 'tomo-coast': 'Somewhere the tide reaches.', shellhaven: 'Somewhere inside the bubble.', coral: 'Somewhere among the drowned ruins.', 'shrine-village': 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.',
     'ember-a': 'Somewhere in the glow of the Ember Tube.', 'ember-b': 'Somewhere between the lava pools.' }[f.spot.sec]
     || 'Somewhere off the beaten path.';
 }
