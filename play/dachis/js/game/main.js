@@ -451,7 +451,10 @@ function frame(now) {
     if (G.mode === 'title') { const a = t * 0.12; updateCamera(dt, { x: VOLC.x + Math.cos(a) * 3.5, y: VOLC.y + Math.sin(a) * 3.5 }); }
     else updateCamera(dt, B ? battleFocus() : G.player);
     worldView.update(t);
-    drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
+    
+    
+    const cheer = (B && B.state === 'end' && B.result !== 'lose') || (!B && S.cheerUntil > performance.now());
+    drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), cheer, hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
     drawNpcs(t);
     if (G.region === HOME) drawBossLairs(t, B);
     drawWilds(t, B ? (w => w === B.wild || inArena(w.x, w.y, B, -0.8)) : null);

@@ -659,6 +659,7 @@ export function finishBattle() {
   const b = B; B = null;
   b.ally.bb.dispose(S.stage.scene); b.enemy.bb.dispose(S.stage.scene);
   G.mode = 'world'; G.safeTimer = 2.5;
+  if (b.result === 'capture' || b.result === 'win') S.cheerUntil = performance.now() + 1300; 
   music.battle(false);
   onFinish(b);
 }

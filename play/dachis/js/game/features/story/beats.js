@@ -173,9 +173,35 @@ function elderAfterAshlo() {
   ]);
   saveGame();
 }
+
+
+function elderAfterLeviathrum() {
+  G.flags.elderLeviathrum = true;
+  say([
+    L(ELDER, 'The tide came in gentle this morning. Leviathrum is free, then.'),
+    L(KID, 'It said the tide erases every footprint. That only the ones who leave get remembered.'),
+    L(ELDER, 'Hm. A lonely thing to believe at the bottom of the sea. Whoever told it that wanted it to leave.'),
+    L(NARR, 'Hibone\'s egg is warm against your back now, like a stone left in the sun.'),
+    L(ELDER, 'Two guardians set free. Inland, past the jungle, the Verdant Wilds have gone quiet. Too quiet. The birds left first.'),
+  ]);
+  saveGame();
+}
+function elderAfterBramble() {
+  G.flags.elderBramble = true;
+  say([
+    L(ELDER, 'Mother Bramble... I knew her when her antlers still flowered. You brought her home.'),
+    L(KID, 'She called our world soil. She said the new world would be their garden.'),
+    L(ELDER, 'Then someone is promising the dachis a paradise, and asking them to pay for it with everything they love.'),
+    L(NARR, 'Something inside Hibone\'s egg taps back when you touch it. Once. Twice.'),
+    L(ELDER, 'Three guardians, child. The spirals are not an accident. Rest now - what comes next will ask more of you.'),
+  ]);
+  saveGame();
+}
 export function talkTo(n) {
   if (n.kind === 'elder') {
     if (G.flags.boss_ashlo && !G.flags.elderAshlo) return elderAfterAshlo();
+    if (G.flags.boss_leviathrum && !G.flags.elderLeviathrum) return elderAfterLeviathrum();
+    if (G.flags.boss_bramble && !G.flags.elderBramble) return elderAfterBramble();
     if (!G.flags.starter) return say([L(ELDER, 'Hurry, child! Down the road — follow the red dashes on your map to the X.')]);
     if (!G.flags.initiated) return say([L(ELDER, 'A guardian’s egg... So Hibone found you. Go on, the priests are waiting.')]);
     if (!G.flags.kumabo) return say([L(ELDER, 'You have been initiated. I can feel it. Go on — Kumabo is waiting for you.')]);
