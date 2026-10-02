@@ -1,5 +1,6 @@
 
 
+import { eggLine } from '../story/egg.js';
 import { G, S, saveGame, healParty, addDachi } from '../../state.js';
 import { speciesById, statsOf } from '../../data/species.js';
 import { giveXp, xpReward, bondAfter, BOND_NEW_FRIEND, battleReport } from './rules.js';
@@ -44,6 +45,8 @@ export function onBattleFinished(b) {
       G.flags['boss_' + b.boss] = true;
       msgs.unshift({ text: `"${speciesById(enemy.sp).blurb}"`, who: speciesById(enemy.sp).name }, fallLine(lairOf(b.boss), speciesById(enemy.sp).name)); 
       msgs.push(...bossStoneLines(b.boss)); 
+      G.flags.egg = (G.flags.egg || 0) + 1; 
+      msgs.push({ text: eggLine(G.flags.egg) });
     }
     if (res === 'win') msgs.push(...questEvent({ kind: 'beat', boss: b.boss || null, sp: enemy.sp }));
     if (Math.random() < 0.25) { G.items.tonic++; msgs.push('Found a Berry Tonic!'); }

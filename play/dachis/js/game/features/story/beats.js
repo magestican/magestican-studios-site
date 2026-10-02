@@ -156,8 +156,22 @@ function kumaboThanks() {
 }
 
 
+
+function elderAfterAshlo() {
+  G.flags.elderAshlo = true;
+  say([
+    L(ELDER, 'You faced Cinderwarden Ashlo... and you came back. The mountain breathes easier tonight.'),
+    L(ELDER, 'Ashlo was a guardian once, as your Hibone is. Whatever waits behind the spirals turned him.'),
+    L(NARR, 'Hibone\'s egg shifts in your pack.'),
+    L(ELDER, 'So it has begun to wake. Every guardian you set free will warm it a little more.'),
+    L(ELDER, 'Aerowing will carry you now, child. Rest at any hot spring you have visited and call for her.'),
+    L(ELDER, 'The tide pulls below Tomo Coast. Something old is stirring in Coral Deep, under the reef.'),
+  ]);
+  saveGame();
+}
 export function talkTo(n) {
   if (n.kind === 'elder') {
+    if (G.flags.boss_ashlo && !G.flags.elderAshlo) return elderAfterAshlo();
     if (!G.flags.starter) return say([L(ELDER, 'Hurry, child! Down the road — follow the red dashes on your map to the X.')]);
     if (!G.flags.initiated) return say([L(ELDER, 'A guardian’s egg... So Hibone found you. Go on, the priests are waiting.')]);
     if (!G.flags.kumabo) return say([L(ELDER, 'You have been initiated. I can feel it. Go on — Kumabo is waiting for you.')]);
