@@ -627,6 +627,35 @@ function priestHat(h, dec) {
     metal(S.union(0.02, ell([0, top + 0.62 * r, z + 0.33 * r], [0.17 * r, 0.17 * r, 0.06 * r]), S.capsule([0, top + 0.35 * r, z + 0.34 * r], [0, top + 0.95 * r, z + 0.27 * r], 0.035 * r)), GOLD)];
 }
 
+
+
+function bandana(h) { 
+  const r = h.r, c = h.c, WRAP = lin('#fbf6ea');
+  const band = S.transform(S.torus([0, 0, 0], 0.92 * r, 0.12 * r), { translate: [c[0], c[1] + 0.42 * r, c[2]], rotate: [-0.18, 0, 0] });
+  const kn = [c[0], c[1] + 0.5 * r, c[2] - 0.95 * r];
+  const tails = [[-0.35, -0.25], [0.3, -0.4]].map(([dx, dy]) => S.roundCone(kn, [kn[0] + dx * r, kn[1] + dy * r, kn[2] - 0.35 * r], 0.1 * r, 0.05 * r));
+  const stripe = S.transform(S.torus([0, 0, 0], 0.97 * r, 0.04 * r), { translate: [c[0], c[1] + 0.42 * r, c[2]], rotate: [-0.18, 0, 0] });
+  return [fur(S.union(0.03, band, ...tails, S.sphere(kn, 0.14 * r)), WRAP), fur(stripe, lin('#e25b5b'))];
+}
+function emberCap(h) { 
+  const r = h.r, c = [h.c[0], h.c[1] + 0.68 * h.r, h.c[2]], R = [0.88 * r, 0.66 * r, 0.88 * r];
+  const dome = S.intersect(0.03, ell(c, R), S.field((x, y) => c[1] + 0.05 * r - y));
+  const crack = S.intersect(0.01, S.shell(ell(c, [R[0] + 0.03, R[1] + 0.03, R[2] + 0.03]), 0.05 * r),
+    S.field((x, y, z) => Math.abs(Math.sin(Math.atan2(z - c[2], x - c[0]) * 3) * 0.18 * r - (y - c[1] - 0.3 * r)) - 0.07 * r));
+  return [fur(dome, lin('#7a5a4e')), glow(crack, lin('#ff7a2a')), glow(S.sphere([c[0], c[1] + R[1] + 0.02, c[2]], 0.1 * r), lin('#ffb347'))];
+}
+function backCap(h) { 
+  const r = h.r, c = [h.c[0], h.c[1] + 0.45 * h.r, h.c[2]], R = [0.86 * r, 0.7 * r, 0.86 * r];
+  const dome = S.intersect(0.03, ell(c, R), S.field((x, y) => c[1] + 0.06 * r - y));
+  const brim = S.transform(S.roundBox([0, 0, 0], [0.5 * r, 0.04 * r, 0.42 * r], 0.03 * r), { translate: [c[0] + 0.55 * r, c[1] + 0.12 * r, c[2] - 0.85 * r], rotate: [0.15, -0.75, 0] }); 
+  const button = S.sphere([c[0], c[1] + R[1] + 0.02, c[2]], 0.09 * r);
+  return [fur(dome, lin('#2b6fd6')), fur(S.union(0.02, brim, button), lin('#ffd23d'))];
+}
+const HAT_SHAPES = { priest: (h, dec) => priestHat(h, dec), bandana, ember: emberCap, backcap: backCap };
+export const HAT_GEOS = Object.keys(HAT_SHAPES);
+
+export const hatGeo = (hat) => (hat === true ? 'priest' : HAT_SHAPES[hat] ? hat : null);
+
 function bandage(h, ly) {
   
   
@@ -767,7 +796,7 @@ export function dachiNode(sp, opts = {}) {
   if (L.signature && !(PP.beak && (L.signature === 'trunk' || L.signature === 'cheeks'))) details.push(...signature(L.signature, h, ly, col, acc, st, lampCol, shapeEff));
   if (L.armor) details.push(...armour(ly).map(swingN));
   if (L.wizardHat) details.push(...wizardHat(h));
-  else if (opts.hat) details.push(...priestHat(h, dec));
+  else if (hatGeo(opts.hat)) details.push(...HAT_SHAPES[hatGeo(opts.hat)](h, dec));
   else if (st === 3 && !HEAD_SIGS.has(L.signature)) details.push(...crown(h, acc));
   if (opts.bandage) details.push(...bandage(h, ly));
   const node = S.union(0.025, ...details);
@@ -798,7 +827,8 @@ export const DECAL_UV = [8.5 / 32, 1 - 23.5 / 32];
 const STAGE_CELL = [1, 1.14, 1.24];
 const cache = new Map();
 export const modelStats = { built: 0, ms: 0, tris: 0, log: [] };
-export const modelKey = (spId, opts = {}) => `${spId}${opts.bandage ? 'b' : ''}${opts.hat ? 'h' : ''}`;
+
+export const modelKey = (spId, opts = {}) => { const g = hatGeo(opts.hat); return `${spId}${opts.bandage ? 'b' : ''}${g ? 'h' + (g === 'priest' ? '' : g) : ''}`; };
 
 function boundsOf(node) {
   if (node.box) { const min = node.box.min.slice(); if (!node.box.free) min[1] = Math.max(min[1], -0.25); 

@@ -15,7 +15,7 @@ import { seeActorMaterial } from '../../engine/iso/seeThrough.js';
 import { castMode } from './look/celRules.js';
 import { page, tn } from './scenery/kit.js';
 import { hash2 } from '../../vendor/arbelo/paint/texturePaint.js';
-import { dachiArrays, modelKey, DECAL_UV } from './dachiModel.js';
+import { dachiArrays, modelKey, hatGeo, DECAL_UV } from './dachiModel.js';
 import { kidArrays } from './kidModel.js';
 import { elderArrays } from './elderModel.js';
 import { bossArrays, bossKey, bossById } from './bossModel.js';
@@ -70,7 +70,7 @@ function pump() {
 }
 
 export function requestModel(spId, opts, cb, lowPri = false) {
-  const geo = { bandage: !!opts.bandage, hat: !!opts.hat }, boss = speciesById(spId).boss;
+  const geo = { bandage: !!opts.bandage, hat: hatGeo(opts.hat) }, boss = speciesById(spId).boss;
   
   
   if (boss) return requestJob({ key: bossKey(boss), kind: 'boss', opts: { boss } }, cb, lowPri);

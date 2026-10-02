@@ -71,6 +71,7 @@ function retryOnGesture() {
   addEventListener('pointerdown', go, true); addEventListener('keydown', go, true);
 }
 
+let pinned = null; 
 let held = null; 
 function start(cue, again = false) {
   
@@ -124,11 +125,20 @@ export const music = {
   
   
   update(mode, B, sec, mood = null) {
-    const cue = cueFor({ mode, battle: B ? { boss: !!(B.boss || B.script === 'guardian'), state: B.state, result: B.result } : null, sec, mood });
+    const cue = pinned || cueFor({ mode, battle: B ? { boss: !!(B.boss || B.script === 'guardian'), state: B.state, result: B.result } : null, sec, mood });
     if (cue === null || cue === current) return;
     current = cue;
     if (on) start(cue);
   },
+  
+  
+  listen(cue) {
+    pinned = cue || null;
+    if (pinned) { current = pinned; start(pinned); return; }
+    current = null;
+    if (!on) { for (const a of Object.values(els)) fadeTo(a, 0, () => a.pause()); stopFallback(); }
+  },
+  listening: () => pinned,
   battle() {  },
   
   state: () => ({ on, current, fallback, playing: Object.entries(els).filter(([, a]) => !a.paused).map(([c, a]) => c + '@' + a.currentTime.toFixed(1) + ' v' + a.volume.toFixed(2)), failed: [...failed] }),

@@ -16,7 +16,8 @@ import { setPortraitStage, prewarmDex, aerowingRidePortrait } from './art/portra
 import { celLook, setLineRole } from './art/look/celLook.js';
 import { initBattleFx, updateBattleFx } from './features/battle/battleFx3d.js';
 import { lookName } from './art/look/celRules.js';
-import { material as castMaterial } from './art/dachiActor.js';
+import { material as castMaterial, prewarm as prewarmModels } from './art/dachiActor.js';
+import { hatGeoOf } from './data/collectibles.js';
 import { seeActorMaterial } from '../engine/iso/seeThrough.js';
 import { generateMap, VOLC } from './features/world/mapgen.js';
 import { buildWorld } from './features/world/worldView.js';
@@ -31,7 +32,7 @@ import { spawnNpcs, clearNpcs, updateNpcs, drawNpcs, nearestNpc, separateCrowd }
 import { updateWilds, drawWilds, drawWildAlerts, removeWild } from './features/world/wilds.js';
 import { CHAR_SCALE } from './features/world/crowd.js';
 import { spotUnderKid, pickUp, hintPickup } from './features/pickups/pickups.js';
-import { questEvent } from './features/quest/questRuntime.js';
+import { questEvent, syncAchievements } from './features/quest/questRuntime.js';
 import { updateBossLairs, drawBossLairs, lairBodies } from './features/world/bossLair.js';
 import { B, startBattle, updateBattle, orderSpecial, orderStance, orderFinisher, orderParry, STANCES, startRitual, useTonic, cycleSwap, tryRun, setFinishHandler } from './features/battle/battle.js';
 import { onBattleFinished } from './features/battle/battleEnd.js';
@@ -85,6 +86,8 @@ function loadRegion(id, at = null) {
     const slice = slicer(8), t0 = performance.now();
     for (const w of G.wilds.slice()) removeWild(w);
     clearNpcs();
+    
+    prewarmModels(G.party.filter((d) => hatGeoOf(d.hat)).map((d) => [d.sp, { hat: hatGeoOf(d.hat) }]));
     worldView.dispose();
     await slice('dispose');
     if (r.pack && !packsIn.has(r.pack)) { packsIn.add(r.pack); await loadBakedForms(packUrl(r.pack)); slice.mark(); }
@@ -328,7 +331,7 @@ showResume(SCENES, (p) => {
 attract.init(paintPortrait); 
 
 $('contBtn').onclick = () => { if (loadGame()) startWithWipe($('contBtn'), () => {
-  intro.clear(); leaveTitle(); enterWorld();
+  intro.clear(); syncAchievements(true); leaveTitle(); enterWorld();
   if (G.region !== worldView.region) loadRegion(G.region, { x: G.player.x, y: G.player.y }); else spawnNpcs();
 }); };
 function enterWorld() { resetCamera(); G.mode = 'world';$('hud').classList.remove('hidden'); refreshHud(); }

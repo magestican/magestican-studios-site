@@ -3,6 +3,7 @@ import { U } from '../../../engine/core/util.js';
 import { G, S } from '../../state.js';
 import { kidBillboard, setKidFrame, dachiBillboard, setDachiLook, dachiSize } from '../../art/billboards.js';
 import { speciesById } from '../../data/species.js';
+import { hatGeoOf } from '../../data/collectibles.js';
 import { FOLLOW, BODY_R } from './crowd.js';
 
 let kid = null, pet = null, petSp = 0;
@@ -59,7 +60,7 @@ export function drawPlayer(t, { hidden = false, shout = false, hidePet = false, 
     if (lead) {
       if (lead.sp !== petSp) { petSp = lead.sp; pet.setSize(dachiSize(speciesById(lead.sp).stage)); }
       const f = G.follower;
-      setDachiLook(pet, lead.sp, { flip: f.face < 0 });
+      setDachiLook(pet, lead.sp, { flip: f.face < 0, hat: hatGeoOf(lead.hat) });
       const bob = f.moving ? Math.abs(Math.sin(f.walk)) * 0.12 : Math.sin(t * 3) * 0.02;
       pet.place(f.x, f.y, W.groundAt(f.x, f.y), bob);
     }

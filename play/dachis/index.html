@@ -14,11 +14,10 @@
 
 
 
-  <meta name="build" content="1497fef-20261002T103340Z">
+  <meta name="build" content="168563e-20261002T112622Z">
   <script>
     (function () {
-      var FILES = ['js/engine/audio/sfx.js', 'js/engine/core/save.js', 'js/engine/core/util.js', 'js/engine/core/slicer.js', 'js/engine/core/growBuf.js', 'js/engine/input/input.js',
-        'js/engine/iso/billboard.js', 'js/engine/iso/cozyStage.js', 'js/engine/iso/groundPaths.js', 'js/engine/iso/pixelPass.js', 'js/engine/iso/seeThrough.js', 'js/engine/iso/stage.js', 'js/engine/iso/terrain.js', 'js/engine/iso/water.js',
+      var FILES = ['js/engine/audio/sfx.js', 'js/engine/core/save.js', 'js/engine/core/util.js', 'js/engine/core/slicer.js', 'js/engine/core/growBuf.js', 'js/engine/input/input.js', 'js/engine/iso/cozyStage.js', 'js/engine/iso/groundPaths.js', 'js/engine/iso/pixelPass.js', 'js/engine/iso/seeThrough.js', 'js/engine/iso/stage.js', 'js/engine/iso/terrain.js', 'js/engine/iso/water.js',
         'js/engine/ui/dialog.js', 'js/engine/ui/hints.js', 'js/engine/ui/icons.js', 'js/engine/ui/pixelLayer.js',
         'js/game/art/aerowingModel.js', 'js/game/art/billboards.js', 'js/game/art/bossModel.js', 'js/game/art/castActor.js', 'js/game/art/characters.js', 'js/game/art/dachiActor.js', 'js/game/art/dachiFx.js', 'js/game/art/dachiModel.js', 'js/game/art/dachiPlans.js', 'js/game/art/dachiWorker.js',
         'js/game/art/elderModel.js', 'js/game/art/humanModel.js', 'js/game/art/humanRig.js', 'js/game/art/kidModel.js', 'js/game/art/look/celGlsl.js', 'js/game/art/look/celLook.js', 'js/game/art/look/celRules.js', 'js/game/art/look/celSky.js', 'js/game/art/look/celSurfaces.js', 'js/game/art/look/tags.js', 'js/game/art/look/worldRules.js', 'js/game/art/lookdev.js', 'js/game/art/portraitRender.js', 'js/game/art/portraits.js',
@@ -27,13 +26,13 @@
         'js/game/data/species.js',
         'js/game/features/battle/arena.js', 'js/game/features/battle/overlayLayout.js', 'js/game/features/battle/battle.js', 'js/game/features/battle/battleEnd.js', 'js/game/features/battle/battleHud.js', 'js/game/features/battle/battleView.js', 'js/game/features/battle/comic.js', 'js/game/features/clock/clock.js', 'js/game/features/world/regions.js', 'js/game/features/world/regionMaps/testbed.js', 'js/game/features/world/travel.js', 'js/game/features/battle/battleFx3d.js', 'js/game/features/battle/rules.js', 'js/game/features/battle/ringRules.js', 'js/game/features/battle/orderRing.js', 'js/game/features/battle/techniques.js',
         'js/game/features/capture/ritual.js', 'js/game/features/capture/ritualView.js',
-        'js/game/features/hud/hud.js', 'js/game/features/hud/transit.js', 'js/game/features/hud/perchMenu.js', 'js/game/features/hud/worldPage.js', 'js/game/features/quest/quests.js', 'js/game/features/quest/questRuntime.js', 'js/game/data/collectibles.js', 'js/game/features/world/worldMap.js','js/game/features/menu/menu.js', 'js/game/features/party/evolution.js', 'js/game/features/pickups/pickups.js', 'js/game/features/pvp/pvpRules.js',
+        'js/game/features/hud/hud.js', 'js/game/features/hud/transit.js', 'js/game/features/hud/perchMenu.js', 'js/game/features/hud/worldPage.js', 'js/game/features/quest/quests.js', 'js/game/features/quest/questRuntime.js', 'js/game/features/achievements/achievements.js', 'js/game/data/collectibles.js', 'js/game/features/world/worldMap.js','js/game/features/menu/menu.js', 'js/game/features/party/evolution.js', 'js/game/features/pickups/pickups.js', 'js/game/features/pvp/pvpRules.js',
         'js/game/features/story/beats.js', 'js/game/features/story/cutscene.js', 'js/game/features/story/scenes.js',
         'js/game/features/world/crowd.js', 'js/game/features/world/bossLair.js', 'js/game/features/world/lairs.js', 'js/game/features/world/mapgen.js', 'js/game/features/world/npcs.js', 'js/game/features/world/player.js', 'js/game/features/world/sectionCamera.js', 'js/game/features/world/sections.js', 'js/game/features/world/wildLevel.js', 'js/game/features/world/wilds.js','js/game/features/world/worldView.js',
         'js/game/main.js', 'js/game/music.js', 'js/game/musicCues.js', 'js/game/ambience.js', 'js/game/features/onboarding/rules.js', 'js/game/features/onboarding/onboarding.js', 'js/game/features/onboarding/attract.js','js/game/sounds.js', 'js/game/state.js',
         'js/vendor/arbelo/audio/chiptune.js', 'js/vendor/arbelo/audio/iosUnlock.js', 'js/vendor/arbelo/audio/lofi.js', 'js/vendor/arbelo/audio/scenarioMusic.js', 'js/vendor/arbelo/audio/songSpec.js',
         'js/vendor/arbelo/input/inputBus.js', 'js/vendor/arbelo/paint/texturePaint.js', 'js/vendor/arbelo/rng/seededRng.js', 'js/vendor/arbelo/ui/muteButton.js', 'js/vendor/arbelo/words/lofi.js',
-        'js/vendor/fml/moon/light/dayCycle.js', 'js/vendor/fml/moon/mesh/bevel.js', 'js/vendor/fml/moon/mesh/loft.js', 'js/vendor/fml/moon/mesh/meshData.js', 'js/vendor/fml/moon/mesh/meshPayload.js', 'js/vendor/fml/moon/mesh/sdf.js',
+        'js/vendor/fml/moon/light/dayCycle.js', 'js/vendor/fml/moon/mesh/meshData.js', 'js/vendor/fml/moon/mesh/sdf.js',
         'js/vendor/fml/moon/noise.js', 'js/vendor/fml/moon/palette/pastel.js', 'js/vendor/fml/moon/palette/seasons.js', 'js/vendor/fml/moon/world/curve.js',
         'js/vendor/fml/render/daylight.js', 'js/vendor/fml/render/material.js',
         'js/vendor/three/three.core.js', 'js/vendor/three/three.module.js'];
@@ -132,6 +131,7 @@
         <button class="tab tappable" data-tab="dex">Dachidex</button>
         <button class="tab tappable" data-tab="items">Items</button>
         <button class="tab tappable" data-tab="journal">Journal</button>
+        <button class="tab tappable" data-tab="collection">Collection</button>
         <button class="tab tappable" data-tab="system">System</button>
         <button id="menuClose" class="tappable" aria-label="Close" data-key="Esc"><i data-icon="close"></i></button>
       </div>
@@ -187,6 +187,6 @@
   </div>
   <div id="toasts"></div>
 
-  <script type="module" src="js/game/main.js?v=1497fef-20261002T103340Z"></script>
+  <script type="module" src="js/game/main.js?v=168563e-20261002T112622Z"></script>
 </body>
 </html>

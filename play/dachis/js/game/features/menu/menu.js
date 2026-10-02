@@ -1,5 +1,6 @@
 
 
+
 import { toast } from '../../../engine/ui/dialog.js';
 import { icon } from '../../../engine/ui/icons.js';
 import { mountSoundToggle } from '../../../vendor/arbelo/ui/muteButton.js';
@@ -15,7 +16,7 @@ import { refreshHud } from '../hud/hud.js';
 import { music } from '../../music.js';
 import { fmt } from '../clock/clock.js';
 import { questState } from '../quest/quests.js';
-import { COLLECTIBLES, KINDS, tally, found } from '../../data/collectibles.js';
+import { COLLECTIBLES, KINDS, tally, found, foundHats, hatGeoOf, whereToLook } from '../../data/collectibles.js';
 import { caughtCount } from '../../state.js';
 import { regionById } from '../world/regions.js';
 
@@ -33,14 +34,14 @@ export function openMenu(which) {
   }
   G.mode = 'menu'; $('menu').classList.remove('hidden'); render(which || tab);
 }
-export function closeMenu() { $('menu').classList.add('hidden'); if (G.mode === 'menu') G.mode = 'world'; refreshHud(); }
+export function closeMenu() { if (music.listening()) music.listen(null); $('menu').classList.add('hidden'); if (G.mode === 'menu') G.mode = 'world'; refreshHud(); }
 export const menuOpen = () => G.mode === 'menu';
 
 function render(t) {
   tab = t;
   document.querySelectorAll('.menuHead .tab').forEach(x => x.classList.toggle('on', x.dataset.tab === t));
   const body = $('menuBody'); body.innerHTML = '';
-  ({ party, dex, items, journal, system })[t](body);
+  ({ party, dex, items, journal, collection, system })[t](body);
 }
 
 function party(body) {
@@ -51,7 +52,7 @@ function party(body) {
   for (const d of sorted) {
     const s = speciesById(d.sp), pi = G.party.indexOf(d);
     const c = document.createElement('button'); c.className = 'denCell tappable' + (d.uid === selUid ? ' sel' : '');
-    c.appendChild(sprite(d.sp, 64));
+    c.appendChild(sprite(d.sp, 64, { hat: hatGeoOf(d.hat) }));
     c.insertAdjacentHTML('beforeend', `<div>${s.name}</div><small>Lv ${d.lvl}${pi >= 0 ? ' · #' + (pi + 1) : ''}</small>`);
     c.onclick = () => { selUid = d.uid; render('party'); };
     wrap.appendChild(c);
@@ -59,7 +60,7 @@ function party(body) {
   const d = G.box.find(x => x.uid === selUid) || G.party[0];
   if (!d) { detail.innerHTML = '<p>No dachis yet. Your guardian will find you on the road...</p>'; return; }
   const s = speciesById(d.sp), st = statsOf(d);
-  detail.appendChild(sprite(d.sp, 128));
+  detail.appendChild(sprite(d.sp, 128, { hat: hatGeoOf(d.hat) }));
   const info = document.createElement('div');
   const evo = s.evolvesTo ? `Evolves into <b>${G.dex.seen[s.evolvesTo] ? speciesById(s.evolvesTo).name : '???'}</b> at Lv ${s.evolveAt}` : 'Final form';
   info.innerHTML = `<h3>${s.id > 200 ? icon('star') : '#' + String(s.id).padStart(3, '0')} ${s.name} <span class="lv">Lv ${d.lvl} / ${capsFor(G.cycle).maxLevel}</span></h3>
@@ -82,7 +83,20 @@ function party(body) {
   if (G.party.includes(d) && G.party.length > 1) { const b = document.createElement('button'); b.textContent = 'Rest in Den'; b.onclick = () => { G.party.splice(G.party.indexOf(d), 1); saveGame(); render('party'); }; row.appendChild(b); }
   if (G.items.candy > 0 && d.lvl < capsFor(G.cycle).maxLevel) { const b = document.createElement('button'); b.className = 'tappable'; b.textContent = `Train: Spirit Candy (${G.items.candy})`; b.onclick = () => { G.items.candy--; giveXp(d, Math.max(40, xpToNext(d.lvl)), G.cycle); saveGame(); render('party'); }; row.appendChild(b); }
   if (d.noEvolve && s.evolveAt && d.lvl >= s.evolveAt) { const b = document.createElement('button'); b.className = 'gold tappable'; b.textContent = 'Evolve now'; b.onclick = () => { d.noEvolve = false; closeMenu(); checkEvolutions(); }; row.appendChild(b); }
-  info.appendChild(row); detail.appendChild(info);
+  info.appendChild(row);
+  
+  const hats = foundHats(G.flags);
+  if (hats.length) {
+    const hr = document.createElement('div'); hr.className = 'row hats'; hr.insertAdjacentHTML('beforeend', '<b>Hat</b>');
+    for (const h of [null, ...hats]) {
+      const b = document.createElement('button'); b.className = 'tappable' + ((d.hat || null) === (h && h.id) ? ' gold' : '');
+      b.textContent = h ? h.name : 'None';
+      b.onclick = () => { if (h) d.hat = h.id; else delete d.hat; saveGame(); render('party'); };
+      hr.appendChild(b);
+    }
+    info.appendChild(hr);
+  }
+  detail.appendChild(info);
 }
 
 function dex(body) {
@@ -136,6 +150,35 @@ function journal(body) {
   if (!got.length) h += '<p class="hint">Stand on a hidden spot: a "!" shows over your head. Relics, Echo Shells, Hats and Memory Stones hide all over the island.</p>';
   for (const c of got) h += `<div class="item"><span class="ico">${icon(KIND_ICON[c.kind])}</span><div><b>${esc(c.name)}</b> <small>${KINDS[c.kind].one}</small><p>${esc(c.text)}</p></div></div>`;
   body.insertAdjacentHTML('beforeend', h + '</div>');
+}
+
+
+
+function collection(body) {
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  const seen = (r) => r === 'kazan-isle' || (G.flags.regions && G.flags.regions[r]);
+  const wornBy = (id) => { const w = G.box.filter((d) => d.hat === id).map((d) => speciesById(d.sp).name); return w.length ? `<p class="stepNow">Worn by ${esc(w.join(', '))}</p>` : ''; };
+  const rows = COLLECTIBLES.filter((c) => seen(c.region)), all = tally(G.flags);
+  const wrap = document.createElement('div'); wrap.className = 'journal collection'; body.appendChild(wrap);
+  for (const [k, v] of Object.entries(KINDS)) {
+    const list = rows.filter((c) => c.kind === k), got = list.filter((c) => found(G.flags, c.id)).length;
+    wrap.insertAdjacentHTML('beforeend', `<h3 id="col-${k}">${icon(KIND_ICON[k])} ${v.name} <small>${got} / ${list.length}${all[k].total > list.length ? ' (more on islands you have not seen)' : ''}</small></h3>`);
+    if (k === 'hat' && got) wrap.insertAdjacentHTML('beforeend', '<p class="hint">Put a hat on a dachi: Dachi Den, pick one, then Hat.</p>');
+    for (const c of list) {
+      const has = found(G.flags, c.id), it = document.createElement('div');
+      it.className = 'item' + (has ? '' : ' unfound');
+      it.innerHTML = has
+        ? `<span class="ico">${icon(KIND_ICON[k])}</span><div><b>${esc(c.name)}</b> <small>${esc((regionById(c.region) || {}).name || '')}</small><p>${esc(c.text)}</p>${k === 'hat' ? wornBy(c.id) : ''}</div>`
+        : `<span class="ico">?</span><div><b>???</b><p>${esc(whereToLook(c))}</p></div>`;
+      if (has && k === 'shell') {
+        const b = document.createElement('button'), on = music.listening() === c.cue;
+        b.className = 'tappable play' + (on ? ' gold' : ''); b.textContent = on ? 'Stop' : 'Play';
+        b.onclick = () => { music.listen(on ? null : c.cue); render('collection'); };
+        it.appendChild(b);
+      }
+      wrap.appendChild(it);
+    }
+  }
 }
 
 function system(body) {

@@ -9,6 +9,7 @@ import { G, S } from '../../state.js';
 import { B, INTRO, canRitual, startRitual, parryReady } from './battle.js';
 import { STATUS_COLOR, statusOf, BEAM_LEN, TRAP_ARM } from './techniques.js';
 import { speciesById } from '../../data/species.js';
+import { hatGeoOf } from '../../data/collectibles.js';
 const spStage = f => speciesById(f.d.sp).stage;
 
 const tallOf = f => (f && f.d && speciesById(f.d.sp).boss ? 1.6 : 1);
@@ -170,7 +171,7 @@ export function placeFighters(t) {
   for (const f of [B.ally, B.enemy]) {
     const hidden = f === B.enemy && (B.result === 'capture' || (B.capture && B.capture.t > 0.6));
     f.bb.setVisible(!hidden);
-    setDachiLook(f.bb, f.d.sp, { corrupt: f.d.corrupt, flip: f.face < 0 });
+    setDachiLook(f.bb, f.d.sp, { corrupt: f.d.corrupt, flip: f.face < 0, hat: hatGeoOf(f.d.hat) });
     const bob = f.walking ? Math.abs(Math.sin(t * 12 + f.side)) * 0.1 : Math.sin(t * 4 + f.side * 2) * 0.03;
     const lx = f.lunge * 0.25 * f.face;
     f.bb.root.rotation.x = f.bb.root.rotation.z = 0; 

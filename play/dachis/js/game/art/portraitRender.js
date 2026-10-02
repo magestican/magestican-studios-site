@@ -18,7 +18,7 @@
 import * as THREE from 'three';
 import { createPixelPass } from '../../engine/iso/pixelPass.js';
 import { requestModel, requestJob, material, geometries, modelKeyOf } from './dachiActor.js';
-import { modelKey } from './dachiModel.js';
+import { modelKey, hatGeo } from './dachiModel.js';
 import { kidKey, KID_RIG } from './kidModel.js';
 import { humanRig, seatVertex, SEAT } from './humanRig.js';
 import { ELDER_KEY, ELDER_RIG } from './elderModel.js';
@@ -160,7 +160,7 @@ function entry(k, px) {
 
 
 export function dachiPortrait(spId, opts = {}, px = 32, mode = 'fit') {
-  const geo = { bandage: !!opts.bandage, hat: !!opts.hat }, variant = speciesById(spId).boss ? 'b' : opts.corrupt ? 'c' : 'n'; 
+  const geo = { bandage: !!opts.bandage, hat: hatGeo(opts.hat) }, variant = speciesById(spId).boss ? 'b' : opts.corrupt ? 'c' : 'n'; 
   const k = `d${modelKey(spId, geo)}${variant}${opts.silhouette ? 's' : ''}|${px}|${mode}`;
   const e = entry(k, px);
   if (e.started) return e;

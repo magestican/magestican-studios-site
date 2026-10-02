@@ -358,6 +358,17 @@ button.danger { background: #ffb3c8 !important; }
 .journal .tally span { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 5px; border: 3px solid var(--ink); background: #fff; font: 400 14px var(--marker); }
 .journal .tally svg { width: 16px; height: 16px; }
 
+.collection h3 { display: flex; align-items: center; gap: 6px; }
+.collection h3 svg { width: 22px; height: 22px; }
+.collection h3 small { font: 500 13px var(--body); color: #5a4a8a; }
+.collection .item.unfound { background: #efe6d2; }
+.collection .item.unfound b { color: #8a7a9a; }
+.collection .item.unfound .ico { font: 400 26px var(--marker); color: #8a7a9a; }
+.collection .item > div { flex: 1; }
+.collection .item .play { flex: none; min-width: 64px; }
+.detail .row.hats { flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.detail .row.hats b { font: 400 15px var(--marker); }
+
 
 #evolve { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;
   background: radial-gradient(circle, rgba(255,225,74,.35) 2px, transparent 2.4px) 0 0 / 14px 14px,
@@ -446,7 +457,7 @@ button.big { display: block; width: 100%; margin: 14px 0; padding: 8px 12px 7px;
   .choice { font-size: 13px; }
   .choice canvas { width: 40px; height: 40px; }
   #ritualCanvas { height: 180px; }
-  .menuHead { gap: 5px; padding: 8px 6px 7px; }
+  .menuHead { gap: 5px; padding: 8px 6px 7px; flex-wrap: wrap; row-gap: 7px; } 
   .tab { padding: 2px 5px 3px; font-size: 12px; border-width: 2px; box-shadow: 2px 2px 0 var(--pink); }
   #menuClose { width: 32px; height: 30px; flex: none; border-width: 2px; }
   #evolve p { font-size: 30px; }

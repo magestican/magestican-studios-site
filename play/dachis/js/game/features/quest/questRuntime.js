@@ -6,8 +6,18 @@ import { speciesById } from '../../data/species.js';
 import { advance, reminder } from './quests.js';
 import { collect, collectibleById, bossCollectibles, KINDS } from '../../data/collectibles.js';
 import { ITEMS } from '../pickups/pickups.js';
+import { earned, unlock } from '../achievements/achievements.js';
 
 const NARR = { who: '' }; 
+
+
+
+
+export function syncAchievements(quiet = false) {
+  const got = earned(G.flags).map((id) => unlock(G.flags, id, Date.now())).filter(Boolean);
+  if (!quiet) for (const a of got) toast('Achievement: ' + a.name);
+  return got;
+}
 const found = (c) => `You found ${/^[AEIOU]/.test(KINDS[c.kind].one) ? 'an' : 'a'} ${KINDS[c.kind].one}: ${c.name}!`;
 
 
@@ -35,7 +45,7 @@ export function questTalk(n) {
   if (!n.id) return null;
   const who = { who: speciesById(n.sp).name, portrait: n.sp };
   const res = advance(G.flags, { kind: 'talk', npc: n.id }, G.items);
-  if (res.length) { saveGame(); return linesOf(res, who); }
+  if (res.length) { const lines = linesOf(res, who); syncAchievements(); saveGame(); return lines; }
   const r = reminder(G.flags, n.id);
   return r ? [{ ...who, text: r + '...?' }] : null;
 }
@@ -45,6 +55,7 @@ export function questEvent(event, show = false) {
   const res = advance(G.flags, event, G.items);
   if (!res.length) return [];
   const lines = linesOf(res);
+  syncAchievements();
   if (show && lines.length) S.dialog.say(lines);
   return lines;
 }
@@ -55,10 +66,13 @@ export function pickCollectible(id) {
   S.sfx.play('pickup');
   toast(found(c));
   questEvent({ kind: 'find', id }, true);
+  syncAchievements();
   saveGame();
 }
 
 export function bossStoneLines(boss) {
-  return bossCollectibles(G.flags, boss).map((c) => { collect(G.flags, c.id); return found(c); });
+  const lines = bossCollectibles(G.flags, boss).map((c) => { collect(G.flags, c.id); return found(c); });
+  syncAchievements();
+  return lines;
 }
 export { collectibleById };

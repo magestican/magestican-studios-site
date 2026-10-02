@@ -31,19 +31,19 @@ export const COLLECTIBLES = [
     text: 'Paper with a red band, like the priests\' hats. The prayer asks Tomo to keep the doors between worlds open for friends.' },
   { id: 'c5', region: HOME, kind: 'relic', name: 'Tide-Worn Mask', from: spot('coast', 14.1, 75.7),
     text: 'A carved dachi mask the sea gave back. The first Tamers wore masks like it, the stories say, to look like the friends they met.' },
-  { id: 'c6', region: HOME, kind: 'shell', name: 'Kazan Lullaby', from: { quest: 'forgotten-friends' },
+  { id: 'c6', region: HOME, kind: 'shell', name: 'Kazan Lullaby', cue: 'town', from: { quest: 'forgotten-friends' },
     text: 'Hold it to your ear: the village song, hummed by a hundred dachis around the crater fire.' },
-  { id: 'c7', region: HOME, kind: 'shell', name: 'Radio Static, 1992', from: spot('road', 1.4, 79.9),
+  { id: 'c7', region: HOME, kind: 'shell', name: 'Radio Static, 1992', cue: 'intro-alley', from: spot('road', 1.4, 79.9),
     text: 'A shell that plays a radio station from home. A DJ is talking about the weather in Brooklyn.' },
-  { id: 'c8', region: HOME, kind: 'shell', name: 'Surf Breaks', from: spot('coast', 12.7, 81.3),
+  { id: 'c8', region: HOME, kind: 'shell', name: 'Surf Breaks', cue: 'field', from: spot('coast', 12.7, 81.3),
     text: 'The waves of Tomo Coast, slowed down until they sound like a drum loop.' },
-  { id: 'c9', region: HOME, kind: 'hat', name: 'Bandage Bandana', from: { quest: 'paw-tonic' },
+  { id: 'c9', region: HOME, kind: 'hat', name: 'Bandage Bandana', geo: 'bandana', from: { quest: 'paw-tonic' },
     text: 'A clean bandage tied as a bandana. For dachis who got hurt and got back up.' },
-  { id: 'c10', region: HOME, kind: 'hat', name: 'Ember Cap', from: spot('jungle', 1.4, 62.9),
+  { id: 'c10', region: HOME, kind: 'hat', name: 'Ember Cap', geo: 'ember', from: spot('jungle', 1.4, 62.9),
     text: 'A little cap of cooled lava rock from Mt. Kazan, still warm inside.' },
-  { id: 'c11', region: HOME, kind: 'hat', name: 'Mini Priest Hat', from: spot('shrine', 3.5, 97.6),
+  { id: 'c11', region: HOME, kind: 'hat', name: 'Mini Priest Hat', geo: 'priest', from: spot('shrine', 3.5, 97.6),
     text: 'A tiny white hat with a red band. The priests pretend not to notice who wears it.' },
-  { id: 'c12', region: HOME, kind: 'hat', name: 'Backwards Cap', from: spot('road', -5.7, 82.7),
+  { id: 'c12', region: HOME, kind: 'hat', name: 'Backwards Cap', geo: 'backcap', from: spot('road', -5.7, 82.7),
     text: 'Like yours, worn backwards. Any dachi will think it is the coolest thing in the world.' },
   { id: 'c13', region: HOME, kind: 'stone', name: 'Ashlo\'s First Ember', from: { boss: 'ashlo' },
     text: 'A memory: a grey wolf pup curled by a village hearth, keeping the fire alive for everyone through the long rain.' },
@@ -75,6 +75,19 @@ export function collect(flags, id) {
 }
 
 export const bossCollectibles = (flags, boss) => COLLECTIBLES.filter((c) => c.from.boss === boss && !found(flags, c.id));
+
+
+export const hatGeoOf = (id) => { const c = id && collectibleById(id); return c && c.kind === 'hat' ? c.geo : null; };
+export const foundHats = (flags) => COLLECTIBLES.filter((c) => c.kind === 'hat' && found(flags, c.id));
+
+export function whereToLook(c) {
+  const f = c.from;
+  if (f.quest) return 'Someone in need will thank you with it.';
+  if (f.boss) return 'It sleeps inside a corrupted guardian.';
+  return { jungle: 'Somewhere under the jungle leaves.', road: 'Somewhere along the old road.', coast: 'Somewhere the tide reaches.',
+    shrine: 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.' }[f.spot.sec]
+    || 'Somewhere off the beaten path.';
+}
 
 export function tally(flags, region = null) {
   const out = {};
