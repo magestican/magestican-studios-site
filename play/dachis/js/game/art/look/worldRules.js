@@ -7,6 +7,7 @@ import { PATH as TESTBED_PATH } from '../../features/world/regionMaps/testbed.js
 import { LANE as VILLAGE_LANE } from '../../features/world/regionMaps/kazanVillage.js';
 import { PATH as EMBER_PATH } from '../../features/world/regionMaps/emberTube.js';
 import { LANE as COAST_LANE } from '../../features/world/regionMaps/tomoCoast.js';
+import { LANE as SHELL_LANE, REEF_WAY } from '../../features/world/regionMaps/shellhaven.js';
 
 
 
@@ -164,6 +165,7 @@ function kazanTags(W) {
     roadTag(W, COAST_PATH, 'coast', 'TOMO 92', 'teal', false),
     
     roadTag(W, CORAL_PATH, 'coral', 'DEEP', 'arrow'),
+    roadTag(W, REEF_WAY, 'coral', 'SHELLHAVEN', 'arrow', true, { beside: 1.1, w: 3.2, h: 1.0 }), 
     roadTag(W, VERDANT_PATH, 'verdant', 'GROVE', 'arrow'),
   ];
 }
@@ -187,7 +189,9 @@ const emberTags = (W) => [
 
 const shrineTags = (W) => [wallTag(W, 'shrine-village', 'DACHI', 'pink')]; 
 const coastTags = (W) => [wallTag(W, 'tomo-coast', 'DACHI', 'pink'), roadTag(W, COAST_LANE, 'tomo-coast', 'CORAL', 'arrow', true, BESIDE)];
-const TAG_LISTS = { [HOME_REGION]: kazanTags, testbed: testbedTags, 'kazan-village': villageTags, 'ember-tube': emberTags, 'shrine-village': shrineTags, 'tomo-coast': coastTags };
+
+const shellTags = (W) => [wallTag(W, 'shellhaven', 'DACHI', 'pink'), roadTag(W, SHELL_LANE, 'shellhaven', 'SHELLHAVEN 92', 'teal', false, BESIDE)];
+const TAG_LISTS = { shellhaven: shellTags, [HOME_REGION]: kazanTags, testbed: testbedTags, 'kazan-village': villageTags, 'ember-tube': emberTags, 'shrine-village': shrineTags, 'tomo-coast': coastTags };
 
 export function tagCells(spots) {
   const keys = [];

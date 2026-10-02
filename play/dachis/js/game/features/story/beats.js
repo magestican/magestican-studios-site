@@ -249,5 +249,5 @@ export function talkTo(n) {
   const q = questTalk(n); 
   if (q) return say(q);
   n.li = ((n.li ?? -1) + 1) % n.lines.length;
-  say([{ who: speciesById(n.sp).name, portrait: n.sp, text: n.lines[n.li] }]);
+  say([{ who: n.name || speciesById(n.sp).name, portrait: n.sp, text: n.lines[n.li] }]); 
 }

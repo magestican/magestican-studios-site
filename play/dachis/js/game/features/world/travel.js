@@ -13,6 +13,7 @@ import * as ember from './regionMaps/emberTube.js';
 import * as village from './regionMaps/kazanVillage.js';
 import * as shrine from './regionMaps/shrineVillage.js';
 import * as coast from './regionMaps/tomoCoast.js';
+import * as shell from './regionMaps/shellhaven.js';
 
 export const PERCHES = [
   
@@ -21,6 +22,8 @@ export const PERCHES = [
   
   { id: 'shrine', region: shrine.ID, name: 'Shrine Village', at: shrine.LANDING, opens: 'boss_ashlo', respawn: 'initiated' },
   { id: 'tomo-coast', region: coast.ID, name: 'Tomo Coast', at: coast.LANDING, opens: 'boss_ashlo', respawn: null },
+  
+  { id: 'shellhaven', region: shell.ID, name: 'Shellhaven', at: shell.LANDING, opens: 'boss_ashlo', respawn: null },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },

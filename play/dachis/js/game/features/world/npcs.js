@@ -10,6 +10,7 @@ import { HOME } from './regions.js';
 import * as village from './regionMaps/kazanVillage.js';
 import * as ember from './regionMaps/emberTube.js';
 import * as shrine from './regionMaps/shrineVillage.js';
+import * as shell from './regionMaps/shellhaven.js';
 import { SPECIES } from '../../data/species.js';
 
 const VILLAGER_LINES = [
@@ -56,6 +57,17 @@ export function spawnNpcs() {
     for (const d of ember.DWELLERS) {
       const sp = kinds[Math.floor(re() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, re, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: re() * 3 });
+    }
+  }
+  
+  
+  if (G.region === shell.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Tide' || s.types[0] === 'Frost')), rs = U.rng(78);
+    const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Tide');
+    add({ kind: 'villager', id: 'shell-elder', name: shell.ELDER.name, sp: old.id, ...shell.ELDER.at, still: true, lines: G.flags.boss_leviathrum ? shell.ELDER_LINES.after : shell.ELDER_LINES.before });
+    for (const d of shell.DWELLERS) {
+      const sp = kinds[Math.floor(rs() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rs, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rs() * 3 });
     }
   }
   for (let i = 0; i < 3; i++) {

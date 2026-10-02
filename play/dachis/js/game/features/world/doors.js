@@ -11,6 +11,7 @@ import * as ember from './regionMaps/emberTube.js';
 import * as village from './regionMaps/kazanVillage.js';
 import * as shrine from './regionMaps/shrineVillage.js';
 import * as coast from './regionMaps/tomoCoast.js';
+import * as shell from './regionMaps/shellhaven.js';
 
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 const MOUTH = at(1.4, 48.8); 
@@ -27,6 +28,10 @@ const SHRINE_AREA = { u: [-9, 9], v: [87.3, 101] };
 
 const COAST_WEST = { u: [9.3, 24], v: [70, 81] }, COAST_SOUTH = { u: [9.3, 24], v: [81, 84.7] };
 const COAST_ROAD = at(7.4, 78.3), CORAL_TOP = at(16.45, 86.4);
+
+
+
+const SHELL_DOOR = at(12.8, 97.2), SHELL_BACK = at(13.4, 94.6);
 export const DOORS = [
   { id: 'ember-in', region: HOME, at: MOUTH, to: ember.ID, toAt: ember.ENTRY, label: 'Enter the Ember Tube', after: 'initiated' },
   { id: 'ember-out', region: ember.ID, at: ember.ENTRY, to: HOME, toAt: MOUTH, label: 'Back to Mt. Kazan', after: null },
@@ -37,6 +42,8 @@ export const DOORS = [
   { id: 'coast-in-south', region: HOME, at: at(16.5, 83), area: COAST_SOUTH, auto: true, to: coast.ID, toAt: coast.SOUTH_GATE, label: 'Tomo Coast', after: null },
   { id: 'coast-out', region: coast.ID, at: coast.ENTRY, to: HOME, toAt: COAST_ROAD, label: 'Back to the road', after: null },
   { id: 'coast-out-south', region: coast.ID, at: coast.SOUTH_GATE, to: HOME, toAt: CORAL_TOP, label: 'On to Coral Deep', after: null },
+  { id: 'shellhaven-in', region: HOME, at: SHELL_DOOR, to: shell.ID, toAt: shell.ENTRY, label: 'Down into Shellhaven', after: null },
+  { id: 'shellhaven-out', region: shell.ID, at: shell.ENTRY, to: HOME, toAt: SHELL_BACK, label: 'Up to Coral Deep', after: null },
   { id: 'shrine-out', region: shrine.ID, at: shrine.GATE, to: HOME, toAt: ROAD_END, label: 'Back up the road', after: null },
 ];
 export const DOOR_R = 1.6; 

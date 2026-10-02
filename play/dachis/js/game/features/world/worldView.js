@@ -11,7 +11,7 @@ import { createWater } from '../../../engine/iso/water.js';
 import { buildScenery } from '../../art/scenery/village.js';
 import { bakePathField, pathGroundMaterial } from '../../../engine/iso/groundPaths.js';
 import { T, CRATER, PLATEAU_H, VOLC, RIM, SHRINE } from './mapgen.js';
-import { SECTIONS, sectionById, edgeDepth, toUV } from './sections.js';
+import { SECTIONS, sectionById, edgeDepth, toUV, fromUV } from './sections.js';
 import { lookName, groundPaletteBytes } from '../../art/look/celRules.js';
 import { classPage, tagSpots } from '../../art/look/worldRules.js';
 import { createTags } from '../../art/look/tags.js';
@@ -168,6 +168,9 @@ export async function buildWorld(stage, W, slice = noSlice) {
   
   
   if (CEL && tagSpots(W).length) { createTags(W, scenery.groups); await slice('tags'); }
+  
+  
+  if (W.bubble) { scene.add(bubbleSkin(W)); await slice('bubble'); }
   ownTextures.push(tex);
   const owned = scene.children.filter((o) => !before.has(o));
 
@@ -221,4 +224,27 @@ function crossedQuads(w, h) {
   g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
   g.setIndex(idx);
   return g;
+}
+
+
+const SKIN_MAT = new THREE.MeshBasicMaterial({ color: 0xa8ecff, transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false });
+function bubbleSkin(W) {
+  const B = W.bubble, SEG = 96, RINGS = 5, pos = [], idx = [];
+  for (let i = 0; i <= RINGS; i++) {
+    const t = i / RINGS, k = 1 - t * t * 0.08, h = -0.3 + t * 3.2;
+    for (let j = 0; j <= SEG; j++) {
+      const a = j / SEG * Math.PI * 2, [x, y] = fromUV(B.u + Math.cos(a) * B.ru * k, B.v + Math.sin(a) * B.rv * k);
+      pos.push(x, h, y);
+    }
+  }
+  for (let i = 0; i < RINGS; i++) for (let j = 0; j < SEG; j++) {
+    const a = i * (SEG + 1) + j, b = a + SEG + 1;
+    idx.push(a, b, a + 1, a + 1, b, b + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  const m = new THREE.Mesh(g, SKIN_MAT);
+  m.name = 'bubble-skin'; m.renderOrder = 2;
+  return m;
 }
