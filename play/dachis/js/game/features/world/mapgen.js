@@ -155,56 +155,50 @@ function tileTypeFor(x, y, base = false) {
   return T.GRASS;
 }
 
-export function generateMap() {
-  const N = MAP, V = N + 1;
-  const W = {
-    N, type: new Uint8Array(N * N), vh: new Float32Array(V * V), reach: new Uint8Array(N * N),
-    objects: [], grid: [], spots: [], wildTiles: [],
-  };
-  const idx = (i, j) => j * N + i;
-  const inMap = (i, j) => i >= 0 && j >= 0 && i < N && j < N;
-  W.idx = idx; W.inMap = inMap;
 
-  for (let j = 0; j < V; j++) for (let i = 0; i < V; i++) W.vh[j * V + i] = heightAtPoint(i, j);
-  
-  const carve = (type, pts) => {
-    for (let k = 0; k < pts.length - 1; k++) {
-      const [ax, ay] = pts[k], [bx, by] = pts[k + 1];
-      const steps = Math.ceil(U.dist(ax, ay, bx, by) * 3);
-      for (let s = 0; s <= steps; s++) {
-        const px = U.lerp(ax, bx, s / steps), py = U.lerp(ay, by, s / steps);
-        for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
-          const i = Math.floor(px + di * 0.6), j = Math.floor(py + dj * 0.6);
-          if (!inMap(i, j)) continue;
-          const t = type[idx(i, j)];
-          if (t !== T.PLAZA && t !== T.LAVA && t > T.SAND) type[idx(i, j)] = T.PATH;
-        }
+
+
+export function newMap(N, region, sections) {
+  const V = N + 1;
+  const W = { N, region, sections, type: new Uint8Array(N * N), vh: new Float32Array(V * V), reach: new Uint8Array(N * N), objects: [], grid: [], spots: [], wildTiles: [] };
+  W.idx = (i, j) => j * N + i;
+  W.inMap = (i, j) => i >= 0 && j >= 0 && i < N && j < N;
+  return W;
+}
+
+export function floodReach(W, type, spawn) {
+  const { N, idx, inMap } = W, reach = new Uint8Array(N * N), q = [[Math.floor(spawn.x), Math.floor(spawn.y)]];
+  reach[idx(...q[0])] = 1;
+  while (q.length) {
+    const [i, j] = q.pop();
+    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const a = i + di, b = j + dj;
+      if (!inMap(a, b) || reach[idx(a, b)] || BLOCKED.has(type[idx(a, b)])) continue;
+      reach[idx(a, b)] = 1; q.push([a, b]);
+    }
+  }
+  return reach;
+}
+
+export function carvePath(W, type, pts) {
+  const { idx, inMap } = W;
+  for (let k = 0; k < pts.length - 1; k++) {
+    const [ax, ay] = pts[k], [bx, by] = pts[k + 1];
+    const steps = Math.ceil(U.dist(ax, ay, bx, by) * 3);
+    for (let s = 0; s <= steps; s++) {
+      const px = U.lerp(ax, bx, s / steps), py = U.lerp(ay, by, s / steps);
+      for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+        const i = Math.floor(px + di * 0.6), j = Math.floor(py + dj * 0.6);
+        if (!inMap(i, j)) continue;
+        const t = type[idx(i, j)];
+        if (t !== T.PLAZA && t !== T.LAVA && t > T.SAND) type[idx(i, j)] = T.PATH;
       }
     }
-  };
-  
-  const flood = (type) => {
-    const reach = new Uint8Array(N * N), q = [[Math.floor(SPAWN.x), Math.floor(SPAWN.y)]];
-    reach[idx(...q[0])] = 1;
-    while (q.length) {
-      const [i, j] = q.pop();
-      for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        const a = i + di, b = j + dj;
-        if (!inMap(a, b) || reach[idx(a, b)] || BLOCKED.has(type[idx(a, b)])) continue;
-        reach[idx(a, b)] = 1; q.push([a, b]);
-      }
-    }
-    return reach;
-  };
-  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) W.type[idx(i, j)] = tileTypeFor(i + 0.5, j + 0.5);
-  for (const pts of [PATH_POINTS, COAST_PATH, CORAL_PATH, ...LATE_PATHS]) carve(W.type, pts);
-  
-  
-  
-  W.baseType = new Uint8Array(N * N);
-  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) W.baseType[idx(i, j)] = tileTypeFor(i + 0.5, j + 0.5, true);
-  for (const pts of [PATH_POINTS, COAST_PATH, CORAL_PATH]) carve(W.baseType, pts);
+  }
+}
 
+export function mapQueries(W) {
+  const { N, idx, inMap } = W, V = N + 1;
   W.tileType = (x, y) => { const i = Math.floor(x), j = Math.floor(y); return inMap(i, j) ? W.type[idx(i, j)] : T.DEEP; };
   
   W.heightAt = (x, y) => {
@@ -215,28 +209,7 @@ export function generateMap() {
   };
   
   W.groundAt = (x, y) => Math.max(0, W.heightAt(x, y));
-  W.sectionAt = (x, y) => { const s = sectionAtUV(...toUV(x, y)); return s ? s.id : null; };
-
-  
-  W.reach = flood(W.type);
-  W.baseReach = flood(W.baseType);
-  W.windows = sectionWindows(W);
-  W.baseWindows = sectionWindows({ N, reach: W.baseReach, groundAt: W.groundAt }, BASE_SECTIONS);
-  
-  
-  const lookIn = (wins) => (x, y, pad = 1, padBelow = pad) => {
-    const [u, v] = toUV(x, y), s = screenS(v, W.groundAt(x, y)), out = [];
-    for (const id in wins) {
-      const w = wins[id];
-      if (u > w.u[0] - pad && u < w.u[1] + pad && s > w.s[0] - pad && s < w.s[1] + padBelow) out.push(id);
-    }
-    return out;
-  };
-  W.windowsOf = lookIn(W.windows);
-  W.baseWindowsOf = lookIn(W.baseWindows);
-  W.onScreen = (x, y, pad = 1, padBelow = pad) => W.windowsOf(x, y, pad, padBelow).length > 0;
-
-  placeObjects(W);
+  W.sectionAt = (x, y) => { const s = sectionAtUV(...toUV(x, y), W.sections); return s ? s.id : null; };
   W.walkable = (x, y, rad = 0.28) => {
     const i = Math.floor(x), j = Math.floor(y);
     if (!inMap(i, j)) return false;
@@ -244,6 +217,58 @@ export function generateMap() {
     for (const o of W.grid[idx(i, j)]) if (U.dist(x, y, o.x, o.y) < o.solid + rad) return false;
     return true;
   };
+  return W;
+}
+
+
+export const lookIn = (W, wins) => (x, y, pad = 1, padBelow = pad) => {
+  const [u, v] = toUV(x, y), s = screenS(v, W.groundAt(x, y)), out = [];
+  for (const id in wins) {
+    const w = wins[id];
+    if (u > w.u[0] - pad && u < w.u[1] + pad && s > w.s[0] - pad && s < w.s[1] + padBelow) out.push(id);
+  }
+  return out;
+};
+
+export function buildGrid(W) {
+  W.grid = Array.from({ length: W.N * W.N }, () => []);
+  for (const o of W.objects) {
+    if (!o.solid) continue;
+    for (let j = Math.floor(o.y - o.solid - 1); j <= Math.floor(o.y + o.solid + 1); j++)
+      for (let i = Math.floor(o.x - o.solid - 1); i <= Math.floor(o.x + o.solid + 1); i++)
+        if (W.inMap(i, j)) W.grid[W.idx(i, j)].push(o);
+  }
+}
+
+export function generateMap() {
+  const N = MAP, V = N + 1;
+  const W = newMap(N, 'kazan-isle', SECTIONS);
+  const { idx, inMap } = W;
+
+  for (let j = 0; j < V; j++) for (let i = 0; i < V; i++) W.vh[j * V + i] = heightAtPoint(i, j);
+  const carve = (type, pts) => carvePath(W, type, pts);
+  const flood = (type) => floodReach(W, type, SPAWN);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) W.type[idx(i, j)] = tileTypeFor(i + 0.5, j + 0.5);
+  for (const pts of [PATH_POINTS, COAST_PATH, CORAL_PATH, ...LATE_PATHS]) carve(W.type, pts);
+  
+  
+  
+  W.baseType = new Uint8Array(N * N);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) W.baseType[idx(i, j)] = tileTypeFor(i + 0.5, j + 0.5, true);
+  for (const pts of [PATH_POINTS, COAST_PATH, CORAL_PATH]) carve(W.baseType, pts);
+
+  mapQueries(W);
+
+  
+  W.reach = flood(W.type);
+  W.baseReach = flood(W.baseType);
+  W.windows = sectionWindows(W);
+  W.baseWindows = sectionWindows({ N, reach: W.baseReach, groundAt: W.groundAt }, BASE_SECTIONS);
+  W.windowsOf = lookIn(W, W.windows);
+  W.baseWindowsOf = lookIn(W, W.baseWindows);
+  W.onScreen = (x, y, pad = 1, padBelow = pad) => W.windowsOf(x, y, pad, padBelow).length > 0;
+
+  placeObjects(W);
   placeSpots(W);
   
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const t = W.type[idx(i, j)]; if ((t === T.TALL || t === T.KELP || t === T.THICKET) && W.reach[idx(i, j)]) W.wildTiles.push([i + 0.5, j + 0.5]); }
@@ -282,10 +307,10 @@ function placeTerraces(W, r) {
   }
 }
 
-function addObj(W, o) {
+export function addObj(W, o) {
   o.id = W.objects.length;
   o.secs = W.windowsOf(o.x, o.y, 1.4, 2.8);
-  if (!o.secs.length) o.secs = [nearestSection(o.x, o.y).section.id];
+  if (!o.secs.length) o.secs = [nearestSection(o.x, o.y, W.sections).section.id];
   W.objects.push(o);
 }
 
@@ -550,13 +575,7 @@ function placeObjects(W) {
   placeGrowth(W, r);
   placeCoral(W);
   placeVerdant(W);
-  W.grid =Array.from({ length: N * N }, () => []);
-  for (const o of W.objects) {
-    if (!o.solid) continue;
-    for (let j = Math.floor(o.y - o.solid - 1); j <= Math.floor(o.y + o.solid + 1); j++)
-      for (let i = Math.floor(o.x - o.solid - 1); i <= Math.floor(o.x + o.solid + 1); i++)
-        if (W.inMap(i, j)) W.grid[W.idx(i, j)].push(o);
-  }
+  buildGrid(W);
 }
 
 

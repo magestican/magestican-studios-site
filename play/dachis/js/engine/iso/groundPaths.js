@@ -22,11 +22,14 @@ const segDist = (px, py, ax, ay, bx, by) => {
 };
 
 
-export function bakePathField(paths, n, perUnit = 4) {
+
+
+export async function bakePathField(paths, n, perUnit = 4, slice = null) {
   const size = n * perUnit, data = new Uint8Array(size * size * 4);
   const segs = [];
   for (const p of paths) for (let k = 0; k < p.pts.length - 1; k++) segs.push([...p.pts[k], ...p.pts[k + 1], p.half]);
   for (let j = 0; j < size; j++) for (let i = 0; i < size; i++) {
+    if (slice && i === 0) await slice('path field');
     const x = (i + 0.5) / perUnit, y = (j + 0.5) / perUnit;
     let d = RANGE;
     for (const [ax, ay, bx, by, h] of segs) {

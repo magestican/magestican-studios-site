@@ -15,9 +15,12 @@ import { placeCraterRim, createLava } from './lavaCrater.js';
 import { placeGrowth } from './growth.js';
 import { placeTemple } from './temple.js';
 
+const GROWTH_RUN = 120;
 const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple];
 
-export function buildScenery(stage, W, { crater, craterRadius, lavaHeight, sections }) {
+
+
+export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight, sections }, slice = async () => {}) {
   const { scene } = stage;
   const groups = {};
   for (const id of sections) {
@@ -25,15 +28,24 @@ export function buildScenery(stage, W, { crater, craterRadius, lavaHeight, secti
     
     const view = Object.create(W);
     view.objects = W.objects.filter((o) => o.secs.includes(id));
-    for (const place of PLACERS) place(batch, view);
-    if (id === 'kazan') placeCraterRim(batch, W, crater, craterRadius);
+    for (const place of PLACERS) {
+      
+      
+      if (place === placeGrowth) for (let k = 0; k < view.objects.length; k += GROWTH_RUN) {
+        const run = Object.create(view); run.objects = view.objects.slice(k, k + GROWTH_RUN);
+        place(batch, run); await slice('place ' + id + ' growth');
+      }
+      else { place(batch, view); await slice('place ' + id + ' ' + place.name); }
+    }
+    if (id === 'kazan' && crater) placeCraterRim(batch, W, crater, craterRadius);
     const group = batch.toGroup();
+    await slice('batch ' + id);
     scene.add(group);
     groups[id] = group;
   }
   const fire = createTorchFire(scene, W);
   const water = createSpringWater(scene, W);
-  const lava = createLava(scene, crater, craterRadius, lavaHeight);
+  const lava = crater ? createLava(scene, crater, craterRadius, lavaHeight) : { update() {} };
   const meshes = Object.values(groups).reduce((n, g) => n + g.children.length, 0);
   return {
     groups,

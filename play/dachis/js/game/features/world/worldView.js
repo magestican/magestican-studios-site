@@ -15,6 +15,8 @@ import { SECTIONS, sectionById, edgeDepth, toUV } from './sections.js';
 import { lookName, groundPaletteBytes } from '../../art/look/celRules.js';
 import { classPage } from '../../art/look/worldRules.js';
 import { createTags } from '../../art/look/tags.js';
+import { noSlice } from '../../../engine/core/slicer.js';
+import { HOME } from './regions.js';
 
 const CEL = typeof location !== 'undefined' && lookName(location.search) === 'cel';
 
@@ -42,8 +44,13 @@ const DEEP_WASH = '#4aa0b8', CORAL_RECT = sectionById('coral').rect;
 
 const MOUNTAIN = new Set(['kazan', 'slope']);
 
-export function buildWorld(stage, W) {
+
+
+
+
+export async function buildWorld(stage, W, slice = noSlice) {
   const { scene } = stage;
+  const SECS = W.sections || SECTIONS, kazan = !W.region || W.region === HOME;
   
   const before = new Set(scene.children), ownTextures = [];
   const c = new THREE.Color(), tmp = new THREE.Color();
@@ -57,19 +64,21 @@ export function buildWorld(stage, W) {
     const n = U.fbm(x * 0.22, y * 0.22, 99) - 0.5, h = W.heightAt(x, y);
     const hsl = {}; c.getHSL(hsl);
     if (h < 0) { c.lerp(tmp.set('#2e6f86'), U.clamp(-h / 2.2, 0, 0.85)); return c.getHex(); }
-    const deep = U.clamp((edgeDepth(CORAL_RECT, ...toUV(x, y)).depth + 1.5) / 3, 0, 1); 
+    const deep = kazan ? U.clamp((edgeDepth(CORAL_RECT, ...toUV(x, y)).depth + 1.5) / 3, 0, 1) : 0; 
     if (deep > 0) { c.lerp(tmp.set(DEEP_WASH), deep * (0.28 + n * 0.3)); c.getHSL(hsl); }
     c.setHSL(hsl.h + n * 0.04, hsl.s, U.clamp(hsl.l + n * 0.08 + Math.min(h, 4) * 0.008, 0, 1));
     return c.getHex();
   };
   
-  const field = bakePathField(W.paths, W.N);
+  const field = await bakePathField(W.paths, W.N, 4, slice);
+  await slice('path field');
   
   
-  const ground = createTerrain({ n: W.N, heightAt: W.heightAt, colorAt, sub: 2, detail: paintPixelDetail(),
+  const ground = await createTerrain({ n: W.N, slice, heightAt: W.heightAt, colorAt, sub: 2, detail: paintPixelDetail(),
     keepQuad: (x, y) => W.onScreen(x + 0.25, y + 0.25, 1.2, 1.2),
     material: (map) => pathGroundMaterial({ map, field, span: W.N }) });
   scene.add(ground);
+  await slice('terrain');
   const water = createWater({ center: [W.N / 2, W.N / 2], depthAt: W.heightAt, mapN: W.N });
   scene.add(water.mesh);
   
@@ -79,6 +88,7 @@ export function buildWorld(stage, W) {
     ground.material.userData.look = { role: 'ground', classes: pageTexture(classPage(W), W.N, W.N), palette: paletteTexture(), field, n: W.N };
     water.mesh.material.userData.look = { role: 'water' };
   }
+  await slice('water + class page');
 
   
   const tuftTimes = { value: 0 };
@@ -106,7 +116,7 @@ export function buildWorld(stage, W) {
   
   const tufts = {};
   const r = U.rng(99);
-  const bySec = Object.fromEntries(SECTIONS.map((sec) => [sec.id, []]));
+  const bySec = Object.fromEntries(SECS.map((sec) => [sec.id, []]));
   
   
   const rl = U.rng(1616), tall = (t) => t === T.TALL || t === T.KELP || t === T.THICKET;
@@ -115,7 +125,8 @@ export function buildWorld(stage, W) {
     for (let k = 0; k < n; k++) out.push([i + rr(), j + rr(), tall(t) ? 1 + rr() * 0.5 : 0.55 + rr() * 0.3, rr() * 6.28]);
     return out;
   };
-  for (let j = 0; j < W.N; j++) for (let i = 0; i < W.N; i++) {
+  for (let j = 0; j < W.N; j++) for (let i = 0, last = W.N - 1; i < W.N; i++) {
+    if (i === last) await slice('tuft rows');
     const t = W.type[W.idx(i, j)], tb = W.baseType[W.idx(i, j)];
     let list = tuftsOf(tb, r, i, j);
     if (t !== tb) list = tuftsOf(t, rl, i, j);
@@ -134,18 +145,20 @@ export function buildWorld(stage, W) {
     im.name = 'tufts-' + id;
     scene.add(im);
     tufts[id] = im;
+    await slice('tuft mesh ' + id);
   }
 
-  const scenery = buildScenery(stage, W, { crater: CRATER, craterRadius: 1.6, lavaHeight: PLATEAU_H + 0.03, sections: SECTIONS.map((sec) => sec.id) });
+  const scenery = await buildScenery(stage, W, { crater: kazan ? CRATER : null, craterRadius: 1.6, lavaHeight: PLATEAU_H + 0.03, sections: SECS.map((sec) => sec.id) }, slice);
   
   for (const id in scenery.groups) scenery.groups[id].userData.seeThrough = true;
   
-  if (CEL) ownTextures.push(createTags(W, scenery.groups).atlas);
+  
+  if (CEL && kazan) { ownTextures.push(createTags(W, scenery.groups).atlas); await slice('tags'); }
   ownTextures.push(tex);
   const owned = scene.children.filter((o) => !before.has(o));
 
   return {
-    water, scenery, tufts,
+    water, scenery, tufts, owned,
     
     
     
@@ -169,6 +182,7 @@ export function buildWorld(stage, W) {
     
     
     
+    region: W.region || HOME,
     showSection(id) {
       water.mesh.visible = !!(sectionById(id) && sectionById(id).sea);
       scenery.showSection(id);

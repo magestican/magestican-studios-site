@@ -41,7 +41,12 @@ export const SECTIONS = [
   
   { id: 'verdant', name: 'Verdant Wilds — The Old Grove', rect: { u: [-27, -9], v: [57, 75] }, zoom: 8.5, wall: 2.0, chapter: 3, wildTypes: ['Leaf', 'Spirit'] },
 ];
-export const sectionById = (id) => SECTIONS.find((s) => s.id === id) || null;
+
+
+
+const OTHER = [];
+export function addSections(list) { for (const s of list) if (!sectionById(s.id)) OTHER.push(s); return list; }
+export const sectionById = (id) => SECTIONS.find((s) => s.id === id) || OTHER.find((s) => s.id === id) || null;
 
 
 
@@ -74,11 +79,11 @@ export function nearestSection(x, y, list = SECTIONS) {
 
 
 export const HYST = 0.35;
-export function nextSection(curId, x, y) {
-  const [u, v] = toUV(x, y), cur = sectionById(curId);
+export function nextSection(curId, x, y, list = SECTIONS) {
+  const [u, v] = toUV(x, y), cur = list.find((s) => s.id === curId);
   if (cur && inRect(cur.rect, u, v, HYST)) return cur.id;
-  const s = sectionAtUV(u, v);
-  return s ? s.id : (cur ? cur.id : nearestSection(x, y).section.id);
+  const s = sectionAtUV(u, v, list);
+  return s ? s.id : (cur ? cur.id : nearestSection(x, y, list).section.id);
 }
 
 

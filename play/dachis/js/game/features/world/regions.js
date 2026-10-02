@@ -6,9 +6,9 @@
 
 
 
-
 import { SECTIONS } from './sections.js';
-import { MAP, SPAWN, RESPAWN } from './mapgen.js';
+import { MAP, SPAWN, RESPAWN, generateMap } from './mapgen.js';
+import * as testbed from './regionMaps/testbed.js';
 
 export const HOME = 'kazan-isle';
 export const REGIONS = [
@@ -18,8 +18,8 @@ export const REGIONS = [
     pack: 'assets/scenery-forms.bin',
   },
   {
-    id: 'testbed', name: 'Testbed', chapters: [], size: 32, interior: false, reachable: false,
-    sections: ['testbed-a', 'testbed-b'], entry: { x: 16, y: 16 }, spring: { x: 16, y: 18 }, home: { x: 16, y: 16 },
+    id: testbed.ID, name: 'Testbed', chapters: [], size: testbed.SIZE, interior: false, reachable: false,
+    sections: testbed.SECTIONS.map((s) => s.id), entry: testbed.ENTRY, spring: testbed.SPRING, home: testbed.ENTRY,
     pack: null,
   },
 ];
@@ -31,3 +31,6 @@ export function regionOf(sectionId) {
 }
 
 export const saveRegion = (s) => (s && regionById(s.region) ? s.region : HOME);
+
+const GENERATORS = { [HOME]: generateMap, [testbed.ID]: testbed.generateTestbed };
+export function generateRegion(id) { const g = GENERATORS[id]; if (!g) throw new Error('no map for region ' + id); return g(); }

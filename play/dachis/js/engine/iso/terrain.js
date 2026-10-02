@@ -6,11 +6,13 @@ import { createSheet, set, hash2, bayer, speckle, hex } from '../../vendor/arbel
 
 
 
-export function createTerrain({ n, heightAt, colorAt, sub = 2, detail, material = null, keepQuad = null }) {
+
+export async function createTerrain({ n, heightAt, colorAt, sub = 2, detail, material = null, keepQuad = null, slice = null }) {
   const V = n * sub + 1;
   const pos = new Float32Array(V * V * 3), col = new Float32Array(V * V * 3), uv = new Float32Array(V * V * 2);
   const c = new THREE.Color();
   for (let j = 0; j < V; j++) for (let i = 0; i < V; i++) {
+    if (slice && i === 0) await slice('terrain rows');
     const x = i / sub, y = j / sub, k = j * V + i;
     pos[k * 3] = x; pos[k * 3 + 1] = heightAt(x, y); pos[k * 3 + 2] = y;
     c.set(colorAt(x, y));
@@ -28,6 +30,7 @@ export function createTerrain({ n, heightAt, colorAt, sub = 2, detail, material 
   g.setAttribute('color', new THREE.BufferAttribute(col, 3));
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
   g.setIndex(idx);
+  if (slice) await slice('terrain index');
   g.computeVertexNormals();
   const map = detail ? new THREE.CanvasTexture(detail) : null;
   if (map) {

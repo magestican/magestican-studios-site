@@ -60,6 +60,10 @@ export function createStage(canvas, { viewHeight = 15, shadows = true, hours = 1
       pixel.setDither(p.dither ?? 0.9);
       pixel.setHeight(p.pixelHeight ?? pixelHeight, st.w, st.h);
     },
+    
+    
+    
+    prepare(root) { if (st.look) applyLook(root, st.look); else cozify(root); return root; },
     render() {
       
       

@@ -45,6 +45,12 @@ export function spawnNpcs() {
   }
 }
 
+
+export function clearNpcs() {
+  for (const n of G.npcs) n.bb?.dispose(S.stage.scene);
+  G.npcs = [];
+}
+
 export function removeNpc(kind) {
   const n = G.npcs.find(x => x.kind === kind);
   if (n) { n.bb.dispose(S.stage.scene); G.npcs.splice(G.npcs.indexOf(n), 1); }

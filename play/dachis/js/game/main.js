@@ -20,11 +20,13 @@ import { material as castMaterial } from './art/dachiActor.js';
 import { seeActorMaterial } from '../engine/iso/seeThrough.js';
 import { generateMap, VOLC } from './features/world/mapgen.js';
 import { buildWorld } from './features/world/worldView.js';
+import { HOME, regionById, generateRegion } from './features/world/regions.js';
+import { slicer } from '../engine/core/slicer.js';
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
 import { loadBakedForms } from './art/scenery/kit.js';
 import { createPlayerView, updatePlayer, drawPlayer } from './features/world/player.js';
-import { spawnNpcs, updateNpcs, drawNpcs, nearestNpc, separateCrowd } from './features/world/npcs.js';
-import { updateWilds, drawWilds, drawWildAlerts } from './features/world/wilds.js';
+import { spawnNpcs, clearNpcs, updateNpcs, drawNpcs, nearestNpc, separateCrowd } from './features/world/npcs.js';
+import { updateWilds, drawWilds, drawWildAlerts, removeWild } from './features/world/wilds.js';
 import { CHAR_SCALE } from './features/world/crowd.js';
 import { spotUnderKid, pickUp, hintPickup } from './features/pickups/pickups.js';
 import { updateBossLairs, drawBossLairs, lairBodies } from './features/world/bossLair.js';
@@ -58,15 +60,77 @@ S.W = generateMap();
   const build = document.querySelector('meta[name=build]')?.content;
   await loadBakedForms('assets/scenery-forms.bin' + (build && build !== 'dev' ? '?v=' + encodeURIComponent(build) : ''));
 }
-let worldView = buildWorld(S.stage, S.W);
+let worldView = await buildWorld(S.stage, S.W); 
 
 
-function rebuildWorld() {
-  worldView.dispose();
-  worldView = buildWorld(S.stage, S.W);
-  S.scenery = worldView.scenery;
-  if (cam.sec) worldView.showSection(cam.sec);
+
+
+
+const maps = new Map([[HOME, S.W]]);
+const cover = { a: 0, target: 0, hold: false, done: null, label: '' };
+const coverTo = (v) => new Promise((r) => { cover.target = v; cover.done = r; });
+let regionJob = null;
+function loadRegion(id, at = null) {
+  if (regionJob) return regionJob;
+  const r = regionById(id);
+  if (!r) return Promise.reject(new Error('no region ' + id));
+  regionJob = (async () => {
+    cover.label = r.name;
+    await coverTo(1);
+    cover.hold = true;
+    const slice = slicer(8), t0 = performance.now();
+    for (const w of G.wilds.slice()) removeWild(w);
+    clearNpcs();
+    worldView.dispose();
+    await slice('dispose');
+    if (!maps.has(id)) maps.set(id, generateRegion(id));
+    S.W = maps.get(id); G.region = id;
+    await slice('map');
+    worldView = await buildWorld(S.stage, S.W, slice);
+    S.scenery = worldView.scenery;
+    const p = at || r.entry;
+    G.player.x = p.x; G.player.y = p.y; G.follower.x = p.x; G.follower.y = p.y - 0.6;
+    if (id === HOME) spawnNpcs();
+    
+    for (const k in worldView.scenery.groups) worldView.scenery.groups[k].visible = true;
+    for (const k in worldView.tufts) worldView.tufts[k].visible = true;
+    resetCamera(); updateCamera(0, G.player);
+    await slice('camera');
+    
+    
+    for (const o of worldView.owned) { S.stage.prepare(o); await slice('look ' + o.name); }
+    const progBuilt = S.stage.renderer.info.programs.length;
+    await S.stage.renderer.compileAsync(S.stage.scene, S.stage.camera);
+    slice.mark();
+    const progWarm = S.stage.renderer.info.programs.length;
+    
+    
+    worldView.showSection(cam.sec);
+    worldView.update(G.t); S.stage.render();
+    await slice('first frame');
+    S.lastRegionLoad = { id, ms: Math.round(performance.now() - t0), slices: slice.stats(), progBuilt, progWarm };
+    if (G.mode === 'world') saveGame();
+    cover.hold = false;
+    await coverTo(0);
+    return S.lastRegionLoad;
+  })().finally(() => { regionJob = null; });
+  return regionJob;
 }
+const unloadRegion = () => loadRegion(HOME, regionById(HOME).home);
+function drawCover(ctx, dt) {
+  if (cover.a !== cover.target) {
+    cover.a = cover.target > cover.a ? Math.min(cover.target, cover.a + dt / 0.25) : Math.max(cover.target, cover.a - dt / 0.25);
+  }
+  if (cover.a === cover.target && cover.done) { const d = cover.done; cover.done = null; d(); }
+  if (cover.a <= 0) return;
+  ctx.fillStyle = `rgba(13,10,20,${cover.a})`; ctx.fillRect(0, 0, innerWidth, innerHeight);
+  if (cover.hold && cover.label) {
+    ctx.fillStyle = '#ffe45a'; ctx.font = '700 22px system-ui, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(cover.label, innerWidth / 2, innerHeight / 2); ctx.textAlign = 'left';
+  }
+}
+
+const rebuildWorld = () => loadRegion(G.region || HOME, { x: G.player.x, y: G.player.y });
 
 
 
@@ -116,7 +180,7 @@ function sizeOverlay() {
   octx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 addEventListener('resize', sizeOverlay); sizeOverlay();
-window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state, rebuildWorld };
+window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state, rebuildWorld, loadRegion, unloadRegion };
 
 
 $('touchZone').addEventListener('pointerdown', e => {
@@ -159,7 +223,11 @@ showResume(SCENES, (p) => {
   startWithWipe($('resumeBtn'), () => { leaveTitle(); playIntro({ scene: p.scene, li: p.li }); });
 });
 attract.init(paintPortrait); 
-$('contBtn').onclick = () => { if (loadGame()) startWithWipe($('contBtn'), () => { intro.clear(); leaveTitle(); enterWorld(); spawnNpcs(); }); };
+
+$('contBtn').onclick = () => { if (loadGame()) startWithWipe($('contBtn'), () => {
+  intro.clear(); leaveTitle(); enterWorld();
+  if (G.region !== worldView.region) loadRegion(G.region, { x: G.player.x, y: G.player.y }); else spawnNpcs();
+}); };
 function enterWorld() { resetCamera(); G.mode = 'world';$('hud').classList.remove('hidden'); refreshHud(); }
 
 
@@ -223,6 +291,7 @@ function frame(now) {
   I.update(); S.hints.begin(); S.dialog.update(dt); tapHint.update(); youTag.update(dt);
   S.flash = Math.max(0, S.flash - dt * 1.4);
   octx.clearRect(0, 0, innerWidth, innerHeight);
+  if (cover.hold) { drawCover(octx, dt); I.endFrame(); requestAnimationFrame(frame); return; } 
   const csc = G.mode === 'cutscene' && Cutscene.scenes ? Cutscene.scenes[Math.min(Cutscene.scene, Cutscene.scenes.length - 1)] : null;
   music.update(G.mode, B, S.cam && S.cam.sec, csc && csc.mood); 
   ambience.update(B ? 'battle' : G.mode, S.cam && S.cam.sec); 
@@ -239,9 +308,8 @@ function frame(now) {
         updatePlayer(dt, !storyLocksMovement());
         updateNpcs(dt);
         const touched = updateWilds(dt, { active: !!G.flags.starter });
-        separateCrowd(dt, lairBodies()); 
-        updateStory(dt);
-        updateBossLairs(); 
+        separateCrowd(dt, G.region === HOME ? lairBodies() : []); 
+        if (G.region === HOME) { updateStory(dt); updateBossLairs(); } 
         worldActions();
         if (touched && G.mode === 'world') startBattle(touched);
       }
@@ -259,11 +327,11 @@ function frame(now) {
     worldView.update(t);
     drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
     drawNpcs(t);
-    drawBossLairs(t, B);
+    if (G.region === HOME) drawBossLairs(t, B);
     drawWilds(t, B ? (w => w === B.wild || inArena(w.x, w.y, B, -0.8)) : null);
     if (B) placeFighters(t);
     updateBattleFx(B); setLineRole(B ? 'battle' : 'world'); 
-    updateSeeThrough(dt, B, lairBodies()); 
+    updateSeeThrough(dt, B, G.region === HOME ? lairBodies() : []); 
     S.stage.render();
     
     if (B) drawBattleOverlay(octx, t);
@@ -274,6 +342,7 @@ function frame(now) {
     if (G.mode !== 'title') { updateHud(dt); updateBattleHud(); }
     $('actionBtn').classList.toggle('hidden', !(G.mode === 'world' && I.mode === 'touch'));
   }
+  drawCover(octx, dt);
   if (S.flash > 0) { octx.fillStyle = `rgba(255,255,255,${Math.min(1, S.flash)})`; octx.fillRect(0, 0, innerWidth, innerHeight); }
   I.endFrame();
   requestAnimationFrame(frame);

@@ -31,12 +31,12 @@ function enter(id) {
 export function updateCamera(dt, focus) {
   if (cam.free) return;
   const W = S.W, stage = S.stage, p = G.player;
-  const want = nextSection(cam.sec, p.x, p.y);
+  const want = nextSection(cam.sec, p.x, p.y, W.sections);
   if (!cam.sec) enter(want);
   else if (want !== cam.sec && !cam.pending) cam.pending = want;
   if (cam.pending) {
     cam.fade = Math.min(1, cam.fade + dt / FADE);
-    if (cam.fade >= 1) { const id = cam.pending; cam.pending = null; enter(nextSection(cam.sec, p.x, p.y) === id ? id : cam.sec); }
+    if (cam.fade >= 1) { const id = cam.pending; cam.pending = null; enter(nextSection(cam.sec, p.x, p.y, W.sections) === id ? id : cam.sec); }
   } else cam.fade = Math.max(0, cam.fade - dt / FADE);
 
   const sec = sectionById(cam.sec), win = W.windows[cam.sec], aspect = stage.w / stage.h;
