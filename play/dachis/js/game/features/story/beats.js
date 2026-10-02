@@ -7,6 +7,7 @@ import { speciesById, makeDachi, GUARDIAN, STARTERS, SPECIES } from '../../data/
 import { AMBUSH, SHRINE, SPAWN } from '../world/mapgen.js';
 import { spawnNpcs } from '../world/npcs.js';
 import { HOME } from '../world/regions.js';
+import * as shrineVillage from '../world/regionMaps/shrineVillage.js';
 import { spawnWild, removeWild } from '../world/wilds.js';
 import { startBattle } from '../battle/battle.js';
 import { KID, ELDER, NARR } from './scenes.js';
@@ -41,6 +42,9 @@ const REGION_BEATS = {
   ],
 };
 export function updateRegionBeats(sec) {
+  
+  const p = G.player, T = shrineVillage.SHRINE_AT;
+  if (G.region === shrineVillage.ID && G.flags.starter && !G.flags.initiated && U.dist(p.x, p.y, T.x, T.y) < shrineVillage.CEREMONY_R && !S.dialog.active && !scene) { ceremony(); return; }
   const lines = REGION_BEATS[sec], seen = G.flags.beats || (G.flags.beats = {});
   if (!lines || seen[sec] || S.dialog.active) return;
   seen[sec] = 1;

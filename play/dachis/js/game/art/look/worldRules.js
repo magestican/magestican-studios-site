@@ -161,7 +161,9 @@ const emberTags = (W) => [
   roadTag(W, EMBER_PATH, 'ember-a', 'MAGMA HALL', 'arrow'),
   roadTag(W, EMBER_PATH, 'ember-b', 'EMBER 92', 'teal', false),
 ];
-const TAG_LISTS = { [HOME_REGION]: kazanTags, testbed: testbedTags, 'kazan-village': villageTags, 'ember-tube': emberTags };
+
+const shrineTags = (W) => [wallTag(W, 'shrine-village', 'DACHI', 'pink')];
+const TAG_LISTS = { [HOME_REGION]: kazanTags, testbed: testbedTags, 'kazan-village': villageTags, 'ember-tube': emberTags, 'shrine-village': shrineTags };
 
 export function tagCells(spots) {
   const keys = [];

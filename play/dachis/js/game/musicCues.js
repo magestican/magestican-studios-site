@@ -13,7 +13,7 @@ export const LOOPS = ['menu', 'town', 'field', 'battle', 'boss', ...INTRO_CUES];
 export const STINGERS = ['victory', 'defeat'];
 export const CUES = [...LOOPS, ...STINGERS];
 
-export const TOWNS = ['kazan', 'village', 'shrine']; 
+export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village']; 
 
 
 export const CAVES = { 'ember-a': 'intro-alley', 'ember-b': 'intro-alley' };
@@ -57,6 +57,7 @@ export const AMBIENCE = {
   road: { wind: 0.5, birds: 0.6, bugs: 0.3 },
   coast: { surf: 0.9, wind: 0.5, birds: 0.3 },
   shrine: { chimes: 0.7, wind: 0.4, birds: 0.3 },
+  'shrine-village': { chimes: 0.7, wind: 0.4, birds: 0.3 },
   coral: { surf: 0.6, wind: 0.2, bugs: 0.2 },
   verdant: { bugs: 0.7, birds: 0.8, wind: 0.3 },
 };
