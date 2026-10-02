@@ -8,6 +8,8 @@ import { speciesById, KUMABO } from '../../data/species.js';
 import { pushApart, GAP, BODY_R, lairBody, bossBody } from './crowd.js';
 import { HOME } from './regions.js';
 import * as village from './regionMaps/kazanVillage.js';
+import * as ember from './regionMaps/emberTube.js';
+import { SPECIES } from '../../data/species.js';
 
 const VILLAGER_LINES = [
   ['The red hand came through the spiral again last night. It took three of us.', 'We used to believe the spirals were doors for friends. Now they only bring pain.'],
@@ -45,6 +47,14 @@ export function spawnNpcs() {
   G.priestSp = 3 * (4 + Math.floor(r() * 37)) + 2;
   keep(add({ kind: 'priest', head: true, sp: G.priestSp, hat: true, ...P.priest, still: true }), shrinePeople);
   for (const a of P.acolytes) keep(add({ kind: 'priest', sp: 3 * (4 + Math.floor(r() * 37)) + 1, hat: true, ...a, still: true }), shrinePeople);
+  
+  if (G.region === ember.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Ember' || s.types[0] === 'Stone')), re = U.rng(77);
+    for (const d of ember.DWELLERS) {
+      const sp = kinds[Math.floor(re() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, re, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: re() * 3 });
+    }
+  }
   for (let i = 0; i < 3; i++) {
     const sp = 3 * (4 + Math.floor(r() * 37)) + 1, { x, y } = spot(SH);
     keep(add({ kind: 'villager', id: 'shrine-v' + i, sp, x, y, home: SH, radius: SH.r, lines: [SHRINE_LINES[i]], tx: x, ty: y, wait: r() * 3 }), shrinePeople);

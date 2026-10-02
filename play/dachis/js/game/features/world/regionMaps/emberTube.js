@@ -20,6 +20,18 @@ const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 export const ENTRY = at(0, 33.2);    
 export const SPRING = at(3.6, 34.8); 
 
+export const DWELLERS = [
+  { id: 'ember-v0', home: { ...at(-3.5, 37.5), r: 2.6 }, lines: [
+    'We keep the torches lit. Without them, the Tube swallows you whole.',
+    'Ash drifts down through the cracks every night now. Something up the mountain is burning that should not be.'] },
+  { id: 'ember-v1', home: { ...at(5.5, 62), r: 2.6 }, lines: [
+    'Careful by the pools. The lava down here never cools - it is fed from deep under Mt. Kazan.',
+    'The wild ones in the moss are not cruel. The heat makes them jumpy, that is all.'] },
+  { id: 'ember-v2', home: { ...at(-6, 70), r: 2.6 }, lines: [
+    'A little one hatched down here and wandered off toward the Hall. If you find her, tell the village.',
+    'Past the Hall the tube cools. Nobody goes there. Nobody comes back from there either.'] },
+];
+
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);
 function heightAtPoint(x, y) {
   const [u, v] = toUV(x, y), depth = Math.max(...SECTIONS.map((s) => edgeDepth(s.rect, u, v).depth));
@@ -53,7 +65,8 @@ export function* emberTubeSteps() {
   W.windowsOf = lookIn(W, W.windows);
   W.onScreen = (x, y, pad = 1, padBelow = pad) => W.windowsOf(x, y, pad, padBelow).length > 0;
   W.baseType = W.type; W.baseReach = W.reach; W.baseWindows = W.windows; W.baseWindowsOf = W.windowsOf;
-  W.paths = [{ pts: PATH.map((p) => [...p]), half: 0.75 }];
+  W.paths = [{ pts: PATH.map((p) => [...p]), half: 0.5 }];
+  W.npcOk = (x, y, rad) => W.walkable(x, y, rad) && U.dist(x, y, ENTRY.x, ENTRY.y) > 1.8; 
   const r = U.rng(4242);
   const road = (x, y) => { let d = Infinity; for (let k = 0; k < PATH.length - 1; k++) d = Math.min(d, segDist(PATH[k], PATH[k + 1], x, y)); return d; };
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });

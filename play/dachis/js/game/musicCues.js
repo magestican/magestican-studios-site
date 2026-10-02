@@ -16,6 +16,9 @@ export const CUES = [...LOOPS, ...STINGERS];
 export const TOWNS = ['kazan', 'village', 'shrine']; 
 
 
+export const CAVES = { 'ember-a': 'intro-alley', 'ember-b': 'intro-alley' };
+
+
 
 
 export function cueFor({ mode, battle = null, sec = null, mood = null } = {}) {
@@ -25,7 +28,7 @@ export function cueFor({ mode, battle = null, sec = null, mood = null } = {}) {
   }
   if (mode === 'cutscene' && INTRO_MOODS.includes(mood)) return 'intro-' + mood;
   if (mode === 'title' || mode === 'cutscene') return 'menu';
-  if (mode === 'world') return TOWNS.includes(sec) ? 'town' : 'field';
+  if (mode === 'world') return TOWNS.includes(sec) ? 'town' : CAVES[sec] || 'field';
   if (mode === 'travel') return 'field'; 
   return null;
 }
@@ -47,6 +50,8 @@ export function preloadFor(cue) {
 export const AMBIENCE = {
   kazan: { wind: 0.5, rumble: 0.7, birds: 0.25 },
   village: { wind: 0.5, rumble: 0.7, birds: 0.25 },
+  'ember-a': { rumble: 0.8, wind: 0.25 },
+  'ember-b': { rumble: 1, wind: 0.15 },
   slope: { wind: 0.8, rumble: 0.3, birds: 0.35 },
   jungle: { bugs: 0.8, birds: 0.7, wind: 0.2 },
   road: { wind: 0.5, birds: 0.6, bugs: 0.3 },

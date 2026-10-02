@@ -147,12 +147,12 @@ export function hullLod(groups, { cells = HULL_CELLS, cellMin = HULL_CELL_MIN, f
 
 export const GROUND_CLASSES = ['grass', 'tall', 'sand', 'rock', 'lava', 'plaza', 'shallow', 'deep', 'wood', 'cliff',
   'jungle', 'reef', 'kelp', 'ruin', 'glade', 'thicket', 'moss'];
-export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant'];
+export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant', 'ember'];
 
 
 export const GROUND_BASE = {
   grass: ['#59ad46', '#87cf61'], tall: ['#357f2e', '#4f9f38'], sand: ['#e8c98a', '#f6e2a8'], rock: ['#7d7266', '#9a8f7e'],
-  lava: ['#3a1c18', '#5a2a1e'], plaza: ['#74b04a', '#9ad35e'], shallow: ['#e3c98c', '#f0dca4'], deep: ['#d0b67c', '#e0c890'],
+  lava: ['#e8541a', '#ffa22e'], plaza: ['#74b04a', '#9ad35e'], shallow: ['#e3c98c', '#f0dca4'], deep: ['#d0b67c', '#e0c890'],
   wood: ['#2f7a34', '#3f9640'], cliff: ['#6a5c56', '#857468'], jungle: ['#2c7d3a', '#3f9a46'], reef: ['#e6c8b0', '#f4dcc6'],
   kelp: ['#2f7f74', '#43a08e'], ruin: ['#97a6b4', '#b4c2cc'], glade: ['#2a6f38', '#3a8a40'], thicket: ['#1f5a32', '#2c7038'],
   moss: ['#6f9a54', '#8cb866'], path: ['#e6bf8f', '#fff4dc'],
@@ -170,6 +170,10 @@ export const GROUND_REGION = {
   coral: { reef: ['#a8d8d0', '#c6ece4'], kelp: ['#1f7f80', '#2fa0a0'], ruin: ['#7f9cb4', '#a0bed2'], sand: ['#b8dcd0', '#d4eee4'],
     grass: ['#3a9a86', '#5cbca0'], tall: ['#287c70', '#3a9a86'], path: ['#c8e6e0', '#ffffff'] },
   verdant: { grass: ['#3a8f34', '#6cc044'], glade: ['#1f6a34', '#3a9a3c'], thicket: ['#164f2e', '#256a36'], moss: ['#5f9a4a', '#8cc65a'] },
+  
+  
+  ember: { rock: ['#4a3f3b', '#5f524b'], cliff: ['#2b2422', '#3d3330'], moss: ['#1f5c58', '#36a08a'], grass: ['#4a3f3b', '#5f524b'],
+    path: ['#a8805e', '#e8c89a'] },
 };
 
 export function groundPalette(region) {
@@ -195,7 +199,7 @@ export function luma(h) { const [r, g, b] = hexRgb(h); return 0.2126 * r + 0.715
 
 export function classByte(cls) { const i = GROUND_CLASSES.indexOf(cls); return i < 0 ? 0 : i; }
 
-const GROUND_ALIAS = { village: 'kazan' };
+const GROUND_ALIAS = { village: 'kazan', 'ember-a': 'ember', 'ember-b': 'ember' };
 export function regionByte(region) { const i = GROUND_REGIONS.indexOf(GROUND_ALIAS[region] || region); return i < 0 ? GROUND_REGIONS.indexOf('road') : i; }
 
 

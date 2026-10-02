@@ -191,7 +191,7 @@ export function kidNode({ gender = 'boy' } = {}) {
   }
 
   
-  const hd = humanHead(r, { skin, lips: o.lips });
+  const hd = humanHead(r, { skin, lips: o.lips, age: 'kid' });
   const P = hd.P, R3 = hd.R, headParts = [hd.skin];
   const strands = (c) => (x, y, z) => mix(c, light(c, 0.22), Math.max(0, Math.sin(x * 38 / H + z * 11 / H + Math.sin(y * 9 / H) * 2)) ** 3 * 0.8);
   let capNode = null;
@@ -226,7 +226,7 @@ export function kidNode({ gender = 'boy' } = {}) {
   }
   const headNode = S.union(0.012, ...headParts);
   fine.push({ ...finePart(headNode, girl ? 2100 : 1900, 0.019), box: { min: [-0.62 * H, r.shoulder - 0.05 * H, (girl ? -1.02 : -0.95) * H], max: [0.62 * H, r.crown + 0.16 * H, 0.6 * H] } });
-  fine.push(...humanEyes(hd.skin, r, { iris: o.eyes, hair: o.hair, lips: o.lips, brow: girl ? 0.8 : 1 }));
+  fine.push(...humanEyes(hd.skin, r, { iris: o.eyes, hair: o.hair, lips: o.lips, brow: girl ? 0.55 : 0.65, kid: true }));
   if (capNode) { 
     const strap = [-0.13, -0.065, 0, 0.065, 0.13].map((t) => { const q = surf(capNode, t * H, e + 0.29 * H, 0); return add(q, normalOf(capNode, q), 0.012 * H); });
     fine.push(part(tube(strap, 0.02 * H, hex(o.cap.brim)), 60, 0.009));

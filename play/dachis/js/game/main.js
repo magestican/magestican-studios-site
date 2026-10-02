@@ -49,7 +49,7 @@ import { lineKind, lineText, introZoomK } from './features/onboarding/rules.js';
 import { tapHint, installTapAnywhere, setupNames, startWithWipe, intro, showResume, youTag } from './features/onboarding/onboarding.js';
 import { attract } from './features/onboarding/attract.js';
 import { tick as clockTick, activityOf, chapterOf, newClock } from './features/clock/clock.js';
-import { afterIntro, updateStory, storyLocksMovement, talkTo } from './features/story/beats.js';
+import { afterIntro, updateStory, storyLocksMovement, talkTo, updateRegionBeats } from './features/story/beats.js';
 import { updateHud, refreshHud, openMap, closeMap, mapOpen, setMapSource, showMapTab, toggleMapTab } from './features/hud/hud.js';
 import { openMenu, closeMenu } from './features/menu/menu.js';
 
@@ -102,7 +102,7 @@ function loadRegion(id, at = null) {
     S.scenery = worldView.scenery;
     const p = at || r.entry;
     G.player.x = p.x; G.player.y = p.y; G.follower.x = p.x; G.follower.y = p.y - 0.6;
-    if (id === HOME || id === kazanVillage.ID) spawnNpcs();
+    spawnNpcs(); 
     
     for (const k in worldView.scenery.groups) worldView.scenery.groups[k].visible = true;
     for (const k in worldView.tufts) worldView.tufts[k].visible = true;
@@ -430,6 +430,7 @@ function frame(now) {
         const touched = updateWilds(dt, { active: !!G.flags.starter });
         separateCrowd(dt, G.region === HOME ? lairBodies() : []); 
         if (G.region === HOME) { updateStory(dt); updateBossLairs(); } 
+        else updateRegionBeats(cam.sec); 
         visit(G.flags, G.region, G.player.x, G.player.y); 
         
         const auto = doorAt(G.flags, G.region, G.player.x, G.player.y);

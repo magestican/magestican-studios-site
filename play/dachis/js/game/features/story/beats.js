@@ -34,6 +34,20 @@ export function afterIntro() {
 }
 
 
+const REGION_BEATS = {
+  'ember-b': [
+    L(NARR, 'The Magma Hall. Heat rolls off the pools in slow waves, and the rock hums underfoot.'),
+    L(NARR, 'Somewhere past the pools, something small is crying.'),
+  ],
+};
+export function updateRegionBeats(sec) {
+  const lines = REGION_BEATS[sec], seen = G.flags.beats || (G.flags.beats = {});
+  if (!lines || seen[sec] || S.dialog.active) return;
+  seen[sec] = 1;
+  say(lines);
+}
+
+
 export function updateStory(dt) {
   const p = G.player;
   if (!scene && G.flags.started && !G.flags.starter && U.dist(p.x, p.y, AMBUSH.x, AMBUSH.y) < 2.4 && !S.dialog.active) startAmbush();

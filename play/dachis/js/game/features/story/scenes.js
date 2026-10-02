@@ -44,6 +44,20 @@ function figure(ctx, kind, x, y, cssH, o = {}) {
 const kid3d = (ctx, x, y, scale, o) => figure(ctx, 'kid', x, y, KID_H * scale, o);
 
 
+function kidPosed(ctx, x, y, scale, pose, t) {
+  const e = pose && kidFallFigure(G.gender, FIG_PX, pose), cssH = KID_H * scale;
+  if (!e || !e.ready) return kid3d(ctx, x, y, scale);
+  const br = 1 + Math.sin(t * 2.4) * 0.012; 
+  ctx.save(); ctx.translate(x, y); ctx.scale(1, br); ctx.translate(0, -cssH / 2);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(e.canvas, -cssH / 2, -cssH / 2, cssH, cssH);
+  ctx.restore();
+}
+
+
+const VILLAGE_POSE = ['land', 'surprised', 'surprised', null, null, null, null, null, null, null, 'cheer'];
+
+
 function kidFalling(ctx, w, h, t, cssH) {
   const f = Math.floor(t * 7) % FALL_FRAMES, e = kidFallFigure(G.gender, FIG_PX, f);
   if (!e.ready) { ctx.save(); ctx.translate(w / 2, h * 0.5); ctx.rotate(Math.sin(t * 3) * 0.6); kid3d(ctx, 0, 30, cssH / KID_H); ctx.restore(); return; }
@@ -265,7 +279,7 @@ export const SCENES = [
   },
   { 
     mood: 'wonder', 
-    prewarm() { castFigure('elder', G.gender, FIG_PX); VILLAGE_EXTRAS.forEach(([, , id, band]) => crowd(id, { bandage: band })); crowd(KUMABO, { bandage: true }); },
+    prewarm() { for (const p of ['land', 'surprised', 'cheer']) kidFallFigure(G.gender, FIG_PX, p); castFigure('elder', G.gender, FIG_PX); VILLAGE_EXTRAS.forEach(([, , id, band]) => crowd(id, { bandage: band })); crowd(KUMABO, { bandage: true }); },
     lines: () => [
       Object.assign({}, ELDER, { text: 'At last... You have come. I have been expecting you, child of the other world.' }),
       Object.assign(KID(), { text: 'W-what?! Where am I?! What ARE you?! I was just in New York, and a hand—' }),
@@ -311,7 +325,9 @@ export const SCENES = [
         ctx.globalAlpha = 1;
       }
       ART.shadow(ctx, w * 0.6, h * 0.74, 22); figure(ctx, 'elder', w * 0.6, h * 0.74 + Math.sin(t * 1.5) * 1, KID_H * 2.6 * 1.2, { flip: true });
-      ART.shadow(ctx, w * 0.36, h * 0.76, 22); kid3d(ctx, w * 0.36, h * 0.76, 2.6);
+      
+      const drop = li === 0 ? Math.max(0, 1 - t / 0.45) ** 2 * h * 0.06 : 0;
+      ART.shadow(ctx, w * 0.36, h * 0.76, 22); kidPosed(ctx, w * 0.36, h * 0.76 - drop, 2.6, VILLAGE_POSE[li], t);
       if (li >= 3) {
         const k = Math.min(1, (li > 3 ? 1 : t / 2.5));
         const img = crowd(KUMABO, { bandage: true });

@@ -78,10 +78,19 @@ export function onSurface(node, pts, back = false, lift = 0.01) {
 
 export function humanHead(rig, o = {}) {
   const H = rig.hh, e = rig.eye, P = (x, y, z) => [x * H, e + y * H, z * H], R = (a, b, c) => [a * H, b * H, c * H];
-  const skin = hex(o.skin), old = o.age === 'old';
+  const skin = hex(o.skin), old = o.age === 'old', kid = o.age === 'kid';
   
   
-  const shape = [
+  
+  
+  const shape = kid ? [
+    ell(P(0, 0.12, -0.05), R(0.39, 0.44, 0.47)), 
+    ell(P(0, -0.15, 0.07), R(0.315, 0.3, 0.315)), 
+    ell(P(0, -0.3, 0.1), R(0.205, 0.13, 0.235)), 
+    ell(P(0, -0.38, 0.2), R(0.085, 0.06, 0.075)), 
+    ...[-1, 1].map((s) => ell(P(s * 0.18, -0.17, 0.2), R(0.145, 0.125, 0.13))), 
+    ell(P(0, 0.11, 0.29), R(0.26, 0.045, 0.07)), 
+  ] : [
     ell(P(0, 0.1, -0.05), R(0.37, 0.42, 0.455)), 
     ell(P(0, -0.18, 0.07), R(0.305, 0.31, 0.32)), 
     ell(P(0, -0.34, 0.1), R(old ? 0.24 : 0.225, 0.15, 0.26)), 
@@ -89,14 +98,17 @@ export function humanHead(rig, o = {}) {
     ...[-1, 1].map((s) => ell(P(s * 0.19, -0.12, 0.2), R(0.12, 0.1, 0.12))), 
     ell(P(0, 0.11, 0.3), R(0.28, 0.065, 0.09)), 
   ];
-  const nose = S.union(0.02,
+  const nose = kid ? S.union(0.02,
+    S.roundCone(P(0, -0.04, 0.37), P(0, -0.15, 0.43), 0.026 * H, 0.046 * H),
+    ...[-1, 1].map((s) => S.sphere(P(s * 0.04, -0.17, 0.39), 0.03 * H))) : S.union(0.02,
     S.roundCone(P(0, 0.03, 0.37), P(0, -0.18, 0.46), 0.032 * H, 0.052 * H),
     ...[-1, 1].map((s) => S.sphere(P(s * 0.048, -0.205, 0.405), 0.036 * H)));
   const nr = rig.neckR ?? 0.2 * H;
   const neck = S.roundCone(P(0, -0.28, -0.09), [0, rig.shoulder + 0.02 * H, -0.07 * H], nr * 0.9, nr * 1.08);
   const head = fur(S.union(0.07, ...shape, neck), skin);
   const lipC = hex(o.lips || mix(skin, lin('#b04a50'), 0.45));
-  const lips = fur(S.union(0.012, ell(P(0, -0.318, 0.352), R(0.078, 0.022, 0.03)), ell(P(0, -0.356, 0.345), R(0.066, 0.027, 0.03))), lipC);
+  const ly = kid ? 0.03 : 0, lw = kid ? 0.85 : 1; 
+  const lips = fur(S.union(0.012, ell(P(0, -0.318 + ly, 0.352), R(0.078 * lw, 0.022, 0.03)), ell(P(0, -0.356 + ly, 0.345), R(0.066 * lw, 0.027, 0.03))), lipC);
   const ears = [-1, 1].map((s) => S.subtract(0.015,
     fur(S.transform(ell([0, 0, 0], R(0.04, 0.115, 0.072)), { translate: P(s * 0.36, -0.07, -0.05), rotate: [0, s * -0.12, 0] }), skin),
     fur(S.sphere(P(s * 0.395, -0.07, -0.035), 0.036 * H), dark(skin, 0.3)), { cutColor: true }));
@@ -108,27 +120,29 @@ export function humanHead(rig, o = {}) {
 
 
 export function humanEyes(headNode, rig, o = {}) {
-  const H = rig.hh, e = rig.eye, out = [], cell = Math.max(0.004, 0.0045 * H);
+  const H = rig.hh, e = rig.eye, out = [], cell = Math.max(0.004, 0.0045 * H), k = o.kid ? 1.22 : 1;
   const irisC = hex(o.iris || '#5a3a22'), browC = hex(o.hair || '#3a2418'), lash = mix(hex(o.hair || '#3a2418'), INK, 0.6);
   for (const s of [-1, 1]) {
     const x = s * 0.155 * H, p = surf(headNode, x, e), n0 = normalOf(headNode, p), n = norm(add(n0, [0, 0, 1.2]));
     const on = (u, v, lift) => { const q = surf(headNode, x + u * H, e + v * H); return add(q, normalOf(headNode, q), lift * H); };
     if (o.lens && o.lens(s)) continue; 
-    out.push(part(lens(add(p, n, -0.006 * H), n, R3(0.092, 0.054, 0.024, H), '#efe6dc'), 60, cell));
-    out.push(part(lens(add(p, n, 0.012 * H), n, R3(0.056, 0.056, 0.014, H), irisC), 40, cell));
-    out.push(part(lens(add(p, n, 0.019 * H), n, R3(0.028, 0.028, 0.01, H), INK), 24, cell));
+    out.push(part(lens(add(p, n, -0.006 * H), n, R3(0.092 * k, 0.054 * k * 1.1, 0.024, H), '#efe6dc'), 60, cell, { inkless: true }));
+    out.push(part(lens(add(p, n, 0.012 * H), n, R3(0.056 * k, 0.056 * k, 0.014, H), irisC), 40, cell, { inkless: true }));
+    out.push(part(lens(add(p, n, 0.019 * H), n, R3(0.028 * k, 0.028 * k, 0.01, H), INK), 24, cell, { inkless: true }));
     const f = S.frameFromNormal(n);
-    out.push(part(lens(add(add(add(p, n, 0.026 * H), f.X, -0.016 * H), f.Y, 0.018 * H), n, R3(0.013, 0.013, 0.006, H), [1, 1, 1]), 16, cell));
+    out.push(part(lens(add(add(add(p, n, 0.026 * H), f.X, -0.016 * H), f.Y, 0.018 * H), n, R3(0.013, 0.013, 0.006, H), [1, 1, 1]), 16, cell, { inkless: true }));
     
     const lid = [-1, -0.5, 0, 0.5, 1].map((t) => on(t * 0.088 * s, 0.03 + (1 - t * t) * 0.02 + (t > 0 ? 0.004 : 0), 0.018));
-    out.push(part(tube(lid, (t) => (0.011 + t * 0.008) * H, lash), 60, cell));
+    const lw = o.kid ? 0.55 : 1; 
+    out.push(part(tube(lid, (t) => (0.011 + t * 0.008) * H * lw, lash), 60, cell, { inkless: true }));
     
-    const bk = o.brow || 1, brow = [-1, -0.4, 0.2, 0.7, 1.1].map((t) => on(t * 0.1 * s, 0.135 + Math.sin((t + 1) * 1.3) * 0.02 - (t > 0.8 ? 0.012 : 0) + (t < -0.5 ? 0.006 : 0), 0.012));
-    out.push(part(tube(brow, (t) => (0.019 - Math.abs(t - 0.4) * 0.008) * H * bk, browC), 70, cell * 1.3));
+    const bk = o.brow || 1, by = o.kid ? 0.035 : 0, brow = [-1, -0.4, 0.2, 0.7, 1.1].map((t) => on(t * 0.1 * s, 0.135 + by + Math.sin((t + 1) * 1.3) * 0.02 - (t > 0.8 ? 0.012 : 0) + (t < -0.5 ? 0.006 : 0), 0.012));
+    out.push(part(tube(brow, (t) => (0.019 - Math.abs(t - 0.4) * 0.008) * H * bk, browC), 70, cell * 1.3, { inkless: true }));
   }
   
-  const ml = [-1, -0.5, 0, 0.5, 1].map((t) => { const q = surf(headNode, t * 0.075 * H, e + (-0.337 + Math.abs(t) ** 2 * 0.012 + (t > 0 ? t * 0.006 : 0)) * H); return add(q, normalOf(headNode, q), 0.004 * H); });
-  out.push(part(tube(ml, 0.009 * H, mix(hex(o.lips || '#a0505a'), INK, 0.55)), 40, cell));
+  const my = o.kid ? 0.03 : 0, mw = o.kid ? 0.85 : 1;
+  const ml = [-1, -0.5, 0, 0.5, 1].map((t) => { const q = surf(headNode, t * 0.075 * mw * H, e + (-0.337 + my + Math.abs(t) ** 2 * 0.012 + (t > 0 ? t * 0.006 : 0)) * H); return add(q, normalOf(headNode, q), 0.004 * H); });
+  out.push(part(tube(ml, 0.009 * H, mix(hex(o.lips || '#a0505a'), INK, 0.55)), 40, cell, { inkless: true }));
   return out;
 }
 const R3 = (a, b, c, H) => [a * H, b * H, c * H];

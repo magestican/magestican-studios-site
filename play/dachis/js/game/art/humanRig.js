@@ -144,10 +144,19 @@ export const FALL = [
   { arm: [2.6, 2.3], elbow: [0.3, 0.7], leg: [0.3, 0.5], knee: [1.0, 0.6] },
   { arm: [2.4, 2.0], elbow: [0.8, 0.4], leg: [0.55, 0.35], knee: [0.7, 0.9] },
 ];
+
+
+
+export const POSES = {
+  land: { arm: [0.75, 0.85], elbow: [0.35, 0.3], leg: [0.22, 0.22], knee: [0.4, 0.35] },
+  surprised: { arm: [1.05, 1.0], elbow: [1.45, 1.5], leg: [0.12, 0.12], knee: [0.12, 0.12] },
+  cheer: { arm: [0.3, 2.75], elbow: [0.35, 0.55], leg: [0.1, 0.12], knee: [0, 0.1] },
+};
 const turnZ = (v, a, px, py) => { const c = Math.cos(a), s = Math.sin(a), x = v[0] - px, y = v[1] - py; return [c * x - s * y + px, s * x + c * y + py, v[2]]; };
 
+
 export function fallVertex(rig, v, pos, tag = 0, frame = 0, point = true) {
-  const f = FALL[frame % FALL.length], [x, y] = pos, side = x < 0 ? -1 : 1, i = side < 0 ? 0 : 1, k = point ? 1 : 0;
+  const f = typeof frame === 'string' ? POSES[frame] : FALL[frame % FALL.length], [x, y] = pos, side = x < 0 ? -1 : 1, i = side < 0 ? 0 : 1, k = point ? 1 : 0;
   const isArm = tag === 1 ? 1 : 0, isBody = tag === 2 ? 1 : 0;
   const armW = isArm + (1 - isArm - isBody) * armWeight(rig, x, y);
   const A = rig.armLine, along = (Math.abs(x) - A.sx) * A.dx + (y - A.sy) * A.dy;

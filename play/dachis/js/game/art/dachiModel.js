@@ -852,6 +852,10 @@ const DACHI_TRIS = 2000, DACHI_CELL = 0.064, DECAL_CELL = 0.03;
 export const DECAL_UV = [8.5 / 32, 1 - 23.5 / 32];
 
 
+
+export const NO_INK_UV = [9.5 / 32, 1 - 23.5 / 32];
+
+
 const STAGE_CELL = [1, 1.14, 1.24];
 const cache = new Map();
 export const modelStats = { built: 0, ms: 0, tris: 0, log: [] };
@@ -894,7 +898,7 @@ export function buildArrays(name, node, label = name, t0 = (typeof performance !
   
   
   
-  for (const { node: dn, tris: dt, cell: dc, ao: fineAo, uv: ownUv, box, rig: partRig } of node.decals || []) {
+  for (const { node: dn, tris: dt, cell: dc, ao: fineAo, uv: ownUv, box, rig: partRig, inkless } of node.decals || []) {
     fillTags(0); 
     const b = dn.b, lo = box ? box.min : b.c.map((v) => v - b.r), hi = box ? box.max : b.c.map((v) => v + b.r);
     const before = new Map([...md.groups].map(([k, g]) => [k, g.uvs.length]));
@@ -906,7 +910,8 @@ export function buildArrays(name, node, label = name, t0 = (typeof performance !
     
     
     if (tp) modelStats.trace.push({ key: name, ms: Date.now() - tp, cell: dc, tris: dt, got, ao: !!fineAo });
-    if (!ownUv) for (const [k, g] of md.groups) for (let i = before.get(k) || 0; i < g.uvs.length; i += 2) { g.uvs[i] = DECAL_UV[0]; g.uvs[i + 1] = DECAL_UV[1]; }
+    const du = inkless ? NO_INK_UV : DECAL_UV;
+    if (!ownUv) for (const [k, g] of md.groups) for (let i = before.get(k) || 0; i < g.uvs.length; i += 2) { g.uvs[i] = du[0]; g.uvs[i + 1] = du[1]; }
     fillTags(partRig || 0);
   }
   const arr = md.toArrays();

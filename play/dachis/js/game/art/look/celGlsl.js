@@ -89,6 +89,8 @@ void main() {
   vec3 p = position; vec3 n = normal;
   ${pose.p}
   ${pose.n}
+  // an inkless decal (dachiModel NO_INK_UV: a human's eyes and mouth) gets no outline: dropped past the far plane
+  if ( abs( uv.x - ${(9.5 / 32).toFixed(6)} ) < 1e-4 && abs( uv.y - ${(1 - 23.5 / 32).toFixed(6)} ) < 1e-4 ) { gl_Position = vec4( 0.0, 0.0, 2.0, 1.0 ); return; }
   vec4 w = modelMatrix * vec4( p, 1.0 );
   vec4 c = projectionMatrix * viewMatrix * w;
   vec2 cn = ( projectionMatrix * viewMatrix * vec4( normalize( mat3( modelMatrix ) * n ), 0.0 ) ).xy;
