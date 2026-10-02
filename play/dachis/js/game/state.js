@@ -3,7 +3,7 @@
 import { createSaveSlot } from '../engine/core/save.js';
 import { statsOf, SPECIES } from './data/species.js';
 import { SPAWN, RESPAWN } from './features/world/mapgen.js';
-import { nextLair } from './features/world/lairs.js';
+import { mainStep } from './features/quest/quests.js';
 import { newClock, fixClock } from './features/clock/clock.js';
 import { HOME, saveRegion, regionById } from './features/world/regions.js';
 
@@ -77,10 +77,6 @@ export function objective() {
   
   const r = G.region && G.region !== HOME ? regionById(G.region) : null;
   if (r && r.objective) return r.objective;
-  if (!G.flags.starter) return 'Run down the road to the priests — the X on your map';
-  if (!G.flags.initiated) return 'Run to the Shrine Village — the X on your map';
-  if (!G.flags.kumabo) return 'Return to Kazan Village and see Kumabo';
-  const lair = nextLair(G.flags); 
-  if (lair) return lair.hint;
-  return `Befriend every dachi — ${caughtCount()} / ${SPECIES.length}`;
+  
+  return mainStep(G.flags, { caught: caughtCount(), total: SPECIES.length }).text;
 }

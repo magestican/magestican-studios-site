@@ -34,14 +34,14 @@ export function spawnNpcs() {
   const spot = (home) => pickNpcSpot(S.W, r, home, home.r, 1.2, [...G.npcs, G.player]) || pickNpcSpot(S.W, r, home, home.r) || { x: home.x, y: home.y };
   for (let i = 0; i < 6; i++) {
     const fam = 4 + Math.floor(r() * 37), sp = fam * 3 + 1 + (r() < 0.3 ? 1 : 0), bandage = r() < 0.6, { x, y } = spot(K);
-    add({ kind: 'villager', sp, bandage, x, y, home: K, radius: K.r, lines: VILLAGER_LINES[i], tx: x, ty: y, wait: r() * 3 });
+    add({ kind: 'villager', id: 'kazan-v' + i, sp, bandage, x, y, home: K, radius: K.r, lines: VILLAGER_LINES[i], tx: x, ty: y, wait: r() * 3 });
   }
   G.priestSp = 3 * (4 + Math.floor(r() * 37)) + 2;
   add({ kind: 'priest', head: true, sp: G.priestSp, hat: true, ...P.priest, still: true });
   for (const a of P.acolytes) add({ kind: 'priest', sp: 3 * (4 + Math.floor(r() * 37)) + 1, hat: true, ...a, still: true });
   for (let i = 0; i < 3; i++) {
     const sp = 3 * (4 + Math.floor(r() * 37)) + 1, { x, y } = spot(SH);
-    add({ kind: 'villager', sp, x, y, home: SH, radius: SH.r, lines: [SHRINE_LINES[i]], tx: x, ty: y, wait: r() * 3 });
+    add({ kind: 'villager', id: 'shrine-v' + i, sp, x, y, home: SH, radius: SH.r, lines: [SHRINE_LINES[i]], tx: x, ty: y, wait: r() * 3 });
   }
 }
 

@@ -7,6 +7,7 @@ import { removeWild } from '../world/wilds.js';
 import { checkEvolutions } from '../party/evolution.js';
 import { respawnPoint } from '../world/travel.js';
 import { lairOf, fallLine } from '../world/lairs.js';
+import { questEvent, bossStoneLines } from '../quest/questRuntime.js';
 
 export function onBattleFinished(b) {
   
@@ -37,11 +38,14 @@ export function onBattleFinished(b) {
       enemy.bond = BOND_NEW_FRIEND;        
       const joined = addDachi(enemy);
       msgs.push(joined ? `${es.name} joined your companions!` : `${es.name} went to your Dachi Den. (Friends: ${G.box.length})`);
+      msgs.push(...questEvent({ kind: 'befriend', sp: enemy.sp, types: es.types })); 
     }
     if (b.boss && res === 'win') { 
       G.flags['boss_' + b.boss] = true;
       msgs.unshift({ text: `"${speciesById(enemy.sp).blurb}"`, who: speciesById(enemy.sp).name }, fallLine(lairOf(b.boss), speciesById(enemy.sp).name)); 
+      msgs.push(...bossStoneLines(b.boss)); 
     }
+    if (res === 'win') msgs.push(...questEvent({ kind: 'beat', boss: b.boss || null, sp: enemy.sp }));
     if (Math.random() < 0.25) { G.items.tonic++; msgs.push('Found a Berry Tonic!'); }
     removeWild(wild);
   } else if (res === 'lose') {

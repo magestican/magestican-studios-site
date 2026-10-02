@@ -4,6 +4,8 @@ import { U } from '../../../engine/core/util.js';
 import { toast } from '../../../engine/ui/dialog.js';
 import { G, S, saveGame } from '../../state.js';
 import { CHAR_SCALE } from '../world/crowd.js';
+import { collectibleAt } from '../../data/collectibles.js';
+import { pickCollectible } from '../quest/questRuntime.js';
 
 export const ITEMS = {
   tonic: { name: 'Berry Tonic', icon: 'cup', text: 'Restores half the HP of your fighting dachi. In battle: T.' },
@@ -13,10 +15,13 @@ export const ITEMS = {
 
 export function spotUnderKid() {
   const p = G.player;
-  return S.W.spots.find(s => !G.flags.taken[s.id] && U.dist(p.x, p.y, s.x, s.y) < 0.6) || null;
+  return S.W.spots.find(s => !G.flags.taken[s.id] && U.dist(p.x, p.y, s.x, s.y) < 0.6)
+    || collectibleAt(G.flags, G.region, p.x, p.y) 
+    || null;
 }
 
 export function pickUp(spot) {
+  if (!spot.item) return pickCollectible(spot.id);
   G.flags.taken[spot.id] = 1;
   G.items[spot.item] = (G.items[spot.item] || 0) + 1;
   S.sfx.play('pickup');

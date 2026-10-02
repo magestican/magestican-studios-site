@@ -96,7 +96,8 @@ body.input-keys #minimap::after { right: auto; left: -7px; }
 
 #bigMap { position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   background: radial-gradient(rgba(43,26,74,.55), rgba(11,6,32,.85)); cursor: pointer; }
-#bigCanvas { width: min(640px, 90vw, calc(100vh - 90px)); height: min(640px, 90vw, calc(100vh - 90px)); transform: rotate(-1deg); filter: drop-shadow(8px 10px 0 rgba(0,0,0,.5)); }
+#bigCanvas { width: min(640px, 90vw, calc(100vh - 140px)); height: min(640px, 90vw, calc(100vh - 140px)); transform: rotate(-1deg); filter: drop-shadow(8px 10px 0 rgba(0,0,0,.5)); }
+#mapTabs { display: flex; gap: 12px; margin-right: 26px; } body.input-keys #mapTabWorld::after { top: 4px; right: -27px; }  #mapTabs .tab[hidden] { display: none; } 
 #bigMap p { margin: 0; font: 400 16px var(--marker); color: #fff; text-shadow: 2px 2px 0 var(--ink); }
 
 
@@ -345,6 +346,17 @@ button.danger { background: #ffb3c8 !important; }
 .item .ico { font-size: 28px; width: 40px; text-align: center; }
 .item p { margin: 2px 0 0; font-size: 13px; }
 .controls p { font-size: 14px; }
+
+.journal { display: flex; flex-direction: column; gap: 10px; }
+.journal h3 { margin: 6px 0 0; font: 400 20px var(--marker); }
+.journal .quest.main { background: var(--yellow); }
+.journal .quest.done { opacity: .7; }
+.journal .stepDone { margin: 2px 0 0; font-size: 13px; color: #6a5a7a; text-decoration: line-through; }
+.journal .stepNow { margin: 2px 0 0; font: 600 14px var(--body); color: #c2186b; }
+.journal .item small { font: 500 12px var(--body); color: #5a4a8a; }
+.journal .tally { display: flex; flex-wrap: wrap; gap: 8px; }
+.journal .tally span { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 5px; border: 3px solid var(--ink); background: #fff; font: 400 14px var(--marker); }
+.journal .tally svg { width: 16px; height: 16px; }
 
 
 #evolve { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;

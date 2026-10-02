@@ -9,6 +9,7 @@ import { hpColor, attrBadge } from '../battle/battleHud.js';
 import { T, locationName } from '../world/mapgen.js';
 import { MINI, miniXY, transitPlan } from './transit.js';
 import { regionById, HOME } from '../world/regions.js';
+import { drawWorld, drawRegionMini } from './worldPage.js';
 
 export { miniXY };
 const $ = id => document.getElementById(id);
@@ -31,10 +32,9 @@ export function updateHud(dt) {
   const sec = S.W.sectionAt(G.player.x, G.player.y);
   if (sec) { const seen = G.flags.seen || (G.flags.seen = {}); if (!seen[sec]) { seen[sec] = 1; baseKey = ''; } }
   $('objective').textContent = objective();
-  const mini = $('minimap');
-  if (mini.hidden === R.transit) mini.hidden = !R.transit; 
+  
   miniTimer -= dt;
-  if (R.transit && miniTimer <= 0) { miniTimer = 0.1; drawMinimap(); }
+  if (miniTimer <= 0) { miniTimer = 0.1; if (R.transit) drawMinimap(); else drawRegionMini($('miniCanvas'), S.W, R.id, G.flags, G.player, fontsIn ? 'f' : ''); }
   companions();
 }
 
@@ -137,16 +137,29 @@ function paintTransit(W, plan, size, big) {
 }
 
 
-export function openMap() {
-  if (G.mode !== 'world' || S.dialog.active || !here().transit) return;
+
+
+let mapOf = () => null, mapTab = 'island';
+export const setMapSource = (fn) => { mapOf = fn; };
+export function openMap(tab) {
+  if (G.mode !== 'world' || S.dialog.active) return;
   G.mode = 'menu';
   $('bigMap').classList.remove('hidden');
+  showMapTab(tab || (here().transit ? 'island' : 'world'));
+}
+export function showMapTab(tab) {
+  if (!here().transit) tab = 'world';
+  mapTab = tab;
+  $('mapTabIsland').hidden = !here().transit;
+  for (const b of document.querySelectorAll('#mapTabs .tab')) b.classList.toggle('on', b.dataset.tab === tab);
   const c = $('bigCanvas'), ctx = c.getContext('2d');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (tab === 'world') return drawWorld(c, G.flags, here().id, G.player, (id) => (id === G.region ? S.W : mapOf(id)), fontsIn ? 'f' : '');
   ctx.drawImage(paintTransit(S.W, transitPlan(G.flags), c.width, true), 0, 0);
   ctx.setTransform(c.width / MINI, 0, 0, c.width / MINI, 0, 0);
   youAreHere(ctx, 0.8);
 }
+export const toggleMapTab = () => showMapTab(mapTab === 'world' ? 'island' : 'world');
 export function closeMap() {
   $('bigMap').classList.add('hidden');
   if (G.mode === 'menu' && $('menu').classList.contains('hidden')) G.mode = 'world';

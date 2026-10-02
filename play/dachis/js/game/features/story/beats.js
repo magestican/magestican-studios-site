@@ -9,6 +9,7 @@ import { spawnNpcs } from '../world/npcs.js';
 import { spawnWild, removeWild } from '../world/wilds.js';
 import { startBattle } from '../battle/battle.js';
 import { KID, ELDER, NARR } from './scenes.js';
+import { questTalk } from '../quest/questRuntime.js';
 
 const HIBONE = { who: 'Hibone', portrait: GUARDIAN };
 const TOMO = { who: 'Tomo, the First Friend', portrait: undefined };
@@ -157,6 +158,8 @@ export function talkTo(n) {
     if (!G.flags.initiated) return n.head ? ceremony() : say([{ who: 'Priest Dachi', portrait: 'priest', text: 'The High Priest awaits you at the temple steps.' }]);
     return say([{ who: 'Priest Dachi', portrait: 'priest', text: 'May your bond with every dachi grow strong, Tamer {name}.' }]);
   }
+  const q = questTalk(n); 
+  if (q) return say(q);
   n.li = ((n.li ?? -1) + 1) % n.lines.length;
   say([{ who: speciesById(n.sp).name, portrait: n.sp, text: n.lines[n.li] }]);
 }

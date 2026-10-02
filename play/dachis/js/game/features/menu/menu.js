@@ -14,6 +14,10 @@ import { checkEvolutions } from '../party/evolution.js';
 import { refreshHud } from '../hud/hud.js';
 import { music } from '../../music.js';
 import { fmt } from '../clock/clock.js';
+import { questState } from '../quest/quests.js';
+import { COLLECTIBLES, KINDS, tally, found } from '../../data/collectibles.js';
+import { caughtCount } from '../../state.js';
+import { regionById } from '../world/regions.js';
 
 const $ = id => document.getElementById(id);
 let tab = 'party', selUid = null, wired = false;
@@ -24,7 +28,7 @@ export function openMenu(which) {
   if (G.mode !== 'world' || S.dialog.active) return;
   if (!wired) {
     wired = true;
-    document.querySelectorAll('.tab').forEach(t => { t.onclick = () => render(t.dataset.tab); });
+    document.querySelectorAll('.menuHead .tab').forEach(t => { t.onclick = () => render(t.dataset.tab); });
     $('menuClose').onclick = closeMenu;
   }
   G.mode = 'menu'; $('menu').classList.remove('hidden'); render(which || tab);
@@ -34,9 +38,9 @@ export const menuOpen = () => G.mode === 'menu';
 
 function render(t) {
   tab = t;
-  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.dataset.tab === t));
+  document.querySelectorAll('.menuHead .tab').forEach(x => x.classList.toggle('on', x.dataset.tab === t));
   const body = $('menuBody'); body.innerHTML = '';
-  ({ party, dex, items, system })[t](body);
+  ({ party, dex, items, journal, system })[t](body);
 }
 
 function party(body) {
@@ -110,6 +114,28 @@ function items(body) {
     saveGame(); render('items');
   };
   body.appendChild(b);
+}
+
+
+const KIND_ICON = { relic: 'star', shell: 'play', hat: 'flower', stone: 'egg' };
+function journal(body) {
+  const j = questState(G.flags, { caught: caughtCount(), total: SPECIES.length });
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  let h = `<div class="journal"><h3>Main quest: ${esc(j.main.name)}</h3><div class="item quest main"><span class="ico">${icon('star')}</span><div><b>${esc(j.main.text)}</b></div></div>`;
+  h += '<h3>Side quests</h3>';
+  if (!j.side.length) h += '<p class="hint">Villagers with a problem will ask for your help. Talk to everyone!</p>';
+  for (const q of j.side) {
+    h += `<div class="item quest ${q.status}"><span class="ico">${icon(q.status === 'done' ? 'heart' : 'heartOutline')}</span><div><b>${esc(q.name)}${q.status === 'done' ? ' · done' : ''}</b>`;
+    h += q.steps.map((s) => `<p class="stepDone">${esc(s)}</p>`).join('');
+    if (q.status === 'active') h += `<p class="stepNow">${esc(q.text)}</p>`;
+    h += '</div></div>';
+  }
+  const R = regionById(G.region) || regionById('kazan-isle'), t = tally(G.flags, R.id);
+  h += `<h3>Collection: ${esc(R.name)}</h3><div class="tally">${Object.entries(KINDS).map(([k, v]) => `<span>${icon(KIND_ICON[k])} ${v.name} ${t[k].found} / ${t[k].total}</span>`).join('')}</div>`;
+  const got = COLLECTIBLES.filter((c) => found(G.flags, c.id));
+  if (!got.length) h += '<p class="hint">Stand on a hidden spot: a "!" shows over your head. Relics, Echo Shells, Hats and Memory Stones hide all over the island.</p>';
+  for (const c of got) h += `<div class="item"><span class="ico">${icon(KIND_ICON[c.kind])}</span><div><b>${esc(c.name)}</b> <small>${KINDS[c.kind].one}</small><p>${esc(c.text)}</p></div></div>`;
+  body.insertAdjacentHTML('beforeend', h + '</div>');
 }
 
 function system(body) {

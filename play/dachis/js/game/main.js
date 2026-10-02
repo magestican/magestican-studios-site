@@ -31,6 +31,7 @@ import { spawnNpcs, clearNpcs, updateNpcs, drawNpcs, nearestNpc, separateCrowd }
 import { updateWilds, drawWilds, drawWildAlerts, removeWild } from './features/world/wilds.js';
 import { CHAR_SCALE } from './features/world/crowd.js';
 import { spotUnderKid, pickUp, hintPickup } from './features/pickups/pickups.js';
+import { questEvent } from './features/quest/questRuntime.js';
 import { updateBossLairs, drawBossLairs, lairBodies } from './features/world/bossLair.js';
 import { B, startBattle, updateBattle, orderSpecial, orderStance, orderFinisher, orderParry, STANCES, startRitual, useTonic, cycleSwap, tryRun, setFinishHandler } from './features/battle/battle.js';
 import { onBattleFinished } from './features/battle/battleEnd.js';
@@ -46,7 +47,7 @@ import { tapHint, installTapAnywhere, setupNames, startWithWipe, intro, showResu
 import { attract } from './features/onboarding/attract.js';
 import { tick as clockTick, activityOf, chapterOf, newClock } from './features/clock/clock.js';
 import { afterIntro, updateStory, storyLocksMovement, talkTo } from './features/story/beats.js';
-import { updateHud, refreshHud, openMap, closeMap, mapOpen } from './features/hud/hud.js';
+import { updateHud, refreshHud, openMap, closeMap, mapOpen, setMapSource, showMapTab, toggleMapTab } from './features/hud/hud.js';
 import { openMenu, closeMenu } from './features/menu/menu.js';
 
 const $ = id => document.getElementById(id);
@@ -90,6 +91,7 @@ function loadRegion(id, at = null) {
     for (const k of mapsToDrop([...maps.keys()], id)) maps.delete(k);
     if (!maps.has(id)) maps.set(id, await generateRegionSliced(id, slice));
     S.W = maps.get(id); G.region = id;
+    (G.flags.regions || (G.flags.regions = {}))[id] = 1; 
     await slice('map');
     worldView = await buildWorld(S.stage, S.W, slice);
     S.scenery = worldView.scenery;
@@ -238,7 +240,7 @@ if (lookName(location.search) === 'cel') {
   celLook().prewarm(S.stage, cast);
 }
 
-S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.showSection(id); if (G.mode === 'world') saveGame(); };
+S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.showSection(id); if (G.mode === 'world') { questEvent({ kind: 'visit', sec: id }, true); saveGame(); } };
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: SOUNDS });
 ambience.init(() => S.sfx.muted);
 S.input = createInput({
@@ -277,7 +279,7 @@ function sizeOverlay() {
   octx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 addEventListener('resize', sizeOverlay); sizeOverlay();
-window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state, rebuildWorld, loadRegion, unloadRegion, flyTo, rest: restAtSpring, devTravel: (on = true) => { S.devTravel = on; } };
+window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state, rebuildWorld, loadRegion, unloadRegion, flyTo, rest: restAtSpring, openMap, devTravel: (on = true) => { S.devTravel = on; } };
 installPerchMenu();
 
 
@@ -292,6 +294,8 @@ $('skipBtn').onclick = () => Cutscene.skip();
 $('skullBtn').onclick = () => (G.mode === 'menu' ? closeMenu() : openMenu());
 $('minimap').onclick = () => openMap();          
 $('bigMap').onclick = () => closeMap();
+for (const b of document.querySelectorAll('#mapTabs .tab')) b.onclick = (e) => { e.stopPropagation(); showMapTab(b.dataset.tab); };
+setMapSource((id) => maps.get(id) || null); 
 $('actionBtn').addEventListener('pointerdown', e => { e.preventDefault(); S.input.tap('action'); });
 
 
@@ -418,7 +422,7 @@ function frame(now) {
       updateBattle(dt);
     } else if (G.mode === 'menu') {
       if (perchMenuOpen()) { for (let k = 0; k < 3; k++) if (I.pressed('special' + (k + 1))) pickPerch(k); if (I.pressed('menu') || I.pressed('cancel')) closePerchMenu(); }
-      else if (mapOpen()) { if (I.pressed('map') || I.pressed('menu') || I.pressed('cancel') || I.pressed('action')) closeMap(); }
+      else if (mapOpen()) { if (I.pressed('swap')) toggleMapTab(); else if (I.pressed('map') || I.pressed('menu') || I.pressed('cancel') || I.pressed('action')) closeMap(); }
       else if (I.pressed('menu') || I.pressed('cancel')) closeMenu();
     }
     else if (G.mode === 'evolve') { if (I.pressed('cancel') && S.evolveCancel) S.evolveCancel(); }
