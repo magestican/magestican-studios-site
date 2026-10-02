@@ -135,7 +135,7 @@ export function tagSpots(W) {
 const HOME_REGION = 'kazan-isle';
 function kazanTags(W) {
   return [
-    wallTag(W, 'kazan', 'DACHI', 'pink'),
+    
     plazaTag(W, 'kazan', 'KAZAN 92', 'teal'),
     roadTag(W, PATH_POINTS, 'slope', 'SHRINE', 'arrow'),
     roadTag(W, PATH_POINTS, 'jungle', 'SHRINE', 'arrow'),

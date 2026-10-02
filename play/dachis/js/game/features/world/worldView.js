@@ -10,7 +10,7 @@ import { createTerrain, paintPixelDetail } from '../../../engine/iso/terrain.js'
 import { createWater } from '../../../engine/iso/water.js';
 import { buildScenery } from '../../art/scenery/village.js';
 import { bakePathField, pathGroundMaterial } from '../../../engine/iso/groundPaths.js';
-import { T, CRATER, PLATEAU_H } from './mapgen.js';
+import { T, CRATER, PLATEAU_H, VOLC, RIM } from './mapgen.js';
 import { SECTIONS, sectionById, edgeDepth, toUV } from './sections.js';
 import { lookName, groundPaletteBytes } from '../../art/look/celRules.js';
 import { classPage, tagSpots } from '../../art/look/worldRules.js';
@@ -150,7 +150,13 @@ export async function buildWorld(stage, W, slice = noSlice) {
 
   
   const cr = kazan ? { x: CRATER.x, y: CRATER.y, r: 1.6, h: PLATEAU_H + 0.03, section: 'kazan' } : W.crater || null;
-  const scenery = await buildScenery(stage, W, { crater: cr, craterRadius: cr ? cr.r : 0, lavaHeight: cr ? cr.h : 0, craterSection: cr ? cr.section : null, sections: SECS.map((sec) => sec.id) }, slice);
+  
+  
+  
+  
+  const oldVillage = (o) => (o.kind === 'hut' || o.kind === 'bed') && Math.hypot(o.x - VOLC.x, o.y - VOLC.y) < RIM.r;
+  const drawn = kazan ? Object.assign(Object.create(W), { objects: W.objects.filter((o) => !oldVillage(o)) }) : W;
+  const scenery = await buildScenery(stage, drawn, { crater: cr, craterRadius: cr ? cr.r : 0, lavaHeight: cr ? cr.h : 0, craterSection: cr ? cr.section : null, sections: SECS.map((sec) => sec.id) }, slice);
   
   for (const id in scenery.groups) scenery.groups[id].userData.seeThrough = true;
   
