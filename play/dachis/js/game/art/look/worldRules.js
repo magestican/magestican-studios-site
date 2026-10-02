@@ -91,24 +91,14 @@ function inSection(W, pts, sec) {
 }
 const TRIES = [0.5, 0.35, 0.65, 0.2, 0.8];
 
-
-
-
-function roadTag(W, pts, sec, dest, style, arrow = true, opt = {}) {
+function roadTag(W, pts, sec, dest, style, arrow = true) {
   const run = inSection(W, pts, sec);
   if (run.length < 2) return null;
   for (const f of TRIES) {
     const p = along(run, f);
-    if (!p) continue;
-    const l = Math.hypot(p.dx, p.dy) || 1, sides = opt.beside ? [1, -1] : [0];
-    for (const side of sides) {
-      const x = p.x - p.dy / l * side * (opt.beside || 0), y = p.y + p.dx / l * side * (opt.beside || 0);
-      if (W.sectionAt(x, y) !== sec || !npcSpotOk(W, x, y, 0.3)) continue;
-      if (opt.beside && !npcSpotOk(W, x + p.dx / l * (opt.w || 2) / 2, y + p.dy / l * (opt.w || 2) / 2, 0.2)) continue;
-      if (opt.beside && !npcSpotOk(W, x - p.dx / l * (opt.w || 2) / 2, y - p.dy / l * (opt.w || 2) / 2, 0.2)) continue;
-      const { text, dir } = roadText(dest, p.dx, p.dy, arrow);
-      return { kind: 'ground', section: sec, text, style, x, y, dir, w: opt.w || 2.0, h: opt.h || 0.72 };
-    }
+    if (!p || W.sectionAt(p.x, p.y) !== sec || !npcSpotOk(W, p.x, p.y, 0.3)) continue;
+    const { text, dir } = roadText(dest, p.dx, p.dy, arrow);
+    return { kind: 'ground', section: sec, text, style, x: p.x, y: p.y, dir, w: 2.0, h: 0.72 };
   }
   return null;
 }
@@ -151,7 +141,7 @@ function kazanTags(W) {
     roadTag(W, PATH_POINTS, 'jungle', 'SHRINE', 'arrow'),
     roadTag(W, PATH_POINTS, 'road', 'SHRINE', 'arrow'),
     roadTag(W, COAST_PATH, 'coast', 'TOMO 92', 'teal', false),
-    
+    wallTag(W, 'shrine', 'DACHI', 'pink'),
     roadTag(W, CORAL_PATH, 'coral', 'DEEP', 'arrow'),
     roadTag(W, VERDANT_PATH, 'verdant', 'GROVE', 'arrow'),
   ];
@@ -167,14 +157,11 @@ const villageTags = (W) => [
   wallTag(W, 'village', 'DACHI', 'pink'),
   roadTag(W, VILLAGE_LANE.slice().reverse(), 'village', 'SHRINE', 'arrow'),
 ];
-const BESIDE = { beside: 1.35, w: 2.8, h: 1.05 }; 
 const emberTags = (W) => [
-  roadTag(W, EMBER_PATH, 'ember-a', 'MAGMA HALL', 'arrow', true, BESIDE),
-  roadTag(W, EMBER_PATH, 'ember-b', 'EMBER 92', 'teal', false, BESIDE),
+  roadTag(W, EMBER_PATH, 'ember-a', 'MAGMA HALL', 'arrow'),
+  roadTag(W, EMBER_PATH, 'ember-b', 'EMBER 92', 'teal', false),
 ];
-
-const shrineTags = (W) => [wallTag(W, 'shrine-village', 'DACHI', 'pink')];
-const TAG_LISTS = { [HOME_REGION]: kazanTags, testbed: testbedTags, 'kazan-village': villageTags, 'ember-tube': emberTags, 'shrine-village': shrineTags };
+const TAG_LISTS = { [HOME_REGION]: kazanTags, testbed: testbedTags, 'kazan-village': villageTags, 'ember-tube': emberTags };
 
 export function tagCells(spots) {
   const keys = [];

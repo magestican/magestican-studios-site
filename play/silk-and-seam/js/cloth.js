@@ -26,6 +26,10 @@ export function createCloth(capacity = 4096) {
     layer: new Uint8Array(capacity),            
     limb: new Uint8Array(capacity),             
     self: new Uint8Array(capacity),             
+    air: new Float64Array(capacity).fill(1),    
+    drag: new Float64Array(capacity).fill(1),   
+    uv: new Float32Array(capacity * 2),         
+    slot: new Uint8Array(capacity).fill(1),     
     cons: [],                                   
     tris: [],                                   
     panels: [],                                 
@@ -73,14 +77,14 @@ function tethers(c) {
   }
 }
 
-export function addParticle(c, x, y, z, { mass = 1, thick = 0.3, fric = 0.6, noArms = false, layer = 1, limb = false, self = 0 } = {}) {
+export function addParticle(c, x, y, z, { mass = 1, thick = 0.3, fric = 0.6, noArms = false, layer = 1, limb = false, self = 0, air = 1, drag = 1 } = {}) {
   const i = c.n++;
   if (i >= c.w.length) throw new Error('cloth capacity exceeded');
   c.pos[i * 3] = c.prev[i * 3] = c.rest[i * 3] = x;
   c.pos[i * 3 + 1] = c.prev[i * 3 + 1] = c.rest[i * 3 + 1] = y;
   c.pos[i * 3 + 2] = c.prev[i * 3 + 2] = c.rest[i * 3 + 2] = z;
   c.w[i] = mass > 0 ? 1 / mass : 0; c.thick[i] = thick; c.fric[i] = fric; c.noArm[i] = noArms ? 1 : 0;
-  c.layer[i] = layer; c.limb[i] = limb ? 1 : 0; c.self[i] = self;
+  c.layer[i] = layer; c.limb[i] = limb ? 1 : 0; c.self[i] = self; c.air[i] = air; c.drag[i] = drag;
   return i;
 }
 
@@ -171,9 +175,12 @@ export const dist = (c, i, j) => Math.hypot(c.pos[i * 3] - c.pos[j * 3], c.pos[i
 
 
 
-export function addConstraint(c, i, j, kind, stiff, rest = null, scale = 1, slack = false) {
+
+
+export const PLASTIC_YIELD = 0.03;
+export function addConstraint(c, i, j, kind, stiff, rest = null, scale = 1, slack = false, plastic = 0) {
   const r = rest == null ? dist(c, i, j) * scale : rest;
-  c.cons.push([i, j, slack ? -r : r, stiff, kind]);
+  c.cons.push([i, j, slack ? -r : r, stiff, kind, plastic]);
 }
 
 
@@ -183,6 +190,8 @@ export function finalize(c) {
   c.cons.sort((p, q) => p[4] - q[4]);
   c.cons.forEach(([i, j, r, k], n) => { c.ci[n * 2] = i; c.ci[n * 2 + 1] = j; c.cr[n] = r; c.ck[n] = k; });
   c.m = m;
+  const pl = []; c.cons.forEach((q, n) => { if (q[5] > 0 && q[2] > 0) pl.push(n); });
+  c.pl = pl.length ? Int32Array.from(pl) : null; c.plr = c.pl ? Float64Array.from(pl, (n) => c.cons[n][5]) : null;
   c.band0 = m; while (c.band0 > 0 && c.cons[c.band0 - 1][4] === K.BAND) c.band0--;
   if (c.teth.length) {
     c.ti = new Int32Array(c.teth.length * 2); c.tm = new Float64Array(c.teth.length);
@@ -210,9 +219,10 @@ export function step(c, dt, { form = null, iters = 10, damping = 0.98, wind = nu
   for (let i = 0; i < n; i++) {
     if (w[i] === 0) continue;
     const k = i * 3;
-    const vx = (pos[k] - prev[k]) * damping, vy = (pos[k + 1] - prev[k + 1]) * damping, vz = (pos[k + 2] - prev[k + 2]) * damping;
+    const dk = damping * c.drag[i], a = c.air[i];
+    const vx = (pos[k] - prev[k]) * dk, vy = (pos[k + 1] - prev[k + 1]) * dk, vz = (pos[k + 2] - prev[k + 2]) * dk;
     prev[k] = pos[k]; prev[k + 1] = pos[k + 1]; prev[k + 2] = pos[k + 2];
-    pos[k] += vx + wx; pos[k + 1] += vy + g + wy; pos[k + 2] += vz + wz;
+    pos[k] += vx + wx * a; pos[k + 1] += vy + g + wy * a; pos[k + 2] += vz + wz * a;
   }
   for (let it = 0; it < iters; it++) {
     solve(c, 0, c.m);
@@ -225,6 +235,16 @@ export function step(c, dt, { form = null, iters = 10, damping = 0.98, wind = nu
   if (c.hull) hullCollide(c);
   stitches(c);   
   if (floor != null) for (let i = 0; i < n; i++) if (pos[i * 3 + 1] < floor + 0.2) pos[i * 3 + 1] = floor + 0.2;
+  if (c.pl) plastic(c);
+}
+function plastic(c) {
+  const { pl, plr, ci, cr, pos } = c;
+  for (let q = 0; q < pl.length; q++) {
+    const n = pl[q], a = ci[n * 2] * 3, b = ci[n * 2 + 1] * 3, r = cr[n];
+    const l = Math.hypot(pos[b] - pos[a], pos[b + 1] - pos[a + 1], pos[b + 2] - pos[a + 2]), e = (l - r) / r;
+    if (e > PLASTIC_YIELD) cr[n] += (l - r * (1 + PLASTIC_YIELD)) * plr[q];
+    else if (e < -PLASTIC_YIELD) cr[n] += (l - r * (1 - PLASTIC_YIELD)) * plr[q];
+  }
 }
 
 function solve(c, q0, q1) {

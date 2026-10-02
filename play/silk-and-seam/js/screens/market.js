@@ -1,8 +1,8 @@
 import { state, save, level } from '../state.js';
 import { toast, money, renderHud, tip, checkAchievements, $ } from '../ui.js';
-import { swatchSVG } from '../art.js';
-import { FABRICS, TRIMS, UPGRADES, SALE_EVERY } from '../data.js';
-import { weeklySales, saleCost, tolerances, upgradeBlock, fabric, trim } from '../logic.js';
+import { swatchHTML, upgrade as realSwatches, openLamp, closeLamp } from '../swatches.js';
+import { FABRICS, TRIMS, UPGRADES, SALE_EVERY, DYES } from '../data.js';
+import { weeklySales, saleCost, tolerances, upgradeBlock, fabric, trim, swatchDye } from '../logic.js';
 import { sfx } from '../audio.js';
 
 
@@ -43,6 +43,7 @@ export default {
     let tab = 'fabrics';
     const lvl = level();
     const sales = weeklySales(state.made, lvl);
+    const design = state.job?.design || null;        
     const saleNames = [...Object.keys(sales.fabrics).map((id) => fabric(id).name), ...Object.keys(sales.trims).map((id) => trim(id).name)];
     root.innerHTML = `<div class="market"><div class="tabs"><h1>Fabric Market</h1>
       <div class="sale-banner" title="Sales change every ${SALE_EVERY} commissions">&#9733; This week: <b>${saleNames.join(', ')}</b> on sale <small>(${sales.left} commission${sales.left === 1 ? '' : 's'} left)</small></div>
@@ -87,15 +88,25 @@ export default {
         const have = tab === 'fabrics' ? `${(state.fabrics[x.id] || 0).toFixed(1)} m` : `${state.trims[x.id] || 0} packs`;
         const q = tab === 'fabrics' ? [1, 5] : [1, 3];
         return `<div class="card${locked ? ' locked' : ''}${pct ? ' sale' : ''}"${tip(x.name, x.tags, x.zones ? `decorates: ${x.zones.join(', ')}` : `£${x.price} per metre`)}>${locked ? `<span class="lockbadge">Level ${x.lvl}</span>` : ''}${pct ? `<span class="salebadge">-${pct}%</span>` : ''}
-          ${tab === 'fabrics' ? swatchSVG(x.id, ['blush', 'sage', 'sky', 'ivory', 'lavender', 'navy'][FABRICS.indexOf(x) % 6], 110, 80) : trimIcon(x.id)}
+          ${tab === 'fabrics' ? `<div class="lamp-tap kb" data-lamp="${x.id}" data-lamp-dye="${swatchDye(x.id, design)}" tabindex="0" role="button" aria-label="Look at ${x.name} under the daylight lamp">${swatchHTML(x.id, swatchDye(x.id, design), 110, 80)}</div>` : trimIcon(x.id)}
           <h4>${x.name}</h4><div class="price">${pct ? `<s>${money(x.price)}</s> £${(x.price * (100 - pct) / 100).toFixed(2)}` : money(x.price)} per ${tab === 'fabrics' ? 'metre' : 'pack'}</div>
           <div class="tagchips">${Object.keys(x.tags).join(' · ')}</div>
           <div class="stock">You have <b>${have}</b></div>
           <div class="buy">${q.map((n) => { const c = saleCost(x.price, n, pct); return `<button class="btn small" data-id="${x.id}" data-n="${n}" data-c="${c}">+${n}${tab === 'fabrics' ? 'm' : ''} &middot; ${money(c)}</button>`; }).join('')}</div></div>`;
       }).join('');
       root.querySelectorAll('.buy .btn').forEach((b) => { b.onclick = () => buy(tab, b.dataset.id, +b.dataset.n, +b.dataset.c); });
+      if (tab !== 'fabrics') return;
+      
+      realSwatches($('#shelf', root));
+      root.querySelectorAll('[data-lamp]').forEach((el) => {
+        const dy = DYES.find((d) => d.id === el.dataset.lampDye);
+        const look = () => { sfx.page(); openLamp(el.dataset.lamp, el.dataset.lampDye, { name: fabric(el.dataset.lamp).name, dyeName: dy?.name || el.dataset.lampDye, note: design && [design.fab1, design.fab2].includes(el.dataset.lamp) ? 'In the dye your sketch uses.' : '' }); };
+        el.onclick = look;
+        el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); look(); } };
+      });
     }
     root.querySelectorAll('.tab').forEach((b) => { b.onclick = () => { tab = b.dataset.t; sfx.page(); refresh(); }; });
     refresh();
   },
+  leave() { closeLamp(); },
 };

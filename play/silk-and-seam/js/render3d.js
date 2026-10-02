@@ -100,19 +100,36 @@ function occlusion(c, form, out) {
 
 
 
-export function garmentMesh(g, color = '#c8a27a') {
-  const c = g.cloth, n = c ? c.n : g.n;
+
+export function garmentMesh(g, look = '#c8a27a') {
+  const c = g.cloth, n = c ? c.n : g.n, mats = typeof look === 'object' && look ? look : null;
   const geo = new THREE.BufferGeometry();
   let pos = g.pos;
   if (c) { pos = new Float32Array(n * 3); for (let i = 0; i < n * 3; i++) pos[i] = c.pos[i]; }
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   geo.setAttribute('normal', new THREE.BufferAttribute(c ? normals(c) : g.nrm, 3));
-  const ao = c ? occlusion(c, g.form, new Float32Array(n)) : g.ao, col = new Float32Array(n * 3), base = new THREE.Color(color);
+  const uv = c ? c.uv.slice(0, n * 2) : g.uv, slot = c ? c.slot : g.slot;
+  if (uv) geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  const ao = c ? occlusion(c, g.form, new Float32Array(n)) : g.ao, col = new Float32Array(n * 3), base = new THREE.Color(mats ? '#ffffff' : look);
   for (let i = 0; i < n; i++) { col[i * 3] = base.r * ao[i]; col[i * 3 + 1] = base.g * ao[i]; col[i * 3 + 2] = base.b * ao[i]; }
   geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  geo.setIndex(c ? c.tris.flat() : new THREE.BufferAttribute(g.index, 1));
-  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, side: THREE.DoubleSide });
-  const mesh = new THREE.Mesh(geo, mat);
+  const index = c ? Uint32Array.from(c.tris.flat()) : g.index;
+  let mesh;
+  if (mats && slot) {
+    
+    const out = new Uint32Array(index.length);
+    let a = 0;
+    for (const s of [1, 2]) {
+      const from = a;
+      for (let q = 0; q < index.length; q += 3) if ((slot[index[q]] || 1) === s) { out[a++] = index[q]; out[a++] = index[q + 1]; out[a++] = index[q + 2]; }
+      if (a > from) geo.addGroup(from, a - from, s - 1);
+    }
+    geo.setIndex(new THREE.BufferAttribute(out, 1));
+    mesh = new THREE.Mesh(geo, [mats[1], mats[2] || mats[1]]);
+  } else {
+    geo.setIndex(new THREE.BufferAttribute(index, 1));
+    mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, side: THREE.DoubleSide }));
+  }
   mesh.castShadow = mesh.receiveShadow = true;
   return mesh;
 }
@@ -146,12 +163,19 @@ export async function createViewer(canvas, { night = false, mood = null, quality
   return {
     three: THREE, scene, cam, renderer: R, gfxView: gv,
     setForm(form) { if (formG) root.remove(formG); formG = formGroup(form); root.add(formG); gv.invalidate(); },
-    setGarment(g, color) {
+    setGarment(g, look) {
       if (garm) { root.remove(garm); garm.geometry.dispose(); }
-      garm = g ? garmentMesh(g, color) : null;
+      garm = g ? garmentMesh(g, look) : null;
       if (garm) root.add(garm);
       gv.invalidate();
     },
+    
+    setLook(mats) {
+      if (!garm || !Array.isArray(garm.material)) return;
+      garm.material = [mats[1], mats[2] || mats[1]];
+      gv.invalidate();
+    },
+    tier,
     view({ yaw: y = yaw, target: t = target, dist: d = dist } = {}) { yaw = y; target = t; dist = d; gv.invalidate(); },
     render: () => gv.render(),
     invalidate: () => gv.invalidate(),

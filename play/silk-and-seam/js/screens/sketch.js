@@ -1,6 +1,7 @@
 import { state, save, level } from '../state.js';
 import { go, modal, toast, money, tagBars, matchLine, auntNote, tip, tipData, touchedRecently, renderHud, stageScale, $ } from '../ui.js';
-import { dressSVG, swatchSVG } from '../art.js';
+import { dressSVG } from '../art.js';
+import { swatchHTML, upgrade as realSwatches } from '../swatches.js';
 import { PARTS, FABRICS, DYES } from '../data.js';
 import { computeTags, fabricNeeds, totalMetres, materialCost, shortages, consume, fabric, part, dye as dyeOf, sketchKey, dyeCost, dyePrice, shopValue } from '../logic.js';
 import { sfx } from '../audio.js';
@@ -61,10 +62,11 @@ export default {
         const key = el.dataset.fab, f = fabric(d[key]);
         const used = needs[d[key]] !== undefined || (key === 'fab2' && d.fab2 === d.fab1);
         const have = state.fabrics[f.id] || 0;
-        el.innerHTML = `${swatchSVG(f.id, key === 'fab1' ? d.dye1 : d.dye2)}<span class="nm"><b>${key === 'fab1' ? 'Main' : 'Contrast'}</b>: ${f.name}</span><small style="color:${have > 0 ? '#3c7a4c' : '#b1453b'}">${have.toFixed(1)} m in stock${used ? '' : ' &middot; unused'}</small>`;
+        el.innerHTML = `${swatchHTML(f.id, key === 'fab1' ? d.dye1 : d.dye2)}<span class="nm"><b>${key === 'fab1' ? 'Main' : 'Contrast'}</b>: ${f.name}</span><small style="color:${have > 0 ? '#3c7a4c' : '#b1453b'}">${have.toFixed(1)} m in stock${used ? '' : ' &middot; unused'}</small>`;
         el.style.opacity = used ? 1 : 0.55;
         el.dataset.tip = tipData(f.name, f.tags, `£${f.price}/m &middot; tap or click (or &#8594;) for the next, right-click or &#8592; previous`);
       }
+      realSwatches(root);                
       for (const el of root.querySelectorAll('[data-dye]')) {
         const dy = DYES.find((x) => x.id === d[el.dataset.dye]);
         el.querySelector('i').style.background = dy.hex;

@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "e9f29a9-20261002T213539Z",
+ "buildId": "0b16cfa-20261002T215001Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -327,7 +327,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-09-25",
-   "bytes": 1488023
+   "bytes": 1537064
   },
   {
    "id": "dachis",
@@ -356,7 +356,7 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-09-30",
-   "bytes": 13506113
+   "bytes": 13491057
   },
   {
    "id": "farmy-five",

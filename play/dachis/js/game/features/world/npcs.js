@@ -9,7 +9,6 @@ import { pushApart, GAP, BODY_R, lairBody, bossBody } from './crowd.js';
 import { HOME } from './regions.js';
 import * as village from './regionMaps/kazanVillage.js';
 import * as ember from './regionMaps/emberTube.js';
-import * as shrine from './regionMaps/shrineVillage.js';
 import { SPECIES } from '../../data/species.js';
 
 const VILLAGER_LINES = [
@@ -33,10 +32,8 @@ export function spawnNpcs() {
   const add = n => { n.bb = n.kind === 'elder' ? elderBillboard(S.stage.scene) : dachiBillboard(S.stage.scene, speciesById(n.sp).stage); n.face = 1; n.walk = 0; G.npcs.push(n); return n; };
   
   
-  
-  const inVillage = G.region === village.ID, inShrine = G.region === shrine.ID, K = inVillage ? village.HOME_DISC : NPC_HOMES.kazan;
-  const P = inShrine ? { ...NPC_POSTS, ...shrine.POSTS } : NPC_POSTS, SH = inShrine ? shrine.HOME_DISC : NPC_HOMES.shrine;
-  const kazanPeople = inVillage, shrinePeople = inShrine;
+  const inVillage = G.region === village.ID, P = NPC_POSTS, K = inVillage ? village.HOME_DISC : NPC_HOMES.kazan, SH = NPC_HOMES.shrine;
+  const kazanPeople = inVillage, shrinePeople = !G.region || G.region === HOME;
   const keep = (n, ok) => { if (!ok) { G.npcs.pop(); n.bb?.dispose(S.stage.scene); } };
   keep(add({ kind: 'elder', ...(inVillage ? village.POSTS.elder : P.elder), still: true }), kazanPeople);
   keep(add({ kind: 'kumabo', sp: KUMABO, bandage: !G.flags.initiated, ...(inVillage ? village.POSTS.kumabo : P.kumabo), still: true }), kazanPeople);

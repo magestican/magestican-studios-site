@@ -10,6 +10,7 @@ import { draft } from './patterns.js';
 import { PARTICLES } from './gfxrules.js';
 import { normals } from './cloth.js';
 import { sdf } from './form3d.js';
+import { physicsOf, slotOf } from './fabrics.js';
 
 
 export const STIFF = { stretch: 1, shear: 0.6, bend: 0.12, seam: 1 };
@@ -17,8 +18,9 @@ export const STIFF = { stretch: 1, shear: 0.6, bend: 0.12, seam: 1 };
 
 
 
-function buildPanel(c, spec, fab, form) {
-  const { nu, nv } = spec, start = c.n, idx = new Int32Array(nu * nv).fill(-1);
+function buildPanel(c, spec, fab, form, slot = 1) {
+  const { nu, nv } = spec, start = c.n, idx = new Int32Array(nu * nv).fill(-1), t0 = c.tris.length;
+  const P = new Array(nu * nv);
   const thick = (spec.layer ?? 1) * 0.25 + 0.25;
   const auto = [];
   
@@ -33,9 +35,11 @@ function buildPanel(c, spec, fab, form) {
   }
   for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
     const u = i / (nu - 1), v = j / (nv - 1), p = spec.place(u, v);
+    P[j * nu + i] = p;
     if (!keep[j * nu + i]) continue;
-    const k = addParticle(c, p[0], p[1], p[2], { mass: spec.pin && spec.pin(u, v) ? 0 : 1, thick, fric: fab.fric, noArms: spec.arms === false, layer: spec.layer ?? 1, limb: spec.part === 'sleeve', self: (spec.folds || 0) > 12 ? spec.layer ?? 1 : 0 });
+    const k = addParticle(c, p[0], p[1], p[2], { mass: spec.pin && spec.pin(u, v) ? 0 : fab.mass ?? 1, thick, fric: fab.fric, noArms: spec.arms === false, layer: spec.layer ?? 1, limb: spec.part === 'sleeve', self: (spec.folds || 0) > 12 ? spec.layer ?? 1 : 0, air: fab.air ?? 1, drag: fab.drag ?? 1 });
     idx[j * nu + i] = k;
+    c.slot[k] = slot;
     
     
     if (spec.support === 'auto') {
@@ -46,6 +50,17 @@ function buildPanel(c, spec, fab, form) {
     }
   }
   const at = (i, j) => (i < 0 || j < 0 || i >= nu || j >= nv ? -1 : idx[j * nu + i]);
+  
+  
+  const D = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  for (let j = 0; j < nv; j++) for (let i = 0, U = 0; i < nu; i++) {
+    if (i) U += D(P[j * nu + i], P[j * nu + i - 1]);
+    if (idx[j * nu + i] >= 0) c.uv[idx[j * nu + i] * 2] = U;
+  }
+  for (let i = 0; i < nu; i++) for (let j = 0, V = 0; j < nv; j++) {
+    if (j) V += D(P[j * nu + i], P[(j - 1) * nu + i]);
+    if (idx[j * nu + i] >= 0) c.uv[idx[j * nu + i] * 2 + 1] = V;
+  }
   
   
   
@@ -73,7 +88,7 @@ function buildPanel(c, spec, fab, form) {
   
   const con = (i0, j0, i1, j1, kind, k) => {
     const a = at(i0, j0), b = at(i1, j1);
-    if (a >= 0 && b >= 0) addConstraint(c, a, b, kind, k, null, rs(i0, j0, i1, j1), !!spec.gathered && (kind === K.SHEAR || (kind !== K.BEND && j0 === j1)));
+    if (a >= 0 && b >= 0) addConstraint(c, a, b, kind, k, null, rs(i0, j0, i1, j1), !!spec.gathered && (kind === K.SHEAR || (kind !== K.BEND && j0 === j1)), kind === K.BEND && k < 1 ? fab.plastic || 0 : 0);
   };
   const wrap = spec.wrap;   
   for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
@@ -95,6 +110,16 @@ function buildPanel(c, spec, fab, form) {
       if (d < 0 && a >= 0 && b >= 0 && e >= 0) c.tris.push([a, e, b]);
     }
   }
+  
+  
+  let vote = 0;
+  for (let q = t0; q < c.tris.length; q += 3) {
+    const [a, b, d] = c.tris[q], A = a * 3, B = b * 3, E = d * 3, p = c.pos;
+    const ux = p[B] - p[A], uy = p[B + 1] - p[A + 1], uz = p[B + 2] - p[A + 2], vx = p[E] - p[A], vy = p[E + 1] - p[A + 1], vz = p[E + 2] - p[A + 2];
+    sdfNormal(form, (p[A] + p[B] + p[E]) / 3, (p[A + 1] + p[B + 1] + p[E + 1]) / 3, (p[A + 2] + p[B + 2] + p[E + 2]) / 3, spec.arms !== false, NR);
+    vote += Math.sign((uy * vz - uz * vy) * NR[0] + (uz * vx - ux * vz) * NR[1] + (ux * vy - uy * vx) * NR[2]);
+  }
+  if (vote < 0) for (let q = t0; q < c.tris.length; q++) { const t = c.tris[q], x = t[1]; t[1] = t[2]; t[2] = x; }
   
   
   for (let q = c.nBandSeen || 0; q < c.cons.length; q++) {
@@ -206,14 +231,19 @@ function supportTethers(c, anchors, seams) {
 
 
 
-export const FAB_DEFAULT = { stretch: 1, shear: 0.6, bend: 0.12, fric: 1.5 };
+export const FAB_DEFAULT = { stretch: 1, shear: 0.6, bend: 0.12, fric: 1.5, mass: 1, air: 1, drag: 1, plastic: 0 };
+
+
+export const fabricsOf = (design) => (design.fab1 ? { 1: physicsOf(design.fab1), 2: physicsOf(design.fab2 || design.fab1) } : { 1: FAB_DEFAULT, 2: FAB_DEFAULT });
 
 
 export const BUDGET = PARTICLES;
 
 
 
-export function buildGarment(design, body = design.body || 'classic', fab = FAB_DEFAULT, budget = Infinity) {
+
+
+export function buildGarment(design, body = design.body || 'classic', fab = fabricsOf(design), budget = Infinity) {
   let g = buildAt(design, body, fab, 1);
   for (let scale = 1, tries = 0; g.cloth.n > budget && tries < 12; tries++) {
     scale = Math.max(scale * 1.04, Math.sqrt(g.cloth.n / budget) * scale);
@@ -226,7 +256,10 @@ function buildAt(design, body, fab, scale) {
   const d = draft(design, form, { scale });
   const c = createCloth(d.capacity || 6000);
   const byName = {};
-  for (const spec of d.panels) byName[spec.name] = buildPanel(c, spec, { ...fab, ...(spec.fab || {}) }, form);
+  for (const spec of d.panels) {
+    const slot = slotOf(design, spec.name);
+    byName[spec.name] = buildPanel(c, spec, { ...FAB_DEFAULT, ...(fab[slot] || fab), ...(spec.fab || {}) }, form, slot);
+  }
   const seams = [];
   for (const s of d.seams) {
     const A = byName[s.a[0]], B = byName[s.b[0]];
@@ -264,7 +297,9 @@ export function bake(g) {
   for (let i = 0; i < n * 3; i++) pos[i] = c.pos[i];
   for (let i = 0; i < n; i++) ao[i] = 0.72 + 0.28 * Math.min(1, Math.max(0, sdf(g.form, c.pos[i * 3], c.pos[i * 3 + 1], c.pos[i * 3 + 2], true)) / 6);
   c.tris.forEach((t, q) => { index[q * 3] = t[0]; index[q * 3 + 1] = t[1]; index[q * 3 + 2] = t[2]; });
-  return { n, pos, nrm: normals(c), ao, index, hash: g.hash ?? hashCloth(c), settleMs: Math.round(g.settleMs || 0), scale: g.scale ?? 1 };
+  
+  const uv = c.uv.slice(0, n * 2), slot = c.slot.slice(0, n);
+  return { n, pos, nrm: normals(c), ao, index, uv, slot, hash: g.hash ?? hashCloth(c), settleMs: Math.round(g.settleMs || 0), scale: g.scale ?? 1 };
 }
-export const bakedBuffers = (b) => [b.pos.buffer, b.nrm.buffer, b.ao.buffer, b.index.buffer];
+export const bakedBuffers = (b) => [b.pos.buffer, b.nrm.buffer, b.ao.buffer, b.index.buffer, b.uv.buffer, b.slot.buffer];
 const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());

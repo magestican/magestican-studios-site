@@ -11,14 +11,12 @@ import { HOME, regionById } from './regions.js';
 import * as testbed from './regionMaps/testbed.js';
 import * as ember from './regionMaps/emberTube.js';
 import * as village from './regionMaps/kazanVillage.js';
-import * as shrine from './regionMaps/shrineVillage.js';
 
 export const PERCHES = [
   
   
   { id: 'kazan', region: village.ID, name: 'Kazan Village', at: village.LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'shrine', region: shrine.ID, name: 'Shrine Village', at: shrine.LANDING, opens: 'boss_ashlo', respawn: 'initiated' },
+  { id: 'shrine', region: HOME, name: 'Shrine Village', at: RESPAWN.shrine, opens: 'boss_ashlo', respawn: 'initiated' },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },
@@ -26,8 +24,7 @@ export const PERCHES = [
 export const perchById = (id) => PERCHES.find((p) => p.id === id) || null;
 
 
-
-const WAKE_POINTS = [{ region: HOME, at: RESPAWN.kazan, respawn: null }, { region: HOME, at: RESPAWN.shrine, respawn: 'initiated' }];
+const WAKE_POINTS = [{ region: HOME, at: RESPAWN.kazan, respawn: null }];
 export const VISIT_R = 3;     
 export const PERCH_R = 2.4;   
 

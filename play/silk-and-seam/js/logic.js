@@ -781,3 +781,14 @@ export function babblePlan(voice, text, emotion = 'hmm') {
   if (n && /\?\s*$/.test(text)) notes[n - 1].freq *= 2 ** (4 / 12);
   return { notes, dur: t, vib: v.vib, wave: v.wave || 'triangle' };
 }
+
+
+
+
+export const SHELF_DYES = ['blush', 'sage', 'sky', 'ivory', 'lavender', 'navy'];
+export function swatchDye(fabId, design = null) {
+  if (design && design.fab1 === fabId && design.dye1) return design.dye1;
+  if (design && design.fab2 === fabId && design.dye2) return design.dye2;
+  const i = FABRICS.findIndex((f) => f.id === fabId);
+  return SHELF_DYES[Math.max(0, i) % SHELF_DYES.length];
+}

@@ -5,8 +5,8 @@
 
 
 
+
 import { DRAFTED } from './patterns.js';
-import { DYES } from './data.js';
 import { state } from './state.js';
 import { formOf, UNDER_OF } from './form3d.js';
 import { drapeKey, DRAPE_VERSION } from './gfxrules.js';
@@ -89,7 +89,7 @@ export function drapeFor(design, body, tier) {
   const p = (async () => {
     const hit = await idbGet(key);
     if (hit && hit.n) return { ...hit, source: 'idb' };
-    const msg = { design: { bodice: design.bodice, skirt: design.skirt, collar: design.collar || 'none', sleeve: design.sleeve || 'none', seed: design.seed }, body, tier };
+    const msg = { design: { bodice: design.bodice, skirt: design.skirt, collar: design.collar || 'none', sleeve: design.sleeve || 'none', seed: design.seed, fab1: design.fab1, fab2: design.fab2 }, body, tier };
     let b = null;
     const w = drapeWorker();
     if (w) try { b = { ...(await inWorker(w, msg)), source: 'worker' }; } catch (err) { console.warn('drape worker unavailable, draping here', err); }
@@ -107,6 +107,25 @@ export function drapeFor(design, body, tier) {
 }
 
 
+const maps = new Map();
+export function mapsFor(fab, dye, size) {
+  const key = `${fab}|${dye}|${size}`;
+  if (maps.has(key)) return maps.get(key);
+  const p = (async () => {
+    const w = drapeWorker();
+    if (w) try { return await inWorker(w, { maps: { fab, dye, size } }); } catch {  }
+    const { fabricMaps } = await import('./fabrics.js');
+    return fabricMaps(fab, dye, size);
+  })();
+  maps.set(key, p);
+  if (maps.size > 8) maps.delete(maps.keys().next().value);
+  p.catch(() => maps.delete(key));
+  return p;
+}
+
+const designMaps = (specs, size) => Promise.all([1, 2].map((s) => mapsFor(specs[s].id, specs[s].hex, size)));
+
+
 
 
 
@@ -116,7 +135,10 @@ export function warm(design = null) {
   if (!supported() || svgOnly()) return;
   const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1200));
   idle(() => import('./render3d.js').then(() => import('./gfx.js')).then((g) => g.init(quality())).then((tier) => {
-    if (tier !== 'off' && drapeable(design)) drapeFor(design, design.body || 'classic', tier).catch(() => {});
+    if (tier !== 'off' && drapeable(design)) {
+      drapeFor(design, design.body || 'classic', tier).catch(() => {});
+      import('./fabric3d.js').then((f) => designMaps(f.specsOf(design), f.mapSize(tier))).catch(() => {});   
+    }
   }).catch(() => {}), { timeout: 4000 });
 }
 
@@ -130,6 +152,8 @@ export async function upgradeDress(host, design) {
     const tier = await (await import('./gfx.js')).init(quality());
     if (tier === 'off') return false;
     const pending = drapeFor(design, body, tier);        
+    const fab3d = await import('./fabric3d.js'), specs = fab3d.specsOf(design);
+    const textured = designMaps(specs, fab3d.mapSize(tier));   
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));   
     if (!host.isConnected) return false;
     if (current) { current.dispose(); current = null; }
@@ -145,18 +169,27 @@ export async function upgradeDress(host, design) {
     const b = await pending;
     const waited = performance.now() - t1;
     if (!host.isConnected) { v.dispose(); canvas.remove(); return false; }
-    v.setGarment(b, (DYES.find((x) => x.id === design.dye1) || DYES[0]).hex);
+    
+    const look = { at: performance.now() - t0, mapsMs: null, textured: false };
+    v.setGarment(b, { 1: fab3d.flatMaterial(specs[1], tier), 2: fab3d.flatMaterial(specs[2], tier) });
     v.view({ yaw: 0.25, target: 118, dist: 640 });
     v.render();
     canvas.style.visibility = '';
     host.classList.add('is-3d');
-    current = { dispose: () => { v.dispose(); canvas.remove(); host.classList.remove('is-3d'); } };
+    let alive = true;
+    current = { dispose: () => { alive = false; v.dispose(); canvas.remove(); host.classList.remove('is-3d'); } };
+    textured.then(([m1, m2]) => {
+      if (!alive) return;
+      v.setLook({ 1: fab3d.fabricMaterial(specs[1], m1, tier, v.renderer), 2: fab3d.fabricMaterial(specs[2], m2, tier, v.renderer) });
+      v.render();
+      look.textured = true; look.mapsMs = Math.round(performance.now() - t0); look.maps = [m1.hash, m2.hash];
+    }).catch((err) => console.warn('fabric maps unavailable, keeping the flat fabrics', err));
     
     let down = null, yaw = 0.25;
     canvas.addEventListener('pointerdown', (e) => { down = e.clientX; canvas.setPointerCapture(e.pointerId); });
     canvas.addEventListener('pointerup', () => { down = null; });
     canvas.addEventListener('pointermove', (e) => { if (down == null) return; yaw += (e.clientX - down) * 0.01; down = e.clientX; v.view({ yaw }); });
-    window.__dress3d = { n: b.n, settleMs: b.settleMs, workerMs: b.ms ?? null, hash: b.hash, scale: b.scale, source: b.source, tier, waitedMs: Math.round(waited), shownMs: Math.round(performance.now() - t0) };
+    window.__dress3d = { n: b.n, settleMs: b.settleMs, workerMs: b.ms ?? null, hash: b.hash, scale: b.scale, source: b.source, tier, waitedMs: Math.round(waited), shownMs: Math.round(performance.now() - t0), fabrics: [specs[1].id, specs[2].id], look };
     return true;
   } catch (err) {
     console.warn('3D dress unavailable, keeping the drawing', err);

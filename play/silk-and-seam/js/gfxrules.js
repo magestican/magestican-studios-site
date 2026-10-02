@@ -1,6 +1,7 @@
 
 
 
+import { physicsOf, usesFabric2 } from './fabrics.js';
 
 export const TIERS = ['low', 'mid', 'high'];
 
@@ -24,9 +25,14 @@ export const BENCH = { HIGH_SCORE: 20, LOW_SCORE: 9, MIN_TEXTURE: 4096 };
 export const PARTICLES = { low: 3200, mid: 4000, high: 5000 };
 
 
-export const DRAPE_VERSION = 1;
 
-export const drapeKey = (design, body, tier) => [DRAPE_VERSION, tier, body, design.bodice, design.skirt, design.collar || 'none', design.sleeve || 'none', design.seed ?? ''].join('|');
+export const DRAPE_VERSION = 2;
+
+
+
+const phys = (id) => Object.values(physicsOf(id)).join(',');
+export const drapeKey = (design, body, tier) => [DRAPE_VERSION, tier, body, design.bodice, design.skirt, design.collar || 'none', design.sleeve || 'none', design.seed ?? '',
+  phys(design.fab1), usesFabric2(design) ? phys(design.fab2 || design.fab1) : '-'].join('|');
 export const QUALITY = ['auto', 'high', 'low'];
 
 

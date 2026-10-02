@@ -12,10 +12,7 @@
 
 
 export const CHAR_SCALE = 0.78; 
-
-
-
-export const VIEW_ZOOM = 0.7;
+export const VIEW_ZOOM = 0.9; 
 
 export const BODY_R = { kid: 0.22, dachi: 0.2, elder: 0.26 };
 
