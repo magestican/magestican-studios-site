@@ -13,6 +13,7 @@ import * as shrine from './regionMaps/shrineVillage.js';
 import * as coast from './regionMaps/tomoCoast.js';
 import * as shell from './regionMaps/shellhaven.js';
 import * as kelp from './regionMaps/kelpMaze.js';
+import * as temple from './regionMaps/drownedTemple.js';
 
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 const MOUTH = at(1.4, 48.8); 
@@ -33,6 +34,8 @@ const COAST_ROAD = at(7.4, 78.3), CORAL_TOP = at(16.45, 86.4);
 
 
 const SHELL_DOOR = at(12.8, 97.2), SHELL_BACK = at(13.4, 94.6);
+
+const TEMPLE_DOOR = at(14.5, 92.8), TEMPLE_BACK = at(16.4, 90.4);
 export const DOORS = [
   { id: 'ember-in', region: HOME, at: MOUTH, to: ember.ID, toAt: ember.ENTRY, label: 'Enter the Ember Tube', after: 'initiated' },
   { id: 'ember-out', region: ember.ID, at: ember.ENTRY, to: HOME, toAt: MOUTH, label: 'Back to Mt. Kazan', after: null },
@@ -47,6 +50,8 @@ export const DOORS = [
   { id: 'shellhaven-out', region: shell.ID, at: shell.ENTRY, to: HOME, toAt: SHELL_BACK, label: 'Up to Coral Deep', after: null },
   { id: 'kelp-in', region: shell.ID, at: shell.EAST_GATE, to: kelp.ID, toAt: kelp.ENTRY, label: 'Into the Kelp Maze', after: null },
   { id: 'kelp-out', region: kelp.ID, at: kelp.ENTRY, to: shell.ID, toAt: shell.EAST_BACK, label: 'Back to Shellhaven', after: null },
+  { id: 'temple-in', region: HOME, at: TEMPLE_DOOR, to: temple.ID, toAt: temple.ENTRY, label: 'Into the drowned temple', after: null },
+  { id: 'temple-out', region: temple.ID, at: temple.ENTRY, to: HOME, toAt: TEMPLE_BACK, label: 'Back out to Coral Deep', after: null },
   { id: 'shrine-out', region: shrine.ID, at: shrine.GATE, to: HOME, toAt: ROAD_END, label: 'Back up the road', after: null },
 ];
 export const DOOR_R = 1.6; 

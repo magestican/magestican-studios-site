@@ -16,7 +16,7 @@ export const CUES = [...LOOPS, ...STINGERS];
 export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven']; 
 
 
-export const CAVES = { 'ember-a': 'cave', 'ember-b': 'cave' };
+export const CAVES = { 'ember-a': 'cave', 'ember-b': 'cave', 'temple-porch': 'cave', 'temple-nave': 'cave', 'temple-sanctum': 'cave' }; 
 
 
 
@@ -62,7 +62,8 @@ export const AMBIENCE = {
   'shrine-village': { chimes: 0.7, wind: 0.4, birds: 0.3 },
   coral: { surf: 0.6, wind: 0.2, bugs: 0.2 },
   shellhaven: { surf: 0.5, chimes: 0.35, wind: 0.1 },
-  'kelp-maze': { surf: 0.7, bugs: 0.15 }, 
+  'kelp-maze': { surf: 0.7, bugs: 0.15 },
+  'temple-porch': { surf: 0.4, chimes: 0.2 }, 'temple-nave': { surf: 0.3, chimes: 0.3 }, 'temple-sanctum': { chimes: 0.6, surf: 0.2 }, 
   verdant: { bugs: 0.7, birds: 0.8, wind: 0.3 },
 };
 export const AMBIENCE_LAYERS = ['wind', 'surf', 'bugs', 'birds', 'rumble', 'chimes'];

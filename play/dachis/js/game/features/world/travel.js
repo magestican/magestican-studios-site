@@ -15,6 +15,7 @@ import * as shrine from './regionMaps/shrineVillage.js';
 import * as coast from './regionMaps/tomoCoast.js';
 import * as shell from './regionMaps/shellhaven.js';
 import * as kelp from './regionMaps/kelpMaze.js';
+import * as temple from './regionMaps/drownedTemple.js';
 
 export const PERCHES = [
   
@@ -27,6 +28,8 @@ export const PERCHES = [
   { id: 'shellhaven', region: shell.ID, name: 'Shellhaven', at: shell.LANDING, opens: 'boss_ashlo', respawn: null },
   
   { id: 'kelp-maze', region: kelp.ID, name: 'Pearl Pool', at: kelp.POOL_LANDING, opens: 'boss_ashlo', respawn: null },
+  
+  { id: 'drowned-temple', region: temple.ID, name: 'Temple Pool', at: temple.POOL_LANDING, opens: 'boss_ashlo', respawn: null },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },

@@ -25,6 +25,7 @@ export const WORLD_PLACES = [
   
   { region: 'shellhaven', name: 'Shellhaven', at: [0.86, 0.86], r: 0.07, glyph: 'meadow' },
   { region: 'kelp-maze', name: 'The Kelp Maze', at: [0.95, 0.78], r: 0.045, glyph: 'meadow' },
+  { region: 'drowned-temple', name: 'The Drowned Temple', at: [0.72, 0.95], r: 0.045, glyph: 'meadow' },
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 

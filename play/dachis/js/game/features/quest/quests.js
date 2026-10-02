@@ -105,7 +105,7 @@ export const QUESTS = [
     steps: [
       { kind: 'talk', npc: 'shell-v3', text: 'Talk to the fish folk who listens to Memory Stones',
         say: ['Grandmother says the drowned temple up in Coral Deep still sings when the tide moves through it.', 'I have never been brave enough to go. Would you listen for me?'] },
-      { kind: 'visit', sec: 'coral', text: 'Listen at the drowned temple in Coral Deep',
+      { kind: 'visit', sec: 'temple-sanctum', text: 'Listen at the altar inside the drowned temple in Coral Deep', 
         say: ['The tide breathes through the temple\'s broken windows. It sounds like a choir that forgot the words.'] },
       { kind: 'talk', npc: 'shell-v3', text: 'Tell the fish folk in Shellhaven what you heard',
         say: ['It really sings? Then the city is not all gone.', 'You should keep the song. You heard it first.'] },
