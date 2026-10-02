@@ -178,6 +178,16 @@ export function talkTo(n) {
     return say([L(ELDER, `You have befriended ${caughtCount()} kinds of dachi. Keep going, Tamer.`)]);
   }
   if (n.kind === 'kumabo') {
+    
+    if (G.flags.kumabo && G.flags.boss_ashlo && !G.flags.kumaboAshlo) {
+      G.flags.kumaboAshlo = true; saveGame();
+      return say([
+        { who: 'Kumabo', portrait: 'kumabo', text: 'Kuma! Kuma-kuma!' },
+        L(NARR, 'Kumabo pats your pack, right where the egg is, and listens with her good ear.'),
+        L(NARR, 'Then she looks up at you, very serious, and holds up one paw: come back. Promise.'),
+        L(KID, 'I promise. I\'ll always come back here.'),
+      ]);
+    }
     if (G.flags.kumabo) return say([{ who: 'Kumabo', portrait: 'kumabo', text: 'Kuma! Kuma-kuma!' }, L(NARR, 'Kumabo hugs your leg. Harder than she looks.')]);
     if (G.flags.initiated) return kumaboThanks();
     return say([{ who: 'Kumabo', portrait: 'kumabo', text: '...Kuma...' }, L(NARR, 'She holds your finger with her little robot paw. You have to do this. For her.')]);
