@@ -24,6 +24,7 @@ import { buildWorld } from './features/world/worldView.js';
 import { HOME, regionById, generateRegionSliced, mapsToDrop } from './features/world/regions.js';
 import { slicer } from '../engine/core/slicer.js';
 import { perchById, perchAt, perchesOpen, visit, flightPhase, VISIT_R } from './features/world/travel.js';
+import { doorAt } from './features/world/doors.js';
 import { openPerchMenu, closePerchMenu, perchMenuOpen, pickPerch, installPerchMenu } from './features/hud/perchMenu.js';
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
 import { loadBakedForms } from './art/scenery/kit.js';
@@ -344,6 +345,8 @@ function worldActions() {
   if (!I.pressed('action')) return;
   const spot = spotUnderKid();
   if (spot) return pickUp(spot);
+  const door = doorAt(G.flags, G.region, G.player.x, G.player.y); 
+  if (door) return loadRegion(door.to, door.toAt);
   const n = nearestNpc(G.player.x, G.player.y);
   if (n) return talkTo(n);
   const spring = S.W.objects.find(o => o.heal && U.dist(G.player.x, G.player.y, o.x, o.y) < 1.7);
@@ -378,6 +381,13 @@ function worldHints() {
     const near = U.dist(p.x, p.y, n.x, n.y) < 1.5, [x, y] = S.stage.toScreen(n.x, n.y, S.W.groundAt(n.x, n.y));
     const [, top] = S.stage.toScreen(n.x, n.y, S.W.groundAt(n.x, n.y) + (n.kind === 'elder' ? 1.8 : 1.2) * CHAR_SCALE);
     S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.45, bubbleY: top - 8, action: near ? 'action' : null, label: near ? 'Talk' : null, onTap: () => { if (U.dist(p.x, p.y, n.x, n.y) < 3) talkTo(n); } });
+  }
+  
+  const door = doorAt(G.flags, G.region, p.x, p.y);
+  if (door) {
+    const [x, y] = S.stage.toScreen(door.at.x, door.at.y, S.W.groundAt(door.at.x, door.at.y));
+    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.7, action: 'action', label: door.label, color: '#ffb347', onTap: () => { if (doorAt(G.flags, G.region, G.player.x, G.player.y) === door) loadRegion(door.to, door.toAt); } });
+    return;
   }
   const spring = S.W.objects.find(o => o.heal && U.dist(p.x, p.y, o.x, o.y) < 2.4);
   if (spring) {

@@ -8,6 +8,7 @@
 
 
 import { HOME } from '../features/world/regions.js';
+const TUBE = 'ember-tube'; 
 import { fromUV } from '../features/world/sections.js';
 
 export const KINDS = {
@@ -51,6 +52,37 @@ export const COLLECTIBLES = [
     text: 'A memory: Ashlo, before the red fractures, guarding the Shrine Village lanterns through a storm.' },
   { id: 'c15', region: HOME, kind: 'stone', name: 'The Smouldering Night', from: spot('jungle', 4.9, 60.8),
     text: 'A memory: the night the red hand touched Ashlo. The fire in its ribs turned from orange to red, and it stopped coming down to the village.' },
+  
+  { id: 'c16', region: TUBE, kind: 'relic', name: 'Obsidian Lantern', from: spot('ember-a', -12.7, 38.9),
+    text: 'Black glass around a flame that never went out. The first keepers carried fire up to the shrine in it.' },
+  { id: 'c17', region: TUBE, kind: 'relic', name: 'Kumabo\'s Brass Gear', from: { quest: 'kumabo-gear' },
+    text: 'A gear from Kumabo\'s arm, still warm from an Ember dachi\'s belly. It ticks when you are brave.' },
+  { id: 'c18', region: TUBE, kind: 'relic', name: 'Tube Painting', from: spot('ember-b', 13.4, 65.1),
+    text: 'A rubbing of a wall painting: a human and a dachi holding hands under a spiral. Nobody remembers who painted it.' },
+  { id: 'c19', region: TUBE, kind: 'relic', name: 'First Tamer\'s Torch', from: spot('ember-a', 9.2, 50.9),
+    text: 'A torch handle wrapped in leather, carved with a name worn too smooth to read. The first Tamer came this way.' },
+  { id: 'c20', region: TUBE, kind: 'relic', name: 'Bell Clapper', from: spot('ember-b', -4.2, 77.1),
+    text: 'The missing clapper of the Cracked Bell of Kazan. Someone hid it down here, so the bell could never ring again.' },
+  { id: 'c21', region: TUBE, kind: 'shell', name: 'Lava Drip Beat', cue: 'battle', from: spot('ember-b', 3.5, 76.4),
+    text: 'Drips of cooling lava, ticking like a drum machine. Turn it up.' },
+  { id: 'c22', region: TUBE, kind: 'shell', name: 'Cave Echo', cue: 'intro-spiral', from: spot('ember-a', 6.4, 36.8),
+    text: 'Your own voice, bounced around the tube until it sounds like somebody else calling you.' },
+  { id: 'c23', region: TUBE, kind: 'shell', name: 'Hatchling Hum', cue: 'intro-wonder', from: { quest: 'lost-hatchling' },
+    text: 'The silly tune a lost hatchling hummed all the way home.' },
+  { id: 'c24', region: TUBE, kind: 'hat', name: 'Keeper\'s Lamp Helmet', geo: 'helmet', from: { quest: 'lantern-oil' },
+    text: 'A little helmet with a lamp on the front. The last lantern keeper wore it in the tube.' },
+  { id: 'c25', region: TUBE, kind: 'hat', name: 'Crater Goggles', geo: 'goggles', from: spot('ember-b', -5.7, 62.9),
+    text: 'Smoked-glass goggles for staring at lava. Very serious. Very cool.' },
+  { id: 'c26', region: TUBE, kind: 'hat', name: 'Obsidian Horns', geo: 'horns', from: spot('ember-a', -6.4, 41),
+    text: 'Two little horns of black glass on a band. Gentle dachis wear them to look tough.' },
+  { id: 'c27', region: TUBE, kind: 'hat', name: 'Ash Beanie', geo: 'beanie', from: spot('ember-b', -14.8, 75),
+    text: 'A knitted beanie, grey as ash, with a pompom. Warm even in a volcano.' },
+  { id: 'c28', region: TUBE, kind: 'stone', name: 'The Warm Den', from: spot('ember-a', -8.5, 50.2),
+    text: 'A memory: Ashlo as a pup, born here in the tube, sleeping in a ring of warm stones with its brothers and sisters.' },
+  { id: 'c29', region: TUBE, kind: 'stone', name: 'The Hidden Clapper', from: spot('ember-b', -11.3, 65.8),
+    text: 'A memory: Ashlo, eyes already red at the edges, carrying the bell\'s clapper down into the dark so no warning would ever ring.' },
+  { id: 'c30', region: TUBE, kind: 'stone', name: 'Ember and Ash', from: spot('ember-a', -3.5, 52.3),
+    text: 'A memory: Ashlo licking the burned paw of a village child, long ago, whispering that fire is for keeping people warm.' },
 ];
 export const collectibleById = (id) => COLLECTIBLES.find((c) => c.id === id) || null;
 export const found = (flags, id) => !!(flags && flags.found && flags.found[id]);
@@ -85,7 +117,8 @@ export function whereToLook(c) {
   if (f.quest) return 'Someone in need will thank you with it.';
   if (f.boss) return 'It sleeps inside a corrupted guardian.';
   return { jungle: 'Somewhere under the jungle leaves.', road: 'Somewhere along the old road.', coast: 'Somewhere the tide reaches.',
-    shrine: 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.' }[f.spot.sec]
+    shrine: 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.',
+    'ember-a': 'Somewhere in the glow of the Ember Tube.', 'ember-b': 'Somewhere between the lava pools.' }[f.spot.sec]
     || 'Somewhere off the beaten path.';
 }
 

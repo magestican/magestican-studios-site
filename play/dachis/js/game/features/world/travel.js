@@ -9,12 +9,14 @@
 import { RESPAWN } from './mapgen.js';
 import { HOME, regionById } from './regions.js';
 import * as testbed from './regionMaps/testbed.js';
+import * as ember from './regionMaps/emberTube.js';
 
 export const PERCHES = [
   { id: 'kazan', region: HOME, name: 'Kazan Village', at: RESPAWN.kazan, opens: 'boss_ashlo', respawn: null },
   { id: 'shrine', region: HOME, name: 'Shrine Village', at: RESPAWN.shrine, opens: 'boss_ashlo', respawn: 'initiated' },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
+  { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },
 ];
 export const perchById = (id) => PERCHES.find((p) => p.id === id) || null;
 export const VISIT_R = 3;     

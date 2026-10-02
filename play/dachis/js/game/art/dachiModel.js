@@ -651,7 +651,35 @@ function backCap(h) {
   const button = S.sphere([c[0], c[1] + R[1] + 0.02, c[2]], 0.09 * r);
   return [fur(dome, lin('#2b6fd6')), fur(S.union(0.02, brim, button), lin('#ffd23d'))];
 }
-const HAT_SHAPES = { priest: (h, dec) => priestHat(h, dec), bandana, ember: emberCap, backcap: backCap };
+
+function lampHelmet(h) { 
+  const r = h.r, c = [h.c[0], h.c[1] + 0.5 * h.r, h.c[2]], R = [0.84 * r, 0.66 * r, 0.84 * r];
+  const dome = S.intersect(0.03, ell(c, R), S.field((x, y) => c[1] + 0.08 * r - y));
+  const brim = S.transform(S.torus([0, 0, 0], 0.86 * r, 0.07 * r), { translate: [c[0], c[1] + 0.1 * r, c[2]] });
+  const lamp = S.roundCone([c[0], c[1] + 0.35 * r, c[2] + 0.62 * r], [c[0], c[1] + 0.38 * r, c[2] + 0.9 * r], 0.12 * r, 0.16 * r);
+  return [fur(S.union(0.03, dome, brim), lin('#f2c230')), metal(lamp), glow(S.sphere([c[0], c[1] + 0.38 * r, c[2] + 0.95 * r], 0.12 * r), lin('#fff3a0'))];
+}
+function goggles(h) { 
+  const r = h.r, c = h.c, y = c[1] + 0.62 * r;
+  const strap = S.transform(S.torus([0, 0, 0], 0.88 * r, 0.07 * r), { translate: [c[0], y, c[2]], rotate: [-0.35, 0, 0] });
+  const lens = (sx) => S.transform(S.torus([0, 0, 0], 0.23 * r, 0.07 * r), { translate: [c[0] + sx * 0.3 * r, y + 0.18 * r, c[2] + 0.8 * r], rotate: [1.2, 0, 0] });
+  const glass = (sx) => S.sphere([c[0] + sx * 0.3 * r, y + 0.18 * r, c[2] + 0.8 * r], 0.2 * r);
+  return [fur(strap, lin('#5a3c1e')), metal(S.union(0.01, lens(-1), lens(1)), lin('#d9a441')), glow(S.union(0, glass(-1), glass(1)), lin('#ff8a3d'))];
+}
+function horns(h) { 
+  const r = h.r, c = h.c, top = c[1] + 0.82 * r;
+  const horn = (sx) => S.union(0.04, S.roundCone([c[0] + sx * 0.36 * r, top, c[2]], [c[0] + sx * 0.66 * r, top + 0.6 * r, c[2] - 0.05 * r], 0.22 * r, 0.12 * r),
+    S.roundCone([c[0] + sx * 0.66 * r, top + 0.6 * r, c[2] - 0.05 * r], [c[0] + sx * 0.5 * r, top + 1.02 * r, c[2] - 0.12 * r], 0.12 * r, 0.04 * r));
+  const band = S.transform(S.torus([0, 0, 0], 0.8 * r, 0.05 * r), { translate: [c[0], top - 0.1 * r, c[2]] });
+  return [fur(S.union(0.02, horn(-1), horn(1)), lin('#2a2236')), fur(band, lin('#c0392b'))];
+}
+function beanie(h) { 
+  const r = h.r, c = [h.c[0], h.c[1] + 0.48 * h.r, h.c[2]], R = [0.86 * r, 0.78 * r, 0.86 * r];
+  const dome = S.intersect(0.03, ell(c, R), S.field((x, y) => c[1] + 0.12 * r - y));
+  const cuff = S.transform(S.torus([0, 0, 0], 0.84 * r, 0.12 * r), { translate: [c[0], c[1] + 0.16 * r, c[2]] });
+  return [fur(dome, lin('#9a96a8')), fur(cuff, lin('#7a7688')), fur(S.sphere([c[0], c[1] + R[1] + 0.1 * r, c[2]], 0.2 * r), lin('#ff7a2a'))];
+}
+const HAT_SHAPES = { priest: (h, dec) => priestHat(h, dec), bandana, ember: emberCap, backcap: backCap, helmet: lampHelmet, goggles, horns, beanie };
 export const HAT_GEOS = Object.keys(HAT_SHAPES);
 
 export const hatGeo = (hat) => (hat === true ? 'priest' : HAT_SHAPES[hat] ? hat : null);

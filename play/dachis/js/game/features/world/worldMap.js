@@ -14,6 +14,8 @@ export const WORLD_PLACES = [
   { region: HOME, name: 'Kazan Isle', at: [0.52, 0.56], r: 0.29, glyph: 'volcano' },
   
   { region: 'testbed', name: 'Testbed', at: [0.18, 0.24], r: 0.11, glyph: 'meadow' },
+  
+  { region: 'ember-tube', name: 'Ember Tube', at: [0.86, 0.2], r: 0.1, glyph: 'volcano' },
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 
