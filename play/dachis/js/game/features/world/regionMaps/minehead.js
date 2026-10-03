@@ -8,9 +8,12 @@ import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../section
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 
 export const ID = 'minehead';
-export const SIZE = 64;
+export const SIZE = 80; 
 export const SECTIONS = addSections([
   { id: 'minehead', name: 'Minehead Camp - The Pit Rim', rect: { u: [-18, 18], v: [26, 54] }, zoom: 8.5, wall: 2.0, region: ID, sea: true, chapter: 5, wildTypes: ['Stone', 'Metal', 'Shadow'] },
+  
+  
+  { id: 'mine-workings', name: 'Minehead Camp - The Old Workings', train: true, rect: { u: [-18, 18], v: [54, 72] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 5, wildTypes: ['Shadow', 'Metal'] },
 ]);
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 
@@ -42,6 +45,9 @@ export const SPRING = at(3.2, 51.0);
 export const LANDING = at(1.0, 51.4);    
 export const POSTS = { elder: at(-4.6, 49.6) }; 
 export const HOME_DISC = { ...at(0, 47), r: 7.0 };
+export const WORK_DOOR = { u: 10, v: 54 };  
+export const PILLAR_GRID = [-12, -6, 0, 6, 12].flatMap((u) => [59.5, 65.5].map((v) => ({ u, v, h: 1.5 })));
+const inPillar = (u, v) => PILLAR_GRID.some((p) => Math.abs(u - p.u) < p.h && Math.abs(v - p.v) < p.h);
 const HUTS = [[-11.5, 47.5, 1.3], [11.5, 47.0, 1.35], [-12.5, 34.0, 1.3], [12.5, 33.0, 1.3]];
 const ROOFS = ['#8a7a6a', '#a07050', '#6a6a7a', '#907a50', '#7a5a4a'];
 export const HUT_SPOTS = HUTS.map(([u, v, s]) => ({ ...at(u, v), s }));
@@ -73,13 +79,16 @@ const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.
 const pitDepth = (u, v) => PIT.r - Math.hypot(u - PIT.u, v - PIT.v); 
 function heightAtPoint(x, y) {
   const [u, v] = toUV(x, y), p = pitDepth(u, v), l = onLedge(u, v);
+  if (v > 53) return inPillar(u, v) ? 1.6 : 0.3 + U.fbm(x * 0.15, y * 0.15, 707) * 0.2; 
   if (p > -0.3 && l.d > -0.15) return 0.55 - l.t * 0.4;              
   if (p > 0) return -2.4 - Math.min(p, 4) * 0.3;                      
   return 0.35 + U.fbm(x * 0.12, y * 0.12, 701) * 0.3 + Math.min(1, -p * 0.05);
 }
 function tileFor(x, y) {
   const [u, v] = toUV(x, y);
+  if (Math.abs(u - WORK_DOOR.u) < 1.4 && Math.abs(v - WORK_DOOR.v) < 2.6) return T.ROCK; 
   if (!inside(u, v)) return T.CLIFF;
+  if (v > 54) return inPillar(u, v) ? T.CLIFF : U.fbm(x * 0.2, y * 0.2, 709) > 0.4 ? T.MOSS : T.ROCK;
   const p = pitDepth(u, v), l = onLedge(u, v);
   
   if (p > -0.4 && l.d > 0) return Math.floor(l.t * TURNS * 4) % 2 ? T.RUIN : T.ROCK;

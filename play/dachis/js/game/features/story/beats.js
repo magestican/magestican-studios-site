@@ -100,6 +100,11 @@ const REGION_BEATS = {
     L(NARR, 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'),
     L(KID, '(My Walkman light. Okay. It is a very small light.)'),
   ],
+  'seam-hall': [
+    L(NARR, 'Through the crack the air goes still. Somewhere in the black there are pillars - you can hear your own steps come back off them.'),
+    L(NARR, 'Ahead, a chain hangs across the way on, heavy as a ship\'s.'),
+    L(KID, 'Okay. Okay okay okay. It is just the basement. Every building has a basement. ...Every building has a light switch in the basement.'),
+  ],
   'ruin-steps': [
     L(NARR, 'The jungle gives way to stone: the face of an old temple, climbing the hill in broken steps too steep to walk.'),
     L(NARR, 'Long ramps run back and forth across it, each a little higher than the last. At the very top, a gate of black glass.'),

@@ -40,6 +40,7 @@ export const WORLD_PLACES = [
   
   { region: 'minehead', name: 'Minehead Camp', at: [0.1, 0.93], r: 0.055, glyph: 'volcano' },
   { region: 'lantern-shaft', name: 'The Lantern Shaft', at: [0.25, 0.92], r: 0.045, glyph: 'meadow' },
+  { region: 'deep-seam', name: 'The Deep Seam', at: [0.21, 0.82], r: 0.035, glyph: 'meadow' },
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 

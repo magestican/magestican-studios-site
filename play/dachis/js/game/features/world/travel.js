@@ -27,6 +27,7 @@ import * as ruin from './regionMaps/ruinSteps.js';
 import * as court from './regionMaps/obsidianCourt.js';
 import * as mine from './regionMaps/minehead.js';
 import * as shaft from './regionMaps/lanternShaft.js';
+import * as seam from './regionMaps/deepSeam.js';
 
 export const PERCHES = [
   
@@ -58,6 +59,7 @@ export const PERCHES = [
   
   { id: 'minehead', region: mine.ID, name: 'Minehead Camp', at: mine.LANDING, opens: 'boss_kingshade', respawn: null },
   { id: 'lantern-shaft', region: shaft.ID, name: 'The Seep', at: shaft.LANDING, opens: 'boss_kingshade', respawn: null },
+  { id: 'deep-seam', region: seam.ID, name: 'The Seam Pool', at: seam.POOL_LANDING, opens: 'boss_kingshade', respawn: null },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },

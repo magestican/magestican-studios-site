@@ -6,6 +6,7 @@
 import { G, S } from '../../state.js';
 import { toast } from '../../../engine/ui/dialog.js';
 import { lampsToLight } from './regionMaps/lanternShaft.js';
+import { fromUV } from './sections.js';
 
 let fade = 0;
 
@@ -13,6 +14,8 @@ export function darkPass(ctx, dt) {
   const W = S.W, D = W && W.dark;
   if (!D || G.region !== W.region) { fade = 0; return; }
   const lit = (G.flags.lit = G.flags.lit || {});
+  D.lit = lit; 
+  const shut = (D.gates || []).filter((g) => !g.lamps.every((id) => lit[id]));
   if (G.mode === 'world') {
     const now = lampsToLight(D.lamps, lit, G.player.x, G.player.y, D.catch);
     for (const id of now) lit[id] = true;
@@ -20,7 +23,9 @@ export function darkPass(ctx, dt) {
       S.sfx.play('lanternCatch'); 
       const n = D.lamps.filter((l) => lit[l.id]).length;
       if (n === 1) toast('The lantern catches. It will stay lit.', 1800);
-      else if (n === D.lamps.length) toast('Every lantern in the shaft is lit.', 2200);
+      else if (n === D.lamps.length) toast('Every lantern here is lit.', 2200);
+      
+      for (const g of shut) if (g.lamps.every((id) => lit[id])) { S.sfx.play('guard'); toast('Somewhere ahead, a chain drops.', 2200); }
     }
   }
   fade = G.mode === 'battle' ? Math.max(0, fade - dt * 4) : Math.min(1, fade + dt / 0.6);
@@ -51,5 +56,13 @@ export function darkPass(ctx, dt) {
     ctx.globalAlpha = fade * (0.55 + Math.sin(t * 3 + l.y) * 0.25); ctx.fillStyle = '#ff9a3a';
     ctx.beginPath(); ctx.arc(sx, sy, Math.max(2, k * 0.07), 0, Math.PI * 2); ctx.fill();
   }
+  
+  for (const g of (D.gates || [])) if (!g.lamps.every((id) => lit[id])) {
+    const [ax, ay] = S.stage.toScreen(...uvPost(g, -1.6), 0.7), [bx, by] = S.stage.toScreen(...uvPost(g, 1.6), 0.7);
+    ctx.globalAlpha = fade; ctx.strokeStyle = '#8a8496'; ctx.lineWidth = Math.max(2, k * 0.06); ctx.setLineDash([k * 0.12, k * 0.06]);
+    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.quadraticCurveTo((ax + bx) / 2, (ay + by) / 2 + k * 0.3, bx, by); ctx.stroke(); ctx.setLineDash([]);
+  }
   ctx.restore();
 }
+
+const uvPost = (g, du) => fromUV(g.u + du, g.v);

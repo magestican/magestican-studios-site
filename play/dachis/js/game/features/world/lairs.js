@@ -51,6 +51,16 @@ export const LAIRS = [
       ['boss', 'I carried them out of one flood, Bridge child. Never again. This time I take them all at once, and nobody is left on the terrace.'],
       ['kid', 'Did you even ASK them? Their tails are shaking, man! That is not me! I am like four feet tall!']],
     fall: 'The violet light drains out of {name}\'s armour. He is still standing. He makes very sure of that.' },
+  
+  
+  { boss: 'quartz', region: 'deep-seam', sec: 'seam-hollow', uv: [0, 87.4], after: 'boss_kingshade',
+    hint: 'Find the Quartz Hermit at the bottom of the Deep Seam',
+    again: "You again. With the little light. ...Sit, then, if we must do this twice.",
+    last: "Leave one lamp. Just one. By the door. I will not look at it.",
+    meet: [['boss', 'Put that out. Please. I asked nicely. I always ask nicely. "{creed}"'],
+      ['boss', 'Nine years I sat up with a lamp, Bridge child, listening to the dark move. Then a voice in it told me there was nothing there. Nothing at all. Do you know how that felt?'],
+      ['kid', 'So you turned off EVERYBODY\'S lights? Mrs. Alvarez in 4B is scared of the elevator. She takes the stairs! She does not break the elevator for the whole building!']],
+    fall: '{name}\'s lenses go clear. He takes them off one at a time and blinks at the lanterns as if they were too loud.' },
 ];
 export const MEET = 2.3; 
 export const lairOf = (boss) => LAIRS.find((l) => l.boss === boss) || null;

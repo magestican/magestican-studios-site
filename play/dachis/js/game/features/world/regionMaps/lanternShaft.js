@@ -26,6 +26,7 @@ export const ENTRY = at(0, 33.4);
 export const SPRING = at(-2.6, 34.6); 
 export const LANDING = at(-4.2, 35.6); 
 export const END = at(1, 79.5);       
+export const END_BACK = at(-2.6, 77.6); 
 
 export const LIGHT = { kid: 1.9, lamp: 4.4, catch: 1.6 }; 
 export function lanternSpots() {
@@ -46,7 +47,7 @@ export const DWELLERS = [
     'Leave them out. Please. I only just stopped shaking. You light one and I can hear the camp again, all of it, all at once.',
     'The Hermit sat with me in the dark the first night. He did not say anything. Nobody has ever just sat with me. ...Go on, then. Light it. You will anyway.'] },
   { id: 'shaft-v1', home: { ...at(2.0, 78.0), r: 1.0 }, lines: [
-    'Cave-in. The galleries are past it. Tunn says the ceiling has to settle. Tunn says that about everything, including his knees.',
+    'The crack goes through to the Hush\'s workings. Tunn says the ceiling has to settle. Tunn says that about everything, including his knees.',
     'I am not one of the Hush. I came down to fetch my sister out. She told me to go home. Then she put my lamp out with her thumb. Like a candle on a cake.'] },
 ];
 
@@ -106,7 +107,7 @@ export function* lanternShaftSteps() {
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   for (const l of lamps) addObj(W, { kind: 'lantern', x: l.x, y: l.y, solid: 0.2, rot: Math.PI / 4 });
   
-  for (const [du, dv, s] of [[-0.8, 0.9, 1.1], [0.6, 1.2, 1.3], [1.6, 0.4, 0.9], [-0.2, 1.8, 1.0]]) { const p = at(1 + du, 79.5 + dv); addObj(W, { kind: 'rock', x: p.x, y: p.y, solid: 0.5, s, rot: 0.4 + Math.abs(du) * 2, dark: true }); }
+  for (const [du, dv, s] of [[-2.2, 1.0, 1.1], [2.4, 1.0, 1.3], [2.8, -0.6, 0.9], [-2.6, -0.4, 1.0]]) { const p = at(1 + du, 79.5 + dv); addObj(W, { kind: 'rock', x: p.x, y: p.y, solid: 0.5, s, rot: 0.4 + Math.abs(du) * 2, dark: true }); }
   yield 'buildings';
   const r = U.rng(8181);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {

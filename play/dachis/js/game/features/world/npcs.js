@@ -16,6 +16,7 @@ import * as vine from './regionMaps/vinegate.js';
 import * as court from './regionMaps/obsidianCourt.js';
 import * as mine from './regionMaps/minehead.js';
 import * as shaft from './regionMaps/lanternShaft.js';
+import * as seam from './regionMaps/deepSeam.js';
 import { SPECIES, bossSpecies } from '../../data/species.js';
 import { partyRead } from '../battle/bossPattern.js';
 import { lairOf, lairOpen } from './lairs.js';
@@ -97,8 +98,8 @@ export function spawnNpcs() {
   }
   
   
-  if (G.region === mine.ID || G.region === shaft.ID) {
-    const inMine = G.region === mine.ID, rm = U.rng(inMine ? 82 : 83), M = inMine ? mine : shaft;
+  if (G.region === mine.ID || G.region === shaft.ID || G.region === seam.ID) {
+    const inMine = G.region === mine.ID, rm = U.rng(inMine ? 82 : 83), M = inMine ? mine : G.region === shaft.ID ? shaft : seam;
     const kinds = SPECIES.filter((s) => s.stage === 1 && (inMine ? s.types[0] === 'Stone' || s.types[0] === 'Metal' : s.types[0] === 'Shadow'));
     if (inMine) {
       const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Stone') || SPECIES.find((s) => s.stage === 3);
