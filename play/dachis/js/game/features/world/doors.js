@@ -16,6 +16,7 @@ import * as kelp from './regionMaps/kelpMaze.js';
 import * as temple from './regionMaps/drownedTemple.js';
 import * as hollow from './regionMaps/hollowroot.js';
 import * as thorn from './regionMaps/thornfield.js';
+import * as mother from './regionMaps/motherHollow.js';
 
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 const MOUTH = at(1.4, 48.8); 
@@ -60,6 +61,8 @@ export const DOORS = [
   { id: 'hollowroot-out', region: hollow.ID, at: hollow.ENTRY, to: HOME, toAt: HOLLOW_BACK, label: 'Climb down to the Verdant Wilds', after: null },
   { id: 'thorn-in', region: hollow.ID, at: hollow.SLIDE, to: thorn.ID, toAt: thorn.ENTRY, label: 'Ride the rope slide', after: null },
   { id: 'thorn-out', region: thorn.ID, at: thorn.ENTRY, to: hollow.ID, toAt: hollow.SLIDE_BACK, label: 'Climb back up', after: null },
+  { id: 'hollow-in', region: hollow.ID, at: hollow.KNOT, to: mother.ID, toAt: mother.ENTRY, label: 'Down the knot-hole', after: null },
+  { id: 'hollow-out', region: mother.ID, at: mother.ENTRY, to: hollow.ID, toAt: hollow.KNOT_BACK, label: 'Up to Hollowroot', after: null },
   { id: 'shrine-out', region: shrine.ID, at: shrine.GATE, to: HOME, toAt: ROAD_END, label: 'Back up the road', after: null },
 ];
 export const DOOR_R = 1.6; 

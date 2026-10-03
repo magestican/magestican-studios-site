@@ -29,6 +29,7 @@ export const WORLD_PLACES = [
   
   { region: 'hollowroot', name: 'Hollowroot', at: [0.1, 0.62], r: 0.07, glyph: 'meadow' },
   { region: 'thornfield', name: 'Thornfield', at: [0.1, 0.78], r: 0.06, glyph: 'meadow' },
+  { region: 'mother-hollow', name: 'The Mother Tree', at: [0.2, 0.7], r: 0.045, glyph: 'meadow' },
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 

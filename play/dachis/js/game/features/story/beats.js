@@ -67,6 +67,17 @@ const REGION_BEATS = {
   'thorn-lower': [
     L(NARR, 'Down here the rows give up. The garden has run wild, and the thorns grow as tall as you.'),
   ],
+  'tree-vault': [
+    L(NARR, 'You squeeze down through the knot-hole and drop onto soft moss. Inside, the tree is hollow, and it smells like rain.'),
+    L(NARR, 'Seedlings grow in neat rows across the floor, each one labelled with a scratch in the bark. Someone kept them here very carefully.'),
+  ],
+  'tree-heart': [
+    L(NARR, 'The heartwood. A pool of sap glows gold in the middle of the hall, and the walls creak slowly, like breathing.'),
+  ],
+  'tree-roots': [
+    L(NARR, 'At the very bottom the roots twist round one mossy stone, as if the whole tree were holding it.'),
+    L(KID, 'That is where it started. One seed. Somebody planted one seed, right here.'),
+  ],
   'temple-porch': [
     L(NARR, 'Inside the drowned temple it is quiet. Water drips. Your footsteps echo a long way off.'),
   ],
