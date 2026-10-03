@@ -147,7 +147,7 @@ export function hullLod(groups, { cells = HULL_CELLS, cellMin = HULL_CELL_MIN, f
 
 export const GROUND_CLASSES = ['grass', 'tall', 'sand', 'rock', 'lava', 'plaza', 'shallow', 'deep', 'wood', 'cliff',
   'jungle', 'reef', 'kelp', 'ruin', 'glade', 'thicket', 'moss'];
-export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant', 'ember', 'river', 'canopy', 'fig'];
+export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant', 'ember', 'river', 'canopy', 'fig', 'ruins', 'court'];
 
 
 export const GROUND_BASE = {
@@ -178,6 +178,11 @@ export const GROUND_REGION = {
   
   fig: { shallow: ['#5aa8a8', '#8ed4cc'], deep: ['#4a9898', '#7ac4bc'], tall: ['#6aa83a', '#8cc84a'], grass: ['#5aa040', '#7cc050'],
     jungle: ['#21703a', '#36924a'], path: ['#b8784a', '#e8b080'] },
+  
+  ruins: { ruin: ['#c8a46a', '#e0c088'], plaza: ['#d8b47a', '#ecd09a'], cliff: ['#4a5a3a', '#5e6e46'], tall: ['#4a8a30', '#6aaa40'] },
+  
+  court: { deep: ['#14101e', '#2a2240'], ruin: ['#b8b0c8', '#d4cce0'], plaza: ['#3a3048', '#4c405c'], cliff: ['#1a1622', '#2a2434'],
+    grass: ['#2f6a3a', '#3f8a48'], tall: ['#2a5a34', '#3a7a40'] },
   verdant: { grass: ['#3a8f34', '#6cc044'], glade: ['#1f6a34', '#3a9a3c'], thicket: ['#164f2e', '#256a36'], moss: ['#5f9a4a', '#8cc65a'] },
   
   
@@ -208,7 +213,7 @@ export function luma(h) { const [r, g, b] = hexRgb(h); return 0.2126 * r + 0.715
 
 export function classByte(cls) { const i = GROUND_CLASSES.indexOf(cls); return i < 0 ? 0 : i; }
 
-const GROUND_ALIAS = { village: 'kazan', 'shrine-village': 'shrine', 'tomo-coast': 'coast', shellhaven: 'coral', 'kelp-maze': 'coral', 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral', 'ember-a': 'ember', 'ember-b': 'ember', hollowroot: 'verdant', 'thorn-upper': 'verdant', 'thorn-lower': 'verdant', 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant', vinegate: 'river', 'canopy-walk': 'canopy', 'fig-terraces': 'fig' };
+const GROUND_ALIAS = { village: 'kazan', 'shrine-village': 'shrine', 'tomo-coast': 'coast', shellhaven: 'coral', 'kelp-maze': 'coral', 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral', 'ember-a': 'ember', 'ember-b': 'ember', hollowroot: 'verdant', 'thorn-upper': 'verdant', 'thorn-lower': 'verdant', 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant', vinegate: 'river', 'canopy-walk': 'canopy', 'fig-terraces': 'fig', 'ruin-steps': 'ruins', 'court-stones': 'court', 'court-gallery': 'court', 'court-guards': 'court', 'court-throne': 'court' };
 export function regionByte(region) { const i = GROUND_REGIONS.indexOf(GROUND_ALIAS[region] || region); return i < 0 ? GROUND_REGIONS.indexOf('road') : i; }
 
 

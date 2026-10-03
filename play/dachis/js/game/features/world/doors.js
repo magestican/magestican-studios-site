@@ -20,6 +20,8 @@ import * as mother from './regionMaps/motherHollow.js';
 import * as vine from './regionMaps/vinegate.js';
 import * as canopy from './regionMaps/canopyWalk.js';
 import * as fig from './regionMaps/figTerraces.js';
+import * as ruin from './regionMaps/ruinSteps.js';
+import * as court from './regionMaps/obsidianCourt.js';
 
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 const MOUTH = at(1.4, 48.8); 
@@ -74,6 +76,10 @@ export const DOORS = [
   { id: 'canopy-out', region: canopy.ID, at: canopy.ENTRY, to: vine.ID, toAt: VINE_BACK, label: 'Down to Vinegate', after: null },
   { id: 'fig-in', region: canopy.ID, at: canopy.EXIT, to: fig.ID, toAt: fig.ENTRY, label: 'On to the terraces', after: null },
   { id: 'fig-out', region: fig.ID, at: fig.ENTRY, to: canopy.ID, toAt: canopy.EXIT_BACK, label: 'Back to the canopy', after: null },
+  { id: 'ruin-in', region: fig.ID, at: fig.EXIT, to: ruin.ID, toAt: ruin.ENTRY, label: 'Up to the ruins', after: null },
+  { id: 'ruin-out', region: ruin.ID, at: ruin.ENTRY, to: fig.ID, toAt: fig.EXIT_BACK, label: 'Down to the terraces', after: null },
+  { id: 'court-in', region: ruin.ID, at: ruin.EXIT, to: court.ID, toAt: court.ENTRY, label: 'Through the black gate', after: null },
+  { id: 'court-out', region: court.ID, at: court.ENTRY, to: ruin.ID, toAt: ruin.EXIT_BACK, label: 'Out to the steps', after: null },
   { id: 'shrine-out', region: shrine.ID, at: shrine.GATE, to: HOME, toAt: ROAD_END, label: 'Back up the road', after: null },
 ];
 export const DOOR_R = 1.6; 

@@ -14,6 +14,7 @@ import { dachiBillboard, setDachiLook } from '../../art/billboards.js';
 import { bossSpecies, speciesById } from '../../data/species.js';
 import { startBossBattle } from '../battle/battle.js';
 import { LAIRS, MEET, lairOpen, nextLair, meetLines } from './lairs.js';
+import { HOME } from './regions.js';
 
 
 
@@ -29,7 +30,8 @@ function spot(uv) {
   }
   return { x: x0, y: y0 };
 }
-const open = (l) => lairOpen(l, G.flags);
+
+const open = (l) => lairOpen(l, G.flags) && (l.region || HOME) === G.region;
 
 export function updateBossLairs() {
   if (!S.W) return;

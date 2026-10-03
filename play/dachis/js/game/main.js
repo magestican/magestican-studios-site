@@ -435,8 +435,9 @@ function frame(now) {
         updatePlayer(dt, !storyLocksMovement());
         updateNpcs(dt);
         const touched = updateWilds(dt, { active: !!G.flags.starter });
-        separateCrowd(dt, G.region === HOME ? lairBodies() : []); 
-        if (G.region === HOME) { updateStory(dt); updateBossLairs(); } 
+        separateCrowd(dt, lairBodies()); 
+        updateBossLairs(); 
+        if (G.region === HOME) updateStory(dt); 
         else updateRegionBeats(cam.sec, dt); 
         visit(G.flags, G.region, G.player.x, G.player.y); 
         
@@ -464,7 +465,7 @@ function frame(now) {
     const sinceLand = (performance.now() - (S.landAt || -1e9)) / 1000, land = sinceLand >= 0 && sinceLand < 0.6 ? Math.sin(Math.min(1, sinceLand / 0.6) * Math.PI) : 0;
     drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), cheer, land, hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
     drawNpcs(t);
-    if (G.region === HOME) drawBossLairs(t, B);
+    drawBossLairs(t, B); 
     drawWilds(t, B ? (w => w === B.wild || inArena(w.x, w.y, B, -0.8)) : null);
     if (B) placeFighters(t);
     updateBattleFx(B); setLineRole(B ? 'battle' : 'world'); 

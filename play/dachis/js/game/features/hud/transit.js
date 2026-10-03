@@ -41,7 +41,7 @@ export function objectiveXY(flags = {}) {
   if (!flags.starter || !flags.initiated) return { sec: 'shrine', xy: AT.shrine };
   if (!flags.kumabo) return { sec: 'kazan', xy: AT.kazan };
   const l = nextLair(flags);
-  return l ? { sec: l.sec, xy: fromUV(l.uv[0], l.uv[1]) } : null;
+  return l && !l.region ? { sec: l.sec, xy: fromUV(l.uv[0], l.uv[1]) } : null; 
 }
 
 

@@ -11,6 +11,7 @@
 
 
 
+
 export const LAIRS = [
   { boss: 'ashlo', sec: 'coast', uv: [13, 78], after: 'kumabo', 
     hint: 'Something burns on Tomo Coast... face Cinderwarden Ashlo',
@@ -33,6 +34,13 @@ export const LAIRS = [
       ['boss', 'Your island rots from the root, Bridge child. Let it go to soil, and the god will plant us something new.'],
       ['kid', 'Nobody is getting planted! Let go of this forest, lady!']],
     fall: 'The thorns wilt and the moss goes still... {name} sinks into the roots and is gone. For now.' },
+  
+  { boss: 'kingshade', region: 'obsidian-court', sec: 'court-throne', uv: [0, 85.0], after: 'boss_bramble',
+    hint: 'Climb to Kingshade\'s throne in the Canopy of Kong',
+    meet: [['boss', 'You walked through my court and my guards let you. They are kind. Kindness will not save them. Listen: "{creed}"'],
+      ['boss', 'I carried my people out of one flood. The next one is coming, Bridge child. I will carry them out of this world.'],
+      ['kid', 'They do not want to leave! Ask them! Your guards are shaking, King - not because of me!']],
+    fall: 'The violet light leaves his armour... {name} sits down on his own steps, and is gone. For now.' },
 ];
 export const MEET = 2.3; 
 export const lairOf = (boss) => LAIRS.find((l) => l.boss === boss) || null;

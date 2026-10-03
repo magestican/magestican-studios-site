@@ -13,6 +13,7 @@ import * as shrine from './regionMaps/shrineVillage.js';
 import * as shell from './regionMaps/shellhaven.js';
 import * as hollow from './regionMaps/hollowroot.js';
 import * as vine from './regionMaps/vinegate.js';
+import * as court from './regionMaps/obsidianCourt.js';
 import { SPECIES } from '../../data/species.js';
 
 const VILLAGER_LINES = [
@@ -81,6 +82,12 @@ export function spawnNpcs() {
       const sp = kinds[Math.floor(rv() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rv, d.home, d.home.r, 1.0, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rv() * 3 });
     }
+  }
+  
+  
+  if (G.region === court.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 2 && s.types[0] === 'Beast'), rc = U.rng(81);
+    for (const d of court.GUARDS) add({ kind: 'villager', id: d.id, sp: kinds[Math.floor(rc() * kinds.length)].id, ...d.home, still: true, lines: d.lines });
   }
   
   

@@ -85,6 +85,23 @@ const REGION_BEATS = {
     L(NARR, 'Narrow mud walls run between the pools. Old fig trees grow where the walls meet. Nobody has tended this in a long time.'),
     L(KID, 'It is like a giant ice cube tray. A muddy one. I can walk on the edges.'),
   ],
+  'ruin-steps': [
+    L(NARR, 'The jungle gives way to stone: the face of an old temple, climbing the hill in broken steps too steep to walk.'),
+    L(NARR, 'Long ramps run back and forth across it, each a little higher than the last. At the very top, a gate of black glass.'),
+    L(KID, 'Switchbacks. Like the ramp at the Y on 63rd street. Except that one did not have a monkey king at the top.'),
+  ],
+  'court-stones': [
+    L(NARR, 'Inside the gate the floor is water - perfectly still and perfectly black, like a mirror nobody cleaned.'),
+    L(NARR, 'Pale stones lead across it, not in a straight line. Your reflection follows you, one step behind.'),
+  ],
+  'court-guards': [
+    L(NARR, 'A long hall of stone guards. Between them, real ones: big furry dachis in armour, kneeling, tails shaking.'),
+    L(KID, '(They look more scared of me than I am of them. That is... a lot of scared.)'),
+  ],
+  'court-throne': [
+    L(NARR, 'The last door opens onto the sky. A round floor at the top of the world, and at its far side, a throne of black stone.'),
+    L(NARR, 'Someone huge stands in front of it, very still, looking out over the jungle like he is counting every tree.'),
+  ],
   'tree-vault': [
     L(NARR, 'You squeeze down through the knot-hole and drop onto soft moss. Inside, the tree is hollow, and it smells like rain.'),
     L(NARR, 'Seedlings grow in neat rows across the floor, each one labelled with a scratch in the bark. Someone kept them here very carefully.'),

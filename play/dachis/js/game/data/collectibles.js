@@ -22,6 +22,7 @@ export const PER_REGION = 15;
 
 
 const spot = (sec, u, v, map) => ({ spot: map ? { sec, uv: [u, v], map } : { sec, uv: [u, v] } });
+const VINE = 'vinegate', CANOPY = 'canopy-walk', FIG = 'fig-terraces', RUIN = 'ruin-steps', COURT = 'obsidian-court'; 
 const SHRINE_V = 'shrine-village', COAST = 'tomo-coast', SHELL = 'shellhaven', MAZE = 'kelp-maze', TEMPLE = 'drowned-temple', HOLLOW = 'hollowroot', THORN = 'thornfield', MOTHER = 'mother-hollow'; 
 export const COLLECTIBLES = [
   
@@ -151,6 +152,39 @@ export const COLLECTIBLES = [
     text: 'A memory: Bramble walking her garden rows at dusk, humming a different tune to every bed, because each kind of seedling liked its own song.' },
   { id: 'c60', region: HOLLOW, kind: 'stone', name: 'The Red Wind', from: spot('thorn-lower', -12.0, 60.0, THORN),
     text: 'A memory: a red wind coming down a spiral, and a voice in it telling Bramble that her garden would be bigger, so much bigger, if only she let the old world rot.' },
+  
+  
+  
+  { id: 'c61', region: VINE, kind: 'relic', name: 'Old Fishing Float', from: spot('ruin-steps', -8.0, 51.2, RUIN), 
+    text: 'A painted gourd float that drifted all the way down from the temple steps. Whoever fished here last fished a very long time ago.' },
+  { id: 'c62', region: VINE, kind: 'relic', name: 'Bridge Knot', from: spot('canopy-walk', 9.4, 45.4, CANOPY),
+    text: 'A rope knot as big as your fist, tied so well it outlived the bridge. The Kong say a good knot is a promise you can stand on.' },
+  { id: 'c63', region: VINE, kind: 'relic', name: 'Lucky Fig', from: { quest: 'fig-luck' },
+    text: 'A dried fig from the terraces, thrown in the river and fished out again for luck. It is, technically, very lucky. Also very sticky.' },
+  { id: 'c64', region: VINE, kind: 'relic', name: 'Paddy Bell', from: spot('fig-terraces', 14.6, 40.0, FIG),
+    text: 'A little bronze bell the farmers rang to call the water down the terraces. It still rings, though nobody comes.' },
+  { id: 'c65', region: VINE, kind: 'relic', name: 'Guard\'s Tail Ribbon', from: { quest: 'scared-tails' },
+    text: 'A ribbon a Kong guard tied round his tail so it would stop shaking. It did not. He gave it to you anyway.' },
+  { id: 'c66', region: VINE, kind: 'shell', name: 'Rope and Wind', cue: 'field', from: spot('canopy-walk', -11.2, 33.0, CANOPY),
+    text: 'A rope bridge creaking in the wind high over the jungle floor, and far below, something big moving through the leaves.' },
+  { id: 'c67', region: VINE, kind: 'shell', name: 'Temple Steps', cue: 'field', from: spot('ruin-steps', -13.2, 40.6, RUIN),
+    text: 'Stone grinding on stone, a monkey call echoing off the temple face, and the hush of a jungle that is listening back.' },
+  { id: 'c68', region: VINE, kind: 'shell', name: 'Kingshade\'s Oath', cue: 'boss', from: { boss: 'kingshade' },
+    text: 'The king\'s roar as the red left him - and then, very quietly, the oath he swore to his people the first time: "I will carry you."' },
+  { id: 'c69', region: VINE, kind: 'hat', name: 'Guard Helm', geo: 'helmet', from: spot('court-guards', 5.9, 66.0, COURT),
+    text: 'A Kong guard\'s helm, left on a statue\'s head. It is much too big. It is also very shiny.' },
+  { id: 'c70', region: VINE, kind: 'hat', name: 'Reed Bandana', geo: 'bandana', from: { quest: 'bend-fishing' },
+    text: 'A bandana woven from river reeds, the way the Vinegate fishers wear them. It smells faintly of fish. Faintly.' },
+  { id: 'c71', region: VINE, kind: 'hat', name: 'Leaf Crown', geo: 'horns', from: spot('canopy-walk', -11.8, 45.6, CANOPY),
+    text: 'A circle of fig leaves pinned with twigs. The Kong children make them to play at being king.' },
+  { id: 'c72', region: VINE, kind: 'hat', name: 'Paddy Hat', geo: 'beanie', from: spot('fig-terraces', -14.6, 36.0, FIG),
+    text: 'A wide woven hat for working the paddies in the rain. In the canopy it always rains, so it is always the right hat.' },
+  { id: 'c73', region: VINE, kind: 'stone', name: 'The Flood', from: spot('fig-terraces', -6.0, 29.8, FIG),
+    text: 'A memory: the river rising over the terraces in one night, and a young Kingshade carrying families up the vines, two at a time, until morning.' },
+  { id: 'c74', region: VINE, kind: 'stone', name: 'The Crown of Vines', from: spot('ruin-steps', 13.2, 35.6, RUIN),
+    text: 'A memory: the Kong weaving a crown of vines for the one who saved them, and Kingshade saying he would rather have a hammock.' },
+  { id: 'c75', region: VINE, kind: 'stone', name: 'The Promised Jungle', from: spot('court-stones', 6.4, 42.6, COURT),
+    text: 'A memory: a red voice in the black pool telling Kingshade about a jungle with no floods, past the spirals, where he would never have to carry anyone again.' },
 ];
 export const collectibleById = (id) => COLLECTIBLES.find((c) => c.id === id) || null;
 export const found = (flags, id) => !!(flags && flags.found && flags.found[id]);

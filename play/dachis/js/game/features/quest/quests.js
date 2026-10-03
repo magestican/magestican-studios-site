@@ -124,6 +124,37 @@ export const QUESTS = [
     reward: { items: { candy: 2, seal: 1 } } },
   
   
+  
+  { id: 'fig-luck', region: 'vinegate', giver: 'vine-v2', name: 'A Fig for Luck', after: 'boss_bramble',
+    steps: [
+      { kind: 'talk', npc: 'vine-v2', text: 'Talk to the river folk who throws figs for luck',
+        say: ['Someone threw my lucky fig in the river. Fine, it was me. Now I have no luck and the river has two.', 'The best figs grow on the terraces past the canopy. Bring one back? Not for eating. For luck. Mostly.'] },
+      { kind: 'visit', sec: 'fig-terraces', text: 'Pick a fig on the Fig Terraces, past the Canopy Walk',
+        say: ['Where two dikes meet, an old fig tree leans over the water. One ripe fig drops into your hand like it was waiting.'] },
+      { kind: 'talk', npc: 'vine-v2', text: 'Bring the fig back to Vinegate',
+        say: ['A terrace fig! Now watch - in it goes, and out it comes, and now it is twice as lucky.', 'Keep it. Luck works better when you give it away. That is the other half of the deal.'] },
+    ],
+    reward: { collectible: 'c63' } },
+  { id: 'bend-fishing', region: 'vinegate', giver: 'vine-v0', name: 'Past the Bend', after: 'boss_bramble',
+    steps: [
+      { kind: 'talk', npc: 'vine-v0', text: 'Talk to the river folk at the landing',
+        say: ['My grandpa fished past the bend, all the way up to the old temple. He lost his float there. A painted one.', 'Nobody goes up the temple steps now. Nobody except you, maybe. You have that look.'] },
+      { kind: 'find', id: 'c61', text: 'Find the old fishing float at the foot of the Ruin Steps',
+        say: ['In the weeds at the foot of the temple: a gourd float, its paint almost gone. It is light as a leaf.'] },
+      { kind: 'talk', npc: 'vine-v0', text: 'Bring the float back to the landing',
+        say: ['That is it! Grandpa\'s float. He said the fish past the bend were as big as boats. He also said a lot of things.', 'Here - a fisher\'s bandana. Now you are one of us. Do not tell the fish.'] },
+    ],
+    reward: { collectible: 'c70' } },
+  { id: 'scared-tails', region: 'vinegate', giver: 'vine-v1', name: 'Scared Tails', after: 'boss_bramble',
+    steps: [
+      { kind: 'talk', npc: 'vine-v1', text: 'Talk to the river folk who watches the guards',
+        say: ['The king\'s guards are not mean, they are scared. If one wild Beast dachi made friends with a person, they would see it is safe.', 'Could you show them? Befriend a Beast dachi out in the canopy.'] },
+      { kind: 'befriend', type: 'Beast', text: 'Befriend a Beast dachi',
+        say: ['Your new friend puffs up proudly. Somewhere up in the canopy, a guard\'s tail stops shaking for a moment.'] },
+      { kind: 'talk', npc: 'vine-v1', text: 'Tell the river folk on the east pier',
+        say: ['Word travels fast on the vines. One of the guards sent this down. He said you would know what it means.'] },
+    ],
+    reward: { collectible: 'c65' } },
   { id: 'firefly-home', region: 'hollowroot', giver: 'hollow-v3', name: 'The Lost Fireflies', after: 'boss_leviathrum',
     steps: [
       { kind: 'talk', npc: 'hollow-v3', text: 'Talk to the tree folk who keeps the firefly jars',
