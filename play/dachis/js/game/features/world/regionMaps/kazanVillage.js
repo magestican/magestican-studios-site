@@ -65,6 +65,10 @@ function tileFor(x, y) {
   const [u, v] = toUV(x, y);
   if (!inside(u, v)) return T.CLIFF;
   if (craterD(x, y) < CRATER.r - 0.7) return T.LAVA; 
+  
+  
+  
+  if (craterD(x, y) < CRATER.r + 0.5) return T.CLIFF;
   if (Math.hypot(x - PLAZA.x, y - PLAZA.y) < 3.4 + U.fbm(x * 0.4, y * 0.4, 7) * 1.4) return T.PLAZA; 
   
   

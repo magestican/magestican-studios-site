@@ -84,9 +84,26 @@ export function* thornfieldSteps() {
   EDGES.forEach((e, k) => { for (const side of [-1, 1]) { const p = at(RAMP_U[k] + side * 1.7, e - 2.9); addObj(W, { kind: 'pillar', x: p.x, y: p.y, solid: 0.3, s: 0.8 + (side > 0 ? 0.15 : 0), rot: side, v: (k + (side > 0 ? 1 : 0)) % 3 }); } });
   
   for (const side of [-1, 1]) { const p = at(-13.0, 31.0 + side * 1.2); addObj(W, { kind: 'rimstone', x: p.x, y: p.y, solid: 0.35, s: 1.1, rot: side * 1.3, v: side > 0 ? 1 : 2, flavor: 'moss' }); }
+  
+  
+  
+  const FLOWERS = ['#ff9ec8', '#ffe27a', '#b890ff', '#ff8a6a'];
+  for (let k = 0; k <= 1; k++) for (let row = 0; row <= 2; row++) {
+    const vc = (k === 0 ? 30 : EDGES[k - 1]) + 2.6 + row * 3.6;
+    for (let n = 0; n < 5; n++) {
+      const uc = -18 + 7.2 * n + 3.6; if (!bedAt(uc, vc)) continue;
+      let i = 0; for (let u = uc - 2.3; u <= uc + 2.3; u += 0.75, i++) {
+        const p = at(u, vc); if (!bedAt(u, vc) || pathD(p.x, p.y) < 1.0) continue;
+        addObj(W, i % 2 ? { kind: 'flower', x: p.x, y: p.y, solid: 0, c: FLOWERS[(n + row) % 4] } : { kind: 'bramble', x: p.x, y: p.y, solid: 0, s: 0.42, rot: 0.6 });
+      }
+      for (const side of [-1, 1]) { let m = 0; for (let u = uc - 2.4; u <= uc + 2.4; u += 0.8) {
+        const p = at(u, vc + side * 0.8); if (pathD(p.x, p.y) < 1.0) continue;
+        addObj(W, { kind: 'fence', x: p.x, y: p.y, solid: 0, ring: `bed-${k}-${row}-${n}-${side}`, k: m++, n: 0 });
+      } }
+    }
+  }
   yield 'buildings';
   const r = U.rng(4141);
-  const FLOWERS = ['#ff9ec8', '#ffe27a', '#b890ff', '#ff8a6a'];
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     const t = W.type[W.idx(i, j)];
     const x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28;
@@ -95,9 +112,10 @@ export function* thornfieldSteps() {
     const pd = pathD(x, y);
     if (pd < 1.0 || Math.hypot(x - SPRING.x, y - SPRING.y) < 1.8 || Math.hypot(x - ENTRY.x, y - ENTRY.y) < 2.2) continue;
     const [, v] = toUV(x, y), wild = terraceOf(v) >= 2;
+    if (t === T.THICKET && !wild) continue; 
     if (t === T.THICKET) { if (k < (wild ? 0.2 : 0.13)) addObj(W, { kind: 'bramble', x, y, solid: 0, s: (wild ? 0.6 : 0.45) + s * 0.35, rot }); else if (!wild && k < 0.2) addObj(W, { kind: 'flower', x, y, solid: 0, c: FLOWERS[Math.floor(s * 4)] }); continue; }
     if (wild && t === T.GLADE && k < 0.03 && pd > 2.4) addObj(W, { kind: 'jtree', x, y, solid: 0.45, s: 1 + s * 0.4, rot, flavor: 'verdant' });
-    else if (k < (wild ? 0.05 : 0.09)) addObj(W, { kind: 'flower', x, y, solid: 0, c: FLOWERS[Math.floor(s * 4)] });
+    else if (k < (wild ? 0.05 : 0.03)) addObj(W, { kind: 'flower', x, y, solid: 0, c: FLOWERS[Math.floor(s * 4)] });
     else if (k < 0.11) addObj(W, { kind: 'rock', x, y, solid: 0.3, s: 0.35 + s * 0.35, rot, flavor: 'moss' });
   }
   yield 'props';
