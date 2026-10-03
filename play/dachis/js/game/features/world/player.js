@@ -34,11 +34,18 @@ export function updatePlayer(dt, canMove) {
     if (Math.floor(p.walk / Math.PI) !== before) S.sfx.play(stepSound(W.type[W.idx(Math.floor(p.x), Math.floor(p.y))]));
   }
   
+  if (!W.wind && document.body.dataset.gust) delete document.body.dataset.gust;
   if (W.wind) {
     p.windT = (p.windT || 0) + dt;
     const ph = W.gustAt ? W.gustAt(p.windT).phase : null; 
     if (ph === 'warn' && p.windPhase !== 'warn') toast('The grass flattens - a gust is coming!', 1300);
     p.windPhase = ph;
+    
+    if (ph && ph !== 'calm') {
+      const g = W.gustAt(p.windT + (ph === 'warn' ? 1 : 0));
+      const a = S.stage.toScreen(p.x, p.y), [dx, dy] = W.windDir ? W.windDir(g.dir) : [g.dir, 0], b = S.stage.toScreen(p.x + dx, p.y + dy);
+      document.body.dataset.gust = ph + (b[0] >= a[0] ? '-r' : '-l');
+    } else delete document.body.dataset.gust;
     const [px, py] = W.wind(p.windT, p.x, p.y);
     if (px || py) { if (W.walkable(p.x + px * dt, p.y, BODY_R.kid)) p.x += px * dt; if (W.walkable(p.x, p.y + py * dt, BODY_R.kid)) p.y += py * dt; }
   }

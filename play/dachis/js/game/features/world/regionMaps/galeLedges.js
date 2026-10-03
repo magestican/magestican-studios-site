@@ -45,6 +45,8 @@ export const sheltered = (u, v, dir) => {
 };
 
 const [ox, oy] = fromUV(0, 40), [ux, uy] = fromUV(1, 40), DU = [ux - ox, uy - oy];
+
+export const windDir = (dir) => [DU[0] * dir, DU[1] * dir];
 export function windPush(t, x, y) {
   const g = gustAt(t);
   if (g.phase !== 'gust') return [0, 0];
@@ -89,7 +91,7 @@ export function* galeLedgesSteps() {
   W.onScreen = (x, y, pad = 1, padBelow = pad) => W.windowsOf(x, y, pad, padBelow).length > 0;
   W.baseType = W.type; W.baseReach = W.reach; W.baseWindows = W.windows; W.baseWindowsOf = W.windowsOf;
   W.paths = [];
-  W.wind = windPush; W.gustAt = gustAt; 
+  W.wind = windPush; W.gustAt = gustAt; W.windDir = windDir; 
   W.npcOk = (x, y, rad) => W.walkable(x, y, rad) && Math.hypot(x - GATE.x, y - GATE.y) > 1.8;
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   { const p = at(-6.0, 51.1); addObj(W, { kind: 'ladder', x: p.x, y: p.y, solid: 0, rot: uvRot(0, 1) }); } 

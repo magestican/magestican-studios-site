@@ -565,3 +565,13 @@ body.input-touch #ringHint b { font: 400 13px var(--marker); color: #d61f7a; tex
 
 body.memory canvas#world { filter: sepia(0.85) saturate(0.7) brightness(1.05) contrast(0.92); transition: filter 0.6s; }
 body.memory::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 3; box-shadow: inset 0 0 18vmin 6vmin rgba(60, 40, 20, 0.55); }
+
+
+body[data-gust]::before { content: ''; position: fixed; inset: -10% -50%; pointer-events: none; z-index: 2;
+  background: repeating-linear-gradient(176deg, transparent 0 30px, rgba(255,255,255,0.7) 30px 33px, transparent 33px 64px);
+  -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 110px, transparent 110px 230px); mask-image: repeating-linear-gradient(90deg, #000 0 110px, transparent 110px 230px);
+  animation: gustR 0.45s linear infinite; opacity: 0.35; }
+body[data-gust^='gust']::before { opacity: 0.85; animation-duration: 0.22s; }
+body[data-gust$='-l']::before { animation-name: gustL; }
+@keyframes gustR { from { transform: translateX(-230px); } to { transform: translateX(0); } }
+@keyframes gustL { from { transform: translateX(0); } to { transform: translateX(-230px); } }
