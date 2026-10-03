@@ -176,6 +176,12 @@ function discFrom(info, U, frag, uniforms, name) {
 }
 
 
+export function tintWater(hexes) {
+  const cols = hexes || R.WATER_BANDS.map(([, h]) => h);
+  for (const m of made) if (m.name === 'cel:water') cols.forEach((h, i) => m.uniforms.uWC.value[i].set(lin(h)));
+}
+
+
 export function surfaceFrom(src, U) {
   const info = src.userData.look;
   let m = null;

@@ -226,6 +226,9 @@ export const WATER_BANDS = [[0.035, '#ffffff'], [0.2, '#5fe8d6'], [0.5, '#19a7e0
 export const WATER_ALPHA = [1, 0.8, 0.94, 0.97];
 export const WATER_EDGE = '#0b3f8f'; 
 
+
+export const WATER_TINT = { minehead: ['#8fa39c', '#2f5a52', '#1d3d38', '#0f2420'] };
+
 export const GROUND_INK = 1.0;
 export function waterBand(depth) { let i = 0; while (depth >= WATER_BANDS[i][0]) i++; return i; }
 

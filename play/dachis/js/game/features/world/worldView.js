@@ -12,7 +12,8 @@ import { buildScenery } from '../../art/scenery/village.js';
 import { bakePathField, pathGroundMaterial } from '../../../engine/iso/groundPaths.js';
 import { T, CRATER, PLATEAU_H, VOLC, RIM, SHRINE } from './mapgen.js';
 import { SECTIONS, sectionById, edgeDepth, toUV, fromUV } from './sections.js';
-import { lookName, groundPaletteBytes } from '../../art/look/celRules.js';
+import { lookName, groundPaletteBytes, WATER_TINT } from '../../art/look/celRules.js';
+import { tintWater } from '../../art/look/celSurfaces.js';
 import { classPage, tagSpots } from '../../art/look/worldRules.js';
 import { createTags } from '../../art/look/tags.js';
 import { noSlice } from '../../../engine/core/slicer.js';
@@ -202,6 +203,7 @@ export async function buildWorld(stage, W, slice = noSlice) {
     region: W.region || HOME,
     showSection(id) {
       water.mesh.visible = !!(sectionById(id) && sectionById(id).sea);
+      tintWater(WATER_TINT[W.region] || null); 
       scenery.showSection(id);
       for (const k in tufts) tufts[k].visible = k === id;
     },
