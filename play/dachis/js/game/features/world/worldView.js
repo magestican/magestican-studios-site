@@ -10,8 +10,8 @@ import { createTerrain, paintPixelDetail } from '../../../engine/iso/terrain.js'
 import { createWater } from '../../../engine/iso/water.js';
 import { buildScenery } from '../../art/scenery/village.js';
 import { bakePathField, pathGroundMaterial } from '../../../engine/iso/groundPaths.js';
-import { T, CRATER, PLATEAU_H, VOLC, RIM } from './mapgen.js';
-import { SECTIONS, sectionById, edgeDepth, toUV } from './sections.js';
+import { T, CRATER, PLATEAU_H, VOLC, RIM, SHRINE } from './mapgen.js';
+import { SECTIONS, sectionById, edgeDepth, toUV, fromUV } from './sections.js';
 import { lookName, groundPaletteBytes } from '../../art/look/celRules.js';
 import { classPage, tagSpots } from '../../art/look/worldRules.js';
 import { createTags } from '../../art/look/tags.js';
@@ -154,7 +154,12 @@ export async function buildWorld(stage, W, slice = noSlice) {
   
   
   
-  const oldVillage = (o) => (o.kind === 'hut' || o.kind === 'bed') && Math.hypot(o.x - VOLC.x, o.y - VOLC.y) < RIM.r;
+  
+  
+  
+  const OLD_COURT = new Set(['hut', 'bed', 'temple', 'spring', 'torch']);
+  const oldVillage = (o) => ((o.kind === 'hut' || o.kind === 'bed') && Math.hypot(o.x - VOLC.x, o.y - VOLC.y) < RIM.r)
+    || (OLD_COURT.has(o.kind) && Math.hypot(o.x - SHRINE.x, o.y - SHRINE.y) < 4.6);
   const drawn = kazan ? Object.assign(Object.create(W), { objects: W.objects.filter((o) => !oldVillage(o)) }) : W;
   const scenery = await buildScenery(stage, drawn, { crater: cr, craterRadius: cr ? cr.r : 0, lavaHeight: cr ? cr.h : 0, craterSection: cr ? cr.section : null, sections: SECS.map((sec) => sec.id) }, slice);
   
@@ -163,6 +168,9 @@ export async function buildWorld(stage, W, slice = noSlice) {
   
   
   if (CEL && tagSpots(W).length) { createTags(W, scenery.groups); await slice('tags'); }
+  
+  
+  if (W.bubble) { scene.add(bubbleSkin(W)); await slice('bubble'); } else bubbleLook(null);
   ownTextures.push(tex);
   const owned = scene.children.filter((o) => !before.has(o));
 
@@ -216,4 +224,52 @@ function crossedQuads(w, h) {
   g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
   g.setIndex(idx);
   return g;
+}
+
+
+const SKIN_MAT = new THREE.MeshBasicMaterial({ color: 0xa8ecff, transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false });
+
+
+const MURK = new THREE.Color(0x6fae98), CLEAR = new THREE.Color(0xdaf8ff);
+
+
+
+let light = null;
+
+export function bubbleLook(k, snap = false) {
+  if (k === null) { if (light) light.style.display = 'none'; return; }
+  SKIN_MAT.color.copy(MURK).lerp(CLEAR, k);
+  SKIN_MAT.opacity = 0.22 - 0.08 * k;
+  if (typeof document === 'undefined') return;
+  if (!light) {
+    light = document.createElement('div'); light.id = 'bubbleLight';
+    light.style.cssText = 'position:fixed;inset:0;z-index:1;pointer-events:none';
+    light.innerHTML = '<i style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, rgba(70,120,80,.10), rgba(30,70,55,.42));mix-blend-mode:multiply"></i>'
+      + '<i style="position:absolute;inset:-20%;background:repeating-linear-gradient(105deg, rgba(255,230,150,0) 0 70px, rgba(255,230,150,.22) 70px 110px, rgba(255,230,150,0) 110px 190px);mix-blend-mode:screen"></i>';
+    document.body.appendChild(light);
+  }
+  light.style.display = '';
+  for (const c of light.children) c.style.transition = snap ? 'none' : 'opacity 6s ease-in-out';
+  light.children[0].style.opacity = String(1 - k);
+  light.children[1].style.opacity = String(k);
+}
+function bubbleSkin(W) {
+  const B = W.bubble, SEG = 96, RINGS = 5, pos = [], idx = [];
+  for (let i = 0; i <= RINGS; i++) {
+    const t = i / RINGS, k = 1 - t * t * 0.08, h = -0.3 + t * 3.2;
+    for (let j = 0; j <= SEG; j++) {
+      const a = j / SEG * Math.PI * 2, [x, y] = fromUV(B.u + Math.cos(a) * B.ru * k, B.v + Math.sin(a) * B.rv * k);
+      pos.push(x, h, y);
+    }
+  }
+  for (let i = 0; i < RINGS; i++) for (let j = 0; j < SEG; j++) {
+    const a = i * (SEG + 1) + j, b = a + SEG + 1;
+    idx.push(a, b, a + 1, a + 1, b, b + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  const m = new THREE.Mesh(g, SKIN_MAT);
+  m.name = 'bubble-skin'; m.renderOrder = 2;
+  return m;
 }

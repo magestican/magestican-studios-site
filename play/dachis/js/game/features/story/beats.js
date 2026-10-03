@@ -7,6 +7,10 @@ import { speciesById, makeDachi, GUARDIAN, STARTERS, SPECIES } from '../../data/
 import { AMBUSH, SHRINE, SPAWN } from '../world/mapgen.js';
 import { spawnNpcs } from '../world/npcs.js';
 import { HOME } from '../world/regions.js';
+import * as shrineVillage from '../world/regionMaps/shrineVillage.js';
+import { LANE } from '../world/regionMaps/shellhaven.js';
+import * as motherHollow from '../world/regionMaps/motherHollow.js';
+import { bubbleLook } from '../world/worldView.js';
 import { spawnWild, removeWild } from '../world/wilds.js';
 import { startBattle } from '../battle/battle.js';
 import { KID, ELDER, NARR } from './scenes.js';
@@ -20,7 +24,8 @@ const L = (who, text, extra) => Object.assign(typeof who === 'function' ? who() 
 
 
 let scene = null;
-export const storyLocksMovement = () => !!scene;
+
+export const storyLocksMovement = () => !!scene && scene.kind !== 'conch';
 
 export function afterIntro() {
   G.flags.started = true;
@@ -39,8 +44,152 @@ const REGION_BEATS = {
     L(NARR, 'The Magma Hall. Heat rolls off the pools in slow waves, and the rock hums underfoot.'),
     L(NARR, 'Somewhere past the pools, something small is crying.'),
   ],
+  
+  shellhaven: [
+    L(NARR, 'The water parts like a curtain. You step through - and you are dry, standing in air, on the bottom of the sea.'),
+    L(NARR, 'Above you the bubble wobbles. Fish swim past outside it, close enough to touch.'),
+    L(KID, 'No way. NO way. This is better than the aquarium on Coney Island.'),
+  ],
+  'kelp-maze': [
+    L(NARR, 'The bubble stretches out into a long tunnel of air. The kelp has grown into walls taller than you.'),
+    L(KID, 'Okay. Left hand on the wall. That is how you do mazes. I think.'),
+  ],
+  
+  hollowroot: [
+    L(NARR, 'The rope ladder sways. You climb, and climb, and do not look down - and then your head comes up through the leaves into the light.'),
+    L(NARR, 'A whole village sits in the crown of the old tree: huts where the boughs fork, firefly jars, walkways of living wood.'),
+    L(KID, 'A treehouse. A whole TOWN of treehouses. Okay, I am never going home.'),
+  ],
+  'thorn-upper': [
+    L(NARR, 'The rope slide hisses, the leaves whip past - and you land in a garden. Or what used to be one.'),
+    L(NARR, 'Long beds run along every terrace, planted in neat rows. Thorns have climbed over all of them.'),
+    L(KID, 'Somebody loved this place. You can tell. Nobody plants in straight lines unless they love it.'),
+  ],
+  'thorn-lower': [
+    L(NARR, 'Down here the rows give up. The garden has run wild, and the thorns grow as tall as you.'),
+  ],
+  
+  vinegate: [
+    L(NARR, 'Aerowing drops you on a wooden landing over a wide brown river. The air is hot and loud with insects.'),
+    L(NARR, 'A whole village stands in the water on stilts, joined by boardwalks. Something with a long tail watches you from a roof.'),
+    L(KID, 'It is like Venice. If Venice was in a jungle. And full of monkeys.'),
+  ],
+  
+  'canopy-walk': [
+    L(NARR, 'The ladder ends on a platform of planks lashed round a trunk. Rope bridges swing away from it in every direction.'),
+    L(NARR, 'Some climb up into the sunny crowns. Some sag across the shade below. The ground is very, very far down.'),
+    L(KID, '(Do not look down. Okay. Looked down. Great.)'),
+  ],
+  'fig-terraces': [
+    L(NARR, 'Past the last bridge the jungle opens onto a hillside of flooded fields, stepping down like stairs full of sky.'),
+    L(NARR, 'Narrow mud walls run between the pools. Old fig trees grow where the walls meet. Nobody has tended this in a long time.'),
+    L(KID, 'It is like a giant ice cube tray. A muddy one. I can walk on the edges.'),
+  ],
+  'tree-vault': [
+    L(NARR, 'You squeeze down through the knot-hole and drop onto soft moss. Inside, the tree is hollow, and it smells like rain.'),
+    L(NARR, 'Seedlings grow in neat rows across the floor, each one labelled with a scratch in the bark. Someone kept them here very carefully.'),
+  ],
+  'tree-heart': [
+    L(NARR, 'The heartwood. A pool of sap glows gold in the middle of the hall, and the walls creak slowly, like breathing.'),
+  ],
+  'tree-roots': [
+    L(NARR, 'At the very bottom the roots twist round one mossy stone, as if the whole tree were holding it.'),
+    L(KID, 'That is where it started. One seed. Somebody planted one seed, right here.'),
+  ],
+  'temple-porch': [
+    L(NARR, 'Inside the drowned temple it is quiet. Water drips. Your footsteps echo a long way off.'),
+  ],
+  'temple-sanctum': [
+    L(NARR, 'At the end of the aisle an old altar waits. When the tide moves, the whole room hums, like a choir far away.'),
+    L(KID, 'It is singing. The temple is actually singing.'),
+  ],
 };
-export function updateRegionBeats(sec) {
+
+
+const CONCH = () => { const n = G.npcs.find((x) => x.id === 'shell-elder'); return n ? { who: n.name, portrait: n.sp } : NARR; };
+const WELCOME = {
+  before: [
+    'Well, well. Let me look at you. Two legs, no gills, and dry as a biscuit.',
+    'I am Grandmother Conch. This was a city once; now it is a bubble, and we fish folk keep it.',
+    'You are welcome here, child. Rest at the clam whenever you need. And when you are ready, come and talk to me about the great one up in the plaza.',
+  ],
+  after: [
+    'Well, well. So you are the one who set Leviathrum free. Look at you - so small!',
+    'I am Grandmother Conch. The whole bubble felt it when his red tide lifted. Welcome to Shellhaven, child. Stay as long as you like.',
+  ],
+};
+
+const FIRST_SEED = () => [
+  L(NARR, 'You put your hand on the mossy stone. The roots around it are warm - and the hollow goes bright, like a memory opening.'),
+  L(NARR, 'A bare hill, long ago. No tree. A young dachi with small, bare antlers kneels and presses one seed into the dirt.'),
+  { who: 'Young Bramble', portrait: undefined, text: 'There. Grow slowly. I will sing to you every day, and you will never be alone.' },
+  L(NARR, 'Seasons blur past. The seed becomes a sprout, a sapling, a tree that climbs into the clouds. Bramble grows old beside it, antlers full of flowers.'),
+  L(NARR, 'Then the light turns red. The memory shakes, and goes dark.'),
+  L(KID, 'She planted this whole tree. She just wanted things to grow.'),
+  L(KID, 'Whatever got into her... it is using that. It is using how much she loves this.'),
+];
+
+const BUBBLE_CLEARS = () => [
+  L(NARR, 'Something is different. The bubble\'s skin, murky green the last time you were here, is clearing like a window someone breathed on.'),
+  L(NARR, 'Sunlight comes down through the water in long gold ribbons. Fish folk stand still all over the square, faces up.'),
+  L(CONCH, 'Look at that. The sun. I had forgotten its colour, child.'),
+  L(KID, 'That was Leviathrum. He was holding the red tide over all of you.'),
+  L(CONCH, 'Then he is holding it no longer. Thank you - from all of us, and from him.'),
+];
+const SHELL = 'shellhaven';
+let bubbleK = -1, bubbleIn = null; 
+function moveTo(n, x, y, dt) {
+  const dx = x - n.x, dy = y - n.y, d = Math.hypot(dx, dy), s = Math.min(d, 1.6 * dt);
+  if (d < 0.02) { n.moving = false; return true; }
+  n.x += dx / d * s; n.y += dy / d * s; n.moving = true; n.walk += dt * 10;
+  if (Math.abs(dx - dy) > 0.05) n.face = dx - dy > 0 ? 1 : -1;
+  return false;
+}
+function updateShellhaven(sec, dt) {
+  const seen = G.flags.beats || (G.flags.beats = {});
+  if (bubbleIn !== S.W) { bubbleIn = S.W; bubbleK = -1; }
+  const target = G.flags.boss_leviathrum && seen['shellhaven-clear'] ? 1 : 0;
+  if (target !== bubbleK) { bubbleLook(target, bubbleK < 0); bubbleK = target; }
+  if (scene && scene.kind === 'conch') {
+    const n = scene.n, p = G.player;
+    if (scene.step === 'to') {
+      const d = U.dist(n.x, n.y, p.x, p.y), w = scene.path[0];
+      scene.t += dt;
+      if (d > 3 && w && scene.t < 14) { if (moveTo(n, w[0], w[1], dt)) scene.trail.push(scene.path.shift()); }
+      else if (d > 1.75) moveTo(n, n.x + (p.x - n.x) * (d - 1.7) / d, n.y + (p.y - n.y) * (d - 1.7) / d, dt);
+      else { n.moving = false; scene.step = 'talk'; say(WELCOME[G.flags.boss_leviathrum ? 'after' : 'before'].map((t) => L(CONCH, t)), () => { scene.step = 'back'; }); }
+    } else if (scene.step === 'back') {
+      const w = scene.trail[scene.trail.length - 1] || [scene.home.x, scene.home.y];
+      if (moveTo(n, w[0], w[1], dt) && !scene.trail.pop()) { n.face = 1; scene = null; saveGame(); }
+    }
+    return true;
+  }
+  if (sec !== SHELL || S.dialog.active) return false;
+  if (seen[SHELL] && !seen['shellhaven-welcome']) { 
+    seen['shellhaven-welcome'] = 1;
+    if (G.flags.boss_leviathrum) seen['shellhaven-clear'] = 1; 
+    const n = G.npcs.find((x) => x.id === 'shell-elder');
+    if (n) { scene = { kind: 'conch', n, step: 'to', t: 0, home: { x: n.x, y: n.y }, path: LANE.slice().reverse(), trail: [] }; return true; }
+  }
+  if (G.flags.boss_leviathrum && seen['shellhaven-welcome'] && !seen['shellhaven-clear']) {
+    seen['shellhaven-clear'] = 1; saveGame();
+    bubbleLook(1); bubbleK = 1; 
+    say(BUBBLE_CLEARS());
+    return true;
+  }
+  return false;
+}
+export function updateRegionBeats(sec, dt = 1 / 60) {
+  
+  const p = G.player, T = shrineVillage.SHRINE_AT;
+  if (G.region === shrineVillage.ID && G.flags.starter && !G.flags.initiated && U.dist(p.x, p.y, T.x, T.y) < shrineVillage.CEREMONY_R && !S.dialog.active && !scene) { ceremony(); return; }
+  if (G.region === SHELL && updateShellhaven(sec, dt)) return;
+  
+  
+  if (G.region === motherHollow.ID && !S.dialog.active) {
+    const seen = G.flags.beats || (G.flags.beats = {}), Sd = motherHollow.SEED;
+    if (!seen['first-seed'] && U.dist(p.x, p.y, Sd.x, Sd.y) < Sd.r + 0.8) { seen['first-seed'] = 1; saveGame(); say(FIRST_SEED()); return; }
+  }
   const lines = REGION_BEATS[sec], seen = G.flags.beats || (G.flags.beats = {});
   if (!lines || seen[sec] || S.dialog.active) return;
   seen[sec] = 1;
@@ -169,9 +318,35 @@ function elderAfterAshlo() {
   ]);
   saveGame();
 }
+
+
+function elderAfterLeviathrum() {
+  G.flags.elderLeviathrum = true;
+  say([
+    L(ELDER, 'The tide came in gentle this morning. Leviathrum is free, then.'),
+    L(KID, 'It said the tide erases every footprint. That only the ones who leave get remembered.'),
+    L(ELDER, 'Hm. A lonely thing to believe at the bottom of the sea. Whoever told it that wanted it to leave.'),
+    L(NARR, 'Hibone\'s egg is warm against your back now, like a stone left in the sun.'),
+    L(ELDER, 'Two guardians set free. Inland, past the jungle, the Verdant Wilds have gone quiet. Too quiet. The birds left first.'),
+  ]);
+  saveGame();
+}
+function elderAfterBramble() {
+  G.flags.elderBramble = true;
+  say([
+    L(ELDER, 'Mother Bramble... I knew her when her antlers still flowered. You brought her home.'),
+    L(KID, 'She called our world soil. She said the new world would be their garden.'),
+    L(ELDER, 'Then someone is promising the dachis a paradise, and asking them to pay for it with everything they love.'),
+    L(NARR, 'Something inside Hibone\'s egg taps back when you touch it. Once. Twice.'),
+    L(ELDER, 'Three guardians, child. The spirals are not an accident. Rest now - what comes next will ask more of you.'),
+  ]);
+  saveGame();
+}
 export function talkTo(n) {
   if (n.kind === 'elder') {
     if (G.flags.boss_ashlo && !G.flags.elderAshlo) return elderAfterAshlo();
+    if (G.flags.boss_leviathrum && !G.flags.elderLeviathrum) return elderAfterLeviathrum();
+    if (G.flags.boss_bramble && !G.flags.elderBramble) return elderAfterBramble();
     if (!G.flags.starter) return say([L(ELDER, 'Hurry, child! Down the road — follow the red dashes on your map to the X.')]);
     if (!G.flags.initiated) return say([L(ELDER, 'A guardian’s egg... So Hibone found you. Go on, the priests are waiting.')]);
     if (!G.flags.kumabo) return say([L(ELDER, 'You have been initiated. I can feel it. Go on — Kumabo is waiting for you.')]);
@@ -188,6 +363,25 @@ export function talkTo(n) {
         L(KID, 'I promise. I\'ll always come back here.'),
       ]);
     }
+    
+    if (G.flags.kumabo && G.flags.boss_leviathrum && !G.flags.kumaboLeviathrum) {
+      G.flags.kumaboLeviathrum = true; saveGame();
+      return say([
+        { who: 'Kumabo', portrait: 'kumabo', text: 'Kuma? ...Kuma!' },
+        L(NARR, 'Kumabo sniffs your sleeve. Salt. She sneezes, offended, then sneezes again on purpose to make you laugh.'),
+        L(NARR, 'She has drawn a whale in the ash by the spring. Its ribs are white, not red.'),
+        L(KID, 'Yeah. That\'s exactly how it looks now.'),
+      ]);
+    }
+    if (G.flags.kumabo && G.flags.boss_bramble && !G.flags.kumaboBramble) {
+      G.flags.kumaboBramble = true; saveGame();
+      return say([
+        { who: 'Kumabo', portrait: 'kumabo', text: 'Kuma-kuma-kuma!' },
+        L(NARR, 'A flower is tucked behind Kumabo\'s good ear. She points at it, then at the forest far below, then at you.'),
+        L(NARR, 'She takes it out and pushes it into your hand. Then she holds up her paw again. Come back. Still.'),
+        L(KID, 'Still. Every time.'),
+      ]);
+    }
     if (G.flags.kumabo) return say([{ who: 'Kumabo', portrait: 'kumabo', text: 'Kuma! Kuma-kuma!' }, L(NARR, 'Kumabo hugs your leg. Harder than she looks.')]);
     if (G.flags.initiated) return kumaboThanks();
     return say([{ who: 'Kumabo', portrait: 'kumabo', text: '...Kuma...' }, L(NARR, 'She holds your finger with her little robot paw. You have to do this. For her.')]);
@@ -200,5 +394,5 @@ export function talkTo(n) {
   const q = questTalk(n); 
   if (q) return say(q);
   n.li = ((n.li ?? -1) + 1) % n.lines.length;
-  say([{ who: speciesById(n.sp).name, portrait: n.sp, text: n.lines[n.li] }]);
+  say([{ who: n.name || speciesById(n.sp).name, portrait: n.sp, text: n.lines[n.li] }]); 
 }

@@ -147,7 +147,7 @@ export function hullLod(groups, { cells = HULL_CELLS, cellMin = HULL_CELL_MIN, f
 
 export const GROUND_CLASSES = ['grass', 'tall', 'sand', 'rock', 'lava', 'plaza', 'shallow', 'deep', 'wood', 'cliff',
   'jungle', 'reef', 'kelp', 'ruin', 'glade', 'thicket', 'moss'];
-export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant', 'ember'];
+export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant', 'ember', 'river', 'canopy', 'fig'];
 
 
 export const GROUND_BASE = {
@@ -159,8 +159,9 @@ export const GROUND_BASE = {
 };
 export const GROUND_REGION = {
   
-  kazan: { grass: ['#7f9e3c', '#a9c453'], plaza: ['#8aa848', '#b2cb62'], rock: ['#6e5a50', '#8c7466'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
-  slope: { grass: ['#7f9e3c', '#a9c453'], tall: ['#5a7f2e', '#7a9c3a'], rock: ['#76675c', '#988574'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
+  
+  kazan: { grass: ['#8a8a46', '#a9a35c'], plaza: ['#9a8a5a', '#b8a670'], rock: ['#3e383e', '#5a5058'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
+  slope: { grass: ['#8a8a46', '#a9a35c'], tall: ['#6e7034', '#8c8a44'], rock: ['#46404a', '#625862'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
   jungle: { grass: ['#3f9a3a', '#6cbf48'], jungle: ['#21703a', '#36924a'], tall: ['#2a7430', '#3f9238'] },
   road: {},
   coast: { sand: ['#f0d48e', '#fde9b4'], shallow: ['#ecd294', '#f8e4b0'], grass: ['#5fb04a', '#8fd25e'] },
@@ -169,6 +170,14 @@ export const GROUND_REGION = {
   
   coral: { reef: ['#a8d8d0', '#c6ece4'], kelp: ['#1f7f80', '#2fa0a0'], ruin: ['#7f9cb4', '#a0bed2'], sand: ['#b8dcd0', '#d4eee4'],
     grass: ['#3a9a86', '#5cbca0'], tall: ['#287c70', '#3a9a86'], path: ['#c8e6e0', '#ffffff'] },
+  
+  river: { rock: ['#8a5e3a', '#a87a4e'], sand: ['#8a7048', '#a88a5c'], jungle: ['#1f6a36', '#2f8844'], tall: ['#25703a', '#3a8e40'], grass: ['#3a8a3a', '#5aae48'] },
+  
+  
+  canopy: { rock: ['#b08a52', '#d0aa6a'], glade: ['#8cc64a', '#b6e060'], moss: ['#1e5a3a', '#2c7448'], thicket: ['#2a6a2c', '#3c8a34'], cliff: ['#163a26', '#1f4a30'] },
+  
+  fig: { shallow: ['#5aa8a8', '#8ed4cc'], deep: ['#4a9898', '#7ac4bc'], tall: ['#6aa83a', '#8cc84a'], grass: ['#5aa040', '#7cc050'],
+    jungle: ['#21703a', '#36924a'], path: ['#b8784a', '#e8b080'] },
   verdant: { grass: ['#3a8f34', '#6cc044'], glade: ['#1f6a34', '#3a9a3c'], thicket: ['#164f2e', '#256a36'], moss: ['#5f9a4a', '#8cc65a'] },
   
   
@@ -199,7 +208,7 @@ export function luma(h) { const [r, g, b] = hexRgb(h); return 0.2126 * r + 0.715
 
 export function classByte(cls) { const i = GROUND_CLASSES.indexOf(cls); return i < 0 ? 0 : i; }
 
-const GROUND_ALIAS = { village: 'kazan', 'ember-a': 'ember', 'ember-b': 'ember' };
+const GROUND_ALIAS = { village: 'kazan', 'shrine-village': 'shrine', 'tomo-coast': 'coast', shellhaven: 'coral', 'kelp-maze': 'coral', 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral', 'ember-a': 'ember', 'ember-b': 'ember', hollowroot: 'verdant', 'thorn-upper': 'verdant', 'thorn-lower': 'verdant', 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant', vinegate: 'river', 'canopy-walk': 'canopy', 'fig-terraces': 'fig' };
 export function regionByte(region) { const i = GROUND_REGIONS.indexOf(GROUND_ALIAS[region] || region); return i < 0 ? GROUND_REGIONS.indexOf('road') : i; }
 
 

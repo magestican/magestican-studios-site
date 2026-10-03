@@ -43,7 +43,7 @@ export function updateBossLairs() {
     if (l.met) continue;
     l.met = true;
     const name = l.sp.name;
-    S.dialog.say(meetLines(l, l.sp.blurb).map(([who, text]) => ({ who: who === 'kid' ? G.name || 'You' : name, text })), () => { l.met = true; if (startBossBattle(l.boss, { x: l.at.x, y: l.at.y })) S.sfx.play('rage'); });
+    S.dialog.say(meetLines(l, l.sp.blurb).map(([who, text]) => ({ who: who === 'kid' ? G.name || 'You' : name, text, boss: who !== 'kid' })), () => { l.met = true; if (startBossBattle(l.boss, { x: l.at.x, y: l.at.y })) S.sfx.play('rage'); });
   }
 }
 

@@ -9,6 +9,10 @@ import { pushApart, GAP, BODY_R, lairBody, bossBody } from './crowd.js';
 import { HOME } from './regions.js';
 import * as village from './regionMaps/kazanVillage.js';
 import * as ember from './regionMaps/emberTube.js';
+import * as shrine from './regionMaps/shrineVillage.js';
+import * as shell from './regionMaps/shellhaven.js';
+import * as hollow from './regionMaps/hollowroot.js';
+import * as vine from './regionMaps/vinegate.js';
 import { SPECIES } from '../../data/species.js';
 
 const VILLAGER_LINES = [
@@ -32,8 +36,10 @@ export function spawnNpcs() {
   const add = n => { n.bb = n.kind === 'elder' ? elderBillboard(S.stage.scene) : dachiBillboard(S.stage.scene, speciesById(n.sp).stage); n.face = 1; n.walk = 0; G.npcs.push(n); return n; };
   
   
-  const inVillage = G.region === village.ID, P = NPC_POSTS, K = inVillage ? village.HOME_DISC : NPC_HOMES.kazan, SH = NPC_HOMES.shrine;
-  const kazanPeople = inVillage, shrinePeople = !G.region || G.region === HOME;
+  
+  const inVillage = G.region === village.ID, inShrine = G.region === shrine.ID, K = inVillage ? village.HOME_DISC : NPC_HOMES.kazan;
+  const P = inShrine ? { ...NPC_POSTS, ...shrine.POSTS } : NPC_POSTS, SH = inShrine ? shrine.HOME_DISC : NPC_HOMES.shrine;
+  const kazanPeople = inVillage, shrinePeople = inShrine;
   const keep = (n, ok) => { if (!ok) { G.npcs.pop(); n.bb?.dispose(S.stage.scene); } };
   keep(add({ kind: 'elder', ...(inVillage ? village.POSTS.elder : P.elder), still: true }), kazanPeople);
   keep(add({ kind: 'kumabo', sp: KUMABO, bandage: !G.flags.initiated, ...(inVillage ? village.POSTS.kumabo : P.kumabo), still: true }), kazanPeople);
@@ -53,6 +59,38 @@ export function spawnNpcs() {
     for (const d of ember.DWELLERS) {
       const sp = kinds[Math.floor(re() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, re, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: re() * 3 });
+    }
+  }
+  
+  
+  if (G.region === shell.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Tide' || s.types[0] === 'Frost')), rs = U.rng(78);
+    const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Tide');
+    add({ kind: 'villager', id: 'shell-elder', name: shell.ELDER.name, sp: old.id, ...shell.ELDER.at, still: true, lines: G.flags.boss_leviathrum ? shell.ELDER_LINES.after : shell.ELDER_LINES.before });
+    for (const d of shell.DWELLERS) {
+      const sp = kinds[Math.floor(rs() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rs, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rs() * 3 });
+    }
+  }
+  
+  if (G.region === vine.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Beast' || s.types[0] === 'Leaf')), rv = U.rng(80);
+    const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Beast') || SPECIES.find((s) => s.stage === 3);
+    add({ kind: 'villager', id: 'vine-elder', name: vine.ELDER.name, sp: old.id, ...vine.ELDER.at, still: true, lines: G.flags.boss_kingshade ? vine.ELDER_LINES.after : vine.ELDER_LINES.before });
+    for (const d of vine.DWELLERS) {
+      const sp = kinds[Math.floor(rv() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rv, d.home, d.home.r, 1.0, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rv() * 3 });
+    }
+  }
+  
+  
+  if (G.region === hollow.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Leaf' || s.types[0] === 'Spirit')), rh = U.rng(79);
+    const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Leaf');
+    add({ kind: 'villager', id: 'hollow-elder', name: hollow.ELDER.name, sp: old.id, ...hollow.ELDER.at, still: true, lines: G.flags.boss_bramble ? hollow.ELDER_LINES.after : hollow.ELDER_LINES.before });
+    for (const d of hollow.DWELLERS) {
+      const sp = kinds[Math.floor(rh() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rh, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rh() * 3 });
     }
   }
   for (let i = 0; i < 3; i++) {

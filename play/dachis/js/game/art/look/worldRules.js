@@ -6,6 +6,8 @@ import { classByte, regionByte } from './celRules.js';
 import { PATH as TESTBED_PATH } from '../../features/world/regionMaps/testbed.js';
 import { LANE as VILLAGE_LANE } from '../../features/world/regionMaps/kazanVillage.js';
 import { PATH as EMBER_PATH } from '../../features/world/regionMaps/emberTube.js';
+import { LANE as COAST_LANE } from '../../features/world/regionMaps/tomoCoast.js';
+import { LANE as SHELL_LANE, REEF_WAY } from '../../features/world/regionMaps/shellhaven.js';
 
 
 
@@ -91,16 +93,36 @@ function inSection(W, pts, sec) {
 }
 const TRIES = [0.5, 0.35, 0.65, 0.2, 0.8];
 
-function roadTag(W, pts, sec, dest, style, arrow = true) {
+
+
+
+function roadTag(W, pts, sec, dest, style, arrow = true, opt = {}) {
   const run = inSection(W, pts, sec);
   if (run.length < 2) return null;
   for (const f of TRIES) {
     const p = along(run, f);
-    if (!p || W.sectionAt(p.x, p.y) !== sec || !npcSpotOk(W, p.x, p.y, 0.3)) continue;
-    const { text, dir } = roadText(dest, p.dx, p.dy, arrow);
-    return { kind: 'ground', section: sec, text, style, x: p.x, y: p.y, dir, w: 2.0, h: 0.72 };
+    if (!p) continue;
+    const l = Math.hypot(p.dx, p.dy) || 1, { text, dir } = roadText(dest, p.dx, p.dy, arrow), w = opt.w || 2.0;
+    
+    
+    const cands = opt.beside ? [[-p.dy / l, p.dx / l, opt.beside], [p.dy / l, -p.dx / l, opt.beside], [dir[0], dir[1], w / 2 + opt.beside - 0.3], [-dir[0], -dir[1], w / 2 + opt.beside - 0.3]] : [[0, 0, 0]];
+    for (const [ox, oy, k] of cands) {
+      const x = p.x + ox * k, y = p.y + oy * k;
+      if (W.sectionAt(x, y) !== sec || !npcSpotOk(W, x, y, 0.3)) continue;
+      if (opt.beside && [-0.5, -0.25, 0, 0.25, 0.5].some((f) => { const qx = x + dir[0] * w * f, qy = y + dir[1] * w * f; return polyDist(run, qx, qy) < opt.beside - 0.45 || !npcSpotOk(W, qx, qy, 0.15); })) continue;
+      return { kind: 'ground', section: sec, text, style, x, y, dir, w, h: opt.h || 0.72 };
+    }
   }
   return null;
+}
+function polyDist(pts, x, y) {
+  let best = Infinity;
+  for (let k = 0; k < pts.length - 1; k++) {
+    const [ax, ay] = pts[k], [bx, by] = pts[k + 1], dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy || 1;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L));
+    best = Math.min(best, Math.hypot(ax + dx * t - x, ay + dy * t - y));
+  }
+  return best;
 }
 
 function wallTag(W, sec, text, style) {
@@ -141,8 +163,9 @@ function kazanTags(W) {
     roadTag(W, PATH_POINTS, 'jungle', 'SHRINE', 'arrow'),
     roadTag(W, PATH_POINTS, 'road', 'SHRINE', 'arrow'),
     roadTag(W, COAST_PATH, 'coast', 'TOMO 92', 'teal', false),
-    wallTag(W, 'shrine', 'DACHI', 'pink'),
+    
     roadTag(W, CORAL_PATH, 'coral', 'DEEP', 'arrow'),
+    roadTag(W, REEF_WAY, 'coral', 'SHELLHAVEN', 'arrow', true, { beside: 1.1, w: 3.2, h: 1.0 }), 
     roadTag(W, VERDANT_PATH, 'verdant', 'GROVE', 'arrow'),
   ];
 }
@@ -157,11 +180,18 @@ const villageTags = (W) => [
   wallTag(W, 'village', 'DACHI', 'pink'),
   roadTag(W, VILLAGE_LANE.slice().reverse(), 'village', 'SHRINE', 'arrow'),
 ];
+const BESIDE = { beside: 1.35, w: 2.8, h: 1.05 }; 
 const emberTags = (W) => [
-  roadTag(W, EMBER_PATH, 'ember-a', 'MAGMA HALL', 'arrow'),
-  roadTag(W, EMBER_PATH, 'ember-b', 'EMBER 92', 'teal', false),
+  roadTag(W, EMBER_PATH, 'ember-a', 'MAGMA HALL', 'arrow', true, BESIDE),
+  roadTag(W, EMBER_PATH, 'ember-b', 'EMBER 92', 'teal', false, BESIDE),
 ];
-const TAG_LISTS = { [HOME_REGION]: kazanTags, testbed: testbedTags, 'kazan-village': villageTags, 'ember-tube': emberTags };
+
+
+const shrineTags = (W) => [wallTag(W, 'shrine-village', 'DACHI', 'pink')]; 
+const coastTags = (W) => [wallTag(W, 'tomo-coast', 'DACHI', 'pink'), roadTag(W, COAST_LANE, 'tomo-coast', 'CORAL', 'arrow', true, BESIDE)];
+
+const shellTags = (W) => [wallTag(W, 'shellhaven', 'DACHI', 'pink'), roadTag(W, SHELL_LANE, 'shellhaven', 'SHELLHAVEN 92', 'teal', false, BESIDE)];
+const TAG_LISTS = { shellhaven: shellTags, [HOME_REGION]: kazanTags, testbed: testbedTags, 'kazan-village': villageTags, 'ember-tube': emberTags, 'shrine-village': shrineTags, 'tomo-coast': coastTags };
 
 export function tagCells(spots) {
   const keys = [];
