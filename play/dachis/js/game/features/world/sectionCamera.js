@@ -44,7 +44,7 @@ export function updateCamera(dt, focus) {
   
   let view = base, wu, ws;
   if (focus.vh) {
-    const vh = Math.min(focus.vh, win.s[1] - win.s[0], (win.u[1] - win.u[0]) / aspect);
+    const vh = focus.free ? focus.vh : Math.min(focus.vh, win.s[1] - win.s[0], (win.u[1] - win.u[0]) / aspect); 
     view = { vh, vw: vh * aspect }; wu = focus.u; ws = focus.s;
   } else {
     const [fu, fv] = toUV(focus.x, focus.y);
@@ -62,11 +62,11 @@ export function updateCamera(dt, focus) {
   else cam.vh += (view.vh - cam.vh) * Math.min(1, dt * (focus.vh ? 5 : 3));
   if (Math.abs(cam.vh - stage.viewHeight) > 1e-4) stage.setViewHeight(cam.vh);
   const eased = { vh: cam.vh, vw: cam.vh * aspect };
-  const [cu, cs] = clampView(win, eased, wu, ws);
+  const [cu, cs] = focus.free ? [wu, ws] : clampView(win, eased, wu, ws);
   if (cam.snap) { cam.u = cu; cam.s = cs; cam.snap = false; }
   else { const k = Math.min(1, dt * 6); cam.u += (cu - cam.u) * k; cam.s += (cs - cam.s) * k; }
   
-  [cam.u, cam.s] = clampView(win, eased, cam.u, cam.s);
+  if (!focus.free) [cam.u, cam.s] = clampView(win, eased, cam.u, cam.s);
   const focusH = focus.vh ? focus.h : W.groundAt(focus.x, focus.y);
   const t = targetFor(cam.u, cam.s, focusH);
   stage.lookAt(t.x, t.y, t.h);

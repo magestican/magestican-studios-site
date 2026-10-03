@@ -32,7 +32,8 @@ import { battleOpener } from './battleOpener.js';
 import { music } from '../../music.js';
 
 export let B = null;
-export const INTRO = 1.5;   
+export const INTRO = 1.5;
+export const BOSS_VH = 18;  
 
 function fighter(d, x, y, side) {
   return {
@@ -54,7 +55,11 @@ export function startBattle(wild, opts = {}) {
   if (!allyD) return false;
   const p = G.player, W = S.W, aspect = S.stage.w / S.stage.h;
   const sec = S.cam && S.cam.sec, win = sec && W.windows ? W.windows[sec] : null;
-  const maxVh = win ? maxBattleVh(win, sectionById(sec).zoom, aspect) : 12;
+  
+  
+  
+  const free = !!speciesById(wild.d.sp).boss && !!(S.stage.look && S.stage.look.name === 'cel');
+  const maxVh = free ? Math.max(BOSS_VH, win ? maxBattleVh(win, sectionById(sec).zoom, aspect) : 12) : win ? maxBattleVh(win, sectionById(sec).zoom, aspect) : 12;
   const { ru, rv } = arenaRadii(maxVh, aspect);
   let [cx, cy] = arenaCentre(p.x, p.y, wild.x, wild.y, ru, rv);
   
@@ -75,6 +80,7 @@ export function startBattle(wild, opts = {}) {
       cx = pl.cx; cy = pl.cy;
     }
   }
+  if (free) { cx = wild.x; cy = wild.y; } 
   
   for (let k = 0; k < 10 && !W.walkable(cx, cy, 0.3); k++) { cx += (p.x - cx) * 0.2; cy += (p.y - cy) * 0.2; }
   const kx0 = run ? run.tx : p.x, ky0 = run ? run.ty : p.y;
@@ -85,7 +91,7 @@ export function startBattle(wild, opts = {}) {
     ally: fighter(allyD, kx0 + dx * 1.3, ky0 + dy * 1.3, 0), run,
     enemy: fighter(wild.d, cx + dx * Math.min(3, dl), cy + dy * Math.min(3, dl), 1),
     proj: [], fx: [], nums: [], callouts: [], shout: { text: opts.script ? 'W-whoa!!' : `Go, ${speciesById(allyD.sp).name}!`, t: 1.6 },
-    ritual: null, capture: null, result: null, shake: 0, used: new Set(), mines: [], parries: 0,
+    ritual: null, capture: null, result: null, shake: 0, used: new Set(), mines: [], parries: 0, free,
   };
   if (B.boss) { B.enemy.x = wild.x; B.enemy.y = wild.y; } 
   clampArena(B.enemy);

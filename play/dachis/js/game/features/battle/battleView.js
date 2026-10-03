@@ -152,17 +152,17 @@ export function battleFocus() {
   const add = (x, y, top) => { const [u, v] = toUV(x, y), g = W.groundAt(x, y); pts.push({ u, s: screenS(v, g) }, { u, s: screenS(v, g + top) }); };
   add(G.player.x, G.player.y, 1.5 * CHAR_SCALE); add(B.ally.x, B.ally.y, 1.6 * CHAR_SCALE); add(B.enemy.x, B.enemy.y, 1.6 * CHAR_SCALE); 
   
-  const maxVh = maxBattleVh(win, sectionById(sec).zoom, aspect), minVh = Math.min(maxVh, viewFor(win, sectionById(sec).zoom * VIEW_ZOOM, aspect).vh * 1.0); 
+  const maxVh = B.free ? B.maxVh : maxBattleVh(win, sectionById(sec).zoom, aspect), minVh = Math.min(maxVh, viewFor(win, sectionById(sec).zoom * VIEW_ZOOM, aspect).vh * 1.0); 
   let f = frameView(pts, aspect, minVh, maxVh);
   
   if (f.vh >= maxVh - 1e-6 && !fits(pts, f, aspect)) f = frameView(pts.slice(2), aspect, minVh, maxVh);
   const h = W.groundAt(B.cx, B.cy);
-  if (B.state !== 'intro') { const j = B.shake * 1.2; return { u: f.u + (Math.random() - 0.5) * j, s: f.s + (Math.random() - 0.5) * j, vh: f.vh, h }; }
+  if (B.state !== 'intro') { const j = B.shake * 1.2; return { u: f.u + (Math.random() - 0.5) * j, s: f.s + (Math.random() - 0.5) * j, vh: f.vh, h, free: !!B.free }; }
   
   const k = 1 - B.timer / INTRO, [eu, ev] = toUV(B.enemy.x, B.enemy.y), es = screenS(ev, W.groundAt(B.enemy.x, B.enemy.y) + 0.8);
-  if (k < 0.45) return { u: eu, s: es, vh: minVh * 0.55, h };
+  if (k < 0.45) return { u: eu, s: es, vh: minVh * 0.55, h, free: !!B.free };
   const e = (k - 0.45) / 0.55, m = e * e * (3 - 2 * e);
-  return { u: eu + (f.u - eu) * m, s: es + (f.s - es) * m, vh: minVh * 0.55 + (f.vh - minVh * 0.55) * m, h };
+  return { u: eu + (f.u - eu) * m, s: es + (f.s - es) * m, vh: minVh * 0.55 + (f.vh - minVh * 0.55) * m, h, free: !!B.free };
 }
 
 let leanQ = null, leanAxis = null;
