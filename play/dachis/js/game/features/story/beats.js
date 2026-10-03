@@ -5,7 +5,7 @@ import { U } from '../../../engine/core/util.js';
 import { G, S, saveGame, healParty, addDachi, caughtCount } from '../../state.js';
 import { speciesById, makeDachi, GUARDIAN, STARTERS, SPECIES } from '../../data/species.js';
 import { AMBUSH, SHRINE, SPAWN } from '../world/mapgen.js';
-import { spawnNpcs } from '../world/npcs.js';
+import { spawnNpcs, readOf } from '../world/npcs.js';
 import { HOME } from '../world/regions.js';
 import * as shrineVillage from '../world/regionMaps/shrineVillage.js';
 import { LANE } from '../world/regionMaps/shellhaven.js';
@@ -80,6 +80,10 @@ const REGION_BEATS = {
     L(NARR, 'The ladder ends on a platform of planks lashed round a trunk. Rope bridges swing away from it in every direction.'),
     L(NARR, 'Some climb up into the sunny crowns. Some sag across the shade below. The ground is very, very far down.'),
     L(KID, '(Do not look down. Okay. Looked down. Great.)'),
+  ],
+  'gale-ledges': [ 
+    L(NARR, 'The jetty ends in a rope ladder bolted to the cliff. At the top, four long ledges step up the rock, and the wind comes along them in shoves.'),
+    L(KID, 'Whoa - WHOA. It is like the platform at Fourteenth Street when the express goes by. Okay. Stand behind the big rocks.'),
   ],
   'fig-terraces': [
     L(NARR, 'Past the last bridge the jungle opens onto a hillside of flooded fields, stepping down like stairs full of sky.'),
@@ -409,7 +413,8 @@ export function talkTo(n) {
     if (!G.flags.starter) return say([L(ELDER, 'Why are you still here? The red dashes on your map. The X. Go.')]);
     if (!G.flags.initiated) return say([L(ELDER, 'Hibone. So he found you first, the show-off. The priests, {name}. Now.')]);
     if (!G.flags.kumabo) return say([L(ELDER, 'It took. I can smell it on you. She is by the spring. Go and see her - I told you she would mend.')]);
-    return say([L(ELDER, `${caughtCount()} kinds. When I was your age I had three, and one of them bit me.`)]);
+    const read = readOf('ashlo'); 
+    return say([L(ELDER, `${caughtCount()} kinds. When I was your age I had three, and one of them bit me.`), ...(read ? [L(ELDER, read)] : [])]);
   }
   if (n.kind === 'kumabo') {
     

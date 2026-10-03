@@ -6,6 +6,7 @@ import { speciesById } from '../../data/species.js';
 import { hatGeoOf } from '../../data/collectibles.js';
 import { FOLLOW, BODY_R } from './crowd.js';
 import { stepSound } from './mapgen.js';
+import { toast } from '../../../engine/ui/dialog.js';
 
 let kid = null, pet = null, petSp = 0;
 
@@ -31,6 +32,15 @@ export function updatePlayer(dt, canMove) {
     
     
     if (Math.floor(p.walk / Math.PI) !== before) S.sfx.play(stepSound(W.type[W.idx(Math.floor(p.x), Math.floor(p.y))]));
+  }
+  
+  if (W.wind) {
+    p.windT = (p.windT || 0) + dt;
+    const ph = W.gustAt ? W.gustAt(p.windT).phase : null; 
+    if (ph === 'warn' && p.windPhase !== 'warn') toast('The grass flattens - a gust is coming!', 1300);
+    p.windPhase = ph;
+    const [px, py] = W.wind(p.windT, p.x, p.y);
+    if (px || py) { if (W.walkable(p.x + px * dt, p.y, BODY_R.kid)) p.x += px * dt; if (W.walkable(p.x, p.y + py * dt, BODY_R.kid)) p.y += py * dt; }
   }
   
   

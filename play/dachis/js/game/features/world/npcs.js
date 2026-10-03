@@ -15,6 +15,16 @@ import * as hollow from './regionMaps/hollowroot.js';
 import * as vine from './regionMaps/vinegate.js';
 import * as court from './regionMaps/obsidianCourt.js';
 import { SPECIES, bossSpecies } from '../../data/species.js';
+import { partyRead } from '../battle/bossPattern.js';
+import { lairOf, lairOpen } from './lairs.js';
+
+export function readOf(boss) {
+  const l = lairOf(boss), lead = G.party[0];
+  if (!l || !lead || !lairOpen(l, G.flags)) return null;
+  const top = Math.max(...G.party.map((d) => d.lvl));
+  return partyRead(boss, speciesById(lead.sp).name, bossSpecies(boss).level - top);
+}
+const withRead = (lines, boss) => { const r = readOf(boss); return r ? [...lines, r] : lines; };
 
 const VILLAGER_LINES = [
   ['The red hand came through again last night. It took my neighbour. I had hold of his arm.', 'I keep his door shut so the ash does not get in. He will want the place clean when he comes back.'],
@@ -67,7 +77,7 @@ export function spawnNpcs() {
   if (G.region === shell.ID) {
     const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Tide' || s.types[0] === 'Frost')), rs = U.rng(78);
     const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Tide');
-    add({ kind: 'villager', id: 'shell-elder', name: shell.ELDER.name, sp: old.id, ...shell.ELDER.at, still: true, lines: G.flags.boss_leviathrum ? shell.ELDER_LINES.after : shell.ELDER_LINES.before });
+    add({ kind: 'villager', id: 'shell-elder', name: shell.ELDER.name, sp: old.id, ...shell.ELDER.at, still: true, lines: G.flags.boss_leviathrum ? shell.ELDER_LINES.after : withRead(shell.ELDER_LINES.before, 'leviathrum') });
     for (const d of shell.DWELLERS) {
       const sp = kinds[Math.floor(rs() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rs, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rs() * 3 });
@@ -77,7 +87,7 @@ export function spawnNpcs() {
   if (G.region === vine.ID) {
     const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Beast' || s.types[0] === 'Leaf')), rv = U.rng(80);
     const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Beast') || SPECIES.find((s) => s.stage === 3);
-    add({ kind: 'villager', id: 'vine-elder', name: vine.ELDER.name, sp: old.id, ...vine.ELDER.at, still: true, lines: G.flags.boss_kingshade ? vine.ELDER_LINES.after : vine.ELDER_LINES.before });
+    add({ kind: 'villager', id: 'vine-elder', name: vine.ELDER.name, sp: old.id, ...vine.ELDER.at, still: true, lines: G.flags.boss_kingshade ? vine.ELDER_LINES.after : withRead(vine.ELDER_LINES.before, 'kingshade') });
     for (const d of vine.DWELLERS) {
       const sp = kinds[Math.floor(rv() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rv, d.home, d.home.r, 1.0, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rv() * 3 });
@@ -96,7 +106,7 @@ export function spawnNpcs() {
   if (G.region === hollow.ID) {
     const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Leaf' || s.types[0] === 'Spirit')), rh = U.rng(79);
     const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Leaf');
-    add({ kind: 'villager', id: 'hollow-elder', name: hollow.ELDER.name, sp: old.id, ...hollow.ELDER.at, still: true, lines: G.flags.boss_bramble ? hollow.ELDER_LINES.after : hollow.ELDER_LINES.before });
+    add({ kind: 'villager', id: 'hollow-elder', name: hollow.ELDER.name, sp: old.id, ...hollow.ELDER.at, still: true, lines: G.flags.boss_bramble ? hollow.ELDER_LINES.after : withRead(hollow.ELDER_LINES.before, 'bramble') });
     for (const d of hollow.DWELLERS) {
       const sp = kinds[Math.floor(rh() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rh, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rh() * 3 });

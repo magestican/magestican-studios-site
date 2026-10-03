@@ -66,7 +66,7 @@ export const AMBIENCE = {
   hollowroot: { wind: 0.6, birds: 0.7, chimes: 0.2 },
   'tree-vault': { chimes: 0.3, wind: 0.2 }, 'tree-heart': { chimes: 0.4, bugs: 0.2 }, 'tree-roots': { wind: 0.15, chimes: 0.2 }, 
   'ruin-steps': { wind: 0.5, birds: 0.5, bugs: 0.3 }, 'court-stones': { chimes: 0.4, rumble: 0.2 }, 'court-gallery': { wind: 0.6, rumble: 0.3 }, 'court-guards': { rumble: 0.2, chimes: 0.2 }, 'court-throne': { wind: 0.7, birds: 0.3 }, 
-  'canopy-walk': { wind: 0.5, birds: 0.8, bugs: 0.4 }, 'fig-terraces': { bugs: 0.8, birds: 0.4, surf: 0.15 }, 
+  'canopy-walk': { wind: 0.5, birds: 0.8, bugs: 0.4 }, 'gale-ledges': { wind: 1.0, surf: 0.5, birds: 0.2 }, 'fig-terraces': { bugs: 0.8, birds: 0.4, surf: 0.15 }, 
   vinegate: { surf: 0.35, bugs: 0.7, birds: 0.6 }, 
   'thorn-upper': { bugs: 0.6, birds: 0.5, wind: 0.3 }, 'thorn-lower': { bugs: 0.8, wind: 0.4, birds: 0.3 }, 
   'temple-porch': { surf: 0.4, chimes: 0.2 }, 'temple-nave': { surf: 0.3, chimes: 0.3 }, 'temple-sanctum': { chimes: 0.6, surf: 0.2 }, 

@@ -22,6 +22,7 @@ import * as mother from './regionMaps/motherHollow.js';
 import * as vine from './regionMaps/vinegate.js';
 import * as canopy from './regionMaps/canopyWalk.js';
 import * as fig from './regionMaps/figTerraces.js';
+import * as gale from './regionMaps/galeLedges.js';
 import * as ruin from './regionMaps/ruinSteps.js';
 import * as court from './regionMaps/obsidianCourt.js';
 
@@ -51,6 +52,7 @@ export const PERCHES = [
   { id: 'ruin-steps', region: ruin.ID, name: 'Temple Forecourt', at: ruin.LANDING, opens: 'boss_bramble', respawn: null },
   { id: 'obsidian-court', region: court.ID, name: 'The Glass Pool', at: court.POOL_LANDING, opens: 'boss_bramble', respawn: null },
   { id: 'fig-terraces', region: fig.ID, name: 'Terrace Landing', at: fig.LANDING, opens: 'boss_bramble', respawn: null },
+  { id: 'gale-ledges', region: gale.ID, name: 'Cliff Top', at: gale.LANDING, opens: 'boss_bramble', respawn: null }, 
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },

@@ -36,6 +36,7 @@ export const WORLD_PLACES = [
   { region: 'ruin-steps', name: 'The Ruin Steps', at: [0.18, 0.2], r: 0.05, glyph: 'meadow' },
   { region: 'obsidian-court', name: 'The Obsidian Court', at: [0.08, 0.12], r: 0.05, glyph: 'meadow' },
   { region: 'fig-terraces', name: 'The Fig Terraces', at: [0.09, 0.27], r: 0.05, glyph: 'meadow' },
+  { region: 'gale-ledges', name: 'The Gale Ledges', at: [0.025, 0.5], r: 0.025, glyph: 'meadow' }, 
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 
