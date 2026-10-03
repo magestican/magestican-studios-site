@@ -37,7 +37,21 @@
 
 
 
-import { playUi } from '../../../web-engine/brand/uiSound.js';
+
+
+
+
+
+
+
+import { isGamePage } from '../../../web-engine/brand/uiSoundPref.js';
+
+function playToggle(name) {
+  try {
+    if (!isGamePage(globalThis.location?.pathname)) return;
+    import('../../../web-engine/brand/uiSound.js').then((m) => { try { m.playUi(name); } catch {  } }, () => {});
+  } catch {  }
+}
 
 
 
@@ -80,7 +94,7 @@ export function wireMusicButton({ music, announce = () => {}, sound = null } = {
     announce(on ? 'Music on.' : 'Music off.');
     if (typeof sound === 'function') sound('press');
     else {
-      try { playUi(on ? 'toggleOn' : 'toggleOff'); } catch {  }
+      playToggle(on ? 'toggleOn' : 'toggleOff');
     }
   };
 
