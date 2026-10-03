@@ -22,7 +22,7 @@ export const PER_REGION = 15;
 
 
 const spot = (sec, u, v, map) => ({ spot: map ? { sec, uv: [u, v], map } : { sec, uv: [u, v] } });
-const SHRINE_V = 'shrine-village', COAST = 'tomo-coast', SHELL = 'shellhaven'; 
+const SHRINE_V = 'shrine-village', COAST = 'tomo-coast', SHELL = 'shellhaven', MAZE = 'kelp-maze', TEMPLE = 'drowned-temple'; 
 export const COLLECTIBLES = [
   
   { id: 'c1', region: HOME, kind: 'relic', name: 'Spiral Shard', from: { quest: 'spiral-watch' },
@@ -92,8 +92,8 @@ export const COLLECTIBLES = [
     text: 'A doorknob of pearl from a house in the drowned city. The door it opened is long gone; the knob still turns.' },
   { id: 'c32', region: SHELL, kind: 'relic', name: 'Frozen Bubble', from: { quest: 'bubble-mend' },
     text: 'A bubble a Frost dachi breathed on until it froze solid. Inside it, a little of Shellhaven\'s air, forever.' },
-  { id: 'c33', region: SHELL, kind: 'relic', name: 'Drowned Coin', from: spot('shellhaven', 5.0, 30.8),
-    text: 'A coin from the city\'s market, green with the sea. One side shows a whale; the other side has worn away.' },
+  { id: 'c33', region: SHELL, kind: 'relic', name: 'Drowned Coin', from: spot('kelp-maze', -6.65, 49.55, MAZE), 
+    text: 'A coin from the city\'s market, green with the sea. One side shows a whale; the other side has worn away. A fish folk child chased it into the kelp.' },
   { id: 'c34', region: SHELL, kind: 'relic', name: 'Harbour Bell', from: spot('shellhaven', 11.0, 40.2),
     text: 'A small brass bell that once hung on the harbour wall. It rang when the boats came home.' },
   { id: 'c35', region: SHELL, kind: 'relic', name: 'Mosaic Tile', from: spot('coral', 13.0, 99.0, HOME),
@@ -112,9 +112,9 @@ export const COLLECTIBLES = [
     text: 'Round brass diving goggles from the drowned city. Through them the whole world looks like an aquarium.' },
   { id: 'c42', region: SHELL, kind: 'hat', name: 'Coral Horns', geo: 'coral', from: spot('coral', 14.0, 95.6, HOME),
     text: 'Two little branches of pink coral on a band. Fish folk children wear them to play Leviathrum.' },
-  { id: 'c43', region: SHELL, kind: 'stone', name: 'The Last Boat', from: spot('shellhaven', 9.0, 46.2),
+  { id: 'c43', region: SHELL, kind: 'stone', name: 'The Last Boat', from: spot('temple-nave', -6.0, 56.0, TEMPLE),
     text: 'A memory: the last boat leaving the city as the water rose, and Leviathrum promising the crying children he would keep their homes until they came back.' },
-  { id: 'c44', region: SHELL, kind: 'stone', name: 'A Hundred Tides', from: spot('shellhaven', -6.0, 33.8),
+  { id: 'c44', region: SHELL, kind: 'stone', name: 'A Hundred Tides', from: spot('temple-porch', -7.0, 36.0, TEMPLE),
     text: 'A memory: Leviathrum sweeping the empty streets every morning for a hundred years, so they would be clean when his people returned.' },
   { id: 'c45', region: SHELL, kind: 'stone', name: 'The Red Tide', from: spot('coral', 12.2, 94.0, HOME),
     text: 'A memory: a red hand reaching down through the water and whispering that no one was coming back. Leviathrum believed it.' },
@@ -152,7 +152,7 @@ export function whereToLook(c) {
   if (f.quest) return 'Someone in need will thank you with it.';
   if (f.boss) return 'It sleeps inside a corrupted guardian.';
   return { jungle: 'Somewhere under the jungle leaves.', road: 'Somewhere along the old road.', coast: 'Somewhere the tide reaches.',
-    shrine: 'Somewhere among the shrine lanterns.', 'tomo-coast': 'Somewhere the tide reaches.', shellhaven: 'Somewhere inside the bubble.', coral: 'Somewhere among the drowned ruins.', 'shrine-village': 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.',
+    shrine: 'Somewhere among the shrine lanterns.', 'tomo-coast': 'Somewhere the tide reaches.', shellhaven: 'Somewhere inside the bubble.', coral: 'Somewhere among the drowned ruins.', 'kelp-maze': 'Somewhere deep in the Kelp Maze.', 'temple-porch': 'Somewhere inside the drowned temple.', 'temple-nave': 'Somewhere inside the drowned temple.', 'shrine-village': 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.',
     'ember-a': 'Somewhere in the glow of the Ember Tube.', 'ember-b': 'Somewhere between the lava pools.' }[f.spot.sec]
     || 'Somewhere off the beaten path.';
 }

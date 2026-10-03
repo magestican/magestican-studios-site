@@ -170,7 +170,7 @@ export async function buildWorld(stage, W, slice = noSlice) {
   if (CEL && tagSpots(W).length) { createTags(W, scenery.groups); await slice('tags'); }
   
   
-  if (W.bubble) { scene.add(bubbleSkin(W)); await slice('bubble'); }
+  if (W.bubble) { scene.add(bubbleSkin(W)); await slice('bubble'); } else bubbleLook(null);
   ownTextures.push(tex);
   const owned = scene.children.filter((o) => !before.has(o));
 
@@ -228,6 +228,31 @@ function crossedQuads(w, h) {
 
 
 const SKIN_MAT = new THREE.MeshBasicMaterial({ color: 0xa8ecff, transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false });
+
+
+const MURK = new THREE.Color(0x6fae98), CLEAR = new THREE.Color(0xdaf8ff);
+
+
+
+let light = null;
+
+export function bubbleLook(k, snap = false) {
+  if (k === null) { if (light) light.style.display = 'none'; return; }
+  SKIN_MAT.color.copy(MURK).lerp(CLEAR, k);
+  SKIN_MAT.opacity = 0.22 - 0.08 * k;
+  if (typeof document === 'undefined') return;
+  if (!light) {
+    light = document.createElement('div'); light.id = 'bubbleLight';
+    light.style.cssText = 'position:fixed;inset:0;z-index:1;pointer-events:none';
+    light.innerHTML = '<i style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, rgba(70,120,80,.10), rgba(30,70,55,.42));mix-blend-mode:multiply"></i>'
+      + '<i style="position:absolute;inset:-20%;background:repeating-linear-gradient(105deg, rgba(255,230,150,0) 0 70px, rgba(255,230,150,.22) 70px 110px, rgba(255,230,150,0) 110px 190px);mix-blend-mode:screen"></i>';
+    document.body.appendChild(light);
+  }
+  light.style.display = '';
+  for (const c of light.children) c.style.transition = snap ? 'none' : 'opacity 6s ease-in-out';
+  light.children[0].style.opacity = String(1 - k);
+  light.children[1].style.opacity = String(k);
+}
 function bubbleSkin(W) {
   const B = W.bubble, SEG = 96, RINGS = 5, pos = [], idx = [];
   for (let i = 0; i <= RINGS; i++) {

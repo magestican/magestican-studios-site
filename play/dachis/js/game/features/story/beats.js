@@ -8,6 +8,8 @@ import { AMBUSH, SHRINE, SPAWN } from '../world/mapgen.js';
 import { spawnNpcs } from '../world/npcs.js';
 import { HOME } from '../world/regions.js';
 import * as shrineVillage from '../world/regionMaps/shrineVillage.js';
+import { LANE } from '../world/regionMaps/shellhaven.js';
+import { bubbleLook } from '../world/worldView.js';
 import { spawnWild, removeWild } from '../world/wilds.js';
 import { startBattle } from '../battle/battle.js';
 import { KID, ELDER, NARR } from './scenes.js';
@@ -21,7 +23,8 @@ const L = (who, text, extra) => Object.assign(typeof who === 'function' ? who() 
 
 
 let scene = null;
-export const storyLocksMovement = () => !!scene;
+
+export const storyLocksMovement = () => !!scene && scene.kind !== 'conch';
 
 export function afterIntro() {
   G.flags.started = true;
@@ -58,10 +61,76 @@ const REGION_BEATS = {
     L(KID, 'It is singing. The temple is actually singing.'),
   ],
 };
-export function updateRegionBeats(sec) {
+
+
+const CONCH = () => { const n = G.npcs.find((x) => x.id === 'shell-elder'); return n ? { who: n.name, portrait: n.sp } : NARR; };
+const WELCOME = {
+  before: [
+    'Well, well. Let me look at you. Two legs, no gills, and dry as a biscuit.',
+    'I am Grandmother Conch. This was a city once; now it is a bubble, and we fish folk keep it.',
+    'You are welcome here, child. Rest at the clam whenever you need. And when you are ready, come and talk to me about the great one up in the plaza.',
+  ],
+  after: [
+    'Well, well. So you are the one who set Leviathrum free. Look at you - so small!',
+    'I am Grandmother Conch. The whole bubble felt it when his red tide lifted. Welcome to Shellhaven, child. Stay as long as you like.',
+  ],
+};
+
+const BUBBLE_CLEARS = () => [
+  L(NARR, 'Something is different. The bubble\'s skin, murky green the last time you were here, is clearing like a window someone breathed on.'),
+  L(NARR, 'Sunlight comes down through the water in long gold ribbons. Fish folk stand still all over the square, faces up.'),
+  L(CONCH, 'Look at that. The sun. I had forgotten its colour, child.'),
+  L(KID, 'That was Leviathrum. He was holding the red tide over all of you.'),
+  L(CONCH, 'Then he is holding it no longer. Thank you - from all of us, and from him.'),
+];
+const SHELL = 'shellhaven';
+let bubbleK = -1, bubbleIn = null; 
+function moveTo(n, x, y, dt) {
+  const dx = x - n.x, dy = y - n.y, d = Math.hypot(dx, dy), s = Math.min(d, 1.6 * dt);
+  if (d < 0.02) { n.moving = false; return true; }
+  n.x += dx / d * s; n.y += dy / d * s; n.moving = true; n.walk += dt * 10;
+  if (Math.abs(dx - dy) > 0.05) n.face = dx - dy > 0 ? 1 : -1;
+  return false;
+}
+function updateShellhaven(sec, dt) {
+  const seen = G.flags.beats || (G.flags.beats = {});
+  if (bubbleIn !== S.W) { bubbleIn = S.W; bubbleK = -1; }
+  const target = G.flags.boss_leviathrum && seen['shellhaven-clear'] ? 1 : 0;
+  if (target !== bubbleK) { bubbleLook(target, bubbleK < 0); bubbleK = target; }
+  if (scene && scene.kind === 'conch') {
+    const n = scene.n, p = G.player;
+    if (scene.step === 'to') {
+      const d = U.dist(n.x, n.y, p.x, p.y), w = scene.path[0];
+      scene.t += dt;
+      if (d > 3 && w && scene.t < 14) { if (moveTo(n, w[0], w[1], dt)) scene.trail.push(scene.path.shift()); }
+      else if (d > 1.75) moveTo(n, n.x + (p.x - n.x) * (d - 1.7) / d, n.y + (p.y - n.y) * (d - 1.7) / d, dt);
+      else { n.moving = false; scene.step = 'talk'; say(WELCOME[G.flags.boss_leviathrum ? 'after' : 'before'].map((t) => L(CONCH, t)), () => { scene.step = 'back'; }); }
+    } else if (scene.step === 'back') {
+      const w = scene.trail[scene.trail.length - 1] || [scene.home.x, scene.home.y];
+      if (moveTo(n, w[0], w[1], dt) && !scene.trail.pop()) { n.face = 1; scene = null; saveGame(); }
+    }
+    return true;
+  }
+  if (sec !== SHELL || S.dialog.active) return false;
+  if (seen[SHELL] && !seen['shellhaven-welcome']) { 
+    seen['shellhaven-welcome'] = 1;
+    if (G.flags.boss_leviathrum) seen['shellhaven-clear'] = 1; 
+    const n = G.npcs.find((x) => x.id === 'shell-elder');
+    if (n) { scene = { kind: 'conch', n, step: 'to', t: 0, home: { x: n.x, y: n.y }, path: LANE.slice().reverse(), trail: [] }; return true; }
+  }
+  if (G.flags.boss_leviathrum && seen['shellhaven-welcome'] && !seen['shellhaven-clear']) {
+    seen['shellhaven-clear'] = 1; saveGame();
+    bubbleLook(1); bubbleK = 1; 
+    say(BUBBLE_CLEARS());
+    return true;
+  }
+  return false;
+}
+export function updateRegionBeats(sec, dt = 1 / 60) {
   
   const p = G.player, T = shrineVillage.SHRINE_AT;
   if (G.region === shrineVillage.ID && G.flags.starter && !G.flags.initiated && U.dist(p.x, p.y, T.x, T.y) < shrineVillage.CEREMONY_R && !S.dialog.active && !scene) { ceremony(); return; }
+  if (G.region === SHELL && updateShellhaven(sec, dt)) return;
   const lines = REGION_BEATS[sec], seen = G.flags.beats || (G.flags.beats = {});
   if (!lines || seen[sec] || S.dialog.active) return;
   seen[sec] = 1;

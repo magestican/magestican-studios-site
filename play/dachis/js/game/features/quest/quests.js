@@ -111,6 +111,17 @@ export const QUESTS = [
         say: ['It really sings? Then the city is not all gone.', 'You should keep the song. You heard it first.'] },
     ],
     reward: { collectible: 'c37' } },
+  
+  { id: 'lost-coin', region: 'shellhaven', giver: 'shell-v2', name: 'Grandfather\'s Coin', after: 'boss_ashlo',
+    steps: [
+      { kind: 'talk', npc: 'shell-v2', text: 'Talk to the fish folk by the elder\'s post in Shellhaven',
+        say: ['My little sister chased a shiny coin into the Kelp Maze. She came back crying, without it.', 'It was our grandfather\'s, from the market in the city above. It has a whale on it. Could you look? The maze is through the east gate.'] },
+      { kind: 'find', id: 'c33', text: 'Find the whale coin deep in the Kelp Maze, east of Shellhaven',
+        say: ['Deep in the kelp, at the very end of a blind corner, something green and round winks at you. A whale on one side.'] },
+      { kind: 'talk', npc: 'shell-v2', text: 'Bring the coin back to Shellhaven',
+        say: ['That is it! That is the whale! She will stop crying now. Probably.', 'Keep the coin - Grandfather would want it travelling. Take these too, for the maze.'] },
+    ],
+    reward: { items: { candy: 2, seal: 1 } } },
 ];
 export const questById = (id) => QUESTS.find((q) => q.id === id) || null;
 export const SIDE = QUESTS.filter((q) => !q.main);
@@ -158,8 +169,12 @@ export function advance(flags, event, items = {}) {
     const i = st === 'open' ? 0 : prog(flags, q.id), s = q.steps[i];
     if (!matches(s, event, items)) continue;
     if (s.kind === 'deliver') items[s.item] -= s.n || 1;
-    (flags.quests || (flags.quests = {}))[q.id] = i + 1;
-    const done = i + 1 >= q.steps.length;
+    
+    
+    let n = i + 1;
+    while (n < q.steps.length && q.steps[n].kind === 'find' && flags.found && flags.found[q.steps[n].id]) n++;
+    (flags.quests || (flags.quests = {}))[q.id] = n;
+    const done = n >= q.steps.length;
     out.push({ quest: q, step: s, done, say: s.say || [], reward: done ? q.reward || null : null });
   }
   return out;

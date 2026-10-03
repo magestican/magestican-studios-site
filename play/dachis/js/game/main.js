@@ -430,7 +430,7 @@ function frame(now) {
         const touched = updateWilds(dt, { active: !!G.flags.starter });
         separateCrowd(dt, G.region === HOME ? lairBodies() : []); 
         if (G.region === HOME) { updateStory(dt); updateBossLairs(); } 
-        else updateRegionBeats(cam.sec); 
+        else updateRegionBeats(cam.sec, dt); 
         visit(G.flags, G.region, G.player.x, G.player.y); 
         
         const auto = doorAt(G.flags, G.region, G.player.x, G.player.y);
