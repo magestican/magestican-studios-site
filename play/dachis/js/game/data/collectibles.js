@@ -22,7 +22,7 @@ export const PER_REGION = 15;
 
 
 const spot = (sec, u, v, map) => ({ spot: map ? { sec, uv: [u, v], map } : { sec, uv: [u, v] } });
-const SHRINE_V = 'shrine-village', COAST = 'tomo-coast', SHELL = 'shellhaven', MAZE = 'kelp-maze', TEMPLE = 'drowned-temple'; 
+const SHRINE_V = 'shrine-village', COAST = 'tomo-coast', SHELL = 'shellhaven', MAZE = 'kelp-maze', TEMPLE = 'drowned-temple', HOLLOW = 'hollowroot', THORN = 'thornfield', MOTHER = 'mother-hollow'; 
 export const COLLECTIBLES = [
   
   { id: 'c1', region: HOME, kind: 'relic', name: 'Spiral Shard', from: { quest: 'spiral-watch' },
@@ -118,6 +118,39 @@ export const COLLECTIBLES = [
     text: 'A memory: Leviathrum sweeping the empty streets every morning for a hundred years, so they would be clean when his people returned.' },
   { id: 'c45', region: SHELL, kind: 'stone', name: 'The Red Tide', from: spot('coral', 12.2, 94.0, HOME),
     text: 'A memory: a red hand reaching down through the water and whispering that no one was coming back. Leviathrum believed it.' },
+  
+  
+  
+  { id: 'c46', region: HOLLOW, kind: 'relic', name: 'Bramble\'s Shears', from: spot('thorn-upper', -14.0, 36.6, THORN), 
+    text: 'Old garden shears, the handles worn smooth by one paw over hundreds of years. Mother Bramble never let anyone else touch them.' },
+  { id: 'c47', region: HOLLOW, kind: 'relic', name: 'Seed Label', from: spot('tree-vault', -3.4, 40.2, MOTHER),
+    text: 'A sliver of bark with a word scratched in it: "Patience". Every seedling in the vault has one. This one fell off.' },
+  { id: 'c48', region: HOLLOW, kind: 'relic', name: 'Firefly Jar', from: { quest: 'firefly-home' },
+    text: 'A jar with one firefly in it that chose you. The lid is never closed. It just stays.' },
+  { id: 'c49', region: HOLLOW, kind: 'relic', name: 'Rope Slide Handle', from: spot('hollowroot', 11.4, 28.6, HOLLOW),
+    text: 'A wooden handle from the first rope slide, worn into the shape of a lot of small paws holding on very tight.' },
+  { id: 'c50', region: HOLLOW, kind: 'relic', name: 'Acorn Cup', from: { quest: 'leaf-bed' },
+    text: 'A cup carved from one enormous acorn. The tree folk drink rain from them. It is, they insist, the best cup in the Wilds.' },
+  { id: 'c51', region: HOLLOW, kind: 'shell', name: 'Treetop Wind', cue: 'town', from: spot('hollowroot', -12.8, 32.6, HOLLOW),
+    text: 'Wind through ten thousand leaves, a rope creaking, someone laughing on a far platform. Hollowroot, at the top of the world.' },
+  { id: 'c52', region: HOLLOW, kind: 'shell', name: 'Heartwood Hum', cue: 'cave', from: spot('tree-heart', -5.0, 55.6, MOTHER),
+    text: 'The sound inside the Mother Tree: sap moving slowly, wood creaking like breathing, and under it a hum that might be a song.' },
+  { id: 'c53', region: HOLLOW, kind: 'shell', name: 'Bramble\'s Lament', cue: 'boss', from: { boss: 'bramble' },
+    text: 'The great gardener\'s cry as the red left her: not anger at all, in the end. A sound like someone who has lost a garden.' },
+  { id: 'c54', region: HOLLOW, kind: 'hat', name: 'Acorn Helmet', geo: 'helmet', from: { quest: 'old-shears' },
+    text: 'Half an acorn shell with a strap. Every gardener in Hollowroot wears one. Now you are a gardener, apparently.' },
+  { id: 'c55', region: HOLLOW, kind: 'hat', name: 'Moss Beanie', geo: 'beanie', from: spot('thorn-lower', 12.0, 74.0, THORN),
+    text: 'A beanie of living moss. It is a little damp. It is also growing, very slowly.' },
+  { id: 'c56', region: HOLLOW, kind: 'hat', name: 'Twig Antlers', geo: 'horns', from: spot('tree-roots', -1.6, 65.0, MOTHER),
+    text: 'Two twigs on a band, shaped like Mother Bramble\'s antlers. The tree folk children wear them to play gardener.' },
+  { id: 'c57', region: HOLLOW, kind: 'hat', name: 'Bark Goggles', geo: 'goggles', from: spot('hollowroot', -5.2, 31.6, HOLLOW),
+    text: 'Goggles with lenses of clear amber, for looking at the sun through the leaves without blinking.' },
+  { id: 'c58', region: HOLLOW, kind: 'stone', name: 'The First Seed', from: spot('tree-roots', 2.6, 65.4, MOTHER),
+    text: 'A memory: a young Bramble, antlers still bare, pressing one seed into the bare earth of an empty hill and singing to it every day for a year.' },
+  { id: 'c59', region: HOLLOW, kind: 'stone', name: 'Songs for Seedlings', from: spot('thorn-upper', 13.0, 47.0, THORN),
+    text: 'A memory: Bramble walking her garden rows at dusk, humming a different tune to every bed, because each kind of seedling liked its own song.' },
+  { id: 'c60', region: HOLLOW, kind: 'stone', name: 'The Red Wind', from: spot('thorn-lower', -12.0, 60.0, THORN),
+    text: 'A memory: a red wind coming down a spiral, and a voice in it telling Bramble that her garden would be bigger, so much bigger, if only she let the old world rot.' },
 ];
 export const collectibleById = (id) => COLLECTIBLES.find((c) => c.id === id) || null;
 export const found = (flags, id) => !!(flags && flags.found && flags.found[id]);
@@ -152,7 +185,7 @@ export function whereToLook(c) {
   if (f.quest) return 'Someone in need will thank you with it.';
   if (f.boss) return 'It sleeps inside a corrupted guardian.';
   return { jungle: 'Somewhere under the jungle leaves.', road: 'Somewhere along the old road.', coast: 'Somewhere the tide reaches.',
-    shrine: 'Somewhere among the shrine lanterns.', 'tomo-coast': 'Somewhere the tide reaches.', shellhaven: 'Somewhere inside the bubble.', coral: 'Somewhere among the drowned ruins.', 'kelp-maze': 'Somewhere deep in the Kelp Maze.', 'temple-porch': 'Somewhere inside the drowned temple.', 'temple-nave': 'Somewhere inside the drowned temple.', 'shrine-village': 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.',
+    shrine: 'Somewhere among the shrine lanterns.', 'tomo-coast': 'Somewhere the tide reaches.', shellhaven: 'Somewhere inside the bubble.', coral: 'Somewhere among the drowned ruins.', 'kelp-maze': 'Somewhere deep in the Kelp Maze.', 'temple-porch': 'Somewhere inside the drowned temple.', 'temple-nave': 'Somewhere inside the drowned temple.', hollowroot: 'Somewhere up in the treetops.', 'thorn-upper': 'Somewhere in the old garden.', 'thorn-lower': 'Somewhere in the wild meadow.', 'tree-vault': 'Somewhere inside the Mother Tree.', 'tree-heart': 'Somewhere inside the Mother Tree.', 'tree-roots': 'Somewhere among the Mother Tree\'s roots.', 'shrine-village': 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.',
     'ember-a': 'Somewhere in the glow of the Ember Tube.', 'ember-b': 'Somewhere between the lava pools.' }[f.spot.sec]
     || 'Somewhere off the beaten path.';
 }

@@ -319,6 +319,28 @@
    ],
    "pack": null,
    "extra": []
+  },
+  "vinegate": {
+   "forms": [
+    "bush",
+    "fence-post",
+    "fence-rail",
+    "fern",
+    "flower-bed",
+    "flower-clump",
+    "hut",
+    "jtree",
+    "lantern",
+    "spring-basin",
+    "step-slab",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "torch"
+   ],
+   "pack": null,
+   "extra": []
   }
  }
 }

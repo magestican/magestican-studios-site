@@ -122,6 +122,38 @@ export const QUESTS = [
         say: ['That is it! That is the whale! She will stop crying now. Probably.', 'Keep the coin - Grandfather would want it travelling. Take these too, for the maze.'] },
     ],
     reward: { items: { candy: 2, seal: 1 } } },
+  
+  
+  { id: 'firefly-home', region: 'hollowroot', giver: 'hollow-v3', name: 'The Lost Fireflies', after: 'boss_leviathrum',
+    steps: [
+      { kind: 'talk', npc: 'hollow-v3', text: 'Talk to the tree folk who keeps the firefly jars',
+        say: ['Half my fireflies flew down the knot-hole last night. They go to the heartwood when they are sad.', 'The sap pool down there glows like they do. Could you go and tell them it is safe to come home?'] },
+      { kind: 'visit', sec: 'tree-heart', text: 'Find the fireflies at the sap pool, inside the Mother Tree',
+        say: ['A cloud of fireflies hangs over the glowing sap. When you hum, they drift up toward the knot-hole, one by one.'] },
+      { kind: 'talk', npc: 'hollow-v3', text: 'Tell the firefly keeper in Hollowroot',
+        say: ['They are back! Every one. Look at them - brighter than before.', 'Take a jar. One of them chose you. They do that.'] },
+    ],
+    reward: { collectible: 'c48' } },
+  { id: 'old-shears', region: 'hollowroot', giver: 'hollow-v2', name: 'The Gardener\'s Shears', after: 'boss_leviathrum',
+    steps: [
+      { kind: 'talk', npc: 'hollow-v2', text: 'Talk to the tree folk who remembers the Old Grove',
+        say: ['Mother Bramble had a pair of shears she never let anyone touch. She dropped them the night the red came.', 'They will be somewhere in Thornfield, her garden. The rope slide on the south-east platform goes down.'] },
+      { kind: 'find', id: 'c46', text: 'Find Mother Bramble\'s shears in Thornfield\'s garden terraces',
+        say: ['Under a thorn bed, half sunk in moss: a pair of old garden shears, handles worn smooth by one paw, for years.'] },
+      { kind: 'talk', npc: 'hollow-v2', text: 'Bring the shears back to Hollowroot',
+        say: ['Those are hers. When she is herself again, she will want them. Keep them safe until then.', 'And wear this. Every gardener up here wears one.'] },
+    ],
+    reward: { collectible: 'c54', items: { seal: 1 } } },
+  { id: 'leaf-bed', region: 'hollowroot', giver: 'hollow-v1', name: 'A Bed of Leaves', after: 'boss_leviathrum',
+    steps: [
+      { kind: 'talk', npc: 'hollow-v1', text: 'Talk to the tree folk on the east platform',
+        say: ['The leaf beds are restless. The wild ones in them keep waking up scared.', 'If one of them made a friend - a ground walker, even - the others would sleep. Could you try?'] },
+      { kind: 'befriend', type: 'Leaf', text: 'Befriend a Leaf dachi',
+        say: ['Your new friend curls up for a moment in the leaves, and the whole bed goes quiet around it.'] },
+      { kind: 'talk', npc: 'hollow-v1', text: 'Tell the east platform\'s tree folk',
+        say: ['Listen - nothing. They are all asleep. You did that.', 'Here. We drink rain from these. It is the best cup in the Wilds.'] },
+    ],
+    reward: { collectible: 'c50', items: { candy: 2 } } },
 ];
 export const questById = (id) => QUESTS.find((q) => q.id === id) || null;
 export const SIDE = QUESTS.filter((q) => !q.main);

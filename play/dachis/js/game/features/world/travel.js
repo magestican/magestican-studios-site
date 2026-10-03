@@ -19,6 +19,7 @@ import * as temple from './regionMaps/drownedTemple.js';
 import * as hollow from './regionMaps/hollowroot.js';
 import * as thorn from './regionMaps/thornfield.js';
 import * as mother from './regionMaps/motherHollow.js';
+import * as vine from './regionMaps/vinegate.js';
 
 export const PERCHES = [
   
@@ -39,6 +40,8 @@ export const PERCHES = [
   { id: 'thornfield', region: thorn.ID, name: 'Meadow Pool', at: thorn.LANDING, opens: 'boss_leviathrum', respawn: null },
   
   { id: 'mother-hollow', region: mother.ID, name: 'Sap Pool', at: mother.SAP_LANDING, opens: 'boss_leviathrum', respawn: null },
+  
+  { id: 'vinegate', region: vine.ID, name: 'Vinegate Landing', at: vine.LANDING, opens: 'boss_bramble', respawn: null },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },

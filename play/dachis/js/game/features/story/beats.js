@@ -9,6 +9,7 @@ import { spawnNpcs } from '../world/npcs.js';
 import { HOME } from '../world/regions.js';
 import * as shrineVillage from '../world/regionMaps/shrineVillage.js';
 import { LANE } from '../world/regionMaps/shellhaven.js';
+import * as motherHollow from '../world/regionMaps/motherHollow.js';
 import { bubbleLook } from '../world/worldView.js';
 import { spawnWild, removeWild } from '../world/wilds.js';
 import { startBattle } from '../battle/battle.js';
@@ -67,6 +68,12 @@ const REGION_BEATS = {
   'thorn-lower': [
     L(NARR, 'Down here the rows give up. The garden has run wild, and the thorns grow as tall as you.'),
   ],
+  
+  vinegate: [
+    L(NARR, 'Aerowing drops you on a wooden landing over a wide brown river. The air is hot and loud with insects.'),
+    L(NARR, 'A whole village stands in the water on stilts, joined by boardwalks. Something with a long tail watches you from a roof.'),
+    L(KID, 'It is like Venice. If Venice was in a jungle. And full of monkeys.'),
+  ],
   'tree-vault': [
     L(NARR, 'You squeeze down through the knot-hole and drop onto soft moss. Inside, the tree is hollow, and it smells like rain.'),
     L(NARR, 'Seedlings grow in neat rows across the floor, each one labelled with a scratch in the bark. Someone kept them here very carefully.'),
@@ -100,6 +107,16 @@ const WELCOME = {
     'I am Grandmother Conch. The whole bubble felt it when his red tide lifted. Welcome to Shellhaven, child. Stay as long as you like.',
   ],
 };
+
+const FIRST_SEED = () => [
+  L(NARR, 'You put your hand on the mossy stone. The roots around it are warm - and the hollow goes bright, like a memory opening.'),
+  L(NARR, 'A bare hill, long ago. No tree. A young dachi with small, bare antlers kneels and presses one seed into the dirt.'),
+  { who: 'Young Bramble', portrait: undefined, text: 'There. Grow slowly. I will sing to you every day, and you will never be alone.' },
+  L(NARR, 'Seasons blur past. The seed becomes a sprout, a sapling, a tree that climbs into the clouds. Bramble grows old beside it, antlers full of flowers.'),
+  L(NARR, 'Then the light turns red. The memory shakes, and goes dark.'),
+  L(KID, 'She planted this whole tree. She just wanted things to grow.'),
+  L(KID, 'Whatever got into her... it is using that. It is using how much she loves this.'),
+];
 
 const BUBBLE_CLEARS = () => [
   L(NARR, 'Something is different. The bubble\'s skin, murky green the last time you were here, is clearing like a window someone breathed on.'),
@@ -156,6 +173,12 @@ export function updateRegionBeats(sec, dt = 1 / 60) {
   const p = G.player, T = shrineVillage.SHRINE_AT;
   if (G.region === shrineVillage.ID && G.flags.starter && !G.flags.initiated && U.dist(p.x, p.y, T.x, T.y) < shrineVillage.CEREMONY_R && !S.dialog.active && !scene) { ceremony(); return; }
   if (G.region === SHELL && updateShellhaven(sec, dt)) return;
+  
+  
+  if (G.region === motherHollow.ID && !S.dialog.active) {
+    const seen = G.flags.beats || (G.flags.beats = {}), Sd = motherHollow.SEED;
+    if (!seen['first-seed'] && U.dist(p.x, p.y, Sd.x, Sd.y) < Sd.r + 0.8) { seen['first-seed'] = 1; saveGame(); say(FIRST_SEED()); return; }
+  }
   const lines = REGION_BEATS[sec], seen = G.flags.beats || (G.flags.beats = {});
   if (!lines || seen[sec] || S.dialog.active) return;
   seen[sec] = 1;
