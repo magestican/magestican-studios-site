@@ -28,6 +28,7 @@ export const WORLD_PLACES = [
   { region: 'drowned-temple', name: 'The Drowned Temple', at: [0.72, 0.95], r: 0.045, glyph: 'meadow' },
   
   { region: 'hollowroot', name: 'Hollowroot', at: [0.1, 0.62], r: 0.07, glyph: 'meadow' },
+  { region: 'thornfield', name: 'Thornfield', at: [0.1, 0.78], r: 0.06, glyph: 'meadow' },
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 

@@ -17,6 +17,7 @@ import * as shell from './regionMaps/shellhaven.js';
 import * as kelp from './regionMaps/kelpMaze.js';
 import * as temple from './regionMaps/drownedTemple.js';
 import * as hollow from './regionMaps/hollowroot.js';
+import * as thorn from './regionMaps/thornfield.js';
 
 export const PERCHES = [
   
@@ -33,6 +34,8 @@ export const PERCHES = [
   { id: 'drowned-temple', region: temple.ID, name: 'Temple Pool', at: temple.POOL_LANDING, opens: 'boss_ashlo', respawn: null },
   
   { id: 'hollowroot', region: hollow.ID, name: 'Hollowroot', at: hollow.LANDING, opens: 'boss_leviathrum', respawn: null },
+  
+  { id: 'thornfield', region: thorn.ID, name: 'Meadow Pool', at: thorn.LANDING, opens: 'boss_leviathrum', respawn: null },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },

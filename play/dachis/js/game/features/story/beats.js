@@ -59,6 +59,14 @@ const REGION_BEATS = {
     L(NARR, 'A whole village sits in the crown of the old tree: huts where the boughs fork, firefly jars, walkways of living wood.'),
     L(KID, 'A treehouse. A whole TOWN of treehouses. Okay, I am never going home.'),
   ],
+  'thorn-upper': [
+    L(NARR, 'The rope slide hisses, the leaves whip past - and you land in a garden. Or what used to be one.'),
+    L(NARR, 'Long beds run along every terrace, planted in neat rows. Thorns have climbed over all of them.'),
+    L(KID, 'Somebody loved this place. You can tell. Nobody plants in straight lines unless they love it.'),
+  ],
+  'thorn-lower': [
+    L(NARR, 'Down here the rows give up. The garden has run wild, and the thorns grow as tall as you.'),
+  ],
   'temple-porch': [
     L(NARR, 'Inside the drowned temple it is quiet. Water drips. Your footsteps echo a long way off.'),
   ],

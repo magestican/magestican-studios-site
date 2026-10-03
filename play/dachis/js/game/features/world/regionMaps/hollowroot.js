@@ -42,6 +42,8 @@ export const BOUGHS = [
   [[2.4, 49.6], [6.0, 50.6], [9.0, 49.4], [11.8, 48.0]],
 ];
 export const BOUGH_HALF = 1.05; 
+export const SLIDE = at(13.4, 49.6);        
+export const SLIDE_BACK = at(11.4, 47.6);   
 export const ENTRY = at(-12.4, 42.6);       
 export const GATE = ENTRY;
 export const SPRING = at(1.6, 38.8);        

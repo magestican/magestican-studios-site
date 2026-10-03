@@ -15,6 +15,7 @@ import * as shell from './regionMaps/shellhaven.js';
 import * as kelp from './regionMaps/kelpMaze.js';
 import * as temple from './regionMaps/drownedTemple.js';
 import * as hollow from './regionMaps/hollowroot.js';
+import * as thorn from './regionMaps/thornfield.js';
 
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 const MOUTH = at(1.4, 48.8); 
@@ -57,6 +58,8 @@ export const DOORS = [
   { id: 'temple-out', region: temple.ID, at: temple.ENTRY, to: HOME, toAt: TEMPLE_BACK, label: 'Back out to Coral Deep', after: null },
   { id: 'hollowroot-in', region: HOME, at: HOLLOW_DOOR, to: hollow.ID, toAt: hollow.ENTRY, label: 'Climb the ladder', after: null },
   { id: 'hollowroot-out', region: hollow.ID, at: hollow.ENTRY, to: HOME, toAt: HOLLOW_BACK, label: 'Climb down to the Verdant Wilds', after: null },
+  { id: 'thorn-in', region: hollow.ID, at: hollow.SLIDE, to: thorn.ID, toAt: thorn.ENTRY, label: 'Ride the rope slide', after: null },
+  { id: 'thorn-out', region: thorn.ID, at: thorn.ENTRY, to: hollow.ID, toAt: hollow.SLIDE_BACK, label: 'Climb back up', after: null },
   { id: 'shrine-out', region: shrine.ID, at: shrine.GATE, to: HOME, toAt: ROAD_END, label: 'Back up the road', after: null },
 ];
 export const DOOR_R = 1.6; 
