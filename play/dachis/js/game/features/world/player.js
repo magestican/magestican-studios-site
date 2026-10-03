@@ -35,6 +35,7 @@ export function updatePlayer(dt, canMove) {
   }
   
   if (!W.wind && document.body.dataset.gust) delete document.body.dataset.gust;
+  if (!W.wind) p.braced = false;
   if (W.wind) {
     p.windT = (p.windT || 0) + dt;
     const ph = W.gustAt ? W.gustAt(p.windT).phase : null; 
@@ -47,6 +48,7 @@ export function updatePlayer(dt, canMove) {
       document.body.dataset.gust = ph + (b[0] >= a[0] ? '-r' : '-l');
     } else delete document.body.dataset.gust;
     const [px, py] = W.wind(p.windT, p.x, p.y);
+    p.braced = !!(px || py); 
     if (px || py) { if (W.walkable(p.x + px * dt, p.y, BODY_R.kid)) p.x += px * dt; if (W.walkable(p.x, p.y + py * dt, BODY_R.kid)) p.y += py * dt; }
   }
   
@@ -73,7 +75,7 @@ export function drawPlayer(t, { hidden = false, shout = false, cheer = false, la
   const p = G.player, W = S.W;
   kid.setVisible(!hidden);
   const dir = p.moving ? S.stage.screenDirToWorld(p.vx, p.vy) : lookAt ? [lookAt.x - p.x, lookAt.y - p.y] : null;
-  setKidFrame(kid, { gender: G.gender, walk: p.walk, moving: p.moving, shout: shout && !cheer, cheer: cheer && !p.moving, land, dir });
+  setKidFrame(kid, { gender: G.gender, walk: p.walk, moving: p.moving, shout: shout && !cheer, cheer: cheer && !p.moving, land: Math.max(land, p.braced ? 0.55 : 0), dir });
   kid.place(p.x, p.y, W.groundAt(p.x, p.y));
   const lead = G.party[0];
   if (lead && !pet) pet = dachiBillboard(S.stage.scene, speciesById(lead.sp).stage);

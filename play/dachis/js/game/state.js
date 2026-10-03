@@ -47,7 +47,7 @@ export function migrateSave(s) {
 const slot = createSaveSlot('dachis.v1', 5, migrateSave);
 export const hasSave = () => slot.exists();
 export function saveGame() {
-  if (!G.flags.started) return;
+  if (!G.flags.started || G.flags.cheat) return; 
   slot.save({
     name: G.name, gender: G.gender, cycle: G.cycle, x: G.player.x, y: G.player.y,
     box: G.box, party: G.party.map(d => d.uid), items: G.items, dex: G.dex, flags: G.flags, clock: G.clock, region: G.region,

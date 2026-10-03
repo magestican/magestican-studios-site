@@ -53,6 +53,7 @@ import { tick as clockTick, activityOf, chapterOf, newClock } from './features/c
 import { afterIntro, updateStory, storyLocksMovement, talkTo, updateRegionBeats } from './features/story/beats.js';
 import { updateHud, refreshHud, openMap, closeMap, mapOpen, setMapSource, showMapTab, toggleMapTab } from './features/hud/hud.js';
 import { openMenu, closeMenu } from './features/menu/menu.js';
+import { parseCheat, applyCheat } from './features/dev/cheats.js';
 
 const $ = id => document.getElementById(id);
 
@@ -296,6 +297,9 @@ function sizeOverlay() {
 addEventListener('resize', sizeOverlay); sizeOverlay();
 window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: music.state, rebuildWorld, loadRegion, unloadRegion, flyTo, rest: restAtSpring, openMap, devTravel: (on = true) => { S.devTravel = on; } };
 installPerchMenu();
+
+{ const cheat = parseCheat(location.search); if (cheat) Promise.all([import('./state.js'), import('./data/species.js'), import('./features/battle/battle.js'), import('./features/world/sections.js')])
+  .then(([st, sp, bt, sc]) => applyCheat(cheat, { G, S, loadRegion, addDachi: st.addDachi, makeDachi: sp.makeDachi, healParty, startBossBattle: bt.startBossBattle, sectionById: sc.sectionById, fromUV: sc.fromUV, regionById, toast })); }
 
 
 $('touchZone').addEventListener('pointerdown', e => {
