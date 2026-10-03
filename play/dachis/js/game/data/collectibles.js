@@ -22,6 +22,7 @@ export const PER_REGION = 15;
 
 
 const spot = (sec, u, v, map) => ({ spot: map ? { sec, uv: [u, v], map } : { sec, uv: [u, v] } });
+const MINE = 'minehead', SHAFT = 'lantern-shaft', SEAM = 'deep-seam'; 
 const VINE = 'vinegate', CANOPY = 'canopy-walk', FIG = 'fig-terraces', RUIN = 'ruin-steps', COURT = 'obsidian-court'; 
 const SHRINE_V = 'shrine-village', COAST = 'tomo-coast', SHELL = 'shellhaven', MAZE = 'kelp-maze', TEMPLE = 'drowned-temple', HOLLOW = 'hollowroot', THORN = 'thornfield', MOTHER = 'mother-hollow'; 
 export const COLLECTIBLES = [
@@ -185,6 +186,38 @@ export const COLLECTIBLES = [
     text: 'A memory: the Kong weaving a crown of vines for the one who saved them, and Kingshade saying he would rather have a hammock.' },
   { id: 'c75', region: VINE, kind: 'stone', name: 'The Promised Jungle', from: spot('court-stones', 6.4, 42.6, COURT),
     text: 'A memory: a red voice in the black pool telling Kingshade about a jungle with no floods, past the spirals, where he would never have to carry anyone again.' },
+  
+  
+  { id: 'c76', region: MINE, kind: 'relic', name: 'Tally Board', from: spot('minehead', -14.0, 30.0, MINE),
+    text: 'A plank of chalk marks, one for every miner down and one for every miner up. The last row does not add up, and somebody has stopped counting.' },
+  { id: 'c77', region: MINE, kind: 'relic', name: 'The Dented Lamp', from: spot('seam-hall', -9.0, 38.0, SEAM), 
+    text: 'A miner\'s lamp with a dent shaped like a bean. Its owner trims it every night. It has not been lit in a month.' },
+  { id: 'c78', region: MINE, kind: 'relic', name: 'Soup Crystal', from: { quest: 'night-soup' },
+    text: 'A clear crystal the cook found at the bottom of a soup pot. She does not ask how. Nobody asks the cook anything twice.' },
+  { id: 'c79', region: MINE, kind: 'relic', name: 'Ore Cart Wheel', from: spot('mine-workings', -9.0, 62.5, MINE),
+    text: 'An iron wheel off a cart that ran the old workings. The camp children roll it down the rim road. It always wins.' },
+  { id: 'c80', region: MINE, kind: 'relic', name: 'The Hush Token', from: { quest: 'not-afraid' },
+    text: 'A smooth black pebble the Hermit gives to the ones who keep quiet in the dark. It is warm, as if somebody has been holding it a long time.' },
+  { id: 'c81', region: MINE, kind: 'shell', name: 'The Long Ledge', cue: 'town', from: spot('minehead', 14.5, 44.0, MINE),
+    text: 'Boots on the spiral ledge, a cart squeaking somewhere, and the camp calling a miner\'s name down the pit, twice, then a third time.' },
+  { id: 'c82', region: MINE, kind: 'shell', name: 'Dripping Dark', cue: 'cave', from: spot('shaft-b', 2.1, 76.9, SHAFT),
+    text: 'Water dripping in the shaft, very slowly, and between the drops a hum like somebody singing with their mouth shut.' },
+  { id: 'c83', region: MINE, kind: 'shell', name: 'The Hermit\'s Hush', cue: 'boss', from: { boss: 'quartz' },
+    text: 'The Hermit\'s lenses clicking as the red left him - and then his breathing, fast, the way a kid breathes when the light goes out.' },
+  { id: 'c84', region: MINE, kind: 'hat', name: 'Miner\'s Helmet', geo: 'helmet', from: { quest: 'dented-lamp' },
+    text: 'A tin helmet with a bracket for a lamp and no lamp in it. Somebody\'s brother is coming back for this one. Maybe.' },
+  { id: 'c85', region: MINE, kind: 'hat', name: 'Ore Goggles', geo: 'goggles', from: spot('mine-workings', 9.0, 68.5, MINE),
+    text: 'Scratched goggles for chipping ore. Everything through them looks like it is underwater, which in the Deep is probably true.' },
+  { id: 'c86', region: MINE, kind: 'hat', name: 'Lamp-Trimmer\'s Cap', geo: 'beanie', from: spot('shaft-b', -11.6, 68.3, SHAFT),
+    text: 'A knitted cap with wax on it. The lamp trimmers wear them so the hot drips land on the cap and not on their heads. Mostly.' },
+  { id: 'c87', region: MINE, kind: 'hat', name: 'Crystal Horns', geo: 'horns', from: spot('seam-narrows', 7.0, 53.1, SEAM),
+    text: 'Two quartz spikes on a headband. The Hush wear them so they can feel the ceiling coming in the dark. Nobody laughs at them down there.' },
+  { id: 'c88', region: MINE, kind: 'stone', name: 'The Night Shift', from: spot('seam-stones', -2.8, 66.0, SEAM),
+    text: 'A memory: a young mole on the night shift, lamp held up in both paws, jumping at every drip, and the others laughing - kindly, mostly.' },
+  { id: 'c89', region: MINE, kind: 'stone', name: 'Nine Years Awake', from: spot('seam-hollow', -3.0, 84.0, SEAM),
+    text: 'A memory: the same mole, older, sitting up every night with the lamp turned high, listening, listening, never once going to sleep in the dark.' },
+  { id: 'c90', region: MINE, kind: 'stone', name: 'The Voice in the Seam', from: spot('seam-hollow', 3.0, 84.0, SEAM),
+    text: 'A memory: the lamp finally burning out, and a red voice in the black saying there was nothing there - nothing at all - and the mole, for the first time in nine years, letting go.' },
 ];
 export const collectibleById = (id) => COLLECTIBLES.find((c) => c.id === id) || null;
 export const found = (flags, id) => !!(flags && flags.found && flags.found[id]);
