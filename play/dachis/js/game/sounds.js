@@ -48,4 +48,12 @@ export const SOUNDS = {
   miss: ({ tone }) => tone(160, 0.18, 'square', 0.04, -60),
   befriended: ({ tone }) => [659, 784, 988, 1318, 1568].forEach((f, i) => tone(f, 0.2, 'triangle', 0.05, 0, i * 0.1)),
   evolve: ({ tone }) => [392, 523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 0.2, 'triangle', 0.05, 0, i * 0.14)),
+  
+  
+  tellScrape: (k) => { SOUNDS.stepStone(k); SOUNDS.stepStone(k); },
+  tellPing: (k) => SOUNDS.blip(k),
+  tellSweet: (k) => SOUNDS.hex(k),
+  tellFists: (k) => SOUNDS.guard(k),
+  tellClick: (k) => SOUNDS.blip(k),
+  lanternCatch: (k) => SOUNDS.pickup(k),
 };

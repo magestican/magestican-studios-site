@@ -6,14 +6,18 @@
 
 export const OPEN_TIME = 2.2, OPEN_MULT = 2, GUARD_MULT = 0.3;
 export const BOSS_PATTERNS = {
-  ashlo: { move: 0, tell: 1.3, first: 4, every: 8, text: 'scrapes his foot...', sfx: 'stepStone', beats: 2,
+  ashlo: { move: 0, tell: 1.3, first: 4, every: 8, text: 'scrapes his foot...', sfx: 'tellScrape', beats: 2,
     note: 'Ashlo scrapes his foot twice, then charges in a straight line. Step aside and hit him while he turns.' },
-  leviathrum: { move: 2, tell: 1.5, first: 5, every: 9, text: 'ping... ping... ping...', sfx: 'blip', beats: 3,
+  leviathrum: { move: 2, tell: 1.5, first: 5, every: 9, text: 'ping... ping... ping...', sfx: 'tellPing', beats: 3,
     note: 'Leviathrum pings three times, then drops on you. Get out from under him; he is open when he lands.' },
-  bramble: { move: 1, tell: 1.2, first: 4, every: 8, text: 'the air goes sweet...', sfx: 'hex', beats: 1,
+  bramble: { move: 1, tell: 1.2, first: 4, every: 8, text: 'the air goes sweet...', sfx: 'tellSweet', beats: 1,
     note: 'When the air goes sweet, Mother Bramble is about to rot your friend. Cure it, and strike while she breathes in.' },
-  kingshade: { move: 1, tell: 1.6, first: 5, every: 9, text: 'crosses his fists...', sfx: 'guard', beats: 1, guarded: true,
+  kingshade: { move: 1, tell: 1.6, first: 5, every: 9, text: 'crosses his fists...', sfx: 'tellFists', beats: 1, guarded: true,
     note: 'Kingshade crosses his fists: do not hit him then. He uncrosses them to bring them down. Dodge, then hit.' },
+  
+  
+  quartz: { move: 0, tell: 1.4, first: 5, every: 9, text: 'lenses click round...', sfx: 'tellClick', beats: 2,
+    note: 'The Hermit\'s lenses click round twice, then the beam comes straight. Step off its line; he is dazzled after.' },
 };
 export const patternOf = (bossId) => BOSS_PATTERNS[bossId] || null;
 
@@ -41,6 +45,10 @@ const READS = {
     (n) => `${n} against the king? I would not bet a fig on it. Up the cliff at the end of the jetty - the wind there owes me nothing. Use it.`,
     (n) => `Better odds. Not good odds. Another hour on the Gale Ledges and I might put a fig on ${n}.`,
     (n) => `I will put two figs on ${n}. Do not make me lose them.`],
+  quartz: [ 
+    (n) => `${n}? That is two shifts short of the Hermit. Three. Go and dig at something first.`,
+    (n) => `One more shift on ${n} and I would sign for it. Not today. Today I would be filling in a form about it.`,
+    (n) => `${n} has done its shifts. Go down. Bring my miners back up, the cross ones too.`],
 };
 export const READ_SHORT = 4, READ_CLOSE = 2;
 export function partyRead(boss, leadName, short) {

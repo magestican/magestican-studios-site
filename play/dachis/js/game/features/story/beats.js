@@ -90,6 +90,16 @@ const REGION_BEATS = {
     L(NARR, 'Narrow mud walls run between the pools. Old fig trees grow where the walls meet. Nobody has tended this in a long time.'),
     L(KID, 'It is like a giant ice cube tray. A muddy one. I can walk on the edges.'),
   ],
+  
+  minehead: [
+    L(NARR, 'Aerowing comes down on a ring of trodden earth round a hole in the world. The pit is wider than a city block, and black at the bottom.'),
+    L(NARR, 'Huts stand back from the edge. One ledge leaves the rim and winds down the pit wall, round and round, with torches on it.'),
+    L(KID, 'It is like the ramp in the Guggenheim. Mom took me once. Except the Guggenheim has a floor.'),
+  ],
+  'shaft-a': [
+    L(NARR, 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'),
+    L(KID, '(My Walkman light. Okay. It is a very small light.)'),
+  ],
   'ruin-steps': [
     L(NARR, 'The jungle gives way to stone: the face of an old temple, climbing the hill in broken steps too steep to walk.'),
     L(NARR, 'Long ramps run back and forth across it, each a little higher than the last. At the very top, a gate of black glass.'),

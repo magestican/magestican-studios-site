@@ -25,6 +25,8 @@ import * as fig from './regionMaps/figTerraces.js';
 import * as gale from './regionMaps/galeLedges.js';
 import * as ruin from './regionMaps/ruinSteps.js';
 import * as court from './regionMaps/obsidianCourt.js';
+import * as mine from './regionMaps/minehead.js';
+import * as shaft from './regionMaps/lanternShaft.js';
 
 export const PERCHES = [
   
@@ -53,6 +55,9 @@ export const PERCHES = [
   { id: 'obsidian-court', region: court.ID, name: 'The Glass Pool', at: court.POOL_LANDING, opens: 'boss_bramble', respawn: null },
   { id: 'fig-terraces', region: fig.ID, name: 'Terrace Landing', at: fig.LANDING, opens: 'boss_bramble', respawn: null },
   { id: 'gale-ledges', region: gale.ID, name: 'Cliff Top', at: gale.LANDING, opens: 'boss_bramble', respawn: null }, 
+  
+  { id: 'minehead', region: mine.ID, name: 'Minehead Camp', at: mine.LANDING, opens: 'boss_kingshade', respawn: null },
+  { id: 'lantern-shaft', region: shaft.ID, name: 'The Seep', at: shaft.LANDING, opens: 'boss_kingshade', respawn: null },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },

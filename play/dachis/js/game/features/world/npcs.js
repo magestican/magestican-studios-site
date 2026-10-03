@@ -14,6 +14,8 @@ import * as shell from './regionMaps/shellhaven.js';
 import * as hollow from './regionMaps/hollowroot.js';
 import * as vine from './regionMaps/vinegate.js';
 import * as court from './regionMaps/obsidianCourt.js';
+import * as mine from './regionMaps/minehead.js';
+import * as shaft from './regionMaps/lanternShaft.js';
 import { SPECIES, bossSpecies } from '../../data/species.js';
 import { partyRead } from '../battle/bossPattern.js';
 import { lairOf, lairOpen } from './lairs.js';
@@ -91,6 +93,20 @@ export function spawnNpcs() {
     for (const d of vine.DWELLERS) {
       const sp = kinds[Math.floor(rv() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rv, d.home, d.home.r, 1.0, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rv() * 3 });
+    }
+  }
+  
+  
+  if (G.region === mine.ID || G.region === shaft.ID) {
+    const inMine = G.region === mine.ID, rm = U.rng(inMine ? 82 : 83), M = inMine ? mine : shaft;
+    const kinds = SPECIES.filter((s) => s.stage === 1 && (inMine ? s.types[0] === 'Stone' || s.types[0] === 'Metal' : s.types[0] === 'Shadow'));
+    if (inMine) {
+      const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Stone') || SPECIES.find((s) => s.stage === 3);
+      add({ kind: 'villager', id: 'mine-elder', name: mine.ELDER.name, sp: old.id, ...mine.ELDER.at, still: true, lines: G.flags.boss_quartz ? mine.ELDER_LINES.after : withRead(mine.ELDER_LINES.before, 'quartz') });
+    }
+    for (const d of M.DWELLERS) {
+      const sp = kinds[Math.floor(rm() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rm, d.home, d.home.r, 1.0, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rm() * 3, still: !inMine });
     }
   }
   

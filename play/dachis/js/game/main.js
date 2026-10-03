@@ -54,6 +54,7 @@ import { afterIntro, updateStory, storyLocksMovement, talkTo, updateRegionBeats 
 import { updateHud, refreshHud, openMap, closeMap, mapOpen, setMapSource, showMapTab, toggleMapTab } from './features/hud/hud.js';
 import { openMenu, closeMenu } from './features/menu/menu.js';
 import { parseCheat, applyCheat } from './features/dev/cheats.js';
+import { darkPass } from './features/world/darkness.js';
 
 const $ = id => document.getElementById(id);
 
@@ -255,7 +256,8 @@ if (lookName(location.search) === 'cel') {
 S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.showSection(id); if (G.mode === 'world') { questEvent({ kind: 'visit', sec: id }, true); saveGame(); } };
 
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: { ...SOUNDS, opener: SOUNDS.start, bossOpener: SOUNDS.start } });
-for (const n of ['opener', 'bossOpener']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
+
+for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
 ambience.init(() => S.sfx.muted);
 
 for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => { S.sfx.warm('opener'); S.sfx.warm('bossOpener'); }, { once: true });
@@ -483,6 +485,7 @@ function frame(now) {
     updateSeeThrough(dt, B, G.region === HOME ? lairBodies() : []); 
     S.stage.render();
     
+    darkPass(octx, dt); 
     if (B) drawBattleOverlay(octx, t);
     if (G.mode === 'world' && !S.dialog.active) { drawWildAlerts(octx); worldHints(); }
     if (G.mode === 'battle') updateRitual(dt); else updateRitual(0);

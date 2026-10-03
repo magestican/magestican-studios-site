@@ -13,10 +13,10 @@ export const LOOPS = ['menu', 'town', 'field', 'battle', 'boss', 'cave', ...INTR
 export const STINGERS = ['victory', 'defeat'];
 export const CUES = [...LOOPS, ...STINGERS];
 
-export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven', 'hollowroot', 'vinegate']; 
+export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven', 'hollowroot', 'vinegate', 'minehead']; 
 
 
-export const CAVES = { 'ember-a': 'cave', 'ember-b': 'cave', 'temple-porch': 'cave', 'temple-nave': 'cave', 'temple-sanctum': 'cave', 'tree-vault': 'cave', 'tree-heart': 'cave', 'tree-roots': 'cave', 'court-stones': 'cave', 'court-gallery': 'cave', 'court-guards': 'cave' }; 
+export const CAVES = { 'ember-a': 'cave', 'ember-b': 'cave', 'temple-porch': 'cave', 'temple-nave': 'cave', 'temple-sanctum': 'cave', 'tree-vault': 'cave', 'tree-heart': 'cave', 'tree-roots': 'cave', 'court-stones': 'cave', 'court-gallery': 'cave', 'court-guards': 'cave', 'shaft-a': 'cave', 'shaft-b': 'cave' }; 
 
 
 
@@ -49,6 +49,7 @@ export function preloadFor(cue) {
 
 
 export const AMBIENCE = {
+  minehead: { wind: 0.35, rumble: 0.35, chimes: 0.15 }, 'shaft-a': { rumble: 0.6 }, 'shaft-b': { rumble: 0.85 }, 
   kazan: { wind: 0.5, rumble: 0.7, birds: 0.25 },
   village: { wind: 0.5, rumble: 0.7, birds: 0.25 },
   'ember-a': { rumble: 0.8, wind: 0.25 },

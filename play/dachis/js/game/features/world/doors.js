@@ -23,6 +23,8 @@ import * as fig from './regionMaps/figTerraces.js';
 import * as ruin from './regionMaps/ruinSteps.js';
 import * as court from './regionMaps/obsidianCourt.js';
 import * as galeMap from './regionMaps/galeLedges.js';
+import * as mineMap from './regionMaps/minehead.js';
+import * as shaftMap from './regionMaps/lanternShaft.js';
 
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 const MOUTH = at(1.4, 48.8); 
@@ -78,6 +80,9 @@ export const DOORS = [
   
   { id: 'gale-in', region: 'vinegate', at: at(-7.0, 46.6), to: galeMap.ID, toAt: galeMap.ENTRY, label: 'Up the sea cliff', after: null },
   { id: 'gale-out', region: galeMap.ID, at: galeMap.ENTRY, to: 'vinegate', toAt: at(-4.6, 46.9), label: 'Down to the jetty', after: null },
+  
+  { id: 'shaft-in', region: mineMap.ID, at: mineMap.SHAFT_DOOR, to: shaftMap.ID, toAt: shaftMap.ENTRY, label: 'Down the shaft', after: null },
+  { id: 'shaft-out', region: shaftMap.ID, at: shaftMap.ENTRY, to: mineMap.ID, toAt: mineMap.SHAFT_BACK, label: 'Up to the camp', after: null },
   { id: 'fig-in', region: canopy.ID, at: canopy.EXIT, to: fig.ID, toAt: fig.ENTRY, label: 'On to the terraces', after: null },
   { id: 'fig-out', region: fig.ID, at: fig.ENTRY, to: canopy.ID, toAt: canopy.EXIT_BACK, label: 'Back to the canopy', after: null },
   { id: 'ruin-in', region: fig.ID, at: fig.EXIT, to: ruin.ID, toAt: ruin.ENTRY, label: 'Up to the ruins', after: null },
