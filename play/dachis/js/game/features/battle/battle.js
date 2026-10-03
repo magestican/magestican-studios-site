@@ -326,6 +326,13 @@ function runPattern(f, o, dt) {
   const p = f.pat;
   f.open = Math.max(0, f.open - dt);
   if (B.script || B.ritual || f.stun > 0 || f.leap || f.dash || f.beam || f.cast) return false;
+  
+  
+  if (f.open > 0) {
+    if (!f.winded) { f.winded = true; callout(f, 'OPEN!', '#7dff9a', true); }
+    f.vx = f.vy = 0; return true;
+  }
+  f.winded = false;
   if (f.tellT > 0) {
     const before = p.tell - f.tellT; f.tellT -= dt; const now = p.tell - f.tellT;
     for (const at of tellBeats(p)) if (at > before - 1e-6 && at <= now) S.sfx.play(p.sfx);

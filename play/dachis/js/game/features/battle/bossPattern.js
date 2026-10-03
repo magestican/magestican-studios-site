@@ -4,7 +4,7 @@
 
 
 
-export const OPEN_TIME = 1.8, OPEN_MULT = 1.6, GUARD_MULT = 0.3;
+export const OPEN_TIME = 2.2, OPEN_MULT = 2, GUARD_MULT = 0.3;
 export const BOSS_PATTERNS = {
   ashlo: { move: 0, tell: 1.3, first: 4, every: 8, text: 'scrapes his foot...', sfx: 'stepStone', beats: 2,
     note: 'Ashlo scrapes his foot twice, then charges in a straight line. Step aside and hit him while he turns.' },

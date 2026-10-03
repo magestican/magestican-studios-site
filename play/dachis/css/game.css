@@ -436,7 +436,7 @@ button.big { display: block; width: 100%; margin: 14px 0; padding: 8px 12px 7px;
   #capTag { font-size: 11px; margin-top: 2px; }
   #cmdBar { bottom: 8px; width: calc(100vw - 16px); gap: 8px; }
   #stances { gap: 8px; }
-  #specials { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+  #specials { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 8px; width: 100%; }
   .special { width: auto; padding: 4px 6px 4px 12px; }
   .special .mn { font-size: 13px; }
   .special .mk { font-size: 10px; }

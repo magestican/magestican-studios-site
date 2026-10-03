@@ -41,11 +41,23 @@ function bars(f, pre) {
   $(pre + 'Fin').parentElement.classList.toggle('full', f.fin >= 1);
 }
 
+
+
+
+let liftN = 0;
+function liftUtilityRow() {
+  if (liftN-- > 0) return; liftN = 12;
+  const bb = $('battleBtns'), cb = $('cmdBar');
+  if (getComputedStyle(bb).flexDirection !== 'row') { bb.style.bottom = ''; return; }
+  bb.style.bottom = (innerHeight - cb.getBoundingClientRect().top + 10) + 'px';
+}
+
 export function updateBattleHud() {
   $('battleHud').classList.toggle('hidden', !B);
   document.body.classList.toggle('battling', !!B);
   if (!B) { btnKey = ''; return; }
   wire();
+  liftUtilityRow();
   const e = B.enemy, es = speciesById(e.d.sp), f = hpFraction(e.d);
   const nameHtml = `${e.d.corrupt ? '<span class="corrupt">CORRUPTED</span> ' : ''}${es.name} <span class="lv">Lv ${e.d.lvl}</span> ${attrBadge(attrOf(e.d))} ${typeChips(es.types)} ${G.dex.caught[es.id] ? '<span class="owned" title="Already befriended">' + icon('heart') + '</span>' : ''} <span class="rarity r-${es.rarity}">${es.rarity}</span>`;
   if ($('enemyName').dataset.h !== nameHtml) { $('enemyName').innerHTML = nameHtml; $('enemyName').dataset.h = nameHtml; }
@@ -84,7 +96,8 @@ export function updateBattleHud() {
     b.querySelector('.cdv').style.height = (100 * cd / mx) + '%';
     b.classList.toggle('ready', cd <= 0 && mpOk && !B.ritual);
     b.classList.toggle('nomp', !mpOk);
-    b.classList.toggle('guide', k === guide && cd <= 0);
+    
+    b.classList.toggle('guide', (k === guide || B.enemy.open > 0) && cd <= 0 && mpOk);
   });
   const fb = kids[3];
   if (fb) {
