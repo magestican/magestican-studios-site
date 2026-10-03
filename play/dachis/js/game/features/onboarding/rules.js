@@ -55,6 +55,17 @@ export function introZoomK(t, z = INTRO_ZOOM) {
 
 
 
+
+
+
+
+
+export function lineSound(line, first) {
+  if (line && line.boss) return 'bossSting';
+  if (first) return 'slap';
+  const k = lineKind(line);
+  return k === 'think' ? 'thinkIn' : k === 'narrate' ? 'narrateIn' : 'pencil';
+}
 export function lineKind(line) {
   if (!line) return 'say';
   if (line.kind === 'say' || line.kind === 'think' || line.kind === 'narrate') return line.kind;

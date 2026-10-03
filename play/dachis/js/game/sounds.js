@@ -2,9 +2,24 @@
 export const SOUNDS = {
   blip: ({ tone }) => tone(660, 0.04, 'square', 0.02),
   
+  
+  
+  slap: ({ tone, noise }) => { noise(0.05, 0.09, 2200); tone(780, 0.06, 'square', 0.05, -380); tone(240, 0.28, 'sine', 0.06, 260, 0.05); tone(480, 0.22, 'triangle', 0.025, 180, 0.07); },
+  pencil: ({ noise }) => { noise(0.05, 0.03, 5200); noise(0.04, 0.025, 6400, 0.06); },
+  thinkIn: ({ tone }) => { tone(988, 0.18, 'sine', 0.025, 220); tone(1480, 0.2, 'sine', 0.015, 160, 0.08); },
+  narrateIn: ({ noise, tone }) => { noise(0.16, 0.035, 1800); tone(330, 0.2, 'triangle', 0.015, -60, 0.04); },
+  bossSting: ({ tone, noise }) => { tone(55, 0.9, 'sawtooth', 0.09, -12); tone(58.3, 0.9, 'sawtooth', 0.07, -14); tone(1244, 0.5, 'sine', 0.03, -700, 0.05); tone(1318, 0.5, 'sine', 0.025, -760, 0.05); noise(0.6, 0.05, 160); },
+  
   voice: ({ tone }) => tone(330 + Math.random() * 150, 0.035, 'triangle', 0.016),
   thought: ({ tone }) => tone(880 + Math.random() * 120, 0.03, 'sine', 0.008),
   step: ({ noise }) => noise(0.04, 0.015, 900),
+  
+  
+  stepSoft: ({ noise }) => noise(0.035, 0.008 + Math.random() * 0.003, 500 + Math.random() * 120),
+  stepGrass: ({ noise }) => { noise(0.09, 0.012, 3200 + Math.random() * 600); noise(0.06, 0.007, 1900, 0.03); },
+  stepSand: ({ noise }) => noise(0.07, 0.011, 2400 + Math.random() * 300),
+  stepDirt: ({ noise }) => noise(0.05, 0.01, 1100 + Math.random() * 200),
+  stepStone: ({ tone, noise }) => { tone(1500 + Math.random() * 200, 0.025, 'triangle', 0.006); noise(0.03, 0.008, 2600); },
   hit: ({ tone, noise }) => { tone(180, 0.12, 'sawtooth', 0.05, -120); noise(0.08, 0.04, 700); },
   crit: ({ tone, noise }) => { tone(120, 0.25, 'sawtooth', 0.07, -80); tone(900, 0.1, 'square', 0.03); noise(0.15, 0.06, 500); },
   dash: ({ tone }) => tone(300, 0.2, 'triangle', 0.06, 500),

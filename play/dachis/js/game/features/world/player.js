@@ -5,6 +5,7 @@ import { kidBillboard, setKidFrame, dachiBillboard, setDachiLook, dachiSize } fr
 import { speciesById } from '../../data/species.js';
 import { hatGeoOf } from '../../data/collectibles.js';
 import { FOLLOW, BODY_R } from './crowd.js';
+import { stepSound } from './mapgen.js';
 
 let kid = null, pet = null, petSp = 0;
 
@@ -25,7 +26,11 @@ export function updatePlayer(dt, canMove) {
     const nx = p.x + wx * speed, ny = p.y + wy * speed;
     if (W.walkable(nx, p.y, BODY_R.kid)) p.x = nx;
     if (W.walkable(p.x, ny, BODY_R.kid)) p.y = ny;
+    const before = Math.floor(p.walk / Math.PI);
     p.walk += dt * (run ? 16 : 11);
+    
+    
+    if (Math.floor(p.walk / Math.PI) !== before) S.sfx.play(stepSound(W.type[W.idx(Math.floor(p.x), Math.floor(p.y))]));
   }
   
   

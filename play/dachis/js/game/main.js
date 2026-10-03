@@ -45,7 +45,7 @@ import { installOrderRing, updateOrderRing } from './features/battle/orderRing.j
 import { updateRitual } from './features/capture/ritualView.js';
 import { Cutscene } from './features/story/cutscene.js';
 import { SCENES } from './features/story/scenes.js';
-import { lineKind, lineText, introZoomK } from './features/onboarding/rules.js';
+import { lineKind, lineText, lineSound, introZoomK } from './features/onboarding/rules.js';
 import { tapHint, installTapAnywhere, setupNames, startWithWipe, intro, showResume, youTag } from './features/onboarding/onboarding.js';
 import { attract } from './features/onboarding/attract.js';
 import { tick as clockTick, activityOf, chapterOf, newClock } from './features/clock/clock.js';
@@ -274,7 +274,7 @@ S.input = createInput({
 });
 hydrateIcons(document); 
 S.hints = createHints(S.input);
-S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onBlip: () => S.sfx.play('blip'), format: s => s.replace(/\{name\}/g, G.name),
+S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onLine: (l, first) => S.sfx.play(lineSound(l, first)), 
   
   kindOf: lineKind, textOf: lineText, onAdvance: () => tapHint.learned(),
   onType: (l) => { const k = lineKind(l); if (k !== 'narrate') S.sfx.play(k === 'think' ? 'thought' : 'voice'); } });

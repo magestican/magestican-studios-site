@@ -43,7 +43,7 @@ export function onBattleFinished(b) {
     }
     if (b.boss && res === 'win') { 
       G.flags['boss_' + b.boss] = true;
-      msgs.unshift({ text: `"${speciesById(enemy.sp).blurb}"`, who: speciesById(enemy.sp).name }, fallLine(lairOf(b.boss), speciesById(enemy.sp).name)); 
+      msgs.unshift({ text: `"${speciesById(enemy.sp).blurb}"`, who: speciesById(enemy.sp).name, boss: true }, fallLine(lairOf(b.boss), speciesById(enemy.sp).name)); 
       msgs.push(...bossStoneLines(b.boss)); 
       G.flags.egg = (G.flags.egg || 0) + 1; 
       msgs.push({ text: eggLine(G.flags.egg) });
