@@ -243,6 +243,29 @@
    ],
    "pack": null,
    "extra": []
+  },
+  "hollowroot": {
+   "forms": [
+    "bramble",
+    "fence-post",
+    "fence-rail",
+    "fern",
+    "flower-bed",
+    "flower-clump",
+    "flowers",
+    "hut",
+    "jtree",
+    "lantern",
+    "spring-basin",
+    "step-slab",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "torch"
+   ],
+   "pack": null,
+   "extra": []
   }
  }
 }

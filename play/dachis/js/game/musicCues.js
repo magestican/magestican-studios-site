@@ -13,7 +13,7 @@ export const LOOPS = ['menu', 'town', 'field', 'battle', 'boss', 'cave', ...INTR
 export const STINGERS = ['victory', 'defeat'];
 export const CUES = [...LOOPS, ...STINGERS];
 
-export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven']; 
+export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven', 'hollowroot']; 
 
 
 export const CAVES = { 'ember-a': 'cave', 'ember-b': 'cave', 'temple-porch': 'cave', 'temple-nave': 'cave', 'temple-sanctum': 'cave' }; 
@@ -63,6 +63,7 @@ export const AMBIENCE = {
   coral: { surf: 0.6, wind: 0.2, bugs: 0.2 },
   shellhaven: { surf: 0.5, chimes: 0.35, wind: 0.1 },
   'kelp-maze': { surf: 0.7, bugs: 0.15 },
+  hollowroot: { wind: 0.6, birds: 0.7, chimes: 0.2 }, 
   'temple-porch': { surf: 0.4, chimes: 0.2 }, 'temple-nave': { surf: 0.3, chimes: 0.3 }, 'temple-sanctum': { chimes: 0.6, surf: 0.2 }, 
   verdant: { bugs: 0.7, birds: 0.8, wind: 0.3 },
 };

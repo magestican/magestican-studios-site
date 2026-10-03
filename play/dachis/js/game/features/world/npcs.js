@@ -11,6 +11,7 @@ import * as village from './regionMaps/kazanVillage.js';
 import * as ember from './regionMaps/emberTube.js';
 import * as shrine from './regionMaps/shrineVillage.js';
 import * as shell from './regionMaps/shellhaven.js';
+import * as hollow from './regionMaps/hollowroot.js';
 import { SPECIES } from '../../data/species.js';
 
 const VILLAGER_LINES = [
@@ -68,6 +69,17 @@ export function spawnNpcs() {
     for (const d of shell.DWELLERS) {
       const sp = kinds[Math.floor(rs() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rs, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rs() * 3 });
+    }
+  }
+  
+  
+  if (G.region === hollow.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Leaf' || s.types[0] === 'Spirit')), rh = U.rng(79);
+    const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Leaf');
+    add({ kind: 'villager', id: 'hollow-elder', name: hollow.ELDER.name, sp: old.id, ...hollow.ELDER.at, still: true, lines: G.flags.boss_bramble ? hollow.ELDER_LINES.after : hollow.ELDER_LINES.before });
+    for (const d of hollow.DWELLERS) {
+      const sp = kinds[Math.floor(rh() * kinds.length)].id, { x, y } = pickNpcSpot(S.W, rh, d.home, d.home.r, 1.2, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x, y, home: d.home, radius: d.home.r, lines: d.lines, tx: x, ty: y, wait: rh() * 3 });
     }
   }
   for (let i = 0; i < 3; i++) {

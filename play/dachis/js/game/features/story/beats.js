@@ -53,6 +53,12 @@ const REGION_BEATS = {
     L(NARR, 'The bubble stretches out into a long tunnel of air. The kelp has grown into walls taller than you.'),
     L(KID, 'Okay. Left hand on the wall. That is how you do mazes. I think.'),
   ],
+  
+  hollowroot: [
+    L(NARR, 'The rope ladder sways. You climb, and climb, and do not look down - and then your head comes up through the leaves into the light.'),
+    L(NARR, 'A whole village sits in the crown of the old tree: huts where the boughs fork, firefly jars, walkways of living wood.'),
+    L(KID, 'A treehouse. A whole TOWN of treehouses. Okay, I am never going home.'),
+  ],
   'temple-porch': [
     L(NARR, 'Inside the drowned temple it is quiet. Water drips. Your footsteps echo a long way off.'),
   ],
