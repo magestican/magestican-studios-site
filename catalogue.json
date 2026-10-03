@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "48d231e-20261003T055808Z",
+ "buildId": "f4bb9470-20261003T073747Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -24,12 +24,14 @@
    "players": "2-10",
    "online": true,
    "offline": true,
-   "cover": "assets/tb-menu-with-bots.png",
+   "cover": "assets/covers/farmyshoot-16x9.webp",
    "focus": [
     0.5,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmyshoot/0.webp"
+   ],
    "accent": "#8a6a2a",
    "glyph": "farmyshoot",
    "pack": "mature",
@@ -37,7 +39,7 @@
    "ageNote": "Frequent cartoon shooting between farm animals. No gore and no realistic weapons, but it is a first-person shooter and is rated as one.",
    "order": 0,
    "addedAt": "2026-08-30",
-   "bytes": 11968379
+   "bytes": 11968382
   },
   {
    "id": "farmy-uprising",
@@ -53,7 +55,7 @@
    "players": "1-2",
    "online": true,
    "offline": true,
-   "cover": "assets/farmy-uprising-preview.png",
+   "cover": "assets/covers/farmy-uprising-16x9.webp",
    "focus": [
     0.5,
     0.5
@@ -66,7 +68,7 @@
    "ageNote": "Infrequent or mild cartoon violence - animals versus farms, no blood, no injury detail.",
    "order": 1,
    "addedAt": "2026-09-06",
-   "bytes": 10771651
+   "bytes": 10771654
   },
   {
    "id": "farmy-evil-hills",
@@ -82,12 +84,14 @@
    "players": "1-2",
    "online": true,
    "offline": true,
-   "cover": "assets/feh-corridor.png",
+   "cover": "assets/covers/farmy-evil-hills-16x9.webp",
    "focus": [
     0.5,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-evil-hills/0.webp"
+   ],
    "accent": "#6a2f2f",
    "glyph": "farmy-evil-hills",
    "pack": "mature",
@@ -95,7 +99,7 @@
    "ageNote": "Frequent and intense horror themes: body horror, dread, jump scares and sustained tension. This is the game the pack is rated for.",
    "order": 2,
    "addedAt": "2026-08-31",
-   "bytes": 7792868
+   "bytes": 7792872
   },
   {
    "id": "farmykart",
@@ -111,12 +115,15 @@
    "players": "1-8",
    "online": true,
    "offline": true,
-   "cover": "assets/farmykart-race.png",
+   "cover": "assets/covers/farmykart-16x9.webp",
    "focus": [
     0.5,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmykart/0.webp",
+    "assets/shots/farmykart/1.webp"
+   ],
    "accent": "#c2452d",
    "glyph": "farmykart",
    "pack": "family",
@@ -124,7 +131,7 @@
    "ageNote": null,
    "order": 3,
    "addedAt": "2026-08-28",
-   "bytes": 6504786
+   "bytes": 6504789
   },
   {
    "id": "farmy-tiles",
@@ -140,12 +147,15 @@
    "players": "2-4",
    "online": true,
    "offline": true,
-   "cover": "assets/farmy-tiles-preview.png",
+   "cover": "assets/covers/farmy-tiles-16x9.webp",
    "focus": [
     0.5,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-tiles/0.webp",
+    "assets/shots/farmy-tiles/1.webp"
+   ],
    "accent": "#3f5d7a",
    "glyph": "farmy-tiles",
    "pack": "family",
@@ -153,7 +163,7 @@
    "ageNote": null,
    "order": 4,
    "addedAt": "2026-09-21",
-   "bytes": 96772
+   "bytes": 96776
   },
   {
    "id": "farmy-crosswords",
@@ -169,12 +179,15 @@
    "players": "1-2",
    "online": true,
    "offline": true,
-   "cover": "assets/farmy-crosswords-preview.png",
+   "cover": "assets/covers/farmy-crosswords-16x9.webp",
    "focus": [
     0.5,
-    0.5
+    0.499
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-crosswords/0.webp",
+    "assets/shots/farmy-crosswords/1.webp"
+   ],
    "accent": "#6b4a7a",
    "glyph": "farmy-crosswords",
    "pack": "family",
@@ -182,7 +195,7 @@
    "ageNote": null,
    "order": 5,
    "addedAt": "2026-09-04",
-   "bytes": 211483
+   "bytes": 211487
   },
   {
    "id": "farmy-chess",
@@ -198,12 +211,15 @@
    "players": "1-2",
    "online": true,
    "offline": true,
-   "cover": "assets/farmy-chess-preview.png",
+   "cover": "assets/covers/farmy-chess-16x9.webp",
    "focus": [
-    0.5,
-    0.5
+    0.475,
+    0.499
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-chess/0.webp",
+    "assets/shots/farmy-chess/1.webp"
+   ],
    "accent": "#7a5c2e",
    "glyph": "farmy-chess",
    "pack": "family",
@@ -211,7 +227,7 @@
    "ageNote": null,
    "order": 6,
    "addedAt": "2026-09-06",
-   "bytes": 89981
+   "bytes": 89985
   },
   {
    "id": "farmy-checkers",
@@ -227,12 +243,15 @@
    "players": "1-2",
    "online": true,
    "offline": true,
-   "cover": "assets/farmy-checkers-preview.png",
+   "cover": "assets/covers/farmy-checkers-16x9.webp",
    "focus": [
     0.5,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-checkers/0.webp",
+    "assets/shots/farmy-checkers/1.webp"
+   ],
    "accent": "#8a4b2a",
    "glyph": "farmy-checkers",
    "pack": "family",
@@ -240,7 +259,7 @@
    "ageNote": null,
    "order": 7,
    "addedAt": "2026-09-06",
-   "bytes": 83458
+   "bytes": 83461
   },
   {
    "id": "farmy-ludo",
@@ -256,12 +275,14 @@
    "players": "1-4",
    "online": true,
    "offline": true,
-   "cover": "assets/farmy-ludo-preview.png",
+   "cover": "assets/covers/farmy-ludo-16x9.webp",
    "focus": [
-    0.5,
+    0.463,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-ludo/0.webp"
+   ],
    "accent": "#2f6b4f",
    "glyph": "farmy-ludo",
    "pack": "family",
@@ -269,7 +290,7 @@
    "ageNote": null,
    "order": 8,
    "addedAt": "2026-09-06",
-   "bytes": 84209
+   "bytes": 84213
   },
   {
    "id": "farmy-moon-life",
@@ -285,12 +306,15 @@
    "players": "1-2",
    "online": true,
    "offline": true,
-   "cover": "assets/farmy-moon-life-preview.jpg",
+   "cover": "assets/covers/farmy-moon-life-16x9.webp",
    "focus": [
     0.5,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-moon-life/0.webp",
+    "assets/shots/farmy-moon-life/1.webp"
+   ],
    "accent": "#e8a15a",
    "glyph": "farmy-moon-life",
    "pack": "family",
@@ -298,7 +322,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-09-14",
-   "bytes": 778878
+   "bytes": 778880
   },
   {
    "id": "silk-and-seam",
@@ -314,12 +338,14 @@
    "players": "1",
    "online": false,
    "offline": true,
-   "cover": "assets/silk-and-seam-preview.jpg",
+   "cover": "assets/covers/silk-and-seam-16x9.webp",
    "focus": [
     0.5,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/silk-and-seam/0.webp"
+   ],
    "accent": "#d25a6e",
    "glyph": "silk-and-seam",
    "pack": "family",
@@ -327,7 +353,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-09-25",
-   "bytes": 1537064
+   "bytes": 1537066
   },
   {
    "id": "dachis",
@@ -343,12 +369,15 @@
    "players": "1",
    "online": false,
    "offline": true,
-   "cover": "assets/dachis-preview.jpg",
+   "cover": "assets/covers/dachis-16x9.webp",
    "focus": [
     0.5,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/dachis/0.webp",
+    "assets/shots/dachis/1.webp"
+   ],
    "accent": "#e0513a",
    "glyph": "dachis",
    "pack": "family",
@@ -356,7 +385,7 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-09-30",
-   "bytes": 13491057
+   "bytes": 13491059
   },
   {
    "id": "farmy-five",
@@ -372,12 +401,15 @@
    "players": "1",
    "online": false,
    "offline": true,
-   "cover": "assets/farmy-five-preview.png",
+   "cover": "assets/covers/farmy-five-16x9.webp",
    "focus": [
     0.5,
-    0.5
+    0.499
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-five/0.webp",
+    "assets/shots/farmy-five/1.webp"
+   ],
    "accent": "#4f7a3f",
    "glyph": "farmy-five",
    "pack": "family",
@@ -385,7 +417,7 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-09-21",
-   "bytes": 211483
+   "bytes": 211487
   },
   {
    "id": "farmy-hive",
@@ -401,12 +433,15 @@
    "players": "1",
    "online": false,
    "offline": true,
-   "cover": "assets/farmy-hive-preview.png",
+   "cover": "assets/covers/farmy-hive-16x9.webp",
    "focus": [
     0.5,
-    0.5
+    0.499
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-hive/0.webp",
+    "assets/shots/farmy-hive/1.webp"
+   ],
    "accent": "#b07a1e",
    "glyph": "farmy-hive",
    "pack": "family",
@@ -414,7 +449,7 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-09-21",
-   "bytes": 211483
+   "bytes": 211487
   },
   {
    "id": "farmy-herds",
@@ -430,12 +465,15 @@
    "players": "1",
    "online": false,
    "offline": true,
-   "cover": "assets/farmy-herds-preview.png",
+   "cover": "assets/covers/farmy-herds-16x9.webp",
    "focus": [
     0.5,
     0.5
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-herds/0.webp",
+    "assets/shots/farmy-herds/1.webp"
+   ],
    "accent": "#7a3f5d",
    "glyph": "farmy-herds",
    "pack": "family",
@@ -443,7 +481,7 @@
    "ageNote": null,
    "order": 17,
    "addedAt": "2026-09-21",
-   "bytes": 211483
+   "bytes": 211487
   },
   {
    "id": "farmy-furrows",
@@ -459,12 +497,15 @@
    "players": "1",
    "online": false,
    "offline": true,
-   "cover": "assets/farmy-furrows-preview.png",
+   "cover": "assets/covers/farmy-furrows-16x9.webp",
    "focus": [
     0.5,
-    0.5
+    0.499
    ],
-   "shots": [],
+   "shots": [
+    "assets/shots/farmy-furrows/0.webp",
+    "assets/shots/farmy-furrows/1.webp"
+   ],
    "accent": "#2f6b6b",
    "glyph": "farmy-furrows",
    "pack": "family",
@@ -472,7 +513,7 @@
    "ageNote": null,
    "order": 18,
    "addedAt": "2026-09-21",
-   "bytes": 211483
+   "bytes": 211487
   }
  ]
 }
