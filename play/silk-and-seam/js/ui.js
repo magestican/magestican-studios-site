@@ -2,7 +2,7 @@
 import { state, save, level } from './state.js';
 import { levelProgress, clientMatch, sameAsLast, stars, tagText, reducedMotion, needsNote, repTier, newAchievements, shopValue, part, missingGarment, DEVICE_LINE } from './logic.js';
 import { TAGS, AUNT, ACHIEVEMENTS } from './data.js';
-import { sfx, setMuted, unlockAudio, applyVolume, soundStatus, onSoundStatus, justHealed } from './audio.js';
+import { sfx, setMuted, unlockAudio, applyVolume, soundStatus, onSoundStatus, justHealed, setScreen, stinger } from './audio.js';
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -44,6 +44,7 @@ export function go(name, params) {
   currentName = name;
   hideTip();
   current.enter(root, params || {});
+  setScreen(name);   
   renderHud();
   if (from !== name && STEP_TITLE[from] && STEP_TITLE[name] && !calm()) pageTurn(from);
 }
@@ -52,6 +53,7 @@ export function go(name, params) {
 export function letter(html, label, onClose) {
   const w = modal(`<div class="letter-head">From the desk of <i>Marguerite Delacroix</i></div>${html}<div class="letter-sign">- Aunt Marguerite</div>`, [{ label, kind: 'gold', onClick: onClose }]);
   $('.modal', w).classList.add('aunt-letter');
+  stinger('letter');   
   return w;
 }
 

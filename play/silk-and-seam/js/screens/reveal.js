@@ -5,7 +5,7 @@ import { recordServed, noticeFor } from '../town.js';
 import { computeTags, clientMatch, sameAsLast, rememberClient, stars, payout, levelFor, unlockedAt, part, fabric, trim, dye, repAfter, repTier, recordDress, commissionResult, windowLeft, placeInWindow, shopValue } from '../logic.js';
 import { WINDOW_WAIT } from '../data.js';
 import { DYES } from '../data.js';
-import { sfx } from '../audio.js';
+import { sfx, stinger } from '../audio.js';
 import { sceneHTML, mountScene } from '../scene.js';
 import { upgradeDress } from '../dress3d.js';
 
@@ -65,7 +65,7 @@ export default {
         </table>
         <div class="modal-btns"><button class="btn gold" id="collect">Collect payment</button></div>
       </div></div>`;
-    setTimeout(() => sfx.fanfare(), 900);
+    setTimeout(() => { if (!stinger('reveal')) sfx.fanfare(); }, 900);   
     mountReveal(root, d);
     
     

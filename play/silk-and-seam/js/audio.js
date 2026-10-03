@@ -29,11 +29,17 @@
 
 
 
+
+
+
+
+
 import { state } from './state.js';
-import { gains, silenceOf, musicBar, tuneOf, babblePlan } from './logic.js';
+import { gains, silenceOf, musicBar, tuneOf, babblePlan, isNightHour } from './logic.js';
+import { MUSIC, FX, MIX, cueFor, pickFormat, audioUrl, evictions } from './cues.js';
 
 const DEAD_S = 3, QUIET = 1e-4;
-let ac = null, master = null, fx = null, music = null, amb = null, outdoor = null, outLp = null, machine = null, tap = null, taps = null;
+let ac = null, master = null, fx = null, music = null, bgm = null, amb = null, outdoor = null, outLp = null, machine = null, tap = null, taps = null;
 let hum = null, breeze = null;
 const snd = { dead: false, quietSince: null, deaths: 0 };
 const scene = { night: false, open: false, wind: 0 };
@@ -68,6 +74,8 @@ function build() {
     try { tap = ac.createAnalyser(); tap.fftSize = 1024; master.connect(tap); taps = new Float32Array(tap.fftSize); } catch (e) { tap = null; }
     const bus = (v, to = master) => { const n = ac.createGain(); n.gain.value = v; n.connect(to); return n; };
     fx = bus(g.sfx); music = bus(g.music * 0.8); amb = bus(g.ambience); machine = bus(1);
+    bgm = bus(1, music);
+    song.file = null; song.ducked = 0;   
     outLp = ac.createBiquadFilter(); outLp.type = 'lowpass'; outLp.frequency.value = scene.open ? 9000 : 1400; outLp.connect(amb);
     outdoor = bus(scene.open ? 1 : 0.3, outLp);
     ac.onstatechange = () => { settle(); notify(); };
@@ -214,7 +222,8 @@ export function speak(voice, text, emotion) {
 }
 export const stopSpeaking = () => { for (const o of talking) { try { o.stop(); } catch (e) {  } } talking = []; };
 
-export const sfx = {
+
+const synth = {
   click: () => tone(880, 0.05, 'triangle', 0.12),
   page: () => noise(0.18, 2400, 0.8, 0.25),
   snip: () => { noise(0.05, 5200, 3, 0.35); tone(2400, 0.04, 'square', 0.04, 0.01); },
@@ -236,6 +245,8 @@ export const sfx = {
   rustle: (amt = 1) => noise(0.35 + amt * 0.3, 3200, 0.7, 0.03 + amt * 0.05, 0, fx, 0.12),
   pin: () => { tone(3100, 0.05, 'sine', 0.08); tone(4200, 0.08, 'sine', 0.04, 0.03); },
 };
+export const sfx = {};
+for (const k of Object.keys(synth)) sfx[k] = (...a) => { if (!playShot(k)) synth[k](...a); };
 
 
 export function machineHum(speed) {
@@ -269,38 +280,122 @@ function voice(v, midi, t, dur, vel) {
       const o = ac.createOscillator(), g = ac.createGain();
       o.type = 'sine'; o.frequency.value = f * k;
       g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.28 * a * vel, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.4);
-      o.connect(g); g.connect(music); o.start(t); o.stop(t + d + 0.5);
+      o.connect(g); g.connect(bgm); o.start(t); o.stop(t + d + 0.5);
     });
   } else if (v === 'harp') {
     const o = ac.createOscillator(), g = ac.createGain(), lp = ac.createBiquadFilter();
     o.type = 'triangle'; o.frequency.value = f;
     lp.type = 'lowpass'; lp.frequency.setValueAtTime(3200, t); lp.frequency.exponentialRampToValueAtTime(500, t + dur);
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22 * vel, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.6);
-    o.connect(lp); lp.connect(g); g.connect(music); o.start(t); o.stop(t + dur + 0.7);
+    o.connect(lp); lp.connect(g); g.connect(bgm); o.start(t); o.stop(t + dur + 0.7);
   } else {
     
     const g = ac.createGain(), lp = ac.createBiquadFilter();
     lp.type = 'lowpass'; lp.frequency.value = scene.night ? 700 : 1000;
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.06 * vel, t + dur * 0.35); g.gain.linearRampToValueAtTime(0.0001, t + dur + 1.2);
     for (const det of [-6, 7]) { const o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = f; o.detune.value = det; o.connect(lp); o.start(t); o.stop(t + dur + 1.3); }
-    lp.connect(g); g.connect(music);
+    lp.connect(g); g.connect(bgm);
   }
 }
 let musicTimer = 0, nextBar = 0, barNo = 0;
 function startMusic() {
   clearInterval(musicTimer);
   nextBar = 0; barNo = 0;
+  scene.night = nightNow();
+  preloadShots(); preloadStingers();
   musicTimer = setInterval(() => {
     if (!ac || ac.state !== 'running') return;
     const mood = scene.night ? 'night' : 'day';
     const T = tuneOf(mood), beat = 60 / T.bpm, barLen = beat * 3;
     if (nextBar < ac.currentTime) nextBar = ac.currentTime + 0.1;
     while (nextBar < ac.currentTime + 0.8) {
-      for (const n of musicBar(mood, barNo)) voice(n.voice, n.midi, nextBar + n.t * beat, n.dur * beat, n.vel);
+      if (!song.file) for (const n of musicBar(mood, barNo)) voice(n.voice, n.midi, nextBar + n.t * beat, n.dur * beat, n.vel);
       nextBar += barLen; barNo++;
     }
+    followCue();
     ambienceTick();
   }, 150);
+}
+
+
+
+
+
+const fmt = typeof document !== 'undefined' ? pickFormat((m) => document.createElement('audio').canPlayType(m)) : null;
+const BUILD = (() => { try { return document.querySelector('meta[name="build"]').content; } catch (e) { return 'dev'; } })();
+const bufs = new Map(), loading = new Map(), failed = new Set();
+let used = [];   
+const song = { screen: 'hub', cue: null, file: null, ducked: 0 };
+const nightNow = () => { const s = state.scene; return s && s.night !== null && s.night !== undefined ? !!s.night : isNightHour(new Date().getHours()); };
+
+function decode(ab) {
+  
+  return new Promise((ok, bad) => { const p = ac.decodeAudioData(ab, ok, bad); if (p && p.then) p.then(ok, bad); });
+}
+function load(kind, name) {
+  if (!ac || !fmt) return null;
+  const key = `${kind}/${name}`;
+  if (bufs.has(key)) return bufs.get(key);
+  if (failed.has(key) || loading.has(key)) return null;
+  loading.set(key, fetch(audioUrl(kind, name, fmt, BUILD))
+    .then((r) => { if (!r.ok) throw new Error(`${r.status}`); return r.arrayBuffer(); })
+    .then((ab) => (ac ? decode(ab) : Promise.reject(new Error('no context'))))
+    .then((b) => { bufs.set(key, b); })
+    .catch(() => { failed.add(key); })
+    .finally(() => loading.delete(key)));
+  return null;
+}
+export function preloadShots() { for (const n of FX) load('fx', n); }
+
+
+function followCue() {
+  const want = cueFor(song.screen, scene.night);
+  song.cue = want;
+  if (song.file && song.file.cue === want) return;
+  const buf = load('music', want);
+  if (!buf) return;   
+  const t = ac.currentTime;
+  if (song.file) { const old = song.file; old.gain.gain.setTargetAtTime(0, t, MIX.fade / 3); try { old.src.stop(t + MIX.fade * 2); } catch (e) {  } }
+  const src = ac.createBufferSource(), g = ac.createGain();
+  src.buffer = buf; src.loop = true;
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(MIX.file, t + MIX.fade);
+  src.connect(g); g.connect(bgm); src.start(t);
+  song.file = { cue: want, src, gain: g };
+  used = used.filter((c) => c !== want).concat(want);
+  for (const c of evictions(used, want)) { bufs.delete(`music/${c}`); used = used.filter((u) => u !== c); }
+}
+
+
+export function setScreen(name) {
+  song.screen = name;
+  scene.night = nightNow();
+  if (ac) followCue();
+}
+
+
+
+export function stinger(name) {
+  if (!ac || ac.state !== 'running' || !MUSIC[name]) return false;
+  const buf = load('music', name);
+  if (!buf) return false;
+  const t = ac.currentTime, src = ac.createBufferSource(), g = ac.createGain();
+  src.buffer = buf; g.gain.value = MIX.file;
+  src.connect(g); g.connect(music); src.start(t);
+  song.ducked++;
+  bgm.gain.setTargetAtTime(MIX.duck, t, 0.15);
+  src.onended = () => { song.ducked = Math.max(0, song.ducked - 1); if (!song.ducked && ac) bgm.gain.setTargetAtTime(1, ac.currentTime, 0.6); };
+  return true;
+}
+export function preloadStingers() { for (const c of Object.keys(MUSIC)) if (!MUSIC[c].loop) load('music', c); }
+
+function playShot(name) {
+  if (!ac || ac.state !== 'running' || !FX.includes(name)) return false;
+  const buf = load('fx', name);
+  if (!buf) return false;
+  const src = ac.createBufferSource(), g = ac.createGain();
+  src.buffer = buf; g.gain.value = MIX.fx;
+  src.connect(g); g.connect(fx); src.start();
+  return true;
 }
 
 
@@ -368,4 +463,5 @@ export function setScene({ night, open }) {
 export function setWind(w) { scene.wind = w; }
 
 
-window.__sound = () => ({ ...soundStatus(), ctx: ac ? ac.state : 'none', peak: snd.peak || 0, deaths: snd.deaths, stale: !!snd.stale, session: navigator.audioSession ? navigator.audioSession.type : null, night: scene.night, open: scene.open });
+window.__sound = () => ({ ...soundStatus(), ctx: ac ? ac.state : 'none', peak: snd.peak || 0, deaths: snd.deaths, stale: !!snd.stale, session: navigator.audioSession ? navigator.audioSession.type : null, night: scene.night, open: scene.open,
+  music: { fmt, screen: song.screen, cue: song.cue, file: song.file ? song.file.cue : null, ducked: song.ducked, loaded: [...bufs.keys()], loading: [...loading.keys()], failed: [...failed] } });
