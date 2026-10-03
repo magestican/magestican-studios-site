@@ -82,6 +82,15 @@ export function* ruinStepsSteps() {
     addObj(W, { kind: 'pillar', x: p.x, y: p.y, solid: 0.4, v: Math.floor(Math.abs(u * 7 + r.k * 3)) % 3, s: 1.0, rot: 0 });
   }
   
+  
+  for (const r of RAMPS) {
+    const [ux, uy] = fromUV(r.up, 0), [ox, oy] = fromUV(0, 0), rot = Math.atan2(ux - ox, uy - oy);
+    for (let u = -RAMP_U + 0.8; u <= RAMP_U - 0.8; u += 0.75) for (const dv of [-0.6, 0.6]) {
+      const p = at(u, r.v + dv); if (W.type[W.idx(Math.floor(p.x), Math.floor(p.y))] !== T.RUIN) continue;
+      addObj(W, { kind: 'step', x: p.x, y: p.y, solid: 0, rot, i: W.objects.length });
+    }
+  }
+  
   for (const side of [-1, 1]) { const p = at(side * 1.8, 28.4); addObj(W, { kind: 'pillar', x: p.x, y: p.y, solid: 0.5, v: 2, s: 1.5, rot: 0 }); }
   for (const l of LANDINGS) { const p = at(l.u - Math.sign(l.u) * 1.4, l.v + 1.0); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   yield 'buildings';

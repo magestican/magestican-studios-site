@@ -181,7 +181,7 @@ export const GROUND_REGION = {
   
   ruins: { ruin: ['#c8a46a', '#e0c088'], plaza: ['#d8b47a', '#ecd09a'], cliff: ['#4a5a3a', '#5e6e46'], tall: ['#4a8a30', '#6aaa40'] },
   
-  court: { deep: ['#14101e', '#2a2240'], ruin: ['#b8b0c8', '#d4cce0'], plaza: ['#3a3048', '#4c405c'], cliff: ['#1a1622', '#2a2434'],
+  court: { deep: ['#14101e', '#2a2240'], ruin: ['#b8b0c8', '#d4cce0'], rock: ['#8a7fa0', '#a498bc'], plaza: ['#3a3048', '#4c405c'], cliff: ['#1a1622', '#2a2434'],
     grass: ['#2f6a3a', '#3f8a48'], tall: ['#2a5a34', '#3a7a40'] },
   verdant: { grass: ['#3a8f34', '#6cc044'], glade: ['#1f6a34', '#3a9a3c'], thicket: ['#164f2e', '#256a36'], moss: ['#5f9a4a', '#8cc65a'] },
   

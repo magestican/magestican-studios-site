@@ -117,7 +117,10 @@ export function* vinegateSteps() {
         const p = at(u, v); addObj(W, { kind: 'fence', x: p.x, y: p.y, solid: 0.15, ring: `pier-${k}-${side}`, k: n++, n: 0 });
       } } 
     } }
-  for (const [u, v] of [[-2.4, 49.4], [0.6, 48.6], [-1.8, 39.6], [2.2, 42.8], [-0.2, 32.6]]) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
+  
+  
+  for (const side of [-1, 1]) { const p = at(0.8 + side * 1.6, 29.8); addObj(W, { kind: 'rimstone', x: p.x, y: p.y, solid: 0.35, s: 1.2, rot: side * 1.3, v: side > 0 ? 1 : 2, flavor: 'moss' }); }
+  for (const [u, v] of [[-2.6, 30.4], [4.2, 30.4], [-2.4, 49.4], [0.6, 48.6], [-1.8, 39.6], [2.2, 42.8], [-0.2, 32.6]]) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   yield 'buildings';
   const r = U.rng(6161), busy = (x, y) => huts.some((h) => Math.hypot(x - h.x, y - h.y) < 2.2) || Math.hypot(x - SPRING.x, y - SPRING.y) < 1.8 || Math.hypot(x - GATE.x, y - GATE.y) < 2;
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {

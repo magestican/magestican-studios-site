@@ -87,7 +87,7 @@ export function spawnNpcs() {
   
   if (G.region === court.ID) {
     const kinds = SPECIES.filter((s) => s.stage === 2 && s.types[0] === 'Beast'), rc = U.rng(81);
-    for (const d of court.GUARDS) add({ kind: 'villager', id: d.id, sp: kinds[Math.floor(rc() * kinds.length)].id, ...d.home, still: true, lines: d.lines });
+    court.GUARDS.forEach((d, i) => add({ kind: 'villager', id: d.id, sp: kinds[Math.floor(rc() * kinds.length)].id, ...d.home, still: true, lines: G.flags.boss_kingshade ? court.GUARD_AFTER[i] : d.lines }));
   }
   
   

@@ -39,6 +39,12 @@ export const THRONE = at(0, 90.6);
 export const ENTRY = at(0, 33.0);        
 export const POOL = at(-5.6, 37.0);      
 export const POOL_LANDING = at(-4.6, 38.6);
+
+export const GUARD_AFTER = [
+  ['He sat down on his own steps and cried. Then he asked us what WE wanted. Nobody ever asked us that.', 'We are going down to the river. Old Banyan says there is fish. There is always fish.'],
+  ['My tail stopped shaking. Look. Still. Weird.', 'If you see the king by the terraces, say hi. He is learning to plant figs. He is bad at it.'],
+  ['The armour comes off tonight. All of it. I have been itchy for a year.', 'Thank you for listening to him, Bridge child. That is all he needed. Somebody to listen first.'],
+];
 export const GUARDS = [ 
   { id: 'court-g0', home: { ...at(-6.0, 66.6), r: 1.2 }, lines: ['We were told to stop anyone. You are anyone. ...Please do not tell him we let you by.', 'The king was kind once. He carried my grandmother up the vines in the flood.'] },
   { id: 'court-g1', home: { ...at(6.0, 70.0), r: 1.2 }, lines: ['He says the spirals lead to a better jungle. I like this jungle. Is that wrong?', 'If you are going in, mind his fists. He hits like a falling tree.'] },
@@ -69,7 +75,12 @@ function tileFor(x, y) {
   if (room === 0) {
     if (v < 32.4) return T.RUIN; 
     if (discIn(ISLANDS, u, v) > 0) return discIn(ISLANDS, u, v) > 0.7 && U.fbm(x * 0.3, y * 0.3, 951) > 0.3 ? T.TALL : T.GRASS;
-    return discIn(STONES, u, v) > 0 ? T.RUIN : T.DEEP; 
+    
+    
+    const k = STONES.findIndex((s) => Math.hypot(u - s.u, v - s.v) < s.r);
+    if (k < 0) return T.DEEP; 
+    let best = k; STONES.forEach((s, i) => { if (Math.hypot(u - s.u, v - s.v) - s.r < Math.hypot(u - STONES[best].u, v - STONES[best].v) - STONES[best].r) best = i; });
+    return best % 2 ? T.ROCK : T.RUIN;
   }
   if (room === 1) {
     const g = ringAt(u, v);
