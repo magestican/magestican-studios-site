@@ -64,7 +64,7 @@ function heightAtPoint(x, y) {
 function tileFor(x, y) {
   const [u, v] = toUV(x, y);
   if (!inside(u, v)) return T.CLIFF;
-  if (craterD(x, y) < CRATER.r - 0.7) return T.LAVA; 
+  if (craterD(x, y) < CRATER.r - 1.4) return T.LAVA; 
   
   
   
@@ -106,7 +106,7 @@ export function* kazanVillageSteps() {
   W.baseType = W.type; W.baseReach = W.reach; W.baseWindows = W.windows; W.baseWindowsOf = W.windowsOf;
   W.paths = spokes.map((s) => ({ pts: s.pts.map((p) => [...p]), half: s.half }));
   
-  W.crater = { x: CRATER.x, y: CRATER.y, r: CRATER.r - 0.6, h: BASE_H - 0.12, section: 'village' }; 
+  W.crater = { x: CRATER.x, y: CRATER.y, r: CRATER.r - 1.3, h: BASE_H - 0.12, section: 'village' }; 
   
   W.npcOk = (x, y, rad) => W.walkable(x, y, rad) && craterD(x, y) > CRATER_FENCE + 0.5 && Math.hypot(x - GATE.x, y - GATE.y) > 1.8;
   const r = U.rng(5151);

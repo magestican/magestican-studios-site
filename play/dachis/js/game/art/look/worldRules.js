@@ -17,8 +17,12 @@ export const TILE_CLASS = {
   [T.REEF]: 'reef', [T.KELP]: 'kelp', [T.RUIN]: 'ruin', [T.GLADE]: 'glade', [T.THICKET]: 'thicket', [T.MOSS]: 'moss',
 };
 export const MOUNTAIN = new Set(['kazan', 'slope']);
+
+
+export const EARTH_PATHS = new Set(['fig-terraces']);
 export function tileClass(t, section) {
   if (t === T.PATH && MOUNTAIN.has(section)) return 'rock';
+  if (t === T.PATH && EARTH_PATHS.has(section)) return 'sand';
   return TILE_CLASS[t] || 'grass';
 }
 

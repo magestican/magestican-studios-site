@@ -142,12 +142,13 @@ const WELCOME = {
 };
 
 const FIRST_SEED = () => [
-  L(NARR, 'You put your hand on the mossy stone. The roots around it are warm. The hollow goes bright, and you are somewhere else.'),
+  
+  L(NARR, 'You put your hand on the mossy stone. The roots around it are warm. The hollow goes bright, and you are somewhere else.', { onShow: () => document.body.classList.add('memory') }),
   L(NARR, 'A bare hill, long ago. No tree. A young dachi with small, bare antlers kneels and presses one seed into the dirt.'),
   { who: 'Young Bramble', portrait: undefined, text: 'There. Do not hurry. I am not going anywhere, so neither are you.' },
   L(NARR, 'Years go by in a breath. The seed is a sprout, then a sapling, then a tree with its head in the clouds. Bramble gets old beside it. Her antlers fill with flowers.'),
   L(NARR, 'Something red moves at the edge of the picture. The hill is gone.'),
-  L(KID, '(She talked to it. My grandma talks to her tomatoes on the fire escape. Same voice.)'),
+  L(KID, '(She talked to it. My grandma talks to her tomatoes on the fire escape. Same voice.)', { onShow: () => document.body.classList.remove('memory') }),
   L(KID, '(And then something came and talked to HER. I bet it said all the right stuff, too.)'),
 ];
 
@@ -251,7 +252,7 @@ export function updateRegionBeats(sec, dt = 1 / 60) {
   
   if (G.region === motherHollow.ID && !S.dialog.active) {
     const seen = G.flags.beats || (G.flags.beats = {}), Sd = motherHollow.SEED;
-    if (!seen['first-seed'] && U.dist(p.x, p.y, Sd.x, Sd.y) < Sd.r + 0.8) { seen['first-seed'] = 1; saveGame(); say(FIRST_SEED()); return; }
+    if (!seen['first-seed'] && U.dist(p.x, p.y, Sd.x, Sd.y) < Sd.r + 0.8) { seen['first-seed'] = 1; saveGame(); say(FIRST_SEED(), () => document.body.classList.remove('memory')); return; }
   }
   const lines = REGION_BEATS[sec], seen = G.flags.beats || (G.flags.beats = {});
   if (!lines || seen[sec] || S.dialog.active) return;

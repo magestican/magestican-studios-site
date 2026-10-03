@@ -177,7 +177,7 @@ export const GROUND_REGION = {
   canopy: { rock: ['#b08a52', '#d0aa6a'], glade: ['#8cc64a', '#b6e060'], moss: ['#1e5a3a', '#2c7448'], thicket: ['#2a6a2c', '#3c8a34'], cliff: ['#163a26', '#1f4a30'] },
   
   fig: { shallow: ['#5aa8a8', '#8ed4cc'], deep: ['#4a9898', '#7ac4bc'], tall: ['#6aa83a', '#8cc84a'], grass: ['#5aa040', '#7cc050'],
-    jungle: ['#21703a', '#36924a'], path: ['#b8784a', '#e8b080'] },
+    jungle: ['#21703a', '#36924a'], path: ['#b8784a', '#e8b080'], sand: ['#8e5a34', '#b87c4c'] }, 
   
   ruins: { ruin: ['#c8a46a', '#e0c088'], plaza: ['#d8b47a', '#ecd09a'], cliff: ['#4a5a3a', '#5e6e46'], tall: ['#4a8a30', '#6aaa40'] },
   
