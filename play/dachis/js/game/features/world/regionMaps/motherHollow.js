@@ -70,6 +70,15 @@ export function* motherHollowSteps() {
   yield 'buildings';
   const r = U.rng(5151), SEEDLING = ['#9ad870', '#c8f090', '#ffe090', '#ffb0d0'];
   const wayD = (x, y) => WAY.reduce((m, p, k) => (k ? Math.min(m, segDist(WAY[k - 1], p, x, y)) : m), Infinity);
+  
+  
+  { const vault = CHAMBERS[0];
+    for (let u = -10.4; u <= 10.4; u += 1.6) for (let v = 31.6; v < 45.6; v += 0.8) {
+      const p = at(u, v), [cu, cv] = [u - vault.u, v - vault.v];
+      if (Math.hypot(cu, cv) > vault.r - 1.0 || wayD(p.x, p.y) < 1.1 || Math.hypot(p.x - ENTRY.x, p.y - ENTRY.y) < 2) continue;
+      if (W.type[W.idx(Math.floor(p.x), Math.floor(p.y))] === T.CLIFF) continue;
+      addObj(W, { kind: 'flower', x: p.x, y: p.y, solid: 0, c: SEEDLING[Math.round((u + 10.4) / 1.6) % 4] });
+    } }
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     const t = W.type[W.idx(i, j)], x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28;
     if (!W.windowsOf(x, y, 1.2, 2.6).length) continue;
@@ -79,7 +88,7 @@ export function* motherHollowSteps() {
     if (Math.hypot(u, v - 72.4) < 4.4) continue; 
     if (t === T.THICKET) { if (k < 0.16) addObj(W, { kind: 'bramble', x, y, solid: 0, s: 0.5 + s * 0.35, rot }); continue; }
     
-    if (v < 46) { if (Math.abs(((u + 12) % 1.6) - 0.8) < 0.32 && k < 0.9) addObj(W, { kind: 'flower', x, y, solid: 0, c: SEEDLING[Math.floor(s * 4)] }); continue; }
+    if (v < 46) continue; 
     if (k < 0.05) addObj(W, { kind: 'fern', x, y, solid: 0, s: 0.6 + s * 0.4, rot });
     else if (k < 0.08) addObj(W, { kind: 'rock', x, y, solid: 0.3, s: 0.35 + s * 0.35, rot, flavor: 'moss' });
   }
