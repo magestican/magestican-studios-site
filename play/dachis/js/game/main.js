@@ -24,7 +24,7 @@ import { buildWorld } from './features/world/worldView.js';
 import { HOME, regionById, generateRegionSliced, mapsToDrop } from './features/world/regions.js';
 import { slicer } from '../engine/core/slicer.js';
 import { perchById, perchAt, perchesOpen, visit, flightPhase, VISIT_R } from './features/world/travel.js';
-import { doorAt } from './features/world/doors.js';
+import { doorAt, walkThrough } from './features/world/doors.js';
 import * as kazanVillage from './features/world/regionMaps/kazanVillage.js';
 import { openPerchMenu, closePerchMenu, perchMenuOpen, pickPerch, installPerchMenu } from './features/hud/perchMenu.js';
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
@@ -76,13 +76,16 @@ const packsIn = new Set([regionById(HOME).pack]);
 const cover = { a: 0, target: 0, hold: false, done: null, label: '' };
 const coverTo = (v) => new Promise((r) => { cover.target = v; cover.done = r; });
 let regionJob = null;
-function loadRegion(id, at = null) {
+const doorWalk = { map: null, held: null }; 
+
+
+function loadRegion(id, at = null, opts = {}) {
   if (regionJob) return regionJob;
   const r = regionById(id);
   if (!r) return Promise.reject(new Error('no region ' + id));
   regionJob = (async () => {
     cover.label = r.name;
-    await coverTo(1);
+    if (opts.covered) { cover.a = cover.target = 1; } else await coverTo(1);
     cover.hold = true;
     performance.mark('region:build ' + id);
     const slice = slicer(8), t0 = performance.now();
@@ -123,6 +126,7 @@ function loadRegion(id, at = null) {
     S.lastRegionLoad = { id, ms: Math.round(performance.now() - t0), slices: slice.stats(), progBuilt, progWarm };
     if (G.mode === 'world') saveGame();
     if (cover.flight) await flightLanded(); 
+    if (opts.beforeReveal) opts.beforeReveal();
     cover.hold = false;
     performance.mark('region:reveal ' + id);
     await coverTo(0);
@@ -315,12 +319,15 @@ function leaveTitle() {
 }
 
 function playIntro(start) {
+  
+  
+  
+  
   Cutscene.play(SCENES, () => {
-    intro.clear(); enterWorld();
-    loadRegion(kazanVillage.ID, kazanVillage.SPAWN).then(() => {
-      afterIntro();
-      zoomInFromIntro(introZoomK); youTag.start(); 
-    });
+    intro.clear();
+    loadRegion(kazanVillage.ID, kazanVillage.SPAWN, { covered: true, beforeReveal: () => {
+      enterWorld(); zoomInFromIntro(introZoomK); updateCamera(0, G.player); 
+    } }).then(() => { afterIntro(); youTag.start(); });
   }, { start, onLine: (sc, li) => intro.save(sc, li) });
 }
 $('newBtn').onclick = () => {
@@ -433,8 +440,8 @@ function frame(now) {
         else updateRegionBeats(cam.sec, dt); 
         visit(G.flags, G.region, G.player.x, G.player.y); 
         
-        const auto = doorAt(G.flags, G.region, G.player.x, G.player.y);
-        if (auto && auto.auto) loadRegion(auto.to, auto.toAt);
+        const through = walkThrough(doorWalk, S.W, doorAt(G.flags, G.region, G.player.x, G.player.y));
+        if (through) loadRegion(through.to, through.toAt);
         worldActions();
         if (touched && G.mode === 'world') startBattle(touched);
       }

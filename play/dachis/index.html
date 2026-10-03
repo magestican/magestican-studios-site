@@ -14,8 +14,12 @@
 
 
 
-  <meta name="build" content="9b82ee3-20261003T030103Z">
+  <meta name="build" content="367228b-20261003T033714Z">
   <script>
+    
+    
+    addEventListener('pointerdown', function () { window.__titleTouched = 1; }, true);
+    addEventListener('keydown', function () { window.__titleTouched = 1; }, true);
     (function () {
       var FILES = ['js/engine/audio/sfx.js', 'js/engine/core/save.js', 'js/engine/core/util.js', 'js/engine/core/slicer.js', 'js/engine/core/growBuf.js', 'js/engine/input/input.js', 'js/engine/iso/cozyStage.js', 'js/engine/iso/groundPaths.js', 'js/engine/iso/pixelPass.js', 'js/engine/iso/seeThrough.js', 'js/engine/iso/stage.js', 'js/engine/iso/terrain.js', 'js/engine/iso/water.js',
         'js/engine/ui/dialog.js', 'js/engine/ui/hints.js', 'js/engine/ui/icons.js', 'js/engine/ui/pixelLayer.js',
@@ -49,7 +53,7 @@
     })();
   </script>
 </head>
-<body>
+<body class="booting">
   <canvas id="world"></canvas>
   <canvas id="fx"></canvas>
   <div id="touchZone"></div>
@@ -187,6 +191,6 @@
   </div>
   <div id="toasts"></div>
 
-  <script type="module" src="js/game/main.js?v=9b82ee3-20261003T030103Z"></script>
+  <script type="module" src="js/game/main.js?v=367228b-20261003T033714Z"></script>
 </body>
 </html>

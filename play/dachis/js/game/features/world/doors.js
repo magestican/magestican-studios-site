@@ -68,6 +68,16 @@ export const DOORS = [
 export const DOOR_R = 1.6; 
 export const doorById = (id) => DOORS.find((d) => d.id === id) || null;
 
+
+
+
+
+
+export function walkThrough(st, map, door) {
+  if (st.map !== map) { st.map = map; st.held = door; return null; } 
+  if (!door) { st.held = null; return null; }
+  return door === st.held ? null : door;
+}
 export function doorAt(flags, region, x, y, r = DOOR_R) {
   return DOORS.find((d) => d.region === region && (!d.after || (flags && flags[d.after])) && near(d, x, y, r)) || null;
 }
