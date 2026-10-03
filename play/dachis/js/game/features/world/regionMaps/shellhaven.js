@@ -40,17 +40,17 @@ export const HUT_SPOTS = HUTS.map(([u, v, sc]) => ({ ...at(u, v), s: sc }));
 const LANTERNS = [[-7.6, 41.0], [-6.8, 44.0], [-3.6, 39.8], [-2.4, 42.8]];
 export const DWELLERS = [
   { id: 'shell-v0', home: { ...at(-3.0, 43.6), r: 2.6 }, lines: [
-    'You walked in from the reef? Dry? The bubble likes you, then. It does not let in just anyone.',
-    'Breathe slow near the edge. Out there the water is heavy enough to fold you up like a letter.'] },
+    'You walked in dry. You are welcome. I patched that seam this morning. Nobody else would have, and nobody ever says so.',
+    'Stay off the edge. Out there the water folds you up small. I saw it once. Do not make me see it again.'] },
   { id: 'shell-v1', home: { ...at(4.0, 41.0), r: 2.6 }, lines: [
-    'The clam has kept this pool warm since before the city drowned. Rest by it - it heals your friends.',
-    'Leviathrum swims past at night. We used to wave. Now we hide under the kelp.'] },
+    'Sit your friends in the clam\'s pool, it heals them. Then get them out. She pinches if they stay.',
+    'Leviathrum pings before he drops. Ping, ping, ping, then the whole sea comes down on you. We used to count along with him. It was a game.'] },
   { id: 'shell-v2', home: { ...at(-2.6, 39.0), r: 2.4 }, lines: [
-    'The kelp gardens north and east are full of wild ones. Most are only scared. The red-eyed ones are not.',
-    'My grandmother said the city above us waited a hundred years for its people to come back. They never did.'] },
+    'Lightning. That is what he cannot stand. A storm cracked his hull once and he sulked under the temple for a year. Grandmother says.',
+    'The red-eyed ones in the kelp chewed every frond my sister planted. She cried. Then she bit one. We do not talk about it.'] },
   { id: 'shell-v3', home: { ...at(2.6, 45.4), r: 2.4 }, lines: [
-    'Memory Stones wash up in the gardens sometimes. Hold one to your ear and you hear the city as it was.',
-    'Your shoes squeak. Nobody here has shoes. Can I touch one?'] },
+    'I found a Memory Stone in the gardens and it talked. My brother says it was a shell. My brother is stupid.',
+    'Your shoes squeak. Nobody here has shoes. Can I touch one? ...Can I keep one?'] },
 ];
 
 

@@ -12,7 +12,7 @@ export const ID = 'ember-tube';
 export const SIZE = 80;
 export const SECTIONS = addSections([
   { id: 'ember-a', name: 'Ember Tube - The Glow Gallery', rect: { u: [-18, 18], v: [30, 56] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 1, wildTypes: ['Ember', 'Stone', 'Metal'] },
-  { id: 'ember-b', name: 'Ember Tube - The Magma Hall', rect: { u: [-18, 18], v: [56, 82] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 1, wildTypes: ['Ember', 'Stone', 'Metal'] },
+  { id: 'ember-b', name: 'Ember Tube - The Magma Hall', train: true, rect: { u: [-18, 18], v: [56, 82] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 1, wildTypes: ['Ember', 'Stone', 'Metal'] },
 ]);
 const uvPts = (list) => list.map(([u, v]) => fromUV(u, v));
 export const PATH = uvPts([[0, 31], [5, 37], [-4, 44], [3, 52], [-6, 60], [4, 67], [-2, 74], [3, 80]]);
@@ -22,14 +22,14 @@ export const SPRING = at(3.6, 34.8);
 
 export const DWELLERS = [
   { id: 'ember-v0', home: { ...at(-3.5, 37.5), r: 2.6 }, lines: [
-    'We keep the torches lit. Without them, the Tube swallows you whole.',
-    'Ash drifts down through the cracks every night now. Something up the mountain is burning that should not be.'] },
+    'Forty-one torches. I light them, I trim them, I light them again. You are standing in number nine\'s light, so you owe me a stick of resin.',
+    'Ashlo used to carry coals down from the crater for us. Scraped his foot twice, then ran the slope like a bull. Straight. Never turned once he started.'] },
   { id: 'ember-v1', home: { ...at(5.5, 62), r: 2.6 }, lines: [
-    'Careful by the pools. The lava down here never cools - it is fed from deep under Mt. Kazan.',
-    'The wild ones in the moss are not cruel. The heat makes them jumpy, that is all.'] },
+    'Do not lean over the pools. My boy did, on a bet. He has no eyebrows now and he says it is the best thing that ever happened to him.',
+    'You want to put out something that burns, bring something wet. Or a rock. My mother said that, and she was wrong about everything else.'] },
   { id: 'ember-v2', home: { ...at(-6, 70), r: 2.6 }, lines: [
-    'A little one hatched down here and wandered off toward the Hall. If you find her, tell the village.',
-    'Past the Hall the tube cools. Nobody goes there. Nobody comes back from there either.'] },
+    'A little one hatched in the warm stones and went off humming toward the Hall. Somebody up in the village keeps asking after her. Not me. I am not going near the Hall.',
+    'Past the Hall the tube goes cold. I am not scared of cold. I am scared of whatever makes a fire tube go cold. Different thing.'] },
 ];
 
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);

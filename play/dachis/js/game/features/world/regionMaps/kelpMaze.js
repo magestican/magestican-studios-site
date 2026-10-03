@@ -11,7 +11,7 @@ import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '..
 export const ID = 'kelp-maze';
 export const SIZE = 64;
 export const SECTIONS = addSections([
-  { id: 'kelp-maze', name: 'The Kelp Maze', rect: { u: [-18, 18], v: [26, 54] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 2, wildTypes: ['Tide', 'Frost', 'Metal'] },
+  { id: 'kelp-maze', name: 'The Kelp Maze', rect: { u: [-18, 18], v: [26, 54] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 2, train: true, wildTypes: ['Tide', 'Spark', 'Frost', 'Metal'] },
 ]);
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 

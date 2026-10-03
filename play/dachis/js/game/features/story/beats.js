@@ -289,8 +289,8 @@ function guardianAppears() {
     L(NARR, 'Right before it hits you, a burst of orange fire slams between you!'),
     L(HIBONE, 'HOLD IT! Stay behind me, kid.'),
     L(NARR, 'An orange dachi — half dragon, half skeleton, with the cutest face you have ever seen — stands his ground in front of you.'),
-    L(HIBONE, 'Name’s Hibone. I am your guardian. Now shout, kid! Tell me what to do!'),
-    L(NARR, 'Hibone became your first dachi! Shout his three special attacks: press 1, 2 and 3 — or tap the glowing buttons.'),
+    L(HIBONE, 'Name’s Hibone. Guardian. I got three moves and no eyes in the back of my head, so you shout, I throw. One, two, three. GO!'),
+    L(NARR, 'Hibone is your first dachi. His attacks are keys 1, 2 and 3, or the glowing buttons.'),
   ], () => {
     startBattle(scene.wild, { script: 'guardian', ally: hib, onEnd: afterGuardianFight });
   });
@@ -303,7 +303,7 @@ function afterGuardianFight() {
     L(KID, 'Hibone? Hey — hey, what’s happening to you?!'),
     L(HIBONE, 'Hey. No crying, I got a reputation. Guardians don\'t end, kid. We just... start over.'),
     L(NARR, 'Hibone glows with a soft white light that grows and grows... and when it fades, there is only a warm, speckled egg where he stood.'),
-    L(NARR, 'You pick up the egg. It is warm, and it feels like it is listening.', { onShow: () => { G.items.egg = 1; } }),
+    L(NARR, 'You pick up the egg. It is warm, and heavier than it looks.', { onShow: () => { G.items.egg = 1; } }),
     L(NARR, 'The whole island goes quiet. Even the sea. Then the light talks.'),
     L(TOMO, 'Child of the other world. I have very little light left, so I will ask only once.'),
     Object.assign(L(TOMO, 'What matters most to you?'), {

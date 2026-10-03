@@ -30,6 +30,7 @@ import { makePattern } from '../capture/ritual.js';
 import { dachiBillboard } from '../../art/billboards.js';
 import { battleOpener } from './battleOpener.js';
 import { music } from '../../music.js';
+import { patternOf, patternDamageMult, tellBeats, OPEN_TIME } from './bossPattern.js';
 
 export let B = null;
 export const INTRO = 1.5;
@@ -94,6 +95,8 @@ export function startBattle(wild, opts = {}) {
     ritual: null, capture: null, result: null, shake: 0, used: new Set(), mines: [], parries: 0, free,
   };
   if (B.boss) { B.enemy.x = wild.x; B.enemy.y = wild.y; } 
+  const pat = B.boss && patternOf(B.boss); 
+  if (pat) Object.assign(B.enemy, { pat, sigCd: pat.first, tellT: 0, tellAt: 0, open: 0 });
   clampArena(B.enemy);
   
   for (let k = 0; k < 12 && !W.walkable(B.enemy.x, B.enemy.y, 0.3); k++) { B.enemy.x += (kx0 - B.enemy.x) * 0.15; B.enemy.y += (ky0 - B.enemy.y) * 0.15; }
@@ -278,6 +281,10 @@ function hit(att, def, power, type, { big = false, kind = 'basic', m = null, pro
   if (st && !(B.script && def.side === 1)) { def.status = applyStatus(def.status, st); label(def, st === 'burn' ? 'Burned!' : st === 'slow' ? 'Slowed!' : 'Dizzy!', STATUS_COLOR[st], 10); }
   if (attr > 1) label(def, 'Attribute advantage!', ATTR_COLOR[attrOf(att.d)] || '#fff', eff > 1 ? 120 : 95);
   dmg = finalDamage(dmg, guarded, G.cycle);
+  if (def.pat) { 
+    const pm = patternDamageMult(def.pat, def);
+    if (pm !== 1) { dmg = Math.max(1, Math.round(dmg * pm)); label(def, pm > 1 ? 'Open!' : 'Like a mountain!', pm > 1 ? '#ffe14a' : '#b8c4d0', 70); }
+  }
   const floor = B.script === 'guardian' && def.side === 0 ? 1 : 0;   
   const before = def.d.hp;
   def.d.hp = Math.max(floor, def.d.hp - dmg);
@@ -313,6 +320,26 @@ function sparkle(f, color, n) {
 }
 
 const speedOf = f => { const s = statsOf(f.d).spd; return 1.8 + 3 * s / (s + 60); };
+
+
+function runPattern(f, o, dt) {
+  const p = f.pat;
+  f.open = Math.max(0, f.open - dt);
+  if (B.script || B.ritual || f.stun > 0 || f.leap || f.dash || f.beam || f.cast) return false;
+  if (f.tellT > 0) {
+    const before = p.tell - f.tellT; f.tellT -= dt; const now = p.tell - f.tellT;
+    for (const at of tellBeats(p)) if (at > before - 1e-6 && at <= now) S.sfx.play(p.sfx);
+    if (f.tellT > 0) return true;
+    f.cds[p.move] = 0; f.mp = Math.max(f.mp, mpCost(spOf(f).moves[p.move], f.d.lvl));
+    useSpecial(f, o, p.move); f.open = OPEN_TIME + (f.leap || f.dash ? 1 : 0); f.sigCd = p.every;
+    return true;
+  }
+  f.sigCd -= dt;
+  if (f.sigCd > 0 || f.d.hp <= 0) return false;
+  f.tellT = p.tell; f.vx = f.vy = 0;
+  callout(f, p.text, '#ffcf40', true);
+  return true;
+}
 
 function updateFighter(f, o, dt) {
   const slowK = speedMult(f.status);
@@ -431,11 +458,12 @@ function updateFighter(f, o, dt) {
     else { moveBy(f, dx / dist * spd * 1.5 * dt, dy / dist * spd * 1.5 * dt); f.walking = true; }
     return;
   }
+  if (f.pat && runPattern(f, o, dt)) return; 
   if (f.side === 1) { 
     if (f.fin >= 1 && !B.script && !B.ritual && Math.random() < dt * 0.8) { useFinisher(f); return; }
     const ready = [0, 1, 2].filter(k => {
       const m = spOf(f).moves[k];
-      if (!canUse(f, k, m)) return false;
+      if (!canUse(f, k, m) || (f.pat && k === f.pat.move)) return false; 
       if (m.kind === 'heal') return hpFraction(f.d) < 0.5 || hasStatus(f.status);   
       if (m.kind === 'shield') return f.shield <= 0;
       return true;
@@ -476,6 +504,7 @@ function threatOn(f, o) {
   let t = Infinity;
   const dist = Math.hypot(o.x - f.x, o.y - f.y);
   if (o.wind > 0 && dist < 1.6) t = Math.min(t, o.wind);
+  if (o.tellT > 0) t = Math.min(t, o.tellT); 
   if (o.dash && dist < 3.2) t = Math.min(t, Math.max(0, dist - 0.85) / 10);
   if (o.flurry && dist < 1.6) t = Math.min(t, o.flurry.t);
   if (o.leap && Math.hypot(o.leap.x1 - f.x, o.leap.y1 - f.y) < SLAM_R) t = Math.min(t, SLAM_TIME - o.leap.t);

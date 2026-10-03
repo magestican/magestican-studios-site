@@ -48,7 +48,7 @@ export function spawnWild(near = null, minD = 7, where = null) {
     const top = G.party.reduce((m, d) => Math.max(m, d.lvl), 1);
     const sec = sectionById(S.cam && S.cam.sec);
     const lvl = wildLevel({ far, caught: caughtCount(), rand: Math.random(), top, initiated: !!G.flags.initiated,
-      floor: capsFor(G.cycle).enemyFloor, chapter: (sec && sec.chapter) || 1 });
+      floor: capsFor(G.cycle).enemyFloor, chapter: (sec && sec.chapter) || 1, train: !!(sec && sec.train) }); 
     
     let fam = Math.random() < 0.05 ? 1 + Math.floor(Math.random() * 3) : [0, ...Array.from({ length: 37 }, (_, i) => i + 4)][Math.floor(Math.random() * 38)];
     

@@ -10,6 +10,7 @@ import { attrBadge } from '../battle/battleHud.js';
 import { KIND_LABEL } from '../battle/techniques.js';
 import { xpToNext, giveXp } from '../battle/rules.js';
 import { dachiCanvas } from '../../art/portraitRender.js';
+import { BOSS_PATTERNS } from '../battle/bossPattern.js';
 import { ITEMS } from '../pickups/pickups.js';
 import { checkEvolutions } from '../party/evolution.js';
 import { refreshHud } from '../hud/hud.js';
@@ -144,6 +145,9 @@ function journal(body) {
     if (q.status === 'active') h += `<p class="stepNow">${esc(q.text)}</p>`;
     h += '</div></div>';
   }
+  
+  const notes = Object.keys(G.flags.tells || {}).filter((b) => BOSS_PATTERNS[b]);
+  if (notes.length) h += '<h3>Boss notes</h3>' + notes.map((b) => `<div class="item quest${G.flags['boss_' + b] ? ' done' : ''}"><span class="ico">${icon('star')}</span><div><p>${esc(BOSS_PATTERNS[b].note)}</p></div></div>`).join('');
   const R = regionById(G.region) || regionById('kazan-isle'), t = tally(G.flags, R.id);
   h += `<h3>Collection: ${esc(R.name)}</h3><div class="tally">${Object.entries(KINDS).map(([k, v]) => `<span>${icon(KIND_ICON[k])} ${v.name} ${t[k].found} / ${t[k].total}</span>`).join('')}</div>`;
   const got = COLLECTIBLES.filter((c) => found(G.flags, c.id));

@@ -11,6 +11,14 @@ export const BAND_UNDER = 2;
 export const REGION_CAP_OVER = 4;  
 
 
+
+export const POCKET_UNDER = 4, POCKET_CAP_OVER = 5;
+export function pocketBand(chapter) {
+  if (!(chapter >= 1) || chapter > BOSS_LEVEL.length) return null;
+  return [BOSS_LEVEL[chapter - 1] - POCKET_UNDER, BOSS_LEVEL[chapter - 1]];
+}
+
+
 export function regionBand(chapter) {
   if (!(chapter >= 2) || chapter > BOSS_LEVEL.length) return null;
   return [BOSS_LEVEL[chapter - 2] - BAND_UNDER, BOSS_LEVEL[chapter - 1] - BAND_UNDER];
@@ -18,8 +26,12 @@ export function regionBand(chapter) {
 
 
 
-export function wildLevel({ far = 0, caught = 0, rand = Math.random(), top = 1, initiated = false, floor = 0, chapter = 1 } = {}) {
+export function wildLevel({ far = 0, caught = 0, rand = Math.random(), top = 1, initiated = false, floor = 0, chapter = 1, train = false } = {}) {
   if (floor) return floor;   
+  if (train && pocketBand(chapter)) { 
+    const [lo, hi] = pocketBand(chapter), cap = Math.min(hi, Math.max(lo, top + POCKET_CAP_OVER));
+    return Math.min(cap, lo + Math.floor(rand * (hi - lo + 1)));
+  }
   const band = regionBand(chapter);
   if (band) {
     const [lo, hi] = band;

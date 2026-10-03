@@ -7,7 +7,8 @@ import { giveXp, xpReward, bondAfter, BOND_NEW_FRIEND, battleReport } from './ru
 import { removeWild } from '../world/wilds.js';
 import { checkEvolutions } from '../party/evolution.js';
 import { respawnPoint } from '../world/travel.js';
-import { lairOf, fallLine } from '../world/lairs.js';
+import { lairOf, fallLine, lastWords } from '../world/lairs.js';
+import { patternOf } from './bossPattern.js';
 import { questEvent, bossStoneLines } from '../quest/questRuntime.js';
 
 export function onBattleFinished(b) {
@@ -43,7 +44,9 @@ export function onBattleFinished(b) {
     }
     if (b.boss && res === 'win') { 
       G.flags['boss_' + b.boss] = true;
-      msgs.unshift({ text: `"${speciesById(enemy.sp).blurb}"`, who: speciesById(enemy.sp).name, boss: true }, fallLine(lairOf(b.boss), speciesById(enemy.sp).name)); 
+      
+      const bossName = speciesById(enemy.sp).name, last = lastWords(lairOf(b.boss));
+      msgs.unshift(...(last ? [{ text: last, who: bossName, boss: true }] : []), fallLine(lairOf(b.boss), bossName)); 
       msgs.push(...bossStoneLines(b.boss)); 
       G.flags.egg = (G.flags.egg || 0) + 1; 
       msgs.push({ text: eggLine(G.flags.egg) });
@@ -53,6 +56,13 @@ export function onBattleFinished(b) {
     removeWild(wild);
   } else if (res === 'lose') {
     msgs.push('Your companions are exhausted... You carry them back to the nearest hot spring.');
+    const pat = b.boss && patternOf(b.boss); 
+    if (pat) {
+      const first = !(G.flags.tells || {})[b.boss];
+      G.flags.tells = { ...(G.flags.tells || {}), [b.boss]: true };
+      msgs.push({ text: '(Okay. Okay. I saw what comes before the big one. I SAW it.)' });
+      if (first) msgs.push({ text: 'Written in your journal: ' + pat.note });
+    }
     const p = G.player;
     const home = respawnPoint(G.region, G.flags, p.x, p.y); 
     p.x = home.x; p.y = home.y; G.follower.x = p.x; G.follower.y = p.y - 0.6;

@@ -33,6 +33,16 @@ function spot(uv) {
 
 const open = (l) => lairOpen(l, G.flags) && (l.region || HOME) === G.region;
 
+
+function stepBack(l) {
+  const p = G.player, dx = p.x - l.at.x, dy = p.y - l.at.y, d = Math.hypot(dx, dy) || 1;
+  for (const k of [1.4, 1.1, 0.8]) {
+    const x = l.at.x + dx / d * (MEET + k), y = l.at.y + dy / d * (MEET + k);
+    if (!S.W.walkable || S.W.walkable(x, y, 0.3)) { p.x = x; p.y = y; break; }
+  }
+  if (G.follower) { G.follower.x = p.x; G.follower.y = p.y; }
+}
+
 export function updateBossLairs() {
   if (!S.W) return;
   lairs ||= LAIRS.map((l) => ({ ...l, sp: bossSpecies(l.boss), bb: null, met: false }));
@@ -45,7 +55,18 @@ export function updateBossLairs() {
     if (l.met) continue;
     l.met = true;
     const name = l.sp.name;
-    S.dialog.say(meetLines(l, l.sp.blurb).map(([who, text]) => ({ who: who === 'kid' ? G.name || 'You' : name, text, boss: who !== 'kid' })), () => { l.met = true; if (startBossBattle(l.boss, { x: l.at.x, y: l.at.y })) S.sfx.play('rage'); });
+    
+    
+    const lines = l.seen ? [{ who: name, text: l.again || l.meet[0][1], boss: true }]
+      : meetLines(l, l.sp.blurb).map(([who, text]) => ({ who: who === 'kid' ? G.name || 'You' : name, text, boss: who !== 'kid' }));
+    l.seen = true;
+    const top = Math.max(0, ...G.party.map((d) => d.lvl)), short = l.sp.level - top;
+    const thought = short >= 4 ? '(Way bigger than us. Like, WAY bigger.)' : short >= 2 ? '(We are close. Close is not the same as ready.)' : '(We trained for this. I think we trained for this.)';
+    lines.push({ text: thought, choices: [
+      { label: 'Fight now', fn: () => { S.dialog.hide(); if (startBossBattle(l.boss, { x: l.at.x, y: l.at.y })) S.sfx.play('rage'); } },
+      { label: 'Not yet', fn: () => { S.dialog.hide(); stepBack(l); } },
+    ] });
+    S.dialog.say(lines);
   }
 }
 

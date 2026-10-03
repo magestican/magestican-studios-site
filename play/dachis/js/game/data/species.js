@@ -462,7 +462,7 @@ export const BOSSES = [
 ];
 
 
-export const BOSS_LEVEL = [18, 26, 32, 38, 44, 50, 56, 64];
+export const BOSS_LEVEL = [18, 25, 31, 39, 44, 50, 56, 64];
 export const BOSS_BASE = { hp: 100, atk: 84, def: 78, spd: 62 };
 export const BOSS_HP_MUL = 3;
 export const BOSS_SPECIES = BOSSES.map((b, i) => ({

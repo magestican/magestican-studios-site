@@ -16,7 +16,7 @@ const WT = ['Leaf', 'Spirit'];
 export const SECTIONS = addSections([
   { id: 'tree-vault', name: 'The Mother Tree - The Seed Vault', rect: { u: [-12, 12], v: [30, 46] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 3, wildTypes: WT },
   { id: 'tree-heart', name: 'The Mother Tree - The Heartwood', rect: { u: [-12, 12], v: [46, 62] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 3, wildTypes: WT },
-  { id: 'tree-roots', name: 'The Mother Tree - The Roots', rect: { u: [-12, 12], v: [62, 78] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 3, wildTypes: WT },
+  { id: 'tree-roots', name: 'The Mother Tree - The Roots', train: true, rect: { u: [-12, 12], v: [62, 78] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 3, wildTypes: [...WT, 'Shadow'] } 
 ]);
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 

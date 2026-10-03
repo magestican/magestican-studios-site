@@ -59,17 +59,17 @@ const LANTERNS = [[-9.2, 42.6], [-6.4, 40.4], [-3.2, 42.2], [5.6, 38.2], [1.0, 4
 
 export const DWELLERS = [
   { id: 'hollow-v0', home: { ...at(-10.4, 42.4), r: 1.8 }, lines: [
-    'You climbed the ladder? All the way? Most ground walkers turn back at the first wobble.',
-    'Do not look down. Or do - it is a very nice view, as long as you do not fall into it.'] },
+    'You climbed the whole ladder? I had a fig on you turning back at the first wobble. Now I owe Tamsin a fig.',
+    'Do not look down. Or do. Just do not do it on one foot.'] },
   { id: 'hollow-v1', home: { ...at(10.6, 37.0), r: 2.0 }, lines: [
-    'We built the huts where the boughs fork, because the tree asked us to. Trees ask very slowly.',
-    'The leaf beds up north rustle all night. Wild ones sleep in them. Most of them are friendly. Most.'] },
+    'Mother Bramble grew our huts for us, bough by bough. Then she started taking boughs back. She never asked. She used to ask.',
+    'When her grove smells sweet, like fruit gone off, get your friends out of it. That rot gets into them and stays. Carry something to clean it out.'] },
   { id: 'hollow-v2', home: { ...at(1.4, 49.4), r: 2.0 }, lines: [
-    'Down there is the Old Grove. Mother Bramble used to tend it. Every flower in it, by hand.',
-    'Since the red came into her eyes, the grove has grown thorns. Even the birds left.'] },
+    'Burn it. There, I said it. Everybody up here thinks it. Fire or frost, the thorns are scared of nothing else.',
+    'She tended every flower down there by hand. Then the red came and she started on the tree. Do not tell me she cannot help it.'] },
   { id: 'hollow-v3', home: { ...at(-3.2, 31.2), r: 2.0 }, lines: [
-    'Shh. If you stand very still on this platform you can feel the tree breathing.',
-    'Fireflies live in the jars by choice. We asked. They said yes. They glow brighter when they are happy.'] },
+    'Shh. Stand still. The tree is breathing. It breathes slower since spring. I count.',
+    'Her roots grab what stands still. My dachi stood still. When the ground goes quiet, keep moving.'] },
 ];
 
 

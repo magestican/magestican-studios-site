@@ -2,14 +2,15 @@
 
 
 export const EGG_LINES = [
-  'In your pack, Hibone\'s egg is warm - warm as a stone left in the sun.',
-  'Hibone\'s egg is warmer now. For a moment you feel something inside it turn over.',
-  'The egg is hot to the touch, and it hums when you hold it close.',
-  'A hairline crack of light runs across the egg, then fades. Not yet.',
-  'The egg beats against your back like a second heart.',
-  'Hibone\'s egg glows through the canvas of your pack.',
-  'The egg rocks on its own. Whatever is inside is nearly ready.',
-  'The egg is quiet and very warm. It is waiting for the Spire.',
+  
+  'Hibone\'s egg is warm in your pack. (Warm like the radiator in Mom\'s kitchen. The one that bangs.)',
+  'Something inside Hibone\'s egg turns over. (Did it just KICK me?)',
+  'The egg is hot now, and it hums against your back. (It hums worse than Mr. Ortiz on four.)',
+  'A thin crack of light runs across the egg and closes up again. (Hey. Come on. You were almost out.)',
+  'The egg knocks against your back. Twice. Then twice again.',
+  'Hibone\'s egg glows right through the canvas. (Great. Now I am a night-light.)',
+  'Every time you set the egg down, it rolls back toward you.',
+  'The egg goes quiet. Very warm, and very quiet. (Okay. Whenever you want. No rush.)',
 ];
 
 export const eggLine = (n) => EGG_LINES[Math.max(0, Math.min(EGG_LINES.length, n) - 1)];
