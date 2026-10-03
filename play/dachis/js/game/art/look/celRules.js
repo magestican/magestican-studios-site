@@ -159,8 +159,9 @@ export const GROUND_BASE = {
 };
 export const GROUND_REGION = {
   
-  kazan: { grass: ['#7f9e3c', '#a9c453'], plaza: ['#8aa848', '#b2cb62'], rock: ['#6e5a50', '#8c7466'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
-  slope: { grass: ['#7f9e3c', '#a9c453'], tall: ['#5a7f2e', '#7a9c3a'], rock: ['#76675c', '#988574'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
+  
+  kazan: { grass: ['#8a8a46', '#a9a35c'], plaza: ['#9a8a5a', '#b8a670'], rock: ['#3e383e', '#5a5058'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
+  slope: { grass: ['#8a8a46', '#a9a35c'], tall: ['#6e7034', '#8c8a44'], rock: ['#46404a', '#625862'], cliff: ['#5e4a44', '#7a625a'], path: ['#d9b289', '#fff0d4'] },
   jungle: { grass: ['#3f9a3a', '#6cbf48'], jungle: ['#21703a', '#36924a'], tall: ['#2a7430', '#3f9238'] },
   road: {},
   coast: { sand: ['#f0d48e', '#fde9b4'], shallow: ['#ecd294', '#f8e4b0'], grass: ['#5fb04a', '#8fd25e'] },

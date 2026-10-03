@@ -21,6 +21,8 @@ const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 export const PLAZA = at(0, 41);
 export const CRATER = { ...at(0, 31.5), r: 3.2 }; 
 export const CRATER_FENCE = CRATER.r + 0.9;
+export const CRATER_RIM_H = 1.5;
+export const ASH_R = CRATER.r + 3.4; 
 export const GATE = at(-0.6, 50.0); 
 export const ENTRY = GATE;
 export const SPRING = at(3.4, 38.4); 
@@ -43,7 +45,8 @@ const HUTS = [
 ];
 const ROOFS = ['#d8a24a', '#c98a3e', '#e0b460', '#c49040', '#d89a52', '#c8783a', '#e0a848', '#b88a40', '#d0964a', '#c48444', '#dcae58'];
 
-const BEDS = [[-2.6, 36.9], [2.0, 36.6], [-3.4, 42.6], [5.4, 41.6], [-1.2, 35.9]];
+
+const BEDS = [[-3.4, 42.6], [5.4, 41.6]];
 export const HUT_SPOTS = HUTS.map(([u, v, sc], i) => ({ ...at(u, v), s: sc, face: i < 4 ? at(u * 0.15, v - 2.2) : PLAZA }));
 
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);
@@ -53,15 +56,20 @@ function heightAtPoint(x, y) {
   const [u, v] = toUV(x, y), depth = Math.max(...SECTIONS.map((s) => edgeDepth(s.rect, u, v).depth));
   const c = craterD(x, y);
   
-  const lip = c < CRATER.r ? -0.5 : Math.max(0, 1 - Math.abs(c - CRATER.r - 0.4) / 0.9) * 0.35;
+  
+  
+  const lip = c < CRATER.r ? -0.5 : CRATER_RIM_H * Math.exp(-(((c - CRATER.r - 0.6) / (c < CRATER.r + 0.6 ? 0.45 : 1.25)) ** 2));
   return BASE_H + U.fbm(x * 0.08, y * 0.08, 53) * 0.35 + lip + Math.max(0, 2 - depth) * 0.7;
 }
 function tileFor(x, y) {
   const [u, v] = toUV(x, y);
   if (!inside(u, v)) return T.CLIFF;
-  if (craterD(x, y) < CRATER.r) return T.LAVA;
+  if (craterD(x, y) < CRATER.r - 0.7) return T.LAVA; 
   if (Math.hypot(x - PLAZA.x, y - PLAZA.y) < 3.4 + U.fbm(x * 0.4, y * 0.4, 7) * 1.4) return T.PLAZA; 
-  return U.fbm(x * 0.12, y * 0.12, 19) > 0.64 ? T.ROCK : T.GRASS;
+  
+  
+  if (craterD(x, y) < ASH_R + U.fbm(x * 0.3, y * 0.3, 21) * 1.6) return T.ROCK;
+  return U.fbm(x * 0.12, y * 0.12, 19) > 0.5 ? T.ROCK : T.GRASS;
 }
 
 export function generateKazanVillage() { const it = kazanVillageSteps(); let s; while (!(s = it.next()).done); return s.value; }
@@ -94,7 +102,7 @@ export function* kazanVillageSteps() {
   W.baseType = W.type; W.baseReach = W.reach; W.baseWindows = W.windows; W.baseWindowsOf = W.windowsOf;
   W.paths = spokes.map((s) => ({ pts: s.pts.map((p) => [...p]), half: s.half }));
   
-  W.crater = { x: CRATER.x, y: CRATER.y, r: CRATER.r, h: BASE_H - 0.12, section: 'village' };
+  W.crater = { x: CRATER.x, y: CRATER.y, r: CRATER.r - 0.6, h: BASE_H - 0.12, section: 'village' }; 
   
   W.npcOk = (x, y, rad) => W.walkable(x, y, rad) && craterD(x, y) > CRATER_FENCE + 0.5 && Math.hypot(x - GATE.x, y - GATE.y) > 1.8;
   const r = U.rng(5151);
@@ -116,6 +124,14 @@ export function* kazanVillageSteps() {
     const a = k / fn * 2 * Math.PI;
     addObj(W, { kind: 'fence', x: CRATER.x + Math.cos(a) * CRATER_FENCE, y: CRATER.y + Math.sin(a) * CRATER_FENCE, solid: 0.2, ring: 'crater', k, n: fn });
   }
+  
+  
+  { const rc = U.rng(3131), n = 22;
+    for (let k = 0; k < n; k++) {
+      const a = k / n * 2 * Math.PI + rc() * 0.12, rr = CRATER_FENCE + 0.7 + rc() * 0.6;
+      if (rc() < 0.25) continue; 
+      addObj(W, { kind: 'crag', x: CRATER.x + Math.cos(a) * rr, y: CRATER.y + Math.sin(a) * rr, solid: 0, s: 0.5 + rc() * 0.4, rot: rc() * 6.28, v: k % 4 });
+    } }
   yield 'buildings';
   const clear = (x, y, d) => Math.hypot(x - PLAZA.x, y - PLAZA.y) > 5.2 && Math.hypot(x - GATE.x, y - GATE.y) > 2.5 && craterD(x, y) > CRATER_FENCE + 0.8
     && Math.hypot(x - SPRING.x, y - SPRING.y) > 2.2 && huts.every((h) => Math.hypot(x - h.x, y - h.y) > 2.4 && Math.hypot(x - h.door[0], y - h.door[1]) > 1.6) && spokes.every((s) => s.pts.every((p, k) => k === 0 || segDist(s.pts[k - 1], p, x, y) > s.half + d));
