@@ -274,7 +274,8 @@ export class DachiActor {
   }
   setLook(spId, opts = {}) {
     this.targetSide = opts.flip ? -1 : 1;
-    const boss = speciesById(spId).boss, variant = boss ? 'b' : opts.corrupt ? 'c' : 'n', key = modelKeyOf(spId, opts) + variant; 
+    
+    const boss = speciesById(spId).boss, variant = boss && !opts.calm ? 'b' : opts.corrupt ? 'c' : 'n', key = modelKeyOf(spId, opts) + variant;
     if (key === this.key) return;
     const sp = speciesById(spId);
     this.key = key; this.variant = variant; this.stage = sp.stage; this.bossScale = boss ? bossById(boss).scale : 0;

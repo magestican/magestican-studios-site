@@ -51,12 +51,12 @@ export const DWELLERS = [
 export const ELDER = { name: 'Old Banyan', at: POSTS.elder };
 export const ELDER_LINES = {
   before: [
-    'A child from the other world, standing on my boards. Sit. Watch the river with me for a moment.',
-    'Kingshade was the best of kings. When the floods came he carried every one of us up into the canopy himself.',
-    'Now he says he will lead us OUT - out of the jungle, through the spirals, to a better world. Some of us believe him.',
-    'Go up the vines to his throne, if you must. But listen to him first. He still means it kindly. That is the frightening part.',
+    'Another one off the big bird. Smaller than I was told. Mind the third board, it bites.',
+    'Kingshade carried half this village up the vines in the flood. Me included. Twenty years I have owed him for that, and he has never once sent the bill.',
+    'Now he wants to walk us all out through a spiral to a jungle with no river. Half my people would follow him off a cliff. The other half fish. Fishers need a river.',
+    'I am too old to climb to that throne. That is my excuse and I am keeping it. You go. Let him talk before you hit him - nobody has let him talk in a year.',
   ],
-  after: ['The canopy is singing again. Whatever you said to him, child, he heard it.'],
+  after: ['He came down. Sat in my kitchen and ate four fish without a word. I am charging him for the fish.'],
 };
 
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);

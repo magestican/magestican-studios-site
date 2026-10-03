@@ -10,6 +10,7 @@ import { HOME } from '../world/regions.js';
 import * as shrineVillage from '../world/regionMaps/shrineVillage.js';
 import { LANE } from '../world/regionMaps/shellhaven.js';
 import * as motherHollow from '../world/regionMaps/motherHollow.js';
+import * as court from '../world/regionMaps/obsidianCourt.js';
 import { bubbleLook } from '../world/worldView.js';
 import { spawnWild, removeWild } from '../world/wilds.js';
 import { startBattle } from '../battle/battle.js';
@@ -32,8 +33,8 @@ export function afterIntro() {
   
   if (G.region === HOME) { G.player.x = SPAWN.x; G.player.y = SPAWN.y; spawnNpcs(); }
   say([
-    L(ELDER, 'Go now, child. Follow the road down the mountain — the X on your map is the Shrine Village.'),
-    L(ELDER, 'Be careful. Since the spirals began to open, some of our kind have… changed.'),
+    L(ELDER, 'Down the road, off the mountain. The X on your map is the Shrine Village. Do not leave the road.'),
+    L(ELDER, 'If something comes at you out of the rocks, you run. Some of our own bite now. You will know them by the red.'),
   ]);
   saveGame();
 }
@@ -63,7 +64,7 @@ const REGION_BEATS = {
   'thorn-upper': [
     L(NARR, 'The rope slide hisses, the leaves whip past - and you land in a garden. Or what used to be one.'),
     L(NARR, 'Long beds run along every terrace, planted in neat rows. Thorns have climbed over all of them.'),
-    L(KID, 'Somebody loved this place. You can tell. Nobody plants in straight lines unless they love it.'),
+    L(KID, 'Somebody used a ruler on this. My mom does the shelves at the store like that. You do NOT touch her shelves.'),
   ],
   'thorn-lower': [
     L(NARR, 'Down here the rows give up. The garden has run wild, and the thorns grow as tall as you.'),
@@ -72,7 +73,7 @@ const REGION_BEATS = {
   vinegate: [
     L(NARR, 'Aerowing drops you on a wooden landing over a wide brown river. The air is hot and loud with insects.'),
     L(NARR, 'A whole village stands in the water on stilts, joined by boardwalks. Something with a long tail watches you from a roof.'),
-    L(KID, 'It is like Venice. If Venice was in a jungle. And full of monkeys.'),
+    L(KID, 'It is like the South Street Seaport. If the Seaport was in a jungle. And the guy selling pretzels had a tail.'),
   ],
   
   'canopy-walk': [
@@ -88,7 +89,7 @@ const REGION_BEATS = {
   'ruin-steps': [
     L(NARR, 'The jungle gives way to stone: the face of an old temple, climbing the hill in broken steps too steep to walk.'),
     L(NARR, 'Long ramps run back and forth across it, each a little higher than the last. At the very top, a gate of black glass.'),
-    L(KID, 'Switchbacks. Like the ramp at the Y on 63rd street. Except that one did not have a monkey king at the top.'),
+    L(KID, 'Like the ramp at the Y on 63rd. Except at the Y, the guy at the top just wants to see your card.'),
   ],
   'court-stones': [
     L(NARR, 'Inside the gate the floor is water - perfectly still and perfectly black, like a mirror nobody cleaned.'),
@@ -111,14 +112,14 @@ const REGION_BEATS = {
   ],
   'tree-roots': [
     L(NARR, 'At the very bottom the roots twist round one mossy stone, as if the whole tree were holding it.'),
-    L(KID, 'That is where it started. One seed. Somebody planted one seed, right here.'),
+    L(KID, 'All of this from one seed? We grew a bean in a cup in second grade. Mine died. It was in the window and everything.'),
   ],
   'temple-porch': [
     L(NARR, 'Inside the drowned temple it is quiet. Water drips. Your footsteps echo a long way off.'),
   ],
   'temple-sanctum': [
     L(NARR, 'At the end of the aisle an old altar waits. When the tide moves, the whole room hums, like a choir far away.'),
-    L(KID, 'It is singing. The temple is actually singing.'),
+    L(KID, 'Okay, that is creepy. That is creepy, right? Buildings do not sing. Even in Manhattan.'),
   ],
 };
 
@@ -126,33 +127,73 @@ const REGION_BEATS = {
 const CONCH = () => { const n = G.npcs.find((x) => x.id === 'shell-elder'); return n ? { who: n.name, portrait: n.sp } : NARR; };
 const WELCOME = {
   before: [
-    'Well, well. Let me look at you. Two legs, no gills, and dry as a biscuit.',
-    'I am Grandmother Conch. This was a city once; now it is a bubble, and we fish folk keep it.',
-    'You are welcome here, child. Rest at the clam whenever you need. And when you are ready, come and talk to me about the great one up in the plaza.',
+    'Let me look at you. Two legs, no gills, dry as a biscuit. Have you eaten? You have not eaten. Nobody up there feeds anybody.',
+    'Conch. Grandmother Conch, to everyone - even the ones older than me. This square was a market when there was a city on top of it. Now it is us, the bubble, and a lot of fish who think they run the place.',
+    'The clam by the pool mends your little ones. It sulks; ignore it. And when you have the stomach for it, come and ask me about the big one up in the plaza. Not before you have eaten.',
   ],
   after: [
-    'Well, well. So you are the one who set Leviathrum free. Look at you - so small!',
-    'I am Grandmother Conch. The whole bubble felt it when his red tide lifted. Welcome to Shellhaven, child. Stay as long as you like.',
+    'So YOU are the one who went up and shouted at Leviathrum. Look at the knees on you. Have you eaten?',
+    'Grandmother Conch. When his tide let go, my pots fell off the shelf, every one. Stay. Eat something. I am not asking.',
   ],
 };
 
 const FIRST_SEED = () => [
-  L(NARR, 'You put your hand on the mossy stone. The roots around it are warm - and the hollow goes bright, like a memory opening.'),
+  L(NARR, 'You put your hand on the mossy stone. The roots around it are warm. The hollow goes bright, and you are somewhere else.'),
   L(NARR, 'A bare hill, long ago. No tree. A young dachi with small, bare antlers kneels and presses one seed into the dirt.'),
-  { who: 'Young Bramble', portrait: undefined, text: 'There. Grow slowly. I will sing to you every day, and you will never be alone.' },
-  L(NARR, 'Seasons blur past. The seed becomes a sprout, a sapling, a tree that climbs into the clouds. Bramble grows old beside it, antlers full of flowers.'),
-  L(NARR, 'Then the light turns red. The memory shakes, and goes dark.'),
-  L(KID, 'She planted this whole tree. She just wanted things to grow.'),
-  L(KID, 'Whatever got into her... it is using that. It is using how much she loves this.'),
+  { who: 'Young Bramble', portrait: undefined, text: 'There. Do not hurry. I am not going anywhere, so neither are you.' },
+  L(NARR, 'Years go by in a breath. The seed is a sprout, then a sapling, then a tree with its head in the clouds. Bramble gets old beside it. Her antlers fill with flowers.'),
+  L(NARR, 'Something red moves at the edge of the picture. The hill is gone.'),
+  L(KID, '(She talked to it. My grandma talks to her tomatoes on the fire escape. Same voice.)'),
+  L(KID, '(And then something came and talked to HER. I bet it said all the right stuff, too.)'),
 ];
 
 const BUBBLE_CLEARS = () => [
   L(NARR, 'Something is different. The bubble\'s skin, murky green the last time you were here, is clearing like a window someone breathed on.'),
   L(NARR, 'Sunlight comes down through the water in long gold ribbons. Fish folk stand still all over the square, faces up.'),
-  L(CONCH, 'Look at that. The sun. I had forgotten its colour, child.'),
-  L(KID, 'That was Leviathrum. He was holding the red tide over all of you.'),
-  L(CONCH, 'Then he is holding it no longer. Thank you - from all of us, and from him.'),
+  L(CONCH, 'Would you look at that. I told them it was yellow. Nobody under forty believed me.'),
+  L(KID, 'That was Leviathrum. The red stuff was him. Well - it was IN him.'),
+  L(CONCH, 'Hm. We stopped swimming up to visit him, you know. Years ago. He was such a gloomy old thing. ...I may go up tomorrow. With soup.'),
 ];
+
+
+const KING = () => { const n = G.npcs.find((x) => x.id === 'court-king'); return n ? { who: 'Kingshade', portrait: n.sp } : NARR; };
+const GUARD = (i) => () => { const n = G.npcs.find((x) => x.id === 'court-g' + i); return n ? { who: 'Kong guard', portrait: n.sp } : NARR; };
+const KING_STEPS = () => [
+  L(NARR, 'The red seams in Kingshade\'s armour go dark one by one, from the fists up.'),
+  L(NARR, 'He walks back to his throne. He does not sit in it. He sits on the bottom step, and the stone creaks under him.'),
+  L(KING, 'Do not stand there looking at me. I was beaten by a child; I was there. Sit down or go.'),
+  L(KING, 'The flood took the low terraces in one night. I carried them up two at a time until my arms quit. I lost four. Afterwards something in the black pool agreed with everything I thought. I should have known by that.'),
+  L(NARR, 'Footsteps on the stairs. His three guards come up out of the hall and stop well out of reach.'),
+  L(KING, 'Get up. UP. I am sick of the tops of your heads.'),
+  L(KING, 'I never asked you. I knew what you would say, so I never asked. ...Well? Say it.'),
+  L(GUARD(0), 'Home, Majesty. The river. My grandmother\'s terrace has gone to weeds, and she will not let anyone else pull them.'),
+  L(GUARD(2), 'And you. Down there, not up here. Old Banyan says she kept your hammock. She says it smells.'),
+  L(NARR, 'Kingshade looks at the three of them for a long time. Then he puts one huge hand over his eyes, and keeps it there.'),
+  L(KID, '(My dad did that once. At Grandpa\'s funeral. He said it was allergies.)'),
+];
+const COURT = 'obsidian-court';
+function updateCourt(sec, dt) {
+  const seen = G.flags.beats || (G.flags.beats = {});
+  if (scene && scene.kind === 'court') { 
+    let done = true;
+    scene.guards.forEach((n, i) => { if (!moveTo(n, court.GUARD_UP[i].x, court.GUARD_UP[i].y, dt * 0.8)) done = false; });
+    scene.t += dt;
+    if (scene.step === 'up' && (done || scene.t > 6)) {
+      scene.step = 'talk';
+      for (const n of scene.guards) { n.moving = false; n.face = 1; }
+      say(KING_STEPS(), () => { seen['kingshade-gone'] = 1; scene = null; saveGame(); });
+    }
+    return true;
+  }
+  if (!G.flags.boss_kingshade || seen['kingshade-steps'] || sec !== 'court-throne' || S.dialog.active) return false;
+  seen['kingshade-steps'] = 1; seen['court-throne'] = 1; 
+  spawnNpcs(); 
+  const guards = [0, 1, 2].map((i) => G.npcs.find((x) => x.id === 'court-g' + i)).filter(Boolean);
+  guards.forEach((n, i) => { n.x = court.DOORWAY_UP.x + (i - 1) * 0.9; n.y = court.DOORWAY_UP.y - (i - 1) * 0.9; });
+  scene = { kind: 'court', step: 'up', t: 0, guards };
+  say([L(NARR, 'Kingshade staggers back a step - and catches himself, and looks round to see who saw.')]);
+  return true;
+}
 const SHELL = 'shellhaven';
 let bubbleK = -1, bubbleIn = null; 
 function moveTo(n, x, y, dt) {
@@ -201,6 +242,7 @@ export function updateRegionBeats(sec, dt = 1 / 60) {
   const p = G.player, T = shrineVillage.SHRINE_AT;
   if (G.region === shrineVillage.ID && G.flags.starter && !G.flags.initiated && U.dist(p.x, p.y, T.x, T.y) < shrineVillage.CEREMONY_R && !S.dialog.active && !scene) { ceremony(); return; }
   if (G.region === SHELL && updateShellhaven(sec, dt)) return;
+  if (G.region === COURT && updateCourt(sec, dt)) return;
   
   
   if (G.region === motherHollow.ID && !S.dialog.active) {
@@ -259,11 +301,11 @@ function afterGuardianFight() {
   say([
     L(HIBONE, 'Heh... heh. That took... everything I had left.'),
     L(KID, 'Hibone? Hey — hey, what’s happening to you?!'),
-    L(HIBONE, 'Don’t cry, kid. Guardians don’t end. We just... start over.'),
+    L(HIBONE, 'Hey. No crying, I got a reputation. Guardians don\'t end, kid. We just... start over.'),
     L(NARR, 'Hibone glows with a soft white light that grows and grows... and when it fades, there is only a warm, speckled egg where he stood.'),
     L(NARR, 'You pick up the egg. It is warm, and it feels like it is listening.', { onShow: () => { G.items.egg = 1; } }),
-    L(NARR, 'The whole island goes quiet. A voice as old as the sea speaks from inside the light.'),
-    L(TOMO, 'Child of the other world. Before you walk on, tell me.'),
+    L(NARR, 'The whole island goes quiet. Even the sea. Then the light talks.'),
+    L(TOMO, 'Child of the other world. I have very little light left, so I will ask only once.'),
     Object.assign(L(TOMO, 'What matters most to you?'), {
       choices: [
         { sprite: STARTERS.power, html: '<b>Power</b><br><small>To be strong enough to protect everyone.</small>', fn: () => chooseStarter('power') },
@@ -285,7 +327,7 @@ function chooseStarter(path) {
     L(TOMO, path === 'power' ? 'Power. Then you will need a friend with fire in its heart.' : path === 'wisdom' ? 'Wisdom. Then you will need a friend who sees clearly.' : 'Adventure. Then you will need a friend who is never afraid of the next step.'),
     L(NARR, `The light gathers in your hands and becomes ${why}.`, { portrait: id }),
     L(NARR, `${s.name} joined you! It will fight at your side — press 1, 2, 3 in battle to shout its specials.`, { portrait: id }),
-    L(TOMO, 'Keep the egg close. Now go — the priests are waiting.'),
+    L(TOMO, 'Keep the egg close. The priests are waiting, and I am tired.'),
     L(NARR, 'Wild dachis live in the tall grass. Weaken one below 25% HP, then tap it to befriend it with the ritual.'),
   ]);
   S.dialog.next();
@@ -296,13 +338,13 @@ function chooseStarter(path) {
 export function ceremony() {
   G.flags.initiated = true;
   say([
-    L(PRIEST, 'So... the child of the other world. The Elder’s fire-bird told us you would come.'),
-    L(PRIEST, 'And you carry a guardian’s egg. Then it has already begun.'),
-    L(PRIEST, 'Kneel, {name}. By the light of this Temple and the fire of Mt. Kazan, we begin the initiation.'),
-    L(NARR, 'The Priest Dachis raise their paws. A warm golden light wraps around you and your companions.'),
-    L(PRIEST, 'You are now a Dachi Tamer. Your voice will reach every dachi that fights beside you — and your kindness can wash the red sickness out of a corrupted heart.'),
-    L(PRIEST, 'A sickness is draining Dachi World. The spiral that stole you from your home is part of it. Somewhere above us, something is pulling.'),
-    L(PRIEST, 'Return to Kazan Village. Little Kumabo’s wound has begun to heal. I think she wants to see you.'),
+    L(PRIEST, 'You are late. The Elder\'s bird came at dawn. We have been standing in these robes since dawn.'),
+    L(PRIEST, 'Is that a guardian\'s egg? ...So Hibone got to you first. Of course he did. He never could wait for a rite.'),
+    L(PRIEST, 'Kneel, {name}. No - both knees. This has been done the same way for four hundred years, and it will not be done sloppily today.'),
+    L(NARR, 'The Priest Dachis raise their paws. The acolytes mouth the words a beat behind Tomoe. A warm golden light wraps around you and your companions.'),
+    L(PRIEST, 'It held. ...It held. You are a Dachi Tamer. Your dachis will hear you when you shout in a fight, and a red one you befriend will come clean of it.'),
+    L(PRIEST, 'Dachi World is being drained, {name}. The spiral that took you is part of it. Something up there is pulling, and nobody believes me about how high up.'),
+    L(PRIEST, 'Go back up to Kazan. The little pink one is mending. That was the Elder\'s bargain with you, I gather. Go and collect.'),
     L(NARR, 'INITIATION COMPLETE! You received 5 Heart Seals. Your companions were fully healed.'),
   ], () => { G.items.seal += 5; healParty(); spawnNpcs(); saveGame(); });
 }
@@ -316,7 +358,7 @@ function kumaboThanks() {
     L(NARR, 'The bandage is gone. Kumabo spins in a happy circle, then presses something small and warm into your hand.'),
     L(NARR, 'You received Kumabo’s Lucky Charm and 3 Spirit Candies!'),
     { who: 'Kumabo', portrait: 'kumabo', text: 'Kuma... bo. (She will be right here when you come back.)' },
-    L(ELDER, 'She believes in you, {name}. Now go — there are 123 kinds of dachi on these islands, and every one of them was meant to be a friend.'),
+    L(ELDER, 'There. I said she would mend. ...Do not look at me like that, {name}; she mended. There are 123 kinds of dachi on these islands. Go and make friends with them before something else does.'),
     L(NARR, 'END OF CHAPTER 1 — Kazan Isle is yours to explore. To be continued...'),
   ], () => saveGame());
 }
@@ -326,12 +368,12 @@ function kumaboThanks() {
 function elderAfterAshlo() {
   G.flags.elderAshlo = true;
   say([
-    L(ELDER, 'You faced Cinderwarden Ashlo... and you came back. The mountain breathes easier tonight.'),
-    L(ELDER, 'Ashlo was a guardian once, as your Hibone is. Whatever waits behind the spirals turned him.'),
+    L(ELDER, 'You came back. Good. I had Aerowing watching the coast in case you did not.'),
+    L(ELDER, 'Ashlo kept the fire in this village longer than I have had this arm. A guardian, like your Hibone. Nobody ever thanked him for it. I never did. Something up there noticed that before we did.'),
     L(NARR, 'Hibone\'s egg shifts in your pack.'),
-    L(ELDER, 'So it has begun to wake. Every guardian you set free will warm it a little more.'),
-    L(ELDER, 'Aerowing will carry you now, child. Rest at any hot spring you have visited and call for her.'),
-    L(ELDER, 'The tide pulls below Tomo Coast. Something old is stirring in Coral Deep, under the reef.'),
+    L(ELDER, 'Hm. It moved. Every guardian you bring back will warm it. Do not ask me how I know; I have seen it before, and I do not talk about it.'),
+    L(ELDER, 'Aerowing will carry you from now on. Any hot spring you have rested at, she can find. She will complain. Ignore her.'),
+    L(ELDER, 'There is a city under the reef off Tomo Coast. Its guardian has not come up for air in a hundred years. Go and find out why.'),
   ]);
   saveGame();
 }
@@ -340,22 +382,22 @@ function elderAfterAshlo() {
 function elderAfterLeviathrum() {
   G.flags.elderLeviathrum = true;
   say([
-    L(ELDER, 'The tide came in gentle this morning. Leviathrum is free, then.'),
-    L(KID, 'It said the tide erases every footprint. That only the ones who leave get remembered.'),
-    L(ELDER, 'Hm. A lonely thing to believe at the bottom of the sea. Whoever told it that wanted it to leave.'),
+    L(ELDER, 'The tide came in soft this morning. So. Leviathrum.'),
+    L(KID, 'He kept saying that thing about footprints. Over and over. Like somebody taught it to him.'),
+    L(ELDER, 'Somebody did. It never says anything new, that voice. It says what you already think, only louder, until you think it is yours.'),
     L(NARR, 'Hibone\'s egg is warm against your back now, like a stone left in the sun.'),
-    L(ELDER, 'Two guardians set free. Inland, past the jungle, the Verdant Wilds have gone quiet. Too quiet. The birds left first.'),
+    L(ELDER, 'Inland, the Verdant Wilds have gone quiet. Aerowing will not fly over them. She will not tell me why, either.'),
   ]);
   saveGame();
 }
 function elderAfterBramble() {
   G.flags.elderBramble = true;
   say([
-    L(ELDER, 'Mother Bramble... I knew her when her antlers still flowered. You brought her home.'),
-    L(KID, 'She called our world soil. She said the new world would be their garden.'),
-    L(ELDER, 'Then someone is promising the dachis a paradise, and asking them to pay for it with everything they love.'),
+    L(ELDER, 'Bramble. I courted her once, you know. Badly. She liked her seedlings better, and she was right to.'),
+    L(KID, 'She called New York dirt. Like, actual dirt. For planting stuff in.'),
+    L(ELDER, 'It promised her a bigger garden. One day it will promise you something too, {name}. When it does, you come and tell me before you answer it.'),
     L(NARR, 'Something inside Hibone\'s egg taps back when you touch it. Once. Twice.'),
-    L(ELDER, 'Three guardians, child. The spirals are not an accident. Rest now - what comes next will ask more of you.'),
+    L(ELDER, 'The Kong in the jungle have a king who has stopped coming down from his tree. Old Banyan sent word. Banyan does not send word.'),
   ]);
   saveGame();
 }
@@ -364,10 +406,10 @@ export function talkTo(n) {
     if (G.flags.boss_ashlo && !G.flags.elderAshlo) return elderAfterAshlo();
     if (G.flags.boss_leviathrum && !G.flags.elderLeviathrum) return elderAfterLeviathrum();
     if (G.flags.boss_bramble && !G.flags.elderBramble) return elderAfterBramble();
-    if (!G.flags.starter) return say([L(ELDER, 'Hurry, child! Down the road — follow the red dashes on your map to the X.')]);
-    if (!G.flags.initiated) return say([L(ELDER, 'A guardian’s egg... So Hibone found you. Go on, the priests are waiting.')]);
-    if (!G.flags.kumabo) return say([L(ELDER, 'You have been initiated. I can feel it. Go on — Kumabo is waiting for you.')]);
-    return say([L(ELDER, `You have befriended ${caughtCount()} kinds of dachi. Keep going, Tamer.`)]);
+    if (!G.flags.starter) return say([L(ELDER, 'Why are you still here? The red dashes on your map. The X. Go.')]);
+    if (!G.flags.initiated) return say([L(ELDER, 'Hibone. So he found you first, the show-off. The priests, {name}. Now.')]);
+    if (!G.flags.kumabo) return say([L(ELDER, 'It took. I can smell it on you. She is by the spring. Go and see her - I told you she would mend.')]);
+    return say([L(ELDER, `${caughtCount()} kinds. When I was your age I had three, and one of them bit me.`)]);
   }
   if (n.kind === 'kumabo') {
     
@@ -377,7 +419,7 @@ export function talkTo(n) {
         { who: 'Kumabo', portrait: 'kumabo', text: 'Kuma! Kuma-kuma!' },
         L(NARR, 'Kumabo pats your pack, right where the egg is, and listens with her good ear.'),
         L(NARR, 'Then she looks up at you, very serious, and holds up one paw: come back. Promise.'),
-        L(KID, 'I promise. I\'ll always come back here.'),
+        L(KID, 'Pinky swear. ...You don\'t have pinkies. Paw swear, then.'),
       ]);
     }
     
@@ -404,9 +446,9 @@ export function talkTo(n) {
     return say([{ who: 'Kumabo', portrait: 'kumabo', text: '...Kuma...' }, L(NARR, 'She holds your finger with her little robot paw. You have to do this. For her.')]);
   }
   if (n.kind === 'priest') {
-    if (!G.flags.starter) return say([{ who: 'Priest Dachi', portrait: 'priest', text: 'You should not be here yet, child.' }]);
-    if (!G.flags.initiated) return n.head ? ceremony() : say([{ who: 'Priest Dachi', portrait: 'priest', text: 'The High Priest awaits you at the temple steps.' }]);
-    return say([{ who: 'Priest Dachi', portrait: 'priest', text: 'May your bond with every dachi grow strong, Tamer {name}.' }]);
+    if (!G.flags.starter) return say([{ who: 'Priest Dachi', portrait: 'priest', text: 'You are early. The High Priest hates early almost as much as late.' }]);
+    if (!G.flags.initiated) return n.head ? ceremony() : say([{ who: 'Priest Dachi', portrait: 'priest', text: 'The High Priest is on the temple steps. Practising the speech. Again.' }]);
+    return say([{ who: 'Priest Dachi', portrait: 'priest', text: 'Tamer {name}. It still sounds strange. Nobody has been called that in my lifetime.' }]);
   }
   const q = questTalk(n); 
   if (q) return say(q);

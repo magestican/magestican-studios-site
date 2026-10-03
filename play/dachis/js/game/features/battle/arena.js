@@ -10,6 +10,7 @@
 import { toUV, fromUV, SIN_E, COS_E } from '../world/sections.js';
 
 export const ARENA_MAX = 8.5, ARENA_MIN = 4.2;   
+export const ARENA_NARROW = 2.2;   
 export const FIGHTER_H = 1.5;        
 
 export const bandsFor = aspect => (aspect >= 1 ? { top: 0.13, bottom: 0.18, side: 0.8 } : { top: 0.11, bottom: 0.3, side: 0.4 });
@@ -25,7 +26,11 @@ export function arenaRadii(maxVh, aspect, bands = bandsFor(aspect)) {
   const hs = maxVh * (1 - bands.top - bands.bottom) - FIGHTER_H;
   const ws = maxVh * aspect - 2 * bands.side;
   const clamp = r => Math.max(ARENA_MIN, Math.min(ARENA_MAX, r));
-  return { ru: clamp(ws / 2), rv: clamp(hs / (2 * SIN_E)) };
+  
+  
+  
+  const ru = Math.min(clamp(ws / 2), Math.max(ARENA_NARROW, ws / 2));
+  return { ru, rv: clamp(hs / (2 * SIN_E)) };
 }
 
 

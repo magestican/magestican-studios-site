@@ -76,16 +76,16 @@ export const DWELLERS = [
 export const ELDER = { name: 'Grandfather Burl', at: POSTS.elder };
 export const ELDER_LINES = {
   before: [
-    'A ground walker, up in the crown. Sit, sit. The rain pool is cool and the boughs are strong.',
-    'This tree is the oldest thing in the Wilds. Mother Bramble planted the grove round its feet, a long time ago.',
-    'She was a gardener, child. Not a guardian of walls - a guardian of things that grow. She sang to the seedlings.',
-    'Then a red wind came down the spirals. Now she says the old world is soil, and we are only the weeds.',
-    'Rest here before you go to her. And be gentle. Whatever she says, she was kind for a very long time.',
+    'Hm? Oh. A ground walker. Up here. ...Forgive me, I was halfway through a thought. It was a long one. It may have been about moss.',
+    'Bramble planted this tree. Did they tell you? One seed, on a bare hill. I was there. I told her it would never take. Three hundred summers I have been wrong.',
+    'She sang to every bed a different song. The beans liked marching songs, she said, and the lilies did not. I never could hear the difference. She never stopped trying to teach me.',
+    'Last spring she began to talk about soil. Old worlds for soil, new gardens on top. I nodded. I nod at everything she says. I have done it for three hundred years.',
+    'I should have said something. I did not. ...If you go down to her, tell her Burl says the violets came up. She will know.',
   ],
   after: [
-    'The thorns are going back into the ground. I watched it from the lookout. Like a tide going out.',
-    'Bramble came by the ladder this morning. She did not climb it - she just put her hand on the trunk and listened.',
-    'She is planting again, child. Down in the grove. Slowly. That is how gardeners say sorry.',
+    'The thorns are going back into the ground. I watched from the lookout half the night. My knees are not pleased.',
+    'Bramble came by the ladder this morning. She did not climb it. She put her hand on the trunk and listened, and went away again.',
+    'She is planting again, down in the grove. She has not come up here. I have not gone down. We are both very busy.',
   ],
 };
 

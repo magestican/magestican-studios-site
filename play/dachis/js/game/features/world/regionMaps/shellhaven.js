@@ -58,17 +58,17 @@ export const DWELLERS = [
 export const ELDER = { name: 'Grandmother Conch', at: POSTS.elder };
 export const ELDER_LINES = {
   before: [
-    'A dry child, walking in from the reef. The bubble has not opened for a human in a hundred years.',
-    'This was the market square of a city, once. When the sea came, we fish folk stayed. The people left.',
-    'The great one in the plaza up there, Leviathrum, was the city\'s guardian. He waited for them to come back.',
-    'He waited so long the waiting went sour. Now he says the tide erases every footprint. He wants it to erase us too.',
-    'Rest at the clam before you go up to him. And listen to the Memory Stones - they remember what he forgot.',
+    'You again. Good. Sit. No - not on that, that is the soup.',
+    'This was the market square, once. When the sea came, the people took the boats. We fish folk stayed. Where is a fish going to go?',
+    'Leviathrum, up in the plaza, was their guardian. He promised the children he would keep their houses for them. And he did. A hundred years he kept them.',
+    'Now something has got into his head, and he goes on about the tide wiping out footprints. That is not his kind of talk. He used to tell jokes. Terrible ones.',
+    'Go up if you must. Rest at the clam first, and pick up a Memory Stone on the way. They remember him better than he does now.',
   ],
   after: [
-    'You did it. The water up there is clear again - I can see the sun on the bubble for the first time in years.',
-    'Leviathrum was not cruel, child. He was lonely. A guardian with no one left to guard.',
-    'The Memory Stones sing differently now. Hold one to your ear: the city is laughing in them.',
-    'Go on, then. Footprints in sand wash away. Footprints in a friend do not.',
+    'The water up top is clear. I keep looking up at it. My neck is killing me.',
+    'He was never cruel, you know. Just alone too long. ...We could have swum up more. We did not. There, I have said it.',
+    'The Memory Stones sound different now. Hold one up to your ear. There is laughing in it.',
+    'Off you go, then. Come back for soup. That was not a question.',
   ],
 };
 

@@ -208,6 +208,7 @@ export function drawBattleOverlay(ctx, t) {
   const edge = [], outer = [];
   for (let k = 0; k <= N; k++) { const a = k / N * Math.PI * 2; edge.push(arenaPt(a)); outer.push(arenaPt(a, 0.1)); }
   const c = L.ctx;
+  if (cel) {  } else {
   c.beginPath(); c.rect(-2, -2, L.w + 4, L.h + 4);
   edge.forEach(([x, y], k) => (k ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath();
   c.fillStyle = 'rgba(12,8,36,0.38)'; c.fill('evenodd'); L.used = true;
@@ -218,6 +219,7 @@ export function drawBattleOverlay(ctx, t) {
     for (let s = 0; s < 3; s++) { L.alpha((0.45 - s * 0.14) * (0.6 + pulse * 0.4)); L.rect(px - 1, py - Math.round(hgt * (s + 1) / 3), 2, Math.ceil(hgt / 3), '#ffe8a0'); }
   }
   L.alpha(1);
+  }
 
   for (const e of B.fx) { 
     if (e.kind !== 'trail') continue;

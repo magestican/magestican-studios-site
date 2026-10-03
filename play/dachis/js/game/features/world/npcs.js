@@ -14,20 +14,20 @@ import * as shell from './regionMaps/shellhaven.js';
 import * as hollow from './regionMaps/hollowroot.js';
 import * as vine from './regionMaps/vinegate.js';
 import * as court from './regionMaps/obsidianCourt.js';
-import { SPECIES } from '../../data/species.js';
+import { SPECIES, bossSpecies } from '../../data/species.js';
 
 const VILLAGER_LINES = [
-  ['The red hand came through the spiral again last night. It took three of us.', 'We used to believe the spirals were doors for friends. Now they only bring pain.'],
-  ['My paw still hurts... but the hot spring helps. Stand next to it and rest — it heals your companions too!'],
-  ['Wild dachis aren’t evil. The sickness makes some of them forget they’re friends. The corrupted ones glow red.'],
-  ['Did you know? A dachi can grow all the way to level 66. They say heroes who return can push past even that...'],
-  ['Our Elder was half-machine long before any of us were born. They say he fought the very first spiral.'],
-  ['Weaken a wild dachi below a quarter of its health, then tap it to start the befriending ritual!'],
+  ['The red hand came through again last night. It took my neighbour. I had hold of his arm.', 'I keep his door shut so the ash does not get in. He will want the place clean when he comes back.'],
+  ['Do not fuss over my paw, I have three more. If your little ones are hurt, stand them by the hot spring. It fixes everything except a bad temper.'],
+  ['The wild ones are not wicked, whatever my brother says. The red ones are sick, and sick is not the same as bad. I tell him that every night at supper.'],
+  ['My hatchling says she will be level 66 by the end of the week. Sixty-six is as high as anyone goes, I tell her. Unless you start all over again and go higher, she says. Where does she hear these things?'],
+  ['I oil the Elder\'s arm every new moon. He says he lost the old one to the first spiral. He will not say what he traded for this one.'],
+  ['You have to knock them down to a quarter first. THEN you tap them. Then they like you. That is how I got my sister to like me.'],
 ];
 const SHRINE_LINES = [
-  'Welcome to the Shrine Village. The priests have waited a long time for you.',
-  'Our temple spring heals any tired companion. Just stand beside it.',
-  'They say there are other lands beyond the horizon — ice, jungles, even a city under the sea.',
+  'The priests had us sweep the steps twice for you. Twice! You could eat your dinner off them.',
+  'Our spring is better than the one up at Kazan, whatever they tell you up there. Stand your dachis by it and they perk right up.',
+  'My uncle says there is a whole city under the sea. My uncle also says he once ate a rock. A big one. So.',
 ];
 
 export function spawnNpcs() {
@@ -88,6 +88,8 @@ export function spawnNpcs() {
   if (G.region === court.ID) {
     const kinds = SPECIES.filter((s) => s.stage === 2 && s.types[0] === 'Beast'), rc = U.rng(81);
     court.GUARDS.forEach((d, i) => add({ kind: 'villager', id: d.id, sp: kinds[Math.floor(rc() * kinds.length)].id, ...d.home, still: true, lines: G.flags.boss_kingshade ? court.GUARD_AFTER[i] : d.lines }));
+    
+    if (G.flags.boss_kingshade && !(G.flags.beats || {})['kingshade-gone']) add({ kind: 'villager', id: 'court-king', name: 'Kingshade', sp: bossSpecies('kingshade').id, calm: true, ...court.KING_SEAT, still: true, lines: court.KING_LINES });
   }
   
   
@@ -146,7 +148,7 @@ export function separateCrowd(dt, bosses = []) {
   const W = S.W, p = G.player, bodies = [{ ref: p, kind: 'kid', m: 8, x: p.x, y: p.y, r: BODY_R.kid }];
   for (const b of bosses) if (Math.abs(b.x - p.x) + Math.abs(b.y - p.y) < 12) bodies.push(lairBody(b.x, b.y, (b.bb.extent() || bossBody(b.bb.bossScale)).half));
   if (G.party[0]) bodies.push({ ref: G.follower, kind: 'pet', x: G.follower.x, y: G.follower.y, r: BODY_R.dachi });
-  for (const n of G.npcs) if (Math.abs(n.x - p.x) + Math.abs(n.y - p.y) < 12) bodies.push({ ref: n, kind: 'npc', fixed: !!n.still, x: n.x, y: n.y, r: n.kind === 'elder' ? BODY_R.elder : BODY_R.dachi });
+  for (const n of G.npcs) if (Math.abs(n.x - p.x) + Math.abs(n.y - p.y) < 12) bodies.push(n.calm ? lairBody(n.x, n.y, (n.bb.extent() || bossBody(n.bb.bossScale)).half) : { ref: n, kind: 'npc', fixed: !!n.still, x: n.x, y: n.y, r: n.kind === 'elder' ? BODY_R.elder : BODY_R.dachi }); 
   for (const w of G.wilds) if (!w.scripted) bodies.push({ ref: w, kind: 'wild', x: w.x, y: w.y, r: BODY_R.dachi });
   const wildKid = (a, b) => (a.kind === 'kid' && b.kind === 'wild') || (a.kind === 'wild' && b.kind === 'kid');
   pushApart(bodies, { k: 1, ok: (x, y) => W.walkable(x, y, BODY_R.dachi), skip: wildKid });
@@ -156,7 +158,7 @@ export function separateCrowd(dt, bosses = []) {
 export function drawNpcs(t) {
   const W = S.W;
   for (const n of G.npcs) {
-    if (n.kind !== 'elder') setDachiLook(n.bb, n.sp, { bandage: n.bandage, hat: n.hat, flip: n.face < 0 });
+    if (n.kind !== 'elder') setDachiLook(n.bb, n.sp, { bandage: n.bandage, hat: n.hat, flip: n.face < 0, calm: n.calm });
     else { const p = G.player; if (U.dist(p.x, p.y, n.x, n.y) < 3.2) n.bb.faceDir(p.x - n.x, p.y - n.y); else n.bb.faceCamera(); } 
     const bob = n.moving ? Math.abs(Math.sin(n.walk)) * 0.1 : Math.sin(t * 2.5 + n.x) * 0.02;
     n.bb.place(n.x, n.y, W.groundAt(n.x, n.y), bob);

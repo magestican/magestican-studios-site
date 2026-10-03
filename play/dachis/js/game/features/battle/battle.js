@@ -28,6 +28,7 @@ import { pushApart, BATTLE_AIR, fighterR, reachPlus } from '../world/crowd.js';
 import { sectionById, toUV, fromUV } from '../world/sections.js';
 import { makePattern } from '../capture/ritual.js';
 import { dachiBillboard } from '../../art/billboards.js';
+import { battleOpener } from './battleOpener.js';
 import { music } from '../../music.js';
 
 export let B = null;
@@ -93,7 +94,7 @@ export function startBattle(wild, opts = {}) {
   if (B.boss) callout(B.enemy, speciesById(wild.d.sp).name, '#ff2a3a', true); 
   else G.dex.seen[wild.d.sp] = 1; 
   G.mode = 'battle';
-  S.sfx.play('start');
+  battleOpener({ boss: !!B.boss, name: speciesById(wild.d.sp).name }); 
   music.battle(true);
   return true;
 }
@@ -106,7 +107,11 @@ export function startBossBattle(bossId, { x, y, lvl = null, onEnd } = {}) {
   return startBattle({ x, y, d, boss: bossId }, onEnd ? { onEnd } : {});
 }
 
-function clampArena(f) { [f.x, f.y] = clampToArena(f.x, f.y, B); }
+
+
+
+const clampPad = (f) => Math.max(fighterR(spOf(f).stage, !!spOf(f).boss), ((f.bb && f.bb.extent()) || { half: 0 }).half * 0.8) + 0.12;
+function clampArena(f) { [f.x, f.y] = clampToArena(f.x, f.y, B, clampPad(f)); }
 
 function moveBy(f, mx, my) {
   const W = S.W, ox = f.x, oy = f.y;
@@ -491,6 +496,7 @@ export function updateBattle(dt) {
   for (const e of B.fx) { e.t += dt; if (e.kind === 'spark') { e.x += e.vx * dt; e.y += e.vy * dt; e.z += e.vz * dt; e.vz -= 6 * dt; } }
   B.fx = B.fx.filter(e => e.t < e.life);
   if (B.state === 'intro') { B.timer -= dt; if (B.timer <= 0) B.state = 'fight'; }
+  if (B.state !== 'intro' || !B.run) { const p = G.player; [p.x, p.y] = clampToArena(p.x, p.y, B, 0.35); } 
   if (B.run && B.run.t < 1) { 
     const R = B.run, p = G.player; R.t = Math.min(1, R.t + dt / (INTRO * 0.8));
     const e = R.t * R.t * (3 - 2 * R.t), nx = R.fx + (R.tx - R.fx) * e, ny = R.fy + (R.ty - R.fy) * e;
@@ -571,7 +577,7 @@ function separateFighters() {
   if (Math.hypot(bodies[0].x - bodies[1].x, bodies[0].y - bodies[1].y) < bodies[0].pad + bodies[1].pad && !skip(bodies[0], bodies[1])) {
     pushApart(bodies, { gap: BATTLE_AIR, turn: true, skip, ok: (x, y) => inArena(x, y, B, 0.4) });
   }
-  for (const o of bodies) if (o.f) { o.f.x = o.x; o.f.y = o.y; }
+  for (const o of bodies) if (o.f) { o.f.x = o.x; o.f.y = o.y; if (!o.f.leap) clampArena(o.f); }
 }
 
 function swapTo(i, forced) {

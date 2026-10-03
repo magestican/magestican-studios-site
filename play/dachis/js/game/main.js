@@ -15,6 +15,7 @@ import { paintPortrait, paintChoiceIcon } from './art/portraits.js';
 import { setPortraitStage, prewarmDex, aerowingRidePortrait } from './art/portraitRender.js';
 import { celLook, setLineRole } from './art/look/celLook.js';
 import { initBattleFx, updateBattleFx } from './features/battle/battleFx3d.js';
+import { initBattleArena, updateBattleArena } from './features/battle/battleArena3d.js';
 import { lookName } from './art/look/celRules.js';
 import { material as castMaterial, prewarm as prewarmModels } from './art/dachiActor.js';
 import { hatGeoOf } from './data/collectibles.js';
@@ -244,14 +245,19 @@ const rebuildWorld = () => loadRegion(G.region || HOME, { x: G.player.x, y: G.pl
 if (lookName(location.search) === 'cel') {
   S.stage.setLook(celLook({ phone: matchMedia('(pointer: coarse)').matches }));
   initBattleFx(S.stage); 
+  initBattleArena(S.stage); 
   const cast = [];
   for (const v of ['n', 'c', 'b']) for (const id of ['fur', 'metal', 'lamp-glow']) { const m = castMaterial(v, id, '#ffffff'); cast.push(m, seeActorMaterial(m)); }
   celLook().prewarm(S.stage, cast);
 }
 
 S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.showSection(id); if (G.mode === 'world') { questEvent({ kind: 'visit', sec: id }, true); saveGame(); } };
-S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: SOUNDS });
+
+S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: { ...SOUNDS, opener: SOUNDS.start, bossOpener: SOUNDS.start } });
+for (const n of ['opener', 'bossOpener']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
 ambience.init(() => S.sfx.muted);
+
+for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => { S.sfx.warm('opener'); S.sfx.warm('bossOpener'); }, { once: true });
 S.input = createInput({
   bindings: {
     up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
@@ -469,6 +475,7 @@ function frame(now) {
     drawWilds(t, B ? (w => w === B.wild || inArena(w.x, w.y, B, -0.8)) : null);
     if (B) placeFighters(t);
     updateBattleFx(B); setLineRole(B ? 'battle' : 'world'); 
+    updateBattleArena(S.stage.look && S.stage.look.name === 'cel' ? B : null, dt); 
     updateSeeThrough(dt, B, G.region === HOME ? lairBodies() : []); 
     S.stage.render();
     

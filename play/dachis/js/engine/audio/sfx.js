@@ -37,8 +37,28 @@ export function createSfx({ key, recipes }) {
     g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
     src.connect(f).connect(g).connect(master); src.start(t0);
   };
+  
+  
+  
+  const files = {}, bufs = {};
+  const decode = (name) => {
+    if (bufs[name] || !ctx || !files[name]) return bufs[name];
+    bufs[name] = files[name].then((ab) => ctx.decodeAudioData(ab.slice(0))).catch(() => { delete files[name]; return null; });
+    return bufs[name];
+  };
   const S = {
-    play(name) { ensure(); const r = recipes[name]; if (r) r({ tone, noise }); },
+    load(name, url) { files[name] = fetch(url).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(url)))); files[name].catch(() => { delete files[name]; }); },
+    play(name) {
+      ensure();
+      const b = files[name] && decode(name);
+      if (b && ctx && !muted) {
+        const t = ctx.currentTime;
+        b.then((buf) => { if (!buf || muted) { if (!buf && recipes[name]) recipes[name]({ tone, noise }); return; } const s = ctx.createBufferSource(); s.buffer = buf; s.connect(master); s.start(Math.max(t, ctx.currentTime)); });
+        return;
+      }
+      const r = recipes[name]; if (r) r({ tone, noise });
+    },
+    warm(name) { ensure(); decode(name); }, 
     get muted() { return muted; },
     setMuted(m) { muted = m; writeMuted(key, m); if (master) master.gain.value = m ? 0 : 0.9; },
     context: () => ctx,

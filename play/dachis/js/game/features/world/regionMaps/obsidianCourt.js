@@ -41,14 +41,24 @@ export const POOL = at(-5.6, 37.0);
 export const POOL_LANDING = at(-4.6, 38.6);
 
 export const GUARD_AFTER = [
-  ['He sat down on his own steps and cried. Then he asked us what WE wanted. Nobody ever asked us that.', 'We are going down to the river. Old Banyan says there is fish. There is always fish.'],
-  ['My tail stopped shaking. Look. Still. Weird.', 'If you see the king by the terraces, say hi. He is learning to plant figs. He is bad at it.'],
-  ['The armour comes off tonight. All of it. I have been itchy for a year.', 'Thank you for listening to him, Bridge child. That is all he needed. Somebody to listen first.'],
+  ['He asked us what we wanted. Then he made me say it twice, because he did not like it the first time. That is him. That is the king.', 'We are going down to the river. My grandmother has a list of weeds for me. It is a long list. She has been writing it for a year.'],
+  ['I told him I like this jungle. Out loud. To the KING. I am going to be thinking about that for a week.', 'If you see the king by the terraces, say hi. He is learning to plant figs. He is bad at it.'],
+  ['The armour comes off tonight. All of it. I have been itchy for a year.', 'My tail stopped shaking. Look. ...Okay, it is shaking again, but only because you are looking at it.'],
+];
+
+
+export const KING_SEAT = at(0, 88.4);
+export const DOORWAY_UP = at(0, 79.2); 
+
+export const GUARD_UP = [at(-1.9, 85.0), at(1.2, 86.6), at(1.9, 85.0)];
+export const KING_LINES = [
+  'A year on that chair, and I could not have told you the colour of my guards\' eyes. Brown, it turns out. All three.',
+  'You may go. ...That was not permission. You do not need my permission. It is a habit. I am to be on the terraces tomorrow; Banyan says I will learn figs.',
 ];
 export const GUARDS = [ 
-  { id: 'court-g0', home: { ...at(-6.0, 66.6), r: 1.2 }, lines: ['We were told to stop anyone. You are anyone. ...Please do not tell him we let you by.', 'The king was kind once. He carried my grandmother up the vines in the flood.'] },
+  { id: 'court-g0', home: { ...at(-6.0, 66.6), r: 1.2 }, lines: ['We were told to stop anyone. You are anyone. ...Please do not tell him we let you by.', 'He carried my grandmother up the vines in the flood. She will not hear a word against him. Neither will I. ...Mostly.'] },
   { id: 'court-g1', home: { ...at(6.0, 70.0), r: 1.2 }, lines: ['He says the spirals lead to a better jungle. I like this jungle. Is that wrong?', 'If you are going in, mind his fists. He hits like a falling tree.'] },
-  { id: 'court-g2', home: { ...at(-6.0, 74.0), r: 1.2 }, lines: ['My tail is shaking. It does that. It does not mean anything. (It means everything.)', 'Old Banyan sent word you might come. She said you listen. He has not been listened to in a long time.'] },
+  { id: 'court-g2', home: { ...at(-6.0, 74.0), r: 1.2 }, lines: ['My tail is shaking. It does that. It does not mean anything. (It means everything.)', 'Old Banyan sent word you might come. She said you were small and loud. She was right about both.'] },
 ];
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);
 const inDoorway = (u, v) => DOORWAYS.some((d) => Math.abs(u - d.u) < 1.6 && Math.abs(v - d.v) < 2.6);

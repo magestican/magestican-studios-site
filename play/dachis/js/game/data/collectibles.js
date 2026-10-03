@@ -55,7 +55,7 @@ export const COLLECTIBLES = [
   { id: 'c14', region: HOME, kind: 'stone', name: 'The Lantern Keeper', from: spot('shrine-village', 3.0, 49.2, SHRINE_V),
     text: 'A memory: Ashlo, before the red fractures, guarding the Shrine Village lanterns through a storm.' },
   { id: 'c15', region: HOME, kind: 'stone', name: 'The Smouldering Night', from: spot('jungle', 4.9, 60.8),
-    text: 'A memory: the night the red hand touched Ashlo. The fire in its ribs turned from orange to red, and it stopped coming down to the village.' },
+    text: 'A memory: Ashlo alone by a cold hearth after the long rain, and a red hand in the smoke, saying: they never thanked you, did they? The fire in his ribs turned red, and he stopped coming down to the village.' },
   
   { id: 'c16', region: TUBE, kind: 'relic', name: 'Obsidian Lantern', from: spot('ember-a', -12.7, 38.9),
     text: 'Black glass around a flame that never went out. The first keepers carried fire up to the shrine in it.' },
@@ -84,7 +84,7 @@ export const COLLECTIBLES = [
   { id: 'c28', region: TUBE, kind: 'stone', name: 'The Warm Den', from: spot('ember-a', -8.5, 50.2),
     text: 'A memory: Ashlo as a pup, born here in the tube, sleeping in a ring of warm stones with its brothers and sisters.' },
   { id: 'c29', region: TUBE, kind: 'stone', name: 'The Hidden Clapper', from: spot('ember-b', -11.3, 65.8),
-    text: 'A memory: Ashlo, eyes already red at the edges, carrying the bell\'s clapper down into the dark so no warning would ever ring.' },
+    text: 'A memory: Ashlo, eyes already red at the edges, carrying the bell\'s clapper down into the dark so no warning would ever ring. Halfway, he stops and almost turns back.' },
   { id: 'c30', region: TUBE, kind: 'stone', name: 'Ember and Ash', from: spot('ember-a', -3.5, 52.3),
     text: 'A memory: Ashlo licking the burned paw of a village child, long ago, whispering that fire is for keeping people warm.' },
   
@@ -158,7 +158,7 @@ export const COLLECTIBLES = [
   { id: 'c61', region: VINE, kind: 'relic', name: 'Old Fishing Float', from: spot('ruin-steps', -8.0, 51.2, RUIN), 
     text: 'A painted gourd float that drifted all the way down from the temple steps. Whoever fished here last fished a very long time ago.' },
   { id: 'c62', region: VINE, kind: 'relic', name: 'Bridge Knot', from: spot('canopy-walk', 9.4, 45.4, CANOPY),
-    text: 'A rope knot as big as your fist, tied so well it outlived the bridge. The Kong say a good knot is a promise you can stand on.' },
+    text: 'A rope knot as big as your fist, tied so well it outlived the bridge. Kong children are not allowed on a bridge until they can tie this one with their eyes shut.' },
   { id: 'c63', region: VINE, kind: 'relic', name: 'Lucky Fig', from: { quest: 'fig-luck' },
     text: 'A dried fig from the terraces, thrown in the river and fished out again for luck. It is, technically, very lucky. Also very sticky.' },
   { id: 'c64', region: VINE, kind: 'relic', name: 'Paddy Bell', from: spot('fig-terraces', 14.6, 40.0, FIG),

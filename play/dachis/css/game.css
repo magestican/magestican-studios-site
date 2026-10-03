@@ -523,3 +523,41 @@ body.input-touch #ringHint b { font: 400 13px var(--marker); color: #d61f7a; tex
 #orderRing .ringSlot.cue, #orderRing .ringSlot.glow { background: var(--yellow); }
 #orderRing .ringSlot.off { opacity: .45; }
 #orderRing .ringSlot.pick { transform: scale(1.22); background: var(--teal); color: var(--ink); text-shadow: none; z-index: 1; box-shadow: 0 0 0 3px #fff, 4px 4px 0 3px rgba(0,0,0,.45); }
+
+
+
+
+#battleOpener { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: hidden; --rip: .1s; }
+#battleOpener.boss { --rip: .15s; }
+#battleOpener.hidden { display: none; }
+#battleOpener .opTear { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+#battleOpener .opHalf { transform-box: view-box; transform-origin: 50% 50%; }
+#battleOpener .opTop { animation: opTopOff .5s cubic-bezier(.55,0,.3,1) var(--rip) forwards; }
+#battleOpener .opBot { animation: opBotOff .5s cubic-bezier(.55,0,.3,1) var(--rip) forwards; }
+#battleOpener .opFibre { fill: none; stroke: var(--cream); stroke-width: 5px; stroke-linejoin: bevel; opacity: .95; }
+#battleOpener .opRun { fill: none; stroke: #fff; stroke-width: 4px; stroke-linejoin: bevel; stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: opRun var(--rip) linear forwards, opGone .12s linear var(--rip) forwards; }
+#battleOpener .opBand { position: absolute; left: -12%; right: -12%; top: 33%; padding: 1.2vh 0 1.6vh; text-align: center;
+  background: var(--ink); border-top: 6px solid var(--yellow); border-bottom: 6px solid var(--pink);
+  box-shadow: 0 10px 0 rgba(0,0,0,.35); transform: skewY(-7deg) translateX(-130%); animation: opSlam 1.2s cubic-bezier(.2,.9,.25,1) var(--rip) forwards; }
+#battleOpener .opSub { display: block; font: 400 clamp(16px, 4.6vw, 30px)/1 var(--marker); color: var(--pink); letter-spacing: .04em; min-height: .6em; margin-bottom: .45em; }
+#battleOpener .opWord { display: block; font: 400 clamp(54px, 17vw, 150px)/.95 var(--tag); color: var(--yellow);
+  -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 5px 5px 0 var(--pink), 9px 9px 0 var(--ink); transform: rotate(-2deg); }
+#battleOpener.boss .opBand { background: var(--red); border-top-color: var(--ink); border-bottom-color: var(--yellow); }
+#battleOpener.boss .opSub { color: #fff; text-shadow: 2px 2px 0 var(--ink); }
+#battleOpener.boss .opWord { font-size: clamp(44px, 13vw, 128px); color: #fff; text-shadow: 5px 5px 0 var(--ink), 9px 9px 0 var(--yellow); }
+@keyframes opRun { to { stroke-dashoffset: 0; } }
+@keyframes opGone { to { opacity: 0; } }
+@keyframes opTopOff { 0% { transform: translateY(0) rotate(0); } 18% { transform: translateY(-3%) rotate(-1.5deg); } 100% { transform: translateY(-78%) rotate(-6deg); } }
+@keyframes opBotOff { 0% { transform: translateY(0) rotate(0); } 18% { transform: translateY(3%) rotate(1.5deg); } 100% { transform: translateY(78%) rotate(5deg); } }
+@keyframes opSlam {
+  0% { transform: skewY(-7deg) translateX(-130%) scaleY(.3); }
+  10% { transform: skewY(-7deg) translateX(3%) scaleY(1.18); }
+  16% { transform: skewY(-7deg) translateX(0) scaleY(.94); }
+  22% { transform: skewY(-7deg) translateX(0) scaleY(1); }
+  27%, 31% { transform: skewY(-7deg) translate(-4px, 3px); }
+  29% { transform: skewY(-7deg) translate(5px, -3px); }
+  74% { transform: skewY(-7deg) translateX(0); opacity: 1; }
+  100% { transform: skewY(-7deg) translateX(135%); opacity: .9; }
+}
+@media (prefers-reduced-motion: reduce) { #battleOpener .opTop, #battleOpener .opBot { animation: opGone .3s linear var(--rip) forwards; } }
