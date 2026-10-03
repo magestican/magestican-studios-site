@@ -15,10 +15,11 @@ import { placeSprings, createSpringWater } from './spring.js';
 import { placeCraterRim, createLava } from './lavaCrater.js';
 import { placeGrowth } from './growth.js';
 import { placeTemple } from './temple.js';
+import { placeDoorProps } from './doorProps.js';
 
 const GROWTH_RUN = 120;
 
-export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple];
+export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple, placeDoorProps];
 
 
 

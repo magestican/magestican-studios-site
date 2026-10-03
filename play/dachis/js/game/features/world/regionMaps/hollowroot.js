@@ -7,7 +7,7 @@
 
 
 import { U } from '../../../../engine/core/util.js';
-import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
+import { uvRot, addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 
 export const ID = 'hollowroot';
@@ -136,6 +136,8 @@ export function* hollowrootSteps() {
   W.windows = sectionWindows(W, SECTIONS);
   W.windowsOf = lookIn(W, W.windows);
   W.onScreen = (x, y, pad = 1, padBelow = pad) => W.windowsOf(x, y, pad, padBelow).length > 0;
+  
+  { const p = at(-13.3, 42.6), q = at(14.1, 50.3); addObj(W, { kind: 'ladder', x: p.x, y: p.y, solid: 0, rot: uvRot(-1, 0) }); addObj(W, { kind: 'ropeslide', x: q.x, y: q.y, solid: 0, rot: uvRot(1, 0.6) }); addObj(W, { kind: 'knothole', x: KNOT.x, y: KNOT.y, solid: 0, s: 1.1 }); }
   W.baseType = W.type; W.baseReach = W.reach; W.baseWindows = W.windows; W.baseWindowsOf = W.windowsOf;
   W.paths = lanes.map((l) => ({ pts: l.pts.map((p) => [...p]), half: l.half }));
   W.npcOk = (x, y, rad) => W.walkable(x, y, rad) && onTree(x, y) > 0.6 && Math.hypot(x - GATE.x, y - GATE.y) > 1.8 && Math.hypot(x - SPRING.x, y - SPRING.y) > 1.4;

@@ -9,7 +9,7 @@
 
 
 import { U } from '../../../../engine/core/util.js';
-import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
+import { uvRot, addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 
 export const ID = 'canopy-walk';
@@ -96,6 +96,7 @@ export function* canopyWalkSteps() {
   W.windows = sectionWindows(W, SECTIONS);
   W.windowsOf = lookIn(W, W.windows);
   W.onScreen = (x, y, pad = 1, padBelow = pad) => W.windowsOf(x, y, pad, padBelow).length > 0;
+  { const p = at(-2.4, 52.3); addObj(W, { kind: 'ladder', x: p.x, y: p.y, solid: 0, rot: uvRot(0, 1) }); } 
   W.baseType = W.type; W.baseReach = W.reach; W.baseWindows = W.windows; W.baseWindowsOf = W.windowsOf;
   W.paths = lanes.map((l) => ({ pts: l.pts.map((p) => [...p]), half: l.half }));
   W.npcOk = (x, y, rad) => W.walkable(x, y, rad) && platformIn(x, y).d > 0.6;

@@ -6,7 +6,7 @@
 
 
 import { U } from '../../../../engine/core/util.js';
-import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
+import { uvRot, addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 
 export const ID = 'gale-ledges';
@@ -92,6 +92,7 @@ export function* galeLedgesSteps() {
   W.wind = windPush; W.gustAt = gustAt; 
   W.npcOk = (x, y, rad) => W.walkable(x, y, rad) && Math.hypot(x - GATE.x, y - GATE.y) > 1.8;
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
+  { const p = at(-6.0, 51.1); addObj(W, { kind: 'ladder', x: p.x, y: p.y, solid: 0, rot: uvRot(0, 1) }); } 
   const crags = CRAGS.map(([u, k]) => at(u, LEDGES[k] - 0.6)); 
   for (const p of crags) addObj(W, { kind: 'crag', x: p.x, y: p.y, solid: 0.55, s: 1.1, rot: p.x, v: Math.floor(p.x) % 4 });
   for (const [u, v] of [[-7.6, 51.0], [-4.4, 51.0], [-1.4, 32.9], [0.8, 32.9]]) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }

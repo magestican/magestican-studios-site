@@ -1,5 +1,5 @@
 {
- "hash": "9b3bf219",
+ "hash": "d9d5ef8f",
  "regions": {
   "kazan-isle": {
    "forms": [
@@ -247,6 +247,9 @@
   "hollowroot": {
    "forms": [
     "bramble",
+    "door-knothole",
+    "door-ladder",
+    "door-ropeslide",
     "fence-post",
     "fence-rail",
     "fern",
@@ -264,8 +267,13 @@
     "stone-grey-3",
     "torch"
    ],
-   "pack": null,
-   "extra": []
+   "pack": "assets/scenery-hollowroot.bin",
+   "extra": [
+    "door-knothole",
+    "door-ladder",
+    "door-ropeslide"
+   ],
+   "bytes": 64084
   },
   "thornfield": {
    "forms": [
@@ -344,6 +352,7 @@
   },
   "canopy-walk": {
    "forms": [
+    "door-ladder",
     "fence-post",
     "fence-rail",
     "fern",
@@ -361,8 +370,11 @@
     "stone-grey-3",
     "torch"
    ],
-   "pack": null,
-   "extra": []
+   "pack": "assets/scenery-canopy-walk.bin",
+   "extra": [
+    "door-ladder"
+   ],
+   "bytes": 22500
   },
   "fig-terraces": {
    "forms": [
@@ -388,6 +400,7 @@
   },
   "gale-ledges": {
    "forms": [
+    "door-ladder",
     "fence-post",
     "fence-rail",
     "fern",
@@ -408,8 +421,11 @@
     "stone-grey-3",
     "torch"
    ],
-   "pack": null,
-   "extra": []
+   "pack": "assets/scenery-gale-ledges.bin",
+   "extra": [
+    "door-ladder"
+   ],
+   "bytes": 22500
   },
   "ruin-steps": {
    "forms": [

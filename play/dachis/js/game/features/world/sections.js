@@ -143,3 +143,6 @@ export function groundUnder(W, u, s, top = 14) {
   }
   return { ...prev, h: 0, sea: true };
 }
+
+
+export const uvRot = (du, dv) => { const [x0, y0] = fromUV(0, 40), [x1, y1] = fromUV(du, 40 + dv); return Math.atan2(x1 - x0, y1 - y0); };

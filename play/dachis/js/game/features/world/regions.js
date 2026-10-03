@@ -98,7 +98,7 @@ export const REGIONS = [
   {
     id: hollow.ID, name: 'Hollowroot', chapters: [3], size: hollow.SIZE, interior: false, reachable: true,
     sections: hollow.SECTIONS.map((s) => s.id), entry: hollow.ENTRY, spring: hollow.LANDING, home: hollow.LANDING,
-    pack: null,
+    pack: 'assets/scenery-hollowroot.bin', 
     transit: false, objective: null,
   },
   
@@ -128,7 +128,7 @@ export const REGIONS = [
   {
     id: canopy.ID, name: 'The Canopy Walk', chapters: [4], size: canopy.SIZE, interior: false, reachable: true,
     sections: canopy.SECTIONS.map((s) => s.id), entry: canopy.ENTRY, spring: canopy.LANDING, home: canopy.ENTRY,
-    pack: null,
+    pack: 'assets/scenery-canopy-walk.bin', 
     transit: false, objective: 'Cross the rope bridges to the high crown',
   },
   
@@ -142,7 +142,7 @@ export const REGIONS = [
   {
     id: gale.ID, name: 'The Gale Ledges', chapters: [4], size: gale.SIZE, interior: false, reachable: true,
     sections: gale.SECTIONS.map((s) => s.id), entry: gale.ENTRY, spring: gale.LANDING, home: gale.ENTRY,
-    pack: null,
+    pack: 'assets/scenery-gale-ledges.bin', 
     transit: false, objective: 'Train on the ledges - hide from the gusts behind the crags',
   },
   
