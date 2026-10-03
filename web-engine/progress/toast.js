@@ -17,10 +17,32 @@
 import { queueFrom, shareTextFor } from './toastModel.js';
 import { shareInvite, publicUrlFor, announceShare } from '../share/shareInvite.js';
 import { TIER_COLOUR } from '../account/achievements.js';
+import { COLOUR, FONT, MOTION, alpha } from '../brand/tokens.js';
 
 
 
 
+
+
+
+
+
+
+
+
+let uiSoundMod = null;
+function loadUiSound() {
+  if (!uiSoundMod) {
+    try { uiSoundMod = import('../brand/uiSound.js').catch(() => null); } catch { uiSoundMod = Promise.resolve(null); }
+  }
+  return uiSoundMod;
+}
+function playToastSound(name) {
+  if (!name) return;
+  try {
+    loadUiSound().then((m) => { try { m?.playUi(name); } catch {  } }, () => {});
+  } catch {  }
+}
 
 export const PROGRESS_EVENT = 'magestican:progress';
 
@@ -40,16 +62,16 @@ function injectStyle(doc) {
 .mg-toast-host{position:fixed;left:50%;top:max(12px,env(safe-area-inset-top));transform:translateX(-50%);
   z-index:2147483000;pointer-events:none;display:flex;flex-direction:column;align-items:center;max-width:min(92vw,420px)}
 .mg-toast{display:flex;align-items:center;gap:10px;padding:9px 16px 9px 10px;border-radius:999px;
-  background:rgba(28,26,23,.92);color:#fffbf2;font:600 14px/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;
-  box-shadow:0 6px 24px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.14);
-  animation:mg-toast-in 220ms ease-out both}
-.mg-toast.mg-out{animation:mg-toast-out 220ms ease-in both}
+  background:${alpha(COLOUR.ink, 0.92)};color:${COLOUR.card};font:600 14px/1.25 ${FONT.sans};
+  box-shadow:0 6px 24px ${alpha(COLOUR.night, 0.35)};border:1px solid ${alpha(COLOUR.card, 0.14)};
+  animation:mg-toast-in ${MOTION.sheet}ms ease-out both}
+.mg-toast.mg-out{animation:mg-toast-out ${MOTION.sheet}ms ease-in both}
 .mg-toast-art{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
-  font-size:15px;background:#f6f1e6;color:#1c1a17}
+  font-size:15px;background:${COLOUR.paper};color:${COLOUR.ink}}
 .mg-toast-sub{display:block;font-weight:400;font-size:12px;opacity:.8}
 .mg-toast-share{pointer-events:auto;flex:none;margin-left:4px;min-height:32px;padding:4px 12px;border-radius:999px;
-  border:1px solid rgba(255,251,242,.5);background:transparent;color:#fffbf2;font:700 12px/1 system-ui,sans-serif;cursor:pointer}
-.mg-toast-share:hover,.mg-toast-share:focus-visible{background:rgba(255,251,242,.15);outline:none}
+  border:1px solid ${alpha(COLOUR.card, 0.5)};background:transparent;color:${COLOUR.card};font:700 12px/1 ${FONT.sans};cursor:pointer}
+.mg-toast-share:hover,.mg-toast-share:focus-visible{background:${alpha(COLOUR.card, 0.15)};outline:none}
 @keyframes mg-toast-in{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 @keyframes mg-toast-out{to{opacity:0;transform:translateY(-8px)}}
 @media (prefers-reduced-motion: reduce){.mg-toast,.mg-toast.mg-out{animation:none}}
@@ -86,6 +108,7 @@ function render(doc, host, item) {
     btn.textContent = 'Share';
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
+      playToastSound('share');
       try {
         const u = new URL(publicUrlFor(globalThis.location?.href ?? ''));
         u.searchParams.delete('join');
@@ -114,6 +137,7 @@ export function installProgressToast(doc = globalThis.document) {
     if (!doc || typeof doc.addEventListener !== 'function') return false;
     if (doc[FLAG]) return true;
     doc[FLAG] = true;
+    loadUiSound(); 
     const queue = [];
     let host = null;
     let busy = false;
@@ -132,6 +156,7 @@ export function installProgressToast(doc = globalThis.document) {
           doc.body.appendChild(host);
         }
         const el = render(doc, host, item);
+        playToastSound(item.sound);
         ms = shareTextFor(item) ? SHARE_TOAST_MS : TOAST_MS;
         setTimeout(() => { el.classList.add('mg-out'); }, ms - 220);
       } catch {  }

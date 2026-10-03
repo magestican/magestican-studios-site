@@ -11,37 +11,12 @@ import { HOME, regionById } from './regions.js';
 import * as testbed from './regionMaps/testbed.js';
 import * as ember from './regionMaps/emberTube.js';
 import * as village from './regionMaps/kazanVillage.js';
-import * as shrine from './regionMaps/shrineVillage.js';
-import * as coast from './regionMaps/tomoCoast.js';
-import * as shell from './regionMaps/shellhaven.js';
-import * as kelp from './regionMaps/kelpMaze.js';
-import * as temple from './regionMaps/drownedTemple.js';
-import * as hollow from './regionMaps/hollowroot.js';
-import * as thorn from './regionMaps/thornfield.js';
-import * as mother from './regionMaps/motherHollow.js';
-import * as vine from './regionMaps/vinegate.js';
 
 export const PERCHES = [
   
   
   { id: 'kazan', region: village.ID, name: 'Kazan Village', at: village.LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'shrine', region: shrine.ID, name: 'Shrine Village', at: shrine.LANDING, opens: 'boss_ashlo', respawn: 'initiated' },
-  { id: 'tomo-coast', region: coast.ID, name: 'Tomo Coast', at: coast.LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'shellhaven', region: shell.ID, name: 'Shellhaven', at: shell.LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'kelp-maze', region: kelp.ID, name: 'Pearl Pool', at: kelp.POOL_LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'drowned-temple', region: temple.ID, name: 'Temple Pool', at: temple.POOL_LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'hollowroot', region: hollow.ID, name: 'Hollowroot', at: hollow.LANDING, opens: 'boss_leviathrum', respawn: null },
-  
-  { id: 'thornfield', region: thorn.ID, name: 'Meadow Pool', at: thorn.LANDING, opens: 'boss_leviathrum', respawn: null },
-  
-  { id: 'mother-hollow', region: mother.ID, name: 'Sap Pool', at: mother.SAP_LANDING, opens: 'boss_leviathrum', respawn: null },
-  
-  { id: 'vinegate', region: vine.ID, name: 'Vinegate Landing', at: vine.LANDING, opens: 'boss_bramble', respawn: null },
+  { id: 'shrine', region: HOME, name: 'Shrine Village', at: RESPAWN.shrine, opens: 'boss_ashlo', respawn: 'initiated' },
   
   { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
   { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },
@@ -49,8 +24,7 @@ export const PERCHES = [
 export const perchById = (id) => PERCHES.find((p) => p.id === id) || null;
 
 
-
-const WAKE_POINTS = [{ region: HOME, at: RESPAWN.kazan, respawn: null }, { region: HOME, at: RESPAWN.shrine, respawn: 'initiated' }];
+const WAKE_POINTS = [{ region: HOME, at: RESPAWN.kazan, respawn: null }];
 export const VISIT_R = 3;     
 export const PERCH_R = 2.4;   
 

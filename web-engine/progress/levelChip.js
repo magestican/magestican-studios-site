@@ -24,6 +24,7 @@ import { snapshotOf, SNAPSHOT_KEY } from './snapshot.js';
 import { chipModel } from './youModel.js';
 import { installProgressToast, PROGRESS_EVENT } from './toast.js';
 import { mountShareGame } from '../share/shareGame.js';
+import { COLOUR, FONT, alpha } from '../brand/tokens.js';
 
 const STYLE_ID = 'mg-level-chip-style';
 
@@ -59,9 +60,9 @@ function injectStyle(doc) {
   st.id = STYLE_ID;
   st.textContent = `
 .mg-level-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:999px;
-  background:#1c1a17;color:#fffbf2 !important;text-decoration:none !important;font:700 13px/1 system-ui,-apple-system,"Segoe UI",sans-serif;
-  border:1px solid rgba(255,255,255,.18);white-space:nowrap;vertical-align:middle;flex:0 0 auto}
-.mg-level-chip:focus-visible{outline:2px solid #ffb03a;outline-offset:2px}
+  background:${COLOUR.ink};color:${COLOUR.card} !important;text-decoration:none !important;font:700 13px/1 ${FONT.sans};
+  border:1px solid ${alpha(COLOUR.card, 0.18)};white-space:nowrap;vertical-align:middle;flex:0 0 auto}
+.mg-level-chip:focus-visible{outline:2px solid ${COLOUR.amber};outline-offset:2px}
 .mg-level-chip svg{flex:none;display:block}
 `;
   (doc.head ?? doc.documentElement).appendChild(st);
@@ -78,16 +79,16 @@ function ringSvg(doc, fraction) {
   const c = 2 * Math.PI * r;
   const track = doc.createElementNS(NS, 'circle');
   track.setAttribute('cx', '12'); track.setAttribute('cy', '12'); track.setAttribute('r', String(r));
-  track.setAttribute('fill', '#f6f1e6'); track.setAttribute('stroke', 'rgba(255,255,255,.25)'); track.setAttribute('stroke-width', '2.5');
+  track.setAttribute('fill', COLOUR.paper); track.setAttribute('stroke', alpha(COLOUR.card, 0.25)); track.setAttribute('stroke-width', '2.5');
   const arc = doc.createElementNS(NS, 'circle');
   arc.setAttribute('cx', '12'); arc.setAttribute('cy', '12'); arc.setAttribute('r', String(r));
-  arc.setAttribute('fill', 'none'); arc.setAttribute('stroke', '#ffb03a'); arc.setAttribute('stroke-width', '2.5');
+  arc.setAttribute('fill', 'none'); arc.setAttribute('stroke', COLOUR.amber); arc.setAttribute('stroke-width', '2.5');
   arc.setAttribute('stroke-linecap', 'round');
   arc.setAttribute('stroke-dasharray', `${(c * fraction).toFixed(2)} ${c.toFixed(2)}`);
   arc.setAttribute('transform', 'rotate(-90 12 12)');
   const star = doc.createElementNS(NS, 'text');
   star.setAttribute('x', '12'); star.setAttribute('y', '16'); star.setAttribute('text-anchor', 'middle');
-  star.setAttribute('font-size', '11'); star.setAttribute('fill', '#1c1a17');
+  star.setAttribute('font-size', '11'); star.setAttribute('fill', COLOUR.ink);
   star.textContent = '★';
   svg.append(track, arc, star);
   return svg;

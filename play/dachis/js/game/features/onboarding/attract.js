@@ -35,8 +35,6 @@ function armIdle() {
   idle = setTimeout(() => { if (!$('title').classList.contains('hidden') && !document.body.classList.contains('starting')) attract.play(); }, IDLE_S * 1000);
 }
 
-
-export const bootScenario = (touched) => (touched ? 'title' : 'attract');
 export const attract = {
   
   init(paintPortrait) {
@@ -45,13 +43,7 @@ export const attract = {
     $('attract').addEventListener('pointerdown', () => { if ($('attract').classList.contains('end')) attract.stop(); });
     addEventListener('keydown', (e) => { if (on && (e.code === 'Enter' || e.code === 'Space' || e.code === 'Escape')) attract.stop(); });
     for (const ev of ['pointerdown', 'keydown']) addEventListener(ev, () => { if (!on) armIdle(); }, true);
-    
-    
-    
-    
-    const scenario = bootScenario(!!window.__titleTouched);
-    document.body.classList.remove('booting');
-    if (scenario === 'attract') attract.play(); else armIdle();
+    attract.play();
   },
   play() {
     on = true; t0 = performance.now();

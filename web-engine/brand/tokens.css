@@ -1,0 +1,44 @@
+
+:root {
+  --mg-paper: #f6f1e6;
+  --mg-paper-lit: #fffdf6;
+  --mg-paper-warm: #fffbf1;
+  --mg-paper-deep: #ece5d5;
+  --mg-card: #fffbf2;
+  --mg-ink: #1c1a17;
+  --mg-ink-soft: #4a463f;
+  --mg-ink-faint: #4f4a41;
+  --mg-rule: #d9d2c1;
+  --mg-gold: #f4c95d;
+  --mg-gold-deep: #d9a92f;
+  --mg-amber: #ffb03a;
+  --mg-barn: #b73a2a;
+  --mg-barn-text: #8f2a1a;
+  --mg-sky: #7cb0ff;
+  --mg-grass: #5f8b3f;
+  --mg-night: #14120f;
+  --mg-live: #2f8a4a;
+  --mg-idle: #9b9285;
+  --mg-highlight: #fdf0c9;
+  --mg-locked: #4a5261;
+  --mg-tier-common: #9aa4b5;
+  --mg-tier-uncommon: #5fd08a;
+  --mg-tier-rare: #59a6ff;
+  --mg-tier-legendary: #ffb03a;
+  --mg-radius-chip: 12px;
+  --mg-radius-site: 14px;
+  --mg-radius-sheet: 20px;
+  --mg-radius-pill: 999px;
+  --mg-space-1: 4px;
+  --mg-space-2: 8px;
+  --mg-space-3: 12px;
+  --mg-space-4: 16px;
+  --mg-space-5: 24px;
+  --mg-space-6: 32px;
+  --mg-space-7: 48px;
+  --mg-font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  --mg-font-sans: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Roboto, Arial, sans-serif;
+  --mg-motion-tap: 120ms;
+  --mg-motion-sheet: 220ms;
+  --mg-motion-celebrate: 600ms;
+}

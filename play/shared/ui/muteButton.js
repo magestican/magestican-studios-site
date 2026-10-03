@@ -66,6 +66,17 @@
 
 
 
+
+
+
+
+import { playUi, addUiMuteSource } from '../../../web-engine/brand/uiSound.js';
+
+
+function uiClick(name) {
+  try { playUi(name); } catch {  }
+}
+
 export const SOUND_ON_LABEL = 'Sound: on';
 export const SOUND_OFF_LABEL = 'Sound: off';
 
@@ -250,14 +261,21 @@ export function mountSoundToggle({
     },
     dispose() {
       toggles.delete(entry);
+      dropMuteSource();
       button.remove?.();
     },
     button,
   };
+  const dropMuteSource = addUiMuteSource(() => !!isMuted());
 
   button.addEventListener('click', (e) => {
     e?.preventDefault?.();
-    setMuted(!isMuted());
+    
+    
+    const wasMuted = !!isMuted();
+    if (!wasMuted) uiClick('toggleOff');
+    setMuted(!wasMuted);
+    if (wasMuted) uiClick('toggleOn');
     
     syncSoundToggles();
   });

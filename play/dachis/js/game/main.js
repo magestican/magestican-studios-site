@@ -24,7 +24,7 @@ import { buildWorld } from './features/world/worldView.js';
 import { HOME, regionById, generateRegionSliced, mapsToDrop } from './features/world/regions.js';
 import { slicer } from '../engine/core/slicer.js';
 import { perchById, perchAt, perchesOpen, visit, flightPhase, VISIT_R } from './features/world/travel.js';
-import { doorAt, walkThrough } from './features/world/doors.js';
+import { doorAt } from './features/world/doors.js';
 import * as kazanVillage from './features/world/regionMaps/kazanVillage.js';
 import { openPerchMenu, closePerchMenu, perchMenuOpen, pickPerch, installPerchMenu } from './features/hud/perchMenu.js';
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
@@ -45,7 +45,7 @@ import { installOrderRing, updateOrderRing } from './features/battle/orderRing.j
 import { updateRitual } from './features/capture/ritualView.js';
 import { Cutscene } from './features/story/cutscene.js';
 import { SCENES } from './features/story/scenes.js';
-import { lineKind, lineText, lineSound, introZoomK } from './features/onboarding/rules.js';
+import { lineKind, lineText, introZoomK } from './features/onboarding/rules.js';
 import { tapHint, installTapAnywhere, setupNames, startWithWipe, intro, showResume, youTag } from './features/onboarding/onboarding.js';
 import { attract } from './features/onboarding/attract.js';
 import { tick as clockTick, activityOf, chapterOf, newClock } from './features/clock/clock.js';
@@ -76,16 +76,13 @@ const packsIn = new Set([regionById(HOME).pack]);
 const cover = { a: 0, target: 0, hold: false, done: null, label: '' };
 const coverTo = (v) => new Promise((r) => { cover.target = v; cover.done = r; });
 let regionJob = null;
-const doorWalk = { map: null, held: null }; 
-
-
-function loadRegion(id, at = null, opts = {}) {
+function loadRegion(id, at = null) {
   if (regionJob) return regionJob;
   const r = regionById(id);
   if (!r) return Promise.reject(new Error('no region ' + id));
   regionJob = (async () => {
     cover.label = r.name;
-    if (opts.covered) { cover.a = cover.target = 1; } else await coverTo(1);
+    await coverTo(1);
     cover.hold = true;
     performance.mark('region:build ' + id);
     const slice = slicer(8), t0 = performance.now();
@@ -126,7 +123,6 @@ function loadRegion(id, at = null, opts = {}) {
     S.lastRegionLoad = { id, ms: Math.round(performance.now() - t0), slices: slice.stats(), progBuilt, progWarm };
     if (G.mode === 'world') saveGame();
     if (cover.flight) await flightLanded(); 
-    if (opts.beforeReveal) opts.beforeReveal();
     cover.hold = false;
     performance.mark('region:reveal ' + id);
     await coverTo(0);
@@ -227,7 +223,7 @@ function drawCover(ctx, dt) {
   }
   if (cover.a === cover.target && cover.done) { const d = cover.done; cover.done = null; d(); }
   const f = cover.flight;
-  if (f && f.land && flightPhase((performance.now() - f.t0) / 1000, f.ready).phase === 'land') { const l = f.land; f.land = null; l(); S.landAt = performance.now() + 200; } 
+  if (f && f.land && flightPhase((performance.now() - f.t0) / 1000, f.ready).phase === 'land') { const l = f.land; f.land = null; l(); }
   if (cover.a <= 0) return;
   if (f) { drawFlight(ctx, f); return; }
   ctx.fillStyle = `rgba(13,10,20,${cover.a})`; ctx.fillRect(0, 0, innerWidth, innerHeight);
@@ -274,7 +270,7 @@ S.input = createInput({
 });
 hydrateIcons(document); 
 S.hints = createHints(S.input);
-S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onLine: (l, first) => S.sfx.play(lineSound(l, first)), 
+S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onBlip: () => S.sfx.play('blip'), format: s => s.replace(/\{name\}/g, G.name),
   
   kindOf: lineKind, textOf: lineText, onAdvance: () => tapHint.learned(),
   onType: (l) => { const k = lineKind(l); if (k !== 'narrate') S.sfx.play(k === 'think' ? 'thought' : 'voice'); } });
@@ -319,15 +315,12 @@ function leaveTitle() {
 }
 
 function playIntro(start) {
-  
-  
-  
-  
   Cutscene.play(SCENES, () => {
-    intro.clear();
-    loadRegion(kazanVillage.ID, kazanVillage.SPAWN, { covered: true, beforeReveal: () => {
-      enterWorld(); zoomInFromIntro(introZoomK); updateCamera(0, G.player); 
-    } }).then(() => { afterIntro(); youTag.start(); });
+    intro.clear(); enterWorld();
+    loadRegion(kazanVillage.ID, kazanVillage.SPAWN).then(() => {
+      afterIntro();
+      zoomInFromIntro(introZoomK); youTag.start(); 
+    });
   }, { start, onLine: (sc, li) => intro.save(sc, li) });
 }
 $('newBtn').onclick = () => {
@@ -437,11 +430,11 @@ function frame(now) {
         const touched = updateWilds(dt, { active: !!G.flags.starter });
         separateCrowd(dt, G.region === HOME ? lairBodies() : []); 
         if (G.region === HOME) { updateStory(dt); updateBossLairs(); } 
-        else updateRegionBeats(cam.sec, dt); 
+        else updateRegionBeats(cam.sec); 
         visit(G.flags, G.region, G.player.x, G.player.y); 
         
-        const through = walkThrough(doorWalk, S.W, doorAt(G.flags, G.region, G.player.x, G.player.y));
-        if (through) loadRegion(through.to, through.toAt);
+        const auto = doorAt(G.flags, G.region, G.player.x, G.player.y);
+        if (auto && auto.auto) loadRegion(auto.to, auto.toAt);
         worldActions();
         if (touched && G.mode === 'world') startBattle(touched);
       }
@@ -458,11 +451,7 @@ function frame(now) {
     if (G.mode === 'title') { const a = t * 0.12; updateCamera(dt, { x: VOLC.x + Math.cos(a) * 3.5, y: VOLC.y + Math.sin(a) * 3.5 }); }
     else updateCamera(dt, B ? battleFocus() : G.player);
     worldView.update(t);
-    
-    
-    const cheer = (B && B.state === 'end' && B.result !== 'lose') || (!B && S.cheerUntil > performance.now());
-    const sinceLand = (performance.now() - (S.landAt || -1e9)) / 1000, land = sinceLand >= 0 && sinceLand < 0.6 ? Math.sin(Math.min(1, sinceLand / 0.6) * Math.PI) : 0;
-    drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), cheer, land, hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
+    drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
     drawNpcs(t);
     if (G.region === HOME) drawBossLairs(t, B);
     drawWilds(t, B ? (w => w === B.wild || inArena(w.x, w.y, B, -0.8)) : null);

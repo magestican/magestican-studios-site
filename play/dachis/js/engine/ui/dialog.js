@@ -5,16 +5,13 @@ const $ = id => document.getElementById(id);
 
 
 
-
-
-export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}, onLine = null, format = s => s, kindOf = () => 'say', textOf = l => l.text, onAdvance = () => {}, onType = () => {} }) {
+export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}, format = s => s, kindOf = () => 'say', textOf = l => l.text, onAdvance = () => {}, onType = () => {} }) {
   const D = {
     queue: [], cur: null, shown: 0, onDone: null, active: false, choosing: false,
     say(lines, onDone) {
-      const fresh = !D.active;
       D.queue = lines.slice(); D.onDone = onDone || null; D.active = true;
       $('dialog').classList.remove('hidden');
-      D.next(fresh);
+      D.next();
     },
     
     insert(lines) { D.queue.unshift(...lines); },
@@ -28,7 +25,7 @@ export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}
       if (D.cur && D.shown < D.cur.text.length) { D.shown = D.cur.text.length; $('dlgText').textContent = D.cur.text; return; }
       D.next();
     },
-    next(first = false) {
+    next() {
       if (!D.queue.length) { const f = D.onDone; D.onDone = null; D.hide(); if (f) f(); return; }
       const l = D.queue.shift();
       D.cur = Object.assign({}, l, { text: format(textOf(l)), kind: kindOf(l) });
@@ -52,7 +49,7 @@ export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}
         });
         D.choices = l.choices;
       }
-      if (onLine) onLine(D.cur, first); else onBlip();
+      onBlip();
     },
     choose(i) {
       if (!D.choosing || !D.choices[i]) return;

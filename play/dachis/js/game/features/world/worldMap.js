@@ -18,20 +18,6 @@ export const WORLD_PLACES = [
   { region: 'ember-tube', name: 'Ember Tube', at: [0.86, 0.2], r: 0.1, glyph: 'volcano' },
   
   { region: 'kazan-village', name: 'Kazan Village', at: [0.52, 0.17], r: 0.08, glyph: 'volcano' },
-  
-  { region: 'shrine-village', name: 'Shrine Village', at: [0.52, 0.93], r: 0.07, glyph: 'meadow' },
-  
-  { region: 'tomo-coast', name: 'Tomo Coast', at: [0.9, 0.62], r: 0.08, glyph: 'meadow' },
-  
-  { region: 'shellhaven', name: 'Shellhaven', at: [0.86, 0.86], r: 0.07, glyph: 'meadow' },
-  { region: 'kelp-maze', name: 'The Kelp Maze', at: [0.95, 0.78], r: 0.045, glyph: 'meadow' },
-  { region: 'drowned-temple', name: 'The Drowned Temple', at: [0.72, 0.95], r: 0.045, glyph: 'meadow' },
-  
-  { region: 'hollowroot', name: 'Hollowroot', at: [0.1, 0.62], r: 0.07, glyph: 'meadow' },
-  { region: 'thornfield', name: 'Thornfield', at: [0.1, 0.78], r: 0.06, glyph: 'meadow' },
-  { region: 'mother-hollow', name: 'The Mother Tree', at: [0.2, 0.7], r: 0.045, glyph: 'meadow' },
-  
-  { region: 'vinegate', name: 'Vinegate Landing', at: [0.1, 0.44], r: 0.07, glyph: 'meadow' },
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 

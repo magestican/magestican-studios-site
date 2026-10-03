@@ -9,6 +9,7 @@
 
 
 import { shareInvite, inviteText, publicUrlFor, myLevel } from './shareInvite.js';
+import { COLOUR, alpha } from '../brand/tokens.js';
 
 const STYLE_ID = 'mg-share-game-style';
 const ICON = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" '
@@ -40,8 +41,8 @@ export function mountShareGame(host, gameName, { before = null } = {}) {
       const st = doc.createElement('style');
       st.id = STYLE_ID;
       st.textContent = '.mg-share-game{display:inline-grid;place-items:center;flex:0 0 auto;width:30px;height:30px;'
-        + 'padding:0;margin:0;border-radius:50%;border:1px solid rgba(28,26,23,.25);background:#fffbf2;color:#1c1a17;'
-        + 'cursor:pointer;vertical-align:middle}.mg-share-game:hover,.mg-share-game:focus-visible{background:#fdf0c9;outline:none}';
+        + `padding:0;margin:0;border-radius:50%;border:1px solid ${alpha(COLOUR.ink, 0.25)};background:${COLOUR.card};color:${COLOUR.ink};`
+        + `cursor:pointer;vertical-align:middle}.mg-share-game:hover,.mg-share-game:focus-visible{background:${COLOUR.highlight};outline:none}`;
       (doc.head ?? doc.documentElement).appendChild(st);
     }
     const btn = doc.createElement('button');

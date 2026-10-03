@@ -39,9 +39,7 @@ export function createLava(scene, crater, radius, h) {
   lava.position.set(crater.x, h, crater.y);
   scene.add(lava);
 
-  
-  
-  const BUB = 22, EMB = 20, SMOKE = 12;
+  const BUB = 10, EMB = 16, SMOKE = 12;
   const glow = createParticles(scene, 3, { soft: true, name: 'lava-glow' });
   const bubbles = createParticles(scene, BUB, { name: 'lava-bubbles' });
   const embers = createParticles(scene, EMB, { name: 'lava-embers' });
@@ -63,13 +61,13 @@ export function createLava(scene, crater, radius, h) {
         const life = 1.6 + jit(k, 1), ph = ((t + jit(k, 2) * 9) % life) / life, cyc = Math.floor((t + jit(k, 2) * 9) / life);
         const a = jit(k, cyc) * 6.28, r = Math.sqrt(jit(k + 3, cyc)) * radius * 0.8;
         const pop = ph > 0.85;
-        bubbles.set(k, crater.x + Math.cos(a) * r, h + 0.03 + ph * 0.22, crater.y + Math.sin(a) * r,
-          pop ? 0.5 * (ph - 0.85) / 0.15 + 0.3 : 0.1 + ph * 0.24, pop ? 1 - (ph - 0.85) / 0.15 : 0.95, pop ? GOLD : HOT);
+        bubbles.set(k, crater.x + Math.cos(a) * r, h + 0.02 + ph * 0.06, crater.y + Math.sin(a) * r,
+          pop ? 0.16 * (ph - 0.85) / 0.15 + 0.08 : 0.04 + ph * 0.07, pop ? 1 - (ph - 0.85) / 0.15 : 0.9, pop ? GOLD : HOT);
       }
       for (let k = 0; k < EMB; k++) {
         const ph = (t * 0.35 + k / EMB) % 1, a = k * 2.39 + Math.floor(t * 0.35 + k / EMB) * 1.3, r = jit(k, 5) * radius * 0.7;
         embers.set(k, crater.x + Math.cos(a) * r + Math.sin(t * 2 + k) * 0.1 * ph, h + ph * 2.4, crater.y + Math.sin(a) * r,
-          0.09, 1 - ph, ph < 0.4 ? GOLD : HOT);
+          0.04, 1 - ph, ph < 0.4 ? GOLD : HOT);
       }
       for (let k = 0; k < SMOKE; k++) {
         const q = (t * 0.06 + k / SMOKE) % 1;

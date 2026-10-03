@@ -24,6 +24,8 @@
 
 
 
+
+
 import { BY_ID, TIER_LABEL } from '../account/achievements.js';
 import { trophyName } from './snapshot.js';
 import { PROFILE_GAME_NAMES } from './gameIds.js';
@@ -84,7 +86,7 @@ export function queueFrom(events) {
   for (const e of list.filter((x) => x.type === 'rating' && Number.isFinite(Number(x.r)))) {
     const d = Math.round(Number(e.delta) || 0);
     const name = Object.hasOwn(PROFILE_GAME_NAMES, String(e.game)) ? PROFILE_GAME_NAMES[e.game] : String(e.game ?? 'Game');
-    out.push({ kind: 'rating', title: `${name} rating ${Math.round(Number(e.r))}`, sub: d > 0 ? `+${d}` : String(d), art: 'rating', sound: 'tick' });
+    out.push({ kind: 'rating', title: `${name} rating ${Math.round(Number(e.r))}`, sub: d > 0 ? `+${d}` : String(d), art: 'rating', sound: 'xp' });
   }
 
   const xp = list.filter((x) => x.type === 'xp').reduce((sum, x) => sum + posInt(x.gained), 0);

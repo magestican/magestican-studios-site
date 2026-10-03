@@ -679,36 +679,7 @@ function beanie(h) {
   const cuff = S.transform(S.torus([0, 0, 0], 0.84 * r, 0.12 * r), { translate: [c[0], c[1] + 0.16 * r, c[2]] });
   return [fur(dome, lin('#9a96a8')), fur(cuff, lin('#7a7688')), fur(S.sphere([c[0], c[1] + R[1] + 0.1 * r, c[2]], 0.2 * r), lin('#ff7a2a'))];
 }
-
-function conch(h) { 
-  const r = h.r, c = [h.c[0], h.c[1] + 0.5 * h.r, h.c[2]], R = [0.86 * r, 0.62 * r, 0.86 * r];
-  const dome = S.intersect(0.03, ell(c, R), S.field((x, y) => c[1] + 0.06 * r - y));
-  const spire = S.union(0.05, S.roundCone([c[0], c[1] + 0.5 * r, c[2] - 0.1 * r], [c[0] + 0.1 * r, c[1] + 0.95 * r, c[2] - 0.4 * r], 0.36 * r, 0.18 * r),
-    S.roundCone([c[0] + 0.1 * r, c[1] + 0.95 * r, c[2] - 0.4 * r], [c[0] + 0.22 * r, c[1] + 1.15 * r, c[2] - 0.72 * r], 0.18 * r, 0.04 * r));
-  const ridges = S.intersect(0.01, S.shell(ell(c, [R[0] + 0.03, R[1] + 0.03, R[2] + 0.03]), 0.04 * r),
-    S.field((x, y, z) => Math.abs(Math.sin((y - c[1]) / r * 9)) * 0.1 * r - 0.03 * r));
-  const lip = S.transform(S.torus([0, 0, 0], 0.88 * r, 0.09 * r), { translate: [c[0], c[1] + 0.08 * r, c[2]] });
-  return [fur(S.union(0.03, dome, spire), lin('#f2a0b8')), fur(ridges, lin('#d97a98')), fur(lip, lin('#fff1e6'))];
-}
-function coralHorns(h) { 
-  const r = h.r, c = h.c, top = c[1] + 0.82 * r;
-  const branch = (sx) => {
-    const a = [c[0] + sx * 0.36 * r, top, c[2]], b = [c[0] + sx * 0.58 * r, top + 0.55 * r, c[2]];
-    const tip = (dx, dy, dz) => S.roundCone(b, [b[0] + sx * dx * r, b[1] + dy * r, b[2] + dz * r], 0.09 * r, 0.05 * r);
-    return S.union(0.05, S.roundCone(a, b, 0.14 * r, 0.09 * r), tip(0.3, 0.35, 0.05), tip(-0.12, 0.45, -0.1), tip(0.05, 0.3, 0.25));
-  };
-  const band = S.transform(S.torus([0, 0, 0], 0.8 * r, 0.05 * r), { translate: [c[0], top - 0.1 * r, c[2]] });
-  return [fur(S.union(0.02, branch(-1), branch(1)), lin('#ff7a8a')), fur(band, lin('#2fa0a0'))];
-}
-function kelpBeanie(h) { 
-  const r = h.r, c = [h.c[0], h.c[1] + 0.48 * h.r, h.c[2]], R = [0.86 * r, 0.78 * r, 0.86 * r];
-  const dome = S.intersect(0.03, ell(c, R), S.field((x, y) => c[1] + 0.12 * r - y));
-  const cuff = S.transform(S.torus([0, 0, 0], 0.84 * r, 0.12 * r), { translate: [c[0], c[1] + 0.16 * r, c[2]] });
-  const crown = [c[0], c[1] + R[1], c[2]];
-  const fronds = [[-0.5, -0.1, 0.2], [0.45, -0.05, 0.15], [0.05, -0.15, -0.55]].map(([dx, dy, dz]) => S.roundCone(crown, [crown[0] + dx * r, crown[1] + (0.35 + dy) * r, crown[2] + dz * r], 0.1 * r, 0.04 * r));
-  return [fur(dome, lin('#2f7a4a')), fur(cuff, lin('#245e3a')), fur(S.union(0.04, ...fronds), lin('#6fbf5a'))];
-}
-const HAT_SHAPES = { priest: (h, dec) => priestHat(h, dec), bandana, ember: emberCap, backcap: backCap, helmet: lampHelmet, goggles, horns, beanie, conch, coral: coralHorns, kelp: kelpBeanie };
+const HAT_SHAPES = { priest: (h, dec) => priestHat(h, dec), bandana, ember: emberCap, backcap: backCap, helmet: lampHelmet, goggles, horns, beanie };
 export const HAT_GEOS = Object.keys(HAT_SHAPES);
 
 export const hatGeo = (hat) => (hat === true ? 'priest' : HAT_SHAPES[hat] ? hat : null);

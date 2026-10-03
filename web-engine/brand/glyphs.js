@@ -24,6 +24,14 @@
 
 
 
+
+
+
+
+
+
+
+
 export const GLYPHS = Object.freeze({
   
   'team-bonding': 'M19 12a7 7 0 1 1-14 0a7 7 0 1 1 14 0M12 2v5M12 17v5M2 12h5M17 12h5M12 12h.01',
@@ -38,7 +46,8 @@ export const GLYPHS = Object.freeze({
   
   'farmy-crosswords': 'M4 4h16v16H4zM4 9.33h16M4 14.67h16M9.33 4v16M14.67 4v16',
   
-  'farmy-chess': 'M6 21h12M8 21c0-3 1-5 3.5-7l-3.5 1-2.5-2.5 4.5-6c2-2 5.5-1.5 7 1 1.2 2 1.5 5 1.5 8v5.5M12.5 8.5h.01',
+  
+  'farmy-chess': 'M6.5 21h11M8 21c0-3.5 1.5-5.5 3.5-7.5L8 14.5c-1.5.5-3-.5-2.5-2L9 7c.5-1.5 1.5-2.5 3-3V2.5L14 4c3.5 1 5 4.5 4.5 9l-1 8M10.5 8.5h.01',
   
   'farmy-checkers': 'M19 9a7 3 0 1 1-14 0a7 3 0 1 1 14 0M5 9v4M19 9v4M5 13a7 3 0 0 0 14 0M5 13v4M19 13v4M5 17a7 3 0 0 0 14 0',
   
@@ -56,7 +65,7 @@ export const GLYPHS = Object.freeze({
   
   'farmy-hive': 'M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9zM12 8.5l3 1.75v3.5L12 15.5l-3-1.75v-3.5z',
   
-  'farmy-herds': 'M6.5 16a3 3 0 0 1-.5-6 3.2 3.2 0 0 1 5-2.5 3.2 3.2 0 0 1 5 1.5 3 3 0 0 1 0 7zM9 16v4M14 16v4M16.5 9l3.5-1 1 3-2.5 1.5M20 9.5h.01',
+  'farmy-herds': 'M7 17a3 3 0 0 1-1-5.8 3.2 3.2 0 0 1 5.5-3.2 3.2 3.2 0 0 1 5.5 1 3 3 0 0 1-1 8zM20 8.5a1.8 2.3 0 1 1 0 4.6 1.8 2.3 0 1 1 0-4.6M18.6 9.2l-1.6-1M20.6 10.4h.01M9 17v3.5M14 17v3.5',
   
   'farmy-furrows': 'M3 8c3-2 6 2 9 0s6-2 9 0M3 13c3-2 6 2 9 0s6-2 9 0M3 18c3-2 6 2 9 0s6-2 9 0',
   
@@ -65,7 +74,37 @@ export const GLYPHS = Object.freeze({
   level: 'M5 13l7-6 7 6M5 19l7-6 7 6M12 3h.01',
   
   badge: 'M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5l-5.4 3 1.2-6L3.3 9.3l6.1-.7z',
+  
+  trophy: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20.5h7M9.5 17h5v3.5h-5z',
+  
+  live: 'M12 12h.01M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.5 5.5a9 9 0 0 0 0 13M18.5 5.5a9 9 0 0 1 0 13',
+  
+  share: 'M12 15V3M7 8l5-5 5 5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7',
+  
+  stats: 'M4 20h16M7 20v-6M12 20V6M17 20v-10',
+  
+  'sound-on': 'M4 9h4l5-4v14l-5-4H4zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12',
+  'sound-off': 'M4 9h4l5-4v14l-5-4H4zM16.5 9.5l5 5M21.5 9.5l-5 5',
 });
+
+
+export const UI_GLYPHS = Object.freeze(['level', 'badge', 'trophy', 'live', 'share', 'stats', 'sound-on', 'sound-off']);
+
+
+
+
+
+
+const FILE_FOR = Object.freeze({ 'team-bonding': 'farmyshoot', 'farmy-scrabble': 'farmy-tiles' });
+export const glyphFileName = (name) => FILE_FOR[name] ?? name;
+
+
+export function glyphSvg(name) {
+  if (!hasGlyph(name)) return '';
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" '
+    + 'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    + `<path d="${GLYPHS[name]}"/></svg>\n`;
+}
 
 
 export const hasGlyph = (name) => typeof name === 'string'

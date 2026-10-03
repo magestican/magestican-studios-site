@@ -5,7 +5,6 @@ import { kidBillboard, setKidFrame, dachiBillboard, setDachiLook, dachiSize } fr
 import { speciesById } from '../../data/species.js';
 import { hatGeoOf } from '../../data/collectibles.js';
 import { FOLLOW, BODY_R } from './crowd.js';
-import { stepSound } from './mapgen.js';
 
 let kid = null, pet = null, petSp = 0;
 
@@ -26,11 +25,7 @@ export function updatePlayer(dt, canMove) {
     const nx = p.x + wx * speed, ny = p.y + wy * speed;
     if (W.walkable(nx, p.y, BODY_R.kid)) p.x = nx;
     if (W.walkable(p.x, ny, BODY_R.kid)) p.y = ny;
-    const before = Math.floor(p.walk / Math.PI);
     p.walk += dt * (run ? 16 : 11);
-    
-    
-    if (Math.floor(p.walk / Math.PI) !== before) S.sfx.play(stepSound(W.type[W.idx(Math.floor(p.x), Math.floor(p.y))]));
   }
   
   
@@ -52,11 +47,11 @@ export function updatePlayer(dt, canMove) {
 }
 
 
-export function drawPlayer(t, { hidden = false, shout = false, cheer = false, land = 0, hidePet = false, lookAt = null } = {}) {
+export function drawPlayer(t, { hidden = false, shout = false, hidePet = false, lookAt = null } = {}) {
   const p = G.player, W = S.W;
   kid.setVisible(!hidden);
   const dir = p.moving ? S.stage.screenDirToWorld(p.vx, p.vy) : lookAt ? [lookAt.x - p.x, lookAt.y - p.y] : null;
-  setKidFrame(kid, { gender: G.gender, walk: p.walk, moving: p.moving, shout: shout && !cheer, cheer: cheer && !p.moving, land, dir });
+  setKidFrame(kid, { gender: G.gender, walk: p.walk, moving: p.moving, shout, dir });
   kid.place(p.x, p.y, W.groundAt(p.x, p.y));
   const lead = G.party[0];
   if (lead && !pet) pet = dachiBillboard(S.stage.scene, speciesById(lead.sp).stage);

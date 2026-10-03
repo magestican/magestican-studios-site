@@ -37,9 +37,15 @@
 
 
 
+import { playUi } from '../../../web-engine/brand/uiSound.js';
 
 
-export function wireMusicButton({ music, announce = () => {}, sound = () => {} } = {}) {
+
+
+
+
+
+export function wireMusicButton({ music, announce = () => {}, sound = null } = {}) {
   
   
   
@@ -72,7 +78,10 @@ export function wireMusicButton({ music, announce = () => {}, sound = () => {} }
     const on = music.toggle();
     show();
     announce(on ? 'Music on.' : 'Music off.');
-    sound('press');
+    if (typeof sound === 'function') sound('press');
+    else {
+      try { playUi(on ? 'toggleOn' : 'toggleOff'); } catch {  }
+    }
   };
 
   btn.addEventListener('click', onClick);

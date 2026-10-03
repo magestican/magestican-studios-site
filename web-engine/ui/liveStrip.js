@@ -15,32 +15,33 @@
 import { feedModel, shouldPoll, LIVE_POLL_MS, LIVE_STOP_AFTER_MS } from '../net/liveFeed.js';
 import { fetchOpenRoomsShared } from '../net/firebaseRooms.js';
 import { glyphGroup } from '../brand/glyphs.js';
+import { COLOUR, FONT, MOTION, alpha } from '../brand/tokens.js';
 
 const STYLE_ID = 'mg-live-strip-style';
 export const PAUSED_TEXT = 'Paused to save data - reload, or come back to this tab, to refresh';
 
 const CSS = `
 .mg-live-strip{margin:0 auto;max-width:1120px;padding:10px 16px 4px;box-sizing:border-box;
-  font:14px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;color:#1c1a17}
-.mg-live-strip h2{display:flex;align-items:center;gap:8px;margin:0 0 8px;font:700 15px/1.2 Georgia,serif}
-.mg-live-strip .mg-live-dot{width:9px;height:9px;border-radius:50%;background:#9b9285;flex:0 0 auto}
-.mg-live-strip[data-state="live"] .mg-live-dot{background:#2f8a4a;box-shadow:0 0 0 3px rgba(47,138,74,.18)}
-.mg-live-strip .mg-live-count{font:600 12px/1 system-ui,sans-serif;color:#5a544b}
-.mg-live-strip .mg-live-empty{margin:0;color:#5a544b}
+  font:14px/1.3 ${FONT.sans};color:${COLOUR.ink}}
+.mg-live-strip h2{display:flex;align-items:center;gap:8px;margin:0 0 8px;font:700 15px/1.2 ${FONT.serif}}
+.mg-live-strip .mg-live-dot{width:9px;height:9px;border-radius:50%;background:${COLOUR.idle};flex:0 0 auto}
+.mg-live-strip[data-state="live"] .mg-live-dot{background:${COLOUR.live};box-shadow:0 0 0 3px ${alpha(COLOUR.live, 0.18)}}
+.mg-live-strip .mg-live-count{font:600 12px/1 ${FONT.sans};color:${COLOUR.inkSoft}}
+.mg-live-strip .mg-live-empty{margin:0;color:${COLOUR.inkSoft}}
 .mg-live-strip ul{list-style:none;margin:0;padding:2px 2px 8px;display:flex;gap:8px;overflow-x:auto;
   scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
 .mg-live-strip li{flex:0 0 auto;scroll-snap-align:start}
 .mg-live-chip{display:flex;align-items:center;gap:8px;max-width:240px;min-height:44px;box-sizing:border-box;
-  padding:6px 12px 6px 6px;border-radius:12px;background:#fffbf2;border:1px solid #d9d0bd;
-  border-left:4px solid var(--accent,#1c1a17);color:#1c1a17 !important;text-decoration:none !important}
-.mg-live-chip:hover,.mg-live-chip:focus-visible{background:#fdf0c9;outline:none}
-.mg-live-chip svg{flex:0 0 auto;width:28px;height:28px;border-radius:8px;background:var(--accent,#1c1a17)}
+  padding:6px 12px 6px 6px;border-radius:12px;background:${COLOUR.card};border:1px solid ${COLOUR.rule};
+  border-left:4px solid var(--accent,${COLOUR.ink});color:${COLOUR.ink} !important;text-decoration:none !important}
+.mg-live-chip:hover,.mg-live-chip:focus-visible{background:${COLOUR.highlight};outline:none}
+.mg-live-chip svg{flex:0 0 auto;width:28px;height:28px;border-radius:8px;background:var(--accent,${COLOUR.ink})}
 .mg-live-chip .mg-live-txt{display:flex;flex-direction:column;min-width:0}
 .mg-live-chip b,.mg-live-chip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mg-live-chip b{font-size:13px}
-.mg-live-chip span{font-size:12px;color:#5a544b}
+.mg-live-chip span{font-size:12px;color:${COLOUR.inkSoft}}
 .mg-live-chip[data-full="1"]{opacity:.6}
-@media (prefers-reduced-motion:no-preference){.mg-live-chip{transition:background .12s}}
+@media (prefers-reduced-motion:no-preference){.mg-live-chip{transition:background ${MOTION.tap}ms}}
 `;
 
 function injectCss(doc) {
@@ -86,7 +87,7 @@ export function paint(root, model, doc = root.ownerDocument) {
     a.dataset.full = chip.full ? '1' : '0';
     a.style.setProperty('--accent', chip.accent);
     a.setAttribute('aria-label', `Join ${chip.line}`);
-    const glyph = chip.statsId ? glyphGroup(chip.statsId, { cx: 14, cy: 14, box: 18, ink: '#fffbf2' }) : '';
+    const glyph = chip.statsId ? glyphGroup(chip.statsId, { cx: 14, cy: 14, box: 18, ink: COLOUR.card }) : '';
     a.innerHTML = `<svg viewBox="0 0 28 28" aria-hidden="true">${glyph}</svg>`;
     const { who, what } = chipText(chip);
     const txt = doc.createElement('span');

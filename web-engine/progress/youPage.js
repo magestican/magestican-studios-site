@@ -31,6 +31,9 @@ import { youModel } from './youModel.js';
 import { CHIP_SEEN_KEY } from './levelChip.js';
 import { shareInvite } from '../share/shareInvite.js';
 
+
+import { uiSoundOn, setUiSound } from '../brand/uiSoundPref.js';
+
 const STYLE_ID = 'mg-you-style';
 
 function el(doc, tag, cls, text) {
@@ -70,6 +73,8 @@ function injectStyle(doc) {
 .you-games th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#5a544b}
 .you-games small{display:block;color:#5a544b;font-size:12px}
 .you-panel-card{background:#141821;border-radius:20px;padding:18px;margin:0 0 28px}
+.you-setting{display:flex;gap:10px;align-items:center;font-size:15px;margin:0 0 28px;cursor:pointer}
+.you-setting input{width:20px;height:20px;margin:0;accent-color:#1c1a17}
 .you-empty{background:#fffbf2;border:1px dashed #d9d0bd;border-radius:14px;padding:16px;margin:0 0 28px}
 @media (max-width:560px){.you-hero{grid-template-columns:1fr;text-align:center}.you-level{margin:0 auto}
   .you-actions{justify-content:center}.you-games .opt{display:none}}
@@ -183,6 +188,20 @@ function gamesTable(doc, m) {
 }
 
 
+
+
+function soundSetting(doc) {
+  const row = el(doc, 'label', 'you-setting');
+  const box = el(doc, 'input');
+  box.type = 'checkbox';
+  box.id = 'you-ui-sound';
+  box.checked = uiSoundOn();
+  box.addEventListener('change', () => { box.checked = setUiSound(box.checked); });
+  row.append(box, el(doc, 'span', null, 'Game sounds (menus and rewards)'));
+  return row;
+}
+
+
 export function mountYouPage(root, { nowMs = Date.now() } = {}) {
   const doc = root?.ownerDocument ?? globalThis.document;
   if (!root || !doc) return null;
@@ -199,6 +218,7 @@ export function mountYouPage(root, { nowMs = Date.now() } = {}) {
     parts.push(el(doc, 'h2', null, 'Badges, sign-in and sync'));
     const card = el(doc, 'div', 'you-panel-card');
     parts.push(card);
+    parts.push(el(doc, 'h2', null, 'Settings'), soundSetting(doc));
     root.replaceChildren(...parts);
     mountProfilePanel(card);
     return m;

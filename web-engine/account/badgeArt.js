@@ -46,9 +46,10 @@
 
 import { TIER_COLOUR, PROOF } from './achievements.js';
 import { hasGlyph, glyphNameFor, glyphGroup } from '../brand/glyphs.js';
+import { TOKENS } from '../brand/tokens.js';
 
 
-export const LOCKED_COLOUR = '#4a5261';
+export const LOCKED_COLOUR = TOKENS.colour.locked;
 export const LOCKED_INK = '#7b8494';
 
 

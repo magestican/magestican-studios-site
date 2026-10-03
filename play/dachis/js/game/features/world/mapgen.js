@@ -15,11 +15,6 @@ export const MAP = 96;
 export const T = { DEEP: 0, SHALLOW: 1, SAND: 2, GRASS: 3, TALL: 4, PATH: 5, ROCK: 6, LAVA: 7, PLAZA: 8, WOOD: 9, CLIFF: 10, JUNGLE: 11, REEF: 12, KELP: 13, RUIN: 14, GLADE: 15, THICKET: 16, MOSS: 17 };
 
 export const BLOCKED = new Set([T.DEEP, T.SHALLOW, T.LAVA, T.WOOD, T.CLIFF]);
-
-
-const STEP_OF = { [T.TALL]: 'stepGrass', [T.THICKET]: 'stepGrass', [T.KELP]: 'stepGrass', [T.JUNGLE]: 'stepGrass', [T.SAND]: 'stepSand',
-  [T.PATH]: 'stepDirt', [T.ROCK]: 'stepStone', [T.PLAZA]: 'stepStone', [T.RUIN]: 'stepStone', [T.REEF]: 'stepStone' };
-export const stepSound = (type) => STEP_OF[type] || 'stepSoft';
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 const uvPts = (list) => list.map(([u, v]) => fromUV(u, v));
 

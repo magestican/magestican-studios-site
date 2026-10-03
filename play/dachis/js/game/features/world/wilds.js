@@ -12,19 +12,14 @@ import { dachiBillboard, setDachiLook } from '../../art/billboards.js';
 
 
 const MAX_WILDS = 8;
-let respawn = 0, filledW = null, filledSec = null;
+let respawn = 0;
 
 
-
-
-
-const secTiles = new WeakMap();
+const secTiles = new Map();
 const tilesHere = () => {
-  const id = S.cam && S.cam.sec, W = S.W;
-  if (!secTiles.has(W)) secTiles.set(W, new Map());
-  const m = secTiles.get(W);
-  if (!m.has(id)) m.set(id, W.wildTiles.filter(([x, y]) => !id || W.sectionAt(x, y) === id));
-  return m.get(id);
+  const id = S.cam && S.cam.sec;
+  if (!secTiles.has(id)) secTiles.set(id, S.W.wildTiles.filter(([x, y]) => !id || S.W.sectionAt(x, y) === id));
+  return secTiles.get(id);
 };
 
 const tables = new Map();
@@ -35,14 +30,12 @@ const tableHere = () => {
   return tables.get(sec);
 };
 
-
-
-export function spawnWild(near = null, minD = 7, where = null) {
+export function spawnWild(near = null) {
   const W = S.W, p = G.player, tiles = tilesHere();
   if (!near && !tiles.length) return null;
-  for (let tries = 0; tries < (where ? 80 : 25); tries++) {
+  for (let tries = 0; tries < 25; tries++) {
     const [x, y] = near ? [near.x, near.y] : tiles[Math.floor(Math.random() * tiles.length)];
-    if (!near && (U.dist(x, y, p.x, p.y) < minD || (where && !where(x, y)) || !W.walkable(x, y))) continue;
+    if (!near && (U.dist(x, y, p.x, p.y) < 7 || !W.walkable(x, y))) continue;
     const far = U.dist(x, y, VOLC.x, VOLC.y);
     
     const top = G.party.reduce((m, d) => Math.max(m, d.lvl), 1);
@@ -74,21 +67,6 @@ export function removeWild(w) {
 export function updateWilds(dt, { active }) {
   const W = S.W, p = G.player;
   G.safeTimer -= dt;
-  
-  
-  
-  
-  const here = S.cam && S.cam.sec;
-  if (active && (W !== filledW || here !== filledSec)) {
-    filledW = W; filledSec = here;
-    let have = G.wilds.filter((w) => W.sectionAt(w.x, w.y) === here).length, n = 0; 
-    
-    
-    const inSight = (x, y) => { const [sx, sy] = S.stage.toScreen(x, y, W.groundAt(x, y)); return sx > innerWidth * 0.12 && sx < innerWidth * 0.88 && sy > innerHeight * 0.18 && sy < innerHeight * 0.75; };
-    for (let k = 0; k < 2 && have < MAX_WILDS; k++) if (spawnWild(null, 4, inSight)) have++, n++;
-    while (have < MAX_WILDS && spawnWild(null, 4)) have++, n++;
-    if (n) G.safeTimer = Math.max(G.safeTimer, 1.5);
-  }
   if (active) {
     respawn -= dt;
     if (G.wilds.length < MAX_WILDS && respawn <= 0) { spawnWild(); respawn = 1.2; }

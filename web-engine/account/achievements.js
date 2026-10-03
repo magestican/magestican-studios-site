@@ -88,6 +88,7 @@ import { rankFor, normaliseProfile, awardBadgeXp, awardTrophyXp } from './profil
 import { daysBetween } from './dayKey.js';
 import { TOUR_GAME_IDS, PROFILE_GAME_IDS, PROFILE_GAME_NAMES, CLOUD_GAME_IDS } from '../progress/gameIds.js';
 import { masteryOf, MASTERY_MAX } from '../progress/mastery.js';
+import { TOKENS } from '../brand/tokens.js';
 import { levelFromXp } from './playerLevel.js';
 import { seasonTierAt } from './season.js';
 
@@ -210,12 +211,9 @@ export const TIER_LABEL = Object.freeze({
 });
 
 
-export const TIER_COLOUR = Object.freeze({
-  common: '#9aa4b5',      
-  uncommon: '#5fd08a',    
-  rare: '#59a6ff',        
-  legendary: '#ffb03a',   
-});
+
+
+export const TIER_COLOUR = TOKENS.tier;
 
 
 export const RARITY_DISCLAIMER =
