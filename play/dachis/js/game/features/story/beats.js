@@ -40,6 +40,23 @@ const REGION_BEATS = {
     L(NARR, 'The Magma Hall. Heat rolls off the pools in slow waves, and the rock hums underfoot.'),
     L(NARR, 'Somewhere past the pools, something small is crying.'),
   ],
+  
+  shellhaven: [
+    L(NARR, 'The water parts like a curtain. You step through - and you are dry, standing in air, on the bottom of the sea.'),
+    L(NARR, 'Above you the bubble wobbles. Fish swim past outside it, close enough to touch.'),
+    L(KID, 'No way. NO way. This is better than the aquarium on Coney Island.'),
+  ],
+  'kelp-maze': [
+    L(NARR, 'The bubble stretches out into a long tunnel of air. The kelp has grown into walls taller than you.'),
+    L(KID, 'Okay. Left hand on the wall. That is how you do mazes. I think.'),
+  ],
+  'temple-porch': [
+    L(NARR, 'Inside the drowned temple it is quiet. Water drips. Your footsteps echo a long way off.'),
+  ],
+  'temple-sanctum': [
+    L(NARR, 'At the end of the aisle an old altar waits. When the tide moves, the whole room hums, like a choir far away.'),
+    L(KID, 'It is singing. The temple is actually singing.'),
+  ],
 };
 export function updateRegionBeats(sec) {
   
