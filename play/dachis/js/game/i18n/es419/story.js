@@ -234,5 +234,9 @@ export default {
   "Somebody shouts a name across the water. The water shouts it back, three times, the last one a little wrong.": "Alguien grita un nombre por encima del agua. El agua lo devuelve tres veces, la última un poco mal.",
   "Hello? ...Hello. Hello. Hullo. ...Okay, I did not like that last one.": "¿Hola? ...Hola. Hola. Jola. ...Okey, esa última no me gustó.",
   "The river opens out into a lake so still the raft's own ripples are the only thing moving on it. Islands sit in the black like loaves.": "El río se abre en un lago tan quieto que las ondas de la balsa son lo único que se mueve. Las islas descansan en lo negro como panes.",
+  "Aerowing sets you down on snow so bright it hurts. Below lies a frozen lake, and a camp of huts standing over the ice on long legs, like wading birds.": "Aerowing te deja sobre una nieve tan brillante que duele. Abajo hay un lago congelado, y un campamento de chozas paradas sobre el hielo en patas largas, como garzas.",
+  "(Snow. Real snow. ...In a T-shirt. Great. Perfect. I cannot feel my ears.)": "(Nieve. Nieve de verdad. ...En camiseta. Genial. Perfecto. No me siento las orejas.)",
+  "The path climbs to the lip of a canyon. A rope bridge used to cross it straight; now only its posts are left, the ropes cut. A ledge path zigzags down the near side instead.": "El sendero sube hasta el borde de un cañón. Antes un puente de cuerdas lo cruzaba derecho; ahora solo quedan sus postes, con las cuerdas cortadas. En cambio, una cornisa baja en zigzag por este lado.",
+  "(Down, along, over, along, up. Okay. Nobody look down. ...I looked down.)": "(Abajo, a lo largo, por encima, a lo largo, arriba. Bueno. Que nadie mire abajo. ...Miré abajo.)",
   "(Do not lean over the side. Do not lean over the side. ...I am leaning over the side.)": "(No te asomes por el borde. No te asomes por el borde. ...Me estoy asomando por el borde.)",
 };

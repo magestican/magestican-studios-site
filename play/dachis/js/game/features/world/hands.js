@@ -34,6 +34,10 @@ export const HANDS = {
     'Those stilts under the huts? I sank every one. The river comes up a hand a year. My hand. I measured.',
     'Walk the planks, do not bounce on them. The little ones bounce. I mend what they bounce.'] },
   
+  frostspine: { sp: 21, name: 'Rime', lines: [
+    'I keep the stilts. The ice moves, you know. Every night the lake shoves at the huts and every morning I knock the legs straight. Nobody thanks a leg.',
+    'The hot spring is mine too. Somebody breaks the crust off it at dawn. Use it, go on. Wipe your feet after. The floor freezes.'] },
+  
   'echo-lake': { sp: 93, name: 'Tack', lines: [
     'Every raft at every jetty, I lashed. Every one. You are welcome. Bring the pole back. Last summer the river kept eleven.',
     'They call the islands still water. It is not still. It is thinking. You can feel it think under the logs if you lie flat.'] },

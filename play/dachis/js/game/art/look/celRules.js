@@ -147,7 +147,7 @@ export function hullLod(groups, { cells = HULL_CELLS, cellMin = HULL_CELL_MIN, f
 
 export const GROUND_CLASSES = ['grass', 'tall', 'sand', 'rock', 'lava', 'plaza', 'shallow', 'deep', 'wood', 'cliff',
   'jungle', 'reef', 'kelp', 'ruin', 'glade', 'thicket', 'moss'];
-export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant', 'ember', 'river', 'canopy', 'fig', 'ruins', 'court', 'volcano'];
+export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant', 'ember', 'river', 'canopy', 'fig', 'ruins', 'court', 'volcano', 'frost'];
 
 
 export const GROUND_BASE = {
@@ -189,6 +189,12 @@ export const GROUND_REGION = {
   verdant: { grass: ['#3a8f34', '#6cc044'], glade: ['#1f6a34', '#3a9a3c'], thicket: ['#164f2e', '#256a36'], moss: ['#5f9a4a', '#8cc65a'] },
   
   
+  
+  
+  frost: { grass: ['#dce8f4', '#f6faff'], tall: ['#c4d6ea', '#e2ecf8'], sand: ['#c8c2b8', '#e6e0d6'], plaza: ['#8ccbec', '#c4e8fb'],
+    ruin: ['#6aaedc', '#9cd2f2'], rock: ['#6a7488', '#8a94a8'], cliff: ['#3a4458', '#58637c'], thicket: ['#5a7a7a', '#7c9c98'],
+    moss: ['#7a8a6a', '#9aaa84'], glade: ['#c4d6ea', '#e2ecf8'], path: ['#b8b0a4', '#ffffff'],
+    deep: ['#7c94b0', '#9cb2ca'], shallow: ['#a8c0d8', '#c8dcee'] }, 
   ember: { rock: ['#4a3f3b', '#5f524b'], cliff: ['#2b2422', '#3d3330'], moss: ['#1f5c58', '#36a08a'], grass: ['#4a3f3b', '#5f524b'],
     path: ['#a8805e', '#e8c89a'] },
 };
@@ -216,7 +222,7 @@ export function luma(h) { const [r, g, b] = hexRgb(h); return 0.2126 * r + 0.715
 
 export function classByte(cls) { const i = GROUND_CLASSES.indexOf(cls); return i < 0 ? 0 : i; }
 
-const GROUND_ALIAS = { village: 'volcano', 'shrine-village': 'shrine', 'tomo-coast': 'coast', shellhaven: 'coral', 'kelp-maze': 'coral', 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral', 'ember-a': 'ember', 'ember-b': 'ember', hollowroot: 'verdant', 'thorn-upper': 'verdant', 'thorn-lower': 'verdant', 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant', vinegate: 'river', 'canopy-walk': 'canopy', 'fig-terraces': 'fig', 'gale-ledges': 'volcano', 'ruin-steps': 'ruins', 'court-stones': 'court', 'court-gallery': 'court', 'court-guards': 'court', 'court-throne': 'court', minehead: 'ember', 'mine-workings': 'ember', 'shaft-a': 'ember', 'shaft-b': 'ember', 'seam-hall': 'ember', 'seam-narrows': 'ember', 'seam-stones': 'ember', 'seam-hollow': 'ember', 'geode-mouth': 'ember', 'geode-prism': 'ember', 'geode-heart': 'ember', 'geode-vault': 'ember', 'echo-hamlet': 'coast', 'echo-river': 'ember', 'echo-isles': 'coral' };
+const GROUND_ALIAS = { village: 'volcano', 'shrine-village': 'shrine', 'tomo-coast': 'coast', shellhaven: 'coral', 'kelp-maze': 'coral', 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral', 'ember-a': 'ember', 'ember-b': 'ember', hollowroot: 'verdant', 'thorn-upper': 'verdant', 'thorn-lower': 'verdant', 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant', vinegate: 'river', 'canopy-walk': 'canopy', 'fig-terraces': 'fig', 'gale-ledges': 'volcano', 'ruin-steps': 'ruins', 'court-stones': 'court', 'court-gallery': 'court', 'court-guards': 'court', 'court-throne': 'court', minehead: 'ember', 'mine-workings': 'ember', 'shaft-a': 'ember', 'shaft-b': 'ember', 'seam-hall': 'ember', 'seam-narrows': 'ember', 'seam-stones': 'ember', 'seam-hollow': 'ember', 'geode-mouth': 'ember', 'geode-prism': 'ember', 'geode-heart': 'ember', 'geode-vault': 'ember', 'echo-hamlet': 'coast', 'echo-river': 'ember', 'echo-isles': 'coral', 'frost-camp': 'frost', 'frost-pass': 'frost' };
 export function regionByte(region) { const i = GROUND_REGIONS.indexOf(GROUND_ALIAS[region] || region); return i < 0 ? GROUND_REGIONS.indexOf('road') : i; }
 
 
@@ -227,7 +233,7 @@ export const WATER_ALPHA = [1, 0.8, 0.94, 0.97];
 export const WATER_EDGE = '#0b3f8f'; 
 
 
-export const WATER_TINT = { minehead: ['#8fa39c', '#2f5a52', '#1d3d38', '#0f2420'], 'echo-lake': ['#a8d0f0', '#2a6aa8', '#1a4a88', '#0e2a60'] }; 
+export const WATER_TINT = { minehead: ['#8fa39c', '#2f5a52', '#1d3d38', '#0f2420'], 'echo-lake': ['#a8d0f0', '#2a6aa8', '#1a4a88', '#0e2a60'], frostspine: ['#ffffff', '#d8eefa', '#a8d2ec', '#7aaed4'] }; 
 
 export const GROUND_INK = 1.0;
 export function waterBand(depth) { let i = 0; while (depth >= WATER_BANDS[i][0]) i++; return i; }

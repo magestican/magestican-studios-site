@@ -160,7 +160,7 @@ const tintOf = (hex) => lin(hex);
 const VERDANT_LEAF = { leaf: [0.66, 0.92, 0.78] };
 const BUSH_TINT = { coast: { leaf: [1.05, 1.12, 0.8] }, jungle: { leaf: [0.72, 0.9, 0.85] }, shrine: { leaf: [1, 1.05, 0.95] }, verdant: VERDANT_LEAF };
 
-export const FLAVOR_TINT = { coral: SEA_WORN, kelp: { leaf: [0.5, 0.95, 1.1] }, verdant: VERDANT_LEAF, moss: MOSSY };
+export const FLAVOR_TINT = { coral: SEA_WORN, kelp: { leaf: [0.5, 0.95, 1.1] }, verdant: VERDANT_LEAF, moss: MOSSY, frost: { leaf: [0.75, 0.95, 1.25] } }; 
 
 export function placeGrowth(batch, W) {
   const G = (o) => W.groundAt(o.x, o.y);

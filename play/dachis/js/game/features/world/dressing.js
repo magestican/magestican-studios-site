@@ -11,6 +11,7 @@
 
 
 
+
 import { U } from '../../../engine/core/util.js';
 import { T, addObj, BLOCKED } from './mapgen.js';
 
@@ -68,7 +69,7 @@ export function guardHuts(W, huts) {
     const s = h.s || 1, foot = 0.9 * s, obj = W.objects.find((o) => o.kind === 'hut' && o.x === h.x && o.y === h.y);
     if (obj) h.id = obj.id;
     const spread = spreadAt(W, h.x, h.y, foot), wet = !dryAt(W, h.x, h.y, foot);
-    if (spread > 0.15 || wet) {
+    if (spread > 0.15 || wet || h.stilt) { 
       
       let top = 0;
       for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2; top = Math.max(top, W.groundAt(h.x + Math.sin(a) * foot, h.y + Math.cos(a) * foot)); }

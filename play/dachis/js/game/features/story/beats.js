@@ -101,6 +101,14 @@ const REGION_BEATS = {
     L(NARR, 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'),
     L(KID, '(My Walkman light. Okay. It is a very small light.)'),
   ],
+  'frost-camp': [
+    L(NARR, 'Aerowing sets you down on snow so bright it hurts. Below lies a frozen lake, and a camp of huts standing over the ice on long legs, like wading birds.'),
+    L(KID, '(Snow. Real snow. ...In a T-shirt. Great. Perfect. I cannot feel my ears.)'),
+  ],
+  'frost-pass': [
+    L(NARR, 'The path climbs to the lip of a canyon. A rope bridge used to cross it straight; now only its posts are left, the ropes cut. A ledge path zigzags down the near side instead.'),
+    L(KID, '(Down, along, over, along, up. Okay. Nobody look down. ...I looked down.)'),
+  ],
   'echo-hamlet': [
     L(NARR, 'The passage ends on a shore. A black lake runs off into the dark, and a hamlet of stilt huts leans out over it on its toes.'),
     L(NARR, 'Somebody shouts a name across the water. The water shouts it back, three times, the last one a little wrong.'),

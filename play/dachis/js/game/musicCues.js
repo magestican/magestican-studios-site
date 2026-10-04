@@ -19,7 +19,7 @@ export const LOOPS = ['menu', 'town', 'isle', 'field', 'battle', 'boss', 'cave',
 export const STINGERS = ['victory', 'defeat'];
 export const CUES = [...LOOPS, ...STINGERS];
 
-export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven', 'hollowroot', 'vinegate', 'minehead', 'tomo-coast', 'echo-hamlet']; 
+export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven', 'hollowroot', 'vinegate', 'minehead', 'tomo-coast', 'echo-hamlet', 'frost-camp']; 
 
 
 export const CAVES = { 'ember-a': 'cave', 'ember-b': 'cave', 'temple-porch': 'cave', 'temple-nave': 'cave', 'temple-sanctum': 'cave', 'tree-vault': 'cave', 'tree-heart': 'cave', 'tree-roots': 'cave', 'court-stones': 'cave', 'court-gallery': 'cave', 'court-guards': 'cave', 'mine-workings': 'cave', 'shaft-a': 'cave', 'shaft-b': 'cave', 'seam-hall': 'cave', 'seam-narrows': 'cave', 'seam-stones': 'cave', 'seam-hollow': 'cave', 'geode-mouth': 'cave', 'geode-prism': 'cave', 'geode-heart': 'cave', 'geode-vault': 'cave', 'echo-river': 'cave', 'echo-isles': 'cave' }; 
@@ -55,7 +55,7 @@ export function preloadFor(cue) {
 
 
 export const AMBIENCE = {
-  minehead: { wind: 0.35, rumble: 0.35, chimes: 0.15 }, 'mine-workings': { rumble: 0.5, wind: 0.15 }, 'shaft-a': { rumble: 0.6 }, 'shaft-b': { rumble: 0.85 }, 'seam-hall': { rumble: 0.7, chimes: 0.1 }, 'seam-narrows': { rumble: 0.8, wind: 0.2 }, 'seam-stones': { rumble: 0.9, wind: 0.3 }, 'seam-hollow': { rumble: 0.5, chimes: 0.3 }, 'geode-mouth': { wind: 0.25, chimes: 0.45 }, 'geode-prism': { chimes: 0.6, rumble: 0.2 }, 'geode-heart': { chimes: 0.7, rumble: 0.3 }, 'geode-vault': { chimes: 0.5, wind: 0.15 }, 'echo-hamlet': { surf: 0.3, chimes: 0.2 }, 'echo-river': { surf: 0.6, rumble: 0.35 }, 'echo-isles': { surf: 0.45, wind: 0.2, chimes: 0.25 }, 
+  minehead: { wind: 0.35, rumble: 0.35, chimes: 0.15 }, 'mine-workings': { rumble: 0.5, wind: 0.15 }, 'shaft-a': { rumble: 0.6 }, 'shaft-b': { rumble: 0.85 }, 'seam-hall': { rumble: 0.7, chimes: 0.1 }, 'seam-narrows': { rumble: 0.8, wind: 0.2 }, 'seam-stones': { rumble: 0.9, wind: 0.3 }, 'seam-hollow': { rumble: 0.5, chimes: 0.3 }, 'geode-mouth': { wind: 0.25, chimes: 0.45 }, 'geode-prism': { chimes: 0.6, rumble: 0.2 }, 'geode-heart': { chimes: 0.7, rumble: 0.3 }, 'geode-vault': { chimes: 0.5, wind: 0.15 }, 'echo-hamlet': { surf: 0.3, chimes: 0.2 }, 'echo-river': { surf: 0.6, rumble: 0.35 }, 'echo-isles': { surf: 0.45, wind: 0.2, chimes: 0.25 }, 'frost-camp': { wind: 0.55, chimes: 0.2 }, 'frost-pass': { wind: 0.85, rumble: 0.15 }, 
   kazan: { wind: 0.5, rumble: 0.7, birds: 0.25 },
   village: { wind: 0.5, rumble: 0.7, birds: 0.25 },
   'ember-a': { rumble: 0.8, wind: 0.25 },

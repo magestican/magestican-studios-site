@@ -57,6 +57,7 @@ import { parseCheat, applyCheat } from './features/dev/cheats.js';
 import { darkPass } from './features/world/darkness.js';
 import { lightPass, mirrorNear, turnMirror } from './features/world/mirrors.js';
 import { updateRafts, riding, dockNear, startRide } from './features/world/rafts.js';
+import { updateDecks, winchNear, windWinch } from './features/world/decks.js';
 import { BATTLE_CLOCK } from './features/battle/rules.js';
 import { startI18n } from './i18n/i18nDom.js';
 import { tr, onLangChange } from './i18n/i18n.js';
@@ -440,6 +441,8 @@ function worldActions() {
   if (mirror) return turnMirror(mirror);
   const dock = dockNear(G.player.x, G.player.y); 
   if (dock) return startRide(dock);
+  const winch = winchNear(G.player.x, G.player.y); 
+  if (winch) return windWinch(winch);
   const spring = S.W.objects.find(o => o.heal && U.dist(G.player.x, G.player.y, o.x, o.y) < 1.7);
   if (spring) return restAtSpring();
   if (petNear()) petLead();
@@ -497,6 +500,12 @@ function worldHints() {
     S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.6, action: 'action', label: 'Pole off', color: '#8ad8ff', onTap: () => { if (dockNear(G.player.x, G.player.y) === dock) startRide(dock); } });
     return;
   }
+  const winch = winchNear(p.x, p.y); 
+  if (winch && !n) {
+    const [x, y] = S.stage.toScreen(winch.x, winch.y, S.W.groundAt(winch.x, winch.y) + 0.8);
+    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.6, action: 'action', label: 'Wind', color: '#c8ecff', onTap: () => { if (winchNear(G.player.x, G.player.y) === winch) windWinch(winch); } });
+    return;
+  }
   const mirror = mirrorNear(p.x, p.y); 
   if (mirror && !n) {
     const [x, y] = S.stage.toScreen(mirror.x, mirror.y, S.W.groundAt(mirror.x, mirror.y) + 0.7);
@@ -544,6 +553,7 @@ function frame(now) {
       else {
         updatePlayer(dt, !storyLocksMovement() && !riding());
         updateRafts(dt); 
+        updateDecks(); 
         updateNpcs(dt);
         const touched = updateWilds(dt, { active: !!G.flags.starter });
         separateCrowd(dt, lairBodies()); 
@@ -555,7 +565,7 @@ function frame(now) {
         const through = walkThrough(doorWalk, S.W, doorAt(G.flags, G.region, G.player.x, G.player.y));
         if (through) loadRegion(through.to, through.toAt);
         worldActions();
-        if (touched && G.mode === 'world') startBattle(touched);
+        if (touched && G.mode === 'world' && !G.player.deck) startBattle(touched); 
       }
     } else if (G.mode === 'battle') {
       if (S.dialog.active) dialogActions(); else battleActions();

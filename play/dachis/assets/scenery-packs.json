@@ -1,5 +1,5 @@
 {
- "hash": "8819f04",
+ "hash": "2c10da37",
  "regions": {
   "kazan-isle": {
    "forms": [
@@ -145,7 +145,7 @@
     "life-washline",
     "life-well"
    ],
-   "bytes": 434572
+   "bytes": 434576
   },
   "shrine-village": {
    "forms": [
@@ -822,6 +822,72 @@
     "life-well"
    ],
    "bytes": 601052
+  },
+  "frostspine": {
+   "forms": [
+    "fence-post",
+    "fence-rail",
+    "fern",
+    "flower-bed",
+    "flower-clump",
+    "flowers",
+    "frost-drift",
+    "frost-fir",
+    "frost-iceblock",
+    "frost-prayerline",
+    "frost-span",
+    "frost-winch",
+    "hut",
+    "lantern",
+    "life-apple",
+    "life-basket",
+    "life-bowl",
+    "life-cookfire",
+    "life-crates",
+    "life-fishrack",
+    "life-fruitfall",
+    "life-pots",
+    "life-stilts",
+    "life-strawbed",
+    "life-tools",
+    "life-toys",
+    "life-washline",
+    "life-well",
+    "pillar-1",
+    "spring-basin",
+    "step-slab",
+    "stone-dark-2",
+    "stone-dark-3",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "torch"
+   ],
+   "pack": "assets/scenery-frostspine.bin",
+   "extra": [
+    "frost-drift",
+    "frost-fir",
+    "frost-iceblock",
+    "frost-prayerline",
+    "frost-span",
+    "frost-winch",
+    "life-apple",
+    "life-basket",
+    "life-bowl",
+    "life-cookfire",
+    "life-crates",
+    "life-fishrack",
+    "life-fruitfall",
+    "life-pots",
+    "life-stilts",
+    "life-strawbed",
+    "life-tools",
+    "life-toys",
+    "life-washline",
+    "life-well"
+   ],
+   "bytes": 562968
   }
  }
 }

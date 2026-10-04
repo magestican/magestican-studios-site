@@ -19,6 +19,7 @@ import * as shaft from './regionMaps/lanternShaft.js';
 import * as seam from './regionMaps/deepSeam.js';
 import * as geode from './regionMaps/geodeGalleries.js';
 import * as echo from './regionMaps/echoLake.js';
+import * as frost from './regionMaps/frostspine.js';
 import { SPECIES, bossSpecies } from '../../data/species.js';
 import { partyRead } from '../battle/bossPattern.js';
 import { lairOf, lairOpen } from './lairs.js';
@@ -148,6 +149,14 @@ export function spawnNpcs() {
   if (G.region === echo.ID) {
     const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Tide' || s.types[0] === 'Frost')), re = U.rng(131);
     for (const d of echo.DWELLERS) {
+      const sp = kinds[Math.floor(re() * kinds.length)].id, p = pickNpcSpot(S.W, re, d.home, d.home.r, 0.8, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x: p.x, y: p.y, home: d.home, radius: d.home.r, lines: d.lines, tx: p.x, ty: p.y, wait: re() * 3 });
+    }
+  }
+  
+  if (G.region === frost.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Frost' || s.types[0] === 'Gale')), re = U.rng(161);
+    for (const d of frost.DWELLERS) {
       const sp = kinds[Math.floor(re() * kinds.length)].id, p = pickNpcSpot(S.W, re, d.home, d.home.r, 0.8, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x: p.x, y: p.y, home: d.home, radius: d.home.r, lines: d.lines, tx: p.x, ty: p.y, wait: re() * 3 });
     }

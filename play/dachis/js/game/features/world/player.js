@@ -7,6 +7,7 @@ import { hatGeoOf } from '../../data/collectibles.js';
 import { FOLLOW, BODY_R } from './crowd.js';
 import { stepSound } from './mapgen.js';
 import { toast } from '../../../engine/ui/dialog.js';
+import { stepTo, deckLift } from './deckRules.js';
 
 let kid = null, pet = null, petSp = 0;
 
@@ -17,6 +18,8 @@ export function createPlayerView() {
 
 export function updatePlayer(dt, canMove) {
   const p = G.player, W = S.W;
+  
+  const go = (who, x, y, r) => (W.decks ? stepTo(W, who, x, y, r, G.flags) : W.walkable(x, y, r));
   const a = canMove ? S.input.axis() : { x: 0, y: 0, mag: 0 };
   p.moving = a.mag > 0.12;
   if (p.moving) {
@@ -25,8 +28,8 @@ export function updatePlayer(dt, canMove) {
     const run = S.input.down('run') || a.mag > 0.92 && S.input.mode !== 'keys';
     const speed = (run ? 5.4 : 3.3) * Math.max(0.35, a.mag) * dt;
     const nx = p.x + wx * speed, ny = p.y + wy * speed;
-    if (W.walkable(nx, p.y, BODY_R.kid)) p.x = nx;
-    if (W.walkable(p.x, ny, BODY_R.kid)) p.y = ny;
+    if (go(p, nx, p.y, BODY_R.kid)) p.x = nx;
+    if (go(p, p.x, ny, BODY_R.kid)) p.y = ny;
     const before = Math.floor(p.walk / Math.PI);
     p.walk += dt * (run ? 16 : 11);
     
@@ -62,11 +65,11 @@ export function updatePlayer(dt, canMove) {
       const dx = p.x - f.x, dy = p.y - f.y;
       if (Math.abs(dx - dy) > 0.05) f.face = dx - dy > 0 ? 1 : -1;
       
-      if (W.walkable(f.x + dx * k, f.y, BODY_R.dachi)) f.x += dx * k;
-      if (W.walkable(f.x, f.y + dy * k, BODY_R.dachi)) f.y += dy * k;
+      if (go(f, f.x + dx * k, f.y, BODY_R.dachi)) f.x += dx * k;
+      if (go(f, f.x, f.y + dy * k, BODY_R.dachi)) f.y += dy * k;
       f.walk += dt * 10;
     }
-    if (d > 6) { f.x = p.x; f.y = p.y; } 
+    if (d > 6) { f.x = p.x; f.y = p.y; f.deck = p.deck || null; } 
   }
 }
 
@@ -76,7 +79,7 @@ export function drawPlayer(t, { hidden = false, shout = false, cheer = false, la
   kid.setVisible(!hidden);
   const dir = p.moving ? S.stage.screenDirToWorld(p.vx, p.vy) : lookAt ? [lookAt.x - p.x, lookAt.y - p.y] : null;
   setKidFrame(kid, { gender: G.gender, walk: p.walk, moving: p.moving, shout: shout && !cheer, cheer: cheer && !p.moving, land: Math.max(land, p.braced ? 0.55 : 0), dir });
-  kid.place(p.x, p.y, W.groundAt(p.x, p.y) + (p.lift || 0)); 
+  kid.place(p.x, p.y, W.groundAt(p.x, p.y) + (p.lift || 0) + (W.decks ? deckLift(W, p) : 0)); 
   const lead = G.party[0];
   if (lead && !pet) pet = dachiBillboard(S.stage.scene, speciesById(lead.sp).stage);
   if (pet) {
@@ -88,7 +91,7 @@ export function drawPlayer(t, { hidden = false, shout = false, cheer = false, la
       
       if (f.hop > 0) f.hop = Math.max(0, f.hop - 1 / 60);
       const bob = f.moving ? Math.abs(Math.sin(f.walk)) * 0.12 : f.hop > 0 ? Math.abs(Math.sin(f.hop * 11.4)) * 0.35 : Math.sin(t * 3) * 0.02;
-      pet.place(f.x, f.y, W.groundAt(f.x, f.y) + (f.lift || 0), bob);
+      pet.place(f.x, f.y, W.groundAt(f.x, f.y) + (f.lift || 0) + (W.decks ? deckLift(W, f) : 0), bob);
     }
   }
 }
