@@ -239,3 +239,13 @@
 
 .talk-wrap { max-height: 100%; box-sizing: border-box; overflow-y: auto; }
 .mediate .nb-g { font-size: 14px; margin: 4px 0; }
+
+
+
+
+.tm-canvas { position: relative; }
+.tm-3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .5s; pointer-events: none; }
+.tm-3d.on { opacity: 1; }
+.townmap { position: relative; }
+.townmap.td3 > rect, .townmap.td3 > .tm-dk, .townmap.td3 > .tm-lights, .townmap.td3 .tm-hl { visibility: hidden; }
+.townmap.td3 .tm-smoke, .townmap.td3 .tm-gull { visibility: visible; }

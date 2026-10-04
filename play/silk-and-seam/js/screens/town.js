@@ -92,7 +92,7 @@ function bar() {
 
 
 function mapView() {
-  return `<div class="town-map-view"><div class="tm-wrap"><div class="tm-canvas">${townMapSVG(BUILDINGS, buildingStatus, { night: isNight() })}</div></div>
+  return `<div class="town-map-view"><div class="tm-wrap"><div class="tm-canvas"><canvas class="tm-3d" aria-hidden="true"></canvas>${townMapSVG(BUILDINGS, buildingStatus, { night: isNight() })}</div></div>
     <div class="tm-top"><h1>Thimblebury</h1>${bar()}</div>
     <div class="tm-legend">${[['mend', 'mend', 'lg-mend'], ['work', 'work', 'lg-work'], ['talk', 'talk'], ['done', 'visited'], ['closed', 'shut', 'lg-shut'], ...(isNight() ? [['sleep', 'asleep', 'lg-sleep']] : [])].map(([st, w, c]) => `<span${c ? ` class="${c}"` : ''}>${legendIcon(st)}${w}</span>`).join('')}</div>
     <div class="tm-card paper" hidden></div></div>`;
@@ -122,12 +122,33 @@ function showCard(root, id, touch = false) {
   root.querySelectorAll('.tm-b.sel').forEach((n) => n.classList.remove('sel'));
   root.querySelector(`.tm-b[data-b="${id}"]`)?.classList.add('sel');
   el.querySelector('[data-enter]').onclick = () => enter(root, id);
+  view3d?.highlight(id);
 }
 function hideCard(root) {
   card = null;
   const el = $('.tm-card', root);
   if (el) el.hidden = true;
   root.querySelectorAll('.tm-b.sel').forEach((n) => n.classList.remove('sel'));
+  view3d?.highlight(null);
+}
+
+
+
+
+
+let view3d = null;
+export const want3d = () => !!window.WebGL2RenderingContext && !['town2d', 'svg'].some((k) => new URLSearchParams(location.search).has(k));
+function start3d(root) {
+  view3d?.dispose(); view3d = null;
+  const cv = $('.tm-3d', root), svg = $('.townmap', root);
+  if (!cv || !svg || !want3d()) return;
+  import('../town3d.js').then((m) => m.townView(cv, { night: isNight(), buildings: BUILDINGS, quality: state.settings?.quality || 'auto' })).then((v) => {
+    if (!v) return;
+    if (!cv.isConnected) { v.dispose(); return; }
+    view3d = v;
+    if (card) v.highlight(card);
+    v.firstFrame.then(() => { if (cv.isConnected) { svg.classList.add('td3'); cv.classList.add('on'); } });
+  }).catch((err) => console.warn('3D town unavailable, painted map kept:', err));
 }
 function enter(root, id) {
   const b = building(id);
@@ -246,7 +267,8 @@ function render(root) {
     
     const wrap = $('.tm-wrap', root);
     if (wrap && wrap.scrollWidth > wrap.clientWidth) wrap.scrollLeft = mapScroll ?? (wrap.scrollWidth - wrap.clientWidth) * 0.5;
-  }
+    start3d(root);
+  } else if (view3d) { view3d.dispose(); view3d = null; }
   
   const tk = view.talk;
   if (tk?.voiceLine) { speak(person(tk.id).voice, tk.voiceLine, tk.emotion); tk.voiceLine = null; }
@@ -389,3 +411,4 @@ export default {
 
 
 window.__town = () => ({ view: { b: view.b, card, talk: view.talk && { id: view.talk.id, set: view.talk.set, round: view.talk.round, rapport: view.talk.rapport, stage: view.talk.stage, emotion: view.talk.emotion } }, town: state.town, reactionOf: (id, a) => reactionOf(person(id), a), map: { w: MAP_W, h: MAP_H, layout: LAYOUT } });
+window.__town3d = () => (view3d ? { ...view3d.info(), td3: !!document.querySelector('.townmap.td3') } : null);

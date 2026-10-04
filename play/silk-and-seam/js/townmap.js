@@ -42,7 +42,7 @@ const shade = (hex, amt) => {
 const f = (n) => Math.round(n * 10) / 10;
 
 
-function display(kind, x, y, w, h) {
+export function display(kind, x, y, w, h) {
   const cx = x + w / 2, by = y + h;
   switch (kind) {
     case 'bread': return [0, 1, 2].map((i) => `<ellipse cx="${f(x + 16 + i * (w - 32) / 2)}" cy="${f(by - 12)}" rx="14" ry="9" fill="#c98a3e"/><path d="M${f(x + 8 + i * (w - 32) / 2)},${f(by - 14)} l6,-4 M${f(x + 14 + i * (w - 32) / 2)},${f(by - 13)} l6,-4 M${f(x + 20 + i * (w - 32) / 2)},${f(by - 12)} l6,-4" stroke="#f3d9a4" stroke-width="1.5"/>`).join('') +
@@ -294,8 +294,7 @@ export function townMapSVG(buildings, statusOf = () => '', { night = false } = {
   const hill = `<path d="M960,330 C1040,290 1080,300 1120,305 L1600,300 V420 H940 Z" fill="#8fae6a"/><path d="M1000,318 C1100,300 1300,298 1600,300" stroke="#e8dcc0" stroke-width="16" fill="none"/>` +
     [1030, 1060, 1320, 1470].map((x, i) => tree(x, 322 + (i % 2) * 4, 0.8)).join('');
   const roads = `<g fill="none" stroke-linecap="round">` +
-    ['M850,830 C850,720 800,640 785,560', 'M785,560 C640,540 480,470 260,430', 'M700,580 C600,640 470,660 360,700', 'M785,560 C920,570 1100,590 1560,600', 'M1000,590 C1040,520 960,440 1010,380 C1050,340 1100,330 1180,318', 'M960,640 C1040,700 1120,760 1170,810', 'M500,660 C540,720 570,760 590,810']
-      .map((d) => `<path d="${d}" stroke="#bfae8c" stroke-width="44"/><path d="${d}" stroke="#d9c9a6" stroke-width="36"/><path d="${d}" stroke="#cbb994" stroke-width="36" stroke-dasharray="3 14" stroke-opacity=".7"/>`).join('') + `</g>`;
+    ROADS.map((d) => `<path d="${d}" stroke="#bfae8c" stroke-width="44"/><path d="${d}" stroke="#d9c9a6" stroke-width="36"/><path d="${d}" stroke="#cbb994" stroke-width="36" stroke-dasharray="3 14" stroke-opacity=".7"/>`).join('') + `</g>`;
   const square = `<ellipse cx="785" cy="560" rx="170" ry="48" fill="#d9c9a6" stroke="#bfae8c" stroke-width="4"/>` +
     `<ellipse cx="785" cy="566" rx="30" ry="10" fill="#8aa6b0" stroke="#b8a888" stroke-width="4"/><path class="tm-fount" d="M785,562 q-10,-26 -20,-6 M785,562 q10,-26 20,-6 M785,562 v-28" stroke="#d9ecf0" stroke-width="2.5" fill="none"/>`;
   const clock = `<g class="tm-clock"><rect x="765" y="330" width="40" height="190" fill="#b8926a"/><rect x="765" y="330" width="40" height="190" fill="url(#tm-wallshade)"/><path d="M759,332 L785,286 L811,332 Z" fill="#6b4a3a"/><circle cx="785" cy="362" r="15" fill="#f6ecd4" stroke="#6b4a2f" stroke-width="4"/>` +
@@ -354,6 +353,8 @@ export function townMapSVG(buildings, statusOf = () => '', { night = false } = {
     `</g>${scene}${labels}<g class="tm-badges">${badges}</g></svg>`;
 }
 
+
+export const ROADS = ['M850,830 C850,720 800,640 785,560', 'M785,560 C640,540 480,470 260,430', 'M700,580 C600,640 470,660 360,700', 'M785,560 C920,570 1100,590 1560,600', 'M1000,590 C1040,520 960,440 1010,380 C1050,340 1100,330 1180,318', 'M960,640 C1040,700 1120,760 1170,810', 'M500,660 C540,720 570,760 590,810'];
 export const TREES = [[40, 470], [385, 520], [700, 700], [990, 700], [1560, 690], [1545, 812], [500, 500], [1000, 800], [30, 800]];
 
 const LANTERN_STRINGS = [[1050, 470, 1390, 455], [1220, 480, 1550, 470]];
