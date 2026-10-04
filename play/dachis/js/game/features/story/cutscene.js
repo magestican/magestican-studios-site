@@ -5,7 +5,7 @@ import { createPixelLayer } from '../../../engine/ui/pixelLayer.js';
 
 let layer = null;
 
-const playSfx = (sfx) => { if (!sfx || !S.sfx) return; for (const [n, ms] of typeof sfx === 'string' ? [[sfx, 0]] : sfx) ms ? setTimeout(() => S.sfx.play(n), ms) : S.sfx.play(n); };
+const playSfx = (sfx) => { if (!sfx || !S.sfx) return; for (const [n, ms] of typeof sfx === 'string' ? [[sfx, 0]] : sfx) ms ? setTimeout(() => S.sfx.play(n, { tag: 'dlg' }), ms) : S.sfx.play(n, { tag: 'dlg' }); };
 
 const $ = id => document.getElementById(id);
 
@@ -33,7 +33,7 @@ export const Cutscene = {
       if (this.scene >= this.scenes.length) this.finish(); else this.playScene();
     });
   },
-  skip() { if (G.mode !== 'cutscene') return; S.dialog.clear(); this.finish(); },
+  skip() { if (G.mode !== 'cutscene') return; S.sfx.fade('dlg', 0.4); S.dialog.clear(); this.finish(); }, 
   finish() {
     if (G.mode !== 'cutscene') return;
     $('skipBtn').classList.add('hidden');

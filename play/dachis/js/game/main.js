@@ -264,7 +264,7 @@ for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 
 {
   const v = document.querySelector('meta[name=build]')?.content, q = v && v !== 'dev' ? '?v=' + encodeURIComponent(v) : '';
   const url = (n) => new URL('assets/sfx/' + n + '.mp3' + q, document.baseURI).href;
-  const TAKES = { stepGrass: 2, stepSand: 2, stepDirt: 2, stepStone: 2, stepSoft: 2, voiceKid: 3, voiceAdult: 3, voiceDachi: 3, voiceBoss: 3, thought: 2 };
+  const TAKES = { stepGrass: 4, stepSand: 4, stepDirt: 4, stepStone: 4, stepSoft: 4, voiceKid: 3, voiceAdult: 3, voiceDachi: 3, voiceBoss: 3, thought: 2 };
   for (const [n, k] of Object.entries(TAKES)) { const list = []; for (let i = 1; i <= k; i++) { S.sfx.load(n + i, url(n + i)); list.push(n + i); } S.sfx.takes(n, list); }
   for (const n of ['slap', 'pencil', 'thinkIn', 'narrateIn', 'bossSting', 'prompt']) S.sfx.load(n, url(n));
   
@@ -293,16 +293,34 @@ S.input = createInput({
   stickZone: $('touchZone'),
   canStartStick: e => G.mode === 'world' && !S.dialog.active && !S.hints.hit(e.clientX, e.clientY),
 });
+noPageZoom();
+
+
+
+function noPageZoom() {
+  const stop = (e) => e.preventDefault();
+  for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev, stop, { passive: false });
+  document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+  const vv = window.visualViewport, meta = document.querySelector('meta[name=viewport]');
+  if (!vv || !meta) return;
+  const base = meta.getAttribute('content');
+  vv.addEventListener('resize', () => {
+    if (vv.scale <= 1.01) return;
+    meta.setAttribute('content', base.replace('maximum-scale=1', 'maximum-scale=1.0001'));
+    setTimeout(() => meta.setAttribute('content', base), 60);
+  });
+}
 hydrateIcons(document); 
 S.hints = createHints(S.input);
-S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onLine: (l, first) => S.sfx.play(lineSound(l, first)), 
+S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onLine: (l, first) => S.sfx.play(lineSound(l, first), DLG), 
   
-  kindOf: lineKind, textOf: lineText, onAdvance: () => tapHint.learned(),
+  kindOf: lineKind, textOf: lineText, onAdvance: () => { tapHint.learned(); S.sfx.fade('dlg', 0.25); }, 
   
   
-  onType: (l) => { if (lineKind(l) === 'narrate') return; const v = voiceFor(l, G.name); if (v === 'voiceBoss' && (voiceN++ & 1)) return; S.sfx.play(v); },
-  onTyped: (l) => { if (!S.dialog.choosing) S.sfx.play('prompt'); } });
+  onType: (l) => { if (lineKind(l) === 'narrate') return; const v = voiceFor(l, G.name); if (v === 'voiceBoss' && (voiceN++ & 1)) return; S.sfx.play(v, DLG); },
+  onTyped: (l) => { if (!S.dialog.choosing) S.sfx.play('prompt', DLG); } });
 let voiceN = 0;
+const DLG = { tag: 'dlg' }; 
 S.flash = 0;
 setFinishHandler(onBattleFinished);
 createPlayerView();

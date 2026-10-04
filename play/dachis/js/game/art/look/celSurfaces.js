@@ -60,9 +60,12 @@ vec4 celGround() {
   if ( abs( pe ) < fPe * 1.6 ) return vec4( uCelInk, 1.0 );
   float pc = uGPalN.x - 1.0;
   if ( pe < 0.0 ) {
-    // painted dashes down the middle of the wide roads (a city kid's road)
-    float dash = ( pd < -0.5 && fract( ( w.x - w.y ) * 1.3 ) < 0.18 && celNoise3( vec3( w * 2.0, 2.0 ) ) > 0.35 ) ? 1.0 : 0.0;
-    return vec4( gTone( pc, reg, dash ), 0.0 );
+    // a dirt road: no painted dashes (they read as a glitch on a jungle path) - the road is
+    // scattered with darker pebbles and a few pale grit flecks instead
+    vec3 base = gTone( pc, reg, 0.0 );
+    if ( celNoise3( vec3( w * 5.5, 2.0 ) ) > 0.9 ) return vec4( base * 0.8, 0.0 );
+    if ( celNoise3( vec3( w * 7.3, 8.0 ) ) > 0.94 ) return vec4( mix( base, gTone( pc, reg, 1.0 ), 0.4 ), 0.0 );
+    return vec4( base, 0.0 );
   }
   if ( second > 0.0 && gap < fGap * uGInk ) return vec4( uCelInk, 1.0 );
   return vec4( gTone( cls, reg, blob ), 0.0 );

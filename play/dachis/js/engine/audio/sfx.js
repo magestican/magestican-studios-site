@@ -58,7 +58,7 @@ export function createSfx({ key, recipes }) {
   
   
   
-  const files = {}, bufs = {}, sets = {};
+  const files = {}, bufs = {}, sets = {}, live = new Set();
   const decode = (name) => {
     if (bufs[name] || !ctx || !files[name]) return bufs[name];
     bufs[name] = files[name].then((ab) => ctx.decodeAudioData(ab.slice(0))).catch(() => { delete files[name]; return null; });
@@ -69,14 +69,32 @@ export function createSfx({ key, recipes }) {
     
     
     takes(name, list) { sets[name] = { list, last: -1 }; },
-    play(name) {
+    
+    fade(tag, sec = 0.25) {
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      for (const it of live) {
+        if (it.tag !== tag || it.fading) continue;
+        it.fading = true;
+        it.g.gain.cancelScheduledValues(now); it.g.gain.setValueAtTime(it.g.gain.value, now); it.g.gain.linearRampToValueAtTime(0.0001, now + sec);
+        try { it.s.stop(now + sec + 0.02); } catch (e) {  }
+      }
+    },
+    play(name, opts = {}) {
       ensure();
       const set = sets[name];
       if (set) { let i = Math.floor(Math.random() * set.list.length); if (i === set.last && set.list.length > 1) i = (i + 1) % set.list.length; set.last = i; if (files[set.list[i]]) name = set.list[i]; }
       const b = files[name] && decode(name);
       if (b && ctx && !muted) {
         const t = ctx.currentTime;
-        b.then((buf) => { if (!buf || muted) { if (!buf && recipes[name]) recipes[name]({ tone, noise }); return; } const s = ctx.createBufferSource(); s.buffer = buf; s.connect(master); s.start(Math.max(t, ctx.currentTime)); });
+        b.then((buf) => {
+          if (!buf || muted) { if (!buf && recipes[name]) recipes[name]({ tone, noise }); return; }
+          
+          
+          const s = ctx.createBufferSource(), g = ctx.createGain(), item = { s, g, tag: opts.tag || null };
+          s.buffer = buf; s.connect(g).connect(master); s.start(Math.max(t, ctx.currentTime));
+          live.add(item); s.onended = () => live.delete(item);
+        });
         return;
       }
       const r = recipes[name]; if (r) r({ tone, noise });
