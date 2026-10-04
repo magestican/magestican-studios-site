@@ -3,7 +3,7 @@
 
 
 const INK = '#0d0a14';
-import { puffs } from './celIntro.js';
+import { puffs, cumulus } from './celIntro.js';
 
 
 
@@ -26,15 +26,8 @@ export function dots(ctx, x, y, w, h, color, cell = 9, grow = true) {
 }
 
 
-export function cloud(ctx, x, y, s, line = 3) {
-  const puffs = [[-45, 0, 50, 26], [-15, -10, 46, 30], [15, -4, 50, 28], [45, 4, 42, 22]].map(([dx, dy, rx, ry]) => [x + dx * s, y + dy * s, rx * s, ry * s]);
-  const draw = (grow, color) => { ctx.fillStyle = color; for (const [cx, cy, rx, ry] of puffs) { ctx.beginPath(); ctx.ellipse(cx, cy, rx + grow, ry + grow, 0, 0, 6.2832); ctx.fill(); } };
-  draw(line, INK);
-  draw(0, '#ffffff');
-  ctx.save(); ctx.beginPath();
-  for (const [cx, cy, rx, ry] of puffs) { ctx.moveTo(cx + rx, cy); ctx.ellipse(cx, cy, rx, ry, 0, 0, 6.2832); }
-  ctx.clip(); ctx.fillStyle = '#c9c2f0'; ctx.fillRect(x - 120 * s, y + 10 * s, 240 * s, 40 * s); ctx.restore();
-}
+
+export function cloud(ctx, x, y, s, line = 3) { cumulus(ctx, x, y, s, line); }
 
 export function ocean(ctx, w, h, t, marks) {
   ctx.fillStyle = '#1a8fe0'; ctx.fillRect(0, 0, w, h);

@@ -205,3 +205,52 @@ export function paving(ctx, { y0, y1, xa0, xb0, xa1, xb1, rows = 16, cols = 9, s
   ctx.fillStyle = hz; ctx.fillRect(Math.min(xa0, xa1), y0, Math.max(xb0, xb1) - Math.min(xa0, xa1), y1 - y0);
   ctx.restore();
 }
+
+
+export function cumulus(ctx, x, y, s, line = 3) {
+  const B = [[-48, 6, 30], [-22, -8, 36], [8, -16, 40], [38, -4, 32], [60, 8, 22], [-4, 10, 30], [26, 12, 26]].map(([dx, dy, r]) => [x + dx * s, y + dy * s, r * s]);
+  const all = (g) => { ctx.beginPath(); for (const [bx, by, br] of B) { ctx.moveTo(bx + br + g, by); ctx.arc(bx, by, br + g, 0, 6.2832); } };
+  ctx.save();
+  ctx.fillStyle = INK; all(line); ctx.fill();
+  ctx.fillStyle = '#c9c0ec'; all(0); ctx.fill();
+  all(0); ctx.clip();
+  ctx.fillStyle = '#ffffff'; for (const [bx, by, br] of B) { ctx.beginPath(); ctx.arc(bx - br * 0.1, by - br * 0.22, br * 0.86, 0, 6.2832); ctx.fill(); }
+  ctx.fillStyle = '#a99fd6'; ctx.fillRect(x - 90 * s, y + 18 * s, 180 * s, 30 * s); 
+  ctx.fillStyle = '#fffbe8'; for (const [bx, by, br] of B) { ctx.beginPath(); ctx.ellipse(bx - br * 0.3, by - br * 0.5, br * 0.34, br * 0.18, -0.4, 0, 6.2832); ctx.fill(); }
+  ctx.restore();
+}
+
+
+
+export function hut(ctx, x, y, s, roof, t = 0) {
+  const w = 26 * s, h = 22 * s, ry = y + 6 - h, lw = Math.max(1.5, 2.2 * s);
+  const shade = (hex, k) => { const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255].map((v) => Math.max(0, Math.min(255, Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k))))); return `rgb(${c[0]},${c[1]},${c[2]})`; };
+  ctx.save(); ctx.lineJoin = 'round'; ctx.strokeStyle = INK; ctx.lineWidth = lw;
+  ctx.fillStyle = 'rgba(20,8,4,0.3)'; ctx.beginPath(); ctx.ellipse(x, y + 8 * s, w * 1.35, w * 0.45, 0, 0, 6.2832); ctx.fill();
+  const face = (sx, col) => { ctx.beginPath(); ctx.moveTo(x + sx * w, y - w * 0.5 + 6); ctx.lineTo(x, y + 6); ctx.lineTo(x, ry); ctx.lineTo(x + sx * w, y - w * 0.5 + 6 - h); ctx.closePath(); ctx.fillStyle = col; ctx.fill(); ctx.stroke(); };
+  face(-1, '#d9b27a'); face(1, '#a87a46');
+  ctx.lineWidth = Math.max(1, lw * 0.5); ctx.strokeStyle = 'rgba(60,30,10,0.55)'; 
+  for (let i = 1; i < 6; i++) for (const sx of [-1, 1]) { const px = x + sx * w * i / 6, dy = -w * 0.5 * i / 6; ctx.beginPath(); ctx.moveTo(px, y + 6 + dy); ctx.lineTo(px, y + 6 + dy - h); ctx.stroke(); }
+  for (let i = 0; i < 7; i++) { const e = i / 6, px = lerp(x - w, x + w, e), py = y + 6 - Math.abs(e - 0.5) * w; ctx.fillStyle = '#6a6070'; ctx.beginPath(); ctx.ellipse(px, py, 5 * s, 3 * s, 0, 0, 6.2832); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, lw * 0.6); ctx.stroke(); } 
+  
+  const fl = 0.75 + 0.25 * Math.sin(t * 9 + x);
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.roundRect(x + w * 0.24, y - 15 * s, 11 * s, 18 * s, [5 * s, 5 * s, 0, 0]); ctx.fill();
+  ctx.fillStyle = `rgb(255,${Math.round(170 + 40 * fl)},80)`; ctx.beginPath(); ctx.roundRect(x + w * 0.24 + 1.5 * s, y - 13.5 * s, 8 * s, 16.5 * s, [4 * s, 4 * s, 0, 0]); ctx.fill();
+  ctx.fillStyle = '#c0392b'; ctx.fillRect(x + w * 0.24 + 1.5 * s, y - 13.5 * s, 8 * s, 4 * s);
+  const lg = ctx.createRadialGradient(x + w * 0.62, y - 10 * s, 1, x + w * 0.62, y - 10 * s, 26 * s); lg.addColorStop(0, `rgba(255,200,90,${(0.5 * fl).toFixed(3)})`); lg.addColorStop(1, 'rgba(255,200,90,0)');
+  ctx.fillStyle = lg; ctx.fillRect(x, y - 40 * s, 60 * s, 60 * s);
+  ctx.fillStyle = INK; ctx.fillRect(x + w * 0.62 - 3 * s, y - 14 * s, 6 * s, 8 * s); ctx.fillStyle = '#ffd36a'; ctx.fillRect(x + w * 0.62 - 2 * s, y - 13 * s, 4 * s, 6 * s);
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x - w * 0.5, y - 10 * s, 5 * s, 0, 6.2832); ctx.fill(); ctx.fillStyle = '#ffcf7a'; ctx.beginPath(); ctx.arc(x - w * 0.5, y - 10 * s, 3.4 * s, 0, 6.2832); ctx.fill(); 
+  
+  for (const [k, lift, peak, light] of [[1.3, 0.3, 14, 0.08], [1.0, 0.95, 24, 0.22], [0.66, 1.7, 34, 0.38]]) {
+    const bx = w * k, by = ry - w * 0.3 * k - lift * 6 * s, top = ry - (peak + 6) * s;
+    ctx.fillStyle = shade(roof, light - 0.25); ctx.strokeStyle = INK; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(x - bx, by); ctx.lineTo(x, top); ctx.lineTo(x + bx, by);
+    for (let i = 0; i <= 12; i++) { const e = 1 - i / 12, px = lerp(x - bx, x + bx, e), sag = (1 - Math.abs(e - 0.5) * 2) * 10 * s * k; ctx.lineTo(px, by + sag + (i % 2 ? 4 * s : 0)); }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = shade(roof, light + 0.15); ctx.lineWidth = Math.max(1, lw * 0.45);
+    for (let i = 1; i < 9; i++) { const e = i / 9, px = lerp(x - bx, x + bx, e); ctx.beginPath(); ctx.moveTo(lerp(x, px, 0.55), lerp(top, by, 0.55)); ctx.lineTo(px, by + (1 - Math.abs(e - 0.5) * 2) * 8 * s * k); ctx.stroke(); }
+  }
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x, ry - 42 * s, 3 * s, 0, 6.2832); ctx.fill(); 
+  ctx.restore();
+}

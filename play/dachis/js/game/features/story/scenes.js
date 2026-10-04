@@ -8,7 +8,7 @@ import { ART } from '../../art/characters.js';
 import { dachiPortrait, aerowingPortrait, aerowingRidePortrait, castFigure, RIDE_SHOT, kidFallFigure, FALL_FRAMES } from '../../art/portraitRender.js';
 import { lookName } from '../../art/look/celRules.js';
 import * as SKY from '../../art/look/celSky.js';
-import { puffs, puddles, brickWall, seaHorizon, oceanTop, paving } from '../../art/look/celIntro.js';
+import { puffs, puddles, brickWall, seaHorizon, oceanTop, paving, hut as celHut } from '../../art/look/celIntro.js';
 
 
 const CEL = typeof location !== 'undefined' && lookName(location.search) === 'cel';
@@ -434,9 +434,7 @@ export const SCENES = [
         stones: ['#8a6a58', '#9a7a64', '#7a5a4a', '#a58670', '#6e5040', '#94725c'], gap: '#3a241c', lip: 'rgba(255,220,170,0.25)', under: 'rgba(40,16,10,0.4)', moss: '#5a9a3a' });
       ctx.fillStyle = `rgba(255,110,40,${0.5 + 0.2 * Math.sin(t * 3)})`; U.ellipse(ctx, w * 0.18, h * 0.6, w * 0.08, h * 0.015); ctx.fill();
       villageLife(ctx, w, h, t, 'back');
-      ART.hut(ctx, w * 0.35, h * 0.63, 1.6, '#d8763a');
-      ART.hut(ctx, w * 0.62, h * 0.61, 1.4, '#c9543a');
-      ART.hut(ctx, w * 0.84, h * 0.64, 1.7, '#e0a040');
+      celHut(ctx, w * 0.35, h * 0.63, 1.6, '#d8763a', t); celHut(ctx, w * 0.62, h * 0.61, 1.4, '#c9543a', t); celHut(ctx, w * 0.84, h * 0.64, 1.7, '#e0a040', t); 
       ART.torch(ctx, w * 0.46, h * 0.7, t, 1); ART.torch(ctx, w * 0.74, h * 0.72, t, 2);
       villageLife(ctx, w, h, t, 'front');
       if (li >= 2) {
