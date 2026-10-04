@@ -96,7 +96,7 @@ varying vec3 vW;
 void main() { vec4 w = modelMatrix * vec4( position, 1.0 ); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`;
 const WATER_F =  `
 uniform sampler2D uDepth; uniform float uMapN; uniform float uCelTime; uniform float uCelCell; uniform vec3 uCelInk;
-uniform vec3 uWC[ 4 ]; uniform float uWA[ 4 ]; uniform vec3 uWEdge;
+uniform vec3 uWC[ 4 ]; uniform float uWA[ 4 ]; uniform vec3 uWEdge; uniform float uGleam;
 varying vec3 vW;
 ${NOISE}
 void main() {
@@ -116,7 +116,9 @@ void main() {
   else { col = uWC[ 3 ]; a = uWA[ 3 ]; if ( length( cell ) < 0.2 ) col = mix( col, uWC[ 2 ], 0.55 ); } // halftone in the deep
   if ( abs( e ) < fe * 1.4 ) { col = uCelInk; a = 1.0; } // ink round the foam
   else if ( d > 0.12 ) {
-    if ( g > 0.81 ) { col = vec3( 1.0 ); a = 1.0; }
+    // gq12: still, tinted water (Minehead's mine pit) has no white surf gleams - a dull sheen of its own shallow band
+    if ( uGleam < 0.5 ) { if ( g > 0.86 ) col = mix( col, uWC[ 0 ], 0.35 ); }
+    else if ( g > 0.81 ) { col = vec3( 1.0 ); a = 1.0; }
     else if ( g > 0.81 - fg * 1.5 ) { col = uWEdge; a = 1.0; }
   }
   gl_FragColor = vec4( col, a );
@@ -127,7 +129,7 @@ function waterFrom(src, info, U) {
     transparent: true, depthWrite: false,
     uniforms: {
       uDepth: src.uniforms.uDepth, uMapN: src.uniforms.uMapN, uCelTime: U.uCelTime, uCelCell: U.uCelCell, uCelInk: U.uCelInk,
-      uWC: { value: R.WATER_BANDS.map(([, h]) => lin(h)) }, uWA: { value: R.WATER_ALPHA.slice() }, uWEdge: { value: lin(R.WATER_EDGE) },
+      uWC: { value: R.WATER_BANDS.map(([, h]) => lin(h)) }, uWA: { value: R.WATER_ALPHA.slice() }, uWEdge: { value: lin(R.WATER_EDGE) }, uGleam: { value: 1 },
     },
     vertexShader: WATER_V, fragmentShader: WATER_F,
   });
@@ -178,7 +180,7 @@ function discFrom(info, U, frag, uniforms, name) {
 
 export function tintWater(hexes) {
   const cols = hexes || R.WATER_BANDS.map(([, h]) => h);
-  for (const m of made) if (m.name === 'cel:water') cols.forEach((h, i) => m.uniforms.uWC.value[i].set(lin(h)));
+  for (const m of made) if (m.name === 'cel:water') { cols.forEach((h, i) => m.uniforms.uWC.value[i].set(lin(h))); m.uniforms.uGleam.value = hexes ? 0 : 1; }
 }
 
 

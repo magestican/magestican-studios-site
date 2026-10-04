@@ -529,6 +529,9 @@ function placeVerdant(W) {
     for (const t of [0.3, 0.8]) for (const side of [-1, 1]) add({ kind: 'lantern', x: U.lerp(ax, bx, t) - dy * side * 1.25, y: U.lerp(ay, by, t) + dx * side * 1.25, solid: 0.25, rot: Math.atan2(dx, dy), flavor: 'moss' });
   }
   
+  
+  { const [lx, ly] = fromUV(-17.6, 60.1); add({ kind: 'ladder', x: lx, y: ly, solid: 0, rot: Math.atan2(...(([ax, ay], [bx, by]) => [bx - ax, by - ay])(fromUV(0, 0), fromUV(0, -1))) }); }
+  
   add({ kind: 'jtree', x: V.tree.x, y: V.tree.y, solid: 0.9, s: 1.75, rot: 0.6, flavor: 'verdant' });
   
   for (let k = 0; k < 12; k++) {

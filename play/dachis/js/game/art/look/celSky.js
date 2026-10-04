@@ -3,6 +3,7 @@
 
 
 const INK = '#0d0a14';
+import { puffs } from './celIntro.js';
 
 
 
@@ -105,7 +106,8 @@ export function island(ctx, cx, cy, R, line = 3, t = 0) {
   ctx.beginPath(); ctx.ellipse(vx, vy, R * 0.09, R * 0.08, 0, 0, 6.2832); ctx.fillStyle = '#ff6a1a'; ctx.fill();
   ctx.beginPath(); ctx.ellipse(vx, vy, R * (0.035 + glow * 0.015), R * (0.03 + glow * 0.013), 0, 0, 6.2832); ctx.fillStyle = '#ffcf3a'; ctx.fill();
   
-  for (let i = 0; i < 9; i++) {
+  puffs(ctx, { x: vx, y: vy, t, scale: R / 260, drift: 1.6, rise: R * 0.55, n: 8, speed: 0.12, line: Math.max(1.5, line * 0.8), palette: ['#8f86a6', '#c3bad6', '#f0ecf8'] });
+  for (let i = 0; i < 0; i++) { 
     const p = (t * 0.12 + i / 9) % 1, r = R * (0.06 + p * 0.16);
     const x = vx + p * R * 0.9, y = vy - p * R * 0.35;
     ctx.globalAlpha = 0.75 * (1 - p); ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x, y, r + line, 0, 6.2832); ctx.fill();

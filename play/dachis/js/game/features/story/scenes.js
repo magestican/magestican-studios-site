@@ -8,6 +8,7 @@ import { ART } from '../../art/characters.js';
 import { dachiPortrait, aerowingPortrait, aerowingRidePortrait, castFigure, RIDE_SHOT, kidFallFigure, FALL_FRAMES } from '../../art/portraitRender.js';
 import { lookName } from '../../art/look/celRules.js';
 import * as SKY from '../../art/look/celSky.js';
+import { puffs, puddles, brickWall, seaHorizon, oceanTop, paving } from '../../art/look/celIntro.js';
 
 
 const CEL = typeof location !== 'undefined' && lookName(location.search) === 'cel';
@@ -193,7 +194,12 @@ function drawAlley(ctx, w, h, t) {
   g = ctx.createLinearGradient(0, bot, 0, h);
   g.addColorStop(0, '#2b2a33'); g.addColorStop(1, '#121118');
   ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(inL, bot); ctx.lineTo(inR, bot); ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = 'rgba(255,170,120,0.18)'; U.ellipse(ctx, vx + 30, h * 0.82, w * 0.12, h * 0.03); ctx.fill(); 
+  
+  paving(ctx, { y0: bot, y1: h, xa0: inL, xb0: inR, xa1: 0, xb1: w, rows: 20, cols: 7, seed: 3, t, stones: ['#2c2b38', '#34323f', '#26252f', '#3a3846', '#2f2d3a', '#403c4c'],
+    gap: '#0e0c16', lip: 'rgba(200,190,255,0.14)', sheen: { x: vx, rgb: '255,180,110', spread: w * 0.28 } });
+  
+  puddles(ctx, [[vx + w * 0.08, h * 0.83, w * 0.13, h * 0.025], [vx - w * 0.14, h * 0.74, w * 0.08, h * 0.015], [vx + w * 0.02, h * 0.68, w * 0.06, h * 0.01], [w * 0.3, h * 0.93, w * 0.1, h * 0.022]],
+    [{ x: vx, rgb: '255,190,110' }, { x: w * 0.22, rgb: '255,79,163' }, { x: vx + w * 0.1, rgb: '255,207,122' }], t);
   
   const wall = (x0, xIn, dark) => {
     ctx.save();
@@ -210,7 +216,12 @@ function drawAlley(ctx, w, h, t) {
     }
     ctx.restore();
   };
-  wall(0, inL, false); wall(w, inR, true);
+  
+  const neonOn = Math.sin(t * 17) > -0.8;
+  brickWall(ctx, { x0: 0, xIn: inL, top, bot, h, t, light: neonOn ? { x: w * 0.2, y: h * 0.28, r: h * 0.2, rgb: '255,79,163', a: 0.5 } : null,
+    windows: [{ e: 0.12, f: 0.06, lit: true }, { e: 0.5, f: 0.36, ew: 0.2, lit: true, who: true }], pipe: { e: 0.86 } });
+  brickWall(ctx, { x0: w, xIn: inR, top, bot, h, t, dark: true, light: { x: inR, y: bot, r: h * 0.3, rgb: '255,170,90', a: 0.35 },
+    windows: [{ e: 0.18, f: 0.2, lit: true }, { e: 0.56, f: 0.48, lit: false }], ac: { e: 0.2, f: 0.33 } });
   
   ctx.strokeStyle = '#11090a'; ctx.lineWidth = 3;
   for (let k = 0; k < 3; k++) {
@@ -231,10 +242,9 @@ function drawAlley(ctx, w, h, t) {
   ctx.fillStyle = '#1f4a34'; ctx.beginPath(); ctx.moveTo(w * 0.08, h * 0.9); ctx.lineTo(w * 0.24, h * 0.8); ctx.lineTo(w * 0.24, h * 0.68); ctx.lineTo(w * 0.08, h * 0.74); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#143324'; ctx.beginPath(); ctx.moveTo(w * 0.08, h * 0.74); ctx.lineTo(w * 0.24, h * 0.68); ctx.lineTo(w * 0.27, h * 0.66); ctx.lineTo(w * 0.11, h * 0.72); ctx.closePath(); ctx.fill();
   
-  for (let k = 0; k < 6; k++) {
-    const p = (t * 0.3 + k / 6) % 1;
-    ctx.fillStyle = `rgba(220,220,240,${0.18 * (1 - p)})`; U.ellipse(ctx, w * 0.58 + Math.sin(p * 6 + k) * 20, h * 0.8 - p * h * 0.3, 30 + p * 50, 18 + p * 30); ctx.fill();
-  }
+  ctx.fillStyle = '#0c0a14'; ctx.beginPath(); ctx.ellipse(w * 0.6, h * 0.86, w * 0.06, h * 0.012, 0, 0, 6.2832); ctx.fill(); 
+  ctx.strokeStyle = '#3a3848'; ctx.lineWidth = 2; ctx.stroke();
+  puffs(ctx, { x: w * 0.6, y: h * 0.86, t, scale: h / 1100, drift: 0.7, rise: h * 0.26, n: 6, speed: 0.1, line: 0, alpha: 0.3, palette: ['#8a8aa8', '#c8c8dc', '#f4f4ff'] }); 
   alleyLife(ctx, w, h, t, { vx, top, bot, inL, inR });
   
   ctx.strokeStyle = 'rgba(170,190,255,0.35)'; ctx.lineWidth = 1;
@@ -247,7 +257,7 @@ const CLOUDS = Array.from({ length: 18 }, (_, i) => [U.ih(i, 1, 3), U.ih(i, 2, 3
 const WAVES = Array.from({ length: 40 }, (_, k) => [U.ih(k, 9, 1), U.ih(k, 8, 1)]);
 function drawIslandFromAbove(ctx, w, h, t, zoom, oy = 0.5) {
   if (CEL) {
-    SKY.ocean(ctx, w, h, t, WAVES); SKY.island(ctx, w / 2, h * oy, Math.min(w, h) * 0.12 * zoom, Math.max(2, h / 220), t);
+    oceanTop(ctx, { w, h, t, cx: w / 2, cy: h * oy, R: Math.min(w, h) * 0.12 * zoom }); SKY.island(ctx, w / 2, h * oy, Math.min(w, h) * 0.12 * zoom, Math.max(2, h / 220), t);
     
     const haze = Math.max(0, Math.min(0.75, 0.9 - zoom * 0.35));
     if (haze > 0) { const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.2, w / 2, h / 2, Math.max(w, h) * 0.75); g.addColorStop(0, 'rgba(220,240,255,0)'); g.addColorStop(1, 'rgba(220,240,255,' + haze + ')'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); }
@@ -407,10 +417,9 @@ export const SCENES = [
       g.addColorStop(0, '#5a3c8c'); g.addColorStop(0.5, '#ff8a6a'); g.addColorStop(1, '#ffd08a');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
       if (CEL) SKY.sunset(ctx, w, h);
-      ctx.fillStyle = '#3a7ac0'; ctx.fillRect(0, h * 0.5, w, h * 0.1);
-      ctx.fillStyle = 'rgba(255,240,200,0.5)'; for (let k = 0; k < 12; k++) ctx.fillRect(U.ih(k, 1, 2) * w, h * 0.5 + U.ih(k, 2, 2) * h * 0.1, 30, 2);
+      seaHorizon(ctx, { w, y0: h * 0.5, y1: h * 0.6, t, sunX: w * 0.78 }); 
       
-      for (let k = 0; k < 10; k++) { const p = (t * 0.08 + k / 10) % 1; ctx.fillStyle = `rgba(90,80,90,${0.35 * (1 - p)})`; U.ellipse(ctx, w * 0.18 + p * 80, h * 0.42 - p * h * 0.4, 40 + p * 70, 30 + p * 40); ctx.fill(); }
+      puffs(ctx, { x: w * 0.18, y: h * 0.56, t, scale: h / 760, drift: 0.35, rise: h * 0.5, n: 10, line: Math.max(2, h / 260) }); 
       
       g = ctx.createLinearGradient(0, h * 0.55, 0, h);
       g.addColorStop(0, '#6a3a2a'); g.addColorStop(0.3, '#8a6a5a'); g.addColorStop(1, '#b8a890');
@@ -420,6 +429,9 @@ export const SCENES = [
         ctx.beginPath(); ctx.moveTo(0, h * 0.6); ctx.quadraticCurveTo(w * 0.5, h * 0.52, w, h * 0.6);
         ctx.lineWidth = Math.max(2, h / 220); ctx.strokeStyle = '#0d0a14'; ctx.stroke();
       }
+      
+      paving(ctx, { y0: h * 0.615, y1: h, xa0: w * 0.02, xb0: w * 0.98, xa1: -w * 0.35, xb1: w * 1.35, rows: 12, cols: 8, seed: 11, t,
+        stones: ['#8a6a58', '#9a7a64', '#7a5a4a', '#a58670', '#6e5040', '#94725c'], gap: '#3a241c', lip: 'rgba(255,220,170,0.25)', under: 'rgba(40,16,10,0.4)', moss: '#5a9a3a' });
       ctx.fillStyle = `rgba(255,110,40,${0.5 + 0.2 * Math.sin(t * 3)})`; U.ellipse(ctx, w * 0.18, h * 0.6, w * 0.08, h * 0.015); ctx.fill();
       villageLife(ctx, w, h, t, 'back');
       ART.hut(ctx, w * 0.35, h * 0.63, 1.6, '#d8763a');
