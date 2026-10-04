@@ -4,6 +4,7 @@
 import { toast } from '../../../engine/ui/dialog.js';
 import { icon } from '../../../engine/ui/icons.js';
 import { mountSoundToggle } from '../../../vendor/arbelo/ui/muteButton.js';
+import { mountLangPicker } from './langPicker.js';
 import { G, S, saveGame, deleteSave } from '../../state.js';
 import { SPECIES, speciesById, statsOf, TYPES, capsFor, attrOf } from '../../data/species.js';
 import { attrBadge } from '../battle/battleHud.js';
@@ -204,4 +205,6 @@ function system(body) {
   const del = document.createElement('button'); del.className = 'danger'; del.textContent = 'Delete save & restart';
   del.onclick = () => { if (confirm('Delete your save and start over?')) { deleteSave(); location.reload(); } };
   row.append(mus, save, del);
+  const lang = document.createElement('div'); lang.className = 'row'; body.appendChild(lang);
+  mountLangPicker(lang, { className: 'inMenu' });
 }

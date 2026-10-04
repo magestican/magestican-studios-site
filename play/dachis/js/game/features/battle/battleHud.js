@@ -78,7 +78,7 @@ export function updateBattleHud() {
     s.moves.forEach((m, k) => {
       const b = document.createElement('button'); b.className = 'special tappable'; b.style.setProperty('--tc', TYPES[m.type]);
       b.dataset.key = String(k + 1); b.dataset.pad = pads[k];
-      b.innerHTML = `<div class="mn">${m.name}</div><div class="mk"><b class="mpc">${mpCost(m, a.d.lvl)} MP</b> · ${m.type} ${KIND_LABEL[m.kind] || m.kind}${m.power ? ' ' + m.power : ''}</div><div class="cdv"></div>`;
+      b.innerHTML = `<div class="mn">${m.name}</div><div class="mk"><b class="mpc">${mpCost(m, a.d.lvl)} MP</b> · ${m.type} <span>${KIND_LABEL[m.kind] || m.kind}</span>${m.power ? ' ' + m.power : ''}</div><div class="cdv"></div>`;
       b.onclick = () => orderSpecial(k);
       bar.appendChild(b);
     });

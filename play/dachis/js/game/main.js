@@ -55,6 +55,9 @@ import { updateHud, refreshHud, openMap, closeMap, mapOpen, setMapSource, showMa
 import { openMenu, closeMenu } from './features/menu/menu.js';
 import { parseCheat, applyCheat } from './features/dev/cheats.js';
 import { darkPass } from './features/world/darkness.js';
+import { startI18n } from './i18n/i18nDom.js';
+import { tr, onLangChange } from './i18n/i18n.js';
+import { mountLangPicker } from './features/menu/langPicker.js';
 
 const $ = id => document.getElementById(id);
 
@@ -80,10 +83,12 @@ const cover = { a: 0, target: 0, hold: false, done: null, label: '' };
 const coverTo = (v) => new Promise((r) => { cover.target = v; cover.done = r; });
 let regionJob = null;
 const doorWalk = { map: null, held: null }; 
+let langRebuild = false; 
 
 
 function loadRegion(id, at = null, opts = {}) {
   if (regionJob) return regionJob;
+  langRebuild = false; 
   const r = regionById(id);
   if (!r) return Promise.reject(new Error('no region ' + id));
   regionJob = (async () => {
@@ -310,11 +315,16 @@ function noPageZoom() {
     setTimeout(() => meta.setAttribute('content', base), 60);
   });
 }
+
+
+startI18n();
+mountLangPicker(document.getElementById('langTitle'), { className: 'onTitle' });
+onLangChange(() => { langRebuild = true; });
 hydrateIcons(document); 
 S.hints = createHints(S.input);
 S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onLine: (l, first) => S.sfx.play(lineSound(l, first), DLG), 
   
-  kindOf: lineKind, textOf: lineText, onAdvance: () => { tapHint.learned(); S.sfx.fade('dlg', 0.25); }, 
+  kindOf: lineKind, textOf: (l) => lineText(Object.assign({}, l, { text: tr(String(l.text || '').replace(/\{name\}/g, G.name || '')) })), onAdvance: () => { tapHint.learned(); S.sfx.fade('dlg', 0.25); }, 
   
   
   onType: (l) => { if (lineKind(l) === 'narrate') return; const v = voiceFor(l, G.name); if (v === 'voiceBoss' && (voiceN++ & 1)) return; S.sfx.play(v, DLG); },
@@ -473,6 +483,7 @@ function worldHints() {
 let last = performance.now(), dexWarm = false;
 function frame(now) {
   
+  if (langRebuild && G.mode === 'world' && !S.dialog.active) rebuildWorld(); 
   if (!dexWarm && G.mode === 'world') { dexWarm = true; setTimeout(() => prewarmDex(Object.keys(G.dex.seen).map(Number)), 3000); }
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   G.t += dt;
