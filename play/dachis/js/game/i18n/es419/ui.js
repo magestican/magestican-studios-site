@@ -275,6 +275,7 @@ export default {
   "Not enough MP for {0}!": "¡No hay suficientes PM para {0}!",
   "NOW! {0}!": "¡AHORA! ¡{0}!",
   "{0} fainted!": "¡{0} se debilitó!",
+  "Who goes in next?": "¿Quién entra ahora?",
   "Come on, {0}!": "¡Vamos, {0}!",
   "Switch! Go, {0}!": "¡Cambio! ¡Adelante, {0}!",
   "Drink this, {0}!": "¡Tómate esto, {0}!",

@@ -23,6 +23,17 @@ export const SCOUT_TIME = 2.4;
 
 
 
+export const ableAfterFaint = (party, fainted) => party.map((d, i) => ({ i, d })).filter(({ d }) => d && d.hp > 0 && d !== fainted);
+export function typeEdge(t, foeTypes) {
+  const deal = typeMult(t, foeTypes);
+  const take = foeTypes.reduce((m, e) => m * typeMult(e, [t]), 1);
+  const net = deal / take;
+  return net > 1 ? 'adv' : net < 1 ? 'weak' : 'even';
+}
+
+
+
+
 
 
 

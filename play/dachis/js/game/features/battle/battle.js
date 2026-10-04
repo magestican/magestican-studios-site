@@ -17,6 +17,8 @@ import {
 } from './rules.js';
 import { chapterOf } from '../clock/clock.js';
 import { showScout, hideScout } from './scoutCard.js';
+import { showPick, hidePick } from './pickCard.js';
+import { ableAfterFaint } from './rules.js';
 import {
   BEAM_TIME, BEAM_TICK, BEAM_SHARE, BEAM_LEN, BEAM_HALF, FLURRY_HITS, FLURRY_GAP, FLURRY_SHARE, SLAM_TIME, SLAM_R,
   TRAP_R, TRAP_ARM, TRAP_LIFE, MAX_TRAPS, DRAIN_SHARE, SHIELD_TIME, statusOf, applyStatus, tickStatus, cleanse,
@@ -610,9 +612,10 @@ export function updateBattle(dt) {
       B.ritual = null;
       const next = G.party.findIndex(d => d.hp > 0);
       if (next < 0) endBattle('lose');
-      else { toast(`${spOf(B.ally).name} fainted!`); swapTo(next, true); }
+      else faintedPick();
     }
-  } else if (B.state === 'capture') updateCapture(dt);
+  } else if (B.state === 'pick') {  }
+  else if (B.state === 'capture') updateCapture(dt);
   else if (B.state === 'end') { B.timer -= dt; if (B.timer <= 0) finishBattle(); }
 }
 
@@ -637,6 +640,17 @@ function separateFighters() {
   for (const o of bodies) if (o.f) { o.f.x = o.x; o.f.y = o.y; if (!o.f.leap) clampArena(o.f); }
 }
 
+
+
+function faintedPick() {
+  const gone = B.ally.d, list = ableAfterFaint(G.party, gone);
+  if (list.length === 1) { toast(`${spOf(B.ally).name} fainted!`); swapTo(list[0].i, true); return; }
+  B.state = 'pick'; B.ally.d.hp = 0;
+  showPick(gone, list, spOf(B.enemy).types, (n) => {
+    if (!B || B.state !== 'pick') return;
+    hidePick(); B.state = 'fight'; swapTo(list[n].i, true);
+  });
+}
 function swapTo(i, forced) {
   const d = G.party[i];
   if (!d || d.hp <= 0 || d === B.ally.d) return;
@@ -719,7 +733,7 @@ function endBattle(result) {
 let onFinish = () => {};
 export const setFinishHandler = f => { onFinish = f; };
 export function finishBattle() {
-  const b = B; B = null; hideScout();
+  const b = B; B = null; hideScout(); hidePick();
   b.ally.bb.dispose(S.stage.scene); b.enemy.bb.dispose(S.stage.scene);
   G.mode = 'world'; G.safeTimer = 2.5;
   if (b.result === 'capture' || b.result === 'win') S.cheerUntil = performance.now() + 1300; 

@@ -8,13 +8,14 @@ import { icon } from '../../../engine/ui/icons.js';
 import { speciesById, statsOf, TYPES, ATTR_COLOR, attrOf } from '../../data/species.js';
 import { B, orderSpecial, orderStance, orderFinisher, orderParry, parryReady, finisherReady, startRitual, useTonic, cycleSwap, tryRun, canRitual } from './battle.js';
 import { KIND_LABEL } from './techniques.js';
-import { hpFraction, CAPTURE_HP, maxMp, mpCost, finisherOf, bondOf } from './rules.js';
+import { hpFraction, CAPTURE_HP, maxMp, mpCost, finisherOf, bondOf, typeEdge } from './rules.js';
 
 const $ = id => document.getElementById(id);
 
 const stripes = (a, b) => `repeating-linear-gradient(-60deg, ${a} 0 8px, ${b} 8px 12px)`;
 export const hpColor = f => (f > 0.5 ? stripes('#2fd27a', '#8ff0b4') : f > 0.25 ? stripes('#ffd21a', '#fff09a') : stripes('#ff2a3a', '#ff8a94'));
-const typeChips = types => types.map(t => `<i style="background:${TYPES[t]}">${t}</i>`).join('');
+
+export const typeChips = (types, foeTypes) => types.map(t => `<i class="${foeTypes ? 'edge-' + typeEdge(t, foeTypes) : ''}" style="background:${TYPES[t]}">${t}</i>`).join('');
 
 export const attrBadge = a => (a ? `<b class="attr" style="background:${ATTR_COLOR[a]}" title="Vaccine beats virus, virus beats program, program is neutral">${a.toUpperCase()}</b>` : '');
 
@@ -66,7 +67,7 @@ export function updateBattleHud() {
   $('capTag').classList.toggle('hidden', !low || !!B.ritual);
   const a = B.ally, s = speciesById(a.d.sp);
   const bond = bondOf(a.d);
-  const allyHtml = `${s.name} <span class="lv">Lv ${a.d.lvl}</span> ${attrBadge(attrOf(a.d))} ${typeChips(s.types)} <span class="bond${bond < 50 ? ' low' : ''}" title="Bond: below 50 it may hesitate on your orders">${icon('heart')} ${bond}</span>`;
+  const allyHtml = `${s.name} <span class="lv">Lv ${a.d.lvl}</span> ${attrBadge(attrOf(a.d))} <span class="myTypes">${typeChips(s.types, es.types)}</span> <span class="bond${bond < 50 ? ' low' : ''}" title="Bond: below 50 it may hesitate on your orders">${icon('heart')} ${bond}</span>`;
   if ($('allyName').dataset.h !== allyHtml) { $('allyName').innerHTML = allyHtml; $('allyName').dataset.h = allyHtml; }
   bars(a, 'ally');
   const key = a.d.uid + ':' + a.d.sp;

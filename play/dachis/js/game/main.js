@@ -60,6 +60,7 @@ import { startI18n } from './i18n/i18nDom.js';
 import { tr, onLangChange } from './i18n/i18n.js';
 import { mountLangPicker } from './features/menu/langPicker.js';
 import { startFreshBuild } from './freshBuild.js';
+import { pickCompanion } from './features/battle/pickCard.js';
 
 const $ = id => document.getElementById(id);
 
@@ -536,6 +537,7 @@ function frame(now) {
     } else if (G.mode === 'battle') {
       if (S.dialog.active) dialogActions(); else battleActions();
       if (B && B.state === 'scout' && (I.pressed('action') || I.pressed('cancel'))) B.timer = 0; 
+      if (B && B.state === 'pick') for (let k = 0; k < 3; k++) if (I.pressed('special' + (k + 1))) pickCompanion(k); 
       updateBattle(dt * BATTLE_CLOCK); 
     } else if (G.mode === 'menu') {
       if (perchMenuOpen()) { for (let k = 0; k < 3; k++) if (I.pressed('special' + (k + 1))) pickPerch(k); if (I.pressed('menu') || I.pressed('cancel')) closePerchMenu(); }
