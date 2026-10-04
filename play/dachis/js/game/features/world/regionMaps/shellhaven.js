@@ -7,6 +7,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { guardHuts, dressHuts, placeYard } from '../dressing.js';
 
 export const ID = 'shellhaven';
 export const SIZE = 64;
@@ -130,6 +131,19 @@ export function* shellhavenSteps() {
   for (const side of [-1, 1]) { const p = at(-12.2, 42.6 + side * 1.4); addObj(W, { kind: 'rimstone', x: p.x, y: p.y, solid: 0.4, s: 1.5, rot: side * 1.3, v: side > 0 ? 1 : 2, flavor: 'coral' }); }
   
   for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2 + 0.9, p = { x: PLAZA.x + Math.cos(a) * (PLAZA.r + 0.9), y: PLAZA.y + Math.sin(a) * (PLAZA.r + 0.9) }; if (laneDist(spokes, p.x, p.y) > 1.0) addObj(W, { kind: 'pillar', x: p.x, y: p.y, solid: 0.3, s: 0.9 + (k % 2) * 0.2, rot: a, v: k % 3 }); }
+  
+  
+  const dr = U.rng(8383), elder = POSTS.elder;
+  const dclear = (x, y, r) => laneDist(spokes, x, y) > 0.45 + r && Math.hypot(x - GATE.x, y - GATE.y) > 2.2 + r
+    && Math.hypot(x - SPRING.x, y - SPRING.y) > 1.6 + r && Math.hypot(x - elder.x, y - elder.y) > 0.9 + r && Math.hypot(x - LANDING.x, y - LANDING.y) > 1.2 + r;
+  guardHuts(W, huts);
+  placeYard(W, 'cookfire', at(-3.2, 37.0), { clear: dclear });
+  placeYard(W, 'bowl', at(-2.5, 36.1), { clear: dclear, extra: { c: '#f0c890' } });
+  const yclear = (x, y, r) => dclear(x, y, r) && Math.hypot(x - PLAZA.x, y - PLAZA.y) > PLAZA.r + 0.4 + r;
+  placeYard(W, 'fishrack', at(5.0, 47.2), { rot: 0.4, clear: yclear });
+  placeYard(W, 'fishrack', at(-9.4, 38.4), { rot: -0.3, clear: yclear });
+  placeYard(W, 'washline', at(4.6, 32.4), { rot: 0.2, clear: yclear });
+  dressHuts(W, huts, { rng: dr, kinds: ['bowl', 'basket', 'pots', 'strawbed', 'crates', 'toys', 'tools', 'fishrack'], food: ['#e8f4f0', '#7ad0a0', '#f0a080', '#ffd0e0'], clear: yclear });
   yield 'buildings';
   const r = U.rng(8181);
   const clear = (x, y, d) => Math.hypot(x - GATE.x, y - GATE.y) > 2.4 && Math.hypot(x - SPRING.x, y - SPRING.y) > 2.0

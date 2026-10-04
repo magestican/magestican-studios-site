@@ -16,10 +16,11 @@ import { placeCraterRim, createLava } from './lavaCrater.js';
 import { placeGrowth } from './growth.js';
 import { placeTemple } from './temple.js';
 import { placeDoorProps } from './doorProps.js';
+import { placeLife } from './life.js';
 
 const GROWTH_RUN = 120;
 
-export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple, placeDoorProps];
+export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple, placeDoorProps, placeLife];
 
 
 

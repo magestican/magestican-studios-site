@@ -79,7 +79,7 @@ export const REGIONS = [
   {
     id: shell.ID, name: 'Shellhaven', chapters: [2], size: shell.SIZE, interior: false, reachable: true,
     sections: shell.SECTIONS.map((s) => s.id), entry: shell.ENTRY, spring: shell.LANDING, home: shell.LANDING,
-    pack: null,
+    pack: 'assets/scenery-shellhaven.bin', 
     transit: false, objective: null,
   },
   

@@ -1,5 +1,5 @@
 {
- "hash": "6ee5dc14",
+ "hash": "79eafd7a",
  "regions": {
   "kazan-isle": {
    "forms": [
@@ -178,8 +178,19 @@
     "fern",
     "flower-bed",
     "flower-clump",
+    "flowers",
     "hut",
     "lantern",
+    "life-basket",
+    "life-bowl",
+    "life-cookfire",
+    "life-crates",
+    "life-fishrack",
+    "life-pots",
+    "life-strawbed",
+    "life-tools",
+    "life-toys",
+    "life-washline",
     "pillar-0",
     "pillar-2",
     "spring-basin",
@@ -190,8 +201,20 @@
     "stone-grey-3",
     "torch"
    ],
-   "pack": null,
-   "extra": []
+   "pack": "assets/scenery-shellhaven.bin",
+   "extra": [
+    "life-basket",
+    "life-bowl",
+    "life-cookfire",
+    "life-crates",
+    "life-fishrack",
+    "life-pots",
+    "life-strawbed",
+    "life-tools",
+    "life-toys",
+    "life-washline"
+   ],
+   "bytes": 275936
   },
   "kelp-maze": {
    "forms": [

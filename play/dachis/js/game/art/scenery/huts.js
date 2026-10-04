@@ -69,7 +69,8 @@ export function placeHuts(batch, W) {
   for (const o of W.objects) {
     if (o.kind !== 'hut') continue;
     const t = lin(o.roof);
-    batch.add(f, { x: o.x, h: W.groundAt(o.x, o.y) - 0.02, y: o.y, rot: o.rot, s: o.s || 1 },
+    
+    batch.add(f, { x: o.x, h: (o.h != null ? o.h : W.groundAt(o.x, o.y)) - 0.02, y: o.y, rot: o.rot, s: o.s || 1 },
       { roof: [t[0] / base[0], t[1] / base[1], t[2] / base[2]].map((v) => Math.min(1.6, v)) });
   }
 }
