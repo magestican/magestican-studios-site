@@ -14,7 +14,7 @@
 
 
 
-  <meta name="build" content="63bbb82c-20261004T051133Z">
+  <meta name="build" content="dc3bf552-20261004T052929Z">
   <script>
     
     
@@ -153,7 +153,10 @@
   
   <div id="bigMap" class="hidden">
     <div id="mapTabs"><button id="mapTabIsland" class="tab tappable" data-tab="island">Island</button><button id="mapTabWorld" class="tab tappable" data-tab="world" data-key="Q">World</button></div>
-    <canvas id="bigCanvas" width="1280" height="1280"></canvas><p>Tap anywhere to close</p>
+    <div id="mapStage"><canvas id="bigCanvas" width="1280" height="1280"></canvas>
+      <div id="mapZoom"><button id="mapZoomIn" class="tappable" type="button" aria-label="Zoom in">+</button><button id="mapZoomOut" class="tappable" type="button" aria-label="Zoom out">&minus;</button></div></div>
+    <div id="mapKey"></div>
+    <p>Pinch or drag the map. Tap outside it to close</p>
   </div>
 
   <div id="evolve" class="hidden">
@@ -191,6 +194,6 @@
   </div>
   <div id="toasts"></div>
 
-  <script type="module" src="js/game/main.js?v=63bbb82c-20261004T051133Z"></script>
+  <script type="module" src="js/game/main.js?v=dc3bf552-20261004T052929Z"></script>
 </body>
 </html>

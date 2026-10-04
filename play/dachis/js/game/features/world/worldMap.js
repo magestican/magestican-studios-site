@@ -45,6 +45,25 @@ export const WORLD_PLACES = [
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 
 
+
+export const PLACE_KIND = {
+  testbed: 'field', 'ember-tube': 'cave', 'kazan-village': 'town', 'shrine-village': 'town', 'tomo-coast': 'town',
+  shellhaven: 'town', 'kelp-maze': 'sea', 'drowned-temple': 'ruin', hollowroot: 'town', thornfield: 'forest',
+  'mother-hollow': 'forest', vinegate: 'town', 'canopy-walk': 'forest', 'ruin-steps': 'ruin', 'obsidian-court': 'ruin',
+  'fig-terraces': 'field', 'gale-ledges': 'peak', minehead: 'town', 'lantern-shaft': 'cave', 'deep-seam': 'cave',
+};
+
+export function worldLinks(doors, seen) {
+  const out = [], have = new Set();
+  for (const d of doors) {
+    if (!d.to || d.to === d.region || !seen.has(d.region) || !seen.has(d.to) || !placeOf(d.region) || !placeOf(d.to)) continue;
+    const k = [d.region, d.to].sort().join('~');
+    if (!have.has(k)) { have.add(k); out.push([d.region, d.to]); }
+  }
+  return out;
+}
+
+
 export function regionsVisited(flags = {}, region = HOME) {
   return new Set([HOME, region, ...Object.keys(flags.regions || {})]);
 }
@@ -78,7 +97,7 @@ export function worldUV(region, x, y) {
 export function worldPage(flags = {}, region = HOME, opts = {}) {
   const seen = regionsVisited(flags, region), open = new Set(perchesOpen(flags, opts).map((p) => p.id));
   const places = WORLD_PLACES.filter((p) => seen.has(p.region) && regionById(p.region)).map((p) => ({
-    ...p, here: p.region === region,
+    ...p, here: p.region === region, kind: p.region === HOME ? 'isle' : PLACE_KIND[p.region] || 'field',
     perches: PERCHES.filter((q) => q.region === p.region).map((q) => ({
       id: q.id, name: q.name, uv: worldUV(p.region, q.at.x, q.at.y), visited: perchVisited(flags, q.id), open: open.has(q.id),
     })),
@@ -87,5 +106,5 @@ export function worldPage(flags = {}, region = HOME, opts = {}) {
   const o = objectiveXY(flags);
   const x = o ? { region: HOME, sec: o.sec, uv: worldUV(HOME, ...o.xy) } : null;
   const key = places.map((p) => p.region + (p.here ? '*' : '') + p.perches.map((q) => +q.visited + +q.open).join('')).join('|') + '/' + (x ? x.sec : '-');
-  return { places, x, key };
+  return { places, x, key, links: worldLinks(opts.doors || [], seen) };
 }

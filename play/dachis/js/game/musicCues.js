@@ -19,7 +19,7 @@ export const LOOPS = ['menu', 'town', 'isle', 'field', 'battle', 'boss', 'cave',
 export const STINGERS = ['victory', 'defeat'];
 export const CUES = [...LOOPS, ...STINGERS];
 
-export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven', 'hollowroot', 'vinegate', 'minehead']; 
+export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven', 'hollowroot', 'vinegate', 'minehead', 'tomo-coast']; 
 
 
 export const CAVES = { 'ember-a': 'cave', 'ember-b': 'cave', 'temple-porch': 'cave', 'temple-nave': 'cave', 'temple-sanctum': 'cave', 'tree-vault': 'cave', 'tree-heart': 'cave', 'tree-roots': 'cave', 'court-stones': 'cave', 'court-gallery': 'cave', 'court-guards': 'cave', 'mine-workings': 'cave', 'shaft-a': 'cave', 'shaft-b': 'cave', 'seam-hall': 'cave', 'seam-narrows': 'cave', 'seam-stones': 'cave', 'seam-hollow': 'cave' }; 

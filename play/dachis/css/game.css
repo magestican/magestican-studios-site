@@ -98,6 +98,17 @@ body.input-keys #minimap::after { right: auto; left: -7px; }
   background: radial-gradient(rgba(43,26,74,.55), rgba(11,6,32,.85)); cursor: pointer; }
 #bigCanvas { width: min(640px, 90vw, calc(100vh - 140px)); height: min(640px, 90vw, calc(100vh - 140px)); transform: rotate(-1deg); filter: drop-shadow(8px 10px 0 rgba(0,0,0,.5)); }
 #mapTabs { display: flex; gap: 12px; margin-right: 26px; } body.input-keys #mapTabWorld::after { top: 4px; right: -27px; }  #mapTabs .tab[hidden] { display: none; } 
+
+#mapStage { position: relative; }
+#bigCanvas { touch-action: none; cursor: grab; }
+#mapZoom { position: absolute; right: 0; top: -54px; display: flex; flex-direction: row; gap: 8px; } 
+#bigMap:not(.world) #mapZoom, #bigMap:not(.world) #mapKey { display: none; }
+#mapZoom button { width: 38px; height: 38px; border: 3px solid var(--ink); border-radius: 8px; background: #fff; font: 800 26px/1 Rubik, sans-serif; color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+#mapZoom button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+#mapKey { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 12px; max-width: min(640px, 92vw); padding: 6px 10px; border: 3px solid var(--ink); border-radius: 8px; background: #f1e4c3; font: 700 12px var(--body); color: var(--ink); }
+#mapKey span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+#mapKey i { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); box-shadow: 0 0 0 2px #fff; }
+#mapKey .kx { color: #ff2a3a; font: 900 15px Rubik, sans-serif; } #mapKey .kp { background: #ff3ea5; } #mapKey .ky { background: #fff; border-color: #ff3ea5; }
 #bigMap p { margin: 0; font: 400 16px var(--marker); color: #fff; text-shadow: 2px 2px 0 var(--ink); }
 
 

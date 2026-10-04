@@ -374,7 +374,7 @@ installOrderRing($('touchZone'));
 $('skipBtn').onclick = () => Cutscene.skip();
 $('skullBtn').onclick = () => (G.mode === 'menu' ? closeMenu() : openMenu());
 $('minimap').onclick = () => openMap();          
-$('bigMap').onclick = () => closeMap();
+$('bigMap').onclick = (e) => { if (e.target.closest('#bigCanvas, #mapZoom, #mapKey, #mapTabs')) return; closeMap(); }; 
 for (const b of document.querySelectorAll('#mapTabs .tab')) b.onclick = (e) => { e.stopPropagation(); showMapTab(b.dataset.tab); };
 setMapSource((id) => maps.get(id) || null); 
 $('actionBtn').addEventListener('pointerdown', e => { e.preventDefault(); S.input.tap('action'); });

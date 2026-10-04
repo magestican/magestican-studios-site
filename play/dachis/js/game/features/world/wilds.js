@@ -7,6 +7,11 @@ import { CHAR_SCALE, GAP, BODY_R } from './crowd.js';
 import { makeDachi, speciesById, capsFor, wildFamiliesOf, rollShiny, statsOf } from '../../data/species.js';
 import { sectionById } from './sections.js';
 import { wildLevel } from './wildLevel.js';
+import { TOWNS } from '../../musicCues.js';
+
+
+
+export const isSafe = (sec) => TOWNS.includes(sec);
 import { dachiBillboard, setDachiLook } from '../../art/billboards.js';
 
 
@@ -39,10 +44,10 @@ const tableHere = () => {
 
 export function spawnWild(near = null, minD = 7, where = null) {
   const W = S.W, p = G.player, tiles = tilesHere();
-  if (!near && !tiles.length) return null;
+  if (!near && (!tiles.length || isSafe(S.cam && S.cam.sec))) return null;
   for (let tries = 0; tries < (where ? 80 : 25); tries++) {
     const [x, y] = near ? [near.x, near.y] : tiles[Math.floor(Math.random() * tiles.length)];
-    if (!near && (U.dist(x, y, p.x, p.y) < minD || (where && !where(x, y)) || !W.walkable(x, y))) continue;
+    if (!near && (U.dist(x, y, p.x, p.y) < minD || (where && !where(x, y)) || !W.walkable(x, y) || isSafe(W.sectionAt(x, y)))) continue;
     const far = U.dist(x, y, VOLC.x, VOLC.y);
     
     const top = G.party.reduce((m, d) => Math.max(m, d.lvl), 1);
@@ -96,12 +101,14 @@ export function updateWilds(dt, { active }) {
   }
   
   for (const w of G.wilds.slice()) if (!w.scripted && !w.chase && S.cam && S.cam.sec && W.sectionAt(w.x, w.y) !== S.cam.sec) removeWild(w);
+  const safe = isSafe(W.sectionAt(p.x, p.y)) || isSafe(S.cam && S.cam.sec);
+  if (safe) for (const w of G.wilds.slice()) if (!w.scripted && isSafe(W.sectionAt(w.x, w.y))) removeWild(w);
   let touched = null;
   for (const w of G.wilds) {
     if (w.scripted) continue;   
     w.stun -= dt;
     const d = U.dist(w.x, w.y, p.x, p.y);
-    w.chase = active && d < 3.2 && G.safeTimer <= 0 && w.stun <= 0 && G.party.some(x => x.hp > 0);
+    w.chase = active && !safe && d < 3.2 && G.safeTimer <= 0 && w.stun <= 0 && G.party.some(x => x.hp > 0);
     let tx = w.tx, ty = w.ty, sp = 1.1;
     if (w.chase) { tx = p.x; ty = p.y; sp = w.d.corrupt ? 2.9 : 2.5; }
     else {

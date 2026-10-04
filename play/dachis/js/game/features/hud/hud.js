@@ -11,7 +11,10 @@ import { hpColor, attrBadge } from '../battle/battleHud.js';
 import { T, locationName } from '../world/mapgen.js';
 import { MINI, miniXY, transitPlan } from './transit.js';
 import { regionById, HOME } from '../world/regions.js';
-import { drawWorld, drawRegionMini } from './worldPage.js';
+import { drawWorld, drawRegionMini, clampView, KIND_STYLE } from './worldPage.js';
+import { DOORS } from '../world/doors.js';
+import { placeOf, PLACE_KIND } from '../world/worldMap.js';
+const KIND_OF = (r) => PLACE_KIND[r] || null;
 
 export { miniXY };
 const $ = id => document.getElementById(id);
@@ -153,16 +156,60 @@ export function showMapTab(tab) {
   if (!here().transit) tab = 'world';
   mapTab = tab;
   $('mapTabIsland').hidden = !here().transit;
+  $('bigMap').classList.toggle('world', tab === 'world');
   for (const b of document.querySelectorAll('#mapTabs .tab')) b.classList.toggle('on', b.dataset.tab === tab);
   const c = $('bigCanvas'), ctx = c.getContext('2d');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  if (tab === 'world') return drawWorld(c, G.flags, here().id, G.player, (id) => (id === G.region ? S.W : mapOf(id)), fontsIn ? 'f' : '');
+  if (tab === 'world') { if (!view) view = startView(); wireWorldGestures(); worldKeyStrip(); return redrawWorld(); }
   ctx.drawImage(paintTransit(S.W, transitPlan(G.flags), c.width, true), 0, 0);
   ctx.setTransform(c.width / MINI, 0, 0, c.width / MINI, 0, 0);
   youAreHere(ctx, 0.8);
 }
+
+
+let view = null, wired = false;
+const startView = () => { const p = placeOf(here().id); return clampView(p && here().id !== HOME ? { s: 2.2, cx: p.at[0], cy: p.at[1] } : { s: 1, cx: 0.5, cy: 0.5 }); };
+function redrawWorld() {
+  const c = $('bigCanvas'), px = c.width / Math.max(1, c.getBoundingClientRect().width);
+  view = drawWorld(c, G.flags, here().id, G.player, (id) => (id === G.region ? S.W : mapOf(id)), fontsIn ? 'f' : '', view, DOORS, px);
+}
+function zoomAt(k, ax = 0.5, ay = 0.5) { 
+  const v = view, s = Math.max(1, Math.min(5, v.s * k));
+  const pu = v.cx + (ax - 0.5) / v.s, pv = v.cy + (ay - 0.5) / v.s;
+  view = clampView({ s, cx: pu - (ax - 0.5) / s, cy: pv - (ay - 0.5) / s }); redrawWorld();
+}
+function wireWorldGestures() {
+  if (wired) return; wired = true;
+  const c = $('bigCanvas'), pts = new Map();
+  const rel = (e) => { const b = c.getBoundingClientRect(); return [(e.clientX - b.left) / b.width, (e.clientY - b.top) / b.height]; };
+  let last = null, lastTap = 0;
+  c.addEventListener('pointerdown', (e) => { e.stopPropagation(); c.setPointerCapture(e.pointerId); pts.set(e.pointerId, rel(e)); last = null;
+    if (pts.size === 1 && performance.now() - lastTap < 300) { const [a, b] = rel(e); zoomAt(1.8, a, b); } lastTap = performance.now(); });
+  c.addEventListener('pointermove', (e) => {
+    if (!pts.has(e.pointerId) || mapTab !== 'world') return;
+    const prev = pts.get(e.pointerId), cur = rel(e); pts.set(e.pointerId, cur);
+    if (pts.size === 1) { view = clampView({ s: view.s, cx: view.cx - (cur[0] - prev[0]) / view.s, cy: view.cy - (cur[1] - prev[1]) / view.s }); redrawWorld(); }
+    else if (pts.size === 2) {
+      const [p, q] = [...pts.values()], d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+      if (last) zoomAt(d / last, (p[0] + q[0]) / 2, (p[1] + q[1]) / 2);
+      last = d;
+    }
+  });
+  const up = (e) => { pts.delete(e.pointerId); last = null; };
+  c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up);
+  c.addEventListener('wheel', (e) => { e.preventDefault(); const [a, b] = rel(e); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, a, b); }, { passive: false });
+  $('mapZoomIn').onclick = (e) => { e.stopPropagation(); zoomAt(1.4); };
+  $('mapZoomOut').onclick = (e) => { e.stopPropagation(); zoomAt(1 / 1.4); };
+}
+
+function worldKeyStrip() {
+  const kinds = new Set(Object.keys(G.flags.regions || {}).map((r) => (placeOf(r) ? KIND_OF(r) : null)).filter(Boolean));
+  $('mapKey').innerHTML = '<span><b class="kx">X</b>Next goal</span><span><i class="kp"></i>Aerowing perch</span><span><i class="ky"></i>You</span>'
+    + [...kinds].map((k) => `<span><i style="background:${KIND_STYLE[k].fill}"></i>${KIND_STYLE[k].label}</span>`).join('');
+}
 export const toggleMapTab = () => showMapTab(mapTab === 'world' ? 'island' : 'world');
 export function closeMap() {
+  view = null; 
   $('bigMap').classList.add('hidden');
   if (G.mode === 'menu' && $('menu').classList.contains('hidden')) G.mode = 'world';
 }

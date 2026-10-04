@@ -31,9 +31,26 @@ export function createSfx({ key, recipes }) {
       try { ctx = new (window.AudioContext || window.webkitAudioContext)(); master = ctx.createGain(); master.gain.value = muted ? 0 : 0.9; master.connect(ctx.destination); }
       catch (e) { return null; }
     }
-    if (ctx.state === 'suspended') ctx.resume();
+    
+    if (ctx.state !== 'running' && ctx.state !== 'closed') ctx.resume().catch(() => {});
     return ctx;
   };
+  
+  
+  
+  
+  const wake = () => {
+    if (!ctx) return;
+    playbackSession();
+    if (ctx.state !== 'running' && ctx.state !== 'closed') ctx.resume().catch(() => {});
+    if (keepAlive && keepAlive.paused) keepAlive.play().catch(() => {});
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {}); }
+    else wake();
+  });
+  addEventListener('pageshow', wake);
+  ['pointerdown', 'touchend', 'keydown'].forEach((ev) => addEventListener(ev, () => { if (ctx && (ctx.state !== 'running' || (keepAlive && keepAlive.paused))) wake(); }, true));
   const unlock = createAudioUnlock({ ensureContext: ensure, currentContext: () => ctx, isMuted: () => muted });
   if (unlock && unlock.install) unlock.install();
   else ['pointerdown', 'keydown', 'touchend'].forEach(ev => window.addEventListener(ev, ensure, { once: true, capture: true }));

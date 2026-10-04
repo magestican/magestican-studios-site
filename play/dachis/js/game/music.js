@@ -114,9 +114,12 @@ function setOn(v) {
   return on;
 }
 
+
+
+
 addEventListener('visibilitychange', () => {
-  if (document.hidden) { for (const a of Object.values(els)) a.pause(); }
-  else if (on && current && els[current] && isLoop(current)) els[current].play().catch(() => retryOnGesture());
+  if (document.hidden) { for (const a of Object.values(els)) { clearInterval(fades.get(a)); fades.delete(a); a.pause(); } }
+  else if (on && current) { const a = els[current]; if (a && isLoop(current)) { a.play().then(() => fadeTo(a, VOL)).catch(() => retryOnGesture()); } else if (isLoop(current)) start(current, true); }
 });
 
 export const music = {

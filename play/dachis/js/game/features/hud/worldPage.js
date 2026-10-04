@@ -43,11 +43,6 @@ function xMark(ctx, x, y, r) {
     ctx.moveTo(x - r, y - r); ctx.lineTo(x + r, y + r); ctx.moveTo(x + r, y - r); ctx.lineTo(x - r, y + r); ctx.stroke();
   }
 }
-function label(ctx, text, x, y, px, align = 'center') {
-  ctx.font = `400 ${px}px "Permanent Marker", cursive`; ctx.textAlign = align; ctx.textBaseline = 'middle';
-  ctx.lineJoin = 'round'; ctx.lineWidth = px * 0.32; ctx.strokeStyle = PAPER; ctx.strokeText(text, x, y);
-  ctx.fillStyle = INK; ctx.fillText(text, x, y);
-}
 
 export function kidDot(ctx, x, y, s) {
   const p = (6 + Math.sin(performance.now() / 150) * 1.5) * s;
@@ -57,76 +52,134 @@ export function kidDot(ctx, x, y, s) {
 }
 
 
+
+
+
+
+
+
+
+const BASE = 2048;
 let worldBase = null, worldKey = '';
-function paintWorld(size, page, mapOf) {
-  const c = document.createElement('canvas'); c.width = c.height = size;
-  const ctx = c.getContext('2d'), u = size / 100; 
-  const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.roundRect(x * u, y * u, w * u, h * u, [].concat(r).map((k) => k * u)); };
-  rr(1.5, 1.5, 97, 97, 5); ctx.fillStyle = PAPER; ctx.fill();
-  ctx.save(); rr(1.5, 1.5, 97, 97, 5); ctx.clip();
-  
-  ctx.strokeStyle = SEA_INK; ctx.lineWidth = 0.35 * u; ctx.lineCap = 'round';
-  for (let j = 0; j < 15; j++) for (let i = 0; i < 9; i++) {
-    const x = (6 + i * 11 + (j % 2) * 5.5) * u, y = (12 + j * 6) * u;
+function paintWorldBase(page, mapOf) {
+  const size = BASE, c = document.createElement('canvas'); c.width = c.height = size;
+  const ctx = c.getContext('2d'), u = size / 100;
+  ctx.fillStyle = PAPER; ctx.fillRect(0, 0, size, size);
+  ctx.strokeStyle = SEA_INK; ctx.lineWidth = 0.3 * u; ctx.lineCap = 'round';
+  for (let j = 0; j < 17; j++) for (let i = 0; i < 9; i++) {
+    const x = (4 + i * 11 + (j % 2) * 5.5) * u, y = (4 + j * 6) * u;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 1.2 * u, y - 1.1 * u, x + 2.4 * u, y); ctx.quadraticCurveTo(x + 3.6 * u, y - 1.1 * u, x + 4.8 * u, y); ctx.stroke();
   }
-  
-  for (const p of page.places) {
-    const W = mapOf(p.region), home = p.region === HOME, px = ([a, b]) => [a * size, b * size];
-    const toPx = (x, y) => px(worldUV(p.region, x, y));
-    const [cx, cy] = px(p.at);
-    ctx.fillStyle = 'rgba(30,227,207,.18)'; ctx.beginPath(); ctx.arc(cx, cy, p.r * size * 1.02, 0, 6.3); ctx.fill();
-    if (W) {
-      const a = toPx(0, 0), b = toPx(1, 0), tile = Math.hypot(b[0] - a[0], b[1] - a[1]) * 1.5;
-      paintLand(ctx, W, home, toPx, tile, '#c3e09a');
-    } else { 
-      ctx.fillStyle = '#c3e09a'; ctx.strokeStyle = INK; ctx.lineWidth = 0.4 * u;
-      for (const id of regionById(p.region).sections) {
-        const r = sectionById(id).rect; ctx.beginPath();
-        [[r.u[0], r.v[0]], [r.u[1], r.v[0]], [r.u[1], r.v[1]], [r.u[0], r.v[1]]].forEach(([a, b], k) => { const q = toPx(...fromUV(a, b)); k ? ctx.lineTo(...q) : ctx.moveTo(...q); });
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-      }
-    }
-    if (p.glyph === 'volcano') { 
-      const s = size * 0.03, [vx, vy0] = toPx(VOLC.x, VOLC.y), vy = vy0 - s * 1.7; 
-      ctx.beginPath(); ctx.moveTo(vx - s, vy + s * 0.6); ctx.lineTo(vx - s * 0.25, vy - s * 0.7); ctx.lineTo(vx + s * 0.25, vy - s * 0.7); ctx.lineTo(vx + s, vy + s * 0.6); ctx.closePath();
-      ctx.fillStyle = '#c9a27c'; ctx.fill(); ctx.lineWidth = s * 0.16; ctx.strokeStyle = INK; ctx.stroke();
-      ctx.fillStyle = '#ff2a3a'; ctx.fillRect(vx - s * 0.25, vy - s * 0.78, s * 0.5, s * 0.22);
-    }
-    label(ctx, p.name.toUpperCase(), cx, cy + p.r * size * 1.02 + 2.6 * u, 4.4 * u);
-    if (p.here) label(ctx, 'YOU ARE HERE', cx, cy - p.r * size * 1.02 - 2.4 * u, 2.8 * u);
+  const home = page.places.find((p) => p.region === HOME), W = home && mapOf(HOME);
+  if (home && W) {
+    const toPx = (x, y) => { const [a, b] = worldUV(HOME, x, y); return [a * size, b * size]; };
+    const [cx, cy] = [home.at[0] * size, home.at[1] * size];
+    ctx.fillStyle = 'rgba(30,227,207,.2)'; ctx.beginPath(); ctx.arc(cx, cy, home.r * size * 1.04, 0, 6.3); ctx.fill();
+    const a = toPx(0, 0), b = toPx(1, 0);
+    paintLand(ctx, W, true, toPx, Math.hypot(b[0] - a[0], b[1] - a[1]) * 1.5, '#c3e09a');
+    const s = size * 0.026, [vx, vy0] = toPx(VOLC.x, VOLC.y), vy = vy0 - s * 0.6;
+    ctx.beginPath(); ctx.moveTo(vx - s, vy + s * 0.6); ctx.lineTo(vx - s * 0.25, vy - s * 0.7); ctx.lineTo(vx + s * 0.25, vy - s * 0.7); ctx.lineTo(vx + s, vy + s * 0.6); ctx.closePath();
+    ctx.fillStyle = '#c9a27c'; ctx.fill(); ctx.lineWidth = s * 0.16; ctx.strokeStyle = INK; ctx.stroke();
+    ctx.fillStyle = '#ff2a3a'; ctx.fillRect(vx - s * 0.25, vy - s * 0.78, s * 0.5, s * 0.22);
   }
-  
-  for (const p of page.places) for (const q of p.perches) {
-    const [x, y] = [q.uv[0] * size, q.uv[1] * size], on = q.visited && q.open;
-    perchMark(ctx, x, y, 1.7 * u, on);
-    if (q.visited) label(ctx, q.name, x + 2.6 * u, y, 2.6 * u, 'left');
-  }
-  if (page.x) xMark(ctx, page.x.uv[0] * size, page.x.uv[1] * size, 1.9 * u);
-  ctx.restore();
-  
-  ctx.save(); rr(1.5, 1.5, 97, 9, [4, 4, 0, 0]); ctx.fillStyle = INK; ctx.fill(); ctx.restore();
-  ctx.font = `800 ${5.2 * u}px Rubik, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#fff';
-  ctx.fillText('THE WORLD', 50 * u, 6.3 * u);
-  const [nx, ny] = [90 * u, 19 * u];
-  ctx.fillStyle = INK; ctx.beginPath(); ctx.moveTo(nx, ny - 4 * u); ctx.lineTo(nx + 1.6 * u, ny + 1.5 * u); ctx.lineTo(nx, ny + 0.6 * u); ctx.lineTo(nx - 1.6 * u, ny + 1.5 * u); ctx.closePath(); ctx.fill();
-  label(ctx, 'N', nx, ny + 4 * u, 3.2 * u);
-  const ky = 92;
-  xMark(ctx, 6 * u, ky * u, 1.2 * u); label(ctx, 'NEXT GOAL', 9 * u, ky * u, 2.7 * u, 'left');
-  perchMark(ctx, 33 * u, ky * u, 1.3 * u, true); label(ctx, 'AEROWING PERCH', 36 * u, ky * u, 2.7 * u, 'left');
-  kidDot(ctx, 67 * u, ky * u, 0.22 * u); label(ctx, 'YOU', 70 * u, ky * u, 2.7 * u, 'left');
-  rr(1.5, 1.5, 97, 97, 5); ctx.lineWidth = 1.6 * u; ctx.strokeStyle = INK; ctx.stroke();
   return c;
 }
 
-export function drawWorld(canvas, flags, region, player, mapOf, fontsKey = '') {
-  const page = worldPage(flags, region), key = fontsKey + canvas.width + page.key;
-  if (!worldBase || key !== worldKey) { worldBase = paintWorld(canvas.width, page, mapOf); worldKey = key; }
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(worldBase, 0, 0);
+
+export const KIND_STYLE = {
+  town: { fill: '#ffb341', label: 'Town (safe)' }, cave: { fill: '#8a6a9a', label: 'Cave' }, sea: { fill: '#3fb8e0', label: 'Under the sea' },
+  forest: { fill: '#4caf50', label: 'Forest' }, ruin: { fill: '#b0a48c', label: 'Ruins' }, peak: { fill: '#9fb4c8', label: 'Cliffs' }, field: { fill: '#9ccc65', label: 'Fields' },
+};
+function kindIcon(ctx, kind, x, y, r) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(r / 10, r / 10);
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.lineWidth = 1.4; ctx.strokeStyle = INK; ctx.fillStyle = '#fff';
+  const P = (pts) => { ctx.beginPath(); pts.forEach(([a, b], i) => (i ? ctx.lineTo(a, b) : ctx.moveTo(a, b))); ctx.closePath(); ctx.fill(); ctx.stroke(); };
+  if (kind === 'town') { P([[-5, 5], [-5, -1], [0, -5.5], [5, -1], [5, 5]]); ctx.fillStyle = INK; ctx.fillRect(-1.3, 1, 2.6, 4); }
+  else if (kind === 'cave') { ctx.beginPath(); ctx.moveTo(-6, 5); ctx.lineTo(-6, 0); ctx.arc(0, 0, 6, Math.PI, 0); ctx.lineTo(6, 5); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = INK; ctx.beginPath(); ctx.moveTo(-3, 5); ctx.lineTo(-3, 1); ctx.arc(0, 1, 3, Math.PI, 0); ctx.lineTo(3, 5); ctx.closePath(); ctx.fill(); }
+  else if (kind === 'sea') { ctx.lineWidth = 1.8; ctx.strokeStyle = '#fff'; for (const dy of [-3, 1, 5]) { ctx.beginPath(); ctx.moveTo(-6, dy); ctx.quadraticCurveTo(-3, dy - 3, 0, dy); ctx.quadraticCurveTo(3, dy + 3, 6, dy); ctx.stroke(); } }
+  else if (kind === 'forest') { P([[0, -7], [5, 0], [2, 0], [6, 5], [-6, 5], [-2, 0], [-5, 0]]); ctx.fillStyle = INK; ctx.fillRect(-1, 5, 2, 2.5); }
+  else if (kind === 'ruin') { P([[-6, -5], [6, -5], [6, -3], [-6, -3]]); P([[-5, -3], [-2.5, -3], [-2.5, 5], [-5, 5]]); P([[2.5, -3], [5, -3], [5, 5], [2.5, 5]]); }
+  else if (kind === 'peak') { P([[-7, 5], [-2, -5], [1, 0], [3, -2], [7, 5]]); }
+  else { ctx.lineWidth = 1.8; ctx.strokeStyle = '#fff'; for (const dx of [-4, 0, 4]) { ctx.beginPath(); ctx.moveTo(dx - 1.5, 4); ctx.lineTo(dx, -3); ctx.lineTo(dx + 1.5, 4); ctx.stroke(); } }
+  ctx.restore();
+}
+function sticker(ctx, x, y, r, kind, here) {
+  const st = KIND_STYLE[kind] || KIND_STYLE.field;
+  ctx.beginPath(); ctx.arc(x + r * 0.18, y + r * 0.22, r, 0, 6.3); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fill(); 
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 6.3); ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, r * 0.84, 0, 6.3); ctx.fillStyle = st.fill; ctx.fill(); ctx.lineWidth = r * 0.09; ctx.strokeStyle = INK; ctx.stroke();
+  kindIcon(ctx, kind, x, y, r * 0.62);
+  if (here) { const p = r * (1.22 + Math.sin(performance.now() / 160) * 0.05); ctx.lineWidth = r * 0.16; ctx.strokeStyle = '#ff3ea5'; ctx.beginPath(); ctx.arc(x, y, p, 0, 6.3); ctx.stroke(); }
+}
+
+function nameAt(ctx, text, x, y, px, sub) {
+  ctx.font = `400 ${px}px "Permanent Marker", cursive`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  ctx.lineWidth = px * 0.34; ctx.strokeStyle = PAPER; ctx.strokeText(text, x, y); ctx.fillStyle = INK; ctx.fillText(text, x, y);
+  if (sub) { const sp = px * 0.62; ctx.font = `800 ${sp}px Rubik, sans-serif`; ctx.lineWidth = sp * 0.4; ctx.strokeText(sub, x, y + px * 0.85); ctx.fillStyle = '#d81b7a'; ctx.fillText(sub, x, y + px * 0.85); }
+}
+
+
+export function clampView(v) {
+  const s = Math.max(1, Math.min(5, v.s)), h = 0.5 / s;
+  return { s, cx: Math.max(h, Math.min(1 - h, v.cx)), cy: Math.max(h, Math.min(1 - h, v.cy)) };
+}
+
+export function drawWorld(canvas, flags, region, player, mapOf, fontsKey = '', view = { s: 1, cx: 0.5, cy: 0.5 }, doors = [], px = 1) {
+  const page = worldPage(flags, region, { doors }), key = fontsKey + page.key;
+  if (!worldBase || key !== worldKey) { worldBase = paintWorldBase(page, mapOf); worldKey = key; }
+  const v = clampView(view), size = canvas.width, ctx = canvas.getContext('2d');
+  const toS = ([a, b]) => [(a - v.cx) * v.s * size + size / 2, (b - v.cy) * v.s * size + size / 2];
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, size, size);
+  ctx.save(); ctx.beginPath(); ctx.roundRect(0, 0, size, size, 18 * px); ctx.clip();
+  const sw = BASE / v.s; ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(worldBase, (v.cx - 0.5 / v.s) * BASE, (v.cy - 0.5 / v.s) * BASE, sw, sw, 0, 0, size, size);
+  const R = (p) => (p.region === HOME ? p.r * v.s * size : Math.max(13 * px, Math.min(30 * px, p.r * v.s * size * 0.55)));
+  const edge = (p, toward) => { const c = toS(p.at); if (p.region !== HOME) return c; const d = Math.hypot(toward[0] - c[0], toward[1] - c[1]) || 1, r = R(p) * 0.92; return [c[0] + (toward[0] - c[0]) / d * r, c[1] + (toward[1] - c[1]) / d * r]; };
+  
+  ctx.setLineDash([7 * px, 6 * px]); ctx.lineWidth = 2.6 * px; ctx.strokeStyle = 'rgba(17,17,17,.55)'; ctx.lineCap = 'round';
+  for (const [a, b] of page.links) {
+    const pa = page.places.find((p) => p.region === a), pb = page.places.find((p) => p.region === b); if (!pa || !pb) continue;
+    const s0 = edge(pa, toS(pb.at)), s1 = edge(pb, toS(pa.at));
+    ctx.beginPath(); ctx.moveTo(...s0); ctx.lineTo(...s1); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  
+  const boxes = [];
+  for (const p of page.places) {
+    if (p.region === HOME) continue;
+    const [x, y] = toS(p.at), r = R(p);
+    sticker(ctx, x, y, r, p.kind, p.here); boxes.push({ l: x - r, r: x + r, t: y - r, b: y + r });
+  }
+  for (const p of page.places) for (const q of p.perches) { if (!q.uv) continue; const [x, y] = toS(q.uv); perchMark(ctx, x, y, (v.s > 1.6 ? 7 : 5.5) * px, q.visited && q.open); }
+  if (page.x) { const [x, y] = toS(page.x.uv); xMark(ctx, x, y, 7 * px); boxes.push({ l: x - 9 * px, r: x + 9 * px, t: y - 9 * px, b: y + 9 * px }); }
   const uv = worldUV(region, player.x, player.y);
-  if (uv) kidDot(ctx, uv[0] * canvas.width, uv[1] * canvas.width, canvas.width / 380 * 0.9);
+  if (uv) { const [x, y] = toS(uv); kidDot(ctx, x, y, px * 1.2); }
+  
+  const px13 = 13 * px, order = page.places.slice().sort((a, b) => (b.here - a.here) || (b.region === HOME) - (a.region === HOME) || b.r - a.r);
+  const M = 12 * px; 
+  const free = (bx) => bx.l >= M && bx.r <= size - M && bx.t >= M && bx.b <= size - M && !boxes.some((o) => bx.l < o.r && bx.r > o.l && bx.t < o.b && bx.b > o.t);
+  ctx.font = `400 ${px13}px "Permanent Marker", cursive`;
+  for (const p of order) {
+    const name = p.name.toUpperCase(), sub = p.here ? 'YOU ARE HERE' : '', w = ctx.measureText(name).width + 10 * px, h = px13 * (sub ? 2 : 1.25);
+    const [x, y] = toS(p.at), r = p.region === HOME ? Math.min(R(p) * 0.25, 40 * px) : R(p);
+    if (x < 0 || x > size || y < 0 || y > size) continue; 
+    const tries = p.region === HOME ? [[0, r + h / 2]] : [[0, r + h / 2 + 2 * px], [0, -r - h / 2 - 2 * px], [r + w / 2 + 3 * px, 0], [-r - w / 2 - 3 * px, 0]];
+    let placed = false;
+    for (const [dx, dy] of tries) {
+      let lx = x + dx, ly = y + dy;
+      lx = Math.max(w / 2 + M, Math.min(size - w / 2 - M, lx)); 
+      const bx = { l: lx - w / 2, r: lx + w / 2, t: ly - px13 * 0.62, b: ly - px13 * 0.62 + h };
+      if (!free(bx)) continue;
+      nameAt(ctx, name, lx, ly, px13, sub); boxes.push(bx); placed = true; break;
+    }
+    if (!placed && p.here) { 
+      const lx = Math.max(w / 2 + M, Math.min(size - w / 2 - M, x)), ly = Math.max(M + px13, Math.min(size - M - h, y - r - h / 2 - 4 * px));
+      nameAt(ctx, name, lx, ly, px13, sub); boxes.push({ l: lx - w / 2, r: lx + w / 2, t: ly - px13 * 0.62, b: ly - px13 * 0.62 + h });
+    }
+  }
+  ctx.restore();
+  ctx.lineWidth = 5 * px; ctx.strokeStyle = INK; ctx.beginPath(); ctx.roundRect(2.5 * px, 2.5 * px, size - 5 * px, size - 5 * px, 16 * px); ctx.stroke();
+  return v;
 }
 
 
