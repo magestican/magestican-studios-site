@@ -79,6 +79,98 @@ export const NARR = { who: '' };
 const ALLEY_R = U.rng(1992);
 const ALLEY_WINDOWS = Array.from({ length: 70 }, () => [ALLEY_R(), ALLEY_R(), ALLEY_R() < 0.55]);
 const RAIN = Array.from({ length: 160 }, () => [ALLEY_R(), ALLEY_R(), 0.6 + ALLEY_R() * 0.8]);
+
+
+
+
+function alleyLife(ctx, w, h, t, { vx, top, bot, inL, inR }) {
+  const INK = '#0d0a14';
+  
+  ctx.save(); ctx.translate(w * 0.05, h * 0.5); ctx.transform(1, 0.32, 0, 1, 0, 0);
+  ctx.font = `${Math.floor(h * 0.035)}px 'Sedgwick Ave Display', 'Permanent Marker', cursive`;
+  ctx.lineWidth = 4; ctx.strokeStyle = INK; ctx.strokeText('KAZ!', 0, 0); ctx.fillStyle = '#5ee0c8'; ctx.fillText('KAZ!', 0, 0);
+  ctx.restore();
+  ctx.save(); ctx.translate(w * 0.8, h * 0.4); ctx.transform(1, -0.32, 0, 1, 0, 0);
+  ctx.fillStyle = '#e8dcb0'; ctx.fillRect(0, 0, w * 0.1, h * 0.07); ctx.fillStyle = '#c03a2a'; ctx.fillRect(w * 0.01, h * 0.008, w * 0.08, h * 0.022);
+  ctx.fillStyle = '#3a1512'; ctx.beginPath(); ctx.moveTo(w * 0.06, h * 0.07); ctx.lineTo(w * 0.1, h * 0.045); ctx.lineTo(w * 0.1, h * 0.07); ctx.fill();
+  ctx.restore();
+  
+  const on = Math.sin(t * 17) > -0.8;
+  if (on) { ctx.fillStyle = 'rgba(255,79,163,0.22)'; for (let k = 0; k < 5; k++) ctx.fillRect(w * 0.12 + k * 3, h * 0.72 + k * h * 0.035, w * 0.09 - k * 5, h * 0.012); }
+  
+  const cp = (t % 7) / 1.4;
+  if (cp < 1) {
+    const cx = U.lerp(inL - 60, inR + 60, cp), cy = bot - 6, cw = (inR - inL) * 0.36, ch = cw * 0.32;
+    ctx.save(); ctx.beginPath(); ctx.rect(inL, top, inR - inL, bot - top + 4); ctx.clip();
+    const g = ctx.createRadialGradient(cx + cw * 0.5, cy, 2, cx + cw * 0.5, cy, cw * 1.2);
+    g.addColorStop(0, 'rgba(255,240,180,0.55)'); g.addColorStop(1, 'rgba(255,240,180,0)'); ctx.fillStyle = g; ctx.fillRect(cx - cw, cy - cw, cw * 3, cw * 2);
+    ctx.fillStyle = INK; ctx.fillRect(cx - cw / 2 - 2, cy - ch - 2, cw + 4, ch + 4);
+    ctx.fillStyle = '#ffcc1a'; ctx.fillRect(cx - cw / 2, cy - ch, cw, ch); ctx.fillRect(cx - cw * 0.25, cy - ch * 1.6, cw * 0.5, ch * 0.62);
+    ctx.fillStyle = '#7ad0ff'; ctx.fillRect(cx - cw * 0.2, cy - ch * 1.45, cw * 0.17, ch * 0.4); ctx.fillRect(cx + cw * 0.03, cy - ch * 1.45, cw * 0.17, ch * 0.4);
+    ctx.fillStyle = INK; for (const d of [-0.3, 0.3]) { ctx.beginPath(); ctx.arc(cx + cw * d, cy, ch * 0.32, 0, 6.2832); ctx.fill(); }
+    ctx.fillStyle = '#fff6c0'; ctx.fillRect(cx + cw / 2 - 3, cy - ch * 0.7, 4, 4);
+    ctx.restore();
+    
+    ctx.fillStyle = `rgba(255,220,140,${0.16 * Math.sin(cp * Math.PI)})`;
+    ctx.beginPath(); ctx.moveTo(inL, bot); ctx.lineTo(inR, bot); ctx.lineTo(w * 0.85, h); ctx.lineTo(w * 0.15, h); ctx.closePath(); ctx.fill();
+  }
+  
+  ctx.strokeStyle = 'rgba(200,215,255,0.45)'; ctx.lineWidth = 1;
+  for (let k = 0; k < 14; k++) {
+    const p = (t * 1.3 + k * 0.37) % 1, x = w * (0.25 + ((k * 0.618) % 1) * 0.5), y = h * (0.7 + ((k * 0.382) % 1) * 0.26);
+    ctx.globalAlpha = 1 - p; ctx.beginPath(); ctx.ellipse(x, y, 2 + p * 12, 1 + p * 4, 0, 0, 6.2832); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  
+  const kx = w * 0.17, ky = h * 0.695;
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.ellipse(kx, ky, w * 0.028, h * 0.012, 0, 0, 6.2832); ctx.fill();
+  ctx.beginPath(); ctx.arc(kx + w * 0.025, ky - h * 0.012, w * 0.013, 0, 6.2832); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(kx + w * 0.016, ky - h * 0.02); ctx.lineTo(kx + w * 0.02, ky - h * 0.032); ctx.lineTo(kx + w * 0.026, ky - h * 0.022); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(kx + w * 0.028, ky - h * 0.022); ctx.lineTo(kx + w * 0.034, ky - h * 0.033); ctx.lineTo(kx + w * 0.037, ky - h * 0.02); ctx.fill();
+  ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(kx - w * 0.025, ky); ctx.quadraticCurveTo(kx - w * 0.05, ky - h * 0.005 + Math.sin(t * 2) * h * 0.008, kx - w * 0.045, ky - h * 0.03); ctx.stroke();
+  const eye = cp < 1 ? 1 : 0.35;
+  ctx.fillStyle = `rgba(190,255,120,${eye})`; ctx.fillRect(kx + w * 0.02, ky - h * 0.015, 3, 2); ctx.fillRect(kx + w * 0.03, ky - h * 0.015, 3, 2);
+}
+
+
+function villageLife(ctx, w, h, t, layer) {
+  const INK = '#0d0a14';
+  if (layer === 'back') {
+    for (const [a, sz, c] of [[0.08, 0.05, '#4a5aa0'], [0.55, 0.035, '#5a68ac'], [0.8, 0.06, '#44539a']]) {
+      ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(w * a, h * 0.5, w * sz * 2, h * sz * 0.5, 0, Math.PI, 0); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(w * a - w * sz, h * 0.5); ctx.lineTo(w * a, h * (0.5 - sz * 0.9)); ctx.lineTo(w * a + w * sz, h * 0.5); ctx.fill();
+    }
+    for (let k = 0; k < 5; k++) { 
+      const a = t * 0.4 + k * 1.3, bx = w * (0.55 + 0.25 * Math.cos(a)), by = h * (0.22 + 0.06 * Math.sin(a * 1.3) + k * 0.02), f = Math.sin(t * 8 + k) * 4;
+      ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx - 8, by - f); ctx.quadraticCurveTo(bx - 4, by - 4, bx, by); ctx.quadraticCurveTo(bx + 4, by - 4, bx + 8, by - f); ctx.stroke();
+    }
+    for (const [px, ps] of [[0.06, 1.1], [0.95, 1.3], [0.52, 0.8]]) { 
+      const x = w * px, y = h * 0.6, s = ps * h * 0.0011, sw = Math.sin(t * 1.4 + px * 9) * 3;
+      ctx.strokeStyle = INK; ctx.lineWidth = 9 * s; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 10 * s, y - 60 * s, x + sw, y - 110 * s); ctx.stroke();
+      ctx.strokeStyle = '#7a5a3a'; ctx.lineWidth = 5 * s; ctx.stroke();
+      for (let k = 0; k < 6; k++) {
+        const a = -2.6 + k * 0.42, L = 55 * s;
+        ctx.fillStyle = INK; ctx.beginPath(); ctx.ellipse(x + sw + Math.cos(a) * L * 0.5, y - 110 * s + Math.sin(a) * L * 0.35 + 6 * s, L * 0.55, 9 * s, a, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = k % 2 ? '#3f9a3a' : '#59ad46'; ctx.beginPath(); ctx.ellipse(x + sw + Math.cos(a) * L * 0.5, y - 110 * s + Math.sin(a) * L * 0.35 + 6 * s, L * 0.5, 6.5 * s, a, 0, 6.2832); ctx.fill();
+      }
+    }
+    return;
+  }
+  
+  const flags = ['#ff5a8a', '#ffd23a', '#5ee0c8', '#8a6aff'];
+  for (const [x0, x1, y] of [[0.35, 0.62, 0.53], [0.62, 0.84, 0.535]]) {
+    ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(w * x0, h * y); ctx.quadraticCurveTo(w * (x0 + x1) / 2, h * (y + 0.04), w * x1, h * y); ctx.stroke();
+    for (let k = 1; k < 8; k++) {
+      const e = k / 8, x = U.lerp(w * x0, w * x1, e), yy = h * y + Math.sin(e * Math.PI) * h * 0.04 * 0.5 * 2 * (1 - Math.abs(0.5 - e)) + Math.sin(t * 3 + k) * 1.5;
+      ctx.fillStyle = flags[k % 4]; ctx.beginPath(); ctx.moveTo(x - 6, yy); ctx.lineTo(x + 6, yy); ctx.lineTo(x, yy + 13); ctx.closePath(); ctx.fill(); ctx.lineWidth = 1.5; ctx.stroke();
+    }
+  }
+  
+  for (let k = 0; k < 18; k++) {
+    const p = (t * 0.25 + k / 18) % 1, x = w * (0.16 + Math.sin(k * 3.1 + t * 0.8) * 0.04 + p * 0.06), y = h * (0.6 - p * 0.45);
+    ctx.fillStyle = `rgba(255,${150 + (k % 3) * 40},60,${(1 - p) * 0.9})`; ctx.fillRect(x, y, 3, 3);
+  }
+}
 function drawAlley(ctx, w, h, t) {
   const vx = w / 2, top = h * 0.18, bot = h * 0.64, inL = w * 0.36, inR = w * 0.64;
   let g = ctx.createLinearGradient(0, 0, 0, bot);
@@ -143,6 +235,7 @@ function drawAlley(ctx, w, h, t) {
     const p = (t * 0.3 + k / 6) % 1;
     ctx.fillStyle = `rgba(220,220,240,${0.18 * (1 - p)})`; U.ellipse(ctx, w * 0.58 + Math.sin(p * 6 + k) * 20, h * 0.8 - p * h * 0.3, 30 + p * 50, 18 + p * 30); ctx.fill();
   }
+  alleyLife(ctx, w, h, t, { vx, top, bot, inL, inR });
   
   ctx.strokeStyle = 'rgba(170,190,255,0.35)'; ctx.lineWidth = 1;
   ctx.beginPath();
@@ -328,10 +421,12 @@ export const SCENES = [
         ctx.lineWidth = Math.max(2, h / 220); ctx.strokeStyle = '#0d0a14'; ctx.stroke();
       }
       ctx.fillStyle = `rgba(255,110,40,${0.5 + 0.2 * Math.sin(t * 3)})`; U.ellipse(ctx, w * 0.18, h * 0.6, w * 0.08, h * 0.015); ctx.fill();
+      villageLife(ctx, w, h, t, 'back');
       ART.hut(ctx, w * 0.35, h * 0.63, 1.6, '#d8763a');
       ART.hut(ctx, w * 0.62, h * 0.61, 1.4, '#c9543a');
       ART.hut(ctx, w * 0.84, h * 0.64, 1.7, '#e0a040');
       ART.torch(ctx, w * 0.46, h * 0.7, t, 1); ART.torch(ctx, w * 0.74, h * 0.72, t, 2);
+      villageLife(ctx, w, h, t, 'front');
       if (li >= 2) {
         VILLAGE_EXTRAS.forEach(([x, y, id, band], i) => {
           const k = Math.min(1, Math.max(0, (t - i * 0.2) / 0.5));
