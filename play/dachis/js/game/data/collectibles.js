@@ -22,7 +22,8 @@ export const PER_REGION = 15;
 
 
 const spot = (sec, u, v, map) => ({ spot: map ? { sec, uv: [u, v], map } : { sec, uv: [u, v] } });
-const MINE = 'minehead', SHAFT = 'lantern-shaft', SEAM = 'deep-seam'; 
+const FROST = 'frostspine', GLACIER = 'frost-glacier', SUMMIT = 'frost-summit'; 
+const MINE = 'minehead', SHAFT = 'lantern-shaft', SEAM = 'deep-seam', ECHO = 'echo-lake'; 
 const VINE = 'vinegate', CANOPY = 'canopy-walk', FIG = 'fig-terraces', RUIN = 'ruin-steps', COURT = 'obsidian-court'; 
 const SHRINE_V = 'shrine-village', COAST = 'tomo-coast', SHELL = 'shellhaven', MAZE = 'kelp-maze', TEMPLE = 'drowned-temple', HOLLOW = 'hollowroot', THORN = 'thornfield', MOTHER = 'mother-hollow'; 
 export const COLLECTIBLES = [
@@ -198,10 +199,11 @@ export const COLLECTIBLES = [
     text: 'An iron wheel off a cart that ran the old workings. The camp children roll it down the rim road. It always wins.' },
   { id: 'c80', region: MINE, kind: 'relic', name: 'The Hush Token', from: { quest: 'not-afraid' },
     text: 'A smooth black pebble the Hermit gives to the ones who keep quiet in the dark. It is warm, as if somebody has been holding it a long time.' },
-  { id: 'c81', region: MINE, kind: 'shell', name: 'The Long Ledge', cue: 'town', from: spot('minehead', 14.5, 44.0, MINE),
-    text: 'Boots on the spiral ledge, a cart squeaking somewhere, and the camp calling a miner\'s name down the pit, twice, then a third time.' },
-  { id: 'c82', region: MINE, kind: 'shell', name: 'Dripping Dark', cue: 'cave', from: spot('shaft-b', 2.1, 76.9, SHAFT),
-    text: 'Water dripping in the shaft, very slowly, and between the drops a hum like somebody singing with their mouth shut.' },
+  
+  { id: 'c81', region: MINE, kind: 'shell', name: 'Three Echoes', cue: 'town', from: spot('echo-isles', -7.6, 87.4, ECHO),
+    text: 'A name shouted from Driftwick\'s jetty, and the lake shouting it back three times - the third a little slower, a little wrong, as if somebody else were trying it out.' },
+  { id: 'c82', region: MINE, kind: 'shell', name: 'The Thinking Water', cue: 'cave', from: spot('echo-isles', -6.6, 104.6, ECHO),
+    text: 'Lie flat on the island logs and listen: a hum under the water, low and patient, like the lake is thinking about something and has not decided yet.' },
   { id: 'c83', region: MINE, kind: 'shell', name: 'The Hermit\'s Hush', cue: 'boss', from: { boss: 'quartz' },
     text: 'The Hermit\'s lenses clicking as the red left him - and then his breathing, fast, the way a kid breathes when the light goes out.' },
   { id: 'c84', region: MINE, kind: 'hat', name: 'Miner\'s Helmet', geo: 'helmet', from: { quest: 'dented-lamp' },
@@ -218,6 +220,38 @@ export const COLLECTIBLES = [
     text: 'A memory: the same mole, older, sitting up every night with the lamp turned high, listening, listening, never once going to sleep in the dark.' },
   { id: 'c90', region: MINE, kind: 'stone', name: 'The Voice in the Seam', from: spot('seam-hollow', 3.0, 84.0, SEAM),
     text: 'A memory: the lamp finally burning out, and a red voice in the black saying there was nothing there - nothing at all - and the mole, for the first time in nine years, letting go.' },
+  
+  
+  { id: 'c91', region: FROST, kind: 'relic', name: "Cut Rope End", from: spot('frost-pass', 4.0, 61.6, FROST),
+    text: "A frayed end of the high bridge's rope, cut clean through on one side and chewed on the other. Grandpa Hask says the knife did all of it. The teeth marks say otherwise." },
+  { id: 'c92', region: FROST, kind: 'relic', name: "Stilt Mallet", from: spot('frost-camp', -15.4, 44.6, FROST),
+    text: "Rime's spare mallet, the head worn round from nine winters of knocking stilts straight. The handle is wrapped in somebody's old scarf." },
+  { id: 'c93', region: FROST, kind: 'relic', name: "Ice-Cutter's Saw", from: spot('glacier-field', -5.6, 27.4, GLACIER),
+    text: "A long toothed saw for cutting blocks out of the glacier. Every block on that field was cut with it. The old cutter says it is retired. It is still sharp." },
+  { id: 'c94', region: FROST, kind: 'relic', name: "Vent Kettle", from: spot('steam-vents', 39.4, 85.6, GLACIER),
+    text: "A dented kettle wedged over a steam crack, always on the boil. Nobody owns it. Everybody who passes leaves the lid a little straighter." },
+  { id: 'c95', region: FROST, kind: 'relic', name: "The Moss Basket", from: spot('summit-lair', 9.4, 80.6, SUMMIT),
+    text: "A basket woven from tusk-scraped bark, full of moss gone stiff with frost. Somebody very big brought it up here every morning for a very long time." },
+  { id: 'c96', region: FROST, kind: 'shell', name: "Mallets at Dawn", cue: 'town', from: spot('frost-camp', 13.0, 51.4, FROST),
+    text: "Base Camp at first light: a mallet knocking on stilts, the hot spring crust cracking, and the lake ice groaning back at both of them." },
+  { id: 'c97', region: FROST, kind: 'shell', name: "Waist-Deep Hush", cue: 'field', from: spot('aurora-hollow', -14.4, 86.4, GLACIER),
+    text: "Aurora Hollow with the wind dropped: snow settling on snow, a dachi breathing somewhere under it, and the sky crackling green very far away." },
+  { id: 'c98', region: FROST, kind: 'shell', name: "The Last Roar", cue: 'boss', from: { boss: 'glacius' },
+    text: "Glacius Rex's vents hissing one last time - and then, instead of the roar, a long, shaking breath out, like something finally putting down a load." },
+  { id: 'c99', region: FROST, kind: 'hat', name: "Pom Beanie", geo: 'beanie', from: spot('frost-camp', -16.6, 31.0, FROST),
+    text: "A knitted beanie with a pom-pom the size of a fist. Base Camp knits one for every new arrival. This one was knitted before you arrived. They knew." },
+  { id: 'c100', region: FROST, kind: 'hat', name: "Snow Goggles", geo: 'goggles', from: spot('glacier-field', 6.4, 60.0, GLACIER),
+    text: "Bone goggles with thin slits, against the glare off the ice. The world through them is one long line, which on the glacier is all you need." },
+  { id: 'c101', region: FROST, kind: 'hat', name: "Icicle Horns", geo: 'horns', from: spot('menagerie-3', 4.6, 58.2, SUMMIT),
+    text: "Two icicles on a band, snapped off a frozen dachi's block in the Menagerie. They never melt. Nobody is sure that is a good sign." },
+  { id: 'c102', region: FROST, kind: 'hat', name: "Climber's Helmet", geo: 'helmet', from: spot('frost-pass', -16.4, 88.4, FROST),
+    text: "A leather climbing helmet, the chin strap knotted twice. Grandpa Hask wore it the night he cut the bridge. He says he does not remember losing it." },
+  { id: 'c103', region: FROST, kind: 'stone', name: "The Long Winters", from: spot('frost-pass', -12.0, 66.2, FROST),
+    text: "A memory: a young mammoth-mecha leading a herd up the pass through a blizzard, breaking the drifts with his tusks so the little ones could walk in his tracks." },
+  { id: 'c104', region: FROST, kind: 'stone', name: "Every Spring, Fewer", from: spot('aurora-hollow', 13.0, 66.4, GLACIER),
+    text: "A memory: the same keeper, older, standing at the thaw line every spring, counting the herd as it comes down, and every spring the count a little shorter." },
+  { id: 'c105', region: FROST, kind: 'stone', name: "Hold Still", from: spot('summit-lair', -9.6, 92.6, SUMMIT),
+    text: "A memory: a red voice in the aurora telling him nothing ever had to end - just hold still, hold everything still - and the keeper, so tired of counting, believing it." },
 ];
 export const collectibleById = (id) => COLLECTIBLES.find((c) => c.id === id) || null;
 export const found = (flags, id) => !!(flags && flags.found && flags.found[id]);
