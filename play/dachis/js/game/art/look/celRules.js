@@ -216,7 +216,7 @@ export function luma(h) { const [r, g, b] = hexRgb(h); return 0.2126 * r + 0.715
 
 export function classByte(cls) { const i = GROUND_CLASSES.indexOf(cls); return i < 0 ? 0 : i; }
 
-const GROUND_ALIAS = { village: 'volcano', 'shrine-village': 'shrine', 'tomo-coast': 'coast', shellhaven: 'coral', 'kelp-maze': 'coral', 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral', 'ember-a': 'ember', 'ember-b': 'ember', hollowroot: 'verdant', 'thorn-upper': 'verdant', 'thorn-lower': 'verdant', 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant', vinegate: 'river', 'canopy-walk': 'canopy', 'fig-terraces': 'fig', 'gale-ledges': 'volcano', 'ruin-steps': 'ruins', 'court-stones': 'court', 'court-gallery': 'court', 'court-guards': 'court', 'court-throne': 'court', minehead: 'ember', 'mine-workings': 'ember', 'shaft-a': 'ember', 'shaft-b': 'ember', 'seam-hall': 'ember', 'seam-narrows': 'ember', 'seam-stones': 'ember', 'seam-hollow': 'ember', 'geode-mouth': 'ember', 'geode-prism': 'ember', 'geode-heart': 'ember', 'geode-vault': 'ember' };
+const GROUND_ALIAS = { village: 'volcano', 'shrine-village': 'shrine', 'tomo-coast': 'coast', shellhaven: 'coral', 'kelp-maze': 'coral', 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral', 'ember-a': 'ember', 'ember-b': 'ember', hollowroot: 'verdant', 'thorn-upper': 'verdant', 'thorn-lower': 'verdant', 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant', vinegate: 'river', 'canopy-walk': 'canopy', 'fig-terraces': 'fig', 'gale-ledges': 'volcano', 'ruin-steps': 'ruins', 'court-stones': 'court', 'court-gallery': 'court', 'court-guards': 'court', 'court-throne': 'court', minehead: 'ember', 'mine-workings': 'ember', 'shaft-a': 'ember', 'shaft-b': 'ember', 'seam-hall': 'ember', 'seam-narrows': 'ember', 'seam-stones': 'ember', 'seam-hollow': 'ember', 'geode-mouth': 'ember', 'geode-prism': 'ember', 'geode-heart': 'ember', 'geode-vault': 'ember', 'echo-hamlet': 'coast', 'echo-river': 'ember', 'echo-isles': 'coral' };
 export function regionByte(region) { const i = GROUND_REGIONS.indexOf(GROUND_ALIAS[region] || region); return i < 0 ? GROUND_REGIONS.indexOf('road') : i; }
 
 
@@ -227,7 +227,7 @@ export const WATER_ALPHA = [1, 0.8, 0.94, 0.97];
 export const WATER_EDGE = '#0b3f8f'; 
 
 
-export const WATER_TINT = { minehead: ['#8fa39c', '#2f5a52', '#1d3d38', '#0f2420'] };
+export const WATER_TINT = { minehead: ['#8fa39c', '#2f5a52', '#1d3d38', '#0f2420'], 'echo-lake': ['#a8d0f0', '#2a6aa8', '#1a4a88', '#0e2a60'] }; 
 
 export const GROUND_INK = 1.0;
 export function waterBand(depth) { let i = 0; while (depth >= WATER_BANDS[i][0]) i++; return i; }

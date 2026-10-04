@@ -19,7 +19,7 @@ export const LIFE = {
   
   bowl: [0.2, 0], basket: [0.28, 0], pots: [0.38, 0.26], crates: [0.45, 0.36], fishrack: [0.72, 0.15], cookfire: [0.56, 0.48],
   well: [0.62, 0.6], washline: [0.95, 0], strawbed: [0.65, 0], toys: [0.5, 0], tools: [0.32, 0.26], fruitfall: [0.32, 0],
-  sandbags: [0, 0], seawall: [0, 0], stilts: [0, 0], mango: [0.4, 0.3], appletree: [0.4, 0.3], banana: [0.4, 0.25], palm: [0.4, 0.3],
+  sandbags: [0, 0], seawall: [0, 0], stilts: [0, 0], jetty: [0, 0], mango: [0.4, 0.3], appletree: [0.4, 0.3], banana: [0.4, 0.25], palm: [0.4, 0.3],
 };
 export const FRUIT_OF = { mango: '#f0b030', appletree: '#e03a3a', banana: '#e8d040', palm: '#6a4422' };
 export const WEED_C = ['#fff0f8', '#ffd84a', '#ff9ab0', '#c8a0ff', '#ffffff'];

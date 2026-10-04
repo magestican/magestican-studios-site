@@ -61,7 +61,13 @@ export async function applyCheat(c, d) {
   if (c.at && d.regionById(c.at.region)) {
     await d.loadRegion(c.at.region);
     const s = c.at.section && d.sectionById(c.at.section);
-    if (s) { const [x, y] = d.fromUV((s.rect.u[0] + s.rect.u[1]) / 2, (s.rect.v[0] + s.rect.v[1]) / 2); G.player.x = x; G.player.y = y; G.follower.x = x + 0.8; G.follower.y = y; }
+    if (s) {
+      let [x, y] = d.fromUV((s.rect.u[0] + s.rect.u[1]) / 2, (s.rect.v[0] + s.rect.v[1]) / 2);
+      
+      const W = S.W, ok = (px, py) => W.walkable(px, py, 0.3) && W.reach[W.idx(Math.floor(px), Math.floor(py))];
+      if (!ok(x, y)) search: for (let r = 0.5; r < 14; r += 0.5) for (let k = 0; k < 24; k++) { const px = x + Math.sin(k / 24 * 6.283) * r, py = y + Math.cos(k / 24 * 6.283) * r; if (ok(px, py)) { x = px; y = py; break search; } }
+      G.player.x = x; G.player.y = y; G.follower.x = x + 0.8; G.follower.y = y;
+    }
   } else if (c.at) c.errors.push('no region "' + c.at.region + '"');
   for (let i = 0; i < 80 && S.cover && S.cover.hold; i++) await wait(100);
   G.safeTimer = 3;

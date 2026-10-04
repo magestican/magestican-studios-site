@@ -34,6 +34,10 @@ export const HANDS = {
     'Those stilts under the huts? I sank every one. The river comes up a hand a year. My hand. I measured.',
     'Walk the planks, do not bounce on them. The little ones bounce. I mend what they bounce.'] },
   
+  'echo-lake': { sp: 93, name: 'Tack', lines: [
+    'Every raft at every jetty, I lashed. Every one. You are welcome. Bring the pole back. Last summer the river kept eleven.',
+    'They call the islands still water. It is not still. It is thinking. You can feel it think under the logs if you lie flat.'] },
+  
   minehead: { sp: 20, name: 'Clinker', lines: [
     'Picks, lamps, buckets, hinges. These hands bent every one. The babies bang two rocks together and call it mining.',
     'Your bag. The stitches are all the same size. A machine did that? ...I would give a hand for a machine like that. I have two.'] },

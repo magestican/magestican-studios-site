@@ -1,5 +1,5 @@
 {
- "hash": "34bcf35b",
+ "hash": "8819f04",
  "regions": {
   "kazan-isle": {
    "forms": [
@@ -145,7 +145,7 @@
     "life-washline",
     "life-well"
    ],
-   "bytes": 586092
+   "bytes": 434572
   },
   "shrine-village": {
    "forms": [
@@ -204,7 +204,7 @@
     "life-washline",
     "life-well"
    ],
-   "bytes": 585272
+   "bytes": 433752
   },
   "tomo-coast": {
    "forms": [
@@ -759,6 +759,69 @@
     "geode-suncrack"
    ],
    "bytes": 74048
+  },
+  "echo-lake": {
+   "forms": [
+    "fence-post",
+    "fence-rail",
+    "fern",
+    "flower-bed",
+    "flower-clump",
+    "flowers",
+    "geode-crystal",
+    "hut",
+    "lantern",
+    "life-banana",
+    "life-basket",
+    "life-bowl",
+    "life-cookfire",
+    "life-crates",
+    "life-fishrack",
+    "life-fruitfall",
+    "life-jetty",
+    "life-mango",
+    "life-pots",
+    "life-raft",
+    "life-stilts",
+    "life-strawbed",
+    "life-tools",
+    "life-toys",
+    "life-washline",
+    "life-well",
+    "spring-basin",
+    "step-slab",
+    "stone-dark-0",
+    "stone-dark-1",
+    "stone-dark-2",
+    "stone-dark-3",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "torch"
+   ],
+   "pack": "assets/scenery-echo-lake.bin",
+   "extra": [
+    "geode-crystal",
+    "life-banana",
+    "life-basket",
+    "life-bowl",
+    "life-cookfire",
+    "life-crates",
+    "life-fishrack",
+    "life-fruitfall",
+    "life-jetty",
+    "life-mango",
+    "life-pots",
+    "life-raft",
+    "life-stilts",
+    "life-strawbed",
+    "life-tools",
+    "life-toys",
+    "life-washline",
+    "life-well"
+   ],
+   "bytes": 601052
   }
  }
 }

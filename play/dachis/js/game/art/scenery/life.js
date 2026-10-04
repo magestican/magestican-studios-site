@@ -95,9 +95,10 @@ function cookFire() {
 export const cookFireForm = () => form('life-cookfire', cookFire, { min: [-0.45, -0.03, -0.45], max: [0.45, 0.9, 0.5], cell: 0.016, tris: 520 });
 
 function well() {
-  const ring = P(S.displace(S.subtract(0.01, S.roundCylinder([0, 0.3, 0], 0.48, 0.48, 0.3, 0.04), S.roundCylinder([0, 0.4, 0], 0.34, 0.34, 0.4, 0.02)),
-    (x, y, z) => (Math.abs(Math.sin(y * 26)) < 0.15 || Math.abs(Math.sin(Math.atan2(x, z) * 6 + Math.floor(y * 8) * 1.3)) < 0.12 ? -0.012 : 0), 0.015),
-  (x, y, z) => (fbm3(x * 9, y * 9, z * 9, { seed: 7 }) > 0.55 ? C.stoneDark : C.stone), 'stone');
+  
+  
+  const ring = P(S.subtract(0.01, S.roundCylinder([0, 0.3, 0], 0.48, 0.48, 0.3, 0.04), S.roundCylinder([0, 0.4, 0], 0.34, 0.34, 0.4, 0.02)),
+    (x, y, z) => (Math.abs(Math.sin(y * 26)) < 0.18 || Math.abs(Math.sin(Math.atan2(x, z) * 6 + Math.floor(y * 8) * 1.3)) < 0.14 ? C.stoneDark : C.stone), 'stone');
   const water = P(S.roundCylinder([0, 0.36, 0], 0.34, 0.34, 0.01, 0.005), C.water, 'glass');
   const posts = P(S.union(0.01, S.capsule([-0.42, 0.5, 0], [-0.42, 1.3, 0], 0.04), S.capsule([0.42, 0.5, 0], [0.42, 1.3, 0], 0.04),
     S.capsule([-0.48, 1.12, 0], [0.48, 1.12, 0], 0.035)), C.wood, 'wood');
@@ -107,7 +108,7 @@ function well() {
   const bucket = P(S.subtract(0.01, S.roundCylinder([0.05, 0.78, 0], 0.08, 0.065, 0.08, 0.01), S.roundCylinder([0.05, 0.84, 0], 0.065, 0.055, 0.06, 0.005)), C.copper, 'copper');
   return S.union(0.005, ring, water, posts, roof, rope, bucket);
 }
-export const wellForm = () => form('life-well', well, { min: [-0.7, -0.03, -0.6], max: [0.7, 1.62, 0.6], cell: 0.02, tris: 700 });
+export const wellForm = () => form('life-well', well, { min: [-0.7, -0.03, -0.6], max: [0.7, 1.62, 0.6], cell: 0.025, tris: 700 });
 
 const CLOTHS = [lin('#f4f0e6'), lin('#7ab8e8'), lin('#f08a8a'), lin('#f4d26a')];
 function washLine() {
@@ -187,6 +188,30 @@ function stilts() {
 export const stiltsForm = () => form('life-stilts', stilts, { min: [-1.1, -2.3, -1.1], max: [1.1, 0.06, 1.5], cell: 0.03, tris: 700 });
 
 
+function jetty() {
+  const planks = [];
+  for (let k = 0; k < 7; k++) planks.push(S.roundBox([0, -0.04, -0.72 + k * 0.24], [0.42 - jit(k, 5) * 0.04, 0.035, 0.105], 0.015));
+  const deck = P(S.union(0.005, ...planks), (x, y, z) => (jit(Math.floor((z + 1) * 4.2), 6) > 0.5 ? C.pale : C.wood), 'plank');
+  const posts = P(S.union(0.01, ...[[-0.42, -0.7], [0.42, -0.7], [-0.42, 0.7], [0.42, 0.7]].map(([x, z]) => S.capsule([x, 0.08, z], [x, -1.2, z], 0.05))), C.dark, 'wood');
+  const rope = P(S.union(0.005, S.torus([0.42, 0.0, 0.7], 0.06, 0.014), S.torus([-0.42, 0.0, 0.7], 0.06, 0.014)), C.rope, 'wood');
+  return S.union(0.005, deck, posts, rope);
+}
+export const jettyForm = () => form('life-jetty', jetty, { min: [-0.55, -1.3, -0.9], max: [0.55, 0.12, 0.9], cell: 0.02, tris: 360 });
+
+
+function raft() {
+  const logs = [];
+  for (let k = 0; k < 6; k++) logs.push(S.capsule([-0.6 + k * 0.24, 0.0, -0.75], [-0.6 + k * 0.24, 0.0, 0.75 + jit(k, 7) * 0.1], 0.11));
+  const body = P(S.union(0.02, ...logs), (x, y, z) => (jit(Math.floor((x + 1) * 4.1), 8) > 0.5 ? C.wood : C.pale), 'wood');
+  const ties = P(S.union(0.005, S.capsule([-0.72, 0.1, -0.5], [0.72, 0.1, -0.5], 0.03), S.capsule([-0.72, 0.1, 0.5], [0.72, 0.1, 0.5], 0.03)), C.rope, 'wood');
+  const pole = P(S.capsule([-0.5, 0.15, -0.6], [0.55, 0.15, 0.85], 0.025), C.dark, 'wood');
+  const post = P(S.union(0.01, S.capsule([0.5, 0.1, -0.6], [0.5, 0.75, -0.6], 0.025), S.capsule([0.5, 0.75, -0.6], [0.5, 0.75, -0.48], 0.015)), C.dark, 'wood');
+  const lamp = P(S.roundBox([0.5, 0.66, -0.46], [0.05, 0.07, 0.05], 0.015), lin('#ffd890'), 'lamp-glow');
+  return S.union(0.01, body, ties, pole, post, lamp);
+}
+export const raftForm = () => form('life-raft', raft, { min: [-0.8, -0.15, -0.95], max: [0.8, 0.85, 1.0], cell: 0.022, tris: 520 });
+
+
 const TRUNK = lin('#9a8858');
 const crown = (lo, hi, y0, y1, seed) => (x, y, z) => mixLin(lo, hi, Math.max(0, Math.min(1, (y - y0) / (y1 - y0) * 0.85 + (fbm3(x * 7, y * 7, z * 7, { seed, octaves: 2 }) - 0.5) * 0.5)));
 
@@ -250,7 +275,7 @@ export const fruitFallForm = () => form('life-fruitfall', fruitFall, { min: [-0.
 const FORMS = {
   bowl: bowlForm, basket: basketForm, pots: potsForm, crates: cratesForm, fishrack: fishRackForm, cookfire: cookFireForm,
   well: wellForm, washline: washLineForm, strawbed: strawBedForm, toys: toysForm, tools: toolsForm,
-  sandbags: sandbagsForm, seawall: seawallForm, stilts: stiltsForm,
+  sandbags: sandbagsForm, seawall: seawallForm, stilts: stiltsForm, jetty: jettyForm,
   mango: mangoForm, appletree: appleTreeForm, banana: bananaForm, fruitfall: fruitFallForm,
 };
 export const LIFE_KINDS = Object.keys(FORMS);
@@ -258,6 +283,7 @@ export const LIFE_KINDS = Object.keys(FORMS);
 const HAND = new Set(['bowl', 'basket', 'pots', 'crates', 'toys', 'tools', 'fruitfall', 'cookfire', 'strawbed']);
 
 export function placeLife(batch, W) {
+  if (W.rafts) raftForm(); 
   for (const o of W.objects) {
     const f = FORMS[o.kind]; if (!f) continue;
     

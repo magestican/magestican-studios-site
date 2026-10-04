@@ -76,7 +76,7 @@ export function drawPlayer(t, { hidden = false, shout = false, cheer = false, la
   kid.setVisible(!hidden);
   const dir = p.moving ? S.stage.screenDirToWorld(p.vx, p.vy) : lookAt ? [lookAt.x - p.x, lookAt.y - p.y] : null;
   setKidFrame(kid, { gender: G.gender, walk: p.walk, moving: p.moving, shout: shout && !cheer, cheer: cheer && !p.moving, land: Math.max(land, p.braced ? 0.55 : 0), dir });
-  kid.place(p.x, p.y, W.groundAt(p.x, p.y));
+  kid.place(p.x, p.y, W.groundAt(p.x, p.y) + (p.lift || 0)); 
   const lead = G.party[0];
   if (lead && !pet) pet = dachiBillboard(S.stage.scene, speciesById(lead.sp).stage);
   if (pet) {
@@ -88,7 +88,7 @@ export function drawPlayer(t, { hidden = false, shout = false, cheer = false, la
       
       if (f.hop > 0) f.hop = Math.max(0, f.hop - 1 / 60);
       const bob = f.moving ? Math.abs(Math.sin(f.walk)) * 0.12 : f.hop > 0 ? Math.abs(Math.sin(f.hop * 11.4)) * 0.35 : Math.sin(t * 3) * 0.02;
-      pet.place(f.x, f.y, W.groundAt(f.x, f.y), bob);
+      pet.place(f.x, f.y, W.groundAt(f.x, f.y) + (f.lift || 0), bob);
     }
   }
 }

@@ -72,6 +72,8 @@ export const ENTRY = at(0, 32.4);
 export const POOL = at(3.6, 92.8);      
 export const POOL_LANDING = at(1.4, 94.6);
 export const VAULT = { u: 0, v: 93, r: 7.4 };
+export const ECHO_DOOR = at(0, 98.6);   
+export const ECHO_BACK = at(0, 96.8);   
 export const DWELLERS = [ 
   { id: 'geode-v0', home: { ...at(-3.0, 40.6), r: 0.8 }, lines: [
     'Do not touch the mirrors. ...You touched the mirror. Fine. Turn it again, then. See where the light goes. That is all I do all day.',

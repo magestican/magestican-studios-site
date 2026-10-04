@@ -101,6 +101,15 @@ const REGION_BEATS = {
     L(NARR, 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'),
     L(KID, '(My Walkman light. Okay. It is a very small light.)'),
   ],
+  'echo-hamlet': [
+    L(NARR, 'The passage ends on a shore. A black lake runs off into the dark, and a hamlet of stilt huts leans out over it on its toes.'),
+    L(NARR, 'Somebody shouts a name across the water. The water shouts it back, three times, the last one a little wrong.'),
+    L(KID, 'Hello? ...Hello. Hello. Hullo. ...Okay, I did not like that last one.'),
+  ],
+  'echo-isles': [
+    L(NARR, 'The river opens out into a lake so still the raft\'s own ripples are the only thing moving on it. Islands sit in the black like loaves.'),
+    L(KID, '(Do not lean over the side. Do not lean over the side. ...I am leaning over the side.)'),
+  ],
   'geode-mouth': [
     L(NARR, 'The crack opens into a hall of crystal. Every wall throws your torchlight back at you in pieces.'),
     L(NARR, 'Across the floor a single bar of daylight runs from a split in the rock to a mirror on a brass stand - and stops dead against the wall.'),

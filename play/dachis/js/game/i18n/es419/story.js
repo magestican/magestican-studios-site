@@ -229,4 +229,10 @@ export default {
   "(The mirror turns. Maybe if the light went the other way...)": "(El espejo gira. A lo mejor si la luz fuera para el otro lado...)",
   "The last wall falls in a rain of violet glass. Beyond it the geode opens round a pool so clear it looks empty.": "La última pared cae en una lluvia de vidrio violeta. Detrás, la geoda se abre alrededor de un estanque tan claro que parece vacío.",
   "Okay. That was worth it. That was way worth it.": "Okey. Valió la pena. Valió muchísimo la pena.",
+  
+  "The passage ends on a shore. A black lake runs off into the dark, and a hamlet of stilt huts leans out over it on its toes.": "El pasadizo termina en una orilla. Un lago negro se pierde en la oscuridad, y una aldea de chozas sobre pilotes se asoma encima en puntitas.",
+  "Somebody shouts a name across the water. The water shouts it back, three times, the last one a little wrong.": "Alguien grita un nombre por encima del agua. El agua lo devuelve tres veces, la última un poco mal.",
+  "Hello? ...Hello. Hello. Hullo. ...Okay, I did not like that last one.": "¿Hola? ...Hola. Hola. Jola. ...Okey, esa última no me gustó.",
+  "The river opens out into a lake so still the raft's own ripples are the only thing moving on it. Islands sit in the black like loaves.": "El río se abre en un lago tan quieto que las ondas de la balsa son lo único que se mueve. Las islas descansan en lo negro como panes.",
+  "(Do not lean over the side. Do not lean over the side. ...I am leaning over the side.)": "(No te asomes por el borde. No te asomes por el borde. ...Me estoy asomando por el borde.)",
 };
