@@ -97,6 +97,8 @@ function groundFrom(src, info, U) {
 const WATER_V =  `
 varying vec3 vW;
 void main() { vec4 w = modelMatrix * vec4( position, 1.0 ); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`;
+
+
 const WATER_F =  `
 uniform sampler2D uDepth; uniform float uMapN; uniform float uCelTime; uniform float uCelCell; uniform vec3 uCelInk;
 uniform vec3 uWC[ 4 ]; uniform float uWA[ 4 ]; uniform vec3 uWEdge; uniform float uGleam;
@@ -118,10 +120,8 @@ void main() {
   else if ( d < ${R.WATER_BANDS[2][0].toFixed(3)} ) { col = uWC[ 2 ]; a = uWA[ 2 ]; }
   else { col = uWC[ 3 ]; a = uWA[ 3 ]; if ( length( cell ) < 0.2 ) col = mix( col, uWC[ 2 ], 0.55 ); } // halftone in the deep
   if ( abs( e ) < fe * 1.4 ) { col = uCelInk; a = 1.0; } // ink round the foam
-  else if ( d > 0.12 ) {
-    // gq12: still, tinted water (Minehead's mine pit) has no white surf gleams - a dull sheen of its own shallow band
-    if ( uGleam < 0.5 ) { if ( g > 0.86 ) col = mix( col, uWC[ 0 ], 0.35 ); }
-    else if ( g > 0.81 ) { col = vec3( 1.0 ); a = 1.0; }
+  else if ( d > 0.12 && uGleam > 0.5 ) {
+    if ( g > 0.81 ) { col = vec3( 1.0 ); a = 1.0; }
     else if ( g > 0.81 - fg * 1.5 ) { col = uWEdge; a = 1.0; }
   }
   gl_FragColor = vec4( col, a );
