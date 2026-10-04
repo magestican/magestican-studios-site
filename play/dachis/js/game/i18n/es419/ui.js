@@ -61,6 +61,9 @@ export default {
   "World": "Mundo",
   "Tap anywhere to close": "Toca en cualquier lado para cerrar",
   "Stop evolution": "Detener evolución",
+  "STORY": "HISTORIA",
+  "thinks...": "piensa...",
+  "LOADING...": "CARGANDO...",
   "PRESS A": "PRESIONA A",
   "PRESS SPACE": "PRESIONA ESPACIO",
   "TAP ANYWHERE": "TOCA EN CUALQUIER LADO",
@@ -224,6 +227,11 @@ export default {
   "Free a corrupted guardian from the red fractures.": "Libera a un guardián corrompido de las fracturas rojas.",
 
   
+  "BOSS": "JEFE",
+  "WILD DACHI": "DACHI SALVAJE",
+  "Type": "Tipo",
+  "HP": "PS",
+  "Tap to start": "Toca para empezar",
   "BOSS BATTLE!": "¡BATALLA CONTRA JEFE!",
   "BATTLE!": "¡BATALLA!",
   "Befriend!": "¡Amistad!",

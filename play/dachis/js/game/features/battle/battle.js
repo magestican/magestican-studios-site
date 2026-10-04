@@ -13,7 +13,10 @@ import { speciesById, statsOf, TYPES, capsFor, ATTR_COLOR, attrOf, bossSpecies, 
 import {
   calcDamage, finalDamage, hpFraction, CAPTURE_HP, BASIC_POWER, maxMp, mpCost, mpRegen, canUse,
   finisherGain, finisherOf, bondOf, hesitateChance, nextAi, RANGE, BATTLE_PACE, capHit, bossCapturable,
+  easeFor, SCOUT_TIME,
 } from './rules.js';
+import { chapterOf } from '../clock/clock.js';
+import { showScout, hideScout } from './scoutCard.js';
 import {
   BEAM_TIME, BEAM_TICK, BEAM_SHARE, BEAM_LEN, BEAM_HALF, FLURRY_HITS, FLURRY_GAP, FLURRY_SHARE, SLAM_TIME, SLAM_R,
   TRAP_R, TRAP_ARM, TRAP_LIFE, MAX_TRAPS, DRAIN_SHARE, SHIELD_TIME, statusOf, applyStatus, tickStatus, cleanse,
@@ -137,6 +140,9 @@ function moveBy(f, mx, my) {
   clampArena(f);
   return Math.hypot(f.x - ox, f.y - oy) < Math.hypot(mx, my) * 0.3;   
 }
+
+
+const CAST = 'cast';
 export function shout(text) { B.shout = { text, t: 1.6 }; }
 function callout(f, text, color, big = false) {
   B.callouts = B.callouts.filter(c => c.f !== f);
@@ -164,8 +170,8 @@ export function orderStance(s) {
 export function orderSpecial(k) {
   if (!B || B.state !== 'fight' || B.ritual) return;
   const f = B.ally, m = spOf(f).moves[k];
-  if (f.cds[k] > 0) { toast(`${m.name} is recharging!`); return; }
-  if (!B.script && f.mp < mpCost(m, f.d.lvl)) { toast(`Not enough MP for ${m.name}!`); return; }
+  if (f.cds[k] > 0) { toast(`${m.name} is recharging!`, 2200, CAST); return; }
+  if (!B.script && f.mp < mpCost(m, f.d.lvl)) { toast(`Not enough MP for ${m.name}!`, 2200, CAST); return; }
   if (f.hes > 0 || f.charge > 0 || f.stun > 0 || f.beam || f.leap || f.flurry) return;
   if (hesitates()) { f.cds[k] = 0.8; return; }
   shout(`${spOf(f).name}, ${m.name}!`);
@@ -174,7 +180,7 @@ export function orderSpecial(k) {
 }
 export const finisherReady = () => !!B && B.state === 'fight' && !B.script && !B.ritual && B.ally.fin >= 1 && B.ally.hes <= 0 && B.ally.charge <= 0 && B.ally.stun <= 0 && !B.ally.leap;
 export function orderFinisher() {
-  if (!finisherReady()) { if (B && B.state === 'fight' && !B.script && B.ally.fin < 1) toast('The finishing gauge is not full yet!'); return; }
+  if (!finisherReady()) { if (B && B.state === 'fight' && !B.script && B.ally.fin < 1) toast('The finishing gauge is not full yet!', 2200, CAST); return; }
   if (hesitates()) return;
   shout(`NOW! ${finisherOf(B.ally.d).name}!`);
   useFinisher(B.ally);
@@ -285,6 +291,7 @@ function hit(att, def, power, type, { big = false, kind = 'basic', m = null, pro
     const pm = patternDamageMult(def.pat, def);
     if (pm !== 1) { dmg = Math.max(1, Math.round(dmg * pm)); label(def, pm > 1 ? 'Open!' : 'Like a mountain!', pm > 1 ? '#ffe14a' : '#b8c4d0', 70); }
   }
+  if (def.side === 0 && !B.script) dmg = Math.max(1, Math.round(dmg * easeFor(chapterOf(G.flags)))); 
   const floor = B.script === 'guardian' && def.side === 0 ? 1 : 0;   
   const before = def.d.hp;
   def.d.hp = Math.max(floor, def.d.hp - dmg);
@@ -359,7 +366,7 @@ function updateFighter(f, o, dt) {
   
   const ts = tickStatus(f.status, dt); f.status = ts.st;
   if (ts.burn > 0) {
-    f.burnAcc += ts.burn * statsOf(f.d).maxHp;
+    f.burnAcc += ts.burn * statsOf(f.d).maxHp * (f.side === 0 && !B.script ? easeFor(chapterOf(G.flags)) : 1);
     if (f.burnAcc >= 1 && (f.burnAcc >= 3 || !f.status.burn)) {
       const n = Math.floor(f.burnAcc); f.burnAcc -= n;
       const floor = B.script === 'guardian' && f.side === 0 ? 1 : 0;
@@ -537,7 +544,15 @@ export function updateBattle(dt) {
   B.callouts = B.callouts.filter(c => c.t < c.life);
   for (const e of B.fx) { e.t += dt; if (e.kind === 'spark') { e.x += e.vx * dt; e.y += e.vy * dt; e.z += e.vz * dt; e.vz -= 6 * dt; } }
   B.fx = B.fx.filter(e => e.t < e.life);
-  if (B.state === 'intro') { B.timer -= dt; if (B.timer <= 0) B.state = 'fight'; }
+  if (B.state === 'intro') {
+    B.timer -= dt;
+    if (B.timer <= 0) {
+      
+      
+      if (B.script) B.state = 'fight';
+      else { B.state = 'scout'; B.timer = SCOUT_TIME; showScout(B.enemy, () => { if (B && B.state === 'scout') B.timer = 0; }); }
+    }
+  } else if (B.state === 'scout') { B.timer -= dt; if (B.timer <= 0) { hideScout(); B.state = 'fight'; } }
   if (B.state !== 'intro' || !B.run) { const p = G.player; [p.x, p.y] = clampToArena(p.x, p.y, B, 0.35); } 
   if (B.run && B.run.t < 1) { 
     const R = B.run, p = G.player; R.t = Math.min(1, R.t + dt / (INTRO * 0.8));
@@ -704,7 +719,7 @@ function endBattle(result) {
 let onFinish = () => {};
 export const setFinishHandler = f => { onFinish = f; };
 export function finishBattle() {
-  const b = B; B = null;
+  const b = B; B = null; hideScout();
   b.ally.bb.dispose(S.stage.scene); b.enemy.bb.dispose(S.stage.scene);
   G.mode = 'world'; G.safeTimer = 2.5;
   if (b.result === 'capture' || b.result === 'win') S.cheerUntil = performance.now() + 1300; 

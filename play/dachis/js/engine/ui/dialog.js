@@ -74,7 +74,10 @@ export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}
   return D;
 }
 
-export function toast(text, ms = 2200) {
+
+export function toast(text, ms = 2200, key = null) {
+  if (key) for (const old of $('toasts').querySelectorAll('.toast')) if (old.dataset.key === key) old.remove();
   const el = document.createElement('div'); el.className = 'toast'; el.textContent = text;
+  if (key) el.dataset.key = key;
   $('toasts').appendChild(el); setTimeout(() => el.remove(), ms);
 }

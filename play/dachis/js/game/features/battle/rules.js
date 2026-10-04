@@ -11,6 +11,18 @@ export const BATTLE_PACE = 0.7;
 
 
 
+export const BATTLE_CLOCK = 0.8;
+
+
+export const EARLY_EASE = { c1: 0.7, c2: 0.75, c3: 0.85 };
+export const easeFor = (chapter) => EARLY_EASE[chapter] || 1;
+
+
+export const SCOUT_TIME = 2.4;
+
+
+
+
 
 
 

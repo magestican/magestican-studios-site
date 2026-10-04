@@ -55,6 +55,7 @@ import { updateHud, refreshHud, openMap, closeMap, mapOpen, setMapSource, showMa
 import { openMenu, closeMenu } from './features/menu/menu.js';
 import { parseCheat, applyCheat } from './features/dev/cheats.js';
 import { darkPass } from './features/world/darkness.js';
+import { BATTLE_CLOCK } from './features/battle/rules.js';
 import { startI18n } from './i18n/i18nDom.js';
 import { tr, onLangChange } from './i18n/i18n.js';
 import { mountLangPicker } from './features/menu/langPicker.js';
@@ -263,6 +264,15 @@ S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: { ...SOUNDS, opener: SOUNDS.start, bossOpener: SOUNDS.start } });
 
 for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
+
+
+
+
+{
+  const q = document.querySelector('meta[name=build]')?.content, v = q && q !== 'dev' ? '?v=' + q : '';
+  for (const n of ['hit', 'crit', 'miss', 'parry', 'dash', 'bolt', 'burst', 'heal', 'guard', 'rage', 'beam', 'flurry', 'slam', 'trap', 'drain', 'hex', 'shield'])
+    S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + v, document.baseURI).href);
+}
 
 
 
@@ -521,7 +531,8 @@ function frame(now) {
       }
     } else if (G.mode === 'battle') {
       if (S.dialog.active) dialogActions(); else battleActions();
-      updateBattle(dt);
+      if (B && B.state === 'scout' && (I.pressed('action') || I.pressed('cancel'))) B.timer = 0; 
+      updateBattle(dt * BATTLE_CLOCK); 
     } else if (G.mode === 'menu') {
       if (perchMenuOpen()) { for (let k = 0; k < 3; k++) if (I.pressed('special' + (k + 1))) pickPerch(k); if (I.pressed('menu') || I.pressed('cancel')) closePerchMenu(); }
       else if (mapOpen()) { if (I.pressed('swap')) toggleMapTab(); else if (I.pressed('map') || I.pressed('menu') || I.pressed('cancel') || I.pressed('action')) closeMap(); }

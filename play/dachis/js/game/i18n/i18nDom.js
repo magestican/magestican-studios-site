@@ -47,6 +47,12 @@ function patchCanvas() {
   }
 }
 
+
+const CSS_WORDS = { '--t-story': 'STORY', '--t-thinks': 'thinks...', '--t-loading': 'LOADING...' };
+function cssWords() {
+  for (const [v, en] of Object.entries(CSS_WORDS)) document.documentElement.style.setProperty(v, JSON.stringify(getLang() === 'en' ? en : tr(en)));
+}
+
 let started = false;
 export function startI18n() {
   if (started) return; started = true;
@@ -55,6 +61,7 @@ export function startI18n() {
   if (qs.has('i18nMiss')) window.__i18nMiss = new Set(); 
   setLang(q || pickInitial(stored, navigator.languages || [navigator.language]), { save: !!q });
   patchCanvas();
+  cssWords();
   walk(document.body);
   new MutationObserver((ms) => {
     for (const m of ms) {
@@ -63,5 +70,5 @@ export function startI18n() {
       else for (const n of m.addedNodes) walk(n);
     }
   }).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
-  onLangChange(() => walk(document.body));
+  onLangChange(() => { cssWords(); walk(document.body); });
 }
