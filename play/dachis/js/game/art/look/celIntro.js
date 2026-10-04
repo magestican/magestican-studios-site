@@ -50,13 +50,17 @@ export function puddles(ctx, list, reflect, t) {
     ctx.save();
     ctx.beginPath();
     for (let i = 0; i <= 24; i++) { const a = i / 24 * 6.2832, k = 1 + 0.18 * Math.sin(a * 3 + cx) + 0.1 * Math.sin(a * 5 + cy); const px = cx + Math.cos(a) * rx * k, py = cy + Math.sin(a) * ry * k; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
-    ctx.closePath(); ctx.fillStyle = '#0c0a18'; ctx.fill(); ctx.save(); ctx.clip();
+    ctx.closePath(); ctx.fillStyle = '#0c0a18'; ctx.fill(); ctx.lineWidth = Math.max(2, ry * 0.12); ctx.strokeStyle = INK; ctx.stroke(); ctx.save(); ctx.clip();
+    
+    ctx.fillStyle = '#2a2050'; ctx.fillRect(cx - rx * 1.3, cy - ry * 1.3, rx * 2.6, ry * 1.1); ctx.fillStyle = '#3d2f6e'; ctx.fillRect(cx - rx * 1.3, cy - ry * 1.3, rx * 2.6, ry * 0.5);
     for (const L of reflect) { 
       if (Math.abs(L.x - cx) > rx * 1.6) continue;
       for (let k = 0; k < 6; k++) { const y = cy - ry + (k + 0.5) * ry * 2 / 6, wob = Math.sin(t * 3 + k * 1.9) * rx * 0.08; ctx.fillStyle = `rgba(${L.rgb},${0.7 - k * 0.08})`; ctx.fillRect(L.x - rx * 0.18 + wob, y, rx * 0.36, ry * 0.18); }
     }
     ctx.restore();
     ctx.strokeStyle = 'rgba(160,170,220,0.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx, cy + ry * 0.15, rx * 0.95, ry * 0.95, 0, 0.15, Math.PI - 0.15); ctx.stroke();
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(cx - rx * 0.45, cy - ry * 0.25, rx * 0.16, Math.max(1.5, ry * 0.18), -0.15, 0, 6.2832); ctx.fill(); 
+    ctx.beginPath(); ctx.ellipse(cx - rx * 0.2, cy - ry * 0.3, rx * 0.05, Math.max(1, ry * 0.12), -0.15, 0, 6.2832); ctx.fill();
     ctx.restore();
   }
 }
@@ -190,6 +194,10 @@ export function paving(ctx, { y0, y1, xa0, xb0, xa1, xb1, rows = 16, cols = 9, s
       quad(u0 + gu, u1 - gu, f0 + gf, f1 - gf); ctx.fill();
       ctx.fillStyle = lip; quad(u0 + gu, u1 - gu, f0 + gf, f0 + gf + (f1 - f0) * 0.18); ctx.fill();
       ctx.fillStyle = under; quad(u0 + gu, u1 - gu, f1 - gf - (f1 - f0) * 0.16, f1 - gf); ctx.fill();
+      
+      
+      quad(u0 + gu, u1 - gu, f0 + gf, f1 - gf); ctx.lineJoin = 'round'; ctx.strokeStyle = INK; ctx.lineWidth = 0.6 + 2.6 * f1; ctx.stroke();
+      if (hash(m * 5 + seed, k) > 0.8) { ctx.fillStyle = 'rgba(255,240,220,0.4)'; quad(lerp(u0, u1, 0.2), lerp(u0, u1, 0.45), lerp(f0, f1, 0.28), lerp(f0, f1, 0.42)); ctx.fill(); }
       if (hash(m, k + seed) > 0.9) { ctx.strokeStyle = gap; ctx.lineWidth = 1.5; const a = P(lerp(u0, u1, 0.3), lerp(f0, f1, 0.2)), b = P(lerp(u0, u1, 0.6), lerp(f0, f1, 0.8)); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); } 
       if (moss && hash(m + 3, k + seed) > 0.8) { const [mx, my] = P(u0, f1); ctx.fillStyle = moss; for (let q = 0; q < 3; q++) ctx.fillRect(mx - 3 + q * 3, my - 2 - q % 2 * 2, 2, 3 + q % 2 * 2); }
     }

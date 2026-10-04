@@ -124,7 +124,7 @@ function paintTransit(W, plan, size, big) {
   
   ctx.save(); rr(3, 3, MINI - 6, 24, [8, 8, 0, 0]); ctx.fillStyle = '#111'; ctx.fill(); ctx.restore();
   ctx.font = '800 14px Rubik, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#fff';
-  ctx.fillText('DACHI TRANSIT', MINI / 2, 20.5);
+  ctx.fillText('DACHI TRANSIT', MINI / 2, 20.5, MINI - 20); 
   rr(3, 3, MINI - 6, MINI - 6, 10); ctx.lineWidth = 5; ctx.strokeStyle = '#111'; ctx.stroke();
   if (big) {
     ctx.font = '400 6px "Permanent Marker", cursive'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
