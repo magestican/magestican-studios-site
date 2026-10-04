@@ -9,6 +9,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { uvRot, addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'hollowroot';
 export const SIZE = 64;
@@ -150,6 +151,26 @@ export function* hollowrootSteps() {
   for (const [u, v] of LANTERNS) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   
   for (const side of [-1, 1]) { const p = at(-12.8, 42.6 + side * 1.1); addObj(W, { kind: 'rimstone', x: p.x, y: p.y, solid: 0.35, s: 1.2, rot: side * 1.3, v: side > 0 ? 1 : 2, flavor: 'moss' }); }
+  
+  
+  
+  {
+    const dr = U.rng(9393);
+    const dclear = (x, y, r) => boughD(...toUV(x, y)) > 0.5 + r && Math.hypot(x - GATE.x, y - GATE.y) > 2.4 + r && Math.hypot(x - SPRING.x, y - SPRING.y) > 1.8 + r
+      && Math.hypot(x - KNOT.x, y - KNOT.y) > 1.6 + r && Math.hypot(x - LANDING.x, y - LANDING.y) > 1.3 + r && onTree(x, y) > 0.4 + r && huts.every((h) => Math.hypot(x - h.door[0], y - h.door[1]) > 0.9 + r);
+    guardHuts(W, huts);
+    placeYard(W, 'washline', at(10.4, 34.8), { rot: 0.9, clear: dclear });
+    placeYard(W, 'cookfire', at(0.4, 40.2), { clear: dclear });
+    placeYard(W, 'tools', at(-9.2, 42.6), { clear: dclear });
+    
+    for (const [k, u, v, c] of [['pots', -3.0, 42.0], ['toys', 2.6, 37.2], ['basket', -2.8, 37.6, '#e8d040'], ['strawbed', 3.6, 43.4],
+      ['crates', -12.6, 40.4], ['basket', -10.0, 43.6, '#f0b030'], ['pots', 12.6, 38.6], ['toys', 9.6, 36.0], ['strawbed', 11.4, 39.8]]) {
+      placeYard(W, k, at(u, v), { rot: dr() * 6.28, clear: dclear, extra: c ? { c } : {} });
+    }
+    dressHuts(W, huts, { rng: dr, kinds: ['strawbed', 'basket', 'pots', 'toys', 'bowl', 'tools'], food: ['#e8d040', '#f0b030', '#8a3a6a'], clear: dclear, perHut: [3, 5] });
+    fruitGrove(W, at(4.4, 44.8), 'banana', { rng: dr, clear: dclear });
+    fruitGrove(W, at(-2.0, 44.0), 'mango', { rng: dr, clear: dclear });
+  }
   yield 'buildings';
   const r = U.rng(9191);
   const busy = (x, y, d) => Math.hypot(x - GATE.x, y - GATE.y) < 2.4 || Math.hypot(x - SPRING.x, y - SPRING.y) < 2.0

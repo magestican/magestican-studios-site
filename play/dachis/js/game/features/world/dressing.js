@@ -43,7 +43,7 @@ export function dryAt(W, x, y, r) {
 }
 export const flatAt = (W, x, y, r) => spreadAt(W, x, y, Math.max(r, 0.1)) < 0.1 && dryAt(W, x, y, r);
 
-const radiusOf = (o) => Math.max(o.solid || 0, LIFE[o.kind] ? LIFE[o.kind][0] : 0, o.kind === 'hut' ? 0.85 * (o.s || 1) : 0, 0.15);
+const radiusOf = (o) => Math.max(o.solid || 0, LIFE[o.kind] ? LIFE[o.kind][0] : 0, o.kind === 'hut' ? 0.85 * (o.s || 1) : 0, o.kind === 'stilts' ? 1.0 * (o.s || 1) : 0, 0.15);
 export const freeAt = (W, x, y, r) => W.objects.every((o) => o.kind === 'fence' || Math.hypot(o.x - x, o.y - y) > radiusOf(o) + r + 0.05);
 
 function put(W, kind, x, y, extra = {}) {
@@ -100,8 +100,8 @@ export function dressHuts(W, huts, opts) {
     for (let k = 0; k < kinds.length * 2 && got < n; k++) {
       const kind = kinds[(i * 3 + k) % kinds.length], [r] = LIFE[kind];
       for (const da of slots) {
-        const a = h.rot + da, d = 0.9 * s + r + 0.12, x = h.x + Math.sin(a) * d, y = h.y + Math.cos(a) * d;
-        if (h.h != null) break; 
+        
+        const a = h.rot + da, d = (h.h != null ? 1.05 : 0.9) * s + r + 0.12, x = h.x + Math.sin(a) * d, y = h.y + Math.cos(a) * d;
         if (!flatAt(W, x, y, r) || !freeAt(W, x, y, r) || !clear(x, y, r)) continue;
         const extra = { rot: a + Math.PI + (rng() - 0.5) * 0.6 };
         if (kind === 'bowl' || kind === 'basket') extra.c = food[Math.floor(rng() * food.length)];
@@ -109,9 +109,9 @@ export function dressHuts(W, huts, opts) {
         break;
       }
     }
-    if (!weeds || h.h != null) return;
+    if (!weeds) return;
     for (const da of [2.5, Math.PI, -2.5, 1.9, -1.9]) {
-      const a = h.rot + da + (rng() - 0.5) * 0.3, d = 0.9 * s + 0.12, x = h.x + Math.sin(a) * d, y = h.y + Math.cos(a) * d;
+      const a = h.rot + da + (rng() - 0.5) * 0.3, d = (h.h != null ? 1.05 : 0.9) * s + 0.12, x = h.x + Math.sin(a) * d, y = h.y + Math.cos(a) * d;
       if (!flatAt(W, x, y, 0.12) || !freeAt(W, x, y, 0.1) || !clear(x, y, 0.1)) continue;
       if (rng() < 0.6) addObj(W, { kind: 'flower', x, y, solid: 0, rot: rng() * 6.28, s: 0.8, c: WEED_C[Math.floor(rng() * WEED_C.length)] });
       else addObj(W, { kind: 'fern', x, y, solid: 0, rot: rng() * 6.28, s: 0.45 });
@@ -137,7 +137,7 @@ export function fruitGrove(W, p, kind, { rng, clear = () => true, falls = 2 } = 
   const out = [tree];
   for (let k = 0, t = 0; k < falls && t < 12; t++) {
     const a = rng() * 6.28, d = 0.55 + rng() * 0.45, x = tree.x + Math.sin(a) * d, y = tree.y + Math.cos(a) * d;
-    if (!flatAt(W, x, y, 0.26) || !freeAt(W, x, y, 0.2) || !clear(x, y, 0.2)) continue;
+    if (!flatAt(W, x, y, LIFE.fruitfall[0]) || !freeAt(W, x, y, 0.2) || !clear(x, y, 0.2)) continue;
     out.push(put(W, 'fruitfall', x, y, { rot: a, c: FRUIT_OF[kind], under: tree.id })); k++;
   }
   return out;

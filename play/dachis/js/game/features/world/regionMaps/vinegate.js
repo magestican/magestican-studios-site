@@ -7,6 +7,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'vinegate';
 export const SIZE = 64;
@@ -121,6 +122,22 @@ export function* vinegateSteps() {
   
   for (const side of [-1, 1]) { const p = at(0.8 + side * 1.6, 29.8); addObj(W, { kind: 'rimstone', x: p.x, y: p.y, solid: 0.35, s: 1.2, rot: side * 1.3, v: side > 0 ? 1 : 2, flavor: 'moss' }); }
   for (const [u, v] of [[-2.6, 30.4], [4.2, 30.4], [-2.4, 49.4], [0.6, 48.6], [-1.8, 39.6], [2.2, 42.8], [-0.2, 32.6]]) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
+  
+  
+  
+  {
+    const dr = U.rng(6464), walkD = (x, y) => Math.min(...WALKS.map((w) => w.pts.reduce((m, p, k) => (k ? Math.min(m, segDistUV(w.pts[k - 1], p, ...toUV(x, y))) : m), Infinity)));
+    const dclear = (x, y, r) => walkD(x, y) > 0.7 + r && Math.hypot(x - GATE.x, y - GATE.y) > 2.2 + r && Math.hypot(x - SPRING.x, y - SPRING.y) > 1.8 + r
+      && Math.hypot(x - LANDING.x, y - LANDING.y) > 1.2 + r && Math.hypot(x - POSTS.elder.x, y - POSTS.elder.y) > 0.9 + r;
+    guardHuts(W, huts);
+    dressHuts(W, huts, { rng: dr, kinds: ['fishrack', 'basket', 'pots', 'crates', 'strawbed', 'toys', 'tools', 'bowl'], food: ['#e8d040', '#8ab4cc', '#f0b030'], clear: dclear, perHut: [3, 5] });
+    for (const [k, u, v, c] of [['fishrack', 2.8, 42.6], ['cookfire', -1.8, 41.6], ['washline', 3.0, 37.4], ['basket', -2.4, 52.6, '#e8d040'], ['crates', 4.6, 49.4], ['pots', -3.6, 49.2]]) {
+      placeYard(W, k, at(u, v), { rot: dr() * 6.28, clear: dclear, extra: c ? { c } : {} });
+    }
+    fruitGrove(W, at(-5.6, 52.0), 'banana', { rng: dr, clear: dclear });
+    fruitGrove(W, at(6.6, 51.6), 'banana', { rng: dr, clear: dclear });
+    fruitGrove(W, at(-6.0, 30.6), 'mango', { rng: dr, clear: dclear, falls: 3 });
+  }
   yield 'buildings';
   const r = U.rng(6161), busy = (x, y) => huts.some((h) => Math.hypot(x - h.x, y - h.y) < 2.2) || Math.hypot(x - SPRING.x, y - SPRING.y) < 1.8 || Math.hypot(x - GATE.x, y - GATE.y) < 2;
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
@@ -146,4 +163,8 @@ export function* vinegateSteps() {
     W.spots.push({ id: 'vg' + W.spots.length, x, y, item: rs() < 0.5 ? 'tonic' : 'candy' });
   }
   return W;
+}
+function segDistUV([au, av], [bu, bv], u, v) {
+  const du = bu - au, dv = bv - av, L = du * du + dv * dv, t = Math.max(0, Math.min(1, ((u - au) * du + (v - av) * dv) / L));
+  return Math.hypot(au + du * t - u, av + dv * t - v);
 }

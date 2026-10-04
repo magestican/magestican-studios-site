@@ -6,6 +6,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'minehead';
 export const SIZE = 80; 
@@ -127,6 +128,21 @@ export function* mineheadSteps() {
   for (let th = 0.6; th < TH_END - 0.3; th += 1.0) { const q = ledgeAt(th), r = ledgeR(th), p = at(PIT.u + (q.u - PIT.u) * (r + 0.7) / r, PIT.v + (q.v - PIT.v) * (r + 0.7) / r); addObj(W, { kind: 'torch', x: p.x, y: p.y, solid: 0 }); }
   for (const [u, v] of [[-3.0, 50.4], [5.0, 50.6], [-12.0, 40.0], [12.6, 40.4], [-6.0, 29.6], [6.0, 29.6]]) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   { const p = at(-6.2, 48.6); addObj(W, { kind: 'rimstone', x: p.x, y: p.y, solid: 0.35, s: 1.0, rot: 0.6, v: 1 }); } 
+  
+  
+  
+  {
+    const dr = U.rng(7474);
+    const dclear = (x, y, r) => { const [u, v] = toUV(x, y); return pitDepth(u, v) < -1.9 - r && onLedge(u, v).d < -1.4 - r && Math.hypot(x - GATE.x, y - GATE.y) > 2.4 + r
+      && Math.hypot(x - SPRING.x, y - SPRING.y) > 1.8 + r && Math.hypot(x - LANDING.x, y - LANDING.y) > 1.2 + r && Math.hypot(x - POSTS.elder.x, y - POSTS.elder.y) > 1.0 + r
+      && Math.hypot(u - WORK_DOOR.u, v - WORK_DOOR.v) > 2.6 + r && v < 54; };
+    guardHuts(W, huts);
+    for (const [k, u, v] of [['cookfire', -8.4, 51.0], ['washline', 8.2, 51.6], ['crates', -9.6, 44.0], ['crates', 9.8, 43.2], ['tools', -3.0, 52.6], ['pots', 6.4, 52.8]]) {
+      placeYard(W, k, at(u, v), { rot: dr() * 6.28, clear: dclear });
+    }
+    dressHuts(W, huts, { rng: dr, kinds: ['tools', 'crates', 'pots', 'strawbed', 'bowl', 'basket', 'toys'], food: ['#d88a3a', '#e03a3a', '#c8c0b0'], clear: dclear, perHut: [3, 4] });
+    fruitGrove(W, at(5.6, 49.0), 'appletree', { rng: dr, clear: dclear, falls: 2 });
+  }
   yield 'buildings';
   const r = U.rng(7171), busy = (x, y) => huts.some((h) => Math.hypot(x - h.x, y - h.y) < 2.2) || Math.hypot(x - SPRING.x, y - SPRING.y) < 1.8 || Math.hypot(x - GATE.x, y - GATE.y) < 2;
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {

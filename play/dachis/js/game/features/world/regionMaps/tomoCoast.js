@@ -8,6 +8,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'tomo-coast';
 export const SIZE = 64;
@@ -26,8 +27,10 @@ export const shore = (v) => 5.0 + Math.sin(v * 0.31) * 2.2 + Math.sin(v * 0.83 +
 const SAND_W = 4.2;
 
 export const LANE = [[-15.6, 40.0], [-11, 38.4], [-6.4, 40.2], [-2.0, 42.6], [1.2, 45.6], [2.4, 48.8], [3.0, 52.2]].map(([u, v]) => { const p = at(u, v); return [p.x, p.y]; });
-const HUTS = [[-7.6, 34.6, 1.4], [-10.2, 45.8, 1.45], [-5.0, 48.8, 1.35]];
-const ROOFS = ['#4fa0c8', '#c8784f', '#5ab0a0'];
+
+
+const HUTS = [[-7.6, 34.6, 1.4], [-10.2, 45.8, 1.45], [-5.0, 48.8, 1.35], [shore(36.2) + 0.3, 36.2, 1.3], [shore(44.6) + 0.3, 44.6, 1.3]];
+const ROOFS = ['#4fa0c8', '#c8784f', '#5ab0a0', '#e8c060', '#d86a6a'];
 export const HUT_SPOTS = HUTS.map(([u, v, sc]) => ({ ...at(u, v), s: sc }));
 
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);
@@ -73,9 +76,30 @@ export function* tomoCoastSteps() {
   W.paths = spokes.map((s) => ({ pts: s.pts.map((p) => [...p]), half: s.half }));
   for (const h of huts) {
     addObj(W, { kind: 'hut', x: h.x, y: h.y, solid: 0.83 * h.s, roof: ROOFS[h.i], rot: h.rot, s: h.s });
+    if (h.i >= 3) continue; 
     const a = h.rot - 0.55; addObj(W, { kind: 'torch', x: h.x + Math.sin(a) * 2.0, y: h.y + Math.cos(a) * 2.0, solid: 0.15 });
   }
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
+  
+  
+  {
+    const dr = U.rng(7373), laneD0 = (x, y) => Math.min(...spokes.map((s) => s.pts.reduce((m, p, k) => (k ? Math.min(m, segDist(s.pts[k - 1], p, x, y)) : m), Infinity)));
+    const dclear = (x, y, r) => laneD0(x, y) > 0.45 + r && Math.hypot(x - ENTRY.x, y - ENTRY.y) > 2.4 + r && Math.hypot(x - SOUTH_GATE.x, y - SOUTH_GATE.y) > 2.4 + r
+      && Math.hypot(x - SPRING.x, y - SPRING.y) > 1.6 + r && Math.hypot(x - LANDING.x, y - LANDING.y) > 1.2 + r && Math.hypot(x - SCORCH.x, y - SCORCH.y) > SCORCH.r + 0.6 + r
+      && huts.every((h) => Math.hypot(x - h.door[0], y - h.door[1]) > 0.9 + r);
+    guardHuts(W, huts);
+    placeYard(W, 'washline', at(-9.0, 37.2), { rot: 0.5, clear: dclear });
+    placeYard(W, 'fishrack', at(0.6, 34.2), { rot: 1.2, clear: dclear }); 
+    placeYard(W, 'fishrack', at(0.6, 47.0), { rot: 1.0, clear: dclear });
+    placeYard(W, 'cookfire', at(-6.2, 44.0), { clear: dclear });
+    placeYard(W, 'basket', at(1.8, 39.6), { clear: dclear, extra: { c: '#8ab4cc' } });
+    placeYard(W, 'crates', at(-0.2, 45.4), { rot: 0.7, clear: dclear });
+    dressHuts(W, huts, { rng: dr, kinds: ['basket', 'bowl', 'pots', 'tools', 'strawbed', 'toys', 'crates'], food: ['#f0b030', '#8ab4cc', '#e8d040', '#e03a3a'], clear: dclear });
+    fruitGrove(W, at(-11.6, 33.0), 'mango', { rng: dr, clear: dclear });
+    fruitGrove(W, at(-12.6, 48.6), 'banana', { rng: dr, clear: dclear });
+    fruitGrove(W, at(-4.0, 32.0), 'mango', { rng: dr, clear: dclear, falls: 3 });
+    fruitGrove(W, at(-1.8, 50.4), 'palm', { rng: dr, clear: dclear });
+  }
   
   for (let k = 0; k < 7; k++) { const a = k / 7 * Math.PI * 2 + 0.3; addObj(W, { kind: 'rock', x: SCORCH.x + Math.cos(a) * SCORCH.r, y: SCORCH.y + Math.sin(a) * SCORCH.r, solid: 0.25, s: 0.45 + (k % 3) * 0.12, rot: a }); }
   for (const [u, v] of [[-16.4, 38.8], [-16.4, 41.2], [2.0, 51.6], [4.0, 51.6]]) { const p = at(u, v); addObj(W, { kind: 'torch', x: p.x, y: p.y, solid: 0.15 }); }

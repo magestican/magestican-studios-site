@@ -9,6 +9,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'kazan-village';
 export const SIZE = 64;
@@ -136,6 +137,24 @@ export function* kazanVillageSteps() {
       if (rc() < 0.25) continue; 
       addObj(W, { kind: 'crag', x: CRATER.x + Math.cos(a) * rr, y: CRATER.y + Math.sin(a) * rr, solid: 0, s: 0.5 + rc() * 0.4, rot: rc() * 6.28, v: k % 4 });
     } }
+  
+  
+  {
+    const dr = U.rng(5353), segOk = (x, y, r) => spokes.every((sp) => sp.pts.every((p, k) => k === 0 || segDist(sp.pts[k - 1], p, x, y) > sp.half + 0.3 + r));
+    const dclear = (x, y, r) => segOk(x, y, r) && Math.hypot(x - PLAZA.x, y - PLAZA.y) > 3.6 + r && Math.hypot(x - GATE.x, y - GATE.y) > 2.6 + r
+      && craterD(x, y) > CRATER_FENCE + 1.2 + r && Math.hypot(x - SPRING.x, y - SPRING.y) > 1.8 + r && Math.hypot(x - SPAWN.x, y - SPAWN.y) > 1.4 + r
+      && huts.every((h) => Math.hypot(x - h.door[0], y - h.door[1]) > 0.9 + r);
+    guardHuts(W, huts);
+    placeYard(W, 'well', at(-4.6, 41.2), { clear: dclear });
+    placeYard(W, 'cookfire', at(4.6, 43.4), { clear: dclear });
+    placeYard(W, 'washline', at(-5.2, 46.0), { rot: 0.4, clear: dclear });
+    placeYard(W, 'crates', at(3.8, 46.8), { rot: 0.3, clear: dclear });
+    dressHuts(W, huts, { rng: dr, kinds: ['pots', 'basket', 'tools', 'strawbed', 'bowl', 'toys', 'crates'], food: ['#e03a3a', '#f0b030', '#a8d050'], clear: dclear });
+    fruitGrove(W, at(-8.6, 43.2), 'appletree', { rng: dr, clear: dclear, falls: 3 });
+    fruitGrove(W, at(7.8, 45.6), 'mango', { rng: dr, clear: dclear });
+    fruitGrove(W, at(-7.4, 36.4), 'appletree', { rng: dr, clear: dclear });
+    fruitGrove(W, at(8.4, 38.2), 'banana', { rng: dr, clear: dclear });
+  }
   yield 'buildings';
   const clear = (x, y, d) => Math.hypot(x - PLAZA.x, y - PLAZA.y) > 5.2 && Math.hypot(x - GATE.x, y - GATE.y) > 2.5 && craterD(x, y) > CRATER_FENCE + 0.8
     && Math.hypot(x - SPRING.x, y - SPRING.y) > 2.2 && huts.every((h) => Math.hypot(x - h.x, y - h.y) > 2.4 && Math.hypot(x - h.door[0], y - h.door[1]) > 1.6) && spokes.every((s) => s.pts.every((p, k) => k === 0 || segDist(s.pts[k - 1], p, x, y) > s.half + d));

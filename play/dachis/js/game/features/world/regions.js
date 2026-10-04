@@ -57,21 +57,21 @@ export const REGIONS = [
   {
     id: village.ID, name: 'Kazan Village', chapters: [1], size: village.SIZE, interior: false, reachable: true,
     sections: village.SECTIONS.map((s) => s.id), entry: village.GATE, spring: village.LANDING, home: village.SPAWN,
-    pack: null,
+    pack: 'assets/scenery-kazan-village.bin', 
     transit: false, objective: null,
   },
   
   {
     id: shrine.ID, name: 'Shrine Village', chapters: [1], size: shrine.SIZE, interior: false, reachable: true,
     sections: shrine.SECTIONS.map((s) => s.id), entry: shrine.GATE, spring: shrine.LANDING, home: shrine.LANDING,
-    pack: null,
+    pack: 'assets/scenery-shrine-village.bin', 
     transit: false, objective: null,
   },
   
   {
     id: coast.ID, name: 'Tomo Coast', chapters: [1, 2], size: coast.SIZE, interior: false, reachable: true,
     sections: coast.SECTIONS.map((s) => s.id), entry: coast.ENTRY, spring: coast.LANDING, home: coast.LANDING,
-    pack: null,
+    pack: 'assets/scenery-tomo-coast.bin', 
     transit: false, objective: null,
   },
   
@@ -124,7 +124,7 @@ export const REGIONS = [
   {
     id: vine.ID, name: 'Vinegate Landing', chapters: [4], size: vine.SIZE, interior: false, reachable: true,
     sections: vine.SECTIONS.map((s) => s.id), entry: vine.ENTRY, spring: vine.LANDING, home: vine.LANDING,
-    pack: null,
+    pack: 'assets/scenery-vinegate.bin', 
     transit: false, objective: null,
   },
   
@@ -167,7 +167,7 @@ export const REGIONS = [
   {
     id: mine.ID, name: 'Minehead Camp', chapters: [5], size: mine.SIZE, interior: false, reachable: true,
     sections: mine.SECTIONS.map((s) => s.id), entry: mine.ENTRY, spring: mine.LANDING, home: mine.LANDING,
-    pack: null,
+    pack: 'assets/scenery-minehead.bin', 
     transit: false, objective: 'Wind down the ledge to the shaft',
   },
   

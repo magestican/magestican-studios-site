@@ -20,6 +20,7 @@ import * as seam from './regionMaps/deepSeam.js';
 import { SPECIES, bossSpecies } from '../../data/species.js';
 import { partyRead } from '../battle/bossPattern.js';
 import { lairOf, lairOpen } from './lairs.js';
+import { HANDS, workSpot } from './hands.js';
 
 export function readOf(boss) {
   const l = lairOf(boss), lead = G.party[0];
@@ -132,6 +133,13 @@ export function spawnNpcs() {
   for (let i = 0; i < 3; i++) {
     const sp = 3 * (4 + Math.floor(r() * 37)) + 1, { x, y } = spot(SH);
     keep(add({ kind: 'villager', id: 'shrine-v' + i, sp, x, y, home: SH, radius: SH.r, lines: [SHRINE_LINES[i]], tx: x, ty: y, wait: r() * 3 }), shrinePeople);
+  }
+  
+  const hands = HANDS[G.region];
+  if (hands) {
+    const job = workSpot(S.W), rw = U.rng(97), home = job ? { x: job.x, y: job.y, r: 1.6 } : null;
+    const p = home && (pickNpcSpot(S.W, rw, home, home.r, 0.9, [...G.npcs, G.player]) || null);
+    if (p) add({ kind: 'villager', id: G.region + '-hands', name: hands.name, sp: hands.sp, x: p.x, y: p.y, home, radius: home.r, lines: hands.lines, tx: p.x, ty: p.y, wait: rw() * 3 });
   }
 }
 

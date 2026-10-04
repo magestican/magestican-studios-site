@@ -10,6 +10,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'shrine-village';
 export const SIZE = 64;
@@ -107,6 +108,24 @@ export function* shrineVillageSteps() {
   for (const side of [-1, 1]) {
     for (const [u, v] of [[side * 2.4, 35.9], [side * 1.6, 50.2]]) { const p = at(u, v); addObj(W, { kind: 'torch', x: p.x, y: p.y, solid: 0.15 }); }
     const q = at(side * 2.4, 51.6); addObj(W, { kind: 'rimstone', x: q.x, y: q.y, solid: 0.4, s: 1.6, rot: side * 1.3, v: side > 0 ? 1 : 2 });
+  }
+  
+  
+  {
+    const dr = U.rng(6363), segOk = (x, y, r) => spokes.every((sp) => sp.pts.every((p, k) => k === 0 || segDist(sp.pts[k - 1], p, x, y) > sp.half + 0.3 + r));
+    const dclear = (x, y, r) => segOk(x, y, r) && Math.hypot(x - YARD.x, y - YARD.y) > 4.2 + r && Math.hypot(x - GATE.x, y - GATE.y) > 2.6 + r
+      && templeD(x, y) > 3.0 * TEMPLE.s + r && Math.hypot(x - SPRING.x, y - SPRING.y) > 1.8 + r && Math.hypot(x - TORII.x, y - TORII.y) > 1.8 + r
+      && Math.hypot(x - LANDING.x, y - LANDING.y) > 1.2 + r && huts.every((h) => Math.hypot(x - h.door[0], y - h.door[1]) > 0.9 + r);
+    guardHuts(W, huts);
+    placeYard(W, 'well', at(-7.4, 44.8), { clear: dclear });
+    placeYard(W, 'cookfire', at(7.6, 41.2), { clear: dclear });
+    placeYard(W, 'washline', at(-8.8, 39.4), { rot: 0.3, clear: dclear });
+    placeYard(W, 'bowl', at(-2.8, 36.4), { clear: dclear, extra: { c: '#fff8ec' } });
+    placeYard(W, 'bowl', at(2.8, 36.4), { clear: dclear, extra: { c: '#fff8ec' } });
+    dressHuts(W, huts, { rng: dr, kinds: ['pots', 'bowl', 'basket', 'tools', 'strawbed', 'crates', 'toys'], food: ['#fff8ec', '#e03a3a', '#f0b030'], clear: dclear });
+    fruitGrove(W, at(-12.0, 41.0), 'appletree', { rng: dr, clear: dclear, falls: 3 });
+    fruitGrove(W, at(12.4, 41.4), 'mango', { rng: dr, clear: dclear });
+    fruitGrove(W, at(6.6, 49.0), 'appletree', { rng: dr, clear: dclear });
   }
   yield 'buildings';
   const r = U.rng(6161);
