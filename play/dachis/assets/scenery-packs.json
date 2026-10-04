@@ -922,6 +922,42 @@
     "frost-prayerline"
    ],
    "bytes": 85092
+  },
+  "frost-summit": {
+   "forms": [
+    "fence-post",
+    "fence-rail",
+    "flower-bed",
+    "flower-clump",
+    "frost-drift",
+    "frost-fir",
+    "frost-frozen",
+    "frost-iceblock",
+    "frost-prayerline",
+    "geode-crystal",
+    "hut",
+    "lantern",
+    "spring-basin",
+    "step-slab",
+    "stone-dark-1",
+    "stone-dark-2",
+    "stone-dark-3",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "torch"
+   ],
+   "pack": "assets/scenery-frost-summit.bin",
+   "extra": [
+    "frost-drift",
+    "frost-fir",
+    "frost-frozen",
+    "frost-iceblock",
+    "frost-prayerline",
+    "geode-crystal"
+   ],
+   "bytes": 274524
   }
  }
 }

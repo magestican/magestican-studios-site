@@ -38,10 +38,11 @@ export const ENTRY = at(0, 26.4);
 export const SPRING = at(-5.0, 59.6);  
 export const LANDING = at(-2.4, 60.0); 
 export const VENT_SPRING = at(36.0, 84.0); 
-export const NORTH = at(0, 93.6);      
+export const NORTH = at(0, 92.6);      
+export const NORTH_BACK = at(0, 90.4); 
 export const VENTS = [[27, 74], [31, 87], [38, 74], [41, 81], [33, 78]]; 
 export const LANE = [[0, 26.4], [0, 29.2]];
-export const TRACK = [[0, 58.6], [0, 62.0], [-8, 68], [-4, 76], [8, 81], [4, 89], [0, 93.6]];
+export const TRACK = [[0, 58.6], [0, 62.0], [-8, 68], [-4, 76], [8, 81], [4, 89], [0, 92.6]];
 export const SPUR = [[8, 81], [18, 80], [26, 80], [32, 81]];
 export const DWELLERS = [
   { id: 'glacier-v0', home: { ...at(4.6, 27.6), r: 1.4 }, lines: [

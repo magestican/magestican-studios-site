@@ -61,6 +61,16 @@ export const LAIRS = [
       ['boss', 'Nine years I sat up with a lamp, Bridge child, listening to the dark move. Then a voice in it told me there was nothing there. Nothing at all. Do you know how that felt?'],
       ['kid', 'So you turned off EVERYBODY\'S lights? Mrs. Alvarez in 4B is scared of the elevator. She takes the stairs! She does not break the elevator for the whole building!']],
     fall: '{name}\'s lenses go clear. He takes them off one at a time and blinks at the lanterns as if they were too loud.' },
+  
+  
+  { boss: 'glacius', region: 'frost-summit', sec: 'summit-lair', uv: [0, 87.0], after: 'boss_quartz',
+    hint: 'Climb to the summit of Frostspine and face Glacius Rex',
+    again: "Back. Shh. You will wake them. ...You will not wake them. Nothing wakes them. That is the point.",
+    last: "It is cold. It was always cold. I thought it would feel like keeping them.",
+    meet: [['boss', 'Hush. Do not stamp. They are sleeping. They have slept since the spring, and they will sleep forever, and nothing will ever hurt them again. "{creed}"'],
+      ['boss', 'I watched the thaw take my herd, Bridge child. Every spring, a few more into the mud. A voice in the wind said it need not happen. It said: hold still. So I held everything still.'],
+      ['kid', 'They are not SLEEPING! That is a kid in there! Her aunt is making soup! You cannot just pause people because you are scared of them getting old!']],
+    fall: 'The frost runs off {name}\'s tusks like sweat. Behind him the ice blocks creak, and crack, and something small inside the nearest one sneezes.' },
 ];
 export const MEET = 2.3; 
 export const lairOf = (boss) => LAIRS.find((l) => l.boss === boss) || null;

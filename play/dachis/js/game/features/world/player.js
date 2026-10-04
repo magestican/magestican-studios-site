@@ -9,6 +9,7 @@ import { stepSound } from './mapgen.js';
 import { toast } from '../../../engine/ui/dialog.js';
 import { stepTo, deckLift } from './deckRules.js';
 import { slideFrom, snapDir } from './slide.js';
+import { thinBlocked } from './thinIce.js';
 import { toUV, fromUV } from './sections.js';
 
 
@@ -48,7 +49,7 @@ export function createPlayerView() {
 export function updatePlayer(dt, canMove) {
   const p = G.player, W = S.W;
   
-  const go = (who, x, y, r) => (W.decks ? stepTo(W, who, x, y, r, G.flags) : W.walkable(x, y, r));
+  const go = (who, x, y, r) => (W.thin && thinBlocked(W, x, y) ? false : W.decks ? stepTo(W, who, x, y, r, G.flags) : W.walkable(x, y, r)); 
   const a = canMove ? S.input.axis() : { x: 0, y: 0, mag: 0 };
   p.moving = a.mag > 0.12;
   if (W.slide) {

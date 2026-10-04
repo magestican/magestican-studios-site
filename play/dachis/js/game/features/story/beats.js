@@ -101,6 +101,14 @@ const REGION_BEATS = {
     L(NARR, 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'),
     L(KID, '(My Walkman light. Okay. It is a very small light.)'),
   ],
+  'menagerie-1': [
+    L(NARR, 'A hall of blue ice. Along its walls, in blocks of ice, stand dachis - mid-step, mid-yawn, mid-sneeze - like a museum of a morning.'),
+    L(NARR, 'The floor is ice too, thin as a window. Every step leaves a star of cracks, and the cracks go through behind you. The door at the far end is sealed with ice.'),
+    L(KID, '(Every tile once. Never back. ...It is the Snake game on Danny\'s calculator. I am the snake.)'),
+  ],
+  'summit-lair': [
+    L(NARR, 'The summit. Wind, sky, and a ring of ice blocks with a small blue shape curled inside each. In the middle of the ring something huge stands as still as the ice.'),
+  ],
   'glacier-field': [
     L(NARR, 'Past the pass the snow gives way to a field of glare ice, polished by the wind until it shows the sky. Boulders and old cut blocks stand frozen in it.'),
     L(KID, '(Ice. Okay. I did a whole winter at Wollman Rink. ...I fell down a whole winter at Wollman Rink.)'),

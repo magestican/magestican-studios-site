@@ -18,6 +18,10 @@ export const BOSS_PATTERNS = {
   
   quartz: { move: 0, tell: 1.4, first: 5, every: 9, text: 'lenses click round...', sfx: 'tellClick', beats: 2,
     note: 'The Hermit\'s lenses click round twice, then the beam comes straight. Step off its line; he is dazzled after.' },
+  
+  
+  glacius: { move: 1, tell: 1.5, first: 5, every: 9, text: 'vents hiss...', sfx: 'tellHiss', beats: 3,
+    note: 'Glacius Rex\'s vents hiss three times, then he roars the cold at you. Back off; after the roar his own frost locks his legs.' },
 };
 export const patternOf = (bossId) => BOSS_PATTERNS[bossId] || null;
 
@@ -49,6 +53,10 @@ const READS = {
     (n) => `${n}? That is two shifts short of the Hermit. Three. Go and dig at something first.`,
     (n) => `One more shift on ${n} and I would sign for it. Not today. Today I would be filling in a form about it.`,
     (n) => `${n} has done its shifts. Go down. Bring my miners back up, the cross ones too.`],
+  glacius: [ 
+    (n) => `${n}? Ha. The Rex would keep ${n} as a doorstop. Down the hollow, east, the steam vents. The fire kinds sleep there. Bring one back. Bring ten.`,
+    (n) => `${n} is warmer than it was. Not warm enough. One more trip to the vents. Fire goes through ice and iron, remember.`,
+    (n) => `${n} will do. Mind the hissing. And bring my neighbour's sister back. The blue one. Chipped ear.`],
 };
 export const READ_SHORT = 4, READ_CLOSE = 2;
 export function partyRead(boss, leadName, short) {

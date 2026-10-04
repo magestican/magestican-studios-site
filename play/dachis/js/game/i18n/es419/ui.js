@@ -417,6 +417,8 @@ export default {
   "Found": "Encontraste",
   "Tap to continue": "Toca para seguir",
   "+{0} XP": "+{0} EXP",
+  "vents hiss...": "las ventilas sisean...",
+  "Glacius Rex's vents hiss three times, then he roars the cold at you. Back off; after the roar his own frost locks his legs.": "Las ventilas de Glacius Rex sisean tres veces, y luego te ruge el frío encima. Retrocede; tras el rugido su propia escarcha le traba las patas.",
   "ATK": "ATQ",
   "DEF": "DEF",
   "SPD": "VEL",

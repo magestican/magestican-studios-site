@@ -78,9 +78,10 @@ function prayerLine() {
 export const prayerLineForm = () => form('frost-prayerline', prayerLine, { min: [-1.0, -0.05, -0.15], max: [1.0, 1.4, 0.15], cell: 0.02, tris: 300 });
 
 
+
 function frozen() {
-  const body = S.union(0.06, S.ellipsoid([0, 0.38, 0], [0.32, 0.26, 0.28]), S.sphere([0.2, 0.55, 0.12], 0.17), S.sphere([0.14, 0.72, 0.18], 0.06), S.sphere([0.3, 0.7, 0.06], 0.06));
-  const ice = S.subtract(0.02, S.displace(S.roundBox([0, 0.5, 0], [0.55, 0.5, 0.48], 0.08), lumps(5, 0.06, 51), 0.04), S.offset(body, 0.04));
+  const body = S.union(0.06, S.ellipsoid([0, 0.42, 0], [0.32, 0.3, 0.28]), S.sphere([0.12, 0.74, 0.1], 0.2), S.sphere([0.02, 0.95, 0.12], 0.07), S.sphere([0.24, 0.93, 0.04], 0.07));
+  const ice = S.subtract(0.02, S.displace(S.roundBox([0, 0.3, 0], [0.55, 0.3, 0.48], 0.08), lumps(5, 0.06, 51), 0.04), S.offset(body, 0.03));
   return S.union(0.01, P(body, [1, 1, 1], 'fruit'), P(ice, (x, y) => (y > 0.85 ? C.ice : C.iceDeep), 'gem'));
 }
 export const frozenForm = () => form('frost-frozen', frozen, { min: [-0.7, -0.05, -0.62], max: [0.7, 1.1, 0.62], cell: 0.025, tris: 520 });
@@ -88,6 +89,7 @@ export const frozenForm = () => form('frost-frozen', frozen, { min: [-0.7, -0.05
 export const FROST_KINDS = ['fir', 'drift', 'iceblock', 'span', 'winch', 'prayerline', 'frozen'];
 export function placeFrost(batch, W) {
   if (W.decks) spanForm(); 
+  if (W.frozen) { frozenForm(); iceBlockForm(); } 
   for (const o of W.objects) {
     if (!FROST_KINDS.includes(o.kind)) continue;
     const at = { x: o.x, h: o.h != null ? o.h : W.groundAt(o.x, o.y) - 0.03, y: o.y, rot: o.rot || 0, s: o.s || 1 };

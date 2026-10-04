@@ -32,6 +32,7 @@ import * as geode from './regionMaps/geodeGalleries.js';
 import * as echo from './regionMaps/echoLake.js';
 import * as frost from './regionMaps/frostspine.js';
 import * as glacier from './regionMaps/glacierField.js';
+import * as summit from './regionMaps/frozenMenagerie.js';
 
 export const PERCHES = [
   
@@ -64,6 +65,7 @@ export const PERCHES = [
   { id: 'minehead', region: mine.ID, name: 'Minehead Camp', at: mine.LANDING, opens: 'boss_kingshade', respawn: null },
   { id: 'lantern-shaft', region: shaft.ID, name: 'The Seep', at: shaft.LANDING, opens: 'boss_kingshade', respawn: null },
   { id: 'deep-seam', region: seam.ID, name: 'The Seam Pool', at: seam.POOL_LANDING, opens: 'boss_kingshade', respawn: null },
+  { id: 'frost-summit', region: summit.ID, name: 'The Summit', at: summit.LANDING, opens: 'boss_glacius', respawn: null },
   { id: 'frost-glacier', region: glacier.ID, name: 'The Glacier Field', at: glacier.LANDING, opens: 'boss_quartz', respawn: null },
   { id: 'frostspine', region: frost.ID, name: 'Base Camp', at: frost.LANDING, opens: 'boss_quartz', respawn: null },
   { id: 'echo-lake', region: echo.ID, name: 'Driftwick', at: echo.LANDING, opens: 'boss_kingshade', respawn: null },

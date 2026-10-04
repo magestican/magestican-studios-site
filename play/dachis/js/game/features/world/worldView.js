@@ -12,7 +12,7 @@ import { buildScenery } from '../../art/scenery/village.js';
 import { bakePathField, pathGroundMaterial } from '../../../engine/iso/groundPaths.js';
 import { T, CRATER, PLATEAU_H, VOLC, RIM, SHRINE } from './mapgen.js';
 import { SECTIONS, sectionById, edgeDepth, toUV, fromUV } from './sections.js';
-import { lookName, groundPaletteBytes, WATER_TINT } from '../../art/look/celRules.js';
+import { lookName, groundPaletteBytes, WATER_TINT, regionByte, GROUND_REGIONS } from '../../art/look/celRules.js';
 import { tintWater } from '../../art/look/celSurfaces.js';
 import { classPage, tagSpots } from '../../art/look/worldRules.js';
 import { createTags } from '../../art/look/tags.js';
@@ -113,7 +113,10 @@ export async function buildWorld(stage, W, slice = noSlice) {
       '#include <begin_vertex>\n  float ph = instanceMatrix[3].x * 0.7 + instanceMatrix[3].z * 0.5;\n  transformed.x += sin(uTime * 2.2 + ph) * 0.09 * position.y;\n  transformed.z += cos(uTime * 1.7 + ph) * 0.05 * position.y;');
   };
   
-  const tmat = tuftMat('#cfe3bd'), kelpMat = tuftMat('#7fd8c8'), wildMat = tuftMat('#9fd08a');
+  const tmat = tuftMat('#cfe3bd'), kelpMat = tuftMat('#7fd8c8'), wildMat = tuftMat('#9fd08a'), frostMat = tuftMat('#f2f8ff');
+  
+  
+  const FROST = GROUND_REGIONS.indexOf('frost'), snowy = (sec) => !!sec && regionByte(sec) === FROST;
   
   const tufts = {};
   const r = U.rng(99);
@@ -132,6 +135,7 @@ export async function buildWorld(stage, W, slice = noSlice) {
     let list = tuftsOf(tb, r, i, j);
     if (t !== tb) list = tuftsOf(t, rl, i, j);
     if (!list.length) continue;
+    if ((t === T.GRASS || t === T.GLADE) && snowy(W.sectionAt(i + 0.5, j + 0.5))) continue;
     const ids = W.windowsOf(i + 0.5, j + 0.5, 0.6);
     for (const tuft of list) for (const id of ids) bySec[id].push(tuft);
   }
@@ -139,7 +143,7 @@ export async function buildWorld(stage, W, slice = noSlice) {
   for (const id in bySec) {
     const spots = bySec[id];
     if (!spots.length) continue;
-    const im = new THREE.InstancedMesh(tuft, id === 'coral' ? kelpMat : id === 'verdant' ? wildMat : tmat, spots.length);
+    const im = new THREE.InstancedMesh(tuft, id === 'coral' ? kelpMat : id === 'verdant' ? wildMat : snowy(id) ? frostMat : tmat, spots.length);
     spots.forEach(([x, y, s, rot], k) => { o.position.set(x, W.groundAt(x, y), y); o.scale.set(s, s, s); o.rotation.set(0, rot, 0); o.updateMatrix(); im.setMatrixAt(k, o.matrix); });
     im.computeBoundingSphere();
     im.receiveShadow = true;

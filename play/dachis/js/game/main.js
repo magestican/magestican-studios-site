@@ -58,6 +58,7 @@ import { darkPass } from './features/world/darkness.js';
 import { lightPass, mirrorNear, turnMirror } from './features/world/mirrors.js';
 import { updateRafts, riding, dockNear, startRide } from './features/world/rafts.js';
 import { updateDecks, winchNear, windWinch } from './features/world/decks.js';
+import { updateThinIce, thinPass } from './features/world/thinIce.js';
 import { BATTLE_CLOCK } from './features/battle/rules.js';
 import { startI18n } from './i18n/i18nDom.js';
 import { tr, onLangChange } from './i18n/i18n.js';
@@ -270,7 +271,7 @@ S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: { ...SOUNDS, opener: SOUNDS.start, bossOpener: SOUNDS.start } });
 
 
-for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch', 'xpFill', 'levelUp', 'itemPop', 'mirrorTurn', 'raftPole']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
+for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch', 'xpFill', 'levelUp', 'itemPop', 'mirrorTurn', 'raftPole', 'tellHiss', 'iceCrack', 'thaw']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
 
 
 
@@ -554,6 +555,7 @@ function frame(now) {
         updatePlayer(dt, !storyLocksMovement() && !riding());
         updateRafts(dt); 
         updateDecks(); 
+        updateThinIce(); 
         updateNpcs(dt);
         const touched = updateWilds(dt, { active: !!G.flags.starter });
         separateCrowd(dt, lairBodies()); 
@@ -598,6 +600,7 @@ function frame(now) {
     S.stage.render();
     
     lightPass(octx); 
+    thinPass(octx); 
     darkPass(octx, dt); 
     if (B) drawBattleOverlay(octx, t);
     if (G.mode === 'world' && !S.dialog.active) { drawWildAlerts(octx); worldHints(); }

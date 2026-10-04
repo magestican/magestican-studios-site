@@ -21,6 +21,7 @@ import * as geode from './regionMaps/geodeGalleries.js';
 import * as echo from './regionMaps/echoLake.js';
 import * as frost from './regionMaps/frostspine.js';
 import * as glacier from './regionMaps/glacierField.js';
+import * as summit from './regionMaps/frozenMenagerie.js';
 import { SPECIES, bossSpecies } from '../../data/species.js';
 import { partyRead } from '../battle/bossPattern.js';
 import { lairOf, lairOpen } from './lairs.js';
@@ -156,6 +157,8 @@ export function spawnNpcs() {
   }
   
   if (G.region === frost.ID) {
+    const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Frost') || SPECIES.find((s) => s.stage === 3);
+    add({ kind: 'villager', id: 'frost-elder', name: frost.ELDER.name, sp: old.id, ...frost.ELDER.at, still: true, lines: G.flags.boss_glacius ? frost.ELDER_LINES.after : withRead(frost.ELDER_LINES.before, 'glacius') });
     const kinds = SPECIES.filter((s) => s.stage === 1 && (s.types[0] === 'Frost' || s.types[0] === 'Gale')), re = U.rng(161);
     for (const d of frost.DWELLERS) {
       const sp = kinds[Math.floor(re() * kinds.length)].id, p = pickNpcSpot(S.W, re, d.home, d.home.r, 0.8, [...G.npcs, G.player]) || d.home;
@@ -169,6 +172,11 @@ export function spawnNpcs() {
       const sp = kinds[Math.floor(re() * kinds.length)].id, p = pickNpcSpot(S.W, re, d.home, d.home.r, 0.8, [...G.npcs, G.player]) || d.home;
       add({ kind: 'villager', id: d.id, sp, x: p.x, y: p.y, home: d.home, radius: d.home.r, lines: d.lines, tx: p.x, ty: p.y, wait: re() * 3 });
     }
+  }
+  
+  if (G.region === summit.ID && G.flags.boss_glacius) {
+    const kinds = SPECIES.filter((s) => s.stage === 1 && s.types[0] === 'Frost'), rf = U.rng(181);
+    summit.FAMILY.forEach((f, i) => add({ kind: 'villager', id: f.id, sp: kinds[Math.floor(rf() * kinds.length)].id, x: f.x, y: f.y, home: { x: f.x, y: f.y }, radius: 1.2, lines: summit.FAMILY_LINES[i], tx: f.x, ty: f.y, wait: rf() * 3 }));
   }
   
   const hands = HANDS[G.region];

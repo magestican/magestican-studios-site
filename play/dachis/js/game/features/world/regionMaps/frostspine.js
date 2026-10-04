@@ -107,6 +107,15 @@ export const DWELLERS = [
     'Go the low way. Down the west steps, along UNDER the old bridge, over the ice arch, back along the far side and up. Grandpa calls it the Switchback. I call it the long way.'] },
 ];
 
+
+export const ELDER = { name: 'Grandpa Hask', at: at(3.2, 53.0) };
+export const ELDER_LINES = {
+  before: ['I cut the bridge. Me. With my good knife. The cold came down the pass with his voice in it, and I cut the ropes, and the cold stopped at the edge. I am not sorry. I am a little sorry.',
+    'He was a keeper, the Rex. Kept the herds alive up top through the long winters. Then he started keeping them for good. When his vents hiss three times, back off. That is the roar coming, and after it his own frost locks his legs.'],
+  after: ['The lake went grey this morning. Grey ice is thawing ice. Nine summers. ...Somebody fetch me a chair. And a boat. In that order.',
+    'My grandson wants to wind the high bridge in again. Let him. Let him. The cold went home.'],
+};
+
 export function generateFrostspine() { const it = frostspineSteps(); let s; while (!(s = it.next()).done); return s.value; }
 const BAND = 16;
 export function* frostspineSteps() {
