@@ -11,6 +11,7 @@ import { frozenForm, iceBlockForm } from '../../art/scenery/frost.js';
 import { applyLook } from '../../../engine/iso/cozyStage.js';
 import { fromUV } from './sections.js';
 import { fresh, step, blocked, done, stuck, key } from './thinIceRules.js';
+import { spawnNpcs } from './npcs.js';
 
 let st = {}, last = null, built = null; 
 const thinOf = () => { const W = S.W; return W && W.thin && G.region === W.region ? W.thin : null; };
@@ -122,7 +123,8 @@ function updateFrozen() {
       built.doors[rm.id] = group((b) => { b.add(iceBlockForm(), { x, h: W.groundAt(x, y) - 0.05, y, rot: 0.8, s: [2.6, 2.2, 1.6] }); });
     }
   }
-  if (built.frozen && thawed()) { S.stage.scene.remove(built.frozen); built.frozen = null; }
+  
+  if (built.frozen && thawed()) { S.stage.scene.remove(built.frozen); built.frozen = null; spawnNpcs(); S.sfx.play('thaw'); }
   for (const id of Object.keys(built.doors)) {
     const rm = W.thin.rooms.find((q) => q.id === id);
     if (roomDone(rm)) { S.stage.scene.remove(built.doors[id]); delete built.doors[id]; }
