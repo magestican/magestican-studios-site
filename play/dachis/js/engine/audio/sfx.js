@@ -40,7 +40,7 @@ export function createSfx({ key, recipes }) {
   
   
   
-  const files = {}, bufs = {};
+  const files = {}, bufs = {}, sets = {};
   const decode = (name) => {
     if (bufs[name] || !ctx || !files[name]) return bufs[name];
     bufs[name] = files[name].then((ab) => ctx.decodeAudioData(ab.slice(0))).catch(() => { delete files[name]; return null; });
@@ -48,8 +48,13 @@ export function createSfx({ key, recipes }) {
   };
   const S = {
     load(name, url) { files[name] = fetch(url).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(url)))); files[name].catch(() => { delete files[name]; }); },
+    
+    
+    takes(name, list) { sets[name] = { list, last: -1 }; },
     play(name) {
       ensure();
+      const set = sets[name];
+      if (set) { let i = Math.floor(Math.random() * set.list.length); if (i === set.last && set.list.length > 1) i = (i + 1) % set.list.length; set.last = i; if (files[set.list[i]]) name = set.list[i]; }
       const b = files[name] && decode(name);
       if (b && ctx && !muted) {
         const t = ctx.currentTime;

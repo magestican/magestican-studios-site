@@ -44,31 +44,88 @@ export function ocean(ctx, w, h, t, marks) {
     const x = ((a * w + t * 10) % w + w) % w, y = b * h;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 10, y - 6, x + 22, y); ctx.stroke();
   }
+  
+  ctx.fillStyle = '#ffffff';
+  marks.forEach(([a, b], i) => {
+    if (Math.sin(t * 4 + i * 1.7) < 0.75) return;
+    const x = ((b * w * 1.3 + i * 17) % w), y = ((a * h * 1.1 + i * 29) % h), r = 2 + (i % 3);
+    ctx.fillRect(x - r * 2, y - 0.5, r * 4, 1.5); ctx.fillRect(x - 0.5, y - r * 2, 1.5, r * 4);
+  });
 }
 
-export function island(ctx, cx, cy, R, line = 3) {
-  const blob = (rx, ry, fill, ox = 0, oy = 0) => {
-    ctx.beginPath(); ctx.ellipse(cx + ox, cy + oy, rx, ry, 0, 0, 6.2832);
-    ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = line; ctx.strokeStyle = INK; ctx.stroke();
-  };
-  ctx.fillStyle = '#5fe8d6'; ctx.beginPath(); ctx.ellipse(cx, cy, R * 1.3, R * 1.15, 0, 0, 6.2832); ctx.fill(); 
-  blob(R * 1.1, R * 0.98, '#f6e2a8');
-  blob(R, R * 0.88, '#59ad46');
-  ctx.save(); ctx.beginPath(); ctx.ellipse(cx, cy, R, R * 0.88, 0, 0, 6.2832); ctx.clip();
-  ctx.fillStyle = '#87cf61';
-  for (const [a, b, r] of [[-0.4, 0.3, 0.32], [0.35, 0.4, 0.28], [0.2, -0.45, 0.25], [-0.55, -0.2, 0.2]]) { ctx.beginPath(); ctx.ellipse(cx + a * R, cy + b * R, r * R, r * R * 0.8, 0.4, 0, 6.2832); ctx.fill(); }
-  ctx.restore();
-  blob(R * 0.45, R * 0.42, '#8c7466', -R * 0.2, -R * 0.2);
-  blob(R * 0.16, R * 0.15, '#ff6a1a', -R * 0.2, -R * 0.2);
-  ctx.fillStyle = '#ffcf3a'; ctx.beginPath(); ctx.ellipse(cx - R * 0.23, cy - R * 0.23, R * 0.06, R * 0.05, 0, 0, 6.2832); ctx.fill();
+
+
+
+
+
+const coast = (a) => 1 + 0.11 * Math.sin(3 * a + 1.1) + 0.07 * Math.sin(5 * a + 2.3) + 0.04 * Math.sin(9 * a + 0.4) + 0.025 * Math.sin(17 * a);
+function shore(ctx, cx, cy, R, k, sq = 0.88) {
+  ctx.beginPath();
+  for (let i = 0; i <= 96; i++) { const a = i / 96 * 6.2832, r = R * k * coast(a); const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r * sq; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.closePath();
 }
+const hash = (i, k) => { const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); };
+export function island(ctx, cx, cy, R, line = 3, t = 0) {
+  ctx.save(); ctx.lineJoin = 'round';
+  shore(ctx, cx, cy, R, 1.42); ctx.fillStyle = 'rgba(95,232,214,0.45)'; ctx.fill(); 
+  shore(ctx, cx, cy, R, 1.2); ctx.fillStyle = '#7ff0de'; ctx.fill(); 
+  
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1.5, line * 0.8); ctx.lineCap = 'round';
+  for (let i = 0; i < 40; i++) {
+    const a = i / 40 * 6.2832 + t * 0.05, r = R * 1.13 * coast(a) + Math.sin(t * 2 + i) * R * 0.015;
+    ctx.beginPath(); ctx.arc(cx, cy, r, a, a + 0.07); ctx.stroke();
+  }
+  shore(ctx, cx, cy, R, 1.07); ctx.fillStyle = '#f6e2a8'; ctx.fill(); ctx.lineWidth = line; ctx.strokeStyle = INK; ctx.stroke();
+  shore(ctx, cx, cy, R, 0.97); ctx.fillStyle = '#3f9a3a'; ctx.fill(); ctx.stroke();
+  
+  ctx.save(); shore(ctx, cx, cy, R, 0.97); ctx.clip();
+  for (let i = 0; i < 70; i++) {
+    const a = hash(i, 1) * 6.2832, d = Math.sqrt(hash(i, 2)) * 0.95, r = R * (0.07 + hash(i, 3) * 0.07);
+    const x = cx + Math.cos(a) * d * R, y = cy + Math.sin(a) * d * R * 0.88;
+    ctx.fillStyle = '#2f7f30'; ctx.beginPath(); ctx.arc(x + r * 0.2, y + r * 0.25, r, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = hash(i, 4) > 0.5 ? '#59ad46' : '#4fa240'; ctx.beginPath(); ctx.arc(x, y, r * 0.85, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = '#87cf61'; ctx.beginPath(); ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.35, 0, 6.2832); ctx.fill();
+  }
+  ctx.restore();
+  
+  const vx = cx - R * 0.16, vy = cy - R * 0.18;
+  ctx.beginPath(); ctx.ellipse(vx, vy, R * 0.5, R * 0.45, 0, 0, 6.2832); ctx.fillStyle = '#8c6a58'; ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#5e4236'; ctx.lineWidth = Math.max(1, line * 0.7);
+  for (let i = 0; i < 14; i++) { const a = i / 14 * 6.2832 + 0.2; ctx.beginPath(); ctx.moveTo(vx + Math.cos(a) * R * 0.17, vy + Math.sin(a) * R * 0.15); ctx.lineTo(vx + Math.cos(a + 0.08) * R * (0.42 + hash(i, 5) * 0.06), vy + Math.sin(a + 0.08) * R * (0.38 + hash(i, 5) * 0.05)); ctx.stroke(); }
+  ctx.beginPath(); ctx.ellipse(vx, vy, R * 0.25, R * 0.22, 0, 0, 6.2832); ctx.fillStyle = '#a5887a'; ctx.fill(); ctx.lineWidth = line; ctx.strokeStyle = INK; ctx.stroke();
+  
+  ctx.strokeStyle = '#e9cf8e'; ctx.lineWidth = Math.max(2, R * 0.035); ctx.setLineDash([R * 0.06, R * 0.03]);
+  ctx.beginPath(); ctx.moveTo(vx + R * 0.1, vy + R * 0.2); ctx.bezierCurveTo(vx + R * 0.45, vy + R * 0.42, cx - R * 0.15, cy + R * 0.5, cx + R * 0.05, cy + R * 0.78); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#ffffff'; ctx.strokeStyle = INK; ctx.lineWidth = Math.max(1, line * 0.6);
+  ctx.beginPath(); ctx.arc(cx + R * 0.05, cy + R * 0.8, R * 0.05, 0, 6.2832); ctx.fill(); ctx.stroke(); 
+  
+  for (let i = 0; i < 6; i++) { const a = -2.2 + i * 0.32; const x = vx + Math.cos(a) * R * 0.2, y = vy + Math.sin(a) * R * 0.18; ctx.fillStyle = i % 2 ? '#d8763a' : '#e0a040'; ctx.fillRect(x - R * 0.018, y - R * 0.018, R * 0.036, R * 0.036); }
+  const glow = 0.5 + 0.5 * Math.sin(t * 3);
+  ctx.beginPath(); ctx.ellipse(vx, vy, R * 0.13, R * 0.115, 0, 0, 6.2832); ctx.fillStyle = '#3a2020'; ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(vx, vy, R * 0.09, R * 0.08, 0, 0, 6.2832); ctx.fillStyle = '#ff6a1a'; ctx.fill();
+  ctx.beginPath(); ctx.ellipse(vx, vy, R * (0.035 + glow * 0.015), R * (0.03 + glow * 0.013), 0, 0, 6.2832); ctx.fillStyle = '#ffcf3a'; ctx.fill();
+  
+  for (let i = 0; i < 9; i++) {
+    const p = (t * 0.12 + i / 9) % 1, r = R * (0.06 + p * 0.16);
+    const x = vx + p * R * 0.9, y = vy - p * R * 0.35;
+    ctx.globalAlpha = 0.75 * (1 - p); ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x, y, r + line, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = i % 2 ? '#d9d3e6' : '#c3bad6'; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+  }
+  ctx.restore();
+}
+
+
 
 export function speedLines(ctx, w, h, t, rows) {
-  for (const [a, b] of rows) {
-    const x = a * w, y = ((b * h - t * 1500) % h + h) % h;
-    ctx.fillStyle = INK; ctx.fillRect(x - 2, y, 4, 90);
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 1, y + 4, 2, 70);
-  }
+  ctx.save();
+  rows.forEach(([a, b], i) => {
+    const L = 40 + ((i * 37) % 110), sp = 1300 + ((i * 53) % 700);
+    const x = a * w, y = ((b * h - t * sp) % (h + L) + h + L) % (h + L) - L;
+    const wd = 1 + (i % 3);
+    ctx.globalAlpha = 0.35 + (i % 4) * 0.12; ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.moveTo(x - wd, y + L); ctx.lineTo(x + wd, y + L); ctx.lineTo(x, y); ctx.closePath(); ctx.fill();
+  });
+  ctx.restore();
 }
 
 export function sunset(ctx, w, h) {

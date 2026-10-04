@@ -152,6 +152,8 @@ export function updateNpcs(dt) {
   
   const people = [G.player, G.follower].filter(Boolean);
   for (const n of G.npcs) {
+    
+    if (!n.moving) { const p = G.player, ddx = p.x - n.x, ddy = p.y - n.y; if (ddx * ddx + ddy * ddy < LOOK_R * LOOK_R && Math.abs(ddx - ddy) > 0.05) n.face = ddx - ddy > 0 ? 1 : -1; }
     if (n.still) continue;
     n.wait -= dt;
     if (n.wait > 0) { n.moving = false; continue; }
@@ -192,7 +194,8 @@ export function drawNpcs(t) {
   }
 }
 
-export const nearestNpc = (x, y, within = 1.5) => {
+export const LOOK_R = 3, TALK_R = 2;
+export const nearestNpc = (x, y, within = TALK_R) => {
   let best = null, bd = within;
   for (const n of G.npcs) { const d = U.dist(x, y, n.x, n.y); if (d < bd) { bd = d; best = n; } }
   return best;

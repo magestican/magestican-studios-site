@@ -5,6 +5,8 @@ import { createPixelLayer } from '../../../engine/ui/pixelLayer.js';
 
 let layer = null;
 
+const playSfx = (sfx) => { if (!sfx || !S.sfx) return; for (const [n, ms] of typeof sfx === 'string' ? [[sfx, 0]] : sfx) ms ? setTimeout(() => S.sfx.play(n), ms) : S.sfx.play(n); };
+
 const $ = id => document.getElementById(id);
 
 export const Cutscene = {
@@ -25,7 +27,7 @@ export const Cutscene = {
     const all = sc.lines(), n = this.scene;
     from = Math.max(0, Math.min(all.length - 1, from));
     for (let i = 0; i < from; i++) if (all[i].fx) all[i].fx(CS); 
-    const lines = all.map((l, i) => Object.assign({}, l, { onShow: () => { this.li = i; if (l.fx) l.fx(CS); if (this.onLine) this.onLine(n, i); } })).slice(from);
+    const lines = all.map((l, i) => Object.assign({}, l, { onShow: () => { this.li = i; if (l.fx) l.fx(CS); playSfx(l.sfx); if (this.onLine) this.onLine(n, i); } })).slice(from);
     S.dialog.say(lines, () => {
       this.scene++;
       if (this.scene >= this.scenes.length) this.finish(); else this.playScene();

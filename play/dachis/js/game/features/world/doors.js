@@ -107,8 +107,11 @@ export function walkThrough(st, map, door) {
   if (!door) { st.held = null; return null; }
   return door === st.held ? null : door;
 }
+
+
+export const opensBeforeStarter = (d) => d.region !== HOME || d.id === 'village-in';
 export function doorAt(flags, region, x, y, r = DOOR_R) {
-  return DOORS.find((d) => d.region === region && (!d.after || (flags && flags[d.after])) && near(d, x, y, r)) || null;
+  return DOORS.find((d) => d.region === region && (!d.after || (flags && flags[d.after])) && (opensBeforeStarter(d) || (flags && flags.starter)) && near(d, x, y, r)) || null;
 }
 function near(d, x, y, r) {
   if (!d.area) return Math.hypot(d.at.x - x, d.at.y - y) < (d.r || r);

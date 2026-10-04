@@ -31,7 +31,7 @@ import { openPerchMenu, closePerchMenu, perchMenuOpen, pickPerch, installPerchMe
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
 import { loadBakedForms } from './art/scenery/kit.js';
 import { createPlayerView, updatePlayer, drawPlayer } from './features/world/player.js';
-import { spawnNpcs, clearNpcs, updateNpcs, drawNpcs, nearestNpc, separateCrowd } from './features/world/npcs.js';
+import { spawnNpcs, clearNpcs, updateNpcs, drawNpcs, nearestNpc, separateCrowd, TALK_R } from './features/world/npcs.js';
 import { updateWilds, drawWilds, drawWildAlerts, removeWild } from './features/world/wilds.js';
 import { CHAR_SCALE } from './features/world/crowd.js';
 import { spotUnderKid, pickUp, hintPickup } from './features/pickups/pickups.js';
@@ -46,7 +46,7 @@ import { installOrderRing, updateOrderRing } from './features/battle/orderRing.j
 import { updateRitual } from './features/capture/ritualView.js';
 import { Cutscene } from './features/story/cutscene.js';
 import { SCENES } from './features/story/scenes.js';
-import { lineKind, lineText, lineSound, introZoomK } from './features/onboarding/rules.js';
+import { lineKind, lineText, lineSound, introZoomK, voiceFor } from './features/onboarding/rules.js';
 import { tapHint, installTapAnywhere, setupNames, startWithWipe, intro, showResume, youTag } from './features/onboarding/onboarding.js';
 import { attract } from './features/onboarding/attract.js';
 import { tick as clockTick, activityOf, chapterOf, newClock } from './features/clock/clock.js';
@@ -258,6 +258,18 @@ S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: { ...SOUNDS, opener: SOUNDS.start, bossOpener: SOUNDS.start } });
 
 for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
+
+
+
+{
+  const v = document.querySelector('meta[name=build]')?.content, q = v && v !== 'dev' ? '?v=' + encodeURIComponent(v) : '';
+  const url = (n) => new URL('assets/sfx/' + n + '.mp3' + q, document.baseURI).href;
+  const TAKES = { stepGrass: 2, stepSand: 2, stepDirt: 2, stepStone: 2, stepSoft: 2, voiceKid: 3, voiceAdult: 3, voiceDachi: 3, voiceBoss: 3, thought: 2 };
+  for (const [n, k] of Object.entries(TAKES)) { const list = []; for (let i = 1; i <= k; i++) { S.sfx.load(n + i, url(n + i)); list.push(n + i); } S.sfx.takes(n, list); }
+  for (const n of ['slap', 'pencil', 'thinkIn', 'narrateIn', 'bossSting', 'prompt']) S.sfx.load(n, url(n));
+  
+  for (const n of ['titleSlam', 'spiralOpen', 'grab', 'pullIn', 'windRush', 'screech', 'swoop', 'wingFlap', 'landThud', 'doorsBang']) S.sfx.load(n, url(n));
+}
 ambience.init(() => S.sfx.muted);
 
 for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => { S.sfx.warm('opener'); S.sfx.warm('bossOpener'); }, { once: true });
@@ -286,7 +298,11 @@ S.hints = createHints(S.input);
 S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onLine: (l, first) => S.sfx.play(lineSound(l, first)), 
   
   kindOf: lineKind, textOf: lineText, onAdvance: () => tapHint.learned(),
-  onType: (l) => { const k = lineKind(l); if (k !== 'narrate') S.sfx.play(k === 'think' ? 'thought' : 'voice'); } });
+  
+  
+  onType: (l) => { if (lineKind(l) === 'narrate') return; const v = voiceFor(l, G.name); if (v === 'voiceBoss' && (voiceN++ & 1)) return; S.sfx.play(v); },
+  onTyped: (l) => { if (!S.dialog.choosing) S.sfx.play('prompt'); } });
+let voiceN = 0;
 S.flash = 0;
 setFinishHandler(onBattleFinished);
 createPlayerView();
@@ -371,10 +387,20 @@ function worldActions() {
   const door = doorAt(G.flags, G.region, G.player.x, G.player.y); 
   if (door) return loadRegion(door.to, door.toAt);
   const n = nearestNpc(G.player.x, G.player.y);
-  if (n) return talkTo(n);
+  if (n) return talk(n);
   const spring = S.W.objects.find(o => o.heal && U.dist(G.player.x, G.player.y, o.x, o.y) < 1.7);
-  if (spring) restAtSpring();
+  if (spring) return restAtSpring();
+  if (petNear()) petLead();
 }
+
+function talk(n) {
+  const p = G.player; p.talkAt = { x: n.x, y: n.y };
+  if (Math.abs((p.x - n.x) - (p.y - n.y)) > 0.05) n.face = (p.x - n.x) - (p.y - n.y) > 0 ? 1 : -1;
+  return talkTo(n);
+}
+
+const petNear = () => G.party.length && G.follower && !G.follower.moving && U.dist(G.player.x, G.player.y, G.follower.x, G.follower.y) < 1.9;
+function petLead() { G.follower.hop = 0.55; S.sfx.play('voiceDachi'); setTimeout(() => S.sfx.play('voiceDachi'), 160); }
 function battleActions() {
   const I = S.input;
   if (B && B.ritual) { if (I.pressed('flee') || I.pressed('cancel') && !I.pressed('rit3')) tryRun(); return; }
@@ -401,9 +427,9 @@ function worldHints() {
   if (spot) { hintPickup(spot); return; }
   const n = nearestNpc(p.x, p.y, 3);
   if (n) {
-    const near = U.dist(p.x, p.y, n.x, n.y) < 1.5, [x, y] = S.stage.toScreen(n.x, n.y, S.W.groundAt(n.x, n.y));
+    const near = U.dist(p.x, p.y, n.x, n.y) < TALK_R, [x, y] = S.stage.toScreen(n.x, n.y, S.W.groundAt(n.x, n.y));
     const [, top] = S.stage.toScreen(n.x, n.y, S.W.groundAt(n.x, n.y) + (n.kind === 'elder' ? 1.8 : 1.2) * CHAR_SCALE);
-    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.45, bubbleY: top - 8, action: near ? 'action' : null, label: near ? 'Talk' : null, onTap: () => { if (U.dist(p.x, p.y, n.x, n.y) < 3) talkTo(n); } });
+    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.45, bubbleY: top - 8, action: near ? 'action' : null, label: near ? 'Talk' : null, onTap: () => { if (U.dist(p.x, p.y, n.x, n.y) < 3) talk(n); } });
   }
   
   const door = doorAt(G.flags, G.region, p.x, p.y);
@@ -416,6 +442,12 @@ function worldHints() {
   if (spring) {
     const [x, y] = S.stage.toScreen(spring.x, spring.y, S.W.groundAt(spring.x, spring.y));
     S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.8, action: 'action', label: 'Rest', color: '#8ff0ff', onTap: restAtSpring });
+    return;
+  }
+  
+  if (!n && petNear()) {
+    const f = G.follower, [x, y] = S.stage.toScreen(f.x, f.y, S.W.groundAt(f.x, f.y));
+    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.4, action: 'action', label: 'Pet', color: '#ff9ad5', onTap: petLead });
   }
 }
 
@@ -475,7 +507,8 @@ function frame(now) {
     
     const cheer = (B && B.state === 'end' && B.result !== 'lose') || (!B && S.cheerUntil > performance.now());
     const sinceLand = (performance.now() - (S.landAt || -1e9)) / 1000, land = sinceLand >= 0 && sinceLand < 0.6 ? Math.sin(Math.min(1, sinceLand / 0.6) * Math.PI) : 0;
-    drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), cheer, land, hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : null });
+    drawPlayer(t, { hidden: G.mode === 'title', shout: !!(B && B.shout), cheer, land, hidePet: !!B || !G.party.length, lookAt: B ? B.enemy : S.dialog.active && G.player.talkAt ? G.player.talkAt : null });
+    if (!S.dialog.active) G.player.talkAt = null;
     drawNpcs(t);
     drawBossLairs(t, B); 
     drawWilds(t, B ? (w => w === B.wild || inArena(w.x, w.y, B, -0.8)) : null);

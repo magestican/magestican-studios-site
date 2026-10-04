@@ -114,23 +114,41 @@ export const ART = {
   },
 
   
+  
+  
+  
   redHand(ctx, x0, y0, x1, y1, grip) {
     const ang = Math.atan2(y1 - y0, x1 - x0), len = Math.hypot(x1 - x0, y1 - y0);
-    ctx.save(); ctx.translate(x0, y0); ctx.rotate(ang);
-    const g = ctx.createLinearGradient(0, 0, len, 0);
-    g.addColorStop(0, '#3a0008'); g.addColorStop(0.4, '#b3001e'); g.addColorStop(1, '#ff2a3a');
-    ctx.fillStyle = g; ctx.strokeStyle = '#2a0006'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(0, -9); ctx.quadraticCurveTo(len * 0.5, -14, len, -8); ctx.lineTo(len, 8); ctx.quadraticCurveTo(len * 0.5, 12, 0, 9); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.translate(len, 0);
-    ctx.fillStyle = '#ff2a3a'; U.ellipse(ctx, 6, 0, 10, 12); ctx.fill(); ctx.stroke();
-    const curl = grip ? 0.9 : 0.15;
-    for (let i = 0; i < 4; i++) {
-      ctx.save(); ctx.translate(12, -9 + i * 6); ctx.rotate(curl * (i % 2 ? 1 : 0.8));
-      ctx.beginPath(); ctx.roundRect(0, -2.2, 14 - Math.abs(i - 1.5) * 2, 4.4, 2); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#1a0004'; ctx.fillRect(11 - Math.abs(i - 1.5) * 2, -1.5, 3, 3); ctx.fillStyle = '#ff2a3a';
+    const S = Math.max(1.8, Math.min(3.2, len / 60)), L = len / S;
+    ctx.save(); ctx.translate(x0, y0); ctx.rotate(ang); ctx.scale(S, S);
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    const INK = '#14000a', line = 2.2 / S * 1.6;
+    
+    for (let i = 0; i < 6; i++) { ctx.fillStyle = i % 2 ? 'rgba(20,0,30,0.85)' : 'rgba(60,10,80,0.7)'; ctx.beginPath(); ctx.arc(4 + i * 3, (i % 2 ? -1 : 1) * (10 + i), 7 - i * 0.6, 0, 6.2832); ctx.fill(); }
+    
+    ctx.beginPath(); ctx.moveTo(0, -13); ctx.quadraticCurveTo(L * 0.45, -17, L - 4, -8); ctx.lineTo(L - 4, 8); ctx.quadraticCurveTo(L * 0.45, 15, 0, 13); ctx.closePath();
+    ctx.fillStyle = '#b3001e'; ctx.fill(); ctx.lineWidth = line; ctx.strokeStyle = INK; ctx.stroke();
+    ctx.fillStyle = '#ff3a3a'; ctx.beginPath(); ctx.moveTo(L * 0.1, -12); ctx.quadraticCurveTo(L * 0.45, -15.5, L - 6, -7); ctx.lineTo(L - 8, -4); ctx.quadraticCurveTo(L * 0.45, -10, L * 0.1, -7); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#5a0010'; ctx.lineWidth = line * 0.7; ctx.beginPath(); ctx.moveTo(L * 0.25, 4); ctx.quadraticCurveTo(L * 0.5, 9, L * 0.7, 3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L * 0.35, -3); ctx.quadraticCurveTo(L * 0.55, 1, L * 0.75, -2); ctx.stroke();
+    ctx.translate(L, 0);
+    
+    ctx.fillStyle = '#e0102a'; ctx.strokeStyle = INK; ctx.lineWidth = line;
+    ctx.beginPath(); ctx.ellipse(4, 0, 12, 14, 0, 0, 6.2832); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ff5a4a'; ctx.beginPath(); ctx.ellipse(1, -6, 6, 4, -0.3, 0, 6.2832); ctx.fill();
+    const curl = grip ? 1.15 : 0.1;
+    for (let i = 0; i < 4; i++) { 
+      const fl = 13 - Math.abs(i - 1.5) * 2.2;
+      ctx.save(); ctx.translate(13, -10.5 + i * 7); ctx.rotate(curl * 0.5 * (i % 2 ? 1 : 0.85));
+      ctx.fillStyle = '#e0102a'; ctx.beginPath(); ctx.roundRect(0, -3, fl * 0.55, 6, 3); ctx.fill(); ctx.stroke();
+      ctx.translate(fl * 0.5, 0); ctx.rotate(curl * 0.7);
+      ctx.beginPath(); ctx.roundRect(0, -2.6, fl * 0.5, 5.2, 2.6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = INK; ctx.beginPath(); ctx.moveTo(fl * 0.45, -2.4); ctx.lineTo(fl * 0.5 + 5, 0); ctx.lineTo(fl * 0.45, 2.4); ctx.closePath(); ctx.fill();
       ctx.restore();
     }
-    ctx.save(); ctx.translate(4, 10); ctx.rotate(0.9 + curl); ctx.beginPath(); ctx.roundRect(0, -2.5, 12, 5, 2); ctx.fill(); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.translate(3, 12); ctx.rotate(0.9 + curl * 0.8); ctx.fillStyle = '#e0102a';
+    ctx.beginPath(); ctx.roundRect(0, -3.2, 13, 6.4, 3.2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = INK; ctx.beginPath(); ctx.moveTo(12, -2.6); ctx.lineTo(17, 0); ctx.lineTo(12, 2.6); ctx.closePath(); ctx.fill(); ctx.restore();
     ctx.restore();
   },
 

@@ -7,7 +7,7 @@ const $ = id => document.getElementById(id);
 
 
 
-export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}, onLine = null, format = s => s, kindOf = () => 'say', textOf = l => l.text, onAdvance = () => {}, onType = () => {} }) {
+export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}, onLine = null, format = s => s, kindOf = () => 'say', textOf = l => l.text, onAdvance = () => {}, onType = () => {}, onTyped = () => {} }) {
   const D = {
     queue: [], cur: null, shown: 0, onDone: null, active: false, choosing: false,
     say(lines, onDone) {
@@ -25,7 +25,7 @@ export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}
       onAdvance();
       
       
-      if (D.cur && D.shown < D.cur.text.length) { D.shown = D.cur.text.length; $('dlgText').textContent = D.cur.text; return; }
+      if (D.cur && D.shown < D.cur.text.length) { D.shown = D.cur.text.length; $('dlgText').textContent = D.cur.text; onTyped(D.cur); return; }
       D.next();
     },
     next(first = false) {
@@ -68,6 +68,7 @@ export function createDialog({ paintPortrait, paintChoiceIcon, onBlip = () => {}
       D.shown = Math.min(D.cur.text.length, D.shown + dt * 55);
       if (Math.floor(D.shown / 4) !== was) onType(D.cur); 
       $('dlgText').textContent = D.cur.text.slice(0, Math.floor(D.shown));
+      if (D.shown >= D.cur.text.length) onTyped(D.cur); 
     },
   };
   return D;

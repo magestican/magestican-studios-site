@@ -5,6 +5,7 @@ import { U } from '../../../engine/core/util.js';
 import { G, S, saveGame, healParty, addDachi, caughtCount } from '../../state.js';
 import { speciesById, makeDachi, GUARDIAN, STARTERS, SPECIES } from '../../data/species.js';
 import { AMBUSH, SHRINE, SPAWN } from '../world/mapgen.js';
+import { tripped, burstFrom, AMBUSH_GATE } from './tripwire.js';
 import { spawnNpcs, readOf } from '../world/npcs.js';
 import { HOME } from '../world/regions.js';
 import * as shrineVillage from '../world/regionMaps/shrineVillage.js';
@@ -278,7 +279,8 @@ export function updateRegionBeats(sec, dt = 1 / 60) {
 
 export function updateStory(dt) {
   const p = G.player;
-  if (!scene && G.flags.started && !G.flags.starter && U.dist(p.x, p.y, AMBUSH.x, AMBUSH.y) < 2.4 && !S.dialog.active) startAmbush();
+  
+  if (!scene && G.flags.started && !G.flags.starter && tripped(p.x, p.y, AMBUSH_GATE) && !S.dialog.active) startAmbush();
   if (scene && scene.kind === 'ambush' && scene.charging) {
     const w = scene.wild, dx = p.x - w.x, dy = p.y - w.y, d = Math.hypot(dx, dy);
     if (d > 1.2) { w.x += dx / d * 5.5 * dt; w.y += dy / d * 5.5 * dt; w.face = dx - dy > 0 ? 1 : -1; w.moving = true; w.walk += dt * 14; }
@@ -293,8 +295,9 @@ function ambusherSpecies() {
 }
 function startAmbush() {
   scene = { kind: 'ambush' };
-  say([L(NARR, 'Something is moving behind those rocks...'), L(KID, 'H-hello...?')], () => {
-    const w = spawnWild({ x: AMBUSH.from.x, y: AMBUSH.from.y });
+  const p = G.player, b = burstFrom(p.x, p.y, AMBUSH_GATE, AMBUSH.from);
+  say([L(NARR, b.staged ? 'Something is moving behind those rocks...' : 'Something is moving in the grass, right beside you...'), L(KID, 'H-hello...?')], () => {
+    const w = spawnWild({ x: b.x, y: b.y });
     w.d = makeDachi(ambusherSpecies(), 9); w.d.corrupt = true; w.d.maxHpOverride = 29997; w.d.hp = 29997;
     w.scripted = true; scene.wild = w;
     S.sfx.play('start');

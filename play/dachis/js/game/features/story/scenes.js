@@ -152,8 +152,14 @@ function drawAlley(ctx, w, h, t) {
 
 const CLOUDS = Array.from({ length: 18 }, (_, i) => [U.ih(i, 1, 3), U.ih(i, 2, 3), 0.5 + U.ih(i, 3, 3)]);
 const WAVES = Array.from({ length: 40 }, (_, k) => [U.ih(k, 9, 1), U.ih(k, 8, 1)]);
-function drawIslandFromAbove(ctx, w, h, t, zoom) {
-  if (CEL) { SKY.ocean(ctx, w, h, t, WAVES); SKY.island(ctx, w / 2, h / 2, Math.min(w, h) * 0.12 * zoom, Math.max(2, h / 220)); return; }
+function drawIslandFromAbove(ctx, w, h, t, zoom, oy = 0.5) {
+  if (CEL) {
+    SKY.ocean(ctx, w, h, t, WAVES); SKY.island(ctx, w / 2, h * oy, Math.min(w, h) * 0.12 * zoom, Math.max(2, h / 220), t);
+    
+    const haze = Math.max(0, Math.min(0.75, 0.9 - zoom * 0.35));
+    if (haze > 0) { const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.2, w / 2, h / 2, Math.max(w, h) * 0.75); g.addColorStop(0, 'rgba(220,240,255,0)'); g.addColorStop(1, 'rgba(220,240,255,' + haze + ')'); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); }
+    return;
+  }
   let g = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, Math.max(w, h));
   g.addColorStop(0, '#1fa0d8'); g.addColorStop(1, '#0a4f8a');
   ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
@@ -192,7 +198,7 @@ export const SCENES = [
     mood: 'alley', 
     prewarm() { castFigure('kid', G.gender, FIG_PX, 'back'); castFigure('kid', G.gender, FIG_PX); },
     lines: () => [
-      Object.assign({}, NARR, { text: 'New York City. Summer, 1992.' }),
+      Object.assign({}, NARR, { text: 'New York City. Summer, 1992.', sfx: 'titleSlam' }),
       Object.assign(KID(), { text: 'Mom? ...Dad? You were right behind me at the hot dog cart...' }),
       Object.assign(KID(), { text: '(Maybe this alley cuts back to the avenue. It has to.)' }), 
     ],
@@ -202,10 +208,20 @@ export const SCENES = [
       const ks = U.lerp(3.4, 2.4, k), ky = U.lerp(h * 0.98, h * 0.7, k);
       ART.shadow(ctx, w * 0.5, ky, 9 * ks);
       kid3d(ctx, w * 0.5, ky - Math.abs(Math.sin(t * 8)) * 1.5 * ks, ks, { back: true });
-      if (t < 6) {
-        ctx.globalAlpha = Math.min(1, t) * Math.min(1, 6 - t);
-        ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.floor(h * 0.045)}px Georgia, serif`;
-        ctx.fillText('NEW YORK CITY — 1992', w * 0.06, h * 0.14); ctx.globalAlpha = 1;
+      
+      
+      if (t < 6.5) {
+        const a = Math.min(1, t * 2) * Math.min(1, 6.5 - t), pop = t < 0.35 ? 1.6 - t / 0.35 * 0.6 : 1 + Math.max(0, 0.06 - (t - 0.35) * 0.2);
+        const fs = Math.floor(Math.min(w * 0.14, h * 0.07));
+        ctx.save(); ctx.globalAlpha = a; ctx.translate(w * 0.5, h * 0.33); ctx.rotate(-0.08); ctx.scale(pop, pop);
+        ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+        ctx.font = `${fs}px Bangers, Impact, sans-serif`;
+        ctx.lineWidth = fs * 0.18; ctx.strokeStyle = '#0d0a14'; ctx.strokeText('NEW YORK CITY', 4, 4); ctx.strokeText('NEW YORK CITY', 0, 0);
+        ctx.fillStyle = '#ffd23a'; ctx.fillText('NEW YORK CITY', 0, 0);
+        ctx.rotate(0.12); ctx.fillStyle = '#ffe680'; ctx.fillRect(-fs * 2, fs * 0.35, fs * 4, fs * 0.75);
+        ctx.strokeStyle = '#0d0a14'; ctx.lineWidth = 3; ctx.strokeRect(-fs * 2, fs * 0.35, fs * 4, fs * 0.75);
+        ctx.fillStyle = '#0d0a14'; ctx.font = `${Math.floor(fs * 0.5)}px 'Permanent Marker', 'Comic Sans MS', cursive`; ctx.fillText('SUMMER 1992', 0, fs * 0.92);
+        ctx.restore();
       }
     },
   },
@@ -213,10 +229,10 @@ export const SCENES = [
     mood: 'spiral', 
     lines: () => [
       Object.assign(KID(), { text: "...What's that noise? It sounds like... breathing?" }),
-      Object.assign({}, NARR, { text: 'The wall beside you warps. A black circle spirals open like a whirlpool.' }),
+      Object.assign({}, NARR, { text: 'The wall beside you warps. A black circle spirals open like a whirlpool.', sfx: 'spiralOpen' }),
       Object.assign(KID(), { text: 'Wh-what IS that?!' }),
-      Object.assign({}, NARR, { text: 'A huge RED HAND lunges out of the spiral and grabs you by the jacket!', fx: c => { c.grabT = c.t; } }),
-      Object.assign(KID(), { text: 'HEY! LET GO! MOOOOM!!', fx: c => { c.pullT = c.t; } }),
+      Object.assign({}, NARR, { text: 'A huge RED HAND lunges out of the spiral and grabs you by the jacket!', fx: c => { c.grabT = c.t; }, sfx: [['grab', 250]] }),
+      Object.assign(KID(), { text: 'HEY! LET GO! MOOOOM!!', fx: c => { c.pullT = c.t; }, sfx: 'pullIn' }),
     ],
     shake: c => c.li >= 3,
     draw(ctx, w, h, t, li) {
@@ -243,13 +259,13 @@ export const SCENES = [
     mood: 'fall', 
     prewarm() { for (let f = 0; f < FALL_FRAMES; f++) kidFallFigure(G.gender, FIG_PX, f); },
     lines: () => [
-      Object.assign(KID(), { text: 'AAAAAAAAAAHHHHHH!!!', fx: () => { CS.flashed = false; } }),
-      Object.assign({}, NARR, { text: 'Sky. Wind. Endless ocean. You are falling toward a tiny island at incredible speed!' }),
-      Object.assign({}, NARR, { text: 'A volcano. Jungle. The ground rushes up to meet you—' }),
+      Object.assign(KID(), { text: 'AAAAAAAAAAHHHHHH!!!', fx: () => { CS.flashed = false; }, sfx: 'windRush' }),
+      Object.assign({}, NARR, { text: 'Sky. Wind. Endless ocean. You are falling toward a tiny island at incredible speed!', sfx: 'windRush' }),
+      Object.assign({}, NARR, { text: 'A volcano. Jungle. The ground rushes up to meet you—', sfx: 'windRush' }),
     ],
     shake: () => true,
     draw(ctx, w, h, t) {
-      drawIslandFromAbove(ctx, w, h, t, 0.4 + t * 0.12);
+      drawIslandFromAbove(ctx, w, h, t, 0.7 + t * t * 0.03 + t * 0.12, 0.74 - Math.min(0.2, t * 0.012));
       drawClouds(ctx, w, h, t, 700); drawSpeedLines(ctx, w, h, t);
       kidFalling(ctx, w, h, t, KID_H * 2.6 * 1.25);
     },
@@ -258,9 +274,9 @@ export const SCENES = [
     mood: 'wonder', 
     prewarm() { for (const f of [0, 1, 2]) { aerowingPortrait(f, SWOOP.px, 'fit', SWOOP.shot); aerowingRidePortrait(f, RIDE_PX, G.gender); } },
     lines: () => [
-      Object.assign({}, NARR, { text: 'Right before impact, a winged creature snatches you out of the sky!', fx: c => { c.t = 0; } }),
-      { who: 'Winged Dachi', portrait: 'aerowing', text: 'Kyaaaaa!!' },
-      Object.assign({}, NARR, { text: 'It carries you up, up, over the jungle... to the top of the smoking volcano.' }),
+      Object.assign({}, NARR, { text: 'Right before impact, a winged creature snatches you out of the sky!', fx: c => { c.t = 0; }, sfx: 'swoop' }),
+      { who: 'Winged Dachi', portrait: 'aerowing', text: 'Kyaaaaa!!', sfx: 'screech' },
+      Object.assign({}, NARR, { text: 'It carries you up, up, over the jungle... to the top of the smoking volcano.', sfx: [['wingFlap', 0], ['wingFlap', 550], ['wingFlap', 1100], ['wingFlap', 1650]] }),
     ],
     draw(ctx, w, h, t, li) {
       drawIslandFromAbove(ctx, w, h, t, 2.2 + (li >= 2 ? t * 0.4 : 0));
@@ -281,9 +297,9 @@ export const SCENES = [
     mood: 'wonder', 
     prewarm() { for (const p of ['land', 'surprised', 'cheer']) kidFallFigure(G.gender, FIG_PX, p); castFigure('elder', G.gender, FIG_PX); VILLAGE_EXTRAS.forEach(([, , id, band]) => crowd(id, { bandage: band })); crowd(KUMABO, { bandage: true }); },
     lines: () => [
-      Object.assign({}, ELDER, { text: 'Down, Aerowing. Gently! ...So. Forty years I have been expecting you on this rock. I thought you would be taller.' }),
+      Object.assign({}, ELDER, { text: 'Down, Aerowing. Gently! ...So. Forty years I have been expecting you on this rock. I thought you would be taller.', sfx: 'landThud' }),
       Object.assign(KID(), { text: 'TALLER?! Where am I? What are you, some kind of robot monkey? I was on 34th Street! There was a hand—' }),
-      Object.assign({}, NARR, { text: 'Doors bang open. Creatures come out of the huts all around you - some limping, some carried. It is a village. On top of a volcano.' }),
+      Object.assign({}, NARR, { text: 'Doors bang open. Creatures come out of the huts all around you - some limping, some carried. It is a village. On top of a volcano.', sfx: 'doorsBang' }),
       Object.assign({}, NARR, { text: 'A tiny pink one limps toward you. Half teddy bear, half robot. Somebody tied the bandage over her ear in a hurry.' }),
       Object.assign(KID(), { text: "Hey. Hey, it's okay. Who did that to you? Did somebody do that?" }),
       { who: 'Kumabo', portrait: 'kumabo', text: '...Ku...ma... bo...' },

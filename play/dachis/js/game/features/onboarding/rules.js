@@ -66,6 +66,17 @@ export function lineSound(line, first) {
   const k = lineKind(line);
   return k === 'think' ? 'thinkIn' : k === 'narrate' ? 'narrateIn' : 'pencil';
 }
+
+
+
+export function voiceFor(line, kidName) {
+  if (!line) return 'voiceAdult';
+  if (lineKind(line) === 'think') return 'thought';
+  if (line.boss) return 'voiceBoss';
+  if (line.portrait === 'kid' || (kidName && line.who === kidName)) return 'voiceKid';
+  if (typeof line.portrait === 'number' || /^\d+$/.test(String(line.portrait || ''))) return 'voiceDachi';
+  return 'voiceAdult';
+}
 export function lineKind(line) {
   if (!line) return 'say';
   if (line.kind === 'say' || line.kind === 'think' || line.kind === 'narrate') return line.kind;
