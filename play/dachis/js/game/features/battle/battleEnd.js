@@ -2,7 +2,7 @@
 
 import { eggLine } from '../story/egg.js';
 import { G, S, saveGame, healParty, addDachi } from '../../state.js';
-import { speciesById, statsOf } from '../../data/species.js';
+import { speciesById, statsOf, capsFor } from '../../data/species.js';
 import { giveXp, xpReward, bondAfter, BOND_NEW_FRIEND, battleReport } from './rules.js';
 import { removeWild } from '../world/wilds.js';
 import { checkEvolutions } from '../party/evolution.js';
@@ -10,6 +10,8 @@ import { respawnPoint } from '../world/travel.js';
 import { lairOf, fallLine, lastWords } from '../world/lairs.js';
 import { patternOf } from './bossPattern.js';
 import { questEvent, bossStoneLines } from '../quest/questRuntime.js';
+import { xpRun, statGain, rollDrops } from './spoils.js';
+import { showSpoils } from './spoilsCard.js';
 
 export function onBattleFinished(b) {
   
@@ -23,14 +25,19 @@ export function onBattleFinished(b) {
       .catch(() => {});
   }
   if (b.opts.onEnd) { b.opts.onEnd(b.result, b); return; }
-  const res = b.result, enemy = b.enemy.d, wild = b.wild, msgs = [];
+  const res = b.result, enemy = b.enemy.d, wild = b.wild, msgs = [], rows = [];
+  let drops = [];
   if (res === 'win' || res === 'capture') {
     const gain = xpReward(enemy);
     for (const d of G.party) {
       if (d.hp <= 0 && d !== b.ally.d) continue;
-      const lv = giveXp(d, d === b.ally.d ? gain : Math.floor(gain / 2), G.cycle);
+      
+      const lvl0 = d.lvl, xp0 = d.xp, amt = d === b.ally.d ? gain : Math.floor(gain / 2), gains = [];
+      let st = statsOf(d);
+      const lv = giveXp(d, amt, G.cycle);
+      for (let L = lvl0 + 1; L <= d.lvl; L++) { const nx = statsOf({ ...d, lvl: L }); gains.push(statGain(st, nx)); st = nx; }
       d.bond = bondAfter(d, d === b.ally.d ? 3 : 1);   
-      if (lv) msgs.push(`${speciesById(d.sp).name} grew to level ${d.lvl}!`);
+      rows.push({ d, gain: amt, run: xpRun(lvl0, xp0, d.lvl, d.xp, capsFor(G.cycle).maxLevel), gains, lv });
     }
     if (res === 'capture') {
       const es = speciesById(enemy.sp);
@@ -53,7 +60,9 @@ export function onBattleFinished(b) {
       msgs.push({ text: eggLine(G.flags.egg) });
     }
     if (res === 'win') msgs.push(...questEvent({ kind: 'beat', boss: b.boss || null, sp: enemy.sp }));
-    if (Math.random() < 0.25) { G.items.tonic++; msgs.push('Found a Berry Tonic!'); }
+    drops = rollDrops(Math.random, { boss: !!(b.boss && res === 'win') }); 
+    for (const { item, n } of drops) G.items[item] = (G.items[item] || 0) + n;
+    rows.sort((p, q) => (q.d === b.ally.d) - (p.d === b.ally.d)); 
     removeWild(wild);
   } else if (res === 'lose') {
     msgs.push('Your companions are exhausted... You carry them back to the nearest hot spring.');
@@ -70,6 +79,8 @@ export function onBattleFinished(b) {
     healParty();
   } else if (res === 'run') wild.stun = 3;
   saveGame();
+  const lines = () => { if (msgs.length) S.dialog.say(msgs.map(m => (typeof m === 'string' ? { text: m } : m)), () => checkEvolutions()); else checkEvolutions(); };
+  if (rows.length || drops.length) { showSpoils({ rows, drops, title: res === 'capture' ? 'NEW FRIEND!' : b.boss ? 'BOSS DOWN!' : 'VICTORY!' }, lines); return; }
   if (msgs.length) S.dialog.say(msgs.map(m => (typeof m === 'string' ? { text: m } : m)), () => checkEvolutions());
   else checkEvolutions();
 }

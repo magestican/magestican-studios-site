@@ -33,7 +33,7 @@ export function mirrorNear(x, y) {
 export function turnMirror(m) {
   const L = lightOf(); if (!L) return;
   L.flags[m.id] = 1 - mirrorState(m, L.flags);
-  S.sfx.play('tellClick');
+  S.sfx.play('mirrorTurn'); 
   const tr = traces(L);
   L.halls.forEach((h, k) => {
     if (L.open[h.room] || !tr[k].lit) return;

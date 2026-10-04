@@ -268,7 +268,8 @@ S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.
 
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: { ...SOUNDS, opener: SOUNDS.start, bossOpener: SOUNDS.start } });
 
-for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
+
+for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch', 'xpFill', 'levelUp', 'itemPop', 'mirrorTurn', 'raftPole']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
 
 
 

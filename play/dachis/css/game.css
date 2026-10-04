@@ -669,3 +669,51 @@ body[data-gust^='gust']::before { opacity: 0.85; animation-duration: 0.22s; }
 body[data-gust$='-l']::before { animation-name: gustL; }
 @keyframes gustR { from { transform: translateX(-230px); } to { transform: translateX(0); } }
 @keyframes gustL { from { transform: translateX(0); } to { transform: translateX(-230px); } }
+
+#spoilsCard { position: fixed; inset: 0; z-index: 57; display: flex; align-items: center; justify-content: center; background: rgba(20, 10, 38, .42); }
+#spoilsCard.hidden { display: none; }
+#spoilsCard .spBox { position: relative; width: min(360px, 90vw); padding: 26px 12px 10px; border: 4px solid var(--ink); border-radius: 8px; background: #fff;
+  box-shadow: 8px 9px 0 var(--ink); transform: rotate(-1deg); animation: spIn .28s cubic-bezier(.2,1.4,.4,1); color: var(--ink); }
+@keyframes spIn { from { transform: rotate(-1deg) scale(.5) translateY(30px); opacity: 0; } to { transform: rotate(-1deg) scale(1); opacity: 1; } }
+#spoilsCard .spTag { position: absolute; left: 50%; top: -24px; transform: translateX(-50%) rotate(-3deg); padding: 2px 14px; border: 4px solid var(--ink);
+  background: var(--yellow); font: 400 26px/1.15 var(--bang); letter-spacing: 1px; white-space: nowrap; box-shadow: 4px 4px 0 var(--pink); }
+#spoilsCard .spRows { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+#spoilsCard .spRow { position: relative; display: grid; grid-template-columns: 56px 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border: 3px solid var(--ink);
+  border-radius: 6px; background: #f3efff; box-shadow: 3px 3px 0 var(--ink); }
+#spoilsCard .spPic { position: relative; width: 52px; height: 52px; }
+#spoilsCard .spPic canvas { position: relative; width: 52px; height: 52px; z-index: 1; }
+#spoilsCard .spBurst { position: absolute; left: 50%; top: 50%; width: 110px; height: 110px; margin: -55px 0 0 -55px; border-radius: 50%; opacity: 0;
+  background: repeating-conic-gradient(#ffd23a 0 12deg, rgba(255,210,58,0) 12deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%); mask: radial-gradient(circle, #000 30%, transparent 70%); }
+#spoilsCard .spName { font: 400 18px/1.25 var(--marker); overflow-wrap: anywhere; }
+#spoilsCard .spLv { display: inline-block; font: 700 13px var(--body); color: #c48a00; }
+#spoilsCard .spBar { height: 11px; margin-top: 3px; border: 3px solid var(--ink); border-radius: 3px; background: #2b1a4a; overflow: hidden; }
+#spoilsCard .spBar b { display: block; height: 100%; width: 0; background: linear-gradient(#9ff0ff, #3aa8ff); box-shadow: inset 0 2px 0 rgba(255,255,255,.55); }
+#spoilsCard .spXp { font: 700 15px var(--body); color: #3a6ad8; white-space: nowrap; }
+#spoilsCard .spGrow { display: flex; flex-wrap: wrap; gap: 3px; }
+#spoilsCard .spGrow i { font: 700 11px/1.3 var(--body); font-style: normal; padding: 0 5px; margin-top: 3px; border-radius: 8px; background: #2fbf4f; color: #fff;
+  animation: spChip .35s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes spChip { from { transform: scale(0) translateY(6px); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+#spoilsCard .spUp { position: absolute; right: 6px; top: -14px; padding: 0 8px; border: 3px solid var(--ink); background: #ff4a6a; color: #fff;
+  font: 400 16px/1.3 var(--bang); letter-spacing: 1px; transform: rotate(4deg) scale(0); opacity: 0; z-index: 2; white-space: nowrap; }
+#spoilsCard .spRow.up { animation: spFlash .7s ease-out; background: #fff6c8; }
+#spoilsCard .spRow.up .spUp { animation: spStamp .45s cubic-bezier(.2,1.8,.4,1) forwards; }
+#spoilsCard .spRow.up .spBurst { animation: spRays 1.4s ease-out forwards; }
+#spoilsCard .spRow.up .spLv { animation: spLvPop .5s cubic-bezier(.2,2,.4,1); color: #e0306a; }
+#spoilsCard .spRow.up .spBar b { background: linear-gradient(#fff1a0, #ffb020); }
+#spoilsCard .spRow.max .spBar b { background: linear-gradient(#ffe7ff, #d070ff); }
+@keyframes spFlash { 0% { box-shadow: 0 0 0 0 #ffd23a, 3px 3px 0 var(--ink); } 30% { box-shadow: 0 0 0 7px #ffd23a, 3px 3px 0 var(--ink); }
+  100% { box-shadow: 0 0 0 0 rgba(255,210,58,0), 3px 3px 0 var(--ink); } }
+@keyframes spStamp { from { transform: rotate(-14deg) scale(2.4); opacity: 0; } to { transform: rotate(4deg) scale(1); opacity: 1; } }
+@keyframes spRays { 0% { opacity: 0; transform: scale(.3) rotate(0); } 25% { opacity: 1; } 100% { opacity: .55; transform: scale(1) rotate(120deg); } }
+@keyframes spLvPop { 0% { transform: scale(1); } 40% { transform: scale(1.8); } 100% { transform: scale(1); } }
+#spoilsCard .spDrops { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 3px dashed #c8bce0; }
+#spoilsCard .spDl { font: 700 12px var(--body); text-transform: uppercase; letter-spacing: 1px; color: #5a4a6a; }
+#spoilsCard .spItem { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 4px; border: 3px solid var(--ink); border-radius: 14px; background: #fff7c4;
+  font: 700 13px var(--body); transform: scale(0); opacity: 0; }
+#spoilsCard .spItem .ic { width: 20px; height: 20px; color: #ff8a2a; }
+#spoilsCard .spItem b { color: #c48a00; }
+#spoilsCard .spItem.in { animation: spChip .4s cubic-bezier(.2,1.8,.4,1) forwards; }
+#spoilsCard .spHint { margin-top: 8px; text-align: right; font: 400 13px var(--marker); color: #8a7a9a; opacity: 0; transition: opacity .3s; }
+#spoilsCard.over .spHint { opacity: 1; animation: spNudge 1.2s ease-in-out infinite; }
+@keyframes spNudge { 50% { transform: translateX(-4px); } }

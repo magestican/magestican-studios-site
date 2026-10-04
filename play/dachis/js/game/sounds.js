@@ -56,4 +56,7 @@ export const SOUNDS = {
   tellFists: (k) => SOUNDS.guard(k),
   tellClick: (k) => SOUNDS.blip(k),
   lanternCatch: (k) => SOUNDS.pickup(k),
+  
+  xpFill: (k) => SOUNDS.blip(k), levelUp: (k) => SOUNDS.evolve(k), itemPop: (k) => SOUNDS.pickup(k),
+  mirrorTurn: (k) => SOUNDS.blip(k), raftPole: (k) => SOUNDS.blip(k),
 };

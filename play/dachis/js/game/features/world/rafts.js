@@ -32,7 +32,7 @@ export function startRide(d) {
   const { r, pts, water } = pathOf(R, d), segs = [];
   let len = 0; for (let k = 1; k < pts.length; k++) { const L = Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]); segs.push(L); len += L; }
   G.ride = { raft: r.id, from: d.end, pts, segs, len, water, s: 0 };
-  S.sfx.play('swoop');
+  S.sfx.play('raftPole'); 
   if (!G.flags.rafted) { G.flags.rafted = true; toast('You push off. The water is so still the raft hardly ripples.', 2400); }
 }
 
