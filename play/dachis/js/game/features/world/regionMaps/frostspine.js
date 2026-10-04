@@ -42,6 +42,7 @@ export const ENTRY = at(-10.0, 30.6);
 export const LANDING = ENTRY;
 export const SPRING = at(-13.0, 33.2);  
 export const EXIT = at(12.0, 89.0);     
+export const BACK = at(12.0, 87.2);     
 
 
 

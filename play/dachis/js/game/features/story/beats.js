@@ -101,6 +101,17 @@ const REGION_BEATS = {
     L(NARR, 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'),
     L(KID, '(My Walkman light. Okay. It is a very small light.)'),
   ],
+  'glacier-field': [
+    L(NARR, 'Past the pass the snow gives way to a field of glare ice, polished by the wind until it shows the sky. Boulders and old cut blocks stand frozen in it.'),
+    L(KID, '(Ice. Okay. I did a whole winter at Wollman Rink. ...I fell down a whole winter at Wollman Rink.)'),
+  ],
+  'aurora-hollow': [
+    L(NARR, 'The hollow lies in the summit\'s shadow. The snow is deep enough to swallow a kid to the waist, except where something big has trodden a track.'),
+    L(KID, '(Stay on the track. Stay on the track. Whatever made the track, do NOT meet it.)'),
+  ],
+  'steam-vents': [
+    L(NARR, 'Steam rolls out of cracks in the rock, and the snow around them has given up. Fire-kind dachis lie curled in the warm mud, one eye open.'),
+  ],
   'frost-camp': [
     L(NARR, 'Aerowing sets you down on snow so bright it hurts. Below lies a frozen lake, and a camp of huts standing over the ice on long legs, like wading birds.'),
     L(KID, '(Snow. Real snow. ...In a T-shirt. Great. Perfect. I cannot feel my ears.)'),

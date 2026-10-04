@@ -8,6 +8,35 @@ import { FOLLOW, BODY_R } from './crowd.js';
 import { stepSound } from './mapgen.js';
 import { toast } from '../../../engine/ui/dialog.js';
 import { stepTo, deckLift } from './deckRules.js';
+import { slideFrom, snapDir } from './slide.js';
+import { toUV, fromUV } from './sections.js';
+
+
+
+
+export const SLIDE_SPEED = 8;
+function onIce(W, p, dt, push) {
+  const F = W.slide, [u, v] = toUV(p.x, p.y);
+  if (p.slide) {
+    const [tx, ty] = p.slide.to, d = Math.hypot(tx - p.x, ty - p.y), step = SLIDE_SPEED * dt;
+    if (d <= step) { p.x = tx; p.y = ty; p.slide = null; S.sfx.play('landThud'); } else { p.x += (tx - p.x) / d * step; p.y += (ty - p.y) / d * step; }
+    return true;
+  }
+  const c = Math.floor((u - F.u0) / F.cell), r = Math.floor((v - F.v0) / F.cell);
+  const k = r < 0 || r >= F.grid.length || c < 0 || c >= F.grid[0].length ? null : F.grid[r][c];
+  if (k !== '.' && k !== '#') return false; 
+  if (!push) return true;
+  const [du, dv] = snapDir(push[0], push[1]), end = slideFrom(F.grid, c, r, du, dv);
+  const cu = F.u0 + (end.c + 0.5) * F.cell, cv = end.off === 'north' ? F.v0 + F.grid.length * F.cell + 1.2 : end.off === 'south' ? F.v0 - 1.2 : F.v0 + (end.r + 0.5) * F.cell;
+  
+  const su = du ? u : F.u0 + (c + 0.5) * F.cell, sv = dv ? v : F.v0 + (r + 0.5) * F.cell;
+  [p.x, p.y] = fromUV(su, sv);
+  const to = fromUV(du ? cu : su, dv ? cv : sv);
+  if (Math.hypot(to[0] - p.x, to[1] - p.y) < 0.05) return true; 
+  p.slide = { to };
+  S.sfx.play('swoop');
+  return true;
+}
 
 let kid = null, pet = null, petSp = 0;
 
@@ -22,11 +51,16 @@ export function updatePlayer(dt, canMove) {
   const go = (who, x, y, r) => (W.decks ? stepTo(W, who, x, y, r, G.flags) : W.walkable(x, y, r));
   const a = canMove ? S.input.axis() : { x: 0, y: 0, mag: 0 };
   p.moving = a.mag > 0.12;
+  if (W.slide) {
+    let push = null;
+    if (p.moving) { const [wx, wy] = S.stage.screenDirToWorld(a.x, a.y); push = [wx - wy, wx + wy]; }
+    if (canMove && onIce(W, p, dt, push)) p.moving = false; else if (p.slide) p.slide = null;
+  } else p.slide = null;
   if (p.moving) {
     p.vx = a.x; p.vy = a.y;
     const [wx, wy] = S.stage.screenDirToWorld(a.x, a.y);
     const run = S.input.down('run') || a.mag > 0.92 && S.input.mode !== 'keys';
-    const speed = (run ? 5.4 : 3.3) * Math.max(0.35, a.mag) * dt;
+    const speed = (run ? 5.4 : 3.3) * Math.max(0.35, a.mag) * dt * (W.slowAt ? W.slowAt(p.x, p.y) : 1); 
     const nx = p.x + wx * speed, ny = p.y + wy * speed;
     if (go(p, nx, p.y, BODY_R.kid)) p.x = nx;
     if (go(p, p.x, ny, BODY_R.kid)) p.y = ny;
