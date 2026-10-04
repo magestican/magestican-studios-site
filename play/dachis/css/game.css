@@ -519,6 +519,11 @@ body:has(#ritual:not(.hidden)) #tonicBtn, body:has(#ritual:not(.hidden)) #swapBt
   
   #toasts { top: 198px; width: calc(100vw - 16px); }
   .toast { text-align: center; }
+  
+
+  body.input-keys #stances, body.input-pad #stances { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; width: 100%; }
+  body.input-keys .stance, body.input-pad .stance { padding: 12px 4px 4px; font-size: 12px; text-align: center; white-space: nowrap; }
+  body.input-keys .stance::after, body.input-pad .stance::after { top: -10px; right: -4px; transform: scale(.8); }
 }
 @media (min-width: 761px) and (max-width: 1060px) and (min-height: 521px) {
   
@@ -563,6 +568,14 @@ body.input-touch #ringHint b { font: 400 13px var(--marker); color: #d61f7a; tex
 i.edge-adv { box-shadow: 0 0 0 2px #fff, 0 0 7px 3px #3dff7a; }
 i.edge-weak { box-shadow: 0 0 0 2px #fff, 0 0 7px 3px #ff3a4a; }
 i.edge-even { box-shadow: 0 0 0 2px #fff, 0 0 6px 2px rgba(255,255,255,.95); }
+
+.shinyMark { display: inline-block; margin-left: 3px; vertical-align: -1px; }
+.shinyMark .ic { width: 1.2em; height: 1.2em; }
+.shinyMark.white { color: #ffffff; } .shinyMark.gold { color: #ffcc22; }
+.shinyMark.gold .ic { filter: drop-shadow(0 0 3px #ffd84a); } .shinyMark.white .ic { filter: drop-shadow(0 0 3px #cfe6ff); }
+canvas.shinySprite.white { filter: grayscale(1) brightness(2.1) contrast(.85); }
+.cn .shinyMark { margin-left: 0; } .cn .shinyMark .ic { width: .8em; height: .8em; } 
+canvas.shinySprite.gold { filter: sepia(1) saturate(3.2) hue-rotate(-12deg) brightness(1.12); }
 
 #pickCard { position: fixed; inset: 0; z-index: 56; display: flex; align-items: center; justify-content: center; background: rgba(20, 10, 38, .5); }
 #pickCard.hidden { display: none; }

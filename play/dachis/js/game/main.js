@@ -7,7 +7,7 @@ import { createHints } from '../engine/ui/hints.js';
 import { createDialog, toast } from '../engine/ui/dialog.js';
 import { hydrateIcons } from '../engine/ui/icons.js';
 import { createSfx } from '../engine/audio/sfx.js';
-import { G, S, hasSave, loadGame, saveGame, healParty } from './state.js';
+import { G, S, hasSave, loadGame, saveGame, healParty, savedBox } from './state.js';
 import { SOUNDS } from './sounds.js';
 import { music } from './music.js';
 import { ambience } from './ambience.js';
@@ -61,6 +61,7 @@ import { tr, onLangChange } from './i18n/i18n.js';
 import { mountLangPicker } from './features/menu/langPicker.js';
 import { startFreshBuild } from './freshBuild.js';
 import { pickCompanion } from './features/battle/pickCard.js';
+import { shinyWarning } from './features/menu/menu.js';
 
 const $ = id => document.getElementById(id);
 
@@ -360,7 +361,7 @@ window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: mu
 installPerchMenu();
 
 { const cheat = parseCheat(location.search); if (cheat) Promise.all([import('./state.js'), import('./data/species.js'), import('./features/battle/battle.js'), import('./features/world/sections.js')])
-  .then(([st, sp, bt, sc]) => applyCheat(cheat, { G, S, loadRegion, addDachi: st.addDachi, makeDachi: sp.makeDachi, healParty, startBossBattle: bt.startBossBattle, sectionById: sc.sectionById, fromUV: sc.fromUV, regionById, toast })); }
+  .then(([st, sp, bt, sc]) => applyCheat(cheat, { G, S, loadRegion, addDachi: st.addDachi, makeDachi: sp.makeDachi, statsOf: sp.statsOf, healParty, startBossBattle: bt.startBossBattle, sectionById: sc.sectionById, fromUV: sc.fromUV, regionById, toast })); }
 
 
 $('touchZone').addEventListener('pointerdown', e => {
@@ -403,6 +404,7 @@ function playIntro(start) {
 }
 $('newBtn').onclick = () => {
   if (hasSave() && !confirm('Start a new game? Your current save will be replaced.')) return;
+  if (hasSave()) { const warn = shinyWarning(savedBox()); if (warn && !confirm(warn)) return; } 
   G.name = ($('nameInput').value.trim() || $('nameInput').placeholder || 'Ace').slice(0, 14);
   G.clock = newClock(); 
   startWithWipe($('newBtn'), () => { intro.clear(); leaveTitle(); playIntro(null); });

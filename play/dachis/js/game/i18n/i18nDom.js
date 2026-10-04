@@ -39,6 +39,14 @@ function walk(root) {
   for (let n = it.nextNode(); n; n = it.nextNode()) { if (n.nodeType === 3) doText(n); else doAttrs(n); }
 }
 
+
+
+function patchDialogs() {
+  for (const f of ['confirm', 'alert']) {
+    const was = window[f];
+    window[f] = (msg) => was.call(window, getLang() === 'en' ? msg : tr(String(msg)));
+  }
+}
 function patchCanvas() {
   const P = CanvasRenderingContext2D.prototype;
   for (const f of ['fillText', 'strokeText', 'measureText']) {
@@ -60,7 +68,7 @@ export function startI18n() {
   const qs = new URLSearchParams(location.search), q = qs.get('lang'); 
   if (qs.has('i18nMiss')) window.__i18nMiss = new Set(); 
   setLang(q || pickInitial(stored, navigator.languages || [navigator.language]), { save: !!q });
-  patchCanvas();
+  patchCanvas(); patchDialogs();
   cssWords();
   walk(document.body);
   new MutationObserver((ms) => {

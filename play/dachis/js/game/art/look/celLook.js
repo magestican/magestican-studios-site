@@ -51,7 +51,7 @@ function celFrom(src) {
   m.name = 'cel:' + (src.name || info.role || '');
   const cast = info.role === 'cast';
   const sat = { value: R.SAT[cast ? 'cast' : 'scenery'] }, spec = { value: R.SPEC[cast ? 'cast' : 'scenery'] };
-  const head = (info.glow ? '#define CEL_GLOW\n' : '') + '#define CEL_CORRUPT ' + (info.corrupt || 0) + '\n';
+  const head = (info.glow ? '#define CEL_GLOW\n' : '') + '#define CEL_CORRUPT ' + (info.corrupt || 0) + '\n' + (info.shiny ? '#define CEL_SHINY ' + info.shiny + '\n' : '');
   m.userData = { cel: true, look: info, pose };
   m.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, celUniforms, { uCelSat: sat, uCelSpec: spec }, pose ? pose.uniforms : {});
@@ -63,7 +63,7 @@ function celFrom(src) {
       .replace('#include <common>', '#include <common>\n' + CEL_PARS_F)
       .replace('#include <opaque_fragment>', CEL_MAIN_F + '#include <opaque_fragment>');
   };
-  const key = 'cel' + (info.glow ? 'G' : '') + (info.corrupt || 0) + (pose ? 'P' : '');
+  const key = 'cel' + (info.glow ? 'G' : '') + (info.corrupt || 0) + (info.shiny ? 'S' + info.shiny : '') + (pose ? 'P' : '');
   m.customProgramCacheKey = () => key;
   celCache.set(src, m);
   return m;

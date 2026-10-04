@@ -70,6 +70,19 @@ vec3 celShade( vec3 base ) {
 }
 `;
 export const CEL_MAIN_F =  `
+#if defined( CEL_SHINY )
+{
+  float shL = dot( diffuseColor.rgb, vec3( 0.299, 0.587, 0.114 ) );
+  if ( shL > 0.1 && shL < 0.93 ) {
+    float shK = smoothstep( 0.08, 0.85, shL );
+#if CEL_SHINY == 2
+    diffuseColor.rgb = mix( vec3( 0.78, 0.48, 0.06 ), vec3( 1.0, 0.9, 0.38 ), shK );
+#else
+    diffuseColor.rgb = mix( vec3( 0.74, 0.78, 0.9 ), vec3( 1.0 ), shK );
+#endif
+  }
+}
+#endif
 outgoingLight = celShade( diffuseColor.rgb );
 `;
 

@@ -196,7 +196,7 @@ export function material(variant, id, tint) {
     : cozy('fur', { map: TEX.fur });
   
   const mode = castMode(variant, id);
-  m.userData.look = { role: 'cast', ...mode, hull: !mode.glow };
+  m.userData.look = { role: 'cast', ...mode, hull: !mode.glow, shiny: !mode.glow && variant === 'w' ? 1 : !mode.glow && variant === 'g' ? 2 : 0 };
   MATS.set(key, m);
   return m;
 }
@@ -275,7 +275,8 @@ export class DachiActor {
   setLook(spId, opts = {}) {
     this.targetSide = opts.flip ? -1 : 1;
     
-    const boss = speciesById(spId).boss, variant = boss && !opts.calm ? 'b' : opts.corrupt ? 'c' : 'n', key = modelKeyOf(spId, opts) + variant;
+    
+    const boss = speciesById(spId).boss, variant = boss && !opts.calm ? 'b' : opts.corrupt ? 'c' : opts.shiny === 'gold' ? 'g' : opts.shiny ? 'w' : 'n', key = modelKeyOf(spId, opts) + variant;
     if (key === this.key) return;
     const sp = speciesById(spId);
     this.key = key; this.variant = variant; this.stage = sp.stage; this.bossScale = boss ? bossById(boss).scale : 0;

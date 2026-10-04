@@ -34,8 +34,8 @@ export function parseCheat(search) {
     if (key === 'chapter') c.chapter = Math.max(1, Math.min(8, Number(val) || 1));
     else if (key === 'at') { const [region, section] = val.split(':'); c.at = { region, section: section || null }; }
     else if (key === 'party') for (const m of val.split(',')) {
-      const [name, lvl] = m.split('@'), s = findSpecies(name);
-      if (s) c.party.push({ sp: s.id, lvl: Math.max(1, Math.min(99, Number(lvl) || 5)) }); else c.errors.push('no dachi "' + name + '"');
+      const [who, coat] = m.split('*'), [name, lvl] = who.split('@'), s = findSpecies(name); 
+      if (s) c.party.push({ sp: s.id, lvl: Math.max(1, Math.min(99, Number(lvl) || 5)), ...(coat === 'gold' || coat === 'white' ? { shiny: coat } : {}) }); else c.errors.push('no dachi "' + name + '"');
     }
     else if (key === 'boss') { if (BOSSES.some((b) => b.id === val)) c.boss = val; else c.errors.push('no boss "' + val + '"'); }
     else if (key === 'items') c.items = Math.max(0, Number(val) || 0);
@@ -54,7 +54,7 @@ export async function applyCheat(c, d) {
   for (const id of ['title', 'attract']) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
   const hud = document.getElementById('hud'); if (hud) hud.classList.remove('hidden');
   G.mode = 'world';
-  if (c.party.length) { G.party.length = 0; G.box.length = 0; for (const p of c.party) d.addDachi(d.makeDachi(p.sp, p.lvl)); }
+  if (c.party.length) { G.party.length = 0; G.box.length = 0; for (const p of c.party) { const x = d.makeDachi(p.sp, p.lvl); if (p.shiny) { x.shiny = p.shiny; x.hp = d.statsOf ? d.statsOf(x).maxHp : x.hp; } d.addDachi(x); } }
   else if (!G.party.length) d.addDachi(d.makeDachi(202, 12));
   if (c.items !== null) for (const k of Object.keys(G.items)) G.items[k] = c.items;
   d.healParty();

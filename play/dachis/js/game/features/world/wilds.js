@@ -4,7 +4,7 @@ import { U } from '../../../engine/core/util.js';
 import { G, S, caughtCount } from '../../state.js';
 import { VOLC, npcStepClear } from './mapgen.js';
 import { CHAR_SCALE, GAP, BODY_R } from './crowd.js';
-import { makeDachi, speciesById, capsFor, wildFamiliesOf } from '../../data/species.js';
+import { makeDachi, speciesById, capsFor, wildFamiliesOf, rollShiny, statsOf } from '../../data/species.js';
 import { sectionById } from './sections.js';
 import { wildLevel } from './wildLevel.js';
 import { dachiBillboard, setDachiLook } from '../../art/billboards.js';
@@ -57,6 +57,7 @@ export function spawnWild(near = null, minD = 7, where = null) {
     const stage = lvl > 9 && Math.random() < 0.15 ? 2 : lvl > 30 && Math.random() < 0.1 ? 3 : 1;
     const d = makeDachi(fam * 3 + stage, lvl);
     if (Math.random() < U.clamp((far - 15) / 90, 0.05, 0.35)) d.corrupt = true;
+    d.shiny = rollShiny(Math.random()) || undefined; if (d.shiny) { d.corrupt = false; d.hp = statsOf(d).maxHp; } 
     const w = { x, y, d, home: { x, y }, tx: x, ty: y, wait: Math.random() * 2, face: 1, walk: 0, stun: 0, chase: false };
     w.bb = dachiBillboard(S.stage.scene, speciesById(d.sp).stage);
     G.wilds.push(w);
@@ -127,7 +128,7 @@ export function drawWilds(t, hideWild = null) {
   const W = S.W;
   for (const w of G.wilds) {
     w.bb.setVisible(typeof hideWild === 'function' ? !hideWild(w) : w !== hideWild);   
-    setDachiLook(w.bb, w.d.sp, { corrupt: w.d.corrupt, flip: w.face < 0 });
+    setDachiLook(w.bb, w.d.sp, { corrupt: w.d.corrupt, shiny: w.d.shiny, flip: w.face < 0 });
     const bob = w.moving ? Math.abs(Math.sin(w.walk)) * 0.12 : Math.sin(t * 3 + w.x) * 0.02;
     w.bb.place(w.x, w.y, W.groundAt(w.x, w.y), bob);
   }

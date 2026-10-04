@@ -53,6 +53,8 @@ export function saveGame() {
     box: G.box, party: G.party.map(d => d.uid), items: G.items, dex: G.dex, flags: G.flags, clock: G.clock, region: G.region,
   });
 }
+
+export function savedBox() { const s = slot.load(); return (s && s.box) || []; }
 export function loadGame() {
   const s = slot.load();
   if (!s) return false;

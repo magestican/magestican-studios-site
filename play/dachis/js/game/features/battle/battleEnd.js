@@ -38,6 +38,7 @@ export function onBattleFinished(b) {
       enemy.hp = statsOf(enemy).maxHp;   
       delete enemy.maxHpOverride;
       enemy.bond = BOND_NEW_FRIEND;        
+      if (enemy.shiny) msgs.push(enemy.shiny === 'gold' ? `A GOLD ${es.name}! One in five hundred - and stronger than any other.` : `A WHITE ${es.name}! One in a hundred - and stronger than the rest.`);
       const joined = addDachi(enemy);
       msgs.push(joined ? `${es.name} joined your companions!` : `${es.name} went to your Dachi Den. (Friends: ${G.box.length})`);
       msgs.push(...questEvent({ kind: 'befriend', sp: enemy.sp, types: es.types })); 

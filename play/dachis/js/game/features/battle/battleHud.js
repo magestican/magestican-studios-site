@@ -8,6 +8,7 @@ import { icon } from '../../../engine/ui/icons.js';
 import { speciesById, statsOf, TYPES, ATTR_COLOR, attrOf } from '../../data/species.js';
 import { B, orderSpecial, orderStance, orderFinisher, orderParry, parryReady, finisherReady, startRitual, useTonic, cycleSwap, tryRun, canRitual } from './battle.js';
 import { KIND_LABEL } from './techniques.js';
+import { shinyTag } from '../../art/shinyMark.js';
 import { hpFraction, CAPTURE_HP, maxMp, mpCost, finisherOf, bondOf, typeEdge } from './rules.js';
 
 const $ = id => document.getElementById(id);
@@ -60,14 +61,14 @@ export function updateBattleHud() {
   wire();
   liftUtilityRow();
   const e = B.enemy, es = speciesById(e.d.sp), f = hpFraction(e.d);
-  const nameHtml = `${e.d.corrupt ? '<span class="corrupt">CORRUPTED</span> ' : ''}${es.name} <span class="lv">Lv ${e.d.lvl}</span> ${attrBadge(attrOf(e.d))} ${typeChips(es.types)} ${G.dex.caught[es.id] ? '<span class="owned" title="Already befriended">' + icon('heart') + '</span>' : ''} <span class="rarity r-${es.rarity}">${es.rarity}</span>`;
+  const nameHtml = `${e.d.corrupt ? '<span class="corrupt">CORRUPTED</span> ' : ''}${es.name}${shinyTag(e.d)} <span class="lv">Lv ${e.d.lvl}</span> ${attrBadge(attrOf(e.d))} ${typeChips(es.types)} ${G.dex.caught[es.id] ? '<span class="owned" title="Already befriended">' + icon('heart') + '</span>' : ''} <span class="rarity r-${es.rarity}">${es.rarity}</span>`;
   if ($('enemyName').dataset.h !== nameHtml) { $('enemyName').innerHTML = nameHtml; $('enemyName').dataset.h = nameHtml; }
   bars(e, 'enemy');
   const low = f < CAPTURE_HP && e.d.hp > 0 && !B.script;
   $('capTag').classList.toggle('hidden', !low || !!B.ritual);
   const a = B.ally, s = speciesById(a.d.sp);
   const bond = bondOf(a.d);
-  const allyHtml = `${s.name} <span class="lv">Lv ${a.d.lvl}</span> ${attrBadge(attrOf(a.d))} <span class="myTypes">${typeChips(s.types, es.types)}</span> <span class="bond${bond < 50 ? ' low' : ''}" title="Bond: below 50 it may hesitate on your orders">${icon('heart')} ${bond}</span>`;
+  const allyHtml = `${s.name}${shinyTag(a.d)} <span class="lv">Lv ${a.d.lvl}</span> ${attrBadge(attrOf(a.d))} <span class="myTypes">${typeChips(s.types, es.types)}</span> <span class="bond${bond < 50 ? ' low' : ''}" title="Bond: below 50 it may hesitate on your orders">${icon('heart')} ${bond}</span>`;
   if ($('allyName').dataset.h !== allyHtml) { $('allyName').innerHTML = allyHtml; $('allyName').dataset.h = allyHtml; }
   bars(a, 'ally');
   const key = a.d.uid + ':' + a.d.sp;

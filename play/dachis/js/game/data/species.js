@@ -491,16 +491,24 @@ export const KUMABO = 211;
 export const STORY_ATTR = { 201: 'vaccine', 202: 'virus', 205: 'program', 208: 'vaccine', 211: 'program' };
 for (const s of EXTRA) s.attribute = STORY_ATTR[s.fam - 100];
 
+
+
+
+
+export const SHINY = { white: { odds: 1 / 100, stat: 1.15 }, gold: { odds: 1 / 500, stat: 1.3 } };
+export const rollShiny = (r) => (r < SHINY.gold.odds ? 'gold' : r < SHINY.gold.odds + SHINY.white.odds ? 'white' : null);
+export const shinyMul = (d) => (d && SHINY[d.shiny] ? SHINY[d.shiny].stat : 1);
 export function statsOf(d) {
-  const s = speciesById(d.sp), L = d.lvl;
+  const s = speciesById(d.sp), L = d.lvl, k = shinyMul(d);
   return {
     
-    maxHp: d.maxHpOverride || Math.floor((Math.floor(s.base.hp * 2 * L / 100) + L * 2 + 30) * (s.hpMul || 1)), 
-    atk: Math.floor(s.base.atk * 2 * L / 100) + 5,
-    def: Math.floor(s.base.def * 2 * L / 100) + 5,
-    spd: Math.floor(s.base.spd * 2 * L / 100) + 5,
+    maxHp: d.maxHpOverride || Math.floor((Math.floor(s.base.hp * 2 * L / 100) + L * 2 + 30) * (s.hpMul || 1) * k), 
+    atk: Math.floor((Math.floor(s.base.atk * 2 * L / 100) + 5) * k),
+    def: Math.floor((Math.floor(s.base.def * 2 * L / 100) + 5) * k),
+    spd: Math.floor((Math.floor(s.base.spd * 2 * L / 100) + 5) * k),
   };
 }
+
 
 let UID_SEQ = 1;
 export function makeDachi(sp, lvl) {

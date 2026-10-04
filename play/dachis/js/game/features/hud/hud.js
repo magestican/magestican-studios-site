@@ -5,6 +5,8 @@ import { G, S, objective } from '../../state.js';
 import { speciesById, statsOf, TYPES, capsFor, attrOf } from '../../data/species.js';
 import { xpToNext } from '../battle/rules.js';
 import { dachiCanvas } from '../../art/portraitRender.js';
+import { shinyTag, shinySprite } from '../../art/shinyMark.js';
+
 import { hpColor, attrBadge } from '../battle/battleHud.js';
 import { T, locationName } from '../world/mapgen.js';
 import { MINI, miniXY, transitPlan } from './transit.js';
@@ -176,9 +178,9 @@ function companions() {
     if (d) {
       const s = speciesById(d.sp), st = statsOf(d);
       const cv = dachiCanvas(d.sp, {}, 48); 
-      card.appendChild(cv);
+      card.appendChild(shinySprite(cv, d));
       const info = document.createElement('div'); info.className = 'ci';
-      info.innerHTML = `<div class="cn">${s.name} <span class="lv">Lv ${d.lvl}</span></div>
+      info.innerHTML = `<div class="cn">${s.name}${shinyTag(d)} <span class="lv">Lv ${d.lvl}</span></div>
         <div class="types">${attrBadge(attrOf(d))}${s.types.map(t => `<i style="background:${TYPES[t]}">${t}</i>`).join('')}</div>
         <div class="bar hp"><b style="width:${100 * d.hp / st.maxHp}%;background:${hpColor(d.hp / st.maxHp)}"></b><span>${d.hp}/${st.maxHp}</span></div>
         <div class="bar xp"><b style="width:${d.lvl >= capsFor(G.cycle).maxLevel ? 100 : 100 * d.xp / xpToNext(d.lvl)}%"></b></div>`;

@@ -5,12 +5,15 @@ import { toast } from '../../../engine/ui/dialog.js';
 import { icon } from '../../../engine/ui/icons.js';
 import { mountSoundToggle } from '../../../vendor/arbelo/ui/muteButton.js';
 import { mountLangPicker } from './langPicker.js';
+import { tr } from '../../i18n/i18n.js';
 import { G, S, saveGame, deleteSave } from '../../state.js';
 import { SPECIES, speciesById, statsOf, TYPES, capsFor, attrOf } from '../../data/species.js';
 import { attrBadge } from '../battle/battleHud.js';
 import { KIND_LABEL } from '../battle/techniques.js';
 import { xpToNext, giveXp } from '../battle/rules.js';
 import { dachiCanvas } from '../../art/portraitRender.js';
+import { shinyTag, shinySprite } from '../../art/shinyMark.js';
+
 import { BOSS_PATTERNS } from '../battle/bossPattern.js';
 import { ITEMS } from '../pickups/pickups.js';
 import { checkEvolutions } from '../party/evolution.js';
@@ -54,18 +57,18 @@ function party(body) {
   for (const d of sorted) {
     const s = speciesById(d.sp), pi = G.party.indexOf(d);
     const c = document.createElement('button'); c.className = 'denCell tappable' + (d.uid === selUid ? ' sel' : '');
-    c.appendChild(sprite(d.sp, 64, { hat: hatGeoOf(d.hat) }));
-    c.insertAdjacentHTML('beforeend', `<div>${s.name}</div><small>Lv ${d.lvl}${pi >= 0 ? ' · #' + (pi + 1) : ''}</small>`);
+    c.appendChild(shinySprite(sprite(d.sp, 64, { hat: hatGeoOf(d.hat) }), d));
+    c.insertAdjacentHTML('beforeend', `<div>${s.name}${shinyTag(d)}</div><small>Lv ${d.lvl}${pi >= 0 ? ' · #' + (pi + 1) : ''}</small>`);
     c.onclick = () => { selUid = d.uid; render('party'); };
     wrap.appendChild(c);
   }
   const d = G.box.find(x => x.uid === selUid) || G.party[0];
   if (!d) { detail.innerHTML = '<p>No dachis yet. Your guardian will find you on the road...</p>'; return; }
   const s = speciesById(d.sp), st = statsOf(d);
-  detail.appendChild(sprite(d.sp, 128, { hat: hatGeoOf(d.hat) }));
+  detail.appendChild(shinySprite(sprite(d.sp, 128, { hat: hatGeoOf(d.hat) }), d));
   const info = document.createElement('div');
   const evo = s.evolvesTo ? `Evolves into <b>${G.dex.seen[s.evolvesTo] ? speciesById(s.evolvesTo).name : '???'}</b> at Lv ${s.evolveAt}` : 'Final form';
-  info.innerHTML = `<h3>${s.id > 200 ? icon('star') : '#' + String(s.id).padStart(3, '0')} ${s.name} <span class="lv">Lv ${d.lvl} / ${capsFor(G.cycle).maxLevel}</span></h3>
+  info.innerHTML = `<h3>${s.id > 200 ? icon('star') : '#' + String(s.id).padStart(3, '0')} ${s.name}${shinyTag(d)} <span class="lv">Lv ${d.lvl} / ${capsFor(G.cycle).maxLevel}</span></h3>
     <div class="types">${attrBadge(attrOf(d))} ${chips(s.types)} <span class="rarity r-${s.rarity}">${s.rarity}</span></div>
     <p>HP ${d.hp}/${st.maxHp} · ATK ${st.atk} · DEF ${st.def} · SPD ${st.spd}</p>
     <p>XP ${d.xp} / ${d.lvl >= capsFor(G.cycle).maxLevel ? 'MAX' : xpToNext(d.lvl)} · ${evo}</p>
@@ -203,8 +206,22 @@ function system(body) {
   mus.onclick = () => { music.lofi.toggle(); label(); }; label();
   const save = document.createElement('button'); save.className = 'tappable'; save.textContent = 'Save game'; save.onclick = () => { saveGame(); toast('Game saved.'); };
   const del = document.createElement('button'); del.className = 'danger'; del.textContent = 'Delete save & restart';
-  del.onclick = () => { if (confirm('Delete your save and start over?')) { deleteSave(); location.reload(); } };
+  del.onclick = () => { if (confirmReset()) { deleteSave(); location.reload(); } };
   row.append(mus, save, del);
   const lang = document.createElement('div'); lang.className = 'row'; body.appendChild(lang);
   mountLangPicker(lang, { className: 'inMenu' });
+}
+
+
+export function shinyWarning(box) {
+  const sh = box.filter((d) => d && d.shiny);
+  if (!sh.length) return '';
+  const names = sh.map((d) => tr((d.shiny === 'gold' ? 'GOLD ' : 'WHITE ') + speciesById(d.sp).name)).join(', ');
+  return sh.length === 1 ? 'WARNING: this save holds a shiny dachi ({0}). It will be lost forever.'.replace('{0}', names)
+    : 'WARNING: this save holds {0} shiny dachis ({1}). They will be lost forever.'.replace('{0}', sh.length).replace('{1}', names);
+}
+export function confirmReset() {
+  const warn = shinyWarning(G.box);
+  if (!confirm('Delete your save and start over?')) return false;
+  return !warn || confirm(warn);
 }
