@@ -28,6 +28,7 @@ import * as court from './regionMaps/obsidianCourt.js';
 import * as mine from './regionMaps/minehead.js';
 import * as shaft from './regionMaps/lanternShaft.js';
 import * as seam from './regionMaps/deepSeam.js';
+import * as geode from './regionMaps/geodeGalleries.js';
 
 export const HOME = 'kazan-isle';
 export const REGIONS = [
@@ -184,6 +185,13 @@ export const REGIONS = [
     pack: null,
     transit: false, objective: 'Light every lantern - the chains drop',
   },
+  
+  {
+    id: geode.ID, name: 'The Geode Galleries', chapters: [5], size: geode.SIZE, interior: true, reachable: true,
+    sections: geode.SECTIONS.map((s) => s.id), entry: geode.ENTRY, spring: geode.POOL_LANDING, home: geode.ENTRY,
+    pack: 'assets/scenery-geode-galleries.bin', 
+    transit: false, objective: 'Turn the mirrors - bring the light to the crystal',
+  },
 ];
 export const regionById = (id) => REGIONS.find((r) => r.id === id) || null;
 
@@ -194,12 +202,12 @@ export function regionOf(sectionId) {
 
 export const saveRegion = (s) => (s && regionById(s.region) ? s.region : HOME);
 
-const GENERATORS = { [HOME]: generateMap, [testbed.ID]: testbed.generateTestbed, [ember.ID]: ember.generateEmberTube, [village.ID]: village.generateKazanVillage, [shrine.ID]: shrine.generateShrineVillage, [coast.ID]: coast.generateTomoCoast, [shell.ID]: shell.generateShellhaven, [kelp.ID]: kelp.generateKelpMaze, [temple.ID]: temple.generateDrownedTemple, [hollow.ID]: hollow.generateHollowroot, [thorn.ID]: thorn.generateThornfield, [mother.ID]: mother.generateMotherHollow, [vine.ID]: vine.generateVinegate, [canopy.ID]: canopy.generateCanopyWalk, [fig.ID]: fig.generateFigTerraces, [gale.ID]: gale.generateGaleLedges, [ruin.ID]: ruin.generateRuinSteps, [court.ID]: court.generateObsidianCourt, [mine.ID]: mine.generateMinehead, [shaft.ID]: shaft.generateLanternShaft, [seam.ID]: seam.generateDeepSeam };
+const GENERATORS = { [HOME]: generateMap, [testbed.ID]: testbed.generateTestbed, [ember.ID]: ember.generateEmberTube, [village.ID]: village.generateKazanVillage, [shrine.ID]: shrine.generateShrineVillage, [coast.ID]: coast.generateTomoCoast, [shell.ID]: shell.generateShellhaven, [kelp.ID]: kelp.generateKelpMaze, [temple.ID]: temple.generateDrownedTemple, [hollow.ID]: hollow.generateHollowroot, [thorn.ID]: thorn.generateThornfield, [mother.ID]: mother.generateMotherHollow, [vine.ID]: vine.generateVinegate, [canopy.ID]: canopy.generateCanopyWalk, [fig.ID]: fig.generateFigTerraces, [gale.ID]: gale.generateGaleLedges, [ruin.ID]: ruin.generateRuinSteps, [court.ID]: court.generateObsidianCourt, [mine.ID]: mine.generateMinehead, [shaft.ID]: shaft.generateLanternShaft, [seam.ID]: seam.generateDeepSeam, [geode.ID]: geode.generateGeodeGalleries };
 export function generateRegion(id) { const g = GENERATORS[id]; if (!g) throw new Error('no map for region ' + id); return g(); }
 
 
 
-const STEPS = { [testbed.ID]: testbed.testbedSteps, [ember.ID]: ember.emberTubeSteps, [village.ID]: village.kazanVillageSteps, [shrine.ID]: shrine.shrineVillageSteps, [coast.ID]: coast.tomoCoastSteps, [shell.ID]: shell.shellhavenSteps, [kelp.ID]: kelp.kelpMazeSteps, [temple.ID]: temple.drownedTempleSteps, [hollow.ID]: hollow.hollowrootSteps, [thorn.ID]: thorn.thornfieldSteps, [mother.ID]: mother.motherHollowSteps, [vine.ID]: vine.vinegateSteps, [canopy.ID]: canopy.canopyWalkSteps, [fig.ID]: fig.figTerracesSteps, [gale.ID]: gale.galeLedgesSteps, [ruin.ID]: ruin.ruinStepsSteps, [court.ID]: court.obsidianCourtSteps, [mine.ID]: mine.mineheadSteps, [shaft.ID]: shaft.lanternShaftSteps, [seam.ID]: seam.deepSeamSteps };
+const STEPS = { [testbed.ID]: testbed.testbedSteps, [ember.ID]: ember.emberTubeSteps, [village.ID]: village.kazanVillageSteps, [shrine.ID]: shrine.shrineVillageSteps, [coast.ID]: coast.tomoCoastSteps, [shell.ID]: shell.shellhavenSteps, [kelp.ID]: kelp.kelpMazeSteps, [temple.ID]: temple.drownedTempleSteps, [hollow.ID]: hollow.hollowrootSteps, [thorn.ID]: thorn.thornfieldSteps, [mother.ID]: mother.motherHollowSteps, [vine.ID]: vine.vinegateSteps, [canopy.ID]: canopy.canopyWalkSteps, [fig.ID]: fig.figTerracesSteps, [gale.ID]: gale.galeLedgesSteps, [ruin.ID]: ruin.ruinStepsSteps, [court.ID]: court.obsidianCourtSteps, [mine.ID]: mine.mineheadSteps, [shaft.ID]: shaft.lanternShaftSteps, [seam.ID]: seam.deepSeamSteps, [geode.ID]: geode.geodeGalleriesSteps };
 export async function generateRegionSliced(id, slice) {
   if (!STEPS[id]) return generateRegion(id);
   const it = STEPS[id]();

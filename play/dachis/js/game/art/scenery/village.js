@@ -17,10 +17,11 @@ import { placeGrowth } from './growth.js';
 import { placeTemple } from './temple.js';
 import { placeDoorProps } from './doorProps.js';
 import { placeLife } from './life.js';
+import { placeCrystals } from './crystals.js';
 
 const GROWTH_RUN = 120;
 
-export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple, placeDoorProps, placeLife];
+export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple, placeDoorProps, placeLife, placeCrystals];
 
 
 

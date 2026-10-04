@@ -101,6 +101,16 @@ const REGION_BEATS = {
     L(NARR, 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'),
     L(KID, '(My Walkman light. Okay. It is a very small light.)'),
   ],
+  'geode-mouth': [
+    L(NARR, 'The crack opens into a hall of crystal. Every wall throws your torchlight back at you in pieces.'),
+    L(NARR, 'Across the floor a single bar of daylight runs from a split in the rock to a mirror on a brass stand - and stops dead against the wall.'),
+    L(KID, 'It is like the fun house at Coney Island. Except the fun house had a guy selling hot dogs at the end.'),
+    L(KID, '(The mirror turns. Maybe if the light went the other way...)'),
+  ],
+  'geode-vault': [
+    L(NARR, 'The last wall falls in a rain of violet glass. Beyond it the geode opens round a pool so clear it looks empty.'),
+    L(KID, 'Okay. That was worth it. That was way worth it.'),
+  ],
   'seam-hall': [
     L(NARR, 'Through the crack the air goes still. Somewhere in the black there are pillars - you can hear your own steps come back off them.'),
     L(NARR, 'Ahead, a chain hangs across the way on, heavy as a ship\'s.'),

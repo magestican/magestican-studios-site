@@ -222,4 +222,11 @@ export default {
   "Kingshade looks at the three of them for a long time. Then he puts one huge hand over his eyes, and keeps it there.": "Kingshade mira a los tres un buen rato. Luego se tapa los ojos con una mano enorme, y se queda así.",
   "(My dad did that once. At Grandpa's funeral. He said it was allergies.)": "(Mi papá hizo eso una vez. En el funeral del abuelo. Dijo que era alergia.)",
   "Kingshade staggers back a step - and catches himself, and looks round to see who saw.": "Kingshade retrocede tambaleándose un paso, se recupera y voltea a ver quién lo vio.",
+  
+  "The crack opens into a hall of crystal. Every wall throws your torchlight back at you in pieces.": "La grieta se abre a una sala de cristal. Cada pared te devuelve la luz de la linterna en pedazos.",
+  "Across the floor a single bar of daylight runs from a split in the rock to a mirror on a brass stand - and stops dead against the wall.": "Por el suelo corre una sola barra de luz del día, desde una raja en la roca hasta un espejo sobre un pie de bronce, y se estrella contra la pared.",
+  "It is like the fun house at Coney Island. Except the fun house had a guy selling hot dogs at the end.": "Es como la casa de los espejos de Coney Island. Nada más que en esa había un señor vendiendo hot dogs al final.",
+  "(The mirror turns. Maybe if the light went the other way...)": "(El espejo gira. A lo mejor si la luz fuera para el otro lado...)",
+  "The last wall falls in a rain of violet glass. Beyond it the geode opens round a pool so clear it looks empty.": "La última pared cae en una lluvia de vidrio violeta. Detrás, la geoda se abre alrededor de un estanque tan claro que parece vacío.",
+  "Okay. That was worth it. That was way worth it.": "Okey. Valió la pena. Valió muchísimo la pena.",
 };

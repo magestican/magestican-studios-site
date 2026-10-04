@@ -46,6 +46,8 @@ export const SPRING = at(3.2, 51.0);
 export const LANDING = at(1.0, 51.4);    
 export const POSTS = { elder: at(-4.6, 49.6) }; 
 export const HOME_DISC = { ...at(0, 47), r: 7.0 };
+export const GEODE_DOOR = at(-9, 28.2);  
+export const GEODE_BACK = at(-9, 29.8);  
 export const WORK_DOOR = { u: 10, v: 54 };  
 export const PILLAR_GRID = [-12, -6, 0, 6, 12].flatMap((u) => [59.5, 65.5].map((v) => ({ u, v, h: 1.5 })));
 const inPillar = (u, v) => PILLAR_GRID.some((p) => Math.abs(u - p.u) < p.h && Math.abs(v - p.v) < p.h);

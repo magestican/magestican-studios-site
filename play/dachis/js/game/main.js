@@ -55,6 +55,7 @@ import { updateHud, refreshHud, openMap, closeMap, mapOpen, setMapSource, showMa
 import { openMenu, closeMenu } from './features/menu/menu.js';
 import { parseCheat, applyCheat } from './features/dev/cheats.js';
 import { darkPass } from './features/world/darkness.js';
+import { lightPass, mirrorNear, turnMirror } from './features/world/mirrors.js';
 import { BATTLE_CLOCK } from './features/battle/rules.js';
 import { startI18n } from './i18n/i18nDom.js';
 import { tr, onLangChange } from './i18n/i18n.js';
@@ -433,6 +434,8 @@ function worldActions() {
   if (door) return loadRegion(door.to, door.toAt);
   const n = nearestNpc(G.player.x, G.player.y);
   if (n) return talk(n);
+  const mirror = mirrorNear(G.player.x, G.player.y); 
+  if (mirror) return turnMirror(mirror);
   const spring = S.W.objects.find(o => o.heal && U.dist(G.player.x, G.player.y, o.x, o.y) < 1.7);
   if (spring) return restAtSpring();
   if (petNear()) petLead();
@@ -481,6 +484,12 @@ function worldHints() {
   if (door && !door.auto) {
     const [x, y] = S.stage.toScreen(door.at.x, door.at.y, S.W.groundAt(door.at.x, door.at.y));
     S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.7, action: 'action', label: door.label, color: '#ffb347', onTap: () => { if (doorAt(G.flags, G.region, G.player.x, G.player.y) === door) loadRegion(door.to, door.toAt); } });
+    return;
+  }
+  const mirror = mirrorNear(p.x, p.y); 
+  if (mirror && !n) {
+    const [x, y] = S.stage.toScreen(mirror.x, mirror.y, S.W.groundAt(mirror.x, mirror.y) + 0.7);
+    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.5, action: 'action', label: 'Turn', color: '#fff0a0', onTap: () => { if (mirrorNear(G.player.x, G.player.y) === mirror) turnMirror(mirror); } });
     return;
   }
   const spring = S.W.objects.find(o => o.heal && U.dist(p.x, p.y, o.x, o.y) < 2.4);
@@ -566,6 +575,7 @@ function frame(now) {
     updateSeeThrough(dt, B, G.region === HOME ? lairBodies() : []); 
     S.stage.render();
     
+    lightPass(octx); 
     darkPass(octx, dt); 
     if (B) drawBattleOverlay(octx, t);
     if (G.mode === 'world' && !S.dialog.active) { drawWildAlerts(octx); worldHints(); }

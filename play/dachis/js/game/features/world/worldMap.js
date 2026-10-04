@@ -41,6 +41,7 @@ export const WORLD_PLACES = [
   { region: 'minehead', name: 'Minehead Camp', at: [0.1, 0.93], r: 0.055, glyph: 'volcano' },
   { region: 'lantern-shaft', name: 'The Lantern Shaft', at: [0.25, 0.92], r: 0.045, glyph: 'meadow' },
   { region: 'deep-seam', name: 'The Deep Seam', at: [0.21, 0.82], r: 0.035, glyph: 'meadow' },
+  { region: 'geode-galleries', name: 'The Geode Galleries', at: [0.31, 0.83], r: 0.04, glyph: 'meadow' },
 ];
 export const placeOf = (region) => WORLD_PLACES.find((p) => p.region === region) || null;
 
@@ -50,7 +51,7 @@ export const PLACE_KIND = {
   testbed: 'field', 'ember-tube': 'cave', 'kazan-village': 'town', 'shrine-village': 'town', 'tomo-coast': 'town',
   shellhaven: 'town', 'kelp-maze': 'sea', 'drowned-temple': 'ruin', hollowroot: 'town', thornfield: 'forest',
   'mother-hollow': 'forest', vinegate: 'town', 'canopy-walk': 'forest', 'ruin-steps': 'ruin', 'obsidian-court': 'ruin',
-  'fig-terraces': 'field', 'gale-ledges': 'peak', minehead: 'town', 'lantern-shaft': 'cave', 'deep-seam': 'cave',
+  'fig-terraces': 'field', 'gale-ledges': 'peak', minehead: 'town', 'lantern-shaft': 'cave', 'deep-seam': 'cave', 'geode-galleries': 'cave',
 };
 
 export function worldLinks(doors, seen) {

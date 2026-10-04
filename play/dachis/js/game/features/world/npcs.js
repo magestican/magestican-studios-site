@@ -17,6 +17,7 @@ import * as court from './regionMaps/obsidianCourt.js';
 import * as mine from './regionMaps/minehead.js';
 import * as shaft from './regionMaps/lanternShaft.js';
 import * as seam from './regionMaps/deepSeam.js';
+import * as geode from './regionMaps/geodeGalleries.js';
 import { SPECIES, bossSpecies } from '../../data/species.js';
 import { partyRead } from '../battle/bossPattern.js';
 import { lairOf, lairOpen } from './lairs.js';
@@ -133,6 +134,14 @@ export function spawnNpcs() {
   for (let i = 0; i < 3; i++) {
     const sp = 3 * (4 + Math.floor(r() * 37)) + 1, { x, y } = spot(SH);
     keep(add({ kind: 'villager', id: 'shrine-v' + i, sp, x, y, home: SH, radius: SH.r, lines: [SHRINE_LINES[i]], tx: x, ty: y, wait: r() * 3 }), shrinePeople);
+  }
+  
+  if (G.region === geode.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 2 && s.types.includes('Light')), rg = U.rng(113);
+    for (const d of geode.DWELLERS) {
+      const sp = kinds[Math.floor(rg() * kinds.length)].id, p = pickNpcSpot(S.W, rg, d.home, d.home.r, 0.3, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x: p.x, y: p.y, home: d.home, radius: d.home.r, lines: d.lines, tx: p.x, ty: p.y, wait: rg() * 3 });
+    }
   }
   
   const hands = HANDS[G.region];

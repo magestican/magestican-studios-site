@@ -1,5 +1,5 @@
 {
- "hash": "79eafd7a",
+ "hash": "34bcf35b",
  "regions": {
   "kazan-isle": {
    "forms": [
@@ -729,6 +729,36 @@
    ],
    "pack": null,
    "extra": []
+  },
+  "geode-galleries": {
+   "forms": [
+    "fence-post",
+    "fence-rail",
+    "flower-bed",
+    "flower-clump",
+    "geode-crystal",
+    "geode-mirrorstand",
+    "geode-suncrack",
+    "hut",
+    "spring-basin",
+    "step-slab",
+    "stone-dark-0",
+    "stone-dark-1",
+    "stone-dark-2",
+    "stone-dark-3",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "torch"
+   ],
+   "pack": "assets/scenery-geode-galleries.bin",
+   "extra": [
+    "geode-crystal",
+    "geode-mirrorstand",
+    "geode-suncrack"
+   ],
+   "bytes": 74048
   }
  }
 }
