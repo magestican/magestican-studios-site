@@ -32,7 +32,7 @@ export const LAYOUT = {
 
 
 
-export const LAMPS = [[700, 598], [872, 604], [590, 505], [1010, 640], [1215, 612], [1390, 618], [440, 700], [300, 468], [1030, 420], [960, 770], [1100, 330]];
+export const LAMPS = [[700, 598], [872, 604], [590, 505], [1060, 668], [1215, 612], [1390, 618], [440, 700], [300, 468], [1030, 420], [960, 770], [1100, 330]];
 
 const shade = (hex, amt) => {
   const n = parseInt(hex.slice(1), 16);
@@ -92,7 +92,7 @@ function roofOf(L, x0, top) {
       (L.garland ? '' : `<rect x="${x0 + w / 2 - 30}" y="${top - 34}" width="60" height="20" fill="${shade(L.wall, 0.25)}"/>`);
     case 'shed': return `<path d="M${x0 - 10},${top + 2} L${x0 - 4},${top - 34} L${x0 + w + 6},${top - 16} L${x0 + w + 10},${top + 2} Z" fill="${c}"/>`;
     case 'pagoda': return `<path d="M${x0 - 22},${top + 4} Q${x0 + w / 2},${top - 16} ${x0 + w + 22},${top + 4} L${x0 + w - 6},${top - 30} Q${x0 + w / 2},${top - 44} ${x0 + 6},${top - 30} Z" fill="#2f5a4a"/>` +
-      `<path d="M${x0 - 22},${top + 4} q-6,-6 -2,-12 M${x0 + w + 22},${top + 4} q6,-6 2,-12" stroke="#2f5a4a" stroke-width="4" fill="none"/><path d="M${x0 + 20},${top - 34} Q${x0 + w / 2},${top - 62} ${x0 + w - 20},${top - 34} Z" fill="#2f5a4a"/><circle cx="${x0 + w / 2}" cy="${top - 52}" r="5" fill="${t}"/>`;
+      `<path d="M${x0 - 22},${top + 4} q-6,-6 -2,-12 M${x0 + w + 22},${top + 4} q6,-6 2,-12" stroke="#2f5a4a" stroke-width="4" fill="none"/><path d="M${x0 + 20},${top - 28} Q${x0 + w / 2},${top - 62} ${x0 + w - 20},${top - 28} Z" fill="#2f5a4a"/><circle cx="${x0 + w / 2}" cy="${top - 52}" r="5" fill="${t}"/>`;
     case 'thai': return `<path d="M${x0 - 12},${top + 2} L${x0 + w / 2},${top - 64} L${x0 + w + 12},${top + 2} Z" fill="#b8423a"/><path d="M${x0 + 12},${top - 18} L${x0 + w / 2},${top - 64} L${x0 + w - 12},${top - 18}" stroke="#e8b84a" stroke-width="4" fill="none"/>` +
       `<path d="M${x0 + w / 2},${top - 64} q6,-10 14,-12 M${x0 - 12},${top + 2} q-8,-4 -6,-14 M${x0 + w + 12},${top + 2} q8,-4 6,-14" stroke="#e8b84a" stroke-width="4" fill="none" stroke-linecap="round"/>`;
     case 'stall': return `<path d="M${x0 - 14},${top} L${x0 + 6},${top - 40} H${x0 + w - 6} L${x0 + w + 14},${top} Z" fill="${L.awning[0]}"/>` +
@@ -130,7 +130,7 @@ export function buildingSVG(b, badge = '') {
   const x0 = L.x - L.w / 2, top = L.y - L.h;
   const wall = `<rect x="${x0}" y="${top}" width="${L.w}" height="${L.h}" fill="${L.wall}"/><rect x="${x0}" y="${top}" width="${L.w}" height="${L.h}" fill="url(#tm-wallshade)"/>` +
     (L.roof !== 'stall' ? `<rect x="${x0}" y="${top}" width="${L.w}" height="${L.h}" fill="url(#tm-brick)" opacity=".25"/>` : '');
-  const chimney = L.chimney ? `<rect x="${x0 + L.w * 0.72}" y="${top - 70}" width="18" height="40" fill="${shade(L.wall, -0.3)}"/><rect x="${x0 + L.w * 0.72 - 3}" y="${top - 74}" width="24" height="7" fill="${shade(L.wall, -0.45)}"/>` +
+  const chimney = L.chimney ? `<rect x="${x0 + L.w * 0.72}" y="${top - 70}" width="18" height="70" fill="${shade(L.wall, -0.3)}"/><rect x="${x0 + L.w * 0.72 - 3}" y="${top - 74}" width="24" height="7" fill="${shade(L.wall, -0.45)}"/>` +
     `<g class="tm-smoke"><circle cx="${x0 + L.w * 0.72 + 9}" cy="${top - 86}" r="9" fill="#f4f0e8" fill-opacity=".7"/><circle cx="${x0 + L.w * 0.72 + 18}" cy="${top - 104}" r="12" fill="#f4f0e8" fill-opacity=".5"/><circle cx="${x0 + L.w * 0.72 + 30}" cy="${top - 126}" r="15" fill="#f4f0e8" fill-opacity=".3"/></g>` : '';
   let ground;
   if (L.roof === 'stall') {
@@ -153,26 +153,52 @@ export function buildingSVG(b, badge = '') {
   const signY = L.roof === 'stall' ? top - 62 : L.y - 106;
   const sign = `<rect x="${f(L.x - Math.min(L.w * 0.46, 76))}" y="${signY}" width="${f(Math.min(L.w * 0.92, 152))}" height="22" rx="3" fill="${L.neon ? '#141a30' : '#3a2612'}" stroke="${L.trim}" stroke-width="2"/>` +
     `<text x="${L.x}" y="${signY + 15.5}" font-family="Georgia,serif" font-style="italic" font-size="${b.sign.length > 16 ? 10 : 13}" text-anchor="middle" fill="${L.neon ? '#8fd8ff' : '#f7e3b5'}"${L.neon ? ' class="tm-neon"' : ''}>${b.sign.replace(/&/g, '&amp;')}</text>`;
-  const laundry = L.display === 'laundry' ? `<path d="M${x0 - 60},${top + 10} Q${x0 - 30},${top + 24} ${x0},${top + 10}" stroke="#6b5a4a" stroke-width="1.5" fill="none"/>` + ['#f4f4ee', '#cfe0ea', '#f4d8d8'].map((c, i) => `<rect class="tm-flap" x="${x0 - 56 + i * 18}" y="${top + 14 + (i === 1 ? 4 : 0)}" width="14" height="20" fill="${c}"/>`).join('') : '';
-  const shadow = `<ellipse cx="${L.x}" cy="${L.y + 2}" rx="${L.w * 0.62}" ry="10" fill="#000" fill-opacity=".18"/>`;
-  return `<g class="tm-b${b.home ? ' home' : ''}" data-b="${b.id}" tabindex="0" role="button" aria-label="${b.name.replace(/"/g, '')}">${shadow}${chimney}${wall}${roofOf(L, x0, top)}${windowsOf(L)}${ground}${sign}${laundry}` +
-    `<rect x="${x0 - 14}" y="${top - 70}" width="${L.w + 28}" height="${L.h + 76}" fill="transparent"/>${badge}</g>`;
+  const laundry = L.display === 'laundry' ? `<path d="M${x0 - 60},${top + 6} V${L.y}" stroke="#6b4a2f" stroke-width="4"/><path d="M${x0 - 60},${top + 10} Q${x0 - 30},${top + 24} ${x0},${top + 10}" stroke="#6b5a4a" stroke-width="1.5" fill="none"/>` + ['#f4f4ee', '#cfe0ea', '#f4d8d8'].map((c, i) => `<rect class="tm-flap" x="${x0 - 56 + i * 18}" y="${top + 14 + (i === 1 ? 4 : 0)}" width="14" height="20" fill="${c}"/>`).join('') : '';
+  const garland = L.garland ? [...Array(15)].map((_, i) => { const t = i / 14; return `<circle cx="${f(x0 + 4 + t * (L.w - 8))}" cy="${f(top + 6 + Math.sin(t * Math.PI * 3) ** 2 * 7)}" r="4" fill="${i % 2 ? '#f29a1f' : '#f5c43a'}"/>`; }).join('') : '';
+  return wrapB(b, L, `${chimney}${wall}${roofOf(L, x0, top)}${windowsOf(L)}${garland}${ground}${plinth(L)}${sign}${laundry}`,
+    `<rect x="${x0 - 14}" y="${top - 70}" width="${L.w + 28}" height="${L.h + 76}" fill="transparent"/>`, badge);
+}
+
+
+
+
+
+
+
+function wrapB(b, L, day, hit, badge = '') {
+  return `<g class="tm-b${b.home ? ' home' : ''}" data-b="${b.id}" tabindex="0" role="button" aria-label="${b.name.replace(/"/g, '')}"><g class="tm-hl"><g class="tm-dk">${day}</g><g class="tm-lights">${lightsOf(b, L)}</g></g>${hit}${badge}</g>`;
+}
+
+
+
+function plinth(L) {
+  const x0 = L.x - L.w / 2;
+  return `<rect x="${f(x0 - 7)}" y="${L.y - 4}" width="${L.w + 14}" height="10" fill="#a89c84"/><rect x="${f(x0 - 7)}" y="${L.y - 4}" width="${L.w + 14}" height="2.5" fill="#cfc3a8"/><rect x="${f(x0 - 7)}" y="${L.y + 5}" width="${L.w + 14}" height="2" fill="#6f6553"/>`;
+}
+
+
+
+function groundShadow(L, id) {
+  if (id === 'opera') return `<ellipse cx="${L.x}" cy="${L.y + 6}" rx="${L.w * 0.58}" ry="10" fill="#000" fill-opacity=".16"/>`;
+  if (L.roof === 'church') return `<ellipse cx="${L.x - 8}" cy="${L.y + 6}" rx="${L.w * 0.7}" ry="9" fill="#000" fill-opacity=".16"/>`;
+  return `<ellipse cx="${L.x}" cy="${L.y + 6}" rx="${L.w * 0.56}" ry="9" fill="#000" fill-opacity=".16"/>`;
 }
 
 function operaSVG(b, L, badge) {
   const x0 = L.x - L.w / 2, top = L.y - L.h;
   const cols = [...Array(6)].map((_, i) => `<rect x="${f(x0 + 22 + i * (L.w - 44) / 5 - 7)}" y="${top + 58}" width="14" height="${L.h - 70}" fill="#f7efe0"/><rect x="${f(x0 + 22 + i * (L.w - 44) / 5 - 10)}" y="${top + 54}" width="20" height="6" fill="#e2d4bc"/>`).join('');
   const posters = [['TOSCA', '#8a2f3a'], ['MAGIC FLUTE', '#2c3e6a']].map(([t, c], i) => `<rect x="${f(x0 + 44 + i * (L.w - 118))}" y="${L.y - 86}" width="30" height="42" fill="${c}"/><text x="${f(x0 + 59 + i * (L.w - 118))}" y="${L.y - 62}" font-size="6" font-family="Georgia,serif" text-anchor="middle" fill="#f7e3b5">${t}</text>`).join('');
-  return `<g class="tm-b" data-b="${b.id}" tabindex="0" role="button" aria-label="${b.name}"><ellipse cx="${L.x}" cy="${L.y + 2}" rx="${L.w * 0.6}" ry="11" fill="#000" fill-opacity=".18"/>` +
-    `<path d="M${L.x - 56},${top - 20} Q${L.x},${top - 110} ${L.x + 56},${top - 20} Z" fill="#6a8a7a"/><path d="M${L.x - 56},${top - 20} Q${L.x},${top - 110} ${L.x + 56},${top - 20}" stroke="#4a6a5a" stroke-width="3" fill="none"/><circle cx="${L.x}" cy="${top - 70}" r="7" fill="${L.trim}"/>` +
-    `<rect x="${L.x - 60}" y="${top - 24}" width="120" height="24" fill="#e9dcc6"/>` +
+  return wrapB(b, L, `<path d="M${L.x - 56},${top - 20} Q${L.x},${top - 110} ${L.x + 56},${top - 20} Z" fill="#6a8a7a"/><path d="M${L.x - 56},${top - 20} Q${L.x},${top - 110} ${L.x + 56},${top - 20}" stroke="#4a6a5a" stroke-width="3" fill="none"/><circle cx="${L.x}" cy="${top - 70}" r="7" fill="${L.trim}"/>` +
+    `<rect x="${L.x - 60}" y="${top - 24}" width="120" height="30" fill="#e9dcc6"/><path d="M${L.x - 64},${top - 24} h128" stroke="#cdbb9a" stroke-width="4"/>` +
+    
+    `<rect x="${x0 + 4}" y="${top - 2}" width="${L.w - 8}" height="56" fill="#ddd0b8"/><path d="M${x0 + 4},${top - 2} h${L.w - 8}" stroke="#cdbb9a" stroke-width="3"/>` +
     `<rect x="${x0}" y="${top + 50}" width="${L.w}" height="${L.h - 50}" fill="${L.wall}"/><rect x="${x0}" y="${top + 50}" width="${L.w}" height="${L.h - 50}" fill="url(#tm-wallshade)"/>` +
     `<path d="M${x0 - 12},${top + 54} L${L.x},${top} L${x0 + L.w + 12},${top + 54} Z" fill="#e9dcc6" stroke="#cdbb9a" stroke-width="3"/><path d="M${L.x - 40},${top + 44} L${L.x},${top + 18} L${L.x + 40},${top + 44} Z" fill="#d9c7a4"/><circle cx="${L.x}" cy="${top + 36}" r="7" fill="${L.trim}"/>` +
     `<rect x="${x0 + 10}" y="${L.y - 96}" width="${L.w - 20}" height="96" fill="#5a2a2a" fill-opacity=".35"/>${cols}${posters}` +
     [0, 1, 2].map((i) => `<rect x="${f(L.x - 50 + i * 36)}" y="${L.y - 70}" width="28" height="70" rx="14" fill="#6a1f28"/><rect x="${f(L.x - 50 + i * 36)}" y="${L.y - 70}" width="28" height="70" rx="14" fill="#ffd98a" fill-opacity=".25"/>`).join('') +
     `<rect x="${x0 - 10}" y="${L.y - 6}" width="${L.w + 20}" height="8" fill="#d9ccb4"/><rect x="${x0 - 20}" y="${L.y}" width="${L.w + 40}" height="8" fill="#cdbfa6"/>` +
-    `<rect x="${L.x - 70}" y="${top + 64}" width="140" height="18" fill="#3a2612" stroke="${L.trim}" stroke-width="2"/><text x="${L.x}" y="${top + 77}" font-family="Georgia,serif" font-size="12" letter-spacing="4" text-anchor="middle" fill="#f7e3b5">OPERA</text>` +
-    `<rect x="${x0 - 14}" y="${top - 110}" width="${L.w + 28}" height="${L.h + 116}" fill="transparent"/>${badge}</g>`;
+    `<rect x="${L.x - 70}" y="${top + 64}" width="140" height="18" fill="#3a2612" stroke="${L.trim}" stroke-width="2"/><text x="${L.x}" y="${top + 77}" font-family="Georgia,serif" font-size="12" letter-spacing="4" text-anchor="middle" fill="#f7e3b5">OPERA</text>`,
+    `<rect x="${x0 - 14}" y="${top - 110}" width="${L.w + 28}" height="${L.h + 116}" fill="transparent"/>`, badge);
 }
 
 
@@ -182,7 +208,7 @@ function churchSVG(b, L, badge) {
   const glass = ['#c0392b', '#2c5aa0', '#e8b84a', '#3a8a5a'];
   const lancet = (x, y, h) => `<path d="M${x - 9},${y + h} V${y + 9} a9,9 0 0 1 18,0 V${y + h} Z" fill="#2a2a3a" stroke="#8a7a6a" stroke-width="3"/>` +
     [0, 1, 2].map((i) => `<rect x="${x - 7}" y="${y + 6 + i * (h - 6) / 3}" width="14" height="${f((h - 8) / 3)}" fill="${glass[(i + x) % 4]}" fill-opacity=".8"/>`).join('') + `<path d="M${x},${y + 2} V${y + h}" stroke="#8a7a6a" stroke-width="1.5"/>`;
-  return `<g class="tm-b" data-b="${b.id}" tabindex="0" role="button" aria-label="${b.name.replace(/"/g, '')}"><ellipse cx="${L.x - 8}" cy="${L.y + 2}" rx="${L.w * 0.72}" ry="10" fill="#000" fill-opacity=".18"/>` +
+  return wrapB(b, L,
     
     `<rect x="${tx}" y="${tt}" width="${tw}" height="${L.y - tt}" fill="${shade(L.wall, -0.06)}"/><rect x="${tx}" y="${tt}" width="${tw}" height="${L.y - tt}" fill="url(#tm-brick)" opacity=".2"/>` +
     `<path d="M${tx - 4},${tt} L${tx + tw / 2},${tt - 96} L${tx + tw + 4},${tt} Z" fill="#4a5462"/><path d="M${tx + tw / 2},${tt - 96} v-16 M${tx + tw / 2 - 6},${tt - 106} h12" stroke="${L.trim}" stroke-width="3"/>` +
@@ -194,21 +220,50 @@ function churchSVG(b, L, badge) {
     lancet(x0 + 24, top + 24, 60) + lancet(x0 + L.w - 24, top + 24, 60) +
     `<path d="M${L.x - 20},${L.y} V${L.y - 46} a20,20 0 0 1 40,0 V${L.y} Z" fill="#5a3a2a" stroke="#8a7a6a" stroke-width="4"/><path d="M${L.x},${L.y - 64} V${L.y}" stroke="#3a2618" stroke-width="2"/><circle cx="${L.x - 5}" cy="${L.y - 26}" r="2" fill="#e2c06b"/><circle cx="${L.x + 5}" cy="${L.y - 26}" r="2" fill="#e2c06b"/>` +
     [-1, 1].map((s) => `<g transform="translate(${L.x + s * 36},${L.y - 4})"><path d="M-8,0 h16 l-3,-14 h-10 Z" fill="#8a6a4a"/>${[-5, 0, 5].map((dx, i) => `<path d="M${dx},-14 q${dx * 0.4},-10 ${dx * 0.8},-18" stroke="#4a7a3a" stroke-width="1.6" fill="none"/><ellipse cx="${f(dx * 1.8)}" cy="${-33 - (i % 2) * 4}" rx="4" ry="6" fill="#fbf6ea"/>`).join('')}</g>`).join('') +
-    `<rect x="${L.x - 48}" y="${top + 90}" width="96" height="20" rx="3" fill="#3a2612" stroke="${L.trim}" stroke-width="2"/><text x="${L.x}" y="${top + 104}" font-family="Georgia,serif" font-style="italic" font-size="13" text-anchor="middle" fill="#f7e3b5">${b.sign.replace(/&/g, '&amp;')}</text>` +
-    `<rect x="${tx - 8}" y="${tt - 112}" width="${x0 + L.w - tx + 20}" height="${L.y - tt + 118}" fill="transparent"/>${badge}</g>`;
+    `<rect x="${L.x - 48}" y="${top + 90}" width="96" height="20" rx="3" fill="#3a2612" stroke="${L.trim}" stroke-width="2"/><text x="${L.x}" y="${top + 104}" font-family="Georgia,serif" font-style="italic" font-size="13" text-anchor="middle" fill="#f7e3b5">${b.sign.replace(/&/g, '&amp;')}</text>` + plinth(L),
+    `<rect x="${tx - 8}" y="${tt - 112}" width="${x0 + L.w - tx + 20}" height="${L.y - tt + 118}" fill="transparent"/>`, badge);
 }
 
 
 export function badgeSVG(b, st) {
   const L = LAYOUT[b.id];
   if (!L || !st) return '';
-  
-  
-  const roofH = { gable: 58, pagoda: 62, thai: 66, mansard: 44, flat: 34, shed: 34, stall: 44, church: 80 }[L.roof] || 40;
-  const y = b.id === 'opera' ? 70 : L.y - L.h - roofH + 4, x = L.roof === 'church' ? L.x + 18 : L.x;
+  const { x, y } = badgeAt(b.id);
   
   return `<g transform="translate(${x},${y})"><g class="tm-badge ${st}">${BADGE_ICONS[st] || ''}</g></g>`;
 }
+
+const ROOF_H = { gable: 58, pagoda: 62, thai: 66, mansard: 44, flat: 34, shed: 34, stall: 44, church: 80 };
+
+export function boundsOf(id) {
+  const L = LAYOUT[id], x0 = L.x - L.w / 2, top = L.y - L.h;
+  if (id === 'opera') return [[x0 - 20, top - 24, x0 + L.w + 20, L.y + 8], [L.x - 60, top - 110, L.x + 60, top]];
+  if (L.roof === 'church') return [[x0 - 8, top - 62, x0 + L.w + 8, L.y + 6], [x0 - 20, top - 162, x0 + 32, L.y + 6]];
+  const ov = L.roof === 'pagoda' ? 24 : 12, rh = ROOF_H[L.roof] || 40;
+  
+  const out = ['gable', 'thai', 'pagoda'].includes(L.roof) ? [[x0 - ov, top - rh / 2, x0 + L.w + ov, L.y + 6], [x0 + L.w / 4, top - rh, x0 + L.w * 3 / 4, top - rh / 2]] : [[x0 - ov, top - rh, x0 + L.w + ov, L.y + 6]];
+  if (L.chimney) out.push([x0 + L.w * 0.72 - 3, top - 74, x0 + L.w * 0.72 + 21, top]);
+  return out;
+}
+
+export const BADGE_BOX = [-24, -60, 24, -8];
+
+
+
+export function badgeAt(id) {
+  const L = LAYOUT[id];
+  if (id === 'opera') return { x: L.x, y: 70 };
+  const x = L.roof === 'church' ? L.x + 18 : L.x, top = L.y - L.h;
+  const above = { x, y: top - (ROOF_H[L.roof] || 40) + 4 };
+  const box = (p) => [p.x + BADGE_BOX[0], p.y + BADGE_BOX[1], p.x + BADGE_BOX[2], p.y + BADGE_BOX[3]];
+  const hit = (a, b) => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1];
+  const clear = (p) => !Object.keys(LAYOUT).some((o) => o !== id && boundsOf(o).some((bb) => hit(box(p), bb))) &&
+    !LABELS.some((l) => hit(box(p), labelBox(l)));
+  
+  for (let dy = 0; dy <= (ROOF_H[L.roof] || 40) - 6; dy += 4) for (const dx of [0, 16, -16, 30, -30]) { const p = { x: x + dx, y: above.y + dy }; if (clear(p)) return p; }
+  return { x, y: top + 30 };   
+}
+export const labelBox = ([t, x, y]) => [x - labelHalf(t), y - 14, x + labelHalf(t), y + 10];
 
 
 
@@ -254,13 +309,28 @@ export function townMapSVG(buildings, statusOf = () => '', { night = false } = {
     for (let i = 1; i < 8; i++) { const t = i / 8, x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t + Math.sin(t * Math.PI) * 20; s += `<g class="tm-lantern" style="animation-delay:${(i * 0.3).toFixed(1)}s;transform-origin:${f(x)}px ${f(y)}px"><path d="M${f(x)},${f(y)} v4" stroke="#3a2a22"/><ellipse cx="${f(x)}" cy="${f(y + 13)}" rx="8" ry="10" fill="#e0322f"/><ellipse cx="${f(x)}" cy="${f(y + 13)}" rx="4" ry="9" fill="#ff7a4a" fill-opacity=".5"/><rect x="${f(x - 4)}" y="${f(y + 3)}" width="8" height="2.5" fill="#e8b84a"/></g>`; }
     return s;
   };
-  const marigolds = (x1, y1, x2, y2) => [...Array(22)].map((_, i) => { const t = i / 21, x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t + Math.sin(t * Math.PI) * 24; return `<circle cx="${f(x)}" cy="${f(y)}" r="4.5" fill="${i % 2 ? '#f29a1f' : '#f5c43a'}"/>`; }).join('');
-  const trees = [[40, 470], [385, 520], [700, 700], [990, 700], [1560, 690], [1545, 812], [500, 500], [1000, 800], [30, 800]].map(([x, y], i) => tree(x, y, 0.8 + (i % 3) * 0.15)).join('');
-  const labels = [['Spice Row', 250, 452], ['Market Square', 785, 625], ['Lantern Street', 1300, 632], ['The Harbour', 150, 590], ['The Crescent', 1420, 340], ['Thimble Lane', 1010, 790]]
-    .map(([t, x, y]) => `<g class="tm-label" transform="translate(${x},${y})"><rect x="${-t.length * 4.6 - 10}" y="-14" width="${t.length * 9.2 + 20}" height="24" rx="4" fill="#fff4dc" fill-opacity=".92" stroke="#6b4a2f" stroke-width="1.5"/><text y="4" font-family="Georgia,serif" font-style="italic" font-size="15" text-anchor="middle" fill="#3a2612">${t}</text></g>`).join('');
+  const labels = LABELS.map(([t, x, y]) => `<g class="tm-label" transform="translate(${x},${y})"><rect x="${-labelHalf(t)}" y="-14" width="${labelHalf(t) * 2}" height="24" rx="4" fill="#fff4dc" fill-opacity=".92" stroke="#6b4a2f" stroke-width="1.5"/><text y="4" font-family="Georgia,serif" font-style="italic" font-size="15" text-anchor="middle" fill="#3a2612">${t}</text></g>`).join('');
   const order = [...buildings].sort((a, b) => (LAYOUT[a.id]?.y || 0) - (LAYOUT[b.id]?.y || 0));
   
-  const lamps = LAMPS.map(([x, y]) => `<g><path d="M${x},${y} v-44" stroke="#2f2a28" stroke-width="3.5"/><path d="M${x - 5},${y} h10" stroke="#2f2a28" stroke-width="4"/><path d="M${x - 7},${y - 44} h14 l-3,-12 h-8 Z" fill="#3a3430"/><path d="M${x - 4},${y - 46} h8 l-2,-8 h-4 Z" fill="#cfd8d0" class="tm-lampglass"/></g>`).join('');
+  
+  
+  const items = [
+    ...order.filter((b) => LAYOUT[b.id]).map((b) => ({ y: LAYOUT[b.id].y, svg: buildingSVG(b) })),
+    ...LAMPS.map(([x, y]) => ({ y, day: `<path d="M${x},${y} v-44" stroke="#2f2a28" stroke-width="3.5"/><path d="M${x - 5},${y} h10" stroke="#2f2a28" stroke-width="4"/><path d="M${x - 7},${y - 44} h14 l-3,-12 h-8 Z" fill="#3a3430"/><path d="M${x - 4},${y - 46} h8 l-2,-8 h-4 Z" fill="#cfd8d0" class="tm-lampglass"/>`,
+      light: `<ellipse cx="${x}" cy="${y + 2}" rx="34" ry="9" fill="#ffd98a" fill-opacity=".22"/><circle cx="${x}" cy="${y - 50}" r="30" fill="url(#tm-glow)"/><path d="M${x - 4},${y - 46} h8 l-2,-8 h-4 Z" fill="#fff2bf"/>` })),
+    ...TREES.map(([x, y], i) => ({ y, day: tree(x, y, 0.8 + (i % 3) * 0.15) })),
+    { y: 520, day: clock },
+    
+    { y: 530, day: bunting(686, 432, 889, 432, ['#d25a6e', '#e8c46a', '#6aa0c8', '#7fb069'], 18) },
+    ...LANTERN_STRINGS.map(([x1, y1, x2, y2]) => ({ y: 560, day: lanterns(x1, y1, x2, y2), light: lanternLights(x1, y1, x2, y2) })),
+  ].sort((a, b) => a.y - b.y);
+  let scene = '', dk = '';
+  for (const it of items) {
+    if (it.svg) { scene += (dk ? `<g class="tm-dk">${dk}</g>` : '') + it.svg; dk = ''; continue; }
+    dk += it.day;
+    if (it.light) { scene += `<g class="tm-dk">${dk}</g><g class="tm-lights">${it.light}</g>`; dk = ''; }
+  }
+  if (dk) scene += `<g class="tm-dk">${dk}</g>`;
   
   
   const badges = order.map((b) => badgeSVG(b, statusOf(b))).join('');
@@ -274,22 +344,34 @@ export function townMapSVG(buildings, statusOf = () => '', { night = false } = {
     `<linearGradient id="tm-wallshade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></linearGradient>` +
     `<linearGradient id="tm-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/></linearGradient>` +
     `<pattern id="tm-brick" width="24" height="12" patternUnits="userSpaceOnUse"><path d="M0,12 H24 M0,6 H24 M12,0 V6 M0,6 V12 M24,6 V12" stroke="#000" stroke-width=".8"/></pattern>` +
-    `</defs><rect width="${MAP_W}" height="${MAP_H}" fill="url(#tm-sky)"/><rect class="tm-nightsky" width="${MAP_W}" height="420" fill="url(#tm-nsky)"/>` +
-    `<g class="tm-clouds"><path d="M120,90 q20,-30 50,-14 q20,-24 50,-4 q30,-4 30,20 q0,18 -30,18 h-90 q-26,0 -10,-20 Z" fill="#fff" fill-opacity=".85"/><path d="M760,60 q18,-24 44,-10 q22,-18 44,2 q26,0 24,18 h-110 q-18,-4 -2,-10 Z" fill="#fff" fill-opacity=".75"/><path d="M1260,120 q20,-24 44,-12 q22,-20 46,0 q24,2 22,20 h-112 q-16,-2 0,-8 Z" fill="#fff" fill-opacity=".8"/></g>` +
+    
+    `<filter id="tm-nightf" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values=".382 0 0 0 0 0 .414 0 0 0 0 0 .602 0 0 0 0 0 1 0"/></filter>` +
+    `</defs><rect width="${MAP_W}" height="${MAP_H}" fill="url(#tm-sky)"/><rect class="tm-nightsky" width="${MAP_W}" height="420" fill="url(#tm-nsky)"/>${skyLights()}` +
+    `<g class="tm-dk"><g class="tm-clouds"><path d="M120,90 q20,-30 50,-14 q20,-24 50,-4 q30,-4 30,20 q0,18 -30,18 h-90 q-26,0 -10,-20 Z" fill="#fff" fill-opacity=".85"/><path d="M760,60 q18,-24 44,-10 q22,-18 44,2 q26,0 24,18 h-110 q-18,-4 -2,-10 Z" fill="#fff" fill-opacity=".75"/><path d="M1260,120 q20,-24 44,-12 q22,-20 46,0 q24,2 22,20 h-112 q-16,-2 0,-8 Z" fill="#fff" fill-opacity=".8"/></g>` +
     `<path d="M0,300 C200,220 380,260 560,240 C760,215 900,260 1100,230 C1300,200 1450,240 1600,220 V420 H0 Z" fill="#b7c99a"/><path d="M0,340 C240,300 420,330 620,310 C820,290 980,330 1600,300 V830 H0 Z" fill="#a7bf86"/>` +
-    `<rect y="380" width="1600" height="450" fill="#b9c58e"/>${hill}${roads}${square}${water}${trees}` +
-    bunting(535, 420, 700, 440, ['#d25a6e', '#e8c46a', '#6aa0c8', '#7fb069']) + bunting(870, 440, 1040, 420, ['#7fb069', '#d25a6e', '#e8c46a', '#6aa0c8']) +
-    marigolds(70, 300, 430, 290) + lanterns(1050, 470, 1390, 455) + lanterns(1220, 480, 1550, 470) + lamps +
-    order.filter((b) => LAYOUT[b.id]?.y < 530).map((b) => buildingSVG(b)).join('') + clock +
-    order.filter((b) => LAYOUT[b.id]?.y >= 530).map((b) => buildingSVG(b)).join('') +
-    `<rect class="tm-nightveil" width="${MAP_W}" height="${MAP_H}" fill="#3a4480"/>${nightLights(order)}${labels}<g class="tm-badges">${badges}</g></svg>`;
+    `<rect y="380" width="1600" height="450" fill="#b9c58e"/>${hill}${roads}${square}${water}` +
+    order.filter((b) => LAYOUT[b.id]).map((b) => groundShadow(LAYOUT[b.id], b.id)).join('') +
+    `</g>${scene}${labels}<g class="tm-badges">${badges}</g></svg>`;
+}
+
+export const TREES = [[40, 470], [385, 520], [700, 700], [990, 700], [1560, 690], [1545, 812], [500, 500], [1000, 800], [30, 800]];
+
+const LANTERN_STRINGS = [[1050, 470, 1390, 455], [1220, 480, 1550, 470]];
+function lanternLights(x1, y1, x2, y2) {
+  let s = '';
+  for (let i = 1; i < 8; i++) { const t = i / 8, x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t + Math.sin(t * Math.PI) * 20; s += `<circle cx="${f(x)}" cy="${f(y + 13)}" r="18" fill="url(#tm-redglow)"/><ellipse cx="${f(x)}" cy="${f(y + 13)}" rx="5" ry="8" fill="#ffb07a" fill-opacity=".8"/>`; }
+  return s;
 }
 
 
 
 
-function nightLights(order) {
-  let s = `<circle cx="640" cy="92" r="70" fill="url(#tm-moonglow)"/><circle cx="640" cy="92" r="26" fill="#fbf2d4"/><circle cx="650" cy="86" r="23" fill="#fbf2d4"/><circle cx="632" cy="84" r="4" fill="#e8dcb8"/><circle cx="646" cy="102" r="5.5" fill="#e8dcb8"/>`;
+export const LABELS = [['Spice Row', 250, 452], ['Market Square', 650, 592], ['Lantern Street', 1028, 598], ['The Harbour', 150, 590], ['The Crescent', 1440, 316], ['Thimble Lane', 1014, 745]];
+export const labelHalf = (t) => t.length * 4.6 + 8;
+
+
+function skyLights() {
+  let s =`<circle cx="640" cy="92" r="70" fill="url(#tm-moonglow)"/><circle cx="640" cy="92" r="26" fill="#fbf2d4"/><circle cx="650" cy="86" r="23" fill="#fbf2d4"/><circle cx="632" cy="84" r="4" fill="#e8dcb8"/><circle cx="646" cy="102" r="5.5" fill="#e8dcb8"/>`;
   
   const boxes = [[10, 10, 440, 190], [540, 10, 1080, 200], [1270, 8, 1600, 55], [440, 10, 540, 90]];
   let k = 7;
@@ -302,25 +384,26 @@ function nightLights(order) {
       s += `<circle class="tm-star" cx="${f(x)}" cy="${f(y)}" r="${f(r)}" fill="#fff8e0" style="animation-delay:${f(rnd() * 4)}s"/>`;
     }
   }
-  for (const b of order) {
-    const L = LAYOUT[b.id];
-    if (!L) continue;
+  return `<g class="tm-lights">${s}</g>`;
+}
+
+
+
+
+function lightsOf(b, L) {
+  let s = '';
+  {
     
     for (const w of windowSpots(L)) if (w.night && w.y + 36 < L.y - 108) s += `<rect x="${f(w.x)}" y="${f(w.y)}" width="28" height="36" rx="${L.roof === 'pagoda' || L.lanterns ? 14 : 2}" fill="#ffd98a" fill-opacity=".9"/><circle cx="${f(w.x + 14)}" cy="${f(w.y + 18)}" r="34" fill="url(#tm-glow)"/>`;
     if (b.id === 'opera') s += [0, 1, 2].map((i) => `<rect x="${f(L.x - 50 + i * 36)}" y="${L.y - 70}" width="28" height="70" rx="14" fill="#ffd27a" fill-opacity=".55"/>`).join('') + `<ellipse cx="${L.x}" cy="${L.y - 40}" rx="${L.w * 0.6}" ry="60" fill="url(#tm-glow)"/>`;
     else if (L.roof === 'church') s += `<circle cx="${L.x}" cy="${L.y - L.h - 14}" r="36" fill="url(#tm-glow)"/>` + [L.x - L.w / 2 + 24, L.x + L.w / 2 - 24].map((x) => `<ellipse cx="${x}" cy="${L.y - L.h + 54}" rx="16" ry="38" fill="url(#tm-glow)"/>`).join('');
     else if (L.roof !== 'stall') {
       const sw = L.w * 0.56, sx = L.x - L.w / 2 + 12, sy = L.y - 74;
-      s += `<rect x="${f(sx)}" y="${sy}" width="${f(sw)}" height="58" fill="#ffcf7a" fill-opacity=".42" style="mix-blend-mode:screen"/><ellipse cx="${f(sx + sw / 2)}" cy="${L.y}" rx="${f(sw * 0.7)}" ry="14" fill="#ffcf7a" fill-opacity=".25"/>`;
+      s += `<rect x="${f(sx)}" y="${sy}" width="${f(sw)}" height="58" fill="#ffcf7a" fill-opacity=".38"/><ellipse cx="${f(sx + sw / 2)}" cy="${L.y + 12}" rx="${f(sw * 0.6)}" ry="7" fill="#ffcf7a" fill-opacity=".2"/>`;
     }
-    if (L.neon) s += `<ellipse cx="${L.x}" cy="${L.y - 95}" rx="90" ry="30" fill="url(#tm-blueglow)"/>`;
+    if (L.neon) s += `<ellipse cx="${L.x}" cy="${L.y - 95}" rx="${L.w * 0.42}" ry="26" fill="url(#tm-blueglow)"/>`;
   }
-  s += LAMPS.map(([x, y]) => `<ellipse cx="${x}" cy="${y + 2}" rx="34" ry="9" fill="#ffd98a" fill-opacity=".22"/><circle cx="${x}" cy="${y - 50}" r="30" fill="url(#tm-glow)"/><path d="M${x - 4},${y - 46} h8 l-2,-8 h-4 Z" fill="#fff2bf"/>`).join('');
-  
-  for (const [x1, y1, x2, y2] of [[1050, 470, 1390, 455], [1220, 480, 1550, 470]]) {
-    for (let i = 1; i < 8; i++) { const t = i / 8, x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t + Math.sin(t * Math.PI) * 20; s += `<circle cx="${f(x)}" cy="${f(y + 13)}" r="18" fill="url(#tm-redglow)"/><ellipse cx="${f(x)}" cy="${f(y + 13)}" rx="5" ry="8" fill="#ffb07a" fill-opacity=".8"/>`; }
-  }
-  return `<g class="tm-lights">${s}</g>`;
+  return s;
 }
 
 function tree(x, y, s = 1) {

@@ -52,10 +52,11 @@
 
 
 
-.tm-nightveil, .tm-lights, .tm-nightsky { opacity: 0; pointer-events: none; transition: opacity .8s; }
+.tm-lights, .tm-nightsky { opacity: 0; pointer-events: none; transition: opacity .8s; }
 .tm-lights, .tm-badges, .tm-label { pointer-events: none; }
 .townmap.night .tm-nightsky { opacity: 1; }
-.townmap.night .tm-nightveil { opacity: .8; mix-blend-mode: multiply; }
+
+.townmap.night .tm-dk { filter: url(#tm-nightf); }
 .townmap.night .tm-lights { opacity: 1; }
 .townmap.night .tm-clouds { opacity: .35; }
 .townmap.night .tm-label rect { fill: #2a2440; stroke: #e2c06b; }
