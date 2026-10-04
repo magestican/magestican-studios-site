@@ -65,7 +65,9 @@ export function createSfx({ key, recipes }) {
     return bufs[name];
   };
   const S = {
-    load(name, url) { files[name] = fetch(url).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(url)))); files[name].catch(() => { delete files[name]; }); },
+    
+    load(name, url) { const b = document.querySelector('meta[name=build]')?.content; if (b && b !== 'dev' && !/\?/.test(url)) url += '?v=' + encodeURIComponent(b);
+      files[name] = fetch(url).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(url)))); files[name].catch(() => { delete files[name]; }); },
     
     
     takes(name, list) { sets[name] = { list, last: -1 }; },

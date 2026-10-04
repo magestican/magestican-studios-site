@@ -59,6 +59,7 @@ import { BATTLE_CLOCK } from './features/battle/rules.js';
 import { startI18n } from './i18n/i18nDom.js';
 import { tr, onLangChange } from './i18n/i18n.js';
 import { mountLangPicker } from './features/menu/langPicker.js';
+import { startFreshBuild } from './freshBuild.js';
 
 const $ = id => document.getElementById(id);
 
@@ -330,6 +331,9 @@ function noPageZoom() {
 startI18n();
 mountLangPicker(document.getElementById('langTitle'), { className: 'onTitle' });
 onLangChange(() => { langRebuild = true; });
+
+startFreshBuild({ quiet: () => ['title', 'world', 'menu'].includes(G.mode) && !S.dialog?.active,
+  beforeReload: () => { if (G.mode === 'world' || G.mode === 'menu') saveGame(); }, say: (t) => toast(t, 2000) });
 hydrateIcons(document); 
 S.hints = createHints(S.input);
 S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onLine: (l, first) => S.sfx.play(lineSound(l, first), DLG), 

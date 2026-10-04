@@ -160,6 +160,7 @@ export default {
   "Music: off": "Música: no",
   "Save game": "Guardar partida",
   "Game saved.": "Partida guardada.",
+  "Updating to the new version...": "Actualizando a la nueva versión...",
   "Delete save & restart": "Borrar partida y reiniciar",
   "Delete your save and start over?": "¿Borrar tu partida y empezar de nuevo?",
   "Dachi Den — {0} friend{1} (no limit). Pick one, then make it companion 1, 2 or 3.": "Guarida Dachi — {0} amigo{1} (sin límite). Elige uno y hazlo compañero 1, 2 o 3.",
