@@ -58,14 +58,14 @@ export const HUT_SPOTS = HUTS.map(([u, v, s]) => ({ ...at(u, v), s }));
 
 export const DWELLERS = [
   { id: 'mine-v0', home: { ...at(6.8, 50.4), r: 1.4 }, lines: [
-    'You are the one off the big bird. Race me down the ledge. Loser trims the lamps. I always lose on purpose, I like trimming.',
-    'My brother went down with the Hush. They walk with their lamps out. He took mine too. It was MINE, it had a dent shaped like a bean.'] },
+    'You\'re the one off the big bird! Race me down the ledge. Loser trims the lamps. ...I always lose on purpose. I like trimming. Don\'t tell anyone.',
+    'My brother went down with the Hush. They walk around with their lamps out. And he took mine! It was MINE. It had a dent shaped like a bean.'] },
   { id: 'mine-v1', home: { ...at(-8.4, 44.6), r: 1.6 }, lines: [
-    'Put the lamp out once, down at the bottom. Just once. You stop hearing your own heart. Nobody shouts at you down there. It is... it is peaceful.',
-    'The Hermit is not wicked. He was scared, like us. He says the true dark is kinder than the camp. He says it better than I do.'] },
+    'Put your lamp out once, down at the bottom. Just once. You stop hearing your own heart. Nobody yells at you down there. It\'s... it\'s peaceful.',
+    'The Hermit\'s not wicked. He was scared, same as us. He says the true dark is kinder than the camp. He says it better than me, though.'] },
   { id: 'mine-v2', home: { ...at(13.2, 42.0), r: 1.2 }, lines: [
-    'Soup. Carry it down the shaft for the night shift and I will tell you about the Hermit. No? Then I will tell you anyway, I like an audience.',
-    'When his lenses click round, he is aiming. Click, click - then the light comes out straight as a rail. Get off the rail. After, he cannot see a thing.'] },
+    'Soup. Carry it down the shaft for the night shift and I\'ll tell you about the Hermit. No? Well, I\'m telling you anyway. I like an audience.',
+    'When his lenses click round, he\'s aiming. Click, click - then the light comes out straight as a rail. Get off the rail! After that he can\'t see a thing for a bit.'] },
 ];
 export const ELDER = { name: 'Foreman Tunn', at: POSTS.elder };
 export const ELDER_LINES = {

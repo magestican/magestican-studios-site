@@ -60,17 +60,17 @@ const LANTERNS = [[-9.2, 42.6], [-6.4, 40.4], [-3.2, 42.2], [5.6, 38.2], [1.0, 4
 
 export const DWELLERS = [
   { id: 'hollow-v0', home: { ...at(-10.4, 42.4), r: 1.8 }, lines: [
-    'You climbed the whole ladder? I had a fig on you turning back at the first wobble. Now I owe Tamsin a fig.',
-    'Do not look down. Or do. Just do not do it on one foot.'] },
+    'You did the whole ladder? Huh. I had a fig on you turning back at the first wobble. Now I owe Tamsin a fig, and she\'s going to be smug about it.',
+    'Don\'t look down. Or do, I\'m not your mother. Just don\'t do it standing on one foot.'] },
   { id: 'hollow-v1', home: { ...at(10.6, 37.0), r: 2.0 }, lines: [
-    'Mother Bramble grew our huts for us, bough by bough. Then she started taking boughs back. She never asked. She used to ask.',
-    'When her grove smells sweet, like fruit gone off, get your friends out of it. That rot gets into them and stays. Carry something to clean it out.'] },
+    'Mother Bramble grew our huts for us. Bough by bough, she did. Then she started taking the boughs back. Didn\'t ask. She always used to ask.',
+    'When her grove smells sweet - like fruit that\'s gone off - get your friends out of there. That rot gets into them and it stays. Bring something to clean it out, is all I\'m saying.'] },
   { id: 'hollow-v2', home: { ...at(1.4, 49.4), r: 2.0 }, lines: [
-    'Burn it. There, I said it. Everybody up here thinks it. Fire or frost, the thorns are scared of nothing else.',
-    'She tended every flower down there by hand. Then the red came and she started on the tree. Do not tell me she cannot help it.'] },
+    'Burn it. There. I said it. Everybody up here\'s thinking it. Fire or frost - that\'s all the thorns are scared of, nothing else.',
+    'She tended every flower down there with her own hands. Then the red came and she started on the tree. And don\'t tell me she can\'t help it. Don\'t.'] },
   { id: 'hollow-v3', home: { ...at(-3.2, 31.2), r: 2.0 }, lines: [
-    'Shh. Stand still. The tree is breathing. It breathes slower since spring. I count.',
-    'Her roots grab what stands still. My dachi stood still. When the ground goes quiet, keep moving.'] },
+    'Shh. Stand still. Hear that? The tree\'s breathing. Slower since spring. I count it every night.',
+    'Her roots grab whatever stands still. My dachi stood still. ...When the ground goes quiet, you keep moving. Okay? You keep moving.'] },
 ];
 
 

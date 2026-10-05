@@ -36,17 +36,17 @@ export function readOf(boss) {
 const withRead = (lines, boss) => { const r = readOf(boss); return r ? [...lines, r] : lines; };
 
 const VILLAGER_LINES = [
-  ['The red hand came through again last night. It took my neighbour. I had hold of his arm.', 'I keep his door shut so the ash does not get in. He will want the place clean when he comes back.'],
-  ['Do not fuss over my paw, I have three more. If your little ones are hurt, stand them by the hot spring. It fixes everything except a bad temper.'],
-  ['The wild ones are not wicked, whatever my brother says. The red ones are sick, and sick is not the same as bad. I tell him that every night at supper.'],
-  ['My hatchling says she will be level 66 by the end of the week. Sixty-six is as high as anyone goes, I tell her. Unless you start all over again and go higher, she says. Where does she hear these things?'],
-  ['I oil the Elder\'s arm every new moon. He says he lost the old one to the first spiral. He will not say what he traded for this one.'],
-  ['You have to knock them down to a quarter first. THEN you tap them. Then they like you. That is how I got my sister to like me.'],
+  ['The red hand came through again last night. Took my neighbor. I had his arm, I had it, and then I didn\'t.', 'I keep his door shut so the ash doesn\'t get in. He\'s fussy, he\'ll want it clean when he gets back. When. I said when.'],
+  ['Oh, stop fussing, it\'s one paw, I\'ve got three more. If your little ones get banged up, stand them by the hot spring. Fixes everything but a bad temper. Ask my husband.'],
+  ['The wild ones aren\'t wicked, I don\'t care what my brother says. The red ones are sick. Sick isn\'t bad. I tell him every night at supper, and every night he does the thing with his eyebrows.'],
+  ['My hatchling says she\'ll be level 66 by the end of the week. Nobody goes past sixty-six, I tell her. Unless you start all over and go higher, she says. Where does she HEAR these things?'],
+  ['Every new moon I oil the Elder\'s arm. He lost the real one to the first spiral, he says. What he gave for the new one, that he won\'t say. I\'ve asked. It just squeaks at me.'],
+  ['You have to knock them down to a quarter first. THEN you tap them. Then they like you. Worked on my sister.'],
 ];
 const SHRINE_LINES = [
-  'The priests had us sweep the steps twice for you. Twice! You could eat your dinner off them.',
-  'Our spring is better than the one up at Kazan, whatever they tell you up there. Stand your dachis by it and they perk right up.',
-  'My uncle says there is a whole city under the sea. My uncle also says he once ate a rock. A big one. So.',
+  'The priests made us sweep the steps twice for you. Twice! Go on, lick one. ...Don\'t actually lick one.',
+  'Our spring\'s better than Kazan\'s, whatever they tell you up there. They\'re jealous. Stand your dachis by it, they\'ll perk right up.',
+  'My uncle says there\'s a whole city under the sea. My uncle also says he ate a rock once. A big one. So, you know. Up to you.',
 ];
 
 export function spawnNpcs() {

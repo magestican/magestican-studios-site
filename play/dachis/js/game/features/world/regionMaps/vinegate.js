@@ -40,14 +40,14 @@ const ROOFS = ['#7cb848', '#d8a050', '#c86a3a', '#e0c060'];
 export const HUT_SPOTS = HUTS.map(([u, v, s]) => ({ ...at(u, v), s }));
 export const DWELLERS = [
   { id: 'vine-v0', home: { ...at(-0.6, 48.2), r: 1.6 }, lines: [
-    'You came on the big bird? Hoo! Hold the rails. It always rains, and I am not fishing you out. I fished out three this week.',
-    'The river goes all the way to the old temple steps. Nobody fishes past the bend. The fish up there have opinions.'] },
+    'You came on the big bird? Hoo! Hold the rails. It always rains here, and I\'m not fishing you out. I\'ve fished out three this week already.',
+    'The river runs all the way up to the old temple steps. Nobody fishes past the bend, though. The fish up there have opinions.'] },
   { id: 'vine-v1', home: { ...at(9.2, 41.0), r: 1.4 }, lines: [
-    'Kingshade used to swing down every morning. Now he sends guards. My son is a guard. My son used to swing down too.',
-    'When the king crosses his fists, do not hit him. It is like hitting the mountain. He uncrosses them to bring them down. That is when.'] },
+    'Kingshade used to swing down every morning. Now he sends guards. My son\'s a guard. My son used to swing down too. ...He doesn\'t swing anymore.',
+    'When the king crosses his fists, don\'t hit him. It\'s like punching a mountain. He has to uncross them to bring them down. That\'s when. Then.'] },
   { id: 'vine-v2', home: { ...at(-8.8, 41.4), r: 1.4 }, lines: [
-    'Stilts, because the river floods. Kingshade carried my mother up the vines in the last one. Do not tell him I told you.',
-    'Throw a fig in the water for luck. Not that fig. That is my fig. ...The canopy gales knocked him flat once, you know. Wind. He hates wind.'] },
+    'Stilts, because the river floods. Kingshade carried my mom up the vines in the last one. Don\'t tell him I told you. He gets embarrassed.',
+    'Throw a fig in the water for luck. Not that fig. That\'s my fig. ...The canopy gales knocked him flat once, you know. Wind. He hates wind.'] },
 ];
 export const ELDER = { name: 'Old Banyan', at: POSTS.elder };
 export const ELDER_LINES = {

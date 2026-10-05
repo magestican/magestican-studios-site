@@ -41,16 +41,16 @@ export const HUT_SPOTS = HUTS.map(([u, v, sc]) => ({ ...at(u, v), s: sc }));
 const LANTERNS = [[-7.6, 41.0], [-6.8, 44.0], [-3.6, 39.8], [-2.4, 42.8]];
 export const DWELLERS = [
   { id: 'shell-v0', home: { ...at(-3.0, 43.6), r: 2.6 }, lines: [
-    'You walked in dry. You are welcome. I patched that seam this morning. Nobody else would have, and nobody ever says so.',
-    'Stay off the edge. Out there the water folds you up small. I saw it once. Do not make me see it again.'] },
+    'You walked in dry. You\'re welcome. I patched that seam this morning. Nobody else would\'ve. Nobody ever says thanks either, but that\'s fine. It\'s fine.',
+    'Stay off the edge. Out there the water folds you up small. I saw it happen once. Don\'t make me see it again.'] },
   { id: 'shell-v1', home: { ...at(4.0, 41.0), r: 2.6 }, lines: [
-    'Sit your friends in the clam\'s pool, it heals them. Then get them out. She pinches if they stay.',
-    'Leviathrum pings before he drops. Ping, ping, ping, then the whole sea comes down on you. We used to count along with him. It was a game.'] },
+    'Sit your friends in the clam\'s pool, it heals them. Then get \'em out quick. She pinches if they hang around. Ask me how I know.',
+    'Leviathrum pings before he drops. Ping, ping, ping - and then the whole sea comes down on you. We used to count along with him when we were little. It was a game back then.'] },
   { id: 'shell-v2', home: { ...at(-2.6, 39.0), r: 2.4 }, lines: [
-    'Lightning. That is what he cannot stand. A storm cracked his hull once and he sulked under the temple for a year. Grandmother says.',
-    'The red-eyed ones in the kelp chewed every frond my sister planted. She cried. Then she bit one. We do not talk about it.'] },
+    'Lightning. That\'s what he can\'t stand. A storm cracked his hull once and he sulked under the temple for a whole year. That\'s what Grandmother says, anyway.',
+    'The red-eyed ones out in the kelp chewed up every frond my sister planted. She cried. Then she bit one. We don\'t talk about it.'] },
   { id: 'shell-v3', home: { ...at(2.6, 45.4), r: 2.4 }, lines: [
-    'I found a Memory Stone in the gardens and it talked. My brother says it was a shell. My brother is stupid.',
+    'I found a Memory Stone in the gardens and it TALKED. My brother says it was a shell. My brother\'s dumb.',
     'Your shoes squeak. Nobody here has shoes. Can I touch one? ...Can I keep one?'] },
 ];
 

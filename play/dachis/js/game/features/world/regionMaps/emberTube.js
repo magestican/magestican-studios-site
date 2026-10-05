@@ -22,14 +22,14 @@ export const SPRING = at(3.6, 34.8);
 
 export const DWELLERS = [
   { id: 'ember-v0', home: { ...at(-3.5, 37.5), r: 2.6 }, lines: [
-    'Forty-one torches. I light them, I trim them, I light them again. You are standing in number nine\'s light, so you owe me a stick of resin.',
-    'Ashlo used to carry coals down from the crater for us. Scraped his foot twice, then ran the slope like a bull. Straight. Never turned once he started.'] },
+    'Forty-one torches. I light \'em, trim \'em, light \'em again. You\'re standing in number nine\'s light, by the way. That\'s a stick of resin you owe me.',
+    'Ashlo used to bring us coals down from the crater, you know. Scraped his foot twice, then came down the slope like a bull. Straight down. Once he started, he never turned. Not once.'] },
   { id: 'ember-v1', home: { ...at(5.5, 62), r: 2.6 }, lines: [
-    'Do not lean over the pools. My boy did, on a bet. He has no eyebrows now and he says it is the best thing that ever happened to him.',
-    'You want to put out something that burns, bring something wet. Or a rock. My mother said that, and she was wrong about everything else.'] },
+    'Don\'t lean over the pools. My boy did, on a bet. No eyebrows now. Says it\'s the best thing that ever happened to him. Kids.',
+    'You want to put out something that burns, bring something wet. Or a rock. My mother used to say that. Only thing she ever got right, mind you.'] },
   { id: 'ember-v2', home: { ...at(-6, 70), r: 2.6 }, lines: [
-    'A little one hatched in the warm stones and went off humming toward the Hall. Somebody up in the village keeps asking after her. Not me. I am not going near the Hall.',
-    'Past the Hall the tube goes cold. I am not scared of cold. I am scared of whatever makes a fire tube go cold. Different thing.'] },
+    'A little one hatched in the warm stones and went off humming toward the Hall. Somebody up in the village keeps asking about her. Not me. I\'m not asking. I\'m not going near that Hall.',
+    'Past the Hall the tube goes cold. And I\'m not scared of cold, okay? I\'m scared of whatever makes a fire tube go cold. That\'s a whole different thing.'] },
 ];
 
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);

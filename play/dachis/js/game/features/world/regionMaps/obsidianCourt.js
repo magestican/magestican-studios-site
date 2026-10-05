@@ -56,8 +56,8 @@ export const KING_LINES = [
   'You may go. ...That was not permission. You do not need my permission. It is a habit. I am to be on the terraces tomorrow; Banyan says I will learn figs.',
 ];
 export const GUARDS = [ 
-  { id: 'court-g0', home: { ...at(-6.0, 66.6), r: 1.2 }, lines: ['We were told to stop anyone. You are anyone. ...Please do not tell him we let you by.', 'He carried my grandmother up the vines in the flood. She will not hear a word against him. Neither will I. ...Mostly.'] },
-  { id: 'court-g1', home: { ...at(6.0, 70.0), r: 1.2 }, lines: ['He says the spirals lead to a better jungle. I like this jungle. Is that wrong?', 'If you are going in, mind his fists. He hits like a falling tree.'] },
+  { id: 'court-g0', home: { ...at(-6.0, 66.6), r: 1.2 }, lines: ['We were told to stop anyone. You\'re anyone. ...Please don\'t tell him we let you by.', 'He carried my grandmother up the vines in the flood. She will not hear a word against him. Neither will I. ...Mostly.'] },
+  { id: 'court-g1', home: { ...at(6.0, 70.0), r: 1.2 }, lines: ['He says the spirals lead to a better jungle. But I like this jungle. Is that wrong? Is that a wrong thing to say?', 'If you\'re going in, watch his fists. He hits like a falling tree. I\'d know.'] },
   { id: 'court-g2', home: { ...at(-6.0, 74.0), r: 1.2 }, lines: ['My tail is shaking. It does that. It does not mean anything. (It means everything.)', 'Old Banyan sent word you might come. She said you were small and loud. She was right about both.'] },
 ];
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);

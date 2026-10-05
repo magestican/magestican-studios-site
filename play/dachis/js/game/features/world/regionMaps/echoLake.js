@@ -44,14 +44,14 @@ export const HUT_SPOTS = HUTS.map(([u, v, s]) => ({ ...at(u, v), s }));
 export const LANE = [[-15.0, 31.0], [-11.0, 36.6], [-7.6, 40.4], [-3.0, 43.6], [0.6, 47.6], [1.6, 49.6]];
 export const DWELLERS = [
   { id: 'echo-v0', home: { ...at(-8.6, 41.6), r: 2.2 }, lines: [
-    'Shout across the water and it shouts back. Three times. My grandmother says the third one is not yours. She will not say whose.',
-    'We fish by ear down here. You listen for the splash, then you count. If you count past nine, it was not a fish.'] },
+    'Shout across the water and it shouts back. Three times. Grandma says the third one isn\'t yours. Whose is it, then? She won\'t say. She just does the knitting faster.',
+    'We fish by ear down here. You listen for the splash, then you count. If you get past nine, that wasn\'t a fish. Pull your line in.'] },
   { id: 'echo-v1', home: { ...at(-2.4, 45.4), r: 2.2 }, lines: [
-    'Take the raft, pole it slow. Fast, and the river takes the pole. Then the river takes you. Then my father goes looking. He hates going looking.',
-    'The islands have the good shells. The ones that hum. I traded a hum shell for a whole basket of eels once. The eels were not worth it.'] },
+    'Take the raft, pole it slow. Go fast and the river takes the pole. Then the river takes you. Then my dad has to go looking, and he hates going looking.',
+    'The islands have the good shells. The ones that hum. I traded a hum shell for a whole basket of eels once. Worst trade of my life. Don\'t trade for eels.'] },
   { id: 'echo-v2', home: { ...at(-12.6, 39.0), r: 2.0 }, lines: [
-    'You came down from the crystal? Nobody comes down from the crystal. We go up to the crystal. To sell fish to the ones who polish mirrors.',
-    'Do not eat the white fish. Do not eat the black fish either. Eat the brown ones. Those are just bread. My mother bakes them fish-shaped. Long story.'] },
+    'You came DOWN from the crystal? Nobody comes down from the crystal. We go up. To sell fish to the mirror polishers. They never haggle, they\'re too tired.',
+    'Don\'t eat the white fish. Or the black fish. Eat the brown ones, those are just bread. My mom bakes them fish-shaped. It\'s a long story.'] },
 ];
 
 const segD = ([au, av], [bu, bv], u, v) => {

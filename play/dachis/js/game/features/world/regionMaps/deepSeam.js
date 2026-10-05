@@ -51,8 +51,8 @@ export const POOL = at(-2.6, 33.4);
 export const POOL_LANDING = at(1.2, 34.0);
 export const DWELLERS = [ 
   { id: 'seam-v0', home: { ...at(-1.4, 45.0), r: 0.6 }, lines: [
-    'You cannot go past. The chain is for keeping the light out, not you. ...Well. You too. You are mostly light, with that thing on your belt.',
-    'Light all four and it drops. He made it like that. He said anyone who wants the light that much should have to walk round in the dark for it first.'] },
+    'You can\'t go past. The chain\'s to keep the light out, not you. ...Well. You too, I suppose. You\'re mostly light, with that thing on your belt.',
+    'Light all four and it drops. He built it that way on purpose. Said if you want the light that badly, you can walk around in the dark for it first.'] },
 ];
 
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);

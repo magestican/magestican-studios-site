@@ -44,11 +44,11 @@ export function lanternSpots() {
 export const lampsToLight = (lamps, lit, x, y, reach) => lamps.filter((l) => !lit[l.id] && Math.hypot(l.x - x, l.y - y) < reach).map((l) => l.id);
 export const DWELLERS = [
   { id: 'shaft-v0', home: { ...at(-1.4, 47.2), r: 1.0 }, lines: [
-    'Leave them out. Please. I only just stopped shaking. You light one and I can hear the camp again, all of it, all at once.',
-    'The Hermit sat with me in the dark the first night. He did not say anything. Nobody has ever just sat with me. ...Go on, then. Light it. You will anyway.'] },
+    'Leave them out. Please. I only just stopped shaking. You light one and I can hear the camp again - all of it, all at once.',
+    'The Hermit sat with me in the dark the first night. Didn\'t say a word. Nobody\'s ever just... sat with me. ...Go on, then. Light it. You\'re going to anyway.'] },
   { id: 'shaft-v1', home: { ...at(2.0, 78.0), r: 1.0 }, lines: [
-    'The crack goes through to the Hush\'s workings. Tunn says the ceiling has to settle. Tunn says that about everything, including his knees.',
-    'I am not one of the Hush. I came down to fetch my sister out. She told me to go home. Then she put my lamp out with her thumb. Like a candle on a cake.'] },
+    'The crack goes right through to the Hush\'s workings. Tunn says the ceiling has to settle. Tunn says that about everything. His knees, his soup, his wife.',
+    'I\'m not one of the Hush, okay? I came down to get my sister out. She told me to go home. Then she put my lamp out with her thumb. Like a birthday candle.'] },
 ];
 
 function nearestOnTunnel(u, v) {

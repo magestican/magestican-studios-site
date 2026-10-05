@@ -76,11 +76,11 @@ export const ECHO_DOOR = at(0, 98.6);
 export const ECHO_BACK = at(0, 96.8);   
 export const DWELLERS = [ 
   { id: 'geode-v0', home: { ...at(-3.0, 40.6), r: 0.8 }, lines: [
-    'Do not touch the mirrors. ...You touched the mirror. Fine. Turn it again, then. See where the light goes. That is all I do all day.',
-    'I polish them every morning. Nobody asked me to. The light was here first, and it looked bored.'] },
+    'Don\'t touch the mirrors. ...You touched the mirror. Fine. Go on, turn it again. See where the light goes. That\'s all I do all day, you know. Watch where the light goes.',
+    'I polish them every morning. Nobody asked me to. The light was here first, and honestly? It looked bored.'] },
   { id: 'geode-v1', home: { ...at(5.0, 88.6), r: 2.0 }, lines: [
-    'You came through all three halls? With the mirrors? I came in through a crack in the floor. Nobody told me there was a puzzle.',
-    'The pool hums if you put your ear to it. The miners say it is water moving underneath. I think it is singing. Quietly. To itself.'] },
+    'You came through all three halls? With the mirrors and everything? I came in through a crack in the floor. Nobody told me there was a puzzle.',
+    'The pool hums if you put your ear to it. The miners say it\'s just water moving underneath. I think it\'s singing. Quietly. Just to itself.'] },
 ];
 
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);
