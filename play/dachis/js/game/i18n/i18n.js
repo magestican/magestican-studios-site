@@ -5,6 +5,7 @@
 
 
 
+
 import { ES_419 } from './es419.js';
 import { ZH_HK } from './zhHK.js';
 import { JA_JP } from './jaJP.js';
@@ -59,7 +60,7 @@ function trIn(s, depth) {
   const a = s.match(/^\s*/)[0], z = s.slice(a.length).match(/\s*$/)[0], core = s.slice(a.length, s.length - z.length);
   if (!core || !/[A-Za-z]/.test(core)) return s;
   const r = look(core, depth);
-  if (r == null) { if (depth === 0 && typeof window !== 'undefined' && window.__i18nMiss) window.__i18nMiss.add(core); return s; }
+  if (r == null) { const miss = depth === 0 && typeof window !== 'undefined' &&  (window).__i18nMiss; if (miss) miss.add(core); return s; }
   return a + r + z;
 }
 

@@ -7,6 +7,7 @@
 
 
 
+
 export const CELL = 2, WARN = 0.8;
 export const period = (s) => s.black + s.hot;
 export function crustAt(s, t) {

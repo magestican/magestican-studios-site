@@ -6,6 +6,7 @@
 
 
 
+
 export const WATCHED = ['ashlo', 'kingshade', 'glacius', 'pyrecrown'];
 export const watchDue = (flags, boss) => WATCHED.includes(boss) && !((flags && flags.watched) || {})[boss];
 export const markWatched = (flags, boss) => ({ ...((flags && flags.watched) || {}), [boss]: true });

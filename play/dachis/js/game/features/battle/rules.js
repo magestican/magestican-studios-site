@@ -1,5 +1,6 @@
 
 
+
 import { capsFor, speciesById, statsOf, typeMult, attrMult, attrOf } from '../../data/species.js';
 
 export const CAPTURE_HP = 0.25;          

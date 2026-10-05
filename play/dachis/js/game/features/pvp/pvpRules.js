@@ -2,6 +2,7 @@
 
 
 
+
 export const PVP_BAND = 10;
 
 const avg = team => team.reduce((a, d) => a + d.lvl, 0) / Math.max(1, team.length);

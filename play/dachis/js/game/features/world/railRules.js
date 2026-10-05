@@ -9,6 +9,7 @@
 
 
 
+
 export function railsAt(net, id) { return net.rails.filter((r) => r.a === id || r.b === id); }
 export const other = (r, id) => (r.a === id ? r.b : r.a);
 const ptsFrom = (r, id) => (r.a === id ? r.pts : r.pts.slice().reverse());

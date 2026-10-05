@@ -93,7 +93,6 @@ export default {
   "Pick up": "Recoger",
   "Fight now": "Pelear ya",
   "Not yet": "Todavía no",
-  "You": "Tú",
   "The grass flattens - a gust is coming!": "El pasto se aplasta: ¡viene una ráfaga!",
 
   

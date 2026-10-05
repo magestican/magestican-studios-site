@@ -9,6 +9,7 @@
 
 
 
+
 export const CELL = 2;
 export const key = (c, r) => c + ',' + r;
 const kind = (room, c, r) => (r < 0 || r >= room.grid.length || c < 0 || c >= room.grid[0].length ? null : room.grid[r][c]);
@@ -36,7 +37,9 @@ export const atExit = (room, reg) => reg.has(key(room.exit, room.grid.length - 1
 
 const canTurn = (reg, v) => [[0, 0], [0, 1], [1, 0], [-1, 0], [0, -1]].some(([dc, dr]) => reg.has(key(v.at[0] + dc, v.at[1] + dr)));
 export function solve(room) {
-  const enc = (s) => [...s].sort().join(','), q = [[new Set(), 0]], seen = new Set(['']);
+  const enc = (s) => [...s].sort().join(','), seen = new Set(['']);
+  
+  const q = [[new Set(), 0]];
   while (q.length) {
     const [open, n] = q.shift(), reg = region(room, open);
     if (atExit(room, reg)) return n;

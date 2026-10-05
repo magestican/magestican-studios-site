@@ -7,6 +7,7 @@
 
 
 
+
 export const CELL = 2;
 export const key = (c, r) => c + ',' + r;
 export const fresh = () => ({ walked: new Set(), holes: new Set() });
