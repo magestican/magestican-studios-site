@@ -8,6 +8,7 @@
 
 
 
+
 import { SPECIES, EXTRA, BOSSES } from '../../data/species.js';
 
 const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -28,7 +29,7 @@ export function chapterFlags(n) {
 export function parseCheat(search) {
   const raw = new URLSearchParams(search).get('cheat');
   if (!raw) return null;
-  const c = { chapter: null, at: null, party: [], boss: null, items: null, errors: [] };
+  const c = { chapter: null, at: null, party: [], boss: null, items: null, watch: null, errors: [] };
   for (const part of raw.split(';').map((s) => s.trim()).filter(Boolean)) {
     const i = part.indexOf(':'), key = (i < 0 ? part : part.slice(0, i)).toLowerCase(), val = i < 0 ? '' : part.slice(i + 1);
     if (key === 'chapter') c.chapter = Math.max(1, Math.min(8, Number(val) || 1));
@@ -39,6 +40,7 @@ export function parseCheat(search) {
     }
     else if (key === 'boss') { if (BOSSES.some((b) => b.id === val)) c.boss = val; else c.errors.push('no boss "' + val + '"'); }
     else if (key === 'items') c.items = Math.max(0, Number(val) || 0);
+    else if (key === 'watch') { if (BOSSES.some((b) => b.id === val)) c.watch = val; else c.errors.push('no boss "' + val + '"'); }
     else c.errors.push('unknown "' + key + '"');
   }
   return c;
@@ -74,6 +76,7 @@ export async function applyCheat(c, d) {
   
   for (let i = 0; i < 15 && !S.dialog.active; i++) await wait(100);
   while (S.dialog.active) { S.dialog.hide(); await wait(150); }
+  if (c.watch && d.startWatcher) d.startWatcher(c.watch, () => {}, { force: true });
   if (c.boss) d.startBossBattle(c.boss, { x: G.player.x + 2, y: G.player.y + 2 });
   d.toast('CHEAT' + (c.errors.length ? ': ' + c.errors.join(', ') : ' on - this run is not saved'), 3200);
 }

@@ -59,6 +59,7 @@ import { lightPass, mirrorNear, turnMirror } from './features/world/mirrors.js';
 import { updateRafts, riding, dockNear, startRide } from './features/world/rafts.js';
 import { updateDecks, winchNear, windWinch } from './features/world/decks.js';
 import { updateThinIce, thinPass } from './features/world/thinIce.js';
+import { startWatcher, updateWatcher, watchPass, watching } from './features/story/watcher.js';
 import { BATTLE_CLOCK } from './features/battle/rules.js';
 import { startI18n } from './i18n/i18nDom.js';
 import { tr, onLangChange } from './i18n/i18n.js';
@@ -271,7 +272,7 @@ S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: { ...SOUNDS, opener: SOUNDS.start, bossOpener: SOUNDS.start } });
 
 
-for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch', 'xpFill', 'levelUp', 'itemPop', 'mirrorTurn', 'raftPole', 'tellHiss', 'iceCrack', 'thaw']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
+for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch', 'xpFill', 'levelUp', 'itemPop', 'mirrorTurn', 'raftPole', 'tellHiss', 'iceCrack', 'thaw', 'knightLaugh']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
 
 
 
@@ -366,7 +367,7 @@ window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: mu
 installPerchMenu();
 
 { const cheat = parseCheat(location.search); if (cheat) Promise.all([import('./state.js'), import('./data/species.js'), import('./features/battle/battle.js'), import('./features/world/sections.js')])
-  .then(([st, sp, bt, sc]) => applyCheat(cheat, { G, S, loadRegion, addDachi: st.addDachi, makeDachi: sp.makeDachi, statsOf: sp.statsOf, healParty, startBossBattle: bt.startBossBattle, sectionById: sc.sectionById, fromUV: sc.fromUV, regionById, toast })); }
+  .then(([st, sp, bt, sc]) => applyCheat(cheat, { G, S, loadRegion, addDachi: st.addDachi, makeDachi: sp.makeDachi, statsOf: sp.statsOf, healParty, startBossBattle: bt.startBossBattle, sectionById: sc.sectionById, fromUV: sc.fromUV, regionById, toast, startWatcher })); }
 
 
 $('touchZone').addEventListener('pointerdown', e => {
@@ -552,10 +553,11 @@ function frame(now) {
     if (G.mode === 'world') {
       if (S.dialog.active) dialogActions();
       else {
-        updatePlayer(dt, !storyLocksMovement() && !riding());
+        updatePlayer(dt, !storyLocksMovement() && !riding() && !watching());
         updateRafts(dt); 
         updateDecks(); 
         updateThinIce(); 
+        updateWatcher(dt); 
         updateNpcs(dt);
         const touched = updateWilds(dt, { active: !!G.flags.starter });
         separateCrowd(dt, lairBodies()); 
@@ -601,6 +603,7 @@ function frame(now) {
     
     lightPass(octx); 
     thinPass(octx); 
+    watchPass(octx); 
     darkPass(octx, dt); 
     if (B) drawBattleOverlay(octx, t);
     if (G.mode === 'world' && !S.dialog.active) { drawWildAlerts(octx); worldHints(); }

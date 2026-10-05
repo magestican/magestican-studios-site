@@ -26,13 +26,13 @@ function load(url) {
   return loaded.get(url);
 }
 const here = (f) => new URL(f, self.location.href.split('?')[0]).href;
-const mods = Promise.all(['./dachiModel.js', './kidModel.js', './elderModel.js', './aerowingModel.js', './bossModel.js'].map((f) => load(here(f)).then((b) => import(b))))
+const mods = Promise.all(['./dachiModel.js', './kidModel.js', './elderModel.js', './aerowingModel.js', './bossModel.js', './knightModel.js'].map((f) => load(here(f)).then((b) => import(b))))
   .catch(() => Promise.all([ 
-    import('./dachiModel.js' + Q), import('./kidModel.js' + Q), import('./elderModel.js' + Q), import('./aerowingModel.js' + Q), import('./bossModel.js' + Q)]));
+    import('./dachiModel.js' + Q), import('./kidModel.js' + Q), import('./elderModel.js' + Q), import('./aerowingModel.js' + Q), import('./bossModel.js' + Q), import('./knightModel.js' + Q)]));
 
 self.onmessage = async (e) => {
-  const [{ dachiArrays }, { kidArrays }, { elderArrays }, { aerowingArrays }, { bossArrays }] = await mods;
+  const [{ dachiArrays }, { kidArrays }, { elderArrays }, { aerowingArrays }, { bossArrays }, { knightArrays }] = await mods;
   const { kind = 'dachi', spId, opts } = e.data, t0 = performance.now();
-  const arrays = kind === 'kid' ? kidArrays(opts) : kind === 'elder' ? elderArrays() : kind === 'aerowing' ? aerowingArrays(opts) : kind === 'boss' ? bossArrays(opts.boss) : dachiArrays(spId, opts);
+  const arrays = kind === 'kid' ? kidArrays(opts) : kind === 'elder' ? elderArrays() : kind === 'aerowing' ? aerowingArrays(opts) : kind === 'boss' ? bossArrays(opts.boss) : kind === 'knight' ? knightArrays(opts) : dachiArrays(spId, opts);
   self.postMessage({ arrays, ms: performance.now() - t0 });
 };

@@ -12,6 +12,7 @@ import { patternOf } from './bossPattern.js';
 import { questEvent, bossStoneLines } from '../quest/questRuntime.js';
 import { xpRun, statGain, rollDrops } from './spoils.js';
 import { showSpoils } from './spoilsCard.js';
+import { startWatcher } from '../story/watcher.js';
 
 export function onBattleFinished(b) {
   
@@ -78,9 +79,11 @@ export function onBattleFinished(b) {
     p.x = home.x; p.y = home.y; G.follower.x = p.x; G.follower.y = p.y - 0.6;
     healParty();
   } else if (res === 'run') wild.stun = 3;
+  
+  const after = b.boss && res === 'win' ? () => startWatcher(b.boss, checkEvolutions) : checkEvolutions;
   saveGame();
-  const lines = () => { if (msgs.length) S.dialog.say(msgs.map(m => (typeof m === 'string' ? { text: m } : m)), () => checkEvolutions()); else checkEvolutions(); };
+  const lines = () => { if (msgs.length) S.dialog.say(msgs.map(m => (typeof m === 'string' ? { text: m } : m)), () => after()); else after(); };
   if (rows.length || drops.length) { showSpoils({ rows, drops, title: res === 'capture' ? 'NEW FRIEND!' : b.boss ? 'BOSS DOWN!' : 'VICTORY!' }, lines); return; }
-  if (msgs.length) S.dialog.say(msgs.map(m => (typeof m === 'string' ? { text: m } : m)), () => checkEvolutions());
-  else checkEvolutions();
+  if (msgs.length) S.dialog.say(msgs.map(m => (typeof m === 'string' ? { text: m } : m)), () => after());
+  else after();
 }

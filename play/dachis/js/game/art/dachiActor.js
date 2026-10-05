@@ -20,6 +20,7 @@ import { kidArrays } from './kidModel.js';
 import { elderArrays } from './elderModel.js';
 import { bossArrays, bossKey, bossById } from './bossModel.js';
 import { aerowingArrays } from './aerowingModel.js';
+import { knightArrays } from './knightModel.js';
 import { speciesById } from '../data/species.js';
 import { dachiFx } from './dachiFx.js';
 
@@ -93,7 +94,7 @@ export function requestJob(job, cb, lowPri = false) {
   pump();
   return false;
 }
-const buildJob = (job) => (job.kind === 'kid' ? kidArrays(job.opts) : job.kind === 'elder' ? elderArrays() : job.kind === 'aerowing' ? aerowingArrays(job.opts) : job.kind === 'boss' ? bossArrays(job.opts.boss) : dachiArrays(job.spId, job.opts));
+const buildJob = (job) => (job.kind === 'kid' ? kidArrays(job.opts) : job.kind === 'elder' ? elderArrays() : job.kind === 'aerowing' ? aerowingArrays(job.opts) : job.kind === 'boss' ? bossArrays(job.opts.boss) : job.kind === 'knight' ? knightArrays(job.opts) : dachiArrays(job.spId, job.opts));
 
 export function prewarm(list) { for (const [spId, opts] of list) requestModel(spId, opts || {}, () => {}); }
 
