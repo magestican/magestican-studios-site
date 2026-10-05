@@ -269,6 +269,7 @@ export default {
   "Like a mountain!": "¡Como una montaña!",
   "Super effective!": "¡Súper efectivo!",
   "Guard": "Guardia",
+  "Guard!": "¡Lo paró!",
   "OPEN!": "¡DESCUBIERTO!",
   "Miss": "Falló",
   "DODGE!": "¡ESQUIVA!",

@@ -4,7 +4,7 @@
 
 
 import { G } from '../../state.js';
-import { B, orderParry } from './battle.js';
+import { B, orderParry, orderStance } from './battle.js';
 import { ringCentre, ringSlots, pickSlot, ringOpens, HOLD_MS, SLOT } from './ringRules.js';
 
 const $ = (id) => document.getElementById(id);
@@ -57,9 +57,10 @@ export function installOrderRing(zone) {
   }, { passive: false });
   addEventListener('pointerup', (e) => {
     if (!press || e.pointerId !== press.id) return;
-    const pick = ring && ring.k >= 0 ? ring.btns[ring.k] : null;
+    const pick = ring && ring.k >= 0 ? ring.btns[ring.k] : null, tap = !ring;
     close();
     if (pick) fire(pick);
+    else if (tap && B && B.stance === 'guard') orderStance('guard'); 
   });
   addEventListener('pointercancel', (e) => { if (press && e.pointerId === press.id) close(); });
 }

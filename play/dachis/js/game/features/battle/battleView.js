@@ -446,6 +446,13 @@ function drawG12Over(L, P, groundRing, u, t) {
       L.line(px - g, py, px + g, py, col, 2); L.line(px, py - g * 0.8, px, py + g * 0.8, col, 2);
       L.line(px - g * 0.5, py - g * 0.5, px + g * 0.5, py + g * 0.5, col, 1); L.line(px - g * 0.5, py + g * 0.5, px + g * 0.5, py - g * 0.5, col, 1);
       pxRing(L, px, py, u * (0.4 + k * 1.6), col, 2);
+    } else if (e.kind === 'guardRing') { 
+      const [px, py] = P(e.f.x, e.f.y, 0.6), r = u * (0.72 + 0.12 * Math.min(1, k * 6)), fade = Math.pow(1 - k, 1.6);
+      if (k < 0.08) { L.alpha(0.9); L.disc(px, py, r * 0.7, '#ffffff'); }
+      L.alpha(0.3 * fade); L.disc(px, py, r * 0.92, '#9fd8ff');
+      L.alpha(fade);
+      for (let i = 0; i < 6; i++) { const a0 = i / 6 * Math.PI * 2 + Math.PI / 6, a1 = a0 + Math.PI / 3; L.line(px + Math.cos(a0) * r, py + Math.sin(a0) * r * 0.9, px + Math.cos(a1) * r, py + Math.sin(a1) * r * 0.9, '#e8f6ff', 2); }
+      pxRing(L, px, py, r * 1.08, '#9fd8ff', 1);
     } else if (e.kind === 'parryWin') { 
       const [px, py] = P(e.f.x, e.f.y, 0.6);
       L.alpha(0.75); pxRing(L, px, py, u * 0.62, '#ffffff', 1);

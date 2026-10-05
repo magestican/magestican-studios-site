@@ -62,6 +62,17 @@ export const finalDamage = (dmg, guarded, cycle = 1) => Math.min(capsFor(cycle).
 
 
 
+
+
+
+export const GUARD_SPAM = { per: 0.25, decay: 0.55, full: 0.8, wild: 1, boss: 0.99 };
+export const guardPress = (c) => Math.min(1, (c || 0) + GUARD_SPAM.per);
+export const guardDrain = (c, dt) => Math.max(0, (c || 0) - GUARD_SPAM.decay * dt);
+export const guardChance = (c, boss = false) => Math.min(boss ? GUARD_SPAM.boss : GUARD_SPAM.wild, Math.max(0, (c || 0) / GUARD_SPAM.full));
+export const fullGuard = (c, boss, rng = Math.random) => rng() < guardChance(c, boss);
+
+
+
 export const XP_RATE = 1.5;
 export function xpReward(enemy) {
   const s = speciesById(enemy.sp);

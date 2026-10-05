@@ -18,7 +18,7 @@ import {
 import { chapterOf } from '../clock/clock.js';
 import { showScout, hideScout } from './scoutCard.js';
 import { showPick, hidePick } from './pickCard.js';
-import { ableAfterFaint } from './rules.js';
+import { ableAfterFaint, guardPress, guardDrain, fullGuard } from './rules.js';
 import {
   BEAM_TIME, BEAM_TICK, BEAM_SHARE, BEAM_LEN, BEAM_HALF, FLURRY_HITS, FLURRY_GAP, FLURRY_SHARE, SLAM_TIME, SLAM_R,
   TRAP_R, TRAP_ARM, TRAP_LIFE, MAX_TRAPS, DRAIN_SHARE, SHIELD_TIME, statusOf, applyStatus, tickStatus, cleanse,
@@ -164,7 +164,9 @@ function hesitates() {
 export const STANCES = ['attack', 'guard', 'away'];
 const STANCE_SHOUT = { attack: 'Go get it!', guard: 'Guard! Hold your ground!', away: 'Keep away from it!' };
 export function orderStance(s) {
-  if (!B || B.state !== 'fight' || B.ritual || B.script || B.stance === s || B.ally.hes > 0) return;
+  if (!B || B.state !== 'fight' || B.ritual || B.script || B.ally.hes > 0) return;
+  if (s === 'guard') B.guardCharge = guardPress(B.guardCharge);   
+  if (B.stance === s) return;
   if (hesitates()) return;
   B.stance = s; shout(STANCE_SHOUT[s]);
 }
@@ -275,6 +277,13 @@ function hit(att, def, power, type, { big = false, kind = 'basic', m = null, pro
     S.sfx.play('guard');
     if (proj) reflectShot(proj, def);
     return 'reflected';
+  }
+  if (counters && def.side === 0 && B.stance === 'guard' && !B.script && fullGuard(B.guardCharge, !!B.boss)) { 
+    B.fx = B.fx.filter(e => !(e.kind === 'guardRing' && e.f === def));
+    B.fx.push({ kind: 'guardRing', f: def, x: def.x, y: def.y, t: 0, life: 1.2 });   
+    label(def, 'Guard!', '#9fd8ff', 40);
+    S.sfx.play('guard');
+    return 'blocked';
   }
   if (interrupts(kind) && (def.charge > 0 || def.beam || def.rage > 0 || def.cast)) { 
     if (def.charge > 0) def.fin = 0.5;                            
@@ -538,7 +547,7 @@ function updateCounters(f, o) {
 
 export function updateBattle(dt) {
   if (!B) return;
-  B.t += dt; B.swapCd -= dt; B.shake = Math.max(0, B.shake - dt);
+  B.t += dt; B.swapCd -= dt; B.shake = Math.max(0, B.shake - dt); B.guardCharge = guardDrain(B.guardCharge, dt);
   if (B.shout) { B.shout.t -= dt; if (B.shout.t <= 0) B.shout = null; }
   for (const n of B.nums) n.t += dt;
   B.nums = B.nums.filter(n => n.t < 1.1);
