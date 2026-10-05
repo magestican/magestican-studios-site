@@ -22,6 +22,8 @@ import * as echo from './regionMaps/echoLake.js';
 import * as frost from './regionMaps/frostspine.js';
 import * as glacier from './regionMaps/glacierField.js';
 import * as summit from './regionMaps/frozenMenagerie.js';
+import * as heart from './regionMaps/heartOfKazan.js';
+import * as galleries from './regionMaps/magmaGalleries.js';
 import { SPECIES, bossSpecies } from '../../data/species.js';
 import { partyRead } from '../battle/bossPattern.js';
 import { lairOf, lairOpen } from './lairs.js';
@@ -177,6 +179,24 @@ export function spawnNpcs() {
   if (G.region === summit.ID && G.flags.boss_glacius) {
     const kinds = SPECIES.filter((s) => s.stage === 1 && s.types[0] === 'Frost'), rf = U.rng(181);
     summit.FAMILY.forEach((f, i) => add({ kind: 'villager', id: f.id, sp: kinds[Math.floor(rf() * kinds.length)].id, x: f.x, y: f.y, home: { x: f.x, y: f.y }, radius: 1.2, lines: summit.FAMILY_LINES[i], tx: f.x, ty: f.y, wait: rf() * 3 }));
+  }
+  
+  if (G.region === heart.ID) {
+    const old = SPECIES.find((s) => s.stage === 3 && s.types[0] === 'Metal') || SPECIES.find((s) => s.stage === 3);
+    add({ kind: 'villager', id: 'heart-elder', name: heart.ELDER.name, sp: old.id, ...heart.ELDER.at, still: true, lines: G.flags.boss_pyrecrown ? heart.ELDER_LINES.after : withRead(heart.ELDER_LINES.before, 'pyrecrown') });
+    const kinds = SPECIES.filter((s) => s.stage === 1 && s.types[0] === 'Ember'), re = U.rng(191);
+    for (const d of heart.DWELLERS) {
+      const sp = kinds[Math.floor(re() * kinds.length)].id, p = pickNpcSpot(S.W, re, d.home, d.home.r, 0.8, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x: p.x, y: p.y, home: d.home, radius: d.home.r, lines: d.lines, tx: p.x, ty: p.y, wait: re() * 3 });
+    }
+  }
+  
+  if (G.region === galleries.ID) {
+    const kinds = SPECIES.filter((s) => s.stage === 2 && (s.types[0] === 'Stone' || s.types[0] === 'Tide')), re = U.rng(201);
+    for (const d of galleries.DWELLERS) {
+      const sp = kinds[Math.floor(re() * kinds.length)].id, p = pickNpcSpot(S.W, re, d.home, d.home.r, 0.8, [...G.npcs, G.player]) || d.home;
+      add({ kind: 'villager', id: d.id, sp, x: p.x, y: p.y, home: d.home, radius: d.home.r, lines: d.lines, tx: p.x, ty: p.y, wait: re() * 3 });
+    }
   }
   
   const hands = HANDS[G.region];

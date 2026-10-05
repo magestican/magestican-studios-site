@@ -74,6 +74,17 @@ export const LAIRS = [
       ['boss', 'I watched the thaw take my herd, Bridge child. Every spring, a few more into the mud. A voice in the wind said it need not happen. It said: hold still. So I held everything still.'],
       ['kid', 'They\'re not SLEEPING! There\'s a kid in there! Her aunt\'s making soup and everything! You can\'t just put people on pause \'cause you\'re scared they\'ll get old!']],
     fall: 'The frost runs off {name}\'s tusks like sweat. Behind him the ice blocks creak, and crack, and something small inside the nearest one sneezes.' },
+  
+  
+  
+  { boss: 'pyrecrown', region: 'kazan-pyre', sec: 'pyre-nest', uv: [0, 87.0], after: 'boss_glacius',
+    hint: 'Go down into the Heart of Kazan and face Pyrecrown',
+    again: "You again. I don't mind. I've waited longer for less.",
+    last: "Don't tell it I lost. ...No. It knows. It always knew which of us would go cold first.",
+    meet: [['boss', 'You came down the Stair on your own two feet. Good. I wanted a look at what the god is waiting for. "{creed}"'],
+      ['boss', 'I was the brightest fire in this mountain, Bridge child, and nobody looked up. The god looked. It said when the Spire opens there\'s a seat beside it, and it\'s mine. Every one that goes cold down here is one more step up. I know the price. I pay it.'],
+      ['kid', 'You know?! You KNOW and you\'re still- that\'s not a seat, that\'s the cool kids\' table! My cousin Vinnie does that! Everybody hates Vinnie!']],
+    fall: 'The fire goes out of {name}\'s wings one feather at a time. He sits down - not on the second seat, on the floor, in the ash - and looks at the empty seat for a long time.' },
 ];
 export const MEET = 2.3; 
 export const lairOf = (boss) => LAIRS.find((l) => l.boss === boss) || null;

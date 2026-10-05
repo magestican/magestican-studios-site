@@ -490,4 +490,7 @@ export default {
   "+{0} ATK": "+{0} 攻擊",
   "+{0} DEF": "+{0} 防禦",
   "+{0} SPD": "+{0} 速度",
+  
+  "wings beat twice...": "對翼拍兩下……",
+  "Pyrecrown's wings beat twice, then he dives on you from above. Get out from under him; when he lands his fire is out for a moment.": "Pyrecrown 對翼拍兩下，跟住就由上面衝落嚟。快啲閃開；佢一落地，把火會熄一陣。",
 };

@@ -60,6 +60,8 @@ import { lightPass, mirrorNear, turnMirror } from './features/world/mirrors.js';
 import { updateRafts, riding, dockNear, startRide } from './features/world/rafts.js';
 import { updateDecks, winchNear, windWinch } from './features/world/decks.js';
 import { updateThinIce, thinPass } from './features/world/thinIce.js';
+import { updateMagma, magmaPass, valveNear, turnValve } from './features/world/magma.js';
+import { updateCarts, cartPass, carting, cartDockNear, startCart, leverNear, throwLever } from './features/world/carts.js';
 import { startWatcher, updateWatcher, watchPass, watching } from './features/story/watcher.js';
 import { BATTLE_CLOCK } from './features/battle/rules.js';
 import { startI18n } from './i18n/i18nDom.js';
@@ -434,7 +436,7 @@ function worldActions() {
   const I = S.input;
   if (I.pressed('menu')) return openMenu();
   if (I.pressed('map')) return openMap();
-  if (!I.pressed('action') || riding()) return;
+  if (!I.pressed('action') || riding() || carting()) return;
   const spot = spotUnderKid();
   if (spot) return pickUp(spot);
   const door = doorAt(G.flags, G.region, G.player.x, G.player.y); 
@@ -447,6 +449,12 @@ function worldActions() {
   if (dock) return startRide(dock);
   const winch = winchNear(G.player.x, G.player.y); 
   if (winch) return windWinch(winch);
+  const cartAt = cartDockNear(G.player.x, G.player.y); 
+  if (cartAt) return startCart(cartAt);
+  const lever = leverNear(G.player.x, G.player.y);
+  if (lever) return throwLever(lever);
+  const valve = valveNear(G.player.x, G.player.y); 
+  if (valve) return turnValve(valve);
   const spring = S.W.objects.find(o => o.heal && U.dist(G.player.x, G.player.y, o.x, o.y) < 1.7);
   if (spring) return restAtSpring();
   if (petNear()) petLead();
@@ -497,7 +505,25 @@ function worldHints() {
     S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.7, action: 'action', label: door.label, color: '#ffb347', onTap: () => { if (doorAt(G.flags, G.region, G.player.x, G.player.y) === door) loadRegion(door.to, door.toAt); } });
     return;
   }
-  if (riding()) return;
+  if (riding() || carting()) return;
+  const cartAt = cartDockNear(p.x, p.y); 
+  if (cartAt && !n) {
+    const q = S.W.rails.land[cartAt], [x, y] = S.stage.toScreen(q.x, q.y, S.W.groundAt(q.x, q.y) + 0.4);
+    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.6, action: 'action', label: 'Ride', color: '#ffb347', onTap: () => { if (cartDockNear(G.player.x, G.player.y) === cartAt) startCart(cartAt); } });
+    return;
+  }
+  const lever = leverNear(p.x, p.y); 
+  if (lever && !n) {
+    const q = S.W.rails.levers[lever], [x, y] = S.stage.toScreen(q.x, q.y, S.W.groundAt(q.x, q.y) + 0.9);
+    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.5, action: 'action', label: 'Throw', color: '#ffd23d', onTap: () => { if (leverNear(G.player.x, G.player.y) === lever) throwLever(lever); } });
+    return;
+  }
+  const valve = valveNear(p.x, p.y); 
+  if (valve && !n) {
+    const [x, y] = S.stage.toScreen(valve.x, valve.y, S.W.groundAt(valve.x, valve.y) + 0.7);
+    S.hints.add({ x, y, r: S.stage.pxPerUnit() * 0.5, action: 'action', label: 'Turn', color: '#8ad8ff', onTap: () => { if (valveNear(G.player.x, G.player.y) === valve) turnValve(valve); } });
+    return;
+  }
   const dock = dockNear(p.x, p.y); 
   if (dock && !n) {
     const [x, y] = S.stage.toScreen(dock.x, dock.y, 0.4);
@@ -555,10 +581,12 @@ function frame(now) {
     if (G.mode === 'world') {
       if (S.dialog.active) dialogActions();
       else {
-        updatePlayer(dt, !storyLocksMovement() && !riding() && !watching());
+        updatePlayer(dt, !storyLocksMovement() && !riding() && !watching() && !carting());
         updateRafts(dt); 
         updateDecks(); 
         updateThinIce(); 
+        updateCarts(dt); 
+        updateMagma(dt); 
         updateWatcher(dt); 
         updateNpcs(dt);
         const touched = updateWilds(dt, { active: !!G.flags.starter });
@@ -571,7 +599,7 @@ function frame(now) {
         const through = walkThrough(doorWalk, S.W, doorAt(G.flags, G.region, G.player.x, G.player.y));
         if (through) loadRegion(through.to, through.toAt);
         worldActions();
-        if (touched && G.mode === 'world' && !G.player.deck) startBattle(touched); 
+        if (touched && G.mode === 'world' && !G.player.deck && !carting()) startBattle(touched); 
       }
     } else if (G.mode === 'battle') {
       if (S.dialog.active) dialogActions(); else battleActions();
@@ -605,6 +633,8 @@ function frame(now) {
     
     lightPass(octx); 
     thinPass(octx); 
+    magmaPass(octx); 
+    cartPass(octx); 
     watchPass(octx); 
     darkPass(octx, dt); 
     if (B) drawBattleOverlay(octx, t);

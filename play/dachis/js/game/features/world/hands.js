@@ -38,6 +38,10 @@ export const HANDS = {
     'I do the stilts. The ice moves, see? All night the lake shoves the huts around and every morning I\'m out there knocking the legs straight again. Nobody ever says thanks to a leg.',
     'The hot spring\'s mine too. Somebody\'s got to break the ice off it at dawn, and guess who. Go on, get in. Just wipe your feet after, the floor freezes.'] },
   
+  'kazan-heart': { sp: 20, name: 'Bellows', lines: [
+    'I\'m the bellows. Not the smith. The bellows. Ferro gets the hammer and the thank-yous, I get the pumping and the burnt eyebrows. Look. No eyebrows.',
+    'Washing\'s mine too. Nothing dries down here, so I hang it over the run. Then it smells like a volcano. Everything smells like a volcano. You get used to it. ...No you don\'t.'] },
+  
   'echo-lake': { sp: 93, name: 'Tack', lines: [
     'Every raft at every jetty, I lashed. Every one. You\'re welcome. And bring the pole back - last summer the river kept eleven.',
     'They call it still water out by the islands. It\'s not still. It\'s thinking. Lie flat on the logs and you can feel it think.'] },

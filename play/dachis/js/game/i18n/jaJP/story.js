@@ -242,4 +242,25 @@ export default {
   "The path goes up to the edge of a canyon. There used to be a rope bridge straight across. Now there's just the posts, with the ropes hanging cut. A skinny ledge zigzags down this side instead.": "道は谷のふちまでのぼっていく。むかしは、まっすぐ向こうへつり橋がかかっていた。いまは柱だけで、切られたロープがぶら下がっている。かわりに、ほそい岩だながこっち側をジグザグにおりている。",
   "(Okay. Nobody look down. ...I looked down. Why'd I look down?)": "（よし。だれも下を見るなよ。……見た。なんで見たんだよ。）",
   "(Don't lean over the side. Don't lean over the side. ...I'm leaning over the side.)": "（はしからのりだすな。はしからのりだすな。……のりだしてる。）",
+  
+  "Past the crater fence a crack opens in the rock, and steps go down into the mountain. Three times a river of lava runs across them, skinned over in black that splits, and glows, and seals again.": "火口のさくをこえると岩にさけ目があって、山の中へ石段がつづいている。三か所で溶岩の川が段を横切っている。表面に黒い皮が張り、それが割れて、光って、また閉じる。",
+  "(Okay. It's like the hot grates on 42nd Street. You just don't step on the glowy part. ...Mom would have a heart attack.)": "（よし。42丁目のあったかい鉄格子みたいなもんだ。光ってるとこふまなきゃいいんだよ。……ママが見たら心臓とまるな。）",
+  "The stair comes out into a cavern lit red from underneath. Huts of black stone, washing strung over a channel of lava, and in the middle a forge as big as a bus, roaring.": "石段の先は、下から赤く照らされた大きなほら穴だった。黒い石の小屋、溶岩のみぞの上にほされた洗たく物、そしてまん中で、バスくらいある炉がごうごううなっている。",
+  "(A town. Under the volcano. Under the village. Under the TOWN. How deep does this place even go?)": "（町だ。火山の下に。村の下に。町の下に、町。ここ、どこまで深いんだよ。）",
+  
+  "A lake of lava under a roof held up by black columns. Old ore rails run out over it on stilts, island to island, and at the end of each one a cart is waiting.": "黒い柱にささえられた天井の下に、溶岩の湖。古い鉱石用のレールが足場の上を島から島へのびていて、どのレールの先にもトロッコが一台待っている。",
+  "(It's the Cyclone. At Coney Island. ...If the Cyclone was on fire and had no seatbelts and nobody to yell at.)": "（コニーアイランドのサイクロンじゃん。……サイクロンが燃えてて、シートベルトもなくて、さけぶ相手もいなけりゃな。）",
+  "Three rivers of lava cross the cavern floor. Where they narrow, the tops of stone columns stand up out of them, packed tight like cobbles. One near the bank shudders, sinks, and comes slowly back up.": "溶岩の川が三本、ほら穴の床を横切っている。川がせまくなるところには石柱の頭が石だたみみたいにぎっしり顔を出している。岸の近くの一本がふるえて、沈んで、ゆっくりまた上がってくる。",
+  "Steps go down into an old stone tank brimming with steaming water. Water-kind dachis float in it with their eyes shut, not moving at all.": "石段をおりると、湯気の立つ水でいっぱいの古い石の水槽がある。みず族のダチが目を閉じて浮かんでいる。ぴくりとも動かない。",
+  
+  "The Pyre Vault. Channels of lava cut the floor into islands, and iron wheels stand up out of the stone, their pipes running down into the dark.": "送り火の霊廟。溶岩のみぞが床を島のように切り分けていて、石の中から鉄の車輪が立っている。その管は暗やみの下へのびている。",
+  "Somebody turns nothing, and nothing happens. You turn one: cold air screams up through the floor, a channel goes black - and across the room another one starts to glow.": "だれも回さなければ、なにも起きない。ひとつ回してみる。冷たい風が床からさけぶようにふき上がり、みぞがひとつ黒くなる。……そして部屋のむこうで、別のみぞが光りはじめる。",
+  "(It's Grandma's radiators. You turn one knob, the kitchen freezes and the bathroom turns into a sauna.)": "（おばあちゃんちのヒーターと同じだ。つまみひとつ回したら、台所はこおって、風呂場がサウナになるやつ。）",
+  "A ring of old flagstones over a lake of fire, ash lying on it like snow. In the middle, on a perch of bone, something with burning wings sits very straight. Beside it there is a second seat. Nobody is in it.": "火の湖の上に、古い敷石の輪。灰が雪みたいに積もっている。まん中の骨の止まり木に、燃える翼のなにかが、背すじをのばして座っている。その横に、もうひとつ席がある。だれも座っていない。",
+  "You came down the Stair on your own two feet. Good. I wanted a look at what the god is waiting for. \"{0}\"": "自分の足で石段をおりてきたか。いいだろう。神が待っているのがどんなものか、見ておきたかった。「{0}」",
+  "I was the brightest fire in this mountain, Bridge child, and nobody looked up. The god looked. It said when the Spire opens there's a seat beside it, and it's mine. Every one that goes cold down here is one more step up. I know the price. I pay it.": "わたしはこの山でいちばん明るい火だった、かけ橋の子。だが、だれも見上げなかった。神だけが見た。塔が開くとき、そのとなりに席がある、それはおまえのものだ、と。ここで冷たくなる者がひとり出るたび、一段のぼれる。代価は知っている。わたしは払う。",
+  "You know?! You KNOW and you're still- that's not a seat, that's the cool kids' table! My cousin Vinnie does that! Everybody hates Vinnie!": "わかってんの！？わかっててやってんのかよ！それ席じゃねえよ、イケてるやつらのテーブルじゃん！いとこのヴィニーもそういうことすんの！みんなヴィニーのこときらいだよ！",
+  "You again. I don't mind. I've waited longer for less.": "またおまえか。かまわない。もっと少ないもののために、もっと長く待ったことがある。",
+  "Don't tell it I lost. ...No. It knows. It always knew which of us would go cold first.": "わたしが負けたとは言うな。……いや。あれは知っている。だれが先に冷たくなるか、ずっと知っていた。",
+  "The fire goes out of {0}'s wings one feather at a time. He sits down - not on the second seat, on the floor, in the ash - and looks at the empty seat for a long time.": "{0}の翼から、羽一枚ずつ火が消えていく。腰をおろす。ふたつ目の席ではなく、床の、灰の中に。そして空っぽの席を、長いあいだ見ている。",
 };

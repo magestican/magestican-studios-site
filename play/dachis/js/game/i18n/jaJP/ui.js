@@ -490,4 +490,7 @@ export default {
   "+{0} ATK": "+{0} こうげき",
   "+{0} DEF": "+{0} ぼうぎょ",
   "+{0} SPD": "+{0} すばやさ",
+  
+  "wings beat twice...": "羽が二回はばたく……",
+  "Pyrecrown's wings beat twice, then he dives on you from above. Get out from under him; when he lands his fire is out for a moment.": "Pyrecrownの羽が二回はばたいたら、上から急降下してくる。下からどけ。着地したあと、少しのあいだ火が消える。",
 };

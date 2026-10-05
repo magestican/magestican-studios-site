@@ -18,7 +18,7 @@ export const PACK_VERSION = 1;
 export const PACK_SOURCES = [
   'js/game/art/scenery/kit.js', 'js/game/art/scenery/huts.js', 'js/game/art/scenery/rocks.js', 'js/game/art/scenery/steps.js',
   'js/game/art/scenery/torches.js', 'js/game/art/scenery/fences.js', 'js/game/art/scenery/flowerBeds.js', 'js/game/art/scenery/spring.js',
-  'js/game/art/scenery/lavaCrater.js', 'js/game/art/scenery/growth.js', 'js/game/art/scenery/temple.js', 'js/game/art/scenery/doorProps.js', 'js/game/art/scenery/life.js', 'js/game/art/scenery/crystals.js', 'js/game/art/scenery/lair.js',
+  'js/game/art/scenery/lavaCrater.js', 'js/game/art/scenery/growth.js', 'js/game/art/scenery/temple.js', 'js/game/art/scenery/doorProps.js', 'js/game/art/scenery/life.js', 'js/game/art/scenery/crystals.js', 'js/game/art/scenery/lair.js', 'js/game/art/scenery/magma.js',
   'js/vendor/fml/moon/mesh/sdf.js', 'js/vendor/fml/moon/mesh/meshData.js', 'js/vendor/fml/moon/noise.js',
 ];
 

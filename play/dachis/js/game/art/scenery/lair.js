@@ -16,6 +16,9 @@
 
 
 
+
+
+
 import { S, form, lin } from './kit.js';
 import { fbm3 } from '../../../vendor/fml/moon/noise.js';
 import { LAIR_KINDS } from '../../features/world/lairDressing.js';
@@ -26,7 +29,7 @@ const C = {
   reed: lin('#d8b866'), reedDk: lin('#9a7a3a'), wood: lin('#8a5a36'), woodDk: lin('#5a3a22'), pale: lin('#e0c08a'), ring: lin('#b08a5a'),
   sand: lin('#e6d2a0'), shell: lin('#f4e8e0'), iron: lin('#5a5e66'), soil: lin('#5a3e2a'), violet: lin('#7a4ad8'), violetHi: lin('#b08aff'),
   leaf: lin('#3e8a3a'), paint: lin('#f2f0e6'), paintBlue: lin('#3a7ad8'), moss: lin('#5aa040'), mossHi: lin('#86c860'), petal: lin('#ffd84a'),
-  black: lin('#151218'), quill: lin('#3a3040'), pool: lin('#120c14'), red: lin('#ff2a36'), glass: lin('#ffe9a0'),
+  black: lin('#151218'), bone: lin('#e8dcc4'), coal: lin('#ff8a2a'), quill: lin('#3a3040'), pool: lin('#120c14'), red: lin('#ff2a36'), glass: lin('#ffe9a0'),
 };
 const P = (node, color, material) => S.paint(node, { color, material });
 const lumps = (s, amp, seed) => (x, y, z) => (fbm3(x * s, y * s, z * s, { seed, octaves: 2 }) - 0.5) * amp;
@@ -162,6 +165,24 @@ function moss() {
 }
 export const mossForm = () => form('lair-moss', moss, { min: [-0.35, -0.05, -0.3], max: [0.35, 0.45, 0.3], cell: 0.018, tris: 240 });
 
+function seat() {
+  const legs = P(S.union(0.01, ...[[-0.3, -0.25], [0.3, -0.25], [-0.3, 0.25], [0.3, 0.25]].map(([x, z]) => S.capsule([x, 0, z], [x, 0.5, z], 0.04))), C.black, 'metal');
+  const sitting = P(S.roundBox([0, 0.52, 0], [0.36, 0.05, 0.32], 0.03), C.black, 'metal');
+  const cushion = P(S.roundBox([0, 0.6, 0.02], [0.3, 0.05, 0.26], 0.05), C.cloth, 'wood');
+  const back = P(S.union(0.02, ...[-0.28, -0.1, 0.1, 0.28].map((x, k) => S.roundCone([x, 0.55, -0.3], [x * 1.25, 1.35 + (k % 3 ? 0.18 : 0), -0.36], 0.045, 0.02))), C.bone, 'stone');
+  const rail = P(S.capsule([-0.34, 1.15, -0.34], [0.34, 1.15, -0.34], 0.03), C.black, 'metal');
+  return S.union(0.01, legs, sitting, cushion, back, rail);
+}
+export const seatForm = () => form('lair-seat', seat, { min: [-0.5, -0.05, -0.5], max: [0.5, 1.6, 0.4], cell: 0.02, tris: 420 });
+
+function ashbowl() {
+  const bowl = S.subtract(0.01, S.roundCone([0, 0.0, 0], [0, 0.18, 0], 0.12, 0.22), S.sphere([0, 0.3, 0], 0.2));
+  const ash = P(S.displace(S.ellipsoid([0, 0.17, 0], [0.18, 0.07, 0.18]), lumps(10, 0.05, 61), 0.03), C.ash, 'soil');
+  const ember = P(S.sphere([0.05, 0.22, 0.03], 0.035), C.coal, 'lamp-glow');
+  return S.union(0.01, P(bowl, C.clayDk, 'wood'), ash, ember);
+}
+export const ashbowlForm = () => form('lair-ashbowl', ashbowl, { min: [-0.3, -0.05, -0.3], max: [0.3, 0.3, 0.3], cell: 0.014, tris: 220 });
+
 function feather() {
   const shaft = S.capsule([-0.36, 0.02, 0], [0.36, 0.03, 0.04], 0.012);
   const vane = S.transform(S.ellipsoid([0, 0, 0], [0.32, 0.015, 0.075]), { translate: [0.04, 0.025, 0.035], rotate: [0, -0.06, 0] });
@@ -178,7 +199,7 @@ function redpool() {
 export const redpoolForm = () => form('lair-redpool', redpool, { min: [-0.58, -0.05, -0.46], max: [0.58, 0.14, 0.46], cell: 0.02, tris: 220 });
 
 const FORMS = { clapper: clapperForm, hearth: hearthForm, offering: offeringForm, broom: broomForm, namestone: namestoneForm, sweepings: sweepingsForm,
-  stump: stumpForm, shears: shearsForm, violets: violetsForm, floodpost: floodpostForm, spears: spearsForm, moss: mossForm, feather: featherForm, redpool: redpoolForm };
+  stump: stumpForm, shears: shearsForm, violets: violetsForm, floodpost: floodpostForm, spears: spearsForm, moss: mossForm, feather: featherForm, redpool: redpoolForm, seat: seatForm, ashbowl: ashbowlForm };
 export function placeLair(batch, W) {
   for (const o of W.objects) {
     if (!LAIR_KINDS.includes(o.kind)) continue;

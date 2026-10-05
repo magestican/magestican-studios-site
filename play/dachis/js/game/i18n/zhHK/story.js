@@ -242,4 +242,25 @@ export default {
   "The path goes up to the edge of a canyon. There used to be a rope bridge straight across. Now there's just the posts, with the ropes hanging cut. A skinny ledge zigzags down this side instead.": "條路上到一個峽谷邊。以前有條吊橋打直過去。而家淨係剩返啲柱，啲繩斷咗吊喺度。呢邊有條好窄嘅崖邊路，之字咁落去。",
   "(Okay. Nobody look down. ...I looked down. Why'd I look down?)": "（OK。大家唔好望落去。……我望咗落去。我做乜要望落去？）",
   "(Don't lean over the side. Don't lean over the side. ...I'm leaning over the side.)": "（唔好挨出去。唔好挨出去。……我挨咗出去。）",
+  
+  "Past the crater fence a crack opens in the rock, and steps go down into the mountain. Three times a river of lava runs across them, skinned over in black that splits, and glows, and seals again.": "過咗火口嗰道圍欄，石頭度裂開一條縫，有級級石級一路落到座山入面。三次有條熔岩河橫過啲石級，面頭結咗層黑殼，裂開、發光、又再黐埋。",
+  "(Okay. It's like the hot grates on 42nd Street. You just don't step on the glowy part. ...Mom would have a heart attack.)": "（OK。好似 42 街啲熱風渠蓋咁啫。唔好踩發光嗰度就得。……阿媽見到實嚇到心臟病發。）",
+  "The stair comes out into a cavern lit red from underneath. Huts of black stone, washing strung over a channel of lava, and in the middle a forge as big as a bus, roaring.": "石級出口係個由下面照到成片紅嘅大岩洞。黑石砌嘅屋仔，一條熔岩坑上面晾住啲衫，中間有個好似巴士咁大嘅火爐，轟轟聲噉燒。",
+  "(A town. Under the volcano. Under the village. Under the TOWN. How deep does this place even go?)": "（一條村。喺火山下面。喺條村下面。喺條「村」下面。呢度究竟有幾深㗎？）",
+  
+  "A lake of lava under a roof held up by black columns. Old ore rails run out over it on stilts, island to island, and at the end of each one a cart is waiting.": "一個熔岩湖，上面個頂靠啲黑石柱撐住。舊礦路軌踩住高腳由一個島伸去另一個島，每條路軌尾都有架礦車喺度等。",
+  "(It's the Cyclone. At Coney Island. ...If the Cyclone was on fire and had no seatbelts and nobody to yell at.)": "（即係 Coney Island 嗰架 Cyclone 過山車。……如果架 Cyclone 著晒火、冇安全帶、又冇人可以嗌救命嘅話。）",
+  "Three rivers of lava cross the cavern floor. Where they narrow, the tops of stone columns stand up out of them, packed tight like cobbles. One near the bank shudders, sinks, and comes slowly back up.": "三條熔岩河橫過個岩洞地面。河窄嘅地方，有一條條石柱頂凸出嚟，密密麻麻好似石春路咁。岸邊有一條震咗兩下，沉咗落去，再慢慢升返上嚟。",
+  "Steps go down into an old stone tank brimming with steaming water. Water-kind dachis float in it with their eyes shut, not moving at all.": "有級石級落去一個舊石水缸，入面滿晒冒煙嘅熱水。啲水屬 dachi 合埋眼浮喺度，一啲都唔郁。",
+  
+  "The Pyre Vault. Channels of lava cut the floor into islands, and iron wheels stand up out of the stone, their pipes running down into the dark.": "葬火窟。一條條熔岩坑將地面切成一個個小島，石頭度企住一個個鐵轆，啲喉管一路伸落黑麻麻嘅地底。",
+  "Somebody turns nothing, and nothing happens. You turn one: cold air screams up through the floor, a channel goes black - and across the room another one starts to glow.": "冇人轉，就乜都冇發生。你轉一個：凍風由地底尖叫住衝上嚟，一條坑變黑——對面又有另一條開始發光。",
+  "(It's Grandma's radiators. You turn one knob, the kitchen freezes and the bathroom turns into a sauna.)": "（好似嫲嫲屋企啲暖爐咁。你扭一個掣，廚房凍到結冰，廁所就變咗桑拿。）",
+  "A ring of old flagstones over a lake of fire, ash lying on it like snow. In the middle, on a perch of bone, something with burning wings sits very straight. Beside it there is a second seat. Nobody is in it.": "一圈舊石板浮喺火湖上面，啲灰好似雪咁鋪滿一地。中間有個骨頭砌嘅棲架，有隻翼著緊火嘅嘢坐得好直。佢隔籬仲有第二張櫈。冇人坐。",
+  "You came down the Stair on your own two feet. Good. I wanted a look at what the god is waiting for. \"{0}\"": "你自己兩隻腳行落條石級。好。我想睇吓個神等緊嘅係乜嘢。「{0}」",
+  "I was the brightest fire in this mountain, Bridge child, and nobody looked up. The god looked. It said when the Spire opens there's a seat beside it, and it's mine. Every one that goes cold down here is one more step up. I know the price. I pay it.": "我係呢座山入面最光嗰把火，橋仔，但從來冇人抬頭睇。個神睇到我。佢話，尖塔一開，佢隔籬有個位，係我嘅。喺下面每凍冷一隻，就係向上行多一級。我知幾錢。我照畀。",
+  "You know?! You KNOW and you're still- that's not a seat, that's the cool kids' table! My cousin Vinnie does that! Everybody hates Vinnie!": "你知？！你明明「知」都仲要——咩位呀，即係型仔嗰枱啫！我表哥 Vinnie 都係咁！個個都憎 Vinnie！",
+  "You again. I don't mind. I've waited longer for less.": "又係你。我唔介意。我等過更耐，等嘅仲少過呢啲。",
+  "Don't tell it I lost. ...No. It knows. It always knew which of us would go cold first.": "唔好話畀佢知我輸咗。……唔使。佢知。佢一早就知我哋邊個會最先凍冷。",
+  "The fire goes out of {0}'s wings one feather at a time. He sits down - not on the second seat, on the floor, in the ash - and looks at the empty seat for a long time.": "{0} 對翼上面嘅火，一條羽毛一條羽毛咁熄。佢坐低——唔係坐第二張櫈，係坐喺地下，坐喺啲灰度——望住張空櫈望咗好耐。",
 };

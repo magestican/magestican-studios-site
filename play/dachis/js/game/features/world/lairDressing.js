@@ -19,13 +19,14 @@ export const LAIR_DRESS = {
   kingshade: [['floodpost', 2], ['spears', 3], ['redpool', 1], ['feather', 1]],              
   quartz: [['lampout', 1, { lit: true }], ['lampout', 6], ['redpool', 1]],                   
   glacius: [['moss', 6], ['feather', 1]],                                                   
+  pyrecrown: [['seat', 1], ['ashbowl', 5], ['namestone', 3], ['redpool', 1], ['feather', 1]], 
 };
 export const TRACES = new Set(['feather', 'redpool']);
 
-export const LAIR_KINDS = ['clapper', 'hearth', 'offering', 'broom', 'namestone', 'sweepings', 'stump', 'shears', 'violets', 'floodpost', 'spears', 'lampout', 'moss', 'feather', 'redpool'];
-const SOLID = { namestone: 0.22, floodpost: 0.12, lampout: 0.18, hearth: 0.5, offering: 0.3, broom: 0.2, stump: 0.4 };
+export const LAIR_KINDS = ['clapper', 'hearth', 'offering', 'broom', 'namestone', 'sweepings', 'stump', 'shears', 'violets', 'floodpost', 'spears', 'lampout', 'moss', 'feather', 'redpool', 'seat', 'ashbowl'];
+const SOLID = { seat: 0.36, ashbowl: 0.15, namestone: 0.22, floodpost: 0.12, lampout: 0.18, hearth: 0.5, offering: 0.3, broom: 0.2, stump: 0.4 };
 const FOOT = { hearth: 0.62, clapper: 0.4, offering: 0.4, broom: 0.4, namestone: 0.36, sweepings: 0.36, stump: 0.5, shears: 0.2, violets: 0.62,
-  floodpost: 0.2, spears: 0.78, lampout: 0.22, moss: 0.3, feather: 0.36, redpool: 0.5 };
+  floodpost: 0.2, spears: 0.78, lampout: 0.22, moss: 0.3, feather: 0.36, redpool: 0.5, seat: 0.5, ashbowl: 0.26 };
 export const RING = [3.3, 5.6]; 
 
 

@@ -113,10 +113,11 @@ export async function buildWorld(stage, W, slice = noSlice) {
       '#include <begin_vertex>\n  float ph = instanceMatrix[3].x * 0.7 + instanceMatrix[3].z * 0.5;\n  transformed.x += sin(uTime * 2.2 + ph) * 0.09 * position.y;\n  transformed.z += cos(uTime * 1.7 + ph) * 0.05 * position.y;');
   };
   
-  const tmat = tuftMat('#cfe3bd'), kelpMat = tuftMat('#7fd8c8'), wildMat = tuftMat('#9fd08a'), frostMat = tuftMat('#f2f8ff');
+  const tmat = tuftMat('#cfe3bd'), kelpMat = tuftMat('#7fd8c8'), wildMat = tuftMat('#9fd08a'), frostMat = tuftMat('#f2f8ff'), ashMat = tuftMat('#c86a4a');
   
   
   const FROST = GROUND_REGIONS.indexOf('frost'), snowy = (sec) => !!sec && regionByte(sec) === FROST;
+  const MAGMA = GROUND_REGIONS.indexOf('magma'), ashy = (sec) => !!sec && regionByte(sec) === MAGMA; 
   
   const tufts = {};
   const r = U.rng(99);
@@ -143,7 +144,7 @@ export async function buildWorld(stage, W, slice = noSlice) {
   for (const id in bySec) {
     const spots = bySec[id];
     if (!spots.length) continue;
-    const im = new THREE.InstancedMesh(tuft, id === 'coral' ? kelpMat : id === 'verdant' ? wildMat : snowy(id) ? frostMat : tmat, spots.length);
+    const im = new THREE.InstancedMesh(tuft, id === 'coral' ? kelpMat : id === 'verdant' ? wildMat : snowy(id) ? frostMat : ashy(id) ? ashMat : tmat, spots.length);
     spots.forEach(([x, y, s, rot], k) => { o.position.set(x, W.groundAt(x, y), y); o.scale.set(s, s, s); o.rotation.set(0, rot, 0); o.updateMatrix(); im.setMatrixAt(k, o.matrix); });
     im.computeBoundingSphere();
     im.receiveShadow = true;

@@ -31,6 +31,9 @@ import * as echoMap from './regionMaps/echoLake.js';
 import * as frostMap from './regionMaps/frostspine.js';
 import * as glacierMap from './regionMaps/glacierField.js';
 import * as summitMap from './regionMaps/frozenMenagerie.js';
+import * as heartMap from './regionMaps/heartOfKazan.js';
+import * as galleriesMap from './regionMaps/magmaGalleries.js';
+import * as vaultMap from './regionMaps/pyreVault.js';
 
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 const MOUTH = at(1.4, 48.8); 
@@ -96,6 +99,13 @@ export const DOORS = [
   { id: 'glacier-out', region: glacierMap.ID, at: glacierMap.ENTRY, to: frostMap.ID, toAt: frostMap.BACK, label: 'Back to the pass', after: null },
   { id: 'menagerie-in', region: glacierMap.ID, at: glacierMap.NORTH, to: summitMap.ID, toAt: summitMap.ENTRY, label: 'Into the Menagerie', after: null },
   { id: 'menagerie-out', region: summitMap.ID, at: summitMap.ENTRY, to: glacierMap.ID, toAt: glacierMap.NORTH_BACK, label: 'Out to the hollow', after: null },
+  
+  { id: 'heart-in', region: village.ID, at: at(-7.4, 33.0), to: heartMap.ID, toAt: heartMap.ENTRY, label: 'Down the crater', after: 'boss_glacius' },
+  { id: 'heart-out', region: heartMap.ID, at: heartMap.ENTRY, to: village.ID, toAt: at(-10.4, 33.2), label: 'Up to the village', after: null },
+  { id: 'galleries-in', region: heartMap.ID, at: heartMap.EXIT, to: galleriesMap.ID, toAt: galleriesMap.ENTRY, label: 'Into the galleries', after: null },
+  { id: 'galleries-out', region: galleriesMap.ID, at: galleriesMap.ENTRY, to: heartMap.ID, toAt: heartMap.BACK, label: 'Back to the forge', after: null },
+  { id: 'vault-in', region: galleriesMap.ID, at: galleriesMap.SOUTH, to: vaultMap.ID, toAt: vaultMap.ENTRY, label: 'Down to the vault', after: null },
+  { id: 'vault-out', region: vaultMap.ID, at: vaultMap.ENTRY, to: galleriesMap.ID, toAt: galleriesMap.SOUTH_BACK, label: 'Out to the rivers', after: null },
   { id: 'echo-in', region: geodeMap.ID, at: geodeMap.ECHO_DOOR, to: echoMap.ID, toAt: echoMap.ENTRY, label: 'Down to the lake', after: null },
   { id: 'echo-out', region: echoMap.ID, at: echoMap.ENTRY, to: geodeMap.ID, toAt: geodeMap.ECHO_BACK, label: 'Up to the crystal', after: null },
   { id: 'geode-out', region: geodeMap.ID, at: geodeMap.ENTRY, to: mineMap.ID, toAt: mineMap.GEODE_BACK, label: 'Back to the camp', after: null },

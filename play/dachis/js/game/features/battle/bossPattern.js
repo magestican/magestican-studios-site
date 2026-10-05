@@ -22,6 +22,10 @@ export const BOSS_PATTERNS = {
   
   glacius: { move: 1, tell: 1.5, first: 5, every: 9, text: 'vents hiss...', sfx: 'tellHiss', beats: 3,
     note: 'Glacius Rex\'s vents hiss three times, then he roars the cold at you. Back off; after the roar his own frost locks his legs.' },
+  
+  
+  pyrecrown: { move: 0, tell: 1.4, first: 5, every: 9, text: 'wings beat twice...', sfx: 'wingFlap', beats: 2,
+    note: 'Pyrecrown\'s wings beat twice, then he dives on you from above. Get out from under him; when he lands his fire is out for a moment.' },
 };
 export const patternOf = (bossId) => BOSS_PATTERNS[bossId] || null;
 
@@ -57,6 +61,10 @@ const READS = {
     (n) => `${n}? Ha. The Rex would keep ${n} as a doorstop. Down the hollow, east, the steam vents. The fire kinds sleep there. Bring one back. Bring ten.`,
     (n) => `${n} is warmer than it was. Not warm enough. One more trip to the vents. Fire goes through ice and iron, remember.`,
     (n) => `${n} will do. Mind the hissing. And bring my neighbour's sister back. The blue one. Chipped ear.`],
+  pyrecrown: [ 
+    (n) => `${n}? I wouldn't put ${n} in the forge to warm a kettle. East of the rivers, the old cistern. Water kinds. Go get wet.`,
+    (n) => `${n}'s got a better edge on it. Not a finished one. One more trip to the cistern and I'd call it a blade.`,
+    (n) => `${n}'ll hold. Mind the wings. And if you see the pot girl's mom up there- no. Never mind. Go.`],
 };
 export const READ_SHORT = 4, READ_CLOSE = 2;
 export function partyRead(boss, leadName, short) {

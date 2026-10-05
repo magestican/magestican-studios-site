@@ -147,7 +147,7 @@ export function hullLod(groups, { cells = HULL_CELLS, cellMin = HULL_CELL_MIN, f
 
 export const GROUND_CLASSES = ['grass', 'tall', 'sand', 'rock', 'lava', 'plaza', 'shallow', 'deep', 'wood', 'cliff',
   'jungle', 'reef', 'kelp', 'ruin', 'glade', 'thicket', 'moss'];
-export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant', 'ember', 'river', 'canopy', 'fig', 'ruins', 'court', 'volcano', 'frost'];
+export const GROUND_REGIONS = ['kazan', 'slope', 'jungle', 'road', 'coast', 'shrine', 'coral', 'verdant', 'ember', 'river', 'canopy', 'fig', 'ruins', 'court', 'volcano', 'frost', 'magma'];
 
 
 export const GROUND_BASE = {
@@ -195,6 +195,10 @@ export const GROUND_REGION = {
     ruin: ['#6aaedc', '#9cd2f2'], rock: ['#6a7488', '#8a94a8'], cliff: ['#3a4458', '#58637c'], thicket: ['#5a7a7a', '#7c9c98'],
     moss: ['#7a8a6a', '#9aaa84'], glade: ['#c4d6ea', '#e2ecf8'], path: ['#b8b0a4', '#ffffff'],
     deep: ['#7c94b0', '#9cb2ca'], shallow: ['#a8c0d8', '#c8dcee'] }, 
+  
+  magma: { rock: ['#3e3236', '#56464a'], plaza: ['#2a2230', '#3c3044'], sand: ['#7a7072', '#9a8e8c'], ruin: ['#6a4a3e', '#8a6450'],
+    cliff: ['#1e1416', '#4a2018'], thicket: ['#6a2a20', '#8e3e2a'], moss: ['#4a6a4a', '#6a8a5a'], grass: ['#5a4e4a', '#76665e'],
+    tall: ['#4a3e3a', '#62524a'], glade: ['#5a4e4a', '#76665e'], path: ['#a08a76', '#e8d0b0'] },
   ember: { rock: ['#4a3f3b', '#5f524b'], cliff: ['#2b2422', '#3d3330'], moss: ['#1f5c58', '#36a08a'], grass: ['#4a3f3b', '#5f524b'],
     path: ['#a8805e', '#e8c89a'] },
 };
@@ -222,7 +226,7 @@ export function luma(h) { const [r, g, b] = hexRgb(h); return 0.2126 * r + 0.715
 
 export function classByte(cls) { const i = GROUND_CLASSES.indexOf(cls); return i < 0 ? 0 : i; }
 
-const GROUND_ALIAS = { village: 'volcano', 'shrine-village': 'shrine', 'tomo-coast': 'coast', shellhaven: 'coral', 'kelp-maze': 'coral', 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral', 'ember-a': 'ember', 'ember-b': 'ember', hollowroot: 'verdant', 'thorn-upper': 'verdant', 'thorn-lower': 'verdant', 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant', vinegate: 'river', 'canopy-walk': 'canopy', 'fig-terraces': 'fig', 'gale-ledges': 'volcano', 'ruin-steps': 'ruins', 'court-stones': 'court', 'court-gallery': 'court', 'court-guards': 'court', 'court-throne': 'court', minehead: 'ember', 'mine-workings': 'ember', 'shaft-a': 'ember', 'shaft-b': 'ember', 'seam-hall': 'ember', 'seam-narrows': 'ember', 'seam-stones': 'ember', 'seam-hollow': 'ember', 'geode-mouth': 'ember', 'geode-prism': 'ember', 'geode-heart': 'ember', 'geode-vault': 'ember', 'echo-hamlet': 'coast', 'echo-river': 'ember', 'echo-isles': 'coral', 'frost-camp': 'frost', 'frost-pass': 'frost', 'glacier-field': 'frost', 'aurora-hollow': 'frost', 'steam-vents': 'frost', 'menagerie-1': 'frost', 'menagerie-2': 'frost', 'menagerie-3': 'frost', 'summit-lair': 'frost' };
+const GROUND_ALIAS = { village: 'volcano', 'shrine-village': 'shrine', 'tomo-coast': 'coast', shellhaven: 'coral', 'kelp-maze': 'coral', 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral', 'ember-a': 'ember', 'ember-b': 'ember', hollowroot: 'verdant', 'thorn-upper': 'verdant', 'thorn-lower': 'verdant', 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant', vinegate: 'river', 'canopy-walk': 'canopy', 'fig-terraces': 'fig', 'gale-ledges': 'volcano', 'ruin-steps': 'ruins', 'court-stones': 'court', 'court-gallery': 'court', 'court-guards': 'court', 'court-throne': 'court', minehead: 'ember', 'mine-workings': 'ember', 'shaft-a': 'ember', 'shaft-b': 'ember', 'seam-hall': 'ember', 'seam-narrows': 'ember', 'seam-stones': 'ember', 'seam-hollow': 'ember', 'geode-mouth': 'ember', 'geode-prism': 'ember', 'geode-heart': 'ember', 'geode-vault': 'ember', 'echo-hamlet': 'coast', 'echo-river': 'ember', 'echo-isles': 'coral', 'frost-camp': 'frost', 'frost-pass': 'frost', 'glacier-field': 'frost', 'aurora-hollow': 'frost', 'steam-vents': 'frost', 'menagerie-1': 'frost', 'menagerie-2': 'frost', 'menagerie-3': 'frost', 'summit-lair': 'frost', 'crater-stair': 'magma', 'ashen-forge': 'magma', 'magma-galleries': 'magma', 'obsidian-rivers': 'magma', 'cinder-cistern': 'magma', 'pyre-1': 'magma', 'pyre-2': 'magma', 'pyre-3': 'magma', 'pyre-nest': 'magma' };
 export function regionByte(region) { const i = GROUND_REGIONS.indexOf(GROUND_ALIAS[region] || region); return i < 0 ? GROUND_REGIONS.indexOf('road') : i; }
 
 

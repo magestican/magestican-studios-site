@@ -101,6 +101,32 @@ const REGION_BEATS = {
     L(NARR, 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'),
     L(KID, '(Okay. I\'ve got the light on my Walkman. ...It\'s a really, really small light.)'),
   ],
+  'pyre-1': [
+    L(NARR, 'The Pyre Vault. Channels of lava cut the floor into islands, and iron wheels stand up out of the stone, their pipes running down into the dark.'),
+    L(NARR, 'Somebody turns nothing, and nothing happens. You turn one: cold air screams up through the floor, a channel goes black - and across the room another one starts to glow.'),
+    L(KID, '(It\'s Grandma\'s radiators. You turn one knob, the kitchen freezes and the bathroom turns into a sauna.)'),
+  ],
+  'pyre-nest': [
+    L(NARR, 'A ring of old flagstones over a lake of fire, ash lying on it like snow. In the middle, on a perch of bone, something with burning wings sits very straight. Beside it there is a second seat. Nobody is in it.'),
+  ],
+  'magma-galleries': [
+    L(NARR, 'A lake of lava under a roof held up by black columns. Old ore rails run out over it on stilts, island to island, and at the end of each one a cart is waiting.'),
+    L(KID, '(It\'s the Cyclone. At Coney Island. ...If the Cyclone was on fire and had no seatbelts and nobody to yell at.)'),
+  ],
+  'obsidian-rivers': [
+    L(NARR, 'Three rivers of lava cross the cavern floor. Where they narrow, the tops of stone columns stand up out of them, packed tight like cobbles. One near the bank shudders, sinks, and comes slowly back up.'),
+  ],
+  'cinder-cistern': [
+    L(NARR, 'Steps go down into an old stone tank brimming with steaming water. Water-kind dachis float in it with their eyes shut, not moving at all.'),
+  ],
+  'crater-stair': [
+    L(NARR, 'Past the crater fence a crack opens in the rock, and steps go down into the mountain. Three times a river of lava runs across them, skinned over in black that splits, and glows, and seals again.'),
+    L(KID, '(Okay. It\'s like the hot grates on 42nd Street. You just don\'t step on the glowy part. ...Mom would have a heart attack.)'),
+  ],
+  'ashen-forge': [
+    L(NARR, 'The stair comes out into a cavern lit red from underneath. Huts of black stone, washing strung over a channel of lava, and in the middle a forge as big as a bus, roaring.'),
+    L(KID, '(A town. Under the volcano. Under the village. Under the TOWN. How deep does this place even go?)'),
+  ],
   'menagerie-1': [
     L(NARR, 'A long hall of blue ice. Dachis stand frozen along the walls, caught halfway through whatever they were doing. One\'s in the middle of a sneeze.'),
     L(NARR, 'The floor\'s ice too, thin as a window. Every step leaves a star of cracks behind you, and the cracked bits won\'t hold you twice. The far door is iced shut.'),

@@ -428,4 +428,7 @@ export default {
   "+{0} ATK": "+{0} ATQ",
   "+{0} DEF": "+{0} DEF",
   "+{0} SPD": "+{0} VEL",
+  
+  "wings beat twice...": "aletea dos veces...",
+  "Pyrecrown's wings beat twice, then he dives on you from above. Get out from under him; when he lands his fire is out for a moment.": "Las alas de Pyrecrown aletean dos veces y luego se te deja caer desde arriba. Quítate de abajo; cuando aterriza, se le apaga el fuego un momento.",
 };

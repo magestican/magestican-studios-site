@@ -23,6 +23,7 @@ export const PER_REGION = 15;
 
 const spot = (sec, u, v, map) => ({ spot: map ? { sec, uv: [u, v], map } : { sec, uv: [u, v] } });
 const FROST = 'frostspine', GLACIER = 'frost-glacier', SUMMIT = 'frost-summit'; 
+const HEART = 'kazan-heart', GALL = 'kazan-galleries', PYRE = 'kazan-pyre'; 
 const MINE = 'minehead', SHAFT = 'lantern-shaft', SEAM = 'deep-seam', ECHO = 'echo-lake'; 
 const VINE = 'vinegate', CANOPY = 'canopy-walk', FIG = 'fig-terraces', RUIN = 'ruin-steps', COURT = 'obsidian-court'; 
 const SHRINE_V = 'shrine-village', COAST = 'tomo-coast', SHELL = 'shellhaven', MAZE = 'kelp-maze', TEMPLE = 'drowned-temple', HOLLOW = 'hollowroot', THORN = 'thornfield', MOTHER = 'mother-hollow'; 
@@ -253,6 +254,39 @@ export const COLLECTIBLES = [
     text: "A memory: the same keeper, older, standing at the thaw line every spring, counting the herd as it comes down, and every spring the count a little shorter." },
   { id: 'c105', region: FROST, kind: 'stone', name: "Hold Still", from: spot('summit-lair', -9.6, 92.6, SUMMIT),
     text: "A memory: a red voice in the aurora telling him nothing ever had to end - just hold still, hold everything still - and the keeper, so tired of counting, believing it." },
+  
+  
+  { id: 'c106', region: HEART, kind: 'relic', name: "The Thirty-Second Plate", from: spot('ashen-forge', -2.4, 79.6, HEART),
+    text: "A curved iron plate, polished, scratched with a smith's 32. Ojiji's arm has thirty-one. Old Ferro made this one just in case. Ojiji never came back to have it fitted." },
+  { id: 'c107', region: HEART, kind: 'relic', name: "Spiral Scorch", from: spot('crater-stair', 5.4, 37.6, HEART),
+    text: "A slab of the Crater Stair burned in a perfect spiral, like somebody pressed a giant stove coil into the rock. The forge folk say it's from the night the first spiral opened. They walk around it. Every time." },
+  { id: 'c108', region: HEART, kind: 'relic', name: "Cart Ten", from: spot('magma-galleries', -14.6, 55.6, GALL),
+    text: "A dented tin plate off an ore cart: CART 10. Somebody scratched a little face inside the zero. The track fixer says it's from the one that came off the rails. She says it like it was a person." },
+  { id: 'c109', region: HEART, kind: 'relic', name: "Fare Tokens", from: spot('pyre-2', -3.4, 42.2, PYRE),
+    text: "A string of clay discs, each pressed with a dachi's paw. The vault-keepers gave one to every dachi who 'paid the fare'. There are a lot of discs. The string is heavy." },
+  { id: 'c110', region: HEART, kind: 'relic', name: "The Pot", from: spot('cinder-cistern', 39.6, 81.4, GALL),
+    text: "A blackened cooking pot with a dent in the lid. A girl at the forge carried it all the way down out of the Vault while everybody else carried blankets. She says she doesn't need it back. She does." },
+  { id: 'c111', region: HEART, kind: 'shell', name: "Anvil Morning", cue: 'town', from: spot('ashen-forge', 12.2, 89.6, HEART),
+    text: "The Ashen Forge waking up: the bellows wheezing, a hammer finding its rhythm, the run bubbling under all of it, and somebody yelling at somebody about the washing." },
+  { id: 'c112', region: HEART, kind: 'shell', name: "Cart Rattle", cue: 'field', from: spot('magma-galleries', 14.2, 28.4, GALL),
+    text: "An ore cart running the trestles flat out: wheels shrieking on the bends, the points clanking, and a long whoop that might be yours." },
+  { id: 'c113', region: HEART, kind: 'shell', name: "The Herald's Last Note", cue: 'boss', from: { boss: 'pyrecrown' },
+    text: "Pyrecrown's wings beating twice - and then not diving. Just the sound of a fire settling down, and a long quiet where the god's answer never comes." },
+  { id: 'c114', region: HEART, kind: 'hat', name: "Smith's Bandana", geo: 'bandana', from: spot('ashen-forge', -16.0, 86.0, HEART),
+    text: "A sweat-stiff bandana with burn holes in it like a star map. Bellows swears it's lucky. Bellows also has no eyebrows." },
+  { id: 'c115', region: HEART, kind: 'hat', name: "Ore Helmet", geo: 'helmet', from: spot('obsidian-rivers', -14.4, 86.4, GALL),
+    text: "A miner's helmet with a cracked lamp. Somebody painted flames on the side. Then somebody else painted a smiley face on the flames." },
+  { id: 'c116', region: HEART, kind: 'hat', name: "Ember Cap", geo: 'ember', from: spot('obsidian-rivers', 14.0, 92.4, GALL),
+    text: "A little cap with a real ember stitched into the brim. It's warm. It's always warm. Don't put it in your pocket." },
+  { id: 'c117', region: HEART, kind: 'hat', name: "Glass Horns", geo: 'horns', from: spot('pyre-3', 3.0, 65.0, PYRE),
+    text: "Two horns of black volcanic glass on a band. They ring like a bell if you flick them. Everybody who tries it on flicks them. Everybody." },
+  { id: 'c118', region: HEART, kind: 'stone', name: "Brightest in the Mountain", from: spot('crater-stair', -5.6, 59.4, HEART),
+    text: "A memory: a young firebird lighting up the whole Vault at a festival, wings wide, everyone below him cheering - then going back to their supper, and the firebird still up there, burning, waiting for somebody to look up again." },
+  { id: 'c119', region: HEART, kind: 'stone', name: "A Boy at the Festival", from: spot('obsidian-rivers', -12.4, 77.0, GALL),
+    
+    text: "A memory: the same festival, and down in the crowd a human boy in a short-brimmed cap with a B on the front, a tiny dachi riding on his shoulder, staring up at the firebird with his mouth open. (Hey. That's a Dodgers cap. Grandpa's got one in a drawer. The Dodgers left Brooklyn and he STILL won't talk about it.)" },
+  { id: 'c120', region: HEART, kind: 'stone', name: "A Seat Kept", from: spot('pyre-nest', 8.4, 80.4, PYRE),
+    text: "A memory: a red voice in the smoke saying it had seen him, only it, and that there would be a seat at its side when the Spire opened. The firebird asking what it would cost. The voice telling him. The firebird saying yes." },
 ];
 export const collectibleById = (id) => COLLECTIBLES.find((c) => c.id === id) || null;
 export const found = (flags, id) => !!(flags && flags.found && flags.found[id]);

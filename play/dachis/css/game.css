@@ -33,6 +33,9 @@
   --tag: 'Sedgwick Ave Display', 'Permanent Marker', 'Dachis HK Display', cursive; --marker: 'Permanent Marker', 'Dachis HK Display', 'Comic Sans MS', cursive;
   --bang: 'Bangers', 'Dachis HK Display', Impact, sans-serif; --body: 'Rubik', 'Dachis HK', 'Segoe UI', sans-serif;
 }
+
+
+:lang(ja) { word-break: auto-phrase; }
 :lang(ja) {
   --tag: 'Sedgwick Ave Display', 'Permanent Marker', 'Dachis JP Display', cursive; --marker: 'Permanent Marker', 'Dachis JP Display', 'Comic Sans MS', cursive;
   --bang: 'Bangers', 'Dachis JP Display', Impact, sans-serif; --body: 'Rubik', 'Dachis JP', 'Segoe UI', sans-serif;

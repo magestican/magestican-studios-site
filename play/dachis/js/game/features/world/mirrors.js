@@ -40,7 +40,7 @@ export function turnMirror(m) {
     L.open[h.room] = true;
     S.sfx.play('beam');
     const n = Object.keys(L.open).length;
-    toast(n === 1 ? 'The light reaches the crystal. The wall across the way on cracks and falls.' : n === L.halls.length ? 'The last wall falls. The vault is open.' : 'The light reaches the crystal. Another wall falls.', 2600);
+    toast(n === 1 ? 'The light hits the crystal. Across the way, the wall cracks... and comes down.' : n === L.halls.length ? 'The last wall falls. The vault is open.' : 'The light reaches the crystal. Another wall falls.', 2600);
   });
 }
 
