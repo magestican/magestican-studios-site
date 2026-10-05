@@ -12,6 +12,7 @@
 
 
 import { SPECIES, EXTRA, BOSSES } from '../../data/species.js';
+import { earned, unlock } from '../achievements/achievements.js';
 
 const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
 export function findSpecies(key) {
@@ -27,6 +28,13 @@ export function chapterFlags(n) {
   const f = { started: true, starter: true, initiated: true, kumabo: true };
   for (let i = 0; i < Math.min(ORDER.length, n - 1); i++) f['boss_' + ORDER[i]] = true;
   return f;
+}
+
+
+export function silenceEarned(flags) {
+  const ids = earned(flags);
+  for (const id of ids) unlock(flags, id, 1);
+  return ids;
 }
 export function parseCheat(search) {
   const raw = new URLSearchParams(search).get('cheat');
@@ -55,6 +63,7 @@ export async function applyCheat(c, d) {
   for (let i = 0; i < 120 && !S.W; i++) await wait(250);
   G.flags.cheat = true; 
   Object.assign(G.flags, chapterFlags(c.chapter || (c.boss ? ORDER.indexOf(c.boss) + 1 : 1)));
+  silenceEarned(G.flags);
   for (const id of ['title', 'attract']) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
   const hud = document.getElementById('hud'); if (hud) hud.classList.remove('hidden');
   G.mode = 'world';

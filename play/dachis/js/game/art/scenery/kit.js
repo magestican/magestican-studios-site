@@ -55,7 +55,12 @@ export function form(name, build, { min, max, cell = 0.05, tris = 600, uvScale =
   if (forms.has(name)) return forms.get(name);
   const t0 = performance.now();
   const md = new MeshData(name);
-  S.sdfPart(md, build(), { min, max, cell, targetTris: tris, material: 'stone', uvScale, ao });
+  
+  
+  try { S.sdfPart(md, build(), { min, max, cell, targetTris: tris, material: 'stone', uvScale, ao }); }
+  catch (e) {
+    throw new Error(`[scenery] form "${name}" failed to build (min ${JSON.stringify(min)}, max ${JSON.stringify(max)}, cell ${cell}, tris ${tris}): ${e && e.message}`, { cause: e });
+  }
   const arrays = md.toArrays();
   forms.set(name, arrays);
   buildStats.forms++; buildStats.ms += performance.now() - t0; buildStats.tris += arrays.triangles;
