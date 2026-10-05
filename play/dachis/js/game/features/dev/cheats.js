@@ -9,6 +9,8 @@
 
 
 
+
+
 import { SPECIES, EXTRA, BOSSES } from '../../data/species.js';
 
 const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -33,7 +35,7 @@ export function parseCheat(search) {
   for (const part of raw.split(';').map((s) => s.trim()).filter(Boolean)) {
     const i = part.indexOf(':'), key = (i < 0 ? part : part.slice(0, i)).toLowerCase(), val = i < 0 ? '' : part.slice(i + 1);
     if (key === 'chapter') c.chapter = Math.max(1, Math.min(8, Number(val) || 1));
-    else if (key === 'at') { const [region, section] = val.split(':'); c.at = { region, section: section || null }; }
+    else if (key === 'at') { const [where, xy] = val.split('@'), [region, section] = where.split(':'); c.at = { region, section: section || null, xy: xy ? xy.split(',').map(Number) : null }; }
     else if (key === 'party') for (const m of val.split(',')) {
       const [who, coat] = m.split('*'), [name, lvl] = who.split('@'), s = findSpecies(name); 
       if (s) c.party.push({ sp: s.id, lvl: Math.max(1, Math.min(99, Number(lvl) || 5)), ...(coat === 'gold' || coat === 'white' ? { shiny: coat } : {}) }); else c.errors.push('no dachi "' + name + '"');
@@ -63,8 +65,8 @@ export async function applyCheat(c, d) {
   if (c.at && d.regionById(c.at.region)) {
     await d.loadRegion(c.at.region);
     const s = c.at.section && d.sectionById(c.at.section);
-    if (s) {
-      let [x, y] = d.fromUV((s.rect.u[0] + s.rect.u[1]) / 2, (s.rect.v[0] + s.rect.v[1]) / 2);
+    if (s || c.at.xy) {
+      let [x, y] = c.at.xy || d.fromUV((s.rect.u[0] + s.rect.u[1]) / 2, (s.rect.v[0] + s.rect.v[1]) / 2);
       
       const W = S.W, ok = (px, py) => W.walkable(px, py, 0.3) && W.reach[W.idx(Math.floor(px), Math.floor(py))];
       if (!ok(x, y)) search: for (let r = 0.5; r < 14; r += 0.5) for (let k = 0; k < 24; k++) { const px = x + Math.sin(k / 24 * 6.283) * r, py = y + Math.cos(k / 24 * 6.283) * r; if (ok(px, py)) { x = px; y = py; break search; } }

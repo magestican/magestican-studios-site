@@ -16,6 +16,9 @@
 
 export const LAIRS = [
   { boss: 'ashlo', sec: 'coast', uv: [13, 78], after: 'kumabo', 
+    
+    
+    dress: { uv: [5.6, 77.6], off: [{ u: [9.3, 24], v: [70, 81] }, { u: [9.3, 24], v: [81, 84.7] }] },
     hint: 'Something burns on Tomo Coast... face Cinderwarden Ashlo',
     again: "Back again. The ash does not wait for you, Bridge child. Neither do I.",
     last: "Go on, then. Give them back their bell. See if one of them rings it for me.",

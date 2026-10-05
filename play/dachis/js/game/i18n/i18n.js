@@ -6,12 +6,18 @@
 
 
 import { ES_419 } from './es419.js';
+import { ZH_HK } from './zhHK.js';
+import { JA_JP } from './jaJP.js';
 
 export const LANGS = [
-  { id: 'en', name: 'English' },
-  { id: 'es-419', name: 'Español (Latinoamérica)' },
+  { id: 'en', name: 'English', html: 'en' },
+  { id: 'es-419', name: 'Español (Latinoamérica)', html: 'es' },
+  
+  { id: 'zh-HK', name: '廣東話', html: 'zh-HK', cjk: 'hk' },
+  { id: 'ja-JP', name: '日本語', html: 'ja', cjk: 'jp' },
 ];
-const TABLES = { 'es-419': ES_419 };
+export const TABLES = { 'es-419': ES_419, 'zh-HK': ZH_HK, 'ja-JP': JA_JP };
+export const langInfo = (id = lang) => LANGS.find((l) => l.id === id) || LANGS[0];
 export const LANG_KEY = 'dachis.lang';
 
 let lang = 'en';
@@ -72,13 +78,20 @@ export function setLang(id, { save = true } = {}) {
   if (!LANGS.some((l) => l.id === id)) id = 'en';
   lang = id; C = TABLES[id] ? compile(TABLES[id]) : null;
   if (save) { try { localStorage.setItem(LANG_KEY, id); } catch (e) {  } }
-  if (typeof document !== 'undefined') document.documentElement.lang = id === 'en' ? 'en' : 'es';
+  if (typeof document !== 'undefined') document.documentElement.lang = langInfo(id).html;
   for (const f of listeners) f(id);
 }
 export const onLangChange = (f) => { listeners.add(f); return () => listeners.delete(f); };
 
 
+
 export function pickInitial(stored, navLangs) {
   if (stored && LANGS.some((l) => l.id === stored)) return stored;
-  return (navLangs || []).some((l) => /^es\b/i.test(l)) ? 'es-419' : 'en';
+  for (const l of navLangs || []) {
+    if (/^es\b/i.test(l)) return 'es-419';
+    if (/^(yue|zh-(hant-)?(hk|mo))\b/i.test(l)) return 'zh-HK';
+    if (/^ja\b/i.test(l)) return 'ja-JP';
+    if (/^en\b/i.test(l)) return 'en';
+  }
+  return 'en';
 }

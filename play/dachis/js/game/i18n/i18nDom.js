@@ -5,7 +5,7 @@
 
 
 
-import { tr, getLang, setLang, onLangChange, pickInitial, LANG_KEY } from './i18n.js';
+import { tr, getLang, setLang, onLangChange, pickInitial, LANG_KEY, langInfo } from './i18n.js';
 
 const ORIG = new WeakMap(); 
 const ATTRS = ['title', 'aria-label', 'placeholder'];
@@ -47,7 +47,33 @@ function patchDialogs() {
     window[f] = (msg) => was.call(window, getLang() === 'en' ? msg : tr(String(msg)));
   }
 }
+
+
+
+const CJK_FACE = { hk: '"Dachis HK"', jp: '"Dachis JP"' };
+const GENERIC = /,?\s*(cursive|sans-serif|serif|system-ui|monospace|fantasy)\s*$/i;
+export function withCjk(font, cjk) {
+  let face = CJK_FACE[cjk];
+  if (!face || !font || font.includes('Dachis ')) return font;
+  
+  if (/Bangers|Permanent Marker|Sedgwick|Impact|Comic Sans/i.test(font)) face = face.replace(/"$/, ' Display"');
+  const m = GENERIC.exec(font);
+  return m ? font.slice(0, m.index) + `, ${face}, ${m[1]}` : `${font}, ${face}`;
+}
+function patchFont() {
+  const P = CanvasRenderingContext2D.prototype, d = Object.getOwnPropertyDescriptor(P, 'font');
+  Object.defineProperty(P, 'font', { configurable: true, enumerable: d.enumerable, get: d.get,
+    set(v) { const cjk = langInfo().cjk; d.set.call(this, cjk ? withCjk(String(v), cjk) : v); } });
+}
+
+function loadCjk() {
+  const cjk = langInfo().cjk;
+  if (!cjk || !document.fonts) return;
+  const display = CJK_FACE[cjk].replace(/"$/, ' Display"');
+  for (const f of [`400 16px ${CJK_FACE[cjk]}`, `800 16px ${CJK_FACE[cjk]}`, `16px ${display}`]) document.fonts.load(f, '的のー').catch(() => {});
+}
 function patchCanvas() {
+  patchFont();
   const P = CanvasRenderingContext2D.prototype;
   for (const f of ['fillText', 'strokeText', 'measureText']) {
     const was = P[f];
@@ -69,7 +95,7 @@ export function startI18n() {
   if (qs.has('i18nMiss')) window.__i18nMiss = new Set(); 
   setLang(q || pickInitial(stored, navigator.languages || [navigator.language]), { save: !!q });
   patchCanvas(); patchDialogs();
-  cssWords();
+  cssWords(); loadCjk();
   walk(document.body);
   new MutationObserver((ms) => {
     for (const m of ms) {
@@ -78,5 +104,5 @@ export function startI18n() {
       else for (const n of m.addedNodes) walk(n);
     }
   }).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
-  onLangChange(() => { cssWords(); walk(document.body); });
+  onLangChange(() => { cssWords(); loadCjk(); walk(document.body); });
 }

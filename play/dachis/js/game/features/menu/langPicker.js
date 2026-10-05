@@ -11,7 +11,7 @@ export function mountLangPicker(host, { className = '' } = {}) {
   const paint = () => { for (const b of btns.children) { const on = b.dataset.lang === getLang(); b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); } };
   for (const L of LANGS) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'langBtn tappable'; b.dataset.lang = L.id;
-    b.lang = L.id === 'en' ? 'en' : 'es'; b.textContent = L.name;
+    b.lang = L.html; b.textContent = L.name;
     b.onclick = (e) => { e.stopPropagation(); if (L.id !== getLang()) setLang(L.id); };
     btns.appendChild(b);
   }

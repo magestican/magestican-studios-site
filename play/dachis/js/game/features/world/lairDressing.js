@@ -8,7 +8,7 @@
 import { U } from '../../../engine/core/util.js';
 import { addObj } from './mapgen.js';
 import { LAIRS } from './lairs.js';
-import { fromUV } from './sections.js';
+import { fromUV, toUV } from './sections.js';
 import { spreadAt, dryAt, freeAt } from './dressing.js';
 
 
@@ -31,12 +31,14 @@ export const RING = [3.3, 5.6];
 
 export function lairCentre(lair, regionId, HOME) {
   if ((lair.region || HOME) !== regionId) return null;
-  const [x, y] = fromUV(lair.uv[0], lair.uv[1]);
+  
+  
+  const uv = (lair.dress && lair.dress.uv) || lair.uv, [x, y] = fromUV(uv[0], uv[1]);
   return { x, y };
 }
 
 
-export function dressLair(W, boss, c, { seed = 1 } = {}) {
+export function dressLair(W, boss, c, { seed = 1, off = null } = {}) {
   const list = LAIR_DRESS[boss];
   if (!list || !c) return [];
   const rng = U.rng(9100 + seed), placed = [];
@@ -44,7 +46,8 @@ export function dressLair(W, boss, c, { seed = 1 } = {}) {
   for (let d = RING[0]; d <= RING[1]; d += 0.3) for (let k = 0; k < 28; k++) tries.push([d, (k + (d * 7) % 1) / 28 * Math.PI * 2]);
   
   for (let i = tries.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [tries[i], tries[j]] = [tries[j], tries[i]]; }
-  const ok = (x, y, r, flat) => spreadAt(W, x, y, Math.max(r, 0.1)) < flat && dryAt(W, x, y, r) && freeAt(W, x, y, r)
+  const inOff = (x, y) => !!off && off.some((R) => { const [u, v] = toUV(x, y); return u >= R.u[0] && u <= R.u[1] && v >= R.v[0] && v <= R.v[1]; });
+  const ok = (x, y, r, flat) => !inOff(x, y) && spreadAt(W, x, y, Math.max(r, 0.1)) < flat && dryAt(W, x, y, r) && freeAt(W, x, y, r)
     && placed.every((o) => Math.hypot(o.x - x, o.y - y) > (FOOT[o.kind] || 0.3) + r + 0.15);
   for (const [kind, n, extra = {}] of list) for (let m = 0; m < n; m++) {
     const r = FOOT[kind] || 0.3;
@@ -62,6 +65,6 @@ export function dressLair(W, boss, c, { seed = 1 } = {}) {
 
 export function dressLairs(W, regionId, HOME) {
   let n = 0;
-  LAIRS.forEach((l, i) => { n += dressLair(W, l.boss, lairCentre(l, regionId, HOME), { seed: i + 1 }).length; });
+  LAIRS.forEach((l, i) => { n += dressLair(W, l.boss, lairCentre(l, regionId, HOME), { seed: i + 1, off: l.dress && l.dress.off }).length; });
   return n;
 }

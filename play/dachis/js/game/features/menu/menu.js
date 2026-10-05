@@ -50,7 +50,10 @@ function render(t) {
 }
 
 function party(body) {
-  body.insertAdjacentHTML('beforeend', `<p class="hint">Dachi Den — ${G.box.length} friend${G.box.length === 1 ? '' : 's'} (no limit). Pick one, then make it companion 1, 2 or 3.</p>`);
+  
+  const den = G.box.length === 1 ? 'Dachi Den — 1 friend (no limit). Pick one, then make it companion 1, 2 or 3.'
+    : `Dachi Den — ${G.box.length} friends (no limit). Pick one, then make it companion 1, 2 or 3.`;
+  body.insertAdjacentHTML('beforeend', `<p class="hint">${den}</p>`);
   const wrap = document.createElement('div'); wrap.className = 'den'; body.appendChild(wrap);
   const detail = document.createElement('div'); detail.className = 'detail'; body.appendChild(detail);
   const sorted = G.box.slice().sort((a, b) => (G.party.includes(b) - G.party.includes(a)) || b.lvl - a.lvl);

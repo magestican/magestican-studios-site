@@ -42,7 +42,11 @@ export function darkPass(ctx, dt) {
     ctx.fillStyle = g; ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
   };
   hole(G.player.x, G.player.y, D.kid * k * (1 + Math.sin(t * 2.1) * 0.03));
-  const litLamps = D.lamps.filter((l) => lit[l.id]);
+  
+  
+  const keep = (D.lairLamps ||= W.objects.filter((o) => o.kind === 'lampout'));
+  for (const o of keep) hole(o.x, o.y, (o.lit ? 1.9 : 0.75) * k * (o.lit ? 1 + Math.sin(t * 6 + o.x) * 0.03 : 1), o.lit ? 1 : 0.6);
+  const litLamps = D.lamps.filter((l) => lit[l.id]).concat(keep.filter((o) => o.lit));
   for (const l of litLamps) hole(l.x, l.y, D.lamp * k * (1 + Math.sin(t * 7 + l.x) * 0.025));
   ctx.globalCompositeOperation = 'source-over';
   

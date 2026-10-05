@@ -1,5 +1,5 @@
 {
- "hash": "26eda46f",
+ "hash": "f568f0ce",
  "regions": {
   "kazan-isle": {
    "forms": [
@@ -755,7 +755,7 @@
     "lair-lampout",
     "lair-redpool"
    ],
-   "bytes": 57004
+   "bytes": 43580
   },
   "geode-galleries": {
    "forms": [

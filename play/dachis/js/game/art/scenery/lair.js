@@ -145,7 +145,7 @@ function lamp(lit) {
   const base = S.roundBox([0, 0.12, 0], [0.16, 0.12, 0.16], 0.03);
   const col = S.roundBox([0, 0.5, 0], [0.06, 0.28, 0.06], 0.02);
   const head = S.subtract(0.01, S.roundBox([0, 0.88, 0], [0.16, 0.12, 0.16], 0.03), S.roundBox([0, 0.88, 0], [0.18, 0.07, 0.09], 0.01));
-  const cap = S.roundCone([0, 1.0, 0], [0, 1.16, 0], 0.2, 0.03);
+  const cap = S.roundCone([0, 0.99, 0], [0, 1.14, 0], 0.22, 0.03); 
   const parts = [P(S.union(0.02, base, col, head, cap), C.stone, 'stone')];
   parts.push(lit ? P(S.sphere([0, 0.88, 0], 0.075), C.glass, 'lamp-glow') : P(S.sphere([0, 0.85, 0], 0.06), C.sooty, 'stone'));
   return S.union(0.01, ...parts);
