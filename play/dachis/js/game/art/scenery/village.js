@@ -19,10 +19,11 @@ import { placeDoorProps } from './doorProps.js';
 import { placeLife } from './life.js';
 import { placeCrystals } from './crystals.js';
 import { placeFrost } from './frost.js';
+import { placeLair } from './lair.js';
 
 const GROWTH_RUN = 120;
 
-export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple, placeDoorProps, placeLife, placeCrystals, placeFrost];
+export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple, placeDoorProps, placeLife, placeCrystals, placeFrost, placeLair];
 
 
 

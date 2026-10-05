@@ -8,6 +8,7 @@
 
 import { SECTIONS } from './sections.js';
 import { MAP, SPAWN, RESPAWN, generateMap } from './mapgen.js';
+import { dressLairs } from './lairDressing.js';
 import * as testbed from './regionMaps/testbed.js';
 import * as ember from './regionMaps/emberTube.js';
 import * as village from './regionMaps/kazanVillage.js';
@@ -164,7 +165,7 @@ export const REGIONS = [
   {
     id: court.ID, name: 'The Obsidian Court', chapters: [4], size: court.SIZE, interior: true, reachable: true,
     sections: court.SECTIONS.map((s) => s.id), entry: court.ENTRY, spring: court.POOL_LANDING, home: court.ENTRY,
-    pack: null,
+    pack: 'assets/scenery-obsidian-court.bin', 
     transit: false, objective: null,
   },
   
@@ -186,7 +187,7 @@ export const REGIONS = [
   {
     id: seam.ID, name: 'The Deep Seam', chapters: [5], size: seam.SIZE, interior: true, reachable: true,
     sections: seam.SECTIONS.map((s) => s.id), entry: seam.ENTRY, spring: seam.POOL_LANDING, home: seam.ENTRY,
-    pack: null,
+    pack: 'assets/scenery-deep-seam.bin', 
     transit: false, objective: 'Light every lantern - the chains drop',
   },
   
@@ -235,7 +236,8 @@ export function regionOf(sectionId) {
 export const saveRegion = (s) => (s && regionById(s.region) ? s.region : HOME);
 
 const GENERATORS = { [HOME]: generateMap, [testbed.ID]: testbed.generateTestbed, [ember.ID]: ember.generateEmberTube, [village.ID]: village.generateKazanVillage, [shrine.ID]: shrine.generateShrineVillage, [coast.ID]: coast.generateTomoCoast, [shell.ID]: shell.generateShellhaven, [kelp.ID]: kelp.generateKelpMaze, [temple.ID]: temple.generateDrownedTemple, [hollow.ID]: hollow.generateHollowroot, [thorn.ID]: thorn.generateThornfield, [mother.ID]: mother.generateMotherHollow, [vine.ID]: vine.generateVinegate, [canopy.ID]: canopy.generateCanopyWalk, [fig.ID]: fig.generateFigTerraces, [gale.ID]: gale.generateGaleLedges, [ruin.ID]: ruin.generateRuinSteps, [court.ID]: court.generateObsidianCourt, [mine.ID]: mine.generateMinehead, [shaft.ID]: shaft.generateLanternShaft, [seam.ID]: seam.generateDeepSeam, [geode.ID]: geode.generateGeodeGalleries, [echo.ID]: echo.generateEchoLake, [frost.ID]: frost.generateFrostspine, [glacier.ID]: glacier.generateGlacierField, [summit.ID]: summit.generateFrozenMenagerie };
-export function generateRegion(id) { const g = GENERATORS[id]; if (!g) throw new Error('no map for region ' + id); return g(); }
+
+export function generateRegion(id) { const g = GENERATORS[id]; if (!g) throw new Error('no map for region ' + id); const W = g(); dressLairs(W, id, HOME); return W; }
 
 
 
@@ -243,7 +245,7 @@ const STEPS = { [testbed.ID]: testbed.testbedSteps, [ember.ID]: ember.emberTubeS
 export async function generateRegionSliced(id, slice) {
   if (!STEPS[id]) return generateRegion(id);
   const it = STEPS[id]();
-  for (;;) { const s = it.next(); if (s.done) return s.value; await slice('map ' + id + ' ' + s.value); }
+  for (;;) { const s = it.next(); if (s.done) { dressLairs(s.value, id, HOME); return s.value; } await slice('map ' + id + ' ' + s.value); }
 }
 
 

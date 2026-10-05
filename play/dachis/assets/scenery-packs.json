@@ -1,5 +1,5 @@
 {
- "hash": "2c10da37",
+ "hash": "26eda46f",
  "regions": {
   "kazan-isle": {
    "forms": [
@@ -17,6 +17,16 @@
     "gate",
     "hut",
     "jtree",
+    "lair-broom",
+    "lair-clapper",
+    "lair-feather",
+    "lair-hearth",
+    "lair-namestone",
+    "lair-offering",
+    "lair-shears",
+    "lair-stump",
+    "lair-sweepings",
+    "lair-violets",
     "lantern",
     "ledge-0",
     "ledge-1",
@@ -610,6 +620,10 @@
     "flower-bed",
     "flower-clump",
     "hut",
+    "lair-feather",
+    "lair-floodpost",
+    "lair-redpool",
+    "lair-spears",
     "lantern",
     "pillar-0",
     "pillar-1",
@@ -626,8 +640,13 @@
     "stone-grey-3",
     "torch"
    ],
-   "pack": null,
-   "extra": []
+   "pack": "assets/scenery-obsidian-court.bin",
+   "extra": [
+    "lair-floodpost",
+    "lair-redpool",
+    "lair-spears"
+   ],
+   "bytes": 40976
   },
   "minehead": {
    "forms": [
@@ -714,6 +733,9 @@
     "flower-bed",
     "flower-clump",
     "hut",
+    "lair-lamplit",
+    "lair-lampout",
+    "lair-redpool",
     "lantern",
     "spring-basin",
     "step-slab",
@@ -727,8 +749,13 @@
     "stone-grey-3",
     "torch"
    ],
-   "pack": null,
-   "extra": []
+   "pack": "assets/scenery-deep-seam.bin",
+   "extra": [
+    "lair-lamplit",
+    "lair-lampout",
+    "lair-redpool"
+   ],
+   "bytes": 57004
   },
   "geode-galleries": {
    "forms": [
@@ -936,6 +963,8 @@
     "frost-prayerline",
     "geode-crystal",
     "hut",
+    "lair-feather",
+    "lair-moss",
     "lantern",
     "spring-basin",
     "step-slab",
@@ -955,9 +984,10 @@
     "frost-frozen",
     "frost-iceblock",
     "frost-prayerline",
-    "geode-crystal"
+    "geode-crystal",
+    "lair-moss"
    ],
-   "bytes": 274524
+   "bytes": 289256
   }
  }
 }

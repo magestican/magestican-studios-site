@@ -12,7 +12,7 @@ import { patternOf } from './bossPattern.js';
 import { questEvent, bossStoneLines } from '../quest/questRuntime.js';
 import { xpRun, statGain, rollDrops } from './spoils.js';
 import { showSpoils } from './spoilsCard.js';
-import { startWatcher } from '../story/watcher.js';
+import { startWatcher, prewarmKnight } from '../story/watcher.js';
 
 export function onBattleFinished(b) {
   
@@ -52,6 +52,7 @@ export function onBattleFinished(b) {
       msgs.push(...questEvent({ kind: 'befriend', sp: enemy.sp, types: es.types })); 
     }
     if (b.boss && res === 'win') { 
+      prewarmKnight(b.boss); 
       G.flags['boss_' + b.boss] = true;
       
       const bossName = speciesById(enemy.sp).name, last = lastWords(lairOf(b.boss));

@@ -5,6 +5,8 @@
 
 import { G, S } from '../../state.js';
 import { KnightActor } from '../../art/knightActor.js';
+import { requestJob } from '../../art/dachiActor.js';
+import { knightKey } from '../../art/knightModel.js';
 import { CHAR_SCALE } from '../world/crowd.js';
 import { WATCH, watchAt, watchSpots, watchDue, markWatched } from './watcherRules.js';
 
@@ -12,6 +14,14 @@ let run = null;
 export const watching = () => !!run;
 
 export const watchDebug = { hold: null, get t() { return run ? run.t : -1; } };
+
+
+
+
+export function prewarmKnight(boss) {
+  if (!watchDue(G.flags, boss)) return;
+  for (const part of ['body', 'wingIn', 'wingOut']) requestJob({ key: knightKey(part), kind: 'knight', opts: { part } }, () => {});
+}
 
 
 export function startWatcher(boss, done = () => {}, { force = false } = {}) {
@@ -28,7 +38,7 @@ export function startWatcher(boss, done = () => {}, { force = false } = {}) {
 export function updateWatcher(dt) {
   if (!run) return;
   const r = run;
-  if (!r.knight.ready() && r.wait < 4) { r.wait += dt; return; } 
+  if (!r.knight.ready() && r.wait < 12) { r.wait += dt; return; } 
   r.t = watchDebug.hold ?? r.t + dt;
   const st = watchAt(r.t), W = S.W;
   if (!r.laughed && r.t >= WATCH.laugh) { r.laughed = true; S.sfx.play('knightLaugh'); }

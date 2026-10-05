@@ -23,6 +23,7 @@ import { seeActorMaterial } from '../engine/iso/seeThrough.js';
 import { generateMap, VOLC } from './features/world/mapgen.js';
 import { buildWorld } from './features/world/worldView.js';
 import { HOME, regionById, generateRegionSliced, mapsToDrop } from './features/world/regions.js';
+import { dressLairs } from './features/world/lairDressing.js';
 import { slicer } from '../engine/core/slicer.js';
 import { perchById, perchAt, perchesOpen, visit, flightPhase, VISIT_R } from './features/world/travel.js';
 import { doorAt, walkThrough } from './features/world/doors.js';
@@ -77,6 +78,7 @@ S.stage = createStage($('world'), { viewHeight: 14, shadows: !matchMedia('(point
 if (PX === 0) S.stage.pixel.enabled = false;
 setPortraitStage(S.stage); 
 S.W = generateMap();
+dressLairs(S.W, HOME, HOME); 
 
 const packUrl = (file) => { const build = document.querySelector('meta[name=build]')?.content; return file + (build && build !== 'dev' ? '?v=' + encodeURIComponent(build) : ''); };
 await loadBakedForms(packUrl(regionById(HOME).pack));
