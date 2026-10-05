@@ -90,4 +90,6 @@ export async function applyCheat(c, d) {
   if (c.watch && d.startWatcher) d.startWatcher(c.watch, () => {}, { force: true });
   if (c.boss) d.startBossBattle(c.boss, { x: G.player.x + 2, y: G.player.y + 2 });
   d.toast('CHEAT' + (c.errors.length ? ': ' + c.errors.join(', ') : ' on - this run is not saved'), 3200);
+  
+  window.__cheat = { done: true, errors: c.errors.slice() };
 }

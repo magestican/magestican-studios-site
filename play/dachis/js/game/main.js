@@ -93,6 +93,9 @@ let worldView = await buildWorld(S.stage, S.W);
 const maps = new Map([[HOME, S.W]]);
 const packsIn = new Set([regionById(HOME).pack]); 
 const cover = { a: 0, target: 0, hold: false, done: null, label: '' };
+
+
+S.cover = cover;
 const coverTo = (v) => new Promise((r) => { cover.target = v; cover.done = r; });
 let regionJob = null;
 const doorWalk = { map: null, held: null }; 
