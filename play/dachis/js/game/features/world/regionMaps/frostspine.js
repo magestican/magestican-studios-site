@@ -97,23 +97,23 @@ export const LANE = [[-10.0, 30.6], [-7.0, 35.0], [-3.0, 39.6], [-1.0, 44.0], [0
   [-16.0, 66.0], [-6.0, 66.2], [4.0, 66.2], [10.0, 66.2], [10.0, 79.8], [0.0, 79.8], [-11.0, 79.8], [-11.0, 85.6], [-2.0, 87.0], [6.0, 88.0], [12.0, 89.0]];
 export const DWELLERS = [
   { id: 'frost-v0', home: { ...at(1.0, 41.6), r: 2.2 }, lines: [
-    'Everything keeps up here. Fish. Meat. Grudges. My brother has been angry at me since the winter I was born. It keeps.',
-    'The lake has not thawed in nine summers. The old ones say it used to. The young ones think thawing is a story, like dragons.'] },
+    'Nothing goes bad up here, you know? Fish, meat, whatever. My brother\'s been mad at me since the winter I was born, so. That too.',
+    'Nine summers and that lake hasn\'t thawed once. The old folks swear it used to. My kids think thawing\'s made up. Like dragons.'] },
   { id: 'frost-v1', home: { ...at(-7.4, 45.0), r: 2.2 }, lines: [
-    'My sister took her little ones up to the Menagerie to see the lights. That was spring. ...Up there it is still spring. It is always the day they left.',
-    'If you go up, look for a blue one with a chipped ear. Do not tell her I am cross. I am not cross. Tell her the soup is on.'] },
+    'My sister took her little ones up to the Menagerie to see the lights. In spring. ...They never came down. I keep thinking up there it\'s still that same morning.',
+    'If you go up there, look for a blue one with a chipped ear. Don\'t tell her I\'m mad. I\'m not mad. Just... tell her there\'s soup.'] },
   { id: 'frost-v2', home: { ...at(-1.4, 52.4), r: 2.0 }, lines: [
-    'The high bridge? We cut it. Grandpa did, the night the cold came down the pass after us. Only the winch on the far side can wind it back.',
-    'Go the low way. Down the west steps, along UNDER the old bridge, over the ice arch, back along the far side and up. Grandpa calls it the Switchback. I call it the long way.'] },
+    'The big bridge? Yeah, we cut it. Well, Grandpa did. The night the cold came down the pass after us. There\'s a winch on the other side that winds it back in, but, you know. Other side.',
+    'You want the low way. Down the steps, then under the old bridge, then... over the ice arch? Or is the arch first. Grandpa calls it the Switchback. I call it the long way. You\'ll figure it out.'] },
 ];
 
 
 export const ELDER = { name: 'Grandpa Hask', at: at(3.2, 53.0) };
 export const ELDER_LINES = {
-  before: ['I cut the bridge. Me. With my good knife. The cold came down the pass with his voice in it, and I cut the ropes, and the cold stopped at the edge. I am not sorry. I am a little sorry.',
-    'He was a keeper, the Rex. Kept the herds alive up top through the long winters. Then he started keeping them for good. When his vents hiss three times, back off. That is the roar coming, and after it his own frost locks his legs.'],
-  after: ['The lake went grey this morning. Grey ice is thawing ice. Nine summers. ...Somebody fetch me a chair. And a boat. In that order.',
-    'My grandson wants to wind the high bridge in again. Let him. Let him. The cold went home.'],
+  before: ['I cut that bridge. Me, with my good knife. The cold came down the pass with his voice in it and I just... cut. It stopped at the edge. Don\'t look at me like that. I\'d do it again. Probably.',
+    'The Rex used to look after the herds up top, all through the bad winters. Then he started keeping them. For good, I mean. Listen. His vents hiss, one, two, three - you back off. That\'s the roar coming. After the roar his own frost locks his legs up. That\'s your chance.'],
+  after: ['Lake went grey this morning. Grey ice means it\'s going. Nine summers... Somebody get me a chair. And, uh. Somebody find out if we still have a boat.',
+    'My grandson wants to wind the big bridge back in. Let him. Let the boy. The cold went home.'],
 };
 
 export function generateFrostspine() { const it = frostspineSteps(); let s; while (!(s = it.next()).done); return s.value; }

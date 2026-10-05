@@ -54,13 +54,13 @@ const REGION_BEATS = {
   ],
   'kelp-maze': [
     L(NARR, 'The bubble stretches out into a long tunnel of air. The kelp has grown into walls taller than you.'),
-    L(KID, 'Okay. Left hand on the wall. That is how you do mazes. I think.'),
+    L(KID, 'Okay. Left hand on the wall. That\'s how you do mazes. I\'m pretty sure. Danny said.'),
   ],
   
   hollowroot: [
     L(NARR, 'The rope ladder sways. You climb, and climb, and do not look down - and then your head comes up through the leaves into the light.'),
     L(NARR, 'A whole village sits in the crown of the old tree: huts where the boughs fork, firefly jars, walkways of living wood.'),
-    L(KID, 'A treehouse. A whole TOWN of treehouses. Okay, I am never going home.'),
+    L(KID, 'A treehouse. A whole TOWN of treehouses! Okay, forget it, I\'m never going home.'),
   ],
   'thorn-upper': [
     L(NARR, 'The rope slide hisses, the leaves whip past - and you land in a garden. Or what used to be one.'),
@@ -74,73 +74,73 @@ const REGION_BEATS = {
   vinegate: [
     L(NARR, 'Aerowing drops you on a wooden landing over a wide brown river. The air is hot and loud with insects.'),
     L(NARR, 'A whole village stands in the water on stilts, joined by boardwalks. Something with a long tail watches you from a roof.'),
-    L(KID, 'It is like the South Street Seaport. If the Seaport was in a jungle. And the guy selling pretzels had a tail.'),
+    L(KID, 'This is like the South Street Seaport. Like, if the Seaport was in a jungle and the pretzel guy had a tail.'),
   ],
   
   'canopy-walk': [
     L(NARR, 'The ladder ends on a platform of planks lashed round a trunk. Rope bridges swing away from it in every direction.'),
     L(NARR, 'Some climb up into the sunny crowns. Some sag across the shade below. The ground is very, very far down.'),
-    L(KID, '(Do not look down. Okay. Looked down. Great.)'),
+    L(KID, '(Don\'t look down. Don\'t look down. ...Aaand I looked down.)'),
   ],
   'gale-ledges': [ 
     L(NARR, 'The jetty ends in a rope ladder bolted to the cliff. At the top, four long ledges step up the rock, and the wind comes along them in shoves.'),
-    L(KID, 'Whoa - WHOA. It is like the platform at Fourteenth Street when the express goes by. Okay. Stand behind the big rocks.'),
+    L(KID, 'Whoa - WHOA! It\'s like standing on the platform at Fourteenth Street when the express blows through. Okay. Big rocks. Get behind the big rocks.'),
   ],
   'fig-terraces': [
     L(NARR, 'Past the last bridge the jungle opens onto a hillside of flooded fields, stepping down like stairs full of sky.'),
     L(NARR, 'Narrow mud walls run between the pools. Old fig trees grow where the walls meet. Nobody has tended this in a long time.'),
-    L(KID, 'It is like a giant ice cube tray. A muddy one. I can walk on the edges.'),
+    L(KID, 'It\'s a giant ice cube tray. A gross muddy one. I can probably walk on the edges. Probably.'),
   ],
   
   minehead: [
     L(NARR, 'Aerowing comes down on a ring of trodden earth round a hole in the world. The pit is wider than a city block, and black at the bottom.'),
     L(NARR, 'Huts stand back from the edge. One ledge leaves the rim and winds down the pit wall, round and round, with torches on it.'),
-    L(KID, 'It is like the ramp in the Guggenheim. Mom took me once. Except the Guggenheim has a floor.'),
+    L(KID, 'It goes round and round like the ramp at the Guggenheim. Mom took me once. I got yelled at for running. Nobody\'s yelling here. There\'s also no floor.'),
   ],
   'shaft-a': [
     L(NARR, 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'),
-    L(KID, '(My Walkman light. Okay. It is a very small light.)'),
+    L(KID, '(Okay. I\'ve got the light on my Walkman. ...It\'s a really, really small light.)'),
   ],
   'menagerie-1': [
-    L(NARR, 'A hall of blue ice. Along its walls, in blocks of ice, stand dachis - mid-step, mid-yawn, mid-sneeze - like a museum of a morning.'),
-    L(NARR, 'The floor is ice too, thin as a window. Every step leaves a star of cracks, and the cracks go through behind you. The door at the far end is sealed with ice.'),
-    L(KID, '(Every tile once. Never back. ...It is the Snake game on Danny\'s calculator. I am the snake.)'),
+    L(NARR, 'A long hall of blue ice. Dachis stand frozen along the walls, caught halfway through whatever they were doing. One\'s in the middle of a sneeze.'),
+    L(NARR, 'The floor\'s ice too, thin as a window. Every step leaves a star of cracks behind you, and the cracked bits won\'t hold you twice. The far door is iced shut.'),
+    L(KID, '(Okay, every square once, no going back. ...It\'s the snake game on Danny\'s calculator. I\'m the snake. I always lose at the snake.)'),
   ],
   'summit-lair': [
-    L(NARR, 'The summit. Wind, sky, and a ring of ice blocks with a small blue shape curled inside each. In the middle of the ring something huge stands as still as the ice.'),
+    L(NARR, 'The top of the mountain. The wind won\'t quit. There\'s a ring of ice blocks with something small and blue curled up in each one, and in the middle, something huge that doesn\'t move at all.'),
   ],
   'glacier-field': [
-    L(NARR, 'Past the pass the snow gives way to a field of glare ice, polished by the wind until it shows the sky. Boulders and old cut blocks stand frozen in it.'),
-    L(KID, '(Ice. Okay. I did a whole winter at Wollman Rink. ...I fell down a whole winter at Wollman Rink.)'),
+    L(NARR, 'After the pass the snow just stops and it\'s ice, a whole field of it, so smooth you can see the sky in it. Rocks and old cut blocks stick up here and there.'),
+    L(KID, '(Ice. Okay. I went to Wollman Rink like every Saturday last winter. ...I mostly sat on Wollman Rink last winter.)'),
   ],
   'aurora-hollow': [
-    L(NARR, 'The hollow lies in the summit\'s shadow. The snow is deep enough to swallow a kid to the waist, except where something big has trodden a track.'),
-    L(KID, '(Stay on the track. Stay on the track. Whatever made the track, do NOT meet it.)'),
+    L(NARR, 'Down here everything\'s in the mountain\'s shadow. The snow comes up to your waist, except where something really big stomped a path through it.'),
+    L(KID, '(Stay on the path. Stay on the path. And whatever made the path, I\'m not saying hi to it.)'),
   ],
   'steam-vents': [
-    L(NARR, 'Steam rolls out of cracks in the rock, and the snow around them has given up. Fire-kind dachis lie curled in the warm mud, one eye open.'),
+    L(NARR, 'Steam\'s pouring out of cracks in the rock, and there\'s no snow left anywhere near them. A few fire dachis are curled up in the warm mud, keeping one eye on you.'),
   ],
   'frost-camp': [
-    L(NARR, 'Aerowing sets you down on snow so bright it hurts. Below lies a frozen lake, and a camp of huts standing over the ice on long legs, like wading birds.'),
-    L(KID, '(Snow. Real snow. ...In a T-shirt. Great. Perfect. I cannot feel my ears.)'),
+    L(NARR, 'Aerowing drops you on snow so bright it hurts your eyes. Down below there\'s a frozen lake, with huts standing out on the ice on long skinny legs.'),
+    L(KID, '(Snow! Real snow! ...And I\'m in a T-shirt. Great. Awesome. I can\'t feel my ears.)'),
   ],
   'frost-pass': [
-    L(NARR, 'The path climbs to the lip of a canyon. A rope bridge used to cross it straight; now only its posts are left, the ropes cut. A ledge path zigzags down the near side instead.'),
-    L(KID, '(Down, along, over, along, up. Okay. Nobody look down. ...I looked down.)'),
+    L(NARR, 'The path goes up to the edge of a canyon. There used to be a rope bridge straight across. Now there\'s just the posts, with the ropes hanging cut. A skinny ledge zigzags down this side instead.'),
+    L(KID, '(Okay. Nobody look down. ...I looked down. Why\'d I look down?)'),
   ],
   'echo-hamlet': [
     L(NARR, 'The passage ends on a shore. A black lake runs off into the dark, and a hamlet of stilt huts leans out over it on its toes.'),
     L(NARR, 'Somebody shouts a name across the water. The water shouts it back, three times, the last one a little wrong.'),
-    L(KID, 'Hello? ...Hello. Hello. Hullo. ...Okay, I did not like that last one.'),
+    L(KID, 'Hello? ...Hello. Hello. Hullo. ...Okay, I didn\'t like that last one.'),
   ],
   'echo-isles': [
     L(NARR, 'The river opens out into a lake so still the raft\'s own ripples are the only thing moving on it. Islands sit in the black like loaves.'),
-    L(KID, '(Do not lean over the side. Do not lean over the side. ...I am leaning over the side.)'),
+    L(KID, '(Don\'t lean over the side. Don\'t lean over the side. ...I\'m leaning over the side.)'),
   ],
   'geode-mouth': [
     L(NARR, 'The crack opens into a hall of crystal. Every wall throws your torchlight back at you in pieces.'),
     L(NARR, 'Across the floor a single bar of daylight runs from a split in the rock to a mirror on a brass stand - and stops dead against the wall.'),
-    L(KID, 'It is like the fun house at Coney Island. Except the fun house had a guy selling hot dogs at the end.'),
+    L(KID, 'This is the fun house at Coney Island. I got lost in there for like twenty minutes. Mom bought me a hot dog after so I\'d stop crying.'),
     L(KID, '(The mirror turns. Maybe if the light went the other way...)'),
   ],
   'geode-vault': [
@@ -150,12 +150,12 @@ const REGION_BEATS = {
   'seam-hall': [
     L(NARR, 'Through the crack the air goes still. Somewhere in the black there are pillars - you can hear your own steps come back off them.'),
     L(NARR, 'Ahead, a chain hangs across the way on, heavy as a ship\'s.'),
-    L(KID, 'Okay. Okay okay okay. It is just the basement. Every building has a basement. ...Every building has a light switch in the basement.'),
+    L(KID, 'Okay. Okay okay okay. It\'s just a basement. Every building\'s got a basement. ...Every building\'s got a light switch in the basement, too.'),
   ],
   'ruin-steps': [
     L(NARR, 'The jungle gives way to stone: the face of an old temple, climbing the hill in broken steps too steep to walk.'),
     L(NARR, 'Long ramps run back and forth across it, each a little higher than the last. At the very top, a gate of black glass.'),
-    L(KID, 'Like the ramp at the Y on 63rd. Except at the Y, the guy at the top just wants to see your card.'),
+    L(KID, 'It\'s like the ramp at the Y on 63rd. The guy at the top of that one only wants to see your card, though.'),
   ],
   'court-stones': [
     L(NARR, 'Inside the gate the floor is water - perfectly still and perfectly black, like a mirror nobody cleaned.'),
@@ -163,7 +163,7 @@ const REGION_BEATS = {
   ],
   'court-guards': [
     L(NARR, 'A long hall of stone guards. Between them, real ones: big furry dachis in armour, kneeling, tails shaking.'),
-    L(KID, '(They look more scared of me than I am of them. That is... a lot of scared.)'),
+    L(KID, '(Mom always says they\'re more scared of you than you are of them. ...That\'s a LOT of scared.)'),
   ],
   'court-throne': [
     L(NARR, 'The last door opens onto the sky. A round floor at the top of the world, and at its far side, a throne of black stone.'),
@@ -185,7 +185,7 @@ const REGION_BEATS = {
   ],
   'temple-sanctum': [
     L(NARR, 'At the end of the aisle an old altar waits. When the tide moves, the whole room hums, like a choir far away.'),
-    L(KID, 'Okay, that is creepy. That is creepy, right? Buildings do not sing. Even in Manhattan.'),
+    L(KID, 'Okay, that\'s creepy. That\'s creepy, right? Buildings don\'t sing. Not even in Manhattan.'),
   ],
 };
 
@@ -441,6 +441,10 @@ function elderAfterAshlo() {
     L(ELDER, 'Ashlo kept the fire in this village longer than I have had this arm. A guardian, like your Hibone. Nobody ever thanked him for it. I never did. Something up there noticed that before we did.'),
     L(NARR, 'Hibone\'s egg shifts in your pack.'),
     L(ELDER, 'Hm. It moved. Every guardian you bring back will warm it. Do not ask me how I know; I have seen it before, and I do not talk about it.'),
+    
+    
+    L(KID, 'Wait, you\'ve seen it before? Like... there was another kid? A Bridge before me?'),
+    L(NARR, 'Ojiji doesn\'t answer. He picks at a rivet on his metal arm and looks out at the sea for a long time.'),
     L(ELDER, 'Aerowing will carry you from now on. Any hot spring you have rested at, she can find. She will complain. Ignore her.'),
     L(ELDER, 'There is a city under the reef off Tomo Coast. Its guardian has not come up for air in a hundred years. Go and find out why.'),
   ]);

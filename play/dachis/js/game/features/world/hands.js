@@ -35,8 +35,8 @@ export const HANDS = {
     'Walk the planks, do not bounce on them. The little ones bounce. I mend what they bounce.'] },
   
   frostspine: { sp: 21, name: 'Rime', lines: [
-    'I keep the stilts. The ice moves, you know. Every night the lake shoves at the huts and every morning I knock the legs straight. Nobody thanks a leg.',
-    'The hot spring is mine too. Somebody breaks the crust off it at dawn. Use it, go on. Wipe your feet after. The floor freezes.'] },
+    'I do the stilts. The ice moves, see? All night the lake shoves the huts around and every morning I\'m out there knocking the legs straight again. Nobody ever says thanks to a leg.',
+    'The hot spring\'s mine too. Somebody\'s got to break the ice off it at dawn, and guess who. Go on, get in. Just wipe your feet after, the floor freezes.'] },
   
   'echo-lake': { sp: 93, name: 'Tack', lines: [
     'Every raft at every jetty, I lashed. Every one. You are welcome. Bring the pole back. Last summer the river kept eleven.',

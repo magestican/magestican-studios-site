@@ -47,11 +47,11 @@ export const LANDING = at(-6.0, SUMMIT_V + 4.2);
 export const LAIR = { u: 0, v: SUMMIT.v + 1 };        
 export const FAMILY = [[-5.2, -3.2], [5.2, -3.2], [-5.6, 3.6], [5.6, 3.6]].map(([du, dv], i) => ({ id: 'frost-fam' + i, ...at(LAIR.u + du, LAIR.v + dv), u: LAIR.u + du, v: LAIR.v + dv }));
 export const FAMILY_LINES = [
-  ['...Is it still spring? It is not still spring. Oh. Oh, my sister is going to be FURIOUS.',
-    'We came up to see the lights. The big one said stay, stay, the lights are prettier if you stay. I think I said yes. Why did I say yes?'],
-  ['I was a block! I was a block of ICE! Did you see? Do it again! ...Do not do it again.'],
-  ['My legs are asleep. All four of them. From the inside.'],
-  ['He used to bring us moss. Every morning, the old Rex. Even when we were ice, I think. I think I could hear him put it down.'],
+  ['...Is it still spring? It\'s not spring, is it. Oh no. Oh, my sister\'s gonna KILL me.',
+    'We just came up to see the lights. The big one kept saying stay, stay, they\'re prettier if you stay. And I said okay. Why\'d I say okay?'],
+  ['I was a block! A block of ICE! Did you see? Again! Do it again! ...No, don\'t do it again.'],
+  ['My legs are asleep. All four of \'em. From the inside, somehow.'],
+  ['He brought us moss. Every morning, the old Rex did. Even when we were ice, I think. I think I heard him putting it down.'],
 ];
 const FAM_C = ['#7ab8e8', '#e8a87a', '#a8e07a', '#c8a8e8'];
 export const familyColor = (i) => FAM_C[i % FAM_C.length];

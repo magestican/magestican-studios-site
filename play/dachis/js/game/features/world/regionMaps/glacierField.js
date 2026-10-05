@@ -46,11 +46,11 @@ export const TRACK = [[0, 58.6], [0, 62.0], [-8, 68], [-4, 76], [8, 81], [4, 89]
 export const SPUR = [[8, 81], [18, 80], [26, 80], [32, 81]];
 export const DWELLERS = [
   { id: 'glacier-v0', home: { ...at(4.6, 27.6), r: 1.4 }, lines: [
-    'Glare ice. Once your feet are on it, it decides where you go, not you. Pick your line before you step. Then pray to whichever rock is in the way.',
-    'Forty years I cut blocks out there. The blocks I left are the only brakes on that field. You are welcome. Fall off the end and you start again from here.'] },
+    'Once you\'re on that ice, you don\'t pick where you go. It does. So look first, find a rock to stop on, and then, I dunno. Hope.',
+    'Forty years I cut ice out there. Those blocks I left lying around? Only brakes you\'ve got. You\'re welcome. If you shoot off the end, you just end up back here. Happens to everybody.'] },
   { id: 'vents-v0', home: { ...at(31.0, 82.0), r: 2.0 }, lines: [
-    'The fire kinds come up to the vents to sleep. Warm bellies, bad tempers. If you want something that melts the big one\'s ice, this is where it naps.',
-    'Ice and iron, the Rex. Fire goes through both like a hot spoon through butter. Not that I have had butter in eleven years.'] },
+    'The fire ones come up here to sleep on the vents. Warm bellies, nasty tempers. You want something that\'ll melt the big guy\'s ice? This is where it naps.',
+    'The Rex is ice and iron. Fire goes right through both, like a hot spoon through butter. Not that I\'ve seen butter in eleven years.'] },
 ];
 
 const inG = (u, v) => edgeDepth({ u: [-10, 10], v: [24, 64] }, u, v).depth > 2.0;   

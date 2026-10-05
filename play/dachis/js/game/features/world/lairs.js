@@ -40,7 +40,7 @@ export const LAIRS = [
     last: "Somebody water the violets. Not too much. They drown.",
     meet: [['boss', 'Mind the beds. You are standing on my violets. ...No. It does not matter now. "{creed}"'],
       ['boss', 'I am only pruning, Bridge child. You cut back the old wood so the new can come. It was explained to me. It made such sense.'],
-      ['kid', 'That is not pruning! That is the WHOLE TREE! Lady, you are cutting down the whole tree!']],
+      ['kid', 'That\'s not pruning! That\'s the WHOLE TREE! Lady, you\'re cutting down the whole tree!']],
     fall: '{name}\'s thorns go soft. She kneels and presses both hands flat on the moss, the way you feel a forehead for a fever, and sinks away into the roots.' },
   
   { boss: 'kingshade', region: 'obsidian-court', sec: 'court-throne', uv: [0, 85.0], after: 'boss_bramble',
@@ -49,7 +49,7 @@ export const LAIRS = [
     last: "Stand down. All of you. That is an order, small one, and you are not exempt.",
     meet: [['boss', 'My guards let you through. I will speak to them about that. "{creed}"'],
       ['boss', 'I carried them out of one flood, Bridge child. Never again. This time I take them all at once, and nobody is left on the terrace.'],
-      ['kid', 'Did you even ASK them? Their tails are shaking, man! That is not me! I am like four feet tall!']],
+      ['kid', 'Did you even ASK them? Their tails are shaking, man! That\'s not \'cause of me! I\'m like four feet tall!']],
     fall: 'The violet light drains out of {name}\'s armour. He is still standing. He makes very sure of that.' },
   
   
@@ -59,7 +59,7 @@ export const LAIRS = [
     last: "Leave one lamp. Just one. By the door. I will not look at it.",
     meet: [['boss', 'Put that out. Please. I asked nicely. I always ask nicely. "{creed}"'],
       ['boss', 'Nine years I sat up with a lamp, Bridge child, listening to the dark move. Then a voice in it told me there was nothing there. Nothing at all. Do you know how that felt?'],
-      ['kid', 'So you turned off EVERYBODY\'S lights? Mrs. Alvarez in 4B is scared of the elevator. She takes the stairs! She does not break the elevator for the whole building!']],
+      ['kid', 'So you turned off EVERYBODY\'S lights? Mrs. Alvarez in 4B is scared of the elevator. So she takes the stairs! She doesn\'t go and break it for the whole building!']],
     fall: '{name}\'s lenses go clear. He takes them off one at a time and blinks at the lanterns as if they were too loud.' },
   
   
@@ -69,7 +69,7 @@ export const LAIRS = [
     last: "It is cold. It was always cold. I thought it would feel like keeping them.",
     meet: [['boss', 'Hush. Do not stamp. They are sleeping. They have slept since the spring, and they will sleep forever, and nothing will ever hurt them again. "{creed}"'],
       ['boss', 'I watched the thaw take my herd, Bridge child. Every spring, a few more into the mud. A voice in the wind said it need not happen. It said: hold still. So I held everything still.'],
-      ['kid', 'They are not SLEEPING! That is a kid in there! Her aunt is making soup! You cannot just pause people because you are scared of them getting old!']],
+      ['kid', 'They\'re not SLEEPING! There\'s a kid in there! Her aunt\'s making soup and everything! You can\'t just put people on pause \'cause you\'re scared they\'ll get old!']],
     fall: 'The frost runs off {name}\'s tusks like sweat. Behind him the ice blocks creak, and crack, and something small inside the nearest one sneezes.' },
 ];
 export const MEET = 2.3; 
