@@ -9,6 +9,7 @@ import { hydrateIcons } from '../engine/ui/icons.js';
 import { createSfx } from '../engine/audio/sfx.js';
 import { G, S, hasSave, loadGame, saveGame, healParty, savedBox } from './state.js';
 import { SOUNDS } from './sounds.js';
+import { loadRecorded } from './recordedSounds.js';
 import { music } from './music.js';
 import { ambience } from './ambience.js';
 import { paintPortrait, paintChoiceIcon } from './art/portraits.js';
@@ -278,29 +279,7 @@ S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.
 
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: { ...SOUNDS, opener: SOUNDS.start, bossOpener: SOUNDS.start } });
 
-
-for (const n of ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch', 'xpFill', 'levelUp', 'itemPop', 'mirrorTurn', 'raftPole', 'tellHiss', 'iceCrack', 'thaw', 'knightLaugh']) S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + (document.querySelector('meta[name=build]')?.content && document.querySelector('meta[name=build]').content !== 'dev' ? '?v=' + encodeURIComponent(document.querySelector('meta[name=build]').content) : ''), document.baseURI).href);
-
-
-
-
-{
-  const q = document.querySelector('meta[name=build]')?.content, v = q && q !== 'dev' ? '?v=' + q : '';
-  for (const n of ['hit', 'crit', 'miss', 'parry', 'dash', 'bolt', 'burst', 'heal', 'guard', 'rage', 'beam', 'flurry', 'slam', 'trap', 'drain', 'hex', 'shield'])
-    S.sfx.load(n, new URL('assets/sfx/' + n + '.mp3' + v, document.baseURI).href);
-}
-
-
-
-{
-  const v = document.querySelector('meta[name=build]')?.content, q = v && v !== 'dev' ? '?v=' + encodeURIComponent(v) : '';
-  const url = (n) => new URL('assets/sfx/' + n + '.mp3' + q, document.baseURI).href;
-  const TAKES = { stepGrass: 4, stepSand: 4, stepDirt: 4, stepStone: 4, stepSoft: 4, voiceKid: 3, voiceAdult: 3, voiceDachi: 3, voiceBoss: 3, thought: 2 };
-  for (const [n, k] of Object.entries(TAKES)) { const list = []; for (let i = 1; i <= k; i++) { S.sfx.load(n + i, url(n + i)); list.push(n + i); } S.sfx.takes(n, list); }
-  for (const n of ['slap', 'pencil', 'thinkIn', 'narrateIn', 'bossSting', 'prompt']) S.sfx.load(n, url(n));
-  
-  for (const n of ['titleSlam', 'spiralOpen', 'grab', 'pullIn', 'windRush', 'screech', 'swoop', 'wingFlap', 'landThud', 'doorsBang']) S.sfx.load(n, url(n));
-}
+loadRecorded(S.sfx, document.querySelector('meta[name=build]')?.content, document.baseURI);
 ambience.init(() => S.sfx.muted);
 
 for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => { S.sfx.warm('opener'); S.sfx.warm('bossOpener'); }, { once: true });
