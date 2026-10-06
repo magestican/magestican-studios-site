@@ -7,7 +7,7 @@
 
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
-import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME } from '../mapgen.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'tomo-coast';
@@ -154,3 +154,41 @@ function segDist([ax, ay], [bx, by], x, y) {
   const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = U.clamp(((x - ax) * dx + (y - ay) * dy) / L, 0, 1);
   return Math.hypot(ax + dx * t - x, ay + dy * t - y);
 }
+
+
+
+
+
+const COAST_WEST = { u: [9.3, 24], v: [70, 81] }, COAST_SOUTH = { u: [9.3, 24], v: [81, 84.7] };
+const COAST_ROAD = at(7.4, 78.3), CORAL_TOP = at(16.45, 86.4);
+
+export const MANIFEST = {
+  order: 5,
+  
+  region: {
+    id: ID, name: 'Tomo Coast', chapters: [1, 2], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-tomo-coast.bin', 
+    transit: false, objective: null,
+  },
+  generate: generateTomoCoast, steps: tomoCoastSteps,
+  doors: [
+    { id: 'coast-in', region: HOME, at: at(14, 77.8), area: COAST_WEST, auto: true, to: ID, toAt: ENTRY, label: 'Tomo Coast', after: null },
+    { id: 'coast-in-south', region: HOME, at: at(16.5, 83), area: COAST_SOUTH, auto: true, to: ID, toAt: SOUTH_GATE, label: 'Tomo Coast', after: null },
+    { id: 'coast-out', region: ID, at: ENTRY, to: HOME, toAt: COAST_ROAD, label: 'Back to the road', after: null },
+    { id: 'coast-out-south', region: ID, at: SOUTH_GATE, to: HOME, toAt: CORAL_TOP, label: 'On to Coral Deep', after: null },
+  ],
+  perches: [
+    { id: 'tomo-coast', region: ID, name: 'Tomo Coast', at: LANDING, opens: 'boss_ashlo', respawn: null },
+  ],
+  
+  place: { name: 'Tomo Coast', at: [0.9, 0.62], r: 0.08, glyph: 'meadow' },
+  kind: 'town',
+  ground: { 'tomo-coast': 'coast' },
+  towns: ['tomo-coast'],
+  ambience: { 'tomo-coast': { surf: 0.9, wind: 0.5, birds: 0.3 } },
+  
+  hands: { sp: 107, name: 'Gully', lines: [
+    'That rack is mine. Twelve fish this morning. Thirteen if you count the one the gulls took, and I do count it.',
+    'You climb? You\'ve got climbing feet. The good coconuts are up top. I\'d go, but, y\'know. Somebody\'s got to watch the rack.'] },
+};

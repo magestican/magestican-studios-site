@@ -9,7 +9,8 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
-import { LIGHT } from './lanternShaft.js';
+import * as lanternShaft from './lanternShaft.js';
+const { LIGHT } = lanternShaft;
 
 export const ID = 'deep-seam';
 export const SIZE = 96;
@@ -133,3 +134,37 @@ export function* deepSeamSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 20,
+  
+  region: {
+    id: ID, name: 'The Deep Seam', chapters: [5], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: POOL_LANDING, home: ENTRY,
+    pack: 'assets/scenery-deep-seam.bin', 
+    transit: false, objective: 'Light every lantern - the chains drop',
+  },
+  generate: generateDeepSeam, steps: deepSeamSteps,
+  doors: [
+    { id: 'seam-in', region: lanternShaft.ID, at: lanternShaft.END, to: ID, toAt: ENTRY, label: 'Through the crack', after: null },
+    { id: 'seam-out', region: ID, at: ENTRY, to: lanternShaft.ID, toAt: lanternShaft.END_BACK, label: 'Back to the shaft', after: null },
+  ],
+  perches: [
+    { id: 'deep-seam', region: ID, name: 'The Seam Pool', at: POOL_LANDING, opens: 'boss_kingshade', respawn: null },
+  ],
+  place: { name: 'The Deep Seam', at: [0.21, 0.82], r: 0.035, glyph: 'meadow' },
+  kind: 'cave',
+  ground: { 'seam-hall': 'ember', 'seam-narrows': 'ember', 'seam-stones': 'ember', 'seam-hollow': 'ember' },
+  caves: ['seam-hall', 'seam-narrows', 'seam-stones', 'seam-hollow'],
+  ambience: { 'seam-hall': { rumble: 0.7, chimes: 0.1 }, 'seam-narrows': { rumble: 0.8, wind: 0.2 }, 'seam-stones': { rumble: 0.9, wind: 0.3 }, 'seam-hollow': { rumble: 0.5, chimes: 0.3 } },
+  beats: {
+    'seam-hall': [
+      ['narr', 'Through the crack the air goes still. Somewhere in the black there are pillars - you can hear your own steps come back off them.'],
+      ['narr', 'Ahead, a chain hangs across the way on, heavy as a ship\'s.'],
+      ['kid', 'Okay. Okay okay okay. It\'s just a basement. Every building\'s got a basement. ...Every building\'s got a light switch in the basement, too.'],
+    ],
+  },
+  
+  people: { rng: 83, kinds: { stage: 1, types: ['Shadow'] }, gap: 1.0, still: true, dwellers: DWELLERS },
+};

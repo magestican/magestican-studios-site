@@ -8,78 +8,11 @@
 
 import { RESPAWN } from './mapgen.js';
 import { HOME, regionById } from './regions.js';
-import * as testbed from './regionMaps/testbed.js';
-import * as ember from './regionMaps/emberTube.js';
-import * as village from './regionMaps/kazanVillage.js';
-import * as shrine from './regionMaps/shrineVillage.js';
-import * as coast from './regionMaps/tomoCoast.js';
-import * as shell from './regionMaps/shellhaven.js';
-import * as kelp from './regionMaps/kelpMaze.js';
-import * as temple from './regionMaps/drownedTemple.js';
-import * as hollow from './regionMaps/hollowroot.js';
-import * as thorn from './regionMaps/thornfield.js';
-import * as mother from './regionMaps/motherHollow.js';
-import * as vine from './regionMaps/vinegate.js';
-import * as canopy from './regionMaps/canopyWalk.js';
-import * as fig from './regionMaps/figTerraces.js';
-import * as gale from './regionMaps/galeLedges.js';
-import * as ruin from './regionMaps/ruinSteps.js';
-import * as court from './regionMaps/obsidianCourt.js';
-import * as mine from './regionMaps/minehead.js';
-import * as shaft from './regionMaps/lanternShaft.js';
-import * as seam from './regionMaps/deepSeam.js';
-import * as geode from './regionMaps/geodeGalleries.js';
-import * as echo from './regionMaps/echoLake.js';
-import * as frost from './regionMaps/frostspine.js';
-import * as glacier from './regionMaps/glacierField.js';
-import * as summit from './regionMaps/frozenMenagerie.js';
-import * as heart from './regionMaps/heartOfKazan.js';
-import * as galleries from './regionMaps/magmaGalleries.js';
-import * as vault from './regionMaps/pyreVault.js';
+import { rowsOf } from './manifests.js';
 
-export const PERCHES = [
-  
-  
-  { id: 'kazan', region: village.ID, name: 'Kazan Village', at: village.LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'shrine', region: shrine.ID, name: 'Shrine Village', at: shrine.LANDING, opens: 'boss_ashlo', respawn: 'initiated' },
-  { id: 'tomo-coast', region: coast.ID, name: 'Tomo Coast', at: coast.LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'shellhaven', region: shell.ID, name: 'Shellhaven', at: shell.LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'kelp-maze', region: kelp.ID, name: 'Pearl Pool', at: kelp.POOL_LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'drowned-temple', region: temple.ID, name: 'Temple Pool', at: temple.POOL_LANDING, opens: 'boss_ashlo', respawn: null },
-  
-  { id: 'hollowroot', region: hollow.ID, name: 'Hollowroot', at: hollow.LANDING, opens: 'boss_leviathrum', respawn: null },
-  
-  { id: 'thornfield', region: thorn.ID, name: 'Meadow Pool', at: thorn.LANDING, opens: 'boss_leviathrum', respawn: null },
-  
-  { id: 'mother-hollow', region: mother.ID, name: 'Sap Pool', at: mother.SAP_LANDING, opens: 'boss_leviathrum', respawn: null },
-  
-  { id: 'vinegate', region: vine.ID, name: 'Vinegate Landing', at: vine.LANDING, opens: 'boss_bramble', respawn: null },
-  
-  { id: 'canopy-walk', region: canopy.ID, name: 'The Middle Storey', at: canopy.LANDING, opens: 'boss_bramble', respawn: null },
-  { id: 'ruin-steps', region: ruin.ID, name: 'Temple Forecourt', at: ruin.LANDING, opens: 'boss_bramble', respawn: null },
-  { id: 'obsidian-court', region: court.ID, name: 'The Glass Pool', at: court.POOL_LANDING, opens: 'boss_bramble', respawn: null },
-  { id: 'fig-terraces', region: fig.ID, name: 'Terrace Landing', at: fig.LANDING, opens: 'boss_bramble', respawn: null },
-  { id: 'gale-ledges', region: gale.ID, name: 'Cliff Top', at: gale.LANDING, opens: 'boss_bramble', respawn: null }, 
-  
-  { id: 'minehead', region: mine.ID, name: 'Minehead Camp', at: mine.LANDING, opens: 'boss_kingshade', respawn: null },
-  { id: 'lantern-shaft', region: shaft.ID, name: 'The Seep', at: shaft.LANDING, opens: 'boss_kingshade', respawn: null },
-  { id: 'deep-seam', region: seam.ID, name: 'The Seam Pool', at: seam.POOL_LANDING, opens: 'boss_kingshade', respawn: null },
-  { id: 'kazan-pyre', region: vault.ID, name: 'Pyrecrown\'s Nest', at: vault.LANDING, opens: 'boss_pyrecrown', respawn: null },
-  { id: 'kazan-galleries', region: galleries.ID, name: 'The Magma Galleries', at: galleries.LANDING, opens: 'boss_glacius', respawn: null },
-  { id: 'kazan-heart', region: heart.ID, name: 'The Ashen Forge', at: heart.LANDING, opens: 'boss_glacius', respawn: null },
-  { id: 'frost-summit', region: summit.ID, name: 'The Summit', at: summit.LANDING, opens: 'boss_glacius', respawn: null },
-  { id: 'frost-glacier', region: glacier.ID, name: 'The Glacier Field', at: glacier.LANDING, opens: 'boss_quartz', respawn: null },
-  { id: 'frostspine', region: frost.ID, name: 'Base Camp', at: frost.LANDING, opens: 'boss_quartz', respawn: null },
-  { id: 'echo-lake', region: echo.ID, name: 'Driftwick', at: echo.LANDING, opens: 'boss_kingshade', respawn: null },
-  { id: 'geode-galleries', region: geode.ID, name: 'The Crystal Pool', at: geode.POOL_LANDING, opens: 'boss_kingshade', respawn: null },
-  
-  { id: 'testbed', region: testbed.ID, name: 'Testbed Meadow', at: testbed.ENTRY, opens: null, respawn: null },
-  { id: 'ember-tube', region: ember.ID, name: 'Ember Tube Spring', at: ember.ENTRY, opens: 'boss_ashlo', respawn: null },
-];
+
+
+export const PERCHES = rowsOf('perches');
 export const perchById = (id) => PERCHES.find((p) => p.id === id) || null;
 
 

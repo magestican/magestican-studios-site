@@ -12,6 +12,7 @@ import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import { CELL } from '../ventRules.js';
+import * as magmaGalleries from './magmaGalleries.js';
 
 export const ID = 'kazan-pyre';
 export const SIZE = 88;
@@ -131,3 +132,38 @@ export function* pyreVaultSteps() {
   yield 'grid';
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 28,
+  
+  region: {
+    id: ID, name: 'The Pyre Vault', chapters: [7], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-kazan-pyre.bin',
+    transit: false, objective: 'Turn the valves and reach the nest',
+  },
+  generate: generatePyreVault, steps: pyreVaultSteps,
+  doors: [
+    { id: 'vault-in', region: magmaGalleries.ID, at: magmaGalleries.SOUTH, to: ID, toAt: ENTRY, label: 'Down to the vault', after: null },
+    { id: 'vault-out', region: ID, at: ENTRY, to: magmaGalleries.ID, toAt: magmaGalleries.SOUTH_BACK, label: 'Out to the rivers', after: null },
+  ],
+  perches: [
+    { id: 'kazan-pyre', region: ID, name: 'Pyrecrown\'s Nest', at: LANDING, opens: 'boss_pyrecrown', respawn: null },
+  ],
+  place: { name: 'The Pyre Vault', at: [0.83, 0.05], r: 0.035, glyph: 'volcano' },
+  kind: 'ruin',
+  ground: { 'pyre-1': 'magma', 'pyre-2': 'magma', 'pyre-3': 'magma', 'pyre-nest': 'magma' },
+  caves: ['pyre-1', 'pyre-2', 'pyre-3'],
+  ambience: { 'pyre-1': { rumble: 0.5, wind: 0.3 }, 'pyre-2': { rumble: 0.55, wind: 0.35 }, 'pyre-3': { rumble: 0.6, wind: 0.4 }, 'pyre-nest': { rumble: 0.9, wind: 0.3 } },
+  beats: {
+    'pyre-1': [
+      ['narr', 'The Pyre Vault. Channels of lava cut the floor into islands, and iron wheels stand up out of the stone, their pipes running down into the dark.'],
+      ['narr', 'Somebody turns nothing, and nothing happens. You turn one: cold air screams up through the floor, a channel goes black - and across the room another one starts to glow.'],
+      ['kid', '(It\'s Grandma\'s radiators. You turn one knob, the kitchen freezes and the bathroom turns into a sauna.)'],
+    ],
+    'pyre-nest': [
+      ['narr', 'A ring of old flagstones over a lake of fire, ash lying on it like snow. In the middle, on a perch of bone, something with burning wings sits very straight. Beside it there is a second seat. Nobody is in it.'],
+    ],
+  },
+};

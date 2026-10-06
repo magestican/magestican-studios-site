@@ -8,6 +8,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as canopyWalk from './canopyWalk.js';
 
 export const ID = 'fig-terraces';
 export const SIZE = 64;
@@ -115,3 +116,34 @@ export function* figTerracesSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 14,
+  
+  region: {
+    id: ID, name: 'The Fig Terraces', chapters: [4], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: ENTRY,
+    pack: null,
+    transit: false, objective: 'Follow the dikes down to the temple steps',
+  },
+  generate: generateFigTerraces, steps: figTerracesSteps,
+  doors: [
+    { id: 'fig-in', region: canopyWalk.ID, at: canopyWalk.EXIT, to: ID, toAt: ENTRY, label: 'On to the terraces', after: null },
+    { id: 'fig-out', region: ID, at: ENTRY, to: canopyWalk.ID, toAt: canopyWalk.EXIT_BACK, label: 'Back to the canopy', after: null },
+  ],
+  perches: [
+    { id: 'fig-terraces', region: ID, name: 'Terrace Landing', at: LANDING, opens: 'boss_bramble', respawn: null },
+  ],
+  place: { name: 'The Fig Terraces', at: [0.09, 0.27], r: 0.05, glyph: 'meadow' },
+  kind: 'field',
+  ground: { 'fig-terraces': 'fig' },
+  ambience: { 'fig-terraces': { bugs: 0.8, birds: 0.4, surf: 0.15 } },
+  beats: {
+    'fig-terraces': [
+      ['narr', 'Past the last bridge the jungle opens onto a hillside of flooded fields, stepping down like stairs full of sky.'],
+      ['narr', 'Narrow mud walls run between the pools. Old fig trees grow where the walls meet. Nobody has tended this in a long time.'],
+      ['kid', 'It\'s a giant ice cube tray. A gross muddy one. I can probably walk on the edges. Probably.'],
+    ],
+  },
+};

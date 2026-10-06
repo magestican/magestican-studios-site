@@ -9,6 +9,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as hollowroot from './hollowroot.js';
 
 export const ID = 'mother-hollow';
 export const SIZE = 80;
@@ -109,3 +110,42 @@ function segDist([ax, ay], [bx, by], x, y) {
   const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = U.clamp(((x - ax) * dx + (y - ay) * dy) / L, 0, 1);
   return Math.hypot(ax + dx * t - x, ay + dy * t - y);
 }
+
+
+export const MANIFEST = {
+  order: 11,
+  
+  region: {
+    id: ID, name: 'The Mother Tree', chapters: [3], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: SAP_LANDING, home: ENTRY,
+    pack: null,
+    transit: false, objective: 'Follow the way down through the tree to its first seed',
+  },
+  generate: generateMotherHollow, steps: motherHollowSteps,
+  doors: [
+    { id: 'hollow-in', region: hollowroot.ID, at: hollowroot.KNOT, to: ID, toAt: ENTRY, label: 'Down the knot-hole', after: null },
+    { id: 'hollow-out', region: ID, at: ENTRY, to: hollowroot.ID, toAt: hollowroot.KNOT_BACK, label: 'Up to Hollowroot', after: null },
+  ],
+  perches: [
+    
+    { id: 'mother-hollow', region: ID, name: 'Sap Pool', at: SAP_LANDING, opens: 'boss_leviathrum', respawn: null },
+  ],
+  place: { name: 'The Mother Tree', at: [0.2, 0.7], r: 0.045, glyph: 'meadow' },
+  kind: 'forest',
+  ground: { 'tree-vault': 'verdant', 'tree-heart': 'verdant', 'tree-roots': 'verdant' },
+  caves: ['tree-vault', 'tree-heart', 'tree-roots'],
+  ambience: { 'tree-vault': { chimes: 0.3, wind: 0.2 }, 'tree-heart': { chimes: 0.4, bugs: 0.2 }, 'tree-roots': { wind: 0.15, chimes: 0.2 } },
+  beats: {
+    'tree-vault': [
+      ['narr', 'You squeeze down through the knot-hole and drop onto soft moss. Inside, the tree is hollow, and it smells like rain.'],
+      ['narr', 'Seedlings grow in neat rows across the floor, each one labelled with a scratch in the bark. Someone kept them here very carefully.'],
+    ],
+    'tree-heart': [
+      ['narr', 'The heartwood. A pool of sap glows gold in the middle of the hall, and the walls creak slowly, like breathing.'],
+    ],
+    'tree-roots': [
+      ['narr', 'At the very bottom the roots twist round one mossy stone, as if the whole tree were holding it.'],
+      ['kid', 'All of this from one seed? We grew a bean in a cup in second grade. Mine died. It was in the window and everything.'],
+    ],
+  },
+};

@@ -14,6 +14,7 @@ import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import { CELL } from '../basaltRules.js';
+import * as heartOfKazan from './heartOfKazan.js';
 
 export const ID = 'kazan-galleries';
 export const SIZE = 96;
@@ -215,3 +216,42 @@ export function* magmaGalleriesSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 27,
+  
+  region: {
+    id: ID, name: 'The Magma Galleries', chapters: [7], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-kazan-galleries.bin',
+    transit: false, objective: 'Ride the ore carts across the lava',
+  },
+  generate: generateMagmaGalleries, steps: magmaGalleriesSteps,
+  doors: [
+    { id: 'galleries-in', region: heartOfKazan.ID, at: heartOfKazan.EXIT, to: ID, toAt: ENTRY, label: 'Into the galleries', after: null },
+    { id: 'galleries-out', region: ID, at: ENTRY, to: heartOfKazan.ID, toAt: heartOfKazan.BACK, label: 'Back to the forge', after: null },
+  ],
+  perches: [
+    { id: 'kazan-galleries', region: ID, name: 'The Magma Galleries', at: LANDING, opens: 'boss_glacius', respawn: null },
+  ],
+  place: { name: 'The Magma Galleries', at: [0.74, 0.07], r: 0.04, glyph: 'volcano' },
+  kind: 'cave',
+  ground: { 'magma-galleries': 'magma', 'obsidian-rivers': 'magma', 'cinder-cistern': 'magma' },
+  caves: ['magma-galleries'],
+  ambience: { 'magma-galleries': { rumble: 0.7, wind: 0.2 }, 'obsidian-rivers': { rumble: 0.6, wind: 0.25 }, 'cinder-cistern': { surf: 0.25, rumble: 0.3 } },
+  beats: {
+    'magma-galleries': [
+      ['narr', 'A lake of lava under a roof held up by black columns. Old ore rails run out over it on stilts, island to island, and at the end of each one a cart is waiting.'],
+      ['kid', '(It\'s the Cyclone. At Coney Island. ...If the Cyclone was on fire and had no seatbelts and nobody to yell at.)'],
+    ],
+    'obsidian-rivers': [
+      ['narr', 'Three rivers of lava cross the cavern floor. Where they narrow, the tops of stone columns stand up out of them, packed tight like cobbles. One near the bank shudders, sinks, and comes slowly back up.'],
+    ],
+    'cinder-cistern': [
+      ['narr','Steps go down into an old stone tank brimming with steaming water. Water-kind dachis float in it with their eyes shut, not moving at all.'],
+    ],
+  },
+  
+  people: { rng: 201, kinds: { stage: 2, types: ['Stone', 'Tide'] }, gap: 0.8, dwellers: DWELLERS },
+};

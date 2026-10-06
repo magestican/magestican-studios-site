@@ -168,3 +168,42 @@ function segDistUV([au, av], [bu, bv], u, v) {
   const du = bu - au, dv = bv - av, L = du * du + dv * dv, t = Math.max(0, Math.min(1, ((u - au) * du + (v - av) * dv) / L));
   return Math.hypot(au + du * t - u, av + dv * t - v);
 }
+
+
+export const MANIFEST = {
+  order: 12,
+  
+  
+  region: {
+    id: ID, name: 'Vinegate Landing', chapters: [4], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-vinegate.bin', 
+    transit: false, objective: null,
+  },
+  generate: generateVinegate, steps: vinegateSteps,
+  perches: [
+    
+    { id: 'vinegate', region: ID, name: 'Vinegate Landing', at: LANDING, opens: 'boss_bramble', respawn: null },
+  ],
+  
+  place: { name: 'Vinegate Landing', at: [0.1, 0.44], r: 0.07, glyph: 'meadow' },
+  kind: 'town',
+  ground: { vinegate: 'river' },
+  towns: ['vinegate'],
+  ambience: { vinegate: { surf: 0.35, bugs: 0.7, birds: 0.6 } },
+  
+  hands: { sp: 36, name: 'Pole', lines: [
+    'Those stilts under the huts? I sank every one. The river comes up a hand a year. My hand. I measured.',
+    'Walk on the planks, don\'t bounce on \'em. The little ones bounce. Guess who mends what they bounce.'] },
+  beats: {
+    
+    vinegate: [
+      ['narr', 'Aerowing drops you on a wooden landing over a wide brown river. The air is hot and loud with insects.'],
+      ['narr', 'A whole village stands in the water on stilts, joined by boardwalks. Something with a long tail watches you from a roof.'],
+      ['kid', 'This is like the South Street Seaport. Like, if the Seaport was in a jungle and the pretzel guy had a tail.'],
+    ],
+  },
+  
+  people: { rng: 80, kinds: { stage: 1, types: ['Beast', 'Leaf'] }, gap: 1.0, dwellers: DWELLERS,
+    elder: { id: 'vine-elder', name: ELDER.name, type: 'Beast', at: ELDER.at, lines: ELDER_LINES, boss: 'kingshade' } },
+};

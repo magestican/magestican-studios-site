@@ -10,6 +10,7 @@ import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
+import * as geodeGalleries from './geodeGalleries.js';
 
 export const ID = 'echo-lake';
 export const SIZE = 112;
@@ -169,3 +170,47 @@ export function* echoLakeSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 22,
+  
+  region: {
+    id: ID, name: 'Echo Lake', chapters: [5], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-echo-lake.bin', 
+    transit: false, objective: 'Take a raft out to the islands',
+  },
+  generate: generateEchoLake, steps: echoLakeSteps,
+  doors: [
+    { id: 'echo-in', region: geodeGalleries.ID, at: geodeGalleries.ECHO_DOOR, to: ID, toAt: ENTRY, label: 'Down to the lake', after: null },
+    { id: 'echo-out', region: ID, at: ENTRY, to: geodeGalleries.ID, toAt: geodeGalleries.ECHO_BACK, label: 'Up to the crystal', after: null },
+  ],
+  perches: [
+    { id: 'echo-lake', region: ID, name: 'Driftwick', at: LANDING, opens: 'boss_kingshade', respawn: null },
+  ],
+  place: { name: 'Echo Lake', at: [0.36, 0.95], r: 0.045, glyph: 'meadow' },
+  kind: 'town',
+  ground: { 'echo-hamlet': 'coast', 'echo-river': 'ember', 'echo-isles': 'coral' },
+  water: ['#a8d0f0', '#2a6aa8', '#1a4a88', '#0e2a60'],
+  towns: ['echo-hamlet'],
+  caves: ['echo-river', 'echo-isles'],
+  ambience: { 'echo-hamlet': { surf: 0.3, chimes: 0.2 }, 'echo-river': { surf: 0.6, rumble: 0.35 }, 'echo-isles': { surf: 0.45, wind: 0.2, chimes: 0.25 } },
+  
+  hands: { sp: 93, name: 'Tack', lines: [
+    'Every raft at every jetty, I lashed. Every one. You\'re welcome. And bring the pole back - last summer the river kept eleven.',
+    'They call it still water out by the islands. It\'s not still. It\'s thinking. Lie flat on the logs and you can feel it think.'] },
+  beats: {
+    'echo-hamlet': [
+      ['narr', 'The passage ends on a shore. A black lake runs off into the dark, and a hamlet of stilt huts leans out over it on its toes.'],
+      ['narr', 'Somebody shouts a name across the water. The water shouts it back, three times, the last one a little wrong.'],
+      ['kid', 'Hello? ...Hello. Hello. Hullo. ...Okay, I didn\'t like that last one.'],
+    ],
+    'echo-isles': [
+      ['narr', 'The river opens out into a lake so still the raft\'s own ripples are the only thing moving on it. Islands sit in the black like loaves.'],
+      ['kid', '(Don\'t lean over the side. Don\'t lean over the side. ...I\'m leaning over the side.)'],
+    ],
+  },
+  
+  people: { rng: 131, kinds: { stage: 1, types: ['Tide', 'Frost'] }, gap: 0.8, dwellers: DWELLERS },
+};

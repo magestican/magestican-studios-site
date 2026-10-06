@@ -8,6 +8,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as hollowroot from './hollowroot.js';
 
 export const ID = 'thornfield';
 export const SIZE = 80;
@@ -135,3 +136,39 @@ function segDist([ax, ay], [bx, by], x, y) {
   const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = U.clamp(((x - ax) * dx + (y - ay) * dy) / L, 0, 1);
   return Math.hypot(ax + dx * t - x, ay + dy * t - y);
 }
+
+
+export const MANIFEST = {
+  order: 10,
+  
+  
+  region: {
+    id: ID, name: 'Thornfield', chapters: [3], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: ENTRY,
+    pack: null,
+    transit: false, objective: 'Follow the garden path down the terraces to the meadow pool',
+  },
+  generate: generateThornfield, steps: thornfieldSteps,
+  doors: [
+    { id: 'thorn-in', region: hollowroot.ID, at: hollowroot.SLIDE, to: ID, toAt: ENTRY, label: 'Ride the rope slide', after: null },
+    { id: 'thorn-out', region: ID, at: ENTRY, to: hollowroot.ID, toAt: hollowroot.SLIDE_BACK, label: 'Climb back up', after: null },
+  ],
+  perches: [
+    
+    { id: 'thornfield', region: ID, name: 'Meadow Pool', at: LANDING, opens: 'boss_leviathrum', respawn: null },
+  ],
+  place: { name: 'Thornfield', at: [0.1, 0.78], r: 0.06, glyph: 'meadow' },
+  kind: 'forest',
+  ground: { 'thorn-upper': 'verdant', 'thorn-lower': 'verdant' },
+  ambience: { 'thorn-upper': { bugs: 0.6, birds: 0.5, wind: 0.3 }, 'thorn-lower': { bugs: 0.8, wind: 0.4, birds: 0.3 } },
+  beats: {
+    'thorn-upper': [
+      ['narr', 'The rope slide hisses, the leaves whip past - and you land in a garden. Or what used to be one.'],
+      ['narr', 'Long beds run along every terrace, planted in neat rows. Thorns have climbed over all of them.'],
+      ['kid', 'Somebody used a ruler on this. My mom does the shelves at the store like that. You do NOT touch her shelves.'],
+    ],
+    'thorn-lower': [
+      ['narr', 'Down here the rows give up. The garden has run wild, and the thorns grow as tall as you.'],
+    ],
+  },
+};

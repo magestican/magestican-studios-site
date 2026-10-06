@@ -11,6 +11,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { uvRot, addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as vinegate from './vinegate.js';
 
 export const ID = 'canopy-walk';
 export const SIZE = 64;
@@ -145,3 +146,39 @@ export function* canopyWalkSteps() {
   }
   return W;
 }
+
+
+
+const VINE_NORTH = { u: [-9, 9], v: [26, 29.4] }, VINE_BACK = at(0.8, 31.5);
+
+export const MANIFEST = {
+  order: 13,
+  
+  region: {
+    id: ID, name: 'The Canopy Walk', chapters: [4], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: ENTRY,
+    pack: null, 
+    transit: false, objective: 'Cross the rope bridges to the high crown',
+  },
+  generate: generateCanopyWalk, steps: canopyWalkSteps,
+  doors: [
+    { id: 'canopy-in', region: vinegate.ID, at: at(0.8, 29.0), area: VINE_NORTH, auto: true, to: ID, toAt: ENTRY, label: 'Up into the canopy', after: null },
+    { id: 'canopy-out', region: ID, at: ENTRY, to: vinegate.ID, toAt: VINE_BACK, label: 'Down to Vinegate', after: null },
+  ],
+  perches: [
+    
+    { id: 'canopy-walk', region: ID, name: 'The Middle Storey', at: LANDING, opens: 'boss_bramble', respawn: null },
+  ],
+  place: { name: 'The Canopy Walk', at: [0.18, 0.34], r: 0.045, glyph: 'meadow' },
+  kind: 'forest',
+  ground: { 'canopy-walk': 'canopy' },
+  ambience: { 'canopy-walk': { wind: 0.5, birds: 0.8, bugs: 0.4 } },
+  beats: {
+    
+    'canopy-walk': [
+      ['narr', 'The ladder ends on a platform of planks lashed round a trunk. Rope bridges swing away from it in every direction.'],
+      ['narr', 'Some climb up into the sunny crowns. Some sag across the shade below. The ground is very, very far down.'],
+      ['kid', '(Don\'t look down. Don\'t look down. ...Aaand I looked down.)'],
+    ],
+  },
+};

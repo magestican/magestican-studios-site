@@ -218,3 +218,51 @@ export function* frostspineSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 23,
+  
+  region: {
+    id: ID, name: 'Frostspine Peaks', chapters: [6], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-frostspine.bin', 
+    transit: false, objective: 'Cross the Switchback Pass',
+  },
+  generate: generateFrostspine, steps: frostspineSteps,
+  perches: [
+    { id: 'frostspine', region: ID, name: 'Base Camp', at: LANDING, opens: 'boss_quartz', respawn: null },
+  ],
+  place: { name: 'Frostspine Peaks', at: [0.31, 0.08], r: 0.06, glyph: 'peak' },
+  kind: 'town',
+  ground: { 'frost-camp': 'frost', 'frost-pass': 'frost' },
+  water: ['#ffffff', '#d8eefa', '#a8d2ec', '#7aaed4'],
+  towns: ['frost-camp'],
+  ambience: { 'frost-camp': { wind: 0.55, chimes: 0.2 }, 'frost-pass': { wind: 0.85, rumble: 0.15 } },
+  
+  hands: { sp: 21, name: 'Rime', lines: [
+    'I do the stilts. The ice moves, see? All night the lake shoves the huts around and every morning I\'m out there knocking the legs straight again. Nobody ever says thanks to a leg.',
+    'The hot spring\'s mine too. Somebody\'s got to break the ice off it at dawn, and guess who. Go on, get in. Just wipe your feet after, the floor freezes.'] },
+  beats: {
+    'frost-camp': [
+      ['narr', 'Aerowing drops you on snow so bright it hurts your eyes. Down below there\'s a frozen lake, with huts standing out on the ice on long skinny legs.'],
+      ['kid', '(Snow! Real snow! ...And I\'m in a T-shirt. Great. Awesome. I can\'t feel my ears.)'],
+    ],
+    'frost-pass': [
+      ['narr', 'The path goes up to the edge of a canyon. There used to be a rope bridge straight across. Now there\'s just the posts, with the ropes hanging cut. A skinny ledge zigzags down this side instead.'],
+      ['kid', '(Okay. Nobody look down. ...I looked down. Why\'d I look down?)'],
+    ],
+  },
+  
+  
+  
+  palettes: {
+    frost: { grass: ['#dce8f4', '#f6faff'], tall: ['#c4d6ea', '#e2ecf8'], sand: ['#c8c2b8', '#e6e0d6'], plaza: ['#8ccbec', '#c4e8fb'],
+      ruin: ['#6aaedc', '#9cd2f2'], rock: ['#6a7488', '#8a94a8'], cliff: ['#3a4458', '#58637c'], thicket: ['#5a7a7a', '#7c9c98'],
+      moss: ['#7a8a6a', '#9aaa84'], glade: ['#c4d6ea', '#e2ecf8'], path: ['#b8b0a4', '#ffffff'],
+      deep: ['#7c94b0', '#9cb2ca'], shallow: ['#a8c0d8', '#c8dcee'] },
+  },
+  
+  people: { rng: 161, kinds: { stage: 1, types: ['Frost', 'Gale'] }, gap: 0.8, dwellers: DWELLERS,
+    elder: { id: 'frost-elder', name: ELDER.name, type: 'Frost', at: ELDER.at, lines: ELDER_LINES, boss: 'glacius' } },
+};

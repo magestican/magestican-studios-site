@@ -6,7 +6,7 @@
 
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
-import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME } from '../mapgen.js';
 import { guardHuts, dressHuts, placeYard } from '../dressing.js';
 
 export const ID = 'shellhaven';
@@ -181,3 +181,52 @@ function segDist([ax, ay], [bx, by], x, y) {
   const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = U.clamp(((x - ax) * dx + (y - ay) * dy) / L, 0, 1);
   return Math.hypot(ax + dx * t - x, ay + dy * t - y);
 }
+
+
+
+
+
+const SHELL_DOOR = at(12.8, 97.2), SHELL_BACK = at(13.4, 94.6);
+
+export const MANIFEST = {
+  order: 6,
+  
+  
+  region: {
+    id: ID, name: 'Shellhaven', chapters: [2], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-shellhaven.bin', 
+    transit: false, objective: null,
+  },
+  generate: generateShellhaven, steps: shellhavenSteps,
+  doors: [
+    { id: 'shellhaven-in', region: HOME, at: SHELL_DOOR, to: ID, toAt: ENTRY, label: 'Down into Shellhaven', after: null },
+    { id: 'shellhaven-out', region: ID, at: ENTRY, to: HOME, toAt: SHELL_BACK, label: 'Up to Coral Deep', after: null },
+  ],
+  perches: [
+    
+    { id: 'shellhaven', region: ID, name: 'Shellhaven', at: LANDING, opens: 'boss_ashlo', respawn: null },
+  ],
+  
+  place: { name: 'Shellhaven', at: [0.86, 0.86], r: 0.07, glyph: 'meadow' },
+  kind: 'town',
+  ground: { shellhaven: 'coral' },
+  towns: ['shellhaven'],
+  ambience: { shellhaven: { surf: 0.5, chimes: 0.35, wind: 0.1 } },
+  
+  hands: { sp: 92, name: 'Dredge', lines: [
+    'Hold this. No - the corner. ...You\'ve got hands! Real ones! Do you know how long I\'ve waited for somebody to hold the other corner?',
+    'Up top they had shops, Grandmother says. Somebody else made the bowls. Can you imagine? I\'d sit down. I\'d sit down for a week.'] },
+  beats: {
+    
+    shellhaven: [
+      ['narr', 'The water parts like a curtain. You step through - and you are dry, standing in air, on the bottom of the sea.'],
+      ['narr', 'Above you the bubble wobbles. Fish swim past outside it, close enough to touch.'],
+      ['kid', 'No way. NO way. This is better than the aquarium on Coney Island.'],
+    ],
+  },
+  
+  
+  people: { rng: 78, kinds: { stage: 1, types: ['Tide', 'Frost'] }, gap: 1.2, dwellers: DWELLERS,
+    elder: { id: 'shell-elder', name: ELDER.name, type: 'Tide', at: ELDER.at, lines: ELDER_LINES, boss: 'leviathrum' } },
+};

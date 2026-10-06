@@ -120,3 +120,34 @@ export function* galeLedgesSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 15,
+  
+  region: {
+    id: ID, name: 'The Gale Ledges', chapters: [4], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: ENTRY,
+    pack: null, 
+    transit: false, objective: 'Train on the ledges - hide from the gusts behind the crags',
+  },
+  generate: generateGaleLedges, steps: galeLedgesSteps,
+  doors: [
+    
+    { id: 'gale-in', region: 'vinegate', at: at(-7.0, 46.6), to: ID, toAt: ENTRY, label: 'Up the sea cliff', after: null },
+    { id: 'gale-out', region: ID, at: ENTRY, to: 'vinegate', toAt: at(-4.6, 46.9), label: 'Down to the jetty', after: null },
+  ],
+  perches: [
+    { id: 'gale-ledges', region: ID, name: 'Cliff Top', at: LANDING, opens: 'boss_bramble', respawn: null }, 
+  ],
+  place: { name: 'The Gale Ledges', at: [0.025, 0.5], r: 0.025, glyph: 'meadow' }, 
+  kind: 'peak',
+  ground: { 'gale-ledges': 'volcano' },
+  ambience: { 'gale-ledges': { wind: 1.0, surf: 0.5, birds: 0.2 } },
+  beats: {
+    'gale-ledges': [ 
+      ['narr', 'The jetty ends in a rope ladder bolted to the cliff. At the top, four long ledges step up the rock, and the wind comes along them in shoves.'],
+      ['kid', 'Whoa - WHOA! It\'s like standing on the platform at Fourteenth Street when the express blows through. Okay. Big rocks. Get behind the big rocks.'],
+    ],
+  },
+};

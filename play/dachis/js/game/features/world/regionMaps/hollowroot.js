@@ -8,7 +8,7 @@
 
 import { U } from '../../../../engine/core/util.js';
 import { uvRot, addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
-import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME } from '../mapgen.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'hollowroot';
@@ -202,3 +202,50 @@ export function* hollowrootSteps() {
   }
   return W;
 }
+
+
+
+const HOLLOW_DOOR = at(-17.6, 60.6), HOLLOW_BACK = at(-16.6, 62.4);
+
+export const MANIFEST = {
+  order: 9,
+  
+  
+  region: {
+    id: ID, name: 'Hollowroot', chapters: [3], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-hollowroot.bin', 
+    transit: false, objective: null,
+  },
+  generate: generateHollowroot, steps: hollowrootSteps,
+  doors: [
+    { id: 'hollowroot-in', region: HOME, at: HOLLOW_DOOR, to: ID, toAt: ENTRY, label: 'Climb the ladder', after: null },
+    { id: 'hollowroot-out', region: ID, at: ENTRY, to: HOME, toAt: HOLLOW_BACK, label: 'Climb down to the Verdant Wilds', after: null },
+  ],
+  perches: [
+    
+    { id: 'hollowroot', region: ID, name: 'Hollowroot', at: LANDING, opens: 'boss_leviathrum', respawn: null },
+  ],
+  
+  place: { name: 'Hollowroot', at: [0.1, 0.62], r: 0.07, glyph: 'meadow' },
+  kind: 'town',
+  ground: { hollowroot: 'verdant' },
+  towns: ['hollowroot'],
+  ambience: { hollowroot: { wind: 0.6, birds: 0.7, chimes: 0.2 } },
+  
+  hands: { sp: 38, name: 'Spindle', lines: [
+    'Every rope in this tree, I tied. Every knot. If you fall, come tell me which knot it was. Don\'t just lie there groaning.',
+    'Mother Bramble used to hum while I worked. Now it\'s just the boughs creaking. So I tie everything twice. Three times after dark.'] },
+  beats: {
+    
+    hollowroot: [
+      ['narr', 'The rope ladder sways. You climb, and climb, and do not look down - and then your head comes up through the leaves into the light.'],
+      ['narr', 'A whole village sits in the crown of the old tree: huts where the boughs fork, firefly jars, walkways of living wood.'],
+      ['kid', 'A treehouse. A whole TOWN of treehouses! Okay, forget it, I\'m never going home.'],
+    ],
+  },
+  
+  
+  people: { rng: 79, kinds: { stage: 1, types: ['Leaf', 'Spirit'] }, gap: 1.2, dwellers: DWELLERS,
+    elder: { id: 'hollow-elder', name: ELDER.name, type: 'Leaf', at: ELDER.at, lines: ELDER_LINES, boss: 'bramble' } },
+};

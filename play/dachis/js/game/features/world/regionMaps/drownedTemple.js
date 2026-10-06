@@ -7,7 +7,7 @@
 
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
-import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME } from '../mapgen.js';
 
 export const ID = 'drowned-temple';
 export const SIZE = 80;
@@ -97,3 +97,41 @@ function segDist([ax, ay], [bx, by], x, y) {
   const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = U.clamp(((x - ax) * dx + (y - ay) * dy) / L, 0, 1);
   return Math.hypot(ax + dx * t - x, ay + dy * t - y);
 }
+
+
+
+const TEMPLE_DOOR = at(14.5, 92.8), TEMPLE_BACK = at(16.4, 90.4);
+
+export const MANIFEST = {
+  order: 8,
+  
+  region: {
+    id: ID, name: 'The Drowned Temple', chapters: [2], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: POOL_LANDING, home: ENTRY,
+    pack: null,
+    transit: false, objective: 'Follow the aisle to the singing altar',
+  },
+  generate: generateDrownedTemple, steps: drownedTempleSteps,
+  doors: [
+    { id: 'temple-in', region: HOME, at: TEMPLE_DOOR, to: ID, toAt: ENTRY, label: 'Into the drowned temple', after: null },
+    { id: 'temple-out', region: ID, at: ENTRY, to: HOME, toAt: TEMPLE_BACK, label: 'Back out to Coral Deep', after: null },
+  ],
+  perches: [
+    
+    { id: 'drowned-temple', region: ID, name: 'Temple Pool', at: POOL_LANDING, opens: 'boss_ashlo', respawn: null },
+  ],
+  place: { name: 'The Drowned Temple', at: [0.72, 0.95], r: 0.045, glyph: 'meadow' },
+  kind: 'ruin',
+  ground: { 'temple-porch': 'coral', 'temple-nave': 'coral', 'temple-sanctum': 'coral' },
+  caves: ['temple-porch', 'temple-nave', 'temple-sanctum'],
+  ambience: { 'temple-porch': { surf: 0.4, chimes: 0.2 }, 'temple-nave': { surf: 0.3, chimes: 0.3 }, 'temple-sanctum': { chimes: 0.6, surf: 0.2 } },
+  beats: {
+    'temple-porch': [
+      ['narr', 'Inside the drowned temple it is quiet. Water drips. Your footsteps echo a long way off.'],
+    ],
+    'temple-sanctum': [
+      ['narr', 'At the end of the aisle an old altar waits. When the tide moves, the whole room hums, like a choir far away.'],
+      ['kid', 'Okay, that\'s creepy. That\'s creepy, right? Buildings don\'t sing. Not even in Manhattan.'],
+    ],
+  },
+};

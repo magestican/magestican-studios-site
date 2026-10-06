@@ -16,6 +16,7 @@ import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../section
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import { guardHuts, dressHuts, placeYard } from '../dressing.js';
 import { CELL } from '../crustRules.js';
+import * as kazanVillage from './kazanVillage.js';
 
 export const ID = 'kazan-heart';
 export const SIZE = 84;
@@ -200,3 +201,54 @@ export function* heartOfKazanSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 26,
+  
+  region: {
+    id: ID, name: 'The Heart of Kazan', chapters: [7], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-kazan-heart.bin', 
+    transit: false, objective: 'Get down the Crater Stair',
+  },
+  generate: generateHeartOfKazan, steps: heartOfKazanSteps,
+  doors: [
+    
+    { id: 'heart-in', region: kazanVillage.ID, at: at(-7.4, 33.0), to: ID, toAt: ENTRY, label: 'Down the crater', after: 'boss_glacius' },
+    { id: 'heart-out', region: ID, at: ENTRY, to: kazanVillage.ID, toAt: at(-10.4, 33.2), label: 'Up to the village', after: null },
+  ],
+  perches: [
+    { id: 'kazan-heart', region: ID, name: 'The Ashen Forge', at: LANDING, opens: 'boss_glacius', respawn: null },
+  ],
+  place: { name: 'The Heart of Kazan', at: [0.64, 0.07], r: 0.045, glyph: 'volcano' }, 
+  kind: 'town',
+  ground: { 'crater-stair': 'magma', 'ashen-forge': 'magma' },
+  towns: ['ashen-forge'],
+  caves: ['crater-stair'],
+  ambience: { 'crater-stair': { rumble: 0.8, wind: 0.15 }, 'ashen-forge': { rumble: 0.45, chimes: 0.2 } },
+  
+  hands: { sp: 20, name: 'Bellows', lines: [
+    'I\'m the bellows. Not the smith. The bellows. Ferro gets the hammer and the thank-yous, I get the pumping and the burnt eyebrows. Look. No eyebrows.',
+    'Washing\'s mine too. Nothing dries down here, so I hang it over the run. Then it smells like a volcano. Everything smells like a volcano. You get used to it. ...No you don\'t.'] },
+  beats: {
+    'crater-stair': [
+      ['narr', 'Past the crater fence a crack opens in the rock, and steps go down into the mountain. Three times a river of lava runs across them, skinned over in black that splits, and glows, and seals again.'],
+      ['kid', '(Okay. It\'s like the hot grates on 42nd Street. You just don\'t step on the glowy part. ...Mom would have a heart attack.)'],
+    ],
+    'ashen-forge': [
+      ['narr', 'The stair comes out into a cavern lit red from underneath. Huts of black stone, washing strung over a channel of lava, and in the middle a forge as big as a bus, roaring.'],
+      ['kid', '(A town. Under the volcano. Under the village. Under the TOWN. How deep does this place even go?)'],
+    ],
+  },
+  
+  
+  palettes: {
+    magma: { rock: ['#3e3236', '#56464a'], plaza: ['#2a2230', '#3c3044'], sand: ['#7a7072', '#9a8e8c'], ruin: ['#6a4a3e', '#8a6450'],
+      cliff: ['#1e1416', '#4a2018'], thicket: ['#6a2a20', '#8e3e2a'], moss: ['#4a6a4a', '#6a8a5a'], grass: ['#5a4e4a', '#76665e'],
+      tall: ['#4a3e3a', '#62524a'], glade: ['#5a4e4a', '#76665e'], path: ['#a08a76', '#e8d0b0'] },
+  },
+  
+  people: { rng: 191, kinds: { stage: 1, types: ['Ember'] }, gap: 0.8, dwellers: DWELLERS,
+    elder: { id: 'heart-elder', name: ELDER.name, type: 'Metal', at: ELDER.at, lines: ELDER_LINES, boss: 'pyrecrown' } },
+};

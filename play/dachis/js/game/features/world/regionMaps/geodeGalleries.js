@@ -9,6 +9,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as minehead from './minehead.js';
 
 export const ID = 'geode-galleries';
 export const SIZE = 112;
@@ -178,3 +179,42 @@ export function* geodeGalleriesSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 21,
+  
+  region: {
+    id: ID, name: 'The Geode Galleries', chapters: [5], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: POOL_LANDING, home: ENTRY,
+    pack: 'assets/scenery-geode-galleries.bin', 
+    transit: false, objective: 'Turn the mirrors - bring the light to the crystal',
+  },
+  generate: generateGeodeGalleries, steps: geodeGalleriesSteps,
+  doors: [
+    { id: 'geode-in', region: minehead.ID, at: minehead.GEODE_DOOR, to: ID, toAt: ENTRY, label: 'Into the crystal', after: null },
+    { id: 'geode-out', region: ID, at: ENTRY, to: minehead.ID, toAt: minehead.GEODE_BACK, label: 'Back to the camp', after: null },
+  ],
+  perches: [
+    { id: 'geode-galleries', region: ID, name: 'The Crystal Pool', at: POOL_LANDING, opens: 'boss_kingshade', respawn: null },
+  ],
+  place: { name: 'The Geode Galleries', at: [0.31, 0.83], r: 0.04, glyph: 'meadow' },
+  kind: 'cave',
+  ground: { 'geode-mouth': 'ember', 'geode-prism': 'ember', 'geode-heart': 'ember', 'geode-vault': 'ember' },
+  caves: ['geode-mouth', 'geode-prism', 'geode-heart', 'geode-vault'],
+  ambience: { 'geode-mouth': { wind: 0.25, chimes: 0.45 }, 'geode-prism': { chimes: 0.6, rumble: 0.2 }, 'geode-heart': { chimes: 0.7, rumble: 0.3 }, 'geode-vault': { chimes: 0.5, wind: 0.15 } },
+  beats: {
+    'geode-mouth': [
+      ['narr', 'The crack opens into a hall of crystal. Every wall throws your torchlight back at you in pieces.'],
+      ['narr', 'Across the floor a single bar of daylight runs from a split in the rock to a mirror on a brass stand - and stops dead against the wall.'],
+      ['kid', 'This is the fun house at Coney Island. I got lost in there for like twenty minutes. Mom bought me a hot dog after so I\'d stop crying.'],
+      ['kid', '(The mirror turns. Maybe if the light went the other way...)'],
+    ],
+    'geode-vault': [
+      ['narr', 'The last wall falls in a rain of violet glass. Beyond it the geode opens round a pool so clear it looks empty.'],
+      ['kid', 'Okay. That was worth it. That was way worth it.'],
+    ],
+  },
+  
+  people: { rng: 113, kinds: { stage: 2, types: ['Light'], match: 'any' }, gap: 0.3, dwellers: DWELLERS },
+};

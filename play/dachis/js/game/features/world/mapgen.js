@@ -12,6 +12,9 @@ import { U } from '../../../engine/core/util.js';
 import { SECTIONS, toUV, fromUV, sectionAtUV, sectionById, edgeDepth, nearestSection, sectionWindows, screenS, BASE_SECTIONS } from './sections.js';
 
 export const MAP = 96;
+
+
+export const HOME = 'kazan-isle';
 export const T = { DEEP: 0, SHALLOW: 1, SAND: 2, GRASS: 3, TALL: 4, PATH: 5, ROCK: 6, LAVA: 7, PLAZA: 8, WOOD: 9, CLIFF: 10, JUNGLE: 11, REEF: 12, KELP: 13, RUIN: 14, GLADE: 15, THICKET: 16, MOSS: 17 };
 
 export const BLOCKED = new Set([T.DEEP, T.SHALLOW, T.LAVA, T.WOOD, T.CLIFF]);

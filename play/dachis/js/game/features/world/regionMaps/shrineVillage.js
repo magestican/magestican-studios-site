@@ -9,7 +9,7 @@
 
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
-import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME } from '../mapgen.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'shrine-village';
@@ -171,3 +171,40 @@ function segDist([ax, ay], [bx, by], x, y) {
   const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = U.clamp(((x - ax) * dx + (y - ay) * dy) / L, 0, 1);
   return Math.hypot(ax + dx * t - x, ay + dy * t - y);
 }
+
+
+
+
+
+const ROAD_END = at(-1.8, 85.5);
+const SHRINE_AREA = { u: [-9, 9], v: [87.3, 101] };
+
+export const MANIFEST = {
+  order: 4,
+  
+  region: {
+    id: ID, name: 'Shrine Village', chapters: [1], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: GATE, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-shrine-village.bin', 
+    transit: false, objective: null,
+  },
+  generate: generateShrineVillage, steps: shrineVillageSteps,
+  doors: [
+    { id: 'shrine-in', region: HOME, at: at(0, 94), area: SHRINE_AREA, auto: true, to: ID, toAt: GATE, label: 'Shrine Village', after: null },
+    { id: 'shrine-out', region: ID, at: GATE, to: HOME, toAt: ROAD_END, label: 'Back up the road', after: null },
+  ],
+  perches: [
+    
+    { id: 'shrine', region: ID, name: 'Shrine Village', at: LANDING, opens: 'boss_ashlo', respawn: 'initiated' },
+  ],
+  
+  place: { name: 'Shrine Village', at: [0.52, 0.93], r: 0.07, glyph: 'meadow' },
+  kind: 'town',
+  ground: { 'shrine-village': 'shrine' },
+  towns: ['shrine-village'],
+  ambience: { 'shrine-village': { chimes: 0.7, wind: 0.4, birds: 0.3 } },
+  
+  hands: { sp: 71, name: 'Wick', lines: [
+    'The priests pray. I light the lanterns they pray by. Then I put them out. Then I light them again. Very holy, that part.',
+    'Don\'t tell the priests, but the blossoms don\'t taste like anything. I ate one. I had to know.'] },
+};

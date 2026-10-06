@@ -8,6 +8,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as figTerraces from './figTerraces.js';
 
 export const ID = 'ruin-steps';
 export const SIZE = 64;
@@ -119,3 +120,34 @@ export function* ruinStepsSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 16,
+  
+  region: {
+    id: ID, name: 'The Ruin Steps', chapters: [4], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: ENTRY,
+    pack: null,
+    transit: false, objective: 'Climb the switchbacks to the black gate',
+  },
+  generate: generateRuinSteps, steps: ruinStepsSteps,
+  doors: [
+    { id: 'ruin-in', region: figTerraces.ID, at: figTerraces.EXIT, to: ID, toAt: ENTRY, label: 'Up to the ruins', after: null },
+    { id: 'ruin-out', region: ID, at: ENTRY, to: figTerraces.ID, toAt: figTerraces.EXIT_BACK, label: 'Down to the terraces', after: null },
+  ],
+  perches: [
+    { id: 'ruin-steps', region: ID, name: 'Temple Forecourt', at: LANDING, opens: 'boss_bramble', respawn: null },
+  ],
+  place: { name: 'The Ruin Steps', at: [0.18, 0.2], r: 0.05, glyph: 'meadow' },
+  kind: 'ruin',
+  ground: { 'ruin-steps': 'ruins' },
+  ambience: { 'ruin-steps': { wind: 0.5, birds: 0.5, bugs: 0.3 } },
+  beats: {
+    'ruin-steps': [
+      ['narr', 'The jungle gives way to stone: the face of an old temple, climbing the hill in broken steps too steep to walk.'],
+      ['narr', 'Long ramps run back and forth across it, each a little higher than the last. At the very top, a gate of black glass.'],
+      ['kid', 'It\'s like the ramp at the Y on 63rd. The guy at the top of that one only wants to see your card, though.'],
+    ],
+  },
+};

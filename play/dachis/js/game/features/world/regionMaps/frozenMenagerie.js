@@ -13,6 +13,7 @@ import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import { CELL } from '../thinIceRules.js';
+import * as glacierField from './glacierField.js';
 
 export const ID = 'frost-summit';
 export const SIZE = 84;
@@ -140,3 +141,44 @@ export function* frozenMenagerieSteps() {
   yield 'grid';
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 25,
+  
+  region: {
+    id: ID, name: 'The Frozen Menagerie', chapters: [6], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-frost-summit.bin',
+    transit: false, objective: 'Cross the thin ice to the summit',
+  },
+  generate: generateFrozenMenagerie, steps: frozenMenagerieSteps,
+  doors: [
+    { id: 'menagerie-in', region: glacierField.ID, at: glacierField.NORTH, to: ID, toAt: ENTRY, label: 'Into the Menagerie', after: null },
+    { id: 'menagerie-out', region: ID, at: ENTRY, to: glacierField.ID, toAt: glacierField.NORTH_BACK, label: 'Out to the hollow', after: null },
+  ],
+  perches: [
+    { id: 'frost-summit', region: ID, name: 'The Summit', at: LANDING, opens: 'boss_glacius', respawn: null },
+  ],
+  place: { name: 'The Frozen Menagerie', at: [0.2, 0.06], r: 0.04, glyph: 'peak' },
+  kind: 'cave',
+  ground: { 'menagerie-1': 'frost', 'menagerie-2': 'frost', 'menagerie-3': 'frost', 'summit-lair': 'frost' },
+  caves: ['menagerie-1', 'menagerie-2', 'menagerie-3'],
+  ambience: { 'menagerie-1': { chimes: 0.4, wind: 0.1 }, 'menagerie-2': { chimes: 0.45, wind: 0.1 }, 'menagerie-3': { chimes: 0.5, wind: 0.15 }, 'summit-lair': { wind: 1.0 } },
+  beats: {
+    'menagerie-1': [
+      ['narr', 'A long hall of blue ice. Dachis stand frozen along the walls, caught halfway through whatever they were doing. One\'s in the middle of a sneeze.'],
+      ['narr', 'The floor\'s ice too, thin as a window. Every step leaves a star of cracks behind you, and the cracked bits won\'t hold you twice. The far door is iced shut.'],
+      ['kid', '(Okay, every square once, no going back. ...It\'s the snake game on Danny\'s calculator. I\'m the snake. I always lose at the snake.)'],
+    ],
+    'summit-lair': [
+      ['narr', 'The top of the mountain. The wind won\'t quit. There\'s a ring of ice blocks with something small and blue curled up in each one, and in the middle, something huge that doesn\'t move at all.'],
+    ],
+  },
+  
+  people: { rng: 181, kinds: { stage: 1, types: ['Frost'] },
+    custom: ({ add, G, kinds, rng }) => {
+      if (!G.flags.boss_glacius) return;
+      FAMILY.forEach((f, i) => add({ kind: 'villager', id: f.id, sp: kinds[Math.floor(rng() * kinds.length)].id, x: f.x, y: f.y, home: { x: f.x, y: f.y }, radius: 1.2, lines: FAMILY_LINES[i], tx: f.x, ty: f.y, wait: rng() * 3 }));
+    } },
+};

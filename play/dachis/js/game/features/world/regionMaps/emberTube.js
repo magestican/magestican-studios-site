@@ -6,7 +6,7 @@
 
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
-import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME } from '../mapgen.js';
 
 export const ID = 'ember-tube';
 export const SIZE = 80;
@@ -107,3 +107,39 @@ function segDist([ax, ay], [bx, by], x, y) {
   const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = U.clamp(((x - ax) * dx + (y - ay) * dy) / L, 0, 1);
   return Math.hypot(ax + dx * t - x, ay + dy * t - y);
 }
+
+
+const MOUTH = at(1.4, 48.8); 
+
+export const MANIFEST = {
+  order: 2,
+  
+  region: {
+    id: ID, name: 'Ember Tube', chapters: [1], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: SPRING, home: ENTRY,
+    pack: null,
+    transit: false, objective: 'Follow the torches through the Ember Tube',
+  },
+  generate: generateEmberTube, steps: emberTubeSteps,
+  doors: [
+    { id: 'ember-in', region: HOME, at: MOUTH, to: ID, toAt: ENTRY, label: 'Enter the Ember Tube', after: 'initiated' },
+    { id: 'ember-out', region: ID, at: ENTRY, to: HOME, toAt: MOUTH, label: 'Back to Mt. Kazan', after: null },
+  ],
+  perches: [
+    { id: 'ember-tube', region: ID, name: 'Ember Tube Spring', at: ENTRY, opens: 'boss_ashlo', respawn: null },
+  ],
+  
+  place: { name: 'Ember Tube', at: [0.86, 0.2], r: 0.1, glyph: 'volcano' },
+  kind: 'cave',
+  ground: { 'ember-a': 'ember', 'ember-b': 'ember' },
+  caves: ['ember-a', 'ember-b'],
+  ambience: { 'ember-a': { rumble: 0.8, wind: 0.25 }, 'ember-b': { rumble: 1, wind: 0.15 } },
+  beats: {
+    'ember-b': [
+      ['narr', 'The Magma Hall. Heat rolls off the pools in slow waves, and the rock hums underfoot.'],
+      ['narr', 'Somewhere past the pools, something small is crying.'],
+    ],
+  },
+  
+  people: { rng: 77, kinds: { stage: 1, types: ['Ember', 'Stone'] }, gap: 1.2, dwellers: DWELLERS },
+};

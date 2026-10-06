@@ -168,3 +168,44 @@ export function* mineheadSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 18,
+  
+  
+  region: {
+    id: ID, name: 'Minehead Camp', chapters: [5], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-minehead.bin', 
+    transit: false, objective: 'Wind down the ledge to the shaft',
+  },
+  generate: generateMinehead, steps: mineheadSteps,
+  perches: [
+    
+    { id: 'minehead', region: ID, name: 'Minehead Camp', at: LANDING, opens: 'boss_kingshade', respawn: null },
+  ],
+  
+  place: { name: 'Minehead Camp', at: [0.1, 0.93], r: 0.055, glyph: 'volcano' },
+  kind: 'town',
+  ground: { minehead: 'ember', 'mine-workings': 'ember' },
+  water: ['#8fa39c', '#2f5a52', '#1d3d38', '#0f2420'],
+  towns: ['minehead'],
+  caves: ['mine-workings'],
+  ambience: { minehead: { wind: 0.35, rumble: 0.35, chimes: 0.15 }, 'mine-workings': { rumble: 0.5, wind: 0.15 } },
+  
+  hands: { sp: 20, name: 'Clinker', lines: [
+    'Picks, lamps, buckets, hinges - these hands bent every one of \'em. The babies bang two rocks together and call it mining. Babies.',
+    'Your bag. The stitches are all the same size. A machine did that? ...I\'d give a hand for a machine like that. I\'ve got two.'] },
+  beats: {
+    
+    minehead: [
+      ['narr', 'Aerowing comes down on a ring of trodden earth round a hole in the world. The pit is wider than a city block, and black at the bottom.'],
+      ['narr', 'Huts stand back from the edge. One ledge leaves the rim and winds down the pit wall, round and round, with torches on it.'],
+      ['kid', 'It goes round and round like the ramp at the Guggenheim. Mom took me once. I got yelled at for running. Nobody\'s yelling here. There\'s also no floor.'],
+    ],
+  },
+  
+  people: { rng: 82, kinds: { stage: 1, types: ['Stone', 'Metal'] }, gap: 1.0, still: false, dwellers: DWELLERS,
+    elder: { id: 'mine-elder', name: ELDER.name, type: 'Stone', at: ELDER.at, lines: ELDER_LINES, boss: 'quartz' } },
+};

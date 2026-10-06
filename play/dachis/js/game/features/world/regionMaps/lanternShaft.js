@@ -9,6 +9,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as minehead from './minehead.js';
 
 export const ID = 'lantern-shaft';
 export const SIZE = 80;
@@ -131,3 +132,37 @@ export function* lanternShaftSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 19,
+  
+  region: {
+    id: ID, name: 'The Lantern Shaft', chapters: [5], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: ENTRY,
+    pack: null,
+    transit: false, objective: 'Light the lanterns down the shaft',
+  },
+  generate: generateLanternShaft, steps: lanternShaftSteps,
+  doors: [
+    
+    { id: 'shaft-in', region: minehead.ID, at: minehead.SHAFT_DOOR, to: ID, toAt: ENTRY, label: 'Down the shaft', after: null },
+    { id: 'shaft-out', region: ID, at: ENTRY, to: minehead.ID, toAt: minehead.SHAFT_BACK, label: 'Up to the camp', after: null },
+  ],
+  perches: [
+    { id: 'lantern-shaft', region: ID, name: 'The Seep', at: LANDING, opens: 'boss_kingshade', respawn: null },
+  ],
+  place: { name: 'The Lantern Shaft', at: [0.25, 0.92], r: 0.045, glyph: 'meadow' },
+  kind: 'cave',
+  ground: { 'shaft-a': 'ember', 'shaft-b': 'ember' },
+  caves: ['shaft-a', 'shaft-b'],
+  ambience: { 'shaft-a': { rumble: 0.6 }, 'shaft-b': { rumble: 0.85 } },
+  beats: {
+    'shaft-a': [
+      ['narr', 'The ladder ends in a tunnel. A lantern hangs just ahead, cold. Past it there is nothing to see at all.'],
+      ['kid', '(Okay. I\'ve got the light on my Walkman. ...It\'s a really, really small light.)'],
+    ],
+  },
+  
+  people: { rng: 83, kinds: { stage: 1, types: ['Shadow'] }, gap: 1.0, still: true, dwellers: DWELLERS },
+};

@@ -1,4 +1,5 @@
 
+import { rowsOf, mapOf } from './features/world/manifests.js';
 
 
 
@@ -19,10 +20,11 @@ export const LOOPS = ['menu', 'town', 'isle', 'field', 'battle', 'boss', 'cave',
 export const STINGERS = ['victory', 'defeat'];
 export const CUES = [...LOOPS, ...STINGERS];
 
-export const TOWNS = ['kazan', 'village', 'shrine', 'shrine-village', 'shellhaven', 'hollowroot', 'vinegate', 'minehead', 'tomo-coast', 'echo-hamlet', 'frost-camp', 'ashen-forge']; 
+export const TOWNS = ['kazan', 'shrine']; 
+TOWNS.push(...rowsOf('towns')); 
 
 
-export const CAVES = { 'ember-a': 'cave', 'ember-b': 'cave', 'temple-porch': 'cave', 'temple-nave': 'cave', 'temple-sanctum': 'cave', 'tree-vault': 'cave', 'tree-heart': 'cave', 'tree-roots': 'cave', 'court-stones': 'cave', 'court-gallery': 'cave', 'court-guards': 'cave', 'mine-workings': 'cave', 'shaft-a': 'cave', 'shaft-b': 'cave', 'seam-hall': 'cave', 'seam-narrows': 'cave', 'seam-stones': 'cave', 'seam-hollow': 'cave', 'geode-mouth': 'cave', 'geode-prism': 'cave', 'geode-heart': 'cave', 'geode-vault': 'cave', 'echo-river': 'cave', 'echo-isles': 'cave', 'menagerie-1': 'cave', 'menagerie-2': 'cave', 'menagerie-3': 'cave', 'crater-stair': 'cave', 'magma-galleries': 'cave', 'pyre-1': 'cave', 'pyre-2': 'cave', 'pyre-3': 'cave' }; 
+export const CAVES = Object.fromEntries(rowsOf('caves').map((s) => [s, 'cave'])); 
 
 
 
@@ -55,30 +57,23 @@ export function preloadFor(cue) {
 
 
 export const AMBIENCE = {
-  minehead: { wind: 0.35, rumble: 0.35, chimes: 0.15 }, 'mine-workings': { rumble: 0.5, wind: 0.15 }, 'shaft-a': { rumble: 0.6 }, 'shaft-b': { rumble: 0.85 }, 'seam-hall': { rumble: 0.7, chimes: 0.1 }, 'seam-narrows': { rumble: 0.8, wind: 0.2 }, 'seam-stones': { rumble: 0.9, wind: 0.3 }, 'seam-hollow': { rumble: 0.5, chimes: 0.3 }, 'geode-mouth': { wind: 0.25, chimes: 0.45 }, 'geode-prism': { chimes: 0.6, rumble: 0.2 }, 'geode-heart': { chimes: 0.7, rumble: 0.3 }, 'geode-vault': { chimes: 0.5, wind: 0.15 }, 'echo-hamlet': { surf: 0.3, chimes: 0.2 }, 'echo-river': { surf: 0.6, rumble: 0.35 }, 'echo-isles': { surf: 0.45, wind: 0.2, chimes: 0.25 }, 'frost-camp': { wind: 0.55, chimes: 0.2 }, 'frost-pass': { wind: 0.85, rumble: 0.15 }, 'glacier-field': { wind: 0.9, chimes: 0.2 }, 'aurora-hollow': { wind: 0.5, chimes: 0.35 }, 'steam-vents': { rumble: 0.45, wind: 0.2 }, 'menagerie-1': { chimes: 0.4, wind: 0.1 }, 'menagerie-2': { chimes: 0.45, wind: 0.1 }, 'menagerie-3': { chimes: 0.5, wind: 0.15 }, 'summit-lair': { wind: 1.0 }, 'crater-stair': { rumble: 0.8, wind: 0.15 }, 'ashen-forge': { rumble: 0.45, chimes: 0.2 }, 'magma-galleries': { rumble: 0.7, wind: 0.2 }, 'obsidian-rivers': { rumble: 0.6, wind: 0.25 }, 'cinder-cistern': { surf: 0.25, rumble: 0.3 }, 'pyre-1': { rumble: 0.5, wind: 0.3 }, 'pyre-2': { rumble: 0.55, wind: 0.35 }, 'pyre-3': { rumble: 0.6, wind: 0.4 }, 'pyre-nest': { rumble: 0.9, wind: 0.3 }, 
+  
   kazan: { wind: 0.5, rumble: 0.7, birds: 0.25 },
-  village: { wind: 0.5, rumble: 0.7, birds: 0.25 },
-  'ember-a': { rumble: 0.8, wind: 0.25 },
-  'ember-b': { rumble: 1, wind: 0.15 },
   slope: { wind: 0.8, rumble: 0.3, birds: 0.35 },
   jungle: { bugs: 0.8, birds: 0.7, wind: 0.2 },
   road: { wind: 0.5, birds: 0.6, bugs: 0.3 },
   coast: { surf: 0.9, wind: 0.5, birds: 0.3 },
-  'tomo-coast': { surf: 0.9, wind: 0.5, birds: 0.3 },
   shrine: { chimes: 0.7, wind: 0.4, birds: 0.3 },
-  'shrine-village': { chimes: 0.7, wind: 0.4, birds: 0.3 },
   coral: { surf: 0.6, wind: 0.2, bugs: 0.2 },
-  shellhaven: { surf: 0.5, chimes: 0.35, wind: 0.1 },
-  'kelp-maze': { surf: 0.7, bugs: 0.15 },
-  hollowroot: { wind: 0.6, birds: 0.7, chimes: 0.2 },
-  'tree-vault': { chimes: 0.3, wind: 0.2 }, 'tree-heart': { chimes: 0.4, bugs: 0.2 }, 'tree-roots': { wind: 0.15, chimes: 0.2 }, 
-  'ruin-steps': { wind: 0.5, birds: 0.5, bugs: 0.3 }, 'court-stones': { chimes: 0.4, rumble: 0.2 }, 'court-gallery': { wind: 0.6, rumble: 0.3 }, 'court-guards': { rumble: 0.2, chimes: 0.2 }, 'court-throne': { wind: 0.7, birds: 0.3 }, 
-  'canopy-walk': { wind: 0.5, birds: 0.8, bugs: 0.4 }, 'gale-ledges': { wind: 1.0, surf: 0.5, birds: 0.2 }, 'fig-terraces': { bugs: 0.8, birds: 0.4, surf: 0.15 }, 
-  vinegate: { surf: 0.35, bugs: 0.7, birds: 0.6 }, 
-  'thorn-upper': { bugs: 0.6, birds: 0.5, wind: 0.3 }, 'thorn-lower': { bugs: 0.8, wind: 0.4, birds: 0.3 }, 
-  'temple-porch': { surf: 0.4, chimes: 0.2 }, 'temple-nave': { surf: 0.3, chimes: 0.3 }, 'temple-sanctum': { chimes: 0.6, surf: 0.2 }, 
+  
+  
+  
+  
+  
+  
   verdant: { bugs: 0.7, birds: 0.8, wind: 0.3 },
 };
+Object.assign(AMBIENCE, mapOf('ambience')); 
 export const AMBIENCE_LAYERS = ['wind', 'surf', 'bugs', 'birds', 'rumble', 'chimes'];
 export function ambienceFor(mode, sec) {
   const mix = mode === 'world' || mode === 'menu' ? AMBIENCE[sec] : null;

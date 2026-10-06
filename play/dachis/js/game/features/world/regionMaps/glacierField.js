@@ -11,6 +11,7 @@ import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import { CELL } from '../slide.js';
+import * as frostspine from './frostspine.js';
 
 export const ID = 'frost-glacier';
 export const SIZE = 96;
@@ -151,3 +152,42 @@ export function* glacierFieldSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 24,
+  
+  region: {
+    id: ID, name: 'The Glacier Field', chapters: [6], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
+    pack: 'assets/scenery-frost-glacier.bin',
+    transit: false, objective: 'Slide across the glare ice',
+  },
+  generate: generateGlacierField, steps: glacierFieldSteps,
+  doors: [
+    { id: 'glacier-in', region: frostspine.ID, at: frostspine.EXIT, to: ID, toAt: ENTRY, label: 'On to the glacier', after: null },
+    { id: 'glacier-out', region: ID, at: ENTRY, to: frostspine.ID, toAt: frostspine.BACK, label: 'Back to the pass', after: null },
+  ],
+  perches: [
+    { id: 'frost-glacier', region: ID, name: 'The Glacier Field', at: LANDING, opens: 'boss_quartz', respawn: null },
+  ],
+  place: { name: 'The Glacier Field', at: [0.42, 0.06], r: 0.045, glyph: 'peak' },
+  kind: 'field',
+  ground: { 'glacier-field': 'frost', 'aurora-hollow': 'frost', 'steam-vents': 'frost' },
+  ambience: { 'glacier-field': { wind: 0.9, chimes: 0.2 }, 'aurora-hollow': { wind: 0.5, chimes: 0.35 }, 'steam-vents': { rumble: 0.45, wind: 0.2 } },
+  beats: {
+    'glacier-field': [
+      ['narr', 'After the pass the snow just stops and it\'s ice, a whole field of it, so smooth you can see the sky in it. Rocks and old cut blocks stick up here and there.'],
+      ['kid', '(Ice. Okay. I went to Wollman Rink like every Saturday last winter. ...I mostly sat on Wollman Rink last winter.)'],
+    ],
+    'aurora-hollow': [
+      ['narr', 'Down here everything\'s in the mountain\'s shadow. The snow comes up to your waist, except where something really big stomped a path through it.'],
+      ['kid', '(Stay on the path. Stay on the path. And whatever made the path, I\'m not saying hi to it.)'],
+    ],
+    'steam-vents': [
+      ['narr', 'Steam\'s pouring out of cracks in the rock, and there\'s no snow left anywhere near them. A few fire dachis are curled up in the warm mud, keeping one eye on you.'],
+    ],
+  },
+  
+  people: { rng: 171, kinds: { stage: 2, types: ['Frost', 'Ember'] }, gap: 0.8, dwellers: DWELLERS },
+};

@@ -96,3 +96,22 @@ function segDist([ax, ay], [bx, by], x, y) {
   const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = U.clamp(((x - ax) * dx + (y - ay) * dy) / L, 0, 1);
   return Math.hypot(ax + dx * t - x, ay + dy * t - y);
 }
+
+
+export const MANIFEST = {
+  order: 1,
+  region: {
+    id: ID, name: 'Testbed', chapters: [], size: SIZE, interior: false, reachable: false,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: SPRING, home: ENTRY,
+    pack: null,
+    transit: false, objective: 'Walk the Long Meadow to the Far Field',
+  },
+  generate: generateTestbed, steps: testbedSteps,
+  perches: [
+    
+    { id: 'testbed', region: ID, name: 'Testbed Meadow', at: ENTRY, opens: null, respawn: null },
+  ],
+  
+  place: { name: 'Testbed', at: [0.93, 0.42], r: 0.06, glyph: 'meadow' },
+  kind: 'field',
+};

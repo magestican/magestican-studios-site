@@ -7,6 +7,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as shellhaven from './shellhaven.js';
 
 export const ID = 'kelp-maze';
 export const SIZE = 64;
@@ -110,3 +111,34 @@ export function* kelpMazeSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 7,
+  
+  region: {
+    id: ID, name: 'The Kelp Maze', chapters: [2], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: POOL_LANDING, home: ENTRY,
+    pack: null,
+    transit: false, objective: 'Find the pearl pool at the far end of the Kelp Maze',
+  },
+  generate: generateKelpMaze, steps: kelpMazeSteps,
+  doors: [
+    { id: 'kelp-in', region: shellhaven.ID, at: shellhaven.EAST_GATE, to: ID, toAt: ENTRY, label: 'Into the Kelp Maze', after: null },
+    { id: 'kelp-out', region: ID, at: ENTRY, to: shellhaven.ID, toAt: shellhaven.EAST_BACK, label: 'Back to Shellhaven', after: null },
+  ],
+  perches: [
+    
+    { id: 'kelp-maze', region: ID, name: 'Pearl Pool', at: POOL_LANDING, opens: 'boss_ashlo', respawn: null },
+  ],
+  place: { name: 'The Kelp Maze', at: [0.95, 0.78], r: 0.045, glyph: 'meadow' },
+  kind: 'sea',
+  ground: { 'kelp-maze': 'coral' },
+  ambience: { 'kelp-maze': { surf: 0.7, bugs: 0.15 } },
+  beats: {
+    'kelp-maze': [
+      ['narr', 'The bubble stretches out into a long tunnel of air. The kelp has grown into walls taller than you.'],
+      ['kid', 'Okay. Left hand on the wall. That\'s how you do mazes. I\'m pretty sure. Danny said.'],
+    ],
+  },
+};

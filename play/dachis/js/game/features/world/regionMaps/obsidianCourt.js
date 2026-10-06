@@ -13,6 +13,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as ruinSteps from './ruinSteps.js';
 
 export const ID = 'obsidian-court';
 export const SIZE = 96;
@@ -153,3 +154,50 @@ export function* obsidianCourtSteps() {
   }
   return W;
 }
+
+
+export const MANIFEST = {
+  order: 17,
+  
+  region: {
+    id: ID, name: 'The Obsidian Court', chapters: [4], size: SIZE, interior: true, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: POOL_LANDING, home: ENTRY,
+    pack: 'assets/scenery-obsidian-court.bin', 
+    transit: false, objective: null,
+  },
+  generate: generateObsidianCourt, steps: obsidianCourtSteps,
+  doors: [
+    { id: 'court-in', region: ruinSteps.ID, at: ruinSteps.EXIT, to: ID, toAt: ENTRY, label: 'Through the black gate', after: null },
+    { id: 'court-out', region: ID, at: ENTRY, to: ruinSteps.ID, toAt: ruinSteps.EXIT_BACK, label: 'Out to the steps', after: null },
+  ],
+  perches: [
+    { id: 'obsidian-court', region: ID, name: 'The Glass Pool', at: POOL_LANDING, opens: 'boss_bramble', respawn: null },
+  ],
+  place: { name: 'The Obsidian Court', at: [0.08, 0.12], r: 0.05, glyph: 'meadow' },
+  kind: 'ruin',
+  ground: { 'court-stones': 'court', 'court-gallery': 'court', 'court-guards': 'court', 'court-throne': 'court' },
+  caves: ['court-stones', 'court-gallery', 'court-guards'],
+  ambience: { 'court-stones': { chimes: 0.4, rumble: 0.2 }, 'court-gallery': { wind: 0.6, rumble: 0.3 }, 'court-guards': { rumble: 0.2, chimes: 0.2 }, 'court-throne': { wind: 0.7, birds: 0.3 } },
+  beats: {
+    'court-stones': [
+      ['narr', 'Inside the gate the floor is water - perfectly still and perfectly black, like a mirror nobody cleaned.'],
+      ['narr', 'Pale stones lead across it, not in a straight line. Your reflection follows you, one step behind.'],
+    ],
+    'court-guards': [
+      ['narr', 'A long hall of stone guards. Between them, real ones: big furry dachis in armour, kneeling, tails shaking.'],
+      ['kid', '(Mom always says they\'re more scared of you than you are of them. ...That\'s a LOT of scared.)'],
+    ],
+    'court-throne': [
+      ['narr', 'The last door opens onto the sky. A round floor at the top of the world, and at its far side, a throne of black stone.'],
+      ['narr', 'Someone huge stands in front of it, very still, looking out over the jungle like he is counting every tree.'],
+    ],
+  },
+  
+  
+  people: { rng: 81, kinds: { stage: 2, types: ['Beast'] },
+    custom: ({ add, G, kinds, rng, bossSpecies }) => {
+      GUARDS.forEach((d, i) => add({ kind: 'villager', id: d.id, sp: kinds[Math.floor(rng() * kinds.length)].id, ...d.home, still: true, lines: G.flags.boss_kingshade ? GUARD_AFTER[i] : d.lines }));
+      
+      if (G.flags.boss_kingshade && !(G.flags.beats || {})['kingshade-gone']) add({ kind: 'villager', id: 'court-king', name: 'Kingshade', sp: bossSpecies('kingshade').id, calm: true, ...KING_SEAT, still: true, lines: KING_LINES });
+    } },
+};

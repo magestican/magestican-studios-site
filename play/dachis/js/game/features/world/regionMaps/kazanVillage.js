@@ -8,7 +8,7 @@
 
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
-import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME, VOLC, RIM } from '../mapgen.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'kazan-village';
@@ -196,3 +196,40 @@ function segDist([ax, ay], [bx, by], x, y) {
   const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = U.clamp(((x - ax) * dx + (y - ay) * dy) / L, 0, 1);
   return Math.hypot(ax + dx * t - x, ay + dy * t - y);
 }
+
+
+
+
+const STEPS_TOP = at(0, 46.8);
+
+export const MANIFEST = {
+  order: 3,
+  
+  
+  region: {
+    id: ID, name: 'Kazan Village', chapters: [1], size: SIZE, interior: false, reachable: true,
+    sections: SECTIONS.map((s) => s.id), entry: GATE, spring: LANDING, home: SPAWN,
+    pack: 'assets/scenery-kazan-village.bin', 
+    transit: false, objective: null,
+  },
+  generate: generateKazanVillage, steps: kazanVillageSteps,
+  doors: [
+    { id: 'village-in', region: HOME, at: VOLC, r: RIM.r - 0.5, auto: true, to: ID, toAt: GATE, label: 'Kazan Village', after: null },
+    { id: 'village-out', region: ID, at: GATE, to: HOME, toAt: STEPS_TOP, label: 'Down the mountain', after: null },
+  ],
+  perches: [
+    
+    
+    { id: 'kazan', region: ID, name: 'Kazan Village', at: LANDING, opens: 'boss_ashlo', respawn: null },
+  ],
+  
+  place: { name: 'Kazan Village', at: [0.52, 0.17], r: 0.08, glyph: 'volcano' },
+  kind: 'town',
+  ground: { village: 'volcano' },
+  towns: ['village'],
+  ambience: { village: { wind: 0.5, rumble: 0.7, birds: 0.25 } },
+  
+  hands: { sp: 35, name: 'Brindle', lines: [
+    'I thatched every roof in this village. Every one leaks a little different. Wake me up in the middle of the night and I\'ll tell you which hut it is by the drip.',
+    'The mountain grumbled last night. Everybody slept right through it. Me, I sat up with a bucket of water. One bucket. For a volcano. I know, I know.'] },
+};
