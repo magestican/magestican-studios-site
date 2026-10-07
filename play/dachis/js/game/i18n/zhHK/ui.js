@@ -523,4 +523,9 @@ export default {
   "Thanks for playing.": "多謝你玩。",
   "THE END": "完",
   "Back to the title": "返去標題",
+  "Tiny": "迷你",
+  "Small": "細隻",
+  "Medium": "中等",
+  "Large": "大隻",
+  "Huge": "超大隻",
 };

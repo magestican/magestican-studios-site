@@ -523,4 +523,9 @@ export default {
   "Thanks for playing.": "あそんでくれて、ありがとう。",
   "THE END": "おしまい",
   "Back to the title": "タイトルにもどる",
+  "Tiny": "ちびっこ",
+  "Small": "ちいさめ",
+  "Medium": "ふつう",
+  "Large": "おおきめ",
+  "Huge": "でっかい",
 };

@@ -5,6 +5,7 @@ import { G, S, caughtCount } from '../../state.js';
 import { VOLC, npcStepClear } from './mapgen.js';
 import { CHAR_SCALE, GAP, BODY_R } from './crowd.js';
 import { makeDachi, speciesById, capsFor, wildFamiliesOf, rollShiny, statsOf } from '../../data/species.js';
+import { sizeMult } from '../../data/sizes.js';
 import { sectionById } from './sections.js';
 import { wildLevel } from './wildLevel.js';
 import { TOWNS } from '../../musicCues.js';
@@ -89,7 +90,7 @@ export function spawnWild(near = null, minD = 7, where = null) {
     if (Math.random() < U.clamp((far - 15) / 90, 0.05, 0.35)) d.corrupt = true;
     d.shiny = rollShiny(Math.random()) || undefined; if (d.shiny) { d.corrupt = false; d.hp = statsOf(d).maxHp; } 
     const w = { x, y, d, home: { x, y }, patch: pid, sec: S.cam && S.cam.sec, tx: x, ty: y, wait: Math.random() * 2, face: 1, walk: 0, stun: 0, chase: false };
-    w.bb = dachiBillboard(S.stage.scene, speciesById(d.sp).stage);
+    w.bb = dachiBillboard(S.stage.scene, speciesById(d.sp).stage, sizeMult(speciesById(d.sp), d));
     G.wilds.push(w);
     return w;
   }

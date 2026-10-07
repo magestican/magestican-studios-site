@@ -3,6 +3,7 @@ import { U } from '../../../engine/core/util.js';
 import { G, S } from '../../state.js';
 import { kidBillboard, setKidFrame, dachiBillboard, setDachiLook, dachiSize } from '../../art/billboards.js';
 import { speciesById } from '../../data/species.js';
+import { sizeMult } from '../../data/sizes.js';
 import { hatGeoOf } from '../../data/collectibles.js';
 import { FOLLOW, BODY_R } from './crowd.js';
 import { stepSound } from './mapgen.js';
@@ -121,11 +122,11 @@ export function drawPlayer(t, { hidden = false, shout = false, cheer = false, la
   setKidFrame(kid, { gender: G.gender, walk: p.walk, moving: p.moving, shout: shout && !cheer, cheer: cheer && !p.moving, land: Math.max(land, p.braced ? 0.55 : 0), dir });
   kid.place(p.x, p.y, W.groundAt(p.x, p.y) + (p.lift || 0) + (W.decks ? deckLift(W, p) : 0)); 
   const lead = G.party[0];
-  if (lead && !pet) pet = dachiBillboard(S.stage.scene, speciesById(lead.sp).stage);
+  if (lead && !pet) pet = dachiBillboard(S.stage.scene, speciesById(lead.sp).stage, sizeMult(speciesById(lead.sp), lead));
   if (pet) {
     pet.setVisible(!!lead && !hidden && !hidePet);
     if (lead) {
-      if (lead.sp !== petSp) { petSp = lead.sp; pet.setSize(dachiSize(speciesById(lead.sp).stage)); }
+      if (lead.uid + lead.sp !== petSp) { petSp = lead.uid + lead.sp; pet.setSize(dachiSize(speciesById(lead.sp).stage) * sizeMult(speciesById(lead.sp), lead)); } 
       const f = G.follower;
       setDachiLook(pet, lead.sp, { shiny: lead.shiny, flip: f.face < 0, hat: hatGeoOf(lead.hat) });
       

@@ -6,6 +6,7 @@
 import { speciesById, statsOf } from '../../data/species.js';
 import { typeChips } from './battleHud.js';
 import { shinyTag } from '../../art/shinyMark.js';
+import { sizeBadge } from '../../data/sizes.js';
 
 let root = null, onPick = null, count = 0;
 function build() {
@@ -32,7 +33,7 @@ export function showPick(fainted, list, foeTypes, pick) {
   list.forEach(({ d }, n) => {
     const s = speciesById(d.sp), max = statsOf(d).maxHp, pct = Math.max(0, Math.min(100, (d.hp / max) * 100));
     const b = document.createElement('button'); b.className = 'pkOne tappable'; b.dataset.key = String(n + 1);
-    b.innerHTML = `<span class="pkName">${s.name}${shinyTag(d)} <span class="lv">Lv ${d.lvl}</span></span>
+    b.innerHTML = `<span class="pkName">${s.name}${shinyTag(d)}${sizeBadge(d)} <span class="lv">Lv ${d.lvl}</span></span>
       <span class="pkTypes">${typeChips(s.types, foeTypes)}</span>
       <span class="pkHp"><span class="pkBar"><b style="width:${pct.toFixed(1)}%"></b></span>${Math.ceil(d.hp)} / ${max}</span>`;
     b.onclick = () => { if (onPick) onPick(n); };

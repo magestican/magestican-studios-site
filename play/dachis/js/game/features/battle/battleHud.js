@@ -9,6 +9,7 @@ import { speciesById, statsOf, TYPES, ATTR_COLOR, attrOf } from '../../data/spec
 import { B, orderSpecial, orderStance, orderFinisher, orderParry, parryReady, finisherReady, startRitual, useTonic, cycleSwap, tryRun, canRitual } from './battle.js';
 import { KIND_LABEL } from './techniques.js';
 import { shinyTag } from '../../art/shinyMark.js';
+import { sizeBadge } from '../../data/sizes.js';
 import { hpFraction, CAPTURE_HP, maxMp, mpCost, finisherOf, bondOf, typeEdge } from './rules.js';
 
 const $ = id => document.getElementById(id);
@@ -61,7 +62,7 @@ export function updateBattleHud() {
   wire();
   liftUtilityRow();
   const e = B.enemy, es = speciesById(e.d.sp), f = hpFraction(e.d);
-  const nameHtml = `${e.d.corrupt ? '<span class="corrupt">CORRUPTED</span> ' : ''}${es.name}${shinyTag(e.d)} <span class="lv">Lv ${e.d.lvl}</span> ${attrBadge(attrOf(e.d))} ${typeChips(es.types)} ${G.dex.caught[es.id] ? '<span class="owned" title="Already befriended">' + icon('heart') + '</span>' : ''} <span class="rarity r-${es.rarity}">${es.rarity}</span>`;
+  const nameHtml = `${e.d.corrupt ? '<span class="corrupt">CORRUPTED</span> ' : ''}${es.name}${shinyTag(e.d)}${sizeBadge(e.d)} <span class="lv">Lv ${e.d.lvl}</span> ${attrBadge(attrOf(e.d))} ${typeChips(es.types)} ${G.dex.caught[es.id] ? '<span class="owned" title="Already befriended">' + icon('heart') + '</span>' : ''} <span class="rarity r-${es.rarity}">${es.rarity}</span>`;
   if ($('enemyName').dataset.h !== nameHtml) { $('enemyName').innerHTML = nameHtml; $('enemyName').dataset.h = nameHtml; }
   bars(e, 'enemy');
   const low = f < CAPTURE_HP && e.d.hp > 0 && !B.script;

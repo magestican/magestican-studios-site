@@ -460,4 +460,9 @@ export default {
   "Thanks for playing.": "Gracias por jugar.",
   "THE END": "FIN",
   "Back to the title": "Volver al inicio",
+  "Tiny": "Chiquito",
+  "Small": "Chico",
+  "Medium": "Mediano",
+  "Large": "Grande",
+  "Huge": "Enorme",
 };

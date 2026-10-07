@@ -5,6 +5,7 @@ import { G, S } from '../../state.js';
 import { NPC_POSTS, NPC_HOMES, pickNpcSpot, npcSpotOk, npcStepClear } from './mapgen.js';
 import { dachiBillboard, setDachiLook, elderBillboard } from '../../art/billboards.js';
 import { speciesById, KUMABO } from '../../data/species.js';
+import { kindScale } from '../../data/sizes.js';
 import { pushApart, GAP, BODY_R, lairBody, bossBody } from './crowd.js';
 import * as village from './regionMaps/kazanVillage.js';
 import * as shrine from './regionMaps/shrineVillage.js';
@@ -61,7 +62,7 @@ export function spawnNpcs() {
   for (const n of G.npcs) n.bb?.dispose(S.stage.scene);
   G.npcs = [];
   const r = U.rng(31);
-  const add = n => { n.bb = n.kind === 'elder' ? elderBillboard(S.stage.scene) : dachiBillboard(S.stage.scene, speciesById(n.sp).stage); n.face = 1; n.walk = 0; G.npcs.push(n); return n; };
+  const add = n => { n.bb = n.kind === 'elder' ? elderBillboard(S.stage.scene) : dachiBillboard(S.stage.scene, speciesById(n.sp).stage, kindScale(speciesById(n.sp))); n.face = 1; n.walk = 0; G.npcs.push(n); return n; };
   
   
   

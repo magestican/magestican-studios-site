@@ -1,6 +1,7 @@
 
 
 import { U } from '../../engine/core/util.js';
+import { familySizeClass, rollSize } from './sizes.js';
 
 
 export const MAX_LEVEL = 66;
@@ -360,7 +361,7 @@ export const SPECIES = [];
       const alt = TYPE_LIST[(fam * 7) % 12];
       const types = st === 2 && F.types.length === 1 && fam >= 4 ? [F.types[0], alt === F.types[0] ? 'Spirit' : alt] : F.types;
       SPECIES.push({
-        id: fam * 3 + st + 1, fam, stage: st + 1, name: F.names[st], types,
+        id: fam * 3 + st + 1, fam, stage: st + 1, name: F.names[st], types, sizeClass: familySizeClass(fam, F.look.plan), 
         color: st === 2 ? U.tint(F.color, 0, 8, -6) : F.color, accent: F.accent, look: F.look,
         base: { hp: Math.round(F.base.hp * mult), atk: Math.round(F.base.atk * mult), def: Math.round(F.base.def * mult), spd: Math.round(F.base.spd * Math.min(mult, 1.4)) },
         evolveAt: st < 2 ? F.evo[st] : null,
@@ -514,5 +515,6 @@ let UID_SEQ = 1;
 export function makeDachi(sp, lvl) {
   const d = { uid: Date.now().toString(36) + '-' + (UID_SEQ++) + '-' + Math.floor(Math.random() * 1e6).toString(36), sp, lvl: U.clamp(lvl, 1, LEVEL_CEILING), xp: 0, hp: 0 };
   d.hp = statsOf(d).maxHp;
+  d.size = rollSize(Math.random); 
   return d;
 }

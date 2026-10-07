@@ -13,6 +13,7 @@ import { KIND_LABEL } from '../battle/techniques.js';
 import { xpToNext, giveXp } from '../battle/rules.js';
 import { dachiCanvas } from '../../art/portraitRender.js';
 import { shinyTag, shinySprite } from '../../art/shinyMark.js';
+import { sizeBadge, CLASS_WORD } from '../../data/sizes.js';
 
 import { BOSS_PATTERNS } from '../battle/bossPattern.js';
 import { ITEMS } from '../pickups/pickups.js';
@@ -70,9 +71,10 @@ function party(body) {
   const s = speciesById(d.sp), st = statsOf(d);
   detail.appendChild(shinySprite(sprite(d.sp, 128, { hat: hatGeoOf(d.hat) }), d));
   const info = document.createElement('div');
+  const sizeClassChip = s.sizeClass ? ' <span class="sizeClass">' + CLASS_WORD[s.sizeClass] + '</span>' : ''; 
   const evo = s.evolvesTo ? `Evolves into <b>${G.dex.seen[s.evolvesTo] ? speciesById(s.evolvesTo).name : '???'}</b> at Lv ${s.evolveAt}` : 'Final form';
-  info.innerHTML = `<h3>${s.id > 200 ? icon('star') : '#' + String(s.id).padStart(3, '0')} ${s.name}${shinyTag(d)} <span class="lv">Lv ${d.lvl} / ${capsFor(G.cycle).maxLevel}</span></h3>
-    <div class="types">${attrBadge(attrOf(d))} ${chips(s.types)} <span class="rarity r-${s.rarity}">${s.rarity}</span></div>
+  info.innerHTML = `<h3>${s.id > 200 ? icon('star') : '#' + String(s.id).padStart(3, '0')} ${s.name}${shinyTag(d)}${sizeBadge(d)} <span class="lv">Lv ${d.lvl} / ${capsFor(G.cycle).maxLevel}</span></h3>
+    <div class="types">${attrBadge(attrOf(d))} ${chips(s.types)} <span class="rarity r-${s.rarity}">${s.rarity}</span>${sizeClassChip}</div>
     <p>HP ${d.hp}/${st.maxHp} · ATK ${st.atk} · DEF ${st.def} · SPD ${st.spd}</p>
     <p>XP ${d.xp} / ${d.lvl >= capsFor(G.cycle).maxLevel ? 'MAX' : xpToNext(d.lvl)} · ${evo}</p>
     <ol class="moves">${s.moves.map(m => `<li><b style="color:${TYPES[m.type]}">${m.name}</b> — ${m.type} ${KIND_LABEL[m.kind] || m.kind}${m.power ? ', power ' + m.power : ''}, ${m.cd}s recharge</li>`).join('')}</ol>
