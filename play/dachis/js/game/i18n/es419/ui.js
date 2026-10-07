@@ -478,4 +478,5 @@ export default {
   "Sleepy": "Dormilón",
   "Playful": "Juguetón",
   "Bold": "Atrevido",
+  "Regional forms befriended: {0}": "Formas regionales amigas: {0}",
 };

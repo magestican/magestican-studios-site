@@ -51,4 +51,11 @@ export function noteForm(dex, d) {
 export const formsBefriended = (dex) => Object.values((dex && dex.forms) || {}).reduce((n, row) => n + Object.keys(row).length, 0);
 
 
+export function formDots(dex, sp) {
+  const have = FORM_IDS.filter((f) => dex && dex.forms && dex.forms[f] && dex.forms[f][sp]);
+  const dots = have.map((f) => '<i class="formDot ' + f + '" title="' + FORMS[f].word + '"></i>').join('');
+  return have.length ? '<span class="formDots">' + dots + '</span>' : '';
+}
+
+
 export const formKinds = (dex) => FORM_IDS.filter((f) => dex && dex.forms && dex.forms[f] && Object.keys(dex.forms[f]).length).length;

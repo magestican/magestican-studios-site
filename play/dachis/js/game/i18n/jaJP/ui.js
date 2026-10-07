@@ -541,4 +541,5 @@ export default {
   "Sleepy": "ねぼすけ",
   "Playful": "やんちゃ",
   "Bold": "ゆうかん",
+  "Regional forms befriended: {0}": "なかよくなった土地のすがた：{0}",
 };

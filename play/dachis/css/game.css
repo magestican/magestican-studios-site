@@ -765,3 +765,6 @@ body[data-gust$='-l']::before { animation-name: gustL; }
 @keyframes spNudge { 50% { transform: translateX(-4px); } }
 
 #menu .temper, .temper { margin: 2px 0 4px; font: 400 15px var(--marker); color: #6a4fa0; transform: rotate(-1deg); }
+.formDots { display: flex; gap: 3px; justify-content: center; margin-top: 2px; }
+.formDot { width: 9px; height: 9px; border: 2px solid var(--ink); border-radius: 50%; display: inline-block; }
+.formDot.frost { background: #cfe8ff; } .formDot.ash { background: #3a2e30; box-shadow: inset 0 0 0 2px #ff8a2a; } .formDot.moss { background: #5f9a3a; } .formDot.salt { background: #3fb7b4; }

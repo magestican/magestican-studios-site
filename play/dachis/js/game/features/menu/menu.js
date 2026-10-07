@@ -14,7 +14,7 @@ import { xpToNext, giveXp } from '../battle/rules.js';
 import { dachiCanvas } from '../../art/portraitRender.js';
 import { shinyTag, shinySprite } from '../../art/shinyMark.js';
 import { sizeBadge, CLASS_WORD } from '../../data/sizes.js';
-import { formBadge } from '../../data/forms.js';
+import { formBadge, formDots, formsBefriended } from '../../data/forms.js';
 import { temperOf } from '../../data/temper.js';
 
 import { BOSS_PATTERNS } from '../battle/bossPattern.js';
@@ -115,6 +115,8 @@ function party(body) {
 function dex(body) {
   const caught = SPECIES.filter(s => G.dex.caught[s.id]).length, seen = SPECIES.filter(s => G.dex.seen[s.id]).length;
   body.insertAdjacentHTML('beforeend', `<p class="hint">Dachidex — seen ${seen} / ${SPECIES.length} · befriended ${caught} / ${SPECIES.length}</p>`);
+  const nForms = formsBefriended(G.dex); 
+  if (nForms) body.insertAdjacentHTML('beforeend', `<p class="hint">Regional forms befriended: ${nForms}</p>`);
   
   body.insertAdjacentHTML('beforeend', `<p class="hint attrChart">${attrBadge('vaccine')} beats ${attrBadge('virus')} · ${attrBadge('virus')} beats ${attrBadge('program')} · ${attrBadge('program')} is neutral (x1.5 on an advantage, on top of the element)</p>`);
   const grid = document.createElement('div'); grid.className = 'dex'; body.appendChild(grid);
@@ -122,7 +124,7 @@ function dex(body) {
     const c = document.createElement('div'); c.className = 'dexCell' + (G.dex.caught[s.id] ? ' caught' : '');
     if (G.dex.seen[s.id]) c.appendChild(sprite(s.id, 48, { silhouette: !G.dex.caught[s.id] }));
     else { const cv = document.createElement('canvas'); cv.width = cv.height = 48; c.appendChild(cv); }
-    c.insertAdjacentHTML('beforeend', `<small>#${String(s.id).padStart(3, '0')}</small><div>${G.dex.seen[s.id] ? s.name : '???'}</div>${G.dex.seen[s.id] ? attrBadge(s.attribute) : ''}`);
+    c.insertAdjacentHTML('beforeend', `<small>#${String(s.id).padStart(3, '0')}</small><div>${G.dex.seen[s.id] ? s.name : '???'}</div>${G.dex.seen[s.id] ? attrBadge(s.attribute) : ''}${formDots(G.dex, s.id)}`);
     grid.appendChild(c);
   }
 }

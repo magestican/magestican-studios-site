@@ -8,6 +8,7 @@ import { makeDachi, speciesById, capsFor, wildFamiliesOf, rollShiny, statsOf } f
 import { sizeMult } from '../../data/sizes.js';
 import { rollForm } from '../../data/forms.js';
 import { temperOf } from '../../data/temper.js';
+import { KIN_SHARE, KIN_RADIUS, kinSpecies } from '../../data/kin.js';
 import { sectionById } from './sections.js';
 import { wildLevel } from './wildLevel.js';
 import { TOWNS } from '../../musicCues.js';
@@ -88,11 +89,15 @@ export function spawnWild(near = null, minD = 7, where = null) {
     const table = tableHere();
     if (table.length && (fam === 0 || fam > 3) && Math.random() < WILD_TABLE_SHARE) fam = table[Math.floor(Math.random() * table.length)];
     const stage = lvl > 9 && Math.random() < 0.15 ? 2 : lvl > 30 && Math.random() < 0.1 ? 3 : 1;
-    const d = makeDachi(fam * 3 + stage, lvl);
+    
+    const mate = !near && pid >= 0 && Math.random() < KIN_SHARE ? G.wilds.find((o) => o.patch === pid && o.sec === (S.cam && S.cam.sec) && !o.kin && !o.scripted) : null;
+    const kinSp = mate ? kinSpecies(speciesById(mate.d.sp)) : null;
+    const d = makeDachi(kinSp || fam * 3 + stage, lvl);
     if (Math.random() < U.clamp((far - 15) / 90, 0.05, 0.35)) d.corrupt = true;
-    const form = rollForm(G.region, Math.random); if (form) d.form = form; 
+    const form = kinSp ? mate.d.form : rollForm(G.region, Math.random); if (form) d.form = form; 
     d.shiny = rollShiny(Math.random()) || undefined; if (d.shiny) { d.corrupt = false; d.hp = statsOf(d).maxHp; } 
     const w = { x, y, d, home: { x, y }, patch: pid, sec: S.cam && S.cam.sec, tx: x, ty: y, wait: Math.random() * 2, face: 1, walk: 0, stun: 0, chase: false };
+    if (kinSp && mate) w.kin = mate; 
     w.bb = dachiBillboard(S.stage.scene, speciesById(d.sp).stage, sizeMult(speciesById(d.sp), d));
     G.wilds.push(w);
     return w;
@@ -147,7 +152,9 @@ export function updateWilds(dt, { active }) {
       if (w.wait > 0) { w.moving = false; continue; }
     }
     const dx = tx - w.x, dy = ty - w.y, dl = Math.hypot(dx, dy);
-    if (dl < 0.08) { w.wait = (0.5 + Math.random() * 2.5) * T.wait; w.tx = w.home.x + (Math.random() - 0.5) * 5; w.ty = w.home.y + (Math.random() - 0.5) * 5; w.moving = false; }
+    if (w.kin && !G.wilds.includes(w.kin)) w.kin = null; 
+    const roam = w.kin ? KIN_RADIUS * 2 : 5, cx = w.kin ? w.kin.x : w.home.x, cy = w.kin ? w.kin.y : w.home.y;
+    if (dl < 0.08) { w.wait = (0.5 + Math.random() * 2.5) * T.wait * (w.kin ? 0.5 : 1); w.tx = cx + (Math.random() - 0.5) * roam; w.ty = cy + (Math.random() - 0.5) * roam; w.moving = false; }
     else {
       const s = Math.min(dl, sp * dt), nx = w.x + dx / dl * s, ny = w.y + dy / dl * s;
       

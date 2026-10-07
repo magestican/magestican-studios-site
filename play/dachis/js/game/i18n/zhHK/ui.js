@@ -541,4 +541,5 @@ export default {
   "Sleepy": "貪瞓",
   "Playful": "百厭",
   "Bold": "大膽",
+  "Regional forms befriended: {0}": "交咗朋友嘅地區款：{0}",
 };
