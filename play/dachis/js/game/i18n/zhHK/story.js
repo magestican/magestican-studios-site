@@ -147,6 +147,8 @@ export default {
   "The rope slide hisses, the leaves whip past - and you land in a garden. Or what used to be one.": "溜索嘶嘶聲，啲葉嗖嗖飛過——你落咗喺一個花園度。或者係以前嘅花園。",
   "Long beds run along every terrace, planted in neat rows. Thorns have climbed over all of them.": "每一級梯田都有長長嘅苗床，種得一行行好整齊。啲荊棘全部爬晒上去。",
   "Somebody used a ruler on this. My mom does the shelves at the store like that. You do NOT touch her shelves.": "呢度有人用間尺度過。我阿媽喺舖頭排貨架都係咁。佢啲貨架你千祈唔好掂。",
+  "Past the gate the road just drops off the mountain, ledge after ledge, and there's a smell coming up it like a carton of eggs somebody forgot about.": "出咗閘，條路就沿住座山一級一級咁跌落去，仲有陣味湧上嚟，好似有人唔記得咗盒雞蛋喺度咁。",
+  "(Eww. Okay. That's the volcano. That's the VOLCANO, breathing. And I'm walking down it. Cool. Totally cool.)": "（咦，好臭。OK。即係座火山囉。座火山喺度唞氣。而我仲要行落去。冇事。真係冇事。）",
   "Down here the rows give up. The garden has run wild, and the thorns grow as tall as you.": "去到下面，啲行列放棄咗。成個花園生到亂晒籠，啲荊棘高到同你一樣。",
   "Aerowing drops you on a wooden landing over a wide brown river. The air is hot and loud with insects.": "Aerowing 將你放低喺一條闊闊嘅啡色河上面嘅木碼頭。空氣好熱，啲蟲嘈到爆。",
   "A whole village stands in the water on stilts, joined by boardwalks. Something with a long tail watches you from a roof.": "成條村用高腳企喺水度，用木板路連埋。有隻長尾嘅嘢喺屋頂度望住你。",

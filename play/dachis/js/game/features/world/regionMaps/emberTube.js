@@ -6,7 +6,8 @@
 
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
-import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME } from '../mapgen.js';
+import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import * as winding from './windingPath.js';
 
 export const ID = 'ember-tube';
 export const SIZE = 80;
@@ -109,7 +110,8 @@ function segDist([ax, ay], [bx, by], x, y) {
 }
 
 
-const MOUTH = at(1.4, 48.8); 
+
+const MOUTH = winding.MOUTH, MOUTH_ARRIVE = winding.MOUTH_ARRIVE;
 
 export const MANIFEST = {
   order: 2,
@@ -122,8 +124,8 @@ export const MANIFEST = {
   },
   generate: generateEmberTube, steps: emberTubeSteps,
   doors: [
-    { id: 'ember-in', region: HOME, at: MOUTH, to: ID, toAt: ENTRY, label: 'Enter the Ember Tube', after: 'initiated' },
-    { id: 'ember-out', region: ID, at: ENTRY, to: HOME, toAt: MOUTH, label: 'Back to Mt. Kazan', after: null },
+    { id: 'ember-in', region: winding.ID, at: MOUTH, to: ID, toAt: ENTRY, label: 'Enter the Ember Tube', after: 'initiated' },
+    { id: 'ember-out', region: ID, at: ENTRY, to: winding.ID, toAt: MOUTH_ARRIVE, label: 'Back to Mt. Kazan', after: null },
   ],
   perches: [
     { id: 'ember-tube', region: ID, name: 'Ember Tube Spring', at: ENTRY, opens: 'boss_ashlo', respawn: null },

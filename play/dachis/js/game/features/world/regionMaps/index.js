@@ -29,5 +29,6 @@ import * as testbed from './testbed.js';
 import * as thornfield from './thornfield.js';
 import * as tomoCoast from './tomoCoast.js';
 import * as vinegate from './vinegate.js';
+import * as windingPath from './windingPath.js';
 
-export const MAP_MODULES = [canopyWalk, deepSeam, drownedTemple, echoLake, emberTube, figTerraces, frostspine, frozenMenagerie, galeLedges, geodeGalleries, glacierField, heartOfKazan, hollowroot, kazanVillage, kelpMaze, lanternShaft, magmaGalleries, minehead, motherHollow, obsidianCourt, pyreVault, ruinSteps, shellhaven, shrineVillage, testbed, thornfield, tomoCoast, vinegate];
+export const MAP_MODULES = [canopyWalk, deepSeam, drownedTemple, echoLake, emberTube, figTerraces, frostspine, frozenMenagerie, galeLedges, geodeGalleries, glacierField, heartOfKazan, hollowroot, kazanVillage, kelpMaze, lanternShaft, magmaGalleries, minehead, motherHollow, obsidianCourt, pyreVault, ruinSteps, shellhaven, shrineVillage, testbed, thornfield, tomoCoast, vinegate, windingPath];

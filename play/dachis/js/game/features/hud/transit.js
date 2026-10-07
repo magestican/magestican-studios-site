@@ -29,6 +29,7 @@ export const LINES = [
 export function visitedSet(flags = {}) {
   const v = new Set(['kazan', ...Object.keys(flags.seen || {})]);
   if (flags.starter || flags.initiated) for (const id of ['slope', 'jungle', 'road', 'shrine']) v.add(id);
+  if (v.has('winding-top') || v.has('winding-foot')) v.add('slope'); 
   if (flags.boss_ashlo) v.add('coast');
   if (flags.boss_leviathrum) { v.add('coast'); v.add('coral'); }
   if (flags.boss_bramble) v.add('verdant');

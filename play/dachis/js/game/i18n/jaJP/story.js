@@ -147,6 +147,8 @@ export default {
   "The rope slide hisses, the leaves whip past - and you land in a garden. Or what used to be one.": "ロープすべりがシャーッと鳴り、葉っぱがびゅんびゅん飛んでいく——着いたのは庭だった。むかしは庭だった場所。",
   "Long beds run along every terrace, planted in neat rows. Thorns have climbed over all of them.": "段のひとつひとつに、長い苗床が、きちんと列になってならんでいる。そのぜんぶを、いばらがよじのぼっていた。",
   "Somebody used a ruler on this. My mom does the shelves at the store like that. You do NOT touch her shelves.": "これ、定規使ってるよ。ママが店の棚をこうやってならべるんだ。ママの棚には、ぜったいさわっちゃだめなんだよ。",
+  "Past the gate the road just drops off the mountain, ledge after ledge, and there's a smell coming up it like a carton of eggs somebody forgot about.": "門を出ると、道は山の段々をどんどん下っていく。下から、だれかが忘れた卵のパックみたいなにおいが上がってくる。",
+  "(Eww. Okay. That's the volcano. That's the VOLCANO, breathing. And I'm walking down it. Cool. Totally cool.)": "（うえっ。……よし。これ火山だ。火山が息してるんだ。で、そこを下りてくんだ。平気。ぜんぜん平気。）",
   "Down here the rows give up. The garden has run wild, and the thorns grow as tall as you.": "このあたりで列はあきらめている。庭は荒れほうだいで、いばらがキミの背たけまでのびている。",
   "Aerowing drops you on a wooden landing over a wide brown river. The air is hot and loud with insects.": "Aerowingは、広い茶色の川の上にある木の船着き場にキミをおろした。空気はむしあつく、虫の声でやかましい。",
   "A whole village stands in the water on stilts, joined by boardwalks. Something with a long tail watches you from a roof.": "村がまるごと、高床で水の中に立っていて、板の通路でつながっている。屋根の上から、しっぽの長い何かがこっちを見ている。",

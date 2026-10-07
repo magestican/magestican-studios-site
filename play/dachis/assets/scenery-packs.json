@@ -162,6 +162,43 @@
    ],
    "bytes": 434576
   },
+  "winding-path": {
+   "forms": [
+    "bush",
+    "fence-post",
+    "fence-rail",
+    "fern",
+    "flower-bed",
+    "flower-clump",
+    "flowers",
+    "hut",
+    "jtree",
+    "magma-basalt",
+    "magma-obsidian",
+    "spring-basin",
+    "step-basalt",
+    "step-slab",
+    "stone-dark-0",
+    "stone-dark-1",
+    "stone-dark-2",
+    "stone-dark-3",
+    "stone-grey-0",
+    "stone-grey-1",
+    "stone-grey-2",
+    "stone-grey-3",
+    "torch",
+    "volcano-bridge",
+    "volcano-flow",
+    "volcano-tubemouth",
+    "volcano-vent"
+   ],
+   "pack": "assets/scenery-winding-path.bin",
+   "extra": [
+    "magma-obsidian",
+    "volcano-tubemouth"
+   ],
+   "bytes": 70252
+  },
   "shrine-village": {
    "forms": [
     "blossom",

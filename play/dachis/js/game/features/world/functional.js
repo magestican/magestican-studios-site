@@ -129,6 +129,39 @@ export function bridgeClips(W, o) {
 
 
 
+
+
+export const ROAD_PAD = 0.1;
+const segDist = (ax, ay, bx, by, x, y) => {
+  const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L));
+  return Math.hypot(ax + dx * t - x, ay + dy * t - y);
+};
+
+
+export function onRoad(W, x, y) {
+  return (W.paths || []).findIndex((p) => p.pts.some((q, k) => k > 0 && segDist(p.pts[k - 1][0], p.pts[k - 1][1], q[0], q[1], x, y) < p.half + ROAD_PAD));
+}
+
+
+export function acrossRoad(W, only = () => true) {
+  const rings = new Map(), out = [];
+  for (const o of W.objects) if (o.kind === 'fence' && only(o)) (rings.get(o.ring) || rings.set(o.ring, []).get(o.ring)).push(o);
+  for (const [id, list] of rings) {
+    list.sort((a, b) => (a.k || 0) - (b.k || 0));
+    const n = list.some((o) => o.open) || list.length < 3 ? list.length - 1 : list.length;
+    for (let i = 0; i < n; i++) {
+      const a = list[i], b = list[(i + 1) % list.length];
+      for (let t = 0; t <= 1.0001; t += 0.125) {
+        const x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t, p = onRoad(W, x, y);
+        if (p >= 0) { out.push(`fence ${id} ${t === 0 ? 'post' : 'rail'} at ${x.toFixed(1)},${y.toFixed(1)} stands on path ${p} (half ${W.paths[p].half}): it blocks the road`); break; }
+      }
+    }
+  }
+  return out;
+}
+
+
+
 export const ON_LAVA_OK = new Set(['bridge', 'flow']); 
 
 export function onLava(W, only = () => true) {

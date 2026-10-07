@@ -200,7 +200,8 @@ function segDist([ax, ay], [bx, by], x, y) {
 
 
 
-const STEPS_TOP = at(0, 46.8);
+
+export const ARRIVE_FROM_PATH = at(-0.3, 48.0);
 
 export const MANIFEST = {
   order: 3,
@@ -215,7 +216,6 @@ export const MANIFEST = {
   generate: generateKazanVillage, steps: kazanVillageSteps,
   doors: [
     { id: 'village-in', region: HOME, at: VOLC, r: RIM.r - 0.5, auto: true, to: ID, toAt: GATE, label: 'Kazan Village', after: null },
-    { id: 'village-out', region: ID, at: GATE, to: HOME, toAt: STEPS_TOP, label: 'Down the mountain', after: null },
   ],
   perches: [
     

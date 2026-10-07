@@ -48,6 +48,23 @@ function flow() {
 }
 export const flowForm = () => form('volcano-flow', flow, { min: [-0.55, -0.05, -1.12], max: [0.55, 0.2, 1.12], cell: 0.025, tris: 420 });
 
+
+
+function tubemouth() {
+  const rock = S.displace(S.ellipsoid([0, 0.2, -0.15], [1.15, 1.3, 0.8]), lumps(3, 0.22, 71), 0.06);
+  const arch = S.union(0.06, S.roundBox([0, 0.42, 0.3], [0.44, 0.44, 0.8], 0.06), S.ellipsoid([0, 0.86, 0.3], [0.44, 0.34, 0.8]));
+  return S.paint(S.intersect(0.03, S.subtract(0.06, rock, arch), S.plane([0, -1, 0], 0.02)), {
+    material: 'stone',
+    color: (x, y, z) => {
+      const inside = Math.abs(x) < 0.5 && y < 1.24 && z < 0.62;
+      if (inside) return z < -0.2 && y < 0.5 ? CRACK : THROAT;
+      if (Math.abs(x) < 0.55 && y > 1.1 && y < 1.32 && z > 0.2 && fbm3(x * 9, y * 9, z * 9, { seed: 73, octaves: 2 }) > 0.62) return SULFUR;
+      return fbm3(x * 5, y * 5, z * 5, { seed: 75, octaves: 2 }) > 0.55 ? CRUST_HI : CRUST;
+    },
+  });
+}
+export const tubemouthForm = () => form('volcano-tubemouth', tubemouth, { min: [-1.4, -0.05, -1.05], max: [1.4, 1.6, 0.75], cell: 0.03, tris: 900 });
+
 const SLAB = lin('#5e5458'), SLAB_HI = lin('#8a7c74'), FOOT = lin('#3e3438'), INK = lin('#1c1418');
 function bridge() {
   const slabs = [-0.62, 0, 0.62].map((z) => S.displace(S.roundBox([0, -0.1, z], [0.62, 0.1, 0.3], 0.04), lumps(9, 0.04, 61 + Math.round(z * 10)), 0.02));
@@ -62,6 +79,7 @@ export function placeVolcano(batch, W) {
   for (const o of W.objects) {
     if (o.kind === 'vent') batch.add(ventForm(), { x: o.x, h: W.groundAt(o.x, o.y) - 0.04, y: o.y, rot: o.rot || 0, s: o.s || 1 });
     else if (o.kind === 'bridge') { const f = bridgeFrame(W, o); batch.add(bridgeForm(), { x: o.x, h: f.h, y: o.y, rot: o.rot || 0, tilt: [f.pitch, 0] }); } 
+    else if (o.kind === 'tubemouth') batch.add(tubemouthForm(), { x: o.x, h: W.groundAt(o.x, o.y) - 0.1, y: o.y, rot: o.rot || 0 });
     else if (o.kind === 'flow') batch.add(flowForm(), { x: o.x, h: W.groundAt(o.x, o.y) - 0.03, y: o.y, rot: o.rot || 0, s: [o.s || 1, 1, o.s || 1] });
   }
 }

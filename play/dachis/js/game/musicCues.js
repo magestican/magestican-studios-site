@@ -15,7 +15,7 @@ export const INTRO_CUES = INTRO_MOODS.map((m) => 'intro-' + m);
 
 
 
-export const ISLE = ['slope', 'jungle', 'road'];
+export const ISLE = ['slope', 'jungle', 'road', 'winding-top', 'winding-foot']; 
 export const LOOPS = ['menu', 'town', 'isle', 'field', 'battle', 'boss', 'cave', ...INTRO_CUES];
 export const STINGERS = ['victory', 'defeat'];
 export const CUES = [...LOOPS, ...STINGERS];

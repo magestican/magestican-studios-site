@@ -758,7 +758,10 @@ function placeSlope(W) {
     else if (k < 0.4) addObj(W, { kind: 'rock', x, y, solid: 0, s: 0.3 + s * 0.2, rot, flavor: 'sulfur' });
   }
   
-  W.objects = [...W.objects.slice(0, first), ...W.objects.slice(first).filter((o) => o.kind === 'bridge' || o.kind === 'fence' || W.tileType(o.x, o.y) !== T.LAVA)];
+  
+  
+  
+  W.objects = [...W.objects.slice(0, first), ...W.objects.slice(first).filter((o) => o.kind !== 'fence' && (o.kind === 'bridge' || W.tileType(o.x, o.y) !== T.LAVA))];
   W.objects.forEach((o, i) => { o.id = i; });
 }
 

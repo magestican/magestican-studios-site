@@ -27,7 +27,9 @@ export function walkThrough(st, map, door) {
 }
 
 
-export const opensBeforeStarter = (d) => d.region !== HOME || d.id === 'village-in';
+
+export const HOME_WAYS = ['village-in', 'winding-up'];
+export const opensBeforeStarter = (d) => d.region !== HOME || HOME_WAYS.includes(d.id);
 export function doorAt(flags, region, x, y, r = DOOR_R) {
   return DOORS.find((d) => d.region === region && (!d.after || (flags && flags[d.after])) && (opensBeforeStarter(d) || (flags && flags.starter)) && near(d, x, y, r)) || null;
 }
