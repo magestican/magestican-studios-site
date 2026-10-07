@@ -36,7 +36,7 @@ export function showSpoils({ rows, drops, title = 'VICTORY!' }, done) {
       <div class="spMid"><div class="spName">${s.name} <span class="spLv">Lv ${r.run[0].lvl}</span></div>
         <div class="spBar"><b></b></div><div class="spGrow"></div></div>
       <div class="spXp"></div><div class="spUp">LEVEL UP!</div>`;
-    el.querySelector('.spPic').appendChild(shinySprite(dachiCanvas(r.d.sp, {}, 52), r.d));
+    el.querySelector('.spPic').appendChild(shinySprite(dachiCanvas(r.d.sp, { form: r.d.form }, 52), r.d));
     list.appendChild(el);
     return { ...r, el, bar: el.querySelector('.spBar b'), lv: el.querySelector('.spLv'), xp: el.querySelector('.spXp'), shownLv: 0, shownXp: -1, grow: el.querySelector('.spGrow'),
       seg: 0, t: -i * STAGGER, hold: 0, ups: 0, shown: 0, finished: false };

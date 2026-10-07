@@ -224,7 +224,7 @@ function companions() {
     card.className = 'comp' + (d ? '' : ' empty') + (d && d.hp <= 0 ? ' fainted' : '');
     if (d) {
       const s = speciesById(d.sp), st = statsOf(d);
-      const cv = dachiCanvas(d.sp, {}, 48); 
+      const cv = dachiCanvas(d.sp, { form: d.form }, 48); 
       card.appendChild(shinySprite(cv, d));
       const info = document.createElement('div'); info.className = 'ci';
       info.innerHTML = `<div class="cn">${s.name}${shinyTag(d)} <span class="lv">Lv ${d.lvl}</span></div>

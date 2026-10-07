@@ -469,4 +469,13 @@ export default {
   "Ash form": "De ceniza",
   "Moss form": "De musgo",
   "Salt form": "De salitre",
+  "Local Colour": "De por aquí",
+  "Befriend a dachi in its regional form.": "Hazte amigo de un dachi con la pinta de su región.",
+  "Well Travelled": "Trotamundos",
+  "Befriend a Frost, an Ash, a Moss and a Salt form.": "Hazte amigo de uno de escarcha, uno de ceniza, uno de musgo y uno de salitre.",
+  "Size: {0}": "Tamaño: {0}",
+  "Calm": "Tranquilo",
+  "Sleepy": "Dormilón",
+  "Playful": "Juguetón",
+  "Bold": "Atrevido",
 };

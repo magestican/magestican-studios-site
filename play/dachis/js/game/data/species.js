@@ -2,6 +2,7 @@
 
 import { U } from '../../engine/core/util.js';
 import { familySizeClass, rollSize } from './sizes.js';
+import { rollTemper } from './temper.js';
 
 
 export const MAX_LEVEL = 66;
@@ -516,5 +517,6 @@ export function makeDachi(sp, lvl) {
   const d = { uid: Date.now().toString(36) + '-' + (UID_SEQ++) + '-' + Math.floor(Math.random() * 1e6).toString(36), sp, lvl: U.clamp(lvl, 1, LEVEL_CEILING), xp: 0, hp: 0 };
   d.hp = statsOf(d).maxHp;
   d.size = rollSize(Math.random); 
+  d.temper = rollTemper(Math.random); 
   return d;
 }

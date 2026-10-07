@@ -7,6 +7,7 @@ import { advance, reminder } from './quests.js';
 import { collect, collectibleById, bossCollectibles, KINDS } from '../../data/collectibles.js';
 import { ITEMS } from '../pickups/pickups.js';
 import { earned, unlock } from '../achievements/achievements.js';
+import { formKinds } from '../../data/forms.js';
 
 const NARR = { who: '' }; 
 
@@ -14,7 +15,7 @@ const NARR = { who: '' };
 
 
 export function syncAchievements(quiet = false) {
-  const got = earned(G.flags, { caught: caughtCount(), total: SPECIES.length, cycle: G.cycle }).map((id) => unlock(G.flags, id, Date.now())).filter(Boolean);
+  const got = earned(G.flags, { caught: caughtCount(), total: SPECIES.length, cycle: G.cycle, forms: formKinds(G.dex) }).map((id) => unlock(G.flags, id, Date.now())).filter(Boolean);
   if (!quiet) for (const a of got) toast('Achievement: ' + a.name);
   return got;
 }

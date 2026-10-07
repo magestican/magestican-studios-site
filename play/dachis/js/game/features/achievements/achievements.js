@@ -40,6 +40,9 @@ export const ACHIEVEMENTS = [
   A('all-quests', 'The Whole Island Owes You', 'legendary', 'Finish every side quest.', (f) => doneQuests(f) >= SIDE.length),
   A('perfect-ritual', 'Right on the Beat', 'uncommon', 'Befriend a dachi with every beat of the ritual perfect.', (f) => !!f.ritualPerfect),
   A('new-game-plus', 'Again, Again', 'rare', 'Start a New Game+.', (f, c) => (c.cycle || 1) >= 2),
+  
+  A('first-form', 'Local Colour', 'common', 'Befriend a dachi in its regional form.', (f, c) => (c.forms || 0) >= 1),
+  A('all-forms', 'Well Travelled', 'rare', 'Befriend a Frost, an Ash, a Moss and a Salt form.', (f, c) => (c.forms || 0) >= 4),
 ];
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id) || null;
 export const unlocked = (flags, id) => !!(flags && flags.ach && flags.ach[id]);

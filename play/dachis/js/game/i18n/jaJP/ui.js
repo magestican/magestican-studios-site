@@ -532,4 +532,13 @@ export default {
   "Ash form": "はいのすがた",
   "Moss form": "こけのすがた",
   "Salt form": "しおのすがた",
+  "Local Colour": "じもとっ子",
+  "Befriend a dachi in its regional form.": "その土地のすがたのダチと友だちになる。",
+  "Well Travelled": "たびなれ",
+  "Befriend a Frost, an Ash, a Moss and a Salt form.": "こおり・はい・こけ・しおのすがた、ぜんぶと友だちになる。",
+  "Size: {0}": "サイズ：{0}",
+  "Calm": "おっとり",
+  "Sleepy": "ねぼすけ",
+  "Playful": "やんちゃ",
+  "Bold": "ゆうかん",
 };

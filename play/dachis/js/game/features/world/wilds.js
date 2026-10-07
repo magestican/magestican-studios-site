@@ -7,6 +7,7 @@ import { CHAR_SCALE, GAP, BODY_R } from './crowd.js';
 import { makeDachi, speciesById, capsFor, wildFamiliesOf, rollShiny, statsOf } from '../../data/species.js';
 import { sizeMult } from '../../data/sizes.js';
 import { rollForm } from '../../data/forms.js';
+import { temperOf } from '../../data/temper.js';
 import { sectionById } from './sections.js';
 import { wildLevel } from './wildLevel.js';
 import { TOWNS } from '../../musicCues.js';
@@ -137,15 +138,16 @@ export function updateWilds(dt, { active }) {
     if (w.scripted) continue;   
     w.stun -= dt;
     const d = U.dist(w.x, w.y, p.x, p.y);
-    w.chase = active && !safe && d < 3.2 && G.safeTimer <= 0 && w.stun <= 0 && G.party.some(x => x.hp > 0);
-    let tx = w.tx, ty = w.ty, sp = 1.1;
-    if (w.chase) { tx = p.x; ty = p.y; sp = w.d.corrupt ? 2.9 : 2.5; }
+    const T = temperOf(w.d); 
+    w.chase = active && !safe && d < 3.2 * T.notice && G.safeTimer <= 0 && w.stun <= 0 && G.party.some(x => x.hp > 0);
+    let tx = w.tx, ty = w.ty, sp = 1.1 * T.wander;
+    if (w.chase) { tx = p.x; ty = p.y; sp = (w.d.corrupt ? 2.9 : 2.5) * T.chase; }
     else {
       w.wait -= dt;
       if (w.wait > 0) { w.moving = false; continue; }
     }
     const dx = tx - w.x, dy = ty - w.y, dl = Math.hypot(dx, dy);
-    if (dl < 0.08) { w.wait = 0.5 + Math.random() * 2.5; w.tx = w.home.x + (Math.random() - 0.5) * 5; w.ty = w.home.y + (Math.random() - 0.5) * 5; w.moving = false; }
+    if (dl < 0.08) { w.wait = (0.5 + Math.random() * 2.5) * T.wait; w.tx = w.home.x + (Math.random() - 0.5) * 5; w.ty = w.home.y + (Math.random() - 0.5) * 5; w.moving = false; }
     else {
       const s = Math.min(dl, sp * dt), nx = w.x + dx / dl * s, ny = w.y + dy / dl * s;
       
@@ -165,7 +167,8 @@ export function drawWilds(t, hideWild = null) {
   for (const w of G.wilds) {
     w.bb.setVisible(typeof hideWild === 'function' ? !hideWild(w) : w !== hideWild);   
     setDachiLook(w.bb, w.d.sp, { corrupt: w.d.corrupt, shiny: w.d.shiny, form: w.d.form, flip: w.face < 0 });
-    const bob = w.moving ? Math.abs(Math.sin(w.walk)) * 0.12 : Math.sin(t * 3 + w.x) * 0.02;
+    const T = temperOf(w.d); 
+    const bob = w.moving ? Math.abs(Math.sin(w.walk)) * 0.12 * T.hop : Math.sin(t * (T.hop < 1 ? 1.4 : 3) + w.x) * 0.02;
     w.bb.place(w.x, w.y, W.groundAt(w.x, w.y), bob);
   }
 }

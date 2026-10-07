@@ -763,3 +763,5 @@ body[data-gust$='-l']::before { animation-name: gustL; }
 #spoilsCard .spHint { margin-top: 8px; text-align: right; font: 400 13px var(--marker); color: #8a7a9a; opacity: 0; transition: opacity .3s; }
 #spoilsCard.over .spHint { opacity: 1; animation: spNudge 1.2s ease-in-out infinite; }
 @keyframes spNudge { 50% { transform: translateX(-4px); } }
+
+#menu .temper, .temper { margin: 2px 0 4px; font: 400 15px var(--marker); color: #6a4fa0; transform: rotate(-1deg); }

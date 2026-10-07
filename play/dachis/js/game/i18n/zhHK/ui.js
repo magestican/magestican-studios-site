@@ -532,4 +532,13 @@ export default {
   "Ash form": "火山灰款",
   "Moss form": "青苔款",
   "Salt form": "海鹽款",
+  "Local Colour": "地道貨",
+  "Befriend a dachi in its regional form.": "同一隻地區款 dachi 做朋友。",
+  "Well Travelled": "周圍行",
+  "Befriend a Frost, an Ash, a Moss and a Salt form.": "結霜款、火山灰款、青苔款、海鹽款，每款都同一隻做朋友。",
+  "Size: {0}": "體型：{0}",
+  "Calm": "淡定",
+  "Sleepy": "貪瞓",
+  "Playful": "百厭",
+  "Bold": "大膽",
 };

@@ -4,6 +4,7 @@ import { G, S } from '../../state.js';
 import { kidBillboard, setKidFrame, dachiBillboard, setDachiLook, dachiSize } from '../../art/billboards.js';
 import { speciesById } from '../../data/species.js';
 import { sizeMult } from '../../data/sizes.js';
+import { temperOf } from '../../data/temper.js';
 import { hatGeoOf } from '../../data/collectibles.js';
 import { FOLLOW, BODY_R } from './crowd.js';
 import { stepSound } from './mapgen.js';
@@ -131,7 +132,7 @@ export function drawPlayer(t, { hidden = false, shout = false, cheer = false, la
       setDachiLook(pet, lead.sp, { shiny: lead.shiny, form: lead.form, flip: f.face < 0, hat: hatGeoOf(lead.hat) });
       
       if (f.hop > 0) f.hop = Math.max(0, f.hop - 1 / 60);
-      const bob = f.moving ? Math.abs(Math.sin(f.walk)) * 0.12 : f.hop > 0 ? Math.abs(Math.sin(f.hop * 11.4)) * 0.35 : Math.sin(t * 3) * 0.02;
+      const bob = f.moving ? Math.abs(Math.sin(f.walk)) * 0.12 * temperOf(lead).hop : f.hop > 0 ? Math.abs(Math.sin(f.hop * 11.4)) * 0.35 : Math.sin(t * 3) * 0.02;
       pet.place(f.x, f.y, W.groundAt(f.x, f.y) + (f.lift || 0) + (W.decks ? deckLift(W, f) : 0), bob);
     }
   }

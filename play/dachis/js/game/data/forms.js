@@ -49,3 +49,6 @@ export function noteForm(dex, d) {
 }
 
 export const formsBefriended = (dex) => Object.values((dex && dex.forms) || {}).reduce((n, row) => n + Object.keys(row).length, 0);
+
+
+export const formKinds = (dex) => FORM_IDS.filter((f) => dex && dex.forms && dex.forms[f] && Object.keys(dex.forms[f]).length).length;
