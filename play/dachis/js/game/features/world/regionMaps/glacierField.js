@@ -162,6 +162,7 @@ export const MANIFEST = {
     sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
     pack: 'assets/scenery-frost-glacier.bin',
     transit: false, objective: 'Slide across the glare ice',
+    objectives: { 'aurora-hollow': 'Wade through the deep snow - the summit path is north' }, 
   },
   generate: generateGlacierField, steps: glacierFieldSteps,
   doors: [

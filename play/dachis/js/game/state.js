@@ -7,6 +7,7 @@ import { SPAWN, RESPAWN } from './features/world/mapgen.js';
 import { mainStep } from './features/quest/quests.js';
 import { newClock, fixClock } from './features/clock/clock.js';
 import { HOME, saveRegion, regionById } from './features/world/regions.js';
+import { sectionById } from './features/world/sections.js';
 
 export const G = {
   mode: 'title',        
@@ -81,8 +82,10 @@ export function objective() {
   const r = G.region && G.region !== HOME ? regionById(G.region) : null;
   
   
-  const sec = r && r.objectives && S.W && S.W.sectionAt ? S.W.sectionAt(G.player.x, G.player.y) : null;
-  if (sec && r.objectives[sec]) return r.objectives[sec];
+  const sec = r && S.W && S.W.sectionAt ? S.W.sectionAt(G.player.x, G.player.y) : null;
+  if (sec && r.objectives && r.objectives[sec]) return r.objectives[sec];
+  
+  if (sec && sectionById(sec) && sectionById(sec).train) return 'The wild ones here are tougher - train up';
   if (r && r.objective) return r.objective;
   
   return mainStep(G.flags, { caught: caughtCount(), total: SPECIES.length }).text;

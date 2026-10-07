@@ -5,7 +5,9 @@
 
 
 
-export const ONE_SHOTS = ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch', 'xpFill', 'levelUp', 'itemPop', 'mirrorTurn', 'raftPole', 'tellHiss', 'iceCrack', 'thaw', 'knightLaugh'];
+export const ONE_SHOTS = ['opener', 'bossOpener', 'tellScrape', 'tellPing', 'tellSweet', 'tellFists', 'tellClick', 'lanternCatch', 'xpFill', 'levelUp', 'itemPop', 'mirrorTurn', 'raftPole', 'tellHiss', 'iceCrack', 'thaw', 'knightLaugh',
+  
+  'cartGo', 'cartStop', 'leverThrow', 'lavaSnap', 'basaltSink', 'valveTurn'];
 
 
 

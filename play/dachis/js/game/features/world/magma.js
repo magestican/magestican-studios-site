@@ -52,7 +52,7 @@ export function magmaWalk(W, x, y) {
 function dunk(text) {
   const p = G.player;
   if (safe) { p.x = safe.x; p.y = safe.y; if (G.follower) { G.follower.x = safe.x; G.follower.y = safe.y - 0.5; } }
-  S.sfx.play('tellHiss');
+  S.sfx.play('lavaSnap'); 
   if (hushT <= 0) { toast(text, 2200); hushT = 4; }
 }
 
@@ -65,7 +65,7 @@ export function updateMagma(dt) {
   if (H.basalt) for (const f of H.basalt) {
     const s = bst[f.id] || (bst[f.id] = B.fresh()), was = Object.values(s.cols).filter((c) => c.phase === 'down').length;
     const out = B.tick(f, s, q && q.kind === 'basalt' && q.f === f ? [q.c, q.r] : null, dt);
-    if (Object.values(s.cols).filter((c) => c.phase === 'down').length > was) S.sfx.play('landThud');
+    if (Object.values(s.cols).filter((c) => c.phase === 'down').length > was) S.sfx.play('basaltSink');
     if (out === 'dunk') { dunk('The column goes down under you! You scramble back to the bank.'); return; }
   }
   if (q && !q.solid) {
@@ -87,7 +87,7 @@ export function turnValve(o) {
   const cur = new Set((G.flags.valves && G.flags.valves[o.room]) || []);
   if (cur.has(o.valve)) cur.delete(o.valve); else cur.add(o.valve);
   G.flags.valves = { ...(G.flags.valves || {}), [o.room]: [...cur] };
-  S.sfx.play('mirrorTurn'); setTimeout(() => S.sfx.play('tellHiss'), 260);
+  S.sfx.play('valveTurn'); 
   if (!G.flags.valveSeen) { G.flags.valveSeen = true; toast('The wheel squeals round. Cold air roars through the floor - somewhere a channel crusts over, and somewhere one glows again.', 3200); }
   saveGame();
 }

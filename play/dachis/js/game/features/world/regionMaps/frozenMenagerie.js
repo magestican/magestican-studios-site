@@ -151,6 +151,7 @@ export const MANIFEST = {
     sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
     pack: 'assets/scenery-frost-summit.bin',
     transit: false, objective: 'Cross the thin ice to the summit',
+    objectives: { 'summit-lair': 'Glacius Rex is waiting up top' }, 
   },
   generate: generateFrozenMenagerie, steps: frozenMenagerieSteps,
   doors: [

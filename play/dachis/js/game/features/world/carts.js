@@ -30,7 +30,7 @@ export function leverNear(x, y) {
 }
 export function throwLever(j) {
   G.flags.points = { ...points(), [j]: points()[j] ? 0 : 1 };
-  S.sfx.play('mirrorTurn');
+  S.sfx.play('leverThrow'); 
   if (!G.flags.leverSeen) { G.flags.leverSeen = true; toast('CLUNK. Out over the lava, the points slide across with a screech. That line goes somewhere else now.', 3000); }
   saveGame();
 }
@@ -40,7 +40,7 @@ export function startCart(dock) {
   const pts = [[R.land[dock].x, R.land[dock].y], ...r.pts.map(([u, v]) => fromUV(u, v)), [R.land[r.end].x, R.land[r.end].y]], segs = [];
   let len = 0; for (let k = 1; k < pts.length; k++) { const L = Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]); segs.push(L); len += L; }
   G.cart = { from: dock, end: r.end, pts, segs, len, s: 0, rails: [1, pts.length - 2] };
-  S.sfx.play('doorsBang');
+  S.sfx.play('cartGo'); 
   if (!G.flags.carted) { G.flags.carted = true; toast('You climb into the cart. It creaks, and rolls, and then it really rolls.', 2400); }
 }
 function along(c, s) {
@@ -83,7 +83,7 @@ export function updateCarts(dt) {
   built.ride.visible = true; built.ride.position.set(cp.x, RAIL_TOP, cp.y); if (onRail) built.ride.rotation.y = Math.atan2(q.dx, q.dy);
   const f = G.follower;
   if (f) { f.x = cp.x - Math.sin(built.ride.rotation.y) * 0.3; f.y = cp.y - Math.cos(built.ride.rotation.y) * 0.3; f.lift = onRail ? Math.max(0, RAIL_TOP + IN_CART - W.groundAt(f.x, f.y)) : 0; f.moving = false; }
-  if (c.s >= c.len) { G.cart = null; p.lift = 0; if (f) f.lift = 0; built.ride.visible = false; S.sfx.play('landThud'); }
+  if (c.s >= c.len) { G.cart = null; p.lift = 0; if (f) f.lift = 0; built.ride.visible = false; S.sfx.play('cartStop'); }
 }
 
 export function cartPass(ctx) {
