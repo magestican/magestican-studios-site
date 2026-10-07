@@ -88,7 +88,7 @@ export function placeVolcano(batch, W) {
 export function createVentSteam(scene, W) {
   const list = W.objects.filter((o) => o.kind === 'vent');
   if (!list.length) return { update() {} };
-  const PER = 8, steam = createParticles(scene, list.length * PER, { mode: 'soft', soft: true, name: 'vent-steam' });
+  const PER = 10, steam = createParticles(scene, list.length * PER, { mode: 'soft', soft: true, name: 'vent-steam' }); 
   const TINT = lin('#fff8d8');
   return {
     update(t) {
@@ -97,7 +97,7 @@ export function createVentSteam(scene, W) {
         for (let k = 0; k < PER; k++) {
           const ph = (t * 0.18 + k / PER + s * 0.37) % 1, a = k * 2.39;
           steam.set(s * PER + k, o.x + Math.cos(a) * 0.1 + ph * 0.35, h + ph * 1.6, o.y + Math.sin(a) * 0.1 - ph * 0.15,
-            0.3 + ph * 0.7, 0.34 * Math.sin(ph * Math.PI), TINT);
+            0.35 + ph * 0.8, 0.5 * Math.sin(ph * Math.PI), TINT);
         }
       });
       steam.commit();

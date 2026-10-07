@@ -17,7 +17,7 @@ export const SECTIONS = addSections([
 ]);
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 
-export const RAMP_U = 13.0, RAMP_HALF = 1.2, RISE = 1.0;
+export const RAMP_U = 13.0, RAMP_HALF = 1.2, RISE = 1.3; 
 export const RAMPS = [47.6, 42.8, 38.0, 33.2].map((v, k) => ({ k, v, up: k % 2 ? -1 : 1 }));
 
 export const LANDINGS = [{ u: -RAMP_U, v: 48.9, r: 2.4, h: 0 }, ...RAMPS.map((r) => ({ u: r.up * RAMP_U, v: r.v - 2.4, r: 2.6, h: (r.k + 1) * RISE }))];
@@ -35,8 +35,14 @@ const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.
 const landingIn = (u, v) => Math.max(...LANDINGS.map((l) => l.r - Math.hypot(u - l.u, v - l.v)));
 const landingOf = (u, v) => LANDINGS.find((l) => Math.hypot(u - l.u, v - l.v) < l.r) || null;
 
-const rampAt = (u, v) => {
-  for (const r of RAMPS) if (Math.abs(v - r.v) < RAMP_HALF && Math.abs(u) < RAMP_U + 0.5) return { r, t: U.clamp((u * r.up + RAMP_U) / (2 * RAMP_U), 0, 1) };
+
+
+
+export const FLIGHT_U0 = 5.6, FLIGHT_RUN = 2.4;
+
+
+const rampAt = (u, v, pad = 0) => {
+  for (const r of RAMPS) if (Math.abs(v - r.v) < RAMP_HALF + pad && Math.abs(u) < RAMP_U + 0.5) return { r, t: U.clamp((u * r.up - FLIGHT_U0) / FLIGHT_RUN, 0, 1) };
   return null;
 };
 function heightAtPoint(x, y) {
@@ -44,7 +50,7 @@ function heightAtPoint(x, y) {
   if (v > FORECOURT_V) return 0;
   if (v < TERRACE_V) return TOP_H;
   const l = landingOf(u, v); if (l) return l.h;
-  const ra = rampAt(u, v); if (ra) return (ra.r.k + ra.t) * RISE;
+  const ra = rampAt(u, v, 0.8); if (ra) return (ra.r.k + ra.t) * RISE;
   
   return U.clamp((FORECOURT_V - v) / (FORECOURT_V - TERRACE_V), 0, 1) * TOP_H - 0.3 + U.fbm(x * 0.4, y * 0.4, 901) * 0.5;
 }
@@ -85,9 +91,9 @@ export function* ruinStepsSteps() {
   
   
   for (const r of RAMPS) {
-    const [ux, uy] = fromUV(r.up, 0), [ox, oy] = fromUV(0, 0), rot = Math.atan2(ux - ox, uy - oy);
-    for (let u = -RAMP_U + 0.8; u <= RAMP_U - 0.8; u += 0.75) for (const dv of [-0.6, 0.6]) {
-      const p = at(u, r.v + dv); if (W.type[W.idx(Math.floor(p.x), Math.floor(p.y))] !== T.RUIN) continue;
+    const [ux, uy] = fromUV(-r.up, 0), [ox, oy] = fromUV(0, 0), rot = Math.atan2(ux - ox, uy - oy); 
+    for (let q = 0.1; q <= FLIGHT_RUN - 0.1; q += 0.46) for (const dv of [-0.6, 0.6]) {
+      const u = r.up * (FLIGHT_U0 + q), p = at(u, r.v + dv); if (W.type[W.idx(Math.floor(p.x), Math.floor(p.y))] !== T.RUIN) continue;
       addObj(W, { kind: 'step', x: p.x, y: p.y, solid: 0, rot, i: W.objects.length });
     }
   }

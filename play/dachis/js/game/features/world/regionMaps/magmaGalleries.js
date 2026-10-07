@@ -164,7 +164,7 @@ export function* magmaGalleriesSteps() {
     for (let q = 0; q < n; q++) { const t = (q + 0.5) / n, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t; addObj(W, { kind: 'rail', x, y, solid: 0, rot, s: L / n, h: 0.5 }); }
   }
   for (const [j, [u, v]] of Object.entries(LEVERS)) { const p = at(u, v); addObj(W, { kind: 'lever', x: p.x, y: p.y, solid: 0.3, rot: 0.6, junction: j }); }
-  for (const id of Object.keys(NET.nodes)) if (NET.nodes[id].kind === 'junction') { const p = at(...NET.nodes[id].at); addObj(W, { kind: 'basalt', x: p.x, y: p.y, solid: 0, s: 1.1, rot: 0.3 }); } 
+  for (const id of Object.keys(NET.nodes)) if (NET.nodes[id].kind === 'junction') { const p = at(...NET.nodes[id].at); addObj(W, { kind: 'basalt', x: p.x, y: p.y, solid: 0, s: 1.1, rot: 0.3, pier: true }); } 
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   addObj(W, { kind: 'spring', x: POCKET_SPRING.x, y: POCKET_SPRING.y, solid: 0.8, heal: true });
   for (const [u, v] of [[-15.6, 27.0], [-8.4, 27.0], [-8.4, 34.6], [9.0, 33.4], [-9.0, 51.6], [9.0, 52.6], [2.2, 95.0], [-4.2, 95.0], [21.0, 67.0], [5.0, 66.4], [-7.6, 76.4], [8.0, 86.0]]) {
@@ -177,7 +177,7 @@ export function* magmaGalleriesSteps() {
     if (i === 0 && j && j % BAND === 0) yield 'props';
     const t = W.type[W.idx(i, j)], x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28;
     if (!W.windowsOf(x, y, 1.2, 2.6).length || U.dist(x, y, ENTRY.x, ENTRY.y) < 2.2) continue;
-    const [u, v] = toUV(x, y);
+    const [, v] = toUV(x, y);
     if (t === T.CLIFF) {
       if (Math.hypot(x - SOUTH.x, y - SOUTH.y) < 2.6) continue;
       if (k < 0.12) addObj(W, { kind: 'basalt', x, y, solid: 0, s: 0.9 + s * 0.8, rot });
@@ -185,7 +185,7 @@ export function* magmaGalleriesSteps() {
       else if (k < 0.32) addObj(W, { kind: 'obsidian', x, y, solid: 0, s: 0.8 + s * 0.6, rot });
       continue;
     }
-    if (t === T.LAVA) { if (v < 57 && k < 0.012 && !NET.rails.some((rl) => rl.pts.some(([a, b]) => Math.hypot(a - u, b - v) < 3))) addObj(W, { kind: 'basalt', x, y, solid: 0, s: 0.6 + s * 0.4, rot }); continue; } 
+    if (t === T.LAVA) continue; 
     if (t === T.PATH || t === T.DEEP) continue;
     if (W.objects.some((o) => Math.hypot(o.x - x, o.y - y) < 1.3)) continue;
     if (Math.hypot(x - SOUTH.x, y - SOUTH.y) < 2.4 || Math.hypot(x - SPRING.x, y - SPRING.y) < 2 || Math.hypot(x - LANDING.x, y - LANDING.y) < 1.6 || Math.hypot(x - POCKET_SPRING.x, y - POCKET_SPRING.y) < 2) continue;

@@ -79,7 +79,7 @@ initAnalytics({ page: 'farmy-crosswords' });
 sfx.install();
 startVersionChecker({
   versionUrl: './version.json',
-  label: 'A new version of Farmy Crosswords is available.',
+  label: 'A new version of Wordhaus is available.',
 });
 
 const MODULES = { wordle, bee, connections, strands };
@@ -1338,7 +1338,7 @@ function newFrame(url) {
   const next = document.createElement('iframe');
   next.id = 'family';
   next.className = 'family-frame';
-  next.title = url ? 'Farmy game' : 'No game open';
+  next.title = url ? 'Magestican Studios game' : 'No game open';
   next.hidden = true;
   
   
@@ -2094,7 +2094,7 @@ wireLiveBadge();
 
 
 
-mountLevelChip(document.querySelector('.studio-bar'), { share: 'Farmy Crosswords' });
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Wordhaus' });
 
 globalThis.__fc = {
   get room() {

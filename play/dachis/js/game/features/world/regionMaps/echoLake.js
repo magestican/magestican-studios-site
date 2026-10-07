@@ -9,6 +9,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { clearOfLanes } from '../functional.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 import * as geodeGalleries from './geodeGalleries.js';
 
@@ -125,7 +126,7 @@ export function* echoLakeSteps() {
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   
   for (const d of DOCKS) addObj(W, { kind: 'jetty', x: (d.x + d.land.x) / 2, y: (d.y + d.land.y) / 2, solid: 0, h: 0.12, rot: Math.atan2(d.x - d.land.x, d.y - d.land.y), s: Math.hypot(d.x - d.land.x, d.y - d.land.y) / 1.6 });
-  for (const [u, v] of [[-13.4, 29.6], [-13.4, 32.4], [0.6, 46.0], [-8.4, 36.0]]) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
+  for (const [u, v] of [[-13.4, 29.6], [-13.4, 32.4], [0.6, 46.0], [-8.4, 36.0]]) { const q = at(u, v), p = clearOfLanes(W.paths, q.x, q.y, 0.25); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   
   {
     const dr = U.rng(1313), dclear = (x, y, r) => {

@@ -1534,7 +1534,7 @@ watchViewport(resize, canvas);
 
 wireMusicButton({ music, announce, sound: (e) => sfx.play(e) });
 
-mountLevelChip(document.querySelector('.studio-bar'), { share: 'Farmy Ludo' });
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Pawnrush' });
 
 
 

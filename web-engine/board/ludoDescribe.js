@@ -152,7 +152,7 @@ export function statusOf(state, who = defaultWho) {
 
 export function describe(state, { message = '', room = '', who = defaultWho } = {}) {
   return {
-    title: 'Farmy Ludo',
+    title: 'Pawnrush',
     status: message || statusOf(state, who),
     lines: [
       ...(room ? [room] : []),

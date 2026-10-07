@@ -292,7 +292,7 @@ export function mountLiveBadge({
           };
           if (game) {
             shareLink({
-              link: `${loc.origin}${LIVE_PATH[game]}?join=${own}`, gameName: LIVE_GAMES[game] ?? 'Farmy game', code: upper,
+              link: `${loc.origin}${LIVE_PATH[game]}?join=${own}`, gameName: LIVE_GAMES[game] ?? 'Magestican Studios game', code: upper,
             }).then(done, () => {});
           } else {
             shareInvite({ url: loc?.href ?? '', text: upper }).then(done, () => {});

@@ -107,6 +107,15 @@ const MOUTH_U = -5;
 export const MOUTH = at(MOUTH_U, edgeV(1, MOUTH_U) + BANK + 0.45);  
 export const MOUTH_ARRIVE = at(MOUTH_U, edgeV(1, MOUTH_U) + BANK + 2.3); 
 const MOUTH_PATH = [fromUV(MOUTH_U, edgeV(1, MOUTH_U) + BANK + 0.2), fromUV(MOUTH_U + 0.4, 53.3)];
+
+export const DWELLERS = [
+  { id: 'winding-v0', home: { ...at(7.4, 45.0), r: 2.0 }, lines: [
+    "Breathe through your nose, kid. It's worse through the nose, but at least you don't TASTE it.",
+    "I scrape the yellow off the vents. The potters on the coast pay for it in fish. Mostly fish. One time a hat. Don't ask about the hat."] },
+  { id: 'winding-v1', home: { ...at(-8.6, 55.2), r: 2.0 }, lines: [
+    'That hole in the bank breathes warm air all night. My husband swore it goes under the whole mountain. My husband swore a lot of things.',
+    "The lava moved last spring. Used to come down the other side. Now we've got a bridge. The mountain doesn't ask, you just build."] },
+];
 export const SPRING = at(-13.6, 54.2);   
 export const LANDING = at(-12.2, 55.4);
 
@@ -351,6 +360,7 @@ export const MANIFEST = {
       glade: ['#4c7a3c', '#66944a'], jungle: ['#2e6e36', '#3f8a40'], wood: ['#2a6a30', '#3a843a'], path: ['#b8a088', '#ecdcc4'] },
   },
   ambience: { 'winding-top': { wind: 0.7, rumble: 0.6 }, 'winding-foot': { wind: 0.4, birds: 0.4, bugs: 0.3 } },
+  people: { rng: 515, kinds: { stage: 1, types: ['Ember', 'Stone'] }, gap: 1.2, dwellers: DWELLERS },
   beats: {
     'winding-top': [
       ['narr', "Past the gate the road just drops off the mountain, ledge after ledge, and there's a smell coming up it like a carton of eggs somebody forgot about."],

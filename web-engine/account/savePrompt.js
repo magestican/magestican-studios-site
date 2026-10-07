@@ -128,7 +128,7 @@ export function mountConflictDialog(host, sides = {}, handlers = {}) {
     for (const g of side.games) {
       ul.appendChild(el('li', null, `${g.name}: ${g.plays}`));
     }
-    if (side.hasRecords) ul.appendChild(el('li', 'sc-col-rec', 'Farmy Kart lap records'));
+    if (side.hasRecords) ul.appendChild(el('li', 'sc-col-rec', 'Skidline lap records'));
     c.appendChild(ul);
     cols.appendChild(c);
   }

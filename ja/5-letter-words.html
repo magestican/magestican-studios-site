@@ -74,7 +74,7 @@
       "name": "5文字の英単語はいくつありますか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "辞書によって異なります。ファーミー5文字が受け付けるのは約1万6千語で、その多くはめったに使われない単語です。このページの一覧は、実際によく使われる単語だけにしぼっています。"
+        "text": "辞書によって異なります。Guessling 単語当てが受け付けるのは約1万6千語で、その多くはめったに使われない単語です。このページの一覧は、実際によく使われる単語だけにしぼっています。"
       }
     },
     {
@@ -87,10 +87,10 @@
     },
     {
       "@type": "Question",
-      "name": "この一覧でファーミー5文字の答えがわかってしまいませんか？",
+      "name": "この一覧でGuessling 単語当ての答えがわかってしまいませんか？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "いいえ。一覧の単語はすべてファーミー5文字で入力できる単語ですが、答えになっている単語はひとつも含まれていません。"
+        "text": "いいえ。一覧の単語はすべてGuessling 単語当てで入力できる単語ですが、答えになっている単語はひとつも含まれていません。"
       }
     }
   ]
@@ -107,15 +107,15 @@
     </a>
     <nav>
       <a href="/ja/#games">ゲーム</a>
-      <a href="/ja/farmyshoot.html">Farmyshoot</a>
-      <a href="/ja/farmy-uprising.html">アップライジング</a>
+      <a href="/ja/farmyshoot.html">Splatfield</a>
+      <a href="/ja/farmy-uprising.html">Hoofrise</a>
       <a href="/ja/farmy-evil-hills.html">イービルヒルズ</a>
-      <a href="/ja/farmykart.html">カート</a>
-      <a href="/ja/farmy-tiles.html">タイル</a>
-      <a href="/ja/farmy-crosswords.html">クロスワード</a>
-      <a href="/ja/farmy-chess.html">チェス</a>
-      <a href="/ja/farmy-checkers.html">チェッカー</a>
-      <a href="/ja/farmy-ludo.html">ルド</a>
+      <a href="/ja/farmykart.html">Skidline カートレース</a>
+      <a href="/ja/farmy-tiles.html">Letterloft 単語ボードゲーム</a>
+      <a href="/ja/farmy-crosswords.html">Wordhaus クロスワード</a>
+      <a href="/ja/farmy-chess.html">Rookwise チェス</a>
+      <a href="/ja/farmy-checkers.html">Jumpline チェッカー</a>
+      <a href="/ja/farmy-ludo.html">Pawnrush ルドー</a>
       <a href="/ja/zelakas-in-space.html">ゼラカス</a>
       <a href="/ja/2d-fighter-ex.html">ファイターEX</a>
       <a href="/ja/farmy-moon-life.html">ムーンライフ</a>
@@ -141,7 +141,7 @@
       <div class="hero">
         <p class="breadcrumb"><a href="/ja/">Magestican Studios</a> › <a href="/ja/word-games.html">無料ワードゲーム</a> › 5文字の英単語</p>
         <h1>5文字の英単語一覧 - 日本語訳つき、頭文字・末尾で探せる検索ツール</h1>
-        <p class="lede">よく使う5文字の英単語をA〜Zで並べた一覧と、わかっている文字（頭文字・末尾・含む文字）から単語を探せる検索ツール、最初に入れると強い単語、そして英語を勉強している人のための日本語訳つき基本単語です。このページの単語はすべて、5文字の英単語当てゲーム<a href="/ja/farmy-five.html">ファーミー5文字</a>で入力できますが、答えはひとつも含まれていないので、ネタバレせずにヒントとして使えます。</p>
+        <p class="lede">よく使う5文字の英単語をA〜Zで並べた一覧と、わかっている文字（頭文字・末尾・含む文字）から単語を探せる検索ツール、最初に入れると強い単語、そして英語を勉強している人のための日本語訳つき基本単語です。このページの単語はすべて、5文字の英単語当てゲーム<a href="/ja/farmy-five.html">Guessling 単語当て</a>で入力できますが、答えはひとつも含まれていないので、ネタバレせずにヒントとして使えます。</p>
         <ul class="hero-facts">
           <li>頭文字・末尾・含む文字で検索</li>
           <li>よく使う単語だけ</li>
@@ -162,7 +162,7 @@
         <label>含む文字<input id="ff-has" maxlength="10" placeholder="例：RA"></label>
         <label>含まない文字<input id="ff-not" maxlength="20" placeholder="例：TOU"></label>
         <label>位置がわかっている文字<input id="ff-pat" maxlength="5" placeholder="例：_R__E"></label>
-        <label class="ff-check"><input type="checkbox" id="ff-all">ファーミー5文字が受け付けるすべての単語から探す（めったに使わない単語や答えも含む）</label>
+        <label class="ff-check"><input type="checkbox" id="ff-all">Guessling 単語当てが受け付けるすべての単語から探す（めったに使わない単語や答えも含む）</label>
       </form>
       <p class="ff-count" aria-live="polite"><strong id="ff-n"></strong> <span>語が見つかりました。</span></p>
       <pre id="ff-out" class="five-list five-results"></pre>
@@ -318,19 +318,19 @@
     </section>
 
     <section class="reveal">
-      <h2>さっそく当ててみよう：ファーミー5文字</h2>
-      <p><a href="/ja/farmy-five.html">ファーミー5文字</a>は、5文字の英単語を当てる無料のブラウザゲームです。6回のうちに隠れた英単語を当てます。入力するたびに、位置まで正しい文字、単語には含まれるが位置が違う文字、含まれない文字がタイルでわかります。色ごとに形も違うので、色覚に特性のある方も遊べます。パズルは227問、毎日のお題もあり、大きな文字、制限時間なし、登録不要、広告なしです。</p>
+      <h2>さっそく当ててみよう：Guessling 単語当て</h2>
+      <p><a href="/ja/farmy-five.html">Guessling 単語当て</a>は、5文字の英単語を当てる無料のブラウザゲームです。6回のうちに隠れた英単語を当てます。入力するたびに、位置まで正しい文字、単語には含まれるが位置が違う文字、含まれない文字がタイルでわかります。色ごとに形も違うので、色覚に特性のある方も遊べます。パズルは227問、毎日のお題もあり、大きな文字、制限時間なし、登録不要、広告なしです。</p>
       <p>英語の練習にもぴったりです。入力するのは実在する単語だけなので、答えから新しい単語も覚えられます。<a href="/ja/learn-english-word-games.html">英語の勉強になるワードゲームをもっと見る</a>。</p>
     </section>
 
     <section class="reveal">
       <h2>質問</h2>
       <h3>5文字の英単語はいくつありますか？</h3>
-      <p>辞書によって異なります。ファーミー5文字が受け付けるのは約1万6千語で、その多くはめったに使われない単語です。このページの一覧は、実際によく使われる単語だけにしぼっています。</p>
+      <p>辞書によって異なります。Guessling 単語当てが受け付けるのは約1万6千語で、その多くはめったに使われない単語です。このページの一覧は、実際によく使われる単語だけにしぼっています。</p>
       <h3>5文字の英単語当てゲームで、最初に入れるとよい単語は？</h3>
       <p>RAISE、ARISE、ALTER、TRACEのように、よく使われる文字が5つとも違う単語です。1回の推理で、隠れた単語について最も多くの情報が得られます。</p>
-      <h3>この一覧でファーミー5文字の答えがわかってしまいませんか？</h3>
-      <p>いいえ。一覧の単語はすべてファーミー5文字で入力できる単語ですが、答えになっている単語はひとつも含まれていません。</p>
+      <h3>この一覧でGuessling 単語当ての答えがわかってしまいませんか？</h3>
+      <p>いいえ。一覧の単語はすべてGuessling 単語当てで入力できる単語ですが、答えになっている単語はひとつも含まれていません。</p>
     </section>
 
     <section class="reveal">
@@ -348,14 +348,14 @@
     <p class="footer-browse">ブラウズ: <a href="/ja/2-player-games-online.html">オンライン 2人 ゲーム</a> &middot; <a href="/ja/multiplayer-browser-games.html">マルチプレイヤー ブラウザゲーム</a> &middot; <a href="/ja/board-games-with-friends.html">友達と遊べるボードゲーム</a> &middot; <a href="/ja/word-games.html">無料ワードゲーム</a></p>
     
   </footer>
-  <script type="module" src="/assets/site.js?v=fe9e9433-20261007T091819Z"></script>
+  <script type="module" src="/assets/site.js?v=00440c8c-20261007T100712Z"></script>
 
   <script type="module">
     import { initAnalytics, trackPlayClicks } from '/web-engine/visits/visits.js';
     initAnalytics({ page: 'ja-5-letter-words' });
     trackPlayClicks();
   </script>
-  <script type="module" src="/assets/five-finder.js?v=fe9e9433-20261007T091819Z"></script>
+  <script type="module" src="/assets/five-finder.js?v=00440c8c-20261007T100712Z"></script>
   <script>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => {

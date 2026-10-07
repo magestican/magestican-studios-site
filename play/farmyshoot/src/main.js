@@ -200,7 +200,7 @@ window.__tbBooted = true;
 
 
 
-startVersionChecker({ label: 'A new version of Farmyshoot is available.' });
+startVersionChecker({ label: 'A new version of Splatfield is available.' });
 
 
 
@@ -223,7 +223,7 @@ startVersionChecker({ label: 'A new version of Farmyshoot is available.' });
 
 const removeDeviceQr = mountDeviceQr({
   label: 'Play on your phone',
-  sublabel: 'Scan this to open Farmyshoot (and any join code) on your phone.',
+  sublabel: 'Scan this to open Splatfield (and any join code) on your phone.',
   collapsed: true,
 });
 
@@ -555,7 +555,7 @@ function mutedNow() {
 
 
 
-mountLevelChip(document.querySelector('#menu .lobby-head'), { share: 'Farmyshoot' });
+mountLevelChip(document.querySelector('#menu .lobby-head'), { share: 'Splatfield' });
 
 const soundSetting = document.getElementById('sound-setting');
 if (soundSetting) {
@@ -829,7 +829,7 @@ async function startGame(hostIdToJoin) {
     
     
     $('linkOut').addEventListener('click', () => {
-      shareLink({ link: link.toString(), gameName: 'Farmyshoot', code: String(myId), button: $('linkOut') });
+      shareLink({ link: link.toString(), gameName: 'Splatfield', code: String(myId), button: $('linkOut') });
     });
 
     
@@ -859,7 +859,7 @@ async function startGame(hostIdToJoin) {
       
       shareCopy?.addEventListener('click', () => {
         shareLink({
-          link: link.toString(), gameName: 'Farmyshoot', code: String(myId),
+          link: link.toString(), gameName: 'Splatfield', code: String(myId),
           button: shareCopy, field: shareUrl,
         });
       });

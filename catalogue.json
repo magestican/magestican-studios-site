@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "fe9e9433-20261007T091819Z",
+ "buildId": "00440c8c-20261007T100712Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -13,7 +13,7 @@
   {
    "id": "farmyshoot",
    "statsId": "team-bonding",
-   "title": "Farmyshoot",
+   "title": "Splatfield",
    "tagline": "Team capture-the-flag, thirty seconds from a room code to a match.",
    "description": "A capture-the-flag game for remote teams. Share a room code and play in thirty seconds: no download, no install, no signup, laptop or phone.",
    "dir": "play/farmyshoot",
@@ -44,7 +44,7 @@
   {
    "id": "farmy-uprising",
    "statsId": "farmy-uprising",
-   "title": "Farmy Uprising",
+   "title": "Hoofrise",
    "tagline": "A ten-minute strategy skirmish. Hold ground to score.",
    "description": "The animals have organised and they want the farms gone. A free ten-minute strategy game: hold ground to score, and fight over the water.",
    "dir": "play/farmy-uprising",
@@ -68,12 +68,12 @@
    "ageNote": "Infrequent or mild cartoon violence - animals versus farms, no blood, no injury detail.",
    "order": 1,
    "addedAt": "2026-09-06",
-   "bytes": 10771654
+   "bytes": 10771533
   },
   {
    "id": "farmy-evil-hills",
    "statsId": "farmy-evil-hills",
-   "title": "Farmy Evil Hills",
+   "title": "Evil Hills",
    "tagline": "PS1-era survival horror on a Venus station that has gone quiet.",
    "description": "PS1-era survival horror. A Space Farming Agency station on Venus has gone quiet, and the airborne virus does not touch humans, which is worse.",
    "dir": "play/farmy-evil-hills",
@@ -99,12 +99,12 @@
    "ageNote": "Frequent and intense horror themes: body horror, dread, jump scares and sustained tension. This is the game the pack is rated for.",
    "order": 2,
    "addedAt": "2026-08-31",
-   "bytes": 7792872
+   "bytes": 7792824
   },
   {
    "id": "farmykart",
    "statsId": "farmykart",
-   "title": "Farmy Kart",
+   "title": "Skidline",
    "tagline": "Eight farm-animal drivers, six circuits, drift turbos and cowpats.",
    "description": "A free kart racer: eight farm-animal drivers, six circuits in two cups, drift turbos and cowpats. Race friends from a link, with no server and no signup.",
    "dir": "play/farmykart",
@@ -131,12 +131,12 @@
    "ageNote": null,
    "order": 3,
    "addedAt": "2026-08-28",
-   "bytes": 6504948
+   "bytes": 6504920
   },
   {
    "id": "farmy-tiles",
    "statsId": "farmy-scrabble",
-   "title": "Farmy Tiles",
+   "title": "Letterloft",
    "tagline": "The full fifteen by fifteen board and the real hundred-tile bag.",
    "description": "A free word-tile game: the full fifteen by fifteen board, the real hundred-tile bag, premium squares. Two to four share one board over a link.",
    "dir": "play/farmy-tiles",
@@ -163,14 +163,14 @@
    "ageNote": null,
    "order": 4,
    "addedAt": "2026-09-21",
-   "bytes": 96940
+   "bytes": 96895
   },
   {
    "id": "farmy-crosswords",
    "statsId": "farmy-crosswords",
-   "title": "Farmy Crosswords",
+   "title": "Wordhaus",
    "tagline": "All four word games in one place.",
-   "description": "Four free word games on one page: Farmy Five, Farmy Hive, Farmy Herds and Farmy Furrows. Big letters, no timer, no account, and a room two people share.",
+   "description": "Four free word games on one page: Guessling, Honeyword, Clusterly and Gridseek. Big letters, no timer, no account, and a room two people share.",
    "dir": "play/farmy-crosswords",
    "path": "play/farmy-crosswords/index.html",
    "query": "",
@@ -195,12 +195,12 @@
    "ageNote": null,
    "order": 5,
    "addedAt": "2026-09-04",
-   "bytes": 211794
+   "bytes": 211670
   },
   {
    "id": "farmy-chess",
    "statsId": "farmy-chess",
-   "title": "Farmy Chess",
+   "title": "Rookwise",
    "tagline": "Big pieces, no clock, a bot that matches your level.",
    "description": "Free, complete chess: castling, en passant, promotion and every draw. Big high-contrast pieces, no clock, no account.",
    "dir": "play/farmy-chess",
@@ -227,12 +227,12 @@
    "ageNote": null,
    "order": 6,
    "addedAt": "2026-09-06",
-   "bytes": 90143
+   "bytes": 90074
   },
   {
    "id": "farmy-checkers",
    "statsId": "farmy-checkers",
-   "title": "Farmy Checkers",
+   "title": "Jumpline",
    "tagline": "Twelve sheep against twelve cows, and takes are compulsory.",
    "description": "Free English draughts: twelve sheep against twelve cows, compulsory takes, multiple jumps and crowned kings. No clock, no account.",
    "dir": "play/farmy-checkers",
@@ -259,12 +259,12 @@
    "ageNote": null,
    "order": 7,
    "addedAt": "2026-09-06",
-   "bytes": 83619
+   "bytes": 83508
   },
   {
    "id": "farmy-ludo",
    "statsId": "farmy-ludo",
-   "title": "Farmy Ludo",
+   "title": "Pawnrush",
    "tagline": "Four farm teams, a six to come out, an exact roll to finish.",
    "description": "Free Ludo: four farm teams, a six to come out and an exact roll to finish. Big clear pieces, every team a shape, no clock, no account.",
    "dir": "play/farmy-ludo",
@@ -290,12 +290,12 @@
    "ageNote": null,
    "order": 8,
    "addedAt": "2026-09-06",
-   "bytes": 84371
+   "bytes": 84306
   },
   {
    "id": "farmy-moon-life",
    "statsId": "farmy-moon-life",
-   "title": "Farmy Moon Life",
+   "title": "Moon Life",
    "tagline": "Grow an orchard on a tiny moon and buy land from a cat in a hat.",
    "description": "A cozy farming game on a tiny moon: grow an orchard, make jam, buy land from a cat in a hat, and let a friend visit your moon.",
    "dir": "play/farmy-moon-life",
@@ -385,12 +385,12 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-09-30",
-   "bytes": 25083618
+   "bytes": 25092915
   },
   {
    "id": "farmy-five",
    "statsId": "farmy-five",
-   "title": "Farmy Five",
+   "title": "Guessling",
    "tagline": "Six guesses at a five-letter farm word.",
    "description": "A free word game: six guesses at a five-letter farm word. Sixty-five puzzles, large high-contrast letters, no timer and no account.",
    "dir": "play/farmy-crosswords",
@@ -417,12 +417,12 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-09-21",
-   "bytes": 211794
+   "bytes": 211670
   },
   {
    "id": "farmy-hive",
    "statsId": "farmy-hive",
-   "title": "Farmy Hive",
+   "title": "Honeyword",
    "tagline": "Seven letters, the middle one compulsory.",
    "description": "A free word game: seven letters, the middle one compulsory, 53 hives and 3,949 words. Large high-contrast type, no timer, no account.",
    "dir": "play/farmy-crosswords",
@@ -449,12 +449,12 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-09-21",
-   "bytes": 211794
+   "bytes": 211670
   },
   {
    "id": "farmy-herds",
    "statsId": "farmy-herds",
-   "title": "Farmy Herds",
+   "title": "Clusterly",
    "tagline": "Sixteen words, four secret groups, four mistakes.",
    "description": "A free puzzle: sixteen words, four secret groups, four mistakes. Fifty-two sets in large high-contrast type, no timer, no account.",
    "dir": "play/farmy-crosswords",
@@ -481,12 +481,12 @@
    "ageNote": null,
    "order": 17,
    "addedAt": "2026-09-21",
-   "bytes": 211794
+   "bytes": 211670
   },
   {
    "id": "farmy-furrows",
    "statsId": "farmy-furrows",
-   "title": "Farmy Furrows",
+   "title": "Gridseek",
    "tagline": "Every letter belongs to a word, plus a spangram.",
    "description": "A free themed word search: every letter of the six by eight grid belongs to a word, plus a spangram. Fifty-three grids, no timer, no account.",
    "dir": "play/farmy-crosswords",
@@ -513,7 +513,7 @@
    "ageNote": null,
    "order": 18,
    "addedAt": "2026-09-21",
-   "bytes": 211794
+   "bytes": 211670
   }
  ]
 }

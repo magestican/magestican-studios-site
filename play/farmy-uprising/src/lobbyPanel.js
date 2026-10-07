@@ -151,7 +151,7 @@ export function createLobbyPanel(actions) {
     
     shareLink({
       link: url.toString(),
-      gameName: 'Farmy Uprising',
+      gameName: 'Hoofrise',
       code: last?.code ? String(last.code).toUpperCase() : null,
       button: el.copy,
     }).then((res) => {

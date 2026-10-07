@@ -190,7 +190,7 @@ function card(app, {
 export function help(app, { onClose }) {
   return card(app, {
     id: 'help',
-    title: () => 'How to play Farmy Chess',
+    title: () => 'How to play Rookwise',
     lines: () => [
       'Press a piece to pick it up. Every square it may go to is marked: a green dot for an empty square, a red ring round a piece you can take.',
       'Press the square you want. If a move is not allowed, the game says why in words rather than doing nothing.',
@@ -366,7 +366,7 @@ export function results(app, { state, onAgain, onSwap, onClose }) {
 export function menu(app, { items }) {
   return card(app, {
     id: 'menu',
-    title: () => 'Farmy Chess',
+    title: () => 'Rookwise',
     lines: () => [],
     buttons: () => items,
     describe: () => ({ status: 'The menu.' }),

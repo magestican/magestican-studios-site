@@ -8,6 +8,7 @@ import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
+import { fenceGuards } from '../functional.js';
 
 export const ID = 'vinegate';
 export const SIZE = 64;
@@ -115,7 +116,9 @@ export function* vinegateSteps() {
       for (const side of [-1, 1]) { let n = 0; for (let t = 0.5; t < L; t += 1.1) {
         const u = a[0] + (b[0] - a[0]) * t / L + nu * side * (w.half + 0.1), v = a[1] + (b[1] - a[1]) * t / L + nv * side * (w.half + 0.1);
         if (DECKS.some((d) => Math.hypot(u - d.u, v - d.v) < d.r + 0.2) || WALKS.slice(1).some((s) => s.pts.some((p) => Math.hypot(u - p[0], v - p[1]) < 1.4))) continue;
-        const p = at(u, v); addObj(W, { kind: 'fence', x: p.x, y: p.y, solid: 0.15, ring: `pier-${k}-${side}`, k: n++, n: 0 });
+        
+        const p = at(u, v); if (!fenceGuards(W, { kind: 'fence', x: p.x, y: p.y })) continue;
+        addObj(W, { kind: 'fence', x: p.x, y: p.y, solid: 0.15, ring: `pier-${k}-${side}`, k: n++, n: 0 });
       } } 
     } }
   

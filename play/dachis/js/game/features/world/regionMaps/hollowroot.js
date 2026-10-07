@@ -9,6 +9,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { uvRot, addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME } from '../mapgen.js';
+import { clearOfLanes } from '../functional.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'hollowroot';
@@ -148,7 +149,7 @@ export function* hollowrootSteps() {
   });
   for (const h of huts) addObj(W, { kind: 'hut', x: h.x, y: h.y, solid: 0.83 * h.s, roof: ROOFS[h.i], rot: h.rot, s: h.s });
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
-  for (const [u, v] of LANTERNS) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
+  for (const [u, v] of LANTERNS) { const q = at(u, v), p = clearOfLanes(W.paths, q.x, q.y, 0.25); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   
   for (const side of [-1, 1]) { const p = at(-12.8, 42.6 + side * 1.1); addObj(W, { kind: 'rimstone', x: p.x, y: p.y, solid: 0.35, s: 1.2, rot: side * 1.3, v: side > 0 ? 1 : 2, flavor: 'moss' }); }
   

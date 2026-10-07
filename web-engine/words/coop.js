@@ -360,6 +360,19 @@ export const GAME_PREFIX = Object.freeze({
 });
 
 
+
+
+
+
+
+
+export const CODE_GAME_NAME = Object.freeze({
+  crosswords: 'Wordhaus', chess: 'Rookwise', ludo: 'Pawnrush', scrabble: 'Letterloft',
+  checkers: 'Jumpline', uprising: 'Hoofrise', evilhills: 'Evil Hills', moonlife: 'Moon Life',
+});
+export const codeGameName = (key) => CODE_GAME_NAME[key] ?? key;
+
+
 export function gameOfCode(text) {
   const raw = String(text ?? '').toUpperCase().replace(/[\s._-]/g, '');
   for (const [game, prefix] of Object.entries(GAME_PREFIX)) {

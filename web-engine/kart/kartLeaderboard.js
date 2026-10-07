@@ -139,7 +139,7 @@ export function kartScopeCopy(scope) {
       
       
       
-      note: 'Wins across Magestican Studios games, worldwide. Farmy Kart adds '
+      note: 'Wins across Magestican Studios games, worldwide. Skidline adds '
         + 'your race wins to it.',
     });
   }

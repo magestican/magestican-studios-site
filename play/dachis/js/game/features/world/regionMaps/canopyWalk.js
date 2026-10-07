@@ -40,7 +40,7 @@ export const ENTRY = at(-2.4, 51.4);
 export const GATE = ENTRY;
 export const EXIT = at(0.8, 29.0);          
 export const EXIT_BACK = at(0.8, 31.4);     
-export const SPRING = at(1.6, 39.2);        
+export const SPRING = at(1.15, 38.36);      
 export const LANDING = at(-0.8, 41.2);
 
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);
@@ -108,7 +108,7 @@ export function* canopyWalkSteps() {
     for (const side of [-1, 1]) { let n = 0; for (let t = 0; t <= L; t += 1.0) {
       const u = br.a.u + (br.b.u - br.a.u) * t / L + nu * side * (BRIDGE_HALF + 0.35), v = br.a.v + (br.b.v - br.a.v) * t / L + nv * side * (BRIDGE_HALF + 0.35);
       const p = at(u, v); if (platformIn(p.x, p.y).d > -0.3) continue;
-      addObj(W, { kind: 'fence', x: p.x, y: p.y, solid: 0, ring: `rope-${bi}-${side}`, k: n++, n: 0 });
+      addObj(W, { kind: 'fence', x: p.x, y: p.y, solid: 0, ring: `rope-${bi}-${side}`, k: n++, n: 0, job: 'rope' });
     } }
   });
   

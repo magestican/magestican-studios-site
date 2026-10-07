@@ -9,6 +9,7 @@ import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import * as hollowroot from './hollowroot.js';
+import { fenceGuards, clearOfLanes } from '../functional.js';
 
 export const ID = 'thornfield';
 export const SIZE = 80;
@@ -82,7 +83,7 @@ export function* thornfieldSteps() {
   const pathD = (x, y) => lane.pts.reduce((m, p, k) => (k ? Math.min(m, segDist(lane.pts[k - 1], p, x, y)) : m), Infinity);
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   
-  EDGES.forEach((e, k) => { for (const side of [-1, 1]) { const p = at(RAMP_U[k] + side * 1.7, e - 2.9); addObj(W, { kind: 'pillar', x: p.x, y: p.y, solid: 0.3, s: 0.8 + (side > 0 ? 0.15 : 0), rot: side, v: (k + (side > 0 ? 1 : 0)) % 3 }); } });
+  EDGES.forEach((e, k) => { for (const side of [-1, 1]) { const q = at(RAMP_U[k] + side * 1.7, e - 2.9), p = clearOfLanes(W.paths, q.x, q.y, 0.3); addObj(W, { kind: 'pillar', x: p.x, y: p.y, solid: 0.3, s: 0.8 + (side > 0 ? 0.15 : 0), rot: side, v: (k + (side > 0 ? 1 : 0)) % 3 }); } });
   
   for (const side of [-1, 1]) { const p = at(-13.0, 31.0 + side * 1.2); addObj(W, { kind: 'rimstone', x: p.x, y: p.y, solid: 0.35, s: 1.1, rot: side * 1.3, v: side > 0 ? 1 : 2, flavor: 'moss' }); }
   
@@ -99,7 +100,8 @@ export function* thornfieldSteps() {
       }
       for (const side of [-1, 1]) { let m = 0; for (let u = uc - 2.4; u <= uc + 2.4; u += 0.8) {
         const p = at(u, vc + side * 0.8); if (pathD(p.x, p.y) < 1.0) continue;
-        addObj(W, { kind: 'fence', x: p.x, y: p.y, solid: 0, ring: `bed-${k}-${row}-${n}-${side}`, k: m++, n: 0 });
+        if (!fenceGuards(W, { kind: 'fence', x: p.x, y: p.y, job: 'bed' })) continue; 
+        addObj(W, { kind: 'fence', x: p.x, y: p.y, solid: 0, ring: `bed-${k}-${row}-${n}-${side}`, k: m++, n: 0, job: 'bed' });
       } }
     }
   }

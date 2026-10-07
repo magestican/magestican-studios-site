@@ -74,23 +74,23 @@ export const STALE_MS = REFRESH_MS * 3;
 
 
 export const LIVE_GAMES = Object.freeze({
-  crosswords: 'Farmy Crosswords',
-  chess: 'Farmy Chess',
-  ludo: 'Farmy Ludo',
-  scrabble: 'Farmy Tiles',
-  checkers: 'Farmy Checkers',
-  uprising: 'Farmy Uprising',
-  evilhills: 'Farmy Evil Hills',
+  crosswords: 'Wordhaus',
+  chess: 'Rookwise',
+  ludo: 'Pawnrush',
+  scrabble: 'Letterloft',
+  checkers: 'Jumpline',
+  uprising: 'Hoofrise',
+  evilhills: 'Evil Hills',
   
   
   
   
-  moonlife: 'Farmy Moon Life',
+  moonlife: 'Moon Life',
   
   
   
-  kart: 'Farmy Kart',
-  farmyshoot: 'Farmyshoot',
+  kart: 'Skidline',
+  farmyshoot: 'Splatfield',
 });
 
 
@@ -220,7 +220,10 @@ export function roomLine(room) {
     const parts = [];
     if (room.host) parts.push(String(room.host));
     if (room.level) parts.push(`Lv ${room.level}`);
-    parts.push(name.replace(/^Farmy /, ''));
+    
+    
+    
+    parts.push(name.replace(/^Farm[y] /, ''));
     parts.push(seatText(room));
     parts.push(room.mode === 'full' ? 'Full' : 'Join');
     return parts.join(' - ');

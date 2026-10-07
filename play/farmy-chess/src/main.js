@@ -117,7 +117,7 @@ try {
 initAnalytics({ page: 'farmy-chess' });
 startVersionChecker({
   versionUrl: './version.json',
-  label: 'A new version of Farmy Chess is available.',
+  label: 'A new version of Rookwise is available.',
 });
 
 
@@ -1201,7 +1201,7 @@ watchViewport(resize, canvas);
 
 wireMusicButton({ music, announce, });
 
-mountLevelChip(document.querySelector('.studio-bar'), { share: 'Farmy Chess' });
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Rookwise' });
 
 
 

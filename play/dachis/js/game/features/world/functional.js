@@ -59,11 +59,19 @@ export const flightRun = (flight) => Math.hypot(flight[flight.length - 1].x - fl
 
 
 
+
+
+
+
+export const BED_REACH = 1.0;
+const DEEP = 0, SHALLOW = 1, CLIFF = 10;
 export function fenceGuards(W, o) {
+  if (o.job === 'bed') return W.objects.some((q) => (q.kind === 'bramble' || q.kind === 'flower') && Math.hypot(q.x - o.x, q.y - o.y) < BED_REACH);
   const h = W.groundAt(o.x, o.y);
   for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) {
-    const x = o.x + Math.cos(a) * FENCE_REACH, y = o.y + Math.sin(a) * FENCE_REACH;
-    if (h - W.groundAt(x, y) >= FENCE_MIN_DROP || W.tileType(x, y) === LAVA) return true;
+    const x = o.x + Math.cos(a) * FENCE_REACH, y = o.y + Math.sin(a) * FENCE_REACH, t = W.tileType(x, y);
+    if (h - W.groundAt(x, y) >= FENCE_MIN_DROP || t === LAVA || t === DEEP || t === SHALLOW) return true;
+    if (o.job === 'rope' && t === CLIFF && W.groundAt(x, y) <= h + 0.1) return true;
   }
   return false;
 }
@@ -162,8 +170,47 @@ export function acrossRoad(W, only = () => true) {
 
 
 
-export const ON_LAVA_OK = new Set(['bridge', 'flow']); 
+
+export const LANE_END = 1.2;
+const BUILT_LINES = new Set(['fence', 'step', 'bridge']); 
+
+export function inLane(W, only = () => true) {
+  const out = [];
+  for (const o of  (W.objects)) {
+    if (!(o.solid > 0) || o.ghost || BUILT_LINES.has(o.kind) || !only(o)) continue;
+    (W.paths || []).forEach((p, i) => {
+      let d = Infinity; for (let k = 1; k < p.pts.length; k++) d = Math.min(d, segDist(p.pts[k - 1][0], p.pts[k - 1][1], p.pts[k][0], p.pts[k][1], o.x, o.y));
+      const end = Math.min(Math.hypot(o.x - p.pts[0][0], o.y - p.pts[0][1]), Math.hypot(o.x - p.pts[p.pts.length - 1][0], o.y - p.pts[p.pts.length - 1][1]));
+      if (d < p.half && end > LANE_END) out.push(`${o.kind} at ${o.x.toFixed(1)},${o.y.toFixed(1)} stands in path ${i} (${d.toFixed(2)} from its centre, half ${p.half}): it blocks the way`);
+    });
+  }
+  return out;
+}
+
+
+
+
+export function clearOfLanes(paths, x, y, r) {
+  for (let it = 0; it < 4; it++) {
+    let worst = null;
+    for (const p of paths || []) for (let k = 1; k < p.pts.length; k++) {
+      const [ax, ay] = p.pts[k - 1], [bx, by] = p.pts[k], dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy) || 1;
+      const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (L * L))), cx = ax + dx * t, cy = ay + dy * t, d = Math.hypot(x - cx, y - cy);
+      const push = p.half + r + 0.05 - d;
+      if (push > 0 && (!worst || push > worst.push)) worst = { push, nx: d > 1e-6 ? (x - cx) / d : -dy / L, ny: d > 1e-6 ? (y - cy) / d : dx / L };
+    }
+    if (!worst) break;
+    x += worst.nx * worst.push; y += worst.ny * worst.push;
+  }
+  return { x, y };
+}
+
+
+
+
+
+export const ON_LAVA_OK = new Set(['bridge', 'flow', 'rail']); 
 
 export function onLava(W, only = () => true) {
-  return W.objects.filter((o) => only(o) && !ON_LAVA_OK.has(o.kind) && !(o.kind in MAN_MADE) && W.tileType(o.x, o.y) === LAVA).map((o) => `${o.kind} at ${o.x.toFixed(1)},${o.y.toFixed(1)} stands in the lava`);
+  return W.objects.filter((o) => only(o) && !ON_LAVA_OK.has(o.kind) && !o.pier && o.kind !== 'fence' && W.tileType(o.x, o.y) === LAVA).map((o) => `${o.kind} at ${o.x.toFixed(1)},${o.y.toFixed(1)} stands in the lava`);
 }

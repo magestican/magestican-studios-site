@@ -453,7 +453,7 @@ export function create(app) {
     id: 'board',
     keys: 'Arrow keys move the marker between the playing squares. Enter picks a piece up and puts it down. Escape puts it back.',
     help: [
-      'Farmy Checkers is English draughts. Twelve sheep against twelve cows, on the hatched squares.',
+      'Jumpline is English draughts. Twelve sheep against twelve cows, on the hatched squares.',
       'The sheep move first. A piece moves one square diagonally forward; a king, crowned when it reaches the far row, moves and takes in all four directions.',
       'IF YOU CAN TAKE, YOU MUST. A piece that has to jump wears a gold star, and a jump that can go on must go on - keep pressing the squares until the chain ends.',
       'A hollow ring is somewhere you may move. A solid red diamond is a take, and the piece it would take is crossed out.',

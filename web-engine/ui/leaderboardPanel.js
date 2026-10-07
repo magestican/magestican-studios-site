@@ -133,7 +133,7 @@ export function scopeCopy(scope) {
       badge: 'WORLDWIDE',
       matchesLabel: 'matches played worldwide',
       topLabel: 'top player worldwide',
-      boardNote: 'Everyone who has ever played Farmyshoot, worldwide.',
+      boardNote: 'Everyone who has ever played Splatfield, worldwide.',
     });
   }
   return Object.freeze({

@@ -117,7 +117,7 @@ initAnalytics({ page: 'farmy-scrabble' });
 sfx.install();
 startVersionChecker({
   versionUrl: './version.json',
-  label: 'A new version of Farmy Tiles is available.',
+  label: 'A new version of Letterloft is available.',
 });
 
 
@@ -1097,7 +1097,7 @@ watchViewport(resize, canvas);
 wireMusicButton({ music, announce, sound: (e) => sfx.play(e) });
 
 
-mountLevelChip(document.querySelector('.studio-bar'), { share: 'Farmy Tiles' });
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Letterloft' });
 
 
 

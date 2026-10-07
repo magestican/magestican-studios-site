@@ -514,7 +514,7 @@ export const ACHIEVEMENTS = Object.freeze([
   
   A({
     id: 'tb-first', name: 'Muster', game: 'team-bonding', tier: 'common', glyph: '▲',
-    desc: 'Finish a match of Farmyshoot.', stat: 'tbPlays', atLeast: 1,
+    desc: 'Finish a match of Splatfield.', stat: 'tbPlays', atLeast: 1,
   }),
   A({
     id: 'tb-25', name: 'Old Hand', game: 'team-bonding', tier: 'uncommon', glyph: '▲',

@@ -345,7 +345,7 @@ export function measureFootY(image, cols, rows, tile) {
     
     
     
-    console.warn(`Farmy Uprising: cannot measure sprite feet (${e.message})`
+    console.warn(`Hoofrise: cannot measure sprite feet (${e.message})`
       + ' - sprites will be anchored on the quad edge and will float');
     return out;
   }
@@ -863,7 +863,7 @@ function installToneMapping(renderer) {
     const chunk = THREE.ShaderChunk.tonemapping_pars_fragment;
     if (!chunk || chunk.indexOf(stub) < 0) {
       
-      console.warn('Farmy Uprising: three.js CustomToneMapping hook has moved'
+      console.warn('Hoofrise: three.js CustomToneMapping hook has moved'
         + ' - falling back to plain ACES with no colour grade');
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1;
@@ -2258,7 +2258,7 @@ export async function createRenderer(canvas, match, viewSeat) {
     const hasOutlines = !!(map.outlines && map.outlines.length === m.w.sectors.length);
     if (!hasOutlines && !warnedOutlines) {
       warnedOutlines = true;
-      console.warn('Farmy Uprising: this map has no sector outlines'
+      console.warn('Hoofrise: this map has no sector outlines'
         + ' - falling back to cell-aligned borders');
     }
 
@@ -2543,7 +2543,7 @@ export async function createRenderer(canvas, match, viewSeat) {
       },
     };
     
-    console.warn(`Farmy Uprising: prop atlas missing (${e.message}) - placeholders`);
+    console.warn(`Hoofrise: prop atlas missing (${e.message}) - placeholders`);
   }
   const propManifest = propSheet.manifest;
   const PROP_ROWS = Math.max(1, Object.keys(propManifest.rows).length);
@@ -2758,7 +2758,7 @@ export async function createRenderer(canvas, match, viewSeat) {
       rows: Object.fromEntries(ids.map((k, i) => [k, { row: i, worldSize: 2 }])),
     };
     
-    console.warn(`Farmy Uprising: sprite atlas missing (${e.message}) - placeholders`);
+    console.warn(`Hoofrise: sprite atlas missing (${e.message}) - placeholders`);
   }
   const ATLAS_COLS = manifest.facings || 8;
   const ATLAS_ROWS = Math.max(1, rowCount(manifest));
@@ -2797,7 +2797,7 @@ export async function createRenderer(canvas, match, viewSeat) {
     idleImage = loaded.image;
     idleManifest = loaded.manifest;
   } catch (e) {
-    console.warn(`Farmy Uprising: no idle frames (${e.message})`
+    console.warn(`Hoofrise: no idle frames (${e.message})`
       + ' - units will idle on their standing pose');
   }
   const IDLE_COLS = idleManifest ? idleColumns(idleManifest) : 1;
@@ -2819,7 +2819,7 @@ export async function createRenderer(canvas, match, viewSeat) {
     }
     if (!anim.herd && !anim.yield) throw new Error('neither sheet loaded');
   } catch (e) {
-    console.warn(`Farmy Uprising: no animation frames (${e.message})`
+    console.warn(`Hoofrise: no animation frames (${e.message})`
       + ' - units will walk on their standing pose');
   }
   const ANIM_COLS = { herd: anim.herd ? animColumns(anim.herd.manifest) : 1, yield: anim.yield ? animColumns(anim.yield.manifest) : 1 };
@@ -3375,7 +3375,7 @@ export async function createRenderer(canvas, match, viewSeat) {
     
     
     
-    console.warn(`Farmy Uprising: building atlas missing (${e.message}) - placeholders`);
+    console.warn(`Hoofrise: building atlas missing (${e.message}) - placeholders`);
   }
   const BUILD_COLS = buildingManifest.facings || 4;
   const BUILD_ROWS = Math.max(1, Object.keys(buildingManifest.rows).length);

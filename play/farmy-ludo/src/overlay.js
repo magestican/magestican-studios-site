@@ -126,7 +126,7 @@ function makePanel(app, {
     animating: (now) => now - born < DURATION.fade,
     rects: () => rows.map((b) => ({ id: b.id, x: b.x, y: b.y, w: b.w, h: b.h })),
     describe: () => ({
-      title: `Farmy Ludo - ${title}`,
+      title: `Pawnrush - ${title}`,
       status: '',
       lines: [...lines, ...mirror(), ...rows.map((b) => `Button: ${b.label}`)],
     }),
@@ -169,7 +169,7 @@ const inside = (r, pt) => pt.x >= r.x && pt.x <= r.x + r.w && pt.y >= r.y && pt.
 export function help(app, { onClose }) {
   return makePanel(app, {
     id: 'help',
-    title: 'How to play Farmy Ludo',
+    title: 'How to play Pawnrush',
     onClose,
     body: (w) => [
       'Four farm teams race four pieces each round the board and home.',
@@ -192,7 +192,7 @@ export function help(app, { onClose }) {
 export function menu(app, { items, onClose }) {
   return makePanel(app, {
     id: 'menu',
-    title: 'Farmy Ludo',
+    title: 'Pawnrush',
     onClose,
     body: () => [],
     buttons: () => [...items, { id: 'close', label: 'Close', run: onClose }],

@@ -13,6 +13,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { clearOfLanes } from '../functional.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'frostspine';
@@ -151,7 +152,7 @@ export function* frostspineSteps() {
   addObj(W, { kind: 'winch', x: WINCH.x, y: WINCH.y, solid: 0.5, rot: Math.PI / 2 });
   
   for (const [u, v] of [HIGH.a, HIGH.b]) for (const side of [-1, 1]) { const p = at(u + side * 0.85, v); addObj(W, { kind: 'pillar', x: p.x, y: p.y, solid: 0.2, s: 0.5, v: 1 }); }
-  for (const [u, v] of [[-8.4, 32.6], [-2.4, 47.0], [0.6, 57.8], [-16.8, 60.6], [-10.0, 86.8], [11.0, 86.6]]) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
+  for (const [u, v] of [[-8.4, 32.6], [-2.4, 47.0], [0.6, 57.8], [-16.8, 60.6], [-10.0, 86.8], [11.0, 86.6]]) { const q = at(u, v), p = clearOfLanes(W.paths, q.x, q.y, 0.25); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   
   
   {

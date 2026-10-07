@@ -10,6 +10,7 @@
 import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid, HOME } from '../mapgen.js';
+import { clearOfLanes } from '../functional.js';
 import { guardHuts, dressHuts, placeYard, fruitGrove } from '../dressing.js';
 
 export const ID = 'shrine-village';
@@ -97,10 +98,10 @@ export function* shrineVillageSteps() {
     const [ax, ay] = LANE[0], [bx, by] = LANE[1], L = Math.hypot(bx - ax, by - ay);
     addObj(W, { kind: 'gate', x: TORII.x, y: TORII.y, solid: 0, rot: Math.atan2((bx - ax) / L, (by - ay) / L), s: TORII.s });
   }
-  for (const [u, v] of LANTERNS) { const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
+  for (const [u, v] of LANTERNS) { const q = at(u, v), p = clearOfLanes(W.paths, q.x, q.y, 0.25); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   for (const h of huts) {
     addObj(W, { kind: 'hut', x: h.x, y: h.y, solid: 0.83 * h.s, roof: ROOFS[h.i], rot: h.rot, s: h.s });
-    const a = h.rot - 0.55; addObj(W, { kind: 'torch', x: h.x + Math.sin(a) * 2.0, y: h.y + Math.cos(a) * 2.0, solid: 0.15 });
+    const a = h.rot - 0.55, p = clearOfLanes(W.paths, h.x + Math.sin(a) * 2.0, h.y + Math.cos(a) * 2.0, 0.15); addObj(W, { kind: 'torch', x: p.x, y: p.y, solid: 0.15 });
   }
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   BEDS.forEach(([u, v], k) => { const p = at(u, v); addObj(W, { kind: 'bed', x: p.x, y: p.y, solid: 0.45, rot: k * 1.3, seed: 40 + k }); });

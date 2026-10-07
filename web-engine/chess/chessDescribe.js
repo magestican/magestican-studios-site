@@ -136,7 +136,7 @@ export function describeGame({
     ? derived.outcome.text
     : `${derived.turn === WHITE ? 'White' : 'Black'} to move${derived.check ? ', and in check' : ''}.`;
   return {
-    title: 'Farmy Chess',
+    title: 'Rookwise',
     status: message || whose,
     lines: [
       seatLine,

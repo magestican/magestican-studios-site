@@ -53,7 +53,7 @@
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import {
-  roomCode, normaliseCode, sayingText, GAME_PREFIX, gameOfCode,
+  roomCode, normaliseCode, sayingText, GAME_PREFIX, gameOfCode, codeGameName,
 } from '../../../web-engine/words/coop.js';
 import { CMSG } from '../../../web-engine/checkers/checkersMatch.js';
 import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
@@ -75,8 +75,8 @@ const MY_PREFIX = GAME_PREFIX.checkers;
 function codeError(typed) {
   const other = gameOfCode(typed);
   if (other && GAME_PREFIX[other] !== MY_PREFIX) {
-    const name = other.charAt(0).toUpperCase() + other.slice(1);
-    return `That is a Farmy ${name} code. Open Farmy ${name} to use it.`;
+    const name = codeGameName(other);
+    return `That is a ${name} code. Open ${name} to use it.`;
   }
   return 'That code does not look right. Check it and try again.';
 }

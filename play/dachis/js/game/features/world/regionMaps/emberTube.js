@@ -19,7 +19,7 @@ const uvPts = (list) => list.map(([u, v]) => fromUV(u, v));
 export const PATH = uvPts([[0, 31], [5, 37], [-4, 44], [3, 52], [-6, 60], [4, 67], [-2, 74], [3, 80]]);
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 export const ENTRY = at(0, 33.2);    
-export const SPRING = at(3.6, 34.8); 
+export const SPRING = at(4.38, 34.15); 
 
 export const DWELLERS = [
   { id: 'ember-v0', home: { ...at(-3.5, 37.5), r: 2.6 }, lines: [

@@ -91,8 +91,8 @@ export const LAST_KEY = 'farmy-crosswords:v1:last';
 
 
 export const GAMES = [
-  { id: 'wordle', name: 'Farmy Five', blurb: 'Six guesses at a five-letter word.' },
-  { id: 'bee', name: 'Farmy Hive', blurb: 'Seven letters, one of them compulsory.' },
-  { id: 'connections', name: 'Farmy Herds', blurb: 'Sixteen words, four secret groups.' },
-  { id: 'strands', name: 'Farmy Furrows', blurb: 'Every letter is part of a word.' },
+  { id: 'wordle', name: 'Guessling', blurb: 'Six guesses at a five-letter word.' },
+  { id: 'bee', name: 'Honeyword', blurb: 'Seven letters, one of them compulsory.' },
+  { id: 'connections', name: 'Clusterly', blurb: 'Sixteen words, four secret groups.' },
+  { id: 'strands', name: 'Gridseek', blurb: 'Every letter is part of a word.' },
 ];

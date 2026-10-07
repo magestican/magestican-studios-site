@@ -57,7 +57,7 @@ const params = new URLSearchParams(location.search);
 
 
 
-mountLevelChip(document.querySelector('#menu-chip'), { share: 'Farmy Uprising' });
+mountLevelChip(document.querySelector('#menu-chip'), { share: 'Hoofrise' });
 
 
 

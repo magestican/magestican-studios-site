@@ -50,7 +50,7 @@
 
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
-import { GAME_PREFIX, roomCode, normaliseCode, gameOfCode, nameFor } from '../../../web-engine/words/coop.js';
+import { GAME_PREFIX, roomCode, normaliseCode, gameOfCode, codeGameName, nameFor } from '../../../web-engine/words/coop.js';
 import { createMeshTransport } from '../../../web-engine/rts/net/meshTransport.js';
 import { seedFromString } from '../../../web-engine/rts/rng.js';
 import { MAPS, DEFAULT_MAP } from '../../../web-engine/rts/maps/index.js';
@@ -95,8 +95,8 @@ export const canPlayTogether = () => typeof window !== 'undefined'
 function codeError(typed) {
   const other = gameOfCode(typed);
   if (other && GAME_PREFIX[other] !== MY_PREFIX) {
-    const name = other.charAt(0).toUpperCase() + other.slice(1);
-    return `That is a Farmy ${name} code. Open Farmy ${name} to use it.`;
+    const name = codeGameName(other);
+    return `That is a ${name} code. Open ${name} to use it.`;
   }
   return 'That code does not look right. Check it and try again.';
 }

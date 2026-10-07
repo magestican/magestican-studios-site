@@ -15,7 +15,7 @@
 
 
 import {
-  roomCode, normaliseCode, gameOfCode, GAME_PREFIX, joinIdFrom, shareLinkFor,
+  roomCode, normaliseCode, gameOfCode, codeGameName, GAME_PREFIX, joinIdFrom, shareLinkFor,
 } from '../words/coop.js';
 
 
@@ -49,8 +49,8 @@ export function spokenFehCode(id) {
 export function fehCodeError(typed) {
   const other = gameOfCode(typed);
   if (other && GAME_PREFIX[other] !== FEH_PREFIX) {
-    const name = other.charAt(0).toUpperCase() + other.slice(1);
-    return `That is a Farmy ${name} code. Open Farmy ${name} to use it.`;
+    const name = codeGameName(other);
+    return `That is a ${name} code. Open ${name} to use it.`;
   }
   return 'That code does not look right. Check it and try again.';
 }

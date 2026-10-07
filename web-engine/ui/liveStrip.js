@@ -58,7 +58,8 @@ export function chipText(chip) {
     ? `${chip.host}${chip.level ? ` - Lv ${chip.level}` : ''}`
     : chip.name;
   const what = chip.host
-    ? `${chip.name.replace(/^Farmy /, '')} - ${chip.seats} - ${chip.full ? 'Full' : 'Join'}`
+    
+    ? `${chip.name.replace(/^Farm[y] /, '')} - ${chip.seats} - ${chip.full ? 'Full' : 'Join'}`
     : `${chip.seats} - ${chip.full ? 'Full' : 'Join'}`;
   return { who, what };
 }

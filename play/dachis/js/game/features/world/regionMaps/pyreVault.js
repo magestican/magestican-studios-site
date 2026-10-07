@@ -110,7 +110,14 @@ export function* pyreVaultSteps() {
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   
   for (const rm of ROOMS) for (const side of [-1, 1]) { const p = at(side * (rm.halfW + 1.2), rm.vest[0] + 2.4); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
-  for (const [u, dv] of [[-9.4, 3], [9.4, 3], [-10.6, 18], [10.6, 18]]) { const p = at(u, NEST_V + dv); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
+  
+  
+  const dry = (u, v) => [[0, 0], [0.6, 0], [-0.6, 0], [0, 0.6], [0, -0.6]].every(([a, b]) => { const q = at(u + a, v + b); return W.tileType(q.x, q.y) !== T.LAVA; });
+  for (const [u0, dv] of [[-9.4, 3], [9.4, 3], [-10.6, 18], [10.6, 18]]) {
+    let u = u0, v = NEST_V + dv;
+    for (let n = 0; n < 40 && !dry(u, v); n++) { const L = Math.hypot(NEST.u - u, NEST.v - v); u += (NEST.u - u) / L * 0.25; v += (NEST.v - v) / L * 0.25; }
+    const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 });
+  }
   yield 'buildings';
   const r = U.rng(2424);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {

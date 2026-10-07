@@ -198,7 +198,7 @@ export function createLobbyUi({ tracks, difficulties, onClaim, onReady, onSettin
     const link = $('lobby-link');
     let code = null;
     try { code = new URL(link.value).searchParams.get('join') || null; } catch {  }
-    shareLink({ link: link.value, gameName: 'Farmy Kart', code, button: $('lobby-copy'), field: link });
+    shareLink({ link: link.value, gameName: 'Skidline', code, button: $('lobby-copy'), field: link });
   });
 
   return {

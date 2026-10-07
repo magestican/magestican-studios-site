@@ -185,7 +185,7 @@ export function describeMatch(state, {
   if (laid) lines.push(laid);
   lines.push(...describeBoard(view.board));
   return {
-    title: 'Farmy Tiles',
+    title: 'Letterloft',
     status: message || describeLast(view, { me, nameOf }) || describeTurn(view, { me, nameOf }),
     lines,
   };

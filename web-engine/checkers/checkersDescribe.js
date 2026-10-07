@@ -213,7 +213,7 @@ export function describeMatch(state, {
     ...(state.history.length ? ['Moves so far:', ...moveList(state)] : ['No moves yet.']),
   ];
   return {
-    title: 'Farmy Checkers',
+    title: 'Jumpline',
     status: message || describeLast(state, { me, nameOf }),
     lines,
   };
