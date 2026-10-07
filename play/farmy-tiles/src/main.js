@@ -39,6 +39,11 @@
 
 
 
+import { localGameName, applyGameName } from '../../../web-engine/i18n/gameNames.js';
+
+
+const GAME_NAME = localGameName('farmy-scrabble');
+applyGameName('farmy-scrabble');
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
 
@@ -619,7 +624,7 @@ function drawBar(now) {
   
   const leftmost = barRects.reduce((m, b) => Math.min(m, b.x), app.width);
   const room = Math.max(120, leftmost - 24);
-  paint.text(g, 'Farmy Tiles', { x: 12, y: 6, width: room, height: 44 }, {
+  paint.text(g, GAME_NAME, { x: 12, y: 6, width: room, height: 44 }, {
     size: SIZES.h2, colour: COLORS.ink, align: 'left', fit: true, maxWidth: room,
   });
   
@@ -840,7 +845,7 @@ function openRoom() {
       
       
       
-      shareLink({ link, gameName: 'Farmy Tiles', code: net?.id ? String(net.id).toUpperCase() : null })
+      shareLink({ link, gameName: GAME_NAME, code: net?.id ? String(net.id).toUpperCase() : null })
         .then((res) => {
           if (res?.via === 'clipboard') {
             roomState.copied = true;

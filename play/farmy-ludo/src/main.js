@@ -39,6 +39,11 @@
 
 
 
+import { localGameName, applyGameName } from '../../../web-engine/i18n/gameNames.js';
+
+
+const GAME_NAME = localGameName('farmy-ludo');
+applyGameName('farmy-ludo');
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import * as sfx from './sfx.js';
@@ -1018,7 +1023,7 @@ function drawBar(now) {
   
   const leftmost = barRects.reduce((m, b) => Math.min(m, b.x), app.width);
   const room = Math.max(120, leftmost - 14 - 10);
-  paint.text(g, 'Farmy Ludo', { x: 14, y: 8, w: room, h: 44 },
+  paint.text(g, GAME_NAME, { x: 14, y: 8, w: room, h: 44 },
     { size: SIZES.h2, align: 'left', fit: true, maxWidth: room });
   paint.rule(g, 0, BAR - 4, app.width);
   barRects.forEach((b, i) => {
@@ -1196,7 +1201,7 @@ function openRoom() {
       
       
       
-      shareLink({ link, gameName: 'Farmy Ludo', code: net?.id ? String(net.id).toUpperCase() : null })
+      shareLink({ link, gameName: GAME_NAME, code: net?.id ? String(net.id).toUpperCase() : null })
         .then((res) => {
           if (res?.via === 'clipboard') {
             room.copied = true;

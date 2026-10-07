@@ -32,6 +32,7 @@
 
 
 
+import { localGameName } from '../i18n/gameNames.js';
 
 
 export const MSG = Object.freeze({
@@ -622,10 +623,10 @@ export function describeFind({ by, value, me } = {}) {
 
 
 export const GAME_NAMES = Object.freeze({
-  wordle: 'Farmy Five',
-  bee: 'Farmy Hive',
-  connections: 'Farmy Herds',
-  strands: 'Farmy Furrows',
+  wordle: localGameName('farmy-five'),
+  bee: localGameName('farmy-hive'),
+  connections: localGameName('farmy-herds'),
+  strands: localGameName('farmy-furrows'),
 });
 
 

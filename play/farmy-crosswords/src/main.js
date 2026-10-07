@@ -16,6 +16,11 @@
 
 
 
+import { localGameName, applyGameName } from '../../../web-engine/i18n/gameNames.js';
+
+
+const GAME_NAME = localGameName('farmy-crosswords');
+applyGameName('farmy-crosswords');
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
@@ -1565,7 +1570,7 @@ function openRoom() {
       
       
       
-      shareLink({ link, gameName: 'Farmy Crosswords', code: net?.id ? String(net.id).toUpperCase() : null })
+      shareLink({ link, gameName: GAME_NAME, code: net?.id ? String(net.id).toUpperCase() : null })
         .then((res) => {
           if (res?.via === 'clipboard') {
             roomState.copied = true;
@@ -1834,7 +1839,7 @@ function openHelp() {
     ]
     : [...screen.help, ...(current === 'wordle' ? KEY_LINES : [])];
   overlay = help(app, {
-    title: current === HOME ? 'Farmy Crosswords' : GAMES.find((x) => x.id === current).name,
+    title: current === HOME ? GAME_NAME : GAMES.find((x) => x.id === current).name,
     lines,
     keys: screen.keys,
   });

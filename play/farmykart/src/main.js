@@ -28,6 +28,11 @@ import { publishScores, fetchTopPlayers, isGlobalEnabled } from 'arbelo/leaderbo
 
 
 
+import { localGameName, applyGameName } from '../../../web-engine/i18n/gameNames.js';
+
+
+const GAME_NAME = localGameName('farmykart');
+applyGameName('farmykart');
 import { syncFromCloud, accountSummary } from '../../../web-engine/account/account.js';
 
 import { reportMatch } from '../../../web-engine/progress/report.js';
@@ -1525,7 +1530,7 @@ function copyDayCard() {
     
     const page = new URL(publicUrlFor(location.href));
     page.searchParams.delete('join');
-    shareInvite({ url: page.toString(), title: 'Farmy Kart', text }).then((res) => {
+    shareInvite({ url: page.toString(), title: GAME_NAME, text }).then((res) => {
       if (!note) return;
       if (res?.via === 'clipboard') note.textContent = 'Copied - paste it anywhere';
       else if (res?.via === 'manual') note.textContent = text;

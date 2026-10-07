@@ -13,6 +13,7 @@
 
 
 
+import { localGameName } from '../../../web-engine/i18n/gameNames.js';
 import { COLORS, SIZES } from '../../../web-engine/words/style.js';
 import { GAMES } from '../../../web-engine/words/puzzlePick.js';
 import { describeHome } from '../../../web-engine/words/describe.js';
@@ -69,25 +70,25 @@ const GUTTER = 9;
 const FAMILY = [
   {
     id: 'chess',
-    name: 'Farmy Chess',
+    name: localGameName('farmy-chess'),
     blurb: 'Play a bot at your level, or a friend.',
     url: '/play/farmy-chess/',
   },
   {
     id: 'ludo',
-    name: 'Farmy Ludo',
+    name: localGameName('farmy-ludo'),
     blurb: 'Four farms, one track. Bots fill the seats.',
     url: '/play/farmy-ludo/',
   },
   {
     id: 'scrabble',
-    name: 'Farmy Tiles',
+    name: localGameName('farmy-scrabble'),
     blurb: 'The whole board. Play a bot, or two to four people.',
     url: '/play/farmy-tiles/',
   },
   {
     id: 'checkers',
-    name: 'Farmy Checkers',
+    name: localGameName('farmy-checkers'),
     
     
     
@@ -262,7 +263,7 @@ export function create(app) {
     g.translate(0, -scroll);
 
     const head = { x: box.x, y: box.y + 8, width: box.width, height: 52 };
-    paint.text(g, 'Farmy Crosswords', head, { size: SIZES.h1, colour: COLORS.ink });
+    paint.text(g, localGameName('farmy-crosswords'), head, { size: SIZES.h1, colour: COLORS.ink });
     paint.text(g, 'Four word games. Nothing is timed.',
       { x: box.x, y: box.y + 64, width: box.width, height: 32 },
       { size: SIZES.base, weight: 400, colour: COLORS.inkSoft });
