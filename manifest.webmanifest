@@ -21,11 +21,11 @@
   "screenshots": [
     { "src": "/assets/og/farmy-chess.jpg", "sizes": "1200x630", "type": "image/jpeg", "form_factor": "wide", "label": "Rookwise" },
     { "src": "/assets/og/farmy-ludo.jpg", "sizes": "1200x630", "type": "image/jpeg", "form_factor": "wide", "label": "Pawnrush" },
-    { "src": "/assets/og/farmy-crosswords.jpg", "sizes": "1200x630", "type": "image/jpeg", "form_factor": "wide", "label": "Wordhaus" }
+    { "src": "/assets/og/farmy-crosswords.jpg", "sizes": "1200x630", "type": "image/jpeg", "form_factor": "wide", "label": "Wordnook" }
   ],
   "shortcuts": [
     { "name": "Rookwise", "url": "/play/farmy-chess/", "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }] },
     { "name": "Pawnrush", "url": "/play/farmy-ludo/", "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Wordhaus", "url": "/play/farmy-crosswords/", "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }] }
+    { "name": "Wordnook", "url": "/play/farmy-crosswords/", "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }] }
   ]
 }

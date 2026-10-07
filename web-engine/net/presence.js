@@ -74,11 +74,11 @@ export const STALE_MS = REFRESH_MS * 3;
 
 
 export const LIVE_GAMES = Object.freeze({
-  crosswords: 'Wordhaus',
+  crosswords: 'Wordnook',
   chess: 'Rookwise',
   ludo: 'Pawnrush',
   scrabble: 'Letterloft',
-  checkers: 'Jumpline',
+  checkers: 'Jumpwise',
   uprising: 'Hoofrise',
   evilhills: 'Evil Hills',
   
@@ -89,8 +89,8 @@ export const LIVE_GAMES = Object.freeze({
   
   
   
-  kart: 'Skidline',
-  farmyshoot: 'Splatfield',
+  kart: 'Kartzoom',
+  farmyshoot: 'Splatbarn',
 });
 
 

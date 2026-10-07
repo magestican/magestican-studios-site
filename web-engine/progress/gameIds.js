@@ -154,21 +154,21 @@ export const PROFILE_GAME_IDS = Object.freeze([
 
 
 export const PROFILE_GAME_NAMES = Object.freeze({
-  'team-bonding': 'Splatfield',
+  'team-bonding': 'Splatbarn',
   'farmy-uprising': 'Hoofrise',
   'farmy-evil-hills': 'Evil Hills',
-  farmykart: 'Skidline',
+  farmykart: 'Kartzoom',
   'farmy-scrabble': 'Letterloft',
-  'farmy-crosswords': 'Wordhaus',
+  'farmy-crosswords': 'Wordnook',
   'farmy-chess': 'Rookwise',
-  'farmy-checkers': 'Jumpline',
+  'farmy-checkers': 'Jumpwise',
   'farmy-ludo': 'Pawnrush',
   '2d-fighter-ex': '2D Fighter EX',
   'farmy-moon-life': 'Moon Life',
   'silk-and-seam': 'Silk & Seam',
   dachis: 'Dachis',
-  'farmy-five': 'Guessling',
-  'farmy-hive': 'Honeyword',
-  'farmy-herds': 'Clusterly',
+  'farmy-five': 'Guesswise',
+  'farmy-hive': 'Combword',
+  'farmy-herds': 'Groupseek',
   'farmy-furrows': 'Gridseek',
 });

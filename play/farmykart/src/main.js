@@ -201,7 +201,7 @@ function boot() {
   
   
   
-  startVersionChecker({ label: 'A new version of Skidline is available.' });
+  startVersionChecker({ label: 'A new version of Kartzoom is available.' });
 
   buildCharacterShowcase();
   buildCupRow();
@@ -225,7 +225,7 @@ function boot() {
   syncMuteButton();
   
   
-  mountLevelChip(document.querySelector('#menu .footer'), { share: 'Skidline' });
+  mountLevelChip(document.querySelector('#menu .footer'), { share: 'Kartzoom' });
   buildNameField();
   refreshBoard();
 

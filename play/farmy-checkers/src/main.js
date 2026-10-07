@@ -110,7 +110,7 @@ try {
 initAnalytics({ page: 'farmy-checkers' });
 startVersionChecker({
   versionUrl: './version.json',
-  label: 'A new version of Jumpline is available.',
+  label: 'A new version of Jumpwise is available.',
 });
 
 
@@ -1024,7 +1024,7 @@ watchViewport(resize, canvas);
 
 wireMusicButton({ music, announce });
 
-mountLevelChip(document.querySelector('.studio-bar'), { share: 'Jumpline' });
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Jumpwise' });
 
 
 

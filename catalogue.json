@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "00440c8c-20261007T101224Z",
+ "buildId": "929b02ce-20261007T105321Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -13,7 +13,7 @@
   {
    "id": "farmyshoot",
    "statsId": "team-bonding",
-   "title": "Splatfield",
+   "title": "Splatbarn",
    "tagline": "Team capture-the-flag, thirty seconds from a room code to a match.",
    "description": "A capture-the-flag game for remote teams. Share a room code and play in thirty seconds: no download, no install, no signup, laptop or phone.",
    "dir": "play/farmyshoot",
@@ -39,7 +39,7 @@
    "ageNote": "Frequent cartoon shooting between farm animals. No gore and no realistic weapons, but it is a first-person shooter and is rated as one.",
    "order": 0,
    "addedAt": "2026-08-30",
-   "bytes": 11968382
+   "bytes": 11968364
   },
   {
    "id": "farmy-uprising",
@@ -104,7 +104,7 @@
   {
    "id": "farmykart",
    "statsId": "farmykart",
-   "title": "Skidline",
+   "title": "Kartzoom",
    "tagline": "Eight farm-animal drivers, six circuits, drift turbos and cowpats.",
    "description": "A free kart racer: eight farm-animal drivers, six circuits in two cups, drift turbos and cowpats. Race friends from a link, with no server and no signup.",
    "dir": "play/farmykart",
@@ -131,7 +131,7 @@
    "ageNote": null,
    "order": 3,
    "addedAt": "2026-08-28",
-   "bytes": 6504920
+   "bytes": 6504919
   },
   {
    "id": "farmy-tiles",
@@ -168,9 +168,9 @@
   {
    "id": "farmy-crosswords",
    "statsId": "farmy-crosswords",
-   "title": "Wordhaus",
+   "title": "Wordnook",
    "tagline": "All four word games in one place.",
-   "description": "Four free word games on one page: Guessling, Honeyword, Clusterly and Gridseek. Big letters, no timer, no account, and a room two people share.",
+   "description": "Four free word games on one page: Guesswise, Combword, Groupseek and Gridseek. Big letters, no timer, no account, and a room two people share.",
    "dir": "play/farmy-crosswords",
    "path": "play/farmy-crosswords/index.html",
    "query": "",
@@ -195,7 +195,7 @@
    "ageNote": null,
    "order": 5,
    "addedAt": "2026-09-04",
-   "bytes": 211670
+   "bytes": 211665
   },
   {
    "id": "farmy-chess",
@@ -232,7 +232,7 @@
   {
    "id": "farmy-checkers",
    "statsId": "farmy-checkers",
-   "title": "Jumpline",
+   "title": "Jumpwise",
    "tagline": "Twelve sheep against twelve cows, and takes are compulsory.",
    "description": "Free English draughts: twelve sheep against twelve cows, compulsory takes, multiple jumps and crowned kings. No clock, no account.",
    "dir": "play/farmy-checkers",
@@ -390,7 +390,7 @@
   {
    "id": "farmy-five",
    "statsId": "farmy-five",
-   "title": "Guessling",
+   "title": "Guesswise",
    "tagline": "Six guesses at a five-letter farm word.",
    "description": "A free word game: six guesses at a five-letter farm word. Sixty-five puzzles, large high-contrast letters, no timer and no account.",
    "dir": "play/farmy-crosswords",
@@ -417,12 +417,12 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-09-21",
-   "bytes": 211670
+   "bytes": 211665
   },
   {
    "id": "farmy-hive",
    "statsId": "farmy-hive",
-   "title": "Honeyword",
+   "title": "Combword",
    "tagline": "Seven letters, the middle one compulsory.",
    "description": "A free word game: seven letters, the middle one compulsory, 53 hives and 3,949 words. Large high-contrast type, no timer, no account.",
    "dir": "play/farmy-crosswords",
@@ -449,12 +449,12 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-09-21",
-   "bytes": 211670
+   "bytes": 211665
   },
   {
    "id": "farmy-herds",
    "statsId": "farmy-herds",
-   "title": "Clusterly",
+   "title": "Groupseek",
    "tagline": "Sixteen words, four secret groups, four mistakes.",
    "description": "A free puzzle: sixteen words, four secret groups, four mistakes. Fifty-two sets in large high-contrast type, no timer, no account.",
    "dir": "play/farmy-crosswords",
@@ -481,7 +481,7 @@
    "ageNote": null,
    "order": 17,
    "addedAt": "2026-09-21",
-   "bytes": 211670
+   "bytes": 211665
   },
   {
    "id": "farmy-furrows",
@@ -513,7 +513,7 @@
    "ageNote": null,
    "order": 18,
    "addedAt": "2026-09-21",
-   "bytes": 211670
+   "bytes": 211665
   }
  ]
 }

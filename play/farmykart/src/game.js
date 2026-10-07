@@ -654,7 +654,7 @@ export function createRace(options) {
   
   
   const ctxState = createContextState({ verb: 'racing' });
-  const guard = createFrameGuard({ title: 'Skidline' });
+  const guard = createFrameGuard({ title: 'Kartzoom' });
   
   const GFX_BANNER = 'fk-graphics-banner';
   const FAULT_BANNER = 'fk-frame-banner';

@@ -552,7 +552,7 @@ export class Game {
     
     
     
-    this._guard = createFrameGuard({ title: 'Splatfield' });
+    this._guard = createFrameGuard({ title: 'Splatbarn' });
     this._loop = new TickSource({
       onTick: (dt, opts) => this._frame(dt, opts),
     });

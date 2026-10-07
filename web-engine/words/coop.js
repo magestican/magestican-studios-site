@@ -367,8 +367,8 @@ export const GAME_PREFIX = Object.freeze({
 
 
 export const CODE_GAME_NAME = Object.freeze({
-  crosswords: 'Wordhaus', chess: 'Rookwise', ludo: 'Pawnrush', scrabble: 'Letterloft',
-  checkers: 'Jumpline', uprising: 'Hoofrise', evilhills: 'Evil Hills', moonlife: 'Moon Life',
+  crosswords: 'Wordnook', chess: 'Rookwise', ludo: 'Pawnrush', scrabble: 'Letterloft',
+  checkers: 'Jumpwise', uprising: 'Hoofrise', evilhills: 'Evil Hills', moonlife: 'Moon Life',
 });
 export const codeGameName = (key) => CODE_GAME_NAME[key] ?? key;
 
