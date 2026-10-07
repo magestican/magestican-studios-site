@@ -14,7 +14,7 @@
 
 
 import * as S from '../../vendor/fml/moon/mesh/sdf.js';
-import { lin, fur, metal, glow, ell, dark, light, mix, INK } from './dachiModel.js';
+import { lin, fur, ell, dark, light, mix, INK } from './dachiModel.js';
 
 const norm = (v) => { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; };
 const add = (a, b, s = 1) => [a[0] + b[0] * s, a[1] + b[1] * s, a[2] + b[2] * s];

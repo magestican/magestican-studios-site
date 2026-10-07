@@ -115,7 +115,7 @@ export const TERRACE_R0 = 8.8, TERRACE_H = 0.9, TERRACE_RUN = TERRACE_H / 0.42;
 const terrace = (d) => { const q = d / TERRACE_H, k = Math.floor(q); return (k + smooth(U.clamp((q - k - 0.72) / 0.28, 0, 1))) * TERRACE_H; };
 export const terraceTop = (k) => PLATEAU_H - (TERRACE_R0 - 5) * 0.42 - k * TERRACE_H; 
 function volcanoAt(x, y) {
-  const [u, v] = toUV(x, y), [vu, vv] = toUV(VOLC.x, VOLC.y);
+  const [, v] = toUV(x, y), [, vv] = toUV(VOLC.x, VOLC.y);
   const dv = U.dist(x, y, VOLC.x, VOLC.y);
   const cone = dv < 5 ? PLATEAU_H : dv < TERRACE_R0 ? PLATEAU_H - (dv - 5) * 0.42 : terraceTop(0) - terrace((dv - TERRACE_R0) * 0.42);
   const fwd = dv > 0.01 ? (v - vv) / dv : 1;              
@@ -292,7 +292,7 @@ export function buildGrid(W) {
 export function generateMap() {
   const N = MAP, V = N + 1;
   const W = newMap(N, 'kazan-isle', SECTIONS);
-  const { idx, inMap } = W;
+  const { idx } = W;
 
   for (let j = 0; j < V; j++) for (let i = 0; i < V; i++) W.vh[j * V + i] = heightAtPoint(i, j);
   const carve = (type, pts) => carvePath(W, type, pts);
@@ -766,7 +766,7 @@ function placeSlope(W) {
 }
 
 function placeObjects(W) {
-  const r = U.rng(4242), N = W.N;
+  const r = U.rng(4242);
   const kazanPaths = placeKazan(W, r);
   const shrinePaths = placeShrine(W, r);
   

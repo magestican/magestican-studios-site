@@ -149,7 +149,7 @@ export function* echoLakeSteps() {
     if (i === 0 && j && j % BAND === 0) yield 'props';
     const t = W.type[W.idx(i, j)], x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28;
     if (!W.windowsOf(x, y, 1.2, 2.6).length || U.dist(x, y, ENTRY.x, ENTRY.y) < 1.8) continue;
-    const [u, v] = toUV(x, y);
+    const [, v] = toUV(x, y);
     if (t === T.CLIFF) { if (k < 0.12) addObj(W, { kind: 'crystal', x, y, solid: 0, s: 0.8 + s * 0.9, rot, c: CRY[Math.floor(s * 3)] }); else if (k < 0.6) addObj(W, { kind: 'crag', x, y, solid: 0, s: 1.0 + s * 0.8, rot, v: Math.floor(k * 8) % 4 }); continue; }
     if (t === T.DEEP || t === T.SHALLOW) continue;
     if (W.objects.some((o) => Math.hypot(o.x - x, o.y - y) < 1.2) || DOCKS.some((d) => Math.hypot(x - d.land.x, y - d.land.y) < 1.8 || Math.hypot(x - d.x, y - d.y) < 1.6)) continue;
@@ -160,7 +160,7 @@ export function* echoLakeSteps() {
   yield 'props';
   buildGrid(W);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
-    const [u, v] = toUV(i + 0.5, j + 0.5);
+    const [, v] = toUV(i + 0.5, j + 0.5);
     if (v > 82 && W.type[W.idx(i, j)] === T.MOSS && W.reach[W.idx(i, j)] && DOCKS.every((d) => Math.hypot(i + 0.5 - d.land.x, j + 0.5 - d.land.y) > 2.2)) W.wildTiles.push([i + 0.5, j + 0.5]);
   }
   yield 'grid';

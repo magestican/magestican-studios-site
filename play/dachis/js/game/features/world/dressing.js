@@ -12,7 +12,6 @@
 
 
 
-import { U } from '../../../engine/core/util.js';
 import { T, addObj, BLOCKED } from './mapgen.js';
 
 

@@ -206,7 +206,7 @@ export function* frostspineSteps() {
   yield 'props';
   buildGrid(W);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
-    const [u, v] = toUV(i + 0.5, j + 0.5);
+    const [, v] = toUV(i + 0.5, j + 0.5);
     if (v > 60 && W.type[W.idx(i, j)] === T.THICKET && W.reach[W.idx(i, j)]) W.wildTiles.push([i + 0.5, j + 0.5]);
   }
   yield 'grid';

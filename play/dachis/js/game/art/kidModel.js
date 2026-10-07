@@ -60,7 +60,6 @@ export function kidNode({ gender = 'boy' } = {}) {
   const girl = gender === 'girl', o = outfitColours(KID_OUTFITS[girl ? 'girl' : 'boy']), r = RIG, H = r.hh;
   const skin = hex(o.skin), hair = hex(o.hair), e = r.eye;
   const body = [], fine = [], jk = []; 
-  const V = (x, y, z) => [x * H, y, z * H]; 
 
   
   const form = torsoForm(r);

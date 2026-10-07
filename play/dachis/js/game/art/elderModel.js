@@ -15,9 +15,9 @@
 
 
 import * as S from '../../vendor/fml/moon/mesh/sdf.js';
-import { lin, fur, metal, glow, METAL, GOLD, buildArrays, dark, light, mix, ell, INK } from './dachiModel.js';
+import { lin, fur, metal, glow, METAL, GOLD, buildArrays, dark, light, mix, ell } from './dachiModel.js';
 import { humanRig, ELDER_HEADS, ELDER_HEIGHT } from './humanRig.js';
-import { hex, surf, normalOf, part, finePart, tube, spline, humanHead, humanEyes, humanHand, overlay, onSurface, punch } from './humanModel.js';
+import { surf, normalOf, part, finePart, tube, humanHead, humanEyes, humanHand, overlay, onSurface, punch } from './humanModel.js';
 
 const SKIN = lin('#dcae88'), ROBE = punch(lin('#6a3a96')), CREAM = lin('#efe4c8'), WHITE_HAIR = lin('#f1eee8'), FUR = lin('#9a6436');
 const TROUSER = lin('#8a7560'); 

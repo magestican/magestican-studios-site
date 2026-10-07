@@ -445,6 +445,8 @@ export default {
   "The Heart of Kazan - Pyrecrown's Nest": "Kazan 之心 - Pyrecrown 嘅巢",
   "Pyrecrown's Nest": "Pyrecrown 嘅巢",
   "Turn the valves and reach the nest": "轉啲閥，行到個巢",
+  "Ask Old Ferro about Pyrecrown - the galleries are south": "問吓 Ferro 師傅 Pyrecrown 嘅嘢，熔岩廊喺南面",
+  "Pyrecrown is up there - go get him": "Pyrecrown 就喺上面，去搞掂佢！",
   "Down to the vault": "落葬火窟",
   "Out to the rivers": "出返去條河",
   "Go down into the Heart of Kazan and face Pyrecrown": "落去 Kazan 之心，同 Pyrecrown 對決",

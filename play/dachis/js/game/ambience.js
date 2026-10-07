@@ -7,7 +7,7 @@
 import { ambienceFor, AMBIENCE_LAYERS } from './musicCues.js';
 
 const MASTER = 0.2;
-let ctx = null, master = null, noise = null, layers = null, key = '', mix = null, timer = null, muted = () => false;
+let ctx = null, master = null, noise = null, layers = null, key = '', mix = null, muted = () => false;
 
 function make() {
   const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
@@ -70,7 +70,7 @@ export const ambience = {
     key = k;
     mix = ambienceFor(mode, sec);
     const want = !muted() && !document.hidden && AMBIENCE_LAYERS.some((l) => mix[l] > 0);
-    if (!ctx) { if (!want) return; if (!make()) return; timer = setInterval(tick, 250); }
+    if (!ctx) { if (!want) return; if (!make()) return; setInterval(tick, 250); }
     if (want && ctx.state === 'suspended') ctx.resume().catch(() => { key = ''; });
     const t = ctx.currentTime;
     master.gain.setTargetAtTime(want ? MASTER : 0, t, 0.5);

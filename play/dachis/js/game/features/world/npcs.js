@@ -6,7 +6,6 @@ import { NPC_POSTS, NPC_HOMES, pickNpcSpot, npcSpotOk, npcStepClear } from './ma
 import { dachiBillboard, setDachiLook, elderBillboard } from '../../art/billboards.js';
 import { speciesById, KUMABO } from '../../data/species.js';
 import { pushApart, GAP, BODY_R, lairBody, bossBody } from './crowd.js';
-import { HOME } from './regions.js';
 import * as village from './regionMaps/kazanVillage.js';
 import * as shrine from './regionMaps/shrineVillage.js';
 import { SPECIES, bossSpecies } from '../../data/species.js';

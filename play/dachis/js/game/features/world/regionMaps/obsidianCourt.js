@@ -136,7 +136,7 @@ export function* obsidianCourtSteps() {
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     const t = W.type[W.idx(i, j)], x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28;
     if (!W.windowsOf(x, y, 1.2, 2.6).length || busy(x, y)) continue;
-    const [u, v] = toUV(x, y);
+    const [, v] = toUV(x, y);
     if (t === T.CLIFF) { if (roomOf(v) !== 1 && k < 0.2) addObj(W, { kind: 'crag', x, y, solid: 0, s: 0.9 + s * 0.8, rot, v: Math.floor(k * 16) % 4 }); continue; }
     if (t === T.TALL) { if (k < 0.08) addObj(W, { kind: 'fern', x, y, solid: 0, s: 0.6 + s * 0.4, rot }); continue; }
     if (t === T.GRASS && roomOf(v) === 3 && k < 0.05) addObj(W, { kind: 'flower', x, y, solid: 0, c: s < 0.5 ? '#c8a0ff' : '#ffd23a' });

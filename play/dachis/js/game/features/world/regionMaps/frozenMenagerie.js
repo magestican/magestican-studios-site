@@ -10,8 +10,8 @@
 
 
 import { U } from '../../../../engine/core/util.js';
-import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
-import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
+import { addSections, sectionWindows, fromUV, toUV } from '../sections.js';
+import { T, newMap, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import { CELL } from '../thinIceRules.js';
 import * as glacierField from './glacierField.js';
 

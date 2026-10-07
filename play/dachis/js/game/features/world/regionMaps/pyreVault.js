@@ -109,6 +109,9 @@ export function* pyreVaultSteps() {
   ROOMS.forEach((rm) => rm.valves.forEach((vl, i) => { const p = at(rm.u0 + (vl.at[0] + 0.5) * CELL, rm.v0 + (vl.at[1] + 0.5) * CELL); addObj(W, { kind: 'valve', x: p.x, y: p.y, solid: 0.3, rot: 0.4 + i, room: rm.id, valve: i }); }));
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
   
+  
+  { const mo = at(0, 26.1); addObj(W, { kind: 'tubemouth', x: mo.x, y: mo.y, solid: 0, rot: Math.PI / 4 }); }
+  
   for (const rm of ROOMS) for (const side of [-1, 1]) { const p = at(side * (rm.halfW + 1.2), rm.vest[0] + 2.4); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 }); }
   
   
@@ -149,6 +152,7 @@ export const MANIFEST = {
     sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
     pack: 'assets/scenery-kazan-pyre.bin',
     transit: false, objective: 'Turn the valves and reach the nest',
+    objectives: { 'pyre-nest': 'Pyrecrown is up there - go get him' }, 
   },
   generate: generatePyreVault, steps: pyreVaultSteps,
   doors: [

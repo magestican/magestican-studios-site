@@ -3,7 +3,6 @@
 
 
 import { T, VOLC } from '../world/mapgen.js';
-import { sectionById, fromUV } from '../world/sections.js';
 import { HOME, regionById } from '../world/regions.js';
 import { PERCHES, visited as perchVisited } from '../world/travel.js';
 import { worldPage, worldUV, localUV, placeOf } from '../world/worldMap.js';

@@ -2,7 +2,7 @@
 
 
 
-import { G, S } from '../../state.js';
+import { S } from '../../state.js';
 import { B, finishRitual } from '../battle/battle.js';
 import { judge, expired, dueAt, captureChance, nodeFromDirection, RARITY_CAP } from './ritual.js';
 import { createPixelLayer } from '../../../engine/ui/pixelLayer.js';

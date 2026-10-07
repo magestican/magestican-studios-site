@@ -219,6 +219,15 @@ export function* magmaGalleriesSteps() {
   }
   for (const [u, v, rot] of [[-14.4, 33.4, 0.7], [13.4, 52.0, 2.2], [-13.6, 56.2, 1.1]]) { const p = at(u, v); addObj(W, { kind: 'cart', x: p.x, y: p.y, solid: 0.45, rot, wreck: true }); } 
   dressIslands(W);
+  
+  
+  
+  
+  { const n = at(-12.0, 26.2); addObj(W, { kind: 'tubemouth', x: n.x, y: n.y, solid: 0, rot: Math.PI / 4 }); }
+  for (const side of [-1, 1]) {
+    const c = at(-1.0 + side * 1.5, 95.4);
+    addObj(W, { kind: 'basalt', x: c.x, y: c.y, solid: 0.3, rot: side, s: 0.9 });
+  }
   yield 'buildings';
   const r = U.rng(1812);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {

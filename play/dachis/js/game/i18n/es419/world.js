@@ -460,6 +460,8 @@ export default {
   "The Heart of Kazan - Pyrecrown's Nest": "El Corazón del Kazan - El Nido de Pyrecrown",
   "Pyrecrown's Nest": "El Nido de Pyrecrown",
   "Turn the valves and reach the nest": "Gira las válvulas y llega al nido",
+  "Ask Old Ferro about Pyrecrown - the galleries are south": "Pregúntale al viejo Ferro por Pyrecrown; las galerías quedan al sur",
+  "Pyrecrown is up there - go get him": "Pyrecrown está ahí arriba. ¡Ve por él!",
   "Down to the vault": "Bajar a la cripta",
   "Out to the rivers": "Salir a los ríos",
   "Go down into the Heart of Kazan and face Pyrecrown": "Baja al Corazón del Kazan y enfréntate a Pyrecrown",

@@ -1149,6 +1149,7 @@
     "stone-grey-3",
     "torch",
     "volcano-flow",
+    "volcano-tubemouth",
     "volcano-vent"
    ],
    "pack": "assets/scenery-kazan-galleries.bin",
@@ -1164,9 +1165,10 @@
     "magma-obsidian",
     "magma-plate",
     "magma-rail",
-    "magma-wreck"
+    "magma-wreck",
+    "volcano-tubemouth"
    ],
-   "bytes": 311388
+   "bytes": 359660
   },
   "kazan-pyre": {
    "forms": [
@@ -1197,7 +1199,8 @@
     "stone-grey-1",
     "stone-grey-2",
     "stone-grey-3",
-    "torch"
+    "torch",
+    "volcano-tubemouth"
    ],
    "pack": "assets/scenery-kazan-pyre.bin",
    "extra": [
@@ -1207,9 +1210,10 @@
     "magma-column",
     "magma-obsidian",
     "magma-plate",
-    "magma-valve"
+    "magma-valve",
+    "volcano-tubemouth"
    ],
-   "bytes": 152968
+   "bytes": 201244
   }
  }
 }

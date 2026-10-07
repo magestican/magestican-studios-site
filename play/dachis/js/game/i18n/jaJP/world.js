@@ -445,6 +445,8 @@ export default {
   "The Heart of Kazan - Pyrecrown's Nest": "カザンの心臓 - Pyrecrownの巣",
   "Pyrecrown's Nest": "Pyrecrownの巣",
   "Turn the valves and reach the nest": "バルブを回して巣までたどり着こう",
+  "Ask Old Ferro about Pyrecrown - the galleries are south": "Ferroじいさんに Pyrecrownのことを聞こう - 回廊は南だ",
+  "Pyrecrown is up there - go get him": "Pyrecrownはこの上だ - いくぞ！",
   "Down to the vault": "霊廟へ下りる",
   "Out to the rivers": "川へ出る",
   "Go down into the Heart of Kazan and face Pyrecrown": "カザンの心臓へ下りて、Pyrecrownと対決しよう",

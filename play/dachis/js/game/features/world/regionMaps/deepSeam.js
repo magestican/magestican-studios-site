@@ -152,7 +152,7 @@ export function* deepSeamSteps() {
   yield 'grid';
   const rs = U.rng(9292);
   for (let t = 0; W.spots.length < 4 && t < 4000; t++) {
-    const x = 2 + rs() * (N - 4), y = 2 + rs() * (N - 4), [u, v] = toUV(x, y);
+    const x = 2 + rs() * (N - 4), y = 2 + rs() * (N - 4), [, v] = toUV(x, y);
     if (roomOf(v) > 1 || !W.reach[W.idx(Math.floor(x), Math.floor(y))] || !walk(x, y, 0.4)) continue;
     if (W.spots.some((q) => U.dist(q.x, q.y, x, y) < 5) || U.dist(x, y, ENTRY.x, ENTRY.y) < 3) continue;
     W.spots.push({ id: 'ds' + W.spots.length, x, y, item: rs() < 0.5 ? 'tonic' : 'candy' });

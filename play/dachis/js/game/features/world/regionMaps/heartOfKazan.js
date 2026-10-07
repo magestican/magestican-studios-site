@@ -134,6 +134,13 @@ export function* heartOfKazanSteps() {
   addObj(W, { kind: 'forge', x: FORGE.x, y: FORGE.y, solid: 1.3, rot: Math.PI / 4 }); 
   for (const [u, v, r] of [[-2.2, 75.6, 0.4], [3.6, 70.2, 2.0], [4.8, 74.2, 1.2]]) { const p = at(u, v); addObj(W, { kind: 'anvil', x: p.x, y: p.y, solid: 0.35, rot: r }); }
   addObj(W, { kind: 'spring', x: SPRING.x, y: SPRING.y, solid: 0.8, heal: true });
+  
+  
+  
+  for (const side of [-1, 1]) {
+    const c = at(side * 1.5, 91.4);
+    addObj(W, { kind: 'basalt', x: c.x, y: c.y, solid: 0.3, rot: side, s: 0.9 });
+  }
   for (const [u, v] of [[-3.4, 64.6], [3.4, 64.6], [-2.4, 90.4], [2.4, 90.4], [-12.6, 72.6], [13.4, 72.0], [13.4, 84.0], [-4.0, 27.6], [4.6, 37.6], [-5.6, 47.6], [5.6, 57.6]]) {
     const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 });
   }
@@ -188,7 +195,7 @@ export function* heartOfKazanSteps() {
   yield 'props';
   buildGrid(W);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
-    const [u, v] = toUV(i + 0.5, j + 0.5);
+    const [, v] = toUV(i + 0.5, j + 0.5);
     if (v > 35 && v < 63 && W.type[W.idx(i, j)] === T.THICKET && W.reach[W.idx(i, j)] && W.walkable(i + 0.5, j + 0.5, 0.3)) W.wildTiles.push([i + 0.5, j + 0.5]);
   }
   yield 'grid';
@@ -211,6 +218,8 @@ export const MANIFEST = {
     sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
     pack: 'assets/scenery-kazan-heart.bin', 
     transit: false, objective: 'Get down the Crater Stair',
+    
+    objectives: { 'ashen-forge': 'Ask Old Ferro about Pyrecrown - the galleries are south' },
   },
   generate: generateHeartOfKazan, steps: heartOfKazanSteps,
   doors: [

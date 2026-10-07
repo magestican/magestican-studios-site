@@ -19,7 +19,6 @@ const CROWD_PX = 86;
 const crowd = (id, opts) => dachiPortrait(id, opts, CROWD_PX, 'fixed').canvas;
 
 
-const AERO_PX = 200, AERO_CSS = 300;
 const FLAP = (t) => [0, 1, 2, 1][Math.floor(t * 8) % 4];
 
 const RIDE_PX = 220, RIDE_CSS = 340;
@@ -201,22 +200,6 @@ function drawAlley(ctx, w, h, t) {
   puddles(ctx, [[vx + w * 0.08, h * 0.83, w * 0.13, h * 0.025], [vx - w * 0.14, h * 0.74, w * 0.08, h * 0.015], [vx + w * 0.02, h * 0.68, w * 0.06, h * 0.01], [w * 0.3, h * 0.93, w * 0.1, h * 0.022]],
     [{ x: vx, rgb: '255,190,110' }, { x: w * 0.22, rgb: '255,79,163' }, { x: vx + w * 0.1, rgb: '255,207,122' }], t);
   
-  const wall = (x0, xIn, dark) => {
-    ctx.save();
-    ctx.beginPath(); ctx.moveTo(x0, 0); ctx.lineTo(xIn, top); ctx.lineTo(xIn, bot); ctx.lineTo(x0, h); ctx.closePath();
-    const wg = ctx.createLinearGradient(x0, 0, xIn, 0);
-    wg.addColorStop(0, dark ? '#2a0f0e' : '#3a1512'); wg.addColorStop(1, '#6a2a22');
-    ctx.fillStyle = wg; ctx.fill(); ctx.clip();
-    ctx.strokeStyle = 'rgba(20,6,6,0.6)'; ctx.lineWidth = 1;
-    for (let k = 0; k <= 40; k++) { const f = k / 40; ctx.beginPath(); ctx.moveTo(x0, f * h); ctx.lineTo(xIn, top + f * (bot - top)); ctx.stroke(); }
-    for (let k = 0; k < 40; k++) for (let m = 0; m < 8; m++) {
-      const f = (k + 0.5) / 40, e = (m + (k % 2) * 0.5) / 8;
-      const x = U.lerp(x0, xIn, e), y = U.lerp(f * h, top + f * (bot - top), e), hh = U.lerp(h / 40, (bot - top) / 40, e);
-      ctx.beginPath(); ctx.moveTo(x, y - hh / 2); ctx.lineTo(x, y + hh / 2); ctx.stroke();
-    }
-    ctx.restore();
-  };
-  
   const neonOn = Math.sin(t * 17) > -0.8;
   brickWall(ctx, { x0: 0, xIn: inL, top, bot, h, t, light: neonOn ? { x: w * 0.2, y: h * 0.28, r: h * 0.2, rgb: '255,79,163', a: 0.5 } : null,
     windows: [{ e: 0.12, f: 0.06, lit: true }, { e: 0.5, f: 0.36, ew: 0.2, lit: true, who: true }], pipe: { e: 0.86 } });
@@ -254,7 +237,6 @@ function drawAlley(ctx, w, h, t) {
 }
 
 const CLOUDS = Array.from({ length: 18 }, (_, i) => [U.ih(i, 1, 3), U.ih(i, 2, 3), 0.5 + U.ih(i, 3, 3)]);
-const WAVES = Array.from({ length: 40 }, (_, k) => [U.ih(k, 9, 1), U.ih(k, 8, 1)]);
 function drawIslandFromAbove(ctx, w, h, t, zoom, oy = 0.5) {
   if (CEL) {
     oceanTop(ctx, { w, h, t, cx: w / 2, cy: h * oy, R: Math.min(w, h) * 0.12 * zoom }); SKY.island(ctx, w / 2, h * oy, Math.min(w, h) * 0.12 * zoom, Math.max(2, h / 220), t);

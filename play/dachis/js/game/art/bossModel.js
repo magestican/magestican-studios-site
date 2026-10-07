@@ -9,7 +9,7 @@
 
 
 import * as S from '../../vendor/fml/moon/mesh/sdf.js';
-import { lin, fur, metal, glow, ell, dachiNode, buildArrays, dark, light, mix, IVORY, DECAL_UV } from './dachiModel.js';
+import { lin, fur, metal, glow, ell, dachiNode, buildArrays, dark, mix, IVORY, DECAL_UV } from './dachiModel.js';
 import { planLayout, SWING } from './dachiPlans.js';
 import { BOSSES } from '../data/species.js';
 
