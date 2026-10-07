@@ -316,13 +316,44 @@ export const bossCollectibles = (flags, boss) => COLLECTIBLES.filter((c) => c.fr
 export const hatGeoOf = (id) => { const c = id && collectibleById(id); return c && c.kind === 'hat' ? c.geo : null; };
 export const foundHats = (flags) => COLLECTIBLES.filter((c) => c.kind === 'hat' && found(flags, c.id));
 
+
+const WHERE_LATE = {
+  "ruin-steps": "Somewhere on the old temple steps.",
+  "canopy-walk": "Somewhere out on the rope bridges.",
+  "fig-terraces": "Somewhere along the fig terraces.",
+  "court-guards": "Somewhere among the stone guards.",
+  "court-stones": "Somewhere among the standing stones.",
+  "minehead": "Somewhere around the miners' camp.",
+  "seam-hall": "Somewhere in the Lamp Hall.",
+  "mine-workings": "Somewhere in the old workings.",
+  "echo-isles": "Somewhere out on the little islands.",
+  "shaft-b": "Somewhere at the bottom of the shaft.",
+  "seam-narrows": "Somewhere in the tight tunnels.",
+  "seam-stones": "Somewhere among the fallen stones.",
+  "seam-hollow": "Somewhere deep in the seam.",
+  "frost-pass": "Somewhere along the Switchback Pass.",
+  "frost-camp": "Somewhere around Base Camp.",
+  "glacier-field": "Somewhere on the glare ice.",
+  "steam-vents": "Somewhere among the steam vents.",
+  "summit-lair": "Somewhere up on the summit.",
+  "aurora-hollow": "Somewhere in the deep snow.",
+  "menagerie-3": "Somewhere past the thin ice.",
+  "crater-stair": "Somewhere on the Crater Stair.",
+  "magma-galleries": "Somewhere on the islands in the lava.",
+  "pyre-2": "Somewhere in the Pyre Vault.",
+  "cinder-cistern": "Somewhere in the warm water.",
+  "ashen-forge": "Somewhere around the forge.",
+  "obsidian-rivers": "Somewhere across the black rivers.",
+  "pyre-3": "Somewhere deep in the Pyre Vault.",
+  "pyre-nest": "Somewhere up in the nest.",
+};
 export function whereToLook(c) {
   const f = c.from;
   if (f.quest) return 'Someone in need will thank you with it.';
   if (f.boss) return 'It sleeps inside a corrupted guardian.';
   return { jungle: 'Somewhere under the jungle leaves.', road: 'Somewhere along the old road.', coast: 'Somewhere the tide reaches.',
     shrine: 'Somewhere among the shrine lanterns.', 'tomo-coast': 'Somewhere the tide reaches.', shellhaven: 'Somewhere inside the bubble.', coral: 'Somewhere among the drowned ruins.', 'kelp-maze': 'Somewhere deep in the Kelp Maze.', 'temple-porch': 'Somewhere inside the drowned temple.', 'temple-nave': 'Somewhere inside the drowned temple.', hollowroot: 'Somewhere up in the treetops.', 'thorn-upper': 'Somewhere in the old garden.', 'thorn-lower': 'Somewhere in the wild meadow.', 'tree-vault': 'Somewhere inside the Mother Tree.', 'tree-heart': 'Somewhere inside the Mother Tree.', 'tree-roots': 'Somewhere among the Mother Tree\'s roots.', 'shrine-village': 'Somewhere among the shrine lanterns.', slope: 'Somewhere on the volcano slope.', kazan: 'Somewhere in the village.',
-    'ember-a': 'Somewhere in the glow of the Ember Tube.', 'ember-b': 'Somewhere between the lava pools.' }[f.spot.sec]
+    'ember-a': 'Somewhere in the glow of the Ember Tube.', 'ember-b': 'Somewhere between the lava pools.', ...WHERE_LATE }[f.spot.sec]
     || 'Somewhere off the beaten path.';
 }
 
