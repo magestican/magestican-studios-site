@@ -11,8 +11,11 @@
 
 
 
+
+
 import { SPECIES, EXTRA, BOSSES } from '../../data/species.js';
 import { earned, unlock } from '../achievements/achievements.js';
+import { SIDE } from '../quest/quests.js';
 
 const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
 export function findSpecies(key) {
@@ -39,7 +42,7 @@ export function silenceEarned(flags) {
 export function parseCheat(search) {
   const raw = new URLSearchParams(search).get('cheat');
   if (!raw) return null;
-  const c = { chapter: null, at: null, party: [], boss: null, items: null, watch: null, errors: [] };
+  const c = { chapter: null, at: null, party: [], boss: null, items: null, watch: null, quests: [], errors: [] };
   for (const part of raw.split(';').map((s) => s.trim()).filter(Boolean)) {
     const i = part.indexOf(':'), key = (i < 0 ? part : part.slice(0, i)).toLowerCase(), val = i < 0 ? '' : part.slice(i + 1);
     if (key === 'chapter') c.chapter = Math.max(1, Math.min(8, Number(val) || 1));
@@ -51,6 +54,10 @@ export function parseCheat(search) {
     else if (key === 'boss') { if (BOSSES.some((b) => b.id === val)) c.boss = val; else c.errors.push('no boss "' + val + '"'); }
     else if (key === 'items') c.items = Math.max(0, Number(val) || 0);
     else if (key === 'watch') { if (BOSSES.some((b) => b.id === val)) c.watch = val; else c.errors.push('no boss "' + val + '"'); }
+    else if (key === 'quest') for (const m of val.split(',')) {
+      const [id, n] = m.split('@'), q = SIDE.find((x) => x.id === id);
+      if (q) c.quests.push({ id, n: Math.max(0, Math.min(q.steps.length, n === undefined ? 1 : Number(n) || 0)) }); else c.errors.push('no quest "' + id + '"');
+    }
     else c.errors.push('unknown "' + key + '"');
   }
   return c;
@@ -63,6 +70,7 @@ export async function applyCheat(c, d) {
   for (let i = 0; i < 120 && !S.W; i++) await wait(250);
   G.flags.cheat = true; 
   Object.assign(G.flags, chapterFlags(c.chapter || (c.boss ? ORDER.indexOf(c.boss) + 1 : 1)));
+  for (const q of c.quests || []) (G.flags.quests || (G.flags.quests = {}))[q.id] = q.n;
   silenceEarned(G.flags);
   for (const id of ['title', 'attract']) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
   const hud = document.getElementById('hud'); if (hud) hud.classList.remove('hidden');
