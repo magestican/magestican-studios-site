@@ -465,4 +465,8 @@ export default {
   "Medium": "Mediano",
   "Large": "Grande",
   "Huge": "Enorme",
+  "Frost form": "De escarcha",
+  "Ash form": "De ceniza",
+  "Moss form": "De musgo",
+  "Salt form": "De salitre",
 };

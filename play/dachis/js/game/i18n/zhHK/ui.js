@@ -528,4 +528,8 @@ export default {
   "Medium": "中等",
   "Large": "大隻",
   "Huge": "超大隻",
+  "Frost form": "結霜款",
+  "Ash form": "火山灰款",
+  "Moss form": "青苔款",
+  "Salt form": "海鹽款",
 };

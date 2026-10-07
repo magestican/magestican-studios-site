@@ -171,7 +171,7 @@ export function placeFighters(t) {
   for (const f of [B.ally, B.enemy]) {
     const hidden = f === B.enemy && (B.result === 'capture' || (B.capture && B.capture.t > 0.6));
     f.bb.setVisible(!hidden);
-    setDachiLook(f.bb, f.d.sp, { corrupt: f.d.corrupt, shiny: f.d.shiny, flip: f.face < 0, hat: hatGeoOf(f.d.hat) });
+    setDachiLook(f.bb, f.d.sp, { corrupt: f.d.corrupt, shiny: f.d.shiny, form: f.d.form, flip: f.face < 0, hat: hatGeoOf(f.d.hat) });
     const bob = f.walking ? Math.abs(Math.sin(t * 12 + f.side)) * 0.1 : Math.sin(t * 4 + f.side * 2) * 0.03;
     const lx = f.lunge * 0.25 * f.face;
     f.bb.root.rotation.x = f.bb.root.rotation.z = 0; 

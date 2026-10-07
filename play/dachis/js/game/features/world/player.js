@@ -128,7 +128,7 @@ export function drawPlayer(t, { hidden = false, shout = false, cheer = false, la
     if (lead) {
       if (lead.uid + lead.sp !== petSp) { petSp = lead.uid + lead.sp; pet.setSize(dachiSize(speciesById(lead.sp).stage) * sizeMult(speciesById(lead.sp), lead)); } 
       const f = G.follower;
-      setDachiLook(pet, lead.sp, { shiny: lead.shiny, flip: f.face < 0, hat: hatGeoOf(lead.hat) });
+      setDachiLook(pet, lead.sp, { shiny: lead.shiny, form: lead.form, flip: f.face < 0, hat: hatGeoOf(lead.hat) });
       
       if (f.hop > 0) f.hop = Math.max(0, f.hop - 1 / 60);
       const bob = f.moving ? Math.abs(Math.sin(f.walk)) * 0.12 : f.hop > 0 ? Math.abs(Math.sin(f.hop * 11.4)) * 0.35 : Math.sin(t * 3) * 0.02;

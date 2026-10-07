@@ -56,6 +56,32 @@ vec3 celShade( vec3 base ) {
   if ( c < 0.075 ) base *= 0.35; // scorched rim round the crack
 #endif
 #endif
+#if defined( CEL_FORM )
+  // gqB5 regional forms (data/forms.js): drawn from the body's own object-space noise, so the pattern rides on it
+  // fmN: big patches (about three across a body), fmD: smaller spots; both on the body's own coordinates
+  float fmN = celNoise3( vCelO * uCelCrackScale * 0.42 + 11.0 ), fmD = celNoise3( vCelO * uCelCrackScale * 1.5 + 5.0 );
+  float fmL = dot( base, vec3( 0.299, 0.587, 0.114 ) );
+  if ( fmL > 0.1 && fmL < 0.93 ) { // pupils, ink and eye highlights keep their colours (as a shiny does)
+#if CEL_FORM == 1
+  float fmG = dot( base, vec3( 0.299, 0.587, 0.114 ) ); // FROST: cooled fur, frost patches, white flecks
+  base = mix( base, vec3( 0.62, 0.80, 1.0 ) * ( 0.55 + fmG * 0.6 ), 0.45 );
+  if ( fmN > 0.62 ) base = mix( base, vec3( 0.95, 0.98, 1.0 ), 0.75 );
+  if ( fmD > 0.86 ) return vec3( 1.0 );
+#elif CEL_FORM == 2
+  base = mix( base, vec3( 0.17, 0.14, 0.15 ), 0.5 + step( 0.55, fmN ) * 0.3 ); // ASH: charcoal coat, glowing ember seams
+  if ( abs( fmN - 0.5 ) < 0.045 ) return vec3( 1.0, 0.55, 0.12 );
+  if ( abs( fmN - 0.5 ) < 0.075 ) base = mix( base, vec3( 0.75, 0.22, 0.05 ), 0.6 );
+#elif CEL_FORM == 3
+  base = mix( base, vec3( 0.40, 0.52, 0.22 ), 0.3 ); // MOSS: olive cast, deep moss blankets, bright lichen spots
+  if ( fmN > 0.52 ) base = mix( base, vec3( 0.17, 0.38, 0.12 ), 0.85 );
+  if ( fmD > 0.78 ) base = vec3( 0.70, 0.86, 0.32 );
+#elif CEL_FORM == 4
+  base = mix( base, vec3( 0.10, 0.62, 0.68 ) * ( 0.7 + fmL * 0.5 ), 0.72 ); // SALT: sea-glass coat, salt crust edges, barnacle spots
+  if ( fmN > 0.7 ) base = mix( base, vec3( 0.93, 0.95, 0.92 ), 0.6 );
+  if ( fmD > 0.8 ) base = vec3( 0.98, 0.94, 0.82 );
+#endif
+  }
+#endif
   float lit = step( 0.12, nl );
   vec3 col = base * ( 0.88 + 0.12 * lit );
   vec3 shade = base * uCelShade; // the shade band: a flat violet multiply, never black

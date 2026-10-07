@@ -9,6 +9,7 @@ import { newClock, fixClock } from './features/clock/clock.js';
 import { HOME, saveRegion, regionById } from './features/world/regions.js';
 import { sectionById } from './features/world/sections.js';
 import { newGamePlus, plusReady } from './features/story/newGamePlus.js';
+import { noteForm } from './data/forms.js';
 
 export const G = {
   mode: 'title',        
@@ -86,6 +87,7 @@ export function healParty() { for (const d of G.box) d.hp = statsOf(d).maxHp; }
 export function addDachi(d) {
   if (typeof d.bond !== 'number') d.bond = 50;   
   G.box.push(d); G.dex.seen[d.sp] = G.dex.caught[d.sp] = 1;
+  noteForm(G.dex, d); 
   if (G.party.length < 3) { G.party.push(d); return true; }
   return false;
 }

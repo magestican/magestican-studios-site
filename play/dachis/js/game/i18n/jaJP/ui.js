@@ -528,4 +528,8 @@ export default {
   "Medium": "ふつう",
   "Large": "おおきめ",
   "Huge": "でっかい",
+  "Frost form": "こおりのすがた",
+  "Ash form": "はいのすがた",
+  "Moss form": "こけのすがた",
+  "Salt form": "しおのすがた",
 };

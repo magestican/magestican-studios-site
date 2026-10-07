@@ -38,7 +38,10 @@ export function newGamePlus(save) {
     cycle: (save.cycle || 1) + 1,
     name: save.name, gender: save.gender,
     box,
-    dex: { seen: { ...((save.dex && save.dex.seen) || {}) }, caught: { ...((save.dex && save.dex.caught) || {}) } },
+    dex: {
+      seen: { ...((save.dex && save.dex.seen) || {}) }, caught: { ...((save.dex && save.dex.caught) || {}) },
+      ...(save.dex && save.dex.forms ? { forms: JSON.parse(JSON.stringify(save.dex.forms)) } : {}), 
+    },
     items: { seal: 3, tonic: 5, candy: 0 },
     flags: { taken: {}, ...(flags.ach ? { ach: { ...flags.ach } } : {}), rejoin: (save.party || []).filter(has).slice(0, 2) },
   };

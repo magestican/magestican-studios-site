@@ -13,6 +13,7 @@ import { makeCozy } from '../../vendor/fml/render/material.js';
 import { pixelTexture } from '../../engine/iso/cozyStage.js';
 import { seeActorMaterial } from '../../engine/iso/seeThrough.js';
 import { castMode } from './look/celRules.js';
+import { formCode, formVariant } from '../data/forms.js';
 import { page, tn } from './scenery/kit.js';
 import { hash2 } from '../../vendor/arbelo/paint/texturePaint.js';
 import { dachiArrays, modelKey, hatGeo, DECAL_UV } from './dachiModel.js';
@@ -197,7 +198,7 @@ export function material(variant, id, tint) {
     : cozy('fur', { map: TEX.fur });
   
   const mode = castMode(variant, id);
-  m.userData.look = { role: 'cast', ...mode, hull: !mode.glow, shiny: !mode.glow && variant === 'w' ? 1 : !mode.glow && variant === 'g' ? 2 : 0 };
+  m.userData.look = { role: 'cast', ...mode, hull: !mode.glow, shiny: !mode.glow && variant === 'w' ? 1 : !mode.glow && variant === 'g' ? 2 : 0, form: mode.glow ? 0 : formCode(variant) }; 
   MATS.set(key, m);
   return m;
 }
@@ -277,7 +278,7 @@ export class DachiActor {
     this.targetSide = opts.flip ? -1 : 1;
     
     
-    const boss = speciesById(spId).boss, variant = boss && !opts.calm ? 'b' : opts.corrupt ? 'c' : opts.shiny === 'gold' ? 'g' : opts.shiny ? 'w' : 'n', key = modelKeyOf(spId, opts) + variant;
+    const boss = speciesById(spId).boss, variant = boss && !opts.calm ? 'b' : opts.corrupt ? 'c' : opts.shiny === 'gold' ? 'g' : opts.shiny ? 'w' : formVariant(opts.form) || 'n', key = modelKeyOf(spId, opts) + variant;
     if (key === this.key) return;
     const sp = speciesById(spId);
     this.key = key; this.variant = variant; this.stage = sp.stage; this.bossScale = boss ? bossById(boss).scale : 0;

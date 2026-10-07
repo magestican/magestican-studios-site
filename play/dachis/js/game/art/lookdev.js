@@ -13,6 +13,8 @@
 
 
 
+
+
 import * as THREE from 'three';
 import { createStage } from '../../engine/iso/stage.js';
 import { DachiActor, actorStats } from './dachiActor.js';
@@ -20,12 +22,15 @@ import { CastActor } from './castActor.js';
 import { BOSSES } from './bossModel.js';
 import { dachiSize } from './billboards.js';
 import { speciesById, SPECIES, GUARDIAN, KUMABO, FAMILY_COUNT, BODY_PLANS } from '../data/species.js';
+import { SIZE_CLASSES, sizeMult } from '../data/sizes.js';
+import { celLook } from './look/celLook.js';
 
 const q = new URLSearchParams(location.search);
 const asset = q.get('asset') || 'dachi', view = q.get('view') || 'turn', set = q.get('set') || 'story', id = +(q.get('id') || GUARDIAN);
 const px = q.has('px') ? +q.get('px') : 480;
 
 const stage = createStage(document.getElementById('world'), { viewHeight: 10, pixelHeight: px || 480, shadows: true });
+if (q.has('cel')) stage.setLook(celLook()); 
 if (px === 0) stage.pixel.enabled = false;
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshLambertMaterial({ color: '#cfe3a2' }));
 ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
@@ -59,6 +64,13 @@ if (view === 'lineup' && set === 'story') {
 } else if (view === 'lineup' && set === 'families') {
   const fams = (q.has('all') ? Array.from({ length: FAMILY_COUNT }, (_, i) => i) : PROC).slice(+(q.get('page') || 0) * 5, +(q.get('page') || 0) * 5 + 5); 
   rows = [0, 1, 2].map((st) => fams.map((f) => [f * 3 + st + 1, {}]));
+} else if (view === 'lineup' && set === 'forms') { 
+  const ids = (q.get('pick') || '22,38,59').split(',').map(Number);
+  rows = ids.map((i) => [undefined, 'frost', 'ash', 'moss', 'salt'].map((form) => [i, form ? { form } : {}]));
+} else if (view === 'lineup' && set === 'sizes') { 
+  const row1 = SIZE_CLASSES.map((c) => SPECIES.find((s) => s.stage === 3 && s.sizeClass === c)).filter(Boolean).map((s) => [s.id, {}, undefined, sizeMult(s, {})]);
+  const k = SPECIES.find((s) => s.stage === 2 && s.sizeClass === 'medium');
+  rows = [row1, [0.82, 1, 1.22].map((m) => [k.id, {}, undefined, m])];
 } else if (view === 'lineup' && set === 'corrupt') {
   rows = [
     [GUARDIAN, 202, 205, 208, KUMABO].map((i) => [i, { corrupt: true }]),
@@ -99,10 +111,10 @@ const R = Math.SQRT1_2, SP = +(q.get('sp') || 2.4), ROW = +(q.get('row') || 3.0)
 const cols = Math.max(...rows.map((r) => r.length));
 const actors = [], labels = [];
 const hud = document.getElementById('labels');
-rows.forEach((row, j) => row.forEach(([spId, opts, tag], i) => {
+rows.forEach((row, j) => row.forEach(([spId, opts, tag, mult = 1], i) => { 
   const cast = spId === 'kid' || spId === 'elder' || spId === 'aerowing' || spId === 'boss';
   const sp = cast ? { name: spId === 'kid' ? `Kid (${opts.gender})` : spId === 'aerowing' ? `Aerowing ${opts.frame}` : spId === 'boss' ? (BOSSES.find((b) => b.id === opts.boss) || {}).name : 'Elder Ojiji', stage: 1 } : speciesById(spId);
-  const a = cast ? new CastActor(stage.scene, spId, opts) : new DachiActor(stage.scene, { size: dachiSize(sp.stage) });
+  const a = cast ? new CastActor(stage.scene, spId, opts) : new DachiActor(stage.scene, { size: dachiSize(sp.stage) * mult });
   if (!cast) a.setLook(spId, q.has('flip') ? { ...opts, flip: true } : opts); 
   if (!cast && q.has('walk')) a.forceMove = true;
   if (cast && tag) a.yaw = a.targetYaw = { front: Math.PI / 4, q3: Math.PI * 0.47, right: Math.PI * 0.75, back: Math.PI * 1.25, left: -Math.PI / 4 }[tag];
