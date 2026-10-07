@@ -145,7 +145,7 @@ const DRESS_FORM = {
 };
 
 
-const FINDS_UV = [[-14.6, 55.6], [14.2, 28.4]];
+const FINDS_UV = [[-14.6, 55.6]];
 function dressIslands(W) {
   const keepOff = [ENTRY, SPRING, POCKET_SPRING, LANDING, ...Object.values(W.rails.land), ...Object.values(W.rails.levers), ...FINDS_UV.map(([u, v]) => at(u, v))];
   const isLand = (u, v) => ground(u, v) === 'land';
