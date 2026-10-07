@@ -7,7 +7,7 @@ import { createHints } from '../engine/ui/hints.js';
 import { createDialog, toast } from '../engine/ui/dialog.js';
 import { hydrateIcons } from '../engine/ui/icons.js';
 import { createSfx } from '../engine/audio/sfx.js';
-import { G, S, hasSave, loadGame, saveGame, healParty, savedBox } from './state.js';
+import { G, S, hasSave, loadGame, saveGame, healParty } from './state.js';
 import { SOUNDS } from './sounds.js';
 import { loadRecorded } from './recordedSounds.js';
 import { music } from './music.js';
@@ -67,9 +67,9 @@ import { BATTLE_CLOCK } from './features/battle/rules.js';
 import { startI18n } from './i18n/i18nDom.js';
 import { tr, onLangChange } from './i18n/i18n.js';
 import { mountLangPicker } from './features/menu/langPicker.js';
-import { startFreshBuild } from './freshBuild.js';
+import { startFreshBuild, gameMoments } from './freshBuild.js';
 import { pickCompanion } from './features/battle/pickCard.js';
-import { shinyWarning } from './features/menu/menu.js';
+import { confirmNewGame } from './features/menu/menu.js';
 
 const $ = id => document.getElementById(id);
 
@@ -325,8 +325,7 @@ startI18n();
 mountLangPicker(document.getElementById('langTitle'), { className: 'onTitle' });
 onLangChange(() => { langRebuild = true; });
 
-startFreshBuild({ quiet: () => ['title', 'world', 'menu'].includes(G.mode) && !S.dialog?.active,
-  beforeReload: () => { if (G.mode === 'world' || G.mode === 'menu') saveGame(); }, say: (t) => toast(t, 2000) });
+startFreshBuild(gameMoments(G, S, saveGame, (t) => toast(t, 2000)));
 hydrateIcons(document); 
 S.hints = createHints(S.input);
 S.dialog = createDialog({ paintPortrait, paintChoiceIcon, onLine: (l, first) => S.sfx.play(lineSound(l, first), DLG), 
@@ -394,8 +393,7 @@ function playIntro(start) {
   }, { start, onLine: (sc, li) => intro.save(sc, li) });
 }
 $('newBtn').onclick = () => {
-  if (hasSave() && !confirm('Start a new game? Your current save will be replaced.')) return;
-  if (hasSave()) { const warn = shinyWarning(savedBox()); if (warn && !confirm(warn)) return; } 
+  if (!confirmNewGame()) return; 
   G.name = ($('nameInput').value.trim() || $('nameInput').placeholder || 'Ace').slice(0, 14);
   G.clock = newClock(); 
   startWithWipe($('newBtn'), () => { intro.clear(); leaveTitle(); playIntro(null); });

@@ -37,7 +37,7 @@ export default {
   "Keep away": "はなれろ",
   "Parry": "パリィ",
   "Hold": "長おし",
-  "anywhere and slide: orders": "どこでも・スライドで指示",
+  "anywhere and slide: orders": "＋スライドで指示（どこでもOK）", 
   "Switch": "交代",
   "Befriending Ritual": "友だちの儀式",
   "Press 1 2 3 as each ring closes": "輪がとじる瞬間に 1 2 3 をおす",

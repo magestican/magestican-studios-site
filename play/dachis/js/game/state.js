@@ -79,6 +79,10 @@ export const caughtCount = () => Object.keys(G.dex.caught).length;
 export function objective() {
   
   const r = G.region && G.region !== HOME ? regionById(G.region) : null;
+  
+  
+  const sec = r && r.objectives && S.W && S.W.sectionAt ? S.W.sectionAt(G.player.x, G.player.y) : null;
+  if (sec && r.objectives[sec]) return r.objectives[sec];
   if (r && r.objective) return r.objective;
   
   return mainStep(G.flags, { caught: caughtCount(), total: SPECIES.length }).text;

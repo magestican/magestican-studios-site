@@ -425,6 +425,8 @@ export default {
   "The Heart of Kazan - The Obsidian Rivers": "Kazan 之心 - 黑曜石河",
   "The Heart of Kazan - The Cinder Cistern": "Kazan 之心 - 煤渣水池",
   "Ride the ore carts across the lava": "坐礦車過熔岩",
+  "Keep movin' - the black rocks sink": "唔好企定，啲黑石會沉㗎",
+  "Train in the hot water": "喺熱水度練吓",
   "Into the galleries": "入熔岩廊",
   "Back to the forge": "返去鍛爐",
   "Ride": "上車",

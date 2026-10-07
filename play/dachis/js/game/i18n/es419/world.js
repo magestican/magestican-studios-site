@@ -440,6 +440,8 @@ export default {
   "The Heart of Kazan - The Obsidian Rivers": "El Corazón del Kazan - Los Ríos de Obsidiana",
   "The Heart of Kazan - The Cinder Cistern": "El Corazón del Kazan - La Cisterna de Brasas",
   "Ride the ore carts across the lava": "Cruza la lava en los carritos de mineral",
+  "Keep movin' - the black rocks sink": "No te quedes parado, que las piedras negras se hunden",
+  "Train in the hot water": "Ponte a entrenar en el agua calientita",
   "Into the galleries": "Entrar a las galerías",
   "Back to the forge": "Volver a la fragua",
   "Ride": "Subir",

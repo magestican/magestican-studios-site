@@ -6,7 +6,7 @@ import { icon } from '../../../engine/ui/icons.js';
 import { mountSoundToggle } from '../../../vendor/arbelo/ui/muteButton.js';
 import { mountLangPicker } from './langPicker.js';
 import { tr } from '../../i18n/i18n.js';
-import { G, S, saveGame, deleteSave } from '../../state.js';
+import { G, S, saveGame, deleteSave, hasSave, savedBox } from '../../state.js';
 import { SPECIES, speciesById, statsOf, TYPES, capsFor, attrOf } from '../../data/species.js';
 import { attrBadge } from '../battle/battleHud.js';
 import { KIND_LABEL } from '../battle/techniques.js';
@@ -226,5 +226,12 @@ export function shinyWarning(box) {
 export function confirmReset() {
   const warn = shinyWarning(G.box);
   if (!confirm('Delete your save and start over?')) return false;
+  return !warn || confirm(warn);
+}
+
+export function confirmNewGame() {
+  if (!hasSave()) return true;
+  if (!confirm('Start a new game? Your current save will be replaced.')) return false;
+  const warn = shinyWarning(savedBox());
   return !warn || confirm(warn);
 }

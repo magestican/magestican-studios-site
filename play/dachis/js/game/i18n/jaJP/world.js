@@ -425,6 +425,8 @@ export default {
   "The Heart of Kazan - The Obsidian Rivers": "カザンの心臓 - 黒曜の川",
   "The Heart of Kazan - The Cinder Cistern": "カザンの心臓 - 燃えがらの水槽",
   "Ride the ore carts across the lava": "トロッコで溶岩をわたろう",
+  "Keep movin' - the black rocks sink": "黒い岩はしずむ - 止まらずに進もう",
+  "Train in the hot water": "あったかい水で特訓しよう",
   "Into the galleries": "回廊へ入る",
   "Back to the forge": "鍛冶場へもどる",
   "Ride": "乗る",

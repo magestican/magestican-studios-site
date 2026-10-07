@@ -24,6 +24,14 @@ export function freshUrl(href, id) {
 }
 
 
+
+export const gameMoments = (G, S, save, say) => ({
+  quiet: () => ['title', 'world', 'menu'].includes(G.mode) && !S.dialog?.active,
+  beforeReload: () => { if (G.mode === 'world' || G.mode === 'menu') save(); },
+  say,
+});
+
+
 export function startFreshBuild({ quiet, beforeReload, say }) {
   const running = runningBuild();
   if (running === 'dev' || /[?&]cheat=/.test(location.search)) return; 

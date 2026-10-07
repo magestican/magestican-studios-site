@@ -14,6 +14,7 @@ import { U } from '../../../../engine/core/util.js';
 import { addSections, sectionWindows, fromUV, toUV, edgeDepth } from '../sections.js';
 import { T, newMap, carvePath, floodReach, mapQueries, lookIn, addObj, buildGrid } from '../mapgen.js';
 import { CELL } from '../basaltRules.js';
+import { clearOfLanes } from '../functional.js';
 import * as heartOfKazan from './heartOfKazan.js';
 
 export const ID = 'kazan-galleries';
@@ -124,6 +125,52 @@ function tileFor(x, y) {
   return n > 0.58 ? T.THICKET : n < 0.3 ? T.SAND : T.ROCK; 
 }
 
+
+
+
+
+
+
+
+
+const ISLAND_DRESS = {
+  west: [['crates', 2.2, 0.55], ['cookfire', 3.4, 0.5], ['pots', 3.9, 0.62], ['basalt', 0.4, 0.86], ['basalt', 4.9, 0.84], ['obsidian', 1.3, 0.82], ['vent', 5.6, 0.6]],
+  across: [['anvil', 1.0, 0.5], ['crates', 2.6, 0.55], ['basalt', 4.0, 0.85], ['basalt', 5.4, 0.84], ['obsidian', 0.2, 0.8], ['flow', 3.3, 0.9]],
+  dead: [['tools', 1.2, 0.55], ['flow', 4.6, 0.88], ['flow', 5.2, 0.86], ['basalt', 2.6, 0.84], ['obsidian', 3.6, 0.78], ['vent', 0.2, 0.55], ['crates', 2.0, 0.5]],
+  far: [['vent', 0.9, 0.5], ['vent', 2.3, 0.62], ['crates', 4.2, 0.5], ['basalt', 3.2, 0.86], ['basalt', 5.6, 0.84], ['obsidian', 0.1, 0.8]],
+};
+const DRESS_FORM = {
+  crates: { solid: 0.4 }, cookfire: { solid: 0.4 }, pots: { solid: 0.3 }, anvil: { solid: 0.35 }, tools: { solid: 0.3 },
+  basalt: { solid: 0.4, s: 0.8 }, obsidian: { solid: 0.3, s: 0.7 }, vent: { solid: 0, s: 0.85 }, flow: { solid: 0, s: 1.2 },
+};
+
+
+const FINDS_UV = [[-14.6, 55.6], [14.2, 28.4]];
+function dressIslands(W) {
+  const keepOff = [ENTRY, SPRING, POCKET_SPRING, LANDING, ...Object.values(W.rails.land), ...Object.values(W.rails.levers), ...FINDS_UV.map(([u, v]) => at(u, v))];
+  const isLand = (u, v) => ground(u, v) === 'land';
+  for (const [id, list] of Object.entries(ISLAND_DRESS)) {
+    const isl = ISLANDS[id];
+    for (const [kind, a0, f, extra] of list) {
+      const form = DRESS_FORM[kind], r = form.solid > 0 ? form.solid + 0.3 : 0.6;
+      
+      for (let k = 0; k < 12; k++) {
+        const a = a0 + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 0.22, u = isl.u + Math.cos(a) * isl.ru * f, v = isl.v + Math.sin(a) * isl.rv * f;
+        if (kind !== 'flow' && ![0, 1, 2, 3].every((q) => isLand(u + Math.cos(q * 1.57) * r, v + Math.sin(q * 1.57) * r))) continue;
+        const p = at(u, v);
+        if (keepOff.some((o) => Math.hypot(o.x - p.x, o.y - p.y) < 2)) continue;
+        if (W.objects.some((o) => Math.hypot(o.x - p.x, o.y - p.y) < (kind === 'flow' ? 1.6 : 1.3))) continue;
+        const out = clearOfLanes(W.paths, p.x, p.y, r);
+        if (Math.hypot(out.x - p.x, out.y - p.y) > 0.01) continue; 
+        const c = at(isl.u, isl.v);
+        const rot = kind === 'flow' ? Math.atan2(c.x - p.x, c.y - p.y) : (a * 2.3) % 6.28; 
+        addObj(W, { kind, x: p.x, y: p.y, rot, ...form, ...extra });
+        break;
+      }
+    }
+  }
+}
+
 export function generateMagmaGalleries() { const it = magmaGalleriesSteps(); let s; while (!(s = it.next()).done); return s.value; }
 const BAND = 16;
 export function* magmaGalleriesSteps() {
@@ -171,6 +218,7 @@ export function* magmaGalleriesSteps() {
     const p = at(u, v); addObj(W, { kind: 'lantern', x: p.x, y: p.y, solid: 0.25, rot: Math.PI / 4 });
   }
   for (const [u, v, rot] of [[-14.4, 33.4, 0.7], [13.4, 52.0, 2.2], [-13.6, 56.2, 1.1]]) { const p = at(u, v); addObj(W, { kind: 'cart', x: p.x, y: p.y, solid: 0.45, rot, wreck: true }); } 
+  dressIslands(W);
   yield 'buildings';
   const r = U.rng(1812);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
@@ -226,6 +274,8 @@ export const MANIFEST = {
     sections: SECTIONS.map((s) => s.id), entry: ENTRY, spring: LANDING, home: LANDING,
     pack: 'assets/scenery-kazan-galleries.bin',
     transit: false, objective: 'Ride the ore carts across the lava',
+    
+    objectives: { 'obsidian-rivers': "Keep movin' - the black rocks sink", 'cinder-cistern': 'Train in the hot water' },
   },
   generate: generateMagmaGalleries, steps: magmaGalleriesSteps,
   doors: [
