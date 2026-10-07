@@ -451,4 +451,13 @@ export default {
   "Pyrecrown's wings beat twice, then he dives on you from above. Get out from under him; when he lands his fire is out for a moment.": "Las alas de Pyrecrown aletean dos veces y luego se te deja caer desde arriba. Quítate de abajo; cuando aterriza, se le apaga el fuego un momento.",
   "New Game+": "Juego Nuevo+",
   "Start New Game+? Your dachis and your Dachidex come with you; the story starts over.": "¿Empezar Juego Nuevo+? Tus dachis y tu Dachidex vienen contigo; la historia vuelve a empezar.",
+  "A Magestican Studios game": "Un juego de Magestican Studios",
+  "Created by": "Creado por",
+  "Music and sound": "Música y sonido",
+  "Starring": "Con",
+  "And your friends": "Y tus amigos",
+  "...and {0} more": "...y {0} más",
+  "Thanks for playing.": "Gracias por jugar.",
+  "THE END": "FIN",
+  "Back to the title": "Volver al inicio",
 };

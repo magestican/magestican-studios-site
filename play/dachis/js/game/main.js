@@ -7,7 +7,9 @@ import { createHints } from '../engine/ui/hints.js';
 import { createDialog, toast } from '../engine/ui/dialog.js';
 import { hydrateIcons } from '../engine/ui/icons.js';
 import { createSfx } from '../engine/audio/sfx.js';
-import { G, S, hasSave, loadGame, saveGame, healParty, plusOffered, startNewGamePlus } from './state.js';
+import { G, S, hasSave, loadGame, saveGame, healParty, plusOffered, startNewGamePlus, runSave } from './state.js';
+import { rollCredits } from './features/story/credits.js';
+import { noteMet } from './features/story/goodbyes.js';
 import { SOUNDS } from './sounds.js';
 import { loadRecorded } from './recordedSounds.js';
 import { music } from './music.js';
@@ -351,7 +353,7 @@ window.__dachis = { G, S, B: () => B, heal: healParty, save: saveGame, music: mu
 installPerchMenu();
 
 { const cheat = parseCheat(location.search); if (cheat) Promise.all([import('./state.js'), import('./data/species.js'), import('./features/battle/battle.js'), import('./features/world/sections.js')])
-  .then(([st, sp, bt, sc]) => applyCheat(cheat, { G, S, loadRegion, addDachi: st.addDachi, makeDachi: sp.makeDachi, statsOf: sp.statsOf, healParty, startBossBattle: bt.startBossBattle, sectionById: sc.sectionById, fromUV: sc.fromUV, regionById, toast, startWatcher })); }
+  .then(([st, sp, bt, sc]) => applyCheat(cheat, { G, S, loadRegion, addDachi: st.addDachi, makeDachi: sp.makeDachi, statsOf: sp.statsOf, healParty, startBossBattle: bt.startBossBattle, sectionById: sc.sectionById, fromUV: sc.fromUV, regionById, toast, startWatcher, theEnd })); }
 
 
 $('touchZone').addEventListener('pointerdown', e => {
@@ -416,6 +418,16 @@ $('contBtn').onclick = () => { if (loadGame()) startWithWipe($('contBtn'), () =>
   intro.clear(); syncAchievements(true); leaveTitle(); enterWorld();
   if (G.region !== worldView.region) loadRegion(G.region, { x: G.player.x, y: G.player.y }); else spawnNpcs();
 }); };
+
+
+
+function theEnd() {
+  G.flags.ending = true; saveGame();
+  rollCredits({
+    onPlus: () => { if (!startNewGamePlus(runSave())) return; $('hud').classList.add('hidden'); intro.clear(); playIntro(null); },
+    onTitle: () => location.assign(location.pathname),
+  });
+}
 function enterWorld() { resetCamera(); G.mode = 'world';$('hud').classList.remove('hidden'); refreshHud(); }
 
 
@@ -450,6 +462,7 @@ function worldActions() {
 function talk(n) {
   const p = G.player; p.talkAt = { x: n.x, y: n.y };
   if (Math.abs((p.x - n.x) - (p.y - n.y)) > 0.05) n.face = (p.x - n.x) - (p.y - n.y) > 0 ? 1 : -1;
+  noteMet(G.flags, n, G.region); 
   return talkTo(n);
 }
 

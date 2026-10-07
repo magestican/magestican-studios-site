@@ -51,11 +51,13 @@ const slot = createSaveSlot('dachis.v1', 5, migrateSave);
 export const hasSave = () => slot.exists();
 export function saveGame() {
   if (!G.flags.started || G.flags.cheat) return; 
-  slot.save({
-    name: G.name, gender: G.gender, cycle: G.cycle, x: G.player.x, y: G.player.y,
-    box: G.box, party: G.party.map(d => d.uid), items: G.items, dex: G.dex, flags: G.flags, clock: G.clock, region: G.region,
-  });
+  slot.save(runSave());
 }
+
+export const runSave = () => ({
+  name: G.name, gender: G.gender, cycle: G.cycle, x: G.player.x, y: G.player.y,
+  box: G.box, party: G.party.map(d => d.uid), items: G.items, dex: G.dex, flags: G.flags, clock: G.clock, region: G.region,
+});
 
 export function savedBox() { const s = slot.load(); return (s && s.box) || []; }
 export function loadGame() {
@@ -73,10 +75,10 @@ export const deleteSave = () => slot.clear();
 
 
 export const plusOffered = () => plusReady(slot.load());
-export function startNewGamePlus() {
-  const s = slot.load();
+export function startNewGamePlus(s = slot.load()) {
   if (!plusReady(s)) return false;
   Object.assign(G, newGamePlus(s), { party: [], clock: newClock(), region: HOME });
+  if (s.flags.cheat) G.flags.cheat = true; 
   return true;
 }
 

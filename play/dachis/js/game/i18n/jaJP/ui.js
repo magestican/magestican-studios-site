@@ -514,4 +514,13 @@ export default {
   "Pyrecrown's wings beat twice, then he dives on you from above. Get out from under him; when he lands his fire is out for a moment.": "Pyrecrownの羽が二回はばたいたら、上から急降下してくる。下からどけ。着地したあと、少しのあいだ火が消える。",
   "New Game+": "強くてニューゲーム",
   "Start New Game+? Your dachis and your Dachidex come with you; the story starts over.": "強くてニューゲームをはじめる？ ダチたちとDachidexはそのまま。物語はさいしょから。",
+  "A Magestican Studios game": "Magestican Studios 作品",
+  "Created by": "つくった人",
+  "Music and sound": "音楽・サウンド",
+  "Starring": "出演",
+  "And your friends": "そして、キミの仲間たち",
+  "...and {0} more": "……ほか{0}匹",
+  "Thanks for playing.": "あそんでくれて、ありがとう。",
+  "THE END": "おしまい",
+  "Back to the title": "タイトルにもどる",
 };

@@ -16,7 +16,7 @@ import { bubbleLook } from '../world/worldView.js';
 import { spawnWild, removeWild } from '../world/wilds.js';
 import { startBattle } from '../battle/battle.js';
 import { KID, ELDER, NARR } from './scenes.js';
-import { questTalk } from '../quest/questRuntime.js';
+import { questTalk, syncAchievements } from '../quest/questRuntime.js';
 import { MANIFESTS } from '../world/manifests.js';
 import { starterChoices } from './newGamePlus.js';
 
@@ -249,9 +249,12 @@ function chooseStarter(path) {
   addDachi(d);
   G.flags.starter = true; G.flags.path = path;
   
-  const rejoin = (G.flags.rejoin || []).map((uid) => G.box.find((x) => x.uid === uid)).filter(Boolean);
-  for (const x of rejoin) if (G.party.length < 3 && !G.party.includes(x)) G.party.push(x);
+  
+  
+  const rejoin = (G.flags.rejoin || []).map((uid) => G.box.find((x) => x.uid === uid)).filter((x) => x && x !== d);
+  if (rejoin.length) G.party.splice(0, G.party.length, ...rejoin, d);
   delete G.flags.rejoin;
+  syncAchievements(); 
   G.follower.x = G.player.x; G.follower.y = G.player.y - 0.8;
   scene = null;
   const why = { power: 'a baby dragon, half machine, breathing tiny sparks', wisdom: 'a round little blue mouse with very wise eyes', adventure: 'a small monkey in a knight’s breastplate and a wizard’s hat' }[path];

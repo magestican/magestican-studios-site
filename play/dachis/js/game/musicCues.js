@@ -35,7 +35,8 @@ export function cueFor({ mode, battle = null, sec = null, mood = null } = {}) {
     return battle.boss ? 'boss' : 'battle';
   }
   if (mode === 'cutscene' && INTRO_MOODS.includes(mood)) return 'intro-' + mood;
-  if (mode === 'title' || mode === 'cutscene') return 'menu';
+  
+  if (mode === 'title' || mode === 'cutscene' || mode === 'credits') return 'menu';
   if (mode === 'world') return TOWNS.includes(sec) ? 'town' : ISLE.includes(sec) ? 'isle' : CAVES[sec] || 'field';
   if (mode === 'travel') return 'field'; 
   return null;

@@ -14,6 +14,8 @@
 
 
 
+
+
 import { SPECIES, EXTRA, BOSSES } from '../../data/species.js';
 import { earned, unlock } from '../achievements/achievements.js';
 import { SIDE } from '../quest/quests.js';
@@ -44,7 +46,7 @@ export function silenceEarned(flags) {
 export function parseCheat(search) {
   const raw = new URLSearchParams(search).get('cheat');
   if (!raw) return null;
-  const c = { chapter: null, at: null, party: [], boss: null, items: null, watch: null, quests: [], errors: [] };
+  const c = { chapter: null, at: null, party: [], boss: null, items: null, watch: null, quests: [], ending: false, cycle: null, errors: [] };
   for (const part of raw.split(';').map((s) => s.trim()).filter(Boolean)) {
     const i = part.indexOf(':'), key = (i < 0 ? part : part.slice(0, i)).toLowerCase(), val = i < 0 ? '' : part.slice(i + 1);
     if (key === 'chapter') c.chapter = Math.max(0, Math.min(8, val.trim() === '0' ? 0 : Number(val) || 1));
@@ -54,6 +56,8 @@ export function parseCheat(search) {
       if (s) c.party.push({ sp: s.id, lvl: Math.max(1, Math.min(99, Number(lvl) || 5)), ...(coat === 'gold' || coat === 'white' ? { shiny: coat } : {}) }); else c.errors.push('no dachi "' + name + '"');
     }
     else if (key === 'boss') { if (BOSSES.some((b) => b.id === val)) c.boss = val; else c.errors.push('no boss "' + val + '"'); }
+    else if (key === 'ending') c.ending = true;
+    else if (key === 'cycle') c.cycle = Math.max(1, Math.min(9, Math.floor(Number(val)) || 1));
     else if (key === 'items') c.items = Math.max(0, Number(val) || 0);
     else if (key === 'watch') { if (BOSSES.some((b) => b.id === val)) c.watch = val; else c.errors.push('no boss "' + val + '"'); }
     else if (key === 'quest') for (const m of val.split(',')) {
@@ -71,6 +75,7 @@ export async function applyCheat(c, d) {
   const { G, S } = d, wait = (ms) => new Promise((r) => setTimeout(r, ms));
   for (let i = 0; i < 120 && !S.W; i++) await wait(250);
   G.flags.cheat = true; 
+  if (c.cycle) G.cycle = c.cycle;
   Object.assign(G.flags, chapterFlags(c.chapter !== null ? c.chapter : (c.boss ? ORDER.indexOf(c.boss) + 1 : 1)));
   for (const q of c.quests || []) (G.flags.quests || (G.flags.quests = {}))[q.id] = q.n;
   silenceEarned(G.flags);
@@ -99,6 +104,7 @@ export async function applyCheat(c, d) {
   while (S.dialog.active) { S.dialog.hide(); await wait(150); }
   if (c.watch && d.startWatcher) d.startWatcher(c.watch, () => {}, { force: true });
   if (c.boss) d.startBossBattle(c.boss, { x: G.player.x + 2, y: G.player.y + 2 });
+  if (c.ending && d.theEnd) d.theEnd();
   d.toast('CHEAT' + (c.errors.length ? ': ' + c.errors.join(', ') : ' on - this run is not saved'), 3200);
   
   window.__cheat = { done: true, errors: c.errors.slice() };
