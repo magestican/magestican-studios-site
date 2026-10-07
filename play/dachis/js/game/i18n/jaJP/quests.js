@@ -217,11 +217,11 @@ export default {
   "Grandma used to sit on the dock and listen to the carts. Said every one had its own voice. She kept this - it's them running flat out. That whoop at the end? Could be anybody. Could be you, next time.": "ばあちゃん、よく乗り場に座ってトロッコの音を聞いてた。一台一台、声がちがうんだって。これ、とっといたやつ。全速力で走ってる音。最後の「ひゃっほー」？ 誰だっていい。次はあんたかもね。",
   "A Steady Heat": "ぶれない火",
   "Talk to the kid saving up for a hammer": "ハンマーのために貯めてる子と話そう",
-  "Ferro says my fire's not steady. Steady how? It's FIRE. It goes up and down, that's the whole thing about it.": "フェロじいさん、オレの火はぶれてるって言うんだ。ぶれないってどうやって？ 火だよ？ 上がったり下がったりするのが火じゃん。",
+  "Ferro says my fire's not steady. Steady how? It's FIRE. It goes up and down, that's the whole thing about it.": "Ferroじいさん、オレの火はぶれてるって言うんだ。ぶれないってどうやって？ 火だよ？ 上がったり下がったりするのが火じゃん。",
   "It's 'cause of the bird. Everybody's fire goes funny when you think he might send for you next. Maybe if he stopped... no. Forget it. Nobody stops him.": "あの鳥のせいだよ。次に呼ばれるのは自分かもって思ったら、みんな火がおかしくなる。あいつが止まれば…いや。なんでもない。あいつを止めるやつなんていない。",
   "Stand up to Pyrecrown in his nest": "巣でPyrecrownに立ち向かおう",
   "Far below the nest, in the Ashen Forge, every fire in every hearth settles down at once, like a room letting out its breath.": "巣のずっと下、灰の鍛冶場で、どのかまどの火もいっせいに落ち着く。部屋がふうっと息をはいたみたいに。",
   "Tell the kid at the forge": "鍛冶場のあの子に伝えよう",
-  "He's gone? Like GONE gone? ...Oh. Oh, look, it's steady. Ferro! FERRO! Look at my hands!": "いなくなった？ ほんとに、いなくなった？ …あ。あ、見て、ぶれてない。フェロじいさん！ フェロじいさーん！ オレの手、見て！",
+  "He's gone? Like GONE gone? ...Oh. Oh, look, it's steady. Ferro! FERRO! Look at my hands!": "いなくなった？ ほんとに、いなくなった？ …あ。あ、見て、ぶれてない。Ferroじいさん！ Ferroじいさーん！ オレの手、見て！",
   "He gave it to me. The hammer. And he said give you this, for the old man up in the village. Said 'thirty-two', whatever that means. Said the old man would know.": "くれたんだ。ハンマー。で、これをあんたに渡せって。上の村のじいさんにって。「三十二」って言ってた、意味わかんないけど。じいさんならわかるって。",
 };

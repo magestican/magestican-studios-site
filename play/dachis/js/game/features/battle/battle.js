@@ -711,10 +711,10 @@ export function startRitual() {
   S.sfx.play('heart');
 }
 
-export function finishRitual(chance) {
+export function finishRitual(chance, perfect = false) {
   const r = B.ritual; B.ritual = null;
   B.state = 'capture';
-  B.capture = { t: 0, from: { x: G.player.x, y: G.player.y }, success: Math.random() < chance, chance, seal: r.seal };
+  B.capture = { t: 0, from: { x: G.player.x, y: G.player.y }, success: Math.random() < chance, chance, seal: r.seal, perfect };
   S.sfx.play('heart');
 }
 function updateCapture(dt) {
@@ -722,7 +722,7 @@ function updateCapture(dt) {
   if (c.t > 0.6 && !c.absorbed) { c.absorbed = true; sparkle(B.enemy, '#ff9fd0', 18); }
   if (c.t > 0.6 && c.t < 2.6 && Math.floor(c.t / 0.6) !== c.lastWobble) { c.lastWobble = Math.floor(c.t / 0.6); S.sfx.play('wobble'); }
   if (c.t > 2.8) {
-    if (c.success) endBattle('capture');
+    if (c.success) { if (c.perfect) G.flags.ritualPerfect = true; endBattle('capture'); } 
     else {
       B.state = 'fight'; B.enemy.rage = 4; B.capture = null;
       sparkle(B.enemy, '#ff4a4a', 16); toast(`${spOf(B.enemy).name} broke free!`);

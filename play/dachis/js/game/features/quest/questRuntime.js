@@ -1,8 +1,8 @@
 
 
 import { toast } from '../../../engine/ui/dialog.js';
-import { G, S, saveGame } from '../../state.js';
-import { speciesById } from '../../data/species.js';
+import { G, S, saveGame, caughtCount } from '../../state.js';
+import { speciesById, SPECIES } from '../../data/species.js';
 import { advance, reminder } from './quests.js';
 import { collect, collectibleById, bossCollectibles, KINDS } from '../../data/collectibles.js';
 import { ITEMS } from '../pickups/pickups.js';
@@ -14,7 +14,7 @@ const NARR = { who: '' };
 
 
 export function syncAchievements(quiet = false) {
-  const got = earned(G.flags).map((id) => unlock(G.flags, id, Date.now())).filter(Boolean);
+  const got = earned(G.flags, { caught: caughtCount(), total: SPECIES.length, cycle: G.cycle }).map((id) => unlock(G.flags, id, Date.now())).filter(Boolean);
   if (!quiet) for (const a of got) toast('Achievement: ' + a.name);
   return got;
 }
@@ -53,7 +53,8 @@ export function questTalk(n) {
 
 export function questEvent(event, show = false) {
   const res = advance(G.flags, event, G.items);
-  if (!res.length) return [];
+  
+  if (!res.length) { syncAchievements(); return []; }
   const lines = linesOf(res);
   syncAchievements();
   if (show && lines.length) S.dialog.say(lines);

@@ -47,7 +47,8 @@ export function updateRitual(dt) {
   while (R.i < R.pattern.nodes.length && expired(R.pattern, R.i, R.t)) { R.grades.push({ grade: 'miss', score: 0 }); R.trail.push(0); popups.push({ node: R.pattern.nodes[R.i], text: 'Miss!', t: 0, good: false }); R.i++; S.sfx.play('miss'); }
   popups.forEach(p => { p.t += dt; }); popups = popups.filter(p => p.t < 0.8);
   if (R.i >= R.pattern.nodes.length && !R.doneAt) R.doneAt = R.t;
-  if (R.doneAt && R.t - R.doneAt > 0.5) finishRitual(captureChance(R.grades, R.rarity));
+  
+  if (R.doneAt && R.t - R.doneAt > 0.5) finishRitual(captureChance(R.grades, R.rarity), R.grades.length > 0 && R.grades.every((g) => g.grade === 'perfect'));
   draw(R);
 }
 

@@ -51,7 +51,10 @@ export function onBattleFinished(b) {
       msgs.push(joined ? `${es.name} joined your companions!` : `${es.name} went to your Dachi Den. (Friends: ${G.box.length})`);
       msgs.push(...questEvent({ kind: 'befriend', sp: enemy.sp, types: es.types })); 
     }
-    if (b.boss && res === 'win') { 
+    
+    
+    const freed = b.boss && (res === 'win' || res === 'capture');
+    if (freed) { 
       prewarmKnight(b.boss); 
       G.flags['boss_' + b.boss] = true;
       
@@ -61,7 +64,7 @@ export function onBattleFinished(b) {
       G.flags.egg = (G.flags.egg || 0) + 1; 
       msgs.push({ text: eggLine(G.flags.egg) });
     }
-    if (res === 'win') msgs.push(...questEvent({ kind: 'beat', boss: b.boss || null, sp: enemy.sp }));
+    if (res === 'win' || freed) msgs.push(...questEvent({ kind: 'beat', boss: b.boss || null, sp: enemy.sp }));
     drops = rollDrops(Math.random, { boss: !!(b.boss && res === 'win') }); 
     for (const { item, n } of drops) G.items[item] = (G.items[item] || 0) + n;
     rows.sort((p, q) => (q.d === b.ally.d) - (p.d === b.ally.d)); 
