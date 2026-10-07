@@ -143,7 +143,7 @@ export function describeStrands({ puzzle, found, bonus = [], hintsUsed = 0, trai
 
 export function describeHome(games) {
   return {
-    title: 'Wordnook',
+    title: 'Wordburrow',
     status: 'Choose a game. You can also just start typing.',
     lines: games.map((g, i) => `${i + 1}. ${g.name}. ${g.blurb}`),
   };

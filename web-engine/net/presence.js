@@ -74,7 +74,7 @@ export const STALE_MS = REFRESH_MS * 3;
 
 
 export const LIVE_GAMES = Object.freeze({
-  crosswords: 'Wordnook',
+  crosswords: 'Wordburrow',
   chess: 'Rookwise',
   ludo: 'Pawnrush',
   scrabble: 'Letterloft',

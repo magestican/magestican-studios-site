@@ -159,7 +159,7 @@ export const PROFILE_GAME_NAMES = Object.freeze({
   'farmy-evil-hills': 'Evil Hills',
   farmykart: 'Kartzoom',
   'farmy-scrabble': 'Letterloft',
-  'farmy-crosswords': 'Wordnook',
+  'farmy-crosswords': 'Wordburrow',
   'farmy-chess': 'Rookwise',
   'farmy-checkers': 'Jumpwise',
   'farmy-ludo': 'Pawnrush',

@@ -54,7 +54,7 @@ export const GAME_NAMES = Object.freeze({
   'farmy-ludo': { en: 'Pawnrush', es: 'Pawnrush: Parchís', pt: 'Pawnrush: Ludo', ja: 'Pawnrush ルドー', ko: 'Pawnrush 루도', id: 'Pawnrush: Ludo', vi: 'Pawnrush: Cờ Cá Ngựa' },
   farmykart: { en: 'Kartzoom', es: 'Kartzoom: Carreras de Karts', pt: 'Kartzoom: Corrida de Kart', ja: 'Kartzoom カートレース', ko: 'Kartzoom 카트 레이싱', id: 'Kartzoom: Balap Kart', vi: 'Kartzoom: Đua Xe' },
   'farmy-scrabble': { en: 'Letterloft', es: 'Letterloft: Fichas de Letras', pt: 'Letterloft: Tabuleiro de Palavras', ja: 'Letterloft 単語ボードゲーム', ko: 'Letterloft 단어 보드게임', id: 'Letterloft: Susun Kata', vi: 'Letterloft: Xếp Chữ' },
-  'farmy-crosswords': { en: 'Wordnook', es: 'Wordnook: Crucigramas', pt: 'Wordnook: Palavras Cruzadas', ja: 'Wordnook クロスワード', ko: 'Wordnook 십자말풀이', id: 'Wordnook: Teka-Teki Silang', vi: 'Wordnook: Ô Chữ' },
+  'farmy-crosswords': { en: 'Wordburrow', es: 'Wordburrow: Crucigramas', pt: 'Wordburrow: Palavras Cruzadas', ja: 'Wordburrow クロスワード', ko: 'Wordburrow 십자말풀이', id: 'Wordburrow: Teka-Teki Silang', vi: 'Wordburrow: Ô Chữ' },
   'farmy-five': { en: 'Guesswise', es: 'Guesswise: Adivina la Palabra', pt: 'Guesswise: Adivinhe a Palavra', ja: 'Guesswise 単語当て', ko: 'Guesswise 단어 맞추기', id: 'Guesswise: Tebak Kata', vi: 'Guesswise: Đoán Chữ' },
   'farmy-hive': { en: 'Combword', es: 'Combword: Panal de Letras', pt: 'Combword: Colmeia de Letras', ja: 'Combword ハチの巣パズル', ko: 'Combword 벌집 퍼즐', id: 'Combword: Rangkai Kata', vi: 'Combword: Ghép Chữ' },
   'farmy-herds': { en: 'Groupseek', es: 'Groupseek: Grupos de Palabras', pt: 'Groupseek: Grupos de Palavras', ja: 'Groupseek 仲間分け', ko: 'Groupseek 단어 묶기', id: 'Groupseek: Kelompok Kata', vi: 'Groupseek: Nhóm Từ' },

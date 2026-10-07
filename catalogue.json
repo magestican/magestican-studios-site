@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "4a6c2cc6-20261007T112319Z",
+ "buildId": "9bf2d93f-20261007T114643Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -163,12 +163,12 @@
    "ageNote": null,
    "order": 4,
    "addedAt": "2026-09-21",
-   "bytes": 96895
+   "bytes": 96897
   },
   {
    "id": "farmy-crosswords",
    "statsId": "farmy-crosswords",
-   "title": "Wordnook",
+   "title": "Wordburrow",
    "tagline": "All four word games in one place.",
    "description": "Four free word games on one page: Guesswise, Combword, Groupseek and Gridseek. Big letters, no timer, no account, and a room two people share.",
    "dir": "play/farmy-crosswords",
@@ -195,7 +195,7 @@
    "ageNote": null,
    "order": 5,
    "addedAt": "2026-09-04",
-   "bytes": 211665
+   "bytes": 211685
   },
   {
    "id": "farmy-chess",
@@ -227,7 +227,7 @@
    "ageNote": null,
    "order": 6,
    "addedAt": "2026-09-06",
-   "bytes": 90074
+   "bytes": 90076
   },
   {
    "id": "farmy-checkers",
@@ -259,7 +259,7 @@
    "ageNote": null,
    "order": 7,
    "addedAt": "2026-09-06",
-   "bytes": 83508
+   "bytes": 83510
   },
   {
    "id": "farmy-ludo",
@@ -290,7 +290,7 @@
    "ageNote": null,
    "order": 8,
    "addedAt": "2026-09-06",
-   "bytes": 84306
+   "bytes": 84310
   },
   {
    "id": "farmy-moon-life",
@@ -417,7 +417,7 @@
    "ageNote": null,
    "order": 15,
    "addedAt": "2026-09-21",
-   "bytes": 211665
+   "bytes": 211685
   },
   {
    "id": "farmy-hive",
@@ -449,7 +449,7 @@
    "ageNote": null,
    "order": 16,
    "addedAt": "2026-09-21",
-   "bytes": 211665
+   "bytes": 211685
   },
   {
    "id": "farmy-herds",
@@ -481,7 +481,7 @@
    "ageNote": null,
    "order": 17,
    "addedAt": "2026-09-21",
-   "bytes": 211665
+   "bytes": 211685
   },
   {
    "id": "farmy-furrows",
@@ -513,7 +513,7 @@
    "ageNote": null,
    "order": 18,
    "addedAt": "2026-09-21",
-   "bytes": 211665
+   "bytes": 211685
   }
  ]
 }

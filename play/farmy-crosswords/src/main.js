@@ -79,7 +79,7 @@ initAnalytics({ page: 'farmy-crosswords' });
 sfx.install();
 startVersionChecker({
   versionUrl: './version.json',
-  label: 'A new version of Wordnook is available.',
+  label: 'A new version of Wordburrow is available.',
 });
 
 const MODULES = { wordle, bee, connections, strands };
@@ -2094,7 +2094,7 @@ wireLiveBadge();
 
 
 
-mountLevelChip(document.querySelector('.studio-bar'), { share: 'Wordnook' });
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Wordburrow' });
 
 globalThis.__fc = {
   get room() {
