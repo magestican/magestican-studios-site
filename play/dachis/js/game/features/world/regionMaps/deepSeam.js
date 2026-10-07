@@ -124,6 +124,25 @@ export function* deepSeamSteps() {
     if (t === T.CLIFF && (roomOf(v) !== 2 || !inside(u, v))) { if (k < 0.75) addObj(W, { kind: 'crag', x, y, solid: 0, s: 1.0 + s * 0.9, rot, v: Math.floor(k * 8) % 4 }); continue; }
     if (t === T.MOSS && k < 0.08) addObj(W, { kind: 'fern', x, y, solid: 0, s: 0.6 + s * 0.4, rot, flavor: 'shrine' });
   }
+  
+  
+  {
+    const rp = U.rng(9393), GEMS = ['#c8a0ff', '#8fe8ff', '#b0ffd8'];
+    for (const p of POCKETS) {
+      for (let q = 0; q < 3; q++) { 
+        const a = -Math.PI / 2 + (q - 1) * 0.55 + (rp() - 0.5) * 0.3, d = p.r - 0.35, c = at(p.u + Math.cos(a) * d, p.v + Math.sin(a) * d);
+        addObj(W, { kind: 'crystal', x: c.x, y: c.y, solid: 0, s: 0.55 + rp() * 0.35, rot: rp() * 6.28, c: GEMS[Math.floor(rp() * GEMS.length)] });
+      }
+      for (let q = 0; q < 4; q++) { 
+        const a = rp() * Math.PI * 2, d = p.r - 0.25, c = at(p.u + Math.cos(a) * d, p.v + Math.sin(a) * d);
+        addObj(W, { kind: 'rock', x: c.x, y: c.y, solid: 0, s: 0.35 + rp() * 0.3, rot: rp() * 6.28, dark: true });
+      }
+      for (let q = 0; q < 4; q++) { 
+        const a = rp() * Math.PI * 2, d = 0.7 + rp() * (p.r - 1.1), c = at(p.u + Math.cos(a) * d, p.v + Math.sin(a) * d);
+        if (W.type[W.idx(Math.floor(c.x), Math.floor(c.y))] === T.MOSS) addObj(W, { kind: 'fern', x: c.x, y: c.y, solid: 0, s: 0.55 + rp() * 0.35, rot: rp() * 6.28, flavor: 'shrine' });
+      }
+    }
+  }
   yield 'props';
   buildGrid(W);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) if (W.type[W.idx(i, j)] === T.MOSS && W.reach[W.idx(i, j)]) W.wildTiles.push([i + 0.5, j + 0.5]);

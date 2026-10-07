@@ -30,6 +30,7 @@ export function placeFences(batch, W) {
     list.forEach((a, i) => {
       const b = list[(i + 1) % list.length], ha = W.groundAt(a.x, a.y), hb = W.groundAt(b.x, b.y);
       batch.add(post, { x: a.x, h: ha - 0.04, y: a.y, rot: jit(i, 1) * 6, s: [1, 0.9 + jit(i, 2) * 0.2, 1] });
+      if (a.open && i === list.length - 1) return; 
       const L = Math.hypot(b.x - a.x, b.y - a.y);
       batch.add(rail, { x: (a.x + b.x) / 2, h: (ha + hb) / 2 - 0.04, y: (a.y + b.y) / 2, rot: Math.atan2(b.x - a.x, b.y - a.y), s: [1, 1, L] });
     });

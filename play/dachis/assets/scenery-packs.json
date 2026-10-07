@@ -1,5 +1,5 @@
 {
- "hash": "62d1f4c4",
+ "hash": "3614bb36",
  "regions": {
   "kazan-isle": {
    "forms": [
@@ -28,14 +28,13 @@
     "lair-sweepings",
     "lair-violets",
     "lantern",
-    "ledge-0",
-    "ledge-1",
-    "ledge-2",
+    "magma-basalt",
     "palm",
     "pillar-0",
     "pillar-1",
     "pillar-2",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-basalt-0",
     "stone-basalt-1",
@@ -51,7 +50,10 @@
     "stone-grey-3",
     "temple",
     "torch",
-    "tree"
+    "tree",
+    "volcano-bridge",
+    "volcano-flow",
+    "volcano-vent"
    ],
    "pack": "assets/scenery-forms.bin",
    "extra": []
@@ -66,6 +68,7 @@
     "flowers",
     "hut",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-grey-0",
     "stone-grey-1",
@@ -86,6 +89,7 @@
     "flower-clump",
     "hut",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -126,6 +130,7 @@
     "life-well",
     "palm",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -185,6 +190,7 @@
     "life-washline",
     "life-well",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -242,6 +248,7 @@
     "life-washline",
     "palm",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -295,6 +302,7 @@
     "pillar-0",
     "pillar-2",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-grey-0",
     "stone-grey-1",
@@ -328,6 +336,7 @@
     "hut",
     "lantern",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-3",
@@ -354,6 +363,7 @@
     "pillar-1",
     "pillar-2",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -395,6 +405,7 @@
     "life-tools",
     "life-washline",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-grey-0",
     "stone-grey-1",
@@ -433,6 +444,7 @@
     "pillar-1",
     "pillar-2",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-grey-0",
     "stone-grey-1",
@@ -458,6 +470,7 @@
     "pillar-1",
     "pillar-2",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -495,6 +508,7 @@
     "life-stilts",
     "life-tools",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-grey-0",
     "stone-grey-1",
@@ -530,6 +544,7 @@
     "jtree",
     "lantern",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-grey-0",
     "stone-grey-1",
@@ -552,6 +567,7 @@
     "jtree",
     "lantern",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-grey-0",
     "stone-grey-1",
@@ -574,6 +590,7 @@
     "hut",
     "lantern",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -602,6 +619,7 @@
     "pillar-1",
     "pillar-2",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-grey-0",
     "stone-grey-1",
@@ -629,6 +647,7 @@
     "pillar-1",
     "pillar-2",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -672,6 +691,7 @@
     "life-toys",
     "life-washline",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -711,6 +731,7 @@
     "hut",
     "lantern",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -732,12 +753,14 @@
     "fern",
     "flower-bed",
     "flower-clump",
+    "geode-crystal",
     "hut",
     "lair-lamplit",
     "lair-lampout",
     "lair-redpool",
     "lantern",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -751,11 +774,12 @@
    ],
    "pack": "assets/scenery-deep-seam.bin",
    "extra": [
+    "geode-crystal",
     "lair-lamplit",
     "lair-lampout",
     "lair-redpool"
    ],
-   "bytes": 43580
+   "bytes": 73948
   },
   "geode-galleries": {
    "forms": [
@@ -768,6 +792,7 @@
     "geode-suncrack",
     "hut",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -816,6 +841,7 @@
     "life-washline",
     "life-well",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -882,6 +908,7 @@
     "life-well",
     "pillar-1",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-2",
     "stone-dark-3",
@@ -930,6 +957,7 @@
     "hut",
     "lantern",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -967,6 +995,7 @@
     "lair-moss",
     "lantern",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-1",
     "stone-dark-2",
@@ -1015,6 +1044,7 @@
     "magma-obsidian",
     "magma-plate",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -1040,13 +1070,12 @@
     "life-washline",
     "life-well",
     "magma-anvil",
-    "magma-basalt",
     "magma-column",
     "magma-forge",
     "magma-obsidian",
     "magma-plate"
    ],
-   "bytes": 534840
+   "bytes": 507492
   },
   "kazan-galleries": {
    "forms": [
@@ -1066,6 +1095,7 @@
     "magma-rail",
     "magma-wreck",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -1079,7 +1109,6 @@
    ],
    "pack": "assets/scenery-kazan-galleries.bin",
    "extra": [
-    "magma-basalt",
     "magma-cart",
     "magma-column",
     "magma-lever",
@@ -1088,7 +1117,7 @@
     "magma-rail",
     "magma-wreck"
    ],
-   "bytes": 203064
+   "bytes": 175712
   },
   "kazan-pyre": {
    "forms": [
@@ -1109,6 +1138,7 @@
     "magma-plate",
     "magma-valve",
     "spring-basin",
+    "step-basalt",
     "step-slab",
     "stone-dark-0",
     "stone-dark-1",
@@ -1125,13 +1155,12 @@
     "lair-ashbowl",
     "lair-redpool",
     "lair-seat",
-    "magma-basalt",
     "magma-column",
     "magma-obsidian",
     "magma-plate",
     "magma-valve"
    ],
-   "bytes": 180316
+   "bytes": 152968
   }
  }
 }

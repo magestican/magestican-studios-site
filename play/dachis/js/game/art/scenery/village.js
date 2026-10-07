@@ -21,10 +21,11 @@ import { placeCrystals } from './crystals.js';
 import { placeFrost } from './frost.js';
 import { placeLair } from './lair.js';
 import { placeMagma } from './magma.js';
+import { placeVolcano, createVentSteam } from './volcano.js';
 
 const GROWTH_RUN = 120;
 
-export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple, placeDoorProps, placeLife, placeCrystals, placeFrost, placeLair, placeMagma];
+export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, placeSteps, placeTorches, placeFences, placeFlowerBeds, placeSprings, placeGrowth, placeTemple, placeDoorProps, placeLife, placeCrystals, placeFrost, placeLair, placeMagma, placeVolcano];
 
 
 
@@ -54,6 +55,7 @@ export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight,
   clearPool(); 
   const fire = createTorchFire(scene, W);
   const water = createSpringWater(scene, W);
+  const vents = createVentSteam(scene, W); 
   const lava = crater ? createLava(scene, crater, craterRadius, lavaHeight) : { update() {} };
   const meshes = Object.values(groups).reduce((n, g) => n + g.children.length, 0);
   return {
@@ -62,7 +64,7 @@ export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight,
     showSection(id) { for (const k in groups) groups[k].visible = k === id; },
     update(t) {
       setPointScale(stage);
-      fire.update(t); water.update(t); lava.update(t);
+      fire.update(t); water.update(t); lava.update(t); vents.update(t);
     },
   };
 }

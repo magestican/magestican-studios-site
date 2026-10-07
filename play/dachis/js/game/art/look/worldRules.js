@@ -3,6 +3,7 @@
 
 import { T, VOLC, PATH_POINTS, COAST_PATH, CORAL_PATH, VERDANT_PATH, npcSpotOk } from '../../features/world/mapgen.js';
 import { classByte, regionByte } from './celRules.js';
+import { nearestSection } from '../../features/world/sections.js';
 import { PATH as TESTBED_PATH } from '../../features/world/regionMaps/testbed.js';
 import { LANE as VILLAGE_LANE } from '../../features/world/regionMaps/kazanVillage.js';
 import { PATH as EMBER_PATH } from '../../features/world/regionMaps/emberTube.js';
@@ -29,7 +30,11 @@ export function tileClass(t, section) {
 export function classPage(W) {
   const N = W.N, out = new Uint8Array(N * N * 4);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
-    const sec = W.sectionAt(i + 0.5, j + 0.5), o = (j * N + i) * 4;
+    let sec = W.sectionAt(i + 0.5, j + 0.5);
+    const o = (j * N + i) * 4;
+    
+    
+    if (!sec && (!W.region || W.region === 'kazan-isle') && nearestSection(i + 0.5, j + 0.5).section.id === 'slope') sec = 'slope';
     out[o] = classByte(tileClass(W.type[W.idx(i, j)], sec)); out[o + 1] = regionByte(sec); out[o + 3] = 255;
   }
   return out;

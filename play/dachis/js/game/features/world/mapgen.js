@@ -9,6 +9,7 @@
 
 
 import { U } from '../../../engine/core/util.js';
+import { fenceGuards } from './functional.js';
 import { SECTIONS, toUV, fromUV, sectionAtUV, sectionById, edgeDepth, nearestSection, sectionWindows, screenS, BASE_SECTIONS } from './sections.js';
 
 export const MAP = 96;
@@ -40,7 +41,33 @@ export const ISLAND = { u: 0, v: 67.9, r: 44 };
 export const BAY = { u: 30, v: 78.5, r: 12 };
 
 
-export const PATH_POINTS = uvPts([[0, 44.2], [0, 48.8], [-2.4, 50.4], [2.2, 52.3], [-1.3, 54.3], [0.6, 56.8], [3.2, 59.8],
+
+
+
+
+export const PATH_POINTS = uvPts([[0, 44.2], [0, 48.8], [-3.4, 50.2], [3.2, 52.6], [-2.6, 54.8], [0.6, 56.8], [3.2, 59.8],
+  [-1.6, 63.6], [1.8, 67.2], [0.3, 70.8], [-2, 74.8], [1.5, 79], [-1, 83.4], [-2.6, 87.6], [-1.4, 91], [0, 93.2]]);
+
+
+export const LAVA_RILL = uvPts([[3.8, 49.5], [2.0, 50.4], [0.6, 51.5], [-0.2, 52.6]]);
+
+
+export const LAVA_CROSS = (() => {
+  const seg = (k) => [PATH_POINTS[k], PATH_POINTS[k + 1]];
+  let best = null;
+  for (let r = 0; r < LAVA_RILL.length - 1; r++) for (let t = 0; t <= 1; t += 0.01) {
+    const x = LAVA_RILL[r][0] + (LAVA_RILL[r + 1][0] - LAVA_RILL[r][0]) * t, y = LAVA_RILL[r][1] + (LAVA_RILL[r + 1][1] - LAVA_RILL[r][1]) * t;
+    for (let k = 0; k < PATH_POINTS.length - 1; k++) {
+      const [[ax, ay], [bx, by]] = seg(k), dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+      const u = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2)), d = Math.hypot(x - ax - dx * u, y - ay - dy * u);
+      if (!best || d < best.d) best = { d, k, x: ax + dx * u, y: ay + dy * u };
+    }
+  }
+  const [[ax, ay], [bx, by]] = seg(best.k), dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+  const near = (x, y) => { const u = ((x - ax) * dx + (y - ay) * dy) / L2; return [ax + dx * u, ay + dy * u]; };
+  return { x: best.x, y: best.y, k: best.k, near };
+})();
+const BASE_PATH_POINTS = uvPts([[0, 44.2], [0, 48.8], [-2.4, 50.4], [2.2, 52.3], [-1.3, 54.3], [0.6, 56.8], [3.2, 59.8],
   [-1.6, 63.6], [1.8, 67.2], [0.3, 70.8], [-2, 74.8], [1.5, 79], [-1, 83.4], [-2.6, 87.6], [-1.4, 91], [0, 93.2]]);
 
 export const COAST_PATH = uvPts([[1.5, 79], [6, 78.4], [10.5, 78], [15, 77.6]]);
@@ -98,7 +125,7 @@ function volcanoAt(x, y) {
   const ridge = PLATEAU_H + rise + crag;
   return U.lerp(cone, ridge, w);
 }
-function heightAtPoint(x, y) {
+function heightAtPoint(x, y, level = false, base = false) {
   const [u, v] = toUV(x, y), land = landValue(x, y, u, v);
   if (land <= 0) return Math.max(-2.6, -0.2 + land * 4);
   const ds = U.dist(x, y, SHRINE.x, SHRINE.y);
@@ -108,6 +135,17 @@ function heightAtPoint(x, y) {
   if (U.dist(x, y, CRATER.x, CRATER.y) < 1.8) h = PLATEAU_H - 0.35;
   
   if (ds < 5) h = 0.85; else if (ds < 6.5) h = U.lerp(0.85, h, (ds - 5) / 1.5);
+  
+  const dr = distToLine(LAVA_RILL, x, y);
+  if (!base && dr < 1.1 && distToLine(PATH_POINTS, x, y) > 0.7) h -= 0.4 * smooth(U.clamp(1 - dr / 1.1, 0, 1));
+  
+  
+  
+  
+  if (!level && !base) {
+    const dc = U.dist(x, y, LAVA_CROSS.x, LAVA_CROSS.y);
+    if (dc < 3.0) { const [cx, cy] = LAVA_CROSS.near(x, y); h = U.lerp(heightAtPoint(cx, cy, true), h, smooth(U.clamp((dc - 2.4) / 0.6, 0, 1))); }
+  }
   
   const dp = U.dist(x, y, CORAL.plaza.x, CORAL.plaza.y);
   if (dp < 4.6) h = 0.3; else if (dp < 6) h = U.lerp(0.3, h, (dp - 4.6) / 1.4);
@@ -130,9 +168,10 @@ function distToLine(pts, x, y) {
 
 
 export const LATE_PATHS = [VERDANT_PATH];
-const distToBaseRoads = (x, y) => Math.min(distToLine(PATH_POINTS, x, y), distToLine(COAST_PATH, x, y), distToLine(CORAL_PATH, x, y));
+const distToBaseRoads = (x, y) => Math.min(distToLine(BASE_PATH_POINTS, x, y), distToLine(COAST_PATH, x, y), distToLine(CORAL_PATH, x, y));
 const distToLate = (x, y) => Math.min(...LATE_PATHS.map((p) => distToLine(p, x, y)));
-export const distToRoads = (x, y) => Math.min(distToBaseRoads(x, y), distToLate(x, y));
+
+export const distToRoads = (x, y) => Math.min(distToLine(PATH_POINTS, x, y), distToLine(COAST_PATH, x, y), distToLine(CORAL_PATH, x, y), distToLate(x, y));
 
 
 function tileTypeFor(x, y, base = false) {
@@ -144,6 +183,7 @@ function tileTypeFor(x, y, base = false) {
   const sec = sectionAtUV(u, v, base ? BASE_SECTIONS : SECTIONS), road = base ? distToBaseRoads(x, y) : distToRoads(x, y);
   if (!sec) return dv < 18 ? T.CLIFF : T.WOOD;
   if (sec.id === 'kazan') return dv < 5.3 || road < 1.2 ? T.ROCK : T.CLIFF;
+  if (!base && sec.id === 'slope' && distToLine(LAVA_RILL, x, y) < 1.0 && road >= 0.7) return T.LAVA; 
   if (sec.id === 'slope') return road < 1.5 ? T.ROCK : T.CLIFF;
   const inset = sec.wall + (U.fbm(x * 0.25, y * 0.25, 5) - 0.5) * 1.6;
   if (edgeDepth(sec.rect, u, v).depth < inset && road > 1.9) return sec.id === 'coral' ? T.CLIFF : T.WOOD; 
@@ -264,7 +304,7 @@ export function generateMap() {
   
   W.baseType = new Uint8Array(N * N);
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) W.baseType[idx(i, j)] = tileTypeFor(i + 0.5, j + 0.5, true);
-  for (const pts of [PATH_POINTS, COAST_PATH, CORAL_PATH]) carve(W.baseType, pts);
+  for (const pts of [BASE_PATH_POINTS, COAST_PATH, CORAL_PATH]) carve(W.baseType, pts);
 
   mapQueries(W);
 
@@ -272,13 +312,28 @@ export function generateMap() {
   W.reach = flood(W.type);
   W.baseReach = flood(W.baseType);
   W.windows = sectionWindows(W);
-  W.baseWindows = sectionWindows({ N, reach: W.baseReach, groundAt: W.groundAt }, BASE_SECTIONS);
+  
+  
+  const baseVh = new Float32Array(V * V);
+  for (let j = 0; j < V; j++) for (let i = 0; i < V; i++) baseVh[j * V + i] = heightAtPoint(i, j, false, true);
+  const baseGroundAt = (x, y) => {
+    x = U.clamp(x, 0, N - 0.001); y = U.clamp(y, 0, N - 0.001);
+    const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j;
+    return Math.max(0, U.lerp(U.lerp(baseVh[j * V + i], baseVh[j * V + i + 1], fx), U.lerp(baseVh[(j + 1) * V + i], baseVh[(j + 1) * V + i + 1], fx), fy));
+  };
+  W.baseWindows = sectionWindows({ N, reach: W.baseReach, groundAt: baseGroundAt }, BASE_SECTIONS);
   W.windowsOf = lookIn(W, W.windows);
-  W.baseWindowsOf = lookIn(W, W.baseWindows);
+  W.baseWindowsOf = lookIn({ groundAt: baseGroundAt }, W.baseWindows);
+  W.baseHeightAt = (x, y) => { x = U.clamp(x, 0, N - 0.001); y = U.clamp(y, 0, N - 0.001); const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j; return U.lerp(U.lerp(baseVh[j * V + i], baseVh[j * V + i + 1], fx), U.lerp(baseVh[(j + 1) * V + i], baseVh[(j + 1) * V + i + 1], fx), fy); };
   W.onScreen = (x, y, pad = 1, padBelow = pad) => W.windowsOf(x, y, pad, padBelow).length > 0;
 
   placeObjects(W);
   placeSpots(W);
+  
+  W.objects = W.objects.filter((o) => !o.ghost);
+  W.objects.forEach((o, i) => { o.id = i; });
+  placeSlope(W);
+  buildGrid(W);
   
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const t = W.type[idx(i, j)]; if ((t === T.TALL || t === T.KELP || t === T.THICKET) && W.reach[idx(i, j)]) W.wildTiles.push([i + 0.5, j + 0.5]); }
   return W;
@@ -297,22 +352,18 @@ function placeTerraces(W, r) {
     for (let a = 0; a < Math.PI * 2; a += 1.45 / rr) {
       const ox = Math.cos(a), oy = Math.sin(a), x = V.x + ox * rr, y = V.y + oy * rr;
       if (!W.inMap(Math.floor(x), Math.floor(y)) || !W.baseWindowsOf(x, y, 1.4, 2.8).length) continue;
-      if (Math.abs(W.heightAt(x - ox * 0.5, y - oy * 0.5) - top) > 0.25) continue; 
+      if (Math.abs(W.baseHeightAt(x - ox * 0.5, y - oy * 0.5) - top) > 0.25) continue; 
       const tx = -oy * 0.85, ty = ox * 0.85;
       if (Math.min(distToBaseRoads(x, y), distToBaseRoads(x + tx, y + ty), distToBaseRoads(x - tx, y - ty)) < 1.3) continue;
-      addObj(W, { kind: 'ledge', x, y, h: top + 0.02, solid: 0.45, rot: Math.atan2(ox, oy), s: 0.9 + r() * 0.25, v: Math.floor(r() * 3) });
+      const ledge = { kind: 'ledge', x, y, h: top + 0.02, solid: 0.45, rot: Math.atan2(ox, oy), s: 0.9 + r() * 0.25, v: Math.floor(r() * 3) };
+      
+      
+      
+      if (nearestSection(x, y, BASE_SECTIONS).section.id === 'slope') { ledge.ghost = true; (W.slopeRisers ||= []).push({ x, y, ox, oy }); }
+      addObj(W, ledge);
     }
     
     
-    const mid = rr + (1 - 0.72) * TERRACE_RUN / 2;
-    for (let p = 1; p < PATH_POINTS.length - 1; p++) {
-      const [ax, ay] = PATH_POINTS[p], [bx, by] = PATH_POINTS[p + 1], da = U.dist(ax, ay, V.x, V.y), db = U.dist(bx, by, V.x, V.y);
-      if ((da - mid) * (db - mid) > 0) continue;
-      const f = (mid - da) / (db - da), cx = U.lerp(ax, bx, f), cy = U.lerp(ay, by, f), cd = U.dist(cx, cy, V.x, V.y);
-      const ox = (cx - V.x) / cd, oy = (cy - V.y) / cd;
-      for (let d = rr - 0.25; d <= TERRACE_R0 + (k + 1) * TERRACE_RUN + 0.2; d += 0.34)
-        addObj(W, { kind: 'step', x: V.x + ox * d, y: V.y + oy * d, solid: 0, rot: Math.atan2(ox, oy), i: W.objects.length });
-    }
   }
 }
 
@@ -369,7 +420,7 @@ function placeKazan(W, r) {
     if (dv < 5.0 || dv > 8.6) continue;
     steps.push({ x, y });
   }
-  steps.forEach((s, i) => addObj(W, { kind: 'step', x: s.x, y: s.y, solid: 0, rot: Math.atan2(dx, dy), i, last: i === steps.length - 1 }));
+  steps.forEach((s, i) => addObj(W, { kind: 'step', x: s.x, y: s.y, solid: 0, rot: Math.atan2(dx, dy), i, last: i === steps.length - 1, flavor: 'basalt' }));
   spokes.push({ pts: [[ax, ay], hub], half: 0.5 });
   
   for (const t of [0.2, 0.55]) for (const side of [-1, 1]) {
@@ -439,6 +490,8 @@ function lateGround(W, x, y) {
   return W.type[k] !== W.baseType[k] || distToLate(x, y) < 1.1 || (nearestSection(x, y).section.chapter || 0) >= 3;
 }
 
+
+const SLOPE_ZONE = (x, y) => { const [u, v] = toUV(x, y); return u > -9 && u < 9 && v > 44 && v < 58; };
 const coralGrown = (x, y) => { const [u, v] = toUV(x, y); return u > 26 && v > 83; };
 function placeGrowth(W, r) {
   const N = W.N, V = VOLC, S = SHRINE;
@@ -446,7 +499,8 @@ function placeGrowth(W, r) {
   
   
   
-  const put = (o) => { if (!lateGround(W, o.x, o.y) && !coralGrown(o.x, o.y)) addObj(W, o); };
+  
+  const put = (o) => { if (coralGrown(o.x, o.y)) return; if (!lateGround(W, o.x, o.y)) addObj(W, o); else if (SLOPE_ZONE(o.x, o.y)) addObj(W, { ...o, ghost: true }); };
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     const t = W.baseType[W.idx(i, j)];
     const x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28;
@@ -462,7 +516,8 @@ function placeGrowth(W, r) {
       continue;
     }
     if (t === T.CLIFF) {
-      if (k < 0.42) put({ kind: 'crag', x, y, solid: 0, s: 1.3 + s * 1.3, rot, v: Math.floor(r() * 4) });
+      
+      if (k < 0.42) { const v = Math.floor(r() * 4); if (near !== 'slope') put({ kind: 'crag', x, y, solid: 0, s: 1.3 + s * 1.3, rot, v }); }
       continue;
     }
     
@@ -516,6 +571,20 @@ function placeCoral(W) {
     else if (t === T.REEF && k < 0.085) addObj(W, { kind: 'rock', x, y, solid: 0.3, s: 0.5 + s * 0.4, rot, flavor: 'coral' });
     else if (t === T.KELP && k < 0.28) addObj(W, { kind: 'fern', x, y, solid: 0, s: 0.9 + s * 0.7, rot, flavor: 'kelp' });
   }
+  
+  
+  
+  const r2 = U.rng(2216);
+  for (let j = 0; j < W.N; j++) for (let i = 0; i < W.N; i++) {
+    const x = i + 0.2 + r2() * 0.6, y = j + 0.2 + r2() * 0.6, k = r2(), s = r2(), rot = r2() * 6.28, c = CORAL_COLORS[Math.floor(r2() * CORAL_COLORS.length)];
+    if (toUV(x, y)[0] < 17 || !inCoral(x, y) || U.dist(x, y, P.x, P.y) < C.plazaR + 1.2 || W.type[W.idx(i, j)] !== T.REEF || !W.onScreen(x, y, 1.2, 2.6) || distToRoads(x, y) < 1.1) continue;
+    if (k < 0.12) { 
+      addObj(W, { kind: 'rock', x, y, solid: 0, s: 0.5 + s * 0.3, rot, flavor: 'coral' });
+      for (let q = 0; q < 3; q++) { const a = r2() * 6.28; addObj(W, { kind: 'coral', x: x + Math.cos(a) * 0.45, y: y + Math.sin(a) * 0.45, solid: 0, s: 0.5 + r2() * 0.35, rot: r2() * 6.28, c: CORAL_COLORS[Math.floor(r2() * CORAL_COLORS.length)] }); }
+    } else if (k < 0.24) addObj(W, { kind: 'coral', x, y, solid: 0, s: 0.6 + s * 0.4, rot, c });
+    else if (k < 0.3) addObj(W, { kind: 'rimstone', x, y, solid: 0, s: 0.4 + s * 0.3, rot, v: Math.floor(s * 4), flavor: 'coral' });
+    else if (k < 0.32) addObj(W, { kind: 'pillar', x, y, solid: 0, rot, v: 2, s: 0.7 + s * 0.2 });
+  }
 }
 
 
@@ -528,7 +597,8 @@ function placeVerdant(W) {
   const add = (o) => { o.region = 'verdant'; addObj(W, o); }; 
   
   const mine = (x, y) => (nearestSection(x, y).section.id === 'verdant' || lateGround(W, x, y) || !W.baseWindowsOf(x, y, 1.2, 2.6).length) &&
-    nearestSection(x, y).section.id !== 'coral' && !coralGrown(x, y); 
+    nearestSection(x, y).section.id !== 'coral' && !coralGrown(x, y) && 
+    nearestSection(x, y).section.id !== 'slope'; 
   
   
   {
@@ -570,6 +640,128 @@ function placeVerdant(W) {
   }
 }
 
+
+
+
+
+
+
+const SCRUB_FLOWERS = ['#ffe45a', '#ffffff', '#ff9a5a', '#c9a0ff'];
+const EMBER_MOUTH = fromUV(1.4, 48.8); 
+function placeSlope(W) {
+  const r = U.rng(5150), first = W.objects.length;
+  let ring = 900; 
+  const onSlope = (x, y) => nearestSection(x, y).section.id === 'slope' && W.onScreen(x, y, 1.2, 2.6);
+  const near = (x, y, kinds, d) => W.objects.some((o) => kinds.includes(o.kind) && U.dist(x, y, o.x, o.y) < d);
+  const clear = (x, y) => U.dist(x, y, EMBER_MOUTH[0], EMBER_MOUTH[1]) > 1.9 && !near(x, y, ['step'], 0.95);
+  
+  for (let k = 0; k < PATH_POINTS.length - 1; k++) {
+    const [ax, ay] = PATH_POINTS[k], [bx, by] = PATH_POINTS[k + 1], L = U.dist(ax, ay, bx, by), dx = (bx - ax) / L, dy = (by - ay) / L;
+    for (const side of [-1, 1]) for (let t = 0.2 + r() * 0.6; t < L; t += 0.7 + r() * 0.55) {
+      const off = 1.18 + r() * 0.2, x = ax + dx * t - dy * side * off, y = ay + dy * t + dx * side * off, k2 = r(), rot = r() * 6.28;
+      if (W.sectionAt(x, y) !== 'slope' || distToRoads(x, y) < 1.1 || !clear(x, y)) continue;
+      if (k2 < 0.5) { 
+        const n = 1 + Math.floor(r() * 3);
+        for (let q = 0; q < n; q++) {
+          const a = r() * 6.28, d = q ? 0.32 + r() * 0.2 : 0, sx = x + Math.cos(a) * d - dy * side * (q ? 0.15 : 0), sy = y + Math.sin(a) * d + dx * side * (q ? 0.15 : 0);
+          if (distToRoads(sx, sy) < 1.05) continue;
+          addObj(W, { kind: 'rock', x: sx, y: sy, solid: q ? 0 : 0.22, s: q ? 0.35 + r() * 0.2 : 0.6 + r() * 0.3, rot: r() * 6.28, dark: r() < 0.45 });
+        }
+        if (r() < 0.6) addObj(W, { kind: 'fern', x: x - dy * side * 0.35, y: y + dx * side * 0.35, solid: 0, s: 0.55 + r() * 0.3, rot, flavor: 'scrub' });
+      } else if (k2 < 0.68) addObj(W, { kind: 'fern', x, y, solid: 0, s: 0.5 + r() * 0.3, rot, flavor: 'scrub' });
+      else if (k2 < 0.9) addObj(W, { kind: 'rock', x, y, solid: 0, s: 0.3 + r() * 0.2, rot, flavor: r() < 0.3 ? 'sulfur' : undefined, dark: true });
+      else if (k2 < 0.94) addObj(W, { kind: 'flower', x, y, solid: 0, c: SCRUB_FLOWERS[Math.floor(r() * SCRUB_FLOWERS.length)] });
+    }
+  }
+  
+  for (const { x: rx, y: ry, ox, oy } of W.slopeRisers || []) for (const t of [-0.45, 0.3]) {
+    const x = rx + ox * 0.35 - oy * t, y = ry + oy * 0.35 + ox * t, k = r();
+    if (distToRoads(x, y) < 1.3 || !clear(x, y)) continue;
+    if (k < 0.55) addObj(W, { kind: 'rock', x, y, solid: 0, s: 0.75 + r() * 0.45, rot: r() * 6.28, dark: r() < 0.6 });
+    else if (k < 0.8) addObj(W, { kind: 'bush', x, y, solid: 0, s: 0.7 + r() * 0.35, rot: r() * 6.28, flavor: 'slope' });
+    else addObj(W, { kind: 'fern', x, y, solid: 0, s: 0.7 + r() * 0.3, rot: r() * 6.28, flavor: 'scrub' });
+  }
+  delete W.slopeRisers;
+  
+  
+  
+  {
+    let best = null;
+    for (let k = 0; k < LAVA_RILL.length - 1; k++) for (let t = 0; t <= 1; t += 0.02) {
+      const x = U.lerp(LAVA_RILL[k][0], LAVA_RILL[k + 1][0], t), y = U.lerp(LAVA_RILL[k][1], LAVA_RILL[k + 1][1], t), d = distToLine(PATH_POINTS, x, y);
+      if (!best || d < best.d) best = { x, y, d };
+    }
+    let seg = null;
+    for (let p = 0; p < PATH_POINTS.length - 1; p++) if (distToLine([PATH_POINTS[p], PATH_POINTS[p + 1]], best.x, best.y) <= best.d + 1e-6) seg = p;
+    const [ax, ay] = PATH_POINTS[seg], [bx, by] = PATH_POINTS[seg + 1], L = U.dist(ax, ay, bx, by), dx = (bx - ax) / L, dy = (by - ay) / L;
+    const tt = (best.x - ax) * dx + (best.y - ay) * dy, cx = ax + dx * tt, cy = ay + dy * tt;
+    addObj(W, { kind: 'bridge', x: cx, y: cy, solid: 0, rot: Math.atan2(dx, dy) });
+    W.lavaCrossing = { x: cx, y: cy };
+    
+    for (const side of [-1, 1]) for (const along of [-1, 1]) {
+      ring++;
+      [0, 0.55, 1.1].forEach((q, n) => {
+        const x = cx + dx * along * (1.35 + q) - dy * side * 0.95, y = cy + dy * along * (1.35 + q) + dx * side * 0.95;
+        if (fenceGuards(W, { kind: 'fence', x, y })) addObj(W, { kind: 'fence', x, y, solid: 0.12, ring, k: n, open: true });
+      });
+    }
+  }
+  
+  
+  {
+    const [u0, u1] = sectionById('slope').rect.u, [v0, v1] = sectionById('slope').rect.v, placed = [];
+    const want = [['vent', 7, 1.7, 3.6], ['flow', 5, 2.0, 6], ['basalt', 4, 2.0, 9], ['obsidian', 5, 1.8, 9]];
+    for (const [kind, n, dmin, dmax] of want) {
+      for (let t = 0, got = 0; got < n && t < 2000; t++) {
+        const [x, y] = fromUV(u0 - 2 + r() * (u1 - u0 + 4), v0 + 0.5 + r() * (v1 - v0 - 0.5)), d = distToRoads(x, y), rot = r() * 6.28, s = r();
+        if (d < dmin || d > dmax || W.tileType(x, y) !== T.CLIFF || !onSlope(x, y) || !clear(x, y) || placed.some((p) => U.dist(p.x, p.y, x, y) < 2.2)) continue;
+        if ((kind === 'basalt' || kind === 'obsidian') && shadesKid(W, x, y)) continue; 
+        const down = Math.atan2(x - VOLC.x, y - VOLC.y); 
+        const o = kind === 'flow' ? { kind, x, y, solid: 0, rot: down + (s - 0.5) * 0.5, s: 0.9 + s * 0.6 } : { kind, x, y, solid: 0, rot, s: kind === 'vent' ? 0.85 + s * 0.4 : 0.7 + s * 0.4 };
+        addObj(W, o); placed.push(o); got++;
+        if (kind === 'vent') for (let q = 0; q < 3; q++) { const a = r() * 6.28; addObj(W, { kind: 'rock', x: x + Math.cos(a) * 0.6, y: y + Math.sin(a) * 0.6, solid: 0, s: 0.25 + r() * 0.15, rot: r() * 6.28, flavor: 'sulfur' }); } 
+      }
+    }
+  }
+  
+  for (let k = 1; k < PATH_POINTS.length - 1; k++) {
+    const [px, py] = PATH_POINTS[k], [ax, ay] = PATH_POINTS[k - 1], [bx, by] = PATH_POINTS[k + 1];
+    if (W.sectionAt(px, py) !== 'slope') continue;
+    const la = U.dist(ax, ay, px, py), lb = U.dist(px, py, bx, by);
+    let ox = (px - ax) / la - (bx - px) / lb, oy = (py - ay) / la - (by - py) / lb; 
+    const lo = Math.hypot(ox, oy); if (lo < 0.3) continue;
+    ox /= lo; oy /= lo;
+    const posts = [], base = Math.atan2(oy, ox);
+    for (let q = -2; q <= 2; q++) {
+      const a = base + q * 0.42, x = px + Math.cos(a) * 1.42, y = py + Math.sin(a) * 1.42;
+      if (distToRoads(x, y) < 1.15 || !clear(x, y) || W.sectionAt(x, y) !== 'slope') { if (posts.length) break; continue; }
+      if (!fenceGuards(W, { kind: 'fence', x, y })) { if (posts.length) break; continue; } 
+      posts.push([x, y]);
+    }
+    if (posts.length < 3) continue;
+    ring++;
+    posts.forEach(([x, y], q) => addObj(W, { kind: 'fence', x, y, solid: 0.12, ring, k: q, open: true }));
+  }
+  
+  for (let j = 0; j < W.N; j++) for (let i = 0; i < W.N; i++) {
+    const t = W.type[W.idx(i, j)];
+    const x = i + 0.2 + r() * 0.6, y = j + 0.2 + r() * 0.6, k = r(), s = r(), rot = r() * 6.28, _c = SCRUB_FLOWERS[Math.floor(r() * SCRUB_FLOWERS.length)];
+    if (t !== T.CLIFF || !onSlope(x, y) || distToRoads(x, y) < 1.7 || !clear(x, y) || near(x, y, ['crag', 'jtree', 'fence'], 0.8)) continue;
+    if (shadesKid(W, x, y)) { if (k < 0.15) addObj(W, { kind: 'fern', x, y, solid: 0, s: 0.5 + s * 0.3, rot, flavor: 'scrub' }); else if (k < 0.35) addObj(W, { kind: 'rock', x, y, solid: 0, s: 0.3 + s * 0.3, rot, dark: true }); continue; }
+    if (k < 0.12) { 
+      addObj(W, { kind: 'rock', x, y, solid: 0, s: 0.9 + s * 0.5, rot, dark: true });
+      for (let q = 0, n = 2 + Math.floor(r() * 2); q < n; q++) { const a = r() * 6.28; addObj(W, { kind: 'rock', x: x + Math.cos(a) * 0.5, y: y + Math.sin(a) * 0.5, solid: 0, s: 0.4 + r() * 0.3, rot: r() * 6.28, dark: r() < 0.7 }); }
+      addObj(W, { kind: 'fern', x: x + 0.4, y: y + 0.4, solid: 0, s: 0.6, rot, flavor: 'scrub' });
+    } else if (k < 0.2) addObj(W, { kind: 'rock', x, y, solid: 0, s: 0.3 + s * 0.3, rot, dark: true }); 
+    else if (k < 0.27) addObj(W, { kind: 'bush', x, y, solid: 0, s: 0.6 + s * 0.35, rot, flavor: 'slope' });
+    else if (k < 0.37) addObj(W, { kind: 'fern', x, y, solid: 0, s: 0.5 + s * 0.35, rot, flavor: 'scrub' });
+    else if (k < 0.4) addObj(W, { kind: 'rock', x, y, solid: 0, s: 0.3 + s * 0.2, rot, flavor: 'sulfur' });
+  }
+  
+  W.objects = [...W.objects.slice(0, first), ...W.objects.slice(first).filter((o) => o.kind === 'bridge' || o.kind === 'fence' || W.tileType(o.x, o.y) !== T.LAVA)];
+  W.objects.forEach((o, i) => { o.id = i; });
+}
+
 function placeObjects(W) {
   const r = U.rng(4242), N = W.N;
   const kazanPaths = placeKazan(W, r);
@@ -579,12 +771,16 @@ function placeObjects(W) {
   AMBUSH.rocks.forEach(([x, y], i) => addObj(W, { kind: 'rock', x, y, solid: 0.35, s: 1.2 + i * 0.25, rot: i * 2 }));
   
   
-  for (let k = 1; k < PATH_POINTS.length - 1; k++) {
-    const [ax, ay] = PATH_POINTS[k], [bx, by] = PATH_POINTS[k + 1], L = U.dist(ax, ay, bx, by), dx = (bx - ax) / L, dy = (by - ay) / L;
+  
+  for (let k = 1; k < BASE_PATH_POINTS.length - 1; k++) {
+    const [ax, ay] = BASE_PATH_POINTS[k], [bx, by] = BASE_PATH_POINTS[k + 1], L = U.dist(ax, ay, bx, by), dx = (bx - ax) / L, dy = (by - ay) / L;
     for (let t = 0.3; t < L; t += 0.62) for (const side of [-1, 1]) {
       const x = ax + dx * t - dy * side * 1.05, y = ay + dy * t + dx * side * 1.05;
-      if (W.sectionAt(x, y) !== 'slope' || distToRoads(x, y) < 0.98) continue;
-      addObj(W, { kind: 'rimstone', x, y, solid: 0.25, s: 0.62 + r() * 0.25, rot: r() * 6.28, v: Math.floor(r() * 4) });
+      if (W.sectionAt(x, y) !== 'slope' || Math.min(distToBaseRoads(x, y), distToLate(x, y)) < 0.98) continue;
+      
+      
+      
+      addObj(W, { kind: 'rimstone', x, y, solid: 0.25, s: 0.62 + r() * 0.25, rot: r() * 6.28, v: Math.floor(r() * 4), ghost: true });
     }
   }
   placeTerraces(W, r);
@@ -599,6 +795,10 @@ export const SPOT_ITEMS = [['tonic', 0.5], ['candy', 0.3], ['seal', 0.2]];
 function placeSpots(W) {
   const r = U.rng(555);
   let tries = 0;
+  
+  
+  const live = W.type;
+  W.type = live.map((t, k) => (SLOPE_ZONE((k % W.N) + 0.5, Math.floor(k / W.N) + 0.5) ? W.baseType[k] : t));
   while (W.spots.length < 40 && tries++ < 12000) {
     const x = 2 + r() * (W.N - 4), y = 2 + r() * (W.N - 4);
     if (!W.baseReach[W.idx(Math.floor(x), Math.floor(y))] || !W.walkable(x, y, 0.4)) continue; 
@@ -608,6 +808,7 @@ function placeSpots(W) {
     for (const [name, p] of SPOT_ITEMS) { if (k < p) { item = name; break; } k -= p; }
     W.spots.push({ id: 's' + W.spots.length, x, y, item });
   }
+  W.type = live;
   
   for (const sec of SECTIONS.filter((q) => q.chapter >= 3)) {
     const rs = U.rng(7000 + SECTIONS.indexOf(sec)), [u0, u1] = sec.rect.u, [v0, v1] = sec.rect.v;
