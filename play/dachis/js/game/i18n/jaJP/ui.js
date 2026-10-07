@@ -512,4 +512,6 @@ export default {
   
   "wings beat twice...": "羽が二回はばたく……",
   "Pyrecrown's wings beat twice, then he dives on you from above. Get out from under him; when he lands his fire is out for a moment.": "Pyrecrownの羽が二回はばたいたら、上から急降下してくる。下からどけ。着地したあと、少しのあいだ火が消える。",
+  "New Game+": "強くてニューゲーム",
+  "Start New Game+? Your dachis and your Dachidex come with you; the story starts over.": "強くてニューゲームをはじめる？ ダチたちとDachidexはそのまま。物語はさいしょから。",
 };

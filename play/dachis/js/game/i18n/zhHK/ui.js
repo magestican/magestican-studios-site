@@ -512,4 +512,6 @@ export default {
   
   "wings beat twice...": "對翼拍兩下……",
   "Pyrecrown's wings beat twice, then he dives on you from above. Get out from under him; when he lands his fire is out for a moment.": "Pyrecrown 對翼拍兩下，跟住就由上面衝落嚟。快啲閃開；佢一落地，把火會熄一陣。",
+  "New Game+": "New Game+",
+  "Start New Game+? Your dachis and your Dachidex come with you; the story starts over.": "開始 New Game+？你啲 dachi 同 Dachidex 會跟住你；故事由頭再嚟。",
 };

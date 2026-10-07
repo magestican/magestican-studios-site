@@ -95,7 +95,7 @@ export const youTag = {
 
 
 export const intro = {
-  save(scene, li) { store.set(INTRO_KEY, introProgress({ scene, li, name: G.name, gender: G.gender })); },
+  save(scene, li) { store.set(INTRO_KEY, introProgress({ scene, li, name: G.name, gender: G.gender, plus: G.cycle >= 2 })); },
   clear() { store.del(INTRO_KEY); },
   saved(sceneCount) { return resumable(store.get(INTRO_KEY), sceneCount); },
 };

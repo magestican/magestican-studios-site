@@ -18,6 +18,7 @@ import { startBattle } from '../battle/battle.js';
 import { KID, ELDER, NARR } from './scenes.js';
 import { questTalk } from '../quest/questRuntime.js';
 import { MANIFESTS } from '../world/manifests.js';
+import { starterChoices } from './newGamePlus.js';
 
 const HIBONE = { who: 'Hibone', portrait: GUARDIAN };
 const TOMO = { who: 'Tomo, the First Friend', portrait: undefined };
@@ -232,12 +233,13 @@ function afterGuardianFight() {
     L(NARR, 'You pick up the egg. It is warm, and heavier than it looks.', { onShow: () => { G.items.egg = 1; } }),
     L(NARR, 'The whole island goes quiet. Even the sea. Then the light talks.'),
     L(TOMO, 'Child of the other world. I have very little light left, so I will ask only once.'),
+    
     Object.assign(L(TOMO, 'What matters most to you?'), {
       choices: [
-        { sprite: STARTERS.power, html: '<b>Power</b><br><small>To be strong enough to protect everyone.</small>', fn: () => chooseStarter('power') },
-        { sprite: STARTERS.wisdom, html: '<b>Wisdom</b><br><small>To understand what is really happening.</small>', fn: () => chooseStarter('wisdom') },
-        { sprite: STARTERS.adventure, html: '<b>Adventure</b><br><small>To go wherever the road leads.</small>', fn: () => chooseStarter('adventure') },
-      ],
+        { path: 'power', sprite: STARTERS.power, html: '<b>Power</b><br><small>To be strong enough to protect everyone.</small>', fn: () => chooseStarter('power') },
+        { path: 'wisdom', sprite: STARTERS.wisdom, html: '<b>Wisdom</b><br><small>To understand what is really happening.</small>', fn: () => chooseStarter('wisdom') },
+        { path: 'adventure', sprite: STARTERS.adventure, html: '<b>Adventure</b><br><small>To go wherever the road leads.</small>', fn: () => chooseStarter('adventure') },
+      ].filter((c) => starterChoices(G.dex).includes(c.path)),
     }),
   ]);
 }
@@ -246,6 +248,10 @@ function chooseStarter(path) {
   const d = makeDachi(id, 5);
   addDachi(d);
   G.flags.starter = true; G.flags.path = path;
+  
+  const rejoin = (G.flags.rejoin || []).map((uid) => G.box.find((x) => x.uid === uid)).filter(Boolean);
+  for (const x of rejoin) if (G.party.length < 3 && !G.party.includes(x)) G.party.push(x);
+  delete G.flags.rejoin;
   G.follower.x = G.player.x; G.follower.y = G.player.y - 0.8;
   scene = null;
   const why = { power: 'a baby dragon, half machine, breathing tiny sparks', wisdom: 'a round little blue mouse with very wise eyes', adventure: 'a small monkey in a knight’s breastplate and a wizard’s hat' }[path];
@@ -253,6 +259,7 @@ function chooseStarter(path) {
     L(TOMO, path === 'power' ? 'Power. Then you will need a friend with fire in its heart.' : path === 'wisdom' ? 'Wisdom. Then you will need a friend who sees clearly.' : 'Adventure. Then you will need a friend who is never afraid of the next step.'),
     L(NARR, `The light gathers in your hands and becomes ${why}.`, { portrait: id }),
     L(NARR, `${s.name} joined you! It will fight at your side — press 1, 2, 3 in battle to shout its specials.`, { portrait: id }),
+    ...(rejoin.length ? [L(NARR, 'Then a rustle in the grass - your old friends, the ones from last time. They found you.')] : []),
     L(TOMO, 'Keep the egg close. The priests are waiting, and I am tired.'),
     L(NARR, 'Wild dachis live in the tall grass. Weaken one below 25% HP, then tap it to befriend it with the ritual.'),
   ]);

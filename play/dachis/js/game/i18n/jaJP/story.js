@@ -63,6 +63,7 @@ export default {
   "Adventure. Then you will need a friend who is never afraid of the next step.": "ぼうけん。ならば、次の一歩を決してこわがらない友が必要でしょう。",
   "The light gathers in your hands and becomes {0}.": "光がキミの手の中に集まり、{0}になった。",
   "{0} joined you! It will fight at your side — press 1, 2, 3 in battle to shout its specials.": "{0}が仲間になった！ キミといっしょに戦ってくれる——バトルで1・2・3をおして、必殺技をさけぼう。",
+  "Then a rustle in the grass - your old friends, the ones from last time. They found you.": "そのとき、草むらがガサッ。まえの旅の仲間たちだ。キミを見つけてくれた。",
   "Keep the egg close. The priests are waiting, and I am tired.": "タマゴをはなさずにいなさい。神官たちが待っています。わたしは、つかれました。",
   "Wild dachis live in the tall grass. Weaken one below 25% HP, then tap it to befriend it with the ritual.": "野生のダチは、背の高い草むらにすんでいる。HPを25%未満まで弱らせてからタップすると、儀式で友だちになれる。",
   "You are late. The Elder's bird came at dawn. We have been standing in these robes since dawn.": "おそいですよ。長老の鳥が来たのは夜明けです。わたくしどもは、夜明けからずっとこの法衣で立っておりました。",

@@ -7,7 +7,7 @@ import { createHints } from '../engine/ui/hints.js';
 import { createDialog, toast } from '../engine/ui/dialog.js';
 import { hydrateIcons } from '../engine/ui/icons.js';
 import { createSfx } from '../engine/audio/sfx.js';
-import { G, S, hasSave, loadGame, saveGame, healParty } from './state.js';
+import { G, S, hasSave, loadGame, saveGame, healParty, plusOffered, startNewGamePlus } from './state.js';
 import { SOUNDS } from './sounds.js';
 import { loadRecorded } from './recordedSounds.js';
 import { music } from './music.js';
@@ -375,6 +375,7 @@ document.querySelectorAll('.gbtn').forEach(b => {
 });
 setupNames(); 
 if (hasSave()) $('contBtn').classList.remove('hidden');
+if (plusOffered()) $('plusBtn').classList.remove('hidden'); 
 function leaveTitle() {
   $('title').classList.add('hidden');
   if (music.lofi.wasOn()) music.lofi.setOn(true);
@@ -398,7 +399,14 @@ $('newBtn').onclick = () => {
   G.clock = newClock(); 
   startWithWipe($('newBtn'), () => { intro.clear(); leaveTitle(); playIntro(null); });
 };
+
+$('plusBtn').onclick = () => {
+  if (!confirm('Start New Game+? Your dachis and your Dachidex come with you; the story starts over.')) return;
+  if (!startNewGamePlus()) return;
+  startWithWipe($('plusBtn'), () => { intro.clear(); leaveTitle(); playIntro(null); });
+};
 showResume(SCENES, (p) => {
+  if (p.plus && !startNewGamePlus()) return; 
   G.name = p.name; G.gender = p.gender;
   startWithWipe($('resumeBtn'), () => { leaveTitle(); playIntro({ scene: p.scene, li: p.li }); });
 });

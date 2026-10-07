@@ -8,6 +8,7 @@ import { mainStep } from './features/quest/quests.js';
 import { newClock, fixClock } from './features/clock/clock.js';
 import { HOME, saveRegion, regionById } from './features/world/regions.js';
 import { sectionById } from './features/world/sections.js';
+import { newGamePlus, plusReady } from './features/story/newGamePlus.js';
 
 export const G = {
   mode: 'title',        
@@ -68,6 +69,16 @@ export function loadGame() {
   return true;
 }
 export const deleteSave = () => slot.clear();
+
+
+
+export const plusOffered = () => plusReady(slot.load());
+export function startNewGamePlus() {
+  const s = slot.load();
+  if (!plusReady(s)) return false;
+  Object.assign(G, newGamePlus(s), { party: [], clock: newClock(), region: HOME });
+  return true;
+}
 
 export function healParty() { for (const d of G.box) d.hp = statsOf(d).maxHp; }
 export function addDachi(d) {

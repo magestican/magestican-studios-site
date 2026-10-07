@@ -67,6 +67,7 @@ export default {
   "Adventure. Then you will need a friend who is never afraid of the next step.": "Aventura. Entonces necesitarás un amigo que nunca le tema al siguiente paso.",
   "The light gathers in your hands and becomes {0}.": "La luz se junta en tus manos y se convierte en {0}.",
   "{0} joined you! It will fight at your side — press 1, 2, 3 in battle to shout its specials.": "¡{0} se unió a ti! Peleará a tu lado: presiona 1, 2, 3 en batalla para gritarle sus especiales.",
+  "Then a rustle in the grass - your old friends, the ones from last time. They found you.": "Luego, un ruido entre la hierba: tus viejos amigos, los de la vez pasada. Te encontraron.",
   "Keep the egg close. The priests are waiting, and I am tired.": "Mantén el huevo cerca. Los sacerdotes esperan, y estoy cansada.",
   "Wild dachis live in the tall grass. Weaken one below 25% HP, then tap it to befriend it with the ritual.": "Los dachis salvajes viven en el pasto alto. Bájale a uno los PS a menos de 25% y luego tócalo para hacerte su amigo con el ritual.",
   "You are late. The Elder's bird came at dawn. We have been standing in these robes since dawn.": "Llegas tarde. El pájaro del Anciano llegó al amanecer. Llevamos parados con estas túnicas desde el amanecer.",

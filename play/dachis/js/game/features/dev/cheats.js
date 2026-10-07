@@ -13,6 +13,7 @@
 
 
 
+
 import { SPECIES, EXTRA, BOSSES } from '../../data/species.js';
 import { earned, unlock } from '../achievements/achievements.js';
 import { SIDE } from '../quest/quests.js';
@@ -28,6 +29,7 @@ export function findSpecies(key) {
 const ORDER = ['ashlo', 'leviathrum', 'bramble', 'kingshade', 'quartz', 'glacius', 'pyrecrown', 'oblivar'];
 
 export function chapterFlags(n) {
+  if (n === 0) return { started: true };
   const f = { started: true, starter: true, initiated: true, kumabo: true };
   for (let i = 0; i < Math.min(ORDER.length, n - 1); i++) f['boss_' + ORDER[i]] = true;
   return f;
@@ -45,7 +47,7 @@ export function parseCheat(search) {
   const c = { chapter: null, at: null, party: [], boss: null, items: null, watch: null, quests: [], errors: [] };
   for (const part of raw.split(';').map((s) => s.trim()).filter(Boolean)) {
     const i = part.indexOf(':'), key = (i < 0 ? part : part.slice(0, i)).toLowerCase(), val = i < 0 ? '' : part.slice(i + 1);
-    if (key === 'chapter') c.chapter = Math.max(1, Math.min(8, Number(val) || 1));
+    if (key === 'chapter') c.chapter = Math.max(0, Math.min(8, val.trim() === '0' ? 0 : Number(val) || 1));
     else if (key === 'at') { const [where, xy] = val.split('@'), [region, section] = where.split(':'); c.at = { region, section: section || null, xy: xy ? xy.split(',').map(Number) : null }; }
     else if (key === 'party') for (const m of val.split(',')) {
       const [who, coat] = m.split('*'), [name, lvl] = who.split('@'), s = findSpecies(name); 
@@ -69,14 +71,14 @@ export async function applyCheat(c, d) {
   const { G, S } = d, wait = (ms) => new Promise((r) => setTimeout(r, ms));
   for (let i = 0; i < 120 && !S.W; i++) await wait(250);
   G.flags.cheat = true; 
-  Object.assign(G.flags, chapterFlags(c.chapter || (c.boss ? ORDER.indexOf(c.boss) + 1 : 1)));
+  Object.assign(G.flags, chapterFlags(c.chapter !== null ? c.chapter : (c.boss ? ORDER.indexOf(c.boss) + 1 : 1)));
   for (const q of c.quests || []) (G.flags.quests || (G.flags.quests = {}))[q.id] = q.n;
   silenceEarned(G.flags);
   for (const id of ['title', 'attract']) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
   const hud = document.getElementById('hud'); if (hud) hud.classList.remove('hidden');
   G.mode = 'world';
   if (c.party.length) { G.party.length = 0; G.box.length = 0; for (const p of c.party) { const x = d.makeDachi(p.sp, p.lvl); if (p.shiny) { x.shiny = p.shiny; x.hp = d.statsOf ? d.statsOf(x).maxHp : x.hp; } d.addDachi(x); } }
-  else if (!G.party.length) d.addDachi(d.makeDachi(202, 12));
+  else if (!G.party.length && c.chapter !== 0) d.addDachi(d.makeDachi(202, 12)); 
   if (c.items !== null) for (const k of Object.keys(G.items)) G.items[k] = c.items;
   d.healParty();
   if (c.at && d.regionById(c.at.region)) {

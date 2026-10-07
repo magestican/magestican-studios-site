@@ -63,6 +63,7 @@ export default {
   "Adventure. Then you will need a friend who is never afraid of the next step.": "冒險。那麼，你需要一位從不畏懼下一步嘅朋友。",
   "The light gathers in your hands and becomes {0}.": "光喺你手中聚埋，變成{0}。",
   "{0} joined you! It will fight at your side — press 1, 2, 3 in battle to shout its specials.": "{0}加入咗你！佢會喺你身邊作戰——戰鬥中撳 1、2、3，叫佢出招。",
+  "Then a rustle in the grass - your old friends, the ones from last time. They found you.": "跟住草叢沙沙聲——係你上次嘅老朋友。佢哋搵到你喇。",
   "Keep the egg close. The priests are waiting, and I am tired.": "隻蛋要貼身帶住。啲祭司等緊你，而我，攰喇。",
   "Wild dachis live in the tall grass. Weaken one below 25% HP, then tap it to befriend it with the ritual.": "野生 dachi 住喺長草入面。將一隻打到低過 25% HP，再撳佢，用儀式同佢交朋友。",
   "You are late. The Elder's bird came at dawn. We have been standing in these robes since dawn.": "你遲咗。長老隻雀天一光就嚟咗。我哋由天光著住呢身袍企到而家。",

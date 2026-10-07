@@ -17,8 +17,9 @@ export function rollName(gender, rnd = Math.random, prev = '') {
 
 
 export const INTRO_KEY = 'dachis.intro';
-export function introProgress({ scene, li, name, gender }) {
-  return { v: 1, scene: Math.max(0, scene | 0), li: Math.max(0, li | 0), name: String(name || '').slice(0, 14), gender: gender === 'girl' ? 'girl' : 'boy' };
+
+export function introProgress({ scene, li, name, gender, plus }) {
+  return { v: 1, scene: Math.max(0, scene | 0), li: Math.max(0, li | 0), name: String(name || '').slice(0, 14), gender: gender === 'girl' ? 'girl' : 'boy', ...(plus ? { plus: true } : {}) };
 }
 
 
@@ -26,7 +27,7 @@ export function resumable(p, sceneCount) {
   if (!p || p.v !== 1 || !Number.isInteger(p.scene) || !Number.isInteger(p.li) || !p.name) return null;
   if (p.scene < 0 || p.scene >= sceneCount || p.li < 0) return null;
   if (p.scene === 0 && p.li === 0) return null;
-  return { scene: p.scene, li: p.li, name: p.name, gender: p.gender === 'girl' ? 'girl' : 'boy' };
+  return { scene: p.scene, li: p.li, name: p.name, gender: p.gender === 'girl' ? 'girl' : 'boy', plus: p.plus === true };
 }
 
 
