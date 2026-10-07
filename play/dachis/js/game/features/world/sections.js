@@ -30,13 +30,17 @@ export const screenS = (v, h) => v * SIN_E - h * COS_E;
 export const SECTIONS = [
   { id: 'kazan', name: 'Kazan Village — Atop Mt. Kazan', rect: { u: [-6.5, 6.5], v: [33, 46] }, zoom: 8.5, wall: 0 },
   { id: 'slope', name: 'Mt. Kazan — The Winding Path', rect: { u: [-5, 5], v: [46, 56.5] }, zoom: 6.5, wall: 0, connector: true },
-  { id: 'jungle', name: 'Foothill Jungle', rect: { u: [-9, 9], v: [56.5, 70.5] }, zoom: 8.5, wall: 2.2 },
-  { id: 'road', name: 'Whispering Grass Road', rect: { u: [-9, 9], v: [70.5, 87] }, zoom: 8.5, wall: 2.0 },
+  
+  
+  
+  
+  { id: 'jungle', name: 'Foothill Jungle', rect: { u: [-9, 19], v: [56.5, 70.5] }, zoom: 8.5, wall: 2.2 },
+  { id: 'road', name: 'Whispering Grass Road', rect: { u: [-9, 9], v: [70.5, 87] }, zoom: 8.5, wall: 1.2 },
   { id: 'coast', name: 'Tomo Coast', rect: { u: [9, 23], v: [72, 85] }, zoom: 8.5, wall: 1.6, sea: true, extend: [0, 3.5, 0, 0] },
   { id: 'shrine', name: 'Shrine Village — Temple of the Priest Dachis', rect: { u: [-9, 9], v: [87, 101] }, zoom: 8.5, wall: 2.0 },
   
   
-  { id: 'coral', name: 'Coral Deep — The Sunken City', rect: { u: [9.5, 26], v: [85, 102] }, zoom: 8.5, wall: 1.8, chapter: 2, wildTypes: ['Tide', 'Frost', 'Metal'] },
+  { id: 'coral', name: 'Coral Deep — The Sunken City', rect: { u: [9.5, 32], v: [85, 102] }, zoom: 8.5, wall: 1.8, chapter: 2, wildTypes: ['Tide', 'Frost', 'Metal'] },
   
   
   { id: 'verdant', name: 'Verdant Wilds — The Old Grove', rect: { u: [-27, -9], v: [57, 75] }, zoom: 8.5, wall: 2.0, chapter: 3, wildTypes: ['Leaf', 'Spirit'] },
@@ -50,7 +54,10 @@ export const sectionById = (id) => SECTIONS.find((s) => s.id === id) || OTHER.fi
 
 
 
-export const BASE_SECTIONS = SECTIONS.filter((s) => !(s.chapter >= 3));
+
+
+export const GROWN_FROM = { jungle: { rect: { u: [-9, 9], v: [56.5, 70.5] }, wall: 2.2 }, road: { rect: { u: [-9, 9], v: [70.5, 87] }, wall: 2.0 }, coral: { rect: { u: [9.5, 26], v: [85, 102] }, wall: 1.8 } };
+export const BASE_SECTIONS = SECTIONS.filter((s) => !(s.chapter >= 3)).map((s) => (GROWN_FROM[s.id] ? { ...s, ...GROWN_FROM[s.id] } : s));
 
 const inRect = (r, u, v, grow = 0) => u >= r.u[0] - grow && u <= r.u[1] + grow && v >= r.v[0] - grow && v <= r.v[1] + grow;
 export function sectionAtUV(u, v, list = SECTIONS) {

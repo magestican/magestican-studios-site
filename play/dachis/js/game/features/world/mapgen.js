@@ -425,8 +425,8 @@ function placeShrine(W, r) {
 
 
 
-function shadesKid(W, x, y) {
-  const reachAt = (a, b) => { const i = Math.floor(a), j = Math.floor(b); return W.inMap(i, j) && W.reach[W.idx(i, j)] === 1; };
+function shadesKid(W, x, y, reach = W.reach) {
+  const reachAt = (a, b) => { const i = Math.floor(a), j = Math.floor(b); return W.inMap(i, j) && reach[W.idx(i, j)] === 1; };
   for (let back = 1.0; back <= 2.2; back += 0.4) for (const side of [-0.4, 0, 0.4]) {
     const [u, v] = toUV(x, y), [bx, by] = fromUV(u + side, v - back);
     if (reachAt(bx, by)) return true;
@@ -438,12 +438,15 @@ function lateGround(W, x, y) {
   const i = Math.floor(x), j = Math.floor(y), k = W.idx(i, j);
   return W.type[k] !== W.baseType[k] || distToLate(x, y) < 1.1 || (nearestSection(x, y).section.chapter || 0) >= 3;
 }
+
+const coralGrown = (x, y) => { const [u, v] = toUV(x, y); return u > 26 && v > 83; };
 function placeGrowth(W, r) {
   const N = W.N, V = VOLC, S = SHRINE;
-  const shades = (x, y) => shadesKid(W, x, y);
+  const shades = (x, y) => shadesKid(W, x, y, W.baseReach); 
   
   
-  const put = (o) => { if (!lateGround(W, o.x, o.y)) addObj(W, o); };
+  
+  const put = (o) => { if (!lateGround(W, o.x, o.y) && !coralGrown(o.x, o.y)) addObj(W, o); };
   for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
     const t = W.baseType[W.idx(i, j)];
     const x = i + 0.25 + r() * 0.5, y = j + 0.25 + r() * 0.5, k = r(), s = r(), rot = r() * 6.28;
@@ -481,7 +484,7 @@ function placeGrowth(W, r) {
 const CORAL_COLORS = ['#ff7a8a', '#ff9a5a', '#c78cff', '#ffc2d8', '#5fe0d0'];
 function placeCoral(W) {
   const r = U.rng(2215), C = CORAL, P = C.plaza;
-  const inCoral = (x, y) => nearestSection(x, y).section.id === 'coral';
+  const inCoral = (x, y) => nearestSection(x, y).section.id === 'coral' || coralGrown(x, y);
   
   {
     const [ax, ay] = CORAL_PATH[2], [bx, by] = CORAL_PATH[3], L = U.dist(ax, ay, bx, by), dx = (bx - ax) / L, dy = (by - ay) / L;
@@ -524,7 +527,8 @@ function placeVerdant(W) {
   const r = U.rng(3316), V = VERDANT, P = V.grove;
   const add = (o) => { o.region = 'verdant'; addObj(W, o); }; 
   
-  const mine = (x, y) => nearestSection(x, y).section.id === 'verdant' || lateGround(W, x, y) || !W.baseWindowsOf(x, y, 1.2, 2.6).length;
+  const mine = (x, y) => (nearestSection(x, y).section.id === 'verdant' || lateGround(W, x, y) || !W.baseWindowsOf(x, y, 1.2, 2.6).length) &&
+    nearestSection(x, y).section.id !== 'coral' && !coralGrown(x, y); 
   
   
   {

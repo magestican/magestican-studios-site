@@ -21,26 +21,31 @@ export const SECTIONS = addSections([
 ]);
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
 
-export const CHAMBERS = [{ id: 'tree-vault', u: 0, v: 38.4, r: 6.2 }, { id: 'tree-heart', u: 0, v: 54, r: 7.2 }, { id: 'tree-roots', u: 0, v: 70, r: 6.6 }];
+
+
+
+export const CHAMBERS = [{ id: 'tree-vault', u: 0, v: 38.4, r: 6.2, ru: 6.2, rv: 6.2 }, { id: 'tree-heart', u: 0, v: 54, r: 7.2, ru: 9.6, rv: 6.4 }, { id: 'tree-roots', u: 0, v: 70, r: 6.6, ru: 9.4, rv: 6.2 }];
+const ovalD = (c, u, v) => (Math.hypot((u - c.u) / c.ru, (v - c.v) / c.rv) - 1) * Math.min(c.ru, c.rv); 
+export const TANGLES = CHAMBERS.slice(1).flatMap((c) => [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([a, b]) => ({ u: c.u + a * c.ru * 0.62, v: c.v + b * c.rv * 0.62, r: 2.2 })));
 
 export const WAY = [[-1.6, 33.0], [1.2, 37.0], [-0.8, 41.6], [2.0, 46.0], [0.6, 50.4], [-2.4, 54.0], [0.4, 58.0], [2.4, 62.0], [0.6, 66.0], [-1.2, 70.0], [0, 72.4]].map(([u, v]) => fromUV(u, v));
 export const ENTRY = at(-1.6, 33.4);        
 export const SAP = at(3.6, 55.4);           
 export const SAP_LANDING = at(2.0, 56.8);
 export const SEED = { ...at(0, 73.4), r: 2.0 }; 
-const inChamber = (u, v, pad = 0) => CHAMBERS.some((c) => Math.hypot(u - c.u, v - c.v) < c.r + pad + U.fbm(u * 0.5, v * 0.5, 501) * 0.8 - 0.4);
+const inChamber = (u, v, pad = 0) => CHAMBERS.some((c) => ovalD(c, u, v) < pad + U.fbm(u * 0.5, v * 0.5, 501) * 0.8 - 0.4);
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);
 export const BASE_H = 0.2;
 function heightAtPoint(x, y) {
-  const [u, v] = toUV(x, y), d = Math.min(...CHAMBERS.map((c) => Math.hypot(u - c.u, v - c.v) - c.r));
+  const [u, v] = toUV(x, y), d = Math.min(...CHAMBERS.map((c) => ovalD(c, u, v)));
   return BASE_H + U.fbm(x * 0.14, y * 0.14, 503) * 0.1 + U.clamp(d + 0.8, 0, 2.5) * 0.7; 
 }
 function tileFor(x, y) {
   const [u, v] = toUV(x, y);
   if (!inside(u, v) || !inChamber(u, v)) return T.CLIFF;
-  const c = CHAMBERS.find((k) => Math.hypot(u - k.u, v - k.v) < k.r + 0.6) || CHAMBERS[1], d = c.r - Math.hypot(u - c.u, v - c.v);
+  const c = CHAMBERS.find((k) => ovalD(k, u, v) < 0.6) || CHAMBERS[1];
   const n = U.fbm(x * 0.2, y * 0.2, 505);
-  if (c.id !== 'tree-vault' && d < 2.4 && n > 0.4) return T.THICKET; 
+  if (c.id !== 'tree-vault' && TANGLES.some((t) => Math.hypot(u - t.u, v - t.v) < t.r + (n - 0.5) * 0.8)) return T.THICKET; 
   if (c.id === 'tree-vault') return n > 0.55 ? T.MOSS : T.GLADE;
   return n > 0.5 ? T.MOSS : T.GLADE;
 }

@@ -10,6 +10,8 @@ import { SECTIONS } from './sections.js';
 import { MAP, SPAWN, RESPAWN, generateMap, HOME } from './mapgen.js';
 import { MANIFESTS } from './manifests.js';
 import { dressLairs } from './lairDressing.js';
+import { shapeGrassBeds } from './grassBeds.js';
+import { TOWNS } from '../../musicCues.js';
 
 export { HOME };
 export const REGIONS = [
@@ -34,7 +36,10 @@ export const saveRegion = (s) => (s && regionById(s.region) ? s.region : HOME);
 
 export const GENERATORS = { [HOME]: generateMap, ...Object.fromEntries(MANIFESTS.map((m) => [m.region.id, m.generate])) };
 
-export function generateRegion(id) { const g = GENERATORS[id]; if (!g) throw new Error('no map for region ' + id); const W = g(); dressLairs(W, id, HOME); return W; }
+
+
+export function finishRegion(W, id) { dressLairs(W, id, HOME); W.beds = shapeGrassBeds(W, id, TOWNS); return W; }
+export function generateRegion(id) { const g = GENERATORS[id]; if (!g) throw new Error('no map for region ' + id); return finishRegion(g(), id); }
 
 
 
@@ -42,7 +47,7 @@ export const STEPS = Object.fromEntries(MANIFESTS.filter((m) => m.steps).map((m)
 export async function generateRegionSliced(id, slice) {
   if (!STEPS[id]) return generateRegion(id);
   const it = STEPS[id]();
-  for (;;) { const s = it.next(); if (s.done) { dressLairs(s.value, id, HOME); return s.value; } await slice('map ' + id + ' ' + s.value); }
+  for (;;) { const s = it.next(); if (s.done) return finishRegion(s.value, id); await slice('map ' + id + ' ' + s.value); }
 }
 
 

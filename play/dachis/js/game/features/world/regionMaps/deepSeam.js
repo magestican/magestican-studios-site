@@ -17,31 +17,36 @@ export const SIZE = 96;
 const WT = ['Stone', 'Metal', 'Shadow'];
 export const SECTIONS = addSections([
   { id: 'seam-hall', name: 'The Deep Seam - The Lamp Hall', rect: { u: [-12, 12], v: [30, 46] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 5, dark: true, wildTypes: WT },
-  { id: 'seam-narrows', name: 'The Deep Seam - The Narrows', rect: { u: [-12, 12], v: [46, 62] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 5, dark: true, wildTypes: WT },
-  { id: 'seam-stones', name: 'The Deep Seam - The Stepping Dark', rect: { u: [-12, 12], v: [62, 78] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 5, dark: true, wildTypes: WT },
-  { id: 'seam-hollow', name: 'The Hermit\'s Hollow', rect: { u: [-12, 12], v: [78, 94] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 5, dark: true, wildTypes: WT },
+  
+  
+  { id: 'seam-narrows', name: 'The Deep Seam - The Narrows', rect: { u: [-12, 12], v: [46, 70] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 5, dark: true, wildTypes: WT },
+  { id: 'seam-stones', name: 'The Deep Seam - The Stepping Dark', rect: { u: [-12, 12], v: [70, 86] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 5, dark: true, wildTypes: WT },
+  { id: 'seam-hollow', name: 'The Hermit\'s Hollow', rect: { u: [-12, 12], v: [86, 102] }, zoom: 8.5, wall: 2.0, region: ID, chapter: 5, dark: true, wildTypes: WT },
 ]);
 const at = (u, v) => { const [x, y] = fromUV(u, v); return { x, y }; };
-export const DOORWAYS = [{ u: 0, v: 46 }, { u: 0, v: 62 }, { u: 0, v: 78 }];
-const roomOf = (v) => (v < 46 ? 0 : v < 62 ? 1 : v < 78 ? 2 : 3);
+export const DOORWAYS = [{ u: 0, v: 46 }, { u: 0, v: 70 }, { u: 0, v: 86 }];
+const roomOf = (v) => (v < 46 ? 0 : v < 70 ? 1 : v < 86 ? 2 : 3);
+const DV = 8; 
 
 export const PILLARS = [[-6, 35, 1.2], [-1.8, 36.4, 1.1], [3, 35, 1.2], [7.2, 36.6, 1.0], [-7, 40, 1.1], [-3, 41.2, 1.2], [1.6, 39.6, 1.1], [6, 40.8, 1.2], [-4.6, 43.8, 0.9], [4.2, 43.6, 0.9]].map(([u, v, r]) => ({ u, v, r }));
 
-export const CREVICE = [[0, 46], [-5, 49], [4, 52.5], [-5, 56], [3, 59.5], [0, 62]];
-export const SPURS = [[[-5, 49], [-9.2, 47.8]], [[4, 52.5], [9.2, 53.6]], [[-5, 56], [-9.4, 57.6]]];
+export const CREVICE = [[0, 46], [-5, 50], [4, 54.5], [-5, 59], [4, 63.5], [-3, 67], [0, 70]];
+export const SPURS = [[[-5, 50], [-9.2, 48.8]], [[4, 54.5], [9.2, 55.6]], [[-5, 59], [-9.4, 60.6]]];
+
+export const POCKETS = [[-7.1, 49.4, 2.3], [6.6, 55.0, 2.3], [-7.2, 59.8, 2.3], [7.4, 64.4, 2.4], [-6.4, 66.6, 2.0]].map(([u, v, r]) => ({ u, v, r }));
 export const CREVICE_HALF = 1.0;
 
 export const STONES = [[0, 62.8, 1.3], [-1.2, 64.6, 1.0], [-2.8, 66.0, 1.0], [-2.4, 67.9, 1.0], [-0.6, 69.0, 1.0], [1.4, 70.0, 1.0], [2.6, 71.7, 1.0],
-  [1.6, 73.4, 1.0], [0, 74.6, 1.0], [0, 76.4, 1.1], [0, 77.6, 1.2], [-4.6, 66.4, 0.9], [-6.4, 67.2, 1.1], [4.4, 70.6, 0.9], [6.2, 71.2, 1.1]].map(([u, v, r]) => ({ u, v, r: r + 0.35 })); 
+  [1.6, 73.4, 1.0], [0, 74.6, 1.0], [0, 76.4, 1.1], [0, 77.6, 1.2], [-4.6, 66.4, 0.9], [-6.4, 67.2, 1.1], [4.4, 70.6, 0.9], [6.2, 71.2, 1.1]].map(([u, v, r]) => ({ u, v: v + DV, r: r + 0.35 })); 
 
-export const HOLLOW = { u: 0, v: 86, r: 6.6 };
-export const HERMIT_SPOT = at(0, 89);
+export const HOLLOW = { u: 0, v: 86 + DV, r: 6.6 };
+export const HERMIT_SPOT = at(0, 89 + DV);
 
 const LAMP_UV = [
   [[-9, 32.6], [9, 32.6], [-9.2, 44.2], [9.2, 44.2]],
-  [[-9.6, 47.6], [9.6, 53.7], [-9.8, 57.7]],
-  [[-6.8, 67.3], [6.6, 71.3]],
-  [[-5.4, 82.6], [5.4, 82.6], [-5.4, 89.4], [5.4, 89.4]],
+  [[-9.6, 48.6], [9.6, 55.7], [-9.8, 60.7]],
+  [[-6.8, 67.3 + DV], [6.6, 71.3 + DV]],
+  [[-5.4, 82.6 + DV], [5.4, 82.6 + DV], [-5.4, 89.4 + DV], [5.4, 89.4 + DV]],
 ];
 export const LAMPS = LAMP_UV.flatMap((list, room) => list.map(([u, v], i) => ({ id: `ds${room}-${i}`, room, u, v, ...at(u, v) })));
 
@@ -70,9 +75,9 @@ function floor(u, v) {
   if (!inside(u, v)) return false;
   const room = roomOf(v);
   if (room === 0) return discIn(PILLARS, u, v) < 0;
-  if (room === 1) return lineD(CREVICE, u, v) < CREVICE_HALF || SPURS.some((s) => lineD(s, u, v) < 0.85);
+  if (room === 1) return lineD(CREVICE, u, v) < CREVICE_HALF || SPURS.some((s) => lineD(s, u, v) < 0.85) || discIn(POCKETS, u, v) > 0;
   if (room === 2) return discIn(STONES, u, v) > 0;
-  return Math.hypot(u - HOLLOW.u, v - HOLLOW.v) < HOLLOW.r || (v < 80 && Math.abs(u) < 1.4);
+  return Math.hypot(u - HOLLOW.u, v - HOLLOW.v) < HOLLOW.r || (v < 80 + DV && Math.abs(u) < 1.4);
 }
 function heightAtPoint(x, y) {
   const [u, v] = toUV(x, y);
@@ -85,6 +90,7 @@ function tileFor(x, y) {
   const room = roomOf(v);
   if (room === 2) { const k = STONES.findIndex((s) => Math.hypot(u - s.u, v - s.v) < s.r); return k % 2 ? T.ROCK : T.RUIN; } 
   if (room === 3) return T.RUIN;
+  if (room === 1) return discIn(POCKETS, u, v) > 0 ? T.MOSS : T.ROCK; 
   return U.fbm(x * 0.25, y * 0.25, 905) > 0.62 ? T.MOSS : T.ROCK;
 }
 

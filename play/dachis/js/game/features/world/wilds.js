@@ -23,14 +23,37 @@ let respawn = 0, filledW = null, filledSec = null;
 
 
 
+
+
+
+
+export const PER_PATCH = 2, ROAM_MIN = 6;
+export function grassPatches(W, id) {
+  const keys = new Map();
+  for (const [x, y] of W.wildTiles) if (!id || W.sectionAt(x, y) === id) keys.set(Math.floor(x) + ',' + Math.floor(y), [x, y]);
+  const patchOf = new Map(), tiles = [];
+  let roamable = 0;
+  for (const k of keys.keys()) {
+    if (patchOf.has(k)) continue;
+    const st = [k], found = [k]; patchOf.set(k, -1);
+    while (st.length) {
+      const [i, j] = st.pop().split(',').map(Number);
+      for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const q = (i + a) + ',' + (j + b); if (keys.has(q) && !patchOf.has(q)) { patchOf.set(q, -1); st.push(q); found.push(q); } }
+    }
+    const pid = found.length >= ROAM_MIN ? roamable++ : -1;
+    for (const q of found) { patchOf.set(q, pid); if (pid >= 0) tiles.push([...keys.get(q), pid]); }
+  }
+  return { tiles, roamable, cap: Math.min(MAX_WILDS, PER_PATCH * roamable) };
+}
 const secTiles = new WeakMap();
-const tilesHere = () => {
+const patchesHere = () => {
   const id = S.cam && S.cam.sec, W = S.W;
   if (!secTiles.has(W)) secTiles.set(W, new Map());
   const m = secTiles.get(W);
-  if (!m.has(id)) m.set(id, W.wildTiles.filter(([x, y]) => !id || W.sectionAt(x, y) === id));
+  if (!m.has(id)) m.set(id, grassPatches(W, id));
   return m.get(id);
 };
+const inPatch = (pid) => { const sec = S.cam && S.cam.sec; return G.wilds.filter((w) => w.patch === pid && w.sec === sec).length; };
 
 const tables = new Map();
 const WILD_TABLE_SHARE = 0.75; 
@@ -43,10 +66,12 @@ const tableHere = () => {
 
 
 export function spawnWild(near = null, minD = 7, where = null) {
-  const W = S.W, p = G.player, tiles = tilesHere();
+  const W = S.W, p = G.player, here = patchesHere();
+  
+  const tiles = near ? [] : here.tiles.filter((t) => inPatch(t[2]) < PER_PATCH);
   if (!near && (!tiles.length || isSafe(S.cam && S.cam.sec))) return null;
   for (let tries = 0; tries < (where ? 80 : 25); tries++) {
-    const [x, y] = near ? [near.x, near.y] : tiles[Math.floor(Math.random() * tiles.length)];
+    const [x, y, pid] = near ? [near.x, near.y, -1] : tiles[Math.floor(Math.random() * tiles.length)];
     if (!near && (U.dist(x, y, p.x, p.y) < minD || (where && !where(x, y)) || !W.walkable(x, y) || isSafe(W.sectionAt(x, y)))) continue;
     const far = U.dist(x, y, VOLC.x, VOLC.y);
     
@@ -63,7 +88,7 @@ export function spawnWild(near = null, minD = 7, where = null) {
     const d = makeDachi(fam * 3 + stage, lvl);
     if (Math.random() < U.clamp((far - 15) / 90, 0.05, 0.35)) d.corrupt = true;
     d.shiny = rollShiny(Math.random()) || undefined; if (d.shiny) { d.corrupt = false; d.hp = statsOf(d).maxHp; } 
-    const w = { x, y, d, home: { x, y }, tx: x, ty: y, wait: Math.random() * 2, face: 1, walk: 0, stun: 0, chase: false };
+    const w = { x, y, d, home: { x, y }, patch: pid, sec: S.cam && S.cam.sec, tx: x, ty: y, wait: Math.random() * 2, face: 1, walk: 0, stun: 0, chase: false };
     w.bb = dachiBillboard(S.stage.scene, speciesById(d.sp).stage);
     G.wilds.push(w);
     return w;
@@ -91,13 +116,14 @@ export function updateWilds(dt, { active }) {
     
     
     const inSight = (x, y) => { const [sx, sy] = S.stage.toScreen(x, y, W.groundAt(x, y)); return sx > innerWidth * 0.12 && sx < innerWidth * 0.88 && sy > innerHeight * 0.18 && sy < innerHeight * 0.75; };
-    for (let k = 0; k < 2 && have < MAX_WILDS; k++) if (spawnWild(null, 4, inSight)) have++, n++;
-    while (have < MAX_WILDS && spawnWild(null, 4)) have++, n++;
+    const cap = patchesHere().cap; 
+    for (let k = 0; k < 2 && have < cap; k++) if (spawnWild(null, 4, inSight)) have++, n++;
+    while (have < cap && spawnWild(null, 4)) have++, n++;
     if (n) G.safeTimer = Math.max(G.safeTimer, 1.5);
   }
   if (active) {
     respawn -= dt;
-    if (G.wilds.length < MAX_WILDS && respawn <= 0) { spawnWild(); respawn = 1.2; }
+    if (G.wilds.length < patchesHere().cap && respawn <= 0) { spawnWild(); respawn = 1.2; }
   }
   
   for (const w of G.wilds.slice()) if (!w.scripted && !w.chase && S.cam && S.cam.sec && W.sectionAt(w.x, w.y) !== S.cam.sec) removeWild(w);

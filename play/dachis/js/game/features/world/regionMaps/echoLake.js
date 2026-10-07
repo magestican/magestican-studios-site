@@ -31,6 +31,9 @@ export const LANDING = at(-5.0, 37.8);
 
 export const ISLES = [{ id: 'a', u: -6, v: 86.5, r: 4.4 }, { id: 'b', u: 7.5, v: 94.5, r: 4.6 }, { id: 'c', u: -5.5, v: 103.5, r: 3.6 }];
 
+
+export const LOBES = [{ id: 'a', u: -10.2, v: 89.8, r: 3.4 }, { id: 'b', u: 11.6, v: 91.6, r: 3.6 }, { id: 'c', u: -9.2, v: 101.2, r: 3.0 }];
+
 export const RAFTS = [
   { id: 'r1', route: [[4.4, 48.6], [7.6, 53.0], [6.6, 58.0], [-2.6, 62.0], [-4.0, 68.0], [3.4, 72.4], [2.4, 77.4], [-3.4, 81.4]], land: [[1.6, 49.6], [-4.6, 83.6]] },
   { id: 'r2', route: [[-1.4, 88.8], [0.8, 90.8], [2.4, 92.0]], land: [[-3.0, 87.8], [4.0, 93.0]] },
@@ -61,7 +64,7 @@ const segD = ([au, av], [bu, bv], u, v) => {
 };
 export const routeD = (r, u, v) => r.route.reduce((m, p, k) => (k ? Math.min(m, segD(r.route[k - 1], p, u, v)) : m), Infinity);
 const inside = (u, v) => SECTIONS.some((s) => edgeDepth(s.rect, u, v).depth > s.wall);
-const isleIn = (u, v) => Math.max(...ISLES.map((i) => i.r - Math.hypot(u - i.u, (v - i.v) * 1.1)));
+const isleIn = (u, v) => Math.max(...ISLES.concat(LOBES).map((i) => i.r - Math.hypot(u - i.u, (v - i.v) * 1.1)));
 
 export function ground(u, v) {
   if (v < 32.4 && u < -12 && Math.abs(v - 31) < 1.6) return 'land'; 

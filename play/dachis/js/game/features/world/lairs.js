@@ -56,7 +56,7 @@ export const LAIRS = [
     fall: 'The violet light drains out of {name}\'s armour. He is still standing. He makes very sure of that.' },
   
   
-  { boss: 'quartz', region: 'deep-seam', sec: 'seam-hollow', uv: [0, 87.4], after: 'boss_kingshade',
+  { boss: 'quartz', region: 'deep-seam', sec: 'seam-hollow', uv: [0, 95.4], after: 'boss_kingshade',
     hint: 'Find the Quartz Hermit at the bottom of the Deep Seam',
     again: "You again. With the little light. ...Sit, then, if we must do this twice.",
     last: "Leave one lamp. Just one. By the door. I will not look at it.",
