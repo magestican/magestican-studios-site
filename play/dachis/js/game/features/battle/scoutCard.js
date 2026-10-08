@@ -9,6 +9,7 @@ import { formBadge, meetForm } from '../../data/forms.js';
 import { G } from '../../state.js';
 import { toast } from '../../../engine/ui/dialog.js';
 import { temperOf } from '../../data/temper.js';
+import { bodyWord } from '../../data/bodies.js';
 
 let root = null, onSkip = null;
 function build() {
@@ -25,7 +26,8 @@ export function showScout(f, skip) {
   const s = speciesById(f.d.sp), st = statsOf(f.d), a = attrOf(f.d), hp = Math.max(0, Math.round(f.d.hp));
   const pct = Math.max(0, Math.min(100, (hp / st.maxHp) * 100));
   
-  const scTemper = s.boss ? '' : '<div class="scTemper temper">' + temperOf(f.d).word + '</div>';
+  const bw = s.boss ? null : bodyWord(s); 
+  const scTemper = s.boss ? '' : '<div class="scTemper temper">' + temperOf(f.d).word + (bw ? ' <span class="sizeClass">' + bw + '</span>' : '') + '</div>';
   const types = s.types.map((t) => `<i style="background:${TYPES[t]}">${t}</i>`).join('');
   root.innerHTML = `<div class="scBox${s.boss ? ' boss' : ''}">
       <div class="scTag">${s.boss ? 'BOSS' : f.d.corrupt ? 'CORRUPTED' : f.d.shiny === 'gold' ? 'GOLD SHINY!' : f.d.shiny ? 'SHINY!' : 'WILD DACHI'}</div>
