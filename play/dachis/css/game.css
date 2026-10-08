@@ -614,6 +614,8 @@ i.edge-even { box-shadow: 0 0 0 2px #fff, 0 0 6px 2px rgba(255,255,255,.95); }
 .formTag { display: inline-block; margin-left: 4px; padding: 0 5px; border: 2px solid var(--ink); border-radius: 4px; font: 800 9px var(--body); text-transform: uppercase; vertical-align: 2px; color: var(--ink); }
 .formTag.frost { background: #cfe8ff; } .formTag.ash { background: #3a2e30; color: #ffb35a; } .formTag.moss { background: #a8d47a; } .formTag.salt { background: #9fe3df; }
 .sizeClass { font: 700 10px var(--body); padding: 0 5px; border-radius: 3px; background: #ece6d4; color: var(--ink); vertical-align: 1px; }
+.sizeClass.dim { opacity: 0.45; } 
+.shapeChips { margin: 2px 0 8px; line-height: 1.9; }
 .shinyMark.white { color: #ffffff; } .shinyMark.gold { color: #ffcc22; }
 .shinyMark.gold .ic { filter: drop-shadow(0 0 3px #ffd84a); } .shinyMark.white .ic { filter: drop-shadow(0 0 3px #cfe6ff); }
 canvas.shinySprite.white { filter: grayscale(1) brightness(2.1) contrast(.85); }

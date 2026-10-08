@@ -10,7 +10,7 @@ import { rollForm } from '../../data/forms.js';
 import { temperOf } from '../../data/temper.js';
 import { gaitOf, gaitPhase } from '../../data/gaits.js';
 import { habitatFamily, nearWater } from '../../data/habitats.js';
-import { KIN_SHARE, KIN_RADIUS, kinSpecies } from '../../data/kin.js';
+import { KIN_SHARE, KIN_RADIUS, kinSpecies, TRAIL_PLANS, TRAIL_GAP } from '../../data/kin.js';
 import { sectionById } from './sections.js';
 import { wildLevel, wildStage } from './wildLevel.js';
 import { TOWNS } from '../../musicCues.js';
@@ -152,6 +152,9 @@ export function updateWilds(dt, { active }) {
     let tx = w.tx, ty = w.ty, sp = 1.1 * T.wander;
     if (w.chase) { tx = p.x; ty = p.y; sp = (w.d.corrupt ? 2.9 : 2.5) * T.chase; }
     else {
+      
+      const lead = w.kin && w.kin.moving && !w.kin.chase && TRAIL_PLANS.has((speciesById(w.kin.d.sp).look || {}).plan) ? w.kin : null;
+      if (lead) { w.wait = 0; tx = w.tx = lead.x - (lead.hx || 0) * TRAIL_GAP; ty = w.ty = lead.y - (lead.hy || 0) * TRAIL_GAP; }
       w.wait -= dt;
       if (w.wait > 0) { w.moving = false; continue; }
       
@@ -166,6 +169,7 @@ export function updateWilds(dt, { active }) {
     if (dl < 0.08) { w.wait = (0.5 + Math.random() * 2.5) * T.wait * (w.kin ? 0.5 : 1); w.tx = cx + (Math.random() - 0.5) * roam; w.ty = cy + (Math.random() - 0.5) * roam; w.moving = false; }
     else {
       const s = Math.min(dl, sp * dt), nx = w.x + dx / dl * s, ny = w.y + dy / dl * s;
+      w.hx = dx / dl; w.hy = dy / dl; 
       
       const others = [...(G.party[0] && !w.chase ? [G.follower] : []), ...G.npcs, ...G.wilds.filter((o) => o !== w)];
       if (npcStepClear(w.x, w.y, nx, ny, others, GAP)) { if (W.walkable(nx, w.y, BODY_R.dachi)) w.x = nx; if (W.walkable(w.x, ny, BODY_R.dachi)) w.y = ny; }

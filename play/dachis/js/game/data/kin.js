@@ -7,6 +7,10 @@
 import { FAMILY_COUNT } from './species.js';
 
 export const KIN_SHARE = 0.35;   
+
+
+export const TRAIL_PLANS = new Set(['bird', 'frog', 'turtle', 'crab', 'snail']);
+export const TRAIL_GAP = 1.1;
 export const KIN_RADIUS = 1.6;   
 
 

@@ -21,7 +21,9 @@ import { SPECIES, BODY_PLANS } from '../../data/species.js';
 
 
 
-export const shapeKinds = (dex) => new Set(SPECIES.filter((s) => s.stage >= 2 && !s.boss && dex && dex.caught && dex.caught[s.id]).map((s) => s.look.plan)).size;
+export const shapesOwned = (dex) => new Set(SPECIES.filter((s) => s.stage >= 2 && !s.boss && dex && dex.caught && dex.caught[s.id]).map((s) => s.look.plan));
+
+export const shapeKinds = (dex) => shapesOwned(dex).size;
 
 export const TIERS = ['common', 'uncommon', 'rare', 'legendary']; 
 const A = (id, name, tier, desc, test) => ({ id: 'dachis-' + id, name, game: 'dachis', tier, desc, test });

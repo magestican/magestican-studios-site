@@ -8,7 +8,7 @@ import { mountLangPicker } from './langPicker.js';
 import { tr } from '../../i18n/i18n.js';
 import { G, S, saveGame, deleteSave, hasSave, savedBox } from '../../state.js';
 import { SPECIES, speciesById, statsOf, TYPES, capsFor, attrOf, BODY_PLANS } from '../../data/species.js';
-import { shapeKinds } from '../achievements/achievements.js';
+import { shapeKinds, shapesOwned } from '../achievements/achievements.js';
 import { attrBadge } from '../battle/battleHud.js';
 import { KIND_LABEL } from '../battle/techniques.js';
 import { moveRank, rankMult } from '../battle/moveTiers.js';
@@ -18,7 +18,7 @@ import { shinyTag, shinySprite } from '../../art/shinyMark.js';
 import { sizeBadge, CLASS_WORD } from '../../data/sizes.js';
 import { formBadge, formDots, formsBefriended } from '../../data/forms.js';
 import { temperOf } from '../../data/temper.js';
-import { bodyWord } from '../../data/bodies.js';
+import { bodyWord, BODY_WORD } from '../../data/bodies.js';
 
 import { BOSS_PATTERNS } from '../battle/bossPattern.js';
 import { ITEMS } from '../pickups/pickups.js';
@@ -124,6 +124,10 @@ function dex(body) {
   if (nForms) body.insertAdjacentHTML('beforeend', `<p class="hint">Regional forms befriended: ${nForms}</p>`);
   const nShapes = shapeKinds(G.dex); 
   if (nShapes) body.insertAdjacentHTML('beforeend', `<p class="hint">Grown body shapes: ${nShapes} of ${BODY_PLANS.length}</p>`);
+  if (nShapes) { 
+    const own = shapesOwned(G.dex), chip = (p) => (own.has(p) ? '<span class="sizeClass">' + BODY_WORD[p] + '</span>' : '<span class="sizeClass dim">???</span>');
+    body.insertAdjacentHTML('beforeend', '<p class="shapeChips">' + BODY_PLANS.map(chip).join(' ') + '</p>');
+  }
   
   body.insertAdjacentHTML('beforeend', `<p class="hint attrChart">${attrBadge('vaccine')} beats ${attrBadge('virus')} · ${attrBadge('virus')} beats ${attrBadge('program')} · ${attrBadge('program')} is neutral (x1.5 on an advantage, on top of the element)</p>`);
   const grid = document.createElement('div'); grid.className = 'dex'; body.appendChild(grid);
