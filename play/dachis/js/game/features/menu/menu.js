@@ -7,7 +7,8 @@ import { mountSoundToggle } from '../../../vendor/arbelo/ui/muteButton.js';
 import { mountLangPicker } from './langPicker.js';
 import { tr } from '../../i18n/i18n.js';
 import { G, S, saveGame, deleteSave, hasSave, savedBox } from '../../state.js';
-import { SPECIES, speciesById, statsOf, TYPES, capsFor, attrOf } from '../../data/species.js';
+import { SPECIES, speciesById, statsOf, TYPES, capsFor, attrOf, BODY_PLANS } from '../../data/species.js';
+import { shapeKinds } from '../achievements/achievements.js';
 import { attrBadge } from '../battle/battleHud.js';
 import { KIND_LABEL } from '../battle/techniques.js';
 import { xpToNext, giveXp } from '../battle/rules.js';
@@ -117,6 +118,8 @@ function dex(body) {
   body.insertAdjacentHTML('beforeend', `<p class="hint">Dachidex — seen ${seen} / ${SPECIES.length} · befriended ${caught} / ${SPECIES.length}</p>`);
   const nForms = formsBefriended(G.dex); 
   if (nForms) body.insertAdjacentHTML('beforeend', `<p class="hint">Regional forms befriended: ${nForms}</p>`);
+  const nShapes = shapeKinds(G.dex); 
+  if (nShapes) body.insertAdjacentHTML('beforeend', `<p class="hint">Grown body shapes: ${nShapes} of ${BODY_PLANS.length}</p>`);
   
   body.insertAdjacentHTML('beforeend', `<p class="hint attrChart">${attrBadge('vaccine')} beats ${attrBadge('virus')} · ${attrBadge('virus')} beats ${attrBadge('program')} · ${attrBadge('program')} is neutral (x1.5 on an advantage, on top of the element)</p>`);
   const grid = document.createElement('div'); grid.className = 'dex'; body.appendChild(grid);

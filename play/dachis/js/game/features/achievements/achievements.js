@@ -16,6 +16,12 @@ import { COLLECTIBLES, PER_REGION } from '../../data/collectibles.js';
 import { SIDE } from '../quest/quests.js';
 import { REGIONS } from '../world/regions.js';
 import { FORM_IDS } from '../../data/forms.js';
+import { SPECIES, BODY_PLANS } from '../../data/species.js';
+
+
+
+
+export const shapeKinds = (dex) => new Set(SPECIES.filter((s) => s.stage >= 2 && !s.boss && dex && dex.caught && dex.caught[s.id]).map((s) => s.look.plan)).size;
 
 export const TIERS = ['common', 'uncommon', 'rare', 'legendary']; 
 const A = (id, name, tier, desc, test) => ({ id: 'dachis-' + id, name, game: 'dachis', tier, desc, test });
@@ -44,6 +50,9 @@ export const ACHIEVEMENTS = [
   
   A('first-form', 'Local Colour', 'common', 'Befriend a dachi in its regional form.', (f, c) => (c.forms || 0) >= 1),
   A('all-forms', 'Well Travelled', 'rare', 'Befriend a dachi of every regional form.', (f, c) => (c.forms || 0) >= FORM_IDS.length),
+  
+  A('six-shapes', 'Odd Bunch', 'uncommon', 'Have grown-up dachis of six different body shapes.', (f, c) => (c.shapes || 0) >= 6),
+  A('all-shapes', 'All Shapes and Sizes', 'legendary', 'Have a grown-up dachi of every body shape there is.', (f, c) => (c.shapes || 0) >= BODY_PLANS.length),
 ];
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id) || null;
 export const unlocked = (flags, id) => !!(flags && flags.ach && flags.ach[id]);
