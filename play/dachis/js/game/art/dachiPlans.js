@@ -17,7 +17,7 @@
 
 
 
-export const SWING = { quadruped: 0.95, fish: 0.95, bug: 0.95, bird: 0.6, ghost: 0.5, serpent: 0.5, strider: 0.95, turtle: 0.9 }; 
+export const SWING = { quadruped: 0.95, fish: 0.95, bug: 0.95, bird: 0.6, ghost: 0.5, serpent: 0.5, strider: 0.95, turtle: 0.9, snail: 0.9, frog: 0.5 }; 
 
 export function planLayout(plan, K) {
   const E = K.ell;
@@ -100,6 +100,25 @@ export function planLayout(plan, K) {
     chest: E([0, 2.0, -0.35], [0.6, 0.42, 0.95]), head: { c: [0, 3.0, 0.95], r: 0.9 }, snout: [0, 2.75, 1.7],
     feet: [], tail: [0, 2.05, -1.25], wing: [0.35, 2.3, -0.4],
     belly: [0, 1.8, 0.1], neck: 2.6, low: 1.85, back: [0, 2.35, -0.7], chestC: [0, 2.0, -0.35], ribR: [0.6, 0.9],
+  };
+  
+  if (plan === 'snail') return { 
+    parts: [E([0, 0.34, -0.15], [0.62, 0.34, 1.3]), E([0, 1.42, 0.8], [0.96, 0.88, 0.9])], hp: [1], k: 0.25,
+    chest: E([0, 0.34, -0.15], [0.62, 0.34, 1.3]), head: { c: [0, 1.42, 0.8], r: 0.92 },
+    feet: [], tail: [0, 0.3, -1.4], wing: [0.45, 1.6, -0.5],
+    belly: [0, 0.4, 0.6], neck: 1.0, low: 0.45, back: [0, 1.5, -0.55], chestC: [0, 0.4, -0.1], ribR: [0.62, 1.2],
+  };
+  if (plan === 'frog') return { 
+    parts: [E([0, 0.66, -0.3], [1.0, 0.56, 0.82]), E([0, 1.38, 0.42], [1.02, 0.86, 0.94])], hp: [1], k: 0.28,
+    chest: E([0, 0.66, -0.3], [1.0, 0.56, 0.82]), head: { c: [0, 1.42, 0.42], r: 0.95 },
+    feet: [], tail: [0, 0.55, -1.0], wing: [0.5, 1.2, -0.5],
+    belly: [0, 0.55, 0.3], neck: 1.0, low: 0.5, back: [0, 1.1, -0.7], chestC: [0, 0.66, -0.3], ribR: [0.86, 0.78],
+  };
+  if (plan === 'octopus') return { 
+    parts: [E([0, 1.45, 0.12], [1.0, 0.9, 0.94]), E([0, 2.05, -0.55], [0.78, 0.86, 0.72])], hp: [0], k: 0.3,
+    chest: E([0, 2.05, -0.55], [0.78, 0.86, 0.72]), head: { c: [0, 1.45, 0.12], r: 0.95 },
+    feet: [], tail: [0, 2.3, -1.1], wing: [0.5, 2.0, -0.6],
+    belly: [0, 0.8, 0.6], neck: 0.9, low: 0.7, back: [0, 2.3, -0.6], chestC: [0, 2.05, -0.55], ribR: [0.78, 0.72],
   };
   if (plan === 'jelly') return { 
     
@@ -258,6 +277,56 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
       const p0 = [sgn * 0.35, 1.95, 0.5], p1 = [sgn * 0.55, 1.2, 0.85], p2 = [sgn * 0.5, 0.45, 1.0], p3 = [sgn * 0.32, 0.55, 1.25];
       out.limbs.push({ sgn, arm: true, own: true, node: fur(S.union(0.05, S.roundCone(p0, p1, 0.11, 0.08), S.roundCone(p1, p2, 0.08, 0.06), S.roundCone(p2, p3, 0.06, 0.04)), acc) });
     }
+  } else if (plan === 'snail') { 
+    const sc = full ? [0, 1.55, -0.6] : add(ly.back, [0, 0.12, 0.0]), R = full ? [0.55 * g + 0.08, 1.08 * g, 1.08 * g] : [0.32, 0.5, 0.5], shellCol = K.mix(K.deep(acc), acc, 0.25);
+    out.details.push(fur(E(sc, R), (x, y, z) => { 
+      const dy = (y - sc[1]) / R[1], dz = (z - sc[2]) / R[2], rr = Math.hypot(dy, dz), a = Math.atan2(dy, dz) / (Math.PI * 2);
+      const band = ((rr * 1.7 - a) % 1 + 1) % 1;
+      return rr < 0.14 ? dark(shellCol, 0.7) : band < 0.22 ? dark(shellCol, 0.7) : band < 0.6 ? shellCol : light(shellCol, 0.2);
+    }));
+    
+    for (const sgn of [-1, 1]) {
+      const pts = [];
+      for (let i = 0; i <= 14; i++) { const s = i / 14, a = s * Math.PI * 3.4, q = 0.85 * (1 - s * 0.85); pts.push([sc[0] + sgn * R[0] * Math.sqrt(Math.max(0.05, 1 - q * q)) * 0.98, sc[1] + Math.sin(a) * q * R[1], sc[2] + Math.cos(a) * q * R[2]]); }
+      const w = full ? 0.11 : 0.06;
+      out.details.push(fur(S.union(0.02, ...pts.slice(1).map((p, i) => S.roundCone(pts[i], p, w, w))), dark(shellCol, 0.55)));
+    }
+    if (full) {
+      out.noFeet = true; out.noArms = true;
+      for (const sgn of [-1, 1]) { 
+        const s0 = add(h.c, [sgn * 0.3 * r, 0.78 * r, 0.05]), s1 = add(s0, [sgn * 0.2, 0.62 * g, 0.12]);
+        out.limbs.push({ sgn, arm: true, node: S.union(0.04, S.roundCone(s0, s1, 0.09, 0.06), K.S.sphere(s1, 0.12)) });
+      }
+    }
+  } else if (plan === 'frog') { 
+    const sc = full ? 1 : 0.5;
+    for (const sgn of [-1, 1]) {
+      
+      
+      const th = full ? [sgn * 1.15, 0.6, -0.4] : [sgn * r * 0.92, h.c[1] - 0.7 * r, h.c[2] - 0.4 * r], kn = add(th, [sgn * 0.38 * sc, 0.42 * sc, 0.45 * sc]);
+      const ft = full ? [sgn * 1.5, 0.08, 0.2] : add(th, [sgn * 0.2, -0.25, 0.25]), foot = ft[1] < 0.08 ? [ft[0], 0.08, ft[2]] : ft;
+      const toes = [-0.45, 0, 0.45].map((a) => S.roundCone(foot, add(foot, [Math.sin(a) * 0.3 * sc * sgn, -0.01, Math.cos(a) * 0.38 * sc + 0.05]), 0.08 * sc + 0.02, 0.06 * sc + 0.02));
+      out.limbs.push({ sgn, arm: false, node: S.union(0.08, E(th, [0.42 * sc + 0.04, 0.46 * sc + 0.04, 0.6 * sc + 0.06]), S.roundCone(th, kn, 0.26 * sc + 0.03, 0.15 * sc + 0.03), S.roundCone(kn, foot, 0.14 * sc + 0.02, 0.1 * sc + 0.02), ...toes) });
+      if (full) {
+        const sh = [sgn * 0.55, 0.75, 0.3], hd = [sgn * 0.85, 0.08, 0.85];
+        const fingers = [-0.5, 0, 0.5].map((a) => S.capsule(hd, add(hd, [Math.sin(a) * 0.2 * sgn, 0, Math.cos(a) * 0.2]), 0.05));
+        out.limbs.push({ sgn, arm: true, node: S.union(0.04, S.roundCone(sh, hd, 0.12, 0.08), ...fingers) });
+      }
+    }
+    if (full) { out.noFeet = true; out.noArms = true; }
+  } else if (plan === 'octopus') { 
+    out.noArms = true; out.noFeet = true;
+    const n = full ? 8 : 4, base = full ? 0.72 : Math.max(0.25, h.c[1] - 0.8 * r), reach = full ? 1.45 * g : 0.75, th = full ? 0.2 : 0.14;
+    const arms = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + (full ? 0.2 : 0.8), pts = [];
+      for (let j = 0; j <= 6; j++) {
+        const s = j / 6, R = 0.35 + s * reach, curl = s > 0.75 ? (s - 0.75) * 4 : 0;
+        pts.push([Math.sin(a + s * 0.5) * R, Math.max(th * (1 - s * 0.6), base * (1 - s) ** 2) + curl * 0.35, Math.cos(a + s * 0.5) * R]);
+      }
+      for (let j = 1; j < pts.length; j++) arms.push(S.roundCone(pts[j - 1], pts[j], th * (1 - (j - 1) * 0.12), th * (1 - j * 0.12)));
+    }
+    out.organic.push(fur(S.union(0.06, ...arms), (x, y) => (y < 0.12 ? light(acc, 0.25) : col))); 
   } else if (plan === 'quadruped' && !full && ly.feet && ly.feet.length) { 
     const f = ly.feet[0];
     for (const sgn of [-1, 1]) out.limbs.push({ sgn, arm: false, node: E([sgn * f[0] * 0.9, f[1] + 0.04, f[2] - 0.62], [0.24, 0.14, 0.27]) });

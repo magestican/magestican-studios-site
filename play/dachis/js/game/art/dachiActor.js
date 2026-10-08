@@ -260,6 +260,11 @@ export function planMotion(plan, t, gait, moving) {
     case 'crab': return moving ? { lift: Math.abs(Math.sin(gait * 2.4)) * 0.03, roll: Math.sin(gait * 2.4) * 0.06, pitch: 0, yaw: Math.sin(gait * 1.2) * 0.25 }
       : { lift: 0, roll: 0, pitch: 0, yaw: (Math.sin(t * 0.7) > 0.95 ? Math.sin(t * 30) * 0.12 : 0) };
     case 'bat': { const flap = Math.sin(t * (moving ? 9 : 6)); return { lift: 0.3 + flap * 0.08, roll: Math.sin(t * 1.7) * 0.05, pitch: -0.05 + flap * 0.04, yaw: 0 }; } 
+    
+    case 'snail': return moving ? { lift: 0, roll: 0, pitch: Math.sin(gait * 0.5) * 0.03, yaw: Math.sin(gait * 0.25) * 0.04 } : { lift: 0, roll: 0, pitch: Math.sin(t * 0.4) * 0.02, yaw: 0 };
+    case 'frog': return moving ? { lift: Math.max(0, Math.sin(gait * 0.6)) ** 2 * 0.4, roll: 0, pitch: -Math.max(0, Math.sin(gait * 0.6)) * 0.12, yaw: 0 }
+      : { lift: 0, roll: 0, pitch: (Math.sin(t * 1.9) > 0.9 ? -0.04 : 0), yaw: 0 };
+    case 'octopus': return { lift: Math.abs(Math.sin(t * (moving ? 4 : 1.4))) * 0.06, roll: Math.sin(t * (moving ? 3 : 1.1)) * 0.07, pitch: 0, yaw: Math.sin(t * 0.7) * 0.06 };
     case 'turtle': return moving ? { lift: 0, roll: Math.sin(gait * 0.6) * 0.05, pitch: Math.sin(gait * 1.2) * 0.02, yaw: Math.sin(gait * 0.6) * 0.05 } 
       : { lift: 0, roll: 0, pitch: (Math.sin(t * 0.5) > 0.96 ? -0.06 : 0), yaw: 0 };
     case 'strider': return moving ? { lift: Math.abs(Math.sin(gait * 0.45)) * 0.08, roll: 0, pitch: Math.sin(gait * 0.9) * 0.05, yaw: 0 } 

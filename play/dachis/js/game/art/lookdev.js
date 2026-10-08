@@ -46,7 +46,8 @@ if (view === 'lineup' && set === 'story') {
   ];
 } else if (view === 'lineup' && set === 'plans') { 
   const k = +(q.get('pick') || 0), fams = [];
-  for (const plan of BODY_PLANS) { const f = SPECIES.filter((s) => s.stage === 1 && s.look.plan === plan); if (f.length) fams.push(f[Math.min(k, f.length - 1)].fam); }
+  const only = q.get('only') ? q.get('only').split(',') : BODY_PLANS; 
+  for (const plan of only) { const f = SPECIES.filter((s) => s.stage === 1 && s.look.plan === plan); if (f.length) fams.push(f[Math.min(k, f.length - 1)].fam); }
   rows = [0, 1, 2].map((st) => fams.map((f) => [f * 3 + st + 1, {}]));
 } else if (view === 'lineup' && set === 'faces') { 
   rows = [[[GUARDIAN, {}], [KUMABO, {}], [202, {}]], [[205, {}], [208, {}], [65, { hat: true }]]];

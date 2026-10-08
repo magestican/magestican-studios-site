@@ -90,3 +90,50 @@ export function drawBolt(L, type, px, py, dx, dy, u, t, col) {
     L.disc(...P(0.08, -0.07), Math.max(1, u * 0.04), INK); L.disc(...P(0.08, 0.07), Math.max(1, u * 0.04), INK);
   } else { L.disc(px, py, u * 0.2 + 1, col); L.disc(px, py, Math.max(1, u * 0.09), WHITE); }
 }
+
+
+
+
+
+
+
+
+
+export const HEX_SIGILS = { burn: 'flame', slow: 'flake', dizzy: 'spiral' };
+const sigil = (L, kind, x, y, g, c) => {
+  if (kind === 'flame') L.poly([[x - g, y + g * 0.6], [x + g, y + g * 0.6], [x, y - g * 1.4]], c);
+  else if (kind === 'flake') { L.line(x - g, y, x + g, y, c, 1); L.line(x, y - g, x, y + g, c, 1); L.line(x - g * 0.7, y - g * 0.7, x + g * 0.7, y + g * 0.7, c, 1); L.line(x - g * 0.7, y + g * 0.7, x + g * 0.7, y - g * 0.7, c, 1); }
+  else { let p = [x, y]; for (let i = 1; i <= 6; i++) { const a = i * 1.15, r = g * i / 6, q = [x + Math.cos(a) * r, y + Math.sin(a) * r]; L.line(p[0], p[1], q[0], q[1], c, 1); p = q; } }
+};
+export function drawHex(L, type, status, px, py, dx, dy, u, t, col, statusCol) {
+  L.alpha(0.75); L.disc(px, py, u * 0.62, '#1a1430'); L.alpha(1);
+  L.ring(px, py, u * 0.62, u * 0.62, '#5a3a8a', 1);
+  drawBolt(L, type, px, py, dx, dy, u * 0.85, t, col);
+  const g = Math.max(2, Math.round(u * 0.1)), kind = HEX_SIGILS[status] || 'spiral';
+  for (let i = 0; i < 3; i++) { const a = t * 9 + i * Math.PI * 2 / 3; sigil(L, kind, px + Math.cos(a) * u * 0.95, py + Math.sin(a) * u * 0.6, g, statusCol || col); }
+}
+export function drawDrain(L, type, px, py, dx, dy, u, t, col) {
+  const nx = -dy, ny = dx;
+  for (let s = 0; s < 2; s++) {
+    let prev = null;
+    for (let j = 0; j <= 8; j++) {
+      const a = 0.6 + j * 0.17, w = Math.sin(t * 18 + j * 0.9 + s * Math.PI) * 0.22 * (1 - j / 12);
+      const q = [px - (dx * a - nx * w) * u, py - (dy * a - ny * w) * u];
+      if (prev) L.line(prev[0], prev[1], q[0], q[1], s ? '#7dff9a' : col, 2);
+      prev = q;
+    }
+  }
+  const rr = u * 0.62 + Math.sin(t * 25);
+  L.ring(px, py, rr, rr, '#7dff9a', 2);
+  drawBolt(L, type, px, py, dx, dy, u * 0.85, t, col);
+}
+export const FINISHER_SCALE = 2.4;
+export function drawFinisher(L, type, px, py, dx, dy, u, t, col) {
+  L.alpha(0.45); L.disc(px, py, u * 0.95 + 2 * Math.sin(t * 30), col); L.alpha(1);
+  L.disc(px, py, u * 0.5, '#ffffff');
+  drawBolt(L, type, px, py, dx, dy, u * FINISHER_SCALE / BOLT_SCALE * 1.1, t, col);
+  for (let i = 0; i < 4; i++) {
+    const a = t * 6 + i * Math.PI / 2, qx = px + Math.cos(a) * u * 1.05, qy = py + Math.sin(a) * u * 0.7;
+    drawBolt(L, type, qx, qy, -Math.sin(a), Math.cos(a) * 0.66, u * 0.4, t + i, col);
+  }
+}

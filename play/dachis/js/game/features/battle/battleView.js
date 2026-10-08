@@ -23,7 +23,7 @@ import { frameView, maxBattleVh } from './arena.js';
 import { stackLabels } from './overlayLayout.js';
 import { CHAR_SCALE, VIEW_ZOOM } from '../world/crowd.js';
 import { COMIC_PX, COMIC_TILT, HIT_WORDS, comicPx, tiltedBox, lungePose } from './comic.js';
-import { drawBolt } from './boltLooks.js';
+import { drawBolt, drawHex, drawDrain, drawFinisher } from './boltLooks.js';
 
 
 
@@ -239,19 +239,15 @@ export function drawBattleOverlay(ctx, t) {
     const [bx, by] = P(p.x - p.vx / sp * 0.9, p.y - p.vy / sp * 0.9, 0.55), col = typeColor(p.m.type);
     L.alpha(0.5); L.line(bx, by, px, py, col, 3);
     L.alpha(1); L.line((bx + px) / 2, (by + py) / 2, px, py, '#ffffff', 1);
-    if (p.big) { L.alpha(0.5); L.disc(px, py, u * 0.7 + 2 * Math.sin(t * 30), col); L.alpha(1); L.disc(px, py, u * 0.45, col); L.disc(px, py, u * 0.22, '#ffffff'); }
-    else if (p.m.kind === 'hex') { 
-      const sc = STATUS_COLOR[statusOf(p.m)] || col;
-      L.disc(px, py, u * 0.2 + 1, '#2a2244'); L.disc(px, py, u * 0.13, col);
-      for (let i = 0; i < 2; i++) { const a = t * 14 + i * Math.PI; L.rect(Math.round(px + Math.cos(a) * u * 0.34) - 1, Math.round(py + Math.sin(a) * u * 0.22) - 1, 3, 3, sc); }
-    } else if (p.m.kind === 'drain') { 
-      L.disc(px, py, u * 0.22 + 1 + Math.sin(t * 25), '#7dff9a'); L.disc(px, py, u * 0.14, col); L.disc(px, py, Math.max(1, u * 0.06), '#ffffff');
-    }
-    else { 
-      const sl = Math.hypot(px - bx, py - by) || 1;
-      drawBolt(L, p.m.type, px, py, (px - bx) / sl, (py - by) / sl, u, t, col);
-    }
-    if (p.big || p.m.kind === 'hex' || p.m.kind === 'drain') { 
+    const sl = Math.hypot(px - bx, py - by) || 1, ux = (px - bx) / sl, uy = (py - by) / sl;
+    
+    
+    
+    if (p.big) drawFinisher(L, p.m.type, px, py, ux, uy, u, t, col);
+    else if (p.m.kind === 'hex') drawHex(L, p.m.type, statusOf(p.m), px, py, ux, uy, u, t, col, STATUS_COLOR[statusOf(p.m)]);
+    else if (p.m.kind === 'drain') drawDrain(L, p.m.type, px, py, ux, uy, u, t, col);
+    else drawBolt(L, p.m.type, px, py, ux, uy, u, t, col);
+    if (p.big) { 
       const g = Math.round(u * 0.3 + 2 * Math.abs(Math.sin(t * 20 + p.x)));
       if (Math.floor(t * 12) % 2) { L.rect(px - g, py, g * 2 + 1, 1, '#ffffff'); L.rect(px, py - g, 1, g * 2 + 1, '#ffffff'); }
       else for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) L.line(px + dx * 2, py + dy * 2, px + dx * g * 0.7, py + dy * g * 0.7, '#ffffff', 1);
