@@ -23,6 +23,7 @@ import { frameView, maxBattleVh } from './arena.js';
 import { stackLabels } from './overlayLayout.js';
 import { CHAR_SCALE, VIEW_ZOOM } from '../world/crowd.js';
 import { COMIC_PX, COMIC_TILT, HIT_WORDS, comicPx, tiltedBox, lungePose } from './comic.js';
+import { drawBolt } from './boltLooks.js';
 
 
 
@@ -242,10 +243,15 @@ export function drawBattleOverlay(ctx, t) {
     } else if (p.m.kind === 'drain') { 
       L.disc(px, py, u * 0.22 + 1 + Math.sin(t * 25), '#7dff9a'); L.disc(px, py, u * 0.14, col); L.disc(px, py, Math.max(1, u * 0.06), '#ffffff');
     }
-    else { L.disc(px, py, u * 0.2 + 1, col); L.disc(px, py, Math.max(1, u * 0.09), '#ffffff'); }
-    const g = Math.round(u * 0.3 + 2 * Math.abs(Math.sin(t * 20 + p.x)));
-    if (Math.floor(t * 12) % 2) { L.rect(px - g, py, g * 2 + 1, 1, '#ffffff'); L.rect(px, py - g, 1, g * 2 + 1, '#ffffff'); }
-    else for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) L.line(px + dx * 2, py + dy * 2, px + dx * g * 0.7, py + dy * g * 0.7, '#ffffff', 1);
+    else { 
+      const sl = Math.hypot(px - bx, py - by) || 1;
+      drawBolt(L, p.m.type, px, py, (px - bx) / sl, (py - by) / sl, u, t, col);
+    }
+    if (p.big || p.m.kind === 'hex' || p.m.kind === 'drain') { 
+      const g = Math.round(u * 0.3 + 2 * Math.abs(Math.sin(t * 20 + p.x)));
+      if (Math.floor(t * 12) % 2) { L.rect(px - g, py, g * 2 + 1, 1, '#ffffff'); L.rect(px, py - g, 1, g * 2 + 1, '#ffffff'); }
+      else for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) L.line(px + dx * 2, py + dy * 2, px + dx * g * 0.7, py + dy * g * 0.7, '#ffffff', 1);
+    }
   }
   for (const e of B.fx) {
     const k = e.t / e.life;

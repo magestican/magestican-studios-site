@@ -61,5 +61,24 @@ export function formDots(dex, sp) {
   return have.length ? '<span class="formDots">' + dots + '</span>' : '';
 }
 
+export const FORM_MEET = {
+  frost: 'A Frost form! The cold got right into its fur.',
+  ash: 'An Ash form. Grew up next to the volcano - it still smells a little smoky.',
+  moss: 'A Moss form. It sat still so long the forest started growing on it.',
+  salt: 'A Salt form. All that sea spray dried right onto it.',
+  crystal: 'A Crystal form! Living down the mines made it all sparkly.',
+  gale: 'A Gale form. Its fur is blown flat, like it never stops facing the wind.',
+  dusk: 'A Dusk form. It looks like the sky right after the sun goes down.',
+};
+
+export function meetForm(flags, d) {
+  const f = d && d.form;
+  if (!f || !formOf(f)) return null;
+  const met = flags.formsMet || (flags.formsMet = {});
+  if (met[f]) return null;
+  met[f] = 1;
+  return FORM_MEET[ (f)] || null;
+}
+
 
 export const formKinds = (dex) => FORM_IDS.filter((f) => dex && dex.forms && dex.forms[f] && Object.keys(dex.forms[f]).length).length;

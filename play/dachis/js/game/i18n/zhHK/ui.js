@@ -546,4 +546,11 @@ export default {
   "Gale form": "大風款",
   "Dusk form": "黃昏款",
   "Befriend a dachi of every regional form.": "每一款地區款都同一隻 dachi 做朋友。",
+  "A Frost form! The cold got right into its fur.": "結霜款！凍到啲毛都入晒寒氣。",
+  "An Ash form. Grew up next to the volcano - it still smells a little smoky.": "火山灰款。喺火山隔籬大，仲有少少煙味。",
+  "A Moss form. It sat still so long the forest started growing on it.": "青苔款。佢企定定企得耐，成個森林喺佢身上生出嚟。",
+  "A Salt form. All that sea spray dried right onto it.": "海鹽款。啲海水花乾晒，黐晒喺佢身度。",
+  "A Crystal form! Living down the mines made it all sparkly.": "水晶款！喺礦坑住耐咗，成隻閃晒。",
+  "A Gale form. Its fur is blown flat, like it never stops facing the wind.": "大風款。啲毛成日俾風吹到貼晒，好似永遠都對住個風咁。",
+  "A Dusk form. It looks like the sky right after the sun goes down.": "黃昏款。好似日落之後嗰陣個天咁。",
 };

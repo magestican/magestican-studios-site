@@ -5,7 +5,9 @@
 import { speciesById, statsOf, TYPES, ATTR_COLOR, attrOf } from '../../data/species.js';
 import { shinyTag } from '../../art/shinyMark.js';
 import { sizeBadge } from '../../data/sizes.js';
-import { formBadge } from '../../data/forms.js';
+import { formBadge, meetForm } from '../../data/forms.js';
+import { G } from '../../state.js';
+import { toast } from '../../../engine/ui/dialog.js';
 import { temperOf } from '../../data/temper.js';
 
 let root = null, onSkip = null;
@@ -33,6 +35,8 @@ export function showScout(f, skip) {
       <div class="scHint">Tap to start</div>
     </div>`;
   root.classList.remove('hidden');
+  const meet = s.boss ? null : meetForm(G.flags, f.d); 
+  if (meet) toast(meet, 3600);
 }
 
 export function hideScout() { if (root) root.classList.add('hidden'); onSkip = null; }

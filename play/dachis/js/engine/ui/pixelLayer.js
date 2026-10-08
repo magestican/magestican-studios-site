@@ -62,6 +62,23 @@ export function createPixelLayer({ readback = false } = {}) {
       for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; ctx.fillRect(Math.round(cx + Math.cos(a) * rx - t / 2), Math.round(cy + Math.sin(a) * ry - t / 2), t, t); }
       L.used = true;
     },
+    
+    poly(pts, color) {
+      if (!pts || pts.length < 3) return;
+      ctx.fillStyle = color;
+      let y0 = Infinity, y1 = -Infinity;
+      for (const [, y] of pts) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+      for (let y = Math.round(y0); y <= Math.round(y1); y++) {
+        const xs = [];
+        for (let i = 0; i < pts.length; i++) {
+          const [ax, ay] = pts[i], [bx, by] = pts[(i + 1) % pts.length];
+          if ((ay <= y && by > y) || (by <= y && ay > y)) xs.push(ax + (y - ay) / (by - ay) * (bx - ax));
+        }
+        xs.sort((a, b) => a - b);
+        for (let i = 0; i + 1 < xs.length; i += 2) ctx.fillRect(Math.round(xs[i]), y, Math.max(1, Math.round(xs[i + 1]) - Math.round(xs[i])), 1);
+      }
+      L.used = true;
+    },
     line(x0, y0, x1, y1, color, t = 1) {
       ctx.fillStyle = color;
       const n = Math.max(1, Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))));

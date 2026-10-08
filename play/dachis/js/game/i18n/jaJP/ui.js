@@ -546,4 +546,11 @@ export default {
   "Gale form": "かぜのすがた",
   "Dusk form": "たそがれのすがた",
   "Befriend a dachi of every regional form.": "ぜんぶの土地のすがたのダチと友だちになる。",
+  "A Frost form! The cold got right into its fur.": "こおりのすがただ！ さむさが毛のおくまでしみこんでる。",
+  "An Ash form. Grew up next to the volcano - it still smells a little smoky.": "はいのすがた。火山のそばでそだったんだ。まだちょっとけむりくさい。",
+  "A Moss form. It sat still so long the forest started growing on it.": "こけのすがた。ずっとじっとしてたら、森がからだにはえてきたみたい。",
+  "A Salt form. All that sea spray dried right onto it.": "しおのすがた。海のしぶきが、そのままかわいてくっついてる。",
+  "A Crystal form! Living down the mines made it all sparkly.": "けっしょうのすがただ！ 鉱山でくらしてたら、キラキラになっちゃった。",
+  "A Gale form. Its fur is blown flat, like it never stops facing the wind.": "かぜのすがた。毛がぜんぶうしろにねてる。いつも風にむかって立ってるんだな。",
+  "A Dusk form. It looks like the sky right after the sun goes down.": "たそがれのすがた。お日さまがしずんだすぐあとの空みたいな色。",
 };

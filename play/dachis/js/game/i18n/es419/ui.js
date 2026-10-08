@@ -483,4 +483,11 @@ export default {
   "Gale form": "De ventarrón",
   "Dusk form": "De ocaso",
   "Befriend a dachi of every regional form.": "Hazte amigo de un dachi de cada forma regional.",
+  "A Frost form! The cold got right into its fur.": "¡Uno de escarcha! Se le metió el frío hasta en el pelaje.",
+  "An Ash form. Grew up next to the volcano - it still smells a little smoky.": "Uno de ceniza. Creció junto al volcán y todavía huele un poquito a humo.",
+  "A Moss form. It sat still so long the forest started growing on it.": "Uno de musgo. Se quedó quieto tanto tiempo que el bosque le empezó a crecer encima.",
+  "A Salt form. All that sea spray dried right onto it.": "Uno de salitre. Toda esa brisa del mar se le quedó pegada.",
+  "A Crystal form! Living down the mines made it all sparkly.": "¡Uno de cristal! De tanto vivir en las minas le quedó todo brilloso.",
+  "A Gale form. Its fur is blown flat, like it never stops facing the wind.": "Uno de ventarrón. Trae el pelo todo aplastado, como si nunca dejara de darle la cara al viento.",
+  "A Dusk form. It looks like the sky right after the sun goes down.": "Uno de ocaso. Parece el cielo justo cuando se acaba de meter el sol.",
 };
