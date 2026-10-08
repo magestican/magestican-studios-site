@@ -441,9 +441,12 @@ function drawG12Over(L, P, groundRing, u, t) {
     L.alpha(0.5); L.line(sx, sy, ex, ey, col, Math.max(3, Math.round(w)));
     L.alpha(1); L.line(sx, sy, ex, ey, col, Math.max(2, Math.round(w * 0.55)));
     L.line(sx, sy, ex, ey, '#ffffff', Math.max(1, Math.round(w * 0.2)));
-    for (let i = 0; i < 6; i++) { 
-      const s = ((t * 3 + i / 6) % 1), x = sx + (ex - sx) * s, y = sy + (ey - sy) * s;
-      L.rect(Math.round(x) - 1, Math.round(y) - 1, 3, 3, '#ffffff');
+    
+    
+    const bl = Math.hypot(ex - sx, ey - sy) || 1;
+    for (let i = 0; i < 5; i++) {
+      const s = ((t * 2.2 + i / 5) % 1), x = sx + (ex - sx) * s, y = sy + (ey - sy) * s;
+      drawBolt(L, bm.m.type, x, y, (ex - sx) / bl, (ey - sy) / bl, u * 0.42, t + i, col);
     }
     L.alpha(0.75); L.disc(ex, ey, u * 0.3 + 2 * Math.sin(t * 30), col); L.alpha(1);
     L.disc(sx, sy, u * 0.28, '#ffffff');
@@ -478,6 +481,9 @@ function drawG12Over(L, P, groundRing, u, t) {
     } else if (e.kind === 'parryWin') { 
       const [px, py] = P(e.f.x, e.f.y, 0.6);
       L.alpha(0.75); pxRing(L, px, py, u * 0.62, '#ffffff', 1);
+    } else if (e.kind === 'rise') { 
+      const [px, py] = P(e.x, e.y, 0.2 + k * 1.7);
+      L.alpha(k < 0.7 ? 1 : (1 - k) / 0.3); drawBolt(L, e.type, px, py, 0, -1, u * 0.34 * (1 - k * 0.4), t + e.a, e.color); L.alpha(1);
     } else if (e.kind === 'up') { 
       const [px, py] = P(e.x, e.y, 0.3 + k * 1.4), c = Math.max(2, Math.round(u * 0.14));
       L.alpha(1 - k); L.line(px - c, py + c, px, py, e.color, 2); L.line(px, py, px + c, py + c, e.color, 2);

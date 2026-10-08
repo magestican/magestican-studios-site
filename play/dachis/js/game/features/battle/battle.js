@@ -218,11 +218,14 @@ function useSpecial(f, target, k) {
     B.mines.push({ x: tx, y: ty, owner: f, m, t: 0 });
     B.fx.push({ kind: 'toss', x: f.x, y: f.y, x1: tx, y1: ty, color: TYPES[m.type], t: 0, life: 0.4 });
   }
+  if (m.kind === 'heal' || m.kind === 'guard' || m.kind === 'rage' || m.kind === 'shield') riseFx(f, m.type);
   callout(f, m.name, TYPES[m.type]);
   S.sfx.play(m.kind);
 }
 function label(f, text, color, dy = 70) { B.fx.push({ kind: 'label', f, x: f.x, y: f.y, text, color, t: 0, life: 1.1, dy }); }
 function buffFx(f, color) { for (let i = 0; i < 5; i++) B.fx.push({ kind: 'up', x: f.x + (i - 2) * 0.22, y: f.y, color, t: -i * 0.08, life: 0.8 }); }
+
+function riseFx(f, type) { for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; B.fx.push({ kind: 'rise', x: f.x + Math.cos(a) * 0.55, y: f.y + Math.sin(a) * 0.55, type, color: TYPES[type], a, t: -i * 0.06, life: 0.9 }); } }
 
 
 

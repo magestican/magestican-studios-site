@@ -63,7 +63,7 @@ export function updateBattleHud() {
   wire();
   liftUtilityRow();
   const e = B.enemy, es = speciesById(e.d.sp), f = hpFraction(e.d);
-  const nameHtml = `${e.d.corrupt ? '<span class="corrupt">CORRUPTED</span> ' : ''}${es.name}${shinyTag(e.d)}${sizeBadge(e.d)}${formBadge(e.d)} <span class="lv">Lv ${e.d.lvl}</span> ${attrBadge(attrOf(e.d))} ${typeChips(es.types)} ${G.dex.caught[es.id] ? '<span class="owned" title="Already befriended">' + icon('heart') + '</span>' : ''} <span class="rarity r-${es.rarity}">${es.rarity}</span>`;
+  const nameHtml = `${e.d.corrupt ? '<span class="corrupt">CORRUPTED</span> ' : ''}${es.name}${shinyTag(e.d)}${es.boss ? '' : sizeBadge(e.d)}${formBadge(e.d)} <span class="lv">Lv ${e.d.lvl}</span> ${attrBadge(attrOf(e.d))} ${typeChips(es.types)} ${G.dex.caught[es.id] ? '<span class="owned" title="Already befriended">' + icon('heart') + '</span>' : ''} <span class="rarity r-${es.rarity}">${es.rarity}</span>`;
   if ($('enemyName').dataset.h !== nameHtml) { $('enemyName').innerHTML = nameHtml; $('enemyName').dataset.h = nameHtml; }
   bars(e, 'enemy');
   const low = f < CAPTURE_HP && e.d.hp > 0 && !B.script;

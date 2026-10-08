@@ -29,7 +29,7 @@ export function showScout(f, skip) {
   const types = s.types.map((t) => `<i style="background:${TYPES[t]}">${t}</i>`).join('');
   root.innerHTML = `<div class="scBox${s.boss ? ' boss' : ''}">
       <div class="scTag">${s.boss ? 'BOSS' : f.d.corrupt ? 'CORRUPTED' : f.d.shiny === 'gold' ? 'GOLD SHINY!' : f.d.shiny ? 'SHINY!' : 'WILD DACHI'}</div>
-      <div class="scName"><b>${s.name}</b>${shinyTag(f.d)}${sizeBadge(f.d)}${formBadge(f.d)} <span class="lv">Lv ${f.d.lvl}</span></div>${scTemper}
+      <div class="scName"><b>${s.name}</b>${shinyTag(f.d)}${s.boss ? '' : sizeBadge(f.d)}${formBadge(f.d)} <span class="lv">Lv ${f.d.lvl}</span></div>${scTemper}
       <div class="scRow"><span class="scLabel">Type</span><span class="scTypes">${types}</span>${a ? `<b class="attr" style="background:${ATTR_COLOR[a]}">${a.toUpperCase()}</b>` : ''}</div>
       <div class="scRow"><span class="scLabel">HP</span><span class="scBar"><b style="width:${pct.toFixed(1)}%"></b></span><span class="scHp">${hp} / ${st.maxHp}</span></div>
       <div class="scHint">Tap to start</div>
