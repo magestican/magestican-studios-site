@@ -532,3 +532,17 @@ export function makeDachi(sp, lvl) {
   d.temper = rollTemper(Math.random); 
   return d;
 }
+
+
+
+
+let planIdx = null;
+export function planIndex(sp) {
+  if (!sp || sp.fam == null || sp.fam >= 100) return 0;
+  if (!planIdx) {
+    planIdx = {};
+    const seen = {};
+    for (const s of SPECIES) if (s.stage === 1 && s.fam < 100 && planIdx[s.fam] == null) { const p = s.look.plan; planIdx[s.fam] = seen[p] = (seen[p] ?? -1) + 1; }
+  }
+  return planIdx[sp.fam] || 0;
+}

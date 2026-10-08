@@ -149,7 +149,10 @@ function coil() {
 
 
 
-export function planParts(plan, full, ly, h, col, acc, st, K) {
+
+
+
+export function planParts(plan, full, ly, h, col, acc, st, K, v = 0) {
   const { S, fur, lin, light, dark, add, norm, LEAF } = K, E = K.ell;
   const out = { organic: [], details: [], limbs: [], tail: null, noFeet: false, noArms: false, wings: 0, beak: null };
   const g = full ? 1 + (st - 2) * 0.2 : 0.55, fin = K.mix(K.deep(acc), acc, 0.45), finDark = dark(fin, 0.2);
@@ -233,8 +236,9 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
     }
   } else if (plan === 'crab') { 
     out.noArms = true; out.noFeet = full;
-    const shell = K.mix(K.deep(acc), acc, 0.3), sc = full ? g : 0.5;
+    const shell = K.mix(K.deep(acc), acc, 0.3), sc0 = full ? g : 0.5;
     for (const sgn of [-1, 1]) {
+      const sc = sc0 * (full && v ? (sgn > 0 ? 1.75 : 0.6) : 1); 
       const sh = full ? [sgn * 0.82, 0.86, 0.3] : [sgn * r * 0.85, h.c[1] - 0.45 * r, h.c[2] + 0.2];
       const el = add(sh, [sgn * 0.42 * sc, 0.12 * sc, 0.4 * sc]), cl = add(el, [sgn * 0.06 * sc, 0.06 * sc, 0.36 * sc]);
       const jaw = (dy, R) => K.S.transform(E([0, 0, 0], R), { translate: add(cl, [0, dy, 0.18 * sc]), rotate: [dy > 0 ? -0.35 : 0.35, 0, 0] });
@@ -246,10 +250,10 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
       }
     }
   } else if (plan === 'bat') { 
-    out.noArms = full; out.noFeet = full; out.wings = full ? 1.7 * g : 0.7;
+    out.noArms = full; out.noFeet = full; out.wings = full ? (v ? 2.05 : 1.7) * g : 0.7; 
     if (full) for (const sgn of [-1, 1]) out.limbs.push({ sgn, arm: false, node: S.union(0.03, S.roundCone([sgn * 0.2, 1.2, -0.05], [sgn * 0.22, 0.85, 0.02], 0.09, 0.06), S.roundCone([sgn * 0.22, 0.85, 0.02], [sgn * 0.22, 0.88, 0.16], 0.06, 0.035)) });
   } else if (plan === 'turtle') { 
-    const shellC = full ? [0, 1.12, -0.45] : add(ly.back, [0, 0.1, 0.05]), R = full ? [1.12, 0.92, 1.18] : [0.6, 0.45, 0.62], shellCol = K.mix(K.deep(acc), acc, 0.45);
+    const shellC = full ? [0, 1.12, -0.45] : add(ly.back, [0, 0.1, 0.05]), R = full ? (v ? [1.42, 0.6, 1.32] : [1.12, 0.92, 1.18]) : [0.6, 0.45, 0.62], shellCol = K.mix(K.deep(acc), acc, 0.45); 
     const cut = shellC[1] - R[1] * 0.25;
     out.details.push(fur(S.intersect(0.04, E(shellC, R), S.field((x, y) => cut - y)), (x, y, z) => {
       const px = x / R[0], pz = (z - shellC[2]) / R[2], cell = (Math.floor(px * 2.2 + 5) + Math.floor(pz * 2.2 + 5)) % 2;
@@ -263,7 +267,7 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
     }
   } else if (plan === 'strider' && full) { 
     out.noArms = true; out.noFeet = true;
-    for (const sgn of [-1, 1]) for (const z of [0.25, -0.95]) {
+    for (const sgn of [-1, 1]) for (const z of (v ? [0.35, -0.3, -0.95] : [0.25, -0.95])) { 
       const hip = [sgn * 0.36, 1.85, z], knee = [sgn * 0.42, 1.0, z + (z > 0 ? -0.12 : 0.12)], hoof = [sgn * 0.4, 0.08, z];
       out.limbs.push({ sgn, arm: z > 0, node: S.union(0.04, S.roundCone(hip, knee, 0.13, 0.08), S.roundCone(knee, hoof, 0.08, 0.06), E(add(hoof, [0, 0.02, 0.04]), [0.11, 0.07, 0.14])) });
     }
@@ -271,7 +275,7 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
     for (const sgn of [-1, 1]) out.limbs.push({ sgn, arm: false, node: S.roundCone([sgn * 0.3, 0.45, -0.1], [sgn * 0.34, 0.02, -0.05], 0.1, 0.06) });
   } else if (plan === 'jelly') { 
     out.noArms = true; out.noFeet = true;
-    const n = full ? 9 : 5, base = full ? 1.97 : h.c[1] - 0.7 * r, len = full ? Math.min(1.85, 1.55 * g) : 0.6, rad = full ? 0.62 : 0.42 * r, th = full ? 0.15 : 0.1;
+    const n = full ? (v ? 5 : 9) : 5, base = full ? 1.97 : h.c[1] - 0.7 * r, len = full ? Math.min(1.85, 1.55 * g) : 0.6, rad = full ? 0.62 : 0.42 * r, th = full ? (v ? 0.25 : 0.15) : 0.1; 
     const strands = [];
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2 + 0.4, pts = [];
@@ -284,7 +288,7 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
       out.limbs.push({ sgn, arm: true, own: true, node: fur(S.union(0.05, S.roundCone(p0, p1, 0.11, 0.08), S.roundCone(p1, p2, 0.08, 0.06), S.roundCone(p2, p3, 0.06, 0.04)), acc) });
     }
   } else if (plan === 'snail') { 
-    const sc = full ? [0, 1.55, -0.6] : add(ly.back, [0, 0.12, 0.0]), R = full ? [0.55 * g + 0.08, 1.08 * g, 1.08 * g] : [0.32, 0.5, 0.5], shellCol = K.mix(K.deep(acc), acc, 0.25);
+    const sc = full ? [0, 1.55, -0.6] : add(ly.back, [0, 0.12, 0.0]), R = full ? (v ? [0.48 * g + 0.08, 1.45 * g, 0.78 * g] : [0.55 * g + 0.08, 1.08 * g, 1.08 * g]) : [0.32, 0.5, 0.5], shellCol = K.mix(K.deep(acc), acc, 0.25); 
     out.details.push(fur(E(sc, R), (x, y, z) => { 
       const dy = (y - sc[1]) / R[1], dz = (z - sc[2]) / R[2], rr = Math.hypot(dy, dz), a = Math.atan2(dy, dz) / (Math.PI * 2);
       const band = ((rr * 1.7 - a) % 1 + 1) % 1;
@@ -320,9 +324,14 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
       }
     }
     if (full) { out.noFeet = true; out.noArms = true; }
+    if (full && v) { 
+      const warts = []; for (let i = 0; i < 11; i++) { const a = i * 2.4, x = Math.sin(a) * 0.7 * ((i % 3) + 1) / 3, z = -0.3 + Math.cos(a) * 0.6 * ((i % 3) + 1) / 3, y = 0.66 + 0.56 * Math.sqrt(Math.max(0, 1 - x * x - ((z + 0.3) / 0.82) ** 2)); warts.push(K.S.sphere([x, y, z], 0.13 + (i % 3) * 0.03)); }
+      for (const sgn of [-1, 1]) for (let i = 0; i < 5; i++) { const a = i * 1.3 - 2.6, c = [sgn * 1.15, 0.6, -0.4]; warts.push(K.S.sphere([c[0] + sgn * 0.42 * Math.cos(a * 0.4), c[1] + 0.4 * Math.sin(a * 0.6) + 0.12, c[2] + 0.42 * Math.sin(a * 0.5)], 0.11 + (i % 2) * 0.04)); }
+      out.details.push(fur(S.union(0.03, ...warts), dark(col, 0.35)));
+    }
   } else if (plan === 'octopus') { 
     out.noArms = true; out.noFeet = true;
-    const n = full ? 8 : 4, base = full ? 0.72 : Math.max(0.25, h.c[1] - 0.8 * r), reach = full ? 1.45 * g : 0.75, th = full ? 0.2 : 0.14;
+    const n = full ? (v ? 10 : 8) : 4, base = full ? 0.72 : Math.max(0.25, h.c[1] - 0.8 * r), reach = full ? (v ? 1.95 : 1.45) * g : 0.75, th = full ? (v ? 0.13 : 0.2) : 0.14; 
     const arms = [];
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2 + (full ? 0.2 : 0.8), pts = [];
@@ -337,7 +346,7 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
     out.noArms = true; out.noFeet = true; out.noWings = true; 
     const s = full ? g : 0.45, y0 = full ? 1.22 : h.c[1] - 0.55 * r, z0 = full ? -0.3 : h.c[2] - 0.3;
     for (const sgn of [-1, 1]) {
-      const fin = K.S.transform(E([0, 0, 0], [1.05 * s, 0.07 + 0.04 * s, 0.62 * s]), { translate: [sgn * (full ? 1.15 : 0.75) * (full ? 1 : 1), y0, z0 - 0.15 * s], rotate: [0, sgn * 0.45, sgn * -0.12] });
+      const fin = K.S.transform(E([0, 0, 0], full && v ? [1.55 * s, 0.06 + 0.04 * s, 0.42 * s] : [1.05 * s, 0.07 + 0.04 * s, 0.62 * s]),  { translate: [sgn * (full ? 1.15 : 0.75) * (full ? 1 : 1), y0, z0 - 0.15 * s], rotate: [0, sgn * 0.45, sgn * -0.12] });
       out.limbs.push({ sgn, arm: true, own: true, node: fur(fin, (x, y, z) => (Math.abs(x) > (full ? 1.7 : 1.0) * s ? light(acc, 0.2) : y > y0 ? acc : light(acc, 0.35))) });
     }
     const t0 = full ? [0, 1.2, -1.1] : add(ly.tail, [0, 0.1, 0]), pts = [t0];
@@ -350,7 +359,8 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
     const f = ly.feet[0];
     for (const sgn of [-1, 1]) out.limbs.push({ sgn, arm: false, node: E([sgn * f[0] * 0.9, f[1] + 0.04, f[2] - 0.62], [0.24, 0.14, 0.27]) });
   }
-  if (full && st >= 3) grow(plan, out, K, col, acc);
+  if (full && v && OLD_VARIANTS[plan]) oldVariant(plan, out, K, col, acc);
+  if (full && st >= 3) grow(plan, out, K, col, acc, v);
   return out;
 }
 
@@ -364,7 +374,35 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
 export const GROWTH = { quadruped: 'spikes', bird: 'crest', fish: 'whiskers', serpent: 'hood', bug: 'horn', plant: 'flower',
   crab: 'shellSpikes', turtle: 'domeSpikes', strider: 'antlers', frog: 'throat', jelly: 'frill',
   snail: 'spire', octopus: 'fins', ray: 'horns', bat: 'ruff', ghost: 'hands' }; 
-function grow(plan, out, K, col, acc) {
+
+
+
+export const OLD_VARIANTS = { quadruped: 'mane', fish: 'spines', plant: 'fronds', bug: 'mandibles', serpent: 'ridge', ghost: 'hem' };
+function oldVariant(plan, out, K, col, acc) {
+  const { S, fur, light, dark, LEAF } = K, head = (out.head = out.head || []), kind = OLD_VARIANTS[plan];
+  if (kind === 'mane') { 
+    const pts = []; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, b = [Math.sin(a) * 0.7, 1.75 + Math.cos(a) * 0.66, 0.0], t = [Math.sin(a) * 1.55, 1.75 + Math.cos(a) * 1.4, -0.35]; pts.push(S.roundCone(b, t, 0.3, 0.06)); }
+    head.push(fur(S.union(0.06, ...pts), dark(acc, 0.1)));
+  } else if (kind === 'spines') { 
+    const c = [0, 1.15, -0.45], R = [0.72, 0.72, 1.05], sp = [];
+    for (let i = 0; i < 16; i++) { const y = 1 - (i + 0.5) / 16 * 2, rr = Math.sqrt(1 - y * y), a = i * 2.4, d = [Math.cos(a) * rr, y, Math.sin(a) * rr]; if (d[2] > 0.6) continue;
+      sp.push(S.roundCone([c[0] + d[0] * R[0] * 0.9, c[1] + d[1] * R[1] * 0.9, c[2] + d[2] * R[2] * 0.9], [c[0] + d[0] * R[0] * 1.4, c[1] + d[1] * R[1] * 1.4, c[2] + d[2] * R[2] * 1.4], 0.08, 0.02)); }
+    out.details.push(fur(S.union(0.03, ...sp), light(acc, 0.3)));
+  } else if (kind === 'fronds') { 
+    const bl = []; for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2 + 0.6; bl.push(S.roundCone([Math.sin(a) * 0.62, 0.5, Math.cos(a) * 0.58], [Math.sin(a) * 1.35, 2.95, Math.cos(a) * 1.2 - 0.25], 0.18, 0.03)); }
+    out.details.push(fur(S.union(0.04, ...bl), dark(LEAF, 0.15)));
+  } else if (kind === 'mandibles') { 
+    for (const sgn of [-1, 1]) head.push(fur(S.union(0.03, S.roundCone([sgn * 0.42, 1.1, 1.2], [sgn * 0.72, 1.12, 1.75], 0.13, 0.1), S.roundCone([sgn * 0.72, 1.12, 1.75], [sgn * 0.22, 1.12, 2.1], 0.1, 0.03), S.roundCone([sgn * 0.62, 1.12, 1.6], [sgn * 0.78, 1.32, 1.72], 0.06, 0.02)), dark(acc, 0.45)));
+  } else if (kind === 'ridge') { 
+    const pts = coil(), fins = [];
+    for (let i = 2; i < pts.length - 2; i++) { const p = pts[i].p, t = [p[0], p[1] + pts[i].r + 0.55, p[2]]; fins.push(S.roundCone([p[0], p[1] + pts[i].r * 0.6, p[2]], t, 0.16, 0.02)); }
+    out.details.push(fur(S.union(0.05, ...fins), dark(acc, 0.3)));
+  } else if (kind === 'hem') { 
+    const pts = []; for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2; pts.push(S.roundCone([Math.sin(a) * 0.85, 1.5, 0.05 + Math.cos(a) * 0.8], [Math.sin(a) * 1.3, 0.7 - (i % 2) * 0.25, 0.05 + Math.cos(a) * 1.2], 0.24, 0.03)); }
+    head.push(fur(S.union(0.05, ...pts), dark(col, 0.3)));
+  }
+}
+function grow(plan, out, K, col, acc, v = 0) {
   const { S, fur, light, dark } = K, E = K.ell, head = (out.head = out.head || []);
   const spike = (b, t, r0) => S.roundCone(b, t, r0, 0.02);
   const kind = GROWTH[plan];
@@ -386,7 +424,7 @@ function grow(plan, out, K, col, acc) {
   } else if (kind === 'shellSpikes') { 
     out.details.push(fur(S.union(0.03, ...[-0.72, -0.36, 0, 0.36, 0.72].map((x) => { const y = 0.78 + 0.46 * Math.sqrt(Math.max(0, 1 - (x / 1.12) ** 2 - 0.09)) - 0.06; return spike([x, y, -0.5], [x * 1.3, y + 0.58, -0.66], 0.18); })), dark(acc, 0.35)));
   } else if (kind === 'domeSpikes') { 
-    out.details.push(fur(S.union(0.03, ...[-0.05, -0.45, -0.85].map((z) => { const y = 1.12 + 0.92 * Math.sqrt(Math.max(0, 1 - ((z + 0.45) / 1.18) ** 2)) - 0.06; return spike([0, y, z], [0, y + 0.62, z - 0.14], 0.24); })), dark(acc, 0.5)));
+    out.details.push(fur(S.union(0.03, ...[-0.05, -0.45, -0.85].map((z) => { const y = 1.12 + (v ? 0.6 : 0.92) * Math.sqrt(Math.max(0, 1 - ((z + 0.45) / (v ? 1.32 : 1.18)) ** 2)) - 0.06;  return spike([0, y, z], [0, y + 0.62, z - 0.14], 0.24); })), dark(acc, 0.5)));
   } else if (kind === 'antlers') { 
     for (const sgn of [-1, 1]) { const b = [sgn * 0.3, 3.7, 0.8], m = [sgn * 0.75, 4.35, 0.6], t = [sgn * 1.3, 4.85, 0.35], f = [sgn * 0.62, 5.0, 0.85], f2 = [sgn * 1.15, 4.3, 0.95];
       head.push(fur(S.union(0.03, S.roundCone(b, m, 0.14, 0.1), S.roundCone(m, t, 0.1, 0.04), S.roundCone(m, f, 0.09, 0.04), S.roundCone([sgn * 0.52, 4.02, 0.7], f2, 0.08, 0.035)), K.lin('#c8a878'))); }
