@@ -792,7 +792,7 @@ export function dachiNode(sp, opts = {}) {
   const partArm = split && split.mode === 'part' && split.part === 'arm' ? split.side : 0;
   const limbs = [], limbSide = { '-1': [], 1: [] };
   const limbPush = (sgn, node0, arm) => { const node = swingN(node0); limbs.push(node); if (arm) limbSide[sgn].push(node); };
-  const PP = planParts(plan, full, ly, h, col, acc, st, KIT, planIndex(sp) % 2), ownLimbs = []; 
+  const PP = planParts(plan, full, ly, h, col, acc, st, KIT, plan === 'bird' ? planIndex(sp) : planIndex(sp) % 2), ownLimbs = []; 
   for (const q of PP.limbs) { if (q.own) { const n = swingN(q.node); ownLimbs.push(n); if (q.arm) limbSide[q.sgn].push(n); } else limbPush(q.sgn, q.node, q.arm); }
   if (ly.arms && !PP.noArms) for (const a of ly.arms) for (const sgn of [-1, 1]) {
     const k = sgn === partArm ? 1.75 : 1; 

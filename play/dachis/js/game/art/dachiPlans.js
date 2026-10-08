@@ -359,7 +359,7 @@ export function planParts(plan, full, ly, h, col, acc, st, K, v = 0) {
     const f = ly.feet[0];
     for (const sgn of [-1, 1]) out.limbs.push({ sgn, arm: false, node: E([sgn * f[0] * 0.9, f[1] + 0.04, f[2] - 0.62], [0.24, 0.14, 0.27]) });
   }
-  if (full && v && OLD_VARIANTS[plan]) oldVariant(plan, out, K, col, acc);
+  if (full && v && OLD_VARIANTS[plan]) oldVariant(plan, out, K, col, acc, v);
   if (full && st >= 3) grow(plan, out, K, col, acc, v);
   return out;
 }
@@ -377,10 +377,15 @@ export const GROWTH = { quadruped: 'spikes', bird: 'crest', fish: 'whiskers', se
 
 
 
-export const OLD_VARIANTS = { quadruped: 'mane', fish: 'spines', plant: 'fronds', bug: 'mandibles', serpent: 'ridge', ghost: 'hem' };
-function oldVariant(plan, out, K, col, acc) {
+export const OLD_VARIANTS = { bird: 'tail', quadruped: 'mane', fish: 'spines', plant: 'fronds', bug: 'mandibles', serpent: 'ridge', ghost: 'hem' };
+function oldVariant(plan, out, K, col, acc, v = 1) {
   const { S, fur, light, dark, LEAF } = K, head = (out.head = out.head || []), kind = OLD_VARIANTS[plan];
-  if (kind === 'mane') { 
+  if (kind === 'tail' && v === 1) { 
+    for (const sgn of [-1, 1]) { const p0 = [sgn * 0.12, 1.0, -0.8], p1 = [sgn * 0.35, 0.75, -1.6], p2 = [sgn * 0.55, 0.85, -2.3], p3 = [sgn * 0.45, 1.2, -2.55];
+      out.details.push(fur(S.union(0.04, S.roundCone(p0, p1, 0.1, 0.08), S.roundCone(p1, p2, 0.08, 0.06), S.roundCone(p2, p3, 0.06, 0.03), K.ell(p3, [0.16, 0.2, 0.08])), (x, y, z) => (z < -2.2 ? light(acc, 0.35) : acc))); }
+  } else if (kind === 'tail') { 
+    for (const sgn of [-1, 1]) head.push(fur(S.union(0.03, S.roundCone([sgn * 0.48, 2.6, 0.1], [sgn * 0.85, 3.35, -0.05], 0.2, 0.04), S.roundCone([sgn * 0.42, 2.55, 0.2], [sgn * 0.6, 3.15, 0.25], 0.12, 0.03)), dark(acc, 0.15)));
+  } else if (kind === 'mane') { 
     const pts = []; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, b = [Math.sin(a) * 0.7, 1.75 + Math.cos(a) * 0.66, 0.0], t = [Math.sin(a) * 1.55, 1.75 + Math.cos(a) * 1.4, -0.35]; pts.push(S.roundCone(b, t, 0.3, 0.06)); }
     head.push(fur(S.union(0.06, ...pts), dark(acc, 0.1)));
   } else if (kind === 'spines') { 

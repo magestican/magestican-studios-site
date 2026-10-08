@@ -18,6 +18,7 @@ import { shinyTag, shinySprite } from '../../art/shinyMark.js';
 import { sizeBadge, CLASS_WORD } from '../../data/sizes.js';
 import { formBadge, formDots, formsBefriended } from '../../data/forms.js';
 import { temperOf } from '../../data/temper.js';
+import { bodyWord } from '../../data/bodies.js';
 
 import { BOSS_PATTERNS } from '../battle/bossPattern.js';
 import { ITEMS } from '../pickups/pickups.js';
@@ -76,10 +77,11 @@ function party(body) {
   detail.appendChild(shinySprite(sprite(d.sp, 128, { hat: hatGeoOf(d.hat), form: d.form }), d));
   const info = document.createElement('div');
   const sizeClassChip = s.sizeClass ? ` <span class="sizeClass">Size: ${CLASS_WORD[s.sizeClass]}</span>` : ''; 
+  const bw = bodyWord(s), bodyChip = bw ? ` <span class="sizeClass">Body: ${bw}</span>` : ''; 
   const evo = s.evolvesTo ? `Evolves into <b>${G.dex.seen[s.evolvesTo] ? speciesById(s.evolvesTo).name : '???'}</b> at Lv ${s.evolveAt}` : 'Final form';
   const rk = moveRank(d.lvl), rkHtml = rk ? '<b class="rk">' + '+'.repeat(rk) + '</b>' : ''; 
   info.innerHTML = `<h3>${s.id > 200 ? icon('star') : '#' + String(s.id).padStart(3, '0')} ${s.name}${shinyTag(d)}${sizeBadge(d)}${formBadge(d)} <span class="lv">Lv ${d.lvl} / ${capsFor(G.cycle).maxLevel}</span></h3>
-    <div class="types">${attrBadge(attrOf(d))} ${chips(s.types)} <span class="rarity r-${s.rarity}">${s.rarity}</span>${sizeClassChip}</div>
+    <div class="types">${attrBadge(attrOf(d))} ${chips(s.types)} <span class="rarity r-${s.rarity}">${s.rarity}</span>${sizeClassChip}${bodyChip}</div>
     <p class="temper">${temperOf(d).word}</p>
     <p>HP ${d.hp}/${st.maxHp} · ATK ${st.atk} · DEF ${st.def} · SPD ${st.spd}</p>
     <p>XP ${d.xp} / ${d.lvl >= capsFor(G.cycle).maxLevel ? 'MAX' : xpToNext(d.lvl)} · ${evo}</p>
