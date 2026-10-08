@@ -331,6 +331,8 @@ function hit(att, def, power, type, { big = false, kind = 'basic', m = null, pro
   B.fx.push({ kind: 'burst', x: def.x, y: def.y, color: TYPES[type], t: 0, life: big ? 0.5 : word ? 0.34 : 0.24, big: crit || big, corrupt: !!def.d.corrupt, f: def });
   
   
+  
+  if (kind !== 'basic' && kind !== 'counter' && kind !== 'drain') B.fx.push({ kind: 'splash', type, x: def.x, y: def.y, color: TYPES[type], t: 0, life: big ? 0.6 : 0.42, n: big ? 8 : 5, a: Math.random() * 6.28 });
   if (kind === 'basic' || kind === 'counter') B.fx.push({ kind: 'strike', plan: (spOf(att).look || {}).plan || 'round', x: def.x, y: def.y, fx: att.x, fy: att.y, color: spOf(att).color || TYPES[type], t: 0, life: 0.34 });
   if (word) B.fx.push({ kind: 'word', f: def, x: def.x, y: def.y, text: word, big, color: TYPES[type], t: 0, life: big ? 0.95 : 0.7 });
   if (big) { B.fx.push({ kind: 'ring', x: def.x, y: def.y, color: TYPES[type], t: 0, life: 0.7, r: 3.2 }); B.shake = 0.5; S.flash = Math.max(S.flash, 0.35); }
@@ -412,7 +414,7 @@ function updateFighter(f, o, dt) {
   if (f.hes > 0 || f.stun > 0) return;                     
   if (f.charge > 0) {                                      
     f.charge -= dt;
-    if (Math.random() < 0.8) B.fx.push({ kind: 'charge', x: f.x, y: f.y, color: TYPES[finisherOf(f.d).type], t: 0, life: 0.45, a: Math.random() * 6.28 });
+    if (Math.random() < 0.8) B.fx.push({ kind: 'charge', x: f.x, y: f.y, color: TYPES[finisherOf(f.d).type], type: finisherOf(f.d).type, t: 0, life: 0.45, a: Math.random() * 6.28 });
     if (f.charge <= 0) { const m = finisherOf(f.d, f.side === 1); B.proj.push({ x: f.x, y: f.y, vx: dx / dist * 10, vy: dy / dist * 10, m, owner: f, target: o, life: 2.5, big: true, home: 12 }); }
     return;
   }

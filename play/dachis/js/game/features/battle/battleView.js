@@ -259,7 +259,11 @@ export function drawBattleOverlay(ctx, t) {
     if (e.kind === 'spark') { const [px, py] = P(e.x, e.y, e.z); L.alpha(1 - k); L.rect(px - 1, py - 1, 2, 2, k < 0.3 ? '#ffffff' : e.color); }
     else if (e.kind === 'charge') { 
       const r = (1 - k) * 1.8, [px, py] = P(e.x + Math.cos(e.a) * r, e.y + Math.sin(e.a) * r, 0.6 + (1 - k) * 0.8);
-      L.alpha(0.5 + k * 0.5); L.rect(px - 1, py - 1, 3, 3, k > 0.7 ? '#ffffff' : e.color);
+      
+      const [cx, cy] = P(e.x, e.y, 0.6), dl = Math.hypot(cx - px, cy - py) || 1;
+      L.alpha(0.5 + k * 0.5);
+      if (e.type && k < 0.8) drawBolt(L, e.type, px, py, (cx - px) / dl, (cy - py) / dl, u * 0.3, t + e.a, e.color);
+      else L.rect(px - 1, py - 1, 3, 3, k > 0.7 ? '#ffffff' : e.color);
     }
     else if (e.kind === 'burst' && !cel) { 
       const [px, py] = P(e.x, e.y, 0.55), r0 = u * (e.big ? 0.95 : 0.65) * (0.45 + k * 0.8);
@@ -269,6 +273,12 @@ export function drawBattleOverlay(ctx, t) {
         L.line(px + Math.cos(a) * r0 * 0.35, py + Math.sin(a) * r0 * 0.35, px + Math.cos(a) * r0 * l, py + Math.sin(a) * r0 * l, i % 2 ? e.color : '#ffffff', k < 0.5 ? 2 : 1);
       }
       if (k < 0.35) L.disc(px, py, r0 * 0.28, '#ffffff');
+    } else if (e.kind === 'splash') { 
+      for (let i = 0; i < e.n; i++) {
+        const a = e.a + i / e.n * Math.PI * 2, r = 0.25 + k * 1.1, [qx, qy] = P(e.x + Math.cos(a) * r, e.y + Math.sin(a) * r, 0.6 + Math.sin(k * Math.PI) * 0.9 - k * 0.4);
+        L.alpha(k < 0.6 ? 1 : (1 - k) / 0.4); drawBolt(L, e.type, qx, qy, Math.cos(a), Math.sin(a) * 0.5, u * 0.32 * (1 - k * 0.4), t + i, e.color);
+      }
+      L.alpha(1);
     } else if (e.kind === 'strike') { 
       const [px, py] = P(e.x, e.y, 0.6), from = P(e.fx, e.fy, 0.8), dl = Math.hypot(px - from[0], py - from[1]) || 1;
       drawStrike(L, e.plan, px, py, (px - from[0]) / dl, (py - from[1]) / dl, u * 2, k, e.color, from);
