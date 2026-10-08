@@ -9,6 +9,7 @@ import { sizeMult } from '../../data/sizes.js';
 import { rollForm } from '../../data/forms.js';
 import { temperOf } from '../../data/temper.js';
 import { gaitOf, gaitPhase } from '../../data/gaits.js';
+import { habitatFamily, nearWater } from '../../data/habitats.js';
 import { KIN_SHARE, KIN_RADIUS, kinSpecies } from '../../data/kin.js';
 import { sectionById } from './sections.js';
 import { wildLevel, wildStage } from './wildLevel.js';
@@ -89,6 +90,8 @@ export function spawnWild(near = null, minD = 7, where = null) {
     
     const table = tableHere();
     if (table.length && (fam === 0 || fam > 3) && Math.random() < WILD_TABLE_SHARE) fam = table[Math.floor(Math.random() * table.length)];
+    
+    else if (fam === 0 || fam > 3) fam = habitatFamily(fam, { wet: nearWater(x, y, (tx, ty) => (W.inMap(tx, ty) ? W.type[W.idx(tx, ty)] : undefined)), dark: !!W.dark }, Math.random);
     const stage = wildStage((sec && sec.chapter) || 1, lvl, Math.random()); 
     
     const mate = !near && pid >= 0 && Math.random() < KIN_SHARE ? G.wilds.find((o) => o.patch === pid && o.sec === (S.cam && S.cam.sec) && !o.kin && !o.scripted) : null;
