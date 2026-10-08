@@ -43,3 +43,17 @@ export function wildLevel({ far = 0, caught = 0, rand = Math.random(), top = 1, 
   const max = top + (initiated ? 2 : 0);
   return lvl < 2 ? 2 : lvl > max ? max : lvl;
 }
+
+
+
+
+
+
+export const STAGE_MIX = { 1: [0.15, 0.085], 2: [0.17, 0.09], 3: [0.2, 0.1], 4: [0.23, 0.12], 5: [0.26, 0.14], 6: [0.3, 0.17], 7: [0.33, 0.21], 8: [0.35, 0.25] }; 
+
+export function wildStage(chapter, lvl, r) {
+  const [s2, s3] = STAGE_MIX[Math.max(1, Math.min(8, chapter | 0))] || STAGE_MIX[1];
+  if (lvl > 30 && r < s3) return 3;
+  if (lvl > 9 && r < s3 + s2) return 2;
+  return 1;
+}

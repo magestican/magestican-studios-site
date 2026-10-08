@@ -10,7 +10,7 @@ import { rollForm } from '../../data/forms.js';
 import { temperOf } from '../../data/temper.js';
 import { KIN_SHARE, KIN_RADIUS, kinSpecies } from '../../data/kin.js';
 import { sectionById } from './sections.js';
-import { wildLevel } from './wildLevel.js';
+import { wildLevel, wildStage } from './wildLevel.js';
 import { TOWNS } from '../../musicCues.js';
 
 
@@ -88,7 +88,7 @@ export function spawnWild(near = null, minD = 7, where = null) {
     
     const table = tableHere();
     if (table.length && (fam === 0 || fam > 3) && Math.random() < WILD_TABLE_SHARE) fam = table[Math.floor(Math.random() * table.length)];
-    const stage = lvl > 9 && Math.random() < 0.15 ? 2 : lvl > 30 && Math.random() < 0.1 ? 3 : 1;
+    const stage = wildStage((sec && sec.chapter) || 1, lvl, Math.random()); 
     
     const mate = !near && pid >= 0 && Math.random() < KIN_SHARE ? G.wilds.find((o) => o.patch === pid && o.sec === (S.cam && S.cam.sec) && !o.kin && !o.scripted) : null;
     const kinSp = mate ? kinSpecies(speciesById(mate.d.sp)) : null;
