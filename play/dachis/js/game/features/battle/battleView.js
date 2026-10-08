@@ -24,6 +24,7 @@ import { stackLabels } from './overlayLayout.js';
 import { CHAR_SCALE, VIEW_ZOOM } from '../world/crowd.js';
 import { COMIC_PX, COMIC_TILT, HIT_WORDS, comicPx, tiltedBox, lungePose } from './comic.js';
 import { drawBolt, drawHex, drawDrain, drawFinisher } from './boltLooks.js';
+import { drawStrike } from './strikeLooks.js';
 
 
 
@@ -268,6 +269,9 @@ export function drawBattleOverlay(ctx, t) {
         L.line(px + Math.cos(a) * r0 * 0.35, py + Math.sin(a) * r0 * 0.35, px + Math.cos(a) * r0 * l, py + Math.sin(a) * r0 * l, i % 2 ? e.color : '#ffffff', k < 0.5 ? 2 : 1);
       }
       if (k < 0.35) L.disc(px, py, r0 * 0.28, '#ffffff');
+    } else if (e.kind === 'strike') { 
+      const [px, py] = P(e.x, e.y, 0.6), from = P(e.fx, e.fy, 0.8), dl = Math.hypot(px - from[0], py - from[1]) || 1;
+      drawStrike(L, e.plan, px, py, (px - from[0]) / dl, (py - from[1]) / dl, u * 2, k, e.color, from);
     } else if (e.kind === 'ring') { 
       L.alpha(1 - k); groundRing(e.x, e.y, Math.max(0.05, e.r * k), e.color, k < 0.5 ? 3 : 2, 32, 0.05);
       L.alpha((1 - k) * 0.5); groundRing(e.x, e.y, Math.max(0.05, e.r * k * 0.75), '#ffffff', 1, 32, 0.05);

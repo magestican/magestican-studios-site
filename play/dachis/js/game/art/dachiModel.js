@@ -847,7 +847,7 @@ export function dachiNode(sp, opts = {}) {
   mouth(L, h, ly.snout, type, dec, L.eyes !== 'visor' && L.signature !== 'cheeks', !!PP.beak);
   if (PP.beak) details.push(...PP.beak);
   const g = 1 + (st - 1) * 0.12;
-  if (L.wings || PP.wings) details.push(...wings(ly.wing0 || ly.wing, acc, wingMat, lampCol, g * (PP.wings || 1), metalCol, split && split.mode === 'part' && split.part === 'wing' ? split.side : 0).map(swingN));
+  if ((L.wings || PP.wings) && !PP.noWings) details.push(...wings(ly.wing0 || ly.wing, acc, wingMat, lampCol, g * (PP.wings || 1), metalCol, split && split.mode === 'part' && split.part === 'wing' ? split.side : 0).map(swingN));
   if (split && split.mat === 'bone' && (split.mode === 'vertical' || split.mode === 'diagonal')) details.push(...ribs(ly, split.side).map(swingN));
   else if (L.skeleton) details.push(...ribs(ly, -1).map(swingN));
   if (L.signature && !(PP.beak && (L.signature === 'trunk' || L.signature === 'cheeks'))) details.push(...signature(L.signature, h, ly, col, acc, st, lampCol, shapeEff));

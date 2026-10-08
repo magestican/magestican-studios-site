@@ -17,7 +17,7 @@
 
 
 
-export const SWING = { quadruped: 0.95, fish: 0.95, bug: 0.95, bird: 0.6, ghost: 0.5, serpent: 0.5, strider: 0.95, turtle: 0.9, snail: 0.9, frog: 0.5 }; 
+export const SWING = { quadruped: 0.95, fish: 0.95, bug: 0.95, bird: 0.6, ghost: 0.5, serpent: 0.5, strider: 0.95, turtle: 0.9, snail: 0.9, frog: 0.5, ray: 0.7 }; 
 
 export function planLayout(plan, K) {
   const E = K.ell;
@@ -119,6 +119,12 @@ export function planLayout(plan, K) {
     chest: E([0, 2.05, -0.55], [0.78, 0.86, 0.72]), head: { c: [0, 1.45, 0.12], r: 0.95 },
     feet: [], tail: [0, 2.3, -1.1], wing: [0.5, 2.0, -0.6],
     belly: [0, 0.8, 0.6], neck: 0.9, low: 0.7, back: [0, 2.3, -0.6], chestC: [0, 2.05, -0.55], ribR: [0.78, 0.72],
+  };
+  if (plan === 'ray') return { 
+    parts: [E([0, 1.25, -0.35], [0.7, 0.3, 0.9]), E([0, 1.7, 0.5], [0.98, 0.84, 0.9])], hp: [1], k: 0.3,
+    chest: E([0, 1.25, -0.35], [0.7, 0.3, 0.9]), head: { c: [0, 1.7, 0.5], r: 0.92 },
+    feet: [], tail: [0, 1.2, -1.3], wing: [0.5, 1.5, -0.4],
+    belly: [0, 1.0, 0.3], neck: 1.3, low: 1.0, back: [0, 1.5, -0.6], chestC: [0, 1.25, -0.35], ribR: [0.7, 0.9],
   };
   if (plan === 'jelly') return { 
     
@@ -327,6 +333,19 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
       for (let j = 1; j < pts.length; j++) arms.push(S.roundCone(pts[j - 1], pts[j], th * (1 - (j - 1) * 0.12), th * (1 - j * 0.12)));
     }
     out.organic.push(fur(S.union(0.06, ...arms), (x, y) => (y < 0.12 ? light(acc, 0.25) : col))); 
+  } else if (plan === 'ray') { 
+    out.noArms = true; out.noFeet = true; out.noWings = true; 
+    const s = full ? g : 0.45, y0 = full ? 1.22 : h.c[1] - 0.55 * r, z0 = full ? -0.3 : h.c[2] - 0.3;
+    for (const sgn of [-1, 1]) {
+      const fin = K.S.transform(E([0, 0, 0], [1.05 * s, 0.07 + 0.04 * s, 0.62 * s]), { translate: [sgn * (full ? 1.15 : 0.75) * (full ? 1 : 1), y0, z0 - 0.15 * s], rotate: [0, sgn * 0.45, sgn * -0.12] });
+      out.limbs.push({ sgn, arm: true, own: true, node: fur(fin, (x, y, z) => (Math.abs(x) > (full ? 1.7 : 1.0) * s ? light(acc, 0.2) : y > y0 ? acc : light(acc, 0.35))) });
+    }
+    const t0 = full ? [0, 1.2, -1.1] : add(ly.tail, [0, 0.1, 0]), pts = [t0];
+    for (let i = 1; i <= (full ? 6 : 3); i++) pts.push(add(t0, [Math.sin(i * 0.7) * 0.08, -0.05 * i * s + Math.max(0, i - 4) * 0.08, -0.38 * i * s]));
+    const tail = S.union(0.03, ...pts.slice(1).map((p, i) => S.roundCone(pts[i], p, 0.1 * s * (1 - i * 0.13) + 0.02, 0.1 * s * (1 - (i + 1) * 0.13) + 0.02)));
+    const tip = pts[pts.length - 1], barb = K.S.transform(E([0, 0, 0], [0.14 * s + 0.03, 0.04, 0.22 * s + 0.04]), { translate: tip, rotate: [0, 0.7, 0] });
+    const tailNode = fur(full ? S.union(0.03, tail, barb) : tail, (x, y, z) => (full && z < tip[2] + 0.3 ? dark(acc, 0.3) : col)); 
+    if (full) out.tail = tailNode; else out.organic.push(tailNode);
   } else if (plan === 'quadruped' && !full && ly.feet && ly.feet.length) { 
     const f = ly.feet[0];
     for (const sgn of [-1, 1]) out.limbs.push({ sgn, arm: false, node: E([sgn * f[0] * 0.9, f[1] + 0.04, f[2] - 0.62], [0.24, 0.14, 0.27]) });
