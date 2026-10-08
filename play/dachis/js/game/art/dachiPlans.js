@@ -76,6 +76,20 @@ export function planLayout(plan, K) {
     arms: [[0.95, 1.55, 0.2]], feet: [], tail: [-1.05, 0.8, -1.1], wing: [0.5, 2.1, -0.5],
     belly: [0, 1.45, 0.6], neck: 1.6, low: 1.3, back: [0, 2.0, -0.8], chestC: [0, 1.45, -0.1], ribR: [0.8, 0.7],
   };
+  
+  if (plan === 'crab') return { 
+    parts: [E([0, 0.78, -0.25], [1.12, 0.46, 0.8]), E([0, 1.62, 0.32], [0.98, 0.88, 0.9])], hp: [1], k: 0.2,
+    chest: E([0, 0.78, -0.25], [1.12, 0.46, 0.8]), head: { c: [0, 1.62, 0.32], r: 0.94 },
+    feet: [], tail: [0, 0.7, -1.0], wing: [0.5, 1.2, -0.5],
+    belly: [0, 0.6, 0.45], neck: 1.15, low: 0.62, back: [0, 1.15, -0.6], chestC: [0, 0.78, -0.25], ribR: [1.1, 0.8],
+  };
+  if (plan === 'jelly') return { 
+    
+    parts: [E([0, 2.75, 0.0], [1.08, 0.92, 1.04]), E([0, 2.03, 0.0], [1.12, 0.24, 1.08])], hp: [0], k: 0.25,
+    chest: E([0, 2.03, 0.0], [1.12, 0.24, 1.08]), head: { c: [0, 2.75, 0.06], r: 0.98 },
+    feet: [], tail: [0, 1.85, -0.6], wing: [0.5, 2.85, -0.5],
+    belly: [0, 2.05, 0.7], neck: 2.25, low: 2.0, back: [0, 2.75, -0.85], chestC: [0, 2.07, 0], ribR: [0.84, 0.6],
+  };
   return null; 
 }
 
@@ -173,6 +187,34 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
     for (const sgn of [-1, 1]) {
       out.limbs.push({ sgn, arm: true, node: S.union(0.06, S.roundCone([sgn * 0.52, 1.35, 0.05], [sgn * 0.82, 0.8, 0.22], 0.2, 0.16), K.S.sphere([sgn * 0.84, 0.74, 0.25], 0.21)) });
       out.limbs.push({ sgn, arm: false, node: S.union(0.06, S.roundCone([sgn * 0.3, 0.55, 0], [sgn * 0.32, 0.14, 0.04], 0.24, 0.2), E([sgn * 0.33, 0.1, 0.14], [0.24, 0.13, 0.32])) });
+    }
+  } else if (plan === 'crab') { 
+    out.noArms = true; out.noFeet = full;
+    const shell = K.mix(K.deep(acc), acc, 0.3), sc = full ? g : 0.5;
+    for (const sgn of [-1, 1]) {
+      const sh = full ? [sgn * 0.82, 0.86, 0.3] : [sgn * r * 0.85, h.c[1] - 0.45 * r, h.c[2] + 0.2];
+      const el = add(sh, [sgn * 0.42 * sc, 0.12 * sc, 0.4 * sc]), cl = add(el, [sgn * 0.06 * sc, 0.06 * sc, 0.36 * sc]);
+      const jaw = (dy, R) => K.S.transform(E([0, 0, 0], R), { translate: add(cl, [0, dy, 0.18 * sc]), rotate: [dy > 0 ? -0.35 : 0.35, 0, 0] });
+      out.limbs.push({ sgn, arm: true, own: true, node: fur(S.union(0.06, S.roundCone(sh, el, 0.16 * sc + 0.04, 0.13 * sc + 0.03), S.roundCone(el, cl, 0.13 * sc + 0.03, 0.2 * sc + 0.04),
+        jaw(0.1 * sc, [0.16 * sc + 0.04, 0.09 * sc + 0.02, 0.34 * sc + 0.06]), jaw(-0.08 * sc, [0.13 * sc + 0.03, 0.07 * sc + 0.02, 0.28 * sc + 0.05])), shell) });
+      if (full) for (const z of [0.05, -0.3, -0.65]) { 
+        const hip = [sgn * 0.98, 0.72, z], knee = [sgn * 1.42, 0.86, z - 0.05], foot = [sgn * 1.62, 0.06, z - 0.12];
+        out.limbs.push({ sgn, arm: false, node: S.union(0.04, S.roundCone(hip, knee, 0.11, 0.09), S.roundCone(knee, foot, 0.09, 0.04)) });
+      }
+    }
+  } else if (plan === 'jelly') { 
+    out.noArms = true; out.noFeet = true;
+    const n = full ? 9 : 5, base = full ? 1.97 : h.c[1] - 0.7 * r, len = full ? Math.min(1.85, 1.55 * g) : 0.6, rad = full ? 0.62 : 0.42 * r, th = full ? 0.15 : 0.1;
+    const strands = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + 0.4, pts = [];
+      for (let j = 0; j <= 5; j++) { const s = j / 5; pts.push([Math.sin(a) * rad * (1 - s * 0.3) + Math.sin(s * 5 + i) * 0.08, base - s * len, Math.cos(a) * rad * (1 - s * 0.3) + Math.cos(s * 5 + i) * 0.08]); }
+      for (let j = 1; j < pts.length; j++) strands.push(S.roundCone(pts[j - 1], pts[j], th * (1 - j * 0.14), th * (1 - (j + 1) * 0.14)));
+    }
+    out.organic.push(fur(S.union(0.04, ...strands), (x, y) => (y < base - len * 0.6 ? light(acc, 0.2) : acc)));
+    if (full) for (const sgn of [-1, 1]) { 
+      const p0 = [sgn * 0.35, 1.95, 0.5], p1 = [sgn * 0.55, 1.2, 0.85], p2 = [sgn * 0.5, 0.45, 1.0], p3 = [sgn * 0.32, 0.55, 1.25];
+      out.limbs.push({ sgn, arm: true, own: true, node: fur(S.union(0.05, S.roundCone(p0, p1, 0.11, 0.08), S.roundCone(p1, p2, 0.08, 0.06), S.roundCone(p2, p3, 0.06, 0.04)), acc) });
     }
   } else if (plan === 'quadruped' && !full && ly.feet && ly.feet.length) { 
     const f = ly.feet[0];

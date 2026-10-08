@@ -256,6 +256,10 @@ export function planMotion(plan, t, gait, moving) {
     case 'bug': return moving ? { lift: Math.abs(Math.sin(gait * 2)) * 0.04, roll: Math.sin(gait * 2.3) * 0.04, pitch: 0, yaw: Math.sin(gait * 1.7) * 0.08 }
       : { lift: 0, roll: 0, pitch: 0, yaw: (Math.sin(t * 0.9) > 0.97 ? Math.sin(t * 40) * 0.08 : 0) };
     case 'plant': return { lift: 0, roll: Math.sin(t * 1.6) * 0.07, pitch: Math.sin(t * 1.1) * 0.03, yaw: 0 };
+    
+    case 'crab': return moving ? { lift: Math.abs(Math.sin(gait * 2.4)) * 0.03, roll: Math.sin(gait * 2.4) * 0.06, pitch: 0, yaw: Math.sin(gait * 1.2) * 0.25 }
+      : { lift: 0, roll: 0, pitch: 0, yaw: (Math.sin(t * 0.7) > 0.95 ? Math.sin(t * 30) * 0.12 : 0) };
+    case 'jelly': { const pulse = Math.max(0, Math.sin(t * 2.6)) ** 3; return { lift: 0.08 + pulse * 0.16 - Math.sin(t * 1.3) * 0.04, roll: Math.sin(t * 1.1) * 0.05, pitch: -pulse * 0.06, yaw: 0 }; }
     case 'quadruped': return moving ? { lift: Math.abs(Math.sin(gait * 0.5)) * 0.05, roll: 0, pitch: Math.sin(gait) * 0.07, yaw: 0 }
       : { lift: 0, roll: Math.sin(t * 1.5) * 0.02, pitch: 0, yaw: 0 };
     default: return moving ? { lift: 0, roll: Math.sin(gait * 0.5) * 0.14, pitch: 0, yaw: 0 } 

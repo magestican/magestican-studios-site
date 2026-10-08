@@ -169,15 +169,26 @@ export const TOPPERS = ['floppy', 'lop', 'fennec', 'sprig', 'bobble', 'wingears'
 
 
 
-export const BODY_PLANS = ['round', 'quadruped', 'fish', 'bird', 'serpent', 'bug', 'biped', 'plant', 'ghost'];
+export const BODY_PLANS = ['round', 'quadruped', 'fish', 'bird', 'serpent', 'bug', 'biped', 'plant', 'ghost', 'crab', 'jelly'];
 const PLAN_BY_TYPE = {
   Tide: ['fish', 'serpent'], Gale: ['bird'], Leaf: ['plant', 'bug'], Spark: ['bug', 'biped'], Stone: ['quadruped', 'bug'],
   Frost: ['fish', 'quadruped'], Shadow: ['ghost', 'serpent'], Light: ['bird', 'ghost'], Metal: ['biped', 'bug'],
   Beast: ['quadruped', 'biped'], Spirit: ['ghost', 'round'], Ember: ['quadruped', 'serpent'],
 };
 const HAND_PLAN = { 1: 'quadruped', 2: 'fish', 3: 'plant' };
+
+
+
+export const PLAN_OVERRIDE = { 17: 'crab', 38: 'crab', 26: 'jelly', 25: 'jelly' };
 function planLook(fam, look, t1, used) {
   if (HAND_PLAN[fam]) return HAND_PLAN[fam];
+  if (PLAN_OVERRIDE[fam]) { 
+    const old = planLook0(fam, look, t1, used); used[old] = (used[old] || 0) + 1;
+    return PLAN_OVERRIDE[fam];
+  }
+  return planLook0(fam, look, t1, used);
+}
+function planLook0(fam, look, t1, used) {
   let cands = PLAN_BY_TYPE[t1];
   if (look.wings && t1 !== 'Tide') cands = ['bird', ...cands.filter((p) => p === 'bug' || p === 'ghost')]; 
   const r = U.rng(U.hash('dachi-plan-' + fam)); r(); r(); r();

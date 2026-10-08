@@ -1,7 +1,7 @@
 {
   "$comment": "Read by the Magestican Studios iOS apps to update their bundled games without an App Store release. See multi-game-madness/app/lib/services/game_updater.dart.",
-  "buildId": "bd2910a9-20261008T005937Z",
-  "builtAt": "2026-10-08T00:59:37Z",
+  "buildId": "ee8346d0-20261008T010924Z",
+  "builtAt": "2026-10-08T01:09:24Z",
   "fileCount": 2016,
   "files": {
     "assets/apple-touch-icon.png": {
@@ -698,7 +698,7 @@
     },
     "play/farmyshoot/index.html": {
       "bytes": 64854,
-      "sha256": "5e11da29800a840c6124cdcfcbbae7c12b0c1ad1f6fbf07ed5b08be65a3af30b"
+      "sha256": "951f92130229e78448537641b1cd72cedc1cd0d90e3f72801f837b23dd54a372"
     },
     "play/farmyshoot/src/audio/announcerVoice.js": {
       "bytes": 8781,
@@ -974,7 +974,7 @@
     },
     "play/farmykart/index.html": {
       "bytes": 59150,
-      "sha256": "31d1408f6a02199d3f6136420a23af50232a892aa4af641ddfa3a9f36e015a37"
+      "sha256": "6f6e5a3428118154ab118bb671e11ce495a2ce4dc3e713b22e186d0806db4dc6"
     },
     "play/farmykart/src/audio/music.js": {
       "bytes": 13073,
@@ -1194,7 +1194,7 @@
     },
     "play/farmy-evil-hills/index.html": {
       "bytes": 37849,
-      "sha256": "b421165bfc1b7eb7a0cddd3ddf8fdae6b44c7fd5be550e676cd323f149b7f873"
+      "sha256": "7e2d802cfbf657fccdeaa9fbfffc308a4f5552fa43ceb3dbc6120179161386b0"
     },
     "play/farmy-evil-hills/src/audio/mumble.js": {
       "bytes": 4922,
@@ -1418,7 +1418,7 @@
     },
     "play/farmy-uprising/index.html": {
       "bytes": 56470,
-      "sha256": "07b0b1baf7ecb31a6c633d022f517a38ab13292861614eab848c8530d4583f80"
+      "sha256": "e1639e2c5048e50311bb5e0fce93a42c91c304e452b98684a8cda47a3f7ceefc"
     },
     "play/farmy-uprising/src/animSprites.js": {
       "bytes": 1143,
@@ -1602,7 +1602,7 @@
     },
     "play/2d-fighter-ex/index.html": {
       "bytes": 8663,
-      "sha256": "b3a86061597206bf64e8fcdea1b9e68bba3d35f744abea819cdd38bbe1a65bbc"
+      "sha256": "a282e107e6344bd933af563a96d49463958bc941fb9656153c25b751a7afec25"
     },
     "play/2d-fighter-ex/src/animeRig.mjs": {
       "bytes": 60,
@@ -1678,7 +1678,7 @@
     },
     "play/farmy-crosswords/index.html": {
       "bytes": 5535,
-      "sha256": "83048e426f859994b9395ad0ef4a16c309c5c4a3b98f9733912b7a995bef0f02"
+      "sha256": "f332f84d8f30be6d4ebd95408e2fad7ea64de89608906d33bf1845eb2752c7bf"
     },
     "play/farmy-crosswords/src/a11y.js": {
       "bytes": 1510,
@@ -1742,7 +1742,7 @@
     },
     "play/farmy-tiles/index.html": {
       "bytes": 5291,
-      "sha256": "6852162478c19d371e340dbed33a4a2ef2e42ca984a7b4dac5a40f10c2b670d6"
+      "sha256": "ed2f72aaa4bbce22fc7d6be7228ccf9d06133c96374f69779bc6c11574a8cad7"
     },
     "play/farmy-tiles/src/a11y.js": {
       "bytes": 1514,
@@ -1786,7 +1786,7 @@
     },
     "play/farmy-ludo/index.html": {
       "bytes": 5090,
-      "sha256": "5dcb029c65fe4738c160676d62747b541bf3846f533458235204fe47d1123622"
+      "sha256": "52428c51b87f774df100d4f482bbb76219dc04aa33582853837b840c2e02913e"
     },
     "play/farmy-ludo/src/a11y.js": {
       "bytes": 1510,
@@ -1818,7 +1818,7 @@
     },
     "play/farmy-chess/index.html": {
       "bytes": 5486,
-      "sha256": "83234d70994562ce7850a3518a7d3c501018aaf61038772c51c347a1f9493012"
+      "sha256": "8c87511663786852a5ac4ef63882b8c58f7e361cd81ac25394d4cd5acc3e5c6a"
     },
     "play/farmy-chess/src/a11y.js": {
       "bytes": 1563,
@@ -1858,7 +1858,7 @@
     },
     "play/farmy-checkers/index.html": {
       "bytes": 5461,
-      "sha256": "dd9762c28bb457086cdcd28789fee3f93eee6015c7063b21cf8318c289cc4864"
+      "sha256": "05baaad44a87fd7608628c5e7ffa116eac62c34d989e4fbc875942bb8cab3b43"
     },
     "play/farmy-checkers/src/a11y.js": {
       "bytes": 1531,
@@ -1894,7 +1894,7 @@
     },
     "play/silk-and-seam/index.html": {
       "bytes": 4305,
-      "sha256": "a691a31a759d0d65f6f6456318c6e249fe6eecb3e96675f2804cff565e04a646"
+      "sha256": "381dd808574b898e5f159c7fedb761eb673871e2f8cba3a57e9631231b6d8c3a"
     },
     "play/silk-and-seam/css/scene-frames.css": {
       "bytes": 3171,
@@ -2274,7 +2274,7 @@
     },
     "play/dachis/index.html": {
       "bytes": 20076,
-      "sha256": "14e8ffa02ceef5fede87dbb6ca7d82e02bb3461d6ba44d450ce9067e6bd6e80e"
+      "sha256": "c5a9ba092fb111bdf7a7aba8bdbefe52686d974956e096db576e38da1438bb97"
     },
     "play/dachis/css/game.css": {
       "bytes": 64103,
@@ -2373,8 +2373,8 @@
       "sha256": "e6564966128424977686156e664db604af4c060ad26d6258aa4bb357a5101539"
     },
     "play/dachis/js/game/art/dachiActor.js": {
-      "bytes": 15665,
-      "sha256": "83e481e69490b020ecfd97cf0c3dd33404c00a2b231e03172334c099dd965c6f"
+      "bytes": 16133,
+      "sha256": "040af02f183752d5f46189f9592b03661386ced176c44419b5fd92525ffa8169"
     },
     "play/dachis/js/game/art/dachiFx.js": {
       "bytes": 4787,
@@ -2385,8 +2385,8 @@
       "sha256": "b2bfd6f8262df6ce6ae9984a484dbaf7c680244177dd5295e5f5a3bfbc30c729"
     },
     "play/dachis/js/game/art/dachiPlans.js": {
-      "bytes": 10527,
-      "sha256": "ca2d7437dd1359377b12ab814726f1d455c9d40937b0f8017188a873bb2036c0"
+      "bytes": 13770,
+      "sha256": "3675b9cae77b645ff0c24f59bb8aa3ffa8b75d4ac597551e87fe6311596ad920"
     },
     "play/dachis/js/game/art/dachiWorker.js": {
       "bytes": 1826,
@@ -2561,8 +2561,8 @@
       "sha256": "5d69335cfa6adb0009e2d23a20df6f016f42557693bf0cb9924dda401604a897"
     },
     "play/dachis/js/game/data/species.js": {
-      "bytes": 29196,
-      "sha256": "587c2b9771028721655151f94b039dff1ea2820b43b8db65782edd804b3277ea"
+      "bytes": 29530,
+      "sha256": "d00ff3785171b99e8889340bd1761f806018aa1859dccd3dc5f5569e71292161"
     },
     "play/dachis/js/game/data/temper.js": {
       "bytes": 791,
@@ -5534,7 +5534,7 @@
     },
     "play/farmy-moon-life/index.html": {
       "bytes": 69919,
-      "sha256": "cdb7607c07db826a7e22e86a2c06eb3cb909b4174f0cfe2471a49076010fb1b2"
+      "sha256": "11daa5bd9fbc588dd82c230c39cf7a186992001b5259d54630ab178d5cf4d9e1"
     },
     "play/farmy-moon-life/src/install/icon-192.png": {
       "bytes": 1839,
@@ -7158,39 +7158,39 @@
     },
     "play/farmyshoot/version.json": {
       "bytes": 72,
-      "sha256": "dc61e30fae277276f3cb32c28ba41d73048cfac0e4f3b0889a52eba2a7c68460"
+      "sha256": "8e1a4357eb4e8969c745006585157501d275a715c7ecb2247c833f50ccac8642"
     },
     "play/farmykart/version.json": {
       "bytes": 72,
-      "sha256": "dc61e30fae277276f3cb32c28ba41d73048cfac0e4f3b0889a52eba2a7c68460"
+      "sha256": "8e1a4357eb4e8969c745006585157501d275a715c7ecb2247c833f50ccac8642"
     },
     "play/farmy-evil-hills/version.json": {
       "bytes": 72,
-      "sha256": "dc61e30fae277276f3cb32c28ba41d73048cfac0e4f3b0889a52eba2a7c68460"
+      "sha256": "8e1a4357eb4e8969c745006585157501d275a715c7ecb2247c833f50ccac8642"
     },
     "play/zelakas/version.json": {
       "bytes": 72,
-      "sha256": "dc61e30fae277276f3cb32c28ba41d73048cfac0e4f3b0889a52eba2a7c68460"
+      "sha256": "8e1a4357eb4e8969c745006585157501d275a715c7ecb2247c833f50ccac8642"
     },
     "play/2d-fighter-ex/version.json": {
       "bytes": 72,
-      "sha256": "dc61e30fae277276f3cb32c28ba41d73048cfac0e4f3b0889a52eba2a7c68460"
+      "sha256": "8e1a4357eb4e8969c745006585157501d275a715c7ecb2247c833f50ccac8642"
     },
     "play/farmy-crosswords/version.json": {
       "bytes": 72,
-      "sha256": "dc61e30fae277276f3cb32c28ba41d73048cfac0e4f3b0889a52eba2a7c68460"
+      "sha256": "8e1a4357eb4e8969c745006585157501d275a715c7ecb2247c833f50ccac8642"
     },
     "play/farmy-tiles/version.json": {
       "bytes": 72,
-      "sha256": "dc61e30fae277276f3cb32c28ba41d73048cfac0e4f3b0889a52eba2a7c68460"
+      "sha256": "8e1a4357eb4e8969c745006585157501d275a715c7ecb2247c833f50ccac8642"
     },
     "play/farmy-ludo/version.json": {
       "bytes": 72,
-      "sha256": "dc61e30fae277276f3cb32c28ba41d73048cfac0e4f3b0889a52eba2a7c68460"
+      "sha256": "8e1a4357eb4e8969c745006585157501d275a715c7ecb2247c833f50ccac8642"
     },
     "play/farmy-chess/version.json": {
       "bytes": 72,
-      "sha256": "dc61e30fae277276f3cb32c28ba41d73048cfac0e4f3b0889a52eba2a7c68460"
+      "sha256": "8e1a4357eb4e8969c745006585157501d275a715c7ecb2247c833f50ccac8642"
     },
     "assets/badges/first-steps.svg": {
       "bytes": 764,
@@ -8066,7 +8066,7 @@
     },
     "catalogue.json": {
       "bytes": 15041,
-      "sha256": "e001a07036ace3c3b658e47e4510ffdc93ebbf0a0069809ca76201d7c211a8df"
+      "sha256": "f6e1554a5d8c4686f6d2d23b71c08a8391129d797e281e378161dd4636ea033b"
     }
   }
 }
