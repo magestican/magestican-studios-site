@@ -842,7 +842,7 @@ export function dachiNode(sp, opts = {}) {
     return region(w[0], w[1], w[2]) > 0 ? split.mat : null;
   };
 
-  const details = [organic, ...tl.extra, ...PP.details.map(swingN)], dec = [];
+  const details = [organic, ...tl.extra, ...PP.details.map(swingN), ...(PP.head || [])], dec = []; 
   eyes(L, h, st, S.union(ly.k, ...ly.parts), eyeMat, lampCol, mix(deep(acc), INK, 0.35), dec, details, mix(acc, INK, 0.92));
   mouth(L, h, ly.snout, type, dec, L.eyes !== 'visor' && L.signature !== 'cheeks', !!PP.beak);
   if (PP.beak) details.push(...PP.beak);

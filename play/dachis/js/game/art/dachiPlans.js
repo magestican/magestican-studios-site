@@ -350,5 +350,49 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
     const f = ly.feet[0];
     for (const sgn of [-1, 1]) out.limbs.push({ sgn, arm: false, node: E([sgn * f[0] * 0.9, f[1] + 0.04, f[2] - 0.62], [0.24, 0.14, 0.27]) });
   }
+  if (full && st >= 3) grow(plan, out, K, col, acc);
   return out;
+}
+
+
+
+
+
+
+
+
+export const GROWTH = { quadruped: 'spikes', bird: 'crest', fish: 'whiskers', serpent: 'hood', bug: 'horn', plant: 'flower',
+  crab: 'shellSpikes', turtle: 'domeSpikes', strider: 'antlers', frog: 'throat', jelly: 'frill' };
+function grow(plan, out, K, col, acc) {
+  const { S, fur, light, dark } = K, E = K.ell, head = (out.head = out.head || []);
+  const spike = (b, t, r0) => S.roundCone(b, t, r0, 0.02);
+  const kind = GROWTH[plan];
+  if (kind === 'spikes') { 
+    const s = [0.25, -0.15, -0.55, -0.95].map((z) => { const y = 0.98 + 0.52 * Math.sqrt(Math.max(0, 1 - ((z + 0.35) / 1.0) ** 2)) - 0.06; return spike([0, y, z], [0, y + 0.62 - Math.abs(z + 0.35) * 0.2, z - 0.2], 0.2); });
+    out.details.push(fur(S.union(0.03, ...s), dark(acc, 0.2)));
+  } else if (kind === 'crest') { 
+    head.push(fur(S.union(0.03, ...[-1, 0, 1].map((i) => S.roundCone([i * 0.16, 2.72, 0.05], [i * 0.42, 3.75 - Math.abs(i) * 0.2, -0.5], 0.14, 0.045))), light(acc, 0.2)));
+  } else if (kind === 'whiskers') { 
+    for (const sgn of [-1, 1]) head.push(fur(S.union(0.03, S.roundCone([sgn * 0.42, 1.05, 1.18], [sgn * 1.05, 0.85, 1.45], 0.09, 0.07), S.roundCone([sgn * 1.05, 0.85, 1.45], [sgn * 1.4, 0.5, 1.15], 0.07, 0.035)), dark(acc, 0.4)));
+  } else if (kind === 'hood') { 
+    head.push(fur(K.S.transform(E([0, 0, 0], [1.6, 1.3, 0.14]), { translate: [0, 2.0, -0.12], rotate: [-0.25, 0, 0] }), (x, y) => (Math.hypot(x / 1.0, (y - 2.1) / 0.75) < 1 ? light(acc, 0.25) : dark(acc, 0.25)))); 
+  } else if (kind === 'horn') { 
+    head.push(fur(S.union(0.04, S.roundCone([0, 2.1, 1.0], [0, 2.9, 1.5], 0.26, 0.15), S.roundCone([0, 2.9, 1.5], [0, 3.45, 1.15], 0.15, 0.04)), dark(acc, 0.45)));
+  } else if (kind === 'flower') { 
+    const petals = []; for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; petals.push(K.S.transform(E([0, 0, 0], [0.3, 0.08, 0.52]), { translate: [Math.sin(a) * 0.48, 2.66, 0.08 + Math.cos(a) * 0.48], rotate: [-0.45, a, 0] })); }
+    head.push(fur(S.union(0.03, ...petals), light(acc, 0.35)));
+    head.push(fur(K.S.sphere([0, 2.7, 0.08], 0.22), K.lin('#ffd040')));
+  } else if (kind === 'shellSpikes') { 
+    out.details.push(fur(S.union(0.03, ...[-0.72, -0.36, 0, 0.36, 0.72].map((x) => { const y = 0.78 + 0.46 * Math.sqrt(Math.max(0, 1 - (x / 1.12) ** 2 - 0.09)) - 0.06; return spike([x, y, -0.5], [x * 1.3, y + 0.58, -0.66], 0.18); })), dark(acc, 0.35)));
+  } else if (kind === 'domeSpikes') { 
+    out.details.push(fur(S.union(0.03, ...[-0.05, -0.45, -0.85].map((z) => { const y = 1.12 + 0.92 * Math.sqrt(Math.max(0, 1 - ((z + 0.45) / 1.18) ** 2)) - 0.06; return spike([0, y, z], [0, y + 0.62, z - 0.14], 0.24); })), dark(acc, 0.5)));
+  } else if (kind === 'antlers') { 
+    for (const sgn of [-1, 1]) { const b = [sgn * 0.3, 3.7, 0.8], m = [sgn * 0.75, 4.35, 0.6], t = [sgn * 1.3, 4.85, 0.35], f = [sgn * 0.62, 5.0, 0.85], f2 = [sgn * 1.15, 4.3, 0.95];
+      head.push(fur(S.union(0.03, S.roundCone(b, m, 0.14, 0.1), S.roundCone(m, t, 0.1, 0.04), S.roundCone(m, f, 0.09, 0.04), S.roundCone([sgn * 0.52, 4.02, 0.7], f2, 0.08, 0.035)), K.lin('#c8a878'))); }
+  } else if (kind === 'throat') { 
+    head.push(fur(E([0, 0.62, 1.18], [0.5, 0.36, 0.4]), light(col, 0.55))); 
+  } else if (kind === 'frill') { 
+    const pts = []; for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; pts.push(S.roundCone([Math.sin(a) * 0.55, 3.42, 0.06 + Math.cos(a) * 0.55], [Math.sin(a) * 0.85, 4.15, 0.06 + Math.cos(a) * 0.85], 0.17, 0.04)); }
+    head.push(fur(S.union(0.03, ...pts), light(acc, 0.25)));
+  }
 }
