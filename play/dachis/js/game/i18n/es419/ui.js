@@ -479,4 +479,8 @@ export default {
   "Playful": "Juguetón",
   "Bold": "Atrevido",
   "Regional forms befriended: {0}": "Formas regionales amigas: {0}",
+  "Crystal form": "De cristal",
+  "Gale form": "De ventarrón",
+  "Dusk form": "De ocaso",
+  "Befriend a dachi of every regional form.": "Hazte amigo de un dachi de cada forma regional.",
 };

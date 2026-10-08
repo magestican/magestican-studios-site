@@ -79,6 +79,17 @@ vec3 celShade( vec3 base ) {
   base = mix( base, vec3( 0.10, 0.62, 0.68 ) * ( 0.7 + fmL * 0.5 ), 0.72 ); // SALT: sea-glass coat, salt crust edges, barnacle spots
   if ( fmN > 0.7 ) base = mix( base, vec3( 0.93, 0.95, 0.92 ), 0.6 );
   if ( fmD > 0.8 ) base = vec3( 0.98, 0.94, 0.82 );
+#elif CEL_FORM == 5
+  float fmF = floor( fmN * 5.0 ) / 5.0; // CRYSTAL: faceted planes of amethyst and ice, sharp glints
+  base = mix( base, mix( vec3( 0.42, 0.22, 0.85 ), vec3( 0.35, 0.85, 0.95 ), fmF ), 0.78 );
+  if ( fract( fmN * 5.0 ) < 0.08 ) base *= 0.55; // dark facet edges
+  if ( fmD > 0.84 ) return vec3( 1.0 );
+#elif CEL_FORM == 6
+  base = mix( base, vec3( 0.78, 0.9, 1.0 ) * ( 0.6 + fmL * 0.5 ), 0.45 ); // GALE: sky-pale fur, wind streaks
+  if ( sin( vCelO.y * uCelCrackScale * 2.2 + fmN * 6.0 ) > 0.86 ) base = mix( base, vec3( 1.0 ), 0.8 );
+#elif CEL_FORM == 7
+  base = mix( base, mix( vec3( 0.16, 0.10, 0.36 ), vec3( 0.55, 0.22, 0.45 ), fmN ), 0.72 ); // DUSK: twilight violet into sunset rose, star specks
+  if ( fmD > 0.88 ) return vec3( 1.0, 0.95, 0.7 );
 #endif
   }
 #endif

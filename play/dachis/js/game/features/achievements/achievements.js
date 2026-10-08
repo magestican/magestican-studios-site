@@ -15,6 +15,7 @@ import { LAIRS } from '../world/lairs.js';
 import { COLLECTIBLES, PER_REGION } from '../../data/collectibles.js';
 import { SIDE } from '../quest/quests.js';
 import { REGIONS } from '../world/regions.js';
+import { FORM_IDS } from '../../data/forms.js';
 
 export const TIERS = ['common', 'uncommon', 'rare', 'legendary']; 
 const A = (id, name, tier, desc, test) => ({ id: 'dachis-' + id, name, game: 'dachis', tier, desc, test });
@@ -42,7 +43,7 @@ export const ACHIEVEMENTS = [
   A('new-game-plus', 'Again, Again', 'rare', 'Start a New Game+.', (f, c) => (c.cycle || 1) >= 2),
   
   A('first-form', 'Local Colour', 'common', 'Befriend a dachi in its regional form.', (f, c) => (c.forms || 0) >= 1),
-  A('all-forms', 'Well Travelled', 'rare', 'Befriend a Frost, an Ash, a Moss and a Salt form.', (f, c) => (c.forms || 0) >= 4),
+  A('all-forms', 'Well Travelled', 'rare', 'Befriend a dachi of every regional form.', (f, c) => (c.forms || 0) >= FORM_IDS.length),
 ];
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id) || null;
 export const unlocked = (flags, id) => !!(flags && flags.ach && flags.ach[id]);

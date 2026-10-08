@@ -542,4 +542,8 @@ export default {
   "Playful": "やんちゃ",
   "Bold": "ゆうかん",
   "Regional forms befriended: {0}": "なかよくなった土地のすがた：{0}",
+  "Crystal form": "けっしょうのすがた",
+  "Gale form": "かぜのすがた",
+  "Dusk form": "たそがれのすがた",
+  "Befriend a dachi of every regional form.": "ぜんぶの土地のすがたのダチと友だちになる。",
 };

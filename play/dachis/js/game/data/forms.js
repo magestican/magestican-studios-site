@@ -12,6 +12,10 @@ export const FORMS = {
   ash: { code: 2, variant: 'a', word: 'Ash form', regions: ['ember-tube', 'winding-path', 'kazan-heart', 'kazan-galleries', 'kazan-pyre'] },
   moss: { code: 3, variant: 'm', word: 'Moss form', regions: ['hollowroot', 'thornfield', 'mother-hollow', 'vinegate', 'canopy-walk', 'fig-terraces'] },
   salt: { code: 4, variant: 's', word: 'Salt form', regions: ['tomo-coast', 'shellhaven', 'kelp-maze', 'drowned-temple', 'echo-lake'] },
+  
+  crystal: { code: 5, variant: 'k', word: 'Crystal form', regions: ['geode-galleries', 'minehead', 'lantern-shaft', 'deep-seam'] },
+  gale: { code: 6, variant: 'y', word: 'Gale form', regions: ['gale-ledges', 'ruin-steps'] },
+  dusk: { code: 7, variant: 'd', word: 'Dusk form', regions: ['obsidian-court'] },
 };
 export const FORM_IDS =  (Object.keys(FORMS));
 

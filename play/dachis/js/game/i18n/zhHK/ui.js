@@ -542,4 +542,8 @@ export default {
   "Playful": "百厭",
   "Bold": "大膽",
   "Regional forms befriended: {0}": "交咗朋友嘅地區款：{0}",
+  "Crystal form": "水晶款",
+  "Gale form": "大風款",
+  "Dusk form": "黃昏款",
+  "Befriend a dachi of every regional form.": "每一款地區款都同一隻 dachi 做朋友。",
 };

@@ -66,7 +66,7 @@ if (view === 'lineup' && set === 'story') {
   rows = [0, 1, 2].map((st) => fams.map((f) => [f * 3 + st + 1, {}]));
 } else if (view === 'lineup' && set === 'forms') { 
   const ids = (q.get('pick') || '22,38,59').split(',').map(Number);
-  rows = ids.map((i) => [undefined, 'frost', 'ash', 'moss', 'salt'].map((form) => [i, form ? { form } : {}]));
+  rows = ids.map((i) => [undefined, 'frost', 'ash', 'moss', 'salt', 'crystal', 'gale', 'dusk'].map((form) => [i, form ? { form } : {}]));
 } else if (view === 'lineup' && set === 'sizes') { 
   const row1 = SIZE_CLASSES.map((c) => SPECIES.find((s) => s.stage === 3 && s.sizeClass === c)).filter(Boolean).map((s) => [s.id, {}, undefined, sizeMult(s, {})]);
   const k = SPECIES.find((s) => s.stage === 2 && s.sizeClass === 'medium');
