@@ -9,8 +9,8 @@
 import * as THREE from 'three';
 import { createCozyLight, cozify, applyLook } from './cozyStage.js';
 import { createPixelPass } from './pixelPass.js';
+import { ISO_DIR, EYE_DIST } from './isoView.js';
 
-const ISO_DIR = new THREE.Vector3(1, 1.2, 1).normalize();
 const R = Math.SQRT1_2;
 
 export function createStage(canvas, { viewHeight = 15, shadows = true, hours = 10.5, pixelHeight = 480 } = {}) {
@@ -47,7 +47,7 @@ export function createStage(canvas, { viewHeight = 15, shadows = true, hours = 1
     setHours(h) { light.setHours(h); scene.background = light.horizon(); },
     lookAt(x, y, h) {
       target.set(x, h, y);
-      camera.position.copy(target).addScaledVector(ISO_DIR, 80);
+      camera.position.copy(target).addScaledVector(ISO_DIR, EYE_DIST);
       camera.lookAt(target);
     },
     

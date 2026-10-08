@@ -29,7 +29,9 @@ export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, pl
 
 
 
-export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight, craterSection = 'kazan', sections }, slice = async () => {}) {
+
+
+export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight, craterSection = 'kazan', sections, keep = null }, slice = async () => {}) {
   const { scene } = stage;
   const groups = {};
   for (const id of sections) {
@@ -37,6 +39,7 @@ export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight,
     
     const view = Object.create(W);
     view.objects = W.objects.filter((o) => o.secs.includes(id));
+    if (keep) view.objects = keep(W, view.objects);
     for (const place of PLACERS) {
       
       
@@ -46,7 +49,7 @@ export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight,
       }
       else { place(batch, view); await slice('place ' + id + ' ' + place.name); }
     }
-    if (id === craterSection && crater) placeCraterRim(batch, W, crater, craterRadius);
+    if (id === craterSection && crater && !keep) placeCraterRim(batch, W, crater, craterRadius);
     const group = batch.toGroup();
     await slice('batch ' + id);
     scene.add(group);

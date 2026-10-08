@@ -32,6 +32,7 @@ import { doorAt, walkThrough } from './features/world/doors.js';
 import * as kazanVillage from './features/world/regionMaps/kazanVillage.js';
 import { openPerchMenu, closePerchMenu, perchMenuOpen, pickPerch, installPerchMenu } from './features/hud/perchMenu.js';
 import { cam, updateCamera, resetCamera, drawFade, updateSeeThrough, zoomInFromIntro } from './features/world/sectionCamera.js';
+import { initBackdrops, enterBackdrop, backdropWaiting } from './features/world/backdrops.js';
 import { loadBakedForms } from './art/scenery/kit.js';
 import { createPlayerView, updatePlayer, drawPlayer } from './features/world/player.js';
 import { spawnNpcs, clearNpcs, updateNpcs, drawNpcs, nearestNpc, separateCrowd, TALK_R } from './features/world/npcs.js';
@@ -136,6 +137,7 @@ function loadRegion(id, at = null, opts = {}) {
     for (const k in worldView.scenery.groups) worldView.scenery.groups[k].visible = true;
     for (const k in worldView.tufts) worldView.tufts[k].visible = true;
     resetCamera(); updateCamera(0, G.player);
+    await enterBackdrop(G.region || HOME, cam.sec); 
     await slice('camera');
     
     
@@ -187,6 +189,7 @@ async function flyTo(id) {
     for (const w of G.wilds.slice()) removeWild(w);
     G.player.x = p.at.x; G.player.y = p.at.y; G.follower.x = p.at.x; G.follower.y = p.at.y - 0.6;
     resetCamera(); updateCamera(0, G.player);
+    await enterBackdrop(G.region || HOME, cam.sec); 
     await flightLanded();
     await coverTo(0);
   }
@@ -269,6 +272,7 @@ const rebuildWorld = () => loadRegion(G.region || HOME, { x: G.player.x, y: G.pl
 
 if (lookName(location.search) === 'cel') {
   S.stage.setLook(celLook({ phone: matchMedia('(pointer: coarse)').matches }));
+  initBackdrops(S.stage); 
   initBattleFx(S.stage); 
   initBattleArena(S.stage); 
   const cast = [];
@@ -276,7 +280,7 @@ if (lookName(location.search) === 'cel') {
   celLook().prewarm(S.stage, cast);
 }
 
-S.cam = cam; S.scenery = worldView.scenery; cam.onSection = (id) => { worldView.showSection(id); if (G.mode === 'world') { questEvent({ kind: 'visit', sec: id }, true); saveGame(); } };
+S.cam = cam; S.scenery = worldView.scenery; cam.hold = backdropWaiting; cam.onSection = (id) => { worldView.showSection(id); enterBackdrop(G.region || HOME, id); if (G.mode === 'world') { questEvent({ kind: 'visit', sec: id }, true); saveGame(); } };
 
 S.sfx = createSfx({ key: 'dachis:sfx-muted', recipes: { ...SOUNDS, opener: SOUNDS.start, bossOpener: SOUNDS.start } });
 

@@ -18,6 +18,8 @@ import { classPage, tagSpots } from '../../art/look/worldRules.js';
 import { createTags } from '../../art/look/tags.js';
 import { noSlice } from '../../../engine/core/slicer.js';
 import { HOME } from './regions.js';
+import { backdropOf } from './backdrops.js';
+import { liveObjects } from './bakeVerdicts.js';
 
 const CEL = typeof location !== 'undefined' && lookName(location.search) === 'cel';
 
@@ -53,6 +55,9 @@ export async function buildWorld(stage, W, slice = noSlice) {
   const { scene } = stage;
   const SECS = W.sections || SECTIONS, kazan = !W.region || W.region === HOME;
   
+  
+  const backdrop = !!backdropOf(W.region || HOME);
+  
   const before = new Set(scene.children), ownTextures = [];
   const c = new THREE.Color(), tmp = new THREE.Color();
   const colorAt = (x, y) => {
@@ -71,24 +76,22 @@ export async function buildWorld(stage, W, slice = noSlice) {
     return c.getHex();
   };
   
-  const field = await bakePathField(W.paths, W.N, 4, slice);
+  const field = backdrop ? null : await bakePathField(W.paths, W.N, 4, slice);
   await slice('path field');
   
   
-  const ground = await createTerrain({ n: W.N, slice, heightAt: W.heightAt, colorAt, sub: 2, detail: paintPixelDetail(),
+  const ground = backdrop ? null : await createTerrain({ n: W.N, slice, heightAt: W.heightAt, colorAt, sub: 2, detail: paintPixelDetail(),
     keepQuad: (x, y) => W.onScreen(x + 0.25, y + 0.25, 1.2, 1.2),
     material: (map) => pathGroundMaterial({ map, field, span: W.N }) });
-  scene.add(ground);
+  if (ground) scene.add(ground);
   await slice('terrain');
   const water = createWater({ center: [W.N / 2, W.N / 2], depthAt: W.heightAt, mapN: W.N });
   scene.add(water.mesh);
   
   
   
-  if (CEL) {
-    ground.material.userData.look = { role: 'ground', classes: pageTexture(classPage(W), W.N, W.N), palette: paletteTexture(), field, n: W.N };
-    water.mesh.material.userData.look = { role: 'water' };
-  }
+  if (CEL && ground) ground.material.userData.look = { role: 'ground', classes: pageTexture(classPage(W), W.N, W.N), palette: paletteTexture(), field, n: W.N };
+  if (CEL) water.mesh.material.userData.look = { role: 'water' };
   await slice('water + class page');
 
   
@@ -167,13 +170,13 @@ export async function buildWorld(stage, W, slice = noSlice) {
   const oldVillage = (o) => ((o.kind === 'hut' || o.kind === 'bed') && Math.hypot(o.x - VOLC.x, o.y - VOLC.y) < RIM.r)
     || (OLD_COURT.has(o.kind) && Math.hypot(o.x - SHRINE.x, o.y - SHRINE.y) < 4.6);
   const drawn = kazan ? Object.assign(Object.create(W), { objects: W.objects.filter((o) => !oldVillage(o)) }) : W;
-  const scenery = await buildScenery(stage, drawn, { crater: cr, craterRadius: cr ? cr.r : 0, lavaHeight: cr ? cr.h : 0, craterSection: cr ? cr.section : null, sections: SECS.map((sec) => sec.id) }, slice);
+  const scenery = await buildScenery(stage, drawn, { crater: cr, craterRadius: cr ? cr.r : 0, lavaHeight: cr ? cr.h : 0, craterSection: cr ? cr.section : null, sections: SECS.map((sec) => sec.id), keep: backdrop ? liveObjects : null }, slice);
   
   for (const id in scenery.groups) scenery.groups[id].userData.seeThrough = true;
   
   
   
-  if (CEL && tagSpots(W).length) { createTags(W, scenery.groups); await slice('tags'); }
+  if (CEL && !backdrop && tagSpots(W).length) { createTags(W, scenery.groups); await slice('tags'); }
   
   
   if (W.bubble) { scene.add(bubbleSkin(W)); await slice('bubble'); } else bubbleLook(null);
@@ -193,7 +196,7 @@ export async function buildWorld(stage, W, slice = noSlice) {
         o.traverse((m) => { if (m.geometry) m.geometry.dispose(); if (m.isInstancedMesh) m.dispose(); });
       }
       for (const t of ownTextures) t.dispose();
-      for (const m of [ground.material, water.mesh.material]) {
+      for (const m of [ground && ground.material, water.mesh.material].filter(Boolean)) {
         const u = m.userData && m.userData.look;
         if (u) for (const k of ['classes', 'palette', 'field']) if (u[k] && u[k].dispose) u[k].dispose();
       }

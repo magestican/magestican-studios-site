@@ -37,7 +37,7 @@ export function updateCamera(dt, focus) {
   if (cam.pending) {
     cam.fade = Math.min(1, cam.fade + dt / FADE);
     if (cam.fade >= 1) { const id = cam.pending; cam.pending = null; enter(nextSection(cam.sec, p.x, p.y, W.sections) === id ? id : cam.sec); }
-  } else cam.fade = Math.max(0, cam.fade - dt / FADE);
+  } else if (!(cam.hold && cam.hold())) cam.fade = Math.max(0, cam.fade - dt / FADE); 
 
   const sec = sectionById(cam.sec), win = W.windows[cam.sec], aspect = stage.w / stage.h;
   const base = viewFor(win, sec.zoom * VIEW_ZOOM, aspect); 
