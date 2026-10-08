@@ -87,6 +87,7 @@ export function healParty() { for (const d of G.box) d.hp = statsOf(d).maxHp; }
 export function addDachi(d) {
   if (typeof d.bond !== 'number') d.bond = 50;   
   G.box.push(d); G.dex.seen[d.sp] = G.dex.caught[d.sp] = 1;
+  if (d.alpha) G.dex.alphas = (G.dex.alphas || 0) + 1; 
   noteForm(G.dex, d); 
   if (G.party.length < 3) { G.party.push(d); return true; }
   return false;

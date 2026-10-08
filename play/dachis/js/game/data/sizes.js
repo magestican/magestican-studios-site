@@ -43,6 +43,7 @@ export const ownSize = (d) => (d && typeof d.size === 'number' && d.size > 0 ? d
 
 export function sizeTag(d) {
   const s = ownSize(d);
+  if (d &&  (d).alpha) return 'Alpha'; 
   return s < TINY_BELOW ? 'Tiny' : s > HUGE_ABOVE ? 'Huge' : null;
 }
 

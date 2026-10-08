@@ -15,7 +15,7 @@ const NARR = { who: '' };
 
 
 export function syncAchievements(quiet = false) {
-  const got = earned(G.flags, { caught: caughtCount(), total: SPECIES.length, cycle: G.cycle, forms: formKinds(G.dex), shapes: shapeKinds(G.dex) }).map((id) => unlock(G.flags, id, Date.now())).filter(Boolean);
+  const got = earned(G.flags, { caught: caughtCount(), total: SPECIES.length, cycle: G.cycle, forms: formKinds(G.dex), shapes: shapeKinds(G.dex), alphas: (G.dex && G.dex.alphas) || 0 }).map((id) => unlock(G.flags, id, Date.now())).filter(Boolean);
   if (!quiet) for (const a of got) toast('Achievement: ' + a.name);
   return got;
 }

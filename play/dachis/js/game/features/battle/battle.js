@@ -11,6 +11,7 @@ import { toast } from '../../../engine/ui/dialog.js';
 import { G, S } from '../../state.js';
 import { speciesById, statsOf, TYPES, capsFor, ATTR_COLOR, attrOf, bossSpecies, makeDachi } from '../../data/species.js';
 import { rankMult } from './moveTiers.js';
+import { battleSizeCap } from '../../data/alpha.js';
 import { sizeMult } from '../../data/sizes.js';
 import {
   calcDamage, finalDamage, hpFraction, CAPTURE_HP, BASIC_POWER, maxMp, mpCost, mpRegen, canUse,
@@ -52,7 +53,7 @@ function fighter(d, x, y, side) {
     status: {}, burnAcc: 0, parry: 0, parryCd: 0, stun: 0, shield: 0, wind: 0, beam: null, flurry: null, leap: null, z: 0,
     threat: Infinity, armed: true, parried: 0,
     
-    bb: dachiBillboard(S.stage.scene, speciesById(d.sp).stage + (speciesById(d.sp).rarity === 'legendary' ? 1.5 : 0), U.clamp(sizeMult(speciesById(d.sp), d), 0.8, 1.35)),
+    bb: dachiBillboard(S.stage.scene, speciesById(d.sp).stage + (speciesById(d.sp).rarity === 'legendary' ? 1.5 : 0), U.clamp(sizeMult(speciesById(d.sp), d), 0.8, battleSizeCap(d))), 
   };
 }
 const spOf = f => speciesById(f.d.sp);

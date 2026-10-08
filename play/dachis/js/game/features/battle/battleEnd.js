@@ -66,7 +66,7 @@ export function onBattleFinished(b) {
       msgs.push({ text: eggLine(G.flags.egg) });
     }
     if (res === 'win' || freed) msgs.push(...questEvent({ kind: 'beat', boss: b.boss || null, sp: enemy.sp }));
-    drops = rollDrops(Math.random, { boss: !!(b.boss && res === 'win') }); 
+    drops = rollDrops(Math.random, { boss: !!(b.boss && res === 'win'), alpha: !!(res === 'win' && enemy && enemy.alpha) }); 
     for (const { item, n } of drops) G.items[item] = (G.items[item] || 0) + n;
     rows.sort((p, q) => (q.d === b.ally.d) - (p.d === b.ally.d)); 
     removeWild(wild);

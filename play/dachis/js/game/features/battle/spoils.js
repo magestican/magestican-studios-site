@@ -26,9 +26,10 @@ export function statGain(before, after) {
 
 
 export const DROP = { tonic: 0.25, candy: 0.06 };
-export function rollDrops(rand, { boss = false } = {}) {
+export function rollDrops(rand, { boss = false, alpha = false } = {}) {
   if (boss) return [{ item: 'candy', n: 2 }, { item: 'tonic', n: 1 }];
-  const out = [];
+  const out = alpha ? [{ item: 'candy', n: 1 }] : []; 
+  if (alpha) { if (rand() < DROP.tonic) out.push({ item: 'tonic', n: 1 }); return out; }
   if (rand() < DROP.tonic) out.push({ item: 'tonic', n: 1 });
   if (rand() < DROP.candy) out.push({ item: 'candy', n: 1 });
   return out;

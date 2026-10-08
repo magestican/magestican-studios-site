@@ -53,6 +53,8 @@ export const ACHIEVEMENTS = [
   A('first-form', 'Local Colour', 'common', 'Befriend a dachi in its regional form.', (f, c) => (c.forms || 0) >= 1),
   A('all-forms', 'Well Travelled', 'rare', 'Befriend a dachi of every regional form.', (f, c) => (c.forms || 0) >= FORM_IDS.length),
   
+  
+  A('alpha', 'The Big One', 'rare', 'Befriend an alpha, the biggest dachi in its patch.', (f, c) => (c.alphas || 0) >= 1),
   A('six-shapes', 'Odd Bunch', 'uncommon', 'Have grown-up dachis of six different body shapes.', (f, c) => (c.shapes || 0) >= 6),
   A('all-shapes', 'All Shapes and Sizes', 'legendary', 'Have a grown-up dachi of every body shape there is.', (f, c) => (c.shapes || 0) >= BODY_PLANS.length),
 ];

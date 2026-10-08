@@ -10,6 +10,7 @@ import { rollForm } from '../../data/forms.js';
 import { temperOf } from '../../data/temper.js';
 import { gaitOf, gaitPhase } from '../../data/gaits.js';
 import { habitatFamily, nearWater } from '../../data/habitats.js';
+import { rollAlpha, ALPHA_LEVELS, ALPHA_SIZE } from '../../data/alpha.js';
 import { KIN_SHARE, KIN_RADIUS, kinSpecies, TRAIL_PLANS, TRAIL_GAP } from '../../data/kin.js';
 import { sectionById } from './sections.js';
 import { wildLevel, wildStage } from './wildLevel.js';
@@ -96,7 +97,9 @@ export function spawnWild(near = null, minD = 7, where = null) {
     
     const mate = !near && pid >= 0 && Math.random() < KIN_SHARE ? G.wilds.find((o) => o.patch === pid && o.sec === (S.cam && S.cam.sec) && !o.kin && !o.scripted) : null;
     const kinSp = mate ? kinSpecies(speciesById(mate.d.sp)) : null;
-    const d = makeDachi(kinSp || fam * 3 + stage, lvl);
+    const alpha = !kinSp && rollAlpha(stage, Math.random); 
+    const d = makeDachi(kinSp || fam * 3 + stage, Math.min(capsFor(G.cycle).maxLevel, lvl + (alpha ? ALPHA_LEVELS : 0)));
+    if (alpha) { d.alpha = true; d.size = ALPHA_SIZE; }
     if (Math.random() < U.clamp((far - 15) / 90, 0.05, 0.35)) d.corrupt = true;
     const form = kinSp ? mate.d.form : rollForm(G.region, Math.random); if (form) d.form = form; 
     d.shiny = rollShiny(Math.random()) || undefined; if (d.shiny) { d.corrupt = false; d.hp = statsOf(d).maxHp; } 
