@@ -3,6 +3,9 @@ import { G, S, saveGame } from '../../state.js';
 import { speciesById } from '../../data/species.js';
 import { canEvolve, evolve } from '../battle/rules.js';
 import { dachiPortrait, blitSharp } from '../../art/portraitRender.js';
+import { GROWTH } from '../../art/dachiPlans.js';
+import { growthLine } from './growthLines.js';
+import { KID } from '../story/scenes.js';
 
 const $ = id => document.getElementById(id);
 
@@ -14,7 +17,9 @@ export function checkEvolutions() {
     if (ok) {
       evolve(d);
       G.dex.seen[to.id] = G.dex.caught[to.id] = 1; saveGame();
-      S.dialog.say([{ text: `Congratulations! ${from.name} evolved into ${to.name}!`, portrait: to.id }], () => checkEvolutions());
+      
+      const grew = to.stage >= 3 ? growthLine(GROWTH[to.look && to.look.plan]) : null;
+      S.dialog.say([{ text: `Congratulations! ${from.name} evolved into ${to.name}!`, portrait: to.id }, ...(grew ? [{ ...KID(), text: grew }] : [])], () => checkEvolutions());
     } else { d.noEvolve = true; checkEvolutions(); }
   });
 }
