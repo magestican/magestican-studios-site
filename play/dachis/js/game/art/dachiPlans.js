@@ -17,7 +17,7 @@
 
 
 
-export const SWING = { quadruped: 0.95, fish: 0.95, bug: 0.95, bird: 0.6, ghost: 0.5, serpent: 0.5 }; 
+export const SWING = { quadruped: 0.95, fish: 0.95, bug: 0.95, bird: 0.6, ghost: 0.5, serpent: 0.5, strider: 0.95 }; 
 
 export function planLayout(plan, K) {
   const E = K.ell;
@@ -82,6 +82,12 @@ export function planLayout(plan, K) {
     chest: E([0, 0.78, -0.25], [1.12, 0.46, 0.8]), head: { c: [0, 1.62, 0.32], r: 0.94 },
     feet: [], tail: [0, 0.7, -1.0], wing: [0.5, 1.2, -0.5],
     belly: [0, 0.6, 0.45], neck: 1.15, low: 0.62, back: [0, 1.15, -0.6], chestC: [0, 0.78, -0.25], ribR: [1.1, 0.8],
+  };
+  if (plan === 'strider') return { 
+    parts: [E([0, 2.0, -0.35], [0.6, 0.42, 0.95]), K.S.roundCone([0, 2.15, 0.35], [0, 2.75, 0.75], 0.3, 0.26), E([0, 3.0, 0.95], [0.92, 0.84, 0.86])], hp: [2], k: 0.2,
+    chest: E([0, 2.0, -0.35], [0.6, 0.42, 0.95]), head: { c: [0, 3.0, 0.95], r: 0.9 }, snout: [0, 2.75, 1.7],
+    feet: [], tail: [0, 2.05, -1.25], wing: [0.35, 2.3, -0.4],
+    belly: [0, 1.8, 0.1], neck: 2.6, low: 1.85, back: [0, 2.35, -0.7], chestC: [0, 2.0, -0.35], ribR: [0.6, 0.9],
   };
   if (plan === 'jelly') return { 
     
@@ -202,6 +208,14 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
         out.limbs.push({ sgn, arm: false, node: S.union(0.04, S.roundCone(hip, knee, 0.11, 0.09), S.roundCone(knee, foot, 0.09, 0.04)) });
       }
     }
+  } else if (plan === 'strider' && full) { 
+    out.noArms = true; out.noFeet = true;
+    for (const sgn of [-1, 1]) for (const z of [0.25, -0.95]) {
+      const hip = [sgn * 0.36, 1.85, z], knee = [sgn * 0.42, 1.0, z + (z > 0 ? -0.12 : 0.12)], hoof = [sgn * 0.4, 0.08, z];
+      out.limbs.push({ sgn, arm: z > 0, node: S.union(0.04, S.roundCone(hip, knee, 0.13, 0.08), S.roundCone(knee, hoof, 0.08, 0.06), E(add(hoof, [0, 0.02, 0.04]), [0.11, 0.07, 0.14])) });
+    }
+  } else if (plan === 'strider') { 
+    for (const sgn of [-1, 1]) out.limbs.push({ sgn, arm: false, node: S.roundCone([sgn * 0.3, 0.45, -0.1], [sgn * 0.34, 0.02, -0.05], 0.1, 0.06) });
   } else if (plan === 'jelly') { 
     out.noArms = true; out.noFeet = true;
     const n = full ? 9 : 5, base = full ? 1.97 : h.c[1] - 0.7 * r, len = full ? Math.min(1.85, 1.55 * g) : 0.6, rad = full ? 0.62 : 0.42 * r, th = full ? 0.15 : 0.1;

@@ -169,7 +169,7 @@ export const TOPPERS = ['floppy', 'lop', 'fennec', 'sprig', 'bobble', 'wingears'
 
 
 
-export const BODY_PLANS = ['round', 'quadruped', 'fish', 'bird', 'serpent', 'bug', 'biped', 'plant', 'ghost', 'crab', 'jelly'];
+export const BODY_PLANS = ['round', 'quadruped', 'fish', 'bird', 'serpent', 'bug', 'biped', 'plant', 'ghost', 'crab', 'jelly', 'strider'];
 const PLAN_BY_TYPE = {
   Tide: ['fish', 'serpent'], Gale: ['bird'], Leaf: ['plant', 'bug'], Spark: ['bug', 'biped'], Stone: ['quadruped', 'bug'],
   Frost: ['fish', 'quadruped'], Shadow: ['ghost', 'serpent'], Light: ['bird', 'ghost'], Metal: ['biped', 'bug'],
@@ -179,11 +179,11 @@ const HAND_PLAN = { 1: 'quadruped', 2: 'fish', 3: 'plant' };
 
 
 
-export const PLAN_OVERRIDE = { 17: 'crab', 38: 'crab', 26: 'jelly', 25: 'jelly' };
+export const PLAN_OVERRIDE = { 17: 'crab', 38: 'crab', 26: 'jelly', 25: 'jelly', 27: 'strider', 7: 'strider' }; 
 function planLook(fam, look, t1, used) {
   if (HAND_PLAN[fam]) return HAND_PLAN[fam];
   if (PLAN_OVERRIDE[fam]) { 
-    const old = planLook0(fam, look, t1, used); used[old] = (used[old] || 0) + 1;
+    const old = planLook0(fam, look, t1, used); used[old] = (used[old] || 0) + 1; look.planWas = old;
     return PLAN_OVERRIDE[fam];
   }
   return planLook0(fam, look, t1, used);
@@ -216,12 +216,13 @@ const HAND_EYES = { 1: 'fierce', 2: 'glossy', 3: 'sleepy' };
 export function eyeStyleLook(fam, look, used = {}) {
   if (look.eyes === 'visor') return 'visor';
   if (HAND_EYES[fam]) return HAND_EYES[fam];
-  if (look.plan === 'bug') return 'compound';
+  const plan = look.planWas || look.plan; 
+  if (plan === 'bug') return 'compound';
   let cands = EYE_STYLES.filter((s) => s !== 'visor' && s !== 'compound');
   if (look.split && look.split.part === 'eye') cands = cands.filter((s) => s !== 'cyclops' && s !== 'hidden');
   const n = (s) => used[s] || 0, least = Math.min(...cands.map(n));
   let pool = cands.filter((s) => n(s) <= least + 1);
-  const fav = pool.filter((s) => (EYE_FAVOURITES[look.plan] || []).includes(s));
+  const fav = pool.filter((s) => (EYE_FAVOURITES[plan] || []).includes(s));
   if (fav.length) pool = fav;
   const low = Math.min(...pool.map(n));
   pool = pool.filter((s) => n(s) === low);
