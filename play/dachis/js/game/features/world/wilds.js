@@ -175,14 +175,31 @@ export function drawWilds(t, hideWild = null) {
     w.bb.setVisible(typeof hideWild === 'function' ? !hideWild(w) : w !== hideWild);   
     setDachiLook(w.bb, w.d.sp, { corrupt: w.d.corrupt, shiny: w.d.shiny, form: w.d.form, flip: w.face < 0 });
     const T = temperOf(w.d); 
-    const bob = w.moving ? Math.abs(Math.sin(w.walk)) * 0.12 * T.hop : Math.sin(t * (T.hop < 1 ? 1.4 : 3) + w.x) * 0.02;
+    
+    const burst = w.d.temper === 'playful' && !w.moving ? (t * 0.33 + w.x * 0.1) % 1 : 1;
+    if (w.d.temper === 'bold' && !w.moving && !w.chase && U.dist(w.x, w.y, G.player.x, G.player.y) < 5) { const dd = (G.player.x - w.x) - (G.player.y - w.y); if (Math.abs(dd) > 0.05) w.face = dd > 0 ? 1 : -1; }
+    const bob = w.moving ? Math.abs(Math.sin(w.walk)) * 0.12 * T.hop : burst < 0.2 ? Math.abs(Math.sin(burst * Math.PI * 10)) * 0.22 : Math.sin(t * (T.hop < 1 ? 1.4 : 3) + w.x) * 0.02;
     w.bb.place(w.x, w.y, W.groundAt(w.x, w.y), bob);
   }
 }
 
 
 export function drawWildAlerts(ctx) {
+  const now = performance.now() / 1000;
   for (const w of G.wilds) {
+    
+    if (!w.chase && !w.moving && w.d.temper === 'sleepy' && w.bb && w.bb.root && w.bb.root.visible !== false) {
+      const [x, y] = S.stage.toScreen(w.x, w.y, S.W.groundAt(w.x, w.y) + 1.1 * CHAR_SCALE);
+      ctx.textAlign = 'center'; ctx.lineWidth = 3; ctx.strokeStyle = '#fff'; ctx.fillStyle = '#6a4fa0';
+      for (let k = 0; k < 2; k++) {
+        const t = (now * 0.45 + k * 0.5 + w.x * 0.13) % 1;
+        ctx.globalAlpha = Math.sin(t * Math.PI);
+        ctx.font = `900 ${Math.round(11 + t * 7)}px "Trebuchet MS", sans-serif`;
+        const zx = x + 8 + t * 10, zy = y - t * 22;
+        ctx.strokeText('z', zx, zy); ctx.fillText('z', zx, zy);
+      }
+      ctx.globalAlpha = 1; ctx.textAlign = 'left';
+    }
     if (!w.chase) continue;
     const [x, y] = S.stage.toScreen(w.x, w.y, S.W.groundAt(w.x, w.y) + 1.4 * CHAR_SCALE);
     ctx.font = '900 22px "Trebuchet MS", sans-serif'; ctx.textAlign = 'center';
