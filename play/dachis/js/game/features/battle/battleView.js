@@ -401,11 +401,11 @@ function drawG12Under(L, P, groundRing, u, t) {
     const r = Math.round(u * 0.32), on = !armed || Math.floor(t * 6) % 2;
     L.alpha(0.5); groundRing(q.x, q.y, 0.55 + (armed ? 0.08 * Math.sin(t * 8) : 0), col, 1, 16, 0.03);
     L.alpha(1);
-    L.line(px - r, py, px, py - r * 0.6, '#1c1830', 3); L.line(px, py - r * 0.6, px + r, py, '#1c1830', 3);
-    L.line(px + r, py, px, py + r * 0.6, '#1c1830', 3); L.line(px, py + r * 0.6, px - r, py, '#1c1830', 3);
-    L.line(px - r, py, px, py - r * 0.6, col, 1); L.line(px, py - r * 0.6, px + r, py, col, 1);
-    L.line(px + r, py, px, py + r * 0.6, col, 1); L.line(px, py + r * 0.6, px - r, py, col, 1);
-    L.disc(px, py, Math.max(1, Math.round(u * 0.1)), on ? '#ffffff' : col);
+    
+    
+    L.disc(px, py, r * 0.7, '#1c1830');
+    drawBolt(L, q.m.type, px, py - r * 0.35, 0, -1, u * 0.36, t * 0.3 + q.x, col);
+    L.disc(px, py, Math.max(1, Math.round(u * 0.08)), on ? '#ffffff' : col);
   }
   for (const e of B.fx) {
     const k = e.t / e.life;
@@ -416,7 +416,9 @@ function drawG12Under(L, P, groundRing, u, t) {
       L.line(px - c, py, px + c, py, '#ffffff', 1); L.line(px, py - c / 2, px, py + c / 2, '#ffffff', 1);
     } else if (e.kind === 'toss') { 
       const [ax, ay] = P(e.x + (e.x1 - e.x) * k, e.y + (e.y1 - e.y) * k, 0.4 + Math.sin(k * Math.PI) * 1.1);
-      L.alpha(1); L.disc(ax, ay, Math.max(1, Math.round(u * 0.12)), e.color);
+      L.alpha(1);
+      if (e.type) drawBolt(L, e.type, ax, ay, Math.cos(k * 9), Math.sin(k * 9), u * 0.3, t, e.color); 
+      else L.disc(ax, ay, Math.max(1, Math.round(u * 0.12)), e.color);
     }
   }
   L.alpha(1);

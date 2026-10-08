@@ -216,7 +216,7 @@ function useSpecial(f, target, k) {
     const mine = B.mines.filter(q => q.owner.side === f.side);
     if (mine.length >= MAX_TRAPS) B.mines.splice(B.mines.indexOf(mine[0]), 1);
     B.mines.push({ x: tx, y: ty, owner: f, m, t: 0 });
-    B.fx.push({ kind: 'toss', x: f.x, y: f.y, x1: tx, y1: ty, color: TYPES[m.type], t: 0, life: 0.4 });
+    B.fx.push({ kind: 'toss', x: f.x, y: f.y, x1: tx, y1: ty, color: TYPES[m.type], type: m.type, t: 0, life: 0.4 });
   }
   if (m.kind === 'heal' || m.kind === 'guard' || m.kind === 'rage' || m.kind === 'shield') riseFx(f, m.type);
   callout(f, m.name, TYPES[m.type]);
