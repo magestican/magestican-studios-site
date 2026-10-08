@@ -536,6 +536,7 @@ export default {
   "Befriend a dachi in its regional form.": "その土地のすがたのダチと友だちになる。",
   "Well Travelled": "たびなれ",
   "Befriend a Frost, an Ash, a Moss and a Salt form.": "こおり・はい・こけ・しおのすがた、ぜんぶと友だちになる。",
+  "MOVES UP!": "わざパワーアップ！",
   "Odd Bunch": "へんてこ仲間",
   "Have grown-up dachis of six different body shapes.": "からだのカタチがちがう、育ったダチを6種そろえる。",
   "All Shapes and Sizes": "どんなカタチもそろった",

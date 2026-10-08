@@ -473,6 +473,7 @@ export default {
   "Befriend a dachi in its regional form.": "Hazte amigo de un dachi con la pinta de su región.",
   "Well Travelled": "Trotamundos",
   "Befriend a Frost, an Ash, a Moss and a Salt form.": "Hazte amigo de uno de escarcha, uno de ceniza, uno de musgo y uno de salitre.",
+  "MOVES UP!": "¡MEJORAN LAS TÉCNICAS!",
   "Odd Bunch": "Hay de todo",
   "Have grown-up dachis of six different body shapes.": "Ten dachis ya crecidos de seis formas de cuerpo distintas.",
   "All Shapes and Sizes": "Para todos los gustos",

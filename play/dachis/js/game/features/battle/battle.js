@@ -10,6 +10,7 @@ import { U } from '../../../engine/core/util.js';
 import { toast } from '../../../engine/ui/dialog.js';
 import { G, S } from '../../state.js';
 import { speciesById, statsOf, TYPES, capsFor, ATTR_COLOR, attrOf, bossSpecies, makeDachi } from '../../data/species.js';
+import { rankMult } from './moveTiers.js';
 import { sizeMult } from '../../data/sizes.js';
 import {
   calcDamage, finalDamage, hpFraction, CAPTURE_HP, BASIC_POWER, maxMp, mpCost, mpRegen, canUse,
@@ -259,6 +260,7 @@ function useFinisher(f) {
 
 function hit(att, def, power, type, { big = false, kind = 'basic', m = null, proj = null } = {}) {
   if (def.d.hp <= 0) return;
+  if (m && kind !== 'basic' && kind !== 'counter' && kind !== 'finisher') power *= rankMult(att.d.lvl); 
   const dist = Math.hypot(def.x - att.x, def.y - att.y);
   const counters = !(B.script && def.side === 1);                 
   if (counters && def.parry > 0 && kind !== 'counter') {         

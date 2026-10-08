@@ -536,6 +536,7 @@ export default {
   "Befriend a dachi in its regional form.": "同一隻地區款 dachi 做朋友。",
   "Well Travelled": "周圍行",
   "Befriend a Frost, an Ash, a Moss and a Salt form.": "結霜款、火山灰款、青苔款、海鹽款，每款都同一隻做朋友。",
+  "MOVES UP!": "招式升級！",
   "Odd Bunch": "奇形怪狀",
   "Have grown-up dachis of six different body shapes.": "養大六隻唔同身形嘅 dachi。",
   "All Shapes and Sizes": "乜形都有",

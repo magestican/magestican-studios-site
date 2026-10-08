@@ -68,7 +68,7 @@ function paint(r) {
 function levelUp(r) {
   const g = r.gains[r.ups++] || [];
   r.el.classList.remove('up'); void r.el.offsetWidth; r.el.classList.add('up'); 
-  r.grow.innerHTML = g.map((q, i) => `<i style="animation-delay:${0.08 * i}s">+${q.n} ${q.label}</i>`).join('');
+  r.grow.innerHTML = g.map((q, i) => `<i style="animation-delay:${0.08 * i}s">${q.text || '+' + q.n + ' ' + q.label}</i>`).join(''); 
   S.sfx.play('levelUp');
 }
 

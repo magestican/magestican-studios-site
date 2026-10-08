@@ -11,6 +11,7 @@ import { lairOf, fallLine, lastWords } from '../world/lairs.js';
 import { patternOf } from './bossPattern.js';
 import { questEvent, bossStoneLines } from '../quest/questRuntime.js';
 import { xpRun, statGain, rollDrops } from './spoils.js';
+import { rankedUp } from './moveTiers.js';
 import { showSpoils } from './spoilsCard.js';
 import { startWatcher, prewarmKnight } from '../story/watcher.js';
 
@@ -36,7 +37,7 @@ export function onBattleFinished(b) {
       const lvl0 = d.lvl, xp0 = d.xp, amt = d === b.ally.d ? gain : Math.floor(gain / 2), gains = [];
       let st = statsOf(d);
       const lv = giveXp(d, amt, G.cycle);
-      for (let L = lvl0 + 1; L <= d.lvl; L++) { const nx = statsOf({ ...d, lvl: L }); gains.push(statGain(st, nx)); st = nx; }
+      for (let L = lvl0 + 1; L <= d.lvl; L++) { const nx = statsOf({ ...d, lvl: L }); gains.push([...statGain(st, nx), ...(rankedUp(L - 1, L) ? [{ label: '', n: 0, text: 'MOVES UP!' }] : [])]); st = nx; } 
       d.bond = bondAfter(d, d === b.ally.d ? 3 : 1);   
       rows.push({ d, gain: amt, run: xpRun(lvl0, xp0, d.lvl, d.xp, capsFor(G.cycle).maxLevel), gains, lv });
     }

@@ -8,6 +8,7 @@ import { icon } from '../../../engine/ui/icons.js';
 import { speciesById, statsOf, TYPES, ATTR_COLOR, attrOf } from '../../data/species.js';
 import { B, orderSpecial, orderStance, orderFinisher, orderParry, parryReady, finisherReady, startRitual, useTonic, cycleSwap, tryRun, canRitual } from './battle.js';
 import { KIND_LABEL } from './techniques.js';
+import { moveRank, rankMult } from './moveTiers.js';
 import { shinyTag } from '../../art/shinyMark.js';
 import { sizeBadge } from '../../data/sizes.js';
 import { formBadge } from '../../data/forms.js';
@@ -82,7 +83,9 @@ export function updateBattleHud() {
     s.moves.forEach((m, k) => {
       const b = document.createElement('button'); b.className = 'special tappable'; b.style.setProperty('--tc', TYPES[m.type]);
       b.dataset.key = String(k + 1); b.dataset.pad = pads[k];
-      b.innerHTML = `<div class="mn">${m.name}</div><div class="mk"><b class="mpc">${mpCost(m, a.d.lvl)} MP</b> · ${m.type} <span>${KIND_LABEL[m.kind] || m.kind}</span>${m.power ? ' ' + m.power : ''}</div><div class="cdv"></div>`;
+      
+      const rk = moveRank(a.d.lvl), rkHtml = rk ? '<span class="rk">' + '+'.repeat(rk) + '</span>' : ''; 
+      b.innerHTML = `<div class="mn">${m.name}${rkHtml}</div><div class="mk"><b class="mpc">${mpCost(m, a.d.lvl)} MP</b> · ${m.type} <span>${KIND_LABEL[m.kind] || m.kind}</span>${m.power ? ' ' + Math.round(m.power * rankMult(a.d.lvl)) : ''}</div><div class="cdv"></div>`;
       b.onclick = () => orderSpecial(k);
       bar.appendChild(b);
     });

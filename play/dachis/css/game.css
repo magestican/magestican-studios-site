@@ -310,6 +310,7 @@ body.battling #hud { display: none; }
 .special.ready { opacity: 1; }
 .special.ready:hover { transform: translateY(-2px) rotate(-1deg); }
 .special .mn { font: 400 15px/1.15 var(--marker); }
+.special .mn .rk, .moves .rk { color: #ffd23a; margin-left: 2px; letter-spacing: -1px; text-shadow: 0 1px 0 #1c1830; } 
 .special .mk { font: 500 11px var(--body); color: #3a3450; }
 .special .mpc { color: #2a4ab0; font-weight: 800; }
 .special.nomp .mpc { color: #d8283c; }

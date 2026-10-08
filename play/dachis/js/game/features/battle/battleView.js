@@ -25,6 +25,7 @@ import { CHAR_SCALE, VIEW_ZOOM } from '../world/crowd.js';
 import { COMIC_PX, COMIC_TILT, HIT_WORDS, comicPx, tiltedBox, lungePose } from './comic.js';
 import { drawBolt, drawHex, drawDrain, drawFinisher } from './boltLooks.js';
 import { drawStrike } from './strikeLooks.js';
+import { moveRank } from './moveTiers.js';
 
 
 
@@ -244,6 +245,10 @@ export function drawBattleOverlay(ctx, t) {
     
     
     
+    
+    const rk = !p.big && p.owner && p.owner.d ? moveRank(p.owner.d.lvl) : 0;
+    for (let i = rk; i >= 1; i--) { L.alpha(0.5 - i * 0.1); drawBolt(L, p.m.type, px - ux * u * 0.62 * i, py - uy * u * 0.62 * i, ux, uy, u * (1 - i * 0.18), t - i * 0.05, col); }
+    L.alpha(1);
     if (p.big) drawFinisher(L, p.m.type, px, py, ux, uy, u, t, col);
     else if (p.m.kind === 'hex') drawHex(L, p.m.type, statusOf(p.m), px, py, ux, uy, u, t, col, STATUS_COLOR[statusOf(p.m)]);
     else if (p.m.kind === 'drain') drawDrain(L, p.m.type, px, py, ux, uy, u, t, col);
