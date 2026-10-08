@@ -362,7 +362,8 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
 
 
 export const GROWTH = { quadruped: 'spikes', bird: 'crest', fish: 'whiskers', serpent: 'hood', bug: 'horn', plant: 'flower',
-  crab: 'shellSpikes', turtle: 'domeSpikes', strider: 'antlers', frog: 'throat', jelly: 'frill' };
+  crab: 'shellSpikes', turtle: 'domeSpikes', strider: 'antlers', frog: 'throat', jelly: 'frill',
+  snail: 'spire', octopus: 'fins', ray: 'horns', bat: 'ruff', ghost: 'hands' }; 
 function grow(plan, out, K, col, acc) {
   const { S, fur, light, dark } = K, E = K.ell, head = (out.head = out.head || []);
   const spike = (b, t, r0) => S.roundCone(b, t, r0, 0.02);
@@ -391,6 +392,20 @@ function grow(plan, out, K, col, acc) {
       head.push(fur(S.union(0.03, S.roundCone(b, m, 0.14, 0.1), S.roundCone(m, t, 0.1, 0.04), S.roundCone(m, f, 0.09, 0.04), S.roundCone([sgn * 0.52, 4.02, 0.7], f2, 0.08, 0.035)), K.lin('#c8a878'))); }
   } else if (kind === 'throat') { 
     head.push(fur(E([0, 0.62, 1.18], [0.5, 0.36, 0.4]), light(col, 0.55))); 
+  } else if (kind === 'spire') { 
+    const rings = []; for (let i = 0; i < 4; i++) { const s = i / 4; rings.push(K.S.sphere([0, 2.6 + s * 1.0, -1.0 - s * 0.45], 0.46 * (1 - s * 0.65))); }
+    out.details.push(fur(S.union(0.08, ...rings, spike([0, 3.5, -1.35], [0, 4.15, -1.6], 0.16)), (x, y) => (Math.floor(y * 4.5) % 2 ? dark(acc, 0.4) : light(acc, 0.1))));
+  } else if (kind === 'fins') { 
+    for (const sgn of [-1, 1]) head.push(fur(K.S.transform(E([0, 0, 0], [0.66, 0.15, 0.44]), { translate: [sgn * 1.2, 1.85, -0.25], rotate: [0, 0, sgn * 0.45] }), light(acc, 0.15)));
+  } else if (kind === 'horns') { 
+    for (const sgn of [-1, 1]) head.push(fur(S.union(0.03, S.roundCone([sgn * 0.5, 1.35, 1.15], [sgn * 0.68, 1.75, 1.6], 0.15, 0.1), S.roundCone([sgn * 0.68, 1.75, 1.6], [sgn * 0.5, 2.05, 1.75], 0.1, 0.04)), dark(acc, 0.25)));
+  } else if (kind === 'ruff') { 
+    const pts = []; for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2; pts.push(spike([Math.sin(a) * 0.45, 2.05, -0.1 + Math.cos(a) * 0.4], [Math.sin(a) * 0.95, 1.8, -0.1 + Math.cos(a) * 0.85], 0.16)); }
+    out.details.push(fur(S.union(0.04, ...pts), light(col, 0.3)));
+  } else if (kind === 'hands') { 
+    
+    for (const sgn of [-1, 1]) { const c = [sgn * 1.35, 1.7, 0.55];
+      out.details.push(fur(S.union(0.05, S.roundCone([sgn * 0.7, 1.75, 0.15], c, 0.2, 0.12), E(c, [0.24, 0.26, 0.12]), ...[-0.5, 0, 0.5].map((a) => S.roundCone(c, [c[0] + Math.sin(a) * 0.2 + sgn * 0.05, c[1] + 0.38, c[2] + 0.02], 0.07, 0.05))), light(col, 0.4))); }
   } else if (kind === 'frill') { 
     const pts = []; for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; pts.push(S.roundCone([Math.sin(a) * 0.55, 3.42, 0.06 + Math.cos(a) * 0.55], [Math.sin(a) * 0.85, 4.15, 0.06 + Math.cos(a) * 0.85], 0.17, 0.04)); }
     head.push(fur(S.union(0.03, ...pts), light(acc, 0.25)));

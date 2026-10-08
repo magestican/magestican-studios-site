@@ -8,6 +8,7 @@ import { makeDachi, speciesById, capsFor, wildFamiliesOf, rollShiny, statsOf } f
 import { sizeMult } from '../../data/sizes.js';
 import { rollForm } from '../../data/forms.js';
 import { temperOf } from '../../data/temper.js';
+import { gaitOf, gaitPhase } from '../../data/gaits.js';
 import { KIN_SHARE, KIN_RADIUS, kinSpecies } from '../../data/kin.js';
 import { sectionById } from './sections.js';
 import { wildLevel, wildStage } from './wildLevel.js';
@@ -150,6 +151,11 @@ export function updateWilds(dt, { active }) {
     else {
       w.wait -= dt;
       if (w.wait > 0) { w.moving = false; continue; }
+      
+      const g = gaitOf((speciesById(w.d.sp).look || {}).plan), ph = gaitPhase(g, (w.gt = (w.gt || 0) + dt), dt);
+      sp *= g.speed;
+      if (!ph.move) { w.moving = false; continue; }
+      if (ph.start && g.hop && w.bb) w.bb.gait = 0; 
     }
     const dx = tx - w.x, dy = ty - w.y, dl = Math.hypot(dx, dy);
     if (w.kin && !G.wilds.includes(w.kin)) w.kin = null; 
