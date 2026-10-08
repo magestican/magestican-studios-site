@@ -17,7 +17,7 @@
 
 
 
-export const SWING = { quadruped: 0.95, fish: 0.95, bug: 0.95, bird: 0.6, ghost: 0.5, serpent: 0.5, strider: 0.95 }; 
+export const SWING = { quadruped: 0.95, fish: 0.95, bug: 0.95, bird: 0.6, ghost: 0.5, serpent: 0.5, strider: 0.95, turtle: 0.9 }; 
 
 export function planLayout(plan, K) {
   const E = K.ell;
@@ -82,6 +82,12 @@ export function planLayout(plan, K) {
     chest: E([0, 0.78, -0.25], [1.12, 0.46, 0.8]), head: { c: [0, 1.62, 0.32], r: 0.94 },
     feet: [], tail: [0, 0.7, -1.0], wing: [0.5, 1.2, -0.5],
     belly: [0, 0.6, 0.45], neck: 1.15, low: 0.62, back: [0, 1.15, -0.6], chestC: [0, 0.78, -0.25], ribR: [1.1, 0.8],
+  };
+  if (plan === 'turtle') return { 
+    parts: [E([0, 0.95, -0.4], [0.95, 0.5, 1.0]), E([0, 1.5, 0.75], [0.96, 0.86, 0.9])], hp: [1], k: 0.18,
+    chest: E([0, 0.95, -0.4], [0.95, 0.5, 1.0]), head: { c: [0, 1.5, 0.75], r: 0.92 },
+    feet: [], tail: [0, 0.75, -1.35], wing: [0.5, 1.6, -0.5],
+    belly: [0, 0.6, 0.2], neck: 1.15, low: 0.7, back: [0, 1.55, -0.5], chestC: [0, 0.95, -0.4], ribR: [0.95, 1.0],
   };
   if (plan === 'strider') return { 
     parts: [E([0, 2.0, -0.35], [0.6, 0.42, 0.95]), K.S.roundCone([0, 2.15, 0.35], [0, 2.75, 0.75], 0.3, 0.26), E([0, 3.0, 0.95], [0.92, 0.84, 0.86])], hp: [2], k: 0.2,
@@ -207,6 +213,19 @@ export function planParts(plan, full, ly, h, col, acc, st, K) {
         const hip = [sgn * 0.98, 0.72, z], knee = [sgn * 1.42, 0.86, z - 0.05], foot = [sgn * 1.62, 0.06, z - 0.12];
         out.limbs.push({ sgn, arm: false, node: S.union(0.04, S.roundCone(hip, knee, 0.11, 0.09), S.roundCone(knee, foot, 0.09, 0.04)) });
       }
+    }
+  } else if (plan === 'turtle') { 
+    const shellC = full ? [0, 1.12, -0.45] : add(ly.back, [0, 0.1, 0.05]), R = full ? [1.12, 0.92, 1.18] : [0.6, 0.45, 0.62], shellCol = K.mix(K.deep(acc), acc, 0.45);
+    const cut = shellC[1] - R[1] * 0.25;
+    out.details.push(fur(S.intersect(0.04, E(shellC, R), S.field((x, y) => cut - y)), (x, y, z) => {
+      const px = x / R[0], pz = (z - shellC[2]) / R[2], cell = (Math.floor(px * 2.2 + 5) + Math.floor(pz * 2.2 + 5)) % 2;
+      if (y < cut + 0.1) return dark(shellCol, 0.45); 
+      const gx = Math.abs((px * 2.2 % 1 + 1) % 1 - 0.5), gz = Math.abs((pz * 2.2 % 1 + 1) % 1 - 0.5);
+      return gx > 0.44 || gz > 0.44 ? dark(shellCol, 0.6) : cell ? shellCol : light(shellCol, 0.12); 
+    }));
+    if (full) {
+      out.noFeet = true;
+      for (const sgn of [-1, 1]) for (const z of [0.25, -1.0]) out.limbs.push({ sgn, arm: z > 0, node: S.union(0.06, S.roundCone([sgn * 0.75, 0.62, z], [sgn * 0.95, 0.12, z + (z > 0 ? 0.12 : -0.1)], 0.26, 0.22), E([sgn * 0.97, 0.08, z + (z > 0 ? 0.18 : -0.12)], [0.26, 0.1, 0.3])) });
     }
   } else if (plan === 'strider' && full) { 
     out.noArms = true; out.noFeet = true;

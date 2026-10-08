@@ -169,7 +169,7 @@ export const TOPPERS = ['floppy', 'lop', 'fennec', 'sprig', 'bobble', 'wingears'
 
 
 
-export const BODY_PLANS = ['round', 'quadruped', 'fish', 'bird', 'serpent', 'bug', 'biped', 'plant', 'ghost', 'crab', 'jelly', 'strider'];
+export const BODY_PLANS = ['round', 'quadruped', 'fish', 'bird', 'serpent', 'bug', 'biped', 'plant', 'ghost', 'crab', 'jelly', 'strider', 'turtle'];
 const PLAN_BY_TYPE = {
   Tide: ['fish', 'serpent'], Gale: ['bird'], Leaf: ['plant', 'bug'], Spark: ['bug', 'biped'], Stone: ['quadruped', 'bug'],
   Frost: ['fish', 'quadruped'], Shadow: ['ghost', 'serpent'], Light: ['bird', 'ghost'], Metal: ['biped', 'bug'],
@@ -179,7 +179,7 @@ const HAND_PLAN = { 1: 'quadruped', 2: 'fish', 3: 'plant' };
 
 
 
-export const PLAN_OVERRIDE = { 17: 'crab', 38: 'crab', 26: 'jelly', 25: 'jelly', 27: 'strider', 7: 'strider' }; 
+export const PLAN_OVERRIDE = { 17: 'crab', 38: 'crab', 26: 'jelly', 25: 'jelly', 27: 'strider', 7: 'strider', 14: 'turtle', 31: 'turtle' }; 
 function planLook(fam, look, t1, used) {
   if (HAND_PLAN[fam]) return HAND_PLAN[fam];
   if (PLAN_OVERRIDE[fam]) { 

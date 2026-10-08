@@ -259,6 +259,8 @@ export function planMotion(plan, t, gait, moving) {
     
     case 'crab': return moving ? { lift: Math.abs(Math.sin(gait * 2.4)) * 0.03, roll: Math.sin(gait * 2.4) * 0.06, pitch: 0, yaw: Math.sin(gait * 1.2) * 0.25 }
       : { lift: 0, roll: 0, pitch: 0, yaw: (Math.sin(t * 0.7) > 0.95 ? Math.sin(t * 30) * 0.12 : 0) };
+    case 'turtle': return moving ? { lift: 0, roll: Math.sin(gait * 0.6) * 0.05, pitch: Math.sin(gait * 1.2) * 0.02, yaw: Math.sin(gait * 0.6) * 0.05 } 
+      : { lift: 0, roll: 0, pitch: (Math.sin(t * 0.5) > 0.96 ? -0.06 : 0), yaw: 0 };
     case 'strider': return moving ? { lift: Math.abs(Math.sin(gait * 0.45)) * 0.08, roll: 0, pitch: Math.sin(gait * 0.9) * 0.05, yaw: 0 } 
       : { lift: 0, roll: Math.sin(t * 0.9) * 0.025, pitch: Math.sin(t * 0.6) * 0.03, yaw: 0 };
     case 'jelly': { const pulse = Math.max(0, Math.sin(t * 2.6)) ** 3; return { lift: 0.08 + pulse * 0.16 - Math.sin(t * 1.3) * 0.04, roll: Math.sin(t * 1.1) * 0.05, pitch: -pulse * 0.06, yaw: 0 }; }
