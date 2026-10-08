@@ -396,7 +396,7 @@ function updateFighter(f, o, dt) {
     f.x = L.x0 + (L.x1 - L.x0) * k; f.y = L.y0 + (L.y1 - L.y0) * k; f.z = slamZ(k); clampArena(f);
     if (k >= 1) {
       f.leap = null; f.z = 0; f.lunge = 1; B.shake = Math.max(B.shake, 0.3);
-      B.fx.push({ kind: 'ring', x: f.x, y: f.y, color: TYPES[L.m.type], t: 0, life: 0.55, r: SLAM_R });
+      B.fx.push({ kind: 'ring', x: f.x, y: f.y, color: TYPES[L.m.type], type: L.m.type, t: 0, life: 0.55, r: SLAM_R });
       sparkle(f, '#d8c8a8', 14);
       if (Math.hypot(o.x - f.x, o.y - f.y) < SLAM_R + (B.script ? 1.5 : 0)) hit(f, o, L.m.power, L.m.type, { kind: 'slam', m: L.m });
       f.ai = { mode: 'back', t: 0.5 };
@@ -433,7 +433,7 @@ function updateFighter(f, o, dt) {
     if (dist > 1.3) moveBy(f, dx / dist * 6 * dt, dy / dist * 6 * dt);
     if (fl.t <= 0) {
       fl.t = FLURRY_GAP; fl.n--; f.lunge = 1;
-      B.fx.push({ kind: 'slash', x: o.x, y: o.y, color: TYPES[fl.m.type], t: 0, life: 0.2, a: Math.random() * 6.28 });
+      B.fx.push({ kind: 'slash', x: o.x, y: o.y, color: TYPES[fl.m.type], type: fl.m.type, t: 0, life: 0.2, a: Math.random() * 6.28 });
       if (dist < 1.5 && hit(f, o, fl.m.power * FLURRY_SHARE, fl.m.type, { kind: 'flurry', m: fl.m })) fl.n = 0;
       if (fl.n <= 0) { f.flurry = null; f.basic = Math.max(f.basic, 0.5); f.ai = { mode: 'back', t: 0.6 }; }
     }
@@ -455,7 +455,7 @@ function updateFighter(f, o, dt) {
     f.dash.time -= dt;
     const v = 10 * dt;
     moveBy(f, dx / dist * Math.min(v, dist), dy / dist * Math.min(v, dist)); f.walking = true;
-    if (Math.random() < 0.6) B.fx.push({ kind: 'trail', x: f.x, y: f.y, color: TYPES[f.dash.m.type], t: 0, life: 0.3 });
+    if (Math.random() < 0.6) B.fx.push({ kind: 'trail', x: f.x, y: f.y, color: TYPES[f.dash.m.type], type: f.dash.m.type, a: Math.random() * 6.28, t: 0, life: 0.3 }); 
     if (dist < 0.85 + reach(f, o)) { 
       const m = f.dash.m; f.dash = null; f.lunge = 1;
       if (m.kind === 'flurry') { f.flurry = { m, n: FLURRY_HITS, t: 0 }; return; }
@@ -473,7 +473,7 @@ function updateFighter(f, o, dt) {
         B.proj.push({ x: f.x, y: f.y, vx: dx / dist * sp, vy: dy / dist * sp, m, owner: f, target: o, life: 1.8, home: B.script ? 12 : 2.5 });
       }
       
-      else { B.fx.push({ kind: 'ring', x: f.x, y: f.y, color: TYPES[m.type], t: 0, life: 0.5, r: 2.8 }); if (dist < (B.script ? 4.5 : 2.9)) hit(f, o, m.power, m.type, { kind: 'burst', m }); }
+      else { B.fx.push({ kind: 'ring', x: f.x, y: f.y, color: TYPES[m.type], type: m.type, t: 0, life: 0.5, r: 2.8 }); if (dist < (B.script ? 4.5 : 2.9)) hit(f, o, m.power, m.type, { kind: 'burst', m }); }
     }
     return;
   }
@@ -612,7 +612,7 @@ export function updateBattle(dt) {
       const v = q.owner.side === 0 ? B.enemy : B.ally;
       if (q.t > TRAP_ARM && v.z < 0.3 && Math.hypot(v.x - q.x, v.y - q.y) < TRAP_R + (B.script ? 1 : 0)) {
         q.t = TRAP_LIFE;
-        B.fx.push({ kind: 'ring', x: q.x, y: q.y, color: TYPES[q.m.type], t: 0, life: 0.45, r: 1.4 });
+        B.fx.push({ kind: 'ring', x: q.x, y: q.y, color: TYPES[q.m.type], type: q.m.type, t: 0, life: 0.45, r: 1.4 });
         hit(q.owner, v, q.m.power, q.m.type, { kind: 'trap', m: q.m });
       }
     }

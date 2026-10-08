@@ -225,6 +225,10 @@ export function drawBattleOverlay(ctx, t) {
   for (const e of B.fx) { 
     if (e.kind !== 'trail') continue;
     const k = e.t / e.life, [px, py] = P(e.x, e.y, 0.5);
+    if (e.type) { 
+      L.alpha((1 - k) * 0.9); drawBolt(L, e.type, px, py, Math.cos(e.a), Math.sin(e.a), u * 0.32 * (1 - k * 0.6), t + e.a, e.color); L.alpha(1);
+      continue;
+    }
     L.alpha((1 - k) * 0.75); L.disc(px, py, u * (e.big ? 0.5 : 0.24) * (1 - k) + 1, e.color);
     if (k < 0.35) L.disc(px, py, Math.max(1, u * 0.07), '#ffffff');
   }
@@ -271,6 +275,16 @@ export function drawBattleOverlay(ctx, t) {
     } else if (e.kind === 'ring') { 
       L.alpha(1 - k); groundRing(e.x, e.y, Math.max(0.05, e.r * k), e.color, k < 0.5 ? 3 : 2, 32, 0.05);
       L.alpha((1 - k) * 0.5); groundRing(e.x, e.y, Math.max(0.05, e.r * k * 0.75), '#ffffff', 1, 32, 0.05);
+      if (e.type) { 
+        const [cx, cy] = P(e.x, e.y, 0.1), n = 8, rr = Math.max(0.2, e.r * (0.25 + k * 0.75));
+        L.alpha(k < 0.7 ? 1 : (1 - k) / 0.3);
+        for (let i = 0; i < n; i++) {
+          const a = i / n * Math.PI * 2 + 0.3, [qx, qy] = P(e.x + Math.cos(a) * rr, e.y + Math.sin(a) * rr, 0.25 + 0.4 * Math.sin(k * Math.PI));
+          const vl = Math.hypot(qx - cx, qy - cy) || 1;
+          drawBolt(L, e.type, qx, qy, (qx - cx) / vl, (qy - cy) / vl, u * 0.45, t + i * 0.13, e.color);
+        }
+        L.alpha(1);
+      }
     } 
   }
   L.alpha(1);
@@ -444,6 +458,8 @@ function drawG12Over(L, P, groundRing, u, t) {
         const a = e.a + off, cx = Math.cos(a) * r, cy = Math.sin(a) * r * 0.7;
         L.line(px - cx, py - cy, px + cx, py + cy, e.color, 3); L.line(px - cx * 0.8, py - cy * 0.8, px + cx * 0.8, py + cy * 0.8, '#ffffff', 1);
       }
+      
+      if (e.type) drawBolt(L, e.type, px, py, Math.cos(e.a), Math.sin(e.a), u * 0.4, t + e.a, e.color);
     } else if (e.kind === 'parry') { 
       const [px, py] = P(e.x, e.y, 0.6), col = e.color || '#ffffff';
       L.alpha(1 - k);
