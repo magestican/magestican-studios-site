@@ -499,8 +499,17 @@ function drawG12Over(L, P, groundRing, u, t) {
       const [px, py] = P(e.f.x, e.f.y, 0.6);
       L.alpha(0.75); pxRing(L, px, py, u * 0.62, '#ffffff', 1);
     } else if (e.kind === 'rise') { 
-      const [px, py] = P(e.x, e.y, 0.2 + k * 1.7);
-      L.alpha(k < 0.7 ? 1 : (1 - k) / 0.3); drawBolt(L, e.type, px, py, 0, -1, u * 0.34 * (1 - k * 0.4), t + e.a, e.color); L.alpha(1);
+      
+      
+      const cx = e.cx ?? e.x, cy = e.cy ?? e.y, mk = e.mk || 'heal';
+      const a = mk === 'heal' ? e.a + k * 3 : mk === 'guard' ? e.a + k * 1.5 : mk === 'shield' ? e.a + k * 4 : e.a;
+      const r = mk === 'heal' ? 0.55 * (1 - k * 0.6) : mk === 'guard' ? 0.8 : mk === 'rage' ? 0.55 + k * 1.3 : 0.55 * (1 - k) + 0.35 * k;
+      const z = mk === 'heal' ? 0.2 + k * 1.8 : mk === 'guard' ? 0.35 + Math.sin(k * Math.PI) * 0.15 : mk === 'rage' ? 0.4 + Math.sin(k * Math.PI) * 0.9 : 0.3 + Math.min(1, k * 1.6) * 1.7;
+      const [px, py] = P(cx + Math.cos(a) * r, cy + Math.sin(a) * r, z), [ox, oy] = P(cx, cy, z), dl = Math.hypot(px - ox, py - oy) || 1;
+      const dir = mk === 'guard' || mk === 'rage' ? [(px - ox) / dl, (py - oy) / dl] : [0, -1];
+      L.alpha(k < 0.7 ? 1 : (1 - k) / 0.3); drawBolt(L, e.type, px, py, dir[0], dir[1], u * 0.34 * (mk === 'rage' ? 1.2 - k * 0.5 : 1 - k * 0.4), t + e.a, e.color);
+      if (mk === 'heal') { const g = Math.max(1, Math.round(u * 0.07)); L.rect(px + u * 0.18 - g, py - u * 0.2, g * 2 + 1, 1, '#7dff9a'); L.rect(px + u * 0.18, py - u * 0.2 - g, 1, g * 2 + 1, '#7dff9a'); }
+      L.alpha(1);
     } else if (e.kind === 'up') { 
       const [px, py] = P(e.x, e.y, 0.3 + k * 1.4), c = Math.max(2, Math.round(u * 0.14));
       L.alpha(1 - k); L.line(px - c, py + c, px, py, e.color, 2); L.line(px, py, px + c, py + c, e.color, 2);
