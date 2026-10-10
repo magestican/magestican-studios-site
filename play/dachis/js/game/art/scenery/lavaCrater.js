@@ -28,16 +28,21 @@ export function placeCraterRim(batch, W, crater, radius) {
   }
 }
 
-export function createLava(scene, crater, radius, h) {
-  const map = pixelTexture(lavaPage());
-  const mat = new THREE.MeshStandardMaterial({ color: '#000000', roughness: 0.9, metalness: 0, emissive: '#ffffff', emissiveMap: map, emissiveIntensity: 1.1 });
-  makeCozy(mat, { rim: 0, key: 'dachi-lava' });
-  mat.userData.look = { role: 'lava', radius }; 
-  const geo = new THREE.CircleGeometry(radius, 32).rotateX(-Math.PI / 2);
-  const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) - 0.5) * radius * 2, (uv.getY(i) - 0.5) * radius * 2);
-  const lava = new THREE.Mesh(geo, mat);
-  lava.position.set(crater.x, h, crater.y);
-  scene.add(lava);
+
+
+export function createLava(scene, crater, radius, h, { pool = true } = {}) {
+  let map = null, mat = null, lava = null;
+  if (pool) {
+    map = pixelTexture(lavaPage());
+    mat = new THREE.MeshStandardMaterial({ color: '#000000', roughness: 0.9, metalness: 0, emissive: '#ffffff', emissiveMap: map, emissiveIntensity: 1.1 });
+    makeCozy(mat, { rim: 0, key: 'dachi-lava' });
+    mat.userData.look = { role: 'lava', radius }; 
+    const geo = new THREE.CircleGeometry(radius, 32).rotateX(-Math.PI / 2);
+    const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) - 0.5) * radius * 2, (uv.getY(i) - 0.5) * radius * 2);
+    lava = new THREE.Mesh(geo, mat);
+    lava.position.set(crater.x, h, crater.y);
+    scene.add(lava);
+  }
 
   
   
@@ -50,12 +55,15 @@ export function createLava(scene, crater, radius, h) {
   return {
     mesh: lava,
     update(t) {
-      map.offset.set(Math.sin(t * 0.13) * 0.3, t * 0.025);
-      mat.emissiveIntensity = 1.1 + Math.sin(t * 1.7) * 0.12 + Math.sin(t * 4.1) * 0.05;
+      if (lava) {
+        map.offset.set(Math.sin(t * 0.13) * 0.3, t * 0.025);
+        mat.emissiveIntensity = 1.1 + Math.sin(t * 1.7) * 0.12 + Math.sin(t * 4.1) * 0.05;
+      }
       const pulse = 0.9 + Math.sin(t * 2.2) * 0.1;
       
       
-      const g = lava.material !== mat ? 0.2 : 1;
+      
+      const g = !lava || lava.material !== mat ? 0.2 : 1;
       glow.set(0, crater.x, h + 0.3, crater.y, radius * 3.2 * pulse, 0.4 * g, RED);
       glow.set(1, crater.x, h + 0.2, crater.y, radius * 1.8, 0.3 * pulse * g, HOT);
       glow.set(2, crater.x - 0.3, h + 0.15, crater.y + 0.2, radius * 1.0, 0.15 * g, GOLD);

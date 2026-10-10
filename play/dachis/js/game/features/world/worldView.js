@@ -18,7 +18,7 @@ import { classPage, tagSpots } from '../../art/look/worldRules.js';
 import { createTags } from '../../art/look/tags.js';
 import { noSlice } from '../../../engine/core/slicer.js';
 import { HOME } from './regions.js';
-import { backdropOf } from './backdrops.js';
+import { backdropOf, lavaLooped } from './backdrops.js';
 import { liveObjects } from './bakeVerdicts.js';
 
 const CEL = typeof location !== 'undefined' && lookName(location.search) === 'cel';
@@ -170,7 +170,7 @@ export async function buildWorld(stage, W, slice = noSlice) {
   const oldVillage = (o) => ((o.kind === 'hut' || o.kind === 'bed') && Math.hypot(o.x - VOLC.x, o.y - VOLC.y) < RIM.r)
     || (OLD_COURT.has(o.kind) && Math.hypot(o.x - SHRINE.x, o.y - SHRINE.y) < 4.6);
   const drawn = kazan ? Object.assign(Object.create(W), { objects: W.objects.filter((o) => !oldVillage(o)) }) : W;
-  const scenery = await buildScenery(stage, drawn, { crater: cr, craterRadius: cr ? cr.r : 0, lavaHeight: cr ? cr.h : 0, craterSection: cr ? cr.section : null, sections: SECS.map((sec) => sec.id), keep: backdrop ? liveObjects : null }, slice);
+  const scenery = await buildScenery(stage, drawn, { crater: cr, craterRadius: cr ? cr.r : 0, lavaHeight: cr ? cr.h : 0, craterSection: cr ? cr.section : null, sections: SECS.map((sec) => sec.id), keep: backdrop ? liveObjects : null, lavaPool: !(cr && lavaLooped(W.region || HOME, cr.section)) }, slice);
   
   for (const id in scenery.groups) scenery.groups[id].userData.seeThrough = true;
   

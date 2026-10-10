@@ -31,7 +31,7 @@ export const PLACERS = [placeHuts, placeRimStones, placeLedges, placePillars, pl
 
 
 
-export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight, craterSection = 'kazan', sections, keep = null }, slice = async () => {}) {
+export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight, craterSection = 'kazan', sections, keep = null, lavaPool = true }, slice = async () => {}) {
   const { scene } = stage;
   const groups = {};
   for (const id of sections) {
@@ -59,7 +59,7 @@ export async function buildScenery(stage, W, { crater, craterRadius, lavaHeight,
   const fire = createTorchFire(scene, W);
   const water = createSpringWater(scene, W);
   const vents = createVentSteam(scene, W); 
-  const lava = crater ? createLava(scene, crater, craterRadius, lavaHeight) : { update() {} };
+  const lava = crater ? createLava(scene, crater, craterRadius, lavaHeight, { pool: lavaPool }) : { update() {} };
   const meshes = Object.values(groups).reduce((n, g) => n + g.children.length, 0);
   return {
     groups,

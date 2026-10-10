@@ -10,6 +10,9 @@ import { createBackdrop } from '../../../engine/iso/backdrop.js';
 const OFF = typeof location !== 'undefined' && (/[?&]backdrop=0\b/.test(location.search) || lookName(location.search) !== 'cel');
 export const backdropOf = (region) => (OFF ? null : BACKDROPS[region] || null);
 
+
+export const lavaLooped = (region, section) => !!(backdropOf(region) && (backdropOf(region).sections[section] || {}).loops);
+
 let bd = null, want = null, ready = true, token = 0, job = Promise.resolve();
 export function initBackdrops(stage) { if (!bd) bd = createBackdrop(stage); return bd; }
 

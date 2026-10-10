@@ -32,11 +32,35 @@ export function backdropDepth(meta, target, near, far) {
   return { k: (D.far - D.near) / span, c: (D.near + D.plane - D.eye_dist - tf + EYE_DIST - near) / span };
 }
 
+
+
+export function loopFrame(loop, tSec) { return Math.floor(tSec * loop.fps + 1e-6) % loop.frames; }
+
+
+
+export function loopCell(loop, k) {
+  const per = loop.cols * loop.rows, page = Math.floor(k / per), i = k - page * per;
+  const onPage = Math.min(per, loop.frames - page * per), rows = Math.ceil(onPage / loop.cols);
+  const c = i % loop.cols, r = Math.floor(i / loop.cols);
+  
+  const [, , w, h] = loop.box, g = loop.gutter || 0, W = loop.cols * (w + 2 * g), H = rows * (h + 2 * g);
+  const x = c * (w + 2 * g) + g, y = r * (h + 2 * g) + g;
+  return { page, uv: [x / W, y / H, (x + w) / W, (y + h) / H] };
+}
+
+
+
+
+export const MASK_DEPTH_IDS = [0, 6];
+export function maskWritesDepth(b255) { return MASK_DEPTH_IDS.includes(b255); }
+
+const DEPTH_IDS_GLSL = MASK_DEPTH_IDS.map((i) => (i ? `abs( b - ${i}.0 ) < 0.5` : 'b < 0.5')).join(' || ');
+
 const QUAD_V =  `
 varying vec2 vUv;
 void main() { vUv = uv; gl_Position = vec4( position.xy, 0.0, 1.0 ); }
 `;
-const DEPTH_F =  `
+export const DEPTH_F =  `
 uniform sampler2D tData;
 uniform vec2 uCenter, uSpan, uImage;
 uniform float uScale, uK, uC, uBias;
@@ -56,7 +80,8 @@ void main() {
   float d = 1.0;
   if ( px.x >= 0.0 && px.y >= 0.0 && px.x < uImage.x && px.y < uImage.y ) {
     vec3 t = texelFetch( tData, ivec2( px / uScale ), 0 ).rgb;
-    if ( t.b < 0.5 / 255.0 ) d = ( t.r * 255.0 * 256.0 + t.g * 255.0 ) / 65535.0 * uK + uC + uBias;
+    float b = floor( t.b * 255.0 + 0.5 ); // MASK_DEPTH_IDS: static 0 and a loop 6
+    if ( ${DEPTH_IDS_GLSL} ) d = ( t.r * 255.0 * 256.0 + t.g * 255.0 ) / 65535.0 * uK + uC + uBias;
   }
   // see-through (seeThrough.js seeCut, scenery: every window): cut a baked occluder nearer than the target
   vec3 ndc = vec3( vUv * 2.0 - 1.0, d * 2.0 - 1.0 );
@@ -82,6 +107,22 @@ void main() {
   gl_FragColor = texture2D( map, vec2( mix( uBox.x, uBox.z, vUv.x ), mix( uBox.y, uBox.w, 1.0 - vUv.y ) ) );
   #include <colorspace_fragment>
 }
+`;
+
+
+const LOOP_F =  `
+uniform sampler2D map, uMask;
+uniform vec4 uBox;
+varying vec2 vUv;
+void main() {
+  if ( texture2D( uMask, vec2( vUv.x, 1.0 - vUv.y ) ).r < 0.5 ) discard;
+  gl_FragColor = texture2D( map, vec2( mix( uBox.x, uBox.z, vUv.x ), mix( uBox.y, uBox.w, 1.0 - vUv.y ) ) );
+  #include <colorspace_fragment>
+}
+`;
+const PLACE_V =  `
+varying vec2 vUv;
+void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 ); }
 `;
 
 
@@ -115,7 +156,8 @@ export function createBackdrop(stage) {
     
     async load(base, meta) {
       const [data, ...tiles] = await Promise.all([bitmap(base + meta.data.file, true), ...meta.tiles.map((t) => bitmap(base + t.file))]);
-      return { meta, data, tiles };
+      const loops = await Promise.all((meta.loops || []).map((l) => Promise.all([bitmap(base + l.mask, true), ...l.files.map((f) => bitmap(base + f))])));
+      return { meta, data, tiles, loops };
     },
     
     show(loaded) {
@@ -139,14 +181,37 @@ void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(
         tileScene.add(mesh);
         return { mesh, t, tex };
       });
+      
+      const loops = (meta.loops || []).map((l, i) => {
+        const [maskBm, ...pageBms] = loaded.loops[i];
+        const mask = new THREE.Texture(maskBm);
+        mask.flipY = false; mask.colorSpace = THREE.NoColorSpace; mask.generateMipmaps = false;
+        mask.minFilter = mask.magFilter = THREE.NearestFilter; mask.needsUpdate = true;
+        const pages = pageBms.map((bm) => {
+          const tex = new THREE.Texture(bm);
+          tex.flipY = false; tex.colorSpace = THREE.SRGBColorSpace; tex.generateMipmaps = false; 
+          tex.minFilter = tex.magFilter = THREE.LinearFilter; tex.needsUpdate = true;
+          return tex;
+        });
+        const mat = new THREE.ShaderMaterial({ uniforms: { map: { value: pages[0] }, uMask: { value: mask }, uBox: { value: new THREE.Vector4() } },
+          vertexShader: PLACE_V, fragmentShader: LOOP_F, depthTest: false, depthWrite: false });
+        const mesh = new THREE.Mesh(tileGeo, mat);
+        mesh.frustumCulled = false;
+        tileScene.add(mesh);
+        return { mesh, l, pages, mask, t: { x: l.box[0], y: l.box[1], w: l.box[2], h: l.box[3] } };
+      });
       depthU.tData.value = data;
       depthU.uImage.value.set(meta.width, meta.height);
       depthU.uScale.value = meta.data.scale;
-      layer = { meta, tiles, data };
+      layer = { meta, tiles, data, loops };
     },
     clear() {
       if (!layer) return;
       for (const { mesh, tex } of layer.tiles) { tileScene.remove(mesh); mesh.material.dispose(); tex.dispose(); if (tex.image && tex.image.close) tex.image.close(); }
+      for (const { mesh, pages, mask } of layer.loops) {
+        tileScene.remove(mesh); mesh.material.dispose();
+        for (const tex of [...pages, mask]) { tex.dispose(); if (tex.image && tex.image.close) tex.image.close(); }
+      }
       layer.data.dispose(); if (layer.data.image && layer.data.image.close) layer.data.image.close();
       depthU.tData.value = null;
       layer = null;
@@ -162,7 +227,13 @@ void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(
     
     color() {
       const m = layer.meta, f = backdropFrame(m, stage.target, stage.viewHeight, stage.w / stage.h);
-      for (const { mesh, t } of layer.tiles) {
+      const now = performance.now() / 1000;
+      for (const lp of layer.loops) { 
+        const cell = loopCell(lp.l, loopFrame(lp.l, now));
+        lp.mesh.material.uniforms.map.value = lp.pages[cell.page];
+        lp.mesh.material.uniforms.uBox.value.set(...cell.uv);
+      }
+      for (const { mesh, t } of [...layer.tiles, ...layer.loops]) {
         const x0 = (t.x - f.cx) / (f.sx / 2), x1 = (t.x + t.w - f.cx) / (f.sx / 2);
         const y0 = -(t.y - f.cy) / (f.sy / 2), y1 = -(t.y + t.h - f.cy) / (f.sy / 2);
         mesh.visible = x1 > -1 && x0 < 1 && y0 > -1 && y1 < 1;
