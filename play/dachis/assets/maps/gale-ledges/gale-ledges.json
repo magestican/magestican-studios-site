@@ -1,0 +1,100 @@
+{
+ "schema": 1,
+ "region": "gale-ledges",
+ "section": "gale-ledges",
+ "source": "d32fe836",
+ "u0": -14.735,
+ "s0": 13.502,
+ "ppu": 196.6387,
+ "width": 5795,
+ "height": 3966,
+ "depth": {
+  "near": 10.0,
+  "far": 150.0,
+  "plane": -34.506487425100296,
+  "eye_dist": 80.0
+ },
+ "mask_ids": {
+  "static": 0,
+  "sea": 1,
+  "lake": 2,
+  "lava": 3,
+  "spring": 4,
+  "glow": 5,
+  "loop": 6
+ },
+ "tiles": [
+  {
+   "file": "gale-ledges.0-0.webp",
+   "x": 0,
+   "y": 0,
+   "w": 2048,
+   "h": 2048,
+   "tx": 0,
+   "ty": 0,
+   "tw": 2056,
+   "th": 2056
+  },
+  {
+   "file": "gale-ledges.0-1.webp",
+   "x": 2048,
+   "y": 0,
+   "w": 2048,
+   "h": 2048,
+   "tx": 2040,
+   "ty": 0,
+   "tw": 2064,
+   "th": 2056
+  },
+  {
+   "file": "gale-ledges.0-2.webp",
+   "x": 4096,
+   "y": 0,
+   "w": 1699,
+   "h": 2048,
+   "tx": 4088,
+   "ty": 0,
+   "tw": 1707,
+   "th": 2056
+  },
+  {
+   "file": "gale-ledges.1-0.webp",
+   "x": 0,
+   "y": 2048,
+   "w": 2048,
+   "h": 1918,
+   "tx": 0,
+   "ty": 2040,
+   "tw": 2056,
+   "th": 1926
+  },
+  {
+   "file": "gale-ledges.1-1.webp",
+   "x": 2048,
+   "y": 2048,
+   "w": 2048,
+   "h": 1918,
+   "tx": 2040,
+   "ty": 2040,
+   "tw": 2064,
+   "th": 1926
+  },
+  {
+   "file": "gale-ledges.1-2.webp",
+   "x": 4096,
+   "y": 2048,
+   "w": 1699,
+   "h": 1918,
+   "tx": 4088,
+   "ty": 2040,
+   "tw": 1707,
+   "th": 1926
+  }
+ ],
+ "data": {
+  "file": "gale-ledges.data.png",
+  "w": 1932,
+  "h": 1322,
+  "scale": 3
+ }
+}
