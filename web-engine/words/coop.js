@@ -357,6 +357,10 @@ export const GAME_PREFIX = Object.freeze({
   
   
   moonlife: 'fml-',
+  
+  
+  
+  gomoku: 'fgo-',
 });
 
 
@@ -369,6 +373,7 @@ export const GAME_PREFIX = Object.freeze({
 export const CODE_GAME_NAME = Object.freeze({
   crosswords: 'Wordburrow', chess: 'Rookwise', ludo: 'Pawnrush', scrabble: 'Letterloft',
   checkers: 'Jumpwise', uprising: 'Hoofrise', evilhills: 'Evil Hills', moonlife: 'Moon Life',
+  gomoku: 'Gomowise',
 });
 export const codeGameName = (key) => CODE_GAME_NAME[key] ?? key;
 

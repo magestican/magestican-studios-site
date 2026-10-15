@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Gomowise - free Gomoku online, five in a row</title>
+  <meta name="description" content="Gomowise is free Gomoku in your browser: five in a row on a 15x15 board. Three computer levels, two players on one device or a room with a friend, and the omok and caro house rules. No download, no account.">
+  <meta name="keywords" content="gomowise, gomoku online, five in a row, gomoku vs computer, gomoku with friends, 오목 온라인, 2인용 오목, cờ caro online, 五目並べ オンライン, cinco en línea">
+  <meta name="build" content="b7edacbc-20261015T055250Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/gomoku/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Gomowise - free Gomoku online">
+  <meta property="og:description" content="Five in a row on a 15x15 board: play the computer at three levels, a friend on the same device, or a friend in a room. No download.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/gomoku/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/gomoku.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Gomowise - free Gomoku online">
+  <meta name="twitter:description" content="Five in a row on a 15x15 board: the computer at three levels, a friend on one device, or a friend room.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/gomoku.jpg">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  <link rel="stylesheet" href="./src/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Gomowise",
+    "alternateName": ["Gomoku", "Five in a Row", "오목", "Cờ Caro", "五目並べ"],
+    "url": "https://magesticanstudios.com/play/gomoku/",
+    "description": "Gomoku - five in a row - on a 15x15 board in the browser. Play the computer at three levels, two players on one device, or a friend in a peer-to-peer room from a link or a code. Freestyle, Korean omok (exactly five, no double-three) and Vietnamese caro (a five blocked at both ends does not count) rules, in eight languages.",
+    "image": "https://magesticanstudios.com/assets/og/gomoku.jpg",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Board", "Strategy", "Casual"],
+    "gamePlatform": ["Web browser"],
+    "playMode": ["SinglePlayer", "MultiPlayer"],
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": ["en", "es", "pt-BR", "tl", "ja", "ko", "id", "vi"],
+    "datePublished": "2026-10-15",
+    "accessibilityFeature": ["highContrastDisplay", "structuralNavigation"],
+    "accessibilityHazard": ["noFlashingHazard", "noMotionSimulationHazard"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+</head>
+<body>
+  
+
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+    <a class="studio-back" id="rules-link" href="/gomoku.html" data-t="back">How to play</a>
+    <button id="music-btn" class="studio-music" type="button"
+            aria-pressed="false" aria-label="Play music" title="Play music">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        <path class="mg-note" d="M18 6.5 L27 4.5 V17.2" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="mg-note" cx="15.4" cy="18.6" r="3.4" fill="currentColor"/>
+        <circle class="mg-note" cx="24.4" cy="16.6" r="3.4" fill="currentColor"/>
+        <path d="M3 12.5 H6.5 L11 8.5 V23.5 L6.5 19.5 H3 Z" fill="currentColor"/>
+        <path class="mg-slash" d="M4 27 L28 5" fill="none" stroke="currentColor"
+              stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <main class="gm">
+    <h1 data-game-name>Gomowise</h1>
+
+    <div class="gm-row" role="group" aria-label="Mode">
+      <button class="gm-btn" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
+      <button class="gm-btn" type="button" data-mode="local" data-t="local" aria-pressed="false">Two players</button>
+      <button class="gm-btn" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
+    </div>
+
+    <div class="gm-row" id="bot-row" role="group" aria-label="Level">
+      <span class="gm-label" data-t="level">Level</span>
+      <button class="gm-btn" type="button" data-level="easy" data-t="easy" aria-pressed="false">Easy</button>
+      <button class="gm-btn" type="button" data-level="medium" data-t="medium" aria-pressed="true">Medium</button>
+      <button class="gm-btn" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
+    </div>
+
+    <div class="gm-row">
+      <label class="gm-row"><span class="gm-label" data-t="rulesLabel">Rules</span>
+        <select class="gm-select" id="rules">
+          <option value="free" data-t="free">Freestyle (5 or more wins)</option>
+          <option value="omok" data-t="omok">Omok (exactly 5, no double-three)</option>
+          <option value="caro" data-t="caro">Caro (a five blocked at both ends does not count)</option>
+        </select>
+      </label>
+      <span class="gm-row" id="colour-row" role="group">
+        <span class="gm-label" data-t="playAs">Play as</span>
+        <button class="gm-btn" type="button" data-colour="black" data-t="black" aria-pressed="true">Black</button>
+        <button class="gm-btn" type="button" data-colour="white" data-t="white" aria-pressed="false">White</button>
+      </span>
+    </div>
+
+    <section class="gm-room" id="room" hidden aria-label="Room">
+      <div class="gm-row" id="room-start">
+        <button class="gm-btn" type="button" id="create-room" data-t="createRoom">Create a room</button>
+        <form class="gm-row" id="join-form">
+          <input class="gm-input" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
+          <button class="gm-btn" type="submit" data-t="join">Join</button>
+        </form>
+      </div>
+      <div class="gm-row" id="room-live" hidden>
+        <span class="gm-label" data-t="roomCodeLabel">Code</span> <output class="gm-code" id="room-code">-</output>
+        <button class="gm-btn" type="button" id="copy-link" data-t="copyLink">Share link</button>
+        <button class="gm-btn" type="button" id="leave-room" data-t="leave">Leave room</button>
+      </div>
+    </section>
+
+    <p class="gm-status" id="status" role="status" aria-live="polite"></p>
+
+    <div class="gm-board-wrap">
+      <svg id="board" class="gm-board" viewBox="0 0 16 16" role="application" tabindex="0"
+           aria-label="Gomoku board, 15 by 15" aria-describedby="status"></svg>
+    </div>
+
+    <div class="gm-foot">
+      <button class="gm-btn" id="new-game" type="button" data-t="newGame">New game</button>
+      <button class="gm-btn" id="undo" type="button" data-t="undo">Undo</button>
+    </div>
+    <p class="visually-hidden" id="cursor-say" aria-live="polite"></p>
+    <p class="gm-help" data-t="help">Place stones where the lines cross. Five in a row - across, down or diagonally - wins.</p>
+  </main>
+
+  <noscript>
+    <p>Gomowise is Gomoku (five in a row) and needs JavaScript; there is nothing to download.
+    <a href="/gomoku.html">How to play</a>.</p>
+  </noscript>
+
+  
+
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=b7edacbc-20261015T055250Z"></script>
+  <script type="module" src="./src/main.js?v=b7edacbc-20261015T055250Z"></script>
+</body>
+</html>

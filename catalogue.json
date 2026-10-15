@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "8d202e55-20261015T040238Z",
+ "buildId": "b7edacbc-20261015T055250Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -325,6 +325,38 @@
    "bytes": 31029
   },
   {
+   "id": "gomoku",
+   "statsId": "gomoku",
+   "title": "Gomowise",
+   "tagline": "Five in a row on a 15x15 board, against the computer or a friend.",
+   "description": "Free Gomoku: five in a row on a 15x15 board. Three computer levels, two players on one device or a friend room, and the omok and caro house rules.",
+   "dir": "play/gomoku",
+   "path": "play/gomoku/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/gomoku.html",
+   "orientation": "any",
+   "players": "1-2",
+   "online": true,
+   "offline": true,
+   "cover": "assets/covers/gomoku-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/gomoku/0.webp",
+    "assets/shots/gomoku/1.webp"
+   ],
+   "accent": "#8A5A2B",
+   "glyph": "gomoku",
+   "pack": "family",
+   "age": 6,
+   "ageNote": null,
+   "order": 10,
+   "addedAt": "2026-10-15",
+   "bytes": 53236
+  },
+  {
    "id": "farmy-moon-life",
    "statsId": "farmy-moon-life",
    "title": "Moon Life",
@@ -352,7 +384,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 12,
+   "order": 13,
    "addedAt": "2026-09-14",
    "bytes": 778880
   },
@@ -383,7 +415,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 13,
+   "order": 14,
    "addedAt": "2026-09-25",
    "bytes": 12519979
   },
@@ -415,7 +447,7 @@
    "pack": "family",
    "age": 9,
    "ageNote": null,
-   "order": 14,
+   "order": 15,
    "addedAt": "2026-09-30",
    "bytes": 80928385
   },
@@ -447,7 +479,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 16,
+   "order": 17,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -479,7 +511,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 17,
+   "order": 18,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -511,7 +543,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 18,
+   "order": 19,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -543,7 +575,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 19,
+   "order": 20,
    "addedAt": "2026-09-21",
    "bytes": 211685
   }
