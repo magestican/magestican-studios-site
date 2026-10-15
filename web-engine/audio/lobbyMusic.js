@@ -50,9 +50,12 @@ export const FADE_OUT = 0.8;
 
 
 
-export function loopEndSeconds(manifest, buffer) {
+export function loopEndSeconds(manifest, buffer, track = null) {
   const rate = manifest?.sampleRate;
-  const samples = manifest?.loopSamples;
+  
+  
+  
+  const samples = track?.loopSamples ?? manifest?.loopSamples;
   if (!(rate > 0) || !(samples > 0)) return buffer?.duration ?? 0;
   const end = samples / rate;
   
@@ -131,7 +134,7 @@ export function createLobbyMusic({ ctx, destination, manifestUrl, gain = 0.34, t
         const audioRes = await fetch(fileUrl, { cache: 'force-cache' });
         if (!audioRes.ok) throw new Error(`${track.file} ${audioRes.status} at ${fileUrl}`);
         buffer = await ctx.decodeAudioData(await audioRes.arrayBuffer());
-        st.loopEnd = loopEndSeconds(manifest, buffer);
+        st.loopEnd = loopEndSeconds(manifest, buffer, track);
         st.loaded = true;
       } catch (err) {
         

@@ -48,6 +48,10 @@ export const LIVE_STATS_ID = Object.freeze({
   moonlife: 'farmy-moon-life',
   kart: 'farmykart',
   farmyshoot: 'team-bonding',
+  gomoku: 'gomoku',
+  wordchain: 'word-chain',
+  truco: 'truco',
+  buraco: 'buraco',
 });
 
 
@@ -66,6 +70,10 @@ export const LIVE_ACCENT = Object.freeze({
   moonlife: '#e8a15a',
   kart: '#c2452d',
   farmyshoot: '#8a6a2a',
+  gomoku: '#8A5A2B',
+  wordchain: '#1D4E89',
+  truco: '#A8321E',
+  buraco: '#1F6E4A',
 });
 
 

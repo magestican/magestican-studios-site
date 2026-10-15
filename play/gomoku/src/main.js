@@ -28,8 +28,12 @@ import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { shareLinkFor, joinIdFrom } from '../../../web-engine/words/coop.js';
-import * as music from '../../shared/audio/lofi.js';
+import { roomPresence } from '../../shared/net/roomPresence.js';
+import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
+import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, defaultRules } from './strings.js';
 import { createNet, canPlayTogether } from './net.js';
 
@@ -42,6 +46,13 @@ const BOT_DELAY_MS = 320;
 const SVGNS = 'http://www.w3.org/2000/svg';
 
 const lang = gameLang();
+
+
+const MUSIC_NAMES = { main: 'Lo-fi', local: { ko: '트로트', default: 'Trot' } };
+const music = createTrackMusic({
+  game: 'gomoku', lang, homeLang: 'ko',
+  manifestUrl: new URL('../assets/music/music.json', import.meta.url),
+});
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -101,6 +112,15 @@ let state = null;
 let net = null;
 let botTimer = null;
 const room = { active: false, me: null, peers: [], code: null };
+
+
+
+const presence = roomPresence({
+  game: 'gomoku',
+  net: () => net,
+  players: () => new Set([room.me, ...room.peers].filter(Boolean)).size || 1,
+  ids: () => [room.me, ...room.peers].filter(Boolean),
+});
 const reportGate = createReportGate();
 let startedAt = Date.now();
 let pending = -1;                     
@@ -512,6 +532,8 @@ function startNet() {
     onProposal,
     onPeers: (peers, id) => {
       room.peers = peers;
+      
+      presence.sync();
       if (id) room.me = id;
       if (id && net?.hosting) room.code = codeOf(id);
       if (net?.hosting && room.me && match.seats[0] === HOST && !match.moves.length) {
@@ -562,6 +584,7 @@ function joinRoom(code) {
 }
 
 function leaveRoom() {
+  presence.withdraw();
   try { net?.leave(); } catch {  }
   net = null;
   Object.assign(room, { active: false, me: null, peers: [], code: null });
@@ -595,6 +618,12 @@ $('copy-link').addEventListener('click', () => {
 drawGrid();
 boardEl.append(layer);
 wireMusicButton({ music });
+wireTrackButton({ music, names: MUSIC_NAMES, lang });
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Gomowise' });
+
+
+
+countPlay('gomoku', { isHost: !joinIdFrom(location.href) });
 
 const linkRoom = joinIdFrom(location.href);
 if (linkRoom) {

@@ -359,7 +359,6 @@ export const GAME_PREFIX = Object.freeze({
   moonlife: 'fml-',
   
   
-  
   gomoku: 'fgo-',
   
   

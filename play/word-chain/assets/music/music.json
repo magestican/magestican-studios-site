@@ -1,0 +1,26 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "THE LAST LETTER",
+      "genre": "city-pop",
+      "file": "word-chain-main.webm",
+      "loopSamples": 3544615,
+      "seed": 645466377,
+      "lufs": -15.7
+    },
+    {
+      "id": "local",
+      "side": "B",
+      "title": "NOI TU",
+      "genre": "bolero-vn",
+      "file": "word-chain-local.webm",
+      "loopSamples": 4135385,
+      "seed": 279244529,
+      "lufs": -13.5
+    }
+  ]
+}

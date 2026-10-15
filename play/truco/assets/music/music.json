@@ -1,0 +1,26 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "QUIERO RETRUCO",
+      "genre": "tango",
+      "file": "truco-main.webm",
+      "loopSamples": 3124068,
+      "seed": 2066048181,
+      "lufs": -17.4
+    },
+    {
+      "id": "local",
+      "side": "B",
+      "title": "CUMBIA DEL ANCHO",
+      "genre": "cumbia-villera",
+      "file": "truco-local.webm",
+      "loopSamples": 3840000,
+      "seed": 1917985803,
+      "lufs": -17.4
+    }
+  ]
+}

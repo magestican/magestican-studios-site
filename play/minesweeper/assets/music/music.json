@@ -1,0 +1,26 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "SWEEP THE FIELD",
+      "genre": "lofi-chill",
+      "file": "minesweeper-main.webm",
+      "loopSamples": 4388571,
+      "seed": 1969928716,
+      "lufs": -18.7
+    },
+    {
+      "id": "local",
+      "side": "B",
+      "title": "GOYANG RANJAU",
+      "genre": "dangdut-koplo",
+      "file": "minesweeper-local.webm",
+      "loopSamples": 2671304,
+      "seed": 533945454,
+      "lufs": -12.6
+    }
+  ]
+}

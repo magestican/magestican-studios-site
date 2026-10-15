@@ -30,8 +30,12 @@ import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { shareLinkFor, joinIdFrom } from '../../../web-engine/words/coop.js';
-import * as music from '../../shared/audio/lofi.js';
+import { roomPresence } from '../../shared/net/roomPresence.js';
+import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
+import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill, cardName } from './strings.js';
 import { createNet, canPlayTogether } from './net.js';
 
@@ -44,6 +48,13 @@ const NEXT_MS = 2800;
 const DECK_URL = '../shared/cards/spanish40/deck.json';
 
 const lang = gameLang();
+
+
+const MUSIC_NAMES = { main: 'Tango', local: 'Cumbia' };
+const music = createTrackMusic({
+  game: 'truco', lang, homeLang: 'es',
+  manifestUrl: new URL('../assets/music/music.json', import.meta.url),
+});
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -121,6 +132,15 @@ let finishedRound = -1;
 let gameRound = 0;
 let queuedArrivals = [];
 const room = { active: false, me: null, peers: [], code: null };
+
+
+
+const presence = roomPresence({
+  game: 'truco',
+  net: () => net,
+  players: () => new Set([room.me, ...room.peers].filter(Boolean)).size || 1,
+  ids: () => [room.me, ...room.peers].filter(Boolean),
+});
 const reportGate = createReportGate();
 let startedAt = Date.now();
 const botRngs = new Map();
@@ -665,6 +685,8 @@ function startNet() {
     onProposal,
     onPeers: (peers, id) => {
       room.peers = peers;
+      
+      presence.sync();
       if (id) room.me = id;
       if (id && net?.hosting) room.code = codeOf(id);
       if (net?.hosting && room.me && match && match.seats[0] === HOST) {
@@ -751,6 +773,7 @@ function joinRoom(code) {
 }
 
 function leaveRoom() {
+  presence.withdraw();
   try { net?.leave(); } catch {  }
   net = null;
   queuedArrivals = [];
@@ -782,6 +805,12 @@ $('copy-link').addEventListener('click', () => {
 
 
 wireMusicButton({ music });
+wireTrackButton({ music, names: MUSIC_NAMES, lang });
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Trucowise' });
+
+
+
+countPlay('truco', { isHost: !joinIdFrom(location.href) });
 
 loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch(() => {  });
 

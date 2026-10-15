@@ -14,8 +14,11 @@ import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js'
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
 import { playUi } from '../../../web-engine/brand/uiSound.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
-import * as music from '../../shared/audio/lofi.js';
+import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
+import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
+import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
 import { stringsFor, fill } from './strings.js';
 
 const GAME_ID = 'minesweeper';
@@ -25,6 +28,13 @@ const CUSTOM_KEY = 'sweepwise-custom-v1';
 const LONG_PRESS_MS = 420;
 
 const lang = gameLang();
+
+
+const MUSIC_NAMES = { main: 'Lo-fi', local: 'Dangdut' };
+const music = createTrackMusic({
+  game: 'minesweeper', lang, homeLang: 'id',
+  manifestUrl: new URL('../assets/music/music.json', import.meta.url),
+});
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -311,6 +321,12 @@ addEventListener('resize', () => {
 });
 
 wireMusicButton({ music });
+wireTrackButton({ music, names: MUSIC_NAMES, lang });
+mountLevelChip(document.querySelector('.studio-bar'), { share: 'Sweepwise' });
+
+
+
+countPlay('minesweeper', { isHost: true });
 start();
 
 

@@ -94,6 +94,13 @@ body { display: flex; flex-direction: column; }
 .studio-music[aria-pressed="false"] .mg-slash { display: block; }
 .studio-music[aria-pressed="false"] .mg-note { opacity: 0.45; }
 .studio-music[aria-pressed="false"] { color: var(--fc-paperDim); }
+
+.studio-track { flex: 0 0 auto; height: 36px; padding: 0 10px; border: 1px solid var(--fc-paperDim);
+  border-radius: 18px; background: transparent; color: var(--fc-paper); font: inherit; font-size: 14px;
+  white-space: nowrap; cursor: pointer; }
+.studio-track:hover { background: var(--fc-paperWash); }
+.studio-track:focus-visible { outline: 4px solid var(--fc-blue); outline-offset: 2px; }
+@media (max-width: 400px) { .studio-track { padding: 0 6px; font-size: 12px; } }
 @media (max-width: 560px) {
   .studio-bar { height: 44px; gap: 8px; }
   .studio-home img { width: 30px; height: 30px; }

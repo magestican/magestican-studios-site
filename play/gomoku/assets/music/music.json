@@ -1,0 +1,26 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "FIVE IN A ROW",
+      "genre": "lofi-chill",
+      "file": "gomoku-main.webm",
+      "loopSamples": 4244211,
+      "seed": 876989681,
+      "lufs": -16.4
+    },
+    {
+      "id": "local",
+      "side": "B",
+      "title": "OMOK PPONGJJAK",
+      "genre": "trot",
+      "file": "gomoku-local.webm",
+      "loopSamples": 2925714,
+      "seed": 545873891,
+      "lufs": -16.4
+    }
+  ]
+}

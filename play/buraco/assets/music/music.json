@@ -1,0 +1,26 @@
+{
+  "sampleRate": 48000,
+  "source": "Magestican DJ",
+  "tracks": [
+    {
+      "id": "main",
+      "side": "A",
+      "title": "MESA DE BURACO",
+      "genre": "bossa-nova",
+      "file": "buraco-main.webm",
+      "loopSamples": 2880000,
+      "seed": 302430492,
+      "lufs": -14.3
+    },
+    {
+      "id": "local",
+      "side": "B",
+      "title": "PAGODE DO MORTO",
+      "genre": "pagode",
+      "file": "buraco-local.webm",
+      "loopSamples": 3686400,
+      "seed": 1166475220,
+      "lufs": -14.1
+    }
+  ]
+}
