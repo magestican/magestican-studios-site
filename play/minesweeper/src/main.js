@@ -15,6 +15,7 @@ import { startVersionChecker } from '../../../web-engine/updater/versionChecker.
 import { playUi } from '../../../web-engine/brand/uiSound.js';
 import { reportMatch } from '../../../web-engine/progress/report.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
@@ -35,6 +36,8 @@ const music = createTrackMusic({
   game: 'minesweeper', lang, homeLang: 'id',
   manifestUrl: new URL('../assets/music/music.json', import.meta.url),
 });
+
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['dig', 'cascade', 'flag', 'unflag', 'boom', 'win']);
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -186,10 +189,10 @@ function after(before) {
       best = r.table;
       if (r.isBest) save(BEST_KEY, best);
       msgEl.textContent = fill(T.won, { t: seconds }) + (r.isBest ? ` ${T.best}` : '');
-      playUi(r.isBest ? 'levelUp' : 'trophy');
+      sfx.play('win');
     } else {
       msgEl.textContent = T.lost;
-      playUi('error');
+      sfx.play('boom');
     }
     trackEvent('minesweeper_finished', { won: g.state === 'won', level, seconds });
     
@@ -199,7 +202,7 @@ function after(before) {
       seconds: Math.max(1, Math.round(seconds)), metrics: { level },
     }).catch(() => {});
   } else if (before !== null) {
-    playUi(before);
+    sfx.play(before);
   }
   draw();
 }
@@ -210,10 +213,14 @@ function doAt(i, how) {
   const c = i % g.cols;
   const cell = g.cells[i];
   const wasFlag = cell.flag;
+  const openCount = () => g.cells.reduce((n, x) => n + (x.open ? 1 : 0), 0);
+  const openedBefore = openCount();
   const changed = how === 'flag' && !cell.open ? toggleFlag(g, r, c) : act(g, r, c, how);
   if (!changed) return;
-  let sound = 'tick';
-  if (how === 'flag' && !cell.open) sound = wasFlag ? 'toggleOff' : 'toggleOn';
+  
+  
+  let sound = openCount() - openedBefore > 1 ? 'cascade' : 'dig';
+  if (how === 'flag' && !cell.open) sound = wasFlag ? 'unflag' : 'flag';
   after(sound);
 }
 

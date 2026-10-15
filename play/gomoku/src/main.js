@@ -30,6 +30,7 @@ import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { shareLinkFor, joinIdFrom } from '../../../web-engine/words/coop.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
@@ -53,6 +54,8 @@ const music = createTrackMusic({
   game: 'gomoku', lang, homeLang: 'ko',
   manifestUrl: new URL('../assets/music/music.json', import.meta.url),
 });
+
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['stone', 'stoneThem', 'win', 'lose']);
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -294,7 +297,7 @@ function commit(at) {
   match = withMove(match, at);
   rederive();
   pending = -1;
-  playUi('tap');
+  sfx.play(stoneSound(at));
   sayEl.textContent = fill(T.placed, { who: colourName(state.game.cells[at]), p: toCoord(at).toUpperCase() });
   if (net?.hosting) net.publish();
   afterChange();
@@ -311,12 +314,20 @@ function tryPlace(i) {
   if (settings.mode === 'room' && !net?.hosting) {
     
     pending = -1;
-    playUi('tap');
+    sfx.play('stone');
     net?.propose({ kind: 'move', at: i });
     draw();
     return;
   }
   commit(check.at);
+}
+
+
+
+
+function stoneSound(at) {
+  const seat = seatOfColour(state.game.cells[at]);
+  return settings.mode === 'local' || state.seats[seat] === me() ? 'stone' : 'stoneThem';
 }
 
 function afterChange() {
@@ -330,8 +341,8 @@ function finished() {
   const ws = winnerSeat(state);
   const mine = seatOf(state, me());
   const result = game.draw ? 'draw' : (state.seats[ws] === me() ? 'won' : 'lost');
-  if (settings.mode !== 'local' && mine >= 0) playUi(result === 'won' ? 'trophy' : (result === 'lost' ? 'error' : 'tap'));
-  else playUi('trophy');
+  if (settings.mode !== 'local' && mine >= 0) { if (result !== 'draw') sfx.play(result === 'won' ? 'win' : 'lose'); }
+  else sfx.play('win');
   const turn = seatOwner() && mine >= 0 ? reportGate.take() : null;
   if (turn) {
     const arg = twoSeatMatch({
@@ -510,7 +521,11 @@ function adopt(incoming) {
   else if (fresh) reportGate.begin(match.seats);
   settings.rules = match.rules;
   pending = -1;
-  if (incoming.moves.length && before && incoming.moves.length > before.moves.length) playUi('tap');
+  
+  if (incoming.moves.length && before && incoming.moves.length > before.moves.length) {
+    const at = incoming.moves[incoming.moves.length - 1];
+    if (stoneSound(at) === 'stoneThem') sfx.play('stoneThem');
+  }
   afterChange();
 }
 

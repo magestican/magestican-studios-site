@@ -86,26 +86,51 @@ function decode(c, ab) {
   });
 }
 
-function load(c, name) {
-  if (buffers.has(name)) return buffers.get(name);
+
+function loadKey(c, key, url) {
+  if (buffers.has(key)) return buffers.get(key);
   let p;
   try {
-    const url = new URL(UI_SOUNDS[name].file, import.meta.url).href;
     p = globalThis.fetch(url)
       .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(String(r.status)))))
       .then((ab) => decode(c, ab))
-      .then((buf) => { buffers.set(name, buf); return buf; }, () => { buffers.set(name, null); return null; });
+      .then((buf) => { buffers.set(key, buf); return buf; }, () => { buffers.set(key, null); return null; });
   } catch {
-    buffers.set(name, null);
+    buffers.set(key, null);
     return Promise.resolve(null);
   }
-  buffers.set(name, p);
+  buffers.set(key, p);
   return p;
+}
+
+function load(c, name) {
+  let url;
+  try { url = new URL(UI_SOUNDS[name].file, import.meta.url).href; } catch { buffers.set(name, null); return Promise.resolve(null); }
+  return loadKey(c, name, url);
+}
+
+
+
+
+
+
+
+
+const fileUrls = new Set();
+
+
+export function preloadFiles(urls) {
+  for (const u of urls || []) {
+    const url = String(u);
+    fileUrls.add(url);
+    if (ctx && typeof globalThis.fetch === 'function') loadKey(ctx, url, url);
+  }
 }
 
 function preloadAll(c) {
   if (typeof globalThis.fetch !== 'function') return;
   for (const name of Object.keys(UI_SOUNDS)) load(c, name);
+  for (const url of fileUrls) loadKey(c, url, url);
 }
 
 function start(c, buf) {
@@ -120,26 +145,42 @@ function silenced() {
 }
 
 
+function play(key, fetchIt) {
+  if (silenced()) return false;
+  const c = ensureContext();
+  if (!c || !bus) return false;
+  if (c.state === 'suspended') {
+    try { c.resume()?.catch?.(() => {}); } catch {  }
+  }
+  const have = buffers.get(key);
+  if (have && typeof have.then !== 'function') { start(c, have); return true; }
+  if (have === null || typeof globalThis.fetch !== 'function') return false;
+  const asked = Date.now();
+  fetchIt(c).then((buf) => {
+    try {
+      if (buf && Date.now() - asked <= LATE_MS && !silenced()) start(c, buf);
+    } catch {  }
+  });
+  return true;
+}
+
+
 export function playUi(name) {
   try {
-    if (silenced()) return false;
-    const spec = Object.prototype.hasOwnProperty.call(UI_SOUNDS, name) ? UI_SOUNDS[name] : null;
-    if (!spec) return false;
-    const c = ensureContext();
-    if (!c || !bus) return false;
-    if (c.state === 'suspended') {
-      try { c.resume()?.catch?.(() => {}); } catch {  }
-    }
-    const have = buffers.get(name);
-    if (have && typeof have.then !== 'function') { start(c, have); return true; }
-    if (have === null || typeof globalThis.fetch !== 'function') return false;
-    const asked = Date.now();
-    load(c, name).then((buf) => {
-      try {
-        if (buf && Date.now() - asked <= LATE_MS && !silenced()) start(c, buf);
-      } catch {  }
-    });
-    return true;
+    if (!Object.prototype.hasOwnProperty.call(UI_SOUNDS, name)) return false;
+    return play(name, (c) => load(c, name));
+  } catch {
+    return false;
+  }
+}
+
+
+export function playFile(url) {
+  try {
+    const key = String(url ?? '');
+    if (!key) return false;
+    fileUrls.add(key);
+    return play(key, (c) => loadKey(c, key, key));
   } catch {
     return false;
   }
@@ -168,4 +209,4 @@ function bootUnlock() {
 bootUnlock();
 
 
-export function _resetUiSoundPlayer() { ctx = null; bus = null; muteSources.clear(); buffers.clear(); }
+export function _resetUiSoundPlayer() { ctx = null; bus = null; muteSources.clear(); buffers.clear(); fileUrls.clear(); }

@@ -32,6 +32,7 @@ import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { shareLinkFor, joinIdFrom } from '../../../web-engine/words/coop.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
@@ -55,6 +56,8 @@ const music = createTrackMusic({
   game: 'truco', lang, homeLang: 'es',
   manifestUrl: new URL('../assets/music/music.json', import.meta.url),
 });
+
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['card', 'call', 'point', 'win', 'lose']);
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -221,7 +224,7 @@ function dealNext() {
   queuedArrivals = [];
   match = m;
   lastFlash = '';
-  playUi('tap');
+  sfx.play('card');
   refresh();
 }
 
@@ -296,12 +299,15 @@ function noteEvents(events) {
   flashEl.textContent = lastFlash;
 }
 
+
+
+
 function sounds(events) {
-  for (const e of events || []) {
-    if (e.kind === 'play') { playUi('tap'); return; }
-    if (e.kind === 'points') { playUi('toggleOn'); return; }
-  }
-  playUi('toggleOn');
+  const kinds = new Set((events || []).map((e) => e.kind));
+  if (kinds.has('call')) sfx.play('call');
+  else if (kinds.has('points')) sfx.play('point');
+  else if (kinds.has('play')) sfx.play('card');
+  else playUi('toggleOn');
 }
 
 let flashTimer = null;
@@ -562,7 +568,7 @@ function finished() {
   const me = view.you;
   if (me < 0) return;
   const result = g.winner === team(me) ? 'won' : 'lost';
-  playUi(result === 'won' ? 'trophy' : 'error');
+  sfx.play(result === 'won' ? 'win' : 'lose');
   const turn = reportGate.take();
   if (turn) {
     const n = g.opts.players;
@@ -672,7 +678,7 @@ function onView(v) {
   }
   if (!before || v.game.handNo !== before.game.handNo) lastFlash = '';
   noteEvents(v.game.events);
-  if (before && JSON.stringify(before.game.hand.bazas) !== JSON.stringify(v.game.hand.bazas)) playUi('tap');
+  if (before && JSON.stringify(before.game.hand.bazas) !== JSON.stringify(v.game.hand.bazas)) sfx.play('card');
   draw();
   if (v.game.over) finished();
 }

@@ -37,6 +37,7 @@ import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { shareLinkFor, joinIdFrom } from '../../../web-engine/words/coop.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
@@ -60,6 +61,8 @@ const music = createTrackMusic({
   game: 'buraco', lang, homeLang: 'pt',
   manifestUrl: new URL('../assets/music/music.json', import.meta.url),
 });
+
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['card', 'draw', 'meld', 'canastra', 'win', 'lose']);
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -234,7 +237,7 @@ function dealNext() {
   match = m;
   lastFlash = '';
   selected = new Set();
-  playUi('tap');
+  sfx.play('card');
   refresh();
 }
 
@@ -309,9 +312,13 @@ function noteEvents(events) {
 function sounds(events) {
   const e = (events || [])[events.length - 1];
   if (!e) return;
-  if (e.type === 'morto' || e.type === 'batida' || e.type === 'handOver') playUi('trophy');
-  else if (e.type === 'meld' || e.type === 'layoff') playUi('toggleOn');
-  else playUi('tap');
+  
+  
+  
+  if (e.canastra || e.type === 'morto' || e.type === 'batida' || e.type === 'handOver') sfx.play('canastra');
+  else if (e.type === 'meld' || e.type === 'layoff') sfx.play('meld');
+  else if (e.type === 'draw' || e.type === 'take' || e.type === 'mortoStock') sfx.play('draw');
+  else sfx.play('card');
 }
 
 let flashTimer = null;
@@ -695,7 +702,7 @@ function finished() {
   const me = view.you;
   if (me < 0) return;
   const result = g.winner === teamOf(me) ? 'won' : 'lost';
-  playUi(result === 'won' ? 'trophy' : 'error');
+  sfx.play(result === 'won' ? 'win' : 'lose');
   const turn = reportGate.take();
   if (turn) {
     const n = g.opts.players;

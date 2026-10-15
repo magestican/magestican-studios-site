@@ -35,6 +35,7 @@ import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { shareLinkFor, joinIdFrom } from '../../../web-engine/words/coop.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
+import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
@@ -58,6 +59,8 @@ const music = createTrackMusic({
   game: 'word-chain', lang, homeLang: 'vi',
   manifestUrl: new URL('../assets/music/music.json', import.meta.url),
 });
+
+const sfx = createGameSfx(new URL('../assets/sfx/', import.meta.url), ['word', 'wordThem', 'win', 'lose']);
 const T = stringsFor(lang);
 applyGameName(GAME_ID);
 initAnalytics({ page: GAME_ID });
@@ -380,9 +383,12 @@ function errorText(code, need) {
 
 async function commit(token) {
   stopBot();
+  
+  
+  const mine = settings.mode === 'local' || isMyTurn(state, me());
   match = withToken(match, token);
   await rederive();
-  if (!token.startsWith('!')) playUi('tap');
+  if (!token.startsWith('!')) sfx.play(mine ? 'word' : 'wordThem');
   if (net?.hosting) net.publish();
   afterChange();
 }
@@ -402,7 +408,7 @@ function submitWord() {
   flashEl.textContent = '';
   if (settings.mode === 'room' && !net?.hosting) {
     
-    playUi('tap');
+    sfx.play('word');
     net?.propose({ kind: 'word', text: res.token });
     return;
   }
@@ -427,8 +433,8 @@ function finished() {
   const w = winner(game);
   const mine = seatOf(state, me());
   const result = state.seats[w] === me() ? 'won' : 'lost';
-  if (settings.mode !== 'local' && mine >= 0) playUi(result === 'won' ? 'trophy' : 'error');
-  else playUi('trophy');
+  if (settings.mode !== 'local' && mine >= 0) sfx.play(result === 'won' ? 'win' : 'lose');
+  else sfx.play('win');
   const turn = seatOwner() && mine >= 0 ? reportGate.take() : null;
   if (turn) {
     const arg = twoSeatMatch({
@@ -577,7 +583,10 @@ function adopt(incoming) {
     settings.wordLang = match.lang;
     settings.link = match.link;
     settings.timer = match.timer;
-    if (incoming.log.length && before && incoming.log.length > before.log.length) playUi('tap');
+    
+    
+    if (incoming.log.length && before && incoming.log.length > before.log.length
+      && !String(incoming.log[incoming.log.length - 1]).startsWith('!') && isMyTurn(state, me())) sfx.play('wordThem');
     afterChange();
   }).catch(() => {});
 }
