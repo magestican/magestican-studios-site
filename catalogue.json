@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "fb79b355-20261014T144518Z",
+ "buildId": "468f995d-20261015T033225Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -293,6 +293,38 @@
    "bytes": 84310
   },
   {
+   "id": "minesweeper",
+   "statsId": "minesweeper",
+   "title": "Sweepwise",
+   "tagline": "Classic Minesweeper, and the first click always opens an area.",
+   "description": "Free Minesweeper: Beginner, Intermediate, Expert and custom boards, a safe first click, flags, chording and best times. No download, no account.",
+   "dir": "play/minesweeper",
+   "path": "play/minesweeper/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/minesweeper.html",
+   "orientation": "any",
+   "players": "1",
+   "online": false,
+   "offline": true,
+   "cover": "assets/covers/minesweeper-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/minesweeper/0.webp",
+    "assets/shots/minesweeper/1.webp"
+   ],
+   "accent": "#1D4E89",
+   "glyph": "minesweeper",
+   "pack": "family",
+   "age": 6,
+   "ageNote": null,
+   "order": 9,
+   "addedAt": "2026-10-15",
+   "bytes": 31029
+  },
+  {
    "id": "farmy-moon-life",
    "statsId": "farmy-moon-life",
    "title": "Moon Life",
@@ -320,7 +352,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 11,
+   "order": 12,
    "addedAt": "2026-09-14",
    "bytes": 778880
   },
@@ -351,7 +383,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 12,
+   "order": 13,
    "addedAt": "2026-09-25",
    "bytes": 12519979
   },
@@ -383,7 +415,7 @@
    "pack": "family",
    "age": 9,
    "ageNote": null,
-   "order": 13,
+   "order": 14,
    "addedAt": "2026-09-30",
    "bytes": 80928385
   },
@@ -415,7 +447,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 15,
+   "order": 16,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -447,7 +479,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 16,
+   "order": 17,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -479,7 +511,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 17,
+   "order": 18,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -511,7 +543,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 18,
+   "order": 19,
    "addedAt": "2026-09-21",
    "bytes": 211685
   }

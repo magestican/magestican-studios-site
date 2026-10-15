@@ -58,6 +58,10 @@ export const GAME_NAMES = Object.freeze({
   'farmy-five': { en: 'Guesswise', es: 'Guesswise: Adivina la Palabra', pt: 'Guesswise: Adivinhe a Palavra', ja: 'Guesswise 単語当て', ko: 'Guesswise 단어 맞추기', id: 'Guesswise: Tebak Kata', vi: 'Guesswise: Đoán Chữ' },
   'farmy-hive': { en: 'Combword', es: 'Combword: Panal de Letras', pt: 'Combword: Colmeia de Letras', ja: 'Combword ハチの巣パズル', ko: 'Combword 벌집 퍼즐', id: 'Combword: Rangkai Kata', vi: 'Combword: Ghép Chữ' },
   'farmy-herds': { en: 'Groupseek', es: 'Groupseek: Grupos de Palabras', pt: 'Groupseek: Grupos de Palavras', ja: 'Groupseek 仲間分け', ko: 'Groupseek 단어 묶기', id: 'Groupseek: Kelompok Kata', vi: 'Groupseek: Nhóm Từ' },
+  
+  
+  
+  minesweeper: { en: 'Sweepwise', es: 'Sweepwise: Buscaminas', pt: 'Sweepwise: Campo Minado', tl: 'Sweepwise: Minesweeper', ja: 'Sweepwise マインスイーパー', ko: 'Sweepwise 지뢰찾기', id: 'Sweepwise: Minesweeper', vi: 'Sweepwise: Dò Mìn' },
   'farmy-furrows': { en: 'Gridseek', es: 'Gridseek: Sopa de Letras', pt: 'Gridseek: Caça-Palavras', ja: 'Gridseek 単語探し', ko: 'Gridseek 단어 찾기', id: 'Gridseek: Cari Kata', vi: 'Gridseek: Tìm Chữ' },
 });
 

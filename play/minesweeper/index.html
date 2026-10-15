@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Sweepwise - free Minesweeper online, no download</title>
+  <meta name="description" content="Sweepwise is free Minesweeper in your browser: Beginner, Intermediate, Expert and custom boards, a first click that always opens an area, flags, chording, a timer and your best times. No download, no account.">
+  <meta name="keywords" content="sweepwise, minesweeper online, free minesweeper, minesweeper no download, buscaminas online, campo minado online, マインスイーパー オンライン, 지뢰찾기, dò mìn">
+  <meta name="build" content="468f995d-20261015T033225Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/minesweeper/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Sweepwise - free Minesweeper online">
+  <meta property="og:description" content="Classic Minesweeper in the browser: three difficulties and custom boards, a safe first click, chording and best times. No download.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/minesweeper/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/minesweeper.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Sweepwise - free Minesweeper online">
+  <meta name="twitter:description" content="Classic Minesweeper in the browser: three difficulties and custom boards, a safe first click, chording and best times.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/minesweeper.jpg">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  <link rel="stylesheet" href="./src/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Sweepwise",
+    "alternateName": ["Minesweeper", "Buscaminas", "Campo Minado", "マインスイーパー", "지뢰찾기", "Dò Mìn"],
+    "url": "https://magesticanstudios.com/play/minesweeper/",
+    "description": "Classic Minesweeper in the browser: Beginner 9x9, Intermediate 16x16, Expert 16x30 and custom boards, a first click that always opens an area, flags, chording, a timer and best times kept on your device. Playable with a mouse, a touch screen or the keyboard, in eight languages.",
+    "image": "https://magesticanstudios.com/assets/og/minesweeper.jpg",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Puzzle", "Logic", "Casual"],
+    "gamePlatform": ["Web browser"],
+    "playMode": ["SinglePlayer"],
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": ["en", "es", "pt-BR", "tl", "ja", "ko", "id", "vi"],
+    "datePublished": "2026-10-15",
+    "accessibilityFeature": ["highContrastDisplay", "structuralNavigation"],
+    "accessibilityHazard": ["noFlashingHazard", "noMotionSimulationHazard"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+</head>
+<body>
+  
+
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+    <a class="studio-back" id="rules-link" href="/minesweeper.html" data-t="back">How to play</a>
+    <button id="music-btn" class="studio-music" type="button"
+            aria-pressed="false" aria-label="Play music" title="Play music">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        <path class="mg-note" d="M18 6.5 L27 4.5 V17.2" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="mg-note" cx="15.4" cy="18.6" r="3.4" fill="currentColor"/>
+        <circle class="mg-note" cx="24.4" cy="16.6" r="3.4" fill="currentColor"/>
+        <path d="M3 12.5 H6.5 L11 8.5 V23.5 L6.5 19.5 H3 Z" fill="currentColor"/>
+        <path class="mg-slash" d="M4 27 L28 5" fill="none" stroke="currentColor"
+              stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <main class="sw">
+    <h1 data-game-name>Sweepwise</h1>
+
+    <div class="sw-levels" role="group" aria-label="Difficulty">
+      <button class="sw-btn" type="button" data-level="beginner" data-t="beginner" aria-pressed="true">Beginner</button>
+      <button class="sw-btn" type="button" data-level="intermediate" data-t="intermediate" aria-pressed="false">Intermediate</button>
+      <button class="sw-btn" type="button" data-level="expert" data-t="expert" aria-pressed="false">Expert</button>
+      <button class="sw-btn" type="button" data-level="custom" data-t="custom" aria-pressed="false">Custom</button>
+    </div>
+
+    <form class="sw-custom" id="custom" hidden>
+      <label><span data-t="rows">Rows</span> <input name="rows" type="number" min="5" max="30" value="12" inputmode="numeric"></label>
+      <label><span data-t="cols">Columns</span> <input name="cols" type="number" min="5" max="30" value="12" inputmode="numeric"></label>
+      <label><span data-t="mines">Mines</span> <input name="mines" type="number" min="1" max="891" value="24" inputmode="numeric"></label>
+      <button class="sw-btn" type="submit" data-t="start">Start</button>
+    </form>
+
+    <div class="sw-status">
+      <div class="sw-counter"><span data-t="mines">Mines</span><output id="mines-left">10</output></div>
+      <button class="sw-face" id="new-game" type="button" aria-label="New game" title="New game">🙂</button>
+      <div class="sw-counter"><span data-t="time">Time</span><output id="clock">0</output></div>
+    </div>
+
+    <div class="sw-wrap">
+      <div id="board" class="sw-board" role="grid" aria-label="Sweepwise"></div>
+    </div>
+
+    <div class="sw-foot">
+      <button class="sw-btn" id="mode" type="button" aria-pressed="false"><span aria-hidden="true">🚩</span> <span data-t="flag">Flag</span></button>
+      <span class="sw-best"><span data-t="bestLabel">Best</span>: <output id="best">-</output></span>
+    </div>
+    <p class="sw-message" id="message" role="status" aria-live="polite"></p>
+    <p class="sw-help" data-t="help">Tap a square to dig. Right-click, long-press or use Flag mode to mark a mine. Tap a number whose flags are all placed to open around it.</p>
+  </main>
+
+  <noscript>
+    <p>Sweepwise is Minesweeper and needs JavaScript; there is nothing to download.
+    <a href="/minesweeper.html">How to play</a>.</p>
+  </noscript>
+
+  <script type="module" src="./src/main.js?v=468f995d-20261015T033225Z"></script>
+</body>
+</html>

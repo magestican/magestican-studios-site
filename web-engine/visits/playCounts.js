@@ -128,6 +128,7 @@ export const COUNTED_GAME_IDS = Object.freeze([
   'farmy-chess',
   'farmy-checkers',
   'farmy-ludo',
+  'minesweeper',
   'zelakas',
   '2d-fighter-ex',
   

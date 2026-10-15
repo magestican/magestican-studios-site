@@ -109,6 +109,7 @@
       <a href="/farmy-chess.html">Rookwise</a>
       <a href="/farmy-checkers.html">Jumpwise</a>
       <a href="/farmy-ludo.html">Pawnrush</a>
+      <a href="/minesweeper.html">Sweepwise</a>
       <a href="/zelakas-in-space.html">Zelakas</a>
       <a href="/2d-fighter-ex.html">Fighter EX</a>
       <a href="/farmy-moon-life.html">Moon Life</a>
@@ -157,6 +158,7 @@
         <li><a href="#farmy-chess">Rookwise</a> &mdash; the whole game, no clock, take a move back</li>
         <li><a href="#farmy-checkers">Jumpwise</a> &mdash; English draughts, sheep against cows</li>
         <li><a href="#farmy-ludo">Pawnrush</a> &mdash; four teams, each one a shape as well as a colour</li>
+        <li><a href="#minesweeper">Sweepwise</a> &mdash; Minesweeper with a safe first click and chording</li>
         <li><a href="#zelakas-in-space">Zelakas In Space</a> &mdash; 2014 arcade shooter, running on an emulator</li>
         <li><a href="#fighter-ex">2D Fighter EX</a> &mdash; an animation experiment, and not a game</li>
         <li><a href="#farmy-moon-life">Moon Life</a> &mdash; cozy life game on a tiny moon, reviewed</li>
@@ -431,6 +433,38 @@
       <p><a class="rev-play" href="/play/farmy-ludo/">Play Pawnrush &rarr;</a> &middot; <a href="/farmy-ludo.html">More about it</a></p>
     </article>
 
+    <article class="rev-game" id="minesweeper">
+      <h2>Sweepwise</h2>
+      <p class="mag-meta">
+        <span class="mag-tag">Playable now</span>
+        <span>Minesweeper &middot; Beginner to Expert, or custom &middot; best times</span>
+      </p>
+
+      <h3>What it is</h3>
+      <p>Classic Minesweeper. Beginner is 9 by 9 with 10 mines, Intermediate 16 by 16 with 40, Expert 16 by 30 with 99, and Custom takes any board from 5 to 30 squares a side. Open squares, read the numbers, flag the mines, and clear every safe square to win.</p>
+
+      <h3>What works</h3>
+      <ul>
+        <li><strong>The first click always opens an area.</strong> The mines are laid after it, never on that square or the eight around it, so a game never starts with a lone number and a guess.</li>
+        <li><strong>Chording is in.</strong> Click a number whose flags are all placed and the rest of its neighbours open at once &mdash; the move that makes Expert playable at speed.</li>
+        <li><strong>The board is real buttons, not a picture.</strong> It stays sharp at any zoom, the keyboard works (arrows, Enter, F), and a screen reader hears each square&rsquo;s row, column and number.</li>
+        <li><strong>Expert turns upright on a phone,</strong> so the squares stay big enough to tap instead of shrinking to a strip.</li>
+      </ul>
+
+      <h3>What is wrong with it</h3>
+      <ul>
+        <li><strong>Boards can still need a guess later on.</strong> Only the first click is protected; like the original, a board can reach a fifty-fifty that no logic resolves.</li>
+        <li><strong>Expert on a phone scrolls.</strong> Thirty rows of tappable squares are taller than most phone screens.</li>
+        <li><strong>Best times live on one device.</strong> There is no account, so a record set on a laptop is not on your phone.</li>
+      </ul>
+
+      <div class="rev-verdict">
+        <strong>Our verdict</strong>
+        <p>A clean, fast Minesweeper with the two things a good one needs &mdash; a safe opening and chording &mdash; in eight languages. It does not yet promise boards that never need a guess.</p>
+      </div>
+      <p><a class="rev-play" href="/play/minesweeper/">Play Sweepwise &rarr;</a> &middot; <a href="/minesweeper.html">More about it</a></p>
+    </article>
+
     <article class="rev-game" id="zelakas-in-space">
       <h2>Zelakas In Space</h2>
       <p class="mag-meta">
@@ -606,7 +640,7 @@
     initAnalytics({ page: 'reviews' });
     trackPlayClicks();
   </script>
-  <script type="module" src="./assets/studioBanner.js?v=fb79b355-20261014T144518Z"></script>
+  <script type="module" src="./assets/studioBanner.js?v=468f995d-20261015T033225Z"></script>
   <script>
     
     
