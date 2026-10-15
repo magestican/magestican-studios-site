@@ -182,7 +182,7 @@ export function sortHand(hand, { deck = 'spanish40', key } = {}) {
 
 
 
-export function trickWinner(plays, strengthOf, teamOf = (s) => s) {
+export function trickWinner(plays, strengthOf, sideOf = (s) => s) {
   let best = -1;
   let top = -Infinity;
   plays.forEach((p, i) => {
@@ -190,7 +190,7 @@ export function trickWinner(plays, strengthOf, teamOf = (s) => s) {
     if (v > top) { top = v; best = i; }
   });
   if (best < 0) return { best: -1, tie: false };
-  const teams = new Set(plays.filter((p) => strengthOf(p.card) === top).map((p) => teamOf(p.seat)));
+  const teams = new Set(plays.filter((p) => strengthOf(p.card) === top).map((p) => sideOf(p.seat)));
   return { best, tie: teams.size > 1 };
 }
 
@@ -240,6 +240,73 @@ export function isRun(cards, { deck = 'french52', isWild = () => false, maxWild 
   for (const s of sets) {
     const r = tryWith(s);
     if (r) return r;
+  }
+  return { ok: false };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function layRun(cards, { deck = 'french52', isWild = () => false, maxWild = 1, min = 3 } = {}) {
+  const d = typeof deck === 'string' ? DECKS[deck] : deck;
+  if (!Array.isArray(cards) || cards.length < min) return { ok: false };
+  if (new Set(cards).size !== cards.length) return { ok: false };
+  const parsed = cards.map((id) => ({ id, p: parseCard(id, d) }));
+  if (parsed.some((x) => !x.p)) return { ok: false };
+  const top = d.ranks.length + 1; 
+  const jokers = [];
+  const cand = [];
+  parsed.forEach((x, i) => { if (x.p.joker) jokers.push(i); else if (isWild(x.id)) cand.push(i); });
+  if (jokers.length > maxWild) return { ok: false };
+  
+  const wildSets = [];
+  const room = maxWild - jokers.length;
+  const pick = (from, k, acc) => {
+    if (acc.length === k) { wildSets.push(new Set([...jokers, ...acc])); return; }
+    for (let i = from; i < cand.length; i++) pick(i + 1, k, [...acc, cand[i]]);
+  };
+  for (let k = 0; k <= Math.min(room, cand.length); k++) pick(0, k, []);
+  for (const ws of wildSets) {
+    const nat = parsed.filter((_, i) => !ws.has(i));
+    const wild = parsed.filter((_, i) => ws.has(i));
+    if (!nat.length) continue;
+    const suit = nat[0].p.suit;
+    if (nat.some((x) => x.p.suit !== suit)) continue;
+    const aces = nat.filter((x) => x.p.rank === d.ranks[0]);
+    const fixed = nat.filter((x) => x.p.rank !== d.ranks[0]).map((x) => ({ id: x.id, pos: d.ranks.indexOf(x.p.rank) + 1 }));
+    for (let mask = 0; mask < (1 << aces.length); mask++) {
+      const placed = fixed.concat(aces.map((x, k) => ({ id: x.id, pos: (mask >> k) & 1 ? top : 1 })));
+      const posSet = new Set(placed.map((x) => x.pos));
+      if (posSet.size !== placed.length) continue;
+      const ps = [...posSet].sort((a, b) => a - b);
+      let lo = ps[0];
+      let hi = ps[ps.length - 1];
+      const gaps = hi - lo + 1 - placed.length;
+      if (gaps > wild.length) continue;
+      let extra = wild.length - gaps;
+      while (extra > 0 && hi < top) { hi++; extra--; }
+      while (extra > 0 && lo > 1) { lo--; extra--; }
+      if (extra > 0) continue;
+      const byPos = new Map(placed.map((x) => [x.pos, x.id]));
+      const spare = wild.map((x) => x.id);
+      const order = [];
+      const wildAt = [];
+      for (let pos = lo; pos <= hi; pos++) {
+        if (byPos.has(pos)) order.push(byPos.get(pos));
+        else { order.push(spare.shift()); wildAt.push(pos); }
+      }
+      return { ok: true, suit, low: lo, high: hi, order, wilds: wild.map((x) => x.id), wildAt };
+    }
   }
   return { ok: false };
 }

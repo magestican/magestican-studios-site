@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "a478f227-20261015T100343Z",
+ "buildId": "352afcd3-20261015T111145Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -421,6 +421,38 @@
    "bytes": 69292
   },
   {
+   "id": "buraco",
+   "statsId": "buraco",
+   "title": "Buracowise",
+   "tagline": "Sequences, mortos and canastras: the Brazilian card game against the computer or friends.",
+   "description": "Free Brazilian buraco with two decks and jokers: build sequences, take the morto, close clean canastras and go out. Three computer levels, 2 vs 2 with a computer partner, or friends in a room.",
+   "dir": "play/buraco",
+   "path": "play/buraco/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/buraco.html",
+   "orientation": "any",
+   "players": "1-4",
+   "online": true,
+   "offline": true,
+   "cover": "assets/covers/buraco-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/buraco/0.webp",
+    "assets/shots/buraco/1.webp"
+   ],
+   "accent": "#1F6E4A",
+   "glyph": "buraco",
+   "pack": "family",
+   "age": 8,
+   "ageNote": null,
+   "order": 13,
+   "addedAt": "2026-10-15",
+   "bytes": 84620
+  },
+  {
    "id": "farmy-moon-life",
    "statsId": "farmy-moon-life",
    "title": "Moon Life",
@@ -448,7 +480,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 15,
+   "order": 16,
    "addedAt": "2026-09-14",
    "bytes": 778880
   },
@@ -479,7 +511,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 16,
+   "order": 17,
    "addedAt": "2026-09-25",
    "bytes": 12519979
   },
@@ -511,7 +543,7 @@
    "pack": "family",
    "age": 9,
    "ageNote": null,
-   "order": 17,
+   "order": 18,
    "addedAt": "2026-09-30",
    "bytes": 80928385
   },
@@ -543,7 +575,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 19,
+   "order": 20,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -575,7 +607,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 20,
+   "order": 21,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -607,7 +639,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 21,
+   "order": 22,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -639,7 +671,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 22,
+   "order": 23,
    "addedAt": "2026-09-21",
    "bytes": 211685
   }

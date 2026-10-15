@@ -69,6 +69,10 @@ export const GAME_NAMES = Object.freeze({
   
   
   truco: { en: 'Trucowise', es: 'Trucowise: Truco Argentino', pt: 'Trucowise: Truco', tl: 'Trucowise: Truco', ja: 'Trucowise トゥルーコ', ko: 'Trucowise 트루코', id: 'Trucowise: Truco', vi: 'Trucowise: Truco' },
+  
+  
+  
+  buraco: { en: 'Buracowise', es: 'Buracowise: Burako', pt: 'Buracowise: Buraco', tl: 'Buracowise: Buraco', ja: 'Buracowise ブラーコ', ko: 'Buracowise 부라코', id: 'Buracowise: Buraco', vi: 'Buracowise: Buraco' },
   minesweeper: { en: 'Sweepwise', es: 'Sweepwise: Buscaminas', pt: 'Sweepwise: Campo Minado', tl: 'Sweepwise: Minesweeper', ja: 'Sweepwise マインスイーパー', ko: 'Sweepwise 지뢰찾기', id: 'Sweepwise: Minesweeper', vi: 'Sweepwise: Dò Mìn' },
   'farmy-furrows': { en: 'Gridseek', es: 'Gridseek: Sopa de Letras', pt: 'Gridseek: Caça-Palavras', ja: 'Gridseek 単語探し', ko: 'Gridseek 단어 찾기', id: 'Gridseek: Cari Kata', vi: 'Gridseek: Tìm Chữ' },
 });
