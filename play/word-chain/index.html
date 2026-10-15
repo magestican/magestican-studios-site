@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Relaywise - free word chain online</title>
+  <meta name="description" content="Relaywise is a free word chain game in your browser: start your word where the last one ended. Eight languages, three computer levels, a friend room and a turn timer.">
+  <meta name="keywords" content="relaywise, word chain, word chain game online, nối từ, しりとり, 끝말잇기, sambung kata, palabras encadenadas, palavras encadeadas">
+  <meta name="build" content="ef154f62-20261015T083300Z">
+  <link rel="canonical" href="https://magesticanstudios.com/play/word-chain/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Play Relaywise - free word chain online">
+  <meta property="og:description" content="Start your word where the last one ended: play the computer at three levels, a friend on the same device, or a friend in a room. Eight languages.">
+  <meta property="og:url" content="https://magesticanstudios.com/play/word-chain/">
+  <meta property="og:image" content="https://magesticanstudios.com/assets/og/word-chain.jpg">
+  <meta property="og:site_name" content="Magestican Studios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Relaywise - free word chain online">
+  <meta name="twitter:description" content="Start your word where the last one ended: the computer at three levels, a friend on one device, or a friend room.">
+  <meta name="twitter:image" content="https://magesticanstudios.com/assets/og/word-chain.jpg">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  
+
+  <link rel="modulepreload" href="../../web-engine/visits/visits.js">
+  <link rel="stylesheet" href="./src/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Relaywise",
+    "alternateName": ["Word Chain", "Nối Từ", "しりとり", "끝말잇기", "Sambung Kata", "Palabras Encadenadas", "Palavras Encadeadas"],
+    "url": "https://magesticanstudios.com/play/word-chain/",
+    "description": "A word chain game in the browser: every word starts where the last one ended. Vietnamese nối từ, Japanese shiritori, Korean kkeutmal-itgi with the initial-sound rule, Indonesian sambung kata, Spanish, Portuguese, Tagalog and English, with Wiktionary dictionaries. Play the computer at three levels, two players on one device, or a friend in a peer-to-peer room.",
+    "image": "https://magesticanstudios.com/assets/og/word-chain.jpg",
+    "publisher": { "@type": "Organization", "name": "Magestican Studios",
+                   "url": "https://magesticanstudios.com" },
+    "genre": ["Word", "Puzzle", "Casual"],
+    "gamePlatform": ["Web browser"],
+    "playMode": ["SinglePlayer", "MultiPlayer"],
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
+    "operatingSystem": "Any (browser)",
+    "applicationCategory": "Game",
+    "inLanguage": ["en", "es", "pt-BR", "tl", "ja", "ko", "id", "vi"],
+    "datePublished": "2026-10-15",
+    "accessibilityFeature": ["highContrastDisplay", "structuralNavigation"],
+    "accessibilityHazard": ["noFlashingHazard", "noMotionSimulationHazard"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock" }
+  }
+  </script>
+</head>
+<body>
+  
+
+  <div class="studio-bar">
+    <a class="studio-home" href="/" aria-label="Magestican Studios home">
+      <img src="/assets/logo.svg" width="36" height="36" alt="">
+      <span>Magestican Studios</span>
+    </a>
+    <a class="studio-back" id="rules-link" href="/word-chain.html" data-t="back">How to play</a>
+    <button id="music-btn" class="studio-music" type="button"
+            aria-pressed="false" aria-label="Play music" title="Play music">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+        <path class="mg-note" d="M18 6.5 L27 4.5 V17.2" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="mg-note" cx="15.4" cy="18.6" r="3.4" fill="currentColor"/>
+        <circle class="mg-note" cx="24.4" cy="16.6" r="3.4" fill="currentColor"/>
+        <path d="M3 12.5 H6.5 L11 8.5 V23.5 L6.5 19.5 H3 Z" fill="currentColor"/>
+        <path class="mg-slash" d="M4 27 L28 5" fill="none" stroke="currentColor"
+              stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <main class="wc">
+    <h1 data-game-name>Relaywise</h1>
+
+    <div class="wc-row" role="group" aria-label="Mode">
+      <button class="wc-btn" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
+      <button class="wc-btn" type="button" data-mode="local" data-t="local" aria-pressed="false">Two players</button>
+      <button class="wc-btn" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
+    </div>
+
+    <div class="wc-row" id="bot-row" role="group" aria-label="Level">
+      <span class="wc-label" data-t="level">Level</span>
+      <button class="wc-btn" type="button" data-level="easy" data-t="easy" aria-pressed="false">Easy</button>
+      <button class="wc-btn" type="button" data-level="medium" data-t="medium" aria-pressed="true">Medium</button>
+      <button class="wc-btn" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
+    </div>
+
+    <div class="wc-row">
+      <label class="wc-row"><span class="wc-label" data-t="wordsIn">Words</span>
+        <select class="wc-select" id="word-lang"></select>
+      </label>
+      <label class="wc-row" id="link-wrap"><span class="wc-label" data-t="linkLabel">Link</span>
+        <select class="wc-select" id="link"></select>
+      </label>
+      <label class="wc-row"><span class="wc-label" data-t="timerLabel">Timer</span>
+        <select class="wc-select" id="timer"></select>
+      </label>
+    </div>
+
+    <section class="wc-room" id="room" hidden aria-label="Room">
+      <div class="wc-row" id="room-start">
+        <button class="wc-btn" type="button" id="create-room" data-t="createRoom">Create a room</button>
+        <form class="wc-row" id="join-form">
+          <input class="wc-code-input" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
+          <button class="wc-btn" type="submit" data-t="join">Join</button>
+        </form>
+      </div>
+      <div class="wc-row" id="room-live" hidden>
+        <span class="wc-label" data-t="roomCodeLabel">Code</span> <output class="wc-code" id="room-code">-</output>
+        <button class="wc-btn" type="button" id="copy-link" data-t="copyLink">Share link</button>
+        <button class="wc-btn" type="button" id="leave-room" data-t="leave">Leave room</button>
+      </div>
+    </section>
+
+    <p class="wc-status" id="status" role="status" aria-live="polite"></p>
+
+    <div class="wc-play">
+      <div class="wc-need" id="need" aria-live="polite"></div>
+      <div class="wc-clock" id="clock" aria-hidden="true"><div class="wc-clock-bar" id="clock-bar"></div></div>
+      <form class="wc-form" id="word-form" autocomplete="off">
+        <label class="visually-hidden" for="word" data-t="inputLabel">Your word</label>
+        <input class="wc-input" id="word" name="word" autocomplete="off" autocapitalize="off"
+               autocorrect="off" spellcheck="false" enterkeyhint="send" maxlength="40"
+               placeholder="Type a word" data-t-ph="inputPh">
+        <button class="wc-btn wc-go" type="submit" id="send" data-t="play">Play</button>
+      </form>
+      <p class="wc-flash" id="flash" aria-live="assertive"></p>
+      <h2 class="wc-chain-title"><span data-t="chainLabel">The chain</span> <span class="wc-count" id="count"></span></h2>
+      <ol class="wc-chain" id="chain" reversed></ol>
+    </div>
+
+    <div class="wc-foot">
+      <button class="wc-btn" id="give-up" type="button" data-t="giveUp">Give up</button>
+      <button class="wc-btn" id="new-game" type="button" data-t="newGame">New game</button>
+    </div>
+    <p class="wc-help"><span data-t="help">Each word must start where the last one ended. No repeats - and if your time runs out, you lose.</span>
+      <span class="wc-example" id="example"></span> <span id="n-loses" hidden data-t="nLoses">A word ending in ん loses.</span></p>
+    <p class="wc-credit"><a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license noopener" data-t="credit">Word lists: Wiktionary contributors, CC BY-SA 4.0.</a></p>
+  </main>
+
+  <noscript>
+    <p>Relaywise is a word chain game and needs JavaScript; there is nothing to download.
+    <a href="/word-chain.html">How to play</a>.</p>
+  </noscript>
+
+  
+
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=ef154f62-20261015T083300Z"></script>
+  <script type="module" src="./src/main.js?v=ef154f62-20261015T083300Z"></script>
+</body>
+</html>

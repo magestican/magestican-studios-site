@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "b7edacbc-20261015T055250Z",
+ "buildId": "ef154f62-20261015T083300Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -357,6 +357,38 @@
    "bytes": 53236
   },
   {
+   "id": "word-chain",
+   "statsId": "word-chain",
+   "title": "Relaywise",
+   "tagline": "Start your word where the last one ended - against the computer or a friend.",
+   "description": "Free word chain in eight languages: nối từ, shiritori, 끝말잇기, sambung kata, palabras encadenadas. Three computer levels, two players on one device or a friend room, with a turn timer.",
+   "dir": "play/word-chain",
+   "path": "play/word-chain/index.html",
+   "query": "",
+   "webUrl": "https://magesticanstudios.com/word-chain.html",
+   "orientation": "any",
+   "players": "1-2",
+   "online": true,
+   "offline": true,
+   "cover": "assets/covers/word-chain-16x9.webp",
+   "focus": [
+    0.5,
+    0.5
+   ],
+   "shots": [
+    "assets/shots/word-chain/0.webp",
+    "assets/shots/word-chain/1.webp"
+   ],
+   "accent": "#1D4E89",
+   "glyph": "word-chain",
+   "pack": "family",
+   "age": 6,
+   "ageNote": null,
+   "order": 11,
+   "addedAt": "2026-10-15",
+   "bytes": 64691
+  },
+  {
    "id": "farmy-moon-life",
    "statsId": "farmy-moon-life",
    "title": "Moon Life",
@@ -384,7 +416,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 13,
+   "order": 14,
    "addedAt": "2026-09-14",
    "bytes": 778880
   },
@@ -415,7 +447,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 14,
+   "order": 15,
    "addedAt": "2026-09-25",
    "bytes": 12519979
   },
@@ -447,7 +479,7 @@
    "pack": "family",
    "age": 9,
    "ageNote": null,
-   "order": 15,
+   "order": 16,
    "addedAt": "2026-09-30",
    "bytes": 80928385
   },
@@ -479,7 +511,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 17,
+   "order": 18,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -511,7 +543,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 18,
+   "order": 19,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -543,7 +575,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 19,
+   "order": 20,
    "addedAt": "2026-09-21",
    "bytes": 211685
   },
@@ -575,7 +607,7 @@
    "pack": "family",
    "age": 4,
    "ageNote": null,
-   "order": 20,
+   "order": 21,
    "addedAt": "2026-09-21",
    "bytes": 211685
   }
