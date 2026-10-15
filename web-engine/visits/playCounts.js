@@ -131,6 +131,7 @@ export const COUNTED_GAME_IDS = Object.freeze([
   'minesweeper',
   'gomoku',
   'word-chain',
+  'truco',
   'zelakas',
   '2d-fighter-ex',
   
