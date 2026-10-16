@@ -226,6 +226,23 @@ button.bu-meld { cursor: pointer; }
 
 @media (max-width: 560px) {
   .bu-btn { padding: 6px 10px; font-size: 15px; }
-  .bu-hand .bu-card { margin-right: -26px; }
   .bu-meld-cards .bu-card + .bu-card { margin-left: -22px; }
+  
+
+
+
+  .bu-score-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bu-score-n { font-size: 17px; min-width: 0; }
+  .bu-morto-tag { flex-basis: 100%; font-size: 11px; padding: 0 6px; }
+  .bu-score-to { flex-basis: 100%; text-align: center; font-size: 12px; }
+  .bu-score { gap: 4px 6px; }
+  .bu-score-row { flex: 1 1 40%; min-width: 0; flex-wrap: wrap; gap: 0 6px; padding: 3px 8px; }
+  .bu-team { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; }
+  .bu-team-head { font-size: 13px; margin: 0; }
+  
+  .bu-meld-list:has(.bu-meld) { flex-basis: 100%; }
+  .bu-empty { padding: 0 4px; font-size: 12px; }
+  .bu-actions { min-height: 40px; }
+  .bu-hand { padding: 14px 44px 4px 4px; row-gap: 4px; }
+  .bu-hand .bu-card { margin-right: -40px; }
 }

@@ -9,8 +9,8 @@
       "genre": "bossa-nova",
       "file": "buraco-main.webm",
       "loopSamples": 2880000,
-      "seed": 302430492,
-      "lufs": -14.3
+      "seed": 378409387,
+      "lufs": -13.1
     },
     {
       "id": "local",
@@ -19,8 +19,8 @@
       "genre": "pagode",
       "file": "buraco-local.webm",
       "loopSamples": 3686400,
-      "seed": 1166475220,
-      "lufs": -14.1
+      "seed": 1768505516,
+      "lufs": -15.2
     }
   ]
 }

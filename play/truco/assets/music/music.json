@@ -9,8 +9,8 @@
       "genre": "tango",
       "file": "truco-main.webm",
       "loopSamples": 3124068,
-      "seed": 2066048181,
-      "lufs": -17.4
+      "seed": 871309261,
+      "lufs": -16.6
     },
     {
       "id": "local",
@@ -19,8 +19,8 @@
       "genre": "cumbia-villera",
       "file": "truco-local.webm",
       "loopSamples": 3840000,
-      "seed": 1917985803,
-      "lufs": -17.4
+      "seed": 1781874024,
+      "lufs": -17.6
     }
   ]
 }

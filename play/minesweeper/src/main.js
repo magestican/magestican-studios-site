@@ -17,6 +17,7 @@ import { reportMatch } from '../../../web-engine/progress/report.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
+import { foldSetup } from '../../shared/ui/setupFold.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -329,6 +330,8 @@ addEventListener('resize', () => {
 
 wireMusicButton({ music });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
+
+foldSetup({ stopAt: '.sw-status' });
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Sweepwise' });
 
 

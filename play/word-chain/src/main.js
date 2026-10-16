@@ -37,6 +37,7 @@ import { roomPresence } from '../../shared/net/roomPresence.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
+import { foldSetup } from '../../shared/ui/setupFold.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -694,6 +695,8 @@ $('copy-link').addEventListener('click', () => {
 
 wireMusicButton({ music });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
+
+foldSetup();
 mountLevelChip(document.querySelector('.studio-bar'), { share: 'Relaywise' });
 
 
