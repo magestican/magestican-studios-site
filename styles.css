@@ -34,7 +34,7 @@
 
   --gutter: clamp(20px, 5vw, 32px);
   --gap:    16px;
-  --inset:  14px;
+  --inset:  16px;
   --stack:  24px;
   
 
@@ -1404,7 +1404,9 @@ blockquote.pull {
 .slide-art img { object-fit: cover; display: block; }
 .slide-copy {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
-  display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 4px var(--inset);
+  
+
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 4px var(--inset);
   padding: 36px var(--inset) var(--inset);
   background: linear-gradient(rgba(20, 18, 15, 0), rgba(20, 18, 15, 0.88) 55%);
   color: var(--paper-lit);
@@ -1425,10 +1427,14 @@ blockquote.pull {
 .feature { position: relative; }
 
 
+
+
+
 .feature-dots {
-  position: absolute; top: 6px; left: 0; right: 0; z-index: 3;
-  display: flex; justify-content: center; gap: 2px; padding: 0; pointer-events: none;
+  position: static; z-index: 3;
+  display: flex; justify-content: center; gap: 2px; padding: 6px 0 0; min-height: 34px;
 }
+.feature-dots[hidden] { display: flex; visibility: hidden; }
 .feature-dots button { pointer-events: auto; }
 .feature-dots button::before { box-shadow: 0 0 0 1.5px rgba(20, 18, 15, 0.55); }
 .feature-dots button {
@@ -1446,6 +1452,9 @@ blockquote.pull {
   .slide { aspect-ratio: auto; max-height: none; }
   .slide:first-child { grid-row: span 2; }
   .slide:first-child .slide-name { font-size: 32px; }
+  
+
+  .slide:not(:first-child) .slide-line { display: none; }
   .feature-dots { display: none; }
 }
 
