@@ -25,7 +25,7 @@
 
 
 
-const BUILD = '064d6ae0-20261016T100933Z';
+const BUILD = '97a5cd90-20261016T105607Z';
 const CACHE = `magestican-${BUILD}`;
 
 
@@ -35,7 +35,9 @@ const CACHE = `magestican-${BUILD}`;
 const SHELL = [
   '/',
   '/offline.html',
-  '/styles.css',
+  
+  
+  `/styles.css?v=${BUILD}`,
   '/assets/logo.svg',
   '/assets/icon-192.png',
   '/manifest.webmanifest',

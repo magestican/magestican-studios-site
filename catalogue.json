@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "064d6ae0-20261016T100933Z",
+ "buildId": "97a5cd90-20261016T105607Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -163,7 +163,7 @@
    "ageNote": null,
    "order": 4,
    "addedAt": "2026-09-21",
-   "bytes": 96986
+   "bytes": 97014
   },
   {
    "id": "farmy-crosswords",
@@ -195,7 +195,7 @@
    "ageNote": null,
    "order": 5,
    "addedAt": "2026-09-04",
-   "bytes": 211779
+   "bytes": 211807
   },
   {
    "id": "farmy-chess",
@@ -227,7 +227,7 @@
    "ageNote": null,
    "order": 6,
    "addedAt": "2026-09-06",
-   "bytes": 90165
+   "bytes": 90193
   },
   {
    "id": "farmy-checkers",
@@ -259,7 +259,7 @@
    "ageNote": null,
    "order": 7,
    "addedAt": "2026-09-06",
-   "bytes": 83602
+   "bytes": 83630
   },
   {
    "id": "farmy-ludo",
@@ -290,7 +290,7 @@
    "ageNote": null,
    "order": 8,
    "addedAt": "2026-09-06",
-   "bytes": 84398
+   "bytes": 84426
   },
   {
    "id": "minesweeper",
@@ -322,7 +322,7 @@
    "ageNote": null,
    "order": 9,
    "addedAt": "2026-10-15",
-   "bytes": 3696379
+   "bytes": 3696407
   },
   {
    "id": "gomoku",
@@ -354,7 +354,7 @@
    "ageNote": null,
    "order": 10,
    "addedAt": "2026-10-15",
-   "bytes": 3622489
+   "bytes": 3622517
   },
   {
    "id": "word-chain",
@@ -386,7 +386,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 3880888
+   "bytes": 3880916
   },
   {
    "id": "truco",
@@ -418,7 +418,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-10-15",
-   "bytes": 3355691
+   "bytes": 3355719
   },
   {
    "id": "buraco",
@@ -450,7 +450,7 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-10-15",
-   "bytes": 3153245
+   "bytes": 3153273
   },
   {
    "id": "farmy-moon-life",
@@ -577,7 +577,7 @@
    "ageNote": null,
    "order": 20,
    "addedAt": "2026-09-21",
-   "bytes": 211779
+   "bytes": 211807
   },
   {
    "id": "farmy-hive",
@@ -609,7 +609,7 @@
    "ageNote": null,
    "order": 21,
    "addedAt": "2026-09-21",
-   "bytes": 211779
+   "bytes": 211807
   },
   {
    "id": "farmy-herds",
@@ -641,7 +641,7 @@
    "ageNote": null,
    "order": 22,
    "addedAt": "2026-09-21",
-   "bytes": 211779
+   "bytes": 211807
   },
   {
    "id": "farmy-furrows",
@@ -673,7 +673,7 @@
    "ageNote": null,
    "order": 23,
    "addedAt": "2026-09-21",
-   "bytes": 211779
+   "bytes": 211807
   }
  ]
 }
