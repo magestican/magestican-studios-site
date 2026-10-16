@@ -635,6 +635,9 @@
   </script>
   <link rel="stylesheet" href="./styles.css">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  
+
+  <script>try{var l=JSON.parse(localStorage.getItem('magestican.library.v1')||'null');if(l&&l.games&&Object.keys(l.games).length)document.documentElement.classList.add('has-library')}catch(e){}</script>
 </head>
 <body>
   <header class="site-header">
@@ -644,28 +647,10 @@
     </a>
     <nav>
       <a href="./#games">Games</a>
-      <a href="./farmyshoot.html">Splatbarn</a>
-      <a href="./farmy-uprising.html">Hoofrise</a>
-      <a href="./farmy-evil-hills.html">Evil Hills</a>
-      <a href="./farmykart.html">Kartzoom</a>
-      <a href="./farmy-tiles.html">Letterloft</a>
-      <a href="./farmy-crosswords.html">Wordburrow</a>
-      <a href="./farmy-chess.html">Rookwise</a>
-      <a href="./farmy-checkers.html">Jumpwise</a>
-      <a href="./farmy-ludo.html">Pawnrush</a>
-      <a href="./minesweeper.html">Sweepwise</a>
-      <a href="./gomoku.html">Gomowise</a>
-      <a href="./word-chain.html">Relaywise</a>
-      <a href="./truco.html">Trucowise</a>
-      <a href="./buraco.html">Buracowise</a>
-      <a href="./zelakas-in-space.html">Zelakas</a>
-      <a href="./2d-fighter-ex.html">Fighter EX</a>
-      <a href="./farmy-moon-life.html">Moon Life</a>
-      <a href="./silk-and-seam.html">Silk & Seam</a>
-      <a href="./dachis.html">Dachis</a>
+      <a href="./you.html">Your games</a>
       <a href="./for-remote-teams.html">For teams</a>
-      <a href="./about.html">About</a>
       <a href="./magazine/">Magazine</a>
+      <a href="./about.html">About</a>
       <a href="./reviews.html">Reviews</a>
     </nav>
     <details class="lang-switch"><summary aria-label="Language: English"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>EN</span></summary><ul><li><a href="/" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en" aria-current="page">English</a></li><li><a href="/es/" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl">Tagalog</a></li><li><a href="/ja/" hreflang="ja" onclick="try{localStorage.setItem('ms-lang','ja')}catch(e){}" lang="ja" data-lang="ja">日本語</a></li><li><a href="/ko/" hreflang="ko" onclick="try{localStorage.setItem('ms-lang','ko')}catch(e){}" lang="ko" data-lang="ko">한국어</a></li><li><a href="/id/" hreflang="id" onclick="try{localStorage.setItem('ms-lang','id')}catch(e){}" lang="id" data-lang="id">Bahasa Indonesia</a></li><li><a href="/vi/" hreflang="vi" onclick="try{localStorage.setItem('ms-lang','vi')}catch(e){}" lang="vi" data-lang="vi">Tiếng Việt</a></li></ul></details>
@@ -676,436 +661,209 @@
 
 
 
-  <div class="hero-band hero-band--tall">
-    <div class="scene" aria-hidden="true">
-      <span class="l-sun" data-par="0.16"></span>
-      <span class="l-clouds" data-par="0.13"></span>
-      <span class="l-ridge" data-par="0.09"></span>
-      <span class="l-hills" data-par="0.05"></span>
-      <span class="l-fence" data-par="-0.05"></span>
-    </div>
-    <div class="hero-inner">
-      <div class="hero-grid">
-        <div class="hero">
-          
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          <h1>Free browser games — no download, no signup</h1>
-          <p class="tagline"><span class="hand-underline">Procedural worlds, hand-drawn hearts.</span> Small games made by hand, from a seed — and browser games to play with friends, every one of them opening in the tab you are already in.</p>
-          <ul class="hero-facts">
-            <li>Free</li>
-            <li>No download</li>
-            <li>No signup</li>
-            <li>Any browser</li>
-          </ul>
-          <div class="cta-row">
-            <a class="cta cta-primary" href="/play/farmyshoot/">Play Splatbarn</a>
-            
-
-
-
-
-
-
-
-            <a class="cta cta-secondary" href="./#games">See all twenty games</a>
-          </div>
-        </div>
-        <figure class="hero-shot">
-          <a class="art-play" href="/play/farmyshoot/" aria-label="Play Splatbarn"><img src="./assets/shot-farmyshoot.webp" width="1024" height="576" fetchpriority="high" decoding="async"
-               alt="Splatbarn, Central Park Rink at dusk: a wooden bandstand on hex pavers, park lamps lit, a voxel city skyline behind it with lit windows"><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a>
-          <figcaption>Splatbarn — Central Park Rink at dusk, one of five voxel maps built from a seed. The same seed always builds the same city.</figcaption>
-        </figure>
-      </div>
-    </div>
-  </div>
 
   
-
-
-
-  <div id="live-now"></div>
+  <div class="chips" role="toolbar" aria-label="Filter games" hidden>
+    <label class="vh" for="game-search">Search games</label>
+    <input id="game-search" class="search" type="search" placeholder="Search" autocomplete="off">
+    <button class="chip" type="button" data-chip="all" aria-pressed="true">All</button>
+    <button class="chip" type="button" data-chip="fav" aria-pressed="false">Favourites</button>
+    <button class="chip" type="button" data-chip="board" aria-pressed="false">Board</button>
+    <button class="chip" type="button" data-chip="word" aria-pressed="false">Word</button>
+    <button class="chip" type="button" data-chip="card" aria-pressed="false">Card</button>
+    <button class="chip" type="button" data-chip="puzzle" aria-pressed="false">Puzzle</button>
+    <button class="chip" type="button" data-chip="action" aria-pressed="false">Action</button>
+    <button class="chip" type="button" data-chip="story" aria-pressed="false">Story &amp; sim</button>
+    <button class="chip" type="button" data-chip="two" aria-pressed="false">2-player</button>
+  </div>
+  
+  
+  <section class="feature" aria-label="Featured games">
+    <div class="feature-track">
+      <article class="slide" data-game="dachis">
+        <a class="slide-art" href="/play/dachis/" tabindex="-1" aria-hidden="true"><img src="./assets/covers/dachis-960.webp" width="960" height="540" fetchpriority="high" decoding="async" alt="Dachis"></a>
+        <div class="slide-copy">
+          <span class="tag-new">New</span>
+          <h2 class="slide-name"><a href="./dachis.html">Dachis</a></h2>
+          <p class="slide-line">A kid from 1992 New York falls onto an island of monster friends.</p>
+          <a class="cta cta-primary slide-play" href="/play/dachis/">Play now</a>
+        </div>
+      </article>
+      <article class="slide" data-game="minesweeper">
+        <a class="slide-art" href="/play/minesweeper/" tabindex="-1" aria-hidden="true"><img src="./assets/covers/minesweeper-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Sweepwise"></a>
+        <div class="slide-copy">
+          <span class="tag-new">New</span>
+          <h2 class="slide-name"><a href="./minesweeper.html">Sweepwise</a></h2>
+          <p class="slide-line">Classic Minesweeper, and the first click always opens an area.</p>
+          <a class="cta cta-primary slide-play" href="/play/minesweeper/">Play now</a>
+        </div>
+      </article>
+      <article class="slide" data-game="gomoku">
+        <a class="slide-art" href="/play/gomoku/" tabindex="-1" aria-hidden="true"><img src="./assets/covers/gomoku-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Gomowise"></a>
+        <div class="slide-copy">
+          <span class="tag-new">New</span>
+          <h2 class="slide-name"><a href="./gomoku.html">Gomowise</a></h2>
+          <p class="slide-line">Five in a row on a 15x15 board, against the computer or a friend.</p>
+          <a class="cta cta-primary slide-play" href="/play/gomoku/">Play now</a>
+        </div>
+      </article>
+      <article class="slide" data-game="word-chain">
+        <a class="slide-art" href="/play/word-chain/" tabindex="-1" aria-hidden="true"><img src="./assets/covers/word-chain-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Relaywise"></a>
+        <div class="slide-copy">
+          <span class="tag-new">New</span>
+          <h2 class="slide-name"><a href="./word-chain.html">Relaywise</a></h2>
+          <p class="slide-line">Start your word where the last one ended - against the computer or a friend.</p>
+          <a class="cta cta-primary slide-play" href="/play/word-chain/">Play now</a>
+        </div>
+      </article>
+      <article class="slide" data-game="truco">
+        <a class="slide-art" href="/play/truco/" tabindex="-1" aria-hidden="true"><img src="./assets/covers/truco-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Trucowise"></a>
+        <div class="slide-copy">
+          <span class="tag-new">New</span>
+          <h2 class="slide-name"><a href="./truco.html">Trucowise</a></h2>
+          <p class="slide-line">Envido, truco, quiero: the Argentine card game against the computer or friends.</p>
+          <a class="cta cta-primary slide-play" href="/play/truco/">Play now</a>
+        </div>
+      </article>
+    </div>
+    <div class="feature-dots" hidden></div>
+  </section>
+  
 
   <main>
+    
+
+    <div id="shelves" class="shelves" aria-live="polite"></div>
+
+    
+
+
+
+    <div id="live-now"></div>
+
+    
+
+
+
     <section id="games" class="games">
       <div class="section-head">
-        <h2>Games</h2>
-        
-
-
-
-
-
-
-        <p class="section-note">Eighteen you can play in this tab, right now. One reaches its title screen but no further, and one is still being built.</p>
+        <h1>Free browser games — no download, no signup</h1>
+        <p class="section-note">Eighteen games you can play in this tab, right now.</p>
       </div>
-      <hr class="wobble-rule">
-
       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      <div class="game-grid">
-        <article class="game-card game-teambonding reveal" data-game="team-bonding">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmyshoot/" aria-label="Play Splatbarn">
-            <img src="./assets/covers/farmyshoot-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmyshoot-960.webp 960w, ./assets/covers/farmyshoot-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Splatbarn: a chicken carrying the red flag across a snowy voxel farm, a sheep in the foreground and more farm animals behind">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Splatbarn</h3>
-            <p class="game-meta">3D voxel FPS · P2P multiplayer · WASD + mouse</p>
-            <p>A browser FPS with ice-drift movement, farm-animal soldiers, seeded voxel maps, and P2P networking (no server). Capture 5 flags to win — unless the losing team can solve an anagram in 10 seconds. Cow, chicken, pig, or sheep?</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/farmyshoot/">Play now →</a> · <a href="./farmyshoot.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-uprising reveal" data-game="farmy-uprising">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-uprising/" aria-label="Play Hoofrise">
-            <img src="./assets/covers/farmy-uprising-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-uprising-960.webp 960w, ./assets/covers/farmy-uprising-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Hoofrise from above: a large herd of animals massed on a green battlefield, farm buildings at the right edge and the command bar along the bottom">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Hoofrise</h3>
-            <p class="game-meta">Ten-minute strategy &middot; animals against farmers &middot; phone, desktop and controller</p>
-            <p>Mother Nature woke the animals up and they want the farms gone. The map is cut into sectors and every second you hold one it pays you, so the game is scored in ground held rather than in kills. The Herd takes everything and holds nothing; the Yield takes it slowly and never gives it back. Both of them want the river.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/farmy-uprising/">Play now &rarr;</a> &middot; <a href="./farmy-uprising.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-feh reveal" data-game="farmy-evil-hills">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-evil-hills/" aria-label="Play Evil Hills">
-            <img src="./assets/covers/farmy-evil-hills-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-evil-hills-960.webp 960w, ./assets/covers/farmy-evil-hills-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Evil Hills: a farmer in a plaid shirt seen from behind, walking down a dim, rust-stained station corridor towards a dark doorway">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Evil Hills</h3>
-            <p class="game-meta">PS1-era survival horror &middot; Venus &middot; phone and desktop</p>
-            <p>Station Hesper-4 has missed three reporting cycles, and the Space Farming Agency sends one inspector because one is cheaper than two. Something airborne has been through the livestock and it does not touch humans, which is worse: Xander is not sick, he is food. Aim low &mdash; a chicken with a leg gone stops outrunning you.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/farmy-evil-hills/">Play now &rarr;</a> &middot; <a href="./farmy-evil-hills.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-farmykart reveal" data-game="farmykart">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmykart/" aria-label="Play Kartzoom">
-            <img src="./assets/covers/farmykart-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmykart-960.webp 960w, ./assets/covers/farmykart-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Kartzoom: a sheep at the wheel of a white kart racing wheel to wheel with a goose, a duck and a chicken on a dirt circuit">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Kartzoom</h3>
-            <p class="game-meta">3D kart racer · drift boosts · race friends by link</p>
-            <p>The Splatbarn farm, in karts. Drift through a corner to charge a mini-turbo, throw a cowpat at whoever is winning, and hope nobody behind you draws the runaway tractor. Six circuits across two cups, eight-kart grids, and a driving model where the nose and the direction of travel are allowed to disagree.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/farmykart/">Play now →</a> · <a href="./farmykart.html">About this game</a></p>
-          </div>
-        </article>
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <article class="game-card game-crosswords reveal" data-game="farmy-crosswords">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-crosswords/" aria-label="Play the Wordburrow word games">
-            <img src="./assets/covers/farmy-crosswords-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-crosswords-960.webp 960w, ./assets/covers/farmy-crosswords-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Wordburrow: a grid of blue and gold letter tiles with the word SPANGRAM drawn across it">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Wordburrow</h3>
-            <p class="game-meta">Five word games behind one door &middot; 223 puzzles &middot; play together in one room</p>
-            <p>The whole word-game shelf opens from here. Guesswise, Combword, Groupseek and Gridseek are in the menu you land on; Letterloft, the full fifteen by fifteen board with the real hundred-tile bag, is one row further down it. Drag across the letters and a ribbon follows your hand, or just start typing, at any moment, without clicking into anything first. Built for eyes that are not twenty any more: nothing under 18px, nothing pressable under 48px, every colour backed by a shape, and no clock anywhere. Press Play together and somebody else joins the same puzzle - you find the words between you, and it is not a race.</p>
-            <p>Each one also has a page of its own: <a href="./farmy-five.html">Guesswise</a> (227 words), <a href="./farmy-hive.html">Combword</a> (53 hives), <a href="./farmy-herds.html">Groupseek</a> (90 sets), <a href="./farmy-furrows.html">Gridseek</a> (96 grids) and <a href="./farmy-tiles.html">Letterloft</a>.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/farmy-crosswords/">Play now &rarr;</a> &middot; <a href="./farmy-crosswords.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-chess reveal" data-game="farmy-chess">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-chess/" aria-label="Play Rookwise">
-            <img src="./assets/covers/farmy-chess-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-chess-960.webp 960w, ./assets/covers/farmy-chess-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Rookwise mid-game: a black and cream board of large, high-contrast pieces, with the move list at the right">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Rookwise</h3>
-            <p class="game-meta">Complete chess &middot; a bot or a shared link &middot; no clock anywhere</p>
-            <p>The whole game, not a subset of it: castling on both sides, en passant, promotion to any piece, and the draws that are not stalemate. The board carries its own ranks and files, the state is written in a sentence under it, and Take a move back is on the screen rather than behind anything. There is no timer on a move, no timer on the game, and nothing counting down at the edge - which is the reason most people who stopped playing chess online stopped.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/farmy-chess/">Play now &rarr;</a> &middot; <a href="./farmy-chess.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-checkers reveal" data-game="farmy-checkers">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-checkers/" aria-label="Play Jumpwise">
-            <img src="./assets/covers/farmy-checkers-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-checkers-960.webp 960w, ./assets/covers/farmy-checkers-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Jumpwise mid-game: cow pieces against round sheep pieces on a large board, one capture marked in red">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Jumpwise</h3>
-            <p class="game-meta">English draughts &middot; takes compulsory &middot; a bot or a shared link</p>
-            <p>Twelve sheep against twelve cows. Captures are compulsory, a jump that sets up another keeps going in the same turn, and a piece that reaches the far rank is crowned. The two sides are different animals rather than two colours of the same disc, and the dark squares are hatched rather than filled - so the board reads on a phone in sunlight and reads if you cannot separate the two tones. Undo is on the screen. No clock.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/farmy-checkers/">Play now &rarr;</a> &middot; <a href="./farmy-checkers.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-ludo reveal" data-game="farmy-ludo">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-ludo/" aria-label="Play Pawnrush">
-            <img src="./assets/covers/farmy-ludo-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-ludo-960.webp 960w, ./assets/covers/farmy-ludo-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Pawnrush: the cross-shaped board with the Geese, Pigs, Sheep and Cows yards and pieces out on the track">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Pawnrush</h3>
-            <p class="game-meta">Four teams &middot; against the computer or over a link &middot; no clock</p>
-            <p>A six to come out, capture by landing on a single opponent, and an exact roll to get home. The four teams are Sheep, Geese, Pigs and Cows, and each one carries its own shape as well as its own colour - a circle, a triangle, a square and a diamond - because four coloured discs is the standard and it is the standard that fails in bright light. The track carries arrows, so the direction of travel is drawn rather than remembered.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/farmy-ludo/">Play now &rarr;</a> &middot; <a href="./farmy-ludo.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-minesweeper reveal" data-game="minesweeper">
-          <div class="game-art">
-            <a class="art-play" href="/play/minesweeper/" aria-label="Play Sweepwise">
-            <img src="./assets/covers/minesweeper-16x9.webp" width="1920" height="1080" srcset="./assets/covers/minesweeper-960.webp 960w, ./assets/covers/minesweeper-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Sweepwise: a Minesweeper board half cleared, numbered squares around a red flag on a hidden mine">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Sweepwise</h3>
-            <p class="game-meta">Minesweeper &middot; Beginner to Expert, or custom &middot; best times</p>
-            <p>Classic Minesweeper: open a square, read how many mines touch it, flag the ones you find. The first click always opens an area, a number with its flags placed opens the rest in one click, and your best time on each difficulty is kept on this device. Plays with a mouse, a finger or the keyboard, and Expert turns upright on a phone so the squares stay big enough to tap.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/minesweeper/">Play now &rarr;</a> &middot; <a href="./minesweeper.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-gomoku reveal" data-game="gomoku">
-          <div class="game-art">
-            <a class="art-play" href="/play/gomoku/" aria-label="Play Gomowise">
-            <img src="./assets/covers/gomoku-16x9.webp" width="1920" height="1080" srcset="./assets/covers/gomoku-960.webp 960w, ./assets/covers/gomoku-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Gomowise: a wooden 15 by 15 Gomoku board with black and white stones and a winning row of five">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Gomowise</h3>
-            <p class="game-meta">Gomoku &middot; five in a row &middot; vs computer or a friend</p>
-            <p>Gomoku on a 15 by 15 board: take turns placing stones and be first to get five in a row. Play the computer at three levels, a friend on the same device, or a friend anywhere from a link or a six-letter code. Freestyle rules, plus the Korean omok and Vietnamese caro house rules.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/gomoku/">Play now &rarr;</a> &middot; <a href="./gomoku.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-word-chain reveal" data-game="word-chain">
-          <div class="game-art">
-            <a class="art-play" href="/play/word-chain/" aria-label="Play Relaywise">
-            <img src="./assets/covers/word-chain-16x9.webp" width="1920" height="1080" srcset="./assets/covers/word-chain-960.webp 960w, ./assets/covers/word-chain-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Relaywise: a chain of eight Vietnamese words, each starting with the last syllable of the one before">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Relaywise</h3>
-            <p class="game-meta">Word chain &middot; eight languages &middot; vs computer or a friend</p>
-            <p>Word chain: start each word where the last one ended, never repeat one, and answer before the timer runs out. Play the computer at three levels, a friend on the same device, or a friend anywhere from a link. In eight languages, from Vietnamese n&#7889;i t&#7915; and Japanese shiritori to Korean kkeutmal-itgi and Indonesian sambung kata.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/word-chain/">Play now &rarr;</a> &middot; <a href="./word-chain.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-truco reveal" data-game="truco">
-          <div class="game-art">
-            <a class="art-play" href="/play/truco/" aria-label="Play Trucowise">
-            <img src="./assets/covers/truco-16x9.webp" width="1920" height="1080" srcset="./assets/covers/truco-960.webp 960w, ./assets/covers/truco-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Trucowise: a hand of truco with Spanish cards on a wooden table and the score drawn as tally marks">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Trucowise</h3>
-            <p class="game-meta">Card game &middot; 1 vs 1 or 2 vs 2 &middot; vs computer or friends</p>
-            <p>Argentine truco with the 40-card Spanish deck: sing envido, call truco, retruco and vale cuatro, and bluff your way to 15 or 30 points. Play the computer at three levels, 2 vs 2 with a computer partner, or friends in a room where nobody can see anybody else's cards. Flor is there when you want it.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/truco/">Play now &rarr;</a> &middot; <a href="./truco.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-buraco reveal" data-game="buraco">
-          <div class="game-art">
-            <a class="art-play" href="/play/buraco/" aria-label="Play Buracowise">
-            <img src="./assets/covers/buraco-16x9.webp" width="1920" height="1080" srcset="./assets/covers/buraco-960.webp 960w, ./assets/covers/buraco-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Buracowise: sequences and a clean canastra laid on a wooden table, with the hand of cards below">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Buracowise</h3>
-            <p class="game-meta">Card game &middot; 1 vs 1 or 2 vs 2 &middot; vs computer or friends</p>
-            <p>Brazilian buraco with two decks and four jokers: lay down sequences of one suit, take the whole discard pile when it pays, pick up your morto and close a clean canastra to go out. Play the computer at three levels, 2 vs 2 with a computer partner, or friends in a room where nobody can see anybody else's cards.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/buraco/">Play now &rarr;</a> &middot; <a href="./buraco.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-zelakas reveal" data-game="zelakas">
-          <div class="game-art">
-            <a class="art-play" href="/play/zelakas/" aria-label="Play Zelakas In Space">
-            <img src="./assets/shot-zelakas.webp" width="1024" height="547" loading="lazy" decoding="async"
-                 alt="Zelakas In Space title screen: a purple alien craft beside a dark planet, neon green menu type over a starfield">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Zelakas In Space</h3>
-            <p class="game-meta">2D arcade shooter · three endings · keyboard</p>
-            <p>Dodge asteroids, blackholes, and drones. Three endings by how much you clear. Made in 2014 with Gonzalo and Christian in ActionScript 3; playable today in a modern browser via Ruffle, and being remade in Godot 4.</p>
-            <p class="game-status"><span class="dot dot-yellow"></span> Title screen plays, levels do not start yet — we are fixing it · <a class="play-link" href="/play/zelakas/">Open it →</a> · <a href="./zelakas-in-space.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-fighter-ex reveal" data-game="2d-fighter-ex">
-          <div class="game-art">
-            <a class="art-play" href="/play/2d-fighter-ex/" aria-label="Play 2D Fighter EX">
-            <img src="./assets/shot-fighter.webp" width="1024" height="538" loading="lazy" decoding="async"
-                 alt="2D Fighter EX: two cel-anime fighters mid-exchange on a grey street, a train line and tower blocks behind them">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>2D Fighter EX</h3>
-            <p class="game-meta">Animation experiment · seeded stage · scrub it frame by frame</p>
-            <p>EX is short for experiment. A fight animation whose project file was lost, recovered frame by frame from a screen recording — 84 frames of timing, a camera that pushes in to twice its size, and where each fighter stood — then replayed with 1990s cel-anime characters in a forest generated from a seed.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser · <a class="play-link" href="/play/2d-fighter-ex/">Open it →</a> · <a href="./2d-fighter-ex.html">About this experiment</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-moonlife reveal" data-game="farmy-moon-life">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-moon-life/" aria-label="Play Moon Life">
-            <img src="./assets/covers/farmy-moon-life-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-moon-life-960.webp 960w, ./assets/covers/farmy-moon-life-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Moon Life: a dirt path winding between fruit trees and a cottage on the moon farm under a pink evening sky">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Moon Life</h3>
-            <p class="game-meta">Cozy life game &middot; orchards, jam and a cat landlord &middot; phone first</p>
-            <p>A tiny seasonal moon with a cottage, an orchard and a round cat in a waistcoat called Felice who owns all the land. Grow fruit, press it into juice and jam, sell it to the neighbours, and spend what you make buying the ground out from under him. There are villagers to get to know, a hundred things to build and put down wherever you like, six other planets a double tap of the jump button away, and a six-character code that lets a friend walk onto your moon and help you pick the orchard.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/farmy-moon-life/">Play now &rarr;</a> &middot; <a href="./farmy-moon-life.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-silk reveal" data-game="silk-and-seam">
-          <div class="game-art">
-            <a class="art-play" href="/play/silk-and-seam/" aria-label="Play Silk &amp; Seam">
-            <img src="./assets/covers/silk-and-seam-16x9.webp" width="1920" height="1080" srcset="./assets/covers/silk-and-seam-960.webp 960w, ./assets/covers/silk-and-seam-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Silk &amp; Seam: a rose silk lehenga and dupatta on a dress form in the atelier, next to Miss Petal's five-star review and the fee for the dress">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Silk &amp; Seam</h3>
-            <p class="game-meta">Cosy sewing &amp; dressmaking game &middot; sketch, cut, sew, reveal &middot; single player</p>
-            <p>Take commissions from clients and make the dress each one asked for: sketch the bodice, collar, sleeves and skirt, choose the fabric and dyes, cut the pattern, sew the seams on a vintage machine, and finish it with lace, pearls and bows. Then the curtains open on the mannequin and you get paid. Walk into town to gossip and win opera costumes, noble gowns, weddings and festival sarees, and spend what you earn on satin, velvet, silk and gold brocade.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/silk-and-seam/">Play now &rarr;</a> &middot; <a href="./silk-and-seam.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-dachis reveal" data-game="dachis">
-          <div class="game-art">
-            <a class="art-play" href="/play/dachis/" aria-label="Play Dachis">
-            <img src="./assets/covers/dachis-16x9.webp" width="1920" height="1080" srcset="./assets/covers/dachis-960.webp 960w, ./assets/covers/dachis-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Dachis: Kazan Village on top of Mt. Kazan - thatched huts, torch-lit paths, and a few dachis around the kid, Dex">
-              <span class="art-play-badge" aria-hidden="true">&#9654; Play</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Dachis</h3>
-            <p class="game-meta">2.5D monster-friend RPG &middot; real-time battles &middot; single player</p>
-            <p>New York, 1992: a red hand pulls a lost kid through a spiral onto a volcano island where the monsters are called dachis &mdash; friends. Pick Power, Wisdom or Adventure for your first partner, shout special attacks and parries while it fights in real time, and befriend wild dachis with a capture ritual played on the beat. The first chapter is playable now; more of Dachi World arrives in updates.</p>
-            <p class="game-status"><span class="dot dot-green"></span> Playable in browser &middot; <a class="play-link" href="/play/dachis/">Play now &rarr;</a> &middot; <a href="./dachis.html">About this game</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-aracstory reveal" data-game="aracstory">
-          <div class="game-art">
-            <img src="./assets/shot-aracstory.webp" width="1024" height="717" loading="lazy" decoding="async"
-                 alt="A generated Aracstory world tile: green rooms and corridors laid out from a seed, with the player at the spawn and two exit portals">
-          </div>
-          <div class="game-copy">
-            <h3>Aracstory</h3>
-            <p class="game-meta">2D adventure · seeded multi-tile worlds · WASD</p>
-            <p>An adventure across five connected worlds, all generated from a single seed. Same seed, same world; new seed, new run. Originally started in Unity in 2013 with Nikhil V; being remade in Godot 4.</p>
-            <p class="game-status"><span class="dot dot-yellow"></span> In development</p>
-          </div>
-        </article>
-      </div>
+  <div class="game-grid tiles">
+    <article class="game-card tile" data-game="team-bonding" data-chips="action two" data-name="Splatbarn">
+      <div class="game-art"><a class="art-play" href="/play/farmyshoot/" aria-label="Play Splatbarn"><img src="./assets/covers/farmyshoot-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmyshoot-960.webp 960w, ./assets/covers/farmyshoot-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./farmyshoot.html">Splatbarn</a></h3><div class="game-meta"><div class="t-genre">Action</div><div class="vh">Players:</div><div class="t-players">2&ndash;10</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-uprising" data-chips="action two" data-name="Hoofrise">
+      <div class="game-art"><a class="art-play" href="/play/farmy-uprising/" aria-label="Play Hoofrise"><img src="./assets/covers/farmy-uprising-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-uprising-960.webp 960w, ./assets/covers/farmy-uprising-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./farmy-uprising.html">Hoofrise</a></h3><div class="game-meta"><div class="t-genre">Action</div><div class="vh">Players:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-evil-hills" data-chips="action two" data-name="Evil Hills">
+      <div class="game-art"><a class="art-play" href="/play/farmy-evil-hills/" aria-label="Play Evil Hills"><img src="./assets/covers/farmy-evil-hills-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-evil-hills-960.webp 960w, ./assets/covers/farmy-evil-hills-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./farmy-evil-hills.html">Evil Hills</a></h3><div class="game-meta"><div class="t-genre">Action</div><div class="vh">Players:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmykart" data-chips="action two" data-name="Kartzoom">
+      <div class="game-art"><a class="art-play" href="/play/farmykart/" aria-label="Play Kartzoom"><img src="./assets/covers/farmykart-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmykart-960.webp 960w, ./assets/covers/farmykart-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./farmykart.html">Kartzoom</a></h3><div class="game-meta"><div class="t-genre">Action</div><div class="vh">Players:</div><div class="t-players">1&ndash;8</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-crosswords" data-chips="word puzzle two" data-name="Wordburrow">
+      <div class="game-art"><a class="art-play" href="/play/farmy-crosswords/" aria-label="Play Wordburrow"><img src="./assets/covers/farmy-crosswords-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-crosswords-960.webp 960w, ./assets/covers/farmy-crosswords-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./farmy-crosswords.html">Wordburrow</a></h3><div class="game-meta"><div class="t-genre">Word</div><div class="vh">Players:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-chess" data-chips="board two" data-name="Rookwise">
+      <div class="game-art"><a class="art-play" href="/play/farmy-chess/" aria-label="Play Rookwise"><img src="./assets/covers/farmy-chess-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-chess-960.webp 960w, ./assets/covers/farmy-chess-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./farmy-chess.html">Rookwise</a></h3><div class="game-meta"><div class="t-genre">Board</div><div class="vh">Players:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-checkers" data-chips="board two" data-name="Jumpwise">
+      <div class="game-art"><a class="art-play" href="/play/farmy-checkers/" aria-label="Play Jumpwise"><img src="./assets/covers/farmy-checkers-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-checkers-960.webp 960w, ./assets/covers/farmy-checkers-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./farmy-checkers.html">Jumpwise</a></h3><div class="game-meta"><div class="t-genre">Board</div><div class="vh">Players:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-ludo" data-chips="board two" data-name="Pawnrush">
+      <div class="game-art"><a class="art-play" href="/play/farmy-ludo/" aria-label="Play Pawnrush"><img src="./assets/covers/farmy-ludo-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-ludo-960.webp 960w, ./assets/covers/farmy-ludo-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./farmy-ludo.html">Pawnrush</a></h3><div class="game-meta"><div class="t-genre">Board</div><div class="vh">Players:</div><div class="t-players">1&ndash;4</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="minesweeper" data-chips="puzzle" data-name="Sweepwise">
+      <div class="game-art"><a class="art-play" href="/play/minesweeper/" aria-label="Play Sweepwise"><img src="./assets/covers/minesweeper-16x9.webp" width="1920" height="1080" srcset="./assets/covers/minesweeper-960.webp 960w, ./assets/covers/minesweeper-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./minesweeper.html">Sweepwise</a></h3><div class="game-meta"><div class="t-genre">Puzzle</div><div class="vh">Players:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="gomoku" data-chips="board two" data-name="Gomowise">
+      <div class="game-art"><a class="art-play" href="/play/gomoku/" aria-label="Play Gomowise"><img src="./assets/covers/gomoku-16x9.webp" width="1920" height="1080" srcset="./assets/covers/gomoku-960.webp 960w, ./assets/covers/gomoku-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./gomoku.html">Gomowise</a></h3><div class="game-meta"><div class="t-genre">Board</div><div class="vh">Players:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="word-chain" data-chips="word puzzle two" data-name="Relaywise">
+      <div class="game-art"><a class="art-play" href="/play/word-chain/" aria-label="Play Relaywise"><img src="./assets/covers/word-chain-16x9.webp" width="1920" height="1080" srcset="./assets/covers/word-chain-960.webp 960w, ./assets/covers/word-chain-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./word-chain.html">Relaywise</a></h3><div class="game-meta"><div class="t-genre">Word</div><div class="vh">Players:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="truco" data-chips="card two" data-name="Trucowise">
+      <div class="game-art"><a class="art-play" href="/play/truco/" aria-label="Play Trucowise"><img src="./assets/covers/truco-16x9.webp" width="1920" height="1080" srcset="./assets/covers/truco-960.webp 960w, ./assets/covers/truco-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./truco.html">Trucowise</a></h3><div class="game-meta"><div class="t-genre">Card</div><div class="vh">Players:</div><div class="t-players">1&ndash;4</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="buraco" data-chips="card two" data-name="Buracowise">
+      <div class="game-art"><a class="art-play" href="/play/buraco/" aria-label="Play Buracowise"><img src="./assets/covers/buraco-16x9.webp" width="1920" height="1080" srcset="./assets/covers/buraco-960.webp 960w, ./assets/covers/buraco-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./buraco.html">Buracowise</a></h3><div class="game-meta"><div class="t-genre">Card</div><div class="vh">Players:</div><div class="t-players">1&ndash;4</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="2d-fighter-ex" data-chips="action" data-name="2D Fighter EX">
+      <div class="game-art"><a class="art-play" href="/play/2d-fighter-ex/" aria-label="Play 2D Fighter EX"><img src="./assets/fighter-ex-preview.png" width="1200" height="630" loading="lazy" decoding="async" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./2d-fighter-ex.html">2D Fighter EX</a></h3><div class="game-meta"><div class="t-genre">Action</div><div class="vh">Players:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-moon-life" data-chips="story two" data-name="Moon Life">
+      <div class="game-art"><a class="art-play" href="/play/farmy-moon-life/" aria-label="Play Moon Life"><img src="./assets/covers/farmy-moon-life-16x9.webp" width="1920" height="1080" srcset="./assets/covers/farmy-moon-life-960.webp 960w, ./assets/covers/farmy-moon-life-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./farmy-moon-life.html">Moon Life</a></h3><div class="game-meta"><div class="t-genre">Story &amp; sim</div><div class="vh">Players:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="silk-and-seam" data-chips="story" data-name="Silk &amp; Seam">
+      <div class="game-art"><a class="art-play" href="/play/silk-and-seam/" aria-label="Play Silk &amp; Seam"><img src="./assets/covers/silk-and-seam-16x9.webp" width="1920" height="1080" srcset="./assets/covers/silk-and-seam-960.webp 960w, ./assets/covers/silk-and-seam-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./silk-and-seam.html">Silk &amp; Seam</a></h3><div class="game-meta"><div class="t-genre">Story &amp; sim</div><div class="vh">Players:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+    <article class="game-card tile" data-game="dachis" data-chips="story" data-name="Dachis">
+      <div class="game-art"><a class="art-play" href="/play/dachis/" aria-label="Play Dachis"><img src="./assets/covers/dachis-16x9.webp" width="1920" height="1080" srcset="./assets/covers/dachis-960.webp 960w, ./assets/covers/dachis-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; Play</span></a></div>
+      <div class="game-copy"><h3><a href="./dachis.html">Dachis</a></h3><div class="game-meta"><div class="t-genre">Story &amp; sim</div><div class="vh">Players:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">Favourite</span></button>
+    </article>
+  </div>
+  
+      <p class="no-match" hidden></p>
+      <p class="intro-line"><span class="hand-underline">Procedural worlds, hand-drawn hearts.</span> Browser games to play with friends, each one opening in this tab.</p>
     </section>
 
     <section class="about-short reveal">
       <h2>Who we are</h2>
       <p>Magestican Studios is the imprint Bryan Arbelo uses to sign small games with big procgen and hand-drawn art. The engine deals the cards from a seeded deck — a person designs every card.</p>
       <p>No servers, no launcher, nothing to sign up to. A game is a link, and the link works on a locked-down work laptop, a Chromebook and a phone.</p>
-      <p>There is also <a href="https://www.youtube.com/@ameliagurl">Amelia</a>, who plays these on YouTube and is not employed
-        to be nice about them.</p>
+      
+
       <p><a href="./about.html" class="more-link">Read the longer version →</a></p>
     </section>
   </main>
+  
+  <div id="portal-strings" hidden>
+    <span data-k="continue">Continue</span>
+    <span data-k="favourites">Favourites</span>
+    <span data-k="recent">Recently played</span>
+    <span data-k="resume">Resume</span>
+    <span data-k="today">Today</span>
+    <span data-k="nomatch">No game matches that - try another word or chip.</span>
+    <span data-k="favEmpty">Tap the heart on any game to keep it here.</span>
+  </div>
+  
 
   
 
@@ -1171,6 +929,7 @@
   </nav>
 
   <footer class="site-footer">
+    <nav class="footer-nav" aria-label="Site"><ul><li><a href="./#games">Games</a></li><li><a href="./you.html">Your games</a></li><li><a href="./for-remote-teams.html">For teams</a></li><li><a href="./magazine/">Magazine</a></li><li><a href="./about.html">About</a></li><li><a href="./reviews.html">Reviews</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
     <p>
       Copyright © 2026 Ultra Task Pty Ltd. All rights reserved.<br>
@@ -1184,7 +943,8 @@
     
   </footer>
 
-  <script type="module" src="./assets/site.js?v=a3e4222d-20261016T074724Z"></script>
+  <script type="module" src="./assets/site.js?v=78913b91-20261016T094556Z"></script>
+  <script type="module" src="./assets/portal.js?v=78913b91-20261016T094556Z"></script>
 
   
 

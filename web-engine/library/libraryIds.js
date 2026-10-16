@@ -38,8 +38,42 @@ export const PLAY_DIRS = Object.freeze({
 });
 
 
+
+
+export const LANDING_PAGES = Object.freeze({
+  farmyshoot: 'team-bonding', 'farmy-uprising': 'farmy-uprising', 'farmy-evil-hills': 'farmy-evil-hills',
+  farmykart: 'farmykart', 'farmy-tiles': 'farmy-scrabble', 'farmy-crosswords': 'farmy-crosswords',
+  'farmy-chess': 'farmy-chess', 'farmy-checkers': 'farmy-checkers', 'farmy-ludo': 'farmy-ludo',
+  minesweeper: 'minesweeper', gomoku: 'gomoku', 'word-chain': 'word-chain', truco: 'truco', buraco: 'buraco',
+  'zelakas-in-space': 'zelakas', '2d-fighter-ex': '2d-fighter-ex', 'farmy-moon-life': 'farmy-moon-life',
+  'silk-and-seam': 'silk-and-seam', dachis: 'dachis', 'farmy-five': 'farmy-five', 'farmy-hive': 'farmy-hive',
+  'farmy-herds': 'farmy-herds', 'farmy-furrows': 'farmy-furrows',
+});
+
+
+export function gameIdForPage(slug) {
+  return typeof slug === 'string' && Object.prototype.hasOwnProperty.call(LANDING_PAGES, slug) ? LANDING_PAGES[slug] : null;
+}
+
+
 export function gameIdForPlayDir(dir) {
   return typeof dir === 'string' && Object.prototype.hasOwnProperty.call(PLAY_DIRS, dir) ? PLAY_DIRS[dir] : null;
+}
+
+
+
+
+
+const FOLDED = Object.freeze({
+  'farmy-scrabble': 'farmy-crosswords',
+  'farmy-five': 'farmy-crosswords', 'farmy-hive': 'farmy-crosswords',
+  'farmy-herds': 'farmy-crosswords', 'farmy-furrows': 'farmy-crosswords',
+});
+
+
+export function tileOf(id) {
+  if (!isLibraryId(id)) return null;
+  return Object.prototype.hasOwnProperty.call(FOLDED, id) ? FOLDED[id] : id;
 }
 
 

@@ -45,7 +45,7 @@ import {
 import { applyMatch } from '../progress/reportModel.js';
 import { updateLibrary, loadLibrary } from '../library/libraryStore.js';
 import { recordMatch, mergeLibraries, LIBRARY_KEY } from '../library/libraryModel.js';
-import { fromLibraryDto } from '../library/libraryDto.js';
+import { fromLibraryDto, toLibraryDto } from '../library/libraryDto.js';
 import { resolveGameId } from '../library/libraryIds.js';
 import { isFleet } from '../progress/fleet.js';
 import { localDayNumber } from './dayKey.js';
@@ -834,16 +834,10 @@ export async function syncNow() {
     const dto = toCloudDto(profile);
     if (!dto) return { ok: false, status: 'nothing-to-save' };
 
-    let full = dto;
-    if (SAVE_SYNC_ENABLED) {
-      const save = toSaveDto(profile, records);
-      
-      
-      if (isSyncableSave(save)) full = { ...dto, ...saveDigestFields(profile, records) };
-    }
     const day = dayOf(nowMs);
     const budget = loadBudget();
-    const digest = digestOf(full);
+    
+    const digest = syncDigest(profile, records, loadLibrary(store()));
     if (digest === forDayDigest(budget, day)) return { ok: true, status: 'already-saved' };
     if (!shouldPush(budget, { nowMs, today: day, digest, force: true })) {
       return { ok: false, status: 'daily-limit' };
@@ -862,6 +856,46 @@ export async function syncNow() {
 function forDayDigest(budget, today) {
   const b = normaliseBudget(budget);
   return b.day === today ? b.lastDigest : null;
+}
+
+
+
+
+
+
+
+
+
+export function syncDigest(profile, records, library) {
+  const dto = toCloudDto(profile);
+  if (!dto) return null;
+  let full = dto;
+  if (SAVE_SYNC_ENABLED) {
+    const save = toSaveDto(profile, records);
+    if (isSyncableSave(save)) full = { ...dto, ...saveDigestFields(profile, records) };
+  }
+  return digestOf({ ...full, libraryBlob: toLibraryDto(library)?.blob ?? '' });
+}
+
+let librarySyncTimer = null;
+
+
+
+
+
+
+export function syncLibrarySoon() {
+  try {
+    if (!currentProfile().uid) return false;
+    if (librarySyncTimer) clearTimeout(librarySyncTimer);
+    librarySyncTimer = setTimeout(() => {
+      librarySyncTimer = null;
+      try { maybePush(currentProfile(), currentRecords(), now()); } catch (_) {  }
+    }, 10000);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 
@@ -886,12 +920,7 @@ function maybePush(profile, records, nowMs, force = false) {
     
     
     
-    let full = dto;
-    if (SAVE_SYNC_ENABLED) {
-      const save = toSaveDto(profile, records);
-      if (isSyncableSave(save)) full = { ...dto, ...saveDigestFields(profile, records) };
-    }
-    const digest = digestOf(full);
+    const digest = syncDigest(profile, records, loadLibrary(store()));
     const day = dayOf(nowMs);
     const budget = loadBudget();
     if (!shouldPush(budget, { nowMs, today: day, digest, force })) return;

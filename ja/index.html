@@ -647,6 +647,9 @@
   </script>
   <link rel="stylesheet" href="/styles.css">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  
+
+  <script>try{var l=JSON.parse(localStorage.getItem('magestican.library.v1')||'null');if(l&&l.games&&Object.keys(l.games).length)document.documentElement.classList.add('has-library')}catch(e){}</script>
 </head>
 <body>
   <header class="site-header">
@@ -656,28 +659,10 @@
     </a>
     <nav>
       <a href="/ja/#games">ゲーム</a>
-      <a href="/ja/farmyshoot.html">Splatbarn</a>
-      <a href="/ja/farmy-uprising.html">Hoofrise</a>
-      <a href="/ja/farmy-evil-hills.html">イービルヒルズ</a>
-      <a href="/ja/farmykart.html">Kartzoom カートレース</a>
-      <a href="/ja/farmy-tiles.html">Letterloft 単語ボードゲーム</a>
-      <a href="/ja/farmy-crosswords.html">Wordburrow クロスワード</a>
-      <a href="/ja/farmy-chess.html">Rookwise チェス</a>
-      <a href="/ja/farmy-checkers.html">Jumpwise チェッカー</a>
-      <a href="/ja/farmy-ludo.html">Pawnrush ルドー</a>
-      <a href="/ja/minesweeper-online.html">Sweepwise マインスイーパー</a>
-      <a href="/ja/gomoku-online.html">Gomowise 五目並べ</a>
-      <a href="/ja/shiritori.html">Relaywise しりとり</a>
-      <a href="/ja/truco.html">Trucowise トゥルーコ</a>
-      <a href="/ja/buraco.html">Buracowise ブラーコ</a>
-      <a href="/ja/zelakas-in-space.html">ゼラカス</a>
-      <a href="/ja/2d-fighter-ex.html">ファイターEX</a>
-      <a href="/ja/farmy-moon-life.html">ムーンライフ</a>
-      <a href="/ja/silk-and-seam.html">Silk & Seam</a>
-      <a href="/ja/dachis.html">Dachis</a>
+      <a href="/you.html">マイゲーム</a>
       <a href="/ja/for-remote-teams.html">チーム向け</a>
-      <a href="/ja/about.html">スタジオについて</a>
       <a href="/ja/magazine/">マガジン</a>
+      <a href="/ja/about.html">スタジオについて</a>
       <a href="/ja/reviews.html">レビュー</a>
     </nav>
     <details class="lang-switch"><summary aria-label="言語: 日本語"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>JA</span></summary><ul><li><a href="/" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en">English</a></li><li><a href="/es/" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl">Tagalog</a></li><li><a href="/ja/" hreflang="ja" onclick="try{localStorage.setItem('ms-lang','ja')}catch(e){}" lang="ja" data-lang="ja" aria-current="page">日本語</a></li><li><a href="/ko/" hreflang="ko" onclick="try{localStorage.setItem('ms-lang','ko')}catch(e){}" lang="ko" data-lang="ko">한국어</a></li><li><a href="/id/" hreflang="id" onclick="try{localStorage.setItem('ms-lang','id')}catch(e){}" lang="id" data-lang="id">Bahasa Indonesia</a></li><li><a href="/vi/" hreflang="vi" onclick="try{localStorage.setItem('ms-lang','vi')}catch(e){}" lang="vi" data-lang="vi">Tiếng Việt</a></li></ul></details>
@@ -688,435 +673,209 @@
 
 
 
-  <div class="hero-band hero-band--tall">
-    <div class="scene" aria-hidden="true">
-      <span class="l-sun" data-par="0.16"></span>
-      <span class="l-clouds" data-par="0.13"></span>
-      <span class="l-ridge" data-par="0.09"></span>
-      <span class="l-hills" data-par="0.05"></span>
-      <span class="l-fence" data-par="-0.05"></span>
-    </div>
-    <div class="hero-inner">
-      <div class="hero-grid">
-        <div class="hero">
-          
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          <h1>無料ブラウザゲーム — ダウンロード不要、登録不要</h1>
-          <p class="tagline"><span class="hand-underline">手描きの心で作るプロシージャル生成の世界。</span>シード値から手作業で生まれた小さなゲームと、友達と遊べるブラウザゲーム。どれも今開いているタブでそのまま起動します。</p>
-          <ul class="hero-facts">
-            <li>無料</li>
-            <li>ダウンロード不要</li>
-            <li>登録不要</li>
-            <li>どのブラウザでも</li>
-          </ul>
-          <div class="cta-row">
-            <a class="cta cta-primary" href="/play/farmyshoot/?lang=ja">Splatbarnをプレイ</a>
-            
-
-
-
-
-
-
-
-            <a class="cta cta-secondary" href="/ja/#games">全20作品を見る</a>
-          </div>
-        </div>
-        <figure class="hero-shot">
-          <a class="art-play" href="/play/farmyshoot/?lang=ja" aria-label="Splatbarnをプレイ"><img src="/assets/shot-farmyshoot.webp" width="1024" height="576" fetchpriority="high" decoding="async"
-               alt="Splatbarn、夕暮れのセントラルパーク・リンク: 六角形の敷石の上の木造バンドスタンド、点灯した公園の照明、灯りのついた窓が並ぶボクセルの街並み"><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a>
-          <figcaption>Splatbarn — 夕暮れのセントラルパーク・リンク。シード値から生成される5つのボクセルマップの1つです。同じシード値からは常に同じ街が生成されます。</figcaption>
-        </figure>
-      </div>
-    </div>
-  </div>
 
   
-
-
-
-  <div id="live-now"></div>
+  <div class="chips" role="toolbar" aria-label="ゲームを絞り込む" hidden>
+    <label class="vh" for="game-search">ゲームを検索</label>
+    <input id="game-search" class="search" type="search" placeholder="検索" autocomplete="off">
+    <button class="chip" type="button" data-chip="all" aria-pressed="true">すべて</button>
+    <button class="chip" type="button" data-chip="fav" aria-pressed="false">お気に入り</button>
+    <button class="chip" type="button" data-chip="board" aria-pressed="false">ボード</button>
+    <button class="chip" type="button" data-chip="word" aria-pressed="false">ワード</button>
+    <button class="chip" type="button" data-chip="card" aria-pressed="false">カード</button>
+    <button class="chip" type="button" data-chip="puzzle" aria-pressed="false">パズル</button>
+    <button class="chip" type="button" data-chip="action" aria-pressed="false">アクション</button>
+    <button class="chip" type="button" data-chip="story" aria-pressed="false">ストーリー・シム</button>
+    <button class="chip" type="button" data-chip="two" aria-pressed="false">2人用</button>
+  </div>
+  
+  
+  <section class="feature" aria-label="注目のゲーム">
+    <div class="feature-track">
+      <article class="slide" data-game="dachis">
+        <a class="slide-art" href="/play/dachis/?lang=ja" tabindex="-1" aria-hidden="true"><img src="/assets/covers/dachis-960.webp" width="960" height="540" fetchpriority="high" decoding="async" alt="Dachis"></a>
+        <div class="slide-copy">
+          <span class="tag-new">新作</span>
+          <h2 class="slide-name"><a href="/ja/dachis.html">Dachis</a></h2>
+          <p class="slide-line">1992年のニューヨークの少年が、モンスターの友だちの島に落ちてくる。</p>
+          <a class="cta cta-primary slide-play" href="/play/dachis/?lang=ja">今すぐプレイ</a>
+        </div>
+      </article>
+      <article class="slide" data-game="minesweeper">
+        <a class="slide-art" href="/play/minesweeper/?lang=ja" tabindex="-1" aria-hidden="true"><img src="/assets/covers/minesweeper-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Sweepwise マインスイーパー"></a>
+        <div class="slide-copy">
+          <span class="tag-new">新作</span>
+          <h2 class="slide-name"><a href="/ja/minesweeper-online.html">Sweepwise マインスイーパー</a></h2>
+          <p class="slide-line">定番のマインスイーパー。最初のクリックは必ず安全に開きます。</p>
+          <a class="cta cta-primary slide-play" href="/play/minesweeper/?lang=ja">今すぐプレイ</a>
+        </div>
+      </article>
+      <article class="slide" data-game="gomoku">
+        <a class="slide-art" href="/play/gomoku/?lang=ja" tabindex="-1" aria-hidden="true"><img src="/assets/covers/gomoku-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Gomowise 五目並べ"></a>
+        <div class="slide-copy">
+          <span class="tag-new">新作</span>
+          <h2 class="slide-name"><a href="/ja/gomoku-online.html">Gomowise 五目並べ</a></h2>
+          <p class="slide-line">15x15の盤で五目並べ。コンピューターとも友だちとも対戦できます。</p>
+          <a class="cta cta-primary slide-play" href="/play/gomoku/?lang=ja">今すぐプレイ</a>
+        </div>
+      </article>
+      <article class="slide" data-game="word-chain">
+        <a class="slide-art" href="/play/word-chain/?lang=ja" tabindex="-1" aria-hidden="true"><img src="/assets/covers/word-chain-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Relaywise しりとり"></a>
+        <div class="slide-copy">
+          <span class="tag-new">新作</span>
+          <h2 class="slide-name"><a href="/ja/shiritori.html">Relaywise しりとり</a></h2>
+          <p class="slide-line">前の言葉の終わりから次の言葉を始めよう。コンピューターや友だちと対戦。</p>
+          <a class="cta cta-primary slide-play" href="/play/word-chain/?lang=ja">今すぐプレイ</a>
+        </div>
+      </article>
+      <article class="slide" data-game="truco">
+        <a class="slide-art" href="/play/truco/?lang=ja" tabindex="-1" aria-hidden="true"><img src="/assets/covers/truco-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Trucowise トゥルーコ"></a>
+        <div class="slide-copy">
+          <span class="tag-new">新作</span>
+          <h2 class="slide-name"><a href="/ja/truco.html">Trucowise トゥルーコ</a></h2>
+          <p class="slide-line">エンビード、トゥルコ、ケロ：アルゼンチンのカードゲームをコンピューターや友だちと。</p>
+          <a class="cta cta-primary slide-play" href="/play/truco/?lang=ja">今すぐプレイ</a>
+        </div>
+      </article>
+    </div>
+    <div class="feature-dots" hidden></div>
+  </section>
+  
 
   <main>
+    
+
+    <div id="shelves" class="shelves" aria-live="polite"></div>
+
+    
+
+
+
+    <div id="live-now"></div>
+
+    
+
+
+
     <section id="games" class="games">
       <div class="section-head">
-        <h2>ゲーム</h2>
-        
-
-
-
-
-
-
-        <p class="section-note">このタブで今すぐ遊べるのは18作品。1作品はタイトル画面までしか進めず、もう1作品は制作中です。</p>
+        <h1>無料ブラウザゲーム — ダウンロード不要、登録不要</h1>
+        <p class="section-note">このタブで今すぐ遊べる18本のゲーム。</p>
       </div>
-      <hr class="wobble-rule">
-
       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      <div class="game-grid">
-        <article class="game-card game-teambonding reveal" data-game="team-bonding">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmyshoot/?lang=ja" aria-label="Splatbarnをプレイ">
-            <img src="/assets/covers/farmyshoot-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmyshoot-960.webp 960w, /assets/covers/farmyshoot-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Splatbarn: a chicken carrying the red flag across a snowy voxel farm, a sheep in the foreground and more farm animals behind">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Splatbarn</h3>
-            <p class="game-meta">3Dボクセル FPS ・ P2Pマルチプレイヤー ・ WASD+マウス操作</p>
-            <p>氷上ドリフト移動、農場動物の兵士、シード生成のボクセルマップ、P2P通信(サーバー不要)を備えたブラウザFPS。5本の旗を取れば勝利ですが、負けているチームが10秒でアナグラムを解けば逆転できます。牛、鶏、豚、それとも羊?</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 · <a class="play-link" href="/play/farmyshoot/?lang=ja">今すぐプレイ →</a> · <a href="/ja/farmyshoot.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-uprising reveal" data-game="farmy-uprising">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-uprising/?lang=ja" aria-label="Hoofriseをプレイ">
-            <img src="/assets/covers/farmy-uprising-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-uprising-960.webp 960w, /assets/covers/farmy-uprising-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Hoofrise from above: a large herd of animals massed on a green battlefield, farm buildings at the right edge and the command bar along the bottom">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Hoofrise</h3>
-            <p class="game-meta">10分戦略ゲーム &middot; 動物対農場主 &middot; スマホ・パソコン・コントローラー対応</p>
-            <p>母なる自然が動物たちを目覚めさせ、彼らは農場をなくしたいと考えています。マップはセクターに分かれており、確保している間は毎秒得点が入るため、撃破数ではなく占有した土地で得点が決まります。ハード陣営はすべてを奪い何も守らず、イールド陣営はゆっくりと奪って決して手放しません。どちらも川を狙っています。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/farmy-uprising/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/farmy-uprising.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-feh reveal" data-game="farmy-evil-hills">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-evil-hills/?lang=ja" aria-label="Evil Hillsをプレイ">
-            <img src="/assets/covers/farmy-evil-hills-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-evil-hills-960.webp 960w, /assets/covers/farmy-evil-hills-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Evil Hills: a farmer in a plaid shirt seen from behind, walking down a dim, rust-stained station corridor towards a dark doorway">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>イービルヒルズ</h3>
-            <p class="game-meta">PS1時代風サバイバルホラー &middot; 金星 &middot; スマホ・パソコン対応</p>
-            <p>ヘスペル4基地が3回連続で報告を怠り、宇宙農業局は1人だけ調査員を送ります。1人の方が2人より安く済むからです。空気感染する何かが家畜を襲いましたが、人間には影響しません。それはもっと悪い意味です。ザンダーは病気ではなく、餌なのです。低く狙え &mdash; 足を失った鶏はもう追いかけてきません。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/farmy-evil-hills/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/farmy-evil-hills.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-farmykart reveal" data-game="farmykart">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmykart/?lang=ja" aria-label="Kartzoom カートレースをプレイ">
-            <img src="/assets/covers/farmykart-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmykart-960.webp 960w, /assets/covers/farmykart-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Kartzoom カートレース: a sheep at the wheel of a white kart racing wheel to wheel with a goose, a duck and a chicken on a dirt circuit">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Kartzoom カートレース</h3>
-            <p class="game-meta">3Dカートレース · ドリフトブースト · リンクで友達とレース</p>
-            <p>Splatbarnの農場を舞台にしたカートレース。コーナーをドリフトしてミニターボを充電し、先頭を走る相手に牛のフンを投げつけ、後ろの相手が暴走トラクターを引かないことを祈りましょう。2つのカップにわたる6つのサーキット、8台のグリッド、そして車体の向きと進行方向が一致しないこともある運転モデル。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 · <a class="play-link" href="/play/farmykart/?lang=ja">今すぐプレイ →</a> · <a href="/ja/farmykart.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <article class="game-card game-crosswords reveal" data-game="farmy-crosswords">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-crosswords/?lang=ja" aria-label="Wordburrow クロスワードのワードゲームをプレイ">
-            <img src="/assets/covers/farmy-crosswords-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-crosswords-960.webp 960w, /assets/covers/farmy-crosswords-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Wordburrow クロスワード: a grid of blue and gold letter tiles with the word SPANGRAM drawn across it">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Wordburrow クロスワード</h3>
-            <p class="game-meta">1つの入り口に5つのワードゲーム &middot; 223問のパズル &middot; 1つのルームで一緒にプレイ</p>
-            <p>ここからワードゲームのすべてが開きます。Guesswise 単語当て、Combword ハチの巣パズル、Groupseek 仲間分け、Gridseek 単語探しが最初のメニューにあり、実際の100枚タイルバッグを使う15×15マスのLetterloft 単語ボードゲームはその1段下にあります。文字をドラッグするとリボンが手の動きに追従し、何もクリックせずにいつでも入力を始められます。20代の目でなくても見やすい設計: 18px未満の文字なし、48px未満の押せる要素なし、すべての色に形の裏付けあり、タイマーもどこにもありません。「一緒にプレイ」を押すと誰かが同じパズルに参加します。二人で単語を見つける、競争ではありません。</p>
-            <p>それぞれに専用ページもあります: <a href="/ja/farmy-five.html">Guesswise 単語当て</a>(227語)、<a href="/ja/farmy-hive.html">Combword ハチの巣パズル</a>(53ハイブ)、<a href="/ja/farmy-herds.html">Groupseek 仲間分け</a>(90セット)、<a href="/ja/farmy-furrows.html">Gridseek 単語探し</a>(96グリッド)、そして<a href="/ja/farmy-tiles.html">Letterloft 単語ボードゲーム</a>。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/farmy-crosswords/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/farmy-crosswords.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-chess reveal" data-game="farmy-chess">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-chess/?lang=ja" aria-label="Rookwise チェスをプレイ">
-            <img src="/assets/covers/farmy-chess-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-chess-960.webp 960w, /assets/covers/farmy-chess-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Rookwise チェス mid-game: a black and cream board of large, high-contrast pieces, with the move list at the right">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Rookwise チェス</h3>
-            <p class="game-meta">本格チェス &middot; ボット対戦または共有リンク &middot; 時間制限なし</p>
-            <p>ルールの一部ではなく、すべて実装: 両側のキャスリング、アンパッサン、任意の駒への成り、ステイルメイト以外の引き分けもすべて対応。ボードには段と列が表示され、状態は下に文章で書かれ、「一手戻す」も隠さず画面上にあります。一手にも対局全体にもタイマーはなく、画面端でカウントダウンするものもありません。それこそが、多くの人がオンラインチェスをやめた理由です。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/farmy-chess/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/farmy-chess.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-checkers reveal" data-game="farmy-checkers">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-checkers/?lang=ja" aria-label="Jumpwise チェッカーをプレイ">
-            <img src="/assets/covers/farmy-checkers-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-checkers-960.webp 960w, /assets/covers/farmy-checkers-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Jumpwise チェッカー mid-game: cow pieces against round sheep pieces on a large board, one capture marked in red">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Jumpwise チェッカー</h3>
-            <p class="game-meta">イギリス式チェッカー &middot; 取り必須 &middot; ボット対戦または共有リンク</p>
-            <p>羊12匹対牛12匹。取りは必須で、連続で取れる場合は同じターン内で続けられ、最終段に到達した駒はキングに成ります。両陣営は同じ色の違う駒ではなく別の動物として描かれ、暗いマスは塗りつぶしではなくハッチング模様なので、日差しの強い中のスマホでも、2色を区別しにくい場合でも見やすくなっています。取り消しは画面上にあります。時間制限なし。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/farmy-checkers/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/farmy-checkers.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-ludo reveal" data-game="farmy-ludo">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-ludo/?lang=ja" aria-label="Pawnrush ルドーをプレイ">
-            <img src="/assets/covers/farmy-ludo-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-ludo-960.webp 960w, /assets/covers/farmy-ludo-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Pawnrush ルドー: the cross-shaped board with the Geese, Pigs, Sheep and Cows yards and pieces out on the track">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Pawnrush ルドー</h3>
-            <p class="game-meta">4チーム &middot; コンピューター対戦またはリンクで対戦 &middot; 時間制限なし</p>
-            <p>出るには6が必要、単独の相手駒に止まれば捕獲、ゴールにはぴったりの数が必要です。4チームは羊・ガチョウ・豚・牛で、それぞれ色だけでなく円・三角・四角・ダイヤという独自の形も持っています。色だけの4枚の駒という標準的な方式は、明るい光の下ではうまく機能しないからです。トラックには矢印があるので、進行方向は覚えるのではなく見てわかります。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/farmy-ludo/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/farmy-ludo.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-minesweeper reveal" data-game="minesweeper">
-          <div class="game-art">
-            <a class="art-play" href="/play/minesweeper/?lang=ja" aria-label="Sweepwise マインスイーパーをプレイ">
-            <img src="/assets/covers/minesweeper-16x9.webp" width="1920" height="1080" srcset="/assets/covers/minesweeper-960.webp 960w, /assets/covers/minesweeper-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Sweepwise マインスイーパー - 半分ほど開いた盤面。隠れた地雷の上の赤い旗を、数字のマスが囲んでいる">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Sweepwise マインスイーパー</h3>
-            <p class="game-meta">マインスイーパー &middot; 初級から上級、カスタムも &middot; ベストタイム記録</p>
-            <p>定番のマインスイーパー。マスを開き、接している地雷の数を読み、見つけた地雷に旗を立てます。最初のクリックで必ず広い範囲が開き、旗を立て終えた数字は1クリックで残りが開き、難易度ごとのベストタイムはこの端末に保存されます。マウス、指、キーボードで遊べて、スマホでは上級が縦向きになるのでマスがタップしやすい大きさのままです。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/minesweeper/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/minesweeper-online.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-gomoku reveal" data-game="gomoku">
-          <div class="game-art">
-            <a class="art-play" href="/play/gomoku/?lang=ja" aria-label="Gomowise 五目並べで遊ぶ">
-            <img src="/assets/covers/gomoku-16x9.webp" width="1920" height="1080" srcset="/assets/covers/gomoku-960.webp 960w, /assets/covers/gomoku-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Gomowise 五目並べ：黒と白の石が並び、勝ちの5つが一列にそろった15路の木の碁盤">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Gomowise 五目並べ</h3>
-            <p class="game-meta">五目並べ &middot; 5つ並べ &middot; コンピューターや友達と対戦</p>
-            <p>15路盤の五目並べ。交互に石を置き、先に5つ並べた方が勝ち。コンピューターと3段階のレベルで、同じ端末で友達と、またはリンクや6文字のコードでどこにいる友達とも対戦できます。自由ルールに加え、韓国のオモクとベトナムのカロにも対応。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザで遊べます &middot; <a class="play-link" href="/play/gomoku/?lang=ja">今すぐ遊ぶ &rarr;</a> &middot; <a href="/ja/gomoku-online.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-word-chain reveal" data-game="word-chain">
-          <div class="game-art">
-            <a class="art-play" href="/play/word-chain/?lang=ja" aria-label="Relaywise しりとりで遊ぶ">
-            <img src="/assets/covers/word-chain-16x9.webp" width="1920" height="1080" srcset="/assets/covers/word-chain-960.webp 960w, /assets/covers/word-chain-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Relaywise しりとり：ベトナム語の8つのことばのしりとり。それぞれ前のことばの最後の音節から始まる">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Relaywise しりとり</h3>
-            <p class="game-meta">しりとり &middot; 8言語 &middot; コンピューターや友達と</p>
-            <p>しりとり：前のことばの最後の音から始め、同じことばは使わず、時間内に答えよう。3段階のコンピューター、同じ端末で友達と、またはリンクでどこにいる友達とも。ベトナム語のnối từ、日本語のしりとりから、韓国語の끝말잇기、インドネシア語のsambung kataまで8つの言語で遊べます。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザで遊べます &middot; <a class="play-link" href="/play/word-chain/?lang=ja">今すぐ遊ぶ &rarr;</a> &middot; <a href="/ja/shiritori.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-truco reveal" data-game="truco">
-          <div class="game-art">
-            <a class="art-play" href="/play/truco/?lang=ja" aria-label="Trucowise トゥルーコで遊ぶ">
-            <img src="/assets/covers/truco-16x9.webp" width="1920" height="1080" srcset="/assets/covers/truco-960.webp 960w, /assets/covers/truco-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Trucowise トゥルーコ：木のテーブルに置かれたスペイン式カードのトゥルーコの手と、線で描かれたスコア">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Trucowise トゥルーコ</h3>
-            <p class="game-meta">カードゲーム &middot; 1対1または2対2 &middot; コンピューターや友だちと</p>
-            <p>スペイン式40枚のデッキで遊ぶアルゼンチンのトゥルーコ。エンビードを歌い、トルーコ、レトルーコ、バレ・クアトロをコールし、ブラフで15点か30点を目指します。3段階のコンピューター、コンピューターの味方と組む2対2、誰も他人のカードを見られないルームで友だちと。フロールもお好みで。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザーで遊べます &middot; <a class="play-link" href="/play/truco/?lang=ja">今すぐ遊ぶ &rarr;</a> &middot; <a href="/ja/truco.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-buraco reveal" data-game="buraco">
-          <div class="game-art">
-            <a class="art-play" href="/play/buraco/?lang=ja" aria-label="Buracowise ブラーコで遊ぶ">
-            <img src="/assets/covers/buraco-16x9.webp" width="1920" height="1080" srcset="/assets/covers/buraco-960.webp 960w, /assets/covers/buraco-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Buracowise ブラーコ：木のテーブルに並んだ役ときれいなカナストラと、その下の手札">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Buracowise ブラーコ</h3>
-            <p class="game-meta">カードゲーム &middot; 1対1または2対2 &middot; コンピューターや友だちと</p>
-            <p>2組のデッキと4枚のジョーカーで遊ぶブラジルのブラーコ。同じスートの連続した役を出し、得になるときは捨て札を全部取り、モルトを手に入れて、きれいなカナストラを完成させて上がります。3つのレベルのコンピューター対戦、コンピューターの味方と組む2対2、誰もほかの人のカードを見られないルームで友だちと。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザーで遊べます &middot; <a class="play-link" href="/play/buraco/?lang=ja">今すぐ遊ぶ &rarr;</a> &middot; <a href="/ja/buraco.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-zelakas reveal" data-game="zelakas">
-          <div class="game-art">
-            <a class="art-play" href="/play/zelakas/?lang=ja" aria-label="Zelakas In Spaceをプレイ">
-            <img src="/assets/shot-zelakas.webp" width="1024" height="547" loading="lazy" decoding="async"
-                 alt="Zelakas In Spaceのタイトル画面。暗い惑星の横に紫色の宇宙船、星空にネオングリーンのメニュー文字">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Zelakas In Space</h3>
-            <p class="game-meta">2Dアーケードシューティング · 3つのエンディング · キーボード操作</p>
-            <p>小惑星、ブラックホール、ドローンを回避しよう。クリア度によって3つのエンディングがあります。2014年にGonzaloとChristianと共にActionScript 3で制作され、今はRuffle経由で最新ブラウザでプレイ可能、Godot 4でリメイク中です。</p>
-            <p class="game-status"><span class="dot dot-yellow"></span> タイトル画面は動きますが、レベルはまだ開始できません — 修正中です · <a class="play-link" href="/play/zelakas/?lang=ja">開く →</a> · <a href="/ja/zelakas-in-space.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-fighter-ex reveal" data-game="2d-fighter-ex">
-          <div class="game-art">
-            <a class="art-play" href="/play/2d-fighter-ex/?lang=ja" aria-label="2D Fighter EXをプレイ">
-            <img src="/assets/shot-fighter.webp" width="1024" height="538" loading="lazy" decoding="async"
-                 alt="2D Fighter EX: 灰色の街路で打ち合う2人のセル画風ファイター、背後には鉄道線路とタワービル">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>2D Fighter EX</h3>
-            <p class="game-meta">アニメーション実験 · シード生成のステージ · フレームごとに再生位置を操作</p>
-            <p>EXは実験(experiment)の略です。プロジェクトファイルを失った格闘アニメーションを、画面録画からフレーム単位で復元しました。84フレームのタイミング、2倍にズームインするカメラ、各ファイターの立ち位置。それを1990年代セル画風のキャラクターで、シード生成の森の中に再現しています。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 · <a class="play-link" href="/play/2d-fighter-ex/?lang=ja">開く →</a> · <a href="/ja/2d-fighter-ex.html">この実験について</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-moonlife reveal" data-game="farmy-moon-life">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-moon-life/?lang=ja" aria-label="Moon Lifeをプレイ">
-            <img src="/assets/covers/farmy-moon-life-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-moon-life-960.webp 960w, /assets/covers/farmy-moon-life-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Moon Life: a dirt path winding between fruit trees and a cottage on the moon farm under a pink evening sky">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>ムーンライフ</h3>
-            <p class="game-meta">のんびり生活ゲーム &middot; 果樹園、ジャム、大家さんの猫 &middot; スマホ優先設計</p>
-            <p>コテージと果樹園がある小さな季節の月。土地はすべてFeliceという名のベストを着た丸い猫が所有しています。果物を育て、ジュースやジャムに加工して、近所に売り、稼いだお金で彼から土地を買い取りましょう。知り合える村人たち、好きな場所に置ける100種類の建築物、ジャンプボタンのダブルタップで行ける6つの他の惑星、そして友達を月に招いて果樹園を手伝ってもらえる6文字のコードがあります。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/farmy-moon-life/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/farmy-moon-life.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-silk reveal" data-game="silk-and-seam">
-          <div class="game-art">
-            <a class="art-play" href="/play/silk-and-seam/?lang=ja" aria-label="Silk &amp; Seamをプレイ">
-            <img src="/assets/covers/silk-and-seam-16x9.webp" width="1920" height="1080" srcset="/assets/covers/silk-and-seam-960.webp 960w, /assets/covers/silk-and-seam-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Silk &amp; Seam: a rose silk lehenga and dupatta on a dress form in the atelier, next to Miss Petal's five-star review and the fee for the dress">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Silk &amp; Seam</h3>
-            <p class="game-meta">のんびり縫製&amp;ドレス制作ゲーム &middot; デザイン、裁断、縫製、お披露目 &middot; 一人用</p>
-            <p>依頼主から注文を受け、それぞれが望むドレスを仕立てましょう。ボディス、カラー、袖、スカートをデザインし、生地と染料を選び、パターンを裁断し、ビンテージミシンで縫い、レースや真珠、リボンで仕上げます。そしてカーテンが開き、マネキンが披露され、報酬を受け取ります。町へ出かけて噂話を聞き、オペラの衣装、貴族のガウン、ウェディングドレス、祭りのサリーを手に入れ、稼いだお金でサテン、ベルベット、シルク、金の錦織を買いましょう。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/silk-and-seam/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/silk-and-seam.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-dachis reveal" data-game="dachis">
-          <div class="game-art">
-            <a class="art-play" href="/play/dachis/?lang=ja" aria-label="Dachisをプレイ">
-            <img src="/assets/covers/dachis-16x9.webp" width="1920" height="1080" srcset="/assets/covers/dachis-960.webp 960w, /assets/covers/dachis-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Dachis: Kazan Village on top of Mt. Kazan - thatched huts, torch-lit paths, and a few dachis around the kid, Dex">
-              <span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Dachis</h3>
-            <p class="game-meta">2.5DモンスターフレンドRPG &middot; リアルタイムバトル &middot; シングルプレイヤー</p>
-            <p>1992年、ニューヨーク。はぐれた少年が渦に引きずり込まれ、モンスターたちが「ダチ」&mdash;友達&mdash;と呼ばれる火山島へと落ちていく。最初のパートナーにPower、Wisdom、Adventureのいずれかを選び、リアルタイムで戦う相棒にスペシャル技とパリィの指示を叫び、音楽に合わせた捕獲儀式で野生のダチと友達になろう。第1章は今すぐプレイでき、Dachi Worldの続きはアップデートで届く。</p>
-            <p class="game-status"><span class="dot dot-green"></span> ブラウザでプレイ可能 &middot; <a class="play-link" href="/play/dachis/?lang=ja">今すぐプレイ &rarr;</a> &middot; <a href="/ja/dachis.html">このゲームについて</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-aracstory reveal" data-game="aracstory">
-          <div class="game-art">
-            <img src="/assets/shot-aracstory.webp" width="1024" height="717" loading="lazy" decoding="async"
-                 alt="生成されたAracstoryのワールドタイル: シード値から配置された緑の部屋と通路、スポーン地点にいるプレイヤー、2つの出口ポータル">
-          </div>
-          <div class="game-copy">
-            <h3>Aracstory</h3>
-            <p class="game-meta">2Dアドベンチャー · シード生成のマルチタイルワールド · WASD操作</p>
-            <p>1つのシード値から生成される5つの連結したワールドを巡るアドベンチャー。同じシード値なら同じワールド、新しいシード値なら新しいプレイ。2013年にNikhil Vと共にUnityで制作を開始し、現在Godot 4でリメイク中です。</p>
-            <p class="game-status"><span class="dot dot-yellow"></span> 開発中</p>
-          </div>
-        </article>
-      </div>
+  <div class="game-grid tiles">
+    <article class="game-card tile" data-game="team-bonding" data-chips="action two" data-name="Splatbarn">
+      <div class="game-art"><a class="art-play" href="/play/farmyshoot/?lang=ja" aria-label="Splatbarnをプレイ"><img src="/assets/covers/farmyshoot-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmyshoot-960.webp 960w, /assets/covers/farmyshoot-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/farmyshoot.html">Splatbarn</a></h3><div class="game-meta"><div class="t-genre">アクション</div><div class="vh">人数:</div><div class="t-players">2&ndash;10</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-uprising" data-chips="action two" data-name="Hoofrise">
+      <div class="game-art"><a class="art-play" href="/play/farmy-uprising/?lang=ja" aria-label="Hoofriseをプレイ"><img src="/assets/covers/farmy-uprising-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-uprising-960.webp 960w, /assets/covers/farmy-uprising-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/farmy-uprising.html">Hoofrise</a></h3><div class="game-meta"><div class="t-genre">アクション</div><div class="vh">人数:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-evil-hills" data-chips="action two" data-name="Evil Hills">
+      <div class="game-art"><a class="art-play" href="/play/farmy-evil-hills/?lang=ja" aria-label="Evil Hillsをプレイ"><img src="/assets/covers/farmy-evil-hills-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-evil-hills-960.webp 960w, /assets/covers/farmy-evil-hills-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/farmy-evil-hills.html">イービルヒルズ</a></h3><div class="game-meta"><div class="t-genre">アクション</div><div class="vh">人数:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmykart" data-chips="action two" data-name="Kartzoom カートレース">
+      <div class="game-art"><a class="art-play" href="/play/farmykart/?lang=ja" aria-label="Kartzoom カートレースをプレイ"><img src="/assets/covers/farmykart-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmykart-960.webp 960w, /assets/covers/farmykart-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/farmykart.html">Kartzoom カートレース</a></h3><div class="game-meta"><div class="t-genre">アクション</div><div class="vh">人数:</div><div class="t-players">1&ndash;8</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-crosswords" data-chips="word puzzle two" data-name="Wordburrow クロスワード">
+      <div class="game-art"><a class="art-play" href="/play/farmy-crosswords/?lang=ja" aria-label="Wordburrow クロスワードをプレイ"><img src="/assets/covers/farmy-crosswords-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-crosswords-960.webp 960w, /assets/covers/farmy-crosswords-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/farmy-crosswords.html">Wordburrow クロスワード</a></h3><div class="game-meta"><div class="t-genre">ワード</div><div class="vh">人数:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-chess" data-chips="board two" data-name="Rookwise チェス">
+      <div class="game-art"><a class="art-play" href="/play/farmy-chess/?lang=ja" aria-label="Rookwise チェスをプレイ"><img src="/assets/covers/farmy-chess-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-chess-960.webp 960w, /assets/covers/farmy-chess-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/farmy-chess.html">Rookwise チェス</a></h3><div class="game-meta"><div class="t-genre">ボード</div><div class="vh">人数:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-checkers" data-chips="board two" data-name="Jumpwise チェッカー">
+      <div class="game-art"><a class="art-play" href="/play/farmy-checkers/?lang=ja" aria-label="Jumpwise チェッカーをプレイ"><img src="/assets/covers/farmy-checkers-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-checkers-960.webp 960w, /assets/covers/farmy-checkers-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/farmy-checkers.html">Jumpwise チェッカー</a></h3><div class="game-meta"><div class="t-genre">ボード</div><div class="vh">人数:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-ludo" data-chips="board two" data-name="Pawnrush ルドー">
+      <div class="game-art"><a class="art-play" href="/play/farmy-ludo/?lang=ja" aria-label="Pawnrush ルドーをプレイ"><img src="/assets/covers/farmy-ludo-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-ludo-960.webp 960w, /assets/covers/farmy-ludo-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/farmy-ludo.html">Pawnrush ルドー</a></h3><div class="game-meta"><div class="t-genre">ボード</div><div class="vh">人数:</div><div class="t-players">1&ndash;4</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="minesweeper" data-chips="puzzle" data-name="Sweepwise マインスイーパー">
+      <div class="game-art"><a class="art-play" href="/play/minesweeper/?lang=ja" aria-label="Sweepwise マインスイーパーをプレイ"><img src="/assets/covers/minesweeper-16x9.webp" width="1920" height="1080" srcset="/assets/covers/minesweeper-960.webp 960w, /assets/covers/minesweeper-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/minesweeper-online.html">Sweepwise マインスイーパー</a></h3><div class="game-meta"><div class="t-genre">パズル</div><div class="vh">人数:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="gomoku" data-chips="board two" data-name="Gomowise 五目並べ">
+      <div class="game-art"><a class="art-play" href="/play/gomoku/?lang=ja" aria-label="Gomowise 五目並べで遊ぶ"><img src="/assets/covers/gomoku-16x9.webp" width="1920" height="1080" srcset="/assets/covers/gomoku-960.webp 960w, /assets/covers/gomoku-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/gomoku-online.html">Gomowise 五目並べ</a></h3><div class="game-meta"><div class="t-genre">ボード</div><div class="vh">人数:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="word-chain" data-chips="word puzzle two" data-name="Relaywise しりとり">
+      <div class="game-art"><a class="art-play" href="/play/word-chain/?lang=ja" aria-label="Relaywise しりとりで遊ぶ"><img src="/assets/covers/word-chain-16x9.webp" width="1920" height="1080" srcset="/assets/covers/word-chain-960.webp 960w, /assets/covers/word-chain-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/shiritori.html">Relaywise しりとり</a></h3><div class="game-meta"><div class="t-genre">ワード</div><div class="vh">人数:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="truco" data-chips="card two" data-name="Trucowise トゥルーコ">
+      <div class="game-art"><a class="art-play" href="/play/truco/?lang=ja" aria-label="Trucowise トゥルーコで遊ぶ"><img src="/assets/covers/truco-16x9.webp" width="1920" height="1080" srcset="/assets/covers/truco-960.webp 960w, /assets/covers/truco-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/truco.html">Trucowise トゥルーコ</a></h3><div class="game-meta"><div class="t-genre">カード</div><div class="vh">人数:</div><div class="t-players">1&ndash;4</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="buraco" data-chips="card two" data-name="Buracowise ブラーコ">
+      <div class="game-art"><a class="art-play" href="/play/buraco/?lang=ja" aria-label="Buracowise ブラーコで遊ぶ"><img src="/assets/covers/buraco-16x9.webp" width="1920" height="1080" srcset="/assets/covers/buraco-960.webp 960w, /assets/covers/buraco-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/buraco.html">Buracowise ブラーコ</a></h3><div class="game-meta"><div class="t-genre">カード</div><div class="vh">人数:</div><div class="t-players">1&ndash;4</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="2d-fighter-ex" data-chips="action" data-name="2D Fighter EX">
+      <div class="game-art"><a class="art-play" href="/play/2d-fighter-ex/?lang=ja" aria-label="2D Fighter EXをプレイ"><img src="/assets/fighter-ex-preview.png" width="1200" height="630" loading="lazy" decoding="async" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/2d-fighter-ex.html">2D Fighter EX</a></h3><div class="game-meta"><div class="t-genre">アクション</div><div class="vh">人数:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-moon-life" data-chips="story two" data-name="Moon Life">
+      <div class="game-art"><a class="art-play" href="/play/farmy-moon-life/?lang=ja" aria-label="Moon Lifeをプレイ"><img src="/assets/covers/farmy-moon-life-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-moon-life-960.webp 960w, /assets/covers/farmy-moon-life-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/farmy-moon-life.html">ムーンライフ</a></h3><div class="game-meta"><div class="t-genre">ストーリー・シム</div><div class="vh">人数:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="silk-and-seam" data-chips="story" data-name="Silk &amp; Seam">
+      <div class="game-art"><a class="art-play" href="/play/silk-and-seam/?lang=ja" aria-label="Silk &amp; Seamをプレイ"><img src="/assets/covers/silk-and-seam-16x9.webp" width="1920" height="1080" srcset="/assets/covers/silk-and-seam-960.webp 960w, /assets/covers/silk-and-seam-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/silk-and-seam.html">Silk &amp; Seam</a></h3><div class="game-meta"><div class="t-genre">ストーリー・シム</div><div class="vh">人数:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+    <article class="game-card tile" data-game="dachis" data-chips="story" data-name="Dachis">
+      <div class="game-art"><a class="art-play" href="/play/dachis/?lang=ja" aria-label="Dachisをプレイ"><img src="/assets/covers/dachis-16x9.webp" width="1920" height="1080" srcset="/assets/covers/dachis-960.webp 960w, /assets/covers/dachis-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; プレイ</span></a></div>
+      <div class="game-copy"><h3><a href="/ja/dachis.html">Dachis</a></h3><div class="game-meta"><div class="t-genre">ストーリー・シム</div><div class="vh">人数:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">お気に入り</span></button>
+    </article>
+  </div>
+  
+      <p class="no-match" hidden></p>
+      <p class="intro-line"><span class="hand-underline">手続き生成の世界、手描きの心。</span>友だちと遊べるブラウザゲーム。どれもこのタブで開きます。</p>
     </section>
 
     <section class="about-short reveal">
       <h2>私たちについて</h2>
       <p>Magestican Studiosは、Bryan Arbeloが大規模なプロシージャル生成と手描きアートを組み合わせた小さなゲームに使うブランド名です。エンジンはシード生成のデッキからカードを配りますが、そのカード一枚一枚を人がデザインしています。</p>
       <p>サーバーもランチャーも登録も不要です。ゲームは1つのリンクであり、そのリンクは制限された業務用ノートPC、Chromebook、スマートフォンでも動作します。</p>
-      <p>YouTubeでこれらのゲームをプレイしている<a href="https://www.youtube.com/@ameliagurl">Amelia</a>もいます。彼女は好意的な評価をするために雇われているわけではありません。</p>
+      
+
       <p><a href="/ja/about.html" class="more-link">詳しく読む →</a></p>
     </section>
   </main>
+  
+  <div id="portal-strings" hidden>
+    <span data-k="continue">続きから</span>
+    <span data-k="favourites">お気に入り</span>
+    <span data-k="recent">最近遊んだゲーム</span>
+    <span data-k="resume">再開</span>
+    <span data-k="today">今日</span>
+    <span data-k="nomatch">一致するゲームがありません。別の言葉か絞り込みを試してください。</span>
+    <span data-k="favEmpty">ゲームのハートをタップすると、ここに保存されます。</span>
+  </div>
+  
 
   
 
@@ -1182,6 +941,7 @@
   </nav>
 
   <footer class="site-footer">
+    <nav class="footer-nav" aria-label="サイト"><ul><li><a href="/ja/#games">ゲーム</a></li><li><a href="/you.html">マイゲーム</a></li><li><a href="/ja/for-remote-teams.html">チーム向け</a></li><li><a href="/ja/magazine/">マガジン</a></li><li><a href="/ja/about.html">スタジオについて</a></li><li><a href="/ja/reviews.html">レビュー</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
     <p>Copyright © 2026 Ultra Task Pty Ltd. All rights reserved.<br> Magestican StudiosおよびMagestican Studiosのロゴは、オーストラリアのUltra Task Pty Ltdの商標です。</p>
     <p class="colophon">本サイトは静的サイトです · クッキーなし、匿名の集計のみ (<a href="/ja/privacy.html">詳細</a>) · <a href="/ja/licence.html">ゲームコードはMITライセンス</a> · <a href="https://www.youtube.com/@ameliagurl">YouTubeのAmelia</a><span id="support-slot"></span>
@@ -1191,7 +951,8 @@
     
   </footer>
 
-  <script type="module" src="/assets/site.js?v=a3e4222d-20261016T074724Z"></script>
+  <script type="module" src="/assets/site.js?v=78913b91-20261016T094556Z"></script>
+  <script type="module" src="/assets/portal.js?v=78913b91-20261016T094556Z"></script>
 
   
 

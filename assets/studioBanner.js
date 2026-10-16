@@ -82,6 +82,9 @@ const LIVE_SRC = '/play/shared/ui/liveBadge.js';
 
 
 
+
+
+
 const CSS = `
 .site-header .studio-tools {
   display: flex; align-items: center; gap: 6px;
@@ -112,10 +115,10 @@ const CSS = `
   border-color: currentColor;
 }
 @media (max-width: 700px) {
-  .site-header { flex-wrap: wrap; }
+  .site-header { flex-wrap: nowrap; }
   .site-header .brand { order: 0; }
+  .site-header nav { order: 0; flex: 1 1 auto; flex-basis: auto; min-width: 0; }
   .site-header .studio-tools { order: 1; margin-left: auto; }
-  .site-header nav { order: 2; flex-basis: 100%; }
   .site-header .studio-music { width: 44px; height: 40px; }
 }
 @media (max-width: 480px) {

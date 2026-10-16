@@ -647,6 +647,9 @@
   </script>
   <link rel="stylesheet" href="/styles.css">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  
+
+  <script>try{var l=JSON.parse(localStorage.getItem('magestican.library.v1')||'null');if(l&&l.games&&Object.keys(l.games).length)document.documentElement.classList.add('has-library')}catch(e){}</script>
 </head>
 <body>
   <header class="site-header">
@@ -656,28 +659,10 @@
     </a>
     <nav>
       <a href="/ko/#games">게임</a>
-      <a href="/ko/farmyshoot.html">Splatbarn</a>
-      <a href="/ko/farmy-uprising.html">Hoofrise</a>
-      <a href="/ko/farmy-evil-hills.html">Evil Hills</a>
-      <a href="/ko/farmykart.html">Kartzoom 카트 레이싱</a>
-      <a href="/ko/farmy-tiles.html">Letterloft 단어 보드게임</a>
-      <a href="/ko/farmy-crosswords.html">Wordburrow 십자말풀이</a>
-      <a href="/ko/farmy-chess.html">Rookwise 체스</a>
-      <a href="/ko/farmy-checkers.html">Jumpwise 체커</a>
-      <a href="/ko/farmy-ludo.html">Pawnrush 루도</a>
-      <a href="/ko/minesweeper-online.html">Sweepwise 지뢰찾기</a>
-      <a href="/ko/omok-online.html">Gomowise 오목</a>
-      <a href="/ko/kkeutmal-itgi.html">Relaywise 끝말잇기</a>
-      <a href="/ko/truco.html">Trucowise 트루코</a>
-      <a href="/ko/buraco.html">Buracowise 부라코</a>
-      <a href="/ko/zelakas-in-space.html">Zelakas</a>
-      <a href="/ko/2d-fighter-ex.html">Fighter EX</a>
-      <a href="/ko/farmy-moon-life.html">Moon Life</a>
-      <a href="/ko/silk-and-seam.html">Silk & Seam</a>
-      <a href="/ko/dachis.html">Dachis</a>
+      <a href="/you.html">내 게임</a>
       <a href="/ko/for-remote-teams.html">팀을 위한 게임</a>
-      <a href="/ko/about.html">소개</a>
       <a href="/ko/magazine/">매거진</a>
+      <a href="/ko/about.html">소개</a>
       <a href="/ko/reviews.html">리뷰</a>
     </nav>
     <details class="lang-switch"><summary aria-label="언어: 한국어"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><span>KO</span></summary><ul><li><a href="/" hreflang="en" onclick="try{localStorage.setItem('ms-lang','en')}catch(e){}" lang="en" data-lang="en">English</a></li><li><a href="/es/" hreflang="es" onclick="try{localStorage.setItem('ms-lang','es')}catch(e){}" lang="es-419" data-lang="es">Español</a></li><li><a href="/pt/" hreflang="pt-BR" onclick="try{localStorage.setItem('ms-lang','pt')}catch(e){}" lang="pt-BR" data-lang="pt">Português</a></li><li><a href="/tl/" hreflang="tl" onclick="try{localStorage.setItem('ms-lang','tl')}catch(e){}" lang="tl" data-lang="tl">Tagalog</a></li><li><a href="/ja/" hreflang="ja" onclick="try{localStorage.setItem('ms-lang','ja')}catch(e){}" lang="ja" data-lang="ja">日本語</a></li><li><a href="/ko/" hreflang="ko" onclick="try{localStorage.setItem('ms-lang','ko')}catch(e){}" lang="ko" data-lang="ko" aria-current="page">한국어</a></li><li><a href="/id/" hreflang="id" onclick="try{localStorage.setItem('ms-lang','id')}catch(e){}" lang="id" data-lang="id">Bahasa Indonesia</a></li><li><a href="/vi/" hreflang="vi" onclick="try{localStorage.setItem('ms-lang','vi')}catch(e){}" lang="vi" data-lang="vi">Tiếng Việt</a></li></ul></details>
@@ -688,435 +673,209 @@
 
 
 
-  <div class="hero-band hero-band--tall">
-    <div class="scene" aria-hidden="true">
-      <span class="l-sun" data-par="0.16"></span>
-      <span class="l-clouds" data-par="0.13"></span>
-      <span class="l-ridge" data-par="0.09"></span>
-      <span class="l-hills" data-par="0.05"></span>
-      <span class="l-fence" data-par="-0.05"></span>
-    </div>
-    <div class="hero-inner">
-      <div class="hero-grid">
-        <div class="hero">
-          
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          <h1>무료 브라우저 게임 — 설치 없음, 가입 불필요</h1>
-          <p class="tagline"><span class="hand-underline">절차적으로 생성된 월드, 손그림으로 채운 마음.</span> 시드 하나로 직접 손수 만든 소규모 게임들이고, 친구와 함께 즐길 수 있는 브라우저 게임 모두가 지금 열려 있는 탭에서 바로 시작돼요.</p>
-          <ul class="hero-facts">
-            <li>무료 게임</li>
-            <li>설치 불필요</li>
-            <li>가입 불필요</li>
-            <li>모든 브라우저 지원</li>
-          </ul>
-          <div class="cta-row">
-            <a class="cta cta-primary" href="/play/farmyshoot/?lang=ko">Splatbarn 플레이하기</a>
-            
-
-
-
-
-
-
-
-            <a class="cta cta-secondary" href="/ko/#games">스무 개 게임 모두 보기</a>
-          </div>
-        </div>
-        <figure class="hero-shot">
-          <a class="art-play" href="/play/farmyshoot/?lang=ko" aria-label="Splatbarn 플레이하기"><img src="/assets/shot-farmyshoot.webp" width="1024" height="576" fetchpriority="high" decoding="async"
-               alt="해질녘 Splatbarn의 센트럴 파크 링크 모습이에요. 육각형 포장 위에 목조 밴드스탠드가 있고, 공원 가로등이 켜져 있으며, 뒤로는 불빛이 켜진 복셀 도시 스카이라인이 보여요"><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a>
-          <figcaption>Splatbarn — 해질녘의 센트럴 파크 링크로, 시드로 만들어진 다섯 개 복셀 맵 중 하나예요. 같은 시드는 항상 같은 도시를 만들어요.</figcaption>
-        </figure>
-      </div>
-    </div>
-  </div>
 
   
-
-
-
-  <div id="live-now"></div>
+  <div class="chips" role="toolbar" aria-label="게임 필터" hidden>
+    <label class="vh" for="game-search">게임 검색</label>
+    <input id="game-search" class="search" type="search" placeholder="검색" autocomplete="off">
+    <button class="chip" type="button" data-chip="all" aria-pressed="true">전체</button>
+    <button class="chip" type="button" data-chip="fav" aria-pressed="false">즐겨찾기</button>
+    <button class="chip" type="button" data-chip="board" aria-pressed="false">보드</button>
+    <button class="chip" type="button" data-chip="word" aria-pressed="false">단어</button>
+    <button class="chip" type="button" data-chip="card" aria-pressed="false">카드</button>
+    <button class="chip" type="button" data-chip="puzzle" aria-pressed="false">퍼즐</button>
+    <button class="chip" type="button" data-chip="action" aria-pressed="false">액션</button>
+    <button class="chip" type="button" data-chip="story" aria-pressed="false">스토리·시뮬</button>
+    <button class="chip" type="button" data-chip="two" aria-pressed="false">2인용</button>
+  </div>
+  
+  
+  <section class="feature" aria-label="추천 게임">
+    <div class="feature-track">
+      <article class="slide" data-game="dachis">
+        <a class="slide-art" href="/play/dachis/?lang=ko" tabindex="-1" aria-hidden="true"><img src="/assets/covers/dachis-960.webp" width="960" height="540" fetchpriority="high" decoding="async" alt="Dachis"></a>
+        <div class="slide-copy">
+          <span class="tag-new">신작</span>
+          <h2 class="slide-name"><a href="/ko/dachis.html">Dachis</a></h2>
+          <p class="slide-line">1992년 뉴욕의 한 아이가 괴물 친구들의 섬에 떨어진다.</p>
+          <a class="cta cta-primary slide-play" href="/play/dachis/?lang=ko">지금 플레이</a>
+        </div>
+      </article>
+      <article class="slide" data-game="minesweeper">
+        <a class="slide-art" href="/play/minesweeper/?lang=ko" tabindex="-1" aria-hidden="true"><img src="/assets/covers/minesweeper-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Sweepwise 지뢰찾기"></a>
+        <div class="slide-copy">
+          <span class="tag-new">신작</span>
+          <h2 class="slide-name"><a href="/ko/minesweeper-online.html">Sweepwise 지뢰찾기</a></h2>
+          <p class="slide-line">클래식 지뢰찾기. 첫 클릭은 언제나 안전하게 열립니다.</p>
+          <a class="cta cta-primary slide-play" href="/play/minesweeper/?lang=ko">지금 플레이</a>
+        </div>
+      </article>
+      <article class="slide" data-game="gomoku">
+        <a class="slide-art" href="/play/gomoku/?lang=ko" tabindex="-1" aria-hidden="true"><img src="/assets/covers/gomoku-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Gomowise 오목"></a>
+        <div class="slide-copy">
+          <span class="tag-new">신작</span>
+          <h2 class="slide-name"><a href="/ko/omok-online.html">Gomowise 오목</a></h2>
+          <p class="slide-line">15x15 판 위의 오목. 컴퓨터나 친구와 대결하세요.</p>
+          <a class="cta cta-primary slide-play" href="/play/gomoku/?lang=ko">지금 플레이</a>
+        </div>
+      </article>
+      <article class="slide" data-game="word-chain">
+        <a class="slide-art" href="/play/word-chain/?lang=ko" tabindex="-1" aria-hidden="true"><img src="/assets/covers/word-chain-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Relaywise 끝말잇기"></a>
+        <div class="slide-copy">
+          <span class="tag-new">신작</span>
+          <h2 class="slide-name"><a href="/ko/kkeutmal-itgi.html">Relaywise 끝말잇기</a></h2>
+          <p class="slide-line">앞 단어가 끝난 글자로 새 단어를 시작하세요. 컴퓨터나 친구와 끝말잇기.</p>
+          <a class="cta cta-primary slide-play" href="/play/word-chain/?lang=ko">지금 플레이</a>
+        </div>
+      </article>
+      <article class="slide" data-game="truco">
+        <a class="slide-art" href="/play/truco/?lang=ko" tabindex="-1" aria-hidden="true"><img src="/assets/covers/truco-960.webp" width="960" height="540" loading="lazy" decoding="async" alt="Trucowise 트루코"></a>
+        <div class="slide-copy">
+          <span class="tag-new">신작</span>
+          <h2 class="slide-name"><a href="/ko/truco.html">Trucowise 트루코</a></h2>
+          <p class="slide-line">엔비도, 트루코, 케로: 컴퓨터나 친구와 즐기는 아르헨티나 카드 게임.</p>
+          <a class="cta cta-primary slide-play" href="/play/truco/?lang=ko">지금 플레이</a>
+        </div>
+      </article>
+    </div>
+    <div class="feature-dots" hidden></div>
+  </section>
+  
 
   <main>
+    
+
+    <div id="shelves" class="shelves" aria-live="polite"></div>
+
+    
+
+
+
+    <div id="live-now"></div>
+
+    
+
+
+
     <section id="games" class="games">
       <div class="section-head">
-        <h2>게임</h2>
-        
-
-
-
-
-
-
-        <p class="section-note">그중 열여덟 개는 지금 이 탭에서 바로 플레이할 수 있어요. 하나는 타이틀 화면까지만 진행되고, 하나는 아직 제작 중이에요.</p>
+        <h1>무료 브라우저 게임 — 설치 없음, 가입 불필요</h1>
+        <p class="section-note">이 탭에서 지금 바로 할 수 있는 게임 18개.</p>
       </div>
-      <hr class="wobble-rule">
-
       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      <div class="game-grid">
-        <article class="game-card game-teambonding reveal" data-game="team-bonding">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmyshoot/?lang=ko" aria-label="Splatbarn 플레이하기">
-            <img src="/assets/covers/farmyshoot-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmyshoot-960.webp 960w, /assets/covers/farmyshoot-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Splatbarn: a chicken carrying the red flag across a snowy voxel farm, a sheep in the foreground and more farm animals behind">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Splatbarn</h3>
-            <p class="game-meta">3D 복셀 FPS · P2P 멀티플레이어 · WASD + 마우스</p>
-            <p>얼음 위를 미끄러지듯 움직이는 브라우저 FPS로, 농장 동물 전투원, 시드로 생성된 복셀 맵, 서버 없는 P2P 네트워킹까지 갖췄어요. 깃발 5개를 빼앗으면 승리하지만, 지고 있는 팀이 10초 안에 애너그램을 풀면 역전할 수 있어요. 소, 닭, 돼지, 양 중 무엇을 고르시겠어요?</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 · <a class="play-link" href="/play/farmyshoot/?lang=ko">지금 플레이하기 →</a> · <a href="/ko/farmyshoot.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-uprising reveal" data-game="farmy-uprising">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-uprising/?lang=ko" aria-label="Hoofrise 플레이하기">
-            <img src="/assets/covers/farmy-uprising-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-uprising-960.webp 960w, /assets/covers/farmy-uprising-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Hoofrise from above: a large herd of animals massed on a green battlefield, farm buildings at the right edge and the command bar along the bottom">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Hoofrise</h3>
-            <p class="game-meta">10분짜리 전략 게임 &middot; 동물 대 농부 &middot; 휴대폰, 데스크톱, 컨트롤러 지원</p>
-            <p>대자연이 동물들을 깨웠고, 그들은 농장을 없애고 싶어 해요. 맵은 구역으로 나뉘어 있고 지킬 때마다 매초 점수가 쌓여서, 킬 수가 아니라 지킨 땅으로 점수를 매겨요. Herd는 모든 걸 차지하지만 아무것도 지키지 않고, Yield는 천천히 차지하지만 절대 내주지 않아요. 둘 다 강을 원해요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/farmy-uprising/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/farmy-uprising.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-feh reveal" data-game="farmy-evil-hills">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-evil-hills/?lang=ko" aria-label="Evil Hills 플레이하기">
-            <img src="/assets/covers/farmy-evil-hills-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-evil-hills-960.webp 960w, /assets/covers/farmy-evil-hills-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Evil Hills: a farmer in a plaid shirt seen from behind, walking down a dim, rust-stained station corridor towards a dark doorway">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Evil Hills</h3>
-            <p class="game-meta">PS1 시대 감성의 서바이벌 호러 &middot; 금성 배경 &middot; 휴대폰과 데스크톱 지원</p>
-            <p>Hesper-4 기지가 세 번 연속 보고를 놓쳤고, 우주 농업국은 두 명보다 한 명이 저렴하다는 이유로 조사관 한 명만 보내요. 공기로 퍼지는 무언가가 가축을 덮쳤는데, 사람에게는 옮지 않아요. 더 나쁜 소식은 Xander가 병에 걸린 게 아니라 먹잇감이라는 거예요. 낮게 조준하세요. 다리를 잃은 닭은 더 이상 도망치지 못해요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/farmy-evil-hills/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/farmy-evil-hills.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-farmykart reveal" data-game="farmykart">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmykart/?lang=ko" aria-label="Kartzoom 카트 레이싱 플레이하기">
-            <img src="/assets/covers/farmykart-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmykart-960.webp 960w, /assets/covers/farmykart-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Kartzoom 카트 레이싱: a sheep at the wheel of a white kart racing wheel to wheel with a goose, a duck and a chicken on a dirt circuit">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Kartzoom 카트 레이싱</h3>
-            <p class="game-meta">3D 카트 레이싱 · 드리프트 부스트 · 링크로 친구와 경주</p>
-            <p>Splatbarn의 농장을 카트로 달려요. 코너에서 드리프트로 미니 터보를 충전하고, 앞서가는 상대에게 소똥을 던지고, 뒤에 있는 누군가가 폭주 트랙터를 뽑지 않기만 바라세요. 두 개의 컵에 걸쳐 여섯 개의 서킷, 여덜 대의 카트 그리드, 앞머리와 실제 이동 방향이 다를 수 있는 독특한 주행 모델까지 있어요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 · <a class="play-link" href="/play/farmykart/?lang=ko">지금 플레이하기 →</a> · <a href="/ko/farmykart.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <article class="game-card game-crosswords reveal" data-game="farmy-crosswords">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-crosswords/?lang=ko" aria-label="Wordburrow 십자말풀이 단어 게임 플레이하기">
-            <img src="/assets/covers/farmy-crosswords-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-crosswords-960.webp 960w, /assets/covers/farmy-crosswords-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Wordburrow 십자말풀이: a grid of blue and gold letter tiles with the word SPANGRAM drawn across it">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Wordburrow 십자말풀이</h3>
-            <p class="game-meta">다섯 개의 단어 게임을 한곳에서 &middot; 223개 퍼즐 &middot; 하나의 방에서 함께 플레이</p>
-            <p>단어 게임 전체가 여기서 시작돼요. 처음 마주하는 메뉴에는 Guesswise 단어 맞추기, Combword 벌집 퍼즐, Groupseek 단어 묶기, Gridseek 단어 찾기가 있고, 그 아래 한 줄에는 정식 15x15 보드와 실제와 같은 100개짜리 타일 주머니를 갖춘 Letterloft 단어 보드게임가 있어요. 글자를 끌면 손을 따라 리본이 그려지고, 어디를 클릭하지 않아도 언제든 바로 입력을 시작할 수 있어요. 젊은 눈이 아니어도 편하게 볼 수 있도록 만들었어요. 18px보다 작은 요소는 없고, 누를 수 있는 어떤 요소도 48px보다 작지 않으며, 모든 색상에는 모양도 함께 표시되고, 시계는 어디에도 없어요. 함께 플레이하기를 누르면 다른 사람이 같은 퍼즐에 참여해요. 경쟁이 아니라 함께 단어를 찾는 거예요.</p>
-            <p>각 게임은 자기만의 페이지도 가지고 있어요. <a href="/ko/farmy-five.html">Guesswise 단어 맞추기</a>(227개 단어), <a href="/ko/farmy-hive.html">Combword 벌집 퍼즐</a>(53개 허니컴), <a href="/ko/farmy-herds.html">Groupseek 단어 묶기</a>(90개 세트), <a href="/ko/farmy-furrows.html">Gridseek 단어 찾기</a>(96개 격자), 그리고 <a href="/ko/farmy-tiles.html">Letterloft 단어 보드게임</a>예요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/farmy-crosswords/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/farmy-crosswords.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-chess reveal" data-game="farmy-chess">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-chess/?lang=ko" aria-label="Rookwise 체스 플레이하기">
-            <img src="/assets/covers/farmy-chess-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-chess-960.webp 960w, /assets/covers/farmy-chess-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Rookwise 체스 mid-game: a black and cream board of large, high-contrast pieces, with the move list at the right">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Rookwise 체스</h3>
-            <p class="game-meta">완전한 체스 &middot; 봇 또는 공유 링크 &middot; 시계 없음</p>
-            <p>일부가 아니라 게임 전체를 구현했어요. 양쪽 캐슬링, 앙파상, 어떤 말로든 가능한 승진, 스테일메이트가 아닌 무승부까지요. 판에는 랭크와 파일이 표시되어 있고, 게임 상태는 그 아래 문장으로 적혀 있으며, 수 되돌리기 버튼도 숨겨지지 않고 화면에 바로 보여요. 수에도, 게임 전체에도 타이머가 없고 화면 가장자리에 카운트다운도 없어요. 이게 바로 온라인 체스를 그만둔 대부분의 사람들이 그만둔 이유예요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/farmy-chess/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/farmy-chess.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-checkers reveal" data-game="farmy-checkers">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-checkers/?lang=ko" aria-label="Jumpwise 체커 플레이하기">
-            <img src="/assets/covers/farmy-checkers-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-checkers-960.webp 960w, /assets/covers/farmy-checkers-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Jumpwise 체커 mid-game: cow pieces against round sheep pieces on a large board, one capture marked in red">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Jumpwise 체커</h3>
-            <p class="game-meta">영국식 체커 &middot; 잡기 필수 &middot; 봇 또는 공유 링크</p>
-            <p>양 열두 마리와 소 열두 마리가 맞서요. 잡을 수 있으면 반드시 잡아야 하고, 이어지는 점프가 가능하면 같은 턴에 계속 이어져요. 반대편 끝에 도달한 말은 킹이 돼요. 양쪽은 같은 원반의 다른 색이 아니라 서로 다른 동물이고, 어두운 칸은 색을 채우는 대신 빗금으로 표시되어 있어서 햇빛 아래 휴대폰에서도, 두 색조를 구분하기 어려운 분에게도 잘 보여요. 되돌리기 버튼은 화면에 바로 있어요. 시계는 없어요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/farmy-checkers/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/farmy-checkers.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-ludo reveal" data-game="farmy-ludo">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-ludo/?lang=ko" aria-label="Pawnrush 루도 플레이하기">
-            <img src="/assets/covers/farmy-ludo-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-ludo-960.webp 960w, /assets/covers/farmy-ludo-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Pawnrush 루도: the cross-shaped board with the Geese, Pigs, Sheep and Cows yards and pieces out on the track">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Pawnrush 루도</h3>
-            <p class="game-meta">네 팀 &middot; 컴퓨터 또는 링크로 대결 &middot; 시계 없음</p>
-            <p>6이 나와야 출발할 수 있고, 혼자 있는 상대 말 위에 도착하면 잡을 수 있으며, 정확한 숫자가 나와야 집에 도착해요. 네 팀은 Sheep, Geese, Pigs, Cows이고, 각 팀마다 색뿐 아니라 원, 삼각형, 사각형, 다이아몬드라는 고유한 모양도 있어요. 네 개의 색깔 원반이라는 흔한 방식은 밝은 곳에서는 잘 통하지 않기 때문이에요. 트랙에는 화살표가 그려져 있어서 이동 방향을 외울 필요 없이 바로 보여요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/farmy-ludo/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/farmy-ludo.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-minesweeper reveal" data-game="minesweeper">
-          <div class="game-art">
-            <a class="art-play" href="/play/minesweeper/?lang=ko" aria-label="Sweepwise 지뢰찾기 플레이하기">
-            <img src="/assets/covers/minesweeper-16x9.webp" width="1920" height="1080" srcset="/assets/covers/minesweeper-960.webp 960w, /assets/covers/minesweeper-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Sweepwise 지뢰찾기 - 절반쯤 열린 판, 숨은 지뢰 위 빨간 깃발을 숫자 칸들이 둘러싸고 있어요">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Sweepwise 지뢰찾기</h3>
-            <p class="game-meta">지뢰찾기 &middot; 초급부터 고급, 사용자 지정까지 &middot; 최고 기록</p>
-            <p>클래식 지뢰찾기. 칸을 열고, 그 칸에 닿은 지뢰 수를 읽고, 찾은 지뢰에 깃발을 꽂으세요. 첫 클릭은 항상 넓은 영역을 열고, 깃발을 다 꽂은 숫자는 한 번 클릭으로 나머지를 열며, 난이도별 최고 기록은 이 기기에 저장돼요. 마우스, 손가락, 키보드로 플레이할 수 있고, 휴대폰에서는 고급 판이 세로로 바뀌어 칸이 탭하기 좋은 크기를 유지해요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/minesweeper/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/minesweeper-online.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-gomoku reveal" data-game="gomoku">
-          <div class="game-art">
-            <a class="art-play" href="/play/gomoku/?lang=ko" aria-label="Gomowise 오목 하기">
-            <img src="/assets/covers/gomoku-16x9.webp" width="1920" height="1080" srcset="/assets/covers/gomoku-960.webp 960w, /assets/covers/gomoku-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Gomowise 오목: 흑돌과 백돌이 놓이고 승리한 5목이 한 줄로 이어진 15줄 나무 오목판">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Gomowise 오목</h3>
-            <p class="game-meta">오목 &middot; 5개 잇기 &middot; 컴퓨터나 친구와 대전</p>
-            <p>15줄 판의 오목: 번갈아 돌을 놓고 먼저 5개를 이으면 승리. 컴퓨터와 3단계로, 같은 기기에서 친구와, 또는 링크나 여섯 글자 코드로 어디 있는 친구와도 둘 수 있습니다. 자유룰에 한국식 오목룰과 베트남식 카로룰까지.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 &middot; <a class="play-link" href="/play/gomoku/?lang=ko">지금 플레이 &rarr;</a> &middot; <a href="/ko/omok-online.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-word-chain reveal" data-game="word-chain">
-          <div class="game-art">
-            <a class="art-play" href="/play/word-chain/?lang=ko" aria-label="Relaywise 끝말잇기 플레이">
-            <img src="/assets/covers/word-chain-16x9.webp" width="1920" height="1080" srcset="/assets/covers/word-chain-960.webp 960w, /assets/covers/word-chain-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Relaywise 끝말잇기: 베트남어 단어 여덟 개가 앞 단어의 마지막 음절로 이어진 끝말잇기">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Relaywise 끝말잇기</h3>
-            <p class="game-meta">끝말잇기 &middot; 8개 언어 &middot; 컴퓨터나 친구와</p>
-            <p>끝말잇기: 앞 단어의 끝 글자로 시작하고, 같은 단어는 쓰지 않고, 시간이 다 되기 전에 답하세요. 컴퓨터와 3단계, 같은 기기에서 친구와, 또는 링크로 어디서든 친구와 할 수 있습니다. 두음법칙을 적용한 한국어 끝말잇기부터 베트남어 nối từ, 일본어 시리토리, 인도네시아어 sambung kata까지 8개 언어로 즐기세요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 바로 플레이 &middot; <a class="play-link" href="/play/word-chain/?lang=ko">지금 플레이 &rarr;</a> &middot; <a href="/ko/kkeutmal-itgi.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-truco reveal" data-game="truco">
-          <div class="game-art">
-            <a class="art-play" href="/play/truco/?lang=ko" aria-label="Trucowise 트루코 플레이">
-            <img src="/assets/covers/truco-16x9.webp" width="1920" height="1080" srcset="/assets/covers/truco-960.webp 960w, /assets/covers/truco-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Trucowise 트루코: 나무 테이블 위의 스페인식 카드로 된 트루코 한 판과 선으로 그린 점수">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Trucowise 트루코</h3>
-            <p class="game-meta">카드 게임 &middot; 1대1 또는 2대2 &middot; 컴퓨터나 친구와</p>
-            <p>스페인식 40장 카드로 즐기는 아르헨티나 트루코. 엔비도를 부르고 트루코, 레트루코, 발레 쿠아트로를 콜하며 블러핑으로 15점이나 30점까지. 세 단계의 컴퓨터, 컴퓨터 파트너와 함께하는 2대2, 아무도 남의 카드를 볼 수 없는 방에서 친구와 함께. 플로르는 원할 때 켜세요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 &middot; <a class="play-link" href="/play/truco/?lang=ko">지금 플레이 &rarr;</a> &middot; <a href="/ko/truco.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-buraco reveal" data-game="buraco">
-          <div class="game-art">
-            <a class="art-play" href="/play/buraco/?lang=ko" aria-label="Buracowise 부라코 플레이">
-            <img src="/assets/covers/buraco-16x9.webp" width="1920" height="1080" srcset="/assets/covers/buraco-960.webp 960w, /assets/covers/buraco-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Buracowise 부라코: 나무 테이블 위에 내려놓은 조합과 깨끗한 카나스트라, 그 아래의 손패">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Buracowise 부라코</h3>
-            <p class="game-meta">카드 게임 &middot; 1대1 또는 2대2 &middot; 컴퓨터나 친구와</p>
-            <p>카드 두 벌과 조커 네 장으로 하는 브라질 부라코: 같은 무늬의 연속된 조합을 내려놓고, 이득일 때는 버린 카드를 모두 가져오고, 내 모르투를 가져와 깨끗한 카나스트라를 완성해 나요. 세 단계의 컴퓨터와 대전, 컴퓨터 파트너와 함께하는 2대2, 아무도 다른 사람의 카드를 볼 수 없는 방에서 친구와 함께.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 &middot; <a class="play-link" href="/play/buraco/?lang=ko">지금 플레이 &rarr;</a> &middot; <a href="/ko/buraco.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-zelakas reveal" data-game="zelakas">
-          <div class="game-art">
-            <a class="art-play" href="/play/zelakas/?lang=ko" aria-label="Zelakas In Space 플레이하기">
-            <img src="/assets/shot-zelakas.webp" width="1024" height="547" loading="lazy" decoding="async"
-                 alt="Zelakas In Space의 타이틀 화면이에요. 어두운 행성 옆에 보라색 외계 우주선이 있고, 별이 빛나는 배경 위에 네온 초록색 메뉴 글자가 표시돼 있어요">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Zelakas In Space</h3>
-            <p class="game-meta">2D 아케이드 슈팅 · 세 가지 엔딩 · 키보드 조작</p>
-            <p>소행성, 블랙홀, 드론을 피해보세요. 얼마나 클리어했는지에 따라 세 가지 엔딩이 나와요. 2014년 Gonzalo, Christian과 함께 ActionScript 3로 만들었고, 오늘날에는 Ruffle을 통해 최신 브라우저에서도 플레이할 수 있어요. Godot 4로 리메이크 중이에요.</p>
-            <p class="game-status"><span class="dot dot-yellow"></span> 타이틀 화면은 플레이되지만 레벨은 아직 시작되지 않아요. 수정 중이에요 · <a class="play-link" href="/play/zelakas/?lang=ko">열어보기 →</a> · <a href="/ko/zelakas-in-space.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-fighter-ex reveal" data-game="2d-fighter-ex">
-          <div class="game-art">
-            <a class="art-play" href="/play/2d-fighter-ex/?lang=ko" aria-label="2D Fighter EX 플레이하기">
-            <img src="/assets/shot-fighter.webp" width="1024" height="538" loading="lazy" decoding="async"
-                 alt="2D Fighter EX의 모습이에요. 회색 거리에서 셀 애니메이션 스타일 두 격투가가 맞서고, 뒤로는 철로와 고층 빌딩이 보여요">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>2D Fighter EX</h3>
-            <p class="game-meta">애니메이션 실험작 · 시드 기반 무대 · 프레임 단위로 재생</p>
-            <p>EX는 실험(experiment)의 줄임말이에요. 프로젝트 파일을 잃어버린 격투 애니메이션을 화면 녹화 영상에서 프레임 단위로 복원했어요. 타이밍 84프레임, 2배 크기로 클로즈업하는 카메라, 각 격투가의 위치까지요. 그리고 시드로 생성된 숲 위에서 1990년대 셀 애니메이션 스타일 캐릭터로 재현했어요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 · <a class="play-link" href="/play/2d-fighter-ex/?lang=ko">열어보기 →</a> · <a href="/ko/2d-fighter-ex.html">실험작 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-moonlife reveal" data-game="farmy-moon-life">
-          <div class="game-art">
-            <a class="art-play" href="/play/farmy-moon-life/?lang=ko" aria-label="Moon Life 플레이하기">
-            <img src="/assets/covers/farmy-moon-life-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-moon-life-960.webp 960w, /assets/covers/farmy-moon-life-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Moon Life: a dirt path winding between fruit trees and a cottage on the moon farm under a pink evening sky">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Moon Life</h3>
-            <p class="game-meta">편안한 라이프 게임 &middot; 과수원, 잼, 그리고 집주인 고양이 &middot; 모바일 우선 설계</p>
-            <p>작은 계절이 있는 달에는 오두막과 과수원이 있고, 이 땅을 모두 소유한 조끼 입은 동글동글한 고양이 Felice가 있어요. 과일을 키우고 짜서 주스와 잼을 만들고, 이웃에게 팔아 번 돈으로 그의 땅을 하나씩 사들이세요. 친해질 수 있는 마을 주민들, 원하는 곳 어디든 지어 놓을 수 있는 수백 가지 물건들, 점프 버튼을 두 번 누르면 갈 수 있는 여섯 개의 다른 행성이 있고, 여섯 자리 코드로 친구를 내 달로 초대해 과수원 수확을 도와달라고 할 수도 있어요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/farmy-moon-life/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/farmy-moon-life.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-silk reveal" data-game="silk-and-seam">
-          <div class="game-art">
-            <a class="art-play" href="/play/silk-and-seam/?lang=ko" aria-label="Silk &amp; Seam 플레이하기">
-            <img src="/assets/covers/silk-and-seam-16x9.webp" width="1920" height="1080" srcset="/assets/covers/silk-and-seam-960.webp 960w, /assets/covers/silk-and-seam-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Silk &amp; Seam: a rose silk lehenga and dupatta on a dress form in the atelier, next to Miss Petal's five-star review and the fee for the dress">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Silk &amp; Seam</h3>
-            <p class="game-meta">편안한 재봉 &amp; 드레스메이킹 게임 &middot; 스케치, 재단, 봉제, 공개 &middot; 싱글 플레이</p>
-            <p>고객의 의뢰를 받아 원하는 드레스를 만들어보세요. 보디스, 칼라, 소매, 스커트를 스케치하고, 원단과 염색을 고르고, 패턴을 재단하고, 빈티지 재봉틀로 이음선을 박고, 레이스와 진주와 리본으로 마무리하세요. 그러면 마네킹 위 커튼이 열리고 대가를 받아요. 마을로 나가 이야기를 나누며 오페라 의상, 귀족 가운, 웨딩드레스, 축제용 사리를 의뢰로 받아보세요. 번 돈은 새틴, 벨벳, 실크, 금색 브로케이드를 사는 데 쓸 수 있어요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/silk-and-seam/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/silk-and-seam.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-dachis reveal" data-game="dachis">
-          <div class="game-art">
-            <a class="art-play" href="/play/dachis/?lang=ko" aria-label="Dachis 플레이하기">
-            <img src="/assets/covers/dachis-16x9.webp" width="1920" height="1080" srcset="/assets/covers/dachis-960.webp 960w, /assets/covers/dachis-16x9.webp 1920w" sizes="(max-width: 560px) calc(100vw - 36px), (max-width: 1105px) calc(50vw - 49px), 331px" loading="lazy" decoding="async" style="object-position: 50% 50%"
-                 alt="Dachis: Kazan Village on top of Mt. Kazan - thatched huts, torch-lit paths, and a few dachis around the kid, Dex">
-              <span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span>
-            </a>
-          </div>
-          <div class="game-copy">
-            <h3>Dachis</h3>
-            <p class="game-meta">2.5D 몬스터 친구 RPG &middot; 실시간 전투 &middot; 싱글 플레이</p>
-            <p>뉴욕, 1992년: 빨간 손이 길 잃은 아이를 소용돌이 속으로 끌고 들어가, 몬스터들이 다치 &mdash; 친구라고 불리는 화산섬으로 떨어뜨려요. 첫 파트너로 파워, 위즈덤, 어드벤처 중 하나를 고르고, 실시간 전투 중 필살기와 패링을 외치고, 박자에 맞춘 포획 의식으로 야생 다치와 친구가 되어보세요. 첫 번째 챕터는 지금 플레이할 수 있고, 더 넓은 다치 월드는 업데이트로 찾아와요.</p>
-            <p class="game-status"><span class="dot dot-green"></span> 브라우저에서 플레이 가능 &middot; <a class="play-link" href="/play/dachis/?lang=ko">지금 플레이하기 &rarr;</a> &middot; <a href="/ko/dachis.html">게임 소개</a></p>
-          </div>
-        </article>
-
-        <article class="game-card game-aracstory reveal" data-game="aracstory">
-          <div class="game-art">
-            <img src="/assets/shot-aracstory.webp" width="1024" height="717" loading="lazy" decoding="async"
-                 alt="생성된 Aracstory 월드 타일이에요. 시드로 배치된 초록색 방과 복도가 있고, 플레이어는 스폰 지점에, 두 개의 출구 포탈이 보여요">
-          </div>
-          <div class="game-copy">
-            <h3>Aracstory</h3>
-            <p class="game-meta">2D 어드벤처 · 시드 기반 멀티 타일 월드 · WASD 조작</p>
-            <p>하나의 시드로 생성된 다섯 개의 연결된 월드를 탐험하는 어드벤처예요. 같은 시드는 같은 월드를, 새로운 시드는 새로운 플레이를 만들어요. 2013년 Nikhil V와 함께 Unity로 처음 시작했고, Godot 4로 리메이크 중이에요.</p>
-            <p class="game-status"><span class="dot dot-yellow"></span> 개발 중</p>
-          </div>
-        </article>
-      </div>
+  <div class="game-grid tiles">
+    <article class="game-card tile" data-game="team-bonding" data-chips="action two" data-name="Splatbarn">
+      <div class="game-art"><a class="art-play" href="/play/farmyshoot/?lang=ko" aria-label="Splatbarn 플레이하기"><img src="/assets/covers/farmyshoot-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmyshoot-960.webp 960w, /assets/covers/farmyshoot-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/farmyshoot.html">Splatbarn</a></h3><div class="game-meta"><div class="t-genre">액션</div><div class="vh">인원:</div><div class="t-players">2&ndash;10</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-uprising" data-chips="action two" data-name="Hoofrise">
+      <div class="game-art"><a class="art-play" href="/play/farmy-uprising/?lang=ko" aria-label="Hoofrise 플레이하기"><img src="/assets/covers/farmy-uprising-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-uprising-960.webp 960w, /assets/covers/farmy-uprising-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/farmy-uprising.html">Hoofrise</a></h3><div class="game-meta"><div class="t-genre">액션</div><div class="vh">인원:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-evil-hills" data-chips="action two" data-name="Evil Hills">
+      <div class="game-art"><a class="art-play" href="/play/farmy-evil-hills/?lang=ko" aria-label="Evil Hills 플레이하기"><img src="/assets/covers/farmy-evil-hills-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-evil-hills-960.webp 960w, /assets/covers/farmy-evil-hills-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/farmy-evil-hills.html">Evil Hills</a></h3><div class="game-meta"><div class="t-genre">액션</div><div class="vh">인원:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmykart" data-chips="action two" data-name="Kartzoom 카트 레이싱">
+      <div class="game-art"><a class="art-play" href="/play/farmykart/?lang=ko" aria-label="Kartzoom 카트 레이싱 플레이하기"><img src="/assets/covers/farmykart-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmykart-960.webp 960w, /assets/covers/farmykart-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/farmykart.html">Kartzoom 카트 레이싱</a></h3><div class="game-meta"><div class="t-genre">액션</div><div class="vh">인원:</div><div class="t-players">1&ndash;8</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-crosswords" data-chips="word puzzle two" data-name="Wordburrow 십자말풀이">
+      <div class="game-art"><a class="art-play" href="/play/farmy-crosswords/?lang=ko" aria-label="Wordburrow 십자말풀이 플레이하기"><img src="/assets/covers/farmy-crosswords-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-crosswords-960.webp 960w, /assets/covers/farmy-crosswords-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/farmy-crosswords.html">Wordburrow 십자말풀이</a></h3><div class="game-meta"><div class="t-genre">단어</div><div class="vh">인원:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-chess" data-chips="board two" data-name="Rookwise 체스">
+      <div class="game-art"><a class="art-play" href="/play/farmy-chess/?lang=ko" aria-label="Rookwise 체스 플레이하기"><img src="/assets/covers/farmy-chess-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-chess-960.webp 960w, /assets/covers/farmy-chess-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/farmy-chess.html">Rookwise 체스</a></h3><div class="game-meta"><div class="t-genre">보드</div><div class="vh">인원:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-checkers" data-chips="board two" data-name="Jumpwise 체커">
+      <div class="game-art"><a class="art-play" href="/play/farmy-checkers/?lang=ko" aria-label="Jumpwise 체커 플레이하기"><img src="/assets/covers/farmy-checkers-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-checkers-960.webp 960w, /assets/covers/farmy-checkers-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/farmy-checkers.html">Jumpwise 체커</a></h3><div class="game-meta"><div class="t-genre">보드</div><div class="vh">인원:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-ludo" data-chips="board two" data-name="Pawnrush 루도">
+      <div class="game-art"><a class="art-play" href="/play/farmy-ludo/?lang=ko" aria-label="Pawnrush 루도 플레이하기"><img src="/assets/covers/farmy-ludo-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-ludo-960.webp 960w, /assets/covers/farmy-ludo-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/farmy-ludo.html">Pawnrush 루도</a></h3><div class="game-meta"><div class="t-genre">보드</div><div class="vh">인원:</div><div class="t-players">1&ndash;4</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="minesweeper" data-chips="puzzle" data-name="Sweepwise 지뢰찾기">
+      <div class="game-art"><a class="art-play" href="/play/minesweeper/?lang=ko" aria-label="Sweepwise 지뢰찾기 플레이하기"><img src="/assets/covers/minesweeper-16x9.webp" width="1920" height="1080" srcset="/assets/covers/minesweeper-960.webp 960w, /assets/covers/minesweeper-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/minesweeper-online.html">Sweepwise 지뢰찾기</a></h3><div class="game-meta"><div class="t-genre">퍼즐</div><div class="vh">인원:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="gomoku" data-chips="board two" data-name="Gomowise 오목">
+      <div class="game-art"><a class="art-play" href="/play/gomoku/?lang=ko" aria-label="Gomowise 오목 하기"><img src="/assets/covers/gomoku-16x9.webp" width="1920" height="1080" srcset="/assets/covers/gomoku-960.webp 960w, /assets/covers/gomoku-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/omok-online.html">Gomowise 오목</a></h3><div class="game-meta"><div class="t-genre">보드</div><div class="vh">인원:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="word-chain" data-chips="word puzzle two" data-name="Relaywise 끝말잇기">
+      <div class="game-art"><a class="art-play" href="/play/word-chain/?lang=ko" aria-label="Relaywise 끝말잇기 플레이"><img src="/assets/covers/word-chain-16x9.webp" width="1920" height="1080" srcset="/assets/covers/word-chain-960.webp 960w, /assets/covers/word-chain-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/kkeutmal-itgi.html">Relaywise 끝말잇기</a></h3><div class="game-meta"><div class="t-genre">단어</div><div class="vh">인원:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="truco" data-chips="card two" data-name="Trucowise 트루코">
+      <div class="game-art"><a class="art-play" href="/play/truco/?lang=ko" aria-label="Trucowise 트루코 플레이"><img src="/assets/covers/truco-16x9.webp" width="1920" height="1080" srcset="/assets/covers/truco-960.webp 960w, /assets/covers/truco-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/truco.html">Trucowise 트루코</a></h3><div class="game-meta"><div class="t-genre">카드</div><div class="vh">인원:</div><div class="t-players">1&ndash;4</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="buraco" data-chips="card two" data-name="Buracowise 부라코">
+      <div class="game-art"><a class="art-play" href="/play/buraco/?lang=ko" aria-label="Buracowise 부라코 플레이"><img src="/assets/covers/buraco-16x9.webp" width="1920" height="1080" srcset="/assets/covers/buraco-960.webp 960w, /assets/covers/buraco-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/buraco.html">Buracowise 부라코</a></h3><div class="game-meta"><div class="t-genre">카드</div><div class="vh">인원:</div><div class="t-players">1&ndash;4</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="2d-fighter-ex" data-chips="action" data-name="2D Fighter EX">
+      <div class="game-art"><a class="art-play" href="/play/2d-fighter-ex/?lang=ko" aria-label="2D Fighter EX 플레이하기"><img src="/assets/fighter-ex-preview.png" width="1200" height="630" loading="lazy" decoding="async" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/2d-fighter-ex.html">2D Fighter EX</a></h3><div class="game-meta"><div class="t-genre">액션</div><div class="vh">인원:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="farmy-moon-life" data-chips="story two" data-name="Moon Life">
+      <div class="game-art"><a class="art-play" href="/play/farmy-moon-life/?lang=ko" aria-label="Moon Life 플레이하기"><img src="/assets/covers/farmy-moon-life-16x9.webp" width="1920" height="1080" srcset="/assets/covers/farmy-moon-life-960.webp 960w, /assets/covers/farmy-moon-life-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/farmy-moon-life.html">Moon Life</a></h3><div class="game-meta"><div class="t-genre">스토리·시뮬</div><div class="vh">인원:</div><div class="t-players">1&ndash;2</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="silk-and-seam" data-chips="story" data-name="Silk &amp; Seam">
+      <div class="game-art"><a class="art-play" href="/play/silk-and-seam/?lang=ko" aria-label="Silk &amp; Seam 플레이하기"><img src="/assets/covers/silk-and-seam-16x9.webp" width="1920" height="1080" srcset="/assets/covers/silk-and-seam-960.webp 960w, /assets/covers/silk-and-seam-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/silk-and-seam.html">Silk &amp; Seam</a></h3><div class="game-meta"><div class="t-genre">스토리·시뮬</div><div class="vh">인원:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+    <article class="game-card tile" data-game="dachis" data-chips="story" data-name="Dachis">
+      <div class="game-art"><a class="art-play" href="/play/dachis/?lang=ko" aria-label="Dachis 플레이하기"><img src="/assets/covers/dachis-16x9.webp" width="1920" height="1080" srcset="/assets/covers/dachis-960.webp 960w, /assets/covers/dachis-16x9.webp 1920w" sizes="(max-width: 599px) calc(50vw - 21px), (max-width: 899px) calc(33.3vw - 17px), (max-width: 1199px) calc(25vw - 24px), 164px" loading="lazy" decoding="async" style="object-position: 50% 50%" alt=""><span class="art-play-badge" aria-hidden="true">&#9654; 플레이</span></a></div>
+      <div class="game-copy"><h3><a href="/ko/dachis.html">Dachis</a></h3><div class="game-meta"><div class="t-genre">스토리·시뮬</div><div class="vh">인원:</div><div class="t-players">1</div></div></div>
+      <button class="heart" type="button" aria-pressed="false" hidden><span class="vh">즐겨찾기</span></button>
+    </article>
+  </div>
+  
+      <p class="no-match" hidden></p>
+      <p class="intro-line"><span class="hand-underline">절차적으로 만든 세계, 손으로 그린 마음.</span> 친구와 함께하는 브라우저 게임, 모두 이 탭에서 열립니다.</p>
     </section>
 
     <section class="about-short reveal">
       <h2>우리 소개</h2>
       <p>Magestican Studios는 Bryan Arbelo가 강력한 절차적 생성과 손그림 아트를 담은 소규모 게임에 내거는 브랜드예요. 엔진은 시드로 만든 카드 뭉치에서 카드를 나눠줄 뿐, 카드 하나하나는 사람이 직접 디자인해요.</p>
       <p>서버도, 런처도, 가입할 것도 없어요. 게임은 링크 하나면 되고, 그 링크는 잠겨 있는 회사 노트북, 크롬북, 휴대폰에서도 작동해요.</p>
-      <p>유튜브에서 이 게임들을 플레이하는 <a href="https://www.youtube.com/@ameliagurl">Amelia</a>도 있는데, 좋게 말해주는 대가로 고용된 사람은 아니에요.</p>
+      
+
       <p><a href="/ko/about.html" class="more-link">자세히 읽어보기 →</a></p>
     </section>
   </main>
+  
+  <div id="portal-strings" hidden>
+    <span data-k="continue">이어하기</span>
+    <span data-k="favourites">즐겨찾기</span>
+    <span data-k="recent">최근 플레이</span>
+    <span data-k="resume">계속하기</span>
+    <span data-k="today">오늘</span>
+    <span data-k="nomatch">맞는 게임이 없습니다. 다른 단어나 필터를 시도해 보세요.</span>
+    <span data-k="favEmpty">게임의 하트를 누르면 여기에 보관됩니다.</span>
+  </div>
+  
 
   
 
@@ -1182,6 +941,7 @@
   </nav>
 
   <footer class="site-footer">
+    <nav class="footer-nav" aria-label="사이트"><ul><li><a href="/ko/#games">게임</a></li><li><a href="/you.html">내 게임</a></li><li><a href="/ko/for-remote-teams.html">팀을 위한 게임</a></li><li><a href="/ko/magazine/">매거진</a></li><li><a href="/ko/about.html">소개</a></li><li><a href="/ko/reviews.html">리뷰</a></li></ul></nav>
     <p><span class="footer-mark" aria-hidden="true">M</span></p>
     <p>Copyright © 2026 Ultra Task Pty Ltd. All rights reserved.<br> Magestican Studios와 Magestican Studios 로고는 호주 Ultra Task Pty Ltd의 상표예요.</p>
     <p class="colophon">정적 사이트 · 쿠키 없음, 익명 집계만 수집 (<a href="/ko/privacy.html">방법 보기</a>) · <a href="/ko/licence.html">게임 코드는 MIT 라이선스</a> · <a href="https://www.youtube.com/@ameliagurl">유튜브의 Amelia</a><span id="support-slot"></span>
@@ -1191,7 +951,8 @@
     
   </footer>
 
-  <script type="module" src="/assets/site.js?v=a3e4222d-20261016T074724Z"></script>
+  <script type="module" src="/assets/site.js?v=78913b91-20261016T094556Z"></script>
+  <script type="module" src="/assets/portal.js?v=78913b91-20261016T094556Z"></script>
 
   
 
