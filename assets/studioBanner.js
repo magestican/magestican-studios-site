@@ -89,6 +89,10 @@ const CSS = `
 .site-header .studio-tools {
   display: flex; align-items: center; gap: 6px;
   margin-left: auto; flex: 0 0 auto;
+  /* RESERVE THE BUTTON'S SLOT. The div mounts at once but the button waits on two dynamic
+     imports, so on production the header reflowed ~1.7 s in and pushed the language switch
+     44 px left - the only layout shift on the home page (CLS 0.001, 2026-10-16). */
+  min-width: 48px; min-height: 44px;
 }
 .site-header .studio-music {
   display: inline-flex; align-items: center; justify-content: center;
@@ -120,6 +124,7 @@ const CSS = `
   .site-header nav { order: 0; flex: 1 1 auto; flex-basis: auto; min-width: 0; }
   .site-header .studio-tools { order: 1; margin-left: auto; }
   .site-header .studio-music { width: 44px; height: 40px; }
+  .site-header .studio-tools { min-width: 44px; min-height: 40px; }
 }
 @media (max-width: 480px) {
   .site-header .brand-name { display: none; }
