@@ -61,6 +61,11 @@ import { ACCOUNT_CONFIG, ACCOUNTS_ENABLED, PROFILE_COLLECTION, isConfigured } fr
 
 const SAVE_SUBCOLLECTION = 'save';
 const SAVE_DOC = 'records';
+
+
+const LIBRARY_SUBCOLLECTION = 'library';
+const LIBRARY_DOC = 'summary';
+import { toLibraryDto } from '../library/libraryDto.js';
 import { toCloudDto, fromCloudDto, isSyncable, extraFields } from './profileDto.js';
 import {
   SAVE_SYNC_ENABLED, toSaveDto, isSyncableSave, extraSaveFields,
@@ -304,7 +309,16 @@ export async function pullProfile() {
     
     
     
-    return { profile: fromCloudDto(data), raw };
+    
+    
+    let library = null;
+    try {
+      const lib = await s.store.getDoc(
+        s.store.doc(s.db, PROFILE_COLLECTION, s.uid, LIBRARY_SUBCOLLECTION, LIBRARY_DOC),
+      );
+      if (lib.exists()) library = lib.data();
+    } catch (_) {  }
+    return { profile: fromCloudDto(data), raw, library };
   } catch (_) {
     return null;
   }
@@ -331,7 +345,7 @@ export async function pullProfile() {
 
 
 
-export async function pushProfile(profile, records = null) {
+export async function pushProfile(profile, records = null, library = null) {
   const s = await ready();
   if (!s || !s.uid) return false;
   const dto = toCloudDto(profile);
@@ -371,6 +385,24 @@ export async function pushProfile(profile, records = null) {
           await s.store.setDoc(
             s.store.doc(s.db, PROFILE_COLLECTION, s.uid, SAVE_SUBCOLLECTION, CUP_SAVE_DOCS[cupId]),
             { ...cup, updatedAt: s.store.serverTimestamp() },
+          );
+        } catch (_) {  }
+      }
+    }
+    
+    
+    if (library) {
+      const lib = toLibraryDto(library);
+      if (lib) {
+        try {
+          
+          
+          await withDeadline(
+            s.store.setDoc(
+              s.store.doc(s.db, PROFILE_COLLECTION, s.uid, LIBRARY_SUBCOLLECTION, LIBRARY_DOC),
+              { ...lib, updatedAt: s.store.serverTimestamp() },
+            ),
+            WRITE_TIMEOUT_MS, false,
           );
         } catch (_) {  }
       }
@@ -650,6 +682,11 @@ export async function deleteCloudProfile() {
   const s = await ready();
   if (!s) return false;
   try {
+    
+    
+    try {
+      await s.store.deleteDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid, LIBRARY_SUBCOLLECTION, LIBRARY_DOC));
+    } catch (_) {  }
     await s.store.deleteDoc(s.store.doc(s.db, PROFILE_COLLECTION, s.uid));
     return true;
   } catch (_) {

@@ -43,6 +43,10 @@ import {
   loadProfile, saveProfile, recordPlay, profileSummary, clearProfile, normaliseProfile, stampUnlocks,
 } from './profile.js';
 import { applyMatch } from '../progress/reportModel.js';
+import { updateLibrary, loadLibrary } from '../library/libraryStore.js';
+import { recordMatch, mergeLibraries, LIBRARY_KEY } from '../library/libraryModel.js';
+import { fromLibraryDto } from '../library/libraryDto.js';
+import { resolveGameId } from '../library/libraryIds.js';
 import { isFleet } from '../progress/fleet.js';
 import { localDayNumber } from './dayKey.js';
 import { toCloudDto } from './profileDto.js';
@@ -348,6 +352,22 @@ function recordSessionIn({
     
     const profile = played.changed ? stampUnlocks(settled.profile, settled.events, nowMs) : settled.profile;
     events.push(...settled.events);
+    
+    
+    
+    
+    
+    
+    
+    
+    try {
+      const pid = match?.game ?? gameId;
+      const libId = resolveGameId(pid, globalThis.location?.search ?? '');
+      if (libId) {
+        const libWon = (played.profile.games?.[pid]?.wins ?? 0) > (before.games?.[pid]?.wins ?? 0);
+        updateLibrary(store(), (l) => recordMatch(l, libId, { day, won: libWon }), null);
+      }
+    } catch {  }
     if (played.changed || profile.xp !== played.profile.xp) saveProfile(store(), profile);
 
     const summary = profileSummary(profile, nowMs);
@@ -462,6 +482,10 @@ export async function syncFromCloud() {
     });
     saveProfile(store(), merged.profile);
     writeRecords(merged.records);
+    
+    
+    
+    if (doc.library) updateLibrary(store(), (l) => mergeLibraries(l, doc.library, { today: day }), null);
     return profileSummary(merged.profile, nowMs);
   } catch (_) {
     return null;
@@ -482,6 +506,8 @@ async function pullRaw() {
   return {
     profile: got.profile ?? got,
     records: SAVE_SYNC_ENABLED ? fromSaveDto(got.raw ?? null)?.records ?? null : null,
+    
+    library: fromLibraryDto(got.library ?? null),
   };
 }
 
@@ -763,7 +789,9 @@ export function restoreBackup(index, nowMs = now()) {
 
 export async function forgetMe() {
   clearProfile(store());
-  for (const key of [BUDGET_KEY, PROMPT_KEY, SEEN_KEY, BACKUP_KEY]) {
+  
+  
+  for (const key of [BUDGET_KEY, PROMPT_KEY, SEEN_KEY, BACKUP_KEY, LIBRARY_KEY]) {
     try { store()?.removeItem(key); } catch {  }
   }
   if (!isSyncEnabled()) return true;
@@ -821,7 +849,7 @@ export async function syncNow() {
       return { ok: false, status: 'daily-limit' };
     }
     saveBudget(notePush(budget, { nowMs, today: day, digest }));
-    const sent = await pushProfile(profile, records);
+    const sent = await pushProfile(profile, records, loadLibrary(store()));
     return sent ? { ok: true, status: 'saved' } : { ok: false, status: 'refused' };
   } catch (_) {
     return { ok: false, status: 'failed' };
@@ -872,7 +900,7 @@ function maybePush(profile, records, nowMs, force = false) {
     
     
     saveBudget(notePush(budget, { nowMs, today: day, digest }));
-    Promise.resolve(pushProfile(profile, records)).catch(() => {});
+    Promise.resolve(pushProfile(profile, records, loadLibrary(store()))).catch(() => {});
   } catch (_) {
     
   }

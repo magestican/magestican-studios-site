@@ -114,6 +114,7 @@
     <p><strong>Seu e-mail também não está no documento de progresso.</strong> Os dois são mantidos separadamente: o Firebase Authentication guarda o endereço, o Cloud Firestore guarda o progresso, e as regras rejeitam qualquer tentativa de gravar um endereço de e-mail no documento de progresso.</p>
     <p>O tratamento que o próprio Google dá aos dados de autenticação é regido pela <a href="https://policies.google.com/privacy">Política de Privacidade do Google</a>.</p>
     <p><strong>Onde fica armazenado.</strong> No Google Cloud Firestore, em um projeto que controlamos. O acesso é restrito ao seu próprio documento: as regras permitem que um navegador conectado leia e grave o único documento pertencente ao seu próprio identificador e nada mais, e não há listagem, nem busca, nem caminho pelo qual um jogador possa chegar ao progresso de outro.</p>
+    <p><strong>Sua biblioteca de jogos.</strong> Para mostrar "Continuar", "Jogados recentemente" e seus favoritos, este navegador guarda uma lista curta de quais dos nossos jogos você abriu, em que dia (um número de dia, nunca um horário), quanto tempo cada jogo ficou aberto, quantas partidas você terminou e venceu, e quais jogos você marcou com um coração. Ela fica no seu navegador. Se você tiver uma conta, a mesma lista é copiada para uma entrada privada de biblioteca ao lado do seu documento de progresso, para que seus outros dispositivos possam mostrá-la. “Erase my progress” a exclui nos dois lugares.</p>
     <p><strong>Como excluir.</strong> O painel de conta de qualquer um dos nossos jogos tem um botão “Erase my progress” (apagar meu progresso). Ele exclui o documento de progresso armazenado e a sua cópia local, imediatamente — não é preciso nos enviar e-mail e não há período de espera. Se você também quiser que o próprio endereço de e-mail seja removido do Firebase Authentication, escreva para o endereço indicado em “Contato” e excluiremos a conta por completo.</p>
 
     <h2>O que fazemos com isso</h2>
@@ -194,7 +195,7 @@
     initAnalytics({ page: 'pt-privacy' });
     trackPlayClicks();
   </script>
-  <script type="module" src="/assets/studioBanner.js?v=3306d913-20261015T234004Z"></script>
+  <script type="module" src="/assets/studioBanner.js?v=a3e4222d-20261016T074724Z"></script>
   <script>
     
     

@@ -110,6 +110,7 @@
     <p><strong>Your email is not in the progress document either.</strong> The two are held separately: Firebase Authentication holds the address, Cloud Firestore holds the progress, and the rules reject any attempt to write an email address into the progress document.</p>
     <p>Google's own handling of authentication data is covered by the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</p>
     <p><strong>Where it is stored.</strong> Google Cloud Firestore, in a project we control. Access is restricted to your own document: the rules permit a signed-in browser to read and write the one document belonging to its own identifier and nothing else, and there is no listing, no search, and no path by which one player can reach another player's progress.</p>
+    <p><strong>Your game library.</strong> To show "Continue", "Recently played" and your favourites, this browser keeps a short list of which of our games you opened, on which day (a day number, never a time of day), how long each game was open, how many matches you finished and won, and which games you marked with a heart. It stays in your browser. If you have an account, the same list is copied to a private library entry next to your progress document so your other devices can show it. "Erase my progress" deletes it in both places.</p>
     <p><strong>Deleting it.</strong> The account panel in any of our games has an "Erase my progress" button. It deletes the stored progress document and your local copy, immediately — there is nothing to email us about and no waiting period. If you also want the email address itself removed from Firebase Authentication, email us at the address under "Contact" and we will delete the account outright.</p>
 
     <h2>What we do with it</h2>
@@ -193,7 +194,7 @@
     initAnalytics({ page: 'privacy' });
     trackPlayClicks();
   </script>
-  <script type="module" src="./assets/studioBanner.js?v=3306d913-20261015T234004Z"></script>
+  <script type="module" src="./assets/studioBanner.js?v=a3e4222d-20261016T074724Z"></script>
   <script>
     
     
