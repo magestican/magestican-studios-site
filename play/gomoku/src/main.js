@@ -33,6 +33,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
+import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -68,6 +69,7 @@ const statusEl = $('status');
 const sayEl = $('cursor-say');
 const rulesEl = $('rules');
 const newGameEl = $('new-game');
+const again = mountPlayAgain({ anchor: document.querySelector('.gm-board-wrap'), source: newGameEl });
 const undoEl = $('undo');
 const roomEl = $('room');
 
@@ -283,6 +285,7 @@ function drawControls() {
   undoEl.disabled = state.game.moves.length === 0 || (settings.mode === 'bot' && !!botTimer);
   newGameEl.textContent = settings.mode === 'room' ? T.rematch : T.newGame;
   newGameEl.disabled = settings.mode === 'room' && (!room.active || (!state.game.over && !(net?.hosting && state.game.moves.length === 0)));
+  again.update(state.game.over);
 }
 
 

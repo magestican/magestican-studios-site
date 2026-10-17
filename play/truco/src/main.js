@@ -35,6 +35,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
+import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -72,6 +73,7 @@ const actionsEl = $('actions');
 const mineEl = $('mine');
 const scoreEl = $('score');
 const nextEl = $('next-hand');
+const again = mountPlayAgain({ anchor: $('table'), source: $('new-game') });
 const roomEl = $('room');
 const targetEl = $('target');
 const florEl = $('flor');
@@ -559,6 +561,7 @@ function draw() {
     mineEl.textContent = view.game.opts.flor && nums.flor ? fill(T.myFlor, { n: nums.envido }) : fill(T.myEnvido, { n: nums.envido });
   } else mineEl.textContent = '';
   nextEl.hidden = !(view && h && h.over && !view.game.over && !guest);
+  again.update(!!view?.game.over);
 }
 
 

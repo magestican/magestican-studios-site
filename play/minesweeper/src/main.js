@@ -18,6 +18,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
+import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -53,6 +54,7 @@ const modeEl = $('mode');
 const bestEl = $('best');
 const msgEl = $('message');
 const customEl = $('custom');
+const again = mountPlayAgain({ anchor: document.querySelector('.sw-wrap'), source: faceEl });
 
 
 document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang;
@@ -170,6 +172,7 @@ function draw() {
   minesEl.textContent = pad3(flagsLeft(g));
   clockEl.textContent = pad3(secs(elapsed(g)));
   faceEl.textContent = g.state === 'won' ? '😎' : g.state === 'lost' ? '😵' : '🙂';
+  again.update(over);
   modeEl.setAttribute('aria-pressed', String(mode === 'flag'));
   const key = level === 'custom' ? null : level;
   bestEl.textContent = key && Number.isFinite(best[key]) ? `${(best[key] / 1000).toFixed(1)} s` : T.none;

@@ -40,6 +40,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
+import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -80,6 +81,8 @@ const centreEl = $('centre');
 const meldsEl = $('melds');
 const resultEl = $('result');
 const nextEl = $('next-hand');
+
+const again = mountPlayAgain({ anchor: resultEl, source: $('new-game'), scroll: false });
 const roomEl = $('room');
 const targetEl = $('target');
 const sortEl = $('sort');
@@ -683,6 +686,7 @@ function draw() {
   $('room-code').textContent = room.code ?? '-';
   targetEl.disabled = isGuest();
   statusEl.textContent = statusText();
+  again.update(!!view?.game.over);
   $('table').classList.toggle('my-turn', myTurn());
   drawScore();
   drawSeats();

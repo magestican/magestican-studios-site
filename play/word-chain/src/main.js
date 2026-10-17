@@ -38,6 +38,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
+import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -82,6 +83,7 @@ const wordLangEl = $('word-lang');
 const linkEl = $('link');
 const timerEl = $('timer');
 const newGameEl = $('new-game');
+const again = mountPlayAgain({ anchor: statusEl, source: newGameEl });
 const giveUpEl = $('give-up');
 const roomEl = $('room');
 
@@ -295,6 +297,7 @@ function drawControls() {
   const over = !!state?.game.over;
   newGameEl.textContent = settings.mode === 'room' ? T.rematch : T.newGame;
   newGameEl.disabled = settings.mode === 'room' && (!room.active || (!over && !(net?.hosting && !state?.game.chain.length)));
+  again.update(over);
   giveUpEl.disabled = !canType();
   inputEl.disabled = !canType();
   sendEl.disabled = !canType();
