@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "09575cc5-20261017T103337Z",
+ "buildId": "b8bb8ad4-20261017T114722Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -354,7 +354,7 @@
    "ageNote": null,
    "order": 10,
    "addedAt": "2026-10-15",
-   "bytes": 3622716
+   "bytes": 4292347
   },
   {
    "id": "word-chain",
@@ -418,7 +418,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-10-15",
-   "bytes": 3355894
+   "bytes": 4200862
   },
   {
    "id": "buraco",
