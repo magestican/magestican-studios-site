@@ -232,6 +232,32 @@ body { display: flex; flex-direction: column; }
 .sw-message { min-height: 1.4em; margin: 0; font-weight: 700; font-size: 20px; text-align: center; }
 .sw-help { max-width: 38em; margin: 0; font-size: 15px; color: var(--fc-inkSoft); text-align: center; }
 
+
+
+
+
+
+
+html[data-scene] .sw-wrap {
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(23, 21, 15, 0.55);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+}
+
+
+
+html[data-scene] .sw-board { background-size: 128px; background-repeat: repeat; }
+html[data-scene] .sw-cell:not(.open):not(.boom):not(.wrong) {
+  background: transparent;
+  box-shadow: inset 3px 3px 0 rgba(255, 255, 255, 0.45), inset -3px -3px 0 rgba(0, 0, 0, 0.38);
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}
+html[data-scene="beginner"] .sw-board { background-image: url(../assets/levels/tile-beginner.webp); }
+html[data-scene="intermediate"] .sw-board { background-image: url(../assets/levels/tile-intermediate.webp); }
+html[data-scene="expert"] .sw-board { background-image: url(../assets/levels/tile-expert.webp); }
+
 .visually-hidden {
   position: absolute !important;
   width: 1px;

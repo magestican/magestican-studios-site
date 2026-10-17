@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "c0634459-20261017T020347Z",
+ "buildId": "09575cc5-20261017T103337Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -322,7 +322,7 @@
    "ageNote": null,
    "order": 9,
    "addedAt": "2026-10-15",
-   "bytes": 3696586
+   "bytes": 4252234
   },
   {
    "id": "gomoku",

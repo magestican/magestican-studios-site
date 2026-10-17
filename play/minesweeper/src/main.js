@@ -19,6 +19,7 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
+import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -55,6 +56,9 @@ const bestEl = $('best');
 const msgEl = $('message');
 const customEl = $('custom');
 const again = mountPlayAgain({ anchor: document.querySelector('.sw-wrap'), source: faceEl });
+
+
+mountLevelScene({ levels: ['beginner', 'intermediate', 'expert'] });
 
 
 document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang;
@@ -131,10 +135,15 @@ function build() {
 function sizeCells() {
   if (!g) return;
   const top = boardEl.getBoundingClientRect().top + scrollY;
-  const availW = Math.min(innerWidth, document.documentElement.clientWidth) - 32;
+  
+  
+  const availW = Math.min(innerWidth, document.documentElement.clientWidth) - 56;
   const availH = innerHeight - Math.max(0, top) - 150;
   const fit = Math.floor(Math.min(availW / g.cols, Math.max(availH, 200) / g.rows));
-  document.documentElement.style.setProperty('--cell', `${Math.max(24, Math.min(44, fit))}px`);
+  
+  
+  const cell = Math.min(Math.floor(availW / g.cols), Math.max(24, Math.min(44, fit)));
+  document.documentElement.style.setProperty('--cell', `${Math.max(20, cell)}px`);
 }
 
 
