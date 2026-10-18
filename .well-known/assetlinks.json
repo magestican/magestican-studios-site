@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.magesticanstudios.app",
+      "sha256_cert_fingerprints": [
+        "E0:EA:0C:C1:0F:F7:78:37:5D:6A:CC:DC:67:27:C2:2B:07:24:0A:66:78:38:8F:B5:5C:B6:D8:A8:22:73:A6:46"
+      ]
+    }
+  }
+]
