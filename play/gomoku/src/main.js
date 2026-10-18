@@ -37,6 +37,7 @@ import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
+import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -75,6 +76,9 @@ const newGameEl = $('new-game');
 const again = mountPlayAgain({ anchor: document.querySelector('.gm-board-wrap'), source: newGameEl });
 
 let fit = null;
+
+
+mountLevelScene({ levels: ['easy', 'medium', 'hard'] });
 const undoEl = $('undo');
 const roomEl = $('room');
 

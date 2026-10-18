@@ -216,6 +216,24 @@ body { display: flex; flex-direction: column; }
 .gm-board .cursor { fill: none; stroke: var(--fc-blue); stroke-width: 0.08; }
 .gm-board .pending { fill: none; stroke: #C23B22; stroke-width: 0.07; stroke-dasharray: 0.12 0.08; }
 
+
+
+
+
+html[data-scene] .gm-board-wrap {
+  padding: 8px;
+  border-radius: 16px;
+  background: rgba(23, 21, 15, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+html[data-scene] .gm-board { background: var(--fc-wood) center / 50% repeat; }
+html[data-scene] .gm-board .wood { fill: transparent; }
+
+
+html[data-scene="easy"] .gm-board { background-image: linear-gradient(rgba(250, 240, 220, 0.25), rgba(250, 240, 220, 0.25)), url(../assets/levels/wood-easy.webp); }
+html[data-scene="medium"] .gm-board { background-image: linear-gradient(rgba(250, 240, 220, 0.5), rgba(250, 240, 220, 0.5)), url(../assets/levels/wood-medium.webp); }
+html[data-scene="hard"] .gm-board { background-image: linear-gradient(rgba(214, 196, 160, 0.6), rgba(214, 196, 160, 0.6)), url(../assets/levels/wood-hard.webp); }
+
 .gm-foot { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
 .gm-help { max-width: 38em; margin: 0; font-size: 15px; color: var(--fc-inkSoft); text-align: center; }
 
