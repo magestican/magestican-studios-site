@@ -156,6 +156,19 @@ body { display: flex; flex-direction: column; }
   display: flex; flex-direction: column; gap: 8px;
 }
 .bu-table.my-turn { border-color: var(--fc-green); }
+
+
+
+
+html[data-scene] .bu-table {
+  background: var(--fc-wood) center / 256px repeat;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+
+html[data-scene="easy"] .bu-table { background-image: linear-gradient(rgba(250, 240, 220, 0.3), rgba(250, 240, 220, 0.3)), url(../assets/levels/table-easy.webp); }
+html[data-scene="medium"] .bu-table { background-image: linear-gradient(rgba(250, 240, 220, 0.3), rgba(250, 240, 220, 0.3)), url(../assets/levels/table-medium.webp); }
+html[data-scene="hard"] .bu-table { background-image: linear-gradient(rgba(250, 240, 220, 0.65), rgba(250, 240, 220, 0.65)), url(../assets/levels/table-hard.webp); }
 .bu-seats { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .bu-seat { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 10px; border-radius: 10px; background: var(--fc-paperDim); border: 2px solid transparent; }
 .bu-seat.turn { border-color: var(--fc-red); }
@@ -245,4 +258,12 @@ button.bu-meld { cursor: pointer; }
   .bu-actions { min-height: 40px; }
   .bu-hand { padding: 14px 44px 4px 4px; row-gap: 4px; }
   .bu-hand .bu-card { margin-right: -40px; }
+}
+
+
+
+
+html[data-scene] #hand { padding: 18px 38px 8px 14px; }
+@media (max-width: 560px) {
+  html[data-scene] #hand { padding: 14px 54px 8px 14px; }
 }
