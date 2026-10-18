@@ -108,12 +108,14 @@ export function announceShare(result, { button = null, field = null, doc = globa
 
 
 
-export async function shareLink({ link, gameName, code = null, button = null, field = null, title = null }) {
+export async function shareLink({ link, gameName, code = null, button = null, field = null, title = null, text = null }) {
   const url = publicUrlFor(link);
   const res = await shareInvite({
     url,
     title: title ?? gameName,
-    text: inviteText({ gameName, code, level: myLevel() }),
+    
+    
+    text: text ?? inviteText({ gameName, code, level: myLevel() }),
   });
   return announceShare(res, { button, field });
 }

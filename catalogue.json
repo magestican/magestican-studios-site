@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "a316bdb3-20261018T044956Z",
+ "buildId": "aadccd8d-20261018T051723Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -354,7 +354,7 @@
    "ageNote": null,
    "order": 10,
    "addedAt": "2026-10-15",
-   "bytes": 4292347
+   "bytes": 4297574
   },
   {
    "id": "word-chain",
@@ -386,7 +386,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 4693131
+   "bytes": 4698640
   },
   {
    "id": "truco",

@@ -16,6 +16,7 @@
 
 
 
+
 import { LANGS, LINKS, defaultLink, isLink } from '../../../web-engine/wordchain/wordchainLang.js';
 import { loadDict, display } from '../../../web-engine/wordchain/wordchainDict.js';
 import { needed, winner } from '../../../web-engine/wordchain/wordchainRules.js';
@@ -32,7 +33,8 @@ import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
-import { shareLinkFor, joinIdFrom } from '../../../web-engine/words/coop.js';
+import { shareLinkFor } from '../../../web-engine/words/coop.js';
+import { ROLE, roomFromHref, watchLinkFor, watchingLabel } from '../../../web-engine/net/watchers.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
@@ -150,7 +152,8 @@ let loading = false;
 let net = null;
 let botTimer = null;
 let botBlanked = false;
-const room = { active: false, me: null, peers: [], code: null };
+
+const room = { active: false, me: null, peers: [], code: null, watching: false };
 
 
 
@@ -203,7 +206,8 @@ async function newMatch() {
 
 
 function nameOfSeat(seat) {
-  if (settings.mode === 'local') return seat === 0 ? T.p1 : T.p2;
+  
+  if (settings.mode === 'local' || (settings.mode === 'room' && room.watching)) return seat === 0 ? T.p1 : T.p2;
   const id = state.seats[seat];
   if (settings.mode === 'bot') return id === BOT ? T.bot : T.you;
   return id === me() ? T.you : T.friendName;
@@ -231,6 +235,7 @@ function statusText() {
   }
   if (settings.mode === 'local') return fill(T.turnOf, { who: nameOfSeat(game.turn) });
   if (settings.mode === 'bot') return isMyTurn(state, SOLO) ? T.yourTurn : T.botThinking;
+  if (room.watching) return T.watching;
   if (state.seats.includes(GUEST)) return T.waiting;
   if (seatOf(state, me()) < 0) return T.watching;
   return isMyTurn(state, me()) ? T.yourTurn : T.theirTurn;
@@ -298,10 +303,21 @@ function drawControls() {
   $('room-start').hidden = room.active;
   $('room-live').hidden = !room.active;
   $('room-code').textContent = room.code ?? '-';
+  
+  $('copy-link').hidden = room.watching;
+  const watchersEl = $('watchers');
+  watchersEl.textContent = watchingLabel(T.watchers, room.active ? (net?.watchers ?? 0) : 0);
+  watchersEl.hidden = !watchersEl.textContent;
   const over = !!state?.game.over;
+  const watcher = settings.mode === 'room' && room.watching;
   newGameEl.textContent = settings.mode === 'room' ? T.rematch : T.newGame;
-  newGameEl.disabled = settings.mode === 'room' && (!room.active || (!over && !(net?.hosting && !state?.game.chain.length)));
-  again.update(over);
+  
+  newGameEl.hidden = watcher;
+  giveUpEl.hidden = watcher;
+  $('word-form').hidden = watcher;
+  document.querySelector('.wc-foot').hidden = watcher;
+  newGameEl.disabled = settings.mode === 'room' && (room.watching || !room.active || (!over && !(net?.hosting && !state?.game.chain.length)));
+  again.update(over && !watcher);
   giveUpEl.disabled = !canType();
   inputEl.disabled = !canType();
   sendEl.disabled = !canType();
@@ -373,6 +389,7 @@ function canType() {
   if (!state || loading || state.game.over) return false;
   if (settings.mode === 'local') return true;
   if (settings.mode === 'bot') return isMyTurn(state, SOLO) && !botTimer;
+  if (room.watching) return false;
   return room.active && !!room.me && isMyTurn(state, me()) && !state.seats.includes(GUEST);
 }
 
@@ -639,9 +656,17 @@ function startNet() {
         startedAt = Date.now();
       }
     },
+    
+    
+    onUnseat: (who) => {
+      if (match.log.length || !match.seats.includes(who)) return;
+      match = { ...match, seats: match.seats.map((s) => (s === who ? GUEST : s)) };
+      state = replayMatch(dict, match);
+      reportGate.begin(match.seats);
+    },
     onStatus: (kind) => {
       if (kind === 'open') flash(T.waiting);
-      else if (kind === 'joined') flash(T.joined);
+      else if (kind === 'joined' && !room.watching) flash(T.joined);
       else if (kind === 'failed') flash(T.badCode, 4000);
       if (state) afterChange();
     },
@@ -657,11 +682,12 @@ async function openRoom() {
   afterChange();
 }
 
-async function joinRoom(code) {
+async function joinRoom(code, { watch = false } = {}) {
   if (!canPlayTogether()) { flash(T.noRooms, 4000); return false; }
-  const out = startNet().join(code);
+  const out = startNet().join(code, { watch });
   if (out?.error) { net = null; flash(T.badCode, 4000); return false; }
   room.active = true;
+  room.watching = watch;
   room.code = codeOf(code);
   await begin(createMatch({ seats: [GUEST, GUEST], lang: settings.wordLang, link: settings.link, timer: settings.timer }));
   afterChange();
@@ -672,7 +698,7 @@ function leaveRoom() {
   presence.withdraw();
   try { net?.leave(); } catch {  }
   net = null;
-  Object.assign(room, { active: false, me: null, peers: [], code: null });
+  Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 
 $('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
@@ -700,6 +726,18 @@ $('copy-link').addEventListener('click', () => {
 });
 
 
+$('watch-link').addEventListener('click', () => {
+  if (!net?.id) return;
+  const base = `${location.origin}${location.pathname}`;
+  const link = watchLinkFor(base, net.hosting ? net.id : `fwc-${room.code}`);
+  shareLink({ link, gameName: GAME_NAME, code: room.code, text: fill(T.watchInvite, { game: GAME_NAME }) })
+    .then((res) => {
+      if (res?.via === 'clipboard') flash(T.watchCopied);
+      else if (res?.via === 'manual') flash(res.url, 8000);
+    }, () => flash(link, 8000));
+});
+
+
 wireMusicButton({ music });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
 
@@ -708,14 +746,15 @@ mountLevelChip(document.querySelector('.studio-bar'), { share: 'Relaywise' });
 
 
 
-countPlay('word-chain', { isHost: !joinIdFrom(location.href) });
+
+countPlay('word-chain', { isHost: !roomFromHref(location.href) });
 
 async function boot() {
-  const linkRoom = joinIdFrom(location.href);
+  const linkRoom = roomFromHref(location.href);
   if (linkRoom) {
     settings.mode = 'room';
     await newMatch();
-    if (!(await joinRoom(linkRoom))) draw();
+    if (!(await joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH }))) draw();
     return;
   }
   await newMatch();
@@ -747,5 +786,5 @@ globalThis.relaywise = Object.freeze({
   status: () => statusEl.textContent,
   ready: () => !!state && !loading,
   dictSize: () => dict?.words.length ?? 0,
-  room: () => ({ ...room, hosting: !!net?.hosting, seats: state ? [...state.seats] : [] }),
+  room: () => ({ ...room, hosting: !!net?.hosting, seats: state ? [...state.seats] : [], watchers: net?.watchers ?? 0 }),
 });

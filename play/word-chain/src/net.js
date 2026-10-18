@@ -19,6 +19,9 @@ import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import { roomCode, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
 import { WMSG, sanitiseMatch } from '../../../web-engine/wordchain/wordchainMatch.js';
 import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
+import {
+  ROLE, createWatchers, helloFor, roleOf, sanitiseWatchers,
+} from '../../../web-engine/net/watchers.js';
 
 const MY_PREFIX = GAME_PREFIX.wordchain;
 
@@ -35,18 +38,32 @@ const CODE_TRIES = 5;
 
 
 
-export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, onArrival = () => {} }) {
+
+
+
+export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, onArrival = () => {}, onUnseat = () => {} }) {
   let mesh = null;
   let myId = null;
   let hosting = false;
+  
+  let myRole = ROLE.PLAY;
 
   const peers = () => (mesh ? [...mesh._peers] : []);
   const say = (kind, detail) => { try { onStatus(kind, detail); } catch {  } };
 
+  
+  
+  const book = createWatchers({
+    onSeat: (id) => { if (!hosting) return; onArrival(id); sendMatch(); onPeers(peers(), myId); say('joined'); },
+    onUnseat: (id) => { if (!hosting) return; onUnseat(id); sendMatch(); onPeers(peers(), myId); },
+    onChange: () => { if (hosting) sendMatch(); onPeers(peers(), myId); },
+  });
+  const hello = () => helloFor(WMSG.HELLO, myId, myRole);
+
   function sendMatch() {
     if (!mesh || !hosting) return;
     const m = snapshot();
-    mesh.broadcast({ t: WMSG.LOG, seats: m.seats, lang: m.lang, link: m.link, timer: m.timer, log: m.log });
+    mesh.broadcast({ t: WMSG.LOG, seats: m.seats, lang: m.lang, link: m.link, timer: m.timer, log: m.log, watchers: book.list() });
   }
 
   function wire() {
@@ -59,18 +76,30 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
     mesh.addEventListener('peer-joined', (e) => {
       const who = e.detail?.peerId ?? e.detail?.id;
       onPeers(peers(), myId);
-      if (hosting && who) onArrival(who);
+      
+      
+      if (hosting && who) book.arrived(who);
+      
+      
+      if (!hosting && who) mesh.send(who, hello());
+      
+      
       if (hosting) sendMatch();
-      say('joined');
+      else say('joined');
     });
-    mesh.addEventListener('peer-left', () => {
+    mesh.addEventListener('peer-left', (e) => {
+      const who = e.detail?.peerId ?? e.detail?.id;
+      if (who) book.left(who);
       onPeers(peers(), myId);
       say('left');
     });
     mesh.addEventListener('message', (e) => {
-      const { message } = e.detail;
+      const { message, from } = e.detail;
       if (!message || typeof message !== 'object') return;
       if (message.t === WMSG.HELLO) {
+        
+        const who = from || (typeof message.by === 'string' ? message.by : null);
+        if (who) book.hello(who, roleOf(message));
         if (hosting) sendMatch();
         onPeers(peers(), myId);
         return;
@@ -79,11 +108,14 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
         
         
         if (hosting) return;
+        book.adopt(sanitiseWatchers(message.watchers));
         onMatch(sanitiseMatch(message));
         return;
       }
       if (message.t === WMSG.ACT) {
         if (!hosting) return;
+        
+        if (book.isWatcher(from) || book.isWatcher(message.by)) return;
         onProposal({ ...message.action, by: message.by });
       }
     });
@@ -105,6 +137,10 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
     get id() { return myId; },
     get hosting() { return hosting; },
     get active() { return !!mesh; },
+    
+    get watching() { return myRole === ROLE.WATCH; },
+    
+    get watchers() { return book.count; },
     peers,
 
     
@@ -114,6 +150,7 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
       const mine = new PeerMesh(hint ? { hostIdHint: hint } : {});
       mesh = mine;
       hosting = true;
+      myRole = ROLE.PLAY;
       wire();
       mine.addEventListener('error', (e) => {
         if (!/unavailable-id/.test(e.detail?.message ?? '')) return;
@@ -130,16 +167,19 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
 
 
 
-    join(typed) {
+
+    join(typed, { watch = false } = {}) {
       const hostId = normaliseCode(typed, MY_PREFIX);
       if (!hostId) return { error: 'code' };
       if (mesh) return {};
       mesh = new PeerMesh({});
       hosting = false;
+      myRole = watch ? ROLE.WATCH : ROLE.PLAY;
       wire();
       mesh.addEventListener('open', () => {
         mesh.connectTo(hostId);
-        setTimeout(() => { mesh?.broadcast({ t: WMSG.HELLO, by: myId }); }, 400);
+        if (myRole === ROLE.WATCH) book.hello(myId, ROLE.WATCH);
+        setTimeout(() => { mesh?.broadcast(hello()); }, 400);
       }, { once: true });
       say('joining');
       return {};
@@ -147,7 +187,7 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
 
     
     propose(action) {
-      if (!mesh) return;
+      if (!mesh || myRole === ROLE.WATCH) return;
       mesh.broadcast({ t: WMSG.ACT, action, by: myId });
     },
 
@@ -158,6 +198,8 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
       mesh = null;
       myId = null;
       hosting = false;
+      myRole = ROLE.PLAY;
+      book.reset();
       onPeers([], null);
       say('left');
     },

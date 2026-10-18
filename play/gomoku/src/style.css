@@ -150,10 +150,18 @@ body { display: flex; flex-direction: column; }
 .gm-input { width: 9.5em; text-transform: uppercase; letter-spacing: 0.08em; }
 
 .gm-room {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  padding: 10px 12px; border: 3px dashed var(--fc-woodShade); border-radius: 12px; background: var(--fc-card);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 16px; border: 3px dashed var(--fc-woodShade); border-radius: 12px; background: var(--fc-card);
 }
 .gm-room[hidden] { display: none; }
+
+
+#room-live { gap: 12px; }
+.gm-watchers {
+  font-size: 14px; font-weight: 700; color: var(--fc-inkSoft);
+  padding: 4px 12px; border-radius: 999px; background: var(--fc-paper); border: 2px solid var(--fc-woodShade);
+}
+.gm-watchers[hidden] { display: none; }
 .gm-code { font-size: 26px; font-weight: 700; letter-spacing: 0.12em; font-family: "Courier New", monospace; }
 
 .gm-status { min-height: 1.4em; margin: 0; font-weight: 700; font-size: 20px; text-align: center; }

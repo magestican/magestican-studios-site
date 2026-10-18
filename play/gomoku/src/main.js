@@ -13,6 +13,7 @@
 
 
 
+
 import { SIZE, BLACK, WHITE, EMPTY, RULES, toCoord, fromCoord } from '../../../web-engine/gomoku/gomokuRules.js';
 import { chooseMove, LEVELS, seededRng } from '../../../web-engine/gomoku/gomokuBot.js';
 import {
@@ -27,7 +28,8 @@ import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
-import { shareLinkFor, joinIdFrom } from '../../../web-engine/words/coop.js';
+import { shareLinkFor } from '../../../web-engine/words/coop.js';
+import { ROLE, roomFromHref, watchLinkFor, watchingLabel } from '../../../web-engine/net/watchers.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
@@ -117,7 +119,8 @@ let match = null;
 let state = null;
 let net = null;
 let botTimer = null;
-const room = { active: false, me: null, peers: [], code: null };
+
+const room = { active: false, me: null, peers: [], code: null, watching: false };
 
 
 
@@ -241,6 +244,7 @@ function statusText() {
   }
   if (settings.mode === 'local') return fill(T.turnOf, { who: colourName(game.turn) });
   if (settings.mode === 'bot') return isMyTurn(state, SOLO) ? T.yourTurn : T.botThinking;
+  if (room.watching) return T.watching;
   if (state.seats.includes(GUEST)) return T.waiting;
   if (seatOf(state, me()) < 0) return T.watching;
   return isMyTurn(state, me()) ? T.yourTurn : T.theirTurn;
@@ -281,11 +285,18 @@ function drawControls() {
   $('room-start').hidden = room.active;
   $('room-live').hidden = !room.active;
   $('room-code').textContent = room.code ?? '-';
+  
+  $('copy-link').hidden = room.watching;
+  const watchersEl = $('watchers');
+  watchersEl.textContent = watchingLabel(T.watchers, room.active ? (net?.watchers ?? 0) : 0);
+  watchersEl.hidden = !watchersEl.textContent;
   undoEl.hidden = settings.mode === 'room';
   undoEl.disabled = state.game.moves.length === 0 || (settings.mode === 'bot' && !!botTimer);
   newGameEl.textContent = settings.mode === 'room' ? T.rematch : T.newGame;
-  newGameEl.disabled = settings.mode === 'room' && (!room.active || (!state.game.over && !(net?.hosting && state.game.moves.length === 0)));
-  again.update(state.game.over);
+  
+  newGameEl.hidden = settings.mode === 'room' && room.watching;
+  newGameEl.disabled = settings.mode === 'room' && (room.watching || !room.active || (!state.game.over && !(net?.hosting && state.game.moves.length === 0)));
+  again.update(state.game.over && !(settings.mode === 'room' && room.watching));
 }
 
 
@@ -293,6 +304,7 @@ function canPlace() {
   if (state.game.over) return false;
   if (settings.mode === 'local') return true;
   if (settings.mode === 'bot') return isMyTurn(state, SOLO) && !botTimer;
+  if (room.watching) return false;
   return room.active && !!room.me && isMyTurn(state, me()) && !state.seats.includes(GUEST);
 }
 
@@ -573,9 +585,17 @@ function startNet() {
         startedAt = Date.now();
       }
     },
+    
+    
+    onUnseat: (who) => {
+      if (match.moves.length || !match.seats.includes(who)) return;
+      match = { ...match, seats: match.seats.map((s) => (s === who ? GUEST : s)) };
+      rederive();
+      reportGate.begin(match.seats);
+    },
     onStatus: (kind) => {
       if (kind === 'open') say(T.waiting);
-      else if (kind === 'joined') say(T.joined);
+      else if (kind === 'joined' && !room.watching) say(T.joined);
       else if (kind === 'failed') { say(T.badCode, 4000); }
       draw();
     },
@@ -591,11 +611,12 @@ function openRoom() {
   afterChange();
 }
 
-function joinRoom(code) {
+function joinRoom(code, { watch = false } = {}) {
   if (!canPlayTogether()) { say(T.noRooms, 4000); return false; }
-  const out = startNet().join(code);
+  const out = startNet().join(code, { watch });
   if (out?.error) { net = null; say(T.badCode, 4000); return false; }
   room.active = true;
+  room.watching = watch;
   room.code = codeOf(code);
   begin(createMatch({ seats: [GUEST, GUEST], rules: settings.rules }));
   afterChange();
@@ -606,7 +627,7 @@ function leaveRoom() {
   presence.withdraw();
   try { net?.leave(); } catch {  }
   net = null;
-  Object.assign(room, { active: false, me: null, peers: [], code: null });
+  Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 
 $('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
@@ -634,6 +655,18 @@ $('copy-link').addEventListener('click', () => {
 });
 
 
+$('watch-link').addEventListener('click', () => {
+  if (!net?.id) return;
+  const base = `${location.origin}${location.pathname}`;
+  const link = watchLinkFor(base, net.hosting ? net.id : `fgo-${room.code}`);
+  shareLink({ link, gameName: GAME_NAME, code: room.code, text: fill(T.watchInvite, { game: GAME_NAME }) })
+    .then((res) => {
+      if (res?.via === 'clipboard') say(T.watchCopied);
+      else if (res?.via === 'manual') say(res.url, 8000);
+    }, () => say(link, 8000));
+});
+
+
 drawGrid();
 boardEl.append(layer);
 wireMusicButton({ music });
@@ -644,13 +677,14 @@ mountLevelChip(document.querySelector('.studio-bar'), { share: 'Gomowise' });
 
 
 
-countPlay('gomoku', { isHost: !joinIdFrom(location.href) });
 
-const linkRoom = joinIdFrom(location.href);
+const linkRoom = roomFromHref(location.href);
+countPlay('gomoku', { isHost: !linkRoom });
+
 if (linkRoom) {
   settings.mode = 'room';
   newMatch();
-  if (!joinRoom(linkRoom)) draw();
+  if (!joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH })) draw();
 } else {
   newMatch();
   
@@ -675,7 +709,7 @@ globalThis.gomowise = Object.freeze({
   over: () => state.game.over,
   winner: () => (state.game.winner === BLACK ? 'black' : state.game.winner === WHITE ? 'white' : null),
   status: () => statusEl.textContent,
-  room: () => ({ ...room, hosting: !!net?.hosting, seats: [...state.seats] }),
+  room: () => ({ ...room, hosting: !!net?.hosting, seats: [...state.seats], watchers: net?.watchers ?? 0 }),
   pointRect: (coord) => {
     const i = fromCoord(coord);
     const [x, y] = xy(i);
