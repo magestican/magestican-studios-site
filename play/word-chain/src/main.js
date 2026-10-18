@@ -153,6 +153,12 @@ let net = null;
 let botTimer = null;
 let botBlanked = false;
 
+
+
+
+let echo = null;
+const ECHO_TIMEOUT_MS = 8000;         
+
 const room = { active: false, me: null, peers: [], code: null, watching: false };
 
 
@@ -197,6 +203,7 @@ async function begin(m) {
   await rederive();
   reportGate.begin(match.seats);
   startedAt = Date.now();
+  clearEcho();
 }
 
 async function newMatch() {
@@ -264,6 +271,20 @@ function drawChain() {
   if (!state) return;
   const { game } = state;
   countEl.textContent = game.chain.length ? `(${fill(T.wordCount, { n: game.chain.length })})` : '';
+  if (echo) {
+    
+    const li = document.createElement('li');
+    li.className = `p${game.chain.length % 2} wc-checking`;
+    li.setAttribute('aria-busy', 'true');
+    const word = document.createElement('span');
+    word.lang = game.lang;
+    word.textContent = echo.entry !== undefined ? display(dict, echo.entry) : echo.text;
+    const who = document.createElement('span');
+    who.className = 'who';
+    who.textContent = T.checking;
+    li.append(word, who);
+    chainEl.append(li);
+  }
   for (let k = game.chain.length - 1; k >= 0; k--) {
     const li = document.createElement('li');
     const seat = k % 2;
@@ -390,6 +411,8 @@ function canType() {
   if (settings.mode === 'local') return true;
   if (settings.mode === 'bot') return isMyTurn(state, SOLO) && !botTimer;
   if (room.watching) return false;
+  
+  if (echo) return false;
   return room.active && !!room.me && isMyTurn(state, me()) && !state.seats.includes(GUEST);
 }
 
@@ -433,11 +456,40 @@ function submitWord() {
   flashEl.textContent = '';
   if (settings.mode === 'room' && !net?.hosting) {
     
+    
+    echo = {
+      text: res.token, typed: text, entry: res.entry, index: match.log.length,
+      timer: setTimeout(echoTimedOut, ECHO_TIMEOUT_MS),
+    };
     sfx.play('word');
     net?.propose({ kind: 'word', text: res.token });
+    draw();
     return;
   }
   commit(res.token);
+}
+
+function clearEcho() {
+  if (echo?.timer) clearTimeout(echo.timer);
+  echo = null;
+}
+
+
+function rollBack(was) {
+  playUi('error');
+  flash(T.refused, 3200);
+  if (was && !inputEl.value) { inputEl.value = was.typed; handedBack = was; }
+}
+
+
+let handedBack = null;
+
+function echoTimedOut() {
+  if (!echo) return;
+  const was = echo;
+  clearEcho();
+  rollBack(was);
+  draw();
 }
 
 function afterChange() {
@@ -594,11 +646,30 @@ giveUpEl.addEventListener('click', () => {
 const codeOf = (id) => String(id ?? '').replace(/^fwc-/i, '').toUpperCase();
 
 let adopting = Promise.resolve();
-function adopt(incoming) {
+function adopt(incoming, meta = {}) {
   
   
   adopting = adopting.then(async () => {
     if (!incoming.seats.length) return;
+    
+    
+    
+    let rolledBack = null;
+    if (echo) {
+      const was = echo;
+      if (incoming.log.length > was.index) {
+        if (incoming.log[was.index] !== was.text) rolledBack = was;
+        clearEcho();
+      } else if (meta?.nack) {
+        rolledBack = was;
+        clearEcho();
+      } else if (incoming.log.length < was.index) clearEcho();
+    }
+    if (rolledBack) rollBack(rolledBack);
+    else if (handedBack && incoming.log.includes(handedBack.text)) {
+      if (inputEl.value === handedBack.typed) inputEl.value = '';
+      handedBack = null;
+    }
     const fresh = incoming.log.length === 0;
     const before = match;
     match = incoming;
@@ -616,13 +687,15 @@ function adopt(incoming) {
   }).catch(() => {});
 }
 
-function onProposal(action) {
+function onProposal(action, from) {
   if (action.kind === 'rematch') {
     if (state.game.over) { begin(rematch(match)).then(() => { net.publish(); afterChange(); }); }
     return;
   }
   const check = applyAction(dict, state, action);
-  if (check.error) { net?.publish(); return; }
+  
+  
+  if (check.error) { net?.refuse(from); return; }
   commit(check.token);
 }
 
@@ -630,7 +703,7 @@ function startNet() {
   if (net) return net;
   net = createNet({
     snapshot: () => match,
-    onMatch: (m) => adopt(sanitiseMatch(m)),
+    onMatch: (m, meta) => adopt(sanitiseMatch(m), meta),
     onProposal,
     onPeers: (peers, id) => {
       room.peers = peers;
@@ -668,6 +741,14 @@ function startNet() {
       if (kind === 'open') flash(T.waiting);
       else if (kind === 'joined' && !room.watching) flash(T.joined);
       else if (kind === 'failed') flash(T.badCode, 4000);
+      
+      else if (kind === 'host' && net?.hosting && echo && state) {
+        const was = echo;
+        clearEcho();
+        const check = applyAction(dict, state, { kind: 'word', text: was.text, by: me() });
+        if (check.error) rollBack(was);
+        else { commit(check.token); return; }
+      }
       if (state) afterChange();
     },
   });

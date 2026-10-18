@@ -22,6 +22,9 @@ import { LANGS, isLink, defaultLink } from './wordchainLang.js';
 export const WMSG = Object.freeze({
   HELLO: 'fwc-hello',
   LOG: 'fwc-log',
+  
+  DELTA: 'fwc-dlt',
+  NEED: 'fwc-need',
   ACT: 'fwc-act',
 });
 

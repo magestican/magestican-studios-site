@@ -16,6 +16,10 @@
 
 
 
+
+
+
+
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import { roomCode, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
 import { TMSG, sanitiseView, sanitiseAction } from '../../../web-engine/truco/trucoMatch.js';
@@ -23,9 +27,11 @@ import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
 import {
   ROLE, createWatchers, helloFor, roleOf, sanitiseWatchers,
 } from '../../../web-engine/net/watchers.js';
+import { createViewSender, createViewReceiver } from '../../../web-engine/net/logSync.js';
 
 const MY_PREFIX = GAME_PREFIX.truco;
 const CODE_TRIES = 5;
+
 
 
 
@@ -65,6 +71,12 @@ export function createNet({
   const hello = () => helloFor(TMSG.HELLO, myId, myRole);
 
   
+  
+  
+  const outbox = createViewSender();
+  const inbox = createViewReceiver();
+
+  
 
 
 
@@ -72,9 +84,22 @@ export function createNet({
     if (!mesh || !hosting) return;
     const watchers = book.list();
     for (const p of peers()) {
+      if (p === myId) continue;
       const v = viewFor(p);
-      if (v) mesh.send(p, { t: TMSG.VIEW, view: v, watchers });
+      if (!v) continue;
+      const body = outbox.offer(p, { view: v, watchers });
+      if (body) mesh.send(p, { t: TMSG.VIEW, ...body });
     }
+  }
+
+  
+  function refuse(peer) {
+    if (!mesh || !hosting || !peer) return;
+    sendViews();
+    const v = viewFor(peer);
+    if (!v) return;
+    const body = outbox.offer(peer, { view: v, watchers: book.list() }, { force: true });
+    mesh.send(peer, { t: TMSG.VIEW, ...body, nack: true });
   }
 
   function wire() {
@@ -89,7 +114,7 @@ export function createNet({
       onPeers(peers(), myId);
       
       
-      if (hosting && who) book.arrived(who);
+      if (hosting && who) { outbox.forget(who); book.arrived(who); }
       
       
       if (!hosting && who) mesh.send(who, hello());
@@ -99,7 +124,7 @@ export function createNet({
     });
     mesh.addEventListener('peer-left', (e) => {
       const who = e.detail?.peerId ?? e.detail?.id;
-      if (who) book.left(who);
+      if (who) { book.left(who); outbox.forget(who); }
       onPeers(peers(), myId);
       if (hosting && who) onDeparture(who);
       say('left');
@@ -117,9 +142,11 @@ export function createNet({
       }
       if (message.t === TMSG.VIEW) {
         if (hosting) return;
+        
+        if (!inbox.take(message, from)) return;
         book.adopt(sanitiseWatchers(message.watchers));
         const v = sanitiseView(message.view);
-        if (v) onView(v);
+        if (v) onView(v, { nack: message.nack === true });
         return;
       }
       if (message.t === TMSG.ACT) {
@@ -134,6 +161,9 @@ export function createNet({
     });
     mesh.addEventListener('host-changed', (e) => {
       hosting = !!e.detail.iAmHost;
+      
+      outbox.reset();
+      inbox.reset();
       say('host', { iAmHost: hosting, previousHost: e.detail.previousHost });
       onPeers(peers(), myId);
     });
@@ -202,7 +232,11 @@ export function createNet({
       else mesh.broadcast({ t: TMSG.ACT, action });
     },
 
-    publish: sendViews,
+    
+    publish: () => sendViews(),
+
+    
+    refuse,
 
     leave() {
       try { mesh?.destroy(); } catch {  }
@@ -211,6 +245,8 @@ export function createNet({
       hosting = false;
       myRole = ROLE.PLAY;
       book.reset();
+      outbox.reset();
+      inbox.reset();
       onPeers([], null);
       say('left');
     },

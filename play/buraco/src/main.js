@@ -22,7 +22,7 @@
 
 
 import {
-  createMatch, act, nextHand, rematch, viewFor, viewForPeer, actorId, seatOf, isBot, botLevel, seatsWith,
+  createMatch, act, nextHand, rematch, viewFor, viewForPeer, actorId, seatOf, isBot, botLevel, seatsWith, echoView,
 } from '../../../web-engine/buraco/buracoMatch.js';
 import { meldInfo, teamOf, TARGETS, isWildCard } from '../../../web-engine/buraco/buracoRules.js';
 import { botAction, LEVELS } from '../../../web-engine/buraco/buracoBot.js';
@@ -149,6 +149,13 @@ let atlas = null;
 let net = null;
 let botTimer = null;
 let waitingAnswer = false;   
+
+
+
+
+let confirmedView = null;
+let echoTimer = null;
+const ECHO_TIMEOUT_MS = 8000;
 let lastFlash = '';
 let finishedRound = -1;
 let gameRound = 0;
@@ -282,8 +289,18 @@ function doAction(a) {
   if (isGuest()) {
     if (waitingAnswer) return false;
     waitingAnswer = true;
+    
+    
+    const echo = echoView(view, a);
+    if (echo) {
+      confirmedView = view;
+      view = echo;
+      if (a.type !== 'draw' && a.type !== 'take') selected = new Set();
+      sounds([{ type: a.type }]);
+    } else playUi('tap');
+    if (echoTimer) clearTimeout(echoTimer);
+    echoTimer = setTimeout(echoTimedOut, ECHO_TIMEOUT_MS);
     net.propose(a);
-    playUi('tap');
     draw();
     return true;
   }
@@ -295,6 +312,29 @@ function doAction(a) {
   noteEvents(match.game.events);
   refresh();
   return true;
+}
+
+function clearEcho() {
+  if (echoTimer) clearTimeout(echoTimer);
+  echoTimer = null;
+  confirmedView = null;
+}
+
+
+function rollBack() {
+  playUi('error');
+  flash(T.refused, 3200);
+}
+
+function echoTimedOut() {
+  echoTimer = null;
+  if (!waitingAnswer) return;
+  if (confirmedView) view = confirmedView;
+  clearEcho();
+  waitingAnswer = false;
+  rollBack();
+  pruneSelection();
+  draw();
 }
 
 
@@ -515,6 +555,7 @@ function drawCentre() {
   h.pile.forEach((c, i) => {
     const el = cardEl(c, { kind: 'pile', onClick: canTake ? () => doAction({ type: 'take' }) : null });
     if (i === h.pile.length - 1) el.classList.add('top');
+    if (echoed(c)) el.classList.add('echo');
     prow.append(el);
   });
   if (canTake) prow.classList.add('can');
@@ -572,6 +613,7 @@ function drawMelds() {
       for (const c of info.ok ? info.order : m) {
         const el = cardEl(c, { kind: 'meld' });
         if (info.wild === c) el.classList.add('wild');
+        if (own && echoed(c)) el.classList.add('echo');
         row.append(el);
       }
       box.append(row);
@@ -596,9 +638,19 @@ function drawHand() {
     el.classList.toggle('wildcard', isWildCard(c));
     el.dataset.id = c;
     if (canPick) el.setAttribute('aria-pressed', String(selected.has(c)));
+    if (echoed(c)) el.classList.add('echo');
+    handEl.append(el);
+  }
+  
+  for (let k = 0; k < (view.echo?.incoming || 0); k++) {
+    const el = cardEl('back', { kind: 'hand', faceDown: true });
+    el.classList.add('echo', 'incoming');
     handEl.append(el);
   }
 }
+
+
+const echoed = (c) => !!view?.echo && view.echo.cards.includes(c);
 
 function toggle(c) {
   if (selected.has(c)) selected.delete(c); else selected.add(c);
@@ -846,17 +898,23 @@ function onProposal(action, from) {
     return;
   }
   const r = act(match, from, action);
-  if (r.error) { net?.publish(); return; }
+  
+  
+  if (r.error) { net?.refuse(from); return; }
   match = r.match;
   sounds(match.game.events);
   noteEvents(match.game.events);
   refresh();
 }
 
-function onView(v) {
-  const before = view;
+function onView(v, meta = {}) {
+  
+  const before = confirmedView ?? view;
+  const echoed = confirmedView ? view.echo : null;
+  clearEcho();
   waitingAnswer = false;
   view = v;
+  if (echoed && meta?.nack) rollBack();
   
   
   settings.size = v.game.opts.players;
@@ -868,7 +926,10 @@ function onView(v) {
   if (!before || v.game.handNo !== before.game.handNo) { lastFlash = ''; selected = new Set(); }
   pruneSelection();
   noteEvents(v.game.events);
-  if (before && JSON.stringify(before.game.events) !== JSON.stringify(v.game.events)) sounds(v.game.events);
+  
+  const last = v.game.events[v.game.events.length - 1];
+  const heard = echoed && !meta?.nack && last && last.seat === v.you && last.type === echoed.type && !last.canastra;
+  if (before && !heard && JSON.stringify(before.game.events) !== JSON.stringify(v.game.events)) sounds(v.game.events);
   draw();
   if (v.game.over) finished();
 }
@@ -998,6 +1059,8 @@ function leaveRoom() {
   try { net?.leave(); } catch {  }
   net = null;
   queuedArrivals = [];
+  clearEcho();
+  waitingAnswer = false;
   Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 

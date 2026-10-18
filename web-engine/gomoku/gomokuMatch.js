@@ -23,6 +23,9 @@ import {
 export const GMSG = Object.freeze({
   HELLO: 'fgo-hello',
   LOG: 'fgo-log',
+  
+  DELTA: 'fgo-dlt',
+  NEED: 'fgo-need',
   ACT: 'fgo-act',
   SAY: 'fgo-say',
 });

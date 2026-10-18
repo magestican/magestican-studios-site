@@ -260,6 +260,74 @@ export function sanitiseView(v) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function echoView(view, action) {
+  if (!view || !Number.isInteger(view.you) || view.you < 0 || !view.game || !view.game.hand) return null;
+  const a = sanitiseAction(action);
+  if (!a) return null;
+  const v = JSON.parse(JSON.stringify(view));
+  const h = v.game.hand;
+  const you = v.you;
+  const team = teamOf(you);
+  const echo = { type: a.type, cards: [], incoming: 0 };
+  const takeOut = (cards) => {
+    const left = h.mine.slice();
+    for (const c of cards) {
+      const i = left.indexOf(c);
+      if (i < 0) return false;
+      left.splice(i, 1);
+    }
+    h.mine = left;
+    if (Array.isArray(h.counts)) h.counts[you] = Math.max(0, (h.counts[you] || 0) - cards.length);
+    return true;
+  };
+  if (a.type === 'draw') {
+    if (!(h.stockCount > 0)) return null;
+    h.stockCount -= 1;
+    echo.incoming = 1;
+    if (Array.isArray(h.counts)) h.counts[you] = (h.counts[you] || 0) + 1;
+    h.phase = 'play';
+    h.drew = 'stock';
+  } else if (a.type === 'take') {
+    if (!h.pile.length) return null;
+    echo.cards = h.pile.slice();
+    h.mine = [...h.mine, ...h.pile];
+    if (Array.isArray(h.counts)) h.counts[you] = (h.counts[you] || 0) + h.pile.length;
+    h.pile = [];
+    h.phase = 'play';
+    h.drew = 'pile';
+  } else if (a.type === 'discard') {
+    if (!takeOut([a.card])) return null;
+    h.pile = [...h.pile, a.card];
+    echo.cards = [a.card];
+  } else if (a.type === 'meld') {
+    if (!takeOut(a.cards)) return null;
+    h.melds[team] = [...h.melds[team], a.cards.slice()];
+    echo.cards = a.cards.slice();
+  } else if (a.type === 'layoff') {
+    if (!Array.isArray(h.melds[team]) || !h.melds[team][a.meld]) return null;
+    if (!takeOut(a.cards)) return null;
+    h.melds[team][a.meld] = [...h.melds[team][a.meld], ...a.cards];
+    echo.cards = a.cards.slice();
+  } else return null;
+  v.echo = echo;
+  return v;
+}
+
+
 export function actorId(match) {
   const s = actor(match.game);
   return s === null ? null : match.seats[s];

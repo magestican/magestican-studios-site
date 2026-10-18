@@ -184,6 +184,10 @@ body { display: flex; flex-direction: column; }
 .gm-board .stone-black { fill: url(#gm-black); }
 .gm-board .stone-white { fill: url(#gm-white); stroke: #8C7A5C; stroke-width: 0.03; }
 .gm-board .ghost { opacity: 0.4; pointer-events: none; }
+
+
+
+.gm-board .stone-echo { opacity: 0.6; }
 .gm-board .last { fill: #C23B22; }
 .gm-board .win { fill: none; stroke: #C23B22; stroke-width: 0.09; }
 .gm-board .cursor { fill: none; stroke: var(--fc-blue); stroke-width: 0.08; }

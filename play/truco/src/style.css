@@ -209,6 +209,11 @@ html[data-scene="hard"] .tr-table { background-image: linear-gradient(rgba(250, 
   font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 12px;
   background: var(--fc-card); border: 2px solid var(--fc-ink);
 }
+
+
+
+.tr-card.echo { opacity: 0.7; outline: 2px dashed var(--fc-ink); outline-offset: 2px; }
+.tr-bubble.echo { border-style: dashed; opacity: 0.8; }
 .tr-played, .tr-backs { display: flex; justify-content: center; }
 .tr-played .tr-card + .tr-card { margin-left: -12px; }
 .tr-backs .tr-card + .tr-card { margin-left: -28px; }

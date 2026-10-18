@@ -227,6 +227,11 @@ button.bu-meld { cursor: pointer; }
   padding: 18px 30px 6px 6px; row-gap: 8px;
 }
 .bu-hand .bu-card { margin-right: -24px; transition: transform 0.12s; }
+
+
+
+.bu-card.echo { opacity: 0.7; outline: 2px dashed var(--fc-ink); outline-offset: 1px; border-radius: 6px; }
+.bu-hand .bu-card.incoming { opacity: 0.55; }
 .bu-hand .bu-card.sel { transform: translateY(-16px); box-shadow: 0 0 0 3px var(--fc-green); border-radius: 6px; }
 .bu-hand button.bu-card { cursor: pointer; }
 .bu-hand button.bu-card:focus-visible { outline: 3px solid var(--fc-blue); z-index: 2; }

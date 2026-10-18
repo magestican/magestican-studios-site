@@ -213,6 +213,44 @@ export function sanitiseView(v) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+export function echoView(view, action) {
+  if (!view || !Number.isInteger(view.you) || view.you < 0 || !view.game || !view.game.hand) return null;
+  const a = sanitiseAction(action);
+  if (!a) return null;
+  const v = JSON.parse(JSON.stringify(view));
+  const h = v.game.hand;
+  const you = v.you;
+  if (a.type === 'play') {
+    const mine = Array.isArray(h.hands[you]) ? h.hands[you] : [];
+    if (!mine.includes(a.card)) return null;
+    h.hands[you] = mine.filter((c) => c !== a.card);
+    if (!Array.isArray(h.bazas) || !h.bazas.length) h.bazas = [[]];
+    h.bazas[h.bazas.length - 1].push({ seat: you, card: a.card, echo: true });
+  } else {
+    
+    const p = h.pending;
+    const entry = { seat: you, type: a.type, echo: true };
+    if (a.call) entry.call = a.call;
+    if (a.type === 'truco') entry.level = p && p.kind === 'truco' ? p.level + 1 : ((h.truco && h.truco.level) || 0) + 1;
+    if ((a.type === 'quiero' || a.type === 'noquiero') && p) entry.of = p.kind;
+    if (a.type === 'contraflor') entry.resto = !!a.resto;
+    h.calls = [...(h.calls || []), entry];
+  }
+  v.echo = { type: a.type };
+  return v;
+}
+
+
 export function actorId(match) {
   const s = actor(match.game);
   return s === null ? null : match.seats[s];

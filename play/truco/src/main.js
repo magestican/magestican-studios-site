@@ -17,7 +17,7 @@
 
 
 import {
-  createMatch, act, nextHand, rematch, viewFor, viewForPeer, actorId, seatOf, isBot, botLevel, seatsWith, myNumbers,
+  createMatch, act, nextHand, rematch, viewFor, viewForPeer, actorId, seatOf, isBot, botLevel, seatsWith, myNumbers, echoView,
 } from '../../../web-engine/truco/trucoMatch.js';
 import { legalActions, actor, team, power, TRUCO_CALLS, half } from '../../../web-engine/truco/trucoRules.js';
 import { chooseAction, LEVELS, seededRng } from '../../../web-engine/truco/trucoBot.js';
@@ -140,6 +140,12 @@ let net = null;
 let botTimer = null;
 let nextTimer = null;
 let waitingAnswer = false;   
+
+
+
+let confirmedView = null;
+let echoTimer = null;
+const ECHO_TIMEOUT_MS = 8000;
 let lastFlash = '';
 let finishedRound = -1;
 let gameRound = 0;
@@ -265,8 +271,14 @@ function doAction(a) {
   if (isGuest()) {
     if (waitingAnswer) return;
     waitingAnswer = true;
+    
+    
+    const echo = echoView(view, a);
+    if (echo) { confirmedView = view; view = echo; }
+    if (echoTimer) clearTimeout(echoTimer);
+    echoTimer = setTimeout(echoTimedOut, ECHO_TIMEOUT_MS);
     net.propose(a);
-    playUi('tap');
+    if (a.type === 'play') sfx.play('card'); else playUi('tap');
     draw();
     return;
   }
@@ -276,6 +288,28 @@ function doAction(a) {
   sounds(match.game.events);
   noteEvents(match.game.events);
   refresh();
+}
+
+function clearEcho() {
+  if (echoTimer) clearTimeout(echoTimer);
+  echoTimer = null;
+  confirmedView = null;
+}
+
+
+function rollBack() {
+  playUi('error');
+  flash(T.refused, 3200);
+}
+
+function echoTimedOut() {
+  echoTimer = null;
+  if (!waitingAnswer) return;
+  if (confirmedView) view = confirmedView;
+  clearEcho();
+  waitingAnswer = false;
+  rollBack();
+  draw();
 }
 
 
@@ -480,6 +514,8 @@ function drawTable() {
     if (c) {
       const bubble = document.createElement('span');
       bubble.className = 'tr-bubble';
+      
+      if (c.echo) bubble.classList.add('echo');
       bubble.textContent = callWord(c);
       head.append(bubble);
     }
@@ -490,6 +526,8 @@ function drawTable() {
       const p = baza.find((x) => x.seat === s);
       if (!p) return;
       const el = cardEl(p.card);
+      
+      if (p.echo) el.classList.add('echo');
       const res = h.results[k];
       if (res !== undefined) el.classList.add(res === 'parda' ? 'parda' : (res === team(s) ? 'won' : 'lost'));
       row.append(el);
@@ -712,17 +750,24 @@ function onProposal(action, from) {
     return;
   }
   const r = act(match, from, action);
-  if (r.error) { net?.publish(); return; }
+  
+  
+  if (r.error) { net?.refuse(from); return; }
   match = r.match;
   sounds(match.game.events);
   noteEvents(match.game.events);
   refresh();
 }
 
-function onView(v) {
-  const before = view;
+function onView(v, meta = {}) {
+  
+  const shown = view;
+  const before = confirmedView ?? view;
+  const echoed = !!confirmedView;
+  clearEcho();
   waitingAnswer = false;
   view = v;
+  if (echoed && meta?.nack) rollBack();
   
   
   settings.size = v.game.opts.players;
@@ -733,7 +778,9 @@ function onView(v) {
   }
   if (!before || v.game.handNo !== before.game.handNo) lastFlash = '';
   noteEvents(v.game.events);
-  if (before && JSON.stringify(before.game.hand.bazas) !== JSON.stringify(v.game.hand.bazas)) sfx.play('card');
+  
+  const plain = (bz) => JSON.stringify(bz, (k, x) => (k === 'echo' ? undefined : x));
+  if (shown && plain(shown.game.hand.bazas) !== plain(v.game.hand.bazas)) sfx.play('card');
   draw();
   if (v.game.over) finished();
 }
@@ -862,6 +909,8 @@ function leaveRoom() {
   try { net?.leave(); } catch {  }
   net = null;
   queuedArrivals = [];
+  clearEcho();
+  waitingAnswer = false;
   Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 

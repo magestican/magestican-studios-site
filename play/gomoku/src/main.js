@@ -133,6 +133,12 @@ const presence = roomPresence({
 const reportGate = createReportGate();
 let startedAt = Date.now();
 let pending = -1;                     
+
+
+
+
+let echo = null;
+const ECHO_TIMEOUT_MS = 8000;         
 let hover = -1;                       
 let cursor = Math.floor(SIZE / 2) * SIZE + Math.floor(SIZE / 2);
 
@@ -157,6 +163,7 @@ function begin(m) {
   reportGate.begin(match.seats);
   startedAt = Date.now();
   pending = -1;
+  clearEcho();
 }
 
 function newMatch() {
@@ -205,7 +212,7 @@ function stone(i, colour, extra = '') {
 function draw() {
   layer.replaceChildren();
   const { game } = state;
-  game.cells.forEach((x, i) => { if (x !== EMPTY) layer.append(stone(i, x)); });
+  game.cells.forEach((x, i) => { if (x !== EMPTY) layer.append(stone(i, x, echo && echo.at === i ? 'stone-echo' : '')); });
   const last = game.moves[game.moves.length - 1];
   if (last !== undefined) {
     const [x, y] = xy(last);
@@ -329,13 +336,37 @@ function tryPlace(i) {
   }
   if (settings.mode === 'room' && !net?.hosting) {
     
+    
     pending = -1;
+    echo = { at: check.at, index: match.moves.length, base: match, timer: setTimeout(echoTimedOut, ECHO_TIMEOUT_MS) };
+    match = withMove(match, check.at);
+    rederive();
     sfx.play('stone');
     net?.propose({ kind: 'move', at: i });
     draw();
     return;
   }
   commit(check.at);
+}
+
+function clearEcho() {
+  if (echo?.timer) clearTimeout(echo.timer);
+  echo = null;
+}
+
+
+function rollBack() {
+  playUi('error');
+  say(T.refused, 3200);
+}
+
+function echoTimedOut() {
+  if (!echo) return;
+  match = echo.base;
+  clearEcho();
+  rederive();
+  rollBack();
+  draw();
 }
 
 
@@ -527,8 +558,30 @@ undoEl.addEventListener('click', () => {
 
 const codeOf = (id) => String(id ?? '').replace(/^fgo-/i, '').toUpperCase();
 
-function adopt(incoming) {
+function adopt(incoming, meta = {}) {
   if (!incoming.seats.length) return;
+  
+  
+  
+  let rolledBack = false;
+  if (echo) {
+    const { at, index } = echo;
+    if (incoming.moves.length > index) {
+      rolledBack = incoming.moves[index] !== at;
+      clearEcho();
+    } else if (meta?.nack) {
+      rolledBack = true;
+      clearEcho();
+    } else if (incoming.moves.length < index) {
+      clearEcho(); 
+    } else if (applyAction(replayMatch(incoming), { kind: 'move', at, by: me() }).at === undefined) {
+      rolledBack = true; 
+      clearEcho();
+    } else {
+      echo.base = incoming;
+      incoming = withMove(incoming, at);
+    }
+  }
   const fresh = incoming.moves.length === 0;
   const before = match;
   match = incoming;
@@ -542,16 +595,20 @@ function adopt(incoming) {
     const at = incoming.moves[incoming.moves.length - 1];
     if (stoneSound(at) === 'stoneThem') sfx.play('stoneThem');
   }
+  if (rolledBack) rollBack();
   afterChange();
 }
 
-function onProposal(action) {
+function onProposal(action, from) {
   if (action.kind === 'rematch') {
     if (state.game.over) { begin(rematch(match)); net.publish(); afterChange(); }
     return;
   }
   const check = applyAction(state, action);
-  if (check.error) { net?.publish(); return; }
+  
+  
+  
+  if (check.error) { net?.refuse(from); return; }
   commit(check.at);
 }
 
@@ -597,6 +654,8 @@ function startNet() {
       if (kind === 'open') say(T.waiting);
       else if (kind === 'joined' && !room.watching) say(T.joined);
       else if (kind === 'failed') { say(T.badCode, 4000); }
+      
+      else if (kind === 'host' && net?.hosting && echo) { clearEcho(); net.publish(); }
       draw();
     },
   });

@@ -241,6 +241,19 @@ html[data-scene] .wc-chain li { background: rgba(255, 253, 246, 0.82); }
 .wc-chain li.p1 { border-left: 6px solid var(--fc-gold); }
 .wc-chain li:first-child { background: #F3E6C2; font-weight: 700; }
 .wc-chain .who { font-size: 13px; color: var(--fc-inkSoft); white-space: nowrap; }
+
+
+
+.wc-chain li.wc-checking,
+html[data-scene] .wc-chain li.wc-checking {
+  background: transparent;
+  outline: 2px dashed var(--fc-inkSoft);
+  outline-offset: -2px;
+  font-weight: 400;
+  opacity: 0.75;
+  animation: none;
+}
+.wc-chain li.wc-checking .who { font-style: italic; }
 .wc-chain .end { color: var(--fc-red); text-decoration: underline; text-underline-offset: 3px; }
 
 .wc-foot { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }

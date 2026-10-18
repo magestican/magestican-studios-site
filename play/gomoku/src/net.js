@@ -13,6 +13,14 @@
 
 
 
+
+
+
+
+
+
+
+
 import { PeerMesh } from '../../../web-engine/net/peerMesh.js';
 import { roomCode, normaliseCode, GAME_PREFIX } from '../../../web-engine/words/coop.js';
 import { GMSG, sanitiseMatch } from '../../../web-engine/gomoku/gomokuMatch.js';
@@ -20,11 +28,16 @@ import { exchangeCards } from '../../../web-engine/progress/peerCards.js';
 import {
   ROLE, createWatchers, helloFor, roleOf, sanitiseWatchers,
 } from '../../../web-engine/net/watchers.js';
+import {
+  SYNC, SYNC_VERSION, createLogSender, createLogReceiver,
+} from '../../../web-engine/net/logSync.js';
 
 const MY_PREFIX = GAME_PREFIX.gomoku;
 
 
 const CODE_TRIES = 5;
+
+
 
 
 
@@ -56,12 +69,36 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
     onUnseat: (id) => { if (!hosting) return; onUnseat(id); sendMatch(); onPeers(peers(), myId); },
     onChange: () => { if (hosting) sendMatch(); onPeers(peers(), myId); },
   });
-  const hello = () => helloFor(GMSG.HELLO, myId, myRole);
+  const hello = () => ({ ...helloFor(GMSG.HELLO, myId, myRole), sync: SYNC_VERSION });
 
-  function sendMatch() {
+  
+  
+  const sender = createLogSender({ list: 'moves' });
+  const receiver = createLogReceiver({ list: 'moves' });
+  
+  const syncing = new Set();
+
+  
+
+
+
+  function sendMatch({ full = false } = {}) {
     if (!mesh || !hosting) return;
     const m = snapshot();
-    mesh.broadcast({ t: GMSG.LOG, seats: m.seats, rules: m.rules, moves: m.moves, watchers: book.list() });
+    const everyone = peers().every((p) => p === myId || syncing.has(p));
+    const body = sender.next(
+      { seats: m.seats, rules: m.rules, moves: m.moves, watchers: book.list() },
+      { full: full || !everyone },
+    );
+    if (body) mesh.broadcast({ t: body.k === SYNC.DELTA ? GMSG.DELTA : GMSG.LOG, ...body });
+  }
+
+  
+  function sendFullTo(peer, extra = {}) {
+    if (!mesh || !hosting || !peer) return;
+    sendMatch();
+    const body = sender.current();
+    if (body) mesh.send(peer, { t: GMSG.LOG, ...body, ...extra });
   }
 
   function wire() {
@@ -82,12 +119,12 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
       if (!hosting && who) mesh.send(who, hello());
       
       
-      if (hosting) sendMatch();
+      if (hosting) sendMatch({ full: true });
       else say('joined');
     });
     mesh.addEventListener('peer-left', (e) => {
       const who = e.detail?.peerId ?? e.detail?.id;
-      if (who) book.left(who);
+      if (who) { book.left(who); syncing.delete(who); }
       onPeers(peers(), myId);
       say('left');
     });
@@ -97,31 +134,45 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
       if (message.t === GMSG.HELLO) {
         
         const who = from || (typeof message.by === 'string' ? message.by : null);
+        if (who && Number(message.sync) >= SYNC_VERSION) syncing.add(who);
         if (who) book.hello(who, roleOf(message));
+        
         if (hosting) sendMatch();
         onPeers(peers(), myId);
         return;
       }
-      if (message.t === GMSG.LOG) {
+      if (message.t === GMSG.LOG || message.t === GMSG.DELTA) {
+        
         
         
         if (hosting) return;
-        book.adopt(sanitiseWatchers(message.watchers));
-        onMatch(sanitiseMatch(message));
+        const got = receiver.take(message, from);
+        if (got.kind === 'need') { mesh.send(from, { t: GMSG.NEED, by: myId }); return; }
+        if (got.kind !== 'full' && got.kind !== 'append') return;
+        book.adopt(sanitiseWatchers(got.value.watchers));
+        onMatch(sanitiseMatch(got.value), { nack: message.nack === true });
+        return;
+      }
+      if (message.t === GMSG.NEED) {
+        
+        if (hosting) sendFullTo(from);
         return;
       }
       if (message.t === GMSG.ACT) {
         if (!hosting) return;
         
         if (book.isWatcher(from) || book.isWatcher(message.by)) return;
-        onProposal({ ...message.action, by: message.by });
+        onProposal({ ...message.action, by: message.by }, from);
       }
     });
     mesh.addEventListener('host-changed', (e) => {
       hosting = !!e.detail.iAmHost;
+      
+      sender.reset();
+      receiver.reset();
       say('host');
       onPeers(peers(), myId);
-      if (hosting) sendMatch();
+      if (hosting) sendMatch({ full: true });
     });
     mesh.addEventListener('join-failed', (e) => say('failed', e.detail?.reason ?? ''));
     mesh.addEventListener('error', (e) => {
@@ -189,7 +240,11 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
       mesh.broadcast({ t: GMSG.ACT, action, by: myId });
     },
 
-    publish: sendMatch,
+    
+    publish: () => sendMatch(),
+
+    
+    refuse: (peer) => sendFullTo(peer, { nack: true }),
 
     leave() {
       try { mesh?.destroy(); } catch {  }
@@ -198,6 +253,9 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
       hosting = false;
       myRole = ROLE.PLAY;
       book.reset();
+      sender.reset();
+      receiver.reset();
+      syncing.clear();
       onPeers([], null);
       say('left');
     },
