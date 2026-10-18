@@ -219,11 +219,13 @@ function draw() {
     const b = buttons[i];
     let cls = 'sw-cell';
     let text = '';
-    if (cell.open && cell.mine) { cls += ' open boom'; text = '💣'; }
+    
+    
+    if (cell.open && cell.mine) cls += ' open boom mine';
     else if (cell.open) { cls += ' open'; if (cell.count) { cls += ` n${cell.count}`; text = String(cell.count); } }
-    else if (over && g.state === 'lost' && cell.mine && !cell.flag) { cls += ' open'; text = '💣'; }
-    else if (over && g.state === 'lost' && cell.flag && !cell.mine) { cls += ' wrong'; text = '❌'; }
-    else if (cell.flag) text = '🚩';
+    else if (over && g.state === 'lost' && cell.mine && !cell.flag) cls += ' open mine';
+    else if (over && g.state === 'lost' && cell.flag && !cell.mine) cls += ' wrong';
+    else if (cell.flag) cls += ' flag';
     if (b.className !== cls) b.className = cls;
     if (b.textContent !== text) b.textContent = text;
     b.tabIndex = i === focusIndex ? 0 : -1;
@@ -231,7 +233,9 @@ function draw() {
   });
   minesEl.textContent = pad3(flagsLeft(g));
   clockEl.textContent = pad3(secs(elapsed(g)));
-  faceEl.textContent = g.state === 'won' ? '😎' : g.state === 'lost' ? '😵' : '🙂';
+  
+  
+  faceEl.dataset.face = g.state === 'won' ? 'win' : g.state === 'lost' ? 'lose' : 'play';
   
   faceEl.disabled = playMode === 'race';
   
@@ -322,6 +326,10 @@ boardEl.addEventListener('pointermove', (e) => {
 });
 boardEl.addEventListener('pointerup', cancelPress);
 boardEl.addEventListener('pointercancel', cancelPress);
+
+
+boardEl.addEventListener('pointerdown', (e) => { if (cellIndex(e.target) >= 0) faceEl.classList.add('scared'); });
+for (const t of ['pointerup', 'pointercancel', 'pointerleave']) boardEl.addEventListener(t, () => faceEl.classList.remove('scared'));
 
 boardEl.addEventListener('click', (e) => {
   const i = cellIndex(e.target);

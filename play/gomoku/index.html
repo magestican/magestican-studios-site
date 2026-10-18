@@ -7,7 +7,7 @@
   <title>Play Gomowise - free Gomoku online, five in a row</title>
   <meta name="description" content="Gomowise is free Gomoku in your browser: five in a row on a 15x15 board. Three computer levels, two players on one device or a room with a friend, and the omok and caro house rules. No download, no account.">
   <meta name="keywords" content="gomowise, gomoku online, five in a row, gomoku vs computer, gomoku with friends, 오목 온라인, 2인용 오목, cờ caro online, 五目並べ オンライン, cinco en línea">
-  <meta name="build" content="7b48de6b-20261018T115420Z">
+  <meta name="build" content="1c998b5d-20261018T122905Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/gomoku/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Gomowise - free Gomoku online">
@@ -25,8 +25,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=7b48de6b-20261018T115420Z" data-game="gomoku"></script>
-  <link rel="stylesheet" href="./src/style.css?v=7b48de6b-20261018T115420Z">
+  <script src="../shared/ui/boot.js?v=1c998b5d-20261018T122905Z" data-game="gomoku"></script>
+  <link rel="stylesheet" href="./src/style.css?v=1c998b5d-20261018T122905Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -81,21 +81,21 @@
     <h1 data-game-name>Gomowise</h1>
 
     <div class="gm-row" role="group" aria-label="Mode">
-      <button class="gm-btn" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
-      <button class="gm-btn" type="button" data-mode="local" data-t="local" aria-pressed="false">Two players</button>
-      <button class="gm-btn" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
+      <button class="gm-btn skin-wood-toggle mg-i mg-i-computer" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
+      <button class="gm-btn skin-wood-toggle mg-i mg-i-two_players" type="button" data-mode="local" data-t="local" aria-pressed="false">Two players</button>
+      <button class="gm-btn skin-wood-toggle mg-i mg-i-globe" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
     </div>
 
     <div class="gm-row" id="bot-row" role="group" aria-label="Level">
       <span class="gm-label" data-t="level">Level</span>
-      <button class="gm-btn" type="button" data-level="easy" data-t="easy" aria-pressed="false">Easy</button>
-      <button class="gm-btn" type="button" data-level="medium" data-t="medium" aria-pressed="true">Medium</button>
-      <button class="gm-btn" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
+      <button class="gm-btn skin-wood-toggle" type="button" data-level="easy" data-t="easy" aria-pressed="false">Easy</button>
+      <button class="gm-btn skin-wood-toggle" type="button" data-level="medium" data-t="medium" aria-pressed="true">Medium</button>
+      <button class="gm-btn skin-wood-toggle" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
     </div>
 
     <div class="gm-row">
       <label class="gm-row"><span class="gm-label" data-t="rulesLabel">Rules</span>
-        <select class="gm-select" id="rules">
+        <select class="gm-select skin-wood-select" id="rules">
           <option value="free" data-t="free">Freestyle (5 or more wins)</option>
           <option value="omok" data-t="omok">Omok (exactly 5, no double-three)</option>
           <option value="caro" data-t="caro">Caro (a five blocked at both ends does not count)</option>
@@ -103,25 +103,25 @@
       </label>
       <span class="gm-row" id="colour-row" role="group">
         <span class="gm-label" data-t="playAs">Play as</span>
-        <button class="gm-btn" type="button" data-colour="black" data-t="black" aria-pressed="true">Black</button>
-        <button class="gm-btn" type="button" data-colour="white" data-t="white" aria-pressed="false">White</button>
+        <button class="gm-btn skin-wood-toggle" type="button" data-colour="black" data-t="black" aria-pressed="true">Black</button>
+        <button class="gm-btn skin-wood-toggle" type="button" data-colour="white" data-t="white" aria-pressed="false">White</button>
       </span>
     </div>
 
     <section class="gm-room" id="room" hidden aria-label="Room">
       <div class="gm-row" id="room-start">
-        <button class="gm-btn" type="button" id="create-room" data-t="createRoom">Create a room</button>
+        <button class="gm-btn skin-wood-button_primary mg-i mg-i-two_players" type="button" id="create-room" data-t="createRoom">Create a room</button>
         <form class="gm-row" id="join-form">
-          <input class="gm-input" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
-          <button class="gm-btn" type="submit" data-t="join">Join</button>
+          <input class="gm-input skin-wood-select" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
+          <button class="gm-btn skin-wood-button_secondary mg-i mg-i-link" type="submit" data-t="join">Join</button>
         </form>
       </div>
       <div class="gm-row" id="room-live" hidden>
         <span class="gm-label" data-t="roomCodeLabel">Code</span> <output class="gm-code" id="room-code">-</output>
-        <button class="gm-btn" type="button" id="copy-link" data-t="copyLink">Share link</button>
-        <button class="gm-btn" type="button" id="watch-link" data-t="watchLink">Watch link</button>
-        <button class="gm-btn" type="button" id="leave-room" data-t="leave">Leave room</button>
-        <span class="gm-watchers" id="watchers" role="status" hidden></span>
+        <button class="gm-btn skin-wood-button_secondary mg-i mg-i-share" type="button" id="copy-link" data-t="copyLink">Share link</button>
+        <button class="gm-btn skin-wood-button_secondary mg-i mg-i-watch" type="button" id="watch-link" data-t="watchLink">Watch link</button>
+        <button class="gm-btn skin-wood-button_secondary mg-i mg-i-leave" type="button" id="leave-room" data-t="leave">Leave room</button>
+        <span class="gm-watchers skin-wood-chip mg-i mg-i-watchers" id="watchers" role="status" hidden></span>
       </div>
     </section>
 
@@ -133,8 +133,8 @@
     </div>
 
     <div class="gm-foot">
-      <button class="gm-btn" id="new-game" type="button" data-t="newGame">New game</button>
-      <button class="gm-btn" id="undo" type="button" data-t="undo">Undo</button>
+      <button class="gm-btn skin-wood-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
+      <button class="gm-btn skin-wood-button_secondary mg-i mg-i-undo" id="undo" type="button" data-t="undo">Undo</button>
     </div>
     <p class="visually-hidden" id="cursor-say" aria-live="polite"></p>
     <p class="gm-help" data-t="help">Place stones where the lines cross. Five in a row - across, down or diagonally - wins.</p>
@@ -147,7 +147,7 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=7b48de6b-20261018T115420Z"></script>
-  <script type="module" src="./src/main.js?v=7b48de6b-20261018T115420Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=1c998b5d-20261018T122905Z"></script>
+  <script type="module" src="./src/main.js?v=1c998b5d-20261018T122905Z"></script>
 </body>
 </html>

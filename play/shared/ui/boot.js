@@ -103,6 +103,29 @@
   
   if (data.deck) preload(data.deck + ((window.devicePixelRatio || 1) > 1.5 ? 'deck@2x.webp' : 'deck.webp'));
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  var KITS = { minesweeper: 'stone', gomoku: 'wood', truco: 'wood', buraco: 'wood', 'word-chain': 'parchment' };
+  var kit = data.kit || KITS[data.game] || '';
+  if (/^(stone|wood|parchment)$/.test(kit) && me && me.src) {
+    html.setAttribute('data-kit', kit);
+    var sheets = ['skins.css', 'kit.css'];
+    for (var k = 0; k < sheets.length; k++) {
+      var ln = d.createElement('link');
+      ln.rel = 'stylesheet';
+      ln.href = new URL('kit/' + sheets[k], me.src).href;
+      d.head.appendChild(ln);
+    }
+  }
+
   var loadingWord = LOADING[lang] || LOADING.en;
   html.style.setProperty('--mg-boot-text', name ? lines(name, loadingWord) : q(loadingWord));
   html.style.setProperty('--mg-boot-img', img);

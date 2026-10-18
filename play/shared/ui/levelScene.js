@@ -26,6 +26,9 @@
 
 const STYLE_ID = 'mg-scene-style';
 
+export const CARD_ALPHA = 0.5;
+export const CARD_BLUR = 10;
+
 
 
 
@@ -39,11 +42,30 @@ html[data-scene] body { background: transparent !important; }
 @media (prefers-reduced-motion: reduce) { .mg-scene picture { transition: none; } }
 html[data-scene] main { gap: 14px; padding: 16px 16px 32px; }
 html[data-scene] main > :not(.mg-own):not(.mg-again):not(:empty) {
-  background: rgba(255, 253, 246, 0.93); border-radius: 14px; padding: 8px 14px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28); }
+  background: rgba(255, 252, 244, ${CARD_ALPHA}); border-radius: 14px; padding: 10px 16px;
+  -webkit-backdrop-filter: blur(${CARD_BLUR}px) saturate(1.15); backdrop-filter: blur(${CARD_BLUR}px) saturate(1.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  --fc-inkSoft: #38332A; --fc-blue: #163A66; --fc-red: #7A1F12; --fc-green: #134D2A; --fc-gold: #6B4500; }
 html[data-scene] main > :empty { min-height: 0; }
 html[data-scene] main > .mg-own { max-width: 100%; }
+@media (max-width: 560px) {
+  html[data-scene] main { gap: 12px; padding: 12px 16px 24px; }
+  html[data-scene] main > :not(.mg-own):not(.mg-again):not(:empty) { padding: 8px 16px; }
+}
 `;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

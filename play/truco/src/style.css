@@ -293,6 +293,14 @@ html[data-scene] main > .tr-hud, html[data-scene] main > .tr-seat { padding: 12p
   .tr-help { font-size: 14px; }
   
   .tr-calls .tr-btn { font-size: 14px; padding: 6px 9px; border-width: 2px; }
+  
+
+  html[data-kit] .tr-calls .tr-btn { font-size: 13px; padding-left: 11px !important; padding-right: 11px !important; }
+  .tr-hud .tr-score { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 12px; }
+  .tr-score-name { min-width: 0; }
+  .tr-score-row { gap: 5px; }
+  .tr-tally { height: 17px; }
+  .tr-status { font-size: 15px; }
 }
 
 

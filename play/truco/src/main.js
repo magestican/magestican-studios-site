@@ -38,6 +38,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
+import { skin } from '../../shared/ui/kit.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
@@ -571,6 +572,13 @@ function drawHand(legal) {
   }
 }
 
+const CALL_SKIN = {
+  truco: ['button_primary', 'star'],
+  quiero: ['button_primary', 'check'],
+  noquiero: ['button_secondary', 'close'],
+  mazo: ['button_secondary', 'give_up'],
+};
+
 function drawActions(legal) {
   actionsEl.replaceChildren();
   if (!view) return;
@@ -580,6 +588,10 @@ function drawActions(legal) {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = `tr-btn tr-call tr-call-${a.type}`;
+    
+    
+    const [comp, icon] = CALL_SKIN[a.type] ?? ['button_secondary', null];
+    skin(b, comp, icon);
     let word;
     if (a.type === 'truco') {
       const p = g.hand.pending;

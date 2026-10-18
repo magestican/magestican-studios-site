@@ -314,7 +314,12 @@ html[data-scene] .bu-seat-card #hand, .bu-seat-card #hand {
   .bu-status { font-size: 15px; }
   .bu-handbar .bu-btn { font-size: 14px; padding: 6px 10px; border-width: 2px; }
   .bu-table { gap: 8px; }
+  
+
+  html[data-kit] .bu-handbar .bu-btn { font-size: 13px; padding-left: 10px !important; padding-right: 10px !important; }
 }
+
+html[data-scene] .bu-score-row { background: rgba(255, 253, 246, 0.55); }
 @media (max-width: 400px) {
   
 

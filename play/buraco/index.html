@@ -7,7 +7,7 @@
   <title>Play Buracowise - free Brazilian buraco card game online</title>
   <meta name="description" content="Buracowise is free Brazilian buraco, the card game, in your browser: sequences, mortos, clean and dirty canastras. Play the computer, 2 vs 2, or friends in a room.">
   <meta name="keywords" content="buracowise, buraco, buraco online, jogar buraco online, buraco card game, burako, canastra">
-  <meta name="build" content="7b48de6b-20261018T115420Z">
+  <meta name="build" content="1c998b5d-20261018T122905Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/buraco/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Buracowise - free Brazilian buraco card game online">
@@ -25,8 +25,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=7b48de6b-20261018T115420Z" data-game="buraco" data-levels="easy,medium,hard" data-level-key="buracowise-settings-v1" data-level-default="medium" data-deck="../shared/cards/french52/"></script>
-  <link rel="stylesheet" href="./src/style.css?v=7b48de6b-20261018T115420Z">
+  <script src="../shared/ui/boot.js?v=1c998b5d-20261018T122905Z" data-game="buraco" data-levels="easy,medium,hard" data-level-key="buracowise-settings-v1" data-level-default="medium" data-deck="../shared/cards/french52/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=1c998b5d-20261018T122905Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -81,38 +81,38 @@
     <h1 data-game-name>Buracowise</h1>
 
     <div class="bu-row" role="group" aria-label="Mode">
-      <button class="bu-btn" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
-      <button class="bu-btn" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
+      <button class="bu-btn skin-wood-toggle mg-i mg-i-computer" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
+      <button class="bu-btn skin-wood-toggle mg-i mg-i-globe" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
       <span class="bu-gap"></span>
-      <button class="bu-btn" type="button" data-size="2" data-t="size2" aria-pressed="true">1 vs 1</button>
-      <button class="bu-btn" type="button" data-size="4" data-t="size4" aria-pressed="false">2 vs 2</button>
+      <button class="bu-btn skin-wood-toggle" type="button" data-size="2" data-t="size2" aria-pressed="true">1 vs 1</button>
+      <button class="bu-btn skin-wood-toggle" type="button" data-size="4" data-t="size4" aria-pressed="false">2 vs 2</button>
     </div>
 
     <div class="bu-row" id="opts-row">
       <span class="bu-label" data-t="level">Level</span>
-      <button class="bu-btn" type="button" data-level="easy" data-t="easy" aria-pressed="false">Easy</button>
-      <button class="bu-btn" type="button" data-level="medium" data-t="medium" aria-pressed="true">Medium</button>
-      <button class="bu-btn" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
+      <button class="bu-btn skin-wood-toggle" type="button" data-level="easy" data-t="easy" aria-pressed="false">Easy</button>
+      <button class="bu-btn skin-wood-toggle" type="button" data-level="medium" data-t="medium" aria-pressed="true">Medium</button>
+      <button class="bu-btn skin-wood-toggle" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
       <span class="bu-gap"></span>
       <label class="bu-row"><span class="bu-label" data-t="pointsLabel">Game to</span>
-        <select class="bu-select" id="target"></select>
+        <select class="bu-select skin-wood-select" id="target"></select>
       </label>
     </div>
 
     <section class="bu-room mg-own" id="room" hidden aria-label="Room">
       <div class="bu-row" id="room-start">
-        <button class="bu-btn" type="button" id="create-room" data-t="createRoom">Create a room</button>
+        <button class="bu-btn skin-wood-button_primary mg-i mg-i-two_players" type="button" id="create-room" data-t="createRoom">Create a room</button>
         <form class="bu-row" id="join-form">
-          <input class="bu-code-input" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
-          <button class="bu-btn" type="submit" data-t="join">Join</button>
+          <input class="bu-code-input skin-wood-select" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
+          <button class="bu-btn skin-wood-button_secondary mg-i mg-i-link" type="submit" data-t="join">Join</button>
         </form>
       </div>
       <div class="bu-row" id="room-live" hidden>
         <span class="bu-label" data-t="roomCodeLabel">Code</span> <output class="bu-code" id="room-code">-</output>
-        <button class="bu-btn" type="button" id="copy-link" data-t="copyLink">Share link</button>
-        <button class="bu-btn" type="button" id="watch-link" data-t="watchLink">Watch link</button>
-        <button class="bu-btn" type="button" id="leave-room" data-t="leave">Leave room</button>
-        <span class="bu-watchers" id="watchers" role="status" hidden></span>
+        <button class="bu-btn skin-wood-button_secondary mg-i mg-i-share" type="button" id="copy-link" data-t="copyLink">Share link</button>
+        <button class="bu-btn skin-wood-button_secondary mg-i mg-i-watch" type="button" id="watch-link" data-t="watchLink">Watch link</button>
+        <button class="bu-btn skin-wood-button_secondary mg-i mg-i-leave" type="button" id="leave-room" data-t="leave">Leave room</button>
+        <span class="bu-watchers skin-wood-chip mg-i mg-i-watchers" id="watchers" role="status" hidden></span>
       </div>
     </section>
 
@@ -133,7 +133,7 @@
       <p class="bu-flash" id="flash" aria-live="assertive"></p>
       <div class="bu-row bu-handbar">
         <div class="bu-actions" id="actions" role="group" aria-label="Moves"></div>
-        <button class="bu-btn bu-small" id="sort" type="button">Sort by rank</button>
+        <button class="bu-btn bu-small skin-wood-button_secondary mg-i mg-i-sort" id="sort" type="button">Sort by rank</button>
       </div>
       <div class="bu-hand" id="hand" role="group" aria-label="Your cards"></div>
     </section>
@@ -141,8 +141,8 @@
     <section class="bu-result" id="result" hidden aria-live="polite"></section>
 
     <div class="bu-foot">
-      <button class="bu-btn" id="next-hand" type="button" data-t="nextHand" hidden>Next hand</button>
-      <button class="bu-btn" id="new-game" type="button" data-t="newGame">New game</button>
+      <button class="bu-btn skin-wood-button_primary mg-i mg-i-rematch" id="next-hand" type="button" data-t="nextHand" hidden>Next hand</button>
+      <button class="bu-btn skin-wood-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
     </div>
     <p class="bu-help" data-t="help">Build sequences of one suit, take your morto when your hand runs out, close a clean canastra (7 cards) and go out. 2s and jokers are wild.</p>
   </main>
@@ -154,7 +154,7 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=7b48de6b-20261018T115420Z"></script>
-  <script type="module" src="./src/main.js?v=7b48de6b-20261018T115420Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=1c998b5d-20261018T122905Z"></script>
+  <script type="module" src="./src/main.js?v=1c998b5d-20261018T122905Z"></script>
 </body>
 </html>

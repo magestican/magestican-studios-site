@@ -38,7 +38,13 @@ export function wireTrackButton({ music, names, lang = globalThis.document?.docu
     const other = cur === 'main' ? 'local' : 'main';
     const here = pick(names[cur], lang);
     const next = pick(names[other], lang);
-    btn.textContent = `♪ ${here}`;
+    
+    
+    const note = doc.createElement('span');
+    note.className = 'mg-track-note';
+    note.setAttribute('aria-hidden', 'true');
+    note.textContent = '♪';
+    btn.replaceChildren(note, ` ${here}`);
     btn.dataset.track = cur;
     btn.title = `${here} ⇄ ${next}`;
     btn.setAttribute('aria-label', `${here} ⇄ ${next}`);

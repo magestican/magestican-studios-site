@@ -16,6 +16,8 @@
 
 
 
+import { kitClass } from './kit.js';
+
 const STYLE_ID = 'mg-again-style';
 
 const CSS = `
@@ -57,7 +59,10 @@ export function mountPlayAgain({ anchor, source, scroll = true, doc = globalThis
   injectStyle(doc);
   const el = doc.createElement('button');
   el.type = 'button';
-  el.className = 'mg-again';
+  
+  
+  const kit = kitClass('button_primary', 'rematch', doc);
+  el.className = kit ? `mg-again ${kit}` : 'mg-again';
   el.id = 'play-again';
   el.hidden = true;
   el.addEventListener('click', () => { if (!source.disabled) source.click(); });
@@ -69,7 +74,8 @@ export function mountPlayAgain({ anchor, source, scroll = true, doc = globalThis
       el.hidden = !over;
       if (!over) return;
       const label = labelOf(source);
-      if (el.textContent !== `↻ ${label}`) el.textContent = `↻ ${label}`;
+      const text = kit ? label : `↻ ${label}`;
+      if (el.textContent !== text) el.textContent = text;
       el.disabled = !!source.disabled;
       if (wasHidden && scroll) {
         setTimeout(() => { try { el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch {  } }, 60);

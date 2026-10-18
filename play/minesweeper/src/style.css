@@ -177,6 +177,26 @@ body { display: flex; flex-direction: column; }
 }
 .sw-face:focus-visible { outline: 4px solid var(--fc-blue); outline-offset: 2px; }
 
+
+
+
+
+html[data-kit] .sw-face { width: 56px; height: 56px; min-width: 56px; padding: 8px 0 12px; display: grid; place-items: center; }
+.sw-face::before {
+  content: ""; display: block; width: 32px; height: 32px;
+  background: url(../../shared/ui/kit/icons/gold/face_play.svg) center / contain no-repeat;
+}
+.sw-face[data-face="win"]::before { background-image: url(../../shared/ui/kit/icons/gold/face_win.svg); }
+.sw-face[data-face="lose"]::before { background-image: url(../../shared/ui/kit/icons/gold/face_lose.svg); }
+.sw-face.scared[data-face="play"]::before { background-image: url(../../shared/ui/kit/icons/gold/face_scared.svg); }
+.sw-cell.flag::before, .sw-cell.mine::before, .sw-cell.wrong::before {
+  content: ""; display: block; width: 80%; height: 80%; margin: auto;
+  background: url(../../shared/ui/kit/icons/ink/flag.svg) center / contain no-repeat;
+}
+.sw-cell.mine::before { background-image: url(../../shared/ui/kit/icons/ink/mine.svg); }
+.sw-cell.wrong::before { background-image: url(../../shared/ui/kit/icons/ink/close.svg); }
+.sw-cell.flag, .sw-cell.mine, .sw-cell.wrong { display: grid; place-items: center; }
+
 .sw-wrap { max-width: 100%; overflow: auto; padding: 4px; }
 .sw-board {
   display: grid;

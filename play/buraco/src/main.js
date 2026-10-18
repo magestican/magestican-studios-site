@@ -43,6 +43,7 @@ import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
+import { skin } from '../../shared/ui/kit.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
@@ -683,6 +684,8 @@ function layOff(k) {
   doAction({ type: 'layoff', meld: k, cards: [...selected] });
 }
 
+const ACT_ICON = { draw: 'draw_card', take: 'take_pile', meld: 'check', discard: 'send', clear: 'close' };
+
 function drawActions() {
   actionsEl.replaceChildren();
   if (!view) return;
@@ -691,6 +694,8 @@ function drawActions() {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = `bu-btn bu-act${primary ? ' primary' : ''}`;
+    
+    skin(b, primary ? 'button_primary' : 'button_secondary', ACT_ICON[key]);
     b.dataset.action = key;
     b.textContent = text;
     b.disabled = disabled || waitingAnswer;

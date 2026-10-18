@@ -7,7 +7,7 @@
   <title>Play Relaywise - free word chain online</title>
   <meta name="description" content="Relaywise is a free word chain game in your browser: start your word where the last one ended. Eight languages, three computer levels, a friend room and a turn timer.">
   <meta name="keywords" content="relaywise, word chain, word chain game online, nối từ, しりとり, 끝말잇기, sambung kata, palabras encadenadas, palavras encadeadas">
-  <meta name="build" content="7b48de6b-20261018T115420Z">
+  <meta name="build" content="1c998b5d-20261018T122905Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/word-chain/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Relaywise - free word chain online">
@@ -25,8 +25,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=7b48de6b-20261018T115420Z" data-game="word-chain" data-levels="easy,medium,hard" data-level-key="relaywise-settings-v1" data-level-default="medium"></script>
-  <link rel="stylesheet" href="./src/style.css?v=7b48de6b-20261018T115420Z">
+  <script src="../shared/ui/boot.js?v=1c998b5d-20261018T122905Z" data-game="word-chain" data-levels="easy,medium,hard" data-level-key="relaywise-settings-v1" data-level-default="medium"></script>
+  <link rel="stylesheet" href="./src/style.css?v=1c998b5d-20261018T122905Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -81,44 +81,44 @@
     <h1 data-game-name>Relaywise</h1>
 
     <div class="wc-row" role="group" aria-label="Mode">
-      <button class="wc-btn" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
-      <button class="wc-btn" type="button" data-mode="local" data-t="local" aria-pressed="false">Two players</button>
-      <button class="wc-btn" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
+      <button class="wc-btn skin-parchment-toggle mg-i mg-i-computer" type="button" data-mode="bot" data-t="vsBot" aria-pressed="true">Vs computer</button>
+      <button class="wc-btn skin-parchment-toggle mg-i mg-i-two_players" type="button" data-mode="local" data-t="local" aria-pressed="false">Two players</button>
+      <button class="wc-btn skin-parchment-toggle mg-i mg-i-globe" type="button" data-mode="room" data-t="friend" aria-pressed="false">Friend online</button>
     </div>
 
     <div class="wc-row" id="bot-row" role="group" aria-label="Level">
       <span class="wc-label" data-t="level">Level</span>
-      <button class="wc-btn" type="button" data-level="easy" data-t="easy" aria-pressed="false">Easy</button>
-      <button class="wc-btn" type="button" data-level="medium" data-t="medium" aria-pressed="true">Medium</button>
-      <button class="wc-btn" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
+      <button class="wc-btn skin-parchment-toggle" type="button" data-level="easy" data-t="easy" aria-pressed="false">Easy</button>
+      <button class="wc-btn skin-parchment-toggle" type="button" data-level="medium" data-t="medium" aria-pressed="true">Medium</button>
+      <button class="wc-btn skin-parchment-toggle" type="button" data-level="hard" data-t="hard" aria-pressed="false">Hard</button>
     </div>
 
     <div class="wc-row">
       <label class="wc-row"><span class="wc-label" data-t="wordsIn">Words</span>
-        <select class="wc-select" id="word-lang"></select>
+        <select class="wc-select skin-parchment-select" id="word-lang"></select>
       </label>
       <label class="wc-row" id="link-wrap"><span class="wc-label" data-t="linkLabel">Link</span>
-        <select class="wc-select" id="link"></select>
+        <select class="wc-select skin-parchment-select" id="link"></select>
       </label>
       <label class="wc-row"><span class="wc-label" data-t="timerLabel">Timer</span>
-        <select class="wc-select" id="timer"></select>
+        <select class="wc-select skin-parchment-select" id="timer"></select>
       </label>
     </div>
 
     <section class="wc-room" id="room" hidden aria-label="Room">
       <div class="wc-row" id="room-start">
-        <button class="wc-btn" type="button" id="create-room" data-t="createRoom">Create a room</button>
+        <button class="wc-btn skin-parchment-button_primary mg-i mg-i-two_players" type="button" id="create-room" data-t="createRoom">Create a room</button>
         <form class="wc-row" id="join-form">
-          <input class="wc-code-input" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
-          <button class="wc-btn" type="submit" data-t="join">Join</button>
+          <input class="wc-code-input skin-parchment-select" id="join-code" name="code" autocomplete="off" maxlength="12" placeholder="Room code" data-t-ph="codePh" aria-label="Room code">
+          <button class="wc-btn skin-parchment-button_secondary mg-i mg-i-link" type="submit" data-t="join">Join</button>
         </form>
       </div>
       <div class="wc-row" id="room-live" hidden>
         <span class="wc-label" data-t="roomCodeLabel">Code</span> <output class="wc-code" id="room-code">-</output>
-        <button class="wc-btn" type="button" id="copy-link" data-t="copyLink">Share link</button>
-        <button class="wc-btn" type="button" id="watch-link" data-t="watchLink">Watch link</button>
-        <button class="wc-btn" type="button" id="leave-room" data-t="leave">Leave room</button>
-        <span class="wc-watchers" id="watchers" role="status" hidden></span>
+        <button class="wc-btn skin-parchment-button_secondary mg-i mg-i-share" type="button" id="copy-link" data-t="copyLink">Share link</button>
+        <button class="wc-btn skin-parchment-button_secondary mg-i mg-i-watch" type="button" id="watch-link" data-t="watchLink">Watch link</button>
+        <button class="wc-btn skin-parchment-button_secondary mg-i mg-i-leave" type="button" id="leave-room" data-t="leave">Leave room</button>
+        <span class="wc-watchers skin-parchment-chip mg-i mg-i-watchers" id="watchers" role="status" hidden></span>
       </div>
     </section>
 
@@ -129,10 +129,10 @@
       <div class="wc-clock" id="clock" aria-hidden="true"><div class="wc-clock-bar" id="clock-bar"></div></div>
       <form class="wc-form" id="word-form" autocomplete="off">
         <label class="visually-hidden" for="word" data-t="inputLabel">Your word</label>
-        <input class="wc-input" id="word" name="word" autocomplete="off" autocapitalize="off"
+        <input class="wc-input skin-parchment-select" id="word" name="word" autocomplete="off" autocapitalize="off"
                autocorrect="off" spellcheck="false" enterkeyhint="send" maxlength="40"
                placeholder="Type a word" data-t-ph="inputPh">
-        <button class="wc-btn wc-go" type="submit" id="send" data-t="play">Play</button>
+        <button class="wc-btn wc-go skin-parchment-button_primary mg-i mg-i-send" type="submit" id="send" data-t="play">Play</button>
       </form>
       <p class="wc-flash" id="flash" aria-live="assertive"></p>
       <h2 class="wc-chain-title"><span data-t="chainLabel">The chain</span> <span class="wc-count" id="count"></span></h2>
@@ -140,8 +140,8 @@
     </div>
 
     <div class="wc-foot">
-      <button class="wc-btn" id="give-up" type="button" data-t="giveUp">Give up</button>
-      <button class="wc-btn" id="new-game" type="button" data-t="newGame">New game</button>
+      <button class="wc-btn skin-parchment-button_secondary mg-i mg-i-give_up" id="give-up" type="button" data-t="giveUp">Give up</button>
+      <button class="wc-btn skin-parchment-button_primary mg-i mg-i-new_game" id="new-game" type="button" data-t="newGame">New game</button>
     </div>
     <p class="wc-help"><span data-t="help">Each word must start where the last one ended. No repeats - and if your time runs out, you lose.</span>
       <span class="wc-example" id="example"></span> <span id="n-loses" hidden data-t="nLoses">A word ending in ん loses.</span></p>
@@ -155,7 +155,7 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=7b48de6b-20261018T115420Z"></script>
-  <script type="module" src="./src/main.js?v=7b48de6b-20261018T115420Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=1c998b5d-20261018T122905Z"></script>
+  <script type="module" src="./src/main.js?v=1c998b5d-20261018T122905Z"></script>
 </body>
 </html>

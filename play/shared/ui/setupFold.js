@@ -20,6 +20,8 @@
 
 
 
+import { kitClass } from './kit.js';
+
 const STYLE_ID = 'mg-setup-fold-style';
 export const WIDE = '(min-width: 900px)';
 
@@ -38,7 +40,8 @@ const CSS = `
 @media (max-width: 899px), (max-height: 700px) {
   main > h1[data-game-name] { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0;
     overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-  html[data-scene] main > details.mg-setup.mg-setup:not([open]) { background: none; box-shadow: none; padding: 0; }
+  html[data-scene] main > details.mg-setup.mg-setup:not([open]) { background: none; box-shadow: none; padding: 0;
+    -webkit-backdrop-filter: none; backdrop-filter: none; }
   .mg-setup > summary { min-height: 44px; padding: 8px 16px; font-size: 14px; background: rgba(255, 253, 246, 0.95);
     color: #17150F; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22); }
 }
@@ -96,6 +99,10 @@ export function foldSetup({ stopAt = '#room', doc = globalThis.document } = {}) 
   const details = doc.createElement('details');
   details.className = 'mg-setup';
   const summary = doc.createElement('summary');
+  
+  
+  const kit = kitClass('select', 'settings', doc);
+  if (kit) summary.className = kit;
   const gear = doc.createElement('span');
   gear.setAttribute('aria-hidden', 'true');
   gear.textContent = '⚙';

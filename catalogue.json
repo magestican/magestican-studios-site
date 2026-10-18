@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "7b48de6b-20261018T115420Z",
+ "buildId": "1c998b5d-20261018T122905Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -322,7 +322,7 @@
    "ageNote": null,
    "order": 9,
    "addedAt": "2026-10-15",
-   "bytes": 4820995
+   "bytes": 4822996
   },
   {
    "id": "gomoku",
@@ -354,7 +354,7 @@
    "ageNote": null,
    "order": 10,
    "addedAt": "2026-10-15",
-   "bytes": 4947456
+   "bytes": 4948021
   },
   {
    "id": "word-chain",
@@ -386,7 +386,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 5409641
+   "bytes": 5410440
   },
   {
    "id": "truco",
@@ -418,7 +418,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-10-15",
-   "bytes": 5939828
+   "bytes": 5941049
   },
   {
    "id": "buraco",
@@ -450,7 +450,7 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-10-15",
-   "bytes": 4557295
+   "bytes": 4558301
   },
   {
    "id": "farmy-moon-life",
