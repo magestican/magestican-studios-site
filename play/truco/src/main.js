@@ -14,8 +14,10 @@
 
 
 
+
+
 import {
-  createMatch, act, nextHand, rematch, viewFor, actorId, seatOf, isBot, botLevel, seatsWith, myNumbers,
+  createMatch, act, nextHand, rematch, viewFor, viewForPeer, actorId, seatOf, isBot, botLevel, seatsWith, myNumbers,
 } from '../../../web-engine/truco/trucoMatch.js';
 import { legalActions, actor, team, power, TRUCO_CALLS, half } from '../../../web-engine/truco/trucoRules.js';
 import { chooseAction, LEVELS, seededRng } from '../../../web-engine/truco/trucoBot.js';
@@ -29,7 +31,8 @@ import { reportMatch } from '../../../web-engine/progress/report.js';
 import { CARDS, deviceId } from '../../../web-engine/progress/peerCards.js';
 import { twoSeatMatch, createReportGate } from '../../../web-engine/progress/matchArgs.js';
 import { shareLink } from '../../../web-engine/share/shareInvite.js';
-import { shareLinkFor, joinIdFrom } from '../../../web-engine/words/coop.js';
+import { shareLinkFor } from '../../../web-engine/words/coop.js';
+import { ROLE, roomFromHref, watchLinkFor, watchingLabel } from '../../../web-engine/net/watchers.js';
 import { roomPresence } from '../../shared/net/roomPresence.js';
 import { createTrackMusic } from '../../shared/audio/trackMusic.js';
 import { createGameSfx } from '../../shared/audio/gameSfx.js';
@@ -141,7 +144,8 @@ let lastFlash = '';
 let finishedRound = -1;
 let gameRound = 0;
 let queuedArrivals = [];
-const room = { active: false, me: null, peers: [], code: null };
+
+const room = { active: false, me: null, peers: [], code: null, watching: false };
 
 
 
@@ -158,6 +162,15 @@ const botRngs = new Map();
 const isGuest = () => settings.mode === 'room' && room.active && net && !net.hosting;
 const myId = () => (settings.mode === 'room' ? (room.me ?? HOST) : SOLO);
 const mySeat = () => (view ? view.you : (match ? seatOf(match, myId()) : 0));
+
+
+
+
+
+const watcher = () => settings.mode === 'room' && room.active
+  && (room.watching || (isGuest() && !!view && view.you < 0));
+
+const viewSeat = () => (view && view.you >= 0 ? view.you : 0);
 
 function botSeats(size, level, first) {
   const seats = [first];
@@ -192,7 +205,9 @@ function newMatch({ keepHand = false } = {}) {
 
 function refresh() {
   if (!match) return;
-  view = viewFor(match, seatOf(match, myId()) < 0 ? 0 : seatOf(match, myId()));
+  
+  
+  view = viewForPeer(match, myId());
   if (net?.hosting) net.publish();
   draw();
   stopTimers();
@@ -245,6 +260,8 @@ function stopTimers() {
 
 function doAction(a) {
   if (!view) return;
+  
+  if (watcher()) return;
   if (isGuest()) {
     if (waitingAnswer) return;
     waitingAnswer = true;
@@ -268,6 +285,12 @@ function seatName(s) {
   if (s === me) return T.you;
   const id = view.seats[s];
   const n = view.game.opts.players;
+  
+  
+  if (me < 0) {
+    const p = fill(T.playerN, { n: s + 1 });
+    return isBot(id) ? `${p} (${T.bot})` : p;
+  }
   if (n === 2) return isBot(id) ? T.bot : T.friendName;
   const rel = (s - me + 4) % 4;
   const pos = rel === 1 ? T.right : rel === 2 ? T.partner : T.left;
@@ -276,6 +299,7 @@ function seatName(s) {
 
 function teamName(t) {
   if (!view) return '';
+  if (view.you < 0) return view.game.opts.players === 2 ? seatName(t) : fill(T.teamN, { n: t + 1 });
   if (view.game.opts.players === 2) return t === team(view.you) ? T.you : seatName(1 - view.you);
   return t === team(view.you) ? T.us : T.them;
 }
@@ -392,7 +416,8 @@ function drawScore() {
   scoreEl.replaceChildren();
   if (!view) return;
   const g = view.game;
-  const mine = team(view.you);
+  
+  const mine = team(viewSeat());
   for (const t of [mine, 1 - mine]) {
     const row = document.createElement('div');
     row.className = `tr-score-row ${t === mine ? 'us' : 'them'}`;
@@ -432,11 +457,13 @@ function drawTable() {
   const turnSeat = actor(g);
   $('table').classList.toggle('two', n === 2);
   for (let s = 0; s < n; s++) {
-    const rel = (s - view.you + n) % n;
+    
+    
+    const rel = (s - viewSeat() + n) % n;
     const spot = $(spotFor(rel, n));
     spot.hidden = false;
     spot.classList.toggle('turn', turnSeat === s);
-    spot.classList.toggle('partner', team(s) === team(view.you));
+    spot.classList.toggle('partner', view.you >= 0 && team(s) === team(view.you));
     const head = document.createElement('div');
     head.className = 'tr-spot-head';
     const name = document.createElement('span');
@@ -522,6 +549,9 @@ function statusText(legal) {
   if (!view) return settings.mode === 'room' && room.active ? T.connecting : T.loading;
   const g = view.game;
   
+  
+  if (watcher() && !g.over) return T.watching;
+  
   if (settings.mode === 'room' && view.seats.includes('')) return T.waiting;
   if (g.over) {
     if (view.you < 0) return fill(T.winsGame, { who: teamName(g.winner) });
@@ -553,19 +583,32 @@ function draw() {
   $('room-live').hidden = !room.active;
   $('room-code').textContent = room.code ?? '-';
   const guest = isGuest();
-  for (const el of [targetEl, florEl]) el.disabled = guest;
+  const watching = watcher();
+  for (const el of [targetEl, florEl]) el.disabled = guest || watching;
+  
+  $('copy-link').hidden = watching;
+  const watchersEl = $('watchers');
+  watchersEl.textContent = watchingLabel(T.watchers, room.active ? (net?.watchers ?? 0) : 0);
+  watchersEl.hidden = !watchersEl.textContent;
   statusEl.textContent = statusText(legal);
   drawScore();
   drawTable();
   drawHand(legal);
   drawActions(view ? legal : []);
+  
+  handEl.hidden = watching;
   const nums = view && myNumbers(view);
   const h = view?.game.hand;
   if (nums && h && h.results.length === 0 && !h.over) {
     mineEl.textContent = view.game.opts.flor && nums.flor ? fill(T.myFlor, { n: nums.envido }) : fill(T.myEnvido, { n: nums.envido });
   } else mineEl.textContent = '';
-  nextEl.hidden = !(view && h && h.over && !view.game.over && !guest);
-  again.update(!!view?.game.over);
+  
+  nextEl.hidden = !(view && h && h.over && !view.game.over && !guest && !watching);
+  $('new-game').hidden = watching;
+  
+  
+  document.querySelector('.tr-foot').hidden = watching;
+  again.update(!!view?.game.over && !watching);
 }
 
 
@@ -648,6 +691,7 @@ florEl.addEventListener('change', () => {
 });
 nextEl.addEventListener('click', () => { if (!isGuest()) dealNext(); });
 $('new-game').addEventListener('click', () => {
+  if (watcher()) return;
   playUi('tap');
   if (isGuest()) { net.propose({ type: 'rematch' }); return; }
   if (match && settings.mode === 'room') { stopTimers(); begin(rematch(match, freshSeed())); return; }
@@ -679,6 +723,9 @@ function onView(v) {
   const before = view;
   waitingAnswer = false;
   view = v;
+  
+  
+  settings.size = v.game.opts.players;
   if (!before || (v.game.handNo === 0 && before.game.handNo > 0) || (before.game.over && !v.game.over)) {
     gameRound += 1;
     reportGate.begin(v.seats);
@@ -694,7 +741,9 @@ function onView(v) {
 function startNet() {
   if (net) return net;
   net = createNet({
-    viewFor: (peer) => (match ? viewFor(match, seatOf(match, peer)) : null),
+    
+    
+    viewFor: (peer) => (match ? viewForPeer(match, peer) : null),
     onView,
     onProposal,
     onPeers: (peers, id) => {
@@ -744,9 +793,30 @@ function startNet() {
         refresh();
       }
     },
+    
+    
+    
+    
+    
+    onUnseat: (who) => {
+      if (!match) return;
+      queuedArrivals = queuedArrivals.filter((x) => x !== who);
+      const k = match.seats.indexOf(who);
+      if (k <= 0) return;
+      const seats = match.seats.slice();
+      if (freshMatch(match)) {
+        seats[k] = match.game.opts.players === 2 ? '' : `bot:${settings.level}#${k}`;
+        stopTimers();
+        begin(createMatch({ seats, target: match.game.opts.target, flor: match.game.opts.flor, seed: freshSeed() }));
+        return;
+      }
+      seats[k] = `bot:${settings.level}#${k}`;
+      match = { ...match, seats };
+      refresh();
+    },
     onStatus: (kind, detail) => {
       if (kind === 'open') flash(T.waiting, 4000);
-      else if (kind === 'joined') flash(T.joined);
+      else if (kind === 'joined' && !room.watching) flash(T.joined);
       else if (kind === 'failed') flash(T.badCode, 4000);
       else if (kind === 'host' && detail?.iAmHost && view && !match) {
         
@@ -772,12 +842,13 @@ function openRoom() {
   startNet().host();
 }
 
-function joinRoom(code) {
+function joinRoom(code, { watch = false } = {}) {
   if (!canPlayTogether()) { flash(T.noRooms, 4000); return false; }
-  const out = startNet().join(code);
+  const out = startNet().join(code, { watch });
   if (out?.error) { net = null; flash(T.badCode, 4000); return false; }
   stopTimers();
   settings.mode = 'room';
+  room.watching = watch;
   room.active = true;
   room.code = codeOf(code);
   match = null;
@@ -791,7 +862,7 @@ function leaveRoom() {
   try { net?.leave(); } catch {  }
   net = null;
   queuedArrivals = [];
-  Object.assign(room, { active: false, me: null, peers: [], code: null });
+  Object.assign(room, { active: false, me: null, peers: [], code: null, watching: false });
 }
 
 $('create-room').addEventListener('click', () => { playUi('tap'); openRoom(); });
@@ -818,6 +889,19 @@ $('copy-link').addEventListener('click', () => {
 });
 
 
+
+$('watch-link').addEventListener('click', () => {
+  if (!net?.id) return;
+  const base = `${location.origin}${location.pathname}`;
+  const link = watchLinkFor(base, net.hosting ? net.id : `ftr-${room.code}`);
+  shareLink({ link, gameName: GAME_NAME, code: room.code, text: fill(T.watchInvite, { game: GAME_NAME }) })
+    .then((res) => {
+      if (res?.via === 'clipboard') flash(T.watchCopied);
+      else if (res?.via === 'manual') flash(res.url, 8000);
+    }, () => flash(link, 8000));
+});
+
+
 wireMusicButton({ music });
 wireTrackButton({ music, names: MUSIC_NAMES, lang });
 
@@ -826,15 +910,15 @@ mountLevelChip(document.querySelector('.studio-bar'), { share: 'Trucowise' });
 
 
 
-countPlay('truco', { isHost: !joinIdFrom(location.href) });
+const linkRoom = roomFromHref(location.href);
+countPlay('truco', { isHost: !linkRoom });
 
 loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch(() => {  });
 
 function boot() {
-  const linkRoom = joinIdFrom(location.href);
   if (linkRoom) {
     settings.mode = 'room';
-    if (!joinRoom(linkRoom)) { settings.mode = 'bot'; newMatch({ keepHand: true }); }
+    if (!joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH })) { settings.mode = 'bot'; newMatch({ keepHand: true }); }
     return;
   }
   newMatch({ keepHand: true });
@@ -857,7 +941,7 @@ globalThis.trucowise = Object.freeze({
   scores: () => (view ? view.game.scores.slice() : null),
   over: () => !!view?.game.over,
   atlas: () => !!atlas,
-  room: () => ({ ...room, hosting: !!net?.hosting, seats: view ? view.seats.slice() : [] }),
+  room: () => ({ ...room, hosting: !!net?.hosting, seats: view ? view.seats.slice() : [], watchers: net?.watchers ?? 0, watcher: watcher() }),
   act: (a) => doAction(a),
   deal: () => { if (!isGuest()) dealNext(); },
 });

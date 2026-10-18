@@ -162,6 +162,36 @@ export function viewFor(match, seat) {
 }
 
 
+
+
+
+
+export const PUBLIC_SEAT = -1;
+
+
+
+
+
+
+
+
+
+export function publicView(match) {
+  return viewFor(match, PUBLIC_SEAT);
+}
+
+
+
+
+
+
+
+export function viewForPeer(match, id) {
+  const seat = seatOf(match, id);
+  return seat < 0 ? publicView(match) : viewFor(match, seat);
+}
+
+
 export function sanitiseView(v) {
   if (!v || typeof v !== 'object' || !v.game || typeof v.game !== 'object') return null;
   const g = v.game;
