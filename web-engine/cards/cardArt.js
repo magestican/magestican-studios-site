@@ -27,7 +27,12 @@ export function spriteStyle(atlas, id, { width, dpr = 1, base = '' } = {}) {
   const h = Math.round(ch * k * 100) / 100;
   const cols = atlas.cols;
   const rows = Math.ceil(Object.keys(atlas.cards).length / cols);
-  const use2x = dpr * k > 1.05 && (atlas.scales || []).includes(2);
+  
+  
+  
+  
+  
+  const use2x = dpr > 1.5 && (atlas.scales || []).includes(2);
   const file = use2x ? 'deck@2x.webp' : 'deck.webp';
   const r2 = (v) => Math.round(v * 100) / 100;
   return {

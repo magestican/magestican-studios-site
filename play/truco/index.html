@@ -7,7 +7,7 @@
   <title>Play Trucowise - free Argentine truco online</title>
   <meta name="description" content="Trucowise is free Argentine truco in your browser: envido, truco, retruco, vale cuatro and flor with the 40-card Spanish deck. Play the computer, 2 vs 2, or friends in a room.">
   <meta name="keywords" content="trucowise, truco, truco argentino, truco online, jugar truco, envido, truco 2 vs 2">
-  <meta name="build" content="e934cd96-20261018T072402Z">
+  <meta name="build" content="3f11653e-20261018T073511Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/truco/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Trucowise - free Argentine truco online">
@@ -23,7 +23,10 @@
   
 
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
-  <link rel="stylesheet" href="./src/style.css?v=e934cd96-20261018T072402Z">
+  
+
+  <script src="../shared/ui/boot.js?v=3f11653e-20261018T073511Z" data-game="truco" data-levels="easy,medium,hard" data-level-key="trucowise-settings-v1" data-level-default="medium" data-deck="../shared/cards/spanish40/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=3f11653e-20261018T073511Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -114,9 +117,11 @@
       </div>
     </section>
 
-    <section class="tr-score" id="score" aria-label="Score"></section>
-
-    <p class="tr-status" id="status" role="status" aria-live="polite"></p>
+    
+    <div class="tr-hud">
+      <section class="tr-score" id="score" aria-label="Score"></section>
+      <p class="tr-status" id="status" role="status" aria-live="polite"></p>
+    </div>
 
     <section class="tr-table mg-own" id="table" aria-label="Table">
       <div class="tr-spot" id="spot-top"></div>
@@ -125,13 +130,18 @@
       <div class="tr-spot tr-me" id="spot-bottom"></div>
     </section>
 
-    <p class="tr-mine" id="mine" aria-live="polite"></p>
-    <div class="tr-hand" id="hand" role="group" aria-label="Your cards"></div>
-    <div class="tr-actions" id="actions" role="group" aria-label="Calls"></div>
-    <p class="tr-flash" id="flash" aria-live="assertive"></p>
+    
+    <section class="tr-seat" id="seat">
+      <p class="tr-mine" id="mine" aria-live="polite"></p>
+      <div class="tr-hand" id="hand" role="group" aria-label="Your cards"></div>
+      <div class="tr-calls">
+        <div class="tr-actions" id="actions" role="group" aria-label="Calls"></div>
+        <button class="tr-btn" id="next-hand" type="button" data-t="nextHand" hidden>Next hand</button>
+      </div>
+      <p class="tr-flash" id="flash" aria-live="assertive"></p>
+    </section>
 
     <div class="tr-foot">
-      <button class="tr-btn" id="next-hand" type="button" data-t="nextHand" hidden>Next hand</button>
       <button class="tr-btn" id="new-game" type="button" data-t="newGame">New game</button>
     </div>
     <p class="tr-help" data-t="help">Win two of the three bazas. Sing envido before your first card; call truco on your turn. First to the target wins.</p>
@@ -144,7 +154,7 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=e934cd96-20261018T072402Z"></script>
-  <script type="module" src="./src/main.js?v=e934cd96-20261018T072402Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=3f11653e-20261018T073511Z"></script>
+  <script type="module" src="./src/main.js?v=3f11653e-20261018T073511Z"></script>
 </body>
 </html>

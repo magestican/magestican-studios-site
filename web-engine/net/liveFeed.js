@@ -52,7 +52,6 @@ export const LIVE_STATS_ID = Object.freeze({
   wordchain: 'word-chain',
   truco: 'truco',
   buraco: 'buraco',
-  minesweeper: 'minesweeper',
 });
 
 
@@ -75,8 +74,6 @@ export const LIVE_ACCENT = Object.freeze({
   wordchain: '#1D4E89',
   truco: '#A8321E',
   buraco: '#1F6E4A',
-  
-  minesweeper: '#1D4E89',
 });
 
 

@@ -41,6 +41,7 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
+import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
@@ -147,6 +148,26 @@ function getDict(l) {
 
 let match = null;
 let state = null;
+let fit = null; 
+
+
+
+
+
+function keepInputInView() {
+  const vv = globalThis.visualViewport;
+  const input = document.getElementById('word');
+  if (!vv || !input) return;
+  const settle = () => {
+    if (document.activeElement !== input) return;
+    const card = document.querySelector('.wc-play') ?? input;
+    const top = card.getBoundingClientRect().top - vv.offsetTop;
+    const inputBottom = input.getBoundingClientRect().bottom - vv.offsetTop;
+    if (top < 8 || inputBottom > vv.height - 8) window.scrollBy(0, top - 12);
+  };
+  vv.addEventListener('resize', settle);
+  input.addEventListener('focus', () => { setTimeout(settle, 350); });
+}
 let dict = null;
 let loading = false;
 let net = null;
@@ -245,10 +266,6 @@ function statusText() {
   if (room.watching) return T.watching;
   if (state.seats.includes(GUEST)) return T.waiting;
   if (seatOf(state, me()) < 0) return T.watching;
-  
-  
-  
-  if (echo) return T.checking;
   return isMyTurn(state, me()) ? T.yourTurn : T.theirTurn;
 }
 
@@ -358,6 +375,7 @@ function draw() {
   drawNeed();
   drawChain();
   drawControls();
+  fit?.refit();
 }
 
 
@@ -832,7 +850,21 @@ mountLevelChip(document.querySelector('.studio-bar'), { share: 'Relaywise' });
 
 
 
-countPlay('word-chain', { isHost: !roomFromHref(location.href) });
+
+
+afterBoot(() => countPlay('word-chain', { isHost: !roomFromHref(location.href) }));
+
+
+
+
+
+const chainBox = document.getElementById('chain');
+fit = fitScreen({
+  last: () => [document.querySelector('.wc-play'), document.querySelector('.wc-foot')],
+  apply: (k) => { chainBox.style.maxHeight = `${Math.round(Math.max(96, (innerHeight || 600) * 0.46 * k))}px`; },
+  min: 0.1,
+});
+keepInputInView();
 
 async function boot() {
   const linkRoom = roomFromHref(location.href);
@@ -854,7 +886,9 @@ async function boot() {
   if (cheat.length) reportGate.settle();
   afterChange();
 }
-boot().catch(() => { statusEl.textContent = T.loading; });
+boot().catch(() => { statusEl.textContent = T.loading; })
+  
+  .finally(() => { fit.refit({ grow: true }); bootDone(); });
 
 trackEvent('game_start', { game: GAME_ID, mode: settings.mode, words: settings.wordLang });
 

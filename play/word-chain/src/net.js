@@ -189,8 +189,6 @@ export function createNet({ snapshot, onMatch, onProposal, onPeers, onStatus, on
     get watching() { return myRole === ROLE.WATCH; },
     
     get watchers() { return book.count; },
-    
-    isWatcher: (id) => book.isWatcher(id),
     peers,
 
     

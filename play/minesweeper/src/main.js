@@ -25,7 +25,6 @@ import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { shareLinkFor } from '../../../web-engine/words/coop.js';
 import { ROLE, roomFromHref, watchLinkFor, watchingLabel } from '../../../web-engine/net/watchers.js';
 import { createNet, canPlayTogether } from './net.js';
-import { roomPresence } from '../../shared/net/roomPresence.js';
 import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
@@ -36,6 +35,7 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
+import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
@@ -114,17 +114,7 @@ let playMode = 'solo';
 let net = null;
 
 const room = { active: false, me: null, peers: [], code: null, watching: false };
-
-
-
-
-const presence = roomPresence({
-  game: 'minesweeper',
-  net: () => net,
-  players: () => new Set([room.me, ...room.peers].filter(Boolean)).size || 1,
-  ids: () => [room.me, ...room.peers].filter(Boolean),
-});
-let rs = createRoom();               
+let rs = createRoom();                
 const race = {
   round: 0, layout: null, counts: null, map: null, live: false, goAt: 0,
   sender: null, throttle: null, rx: new Map(), reports: {}, needAt: new Map(),
@@ -177,18 +167,23 @@ function build() {
   }
 }
 
+
+
+
+
+
+
+let cellScale = 1;
+let fit = null; 
 function sizeCells() {
   if (!g) return;
-  const top = boardEl.getBoundingClientRect().top + scrollY;
   
   
   const availW = Math.min(innerWidth, document.documentElement.clientWidth) - 56;
-  const availH = innerHeight - Math.max(0, top) - 150;
-  const fit = Math.floor(Math.min(availW / g.cols, Math.max(availH, 200) / g.rows));
-  
-  
-  const cell = Math.min(Math.floor(availW / g.cols), Math.max(24, Math.min(44, fit)));
-  document.documentElement.style.setProperty('--cell', `${Math.max(20, cell)}px`);
+  const widest = Math.min(44, Math.floor(availW / g.cols));
+  const cell = Math.max(Math.min(16, widest), Math.floor(widest * cellScale));
+  document.documentElement.style.setProperty('--cell', `${cell}px`);
+  fit?.refit({ grow: true });
 }
 
 
@@ -820,8 +815,6 @@ function startNet() {
     onChannel: () => resendMine(),
     onPeers: (peers, id) => {
       room.peers = peers;
-      
-      presence.sync();
       if (id) room.me = id;
       if (id && net?.hosting) room.code = codeOf(id);
       if (net?.hosting && room.me && rs.seats[0] === HOST && !raceRunning(rs)) {
@@ -897,7 +890,6 @@ function joinRoom(code, { watch = false } = {}) {
 }
 
 function leaveRoom() {
-  presence.withdraw();
   try { net?.leave(); } catch {  }
   net = null;
   clearInterval(race.countdown);
@@ -979,12 +971,21 @@ mountLevelChip(document.querySelector('.studio-bar'), { share: 'Sweepwise' });
 
 
 const linkRoom = roomFromHref(location.href);
-countPlay('minesweeper', { isHost: !linkRoom });
+
+
+afterBoot(() => countPlay('minesweeper', { isHost: !linkRoom }));
+fit = fitScreen({
+  last: () => [document.querySelector('.sw-wrap'), document.querySelector('.sw-foot')],
+  apply: (s) => { cellScale = s; sizeCells(); },
+  min: 0.3,
+});
 start();
 if (linkRoom) {
   enterRace();
   if (!joinRoom(linkRoom.code, { watch: linkRoom.role === ROLE.WATCH })) drawRoom();
 } else drawRoom();
+
+bootDone();
 
 
 

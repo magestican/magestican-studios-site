@@ -183,8 +183,6 @@ export function createNet({
     get watching() { return myRole === ROLE.WATCH; },
     
     get watchers() { return book.count; },
-    
-    isWatcher: (id) => book.isWatcher(id),
     peers,
 
     host(attempt = 0) {

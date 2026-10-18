@@ -69,12 +69,8 @@ export function hostCard({ storage, fleet = isFleet } = {}) {
 
 
 
-
-
-
-
 export function roomPresence({
-  game, net, players, bots = 0, ids = null, mode = null, watcher = null,
+  game, net, players, bots = 0, ids = null, mode = null,
   publish = publishRoom, fleet = isFleet, cards = CARDS, storage,
 }) {
   let withdrawFn = null;
@@ -82,25 +78,10 @@ export function roomPresence({
 
   
   
-  
-  
-  
-  
-  
-  const isWatcher = (id) => {
-    try {
-      return !!(watcher ? watcher(id) : net()?.isWatcher?.(id));
-    } catch {
-      return false;
-    }
-  };
-
-  
-  
   const counts = () => honestCounts({
     players: players(),
     bots: botsOf(),
-    ids: ids ? ids().filter((id) => !isWatcher(id)) : null,
+    ids: ids ? ids() : null,
     me: net()?.id ?? null,
     meIsFleet: !!fleet(),
     cardOf: (id) => cards.get(id),

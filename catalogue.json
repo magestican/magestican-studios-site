@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "e934cd96-20261018T072402Z",
+ "buildId": "3f11653e-20261018T073511Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -303,8 +303,8 @@
    "query": "",
    "webUrl": "https://magesticanstudios.com/minesweeper.html",
    "orientation": "any",
-   "players": "1-2",
-   "online": true,
+   "players": "1",
+   "online": false,
    "offline": true,
    "cover": "assets/covers/minesweeper-16x9.webp",
    "focus": [
@@ -322,7 +322,7 @@
    "ageNote": null,
    "order": 9,
    "addedAt": "2026-10-15",
-   "bytes": 4298021
+   "bytes": 4298868
   },
   {
    "id": "gomoku",
@@ -354,7 +354,7 @@
    "ageNote": null,
    "order": 10,
    "addedAt": "2026-10-15",
-   "bytes": 4300896
+   "bytes": 4302251
   },
   {
    "id": "word-chain",
@@ -386,7 +386,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 4703208
+   "bytes": 4705263
   },
   {
    "id": "truco",
@@ -418,7 +418,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-10-15",
-   "bytes": 5041162
+   "bytes": 5043945
   },
   {
    "id": "buraco",
@@ -450,7 +450,7 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-10-15",
-   "bytes": 3814228
+   "bytes": 3817299
   },
   {
    "id": "farmy-moon-life",

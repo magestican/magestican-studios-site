@@ -44,6 +44,7 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
+import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
@@ -87,6 +88,13 @@ const resultEl = $('result');
 const nextEl = $('next-hand');
 
 const again = mountPlayAgain({ anchor: resultEl, source: $('new-game'), scroll: false });
+
+
+const fit = fitScreen({
+  last: () => [$('seat'), $('table')],
+  apply: (s) => { fitScale = s; draw(); },
+  min: 0.5,
+});
 
 
 mountLevelScene({ levels: ['easy', 'medium', 'hard'] });
@@ -400,12 +408,17 @@ function flash(text, ms = 2800) {
 
 const screenW = () => Math.min(window.innerWidth || 400, 900);
 
+
+
+let fitScale = 1;
 const widthFor = (kind) => {
   const w = screenW();
-  if (kind === 'hand') return Math.max(56, Math.min(84, Math.floor(w / 6.2)));
-  if (kind === 'meld') return Math.max(40, Math.min(58, Math.floor(w / 9.5)));
-  if (kind === 'pile') return Math.max(46, Math.min(64, Math.floor(w / 8)));
-  return Math.max(26, Math.min(36, Math.floor(w / 14)));
+  let base;
+  if (kind === 'hand') base = Math.max(56, Math.min(84, Math.floor(w / 6.2)));
+  else if (kind === 'meld') base = Math.max(40, Math.min(58, Math.floor(w / 9.5)));
+  else if (kind === 'pile') base = Math.max(46, Math.min(64, Math.floor(w / 8)));
+  else base = Math.max(26, Math.min(36, Math.floor(w / 14)));
+  return Math.round(base * fitScale);
 };
 
 function cardEl(id, { kind = 'meld', onClick = null, faceDown = false } = {}) {
@@ -632,6 +645,10 @@ function drawHand() {
   if (!view || view.you < 0) return;
   const cards = sortedHand(view.game.hand.mine);
   const canPick = myTurn() && view.game.hand.phase === 'play';
+  
+  
+  const w = widthFor('hand');
+  handEl.style.setProperty('--bu-fan', `${Math.round(w * (screenW() <= 560 ? 0.36 : 0.71)) - w}px`);
   for (const c of cards) {
     const el = cardEl(c, { kind: 'hand', onClick: canPick ? () => toggle(c) : null });
     el.classList.toggle('sel', selected.has(c));
@@ -795,6 +812,7 @@ function draw() {
   drawResult();
   const h = view?.game.hand;
   nextEl.hidden = !(view && h && h.over && !view.game.over && !isGuest() && !watching);
+  fit.refit();
 }
 
 
@@ -1110,9 +1128,14 @@ mountLevelChip(document.querySelector('.studio-bar'), { share: 'Buracowise' });
 
 
 const linkRoom = roomFromHref(location.href);
-countPlay('buraco', { isHost: !linkRoom });
 
-loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch(() => {  });
+
+afterBoot(() => countPlay('buraco', { isHost: !linkRoom }));
+
+
+
+const atlasReady = loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch(() => {  });
+Promise.race([atlasReady, new Promise((r) => { setTimeout(r, 4000); })]).then(() => { fit.refit({ grow: true }); bootDone(); });
 
 function boot() {
   if (linkRoom) {

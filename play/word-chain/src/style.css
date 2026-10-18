@@ -276,6 +276,29 @@ html[data-scene] .wc-chain li.wc-checking {
   border: 0;
 }
 noscript p { max-width: 32em; margin: 24px auto; padding: 0 16px; }
+
+
+
+
+
+.wc-play { max-width: 100%; }
+@media (max-width: 899px), (max-height: 700px) {
+  .wc-status { font-size: 17px; }
+  .wc-help, .wc-credit { font-size: 14px; }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  html[data-scene] main.wc, main.wc {
+    display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); grid-template-rows: auto auto auto 1fr;
+    align-items: start; justify-items: center; column-gap: 16px; row-gap: 12px;
+  }
+  .wc > .wc-play { grid-column: 1; grid-row: 1 / span 4; width: 100%; }
+  .wc > .mg-setup { grid-column: 2; grid-row: 1; }
+  .wc > .wc-status { grid-column: 2; grid-row: 2; }
+  .wc > .wc-foot { grid-column: 2; grid-row: 3; }
+  .wc > .wc-help { grid-column: 2; grid-row: 4; }
+  .wc > .wc-room, .wc > .mg-again, .wc > .wc-credit { grid-column: 2; }
+}
 @media (prefers-reduced-motion: no-preference) {
   .wc-chain li:first-child { animation: wc-in 220ms ease-out; }
   @keyframes wc-in { from { transform: translateY(-6px); opacity: 0.2; } to { transform: none; opacity: 1; } }

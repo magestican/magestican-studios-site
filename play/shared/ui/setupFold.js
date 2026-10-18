@@ -13,6 +13,13 @@
 
 
 
+
+
+
+
+
+
+
 const STYLE_ID = 'mg-setup-fold-style';
 export const WIDE = '(min-width: 900px)';
 
@@ -28,6 +35,13 @@ const CSS = `
 .mg-setup-body { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 8px; }
 .mg-setup[open] > summary { margin-bottom: 2px; }
 @media (min-width: 900px) { .mg-setup > summary { display: none; } }
+@media (max-width: 899px), (max-height: 700px) {
+  main > h1[data-game-name] { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  html[data-scene] main > details.mg-setup.mg-setup:not([open]) { background: none; box-shadow: none; padding: 0; }
+  .mg-setup > summary { min-height: 44px; padding: 8px 16px; font-size: 14px; background: rgba(255, 253, 246, 0.95);
+    color: #17150F; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22); }
+}
 @media (max-width: 560px) {
   main > h1[data-game-name] { font-size: 22px; margin: 2px 0 0; line-height: 1.15; }
   .studio-back { font-size: 0; flex: 0 0 auto; width: 34px; height: 34px; padding: 0; border: 2px solid currentColor;

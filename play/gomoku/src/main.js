@@ -36,6 +36,7 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
+import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -72,6 +73,8 @@ const sayEl = $('cursor-say');
 const rulesEl = $('rules');
 const newGameEl = $('new-game');
 const again = mountPlayAgain({ anchor: document.querySelector('.gm-board-wrap'), source: newGameEl });
+
+let fit = null;
 const undoEl = $('undo');
 const roomEl = $('room');
 
@@ -304,6 +307,7 @@ function drawControls() {
   newGameEl.hidden = settings.mode === 'room' && room.watching;
   newGameEl.disabled = settings.mode === 'room' && (room.watching || !room.active || (!state.game.over && !(net?.hosting && state.game.moves.length === 0)));
   again.update(state.game.over && !(settings.mode === 'room' && room.watching));
+  fit?.refit();
 }
 
 
@@ -738,7 +742,19 @@ mountLevelChip(document.querySelector('.studio-bar'), { share: 'Gomowise' });
 
 
 const linkRoom = roomFromHref(location.href);
-countPlay('gomoku', { isHost: !linkRoom });
+
+
+afterBoot(() => countPlay('gomoku', { isHost: !linkRoom }));
+
+
+
+
+const boardWrap = document.querySelector('.gm-board-wrap');
+fit = fitScreen({
+  last: () => [boardWrap, document.querySelector('.gm-foot')],
+  apply: (s) => { boardWrap.style.setProperty('--gm-fit', String(s)); },
+  min: 0.4,
+});
 
 if (linkRoom) {
   settings.mode = 'room';
@@ -756,6 +772,9 @@ if (linkRoom) {
   }
   afterChange();
 }
+
+fit.refit({ grow: true });
+bootDone();
 
 trackEvent('game_start', { game: GAME_ID, mode: settings.mode, rules: settings.rules });
 

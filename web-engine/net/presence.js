@@ -99,10 +99,6 @@ export const LIVE_GAMES = Object.freeze({
   wordchain: 'Relaywise',
   truco: 'Trucowise',
   buraco: 'Buracowise',
-  
-  
-  
-  minesweeper: 'Sweepwise',
 });
 
 
@@ -131,7 +127,7 @@ export function isPublishableCode(game, code) {
   const c = String(code ?? '');
   const peer = PEER_PREFIX[game];
   if (peer) return c.startsWith(peer) && /^(fk|tb)-[a-z0-9]{6}$/.test(c);
-  return /^(fcx|fch|flu|fsc|fdr|fup|feh|fml|fgo|fwc|ftr|fbu|fms)-[ACDEFGHJKMNPRTUVWXY34679]{6}$/.test(c);
+  return /^(fcx|fch|flu|fsc|fdr|fup|feh|fml|fgo|fwc|ftr|fbu)-[ACDEFGHJKMNPRTUVWXY34679]{6}$/.test(c);
 }
 
 
@@ -150,7 +146,6 @@ export const LIVE_PATH = Object.freeze({
   wordchain: '/play/word-chain/',
   truco: '/play/truco/',
   buraco: '/play/buraco/',
-  minesweeper: '/play/minesweeper/',
 });
 
 
@@ -163,8 +158,7 @@ export function joinUrl(room) {
 
 
 
-
-export const SEATS = Object.freeze({ chess: 2, checkers: 2, ludo: 4, scrabble: 4, gomoku: 2, minesweeper: 2 });
+export const SEATS = Object.freeze({ chess: 2, checkers: 2, ludo: 4, scrabble: 4, gomoku: 2 });
 
 
 export const ROOM_MODES = Object.freeze(['open', 'full', 'playing']);

@@ -284,3 +284,65 @@ html[data-scene] #hand { padding: 18px 38px 8px 14px; }
 @media (max-width: 560px) {
   html[data-scene] #hand { padding: 14px 54px 8px 14px; }
 }
+
+
+
+
+
+
+
+.bu-hud, .bu-seat-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  width: min(100%, 900px);
+}
+html[data-scene] main > .bu-hud, html[data-scene] main > .bu-seat-card { padding: 12px 16px; }
+.bu-seat-card .bu-flash:empty { display: none; }
+.bu-handbar { gap: 8px; }
+.bu-handbar .bu-actions:empty { display: none; }
+.bu-handbar .bu-actions { min-height: 0; gap: 8px; }
+
+html[data-scene] .bu-seat-card #hand, .bu-seat-card #hand {
+  padding: 14px calc(0px - var(--bu-fan, -24px)) 0 0; box-shadow: none; background: none;
+}
+.bu-seat-card .bu-hand .bu-card { margin-right: var(--bu-fan, -24px); }
+
+
+
+.bu-card.bu-hand { padding: 0; display: inline-block; }
+
+@media (max-width: 899px), (max-height: 700px) {
+  .bu-status { font-size: 15px; }
+  .bu-handbar .bu-btn { font-size: 14px; padding: 6px 10px; border-width: 2px; }
+  .bu-table { gap: 8px; }
+}
+@media (max-width: 400px) {
+  
+
+  .bu-handbar .bu-btn { font-size: 13px; padding: 6px 8px; }
+}
+
+
+
+@media (orientation: landscape) and (max-height: 520px) {
+  html[data-scene] main.bu, main.bu {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto; align-items: start; justify-items: center;
+    column-gap: 16px; row-gap: 12px;
+  }
+  .bu > .mg-setup { grid-column: 1; grid-row: 1; }
+  .bu > .bu-hud { grid-column: 1; grid-row: 2; }
+  .bu > .bu-seat-card { grid-column: 1; grid-row: 3; }
+  .bu > .bu-table { grid-column: 2; grid-row: 1 / span 3; }
+  
+  .bu-score { gap: 4px 6px; flex-wrap: nowrap; width: 100%; }
+  .bu-score-row { flex: 1 1 40%; min-width: 0; flex-wrap: wrap; gap: 0 6px; padding: 3px 8px; }
+  .bu-score-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bu-score-n { font-size: 17px; min-width: 0; }
+  .bu-morto-tag { font-size: 11px; padding: 0 6px; }
+  .bu-score-to { font-size: 12px; }
+  .bu-score { flex-wrap: wrap; }
+  .bu-score-to { flex-basis: 100%; text-align: center; }
+  .bu-hud { gap: 4px; }
+  .bu-status { font-size: 14px; }
+  .bu > .bu-room, .bu > .bu-result, .bu > .bu-foot, .bu > .bu-help, .bu > .mg-again { grid-column: 1 / -1; }
+}

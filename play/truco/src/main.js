@@ -40,6 +40,7 @@ import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
 import { mountLevelScene } from '../../shared/ui/levelScene.js';
+import { fitScreen, bootDone, afterBoot } from '../../shared/ui/fitScreen.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -78,6 +79,13 @@ const mineEl = $('mine');
 const scoreEl = $('score');
 const nextEl = $('next-hand');
 const again = mountPlayAgain({ anchor: $('table'), source: $('new-game') });
+
+
+const fit = fitScreen({
+  last: () => [$('seat'), $('table')],
+  apply: (s) => { fitScale = s; draw(); },
+  min: 0.5,
+});
 
 
 mountLevelScene({ levels: ['easy', 'medium', 'hard'] });
@@ -383,13 +391,18 @@ function flash(text, ms = 2600) {
 }
 
 
-const cardWidth = (big) => {
+
+
+
+let fitScale = 1;
+const cardWidth = (big, tiny = false) => {
   const w = Math.min(window.innerWidth || 400, 640);
-  return big ? Math.max(64, Math.min(104, Math.floor((w - 48) / 3.3))) : Math.max(40, Math.min(66, Math.floor(w / 7.5)));
+  const base = big ? Math.max(64, Math.min(104, Math.floor((w - 48) / 3.3))) : Math.max(40, Math.min(66, Math.floor(w / 7.5)));
+  return Math.round(base * (tiny ? 0.6 : 1) * fitScale);
 };
 
-function cardEl(id, { big = false, onClick = null, faceDown = false } = {}) {
-  const width = cardWidth(big);
+function cardEl(id, { big = false, tiny = false, onClick = null, faceDown = false } = {}) {
+  const width = cardWidth(big, tiny);
   const label = faceDown ? T.faceDown : cardName(T, id);
   if (atlas) {
     const el = makeCard(document, atlas, id, { width, label, faceDown, onClick, className: 'tr-card' });
@@ -535,7 +548,7 @@ function drawTable() {
     if (s !== view.you) {
       const backs = document.createElement('div');
       backs.className = 'tr-backs';
-      for (let k = 0; k < h.hands[s].length; k++) backs.append(cardEl('back', { faceDown: true }));
+      for (let k = 0; k < h.hands[s].length; k++) backs.append(cardEl('back', { faceDown: true, tiny: true }));
       spot.append(backs);
     }
     spot.append(row);
@@ -647,6 +660,7 @@ function draw() {
   
   document.querySelector('.tr-foot').hidden = watching;
   again.update(!!view?.game.over && !watching);
+  fit.refit();
 }
 
 
@@ -960,9 +974,14 @@ mountLevelChip(document.querySelector('.studio-bar'), { share: 'Trucowise' });
 
 
 const linkRoom = roomFromHref(location.href);
-countPlay('truco', { isHost: !linkRoom });
 
-loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch(() => {  });
+
+afterBoot(() => countPlay('truco', { isHost: !linkRoom }));
+
+
+
+const atlasReady = loadAtlas(DECK_URL).then((a) => { atlas = a; draw(); }).catch(() => {  });
+Promise.race([atlasReady, new Promise((r) => { setTimeout(r, 4000); })]).then(() => { fit.refit({ grow: true }); bootDone(); });
 
 function boot() {
   if (linkRoom) {
