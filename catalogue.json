@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "1c998b5d-20261018T122905Z",
+ "buildId": "94b46bf3-20261018T134753Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -322,7 +322,7 @@
    "ageNote": null,
    "order": 9,
    "addedAt": "2026-10-15",
-   "bytes": 4822996
+   "bytes": 5010272
   },
   {
    "id": "gomoku",
@@ -386,7 +386,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 5410440
+   "bytes": 6520361
   },
   {
    "id": "truco",
