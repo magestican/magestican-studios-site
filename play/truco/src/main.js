@@ -36,6 +36,7 @@ import { createGameSfx } from '../../shared/audio/gameSfx.js';
 import { wireTrackButton } from '../../shared/ui/trackButton.js';
 import { foldSetup } from '../../shared/ui/setupFold.js';
 import { mountPlayAgain } from '../../shared/ui/playAgain.js';
+import { mountLevelScene } from '../../shared/ui/levelScene.js';
 import { wireMusicButton } from '../../shared/ui/musicButton.js';
 import { mountLevelChip } from '../../../web-engine/progress/levelChip.js';
 import { countPlay } from '../../../web-engine/stats/firebaseLeaderboard.js';
@@ -74,6 +75,9 @@ const mineEl = $('mine');
 const scoreEl = $('score');
 const nextEl = $('next-hand');
 const again = mountPlayAgain({ anchor: $('table'), source: $('new-game') });
+
+
+mountLevelScene({ levels: ['easy', 'medium', 'hard'] });
 const roomEl = $('room');
 const targetEl = $('target');
 const florEl = $('flor');
