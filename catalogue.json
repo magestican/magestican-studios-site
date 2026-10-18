@@ -1,6 +1,6 @@
 {
  "v": 1,
- "buildId": "88cb1efe-20261018T074650Z",
+ "buildId": "eec36cf1-20261018T114054Z",
  "packs": {
   "family": {
    "ageRating": 9
@@ -322,7 +322,7 @@
    "ageNote": null,
    "order": 9,
    "addedAt": "2026-10-15",
-   "bytes": 4299199
+   "bytes": 4820995
   },
   {
    "id": "gomoku",
@@ -386,7 +386,7 @@
    "ageNote": null,
    "order": 11,
    "addedAt": "2026-10-15",
-   "bytes": 4705351
+   "bytes": 5409641
   },
   {
    "id": "truco",
@@ -418,7 +418,7 @@
    "ageNote": null,
    "order": 12,
    "addedAt": "2026-10-15",
-   "bytes": 5043993
+   "bytes": 5939828
   },
   {
    "id": "buraco",
@@ -450,7 +450,7 @@
    "ageNote": null,
    "order": 13,
    "addedAt": "2026-10-15",
-   "bytes": 3817347
+   "bytes": 4557295
   },
   {
    "id": "farmy-moon-life",
