@@ -266,6 +266,10 @@ function statusText() {
   if (room.watching) return T.watching;
   if (state.seats.includes(GUEST)) return T.waiting;
   if (seatOf(state, me()) < 0) return T.watching;
+  
+  
+  
+  if (echo) return T.checking;
   return isMyTurn(state, me()) ? T.yourTurn : T.theirTurn;
 }
 

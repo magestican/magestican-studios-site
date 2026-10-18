@@ -25,6 +25,7 @@ import { shareLink } from '../../../web-engine/share/shareInvite.js';
 import { shareLinkFor } from '../../../web-engine/words/coop.js';
 import { ROLE, roomFromHref, watchLinkFor, watchingLabel } from '../../../web-engine/net/watchers.js';
 import { createNet, canPlayTogether } from './net.js';
+import { roomPresence } from '../../shared/net/roomPresence.js';
 import { applyGameName, gameLang } from '../../../web-engine/i18n/gameNames.js';
 import { initAnalytics, trackEvent } from '../../../web-engine/visits/visits.js';
 import { startVersionChecker } from '../../../web-engine/updater/versionChecker.js';
@@ -114,7 +115,17 @@ let playMode = 'solo';
 let net = null;
 
 const room = { active: false, me: null, peers: [], code: null, watching: false };
-let rs = createRoom();                
+
+
+
+
+const presence = roomPresence({
+  game: 'minesweeper',
+  net: () => net,
+  players: () => new Set([room.me, ...room.peers].filter(Boolean)).size || 1,
+  ids: () => [room.me, ...room.peers].filter(Boolean),
+});
+let rs = createRoom();               
 const race = {
   round: 0, layout: null, counts: null, map: null, live: false, goAt: 0,
   sender: null, throttle: null, rx: new Map(), reports: {}, needAt: new Map(),
@@ -815,6 +826,8 @@ function startNet() {
     onChannel: () => resendMine(),
     onPeers: (peers, id) => {
       room.peers = peers;
+      
+      presence.sync();
       if (id) room.me = id;
       if (id && net?.hosting) room.code = codeOf(id);
       if (net?.hosting && room.me && rs.seats[0] === HOST && !raceRunning(rs)) {
@@ -890,6 +903,7 @@ function joinRoom(code, { watch = false } = {}) {
 }
 
 function leaveRoom() {
+  presence.withdraw();
   try { net?.leave(); } catch {  }
   net = null;
   clearInterval(race.countdown);
