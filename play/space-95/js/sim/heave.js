@@ -7,13 +7,22 @@
 
 
 
+
+
+
+
+import { STEP } from './constants.js';
+
 const TAU = Math.PI * 2;
+const sagEase = (u) => u * u * (3 - 2 * u);
 
 
 export const LAUNCH_GAIN = 2;
 
 
 export const MAX_BOOST = 6.5;
+const SAG_EASE = 0.3; 
+const SAG_DEAD = 0.06; 
 
 
 function taperW(h, x) {
@@ -49,9 +58,15 @@ function sighY(h, ts) {
 }
 
 
-export function heaveAt(h, x, t, sighStart = null) {
+export function heaveAt(h, x, t, sighStart = null, sagK = 0) {
   if (x < h.x0 || x >= h.x1) return null;
   const w = taperW(h, x);
+  if (h.group === 'sag') {
+    
+    
+    const d = h.amp * sagK * w;
+    return { y: Math.abs(d) < (h.dead ?? SAG_DEAD) ? h.base : h.base + d, vs: 0 };
+  }
   if (h.group === 'sigh') {
     if (sighStart === null) return { y: h.base, vs: 0 };
     const s = sighY(h, t - sighStart);
@@ -79,6 +94,8 @@ export function attachHeaves(world, heaves) {
       const c = attachHeaves(clone(), heaves);
       c.time = world.time;
       c.sighStart = world.sighStart;
+      if (world.sagU) c.sagU = { ...world.sagU };
+      if (world.sag) c.sag = { ...world.sag };
       return c;
     };
     world.clone.withHeaves = true;
@@ -86,9 +103,11 @@ export function attachHeaves(world, heaves) {
   world.floorAt = (b, x = b.x) => {
     let best = null;
     for (const h of heaves) {
+      if (h.phases && !h.phases.includes(world.arenaPhase ?? 0)) continue;
+      const k = h.group === 'sag' ? sagEase(world.sagU?.[h.id] ?? 0) : 0;
       for (const sx of [x - b.w / 2 + 0.01, x, x + b.w / 2 - 0.01]) {
-        const s = heaveAt(h, sx, world.time, world.sighStart);
-        if (s && (!best || s.y > best.y)) best = { ...s, id: h.id };
+        const s = heaveAt(h, sx, world.time, world.sighStart, k);
+        if (s && (!best || s.y > best.y)) best = h.group === 'sag' ? { ...s, id: h.id, noWall: true } : { ...s, id: h.id };
       }
     }
     return best;
@@ -104,6 +123,15 @@ export function stepHeaves(s) {
   w.time = s.time;
   const p = s.player;
   for (const h of w.heaves) {
+    if (h.group === 'sag') {
+      
+      w.sagU ??= {};
+      const u = w.sagU[h.id] ?? 0;
+      const target = w.sag?.[h.id] ? 1 : 0;
+      const d = STEP / SAG_EASE;
+      w.sagU[h.id] = target > u ? Math.min(target, u + d) : Math.max(target, u - d);
+      continue;
+    }
     if (h.group === 'sigh' && w.sighStart === null && h.trigger !== undefined && p.x >= h.trigger) {
       w.sighStart = s.time;
       s.events.push({ type: 'sigh', id: h.id, x: p.x, y: h.base });

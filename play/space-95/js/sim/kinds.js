@@ -2,6 +2,7 @@
 import './bosses/boss.js';
 import './bosses/duchess.js';
 import './bosses/foreman.js';
+import './bosses/mantis.js';
 import './enemies/antPorter.js';
 import './enemies/aphid.js';
 import './enemies/bandit.js';
@@ -19,3 +20,4 @@ import './motifs/dew.js';
 import './pickups.js';
 import './shield.js';
 import './slipstream.js';
+import './twig.js';

@@ -3,6 +3,7 @@
 
 
 
+import { STEP } from './constants.js';
 import { overlaps, registerKind } from './entities.js';
 
 registerKind('intel', {
@@ -67,12 +68,34 @@ registerKind('cameo', {
   },
 });
 
+
+
+
+
+registerKind('mantisArm', {
+  create(e) {
+    e.w = 0;
+    e.h = 0;
+  },
+  step(e, ctx) {
+    if (!e.catch || !e.caught) return;
+    ctx.events.push({ type: 'armSnatch', id: e.id, x: e.lastCatch.x, y: e.lastCatch.y, limp: 2.0, use: e.use ?? null });
+    e.catch = null;
+    e.state = 'snatched';
+  },
+});
+
 registerKind('finish', {
   create(e) {
     e.w = 0.6;
     e.h = 3;
   },
   step(e, ctx) {
+    
+    if (e.delay) {
+      e.openT = (e.openT ?? 0) + STEP;
+      if (e.openT < e.delay) return;
+    }
     
     const left = (e.dir ?? ctx.session.level.dir ?? 1) < 0;
     const p = ctx.player;

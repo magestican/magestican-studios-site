@@ -14,6 +14,9 @@
 
 
 
+
+
+
 import { HITSTOP_BOSS, hurtPlayer, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { overlaps, registerKind } from '../entities.js';
@@ -47,6 +50,7 @@ function enterPhase(e, ctx, i) {
   e.endActive = false;
   e.recoverFor = undefined;
   e.weakNow = undefined;
+  e.interrupt = null;
   ctx.events.push({ type: 'bossPhase', id: e.id, phase: i, name: e.phases[i].name });
 }
 
@@ -94,11 +98,28 @@ registerKind('boss', {
     if (s.hearts < e.phaseHearts) e.phaseHurt = true;
     
     
-    if (e.stage === 'intro' && e.t >= INTRO_TIME) {
+    if (e.interrupt && e.stage !== 'intro') {
+      
+      e.stage = 'recover';
+      e.t = 0;
+      e.endActive = false;
+      e.recoverFor = e.interrupt.recoverFor;
+      e.weakNow = e.interrupt.weakNow;
+      e.interrupt = null;
+      ctx.events.push({
+        type: 'bossRecover',
+        id: e.id,
+        attack: atk.name,
+        interrupted: true,
+        seconds: e.recoverFor,
+        weak: e.weakNow !== false,
+      });
+    } else if (e.stage === 'intro' && e.t >= (ph.intro ?? INTRO_TIME)) {
       e.stage = 'telegraph';
       e.t = 0;
       ctx.events.push({ type: 'telegraph', id: e.id, attack: atk.name, seconds: atk.telegraph, x: e.x, y: e.y });
-    } else if (e.stage === 'telegraph' && e.t >= atk.telegraph) {
+    } else if (e.stage === 'telegraph' && e.t >= (e.teleFor ?? atk.telegraph)) {
+      e.teleFor = undefined; 
       e.stage = 'active';
       e.t = 0;
       e.endActive = false;

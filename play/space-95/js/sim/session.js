@@ -4,6 +4,7 @@
 
 
 import './kinds.js';
+import { attachArena, initArena, stepArena } from './arena.js';
 import { STEP } from './constants.js';
 import { stepDig } from './dig.js';
 import { spawnEntities, stepEntities } from './entities.js';
@@ -42,13 +43,16 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     if (d.kind === 'ability' && start !== level.spawn && (level.vertical ? start.y > d.y : dir * (start.x - d.x) > 0))
       abilities.add(d.grant);
   player.abilities = abilities;
-  return {
+  
+  const [startBoss, startPhase] = start.phase ? start.phase.split(':') : [];
+  const defs = (level.entities ?? []).map((d) => (startBoss && d.id === startBoss ? { ...d, startPhase: Number(startPhase) } : d));
+  const s = {
     level,
     
     world: sessionWorld(level),
     abilities,
     player,
-    entities: spawnEntities(level.entities ?? []),
+    entities: spawnEntities(defs),
     checkpoint: start === level.spawn ? 0 : startCheckpoint,
     
     partial: start !== level.spawn,
@@ -80,14 +84,23 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     time: 0,
     
     events: [],
+    
+    lit: new Set(),
   };
+  initArena(s);
+  return s;
 }
 
 
 function sessionWorld(level) {
   const windy = level.updrafts?.length || level.gusts?.length; 
   const changes =
-    level.world.mutable || (level.entities ?? []).some((d) => d.kind === 'clod') || level.heaves?.length || windy || level.rafts?.length;
+    level.world.mutable ||
+    (level.entities ?? []).some((d) => d.kind === 'clod') ||
+    level.heaves?.length ||
+    windy ||
+    level.rafts?.length ||
+    level.arena?.length;
   const w = changes ? level.world.clone() : level.world;
   if (level.honey) w.honey = level.honey; 
   if (windy) attachWind(w, level);
@@ -96,6 +109,7 @@ function sessionWorld(level) {
     w.time = 0;
     w.sighStart = null;
   }
+  if (level.arena?.length) attachArena(w, level.arena); 
   if (level.rafts?.length) attachRafts(w); 
   return w;
 }
@@ -136,12 +150,24 @@ export function stepSession(s, input) {
   stepDig(s);
   stepShield(s);
   stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
+  stepArena(s); 
+  if (s.level.soilLook) stepHollow(s);
   stepSecretSignals(s);
   stepShoe(s); 
   stepRipple(s); 
   for (const e of p.events) s.events.push(e);
   for (const e of s.events) if (e.type === 'secret') s.found.add(String(e.id));
+  for (const e of s.events) if (e.type === 'bossPhase') s.lit.add(`${e.id}:${e.phase}`);
   for (const c of s.level.checkpoints) {
+    
+    if (c.phase) {
+      if (c.id > s.checkpoint && s.lit.has(c.phase)) {
+        s.checkpoint = c.id;
+        s.respawnAt = { x: c.x, y: c.y };
+        s.events.push({ type: 'checkpoint', id: c.id, phase: c.phase });
+      }
+      continue;
+    }
     
     const passed = s.level.vertical ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4 : (s.level.dir ?? 1) > 0 ? p.x >= c.x : p.x <= c.x;
     if (c.id > s.checkpoint && p.grounded && passed) {
@@ -183,6 +209,8 @@ function respawn(s) {
     s.checkpoint = 0;
     s.respawnAt = { ...s.level.spawn };
     s.entities = spawnEntities((s.level.entities ?? []).filter((d) => !s.found.has(String(d.id))));
+    s.lit.clear();
+    initArena(s);
     s.events.push({ type: 'gameOver' });
   }
   if (s.hearts <= 0) s.hearts = s.maxHearts;
@@ -200,4 +228,21 @@ function respawn(s) {
     s.safeLand = s.safe;
   }
   s.events.push({ type: 'respawn' });
+}
+
+const KNOCK_EVERY = 0.3; 
+
+
+function stepHollow(s) {
+  const p = s.player;
+  s.knockT = Math.max(0, (s.knockT ?? 0) - STEP);
+  if (!p.grounded || Math.abs(p.vx) < 1 || s.knockT > 0) return;
+  const T = s.world.tile;
+  const r = Math.round(p.y / T) - 1;
+  for (let c = Math.floor((p.x - p.w / 2) / T); c <= Math.floor((p.x + p.w / 2 - 1e-7) / T); c++)
+    if (s.world.soil(c, r)) {
+      s.knockT = KNOCK_EVERY;
+      s.events.push({ type: 'hollowKnock', x: p.x, y: p.y, signals: ['audio:hollow-knock'] });
+      return;
+    }
 }

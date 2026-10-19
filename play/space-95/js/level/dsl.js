@@ -32,6 +32,7 @@ export function levelBuilder(meta) {
   const honey = [];
   const water = [];
   const rafts = [];
+  const arena = [];
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -238,6 +239,15 @@ export function levelBuilder(meta) {
       return api;
     },
     
+
+
+
+
+    arenaPiece(pid, x0, x1, y0, y1, opts = {}) {
+      arena.push({ id: pid, x0, x1, y0, y1, at: opts.at ?? { 0: y0 } });
+      return api;
+    },
+    
     water(x0, x1, y) {
       water.push({ x0, x1, y });
       return api;
@@ -249,8 +259,12 @@ export function levelBuilder(meta) {
       return e;
     },
     
-    beaconAt(x, y) {
-      checkpoints.push({ id: checkpoints.length + 1, x, y });
+
+
+
+
+    beaconAt(x, y, opts = {}) {
+      checkpoints.push({ id: checkpoints.length + 1, x, y, ...(opts.phase ? { phase: opts.phase } : {}) });
       return api;
     },
     
@@ -308,6 +322,8 @@ export function levelBuilder(meta) {
         ...(honey.length ? { honey } : {}),
         ...(water.length ? { water } : {}),
         ...(rafts.length ? { rafts } : {}),
+        ...(arena.length ? { arena } : {}),
+        ...(meta.soilLook ? { soilLook: meta.soilLook } : {}),
         dir: meta.dir ?? 1,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,

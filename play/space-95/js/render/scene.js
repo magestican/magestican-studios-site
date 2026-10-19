@@ -42,6 +42,8 @@ export function createView(canvas, level, labels) {
   scene.add(shoe.group);
   scene.add(honeyMeshes(level));
   scene.add(waterMeshes(level));
+  const arena = arenaMeshes(level);
+  scene.add(arena.group);
   const sea = seaMeshes();
   scene.add(sea.group);
   
@@ -51,7 +53,8 @@ export function createView(canvas, level, labels) {
     teles.push({ m, t: 0, life });
   };
   scene.add(farLayers(level.world));
-  for (const cp of level.checkpoints) {
+  
+  for (const cp of level.checkpoints.filter((c) => c.phase === undefined)) {
     const label = labels.find((l) => l.id === cp.id);
     scene.add(beacon(cp, label ? `${cp.id}. ${label.label}` : `${cp.id}`));
   }
@@ -71,6 +74,9 @@ export function createView(canvas, level, labels) {
   let squash = 0; 
   let hintDy = 0; 
   let aheadK = 1; 
+  let frameK = 0;
+  
+  let lastFrame = null; 
   let shake = 0; 
   const kick = (a) => {
     shake = Math.min(0.15, Math.max(shake, a));
@@ -121,13 +127,19 @@ export function createView(canvas, level, labels) {
       );
       
       aheadK += ((hint?.ahead === 0 ? 0 : 1) - aheadK) * (1 - Math.exp(-dt * 3));
-      const camX = hint?.lock ? hint.lock.x : x + rig.ahead * aheadK;
-      hintDy += ((hint?.lock ? hint.lock.y - rig.y : (hint?.dy ?? 0)) - hintDy) * (1 - Math.exp(-dt * 4));
+      
+      const fr = hint?.frame;
+      frameK += ((fr ? 1 : 0) - frameK) * (1 - Math.exp(-dt * 2.5));
+      if (fr) lastFrame = fr;
+      const followX = hint?.lock ? hint.lock.x : x + rig.ahead * aheadK;
+      const camX = lastFrame ? followX + ((lastFrame.x0 + lastFrame.x1) / 2 - followX) * frameK : followX;
+      const frameDy = lastFrame ? ((lastFrame.y0 + lastFrame.y1) / 2 - rig.y) * frameK : 0;
+      hintDy += ((hint?.lock ? hint.lock.y - rig.y : (hint?.dy ?? 0) + frameDy) - hintDy) * (1 - Math.exp(-dt * 4));
       
       shake *= Math.exp(-dt * 18);
       const sx0 = Math.sin(session.time * 91) * shake;
       const sy0 = Math.cos(session.time * 73) * shake;
-      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, CAM_DIST);
+      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, CAM_DIST * (1 + 0.45 * frameK));
       camera.lookAt(camX + sx0, rig.y + hintDy + 0.6 + sy0, 0);
 
       squash *= Math.exp(-dt * 14);
@@ -144,6 +156,7 @@ export function createView(canvas, level, labels) {
       bolt.group.scale.x = p.facing;
       fur.update(session.world);
       wind.update(session.time, dt);
+      arena.update(session.world, dt);
       shoe.update(session, dt);
       sea.update(session);
       jo.shell.visible = !!session.shield;
@@ -231,6 +244,27 @@ export function createView(canvas, level, labels) {
       if (e.type === 'glitterSplat')
         for (let i = 0; i < 6; i++) spark(e.x + Math.cos(i) * 0.6, e.y + 0.3 + Math.sin(i) * 0.3, 0xc9a7ff, 0.6, 0.1);
       if (e.type === 'guardStunned' || e.type === 'helmetBonk') kick(0.06);
+      
+      if (e.type === 'shearLine') {
+        const bar = new THREE.Mesh(
+          new THREE.PlaneGeometry(e.x1 - e.x0, 0.14),
+          new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, depthWrite: false }),
+        );
+        bar.position.set((e.x0 + e.x1) / 2, e.y + 0.5, 0.4);
+        tele(bar, e.seconds ?? 0.9);
+      }
+      if (e.type === 'strikeArc' || e.type === 'twigRing') {
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(0.55, 0.7, 32),
+          new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, side: THREE.DoubleSide, depthWrite: false }),
+        );
+        ring.scale.set(e.type === 'strikeArc' ? 2.4 : 1.4, 0.4, 1);
+        ring.position.set(e.x, (e.type === 'strikeArc' ? e.y : (topSolid(level.world, e.x) ?? e.y)) + 0.08, 0.4);
+        tele(ring, e.seconds ?? 0.9);
+      }
+      if (e.type === 'sourBite')
+        for (let i = 0; i < 5; i++) spark(e.x + Math.cos(i * 1.3) * 0.8, e.y + 2.4 + Math.sin(i * 1.3) * 0.5, 0xffd34d, 0.8, 0.14);
+      if (e.type === 'prune' || e.type === 'pruneCut') kick(0.1);
       if (e.type === 'dunk') for (let i = 0; i < 6; i++) spark(e.x - 0.6 + i * 0.24, e.y + 0.2, 0x7fd3ff, 0.6, 0.12);
       if (e.type === 'capsize') for (let i = 0; i < 4 + (e.n ?? 1); i++) spark(e.x - 1 + i * 0.4, e.y + 0.4, 0xdff6ff, 0.6, 0.12);
       if (e.type === 'ripple' && e.big) kick(0.06);
@@ -260,6 +294,12 @@ function entityView(e) {
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat(0x23233a));
     head.position.set(0.3, 0.35, 0);
     g.add(body, head);
+  } else if (e.kind === 'pillbug' && e.topiary) {
+    
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), mat(0x3f8f4a));
+    m.position.y = 0.4;
+    m.name = 'ball';
+    g.add(m);
   } else if (e.kind === 'pillbug') {
     const ball = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 14), mat(e.specimen ? 0xffcf3a : 0x8d8fa8));
     ball.position.y = 0.3;
@@ -392,6 +432,52 @@ function entityView(e) {
     line.name = 'aimLine';
     line.visible = false;
     g.add(line);
+  } else if (e.kind === 'fruitlet') {
+    
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.25, 14, 10), mat(0xc8d84a));
+    m.position.y = 0.25;
+    m.name = 'ball';
+    const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.15, 4), mat(0x5a3418));
+    stalk.position.y = 0.55;
+    g.add(m, stalk);
+  } else if (e.kind === 'twig' || e.kind === 'twigDrop') {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.14, 0.14), mat(0x7a5a3a));
+    m.position.y = 0.1;
+    m.rotation.z = 0.2;
+    g.add(m);
+  } else if (e.kind === 'mantisArm') {
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 3, 0.25), mat(0x7fbf3a));
+    arm.position.y = 1.5;
+    const claw = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.6, 6), mat(0x5f9f2a));
+    claw.rotation.z = Math.PI;
+    claw.position.y = -0.1;
+    g.add(arm, claw);
+  } else if (e.kind === 'boss' && e.type === 'mantis') {
+    
+    const h = e.h ?? 3.5;
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.45, h * 0.5, 6, 12), mat(0x7fbf3a));
+    body.position.y = h * 0.45;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 12), mat(0x9fd84a));
+    head.scale.set(1.2, 0.8, 0.9);
+    head.position.set(0.3, h * 0.92, 0);
+    const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 0.12, 16), mat(0xe8c870));
+    hat.position.set(0.3, h * 1.05, 0);
+    const arms = new THREE.Group();
+    arms.name = 'shears';
+    arms.position.set(0.5, h * 0.7, 0.2);
+    for (const s of [0.1, -0.1]) {
+      const a = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.16, 0.16), mat(0x5f9f2a));
+      a.position.set(0.7, s * 2, s);
+      a.rotation.z = -0.5 + s * 3;
+      arms.add(a);
+    }
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry(1.2, 1.45, 32),
+      new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, opacity: 0 }),
+    );
+    halo.position.set(0, h / 2, 0.5);
+    halo.name = 'halo';
+    g.add(body, head, hat, arms, halo, textSprite(e.name ?? 'The Gardener Mantis'));
   } else if (e.kind === 'strider') {
     
     const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.6, 4, 8), mat(e.commodore ? 0xf4f0ff : 0x5a4a3a));
@@ -932,6 +1018,31 @@ function seaMeshes() {
           m.material.dispose();
           rings.delete(id);
         }
+      }
+    },
+  };
+}
+
+
+function arenaMeshes(level) {
+  const group = new THREE.Group();
+  const bark = new THREE.MeshLambertMaterial({ color: 0x6a4a2e });
+  const pieces = (level.arena ?? []).map((p) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(p.x1 - p.x0, p.y1 - p.y0, TILE_DEPTH), bark);
+    m.position.set((p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2, -TILE_DEPTH / 2 + 0.3);
+    group.add(m);
+    return { p, m, y: p.y0 };
+  });
+  return {
+    group,
+    update(world, dt) {
+      const ph = world.arenaPhase ?? 0;
+      for (const P of pieces) {
+        const at = P.p.at?.[ph];
+        P.m.visible = at !== undefined;
+        if (at === undefined) continue;
+        P.y += (at - P.y) * Math.min(1, dt * 6); 
+        P.m.position.y = P.y + (P.p.y1 - P.p.y0) / 2;
       }
     },
   };
