@@ -1,0 +1,82 @@
+{
+ "clip": "land_hard",
+ "fps": 24,
+ "frame_count": 14,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.097436,
+  0.194872,
+  0.292308,
+  0.389744,
+  0.533333,
+  0.566667,
+  0.682051,
+  0.8,
+  0.876923,
+  0.974359,
+  1.071795,
+  1.169231,
+  1.266667
+ ],
+ "key_poses": [
+  0,
+  5,
+  8
+ ],
+ "events": [
+  {
+   "type": "foot_l",
+   "frame": 5,
+   "time": 0.20833
+  },
+  {
+   "type": "land",
+   "frame": 5,
+   "time": 0.20833
+  },
+  {
+   "type": "foot_r",
+   "frame": 6,
+   "time": 0.25
+  }
+ ],
+ "duration_s": 0.54167,
+ "time_scale": 2.4,
+ "time_stretch": 1.02632,
+ "snapped": [
+  {
+   "frame": 5,
+   "from": 0.48718,
+   "to": 0.53333,
+   "why": "foot_l"
+  },
+  {
+   "frame": 6,
+   "from": 0.58462,
+   "to": 0.56667,
+   "why": "foot_r"
+  },
+  {
+   "frame": 8,
+   "from": 0.77949,
+   "to": 0.8,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 11,
+  "fps": 30.0,
+  "frames": 39
+ },
+ "root_motion": "RM",
+ "carrier": null,
+ "enter_frame": 5,
+ "root_travel_u": [
+  0.0,
+  -0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

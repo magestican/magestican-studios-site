@@ -1,0 +1,202 @@
+{
+ "name": "jump_takeoff",
+ "fps": 30,
+ "frames": 9,
+ "loop": false,
+ "root_motion": "RM",
+ "phase_markers": {},
+ "notifies": [],
+ "tags": [
+  "platformer"
+ ],
+ "gravity_scale": 1.3726484962518068,
+ "glb": "jo_clips.glb",
+ "animation": 5,
+ "settle": [],
+ "flights": [
+  [
+   6.0,
+   8.0
+  ]
+ ],
+ "plants": [
+  {
+   "side": "L",
+   "contact": -1000.0,
+   "toe_off": 6.0,
+   "x": 0.08,
+   "z": 0.035
+  },
+  {
+   "side": "R",
+   "contact": -1000.0,
+   "toe_off": 5.0,
+   "x": -0.08,
+   "z": 0.0
+  }
+ ],
+ "key_poses": [
+  0.0,
+  6.0
+ ],
+ "com": [
+  [
+   0.0017,
+   0.8589,
+   0.0571
+  ],
+  [
+   0.0017,
+   0.8739,
+   0.0533
+  ],
+  [
+   0.0019,
+   0.9081,
+   0.0458
+  ],
+  [
+   0.0031,
+   0.9424,
+   0.0424
+  ],
+  [
+   0.0029,
+   0.9707,
+   0.0451
+  ],
+  [
+   0.0015,
+   1.0054,
+   0.0543
+  ],
+  [
+   0.0014,
+   1.0481,
+   0.0703
+  ],
+  [
+   0.0012,
+   1.0799,
+   0.0739
+  ],
+  [
+   0.0011,
+   1.0966,
+   0.0774
+  ]
+ ],
+ "xcom": [
+  [
+   0.0011,
+   0.9921,
+   0.0233
+  ],
+  [
+   0.0024,
+   1.0944,
+   0.0029
+  ],
+  [
+   0.0084,
+   1.221,
+   -0.0039
+  ],
+  [
+   0.0077,
+   1.2335,
+   0.0392
+  ],
+  [
+   -0.0048,
+   1.2679,
+   0.1015
+  ],
+  [
+   -0.0057,
+   1.3772,
+   0.1751
+  ],
+  [
+   0.0003,
+   1.4132,
+   0.1663
+  ],
+  [
+   -0.0004,
+   1.3211,
+   0.1095
+  ],
+  [
+   -0.0005,
+   1.2647,
+   0.1133
+  ]
+ ],
+ "extra": {
+  "time_scale": 2.4,
+  "events": [
+   {
+    "type": "anticipation_end",
+    "frame": 0.0
+   },
+   {
+    "type": "takeoff",
+    "frame": 6.0
+   }
+  ],
+  "set": "platformer",
+  "intent": [
+   {
+    "what": "sprite frames 0-1 push from the ground",
+    "a": "toe.L",
+    "op": "height",
+    "b": [
+     0.0,
+     0.03
+    ],
+    "frames": [
+     0,
+     5
+    ]
+   },
+   {
+    "what": "the toes are off by sprite frame 2 (authored 6)",
+    "a": "toe.L",
+    "op": "height",
+    "b": [
+     0.06,
+     1.0
+    ],
+    "frames": [
+     6,
+     8
+    ]
+   }
+  ],
+  "ik_residual_mm": {
+   "L": 0.005,
+   "R": 0.001
+  },
+  "ik_residual_frame": {
+   "L": 5,
+   "R": 4
+  },
+  "hips_drop_max_cm": 0.0,
+  "limit_corrected_frames": 0,
+  "limit_corrected_frac": 0.0,
+  "rejected": false,
+  "root_reexpress_err_m": 0.0,
+  "ballistic": [
+   {
+    "frames": [
+     6,
+     8
+    ],
+    "airtime_s": 0.0667,
+    "apex_m": 0.0,
+    "vy0": 1.1761
+   }
+  ]
+ }
+}

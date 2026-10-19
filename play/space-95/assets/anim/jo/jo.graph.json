@@ -1,0 +1,779 @@
+{
+ "character": "jo",
+ "fps": 24,
+ "initial": "idle",
+ "conditions": {
+  "end": "the clip showed its last frame (and nothing else applies)",
+  "end_moving": "the clip showed its last frame while move is held",
+  "move": "move held on the ground",
+  "stop": "move released on the ground",
+  "reverse": "move reversed above 50 % of top speed (BIBLE 3.1 turnaround skid)",
+  "jump": "jump acts (press, buffer or coyote time)",
+  "airborne": "no ground under the feet (ran or stepped off an edge, platform gone)",
+  "apex": "rising and |vy| < 1.5 u/s (apex hang starts)",
+  "falling": "vy < -1.5 u/s",
+  "rising": "vy > 1.5 u/s after a bonk (a low bough - the sim keeps some upward speed)",
+  "grounded": "touched ground, no move held",
+  "grounded_moving": "touched ground with move held or horizontal speed",
+  "grounded_hard": "touched ground after a long fall (the game's threshold)",
+  "ceiling": "the head hit a ceiling while rising",
+  "ledge": "the ledge assist fired (feet within 0.25 u below a lip at the apex)",
+  "kick": "a kickable pebble meets the running foot",
+  "hurt": "took damage"
+ },
+ "states": {
+  "idle": {
+   "clip": "idle",
+   "loop": true,
+   "hold": false,
+   "frames": 72
+  },
+  "run_start": {
+   "clip": "run_start",
+   "loop": false,
+   "hold": false,
+   "frames": 4
+  },
+  "run": {
+   "clip": "run",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "run_stop": {
+   "clip": "run_stop",
+   "loop": false,
+   "hold": false,
+   "frames": 9
+  },
+  "turn_skid": {
+   "clip": "turn_skid",
+   "loop": false,
+   "hold": false,
+   "frames": 5
+  },
+  "jump_takeoff": {
+   "clip": "jump_takeoff",
+   "loop": false,
+   "hold": false,
+   "frames": 4
+  },
+  "rise": {
+   "clip": "rise",
+   "loop": false,
+   "hold": true,
+   "frames": 9
+  },
+  "apex": {
+   "clip": "apex",
+   "loop": false,
+   "hold": true,
+   "frames": 4
+  },
+  "fall": {
+   "clip": "fall",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "land_soft": {
+   "clip": "land_soft",
+   "loop": false,
+   "hold": false,
+   "frames": 10
+  },
+  "land_run": {
+   "clip": "land_run",
+   "loop": false,
+   "hold": false,
+   "frames": 5
+  },
+  "land_hard": {
+   "clip": "land_hard",
+   "loop": false,
+   "hold": false,
+   "frames": 14
+  },
+  "ledge_mantle": {
+   "clip": "ledge_mantle",
+   "loop": false,
+   "hold": false,
+   "frames": 11
+  },
+  "bonk": {
+   "clip": "bonk",
+   "loop": false,
+   "hold": false,
+   "frames": 4
+  },
+  "hurt": {
+   "clip": "hurt",
+   "loop": false,
+   "hold": false,
+   "frames": 5
+  },
+  "kick_passive": {
+   "clip": "kick_passive",
+   "loop": false,
+   "hold": false,
+   "frames": 7
+  }
+ },
+ "transitions": [
+  {
+   "from": "apex",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "falling"
+  },
+  {
+   "from": "apex",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "apex",
+   "to": "land_soft",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "grounded",
+   "enter_frame": 2
+  },
+  {
+   "from": "apex",
+   "to": "ledge_mantle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ledge"
+  },
+  {
+   "from": "bonk",
+   "to": "apex",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "apex"
+  },
+  {
+   "from": "bonk",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "bonk",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "bonk",
+   "to": "land_run",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "grounded_moving"
+  },
+  {
+   "from": "bonk",
+   "to": "land_soft",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "grounded",
+   "enter_frame": 2
+  },
+  {
+   "from": "bonk",
+   "to": "rise",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "rising"
+  },
+  {
+   "from": "fall",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "fall",
+   "to": "land_hard",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "grounded_hard",
+   "enter_frame": 5
+  },
+  {
+   "from": "fall",
+   "to": "land_run",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "grounded_moving"
+  },
+  {
+   "from": "fall",
+   "to": "land_soft",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "grounded",
+   "enter_frame": 2
+  },
+  {
+   "from": "fall",
+   "to": "ledge_mantle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ledge"
+  },
+  {
+   "from": "hurt",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "hurt",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "grounded"
+  },
+  {
+   "from": "idle",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "airborne"
+  },
+  {
+   "from": "idle",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "idle",
+   "to": "jump_takeoff",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jump"
+  },
+  {
+   "from": "idle",
+   "to": "land_soft",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "grounded",
+   "enter_frame": 2
+  },
+  {
+   "from": "idle",
+   "to": "run",
+   "clip": "run_start",
+   "blend_s": 0.0,
+   "on": "move"
+  },
+  {
+   "from": "jump_takeoff",
+   "to": "bonk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ceiling"
+  },
+  {
+   "from": "jump_takeoff",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "jump_takeoff",
+   "to": "rise",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "kick_passive",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "airborne"
+  },
+  {
+   "from": "kick_passive",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "kick_passive",
+   "to": "jump_takeoff",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jump"
+  },
+  {
+   "from": "kick_passive",
+   "to": "run",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "land_hard",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "land_hard",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "land_hard",
+   "to": "jump_takeoff",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jump"
+  },
+  {
+   "from": "land_hard",
+   "to": "run",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end_moving"
+  },
+  {
+   "from": "land_run",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "airborne"
+  },
+  {
+   "from": "land_run",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "land_run",
+   "to": "idle",
+   "clip": "run_stop",
+   "blend_s": 0.0,
+   "on": "stop"
+  },
+  {
+   "from": "land_run",
+   "to": "jump_takeoff",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jump"
+  },
+  {
+   "from": "land_run",
+   "to": "run",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "land_soft",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "airborne"
+  },
+  {
+   "from": "land_soft",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "land_soft",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "land_soft",
+   "to": "jump_takeoff",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jump"
+  },
+  {
+   "from": "land_soft",
+   "to": "run",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "move"
+  },
+  {
+   "from": "ledge_mantle",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "ledge_mantle",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "ledge_mantle",
+   "to": "run",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end_moving"
+  },
+  {
+   "from": "rise",
+   "to": "apex",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "apex"
+  },
+  {
+   "from": "rise",
+   "to": "bonk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ceiling"
+  },
+  {
+   "from": "rise",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "falling"
+  },
+  {
+   "from": "rise",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "rise",
+   "to": "ledge_mantle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "ledge"
+  },
+  {
+   "from": "run",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "airborne"
+  },
+  {
+   "from": "run",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "run",
+   "to": "idle",
+   "clip": "run_stop",
+   "blend_s": 0.0,
+   "on": "stop"
+  },
+  {
+   "from": "run",
+   "to": "jump_takeoff",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jump"
+  },
+  {
+   "from": "run",
+   "to": "kick_passive",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "kick"
+  },
+  {
+   "from": "run",
+   "to": "turn_skid",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "reverse"
+  },
+  {
+   "from": "run_start",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "airborne"
+  },
+  {
+   "from": "run_start",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "run_start",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "stop"
+  },
+  {
+   "from": "run_start",
+   "to": "jump_takeoff",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jump"
+  },
+  {
+   "from": "run_start",
+   "to": "run",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "run_stop",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "airborne"
+  },
+  {
+   "from": "run_stop",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "run_stop",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "run_stop",
+   "to": "jump_takeoff",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jump"
+  },
+  {
+   "from": "run_stop",
+   "to": "run",
+   "clip": "run_start",
+   "blend_s": 0.0,
+   "on": "move"
+  },
+  {
+   "from": "turn_skid",
+   "to": "fall",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "airborne"
+  },
+  {
+   "from": "turn_skid",
+   "to": "hurt",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hurt"
+  },
+  {
+   "from": "turn_skid",
+   "to": "idle",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "stop"
+  },
+  {
+   "from": "turn_skid",
+   "to": "jump_takeoff",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "jump"
+  },
+  {
+   "from": "turn_skid",
+   "to": "run",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  }
+ ],
+ "requires": [
+  [
+   "jump_takeoff",
+   "rise"
+  ],
+  [
+   "run",
+   "jump_takeoff"
+  ],
+  [
+   "rise",
+   "apex"
+  ],
+  [
+   "apex",
+   "fall"
+  ],
+  [
+   "fall",
+   "land_run"
+  ],
+  [
+   "land_run",
+   "run"
+  ],
+  [
+   "land_soft",
+   "run"
+  ],
+  [
+   "fall",
+   "land_hard"
+  ],
+  [
+   "land_hard",
+   "run"
+  ],
+  [
+   "idle",
+   "land_soft"
+  ],
+  [
+   "run",
+   "kick_passive"
+  ],
+  [
+   "kick_passive",
+   "run"
+  ],
+  [
+   "fall",
+   "land_soft"
+  ],
+  [
+   "rise",
+   "ledge_mantle"
+  ],
+  [
+   "ledge_mantle",
+   "run"
+  ],
+  [
+   "land_hard",
+   "jump_takeoff"
+  ],
+  [
+   "land_run",
+   "jump_takeoff"
+  ],
+  [
+   "idle",
+   "run"
+  ],
+  [
+   "run",
+   "idle"
+  ],
+  [
+   "run",
+   "turn_skid"
+  ],
+  [
+   "turn_skid",
+   "run"
+  ],
+  [
+   "run_start",
+   "hurt"
+  ],
+  [
+   "hurt",
+   "idle"
+  ],
+  [
+   "hurt",
+   "fall"
+  ],
+  [
+   "rise",
+   "bonk"
+  ],
+  [
+   "bonk",
+   "fall"
+  ],
+  [
+   "bonk",
+   "apex"
+  ],
+  [
+   "bonk",
+   "rise"
+  ],
+  [
+   "bonk",
+   "land_soft"
+  ],
+  [
+   "bonk",
+   "land_run"
+  ],
+  [
+   "apex",
+   "ledge_mantle"
+  ],
+  [
+   "fall",
+   "ledge_mantle"
+  ],
+  [
+   "land_soft",
+   "idle"
+  ],
+  [
+   "land_soft",
+   "jump_takeoff"
+  ],
+  [
+   "idle",
+   "jump_takeoff"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

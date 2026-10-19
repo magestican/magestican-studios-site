@@ -1,0 +1,72 @@
+{
+ "clip": "land_soft",
+ "fps": 24,
+ "frame_count": 10,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.096296,
+  0.233333,
+  0.288889,
+  0.4,
+  0.481481,
+  0.577778,
+  0.674074,
+  0.77037,
+  0.866667
+ ],
+ "key_poses": [
+  0,
+  2,
+  4
+ ],
+ "events": [
+  {
+   "type": "foot_l",
+   "frame": 2,
+   "time": 0.08333
+  },
+  {
+   "type": "foot_r",
+   "frame": 2,
+   "time": 0.08333
+  },
+  {
+   "type": "land",
+   "frame": 2,
+   "time": 0.08333
+  }
+ ],
+ "duration_s": 0.375,
+ "time_scale": 2.4,
+ "time_stretch": 1.03846,
+ "snapped": [
+  {
+   "frame": 2,
+   "from": 0.19259,
+   "to": 0.23333,
+   "why": "foot_l"
+  },
+  {
+   "frame": 4,
+   "from": 0.38519,
+   "to": 0.4,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 9,
+  "fps": 30.0,
+  "frames": 27
+ },
+ "root_motion": "RM",
+ "carrier": null,
+ "enter_frame": 2,
+ "root_travel_u": [
+  0.0,
+  -0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

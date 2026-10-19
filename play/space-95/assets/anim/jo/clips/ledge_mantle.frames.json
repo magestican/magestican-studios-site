@@ -1,0 +1,72 @@
+{
+ "clip": "ledge_mantle",
+ "fps": 24,
+ "frame_count": 11,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.096667,
+  0.193333,
+  0.29,
+  0.4,
+  0.483333,
+  0.566667,
+  0.676667,
+  0.773333,
+  0.87,
+  0.966667
+ ],
+ "key_poses": [
+  0,
+  4,
+  6
+ ],
+ "events": [
+  {
+   "type": "foot_l",
+   "frame": 4,
+   "time": 0.16667
+  },
+  {
+   "type": "foot_r",
+   "frame": 4,
+   "time": 0.16667
+  },
+  {
+   "type": "land",
+   "frame": 4,
+   "time": 0.16667
+  }
+ ],
+ "duration_s": 0.41667,
+ "time_scale": 2.4,
+ "time_stretch": 1.03448,
+ "snapped": [
+  {
+   "frame": 4,
+   "from": 0.38667,
+   "to": 0.4,
+   "why": "foot_l"
+  },
+  {
+   "frame": 6,
+   "from": 0.58,
+   "to": 0.56667,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 12,
+  "fps": 30.0,
+  "frames": 30
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "root_travel_u": [
+  0.0,
+  0.3257
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

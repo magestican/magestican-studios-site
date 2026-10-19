@@ -18,6 +18,10 @@ const LINES = {
   sweep: ['The ants did the work. Classic.', 'Express delivery!'],
   ability: ['Boot thrusters repaired! Jump twice. Legally.', 'New tool unlocked. Overtime approved.'],
   hurt: ['Ouch. Paperwork.', 'Careful! I only have one of you.'],
+  bossDefeat: ['Foreman down! I am putting that in the quarterly review.', 'Management will hear about this. Good things only.'],
+  shellPop: ['Free shell! Health and safety approved.', 'Wear it. Fling it. Your call.'],
+  heaveLaunch: ['She breathes, we fly. Noted.', 'Ruuma is helping. Do not wake her.'],
+  dig: ['Digging. In a suit. On a Monday.', 'Soil sample acquired. Also, a hole.'],
   clear: ['Shift complete. Clocking out!', "That's a wrap. Same time tomorrow?"],
 };
 
@@ -35,12 +39,14 @@ export function createBoltVoice() {
     
     onEvent(e, dt = 0) {
       cooldown = Math.max(0, cooldown - dt);
-      const important = e.type === 'secret' || e.type === 'clear' || e.type === 'ability' || e.type === 'strike';
+      const important = e.type === 'secret' || e.type === 'clear' || e.type === 'ability' || e.type === 'strike' || e.type === 'bossDefeat';
       if (cooldown > 0 && !important) return null;
       let kind = null;
       if (e.type === 'signal' && !e.repeat) kind = 'signal';
       else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
       else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
+      else if (e.type === 'heaveLaunch' || e.type === 'dig')
+        kind = (used[e.type] ?? 0) < 2 ? e.type : null; 
       else if (e.type in LINES && e.type !== 'signal' && e.type !== 'dewBounce' && e.type !== 'sweep') kind = e.type;
       if (!kind) return null;
       cooldown = 4;

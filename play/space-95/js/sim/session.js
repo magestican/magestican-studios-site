@@ -7,8 +7,10 @@ import './kinds.js';
 import { STEP } from './constants.js';
 import { stepDig } from './dig.js';
 import { spawnEntities, stepEntities } from './entities.js';
+import { attachHeaves, stepHeaves } from './heave.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
 import { stepSecretSignals } from './secrets.js';
+import { stepShield } from './shield.js';
 
 const RESPAWN_DELAY = 0.45; 
 const PIT_Y = -3; 
@@ -33,7 +35,7 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
   return {
     level,
     
-    world: level.world.mutable || (level.entities ?? []).some((d) => d.kind === 'clod') ? level.world.clone() : level.world,
+    world: sessionWorld(level),
     abilities,
     player,
     entities: spawnEntities(level.entities ?? []),
@@ -58,6 +60,18 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
 }
 
 
+function sessionWorld(level) {
+  const changes = level.world.mutable || (level.entities ?? []).some((d) => d.kind === 'clod') || level.heaves?.length;
+  const w = changes ? level.world.clone() : level.world;
+  if (level.heaves?.length) {
+    attachHeaves(w, level.heaves);
+    w.time = 0;
+    w.sighStart = null;
+  }
+  return w;
+}
+
+
 
 
 export function stepSession(s, input) {
@@ -67,6 +81,7 @@ export function stepSession(s, input) {
     return s;
   }
   s.time += STEP;
+  stepHeaves(s);
   if (s.invuln > 0) s.invuln -= STEP;
   if (s.dead > 0) {
     s.dead += STEP;
@@ -77,6 +92,7 @@ export function stepSession(s, input) {
   const p = s.player;
   stepPlayer(p, s.cleared ? NO_INPUT : input, s.world);
   stepDig(s);
+  stepShield(s);
   stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
   stepSecretSignals(s);
   for (const e of p.events) s.events.push(e);

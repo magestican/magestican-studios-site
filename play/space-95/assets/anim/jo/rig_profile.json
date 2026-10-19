@@ -1,0 +1,4483 @@
+{
+ "template": "human",
+ "height_m": 1.75,
+ "style": "realistic",
+ "up_axis": "Y",
+ "joints": {
+  "DEF-spine.001": {
+   "twist": [
+    -15.0,
+    15.0
+   ],
+   "swing_x": [
+    -25.0,
+    50.0
+   ],
+   "swing_z": [
+    -25.0,
+    25.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -15.0,
+     30.0
+    ],
+    "swing_z": [
+     -15.0,
+     15.0
+    ],
+    "twist": [
+     -10.0,
+     10.0
+    ]
+   },
+   "athletic": {
+    "swing_x": [
+     -45.0,
+     50.0
+    ]
+   },
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 50.0,
+     "comfort": 30.0,
+     "athletic": 50.0,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 25.0,
+     "comfort": 15.0,
+     "athletic": 45.0,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 25.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 25.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "twist_L": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "twist_R": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-spine.002": {
+   "twist": [
+    -20.0,
+    20.0
+   ],
+   "swing_x": [
+    -12.0,
+    15.0
+   ],
+   "swing_z": [
+    -15.0,
+    15.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -7.0,
+     9.0
+    ],
+    "swing_z": [
+     -9.0,
+     9.0
+    ],
+    "twist": [
+     -12.0,
+     12.0
+    ]
+   },
+   "athletic": {
+    "swing_x": [
+     -25.0,
+     15.0
+    ]
+   },
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 9.0,
+     "athletic": 15.0,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 12.0,
+     "comfort": 7.0,
+     "athletic": 25.0,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 9.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 9.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "twist_L": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 20.0,
+     "comfort": 12.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "twist_R": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 20.0,
+     "comfort": 12.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-spine.003": {
+   "twist": [
+    -25.0,
+    25.0
+   ],
+   "swing_x": [
+    -10.0,
+    10.0
+   ],
+   "swing_z": [
+    -15.0,
+    15.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -6.0,
+     6.0
+    ],
+    "swing_z": [
+     -9.0,
+     9.0
+    ],
+    "twist": [
+     -15.0,
+     15.0
+    ]
+   },
+   "athletic": {
+    "swing_x": [
+     -20.0,
+     10.0
+    ]
+   },
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 10.0,
+     "comfort": 6.0,
+     "athletic": 10.0,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 10.0,
+     "comfort": 6.0,
+     "athletic": 20.0,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 9.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 9.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "twist_L": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 25.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "twist_R": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 25.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-spine.004": {
+   "twist": [
+    -30.5,
+    30.5
+   ],
+   "swing_x": [
+    -37.0,
+    29.0
+   ],
+   "swing_z": [
+    -24.0,
+    24.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -19.5,
+     14.5
+    ],
+    "swing_z": [
+     -13.0,
+     13.0
+    ],
+    "twist": [
+     -21.0,
+     21.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 29.0,
+     "comfort": 14.5,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 37.0,
+     "comfort": 19.5,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 24.0,
+     "comfort": 13.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 24.0,
+     "comfort": 13.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "twist_L": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 30.5,
+     "comfort": 21.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "twist_R": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 30.5,
+     "comfort": 21.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-spine.005": {
+   "twist": [
+    -30.5,
+    30.5
+   ],
+   "swing_x": [
+    -37.0,
+    29.0
+   ],
+   "swing_z": [
+    -24.0,
+    24.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -19.5,
+     14.5
+    ],
+    "swing_z": [
+     -13.0,
+     13.0
+    ],
+    "twist": [
+     -21.0,
+     21.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 29.0,
+     "comfort": 14.5,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 37.0,
+     "comfort": 19.5,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 24.0,
+     "comfort": 13.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 24.0,
+     "comfort": 13.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "twist_L": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 30.5,
+     "comfort": 21.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "twist_R": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 30.5,
+     "comfort": 21.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-spine.006": {
+   "twist": [
+    -39.0,
+    39.0
+   ],
+   "swing_x": [
+    -11.0,
+    12.0
+   ],
+   "swing_z": [
+    -7.0,
+    7.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -6.0,
+     6.0
+    ],
+    "swing_z": [
+     -4.0,
+     4.0
+    ],
+    "twist": [
+     -27.0,
+     27.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 12.0,
+     "comfort": 6.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 11.0,
+     "comfort": 6.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 7.0,
+     "comfort": 4.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 7.0,
+     "comfort": 4.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "twist_L": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 39.0,
+     "comfort": 27.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "twist_R": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 39.0,
+     "comfort": 27.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-shoulder.L": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -10.0,
+    30.0
+   ],
+   "swing_z": [
+    -15.0,
+    15.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -5.0,
+     15.0
+    ],
+    "swing_z": [
+     -10.0,
+     10.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "elevation": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 30.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "depression": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 10.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "protraction": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "retraction": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-shoulder.R": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -10.0,
+    30.0
+   ],
+   "swing_z": [
+    -15.0,
+    15.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -5.0,
+     15.0
+    ],
+    "swing_z": [
+     -10.0,
+     10.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "elevation": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 30.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "depression": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 10.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "protraction": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "retraction": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-upper_arm.L": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -60.0,
+    110.0
+   ],
+   "swing_z": [
+    -61.988,
+    93.012
+   ],
+   "comfort": {
+    "swing_z": [
+     -61.988,
+     83.012
+    ],
+    "swing_x": [
+     -25.0,
+     90.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "abduction": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 93.012,
+     "comfort": 83.012,
+     "athletic": null,
+     "rest": 61.988,
+     "share": 1.0
+    },
+    "adduction": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 61.988,
+     "comfort": 61.988,
+     "athletic": null,
+     "rest": -61.988,
+     "share": 1.0
+    },
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 110.0,
+     "comfort": 90.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 60.0,
+     "comfort": 25.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-upper_arm.R": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -60.0,
+    110.0
+   ],
+   "swing_z": [
+    -93.012,
+    61.988
+   ],
+   "comfort": {
+    "swing_z": [
+     -83.012,
+     61.988
+    ],
+    "swing_x": [
+     -25.0,
+     90.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "abduction": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 93.012,
+     "comfort": 83.012,
+     "athletic": null,
+     "rest": 61.988,
+     "share": 1.0
+    },
+    "adduction": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 61.988,
+     "comfort": 61.988,
+     "athletic": null,
+     "rest": -61.988,
+     "share": 1.0
+    },
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 110.0,
+     "comfort": 90.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 60.0,
+     "comfort": 25.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-forearm.L": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -26.47,
+    128.53
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -21.47,
+     113.53
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 128.53,
+     "comfort": 113.53,
+     "athletic": null,
+     "rest": 21.47,
+     "share": 1.0
+    },
+    "hyperextension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 26.47,
+     "comfort": 21.47,
+     "athletic": null,
+     "rest": -21.47,
+     "share": 1.0
+    }
+   },
+   "hinge": true
+  },
+  "DEF-forearm.R": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -26.47,
+    128.53
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -21.47,
+     113.53
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 128.53,
+     "comfort": 113.53,
+     "athletic": null,
+     "rest": 21.47,
+     "share": 1.0
+    },
+    "hyperextension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 26.47,
+     "comfort": 21.47,
+     "athletic": null,
+     "rest": -21.47,
+     "share": 1.0
+    }
+   },
+   "hinge": true
+  },
+  "DEF-hand.L": {
+   "twist": [
+    -11.55,
+    66.0
+   ],
+   "swing_x": [
+    -75.0,
+    90.0
+   ],
+   "swing_z": [
+    -45.0,
+    35.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -40.0,
+     60.0
+    ],
+    "swing_z": [
+     -20.0,
+     15.0
+    ],
+    "twist": [
+     -0.0,
+     54.45
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 90.0,
+     "comfort": 60.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 75.0,
+     "comfort": 40.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "radial": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 35.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "ulnar": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 45.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "pronation": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 200.0,
+     "comfort": 165.0,
+     "athletic": null,
+     "rest": -90.0,
+     "share": 0.33
+    },
+    "supination": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 35.0,
+     "comfort": 0.0,
+     "athletic": null,
+     "rest": 90.0,
+     "share": 0.33
+    }
+   },
+   "share": 0.33
+  },
+  "DEF-hand.R": {
+   "twist": [
+    -66.0,
+    11.55
+   ],
+   "swing_x": [
+    -75.0,
+    90.0
+   ],
+   "swing_z": [
+    -35.0,
+    45.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -40.0,
+     60.0
+    ],
+    "swing_z": [
+     -15.0,
+     20.0
+    ],
+    "twist": [
+     -54.45,
+     0.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 90.0,
+     "comfort": 60.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 75.0,
+     "comfort": 40.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "radial": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 35.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "ulnar": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 45.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "pronation": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 200.0,
+     "comfort": 165.0,
+     "athletic": null,
+     "rest": -90.0,
+     "share": 0.33
+    },
+    "supination": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 35.0,
+     "comfort": 0.0,
+     "athletic": null,
+     "rest": 90.0,
+     "share": 0.33
+    }
+   },
+   "share": 0.33
+  },
+  "DEF-thigh.L": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -134.502,
+    35.498
+   ],
+   "swing_z": [
+    -55.0,
+    35.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -104.502,
+     15.498
+    ],
+    "swing_z": [
+     -25.0,
+     15.0
+    ]
+   },
+   "athletic": {
+    "swing_x": [
+     -134.502,
+     55.498
+    ],
+    "swing_z": [
+     -85.0,
+     35.0
+    ]
+   },
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 134.502,
+     "comfort": 104.502,
+     "athletic": 134.502,
+     "rest": 5.498,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 35.498,
+     "comfort": 15.498,
+     "athletic": 55.498,
+     "rest": -5.498,
+     "share": 1.0
+    },
+    "abduction": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 55.0,
+     "comfort": 25.0,
+     "athletic": 85.0,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "adduction": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 35.0,
+     "comfort": 15.0,
+     "athletic": 35.0,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-thigh.R": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -134.502,
+    35.498
+   ],
+   "swing_z": [
+    -35.0,
+    55.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -104.502,
+     15.498
+    ],
+    "swing_z": [
+     -15.0,
+     25.0
+    ]
+   },
+   "athletic": {
+    "swing_x": [
+     -134.502,
+     55.498
+    ],
+    "swing_z": [
+     -35.0,
+     85.0
+    ]
+   },
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 134.502,
+     "comfort": 104.502,
+     "athletic": 134.502,
+     "rest": 5.498,
+     "share": 1.0
+    },
+    "extension": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 35.498,
+     "comfort": 15.498,
+     "athletic": 55.498,
+     "rest": -5.498,
+     "share": 1.0
+    },
+    "abduction": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 55.0,
+     "comfort": 25.0,
+     "athletic": 85.0,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "adduction": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 35.0,
+     "comfort": 15.0,
+     "athletic": 35.0,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-shin.L": {
+   "twist": [
+    -40.0,
+    40.0
+   ],
+   "swing_x": [
+    -15.921,
+    139.079
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -10.921,
+     104.079
+    ],
+    "twist": [
+     -20.0,
+     20.0
+    ]
+   },
+   "athletic": {
+    "swing_x": [
+     -15.921,
+     149.079
+    ]
+   },
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 139.079,
+     "comfort": 104.079,
+     "athletic": 149.079,
+     "rest": 10.921,
+     "share": 1.0
+    },
+    "hyperextension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 15.921,
+     "comfort": 10.921,
+     "athletic": 15.921,
+     "rest": -10.921,
+     "share": 1.0
+    },
+    "axial_internal": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 40.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "axial_external": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 40.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   },
+   "hinge": true
+  },
+  "DEF-shin.R": {
+   "twist": [
+    -40.0,
+    40.0
+   ],
+   "swing_x": [
+    -15.921,
+    139.079
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -10.921,
+     104.079
+    ],
+    "twist": [
+     -20.0,
+     20.0
+    ]
+   },
+   "athletic": {
+    "swing_x": [
+     -15.921,
+     149.079
+    ]
+   },
+   "motions": {
+    "flexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 139.079,
+     "comfort": 104.079,
+     "athletic": 149.079,
+     "rest": 10.921,
+     "share": 1.0
+    },
+    "hyperextension": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 15.921,
+     "comfort": 10.921,
+     "athletic": 15.921,
+     "rest": -10.921,
+     "share": 1.0
+    },
+    "axial_internal": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 40.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "axial_external": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 40.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   },
+   "hinge": true
+  },
+  "DEF-foot.L": {
+   "twist": [
+    -35.0,
+    15.0
+   ],
+   "swing_x": [
+    -40.0,
+    80.0
+   ],
+   "swing_z": [
+    -15.0,
+    15.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -10.0,
+     35.0
+    ],
+    "swing_z": [
+     -5.0,
+     5.0
+    ],
+    "twist": [
+     -15.0,
+     10.0
+    ]
+   },
+   "athletic": {
+    "swing_x": [
+     -45.0,
+     90.0
+    ]
+   },
+   "motions": {
+    "plantarflexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 80.0,
+     "comfort": 35.0,
+     "athletic": 90.0,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "dorsiflexion": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 40.0,
+     "comfort": 10.0,
+     "athletic": 45.0,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "abduction": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "adduction": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "inversion": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 35.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "eversion": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-foot.R": {
+   "twist": [
+    -15.0,
+    35.0
+   ],
+   "swing_x": [
+    -40.0,
+    80.0
+   ],
+   "swing_z": [
+    -15.0,
+    15.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -10.0,
+     35.0
+    ],
+    "swing_z": [
+     -5.0,
+     5.0
+    ],
+    "twist": [
+     -10.0,
+     15.0
+    ]
+   },
+   "athletic": {
+    "swing_x": [
+     -45.0,
+     90.0
+    ]
+   },
+   "motions": {
+    "plantarflexion": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 80.0,
+     "comfort": 35.0,
+     "athletic": 90.0,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "dorsiflexion": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 40.0,
+     "comfort": 10.0,
+     "athletic": 45.0,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "abduction": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "adduction": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "inversion": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 35.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "eversion": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-toe.L": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -35.0,
+    70.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -20.0,
+     40.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "extension": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 70.0,
+     "comfort": 40.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "flexion": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 35.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-toe.R": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -35.0,
+    70.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -20.0,
+     40.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "extension": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 70.0,
+     "comfort": 40.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "flexion": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 35.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-jaw": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -0.0,
+    30.0
+   ],
+   "swing_z": [
+    -5.0,
+    5.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -0.0,
+     12.0
+    ],
+    "swing_z": [
+     -3.0,
+     3.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "open": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 30.0,
+     "comfort": 12.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "close": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 0.0,
+     "comfort": 0.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 5.0,
+     "comfort": 3.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 5.0,
+     "comfort": 3.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   },
+   "glide_m": [
+    0.0,
+    0.008
+   ]
+  },
+  "DEF-eye.L": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -40.0,
+    30.0
+   ],
+   "swing_z": [
+    -40.0,
+    40.0
+   ],
+   "comfort": {
+    "swing_z": [
+     -25.0,
+     25.0
+    ],
+    "swing_x": [
+     -25.0,
+     20.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "lateral": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 40.0,
+     "comfort": 25.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "medial": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 40.0,
+     "comfort": 25.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "up": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 30.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "down": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 40.0,
+     "comfort": 25.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-eye.R": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -40.0,
+    30.0
+   ],
+   "swing_z": [
+    -40.0,
+    40.0
+   ],
+   "comfort": {
+    "swing_z": [
+     -25.0,
+     25.0
+    ],
+    "swing_x": [
+     -25.0,
+     20.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "lateral": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 40.0,
+     "comfort": 25.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "medial": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 40.0,
+     "comfort": 25.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "up": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 30.0,
+     "comfort": 20.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "down": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 40.0,
+     "comfort": 25.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-tongue": {
+   "twist": [
+    -15.0,
+    15.0
+   ],
+   "swing_x": [
+    -30.0,
+    30.0
+   ],
+   "swing_z": [
+    -20.0,
+    20.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -15.0,
+     15.0
+    ],
+    "swing_z": [
+     -10.0,
+     10.0
+    ],
+    "twist": [
+     -5.0,
+     5.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "up": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 30.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "down": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 30.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 20.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 20.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "twist_L": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "twist_R": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-tongue.001": {
+   "twist": [
+    -15.0,
+    15.0
+   ],
+   "swing_x": [
+    -30.0,
+    30.0
+   ],
+   "swing_z": [
+    -20.0,
+    20.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -15.0,
+     15.0
+    ],
+    "swing_z": [
+     -10.0,
+     10.0
+    ],
+    "twist": [
+     -5.0,
+     5.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "up": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 30.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "down": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 30.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 20.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 20.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "twist_L": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "twist_R": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-tongue.002": {
+   "twist": [
+    -15.0,
+    15.0
+   ],
+   "swing_x": [
+    -30.0,
+    30.0
+   ],
+   "swing_z": [
+    -20.0,
+    20.0
+   ],
+   "comfort": {
+    "swing_x": [
+     -15.0,
+     15.0
+    ],
+    "swing_z": [
+     -10.0,
+     10.0
+    ],
+    "twist": [
+     -5.0,
+     5.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "up": {
+     "axis": "swing_x",
+     "sign": -1,
+     "hard": 30.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "down": {
+     "axis": "swing_x",
+     "sign": 1,
+     "hard": 30.0,
+     "comfort": 15.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "lateral_L": {
+     "axis": "swing_z",
+     "sign": -1,
+     "hard": 20.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "lateral_R": {
+     "axis": "swing_z",
+     "sign": 1,
+     "hard": 20.0,
+     "comfort": 10.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    },
+    "twist_L": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "twist_R": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 15.0,
+     "comfort": 5.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   }
+  },
+  "DEF-upper_arm.L.001": {
+   "twist": [
+    -45.0,
+    60.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -22.5,
+     37.5
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "internal_rotation": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 120.0,
+     "comfort": 75.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 0.5
+    },
+    "external_rotation": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 90.0,
+     "comfort": 45.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 0.5
+    }
+   },
+   "share": 0.5
+  },
+  "DEF-upper_arm.L.002": {
+   "twist": [
+    -45.0,
+    60.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -22.5,
+     37.5
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "internal_rotation": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 120.0,
+     "comfort": 75.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 0.5
+    },
+    "external_rotation": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 90.0,
+     "comfort": 45.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 0.5
+    }
+   },
+   "share": 0.5
+  },
+  "DEF-upper_arm.R.001": {
+   "twist": [
+    -60.0,
+    45.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -37.5,
+     22.5
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "internal_rotation": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 120.0,
+     "comfort": 75.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 0.5
+    },
+    "external_rotation": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 90.0,
+     "comfort": 45.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 0.5
+    }
+   },
+   "share": 0.5
+  },
+  "DEF-upper_arm.R.002": {
+   "twist": [
+    -60.0,
+    45.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -37.5,
+     22.5
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "internal_rotation": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 120.0,
+     "comfort": 75.0,
+     "athletic": null,
+     "rest": 0.0,
+     "share": 0.5
+    },
+    "external_rotation": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 90.0,
+     "comfort": 45.0,
+     "athletic": null,
+     "rest": -0.0,
+     "share": 0.5
+    }
+   },
+   "share": 0.5
+  },
+  "DEF-forearm.L.001": {
+   "twist": [
+    -11.55,
+    66.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -0.0,
+     54.45
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "pronation": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 200.0,
+     "comfort": 165.0,
+     "athletic": null,
+     "rest": -90.0,
+     "share": 0.33
+    },
+    "supination": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 35.0,
+     "comfort": 0.0,
+     "athletic": null,
+     "rest": 90.0,
+     "share": 0.33
+    }
+   },
+   "share": 0.33
+  },
+  "DEF-forearm.L.002": {
+   "twist": [
+    -11.9,
+    68.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -0.0,
+     56.1
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "pronation": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 200.0,
+     "comfort": 165.0,
+     "athletic": null,
+     "rest": -90.0,
+     "share": 0.34
+    },
+    "supination": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 35.0,
+     "comfort": 0.0,
+     "athletic": null,
+     "rest": 90.0,
+     "share": 0.34
+    }
+   },
+   "share": 0.34
+  },
+  "DEF-forearm.R.001": {
+   "twist": [
+    -66.0,
+    11.55
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -54.45,
+     0.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "pronation": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 200.0,
+     "comfort": 165.0,
+     "athletic": null,
+     "rest": -90.0,
+     "share": 0.33
+    },
+    "supination": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 35.0,
+     "comfort": 0.0,
+     "athletic": null,
+     "rest": 90.0,
+     "share": 0.33
+    }
+   },
+   "share": 0.33
+  },
+  "DEF-forearm.R.002": {
+   "twist": [
+    -68.0,
+    11.9
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -56.1,
+     0.0
+    ]
+   },
+   "athletic": null,
+   "motions": {
+    "pronation": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 200.0,
+     "comfort": 165.0,
+     "athletic": null,
+     "rest": -90.0,
+     "share": 0.34
+    },
+    "supination": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 35.0,
+     "comfort": 0.0,
+     "athletic": null,
+     "rest": 90.0,
+     "share": 0.34
+    }
+   },
+   "share": 0.34
+  },
+  "DEF-thigh.L.001": {
+   "twist": [
+    -45.0,
+    45.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -25.0,
+     25.0
+    ]
+   },
+   "athletic": {
+    "twist": [
+     -50.0,
+     45.0
+    ]
+   },
+   "motions": {
+    "internal_rotation": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 45.0,
+     "comfort": 25.0,
+     "athletic": 45.0,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "external_rotation": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 45.0,
+     "comfort": 25.0,
+     "athletic": 50.0,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   },
+   "share": 1.0
+  },
+  "DEF-thigh.R.001": {
+   "twist": [
+    -45.0,
+    45.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": {
+    "twist": [
+     -25.0,
+     25.0
+    ]
+   },
+   "athletic": {
+    "twist": [
+     -45.0,
+     50.0
+    ]
+   },
+   "motions": {
+    "internal_rotation": {
+     "axis": "twist",
+     "sign": -1,
+     "hard": 45.0,
+     "comfort": 25.0,
+     "athletic": 45.0,
+     "rest": 0.0,
+     "share": 1.0
+    },
+    "external_rotation": {
+     "axis": "twist",
+     "sign": 1,
+     "hard": 45.0,
+     "comfort": 25.0,
+     "athletic": 50.0,
+     "rest": -0.0,
+     "share": 1.0
+    }
+   },
+   "share": 1.0
+  },
+  "DEF-pelvis.L": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": null,
+   "athletic": null,
+   "motions": {}
+  },
+  "DEF-pelvis.R": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": null,
+   "athletic": null,
+   "motions": {}
+  },
+  "DEF-breast.L": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": null,
+   "athletic": null,
+   "motions": {}
+  },
+  "DEF-breast.R": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": null,
+   "athletic": null,
+   "motions": {}
+  },
+  "DEF-shin.L.001": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": null,
+   "athletic": null,
+   "motions": {}
+  },
+  "DEF-shin.R.001": {
+   "twist": [
+    -3.0,
+    3.0
+   ],
+   "swing_x": [
+    -3.0,
+    3.0
+   ],
+   "swing_z": [
+    -3.0,
+    3.0
+   ],
+   "comfort": null,
+   "athletic": null,
+   "motions": {}
+  }
+ },
+ "ik_chains": [
+  {
+   "name": "leg.L",
+   "bones": [
+    "DEF-thigh.L",
+    "DEF-shin.L",
+    "DEF-foot.L"
+   ],
+   "max_reach": 0.999
+  },
+  {
+   "name": "leg.R",
+   "bones": [
+    "DEF-thigh.R",
+    "DEF-shin.R",
+    "DEF-foot.R"
+   ],
+   "max_reach": 0.999
+  },
+  {
+   "name": "arm.L",
+   "bones": [
+    "DEF-upper_arm.L",
+    "DEF-forearm.L",
+    "DEF-hand.L"
+   ],
+   "max_reach": 0.995
+  },
+  {
+   "name": "arm.R",
+   "bones": [
+    "DEF-upper_arm.R",
+    "DEF-forearm.R",
+    "DEF-hand.R"
+   ],
+   "max_reach": 0.995
+  }
+ ],
+ "feet": [
+  "DEF-foot.L",
+  "DEF-foot.R",
+  "DEF-toe.L",
+  "DEF-toe.R"
+ ],
+ "couplings": [
+  {
+   "id": "R22.hip_flexion_knee_straight",
+   "joint": "DEF-thigh.L",
+   "motion": "flexion",
+   "when": {
+    "joint": "DEF-shin.L",
+    "motion": "flexion",
+    "below_deg": 10
+   },
+   "comfort": 53,
+   "hard": 90,
+   "athletic": 130,
+   "source": "04 sec 2.1 (NASA p.50 mean 53.3) + 04 R22; athletic 05 sec 9"
+  },
+  {
+   "id": "R22.hip_flexion_knee_straight",
+   "joint": "DEF-thigh.R",
+   "motion": "flexion",
+   "when": {
+    "joint": "DEF-shin.R",
+    "motion": "flexion",
+    "below_deg": 10
+   },
+   "comfort": 53,
+   "hard": 90,
+   "athletic": 130,
+   "source": "04 sec 2.1 (NASA p.50 mean 53.3) + 04 R22; athletic 05 sec 9"
+  },
+  {
+   "id": "R22.ankle_dorsiflexion_knee",
+   "joint": "DEF-foot.L",
+   "motion": "dorsiflexion",
+   "when": {
+    "joint": "DEF-shin.L",
+    "motion": "flexion",
+    "below_deg": 20
+   },
+   "hard": 25,
+   "source": "05 sec 0 (Baumbach 2014): 25 knee straight, 40 knee >= 20 flexed"
+  },
+  {
+   "id": "R22.ankle_dorsiflexion_knee",
+   "joint": "DEF-foot.R",
+   "motion": "dorsiflexion",
+   "when": {
+    "joint": "DEF-shin.R",
+    "motion": "flexion",
+    "below_deg": 20
+   },
+   "hard": 25,
+   "source": "05 sec 0 (Baumbach 2014): 25 knee straight, 40 knee >= 20 flexed"
+  },
+  {
+   "id": "knee_axial_needs_flexion",
+   "joint": "DEF-shin.L",
+   "motion": "axial_internal|axial_external",
+   "when": {
+    "joint": "DEF-shin.L",
+    "motion": "flexion",
+    "below_deg": 30
+   },
+   "hard": 0,
+   "source": "04 table: knee axial rotation only when flexed > 30"
+  },
+  {
+   "id": "knee_axial_needs_flexion",
+   "joint": "DEF-shin.R",
+   "motion": "axial_internal|axial_external",
+   "when": {
+    "joint": "DEF-shin.R",
+    "motion": "flexion",
+    "below_deg": 30
+   },
+   "hard": 0,
+   "source": "04 table: knee axial rotation only when flexed > 30"
+  }
+ ],
+ "segments": [
+  {
+   "name": "pelvis",
+   "bones": [
+    "DEF-spine",
+    "DEF-pelvis.L",
+    "DEF-pelvis.R"
+   ],
+   "parent": null,
+   "group": "torso"
+  },
+  {
+   "name": "abdomen",
+   "bones": [
+    "DEF-spine.001"
+   ],
+   "parent": "pelvis",
+   "group": "torso"
+  },
+  {
+   "name": "chest",
+   "bones": [
+    "DEF-spine.002"
+   ],
+   "parent": "abdomen",
+   "group": "torso"
+  },
+  {
+   "name": "upper_chest",
+   "bones": [
+    "DEF-spine.003",
+    "DEF-breast.L",
+    "DEF-breast.R"
+   ],
+   "parent": "chest",
+   "group": "torso"
+  },
+  {
+   "name": "neck",
+   "bones": [
+    "DEF-spine.004",
+    "DEF-spine.005"
+   ],
+   "parent": "upper_chest",
+   "group": "torso"
+  },
+  {
+   "name": "head",
+   "bones": [
+    "DEF-spine.006",
+    "DEF-eye.L",
+    "DEF-eye.R",
+    "DEF-tongue",
+    "DEF-tongue.001",
+    "DEF-tongue.002"
+   ],
+   "parent": "neck",
+   "group": "head"
+  },
+  {
+   "name": "jaw",
+   "bones": [
+    "DEF-jaw"
+   ],
+   "parent": "head",
+   "group": "head"
+  },
+  {
+   "name": "clavicle.L",
+   "bones": [
+    "DEF-shoulder.L"
+   ],
+   "parent": "upper_chest",
+   "group": "arm"
+  },
+  {
+   "name": "upper_arm.L",
+   "bones": [
+    "DEF-upper_arm.L",
+    "DEF-upper_arm.L.001",
+    "DEF-upper_arm.L.002"
+   ],
+   "parent": "clavicle.L",
+   "group": "arm"
+  },
+  {
+   "name": "forearm.L",
+   "bones": [
+    "DEF-forearm.L",
+    "DEF-forearm.L.001",
+    "DEF-forearm.L.002"
+   ],
+   "parent": "upper_arm.L",
+   "group": "arm"
+  },
+  {
+   "name": "hand.L",
+   "bones": [
+    "DEF-hand.L"
+   ],
+   "parent": "forearm.L",
+   "group": "arm"
+  },
+  {
+   "name": "thigh.L",
+   "bones": [
+    "DEF-thigh.L",
+    "DEF-thigh.L.001"
+   ],
+   "parent": "pelvis",
+   "group": "leg"
+  },
+  {
+   "name": "shin.L",
+   "bones": [
+    "DEF-shin.L",
+    "DEF-shin.L.001"
+   ],
+   "parent": "thigh.L",
+   "group": "leg"
+  },
+  {
+   "name": "foot.L",
+   "bones": [
+    "DEF-foot.L"
+   ],
+   "parent": "shin.L",
+   "group": "leg"
+  },
+  {
+   "name": "toe.L",
+   "bones": [
+    "DEF-toe.L"
+   ],
+   "parent": "foot.L",
+   "group": "leg"
+  },
+  {
+   "name": "clavicle.R",
+   "bones": [
+    "DEF-shoulder.R"
+   ],
+   "parent": "upper_chest",
+   "group": "arm"
+  },
+  {
+   "name": "upper_arm.R",
+   "bones": [
+    "DEF-upper_arm.R",
+    "DEF-upper_arm.R.001",
+    "DEF-upper_arm.R.002"
+   ],
+   "parent": "clavicle.R",
+   "group": "arm"
+  },
+  {
+   "name": "forearm.R",
+   "bones": [
+    "DEF-forearm.R",
+    "DEF-forearm.R.001",
+    "DEF-forearm.R.002"
+   ],
+   "parent": "upper_arm.R",
+   "group": "arm"
+  },
+  {
+   "name": "hand.R",
+   "bones": [
+    "DEF-hand.R"
+   ],
+   "parent": "forearm.R",
+   "group": "arm"
+  },
+  {
+   "name": "thigh.R",
+   "bones": [
+    "DEF-thigh.R",
+    "DEF-thigh.R.001"
+   ],
+   "parent": "pelvis",
+   "group": "leg"
+  },
+  {
+   "name": "shin.R",
+   "bones": [
+    "DEF-shin.R",
+    "DEF-shin.R.001"
+   ],
+   "parent": "thigh.R",
+   "group": "leg"
+  },
+  {
+   "name": "foot.R",
+   "bones": [
+    "DEF-foot.R"
+   ],
+   "parent": "shin.R",
+   "group": "leg"
+  },
+  {
+   "name": "toe.R",
+   "bones": [
+    "DEF-toe.R"
+   ],
+   "parent": "foot.R",
+   "group": "leg"
+  }
+ ],
+ "capsules": [
+  {
+   "name": "pelvis",
+   "bone": "DEF-spine",
+   "parent": null,
+   "group": "torso",
+   "a": [
+    -0.06264,
+    0.12254,
+    0.03582
+   ],
+   "b": [
+    0.06264,
+    0.12254,
+    0.03582
+   ],
+   "r": 0.08376,
+   "verts": 822
+  },
+  {
+   "name": "abdomen",
+   "bone": "DEF-spine.001",
+   "parent": "pelvis",
+   "group": "torso",
+   "a": [
+    0.0,
+    0.07744,
+    -0.01081
+   ],
+   "b": [
+    -0.0,
+    0.10655,
+    0.07392
+   ],
+   "r": 0.05791,
+   "verts": 154
+  },
+  {
+   "name": "chest",
+   "bone": "DEF-spine.002",
+   "parent": "abdomen",
+   "group": "torso",
+   "a": [
+    0.0,
+    0.05623,
+    -0.0282
+   ],
+   "b": [
+    -0.0,
+    0.01928,
+    0.08136
+   ],
+   "r": 0.04701,
+   "verts": 106
+  },
+  {
+   "name": "upper_chest",
+   "bone": "DEF-spine.003",
+   "parent": "chest",
+   "group": "torso",
+   "a": [
+    -0.07992,
+    -0.0156,
+    0.03931
+   ],
+   "b": [
+    0.07992,
+    -0.0156,
+    0.03931
+   ],
+   "r": 0.08575,
+   "verts": 850
+  },
+  {
+   "name": "neck",
+   "bone": "DEF-spine.004",
+   "parent": "upper_chest",
+   "group": "torso",
+   "a": [
+    -0.04162,
+    0.05448,
+    -0.02941
+   ],
+   "b": [
+    0.04162,
+    0.05448,
+    -0.02941
+   ],
+   "r": 0.03084,
+   "verts": 108
+  },
+  {
+   "name": "head",
+   "bone": "DEF-spine.006",
+   "parent": "neck",
+   "group": "head",
+   "a": [
+    0.0,
+    0.07104,
+    0.03627
+   ],
+   "b": [
+    0.0,
+    0.10348,
+    -0.01886
+   ],
+   "r": 0.05206,
+   "verts": 572
+  },
+  {
+   "name": "jaw",
+   "bone": "DEF-jaw",
+   "parent": "head",
+   "group": "head",
+   "a": [
+    0.0,
+    0.04175,
+    -0.00648
+   ],
+   "b": [
+    -0.0,
+    0.12309,
+    0.02441
+   ],
+   "r": 0.03012,
+   "verts": 94
+  },
+  {
+   "name": "clavicle.L",
+   "bone": "DEF-shoulder.L",
+   "parent": "upper_chest",
+   "group": "arm",
+   "a": [
+    0.08216,
+    0.01721,
+    0.00388
+   ],
+   "b": [
+    -0.01576,
+    0.16985,
+    0.01249
+   ],
+   "r": 0.04122,
+   "verts": 252
+  },
+  {
+   "name": "upper_arm.L",
+   "bone": "DEF-upper_arm.L",
+   "parent": "clavicle.L",
+   "group": "arm",
+   "a": [
+    0.00424,
+    0.03169,
+    0.00247
+   ],
+   "b": [
+    -0.00185,
+    0.28906,
+    -0.00274
+   ],
+   "r": 0.03915,
+   "verts": 467
+  },
+  {
+   "name": "forearm.L",
+   "bone": "DEF-forearm.L",
+   "parent": "upper_arm.L",
+   "group": "arm",
+   "a": [
+    1e-05,
+    0.03761,
+    -0.00108
+   ],
+   "b": [
+    -0.00054,
+    0.23237,
+    0.00046
+   ],
+   "r": 0.03039,
+   "verts": 269
+  },
+  {
+   "name": "hand.L",
+   "bone": "DEF-hand.L",
+   "parent": "forearm.L",
+   "group": "arm",
+   "a": [
+    -0.00054,
+    0.02851,
+    -0.00165
+   ],
+   "b": [
+    4e-05,
+    0.18561,
+    0.00088
+   ],
+   "r": 0.02116,
+   "verts": 158
+  },
+  {
+   "name": "thigh.L",
+   "bone": "DEF-thigh.L",
+   "parent": "pelvis",
+   "group": "leg",
+   "a": [
+    0.02674,
+    -0.00686,
+    0.00037
+   ],
+   "b": [
+    -0.00868,
+    0.31545,
+    -0.00139
+   ],
+   "r": 0.05477,
+   "verts": 710
+  },
+  {
+   "name": "shin.L",
+   "bone": "DEF-shin.L",
+   "parent": "thigh.L",
+   "group": "leg",
+   "a": [
+    -0.00124,
+    0.3953,
+    0.00447
+   ],
+   "b": [
+    0.00122,
+    0.04611,
+    -0.00434
+   ],
+   "r": 0.03682,
+   "verts": 464
+  },
+  {
+   "name": "foot.L",
+   "bone": "DEF-foot.L",
+   "parent": "shin.L",
+   "group": "leg",
+   "a": [
+    0.00394,
+    0.12446,
+    0.00101
+   ],
+   "b": [
+    -0.00156,
+    0.03814,
+    0.00165
+   ],
+   "r": 0.02696,
+   "verts": 120
+  },
+  {
+   "name": "toe.L",
+   "bone": "DEF-toe.L",
+   "parent": "foot.L",
+   "group": "leg",
+   "a": [
+    0.0014,
+    0.08692,
+    -0.00116
+   ],
+   "b": [
+    -0.00208,
+    0.02315,
+    0.00154
+   ],
+   "r": 0.01817,
+   "verts": 68
+  },
+  {
+   "name": "clavicle.R",
+   "bone": "DEF-shoulder.R",
+   "parent": "upper_chest",
+   "group": "arm",
+   "a": [
+    0.01576,
+    0.16985,
+    0.01249
+   ],
+   "b": [
+    -0.08216,
+    0.01721,
+    0.00388
+   ],
+   "r": 0.04122,
+   "verts": 252
+  },
+  {
+   "name": "upper_arm.R",
+   "bone": "DEF-upper_arm.R",
+   "parent": "clavicle.R",
+   "group": "arm",
+   "a": [
+    -0.00424,
+    0.03169,
+    0.00247
+   ],
+   "b": [
+    0.00185,
+    0.28906,
+    -0.00274
+   ],
+   "r": 0.03915,
+   "verts": 467
+  },
+  {
+   "name": "forearm.R",
+   "bone": "DEF-forearm.R",
+   "parent": "upper_arm.R",
+   "group": "arm",
+   "a": [
+    0.00054,
+    0.23237,
+    0.00046
+   ],
+   "b": [
+    -1e-05,
+    0.03761,
+    -0.00108
+   ],
+   "r": 0.03039,
+   "verts": 269
+  },
+  {
+   "name": "hand.R",
+   "bone": "DEF-hand.R",
+   "parent": "forearm.R",
+   "group": "arm",
+   "a": [
+    -4e-05,
+    0.18561,
+    0.00088
+   ],
+   "b": [
+    0.00054,
+    0.02851,
+    -0.00165
+   ],
+   "r": 0.02116,
+   "verts": 158
+  },
+  {
+   "name": "thigh.R",
+   "bone": "DEF-thigh.R",
+   "parent": "pelvis",
+   "group": "leg",
+   "a": [
+    -0.02674,
+    -0.00686,
+    0.00037
+   ],
+   "b": [
+    0.00868,
+    0.31545,
+    -0.00139
+   ],
+   "r": 0.05477,
+   "verts": 710
+  },
+  {
+   "name": "shin.R",
+   "bone": "DEF-shin.R",
+   "parent": "thigh.R",
+   "group": "leg",
+   "a": [
+    -0.00122,
+    0.04611,
+    -0.00434
+   ],
+   "b": [
+    0.00124,
+    0.3953,
+    0.00447
+   ],
+   "r": 0.03682,
+   "verts": 464
+  },
+  {
+   "name": "foot.R",
+   "bone": "DEF-foot.R",
+   "parent": "shin.R",
+   "group": "leg",
+   "a": [
+    -0.00394,
+    0.12446,
+    0.00101
+   ],
+   "b": [
+    0.00156,
+    0.03814,
+    0.00165
+   ],
+   "r": 0.02696,
+   "verts": 120
+  },
+  {
+   "name": "toe.R",
+   "bone": "DEF-toe.R",
+   "parent": "foot.R",
+   "group": "leg",
+   "a": [
+    0.00208,
+    0.02315,
+    0.00154
+   ],
+   "b": [
+    -0.0014,
+    0.08692,
+    -0.00116
+   ],
+   "r": 0.01817,
+   "verts": 68
+  }
+ ],
+ "twist_chains": [
+  {
+   "name": "upper_arm.L",
+   "bones": [
+    "DEF-upper_arm.L",
+    "DEF-upper_arm.L.001",
+    "DEF-upper_arm.L.002"
+   ],
+   "shares": [
+    0.0,
+    0.5,
+    0.5
+   ],
+   "motions": [
+    "internal_rotation",
+    "external_rotation"
+   ]
+  },
+  {
+   "name": "upper_arm.R",
+   "bones": [
+    "DEF-upper_arm.R",
+    "DEF-upper_arm.R.001",
+    "DEF-upper_arm.R.002"
+   ],
+   "shares": [
+    0.0,
+    0.5,
+    0.5
+   ],
+   "motions": [
+    "internal_rotation",
+    "external_rotation"
+   ]
+  },
+  {
+   "name": "forearm.L",
+   "bones": [
+    "DEF-forearm.L.001",
+    "DEF-forearm.L.002",
+    "DEF-hand.L"
+   ],
+   "shares": [
+    0.33,
+    0.34,
+    0.33
+   ],
+   "motions": [
+    "pronation",
+    "supination"
+   ]
+  },
+  {
+   "name": "forearm.R",
+   "bones": [
+    "DEF-forearm.R.001",
+    "DEF-forearm.R.002",
+    "DEF-hand.R"
+   ],
+   "shares": [
+    0.33,
+    0.34,
+    0.33
+   ],
+   "motions": [
+    "pronation",
+    "supination"
+   ]
+  },
+  {
+   "name": "thigh.L",
+   "bones": [
+    "DEF-thigh.L",
+    "DEF-thigh.L.001"
+   ],
+   "shares": [
+    0.0,
+    1.0
+   ],
+   "motions": [
+    "internal_rotation",
+    "external_rotation"
+   ]
+  },
+  {
+   "name": "thigh.R",
+   "bones": [
+    "DEF-thigh.R",
+    "DEF-thigh.R.001"
+   ],
+   "shares": [
+    0.0,
+    1.0
+   ],
+   "motions": [
+    "internal_rotation",
+    "external_rotation"
+   ]
+  }
+ ],
+ "face": {
+  "eye_l": "DEF-eye.L",
+  "eye_r": "DEF-eye.R",
+  "jaw": "DEF-jaw",
+  "glide_dir": [
+   0.0,
+   -0.0,
+   1.0
+  ]
+ },
+ "rest_offsets_deg": {
+  "L": {
+   "arm_abduction": 61.988,
+   "elbow_flexion": 21.47,
+   "knee_flexion": 10.921,
+   "hip_flexion": 5.498,
+   "forearm_pronation": -90.0
+  },
+  "R": {
+   "arm_abduction": 61.988,
+   "elbow_flexion": 21.47,
+   "knee_flexion": 10.921,
+   "hip_flexion": 5.498,
+   "forearm_pronation": -90.0
+  }
+ },
+ "proportions": {
+  "ansur_targets": {
+   "shoulder_z": 0.8199,
+   "shoulder_spacing": 0.2365,
+   "hip_z": 0.4952,
+   "knee_z": 0.28,
+   "ankle_z": 0.0416,
+   "upper_arm": 0.1909,
+   "forearm": 0.1521,
+   "hand": 0.11,
+   "foot": 0.1544
+  }
+ },
+ "notes": [
+  "limits are degrees FROM THE BIND POSE (Rigify A-pose); motions[*].rest is the anatomical angle already present at bind",
+  "athletic: hard limits for clips tagged `athletic` (05 sec 9); comfort: R1 warning band",
+  "couplings are data for R22 (not yet a check); the ROM clip respects them"
+ ],
+ "correctives": [
+  {
+   "name": "corrective_spine_flexion",
+   "motion": "spine_flexion",
+   "driver": [
+    {
+     "joint": "DEF-spine.001",
+     "axis": "swing_x",
+     "sign": 1
+    },
+    {
+     "joint": "DEF-spine.002",
+     "axis": "swing_x",
+     "sign": 1
+    },
+    {
+     "joint": "DEF-spine.003",
+     "axis": "swing_x",
+     "sign": 1
+    }
+   ],
+   "full_deg": 75.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.04
+    ],
+    [
+     0.1464,
+     0.14
+    ],
+    [
+     0.3087,
+     0.28
+    ],
+    [
+     0.5,
+     0.48
+    ],
+    [
+     0.6913,
+     0.68
+    ],
+    [
+     0.8536,
+     0.86
+    ],
+    [
+     0.9619,
+     0.96
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_spine_extension",
+   "motion": "spine_extension",
+   "driver": [
+    {
+     "joint": "DEF-spine.001",
+     "axis": "swing_x",
+     "sign": -1
+    },
+    {
+     "joint": "DEF-spine.002",
+     "axis": "swing_x",
+     "sign": -1
+    },
+    {
+     "joint": "DEF-spine.003",
+     "axis": "swing_x",
+     "sign": -1
+    }
+   ],
+   "full_deg": 47.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.08
+    ],
+    [
+     0.1464,
+     0.28
+    ],
+    [
+     0.3087,
+     0.54
+    ],
+    [
+     0.5,
+     0.82
+    ],
+    [
+     0.6913,
+     1.0
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_neck_flexion",
+   "motion": "neck_flexion",
+   "driver": [
+    {
+     "joint": "DEF-spine.004",
+     "axis": "swing_x",
+     "sign": 1
+    },
+    {
+     "joint": "DEF-spine.005",
+     "axis": "swing_x",
+     "sign": 1
+    },
+    {
+     "joint": "DEF-spine.006",
+     "axis": "swing_x",
+     "sign": 1
+    }
+   ],
+   "full_deg": 70.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.04
+    ],
+    [
+     0.1464,
+     0.14
+    ],
+    [
+     0.3087,
+     0.3
+    ],
+    [
+     0.5,
+     0.48
+    ],
+    [
+     0.6913,
+     0.66
+    ],
+    [
+     0.8536,
+     0.84
+    ],
+    [
+     0.9619,
+     0.96
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_neck_extension",
+   "motion": "neck_extension",
+   "driver": [
+    {
+     "joint": "DEF-spine.004",
+     "axis": "swing_x",
+     "sign": -1
+    },
+    {
+     "joint": "DEF-spine.005",
+     "axis": "swing_x",
+     "sign": -1
+    },
+    {
+     "joint": "DEF-spine.006",
+     "axis": "swing_x",
+     "sign": -1
+    }
+   ],
+   "full_deg": 85.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.04
+    ],
+    [
+     0.1464,
+     0.16
+    ],
+    [
+     0.3087,
+     0.32
+    ],
+    [
+     0.5,
+     0.5
+    ],
+    [
+     0.6913,
+     0.72
+    ],
+    [
+     0.8536,
+     0.94
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_clavicle_elevation.L",
+   "motion": "clavicle_elevation.L",
+   "driver": [
+    {
+     "joint": "DEF-shoulder.L",
+     "axis": "swing_x",
+     "sign": 1
+    }
+   ],
+   "full_deg": 30.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.06
+    ],
+    [
+     0.1464,
+     0.26
+    ],
+    [
+     0.3087,
+     0.54
+    ],
+    [
+     0.5,
+     0.8
+    ],
+    [
+     0.6913,
+     0.96
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_clavicle_elevation.R",
+   "motion": "clavicle_elevation.R",
+   "driver": [
+    {
+     "joint": "DEF-shoulder.R",
+     "axis": "swing_x",
+     "sign": 1
+    }
+   ],
+   "full_deg": 30.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.06
+    ],
+    [
+     0.1464,
+     0.26
+    ],
+    [
+     0.3087,
+     0.52
+    ],
+    [
+     0.5,
+     0.82
+    ],
+    [
+     0.6913,
+     0.92
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_clavicle_protraction.L",
+   "motion": "clavicle_protraction.L",
+   "driver": [
+    {
+     "joint": "DEF-shoulder.L",
+     "axis": "swing_z",
+     "sign": -1
+    }
+   ],
+   "full_deg": 15.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.12
+    ],
+    [
+     0.1464,
+     0.48
+    ],
+    [
+     0.3087,
+     0.96
+    ],
+    [
+     0.5,
+     1.0
+    ],
+    [
+     0.6913,
+     1.0
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_clavicle_protraction.R",
+   "motion": "clavicle_protraction.R",
+   "driver": [
+    {
+     "joint": "DEF-shoulder.R",
+     "axis": "swing_z",
+     "sign": 1
+    }
+   ],
+   "full_deg": 15.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.14
+    ],
+    [
+     0.1464,
+     0.54
+    ],
+    [
+     0.3087,
+     1.0
+    ],
+    [
+     0.5,
+     1.0
+    ],
+    [
+     0.6913,
+     1.0
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_clavicle_retraction.L",
+   "motion": "clavicle_retraction.L",
+   "driver": [
+    {
+     "joint": "DEF-shoulder.L",
+     "axis": "swing_z",
+     "sign": 1
+    }
+   ],
+   "full_deg": 15.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.06
+    ],
+    [
+     0.1464,
+     0.26
+    ],
+    [
+     0.3087,
+     0.58
+    ],
+    [
+     0.5,
+     1.0
+    ],
+    [
+     0.6913,
+     1.0
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_clavicle_retraction.R",
+   "motion": "clavicle_retraction.R",
+   "driver": [
+    {
+     "joint": "DEF-shoulder.R",
+     "axis": "swing_z",
+     "sign": -1
+    }
+   ],
+   "full_deg": 15.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.08
+    ],
+    [
+     0.1464,
+     0.3
+    ],
+    [
+     0.3087,
+     0.66
+    ],
+    [
+     0.5,
+     1.0
+    ],
+    [
+     0.6913,
+     1.0
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_shoulder_abduction.L",
+   "motion": "shoulder_abduction.L",
+   "driver": [
+    {
+     "joint": "DEF-upper_arm.L",
+     "axis": "swing_z",
+     "sign": 1
+    }
+   ],
+   "full_deg": 93.012,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.06
+    ],
+    [
+     0.1464,
+     0.18
+    ],
+    [
+     0.3087,
+     0.38
+    ],
+    [
+     0.5,
+     0.68
+    ],
+    [
+     0.6913,
+     1.0
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_shoulder_abduction.R",
+   "motion": "shoulder_abduction.R",
+   "driver": [
+    {
+     "joint": "DEF-upper_arm.R",
+     "axis": "swing_z",
+     "sign": -1
+    }
+   ],
+   "full_deg": 93.012,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.04
+    ],
+    [
+     0.1464,
+     0.16
+    ],
+    [
+     0.3087,
+     0.36
+    ],
+    [
+     0.5,
+     0.56
+    ],
+    [
+     0.6913,
+     1.0
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_shoulder_internal_rotation.L",
+   "motion": "shoulder_internal_rotation.L",
+   "driver": [
+    {
+     "joint": "DEF-upper_arm.L.001",
+     "axis": "twist",
+     "sign": 1
+    },
+    {
+     "joint": "DEF-upper_arm.L.002",
+     "axis": "twist",
+     "sign": 1
+    }
+   ],
+   "full_deg": 120.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.0
+    ],
+    [
+     0.1464,
+     0.06
+    ],
+    [
+     0.3087,
+     0.28
+    ],
+    [
+     0.5,
+     0.72
+    ],
+    [
+     0.6913,
+     1.0
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_shoulder_internal_rotation.R",
+   "motion": "shoulder_internal_rotation.R",
+   "driver": [
+    {
+     "joint": "DEF-upper_arm.R.001",
+     "axis": "twist",
+     "sign": -1
+    },
+    {
+     "joint": "DEF-upper_arm.R.002",
+     "axis": "twist",
+     "sign": -1
+    }
+   ],
+   "full_deg": 120.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.02
+    ],
+    [
+     0.1464,
+     0.08
+    ],
+    [
+     0.3087,
+     0.28
+    ],
+    [
+     0.5,
+     0.66
+    ],
+    [
+     0.6913,
+     1.0
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_forearm_pronation.L",
+   "motion": "forearm_pronation.L",
+   "driver": [
+    {
+     "joint": "DEF-forearm.L.001",
+     "axis": "twist",
+     "sign": 1
+    },
+    {
+     "joint": "DEF-forearm.L.002",
+     "axis": "twist",
+     "sign": 1
+    },
+    {
+     "joint": "DEF-hand.L",
+     "axis": "twist",
+     "sign": 1
+    }
+   ],
+   "full_deg": 200.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.0
+    ],
+    [
+     0.1464,
+     0.02
+    ],
+    [
+     0.3087,
+     0.14
+    ],
+    [
+     0.5,
+     0.42
+    ],
+    [
+     0.6913,
+     0.82
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_forearm_pronation.R",
+   "motion": "forearm_pronation.R",
+   "driver": [
+    {
+     "joint": "DEF-forearm.R.001",
+     "axis": "twist",
+     "sign": -1
+    },
+    {
+     "joint": "DEF-forearm.R.002",
+     "axis": "twist",
+     "sign": -1
+    },
+    {
+     "joint": "DEF-hand.R",
+     "axis": "twist",
+     "sign": -1
+    }
+   ],
+   "full_deg": 200.0,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.0
+    ],
+    [
+     0.1464,
+     0.04
+    ],
+    [
+     0.3087,
+     0.16
+    ],
+    [
+     0.5,
+     0.42
+    ],
+    [
+     0.6913,
+     0.78
+    ],
+    [
+     0.8536,
+     1.0
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_hip_flexion.L",
+   "motion": "hip_flexion.L",
+   "driver": [
+    {
+     "joint": "DEF-thigh.L",
+     "axis": "swing_x",
+     "sign": -1
+    }
+   ],
+   "full_deg": 134.502,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.0
+    ],
+    [
+     0.1464,
+     0.0
+    ],
+    [
+     0.3087,
+     0.06
+    ],
+    [
+     0.5,
+     0.34
+    ],
+    [
+     0.6913,
+     0.64
+    ],
+    [
+     0.8536,
+     0.84
+    ],
+    [
+     0.9619,
+     1.0
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_hip_flexion.R",
+   "motion": "hip_flexion.R",
+   "driver": [
+    {
+     "joint": "DEF-thigh.R",
+     "axis": "swing_x",
+     "sign": -1
+    }
+   ],
+   "full_deg": 134.502,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.0
+    ],
+    [
+     0.1464,
+     0.1
+    ],
+    [
+     0.3087,
+     0.24
+    ],
+    [
+     0.5,
+     0.42
+    ],
+    [
+     0.6913,
+     0.62
+    ],
+    [
+     0.8536,
+     0.82
+    ],
+    [
+     0.9619,
+     0.96
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "corrective_squat",
+   "motion": "squat",
+   "driver": [
+    {
+     "joint": "DEF-thigh.L",
+     "axis": "swing_x",
+     "sign": -1
+    },
+    {
+     "joint": "DEF-thigh.R",
+     "axis": "swing_x",
+     "sign": -1
+    }
+   ],
+   "combine": "min",
+   "full_deg": 104.502,
+   "curve": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0381,
+     0.0
+    ],
+    [
+     0.1464,
+     0.0
+    ],
+    [
+     0.3087,
+     0.0
+    ],
+    [
+     0.5,
+     0.0
+    ],
+    [
+     0.6913,
+     0.96
+    ],
+    [
+     0.8536,
+     0.74
+    ],
+    [
+     0.9619,
+     0.8
+    ],
+    [
+     1.0,
+     1.0
+    ]
+   ]
+  }
+ ]
+}

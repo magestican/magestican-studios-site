@@ -50,7 +50,7 @@ function loosen(e, ctx, wobble) {
   ctx.events.push({ type: 'caveIn', id: e.id, x: e.x, y: e.y });
   for (const o of ctx.session.entities) {
     if (o.kind === 'clod' && o.alive && o.state === 'rest' && Math.abs(o.y - (e.y + e.h)) < 0.01 && Math.abs(o.x - e.x) < e.w)
-      loosen(o, ctx, false);
+      loosen(o, ctx, wobble); 
   }
 }
 

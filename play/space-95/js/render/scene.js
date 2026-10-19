@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { followJo } from '../game/bolt.js';
 import { BODY_H, BODY_W, RUN_SPEED } from '../sim/constants.js';
+import { heaveAt } from '../sim/heave.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
 
 const CAM_DIST = 20;
@@ -30,6 +31,8 @@ export function createView(canvas, level, labels) {
   scene.add(barkMeshes(level.world));
   const soil = soilMeshes(level.world);
   scene.add(soil.mesh);
+  const fur = heaveMeshes(level);
+  scene.add(fur.group);
   scene.add(farLayers(level.world));
   for (const cp of level.checkpoints) {
     const label = labels.find((l) => l.id === cp.id);
@@ -107,6 +110,8 @@ export function createView(canvas, level, labels) {
       followJo(boltPos, { x, y }, p.facing, dt, session.time);
       bolt.group.position.set(boltPos.x, boltPos.y, 0.3);
       bolt.group.scale.x = p.facing;
+      fur.update(session.world);
+      jo.shell.visible = !!session.shield;
       syncEntities(scene, entityViews, session.entities, alpha, session.time);
       for (let i = fx.length - 1; i >= 0; i--) {
         const f = fx[i];
@@ -236,6 +241,27 @@ function entityView(e) {
     );
     flag.position.set(0.7, 2.6, 0);
     g.add(post, flag, textSprite('Clock out'));
+  } else if (e.kind === 'snailknight') {
+    const shell = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.25, 12, 24), mat(e.specimen ? 0xf4f0ff : 0x7d9bd6));
+    shell.position.y = 0.8;
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.3, 0.5), mat(0xc9e07a));
+    foot.position.y = 0.15;
+    g.add(shell, foot);
+  } else if (e.kind === 'bandit') {
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 0.6, 6, 12), mat(0x6fcf4a));
+    body.position.y = 0.6;
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry(0.55, 0.7, 24),
+      new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, opacity: 0 }),
+    );
+    halo.position.set(0, 0.6, 0.4);
+    halo.name = 'kickHalo';
+    g.add(body, halo);
+  } else if (e.kind === 'shellShield' || e.kind === 'shellShot') {
+    const m = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.14, 10, 18), mat(0x7d9bd6));
+    m.position.y = 0.35;
+    m.name = 'spin';
+    g.add(m);
   } else if (e.kind === 'boss') {
     
     const body = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), mat(0x6b4a2b));
@@ -288,6 +314,8 @@ function syncEntities(scene, views, entities, alpha, time) {
     }
     const spin = v.getObjectByName('spin');
     if (spin) spin.rotation.y = time * 2.5;
+    const kh = v.getObjectByName('kickHalo');
+    if (kh) kh.material.opacity = e.stage === 'windup' ? 0.85 : 0;
     const halo = v.getObjectByName('halo');
     if (halo) {
       const tele = e.stage === 'telegraph';
@@ -369,6 +397,35 @@ function tileMeshes(world) {
     }
   }
   return group;
+}
+
+
+function heaveMeshes(level) {
+  const group = new THREE.Group();
+  const cols = [];
+  const T = level.world.tile;
+  const furA = new THREE.MeshLambertMaterial({ color: 0xe8a04a });
+  const furB = new THREE.MeshLambertMaterial({ color: 0x5a3418 }); 
+  for (const h of level.heaves ?? []) {
+    let i = 0;
+    for (let x = h.x0; x < h.x1 - 1e-6; x += T, i++) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(T, 1, TILE_DEPTH), i % 7 < 2 ? furB : furA);
+      group.add(m);
+      cols.push({ h, x: x + T / 2, m, floor: h.base - (h.sink ?? 0) - 2 });
+    }
+  }
+  return {
+    group,
+    update(world) {
+      for (const c of cols) {
+        const s = heaveAt(c.h, c.x, world.time ?? 0, world.sighStart ?? null);
+        const top = s ? s.y : c.h.base;
+        const hgt = Math.max(0.05, top - c.floor);
+        c.m.scale.y = hgt;
+        c.m.position.set(c.x, c.floor + hgt / 2, -TILE_DEPTH / 2 + 0.3);
+      }
+    },
+  };
 }
 
 
@@ -512,7 +569,11 @@ function joPlaceholder() {
   head.position.set(0, BODY_H * 0.9, 0.005);
   const visor = new THREE.Mesh(new THREE.PlaneGeometry(BODY_W * 0.3, BODY_H * 0.08), new THREE.MeshBasicMaterial({ color: 0x14203c }));
   visor.position.set(BODY_W * 0.12, BODY_H * 0.92, 0.02);
-  body.add(suit, scarf, head, visor);
+  
+  const shell = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.08, 8, 14), new THREE.MeshLambertMaterial({ color: 0x7d9bd6 }));
+  shell.position.set(-BODY_W * 0.45, BODY_H * 0.55, -0.01);
+  shell.visible = false;
+  body.add(suit, scarf, head, visor, shell);
   group.add(body);
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(BODY_W * 0.6, 24),
@@ -521,5 +582,5 @@ function joPlaceholder() {
   shadow.rotation.x = -Math.PI / 2;
   shadow.position.set(0, 0.01, -0.2);
   group.add(shadow);
-  return { group, body };
+  return { group, body, shell };
 }

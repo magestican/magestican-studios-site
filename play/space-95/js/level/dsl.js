@@ -23,6 +23,7 @@ export function levelBuilder(meta) {
   const checkpoints = [];
   const landmarks = [];
   const cameraHints = [];
+  const heaves = [];
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -123,6 +124,39 @@ export function levelBuilder(meta) {
       return api;
     },
     
+
+
+
+    heave(len, amp, phase = 0, opts = {}) {
+      block(x, x + len, 0, ground);
+      api.heaveAt(x, x + len, ground, amp, phase, { taper: [3, 3], ...opts });
+      x += len;
+      return api;
+    },
+    
+    heaveAt(x0, x1, base, amp, phase = 0, opts = {}) {
+      counters.heave = (counters.heave ?? 0) + 1;
+      heaves.push({
+        id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-heave-${counters.heave}`,
+        x0,
+        x1,
+        base,
+        amp,
+        phase,
+        period: 4,
+        taper: [3, 3],
+        ...opts,
+      });
+      return api;
+    },
+    
+    fold(len, depth, phase = 0, opts = {}) {
+      block(x, x + len, 0, ground - depth);
+      api.heaveAt(x, x + len, ground - depth, depth, phase, { taper: [0, 0], ...opts });
+      x += len;
+      return api;
+    },
+    
     cameraHint(x0, x1, opts) {
       cameraHints.push({ x0, x1, ...opts });
       return api;
@@ -195,6 +229,7 @@ export function levelBuilder(meta) {
         checkpoints,
         landmarks,
         cameraHints,
+        heaves,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,
         vertical: finish?.axis === 'y',

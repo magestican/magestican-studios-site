@@ -8,6 +8,7 @@ import { bufferOk, cornerCorrect, coyoteOk, ledgeAssist } from './assists.js';
 import { onGround, sweepX, sweepY, touchingWall } from './body.js';
 import { climbStep } from './climb.js';
 import * as K from './constants.js';
+import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
 
 
 
@@ -93,6 +94,9 @@ export function stepPlayer(p, input, world) {
     }
   }
   p.y = my.y;
+  
+  if (my.floor) p.floorVs = Math.max(0, my.floor.vs);
+  else if (my.hit) p.floorVs = 0;
   if (my.hit) {
     if (dy > 0) {
       p.events.push({ type: 'bonk' });
@@ -130,7 +134,10 @@ export function stepPlayer(p, input, world) {
     p.airPeak = p.y;
     if (!wasGrounded) tryJump(p); 
   } else {
-    if (wasGrounded && !p.jumpedThisAir) p.events.push({ type: 'leave' });
+    if (wasGrounded && !p.jumpedThisAir) {
+      p.events.push({ type: 'leave' });
+      if (p.floorVs > 0) p.vy = Math.max(p.vy, p.floorVs); 
+    }
     if (p.y > p.airPeak) p.airPeak = p.y;
   }
   abilityAfterMove(p, world, dir, p.grounded && !wasGrounded);
@@ -182,7 +189,10 @@ function tryJump(p) {
   const fromCoyote = !p.grounded && coyoteOk(p.sinceGrounded, p.jumpedThisAir);
   if (!p.grounded && !fromCoyote) return;
   const buffered = p.sincePressed > 0;
-  p.vy = K.JUMP_VELOCITY;
+  
+  const boost = p.grounded || fromCoyote ? Math.min(MAX_BOOST, (p.floorVs ?? 0) * LAUNCH_GAIN) : 0;
+  p.vy = K.JUMP_VELOCITY + boost;
+  if (boost >= 2) p.events.push({ type: 'heaveLaunch', vs: boost });
   p.grounded = false;
   p.jumpedThisAir = true;
   p.rising = true;

@@ -39,6 +39,14 @@ export function stompBounce(p) {
 export function hurtPlayer(s, fromX) {
   if (s.invuln > 0 || s.dead > 0) return false;
   const p = s.player;
+  
+  if (s.shield) {
+    s.shield = false;
+    s.invuln = INVULN_TIME;
+    s.hitstop = HITSTOP_ENEMY;
+    s.events.push({ type: 'shieldBreak', x: p.x, y: p.y });
+    return false;
+  }
   s.hearts -= 1;
   s.invuln = INVULN_TIME;
   s.hitstop = HITSTOP_ENEMY;

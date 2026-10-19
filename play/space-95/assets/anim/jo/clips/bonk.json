@@ -1,0 +1,203 @@
+{
+ "name": "bonk",
+ "fps": 30,
+ "frames": 9,
+ "loop": false,
+ "root_motion": "IP",
+ "phase_markers": {},
+ "notifies": [],
+ "tags": [
+  "platformer",
+  "carried"
+ ],
+ "gravity_scale": 2.333502443628072,
+ "glb": "jo_clips.glb",
+ "animation": 13,
+ "settle": [],
+ "flights": [
+  [
+   0.0,
+   8.0
+  ]
+ ],
+ "plants": [],
+ "root_curve": [
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ]
+ ],
+ "root_curve_note": "IP clip: the ground-root path the game should move the capsule along",
+ "carrier": {
+  "y0": 5.25,
+  "vy0": 0.0,
+  "g_scale": 2.333502443628072
+ },
+ "key_poses": [
+  0.0
+ ],
+ "com": [
+  [
+   -0.0008,
+   1.055,
+   0.0871
+  ],
+  [
+   -0.0007,
+   1.0521,
+   0.0865
+  ],
+  [
+   -0.0006,
+   1.0492,
+   0.0859
+  ],
+  [
+   -0.0004,
+   1.0463,
+   0.0854
+  ],
+  [
+   -0.0003,
+   1.0434,
+   0.0848
+  ],
+  [
+   -0.0002,
+   1.0405,
+   0.0842
+  ],
+  [
+   -0.0001,
+   1.0376,
+   0.0836
+  ],
+  [
+   0.0001,
+   1.0347,
+   0.083
+  ],
+  [
+   0.0002,
+   1.0318,
+   0.0824
+  ]
+ ],
+ "xcom": [
+  [
+   0.0004,
+   1.0265,
+   0.0813
+  ],
+  [
+   0.0005,
+   1.0236,
+   0.0807
+  ],
+  [
+   0.0007,
+   1.0208,
+   0.0802
+  ],
+  [
+   0.0008,
+   1.0179,
+   0.0796
+  ],
+  [
+   0.0009,
+   1.0151,
+   0.079
+  ],
+  [
+   0.001,
+   1.0122,
+   0.0784
+  ],
+  [
+   0.0012,
+   1.0094,
+   0.0778
+  ],
+  [
+   0.0013,
+   1.0065,
+   0.0772
+  ],
+  [
+   0.0014,
+   1.0036,
+   0.0767
+  ]
+ ],
+ "extra": {
+  "time_scale": 2.4,
+  "events": [
+   {
+    "type": "contact",
+    "frame": 0.0
+   }
+  ],
+  "set": "platformer",
+  "carrier_note": "the game moves the capsule on this path; the sprite is in place",
+  "ik_residual_mm": {},
+  "ik_residual_frame": {},
+  "hips_drop_max_cm": 0.0,
+  "limit_corrected_frames": 0,
+  "limit_corrected_frac": 0.0,
+  "rejected": false,
+  "root_reexpress_err_m": 0.0,
+  "ballistic": [
+   {
+    "frames": [
+     0,
+     8
+    ],
+    "airtime_s": 0.2667,
+    "apex_m": 0.0,
+    "vy0": -0.0868
+   }
+  ]
+ }
+}

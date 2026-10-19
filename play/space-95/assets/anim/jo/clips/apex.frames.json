@@ -1,0 +1,46 @@
+{
+ "clip": "apex",
+ "fps": 24,
+ "frame_count": 4,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.088889,
+  0.2,
+  0.266667
+ ],
+ "key_poses": [
+  0,
+  2
+ ],
+ "events": [],
+ "duration_s": 0.125,
+ "time_scale": 2.4,
+ "time_stretch": 1.125,
+ "snapped": [
+  {
+   "frame": 2,
+   "from": 0.17778,
+   "to": 0.2,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 7,
+  "fps": 30.0,
+  "frames": 9
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "y0": 5.25,
+  "vy0": 1.09375,
+  "g_scale": 0.6863242481259034
+ },
+ "root_travel_u": [
+  -0.0,
+  0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

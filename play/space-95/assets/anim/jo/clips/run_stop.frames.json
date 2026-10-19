@@ -1,0 +1,53 @@
+{
+ "clip": "run_stop",
+ "fps": 24,
+ "frame_count": 9,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.095833,
+  0.191667,
+  0.2875,
+  0.383333,
+  0.479167,
+  0.533333,
+  0.670833,
+  0.766667
+ ],
+ "key_poses": [
+  0,
+  8
+ ],
+ "events": [
+  {
+   "type": "foot_r",
+   "frame": 6,
+   "time": 0.25
+  }
+ ],
+ "duration_s": 0.33333,
+ "time_scale": 2.4,
+ "time_stretch": 1.04348,
+ "snapped": [
+  {
+   "frame": 6,
+   "from": 0.575,
+   "to": 0.53333,
+   "why": "foot_r"
+  }
+ ],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 3,
+  "fps": 30.0,
+  "frames": 24
+ },
+ "root_motion": "RM",
+ "carrier": null,
+ "root_travel_u": [
+  0.0,
+  0.1714
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

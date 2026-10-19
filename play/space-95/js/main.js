@@ -60,7 +60,7 @@ const view = createView(document.getElementById('stage'), level, labels);
 const hud = createHud(document.getElementById('hud'), labels, cheats.hud, title);
 const audio = createAudio();
 
-const SURFACE = { 1: 'grass_blade', 2: 'bark', 3: 'dirt', 4: 'dirt' };
+const SURFACE = { 1: 'grass_blade', 2: 'bark', 3: 'dirt', 4: 'dirt', 5: 'leaf' }; 
 const footsteps = createFootsteps(SURFACE[level.id] ?? 'dirt');
 const ladder = createLadder();
 const boltVoice = createBoltVoice();
@@ -75,7 +75,7 @@ const boltSay = (line) => {
   if (line.beep && line.beep in SFX) audio.play(line.beep, { volume: 0.7 });
 };
 
-const MUSIC = { 1: 'orchard', 2: 'canopy', 3: 'orchard', 4: 'underground' };
+const MUSIC = { 1: 'orchard', 2: 'canopy', 3: 'orchard', 4: 'underground', 5: 'stripecat' };
 audio.musicFirst([MUSIC[level.id], 'main-theme'].filter(Boolean));
 const timesheet = createTimesheet(document.getElementById('timesheet'));
 const secretsTotal = (level.entities ?? []).filter((e) => e.kind === 'intel' || e.specimen).length;

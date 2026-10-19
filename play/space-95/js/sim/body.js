@@ -35,7 +35,7 @@ export function sweepX(world, b, dx) {
     for (let c = Math.floor((oldR - EPS) / T) + 1; c <= Math.floor((newR - EPS) / T); c++) {
       for (let r = r0; r <= r1; r++) if (world.solid(c, r)) return { x: c * T - half, hit: true };
     }
-    return { x: b.x + dx, hit: false };
+    return heaveWall(world, b, dx) ?? { x: b.x + dx, hit: false };
   }
   if (dx < 0) {
     const oldL = b.x - half;
@@ -43,9 +43,25 @@ export function sweepX(world, b, dx) {
     for (let c = Math.floor((oldL + EPS) / T) - 1; c >= Math.floor((newL + EPS) / T); c--) {
       for (let r = r0; r <= r1; r++) if (world.solid(c, r)) return { x: (c + 1) * T + half, hit: true };
     }
-    return { x: b.x + dx, hit: false };
+    return heaveWall(world, b, dx) ?? { x: b.x + dx, hit: false };
   }
   return { x: b.x, hit: false };
+}
+
+
+function heaveWall(world, b, dx) {
+  if (!world.floorAt) return null;
+  const f = world.floorAt(b, b.x + dx);
+  return f && f.y - b.y > 0.5 ? { x: b.x, hit: true } : null;
+}
+
+
+function heaveFloor(world, b, oldB, newB, result) {
+  if (!world.floorAt) return result;
+  const f = world.floorAt(b);
+  if (!f || (result.hit && result.y >= f.y)) return result;
+  if (oldB >= f.y - 0.5 && newB <= f.y + 0.06) return { y: f.y, hit: true, floor: f };
+  return result;
 }
 
 
@@ -61,11 +77,11 @@ export function sweepY(world, b, dy, dropThrough = false) {
     for (let r = Math.floor((oldB + EPS) / T) - 1; r >= Math.floor((newB + EPS) / T); r--) {
       const top = (r + 1) * T;
       for (let c = c0; c <= c1; c++) {
-        if (world.solid(c, r)) return { y: top, hit: true };
-        if (!dropThrough && world.oneWay(c, r) && oldB >= top - EPS) return { y: top, hit: true };
+        if (world.solid(c, r)) return heaveFloor(world, b, oldB, newB, { y: top, hit: true });
+        if (!dropThrough && world.oneWay(c, r) && oldB >= top - EPS) return heaveFloor(world, b, oldB, newB, { y: top, hit: true });
       }
     }
-    return { y: newB, hit: false };
+    return heaveFloor(world, b, oldB, newB, { y: newB, hit: false });
   }
   if (dy > 0) {
     const oldT = b.y + b.h;
@@ -75,7 +91,7 @@ export function sweepY(world, b, dy, dropThrough = false) {
     }
     return { y: b.y + dy, hit: false };
   }
-  return { y: b.y, hit: false };
+  return heaveFloor(world, b, b.y, b.y, { y: b.y, hit: false });
 }
 
 
@@ -88,6 +104,8 @@ export function boxFree(world, b) {
 
 
 export function onGround(world, b) {
+  const f = world.floorAt?.(b);
+  if (f && Math.abs(f.y - b.y) < 1e-6) return true;
   const T = world.tile;
   const r = Math.round(b.y / T) - 1;
   if (Math.abs((r + 1) * T - b.y) > 1e-6) return false;

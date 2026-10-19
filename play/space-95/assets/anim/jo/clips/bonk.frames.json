@@ -1,0 +1,44 @@
+{
+ "clip": "bonk",
+ "fps": 24,
+ "frame_count": 4,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.088889,
+  0.177778,
+  0.266667
+ ],
+ "key_poses": [
+  0
+ ],
+ "events": [
+  {
+   "type": "contact",
+   "frame": 0,
+   "time": 0.0
+  }
+ ],
+ "duration_s": 0.125,
+ "time_scale": 2.4,
+ "time_stretch": 1.125,
+ "snapped": [],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 13,
+  "fps": 30.0,
+  "frames": 9
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "y0": 5.25,
+  "vy0": 0.0,
+  "g_scale": 2.333502443628072
+ },
+ "root_travel_u": [
+  -0.0,
+  0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

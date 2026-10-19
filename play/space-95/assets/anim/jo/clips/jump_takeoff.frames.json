@@ -1,0 +1,53 @@
+{
+ "clip": "jump_takeoff",
+ "fps": 24,
+ "frame_count": 4,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.088889,
+  0.2,
+  0.266667
+ ],
+ "key_poses": [
+  0,
+  2
+ ],
+ "events": [
+  {
+   "type": "anticipation_end",
+   "frame": 0,
+   "time": 0.0
+  },
+  {
+   "type": "takeoff",
+   "frame": 2,
+   "time": 0.08333
+  }
+ ],
+ "duration_s": 0.125,
+ "time_scale": 2.4,
+ "time_stretch": 1.125,
+ "snapped": [
+  {
+   "frame": 2,
+   "from": 0.17778,
+   "to": 0.2,
+   "why": "takeoff"
+  }
+ ],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 5,
+  "fps": 30.0,
+  "frames": 9
+ },
+ "root_motion": "RM",
+ "carrier": null,
+ "root_travel_u": [
+  0.0,
+  -0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

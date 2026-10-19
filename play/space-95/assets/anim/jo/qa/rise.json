@@ -1,0 +1,703 @@
+{
+ "file": "C:\\Users\\BryanArbelo\\projects\\space-95\\assets\\anim\\jo\\clips\\jo_clips.glb",
+ "clip": "rise",
+ "fps": 30.0,
+ "frames": 24,
+ "passed": true,
+ "failed": [],
+ "checks": [
+  {
+   "id": "B1",
+   "family": "B",
+   "name": "Static balance on idle / settle frames: COM and XCoM >= 2 cm inside S, |v| < 0.05 m/s",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": {
+    "margin_cm": 2.0,
+    "speed_mps": 0.05
+   },
+   "unit": "cm",
+   "worst": null,
+   "frames": null,
+   "note": "no idle / settle frames"
+  },
+  {
+   "id": "B10",
+   "family": "B",
+   "name": "Kinetic chain: peak angular velocity order hips yaw -> thorax yaw -> shoulder -> elbow",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "",
+   "worst": null,
+   "frames": null,
+   "note": "not a power strike"
+  },
+  {
+   "id": "B11",
+   "family": "B",
+   "name": "Strike speed: peak hitbox speed within the measured band for the strike",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "",
+   "worst": null,
+   "frames": null,
+   "note": "no frame_data (not a strike clip)"
+  },
+  {
+   "id": "B12",
+   "family": "B",
+   "name": "Hit frame: max extension (+-1 frame) on the first active frame",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "",
+   "worst": null,
+   "frames": null,
+   "note": "no frame_data (not a strike clip)"
+  },
+  {
+   "id": "B13",
+   "family": "B",
+   "name": "Frame data integrity: total = s + a - 1 + r = clip, startup >= 2 @30, hitboxes, hitstop",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "",
+   "worst": null,
+   "frames": null,
+   "note": "no frame_data (not a strike clip)"
+  },
+  {
+   "id": "B13.guard",
+   "family": "B",
+   "name": "Guard return: strike / hit reaction ends on its start pose (all joints within 1 cm)",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "",
+   "worst": null,
+   "frames": null,
+   "note": "no frame_data (not a strike clip)"
+  },
+  {
+   "id": "B16",
+   "family": "B",
+   "name": "No locked joint on strikes: elbow flexion >= 5 deg (<= 175 extension) on active frames",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "",
+   "worst": null,
+   "frames": null,
+   "note": "no frame_data (not a strike clip)"
+  },
+  {
+   "id": "B17",
+   "family": "B",
+   "name": "Strike aim: the hitbox meets the declared target (frame_data.aim) on the first active frame",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "",
+   "worst": null,
+   "frames": null,
+   "note": "no declared target"
+  },
+  {
+   "id": "B20",
+   "family": "B",
+   "name": "Get-up COM: height non-decreasing after the first support change except one dip <= 15 cm",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": {
+    "dips": 1,
+    "dip_cm": 15.0
+   },
+   "unit": "cm",
+   "worst": null,
+   "frames": null,
+   "note": "not a get-up"
+  },
+  {
+   "id": "B20.support",
+   "family": "B",
+   "name": "Get-up support: the XCoM is over the hands, knees and feet on the floor on every frame",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": 0.0,
+   "unit": "cm",
+   "worst": null,
+   "frames": null,
+   "note": "not a get-up"
+  },
+  {
+   "id": "B3",
+   "family": "B",
+   "name": "Stride: root speed vs step length x frequency within 5 %, integer steps per loop",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": 0.05,
+   "unit": "fraction",
+   "worst": null,
+   "frames": null,
+   "note": "not a locomotion loop"
+  },
+  {
+   "id": "B4",
+   "family": "B",
+   "name": "One-leg balance: XCoM inside the support foot; no excursion > 100 ms without a step",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": {
+    "max_excursion_ms": 100.0,
+    "max_step_fall_ms": 200.0
+   },
+   "unit": "ms",
+   "worst": null,
+   "frames": null,
+   "note": "not a one-leg clip (kick / one_leg tag)"
+  },
+  {
+   "id": "B5",
+   "family": "B",
+   "name": "Stops and landings settle: the last frame passes B1",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "cm",
+   "worst": null,
+   "frames": null,
+   "note": "not a stop / landing / one-shot locomotion clip"
+  },
+  {
+   "id": "B6",
+   "family": "B",
+   "name": "Vertical phase: COM lowest at mid double support (walk) / mid stance (run)",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": 0.1,
+   "unit": "cycle fraction",
+   "worst": null,
+   "frames": null,
+   "note": "not a locomotion loop"
+  },
+  {
+   "id": "B8",
+   "family": "B",
+   "name": "Ballistic flight: COM vertical acceleration = -g within 5 %, airtime matches apex",
+   "passed": true,
+   "severity": "pass",
+   "value": 0.0,
+   "threshold": 0.05,
+   "unit": "fraction",
+   "worst": [
+    {
+     "frames": [
+      0,
+      23
+     ],
+     "acc_err": 0.0,
+     "airtime_s": 0.7667,
+     "pred_s": null
+    }
+   ],
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "B9",
+   "family": "B",
+   "name": "Landing absorption: knee >= 30 (light) / 60 (heavy) deg, deceleration over > 1 frame",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "deg",
+   "worst": null,
+   "frames": null,
+   "note": "not a landing clip"
+  },
+  {
+   "id": "F10",
+   "family": "F",
+   "name": "Dead hold: > 12 frames @24 (fps-scaled) with every joint still",
+   "passed": true,
+   "severity": "pass",
+   "value": 0,
+   "threshold": {
+    "frames": 15.0,
+    "deg_per_frame": 0.2,
+    "mm_per_frame": 1.0
+   },
+   "unit": "frames",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "F11",
+   "family": "F",
+   "name": "IK pop: joint speed > 1300 deg/s, or angular acceleration spike > 30,000 deg/s^2",
+   "passed": true,
+   "severity": "pass",
+   "value": {
+    "max_deg_s": 44.9,
+    "max_acc_deg_s2": 537.0
+   },
+   "threshold": {
+    "max_deg_s": 1300.0,
+    "max_acc_deg_s2": 30000.0
+   },
+   "unit": "deg/s",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "F12",
+   "family": "F",
+   "name": "Quaternion continuity: exported q(t).q(t+1) >= 0, sampled delta <= 90 deg/frame",
+   "passed": true,
+   "severity": "pass",
+   "value": 0,
+   "threshold": 0,
+   "unit": "flipped samples",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "F13",
+   "family": "F",
+   "name": "Foot skate in contact (< 2.5 cm): > 0.5 cm/frame or > 2 cm per plant",
+   "passed": true,
+   "severity": "pass",
+   "value": 0.0,
+   "threshold": {
+    "cm_per_frame": 0.5,
+    "cm_per_plant": 2.0,
+    "contact_cm": 2.5
+   },
+   "unit": "cm/frame",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "F3",
+   "family": "F",
+   "name": "Slow in / out: frame steps inside a move vary (max/min >= 1.5)",
+   "passed": true,
+   "severity": "pass",
+   "value": 0.0,
+   "threshold": {
+    "ratio": 1.5,
+    "min_frames_30": 6
+   },
+   "unit": "share of moves evenly spaced",
+   "worst": null,
+   "frames": null,
+   "note": "0 of 5 moves"
+  },
+  {
+   "id": "F4",
+   "family": "F",
+   "name": "Pose twinning: mirrored L / R limbs differ by >= 5 deg on most frames",
+   "passed": true,
+   "severity": "pass",
+   "value": 0.0,
+   "threshold": {
+    "deg": 5.0,
+    "share": 0.5
+   },
+   "unit": "share of frames with mean L/R diff < 5 deg",
+   "worst": {
+    "median_diff_deg": 33.29
+   },
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "F5",
+   "family": "F",
+   "name": "Timing twinning: L / R speed peaks land on different frames",
+   "passed": true,
+   "severity": "pass",
+   "value": 0.0,
+   "threshold": {
+    "frames_30": 1,
+    "share": 0.8
+   },
+   "unit": "share of L/R peaks coinciding",
+   "worst": null,
+   "frames": null,
+   "note": "0 of 3 peaks within 1 f of the other side"
+  },
+  {
+   "id": "F6",
+   "family": "F",
+   "name": "Overlap: the joints of a limb start a move on different frames",
+   "passed": true,
+   "severity": "pass",
+   "value": 0.0,
+   "threshold": {
+    "spread_frames_30": 1.0,
+    "share": 0.7
+   },
+   "unit": "share of moves with all onsets within 1 f",
+   "worst": null,
+   "frames": null,
+   "note": "0 of 0 moves"
+  },
+  {
+   "id": "F7",
+   "family": "F",
+   "name": "Arcs: hand / foot / head paths turn < 60 deg per frame unless eased into the turn",
+   "passed": true,
+   "severity": "pass",
+   "value": 0.0,
+   "threshold": {
+    "deg_per_frame": 60.0,
+    "extreme_frac": 0.3
+   },
+   "unit": "deg (sharpest corner)",
+   "worst": null,
+   "frames": null,
+   "note": "0 corner frames, 0 eased extremes"
+  },
+  {
+   "id": "F9",
+   "family": "F",
+   "name": "Floaty flight: airborne vertical acceleration >= 0.7 g x gravity_scale",
+   "passed": true,
+   "severity": "pass",
+   "value": 13.466,
+   "threshold": 9.425977223761157,
+   "unit": "m/s^2 downward",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "G1",
+   "family": "G",
+   "name": "Loop pose seam: first vs last frame <= 0.5 deg and <= 2 mm",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": {
+    "deg": 0.5,
+    "mm": 2.0
+   },
+   "unit": "deg",
+   "worst": null,
+   "frames": null,
+   "note": "not a loop"
+  },
+  {
+   "id": "G11",
+   "family": "G",
+   "name": "glTF-Validator: 0 errors (warnings reported)",
+   "passed": true,
+   "severity": "pass",
+   "value": {
+    "errors": 0,
+    "warnings": 0,
+    "infos": 4
+   },
+   "threshold": {
+    "errors": 0
+   },
+   "unit": "issues",
+   "worst": {
+    "codes": {
+     "errors": {},
+     "warnings": {}
+    },
+    "first": {
+     "code": "BUFFER_VIEW_TARGET_MISSING",
+     "message": "bufferView.target should be set for vertex or index data.",
+     "severity": 3,
+     "pointer": "/meshes/0/primitives/0/attributes/JOINTS_0"
+    }
+   },
+   "frames": null,
+   "note": "validator 2.0.0-dev.3.10"
+  },
+  {
+   "id": "G2",
+   "family": "G",
+   "name": "Loop velocity seam: wrap angular velocity diff <= 20 % of clip mean",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "deg/frame",
+   "worst": null,
+   "frames": null,
+   "note": "not a loop"
+  },
+  {
+   "id": "G3",
+   "family": "G",
+   "name": "In-place loop: net hips displacement <= 1 cm per cycle",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": 1.0,
+   "unit": "cm",
+   "worst": null,
+   "frames": null,
+   "note": "not an in-place loop"
+  },
+  {
+   "id": "G4",
+   "family": "G",
+   "name": "Root-motion loop: displacement per cycle vs speed x duration within 3 %",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": 0.03,
+   "unit": "fraction",
+   "worst": null,
+   "frames": null,
+   "note": "not a root-motion loop with a speed"
+  },
+  {
+   "id": "G8",
+   "family": "G",
+   "name": "Footstep notifies within 1 frame of a detected contact",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": 1,
+   "unit": "frames",
+   "worst": null,
+   "frames": null,
+   "note": "no footstep notifies"
+  },
+  {
+   "id": "I1",
+   "family": "I",
+   "name": "Intent: the clip shows what its author declared (extra.intent: positions, heights, speeds)",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": null,
+   "unit": "",
+   "worst": null,
+   "frames": null,
+   "note": "no intent declared"
+  },
+  {
+   "id": "R1",
+   "family": "R",
+   "name": "Joint swing-twist vs rig_profile hard limits (+2 deg)",
+   "passed": true,
+   "severity": "warn",
+   "value": 0.0,
+   "threshold": 2.0,
+   "unit": "deg over limit",
+   "worst": null,
+   "frames": null,
+   "note": "outside comfort on 100 % of frames at {'joint': 'DEF-upper_arm.L', 'axis': 'swing_x', 'comfort': [-25.0, 90.0]}"
+  },
+  {
+   "id": "R11",
+   "family": "R",
+   "name": "Volume change vs bind: whole mesh > 3 %, joint region (segment + parent) > 8 %",
+   "passed": true,
+   "severity": "pass",
+   "value": -2.321,
+   "threshold": {
+    "whole_pct": 3.0,
+    "region_pct": 8.0
+   },
+   "unit": "% volume change",
+   "worst": {
+    "region": "whole",
+    "change_pct": -2.321,
+    "threshold_pct": 3.0,
+    "frame": 23
+   },
+   "frames": null,
+   "note": "22 regions + whole; largest |change| %: pelvis+abdomen 4.18, pelvis+thigh.R 3.70, pelvis+thigh.L 2.84, clavicle.R+upper_arm.R 2.80, clavicle.L+upper_arm.L 2.40"
+  },
+  {
+   "id": "R15.sum",
+   "family": "R",
+   "name": "Weight sum per glTF rules (float 2e-7 x non-zero count; unorm exact)",
+   "passed": true,
+   "severity": "pass",
+   "value": 2.9802322387695312e-08,
+   "threshold": {
+    "abs_per_nonzero": 2e-07
+   },
+   "unit": "sum error",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "R15.unweighted",
+   "family": "R",
+   "name": "Unweighted vertices (weight sum 0)",
+   "passed": true,
+   "severity": "pass",
+   "value": 0,
+   "threshold": 0,
+   "unit": "vertices",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "R18",
+   "family": "R",
+   "name": "NaN / Inf / non-unit quaternion / degenerate bind",
+   "passed": true,
+   "severity": "pass",
+   "value": 0,
+   "threshold": 0,
+   "unit": "items",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "R24",
+   "family": "R",
+   "name": "Influences per vertex <= 4",
+   "passed": true,
+   "severity": "pass",
+   "value": 4,
+   "threshold": 4,
+   "unit": "influences",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "R31",
+   "family": "R",
+   "name": "Eye / jaw escape: eye or jaw > hard + 1 deg, eyes diverge past parallel, jaw glide range",
+   "passed": true,
+   "severity": "pass",
+   "value": 0.0,
+   "threshold": 1.0,
+   "unit": "deg (mm for glide)",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "R5.reach",
+   "family": "R",
+   "name": "IK chain reach <= the chain max_reach (human: legs 0.999, arms 0.995) - no stretch",
+   "passed": true,
+   "severity": "pass",
+   "value": 0.9848,
+   "threshold": 0.999,
+   "unit": "fraction of chain length",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "R7",
+   "family": "R",
+   "name": "Capsule self-penetration between non-adjacent segments (> 1 cm beyond bind)",
+   "passed": true,
+   "severity": "pass",
+   "value": -1.151,
+   "threshold": {
+    "cm": 1.0,
+    "leg_pair_cm": 1.5
+   },
+   "unit": "cm beyond bind overlap",
+   "worst": {
+    "pair": [
+     "upper_chest",
+     "upper_arm.R"
+    ],
+    "penetration_cm": -1.151,
+    "bind_overlap_cm": 0.0,
+    "threshold_cm": 1.0,
+    "frame": 23
+   },
+   "frames": null,
+   "note": "231 non-adjacent pairs tested, 22 adjacent pairs excluded"
+  },
+  {
+   "id": "R7.ground",
+   "family": "R",
+   "name": "Ground penetration: no skinned vertex > 1 cm below the bind sole (authored clips)",
+   "passed": true,
+   "severity": "pass",
+   "value": -0.548,
+   "threshold": 1.0,
+   "unit": "cm below ground",
+   "worst": null,
+   "frames": null,
+   "note": null
+  },
+  {
+   "id": "R7.limbs",
+   "family": "R",
+   "name": "Lying limbs: on a knockdown's rest frames each arm, leg, hand and foot touches the floor",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": 2.5,
+   "unit": "cm",
+   "worst": null,
+   "frames": null,
+   "note": "not a knockdown with rest frames"
+  },
+  {
+   "id": "R7.rest",
+   "family": "R",
+   "name": "Resting on the floor: a knockdown's rest frames touch the floor (nothing floats)",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": 1.0,
+   "unit": "cm",
+   "worst": null,
+   "frames": null,
+   "note": "not a knockdown with rest frames"
+  },
+  {
+   "id": "R7.seat",
+   "family": "R",
+   "name": "Seat penetration: no skinned vertex > 1 cm into the declared seat (seated clips)",
+   "passed": true,
+   "severity": "pass",
+   "value": null,
+   "threshold": 1.0,
+   "unit": "cm",
+   "worst": null,
+   "frames": null,
+   "note": "no declared seat"
+  }
+ ],
+ "not_applicable": {
+  "R26": "rig-level: measured once on the raw export (A2 report), not per clip"
+ }
+}

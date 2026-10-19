@@ -1,0 +1,45 @@
+{
+ "clip": "hurt",
+ "fps": 24,
+ "frame_count": 5,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.091667,
+  0.183333,
+  0.275,
+  0.366667
+ ],
+ "key_poses": [
+  0
+ ],
+ "events": [
+  {
+   "type": "contact",
+   "frame": 0,
+   "time": 0.0
+  }
+ ],
+ "duration_s": 0.16667,
+ "time_scale": 2.4,
+ "time_stretch": 1.09091,
+ "snapped": [],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 14,
+  "fps": 30.0,
+  "frames": 12
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "y0": 0.15,
+  "vy0": 5.833333333333334,
+  "g_scale": 1.3726484962518068
+ },
+ "root_travel_u": [
+  0.0,
+  -0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

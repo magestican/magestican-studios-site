@@ -1,0 +1,42 @@
+{
+ "clip": "turn_skid",
+ "fps": 24,
+ "frame_count": 5,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.091667,
+  0.183333,
+  0.275,
+  0.366667
+ ],
+ "key_poses": [
+  0,
+  4
+ ],
+ "events": [
+  {
+   "type": "turn",
+   "frame": 4,
+   "time": 0.16667
+  }
+ ],
+ "duration_s": 0.16667,
+ "time_scale": 2.4,
+ "time_stretch": 1.09091,
+ "snapped": [],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 4,
+  "fps": 30.0,
+  "frames": 12
+ },
+ "root_motion": "RM",
+ "carrier": null,
+ "root_travel_u": [
+  0.0,
+  0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

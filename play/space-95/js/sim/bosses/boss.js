@@ -76,8 +76,11 @@ registerKind('boss', {
     }
     const ph = e.phases[e.phase];
     const atk = ph.attacks[e.attackIdx % ph.attacks.length];
-    if (ctx.events.some((ev) => ev.type === 'hurt')) e.phaseHurt = true;
-    e.t += STEP;
+    
+    
+    if (s.hearts < e.phaseHearts) e.phaseHurt = true;
+    
+    
     if (e.stage === 'intro' && e.t >= INTRO_TIME) {
       e.stage = 'telegraph';
       e.t = 0;
@@ -97,7 +100,8 @@ registerKind('boss', {
       e.t = 0;
       ctx.events.push({ type: 'telegraph', id: e.id, attack: next.name, seconds: next.telegraph, x: e.x, y: e.y });
     }
-    if (e.stage !== 'intro') impl.attack(e, ctx, atk, e.stage);
+    
+    if (e.stage !== 'intro') impl.attack(e, ctx, ph.attacks[e.attackIdx % ph.attacks.length], e.stage);
     
     e.x = Math.max(e.arena.x0 + e.w / 2, Math.min(e.arena.x1 - e.w / 2, e.x));
 
