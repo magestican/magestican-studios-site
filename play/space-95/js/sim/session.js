@@ -5,6 +5,7 @@
 
 import './kinds.js';
 import { attachArena, initArena, stepArena } from './arena.js';
+import { INVULN_TIME } from './combat.js';
 import { STEP } from './constants.js';
 import { stepDig } from './dig.js';
 import { spawnEntities, stepEntities } from './entities.js';
@@ -86,9 +87,20 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     events: [],
     
     lit: new Set(),
+    
+    hooks: levelHooks(level),
+    
+    pitFall: 0,
+    pitReturns: 0,
   };
   initArena(s);
   return s;
+}
+
+
+function levelHooks(level) {
+  const hooks = (level.entities ?? []).filter((d) => d.kind === 'hook').map((d) => ({ id: d.id, x: d.x, y: d.y }));
+  return hooks.length ? hooks : null;
 }
 
 
@@ -96,12 +108,13 @@ function sessionWorld(level) {
   const windy = level.updrafts?.length || level.gusts?.length; 
   const changes =
     level.world.mutable ||
-    (level.entities ?? []).some((d) => d.kind === 'clod') ||
+    (level.entities ?? []).some((d) => d.kind === 'clod' || d.kind === 'typeKey') ||
     level.heaves?.length ||
     windy ||
     level.rafts?.length ||
     level.arena?.length;
   const w = changes ? level.world.clone() : level.world;
+  if ((level.entities ?? []).some((d) => d.kind === 'typeKey')) w.mutable = true; 
   if (level.honey) w.honey = level.honey; 
   if (windy) attachWind(w, level);
   if (level.heaves?.length) {
@@ -127,6 +140,7 @@ export function stepSession(s, input) {
   stepHeaves(s);
   stepWind(s);
   if (s.rafts) s.world.raftState = s.rafts; 
+  if (s.hooks) s.world.hooks = s.hooks; 
   if (s.invuln > 0) s.invuln -= STEP;
   if (s.dead > 0) {
     s.dead += STEP;
@@ -137,6 +151,11 @@ export function stepSession(s, input) {
   if (s.punt > 0) {
     s.punt += STEP; 
     if (s.punt >= PUNT_TIME) respawn(s);
+    return s;
+  }
+  if (s.pitFall > 0) {
+    s.pitFall += STEP; 
+    if (s.pitFall >= RESPAWN_DELAY) pitReturn(s);
     return s;
   }
   if (s.dunk > 0) {
@@ -180,17 +199,35 @@ export function stepSession(s, input) {
   if (s.level.water) {
     trackSafe(s);
     if (checkDunk(s)) return s; 
-  }
+  } else if (s.level.pitReturn === 'ground') trackSafe(s); 
   if (p.y < PIT_Y) {
     s.events.push({ type: 'pit' });
     const cost = s.level.pitCost ?? 'none';
     if (cost === 'heart') s.hearts -= 1;
     if (cost === 'life') s.hearts = 0;
+    
+    if (s.level.pitReturn === 'ground' && s.hearts > 0) {
+      s.pitFall = STEP;
+      s.pitReturns += 1;
+      return s;
+    }
     die(s);
   } else if (s.events.some((e) => e.type === 'down')) {
     die(s);
   }
   return s;
+}
+
+
+function pitReturn(s) {
+  const at = s.safe ?? s.respawnAt;
+  const p = createPlayer(at.x, at.y, s.player.facing);
+  p.abilities = s.abilities;
+  s.player = p;
+  s.pitFall = 0;
+  s.invuln = INVULN_TIME;
+  s.safeT = 0;
+  s.events.push({ type: 'pitReturn', x: at.x, y: at.y });
 }
 
 function die(s) {
@@ -220,6 +257,11 @@ function respawn(s) {
   s.dead = 0;
   s.punt = 0;
   s.dunk = 0;
+  s.pitFall = 0;
+  if (s.level.pitReturn === 'ground') {
+    s.safe = { ...s.respawnAt };
+    s.safeLand = s.safe;
+  }
   if (s.shoe) resetShoe(s.shoe, s.respawnAt.x);
   if (s.rafts) {
     s.rafts = createRafts(s.level); 

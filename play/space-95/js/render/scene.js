@@ -44,6 +44,14 @@ export function createView(canvas, level, labels) {
   scene.add(waterMeshes(level));
   const arena = arenaMeshes(level);
   scene.add(arena.group);
+  scene.add(slickMeshes(level));
+  
+  const rope = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]),
+    new THREE.LineBasicMaterial({ color: 0x2a2440 }),
+  );
+  rope.visible = false;
+  scene.add(rope);
   const sea = seaMeshes();
   scene.add(sea.group);
   
@@ -161,6 +169,19 @@ export function createView(canvas, level, labels) {
       sea.update(session);
       jo.shell.visible = !!session.shield;
       jo.leaf.visible = !!p.gliding;
+      const tt = p.tether;
+      const hook = tt ? session.hooks?.find((h) => h.id === tt.hook) : null;
+      rope.visible = !!hook;
+      if (hook) {
+        const cx = x;
+        const cy = y + 0.5;
+        const dist = Math.hypot(hook.x - cx, hook.y - cy) || 1;
+        const k = tt.phase === 'throw' ? Math.min(1, (tt.d ?? 0) / dist) : 1;
+        const pos = rope.geometry.attributes.position;
+        pos.setXYZ(0, cx, cy, 0.4);
+        pos.setXYZ(1, cx + (hook.x - cx) * k, cy + (hook.y - cy) * k, 0.4);
+        pos.needsUpdate = true;
+      }
       
       jo.body.rotation.z = session.punt > 0 ? session.punt * 14 * (level.dir ?? 1) : 0;
       if (session.punt > 0) jo.group.position.y += Math.sin(Math.min(1, session.punt / 0.8) * Math.PI) * 2.5;
@@ -245,6 +266,19 @@ export function createView(canvas, level, labels) {
         for (let i = 0; i < 6; i++) spark(e.x + Math.cos(i) * 0.6, e.y + 0.3 + Math.sin(i) * 0.3, 0xc9a7ff, 0.6, 0.1);
       if (e.type === 'guardStunned' || e.type === 'helmetBonk') kick(0.06);
       
+      
+      if (e.type === 'cursorLaser' && e.to) {
+        const beam = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(e.to.x - 5, e.to.y + 9, 0.4),
+            new THREE.Vector3(e.to.x, e.to.y, 0.4),
+          ]),
+          new THREE.LineBasicMaterial({ color: 0x7dff7d, transparent: true }),
+        );
+        tele(beam, 0.35);
+        for (let i = 0; i < 4; i++) spark(e.to.x + Math.cos(i * 1.6) * 0.4, e.to.y + Math.sin(i * 1.6) * 0.4, 0x7dff7d, 0.5, 0.12);
+      }
+      if (e.type === 'tetherAttach') spark(jo.group.position.x, jo.group.position.y + 0.8, 0xffffff, 0.3, 0.1);
       if (e.type === 'shearLine') {
         const bar = new THREE.Mesh(
           new THREE.PlaneGeometry(e.x1 - e.x0, 0.14),
@@ -287,6 +321,12 @@ function entityView(e) {
   if (e.kind === 'pebble') {
     const m = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat(0xb8b1a6));
     m.position.y = 0.15;
+    g.add(m);
+  } else if (e.kind === 'ladybot' && e.skin === 'silverfish') {
+    
+    const m = new THREE.Mesh(new THREE.CapsuleGeometry(0.16, 0.8, 4, 10), mat(0xc8d0dc));
+    m.rotation.z = Math.PI / 2;
+    m.position.y = 0.2;
     g.add(m);
   } else if (e.kind === 'ladybot') {
     const body = new THREE.Mesh(new THREE.SphereGeometry(0.34, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xff4d3d));
@@ -432,6 +472,31 @@ function entityView(e) {
     line.name = 'aimLine';
     line.visible = false;
     g.add(line);
+  } else if (e.kind === 'hook') {
+    
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.05, 8, 20), mat(0xc9a45a));
+    ring.name = 'aim';
+    g.add(ring);
+  } else if (e.kind === 'typeKey') {
+    
+    const cap = new THREE.Group();
+    cap.name = 'keycap';
+    const box = new THREE.Mesh(new THREE.BoxGeometry((e.w ?? 3) * 0.94, e.rise ?? 1, 1.4), mat(0xf2efe6));
+    box.position.y = (e.rise ?? 1) / 2;
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry((e.w ?? 3) * 0.8, 0.12), new THREE.MeshBasicMaterial({ color: 0x7dff7d }));
+    glow.position.set(0, (e.rise ?? 1) + 0.02, 0.71);
+    const label = textSprite(e.letter ?? '');
+    label.position.set(0, (e.rise ?? 1) * 0.55, 0.75);
+    label.scale.multiplyScalar(0.7);
+    cap.add(box, glow, label);
+    g.add(cap);
+  } else if (e.kind === 'dustmite') {
+    
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 10), mat(0xb8b0a8));
+    body.position.y = 0.35;
+    const hat = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xf2c230));
+    hat.position.y = 0.62;
+    g.add(body, hat);
   } else if (e.kind === 'fruitlet') {
     
     const m = new THREE.Mesh(new THREE.SphereGeometry(0.25, 14, 10), mat(0xc8d84a));
@@ -632,6 +697,9 @@ function syncEntities(scene, views, entities, alpha, time) {
     }
     const spin = v.getObjectByName('spin');
     if (spin) spin.rotation.y = time * 2.5;
+    const keycap = v.getObjectByName('keycap');
+    if (keycap) keycap.position.y = e.key === 'down' ? -(e.rise ?? 1) * 0.8 : e.key === 'press' ? -(e.rise ?? 1) * 0.4 : 0;
+    if (e.kind === 'dustmite') v.visible = e.alive && e.state !== 'hidden' && !e.hidden;
     const flap = v.getObjectByName('flap');
     if (flap) {
       v.visible = e.state !== 'away';
@@ -744,10 +812,13 @@ function heaveMeshes(level) {
   const T = level.world.tile;
   const furA = new THREE.MeshLambertMaterial({ color: 0xe8a04a });
   const furB = new THREE.MeshLambertMaterial({ color: 0x5a3418 }); 
+  const keyCap = new THREE.MeshLambertMaterial({ color: 0xe6e2d8 });
+  const keyGap = new THREE.MeshLambertMaterial({ color: 0x3a3a44 });
   for (const h of level.heaves ?? []) {
     let i = 0;
     for (let x = h.x0; x < h.x1 - 1e-6; x += T, i++) {
-      const m = new THREE.Mesh(new THREE.BoxGeometry(T, 1, TILE_DEPTH), i % 7 < 2 ? furB : furA);
+      const keyMat = h.group === 'type' ? (i % 6 === 5 ? keyGap : keyCap) : null; 
+      const m = new THREE.Mesh(new THREE.BoxGeometry(T, 1, TILE_DEPTH), keyMat ?? (i % 7 < 2 ? furB : furA));
       group.add(m);
       cols.push({ h, x: x + T / 2, m, floor: h.base - (h.sink ?? 0) - 2 });
     }
@@ -1021,6 +1092,18 @@ function seaMeshes() {
       }
     },
   };
+}
+
+
+function slickMeshes(level) {
+  const group = new THREE.Group();
+  const m = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, depthWrite: false });
+  for (const [x0, x1, , y1] of level.slick ?? []) {
+    const stripe = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0, 0.08), m);
+    stripe.position.set((x0 + x1) / 2, y1 - 0.12, 0.32);
+    group.add(stripe);
+  }
+  return group;
 }
 
 

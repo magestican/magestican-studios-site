@@ -34,6 +34,9 @@ const LINES = {
   dishCameo: ['Hey! That is OUR dish!', 'The Mantis took the dish up the tree...'],
   sourBite: ['Sour! She hates those. Again!', 'Pucker power!'],
   dishDrop: ['Our dish! Back where it belongs. Almost.', 'Dish recovered. Signal... from the Vast house?'],
+  tetherAttach: ['Hooked! Hold on.', 'Got it! Reeling you in.'],
+  slickSlide: ['Too shiny to grip. Vast polish.', 'Slippery! Find cloth or paper.'],
+  keystroke: ['You typed a letter! The game liked it.', 'BUG BLASTER: online.'],
   glide: ['Leaf deployed. Very aerodynamic. Probably.', 'Wind bonus: unlocked.'],
   dig: ['Digging. In a suit. On a Monday.', 'Soil sample acquired. Also, a hole.'],
   clear: ['Shift complete. Clocking out!', "That's a wrap. Same time tomorrow?"],
@@ -60,6 +63,8 @@ export function createBoltVoice() {
       else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
       else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
       else if (e.type === 'ability' && e.grant === 'glide') kind = 'glide';
+      else if (e.type === 'tetherAttach' || e.type === 'slickSlide' || e.type === 'keystroke')
+        kind = (used[e.type] ?? 0) < 1 ? e.type : null; 
       else if (e.type === 'sourBite') kind = (used.sourBite ?? 0) < 2 ? 'sourBite' : null;
       else if (e.type === 'dunk') kind = (used.dunk ?? 0) < 2 ? 'dunk' : null;
       else if (e.type === 'capsize') kind = (e.n ?? 1) >= 4 && (used.capsize ?? 0) < 2 ? 'capsize' : null;

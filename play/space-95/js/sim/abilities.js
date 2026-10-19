@@ -8,7 +8,7 @@ import { GRAVITY, JUMP_VELOCITY, RUN_SPEED, STEP } from './constants.js';
 import { honeyAt, JO_GLOOP } from './honey.js';
 import { glideVy } from './wind.js';
 
-const ABILITIES = ['double', 'dash', 'wall', 'pound', 'glide'];
+const ABILITIES = ['double', 'dash', 'wall', 'pound', 'glide', 'tether']; 
 
 const DOUBLE_JUMP_HEIGHT = 2.0; 
 const DOUBLE_JUMP_V = Math.sqrt(2 * GRAVITY * DOUBLE_JUMP_HEIGHT);
@@ -46,6 +46,7 @@ export function abilityState() {
     prevDown: false,
     glideArm: false, 
     gloop: 0, 
+    slickDir: 0, 
   };
 }
 
@@ -167,7 +168,14 @@ export function abilityGravity(p, input, dir, world) {
 
 export function abilityAfterMove(p, world, dir, landed) {
   const A = p.ab;
-  const wall = !p.grounded && dir !== 0 && touchingWall(world, p, dir) ? dir : 0;
+  
+  const wall = !p.grounded && dir !== 0 && touchingWall(world, p, dir, { grip: true }) ? dir : 0;
+  if (world.slick) {
+    
+    const slid = !wall && !p.grounded && dir !== 0 && has(p, 'wall') && touchingWall(world, p, dir) ? dir : 0;
+    if (slid && A.slickDir !== slid) p.events.push({ type: 'slickSlide', dir: slid, x: p.x, y: p.y });
+    A.slickDir = slid;
+  }
   if (wall) {
     if (A.wallDir === 0 && has(p, 'wall')) p.events.push({ type: 'wallSlide' });
     A.wallDir = wall;

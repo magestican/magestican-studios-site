@@ -216,6 +216,19 @@ kbd {
   }
   .hud-title {
     font-size: 14px;
+    
+
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  .hud-title span:not(.hud-hearts) {
+    order: 3;
+    flex-basis: 100%;
+    font-size: 12px;
+  }
+  .hud {
+    
+    max-width: calc(100vw - 2 * var(--gutter) - 56px);
   }
   .hud-challenge strong {
     font-size: 15px;
@@ -247,6 +260,35 @@ kbd {
   font-size: 16px;
   box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
 }
+
+
+
+.touch-tether {
+  position: fixed;
+  right: calc(max(var(--gutter), env(safe-area-inset-right)) + 14px);
+  bottom: calc(max(var(--gutter), env(safe-area-inset-bottom)) + 220px);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
+}
+@media (max-height: 520px) {
+  .touch-tether {
+    right: calc(max(var(--gutter), env(safe-area-inset-right)) + 110px);
+    bottom: calc(max(var(--gutter), env(safe-area-inset-bottom)) + 124px);
+  }
+}
+.touch-tether.is-down {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.touch-tether[hidden],
+.help-tether[hidden],
 .touch-dash[hidden],
 .help-dash[hidden] {
   display: none;

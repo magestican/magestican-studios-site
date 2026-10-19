@@ -11,6 +11,7 @@ import * as K from './constants.js';
 import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
 import { raftById } from './raft.js';
 import { rideStep, wakeStep } from './slipstream.js';
+import { tetherAfterMove, tetherStep } from './tether.js';
 import { gustDx, windCushion } from './wind.js';
 
 
@@ -61,6 +62,13 @@ export function createPlayer(x, y, facing = 1) {
     
     carryFrom: null,
     
+    tether: null,
+    prevTether: false,
+    tetherCool: 0, 
+    tetherBuf: 0, 
+    
+    tetherAim: null,
+    
     events: [],
   };
 }
@@ -92,7 +100,9 @@ export function stepPlayer(p, held, world) {
   p.gliding = false;
   if (p.wakeCool > 0) p.wakeCool -= S;
   
-  const carried = p.ride ? rideStep(p) : p.wake ? wakeStep(p, input, pressed) : false;
+  const roped = world.hooks ? tetherStep(p, input, pressed, dir, world) : false;
+  
+  const carried = roped || (p.ride ? rideStep(p) : p.wake ? wakeStep(p, input, pressed) : false);
   if (carried) {
     
   } else if (!climbStep(p, input, world, dir, pressed)) {
@@ -141,6 +151,7 @@ export function stepPlayer(p, held, world) {
     if (dy < 0) dy = 0;
     p.vy = 0;
   }
+  if (p.tether) tetherAfterMove(p, mx.hit || my.hit);
 
   
   if (!my.hit || dy > 0) {

@@ -54,6 +54,7 @@ function placeAt(s, x, y) {
   }
 }
 if (abilities.has('dash')) for (const el of document.querySelectorAll('.touch-dash, .help-dash')) el.hidden = false;
+if (abilities.has('tether')) for (const el of document.querySelectorAll('.touch-tether, .help-tether')) el.hidden = false;
 const input = createInput();
 mountTouchControls(document.body, input.touch);
 const view = createView(document.getElementById('stage'), level, labels);
@@ -71,6 +72,7 @@ const SURFACE = {
   8: 'honey',
   9: 'leaf',
   10: 'bark',
+  11: 'plastic',
 }; 
 const footsteps = createFootsteps(SURFACE[level.id] ?? 'dirt');
 const ladder = createLadder();
@@ -81,6 +83,11 @@ const boltSay = (line) => {
   if (!line) return;
   boltEl.innerHTML = `<strong>Bolt</strong><span>${line.text}</span>`;
   boltEl.hidden = false;
+  
+  if (window.matchMedia('(max-width: 600px)').matches) {
+    const hud = document.getElementById('hud');
+    if (hud) boltEl.style.top = `${Math.round(hud.getBoundingClientRect().bottom + 12)}px`;
+  } else boltEl.style.top = '';
   boltHide = 3.2;
   view.boltMood(line.mood);
   if (line.beep && line.beep in SFX) audio.play(line.beep, { volume: 0.7 });
@@ -97,6 +104,7 @@ const MUSIC = {
   8: 'honeycomb',
   9: 'puddle-sea',
   10: 'gardener',
+  11: 'desk',
 };
 const levelMusic = [MUSIC[level.id], 'main-theme'].filter(Boolean);
 audio.musicFirst(levelMusic);
@@ -194,6 +202,10 @@ function frame(now) {
       if (cue) audio.play(cue, { rate: cueRate(e) * chained });
       if (e.type === 'signal') for (const n of signalSounds(e, (x) => x in SFX)) audio.play(n, { volume: 0.7 });
       boltSay(boltVoice.onEvent(e, STEP));
+      
+      
+      if (e.type === 'ability' && (e.grant === 'dash' || e.grant === 'tether'))
+        for (const el of document.querySelectorAll(`.touch-${e.grant}, .help-${e.grant}`)) el.hidden = false;
       
       if (e.type === 'bossIntro') audio.musicFirst(['boss-mini', ...levelMusic]);
       if (e.type === 'bossDefeat' || e.type === 'bossEscape') audio.musicFirst(levelMusic);

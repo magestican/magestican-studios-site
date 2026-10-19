@@ -33,6 +33,7 @@ export function levelBuilder(meta) {
   const water = [];
   const rafts = [];
   const arena = [];
+  const slick = []; 
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -224,6 +225,14 @@ export function levelBuilder(meta) {
       return api;
     },
     
+
+
+
+    slick(x0, x1, y0, y1) {
+      slick.push([x0, x1, y0, y1]);
+      return api;
+    },
+    
     ledge(x0, x1, y) {
       mark(oneWay, cells(x0), cells(x1), cells(y) - 1, cells(y));
       return api;
@@ -306,6 +315,9 @@ export function levelBuilder(meta) {
       }
       const world = gridWorld(rows);
       if (honey.length) world.honey = honey; 
+      for (const [x0, x1, y0, y1] of slick)
+        for (let c = cells(x0); c < cells(x1); c++)
+          for (let r = cells(y0); r < cells(y1); r++) if (world.solid(c, r)) world.markSlick(c, r);
       return {
         id: meta.id,
         name: meta.name,
@@ -323,6 +335,8 @@ export function levelBuilder(meta) {
         ...(water.length ? { water } : {}),
         ...(rafts.length ? { rafts } : {}),
         ...(arena.length ? { arena } : {}),
+        ...(slick.length ? { slick } : {}),
+        ...(meta.pitReturn ? { pitReturn: meta.pitReturn } : {}),
         ...(meta.soilLook ? { soilLook: meta.soilLook } : {}),
         dir: meta.dir ?? 1,
         entities,

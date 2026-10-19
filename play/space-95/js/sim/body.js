@@ -115,12 +115,18 @@ export function onGround(world, b) {
 }
 
 
-export function touchingWall(world, b, dir) {
+
+
+
+
+
+export function touchingWall(world, b, dir, opts) {
   const T = world.tile;
   const [r0, r1] = rowsOf(world, b.y, b.h);
   const edge = b.x + (dir * b.w) / 2;
   if (Math.abs(Math.round(edge / T) * T - edge) > 1e-6) return false;
   const c = dir > 0 ? Math.round(edge / T) : Math.round(edge / T) - 1;
-  for (let r = r0; r <= r1; r++) if (world.solid(c, r)) return true;
+  const slick = opts?.grip ?  (world).slick : undefined;
+  for (let r = r0; r <= r1; r++) if (world.solid(c, r) && !slick?.(c, r)) return true;
   return false;
 }

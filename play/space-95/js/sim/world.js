@@ -6,6 +6,8 @@
 
 
 
+
+
 import { TILE } from './constants.js';
 
 const EMPTY = 0;
@@ -30,7 +32,7 @@ export function gridWorld(rows) {
   return makeWorld(cells, width, height, findMarks(rows));
 }
 
-function makeWorld(cells, width, height, marks) {
+function makeWorld(cells, width, height, marks, slickMask = null) {
   const at = (c, r) => {
     if (c < 0 || c >= width) return SOLID;
     if (r < 0 || r >= height) return EMPTY;
@@ -38,6 +40,8 @@ function makeWorld(cells, width, height, marks) {
   };
   let hasSoil = false;
   for (let i = 0; i < cells.length && !hasSoil; i++) hasSoil = cells[i] === SOIL;
+  let mask = slickMask; 
+  const slickAt = (c, r) => c >= 0 && c < width && r >= 0 && r < height && mask[r * width + c] === 1;
   return {
     width,
     height,
@@ -54,6 +58,17 @@ function makeWorld(cells, width, height, marks) {
     bark: (c, r) => c >= 0 && c < width && at(c, r) === BARK,
     
     soil: (c, r) => c >= 0 && c < width && at(c, r) === SOIL,
+    
+    slick: mask ? slickAt : undefined,
+    
+    markSlick(c, r) {
+      if (c < 0 || c >= width || r < 0 || r >= height) return;
+      if (!mask) {
+        mask = new Uint8Array(width * height);
+        this.slick = slickAt;
+      }
+      mask[r * width + c] = 1;
+    },
     
     breakSoil(c, r) {
       if (c < 0 || c >= width || r < 0 || r >= height || cells[r * width + c] !== SOIL) return false;
@@ -73,7 +88,7 @@ function makeWorld(cells, width, height, marks) {
       cells[r * width + c] = v;
     },
     
-    clone: () => makeWorld(cells.slice(), width, height, marks),
+    clone: () => makeWorld(cells.slice(), width, height, marks, mask ? mask.slice() : null),
     
     marks,
   };

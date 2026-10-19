@@ -50,6 +50,11 @@ export function hurtPlayer(s, fromX) {
   s.hearts -= 1;
   if (p.ab) p.ab.glideArm = false; 
   p.wake = null;
+  if (p.tether) {
+    
+    s.events.push({ type: 'tetherBreak', id: p.tether.hook, how: 'hurt', x: p.x, y: p.y });
+    p.tether = null;
+  }
   s.invuln = INVULN_TIME;
   s.hitstop = HITSTOP_ENEMY;
   const dir = p.x < fromX ? -1 : 1;

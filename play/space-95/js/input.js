@@ -7,11 +7,12 @@ const KEYS_DOWN = ['ArrowDown', 'KeyS'];
 const KEYS_UP = ['ArrowUp', 'KeyW']; 
 const KEYS_JUMP = ['Space', 'KeyJ', 'KeyZ'];
 const KEYS_DASH = ['ShiftLeft', 'ShiftRight', 'KeyL', 'KeyX'];
-const GAME_KEYS = new Set([...KEYS_LEFT, ...KEYS_RIGHT, ...KEYS_DOWN, ...KEYS_UP, ...KEYS_JUMP, ...KEYS_DASH]);
+const KEYS_TETHER = ['KeyK', 'KeyC']; 
+const GAME_KEYS = new Set([...KEYS_LEFT, ...KEYS_RIGHT, ...KEYS_DOWN, ...KEYS_UP, ...KEYS_JUMP, ...KEYS_DASH, ...KEYS_TETHER]);
 
 export function createInput(target = window) {
   const down = new Set();
-  const touch = { x: 0, down: false, up: false, jump: false, dash: false };
+  const touch = { x: 0, down: false, up: false, jump: false, dash: false, tether: false };
   target.addEventListener('keydown', (e) => {
     if (GAME_KEYS.has(e.code)) e.preventDefault();
     down.add(e.code);
@@ -29,6 +30,7 @@ export function createInput(target = window) {
       let up = any(KEYS_UP);
       let jump = any(KEYS_JUMP);
       let dash = any(KEYS_DASH);
+      let tether = any(KEYS_TETHER);
       for (const pad of navigator.getGamepads?.() ?? []) {
         if (!pad) continue;
         const ax = pad.axes[0] ?? 0;
@@ -40,13 +42,15 @@ export function createInput(target = window) {
         if (ay < -0.6 || pad.buttons[12]?.pressed) up = true;
         if (pad.buttons[0]?.pressed || pad.buttons[1]?.pressed) jump = true;
         if (pad.buttons[2]?.pressed || pad.buttons[5]?.pressed || pad.buttons[7]?.pressed) dash = true;
+        if (pad.buttons[3]?.pressed) tether = true; 
       }
       if (touch.x !== 0) x = touch.x;
       if (touch.down) dn = true;
       if (touch.up) up = true;
       if (touch.jump) jump = true;
       if (touch.dash) dash = true;
-      return { x, down: dn, up, jump, dash };
+      if (touch.tether) tether = true;
+      return { x, down: dn, up, jump, dash, tether };
     },
   };
 }
@@ -99,6 +103,13 @@ export function mountTouchControls(root, touch) {
   if (dash) {
     holdButton(dash, (on) => {
       touch.dash = on;
+    });
+  }
+  
+  const tether = root.querySelector('[data-touch="tether"]');
+  if (tether) {
+    holdButton(tether, (on) => {
+      touch.tether = on;
     });
   }
 }

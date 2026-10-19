@@ -100,6 +100,19 @@ const CUES = {
   armSnatch: ['mantis_swish', 'kick'],
   tumbleClunk: ['tumble_clunk', 'snail_bonk'],
   dishDrop: ['dish_drop', 'shift_clear'],
+  tetherAim: ['hook_tink', 'secret_glint'],
+  tetherThrow: ['tether_whirr', 'kick'],
+  tetherAttach: ['hook_tink', 'bark_grab'],
+  tetherRelease: ['tether_hup', 'jump'],
+  tetherBreak: ['tether_snap', 'bonk'],
+  tetherBoop: ['bolt_boop', 'bolt_beep_curious'],
+  tetherThud: ['tether_thud', 'bonk'],
+  keystroke: ['key_clack', 'stomp'],
+  cursorLaser: ['laser_pew', 'strike'],
+  keyClack: ['key_clack', 'land_soft'],
+  slickSlide: ['slick_squeak', 'skid'],
+  pitReturn: ['fished_out', 'bolt_beep_happy'],
+  dustmitePop: ['dustmite_pop', 'aphid_hop'],
   caveIn: ['cave_in', 'skid'],
   buried: ['bury_thump', 'enemy_defeat_pop'],
   strike: ['strike', 'intel_found'], 
@@ -124,6 +137,7 @@ const SIGNAL_SOUNDS = {
   'audio:kazoo-fanfare': ['kazoo_fanfare', 'secret_glint'],
   'audio:shanty-whistle': ['shanty_whistle', 'secret_glint'],
   'audio:tumble-clunk': ['tumble_clunk', 'secret_glint'],
+  'audio:static-crackle': ['static_crackle', 'secret_glint'],
 };
 
 
@@ -133,6 +147,7 @@ export function signalSounds(e, has = () => true) {
 
 
 export function cueRate(e) {
+  if (e.type === 'cursorLaser' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'capsize' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'bowl' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   return e.type === 'pebbleHit' && e.hits > 1 ? 2 ** ((2 * (e.hits - 1)) / 12) : 1;

@@ -11,6 +11,10 @@
 
 
 
+
+
+
+
 import { STEP } from './constants.js';
 
 const TAU = Math.PI * 2;
@@ -23,6 +27,21 @@ export const LAUNCH_GAIN = 2;
 export const MAX_BOOST = 6.5;
 const SAG_EASE = 0.3; 
 const SAG_DEAD = 0.06; 
+const TYPE_TRAVEL = 0.12; 
+const TYPE_DWELL = 0.4; 
+const TYPE_RETURN = 0.2; 
+const smooth = (u) => u * u * (3 - 2 * u);
+const dSmooth = (u) => 6 * u * (1 - u);
+
+
+function typeCurve(h, tau) {
+  const dwell = h.dwell ?? TYPE_DWELL;
+  if (tau < TYPE_TRAVEL) return { b: smooth(tau / TYPE_TRAVEL), db: dSmooth(tau / TYPE_TRAVEL) / TYPE_TRAVEL };
+  if (tau < TYPE_TRAVEL + dwell) return { b: 1, db: 0 };
+  const u = (tau - TYPE_TRAVEL - dwell) / TYPE_RETURN;
+  if (u < 1) return { b: 1 - smooth(u), db: -dSmooth(u) / TYPE_RETURN };
+  return { b: 0, db: 0 };
+}
 
 
 function taperW(h, x) {
@@ -60,6 +79,11 @@ function sighY(h, ts) {
 
 export function heaveAt(h, x, t, sighStart = null, sagK = 0) {
   if (x < h.x0 || x >= h.x1) return null;
+  if (h.group === 'type') {
+    const P = h.period ?? 4;
+    const c = typeCurve(h, (((t + (h.phase ?? 0)) % P) + P) % P);
+    return { y: h.base + h.amp * c.b, vs: h.launch === false ? 0 : h.amp * c.db };
+  }
   const w = taperW(h, x);
   if (h.group === 'sag') {
     
@@ -138,6 +162,13 @@ export function stepHeaves(s) {
     }
     if (h.group === 'sigh' || Math.abs((h.x0 + h.x1) / 2 - p.x) > (h.x1 - h.x0) / 2 + 14) continue;
     const P = h.period ?? 4;
+    if (h.group === 'type') {
+      
+      const a = (((prev + (h.phase ?? 0)) % P) + P) % P;
+      const b = (((w.time + (h.phase ?? 0)) % P) + P) % P;
+      if (b < a) s.events.push({ type: 'keyClack', id: h.id, x: (h.x0 + h.x1) / 2, y: h.base, amp: h.amp });
+      continue;
+    }
     const warn = (((-0.6 - (h.phase ?? 0)) % P) + P) % P; 
     const a = ((prev % P) + P) % P;
     const b = ((w.time % P) + P) % P;

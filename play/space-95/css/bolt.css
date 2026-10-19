@@ -19,8 +19,9 @@
 }
 @media (max-width: 600px) {
   .bolt-say {
-    top: auto;
-    bottom: calc(max(var(--gutter), env(safe-area-inset-bottom)) + 164px);
+    
+
+    top: calc(max(var(--gutter), env(safe-area-inset-top)) + 72px);
     font-size: 14px;
   }
 }
