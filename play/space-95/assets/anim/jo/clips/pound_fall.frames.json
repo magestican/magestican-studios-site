@@ -1,0 +1,40 @@
+{
+ "clip": "pound_fall",
+ "fps": 24,
+ "frame_count": 4,
+ "loop": true,
+ "frame_times": [
+  0.0,
+  0.1,
+  0.2,
+  0.3
+ ],
+ "key_poses": [
+  1,
+  3
+ ],
+ "events": [],
+ "duration_s": 0.16667,
+ "time_scale": 2.4,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 21,
+  "fps": 30.0,
+  "frames": 13
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "y0": 10.5,
+  "vy0": -18.958333333333336,
+  "g_scale": 2.333502443628072,
+  "vmax": 18.958333333333336
+ },
+ "root_travel_u": [
+  0.0,
+  0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

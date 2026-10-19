@@ -1,0 +1,57 @@
+{
+ "clip": "double_jump_flip",
+ "fps": 24,
+ "frame_count": 8,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.095238,
+  0.190476,
+  0.3,
+  0.380952,
+  0.47619,
+  0.571429,
+  0.666667
+ ],
+ "key_poses": [
+  0,
+  3,
+  7
+ ],
+ "events": [
+  {
+   "type": "takeoff",
+   "frame": 0,
+   "time": 0.0
+  }
+ ],
+ "duration_s": 0.29167,
+ "time_scale": 2.4,
+ "time_stretch": 1.05,
+ "snapped": [
+  {
+   "frame": 3,
+   "from": 0.28571,
+   "to": 0.3,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 16,
+  "fps": 30.0,
+  "frames": 21
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "y0": 3.5,
+  "vy0": 9.70874720227134,
+  "g_scale": 1.3726484962518068
+ },
+ "root_travel_u": [
+  -0.0,
+  0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

@@ -1,0 +1,168 @@
+{
+ "name": "dash",
+ "fps": 30,
+ "frames": 7,
+ "loop": true,
+ "root_motion": "IP",
+ "phase_markers": {},
+ "notifies": [],
+ "tags": [
+  "platformer",
+  "carried"
+ ],
+ "gravity_scale": 1.0,
+ "glb": "jo_clips.glb",
+ "animation": 18,
+ "settle": [],
+ "flights": [],
+ "plants": [],
+ "root_curve": [
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ]
+ ],
+ "root_curve_note": "IP clip: the ground-root path the game should move the capsule along",
+ "carrier": {
+  "y0": 0.08750000000000001,
+  "vy0": 0.0,
+  "g_scale": 0.0
+ },
+ "key_poses": [
+  0.0,
+  3.0
+ ],
+ "com": [
+  [
+   0.0059,
+   0.984,
+   0.0547
+  ],
+  [
+   0.006,
+   0.9827,
+   0.0561
+  ],
+  [
+   0.0063,
+   0.9814,
+   0.059
+  ],
+  [
+   0.0063,
+   0.9812,
+   0.0606
+  ],
+  [
+   0.0061,
+   0.9824,
+   0.0591
+  ],
+  [
+   0.0059,
+   0.9838,
+   0.0563
+  ],
+  [
+   0.0059,
+   0.984,
+   0.0547
+  ]
+ ],
+ "xcom": [
+  [
+   0.0077,
+   0.9723,
+   0.0687
+  ],
+  [
+   0.0081,
+   0.9703,
+   0.0767
+  ],
+  [
+   0.0076,
+   0.9739,
+   0.0799
+  ],
+  [
+   0.0056,
+   0.9863,
+   0.0611
+  ],
+  [
+   0.004,
+   0.995,
+   0.0387
+  ],
+  [
+   0.0046,
+   0.9912,
+   0.0352
+  ],
+  [
+   0.0057,
+   0.9856,
+   0.0395
+  ]
+ ],
+ "extra": {
+  "time_scale": 2.4,
+  "events": [],
+  "set": "platformer",
+  "carrier_note": "the game moves the capsule on this path; the sprite is in place",
+  "push": [
+   0,
+   6
+  ],
+  "intent": [
+   {
+    "what": "stretched forward the whole dash",
+    "a": "spine.006",
+    "op": "ahead",
+    "b": "spine",
+    "by": 0.15,
+    "when": "all"
+   }
+  ],
+  "ik_residual_mm": {},
+  "ik_residual_frame": {},
+  "hips_drop_max_cm": 0.0,
+  "limit_corrected_frames": 0,
+  "limit_corrected_frac": 0.0,
+  "rejected": false,
+  "root_reexpress_err_m": 0.0,
+  "ballistic": []
+ }
+}

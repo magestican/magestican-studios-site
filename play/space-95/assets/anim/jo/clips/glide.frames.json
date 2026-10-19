@@ -1,0 +1,44 @@
+{
+ "clip": "glide",
+ "fps": 24,
+ "frame_count": 8,
+ "loop": true,
+ "frame_times": [
+  0.0,
+  0.1,
+  0.2,
+  0.3,
+  0.4,
+  0.5,
+  0.6,
+  0.7
+ ],
+ "key_poses": [
+  2,
+  6
+ ],
+ "events": [],
+ "duration_s": 0.33333,
+ "time_scale": 2.4,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 29,
+  "fps": 30.0,
+  "frames": 25
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "y0": 7.0,
+  "vy0": -1.8229166666666667,
+  "g_scale": 2.333502443628072,
+  "vmax": 1.8229166666666667
+ },
+ "root_travel_u": [
+  0.0,
+  0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

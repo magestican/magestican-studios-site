@@ -1,0 +1,289 @@
+{
+ "name": "climb_down",
+ "fps": 30,
+ "frames": 13,
+ "loop": true,
+ "root_motion": "IP",
+ "phase_markers": {},
+ "notifies": [],
+ "tags": [
+  "platformer",
+  "carried",
+  "held"
+ ],
+ "gravity_scale": 2.333502443628072,
+ "glb": "jo_clips.glb",
+ "animation": 27,
+ "settle": [],
+ "flights": [],
+ "plants": [],
+ "root_curve": [
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ]
+ ],
+ "root_curve_note": "IP clip: the ground-root path the game should move the capsule along",
+ "carrier": {
+  "y0": 5.25,
+  "vy0": -3.6458333333333335,
+  "g_scale": 2.333502443628072,
+  "vmax": 3.6458333333333335
+ },
+ "key_poses": [
+  2.0,
+  8.0
+ ],
+ "com": [
+  [
+   0.0003,
+   1.0632,
+   0.1162
+  ],
+  [
+   0.0003,
+   1.0633,
+   0.1172
+  ],
+  [
+   0.0003,
+   1.0633,
+   0.1177
+  ],
+  [
+   0.0003,
+   1.0633,
+   0.1175
+  ],
+  [
+   0.0003,
+   1.0633,
+   0.117
+  ],
+  [
+   0.0003,
+   1.0633,
+   0.116
+  ],
+  [
+   0.0003,
+   1.0632,
+   0.1148
+  ],
+  [
+   0.0004,
+   1.0632,
+   0.1139
+  ],
+  [
+   0.0004,
+   1.0632,
+   0.1134
+  ],
+  [
+   0.0004,
+   1.0632,
+   0.1135
+  ],
+  [
+   0.0003,
+   1.0632,
+   0.1141
+  ],
+  [
+   0.0003,
+   1.0632,
+   0.1151
+  ],
+  [
+   0.0003,
+   1.0632,
+   0.1162
+  ]
+ ],
+ "xcom": [
+  [
+   0.0001,
+   1.0635,
+   0.1255
+  ],
+  [
+   0.0001,
+   1.0635,
+   0.1244
+  ],
+  [
+   0.0002,
+   1.0634,
+   0.1196
+  ],
+  [
+   0.0004,
+   1.0633,
+   0.1142
+  ],
+  [
+   0.0005,
+   1.0631,
+   0.1093
+  ],
+  [
+   0.0006,
+   1.0629,
+   0.1053
+  ],
+  [
+   0.0006,
+   1.0628,
+   0.1046
+  ],
+  [
+   0.0005,
+   1.0629,
+   0.1067
+  ],
+  [
+   0.0004,
+   1.063,
+   0.1115
+  ],
+  [
+   0.0002,
+   1.0633,
+   0.1169
+  ],
+  [
+   0.0001,
+   1.0634,
+   0.1218
+  ],
+  [
+   0.0,
+   1.0636,
+   0.1257
+  ],
+  [
+   0.0,
+   1.0636,
+   0.1274
+  ]
+ ],
+ "extra": {
+  "time_scale": 2.4,
+  "events": [],
+  "set": "platformer",
+  "carrier_note": "the game moves the capsule on this path; the sprite is in place",
+  "support": {
+   "by": "friction (a slide)",
+   "frames": [
+    [
+     0,
+     12
+    ]
+   ],
+   "grips": []
+  },
+  "wall": {
+   "z": 0.56,
+   "side": 1
+  },
+  "slide_note": "a controlled slide down the bark: the game owns the 5 u/s",
+  "intent": [
+   {
+    "what": "the hands stay on the bark",
+    "a": "hand.L",
+    "op": "ahead",
+    "b": "spine.006",
+    "by": 0.25,
+    "when": "all"
+   },
+   {
+    "what": "the hands stay on the bark",
+    "a": "hand.R",
+    "op": "ahead",
+    "b": "spine.006",
+    "by": 0.25,
+    "when": "all"
+   }
+  ],
+  "ik_residual_mm": {
+   "L": 0.003,
+   "R": 0.007
+  },
+  "ik_residual_frame": {
+   "L": 8,
+   "R": 2
+  },
+  "hand_residual_mm": {
+   "L": 0.003,
+   "R": 0.005
+  },
+  "hips_drop_max_cm": 0.0,
+  "limit_corrected_frames": 0,
+  "limit_corrected_frac": 0.0,
+  "rejected": false,
+  "root_reexpress_err_m": 0.0,
+  "ballistic": []
+ }
+}

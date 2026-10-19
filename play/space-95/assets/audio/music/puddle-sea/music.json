@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "puddle-sea",
+      "title": "Puddle Sea",
+      "files": {
+        "webm": "puddle-sea.webm",
+        "ogg": "puddle-sea.ogg",
+        "m4a": "puddle-sea.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 7975385,
+      "loopSeconds": 166.153854,
+      "bpm": 104,
+      "beats": 4,
+      "bars": 72,
+      "key": "C major",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.48,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "puddle-sea.webm",
+          "decoded_samples": 7975385,
+          "corr": 0.9977,
+          "true_peak_db": -5.02,
+          "bytes": 3865384
+        },
+        "ogg": {
+          "file": "puddle-sea.ogg",
+          "decoded_samples": 7975385,
+          "corr": 0.9983,
+          "true_peak_db": -4.48,
+          "bytes": 3841402
+        },
+        "m4a": {
+          "file": "puddle-sea.m4a",
+          "decoded_samples": 7975385,
+          "corr": 0.9991,
+          "true_peak_db": -5.2,
+          "bytes": 5433364
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-puddle-sea, rework of the main theme (same, transpose -5)",
+        "seed": 1618884898,
+        "cover_chord_agree": 0.781,
+        "cover_chroma_corr": 0.831,
+        "render": "D:\\magestican-dj\\renders\\space-95\\puddle-sea",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\puddle-sea\\space-95-bgm-city-pop-2.wav (seed 395850183, chord_agree 0.781)"
+        ]
+      }
+    }
+  ]
+}

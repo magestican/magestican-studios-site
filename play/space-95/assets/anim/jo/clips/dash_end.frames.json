@@ -1,0 +1,39 @@
+{
+ "clip": "dash_end",
+ "fps": 24,
+ "frame_count": 4,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.088889,
+  0.177778,
+  0.266667
+ ],
+ "key_poses": [
+  0,
+  3
+ ],
+ "events": [],
+ "duration_s": 0.125,
+ "time_scale": 2.4,
+ "time_stretch": 1.125,
+ "snapped": [],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 19,
+  "fps": 30.0,
+  "frames": 9
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "y0": 0.08750000000000001,
+  "vy0": 0.0,
+  "g_scale": 0.0
+ },
+ "root_travel_u": [
+  0.0,
+  0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

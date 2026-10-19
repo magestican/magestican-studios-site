@@ -1,0 +1,81 @@
+{
+ "clip": "pound_land",
+ "fps": 24,
+ "frame_count": 14,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.1,
+  0.2,
+  0.3,
+  0.4,
+  0.5,
+  0.566667,
+  0.7,
+  0.833333,
+  0.9,
+  1.0,
+  1.1,
+  1.2,
+  1.3
+ ],
+ "key_poses": [
+  0,
+  6,
+  8
+ ],
+ "events": [
+  {
+   "type": "contact",
+   "frame": 6,
+   "time": 0.25
+  },
+  {
+   "type": "foot_l",
+   "frame": 6,
+   "time": 0.25
+  },
+  {
+   "type": "foot_r",
+   "frame": 6,
+   "time": 0.25
+  },
+  {
+   "type": "land",
+   "frame": 6,
+   "time": 0.25
+  }
+ ],
+ "duration_s": 0.54167,
+ "time_scale": 2.4,
+ "time_stretch": 1.0,
+ "snapped": [
+  {
+   "frame": 6,
+   "from": 0.6,
+   "to": 0.56667,
+   "why": "foot_l"
+  },
+  {
+   "frame": 8,
+   "from": 0.8,
+   "to": 0.83333,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 22,
+  "fps": 30.0,
+  "frames": 40
+ },
+ "root_motion": "RM",
+ "carrier": null,
+ "enter_frame": 6,
+ "root_travel_u": [
+  0.0,
+  -0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

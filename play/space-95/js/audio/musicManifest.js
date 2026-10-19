@@ -6,6 +6,7 @@ export const MUSIC_TRACKS = [
   'long-way-home',
   'main-theme',
   'orchard',
+  'puddle-sea',
   'stripecat',
   'underground',
   'windward',

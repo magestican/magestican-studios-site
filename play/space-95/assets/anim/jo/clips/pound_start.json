@@ -1,0 +1,177 @@
+{
+ "name": "pound_start",
+ "fps": 30,
+ "frames": 7,
+ "loop": false,
+ "root_motion": "IP",
+ "phase_markers": {},
+ "notifies": [],
+ "tags": [
+  "platformer",
+  "carried"
+ ],
+ "gravity_scale": 1.0,
+ "glb": "jo_clips.glb",
+ "animation": 20,
+ "settle": [],
+ "flights": [],
+ "plants": [],
+ "root_curve": [
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0
+  ]
+ ],
+ "root_curve_note": "IP clip: the ground-root path the game should move the capsule along",
+ "carrier": {
+  "y0": 5.25,
+  "vy0": 0.0,
+  "g_scale": 0.0
+ },
+ "key_poses": [
+  0.0,
+  6.0
+ ],
+ "com": [
+  [
+   0.0001,
+   1.0023,
+   0.0849
+  ],
+  [
+   0.0001,
+   1.0114,
+   0.0889
+  ],
+  [
+   0.0003,
+   1.0308,
+   0.0973
+  ],
+  [
+   0.0012,
+   1.0491,
+   0.1046
+  ],
+  [
+   0.0022,
+   1.0658,
+   0.1097
+  ],
+  [
+   0.0023,
+   1.0831,
+   0.1139
+  ],
+  [
+   0.0016,
+   1.0919,
+   0.115
+  ]
+ ],
+ "xcom": [
+  [
+   0.0003,
+   1.0889,
+   0.1227
+  ],
+  [
+   0.0012,
+   1.1482,
+   0.1483
+  ],
+  [
+   0.0057,
+   1.2142,
+   0.1738
+  ],
+  [
+   0.0108,
+   1.2211,
+   0.1658
+  ],
+  [
+   0.0079,
+   1.2337,
+   0.1559
+  ],
+  [
+   -0.001,
+   1.2131,
+   0.1404
+  ],
+  [
+   -0.0059,
+   1.1806,
+   0.1261
+  ]
+ ],
+ "extra": {
+  "time_scale": 2.4,
+  "events": [
+   {
+    "type": "anticipation_end",
+    "frame": 6.0
+   }
+  ],
+  "set": "platformer",
+  "carrier_note": "the game moves the capsule on this path; the sprite is in place",
+  "push": [
+   0,
+   6
+  ],
+  "intent": [
+   {
+    "what": "the knees tuck up in front at the hitch",
+    "a": "shin.L",
+    "op": "ahead",
+    "b": "spine",
+    "by": 0.25,
+    "when": "all",
+    "frames": [
+     -1,
+     -1
+    ]
+   }
+  ],
+  "ik_residual_mm": {},
+  "ik_residual_frame": {},
+  "hips_drop_max_cm": 0.0,
+  "limit_corrected_frames": 0,
+  "limit_corrected_frac": 0.0,
+  "rejected": false,
+  "root_reexpress_err_m": 0.0,
+  "ballistic": []
+ }
+}

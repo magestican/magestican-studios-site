@@ -1,0 +1,60 @@
+{
+ "clip": "dew_bounce",
+ "fps": 24,
+ "frame_count": 4,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.133333,
+  0.266667,
+  0.333333
+ ],
+ "key_poses": [
+  0,
+  1,
+  2
+ ],
+ "events": [
+  {
+   "type": "contact",
+   "frame": 0,
+   "time": 0.0
+  },
+  {
+   "type": "takeoff",
+   "frame": 2,
+   "time": 0.08333
+  }
+ ],
+ "duration_s": 0.125,
+ "time_scale": 2.4,
+ "time_stretch": 0.9,
+ "snapped": [
+  {
+   "frame": 2,
+   "from": 0.22222,
+   "to": 0.26667,
+   "why": "takeoff"
+  },
+  {
+   "frame": 1,
+   "from": 0.11111,
+   "to": 0.13333,
+   "why": "key"
+  }
+ ],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 32,
+  "fps": 30.0,
+  "frames": 11
+ },
+ "root_motion": "RM",
+ "carrier": null,
+ "root_travel_u": [
+  0.0,
+  -0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

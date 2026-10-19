@@ -1,0 +1,44 @@
+{
+ "clip": "pound_start",
+ "fps": 24,
+ "frame_count": 3,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.1,
+  0.2
+ ],
+ "key_poses": [
+  0,
+  2
+ ],
+ "events": [
+  {
+   "type": "anticipation_end",
+   "frame": 2,
+   "time": 0.08333
+  }
+ ],
+ "duration_s": 0.08333,
+ "time_scale": 2.4,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 20,
+  "fps": 30.0,
+  "frames": 7
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "y0": 5.25,
+  "vy0": 0.0,
+  "g_scale": 0.0
+ },
+ "root_travel_u": [
+  0.0,
+  0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}

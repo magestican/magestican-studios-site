@@ -1,0 +1,39 @@
+{
+ "clip": "climb_up",
+ "fps": 24,
+ "frame_count": 4,
+ "loop": true,
+ "frame_times": [
+  0.0,
+  0.1,
+  0.2,
+  0.3
+ ],
+ "key_poses": [
+  0,
+  2
+ ],
+ "events": [],
+ "duration_s": 0.16667,
+ "time_scale": 2.4,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "jo_clips.glb",
+  "animation": 26,
+  "fps": 30.0,
+  "frames": 13
+ },
+ "root_motion": "IP",
+ "carrier": {
+  "y0": 1.75,
+  "vy0": 2.916666666666667,
+  "g_scale": 0.0
+ },
+ "root_travel_u": [
+  0.0,
+  0.0
+ ],
+ "qa_status": "ok",
+ "character": "jo"
+}
