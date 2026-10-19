@@ -376,8 +376,6 @@ function drawControls() {
 
 function draw() {
   statusEl.textContent = statusText();
-  
-  statusEl.classList.toggle('is-on', statusEl.textContent === T.yourTurn);
   drawNeed();
   drawChain();
   drawControls();

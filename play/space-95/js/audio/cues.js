@@ -20,6 +20,20 @@ const CUES = {
   stomp: ['stomp', 'land_soft'],
   kick: ['kick'],
   pebbleHit: ['pebble_hit', 'kick'],
+  dewBounce: ['dew_bounce', 'stomp'],
+  seed: ['seed_pickup'],
+  grab: ['bark_grab', 'mantle'],
+  climbJump: ['jump'],
+  lurch: ['ant_lurch', 'skid'],
+  ability: ['ability_get', 'intel_found'],
+  poke: ['stomp'],
+  dig: ['dig_break', 'land_hard'],
+  caveIn: ['cave_in', 'skid'],
+  buried: ['bury_thump', 'enemy_defeat_pop'],
+  strike: ['strike', 'intel_found'], 
+  wallJump: ['jump'],
+  doubleJump: ['double_jump', 'jump'],
+  pound: ['land_hard'],
   defeat: ['enemy_defeat_pop'],
   uncurl: ['pillbug_uncurl'],
   hop: ['ladybot_hop'],
@@ -38,6 +52,11 @@ const SIGNAL_SOUNDS = {
 
 export function signalSounds(e, has = () => true) {
   return e.signals.map((sig) => SIGNAL_SOUNDS[sig]?.find(has)).filter(Boolean);
+}
+
+
+export function cueRate(e) {
+  return e.type === 'pebbleHit' && e.hits > 1 ? 2 ** ((2 * (e.hits - 1)) / 12) : 1;
 }
 
 

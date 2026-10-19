@@ -5,6 +5,7 @@
 
 import './kinds.js';
 import { STEP } from './constants.js';
+import { stepDig } from './dig.js';
 import { spawnEntities, stepEntities } from './entities.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
 import { stepSecretSignals } from './secrets.js';
@@ -29,6 +30,8 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
   player.abilities = abilities;
   return {
     level,
+    
+    world: level.world.mutable ? level.world.clone() : level.world,
     abilities,
     player,
     entities: spawnEntities(level.entities ?? []),
@@ -66,17 +69,19 @@ export function stepSession(s, input) {
   if (s.dead > 0) {
     s.dead += STEP;
     if (s.dead >= RESPAWN_DELAY) respawn(s);
-    stepPlayer(s.player, NO_INPUT, s.level.world);
+    stepPlayer(s.player, NO_INPUT, s.world);
     return s;
   }
   const p = s.player;
-  stepPlayer(p, s.cleared ? NO_INPUT : input, s.level.world);
-  stepEntities(s.entities, { world: s.level.world, session: s, player: p, events: s.events });
+  stepPlayer(p, s.cleared ? NO_INPUT : input, s.world);
+  stepDig(s);
+  stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
   stepSecretSignals(s);
   for (const e of p.events) s.events.push(e);
   for (const e of s.events) if (e.type === 'secret') s.found.add(String(e.id));
   for (const c of s.level.checkpoints) {
-    if (c.id > s.checkpoint && p.grounded && p.x >= c.x) {
+    const passed = s.level.vertical ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4 : p.x >= c.x; 
+    if (c.id > s.checkpoint && p.grounded && passed) {
       s.checkpoint = c.id;
       s.respawnAt = { x: c.x, y: c.y };
       s.events.push({ type: 'checkpoint', id: c.id });

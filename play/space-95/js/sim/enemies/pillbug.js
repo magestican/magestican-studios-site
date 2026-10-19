@@ -10,6 +10,7 @@ const ROLL_TIME = 3;
 const UNCURL_TIME = 1.2; 
 
 registerKind('pillbug', {
+  sleeps: true,
   create(e) {
     e.w = 0.8;
     e.h = 0.6;

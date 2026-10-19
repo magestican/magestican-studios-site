@@ -6,6 +6,7 @@
 import { abilityAfterMove, abilityGravity, abilityHorizontal, abilityJumps, abilityState } from './abilities.js';
 import { bufferOk, cornerCorrect, coyoteOk, ledgeAssist } from './assists.js';
 import { onGround, sweepX, sweepY, touchingWall } from './body.js';
+import { climbStep } from './climb.js';
 import * as K from './constants.js';
 
 
@@ -39,6 +40,7 @@ export function createPlayer(x, y) {
     prevJump: false,
     airPeak: y, 
     takeoffY: y,
+    climbing: false, 
     abilities: new Set(), 
     ab: abilityState(),
     vyLanding: 0, 
@@ -66,12 +68,14 @@ export function stepPlayer(p, input, world) {
   p.sincePressed = pressed ? 0 : p.sincePressed + S;
   if (!p.grounded) p.sinceGrounded += S;
 
-  horizontal(p, dir, input);
-  abilityHorizontal(p, input, dir);
-  tryJump(p);
-  abilityJumps(p, input, world);
-  variableHeight(p, input);
-  if (!abilityGravity(p, input, dir)) gravity(p, input);
+  if (!climbStep(p, input, world, dir, pressed)) {
+    horizontal(p, dir, input);
+    abilityHorizontal(p, input, dir);
+    tryJump(p);
+    abilityJumps(p, input, world);
+    variableHeight(p, input);
+    if (!abilityGravity(p, input, dir)) gravity(p, input);
+  }
 
   
   const vxBefore = p.vx;

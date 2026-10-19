@@ -36,10 +36,11 @@
         },
         "m4a": {
           "file": "main-theme.m4a",
-          "decoded_samples": 7406592,
+          "decoded_samples": 7405714,
           "offset_samples": 0,
-          "true_peak_db": -5.79,
-          "bytes": 3800462
+          "true_peak_db": -5.62,
+          "bytes": 5191793,
+          "encoder": "ffmpeg aac twoloop 256k (corr 0.9992 vs master)"
         }
       },
       "source": {

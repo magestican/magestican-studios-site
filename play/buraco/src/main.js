@@ -482,20 +482,14 @@ function drawScore() {
   for (const t of [mine, 1 - mine]) {
     const row = document.createElement('div');
     row.className = `bu-score-row ${t === mine ? 'us' : 'them'}`;
-    
-    
-    skin(row, 'plaque');
-    row.classList.toggle('is-on', !h.over && teamOf(h.turn) === t);
     const name = document.createElement('span');
     name.className = 'bu-score-name';
     name.textContent = teamName(t);
     const n = document.createElement('strong');
     n.className = 'bu-score-n';
-    skin(n, 'readout');
     n.textContent = String(g.scores[t]);
     const morto = document.createElement('span');
     morto.className = `bu-morto-tag ${h.mortoTaken[t] ? 'taken' : 'waiting'}`;
-    skin(morto, 'badge').classList.toggle('is-on', !!h.mortoTaken[t]);
     morto.textContent = h.mortoTaken[t] ? T.mortoTaken : T.mortoWaiting;
     row.append(name, n, morto);
     row.setAttribute('aria-label', `${teamName(t)}: ${g.scores[t]} ${fill(T.pointsTo, { n: g.opts.target })}`);
@@ -520,9 +514,7 @@ function drawSeats() {
     const s = watching ? k : (view.you + k + n) % n;
     const box = document.createElement('div');
     box.className = 'bu-seat';
-    skin(box, 'plaque');
     box.classList.toggle('turn', !h.over && h.turn === s);
-    box.classList.toggle('is-on', !h.over && h.turn === s);
     box.classList.toggle('partner', !watching && teamOf(s) === teamOf(view.you));
     const name = document.createElement('span');
     name.className = 'bu-seat-name';
@@ -548,15 +540,10 @@ function drawCentre() {
   stock.className = 'bu-stack bu-stock';
   const sc = cardEl('back', { kind: 'pile', faceDown: true, onClick: turn ? () => doAction({ type: 'draw' }) : null });
   if (turn) sc.classList.add('can');
-  
-  const sslot = document.createElement('div');
-  sslot.className = 'bu-slot';
-  skin(sslot, 'slot').classList.toggle('is-on', turn);
-  sslot.append(sc);
   const sl = document.createElement('span');
   sl.className = 'bu-stack-label';
   sl.textContent = `${T.stock} ${h.stockCount}`;
-  stock.append(sslot, sl);
+  stock.append(sc, sl);
   
   const mortos = document.createElement('div');
   mortos.className = 'bu-stack bu-mortos';
@@ -586,7 +573,6 @@ function drawCentre() {
     prow.append(el);
   });
   if (canTake) prow.classList.add('can');
-  skin(prow, 'slot').classList.toggle('is-on', canTake);
   const pl = document.createElement('span');
   pl.className = 'bu-stack-label';
   pl.textContent = `${T.pile} (${h.pile.length})`;
@@ -598,7 +584,6 @@ function badgeFor(info) {
   if (!info.ok || !info.canastra) return null;
   const b = document.createElement('span');
   b.className = `bu-badge bu-badge-${info.canastra}`;
-  skin(b, 'badge').classList.toggle('is-on', info.canastra !== 'suja'); 
   b.textContent = T[`can_${info.canastra}`];
   return b;
 }

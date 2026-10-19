@@ -6,7 +6,7 @@ import { JUMP_VELOCITY, STEP } from './constants.js';
 import { overlaps } from './entities.js';
 
 const HITSTOP_ENEMY = 0.06;
-
+export const HITSTOP_BOSS = 0.12; 
 export const INVULN_TIME = 1.2;
 const STOMP_BOUNCE = 0.62; 
 const KNOCKBACK = { vx: 6, vy: 6 };

@@ -26,6 +26,9 @@ export function createView(canvas, level, labels) {
   scene.add(sun);
 
   scene.add(tileMeshes(level.world));
+  scene.add(barkMeshes(level.world));
+  const soil = soilMeshes(level.world);
+  scene.add(soil.mesh);
   scene.add(farLayers(level.world));
   for (const cp of level.checkpoints) {
     const label = labels.find((l) => l.id === cp.id);
@@ -67,7 +70,7 @@ export function createView(canvas, level, labels) {
       const p = session.player;
       const x = p.px + (p.x - p.px) * alpha;
       const y = p.py + (p.y - p.py) * alpha;
-      updateCameraRig(rig, { x, y, vx: p.vx, vy: p.vy, grounded: p.grounded, facing: p.facing }, dt, RUN_SPEED);
+      updateCameraRig(rig, { x, y, vx: p.vx, vy: p.vy, grounded: p.grounded, facing: p.facing, climbing: p.climbing }, dt, RUN_SPEED);
       camera.position.set(rig.x, rig.y + 1.2, CAM_DIST);
       camera.lookAt(rig.x, rig.y + 0.6, 0);
 
@@ -103,9 +106,14 @@ export function createView(canvas, level, labels) {
       if (e.type === 'stomp') squash = -0.45;
       if (e.type === 'poundStart') squash = 0.5;
       if (e.type === 'pound') squash = 1;
+      if (e.type === 'dig') {
+        soil.hide(e.cells);
+        for (let i = 0; i < 4; i++) spark(e.x - 0.5 + i * 0.33, e.y + 0.2, 0x8a5a3a, 0.5, 0.12);
+      }
       
       if (e.type === 'signal' && e.signals.some((s) => s.startsWith('visual:'))) spark(e.x, e.y + 0.4, 0xffd34d, 0.9, 0.12);
       if (e.type === 'defeat') spark(e.x, e.y + 0.6, 0xffffff, 0.5, 0.18);
+      if (e.type === 'strike') for (let i = 0; i < 6; i++) spark(e.x + Math.cos(i) * 0.8, e.y + 1 + Math.sin(i) * 0.8, 0xffd34d, 1.1, 0.2);
     },
   };
 }
@@ -133,6 +141,53 @@ function entityView(e) {
     const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.22), new THREE.MeshBasicMaterial({ color: 0xffd34d }));
     m.position.y = 0.35;
     m.name = 'spin';
+    g.add(m);
+  } else if (e.kind === 'dew') {
+    const m = new THREE.Mesh(
+      new THREE.SphereGeometry(0.5, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshLambertMaterial({ color: 0x5ad1ff, transparent: true, opacity: 0.8 }),
+    );
+    m.scale.set(e.w ?? 1.5, 0.8, 0.6);
+    m.name = 'lens';
+    g.add(m);
+  } else if (e.kind === 'seed') {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 8), mat(0xe8c27a));
+    m.scale.set(0.8, 1.2, 0.8);
+    m.position.y = 0.2;
+    m.name = 'spin';
+    g.add(m);
+  } else if (e.kind === 'aphid') {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), mat(0x9be36a));
+    m.position.y = 0.22;
+    g.add(m);
+  } else if (e.kind === 'antColumn') {
+    
+    const len = e.x1 - e.x0;
+    const march = new THREE.Group();
+    march.name = 'march';
+    const antMat = mat(0x5a2e1a);
+    for (let i = 0; i < Math.floor(len / 0.7); i++) {
+      const a = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 8), antMat);
+      a.scale.set(1.4, 0.8, 0.8);
+      a.position.set(-len / 2 + 0.35 + i * 0.7, -0.25, 0.1);
+      march.add(a);
+    }
+    g.add(march);
+  } else if (e.kind === 'antPorter') {
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 12), mat(0x7a3b1f));
+    body.scale.set(1.5, 0.9, 0.9);
+    body.position.y = 0.3;
+    const crumb = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.3, 0.3), mat(0xf0d9a0));
+    crumb.position.set(0, 0.75, 0);
+    g.add(body, crumb);
+  } else if (e.kind === 'ability') {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
+    m.position.y = 0.5;
+    m.name = 'spin';
+    g.add(m);
+  } else if (e.kind === 'clod') {
+    const m = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55), mat(0x7b4f2c));
+    m.position.y = 0.5;
     g.add(m);
   } else if (e.kind === 'finish') {
     const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3, 0.2), mat(0xffffff));
@@ -163,6 +218,16 @@ function syncEntities(scene, views, entities, alpha, time) {
     if (ball) {
       ball.rotation.z = e.state === 'roll' ? -e.x / 0.3 : 0;
       ball.scale.set(e.state === 'uncurl' ? 1.25 : 1, e.state === 'uncurl' ? 0.75 : 1, 1);
+    }
+    const lens = v.getObjectByName('lens');
+    if (lens) lens.scale.y = 0.8 * (1 - 0.45 * Math.sin(Math.max(0, e.wobble ?? 0) * 25) * Math.min(1, (e.wobble ?? 0) * 4));
+    const march = v.getObjectByName('march');
+    if (march) {
+      const len = e.x1 - e.x0;
+      const speed = e.lurch > 0 ? 14 * Math.sign(e.speed) : e.speed;
+      v.userData.m = ((v.userData.m ?? 0) + speed / 60) % 0.7;
+      for (const [i, a] of march.children.entries()) a.position.x = -len / 2 + 0.35 + ((i * 0.7 + v.userData.m + len) % len);
+      v.scale.x = 1;
     }
     const spin = v.getObjectByName('spin');
     if (spin) spin.rotation.y = time * 2.5;
@@ -204,14 +269,14 @@ function tileMeshes(world) {
   for (let r = 0; r < world.height; r++) {
     let c = 0;
     while (c < world.width) {
-      const solid = world.solid(c, r);
+      const solid = world.solid(c, r) && !world.soil?.(c, r); 
       const oneWay = world.oneWay(c, r);
       if (!solid && !oneWay) {
         c++;
         continue;
       }
       let end = c + 1;
-      while (end < world.width && world.solid(end, r) === solid && world.oneWay(end, r) === oneWay) end++;
+      while (end < world.width && world.solid(end, r) && !world.soil?.(end, r) === solid && world.oneWay(end, r) === oneWay) end++;
       const w = (end - c) * T;
       if (oneWay) {
         const m = new THREE.Mesh(new THREE.BoxGeometry(w, T * 0.3, TILE_DEPTH * 0.8), oneWayMat);
@@ -223,6 +288,59 @@ function tileMeshes(world) {
         m.position.set(c * T + w / 2, r * T + T / 2, -TILE_DEPTH / 2 + 0.3);
         group.add(m);
       }
+      c = end;
+    }
+  }
+  return group;
+}
+
+
+function soilMeshes(world) {
+  const T = world.tile;
+  const cells = [];
+  if (world.soil) for (let r = 0; r < world.height; r++) for (let c = 0; c < world.width; c++) if (world.soil(c, r)) cells.push([c, r]);
+  const geo = new THREE.BoxGeometry(T, T, TILE_DEPTH);
+  const mesh = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ color: 0x9b6a45 }), Math.max(1, cells.length));
+  mesh.count = cells.length;
+  const index = new Map();
+  const m = new THREE.Matrix4();
+  cells.forEach(([c, r], i) => {
+    m.makeTranslation(c * T + T / 2, r * T + T / 2, -TILE_DEPTH / 2 + 0.3);
+    mesh.setMatrixAt(i, m);
+    index.set(`${c},${r}`, i);
+  });
+  const gone = new THREE.Matrix4().makeScale(0, 0, 0);
+  return {
+    mesh,
+    hide(list) {
+      for (const [c, r] of list) {
+        const i = index.get(`${c},${r}`);
+        if (i !== undefined) mesh.setMatrixAt(i, gone);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+    },
+  };
+}
+
+
+function barkMeshes(world) {
+  const T = world.tile;
+  const group = new THREE.Group();
+  if (!world.bark) return group;
+  const mat = new THREE.MeshLambertMaterial({ color: 0x7a4a8c });
+  for (let r = 0; r < world.height; r++) {
+    let c = 0;
+    while (c < world.width) {
+      if (!world.bark(c, r)) {
+        c++;
+        continue;
+      }
+      let end = c + 1;
+      while (end < world.width && world.bark(end, r)) end++;
+      const w = (end - c) * T;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, T, 0.3), mat);
+      m.position.set(c * T + w / 2, r * T + T / 2, -0.25);
+      group.add(m);
       c = end;
     }
   }

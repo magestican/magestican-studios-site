@@ -1,7 +1,7 @@
 
 
 import { createAudio } from './audio/audio.js';
-import { createFootsteps, cueFor, signalSounds } from './audio/cues.js';
+import { createFootsteps, cueFor, cueRate, signalSounds } from './audio/cues.js';
 import { SFX } from './audio/sfxManifest.js';
 import { readCheats } from './cheats.js';
 import { readProgress, recordShift, saveVariant } from './game/progress.js';
@@ -77,7 +77,7 @@ function frame(now) {
       view.onEvent(e);
       hud.onEvent(e, session);
       const cue = cueFor(e, (n) => n in SFX);
-      if (cue) audio.play(cue);
+      if (cue) audio.play(cue, { rate: cueRate(e) });
       if (e.type === 'signal') for (const n of signalSounds(e, (x) => x in SFX)) audio.play(n, { volume: 0.7 });
       if (e.type === 'clear' && level.id) {
         const save = recordShift(level, session);

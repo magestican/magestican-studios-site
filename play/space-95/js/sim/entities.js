@@ -12,6 +12,11 @@ const KINDS = {};
 
 
 
+const WAKE_RANGE = 14;
+const WAKE_RANGE_Y = 9; 
+
+
+
 
 
 
@@ -38,8 +43,15 @@ export function stepEntities(list, ctx) {
     if (!e.alive) continue;
     e.px = e.x;
     e.py = e.y;
+    const impl = KINDS[e.kind];
+    if (e.swept) continue; 
+    if (impl.sleeps && !e.awake) {
+      if (Math.abs(ctx.player.x - e.x) > (e.wake ?? WAKE_RANGE) || Math.abs(ctx.player.y - e.y) > WAKE_RANGE_Y) continue;
+      e.awake = true;
+      ctx.events.push({ type: 'wake', id: e.id });
+    }
     e.t += STEP;
-    KINDS[e.kind].step(e, ctx);
+    impl.step(e, ctx);
   }
 }
 

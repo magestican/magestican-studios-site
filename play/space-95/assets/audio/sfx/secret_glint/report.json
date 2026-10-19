@@ -1,0 +1,33 @@
+{
+  "name": "secret_glint",
+  "lane": "dj kit (FluidSynth GeneralUser GS, exact pitches)",
+  "kit": "space95-rewards",
+  "reward_pitch_classes": "F G A C D (F major pentatonic, the main theme's key)",
+  "sample_rate": 48000,
+  "channels": 1,
+  "variants": [
+    {
+      "ms": 900.0,
+      "peak_db": -1.5,
+      "sr": 44100,
+      "channels": 1,
+      "name": "secret_glint",
+      "target_ms": 900.0,
+      "target_peak_db": -1.5,
+      "onset_ms": 1.7,
+      "lufs": -14.47,
+      "true_peak_db": -1.3,
+      "ogg": "secret_glint.ogg",
+      "ogg_true_peak_db": -1.32,
+      "ogg_corr": 0.9997,
+      "m4a": "secret_glint.m4a",
+      "m4a_true_peak_db": -1.32,
+      "m4a_corr": 0.9994,
+      "problems": [],
+      "variant": 1
+    }
+  ],
+  "ok": true,
+  "spectrogram": "secret_glint_spectrogram.png",
+  "masters_dir": "E:\\magestican-dj\\renders\\space95-rewards\\master48"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "strike",
+  "lane": "dj kit (FluidSynth GeneralUser GS, exact pitches)",
+  "kit": "space95-rewards",
+  "reward_pitch_classes": "F G A C D (F major pentatonic, the main theme's key)",
+  "sample_rate": 48000,
+  "channels": 1,
+  "variants": [
+    {
+      "ms": 1000.0,
+      "peak_db": -2.0,
+      "sr": 44100,
+      "channels": 1,
+      "name": "strike",
+      "target_ms": 1000.0,
+      "target_peak_db": -2.0,
+      "onset_ms": 3.6,
+      "lufs": -14.06,
+      "true_peak_db": -2.0,
+      "ogg": "strike.ogg",
+      "ogg_true_peak_db": -1.79,
+      "ogg_corr": 0.9975,
+      "m4a": "strike.m4a",
+      "m4a_true_peak_db": -2.15,
+      "m4a_corr": 0.9999,
+      "problems": [],
+      "variant": 1
+    }
+  ],
+  "ok": true,
+  "spectrogram": "strike_spectrogram.png",
+  "masters_dir": "E:\\magestican-dj\\renders\\space95-rewards\\master48"
+}

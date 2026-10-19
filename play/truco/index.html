@@ -7,7 +7,7 @@
   <title>Play Trucowise - free Argentine truco online</title>
   <meta name="description" content="Trucowise is free Argentine truco in your browser: envido, truco, retruco, vale cuatro and flor with the 40-card Spanish deck. Play the computer, 2 vs 2, or friends in a room.">
   <meta name="keywords" content="trucowise, truco, truco argentino, truco online, jugar truco, envido, truco 2 vs 2">
-  <meta name="build" content="f5e197b0-20261019T092057Z">
+  <meta name="build" content="4d908c64-20261019T093206Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/truco/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Trucowise - free Argentine truco online">
@@ -25,8 +25,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=f5e197b0-20261019T092057Z" data-game="truco" data-levels="easy,medium,hard" data-level-key="trucowise-settings-v1" data-level-default="medium" data-deck="../shared/cards/spanish40/"></script>
-  <link rel="stylesheet" href="./src/style.css?v=f5e197b0-20261019T092057Z">
+  <script src="../shared/ui/boot.js?v=4d908c64-20261019T093206Z" data-game="truco" data-levels="easy,medium,hard" data-level-key="trucowise-settings-v1" data-level-default="medium" data-deck="../shared/cards/spanish40/"></script>
+  <link rel="stylesheet" href="./src/style.css?v=4d908c64-20261019T093206Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -97,7 +97,7 @@
       <label class="tr-row"><span class="tr-label" data-t="pointsLabel">Game to</span>
         <select class="tr-select skin-wood-select" id="target"></select>
       </label>
-      <label class="tr-check"><input class="skin-wood-checkbox" type="checkbox" id="flor"> <span data-t="withFlor">Play with flor</span></label>
+      <label class="tr-check"><input type="checkbox" id="flor"> <span data-t="withFlor">Play with flor</span></label>
     </div>
 
     <section class="tr-room mg-own" id="room" hidden aria-label="Room">
@@ -124,10 +124,10 @@
     </div>
 
     <section class="tr-table mg-own" id="table" aria-label="Table">
-      <div class="tr-spot skin-wood-plaque" id="spot-top"></div>
-      <div class="tr-spot skin-wood-plaque" id="spot-left"></div>
-      <div class="tr-spot skin-wood-plaque" id="spot-right"></div>
-      <div class="tr-spot tr-me skin-wood-plaque" id="spot-bottom"></div>
+      <div class="tr-spot" id="spot-top"></div>
+      <div class="tr-spot" id="spot-left"></div>
+      <div class="tr-spot" id="spot-right"></div>
+      <div class="tr-spot tr-me" id="spot-bottom"></div>
     </section>
 
     
@@ -154,7 +154,7 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=f5e197b0-20261019T092057Z"></script>
-  <script type="module" src="./src/main.js?v=f5e197b0-20261019T092057Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=4d908c64-20261019T093206Z"></script>
+  <script type="module" src="./src/main.js?v=4d908c64-20261019T093206Z"></script>
 </body>
 </html>

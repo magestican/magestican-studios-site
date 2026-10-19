@@ -14,6 +14,9 @@ const AIM_RANGE = 12;
 const ROLL_FRICTION = 2.5; 
 const PEBBLE_GRAVITY = 0.3; 
 const HIT_SPEED = 2; 
+const REKICK_SPEED = 4; 
+const PLOW_SPEED = 6; 
+const STRIKE_HITS = 3; 
 
 
 
@@ -46,9 +49,12 @@ registerKind('pebble', {
   },
   step(e, ctx) {
     const p = ctx.player;
-    if (e.state === 'rest') {
-      moveBody(e, ctx.world);
-      const toward = Math.sign(e.x - p.x) === Math.sign(p.vx);
+    const toward = Math.sign(e.x - p.x) === Math.sign(p.vx);
+    
+    const rekick =
+      e.state === 'roll' && Math.abs(e.vx) < REKICK_SPEED && (Math.sign(e.vx) !== Math.sign(p.vx) || Math.abs(e.vx) < Math.abs(p.vx));
+    if (e.state === 'rest' || rekick) {
+      if (e.state === 'rest') moveBody(e, ctx.world);
       if (p.grounded && toward && Math.abs(p.vx) > 1 && overlaps(e, p, 0.05)) {
         const dir = Math.sign(p.vx);
         const enemies = ctx.session.entities.filter(isEnemy);
@@ -57,9 +63,10 @@ registerKind('pebble', {
         e.vy = KICK_SPEED * Math.sin(a);
         e.state = 'roll';
         e.t = 0;
-        ctx.events.push({ type: 'kick', id: e.id, angle: a });
+        ctx.events.push({ type: 'kick', id: e.id, angle: a, rekick });
+        return;
       }
-      return;
+      if (e.state === 'rest') return;
     }
     e.vy += ENTITY_GRAVITY * (1 - PEBBLE_GRAVITY) * STEP; 
     const hit = moveBody(e, ctx.world);
@@ -73,9 +80,18 @@ registerKind('pebble', {
         if (!isEnemy(en) || !overlaps(e, en)) continue;
         en.facing = Math.sign(e.vx) || 1;
         defeat(en, ctx, 'pebble');
-        ctx.events.push({ type: 'pebbleHit', id: e.id, target: en.id });
-        e.vx = -e.vx * 0.3;
-        e.vy = 3;
+        e.hits = (e.hits ?? 0) + 1;
+        ctx.events.push({ type: 'pebbleHit', id: e.id, target: en.id, hits: e.hits, x: en.x, y: en.y });
+        if (e.hits === STRIKE_HITS) ctx.events.push({ type: 'strike', id: e.id, x: en.x, y: en.y });
+        
+        
+        if (Math.abs(e.vx) > PLOW_SPEED) {
+          e.vx *= 0.75;
+          e.vy = 1.5;
+        } else {
+          e.vx = -e.vx * 0.3;
+          e.vy = 3;
+        }
         break;
       }
     }

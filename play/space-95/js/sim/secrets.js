@@ -6,8 +6,8 @@
 
 import { STEP } from './constants.js';
 
-const SIGNAL_RANGE = 6; 
-const REARM_RANGE = 9; 
+const SIGNAL_RANGE = 8; 
+const REARM_RANGE = 11; 
 const VISUAL_PULSE = 1.6; 
 
 

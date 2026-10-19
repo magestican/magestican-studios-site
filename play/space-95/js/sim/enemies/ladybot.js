@@ -10,6 +10,7 @@ const HOP_EVERY = 2.0;
 const HOP_SPEED = 4.5; 
 
 registerKind('ladybot', {
+  sleeps: true,
   create(e) {
     e.w = 0.6;
     e.h = 0.8;

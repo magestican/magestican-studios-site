@@ -45,8 +45,8 @@ export function createAudio(base = 'assets/audio/') {
   async function load(name) {
     const info = SFX[name];
     const list = [];
-    for (let v = 1; v <= info.variants; v++) {
-      const url = `${base}sfx/${name}/${name}_${String(v).padStart(2, '0')}.${ext}`;
+    for (const file of info.files) {
+      const url = `${base}sfx/${name}/${file}.${ext}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`${url}: ${res.status}`);
       list.push(await ctx.decodeAudioData(await res.arrayBuffer()));

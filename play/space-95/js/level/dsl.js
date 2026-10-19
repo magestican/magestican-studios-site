@@ -17,12 +17,16 @@ export function levelBuilder(meta) {
   
   const solid = new Map();
   const oneWay = new Map();
+  const barkCells = new Map();
+  const soilCells = new Map();
   const entities = [];
   const checkpoints = [];
+  const landmarks = [];
   const counters = {};
   let x = 0; 
   let ground = floor0; 
   let widthCells = 0;
+  let spawn = null;
 
   const id = (kind) => {
     counters[kind] = (counters[kind] ?? 0) + 1;
@@ -84,6 +88,55 @@ export function levelBuilder(meta) {
       return e;
     },
     
+    landmark(name, dx, layer = 'mid') {
+      landmarks.push({ name, x: x + dx, y: ground, layer });
+      return api;
+    },
+    
+    antColumn(dx, len, speed = 4) {
+      const top = ground + TILE;
+      mark(oneWay, cells(x + dx), cells(x + dx + len), cells(top) - 1, cells(top));
+      api.put('antColumn', dx + len / 2, { x0: x + dx, x1: x + dx + len, speed, motif: 'sweep' }, top);
+      return api;
+    },
+    
+    
+    wall(x0, x1, y0, y1) {
+      block(x0, x1, y0, y1);
+      return api;
+    },
+    
+    bark(x0, x1, y0, y1) {
+      mark(barkCells, cells(x0), cells(x1), cells(y0), cells(y1));
+      return api;
+    },
+    
+    soil(x0, x1, y0, y1) {
+      mark(soilCells, cells(x0), cells(x1), cells(y0), cells(y1));
+      return api;
+    },
+    
+    ledge(x0, x1, y) {
+      mark(oneWay, cells(x0), cells(x1), cells(y) - 1, cells(y));
+      return api;
+    },
+    
+    putAt(kind, x, y, props = {}) {
+      const e = { id: props.id ?? id(kind), kind, x, y, ...props };
+      entities.push(e);
+      return e;
+    },
+    
+    beaconAt(x, y) {
+      checkpoints.push({ id: checkpoints.length + 1, x, y });
+      return api;
+    },
+    
+    spawnAt(x, y) {
+      spawn = { x, y };
+      return api;
+    },
+    
     beacon(dx = 1) {
       checkpoints.push({ id: checkpoints.length + 1, x: x + dx, y: ground });
       return api;
@@ -98,7 +151,16 @@ export function levelBuilder(meta) {
       const rows = [];
       for (let r = H - 1; r >= 0; r--) {
         let row = '';
-        for (let c = 0; c < W; c++) row += solid.get(c)?.has(r) ? '#' : oneWay.get(c)?.has(r) ? '=' : '.';
+        for (let c = 0; c < W; c++)
+          row += solid.get(c)?.has(r)
+            ? '#'
+            : soilCells.get(c)?.has(r)
+              ? '%'
+              : oneWay.get(c)?.has(r)
+                ? '='
+                : barkCells.get(c)?.has(r)
+                  ? '|'
+                  : '.';
         rows.push(row);
       }
       const world = gridWorld(rows);
@@ -107,10 +169,12 @@ export function levelBuilder(meta) {
         name: meta.name,
         world,
         pitCost: meta.pitCost ?? 'heart',
-        spawn: { x: 1.5, y: floor0 },
+        spawn: spawn ?? { x: 1.5, y: floor0 },
         checkpoints,
+        landmarks,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,
+        vertical: finish?.axis === 'y',
       };
     },
   };

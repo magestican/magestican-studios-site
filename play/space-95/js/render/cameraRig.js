@@ -9,9 +9,10 @@ const DEAD_ZONE_DOWN = 0.6;
 const FALL_LOOK = 2.5; 
 const FALL_LOOK_SPEED = 10; 
 const FOLLOW_Y_RATE = 6; 
+const CLIMB_LOOK = 2.5; 
 
 export function createCameraRig(x, y) {
-  return { x, y, focusY: y, ahead: 0, fallLook: 0 };
+  return { x, y, focusY: y, ahead: 0, fallLook: 0, upLook: 0 };
 }
 
 
@@ -28,11 +29,13 @@ export function updateCameraRig(cam, target, dt, runSpeed) {
   cam.x = target.x + cam.ahead;
 
   
-  if (target.grounded) cam.focusY += (target.y - cam.focusY) * k(FOLLOW_Y_RATE * 0.6);
+  if (target.grounded || target.climbing) cam.focusY += (target.y - cam.focusY) * k(FOLLOW_Y_RATE * 0.6);
   else if (target.y > cam.focusY + DEAD_ZONE_UP) cam.focusY = target.y - DEAD_ZONE_UP;
   else if (target.y < cam.focusY - DEAD_ZONE_DOWN) cam.focusY = target.y + DEAD_ZONE_DOWN;
   const falling = target.vy < -FALL_LOOK_SPEED;
   cam.fallLook += ((falling ? FALL_LOOK : 0) - cam.fallLook) * k(3);
-  cam.y += (cam.focusY - cam.fallLook - cam.y) * k(FOLLOW_Y_RATE);
+  const up = target.climbing || target.vy > 6;
+  cam.upLook += ((up ? CLIMB_LOOK : 0) - cam.upLook) * k(2);
+  cam.y += (cam.focusY - cam.fallLook + cam.upLook - cam.y) * k(FOLLOW_Y_RATE);
   return cam;
 }
