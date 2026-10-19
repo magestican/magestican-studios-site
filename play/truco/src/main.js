@@ -466,23 +466,33 @@ function drawScore() {
   const g = view.game;
   
   const mine = team(viewSeat());
+  
+  
+  const turn = actor(g);
   for (const t of [mine, 1 - mine]) {
     const row = document.createElement('div');
     row.className = `tr-score-row ${t === mine ? 'us' : 'them'}`;
+    skin(row, 'plaque');
+    row.classList.toggle('is-on', turn != null && team(turn) === t);
+    const top = document.createElement('div');
+    top.className = 'tr-score-top';
     const name = document.createElement('span');
     name.className = 'tr-score-name';
     name.textContent = teamName(t);
     const n = document.createElement('strong');
     n.className = 'tr-score-n';
+    skin(n, 'readout');
     n.textContent = String(g.scores[t]);
     const h = half(g, t);
-    row.append(name, n, tally(g.scores[t], g.opts.target));
+    top.append(name, n);
     if (h) {
       const tag = document.createElement('span');
       tag.className = 'tr-half';
+      skin(tag, 'badge');
       tag.textContent = T[h];
-      row.append(tag);
+      top.append(tag);
     }
+    row.append(top, tally(g.scores[t], g.opts.target));
     row.setAttribute('aria-label', `${teamName(t)}: ${g.scores[t]} ${fill(T.pointsTo, { n: g.opts.target })}`);
     scoreEl.append(row);
   }
@@ -511,6 +521,7 @@ function drawTable() {
     const spot = $(spotFor(rel, n));
     spot.hidden = false;
     spot.classList.toggle('turn', turnSeat === s);
+    spot.classList.toggle('is-on', turnSeat === s); 
     spot.classList.toggle('partner', view.you >= 0 && team(s) === team(view.you));
     const head = document.createElement('div');
     head.className = 'tr-spot-head';
@@ -521,6 +532,7 @@ function drawTable() {
     if (g.mano === s) {
       const b = document.createElement('span');
       b.className = 'tr-badge';
+      skin(b, 'badge');
       b.textContent = T.mano;
       head.append(b);
     }
@@ -528,6 +540,7 @@ function drawTable() {
     if (c) {
       const bubble = document.createElement('span');
       bubble.className = 'tr-bubble';
+      skin(bubble, 'badge').classList.add('is-on');
       
       if (c.echo) bubble.classList.add('echo');
       bubble.textContent = callWord(c);
