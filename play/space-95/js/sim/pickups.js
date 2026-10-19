@@ -101,7 +101,14 @@ registerKind('finish', {
     const p = ctx.player;
     
     const down = ctx.session.level.descent;
-    const reached = e.axis === 'y' ? (down ? p.y <= e.y : p.y >= e.y) && Math.abs(p.x - e.x) < 3 : left ? p.x <= e.x : p.x >= e.x;
+    const t = ctx.session?.train; 
+    const reached = t
+      ? t.rail === e.rail && t.s >= e.s
+      : e.axis === 'y'
+        ? (down ? p.y <= e.y : p.y >= e.y) && Math.abs(p.x - e.x) < 3
+        : left
+          ? p.x <= e.x
+          : p.x >= e.x;
     if (!ctx.session.cleared && reached) {
       ctx.session.cleared = true;
       ctx.events.push({ type: 'clear', time: ctx.session.time });

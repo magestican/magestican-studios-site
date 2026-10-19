@@ -2,6 +2,8 @@
 
 
 
+import { KEY_ICON, SHELL_ICON, SPARK_ICON } from './icons.js';
+
 const ASSIST_LABEL = {
   coyote: 'Coyote jump',
   buffered: 'Buffered jump',
@@ -13,12 +15,14 @@ const ASSIST_LABEL = {
 export function createHud(root, challenges, visible, title = 'Metrics gym') {
   root.innerHTML = `
     <div class="hud-card hud-title"><strong>Space 95</strong><span>${title}</span><span class="hud-hearts" data-el="hearts"></span></div>
+    <div class="hud-card hud-train" data-el="train" hidden></div>
     <div class="hud-card hud-challenge" data-el="challenge"></div>
     <div class="hud-card hud-stats" data-el="stats"></div>
     <div class="hud-flash" data-el="flash"></div>`;
   const el = (k) => root.querySelector(`[data-el="${k}"]`);
   const stats = { jumpH: 0, air: 0, takeoff: 0, airStart: 0, airborne: false, fps: 60 };
   let flashT = 0;
+  let trainHtml = '';
   root.hidden = !visible;
   root.dataset.mode = title === 'Metrics gym' ? 'gym' : 'shift';
 
@@ -74,6 +78,23 @@ export function createHud(root, challenges, visible, title = 'Metrics gym') {
       el('hearts').textContent = `${'\u2665'.repeat(Math.max(0, s.hearts))}  x${s.lives}`;
       const next = challenges.find((c) => c.id === s.checkpoint + 1) ?? challenges[challenges.length - 1];
       const cur = challenges.find((c) => c.id === s.checkpoint) ?? next;
+      
+      const t = s.train;
+      if (t) {
+        const pips = Array.from({ length: 3 }, (_, i) => `<i class="hud-pip${i < t.charges ? ' is-on' : ''}"></i>`).join('');
+        const html = [
+          `<span class="hud-train-item" title="Wind-up keys: Boost">${KEY_ICON}<span class="hud-pips">${pips}</span></span>`,
+          s.shield ? `<span class="hud-train-item" title="Shell Shield">${SHELL_ICON}<span>Shield</span></span>` : '',
+          t.sparkT > 0
+            ? `<span class="hud-train-item is-spark" title="Spark Wheels">${SPARK_ICON}<span class="hud-v">${t.sparkT.toFixed(1)} s</span></span>`
+            : '',
+        ].join('');
+        if (html !== trainHtml) {
+          trainHtml = html;
+          el('train').innerHTML = html;
+          el('train').hidden = false;
+        }
+      }
       el('challenge').innerHTML = `<span class="hud-k">Challenge ${cur.id}</span><strong>${cur.label}</strong><span>${cur.proves}</span>`;
       el('stats').innerHTML = [
         ['Speed', `${Math.abs(p.vx).toFixed(1)} u/s`],

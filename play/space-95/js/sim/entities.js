@@ -79,6 +79,7 @@ export function stepEntities(list, ctx) {
       }
       continue;
     }
+    if (impl.sleeps && !e.awake && ctx.session?.train) e.awake = true; 
     if (impl.sleeps && !e.awake) {
       if (Math.abs(ctx.player.x - e.x) > (e.wake ?? WAKE_RANGE) || Math.abs(ctx.player.y - e.y) > WAKE_RANGE_Y) continue;
       e.awake = true;

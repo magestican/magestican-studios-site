@@ -49,6 +49,16 @@ export function hasCritterSprite(e) {
 }
 
 
+
+
+
+
+export function preloadCritterSprites(entities) {
+  const kinds = new Set(entities.filter(hasCritterSprite).map((e) => e.kind));
+  return Promise.all([...kinds].map(loadSheet));
+}
+
+
 export function attachCritterSprite(g, e) {
   const map = MAP[e.kind];
   const view = { clip: map.rest, t: 0, oneShot: null, prev: e.state, ready: false };

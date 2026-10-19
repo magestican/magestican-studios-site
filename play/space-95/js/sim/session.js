@@ -19,6 +19,7 @@ import { stepSecretSignals } from './secrets.js';
 import { stepShield } from './shield.js';
 import { createShoe, resetShoe, stepShoe } from './shoe.js';
 import { stepSurge } from './surge.js';
+import { createTrain, defaultPoints, defaultSignals, rerailTrain, stepTrain, syncProxy } from './train.js';
 import { checkDunk, DUNK_TIME, fishOut, trackSafe } from './water.js';
 import { attachWind, stepWind } from './wind.js';
 
@@ -47,7 +48,8 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     if (
       d.kind === 'ability' &&
       start !== level.spawn &&
-      (level.descent ? start.y < d.y : level.vertical ? start.y > d.y : dir * (start.x - d.x) > 0)
+      
+      (level.mode === 'train' || (level.descent ? start.y < d.y : level.vertical ? start.y > d.y : dir * (start.x - d.x) > 0))
     )
       abilities.add(d.grant);
   player.abilities = abilities;
@@ -105,7 +107,15 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     surges: [],
     
     lightsOut: false,
+    
+    train: null,
+    points: null,
+    signals: null,
+    derails: 0,
+    peaStart: {},
+    peas: [],
   };
+  if (level.mode === 'train') startTrain(s, start);
   initArena(s);
   return s;
 }
@@ -130,6 +140,26 @@ function levelHooks(level) {
         : { id: d.id, x: d.x, y: d.y },
     );
   return hooks.length ? hooks : null;
+}
+
+
+function startTrain(s, start, keep = null) {
+  const level = s.level;
+  if (!keep) {
+    s.peaStart = {};
+    s.points = defaultPoints(level);
+    s.signals = defaultSignals(level);
+    for (const pe of level.track.peas) if (!pe.start) s.peaStart[pe.id] = 0;
+  }
+  const at = start.rail ? start : level.trainStart;
+  const coupled = keep?.coupled || !!at.coupled;
+  s.train = createTrain(level, { rail: at.rail, s: at.s, passes: at.passes, coupled, charges: keep?.charges });
+  if (coupled && !keep)
+    for (const g of level.track.signals.filter((x) => x.lockUntil === 'hopper')) {
+      s.signals[g.id] = 'green';
+      if (g.points) s.points[g.points] = g.set ?? 'b';
+    }
+  syncProxy(s);
 }
 
 
@@ -182,7 +212,7 @@ export function stepSession(s, input) {
   if (s.dead > 0) {
     s.dead += STEP;
     if (s.dead >= RESPAWN_DELAY) respawn(s);
-    stepPlayer(s.player, NO_INPUT, s.world);
+    if (!s.train) stepPlayer(s.player, NO_INPUT, s.world);
     return s;
   }
   if (s.punt > 0) {
@@ -200,9 +230,13 @@ export function stepSession(s, input) {
     if (s.dunk >= DUNK_TIME) fishOut(s);
     return s;
   }
-  stepRafts(s);
+  if (s.train)
+    stepTrain(s, input); 
+  else {
+    stepRafts(s);
+    stepPlayer(s.player, s.cleared ? NO_INPUT : input, s.world);
+  }
   const p = s.player;
-  stepPlayer(p, s.cleared ? NO_INPUT : input, s.world);
   if (s.fans) stepFans(s); 
   if (s.level.circuits) stepSurge(s); 
   stepDig(s);
@@ -227,13 +261,15 @@ export function stepSession(s, input) {
       continue;
     }
     
-    const passed = s.level.descent
-      ? p.y <= c.y + 0.01 && Math.abs(p.x - c.x) < 4 
-      : s.level.vertical
-        ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4
-        : (s.level.dir ?? 1) > 0
-          ? p.x >= c.x
-          : p.x <= c.x;
+    const passed = s.train
+      ? c.rail === s.train.rail && Math.abs(s.train.s - c.s) < 2 
+      : s.level.descent
+        ? p.y <= c.y + 0.01 && Math.abs(p.x - c.x) < 4 
+        : s.level.vertical
+          ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4
+          : (s.level.dir ?? 1) > 0
+            ? p.x >= c.x
+            : p.x <= c.x;
     if (c.id > s.checkpoint && p.grounded && passed) {
       s.checkpoint = c.id;
       s.respawnAt = { x: c.x, y: c.y };
@@ -247,7 +283,7 @@ export function stepSession(s, input) {
   } else if (s.level.pitReturn === 'ground') trackSafe(s); 
   
   const pin = s.level.sparks ? touchPins(s) : null;
-  if (p.y < PIT_Y || pin) {
+  if (!s.train && (p.y < PIT_Y || pin)) {
     s.events.push(pin ? { type: 'pinZap', x: p.x, y: p.y, signals: ['visual:pink-zap', 'audio:pin-zap'] } : { type: 'pit' });
     const cost = s.level.pitCost ?? 'none';
     if (cost === 'heart') s.hearts -= 1;
@@ -267,6 +303,12 @@ export function stepSession(s, input) {
 
 
 function pitReturn(s) {
+  if (s.train) {
+    rerailTrain(s); 
+    s.pitFall = 0;
+    s.invuln = INVULN_TIME;
+    return;
+  }
   const at = s.safe ?? s.respawnAt;
   const p = createPlayer(at.x, at.y, s.player.facing);
   p.abilities = s.abilities;
@@ -307,6 +349,12 @@ function respawn(s) {
   if (s.hearts <= 0) s.hearts = s.maxHearts;
   s.player = createPlayer(s.respawnAt.x, s.respawnAt.y, s.level.dir ?? 1);
   s.player.abilities = s.abilities;
+  if (s.train) {
+    
+    const cp = s.level.checkpoints.find((c) => c.id === s.checkpoint);
+    if (s.checkpoint === 0) startTrain(s, s.level.trainStart);
+    else startTrain(s, cp, s.train);
+  }
   s.invuln = 0;
   s.dead = 0;
   s.punt = 0;

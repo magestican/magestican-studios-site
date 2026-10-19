@@ -7,6 +7,7 @@
 import { contact, defeat, hurtPlayer, stepDefeated, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { ENTITY_GRAVITY, moveBody, registerKind } from '../entities.js';
+import { stepRailFoe } from '../train.js';
 
 const IDLE_T = 0.6;
 const WINDUP_T = 0.4;
@@ -32,6 +33,7 @@ registerKind('bandit', {
     e.st = 0;
   },
   step(e, ctx) {
+    if (ctx.session?.train) return stepRailFoe(e, ctx); 
     if (stepDefeated(e)) return;
     const p = ctx.player;
     e.st += STEP;

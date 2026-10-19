@@ -1,5 +1,6 @@
 
 import { CHALLENGES, gymWorld } from './gym.js';
+import { buildTrainGym } from './gymTrain.js';
 import { buildL01 } from './L01.js';
 import { buildL02 } from './L02.js';
 import { buildL03 } from './L03.js';
@@ -12,6 +13,7 @@ import { buildL09 } from './L09.js';
 import { buildL10 } from './L10.js';
 import { buildL11 } from './L11.js';
 import { buildL12 } from './L12.js';
+import { buildL13 } from './L13.js';
 
 const SHIFTS = {
   1: buildL01,
@@ -26,6 +28,7 @@ const SHIFTS = {
   10: buildL10,
   11: buildL11,
   12: buildL12,
+  13: buildL13,
 };
 
 
@@ -37,6 +40,11 @@ export function loadLevel(key) {
       labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })),
       title: `Shift ${level.id}: ${level.name}`,
     };
+  }
+  if (key === 'gym-train') {
+    
+    const level = buildTrainGym();
+    return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: c.name, proves: '' })), title: 'Train gym' };
   }
   return { level: { ...gymWorld(), pitCost: 'none' }, labels: CHALLENGES, title: 'Metrics gym' };
 }

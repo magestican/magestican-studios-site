@@ -3,17 +3,22 @@
 import { createAudio } from './audio/audio.js';
 import { createFootsteps, createLadder, cueFor, cueRate, signalSounds } from './audio/cues.js';
 import { SFX } from './audio/sfxManifest.js';
+import { levelMusic as musicOf, SURFACE, shiftSounds } from './audio/shiftSounds.js';
 import { readCheats } from './cheats.js';
 import { createBoltVoice } from './game/bolt.js';
 import { mergeIntoProgress, readProgress, recordShift, saveVariant } from './game/progress.js';
 import { createInput, mountTouchControls } from './input.js';
 import { buildShift, loadLevel, SHIFT_IDS } from './level/levels.js';
+import { preloadCritterSprites } from './render/critterSprite.js';
+import { joSpriteLoaded } from './render/joSprite.js';
 import { createView } from './render/scene.js';
 import { parseAbilities } from './sim/abilities.js';
 import { STEP } from './sim/constants.js';
 import { createSession, stepSession } from './sim/session.js';
+import { placeTrain } from './sim/train.js';
 import { site } from './site/adapter.js';
 import { createHud } from './ui/hud.js';
+import { KEY_ICON, LEVER_ICON } from './ui/icons.js';
 import { createPause } from './ui/pause.js';
 import { createTimesheet } from './ui/timesheet.js';
 import { showTitle } from './ui/title.js';
@@ -30,7 +35,16 @@ const { level, labels, title } = loadLevel(cheats.level);
 
 const abilities = parseAbilities(cheats.abilities || (level.id ? '' : 'all'));
 let session = createSession(level, cheats.checkpoint, abilities);
-if (cheats.x !== null) placeAt(session, cheats.x, cheats.y);
+const train = level.mode === 'train';
+
+if (train && (cheats.rail !== null || cheats.x !== null || cheats.points)) {
+  placeTrain(session, { rail: cheats.rail, s: cheats.s, x: cheats.x, y: cheats.y, points: cheats.points });
+  if (cheats.rail !== null || cheats.x !== null) {
+    session.partial = true;
+    
+    for (const d of level.entities ?? []) if (d.kind === 'ability') abilities.add(d.grant);
+  }
+} else if (cheats.x !== null) placeAt(session, cheats.x, cheats.y);
 if (cheats.bossPhase !== null)
   for (const b of session.entities)
     if (b.kind === 'boss')
@@ -53,28 +67,31 @@ function placeAt(s, x, y) {
     }
   }
 }
+
+
+if (train) {
+  const help = document.getElementById('help');
+  if (help)
+    help.innerHTML = `<span><kbd>Space</kbd> throw points</span><span><kbd>&darr;</kbd> brake</span><span class="help-dash" hidden><kbd>Shift</kbd> boost</span><span class="help-tether" hidden><kbd>K</kbd> Bolt's arm</span><span><kbd>R</kbd> retry</span><span><kbd>M</kbd> sound</span><span><kbd>Esc</kbd> pause</span>`;
+  const jumpBtn = document.querySelector('[data-touch="jump"]');
+  const dashBtn = document.querySelector('[data-touch="dash"]');
+  if (jumpBtn) jumpBtn.innerHTML = `${LEVER_ICON}<span class="touch-label">Points</span>`;
+  if (dashBtn) dashBtn.innerHTML = `${KEY_ICON}<span class="touch-label">Boost</span>`;
+  document.body.classList.add('is-train');
+}
 if (abilities.has('dash')) for (const el of document.querySelectorAll('.touch-dash, .help-dash')) el.hidden = false;
 if (abilities.has('tether')) for (const el of document.querySelectorAll('.touch-tether, .help-tether')) el.hidden = false;
 const input = createInput();
 mountTouchControls(document.body, input.touch);
 const view = createView(document.getElementById('stage'), level, labels);
 const hud = createHud(document.getElementById('hud'), labels, cheats.hud, title);
-const audio = createAudio();
 
-const SURFACE = {
-  1: 'grass_blade',
-  2: 'bark',
-  3: 'dirt',
-  4: 'dirt',
-  5: 'leaf',
-  6: 'grass_blade',
-  7: 'grass_blade',
-  8: 'honey',
-  9: 'leaf',
-  10: 'bark',
-  11: 'plastic',
-  12: 'metal',
-}; 
+if (train) hud.update(session, 1 / 60);
+
+const audio = createAudio(undefined, {
+  sounds: shiftSounds(level),
+  after: Promise.all([joSpriteLoaded, preloadCritterSprites(level.entities ?? [])]),
+});
 const footsteps = createFootsteps(SURFACE[level.id] ?? 'dirt');
 const ladder = createLadder();
 const boltVoice = createBoltVoice();
@@ -93,26 +110,11 @@ const boltSay = (line) => {
   view.boltMood(line.mood);
   if (line.beep && line.beep in SFX) audio.play(line.beep, { volume: 0.7 });
 };
-
-const MUSIC = {
-  1: 'orchard',
-  2: 'canopy',
-  3: 'orchard',
-  4: 'underground',
-  5: 'stripecat',
-  6: 'windward',
-  7: 'long-way-home',
-  8: 'honeycomb',
-  9: 'puddle-sea',
-  10: 'gardener',
-  11: 'desk',
-  12: 'machine',
-};
-const levelMusic = [MUSIC[level.id], 'main-theme'].filter(Boolean);
+const levelMusic = musicOf(level);
 audio.musicFirst(levelMusic);
 const timesheet = createTimesheet(document.getElementById('timesheet'));
 const secretsTotal = (level.entities ?? []).filter((e) => e.kind === 'intel' || e.specimen).length;
-if (level.id) {
+if (SHIFT_IDS.includes(level.id)) {
   
   fetch(`js/level/ghosts/L${String(level.id).padStart(2, '0')}.json`)
     .then((r) => (r.ok ? r.json() : null))
@@ -158,7 +160,8 @@ let acc = 0;
 const MAX_STEPS = 12; 
 
 
-let paused = !!level.id && cheats.checkpoint === 0 && cheats.x === null && !new URLSearchParams(location.search).has('skip');
+let paused =
+  !!level.id && cheats.checkpoint === 0 && cheats.x === null && cheats.rail === null && !new URLSearchParams(location.search).has('skip');
 if (paused) {
   document.body.classList.add('is-title');
   const save = readProgress();
@@ -199,7 +202,11 @@ function frame(now) {
     for (const e of session.events) {
       view.onEvent(e);
       hud.onEvent(e, session);
-      const cue = cueFor(e, (n) => n in SFX);
+      
+      
+      const cue = cueFor(e, audio.has);
+      const best = cueFor(e, (n) => n in SFX);
+      if (best && best !== cue) audio.want(best);
       const chained = e.type === 'dewBounce' || e.type === 'seed' ? ladder(e.type, session.time) : 1;
       if (cue) audio.play(cue, { rate: cueRate(e) * chained });
       if (e.type === 'signal') for (const n of signalSounds(e, (x) => x in SFX)) audio.play(n, { volume: 0.7 });
@@ -238,7 +245,7 @@ function frame(now) {
     steps++;
   }
   if (steps === MAX_STEPS) acc = 0;
-  const step = session.dead > 0 ? null : footsteps.update(session.player, dt * cheats.slow);
+  const step = session.dead > 0 || train ? null : footsteps.update(session.player, dt * cheats.slow);
   if (step && step in SFX) audio.play(step, { volume: 0.8 });
   if (boltHide > 0) boltHide -= dt;
   if (boltHide <= 0 && !boltEl.hidden) {

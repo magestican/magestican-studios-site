@@ -140,6 +140,22 @@ const CUES = {
   checkpoint: ['checkpoint_clockin'],
   secret: ['intel_found'],
   clear: ['shift_clear'],
+  
+  pointsThrow: ['points_throw', 'key_clack'],
+  pointsPass: ['points_clack', 'key_clack'],
+  hollowKnock: ['hollow_knock', 'kick'],
+  noPoints: ['bolt_boop'],
+  boost: ['windup_boost', 'whoosh'],
+  boostEmpty: ['boost_empty', 'plug_dud'],
+  curveWarn: ['curve_squeal', 'slick_squeak'],
+  bufferStop: ['buffer_stop', 'land_hard'],
+  scan: ['scan_beep', 'secret_glint'],
+  specimenHide: ['cricket_duck', 'aphid_hop'],
+  powerUp: ['power_up', 'ability_get'],
+  couple: ['couple_clunk', 'tether_thud'],
+  derail: ['derail_crash', 'cave_in'],
+  rerail: ['rerail_clunk', 'fished_out'],
+  diamondClack: ['diamond_clack', 'key_clack'],
 };
 
 
@@ -154,15 +170,20 @@ const SIGNAL_SOUNDS = {
   'audio:tumble-clunk': ['tumble_clunk', 'secret_glint'],
   'audio:static-crackle': ['static_crackle', 'secret_glint'],
   'audio:tiny-whee': ['tiny_whee', 'secret_glint'],
+  'audio:fiddle-tune': ['fiddle_tune', 'cricket_hum', 'secret_glint'], 
+  'audio:curve-squeal': ['curve_squeal', 'slick_squeak'],
+  'audio:derail-crash': ['derail_crash', 'cave_in'],
 };
 
 
 export function signalSounds(e, has = () => true) {
-  return e.signals.map((sig) => SIGNAL_SOUNDS[sig]?.find(has)).filter(Boolean);
+  
+  return (e.signals ?? []).map((sig) => SIGNAL_SOUNDS[sig]?.find(has)).filter(Boolean);
 }
 
 
 export function cueRate(e) {
+  if (e.type === 'fling' && e.n > 1) return 2 ** ((2 * Math.min(6, e.n - 1)) / 12); 
   if (e.type === 'surgeHit' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'cursorLaser' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'capsize' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 

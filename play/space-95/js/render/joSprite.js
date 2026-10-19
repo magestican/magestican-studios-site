@@ -8,6 +8,13 @@ const ART = 'assets/art/jo/';
 const GRAPH = 'assets/anim/jo/jo.graph.json';
 
 
+let markLoaded = () => {};
+
+export const joSpriteLoaded = new Promise((r) => {
+  markLoaded = r;
+});
+
+
 
 
 
@@ -16,8 +23,13 @@ export function createJoSprite(parent) {
   Promise.all([fetch(`${ART}jo.sprites.json`).then((r) => r.json()), fetch(GRAPH).then((r) => r.json())])
     .then(([sheet, graph]) => {
       const loader = new THREE.TextureLoader();
+      let left = sheet.atlases.length;
+      const settle = () => {
+        if (--left <= 0) markLoaded();
+      };
+      if (!left) markLoaded();
       const textures = sheet.atlases.map((name) => {
-        const t = loader.load(ART + name);
+        const t = loader.load(ART + name, settle, undefined, settle);
         t.colorSpace = THREE.SRGBColorSpace;
         t.magFilter = THREE.LinearFilter;
         return t;
@@ -63,6 +75,6 @@ export function createJoSprite(parent) {
         quad.position.y = (py - f.oy - f.h / 2) / pxu;
       };
     })
-    .catch(() => {}); 
+    .catch(() => markLoaded()); 
   return api;
 }

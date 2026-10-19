@@ -5,6 +5,7 @@
 import { contact, defeat, hurtPlayer, poundHit, stepDefeated, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { groundAhead, moveBody, registerKind } from '../entities.js';
+import { stepRailFoe } from '../train.js';
 
 const ROLL_SPEED = 3;
 const ROLL_TIME = 3; 
@@ -74,6 +75,7 @@ registerKind('pillbug', {
     if (e.topiary) e.h = 0.8; 
   },
   step(e, ctx) {
+    if (ctx.session?.train) return stepRailFoe(e, ctx); 
     if (stepDefeated(e)) return;
     if (poundHit(e, ctx)) return; 
     if (e.topiary) return stepTopiary(e, ctx);

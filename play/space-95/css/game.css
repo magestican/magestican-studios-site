@@ -297,3 +297,67 @@ kbd {
   transform: translateY(4px);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
 }
+
+
+
+.hud-train {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px var(--gap);
+  font-size: 14px;
+}
+.hud-train[hidden] {
+  display: none;
+}
+.hud-train-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.hud-train-item svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+.hud-pips {
+  display: inline-flex;
+  gap: 4px;
+}
+.hud-pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--muted);
+}
+.hud-pip.is-on {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+.hud-train-item.is-spark {
+  color: #fff06a;
+}
+.is-train .touch-jump,
+.is-train .touch-dash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px;
+}
+.is-train .touch-jump svg {
+  width: 40px;
+  height: 40px;
+}
+.is-train .touch-dash svg {
+  width: 30px;
+  height: 30px;
+}
+.is-train .touch-dash[hidden] {
+  display: none;
+}
+.touch-label {
+  font-size: 13px;
+  line-height: 1;
+}

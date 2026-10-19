@@ -42,7 +42,16 @@ const LINES = {
   glide: ['Leaf deployed. Very aerodynamic. Probably.', 'Wind bonus: unlocked.'],
   dig: ['Digging. In a suit. On a Monday.', 'Soil sample acquired. Also, a hole.'],
   clear: ['Shift complete. Clocking out!', "That's a wrap. Same time tomorrow?"],
+  
+  noPoints: ['No jumping on a train, Jo. Rules. Jump throws the points.'],
+  pointsThrow: ['Points thrown! The lit arrow is where we go.'],
+  boost: ['Wind-up key! Full steam. Mind the tight bends.'],
+  couple: ['Parts coupled! Heavier train - robbers fly farther.'],
+  derail: ['Off the rails! Brake before a tight bend. Back on in a jiffy.'],
 };
+
+
+const TEACH = new Set(['noPoints', 'pointsThrow', 'boost', 'couple', 'derail']);
 
 
 export function createBoltVoice() {
@@ -58,10 +67,14 @@ export function createBoltVoice() {
     
     onEvent(e, dt = 0) {
       cooldown = Math.max(0, cooldown - dt);
-      const important = e.type === 'secret' || e.type === 'clear' || e.type === 'ability' || e.type === 'strike' || e.type === 'bossDefeat';
+      const teach = TEACH.has(e.type) && !used[e.type] && (e.type !== 'noPoints' || e.first !== false);
+      const important =
+        e.type === 'secret' || e.type === 'clear' || e.type === 'ability' || e.type === 'strike' || e.type === 'bossDefeat' || teach;
       if (cooldown > 0 && !important) return null;
       let kind = null;
-      if (e.type === 'signal' && !e.repeat) kind = 'signal';
+      if (TEACH.has(e.type)) kind = teach ? e.type : null;
+      
+      else if (e.type === 'signal' && !e.repeat && e.state === undefined) kind = 'signal';
       else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
       else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
       else if (e.type === 'ability' && e.grant === 'glide') kind = 'glide';

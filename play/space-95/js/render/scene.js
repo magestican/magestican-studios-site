@@ -14,12 +14,15 @@ import { zoneOn } from '../sim/wind.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
+import { createTrainView } from './trainView.js';
 
 const CAM_DIST = 20;
 const TILE_DEPTH = 2.4;
 
 
 export function createView(canvas, level, labels) {
+  
+  if (level.mode === 'train') return createTrainView(canvas, level, labels);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -253,7 +256,7 @@ export function createView(canvas, level, labels) {
         for (let i = 0; i < 4; i++) spark(e.x - 0.5 + i * 0.33, e.y + 0.2, 0x8a5a3a, 0.5, 0.12);
       }
       
-      if (e.type === 'signal' && e.signals.some((s) => s.startsWith('visual:'))) spark(e.x, e.y + 0.4, 0xffd34d, 0.9, 0.12);
+      if (e.type === 'signal' && e.signals?.some((s) => s.startsWith('visual:'))) spark(e.x, e.y + 0.4, 0xffd34d, 0.9, 0.12);
       if (e.type === 'defeat') spark(e.x, e.y + 0.6, 0xffffff, 0.5, 0.18);
       if (e.type === 'hurt') kick(0.12);
       if (e.type === 'shoeLand') {
@@ -340,7 +343,7 @@ export function createView(canvas, level, labels) {
 }
 
 
-function entityView(e) {
+export function entityView(e) {
   const g = new THREE.Group();
   const mat = (color) => new THREE.MeshLambertMaterial({ color });
   if (e.kind === 'pebble') {
@@ -1343,7 +1346,7 @@ function beacon(cp, text) {
   return g;
 }
 
-function textSprite(text) {
+export function textSprite(text) {
   const c = document.createElement('canvas');
   const ctx = c.getContext('2d');
   const font = '600 44px system-ui, sans-serif';
@@ -1369,7 +1372,7 @@ function textSprite(text) {
 }
 
 
-function boltPlaceholder() {
+export function boltPlaceholder() {
   const group = new THREE.Group();
   const body = new THREE.Mesh(new THREE.SphereGeometry(0.32, 20, 14), new THREE.MeshLambertMaterial({ color: 0xf2f6ff }));
   const face = new THREE.Mesh(new THREE.CircleGeometry(0.2, 20), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
@@ -1381,7 +1384,7 @@ function boltPlaceholder() {
 }
 
 
-function joPlaceholder() {
+export function joPlaceholder() {
   const group = new THREE.Group();
   const body = new THREE.Group();
   const suit = new THREE.Mesh(new THREE.PlaneGeometry(BODY_W, BODY_H * 0.8), new THREE.MeshBasicMaterial({ color: 0x1fb5a8 }));

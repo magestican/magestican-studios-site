@@ -56,3 +56,69 @@ export function updateCameraRig(cam, target, dt, runSpeed) {
   cam.y += (cam.focusY - cam.fallLook + cam.upLook + lead - cam.y) * k(FOLLOW_Y_RATE);
   return cam;
 }
+
+
+
+
+
+
+
+export const TRAIN_CAM = Object.freeze({
+  lead: 6, 
+  leadRate: 2, 
+  cruise: 8,
+  maxLeadScale: 1.625,
+  height: 32, 
+  back: 11.5, 
+  fovY: (2 * Math.atan(6.2 / 20) * 180) / Math.PI, 
+});
+
+export function createTrainRig(x, y) {
+  return { x, y, lx: 0, ly: 0 };
+}
+
+
+
+
+
+
+export function updateTrainRig(cam, target, dt) {
+  const k = 1 - Math.exp(-TRAIN_CAM.leadRate * dt);
+  const lead = TRAIN_CAM.lead * Math.min(TRAIN_CAM.maxLeadScale, Math.max(0, target.v / TRAIN_CAM.cruise));
+  cam.lx += (target.hx * lead - cam.lx) * k;
+  cam.ly += (target.hy * lead - cam.ly) * k;
+  cam.x = target.x + cam.lx;
+  cam.y = target.y + cam.ly;
+  return cam;
+}
+
+
+export function trainCameraPose(cam) {
+  return { position: [cam.x, cam.y - TRAIN_CAM.back, TRAIN_CAM.height], lookAt: [cam.x, cam.y, 0], fovY: TRAIN_CAM.fovY };
+}
+
+
+export function floorView(pose, aspect) {
+  const [px, py, pz] = pose.position;
+  const [lx, ly, lz] = pose.lookAt;
+  const norm = (v) => {
+    const l = Math.hypot(...v);
+    return v.map((c) => c / l);
+  };
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const f = norm([lx - px, ly - py, lz - pz]);
+  const r = norm(cross(f, [0, 1, 0]));
+  const u = cross(r, f);
+  const ty = Math.tan((pose.fovY * Math.PI) / 360);
+  const tx = ty * aspect;
+  return [
+    [-1, -1],
+    [1, -1],
+    [1, 1],
+    [-1, 1],
+  ].map(([sx, sy]) => {
+    const d = [0, 1, 2].map((i) => f[i] + r[i] * sx * tx + u[i] * sy * ty);
+    const t = -pz / d[2];
+    return [px + d[0] * t, py + d[1] * t];
+  });
+}

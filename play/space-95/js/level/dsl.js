@@ -4,6 +4,7 @@
 
 
 import { TILE } from '../sim/constants.js';
+import { buildRail, crossing, nearestOnRail, posAt } from '../sim/track.js';
 import { gridWorld } from '../sim/world.js';
 
 const cells = (u) => Math.round(u / TILE);
@@ -15,7 +16,7 @@ const cells = (u) => Math.round(u / TILE);
 
 export function levelBuilder(meta) {
   const H = cells(meta.height ?? 24);
-  const floor0 = meta.floor ?? 2; 
+  const floor0 = typeof meta.floor === 'number' ? meta.floor : 2; 
   
   const solid = new Map();
   const oneWay = new Map();
@@ -39,6 +40,10 @@ export function levelBuilder(meta) {
   const fans = []; 
   const sparks = []; 
   const spins = []; 
+  
+  const track = { rails: [], points: [], diamonds: [], stations: [], signals: [], debris: [], peas: [], chevrons: [], props: [] };
+  const builtRails = {};
+  let trainStart = null;
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -346,6 +351,93 @@ export function levelBuilder(meta) {
     secret(kind, dx, props, y = ground) {
       return api.put('intel', dx, { secret: kind, ...props }, y);
     },
+    
+    
+
+
+
+
+
+    rail(rid, start, ...rest) {
+      const opts = rest.length && !Array.isArray(rest[rest.length - 1]) ? rest.pop() : {};
+      const spec = { id: rid, start, pieces: rest, ...opts };
+      track.rails.push(spec);
+      builtRails[rid] = buildRail(spec);
+      return api;
+    },
+    
+    onRail(rid, s) {
+      const q = posAt(builtRails[rid], s);
+      return [Math.round(q.x * 1000) / 1000, Math.round(q.y * 1000) / 1000];
+    },
+    
+    railLength(rid) {
+      return builtRails[rid].length;
+    },
+    
+    points(pid, opts) {
+      track.points.push({ id: pid, set: 'a', ...opts });
+      return api;
+    },
+    
+    diamond(did, { a, b }) {
+      const x = crossing(builtRails[a], builtRails[b]);
+      if (!x) throw new Error(`diamond ${did}: ${a} and ${b} do not cross`);
+      track.diamonds.push({ id: did, a, b, x: x.x, y: x.y, sa: x.sa, sb: x.sb });
+      return api;
+    },
+    
+
+
+
+    station(sid, rid, s, opts = {}) {
+      const [sx, sy] = api.onRail(rid, s);
+      track.stations.push({ id: sid, rail: rid, s, x: sx, y: sy, ...(opts.sign ? { sign: opts.sign } : {}) });
+      if (opts.beacon !== false)
+        checkpoints.push({
+          id: checkpoints.length + 1,
+          x: sx,
+          y: sy,
+          rail: rid,
+          s,
+          name: sid,
+          ...(opts.passes ? { passes: opts.passes } : {}),
+          ...(opts.coupled ? { coupled: true } : {}),
+        });
+      return api;
+    },
+    
+    signal(gid, opts) {
+      track.signals.push({ id: gid, ...opts });
+      return api;
+    },
+    
+    debris(rid, s0, s1, opts = {}) {
+      track.debris.push({ id: opts.id ?? `debris-${track.debris.length + 1}`, rail: rid, s0, s1, ...opts });
+      return api;
+    },
+    
+    pea(qid, opts) {
+      track.peas.push({ id: qid, ...opts });
+      return api;
+    },
+    
+    chevrons(rid, s0, s1) {
+      track.chevrons.push({ rail: rid, s0, s1 });
+      return api;
+    },
+    
+    prop(kind, x0, x1, y0, y1, opts = {}) {
+      track.props.push({ kind, x0, x1, y0, y1, z: 1, ...opts });
+      return api;
+    },
+    
+    trainAt(rid, s) {
+      trainStart = { rail: rid, s };
+      const [sx, sy] = api.onRail(rid, s);
+      spawn = { x: sx, y: sy };
+      return api;
+    },
     build() {
       const finish = entities.find((e) => e.kind === 'finish');
       const W = widthCells + 4;
@@ -395,6 +487,8 @@ export function levelBuilder(meta) {
         ...(fans.length ? { fans } : {}),
         ...(sparks.length ? { sparks } : {}),
         ...(spins.length ? { spins } : {}),
+        
+        ...(meta.mode === 'train' ? trainFields(meta, track, builtRails, trainStart, entities) : {}),
         dir: meta.dir ?? 1,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,
@@ -403,4 +497,60 @@ export function levelBuilder(meta) {
     },
   };
   return api;
+}
+
+
+
+
+
+
+function trainFields(meta, track, rails, trainStart, entities) {
+  const near = (ax, ay, bx, by, tol) => Math.hypot(ax - bx, ay - by) <= tol;
+  const exits = {};
+  for (const spec of track.rails) {
+    const R = rails[spec.id];
+    const n = R.xs.length - 1;
+    const [ex, ey] = [R.xs[n], R.ys[n]];
+    if (spec.exit) {
+      const [rail, s] = spec.exit.split(':s');
+      exits[spec.id] = { rail, s: Number(s) };
+    } else if (spec.buffer) exits[spec.id] = null;
+    else {
+      const starts = track.rails.find((o) => o.id !== spec.id && near(o.start[0], o.start[1], ex, ey, 0.05));
+      if (starts) exits[spec.id] = { rail: starts.id, s: 0 };
+      else {
+        let best = null;
+        for (const o of track.rails) {
+          if (o.id === spec.id) continue;
+          const q = nearestOnRail(rails[o.id], ex, ey);
+          if (q.d <= 0.3 && (!best || q.d < best.d)) best = { rail: o.id, s: q.s, d: q.d };
+        }
+        if (!best) throw new Error(`rail ${spec.id} ends at (${ex.toFixed(2)}, ${ey.toFixed(2)}) joining nothing (give it exit or buffer)`);
+        exits[spec.id] = { rail: best.rail, s: best.s };
+      }
+    }
+  }
+  const pointsOn = {};
+  for (const p of track.points) {
+    const at = posAt(rails[p.rail], p.s);
+    for (const b of [p.a, p.b]) {
+      if (!rails[b]) throw new Error(`points ${p.id}: no rail ${b}`);
+      if (b !== p.rail && !near(rails[b].xs[0], rails[b].ys[0], at.x, at.y, 0.15))
+        throw new Error(
+          `points ${p.id}: rail ${b} starts ${Math.hypot(rails[b].xs[0] - at.x, rails[b].ys[0] - at.y).toFixed(2)} u from its blades`,
+        );
+    }
+    if (!pointsOn[p.rail]) pointsOn[p.rail] = [];
+    pointsOn[p.rail].push(p);
+  }
+  for (const list of Object.values(pointsOn)) list.sort((a, b) => a.s - b.s);
+  if (!trainStart) throw new Error('a train level needs trainAt(rail, s)');
+  if (!entities.some((e) => e.kind === 'finish' && e.rail)) throw new Error('a train level needs a finish on a rail');
+  return {
+    mode: 'train',
+    floor: typeof meta.floor === 'object' ? meta.floor : { w: 100, h: 100 },
+    track,
+    trackGraph: { rails, pointsOn, exits },
+    trainStart,
+  };
 }

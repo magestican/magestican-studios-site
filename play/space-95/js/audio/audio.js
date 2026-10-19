@@ -8,8 +8,14 @@ import { SFX } from './sfxManifest.js';
 
 const VOICES_PER_SOUND = 4;
 const MUTE_KEY = 's95.muted';
+const LOAD_POOL = 6; 
+const AFTER_CAP_MS = 4000; 
 
-export function createAudio(base = 'assets/audio/') {
+
+
+
+
+export function createAudio(base = 'assets/audio/', { sounds = Object.keys(SFX), after = Promise.resolve() } = {}) {
   const Ctx = window.AudioContext || window.webkitAudioContext;
   if (!Ctx) return nullAudio();
   const ctx = new Ctx();
@@ -43,18 +49,68 @@ export function createAudio(base = 'assets/audio/') {
   const playing = new Map();
   const pick = createPicker();
 
-  async function load(name) {
-    const info = SFX[name];
-    const list = [];
-    for (const file of info.files) {
-      const url = `${base}sfx/${name}/${file}.${ext}`;
+  
+  
+  
+  
+  
+  
+  const requested = new Set();
+  
+  const firstQ = [];
+  
+  const restQ = [];
+  let active = 0;
+  let open = false;
+  let firstLeft = 0;
+  
+  let firstDone = () => {};
+  const ready = new Promise((r) => {
+    firstDone = r;
+  });
+  const fetchOne = async ( t) => {
+    const url = `${base}sfx/${t.name}/${t.file}.${ext}`;
+    try {
       const res = await fetch(url);
       if (!res.ok) throw new Error(`${url}: ${res.status}`);
-      list.push(await ctx.decodeAudioData(await res.arrayBuffer()));
+      const buf = await ctx.decodeAudioData(await res.arrayBuffer());
+      const list = buffers.get(t.name) ?? [];
+      list.push(buf);
+      buffers.set(t.name, list);
+    } catch (err) {
+      console.warn('sfx', t.name,  (err).message);
     }
-    buffers.set(name, list);
-  }
-  const ready = Promise.all(Object.keys(SFX).map((n) => load(n).catch((err) => console.warn('sfx', n, err.message))));
+  };
+  const pump = () => {
+    while (open && active < LOAD_POOL && (firstQ.length || restQ.length)) {
+      const t =  (firstQ.shift() ?? restQ.shift());
+      active++;
+      fetchOne(t).then(() => {
+        active--;
+        if (t.first && --firstLeft === 0) firstDone();
+        pump();
+      });
+    }
+  };
+  
+  const want = (name, urgent = false) => {
+    const info = SFX[name];
+    if (!info || requested.has(name)) return;
+    requested.add(name);
+    const [head, ...tail] = info.files;
+    firstLeft++;
+    (urgent ? firstQ.unshift.bind(firstQ) : firstQ.push.bind(firstQ))({ name, file: head, first: true });
+    for (const file of tail) restQ.push({ name, file, first: false });
+    pump();
+  };
+  for (const n of sounds) want(n);
+  if (!firstLeft) firstDone();
+  Promise.race([after, new Promise((r) => setTimeout(r, AFTER_CAP_MS))])
+    .catch(() => {})
+    .then(() => {
+      open = true;
+      pump();
+    });
 
   
   
@@ -86,6 +142,10 @@ export function createAudio(base = 'assets/audio/') {
   return {
     ready,
     
+    has: (name) => requested.has(name),
+    
+    want: (name) => want(name, true),
+    
     music(id) {
       if (id === musicWanted) return;
       if (musicEl) {
@@ -106,6 +166,7 @@ export function createAudio(base = 'assets/audio/') {
     
     play(name, o = {}) {
       const list = buffers.get(name);
+      if (!list) want(name, true); 
       if (!list || muted || ctx.state !== 'running') return;
       const voices = playing.get(name) ?? [];
       if (voices.length >= VOICES_PER_SOUND) voices.shift()?.stop();
@@ -146,5 +207,14 @@ function readMuted() {
 }
 
 function nullAudio() {
-  return { ready: Promise.resolve(), play() {}, music() {}, musicFirst() {}, toggleMute: () => true, muted: true };
+  return {
+    ready: Promise.resolve(),
+    has: () => false,
+    want() {},
+    play() {},
+    music() {},
+    musicFirst() {},
+    toggleMute: () => true,
+    muted: true,
+  };
 }
