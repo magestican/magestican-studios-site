@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "crumb-express",
+      "title": "Crumb Express",
+      "files": {
+        "webm": "crumb-express.webm",
+        "ogg": "crumb-express.ogg",
+        "m4a": "crumb-express.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 6912000,
+      "loopSeconds": 144.0,
+      "bpm": 120,
+      "beats": 4,
+      "bars": 72,
+      "key": "F# major",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.4,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "crumb-express.webm",
+          "decoded_samples": 6912000,
+          "corr": 0.9974,
+          "true_peak_db": -5.23,
+          "bytes": 3104053
+        },
+        "ogg": {
+          "file": "crumb-express.ogg",
+          "decoded_samples": 6912000,
+          "corr": 0.9982,
+          "true_peak_db": -4.97,
+          "bytes": 3264794
+        },
+        "m4a": {
+          "file": "crumb-express.m4a",
+          "decoded_samples": 6912000,
+          "corr": 0.9989,
+          "true_peak_db": -5.23,
+          "bytes": 4734364
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-crumb-express, rework of the main theme (same, transpose 1)",
+        "seed": 659100661,
+        "cover_chord_agree": 0.927,
+        "cover_chroma_corr": 0.798,
+        "render": "D:\\magestican-dj\\renders\\space-95\\crumb-express",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\crumb-express\\space-95-bgm-city-pop-1.wav (seed 192231649, chord_agree 0.899)"
+        ]
+      }
+    }
+  ]
+}

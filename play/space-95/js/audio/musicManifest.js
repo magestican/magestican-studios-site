@@ -2,6 +2,7 @@
 export const MUSIC_TRACKS = [
   'boss-mini',
   'canopy',
+  'crumb-express',
   'desk',
   'gardener',
   'honeycomb',
