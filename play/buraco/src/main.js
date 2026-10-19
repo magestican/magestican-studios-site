@@ -800,6 +800,9 @@ function draw() {
   for (const b of document.querySelectorAll('[data-level]')) b.setAttribute('aria-pressed', String(b.dataset.level === settings.level));
   targetEl.value = String(settings.target);
   sortEl.textContent = settings.sort === 'suit' ? T.sortRank : T.sortSuit;
+  
+  sortEl.setAttribute('aria-label', sortEl.textContent);
+  sortEl.title = sortEl.textContent;
   roomEl.hidden = settings.mode !== 'room';
   $('room-start').hidden = room.active;
   $('room-live').hidden = !room.active;
