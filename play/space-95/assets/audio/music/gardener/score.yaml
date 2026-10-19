@@ -1,0 +1,273 @@
+genre: city-pop
+style: space95-gardener
+title: Gardener
+key: E major
+bpm: 116
+beats: 4
+swing: 0.5
+language: en
+seed: 1396200398
+groove: space95-gardener
+singer: none (instrumental)
+sections:
+- name: intro1
+  role: intro
+  bars: 4
+  energy: 0.3
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Amaj7
+  - B7sus4
+  - Abm7
+  - B7
+  melody: A4:2 B4:2 C#5:2 F#4:2 E4:8 E4:2 F#4:2 A4:2 E5:2 B4:6 r:2 B4:2 A4:2 Ab4:4
+    Eb5:2 B4:6 A4:2 Ab4:2 F#4:2 C#5:2 B4:6 r:2
+  lyrics: []
+  lineup:
+    lead: harpsichord
+    counter: cello
+    comp: pizzicato
+    bass: contrabass
+- name: verse1
+  role: verse
+  bars: 8
+  energy: 0.45
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - F#m7
+  - B7
+  - Emaj7
+  - C#7
+  - Emaj7
+  - E7
+  - Amaj7
+  - B7
+  melody: F#4:2 E4:4 C#4:2 E4:4 A4:4 A4:2 Ab4:2 Eb4:2 C#4:2 Eb4:6 r:2 Eb4:2 E4:4 Ab4:2
+    Ab4:4 E4:4 F4:2 F4:2 Ab4:2 Ab4:2 F4:6 r:2 E4:2 Eb4:2 E4:2 Eb4:2 E4:8 E4:2 D4:2
+    E4:2 D4:2 D4:6 r:2 C#4:2 Eb4:4 F#4:2 E4:4 C#4:4 Eb4:2 C#4:2 Eb4:2 C#4:2 Eb4:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: violin
+    counter: harpsichord
+    comp: pizzicato
+    bass: contrabass
+- name: pre1
+  role: pre
+  bars: 4
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - F#m7
+  - Abm7
+  - Amaj7
+  - B7
+  melody: A4:6 B4:2 A4:2 E5:2 E5:4 Eb5:2 E5:2 Eb5:2 Ab4:2 F#4:6 r:2 E4:2 Eb4:2 E4:4
+    A4:2 Ab4:6 F#4:2 E4:2 Eb4:2 A4:2 F#4:6 r:2
+  lyrics: []
+  lineup:
+    lead: oboe
+    counter: flute
+    comp: harpsichord
+    bass: contrabass
+- name: chorus1
+  role: chorus
+  bars: 8
+  energy: 0.8
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Amaj7
+  - B7
+  - Abm7
+  - C#m7
+  - Amaj7
+  - Ab7
+  - C#m7
+  - E
+  melody: A4:2 B4:2 A4:4 A4:2 Ab4:6 A4:2 B4:2 A4:2 B4:2 A4:6 r:2 Ab4:2 F#4:2 Ab4:4
+    F#4:2 Ab4:6 Ab4:2 F#4:2 Ab4:2 F#4:2 Ab4:6 r:2 A4:2 B4:2 A4:4 A4:2 Ab4:6 Ab4:2
+    Ab4:2 F#4:2 Ab4:2 F#4:6 r:2 E4:2 F#4:2 E4:4 E4:2 F#4:6 E4:2 F#4:2 E4:2 F#4:2 E4:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: violin
+    counter: vibraphone
+    comp: strings
+    bass: contrabass
+- name: interlude1
+  role: interlude
+  bars: 8
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - C#m7
+  - F#7
+  - F#m7
+  - B7
+  - Amaj7
+  - Abm7
+  - F#m7
+  - B7
+  melody: Ab4:4 E4:4 E4:2 Ab4:2 E4:4 E4:2 Ab4:2 Bb4:2 C#5:2 F#4:6 r:2 r:2 F#4:2 A4:4
+    A4:2 F#4:2 A4:4 A4:2 C#5:2 B4:2 Ab4:2 B4:6 r:2 A4:2 F#4:4 Ab4:2 A4:4 E4:4 Eb4:2
+    F#4:2 Ab4:2 B4:2 F#4:6 r:2 F#4:2 Eb4:2 E4:2 Ab4:2 E4:8 Eb4:2 F#4:2 Eb4:2 F#4:2
+    B4:6 r:2
+  lyrics: []
+  lineup:
+    lead: harpsichord
+    counter: bassoon
+    comp: pizzicato
+    bass: contrabass
+- name: verse2
+  role: verse
+  bars: 8
+  energy: 0.5
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - F#m7
+  - B7
+  - Emaj7
+  - C#7
+  - Emaj7
+  - E7
+  - Amaj7
+  - B7
+  melody: F#4:2 E4:4 C#4:2 E4:4 A4:4 A4:2 Ab4:2 Eb4:2 C#4:2 Eb4:3 F#4:3 r:2 Eb4:2
+    E4:4 Ab4:2 Ab4:4 E4:4 F4:2 F4:2 Ab4:2 Ab4:2 F4:3 Ab4:3 r:2 E4:2 Eb4:2 E4:2 Eb4:2
+    E4:8 E4:2 D4:2 E4:2 D4:2 D4:3 E4:3 r:2 C#4:2 Eb4:4 F#4:2 E4:4 C#4:4 Eb4:2 C#4:2
+    Eb4:2 C#4:2 Eb4:3 F#4:3 r:2
+  lyrics: []
+  lineup:
+    lead: violin
+    counter: harpsichord
+    comp: pizzicato
+    bass: contrabass
+- name: pre2
+  role: pre
+  bars: 4
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - F#m7
+  - Abm7
+  - Amaj7
+  - B7
+  melody: A4:6 B4:2 A4:2 E5:2 E5:4 Eb5:2 E5:2 Eb5:2 Ab4:2 F#4:3 Ab4:3 r:2 E4:2 Eb4:2
+    E4:4 A4:2 Ab4:6 F#4:2 E4:2 Eb4:2 A4:2 F#4:3 A4:3 r:2
+  lyrics: []
+  lineup:
+    lead: oboe
+    counter: flute
+    comp: harpsichord
+    bass: contrabass
+- name: chorus2
+  role: chorus
+  bars: 8
+  energy: 0.85
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Amaj7
+  - B7
+  - Abm7
+  - C#m7
+  - Amaj7
+  - Ab7
+  - C#m7
+  - E
+  melody: A4:2 B4:2 A4:4 A4:2 Ab4:6 A4:2 B4:2 A4:2 B4:2 A4:6 r:2 Ab4:2 F#4:2 Ab4:4
+    F#4:2 Ab4:6 Ab4:2 F#4:2 Ab4:2 F#4:2 Ab4:6 r:2 A4:2 B4:2 A4:4 A4:2 Ab4:6 Ab4:2
+    Ab4:2 F#4:2 Ab4:2 F#4:6 r:2 E4:2 F#4:2 E4:4 E4:2 F#4:6 E4:2 F#4:2 E4:2 F#4:2 E4:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: violin
+    counter: vibraphone
+    comp: strings
+    bass: contrabass
+- name: bridge1
+  role: bridge
+  bars: 8
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Abm7
+  - C#7
+  - F#m7
+  - B7
+  - C#m7
+  - Ab7
+  - Amaj7
+  - B7
+  melody: Ab4:4 B4:2 E4:2 Ab4:4 F#4:4 F4:2 Ab4:2 C#5:2 Ab4:2 F4:6 r:2 r:2 E4:2 A4:2
+    Eb4:2 A4:4 A4:4 A4:2 E4:2 B4:2 E5:2 Eb5:6 r:2 E4:2 A4:2 E5:4 B4:2 A4:6 Ab4:2 C5:2
+    Eb4:2 Ab4:2 F#4:6 r:2 E4:4 A4:2 Eb4:2 Ab4:4 E4:4 Eb4:2 Ab4:2 Eb5:2 A4:2 F#4:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: cello
+    comp: strings
+    bass: contrabass
+- name: chorus3
+  role: chorus
+  bars: 8
+  energy: 1.0
+  sung: false
+  hook: true
+  transpose: 1
+  chords:
+  - Bbmaj7
+  - C7
+  - Am7
+  - Dm7
+  - Bbmaj7
+  - A7
+  - Dm7
+  - F
+  melody: Bb4:2 C5:2 Bb4:4 Bb4:2 A4:6 Bb4:2 C5:2 Bb4:2 C5:2 Bb4:6 r:2 A4:2 G4:2 A4:4
+    G4:2 A4:6 A4:2 G4:2 A4:2 G4:2 A4:6 r:2 Bb4:2 C5:2 Bb4:4 Bb4:2 A4:6 A4:2 A4:2 G4:2
+    A4:2 G4:6 r:2 F4:2 G4:2 F4:4 F4:2 G4:6 F4:2 G4:2 F4:2 G4:2 F4:6 r:2
+  lyrics: []
+  lineup:
+    lead: violin
+    counter: vibraphone
+    comp: strings
+    bass: contrabass
+- name: outro1
+  role: outro
+  bars: 4
+  energy: 0.4
+  sung: false
+  hook: false
+  transpose: 1
+  chords:
+  - Gm7
+  - C7
+  - Fmaj7
+  - F
+  melody: Bb4:2 A4:2 F4:4 Bb4:2 F4:6 E4:2 D4:2 G4:2 D4:2 G4:6 r:2 F4:4 E4:4 A4:2 E4:2
+    A4:4 F4:2 E4:2 A4:2 E4:2 F4:6 r:2
+  lyrics: []
+  lineup:
+    lead: harpsichord
+    counter: vibraphone
+    comp: pizzicato
+    bass: contrabass
