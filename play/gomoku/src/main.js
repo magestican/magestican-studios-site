@@ -271,6 +271,8 @@ function drawStatus() {
   if (text === lastStatus) return;
   lastStatus = text;
   statusEl.replaceChildren();
+  
+  statusEl.classList.toggle('is-on', !flash && (text === T.yourTurn || text === T.youWin));
   if (!flash && !state.game.over && text) {
     const dot = document.createElement('span');
     dot.className = `gm-dot ${state.game.turn === BLACK ? 'black' : 'white'}`;

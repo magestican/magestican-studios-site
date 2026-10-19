@@ -7,7 +7,7 @@
   <title>Play Sweepwise - free Minesweeper online, no download</title>
   <meta name="description" content="Sweepwise is free Minesweeper in your browser: Beginner, Intermediate, Expert and custom boards, a first click that always opens an area, flags, chording, a timer and your best times. No download, no account.">
   <meta name="keywords" content="sweepwise, minesweeper online, free minesweeper, minesweeper no download, buscaminas online, campo minado online, マインスイーパー オンライン, 지뢰찾기, dò mìn">
-  <meta name="build" content="d772a1f3-20261019T090854Z">
+  <meta name="build" content="f5e197b0-20261019T092057Z">
   <link rel="canonical" href="https://magesticanstudios.com/play/minesweeper/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Play Sweepwise - free Minesweeper online">
@@ -25,8 +25,8 @@
   <link rel="modulepreload" href="../../web-engine/visits/visits.js">
   
 
-  <script src="../shared/ui/boot.js?v=d772a1f3-20261019T090854Z" data-game="minesweeper" data-levels="beginner,intermediate,expert" data-level-key="sweepwise-level-v1" data-level-default="beginner"></script>
-  <link rel="stylesheet" href="./src/style.css?v=d772a1f3-20261019T090854Z">
+  <script src="../shared/ui/boot.js?v=f5e197b0-20261019T092057Z" data-game="minesweeper" data-levels="beginner,intermediate,expert" data-level-key="sweepwise-level-v1" data-level-default="beginner"></script>
+  <link rel="stylesheet" href="./src/style.css?v=f5e197b0-20261019T092057Z">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -123,18 +123,18 @@
     </section>
 
     <div class="sw-status">
-      <div class="sw-counter"><span data-t="mines">Mines</span><output id="mines-left">10</output></div>
+      <div class="sw-counter"><span data-t="mines">Mines</span><output class="skin-stone-readout" id="mines-left">10</output></div>
       <button class="sw-face skin-stone-button_secondary" id="new-game" type="button" aria-label="New game" title="New game" data-face="play"></button>
-      <div class="sw-counter"><span data-t="time">Time</span><output id="clock">0</output></div>
+      <div class="sw-counter"><span data-t="time">Time</span><output class="skin-stone-readout" id="clock">0</output></div>
     </div>
 
     
 
-    <div class="sw-rival" id="rival" hidden aria-live="off">
+    <div class="sw-rival skin-stone-plaque" id="rival" hidden aria-live="off">
       <canvas class="sw-mini" id="rival-board" width="54" height="54" aria-hidden="true"></canvas>
       <div class="sw-rival-text">
         <div><strong data-t="rival">Rival</strong> <span id="rival-stat"></span> <span class="sw-watchers skin-stone-chip mg-i mg-i-watchers" id="rival-watchers" hidden></span></div>
-        <div class="sw-bar" aria-hidden="true"><span id="rival-bar"></span></div>
+        <div class="sw-bar skin-stone-progress_track" aria-hidden="true"><span class="skin-stone-progress_fill" id="rival-bar"></span></div>
       </div>
     </div>
 
@@ -144,21 +144,21 @@
 
     
     <div class="sw-watch mg-own" id="watch" hidden>
-      <figure class="sw-watch-board" id="watch-0">
+      <figure class="sw-watch-board skin-stone-plaque" id="watch-0">
         <figcaption><strong class="sw-who"></strong> <span class="sw-stat"></span></figcaption>
-        <div class="sw-bar" aria-hidden="true"><span></span></div>
+        <div class="sw-bar skin-stone-progress_track" aria-hidden="true"><span class="skin-stone-progress_fill"></span></div>
         <canvas class="sw-big" aria-hidden="true"></canvas>
       </figure>
-      <figure class="sw-watch-board" id="watch-1">
+      <figure class="sw-watch-board skin-stone-plaque" id="watch-1">
         <figcaption><strong class="sw-who"></strong> <span class="sw-stat"></span></figcaption>
-        <div class="sw-bar" aria-hidden="true"><span></span></div>
+        <div class="sw-bar skin-stone-progress_track" aria-hidden="true"><span class="skin-stone-progress_fill"></span></div>
         <canvas class="sw-big" aria-hidden="true"></canvas>
       </figure>
     </div>
 
     <div class="sw-foot">
       <button class="sw-btn skin-stone-toggle mg-i mg-i-flag" id="mode" type="button" aria-pressed="false"><span data-t="flag">Flag</span></button>
-      <span class="sw-best"><span data-t="bestLabel">Best</span>: <output id="best">-</output></span>
+      <span class="sw-best skin-stone-badge mg-i mg-i-star"><span data-t="bestLabel">Best</span>: <output id="best">-</output></span>
     </div>
     <p class="sw-message" id="message" role="status" aria-live="polite"></p>
     <p class="sw-help" data-t="help">Tap a square to dig. Right-click, long-press or use Flag mode to mark a mine. Tap a number whose flags are all placed to open around it.</p>
@@ -171,7 +171,7 @@
 
   
 
-  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=d772a1f3-20261019T090854Z"></script>
-  <script type="module" src="./src/main.js?v=d772a1f3-20261019T090854Z"></script>
+  <script src="../../web-engine/vendor/peerjs-1.5.4/peerjs.min.js?v=f5e197b0-20261019T092057Z"></script>
+  <script type="module" src="./src/main.js?v=f5e197b0-20261019T092057Z"></script>
 </body>
 </html>
