@@ -113,6 +113,21 @@ const CUES = {
   slickSlide: ['slick_squeak', 'skid'],
   pitReturn: ['fished_out', 'bolt_beep_happy'],
   dustmitePop: ['dustmite_pop', 'aphid_hop'],
+  fanBat: ['fan_thwap', 'bonk'],
+  fanStop: ['fan_spin_down', 'enemy_daze'],
+  plugYank: ['plug_yank', 'kick'],
+  plugDud: ['plug_dud', 'bolt_boop'],
+  surge: ['surge_zap', 'strike'],
+  surgeHit: ['surge_zap', 'enemy_defeat_pop'],
+  packetBoard: ['packet_blip', 'raft_land'],
+  pinZap: ['pin_zap', 'hurt_tone'],
+  sparkWarn: ['spark_tick', 'boss_telegraph'],
+  crewJabWarn: ['spark_tick', 'pillbug_alert'],
+  lightsOut: ['power_down', 'boss_defeat'],
+  rollLine: ['dust_scrape', 'boss_telegraph'],
+  bigRollLine: ['rising_whine', 'boss_telegraph'],
+  bunnyRing: ['whoosh', 'boss_telegraph'],
+  hatBonk: ['helmet_bonk', 'boss_hit'],
   caveIn: ['cave_in', 'skid'],
   buried: ['bury_thump', 'enemy_defeat_pop'],
   strike: ['strike', 'intel_found'], 
@@ -138,6 +153,7 @@ const SIGNAL_SOUNDS = {
   'audio:shanty-whistle': ['shanty_whistle', 'secret_glint'],
   'audio:tumble-clunk': ['tumble_clunk', 'secret_glint'],
   'audio:static-crackle': ['static_crackle', 'secret_glint'],
+  'audio:tiny-whee': ['tiny_whee', 'secret_glint'],
 };
 
 
@@ -147,6 +163,7 @@ export function signalSounds(e, has = () => true) {
 
 
 export function cueRate(e) {
+  if (e.type === 'surgeHit' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'cursorLaser' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'capsize' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'bowl' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 

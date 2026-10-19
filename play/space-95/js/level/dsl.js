@@ -12,6 +12,7 @@ const cells = (u) => Math.round(u / TILE);
 
 
 
+
 export function levelBuilder(meta) {
   const H = cells(meta.height ?? 24);
   const floor0 = meta.floor ?? 2; 
@@ -34,6 +35,10 @@ export function levelBuilder(meta) {
   const rafts = [];
   const arena = [];
   const slick = []; 
+  const circuits = []; 
+  const fans = []; 
+  const sparks = []; 
+  const spins = []; 
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -233,6 +238,52 @@ export function levelBuilder(meta) {
       return api;
     },
     
+
+
+
+    circuit(cid, ...lines) {
+      circuits.push({ id: cid, lines });
+      return api;
+    },
+    
+
+
+
+    fanAt(x0, x1, y0, y1, opts = {}) {
+      counters.fan = (counters.fan ?? 0) + 1;
+      fans.push({
+        id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-fan-${counters.fan}`,
+        x0,
+        x1,
+        y0,
+        y1,
+        axis: 'x',
+        blade: 3,
+        gap: 2,
+        speed: 4,
+        ...opts,
+      });
+      return api;
+    },
+    
+
+
+
+    packetLane(lid, points, opts = {}) {
+      rafts.push({ id: lid, kind: 'raft', mode: 'packet', points, speed: 6, period: 2, offset: 0, w: 3, ...opts });
+      return api;
+    },
+    
+    spark(x0, x1, y0, y1, opts = {}) {
+      sparks.push({ x0, x1, y0, y1, ...(opts.pulse ? { pulse: opts.pulse } : {}) });
+      return api;
+    },
+    
+    spin(x0, x1, y, opts = {}) {
+      spins.push({ x0, x1, y, vx: opts.vx ?? -5 });
+      return api;
+    },
+    
     ledge(x0, x1, y) {
       mark(oneWay, cells(x0), cells(x1), cells(y) - 1, cells(y));
       return api;
@@ -338,6 +389,12 @@ export function levelBuilder(meta) {
         ...(slick.length ? { slick } : {}),
         ...(meta.pitReturn ? { pitReturn: meta.pitReturn } : {}),
         ...(meta.soilLook ? { soilLook: meta.soilLook } : {}),
+        
+        ...(meta.descent ? { descent: true } : {}),
+        ...(circuits.length ? { circuits } : {}),
+        ...(fans.length ? { fans } : {}),
+        ...(sparks.length ? { sparks } : {}),
+        ...(spins.length ? { spins } : {}),
         dir: meta.dir ?? 1,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,

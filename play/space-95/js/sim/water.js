@@ -10,6 +10,7 @@
 
 import { INVULN_TIME } from './combat.js';
 import { STEP } from './constants.js';
+import { unsafeFooting } from './pins.js';
 import { createPlayer } from './player.js';
 import { raftById } from './raft.js';
 
@@ -41,7 +42,7 @@ export function trackSafe(s) {
   s.safeT += STEP;
   if (s.safeT < SAFE_STAND - 1e-9) return;
   if (r) {
-    if (r.sinks) return; 
+    if (r.sinks || r.packet) return; 
     s.safe = { raft: r.id, lane: r.lane ?? null, dx: p.x - r.x };
   } else {
     
@@ -50,6 +51,8 @@ export function trackSafe(s) {
     const row = Math.round(p.y / T) - 1;
     const under = (x) => w.solid(Math.floor(x / T), row) || w.oneWay(Math.floor(x / T), row);
     if (!under(p.x - p.w / 2 - SAFE_MARGIN) || !under(p.x + p.w / 2 + SAFE_MARGIN)) return;
+    
+    if ((s.level.sparks || s.level.fans || s.level.spins) && unsafeFooting(s)) return;
     s.safe = { x: p.x, y: p.y };
     s.safeLand = s.safe;
   }

@@ -34,11 +34,26 @@ const STEER_GAIN = 4;
 const FLOOR_TOL = 0.06; 
 
 
+
+
+
+
+
+
+const PACKET_SINK = 0.15; 
+const PACKET_SINK_DEPTH = 0.5; 
+
+
 export function createRafts(level) {
   if (!level.rafts?.length) return null;
   const list = [];
   const lanes = [];
+  const packets = [];
   for (const d of level.rafts) {
+    if (d.mode === 'packet') {
+      packets.push({ id: d.id, def: d });
+      continue;
+    }
     if (d.mode === 'lane') {
       const lane = { id: d.id, def: d, spawned: 0, next: d.every ? null : 0, leaves: [] };
       lanes.push(lane);
@@ -47,7 +62,80 @@ export function createRafts(level) {
     }
     list.push(raftFrom(d));
   }
-  return { list, lanes };
+  return packets.length ? { list, lanes, packets } : { list, lanes };
+}
+
+
+const PATHS = new Map();
+function lanePath(d) {
+  let path = PATHS.get(d);
+  if (!path) {
+    path = makePath({ x: d.points[0][0], y: d.points[0][1], path: d.points.slice(1) });
+    PATHS.set(d, path);
+  }
+  return path;
+}
+
+
+function syncPackets(s, R) {
+  const t = s.time;
+  const p = s.player;
+  const standing = p.grounded ? p.raft : null;
+  const live = new Set();
+  for (const lane of R.packets) {
+    const d = lane.def;
+    const path = lanePath(d);
+    const speed = d.speed ?? 6;
+    const life = path.len / speed + PACKET_SINK;
+    const off = d.offset ?? 0;
+    const k0 = Math.ceil((t - life - off) / d.period - 1e-9);
+    const k1 = Math.floor((t - off) / d.period + 1e-9);
+    for (let k = k0; k <= k1; k++) {
+      const age = t - (off + k * d.period);
+      if (age < 0 || age > life) continue;
+      const id = `${d.id}-${k}`;
+      let r = R.list.find((o) => o.id === id);
+      if (!r) {
+        r = {
+          id,
+          mode: 'packet',
+          packet: true,
+          lane: d.id,
+          k,
+          w: d.w ?? 3,
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          floats: false,
+          state: 'go',
+          boarded: false,
+        };
+        R.list.push(r);
+      }
+      const dist = age * speed;
+      const at = pathAt(path, Math.min(dist, path.len));
+      r.vx = at.dx * speed;
+      r.vy = at.dy * speed;
+      if (dist <= path.len) {
+        r.x = at.x;
+        r.y = at.y;
+        r.state = 'go';
+      } else {
+        const u = (dist - path.len) / speed; 
+        r.x = at.x + at.dx * speed * u;
+        r.y = at.y + at.dy * speed * u - PACKET_SINK_DEPTH * Math.min(1, u / PACKET_SINK);
+        r.vy = at.dy * speed - PACKET_SINK_DEPTH / PACKET_SINK;
+        r.state = 'sinking';
+      }
+      live.add(id);
+      if (standing === id && !r.boarded) {
+        r.boarded = true;
+        s.events.push({ type: 'packetBoard', id, lane: d.id, x: r.x, y: r.y });
+      }
+    }
+  }
+  R.list = R.list.filter((r) => r.mode !== 'packet' || live.has(r.id));
 }
 
 function raftFrom(d) {
@@ -91,6 +179,7 @@ function pathOf(r) {
 export function stepRafts(s) {
   const R = s.rafts;
   if (!R) return;
+  if (R.packets) syncPackets(s, R);
   const p = s.player;
   const standing = p.grounded ? p.raft : null;
   const carrying = !p.grounded ? p.carryFrom : null;
@@ -105,6 +194,7 @@ export function stepRafts(s) {
     }
   }
   for (const r of R.list) {
+    if (r.packet) continue; 
     const on = standing === r.id;
     if (on && !r.boarded) {
       r.boarded = true;
@@ -216,15 +306,29 @@ function raftFloorAt(R, b, x = b.x) {
     if (!best || r.y > best.y) best = r;
   }
   if (!best) return null;
-  const vs = best.state === 'sinking' ? -SINK_DEPTH / SINK_TIME : 0;
-  return { y: best.y, vs, vx: best.vx, id: best.id, raft: true, floats: best.floats, up: FLOOR_TOL, noWall: true };
+  const vs = best.packet ? 0 : best.state === 'sinking' ? -SINK_DEPTH / SINK_TIME : 0;
+  const deck = { y: best.y, vs, vx: best.vx, id: best.id, raft: true, floats: best.floats, up: FLOOR_TOL, noWall: true };
+  if (best.packet) deck.packet = true;
+  return deck;
+}
+
+
+function solidTopIn(world, b, x, lo, hi) {
+  const T = world.tile;
+  for (let r = Math.ceil((lo + 1e-7) / T) - 1; (r + 1) * T <= hi + 1e-6; r++)
+    for (let c = Math.floor((x - b.w / 2 + 1e-7) / T); c <= Math.floor((x + b.w / 2 - 1e-7) / T); c++)
+      if (world.solid(c, r) || world.oneWay(c, r)) return true;
+  return false;
 }
 
 
 export function attachRafts(world) {
   const heave = world.floorAt;
   world.floorAt = (b, x = b.x) => {
-    const f = raftFloorAt(world.raftState, b, x);
+    let f = raftFloorAt(world.raftState, b, x);
+    
+    
+    if (f?.packet && f.y < b.y - 1e-9 && solidTopIn(world, b, x, f.y, b.y)) f = null;
     const h = heave ? heave(b, x) : null;
     if (!h) return f;
     if (!f) return h;

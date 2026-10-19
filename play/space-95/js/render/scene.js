@@ -6,7 +6,9 @@
 import * as THREE from 'three';
 import { followJo } from '../game/bolt.js';
 import { BODY_H, BODY_W, RUN_SPEED } from '../sim/constants.js';
+import { bladeAt } from '../sim/fan.js';
 import { heaveAt } from '../sim/heave.js';
+import { sparkState } from '../sim/pins.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
@@ -25,7 +27,8 @@ export function createView(canvas, level, labels) {
   scene.fog = new THREE.Fog(0xbfe6ff, 30, 90);
 
   const camera = new THREE.PerspectiveCamera(35, 16 / 9, 0.5, 200);
-  scene.add(new THREE.HemisphereLight(0xcfeaff, 0xffd9a8, 1.6));
+  const hemi = new THREE.HemisphereLight(0xcfeaff, 0xffd9a8, 1.6);
+  scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xfff1d6, 2.2);
   sun.position.set(-8, 14, 12);
   scene.add(sun);
@@ -45,6 +48,8 @@ export function createView(canvas, level, labels) {
   const arena = arenaMeshes(level);
   scene.add(arena.group);
   scene.add(slickMeshes(level));
+  const machine = machineMeshes(level);
+  scene.add(machine.group);
   
   const rope = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]),
@@ -129,7 +134,18 @@ export function createView(canvas, level, labels) {
       const wall = !!p.abilities?.has('wall') && p.ab?.wallDir !== 0; 
       updateCameraRig(
         rig,
-        { x, y, vx: p.vx, vy: p.vy, grounded: p.grounded, facing: p.facing, climbing: p.climbing, wall, carryVx: p.carryVx ?? 0 },
+        {
+          x,
+          y,
+          vx: p.vx,
+          vy: p.vy,
+          grounded: p.grounded,
+          facing: p.facing,
+          climbing: p.climbing,
+          wall,
+          carryVx: p.carryVx ?? 0,
+          descent: !!level.descent,
+        },
         dt,
         RUN_SPEED,
       );
@@ -165,6 +181,11 @@ export function createView(canvas, level, labels) {
       fur.update(session.world);
       wind.update(session.time, dt);
       arena.update(session.world, dt);
+      machine.update(session);
+      
+      const dark = session.lightsOut ? 0.25 : 1;
+      hemi.intensity += (1.6 * dark - hemi.intensity) * Math.min(1, dt * 4);
+      sun.intensity += (2.2 * dark - sun.intensity) * Math.min(1, dt * 4);
       shoe.update(session, dt);
       sea.update(session);
       jo.shell.visible = !!session.shield;
@@ -296,6 +317,9 @@ export function createView(canvas, level, labels) {
         ring.position.set(e.x, (e.type === 'strikeArc' ? e.y : (topSolid(level.world, e.x) ?? e.y)) + 0.08, 0.4);
         tele(ring, e.seconds ?? 0.9);
       }
+      if (e.type === 'surgeHit' || e.type === 'pinZap')
+        for (let i = 0; i < 4; i++) spark(e.x + Math.cos(i * 1.6) * 0.4, (e.y ?? 0) + 0.5, 0xfff6a0, 0.5, 0.12);
+      if (e.type === 'plugYank' || e.type === 'lightsOut') kick(0.08);
       if (e.type === 'sourBite')
         for (let i = 0; i < 5; i++) spark(e.x + Math.cos(i * 1.3) * 0.8, e.y + 2.4 + Math.sin(i * 1.3) * 0.5, 0xffd34d, 0.8, 0.14);
       if (e.type === 'prune' || e.type === 'pruneCut') kick(0.1);
@@ -472,6 +496,31 @@ function entityView(e) {
     line.name = 'aimLine';
     line.visible = false;
     g.add(line);
+  } else if (e.kind === 'plug') {
+    
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.5), mat(0x2a2a30));
+    const tab = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.35, 0.1), mat(e.dud ? 0x6a6a70 : 0xf2c230));
+    tab.position.set(0, -0.4, 0.2);
+    g.add(body, tab);
+  } else if (e.kind === 'readArm') {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(e.w ?? 6, e.h ?? 0.5, 0.6), mat(0x9aa3b0));
+    m.position.set(((e.dir ?? 1) * (e.w ?? 6)) / 2, (e.h ?? 0.5) / 2, 0);
+    g.add(m);
+  } else if (e.kind === 'boss' && e.type === 'matriarch') {
+    
+    const r = (e.w ?? 2) / 2;
+    const body = new THREE.Mesh(new THREE.SphereGeometry(r, 18, 14), mat(0xb8b0a8));
+    body.position.y = r;
+    body.name = 'ball';
+    const hat = new THREE.Mesh(new THREE.SphereGeometry(r * 0.55, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xf2c230));
+    hat.position.y = r * 1.85;
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry(r * 1.2, r * 1.4, 32),
+      new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, opacity: 0 }),
+    );
+    halo.position.set(0, r, 0.5);
+    halo.name = 'halo';
+    g.add(body, hat, halo, textSprite(e.name ?? 'Dustmite Matriarch'));
   } else if (e.kind === 'hook') {
     
     const ring = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.05, 8, 20), mat(0xc9a45a));
@@ -1022,7 +1071,7 @@ function seaMeshes() {
   const group = new THREE.Group();
   const rafts = new Map();
   const rings = new Map();
-  const colour = { ferry: 0x5fae3a, leaf: 0x79c24a, pad: 0x3f8f4a, motor: 0xb98a4a };
+  const colour = { ferry: 0x5fae3a, leaf: 0x79c24a, pad: 0x3f8f4a, motor: 0xb98a4a, packet: 0x5ad1ff };
   const ringMat = new THREE.MeshBasicMaterial({
     color: 0xffffff,
     transparent: true,
@@ -1042,7 +1091,7 @@ function seaMeshes() {
           v = new THREE.Group();
           const deck = new THREE.Mesh(
             new THREE.BoxGeometry(1, 0.2, 1.2),
-            new THREE.MeshLambertMaterial({ color: colour[r.mode] ?? 0x79c24a }),
+            new THREE.MeshLambertMaterial({ color: colour[r.packet ? 'packet' : r.mode] ?? 0x79c24a }),
           );
           deck.position.y = -0.1;
           v.add(deck);
@@ -1104,6 +1153,64 @@ function slickMeshes(level) {
     group.add(stripe);
   }
   return group;
+}
+
+
+function machineMeshes(level) {
+  const group = new THREE.Group();
+  const T = level.world.tile;
+  const bladeMat = new THREE.MeshLambertMaterial({ color: 0x6a7280 });
+  const fans = [];
+  for (const d of level.fans ?? []) {
+    const along = d.axis === 'y' ? [d.y0, d.y1] : [d.x0, d.x1];
+    const cells = [];
+    for (let a = along[0]; a < along[1] - 1e-6; a += T) {
+      const geo = d.axis === 'y' ? new THREE.BoxGeometry(d.x1 - d.x0, T, 1.2) : new THREE.BoxGeometry(T, d.y1 - d.y0, 1.2);
+      const m = new THREE.Mesh(geo, bladeMat);
+      if (d.axis === 'y') m.position.set((d.x0 + d.x1) / 2, a + T / 2, -0.4);
+      else m.position.set(a + T / 2, (d.y0 + d.y1) / 2, -0.4);
+      group.add(m);
+      cells.push({ m, a: a + T / 2 });
+    }
+    fans.push({ d, cells });
+  }
+  
+  const pins = (level.sparks ?? []).map((sp) => {
+    const m = new THREE.Mesh(
+      new THREE.PlaneGeometry(sp.x1 - sp.x0, Math.max(0.12, sp.y1 - sp.y0)),
+      new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, depthWrite: false }),
+    );
+    m.position.set((sp.x0 + sp.x1) / 2, (sp.y0 + sp.y1) / 2, 0.35);
+    group.add(m);
+    return { sp, m };
+  });
+  const traces = (level.circuits ?? []).map((c) => {
+    const mat = new THREE.LineBasicMaterial({ color: 0xb8863a, transparent: true, opacity: 0.6 });
+    for (const line of c.lines) {
+      const pts = line.map(([x, y]) => new THREE.Vector3(x, y, -0.3));
+      group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat));
+    }
+    return { c, mat };
+  });
+  return {
+    group,
+    update(session) {
+      const t = session.time;
+      for (const F of fans) {
+        const live = session.fans?.list?.find((f) => f.def === F.d || f.def?.id === F.d.id);
+        for (const cell of F.cells) cell.m.visible = live ? bladeAt(live, cell.a, t) : false;
+      }
+      for (const P of pins) {
+        const st = sparkState(P.sp, t);
+        P.m.material.opacity = st === 'live' ? 0.85 : st === 'warn' ? 0.35 + 0.35 * Math.sin(t * 30) : 0.12;
+      }
+      for (const Tr of traces) {
+        const hot = (session.surges ?? []).some((sp) => sp.circuit === Tr.c.id && !sp.over);
+        Tr.mat.color.setHex(hot ? 0xfff6a0 : 0xb8863a);
+        Tr.mat.opacity = hot ? 1 : 0.6;
+      }
+    },
+  };
 }
 
 

@@ -37,6 +37,8 @@ const LINES = {
   tetherAttach: ['Hooked! Hold on.', 'Got it! Reeling you in.'],
   slickSlide: ['Too shiny to grip. Vast polish.', 'Slippery! Find cloth or paper.'],
   keystroke: ['You typed a letter! The game liked it.', 'BUG BLASTER: online.'],
+  surge: ['Power surge! Sorry, little guys.', 'Circuit fried. Very efficient.'],
+  lightsOut: ['Lights out! ...Is that our flight recorder blinking?', 'Dark. But I see a blink.'],
   glide: ['Leaf deployed. Very aerodynamic. Probably.', 'Wind bonus: unlocked.'],
   dig: ['Digging. In a suit. On a Monday.', 'Soil sample acquired. Also, a hole.'],
   clear: ['Shift complete. Clocking out!', "That's a wrap. Same time tomorrow?"],
@@ -63,6 +65,7 @@ export function createBoltVoice() {
       else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
       else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
       else if (e.type === 'ability' && e.grant === 'glide') kind = 'glide';
+      else if (e.type === 'surge') kind = (used.surge ?? 0) < 2 ? 'surge' : null;
       else if (e.type === 'tetherAttach' || e.type === 'slickSlide' || e.type === 'keystroke')
         kind = (used[e.type] ?? 0) < 1 ? e.type : null; 
       else if (e.type === 'sourBite') kind = (used.sourBite ?? 0) < 2 ? 'sourBite' : null;

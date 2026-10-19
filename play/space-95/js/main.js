@@ -73,6 +73,7 @@ const SURFACE = {
   9: 'leaf',
   10: 'bark',
   11: 'plastic',
+  12: 'metal',
 }; 
 const footsteps = createFootsteps(SURFACE[level.id] ?? 'dirt');
 const ladder = createLadder();
@@ -105,6 +106,7 @@ const MUSIC = {
   9: 'puddle-sea',
   10: 'gardener',
   11: 'desk',
+  12: 'machine',
 };
 const levelMusic = [MUSIC[level.id], 'main-theme'].filter(Boolean);
 audio.musicFirst(levelMusic);

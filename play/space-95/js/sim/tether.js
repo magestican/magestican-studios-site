@@ -41,6 +41,11 @@ export const TETHER = Object.freeze({
   RELEASE_ADD: 4, 
   COOLDOWN: 0.2, 
 });
+
+export const PLUG = Object.freeze({
+  POP: 0.25, 
+  TUG: -4, 
+});
 const HOOK_CLEAR = 0.3; 
 const LOS_STEP = 0.2; 
 const THUD_SPEED = 1; 
@@ -80,6 +85,7 @@ function tetherTarget(p, world) {
   let best = null;
   let bestA = Number.POSITIVE_INFINITY;
   for (const h of hooks) {
+    if (h.off) continue; 
     const dx = h.x - cx;
     const dy = h.y - cy;
     const d = Math.hypot(dx, dy);
@@ -170,10 +176,12 @@ export function tetherStep(p, input, pressed, dir, world) {
   if (t.phase === 'throw') {
     t.d += TETHER.THROW_SPEED * S;
     if (t.d >= dist) {
-      t.phase = 'reel';
+      t.phase = h.plug ? 'plug' : 'reel';
+      t.pt = 0;
       p.events.push({ type: 'tetherAttach', id: h.id, x: h.x, y: h.y });
     } else return false;
   }
+  if (t.phase === 'plug') return plugStep(p, t, h);
   if (pressed) {
     
     const vy = Math.max(p.vy + TETHER.RELEASE_ADD, TETHER.RELEASE_VY);
@@ -221,6 +229,29 @@ export function tetherStep(p, input, pressed, dir, world) {
   p.vx = (tx - p.x) / S;
   p.vy = (ty - p.y) / S;
   return true;
+}
+
+
+
+
+
+
+
+
+function plugStep(p, t, h) {
+  t.pt += STEP;
+  if (p.vy >= 0 && t.pt < PLUG.POP - 1e-9) return false;
+  letGo(p, 'plug');
+  if (h.dud) {
+    p.events.push({ type: 'plugDud', id: h.id, x: h.x, y: h.y });
+    return false;
+  }
+  p.vy = Math.max(p.vy, PLUG.TUG);
+  rearm(p, true);
+  h.off = true;
+  h.offT = 0;
+  p.events.push({ type: 'plugYank', id: h.id, circuit: h.circuit, x: h.x, y: h.y, use: h.use ?? null });
+  return false;
 }
 
 

@@ -9,13 +9,16 @@ import { INVULN_TIME } from './combat.js';
 import { STEP } from './constants.js';
 import { stepDig } from './dig.js';
 import { spawnEntities, stepEntities } from './entities.js';
+import { attachFans, createFans, stepFans } from './fan.js';
 import { attachHeaves, stepHeaves } from './heave.js';
+import { touchPins } from './pins.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
 import { attachRafts, createRafts, stepRafts } from './raft.js';
 import { createRipple, stepRipple } from './ripple.js';
 import { stepSecretSignals } from './secrets.js';
 import { stepShield } from './shield.js';
 import { createShoe, resetShoe, stepShoe } from './shoe.js';
+import { stepSurge } from './surge.js';
 import { checkDunk, DUNK_TIME, fishOut, trackSafe } from './water.js';
 import { attachWind, stepWind } from './wind.js';
 
@@ -41,7 +44,11 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
   
   
   for (const d of level.entities ?? [])
-    if (d.kind === 'ability' && start !== level.spawn && (level.vertical ? start.y > d.y : dir * (start.x - d.x) > 0))
+    if (
+      d.kind === 'ability' &&
+      start !== level.spawn &&
+      (level.descent ? start.y < d.y : level.vertical ? start.y > d.y : dir * (start.x - d.x) > 0)
+    )
       abilities.add(d.grant);
   player.abilities = abilities;
   
@@ -92,6 +99,12 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     
     pitFall: 0,
     pitReturns: 0,
+    
+    fans: createFans(level),
+    
+    surges: [],
+    
+    lightsOut: false,
   };
   initArena(s);
   return s;
@@ -99,7 +112,23 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
 
 
 function levelHooks(level) {
-  const hooks = (level.entities ?? []).filter((d) => d.kind === 'hook').map((d) => ({ id: d.id, x: d.x, y: d.y }));
+  const hooks = (level.entities ?? [])
+    .filter((d) => d.kind === 'hook' || d.kind === 'plug')
+    .map((d) =>
+      d.kind === 'plug'
+        ? {
+            id: d.id,
+            x: d.x,
+            y: d.y,
+            plug: true,
+            circuit: d.circuit ?? null,
+            dud: !!d.dud,
+            reseat: d.reseat ?? 0,
+            off: !!d.off,
+            use: d.use ?? null,
+          }
+        : { id: d.id, x: d.x, y: d.y },
+    );
   return hooks.length ? hooks : null;
 }
 
@@ -112,7 +141,9 @@ function sessionWorld(level) {
     level.heaves?.length ||
     windy ||
     level.rafts?.length ||
-    level.arena?.length;
+    level.arena?.length ||
+    level.fans?.length ||
+    level.spins?.length;
   const w = changes ? level.world.clone() : level.world;
   if ((level.entities ?? []).some((d) => d.kind === 'typeKey')) w.mutable = true; 
   if (level.honey) w.honey = level.honey; 
@@ -124,6 +155,8 @@ function sessionWorld(level) {
   }
   if (level.arena?.length) attachArena(w, level.arena); 
   if (level.rafts?.length) attachRafts(w); 
+  if (level.fans?.length) attachFans(w); 
+  if (level.spins?.length) w.spins = level.spins; 
   return w;
 }
 
@@ -141,6 +174,10 @@ export function stepSession(s, input) {
   stepWind(s);
   if (s.rafts) s.world.raftState = s.rafts; 
   if (s.hooks) s.world.hooks = s.hooks; 
+  if (s.fans) {
+    s.world.fanState = s.fans; 
+    s.world.fanT = s.time;
+  }
   if (s.invuln > 0) s.invuln -= STEP;
   if (s.dead > 0) {
     s.dead += STEP;
@@ -166,6 +203,8 @@ export function stepSession(s, input) {
   stepRafts(s);
   const p = s.player;
   stepPlayer(p, s.cleared ? NO_INPUT : input, s.world);
+  if (s.fans) stepFans(s); 
+  if (s.level.circuits) stepSurge(s); 
   stepDig(s);
   stepShield(s);
   stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
@@ -188,7 +227,13 @@ export function stepSession(s, input) {
       continue;
     }
     
-    const passed = s.level.vertical ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4 : (s.level.dir ?? 1) > 0 ? p.x >= c.x : p.x <= c.x;
+    const passed = s.level.descent
+      ? p.y <= c.y + 0.01 && Math.abs(p.x - c.x) < 4 
+      : s.level.vertical
+        ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4
+        : (s.level.dir ?? 1) > 0
+          ? p.x >= c.x
+          : p.x <= c.x;
     if (c.id > s.checkpoint && p.grounded && passed) {
       s.checkpoint = c.id;
       s.respawnAt = { x: c.x, y: c.y };
@@ -200,8 +245,10 @@ export function stepSession(s, input) {
     trackSafe(s);
     if (checkDunk(s)) return s; 
   } else if (s.level.pitReturn === 'ground') trackSafe(s); 
-  if (p.y < PIT_Y) {
-    s.events.push({ type: 'pit' });
+  
+  const pin = s.level.sparks ? touchPins(s) : null;
+  if (p.y < PIT_Y || pin) {
+    s.events.push(pin ? { type: 'pinZap', x: p.x, y: p.y, signals: ['visual:pink-zap', 'audio:pin-zap'] } : { type: 'pit' });
     const cost = s.level.pitCost ?? 'none';
     if (cost === 'heart') s.hearts -= 1;
     if (cost === 'life') s.hearts = 0;
@@ -248,6 +295,13 @@ function respawn(s) {
     s.entities = spawnEntities((s.level.entities ?? []).filter((d) => !s.found.has(String(d.id))));
     s.lit.clear();
     initArena(s);
+    if (s.level.circuits) {
+      
+      s.hooks = levelHooks(s.level);
+      s.fans = createFans(s.level);
+      s.surges = [];
+      s.lightsOut = false;
+    }
     s.events.push({ type: 'gameOver' });
   }
   if (s.hearts <= 0) s.hearts = s.maxHearts;

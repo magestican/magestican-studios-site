@@ -9,6 +9,7 @@ import { onGround, sweepX, sweepY, touchingWall } from './body.js';
 import { climbStep } from './climb.js';
 import * as K from './constants.js';
 import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
+import { spinUnder } from './pins.js';
 import { raftById } from './raft.js';
 import { rideStep, wakeStep } from './slipstream.js';
 import { tetherAfterMove, tetherStep } from './tether.js';
@@ -120,6 +121,8 @@ export function stepPlayer(p, held, world) {
   if (p.grounded && p.raft !== null) {
     p.carryVx = raftById(world.raftState, p.raft)?.vx ?? 0;
     p.carryFrom = p.raft;
+  } else if (world.spins && p.grounded) {
+    p.carryVx = spinUnder(world, p)?.vx ?? 0; 
   }
   const dx0 = p.vx * S + (world.gusts && !carried ? gustDx(world, p) : 0);
   const mx = sweepX(world, p, p.carryVx ? dx0 + p.carryVx * S : dx0);
