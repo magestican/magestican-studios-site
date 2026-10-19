@@ -7,6 +7,7 @@ import './kinds.js';
 import { STEP } from './constants.js';
 import { spawnEntities, stepEntities } from './entities.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
+import { stepSecretSignals } from './secrets.js';
 
 const RESPAWN_DELAY = 0.45; 
 const PIT_Y = -3; 
@@ -19,13 +20,21 @@ const START_LIVES = 5;
 
 
 
-export function createSession(level, startCheckpoint = 0) {
+
+
+
+export function createSession(level, startCheckpoint = 0, abilities = new Set()) {
   const start = level.checkpoints.find((c) => c.id === startCheckpoint) ?? level.spawn;
+  const player = createPlayer(start.x, start.y);
+  player.abilities = abilities;
   return {
     level,
-    player: createPlayer(start.x, start.y),
+    abilities,
+    player,
     entities: spawnEntities(level.entities ?? []),
     checkpoint: start === level.spawn ? 0 : startCheckpoint,
+    
+    partial: start !== level.spawn,
     respawnAt: { x: start.x, y: start.y },
     dead: 0, 
     deaths: 0,
@@ -63,6 +72,7 @@ export function stepSession(s, input) {
   const p = s.player;
   stepPlayer(p, s.cleared ? NO_INPUT : input, s.level.world);
   stepEntities(s.entities, { world: s.level.world, session: s, player: p, events: s.events });
+  stepSecretSignals(s);
   for (const e of p.events) s.events.push(e);
   for (const e of s.events) if (e.type === 'secret') s.found.add(String(e.id));
   for (const c of s.level.checkpoints) {
@@ -104,6 +114,7 @@ function respawn(s) {
   }
   if (s.hearts <= 0) s.hearts = s.maxHearts;
   s.player = createPlayer(s.respawnAt.x, s.respawnAt.y);
+  s.player.abilities = s.abilities;
   s.invuln = 0;
   s.dead = 0;
   s.events.push({ type: 'respawn' });

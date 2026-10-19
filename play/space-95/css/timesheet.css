@@ -1,0 +1,87 @@
+
+.timesheet {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: rgba(20, 24, 58, 0.35);
+}
+.timesheet[hidden] {
+  display: none;
+}
+.sheet {
+  width: min(440px, 100%);
+  max-height: calc(100vh - 2 * var(--gutter));
+  overflow: auto;
+  background: #fffaf0;
+  color: var(--ink);
+  border-radius: 18px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+.sheet h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.sheet-k {
+  margin: 0;
+  font-size: 13px;
+  color: #6a6f99;
+}
+.sheet-rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sheet-rows div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #d8d2c0;
+}
+.sheet-rows dt,
+.sheet-rows dd {
+  margin: 0;
+}
+.sheet-rows dd {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.sheet-gold {
+  color: #b8860b;
+}
+.sheet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+.sheet-actions button {
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 16px;
+}
+.sheet-actions button.is-primary {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+@media (max-height: 520px) {
+  .sheet {
+    padding: 16px 20px;
+    gap: 12px;
+  }
+  .sheet h2 {
+    font-size: 18px;
+  }
+}

@@ -39,6 +39,14 @@ export function createView(canvas, level, labels) {
 
   const rig = createCameraRig(0, 0);
   let squash = 0; 
+  
+  const fx = [];
+  const spark = (x, y, color, life, size) => {
+    const m = new THREE.Mesh(new THREE.OctahedronGeometry(size), new THREE.MeshBasicMaterial({ color, transparent: true }));
+    m.position.set(x, y, 0.5);
+    scene.add(m);
+    fx.push({ m, t: 0, life });
+  };
 
   function resize() {
     const w = canvas.clientWidth;
@@ -71,6 +79,19 @@ export function createView(canvas, level, labels) {
       const blink = session.invuln > 0 && Math.floor(session.invuln * 16) % 2 === 0;
       jo.group.visible = (session.dead === 0 || Math.floor(session.dead * 20) % 2 === 0) && !blink;
       syncEntities(scene, entityViews, session.entities, alpha, session.time);
+      for (let i = fx.length - 1; i >= 0; i--) {
+        const f = fx[i];
+        f.t += dt;
+        const k = f.t / f.life;
+        f.m.scale.setScalar(0.4 + k * 1.4);
+        f.m.rotation.z += dt * 6;
+        f.m.material.opacity = Math.max(0, 1 - k);
+        if (k >= 1) {
+          scene.remove(f.m);
+          f.m.geometry.dispose();
+          fx.splice(i, 1);
+        }
+      }
       renderer.render(scene, camera);
     },
     
@@ -78,6 +99,13 @@ export function createView(canvas, level, labels) {
       if (e.type === 'jump') squash = -0.6;
       if (e.type === 'land') squash = Math.min(1, 0.25 + (e.fall ?? 0) * 0.12);
       if (e.type === 'mantle') squash = -0.3;
+      if (e.type === 'doubleJump' || e.type === 'wallJump') squash = -0.5;
+      if (e.type === 'stomp') squash = -0.45;
+      if (e.type === 'poundStart') squash = 0.5;
+      if (e.type === 'pound') squash = 1;
+      
+      if (e.type === 'signal' && e.signals.some((s) => s.startsWith('visual:'))) spark(e.x, e.y + 0.4, 0xffd34d, 0.9, 0.12);
+      if (e.type === 'defeat') spark(e.x, e.y + 0.6, 0xffffff, 0.5, 0.18);
     },
   };
 }

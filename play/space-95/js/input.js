@@ -5,11 +5,12 @@ const KEYS_LEFT = ['ArrowLeft', 'KeyA'];
 const KEYS_RIGHT = ['ArrowRight', 'KeyD'];
 const KEYS_DOWN = ['ArrowDown', 'KeyS'];
 const KEYS_JUMP = ['Space', 'KeyJ', 'ArrowUp', 'KeyW', 'KeyZ'];
-const GAME_KEYS = new Set([...KEYS_LEFT, ...KEYS_RIGHT, ...KEYS_DOWN, ...KEYS_JUMP]);
+const KEYS_DASH = ['ShiftLeft', 'ShiftRight', 'KeyL', 'KeyX'];
+const GAME_KEYS = new Set([...KEYS_LEFT, ...KEYS_RIGHT, ...KEYS_DOWN, ...KEYS_JUMP, ...KEYS_DASH]);
 
 export function createInput(target = window) {
   const down = new Set();
-  const touch = { x: 0, down: false, jump: false };
+  const touch = { x: 0, down: false, jump: false, dash: false };
   target.addEventListener('keydown', (e) => {
     if (GAME_KEYS.has(e.code)) e.preventDefault();
     down.add(e.code);
@@ -25,6 +26,7 @@ export function createInput(target = window) {
       let x = (any(KEYS_RIGHT) ? 1 : 0) - (any(KEYS_LEFT) ? 1 : 0);
       let dn = any(KEYS_DOWN);
       let jump = any(KEYS_JUMP);
+      let dash = any(KEYS_DASH);
       for (const pad of navigator.getGamepads?.() ?? []) {
         if (!pad) continue;
         const ax = pad.axes[0] ?? 0;
@@ -34,11 +36,13 @@ export function createInput(target = window) {
         if (pad.buttons[15]?.pressed) x = 1;
         if (ay > 0.6 || pad.buttons[13]?.pressed) dn = true;
         if (pad.buttons[0]?.pressed || pad.buttons[1]?.pressed) jump = true;
+        if (pad.buttons[2]?.pressed || pad.buttons[5]?.pressed || pad.buttons[7]?.pressed) dash = true;
       }
       if (touch.x !== 0) x = touch.x;
       if (touch.down) dn = true;
       if (touch.jump) jump = true;
-      return { x, down: dn, jump };
+      if (touch.dash) dash = true;
+      return { x, down: dn, jump, dash };
     },
   };
 }
@@ -82,15 +86,28 @@ export function mountTouchControls(root, touch) {
   };
   stick.addEventListener('pointerup', release);
   stick.addEventListener('pointercancel', release);
-  jump.addEventListener('pointerdown', (e) => {
-    touch.jump = true;
-    jump.setPointerCapture(e.pointerId);
-    jump.classList.add('is-down');
+  holdButton(jump, (on) => {
+    touch.jump = on;
+  });
+  const dash = root.querySelector('[data-touch="dash"]');
+  if (dash) {
+    holdButton(dash, (on) => {
+      touch.dash = on;
+    });
+  }
+}
+
+
+function holdButton(el, set) {
+  el.addEventListener('pointerdown', (e) => {
+    set(true);
+    el.setPointerCapture(e.pointerId);
+    el.classList.add('is-down');
   });
   const up = () => {
-    touch.jump = false;
-    jump.classList.remove('is-down');
+    set(false);
+    el.classList.remove('is-down');
   };
-  jump.addEventListener('pointerup', up);
-  jump.addEventListener('pointercancel', up);
+  el.addEventListener('pointerup', up);
+  el.addEventListener('pointercancel', up);
 }

@@ -20,6 +20,7 @@ export function createHud(root, challenges, visible, title = 'Metrics gym') {
   const stats = { jumpH: 0, air: 0, takeoff: 0, airStart: 0, airborne: false, fps: 60 };
   let flashT = 0;
   root.hidden = !visible;
+  root.dataset.mode = title === 'Metrics gym' ? 'gym' : 'shift';
 
   const flash = (text) => {
     const f = el('flash');
@@ -31,8 +32,14 @@ export function createHud(root, challenges, visible, title = 'Metrics gym') {
   };
 
   return {
+    
     toggle() {
-      root.hidden = !root.hidden;
+      if (root.hidden) root.hidden = false;
+      else if (!root.classList.contains('is-expanded')) root.classList.add('is-expanded');
+      else {
+        root.classList.remove('is-expanded');
+        root.hidden = true;
+      }
     },
     onEvent(e, s) {
       if (e.type === 'jump') {

@@ -59,7 +59,7 @@ export function defeat(e, ctx, how) {
   e.t = 0;
   e.vx = 0;
   ctx.session.hitstop = Math.max(ctx.session.hitstop, HITSTOP_ENEMY);
-  ctx.events.push({ type: 'defeat', id: e.id, kind: e.kind, how });
+  ctx.events.push({ type: 'defeat', id: e.id, kind: e.kind, how, x: e.x, y: e.y });
   if (e.specimen) ctx.events.push({ type: 'secret', secret: 'specimen', id: e.id });
 }
 

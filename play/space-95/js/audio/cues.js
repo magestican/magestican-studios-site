@@ -8,23 +8,48 @@ const WALK_SPEED = 5;
 const STRIDE = 1.9; 
 
 
-export function cueFor(e) {
-  switch (e.type) {
-    case 'jump':
-      return 'jump';
-    case 'land': {
-      const f = e.fall ?? 0;
-      return f < LAND_SOFT_MAX ? 'land_soft' : f < LAND_RUN_MAX ? 'land_run' : 'land_hard';
-    }
-    case 'mantle':
-      return 'land_soft';
-    case 'skid':
-      return 'skid';
-    case 'pit':
-      return 'hurt_tone';
-    default:
-      return null;
+
+const CUES = {
+  jump: ['jump'],
+  mantle: ['mantle', 'land_soft'],
+  skid: ['skid'],
+  pit: ['hurt_tone'],
+  hurt: ['hurt_tone'],
+  bonk: ['bonk'],
+  corner: ['corner_slide'],
+  stomp: ['stomp', 'land_soft'],
+  kick: ['kick'],
+  pebbleHit: ['pebble_hit', 'kick'],
+  defeat: ['enemy_defeat_pop'],
+  uncurl: ['pillbug_uncurl'],
+  hop: ['ladybot_hop'],
+  checkpoint: ['checkpoint_clockin'],
+  secret: ['intel_found'],
+  clear: ['shift_clear'],
+};
+
+
+const SIGNAL_SOUNDS = {
+  'audio:hollow-knock': ['hollow_knock', 'kick'],
+  'audio:glint-chime': ['secret_glint'],
+  'audio:tiny-jingle': ['secret_glint'],
+};
+
+
+export function signalSounds(e, has = () => true) {
+  return e.signals.map((sig) => SIGNAL_SOUNDS[sig]?.find(has)).filter(Boolean);
+}
+
+
+
+
+
+export function cueFor(e, has = () => true) {
+  if (e.type === 'land') {
+    const f = e.fall ?? 0;
+    return f < LAND_SOFT_MAX ? 'land_soft' : f < LAND_RUN_MAX ? 'land_run' : 'land_hard';
   }
+  return CUES[e.type]?.find(has) ?? null;
 }
 
 

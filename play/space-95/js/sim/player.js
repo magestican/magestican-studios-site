@@ -3,6 +3,7 @@
 
 
 
+import { abilityAfterMove, abilityGravity, abilityHorizontal, abilityJumps, abilityState } from './abilities.js';
 import { bufferOk, cornerCorrect, coyoteOk, ledgeAssist } from './assists.js';
 import { onGround, sweepX, sweepY, touchingWall } from './body.js';
 import * as K from './constants.js';
@@ -38,6 +39,8 @@ export function createPlayer(x, y) {
     prevJump: false,
     airPeak: y, 
     takeoffY: y,
+    abilities: new Set(), 
+    ab: abilityState(),
     vyLanding: 0, 
     
     events: [],
@@ -64,9 +67,11 @@ export function stepPlayer(p, input, world) {
   if (!p.grounded) p.sinceGrounded += S;
 
   horizontal(p, dir, input);
+  abilityHorizontal(p, input, dir);
   tryJump(p);
+  abilityJumps(p, input, world);
   variableHeight(p, input);
-  gravity(p, input);
+  if (!abilityGravity(p, input, dir)) gravity(p, input);
 
   
   const vxBefore = p.vx;
@@ -124,6 +129,7 @@ export function stepPlayer(p, input, world) {
     if (wasGrounded && !p.jumpedThisAir) p.events.push({ type: 'leave' });
     if (p.y > p.airPeak) p.airPeak = p.y;
   }
+  abilityAfterMove(p, world, dir, p.grounded && !wasGrounded);
   p.vyLanding = p.vy;
   if (dir !== 0) p.facing = dir;
   return p;
