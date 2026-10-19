@@ -1,0 +1,136 @@
+
+
+
+
+import { createPicker } from './cues.js';
+import { SFX } from './sfxManifest.js';
+
+const VOICES_PER_SOUND = 4;
+const MUTE_KEY = 's95.muted';
+
+export function createAudio(base = 'assets/audio/') {
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return nullAudio();
+  const ctx = new Ctx();
+  const master = ctx.createGain();
+  const limiter = ctx.createDynamicsCompressor();
+  limiter.threshold.value = -3;
+  limiter.knee.value = 0;
+  limiter.ratio.value = 20;
+  limiter.attack.value = 0.002;
+  limiter.release.value = 0.12;
+  master.connect(limiter).connect(ctx.destination);
+  const bus = {};
+  for (const [name, gain] of [
+    ['music', 0.7],
+    ['sfx', 0.9],
+    ['ambience', 0.6],
+    ['ui', 0.8],
+  ]) {
+    bus[name] = ctx.createGain();
+    bus[name].gain.value = gain;
+    bus[name].connect(master);
+  }
+  let muted = readMuted();
+  master.gain.value = muted ? 0 : 1;
+
+  const probe = document.createElement('audio');
+  const ext = probe.canPlayType('audio/ogg; codecs="opus"') || probe.canPlayType('audio/ogg; codecs="vorbis"') ? 'ogg' : 'm4a';
+  
+  const buffers = new Map();
+  
+  const playing = new Map();
+  const pick = createPicker();
+
+  async function load(name) {
+    const info = SFX[name];
+    const list = [];
+    for (let v = 1; v <= info.variants; v++) {
+      const url = `${base}sfx/${name}/${name}_${String(v).padStart(2, '0')}.${ext}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`${url}: ${res.status}`);
+      list.push(await ctx.decodeAudioData(await res.arrayBuffer()));
+    }
+    buffers.set(name, list);
+  }
+  const ready = Promise.all(Object.keys(SFX).map((n) => load(n).catch((err) => console.warn('sfx', n, err.message))));
+
+  
+  
+  
+  let musicEl = null;
+  let musicWanted = null;
+  const startMusic = () => {
+    if (!musicWanted || musicEl) return;
+    musicEl = new Audio(`${base}music/${musicWanted}/${musicWanted}.${ext}`);
+    musicEl.loop = true;
+    musicEl.crossOrigin = 'anonymous';
+    ctx.createMediaElementSource(musicEl).connect(bus.music);
+    musicEl.play().catch(() => {
+      musicEl = null; 
+    });
+  };
+
+  const unlock = () => {
+    if (ctx.state !== 'running') ctx.resume();
+    startMusic();
+    const b = ctx.createBuffer(1, 1, ctx.sampleRate); 
+    const s = ctx.createBufferSource();
+    s.buffer = b;
+    s.connect(ctx.destination);
+    s.start();
+  };
+  for (const ev of ['pointerdown', 'keydown', 'touchend']) window.addEventListener(ev, unlock, { passive: true });
+
+  return {
+    ready,
+    
+    music(id) {
+      musicWanted = id;
+      if (ctx.state === 'running') startMusic();
+    },
+    
+    play(name, o = {}) {
+      const list = buffers.get(name);
+      if (!list || muted || ctx.state !== 'running') return;
+      const voices = playing.get(name) ?? [];
+      if (voices.length >= VOICES_PER_SOUND) voices.shift()?.stop();
+      const src = ctx.createBufferSource();
+      src.buffer = list[pick(name, list.length)];
+      src.playbackRate.value = o.rate ?? 1;
+      const g = ctx.createGain();
+      g.gain.value = o.volume ?? 1;
+      src.connect(g).connect(bus[o.bus ?? 'sfx']);
+      src.onended = () => {
+        const i = voices.indexOf(src);
+        if (i >= 0) voices.splice(i, 1);
+      };
+      voices.push(src);
+      playing.set(name, voices);
+      src.start();
+    },
+    toggleMute() {
+      muted = !muted;
+      master.gain.setTargetAtTime(muted ? 0 : 1, ctx.currentTime, 0.02);
+      try {
+        localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
+      } catch {}
+      return muted;
+    },
+    get muted() {
+      return muted;
+    },
+  };
+}
+
+function readMuted() {
+  try {
+    return localStorage.getItem(MUTE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function nullAudio() {
+  return { ready: Promise.resolve(), play() {}, music() {}, toggleMute: () => true, muted: true };
+}

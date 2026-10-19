@@ -1,0 +1,161 @@
+{
+ "brief": {
+  "game": "space-95",
+  "use": "bgm",
+  "genre": "city-pop",
+  "duration": 150,
+  "voice": null,
+  "bpm": null,
+  "beats": null,
+  "key": null,
+  "loop": true,
+  "lyrics": null,
+  "lyric_theme": null,
+  "language": "en",
+  "candidates": 2,
+  "lane": "compose",
+  "extra": "",
+  "title": "Space 95 (Clock In)",
+  "out_dir": null,
+  "eq": null,
+  "score": null,
+  "style": "space95-jazzfunk"
+ },
+ "recipe": {
+  "genre": "city-pop",
+  "caption": "japanese city pop, 80s, slap bass, Rhodes electric piano, funky guitar, brass section, lush chords, breezy night drive",
+  "bpm": [
+   100,
+   120
+  ],
+  "key": "F major",
+  "steps": 8,
+  "thinking": false,
+  "lane": "neural",
+  "wer_max": 0.6,
+  "target_lufs": -11,
+  "voice_caption": "",
+  "beats": 4,
+  "model": null
+ },
+ "candidates": [
+  {
+   "seed": 1396192479,
+   "qc": {
+    "ok": true,
+    "reasons": [],
+    "lufs": -18.598165414725724,
+    "true_peak_db": -0.9943268411524859,
+    "clip_fraction": 0.0,
+    "duration": 158.5714375,
+    "lead_silence": 0.0,
+    "tail_silence": 0.0,
+    "longest_gap": 0.0
+   },
+   "lyric_error": null,
+   "feats": {
+    "tempo": 112.5,
+    "key": 5,
+    "mode": 1,
+    "lufs": -18.598165414725724,
+    "band_sub": -14.451059341430664,
+    "band_low": -4.9567036628723145,
+    "band_lowmid": -2.398407459259033,
+    "band_high": -12.238436698913574,
+    "band_air": -20.67483139038086,
+    "crest_db": 19.528579711914062,
+    "stereo_width": 0.03114948235452175,
+    "onset_rate": 6.886486098733891
+   },
+   "score": {
+    "genre": "city-pop",
+    "scored": true,
+    "in_cluster": false,
+    "clap_distance": 0.30102505758750664,
+    "clap_threshold": 0.4061579573216017,
+    "deltas": {
+     "lufs": -6.644,
+     "crest_db": 4.868,
+     "band_sub": -2.834,
+     "band_low": -1.416,
+     "band_lowmid": 1.515,
+     "band_high": 3.224,
+     "band_air": 2.328,
+     "stereo_width": -0.067
+    },
+    "out_of_range": [
+     "lufs",
+     "crest_db",
+     "band_high"
+    ],
+    "notes": []
+   },
+   "outputs": {
+    "wav": "E:\\magestican-dj\\renders\\space-95\\main-theme\\space-95-bgm-city-pop-1.wav",
+    "webm": "E:\\magestican-dj\\renders\\space-95\\main-theme\\space-95-bgm-city-pop-1.webm",
+    "ogg": "E:\\magestican-dj\\renders\\space-95\\main-theme\\space-95-bgm-city-pop-1.ogg",
+    "bpm": "112",
+    "loopSamples": "7405714"
+   }
+  },
+  {
+   "seed": 517918022,
+   "qc": {
+    "ok": true,
+    "reasons": [],
+    "lufs": -19.04963746769166,
+    "true_peak_db": -0.9889065562437039,
+    "clip_fraction": 0.0,
+    "duration": 158.5714375,
+    "lead_silence": 0.0,
+    "tail_silence": 0.0,
+    "longest_gap": 0.0
+   },
+   "lyric_error": null,
+   "feats": {
+    "tempo": 112.5,
+    "key": 5,
+    "mode": 1,
+    "lufs": -19.04963746769166,
+    "band_sub": -15.746769905090332,
+    "band_low": -4.046971797943115,
+    "band_lowmid": -2.957392692565918,
+    "band_high": -11.766890525817871,
+    "band_air": -21.94940757751465,
+    "crest_db": 20.58465576171875,
+    "stereo_width": 0.0314960852265358,
+    "onset_rate": 6.823423039221676
+   },
+   "score": {
+    "genre": "city-pop",
+    "scored": true,
+    "in_cluster": false,
+    "clap_distance": 0.30144938085130024,
+    "clap_threshold": 0.4061579573216017,
+    "deltas": {
+     "lufs": -7.096,
+     "crest_db": 5.924,
+     "band_sub": -4.13,
+     "band_low": -0.506,
+     "band_lowmid": 0.956,
+     "band_high": 3.696,
+     "band_air": 1.053,
+     "stereo_width": -0.066
+    },
+    "out_of_range": [
+     "lufs",
+     "crest_db",
+     "band_high"
+    ],
+    "notes": []
+   },
+   "outputs": {
+    "wav": "E:\\magestican-dj\\renders\\space-95\\main-theme\\space-95-bgm-city-pop-2.wav",
+    "webm": "E:\\magestican-dj\\renders\\space-95\\main-theme\\space-95-bgm-city-pop-2.webm",
+    "ogg": "E:\\magestican-dj\\renders\\space-95\\main-theme\\space-95-bgm-city-pop-2.ogg",
+    "bpm": "112",
+    "loopSamples": "7405714"
+   }
+  }
+ ]
+}

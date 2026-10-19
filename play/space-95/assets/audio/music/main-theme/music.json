@@ -1,0 +1,53 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "main-theme",
+      "title": "Space 95 (Clock In)",
+      "files": {
+        "webm": "main-theme.webm",
+        "ogg": "main-theme.ogg",
+        "m4a": "main-theme.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 7405714,
+      "loopSeconds": 154.285708,
+      "bpm": 112,
+      "beats": 4,
+      "bars": 72,
+      "key": "F major",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -6.12,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples)",
+      "decoded": {
+        "webm": {
+          "file": "main-theme.webm",
+          "decoded_samples": 7405714,
+          "offset_samples": 0,
+          "true_peak_db": -5.38,
+          "bytes": 3341334
+        },
+        "ogg": {
+          "file": "main-theme.ogg",
+          "decoded_samples": 7405714,
+          "offset_samples": 0,
+          "true_peak_db": -5.6,
+          "bytes": 3442474
+        },
+        "m4a": {
+          "file": "main-theme.m4a",
+          "decoded_samples": 7406592,
+          "offset_samples": 0,
+          "true_peak_db": -5.79,
+          "bytes": 3800462
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-jazzfunk",
+        "seed": 1396192479,
+        "render": "E:/magestican-dj/renders/space-95/main-theme/",
+        "alternate": "E:/magestican-dj/renders/space-95/main-theme/space-95-bgm-city-pop-2.wav (seed 517918022)"
+      }
+    }
+  ]
+}

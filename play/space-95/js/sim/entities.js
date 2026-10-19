@@ -1,0 +1,70 @@
+
+
+
+
+import { sweepX, sweepY } from './body.js';
+import { FALL_GRAVITY, GRAVITY, STEP } from './constants.js';
+
+export const ENTITY_GRAVITY = GRAVITY * FALL_GRAVITY * 0.8;
+
+
+const KINDS = {};
+
+
+
+
+
+
+export function registerKind(kind, impl) {
+  KINDS[kind] = impl;
+}
+
+
+export function spawnEntities(defs) {
+  return defs
+    .map((d) => {
+      const impl = KINDS[d.kind];
+      if (!impl) throw new Error(`unknown entity kind ${d.kind} (${d.id})`);
+      const e = { vx: 0, vy: 0, w: 0.5, h: 0.5, alive: true, state: 'idle', t: 0, facing: -1, grounded: false, ...d, px: d.x, py: d.y };
+      impl.create(e);
+      return e;
+    })
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+
+export function stepEntities(list, ctx) {
+  for (const e of list) {
+    if (!e.alive) continue;
+    e.px = e.x;
+    e.py = e.y;
+    e.t += STEP;
+    KINDS[e.kind].step(e, ctx);
+  }
+}
+
+
+export function moveBody(e, world, gravity = true) {
+  if (gravity) e.vy -= ENTITY_GRAVITY * STEP;
+  const mx = sweepX(world, e, e.vx * STEP);
+  e.x = mx.x;
+  const my = sweepY(world, e, e.vy * STEP);
+  e.y = my.y;
+  const landed = my.hit && e.vy < 0;
+  if (my.hit) e.vy = 0;
+  e.grounded = landed;
+  return { wall: mx.hit, landed, ceiling: my.hit && !landed };
+}
+
+
+export function groundAhead(e, world, dir) {
+  const T = world.tile;
+  const c = Math.floor((e.x + dir * (e.w / 2 + 0.05)) / T);
+  const r = Math.round(e.y / T) - 1;
+  return world.solid(c, r) || world.oneWay(c, r);
+}
+
+
+export function overlaps(a, b, pad = 0) {
+  return Math.abs(a.x - b.x) < (a.w + b.w) / 2 + pad && a.y < b.y + b.h + pad && b.y < a.y + a.h + pad;
+}
