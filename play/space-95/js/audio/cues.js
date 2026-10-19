@@ -156,6 +156,37 @@ const CUES = {
   derail: ['derail_crash', 'cave_in'],
   rerail: ['rerail_clunk', 'fished_out'],
   diamondClack: ['diamond_clack', 'key_clack'],
+  
+  
+  securityOn: ['security_click', 'power_up'],
+  securityOff: ['security_off', 'power_down'],
+  cloudWarn: ['cloud_whoosh', 'wind_warn'],
+  cloudCover: ['cloud_hush'],
+  moonOut: ['moon_out'],
+  lampOn: ['lamp_buzz'],
+  lampOff: ['lamp_tick'],
+  lanternRaise: ['lantern_raise', 'power_up'],
+  lanternLower: ['lantern_lower'],
+  dazzled: ['sprite_dazzle', 'enemy_daze'],
+  padOpen: ['pad_bloom'],
+  padClose: ['pad_fold'],
+  budPop: ['bud_pomf', 'dustmite_pop'],
+  flockBurst: ['flock_burst', 'whoosh'],
+  perch: ['firefly_perch', 'scan_beep'],
+  flockJoin: ['flock_join', 'slipstream_chime'],
+  flockCall: ['flock_call', 'slipstream_chime'],
+  bloomOpening: ['bloom_opening', 'glide_open'],
+  bloom: ['night_bloom', 'boss_defeat'],
+  finishOpen: ['nav_lamp_beep', 'checkpoint_clockin'],
+  spriteFlash: ['sprite_fwip', 'laser_pew'],
+  spriteFluster: ['sprite_fluster', 'wing_buzz'],
+  spriteBump: ['sprite_bump', 'boing'],
+  ghostBlink: ['ghost_blink', 'whoosh'],
+  ghostAppear: ['ghost_hum', 'cricket_hum'],
+  ivyShown: ['ivy_shimmer'],
+  ivyRustle: ['ivy_rustle', 'dust_scrape'],
+  thornHit: ['thorn_prick', 'hurt_tone'],
+  flapSwing: ['flap_swing', 'whoosh'],
 };
 
 
@@ -173,6 +204,7 @@ const SIGNAL_SOUNDS = {
   'audio:fiddle-tune': ['fiddle_tune', 'cricket_hum', 'secret_glint'], 
   'audio:curve-squeal': ['curve_squeal', 'slick_squeak'],
   'audio:derail-crash': ['derail_crash', 'cave_in'],
+  'audio:ghost-hum': ['ghost_hum', 'cricket_hum'], 
 };
 
 

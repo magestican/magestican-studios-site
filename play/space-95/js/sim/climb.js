@@ -12,7 +12,7 @@ const JUMP_OFF_VX = 4;
 const TOP_POP_V = 9; 
 
 
-function onBark(world, b) {
+export function onBark(world, b) {
   if (!world.bark) return false;
   const T = world.tile;
   const c0 = Math.floor((b.x - b.w / 2 + 1e-7) / T);

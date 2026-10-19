@@ -5,12 +5,15 @@
 
 import './kinds.js';
 import { attachArena, initArena, stepArena } from './arena.js';
+import { attachBlooms, createBlooms, stepBlooms } from './bloom.js';
 import { INVULN_TIME } from './combat.js';
 import { STEP } from './constants.js';
 import { stepDig } from './dig.js';
 import { spawnEntities, stepEntities } from './entities.js';
 import { attachFans, createFans, stepFans } from './fan.js';
 import { attachHeaves, stepHeaves } from './heave.js';
+import { createLight, stepLight } from './light.js';
+import { createFlock, stepFlock } from './motifs/flock.js';
 import { touchPins } from './pins.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
 import { attachRafts, createRafts, stepRafts } from './raft.js';
@@ -114,6 +117,10 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     derails: 0,
     peaStart: {},
     peas: [],
+    
+    light: createLight(level),
+    blooms: createBlooms(level),
+    flock: createFlock(level),
   };
   if (level.mode === 'train') startTrain(s, start);
   initArena(s);
@@ -173,7 +180,8 @@ function sessionWorld(level) {
     level.rafts?.length ||
     level.arena?.length ||
     level.fans?.length ||
-    level.spins?.length;
+    level.spins?.length ||
+    level.blooms?.length;
   const w = changes ? level.world.clone() : level.world;
   if ((level.entities ?? []).some((d) => d.kind === 'typeKey')) w.mutable = true; 
   if (level.honey) w.honey = level.honey; 
@@ -187,6 +195,7 @@ function sessionWorld(level) {
   if (level.rafts?.length) attachRafts(w); 
   if (level.fans?.length) attachFans(w); 
   if (level.spins?.length) w.spins = level.spins; 
+  if (level.blooms?.length) attachBlooms(w); 
   return w;
 }
 
@@ -208,6 +217,7 @@ export function stepSession(s, input) {
     s.world.fanState = s.fans; 
     s.world.fanT = s.time;
   }
+  if (s.blooms) s.world.bloomState = s.blooms; 
   if (s.invuln > 0) s.invuln -= STEP;
   if (s.dead > 0) {
     s.dead += STEP;
@@ -243,6 +253,9 @@ export function stepSession(s, input) {
   stepShield(s);
   stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
   stepArena(s); 
+  if (s.flock) stepFlock(s); 
+  if (s.light) stepLight(s); 
+  if (s.blooms) stepBlooms(s); 
   if (s.level.soilLook) stepHollow(s);
   stepSecretSignals(s);
   stepShoe(s); 
@@ -284,7 +297,14 @@ export function stepSession(s, input) {
   
   const pin = s.level.sparks ? touchPins(s) : null;
   if (!s.train && (p.y < PIT_Y || pin)) {
-    s.events.push(pin ? { type: 'pinZap', x: p.x, y: p.y, signals: ['visual:pink-zap', 'audio:pin-zap'] } : { type: 'pit' });
+    
+    s.events.push(
+      pin
+        ? pin.skin === 'thorn'
+          ? { type: 'thornHit', x: p.x, y: p.y, signals: ['visual:pink-thorn', 'audio:thorn-prick'] }
+          : { type: 'pinZap', x: p.x, y: p.y, signals: ['visual:pink-zap', 'audio:pin-zap'] }
+        : { type: 'pit' },
+    );
     const cost = s.level.pitCost ?? 'none';
     if (cost === 'heart') s.hearts -= 1;
     if (cost === 'life') s.hearts = 0;
@@ -343,6 +363,12 @@ function respawn(s) {
       s.fans = createFans(s.level);
       s.surges = [];
       s.lightsOut = false;
+    }
+    if (s.level.dark) {
+      
+      s.light = createLight(s.level);
+      s.blooms = createBlooms(s.level);
+      s.flock = createFlock(s.level);
     }
     s.events.push({ type: 'gameOver' });
   }

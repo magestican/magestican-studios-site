@@ -25,7 +25,10 @@ export function stepRing(ring, entities, canHit, onHit) {
   ring.r = Math.min(ring.radius, ring.r + ring.speed * STEP);
   for (const e of entities) {
     if (!e.alive || !canHit(e) || ring.hit.includes(e.id)) continue;
-    if (Math.abs(e.x - ring.x) - e.w / 2 > ring.r) continue;
+    
+    
+    const d = ring.cy === undefined ? Math.abs(e.x - ring.x) : Math.hypot(e.x - ring.x, e.y + e.h / 2 - ring.cy);
+    if (d - e.w / 2 > ring.r) continue;
     if (ring.lo !== undefined && (e.x + e.w / 2 < ring.lo || e.x - e.w / 2 > ring.hi)) continue; 
     ring.hit.push(e.id);
     onHit(e);

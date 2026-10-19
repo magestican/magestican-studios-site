@@ -40,6 +40,10 @@ export function levelBuilder(meta) {
   const fans = []; 
   const sparks = []; 
   const spins = []; 
+  const moons = []; 
+  const lamps = []; 
+  const blooms = []; 
+  const ivy = []; 
   
   const track = { rails: [], points: [], diamonds: [], stations: [], signals: [], debris: [], peas: [], chevrons: [], props: [] };
   const builtRails = {};
@@ -279,8 +283,37 @@ export function levelBuilder(meta) {
       return api;
     },
     
+
+
+
     spark(x0, x1, y0, y1, opts = {}) {
-      sparks.push({ x0, x1, y0, y1, ...(opts.pulse ? { pulse: opts.pulse } : {}) });
+      sparks.push({ x0, x1, y0, y1, ...(opts.pulse ? { pulse: opts.pulse } : {}), ...(opts.skin ? { skin: opts.skin } : {}) });
+      return api;
+    },
+    
+    moonAt(x0, x1) {
+      moons.push({ x0, x1 });
+      return api;
+    },
+    
+
+
+
+    lampAt(x, y, opts = {}) {
+      counters.lamp = (counters.lamp ?? 0) + 1;
+      lamps.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-lamp-${counters.lamp}`, x, y, r: 5.5, ...opts });
+      return api;
+    },
+    
+    bloomAt(x, y, opts = {}) {
+      counters.bloom = (counters.bloom ?? 0) + 1;
+      blooms.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-bloom-${counters.bloom}`, x, y, w: 4, stub: 1, ...opts });
+      return api;
+    },
+    
+    ivy(x0, x1, y0, y1, opts = {}) {
+      counters.ivy = (counters.ivy ?? 0) + 1;
+      ivy.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-ivy-${counters.ivy}`, x0, x1, y0, y1 });
       return api;
     },
     
@@ -487,6 +520,13 @@ export function levelBuilder(meta) {
         ...(fans.length ? { fans } : {}),
         ...(sparks.length ? { sparks } : {}),
         ...(spins.length ? { spins } : {}),
+        
+        ...(meta.dark ? { dark: true } : {}),
+        ...(meta.moon ? { moon: meta.moon } : {}),
+        ...(moons.length ? { moons } : {}),
+        ...(lamps.length ? { lamps } : {}),
+        ...(blooms.length ? { blooms } : {}),
+        ...(ivy.length ? { ivy } : {}),
         
         ...(meta.mode === 'train' ? trainFields(meta, track, builtRails, trainStart, entities) : {}),
         dir: meta.dir ?? 1,

@@ -48,10 +48,16 @@ const LINES = {
   boost: ['Wind-up key! Full steam. Mind the tight bends.'],
   couple: ['Parts coupled! Heavier train - robbers fly farther.'],
   derail: ['Off the rails! Brake before a tight bend. Back on in a jiffy.'],
+  
+  lanternRaise: ['Hold UP and I light up. Flowers open in bright light.'],
+  budPop: ['Fireflies! They flip bugs - and they light the way ahead.'],
+  dazzled: ["Don't look at it! Turn away - or out-glow it."],
+  bloom: ['It BLOOMED! And look - our nav lamp, in the middle!'],
+  ghostBlink: ['She hates the bright. Keep me down.'],
 };
 
 
-const TEACH = new Set(['noPoints', 'pointsThrow', 'boost', 'couple', 'derail']);
+const TEACH = new Set(['noPoints', 'pointsThrow', 'boost', 'couple', 'derail', 'lanternRaise', 'budPop', 'dazzled', 'bloom', 'ghostBlink']);
 
 
 export function createBoltVoice() {

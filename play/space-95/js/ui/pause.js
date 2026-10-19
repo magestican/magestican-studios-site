@@ -2,6 +2,18 @@
 
 
 
+const NIGHT_STEPS = [100, 130, 160];
+const nightPct = () => {
+  try {
+    const v = Number.parseFloat(localStorage.getItem('space95.night') ?? '1');
+    const pct = Math.round((v > 3 ? v / 100 : v) * 100);
+    return NIGHT_STEPS.includes(pct) ? pct : 100;
+  } catch {
+    return 100;
+  }
+};
+
+
 export function createPause(root, { onResume, onRestartBeacon, onRestartShift, onVariant, onSound, getState }) {
   root.hidden = true;
   const render = () => {
@@ -16,6 +28,7 @@ export function createPause(root, { onResume, onRestartBeacon, onRestartShift, o
           <button type="button" data-act="shift">Restart shift</button>
           <button type="button" data-act="variant">Explorer: Jo (${st.variant})</button>
           <button type="button" data-act="sound">Sound: ${st.muted ? 'off' : 'on'}</button>
+          <button type="button" data-act="night">Night brightness: ${nightPct()} %</button>
         </div>
       </div>`;
     const on = (act, fn) => root.querySelector(`[data-act="${act}"]`)?.addEventListener('click', fn);
@@ -34,6 +47,15 @@ export function createPause(root, { onResume, onRestartBeacon, onRestartShift, o
     });
     on('sound', () => {
       onSound();
+      render();
+    });
+    on('night', () => {
+      const next = NIGHT_STEPS[(NIGHT_STEPS.indexOf(nightPct()) + 1) % NIGHT_STEPS.length];
+      try {
+        localStorage.setItem('space95.night', String(next / 100));
+      } catch {
+        
+      }
       render();
     });
     root.querySelector('[data-act="resume"]')?.focus();

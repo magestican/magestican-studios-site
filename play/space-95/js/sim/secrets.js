@@ -21,7 +21,14 @@ export function stepSecretSignals(s) {
     if (d <= range && e.sigArmed !== false) {
       e.sigArmed = false;
       e.sigPulse = 0;
-      s.events.push({ type: 'signal', id: e.id, signals: e.signals, x: e.x, y: e.y });
+      s.events.push({
+        type: 'signal',
+        id: e.id,
+        signals: e.signals,
+        x: e.x,
+        y: e.y,
+        ...(e.hidden !== undefined ? { hidden: e.hidden } : {}),
+      });
     } else if (d <= range) {
       e.sigPulse = (e.sigPulse ?? 0) + STEP;
       if (e.sigPulse >= VISUAL_PULSE) {

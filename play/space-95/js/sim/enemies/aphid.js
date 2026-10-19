@@ -2,6 +2,7 @@
 
 
 
+
 import { standardContact, stepDefeated } from '../combat.js';
 import { STEP } from '../constants.js';
 import { ENTITY_GRAVITY, moveBody, registerKind } from '../entities.js';
@@ -21,7 +22,7 @@ registerKind('aphid', {
   step(e, ctx) {
     if (stepDefeated(e)) return;
     e.hopT += STEP;
-    e.vx = 0;
+    e.vx = e.advance ? e.advance * e.facing : 0; 
     
     if (e.grounded && e.hopT >= (e.period ?? HOP_EVERY)) {
       e.hopT = 0;

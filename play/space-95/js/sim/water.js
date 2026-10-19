@@ -8,6 +8,7 @@
 
 
 
+import { padUnder } from './bloom.js';
 import { INVULN_TIME } from './combat.js';
 import { STEP } from './constants.js';
 import { unsafeFooting } from './pins.js';
@@ -34,13 +35,20 @@ export function trackSafe(s) {
     return;
   }
   const r = raftById(s.rafts, p.raft);
-  const key = r ? r.id : 'land';
+  const pad = s.blooms ? padUnder(s.blooms, p) : null; 
+  const key = pad ? pad.id : r ? r.id : 'land';
   if (s.safeKey !== key) {
     s.safeKey = key;
     s.safeT = 0;
   }
   s.safeT += STEP;
   if (s.safeT < SAFE_STAND - 1e-9) return;
+  if (pad) {
+    
+    s.safe = { x: pad.x, y: pad.y };
+    s.safeLand = s.safe;
+    return;
+  }
   if (r) {
     if (r.sinks || r.packet) return; 
     s.safe = { raft: r.id, lane: r.lane ?? null, dx: p.x - r.x };

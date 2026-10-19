@@ -3,10 +3,10 @@
 
 
 
-import { abilityAfterMove, abilityGravity, abilityHorizontal, abilityJumps, abilityState } from './abilities.js';
+import { abilityAfterMove, abilityGravity, abilityHorizontal, abilityJumps, abilityState, lanternStep } from './abilities.js';
 import { bufferOk, cornerCorrect, coyoteOk, ledgeAssist } from './assists.js';
 import { onGround, sweepX, sweepY, touchingWall } from './body.js';
-import { climbStep } from './climb.js';
+import { climbStep, onBark } from './climb.js';
 import * as K from './constants.js';
 import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
 import { spinUnder } from './pins.js';
@@ -104,10 +104,12 @@ export function stepPlayer(p, held, world) {
   const roped = world.hooks ? tetherStep(p, input, pressed, dir, world) : false;
   
   const carried = roped || (p.ride ? rideStep(p) : p.wake ? wakeStep(p, input, pressed) : false);
+  
+  const top = p.abilities?.has('lantern') ? lanternStep(p, input, onBark(world, p)) : K.RUN_SPEED;
   if (carried) {
     
   } else if (!climbStep(p, input, world, dir, pressed)) {
-    horizontal(p, dir, input);
+    horizontal(p, dir, input, top);
     abilityHorizontal(p, input, dir);
     tryJump(p);
     abilityJumps(p, input, world);
@@ -209,7 +211,7 @@ export function stepPlayer(p, held, world) {
 }
 
 
-function horizontal(p, dir, input) {
+function horizontal(p, dir, input, top) {
   const S = K.STEP;
   if (p.grounded) {
     const moving = Math.sign(p.vx);
@@ -229,12 +231,12 @@ function horizontal(p, dir, input) {
       if (p.vx === 0 || p.skid <= 0) p.skid = 0;
       return;
     }
-    if (dir !== 0) p.vx = approach(p.vx, dir * K.RUN_SPEED, (Math.sign(p.vx) === -dir ? K.GROUND_DECEL : K.GROUND_ACCEL) * S);
+    if (dir !== 0) p.vx = approach(p.vx, dir * top, (Math.sign(p.vx) === -dir ? K.GROUND_DECEL : K.GROUND_ACCEL) * S);
     else p.vx = approach(p.vx, 0, K.GROUND_DECEL * S);
     return;
   }
   p.skid = 0;
-  const cap = K.RUN_SPEED * (input.jump ? K.AIR_CARRY_HELD : K.AIR_CARRY_RELEASED);
+  const cap = top * (input.jump ? K.AIR_CARRY_HELD : K.AIR_CARRY_RELEASED);
   if (dir !== 0) {
     const target = dir * cap;
     const speeding = Math.sign(p.vx) === dir && Math.abs(p.vx) > cap;

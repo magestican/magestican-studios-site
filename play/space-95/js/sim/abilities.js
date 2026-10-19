@@ -8,7 +8,8 @@ import { GRAVITY, JUMP_VELOCITY, RUN_SPEED, STEP } from './constants.js';
 import { honeyAt, JO_GLOOP } from './honey.js';
 import { glideVy } from './wind.js';
 
-const ABILITIES = ['double', 'dash', 'wall', 'pound', 'glide', 'tether']; 
+
+const ABILITIES = ['double', 'dash', 'wall', 'pound', 'glide', 'tether', 'lantern'];
 
 const DOUBLE_JUMP_HEIGHT = 2.0; 
 const DOUBLE_JUMP_V = Math.sqrt(2 * GRAVITY * DOUBLE_JUMP_HEIGHT);
@@ -163,6 +164,41 @@ export function abilityGravity(p, input, dir, world) {
     return true;
   }
   return false;
+}
+
+
+
+
+
+
+
+
+
+export const LANTERN = Object.freeze({
+  GLOW: 4.5, 
+  RAISE: 8, 
+  RAISE_Y: 1.5, 
+  RAMP: 0.2, 
+  SPEED: 4, 
+  DAZZLE: 1.5, 
+  DAZZLED_GLOW: 1.5, 
+});
+
+
+
+
+
+export function lanternStep(p, input, onBark) {
+  p.lantern ??= { raised: false, r: LANTERN.GLOW, dazzle: 0 };
+  const L = p.lantern;
+  if (L.dazzle > 0) L.dazzle = Math.max(0, L.dazzle - STEP);
+  const raised = !!input.up && L.dazzle <= 0 && !p.climbing && !onBark;
+  if (raised !== L.raised) p.events.push({ type: raised ? 'lanternRaise' : 'lanternLower', x: p.x, y: p.y });
+  L.raised = raised;
+  const target = raised ? LANTERN.RAISE : L.dazzle > 0 ? LANTERN.DAZZLED_GLOW : LANTERN.GLOW;
+  const rate = ((LANTERN.RAISE - LANTERN.GLOW) / LANTERN.RAMP) * STEP;
+  L.r = L.r < target ? Math.min(target, L.r + rate) : Math.max(target, L.r - rate);
+  return raised ? LANTERN.SPEED : RUN_SPEED;
 }
 
 
