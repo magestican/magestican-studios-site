@@ -5,6 +5,7 @@
 
 import { touchingWall } from './body.js';
 import { GRAVITY, JUMP_VELOCITY, RUN_SPEED, STEP } from './constants.js';
+import { honeyAt, JO_GLOOP } from './honey.js';
 import { glideVy } from './wind.js';
 
 const ABILITIES = ['double', 'dash', 'wall', 'pound', 'glide'];
@@ -44,6 +45,7 @@ export function abilityState() {
     prevDash: false,
     prevDown: false,
     glideArm: false, 
+    gloop: 0, 
   };
 }
 
@@ -179,7 +181,15 @@ export function abilityAfterMove(p, world, dir, landed) {
     A.usedDouble = false;
     A.dashUsed = false;
     A.wallDir = 0;
-    if (landed && A.pound === 'fall') p.events.push({ type: 'pound', x: p.x, y: p.y });
+    if (landed && A.pound === 'fall') {
+      p.events.push({ type: 'pound', x: p.x, y: p.y });
+      
+      const h = world.honey && honeyAt(world, p.x, p.y);
+      if (h) {
+        A.gloop = JO_GLOOP;
+        p.events.push({ type: 'gloop', x: p.x, y: p.y, use: h.use ?? null });
+      }
+    }
     A.pound = null;
   }
 }

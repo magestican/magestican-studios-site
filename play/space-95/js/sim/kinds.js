@@ -1,9 +1,11 @@
 
 import './bosses/boss.js';
+import './bosses/duchess.js';
 import './bosses/foreman.js';
 import './enemies/antPorter.js';
 import './enemies/aphid.js';
 import './enemies/bandit.js';
+import './enemies/guard.js';
 import './enemies/ladybot.js';
 import './enemies/pillbug.js';
 import './enemies/snailknight.js';

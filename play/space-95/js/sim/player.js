@@ -67,9 +67,13 @@ const approach = (v, target, delta) => (v < target ? Math.min(v + delta, target)
 
 
 
-export function stepPlayer(p, input, world) {
+export function stepPlayer(p, held, world) {
   const S = K.STEP;
   p.events.length = 0;
+  
+  const glooped = p.ab?.gloop > 0;
+  if (glooped) p.ab.gloop -= S;
+  const input = glooped ? NO_INPUT : held;
   p.px = p.x;
   p.py = p.y;
   const dir = input.x > 0.25 ? 1 : input.x < -0.25 ? -1 : 0;

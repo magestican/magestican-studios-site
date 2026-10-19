@@ -56,6 +56,17 @@ export function stepEntities(list, ctx) {
       
       
       const p = ctx.player;
+      
+      
+      
+      const ww = e.wakeWhen;
+      if (ww && !e.alert) {
+        const side = ww.dir ?? (Math.sign(ww.x - e.x) || 1);
+        if ((p.x - ww.x) * side >= 0 && Math.abs(p.y - e.y) <= (ww.dy ?? 3)) {
+          e.wakeIn = 0;
+          e.alert = true;
+        }
+      }
       if (e.wakeIn === undefined) {
         const pound = p.events.find((ev) => ev.type === 'pound');
         if ((pound && Math.hypot(pound.x - e.x, pound.y - e.y) <= 8) || overlaps(p, e)) e.wakeIn = 1.1;
@@ -64,7 +75,7 @@ export function stepEntities(list, ctx) {
       if (e.wakeIn !== undefined && e.wakeIn <= 0) {
         e.dozing = false;
         e.awake = true;
-        ctx.events.push({ type: 'wake', id: e.id, yawn: true });
+        ctx.events.push({ type: 'wake', id: e.id, yawn: !e.alert });
       }
       continue;
     }

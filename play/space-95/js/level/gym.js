@@ -66,8 +66,11 @@ export function gymWorld() {
   floor(238, 275); 
   floor(291, 305); 
   floor(317, 412); 
-  b.fill(326, 328, FLOOR, FLOOR + 14); 
-  b.fill(332, 334, FLOOR, FLOOR + 12);
+  
+  
+  
+  b.fill(326, 328, FLOOR + 3, FLOOR + 14);
+  b.fill(332, 334, FLOOR + 3, FLOOR + 12);
   b.fill(334, 344, FLOOR + 11, FLOOR + 12, '='); 
   b.fill(352, 354, FLOOR, FLOOR + 10, '|'); 
   b.fill(354, 360, FLOOR + 9, FLOOR + 10, '=');

@@ -9,6 +9,11 @@
 
 
 
+
+
+
+
+
 import { HITSTOP_BOSS, hurtPlayer, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { overlaps, registerKind } from '../entities.js';
@@ -39,6 +44,9 @@ function enterPhase(e, ctx, i) {
   e.attackIdx = 0;
   e.stage = 'intro';
   e.t = 0;
+  e.endActive = false;
+  e.recoverFor = undefined;
+  e.weakNow = undefined;
   ctx.events.push({ type: 'bossPhase', id: e.id, phase: i, name: e.phases[i].name });
 }
 
@@ -59,8 +67,13 @@ registerKind('boss', {
     const p = ctx.player;
     const impl = TYPES[e.type];
     if (e.stage === 'defeated') return;
+    if (e.stage === 'escaped') {
+      impl.escape?.(e, ctx); 
+      return;
+    }
     if (!e.engaged) {
       if (p.x < e.arena.x0 || p.x > e.arena.x1) return;
+      if (e.arena.y0 !== undefined && e.arena.y1 !== undefined && (p.y < e.arena.y0 || p.y > e.arena.y1)) return;
       e.engaged = true;
       e.deathsSeen = s.deaths;
       enterPhase(e, ctx, e.phase);
@@ -88,12 +101,16 @@ registerKind('boss', {
     } else if (e.stage === 'telegraph' && e.t >= atk.telegraph) {
       e.stage = 'active';
       e.t = 0;
+      e.endActive = false;
       ctx.events.push({ type: 'bossAttack', id: e.id, attack: atk.name });
-    } else if (e.stage === 'active' && e.t >= atk.active) {
+    } else if (e.stage === 'active' && (e.t >= atk.active || e.endActive)) {
       e.stage = 'recover';
       e.t = 0;
+      e.endActive = false;
       ctx.events.push({ type: 'bossRecover', id: e.id, attack: atk.name });
-    } else if (e.stage === 'recover' && e.t >= atk.recover) {
+    } else if (e.stage === 'recover' && e.t >= (e.recoverFor ?? atk.recover)) {
+      e.recoverFor = undefined;
+      e.weakNow = undefined;
       e.attackIdx += 1;
       const next = ph.attacks[e.attackIdx % ph.attacks.length];
       e.stage = 'telegraph';
@@ -104,13 +121,14 @@ registerKind('boss', {
     if (e.stage !== 'intro') impl.attack(e, ctx, ph.attacks[e.attackIdx % ph.attacks.length], e.stage);
     
     e.x = Math.max(e.arena.x0 + e.w / 2, Math.min(e.arena.x1 - e.w / 2, e.x));
+    if (e.flies) e.y = Math.max(e.arena.y0 - e.h, Math.min(e.arena.y1 - e.h, e.y)); 
 
     
     if (e.immune > 0) e.immune -= STEP;
     
     
     let how = impl.hit(e, ctx);
-    const weakWindow = e.stage === 'recover';
+    const weakWindow = e.stage === 'recover' && e.weakNow !== false;
     if (!how && weakWindow && clodOn(e, ctx)) how = 'cave-in';
     if (!how && poundOn(e, ctx)) {
       if (weakWindow && ph.weakness === 'pound') how = 'pound';
@@ -131,7 +149,13 @@ registerKind('boss', {
           ctx.events.push({ type: 'deedEarned', id: e.id, deed: ph.deed, phase: e.phase });
         }
         if (e.phase + 1 < e.phases.length) enterPhase(e, ctx, e.phase + 1);
-        else {
+        else if (e.escape) {
+          
+          e.stage = 'escaped';
+          e.t = 0;
+          ctx.events.push({ type: 'bossEscape', id: e.id, x: e.x, y: e.y });
+          for (const x of s.entities) if (x.kind === 'finish' && x.bossGate === e.id) x.alive = true;
+        } else {
           e.stage = 'defeated';
           ctx.events.push({ type: 'bossDefeat', id: e.id, x: e.x, y: e.y });
           for (const x of s.entities) if (x.kind === 'finish' && x.bossGate === e.id) x.alive = true;
@@ -143,6 +167,6 @@ registerKind('boss', {
       return;
     }
     
-    if (e.stage !== 'recover' && overlaps(p, e)) hurtPlayer(s, e.x);
+    if (!e.harmless && !weakWindow && overlaps(p, e)) hurtPlayer(s, e.x);
   },
 });

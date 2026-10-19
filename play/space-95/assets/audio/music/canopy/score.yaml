@@ -1,0 +1,269 @@
+genre: city-pop
+style: space95-canopy
+title: Canopy
+key: A major
+bpm: 116
+beats: 4
+swing: 0.52
+language: en
+seed: 1396200398
+groove: space95-canopy
+singer: none (instrumental)
+sections:
+- name: intro1
+  role: intro
+  bars: 4
+  energy: 0.3
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Dmaj7
+  - E7sus4
+  - C#m7
+  - E7
+  melody: D5:2 E5:2 F#5:2 B4:2 A4:8 A4:2 B4:2 D5:2 A5:2 E5:6 r:2 E5:2 D5:2 C#5:4 Ab5:2
+    E5:6 D5:2 C#5:2 B4:2 F#5:2 E5:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: vibraphone
+    comp: harp
+    bass: electric_bass
+- name: verse1
+  role: verse
+  bars: 8
+  energy: 0.45
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bm7
+  - E7
+  - Amaj7
+  - F#7
+  - Amaj7
+  - A7
+  - Dmaj7
+  - E7
+  melody: B4:2 A4:4 F#4:2 A4:4 D5:4 D5:2 C#5:2 Ab4:2 F#4:2 Ab4:6 r:2 Ab4:2 A4:4 C#5:2
+    C#5:4 A4:4 Bb4:2 Bb4:2 C#5:2 C#5:2 Bb4:6 r:2 A4:2 Ab4:2 A4:2 Ab4:2 A4:8 A4:2 G4:2
+    A4:2 G4:2 G4:6 r:2 F#4:2 Ab4:4 B4:2 A4:4 F#4:4 Ab4:2 F#4:2 Ab4:2 F#4:2 Ab4:6 r:2
+  lyrics: []
+  lineup:
+    lead: harp
+    counter: pizzicato
+    comp: strings
+    bass: electric_bass
+- name: pre1
+  role: pre
+  bars: 4
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bm7
+  - C#m7
+  - Dmaj7
+  - E7
+  melody: D5:6 E5:2 D5:2 A5:2 A5:4 Ab5:2 A5:2 Ab5:2 C#5:2 B4:6 r:2 A4:2 Ab4:2 A4:4
+    D5:2 C#5:6 B4:2 A4:2 Ab4:2 D5:2 B4:6 r:2
+  lyrics: []
+  lineup:
+    lead: flute
+    counter: glockenspiel
+    comp: harp
+    bass: electric_bass
+- name: chorus1
+  role: chorus
+  bars: 8
+  energy: 0.8
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Dmaj7
+  - E7
+  - C#m7
+  - F#m7
+  - Dmaj7
+  - C#7
+  - F#m7
+  - A
+  melody: D5:2 E5:2 D5:4 D5:2 C#5:6 D5:2 E5:2 D5:2 E5:2 D5:6 r:2 C#5:2 B4:2 C#5:4
+    B4:2 C#5:6 C#5:2 B4:2 C#5:2 B4:2 C#5:6 r:2 D5:2 E5:2 D5:4 D5:2 C#5:6 C#5:2 C#5:2
+    B4:2 C#5:2 B4:6 r:2 A4:2 B4:2 A4:4 A4:2 B4:6 A4:2 B4:2 A4:2 B4:2 A4:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: vibraphone
+    comp: harp
+    bass: electric_bass
+- name: interlude1
+  role: interlude
+  bars: 8
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - F#m7
+  - B7
+  - Bm7
+  - E7
+  - Dmaj7
+  - C#m7
+  - Bm7
+  - E7
+  melody: C#5:4 A4:4 A4:2 C#5:2 A4:4 A4:2 C#5:2 Eb5:2 F#5:2 B4:6 r:2 r:2 B4:2 D5:4
+    D5:2 B4:2 D5:4 D5:2 F#5:2 E5:2 C#5:2 E5:6 r:2 D5:2 B4:4 C#5:2 D5:4 A4:4 Ab4:2
+    B4:2 C#5:2 E5:2 B4:6 r:2 B4:2 Ab4:2 A4:2 C#5:2 A4:8 Ab4:2 B4:2 Ab4:2 B4:2 E5:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: glockenspiel
+    counter: flute
+    comp: strings
+    bass: electric_bass
+- name: verse2
+  role: verse
+  bars: 8
+  energy: 0.5
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bm7
+  - E7
+  - Amaj7
+  - F#7
+  - Amaj7
+  - A7
+  - Dmaj7
+  - E7
+  melody: B4:2 A4:4 F#4:2 A4:4 D5:4 D5:2 C#5:2 Ab4:2 F#4:2 Ab4:3 B4:3 r:2 Ab4:2 A4:4
+    C#5:2 C#5:4 A4:4 Bb4:2 Bb4:2 C#5:2 C#5:2 Bb4:3 C#5:3 r:2 A4:2 Ab4:2 A4:2 Ab4:2
+    A4:8 A4:2 G4:2 A4:2 G4:2 G4:3 A4:3 r:2 F#4:2 Ab4:4 B4:2 A4:4 F#4:4 Ab4:2 F#4:2
+    Ab4:2 F#4:2 Ab4:3 B4:3 r:2
+  lyrics: []
+  lineup:
+    lead: harp
+    counter: pizzicato
+    comp: strings
+    bass: electric_bass
+- name: pre2
+  role: pre
+  bars: 4
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bm7
+  - C#m7
+  - Dmaj7
+  - E7
+  melody: D5:6 E5:2 D5:2 A5:2 A5:4 Ab5:2 A5:2 Ab5:2 C#5:2 B4:3 C#5:3 r:2 A4:2 Ab4:2
+    A4:4 D5:2 C#5:6 B4:2 A4:2 Ab4:2 D5:2 B4:3 D5:3 r:2
+  lyrics: []
+  lineup:
+    lead: flute
+    counter: glockenspiel
+    comp: harp
+    bass: electric_bass
+- name: chorus2
+  role: chorus
+  bars: 8
+  energy: 0.85
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Dmaj7
+  - E7
+  - C#m7
+  - F#m7
+  - Dmaj7
+  - C#7
+  - F#m7
+  - A
+  melody: D5:2 E5:2 D5:4 D5:2 C#5:6 D5:2 E5:2 D5:2 E5:2 D5:6 r:2 C#5:2 B4:2 C#5:4
+    B4:2 C#5:6 C#5:2 B4:2 C#5:2 B4:2 C#5:6 r:2 D5:2 E5:2 D5:4 D5:2 C#5:6 C#5:2 C#5:2
+    B4:2 C#5:2 B4:6 r:2 A4:2 B4:2 A4:4 A4:2 B4:6 A4:2 B4:2 A4:2 B4:2 A4:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: vibraphone
+    comp: harp
+    bass: electric_bass
+- name: bridge1
+  role: bridge
+  bars: 8
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - C#m7
+  - F#7
+  - Bm7
+  - E7
+  - F#m7
+  - C#7
+  - Dmaj7
+  - E7
+  melody: C#5:4 E5:2 A4:2 C#5:4 B4:4 Bb4:2 C#5:2 F#5:2 C#5:2 Bb4:6 r:2 r:2 A4:2 D5:2
+    Ab4:2 D5:4 D5:4 D5:2 A4:2 E5:2 A5:2 Ab5:6 r:2 A4:2 D5:2 A5:4 E5:2 D5:6 C#5:2 F5:2
+    Ab4:2 C#5:2 B4:6 r:2 A4:4 D5:2 Ab4:2 C#5:4 A4:4 Ab4:2 C#5:2 Ab5:2 D5:2 B4:6 r:2
+  lyrics: []
+  lineup:
+    lead: flute
+    counter: harp
+    comp: strings
+    bass: electric_bass
+- name: chorus3
+  role: chorus
+  bars: 8
+  energy: 1.0
+  sung: false
+  hook: true
+  transpose: 1
+  chords:
+  - Ebmaj7
+  - F7
+  - Dm7
+  - Gm7
+  - Ebmaj7
+  - D7
+  - Gm7
+  - Bb
+  melody: Eb5:2 F5:2 Eb5:4 Eb5:2 D5:6 Eb5:2 F5:2 Eb5:2 F5:2 Eb5:6 r:2 D5:2 C5:2 D5:4
+    C5:2 D5:6 D5:2 C5:2 D5:2 C5:2 D5:6 r:2 Eb5:2 F5:2 Eb5:4 Eb5:2 D5:6 D5:2 D5:2 C5:2
+    D5:2 C5:6 r:2 Bb4:2 C5:2 Bb4:4 Bb4:2 C5:6 Bb4:2 C5:2 Bb4:2 C5:2 Bb4:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: vibraphone
+    comp: harp
+    bass: electric_bass
+- name: outro1
+  role: outro
+  bars: 4
+  energy: 0.4
+  sung: false
+  hook: false
+  transpose: 1
+  chords:
+  - Cm7
+  - F7
+  - Bbmaj7
+  - Bb
+  melody: Eb5:2 D5:2 Bb4:4 Eb5:2 Bb4:6 A4:2 G4:2 C5:2 G4:2 C5:6 r:2 Bb4:4 A4:4 D5:2
+    A4:2 D5:4 Bb4:2 A4:2 D5:2 A4:2 Bb4:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: vibraphone
+    comp: harp
+    bass: electric_bass

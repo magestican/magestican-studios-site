@@ -13,6 +13,7 @@ import { sweepX, sweepY } from '../body.js';
 import { contact, defeat, hurtPlayer, stepDefeated, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { registerKind } from '../entities.js';
+import { HONEY_STUCK, honeyAt, honeyStuckEvent } from '../honey.js';
 
 const BOB = 0.3; 
 const BOB_PERIOD = 1.2; 
@@ -100,6 +101,13 @@ registerKind('wasp', {
         e.vx = 0;
         e.vy = 0;
         ctx.events.push({ type: 'waspStuck', id: e.id, x: e.x, y: e.y });
+        
+        const h = my.hit && honeyAt(ctx.world, e.x, e.y);
+        if (h) {
+          e.stuckFor = HONEY_STUCK;
+          e.use = h.use;
+          ctx.events.push(honeyStuckEvent(e, h));
+        }
       } else if (e.double && !e.second && e.flown >= e.toLock - PULL_UP_SHORT) {
         e.second = true; 
         e.vx = 0;

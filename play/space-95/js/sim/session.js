@@ -34,8 +34,10 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
   const dir = level.dir ?? 1; 
   const player = createPlayer(start.x, start.y, dir);
   
+  
   for (const d of level.entities ?? [])
-    if (d.kind === 'ability' && start !== level.spawn && dir * (start.x - d.x) > 0) abilities.add(d.grant);
+    if (d.kind === 'ability' && start !== level.spawn && (level.vertical ? start.y > d.y : dir * (start.x - d.x) > 0))
+      abilities.add(d.grant);
   player.abilities = abilities;
   return {
     level,
@@ -73,6 +75,7 @@ function sessionWorld(level) {
   const windy = level.updrafts?.length || level.gusts?.length; 
   const changes = level.world.mutable || (level.entities ?? []).some((d) => d.kind === 'clod') || level.heaves?.length || windy;
   const w = changes ? level.world.clone() : level.world;
+  if (level.honey) w.honey = level.honey; 
   if (windy) attachWind(w, level);
   if (level.heaves?.length) {
     attachHeaves(w, level.heaves);

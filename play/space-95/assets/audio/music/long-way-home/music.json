@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "long-way-home",
+      "title": "The Long Way Home",
+      "files": {
+        "webm": "long-way-home.webm",
+        "ogg": "long-way-home.ogg",
+        "m4a": "long-way-home.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 6480000,
+      "loopSeconds": 135.0,
+      "bpm": 128,
+      "beats": 4,
+      "bars": 72,
+      "key": "F major",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.75,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "long-way-home.webm",
+          "decoded_samples": 6480000,
+          "corr": 0.9968,
+          "true_peak_db": -4.99,
+          "bytes": 2869660
+        },
+        "ogg": {
+          "file": "long-way-home.ogg",
+          "decoded_samples": 6480000,
+          "corr": 0.9977,
+          "true_peak_db": -5.08,
+          "bytes": 2970340
+        },
+        "m4a": {
+          "file": "long-way-home.m4a",
+          "decoded_samples": 6480000,
+          "corr": 0.9986,
+          "true_peak_db": -5.19,
+          "bytes": 4477756
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-long-way-home, rework of the main theme (same, transpose 0)",
+        "seed": 1843444622,
+        "cover_chord_agree": 0.854,
+        "cover_chroma_corr": 0.778,
+        "render": "D:\\magestican-dj\\renders\\space-95\\long-way-home",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\long-way-home\\space-95-bgm-city-pop-2.wav (seed 930464514, chord_agree 0.799)"
+        ]
+      }
+    }
+  ]
+}

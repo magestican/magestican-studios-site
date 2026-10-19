@@ -1,2 +1,2 @@
 
-export const MUSIC_TRACKS = ['boss-mini', 'main-theme', 'orchard', 'stripecat', 'underground'];
+export const MUSIC_TRACKS = ['boss-mini', 'canopy', 'long-way-home', 'main-theme', 'orchard', 'stripecat', 'underground', 'windward'];

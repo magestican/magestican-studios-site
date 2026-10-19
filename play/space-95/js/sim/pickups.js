@@ -48,6 +48,23 @@ registerKind('ability', {
   },
 });
 
+
+
+registerKind('cameo', {
+  create(e) {
+    e.w = 0;
+    e.h = 0;
+  },
+  step(e, ctx) {
+    const p = ctx.player;
+    const z = e.zone;
+    if (p.grounded && p.x >= z.x0 && p.x <= z.x1 && p.y >= z.y0 && p.y <= z.y1) {
+      e.alive = false;
+      ctx.events.push({ type: 'bossCameo', id: e.id, who: e.who, x: p.x, y: p.y });
+    }
+  },
+});
+
 registerKind('finish', {
   create(e) {
     e.w = 0.6;

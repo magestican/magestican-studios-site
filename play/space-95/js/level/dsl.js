@@ -29,6 +29,7 @@ export function levelBuilder(meta) {
   const gusts = [];
   const shoeRuns = [];
   const shoeBeats = [];
+  const honey = [];
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -225,6 +226,16 @@ export function levelBuilder(meta) {
       return api;
     },
     
+
+
+
+
+    honey(x0, x1, y, opts = {}) {
+      counters.honey = (counters.honey ?? 0) + 1;
+      honey.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-honey-${counters.honey}`, x0, x1, y, motif: 'honey', ...opts });
+      return api;
+    },
+    
     putAt(kind, x, y, props = {}) {
       const e = { id: props.id ?? id(kind), kind, x, y, ...props };
       entities.push(e);
@@ -273,6 +284,7 @@ export function levelBuilder(meta) {
         rows.push(row);
       }
       const world = gridWorld(rows);
+      if (honey.length) world.honey = honey; 
       return {
         id: meta.id,
         name: meta.name,
@@ -286,6 +298,7 @@ export function levelBuilder(meta) {
         updrafts,
         gusts,
         ...(shoeRuns.length || shoeBeats.length ? { shoe: { runs: shoeRuns, beats: shoeBeats } } : {}),
+        ...(honey.length ? { honey } : {}),
         dir: meta.dir ?? 1,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,

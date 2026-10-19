@@ -96,8 +96,10 @@ export function createView(canvas, level, labels) {
         rig.focusY = y;
         rig.placed = true;
       }
-      const hint = level.cameraHints?.find((h) => x >= h.x0 && x < h.x1);
-      updateCameraRig(rig, { x, y, vx: p.vx, vy: p.vy, grounded: p.grounded, facing: p.facing, climbing: p.climbing }, dt, RUN_SPEED);
+      
+      const hint = level.cameraHints?.find((h) => x >= h.x0 && x < h.x1 && (h.y0 === undefined || (y >= h.y0 && y < h.y1)));
+      const wall = !!p.abilities?.has('wall') && p.ab?.wallDir !== 0; 
+      updateCameraRig(rig, { x, y, vx: p.vx, vy: p.vy, grounded: p.grounded, facing: p.facing, climbing: p.climbing, wall }, dt, RUN_SPEED);
       
       aheadK += ((hint?.ahead === 0 ? 0 : 1) - aheadK) * (1 - Math.exp(-dt * 3));
       const camX = hint?.lock ? hint.lock.x : x + rig.ahead * aheadK;

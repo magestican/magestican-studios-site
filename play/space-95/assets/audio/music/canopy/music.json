@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "canopy",
+      "title": "Canopy",
+      "files": {
+        "webm": "canopy.webm",
+        "ogg": "canopy.ogg",
+        "m4a": "canopy.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 7150345,
+      "loopSeconds": 148.965521,
+      "bpm": 116,
+      "beats": 4,
+      "bars": 72,
+      "key": "A major",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.73,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "canopy.webm",
+          "decoded_samples": 7150345,
+          "corr": 0.9974,
+          "true_peak_db": -5.2,
+          "bytes": 3261453
+        },
+        "ogg": {
+          "file": "canopy.ogg",
+          "decoded_samples": 7150345,
+          "corr": 0.998,
+          "true_peak_db": -5.22,
+          "bytes": 3271242
+        },
+        "m4a": {
+          "file": "canopy.m4a",
+          "decoded_samples": 7150345,
+          "corr": 0.9989,
+          "true_peak_db": -5.45,
+          "bytes": 4883961
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-canopy, rework of the main theme (same, transpose 4)",
+        "seed": 900826377,
+        "cover_chord_agree": 0.892,
+        "cover_chroma_corr": 0.796,
+        "render": "D:\\magestican-dj\\renders\\space-95\\canopy",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\canopy\\space-95-bgm-city-pop-2.wav (seed 535589634, chord_agree 0.892)"
+        ]
+      }
+    }
+  ]
+}
