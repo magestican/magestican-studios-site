@@ -1,0 +1,272 @@
+genre: city-pop
+style: space95-night-bloom
+title: Night Bloom
+key: C minor
+bpm: 100
+beats: 4
+swing: 0.5
+language: en
+seed: 1396200398
+groove: space95-night-bloom
+singer: none (instrumental)
+sections:
+- name: intro1
+  role: intro
+  bars: 4
+  energy: 0.3
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Fm7
+  - G7sus4
+  - Ebmaj7
+  - G7
+  melody: F4:2 G4:2 Ab4:2 D4:2 C4:8 C4:2 D4:2 F4:2 C5:2 G4:6 r:2 F#4:2 F4:2 Eb4:4
+    Bb4:2 F#4:6 F4:2 Eb4:2 D4:2 Ab4:2 G4:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: music_box
+    comp: harp
+    bass: contrabass
+- name: verse1
+  role: verse
+  bars: 8
+  energy: 0.45
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Dm7b5
+  - G7
+  - Cm7
+  - Ab7
+  - Cm7
+  - Cm7
+  - Fm7
+  - G7
+  melody: D4:2 C4:4 Ab3:2 C4:4 F4:4 F4:2 Eb4:2 Bb3:2 Ab3:2 Bb3:6 r:2 Bb3:2 C4:4 Eb4:2
+    Eb4:4 C4:4 C4:2 C4:2 Eb4:2 Eb4:2 C4:6 r:2 C4:2 Bb3:2 C4:2 Bb3:2 C4:8 C4:2 Bb3:2
+    C4:2 Bb3:2 Bb3:6 r:2 Ab3:2 Bb3:4 D4:2 C4:4 Ab3:4 Bb3:2 Ab3:2 Bb3:2 Ab3:2 Bb3:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: flute
+    counter: celesta
+    comp: harp
+    bass: contrabass
+- name: pre1
+  role: pre
+  bars: 4
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Dm7b5
+  - Ebmaj7
+  - Fm7
+  - G7
+  melody: F4:6 G4:2 F4:2 C5:2 C5:4 Bb4:2 C5:2 Bb4:2 Eb4:2 C#4:6 r:2 C4:2 Bb3:2 C4:4
+    F4:2 Eb4:6 D4:2 C4:2 Bb3:2 F4:2 D4:6 r:2
+  lyrics: []
+  lineup:
+    lead: music_box
+    counter: flute
+    comp: strings
+    bass: contrabass
+- name: chorus1
+  role: chorus
+  bars: 8
+  energy: 0.8
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Fm7
+  - G7
+  - Ebmaj7
+  - Abmaj7
+  - Fm7
+  - Eb7
+  - Abmaj7
+  - Cm
+  melody: F4:2 G4:2 F4:4 F4:2 Eb4:6 F4:2 G4:2 F4:2 G4:2 F4:6 r:2 Eb4:2 C#4:2 Eb4:4
+    C#4:2 Eb4:6 Eb4:2 D4:2 Eb4:2 D4:2 Eb4:6 r:2 F4:2 G4:2 F4:4 F4:2 Eb4:6 Eb4:2 Eb4:2
+    C#4:2 Eb4:2 C#4:6 r:2 B3:2 D4:2 B3:4 B3:2 D4:6 C4:2 D4:2 C4:2 D4:2 C4:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: flute
+    comp: strings
+    bass: contrabass
+- name: interlude1
+  role: interlude
+  bars: 8
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Abmaj7
+  - D7
+  - Dm7b5
+  - G7
+  - Fm7
+  - Ebmaj7
+  - Dm7b5
+  - G7
+  melody: Eb4:4 B3:4 B3:2 Eb4:2 B3:4 C4:2 Eb4:2 F#4:2 Ab4:2 D4:6 r:2 r:2 D4:2 F4:4
+    F4:2 D4:2 F4:4 F4:2 Ab4:2 G4:2 Eb4:2 G4:6 r:2 F4:2 D4:4 Eb4:2 F4:4 C4:4 Bb3:2
+    C#4:2 Eb4:2 F#4:2 C#4:6 r:2 D4:2 Bb3:2 C4:2 Eb4:2 C4:8 Bb3:2 D4:2 Bb3:2 D4:2 G4:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: vibraphone
+    counter: glockenspiel
+    comp: harp
+    bass: contrabass
+- name: verse2
+  role: verse
+  bars: 8
+  energy: 0.5
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Dm7b5
+  - G7
+  - Cm7
+  - Ab7
+  - Cm7
+  - Cm7
+  - Fm7
+  - G7
+  melody: D4:2 C4:4 Ab3:2 C4:4 F4:4 F4:2 Eb4:2 Bb3:2 Ab3:2 Bb3:3 D4:3 r:2 Bb3:2 C4:4
+    Eb4:2 Eb4:4 C4:4 C4:2 C4:2 Eb4:2 Eb4:2 C4:3 Eb4:3 r:2 C4:2 Bb3:2 C4:2 Bb3:2 C4:8
+    C4:2 Bb3:2 C4:2 Bb3:2 Bb3:3 C4:3 r:2 Ab3:2 Bb3:4 D4:2 C4:4 Ab3:4 Bb3:2 Ab3:2 Bb3:2
+    Ab3:2 Bb3:3 D4:3 r:2
+  lyrics: []
+  lineup:
+    lead: flute
+    counter: celesta
+    comp: harp
+    bass: contrabass
+- name: pre2
+  role: pre
+  bars: 4
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Dm7b5
+  - Ebmaj7
+  - Fm7
+  - G7
+  melody: F4:6 G4:2 F4:2 C5:2 C5:4 Bb4:2 C5:2 Bb4:2 Eb4:2 C#4:3 Eb4:3 r:2 C4:2 Bb3:2
+    C4:4 F4:2 Eb4:6 D4:2 C4:2 Bb3:2 F4:2 D4:3 F4:3 r:2
+  lyrics: []
+  lineup:
+    lead: music_box
+    counter: flute
+    comp: strings
+    bass: contrabass
+- name: chorus2
+  role: chorus
+  bars: 8
+  energy: 0.85
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - Fm7
+  - G7
+  - Ebmaj7
+  - Abmaj7
+  - Fm7
+  - Eb7
+  - Abmaj7
+  - Cm
+  melody: F4:2 G4:2 F4:4 F4:2 Eb4:6 F4:2 G4:2 F4:2 G4:2 F4:6 r:2 Eb4:2 C#4:2 Eb4:4
+    C#4:2 Eb4:6 Eb4:2 D4:2 Eb4:2 D4:2 Eb4:6 r:2 F4:2 G4:2 F4:4 F4:2 Eb4:6 Eb4:2 Eb4:2
+    C#4:2 Eb4:2 C#4:6 r:2 B3:2 D4:2 B3:4 B3:2 D4:6 C4:2 D4:2 C4:2 D4:2 C4:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: flute
+    comp: strings
+    bass: contrabass
+- name: bridge1
+  role: bridge
+  bars: 8
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Ebmaj7
+  - Ab7
+  - Dm7b5
+  - G7
+  - Abmaj7
+  - Eb7
+  - Fm7
+  - G7
+  melody: Eb4:4 F#4:2 C4:2 Eb4:4 C#4:4 C4:2 Eb4:2 Ab4:2 Eb4:2 C4:6 r:2 r:2 C4:2 F4:2
+    Bb3:2 F4:4 F4:4 F4:2 C4:2 G4:2 C5:2 Bb4:6 r:2 B3:2 F4:2 B4:4 F#4:2 F4:6 Eb4:2
+    G4:2 Bb3:2 Eb4:2 C#4:6 r:2 C4:4 F4:2 Bb3:2 Eb4:4 C4:4 Bb3:2 Eb4:2 Bb4:2 F4:2 D4:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: flute
+    counter: music_box
+    comp: strings
+    bass: contrabass
+- name: chorus3
+  role: chorus
+  bars: 8
+  energy: 1.0
+  sung: false
+  hook: true
+  transpose: 1
+  chords:
+  - F#m7
+  - Ab7
+  - Emaj7
+  - Amaj7
+  - F#m7
+  - E7
+  - Amaj7
+  - C#m
+  melody: F#4:2 Ab4:2 F#4:4 F#4:2 E4:6 F#4:2 Ab4:2 F#4:2 Ab4:2 F#4:6 r:2 E4:2 D4:2
+    E4:4 D4:2 E4:6 E4:2 Eb4:2 E4:2 Eb4:2 E4:6 r:2 F#4:2 Ab4:2 F#4:4 F#4:2 E4:6 E4:2
+    E4:2 D4:2 E4:2 D4:6 r:2 C4:2 Eb4:2 C4:4 C4:2 Eb4:6 C#4:2 Eb4:2 C#4:2 Eb4:2 C#4:6
+    r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: flute
+    comp: strings
+    bass: contrabass
+- name: outro1
+  role: outro
+  bars: 4
+  energy: 0.4
+  sung: false
+  hook: false
+  transpose: 1
+  chords:
+  - Ebm7b5
+  - Ab7
+  - C#m7
+  - C#m
+  melody: F#4:2 E4:2 C#4:4 F#4:2 C#4:6 B3:2 A3:2 Eb4:2 A3:2 Eb4:6 r:2 C#4:4 B3:4 E4:2
+    B3:2 E4:4 C#4:2 B3:2 E4:2 B3:2 C#4:6 r:2
+  lyrics: []
+  lineup:
+    lead: celesta
+    counter: glockenspiel
+    comp: harp
+    bass: contrabass

@@ -9,6 +9,7 @@ export const MUSIC_TRACKS = [
   'long-way-home',
   'machine',
   'main-theme',
+  'night-bloom',
   'orchard',
   'puddle-sea',
   'stripecat',

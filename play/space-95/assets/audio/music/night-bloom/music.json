@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "night-bloom",
+      "title": "Night Bloom",
+      "files": {
+        "webm": "night-bloom.webm",
+        "ogg": "night-bloom.ogg",
+        "m4a": "night-bloom.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 8294400,
+      "loopSeconds": 172.8,
+      "bpm": 100,
+      "beats": 4,
+      "bars": 72,
+      "key": "C minor",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -4.36,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "night-bloom.webm",
+          "decoded_samples": 8294400,
+          "corr": 0.9981,
+          "true_peak_db": -4.49,
+          "bytes": 3800241
+        },
+        "ogg": {
+          "file": "night-bloom.ogg",
+          "decoded_samples": 8294400,
+          "corr": 0.9988,
+          "true_peak_db": -4.76,
+          "bytes": 3904051
+        },
+        "m4a": {
+          "file": "night-bloom.m4a",
+          "decoded_samples": 8294400,
+          "corr": 0.9994,
+          "true_peak_db": -3.32,
+          "bytes": 5621607
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-night-bloom, rework of the main theme (minor, transpose -5)",
+        "seed": 819676093,
+        "cover_chord_agree": 0.747,
+        "cover_chroma_corr": 0.853,
+        "render": "D:\\magestican-dj\\renders\\space-95\\night-bloom",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\night-bloom\\space-95-bgm-city-pop-2.wav (seed 1350741049, chord_agree 0.719)"
+        ]
+      }
+    }
+  ]
+}
