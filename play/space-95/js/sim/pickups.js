@@ -50,6 +50,7 @@ registerKind('ability', {
 
 
 
+
 registerKind('cameo', {
   create(e) {
     e.w = 0;
@@ -60,7 +61,8 @@ registerKind('cameo', {
     const z = e.zone;
     if (p.grounded && p.x >= z.x0 && p.x <= z.x1 && p.y >= z.y0 && p.y <= z.y1) {
       e.alive = false;
-      ctx.events.push({ type: 'bossCameo', id: e.id, who: e.who, x: p.x, y: p.y });
+      if (e.event) ctx.events.push({ type: e.event, id: e.id, step: e.step, x: p.x, y: p.y });
+      else ctx.events.push({ type: 'bossCameo', id: e.id, who: e.who, x: p.x, y: p.y });
     }
   },
 });

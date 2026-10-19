@@ -30,6 +30,8 @@ export function levelBuilder(meta) {
   const shoeRuns = [];
   const shoeBeats = [];
   const honey = [];
+  const water = [];
+  const rafts = [];
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -236,9 +238,14 @@ export function levelBuilder(meta) {
       return api;
     },
     
+    water(x0, x1, y) {
+      water.push({ x0, x1, y });
+      return api;
+    },
+    
     putAt(kind, x, y, props = {}) {
       const e = { id: props.id ?? id(kind), kind, x, y, ...props };
-      entities.push(e);
+      (kind === 'raft' ? rafts : entities).push(e);
       return e;
     },
     
@@ -299,6 +306,8 @@ export function levelBuilder(meta) {
         gusts,
         ...(shoeRuns.length || shoeBeats.length ? { shoe: { runs: shoeRuns, beats: shoeBeats } } : {}),
         ...(honey.length ? { honey } : {}),
+        ...(water.length ? { water } : {}),
+        ...(rafts.length ? { rafts } : {}),
         dir: meta.dir ?? 1,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,

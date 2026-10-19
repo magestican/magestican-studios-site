@@ -74,6 +74,17 @@ const CUES = {
   hornBonk: ['helmet_bonk', 'boss_hit'],
   bossEscape: ['duchess_escape', 'boss_defeat'],
   bossCameo: ['duchess_laugh', 'foreman_grumble'],
+  dunk: ['dunk_splash', 'land_hard'],
+  fishedOut: ['fished_out', 'bolt_beep_happy'],
+  raftLand: ['raft_land', 'land_soft'],
+  raftSink: ['raft_sink', 'skid'],
+  padSink: ['pad_sink', 'skid'],
+  ripple: ['ripple', 'dew_bounce'],
+  capsize: ['capsize', 'enemy_defeat_pop'],
+  rock: ['boat_rock', 'enemy_daze'],
+  striderWindup: ['strider_skitter', 'pillbug_alert'],
+  skiffWindup: ['heave_ho', 'pillbug_alert'],
+  dishCameo: ['mantis_swish', 'foreman_grumble'],
   caveIn: ['cave_in', 'skid'],
   buried: ['bury_thump', 'enemy_defeat_pop'],
   strike: ['strike', 'intel_found'], 
@@ -96,6 +107,7 @@ const SIGNAL_SOUNDS = {
   'audio:two-tone-buzz': ['wasp_two_tone', 'secret_glint'],
   'audio:cricket-hum': ['cricket_hum', 'secret_glint'],
   'audio:kazoo-fanfare': ['kazoo_fanfare', 'secret_glint'],
+  'audio:shanty-whistle': ['shanty_whistle', 'secret_glint'],
 };
 
 
@@ -105,6 +117,7 @@ export function signalSounds(e, has = () => true) {
 
 
 export function cueRate(e) {
+  if (e.type === 'capsize' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'bowl' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   return e.type === 'pebbleHit' && e.hits > 1 ? 2 ** ((2 * (e.hits - 1)) / 12) : 1;
 }

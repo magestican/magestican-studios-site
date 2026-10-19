@@ -9,9 +9,12 @@ import { stepDig } from './dig.js';
 import { spawnEntities, stepEntities } from './entities.js';
 import { attachHeaves, stepHeaves } from './heave.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
+import { attachRafts, createRafts, stepRafts } from './raft.js';
+import { createRipple, stepRipple } from './ripple.js';
 import { stepSecretSignals } from './secrets.js';
 import { stepShield } from './shield.js';
 import { createShoe, resetShoe, stepShoe } from './shoe.js';
+import { checkDunk, DUNK_TIME, fishOut, trackSafe } from './water.js';
 import { attachWind, stepWind } from './wind.js';
 
 const RESPAWN_DELAY = 0.45; 
@@ -56,6 +59,16 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     punts: 0,
     
     shoe: createShoe(level, start.x),
+    
+    bowls: {},
+    
+    rafts: createRafts(level),
+    ripple: createRipple(level),
+    dunk: 0, 
+    dunks: 0,
+    
+    safe: { x: start.x, y: start.y },
+    safeLand: { x: start.x, y: start.y },
     hearts: START_HEARTS,
     maxHearts: START_HEARTS,
     lives: START_LIVES,
@@ -73,7 +86,8 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
 
 function sessionWorld(level) {
   const windy = level.updrafts?.length || level.gusts?.length; 
-  const changes = level.world.mutable || (level.entities ?? []).some((d) => d.kind === 'clod') || level.heaves?.length || windy;
+  const changes =
+    level.world.mutable || (level.entities ?? []).some((d) => d.kind === 'clod') || level.heaves?.length || windy || level.rafts?.length;
   const w = changes ? level.world.clone() : level.world;
   if (level.honey) w.honey = level.honey; 
   if (windy) attachWind(w, level);
@@ -82,6 +96,7 @@ function sessionWorld(level) {
     w.time = 0;
     w.sighStart = null;
   }
+  if (level.rafts?.length) attachRafts(w); 
   return w;
 }
 
@@ -97,6 +112,7 @@ export function stepSession(s, input) {
   s.time += STEP;
   stepHeaves(s);
   stepWind(s);
+  if (s.rafts) s.world.raftState = s.rafts; 
   if (s.invuln > 0) s.invuln -= STEP;
   if (s.dead > 0) {
     s.dead += STEP;
@@ -109,6 +125,12 @@ export function stepSession(s, input) {
     if (s.punt >= PUNT_TIME) respawn(s);
     return s;
   }
+  if (s.dunk > 0) {
+    s.dunk += STEP; 
+    if (s.dunk >= DUNK_TIME) fishOut(s);
+    return s;
+  }
+  stepRafts(s);
   const p = s.player;
   stepPlayer(p, s.cleared ? NO_INPUT : input, s.world);
   stepDig(s);
@@ -116,6 +138,7 @@ export function stepSession(s, input) {
   stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
   stepSecretSignals(s);
   stepShoe(s); 
+  stepRipple(s); 
   for (const e of p.events) s.events.push(e);
   for (const e of s.events) if (e.type === 'secret') s.found.add(String(e.id));
   for (const c of s.level.checkpoints) {
@@ -128,6 +151,10 @@ export function stepSession(s, input) {
     }
   }
   if (s.punt > 0) return s;
+  if (s.level.water) {
+    trackSafe(s);
+    if (checkDunk(s)) return s; 
+  }
   if (p.y < PIT_Y) {
     s.events.push({ type: 'pit' });
     const cost = s.level.pitCost ?? 'none';
@@ -164,6 +191,13 @@ function respawn(s) {
   s.invuln = 0;
   s.dead = 0;
   s.punt = 0;
+  s.dunk = 0;
   if (s.shoe) resetShoe(s.shoe, s.respawnAt.x);
+  if (s.rafts) {
+    s.rafts = createRafts(s.level); 
+    s.ripple = createRipple(s.level);
+    s.safe = { ...s.respawnAt };
+    s.safeLand = s.safe;
+  }
   s.events.push({ type: 'respawn' });
 }

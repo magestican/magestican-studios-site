@@ -60,7 +60,7 @@ const view = createView(document.getElementById('stage'), level, labels);
 const hud = createHud(document.getElementById('hud'), labels, cheats.hud, title);
 const audio = createAudio();
 
-const SURFACE = { 1: 'grass_blade', 2: 'bark', 3: 'dirt', 4: 'dirt', 5: 'leaf', 6: 'grass_blade', 7: 'grass_blade', 8: 'honey' }; 
+const SURFACE = { 1: 'grass_blade', 2: 'bark', 3: 'dirt', 4: 'dirt', 5: 'leaf', 6: 'grass_blade', 7: 'grass_blade', 8: 'honey', 9: 'leaf' }; 
 const footsteps = createFootsteps(SURFACE[level.id] ?? 'dirt');
 const ladder = createLadder();
 const boltVoice = createBoltVoice();
@@ -84,6 +84,7 @@ const MUSIC = {
   6: 'windward',
   7: 'long-way-home',
   8: 'honeycomb',
+  9: 'puddle-sea',
 };
 const levelMusic = [MUSIC[level.id], 'main-theme'].filter(Boolean);
 audio.musicFirst(levelMusic);

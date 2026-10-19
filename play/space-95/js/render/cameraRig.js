@@ -2,6 +2,7 @@
 
 
 
+
 const LOOK_AHEAD = 3; 
 const LOOK_AHEAD_RATE = 2.5; 
 const DEAD_ZONE_UP = 1.6; 
@@ -26,8 +27,9 @@ export function createCameraRig(x, y) {
 
 export function updateCameraRig(cam, target, dt, runSpeed) {
   const k = (rate) => 1 - Math.exp(-rate * dt);
-  const speedFrac = Math.min(1, Math.abs(target.vx) / runSpeed);
-  const wantAhead = Math.sign(target.vx || target.facing) * LOOK_AHEAD * speedFrac;
+  const vx = target.vx + (target.carryVx ?? 0);
+  const speedFrac = Math.min(1, Math.abs(vx) / runSpeed);
+  const wantAhead = Math.sign(vx || target.facing) * LOOK_AHEAD * speedFrac;
   cam.ahead += (wantAhead - cam.ahead) * k(LOOK_AHEAD_RATE);
   cam.x = target.x + cam.ahead;
 

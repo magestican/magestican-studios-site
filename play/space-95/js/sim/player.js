@@ -9,6 +9,7 @@ import { onGround, sweepX, sweepY, touchingWall } from './body.js';
 import { climbStep } from './climb.js';
 import * as K from './constants.js';
 import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
+import { raftById } from './raft.js';
 import { rideStep, wakeStep } from './slipstream.js';
 import { gustDx, windCushion } from './wind.js';
 
@@ -54,6 +55,11 @@ export function createPlayer(x, y, facing = 1) {
     
     wake: null,
     wakeCool: 0, 
+    
+    raft: null,
+    carryVx: 0, 
+    
+    carryFrom: null,
     
     events: [],
   };
@@ -101,9 +107,18 @@ export function stepPlayer(p, held, world) {
 
   
   const vxBefore = p.vx;
-  const mx = sweepX(world, p, p.vx * S + (world.gusts && !carried ? gustDx(world, p) : 0));
+  if (p.grounded && p.raft !== null) {
+    p.carryVx = raftById(world.raftState, p.raft)?.vx ?? 0;
+    p.carryFrom = p.raft;
+  }
+  const dx0 = p.vx * S + (world.gusts && !carried ? gustDx(world, p) : 0);
+  const mx = sweepX(world, p, p.carryVx ? dx0 + p.carryVx * S : dx0);
   p.x = mx.x;
-  if (mx.hit) p.vx = 0;
+  if (mx.hit) {
+    p.vx = 0;
+    p.carryVx = 0; 
+    p.carryFrom = null;
+  }
   let dy = p.vy * S;
   let my = sweepY(world, p, dy);
   if (my.hit && dy > 0) {
@@ -144,6 +159,16 @@ export function stepPlayer(p, held, world) {
   
   const wasGrounded = p.grounded;
   p.grounded = p.vy <= 0 && onGround(world, p);
+  if (world.raftState) {
+    const deck = p.grounded && my.floor?.raft ? my.floor : null;
+    if (p.grounded && !deck) {
+      p.carryVx = 0; 
+      p.carryFrom = null;
+    }
+    if (deck && !wasGrounded)
+      p.events.push({ type: 'raftLand', id: deck.id, x: p.x, y: p.y, speed: -p.vyLanding || 0, floats: deck.floats });
+    p.raft = deck ? deck.id : null;
+  }
   if (p.grounded) {
     if (!wasGrounded) {
       p.events.push({ type: 'land', fall: p.airPeak - p.y, speed: -p.vyLanding || 0 });

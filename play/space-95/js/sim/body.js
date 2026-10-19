@@ -52,7 +52,7 @@ export function sweepX(world, b, dx) {
 function heaveWall(world, b, dx) {
   if (!world.floorAt) return null;
   const f = world.floorAt(b, b.x + dx);
-  return f && f.y - b.y > 0.5 ? { x: b.x, hit: true } : null;
+  return f && !f.noWall && f.y - b.y > 0.5 ? { x: b.x, hit: true } : null;
 }
 
 
@@ -60,7 +60,7 @@ function heaveFloor(world, b, oldB, newB, result) {
   if (!world.floorAt) return result;
   const f = world.floorAt(b);
   if (!f || (result.hit && result.y >= f.y)) return result;
-  if (oldB >= f.y - 0.5 && newB <= f.y + 0.06) return { y: f.y, hit: true, floor: f };
+  if (oldB >= f.y - (f.up ?? 0.5) && newB <= f.y + 0.06) return { y: f.y, hit: true, floor: f };
   return result;
 }
 

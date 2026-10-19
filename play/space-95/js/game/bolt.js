@@ -29,6 +29,9 @@ const LINES = {
   bossCameo: ['Was that... our lamp? With a CROWN?', 'Royalty. Stealing our lamp. Unbelievable.'],
   honeyStuck: ['Stuck! Honey: one, guards: zero.', 'Sticky situation. For them.'],
   bossEscape: ['She dropped the lamp! Lamp recovered. Duchess: not.', 'She got away. But we got the lamp.'],
+  dunk: ['Man overboard! Fishing you out.', 'Splash. Towel module: missing.'],
+  capsize: ['Capsized! Nice ripple.', 'Wave of the day!'],
+  dishCameo: ['Hey! That is OUR dish!', 'The Mantis took the dish up the tree...'],
   glide: ['Leaf deployed. Very aerodynamic. Probably.', 'Wind bonus: unlocked.'],
   dig: ['Digging. In a suit. On a Monday.', 'Soil sample acquired. Also, a hole.'],
   clear: ['Shift complete. Clocking out!', "That's a wrap. Same time tomorrow?"],
@@ -55,6 +58,9 @@ export function createBoltVoice() {
       else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
       else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
       else if (e.type === 'ability' && e.grant === 'glide') kind = 'glide';
+      else if (e.type === 'dunk') kind = (used.dunk ?? 0) < 2 ? 'dunk' : null;
+      else if (e.type === 'capsize') kind = (e.n ?? 1) >= 4 && (used.capsize ?? 0) < 2 ? 'capsize' : null;
+      else if (e.type === 'dishCameo') kind = e.step === 0 || e.step === 3 ? 'dishCameo' : null;
       else if (e.type === 'honeyStuck') kind = (used.honeyStuck ?? 0) < 2 ? 'honeyStuck' : null;
       else if (e.type === 'bowl') kind = e.n >= 4 ? 'bowl' : null;
       else if (e.type === 'punt') kind = (used.punt ?? 0) < 2 ? 'punt' : null;

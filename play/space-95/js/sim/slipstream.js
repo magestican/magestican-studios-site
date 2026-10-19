@@ -37,7 +37,7 @@ const RIDE_HANG = 1.2;
 const MOTH_SIGNALS = ['visual:scale-dust', 'audio:sparkle-chime'];
 
 
-function makePath(e) {
+export function makePath(e) {
   const pts = [[e.x, e.y], ...(e.path ?? [])];
   const cum = [0];
   for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
@@ -45,7 +45,7 @@ function makePath(e) {
 }
 
 
-function pathAt(path, s) {
+export function pathAt(path, s) {
   const { pts, cum } = path;
   if (pts.length < 2) return { x: pts[0][0], y: pts[0][1], dx: 1, dy: 0 };
   let i = 1;

@@ -40,6 +40,9 @@ export function createView(canvas, level, labels) {
   const shoe = shoeMeshes();
   scene.add(shoe.group);
   scene.add(honeyMeshes(level));
+  scene.add(waterMeshes(level));
+  const sea = seaMeshes();
+  scene.add(sea.group);
   
   const teles = [];
   const tele = (m, life) => {
@@ -106,7 +109,12 @@ export function createView(canvas, level, labels) {
       
       const hint = level.cameraHints?.find((h) => x >= h.x0 && x < h.x1 && (h.y0 === undefined || (y >= h.y0 && y < h.y1)));
       const wall = !!p.abilities?.has('wall') && p.ab?.wallDir !== 0; 
-      updateCameraRig(rig, { x, y, vx: p.vx, vy: p.vy, grounded: p.grounded, facing: p.facing, climbing: p.climbing, wall }, dt, RUN_SPEED);
+      updateCameraRig(
+        rig,
+        { x, y, vx: p.vx, vy: p.vy, grounded: p.grounded, facing: p.facing, climbing: p.climbing, wall, carryVx: p.carryVx ?? 0 },
+        dt,
+        RUN_SPEED,
+      );
       
       aheadK += ((hint?.ahead === 0 ? 0 : 1) - aheadK) * (1 - Math.exp(-dt * 3));
       const camX = hint?.lock ? hint.lock.x : x + rig.ahead * aheadK;
@@ -131,6 +139,7 @@ export function createView(canvas, level, labels) {
       fur.update(session.world);
       wind.update(session.time, dt);
       shoe.update(session, dt);
+      sea.update(session, dt);
       jo.shell.visible = !!session.shield;
       jo.leaf.visible = !!p.gliding;
       
@@ -215,6 +224,9 @@ export function createView(canvas, level, labels) {
       if (e.type === 'glitterSplat')
         for (let i = 0; i < 6; i++) spark(e.x + Math.cos(i) * 0.6, e.y + 0.3 + Math.sin(i) * 0.3, 0xc9a7ff, 0.6, 0.1);
       if (e.type === 'guardStunned' || e.type === 'helmetBonk') kick(0.06);
+      if (e.type === 'dunk') for (let i = 0; i < 6; i++) spark(e.x - 0.6 + i * 0.24, e.y + 0.2, 0x7fd3ff, 0.6, 0.12);
+      if (e.type === 'capsize') for (let i = 0; i < 4 + (e.n ?? 1); i++) spark(e.x - 1 + i * 0.4, e.y + 0.4, 0xdff6ff, 0.6, 0.12);
+      if (e.type === 'ripple' && e.big) kick(0.06);
       if (e.type === 'bossHit') kick(0.15);
       if (e.type === 'pound' || e.type === 'clodLand') kick(0.08);
       if (e.type === 'land' && (e.fall ?? 0) > 4) kick(0.05);
@@ -373,6 +385,56 @@ function entityView(e) {
     line.name = 'aimLine';
     line.visible = false;
     g.add(line);
+  } else if (e.kind === 'strider') {
+    
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.1, 0.6, 4, 8), mat(e.commodore ? 0xf4f0ff : 0x5a4a3a));
+    body.rotation.z = Math.PI / 2;
+    body.position.y = 0.35;
+    g.add(body);
+    for (const s of [-1, 1])
+      for (const z of [-0.25, 0.25]) {
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.8, 4), mat(0x3a2e24));
+        leg.rotation.z = s * 1.0;
+        leg.position.set(s * 0.35, 0.2, z);
+        g.add(leg);
+      }
+    if (e.commodore) {
+      const hat = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.2, 6), mat(0xff9fc4));
+      hat.position.set(0.25, 0.55, 0);
+      g.add(hat);
+    }
+  } else if (e.kind === 'skiff') {
+    
+    const big = e.galleon;
+    const hull = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 20, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+      mat(big ? 0x7a4f2a : 0xc9a46a),
+    );
+    hull.scale.set((e.w ?? 3) / 2, (e.h ?? 1) * 0.8, 0.8);
+    hull.position.y = (e.h ?? 1) * 0.8;
+    g.add(hull);
+    if (!e.toy && !e.empty) {
+      const crew = new THREE.Mesh(new THREE.SphereGeometry(big ? 0.4 : 0.22, 10, 8), mat(0x7a3b1f));
+      crew.position.y = (e.h ?? 1) * 0.9 + 0.2;
+      g.add(crew);
+    }
+    if (big) {
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.4, 6), mat(0x5a3418));
+      mast.position.y = (e.h ?? 3) * 0.9 + 1;
+      const sail = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.4, 1.6),
+        new THREE.MeshLambertMaterial({ color: 0xf2ead8, side: THREE.DoubleSide }),
+      );
+      sail.position.set(0.3, (e.h ?? 3) * 0.9 + 1.2, 0);
+      g.add(mast, sail);
+    }
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry(0.6, 0.75, 24),
+      new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, opacity: 0 }),
+    );
+    halo.position.set(0, (e.h ?? 1) * 0.8, 0.5);
+    halo.name = 'kickHalo';
+    g.add(halo);
   } else if (e.kind === 'guard') {
     
     const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.3, 0.5, 6, 12), mat(e.velvet ? 0xf4f0ff : 0xe0a020));
@@ -495,7 +557,7 @@ function syncEntities(scene, views, entities, alpha, time) {
       }
     }
     const kh = v.getObjectByName('kickHalo');
-    if (kh) kh.material.opacity = e.stage === 'windup' ? 0.85 : 0;
+    if (kh) kh.material.opacity = e.stage === 'windup' || e.state === 'windup' ? 0.85 : 0;
     const halo = v.getObjectByName('halo');
     if (halo) {
       const tele = e.stage === 'telegraph';
@@ -505,6 +567,7 @@ function syncEntities(scene, views, entities, alpha, time) {
     if (e.state === 'dazed' || (e.kind === 'boss' && e.stage === 'recover')) v.rotation.z = Math.sin(time * 30) * 0.12;
     else if (e.state === 'scurry' || e.state === 'flipped')
       v.rotation.z = Math.PI + (e.state === 'flipped' ? Math.sin(time * 12) * 0.15 : 0);
+    else if (e.state === 'capsizing') v.rotation.z = Math.min(Math.PI, (v.rotation.z || 0) + 0.12);
     else if (e.state === 'righting') v.rotation.z = Math.PI * 0.5 + Math.sin(time * 30) * 0.2;
     else v.rotation.z = 0;
   }
@@ -772,6 +835,99 @@ function honeyMeshes(level) {
     group.add(slab);
   }
   return group;
+}
+
+
+function waterMeshes(level) {
+  const group = new THREE.Group();
+  const m = new THREE.MeshLambertMaterial({ color: 0x4fa8d8, transparent: true, opacity: 0.55, depthWrite: false });
+  const top = new THREE.MeshBasicMaterial({ color: 0xcfefff, transparent: true, opacity: 0.6, depthWrite: false });
+  for (const w of level.water ?? []) {
+    const depth = Math.max(1, w.y + 2);
+    const sheet = new THREE.Mesh(new THREE.BoxGeometry(w.x1 - w.x0, depth, TILE_DEPTH), m);
+    sheet.position.set((w.x0 + w.x1) / 2, w.y - depth / 2, -TILE_DEPTH / 2 + 0.3);
+    const line = new THREE.Mesh(new THREE.PlaneGeometry(w.x1 - w.x0, 0.06), top);
+    line.position.set((w.x0 + w.x1) / 2, w.y, 0.35);
+    group.add(sheet, line);
+  }
+  return group;
+}
+
+
+function seaMeshes() {
+  const group = new THREE.Group();
+  const rafts = new Map();
+  const rings = new Map();
+  const colour = { ferry: 0x5fae3a, leaf: 0x79c24a, pad: 0x3f8f4a, motor: 0xb98a4a };
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.7,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+  return {
+    group,
+    update(session, dt) {
+      const list = session.rafts?.list ?? [];
+      const seen = new Set();
+      for (const r of list) {
+        seen.add(r.id);
+        let v = rafts.get(r.id);
+        if (!v) {
+          v = new THREE.Group();
+          const deck = new THREE.Mesh(
+            new THREE.BoxGeometry(1, 0.2, 1.2),
+            new THREE.MeshLambertMaterial({ color: colour[r.mode] ?? 0x79c24a }),
+          );
+          deck.position.y = -0.1;
+          v.add(deck);
+          if (r.mode === 'motor') {
+            const motor = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 0.3), new THREE.MeshLambertMaterial({ color: 0x8a95a8 }));
+            motor.name = 'motor';
+            v.add(motor);
+          }
+          group.add(v);
+          rafts.set(r.id, v);
+        }
+        v.visible = r.state !== 'gone';
+        v.children[0].scale.x = r.w;
+        v.position.set(r.x, r.y, 0.1);
+        
+        v.rotation.z = r.state === 'sinking' ? -0.15 : Math.sin(session.time * 2 + r.x) * 0.02;
+        const motor = v.getObjectByName('motor');
+        if (motor) motor.position.set(-r.w / 2 - 0.1, 0.1, 0);
+      }
+      for (const [id, v] of rafts) {
+        if (!seen.has(id)) {
+          group.remove(v);
+          rafts.delete(id);
+        }
+      }
+      const live = session.ripple?.rings ?? [];
+      const ids = new Set();
+      for (const g of live) {
+        ids.add(g.id);
+        let m = rings.get(g.id);
+        if (!m) {
+          m = new THREE.Mesh(new THREE.RingGeometry(0.9, 1, 40), ringMat.clone());
+          group.add(m);
+          rings.set(g.id, m);
+        }
+        m.scale.set(Math.max(0.05, g.r), Math.max(0.02, g.r * 0.18), 1);
+        m.position.set(g.x, g.y + 0.04, 0.3);
+        m.material.opacity = (g.big ? 0.85 : 0.6) * Math.max(0, 1 - g.r / (g.radius || 1));
+      }
+      for (const [id, m] of rings) {
+        if (!ids.has(id)) {
+          group.remove(m);
+          m.geometry.dispose();
+          m.material.dispose();
+          rings.delete(id);
+        }
+      }
+    },
+  };
 }
 
 

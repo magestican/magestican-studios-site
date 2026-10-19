@@ -21,20 +21,17 @@
 
 
 
-import { contact, defeat, stompBounce } from './combat.js';
 import { STEP } from './constants.js';
-import { popShell } from './enemies/snailknight.js';
-import { moveBody, overlaps } from './entities.js';
+import { flip, stepFlipped, stepRing } from './rings.js';
 
 const RING_SPEED = 60; 
-const FLIP_TIME = 4.0; 
-const RIGHTING_TIME = 0.5; 
 const FAR_EVERY = 1.6; 
 const SLOW_AFTER = 3; 
 const SLOW_STEP = 0.25; 
 const START_GAP = 2; 
 const SPARE_GAP = 1; 
-const FLIPPABLE = new Set(['ladybot', 'pillbug', 'aphid', 'bandit', 'snailknight', 'antPorter']);
+
+const FLIPPABLE = new Set(['ladybot', 'pillbug', 'aphid', 'bandit', 'snailknight', 'antPorter', 'strider']);
 const PUNTABLE = new Set([...FLIPPABLE, 'wasp']);
 
 
@@ -51,8 +48,6 @@ export function createShoe(level, startX) {
     rung: 0, 
     gone: false, 
     farT: 0,
-    
-    bowls: {},
   };
   resetShoe(sh, startX);
   return sh;
@@ -173,10 +168,10 @@ function land(s, f) {
     x: f.toe,
     r: 0,
     radius: f.radius,
+    speed: RING_SPEED,
     use: f.use ?? null,
     impactY: f.lane === 'back' ? null : topSolid(s.world, f.toe),
     hit: [],
-    bowls: 0,
   });
   s.events.push({ type: 'shoeLand', toe: f.toe, foot: f.foot, radius: f.radius, lane: f.lane, use: f.use ?? null, ring: sh.rung });
   if (f.final) {
@@ -223,79 +218,17 @@ function nearSurface(world, e) {
 function stepRings(s) {
   const sh = s.shoe;
   for (const ring of [...sh.rings]) {
-    ring.r = Math.min(ring.radius, ring.r + RING_SPEED * STEP);
-    for (const e of s.entities) {
-      if (!e.alive || !FLIPPABLE.has(e.kind) || ring.hit.includes(e.id)) continue;
-      if (Math.abs(e.x - ring.x) - e.w / 2 > ring.r) continue;
-      ring.hit.push(e.id);
-      if (e.state === 'dazed' || e.state === 'scurry') continue;
-      if (!nearSurface(s.world, e)) continue;
-      if (ring.impactY !== null && Math.abs(e.y - ring.impactY) > 4) continue;
-      flip(s, e, ring);
-    }
-    if (ring.r >= ring.radius) sh.rings.splice(sh.rings.indexOf(ring), 1);
+    const done = stepRing(
+      ring,
+      s.entities,
+      (e) => FLIPPABLE.has(e.kind),
+      (e) => {
+        if (e.state === 'dazed' || e.state === 'scurry') return;
+        if (!nearSurface(s.world, e)) return;
+        if (ring.impactY !== null && Math.abs(e.y - ring.impactY) > 4) return;
+        flip(s, e, ring);
+      },
+    );
+    if (done) sh.rings.splice(sh.rings.indexOf(ring), 1);
   }
-}
-
-function flip(s, e, ring) {
-  if (e.flip?.phase === 'flipped') {
-    e.flip.t = 0; 
-    s.events.push({ type: 'flip', id: e.id, kind: e.kind, use: e.flip.use, x: e.x, y: e.y, again: true });
-    return;
-  }
-  const prev = e.flip ? e.flip.prev : e.state;
-  if (e.dozing) {
-    e.dozing = false;
-    e.awake = true;
-  }
-  e.awake = true; 
-  e.flip = { t: 0, phase: 'flipped', prev, ring: ring.id, use: ring.use };
-  e.state = 'flipped';
-  e.vx = 0;
-  s.events.push({ type: 'flip', id: e.id, kind: e.kind, use: ring.use, x: e.x, y: e.y });
-}
-
-function stepFlipped(s, ctx) {
-  const p = s.player;
-  for (const e of s.entities) {
-    if (!e.alive || !e.flip) continue;
-    e.flip.t += STEP;
-    e.vx = 0;
-    moveBody(e, s.world);
-    if (e.flip.phase === 'flipped') {
-      if (overlaps(p, e)) {
-        bowl(s, e, ctx);
-        continue;
-      }
-      if (e.flip.t >= FLIP_TIME - 1e-9) {
-        e.flip.phase = 'righting';
-        e.flip.t = 0;
-        e.state = 'righting';
-        s.events.push({ type: 'righting', id: e.id });
-      }
-    } else if (e.flip.t >= RIGHTING_TIME - 1e-9) {
-      const prev = e.flip.prev;
-      e.flip = null;
-      e.t = 0;
-      e.state = e.flee ? 'scurry' : prev;
-      s.events.push({ type: e.flee ? 'flee' : 'righted', id: e.id });
-    }
-  }
-}
-
-function bowl(s, e, ctx) {
-  const ring = e.flip.ring;
-  const n = (s.shoe.bowls[ring] ?? 0) + 1;
-  s.shoe.bowls[ring] = n;
-  const use = e.flip.use;
-  const p = s.player;
-  if (contact(p, e) === 'stomp') stompBounce(p); 
-  e.flip = null;
-  s.events.push({ type: 'bowl', id: e.id, kind: e.kind, n, use, x: e.x, y: e.y });
-  if (e.kind === 'snailknight') popShell(e, ctx, 'bowl');
-  else if (e.kind === 'antPorter') {
-    e.state = 'scurry'; 
-    e.t = 0;
-    s.hitstop = Math.max(s.hitstop, 0.06);
-  } else defeat(e, ctx, 'bowl');
 }
