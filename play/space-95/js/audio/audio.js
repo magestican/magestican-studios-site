@@ -87,6 +87,11 @@ export function createAudio(base = 'assets/audio/') {
     ready,
     
     music(id) {
+      if (id === musicWanted) return;
+      if (musicEl) {
+        musicEl.pause(); 
+        musicEl = null;
+      }
       musicWanted = id;
       if (ctx.state === 'running') startMusic();
     },

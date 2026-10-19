@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "orchard",
+      "title": "Orchard",
+      "files": {
+        "webm": "orchard.webm",
+        "ogg": "orchard.ogg",
+        "m4a": "orchard.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 6912000,
+      "loopSeconds": 144.0,
+      "bpm": 120,
+      "beats": 4,
+      "bars": 72,
+      "key": "G major",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.05,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "orchard.webm",
+          "decoded_samples": 6912000,
+          "corr": 0.9973,
+          "true_peak_db": -5.16,
+          "bytes": 3153252
+        },
+        "ogg": {
+          "file": "orchard.ogg",
+          "decoded_samples": 6912000,
+          "corr": 0.9981,
+          "true_peak_db": -5.14,
+          "bytes": 3242976
+        },
+        "m4a": {
+          "file": "orchard.m4a",
+          "decoded_samples": 6912000,
+          "corr": 0.9989,
+          "true_peak_db": -4.61,
+          "bytes": 4736066
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-orchard, rework of the main theme (same, transpose 2)",
+        "seed": 450988618,
+        "cover_chord_agree": 0.837,
+        "cover_chroma_corr": 0.673,
+        "render": "D:\\magestican-dj\\renders\\space-95\\orchard",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\orchard\\space-95-bgm-city-pop-1.wav (seed 467719373, chord_agree 0.816)"
+        ]
+      }
+    }
+  ]
+}

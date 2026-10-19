@@ -1,0 +1,55 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "stripecat",
+      "title": "Stripecat",
+      "files": {
+        "webm": "stripecat.webm",
+        "ogg": "stripecat.ogg",
+        "m4a": "stripecat.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 8463673,
+      "loopSeconds": 176.326521,
+      "bpm": 98,
+      "beats": 4,
+      "bars": 72,
+      "key": "D major",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.42,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "stripecat.webm",
+          "decoded_samples": 8463673,
+          "corr": 0.9979,
+          "true_peak_db": -5.3,
+          "bytes": 4141012
+        },
+        "ogg": {
+          "file": "stripecat.ogg",
+          "decoded_samples": 8463673,
+          "corr": 0.9988,
+          "true_peak_db": -5.24,
+          "bytes": 4115475
+        },
+        "m4a": {
+          "file": "stripecat.m4a",
+          "decoded_samples": 8463673,
+          "corr": 0.9993,
+          "true_peak_db": -5.36,
+          "bytes": 5783354
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-stripecat, rework of the main theme (same, transpose -3)",
+        "seed": 1405220324,
+        "cover_chord_agree": 0.809,
+        "cover_chroma_corr": 0.827,
+        "render": "D:\\magestican-dj\\renders\\space-95\\stripecat",
+        "alternates": []
+      }
+    }
+  ]
+}

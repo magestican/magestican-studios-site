@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "underground",
+      "title": "Underground",
+      "files": {
+        "webm": "underground.webm",
+        "ogg": "underground.ogg",
+        "m4a": "underground.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 7680000,
+      "loopSeconds": 160.0,
+      "bpm": 96,
+      "beats": 4,
+      "bars": 64,
+      "key": "D minor",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.59,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "underground.webm",
+          "decoded_samples": 7680000,
+          "corr": 0.9978,
+          "true_peak_db": -5.15,
+          "bytes": 3538073
+        },
+        "ogg": {
+          "file": "underground.ogg",
+          "decoded_samples": 7680000,
+          "corr": 0.9989,
+          "true_peak_db": -5.23,
+          "bytes": 3677106
+        },
+        "m4a": {
+          "file": "underground.m4a",
+          "decoded_samples": 7680000,
+          "corr": 0.9994,
+          "true_peak_db": -5.42,
+          "bytes": 5249160
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-underground, composed fresh",
+        "seed": 576309626,
+        "cover_chord_agree": 0.941,
+        "cover_chroma_corr": 0.868,
+        "render": "D:\\magestican-dj\\renders\\space-95\\underground",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\underground\\space-95-bgm-city-pop-1.wav (seed 1426280776, chord_agree 0.926)"
+        ]
+      }
+    }
+  ]
+}

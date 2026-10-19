@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "boss-mini",
+      "title": "Foreman (Boss)",
+      "files": {
+        "webm": "boss-mini.webm",
+        "ogg": "boss-mini.ogg",
+        "m4a": "boss-mini.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 6010435,
+      "loopSeconds": 125.217396,
+      "bpm": 138,
+      "beats": 4,
+      "bars": 72,
+      "key": "F minor",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.49,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "boss-mini.webm",
+          "decoded_samples": 6010435,
+          "corr": 0.9977,
+          "true_peak_db": -5.3,
+          "bytes": 2734862
+        },
+        "ogg": {
+          "file": "boss-mini.ogg",
+          "decoded_samples": 6010435,
+          "corr": 0.9988,
+          "true_peak_db": -5.46,
+          "bytes": 2784269
+        },
+        "m4a": {
+          "file": "boss-mini.m4a",
+          "decoded_samples": 6010435,
+          "corr": 0.9994,
+          "true_peak_db": -5.47,
+          "bytes": 4183005
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-boss, rework of the main theme (minor, transpose 0)",
+        "seed": 191574161,
+        "cover_chord_agree": 0.75,
+        "cover_chroma_corr": 0.97,
+        "render": "D:\\magestican-dj\\renders\\space-95\\boss-mini",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\boss-mini\\space-95-boss-city-pop-2.wav (seed 848245491, chord_agree 0.743)"
+        ]
+      }
+    }
+  ]
+}

@@ -76,7 +76,8 @@ const boltSay = (line) => {
 };
 
 const MUSIC = { 1: 'orchard', 2: 'canopy', 3: 'orchard', 4: 'underground', 5: 'stripecat', 6: 'windward', 7: 'long-way-home' };
-audio.musicFirst([MUSIC[level.id], 'main-theme'].filter(Boolean));
+const levelMusic = [MUSIC[level.id], 'main-theme'].filter(Boolean);
+audio.musicFirst(levelMusic);
 const timesheet = createTimesheet(document.getElementById('timesheet'));
 const secretsTotal = (level.entities ?? []).filter((e) => e.kind === 'intel' || e.specimen).length;
 if (level.id) {
@@ -171,6 +172,9 @@ function frame(now) {
       if (cue) audio.play(cue, { rate: cueRate(e) * chained });
       if (e.type === 'signal') for (const n of signalSounds(e, (x) => x in SFX)) audio.play(n, { volume: 0.7 });
       boltSay(boltVoice.onEvent(e, STEP));
+      
+      if (e.type === 'bossIntro') audio.musicFirst(['boss-mini', ...levelMusic]);
+      if (e.type === 'bossDefeat' || e.type === 'bossEscape') audio.musicFirst(levelMusic);
       
       if (e.type === 'defeat' && e.how === 'pebble') site.count('pebbleKills');
       if (e.type === 'secret' && e.secret === 'specimen') site.seen('specimens', String(e.id));
