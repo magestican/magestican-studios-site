@@ -1,7 +1,7 @@
 {
   "$comment": "Read by the Magestican Studios iOS apps to update their bundled games without an App Store release. See multi-game-madness/app/lib/services/game_updater.dart.",
-  "buildId": "7cce5f20-20261019T140042Z",
-  "builtAt": "2026-10-19T14:00:42Z",
+  "buildId": "fb170eed-20261019T140846Z",
+  "builtAt": "2026-10-19T14:08:46Z",
   "fileCount": 3506,
   "files": {
     "assets/apple-touch-icon.png": {
@@ -850,7 +850,7 @@
     },
     "play/farmyshoot/index.html": {
       "bytes": 64942,
-      "sha256": "c60c2112c24ce3400fb82701004fb267b80ca10181c9a122e288c2ac4c8a204d"
+      "sha256": "025b5ccec0b007cf3f573a40ca47861ce5eaf8262c36847a0f40b4d2940c8f7a"
     },
     "play/farmyshoot/src/audio/announcerVoice.js": {
       "bytes": 8781,
@@ -1126,7 +1126,7 @@
     },
     "play/farmykart/index.html": {
       "bytes": 59237,
-      "sha256": "519e36d516d3ef1138bbdb2223637a5b0a2fc00504b04805f318136fcaec3157"
+      "sha256": "2191ba76f2b34ac6f90c9297d36ed8b1b3a4a54d08058388291e92589bc8b40b"
     },
     "play/farmykart/src/audio/music.js": {
       "bytes": 13073,
@@ -1346,7 +1346,7 @@
     },
     "play/farmy-evil-hills/index.html": {
       "bytes": 37943,
-      "sha256": "7e1e2a5dfe765c61276c678f904a4c0b08bad45fb53c9e061f21d7c80786ac61"
+      "sha256": "8e83cac274f5d4c0c38ebc25bb38ebfae02bec3c626f9397207505b75fa411e2"
     },
     "play/farmy-evil-hills/src/audio/mumble.js": {
       "bytes": 4922,
@@ -1570,7 +1570,7 @@
     },
     "play/farmy-uprising/index.html": {
       "bytes": 56562,
-      "sha256": "47a5697902fb74ee1b10bf4881fc83b8f5f08c749e80dc8bd5b4e062d15fe9fd"
+      "sha256": "72e9554b4043e67f6aa5aa84c2ac720a6620f01194a245bdaadd7f3561aeb118"
     },
     "play/farmy-uprising/src/animSprites.js": {
       "bytes": 1143,
@@ -2582,7 +2582,7 @@
     },
     "play/2d-fighter-ex/index.html": {
       "bytes": 8754,
-      "sha256": "59a1880e8d3151e69f83bde2072f70c85004a495251587801d1c6a724d5db0ca"
+      "sha256": "4a9e4a90875cf1558dfa00543f4ed016251901dc8801dfa6dc6334fb281d248c"
     },
     "play/2d-fighter-ex/src/animeRig.mjs": {
       "bytes": 60,
@@ -2658,7 +2658,7 @@
     },
     "play/farmy-crosswords/index.html": {
       "bytes": 5657,
-      "sha256": "f27e94b37e8039a2ba3d07b83f8892747a8018f3af855bd5cf26d15a465b6242"
+      "sha256": "2675e9ca1b7f2eb0c9e2183b55b03b8c705bdb6df06caaf3c042ed63af2f218c"
     },
     "play/farmy-crosswords/src/a11y.js": {
       "bytes": 1510,
@@ -2722,7 +2722,7 @@
     },
     "play/farmy-tiles/index.html": {
       "bytes": 5408,
-      "sha256": "ecf9354699a75c970771337d1c27490a79bf045b8174990d45755abb761c352f"
+      "sha256": "c6d17d60b14aee2df44ed46a6f2e7714c91130abfc6cbe23f0c6c2e49bb5ef3a"
     },
     "play/farmy-tiles/src/a11y.js": {
       "bytes": 1514,
@@ -2766,7 +2766,7 @@
     },
     "play/farmy-ludo/index.html": {
       "bytes": 5206,
-      "sha256": "921aa546905287024526f1f968b81619d6e2ae05618ebf6b27d97c8cb095c7b1"
+      "sha256": "f2657688b9206650103268036e2dbf0b709ef95a1ef2fba89852037f020a61e9"
     },
     "play/farmy-ludo/src/a11y.js": {
       "bytes": 1510,
@@ -2798,7 +2798,7 @@
     },
     "play/farmy-chess/index.html": {
       "bytes": 5603,
-      "sha256": "a45eb731ab6ba48ae96978e89a1e9da2183277dc1a9809ce1bafc3e669bf08ba"
+      "sha256": "e3f426f2e831b66d803a1b74f449ab0ccd342c34353bc4983b11881c36e3e579"
     },
     "play/farmy-chess/src/a11y.js": {
       "bytes": 1563,
@@ -2838,7 +2838,7 @@
     },
     "play/farmy-checkers/index.html": {
       "bytes": 5581,
-      "sha256": "54ce1d9a6e2ec74cc7aefd21c5e3d52af9550894ba9d04d50d7e27fa7723ef55"
+      "sha256": "5d0be9f24b65dad6e616c76fb49ba2e05b0928f5478a505d7432010d439500d1"
     },
     "play/farmy-checkers/src/a11y.js": {
       "bytes": 1531,
@@ -2946,7 +2946,7 @@
     },
     "play/minesweeper/index.html": {
       "bytes": 11187,
-      "sha256": "d2ebc0593caae7772d3d7635281ba1ad4ef6e482b428435e60041be3dacf566c"
+      "sha256": "bf1a1288bcd9d3e0e5d49572fe1c150e42fe441d51e844d050eeb055268356de"
     },
     "play/minesweeper/src/main.js": {
       "bytes": 34748,
@@ -3030,7 +3030,7 @@
     },
     "play/gomoku/index.html": {
       "bytes": 9382,
-      "sha256": "7051bd50f745c7f1b0f357a1448dc521b510f4b88ad8b5a4ac473168ebe71d09"
+      "sha256": "9b4648cb1fb2bfde11effcd37dcf6ab663a1ba554447ff49dabc858e1d8d4882"
     },
     "play/gomoku/src/main.js": {
       "bytes": 26220,
@@ -3106,7 +3106,7 @@
     },
     "play/word-chain/index.html": {
       "bytes": 10496,
-      "sha256": "242b6d9370452f97825cc989a2b74dff5268192184dca1170729ed0ac51f1727"
+      "sha256": "52daea900a8f05a08b9d5495483e12ccf73af5386926555a86829305bb41b760"
     },
     "play/word-chain/src/main.js": {
       "bytes": 30034,
@@ -3194,7 +3194,7 @@
     },
     "play/truco/index.html": {
       "bytes": 9555,
-      "sha256": "cc4b177a8d307c2607ad3df7f580c3881a6718896d1bde471c75f9f13c87a34b"
+      "sha256": "5cc92d74c0b5d7528729fe4540ea7af6a14820dbc8b197304f5a9b7ef454d2a3"
     },
     "play/truco/src/main.js": {
       "bytes": 34346,
@@ -3286,7 +3286,7 @@
     },
     "play/buraco/index.html": {
       "bytes": 9547,
-      "sha256": "9dabca6507b23bf8c408b30f3f9855b655e5c03fe079ecc5075867db87dac2b6"
+      "sha256": "563b341d21fb7ed49fcf8e5fd3d33cc7ca9fbd9c5957821d7b4920ea4ead2c94"
     },
     "play/buraco/src/main.js": {
       "bytes": 40136,
@@ -3306,7 +3306,7 @@
     },
     "play/silk-and-seam/index.html": {
       "bytes": 4396,
-      "sha256": "c254bb0c00075e2bf2f04137e3a9a86562cb7144cce820e0a3590bdeba5d2ba9"
+      "sha256": "50efd690ac633a50a6806fdfd94a41536330c6b0c00b4656043993b92560c17a"
     },
     "play/silk-and-seam/css/scene-frames.css": {
       "bytes": 3171,
@@ -3686,7 +3686,7 @@
     },
     "play/dachis/index.html": {
       "bytes": 20568,
-      "sha256": "719bc0c20420b39da0e5cca2d3b449fce97c58ee8a6347561f73707bb7aa495c"
+      "sha256": "c75f96c09ec32491f7b511eed85ba32f49f852ecb4a22345c82eb03b027c5be2"
     },
     "play/dachis/css/game.css": {
       "bytes": 64435,
@@ -4222,7 +4222,7 @@
     },
     "play/dachis/js/game/features/world/backdropIndex.js": {
       "bytes": 11517,
-      "sha256": "cef959e7add3abc7d6f7fc1dfa6f4bbeabdab9084e7275003f275335c31c02bf"
+      "sha256": "0cace20be799bc4ae3c08cc1ffa1202bdd161da1b989536d60628e1edfca9a6c"
     },
     "play/dachis/js/game/features/world/backdrops.js": {
       "bytes": 1363,
@@ -4745,428 +4745,428 @@
       "sha256": "33a12de3b608a011d3caad5bfd4e529f0f8d177cc5ba184c68ed6ba998fe02dc"
     },
     "play/dachis/assets/maps/drowned-temple/temple-nave.0-0.webp": {
-      "bytes": 856136,
-      "sha256": "ca7c77495bf3e55b261cb8c5dd5d4f22667cae3e5362a51ddb138dc2a37e0a95"
+      "bytes": 822416,
+      "sha256": "3d3b68177a5ddbb7181aa24cbdae99f73d0e79a59efcc20b9e8e795318edf92e"
     },
     "play/dachis/assets/maps/drowned-temple/temple-nave.0-1.webp": {
-      "bytes": 802034,
-      "sha256": "853492b093bad0722923eaadd6ac7eee163c0e53965ef22838ca9423d420688a"
+      "bytes": 769248,
+      "sha256": "80d3e090c9dda3666f40d2afc6dfc054807cc2d79685b3d88a0236251eba0af6"
     },
     "play/dachis/assets/maps/drowned-temple/temple-nave.0-2.webp": {
-      "bytes": 198462,
-      "sha256": "f21829f7e7c1035b6dec16538bfcd3571220826b5ad36cbf3418db5dab28ffae"
+      "bytes": 183376,
+      "sha256": "00801841ca4396855d368978e914b808be6ed77ea2280f96e2feb14b18a96f6f"
     },
     "play/dachis/assets/maps/drowned-temple/temple-nave.1-0.webp": {
-      "bytes": 206004,
-      "sha256": "fb373b8f6ae383e43e777b13a0e90bcd52ddc8bfb1cdfd1b53d2e53468442769"
+      "bytes": 193200,
+      "sha256": "a00f0d808b18759c1d260716ce454352fe6464683a5bfa06b686b63ccaa251e6"
     },
     "play/dachis/assets/maps/drowned-temple/temple-nave.1-1.webp": {
-      "bytes": 188304,
-      "sha256": "a587eead72fe3162e759b48c1d56016ccd226ee89e0bd5b5edd0243dc566f867"
+      "bytes": 170100,
+      "sha256": "6f667f2b97419195a6133e53c84c91bdde32b521e09002f684b1671f7b2a803f"
     },
     "play/dachis/assets/maps/drowned-temple/temple-nave.1-2.webp": {
-      "bytes": 40594,
-      "sha256": "05454ed6b71a7bfa5f7c91ec9f917c46accc6ec49c8d5aeb344d0c1b91622c2f"
+      "bytes": 37516,
+      "sha256": "93e56affcbbfffc1989ba888448d6f88a52f098622c580f1ce5d364642500444"
     },
     "play/dachis/assets/maps/drowned-temple/temple-nave.data.png": {
-      "bytes": 382276,
-      "sha256": "1e50af2a2adf26620d45bc95e3b863765eec0a32d5716a7cd29c0615867d8137"
+      "bytes": 339231,
+      "sha256": "90b287c4184fbd0f36732357d36cc290c5789cc7cd0b2047f9873c2695febb85"
     },
     "play/dachis/assets/maps/drowned-temple/temple-nave.json": {
       "bytes": 1405,
       "sha256": "a4c8446c8e8357359d0120d5e08e1b205a5f36ba269be41fbea7236ddd986925"
     },
     "play/dachis/assets/maps/drowned-temple/temple-porch.0-0.webp": {
-      "bytes": 949428,
-      "sha256": "925779f725495b73e252915a4d35eb0e639a95957d1c57cc3617cc6b5b09b67a"
+      "bytes": 909602,
+      "sha256": "9f9e0d004bbc46271617f94be114e086eb857f6e221f7c36e544a3011cac7532"
     },
     "play/dachis/assets/maps/drowned-temple/temple-porch.0-1.webp": {
-      "bytes": 803896,
-      "sha256": "ff99e87b3921d4d37ad4434092feb0ace787e10da3e9374362a5797ae3bbddc1"
+      "bytes": 777612,
+      "sha256": "5b6ac434fdac62a5a3a22e5c5c0d911cc62ee4624a2cf83ae08253542d3a2590"
     },
     "play/dachis/assets/maps/drowned-temple/temple-porch.0-2.webp": {
-      "bytes": 357424,
-      "sha256": "8a0a233a23e278ce08a9c1892be233a9bc3fa50e0418930f8d77f34205f15114"
+      "bytes": 340010,
+      "sha256": "a7b103fe13514aca26701152176539e28e402883e15ad2b07990a9be6de6cb45"
     },
     "play/dachis/assets/maps/drowned-temple/temple-porch.1-0.webp": {
-      "bytes": 216788,
-      "sha256": "1bd534f6f00e0b2823212cadfc70347305b9aa059f1b9976c1ee81771bf3dae5"
+      "bytes": 200172,
+      "sha256": "805cc345da031cf23c566431911e6e3d8c0528be22508e6e57fb622009ff0e69"
     },
     "play/dachis/assets/maps/drowned-temple/temple-porch.1-1.webp": {
-      "bytes": 191232,
-      "sha256": "59595ff162cbe1a23caaa04ba572ccd3386ebd259cb894f3c7915888da7925c3"
+      "bytes": 182510,
+      "sha256": "b32443ce5a430ac00b99c8032d8eaab7827a0b3716cfd17a306575f55d9268f7"
     },
     "play/dachis/assets/maps/drowned-temple/temple-porch.1-2.webp": {
-      "bytes": 88406,
-      "sha256": "e14e99c1285a2a159e5a9c70ad253ade7983d663190cf4f1069b96a54fc8a240"
+      "bytes": 84098,
+      "sha256": "3b497e617958f4c0f1f6096662056360792e8da8432eb6c6d9f1adbb30272f41"
     },
     "play/dachis/assets/maps/drowned-temple/temple-porch.data.png": {
-      "bytes": 340328,
-      "sha256": "1ca3530dda260931a9f5b031cf703f92c174de1a93005e14f58218a2c7a22ad7"
+      "bytes": 315260,
+      "sha256": "d2db313abe1efcbaa78c2fef98e09d8eafa2e42c66feb073d3a6381bc6f53345"
     },
     "play/dachis/assets/maps/drowned-temple/temple-porch.json": {
       "bytes": 1413,
       "sha256": "26a0365b093f0ea52acde3cfb202e0db926ff0b9a80e8aff3c8a0c0464f91af6"
     },
     "play/dachis/assets/maps/drowned-temple/temple-sanctum.0-0.webp": {
-      "bytes": 915426,
-      "sha256": "66e06877806e6d7bbf87f2ba297620b22ae358fb74c6eaaddfe5f5329c3d7265"
+      "bytes": 893908,
+      "sha256": "a5f4a89c528d7a599c32f4e80d24706940542a4ab4e5fc1dc2cee80c2e0e3a2f"
     },
     "play/dachis/assets/maps/drowned-temple/temple-sanctum.0-1.webp": {
-      "bytes": 826950,
-      "sha256": "bb0593a71e519796facb847516b8a0d1ff8b4aa3eae67afeb8d0a6187ebe3336"
+      "bytes": 792986,
+      "sha256": "bf75e55fa2da980872146c5a9ce8f50c010a01496233317f6a6f7643b951978e"
     },
     "play/dachis/assets/maps/drowned-temple/temple-sanctum.0-2.webp": {
-      "bytes": 227784,
-      "sha256": "7bcefb312761b013b3e085eabf34b806a120d7923b64c5aaee3e7d3b8ee1172c"
+      "bytes": 215220,
+      "sha256": "5043a8bd847fd244972fd872d56e7e7ccca62b7c1739115649f714a4c6db5a66"
     },
     "play/dachis/assets/maps/drowned-temple/temple-sanctum.1-0.webp": {
-      "bytes": 191906,
-      "sha256": "a2977c379247f5fdd8e2cfdc82101db38de9b93d6432131ed77684670a75cae8"
+      "bytes": 178428,
+      "sha256": "2b60ab131d7f1ba31387dfd0b6eaacfc8beac14c7d47bd90703fa3f9e2186b00"
     },
     "play/dachis/assets/maps/drowned-temple/temple-sanctum.1-1.webp": {
-      "bytes": 201874,
-      "sha256": "69f603a68044cb59ac294318807ff941daa3c56747a81f4e0fdc130e6fbf7569"
+      "bytes": 187558,
+      "sha256": "aea6f717d6a404b14b2bf273ead6c8c3614a9f1d7c8f15c4aca132fa767bd3b1"
     },
     "play/dachis/assets/maps/drowned-temple/temple-sanctum.1-2.webp": {
-      "bytes": 45744,
-      "sha256": "2b745d643a7aa933ef0ef1a5d3caa3d7a76c05e0169d38ad6f899c71e96a6925"
+      "bytes": 40684,
+      "sha256": "74e08936bd887a533d20d5dc63d799913953312556b30471a4a71bf7e8ae1ac1"
     },
     "play/dachis/assets/maps/drowned-temple/temple-sanctum.data.png": {
-      "bytes": 344427,
-      "sha256": "e969c8fb5145af2bea9079b31c700643076be87cbecf24d83ebe0788e3ecfe56"
+      "bytes": 303952,
+      "sha256": "cf4b2221e10bf6972ea508aca865930a43e2f0348a66096bc9c35b752a10b3cc"
     },
     "play/dachis/assets/maps/drowned-temple/temple-sanctum.json": {
       "bytes": 1429,
       "sha256": "b2b13d1787661713a2b82513a2abe24aa7f8f33a65ca3dd382f6c28894b390b1"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.0-0.webp": {
-      "bytes": 706954,
-      "sha256": "b13a1899e71590f03991ce538d4ee35684caf522c079ded680280e5a35186129"
+      "bytes": 682260,
+      "sha256": "35f127087e2731e66c2f859df1cf663756c50d50308cd04ad7c946d0c44bb458"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.0-1.webp": {
-      "bytes": 760592,
-      "sha256": "293bcc7938ac3c0932308ed31bd340d50e358086649afd1cea2dc0ff40104094"
+      "bytes": 736968,
+      "sha256": "26c0f7564b2780784e6e91dfaa8957595ab052c122f91018656f6752b423655e"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.0-2.webp": {
-      "bytes": 734710,
-      "sha256": "ee11c3d72fb6c26568892699f6f52308842540f71ec0224e3acee33814e5e556"
+      "bytes": 721204,
+      "sha256": "ab9f2c8b1e7b32739d6637669dc9a48ef70c349e649733d493cc314788fd4e77"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.0-3.webp": {
-      "bytes": 216600,
-      "sha256": "dbad8def29df8d530d44cac34acb4cc0167418f88ad171e36f267a4637cc1e46"
+      "bytes": 205660,
+      "sha256": "b2ce5b8579d8823f8807d10b85364d24732ade89ae5e1ff6e6cd25612ab6da90"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.1-0.webp": {
-      "bytes": 619490,
-      "sha256": "043f0d1ad2aa2961e18155edb9777adfeeafd16f589fec16ffd160ec5d10cb40"
+      "bytes": 595548,
+      "sha256": "0c85459c7162ee429f92ce6c3068660d89e396b36194cdad5b6c36a19c8908bd"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.1-1.webp": {
-      "bytes": 626872,
-      "sha256": "c3f7abe4004f7e661d2a5cc9a53d341be928da60243c6b6140281a4b95817ead"
+      "bytes": 602938,
+      "sha256": "3213c69753a0487c0ae032d95941ca00c08140d334210b3f5721f223be5a14fa"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.1-2.webp": {
-      "bytes": 686906,
-      "sha256": "3d94c20af0095c406bd2471fae02068a3ced7ce2013b51bb8e00e0f4d75a7df9"
+      "bytes": 676000,
+      "sha256": "c3b29e276179694e252c42652455b8c27a1bb3d44720288babaf1f2b25404f37"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.1-3.webp": {
-      "bytes": 173322,
-      "sha256": "3850ee93372e6f85baaf03db017571e7415fcbad636820b1b92581fa3c59ded5"
+      "bytes": 165644,
+      "sha256": "90a6be7fb30cbac90eef5db9c71fc9d5f1fa915f64fc763ac6af95e70109e36a"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.data.png": {
-      "bytes": 743324,
-      "sha256": "c7342736a191b0ed5e4d6599633d1d4fe2c772dc831b11d6efcdf758d530e20c"
+      "bytes": 679239,
+      "sha256": "9e923f47f5752e9595f9b5c5d6b14edb6b89828cbe57f3252a630d33682e85ba"
     },
     "play/dachis/assets/maps/ember-tube/ember-a.json": {
       "bytes": 1680,
       "sha256": "55bf37e5b09e4f44a1cb6c59fc19ec530034343b94f012d7838d7e80f29f6f60"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.0-0.webp": {
-      "bytes": 762088,
-      "sha256": "9077996990f7b5850288fec981c98a68e70c87bae498fa6d916a48d38a7115f2"
+      "bytes": 741772,
+      "sha256": "d7f96858dc785a08fb393736e9dfcb3fe02336853c5728a7503270383cdf8baa"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.0-1.webp": {
-      "bytes": 751524,
-      "sha256": "abee12c08ecdf08dc2554a027b2aa778553cc6ab41bd74fca2a2602365ee7ed0"
+      "bytes": 733882,
+      "sha256": "c7423f34ebab7ae4189f205d720facaacb7ed555fdd9773567bc6d023ea0a29f"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.0-2.webp": {
-      "bytes": 787650,
-      "sha256": "506f329e1525c7a23cf6c58d89f732e94fb34f048ce91e89b31560bee793bb51"
+      "bytes": 770802,
+      "sha256": "05ac656fae6c67361bc7df4caae8a2ca8aefc46a6a2ecdbeacef57410ab84a13"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.0-3.webp": {
-      "bytes": 194372,
-      "sha256": "4c6bda0372738e718aa47b3322eee4b1e6d2e926ec0ad9837dbeb6f20ba0e167"
+      "bytes": 185766,
+      "sha256": "8b94c5d1877465f07dbcf6aabfd743d3a8aa269d4ee9483d651e4da07874d79f"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.1-0.webp": {
-      "bytes": 616766,
-      "sha256": "00d8b90cc7c47bcbd125b37a694fded15bf9551b541ac662da77354da8e34d43"
+      "bytes": 582160,
+      "sha256": "168e71f01d1ccbcec0303d312886d739dfa990f4878fd42314835ed2594d9149"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.1-1.webp": {
-      "bytes": 625394,
-      "sha256": "738fe6a177fd1a7e5a6a595ca02af9fb7c984d319209d48f4a3603947a2f4b3b"
+      "bytes": 599216,
+      "sha256": "839b12947fb9cb1a3f8767e6daee6949896cfbaba867f61ecad27e6c703ab153"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.1-2.webp": {
-      "bytes": 722220,
-      "sha256": "9dfc761955049d60ccc54beb9137d9836bc7e17d5a22e4e1d8325baae204e589"
+      "bytes": 701102,
+      "sha256": "2d0e1500b49687d8704280fc4cb732bc498c444c55f46547669b01ecf194e4c7"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.1-3.webp": {
-      "bytes": 183874,
-      "sha256": "e13b6610bb36b9f3fc0cedfc86fbaef5cb7258a29b105a0104db2ebdf056848e"
+      "bytes": 176104,
+      "sha256": "562932bd3d1da35cc13967f961e1b660795b469d28443c72e12d5032597079a6"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.data.png": {
-      "bytes": 718960,
-      "sha256": "e165c7b993e80336b7a37641bbdc168b30ad5a2d4d8ce4baf56be449b70bd77d"
+      "bytes": 648563,
+      "sha256": "332ac41dffe1b3e332e69039526554f9176b85270c0889e51ef991cec90cabac"
     },
     "play/dachis/assets/maps/ember-tube/ember-b.json": {
       "bytes": 1680,
       "sha256": "b26e056417b695860a55365baecad4260a4bd9eb7ab512bf8a300a1917932974"
     },
     "play/dachis/assets/maps/gale-ledges/gale-ledges.0-0.webp": {
-      "bytes": 639068,
-      "sha256": "f488c72963e665c04ead5c74fdd3a74756218492b927f4503e493253c7deb938"
+      "bytes": 632828,
+      "sha256": "dd81826764a70041cac2566033169fd6772317ab16c00b003826c4fcd5811a71"
     },
     "play/dachis/assets/maps/gale-ledges/gale-ledges.0-1.webp": {
-      "bytes": 626692,
-      "sha256": "06cee0c6f2468bd7f1f16eba9b6b56e28fa05bd01c3391283d7518ee5a307290"
+      "bytes": 627434,
+      "sha256": "f9a38c5aa0e5e3a698d0462f3ae590022b6bbf79eb7584882b87ac67cc77d468"
     },
     "play/dachis/assets/maps/gale-ledges/gale-ledges.0-2.webp": {
-      "bytes": 505134,
-      "sha256": "9baf3bc84b4bdb2c42eaccc5e75b6b0facee8ce432eea811b802b19736d3d7fa"
+      "bytes": 503988,
+      "sha256": "40f4d4538abf78c8885c0d65b2044e9d8d1becd1cfc23f90f4db17cf55c9f522"
     },
     "play/dachis/assets/maps/gale-ledges/gale-ledges.1-0.webp": {
-      "bytes": 541114,
-      "sha256": "d5e9009210360a1e5218552e4bb488de844c17130c779a2679838a30f6a6e083"
+      "bytes": 539234,
+      "sha256": "6e2e7f8c9040b7674fd899c379525bce50c74b55559db5d1b3c335ac9d27ca61"
     },
     "play/dachis/assets/maps/gale-ledges/gale-ledges.1-1.webp": {
-      "bytes": 609530,
-      "sha256": "cae38677d7ef36003e7f20c9e326f5c2521160d91e01383ed92cd1a66c4ecba8"
+      "bytes": 611704,
+      "sha256": "37348ea2447acaae0f4a9fd22d100782aaa7549bd71c1161be865d6cdc4460f4"
     },
     "play/dachis/assets/maps/gale-ledges/gale-ledges.1-2.webp": {
-      "bytes": 457830,
-      "sha256": "4e41f0867e8781a1d30e00fe3b51e64efc62cb284e11db5f7a89cb7aa433feb6"
+      "bytes": 450136,
+      "sha256": "40438fbc69ae040626abd51de4b93fbf992a48bbe299651bd1ea9f9325ecc445"
     },
     "play/dachis/assets/maps/gale-ledges/gale-ledges.data.png": {
-      "bytes": 530939,
-      "sha256": "c4c5109d5937b61f39bc37c364a205368a9097b5c0b8971299fcf42a67ea5c97"
+      "bytes": 513823,
+      "sha256": "21bf337e8dbcbbb313eca84b19722b4bf129a2c50bba3b8443983fbba92820a7"
     },
     "play/dachis/assets/maps/gale-ledges/gale-ledges.json": {
       "bytes": 1412,
       "sha256": "57417ff6d3e21745e66e13148e438de7f093f9352e9c559bbccbdb5412d572a4"
     },
     "play/dachis/assets/maps/kazan-village/village.0-0.webp": {
-      "bytes": 968688,
-      "sha256": "e45d563e4690743c29d54f5e82094ea220942f86ac48805673ea44e15ad41525"
+      "bytes": 942284,
+      "sha256": "84fb3113e796bbfcad834c7074c508ff72740d47159b0a3a23d351d69a996276"
     },
     "play/dachis/assets/maps/kazan-village/village.0-1.webp": {
-      "bytes": 978158,
-      "sha256": "1348eebd82da4025846c2bc3fcf83cca278ed820e97fea876daed3be720b9578"
+      "bytes": 964134,
+      "sha256": "c3c55c6e4a055f4fab112d1a1b6b73b81ee4366d09a38e2eadaa51ba74bfc685"
     },
     "play/dachis/assets/maps/kazan-village/village.0-2.webp": {
-      "bytes": 811774,
-      "sha256": "fe3fa8450ac408cac8fcc22f68d170438f29fbcd9e3b98b05e53cecb228252eb"
+      "bytes": 786224,
+      "sha256": "ef85263b6f3d3b1759c5137a9ce83ec9824a291beb5e0093a5890a6c340efb73"
     },
     "play/dachis/assets/maps/kazan-village/village.0-3.webp": {
-      "bytes": 226786,
-      "sha256": "a731d4e462c31364072178c628cb6145bab83829649e24b104fe6b794f3efc62"
+      "bytes": 210108,
+      "sha256": "0e9b4059617959e02cf0842826ebf2b67795060b3f3a410117679b268fe329a7"
     },
     "play/dachis/assets/maps/kazan-village/village.1-0.webp": {
-      "bytes": 742730,
-      "sha256": "400520edf3cfd0bf8e1ff809b9f08c35a157c744930c8c61878d8bf9fd9dfa5a"
+      "bytes": 685378,
+      "sha256": "7112333bf494e025b2496d66048879c8db7d6a30305bd87ba6da82c64cd9c851"
     },
     "play/dachis/assets/maps/kazan-village/village.1-1.webp": {
-      "bytes": 774156,
-      "sha256": "4080a430b5a17b3c2f15636188a6a9bf1d8886e783340d35573ba40461cde8dc"
+      "bytes": 705444,
+      "sha256": "afff50094662b185c9fd5caa5a651d352fec5b34a19ca4fc6a04d2056815b635"
     },
     "play/dachis/assets/maps/kazan-village/village.1-2.webp": {
-      "bytes": 756074,
-      "sha256": "dce08f1e7fb69f72c965b22c071ea1da0a7bfb6088fb9a44987e2f2edfab15db"
+      "bytes": 695946,
+      "sha256": "75dc7480ee10975d998ea2f2839cdb99297a777812d079bf81b6246aee8ce1c6"
     },
     "play/dachis/assets/maps/kazan-village/village.1-3.webp": {
-      "bytes": 168494,
-      "sha256": "f7fe72a1ad044d9eb61f28b855e887e996ed6e1b40594a347ed9c466facb4de1"
+      "bytes": 155142,
+      "sha256": "3a502be8358d40f3af0307bc541d6a0c196f6ef10cc889f12f52afffb21c2257"
     },
     "play/dachis/assets/maps/kazan-village/village.data.png": {
-      "bytes": 1238204,
-      "sha256": "da67d08284ba45108afc9addc59c82f89b3d365c067aa97a4983fc42b1c9abfd"
+      "bytes": 1068678,
+      "sha256": "cf952a5f4e43e895b4e5df2290b588ddacd86ee480d1140b2cd3541d81db0d99"
     },
     "play/dachis/assets/maps/kazan-village/village.json": {
       "bytes": 1981,
-      "sha256": "3b06f262fd9eee3a60f97e5a4145a493fadffaef37c2d1a54151b0ef6a38396d"
+      "sha256": "08440ee529d1cd4037a13382f8d9a1dda9dfb86b151afdf150dcc48564f60ede"
     },
     "play/dachis/assets/maps/kazan-village/village.loop-crater.0.jpg": {
-      "bytes": 1149043,
-      "sha256": "98ea5259896cc6f03e5cba8d0c908b0403da89ed62b6ee897a1da4a03ba7a963"
+      "bytes": 1197124,
+      "sha256": "b94dd3a3c87a76c7b671f77023546a0ae0385347ff2657ff3be4b33961c38a2f"
     },
     "play/dachis/assets/maps/kazan-village/village.loop-crater.1.jpg": {
-      "bytes": 1147798,
-      "sha256": "eebbbc4287cdf04558b168b26dbf2a3c1e8ccffaeb9fdbfe4ca6f6850ce46906"
+      "bytes": 1198070,
+      "sha256": "c8e3196883e40081bb54db6033bec5364a6274d4a216cea07578c358b2972022"
     },
     "play/dachis/assets/maps/kazan-village/village.loop-crater.mask.png": {
-      "bytes": 2619,
-      "sha256": "7428c8cadd5a686cb3f14aa5c7a22ce01447cb11feadd141501fa1a6ae5b1884"
+      "bytes": 2919,
+      "sha256": "022373738a9079a11cf3688af18ac9353b9982f55a06bbe205a7ad1111accdc1"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.0-0.webp": {
-      "bytes": 873264,
-      "sha256": "21306a1ecb72f8a6e74e83f3e3fafef880e6c293b8dbdec92c84a9ecc99be1ea"
+      "bytes": 828282,
+      "sha256": "c7edd79847bd64b844293a949a8705d27ea19fc8b48e3808ca75f6194fae7275"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.0-1.webp": {
-      "bytes": 791488,
-      "sha256": "c9ad202aa9be3781c5979e0e03f2e372facd7ee3e6606b2b8a52f903ec1e1ba6"
+      "bytes": 754834,
+      "sha256": "c393b9150f6f730d538347919c90f49a4bd4ef9414f95e71540d126b07a046e1"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.0-2.webp": {
-      "bytes": 835546,
-      "sha256": "f17dd4ded315e17055daf66566e34a04f6ee3d5a340fc558ce4599c7ab5b163a"
+      "bytes": 802192,
+      "sha256": "2396854c2018a14c54eee77f4c48406167b0df802c040a188ddc4bda2394143b"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.0-3.webp": {
-      "bytes": 235170,
-      "sha256": "cd31ea62764e80f918fc884cc8e14fad3eed03744200954a94149e1343ba3123"
+      "bytes": 224476,
+      "sha256": "cf32675a24ef45361d9a2312afe3bc82ab470d14267530bd3624f7c47efc9bba"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.1-0.webp": {
-      "bytes": 730044,
-      "sha256": "f23a473ef06ac2092816170f33e16be3875bb35b7185ea143444b538d199551a"
+      "bytes": 690254,
+      "sha256": "455fc11f01193b80b8d680ecbbc11b5ebd31e33770d2d727dff96f2b361ea1a3"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.1-1.webp": {
-      "bytes": 693144,
-      "sha256": "caa217e8c08e327220955289824dc7198899b665d402e838ac520193cf34af05"
+      "bytes": 643820,
+      "sha256": "a33529e451e2f6fc863f359bb9e989864c594d90d343db0db8a57e52a7bfaf09"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.1-2.webp": {
-      "bytes": 732810,
-      "sha256": "0a41ced4fa2e7bec5cb472d19fb90e1f946ce211f1c158d226be975a0beb4876"
+      "bytes": 672958,
+      "sha256": "6da802d842f20d9b71f1846d40b91f1732a54cf3743f33fb11dfbda87c5b55c7"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.1-3.webp": {
-      "bytes": 171566,
-      "sha256": "bdedbcd6d57c610d63f337918d528a337f0a2bb6ae2c890f26694d649464de6d"
+      "bytes": 152798,
+      "sha256": "673c7e981a4d0444b277278f12fe2f421e1b011b38eb4ebff2dd047ccad50f58"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.data.png": {
-      "bytes": 1134590,
-      "sha256": "e07d2218a1bf940e6b55f62a9e17d870c8b16440e40553ebd29de270467e7ba0"
+      "bytes": 953030,
+      "sha256": "f809ebd7b911030d5c28aabecb450fc80553da594d2617d3c81721bb22e105de"
     },
     "play/dachis/assets/maps/shrine-village/shrine-village.json": {
       "bytes": 1755,
       "sha256": "46697b5b8afb4cbb0c589433ae1906bf632eda1eba21c1d05c0e43b49dcf7e03"
     },
     "play/dachis/assets/maps/tomo-coast/tomo-coast.0-0.webp": {
-      "bytes": 805896,
-      "sha256": "2851cd01565d28cf12e4e2ddb57290938fc9d8183ae0ed8c3c2e84c08120185c"
+      "bytes": 734612,
+      "sha256": "0a547d233a76e6a44c95074a638e2fc03b5acee6ce834ae8803c226430b38c08"
     },
     "play/dachis/assets/maps/tomo-coast/tomo-coast.0-1.webp": {
-      "bytes": 764918,
-      "sha256": "9ad7195fd5ebf6b13d84e22796025f2261cab6598ec90fdd9f7bbcbcbc2e1b41"
+      "bytes": 700842,
+      "sha256": "29c41995a133c147c75a3ff37bcd5b0602b0a7919f173cffdf6117f88d938b51"
     },
     "play/dachis/assets/maps/tomo-coast/tomo-coast.0-2.webp": {
-      "bytes": 270244,
-      "sha256": "41cd1b14fb0e2e03f0eedcd656ddf68d6cb34a9e1bcfa1adaa48de72a6190623"
+      "bytes": 257040,
+      "sha256": "4428eb80830504f8e63a58c607ba319f3812e8df86272af8258865786d4ca2a9"
     },
     "play/dachis/assets/maps/tomo-coast/tomo-coast.1-0.webp": {
-      "bytes": 776234,
-      "sha256": "fba0b436dbd6b3f58aca917a7d6ccc4f648b121b1ddebe4f0389c1abb2d37531"
+      "bytes": 682698,
+      "sha256": "2f86cda0cb8577dbcfc2542286da46b7f7336687fddfcb09a1bbd36179f2fc53"
     },
     "play/dachis/assets/maps/tomo-coast/tomo-coast.1-1.webp": {
-      "bytes": 686860,
-      "sha256": "57b7d08e7acbbd80c8f9e5528558c5258b7f4446d9bd8b0a78d886c536bf4730"
+      "bytes": 606114,
+      "sha256": "23a8c4f5e23c2f17ba3d5d06a1d8fd9160123a6186b4eb630b479fe57ef540c3"
     },
     "play/dachis/assets/maps/tomo-coast/tomo-coast.1-2.webp": {
-      "bytes": 280172,
-      "sha256": "b3b8fef34dd64ad5985e480ea88ba2a278b32f89f76507ad96e86e6586308671"
+      "bytes": 255386,
+      "sha256": "6a565c0cd22316fbc714bb8e4657279b75b9542c5280de7fdb06184e94333938"
     },
     "play/dachis/assets/maps/tomo-coast/tomo-coast.data.png": {
-      "bytes": 746498,
-      "sha256": "51a90f21622d2796b4690c9231786fed3d3a950c186de71af137070fe52168c5"
+      "bytes": 638962,
+      "sha256": "4a14f9cd6eb1c1562a3232a649bb554cba3188d95a59c7f5ee189f6bdcdf04f6"
     },
     "play/dachis/assets/maps/tomo-coast/tomo-coast.json": {
       "bytes": 1405,
       "sha256": "345b036c5a10e4663a77561591fa7eb8c26a4d68e90f718d90d8c2397d8df833"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.0-0.webp": {
-      "bytes": 810652,
-      "sha256": "a653a77a0bc641cf13cc8c18a3781bd7bd748a02c2ee2b6966e1e976cb6d6745"
+      "bytes": 733434,
+      "sha256": "3a11ded97fe0e1a796019d657d43f597f78d4f7e99bd0e383ec3208783a0d5c3"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.0-1.webp": {
-      "bytes": 658186,
-      "sha256": "23ff5203af01c4bc0b8f340eb6f78a5ce6d9c4bf0edef35bb524816d4417113b"
+      "bytes": 616120,
+      "sha256": "d3c6d337c05b05c2209fe0a636d7ccc56523585be8e828ebc532d5426e81d339"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.0-2.webp": {
-      "bytes": 704218,
-      "sha256": "a6e62c3adab9e55225c7f770a3b3cfbd85f08db424eed95071ffebd56f6959d8"
+      "bytes": 642976,
+      "sha256": "87e02b64f72b1d7914ebb88d7071e9a2a8f1d365fdc08e65f92d81ddda03c9b2"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.0-3.webp": {
-      "bytes": 166914,
-      "sha256": "fbfc78c42d79a06db504b6a1ce271306d1fbc248b5e78b878e62a94f08a5814d"
+      "bytes": 151370,
+      "sha256": "73afb99df994bf43b568a041a094d84445927f291eee610a8d0e0116ed4649be"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.1-0.webp": {
-      "bytes": 473120,
-      "sha256": "84ee9a1bec1137347e7988365c37d513811835c515a2a588229f0b47a771a7de"
+      "bytes": 432022,
+      "sha256": "27d6137d1a6243b49eb8e32a340a97bb3cc438351438ff26af96213cfa9ac101"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.1-1.webp": {
-      "bytes": 444842,
-      "sha256": "a180367039958daad0dd37e8f634273c50390e6127a2dcbf836a69b73a1b2e50"
+      "bytes": 392874,
+      "sha256": "5f4fb331cef546b1def400b9334da4903407c64b7e24a05ce9252d3779414a6f"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.1-2.webp": {
-      "bytes": 421148,
-      "sha256": "a5bd7ad7e46bc416c8ff8602e9a6261b1ea058d2ef91aabde9fe68553e8aaeae"
+      "bytes": 376156,
+      "sha256": "47c5f266911027d64e39bcfefb4a7dd7e8cbf9f2eebfa75497f9de4377f0a598"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.1-3.webp": {
-      "bytes": 120632,
-      "sha256": "32985d0e6525814b598e53c5285837b801b00dc917c16f90bdbe32a12863d423"
+      "bytes": 104380,
+      "sha256": "714b8c7a088e45d6af6c6064dc2893ed2280d37f9034c1e8f2777b83b7117cc5"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.data.png": {
-      "bytes": 862946,
-      "sha256": "3cd3ef1038d95a32f21275aa4a505e7062f478cc7ee5becb6b9c3c76efb339e9"
+      "bytes": 757684,
+      "sha256": "667a57de721a2110ca8564fefd49fcbc7ab3136b2a7c019c7347510523475d12"
     },
     "play/dachis/assets/maps/winding-path/winding-foot.json": {
       "bytes": 1732,
       "sha256": "abd7d52c4d0c1f2f2398e920cfad4c611e808c8310347febbe6b0856fe928580"
     },
     "play/dachis/assets/maps/winding-path/winding-top.0-0.webp": {
-      "bytes": 814888,
-      "sha256": "101d6b61087248ebd23c504e776278584b4be31891843fb1c6cc7c5ad392c336"
+      "bytes": 800428,
+      "sha256": "cbc706dc9f1b6f58f15f7e9aa32cc3360c2955b186a190ea9c242499a9cecbc0"
     },
     "play/dachis/assets/maps/winding-path/winding-top.0-1.webp": {
-      "bytes": 784978,
-      "sha256": "856a94d20a6725b00152d9e5eb3ce40dcd1b0725a7fe6eec4f3fa0da0acb096a"
+      "bytes": 770178,
+      "sha256": "4bd49879f3cf53507cd7d8b17f53106fbada81bb5955dc92ec5f8a50301135df"
     },
     "play/dachis/assets/maps/winding-path/winding-top.0-2.webp": {
-      "bytes": 791304,
-      "sha256": "11872e87afac684edca59790c0462b2778344787d6d915df8749229c00347191"
+      "bytes": 774212,
+      "sha256": "fc635489ce7de979002708d2a3b1e1eeaeca2534d08baa41a10225801f945456"
     },
     "play/dachis/assets/maps/winding-path/winding-top.0-3.webp": {
-      "bytes": 275308,
-      "sha256": "6169dc67f6cc6b822cc96747c91ee0771828be4c8b43436ef7cef9e9d6116d25"
+      "bytes": 258056,
+      "sha256": "16f8c2fd8041c9783f882e4fb287f82afad0483f73d2478c24b2c26fe31dd4b1"
     },
     "play/dachis/assets/maps/winding-path/winding-top.1-0.webp": {
-      "bytes": 800732,
-      "sha256": "eab770ec0146382d74ab3f4c29647a443792a7c46c2fbfe88576b488bbdfd690"
+      "bytes": 780648,
+      "sha256": "017c66753493b7cdc7af79964a08c02134ad9811124e73352db5e79f1c5e415a"
     },
     "play/dachis/assets/maps/winding-path/winding-top.1-1.webp": {
-      "bytes": 822598,
-      "sha256": "5b788a868da09fd5b6215c67e7395ecbcd582db524c598b9748689ea26e845ef"
+      "bytes": 808116,
+      "sha256": "d378f7c843cb7381e44e6425733346cecd271695ba6c3408889b7ab233c0c3fa"
     },
     "play/dachis/assets/maps/winding-path/winding-top.1-2.webp": {
-      "bytes": 787946,
-      "sha256": "33324900b101f39a8ae0ccbd575fc86ba36ca87a7db31940bfdc54e5f0e2f821"
+      "bytes": 772122,
+      "sha256": "4dd873f3ff8c5ca09b0744c12350e8ce52d82a97d4115c3cdb29d3caab53238c"
     },
     "play/dachis/assets/maps/winding-path/winding-top.1-3.webp": {
-      "bytes": 253614,
-      "sha256": "46f3dd0fcd165ba2a1d6852fb0e1de00e218ed2ac29e0b2e2f3da69e7e6c2518"
+      "bytes": 243148,
+      "sha256": "9238e56290922eaec397fdc40d58880e32411dff9e7bf66c421d451191273730"
     },
     "play/dachis/assets/maps/winding-path/winding-top.2-0.webp": {
-      "bytes": 552276,
-      "sha256": "8b2699462a8efcb103d0d7d1b6b3df3523a8beb63a9890feb51f7b9e41294786"
+      "bytes": 523932,
+      "sha256": "91e2d9b87eb48203c67f0bc473cff218bc2681ecd6719ff4b191c5ad26189484"
     },
     "play/dachis/assets/maps/winding-path/winding-top.2-1.webp": {
-      "bytes": 478694,
-      "sha256": "0edf1dd1bf3385c34ed60bed1a23e492d3a20c7fae3b6be33735c186cd771c49"
+      "bytes": 439238,
+      "sha256": "7b78d59880e82c72867d4fcebf9449174f224a8363fec59f577911120e27c13e"
     },
     "play/dachis/assets/maps/winding-path/winding-top.2-2.webp": {
-      "bytes": 505126,
-      "sha256": "75e712c516d2e581fe85dc3738271cfba031b33e57138148614c974a27c549b7"
+      "bytes": 472894,
+      "sha256": "89ae837bf29ea996a57d92e2c176d7d9ffed8928e87214f56c0f4e73724a87f6"
     },
     "play/dachis/assets/maps/winding-path/winding-top.2-3.webp": {
-      "bytes": 174268,
-      "sha256": "9112f75c294f126283b9b381c7873523ce9a27f00188fef207d5bcada8624496"
+      "bytes": 165910,
+      "sha256": "341ff83a03fa48398c2ee244abe5111908962ce45243749898d30718149f3ec1"
     },
     "play/dachis/assets/maps/winding-path/winding-top.data.png": {
-      "bytes": 1193150,
-      "sha256": "1e64a979b2cf3ca9047993e3abb97ab0609802e3d4dd2967add91711966e5700"
+      "bytes": 1086511,
+      "sha256": "d09af4d2e20066d552f4b527b104a4202bd221161f4890b9d241a944566ce176"
     },
     "play/dachis/assets/maps/winding-path/winding-top.json": {
       "bytes": 2349,
@@ -5718,7 +5718,7 @@
     },
     "play/space-95/index.html": {
       "bytes": 2268,
-      "sha256": "d32aaf5fb6fc17b7d813bf1394abfca76c1075b0ec7a5f183955ced34da8196a"
+      "sha256": "bafc252ac49a15d7bef81372bf7f452d8cded317e8359b986c13b458090c2e0b"
     },
     "play/space-95/css/bolt.css": {
       "bytes": 858,
@@ -11226,7 +11226,7 @@
     },
     "play/farmy-moon-life/index.html": {
       "bytes": 70012,
-      "sha256": "870d6a2563fce7a8b2d3ffa2dc4a7f206596ce22617e7e1eeb5157a20ac8e432"
+      "sha256": "78f49c9f893cb643a642033978f057382eab14b708c89a127d48266d5ff47162"
     },
     "play/farmy-moon-life/src/install/icon-192.png": {
       "bytes": 1839,
@@ -12850,59 +12850,59 @@
     },
     "play/farmyshoot/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/farmykart/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/farmy-evil-hills/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/zelakas/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/2d-fighter-ex/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/farmy-crosswords/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/farmy-tiles/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/farmy-ludo/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/farmy-chess/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/minesweeper/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/gomoku/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/word-chain/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/truco/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "play/buraco/version.json": {
       "bytes": 72,
-      "sha256": "90dc41121ff3b4beae8830bd032417344b708c8c72c339b931d4dcdafad27f59"
+      "sha256": "fe9fb5ecff6f89c4637785424131d5968862a9576f2a3e3da162746e91fdfa43"
     },
     "assets/badges/first-steps.svg": {
       "bytes": 764,
@@ -14026,7 +14026,7 @@
     },
     "catalogue.json": {
       "bytes": 19693,
-      "sha256": "03b44b7805815f5c05bfe728c225489ace0e08b96b0ada95d8966a12595a46a8"
+      "sha256": "c6a8f4cf52ca929bdd97c18163e5a79c56a8365c053c470b8c3be3e98272f65c"
     }
   }
 }
