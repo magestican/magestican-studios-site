@@ -1,8 +1,10 @@
 
 import { CHALLENGES, gymWorld } from './gym.js';
 import { buildL01 } from './L01.js';
+import { buildL02 } from './L02.js';
+import { buildL03 } from './L03.js';
 
-const SHIFTS = { 1: buildL01 };
+const SHIFTS = { 1: buildL01, 2: buildL02, 3: buildL03 };
 
 
 export function loadLevel(key) {

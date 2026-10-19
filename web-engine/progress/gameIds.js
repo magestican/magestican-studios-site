@@ -182,3 +182,23 @@ export const PROFILE_GAME_NAMES = Object.freeze({
   'farmy-herds': 'Groupseek',
   'farmy-furrows': 'Gridseek',
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const PREVIEW_GAME_IDS = Object.freeze(['space-95']);
+
+export const PREVIEW_GAME_NAMES = Object.freeze({ 'space-95': 'Space 95' });

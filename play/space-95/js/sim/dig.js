@@ -18,5 +18,6 @@ export function stepDig(s) {
   }
   if (!broken.length) return;
   p.grounded = false; 
+  if (p.ab) p.ab.prevDown = false; 
   s.events.push({ type: 'dig', cells: broken, x: cMid * T, y: (rTop + 1) * T });
 }

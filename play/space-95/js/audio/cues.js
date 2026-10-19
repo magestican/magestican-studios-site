@@ -28,6 +28,11 @@ const CUES = {
   ability: ['ability_get', 'intel_found'],
   poke: ['stomp'],
   dig: ['dig_break', 'land_hard'],
+  telegraph: ['boss_telegraph', 'pillbug_alert'],
+  bossHit: ['boss_hit', 'enemy_hit_shell'],
+  bossPhase: ['boss_phase', 'intel_found'],
+  bossDefeat: ['boss_defeat', 'shift_clear'],
+  rushHour: ['strike'],
   caveIn: ['cave_in', 'skid'],
   buried: ['bury_thump', 'enemy_defeat_pop'],
   strike: ['strike', 'intel_found'], 
@@ -63,6 +68,20 @@ export function cueRate(e) {
 
 
 
+export function createLadder(window = 1.2) {
+  const last = new Map();
+  return ( type,  time) => {
+    const prev = last.get(type);
+    const step = prev && time - prev.time <= window ? Math.min(prev.step + 1, 6) : 0;
+    last.set(type, { time, step });
+    return 2 ** ((2 * step) / 12);
+  };
+}
+
+
+
+
+
 export function cueFor(e, has = () => true) {
   if (e.type === 'land') {
     const f = e.fall ?? 0;
@@ -72,11 +91,21 @@ export function cueFor(e, has = () => true) {
 }
 
 
-export function createFootsteps() {
+export function createFootsteps(surface = 'dirt') {
   let dist = 0;
+  let climbT = 0;
   return {
     
     update(p, dt) {
+      if (p.climbing) {
+        
+        climbT += dt;
+        if (Math.abs(p.vy ?? 0) + Math.abs(p.vx) > 0.5 && climbT >= 0.25) {
+          climbT = 0;
+          return 'bark_climb';
+        }
+        return null;
+      }
       const speed = Math.abs(p.vx);
       if (!p.grounded || speed < 0.5) {
         dist = STRIDE * 0.6; 
@@ -86,7 +115,7 @@ export function createFootsteps() {
       const stride = speed < WALK_SPEED ? STRIDE * 0.7 : STRIDE;
       if (dist < stride) return null;
       dist -= stride;
-      return speed < WALK_SPEED ? 'footstep_dirt_walk' : 'footstep_dirt_run';
+      return `footstep_${surface}_${speed < WALK_SPEED ? 'walk' : 'run'}`;
     },
   };
 }

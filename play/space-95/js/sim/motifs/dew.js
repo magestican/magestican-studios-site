@@ -6,7 +6,7 @@ import { JUMP_VELOCITY } from '../constants.js';
 import { overlaps, registerKind } from '../entities.js';
 
 const BOUNCE_V = JUMP_VELOCITY * 1.35; 
-const BOUNCE_V_HELD = JUMP_VELOCITY * 1.5; 
+const BOUNCE_V_HELD = JUMP_VELOCITY * 1.55; 
 const WOBBLE = 0.4; 
 
 registerKind('dew', {

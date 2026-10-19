@@ -38,6 +38,7 @@
 import { SeededRng } from '../rng/seededRng.js';
 import {
   PROFILE_GAME_IDS, PROFILE_GAME_NAMES, CLOUD_GAME_IDS,
+  PREVIEW_GAME_IDS, PREVIEW_GAME_NAMES,
 } from '../progress/gameIds.js';
 
 
@@ -69,6 +70,9 @@ export const GAME_IDS = PROFILE_GAME_IDS;
 export const GAME_NAMES = Object.freeze({
   ...PROFILE_GAME_NAMES,
   zelakas: 'Zelakas In Space',
+  
+  
+  ...PREVIEW_GAME_NAMES,
 });
 
 
@@ -92,7 +96,11 @@ export const GAME_NAMES = Object.freeze({
 
 
 
-export const STORAGE_GAME_IDS = Object.freeze([...new Set([...GAME_IDS, ...CLOUD_GAME_IDS])]);
+
+
+
+
+export const STORAGE_GAME_IDS = Object.freeze([...new Set([...GAME_IDS, ...CLOUD_GAME_IDS, ...PREVIEW_GAME_IDS])]);
 
 export function isGameId(id) {
   return typeof id === 'string' && STORAGE_GAME_IDS.includes(id);
@@ -128,11 +136,34 @@ const GOALS = Object.freeze({
   zelakas: [
     { metric: 'sessions', min: 1, max: 1, verb: 'Take', noun: 'flight', nouns: 'flights' },
   ],
+  
+  
+  
+  
+  
+  
+  
+  'space-95': [
+    { metric: 's95ParClears', min: 1, max: 1, verb: 'Clear', noun: 'shift under par', nouns: 'shifts under par' },
+    { metric: 's95Secrets', min: 2, max: 2, verb: 'Find', noun: 'secret', nouns: 'secrets' },
+    { metric: 's95PebbleKills', min: 1, max: 1, verb: 'Kick', noun: 'enemy with a pebble', nouns: 'enemies with a pebble' },
+  ],
+});
+
+
+
+
+const STORED_ONLY = Object.freeze({
+  'space-95': [
+    's95LevelsCleared', 's95IntelPct', 's95Specimens', 's95MiniBosses', 's95BigBosses',
+    's95MantisBeaten', 's95NoHitBoss', 's95CoopClears', 's95TrainClean', 's95AceSolo',
+    's95HighFives',
+  ],
 });
 
 
 export function metricsFor(gameId) {
-  return (GOALS[gameId] ?? []).map((g) => g.metric);
+  return [...(GOALS[gameId] ?? []).map((g) => g.metric), ...(STORED_ONLY[gameId] ?? [])];
 }
 
 
@@ -212,6 +243,8 @@ export function gameOfTheDay(utcDay) {
 
 export function dailyChallenge(utcDay, gameId) {
   if (!Number.isInteger(utcDay) || utcDay < 0 || !isGameId(gameId)) return null;
+  
+  if (PREVIEW_GAME_IDS.includes(gameId)) return null;
   const table = GOALS[gameId];
   if (!table || !table.length) return null;
   

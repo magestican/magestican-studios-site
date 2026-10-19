@@ -22,6 +22,7 @@ export function levelBuilder(meta) {
   const entities = [];
   const checkpoints = [];
   const landmarks = [];
+  const cameraHints = [];
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -30,7 +31,7 @@ export function levelBuilder(meta) {
 
   const id = (kind) => {
     counters[kind] = (counters[kind] ?? 0) + 1;
-    return `L${String(meta.id).padStart(2, '0')}-${kind}-${counters[kind]}`;
+    return `L${String(meta.id).padStart(2, '0')}-${kind.toLowerCase()}-${counters[kind]}`; 
   };
   const mark = (map, c0, c1, r0, r1) => {
     for (let c = c0; c < c1; c++) {
@@ -93,10 +94,15 @@ export function levelBuilder(meta) {
       return api;
     },
     
-    antColumn(dx, len, speed = 4) {
+
+
+
+
+    antColumn(dx, len, speed = 4, { headline, ...props } = {}) {
       const top = ground + TILE;
       mark(oneWay, cells(x + dx), cells(x + dx + len), cells(top) - 1, cells(top));
-      api.put('antColumn', dx + len / 2, { x0: x + dx, x1: x + dx + len, speed, motif: 'sweep' }, top);
+      const tag = headline ? { motif: 'sweep', use: headline } : {};
+      api.put('antColumn', dx + len / 2, { x0: x + dx, x1: x + dx + len, speed, ...tag, ...props }, top);
       return api;
     },
     
@@ -108,6 +114,17 @@ export function levelBuilder(meta) {
     
     bark(x0, x1, y0, y1) {
       mark(barkCells, cells(x0), cells(x1), cells(y0), cells(y1));
+      return api;
+    },
+    
+    carve(x0, x1, y0, y1) {
+      for (const map of [solid, soilCells, oneWay])
+        for (let c = cells(x0); c < cells(x1); c++) for (let r = cells(y0); r < cells(y1); r++) map.get(c)?.delete(r);
+      return api;
+    },
+    
+    cameraHint(x0, x1, opts) {
+      cameraHints.push({ x0, x1, ...opts });
       return api;
     },
     
@@ -134,6 +151,11 @@ export function levelBuilder(meta) {
     
     spawnAt(x, y) {
       spawn = { x, y };
+      return api;
+    },
+    
+    landmarkAt(name, x, y, layer = 'mid') {
+      landmarks.push({ name, x, y, layer });
       return api;
     },
     
@@ -172,6 +194,7 @@ export function levelBuilder(meta) {
         spawn: spawn ?? { x: 1.5, y: floor0 },
         checkpoints,
         landmarks,
+        cameraHints,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,
         vertical: finish?.axis === 'y',

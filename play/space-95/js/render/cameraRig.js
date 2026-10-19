@@ -9,7 +9,7 @@ const DEAD_ZONE_DOWN = 0.6;
 const FALL_LOOK = 2.5; 
 const FALL_LOOK_SPEED = 10; 
 const FOLLOW_Y_RATE = 6; 
-const CLIMB_LOOK = 2.5; 
+const CLIMB_LOOK = 3; 
 
 export function createCameraRig(x, y) {
   return { x, y, focusY: y, ahead: 0, fallLook: 0, upLook: 0 };

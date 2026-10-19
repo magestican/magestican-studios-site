@@ -85,7 +85,7 @@ html[data-kit] .tr-tally line.off { stroke: rgba(255, 241, 214, 0.45); }
 html[data-kit] .tr-spot.turn { box-shadow: none; background: none; }
 html[data-kit] .tr-spot { gap: 6px; }
 html[data-kit] .tr-badge { font-size: 11px; background: none; }
-html[data-kit] .tr-bubble { border-width: 0; border-color: transparent; background: none; box-shadow: none; }
+html[data-kit] .tr-bubble { border: 0; background: none; box-shadow: none; }
 html[data-kit] .tr-check { gap: 10px; }
 
 
@@ -103,7 +103,7 @@ html[data-kit] .bu-slot { display: inline-flex; padding: 6px !important; min-wid
 html[data-kit] .bu-stock .bu-card.can, html[data-kit] .bu-pile-row.can { outline: 0; }
 html[data-kit] .bu-pile-row { padding: 6px 8px !important; min-height: 0; }
 html[data-kit] .bu-badge { background: none; color: inherit; margin-top: 4px; }
-html[data-kit] .bu-result { border-width: 0; border-color: transparent; padding: 20px 22px 22px !important; }
+html[data-kit] .bu-result { border: 0 solid transparent; padding: 20px 22px 22px !important; }
 html[data-kit] .bu-result-table th, html[data-kit] .bu-result-table tr:first-child td,
 html[data-kit] .bu-result-table tr.total td, html[data-kit] .bu-result-table tr.total th { color: inherit; }
 html[data-kit] .bu-result-table th { opacity: .82; }
@@ -119,7 +119,7 @@ html[data-kit] .sw-best { color: #FFFFFF; font-size: 13px; min-height: 36px; pad
 html[data-kit] .sw-best::before { margin-right: 7px; }
 html[data-kit] .sw-bar { height: 18px; background: none; min-width: 120px; padding: 4px 4px 3px !important; }
 html[data-kit] .sw-bar span { height: 11px; transition: width .12s linear; }
-html[data-kit] .sw-rival, html[data-kit] .sw-watch-board { background: none; border-width: 0; border-color: transparent; box-shadow: none; }
+html[data-kit] .sw-rival, html[data-kit] .sw-watch-board { background: none; border: 0; box-shadow: none; }
 
 
 
@@ -128,7 +128,7 @@ html[data-kit] .gm-status, html[data-kit] .wc-status { width: fit-content; max-w
 html[data-kit] .gm-status { display: flex; align-items: center; justify-content: center; gap: 8px; }
 html[data-kit] .gm-status .gm-dot { box-shadow: 0 0 0 2px #FFF1D6; }
 html[data-kit] .gm-status:empty, html[data-kit] .wc-status:empty { display: none; }
-html[data-kit] .wc-play { border-width: 0; border-color: transparent; box-shadow: none; padding: 22px 24px 24px !important; }
+html[data-kit] .wc-play { border: 0 solid transparent; box-shadow: none; padding: 22px 24px 24px !important; }
 html[data-kit] .wc-clock { height: 18px; background: none; padding: 4px 4px 3px !important; overflow: hidden; }
 html[data-kit] .wc-clock-bar { height: 11px; width: 100%; background: none; }
 html[data-kit] .wc-clock.low .wc-clock-bar { background: none; animation: mg-fuse .45s ease-in-out infinite alternate; }

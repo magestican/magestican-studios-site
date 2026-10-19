@@ -1,0 +1,62 @@
+
+
+
+
+
+
+const LINES = {
+  shiftStart: [
+    'Clocking in. Coffee module: empty.',
+    'Shift started. Try not to get stepped on.',
+    'Survey mode on. Everything here is HUGE.',
+  ],
+  signal: ["Huh. My antenna's itching.", 'Something shiny back there...', 'Hollow sound. Suspicious.'],
+  secret: ['Filed: {name}!', '{name} - into the report it goes.', 'Intel! {name}. Management will love this.'],
+  checkpoint: ['Clocked in.', 'Beacon logged.', 'Timesheet updated.'],
+  strike: ['STRIKE! That goes in the report.', 'Three for one. Efficient!'],
+  dewBounce: ['Wheee- I mean: data acquired.', 'Dew lens. Bouncy. Noted.'],
+  sweep: ['The ants did the work. Classic.', 'Express delivery!'],
+  ability: ['Boot thrusters repaired! Jump twice. Legally.', 'New tool unlocked. Overtime approved.'],
+  hurt: ['Ouch. Paperwork.', 'Careful! I only have one of you.'],
+  clear: ['Shift complete. Clocking out!', "That's a wrap. Same time tomorrow?"],
+};
+
+
+export function createBoltVoice() {
+  const used = {};
+  let cooldown = 0;
+  const pick = (kind, vars = {}) => {
+    const list = LINES[kind];
+    const i = used[kind] ?? 0;
+    used[kind] = i + 1;
+    return list[i % list.length].replace('{name}', vars.name ?? 'something');
+  };
+  return {
+    
+    onEvent(e, dt = 0) {
+      cooldown = Math.max(0, cooldown - dt);
+      const important = e.type === 'secret' || e.type === 'clear' || e.type === 'ability' || e.type === 'strike';
+      if (cooldown > 0 && !important) return null;
+      let kind = null;
+      if (e.type === 'signal' && !e.repeat) kind = 'signal';
+      else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
+      else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
+      else if (e.type in LINES && e.type !== 'signal' && e.type !== 'dewBounce' && e.type !== 'sweep') kind = e.type;
+      if (!kind) return null;
+      cooldown = 4;
+      const beep = kind === 'signal' ? 'bolt_beep_curious' : kind === 'hurt' ? null : 'bolt_beep_happy';
+      return { text: pick(kind, e), beep, mood: kind === 'signal' ? 'curious' : kind === 'hurt' ? 'worried' : 'happy' };
+    },
+    start: () => ({ text: pick('shiftStart'), beep: 'bolt_beep_happy', mood: 'happy' }),
+  };
+}
+
+
+export function followJo(b, jo, facing, dt, time) {
+  const tx = jo.x - facing * 1.4;
+  const ty = jo.y + 1.6 + Math.sin(time * 3) * 0.12;
+  const k = 1 - Math.exp(-dt * 5);
+  b.x += (tx - b.x) * k;
+  b.y += (ty - b.y) * k;
+  return b;
+}

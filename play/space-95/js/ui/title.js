@@ -3,7 +3,11 @@
 
 
 
-export function showTitle(root, variant, onStart) {
+
+
+
+
+export function showTitle(root, variant, onStart, shifts = [], onShift = () => {}) {
   let pick = variant;
   root.innerHTML = `
     <div class="title-card" role="dialog" aria-label="Space 95">
@@ -16,6 +20,16 @@ export function showTitle(root, variant, onStart) {
         <button type="button" role="radio" data-v="man"><span class="title-av title-av-man"></span><strong>Jo</strong><span>man</span></button>
       </div>
       <button type="button" class="title-go" data-act="go">Clock in</button>
+      ${
+        shifts.length > 1
+          ? `<div class="title-shifts" aria-label="Shifts">${shifts
+              .map(
+                (s) =>
+                  `<button type="button" data-shift="${s.id}" ${s.unlocked ? '' : 'disabled'} ${s.current ? 'aria-current="true"' : ''}>${s.id}. ${s.name}</button>`,
+              )
+              .join('')}</div>`
+          : ''
+      }
       <p class="title-hint">Bolt, your android buddy, is already on shift.</p>
     </div>`;
   root.hidden = false;
@@ -48,5 +62,6 @@ export function showTitle(root, variant, onStart) {
   };
   window.addEventListener('keydown', onKey, true);
   root.querySelector('[data-act="go"]')?.addEventListener('click', go);
+  for (const b of root.querySelectorAll('[data-shift]')) b.addEventListener('click', () => onShift(Number(b.dataset.shift)));
   root.querySelector('[data-act="go"]')?.focus();
 }

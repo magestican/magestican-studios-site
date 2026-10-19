@@ -30,8 +30,12 @@ export function spawnEntities(defs) {
     .map((d) => {
       const impl = KINDS[d.kind];
       if (!impl) throw new Error(`unknown entity kind ${d.kind} (${d.id})`);
-      const e = { vx: 0, vy: 0, w: 0.5, h: 0.5, alive: true, state: 'idle', t: 0, facing: -1, grounded: false, ...d, px: d.x, py: d.y };
+      const e = { vx: 0, vy: 0, alive: true, state: 'idle', t: 0, facing: -1, grounded: false, ...d, px: d.x, py: d.y };
       impl.create(e);
+      
+      
+      e.w ??= 0.5;
+      e.h ??= 0.5;
       return e;
     })
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
@@ -45,6 +49,24 @@ export function stepEntities(list, ctx) {
     e.py = e.y;
     const impl = KINDS[e.kind];
     if (e.swept) continue; 
+    
+    if (e.dozing && ctx.player.ab?.pound === 'fall' && overlaps(ctx.player, e)) e.dozing = false;
+    if (e.dozing) {
+      
+      
+      const p = ctx.player;
+      if (e.wakeIn === undefined) {
+        const pound = p.events.find((ev) => ev.type === 'pound');
+        if ((pound && Math.hypot(pound.x - e.x, pound.y - e.y) <= 8) || overlaps(p, e)) e.wakeIn = 1.1;
+      }
+      if (e.wakeIn !== undefined) e.wakeIn -= STEP;
+      if (e.wakeIn !== undefined && e.wakeIn <= 0) {
+        e.dozing = false;
+        e.awake = true;
+        ctx.events.push({ type: 'wake', id: e.id, yawn: true });
+      }
+      continue;
+    }
     if (impl.sleeps && !e.awake) {
       if (Math.abs(ctx.player.x - e.x) > (e.wake ?? WAKE_RANGE) || Math.abs(ctx.player.y - e.y) > WAKE_RANGE_Y) continue;
       e.awake = true;

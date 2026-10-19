@@ -25,6 +25,16 @@ function writeProgress(save) {
 }
 
 
+
+
+
+export function mergeIntoProgress(remote) {
+  const merged = mergeSaves(readProgress(), loadSave(remote));
+  writeProgress(merged);
+  return merged;
+}
+
+
 export function saveVariant(variant) {
   writeProgress({ ...readProgress(), variant });
 }

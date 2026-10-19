@@ -82,9 +82,23 @@ export function stepDefeated(e) {
 }
 
 
+export function poundHit(e, ctx) {
+  const p = ctx.player;
+  if (p.ab?.pound !== 'fall' || !overlaps(p, e)) return false;
+  defeat(e, ctx, 'pound');
+  return true;
+}
+
+
 export function standardContact(e, ctx, { stompable = true } = {}) {
   const c = contact(ctx.player, e);
   if (!c) return;
+  if (poundHit(e, ctx)) return;
+  if (c === 'stomp' && e.stompProof) {
+    stompBounce(ctx.player);
+    ctx.events.push({ type: 'ping', id: e.id });
+    return;
+  }
   if (c === 'stomp' && stompable) {
     stompBounce(ctx.player);
     defeat(e, ctx, 'stomp');

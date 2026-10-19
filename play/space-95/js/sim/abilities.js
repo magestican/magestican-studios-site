@@ -164,7 +164,7 @@ export function abilityAfterMove(p, world, dir, landed) {
     A.usedDouble = false;
     A.dashUsed = false;
     A.wallDir = 0;
-    if (landed && A.pound === 'fall') p.events.push({ type: 'pound' });
+    if (landed && A.pound === 'fall') p.events.push({ type: 'pound', x: p.x, y: p.y });
     A.pound = null;
   }
 }

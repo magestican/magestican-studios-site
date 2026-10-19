@@ -2,7 +2,7 @@
 
 
 
-import { contact, defeat, hurtPlayer, stepDefeated, stompBounce } from '../combat.js';
+import { contact, defeat, hurtPlayer, poundHit, stepDefeated, stompBounce } from '../combat.js';
 import { groundAhead, moveBody, registerKind } from '../entities.js';
 
 const ROLL_SPEED = 3;
@@ -19,6 +19,7 @@ registerKind('pillbug', {
   },
   step(e, ctx) {
     if (stepDefeated(e)) return;
+    if (poundHit(e, ctx)) return; 
     if (e.state === 'roll') {
       e.vx = e.facing * ROLL_SPEED;
       const hit = moveBody(e, ctx.world);

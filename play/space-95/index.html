@@ -4,12 +4,13 @@
   <meta name="robots" content="noindex">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-    <title>Space 95 - Metrics Gym</title>
+    <title>Space 95</title>
     <meta name="description" content="Space 95: two friends on a 9-to-5 survey job on the giant planet Galaxa Z. Early movement test build." />
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="css/game.css?v=2cf30bc9-20261019T101732Z" />
-    <link rel="stylesheet" href="css/timesheet.css?v=2cf30bc9-20261019T101732Z" />
-    <link rel="stylesheet" href="css/title.css?v=2cf30bc9-20261019T101732Z" />
+    <link rel="stylesheet" href="css/game.css?v=b5160cd6-20261019T103348Z" />
+    <link rel="stylesheet" href="css/timesheet.css?v=b5160cd6-20261019T103348Z" />
+    <link rel="stylesheet" href="css/title.css?v=b5160cd6-20261019T103348Z" />
+    <link rel="stylesheet" href="css/bolt.css?v=b5160cd6-20261019T103348Z" />
     <script type="importmap">
       { "imports": { "three": "./js/vendor/three/three.module.js" } }
     </script>
@@ -18,7 +19,10 @@
   <body>
     <canvas id="stage" aria-label="Space 95 game view"></canvas>
     <div id="hud" class="hud" aria-live="polite"></div>
+    <div id="bolt" class="bolt-say hud-card" role="status" hidden></div>
     <div id="timesheet" class="timesheet"></div>
+    <div id="pause" class="timesheet" hidden></div>
+    <button id="pause-btn" class="pause-btn" type="button" aria-label="Pause">II</button>
     <div id="title" class="title" hidden></div>
     <div class="help hud-card" id="help">
       <span><kbd>&larr;</kbd><kbd>&rarr;</kbd> run</span>
@@ -26,6 +30,7 @@
       <span><kbd>&darr;</kbd> fast fall</span>
       <span><kbd>R</kbd> retry</span>
       <span><kbd>M</kbd> sound</span>
+      <span><kbd>Esc</kbd> pause</span>
       <span class="help-dash" hidden><kbd>Shift</kbd> dash</span>
     </div>
     <div class="touch" aria-hidden="true">
@@ -34,6 +39,6 @@
       <button class="touch-dash" data-touch="dash" type="button" hidden>Dash</button>
     </div>
     <noscript>Space 95 needs JavaScript.</noscript>
-    <script type="module" src="js/main.js?v=2cf30bc9-20261019T101732Z"></script>
+    <script type="module" src="js/main.js?v=b5160cd6-20261019T103348Z"></script>
   </body>
 </html>

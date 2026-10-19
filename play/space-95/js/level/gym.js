@@ -4,7 +4,7 @@
 import { TILE } from '../sim/constants.js';
 import { gridWorld } from '../sim/world.js';
 
-const W = 260;
+const W = 412;
 const H = 32;
 const FLOOR = 4; 
 
@@ -30,6 +30,13 @@ export const CHALLENGES = [
   { id: 8, col: 146, label: 'Coyote: 6.5 u', proves: 'a late jump off the edge still fires' },
   { id: 9, col: 170, label: 'One-way stack', proves: 'jump up through, land on top' },
   { id: 10, col: 188, label: 'Buffer islands', proves: 'early presses fire on landing' },
+  
+  { id: 11, col: 266, label: 'Double jump: 8 u gap', proves: 'the second press adds ~2 u', bot: false },
+  { id: 12, col: 296, label: 'Dash: 6 u gap', proves: 'jump + dash (Shift) carries the gap', bot: false },
+  { id: 13, col: 322, label: 'Wall chimney', proves: 'wall slide + wall jump up a 2 u shaft', bot: false },
+  { id: 14, col: 350, label: 'Bark climb', proves: 'hold up on the purple bark', bot: false },
+  { id: 15, col: 362, label: 'Dew bounce', proves: 'land on the lens: higher than you aimed', bot: false },
+  { id: 16, col: 378, label: 'Pound the soil', proves: 'down in the air digs 1 u per pound', bot: false },
 ];
 
 export function gymWorld() {
@@ -56,12 +63,22 @@ export function gymWorld() {
   b.fill(184, 192, FLOOR, FLOOR + 9); 
   
   for (let c = 196, i = 0; i < 6; i++, c += 7) b.fill(c, c + 2, 0, FLOOR - 2);
-  floor(238, W); 
+  floor(238, 275); 
+  floor(291, 305); 
+  floor(317, 412); 
+  b.fill(326, 328, FLOOR, FLOOR + 14); 
+  b.fill(332, 334, FLOOR, FLOOR + 12);
+  b.fill(334, 344, FLOOR + 11, FLOOR + 12, '='); 
+  b.fill(352, 354, FLOOR, FLOOR + 10, '|'); 
+  b.fill(354, 360, FLOOR + 9, FLOOR + 10, '=');
+  b.fill(368, 376, FLOOR + 9, FLOOR + 10, '='); 
+  b.fill(380, 390, 2, FLOOR + 4, '%'); 
   b.fill(W - 2, W, FLOOR, H); 
   const world = gridWorld(b.rows());
   const spawn = { x: 2 * TILE + TILE / 2, y: FLOOR * TILE };
   const checkpoints = CHALLENGES.map((c) => ({ id: c.id, x: (c.col + 0.5) * TILE, y: groundY(world, c.col) }));
-  return { world, spawn, checkpoints, finishX: 240 * TILE };
+  const entities = [{ id: 'gym-dew-1', kind: 'dew', x: 365 * TILE, y: FLOOR * TILE }];
+  return { world, spawn, checkpoints, entities, finishX: 404 * TILE };
 }
 
 

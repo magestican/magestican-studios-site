@@ -86,7 +86,7 @@
 import { GAME_IDS, GAME_NAMES } from './dailyChallenge.js';
 import { rankFor, normaliseProfile, awardBadgeXp, awardTrophyXp } from './profile.js';
 import { daysBetween } from './dayKey.js';
-import { TOUR_GAME_IDS, PROFILE_GAME_IDS, PROFILE_GAME_NAMES, CLOUD_GAME_IDS } from '../progress/gameIds.js';
+import { TOUR_GAME_IDS, PROFILE_GAME_IDS, PROFILE_GAME_NAMES, CLOUD_GAME_IDS, PREVIEW_GAME_IDS } from '../progress/gameIds.js';
 import { masteryOf, MASTERY_MAX } from '../progress/mastery.js';
 import { TOKENS } from '../brand/tokens.js';
 import { levelFromXp } from './playerLevel.js';
@@ -233,6 +233,22 @@ export const RARITY_DISCLAIMER =
 
 
 
+
+
+
+
+
+
+
+export const S95_STATS = Object.freeze([
+  's95Plays', 's95LevelsCleared', 's95IntelPct', 's95Secrets', 's95Specimens',
+  's95MiniBosses', 's95BigBosses', 's95MantisBeaten', 's95ParClears', 's95NoHitBoss',
+  's95CoopClears', 's95PebbleKills', 's95TrainClean', 's95AceSolo', 's95HighFives',
+]);
+
+
+const PREVIEW_PLAYED_STAT = Object.freeze({ 'space-95': 's95Plays' });
+
 export const STATS = Object.freeze([
   'accountAgeDays',   
   'totalPlays', 'gamesTried', 'xp', 'rankIndex',
@@ -248,6 +264,7 @@ export const STATS = Object.freeze([
   
   
   ...PROFILE_GAME_IDS.flatMap((id) => [`wins:${id}`, `mastery:${id}`]),
+  ...S95_STATS,
 ]);
 
 
@@ -276,6 +293,7 @@ export const DEVICE_ONLY_STATS = Object.freeze([
   'gamesPlayed', 'gamesWon', 'nightOwl', 'weekender', 'onlineMatches', 'ratedMatchesBest',
   ...PROFILE_GAME_IDS.filter((id) => !CLOUD_GAME_IDS.includes(id))
     .flatMap((id) => [`wins:${id}`, `mastery:${id}`]),
+  ...S95_STATS,
 ]);
 
 
@@ -325,6 +343,7 @@ export const STAT_FIELD = Object.freeze({
   weekender: null,
   onlineMatches: null,
   ratedMatchesBest: null,
+  ...Object.fromEntries(S95_STATS.map((s) => [s, null])),
 });
 
 
@@ -707,12 +726,59 @@ export const ACHIEVEMENTS = Object.freeze([
       master,
     ];
   }),
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  A({ id: 's95-clock-in', name: 'First Day on the Job', game: 'space-95', tier: 'common', glyph: '◆',
+    desc: 'Clear your first shift.', stat: 's95LevelsCleared', atLeast: 1 }),
+  A({ id: 's95-meets', name: 'Meets Expectations', game: 'space-95', tier: 'uncommon', glyph: '◆',
+    desc: 'Clear all twenty shifts.', stat: 's95LevelsCleared', atLeast: 20 }),
+  A({ id: 's95-exceeds', name: 'Exceeds Expectations', game: 'space-95', tier: 'rare', glyph: '◆',
+    desc: 'Reach 90% Intel.', stat: 's95IntelPct', atLeast: 90 }),
+  A({ id: 's95-eoty', name: 'Employee of the Year', game: 'space-95', tier: 'legendary', glyph: '◆',
+    desc: 'Reach 100% Intel.', stat: 's95IntelPct', atLeast: 100 }),
+  A({ id: 's95-kick', name: 'Lucky Kick', game: 'space-95', tier: 'common', glyph: '◆',
+    desc: 'Defeat an enemy with a kicked pebble.', stat: 's95PebbleKills', atLeast: 1 }),
+  A({ id: 's95-secret-1', name: 'Nosy Surveyor', game: 'space-95', tier: 'common', glyph: '◆',
+    desc: 'Find your first secret.', stat: 's95Secrets', atLeast: 1 }),
+  A({ id: 's95-specimens', name: 'Field Biologist', game: 'space-95', tier: 'rare', glyph: '◆',
+    desc: 'Defeat or scan all twenty specimens.', stat: 's95Specimens', atLeast: 20 }),
+  A({ id: 's95-mini', name: 'Middle Management', game: 'space-95', tier: 'uncommon', glyph: '◆',
+    desc: 'Beat all four mini bosses.', stat: 's95MiniBosses', atLeast: 4 }),
+  A({ id: 's95-mantis', name: 'Pest Control', game: 'space-95', tier: 'uncommon', glyph: '◆',
+    desc: 'Beat the Gardener Mantis.', stat: 's95MantisBeaten', atLeast: 1 }),
+  A({ id: 's95-nohit-boss', name: 'Clean Paperwork', game: 'space-95', tier: 'rare', glyph: '◆',
+    desc: 'Beat a big boss without taking damage.', stat: 's95NoHitBoss', atLeast: 1 }),
+  A({ id: 's95-par', name: 'Overtime Not Required', game: 'space-95', tier: 'rare', glyph: '◆',
+    desc: 'Clear ten shifts under par.', stat: 's95ParClears', atLeast: 10 }),
+  A({ id: 's95-par-all', name: 'Efficiency Award', game: 'space-95', tier: 'legendary', glyph: '◆',
+    desc: 'Clear all twenty shifts under par.', stat: 's95ParClears', atLeast: 20 }),
+  A({ id: 's95-train', name: 'On Schedule', game: 'space-95', tier: 'uncommon', glyph: '◆',
+    desc: 'Finish the Crumb Express without derailing.', stat: 's95TrainClean', atLeast: 1 }),
+  A({ id: 's95-ace', name: 'Solo Flight', game: 'space-95', tier: 'uncommon', glyph: '◆',
+    desc: 'Win the Dragonfly Dogfight without Bolt\'s wingman.', stat: 's95AceSolo', atLeast: 1 }),
+  A({ id: 's95-coop', name: 'Team Building', game: 'space-95', tier: 'common', glyph: '◆',
+    desc: 'Clear a shift in online co-op.', stat: 's95CoopClears', atLeast: 1 }),
+  A({ id: 's95-highfive', name: 'Watercooler Moment', game: 'space-95', tier: 'common', glyph: '◆',
+    desc: 'High-five Bolt ten times.', stat: 's95HighFives', atLeast: 10 }),
 ]);
 
 
 export const BY_ID = Object.freeze(Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a])));
 
 export const ACHIEVEMENT_IDS = Object.freeze(ACHIEVEMENTS.map((a) => a.id));
+
+
+const PREVIEW_ROW_IDS = new Set(ACHIEVEMENTS.filter((a) => PREVIEW_GAME_IDS.includes(a.game)).map((a) => a.id));
 
 
 
@@ -810,6 +876,11 @@ export function statsFor(profile, { today = null, kartRecords = null } = {}) {
     ...perGame,
     
     
+    s95Plays: n(g('space-95').plays),
+    ...Object.fromEntries(S95_STATS.filter((s) => s !== 's95Plays')
+      .map((s) => [s, n(g('space-95').totals?.[s])])),
+    
+    
     level: levelFromXp(p.xp).level,
     playedGames: played,
     onlineWins: n(p.feats.onlineWins),
@@ -904,7 +975,13 @@ export const SAVE_ONLY_FIELDS = Object.freeze([
 
 
 export function evaluate(stats, { synced = false, saveSync = false, rulesLanded = [], seen = {} } = {}) {
-  return ACHIEVEMENTS.map((a) => {
+  
+  
+  
+  
+  const shown = ACHIEVEMENTS.filter((a) => !PREVIEW_GAME_IDS.includes(a.game)
+    || Number(stats?.[PREVIEW_PLAYED_STAT[a.game]]) > 0);
+  return shown.map((a) => {
     const unlocked = isUnlocked(a, stats);
     return {
       id: a.id,
@@ -954,7 +1031,14 @@ export function evaluate(stats, { synced = false, saveSync = false, rulesLanded 
 
 export function settleBadgeXp(profile, rowsBefore, rowsFor, maxRounds = 6,
   { trophiesBefore = null, trophiesFor = null } = {}) {
-  const wasLocked = new Set((rowsBefore ?? []).filter((r) => !r.unlocked).map((r) => r.id));
+  
+  
+  
+  
+  
+  const listedBefore = new Set((rowsBefore ?? []).map((r) => r.id));
+  const heldBefore = new Set((rowsBefore ?? []).filter((r) => r.unlocked).map((r) => r.id));
+  const wasLocked = { has: (id) => !heldBefore.has(id) && (listedBefore.has(id) || (rowsBefore != null && PREVIEW_ROW_IDS.has(id))) };
   
   
   const withTrophies = typeof trophiesFor === 'function' && Array.isArray(trophiesBefore);

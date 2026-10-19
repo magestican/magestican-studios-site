@@ -27,11 +27,13 @@ const START_LIVES = 5;
 export function createSession(level, startCheckpoint = 0, abilities = new Set()) {
   const start = level.checkpoints.find((c) => c.id === startCheckpoint) ?? level.spawn;
   const player = createPlayer(start.x, start.y);
+  
+  for (const d of level.entities ?? []) if (d.kind === 'ability' && start !== level.spawn && d.x < start.x) abilities.add(d.grant);
   player.abilities = abilities;
   return {
     level,
     
-    world: level.world.mutable ? level.world.clone() : level.world,
+    world: level.world.mutable || (level.entities ?? []).some((d) => d.kind === 'clod') ? level.world.clone() : level.world,
     abilities,
     player,
     entities: spawnEntities(level.entities ?? []),

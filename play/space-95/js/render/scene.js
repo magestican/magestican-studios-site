@@ -4,6 +4,7 @@
 
 
 import * as THREE from 'three';
+import { followJo } from '../game/bolt.js';
 import { BODY_H, BODY_W, RUN_SPEED } from '../sim/constants.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
 
@@ -37,11 +38,19 @@ export function createView(canvas, level, labels) {
 
   const jo = joPlaceholder();
   scene.add(jo.group);
+  const bolt = boltPlaceholder();
+  scene.add(bolt.group);
+  const boltPos = { x: level.spawn.x - 1.4, y: level.spawn.y + 1.6 };
   
   const entityViews = new Map();
 
   const rig = createCameraRig(0, 0);
   let squash = 0; 
+  let hintDy = 0; 
+  let shake = 0; 
+  const kick = (a) => {
+    shake = Math.min(0.15, Math.max(shake, a));
+  };
   
   const fx = [];
   const spark = (x, y, color, life, size) => {
@@ -70,9 +79,23 @@ export function createView(canvas, level, labels) {
       const p = session.player;
       const x = p.px + (p.x - p.px) * alpha;
       const y = p.py + (p.y - p.py) * alpha;
+      
+      if (!rig.placed || Math.hypot(rig.x - x, rig.focusY - y) > 20) {
+        rig.x = x;
+        rig.y = y;
+        rig.focusY = y;
+        rig.placed = true;
+      }
+      const hint = level.cameraHints?.find((h) => x >= h.x0 && x < h.x1);
       updateCameraRig(rig, { x, y, vx: p.vx, vy: p.vy, grounded: p.grounded, facing: p.facing, climbing: p.climbing }, dt, RUN_SPEED);
-      camera.position.set(rig.x, rig.y + 1.2, CAM_DIST);
-      camera.lookAt(rig.x, rig.y + 0.6, 0);
+      const camX = hint?.lock ? hint.lock.x : rig.x;
+      hintDy += ((hint?.lock ? hint.lock.y - rig.y : (hint?.dy ?? 0)) - hintDy) * (1 - Math.exp(-dt * 4));
+      
+      shake *= Math.exp(-dt * 18);
+      const sx0 = Math.sin(session.time * 91) * shake;
+      const sy0 = Math.cos(session.time * 73) * shake;
+      camera.position.set(camX + sx0, rig.y + hintDy + 1.2 + sy0, CAM_DIST);
+      camera.lookAt(camX + sx0, rig.y + hintDy + 0.6 + sy0, 0);
 
       squash *= Math.exp(-dt * 14);
       const sx = 1 + squash * 0.35;
@@ -81,6 +104,9 @@ export function createView(canvas, level, labels) {
       jo.body.scale.set(sx * p.facing, sy, 1);
       const blink = session.invuln > 0 && Math.floor(session.invuln * 16) % 2 === 0;
       jo.group.visible = (session.dead === 0 || Math.floor(session.dead * 20) % 2 === 0) && !blink;
+      followJo(boltPos, { x, y }, p.facing, dt, session.time);
+      bolt.group.position.set(boltPos.x, boltPos.y, 0.3);
+      bolt.group.scale.x = p.facing;
       syncEntities(scene, entityViews, session.entities, alpha, session.time);
       for (let i = fx.length - 1; i >= 0; i--) {
         const f = fx[i];
@@ -98,6 +124,10 @@ export function createView(canvas, level, labels) {
       renderer.render(scene, camera);
     },
     
+    boltMood(mood) {
+      bolt.face.material.color.set(mood === 'curious' ? 0xffd34d : mood === 'worried' ? 0xff8a2a : 0x2fe0d0);
+    },
+    
     onEvent(e) {
       if (e.type === 'jump') squash = -0.6;
       if (e.type === 'land') squash = Math.min(1, 0.25 + (e.fall ?? 0) * 0.12);
@@ -113,6 +143,14 @@ export function createView(canvas, level, labels) {
       
       if (e.type === 'signal' && e.signals.some((s) => s.startsWith('visual:'))) spark(e.x, e.y + 0.4, 0xffd34d, 0.9, 0.12);
       if (e.type === 'defeat') spark(e.x, e.y + 0.6, 0xffffff, 0.5, 0.18);
+      if (e.type === 'hurt') kick(0.12);
+      if (e.type === 'bossHit') kick(0.15);
+      if (e.type === 'pound' || e.type === 'clodLand') kick(0.08);
+      if (e.type === 'land' && (e.fall ?? 0) > 4) kick(0.05);
+      if (e.type === 'dewBounce') for (let i = 0; i < 5; i++) spark(e.x - 0.6 + i * 0.3, e.y + 0.3, 0x5ad1ff, 0.6, 0.1);
+      if (e.type === 'lurch') for (let i = 0; i < 4; i++) spark(e.x - 1 + i * 0.6, e.y + 0.1, 0xc9a37a, 0.5, 0.1);
+      if (e.type === 'dash')
+        for (let i = 0; i < 3; i++) spark(jo.group.position.x - e.dir * (0.4 + i * 0.4), jo.group.position.y + 0.5, 0xffffff, 0.35, 0.16);
       if (e.type === 'strike') for (let i = 0; i < 6; i++) spark(e.x + Math.cos(i) * 0.8, e.y + 1 + Math.sin(i) * 0.8, 0xffd34d, 1.1, 0.2);
     },
   };
@@ -198,6 +236,25 @@ function entityView(e) {
     );
     flag.position.set(0.7, 2.6, 0);
     g.add(post, flag, textSprite('Clock out'));
+  } else if (e.kind === 'boss') {
+    
+    const body = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), mat(0x6b4a2b));
+    body.scale.set((e.w ?? 2.4) / 2, (e.h ?? 1.8) / 2, 0.9);
+    body.position.y = (e.h ?? 1.8) / 2;
+    const hat = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xffc93c));
+    hat.position.set(0.3, (e.h ?? 1.8) * 0.95, 0);
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry((e.w ?? 2.4) * 0.6, (e.w ?? 2.4) * 0.75, 32),
+      new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, opacity: 0 }),
+    );
+    halo.position.set(0, (e.h ?? 1.8) / 2, 0.5);
+    halo.name = 'halo';
+    g.add(body, hat, halo, textSprite(e.name ?? 'Boss'));
+  } else {
+    
+    const m = new THREE.Mesh(new THREE.SphereGeometry(Math.max(0.15, (e.w ?? 0.4) / 2), 12, 8), mat(0x9aa3c7));
+    m.position.y = (e.h ?? 0.4) / 2;
+    g.add(m);
   }
   return g;
 }
@@ -231,7 +288,13 @@ function syncEntities(scene, views, entities, alpha, time) {
     }
     const spin = v.getObjectByName('spin');
     if (spin) spin.rotation.y = time * 2.5;
-    if (e.state === 'dazed') v.rotation.z = Math.sin(time * 30) * 0.2;
+    const halo = v.getObjectByName('halo');
+    if (halo) {
+      const tele = e.stage === 'telegraph';
+      halo.material.opacity = tele ? 0.55 + 0.4 * Math.sin(time * 18) : 0;
+      halo.scale.setScalar(tele ? 1 + 0.15 * Math.sin(time * 9) : 1);
+    }
+    if (e.state === 'dazed' || (e.kind === 'boss' && e.stage === 'recover')) v.rotation.z = Math.sin(time * 30) * 0.12;
     else if (e.state === 'scurry') v.rotation.z = Math.PI;
     else v.rotation.z = 0;
   }
@@ -283,10 +346,24 @@ function tileMeshes(world) {
         m.position.set(c * T + w / 2, (r + 1) * T - T * 0.15, -0.6);
         group.add(m);
       } else {
-        const exposed = !world.solid(c, r + 1);
-        const m = new THREE.Mesh(new THREE.BoxGeometry(w, T, TILE_DEPTH), exposed && runExposed(world, c, end, r) ? topMat : solidMat);
+        const m = new THREE.Mesh(new THREE.BoxGeometry(w, T, TILE_DEPTH), solidMat);
         m.position.set(c * T + w / 2, r * T + T / 2, -TILE_DEPTH / 2 + 0.3);
         group.add(m);
+        
+        
+        for (let k = c; k < end; ) {
+          if (world.solid(k, r + 1)) {
+            k++;
+            continue;
+          }
+          let k2 = k + 1;
+          while (k2 < end && !world.solid(k2, r + 1)) k2++;
+          const cw = (k2 - k) * T;
+          const cap = new THREE.Mesh(new THREE.BoxGeometry(cw, T * 0.3, TILE_DEPTH + 0.02), topMat);
+          cap.position.set(k * T + cw / 2, (r + 1) * T - T * 0.15 + 0.005, -TILE_DEPTH / 2 + 0.3);
+          group.add(cap);
+          k = k2;
+        }
       }
       c = end;
     }
@@ -327,7 +404,9 @@ function barkMeshes(world) {
   const T = world.tile;
   const group = new THREE.Group();
   if (!world.bark) return group;
-  const mat = new THREE.MeshLambertMaterial({ color: 0x7a4a8c });
+  
+  const mat = new THREE.MeshLambertMaterial({ color: 0x4a2a5c });
+  const edge = new THREE.MeshBasicMaterial({ color: 0x2fe0d0 });
   for (let r = 0; r < world.height; r++) {
     let c = 0;
     while (c < world.width) {
@@ -341,15 +420,15 @@ function barkMeshes(world) {
       const m = new THREE.Mesh(new THREE.BoxGeometry(w, T, 0.3), mat);
       m.position.set(c * T + w / 2, r * T + T / 2, -0.25);
       group.add(m);
+      for (const ex of [c * T + 0.03, end * T - 0.03]) {
+        const strip = new THREE.Mesh(new THREE.PlaneGeometry(0.06, T), edge);
+        strip.position.set(ex, r * T + T / 2, -0.09);
+        group.add(strip);
+      }
       c = end;
     }
   }
   return group;
-}
-
-function runExposed(world, c0, c1, r) {
-  for (let c = c0; c < c1; c++) if (world.solid(c, r + 1)) return false;
-  return true;
 }
 
 
@@ -407,6 +486,18 @@ function textSprite(text) {
   s.scale.set(w * scale, 72 * scale, 1);
   s.position.set((w * scale) / 2 - 0.2, 2.4, 0);
   return s;
+}
+
+
+function boltPlaceholder() {
+  const group = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.32, 20, 14), new THREE.MeshLambertMaterial({ color: 0xf2f6ff }));
+  const face = new THREE.Mesh(new THREE.CircleGeometry(0.2, 20), new THREE.MeshBasicMaterial({ color: 0x2fe0d0 }));
+  face.position.set(0.12, 0.04, 0.3);
+  const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.3, 6), new THREE.MeshLambertMaterial({ color: 0x9aa3c7 }));
+  antenna.position.set(0, 0.42, 0);
+  group.add(body, face, antenna);
+  return { group, face };
 }
 
 

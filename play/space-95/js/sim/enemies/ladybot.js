@@ -21,7 +21,7 @@ registerKind('ladybot', {
     if (stepDefeated(e)) return;
     e.vx = e.facing * WALK_SPEED;
     e.hopT += STEP;
-    if (e.grounded && e.hopT >= HOP_EVERY) {
+    if (e.hop !== false && e.grounded && e.hopT >= HOP_EVERY) {
       e.hopT = 0;
       e.vy = HOP_SPEED;
       ctx.events.push({ type: 'hop', id: e.id });

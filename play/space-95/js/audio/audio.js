@@ -3,6 +3,7 @@
 
 
 import { createPicker } from './cues.js';
+import { MUSIC_TRACKS } from './musicManifest.js';
 import { SFX } from './sfxManifest.js';
 
 const VOICES_PER_SOUND = 4;
@@ -90,6 +91,14 @@ export function createAudio(base = 'assets/audio/') {
       if (ctx.state === 'running') startMusic();
     },
     
+
+
+
+
+    musicFirst(ids) {
+      return this.music(ids.find((id) => MUSIC_TRACKS.includes(id)) ?? ids[ids.length - 1]);
+    },
+    
     play(name, o = {}) {
       const list = buffers.get(name);
       if (!list || muted || ctx.state !== 'running') return;
@@ -132,5 +141,5 @@ function readMuted() {
 }
 
 function nullAudio() {
-  return { ready: Promise.resolve(), play() {}, music() {}, toggleMute: () => true, muted: true };
+  return { ready: Promise.resolve(), play() {}, music() {}, musicFirst() {}, toggleMute: () => true, muted: true };
 }

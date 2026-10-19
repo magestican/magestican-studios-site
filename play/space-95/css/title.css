@@ -32,6 +32,27 @@
 .title-hint {
   margin: 0;
 }
+.title-shifts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.title-shifts button {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 2px solid #e3dccb;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 13px;
+}
+.title-shifts button[aria-current="true"] {
+  border-color: #1fb5a8;
+}
+.title-shifts button:disabled {
+  opacity: 0.45;
+}
 .title-k {
   font-size: 13px;
   color: #6a6f99;
@@ -125,4 +146,10 @@
   .title-picks button {
     padding: 10px;
   }
+}
+
+body.is-title .hud,
+body.is-title .pause-btn,
+body.is-title .bolt-say {
+  visibility: hidden;
 }

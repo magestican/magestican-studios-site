@@ -61,6 +61,11 @@ function makeWorld(cells, width, height, marks) {
       return true;
     },
     
+    setSolid(c, r, on) {
+      if (c < 0 || c >= width || r < 0 || r >= height) return;
+      cells[r * width + c] = on ? SOLID : EMPTY;
+    },
+    
     clone: () => makeWorld(cells.slice(), width, height, marks),
     
     marks,

@@ -9,7 +9,7 @@
 
 
 
-import { HITSTOP_BOSS, hurtPlayer } from '../combat.js';
+import { HITSTOP_BOSS, hurtPlayer, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { overlaps, registerKind } from '../entities.js';
 
@@ -22,9 +22,18 @@ export function registerBossType(type, impl) {
 }
 
 const HIT_IMMUNE = 0.8; 
-const INTRO_TIME = 1.2; 
+const INTRO_TIME = 1.2;
+
+
+const clodOn = (e, ctx) => ctx.session.entities.some((c) => c.kind === 'clod' && c.alive && c.state === 'fall' && overlaps(c, e));
+const poundOn = (e, ctx) => ctx.player.ab?.pound === 'fall' && overlaps(ctx.player, e); 
 
 function enterPhase(e, ctx, i) {
+  
+  const spawn = e.phases[i].spawn;
+  if (spawn) ctx.session.respawnAt = { ...spawn };
+  e.phaseHearts = ctx.session.hearts; 
+  e.phaseHurt = false;
   e.phase = i;
   e.hp = e.phases[i].hp;
   e.attackIdx = 0;
@@ -67,6 +76,7 @@ registerKind('boss', {
     }
     const ph = e.phases[e.phase];
     const atk = ph.attacks[e.attackIdx % ph.attacks.length];
+    if (ctx.events.some((ev) => ev.type === 'hurt')) e.phaseHurt = true;
     e.t += STEP;
     if (e.stage === 'intro' && e.t >= INTRO_TIME) {
       e.stage = 'telegraph';
@@ -93,13 +103,29 @@ registerKind('boss', {
 
     
     if (e.immune > 0) e.immune -= STEP;
-    const how = impl.hit(e, ctx);
+    
+    
+    let how = impl.hit(e, ctx);
+    const weakWindow = e.stage === 'recover';
+    if (!how && weakWindow && clodOn(e, ctx)) how = 'cave-in';
+    if (!how && poundOn(e, ctx)) {
+      if (weakWindow && ph.weakness === 'pound') how = 'pound';
+      else {
+        stompBounce(ctx.player);
+        ctx.player.ab.pound = null;
+      }
+    }
     if (how && how === ph.weakness && !(e.immune > 0)) {
       e.immune = HIT_IMMUNE;
       e.hp -= 1;
       s.hitstop = Math.max(s.hitstop, HITSTOP_BOSS);
       ctx.events.push({ type: 'bossHit', id: e.id, hp: e.hp, phase: e.phase, how, x: e.x, y: e.y });
       if (e.hp <= 0) {
+        
+        if (ph.deed && !e.phaseHurt) {
+          for (const x of s.entities) if (x.id === ph.deed) x.alive = true;
+          ctx.events.push({ type: 'deedEarned', id: e.id, deed: ph.deed, phase: e.phase });
+        }
         if (e.phase + 1 < e.phases.length) enterPhase(e, ctx, e.phase + 1);
         else {
           e.stage = 'defeated';

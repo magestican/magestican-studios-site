@@ -649,3 +649,71 @@ export function saveCoverage({ saveSync = SAVE_SYNC_ENABLED } = {}) {
     return { id, covered: true, what: 'Everything it keeps' };
   });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const S95_SAVE_KEY = 'arbelo.save.space-95.v1';
+export const S95_LEVELS = 20;
+export const S95_SECRETS = 60;
+
+
+export function emptyS95Save() {
+  return {
+    version: 1,
+    variant: 'woman',
+    cleared: new Array(S95_LEVELS).fill(false),
+    secrets: new Array(S95_SECRETS).fill(false),
+    bestTimes: new Array(S95_LEVELS).fill(null),
+    lives: 5,
+    hearts: 3,
+  };
+}
+
+
+export function normaliseS95Save(raw) {
+  const fresh = emptyS95Save();
+  if (!raw || typeof raw !== 'object' || raw.version !== 1) return fresh;
+  const bools = (a, n) => (Array.isArray(a) && a.length === n ? a.map(Boolean) : new Array(n).fill(false));
+  return {
+    ...fresh,
+    variant: raw.variant === 'man' ? 'man' : 'woman',
+    cleared: bools(raw.cleared, S95_LEVELS),
+    secrets: bools(raw.secrets, S95_SECRETS),
+    bestTimes: Array.isArray(raw.bestTimes) && raw.bestTimes.length === S95_LEVELS
+      ? raw.bestTimes.map((t) => (Number.isFinite(t) && t > 0 ? t : null))
+      : fresh.bestTimes,
+    lives: Number.isInteger(raw.lives) && raw.lives > 0 ? raw.lives : fresh.lives,
+    hearts: Number.isInteger(raw.hearts) && raw.hearts >= 3 && raw.hearts <= 6 ? raw.hearts : fresh.hearts,
+  };
+}
+
+
+export function mergeS95Saves(a, b) {
+  const x = normaliseS95Save(a);
+  const y = normaliseS95Save(b);
+  return {
+    ...x,
+    cleared: x.cleared.map((v, i) => v || y.cleared[i]),
+    secrets: x.secrets.map((v, i) => v || y.secrets[i]),
+    bestTimes: x.bestTimes.map((t, i) => {
+      const u = y.bestTimes[i];
+      return t === null ? u : u === null ? t : Math.min(t, u);
+    }),
+    hearts: Math.max(x.hearts, y.hearts),
+  };
+}
