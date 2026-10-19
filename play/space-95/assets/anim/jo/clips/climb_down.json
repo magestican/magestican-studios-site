@@ -234,7 +234,7 @@
   "events": [],
   "set": "platformer",
   "carrier_note": "the game moves the capsule on this path; the sprite is in place",
-  "support": {
+  "held": {
    "by": "friction (a slide)",
    "frames": [
     [

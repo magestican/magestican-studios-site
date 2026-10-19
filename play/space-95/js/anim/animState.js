@@ -16,6 +16,11 @@ const ONE_SHOTS = new Set([
   'hurt',
   'kick_passive',
   'run_stop',
+  'double_jump_flip',
+  'wall_jump',
+  'dew_bounce',
+  'pound_land',
+  'climb_jump_off',
 ]);
 const APEX_BAND = 1.5; 
 const LAND_SOFT_MAX = 1.0;
@@ -28,6 +33,11 @@ const LAND_RUN_MAX = 3.0;
 export function wantedState(p, events) {
   for (const e of events) {
     if (e.type === 'hurt') return 'hurt';
+    if (e.type === 'pound') return 'pound_land';
+    if (e.type === 'doubleJump') return 'double_jump_flip';
+    if (e.type === 'wallJump') return 'wall_jump';
+    if (e.type === 'dewBounce') return 'dew_bounce';
+    if (e.type === 'climbJump') return 'climb_jump_off';
     if (e.type === 'mantle') return 'ledge_mantle';
     if (e.type === 'bonk') return 'bonk';
     if (e.type === 'jump' || e.type === 'stomp') return 'jump_takeoff';
@@ -38,6 +48,14 @@ export function wantedState(p, events) {
       return Math.abs(p.vx) > 2 && f >= LAND_SOFT_MAX * 0.5 ? 'land_run' : 'land_soft';
     }
   }
+  
+  const ab = p.ab;
+  if (p.climbing) return p.vy > 0.3 ? 'climb_up' : p.vy < -0.3 ? 'climb_down' : 'climb_idle';
+  if (ab?.dashT > 0) return 'dash';
+  if (ab?.pound) return ab.pound === 'hang' ? 'pound_start' : 'pound_fall';
+  if (p.ride) return 'ride';
+  if (p.gliding) return 'glide';
+  if (!p.grounded && ab?.wallDir && p.vy < 0 && p.abilities?.has?.('wall')) return 'wall_slide';
   if (!p.grounded) return p.vy > APEX_BAND ? 'rise' : p.vy < -APEX_BAND ? 'fall' : 'apex';
   if (p.skid > 0) return 'turn_skid';
   return Math.abs(p.vx) > 0.5 ? 'run' : 'idle';

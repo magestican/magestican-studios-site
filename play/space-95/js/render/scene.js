@@ -10,6 +10,7 @@ import { heaveAt } from '../sim/heave.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
+import { createJoSprite } from './joSprite.js';
 
 const CAM_DIST = 20;
 const TILE_DEPTH = 2.4;
@@ -57,6 +58,9 @@ export function createView(canvas, level, labels) {
 
   const jo = joPlaceholder();
   scene.add(jo.group);
+  const joSprite = createJoSprite(jo.body);
+  
+  let pendingEvents = [];
   const bolt = boltPlaceholder();
   scene.add(bolt.group);
   const boltPos = { x: level.spawn.x - 1.4, y: level.spawn.y + 1.6 };
@@ -131,6 +135,8 @@ export function createView(canvas, level, labels) {
       const sy = 1 - squash * 0.3;
       jo.group.position.set(x, y, 0.35);
       jo.body.scale.set(sx * p.facing, sy, 1);
+      joSprite.update(dt, p, pendingEvents, { punt: session.punt > 0 });
+      pendingEvents = [];
       const blink = session.invuln > 0 && Math.floor(session.invuln * 16) % 2 === 0;
       jo.group.visible = (session.dead === 0 || Math.floor(session.dead * 20) % 2 === 0) && !blink;
       followJo(boltPos, { x, y }, p.facing, dt, session.time);
@@ -139,7 +145,7 @@ export function createView(canvas, level, labels) {
       fur.update(session.world);
       wind.update(session.time, dt);
       shoe.update(session, dt);
-      sea.update(session, dt);
+      sea.update(session);
       jo.shell.visible = !!session.shield;
       jo.leaf.visible = !!p.gliding;
       
@@ -178,6 +184,7 @@ export function createView(canvas, level, labels) {
     },
     
     onEvent(e) {
+      pendingEvents.push(e);
       if (e.type === 'jump') squash = -0.6;
       if (e.type === 'land') squash = Math.min(1, 0.25 + (e.fall ?? 0) * 0.12);
       if (e.type === 'mantle') squash = -0.3;
@@ -868,7 +875,7 @@ function seaMeshes() {
   });
   return {
     group,
-    update(session, dt) {
+    update(session) {
       const list = session.rafts?.list ?? [];
       const seen = new Set();
       for (const r of list) {
@@ -1083,6 +1090,7 @@ function joPlaceholder() {
   leaf.position.set(0, BODY_H * 1.35, 0);
   leaf.rotation.x = -Math.PI / 2.4;
   leaf.visible = false;
+  for (const m of [suit, scarf, head, visor]) m.userData.placeholder = true; 
   body.add(suit, scarf, head, visor, shell, leaf);
   group.add(body);
   const shadow = new THREE.Mesh(
