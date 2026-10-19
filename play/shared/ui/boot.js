@@ -121,7 +121,12 @@
     for (var k = 0; k < sheets.length; k++) {
       var ln = d.createElement('link');
       ln.rel = 'stylesheet';
-      ln.href = new URL('kit/' + sheets[k], me.src).href;
+      
+      
+      
+      var kitUrl = new URL('kit/' + sheets[k], me.src);
+      kitUrl.search = new URL(me.src).search;
+      ln.href = kitUrl.href;
       d.head.appendChild(ln);
     }
   }
