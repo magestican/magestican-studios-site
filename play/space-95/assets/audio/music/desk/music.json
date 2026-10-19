@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "desk",
+      "title": "Desk",
+      "files": {
+        "webm": "desk.webm",
+        "ogg": "desk.ogg",
+        "m4a": "desk.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 7029153,
+      "loopSeconds": 146.440687,
+      "bpm": 118,
+      "beats": 4,
+      "bars": 72,
+      "key": "Ab major",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.3,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "desk.webm",
+          "decoded_samples": 7029153,
+          "corr": 0.9975,
+          "true_peak_db": -5.19,
+          "bytes": 3121516
+        },
+        "ogg": {
+          "file": "desk.ogg",
+          "decoded_samples": 7029153,
+          "corr": 0.9985,
+          "true_peak_db": -5.37,
+          "bytes": 3286017
+        },
+        "m4a": {
+          "file": "desk.m4a",
+          "decoded_samples": 7029153,
+          "corr": 0.9994,
+          "true_peak_db": -4.51,
+          "bytes": 4867474
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-desk, rework of the main theme (same, transpose 3)",
+        "seed": 361889466,
+        "cover_chord_agree": 0.854,
+        "cover_chroma_corr": 0.777,
+        "render": "D:\\magestican-dj\\renders\\space-95\\desk",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\desk\\space-95-bgm-city-pop-2.wav (seed 1757338679, chord_agree 0.816)"
+        ]
+      }
+    }
+  ]
+}

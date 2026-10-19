@@ -1,0 +1,272 @@
+genre: city-pop
+style: space95-desk
+title: Desk
+key: Ab major
+bpm: 118
+beats: 4
+swing: 0.5
+language: en
+seed: 1396200398
+groove: space95-desk
+singer: none (instrumental)
+sections:
+- name: intro1
+  role: intro
+  bars: 4
+  energy: 0.3
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - C#maj7
+  - Eb7sus4
+  - Cm7
+  - Eb7
+  melody: C#5:2 Eb5:2 F5:2 Bb4:2 Ab4:8 Ab4:2 Bb4:2 C#5:2 Ab5:2 Eb5:6 r:2 Eb5:2 C#5:2
+    C5:4 G5:2 Eb5:6 C#5:2 C5:2 Bb4:2 F5:2 Eb5:6 r:2
+  lyrics: []
+  lineup:
+    lead: square_lead
+    counter: vibraphone
+    comp: rhodes
+    bass: synth_bass
+- name: verse1
+  role: verse
+  bars: 8
+  energy: 0.45
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bbm7
+  - Eb7
+  - Abmaj7
+  - F7
+  - Abmaj7
+  - Ab7
+  - C#maj7
+  - Eb7
+  melody: Bb4:2 Ab4:4 F4:2 Ab4:4 C#5:4 C#5:2 C5:2 G4:2 F4:2 G4:6 r:2 G4:2 Ab4:4 C5:2
+    C5:4 Ab4:4 A4:2 A4:2 C5:2 C5:2 A4:6 r:2 Ab4:2 G4:2 Ab4:2 G4:2 Ab4:8 Ab4:2 F#4:2
+    Ab4:2 F#4:2 F#4:6 r:2 F4:2 G4:4 Bb4:2 Ab4:4 F4:4 G4:2 F4:2 G4:2 F4:2 G4:6 r:2
+  lyrics: []
+  lineup:
+    lead: square_lead
+    counter: marimba
+    comp: pizzicato
+    bass: synth_bass
+- name: pre1
+  role: pre
+  bars: 4
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bbm7
+  - Cm7
+  - C#maj7
+  - Eb7
+  melody: C#5:6 Eb5:2 C#5:2 Ab5:2 Ab5:4 G5:2 Ab5:2 G5:2 C5:2 Bb4:6 r:2 Ab4:2 G4:2
+    Ab4:4 C#5:2 C5:6 Bb4:2 Ab4:2 G4:2 C#5:2 Bb4:6 r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: square_lead
+    comp: marimba
+    bass: synth_bass
+- name: chorus1
+  role: chorus
+  bars: 8
+  energy: 0.8
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - C#maj7
+  - Eb7
+  - Cm7
+  - Fm7
+  - C#maj7
+  - C7
+  - Fm7
+  - Ab
+  melody: C#5:2 Eb5:2 C#5:4 C#5:2 C5:6 C#5:2 Eb5:2 C#5:2 Eb5:2 C#5:6 r:2 C5:2 Bb4:2
+    C5:4 Bb4:2 C5:6 C5:2 Bb4:2 C5:2 Bb4:2 C5:6 r:2 C#5:2 Eb5:2 C#5:4 C#5:2 C5:6 C5:2
+    C5:2 Bb4:2 C5:2 Bb4:6 r:2 Ab4:2 Bb4:2 Ab4:4 Ab4:2 Bb4:6 Ab4:2 Bb4:2 Ab4:2 Bb4:2
+    Ab4:6 r:2
+  lyrics: []
+  lineup:
+    lead: square_lead
+    counter: vibraphone
+    comp: rhodes
+    bass: synth_bass
+- name: interlude1
+  role: interlude
+  bars: 8
+  energy: 0.6
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Fm7
+  - Bb7
+  - Bbm7
+  - Eb7
+  - C#maj7
+  - Cm7
+  - Bbm7
+  - Eb7
+  melody: C5:4 Ab4:4 Ab4:2 C5:2 Ab4:4 Ab4:2 C5:2 D5:2 F5:2 Bb4:6 r:2 r:2 Bb4:2 C#5:4
+    C#5:2 Bb4:2 C#5:4 C#5:2 F5:2 Eb5:2 C5:2 Eb5:6 r:2 C#5:2 Bb4:4 C5:2 C#5:4 Ab4:4
+    G4:2 Bb4:2 C5:2 Eb5:2 Bb4:6 r:2 Bb4:2 G4:2 Ab4:2 C5:2 Ab4:8 G4:2 Bb4:2 G4:2 Bb4:2
+    Eb5:6 r:2
+  lyrics: []
+  lineup:
+    lead: marimba
+    counter: square_lead
+    comp: pizzicato
+    bass: synth_bass
+- name: verse2
+  role: verse
+  bars: 8
+  energy: 0.5
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bbm7
+  - Eb7
+  - Abmaj7
+  - F7
+  - Abmaj7
+  - Ab7
+  - C#maj7
+  - Eb7
+  melody: Bb4:2 Ab4:4 F4:2 Ab4:4 C#5:4 C#5:2 C5:2 G4:2 F4:2 G4:3 Bb4:3 r:2 G4:2 Ab4:4
+    C5:2 C5:4 Ab4:4 A4:2 A4:2 C5:2 C5:2 A4:3 C5:3 r:2 Ab4:2 G4:2 Ab4:2 G4:2 Ab4:8
+    Ab4:2 F#4:2 Ab4:2 F#4:2 F#4:3 Ab4:3 r:2 F4:2 G4:4 Bb4:2 Ab4:4 F4:4 G4:2 F4:2 G4:2
+    F4:2 G4:3 Bb4:3 r:2
+  lyrics: []
+  lineup:
+    lead: square_lead
+    counter: marimba
+    comp: pizzicato
+    bass: synth_bass
+- name: pre2
+  role: pre
+  bars: 4
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Bbm7
+  - Cm7
+  - C#maj7
+  - Eb7
+  melody: C#5:6 Eb5:2 C#5:2 Ab5:2 Ab5:4 G5:2 Ab5:2 G5:2 C5:2 Bb4:3 C5:3 r:2 Ab4:2
+    G4:2 Ab4:4 C#5:2 C5:6 Bb4:2 Ab4:2 G4:2 C#5:2 Bb4:3 C#5:3 r:2
+  lyrics: []
+  lineup:
+    lead: clarinet
+    counter: square_lead
+    comp: marimba
+    bass: synth_bass
+- name: chorus2
+  role: chorus
+  bars: 8
+  energy: 0.85
+  sung: false
+  hook: true
+  transpose: 0
+  chords:
+  - C#maj7
+  - Eb7
+  - Cm7
+  - Fm7
+  - C#maj7
+  - C7
+  - Fm7
+  - Ab
+  melody: C#5:2 Eb5:2 C#5:4 C#5:2 C5:6 C#5:2 Eb5:2 C#5:2 Eb5:2 C#5:6 r:2 C5:2 Bb4:2
+    C5:4 Bb4:2 C5:6 C5:2 Bb4:2 C5:2 Bb4:2 C5:6 r:2 C#5:2 Eb5:2 C#5:4 C#5:2 C5:6 C5:2
+    C5:2 Bb4:2 C5:2 Bb4:6 r:2 Ab4:2 Bb4:2 Ab4:4 Ab4:2 Bb4:6 Ab4:2 Bb4:2 Ab4:2 Bb4:2
+    Ab4:6 r:2
+  lyrics: []
+  lineup:
+    lead: square_lead
+    counter: vibraphone
+    comp: rhodes
+    bass: synth_bass
+- name: bridge1
+  role: bridge
+  bars: 8
+  energy: 0.65
+  sung: false
+  hook: false
+  transpose: 0
+  chords:
+  - Cm7
+  - F7
+  - Bbm7
+  - Eb7
+  - Fm7
+  - C7
+  - C#maj7
+  - Eb7
+  melody: C5:4 Eb5:2 Ab4:2 C5:4 Bb4:4 A4:2 C5:2 F5:2 C5:2 A4:6 r:2 r:2 Ab4:2 C#5:2
+    G4:2 C#5:4 C#5:4 C#5:2 Ab4:2 Eb5:2 Ab5:2 G5:6 r:2 Ab4:2 C#5:2 Ab5:4 Eb5:2 C#5:6
+    C5:2 E5:2 G4:2 C5:2 Bb4:6 r:2 Ab4:4 C#5:2 G4:2 C5:4 Ab4:4 G4:2 C5:2 G5:2 C#5:2
+    Bb4:6 r:2
+  lyrics: []
+  lineup:
+    lead: flute
+    counter: square_lead
+    comp: rhodes
+    bass: synth_bass
+- name: chorus3
+  role: chorus
+  bars: 8
+  energy: 1.0
+  sung: false
+  hook: true
+  transpose: 1
+  chords:
+  - Dmaj7
+  - E7
+  - C#m7
+  - F#m7
+  - Dmaj7
+  - C#7
+  - F#m7
+  - A
+  melody: D5:2 E5:2 D5:4 D5:2 C#5:6 D5:2 E5:2 D5:2 E5:2 D5:6 r:2 C#5:2 B4:2 C#5:4
+    B4:2 C#5:6 C#5:2 B4:2 C#5:2 B4:2 C#5:6 r:2 D5:2 E5:2 D5:4 D5:2 C#5:6 C#5:2 C#5:2
+    B4:2 C#5:2 B4:6 r:2 A4:2 B4:2 A4:4 A4:2 B4:6 A4:2 B4:2 A4:2 B4:2 A4:6 r:2
+  lyrics: []
+  lineup:
+    lead: square_lead
+    counter: vibraphone
+    comp: rhodes
+    bass: synth_bass
+- name: outro1
+  role: outro
+  bars: 4
+  energy: 0.4
+  sung: false
+  hook: false
+  transpose: 1
+  chords:
+  - Bm7
+  - E7
+  - Amaj7
+  - A
+  melody: D5:2 C#5:2 A4:4 D5:2 A4:6 Ab4:2 F#4:2 B4:2 F#4:2 B4:6 r:2 A4:4 Ab4:4 C#5:2
+    Ab4:2 C#5:4 A4:2 Ab4:2 C#5:2 Ab4:2 A4:6 r:2
+  lyrics: []
+  lineup:
+    lead: square_lead
+    counter: vibraphone
+    comp: marimba
+    bass: synth_bass
