@@ -1,0 +1,48 @@
+{
+ "name": "hop",
+ "fps": 24,
+ "frames": 10,
+ "loop": false,
+ "animation": 1,
+ "glb": "ladybot_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 2.6343,
+ "carrier": {
+  "vy0_u_s": 4.5,
+  "g_u_s2": 60.277,
+  "u_m": 1.7562,
+  "land_s": 0.1493,
+  "note": "the game's own path: y(t) = vy0 t - g t^2 / 2 until land_s (flat ground), then 0"
+ },
+ "key_poses": [
+  0,
+  2,
+  4
+ ],
+ "tags": [
+  "hop",
+  "carried"
+ ],
+ "qa": {
+  "stance": {
+   "L": "foot.L",
+   "R": "foot.R"
+  },
+  "stance_from": 4,
+  "support": "feet"
+ },
+ "extra": {
+  "events": [
+   {
+    "type": "takeoff",
+    "frame": 0
+   },
+   {
+    "type": "land",
+    "frame": 4
+   }
+  ],
+  "time_scale": 1.0
+ },
+ "notes": "vy 4.5 u/s, 0.149 s up and down: the game carries the height; frames 4-9 walk on"
+}

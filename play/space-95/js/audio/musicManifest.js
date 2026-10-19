@@ -6,6 +6,7 @@ export const MUSIC_TRACKS = [
   'gardener',
   'honeycomb',
   'long-way-home',
+  'machine',
   'main-theme',
   'orchard',
   'puddle-sea',

@@ -1,0 +1,42 @@
+{
+ "clip": "uncurl",
+ "fps": 24,
+ "frame_count": 8,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.041667,
+  0.083333,
+  0.125,
+  0.166667,
+  0.208333,
+  0.25,
+  0.291667
+ ],
+ "key_poses": [
+  0,
+  7
+ ],
+ "events": [
+  {
+   "type": "land",
+   "frame": 7,
+   "time": 0.29167
+  }
+ ],
+ "duration_s": 0.29167,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "pillbug_clips.glb",
+  "animation": 1,
+  "fps": 24.0,
+  "frames": 8
+ },
+ "root_motion": "IP",
+ "carrier": null,
+ "qa_status": "ok",
+ "character": "pillbug",
+ "u_m": 1.7562
+}

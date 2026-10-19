@@ -1,0 +1,28 @@
+{
+ "name": "flipped",
+ "fps": 24,
+ "frames": 17,
+ "loop": true,
+ "animation": 7,
+ "glb": "pillbug_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  4,
+  8,
+  12
+ ],
+ "tags": [
+  "on_back"
+ ],
+ "qa": {
+  "rest_on": "plates"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the shoe's shockwave: on its back, fourteen legs waving, rocking on its plates"
+}

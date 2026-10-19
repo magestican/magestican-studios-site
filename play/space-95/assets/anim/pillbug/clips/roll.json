@@ -1,0 +1,33 @@
+{
+ "name": "roll",
+ "fps": 24,
+ "frames": 16,
+ "loop": true,
+ "animation": 0,
+ "glb": "pillbug_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 5.2686,
+ "carrier": null,
+ "key_poses": [
+  0
+ ],
+ "tags": [
+  "ball"
+ ],
+ "qa": {
+  "rolling": {
+   "sphere": "DEF-per4",
+   "radius": 0.5240773332337249
+  },
+  "contained": {
+   "centre": "DEF-per4",
+   "radius": 0.5240773332337249
+  },
+  "rest_on": "ball"
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "the ball: one turn per 15 sprites at 3 u/s, rolls without slipping (R = 0.2984 u)"
+}

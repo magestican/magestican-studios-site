@@ -1,0 +1,34 @@
+{
+ "name": "curl",
+ "fps": 24,
+ "frames": 6,
+ "loop": false,
+ "animation": 3,
+ "glb": "pillbug_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  5
+ ],
+ "tags": [
+  "ball",
+  "transition"
+ ],
+ "qa": {
+  "contained": {
+   "centre": "DEF-per4",
+   "radius": 0.5240773332337249,
+   "frames": [
+    5,
+    5
+   ]
+  }
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "open -> ball in 0.21 s, ends on roll frame 0"
+}

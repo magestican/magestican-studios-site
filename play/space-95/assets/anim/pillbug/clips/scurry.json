@@ -1,0 +1,45 @@
+{
+ "name": "scurry",
+ "fps": 24,
+ "frames": 7,
+ "loop": true,
+ "animation": 6,
+ "glb": "pillbug_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 0.70248,
+ "carrier": null,
+ "key_poses": [
+  0,
+  2
+ ],
+ "tags": [
+  "gait",
+  "cartoon"
+ ],
+ "qa": {
+  "stance": {
+   "L1": "pad.L1",
+   "R1": "pad.R1",
+   "L2": "pad.L2",
+   "R2": "pad.R2",
+   "L3": "pad.L3",
+   "R3": "pad.R3",
+   "L4": "pad.L4",
+   "R4": "pad.R4",
+   "L5": "pad.L5",
+   "R5": "pad.R5",
+   "L6": "pad.L6",
+   "R6": "pad.R6",
+   "L7": "pad.L7",
+   "R7": "pad.R7"
+  },
+  "support": "feet",
+  "leg_order": "wave",
+  "duty": 0.62
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "fleeing: a 6-sprite leg cycle at 0.4 u/s (the sim zips it off at 7 u/s: cartoon slide)"
+}

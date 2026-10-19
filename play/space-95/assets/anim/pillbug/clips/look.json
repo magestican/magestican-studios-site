@@ -1,0 +1,44 @@
+{
+ "name": "look",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 2,
+ "glb": "pillbug_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  3,
+  9
+ ],
+ "tags": [
+  "idle"
+ ],
+ "qa": {
+  "stance": {
+   "L1": "pad.L1",
+   "R1": "pad.R1",
+   "L2": "pad.L2",
+   "R2": "pad.R2",
+   "L3": "pad.L3",
+   "R3": "pad.R3",
+   "L4": "pad.L4",
+   "R4": "pad.R4",
+   "L5": "pad.L5",
+   "R5": "pad.R5",
+   "L6": "pad.L6",
+   "R6": "pad.R6",
+   "L7": "pad.L7",
+   "R7": "pad.R7"
+  },
+  "support": "feet",
+  "static": true
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "uncurled and peeking: antennae sweep and the head bobs on 14 planted feet"
+}

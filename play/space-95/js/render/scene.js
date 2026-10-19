@@ -12,6 +12,7 @@ import { sparkState } from '../sim/pins.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
+import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
 
 const CAM_DIST = 20;
@@ -714,6 +715,11 @@ function entityView(e) {
     m.position.y = (e.h ?? 0.4) / 2;
     g.add(m);
   }
+  
+  if (hasCritterSprite(e)) {
+    for (const child of g.children) child.userData.placeholder = true;
+    attachCritterSprite(g, e);
+  }
   return g;
 }
 
@@ -773,6 +779,13 @@ function syncEntities(scene, views, entities, alpha, time) {
       const tele = e.stage === 'telegraph';
       halo.material.opacity = tele ? 0.55 + 0.4 * Math.sin(time * 18) : 0;
       halo.scale.setScalar(tele ? 1 + 0.15 * Math.sin(time * 9) : 1);
+    }
+    const sdt = Math.min(0.1, Math.max(0, time - (v.userData.lastT ?? time)));
+    v.userData.lastT = time;
+    if (v.userData.critter?.ready) {
+      updateCritterSprite(v, e, sdt);
+      v.rotation.z = 0; 
+      continue;
     }
     if (e.state === 'dazed' || (e.kind === 'boss' && e.stage === 'recover')) v.rotation.z = Math.sin(time * 30) * 0.12;
     else if (e.state === 'scurry' || e.state === 'flipped')

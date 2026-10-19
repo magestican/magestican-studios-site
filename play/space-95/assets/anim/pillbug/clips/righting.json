@@ -1,0 +1,41 @@
+{
+ "name": "righting",
+ "fps": 24,
+ "frames": 13,
+ "loop": false,
+ "animation": 8,
+ "glb": "pillbug_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6,
+  12
+ ],
+ "tags": [
+  "on_back",
+  "getup",
+  "ball"
+ ],
+ "qa": {
+  "contained": {
+   "centre": "DEF-per4",
+   "radius": 0.5240773332337249,
+   "frames": [
+    6,
+    6
+   ]
+  }
+ },
+ "extra": {
+  "events": [
+   {
+    "type": "land",
+    "frame": 12
+   }
+  ],
+  "time_scale": 1.0
+ },
+ "notes": "closes into the ball on its back, turns over 180 deg in place while closed and opening (cartoon: a real one would roll aside), opens on its feet"
+}

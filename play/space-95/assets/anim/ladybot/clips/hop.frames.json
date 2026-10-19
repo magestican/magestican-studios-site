@@ -1,0 +1,72 @@
+{
+ "clip": "hop",
+ "fps": 24,
+ "frame_count": 10,
+ "loop": false,
+ "frame_times": [
+  0.0,
+  0.041667,
+  0.083333,
+  0.125,
+  0.166667,
+  0.208333,
+  0.25,
+  0.291667,
+  0.333333,
+  0.375
+ ],
+ "key_poses": [
+  0,
+  2,
+  4
+ ],
+ "events": [
+  {
+   "type": "takeoff",
+   "frame": 0,
+   "time": 0.0
+  },
+  {
+   "type": "foot_l",
+   "frame": 4,
+   "time": 0.16667
+  },
+  {
+   "type": "foot_r",
+   "frame": 4,
+   "time": 0.16667
+  },
+  {
+   "type": "land",
+   "frame": 4,
+   "time": 0.16667
+  },
+  {
+   "type": "foot_l",
+   "frame": 7,
+   "time": 0.29167
+  }
+ ],
+ "duration_s": 0.375,
+ "time_scale": 1.0,
+ "time_stretch": 1.0,
+ "snapped": [],
+ "source": {
+  "glb": "ladybot_clips.glb",
+  "animation": 1,
+  "fps": 24.0,
+  "frames": 10
+ },
+ "root_motion": "RM",
+ "carrier": {
+  "vy0_u_s": 4.5,
+  "g_u_s2": 60.277,
+  "u_m": 1.7562,
+  "land_s": 0.1493,
+  "note": "the game's own path: y(t) = vy0 t - g t^2 / 2 until land_s (flat ground), then 0"
+ },
+ "qa_status": "ok",
+ "character": "ladybot",
+ "speed_u_s": 1.5,
+ "u_m": 1.7562
+}

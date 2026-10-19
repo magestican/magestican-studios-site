@@ -1,0 +1,230 @@
+{
+ "character": "pillbug",
+ "fps": 24,
+ "initial": "roll",
+ "conditions": {
+  "end": "the clip showed its last frame (and nothing else applies)",
+  "uncurl": "sim event uncurl (js/sim/enemies/pillbug.js: after ROLL_TIME 3 s) - e.state = 'uncurl'",
+  "roll": "e.state turned back to 'roll' (UNCURL_TIME 1.2 s after the uncurl)",
+  "walk": "the pill bug walks open (not used by the sim today: cutscenes, a future specimen)",
+  "stop": "a walking pill bug stops",
+  "defeat": "sim event defeat (stomp or kick while open, a pound even curled, a bowl) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s)",
+  "flip": "sim event flip (rings.js: the shoe's shockwave) - e.state = 'flipped'",
+  "righting": "sim event righting (FLIP_TIME 4.0 s) - e.state = 'righting'",
+  "righted_rolling": "sim event righted with e.state back to 'roll'",
+  "flee": "sim event flee (righted with e.flee)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry)"
+ },
+ "states": {
+  "roll": {
+   "clip": "roll",
+   "loop": true,
+   "hold": false,
+   "frames": 15
+  },
+  "look": {
+   "clip": "look",
+   "loop": true,
+   "hold": false,
+   "frames": 12
+  },
+  "walk": {
+   "clip": "walk",
+   "loop": true,
+   "hold": false,
+   "frames": 12
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 12
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "flipped": {
+   "clip": "flipped",
+   "loop": true,
+   "hold": false,
+   "frames": 16
+  },
+  "righting": {
+   "clip": "righting",
+   "loop": false,
+   "hold": false,
+   "frames": 13
+  }
+ },
+ "transitions": [
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "flipped",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "flipped",
+   "to": "righting",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "righting"
+  },
+  {
+   "from": "look",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "look",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "look",
+   "to": "roll",
+   "clip": "curl",
+   "blend_s": 0.0,
+   "on": "roll"
+  },
+  {
+   "from": "look",
+   "to": "walk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "walk"
+  },
+  {
+   "from": "righting",
+   "to": "look",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "righting",
+   "to": "roll",
+   "clip": "curl",
+   "blend_s": 0.0,
+   "on": "righted_rolling"
+  },
+  {
+   "from": "righting",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flee"
+  },
+  {
+   "from": "roll",
+   "to": "dazed",
+   "clip": "uncurl",
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "roll",
+   "to": "flipped",
+   "clip": "uncurl",
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "roll",
+   "to": "look",
+   "clip": "uncurl",
+   "blend_s": 0.0,
+   "on": "uncurl"
+  },
+  {
+   "from": "scurry",
+   "to": "roll",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "walk",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "walk",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "walk",
+   "to": "look",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "stop"
+  }
+ ],
+ "requires": [
+  [
+   "roll",
+   "look"
+  ],
+  [
+   "look",
+   "roll"
+  ],
+  [
+   "roll",
+   "dazed"
+  ],
+  [
+   "look",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ],
+  [
+   "roll",
+   "flipped"
+  ],
+  [
+   "look",
+   "flipped"
+  ],
+  [
+   "flipped",
+   "righting"
+  ],
+  [
+   "righting",
+   "look"
+  ],
+  [
+   "righting",
+   "roll"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

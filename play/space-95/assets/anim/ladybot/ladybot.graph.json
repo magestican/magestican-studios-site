@@ -1,0 +1,177 @@
+{
+ "character": "ladybot",
+ "fps": 24,
+ "initial": "walk",
+ "conditions": {
+  "end": "the clip showed its last frame (and nothing else applies)",
+  "hop": "sim event hop (js/sim/enemies/ladybot.js: every hopEvery s while grounded)",
+  "defeat": "sim event defeat (combat.defeat: stomp, pound, kick, bowl) - e.state = 'dazed'",
+  "daze_over": "e.state turned 'scurry' (DAZE_TIME 0.5 s after the defeat)",
+  "flip": "sim event flip (rings.js: the shoe's shockwave) - e.state = 'flipped'",
+  "righting": "sim event righting (FLIP_TIME 4.0 s on its back) - e.state = 'righting'",
+  "flee": "sim event flee (righted with e.flee: it scurries off instead)",
+  "respawn": "the entity is back after a level reset (checkpoint / retry); a scurried one is gone till then"
+ },
+ "states": {
+  "walk": {
+   "clip": "walk",
+   "loop": true,
+   "hold": false,
+   "frames": 6
+  },
+  "hop": {
+   "clip": "hop",
+   "loop": false,
+   "hold": false,
+   "frames": 10
+  },
+  "dazed": {
+   "clip": "dazed",
+   "loop": true,
+   "hold": false,
+   "frames": 12
+  },
+  "scurry": {
+   "clip": "scurry",
+   "loop": true,
+   "hold": false,
+   "frames": 4
+  },
+  "flipped": {
+   "clip": "flipped",
+   "loop": true,
+   "hold": false,
+   "frames": 16
+  },
+  "righting": {
+   "clip": "righting",
+   "loop": false,
+   "hold": false,
+   "frames": 13
+  }
+ },
+ "transitions": [
+  {
+   "from": "dazed",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "daze_over"
+  },
+  {
+   "from": "flipped",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "flipped",
+   "to": "righting",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "righting"
+  },
+  {
+   "from": "hop",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "hop",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "hop",
+   "to": "walk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "righting",
+   "to": "scurry",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flee"
+  },
+  {
+   "from": "righting",
+   "to": "walk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "end"
+  },
+  {
+   "from": "scurry",
+   "to": "walk",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "respawn"
+  },
+  {
+   "from": "walk",
+   "to": "dazed",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "defeat"
+  },
+  {
+   "from": "walk",
+   "to": "flipped",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "flip"
+  },
+  {
+   "from": "walk",
+   "to": "hop",
+   "clip": null,
+   "blend_s": 0.0,
+   "on": "hop"
+  }
+ ],
+ "requires": [
+  [
+   "walk",
+   "hop"
+  ],
+  [
+   "hop",
+   "walk"
+  ],
+  [
+   "walk",
+   "dazed"
+  ],
+  [
+   "dazed",
+   "scurry"
+  ],
+  [
+   "walk",
+   "flipped"
+  ],
+  [
+   "flipped",
+   "righting"
+  ],
+  [
+   "righting",
+   "walk"
+  ],
+  [
+   "flipped",
+   "dazed"
+  ]
+ ],
+ "validation": {
+  "ok": true,
+  "problems": []
+ }
+}

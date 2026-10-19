@@ -1,0 +1,45 @@
+{
+ "name": "walk",
+ "fps": 24,
+ "frames": 13,
+ "loop": true,
+ "animation": 4,
+ "glb": "pillbug_clips.glb",
+ "root_motion": "RM",
+ "speed_mps": 0.316116,
+ "carrier": null,
+ "key_poses": [
+  0,
+  6
+ ],
+ "tags": [
+  "gait",
+  "metachronal"
+ ],
+ "qa": {
+  "stance": {
+   "L1": "pad.L1",
+   "R1": "pad.R1",
+   "L2": "pad.L2",
+   "R2": "pad.R2",
+   "L3": "pad.L3",
+   "R3": "pad.R3",
+   "L4": "pad.L4",
+   "R4": "pad.R4",
+   "L5": "pad.L5",
+   "R5": "pad.R5",
+   "L6": "pad.L6",
+   "R6": "pad.R6",
+   "L7": "pad.L7",
+   "R7": "pad.R7"
+  },
+  "support": "feet",
+  "leg_order": "wave",
+  "duty": 0.65
+ },
+ "extra": {
+  "events": [],
+  "time_scale": 1.0
+ },
+ "notes": "14 legs in a back-to-front metachronal wave, 0.18 u/s, 12 sprites per cycle, duty 0.65"
+}

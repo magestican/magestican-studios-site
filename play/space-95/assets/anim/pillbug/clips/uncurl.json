@@ -1,0 +1,39 @@
+{
+ "name": "uncurl",
+ "fps": 24,
+ "frames": 8,
+ "loop": false,
+ "animation": 1,
+ "glb": "pillbug_clips.glb",
+ "root_motion": "IP",
+ "speed_mps": 0.0,
+ "carrier": null,
+ "key_poses": [
+  0,
+  7
+ ],
+ "tags": [
+  "ball",
+  "transition"
+ ],
+ "qa": {
+  "contained": {
+   "centre": "DEF-per4",
+   "radius": 0.5240773332337249,
+   "frames": [
+    0,
+    0
+   ]
+  }
+ },
+ "extra": {
+  "events": [
+   {
+    "type": "land",
+    "frame": 7
+   }
+  ],
+  "time_scale": 1.0
+ },
+ "notes": "ball -> open in 0.29 s, ends on look frame 0 (sim: 1.2 s uncurled, kickable)"
+}
