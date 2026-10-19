@@ -40,6 +40,17 @@ const CUES = {
   shieldOn: ['shield_on', 'ability_get'],
   shieldBreak: ['shield_break', 'enemy_hit_shell'],
   fling: ['shell_fling', 'kick'],
+  glideStart: ['glide_open', 'double_jump'],
+  glideEnd: ['glide_close', 'land_soft'],
+  windWarn: ['wind_warn', 'secret_glint'],
+  mothTakeoff: ['moth_takeoff', 'aphid_hop'],
+  slipstream: ['slipstream_chime', 'secret_glint'],
+  slipstreamEnd: ['slipstream_end', 'skid'],
+  seedGrab: ['seed_grab', 'bark_grab'],
+  seedRelease: ['seed_release', 'jump'],
+  waspDive: ['wasp_dive', 'pillbug_alert'],
+  waspStuck: ['wasp_stuck', 'snail_bonk'],
+  waspPullUp: ['wasp_pullup', 'skid'],
   caveIn: ['cave_in', 'skid'],
   buried: ['bury_thump', 'enemy_defeat_pop'],
   strike: ['strike', 'intel_found'], 
@@ -59,6 +70,7 @@ const SIGNAL_SOUNDS = {
   'audio:hollow-knock': ['hollow_knock', 'kick'],
   'audio:glint-chime': ['secret_glint'],
   'audio:tiny-jingle': ['secret_glint'],
+  'audio:two-tone-buzz': ['wasp_two_tone', 'secret_glint'],
 };
 
 

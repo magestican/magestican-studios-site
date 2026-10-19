@@ -21,6 +21,8 @@ const LINES = {
   bossDefeat: ['Foreman down! I am putting that in the quarterly review.', 'Management will hear about this. Good things only.'],
   shellPop: ['Free shell! Health and safety approved.', 'Wear it. Fling it. Your call.'],
   heaveLaunch: ['She breathes, we fly. Noted.', 'Ruuma is helping. Do not wake her.'],
+  slipstream: ['Moth taxi! Tip not included.', 'Draft lane engaged. Hold on.'],
+  glide: ['Leaf deployed. Very aerodynamic. Probably.', 'Wind bonus: unlocked.'],
   dig: ['Digging. In a suit. On a Monday.', 'Soil sample acquired. Also, a hole.'],
   clear: ['Shift complete. Clocking out!', "That's a wrap. Same time tomorrow?"],
 };
@@ -45,6 +47,8 @@ export function createBoltVoice() {
       if (e.type === 'signal' && !e.repeat) kind = 'signal';
       else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
       else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
+      else if (e.type === 'ability' && e.grant === 'glide') kind = 'glide';
+      else if (e.type === 'slipstream') kind = (used.slipstream ?? 0) < 2 ? 'slipstream' : null;
       else if (e.type === 'heaveLaunch' || e.type === 'dig')
         kind = (used[e.type] ?? 0) < 2 ? e.type : null; 
       else if (e.type in LINES && e.type !== 'signal' && e.type !== 'dewBounce' && e.type !== 'sweep') kind = e.type;

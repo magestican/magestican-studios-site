@@ -11,6 +11,7 @@ import { attachHeaves, stepHeaves } from './heave.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
 import { stepSecretSignals } from './secrets.js';
 import { stepShield } from './shield.js';
+import { attachWind, stepWind } from './wind.js';
 
 const RESPAWN_DELAY = 0.45; 
 const PIT_Y = -3; 
@@ -61,8 +62,10 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
 
 
 function sessionWorld(level) {
-  const changes = level.world.mutable || (level.entities ?? []).some((d) => d.kind === 'clod') || level.heaves?.length;
+  const windy = level.updrafts?.length || level.gusts?.length; 
+  const changes = level.world.mutable || (level.entities ?? []).some((d) => d.kind === 'clod') || level.heaves?.length || windy;
   const w = changes ? level.world.clone() : level.world;
+  if (windy) attachWind(w, level);
   if (level.heaves?.length) {
     attachHeaves(w, level.heaves);
     w.time = 0;
@@ -82,6 +85,7 @@ export function stepSession(s, input) {
   }
   s.time += STEP;
   stepHeaves(s);
+  stepWind(s);
   if (s.invuln > 0) s.invuln -= STEP;
   if (s.dead > 0) {
     s.dead += STEP;

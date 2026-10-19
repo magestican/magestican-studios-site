@@ -5,8 +5,9 @@
 
 import { touchingWall } from './body.js';
 import { GRAVITY, JUMP_VELOCITY, RUN_SPEED, STEP } from './constants.js';
+import { glideVy } from './wind.js';
 
-const ABILITIES = ['double', 'dash', 'wall', 'pound'];
+const ABILITIES = ['double', 'dash', 'wall', 'pound', 'glide'];
 
 const DOUBLE_JUMP_HEIGHT = 2.0; 
 const DOUBLE_JUMP_V = Math.sqrt(2 * GRAVITY * DOUBLE_JUMP_HEIGHT);
@@ -42,6 +43,7 @@ export function abilityState() {
     wallLock: 0,
     prevDash: false,
     prevDown: false,
+    glideArm: false, 
   };
 }
 
@@ -67,6 +69,9 @@ export function abilityJumps(p, input, world) {
     p.events.push({ type: 'wallJump', dir: -A.wallDir });
     return;
   }
+  
+  
+  if (has(p, 'glide')) A.glideArm = true;
   if (has(p, 'double') && !A.usedDouble && A.pound === null) {
     A.usedDouble = true;
     p.vy = DOUBLE_JUMP_V;
@@ -115,11 +120,15 @@ export function abilityHorizontal(p, input, dir) {
 
 
 
-export function abilityGravity(p, input, dir) {
+export function abilityGravity(p, input, dir, world) {
   const A = p.ab;
   const downPressed = input.down && !A.prevDown;
   A.prevDown = !!input.down;
-  if (A.dashT > 0) return true;
+  if (!input.jump || input.down || p.grounded) A.glideArm = false; 
+  if (A.dashT > 0) {
+    p.gliding = A.glideArm && p.wasGliding; 
+    return true;
+  }
   if (has(p, 'pound') && downPressed && !p.grounded && A.pound === null) {
     A.pound = 'hang';
     A.poundT = POUND_HANG;
@@ -138,6 +147,11 @@ export function abilityGravity(p, input, dir) {
   if (A.pound === 'fall') {
     p.vx = 0;
     p.vy = -POUND_SPEED;
+    return true;
+  }
+  if (A.glideArm && A.pound === null && (p.vy <= 0 || p.wasGliding)) {
+    p.gliding = true;
+    p.vy = glideVy(world, p);
     return true;
   }
   if (has(p, 'wall') && !p.grounded && A.wallDir !== 0 && dir === A.wallDir && p.vy < 0) {
@@ -161,6 +175,7 @@ export function abilityAfterMove(p, world, dir, landed) {
     if (A.sinceWall > WALL_COYOTE) A.wallDir = 0;
   }
   if (p.grounded) {
+    A.glideArm = false;
     A.usedDouble = false;
     A.dashUsed = false;
     A.wallDir = 0;

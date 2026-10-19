@@ -24,6 +24,8 @@ export function levelBuilder(meta) {
   const landmarks = [];
   const cameraHints = [];
   const heaves = [];
+  const updrafts = [];
+  const gusts = [];
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -157,6 +159,26 @@ export function levelBuilder(meta) {
       return api;
     },
     
+    updraft(x0, x1, y0, y1, opts = {}) {
+      counters.updraft = (counters.updraft ?? 0) + 1;
+      updrafts.push({
+        id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-updraft-${counters.updraft}`,
+        x0,
+        x1,
+        y0,
+        y1,
+        lift: 7,
+        ...opts,
+      });
+      return api;
+    },
+    
+    gust(x0, x1, y0, y1, opts = {}) {
+      counters.gust = (counters.gust ?? 0) + 1;
+      gusts.push({ id: opts.id ?? `L${String(meta.id).padStart(2, '0')}-gust-${counters.gust}`, x0, x1, y0, y1, vx: 5, ...opts });
+      return api;
+    },
+    
     cameraHint(x0, x1, opts) {
       cameraHints.push({ x0, x1, ...opts });
       return api;
@@ -230,6 +252,8 @@ export function levelBuilder(meta) {
         landmarks,
         cameraHints,
         heaves,
+        updrafts,
+        gusts,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,
         vertical: finish?.axis === 'y',

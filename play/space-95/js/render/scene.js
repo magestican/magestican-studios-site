@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { followJo } from '../game/bolt.js';
 import { BODY_H, BODY_W, RUN_SPEED } from '../sim/constants.js';
 import { heaveAt } from '../sim/heave.js';
+import { zoneOn } from '../sim/wind.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
 
 const CAM_DIST = 20;
@@ -33,6 +34,8 @@ export function createView(canvas, level, labels) {
   scene.add(soil.mesh);
   const fur = heaveMeshes(level);
   scene.add(fur.group);
+  const wind = windMeshes(level);
+  scene.add(wind.group);
   scene.add(farLayers(level.world));
   for (const cp of level.checkpoints) {
     const label = labels.find((l) => l.id === cp.id);
@@ -111,7 +114,9 @@ export function createView(canvas, level, labels) {
       bolt.group.position.set(boltPos.x, boltPos.y, 0.3);
       bolt.group.scale.x = p.facing;
       fur.update(session.world);
+      wind.update(session.time, dt);
       jo.shell.visible = !!session.shield;
+      jo.leaf.visible = !!p.gliding;
       syncEntities(scene, entityViews, session.entities, alpha, session.time);
       for (let i = fx.length - 1; i >= 0; i--) {
         const f = fx[i];
@@ -262,6 +267,50 @@ function entityView(e) {
     m.position.y = 0.35;
     m.name = 'spin';
     g.add(m);
+  } else if (e.kind === 'moth') {
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.6, 6, 10), mat(0xe9dcc0));
+    body.rotation.z = Math.PI / 2;
+    body.position.y = 0.3;
+    const wings = new THREE.Group();
+    wings.name = 'flap';
+    wings.position.y = 0.35;
+    const wingMat = new THREE.MeshLambertMaterial({ color: 0xf6efd8, side: THREE.DoubleSide });
+    for (const s of [1, -1]) {
+      const w = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.5), wingMat);
+      w.position.z = s * 0.3;
+      w.rotation.x = Math.PI / 2;
+      wings.add(w);
+    }
+    g.add(body, wings);
+  } else if (e.kind === 'seedRide') {
+    const seed = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), mat(0x8a6a3a));
+    seed.position.y = 0.3;
+    const wing = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.2, 0.25),
+      new THREE.MeshLambertMaterial({ color: 0xd9c48a, side: THREE.DoubleSide }),
+    );
+    wing.position.y = 0.55;
+    wing.name = 'spin';
+    g.add(seed, wing);
+  } else if (e.kind === 'wasp') {
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.2, 0.45, 6, 10), mat(e.specimen ? 0xf4f0ff : 0xf2c230));
+    body.rotation.z = Math.PI / 2;
+    body.position.y = 0.35;
+    const band = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.05, 6, 14), mat(0x2a2016));
+    band.rotation.y = Math.PI / 2;
+    band.position.set(-0.08, 0.35, 0);
+    const sting = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.25, 8), mat(0x2a2016));
+    sting.rotation.z = Math.PI / 2;
+    sting.position.set(-0.5, 0.35, 0);
+    g.add(body, band, sting);
+    
+    const line = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(1, 0, 0)]),
+      new THREE.LineDashedMaterial({ color: 0xff2fa0, dashSize: 0.25, gapSize: 0.18 }),
+    );
+    line.name = 'aimLine';
+    line.visible = false;
+    g.add(line);
   } else if (e.kind === 'boss') {
     
     const body = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), mat(0x6b4a2b));
@@ -314,6 +363,23 @@ function syncEntities(scene, views, entities, alpha, time) {
     }
     const spin = v.getObjectByName('spin');
     if (spin) spin.rotation.y = time * 2.5;
+    const flap = v.getObjectByName('flap');
+    if (flap) {
+      v.visible = e.state !== 'away';
+      flap.rotation.x = e.state === 'perch' ? 0.2 : Math.sin(time * 26) * 0.7;
+    }
+    const aim = v.getObjectByName('aimLine');
+    if (aim) {
+      aim.visible = e.stage === 'telegraph' && !!e.lock;
+      if (aim.visible) {
+        
+        const pos = aim.geometry.attributes.position;
+        pos.setXYZ(0, 0, 0.35, 0);
+        pos.setXYZ(1, (e.lock.x - v.position.x) * v.scale.x, e.lock.y - v.position.y, 0);
+        pos.needsUpdate = true;
+        aim.computeLineDistances();
+      }
+    }
     const kh = v.getObjectByName('kickHalo');
     if (kh) kh.material.opacity = e.stage === 'windup' ? 0.85 : 0;
     const halo = v.getObjectByName('halo');
@@ -423,6 +489,56 @@ function heaveMeshes(level) {
         const hgt = Math.max(0.05, top - c.floor);
         c.m.scale.y = hgt;
         c.m.position.set(c.x, c.floor + hgt / 2, -TILE_DEPTH / 2 + 0.3);
+      }
+    },
+  };
+}
+
+
+function windMeshes(level) {
+  const group = new THREE.Group();
+  const zones = [];
+  const add = (z, up) => {
+    const w = z.x1 - z.x0;
+    const h = z.y1 - z.y0;
+    const veil = new THREE.Mesh(
+      new THREE.PlaneGeometry(w, h),
+      new THREE.MeshBasicMaterial({ color: up ? 0xfff4c8 : 0xd8f4ff, transparent: true, opacity: 0.12, depthWrite: false }),
+    );
+    veil.position.set(z.x0 + w / 2, z.y0 + h / 2, -0.2);
+    group.add(veil);
+    const n = Math.max(4, Math.round((w * h) / (up ? 6 : 10)));
+    const bits = [];
+    const bitMat = new THREE.MeshBasicMaterial({ color: up ? 0xfffbe6 : 0xffffff, transparent: true, opacity: 0.7, depthWrite: false });
+    const geo = up ? new THREE.PlaneGeometry(0.08, 0.3) : new THREE.PlaneGeometry(1.1, 0.09);
+    for (let i = 0; i < n; i++) {
+      const m = new THREE.Mesh(geo, bitMat);
+      
+      const u = (0.5 + i * 0.7548777) % 1; 
+      const v = (0.5 + i * 0.5698403) % 1;
+      m.position.set(z.x0 + u * w, z.y0 + v * h, 0.1);
+      group.add(m);
+      bits.push({ m, u, v });
+    }
+    zones.push({ z, up, veil, bits, bitMat, k: 1, w, h });
+  };
+  for (const z of level.updrafts ?? []) add(z, true);
+  for (const z of level.gusts ?? []) add(z, false);
+  return {
+    group,
+    update(time, dt) {
+      for (const Z of zones) {
+        const on = zoneOn(Z.z, time) ? 1 : 0;
+        Z.k += (on - Z.k) * Math.min(1, dt * 8);
+        Z.veil.material.opacity = 0.12 * Z.k;
+        Z.bitMat.opacity = 0.7 * Z.k;
+        const speed = Z.up ? (Z.z.lift ?? 7) * 0.6 : (Z.z.vx ?? 0);
+        for (const b of Z.bits) {
+          if (Z.up) b.v = (((b.v + (speed * dt) / Z.h) % 1) + 1) % 1;
+          else b.u = (((b.u + (speed * dt) / Z.w) % 1) + 1) % 1;
+          b.m.position.x = Z.z.x0 + b.u * Z.w;
+          b.m.position.y = Z.z.y0 + b.v * Z.h;
+        }
       }
     },
   };
@@ -573,7 +689,15 @@ function joPlaceholder() {
   const shell = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.08, 8, 14), new THREE.MeshLambertMaterial({ color: 0x7d9bd6 }));
   shell.position.set(-BODY_W * 0.45, BODY_H * 0.55, -0.01);
   shell.visible = false;
-  body.add(suit, scarf, head, visor, shell);
+  
+  const leaf = new THREE.Mesh(
+    new THREE.PlaneGeometry(BODY_W * 2.4, BODY_W * 0.9),
+    new THREE.MeshLambertMaterial({ color: 0x5fae3a, side: THREE.DoubleSide }),
+  );
+  leaf.position.set(0, BODY_H * 1.35, 0);
+  leaf.rotation.x = -Math.PI / 2.4;
+  leaf.visible = false;
+  body.add(suit, scarf, head, visor, shell, leaf);
   group.add(body);
   const shadow = new THREE.Mesh(
     new THREE.CircleGeometry(BODY_W * 0.6, 24),
@@ -582,5 +706,5 @@ function joPlaceholder() {
   shadow.rotation.x = -Math.PI / 2;
   shadow.position.set(0, 0.01, -0.2);
   group.add(shadow);
-  return { group, body, shell };
+  return { group, body, shell, leaf };
 }

@@ -48,6 +48,8 @@ export function hurtPlayer(s, fromX) {
     return false;
   }
   s.hearts -= 1;
+  if (p.ab) p.ab.glideArm = false; 
+  p.wake = null;
   s.invuln = INVULN_TIME;
   s.hitstop = HITSTOP_ENEMY;
   const dir = p.x < fromX ? -1 : 1;

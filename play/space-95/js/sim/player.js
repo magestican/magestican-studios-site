@@ -9,6 +9,8 @@ import { onGround, sweepX, sweepY, touchingWall } from './body.js';
 import { climbStep } from './climb.js';
 import * as K from './constants.js';
 import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
+import { rideStep, wakeStep } from './slipstream.js';
+import { gustDx, windCushion } from './wind.js';
 
 
 
@@ -45,6 +47,13 @@ export function createPlayer(x, y) {
     abilities: new Set(), 
     ab: abilityState(),
     vyLanding: 0, 
+    gliding: false, 
+    wasGliding: false,
+    
+    ride: null,
+    
+    wake: null,
+    wakeCool: 0, 
     
     events: [],
   };
@@ -69,18 +78,26 @@ export function stepPlayer(p, input, world) {
   p.sincePressed = pressed ? 0 : p.sincePressed + S;
   if (!p.grounded) p.sinceGrounded += S;
 
-  if (!climbStep(p, input, world, dir, pressed)) {
+  p.wasGliding = p.gliding;
+  p.gliding = false;
+  if (p.wakeCool > 0) p.wakeCool -= S;
+  
+  const carried = p.ride ? rideStep(p) : p.wake ? wakeStep(p, input, pressed) : false;
+  if (carried) {
+    
+  } else if (!climbStep(p, input, world, dir, pressed)) {
     horizontal(p, dir, input);
     abilityHorizontal(p, input, dir);
     tryJump(p);
     abilityJumps(p, input, world);
     variableHeight(p, input);
-    if (!abilityGravity(p, input, dir)) gravity(p, input);
-  }
+    if (!abilityGravity(p, input, dir, world)) gravity(p, input);
+    if (world.updrafts) windCushion(world, p);
+  } else p.ab.glideArm = false;
 
   
   const vxBefore = p.vx;
-  const mx = sweepX(world, p, p.vx * S);
+  const mx = sweepX(world, p, p.vx * S + (world.gusts && !carried ? gustDx(world, p) : 0));
   p.x = mx.x;
   if (mx.hit) p.vx = 0;
   let dy = p.vy * S;
@@ -141,6 +158,8 @@ export function stepPlayer(p, input, world) {
     if (p.y > p.airPeak) p.airPeak = p.y;
   }
   abilityAfterMove(p, world, dir, p.grounded && !wasGrounded);
+  if (p.grounded) p.gliding = false;
+  if (p.gliding !== p.wasGliding) p.events.push({ type: p.gliding ? 'glideStart' : 'glideEnd', x: p.x, y: p.y });
   p.vyLanding = p.vy;
   if (dir !== 0) p.facing = dir;
   return p;
