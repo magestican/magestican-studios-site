@@ -2,7 +2,7 @@
 
 
 
-import { contact, stompBounce } from '../combat.js';
+import { contact, stepDefeated, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { groundAhead, moveBody, registerKind } from '../entities.js';
 
@@ -19,6 +19,7 @@ registerKind('antPorter', {
     e.grumpy = 0;
   },
   step(e, ctx) {
+    if (stepDefeated(e)) return; 
     const p = ctx.player;
     if (e.grumpy > 0) e.grumpy -= STEP;
     e.vx = e.grumpy > 0 ? 0 : e.facing * WALK;

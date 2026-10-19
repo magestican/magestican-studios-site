@@ -20,7 +20,7 @@ import { gustDx, windCushion } from './wind.js';
 export const NO_INPUT = Object.freeze({ x: 0, down: false, jump: false });
 
 
-export function createPlayer(x, y) {
+export function createPlayer(x, y, facing = 1) {
   return {
     x,
     y,
@@ -30,7 +30,7 @@ export function createPlayer(x, y) {
     vy: 0,
     px: x, 
     py: y,
-    facing: 1,
+    facing,
     grounded: false,
     sinceGrounded: Number.POSITIVE_INFINITY,
     sincePressed: Number.POSITIVE_INFINITY,

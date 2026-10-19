@@ -22,6 +22,10 @@ const LINES = {
   shellPop: ['Free shell! Health and safety approved.', 'Wear it. Fling it. Your call.'],
   heaveLaunch: ['She breathes, we fly. Noted.', 'Ruuma is helping. Do not wake her.'],
   slipstream: ['Moth taxi! Tip not included.', 'Draft lane engaged. Hold on.'],
+  shoeSlow: ["It's slowing down - go!", 'The shoe is tired. Now!'],
+  punt: ['Wheee- okay, back to the beacon.', 'Punted! No harm done. Again.'],
+  bowl: ['Overtime bowling!', 'Flipped and filed.'],
+  shoeGone: ['Door shut. The Vast are home. So are we, almost.', 'Quiet now. Ship ahead.'],
   glide: ['Leaf deployed. Very aerodynamic. Probably.', 'Wind bonus: unlocked.'],
   dig: ['Digging. In a suit. On a Monday.', 'Soil sample acquired. Also, a hole.'],
   clear: ['Shift complete. Clocking out!', "That's a wrap. Same time tomorrow?"],
@@ -48,6 +52,8 @@ export function createBoltVoice() {
       else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
       else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
       else if (e.type === 'ability' && e.grant === 'glide') kind = 'glide';
+      else if (e.type === 'bowl') kind = e.n >= 4 ? 'bowl' : null;
+      else if (e.type === 'punt') kind = (used.punt ?? 0) < 2 ? 'punt' : null;
       else if (e.type === 'slipstream') kind = (used.slipstream ?? 0) < 2 ? 'slipstream' : null;
       else if (e.type === 'heaveLaunch' || e.type === 'dig')
         kind = (used[e.type] ?? 0) < 2 ? e.type : null; 

@@ -51,6 +51,15 @@ const CUES = {
   waspDive: ['wasp_dive', 'pillbug_alert'],
   waspStuck: ['wasp_stuck', 'snail_bonk'],
   waspPullUp: ['wasp_pullup', 'skid'],
+  shoePlan: ['shoe_rumble', 'boss_telegraph'],
+  shoeLand: ['shoe_boom', 'quake_stomp'],
+  footfallFar: ['shoe_far', 'land_hard'],
+  shoeGone: ['shoe_door', 'checkpoint_clockin'],
+  punt: ['punt_flick', 'bonk'],
+  punted: ['punt_flick', 'aphid_hop'],
+  flip: ['bug_flip', 'enemy_daze'],
+  righted: ['bug_right', 'ladybot_hop'],
+  bowl: ['bowl_chime', 'pebble_hit'],
   caveIn: ['cave_in', 'skid'],
   buried: ['bury_thump', 'enemy_defeat_pop'],
   strike: ['strike', 'intel_found'], 
@@ -71,6 +80,7 @@ const SIGNAL_SOUNDS = {
   'audio:glint-chime': ['secret_glint'],
   'audio:tiny-jingle': ['secret_glint'],
   'audio:two-tone-buzz': ['wasp_two_tone', 'secret_glint'],
+  'audio:cricket-hum': ['cricket_hum', 'secret_glint'],
 };
 
 
@@ -80,6 +90,7 @@ export function signalSounds(e, has = () => true) {
 
 
 export function cueRate(e) {
+  if (e.type === 'bowl' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   return e.type === 'pebbleHit' && e.hits > 1 ? 2 ** ((2 * (e.hits - 1)) / 12) : 1;
 }
 

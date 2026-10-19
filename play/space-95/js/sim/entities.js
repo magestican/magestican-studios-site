@@ -49,6 +49,7 @@ export function stepEntities(list, ctx) {
     e.py = e.y;
     const impl = KINDS[e.kind];
     if (e.swept) continue; 
+    if (e.flip) continue; 
     
     if (e.dozing && ctx.player.ab?.pound === 'fall' && overlaps(ctx.player, e)) e.dozing = false;
     if (e.dozing) {

@@ -11,9 +11,11 @@ import { attachHeaves, stepHeaves } from './heave.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
 import { stepSecretSignals } from './secrets.js';
 import { stepShield } from './shield.js';
+import { createShoe, resetShoe, stepShoe } from './shoe.js';
 import { attachWind, stepWind } from './wind.js';
 
 const RESPAWN_DELAY = 0.45; 
+const PUNT_TIME = 0.8; 
 const PIT_Y = -3; 
 const START_HEARTS = 3;
 const START_LIVES = 5;
@@ -29,9 +31,11 @@ const START_LIVES = 5;
 
 export function createSession(level, startCheckpoint = 0, abilities = new Set()) {
   const start = level.checkpoints.find((c) => c.id === startCheckpoint) ?? level.spawn;
-  const player = createPlayer(start.x, start.y);
+  const dir = level.dir ?? 1; 
+  const player = createPlayer(start.x, start.y, dir);
   
-  for (const d of level.entities ?? []) if (d.kind === 'ability' && start !== level.spawn && d.x < start.x) abilities.add(d.grant);
+  for (const d of level.entities ?? [])
+    if (d.kind === 'ability' && start !== level.spawn && dir * (start.x - d.x) > 0) abilities.add(d.grant);
   player.abilities = abilities;
   return {
     level,
@@ -46,6 +50,10 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
     respawnAt: { x: start.x, y: start.y },
     dead: 0, 
     deaths: 0,
+    punt: 0, 
+    punts: 0,
+    
+    shoe: createShoe(level, start.x),
     hearts: START_HEARTS,
     maxHearts: START_HEARTS,
     lives: START_LIVES,
@@ -93,22 +101,30 @@ export function stepSession(s, input) {
     stepPlayer(s.player, NO_INPUT, s.world);
     return s;
   }
+  if (s.punt > 0) {
+    s.punt += STEP; 
+    if (s.punt >= PUNT_TIME) respawn(s);
+    return s;
+  }
   const p = s.player;
   stepPlayer(p, s.cleared ? NO_INPUT : input, s.world);
   stepDig(s);
   stepShield(s);
   stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
   stepSecretSignals(s);
+  stepShoe(s); 
   for (const e of p.events) s.events.push(e);
   for (const e of s.events) if (e.type === 'secret') s.found.add(String(e.id));
   for (const c of s.level.checkpoints) {
-    const passed = s.level.vertical ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4 : p.x >= c.x; 
+    
+    const passed = s.level.vertical ? p.y >= c.y - 0.01 && Math.abs(p.x - c.x) < 4 : (s.level.dir ?? 1) > 0 ? p.x >= c.x : p.x <= c.x;
     if (c.id > s.checkpoint && p.grounded && passed) {
       s.checkpoint = c.id;
       s.respawnAt = { x: c.x, y: c.y };
       s.events.push({ type: 'checkpoint', id: c.id });
     }
   }
+  if (s.punt > 0) return s;
   if (p.y < PIT_Y) {
     s.events.push({ type: 'pit' });
     const cost = s.level.pitCost ?? 'none';
@@ -140,9 +156,11 @@ function respawn(s) {
     s.events.push({ type: 'gameOver' });
   }
   if (s.hearts <= 0) s.hearts = s.maxHearts;
-  s.player = createPlayer(s.respawnAt.x, s.respawnAt.y);
+  s.player = createPlayer(s.respawnAt.x, s.respawnAt.y, s.level.dir ?? 1);
   s.player.abilities = s.abilities;
   s.invuln = 0;
   s.dead = 0;
+  s.punt = 0;
+  if (s.shoe) resetShoe(s.shoe, s.respawnAt.x);
   s.events.push({ type: 'respawn' });
 }

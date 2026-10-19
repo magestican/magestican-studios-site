@@ -6,8 +6,9 @@ import { buildL03 } from './L03.js';
 import { buildL04 } from './L04.js';
 import { buildL05 } from './L05.js';
 import { buildL06 } from './L06.js';
+import { buildL07 } from './L07.js';
 
-const SHIFTS = { 1: buildL01, 2: buildL02, 3: buildL03, 4: buildL04, 5: buildL05, 6: buildL06 };
+const SHIFTS = { 1: buildL01, 2: buildL02, 3: buildL03, 4: buildL04, 5: buildL05, 6: buildL06, 7: buildL07 };
 
 
 export function loadLevel(key) {

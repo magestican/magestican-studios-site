@@ -11,6 +11,7 @@ const cells = (u) => Math.round(u / TILE);
 
 
 
+
 export function levelBuilder(meta) {
   const H = cells(meta.height ?? 24);
   const floor0 = meta.floor ?? 2; 
@@ -26,6 +27,8 @@ export function levelBuilder(meta) {
   const heaves = [];
   const updrafts = [];
   const gusts = [];
+  const shoeRuns = [];
+  const shoeBeats = [];
   const counters = {};
   let x = 0; 
   let ground = floor0; 
@@ -179,6 +182,34 @@ export function levelBuilder(meta) {
       return api;
     },
     
+
+
+
+
+    shoeRun(xFrom, xTo, opts = {}) {
+      shoeRuns.push({ id: shoeRuns.length + 1, xFrom, xTo, lead: 2, foot: 8, tele: 1.0, radius: 24, ...opts });
+      return api;
+    },
+    
+
+
+
+
+    shoeBeat(trigger, opts = {}) {
+      shoeBeats.push({
+        id: shoeBeats.length + 1,
+        trigger,
+        lane: 'play',
+        lead: 2,
+        foot: 8,
+        tele: 1.0,
+        radius: 24,
+        motif: 'shockwave',
+        ...opts,
+      });
+      return api;
+    },
+    
     cameraHint(x0, x1, opts) {
       cameraHints.push({ x0, x1, ...opts });
       return api;
@@ -254,6 +285,8 @@ export function levelBuilder(meta) {
         heaves,
         updrafts,
         gusts,
+        ...(shoeRuns.length || shoeBeats.length ? { shoe: { runs: shoeRuns, beats: shoeBeats } } : {}),
+        dir: meta.dir ?? 1,
         entities,
         finishX: finish ? finish.x : (W - 4) * TILE,
         vertical: finish?.axis === 'y',

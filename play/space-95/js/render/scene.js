@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { followJo } from '../game/bolt.js';
 import { BODY_H, BODY_W, RUN_SPEED } from '../sim/constants.js';
 import { heaveAt } from '../sim/heave.js';
+import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
 
@@ -36,6 +37,8 @@ export function createView(canvas, level, labels) {
   scene.add(fur.group);
   const wind = windMeshes(level);
   scene.add(wind.group);
+  const shoe = shoeMeshes();
+  scene.add(shoe.group);
   scene.add(farLayers(level.world));
   for (const cp of level.checkpoints) {
     const label = labels.find((l) => l.id === cp.id);
@@ -53,6 +56,7 @@ export function createView(canvas, level, labels) {
   const rig = createCameraRig(0, 0);
   let squash = 0; 
   let hintDy = 0; 
+  let aheadK = 1; 
   let shake = 0; 
   const kick = (a) => {
     shake = Math.min(0.15, Math.max(shake, a));
@@ -94,7 +98,9 @@ export function createView(canvas, level, labels) {
       }
       const hint = level.cameraHints?.find((h) => x >= h.x0 && x < h.x1);
       updateCameraRig(rig, { x, y, vx: p.vx, vy: p.vy, grounded: p.grounded, facing: p.facing, climbing: p.climbing }, dt, RUN_SPEED);
-      const camX = hint?.lock ? hint.lock.x : rig.x;
+      
+      aheadK += ((hint?.ahead === 0 ? 0 : 1) - aheadK) * (1 - Math.exp(-dt * 3));
+      const camX = hint?.lock ? hint.lock.x : x + rig.ahead * aheadK;
       hintDy += ((hint?.lock ? hint.lock.y - rig.y : (hint?.dy ?? 0)) - hintDy) * (1 - Math.exp(-dt * 4));
       
       shake *= Math.exp(-dt * 18);
@@ -115,8 +121,12 @@ export function createView(canvas, level, labels) {
       bolt.group.scale.x = p.facing;
       fur.update(session.world);
       wind.update(session.time, dt);
+      shoe.update(session, dt);
       jo.shell.visible = !!session.shield;
       jo.leaf.visible = !!p.gliding;
+      
+      jo.body.rotation.z = session.punt > 0 ? session.punt * 14 * (level.dir ?? 1) : 0;
+      if (session.punt > 0) jo.group.position.y += Math.sin(Math.min(1, session.punt / 0.8) * Math.PI) * 2.5;
       syncEntities(scene, entityViews, session.entities, alpha, session.time);
       for (let i = fx.length - 1; i >= 0; i--) {
         const f = fx[i];
@@ -154,6 +164,13 @@ export function createView(canvas, level, labels) {
       if (e.type === 'signal' && e.signals.some((s) => s.startsWith('visual:'))) spark(e.x, e.y + 0.4, 0xffd34d, 0.9, 0.12);
       if (e.type === 'defeat') spark(e.x, e.y + 0.6, 0xffffff, 0.5, 0.18);
       if (e.type === 'hurt') kick(0.12);
+      if (e.type === 'shoeLand') {
+        shoe.land(e);
+        if (e.lane !== 'back') kick(0.12);
+      }
+      if (e.type === 'bowl')
+        for (let i = 0; i < 3 + e.n; i++) spark(e.x + Math.cos(i * 2) * 0.5, e.y + 0.5 + Math.sin(i * 2) * 0.5, 0xffd34d, 0.6, 0.12);
+      if (e.type === 'punted') spark(e.x, e.y + 0.5, 0xffffff, 0.6, 0.2);
       if (e.type === 'bossHit') kick(0.15);
       if (e.type === 'pound' || e.type === 'clodLand') kick(0.08);
       if (e.type === 'land' && (e.fall ?? 0) > 4) kick(0.05);
@@ -389,7 +406,9 @@ function syncEntities(scene, views, entities, alpha, time) {
       halo.scale.setScalar(tele ? 1 + 0.15 * Math.sin(time * 9) : 1);
     }
     if (e.state === 'dazed' || (e.kind === 'boss' && e.stage === 'recover')) v.rotation.z = Math.sin(time * 30) * 0.12;
-    else if (e.state === 'scurry') v.rotation.z = Math.PI;
+    else if (e.state === 'scurry' || e.state === 'flipped')
+      v.rotation.z = Math.PI + (e.state === 'flipped' ? Math.sin(time * 12) * 0.15 : 0);
+    else if (e.state === 'righting') v.rotation.z = Math.PI * 0.5 + Math.sin(time * 30) * 0.2;
     else v.rotation.z = 0;
   }
   for (const [id, v] of views) {
@@ -538,6 +557,108 @@ function windMeshes(level) {
           else b.u = (((b.u + (speed * dt) / Z.w) % 1) + 1) % 1;
           b.m.position.x = Z.z.x0 + b.u * Z.w;
           b.m.position.y = Z.z.y0 + b.v * Z.h;
+        }
+      }
+    },
+  };
+}
+
+
+
+function shoeMeshes() {
+  const group = new THREE.Group();
+  const pool = [];
+  const shadowMat = new THREE.MeshBasicMaterial({ color: 0x1a1030, transparent: true, opacity: 0.35, depthWrite: false });
+  const rimMat = new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, opacity: 0.8, depthWrite: false });
+  const soleMat = new THREE.MeshLambertMaterial({ color: 0x3b4a8c });
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: 0xfff1d6,
+    transparent: true,
+    opacity: 0.6,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+  const make = () => {
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.5), shadowMat);
+    const rim = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.12), rimMat);
+    const sole = new THREE.Mesh(new THREE.BoxGeometry(1, 3, 1.6), soleMat);
+    group.add(shadow, rim, sole);
+    return { shadow, rim, sole };
+  };
+  const stamps = []; 
+  const rings = [];
+  const span = (dir, toe, foot) => (dir < 0 ? [toe, toe + foot] : [toe - foot, toe]);
+  return {
+    group,
+    land(e) {
+      stamps.push({ e, t: 0 });
+      if (e.lane === 'back') return;
+      const m = new THREE.Mesh(new THREE.RingGeometry(0.85, 1, 32), ringMat.clone());
+      group.add(m);
+      rings.push({ m, x: e.toe, r: 0, radius: e.radius ?? 12, y: null, ring: e.ring });
+    },
+    update(session, dt) {
+      const sh = session.shoe;
+      let i = 0;
+      const show = (f, k, groundY, depth) => {
+        if (!pool[i]) pool[i] = make();
+        const o = pool[i++];
+        const [lo, hi] = span(sh?.dir ?? -1, f.toe, f.foot);
+        const w = hi - lo;
+        const cx = (lo + hi) / 2;
+        const back = f.lane === 'back';
+        o.shadow.visible = true;
+        o.shadow.scale.set(w * (0.4 + 0.6 * k), 1 + k, 1);
+        o.shadow.position.set(cx, groundY + 0.02, depth + 0.05);
+        o.shadow.rotation.x = -Math.PI / 2;
+        o.rim.visible = !back;
+        o.rim.scale.set(w, 1, 1);
+        o.rim.position.set(cx, groundY + 0.06, depth + 0.3);
+        rimMat.opacity = 0.5 + 0.4 * Math.sin(session.time * 20);
+        
+        const drop = Math.max(0, Math.min(1, (k - 0.7) / 0.3));
+        o.sole.visible = drop > 0;
+        o.sole.scale.set(w, 1, 1);
+        o.sole.position.set(cx, groundY + 1.5 + (1 - drop) * 14, depth);
+      };
+      for (const f of sh?.pending ?? []) {
+        const k = 1 - Math.max(0, f.lands - session.time) / (f.tele || 1);
+        const gy = f.lane === 'back' ? 2 : (topSolid(session.world, f.toe) ?? 2);
+        show(f, k, gy, f.lane === 'back' ? -4 : 0);
+      }
+      for (let j = stamps.length - 1; j >= 0; j--) {
+        const s = stamps[j];
+        s.t += dt;
+        if (s.t > 0.6) {
+          stamps.splice(j, 1);
+          continue;
+        }
+        const gy = s.e.lane === 'back' ? 2 : (topSolid(session.world, s.e.toe) ?? 2);
+        show(s.e, 1, gy, s.e.lane === 'back' ? -4 : 0);
+        const o = pool[i - 1];
+        o.shadow.visible = false;
+        o.rim.visible = false;
+        o.sole.position.y += Math.max(0, s.t - 0.25) * 30; 
+      }
+      for (; i < pool.length; i++) {
+        pool[i].shadow.visible = false;
+        pool[i].rim.visible = false;
+        pool[i].sole.visible = false;
+      }
+      const simRings = sh?.rings ?? [];
+      for (let j = rings.length - 1; j >= 0; j--) {
+        const R = rings[j];
+        const live = simRings.find((r) => r.id === R.ring);
+        if (live && R.y === null) R.y = live.impactY ?? 2;
+        R.r = live ? live.r : R.r + 60 * dt;
+        R.m.scale.set(Math.max(0.01, R.r), Math.max(0.01, R.r * 0.25), 1);
+        R.m.position.set(R.x, (R.y ?? 2) + 0.1, 0.2);
+        R.m.material.opacity = 0.6 * Math.max(0, 1 - R.r / R.radius);
+        if (R.r >= R.radius) {
+          group.remove(R.m);
+          R.m.geometry.dispose();
+          R.m.material.dispose();
+          rings.splice(j, 1);
         }
       }
     },

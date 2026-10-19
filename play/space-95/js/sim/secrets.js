@@ -16,12 +16,13 @@ export function stepSecretSignals(s) {
   for (const e of s.entities) {
     if (!e.alive || !e.signals) continue;
     const d = Math.hypot(e.x - p.x, e.y - p.y);
-    if (e.sigArmed === false && d > REARM_RANGE) e.sigArmed = true;
-    if (d <= SIGNAL_RANGE && e.sigArmed !== false) {
+    const range = e.signalRange ?? SIGNAL_RANGE; 
+    if (e.sigArmed === false && d > range + REARM_RANGE - SIGNAL_RANGE) e.sigArmed = true;
+    if (d <= range && e.sigArmed !== false) {
       e.sigArmed = false;
       e.sigPulse = 0;
       s.events.push({ type: 'signal', id: e.id, signals: e.signals, x: e.x, y: e.y });
-    } else if (d <= SIGNAL_RANGE) {
+    } else if (d <= range) {
       e.sigPulse = (e.sigPulse ?? 0) + STEP;
       if (e.sigPulse >= VISUAL_PULSE) {
         e.sigPulse = 0;

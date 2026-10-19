@@ -10,6 +10,14 @@ const CRAWL = 0.6;
 const STOMP_BOUNCE_V = 10;
 const PUSH_V = 3;
 
+
+export function popShell(e, ctx, how) {
+  defeat(e, ctx, how);
+  ctx.events.push({ type: 'shellPop', id: e.id, x: e.x, y: e.y });
+  const [shield] = spawnEntities([{ id: `${e.id}-shield`, kind: 'shellShield', x: e.x, y: e.y }]);
+  ctx.session.entities.push(shield);
+}
+
 registerKind('snailknight', {
   sleeps: true,
   create(e) {
@@ -26,10 +34,7 @@ registerKind('snailknight', {
     if (hit.wall || (e.grounded && !groundAhead(e, ctx.world, e.facing))) e.vx = 0;
     if (!overlaps(p, e)) return;
     if (p.ab?.dashT > 0) {
-      defeat(e, ctx, 'dash');
-      ctx.events.push({ type: 'shellPop', id: e.id, x: e.x, y: e.y });
-      const [shield] = spawnEntities([{ id: `${e.id}-shield`, kind: 'shellShield', x: e.x, y: e.y }]);
-      ctx.session.entities.push(shield);
+      popShell(e, ctx, 'dash');
       return;
     }
     const fromAbove = p.py >= e.y + e.h * 0.6;

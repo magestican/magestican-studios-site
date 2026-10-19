@@ -54,7 +54,10 @@ registerKind('finish', {
     e.h = 3;
   },
   step(e, ctx) {
-    const reached = e.axis === 'y' ? ctx.player.y >= e.y && Math.abs(ctx.player.x - e.x) < 3 : ctx.player.x >= e.x;
+    
+    const left = (e.dir ?? ctx.session.level.dir ?? 1) < 0;
+    const p = ctx.player;
+    const reached = e.axis === 'y' ? p.y >= e.y && Math.abs(p.x - e.x) < 3 : left ? p.x <= e.x : p.x >= e.x;
     if (!ctx.session.cleared && reached) {
       ctx.session.cleared = true;
       ctx.events.push({ type: 'clear', time: ctx.session.time });

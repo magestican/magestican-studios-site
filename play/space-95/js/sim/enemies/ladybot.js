@@ -1,6 +1,7 @@
 
 
 
+
 import { standardContact, stepDefeated } from '../combat.js';
 import { STEP } from '../constants.js';
 import { groundAhead, moveBody, registerKind } from '../entities.js';
@@ -21,7 +22,7 @@ registerKind('ladybot', {
     if (stepDefeated(e)) return;
     e.vx = e.facing * WALK_SPEED;
     e.hopT += STEP;
-    if (e.hop !== false && e.grounded && e.hopT >= HOP_EVERY) {
+    if (e.hop !== false && e.grounded && e.hopT >= (e.hopEvery ?? HOP_EVERY)) {
       e.hopT = 0;
       e.vy = HOP_SPEED;
       ctx.events.push({ type: 'hop', id: e.id });
