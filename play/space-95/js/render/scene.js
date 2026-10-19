@@ -39,6 +39,13 @@ export function createView(canvas, level, labels) {
   scene.add(wind.group);
   const shoe = shoeMeshes();
   scene.add(shoe.group);
+  scene.add(honeyMeshes(level));
+  
+  const teles = [];
+  const tele = (m, life) => {
+    scene.add(m);
+    teles.push({ m, t: 0, life });
+  };
   scene.add(farLayers(level.world));
   for (const cp of level.checkpoints) {
     const label = labels.find((l) => l.id === cp.id);
@@ -130,6 +137,17 @@ export function createView(canvas, level, labels) {
       jo.body.rotation.z = session.punt > 0 ? session.punt * 14 * (level.dir ?? 1) : 0;
       if (session.punt > 0) jo.group.position.y += Math.sin(Math.min(1, session.punt / 0.8) * Math.PI) * 2.5;
       syncEntities(scene, entityViews, session.entities, alpha, session.time);
+      for (let i = teles.length - 1; i >= 0; i--) {
+        const T = teles[i];
+        T.t += dt;
+        T.m.material.opacity = 0.9 * (0.6 + 0.4 * Math.sin(session.time * 22)) * Math.max(0, 1 - T.t / T.life);
+        if (T.t >= T.life) {
+          scene.remove(T.m);
+          T.m.geometry.dispose();
+          T.m.material.dispose();
+          teles.splice(i, 1);
+        }
+      }
       for (let i = fx.length - 1; i >= 0; i--) {
         const f = fx[i];
         f.t += dt;
@@ -173,6 +191,30 @@ export function createView(canvas, level, labels) {
       if (e.type === 'bowl')
         for (let i = 0; i < 3 + e.n; i++) spark(e.x + Math.cos(i * 2) * 0.5, e.y + 0.5 + Math.sin(i * 2) * 0.5, 0xffd34d, 0.6, 0.12);
       if (e.type === 'punted') spark(e.x, e.y + 0.5, 0xffffff, 0.6, 0.2);
+      
+      if (e.type === 'swoopLine') {
+        const line = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(e.x, e.y, 0.4), new THREE.Vector3(e.tx, e.ty, 0.4)]),
+          new THREE.LineDashedMaterial({ color: 0xff2fa0, dashSize: 0.35, gapSize: 0.22, transparent: true }),
+        );
+        line.computeLineDistances();
+        tele(line, 0.9);
+      }
+      if (e.type === 'diveRing') {
+        const w = e.x1 - e.x0;
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(0.42, 0.5, 40),
+          new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, side: THREE.DoubleSide, depthWrite: false }),
+        );
+        ring.scale.set(w, w * 0.35, 1);
+        ring.position.set(e.x, e.y + 0.1, 0.3);
+        tele(ring, 1.2);
+      }
+      if (e.type === 'gloop' || e.type === 'honeyStuck')
+        for (let i = 0; i < 3; i++) spark(e.x - 0.3 + i * 0.3, e.y + 0.1, 0xe8a317, 0.5, 0.1);
+      if (e.type === 'glitterSplat')
+        for (let i = 0; i < 6; i++) spark(e.x + Math.cos(i) * 0.6, e.y + 0.3 + Math.sin(i) * 0.3, 0xc9a7ff, 0.6, 0.1);
+      if (e.type === 'guardStunned' || e.type === 'helmetBonk') kick(0.06);
       if (e.type === 'bossHit') kick(0.15);
       if (e.type === 'pound' || e.type === 'clodLand') kick(0.08);
       if (e.type === 'land' && (e.fall ?? 0) > 4) kick(0.05);
@@ -241,7 +283,8 @@ function entityView(e) {
     }
     g.add(march);
   } else if (e.kind === 'antPorter') {
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 12), mat(0x7a3b1f));
+    
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 12), mat(e.skin === 'workerBee' ? 0xf2c230 : 0x7a3b1f));
     body.scale.set(1.5, 0.9, 0.9);
     body.position.y = 0.3;
     const crumb = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.3, 0.3), mat(0xf0d9a0));
@@ -330,6 +373,58 @@ function entityView(e) {
     line.name = 'aimLine';
     line.visible = false;
     g.add(line);
+  } else if (e.kind === 'guard') {
+    
+    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.3, 0.5, 6, 12), mat(e.velvet ? 0xf4f0ff : 0xe0a020));
+    body.position.y = 0.55;
+    const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), mat(0x5a4632));
+    helmet.position.y = 0.95;
+    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.35, 8), mat(0xf6efd8));
+    horn.rotation.z = -Math.PI / 2;
+    horn.position.set(0.35, 1.05, 0);
+    const cape = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.5, 0.7),
+      new THREE.MeshLambertMaterial({ color: e.velvet ? 0x7d4fd6 : 0x8c2f39, side: THREE.DoubleSide }),
+    );
+    cape.position.set(-0.3, 0.6, -0.1);
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry(0.6, 0.75, 24),
+      new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, opacity: 0 }),
+    );
+    halo.position.set(0, 0.6, 0.4);
+    halo.name = 'kickHalo';
+    g.add(body, helmet, horn, cape, halo);
+  } else if (e.kind === 'glitterPuff') {
+    const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.25), new THREE.MeshBasicMaterial({ color: 0xc9a7ff }));
+    m.position.y = 0.25;
+    m.name = 'spin';
+    g.add(m);
+  } else if (e.kind === 'cameo') {
+    
+  } else if (e.kind === 'boss' && e.type === 'duchess') {
+    
+    const body = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), mat(0x6a3fa0));
+    body.scale.set((e.w ?? 2) / 2, (e.h ?? 1.6) / 2, 0.8);
+    body.position.y = (e.h ?? 1.6) / 2;
+    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.34, 0.3, 6, 1, true), mat(0xffd34d));
+    crown.position.set(0.25, (e.h ?? 1.6) + 0.1, 0);
+    const wings = new THREE.Group();
+    wings.name = 'flap';
+    wings.position.y = (e.h ?? 1.6) * 0.8;
+    const wingMat = new THREE.MeshLambertMaterial({ color: 0xe8e0ff, transparent: true, opacity: 0.75, side: THREE.DoubleSide });
+    for (const s of [1, -1]) {
+      const w = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.7), wingMat);
+      w.position.z = s * 0.5;
+      w.rotation.x = Math.PI / 2;
+      wings.add(w);
+    }
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry((e.w ?? 2) * 0.6, (e.w ?? 2) * 0.75, 32),
+      new THREE.MeshBasicMaterial({ color: 0xff2fa0, transparent: true, opacity: 0 }),
+    );
+    halo.position.set(0, (e.h ?? 1.6) / 2, 0.5);
+    halo.name = 'halo';
+    g.add(body, crown, wings, halo, textSprite(e.name ?? 'Duchess Mandibella'));
   } else if (e.kind === 'boss') {
     
     const body = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), mat(0x6b4a2b));
@@ -665,6 +760,18 @@ function shoeMeshes() {
       }
     },
   };
+}
+
+
+function honeyMeshes(level) {
+  const group = new THREE.Group();
+  const m = new THREE.MeshLambertMaterial({ color: 0xe8a317, transparent: true, opacity: 0.85, emissive: 0x4a2a00 });
+  for (const h of level.honey ?? []) {
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(h.x1 - h.x0, 0.18, TILE_DEPTH * 0.9), m);
+    slab.position.set((h.x0 + h.x1) / 2, h.y + 0.06, -TILE_DEPTH / 2 + 0.3);
+    group.add(slab);
+  }
+  return group;
 }
 
 

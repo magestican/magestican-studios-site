@@ -60,6 +60,20 @@ const CUES = {
   flip: ['bug_flip', 'enemy_daze'],
   righted: ['bug_right', 'ladybot_hop'],
   bowl: ['bowl_chime', 'pebble_hit'],
+  honeyStuck: ['honey_stick', 'footstep_honey_walk'],
+  gloop: ['honey_gloop', 'footstep_honey_run'],
+  guardCharge: ['guard_charge', 'shovel_charge'],
+  guardStunned: ['guard_stun', 'bonk'],
+  helmetBonk: ['helmet_bonk', 'snail_bonk'],
+  boing: ['boing', 'dew_bounce'],
+  capeTurn: ['cape_swish', 'skid'],
+  glitterToss: ['glitter_toss', 'mud_toss'],
+  glitterSplat: ['glitter_splat', 'secret_glint'],
+  swoopLine: ['wing_buzz', 'boss_telegraph'],
+  diveRing: ['wing_roar', 'boss_telegraph'],
+  hornBonk: ['helmet_bonk', 'boss_hit'],
+  bossEscape: ['duchess_escape', 'boss_defeat'],
+  bossCameo: ['duchess_laugh', 'foreman_grumble'],
   caveIn: ['cave_in', 'skid'],
   buried: ['bury_thump', 'enemy_defeat_pop'],
   strike: ['strike', 'intel_found'], 
@@ -81,6 +95,7 @@ const SIGNAL_SOUNDS = {
   'audio:tiny-jingle': ['secret_glint'],
   'audio:two-tone-buzz': ['wasp_two_tone', 'secret_glint'],
   'audio:cricket-hum': ['cricket_hum', 'secret_glint'],
+  'audio:kazoo-fanfare': ['kazoo_fanfare', 'secret_glint'],
 };
 
 

@@ -26,6 +26,9 @@ const LINES = {
   punt: ['Wheee- okay, back to the beacon.', 'Punted! No harm done. Again.'],
   bowl: ['Overtime bowling!', 'Flipped and filed.'],
   shoeGone: ['Door shut. The Vast are home. So are we, almost.', 'Quiet now. Ship ahead.'],
+  bossCameo: ['Was that... our lamp? With a CROWN?', 'Royalty. Stealing our lamp. Unbelievable.'],
+  honeyStuck: ['Stuck! Honey: one, guards: zero.', 'Sticky situation. For them.'],
+  bossEscape: ['She dropped the lamp! Lamp recovered. Duchess: not.', 'She got away. But we got the lamp.'],
   glide: ['Leaf deployed. Very aerodynamic. Probably.', 'Wind bonus: unlocked.'],
   dig: ['Digging. In a suit. On a Monday.', 'Soil sample acquired. Also, a hole.'],
   clear: ['Shift complete. Clocking out!', "That's a wrap. Same time tomorrow?"],
@@ -52,6 +55,7 @@ export function createBoltVoice() {
       else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
       else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
       else if (e.type === 'ability' && e.grant === 'glide') kind = 'glide';
+      else if (e.type === 'honeyStuck') kind = (used.honeyStuck ?? 0) < 2 ? 'honeyStuck' : null;
       else if (e.type === 'bowl') kind = e.n >= 4 ? 'bowl' : null;
       else if (e.type === 'punt') kind = (used.punt ?? 0) < 2 ? 'punt' : null;
       else if (e.type === 'slipstream') kind = (used.slipstream ?? 0) < 2 ? 'slipstream' : null;
