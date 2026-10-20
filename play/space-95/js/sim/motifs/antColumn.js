@@ -11,7 +11,7 @@ import { registerKind } from '../entities.js';
 
 const LURCH_SPEED = 14; 
 const LURCH_TIME = 0.5; 
-const FOES = new Set(['pillbug', 'ladybot', 'aphid']);
+const FOES = new Set(['pillbug', 'ladybot', 'aphid']); 
 const RUSH_HOUR = 4; 
 
 
@@ -36,7 +36,14 @@ registerKind('antColumn', {
     
     if (e.lurch > 0) {
       for (const en of ctx.session.entities) {
-        if (en.alive && FOES.has(en.kind) && !en.swept && en.state !== 'dazed' && en.state !== 'scurry' && onColumn(e, en)) {
+        if (
+          en.alive &&
+          (FOES.has(en.kind) || e.foes?.includes(en.kind)) &&
+          !en.swept &&
+          en.state !== 'dazed' &&
+          en.state !== 'scurry' &&
+          onColumn(e, en)
+        ) {
           en.swept = e.id;
           e.sweptNow += 1;
           if (e.sweptNow === RUSH_HOUR) ctx.events.push({ type: 'rushHour', id: e.id, x: en.x, y: en.y });

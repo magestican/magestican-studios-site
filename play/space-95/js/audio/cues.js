@@ -282,6 +282,8 @@ const CUES = {
   hatch: ['hatch_clunk', 'freezer_drawer'],
   parry: ['parry_clack', 'helmet_bonk', 'bonk'],
   sovereignOpen: ['crown_daze', 'enemy_daze'],
+  crowning: ['swarm_crowning', 'whoosh'], 
+  cellSnatch: ['cell_snatch', 'whoosh'], 
 };
 
 

@@ -127,6 +127,22 @@ const RIDE = [
 ];
 
 
+
+
+
+const SILL = [
+  'Dew on the glass. Land on it - it does the climbing.', 
+  'Ants on the frame! Hop on - they lurch.', 
+  'Corner web. Bounce it HARD - the high line goes through that amber.', 
+  'Cadets on the fairy lights. ...Pull the plug!', 
+  'A jar of fireflies. Pound the lid - right in her eyes!', 
+];
+const CELL = {
+  cellSnatch: 'Box one. ...She took the CELL. Box two: get it back!', 
+  box2: 'Box two! Box three: fuel. Get the cell into the hatch!', 
+};
+
+
 const TEACH = new Set([
   'noPoints',
   'pointsThrow',
@@ -182,7 +198,14 @@ export function createBoltVoice() {
       cooldown = Math.max(0, cooldown - dt);
       const teach = TEACH.has(e.type) && !used[e.type] && (e.type !== 'noPoints' || e.first !== false);
       const important =
-        e.type === 'secret' || e.type === 'clear' || e.type === 'ability' || e.type === 'strike' || e.type === 'bossDefeat' || teach;
+        e.type === 'secret' ||
+        e.type === 'clear' ||
+        e.type === 'ability' ||
+        e.type === 'strike' ||
+        e.type === 'bossDefeat' ||
+        e.type === 'cellSnatch' || 
+        (e.type === 'box' && e.n === 2) || 
+        teach;
       if (cooldown > 0 && !important) return null;
       let kind = null;
       if (e.type === 'skyLine' && SKY[e.step]) {
@@ -205,6 +228,17 @@ export function createBoltVoice() {
         
         cooldown = 4;
         return { text: RIDE[e.step], beep: 'bolt_beep_happy', mood: e.step === 2 || e.step === 3 ? 'worried' : 'happy' };
+      }
+      if (e.type === 'sillLine' && SILL[e.step]) {
+        
+        cooldown = 4;
+        return { text: SILL[e.step], beep: 'bolt_beep_happy', mood: 'happy' };
+      }
+      if (e.type === 'cellSnatch' || (e.type === 'box' && e.n === 2)) {
+        
+        cooldown = 4;
+        const snatch = e.type === 'cellSnatch';
+        return { text: snatch ? CELL.cellSnatch : CELL.box2, beep: 'bolt_beep_happy', mood: snatch ? 'worried' : 'happy' };
       }
       if (e.type === 'capBounce' && !used.capBounce) {
         used.capBounce = 1; 

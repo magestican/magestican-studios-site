@@ -30,7 +30,7 @@ export function registerBossType(type, impl) {
 }
 
 
-const weakTo = (ph, how) => (Array.isArray(ph.weakness) ? ph.weakness.includes(how) : how === ph.weakness);
+export const weakTo = (ph, how) => (Array.isArray(ph.weakness) ? ph.weakness.includes(how) : how === ph.weakness);
 
 const HIT_IMMUNE = 0.8; 
 const INTRO_TIME = 1.2;
@@ -143,6 +143,7 @@ registerKind('boss', {
     }
     
     if (e.stage !== 'intro') impl.attack(e, ctx, ph.attacks[e.attackIdx % ph.attacks.length], e.stage);
+    else impl.intro?.(e, ctx, ph); 
     
     e.x = Math.max(e.arena.x0 + e.w / 2, Math.min(e.arena.x1 - e.w / 2, e.x));
     if (e.flies) e.y = Math.max(e.arena.y0 - e.h, Math.min(e.arena.y1 - e.h, e.y)); 

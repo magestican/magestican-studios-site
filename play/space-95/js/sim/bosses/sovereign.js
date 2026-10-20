@@ -12,9 +12,16 @@
 
 
 
+
+
+
+
+
+
+
 import { contact, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
-import { registerBossType } from './boss.js';
+import { registerBossType, weakTo } from './boss.js';
 
 const CHARGE = 11; 
 const SWOOP = 14; 
@@ -23,8 +30,38 @@ const SOVEREIGN = Object.freeze({ FALLBACK: 12, WINDOW: 2.5 });
 
 registerBossType('sovereign', {
   create(e) {
+    const ph = e.phases[e.phase]; 
+    if (ph.arena) e.arena = ph.arena;
+    if (ph.post) {
+      e.x = ph.post.x;
+      e.y = ph.post.y;
+      e.introOf = e.phase; 
+    }
+    if (ph.crown) e.crowned = true; 
     e.post = { x: e.x, y: e.y };
     e.sinceHit = 0;
+  },
+  intro(e, ctx, ph) {
+    if (e.introOf !== e.phase) {
+      e.introOf = e.phase;
+      if (ph.arena) e.arena = ph.arena;
+      if (ph.post) {
+        e.from = { x: e.x, y: e.y };
+        e.post = { x: ph.post.x, y: ph.post.y };
+      }
+      if (ph.crown && !e.crowned) {
+        e.crowned = true;
+        ctx.events.push({ type: 'crowning', id: e.id, x: e.x, y: e.y });
+        ctx.events.push({ type: 'cellSnatch', id: e.id, x: e.x, y: e.y });
+      }
+    }
+    if (ph.crown) e.harmless = true; 
+    if (ph.post && e.from) {
+      const k = Math.min(1, e.t / (ph.intro ?? 1.2));
+      const ease = k * k * (3 - 2 * k);
+      e.x = e.from.x + (e.post.x - e.from.x) * ease;
+      e.y = e.from.y + (e.post.y - e.from.y) * ease;
+    }
   },
   attack(e, ctx, atk, stage) {
     const p = ctx.player;
@@ -67,40 +104,59 @@ registerBossType('sovereign', {
     if (e.stage === 'intro') {
       e.sinceHit = 0;
       e.lock = null;
+      if (ph.crown) return null; 
     }
-    const cbs = ph.callbacks ?? [];
+    const how = landing(e, ctx, ph);
     
-    
-    
-    const fruit = cbs.includes('fruitletCaught');
-    e.catch = fruit ? { x0: e.x - e.w / 2, x1: e.x + e.w / 2, y0: e.y, y1: e.y + e.h } : null;
-    const spiked = fruit && (e.caught ?? 0) > (e.caughtSeen ?? 0);
-    e.caughtSeen = e.caught ?? 0;
-    if (spiked) {
-      e.sinceHit = 0;
-      return 'callback';
-    }
-    
-    
-    const near = (ev) =>
-      ev.boss === e.id ||
-      ev.target === e.id ||
-      ev.id === e.id ||
-      (ev.x !== undefined && Math.hypot(ev.x - e.x, ev.y - (e.y + e.h / 2)) <= Math.max(REACH, (ev.radius ?? 0) + e.w / 2));
-    const cb = ctx.events.find((ev) => cbs.includes(ev.type) && near(ev));
-    if (cb) {
-      e.sinceHit = 0;
-      return 'callback';
-    }
-    const weakWindow = e.stage === 'recover' && e.weakNow !== false;
-    if (contact(ctx.player, e) === 'stomp') {
-      stompBounce(ctx.player);
-      if (weakWindow) {
-        e.sinceHit = 0;
-        return 'stomp';
-      }
-      ctx.events.push({ type: 'parry', id: e.id }); 
-    }
-    return null;
+    if (how && ph.crown && e.hp === 1 && weakTo(ph, how) && !(e.immune > 0))
+      ctx.events.push({ type: 'cellDrop', id: e.id, x: e.x, y: e.y });
+    return how;
   },
 });
+
+
+function landing(e, ctx, ph) {
+  const cbs = ph.callbacks ?? [];
+  
+  
+  
+  const fruit = cbs.includes('fruitletCaught');
+  e.catch = fruit ? { x0: e.x - e.w / 2, x1: e.x + e.w / 2, y0: e.y, y1: e.y + e.h } : null;
+  const spiked = fruit && (e.caught ?? 0) > (e.caughtSeen ?? 0);
+  e.caughtSeen = e.caught ?? 0;
+  if (spiked) {
+    e.sinceHit = 0;
+    return 'callback';
+  }
+  
+  
+  const near = (ev) =>
+    ev.boss === e.id ||
+    ev.target === e.id ||
+    ev.id === e.id ||
+    (ev.x !== undefined && Math.hypot(ev.x - e.x, ev.y - (e.y + e.h / 2)) <= Math.max(REACH, (ev.radius ?? 0) + e.w / 2));
+  const cb = ctx.events.find((ev) => cbs.includes(ev.type) && near(ev));
+  if (cb) {
+    e.sinceHit = 0;
+    return 'callback';
+  }
+  
+  if (cbs.includes('flockBurst'))
+    for (const r of ctx.session.flock?.bursts ?? []) {
+      if ((e.ringsSeen ?? []).includes(r.id)) continue;
+      if (Math.hypot(r.x - e.x, r.cy - (e.y + e.h / 2)) > r.r + e.w / 2) continue;
+      e.ringsSeen = [...(e.ringsSeen ?? []), r.id];
+      e.sinceHit = 0;
+      return 'callback';
+    }
+  const weakWindow = e.stage === 'recover' && e.weakNow !== false;
+  if (contact(ctx.player, e) === 'stomp') {
+    stompBounce(ctx.player);
+    if (weakWindow) {
+      e.sinceHit = 0;
+      return 'stomp';
+    }
+    ctx.events.push({ type: 'parry', id: e.id }); 
+  }
+  return null;
+}
