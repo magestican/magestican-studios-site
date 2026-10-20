@@ -62,7 +62,25 @@ const LINES = {
   pluck: ["She's playing the web. Land as it comes UP."],
   snag: ['Got you! Paperclip. Never fails.'],
   dawn: ["Is that... the sun? We're on overtime."],
+  
+  drillGrant: ['Company property now. Hold ACTION and push.'],
+  drillRefuse: ["Grey's bedrock. Brown's dirt."],
+  drillDown: ["That's what the pound's for."],
+  towerTopple: ['Pull the bottom one and the whole stack goes. Like the quarterly budget.'],
+  nymphDive: ['Come in from the SIDE.'],
+  spadeStuck: ["Its rear's stuck! The stones - dig the foot!"],
+  tunnelTrip: ['It tripped in its own hole! Dig it another - two pounds!'],
+  heapBuilt: ['Top of the heap - one dig takes the lot!'],
 };
+
+
+const BURROW = [
+  'Was that a TIARA? ...Oh no.',
+  'Hold ACTION and push. It bores the way you point.',
+  'Under it, then UP. Hold up and ACTION.',
+  'Her guards. Over them or under them, Jo.',
+  'Make a hole - bore UP!',
+];
 
 
 const TEACH = new Set([
@@ -83,6 +101,13 @@ const TEACH = new Set([
   'pluck',
   'snag',
   'dawn',
+  'drillRefuse',
+  'drillDown',
+  'towerTopple',
+  'nymphDive',
+  'spadeStuck',
+  'tunnelTrip',
+  'heapBuilt',
 ]);
 
 
@@ -104,12 +129,18 @@ export function createBoltVoice() {
         e.type === 'secret' || e.type === 'clear' || e.type === 'ability' || e.type === 'strike' || e.type === 'bossDefeat' || teach;
       if (cooldown > 0 && !important) return null;
       let kind = null;
+      if (e.type === 'burrowLine' && BURROW[e.step]) {
+        
+        cooldown = 4;
+        return { text: BURROW[e.step], beep: 'bolt_beep_happy', mood: e.step === 0 ? 'worried' : 'happy' };
+      }
       if (TEACH.has(e.type)) kind = teach ? e.type : null;
       
       else if (e.type === 'signal' && !e.repeat && e.state === undefined) kind = 'signal';
       else if (e.type === 'defeat' && e.how === 'sweep') kind = 'sweep';
       else if (e.type === 'dewBounce' && e.bounces === 1) kind = 'dewBounce';
       else if (e.type === 'ability' && e.grant === 'glide') kind = 'glide';
+      else if (e.type === 'ability' && e.grant === 'drill') kind = 'drillGrant';
       else if (e.type === 'surge') kind = (used.surge ?? 0) < 2 ? 'surge' : null;
       else if (e.type === 'tetherAttach' || e.type === 'slickSlide' || e.type === 'keystroke')
         kind = (used[e.type] ?? 0) < 1 ? e.type : null; 

@@ -36,6 +36,7 @@ export const SURFACE = {
   13: 'metal', 
   14: 'grass_blade', 
   15: 'silk', 
+  16: 'dirt', 
 }; 
 
 
@@ -55,6 +56,7 @@ const MUSIC = {
   13: 'crumb-express',
   14: 'night-bloom',
   15: 'silk-span',
+  16: 'deep-burrow',
 };
 
 
@@ -93,6 +95,13 @@ const ALWAYS_SOUNDS = ['land_soft', 'land_run', 'land_hard', 'bark_climb', 'bolt
 const delivered = ( n) => n in SFX;
 
 
+function variantFits( type,  level) {
+  if (type === 'fling') return (level.webs?.length ?? 0) > 0;
+  if (type === 'ability' || type === 'defeat') return (level.entities ?? []).some((e) => e.kind === 'tower' || e.grant === 'drill');
+  return true;
+}
+
+
 
 
 
@@ -104,7 +113,7 @@ export function shiftSounds(level) {
   for (const type of [...ALWAYS_EVENTS, ...(SHIFT_EVENTS[level.id ?? 0] ?? [])]) {
     const n = cueFor({ type }, delivered);
     if (n) names.add(n);
-    for (const v of CUE_VARIANTS[type] ?? []) if (type !== 'fling' || (level.webs?.length ?? 0) > 0) names.add(v);
+    for (const v of CUE_VARIANTS[type] ?? []) if (variantFits(type, level)) names.add(v);
   }
   for (const e of level.entities ?? []) if (e.signals) for (const n of signalSounds(e, delivered)) names.add(n);
   return [...names].filter(delivered).sort();

@@ -11,6 +11,7 @@ import { heaveAt } from '../sim/heave.js';
 import { sparkState } from '../sim/pins.js';
 import { topSolid } from '../sim/shoe.js';
 import { zoneOn } from '../sim/wind.js';
+import { burrowEntityView, createBurrow } from './burrowView.js';
 import { createCameraRig, updateCameraRig } from './cameraRig.js';
 import { attachCritterSprite, hasCritterSprite, updateCritterSprite } from './critterSprite.js';
 import { createJoSprite } from './joSprite.js';
@@ -39,7 +40,7 @@ export function createView(canvas, level, labels) {
   sun.position.set(-8, 14, 12);
   scene.add(sun);
 
-  scene.add(tileMeshes(level.world));
+  scene.add(tileMeshes(level.world, level.darkTint === 'umber' ? 'bedrock' : null));
   scene.add(barkMeshes(level.world));
   const soil = soilMeshes(level.world);
   scene.add(soil.mesh);
@@ -92,6 +93,15 @@ export function createView(canvas, level, labels) {
   const night = createNight(scene, level, { hemi, sun, spark: (...a) => spark(...a), kick: (a) => kick(a), views: entityViews, bolt });
   
   const silk = createSilk(scene, level, { sun, spark: (...a) => spark(...a), views: entityViews, jo });
+  
+  const burrow = createBurrow(scene, level, {
+    spark: (...a) => spark(...a),
+    kick: (a) => kick(a),
+    tele: (m, life) => tele(m, life),
+    views: entityViews,
+    jo,
+    soil,
+  });
 
   const rig = createCameraRig(0, 0);
   let squash = 0; 
@@ -156,6 +166,7 @@ export function createView(canvas, level, labels) {
           carryVx: p.carryVx ?? 0,
           descent: !!level.descent,
           webLaunch: !!p.webLaunch,
+          drilling: p.drilling ?? null,
         },
         dt,
         RUN_SPEED,
@@ -220,6 +231,7 @@ export function createView(canvas, level, labels) {
       syncEntities(scene, entityViews, session.entities, alpha, session.time);
       night?.update(session, dt, camera);
       silk?.update(session, dt, camera);
+      burrow?.update(session, dt);
       for (let i = teles.length - 1; i >= 0; i--) {
         const T = teles[i];
         T.t += dt;
@@ -255,6 +267,7 @@ export function createView(canvas, level, labels) {
       pendingEvents.push(e);
       night?.onEvent(e);
       silk?.onEvent(e);
+      burrow?.onEvent(e);
       if (e.type === 'jump') squash = -0.6;
       if (e.type === 'land') squash = Math.min(1, 0.25 + (e.fall ?? 0) * 0.12);
       if (e.type === 'mantle') squash = -0.3;
@@ -358,7 +371,7 @@ export function entityView(e) {
   const g = new THREE.Group();
   const mat = (color) => new THREE.MeshLambertMaterial({ color });
   
-  if (nightEntityView(e, g) || silkEntityView(e, g)) {
+  if (nightEntityView(e, g) || silkEntityView(e, g) || burrowEntityView(e, g)) {
     
   } else if (e.kind === 'pebble') {
     const m = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat(0xb8b1a6));
@@ -836,11 +849,13 @@ function skyTexture() {
 }
 
 
-function tileMeshes(world) {
+
+function tileMeshes(world, skin = null) {
   const T = world.tile;
   const group = new THREE.Group();
-  const solidMat = new THREE.MeshLambertMaterial({ color: 0x9a7bd8 });
-  const topMat = new THREE.MeshLambertMaterial({ color: 0x7ed957 });
+  const rock = skin === 'bedrock';
+  const solidMat = new THREE.MeshLambertMaterial({ color: rock ? 0x6c7078 : 0x9a7bd8 });
+  const topMat = new THREE.MeshLambertMaterial({ color: rock ? 0x8fa6bf : 0x7ed957 });
   const oneWayMat = new THREE.MeshLambertMaterial({ color: 0xf2c879 });
   for (let r = 0; r < world.height; r++) {
     let c = 0;
@@ -1284,14 +1299,48 @@ function soilMeshes(world) {
     index.set(`${c},${r}`, i);
   });
   const gone = new THREE.Matrix4().makeScale(0, 0, 0);
+  
+  const backs = new THREE.InstancedMesh(
+    new THREE.PlaneGeometry(T, T),
+    new THREE.MeshLambertMaterial({ color: 0x3a2618 }),
+    Math.max(1, cells.length),
+  );
+  backs.count = cells.length;
+  const backAt = cells.map(([c, r]) => new THREE.Matrix4().makeTranslation(c * T + T / 2, r * T + T / 2, -TILE_DEPTH + 0.35));
+  for (let i = 0; i < cells.length; i++) backs.setMatrixAt(i, gone);
+  mesh.add(backs);
+  
+  const shown = cells.map(() => true);
+  const set = (i, on) => {
+    shown[i] = on;
+    mesh.setMatrixAt(i, on ? m.makeTranslation(cells[i][0] * T + T / 2, cells[i][1] * T + T / 2, -TILE_DEPTH / 2 + 0.3) : gone);
+    backs.setMatrixAt(i, on ? gone : backAt[i]);
+  };
+  const flush = () => {
+    mesh.instanceMatrix.needsUpdate = true;
+    backs.instanceMatrix.needsUpdate = true;
+  };
   return {
     mesh,
+    cells,
     hide(list) {
       for (const [c, r] of list) {
         const i = index.get(`${c},${r}`);
-        if (i !== undefined) mesh.setMatrixAt(i, gone);
+        if (i !== undefined) set(i, false);
       }
-      mesh.instanceMatrix.needsUpdate = true;
+      flush();
+    },
+    
+    sync(world) {
+      let changed = false;
+      for (let i = 0; i < cells.length; i++) {
+        const on = world.soil(cells[i][0], cells[i][1]);
+        if (on !== shown[i]) {
+          set(i, on);
+          changed = true;
+        }
+      }
+      if (changed) flush();
     },
   };
 }

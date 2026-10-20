@@ -9,7 +9,8 @@ import { honeyAt, JO_GLOOP } from './honey.js';
 import { glideVy } from './wind.js';
 
 
-const ABILITIES = ['double', 'dash', 'wall', 'pound', 'glide', 'tether', 'lantern'];
+
+const ABILITIES = ['double', 'dash', 'wall', 'pound', 'glide', 'tether', 'lantern', 'drill'];
 
 const DOUBLE_JUMP_HEIGHT = 2.0; 
 const DOUBLE_JUMP_V = Math.sqrt(2 * GRAVITY * DOUBLE_JUMP_HEIGHT);

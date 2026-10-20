@@ -245,6 +245,20 @@ export function levelBuilder(meta) {
 
 
 
+
+    tower(x, yBase, n, opts) {
+      const { id: tag, foot, ...rest } = opts;
+      if (!rest.hidden) {
+        
+        for (let c = cells(foot[0]); c < cells(foot[1]); c++) for (let r = cells(foot[2]); r < cells(foot[3]); r++) solid.get(c)?.delete(r);
+        mark(soilCells, cells(foot[0]), cells(foot[1]), cells(foot[2]), cells(foot[3]));
+      }
+      return api.putAt('tower', x, yBase, { tag, n, foot, motif: 'collapse', ...rest });
+    },
+    
+
+
+
     slick(x0, x1, y0, y1) {
       slick.push([x0, x1, y0, y1]);
       return api;
@@ -552,6 +566,7 @@ export function levelBuilder(meta) {
         ...(spins.length ? { spins } : {}),
         
         ...(meta.dark ? { dark: true } : {}),
+        ...(meta.darkTint ? { darkTint: meta.darkTint } : {}), 
         ...(meta.moon ? { moon: meta.moon } : {}),
         ...(moons.length ? { moons } : {}),
         ...(lamps.length ? { lamps } : {}),

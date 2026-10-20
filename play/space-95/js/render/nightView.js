@@ -15,6 +15,7 @@ import { LIGHT_COLOURS, lightAt } from '../sim/light.js';
 
 const PINK = 0xff2fa0;
 const NIGHT_HEMI = 0.55; 
+const SHAFT = 0xffe0a8; 
 const NIGHT_MOON = 0.7; 
 const MAX_DISCS = 24;
 const MAX_LIGHTS = 6;
@@ -91,6 +92,23 @@ function nightSky() {
   grad.addColorStop(0, '#1a1540');
   grad.addColorStop(0.65, '#2e2866');
   grad.addColorStop(1, '#4a3f7a');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 4, 256);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+
+function burrowSky() {
+  const c = document.createElement('canvas');
+  c.width = 4;
+  c.height = 256;
+  const g = c.getContext('2d');
+  const grad = g.createLinearGradient(0, 0, 0, 256);
+  grad.addColorStop(0, '#1c120b');
+  grad.addColorStop(0.65, '#2c1c10');
+  grad.addColorStop(1, '#3d2716');
   g.fillStyle = grad;
   g.fillRect(0, 0, 4, 256);
   const t = new THREE.CanvasTexture(c);
@@ -252,12 +270,16 @@ export function createNight(scene, level, h) {
   if (!level.dark) return null;
   const world = level.world;
   let k = nightBrightness();
-  scene.background = nightSky();
   
-  scene.fog = new THREE.Fog(0x1d1838, 26, 120);
-  h.hemi.color.set(0x6a70d8);
-  h.hemi.groundColor.set(0x2a2040);
-  h.sun.color.set(LIGHT_COLOURS.moon);
+  
+  
+  const umber = level.darkTint === 'umber';
+  scene.background = umber ? burrowSky() : nightSky();
+  
+  scene.fog = new THREE.Fog(umber ? 0x22160e : 0x1d1838, 26, 120);
+  h.hemi.color.set(umber ? 0xc89a70 : 0x6a70d8);
+  h.hemi.groundColor.set(umber ? 0x3a2414 : 0x2a2040);
+  h.sun.color.set(umber ? SHAFT : LIGHT_COLOURS.moon);
   h.sun.position.set(-8, 16, 12); 
   nightify(scene, TILE_GLOW);
   let moonBase = NIGHT_MOON * k;
@@ -278,11 +300,12 @@ export function createNight(scene, level, h) {
   );
   cloud.scale.set(1.8, 0.7, 1);
   scene.add(moonDisc, moonHalo, cloud);
+  for (const m of [moonDisc, moonHalo, cloud]) m.visible = !umber;
 
   
   const bands = [];
   for (const m of level.moons ?? []) {
-    const mesh = bandMesh(world, m.x0, m.x1, LIGHT_COLOURS.moon, 2.6);
+    const mesh = bandMesh(world, m.x0, m.x1, umber ? SHAFT : LIGHT_COLOURS.moon, 2.6);
     group.add(mesh);
     bands.push({ kind: 'moon', x0: m.x0, x1: m.x1, mesh, o: 0 });
   }

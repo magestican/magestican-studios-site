@@ -84,6 +84,8 @@ registerKind('guard', {
       } else {
         e.turnT = 0;
         if (!groundAhead(e, w, e.facing)) e.facing = -e.facing;
+        
+        else if (e.patrol && (e.facing < 0 ? e.x <= e.patrol[0] : e.x >= e.patrol[1])) e.facing = -e.facing;
         e.vx = e.facing * (e.velvet ? VELVET_PATROL : PATROL);
       }
       const hit = moveBody(e, w);
@@ -112,6 +114,28 @@ registerKind('guard', {
         } else if (hit.wall) {
           to(e, 'stunned');
           ctx.events.push({ type: 'guardStunned', id: e.id, x: e.x, y: e.y, side: e.dir });
+        } else {
+          
+          const o = ctx.session.entities.find(
+            (g) =>
+              g !== e &&
+              g.kind === 'guard' &&
+              g.alive &&
+              !g.dozing &&
+              g.state !== 'dazed' &&
+              g.state !== 'scurry' &&
+              Math.sign(g.x - e.x) === e.dir &&
+              overlaps(e, g),
+          );
+          if (o) {
+            to(e, 'stunned');
+            ctx.events.push({ type: 'guardStunned', id: e.id, x: e.x, y: e.y, side: e.dir, by: o.id });
+            if (o.stage === 'charge') {
+              to(o, 'stunned');
+              ctx.events.push({ type: 'guardStunned', id: o.id, x: o.x, y: o.y, side: o.dir, by: e.id });
+            }
+            ctx.events.push({ type: 'guardClash', id: e.id, other: o.id, x: (e.x + o.x) / 2, y: e.y });
+          }
         }
       }
     } else {

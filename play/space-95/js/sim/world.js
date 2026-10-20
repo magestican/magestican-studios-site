@@ -41,7 +41,9 @@ function makeWorld(cells, width, height, marks, slickMask = null) {
   let hasSoil = false;
   for (let i = 0; i < cells.length && !hasSoil; i++) hasSoil = cells[i] === SOIL;
   let mask = slickMask; 
-  const slickAt = (c, r) => c >= 0 && c < width && r >= 0 && r < height && mask[r * width + c] === 1;
+  
+  
+  const slickAt = (c, r) => c >= 0 && c < width && r >= 0 && r < height && mask[r * width + c] === 1 && cells[r * width + c] !== SOIL;
   return {
     width,
     height,
@@ -73,6 +75,15 @@ function makeWorld(cells, width, height, marks, slickMask = null) {
     breakSoil(c, r) {
       if (c < 0 || c >= width || r < 0 || r >= height || cells[r * width + c] !== SOIL) return false;
       cells[r * width + c] = EMPTY;
+      return true;
+    },
+    
+
+
+
+    placeSoil(c, r) {
+      if (c < 0 || c >= width || r < 0 || r >= height || cells[r * width + c] !== EMPTY) return false;
+      cells[r * width + c] = SOIL;
       return true;
     },
     

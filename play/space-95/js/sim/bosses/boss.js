@@ -29,6 +29,9 @@ export function registerBossType(type, impl) {
   TYPES[type] = impl;
 }
 
+
+const weakTo = (ph, how) => (Array.isArray(ph.weakness) ? ph.weakness.includes(how) : how === ph.weakness);
+
 const HIT_IMMUNE = 0.8; 
 const INTRO_TIME = 1.2;
 
@@ -152,13 +155,13 @@ registerKind('boss', {
     const weakWindow = e.stage === 'recover' && e.weakNow !== false;
     if (!how && weakWindow && clodOn(e, ctx)) how = 'cave-in';
     if (!how && poundOn(e, ctx)) {
-      if (weakWindow && ph.weakness === 'pound') how = 'pound';
+      if (weakWindow && weakTo(ph, 'pound')) how = 'pound';
       else {
         stompBounce(ctx.player);
         ctx.player.ab.pound = null;
       }
     }
-    if (how && how === ph.weakness && !(e.immune > 0)) {
+    if (how && weakTo(ph, how) && !(e.immune > 0)) {
       e.immune = HIT_IMMUNE;
       e.hp -= 1;
       s.hitstop = Math.max(s.hitstop, HITSTOP_BOSS);

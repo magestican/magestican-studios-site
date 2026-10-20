@@ -1,6 +1,7 @@
 
 import './bosses/boss.js';
 import './bosses/duchess.js';
+import './bosses/duchessMounted.js';
 import './bosses/foreman.js';
 import './bosses/mantis.js';
 import './bosses/matriarch.js';
@@ -11,6 +12,7 @@ import './enemies/bandit.js';
 import './enemies/dustmite.js';
 import './enemies/guard.js';
 import './enemies/ladybot.js';
+import './enemies/nymph.js';
 import './enemies/pillbug.js';
 import './enemies/skiff.js';
 import './enemies/snailknight.js';
@@ -20,6 +22,7 @@ import './enemies/wasp.js';
 import './kickables.js';
 import './motifs/antColumn.js';
 import './motifs/clod.js';
+import './motifs/collapse.js';
 import './motifs/dew.js';
 import './motifs/flock.js';
 import './motifs/typeKey.js';

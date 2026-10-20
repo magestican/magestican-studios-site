@@ -6,6 +6,7 @@ const LAND_SOFT_MAX = 1.0;
 const LAND_RUN_MAX = 3.0; 
 const WALK_SPEED = 5; 
 const STRIDE = 1.9; 
+const BORE_CELLS = 20; 
 
 
 
@@ -204,6 +205,35 @@ const CUES = {
   snag: ['bolt_snag', 'tether_hup'],
   silkRustle: ['silk_rustle', 'ivy_rustle'],
   dawn: ['dawn_chorus'],
+  
+  drillStart: ['drill_spinup', 'tether_whirr'],
+  drillBreach: ['drill_breach', 'dig_break'],
+  drillRefuse: ['drill_skreek', 'bonk'],
+  drillDown: ['drill_whirr_down', 'boost_empty'],
+  towerWobble: ['tower_creak', 'dust_scrape'],
+  towerTopple: ['tower_topple', 'cave_in'],
+  towerLand: ['stone_clack', 'pebble_hit'],
+  collapseHit: ['collapse_chime', 'bowl_chime'],
+  rubble: ['rubble_settle', 'dust_scrape'],
+  stoneBurst: ['stone_clack', 'pebble_hit'],
+  towerTrickle: ['rubble_settle', 'dust_scrape'],
+  towerRefill: ['tower_refill', 'pebble_roll'],
+  nymphChirp: ['nymph_trill', 'cricket_hum'],
+  nymphDive: ['nymph_dive', 'cricket_duck'],
+  guardClash: ['helmet_bonk', 'bonk'],
+  rushLine: ['trowel_chirp', 'boss_telegraph'],
+  grandPass: ['trowel_rush', 'shovel_charge'],
+  spadeStuck: ['trowel_stuck', 'blade_stuck'],
+  tunnelLine: ['tunnel_rumble', 'shoe_rumble'],
+  tunnelDive: ['dig_break', 'land_hard'],
+  tunnelTrip: ['trowel_trip', 'bonk'],
+  erupt: ['trowel_erupt', 'cave_in'],
+  heapBuilt: ['rubble_settle', 'cave_in'],
+  mountDizzy: ['enemy_bonked', 'enemy_daze'],
+  tiaraBonk: ['helmet_bonk', 'bonk'],
+  stonesBounce: ['stone_clack', 'pebble_hit'],
+  reinsSnap: ['crop_crack', 'snip'],
+  glitterMarker: ['crop_crack', 'boss_telegraph'],
 };
 
 
@@ -224,6 +254,8 @@ const SIGNAL_SOUNDS = {
   'audio:ghost-hum': ['ghost_hum', 'cricket_hum'], 
   'audio:watch-tick': ['watch_tick', 'secret_glint'], 
   'audio:harp-twang': ['harp_twang', 'secret_glint'], 
+  'audio:nymph-chirp': ['nymph_trill', 'cricket_hum'], 
+  'audio:music-box': ['music_box', 'secret_glint'], 
 };
 
 
@@ -239,6 +271,7 @@ export function cueRate(e) {
   if (e.type === 'cursorLaser' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'capsize' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
   if (e.type === 'bowl' && e.n > 1) return 2 ** ((2 * (e.n - 1)) / 12); 
+  if (e.type === 'collapseHit' && e.n > 1) return 2 ** ((2 * Math.min(6, e.n - 1)) / 12); 
   return e.type === 'pebbleHit' && e.hits > 1 ? 2 ** ((2 * (e.hits - 1)) / 12) : 1;
 }
 
@@ -278,6 +311,15 @@ export function cueFor(e, has = () => true) {
     const k = (Number.parseInt(String(e.web ?? '').replace(/\D/g, ''), 10) || 1) - 1;
     return pick([`harp_pluck_${(k % 3) + 1}`, 'harp_pluck_1']);
   }
+  
+  
+  
+  if (e.type === 'drillBore') {
+    const total = e.total ?? 0;
+    return Math.floor(total / BORE_CELLS) !== Math.floor((total - (e.cells ?? 0)) / BORE_CELLS) ? pick(['drill_bore', 'dig_break']) : null;
+  }
+  if (e.type === 'ability' && e.grant === 'drill') return pick(['screw_fit', 'ability_get']);
+  if (e.type === 'defeat' && e.how === 'collapse') return pick(['enemy_bonked', 'enemy_defeat_pop']);
   return CUES[e.type]?.find(has) ?? null;
 }
 
@@ -287,6 +329,9 @@ export const CUE_VARIANTS = {
   webLand: ['hub_chord', 'web_thrum', 'web_thrum_soft'],
   webLaunch: ['web_boing_big', 'web_slant_twang', 'web_boing'],
   pluck: ['harp_pluck_1', 'harp_pluck_2', 'harp_pluck_3'],
+  drillBore: ['drill_bore'],
+  ability: ['screw_fit'],
+  defeat: ['enemy_bonked'],
 };
 
 

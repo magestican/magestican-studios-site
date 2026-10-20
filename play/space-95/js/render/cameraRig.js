@@ -23,6 +23,9 @@ const DESCENT_LOOK = 6;
 const DESCENT_LOOK_SPEED = 6; 
 const WEB_LEAD_SPEED = 12; 
 
+
+
+
 export function createCameraRig(x, y) {
   return { x, y, focusY: y, ahead: 0, fallLook: 0, upLook: 0, wallT: 0 };
 }
@@ -36,14 +39,15 @@ export function createCameraRig(x, y) {
 export function updateCameraRig(cam, target, dt, runSpeed) {
   const k = (rate) => 1 - Math.exp(-rate * dt);
   const vx = target.vx + (target.carryVx ?? 0);
-  const speedFrac = Math.min(1, Math.abs(vx) / runSpeed);
-  const wantAhead = Math.sign(vx || target.facing) * LOOK_AHEAD * speedFrac;
+  const boreSide = target.drilling === 'side';
+  const speedFrac = boreSide ? 1 : Math.min(1, Math.abs(vx) / runSpeed);
+  const wantAhead = (boreSide ? Math.sign(target.facing) : Math.sign(vx || target.facing)) * LOOK_AHEAD * speedFrac;
   cam.ahead += (wantAhead - cam.ahead) * k(LOOK_AHEAD_RATE);
   cam.x = target.x + cam.ahead;
 
   
   cam.wallT = target.wall ? WALL_HOLD : Math.max(0, (cam.wallT ?? 0) - dt);
-  const climbing = target.climbing || cam.wallT > 0;
+  const climbing = target.climbing || cam.wallT > 0 || target.drilling === 'up' || target.drilling === 'brace';
   if (target.grounded || climbing) cam.focusY += (target.y - cam.focusY) * k(FOLLOW_Y_RATE * 0.6);
   else if (target.y > cam.focusY + DEAD_ZONE_UP) cam.focusY = target.y - DEAD_ZONE_UP;
   else if (target.y < cam.focusY - DEAD_ZONE_DOWN) cam.focusY = target.y + DEAD_ZONE_DOWN;

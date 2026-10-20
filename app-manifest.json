@@ -1,8 +1,8 @@
 {
   "$comment": "Read by the Magestican Studios iOS apps to update their bundled games without an App Store release. See multi-game-madness/app/lib/services/game_updater.dart.",
-  "buildId": "b49932bb-20261020T025329Z",
-  "builtAt": "2026-10-20T02:53:29Z",
-  "fileCount": 4779,
+  "buildId": "d209ed4c-20261020T054640Z",
+  "builtAt": "2026-10-20T05:46:40Z",
+  "fileCount": 5159,
   "files": {
     "assets/apple-touch-icon.png": {
       "bytes": 10629,
@@ -850,7 +850,7 @@
     },
     "play/farmyshoot/index.html": {
       "bytes": 64942,
-      "sha256": "6a23375406851c596fa197b932f18b2a844443bf29ce382f6e971468c804e111"
+      "sha256": "8decbb735e3024a4c61cdbc22cf702cbe53e8e537249c280632445838d858b06"
     },
     "play/farmyshoot/src/audio/announcerVoice.js": {
       "bytes": 8781,
@@ -1126,7 +1126,7 @@
     },
     "play/farmykart/index.html": {
       "bytes": 59237,
-      "sha256": "76be45ebcbf2a029971d0ea8c335106cecff85705508549be670224ef30044df"
+      "sha256": "77e6ef609f024efa24b679d2880fc0007b1664cee4c3b8aa545c95b6b067ab7c"
     },
     "play/farmykart/src/audio/music.js": {
       "bytes": 13073,
@@ -1346,7 +1346,7 @@
     },
     "play/farmy-evil-hills/index.html": {
       "bytes": 37943,
-      "sha256": "1e20229606dfcf62b46acfaa2d42fd3fd06a2f386086a97160444a1a7645bd06"
+      "sha256": "463a020044eeb0166cb9be58c63c98bad5c25aa2492cacdc16a0a4468e9fee8b"
     },
     "play/farmy-evil-hills/src/audio/mumble.js": {
       "bytes": 4922,
@@ -1570,7 +1570,7 @@
     },
     "play/farmy-uprising/index.html": {
       "bytes": 56562,
-      "sha256": "834d5580e23a23bfc25aeacd5a7974c9555db57c6e398889979d6f325b6c78f8"
+      "sha256": "5164af24e8bd3df31e137c70e86ef0c2b975ab73a880be74bde78e7fd9da2013"
     },
     "play/farmy-uprising/src/animSprites.js": {
       "bytes": 1143,
@@ -2582,7 +2582,7 @@
     },
     "play/2d-fighter-ex/index.html": {
       "bytes": 8754,
-      "sha256": "35896ce14f0563d5feb815f5ebaa18dd0c0226cfcad526c9c251e87b806125a4"
+      "sha256": "ef94b541c0df19a3583de0ea90a291cce87a133e9d56dab59dce204f9e492911"
     },
     "play/2d-fighter-ex/src/animeRig.mjs": {
       "bytes": 60,
@@ -2658,7 +2658,7 @@
     },
     "play/farmy-crosswords/index.html": {
       "bytes": 5657,
-      "sha256": "b94df3781e90866e7bde7fab91df86a60f7930839a23bc9363dbadfa06f8e442"
+      "sha256": "2cfb5b33b6fa156893e4fd486788d80f10bc9bd29c35c08648de04b659d534d5"
     },
     "play/farmy-crosswords/src/a11y.js": {
       "bytes": 1510,
@@ -2722,7 +2722,7 @@
     },
     "play/farmy-tiles/index.html": {
       "bytes": 5408,
-      "sha256": "57a0f63b3bb3a6ee5dac3543ca78f1a95b28d2e2023e6be4912f9cf270b586a2"
+      "sha256": "c04dfa01d0a763df2680d9f95042f6779cc4fcc0c8b45721ac64404be5fc5118"
     },
     "play/farmy-tiles/src/a11y.js": {
       "bytes": 1514,
@@ -2766,7 +2766,7 @@
     },
     "play/farmy-ludo/index.html": {
       "bytes": 5206,
-      "sha256": "046bbd88529ad3c56e44799329fa46093612d8b7b03517ce1ad4a3dd60113ab4"
+      "sha256": "d6b156c474d55ef7a75dd9106a656a278fd2815b3a6e21e8d0b488295b66d277"
     },
     "play/farmy-ludo/src/a11y.js": {
       "bytes": 1510,
@@ -2798,7 +2798,7 @@
     },
     "play/farmy-chess/index.html": {
       "bytes": 5603,
-      "sha256": "312d31f3067fd67ec915279b2391104dcd2189dea5943cf893afa6e3700317b5"
+      "sha256": "73438e0d0dc72105ada83b605e23a547e800e77d5796ce4f411df9da5a1980f2"
     },
     "play/farmy-chess/src/a11y.js": {
       "bytes": 1563,
@@ -2838,7 +2838,7 @@
     },
     "play/farmy-checkers/index.html": {
       "bytes": 5581,
-      "sha256": "c368db48f04b86ccb1d3a0d843f0825bda15eac9d95ac4db9dd7bb7aa2cf45ad"
+      "sha256": "0f430fa334bb62cf5f9eab50a872ce201a2545071dc1b684c7bada6d8c9f57cd"
     },
     "play/farmy-checkers/src/a11y.js": {
       "bytes": 1531,
@@ -2946,7 +2946,7 @@
     },
     "play/minesweeper/index.html": {
       "bytes": 11187,
-      "sha256": "e5e55291b19acdc010e4f46c84e9ba8f2d5233561c451794033ba203d13869ae"
+      "sha256": "9db07483665eec3a690f4a95b9206e109104f34c0310400cc56a49112ca151f7"
     },
     "play/minesweeper/src/main.js": {
       "bytes": 34748,
@@ -3030,7 +3030,7 @@
     },
     "play/gomoku/index.html": {
       "bytes": 9382,
-      "sha256": "ba62e118625dd3e82c2a126c7963edba9019e8250d87e1538965aee8d8c834a6"
+      "sha256": "2e6b5d34a30085458ebc3d2d025860ac18564f87cf655018306a688b950632dd"
     },
     "play/gomoku/src/main.js": {
       "bytes": 26220,
@@ -3106,7 +3106,7 @@
     },
     "play/word-chain/index.html": {
       "bytes": 10496,
-      "sha256": "6c024a9daffddb383c21b470994d17aeb9853626374ad688566537107dd026a3"
+      "sha256": "6ee460886bad4afe049dd5ab5c80798ee7d2e19a45521113654200292f5fba90"
     },
     "play/word-chain/src/main.js": {
       "bytes": 30034,
@@ -3194,7 +3194,7 @@
     },
     "play/truco/index.html": {
       "bytes": 9555,
-      "sha256": "ae0a07d609132c3b55e85e610c311dd6527545bcee3f6d94435ae2c594f4863b"
+      "sha256": "44aa507cb818dc6f3ff812e07085c53d4f793fdf1f4af0db7590ac0f3b1ba803"
     },
     "play/truco/src/main.js": {
       "bytes": 34346,
@@ -3286,7 +3286,7 @@
     },
     "play/buraco/index.html": {
       "bytes": 9547,
-      "sha256": "3d3ac070be2379f149c7718cb406d16b20f5b9fb59edb046e7d8e97a50494f02"
+      "sha256": "8a64d5f4a1a01e9294fd9a4a40770caa2e08c8ea765fba28e15279451d02070a"
     },
     "play/buraco/src/main.js": {
       "bytes": 40136,
@@ -3306,7 +3306,7 @@
     },
     "play/silk-and-seam/index.html": {
       "bytes": 4396,
-      "sha256": "d19533418aafdbdb83ab1afc4432d616e484360b9ce1014426800555044ed933"
+      "sha256": "80a680a504bf6d7022c05819980ecf890296e68c3d2a25c66db99cab4227146d"
     },
     "play/silk-and-seam/css/scene-frames.css": {
       "bytes": 3171,
@@ -3686,7 +3686,7 @@
     },
     "play/dachis/index.html": {
       "bytes": 20568,
-      "sha256": "22371233ff43362ae1bbacbb794062bfa3497e62f5773864c54c8f20672bf4a0"
+      "sha256": "02e87f0cc781f2b0fb189811f2808f031a28f68efb3893cd73cb0369d38f10cb"
     },
     "play/dachis/css/game.css": {
       "bytes": 64435,
@@ -5718,7 +5718,7 @@
     },
     "play/space-95/index.html": {
       "bytes": 2422,
-      "sha256": "703456ca84ff86b57a5e78e967d13245909b62bab748cf546bed61af52cb9b7f"
+      "sha256": "d13915a5a69f87151023c5dfb0fb308ac3c376602a1f7debebb7cb2cb64ec510"
     },
     "play/space-95/css/bolt.css": {
       "bytes": 842,
@@ -5745,32 +5745,32 @@
       "sha256": "4cd72b2ebbc00ade48dbe0cc671f47e6b96e0c595fb7385b6ce6212ae25052f7"
     },
     "play/space-95/js/audio/cues.js": {
-      "bytes": 11830,
-      "sha256": "96bbd10e27fda1dc93cb0218fe225d3ac70583ded1647db3190917add047e4da"
+      "bytes": 13810,
+      "sha256": "9a5acda4c940e98e0d840dd166c0bab912f55c1a821363570ad505892e7dc252"
     },
     "play/space-95/js/audio/musicManifest.js": {
       "bytes": 274,
       "sha256": "7b0664076e6de1d12e5b5b530c4b770217864a401e9e079912b1b122766d134e"
     },
     "play/space-95/js/audio/sfxManifest.js": {
-      "bytes": 28360,
-      "sha256": "d641d5fb02e251e631a7416a6002bddda6eb3b915b4e27420f8fd72ec9ffb9ac"
+      "bytes": 32194,
+      "sha256": "91ee13b1e38a4afd3bcf17cd2b86990a486ab5eb6ecc344188975f89e3d6cb5d"
     },
     "play/space-95/js/audio/shiftEvents.js": {
-      "bytes": 7513,
-      "sha256": "e72f35e8cd20a04374791084f9dcb8fbc04b540e9ad094359e65271647a1a6da"
+      "bytes": 8531,
+      "sha256": "65b9f0dcee00277485523d8a5c20222378cd7685a203b6f424c2641834a854c6"
     },
     "play/space-95/js/audio/shiftSounds.js": {
-      "bytes": 2199,
-      "sha256": "eaeaee0a8d0d4d1e1e67d7a51b30dc22eb1853855a26e5f76b0a23a24814efe1"
+      "bytes": 2462,
+      "sha256": "0e22797ea37c548ddf0ef787ff41d5b9652718cb418e2b454980c122b708ff37"
     },
     "play/space-95/js/cheats.js": {
       "bytes": 1157,
       "sha256": "962469aa00dc07348d59ba7091192a321a017e709ba50c3332980fe1b2f83ffc"
     },
     "play/space-95/js/game/bolt.js": {
-      "bytes": 7116,
-      "sha256": "6c726cf23809fc299311d8244f7b87a78b132fd52e46ec30aa8605965134494e"
+      "bytes": 8234,
+      "sha256": "68ba87fd282486dfee225c188118c3289bad2c8d0673e8c48937109455afb634"
     },
     "play/space-95/js/game/progress.js": {
       "bytes": 1194,
@@ -5781,8 +5781,8 @@
       "sha256": "6776ce43771d6015adb3640d05741f198201d1b08eb210954fdd27a6633827e7"
     },
     "play/space-95/js/level/dsl.js": {
-      "bytes": 16576,
-      "sha256": "e6d99aa90d65cad5a7cb5f06ddfbddc0a40d61ef2f4595de072110171ede4efb"
+      "bytes": 17096,
+      "sha256": "ad7911a3152a8324c7054fc458fab6961a664104f80e1c047ff699cf80a30b6c"
     },
     "play/space-95/js/level/ghosts/L01.json": {
       "bytes": 2680,
@@ -5844,9 +5844,17 @@
       "bytes": 5388,
       "sha256": "505bab96dcf0f8ad1b3f9f38c5e56e6cc65b4aecaecc01ca6c8b829661e8e444"
     },
+    "play/space-95/js/level/ghosts/L16.json": {
+      "bytes": 2218,
+      "sha256": "a4f11686130bfd41cd35224ae4fcf3b26891fd2f83370508f1068845cc7c6665"
+    },
     "play/space-95/js/level/gym.js": {
       "bytes": 3709,
       "sha256": "665be27943bca49c452525ffebfdbe629895767d1b449268bf70421ba9631c74"
+    },
+    "play/space-95/js/level/gymDrill.js": {
+      "bytes": 1581,
+      "sha256": "c2700840d28d9cb5aeddd066cd00e31789c12a5496bd7d56d7b8292f22316e14"
     },
     "play/space-95/js/level/gymTrain.js": {
       "bytes": 1757,
@@ -5916,17 +5924,25 @@
       "bytes": 13771,
       "sha256": "b0d49c4c3bfe9495ce4a543847d0bdd7b2dfd1342bb12f02ae02f44ffbbb6c96"
     },
+    "play/space-95/js/level/L16.js": {
+      "bytes": 10737,
+      "sha256": "e205d7d9cf13fafb64b53ae1b4f3b8e3b14934effcba75d2d029b8e59262e8af"
+    },
     "play/space-95/js/level/levels.js": {
-      "bytes": 1829,
-      "sha256": "c5bac5703685c9ba3fbabc71ab7bacf2b04019e8d88a453149f6e599afed74e4"
+      "bytes": 2129,
+      "sha256": "d4109ae776e0aa076b426d30a5e5a15665ac83c6fd89084abcc108b7cb1c3a1f"
     },
     "play/space-95/js/main.js": {
       "bytes": 10511,
       "sha256": "0112df03b4db109c6bec762372595e4d42ce43c6bff1c1fc8e98281df253d59f"
     },
+    "play/space-95/js/render/burrowView.js": {
+      "bytes": 14548,
+      "sha256": "4dbac5f9ff6f72dd1b797528f0e2155005ff6f7a4093fbef3e0c658950993baa"
+    },
     "play/space-95/js/render/cameraRig.js": {
-      "bytes": 3444,
-      "sha256": "75d84406c40463713e430a788b8a85a98a98633b85b559f6d0acdd878e8d9fb7"
+      "bytes": 3608,
+      "sha256": "567a446726f7751d58b3fea7262fddafbe3ea7d6151bb762bfa2346e41ae519d"
     },
     "play/space-95/js/render/critterSprite.js": {
       "bytes": 3664,
@@ -5937,12 +5953,12 @@
       "sha256": "e4c865f10d0635dd85ec803babfa243a2415819d2acca80c5d6918ba8d9baee2"
     },
     "play/space-95/js/render/nightView.js": {
-      "bytes": 24518,
-      "sha256": "0b5ff8fcb86d419d64ad10e3ed5ca65eec097953e3f54850f0c0004f58260fc7"
+      "bytes": 25214,
+      "sha256": "00444355c3a348a277a7b3d370dfd4f8d7f3a338906d580a6bc6fae4ac35674a"
     },
     "play/space-95/js/render/scene.js": {
-      "bytes": 56497,
-      "sha256": "dadada40b7923ed8734caf108bd1a8d047b7fcce51370f95a15914b49787e8f1"
+      "bytes": 58076,
+      "sha256": "d7fba19ceb13ad7618c7861bd9f018ea54cab07f6d86608eb42fd979a024ccbe"
     },
     "play/space-95/js/render/silkView.js": {
       "bytes": 14364,
@@ -5953,8 +5969,8 @@
       "sha256": "39d4d11417a5a37c644940e47361599dc95cc5b49b03ca8a39adcd33f8a98fc8"
     },
     "play/space-95/js/sim/abilities.js": {
-      "bytes": 5974,
-      "sha256": "0d5aa34870356fbde9f7c2695a1c777f02d42e2ba644a3d16b88299599112f2f"
+      "bytes": 5984,
+      "sha256": "7edbb71f4541e807bd2f09d6e7314f0fdb499741ae5716533b8e4aad757a7102"
     },
     "play/space-95/js/sim/arena.js": {
       "bytes": 2324,
@@ -5973,12 +5989,16 @@
       "sha256": "aa49b14f180861b3334b7259611612ee4f86006c30cdb92b088f151e9c10e5e8"
     },
     "play/space-95/js/sim/bosses/boss.js": {
-      "bytes": 5749,
-      "sha256": "71c361827b6f9b8ca2e35f13432528dc9b6861eb7d3306d89aac88a084793c7b"
+      "bytes": 5851,
+      "sha256": "0b365faefbdc85f8c9a146d9e351e40b311832c609914f62c7e82d603aea90ed"
     },
     "play/space-95/js/sim/bosses/duchess.js": {
       "bytes": 11014,
       "sha256": "b92b08662268e6f089cac16c0fcbe73ff2a5da53f1743c38956e84cb496a629d"
+    },
+    "play/space-95/js/sim/bosses/duchessMounted.js": {
+      "bytes": 15555,
+      "sha256": "926e6153e2b7b0af41d9ec4d68c3a187c0fe68f36325290b0a74f43e3fc58175"
     },
     "play/space-95/js/sim/bosses/foreman.js": {
       "bytes": 7671,
@@ -6008,6 +6028,10 @@
       "bytes": 627,
       "sha256": "f5c7ff18c4e7dc3c0dad29a7b91cc1411ce0a41ccd3b026b370de836423efc4d"
     },
+    "play/space-95/js/sim/drill.js": {
+      "bytes": 6437,
+      "sha256": "8c88a1d98b216200709d243ad326225bc812564b2a5efa81e85afc93a375695b"
+    },
     "play/space-95/js/sim/enemies/antPorter.js": {
       "bytes": 1037,
       "sha256": "70b9d5c26337bd2a2f9abeb561918c170fe86325f468dd84508880848285084b"
@@ -6029,12 +6053,16 @@
       "sha256": "da8e0b3a961d1c39be43553dcb2ea0e48664407f54c1e10b48abece9f17e3915"
     },
     "play/space-95/js/sim/enemies/guard.js": {
-      "bytes": 4474,
-      "sha256": "6d89b804732fc25b7694da4bcb0424d5bc2c6c8ef1c90052668afa28119f051f"
+      "bytes": 5426,
+      "sha256": "84b2a8f40456dc71d3e0339907a3a05a5323a801a05467c4d0456a8b4cb36d4b"
     },
     "play/space-95/js/sim/enemies/ladybot.js": {
       "bytes": 846,
       "sha256": "551fc186e6fadf39d813c2b1dd13fedb886fc11c98cc239f18d027fbb414bfae"
+    },
+    "play/space-95/js/sim/enemies/nymph.js": {
+      "bytes": 1586,
+      "sha256": "e8aa0742f486034dc8b4b08558a88e381e34a38c40b1a648bb0e5878a5ddcc67"
     },
     "play/space-95/js/sim/enemies/pillbug.js": {
       "bytes": 3100,
@@ -6085,8 +6113,8 @@
       "sha256": "eac02d4b542a7b033921763d7cf68c5b1aefdb9ed9d01bccb23eaef4c1b77b6d"
     },
     "play/space-95/js/sim/kinds.js": {
-      "bytes": 870,
-      "sha256": "f8b63c84677f2d7286316daf16fee8b2bb93c6a2011fb9d1c05faaa853c5df85"
+      "bytes": 967,
+      "sha256": "9c76baabfb61016c7aed8ccbd1227dd544f63031d52f2c98689cf852ae84168f"
     },
     "play/space-95/js/sim/launch.js": {
       "bytes": 185,
@@ -6103,6 +6131,10 @@
     "play/space-95/js/sim/motifs/clod.js": {
       "bytes": 3831,
       "sha256": "2ccd91850173f6ecac05eabaf11055a4d394b895997204f2c8e6f776794d70e3"
+    },
+    "play/space-95/js/sim/motifs/collapse.js": {
+      "bytes": 8020,
+      "sha256": "77af12767991d5eeaa625f393cea71e4a7af2e9f9fa68e85dbfea0ed407a1107"
     },
     "play/space-95/js/sim/motifs/dew.js": {
       "bytes": 927,
@@ -6125,8 +6157,8 @@
       "sha256": "7f9322209155b0f995e15be82c8222bf85adcc8ec7c7e1dc276d08ff4a6a567f"
     },
     "play/space-95/js/sim/player.js": {
-      "bytes": 9112,
-      "sha256": "8789dda0726806179d63b6f06508073d51c09b97fe1e62580e78fe45cafea790"
+      "bytes": 9398,
+      "sha256": "b9f3aeff7d29e62023961b544dada4b613aa49c89918da2363d934bc02892e82"
     },
     "play/space-95/js/sim/raft.js": {
       "bytes": 8329,
@@ -6197,8 +6229,8 @@
       "sha256": "33a4e497af1249423b9dbfd737b4e4d07c8c558cc7eb6158a45bd7010dcb2ac7"
     },
     "play/space-95/js/sim/world.js": {
-      "bytes": 2882,
-      "sha256": "8923b53bd8c4cb122f0885435658fcc2e3c4c592a8f2c98bbaae24a3ebd7e2a5"
+      "bytes": 3115,
+      "sha256": "bf866c1edd2149404b3a2e127cfa814bf1c03a903b6ba4c00f8242d382b11fd9"
     },
     "play/space-95/js/site/adapter.js": {
       "bytes": 2746,
@@ -7948,6 +7980,54 @@
       "bytes": 6136,
       "sha256": "e166afdfc7a9004d57cca6fe87b22353e147f30247e99deac8949bdf8dda5408"
     },
+    "play/space-95/assets/audio/sfx/burrow_drip/burrow_drip_01.m4a": {
+      "bytes": 6889,
+      "sha256": "bd7732e16791113ee7c646f3d56dda5187217035a5edabc4915200d7d06d6884"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/burrow_drip_01.ogg": {
+      "bytes": 7441,
+      "sha256": "622a77d821f3f394705ad97c9c1ec2a14681d1df16bae7efc16b85932308346f"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/burrow_drip_02.m4a": {
+      "bytes": 6827,
+      "sha256": "026af3e744abbf0691c811fd1b0f601ad30e4bcb6a67d7d3b68b582bcbadaf4c"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/burrow_drip_02.ogg": {
+      "bytes": 7458,
+      "sha256": "b7061b88c01e3919b2658d59498d11aa11b21a9e49731979680005e7bb906f4e"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/burrow_drip_03.m4a": {
+      "bytes": 6764,
+      "sha256": "0e803b7b6a754b2bf00682f89e8671d5a4244a13779e6a4e93e76c1e2f9918a6"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/burrow_drip_03.ogg": {
+      "bytes": 7594,
+      "sha256": "bcd4e2cb16d5e52dd95215c0c719c75e3df448bbb243737b558c1780f6294a61"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/burrow_drip_04.m4a": {
+      "bytes": 6826,
+      "sha256": "7135e5a276a44e041a1d2e570165cc0d496a66b757746fd48dc6299656d81c4d"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/burrow_drip_04.ogg": {
+      "bytes": 7375,
+      "sha256": "e4e6cd0d99de5283aefa0d85885ea0791740693e211d68c771136e2d01fd5510"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/master/burrow_drip_01.wav": {
+      "bytes": 86444,
+      "sha256": "7ea762549ac4f766f4b408a6827e80bafd118be9a83299abb2d13e6f361b1a2e"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/master/burrow_drip_02.wav": {
+      "bytes": 86444,
+      "sha256": "30527bd7bc2e5f568f7a7bace3f1af5d724323d591b8c15a80cd435d70ed80da"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/master/burrow_drip_03.wav": {
+      "bytes": 86444,
+      "sha256": "3548d7f215a7f5edf32acb5cb866fb14b5ac4dd530dce8ae1c611c62b3288400"
+    },
+    "play/space-95/assets/audio/sfx/burrow_drip/master/burrow_drip_04.wav": {
+      "bytes": 86444,
+      "sha256": "cbac3e6959bfd24d01726f88627c9f102618f8366f79e7a9e48c86fb59e283a1"
+    },
     "play/space-95/assets/audio/sfx/bury_thump/bury_thump_01.m4a": {
       "bytes": 7023,
       "sha256": "2cedb84022f8e1aa56ab7c5be5b107cc81350596eb29e8236d1d448f61e1840d"
@@ -8180,6 +8260,54 @@
       "bytes": 10888,
       "sha256": "4f6f70799e10f2e2993e73c6f06a74a5d9c5c1fab5fcabd3cb240ef3ce502b66"
     },
+    "play/space-95/assets/audio/sfx/collapse_chime/collapse_chime_01.m4a": {
+      "bytes": 10046,
+      "sha256": "208a89e1ad2d610422f9c5bc3af56a108763cc0e825c218b2b07f6eab7bed5f2"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/collapse_chime_01.ogg": {
+      "bytes": 9787,
+      "sha256": "51b25610bf9d5ae6203bb8ee91c461afe3c169b864a15a4d6bf36396dae46b00"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/collapse_chime_02.m4a": {
+      "bytes": 9943,
+      "sha256": "16e308eef16e49dc2191980fb94dd181a59aa867c3bef03fc6b5f790bcc84a30"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/collapse_chime_02.ogg": {
+      "bytes": 9851,
+      "sha256": "6e971e85700abe666f4bb0873a1a52cbaaca834a7a3aae50e68c7873eab3e193"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/collapse_chime_03.m4a": {
+      "bytes": 9920,
+      "sha256": "c7084555da317b418a4532fa1dd5a6c132786ac4ad0ad6af17634250071bc3f0"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/collapse_chime_03.ogg": {
+      "bytes": 9851,
+      "sha256": "4789f4bdec16353c017ef293ab540abfeac84258d60d0fb0fbd22470e627b4b7"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/collapse_chime_04.m4a": {
+      "bytes": 9897,
+      "sha256": "2f8144d8b5a355acaa93a53fce3ae1fb8ab0481b62baf61e94ccaa374f330da1"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/collapse_chime_04.ogg": {
+      "bytes": 9915,
+      "sha256": "98d06e138652c988bee07fa9de2bbb5f195dc0f9b0c8a0e3af0c974152a84bbd"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/master/collapse_chime_01.wav": {
+      "bytes": 74924,
+      "sha256": "36a641865b735686f2829f69907d8e952d3b9cfab7fc4bebc3485f2185b01265"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/master/collapse_chime_02.wav": {
+      "bytes": 74924,
+      "sha256": "cf54e85fc02c99af41890b90f2712f7b42f33ccb732e7dca713649b6bd662b1b"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/master/collapse_chime_03.wav": {
+      "bytes": 74924,
+      "sha256": "ee1e170148da2f07b6c3eb9f2599ccc1bf72d86d6e399a26cf3d167185ad81ff"
+    },
+    "play/space-95/assets/audio/sfx/collapse_chime/master/collapse_chime_04.wav": {
+      "bytes": 74924,
+      "sha256": "851e318388c36696fead11ff4039603a296468178ccd9fb3ad1c5ee3b8aa2ebe"
+    },
     "play/space-95/assets/audio/sfx/corner_slide/corner_slide_01.m4a": {
       "bytes": 4297,
       "sha256": "f8ef1eb398674b50a27673322de221a3a2e6f72de7a0e617c9241db75e361aa7"
@@ -8307,6 +8435,54 @@
     "play/space-95/assets/audio/sfx/cricket_hum/cricket_hum_04.ogg": {
       "bytes": 17898,
       "sha256": "b039c92ae2c6d44d7cafb5b71c25daecbc83fc54149045ecadeee98e425cb4c8"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/crop_crack_01.m4a": {
+      "bytes": 9322,
+      "sha256": "872a218f060aafbf3adfcb791c6c58aa5d5fa62c60602135511ca2e88acac660"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/crop_crack_01.ogg": {
+      "bytes": 5596,
+      "sha256": "75ff64a7da3179216550b096e3ddb406e782b9e9ac2ff5f3c514d6997ee37ad4"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/crop_crack_02.m4a": {
+      "bytes": 9414,
+      "sha256": "6f75eb3181dbd07104cf30f4631dc10d3e6351b3ccdb701f6070d2622e3c0094"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/crop_crack_02.ogg": {
+      "bytes": 5619,
+      "sha256": "a838f4e5dd3005b3b4278b725fca0c930e5a60166debc44f0f548c8ccfe38bb0"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/crop_crack_03.m4a": {
+      "bytes": 9324,
+      "sha256": "6889d1577240161c1bc273e94d7c5f612c658d08c0019e1fb1a2b1f7e461e856"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/crop_crack_03.ogg": {
+      "bytes": 5368,
+      "sha256": "ffff3e18578fba5b2d96e9ff6508b36866227b741d725d4b46006e1727b6d675"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/crop_crack_04.m4a": {
+      "bytes": 9332,
+      "sha256": "6a4e167ee19f636780a42bf72bcf025e6ca3be0ccc5703119155e0520c841050"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/crop_crack_04.ogg": {
+      "bytes": 5499,
+      "sha256": "e4366b5c80244e7095cbe1ab07263624f53aba71d6c761e4f20e3ffb4fd34dca"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/master/crop_crack_01.wav": {
+      "bytes": 51884,
+      "sha256": "b96b28ac3d6b5a6bdaddc1f8dc9e3cc73bd8f26d06b04621ac28498d992e609f"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/master/crop_crack_02.wav": {
+      "bytes": 51884,
+      "sha256": "c847ca986d8a2d7ad8fe58ea102dd958d364b13e90e522e871c31591b068068d"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/master/crop_crack_03.wav": {
+      "bytes": 51884,
+      "sha256": "bf387aad91d8623423806e973af2f097fee3e310763b9b8a247875ab84ae52cc"
+    },
+    "play/space-95/assets/audio/sfx/crop_crack/master/crop_crack_04.wav": {
+      "bytes": 51884,
+      "sha256": "a81eb8a93ad8ea73829441b06d94fc87e143cc5fd0f2dbc898a4333f0d36b0e6"
     },
     "play/space-95/assets/audio/sfx/curve_squeal/curve_squeal_01.m4a": {
       "bytes": 10706,
@@ -8564,6 +8740,246 @@
       "bytes": 4751,
       "sha256": "998dee06ec88060ba64469da1321129d4d94f43e336e2b0e3f4311c95242a0f9"
     },
+    "play/space-95/assets/audio/sfx/drill_bore/drill_bore_01.m4a": {
+      "bytes": 14380,
+      "sha256": "a2ca254557b379f2b27e835b70d3f24ca35045937602eedda0a06004e193806a"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/drill_bore_01.ogg": {
+      "bytes": 10330,
+      "sha256": "a0fe930ee343e728bd4ea9d83775bbc8ec8e80ab85c87362b52fe6b76dc60b6a"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/drill_bore_02.m4a": {
+      "bytes": 13747,
+      "sha256": "b1dc8b5619ebd81fc8a7ae514d7198647f96f03fb91c058bef4d08143a10c47e"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/drill_bore_02.ogg": {
+      "bytes": 10689,
+      "sha256": "c9f695825cb491c2db3838780ec8b6e007cccf3ff26fe4bae338e3ffb5914b1b"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/drill_bore_03.m4a": {
+      "bytes": 13085,
+      "sha256": "f9cbf1578d290f739cce72719284b010b89a2cab52b6f7dbc3715f8db4454822"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/drill_bore_03.ogg": {
+      "bytes": 9940,
+      "sha256": "600652da888b6b8c95b47aac0b064eecb30ead5d6f4646b525168122101d9adf"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/drill_bore_04.m4a": {
+      "bytes": 13811,
+      "sha256": "2c2a4b75734f7bcec27ab70e9e88ee3fad10e956b8371dc5f6368916f61c5b29"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/drill_bore_04.ogg": {
+      "bytes": 10297,
+      "sha256": "874e32361dc43c4ed0a4ccd09c71747e76a1dabdfe43fe6d130299d374118df6"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/master/drill_bore_01.wav": {
+      "bytes": 80684,
+      "sha256": "d77e7abf75962665063378a4fc7293cb7a91fd4cb7312821acfae15e58345570"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/master/drill_bore_02.wav": {
+      "bytes": 80684,
+      "sha256": "99c587da6fe69f92abe707fd4e73f1d02a32bb7d72306a709c7ad728f90795c0"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/master/drill_bore_03.wav": {
+      "bytes": 80684,
+      "sha256": "e2666d0610712e9edb48bffe78e47f25e0146b227a570eb7bdc4c0ba02389130"
+    },
+    "play/space-95/assets/audio/sfx/drill_bore/master/drill_bore_04.wav": {
+      "bytes": 80684,
+      "sha256": "3d7390f95b1390b6e0ad05044128a9cb08ddd11909c69344f18ac78de56cb719"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/drill_breach_01.m4a": {
+      "bytes": 12796,
+      "sha256": "1510bcaa3da5a67dccbbc3c0a1e04927bcfa59eb78617dc52adb4c6471d91617"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/drill_breach_01.ogg": {
+      "bytes": 8862,
+      "sha256": "f2e61164387ed84af6b878fbc55ff8462259f798034741cbea9bd277bc495e44"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/drill_breach_02.m4a": {
+      "bytes": 12579,
+      "sha256": "5b6a5e52df958ee7355fe0441f5b93c06f3d1d150d2c14303de4f63e99fe0383"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/drill_breach_02.ogg": {
+      "bytes": 9393,
+      "sha256": "d41955c6bedba270db41b893cecdccb4cf35d3d120922b0b85250763f8fcf067"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/drill_breach_03.m4a": {
+      "bytes": 12473,
+      "sha256": "a8a152f9add689d11f37eb5af53da78208feac5f734500050b2ac9021cf52326"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/drill_breach_03.ogg": {
+      "bytes": 9264,
+      "sha256": "ed13f6195500a02b70306aac64790ef28b2354295772b9998c9f94844828f37c"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/drill_breach_04.m4a": {
+      "bytes": 13039,
+      "sha256": "d58d4418bdf7914d495f3de13ea813ae807713549f8b6a67e4a174d57577c596"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/drill_breach_04.ogg": {
+      "bytes": 9564,
+      "sha256": "f41c6f7112d4610a26cd51031a3a25a110d4c43b72cc52083100303f08bf59fa"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/master/drill_breach_01.wav": {
+      "bytes": 69164,
+      "sha256": "7422e810bcebd022416904e68f0bfb3c89c436534fc16aca3ed0098e7d5ac2ad"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/master/drill_breach_02.wav": {
+      "bytes": 69164,
+      "sha256": "1f4e1bb122df3a4fd077e047e1bb0ac3ec8928b7aed18f03719a55bb1308fb7f"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/master/drill_breach_03.wav": {
+      "bytes": 69164,
+      "sha256": "70c854b7a5d1e109408f749f4ec2346eb8ee6cb7621e935eee27f69c3d4d8db7"
+    },
+    "play/space-95/assets/audio/sfx/drill_breach/master/drill_breach_04.wav": {
+      "bytes": 69164,
+      "sha256": "a38c6f8dfaef262bce331f80b920c8f4e37c2c602955e1f1792ba6027b6a1154"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/drill_skreek_01.m4a": {
+      "bytes": 10353,
+      "sha256": "e89e20655902282085f4afbba97a0af8c777c97c1612eb472ec3e124760d1077"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/drill_skreek_01.ogg": {
+      "bytes": 7656,
+      "sha256": "db643b46936577c0dc3dfd6af4a295a68aaebbd6fefbe30d5dd5527ea8a83340"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/drill_skreek_02.m4a": {
+      "bytes": 10079,
+      "sha256": "ed58ed3505ffb27aef67ad06f314c7f79518840421136dfa0a6fe47a3f121cd4"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/drill_skreek_02.ogg": {
+      "bytes": 7712,
+      "sha256": "41bcc7b31265557ee8846eb6e5cf63b9c16fdc1fbccdee3437d89267a9fb19da"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/drill_skreek_03.m4a": {
+      "bytes": 10331,
+      "sha256": "c88dc4d01940563815def497708c5da0cc03b2e53cfab88dd1de71a7aab78741"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/drill_skreek_03.ogg": {
+      "bytes": 7885,
+      "sha256": "9805c480a839c0046377ea97b2811568079081b1002e53ea61e8f6b2641023dd"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/drill_skreek_04.m4a": {
+      "bytes": 10585,
+      "sha256": "e33aefdca11a34b67da3c29acf82dd2b7e916798e8d2727e7a2de590011411b0"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/drill_skreek_04.ogg": {
+      "bytes": 7776,
+      "sha256": "bc718b7e3c0a422fd1ec57141d26d26d8488f5135b2f4d8daca9e36d35fec995"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/master/drill_skreek_01.wav": {
+      "bytes": 74924,
+      "sha256": "82dba7bb77f0ca4dec0fffd1687db7f8c798b41851bf5d1a252b31a15c756107"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/master/drill_skreek_02.wav": {
+      "bytes": 74924,
+      "sha256": "96545826e7c28cb60d207b9e48ee2d02c37ecfccd8029e7478b871094401282c"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/master/drill_skreek_03.wav": {
+      "bytes": 74924,
+      "sha256": "d9fb4d2ac29fd798a79bf85098ba2f870c310d3f2685f742f93ce9bfdd2ae70a"
+    },
+    "play/space-95/assets/audio/sfx/drill_skreek/master/drill_skreek_04.wav": {
+      "bytes": 74924,
+      "sha256": "229f8c71d629ee4cac0e1509bb975f133229bd0b74c31708784b284889b3678a"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/drill_spinup_01.m4a": {
+      "bytes": 9986,
+      "sha256": "fc0cfdea13a58b52705e0c66be0fa2558fa37130437bb5d745e5a7e5b404f407"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/drill_spinup_01.ogg": {
+      "bytes": 5792,
+      "sha256": "66f55803f7c3754ab64eae4b351129f2c20d477e9710291deb1bba7761af8bc4"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/drill_spinup_02.m4a": {
+      "bytes": 9968,
+      "sha256": "6bbb951637dcd181c78fb6d623498f2e45f9d0289ae121fc413a01326f83bbfd"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/drill_spinup_02.ogg": {
+      "bytes": 5794,
+      "sha256": "7361e47d0e1598ef02529ae230d35b660f26ad27f8a18b71fa50fcd97452a495"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/drill_spinup_03.m4a": {
+      "bytes": 9922,
+      "sha256": "d6daa85af2774b8b1703cab987fb2c8492d15bf5e29e4987c2b7029fbd10ab39"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/drill_spinup_03.ogg": {
+      "bytes": 5731,
+      "sha256": "528cbb1422a93bb2cebb53d3a018c3593b13aa4872942f31348dd0e13da6b912"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/drill_spinup_04.m4a": {
+      "bytes": 10019,
+      "sha256": "2ec99225f3b5f9dfcef0b9bbfec28b1a03951fa99cc9d5861c0e80d72153d7ac"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/drill_spinup_04.ogg": {
+      "bytes": 5767,
+      "sha256": "7390a8a4ccf86a1df70cb5f4f8f1487b5c2cb000a217958d18cc95f55e5adde7"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/master/drill_spinup_01.wav": {
+      "bytes": 60524,
+      "sha256": "496bab6c277451a20b266a29b5d28a8e4858f9f77288d4d94b237c6fd283aeeb"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/master/drill_spinup_02.wav": {
+      "bytes": 60524,
+      "sha256": "1f7da82cddef2d2c126c21a66b525bb553b1e1ecd68b4dc157a9705cd8c4f67c"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/master/drill_spinup_03.wav": {
+      "bytes": 60524,
+      "sha256": "482b49a6272bf800a7cfe2225db2380281cf381dd70ce93a2b271e731312f968"
+    },
+    "play/space-95/assets/audio/sfx/drill_spinup/master/drill_spinup_04.wav": {
+      "bytes": 60524,
+      "sha256": "cba00f3a5367051f7a333af7ab1888bea76472886dd989051ef57d25febcd6c5"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/drill_whirr_down_01.m4a": {
+      "bytes": 11278,
+      "sha256": "d48be0376aa44cb15dd927d1f14f52cb38e82ac52e96bc7759f551fc5402d0e3"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/drill_whirr_down_01.ogg": {
+      "bytes": 8541,
+      "sha256": "c10135e8bdc247da005fb7e20b3fe921843591fec17b831777f5e33759504ea7"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/drill_whirr_down_02.m4a": {
+      "bytes": 9650,
+      "sha256": "08c95d23c9709b6326ef3617272f312911189a5f650dec7e3f76a2a029542493"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/drill_whirr_down_02.ogg": {
+      "bytes": 8694,
+      "sha256": "3db9a5a7a446a0b72e21bcd30b14f2ec5f3567fa4f650150d4554dc2cd12cc22"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/drill_whirr_down_03.m4a": {
+      "bytes": 8461,
+      "sha256": "df1001072d38e29fdfd55f4dc9db10c2ab7720ac856a8e5177935d6ced1aaef6"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/drill_whirr_down_03.ogg": {
+      "bytes": 8810,
+      "sha256": "630f4996d17fb191d9da83444ece73f6fe4460424b65f22e83afb9f029291559"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/drill_whirr_down_04.m4a": {
+      "bytes": 8152,
+      "sha256": "16bce49085127c044736d4faacef93d0c780ea613565ae6bf51899a830a50e48"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/drill_whirr_down_04.ogg": {
+      "bytes": 8843,
+      "sha256": "f0a2f127e532ff98362acc2539d261405f5a7061244ce391ec49c62fad0afc82"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/master/drill_whirr_down_01.wav": {
+      "bytes": 60524,
+      "sha256": "dff81cd737980a9313fd61ff7ab0be5e34547ad31a04effd5ffc80708c9c3662"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/master/drill_whirr_down_02.wav": {
+      "bytes": 60524,
+      "sha256": "3b3a77ceaeac7b411afd1759ea1f44623149747bb151a521bafd10e688b1465a"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/master/drill_whirr_down_03.wav": {
+      "bytes": 60524,
+      "sha256": "9cefa802393cf2cdf18c2258f0f77205b35afa0f07fe57a56b3e87c9e888afb0"
+    },
+    "play/space-95/assets/audio/sfx/drill_whirr_down/master/drill_whirr_down_04.wav": {
+      "bytes": 60524,
+      "sha256": "c5237160d60a809a9812d477463e8bc90f8175d88d3411435c36e261a9f37052"
+    },
     "play/space-95/assets/audio/sfx/duchess_escape/duchess_escape_01.m4a": {
       "bytes": 26090,
       "sha256": "68e19e883582fd34164acd2874e2676d05bbc8030255a7ee6ae40c4fd8b07655"
@@ -8723,6 +9139,54 @@
     "play/space-95/assets/audio/sfx/dust_scrape/dust_scrape_04.ogg": {
       "bytes": 12257,
       "sha256": "f5916bbb53fa70f0c4ee1c64a5009a0b4d4f6b017abf6daa1c164f643797b330"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/enemy_bonked_01.m4a": {
+      "bytes": 11831,
+      "sha256": "f88b5a345191dc923dba8836c4d758f7dc9f921f9123edefe9a4115baf1d7433"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/enemy_bonked_01.ogg": {
+      "bytes": 10287,
+      "sha256": "733a1b578c6c0cf2eba906bcff9f98713a249ee145b98e7792aad6ddde79a500"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/enemy_bonked_02.m4a": {
+      "bytes": 12449,
+      "sha256": "4462760867b6a4a932f98910e87d70f76daf4c03923b95cf0fc7fffbec5b7e47"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/enemy_bonked_02.ogg": {
+      "bytes": 10233,
+      "sha256": "5af544a388c61abf689f2165cff319f3ab38384f2f4d5848a10af8e97b376eb0"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/enemy_bonked_03.m4a": {
+      "bytes": 11998,
+      "sha256": "47c1107590b5c7f4a9ce7ba27e52524c3e9f9053e1ef25cdba05cdfc695039ba"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/enemy_bonked_03.ogg": {
+      "bytes": 10474,
+      "sha256": "e54d2f12dad0df1658579de2000c50a326eb3aa62dde9122af10672b2a54ed83"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/enemy_bonked_04.m4a": {
+      "bytes": 11506,
+      "sha256": "5aca55203af246130851ae34a0dd34a63f3aeede0e46dd09d30f7f297b51fb43"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/enemy_bonked_04.ogg": {
+      "bytes": 10131,
+      "sha256": "c6b2739e3c95ffcc3a824d16b0d6429b157a3ee043a7c39e535c428e799861b0"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/master/enemy_bonked_01.wav": {
+      "bytes": 100844,
+      "sha256": "d77ec329bc334eceb7478a071283375596efb73f358cd4df428ab98d6e6ccf07"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/master/enemy_bonked_02.wav": {
+      "bytes": 100844,
+      "sha256": "9d15a8233be0383ce99e724cd29da21e5fb23069cfafac90584e1753f1ccbe20"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/master/enemy_bonked_03.wav": {
+      "bytes": 100844,
+      "sha256": "cf1857f92e7abf648f52144e962a495166d423634bfa5db032a14f3ddbb07e9a"
+    },
+    "play/space-95/assets/audio/sfx/enemy_bonked/master/enemy_bonked_04.wav": {
+      "bytes": 100844,
+      "sha256": "2bf9e74e2fa5ea503927d67e24caf87e6d0ae2af6a5d16302ca246397065c66c"
     },
     "play/space-95/assets/audio/sfx/enemy_daze/enemy_daze_01.m4a": {
       "bytes": 13707,
@@ -9812,6 +10276,150 @@
       "bytes": 4344,
       "sha256": "deccc4768e2344f32765e78fb32b4b9bf9f9e469cfaa00750a3be2f5d7af9573"
     },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_01.m4a": {
+      "bytes": 4640,
+      "sha256": "6fb886a56f566aeeed1a4c263c4296b64e4dd97400849d618ada73bf3baea0c1"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_01.ogg": {
+      "bytes": 3621,
+      "sha256": "5ea269e8058cbfd2a1bd3fd48af573cdd1feebb4332060367604cf67be7172d7"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_02.m4a": {
+      "bytes": 4565,
+      "sha256": "469181163f6d3f090ed1366a26df682afc886260829a6e8612c787d090472305"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_02.ogg": {
+      "bytes": 3605,
+      "sha256": "158817c4992e091a67bf9e42bffb229aa4ab5fe2472312f6e5900e88d87c089d"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_03.m4a": {
+      "bytes": 4476,
+      "sha256": "828be135166fbfa77deba20668bb01b041e2aa6a674be0f3468e81131095069a"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_03.ogg": {
+      "bytes": 3699,
+      "sha256": "658ab8e2506f83b139af12b6059ae4569ee5e2890a0b5a33afaaf94dc810bf87"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_04.m4a": {
+      "bytes": 4509,
+      "sha256": "6956e87220df30036d9886c551cc535c84b88f63b21e62469c144848e6679eda"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_04.ogg": {
+      "bytes": 3496,
+      "sha256": "468490eb33a56dc8145c984b35a547aae3fd7a20ecac1babd794cdabff22c217"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_05.m4a": {
+      "bytes": 4664,
+      "sha256": "46c65001a883f1342dcfd8d16613f4101f2b6fc0c5e403666302180637b289c8"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_05.ogg": {
+      "bytes": 3753,
+      "sha256": "0fd99c3ee1a3dcb9d5b35bcca2cfea45615c7dc92890c0fa38b649598704cf66"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_06.m4a": {
+      "bytes": 4422,
+      "sha256": "0bf61373320a3e9cbc8b31e5508d039750eea2eb576bba61b9e181f3f4a59154"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/footstep_rubble_run_06.ogg": {
+      "bytes": 3361,
+      "sha256": "267a58a231381f96d1bc7f5d53827ecba456f4e438e351286e7944049b6882a1"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/master/footstep_rubble_run_01.wav": {
+      "bytes": 27404,
+      "sha256": "ac414cd9fd28487f5ac70a48e00068ab1d4e5313a767c95e69e2553c314be16f"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/master/footstep_rubble_run_02.wav": {
+      "bytes": 27404,
+      "sha256": "5b98d1881cb5db5c379d9581c71749be95f416b6dc39826b02dcbf680f305693"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/master/footstep_rubble_run_03.wav": {
+      "bytes": 27404,
+      "sha256": "77b26501255804bc942449d717c5ab83e3213e30054e68b15e32942cd7ea8b90"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/master/footstep_rubble_run_04.wav": {
+      "bytes": 27404,
+      "sha256": "cec120f47cf56c0038174658cd42599581d36d5fcb7f8721128e1fab896fae47"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/master/footstep_rubble_run_05.wav": {
+      "bytes": 27404,
+      "sha256": "1dbfd92141372ce3a9e908c7c11cd45639b3af9f16bddb81c14078b4fd04fb14"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_run/master/footstep_rubble_run_06.wav": {
+      "bytes": 27404,
+      "sha256": "9f5747e9d399874624e59f076915ab25845ecee375078fd9fd357ebe0ad7bc00"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_01.m4a": {
+      "bytes": 4981,
+      "sha256": "0abf1664688bdb4156bc7d87a4d43041ebbf00a31a004be273abd569e63d5f67"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_01.ogg": {
+      "bytes": 4270,
+      "sha256": "065bfa8c05b486791652053869ec1d519e81a38bd8afcf3303d1aa72659dec11"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_02.m4a": {
+      "bytes": 4959,
+      "sha256": "73934dd760d8b35fd7a93f5f941272ea29b791d8a61c861d7b44f312c1d6e67c"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_02.ogg": {
+      "bytes": 4562,
+      "sha256": "f997a7f9d1eeb021aa35722ca318aa45087b941b09432932707c5e85d9e6dbaf"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_03.m4a": {
+      "bytes": 5085,
+      "sha256": "6d07692bf6341abea1ddfca60d50d615b1b5d8c816c5d40c2379cb05fa8395fa"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_03.ogg": {
+      "bytes": 4493,
+      "sha256": "3f50c88e229da07efdc9d1d1a0c8a0492a1580f67fe04e097929667b53f05246"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_04.m4a": {
+      "bytes": 4718,
+      "sha256": "0453de0db1c4941a753612e2a86996e72f9d92cf06d0deb862a9d759fdf8e9bd"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_04.ogg": {
+      "bytes": 4381,
+      "sha256": "f97be56ed3cd69340fe75fd45e599f87a9634515bea71a6664ab282c63e64e39"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_05.m4a": {
+      "bytes": 4932,
+      "sha256": "f6d83a31f0b5ca4f0594a113b27ea8d6a121d2ffe5333267014803610a814b0a"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_05.ogg": {
+      "bytes": 4438,
+      "sha256": "86d49bd381b7071a896e141beb6d0cb0407ab6a83672a4becd0b9731eb25e98d"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_06.m4a": {
+      "bytes": 4774,
+      "sha256": "f1bbb13354289ed89f65562fb95f96fbd9a373411eed3912319e7aaad6fa880a"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/footstep_rubble_walk_06.ogg": {
+      "bytes": 4227,
+      "sha256": "4507165126281098ba20eccca9a8f830ba64f381b9344d0dc5de92d96da7f8ef"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/master/footstep_rubble_walk_01.wav": {
+      "bytes": 31724,
+      "sha256": "ac77abfc688ce91faaa4b362faa74aed78ddab6b60f8c4694dd7c7d2af2fe734"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/master/footstep_rubble_walk_02.wav": {
+      "bytes": 31724,
+      "sha256": "656e13204decf19653903f63c1e14a20dcde12df8d0c67fd8829c19241bf58aa"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/master/footstep_rubble_walk_03.wav": {
+      "bytes": 31724,
+      "sha256": "2f3e59ed9322dcbe64a2133abfa5f4d22df1f64219f570f112203b9cbbb13642"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/master/footstep_rubble_walk_04.wav": {
+      "bytes": 31724,
+      "sha256": "b4c653983b48b5675a4def908463e3807c0c20f461b188f14eaf8e781d4a1096"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/master/footstep_rubble_walk_05.wav": {
+      "bytes": 31724,
+      "sha256": "eb988e2633059c14d2ef0f4dd2eb5153717484884a87101a320998a1280c1ad5"
+    },
+    "play/space-95/assets/audio/sfx/footstep_rubble_walk/master/footstep_rubble_walk_06.wav": {
+      "bytes": 31724,
+      "sha256": "bd3ad4233e73670b30e2d6330fe996f51be6cdc5f3b3c5765c600e7c2c27a5b2"
+    },
     "play/space-95/assets/audio/sfx/footstep_silk_run/footstep_silk_run_01.m4a": {
       "bytes": 4649,
       "sha256": "9ee3a30916b08bf22cd8976f17bea60cba2ee7017514ea1e37e5738bc934e81c"
@@ -10259,6 +10867,54 @@
     "play/space-95/assets/audio/sfx/guard_charge/guard_charge_04.ogg": {
       "bytes": 11599,
       "sha256": "d3feba23d565005d7997d7c691032870a2b52b5c5c00f7c65a05598af02ebfb1"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/guard_horn_01.m4a": {
+      "bytes": 12832,
+      "sha256": "7062d82105a2448b4d70fef5cc5551b2e6059e8f5d2f2a94298420e52b0d5b26"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/guard_horn_01.ogg": {
+      "bytes": 10750,
+      "sha256": "c008b273d04aef003b2c7b3a7365df53b4e16e396968a7d33082c578e64a5033"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/guard_horn_02.m4a": {
+      "bytes": 12215,
+      "sha256": "5798d32bff9d72f54937e072642644a8bbb1d00051f88e2ac9a38ab6484f05ab"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/guard_horn_02.ogg": {
+      "bytes": 10671,
+      "sha256": "14f862bea321f5de6ddac6835f3be95c31de4bbdf455da4ca4d1edc38c8394f6"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/guard_horn_03.m4a": {
+      "bytes": 12249,
+      "sha256": "c6f2369d59825a4393557a3d53087bad2e5f353b02d3529e54804e76c9daccc6"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/guard_horn_03.ogg": {
+      "bytes": 10698,
+      "sha256": "a661c97ae59fab7528248c8c8d54341b31966942a3239af0a58efa0fb87aa8f2"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/guard_horn_04.m4a": {
+      "bytes": 12607,
+      "sha256": "e95eef64c84fd92f6505711020ea8cdd7fe710f5602c8c69371797389d759ec7"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/guard_horn_04.ogg": {
+      "bytes": 10679,
+      "sha256": "96ca37a60d3cf4a1bf62b6b8606bcba0c4bb9087123e162caa3a6b56f7cbecc6"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/master/guard_horn_01.wav": {
+      "bytes": 92204,
+      "sha256": "03f297b4a72a4af2bbfbc24fff8435ddad719bf3966bcea098734579f313023c"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/master/guard_horn_02.wav": {
+      "bytes": 92204,
+      "sha256": "c34652d440c0f9afd03bdac000c81a76f0bd3483151669bae11a0cc416e76d1c"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/master/guard_horn_03.wav": {
+      "bytes": 92204,
+      "sha256": "9586414a75919df1c58e4220c4ac285e5b8ac8665594f0ccb693709a8245b68c"
+    },
+    "play/space-95/assets/audio/sfx/guard_horn/master/guard_horn_04.wav": {
+      "bytes": 92204,
+      "sha256": "12fc69ad88690fa669ef800c618055728f5d8df1b7647d34bc0ef150a8d1aae6"
     },
     "play/space-95/assets/audio/sfx/guard_stun/guard_stun_01.m4a": {
       "bytes": 14722,
@@ -11452,6 +12108,54 @@
       "bytes": 6671,
       "sha256": "7ca30d28e5cb1f1f56253ec9199d3065944528ae089e791cebf0faef1b4255d0"
     },
+    "play/space-95/assets/audio/sfx/music_box/master/music_box_01.wav": {
+      "bytes": 216044,
+      "sha256": "e64028eca8cfaee745e43179afe5b525fdf4071f011fe33aa09f8543b9833fb6"
+    },
+    "play/space-95/assets/audio/sfx/music_box/master/music_box_02.wav": {
+      "bytes": 216044,
+      "sha256": "74346df9485f2ffc288d4ffc76248d495ec417d1b4f37b2dd44a68e203c313da"
+    },
+    "play/space-95/assets/audio/sfx/music_box/master/music_box_03.wav": {
+      "bytes": 216044,
+      "sha256": "3d5185f1c7a22b52a2902814ce5887304564f58246dfb6ceeebf21f0c959882b"
+    },
+    "play/space-95/assets/audio/sfx/music_box/master/music_box_04.wav": {
+      "bytes": 216044,
+      "sha256": "df9effd91d41d12c45a8f2e0fff6277a2112ee0bbf5c9d77ec3f79651eb67595"
+    },
+    "play/space-95/assets/audio/sfx/music_box/music_box_01.m4a": {
+      "bytes": 26787,
+      "sha256": "f6eda4476c96823389aae10dc111660920765bf17eb110c702c0a5e1b669c467"
+    },
+    "play/space-95/assets/audio/sfx/music_box/music_box_01.ogg": {
+      "bytes": 25535,
+      "sha256": "66b5978f1f6622a1a4937033caf1d719f66d936a08ce924e82bb63ca169b342f"
+    },
+    "play/space-95/assets/audio/sfx/music_box/music_box_02.m4a": {
+      "bytes": 27403,
+      "sha256": "2087070245a518a6ae04482871e638bb13af00b75cc8d75bd34df6cb90452f67"
+    },
+    "play/space-95/assets/audio/sfx/music_box/music_box_02.ogg": {
+      "bytes": 25800,
+      "sha256": "7926784a6b5c6aa56dfd0d7b232e450cdb9d55f432a4c0a5d1f35a1d609d79e8"
+    },
+    "play/space-95/assets/audio/sfx/music_box/music_box_03.m4a": {
+      "bytes": 27674,
+      "sha256": "6b34a9cd6521806bf938e3f01f2afe0f09f7c6df4d67a40c4e0e84cabc47f42d"
+    },
+    "play/space-95/assets/audio/sfx/music_box/music_box_03.ogg": {
+      "bytes": 25591,
+      "sha256": "2eeea72e87624701ab971d9e309822c2b2e0dd89cb891751d6240725eca2d93a"
+    },
+    "play/space-95/assets/audio/sfx/music_box/music_box_04.m4a": {
+      "bytes": 28248,
+      "sha256": "c573b7eb16cf6220b8a68cb654649c95d46667ed5dd3cd80b94369f632409bd0"
+    },
+    "play/space-95/assets/audio/sfx/music_box/music_box_04.ogg": {
+      "bytes": 25613,
+      "sha256": "8b4c325effaa4edf71c3fdf01cece9217eec1749578559b3d5e602d68e16d665"
+    },
     "play/space-95/assets/audio/sfx/nav_lamp_beep/nav_lamp_beep_01.m4a": {
       "bytes": 7091,
       "sha256": "cfb27cc6d2c795dc108577f764788440a06384e882a951491515d1a069aa0014"
@@ -11515,6 +12219,102 @@
     "play/space-95/assets/audio/sfx/night_bloom/night_bloom_04.ogg": {
       "bytes": 26197,
       "sha256": "ba02e57ce54ae31c4f3e1d311667a663243f2afa06dc92925cd138fabe581141"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/master/nymph_dive_01.wav": {
+      "bytes": 74924,
+      "sha256": "fc12e8a17393b14af83bef17955c655573b2d77e295bca9319efda289b696aa7"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/master/nymph_dive_02.wav": {
+      "bytes": 74924,
+      "sha256": "b7d50de9f205b243757b89c335c4bce661890ee21dd3ae40cb4c244e63813412"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/master/nymph_dive_03.wav": {
+      "bytes": 74924,
+      "sha256": "e68cf23ba66fb32ccb94ff9253c13664577606b81660a59c4a096755a81d23fe"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/master/nymph_dive_04.wav": {
+      "bytes": 74924,
+      "sha256": "624a3ebb1e77ef0d6d4c9a83bef12f5ffd5a134f2db6eb22d4ceed4af4036a46"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/nymph_dive_01.m4a": {
+      "bytes": 11182,
+      "sha256": "5d3fb8bed00d98e97c8648661d309de86b5cf0c818fe0a4faeb00d0956e52f61"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/nymph_dive_01.ogg": {
+      "bytes": 9044,
+      "sha256": "5d11c2c48280cf93136c0d396053fa7c791032d6fca9ab6e7c1821e025e8e1ec"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/nymph_dive_02.m4a": {
+      "bytes": 12392,
+      "sha256": "5a283a73a711acf12b61e7909b04cd4b9b520de7cd0e7fe92b9a1b44235a7107"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/nymph_dive_02.ogg": {
+      "bytes": 9518,
+      "sha256": "945aea2e869663e339eb17254324b4cef3dd7679db106a4f067e7c1060c47b5d"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/nymph_dive_03.m4a": {
+      "bytes": 12453,
+      "sha256": "d6d49145e53b5352d85c2438c5f77549c3b12bb868d8173390c015829f55f511"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/nymph_dive_03.ogg": {
+      "bytes": 9990,
+      "sha256": "e31dea2070ea2d8754a2a7a9825cf44185c830b4ebe6dd456436b9a3a0378969"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/nymph_dive_04.m4a": {
+      "bytes": 11619,
+      "sha256": "b8a4a13844201bf87919e5ba236a75a9e4370d6a8a7f770ff1d54f8a38678846"
+    },
+    "play/space-95/assets/audio/sfx/nymph_dive/nymph_dive_04.ogg": {
+      "bytes": 9191,
+      "sha256": "babe799db240ee3fbe50288fc70a668665768cfa34aa3b698c30fe581153b850"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/master/nymph_trill_01.wav": {
+      "bytes": 129644,
+      "sha256": "1864ba87e2e05733b09f23d2cca2babdbbff812929220c2a9e3886c868b12dca"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/master/nymph_trill_02.wav": {
+      "bytes": 129644,
+      "sha256": "80fda6c35e7d920a6573cda13e753045672323ad0b7efb7aacc5eb488fe6bcd4"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/master/nymph_trill_03.wav": {
+      "bytes": 129644,
+      "sha256": "3c76e07e4c894bc741ab1801a6bc71567211f0961ee53f84f6e01539eb126b5f"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/master/nymph_trill_04.wav": {
+      "bytes": 129644,
+      "sha256": "978d3287f82ad9792d416ade288945bcdd99fb31aad96a464f731bdaac26a044"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/nymph_trill_01.m4a": {
+      "bytes": 14166,
+      "sha256": "784ec23a8c8fd7a00a72c5dbde168ff741800485893c6eb7e8179f468c66dad5"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/nymph_trill_01.ogg": {
+      "bytes": 19828,
+      "sha256": "f7592630af92c230afddaaf140121ae936246ddc966da844df61c8623f09d0c5"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/nymph_trill_02.m4a": {
+      "bytes": 13744,
+      "sha256": "bf9193752955c28ed88a147dc26e377108805c7ccce0855c53d867c2dd3ad895"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/nymph_trill_02.ogg": {
+      "bytes": 19345,
+      "sha256": "a3c6f9c8fe079ef2fa770723d0e2f1f9704e3648d2468baf94c001e60fa38a2c"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/nymph_trill_03.m4a": {
+      "bytes": 14066,
+      "sha256": "a41b34f59387dcfdc2d65aa248171df1b478c798b23dde6c081e939e657bd41e"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/nymph_trill_03.ogg": {
+      "bytes": 19697,
+      "sha256": "68500d054d340ef960d21273c2c16d10a67f899907e6542757a0c7aa0f0e9d9f"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/nymph_trill_04.m4a": {
+      "bytes": 14020,
+      "sha256": "6c7fe9926610cbf4fb985d1b8b166c9d89335eea42935a12b378a707ddae2db7"
+    },
+    "play/space-95/assets/audio/sfx/nymph_trill/nymph_trill_04.ogg": {
+      "bytes": 19164,
+      "sha256": "00bc45c08076dc1b0e0091e8ac6521016cf63a2ad8b31c9298e2d4f50728344f"
     },
     "play/space-95/assets/audio/sfx/packet_blip/packet_blip_01.m4a": {
       "bytes": 4920,
@@ -11932,6 +12732,54 @@
       "bytes": 4927,
       "sha256": "f00d3d2b4e694da691b2d74fe7a74238faecf3f7e1b0d2ef4124932ee371d855"
     },
+    "play/space-95/assets/audio/sfx/power_cell_hum/master/power_cell_hum_01.wav": {
+      "bytes": 172844,
+      "sha256": "a9f9ebf1be6c6d8c8506d781d1c8bfefa2665fba2683d0b3cceb4b38e7f087c4"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/master/power_cell_hum_02.wav": {
+      "bytes": 172844,
+      "sha256": "ba212d2d8b6a81369d7447dfbc5ba0dfead4a121cca3cc91b3b38de83c4f90c9"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/master/power_cell_hum_03.wav": {
+      "bytes": 172844,
+      "sha256": "fc04bece9e7c7efc8fe05c007dbaca491f423873d109b581a4ae859f249791ae"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/master/power_cell_hum_04.wav": {
+      "bytes": 172844,
+      "sha256": "0782d6208b977b87f0eaab79e8a009a681d1cf5aa3cc5961bd913fd6554d9afe"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/power_cell_hum_01.m4a": {
+      "bytes": 21404,
+      "sha256": "6ac48b896cc66631980932cfeae9d94dda1483c64f451d9b9721b35bb965126e"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/power_cell_hum_01.ogg": {
+      "bytes": 15776,
+      "sha256": "1791c8c147a4e48bc1afc07b83ca04f2585600c2ffa7c7b72b9aedf57d7c0caa"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/power_cell_hum_02.m4a": {
+      "bytes": 21093,
+      "sha256": "d1978d3cdd1c68d7c266601193e6b000c261c0d99c10f2b1d8375d05549a5b18"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/power_cell_hum_02.ogg": {
+      "bytes": 15845,
+      "sha256": "35e6b4bf14c09541244ecc4818941fdf5b79b639363b39e44c8364519edfb587"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/power_cell_hum_03.m4a": {
+      "bytes": 20651,
+      "sha256": "e1dd6fda7c7874e4836c09ffe820cd4439f22b3ac854bd9fba94c2f35d067645"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/power_cell_hum_03.ogg": {
+      "bytes": 15851,
+      "sha256": "276c70d88cdbb8483f65d442d8549f1026902fadf2cd157291a5bc8f8126ea0f"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/power_cell_hum_04.m4a": {
+      "bytes": 20553,
+      "sha256": "5efdbe888506c11edfc5fb7766a93d0ee2e3950654dcd71958c9083b9e4d0f22"
+    },
+    "play/space-95/assets/audio/sfx/power_cell_hum/power_cell_hum_04.ogg": {
+      "bytes": 15993,
+      "sha256": "f91fc938706525cea8a582d44286ab83d37b2a49fee891a2976cba3faca20245"
+    },
     "play/space-95/assets/audio/sfx/power_down/power_down_01.m4a": {
       "bytes": 26391,
       "sha256": "297ebab2404fcae1f0ebb9d2f493a93776c7ac75fdffbe910e88a50a0da67ebc"
@@ -12276,6 +13124,102 @@
       "bytes": 11768,
       "sha256": "d20710d4d0597d902aa04183e888285eba5d0d7920b58c290c7dbfa81d52eb2c"
     },
+    "play/space-95/assets/audio/sfx/rubble_dig/master/rubble_dig_01.wav": {
+      "bytes": 51884,
+      "sha256": "76c568d937ae6645a1fba212837aebb56e80afba11015a5d791ba93e530f4e1f"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/master/rubble_dig_02.wav": {
+      "bytes": 51884,
+      "sha256": "cbb15cba93f85f4f479f6127772d253bbc8b059a1e94efa5af0ec66579009361"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/master/rubble_dig_03.wav": {
+      "bytes": 51884,
+      "sha256": "638757593c9fa7753dfbb58e79dc2a361f8ce3535799b2b413072981d2b41813"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/master/rubble_dig_04.wav": {
+      "bytes": 51884,
+      "sha256": "eb9fccbbe89613307ba62d7f50bba2e8e3bbf4e33104ce96d52995493309084b"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/rubble_dig_01.m4a": {
+      "bytes": 10301,
+      "sha256": "0ad61301281cdb8aced78b12e74a63c651d86fa5d12fa0345a8c974a088429fd"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/rubble_dig_01.ogg": {
+      "bytes": 7786,
+      "sha256": "304d092ae8404aa5140d2456acd18342908c108cf7d28d0b97b97b8e460cdb64"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/rubble_dig_02.m4a": {
+      "bytes": 10404,
+      "sha256": "3520fbdbb93a3ceceab144a3580accecad051c05938fa19e37818a712410f49c"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/rubble_dig_02.ogg": {
+      "bytes": 8201,
+      "sha256": "ec731b087a0f1fa10c9b9d813035cb2679cf297ef2f4785a4105cb9c7b594180"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/rubble_dig_03.m4a": {
+      "bytes": 9956,
+      "sha256": "e87f24d9f629867158c1cd4efffb63d7711dc52d59377b5584f1248056359a4f"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/rubble_dig_03.ogg": {
+      "bytes": 7667,
+      "sha256": "51560e5dc0ced236f28717e4f3e1371a892285006d74a1d9f957f9537478fa0c"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/rubble_dig_04.m4a": {
+      "bytes": 10390,
+      "sha256": "39d30e58dbfafa8bc0290fbcfafcc3b60020b849b41367c1323c75d9ff76b9d8"
+    },
+    "play/space-95/assets/audio/sfx/rubble_dig/rubble_dig_04.ogg": {
+      "bytes": 8138,
+      "sha256": "c33f44177aa6f9801283d8f02a3b90f8ef49e8af2a91492a7535b71dcd21d3b0"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/master/rubble_settle_01.wav": {
+      "bytes": 89324,
+      "sha256": "339eadbf63a250ea81aab82a65477d26228426753ffafd13c6e9e14c59ce99ce"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/master/rubble_settle_02.wav": {
+      "bytes": 89324,
+      "sha256": "c0dbdf80ac35997520eaf4f16aff865482ace6c4c0af15ddfeca16d640a01645"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/master/rubble_settle_03.wav": {
+      "bytes": 89324,
+      "sha256": "6999c044b68793f42afdcb92e4f5cfcc4628a5127fb613221e316f799bbfb115"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/master/rubble_settle_04.wav": {
+      "bytes": 89324,
+      "sha256": "7ecafacb6d582a1e43765a2cad79e8fad9d5e86eb79a33ede48f741545452fb5"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/rubble_settle_01.m4a": {
+      "bytes": 18716,
+      "sha256": "e417f4542c699499a5b5d16178a31e5d1ca660a53461db1997cca359f60c0e2f"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/rubble_settle_01.ogg": {
+      "bytes": 11874,
+      "sha256": "575fef3846ca4e0c3668c397b3f88d71453f7c3d6d4a8f8b762b89fc2942589c"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/rubble_settle_02.m4a": {
+      "bytes": 18546,
+      "sha256": "47261f9088fa3bab4ffd0e32c1a16a349b223d23c5bcb9b0354a1d51ad8a31a2"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/rubble_settle_02.ogg": {
+      "bytes": 12136,
+      "sha256": "43a484c2be463432d386e23cdfb618e7a352c8cdb2010cb9404f657b654342d9"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/rubble_settle_03.m4a": {
+      "bytes": 18004,
+      "sha256": "6e22aaeb06986e362da848cb3cc4e08814538e244ad25dd7a8c7830adf58f4a7"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/rubble_settle_03.ogg": {
+      "bytes": 11625,
+      "sha256": "5ab8779e907cf882c59de13ad91c36e70180da8b364f06806d64335ee3db9a0a"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/rubble_settle_04.m4a": {
+      "bytes": 17908,
+      "sha256": "0999f017c11d889b94fa54416d8c3db4304784841f4e42449f73acb1b0c12816"
+    },
+    "play/space-95/assets/audio/sfx/rubble_settle/rubble_settle_04.ogg": {
+      "bytes": 12728,
+      "sha256": "100c0948b4c96a1daa3ad1a21044f822d1f1ece2e403143e98877b4098e08e7e"
+    },
     "play/space-95/assets/audio/sfx/ruuma_inhale/ruuma_inhale_01.m4a": {
       "bytes": 25395,
       "sha256": "e828726f067a2a29475ef673bc1e85d5496e4e54514301629adeb66771845e7c"
@@ -12347,6 +13291,54 @@
     "play/space-95/assets/audio/sfx/scan_beep/scan_beep_04.ogg": {
       "bytes": 9288,
       "sha256": "4e00389102a03fec675d3c16c643c5db45ad6b5ac821c383035db71d2e610654"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/master/screw_fit_01.wav": {
+      "bytes": 89324,
+      "sha256": "f88ba77c5010fa9b30a2e478907d88ece3ccbcb18cb7dc250803bcb9e6a9060a"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/master/screw_fit_02.wav": {
+      "bytes": 89324,
+      "sha256": "f3a186ea2efb73035b570d40906e3eaa92ed582dafe0d891c958d1cc81ee6b8d"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/master/screw_fit_03.wav": {
+      "bytes": 89324,
+      "sha256": "fae16dfb9a957c55806075ceb06823fafc7a5da3f9bdd4feb6e86af6444283a6"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/master/screw_fit_04.wav": {
+      "bytes": 89324,
+      "sha256": "813f782e21b4d9c3f7a24d8cb396b756a5d0120669146bb5270c9389a2551ec3"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/screw_fit_01.m4a": {
+      "bytes": 15803,
+      "sha256": "18da8fb74d2f35b6d43f99db18a179d44f1b374d39044693ea87cdc64e9ac28f"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/screw_fit_01.ogg": {
+      "bytes": 9342,
+      "sha256": "e9db16587a98bd43a4084ef1bb3058aae5da5d6ead0f1d96de6ee3dc39d5e774"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/screw_fit_02.m4a": {
+      "bytes": 15279,
+      "sha256": "cfc38480b55f5e95db710464f5981f414d0185e4cebca2ec22896deecc87d8a6"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/screw_fit_02.ogg": {
+      "bytes": 9473,
+      "sha256": "1e423a2d215d483125c4e21383e0e255d7eec915157b2d09dccd5a2c25605812"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/screw_fit_03.m4a": {
+      "bytes": 15820,
+      "sha256": "ed2fea23f740c2cc0a2d780b8651df1c3041839f379788e35cb06f548f26c9a6"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/screw_fit_03.ogg": {
+      "bytes": 9672,
+      "sha256": "4d4d928f4d9b4448e0a6474410eeb19cb1749f9714ba3e3ec157cf8c2a1d3e76"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/screw_fit_04.m4a": {
+      "bytes": 15799,
+      "sha256": "4543e648fe35d569e357165462270f4666c6256a895bc673bf385b0494d7cbee"
+    },
+    "play/space-95/assets/audio/sfx/screw_fit/screw_fit_04.ogg": {
+      "bytes": 9348,
+      "sha256": "7796fd9f7b4168f12d7dae0559344368a5436cc2d2a6ce61648cf4c01b88c500"
     },
     "play/space-95/assets/audio/sfx/secret_glint/secret_glint.m4a": {
       "bytes": 20109,
@@ -13540,6 +14532,54 @@
       "bytes": 4638,
       "sha256": "37935d24cbfbf04aa1d659e35e306f2b6277551f18cb2119b1079108041f3fcd"
     },
+    "play/space-95/assets/audio/sfx/stone_clack/master/stone_clack_01.wav": {
+      "bytes": 43244,
+      "sha256": "e5b853b1c9cf3bba9a0a1720005a3894cdb45a4242c4f9c856fee78267ae77df"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/master/stone_clack_02.wav": {
+      "bytes": 43244,
+      "sha256": "55004c66fbced9ded749faa73b36b2e28766ca9e8e1e890967ef09c97ebc53cd"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/master/stone_clack_03.wav": {
+      "bytes": 43244,
+      "sha256": "08206469936510e781f6a2ffaf65677fd045a622ef5def68a31714d29f4afdbd"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/master/stone_clack_04.wav": {
+      "bytes": 43244,
+      "sha256": "fdcffc1c4fd08ca2848f5c0efdcf04550af2e5f73278f3292fff649d55c99502"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/stone_clack_01.m4a": {
+      "bytes": 6626,
+      "sha256": "73ac9a71f5109b4f98bc8236760023114e33b1280b67fed1fc9f125e4f113a05"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/stone_clack_01.ogg": {
+      "bytes": 4349,
+      "sha256": "6d02f210102a9e569e1ed7e749de35b1f453dbaf788fd2dbef186989b4d868c2"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/stone_clack_02.m4a": {
+      "bytes": 6640,
+      "sha256": "fe9497c4cf0f1913bc67d71ed6f1137cb48d89af607a05e1c6d00c68b39c1d62"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/stone_clack_02.ogg": {
+      "bytes": 4408,
+      "sha256": "9abfb90b6c63f4645741d084fd725175248b3c3f16b93f620a083d6ecbacd5b5"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/stone_clack_03.m4a": {
+      "bytes": 6556,
+      "sha256": "5f840403555775bd00e9bb4b4db933b21fdf739b7d2b8b54d3d1a9e72af3d4a7"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/stone_clack_03.ogg": {
+      "bytes": 4437,
+      "sha256": "9609d3d99157367864afba4d8fa918166432710f6814544779851f33b0300862"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/stone_clack_04.m4a": {
+      "bytes": 6678,
+      "sha256": "b787dd16628561a626de06fef725334211b15e9c278ff750980e004fad6cffc6"
+    },
+    "play/space-95/assets/audio/sfx/stone_clack/stone_clack_04.ogg": {
+      "bytes": 4331,
+      "sha256": "64eca57e64dcee8865a27181819bece0a620ca74f4f04dbbd29ad0156111cde1"
+    },
     "play/space-95/assets/audio/sfx/strider_skitter/strider_skitter_01.m4a": {
       "bytes": 14381,
       "sha256": "be246acd32d18113932578b26da372d2295e5ce2170dcf69378c8c29b14f6ae3"
@@ -13804,6 +14844,438 @@
       "bytes": 10510,
       "sha256": "f777ef720e510f6caac464e49d58c5a597392a7a8229433f69cbb71db8995492"
     },
+    "play/space-95/assets/audio/sfx/tower_creak/master/tower_creak_01.wav": {
+      "bytes": 74924,
+      "sha256": "61430232a3db49e63785e87f8f00055991f68312d2f5b66a71eca1f3c2e1c086"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/master/tower_creak_02.wav": {
+      "bytes": 74924,
+      "sha256": "af4479d6f65d7f9db584f3ae6b3104ea7c562b925a9a2aaa142219b5aa4e3a79"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/master/tower_creak_03.wav": {
+      "bytes": 74924,
+      "sha256": "803f51230a32e5986aa1e303f3882d4454c100d848bbf30fbaddb51dfe019232"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/master/tower_creak_04.wav": {
+      "bytes": 74924,
+      "sha256": "e2c9670076fea2bf63dbfa1331e900701bd53ae1e78a81bbda6538ebb967573c"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/tower_creak_01.m4a": {
+      "bytes": 12127,
+      "sha256": "01e1c4708d33e93af5397f8140f12baa4bc17620ebc90055c51dbdad915c6239"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/tower_creak_01.ogg": {
+      "bytes": 10225,
+      "sha256": "1ac4df4b814fa4c5d27c89236c57701b9bdd1f512514fe82d45c060cf5bc098c"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/tower_creak_02.m4a": {
+      "bytes": 13102,
+      "sha256": "461ccae32fc054cf996da14e3786453f592b93b69c9037b65cac7ea0c1648331"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/tower_creak_02.ogg": {
+      "bytes": 10084,
+      "sha256": "8b8c19641fddaedd1ec0bac14f174d1314c18d97e814fc5fb25a9d6379b2f69c"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/tower_creak_03.m4a": {
+      "bytes": 11980,
+      "sha256": "3e3949ae452e95a26b95b179deb8105a14fdf26ee69dc5a3117e54fcb0485626"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/tower_creak_03.ogg": {
+      "bytes": 9970,
+      "sha256": "39c806e102646b3db9764f296db30486867c048cae4008f421717c758853c3a0"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/tower_creak_04.m4a": {
+      "bytes": 14482,
+      "sha256": "18b997a253e9404186b9fe9959a45846e2c01df99f220a02564ac1775305034b"
+    },
+    "play/space-95/assets/audio/sfx/tower_creak/tower_creak_04.ogg": {
+      "bytes": 10839,
+      "sha256": "0960a3a70c263d8e073c833fcc0dc80ac51f0555258de6e92af57880735af836"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/master/tower_refill_01.wav": {
+      "bytes": 129644,
+      "sha256": "bd8e44acb83cf1b5982ba0aa5b73387ab89af63f5a76f74b65b0a2c6393ff26b"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/master/tower_refill_02.wav": {
+      "bytes": 129644,
+      "sha256": "02215eed7759cbf29959a431e4b45cc66a30623b7600d9fb4efe08196fb579d4"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/master/tower_refill_03.wav": {
+      "bytes": 129644,
+      "sha256": "4bc2a436cd462a2c9a13ea0daa3d1a7a18d9e5fdd01dde821036586b45da6ff7"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/master/tower_refill_04.wav": {
+      "bytes": 129644,
+      "sha256": "4c9b476e9139faf571658562bc18a6c669b15769f6eeb30e6e1fba2277611c37"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/tower_refill_01.m4a": {
+      "bytes": 18500,
+      "sha256": "25a4f0f8c9990be3fab340642a608a6e4265cc45e9c93c0b5e6c87a4195ab1c0"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/tower_refill_01.ogg": {
+      "bytes": 13574,
+      "sha256": "a1355107bdcacb0e0c6f4517e1e81a2cd21aaf6f3a3cc7c5b674105cd8ee3234"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/tower_refill_02.m4a": {
+      "bytes": 18142,
+      "sha256": "3503b087bd924b40ad673ae21638ff744a34d1cd6ff3fd167cc44ef5d3e80f60"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/tower_refill_02.ogg": {
+      "bytes": 13475,
+      "sha256": "66c0cb68d3c0b40d0ca63cb3ac6ebbd038222f8b0be86fdecc4a3e2f89d35fe7"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/tower_refill_03.m4a": {
+      "bytes": 18599,
+      "sha256": "00e1daace3e545c4f5207999a8f70363138fe59f89ed9ad0e731ad515b44b172"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/tower_refill_03.ogg": {
+      "bytes": 13457,
+      "sha256": "5cd9c48384ea13b2ef336c3255f9a8f15156f14ebe56f9b3d3789a4815d38093"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/tower_refill_04.m4a": {
+      "bytes": 18232,
+      "sha256": "36bb088a5d25878c7d89d4f9cb5c83053412efab344f5aa00c66c98050951171"
+    },
+    "play/space-95/assets/audio/sfx/tower_refill/tower_refill_04.ogg": {
+      "bytes": 13805,
+      "sha256": "594cd604d4f7119613d8701aad00746cb2ef7227c3f2c6b1629134bdbc1c534f"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/master/tower_topple_01.wav": {
+      "bytes": 165644,
+      "sha256": "eaca29565f32b0ee8f891df4e0f761a18675818107dabf47b57a3878bb08f549"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/master/tower_topple_02.wav": {
+      "bytes": 165644,
+      "sha256": "777e12363f5cde012647fa1a570d3e22be3fcffd1d729132d924832a36fb76f6"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/master/tower_topple_03.wav": {
+      "bytes": 165644,
+      "sha256": "94a21f45fe0687ba121f2e997a12d41be58961370bd99593eb8da128b83521b0"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/master/tower_topple_04.wav": {
+      "bytes": 165644,
+      "sha256": "92fb237733ac72bd4e44c1564103102e2a396573667a05af193ee71c271c5632"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/tower_topple_01.m4a": {
+      "bytes": 28367,
+      "sha256": "484d4934c2408d97c23ec04a5c342b21ac3406c57b34bd542466cd7224785c92"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/tower_topple_01.ogg": {
+      "bytes": 18733,
+      "sha256": "19a1af5288c9e71d027c6216b1466740c8841927d6616457544739bb02faead9"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/tower_topple_02.m4a": {
+      "bytes": 28295,
+      "sha256": "9cf3b96b4d9f5c3b243c34cb5e17f09cb0410152eb1a6c9d7689242fa6ab4bb2"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/tower_topple_02.ogg": {
+      "bytes": 18488,
+      "sha256": "82256318c4d1bec6167e70e81ce0d936812024d2d694477612b3690f7bdb3f81"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/tower_topple_03.m4a": {
+      "bytes": 28740,
+      "sha256": "049d2025d6882edbb9aa098f5d9f82c4e4f254164b301f8e28dc1d1e24b7e570"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/tower_topple_03.ogg": {
+      "bytes": 19362,
+      "sha256": "74756e754df58002ca86c495959f0f32453fe0fcf11bcc6be2a4fd7de3769393"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/tower_topple_04.m4a": {
+      "bytes": 28760,
+      "sha256": "8cda09e496f748044e65ee6b649040c34731348298a4c0431fecb962d6710824"
+    },
+    "play/space-95/assets/audio/sfx/tower_topple/tower_topple_04.ogg": {
+      "bytes": 18667,
+      "sha256": "d7f03b2e8048b8dc3d012f7026d004648db7a76ce251f1a6733f972eaca21317"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/master/trowel_chirp_01.wav": {
+      "bytes": 100844,
+      "sha256": "24f429b32318e6f7fdd664383e0b6d18d2ac64a85f6c7a504690750a0181d337"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/master/trowel_chirp_02.wav": {
+      "bytes": 100844,
+      "sha256": "0222c774aaa4ef78d3dc02efdac1f50b0d9ccb0c331daa5e056e00cc7800bb3f"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/master/trowel_chirp_03.wav": {
+      "bytes": 100844,
+      "sha256": "385b5efd325a304d97e5894d375a5743e3ae2153a5f83bd017647b220f1345c4"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/master/trowel_chirp_04.wav": {
+      "bytes": 100844,
+      "sha256": "6f74a6d2453b115c906b8e3cdd518e46aa32af1bb06361b833023ee9f75aa5cf"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/trowel_chirp_01.m4a": {
+      "bytes": 11727,
+      "sha256": "511df9314a452dc93f994e96450b830b72492a6b3525d65e2126482d515598bd"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/trowel_chirp_01.ogg": {
+      "bytes": 13783,
+      "sha256": "e0336319baca6a2a1b4df721727ac8d87771e7a0b25fe30a1f657a163b261f71"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/trowel_chirp_02.m4a": {
+      "bytes": 11347,
+      "sha256": "8cf18dcefabd3966512ac616b7a387d2d240529f8d44fef919d5182cbfd6a026"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/trowel_chirp_02.ogg": {
+      "bytes": 14029,
+      "sha256": "064d45c5bd35bb6931dd6d643136ffebc406610c5e0bbefd471a4576589b0d01"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/trowel_chirp_03.m4a": {
+      "bytes": 12412,
+      "sha256": "d4e68347cd780aa545d2d976a1023d47cf078936ab815d878bc251c82150a351"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/trowel_chirp_03.ogg": {
+      "bytes": 14080,
+      "sha256": "4f0a91b44b0865456ead7f8e08393d1daa4524a6957629b2549c7e9d73b9d210"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/trowel_chirp_04.m4a": {
+      "bytes": 11576,
+      "sha256": "fd5391020b5f2d38662695bc50d26fcf8561525ad54a404ceb85913239792903"
+    },
+    "play/space-95/assets/audio/sfx/trowel_chirp/trowel_chirp_04.ogg": {
+      "bytes": 13542,
+      "sha256": "ef8fc0edcacdbb6248d44c636a69cd32d3642f22987e7473630ca7e91b15fe0c"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/master/trowel_erupt_01.wav": {
+      "bytes": 129644,
+      "sha256": "5c3e947e821ab413eae5f1a6405df2d5eb7b121de12d72a420b73f54657b2917"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/master/trowel_erupt_02.wav": {
+      "bytes": 129644,
+      "sha256": "ad6d4179e36ab96614c47a0af895f3e628cda2a796af0e04c54be09fa032de2c"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/master/trowel_erupt_03.wav": {
+      "bytes": 129644,
+      "sha256": "62509582fead26864db8af33b0fcd02cf089261048c8f928ada1570d80224c73"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/master/trowel_erupt_04.wav": {
+      "bytes": 129644,
+      "sha256": "a1232ddfa7daa94d08b79e42b2d141b914e098a461d6c83feaf5017a2b3a44a1"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/trowel_erupt_01.m4a": {
+      "bytes": 23018,
+      "sha256": "f4cec3373763bda39c4eca17faeb96fcc0c75673be8ef0fc9e6a123c9584335b"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/trowel_erupt_01.ogg": {
+      "bytes": 15417,
+      "sha256": "f8a2c0f9b5c8f02572c707f56b900af27865a27966a20f2c9420e327daa3697e"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/trowel_erupt_02.m4a": {
+      "bytes": 22937,
+      "sha256": "84b3554b7393b6d454c46e59e5c7b30b5bd814343391da904600f4dbf533d7f2"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/trowel_erupt_02.ogg": {
+      "bytes": 15749,
+      "sha256": "94e758a264ec81fcd64ae15cd0e21a47048c0e4386fa8c982ef7dbf543efb628"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/trowel_erupt_03.m4a": {
+      "bytes": 22152,
+      "sha256": "04e7f3599e98286dd4fcb5c42b7d8f9e72448e528dd54b584ecdb2c644d7ba87"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/trowel_erupt_03.ogg": {
+      "bytes": 15915,
+      "sha256": "4e106d273c37697dbb1354239d033e028338086847969304d554c6678afd0f8e"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/trowel_erupt_04.m4a": {
+      "bytes": 22039,
+      "sha256": "e6703759186f5494dded78fa9426f3da4ae059bade7eb8ac0979960629635f2e"
+    },
+    "play/space-95/assets/audio/sfx/trowel_erupt/trowel_erupt_04.ogg": {
+      "bytes": 15393,
+      "sha256": "7d8e1c5fdd0a41cd44aea287d6f0b2826acc0912960c65c0f889669894e4d771"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/master/trowel_happy_01.wav": {
+      "bytes": 129644,
+      "sha256": "2a9ddc1ab2851d3086148ffa6054eeb30dd404771158ab0a099ac86b67568d82"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/master/trowel_happy_02.wav": {
+      "bytes": 129644,
+      "sha256": "3476a88ff2778f6ed4f40a6937af98250e9d53b51153270f1c05b00df486f10d"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/master/trowel_happy_03.wav": {
+      "bytes": 129644,
+      "sha256": "e7cc605c9cd081d2ae53226c17386f867abbe24eb4ef745e303d4e64cbad57f4"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/master/trowel_happy_04.wav": {
+      "bytes": 129644,
+      "sha256": "42493fdeb68a0bfcb10000bdeb8c5398a4251589ce8e9e3b572baafe26e8836f"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/trowel_happy_01.m4a": {
+      "bytes": 15541,
+      "sha256": "39619fbcd280cc4d10dbd3744ce75a33260f993ffdb5f0238a8b8911bf7249e2"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/trowel_happy_01.ogg": {
+      "bytes": 17061,
+      "sha256": "d877841409e8966ba09c37a9d9280fa29a3324351f01a0a95fcf77abb63bd776"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/trowel_happy_02.m4a": {
+      "bytes": 15313,
+      "sha256": "a5953e5fb875b4d8f7e2da88d2f91114bfee36d1457eedd14ad3833e44ecfc20"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/trowel_happy_02.ogg": {
+      "bytes": 16762,
+      "sha256": "602a00732ddeead16c053b7f803f85a22dcb58acae11c3ccf151743a5bd854b9"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/trowel_happy_03.m4a": {
+      "bytes": 16224,
+      "sha256": "fe34b120103f422d12f747ff8cb817be443c9fd18b697c7d5eecc9f872f5915d"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/trowel_happy_03.ogg": {
+      "bytes": 17228,
+      "sha256": "2e33b55851144ab867f2c0c08b7db6fc01d163b6f6fcd13554a0a8ab69aa8aa2"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/trowel_happy_04.m4a": {
+      "bytes": 15801,
+      "sha256": "9d4cff0611535b6561ee497a4d6b7123dd99bcd215e54f3a997b59ee91c52b77"
+    },
+    "play/space-95/assets/audio/sfx/trowel_happy/trowel_happy_04.ogg": {
+      "bytes": 16824,
+      "sha256": "86acdbb9d660d8b516fac5441344eb36f90bb53ebc6cb4fa355e0abf7824987e"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/master/trowel_rush_01.wav": {
+      "bytes": 129644,
+      "sha256": "907a76bca4ff04a073945bd2e72b98c24dd41ee6a6af83e4ee813ed0e46170d1"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/master/trowel_rush_02.wav": {
+      "bytes": 129644,
+      "sha256": "eff1c800f14d61d15a6e2f9358569f4a2c82368b2e380f21c06b8f416c3f075c"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/master/trowel_rush_03.wav": {
+      "bytes": 129644,
+      "sha256": "e90a05ed439d873ad773f3a2787a714e584a381e24872ecf3e926f57ae7d7b96"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/master/trowel_rush_04.wav": {
+      "bytes": 129644,
+      "sha256": "8b47030d8c0a6c888c81d2caf910ad58eb65548ae4542f1efb463f12554d20a7"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/trowel_rush_01.m4a": {
+      "bytes": 23086,
+      "sha256": "cafada262b1f93a5d4a0b3e2a2b6b52c96135b6d960bd9755e5eff78cf458be1"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/trowel_rush_01.ogg": {
+      "bytes": 17880,
+      "sha256": "9cc25d8fec1b2170e23af9274cb88d823c5e9c7e5ef8cb8910651533f5dca9c4"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/trowel_rush_02.m4a": {
+      "bytes": 23082,
+      "sha256": "a1f96ab9374552626c3ea63342f9e0ecb30198cf633ef440c34b1cd962d25bf8"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/trowel_rush_02.ogg": {
+      "bytes": 17969,
+      "sha256": "60e3aa040cee8ff237ec32b5ab8edb6bc92e9f480800d95f8ebb007ce07b7650"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/trowel_rush_03.m4a": {
+      "bytes": 22127,
+      "sha256": "763fb88b4e3a24926c474854c97296f531459526692426c54d14be35b92845f5"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/trowel_rush_03.ogg": {
+      "bytes": 18526,
+      "sha256": "3804459ee28eb94e4f365753d7be6d2f96dc1adc457aa05095bca1fa985c392d"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/trowel_rush_04.m4a": {
+      "bytes": 20361,
+      "sha256": "03913ca2ccf273e2a0efd915bbc78dbf1e25a7d8567ab2411fa5479025e50446"
+    },
+    "play/space-95/assets/audio/sfx/trowel_rush/trowel_rush_04.ogg": {
+      "bytes": 17738,
+      "sha256": "545fc0405b2f1506b9b5a0129b782b4682bc8e4d346d5ffbe9242294761e5b5e"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/master/trowel_stuck_01.wav": {
+      "bytes": 144044,
+      "sha256": "a371a1cbac11cbdadf57941d78bfa626aaa7d9396e59d8a9b7ddd96948855bb6"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/master/trowel_stuck_02.wav": {
+      "bytes": 144044,
+      "sha256": "b06b72cfb2d278d206c9f5ab9a0f12dcda06756c16a76d81217a31d392c19849"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/master/trowel_stuck_03.wav": {
+      "bytes": 144044,
+      "sha256": "01c9fdca91bb9139476c2f209f04c3e41e156bd6abab854bdb0445c441f8c929"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/master/trowel_stuck_04.wav": {
+      "bytes": 144044,
+      "sha256": "0b7079366a265a64b314c2a834d5feb1bbdf078df9b2bfd6eef203ec276dc2cf"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/trowel_stuck_01.m4a": {
+      "bytes": 19793,
+      "sha256": "b2a721609337ef183f5d48833949317262a0d7c0cdcfc575e9f3163994ce1987"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/trowel_stuck_01.ogg": {
+      "bytes": 16438,
+      "sha256": "b82a561f7998295430ae921d07cc02aa56908935b14e7a75ceca270ac7fb743d"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/trowel_stuck_02.m4a": {
+      "bytes": 19771,
+      "sha256": "de81aff83c7dd096a61b2c7d308327b8e6215b669b537e9ac41a124f1bcde162"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/trowel_stuck_02.ogg": {
+      "bytes": 15684,
+      "sha256": "9a1e91fa97483383d79775f9f6fcd01c1c494007f2c800a849418ea96c75b9bb"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/trowel_stuck_03.m4a": {
+      "bytes": 20309,
+      "sha256": "449601ee6db0457ce7c2ace4b4d4b1d2f5c5b587d7dc99ce68557d993102aabe"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/trowel_stuck_03.ogg": {
+      "bytes": 16764,
+      "sha256": "4187f912e4f6f6eeffadb01ada0747c4922341fb21af77635d08d894ebc1f97a"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/trowel_stuck_04.m4a": {
+      "bytes": 20915,
+      "sha256": "b2cf643c88d57676d4e022a2f40adb97de62909fbfd0ba4f259febe5e6e28e3a"
+    },
+    "play/space-95/assets/audio/sfx/trowel_stuck/trowel_stuck_04.ogg": {
+      "bytes": 15834,
+      "sha256": "7aa81f2d0f459e3173ff0f8286556caa57d401842da0802d3de9e052310597c2"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/master/trowel_trip_01.wav": {
+      "bytes": 109484,
+      "sha256": "d6004550098db55c0f5ff57d0de9667cef0e7a016150897044cebd5eecdad92a"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/master/trowel_trip_02.wav": {
+      "bytes": 109484,
+      "sha256": "5a8a0811157aa34f6cb9f1f011f24f87f90b1a37b492eacb312040dc19190b44"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/master/trowel_trip_03.wav": {
+      "bytes": 109484,
+      "sha256": "87aa2e0543d9616fba5ee497fe12037f0a00ad166e3ee731f8bc6dbeb2910302"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/master/trowel_trip_04.wav": {
+      "bytes": 109484,
+      "sha256": "954f749979c9905b928723b75812404759b376f54e8f01010568ef0ec971f1ef"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/trowel_trip_01.m4a": {
+      "bytes": 13642,
+      "sha256": "49ceed0d1eea018667a064f5d35072a47526fc62fd6165c62a7058404b7d7348"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/trowel_trip_01.ogg": {
+      "bytes": 11221,
+      "sha256": "ec1ba10b5b43b335014e3ae62235460fcc33fe9c4868c302591df50a03c3b87d"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/trowel_trip_02.m4a": {
+      "bytes": 13510,
+      "sha256": "8e8765ad5ea95b5968f9b7edcb96711cdbfd0f1974dcc8b1d4db993586a58e07"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/trowel_trip_02.ogg": {
+      "bytes": 11227,
+      "sha256": "d035c5ba7f49cbf7fa3c64186e425eaf20f34b5845e459460d328cd726240a9e"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/trowel_trip_03.m4a": {
+      "bytes": 13221,
+      "sha256": "f534391db09da5d137a2445d8d23a6fc078695982dacd484679a1313a27b2951"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/trowel_trip_03.ogg": {
+      "bytes": 11086,
+      "sha256": "2f91b3c6a3eb100eed852954d3e321c9522d5f4c01765f9936a0f00590bdaa2d"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/trowel_trip_04.m4a": {
+      "bytes": 14127,
+      "sha256": "322236299d947c1c3551d8aedc022b77f564d9eafb3b304845b03f0d7311f4f4"
+    },
+    "play/space-95/assets/audio/sfx/trowel_trip/trowel_trip_04.ogg": {
+      "bytes": 10908,
+      "sha256": "a7e9165965b49249973292e3ec010921bd8e04f12c4ade4686b9a6f66a1160a4"
+    },
     "play/space-95/assets/audio/sfx/tumble_clunk/tumble_clunk_01.m4a": {
       "bytes": 12237,
       "sha256": "38d7b421b832a1216c67dc512453ef66468e49a71ea9650493fddcc6d21547c5"
@@ -13835,6 +15307,54 @@
     "play/space-95/assets/audio/sfx/tumble_clunk/tumble_clunk_04.ogg": {
       "bytes": 7573,
       "sha256": "5f204ecefa7d9b173b8a6baf0d001823e63b3685328a777b265a5c316952e72e"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/master/tunnel_rumble_01.wav": {
+      "bytes": 158444,
+      "sha256": "631394d9b37882f38c2b8523ba052e0e837346bcf8dd47b1e15bd150bb1962f3"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/master/tunnel_rumble_02.wav": {
+      "bytes": 158444,
+      "sha256": "8c51e5d7740ba24922f3bc3a567bbc72a22e678d864f1df1e294eb2b4cd90dba"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/master/tunnel_rumble_03.wav": {
+      "bytes": 158444,
+      "sha256": "b6de87c77ef951ca517e1c2f5113155313cad0c8caae46d4017dbe8bb173a896"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/master/tunnel_rumble_04.wav": {
+      "bytes": 158444,
+      "sha256": "0bd5fbe74f59d3d70371f29db51560e20a80bf97623a97426c003a832e83f47a"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/tunnel_rumble_01.m4a": {
+      "bytes": 20463,
+      "sha256": "2c0b53c9bd9fb2ec6c937251c944df46b5a217750515c4779a1cf926b56fcc6b"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/tunnel_rumble_01.ogg": {
+      "bytes": 18971,
+      "sha256": "37c79cea849105e85de7cb56841a1fe7e10a68c654f2055831e5f634c85fbbb1"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/tunnel_rumble_02.m4a": {
+      "bytes": 20537,
+      "sha256": "e09058268d14b6056004920147d1f916c3b6e86f1080ab6d4b4bf219d63d0372"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/tunnel_rumble_02.ogg": {
+      "bytes": 20049,
+      "sha256": "81a4a77f9618c49e671484876363c70524f3ac0cac64c15b94917fa351bf8a40"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/tunnel_rumble_03.m4a": {
+      "bytes": 19662,
+      "sha256": "26fcfea8907e89b34e0322979d7feb13b8c27b5bae0dcad148b75d31e61a4f43"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/tunnel_rumble_03.ogg": {
+      "bytes": 19079,
+      "sha256": "3c7e561a2861ca01cff787faf0fe4ba4f98d211bafdcee84d1d214d4b1ff34c7"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/tunnel_rumble_04.m4a": {
+      "bytes": 22023,
+      "sha256": "9bf4686c710e9e0e9c57ad213394217a4898f9d1e26f6b57279c33be8cc1ca07"
+    },
+    "play/space-95/assets/audio/sfx/tunnel_rumble/tunnel_rumble_04.ogg": {
+      "bytes": 18299,
+      "sha256": "ae2530a3ae5f1840301b7c68e3a150f898c6e1f468cb31622d3fdedac6181aa5"
     },
     "play/space-95/assets/audio/sfx/twig_land/twig_land_01.m4a": {
       "bytes": 11228,
@@ -16318,7 +17838,7 @@
     },
     "play/farmy-moon-life/index.html": {
       "bytes": 70012,
-      "sha256": "3294e0cfd4972ff0d20426b0213536dd02f203b96cd8d84a31c2459eae0662b3"
+      "sha256": "0227360e13f9e83d07478dea66ec530f3999ffa03cc321e44dbaabcbb5a465f6"
     },
     "play/farmy-moon-life/src/install/icon-192.png": {
       "bytes": 1839,
@@ -17942,59 +19462,59 @@
     },
     "play/farmyshoot/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/farmykart/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/farmy-evil-hills/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/zelakas/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/2d-fighter-ex/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/farmy-crosswords/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/farmy-tiles/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/farmy-ludo/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/farmy-chess/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/minesweeper/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/gomoku/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/word-chain/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/truco/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "play/buraco/version.json": {
       "bytes": 72,
-      "sha256": "04195cdda448b680ee6989e4cb8de013880e400050d2614b6b0b965c0c3cd0e3"
+      "sha256": "6b0633937cae8637b2ff2553b9a6583d43caf84931cd1816ff86c504bede9c88"
     },
     "assets/badges/first-steps.svg": {
       "bytes": 764,
@@ -19118,7 +20638,7 @@
     },
     "catalogue.json": {
       "bytes": 19693,
-      "sha256": "07a2e8bee9c53b7a2efa0789b248e2aca6b07750ceca973731b3cb61a2113170"
+      "sha256": "0c5b151a1e3b7aa798be183a4fcf11bfc70b0ea8939cfd66f4fe128e76da53ee"
     }
   }
 }

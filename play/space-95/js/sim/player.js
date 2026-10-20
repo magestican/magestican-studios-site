@@ -8,6 +8,7 @@ import { bufferOk, cornerCorrect, coyoteOk, ledgeAssist } from './assists.js';
 import { onGround, sweepX, sweepY, touchingWall } from './body.js';
 import { climbStep, onBark } from './climb.js';
 import * as K from './constants.js';
+import { drillStep } from './drill.js';
 import { snareStep } from './enemies/aunt.js';
 import { LAUNCH_GAIN, MAX_BOOST } from './heave.js';
 import { spinUnder } from './pins.js';
@@ -92,7 +93,11 @@ export function stepPlayer(p, held, world) {
   if (glooped) p.ab.gloop -= S;
   
   const snared = p.snared > 0 && snareStep(p, held);
-  const input = glooped || snared ? NO_INPUT : held;
+  
+  const staggered = p.drillStagger > 0;
+  if (staggered) p.drillStagger -= S;
+  
+  const input = glooped || snared ? NO_INPUT : staggered ? { ...NO_INPUT, dash: !!held.dash } : held;
   if (p.flingT > 0) p.flingT -= S; 
   p.px = p.x;
   p.py = p.y;
@@ -110,8 +115,10 @@ export function stepPlayer(p, held, world) {
   
   const carried = roped || (p.ride ? rideStep(p) : p.wake ? wakeStep(p, input, pressed) : false);
   
+  const drilled = !carried && p.abilities?.has('drill') ? drillStep(p, input, world, dir) : false;
+  
   const top = p.abilities?.has('lantern') ? lanternStep(p, input, onBark(world, p)) : K.RUN_SPEED;
-  if (carried) {
+  if (carried || drilled) {
     
   } else if (!climbStep(p, input, world, dir, pressed)) {
     horizontal(p, dir, input, top);

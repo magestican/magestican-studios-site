@@ -1,5 +1,6 @@
 
 import { CHALLENGES, gymWorld } from './gym.js';
+import { buildDrillGym } from './gymDrill.js';
 import { buildTrainGym } from './gymTrain.js';
 import { buildWebGym } from './gymWebs.js';
 import { buildL01 } from './L01.js';
@@ -17,6 +18,7 @@ import { buildL12 } from './L12.js';
 import { buildL13 } from './L13.js';
 import { buildL14 } from './L14.js';
 import { buildL15 } from './L15.js';
+import { buildL16 } from './L16.js';
 
 const SHIFTS = {
   1: buildL01,
@@ -34,6 +36,7 @@ const SHIFTS = {
   13: buildL13,
   14: buildL14,
   15: buildL15,
+  16: buildL16,
 };
 
 
@@ -55,6 +58,11 @@ export function loadLevel(key) {
     
     const level = buildWebGym();
     return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Web gym' };
+  }
+  if (key === 'gym-drill') {
+    
+    const level = buildDrillGym();
+    return { level, labels: level.checkpoints.map((c) => ({ id: c.id, label: 'Clock-in', proves: '' })), title: 'Drill gym' };
   }
   return { level: { ...gymWorld(), pitCost: 'none' }, labels: CHALLENGES, title: 'Metrics gym' };
 }
