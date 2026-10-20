@@ -104,6 +104,10 @@
 
 
 
+
+
+
+
 import { levelBuilder } from './dsl.js';
 
 const KIT = [
@@ -120,6 +124,8 @@ const SILL = 30;
 const BOSS = 'L20-boss-1';
 const AWNING = 94; 
 const CROWN_POST = { x: 164, y: AWNING + 2.5 }; 
+const WEST_BRACKETS = [67, 76, 85]; 
+const EAST_BRACKETS = [62.5, 71.5, 80.5, 89.5]; 
 const TRAIN = 'L20-train';
 
 const BOWL = 32; 
@@ -198,7 +204,11 @@ const ROUTE = [
   
   { x: 169.5, y: 58, move: 'jump', yank: 'L20-plug-1' },
   
-  ...[62.5, 67, 71.5, 76, 80.5, 85, 89.5].map((y) => ({ x: 168, y, move: 'jump', via: { double: true } })),
+  
+  { x: 167.5, y: 62.5, move: 'jump', via: { double: true } },
+  ...[67, 71.5, 76, 80.5, 85, 89.5].map((y, i) =>
+    i % 2 ? { x: 166.5, y, move: 'jump', at: 158.6, via: { double: true } } : { x: 156, y, move: 'jump', at: 164.4, via: { double: true } },
+  ),
   
   { x: 169.5, y: AWNING, move: 'jump', via: { double: true }, bud: 'L20-bud-1' },
   
@@ -437,13 +447,24 @@ function climb(L) {
     [155, 67.3],
   ])
     L.putAt('wasp', x, y, { lead: true, circuit: 'L20-lights', wakeY: 4, ...CB('B10') });
-  for (const y of [62.5, 67, 71.5, 76, 80.5, 85, 89.5]) L.ledge(165, 171, y); 
+  
+  
+  for (const y of WEST_BRACKETS) L.ledge(151, 159, y);
+  for (const y of EAST_BRACKETS) L.ledge(164, 171, y);
+  for (const y of [...WEST_BRACKETS, ...EAST_BRACKETS].sort((a, b) => a - b).slice(1)) L.putAt('seed', 161, y + 0.5);
+  
+  L.putAt('wasp', CROWN_POST.x, CROWN_POST.y - 1, {
+    id: 'L20-crowncadet-1',
+    wake: 999,
+    wakeY: 999,
+    crown: { boss: BOSS, phase: 1, every: 3, tel: 0.9, fromY: 60, toY: AWNING - 1 },
+  });
 
   
   
   const line = (step, x0, x1, y) => L.putAt('cameo', (x0 + x1) / 2, y, { event: 'sillLine', step, zone: { x0, x1, y0: y - 2, y1: y + 1 } });
   line(3, 150.5, 160, 49.5); 
-  line(4, 165, 171, 67); 
+  line(4, 151, 159, 67); 
 
   
   

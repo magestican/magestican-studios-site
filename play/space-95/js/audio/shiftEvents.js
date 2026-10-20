@@ -770,6 +770,7 @@ export const SHIFT_EVENTS = {
     'wake',
     'wallSlide',
     'waspDive',
+    'waspPullUp',
     'waspStuck',
     'webLand',
     'webLaunch',

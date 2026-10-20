@@ -46,6 +46,88 @@ function telegraph(e, ctx, lock, seconds) {
   ctx.events.push({ type: 'telegraph', id: e.id, attack: 'dive', seconds, x: e.x, y: e.y, tx: lock.x, ty: lock.y, signals: SIGNALS });
 }
 
+
+
+
+
+
+
+const CROWN_PAST = 3; 
+const CROWN_RETURN = 18; 
+const CROWN_FIRST = 1; 
+
+function crownDive(e, ctx) {
+  const c = e.crown;
+  const p = ctx.player;
+  const s = ctx.session;
+  const boss = s.entities.find((b) => b.id === c.boss);
+  e.harmless = e.stage !== 'dive';
+  if (!boss || boss.phase > c.phase || boss.stage === 'defeated') {
+    e.alive = false; 
+    return;
+  }
+  if (boss.phase < c.phase) return; 
+  e.post = { x: boss.x, y: boss.y - 1 };
+  
+  
+  const live = boss.stage !== 'intro' && s.dead === 0 && p.y >= c.fromY && p.y < (c.toY ?? Number.POSITIVE_INFINITY);
+  if (e.clock === undefined && live) e.clock = c.every - CROWN_FIRST;
+  if (e.clock !== undefined && s.dead === 0) e.clock += STEP;
+  if (e.stage === 'hover') {
+    e.x = e.post.x;
+    e.y = e.post.y;
+    if (live && e.clock >= c.every) {
+      e.clock = 0;
+      telegraph(e, ctx, centre(p), c.tel);
+    }
+  } else if (e.stage === 'telegraph') {
+    e.st += STEP;
+    e.x = e.post.x;
+    e.y = e.post.y;
+    if (e.st >= e.tel) {
+      const ec = centre(e);
+      const dx = e.lock.x - ec.x;
+      const dy = e.lock.y - ec.y;
+      const d = Math.hypot(dx, dy) || 1;
+      e.stage = 'dive';
+      e.st = 0;
+      e.toLock = d;
+      e.flown = 0;
+      e.vx = (dx / d) * DIVE_SPEED;
+      e.vy = (dy / d) * DIVE_SPEED;
+      e.facing = Math.sign(dx) || e.facing;
+      ctx.events.push({ type: 'waspDive', id: e.id, x: e.x, y: e.y });
+    }
+  } else if (e.stage === 'dive') {
+    const mx = sweepX(ctx.world, e, e.vx * STEP);
+    e.x = mx.x;
+    const my = sweepY(ctx.world, e, e.vy * STEP, true);
+    e.y = my.y;
+    e.flown += DIVE_SPEED * STEP;
+    if (mx.hit || my.hit || e.flown >= e.toLock + CROWN_PAST) {
+      e.stage = 'return';
+      e.st = 0;
+      ctx.events.push({ type: 'waspPullUp', id: e.id, x: e.x, y: e.y });
+    }
+  } else if (e.stage === 'return') {
+    const dx = e.post.x - e.x;
+    const dy = e.post.y - e.y;
+    const d = Math.hypot(dx, dy);
+    if (d <= CROWN_RETURN * STEP) {
+      e.stage = 'hover';
+      e.st = 0;
+      e.vx = 0;
+      e.vy = 0;
+    } else {
+      e.vx = (dx / d) * CROWN_RETURN;
+      e.vy = (dy / d) * CROWN_RETURN;
+      e.x += e.vx * STEP;
+      e.y += e.vy * STEP;
+    }
+  }
+  if (e.stage === 'dive' && contact(p, e)) hurtPlayer(s, e.x);
+}
+
 registerKind('wasp', {
   sleeps: true,
   create(e) {
@@ -64,6 +146,7 @@ registerKind('wasp', {
     const s = ctx.session;
     
     if (e.asleep) return;
+    if (e.crown) return crownDive(e, ctx);
     e.st += STEP;
     const pc = centre(p);
     const ec = centre(e);
