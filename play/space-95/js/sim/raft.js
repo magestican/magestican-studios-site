@@ -87,7 +87,7 @@ function syncPackets(s, R) {
     const path = lanePath(d);
     const speed = d.speed ?? 6;
     const life = path.len / speed + PACKET_SINK;
-    const off = d.offset ?? 0;
+    const off = s.laneOffset?.[d.id] ?? d.offset ?? 0; 
     const k0 = Math.ceil((t - life - off) / d.period - 1e-9);
     const k1 = Math.floor((t - off) / d.period + 1e-9);
     for (let k = k0; k <= k1; k++) {

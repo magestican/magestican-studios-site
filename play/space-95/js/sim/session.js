@@ -23,6 +23,7 @@ import { respawnPlane, startPlane, stepPlane } from './plane.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
 import { attachRafts, createRafts, stepRafts } from './raft.js';
 import { offerRescue, stepRescue } from './rescue.js';
+import { startRide, stepRide } from './ride.js';
 import { createRipple, stepRipple } from './ripple.js';
 import { stepSecretSignals } from './secrets.js';
 import { stepShield } from './shield.js';
@@ -139,6 +140,7 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
   if (level.mode === 'train') startTrain(s, start);
   
   if (level.mode === 'plane') startPlane(s, start, start !== level.spawn);
+  if (level.ride) startRide(s, start); 
   initArena(s);
   return s;
 }
@@ -281,6 +283,7 @@ export function stepSession(s, input) {
   stepDig(s);
   stepShield(s);
   stepEntities(s.entities, { world: s.world, session: s, player: p, events: s.events });
+  if (s.level.ride) stepRide(s); 
   if (s.plane) {
     stepWingman(s); 
     stepAerodrome(s); 
@@ -479,6 +482,7 @@ function respawn(s) {
     s.safe = { ...s.respawnAt };
     s.safeLand = s.safe;
   }
+  if (s.level.ride) startRide(s, s.respawnAt); 
   s.events.push({ type: 'respawn' });
 }
 

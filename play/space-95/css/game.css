@@ -406,3 +406,8 @@ kbd {
     padding: 16px;
   }
 }
+
+
+.is-rescue .touch-dash[hidden] {
+  display: inline-block;
+}

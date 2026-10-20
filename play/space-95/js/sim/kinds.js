@@ -32,6 +32,7 @@ import './motifs/flock.js';
 import './motifs/typeKey.js';
 import './pickups.js';
 import './readArm.js';
+import './ride.js';
 import './shield.js';
 import './slipstream.js';
 import './surge.js';

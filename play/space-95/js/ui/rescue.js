@@ -23,6 +23,9 @@ export function createRescuePrompt(parent) {
     update(s) {
       const offer = s.rescue;
       el.hidden = !offer;
+      
+      
+      document.body.classList.toggle('is-rescue', !!offer);
       if (!offer) return;
       how.textContent = touchy() ? 'Hold JUMP and DASH together' : 'Hold JUMP + DASH (Space + Shift)';
       const left = Math.max(0, offer.until - s.time);
