@@ -34,6 +34,12 @@ function wakeTouch(s, e) {
 }
 
 
+
+
+const wingBoss = (e) =>
+  e.kind === 'boss' && e.engaged && e.stage !== 'intro' && e.stage !== 'defeated' && !!e.phases[e.phase].callbacks?.includes('turret');
+
+
 export function stepWingman(s) {
   const pl = s.plane;
   if (pl?.stage !== 'fly') return;
@@ -48,6 +54,10 @@ export function stepWingman(s) {
       }
       if (e.spun >= PLANE.SPUN + PLANE.TURRET_T - 1e-9) {
         e.spun = undefined;
+        if (e.kind === 'boss') {
+          e.turretAt = s.time; 
+          continue;
+        }
         e.asleep = false;
         defeat(e, ctx, 'wingman');
         s.stats.wingman += 1;
@@ -59,7 +69,8 @@ export function stepWingman(s) {
       if (how) glasswingWake(e, ctx, how);
       continue;
     }
-    if (e.motif !== 'wingman' || !fighting(e) || s.dead > 0) continue;
+    
+    if ((e.motif !== 'wingman' && !e.wingman && !wingBoss(e)) || !fighting(e) || s.dead > 0) continue;
     const how = wakeTouch(s, e);
     if (!how) continue;
     e.spun = 0;

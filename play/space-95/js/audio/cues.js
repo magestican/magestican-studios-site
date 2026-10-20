@@ -284,6 +284,8 @@ const CUES = {
   sovereignOpen: ['crown_daze', 'enemy_daze'],
   crowning: ['swarm_crowning', 'whoosh'], 
   cellSnatch: ['cell_snatch', 'whoosh'], 
+  crownPop: ['crown_pop', 'helmet_bonk', 'bonk'], 
+  clockOff: ['factory_whistle', 'box_tick'], 
 };
 
 

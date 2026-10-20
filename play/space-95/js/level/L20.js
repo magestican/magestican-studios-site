@@ -70,6 +70,27 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { levelBuilder } from './dsl.js';
 
 const KIT = [
@@ -112,6 +133,25 @@ const DEED = 'L20-intel-2';
 
 const P3_INTRO = 4.9;
 const P3_POST = { x: 193, y: SILL + 7 }; 
+
+const SKY_END = 800;
+
+const MOTH_PATH = [
+  [290, 58],
+  [340, 60],
+  [400, 62],
+  [460, 64],
+  [520, 66],
+  [560, 66],
+];
+const SPECIMEN = { x: 370, y: 61 - 0.35 }; 
+const CADETS = [
+  [610, 67.65],
+  [640, 68.65],
+  [670, 69.65],
+]; 
+const P4_POST = { x: 300, y: 60 }; 
+const FLEE_TO = { x: 720, y: 70 }; 
 const CB = (use) => ({ motif: 'callback', use });
 const atk = (name, kind, telegraph, active, recover) => ({ name, kind, telegraph, active, recover });
 
@@ -156,7 +196,7 @@ const ROUTE = [
   
   
   { x: 207.5, y: SILL + 0.75, move: 'walk' },
-  { x: 200.5, y: SILL + 0.5, move: 'jump', at: 207.5, via: { double: true, defeat: BOSS }, maxS: 10 },
+  { x: 200.5, y: SILL + 0.5, move: 'jump', at: 207.5, via: { double: true, defeat: `${BOSS}:2` }, maxS: 10 },
   
   { x: 212.5, y: SILL, move: 'walk' },
   { x: STAIR[0][0], y: SILL + BLOCK_U, move: 'jump' },
@@ -165,6 +205,17 @@ const ROUTE = [
   { x: HULL_X + 2, y: HULL_TOP, move: 'jump', via: { double: true } },
   
   { x: 222.5, y: HULL_TOP, move: 'surf' },
+];
+
+
+const PLANE_PLAN = [
+  { x: 262, y: 56, move: 'fly' }, 
+  { x: 274, y: 57, move: 'fly' },
+  { move: 'loop', via: { when: 'moth<=4' } }, 
+  ...MOTH_PATH.map(([x, y]) => ({ x, y, move: 'fly' })), 
+  { x: 600, y: 67.5, move: 'fly' }, 
+  { x: FLEE_TO.x + 2, y: FLEE_TO.y + 0.9, move: 'fly' },
+  { x: SKY_END - 20, y: FLEE_TO.y + 1, move: 'clear' }, 
 ];
 
 export function buildL20() {
@@ -278,15 +329,35 @@ export function buildL20() {
         deed: DEED,
         attacks: [atk('Cadet Volley', 'hover', 0.8, 0.5, 0.8), atk('Crown Swoop', 'swoop', 1.0, 0.7, 1.0)],
       },
+      {
+        
+        
+        
+        
+        
+        name: 'P4',
+        hp: 1,
+        box: 4,
+        intro: 3,
+        post: P4_POST,
+        arena: { x0: 174, x1: SKY_END - 10, y0: 28, y1: 105 },
+        weakness: ['callback'],
+        callbacks: ['turret'],
+        flee: { at: 270, speed: 12, to: FLEE_TO, lead: 16 },
+        outro: true,
+        attacks: [atk('Cadet Screen', 'hover', 1.0, 0.5, 0.8)],
+      },
     ],
   });
   L.beaconAt(151, SILL, { phase: `${BOSS}:1` }); 
   climb(L);
   L.beaconAt(176, SILL, { phase: `${BOSS}:2` }); 
   arena(L);
+  sky(L);
 
   const level = L.build();
   level.waypoints = ROUTE;
+  level.planePlan = PLANE_PLAN;
   
   level.webBeats = [{ name: 'B9 web -> F3', from: { x: 153, y: 49.5 }, goal: { x0: 160.5, y: 58, dir: 1 } }];
   return level;
@@ -437,8 +508,52 @@ function arena(L) {
 
   
   
-  
   L.putAt('board', 222.5, HULL_TOP, { surf: true, needBoxes: 3, name: 'The ship' });
-  L.putAt('finish', 236, HULL_TOP + 3, { flyPast: true, name: 'TEMPORARY end of the P3 greybox (P4 not built)' });
-  L.wall(258, 260, 0, 1); 
+}
+
+
+
+
+
+
+
+
+
+function sky(L) {
+  L.wall(226, SKY_END, 0, 2); 
+  
+  
+  L.beaconAt(262, 56, { phase: `${BOSS}:3`, mode: 'plane' });
+  
+  L.putAt('moth', 258, 52, {
+    tail: { wakeWhen: { x: 266 }, speed: 13, hold: 3 },
+    path: MOTH_PATH,
+    speed: 11,
+    motif: 'callback',
+    use: 'B18',
+  });
+  
+  
+  L.putAt('wasp', SPECIMEN.x, SPECIMEN.y, {
+    asleep: true,
+    hp: 9,
+    wingman: true,
+    specimen: true,
+    name: 'The Crown Jewel Wasp',
+    signals: ['visual:gold-glint', 'audio:glint-chime'],
+    seenFrom: "the boarding pad (T3): it sparkles on the crown's top",
+    ...CB('B18'),
+  });
+  
+  L.beaconAt(560, 66, { phase: `${BOSS}:3`, mode: 'plane' });
+  
+  for (const [x, y] of CADETS) L.putAt('wasp', x, y, { asleep: true, hp: 9, wingman: true, ...CB('B19') });
+  
+  L.putAt('finish', FLEE_TO.x - 20, FLEE_TO.y, {
+    alive: false,
+    bossGate: BOSS,
+    delay: 3,
+    flyPast: true,
+    name: 'Home: the end of shift 20',
+  });
 }

@@ -23,6 +23,12 @@
 
 
 
+
+
+
+
+
+
 import { contact, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { registerBossType, weakTo } from './boss.js';
@@ -62,6 +68,16 @@ registerBossType('sovereign', {
       }
     }
     if (ph.crown) e.harmless = true; 
+    if (ph.flee) {
+      e.harmless = true; 
+      if (e.fleeing || !e.from) {
+        
+        
+        e.from = null;
+        e.x = Math.max(e.x, ctx.player.x + ph.flee.lead);
+        e.y = fleeY(e, ph.flee);
+      }
+    }
     if (ph.post && e.from) {
       const k = Math.min(1, e.t / (ph.intro ?? 1.2));
       const ease = k * k * (3 - 2 * k);
@@ -73,16 +89,28 @@ registerBossType('sovereign', {
     const p = ctx.player;
     e.harmless = atk.kind === 'hover' || stage === 'telegraph';
     
+    const ph = e.phases[e.phase];
     e.sinceHit += STEP;
-    if (e.sinceHit >= SOVEREIGN.FALLBACK && stage !== 'recover') {
+    
+    if (e.sinceHit >= SOVEREIGN.FALLBACK && stage !== 'recover' && !ph.flee) {
       e.sinceHit = 0;
       e.interrupt = { recoverFor: SOVEREIGN.WINDOW, weakNow: true };
       ctx.events.push({ type: 'sovereignOpen', id: e.id, seconds: SOVEREIGN.WINDOW });
       return;
     }
+    if (ph.flee) {
+      e.harmless = true;
+      const f = ph.flee;
+      const pl = ctx.session.plane;
+      if (!e.fleeing && !(pl?.stage === 'fly' && pl.x >= f.at)) return; 
+      if (!e.fleeing) ctx.events.push({ type: 'sovereignFlee', id: e.id, x: e.x, y: e.y });
+      e.fleeing = true;
+      e.x = Math.min(f.to.x, e.x + f.speed * STEP);
+      e.y = fleeY(e, f);
+      return;
+    }
     
     
-    const ph = e.phases[e.phase];
     if (ph.windowY !== undefined && stage === 'recover' && e.weakNow === true) {
       e.y += (ph.windowY - e.y) * Math.min(1, SINK * STEP);
       e.lock = null; 
@@ -124,9 +152,21 @@ registerBossType('sovereign', {
     
     if (how && ph.crown && e.hp === 1 && weakTo(ph, how) && !(e.immune > 0))
       ctx.events.push({ type: 'cellDrop', id: e.id, x: e.x, y: e.y });
+    
+    if (how && ph.outro && e.hp === 1 && weakTo(ph, how) && !(e.immune > 0)) {
+      ctx.events.push({ type: 'crownPop', id: e.id, x: e.x, y: e.y + e.h / 2 });
+      ctx.events.push({ type: 'clockOff', id: 'swarm', x: e.x, y: e.y });
+      ctx.events.push({ type: 'sovereignOutro', id: e.id, to: 'bowl', x: e.x, y: e.y });
+    }
     return how;
   },
 });
+
+
+function fleeY(e, f) {
+  const k = f.to.x > e.post.x ? Math.max(0, Math.min(1, (e.x - e.post.x) / (f.to.x - e.post.x))) : 1;
+  return e.post.y + (f.to.y - e.post.y) * k;
+}
 
 
 function landing(e, ctx, ph) {
@@ -149,6 +189,13 @@ function landing(e, ctx, ph) {
     ev.target === e.id ||
     ev.id === e.id ||
     (ev.x !== undefined && Math.hypot(ev.x - e.x, ev.y - (e.y + e.h / 2)) <= Math.max(REACH, (ev.radius ?? 0) + e.w / 2));
+  
+  if (cbs.includes('turret') && e.turretAt !== undefined) {
+    e.turretAt = undefined;
+    e.sinceHit = 0;
+    return 'callback';
+  }
+  if (ph.flee) return null; 
   const cb = ctx.events.find((ev) => cbs.includes(ev.type) && near(ev));
   if (cb) {
     e.sinceHit = 0;

@@ -309,7 +309,10 @@ export function stepSession(s, input) {
   for (const c of s.level.checkpoints) {
     
     if (c.phase) {
-      if (c.id > s.checkpoint && s.lit.has(c.phase)) {
+      
+      
+      const plane = c.mode !== 'plane' || (!!s.plane && p.x >= c.x);
+      if (c.id > s.checkpoint && s.lit.has(c.phase) && plane) {
         s.checkpoint = c.id;
         s.respawnAt = { x: c.x, y: c.y };
         s.events.push({ type: 'checkpoint', id: c.id, phase: c.phase });

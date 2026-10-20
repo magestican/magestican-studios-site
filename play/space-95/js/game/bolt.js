@@ -140,6 +140,7 @@ const SILL = [
 const CELL = {
   cellSnatch: 'Box one. ...She took the CELL. Box two: get it back!', 
   box2: 'Box two! Box three: fuel. Get the cell into the hatch!', 
+  sovereignOutro: "Box four. ...Look at her go - paddling home in Ruuma's bowl. Shift's over, Jo.", 
 };
 
 
@@ -233,6 +234,11 @@ export function createBoltVoice() {
         
         cooldown = 4;
         return { text: SILL[e.step], beep: 'bolt_beep_happy', mood: 'happy' };
+      }
+      if (e.type === 'sovereignOutro') {
+        
+        cooldown = 4;
+        return { text: CELL.sovereignOutro, beep: 'bolt_beep_happy', mood: 'happy' };
       }
       if (e.type === 'cellSnatch' || (e.type === 'box' && e.n === 2)) {
         
