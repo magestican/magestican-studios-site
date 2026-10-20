@@ -140,7 +140,7 @@ const SILL = [
 const CELL = {
   cellSnatch: 'Box one. ...She took the CELL. Box two: get it back!', 
   box2: 'Box two! Box three: fuel. Get the cell into the hatch!', 
-  sovereignOutro: "Box four. ...Look at her go - paddling home in Ruuma's bowl. Shift's over, Jo.", 
+  sovereignOutro: "Box four. ...Look at her go. Shift's over, Jo.", 
 };
 
 

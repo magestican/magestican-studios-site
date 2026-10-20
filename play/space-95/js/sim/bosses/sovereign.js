@@ -29,7 +29,14 @@
 
 
 
-import { contact, stompBounce } from '../combat.js';
+
+
+
+
+
+
+
+import { contact, hurtPlayer, stompBounce } from '../combat.js';
 import { STEP } from '../constants.js';
 import { registerBossType, weakTo } from './boss.js';
 
@@ -39,8 +46,53 @@ const REACH = 2.5;
 const SINK = 6; 
 const COLLAPSE_RECENT = 0.05; 
 const SOVEREIGN = Object.freeze({ FALLBACK: 12, WINDOW: 2.5 });
+const HOP = 20; 
+const FAN_TELE = 0.8; 
+const FAN_ACTIVE = 0.3; 
+const FAN_R = 1.5; 
+const SPIKE_BREATH = 0.3; 
 
 registerBossType('sovereign', {
+  idle(e, ctx) {
+    const ph = e.phases[e.phase];
+    if (!ph.perches) return;
+    const p = ctx.player;
+    
+    const lastPerch = e.perchIdx === ph.perches.length - 1;
+    const flung = lastPerch && ctx.events.some((ev) => ev.type === 'fling' && ev.vx > 0 && ev.x < e.x);
+    if (!e.landed && ph.land && (flung || p.x >= ph.land.at)) {
+      e.landed = true; 
+      e.perchAt = { x: ph.land.x, y: ph.land.y };
+      e.fan = null;
+      ctx.events.push({ type: 'sovereignKnocked', id: e.id, x: ph.land.x, y: ph.land.y, by: flung ? 'fling' : 'pass' });
+    }
+    if (!e.landed) {
+      let i = -1;
+      for (const [k, pc] of ph.perches.entries()) if (p.x >= pc.at) i = k;
+      if (i >= 0 && i !== e.perchIdx) {
+        e.perchIdx = i;
+        e.perchAt = { x: ph.perches[i].x, y: ph.perches[i].y };
+        e.fanDue = ph.perches[i].fan === true;
+        ctx.events.push({ type: 'sovereignHop', id: e.id, perch: i, x: e.perchAt.x, y: e.perchAt.y });
+      }
+    }
+    if (e.perchAt) {
+      hopOn(e);
+      if (e.fanDue && Math.abs(e.perchAt.x - e.x) < 1e-9) {
+        e.fanDue = false; 
+        e.fan = { x: p.x, y: p.y, t: 0 };
+        ctx.events.push({ type: 'telegraph', id: e.id, attack: 'Glitter Fan', seconds: FAN_TELE, x: p.x, y: p.y });
+      }
+    }
+    if (e.fan) {
+      e.fan.t += STEP;
+      const live = e.fan.t >= FAN_TELE;
+      if (live && e.fan.t - STEP < FAN_TELE)
+        ctx.events.push({ type: 'bossAttack', id: e.id, attack: 'Glitter Fan', x: e.fan.x, y: e.fan.y });
+      if (live && Math.abs(p.x - e.fan.x) <= FAN_R && Math.abs(p.y - e.fan.y) <= FAN_R) hurtPlayer(ctx.session, e.fan.x);
+      if (e.fan.t >= FAN_TELE + FAN_ACTIVE) e.fan = null;
+    }
+  },
   create(e) {
     const ph = e.phases[e.phase]; 
     if (ph.arena) e.arena = ph.arena;
@@ -54,6 +106,7 @@ registerBossType('sovereign', {
     e.sinceHit = 0;
   },
   intro(e, ctx, ph) {
+    if (ph.perches && e.perchAt) hopOn(e); 
     if (e.introOf !== e.phase) {
       e.introOf = e.phase;
       if (ph.arena) e.arena = ph.arena;
@@ -95,6 +148,7 @@ registerBossType('sovereign', {
     if (e.sinceHit >= SOVEREIGN.FALLBACK && stage !== 'recover' && !ph.flee) {
       e.sinceHit = 0;
       e.interrupt = { recoverFor: SOVEREIGN.WINDOW, weakNow: true };
+      e.spikeWindow = false;
       ctx.events.push({ type: 'sovereignOpen', id: e.id, seconds: SOVEREIGN.WINDOW });
       return;
     }
@@ -150,6 +204,14 @@ registerBossType('sovereign', {
     }
     const how = landing(e, ctx, ph);
     
+    
+    
+    if (how === 'stomp' && e.spikeWindow && e.hp > 1 && weakTo(ph, how) && !(e.immune > 0)) {
+      e.spikeWindow = false;
+      e.recoverFor = SPIKE_BREATH;
+      e.weakNow = false;
+    }
+    
     if (how && ph.crown && e.hp === 1 && weakTo(ph, how) && !(e.immune > 0))
       ctx.events.push({ type: 'cellDrop', id: e.id, x: e.x, y: e.y });
     
@@ -161,6 +223,13 @@ registerBossType('sovereign', {
     return how;
   },
 });
+
+
+function hopOn(e) {
+  const d = e.perchAt.x - e.x;
+  e.x += Math.sign(d) * Math.min(Math.abs(d), HOP * STEP);
+  e.y = e.perchAt.y;
+}
 
 
 function fleeY(e, f) {
@@ -176,8 +245,28 @@ function landing(e, ctx, ph) {
   
   const fruit = cbs.includes('fruitletCaught');
   e.catch = fruit ? { x0: e.x - e.w / 2, x1: e.x + e.w / 2, y0: e.y, y1: e.y + e.h } : null;
+  
+  if (fruit && ph.spike && e.stage === 'active' && ph.attacks[e.attackIdx % ph.attacks.length].kind === 'charge') {
+    const c = e.catch;
+    const f = ctx.session.entities.find(
+      (x) => x.kind === 'fruitlet' && x.alive && x.x + x.w / 2 >= c.x0 && x.x - x.w / 2 <= c.x1 && x.y <= c.y1 && x.y + x.h >= c.y0,
+    );
+    if (f) {
+      f.alive = false;
+      e.caught = (e.caught ?? 0) + 1;
+      ctx.events.push({ type: 'fruitletCaught', id: f.id, by: e.id, x: f.x, y: f.y, charge: true });
+    }
+  }
   const spiked = fruit && (e.caught ?? 0) > (e.caughtSeen ?? 0);
   e.caughtSeen = e.caught ?? 0;
+  if (spiked && ph.spike) {
+    
+    e.sinceHit = 0;
+    e.interrupt = { recoverFor: ph.spike, weakNow: true };
+    e.spikeWindow = true;
+    ctx.events.push({ type: 'sovereignSpiked', id: e.id, seconds: ph.spike, x: e.x, y: e.y });
+    return null;
+  }
   if (spiked) {
     e.sinceHit = 0;
     return 'callback';

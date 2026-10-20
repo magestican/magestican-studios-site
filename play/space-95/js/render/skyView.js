@@ -141,7 +141,8 @@ export function skyEntityView(e, g) {
 
 
 export function createSky(scene, level, h) {
-  if (level.mode !== 'plane') return null;
+  
+  if (level.mode !== 'plane' && !(level.entities ?? []).some((e) => e.kind === 'board')) return null;
   const group = new THREE.Group();
   scene.add(group);
   const plane = planeMesh();
@@ -209,8 +210,8 @@ export function createSky(scene, level, h) {
     
     update(s, dt) {
       const pl = s.plane;
-      h.jo.group.visible = false;
-      h.bolt.group.visible = false;
+      h.jo.group.visible = !pl; 
+      h.bolt.group.visible = !pl;
       if (!pl) {
         plane.visible = false;
         return;

@@ -79,6 +79,7 @@ registerKind('boss', {
       return;
     }
     if (!e.engaged) {
+      impl.idle?.(e, ctx); 
       if (p.x < e.arena.x0 || p.x > e.arena.x1) return;
       if (e.arena.y0 !== undefined && e.arena.y1 !== undefined && (p.y < e.arena.y0 || p.y > e.arena.y1)) return;
       e.engaged = true;

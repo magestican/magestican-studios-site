@@ -91,6 +91,19 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { levelBuilder } from './dsl.js';
 
 const KIT = [
@@ -115,7 +128,7 @@ const BOX_E = 196;
 const BOX_TOP = 35;
 const TOWER_X = 205.5; 
 const FLANK = [206, 210]; 
-const FLANK_PHASE = 0.15;
+const FLANK_PHASE = 0.9; 
 const HULL_X = 217.5; 
 const HULL_TOP = 37;
 const BLOCK_U = 1.5; 
@@ -166,8 +179,12 @@ const ROUTE = [
   { x: 69.9, y: SILL, move: 'pound', via: { defeat: 'L20-guard-3' } }, 
   { x: 93, y: SILL, move: 'walk' }, 
   { x: 127, y: SILL, move: 'packet', lane: TRAIN, board: 1, via: { jumps: [0, 8, 16] }, maxS: 14 }, 
-  { x: 133, y: SILL, move: 'walk' }, 
   
+  
+  { x: 141, y: SILL, move: 'jump', at: 131, via: { double: true, defeat: `${BOSS}:0:1` }, maxS: 6 },
+  
+  { x: 148, y: SILL, move: 'jump', at: 142.8, via: { keep: { id: 'L20-fruitlet-2', x: 145.5 } }, maxS: 4 },
+  { x: 141, y: SILL, move: 'jump', at: 147.5, via: { weak: BOSS, defeat: `${BOSS}:0` }, maxS: 8 },
   { x: 150.5, y: SILL, move: 'walk', maxS: 12 },
   
   { x: 157, y: 35.5, move: 'jump' },
@@ -281,10 +298,9 @@ export function buildL20() {
   
   
   
-  
   L.putAt('fruitlet', 127.5, SILL, CB('B6'));
-  L.putAt('fruitlet', 147, SILL, CB('B6'));
-  L.putAt('boss', 148.8, SILL, {
+  L.putAt('fruitlet', 145.5, SILL, CB('B6'));
+  L.putAt('boss', 52, SILL, {
     id: BOSS,
     type: 'sovereign',
     name: 'Mandibella',
@@ -298,7 +314,20 @@ export function buildL20() {
         box: 1,
         weakness: ['callback', 'stomp'],
         callbacks: ['fruitletCaught'],
-        attacks: [atk('Horn Charge', 'charge', 0.9, 0.6, 0.8), atk('Glitter Fan', 'hover', 0.8, 0.5, 0.6)],
+        
+        
+        intro: 0.3,
+        spike: 3.0, 
+        
+        
+        perches: [
+          { at: 40, x: 52, y: SILL },
+          { at: 47, x: 76, y: SILL, fan: true },
+          { at: 71, x: 100, y: SILL, fan: true },
+          { at: 95, x: 124, y: SILL + 1, fan: true },
+        ],
+        land: { at: 121, x: 138, y: SILL }, 
+        attacks: [atk('Glitter Fan', 'hover', 0.8, 0.5, 0.6), atk('Horn Charge', 'charge', 0.9, 0.6, 0.8)],
       },
       {
         
@@ -349,9 +378,9 @@ export function buildL20() {
       },
     ],
   });
-  L.beaconAt(151, SILL, { phase: `${BOSS}:1` }); 
+  L.beaconAt(151, SILL, { phase: `${BOSS}:1`, boxes: 1 }); 
   climb(L);
-  L.beaconAt(176, SILL, { phase: `${BOSS}:2` }); 
+  L.beaconAt(176, SILL, { phase: `${BOSS}:2`, boxes: 2 }); 
   arena(L);
   sky(L);
 
@@ -523,7 +552,7 @@ function sky(L) {
   L.wall(226, SKY_END, 0, 2); 
   
   
-  L.beaconAt(262, 56, { phase: `${BOSS}:3`, mode: 'plane' });
+  L.beaconAt(262, 56, { phase: `${BOSS}:3`, mode: 'plane', boxes: 3 });
   
   L.putAt('moth', 258, 52, {
     tail: { wakeWhen: { x: 266 }, speed: 13, hold: 3 },
@@ -545,7 +574,7 @@ function sky(L) {
     ...CB('B18'),
   });
   
-  L.beaconAt(560, 66, { phase: `${BOSS}:3`, mode: 'plane' });
+  L.beaconAt(560, 66, { phase: `${BOSS}:3`, mode: 'plane', boxes: 3 });
   
   for (const [x, y] of CADETS) L.putAt('wasp', x, y, { asleep: true, hp: 9, wingman: true, ...CB('B19') });
   

@@ -143,6 +143,7 @@ export function createSession(level, startCheckpoint = 0, abilities = new Set())
   
   if (level.mode === 'plane') startPlane(s, start, start !== level.spawn);
   else if (start.mode === 'plane') startPlane(s, start, true); 
+  if (start.boxes) s.boxes = start.boxes; 
   if (level.ride) startRide(s, start); 
   initArena(s);
   return s;
