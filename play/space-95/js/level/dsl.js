@@ -631,6 +631,7 @@ export function levelBuilder(meta) {
         ...(harps.length ? { harps } : {}),
         ...(hubs.length ? { hubs } : {}),
         ...(meta.fallReturn ? { fallReturn: meta.fallReturn } : {}),
+        ...(meta.checklist ? { checklist: meta.checklist } : {}), 
         ...(meta.ride ? { ride: meta.ride, camDist: meta.camDist ?? 20 } : {}), 
         
         ...(colds.length ? { colds } : {}),

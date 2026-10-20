@@ -95,6 +95,20 @@ export function createHud(root, challenges, visible, title = 'Metrics gym') {
           el('train').hidden = false;
         }
       }
+      
+      
+      const list = s.level.checklist;
+      if (list && !t) {
+        const done = s.boxes ?? 0;
+        const pips = list.map((_, i) => `<i class="hud-pip${i < done ? ' is-on' : ''}"></i>`).join('');
+        const label = done >= list.length ? 'Cleared for take-off' : `Box ${done + 1}: ${list[done]}`;
+        const html = `<span class="hud-train-item" title="Launch checklist"><span class="hud-pips">${pips}</span><span>${label}</span></span>`;
+        if (html !== trainHtml) {
+          trainHtml = html;
+          el('train').innerHTML = html;
+          el('train').hidden = false;
+        }
+      }
       el('challenge').innerHTML = `<span class="hud-k">Challenge ${cur.id}</span><strong>${cur.label}</strong><span>${cur.proves}</span>`;
       el('stats').innerHTML = [
         ['Speed', `${Math.abs(p.vx).toFixed(1)} u/s`],

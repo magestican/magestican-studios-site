@@ -1,0 +1,57 @@
+{
+  "sampleRate": 48000,
+  "tracks": [
+    {
+      "id": "sovereign",
+      "title": "Swarm Sovereign",
+      "files": {
+        "webm": "sovereign.webm",
+        "ogg": "sovereign.ogg",
+        "m4a": "sovereign.m4a"
+      },
+      "loopStartSamples": 0,
+      "loopSamples": 6010435,
+      "loopSeconds": 125.217396,
+      "bpm": 138,
+      "beats": 4,
+      "bars": 72,
+      "key": "F# minor",
+      "lufsIntegrated": -16.0,
+      "truePeakDb": -5.09,
+      "loop": "whole form from bar 1; the rendered 2-bar tail is already wrapped onto the head, so loop the full decoded buffer (0..loopSamples); loop by loopSamples, not by the decoded length",
+      "decoded": {
+        "webm": {
+          "file": "sovereign.webm",
+          "decoded_samples": 6010435,
+          "corr": 0.9985,
+          "true_peak_db": -5.02,
+          "bytes": 2931807
+        },
+        "ogg": {
+          "file": "sovereign.ogg",
+          "decoded_samples": 6010435,
+          "corr": 0.9992,
+          "true_peak_db": -4.87,
+          "bytes": 2944702
+        },
+        "m4a": {
+          "file": "sovereign.m4a",
+          "decoded_samples": 6010435,
+          "corr": 0.9995,
+          "true_peak_db": -5.1,
+          "bytes": 4202828
+        }
+      },
+      "source": {
+        "dj": "Magestican DJ compose lane, style space95-sovereign, rework of the main theme (minor, transpose 1)",
+        "seed": 1671937874,
+        "cover_chord_agree": 0.663,
+        "cover_chroma_corr": 0.974,
+        "render": "D:\\magestican-dj\\renders\\space-95\\sovereign",
+        "alternates": [
+          "D:\\magestican-dj\\renders\\space-95\\sovereign\\space-95-bgm-city-pop-1.wav (seed 683791522, chord_agree 0.628)"
+        ]
+      }
+    }
+  ]
+}

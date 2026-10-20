@@ -31,7 +31,8 @@ const SLOW_STEP = 0.25;
 const START_GAP = 2; 
 const SPARE_GAP = 1; 
 
-const FLIPPABLE = new Set(['ladybot', 'pillbug', 'aphid', 'bandit', 'snailknight', 'antPorter', 'strider']);
+
+const FLIPPABLE = new Set(['ladybot', 'pillbug', 'aphid', 'bandit', 'snailknight', 'antPorter', 'strider', 'guard']);
 const PUNTABLE = new Set([...FLIPPABLE, 'wasp']);
 
 

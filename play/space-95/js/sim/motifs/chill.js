@@ -262,18 +262,27 @@ registerKind('freezeButton', {
     const s = ctx.session;
     const p = ctx.player;
     if (e.cool > 0) e.cool -= STEP;
-    const pound = p.events.find((ev) => ev.type === 'pound');
-    if (!pound || e.cool > 0 || Math.abs(pound.x - e.x) > e.w / 2 + 0.5 || Math.abs(pound.y - e.y) > 0.6) return;
-    e.cool = BUTTON_COOL;
+    
+    
+    const vent = e.openAt !== undefined;
+    if (vent) {
+      if (e.vented || p.x < e.openAt) return;
+      e.vented = true;
+    } else {
+      const pound = p.events.find((ev) => ev.type === 'pound');
+      if (!pound || e.cool > 0 || Math.abs(pound.x - e.x) > e.w / 2 + 0.5 || Math.abs(pound.y - e.y) > 0.6) return;
+      e.cool = BUTTON_COOL;
+    }
     const z = e.zone;
-    s.extraCold = { x0: z.x0, x1: z.x1, y0: z.y0, y1: z.y1, until: s.time + FAST_FREEZE };
+    s.extraCold = { x0: z.x0, x1: z.x1, y0: z.y0, y1: z.y1, until: s.time + (e.seconds ?? FAST_FREEZE) };
     if (!s.freezeSlots) s.freezeSlots = (e.slots ?? []).map((v) => [...v]);
     ctx.events.push({
       type: 'fastFreeze',
       id: e.id,
       x: e.x,
       y: e.y,
-      seconds: FAST_FREEZE,
+      seconds: e.seconds ?? FAST_FREEZE,
+      vent,
       signals: ['visual:white-flash', 'audio:whoomph'],
     });
   },

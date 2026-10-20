@@ -23,6 +23,7 @@ import './enemies/sprite.js';
 import './enemies/strider.js';
 import './enemies/wasp.js';
 import './enemies/weevil.js';
+import './checklist.js';
 import './kickables.js';
 import './motifs/antColumn.js';
 import './motifs/chill.js';

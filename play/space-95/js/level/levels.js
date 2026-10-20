@@ -24,6 +24,7 @@ import { buildL16 } from './L16.js';
 import { buildL17 } from './L17.js';
 import { buildL18 } from './L18.js';
 import { buildL19 } from './L19.js';
+import { buildL20 } from './L20.js';
 
 const SHIFTS = {
   1: buildL01,
@@ -45,6 +46,7 @@ const SHIFTS = {
   17: buildL17,
   18: buildL18,
   19: buildL19,
+  20: buildL20,
 };
 
 
@@ -53,7 +55,14 @@ const SHIFTS = {
 
 
 
-export const UNRENDERED = new Set( ([])); 
+export const UNRENDERED = new Set( ([20])); 
+
+
+
+
+
+
+export const GREYBOX = new Set( ([20]));
 
 
 export function loadLevel(key) {

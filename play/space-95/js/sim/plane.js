@@ -143,6 +143,9 @@ export function startPlane(s, start, air) {
 }
 
 
+const SURF = Object.freeze({ TAXI_V: 4, CREST_EVERY: 1.2, CREST_WIN: 0.35 });
+
+
 
 
 
@@ -156,6 +159,10 @@ registerKind('board', {
     if (s.plane || e.boarded || (e.needBoxes ?? 0) > (s.boxes ?? 0) || !overlaps(ctx.player, e)) return;
     e.boarded = true;
     startPlane(s, { x: e.x, y: e.y }, false);
+    if (e.surf) {
+      s.plane.stage = 'taxi'; 
+      s.plane.v = SURF.TAXI_V;
+    }
     ctx.events.push({ type: 'board', id: e.id, x: e.x, y: e.y });
   },
 });
@@ -206,6 +213,28 @@ export function stepPlane(s, input) {
   const pl = s.plane;
   const ev = s.events;
   pl.stageT += STEP;
+  if (pl.stage === 'taxi') {
+    
+    
+    
+    
+    const k = Math.floor(pl.stageT / SURF.CREST_EVERY);
+    if (k !== pl.crestK) {
+      pl.crestK = k;
+      ev.push({ type: 'maneWave', id: 'taxi', use: 'callback:L19' });
+    }
+    const inCrest = pl.stageT - k * SURF.CREST_EVERY <= SURF.CREST_WIN;
+    const press = !!input.jump && !pl.prevJump;
+    pl.prevJump = !!input.jump;
+    pl.x += SURF.TAXI_V * STEP;
+    if (press && inCrest) {
+      pl.stage = 'takeoff';
+      pl.stageT = PLANE.TAKEOFF_T - PLANE.ROTATE_T;
+      pl.v = PLANE.CRUISE;
+      ev.push({ type: 'maneSurf', id: 'taxi', use: 'callback:L19', x: pl.x, y: pl.y });
+    }
+    return syncPlaneProxy(s);
+  }
   if (pl.stage === 'intro') {
     if (pl.stageT >= PLANE.INTRO_T - 1e-9) {
       pl.stage = 'takeoff';

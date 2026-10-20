@@ -274,6 +274,14 @@ const CUES = {
   
   maneWave: ['mane_whoosh', 'whoosh'],
   maneSurf: ['mane_surf', 'web_boing', 'whoosh'],
+  
+  
+  
+  box: ['box_tick', 'bowl_chime'],
+  board: ['ship_board', 'takeoff'],
+  hatch: ['hatch_clunk', 'freezer_drawer'],
+  parry: ['parry_clack', 'helmet_bonk', 'bonk'],
+  sovereignOpen: ['crown_daze', 'enemy_daze'],
 };
 
 
@@ -378,6 +386,8 @@ export function cueFor(e, has = () => true) {
   if (e.type === 'bonk' && e.soft) return pick(['bonk']); 
   if (e.type === 'bonk' && e.skin) return pick(e.skin === 'flap' ? ['catflap_clack', 'bonk'] : ['lintel_thunk', 'bonk']);
   if (e.type === 'maneSurf' && e.use === 'M5') return pick(['ruuma_leap', 'mane_surf', 'whoosh']);
+  if (e.type === 'maneSurf' && e.use === 'callback:L19') return pick(['takeoff_throw', 'mane_surf', 'whoosh']); 
+  if (e.type === 'ploughHit') return pick(['crown_pop', 'helmet_bonk', 'bonk']); 
   if (e.type === 'rideLine' && e.step === 0) return pick(['ruuma_growl']);
   return CUES[e.type]?.find(has) ?? null;
 }
@@ -394,7 +404,8 @@ export const CUE_VARIANTS = {
   thawWarn: ['thaw_hiss', 'thaw_drip'],
   telegraph: ['weevil_snort'],
   bonk: ['lintel_thunk', 'catflap_clack'],
-  maneSurf: ['ruuma_leap'],
+  maneSurf: ['ruuma_leap', 'takeoff_throw'],
+  ploughHit: ['crown_pop'],
   rideLine: ['ruuma_growl'],
 };
 

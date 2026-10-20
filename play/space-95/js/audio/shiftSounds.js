@@ -61,6 +61,7 @@ const MUSIC = {
   17: 'dogfight', 
   18: 'kitchen', 
   19: 'stampede', 
+  20: 'sovereign', 
 };
 
 
@@ -101,6 +102,9 @@ const delivered = ( n) => n in SFX;
 
 function variantFits( type,  level) {
   if (type === 'fling') return (level.webs?.length ?? 0) > 0;
+  
+  if (type === 'maneSurf' && (level.entities ?? []).some((e) => e.kind === 'board' && e.surf)) return true;
+  if (type === 'ploughHit') return (level.rafts ?? []).some((d) => d.plough);
   if (type === 'bonk' || type === 'maneSurf' || type === 'rideLine') return !!level.ride; 
   if (type === 'ability' || type === 'defeat') return (level.entities ?? []).some((e) => e.kind === 'tower' || e.grant === 'drill');
   return true;

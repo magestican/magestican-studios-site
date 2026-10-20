@@ -20,6 +20,7 @@ import { createNight, nightEntityView } from './nightView.js';
 import { createRide, rideEntityView } from './rideView.js';
 import { createSilk, silkEntityView } from './silkView.js';
 import { createSky, skyEntityView } from './skyView.js';
+import { sovereignEntityView } from './sovereignView.js';
 import { createTrainView } from './trainView.js';
 
 const CAM_DIST = 20;
@@ -403,6 +404,7 @@ export function entityView(e) {
     burrowEntityView(e, g) ||
     kitchenEntityView(e, g) ||
     rideEntityView(e, g) ||
+    sovereignEntityView(e, g) ||
     skyEntityView(e, g)
   ) {
     
@@ -734,7 +736,8 @@ export function entityView(e) {
     g.add(m);
   } else if (e.kind === 'cameo') {
     
-  } else if (e.kind === 'boss' && e.type === 'duchess') {
+  } else if (e.kind === 'boss' && (e.type === 'duchess' || e.type === 'sovereign')) {
+    
     
     const body = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), mat(0x6a3fa0));
     body.scale.set((e.w ?? 2) / 2, (e.h ?? 1.6) / 2, 0.8);

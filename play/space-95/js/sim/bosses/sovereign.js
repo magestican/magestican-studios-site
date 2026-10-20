@@ -69,7 +69,24 @@ registerBossType('sovereign', {
       e.lock = null;
     }
     const cbs = ph.callbacks ?? [];
-    const near = (ev) => ev.boss === e.id || (ev.x !== undefined && Math.hypot(ev.x - e.x, ev.y - (e.y + e.h / 2)) <= REACH);
+    
+    
+    
+    const fruit = cbs.includes('fruitletCaught');
+    e.catch = fruit ? { x0: e.x - e.w / 2, x1: e.x + e.w / 2, y0: e.y, y1: e.y + e.h } : null;
+    const spiked = fruit && (e.caught ?? 0) > (e.caughtSeen ?? 0);
+    e.caughtSeen = e.caught ?? 0;
+    if (spiked) {
+      e.sinceHit = 0;
+      return 'callback';
+    }
+    
+    
+    const near = (ev) =>
+      ev.boss === e.id ||
+      ev.target === e.id ||
+      ev.id === e.id ||
+      (ev.x !== undefined && Math.hypot(ev.x - e.x, ev.y - (e.y + e.h / 2)) <= Math.max(REACH, (ev.radius ?? 0) + e.w / 2));
     const cb = ctx.events.find((ev) => cbs.includes(ev.type) && near(ev));
     if (cb) {
       e.sinceHit = 0;

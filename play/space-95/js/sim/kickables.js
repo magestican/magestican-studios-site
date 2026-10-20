@@ -51,7 +51,9 @@ export function aimAngle(from, dir, enemies) {
   return KICK_ANGLE + Math.max(-AIM_NUDGE, Math.min(AIM_NUDGE, needed - KICK_ANGLE));
 }
 
-const isEnemy = (e) => e.alive && (e.kind === 'pillbug' || e.kind === 'ladybot') && e.state !== 'dazed' && e.state !== 'scurry';
+
+const isEnemy = (e) =>
+  e.alive && (e.kind === 'pillbug' || e.kind === 'ladybot' || e.kind === 'guard') && e.state !== 'dazed' && e.state !== 'scurry';
 const catcher = (e) => e.alive && e.catch;
 
 const catchTarget = (e) => ({ x: (e.catch.x0 + e.catch.x1) / 2, y: e.catch.y0, h: e.catch.y1 - e.catch.y0 });
@@ -166,6 +168,7 @@ function kickable(kind, { w, h, fruit = false }) {
         for (const en of ctx.session.entities) {
           if (!isEnemy(en) || !overlaps(e, en)) continue;
           en.facing = Math.sign(e.vx) || 1;
+          if (en.kind === 'guard') en.dozing = false; 
           defeat(en, ctx, fruit ? kind : 'pebble');
           e.hits = (e.hits ?? 0) + 1;
           ctx.events.push({ type: fruit ? 'fruitletHit' : 'pebbleHit', id: e.id, target: en.id, hits: e.hits, x: en.x, y: en.y });

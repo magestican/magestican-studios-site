@@ -21,6 +21,7 @@ import { stepWingman } from './motifs/wingman.js';
 import { touchPins } from './pins.js';
 import { respawnPlane, startPlane, stepPlane } from './plane.js';
 import { createPlayer, NO_INPUT, stepPlayer } from './player.js';
+import { stepPlough } from './plough.js';
 import { attachRafts, createRafts, stepRafts } from './raft.js';
 import { offerRescue, stepRescue } from './rescue.js';
 import { startRide, stepRide } from './ride.js';
@@ -275,6 +276,7 @@ export function stepSession(s, input) {
     stepPlane(s, input); 
   else {
     stepRafts(s);
+    stepPlough(s); 
     stepPlayer(s.player, s.cleared || s.calm ? NO_INPUT : input, s.world); 
     if (s.webs) stepWebs(s); 
     if (s.webs) stepDawn(s); 
